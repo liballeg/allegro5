@@ -32,8 +32,8 @@
 
    To build Allegro under MacOS X, you need:
 
-   - MacOS X 10.x (tested only under 10.2 though)
-   - Apple Developer Tools (December 2002 or newer edition)
+   - MacOS X 10.1.x or newer
+   - Apple Developer Tools (April 2002 or newer edition)
 
    If you don't have the Developer Tools installed, you can grab them at:
 
@@ -244,13 +244,18 @@
         allegro.cfg have no effect.
 
    * Mouse:
-        Allegro will automatically detect the number of buttons of your
-        mouse at driver initialization. If the 1-button Apple mouse is
-        found, the library will activate an emulation mode that mimics the
-        way MacOS X itself deals with 1-button mice: depending on which
-        key is pressed when the button is clicked, Allegro will report a
-        different mouse button click. (Control + button) emulates a right
-        click and (Option + button) emulates a middle click.
+        On MacOS X 10.2.x (Jaguar) or newer, Allegro will automatically
+        detect the number of buttons of your mouse at driver initialization.
+        If the 1-button Apple mouse is found, the library will activate an
+        emulation mode that mimics the way MacOS X itself deals with
+        1-button mice: depending on which key is pressed when the button is
+        clicked, Allegro will report a different mouse button click.
+        (Control + button) emulates a right click and (Option + button)
+        emulates a middle click.
+
+        On MacOS X 10.1.x, mouse autodetection is not possible, and Allegro
+        will assume an 1-button mouse to always be present, activating
+        buttons emulation accordingly.
 
 
 

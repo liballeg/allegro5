@@ -36,6 +36,7 @@
       #undef FALSE
       #import <mach/mach.h>
       #import <mach/mach_error.h>
+      #import <AppKit/AppKit.h>
       #import <ApplicationServices/ApplicationServices.h>
       #import <Cocoa/Cocoa.h>
       #import <QuickTime/QuickTime.h>

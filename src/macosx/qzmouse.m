@@ -105,26 +105,35 @@ static int osx_mouse_init(void)
    int i, j, num_devices;
    int buttons, max_buttons = -1;
    
-   device = osx_hid_scan(HID_MOUSE, &num_devices);
-   for (i = 0; i < num_devices; i++) {
-      buttons = 0;
-      for (j = 0; j < device[i].num_elements; j++) {
-         if (device[i].element[j].type == HID_ELEMENT_BUTTON)
-	    buttons++;
-      }
-      if (buttons > max_buttons) {
-         max_buttons = buttons;
-	 strcpy(driver_desc, "");
-	 if (device[i].manufacturer) {
-	    strcat(driver_desc, device[i].manufacturer);
-	    strcat(driver_desc, " ");
-	 }
-	 if (device[i].product)
-	    strcat(driver_desc, device[i].product);
-	 mouse_macosx.desc = driver_desc;
-      }
+   if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1) {
+      /* On 10.1.x mice and keyboards aren't available from the HID Manager,
+       * so we can't autodetect. We assume an 1-button mouse to always be
+       * present.
+       */
+      max_buttons = 1;
    }
-   osx_hid_free(device, num_devices);
+   else {
+      device = osx_hid_scan(HID_MOUSE, &num_devices);
+      for (i = 0; i < num_devices; i++) {
+         buttons = 0;
+         for (j = 0; j < device[i].num_elements; j++) {
+            if (device[i].element[j].type == HID_ELEMENT_BUTTON)
+	       buttons++;
+         }
+         if (buttons > max_buttons) {
+            max_buttons = buttons;
+	    strcpy(driver_desc, "");
+            if (device[i].manufacturer) {
+	       strcat(driver_desc, device[i].manufacturer);
+	       strcat(driver_desc, " ");
+	    }
+	    if (device[i].product)
+	       strcat(driver_desc, device[i].product);
+	    mouse_macosx.desc = driver_desc;
+	 }
+      }
+      osx_hid_free(device, num_devices);
+   }
    
    pthread_mutex_lock(&osx_event_mutex);
    osx_emulate_mouse_buttons = (max_buttons == 1) ? TRUE : FALSE;
