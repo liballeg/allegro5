@@ -378,10 +378,13 @@ test "X$enableval" != "Xno" && allegro_enable_esddigi=yes,
 allegro_enable_esddigi=yes)
 
 if test -n "$allegro_enable_esddigi"; then
-  AC_CHECK_HEADER(esd.h, allegro_support_esddigi=yes)
-  if test -n "$allegro_support_esddigi" && 
-     test -z "$allegro_support_modules"; then
-    LIBS="-lesd $LIBS"
+  AC_PATH_PROG(ESD_CONFIG, esd-config)
+  if test -n "$ESD_CONFIG"; then
+    allegro_support_esddigi=yes
+    CFLAGS="`$ESD_CONFIG --cflags` $CFLAGS"
+    if test -z "$allegro_support_modules"; then
+      LIBS="`$ESD_CONFIG --libs` $LIBS"
+    fi
   fi
 fi])
 
@@ -462,7 +465,7 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
 [AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
 AC_CACHE_VAL(allegro_cv_support_fomit_frame_pointer,
-[if test $GCC = yes && $CC --version | grep -q '3\.0\(\.\?[[012]]\)\?$'; then
+[if test $GCC = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
   allegro_cv_support_fomit_frame_pointer=no
 else
   allegro_cv_support_fomit_frame_pointer=yes

@@ -22,14 +22,9 @@
 
 
 
-#ifndef M_PI
-   #define M_PI   3.14159265358979323846
-#endif
-
-
-#define floatcos(x)     cos((x) * M_PI / 128.0)
-#define floatsin(x)     sin((x) * M_PI / 128.0)
-#define floattan(x)     tan((x) * M_PI / 128.0)
+#define floatcos(x)     cos((x) * AL_PI / 128.0)
+#define floatsin(x)     sin((x) * AL_PI / 128.0)
+#define floattan(x)     tan((x) * AL_PI / 128.0)
 
 
 

@@ -58,7 +58,7 @@ FILETYPE VFT_DLL
          VALUE "FileDescription", "Allegro\000"
          VALUE "FileVersion", "$verstr\000"
          VALUE "InternalName", "ALLEG$1$2\000"
-         VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
+         VALUE "LegalCopyright", "Copyright © 1994-$year Allegro Developers\000\000"
          VALUE "OriginalFilename", "ALLEG$1$2.DLL\000"
          VALUE "ProductName", "Allegro\000"
          VALUE "ProductVersion", "$verstr\000"
@@ -98,7 +98,7 @@ cp makefile.ver fixver.tmp
 sed -f fixver.sed fixver.tmp > makefile.ver
 
 # patch allegro-config.in, allegro-config.qnx
-echo "s/version=.*/version=$1.$2.$3/" >> fixver.sed
+echo "s/version=[0-9].*/version=$1.$2.$3/" >> fixver.sed
 
 echo "Patching misc/allegro-config.in..."
 cp misc/allegro-config.in fixver.tmp

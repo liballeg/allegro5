@@ -92,6 +92,10 @@ DJGPP problems
 @@   When I run make, it says "makefile has modification time in the future".
 </h4>
       Are you sure that your system time and date are set correctly?
+      Alternatively you may have downloaded a fresh file made by someone in a
+      more eastern timezone. In the latter case you can either wait a few
+      hours, temporarily set your clock forward, or use a utility such as
+      "touch" to change the timestamp of the files.
 
 <h4><li>
 @@   When I run make, it says "virtual memory exhausted".
@@ -103,6 +107,14 @@ DJGPP problems
       memory limit in the properties for your DOS session to 65535 (you'll 
       have to type this in by hand, because the pulldown list doesn't go 
       above 16384).
+
+<h4><li>
+@@   When I run make, it says "conflicting types for va_list".
+</h4>
+      As the error message suggests, there is a conflict between newer
+      versions of gcc and older versions of the libc. You should read the 
+      readme.DJGPP file contained in the gcc*b.zip archive (a fix is 
+      appended to the end of the file).
 
 <h4><li>
 @@   When I try to compile a program using Allegro, I get lots of errors like:<br>
@@ -259,6 +271,15 @@ Windows problems
       normal main() function into a Windows-style WinMain() entrypoint.
 
 <h4><li>
+@@   I get an error about an "unresolved external symbol _main"!
+</h4>
+      Make sure you're building a Windows GUI Application, and not a Windows
+      Console Application. This is a setting when you create the project in
+      MSVC. This is specified by the '-tW' flag for the Borland C++ command
+      line compiler. Either that, or #define USE_CONSOLE at the top if you
+      really need the console for your program.
+
+<h4><li>
 @@   I get an "out of environment space" error when I run fix.bat or 
    vcvars32.bat!
 </h4>
@@ -266,6 +287,12 @@ Windows problems
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
       file (eg. "shell=c:\command.com /e:8192").
+<h4><li>
+@@   I get an error about a "missing separator" when I run make!
+</h4>
+      Make sure that you don't have a semi-colon appended to your MSVCDIR 
+      variable if you are using MSVC, to your MINGDIR variable if you are 
+      using Mingw32 or to your BCC32DIR variable if you are using BCC.
 </ul>
 
 

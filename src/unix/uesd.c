@@ -209,6 +209,7 @@ static int _al_esd_init(int input, int voices)
    if (_al_esd_bufdata == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       close(_al_esd_fd);
+      return -1;
    }
 
    digi_esd.voices = voices;
@@ -217,6 +218,8 @@ static int _al_esd_init(int input, int voices)
 		   _al_esd_stereo, ((_al_esd_bits == 16) ? 1 : 0),
 		   &digi_esd.voices) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
+      free(_al_esd_bufdata);
+      _al_esd_bufdata = 0;
       close(_al_esd_fd);
       return -1;
    }

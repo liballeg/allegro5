@@ -3106,7 +3106,7 @@ int main(int argc, char *argv[])
    allegro_init();
 
    for (i=1; i<argc; i++) {
-      if ((argv[i][0] == '-') || (argv[i][0] == '/')) {
+      if (argv[i][0] == '-') {
 	 if (strcmp(argv[i]+1, "nosound") == 0) {
 	    no_sound = TRUE;
 	 }

@@ -30,10 +30,10 @@
 ===========================================
 
    - Borland C++Builder (or Borland C++ command line tools)
-   - GNU make (mak*b.zip).
-   - Optional: rm (fil*b.zip). Used by the clean targets.
-   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll".
-   - Optional: sort (txt*b.zip). Used by "fixdll". Use Unix sort, not DOS!
+   - GNU make 3.77 or higher.
+   - Optional: rm (GNU fileutils). Used by the clean targets.
+   - Optional: GNU sed. Used by "make depend" and "fixdll.bat".
+   - Optional: GNU sort (not DOS sort). Used by "fixdll.bat".
 
    In order to run your programs, you need to obtain the Allegro DLLs and
    install them in the Windows system directory.

@@ -298,26 +298,6 @@ $(OBJ_DIR)/%.obj: %.c
 $(OBJ_DIR)/%.res: %.rc
 	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<)
 
-*/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
-	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
-ifdef DELETE_TDS_FILES
-   ifdef UNIX_TOOLS
-	@rm $(subst .exe,.tds,$@)
-   else
-	@del $(subst .exe,.tds,$(subst /,\,$@))
-   endif
-endif
-
-tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
-	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
-ifdef DELETE_TDS_FILES
-   ifdef UNIX_TOOLS
-	@rm $(subst .exe,.tds,$@)
-   else
-	@del $(subst .exe,.tds,$(subst /,\,$@))
-   endif
-endif
-
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/dibsound.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/dibsound.obj),tests\win\dibsound.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
@@ -330,6 +310,16 @@ else
 	@del res.rsp
    ifdef DELETE_TDS_FILES
 	@del tests\win\dibsound.tds
+   endif
+endif
+
+tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+ifdef DELETE_TDS_FILES
+   ifdef UNIX_TOOLS
+	@rm $(subst .exe,.tds,$@)
+   else
+	@del $(subst .exe,.tds,$(subst /,\,$@))
    endif
 endif
 
@@ -350,6 +340,16 @@ endif
 
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+ifdef DELETE_TDS_FILES
+   ifdef UNIX_TOOLS
+	@rm $(subst .exe,.tds,$@)
+   else
+	@del $(subst .exe,.tds,$(subst /,\,$@))
+   endif
+endif
+
+*/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 ifdef DELETE_TDS_FILES
    ifdef UNIX_TOOLS
 	@rm $(subst .exe,.tds,$@)

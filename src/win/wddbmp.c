@@ -77,10 +77,14 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
 
    switch (type) {
 
-      case SURF_PRIMARY :
+      case SURF_PRIMARY_COMPLEX:
          surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
          surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
          surf_desc.dwBackBufferCount = 2;
+         break;
+
+      case SURF_PRIMARY_SINGLE:
+         surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
          break;
 
       case SURF_OVERLAY:
@@ -124,13 +128,13 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
    hr = IDirectDraw2_CreateSurface(directdraw, &surf_desc, &_surf1, NULL);
 
    if (FAILED(hr)) {
-      if ((type == SURF_PRIMARY) || (type == SURF_OVERLAY)) {
+      if ((type == SURF_PRIMARY_COMPLEX) || (type == SURF_OVERLAY)) {
          /* lower the number of backbuffers */
          surf_desc.dwBackBufferCount = 1;
          hr = IDirectDraw2_CreateSurface(directdraw, &surf_desc, &_surf1, NULL);
 
          if (FAILED(hr)) {
-            /* no backbuffer any more (e.g. in windowed mode) */
+            /* no backbuffer any more */
             surf_desc.dwBackBufferCount = 0;
             surf_desc.dwFlags &= ~DDSD_BACKBUFFERCOUNT;
             surf_desc.ddsCaps.dwCaps &= ~(DDSCAPS_FLIP | DDSCAPS_COMPLEX);

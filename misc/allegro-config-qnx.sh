@@ -7,9 +7,9 @@
 #
 #     gcc myprog.c -o myprog `allegro-config --libs`
 #
-#  Derived from BeOS and Unix versions of the same script.
+#  Derived from the Unix version of the same script.
 
-version=4.0.1
+version=4.0.2
 
 prefix=
 exec_prefix=$prefix
@@ -19,6 +19,7 @@ lib_type=alleg
 
 allegro_libs="-lm -lph -lasound"
 allegro_cflags=""
+allegro_cppflags="-D__GCC_BUILTIN"
 
 usage()
 {
@@ -29,8 +30,9 @@ Usage: allegro-config [OPTIONS] [LIBRARIES]
 Options:
         --prefix[=DIR]
         --exec-prefix[=DIR]
-        --version
+        --version[=VERSION]
         --cflags
+        --cppflags
         --libs
 
 Libraries:
@@ -73,12 +75,20 @@ while test $# -gt 0; do
          echo_exec_prefix=yes
       ;;
 
+      --version=*)
+	 version=$optarg
+      ;;
+
       --version)
          echo $version
       ;;
 
       --cflags)
          echo_cflags=yes
+      ;;
+
+      --cppflags)
+         echo_cppflags=yes
       ;;
 
       --libs)
@@ -91,6 +101,7 @@ while test $# -gt 0; do
 
       debug)
          allegro_cflags=-DDEBUGMODE $allegro_cflags
+         allegro_cppflags=-DDEBUGMODE $allegro_cppflags
          lib_type=alld
       ;;
 
@@ -116,6 +127,10 @@ fi
 
 if test "$echo_cflags" = "yes"; then
    echo -I${prefix}/usr/include $allegro_cflags
+fi
+
+if test "$echo_cppflags" = "yes"; then
+   echo -I${prefix}/usr/include $allegro_cppflags
 fi
 
 if test "$echo_libs" = "yes"; then

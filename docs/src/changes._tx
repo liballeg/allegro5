@@ -9,6 +9,163 @@
 @<body>
 
 @heading
+Changes from 4.0.1 to 4.0.2 (Jun 2002)
+<ul><li>
+   Many clarifications in the docs.
+<li>
+   Sven Sandberg improved accuracy and fixed bugs in do_arc().
+<li>
+   Matthew Leverton added missing header files to be installed by the
+   Windows binary distribution.
+<li>
+   Grzegorz Adam Hankiewicz fixed a problem with the TOC of the FAQ.
+<li>
+   Eric Botcazou fixed a bug with stretch_blit() under Windows XP.
+<li>
+   Peter Wang fixed various configure machinery problems under Unix.
+<li>
+   Sven Sandberg updated the Swedish translation file.
+<li>
+   Sven Sandberg fixed a crash in the exswitch example when compiled
+   by Watcom C/C++ and also made if faster.
+<li>
+   Maxime Carey added a Canada (French) keyboard mapping file.
+<li>
+   Henrik Stokseth updated instructions and fixed installation for Cygwin.
+<li>
+   Eric Botcazou added an option to disable direct updating in color
+   conversion mode under Windows.
+<li>
+   Eric Botcazou (presumably) fixed the bug in the emergency exit mechanism
+   under Windows when called from the DLL.
+<li>
+   Angelo Mottola made it so that the sound doesn't block the main thread
+   anymore under BeOS.
+<li>
+   Deepak T and Eric Botcazou fixed clipping in three C sprite drawing
+   routines.
+<li>
+   Peter Wang fixed a deadlock that occurred under Unix when Allegro
+   received an X11 close event.
+<li>
+   Eric Botcazou added a --cppflags option to allegro-config and fixed
+   C++ compilation under QNX.
+<li>
+   Vincent Penquerc'h added a --version= option to allegro-config.
+<li>
+   Robert J. Ohannessian made the 32->24 color convertors more robust and
+   improved the MMX one in the process.
+<li>
+   Robert J. Ohannessian, Eric Botcazou and Sven Sandberg fixed a bug in
+   the hue blender and the hsv_to_rgb() routine.
+<li>
+   Matthew Leverton fixed another problem with al_find*() and NTFS
+   partitions under Windows.
+<li>
+   Peter Wang fixed a bug in ALSA device detection.
+<li>
+   Peter Wang fixed a bug in al_find* under Unix when running as root.
+<li>
+   Matthew Leverton and Eric Botcazou fixed a bug with mouse mickeys in
+   windowed mode under Windows.
+</ul>
+
+@heading
+Changes from 4.0.0 to 4.0.1 (Mar 2002)
+<ul><li>
+   Many minor changes, many clarifications in the docs.
+<li>
+   Peter Wang fixed the installation of shared libs under FreeBSD.
+<li>
+   Peter Wang and Eric Botcazou fixed autodetection glitches for VGA and
+   SVGAlib.
+<li>
+   Eric Botcazou fixed a problem under X11 when the MIT X-SHM extension is
+   used.
+<li>
+   Eric Botcazou fixed a deadlock on exit when an user window is used in
+   conjunction with timers under Windows.
+<li>
+   Eric Botcazou disabled useless backbuffers for the DirectX safe driver.
+<li>
+   Peter Wang made the Alsa sound driver use non-blocking mode when
+   detecting if ALSA PCM available.
+<li>
+   Sven Sandberg added support for long long integers to usprintf() and al.
+<li>
+   Robert J. Ohannessian fixed the difference blender.
+<li>
+   Peter Wang fixed a race condition when closing the X display.
+<li>
+   Elias Pschernig made all active dialogs redraw themselves after a switch.
+<li>
+   Peter Wang made fbcon a priority driver, so that it can appear above VGA.
+<li>
+   Javier Gonzalez fixed a glitch in the DirectSound input code.
+<li>
+   Eric Botcazou fixed the SIGSEGV on exit with the three-finger salute
+   under QNX.
+<li>
+   Eric Botcazou fixed the C-to-asm calling problem for Borland C++ compiled
+   programs.
+<li>
+   Eric Botcazou cleaned up the messy (and somewhat incorrect) DirectDraw
+   bitmap management code.
+<li>
+   Sven Sandberg improved the video bitmap subdivision algorithm.
+<li>
+   Sven Sandberg fixed problems in the Windows makefiles (especially
+   Borland) when building Allegro under Win98.
+<li>
+   Peter Wang removed the hack which switched off fix aliases under IRIX.
+<li>
+   Vincent Penquerc'h fixed a problem with the SIGARLM timer and
+   SWITCH_PAUSE.
+<li>
+   Javier Gonzalez fixed a latency problem with audiostreams.
+<li>
+   Laurence Withers made the font exporter use the current palette for the
+   output.
+<li>
+   Elias Pschernig made some changes to grabber: added a close hook; keeps
+   track if anything has been modified; when you exit the grabber and the
+   file was modified, the popup now has a 3rd option for save+exit; window
+   title displays the current filename, and if the file has been modified;
+   fixed multicolour font exports.
+<li>
+   Sven Sandberg optimized again the create_light_table() function.
+<li>
+   Attila Szilagyi fixed SVGAlib horizontal scrolling.
+<li>
+   Eric Botcazou fixed synchronization problems under QNX.
+<li>
+   Grzegorz Adam Hankiewicz made the TOC at the top of sections
+   alphabetically sorted.
+<li>
+   Eric Botcazou fixed the screen not restored after a wake-up in the
+   Windows windowed and overlay drivers.
+<li>
+   Richard Reeve fixed a silly mistake with gcc 3.0.x detection.
+<li>
+   Angelo Mottola fixed static keyconf compilation problem on BeOS due to
+   pckeys keyboard driver.
+<li>
+   Eric Botcazou fixed the not-returning-focus-on-exit bug under Windows.
+<li>
+   Michael Bukin fixed a bug with C-version textprintf on 24-bpp bitmaps,
+   reported by Bertrand Coconnier.
+<li>
+   Eric Botcazou fixed a bug in the 32->15 MMX color conversion routine.
+<li>
+   Eric Botcazou fixed the DLL linking problem with Borland C++Builder 4.
+<li>
+   Sven Sandberg made exaccel more responsive.
+<li>
+   Sven Sandberg fixed a glitch with short filenames under DOS.
+</ul>
+
+
+@heading
 Changes from 3.9.40 to 4.0.0 (Dec 2001)
 <ul><li>
    Many minor changes.

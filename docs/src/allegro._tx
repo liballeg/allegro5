@@ -12,7 +12,7 @@
 @f1=<p><hr><p><a href="
 @f2=">Back to Contents</a><p></body></html>
 @rtfh=Allegro - a game programming library
-@manh="version 4.0.1 (CVS)" "Allegro" "Allegro manual"
+@manh="version 4.0.2 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @$\input texinfo
 @$@setfilename allegro.inf
@@ -47,12 +47,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.0.1 (CVS)
+				       \_/__/     Version 4.0.2 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Dec 15, 2001.
+	     By Shawn Hargreaves, Mar 18, 2002.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -164,7 +164,7 @@ information about how to install Allegro and link your program with it.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
 
-@@void @allegro_message(char *msg, ...);
+@@void @allegro_message(const char *msg, ...);
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
    set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
@@ -204,15 +204,13 @@ information about how to install Allegro and link your program with it.
    On platforms that have a close button, this routine installs a hook 
    function to handle the close event. In other words, when the user clicks 
    the close button on your program's window, the function you specify here 
-   will be called. You can use this function to display a box offering to 
-   save data or checking that the user really wants to exit, or you can use 
-   it just to save config data, free memory and exit.
+   will be called.
 
    This function should not generally attempt to exit the program or save 
    any data itself. The function could be called at any time, and there is 
-   usually a risk of trying to save when the data are invalid. Instead, you 
-   should set a flag during this function, and test the flag on a regular 
-   basis in the main program.
+   usually a risk of conflict with the main thread of the program. Instead, 
+   you should set a flag during this function, and test it on a regular 
+   basis in the main loop of the program.
 
    Pass NULL to this function to restore the close button's default 
    functionality. On Windows and BeOS, the following message will appear:
@@ -1074,6 +1072,13 @@ framebuffer = x<br>
    Linux only: specifies what device file to use for the fbcon driver. If 
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
+<li>
+disable_direct_updating = x<br>
+   Windows only: specifies whether to disable direct updating when the 
+   GFX_DIRECTX_WIN driver is used in color conversion mode (yes or no).
+   Direct updating can cause artifacts to be left on the screen when the 
+   window is moved or minimized; disabling it results in a significant
+   performance loss.
 </ul><li>
 [mouse]<br>
    Section containing mouse configuration information, using the variables:
@@ -1234,7 +1239,7 @@ alsa_rawmidi_device = x<br>
    Unix only: ALSA rawmidi device to use for output.
 <li>
 be_midi_quality = x<br>
-   BeOS only: system MIDI synthentetizer instruments quality. 0 uses low
+   BeOS only: system MIDI synthesizer instruments quality. 0 uses low
    quality 8-bit 11 kHz samples, 1 uses 16-bit 22 kHz samples.
 <li>
 be_midi_freq = x<br>
@@ -1619,7 +1624,7 @@ Allegro does not provide such devices.)
 @xref timer_can_simulate_retrace, timer_is_using_retrace
 @xref enable_triple_buffer
    The DOS timer handler can be used to simulate vertical retrace 
-   interrupts. An retrace interrupt can be extremely useful for implementing 
+   interrupts. A retrace interrupt can be extremely useful for implementing 
    smooth animation, but unfortunately the VGA hardware doesn't support it. 
    The EGA did, and some SVGA chipsets do, but not enough, and not in a 
    sufficiently standardised way, for it to be useful. Allegro works around 
@@ -2099,7 +2104,7 @@ Joystick routines
    "analogue", there are some #define aliases in allegro/joystick.h that
    will allow you to write "analog" instead.
 
-@@char *@calibrate_joystick_name(int n);
+@@const char *@calibrate_joystick_name(int n);
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
    Returns a text description for the next type of calibration that will be 
    done on the specified joystick, or NULL if no more calibration is 
@@ -2183,8 +2188,8 @@ Graphics modes
 @@GFX_MODE_LIST *@get_gfx_mode_list(int card);
 @xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
    Attempts to create a list of all the supported video modes for a certain
-   GFX driver. This function returns a pointer to a list structure of the
-   type GFX_MODE_LIST which has the following definition:
+   graphics driver. This function returns a pointer to a list structure of 
+   the type GFX_MODE_LIST which has the following definition:
 <pre>
    typedef struct GFX_MODE_LIST {
       int num_modes;
@@ -2199,6 +2204,9 @@ Graphics modes
    } GFX_MODE;
 </pre>
    This list is terminated with an { 0, 0, 0 } entry.
+
+   Note that the card parameter must refer to a _real_ driver. This function
+   fails if you pass GFX_SAFE, GFX_AUTODETECT, or any other "magic" driver.
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
@@ -3338,7 +3346,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref vline, line, drawing_mode
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
 
-@@void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, void (*proc)());
+@\void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, 
+@@             void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_arc, line
    Calculates all the points along a line from point (x1, y1) to (x2, y2), 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3353,7 +3362,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref polygon, triangle3d, drawing_mode
    Draws a filled triangle between the three points.
 
-@@void @polygon(BITMAP *bmp, int vertices, int *points, int color);
+@@void @polygon(BITMAP *bmp, int vertices, const int *points, int color);
 @xref triangle, polygon3d, drawing_mode
    Draws a filled polygon with an arbitrary number of corners. Pass the 
    number of vertices and an array containing a series of x, y points (a 
@@ -3368,7 +3377,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
 
-@@void @do_circle(BITMAP *bmp, int x, int y, int radius, int d, void (*proc)());
+@\void @do_circle(BITMAP *bmp, int x, int y, int radius, int d,
+@@               void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_ellipse, do_arc, do_line, circle, circlefill
    Calculates all the points in a circle around point (x, y) with radius r, 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3383,7 +3393,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref ellipsefill, circle, do_circle, drawing_mode
    Draws a filled circle with the specified centre and radius.
 
-@@void @do_ellipse(BITMAP *bmp, int x, y, int rx, ry, int d, void (*proc)());
+@\void @do_ellipse(BITMAP *bmp, int x, int y, int rx, ry, int d,
+@@                void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_arc, do_line, ellipse, ellipsefill
    Calculates all the points in an ellipse around point (x, y) with radius 
    rx and ry, calling the supplied function for each one. This will be 
@@ -3398,7 +3409,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref circlefill, ellipse, do_ellipse, drawing_mode
    Draws a filled ellipse with the specified centre and radius.
 
-@@void @do_arc(BITMAP *bmp, int x, y, fixed a1, a2, int r, d, void (*proc)());
+@\void @do_arc(BITMAP *bmp, int x, int y, fixed a1, fixed a2, int r, int d,
+@@            void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_line, arc
    Calculates all the points in a circular arc around point (x, y) with 
    radius r, calling the supplied function for each one. This will be passed 
@@ -3418,7 +3430,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    full circle, 64 a right angle, etc. Zero is to the right of the centre 
    point, and larger values rotate anticlockwise from there.
 
-@@void @calc_spline(int points[8], int npts, int *x, int *y);
+@@void @calc_spline(const int points[8], int npts, int *x, int *y);
 @xref spline
    Calculates a series of npts values along a bezier spline, storing them in 
    the output x and y arrays. The bezier curve is specified by the four x/y 
@@ -3434,7 +3446,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    useful for constructing smooth paths around a series of control points, 
    as in exspline.c.
 
-@@void @spline(BITMAP *bmp, int points[8], int color);
+@@void @spline(BITMAP *bmp, const int points[8], int color);
 @xref calc_spline, drawing_mode
    Draws a bezier spline using the four control points specified in the 
    points array.
@@ -4092,7 +4104,7 @@ Polygon rendering
       polygon3d_f(bmp, type, tex, 4, v[]);
 
 @\int @clip3d_f(int type, float min_z, float max_z, int vc,
-@@             V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
+@@             const V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
    Clips the polygon given in vtx. The number of vertices is vc, the result 
    goes in vout, and vtmp and out are needed for internal purposes. The 
@@ -4109,7 +4121,7 @@ Polygon rendering
    no provision is made for high/truecolor GCOL.
 
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
-@@           V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
+@@           const V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
 @xref polygon3d, clip3d_f
    Fixed point version of clip3d_f(). This function should be used with 
    caution, due to the limited precision of fixed point arithmetic and high 
@@ -5773,7 +5785,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    error code will be stored in errno.
 
 @@int @exists(const char *filename);
-@xref file_exists
+@xref file_exists, file_size, file_time
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
@@ -5853,18 +5865,32 @@ directories, but not hidden files and directories. Similarly, if you pass
 @xref pack_fopen, load_datafile
    Sets the encryption password to be used for all read/write operations
    on files opened in future using Allegro's packfile functions (whether
-   they are compressed or not). Files written with an encryption password
-   cannot be read unless the same password is selected, so be careful: if
-   you forget the key, I can't make your data come back again! Pass NULL
-   or an empty string to return to the normal, non-encrypted mode. If you
-   are using this function to prevent people getting access to your
-   datafiles, be careful not to store an obvious copy of the password in
-   your executable: if there are any strings like "I'm the password for
-   the datafile", it would be fairly easy to get access to your data :-)
+   they are compressed or not), including all the save, load and config
+   routines. Files written with an encryption password cannot be read
+   unless the same password is selected, so be careful: if you forget the
+   key, I can't make your data come back again! Pass NULL or an empty
+   string to return to the normal, non-encrypted mode. If you are using
+   this function to prevent people getting access to your datafiles, be
+   careful not to store an obvious copy of the password in your executable:
+   if there are any strings like "I'm the password for the datafile", it
+   would be fairly easy to get access to your data :-)
 
-   Important: as soon as you have opened a file using an encryption
-   password, call packfile_password(NULL) again. Better still, don't touch
-   this function at all. Ever.
+   Note #1: when writing a packfile, you can change the password to whatever
+   you want after opening the file, without affecting the write operation.
+   On the contrary, when writing a sub-chunk of a packfile, you must make
+   sure that the password that was active at the time the sub-chunk was
+   opened is still active before closing the sub-chunk. This is guaranteed
+   to be true if you didn't call the packfile_password() routine in the
+   meantime. Read operations, either on packfiles or sub-chunks, have no
+   such restriction.
+
+   Note #2: as explained above, the password is used for all read/write
+   operations on files, including for several functions of the library that
+   operate on files without explicitly using packfiles, e.g load_bitmap().
+   The unencrypted mode is mandatory in order for those functions to work.
+   Therefore remember to call packfile_password(NULL) before using them if
+   you previously changed the password. As a rule of thumb, always call
+   packfile_password(NULL) when you are done with operations on packfiles.
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref packfile functions, pack_fopen_chunk, packfile_password
@@ -5945,16 +5971,29 @@ directories, but not hidden files and directories. Similarly, if you pass
 @!rtf
 
 @rtf
-   These work like the equivalent stdio functions, except that pack_fread() 
-   and pack_fwrite() take a single size parameter instead of that silly size 
-   and num_elements system, seeking only supports forward movement relative 
-   to the current position, and the pack_fgets() function does not include a 
-   trailing carriage return in the returned string. The pack_i* and pack_m* 
-   routines read and write 16 and 32 bit values using the Intel and Motorola 
-   byte ordering systems (endianness) respectively. Note that seeking is 
-   very slow when reading compressed files, and so should be avoided unless 
-   you are sure that the file is not compressed.
-
+   These work like the equivalent stdio functions. There are some
+   differences, however:
+<ul><li>
+   Seeking only supports forward movement relative to the current position.
+   Note that seeking is very slow when reading compressed files, and so
+   should be avoided unless you are sure that the file is not compressed.
+<li>
+   The pack_i* and pack_m* routines read and write 16 and 32 bit values using
+   the Intel and Motorola byte ordering systems (endianness) respectively.
+   Intel is least significant byte first (little-endian); Motorola is most
+   significant byte first (big-endian).
+<li>
+   pack_fread() and pack_fwrite() take a single size parameter instead of
+   that silly size and num_elements system.
+<li>
+   The pack_fgets() function does not include a trailing carriage return in
+   the returned string.
+<li>
+   pack_fputs() always writes in the UTF-8 text encoding format, converting
+   from the current text encoding. Newlines (\n) are written as \r\n on
+   DOS/Windows. If you do not want either of these things to happen,
+   use pack_fwrite() and/or pack_putc() instead.
+</ul>
 @@PACKFILE *@pack_fopen_chunk(PACKFILE *f, int pack);
 @xref pack_fclose_chunk, pack_fopen
    Opens a sub-chunk of a file. Chunks are primarily intended for use by the 
@@ -6052,13 +6091,13 @@ directly from a specific datafile object.
 @xref load_datafile_object
    Frees an object previously loaded by load_datafile_object().
 
-@@DATAFILE *@find_datafile_object(DATAFILE *dat, const char *objectname);
+@@DATAFILE *@find_datafile_object(const DATAFILE *dat, const char *objectname);
 @xref load_datafile, load_datafile_object
    Searches an already loaded datafile for an object with the specified 
    name, returning a pointer to it, or NULL if the object cannot be found. 
    It understands '/' and '#' separators for nested datafile paths.
 
-@@char *@get_datafile_property(DATAFILE *dat, int type);
+@@const char *@get_datafile_property(const DATAFILE *dat, int type);
    Returns the specified property string for the object, or an empty string 
    if the property isn't present. See grabber.txt for more information.
 
@@ -6861,8 +6900,8 @@ changes are the following:
    and d_rtext_proc() right aligns it. Any '&' characters in the string will 
    be replaced with lines underneath the following character, for displaying 
    keyboard shortcuts (as in MS Windows). To display a single ampersand, put 
-   "&&". To use draw the text in something other than the default font, set 
-   the dp2 field to point to your custom font data.
+   "&&". To draw the text in something other than the default font, set the 
+   dp2 field to point to your custom font data.
 
 @@int @d_button_proc(int msg, DIALOG *d, int c);
    A button object (the dp field points to the text string). This object can 
@@ -6968,7 +7007,8 @@ changes are the following:
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
    in particular the color is taken from the gui_*_color variables, and the 
-   width and height are calculated automatically. The dp field points to an 
+   width and height are calculated automatically (the w and h fields from 
+   the DIALOG are only used as a minimum size.) The dp field points to an 
    array of menu structures: see do_menu() for more information. The top 
    level menu will be displayed as a horizontal bar, but when child menus 
    drop down from it they will be in the normal vertical format used by 
@@ -7801,9 +7841,13 @@ you must include winalleg.h after other Allegro headers.
    installing the autodetected system driver (SYSTEM_AUTODETECT). It lets
    you attach Allegro to any already existing window and prevents the
    library from creating its own, thus leaving you total control over the
-   window (in particular, you are responsible for processing the events).
-   You can then use every component of the library (mouse, keyboard,
-   sound, timers and so on) except the graphics subsystem.
+   window; in particular, you are responsible for processing the events as
+   usual (Allegro will automatically monitor a few of them, but will not
+   filter out any of them). You can then use every component of the library 
+   (mouse, keyboard, sound, timers and so on) except the graphics subsystem,
+   bearing in mind that some Allegro functions are blocking (e.g readkey()
+   if the key buffer is empty) and thus must be carefully manipulated by the
+   window thread.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
    Registers an user-defined procedure to be used by Allegro for creating
@@ -8452,7 +8496,7 @@ will make debugging much easier, and includes assert tests that will help to
 locate errors in your code at an earlier stage. Allegro also contains some 
 debugging helper functions:
 
-@@void @al_assert(char *file, int line);
+@@void @al_assert(const char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
    Raises an assert for an error at the specified file and line number. The 
    file parameter is always given in ASCII format. If you have installed a 
@@ -8462,7 +8506,7 @@ debugging helper functions:
    will usually want to use the ASSERT() macro instead of calling this 
    function directly.
 
-@@void @al_trace(char *msg, ...);
+@@void @al_trace(const char *msg, ...);
 @xref TRACE, al_assert, register_trace_handler
    Outputs a debugging trace message, using a printf() format string given 
    in ASCII. If you have installed a custom trace handler it uses that, or 
@@ -8483,7 +8527,7 @@ debugging helper functions:
    defined the preprocessor symbol DEBUGMODE before including Allegro headers,
    it passes the supplied message given in ASCII format to al_trace().
 
-@@void @register_assert_handler(int (*handler)(char *msg));
+@@void @register_assert_handler(int (*handler)(const char *msg));
 @xref al_assert, ASSERT, register_trace_handler
    Supplies a custom handler function for dealing with assert failures. Your 
    callback will be passed a formatted error message in ASCII, and should 
@@ -8492,7 +8536,7 @@ debugging helper functions:
    display the error messages on a graphics mode screen without aborting the 
    program.
 
-@@void @register_trace_handler(int (*handler)(char *msg));
+@@void @register_trace_handler(int (*handler)(const char *msg));
 @xref al_trace, TRACE, register_assert_handler
    Supplies a custom handler function for dealing with trace output. Your 
    callback will be passed a formatted error message in ASCII, and should 

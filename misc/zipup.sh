@@ -55,7 +55,7 @@ find . -name '*~' -exec rm -f {} \;
 utod()
 {
    for file in $*; do
-      if echo $file | grep -q "^\.\.\./"; then
+      if echo $file | grep "^\.\.\./" >/dev/null; then
 	 # files like .../*.c recurse into directories (emulating djgpp libc)
 	 spec=$(echo $file | sed -e "s/^\.\.\.\///")
 	 find . -type f -name "$spec" -exec perl -p -i -e 's/([^\r]|^)\n/\1\r\n/' {} \;

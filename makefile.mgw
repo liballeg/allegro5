@@ -95,7 +95,8 @@ ifdef MINGDIR
    MINGDIR_D = $(subst /,\,$(MINGDIR))
 else
 badming:
-	@echo Please specify your mingw32 directory via MINGDIR=. See the readme.mgw file!
+	@echo Please specify your MinGW32 directory via MINGDIR=
+	@echo See the docs/build/mingw32.txt file!
 endif
 
 
@@ -226,13 +227,16 @@ endif # STATICLINK
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
 
-$(MINGDIR_U)/include/allegro.h: include/allegro.h
+$(MINGDIR_U)/include:
+	mkdir $(MINGDIR_U)/include
+
+$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include
 	cp include/allegro.h $(MINGDIR_U)/include
 
-$(MINGDIR_U)/include/winalleg.h: include/winalleg.h
+$(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	cp include/winalleg.h $(MINGDIR_U)/include
 
-$(MINGDIR_U)/include/allegro:
+$(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
 	mkdir $(MINGDIR_U)/include/allegro 
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
@@ -268,13 +272,16 @@ endif # STATICLINK
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	copy lib\mingw32\$(IMPLIB_BASENAME) $(MINGDIR_D)\lib
 
-$(MINGDIR_U)/include/allegro.h: include/allegro.h
+$(MINGDIR_U)/include:
+	md $(MINGDIR_D)\include
+
+$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include
 	copy include\allegro.h $(MINGDIR_D)\include
 
-$(MINGDIR_U)/include/winalleg.h: include/winalleg.h
+$(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	copy include\winalleg.h $(MINGDIR_D)\include
 
-$(MINGDIR_U)/include/allegro:
+$(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
 	md $(MINGDIR_D)\include\allegro 
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
@@ -307,11 +314,11 @@ HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))          \
 
 INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)              \
 		$(MINGDIR_U)/include/allegro.h                   \
+		$(MINGDIR_U)/include/winalleg.h                  \
 		$(MINGDIR_U)/include/allegro                     \
 		$(MINGDIR_U)/include/allegro/internal            \
 		$(MINGDIR_U)/include/allegro/inline              \
 		$(MINGDIR_U)/include/allegro/platform            \
-		$(MINGDIR_U)/include/winalleg.h                  \
 		$(MINGDIR_U)/include/allegro/platform/aintwin.h  \
 		$(MINGDIR_U)/include/allegro/platform/al386gcc.h \
 		$(MINGDIR_U)/include/allegro/platform/almngw32.h \
@@ -427,20 +434,20 @@ $(OBJ_DIR)/%.o: %.rc
 $(OBJ_DIR)/%.res: %.rc
 	$(WINDRES) -O coff -o $@ -i $<
 
-*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
-
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 

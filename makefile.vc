@@ -84,28 +84,18 @@ ifdef MSVCDir
    MSVCDIR_U = $(subst \,/,$(MSVCDir))
    MSVCDIR_D = $(subst /,\,$(MSVCDir))
 else
-ifdef MSDEVDIR
-   MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
-   MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
-else
-ifdef MSDevDir
-   MSVCDIR_U = $(subst \,/,$(MSDevDir))
-   MSVCDIR_D = $(subst /,\,$(MSDevDir))
-else
 badmsvc:
-	@echo Your MSVCDIR or MSDEVDIR environment variable is not set!
-endif
-endif
+	@echo Your MSVCDIR environment variable is not set!
 endif
 endif
 
 NULLSTRING :=
 SPACE := $(NULLSTRING) # special magic to get an isolated space character
 
-ifneq ($(findstring $(SPACE),$(MSVCDIR)$(MSDEVDIR)),)
+ifneq ($(findstring $(SPACE),$(MSVCDIR)),)
 badspaces:
-	@echo There are spaces in your MSVCDIR or MSDEVDIR environment
-	@echo variables: please change these to the 8.3 short filename
+	@echo There are spaces in your MSVCDIR environment
+	@echo variable: please change it to the 8.3 short filename
 	@echo version, or move your compiler to a different directory.
 endif
 
@@ -395,20 +385,20 @@ $(OBJ_DIR)/%.obj: %.rc
 $(OBJ_DIR)/%.res: %.rc
 	rc -fo$@ $<
 
-*/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
-
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+*/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME) $(RUNNER)
 
