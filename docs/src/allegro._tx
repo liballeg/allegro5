@@ -866,6 +866,9 @@ with the standard variables that are used by Allegro (see below).
    Version of override_config_file() which uses a block of data that has 
    already been read into memory.
 
+   Note that this function and the previous one are mutually exclusive, i.e.
+   calling one will cancel the effects of the other.
+
 @@void @push_config_state();
 @xref pop_config_state, set_config_file
    Pushes the current configuration state (filename, variable values, etc). 
