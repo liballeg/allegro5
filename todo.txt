@@ -42,6 +42,7 @@ X11 todos:
   driver and the Mac OSX driver. Currently, we expect application users to
   fiddle with xkeymap.
 - Investigate problems with the SIGALRM version
+- Look for a better solution to simulate vsync.
 
 Unix todos:
 ---------------------------------------------------------------------------

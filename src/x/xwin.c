@@ -2166,12 +2166,15 @@ void _xwin_flush_buffers(void)
  */
 void _xwin_vsync(void)
 {
-   if (_timer_installed) {
-      int prev = retrace_count;
-
-      do {
-      } while (retrace_count == prev);
-   }
+   /* This does not wait for the VBI - but it waits until X11 has synchronized,
+    * i.e. until actual changes are visible. So it has a similar effect. A
+    * better solution might be waiting a specific time to simulate a VBI (but
+    * the X11 mutex might be locked by the timer thread), or using the XSync
+    * extension.
+    */
+   XLOCK();
+   XSync(_xwin.display, False);
+   XUNLOCK();
 }
 
 
