@@ -910,7 +910,6 @@ BeAllegroWindow::~BeAllegroWindow()
    delete locker;
    delete_sem(_be_window_lock);
    _release_colorconv_blitter(blitter);
-   _release_colorconv_map();
    blitter = NULL;
    connected = false;
    _be_focus_count = 0;
@@ -1005,8 +1004,7 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	    _release_colorconv_blitter(blitter);
 	    blitter = _get_colorconv_blitter(screen_depth, display_depth);
 	    if (display_depth == 8) {
-	       _release_colorconv_map();
-	       cmap = _get_colorconv_map(screen_depth);
+	       cmap = _get_colorconv_map();
 	       if (screen_depth == 8) {
 	          for (i=0; i<256; i++)
 	             cmap[i] = BScreen().IndexForColor(palette_colors[i]);
