@@ -272,11 +272,13 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
    dest_desc.dwSize = sizeof(dest_desc);
    dest_desc.dwFlags = 0;
 
-   hr = IDirectDrawSurface2_Lock(dest_surf, dest_rect, &dest_desc, DDLOCK_WAIT, NULL);
+   hr = IDirectDrawSurface2_Lock(dest_surf, dest_rect, &dest_desc,
+                                 DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
    if (FAILED(hr))
       return -1;
 
-   hr = IDirectDrawSurface2_Lock(src_surf, src_rect, &src_desc, DDLOCK_WAIT, NULL);
+   hr = IDirectDrawSurface2_Lock(src_surf, src_rect, &src_desc,
+                                 DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
    if (FAILED(hr)) {
       IDirectDrawSurface2_Unlock(dest_surf, NULL);
       return -1;
