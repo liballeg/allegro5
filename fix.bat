@@ -3,7 +3,11 @@
 rem Sets up the Allegro package for building with the specified compiler,
 rem and if possible converting text files from LF to CR/LF format.
 
+set AL_NOCONV=0
+
 if [%2] == [--quick] set AL_NOCONV=1
+
+if [%AL_NOCONV%] == [] goto ooes_error
 
 if [%1] == [bcc32]   goto bcc32
 if [%1] == [djgpp]   goto djgpp
@@ -15,6 +19,11 @@ if [%1] == [watcom]  goto watcom
 if [%1] == [help]    goto help
 if [%1] == []        goto help
 
+goto done
+
+:ooes_error
+
+echo *** ERROR *** Look up the section "Out of Environment space" in the FAQ.
 goto done
 
 :bcc32
@@ -66,12 +75,16 @@ goto fix
 echo.
 echo Usage: fix platform [--quick]
 echo.
-echo Where platform is one of: bcc32, djgpp, dll, mingw32, msvc, rsxnt or watcom.
+echo Where platform is one of: bcc32, djgpp, mingw32, msvc, rsxnt or watcom.
 echo The --quick parameter is used to turn off LF to CR/LF conversion.
 echo.
 goto done
 
 :fix
+
+if [%AL_COMPILER%] == [] goto ooes_error
+if [%AL_MAKEFILE%] == [] goto ooes_error
+if [%AL_PLATFORM%] == [] goto ooes_error
 
 echo Configuring Allegro for %AL_COMPILER%...
 
