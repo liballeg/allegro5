@@ -106,11 +106,12 @@ proc_fix()
 proc_filelist()
 {
    AL_FILELIST_DOS_OK=`find . -type f "(" \
-      -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.dep" -o \
+      -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
       -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
       -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
-      -name "makefile.*" -o -name "readme.*" \
+      -name "makefile*" -o -name "readme.*" -o \
+      -name "CHANGES" -o -name "AUTHORS" -o -name "THANKS" \
       ")"`
 
    AL_FILELIST="$AL_FILELIST_DOS_OK `find . -type f -name '*.sh'`"

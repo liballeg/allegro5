@@ -67,9 +67,6 @@ utod()
 # generate the DLL export definition files for Windows compilers
 misc/fixdll.sh
 
-utod lib/msvc/allegro.def
-utod lib/mingw32/allegro.def
-utod include/allegro/rsxdll.h
 
 export UNIX_TOOLS=1
 
@@ -80,8 +77,6 @@ echo "Generating MSVC dependencies..."
 
 make depend
 
-utod obj/msvc/*/makefile.dep
-
 
 # generate dependencies for Watcom
 echo "Generating Watcom dependencies..."
@@ -89,8 +84,6 @@ echo "Generating Watcom dependencies..."
 ./fix.sh watcom --quick
 
 make depend
-
-utod obj/watcom/*/makefile.dep
 
 
 # generate dependencies for RSXNT
@@ -100,8 +93,6 @@ echo "Generating RSXNT dependencies..."
 
 make depend
 
-utod obj/rsxnt/*/makefile.dep
-
 
 # generate dependencies for Mingw32
 echo "Generating Mingw32 dependencies..."
@@ -109,8 +100,6 @@ echo "Generating Mingw32 dependencies..."
 ./fix.sh mingw32 --quick
 
 make depend
-
-utod obj/mingw32/*/makefile.dep
 
 
 # generate dependencies for Borland
@@ -120,8 +109,6 @@ echo "Generating Borland dependencies..."
 
 make depend
 
-utod obj/bcc32/*/makefile.dep
-
 
 # generate dependencies for BeOS
 echo "Generating BeOS dependencies..."
@@ -130,8 +117,6 @@ echo "Generating BeOS dependencies..."
 
 make depend
 
-utod obj/beos/*/makefile.dep
-
 
 # generate dependencies for djgpp
 echo "Generating djgpp dependencies..."
@@ -139,8 +124,6 @@ echo "Generating djgpp dependencies..."
 ./fix.sh djgpp --quick
 
 make depend
-
-utod obj/djgpp/*/makefile.dep
 
 unset UNIX_TOOLS
 
@@ -155,8 +138,6 @@ gcc _tmpdoc.c -o _makedoc.exe
 ./_makedoc.exe -part -ascii THANKS docs/thanks._tx
 ./_makedoc.exe -ascii faq.txt docs/faq._tx
 
-utod CHANGES AUTHORS THANKS
-
 rm _tmpdoc.c _makedoc.exe
 
 
@@ -166,8 +147,6 @@ misc/mkdata.sh
 
 # convert files to djgpp format for distribution
 ./fix.sh djgpp --utod
-
-utod makefile
 
 
 # recursive helper to fill any empty directories with a tmpfile.txt
