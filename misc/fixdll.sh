@@ -3,7 +3,7 @@
 #  Shell script to scan the header files and build the DLL export definition files for the Windows port.
 #
 #  It uses misc/scanexp.c as a support for the preprocessing stage and can run in two modes:
-#    - without option: generates the export definition files for MSVC, MingW32 and BCC32
+#    - without option: generates the export definition files for MSVC, MinGW32 and BCC32
 #    - with '--update-symbol-list': generates the reference symbol list misc/dllsyms.lst
 #
 #  If the reference symbol list misc/dllsyms.lst already exists, the script runs in an incremental way:
@@ -51,7 +51,7 @@ sed -n -e "s/^ *allexp[fi][un][nl]  *\\**\\(.*\\)_sym.*/    \\1/p" _apidef.tmp >
 sed -n -e "s/^ *allexp[vfa][apr][rtr]  *\\**\\(.*\\)_sym.*/    \\1 DATA/p" _apidef.tmp >> _apidef1.tmp
 sort _apidef1.tmp > _apidef2.tmp
 
-echo "Scanning for WINAPI symbols..."
+echo "Scanning for WinAPI symbols..."
 gcc -E -I. -I./include -DSCAN_EXPORT -DALLEGRO_WINAPI -o _wapidef.tmp misc/scanexp.c
 sed -n -e "s/^ *allexp[fi][un][nl]  *\\**\\(.*\\)_sym.*/    \\1/p" _wapidef.tmp > _wapidef1.tmp
 sed -n -e "s/^ *allexp[vfa][apr][rtr]  *\\**\\(.*\\)_sym.*/    \\1 DATA/p" _wapidef.tmp >> _wapidef1.tmp
@@ -119,7 +119,7 @@ else
    cp _all.def lib/mingw32/allegro.def
 
    echo " lib/bcc32/allegro.def"
-   sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 \2/" _all.def > lib/bcc32/allegro.def
+   sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 = \1/" _all.def > lib/bcc32/allegro.def
 
 fi
 

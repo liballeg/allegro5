@@ -14,7 +14,7 @@ sed -n -e "s/^ *allexp[fi][un][nl]  *\**\(.*\)_sym.*/    \1/p" _apidef.tmp > _ap
 sed -n -e "s/^ *allexp[vfa][apr][rtr]  *\**\(.*\)_sym.*/    \1 DATA/p" _apidef.tmp >> _apidef1.tmp
 sort _apidef1.tmp > _apidef2.tmp
 
-echo Scanning for WINAPI symbols...
+echo Scanning for WinAPI symbols...
 gcc -E -I. -I./include -DSCAN_EXPORT -DALLEGRO_WINAPI -o _wapidef.tmp misc/scanexp.c
 sed -n -e "s/^ *allexp[fi][un][nl]  *\**\(.*\)_sym.*/    \1/p" _wapidef.tmp > _wapidef1.tmp
 sed -n -e "s/^ *allexp[vfa][apr][rtr]  *\**\(.*\)_sym.*/    \1 DATA/p" _wapidef.tmp >> _wapidef1.tmp
@@ -41,7 +41,7 @@ echo  lib\mingw32\allegro.def
 copy _all.def lib\mingw32\allegro.def > nul
 
 echo  lib\bcc32\allegro.def
-sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 \2/" _all.def > lib\bcc32\allegro.def
+sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 = \1/" _all.def > lib\bcc32\allegro.def
 
 del _*def*.tmp
 del _all.def
