@@ -6561,6 +6561,20 @@ Angles are represented in a binary format with 256 equal to a full circle,
 bitwise 'and' can be used to keep the angle within the range zero to a full 
 circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 
+@@extern const fixed @fixtorad_r;
+@xref fixmul, radtofix_r
+   This constant gives a ratio which can be used to convert a number in
+   fixed point angle format to a number in radians: if 'y' is an angle in
+   fixed point angle format then use: 'x = fixmul(y, fixtorad_r);' to get
+   its value 'x' in radians.
+
+@@extern const fixed @radtofix_r;
+@xref fixmul, fixtorad_r
+   This constant gives a ratio which can be used to convert a number in
+   radians to a number in fixed point angle format: if 'x' is an angle in
+   radians, then use: 'y = fixmul(x, radtofix_r);' to get its value 'y'
+   in fixed point angle format.
+
 @@fixed @fixsin(fixed x);
 @xref Fixed point trig
    Lookup table sine.

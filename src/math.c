@@ -281,6 +281,14 @@ fixed fixatan2(fixed y, fixed x)
 
 
 
+/* fixtorad_r, radtofix_r:
+ *  Ratios for converting between radians and fixed point angles.
+ */
+AL_CONST fixed fixtorad_r = (fixed)1608;     /* 2pi/256 */
+AL_CONST fixed radtofix_r = (fixed)2670177;  /* 256/2pi */
+
+
+
 #if (defined ALLEGRO_I386) && (!defined ALLEGRO_USE_C)
 
 
