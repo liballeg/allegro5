@@ -505,7 +505,7 @@ char *replace_filename(char *dest, AL_CONST char *path, AL_CONST char *filename,
 
    while (pos>0) {
       c = ugetat(path, pos-1);
-      if ((c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR) || (c == '#'))
+      if ((c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR))
 	 break;
       pos--;
    }
@@ -537,7 +537,7 @@ char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext,
 
    while (pos>0) {
       c = ugetat(filename, pos-1);
-      if ((c == '.') || (c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR) || (c == '#'))
+      if ((c == '.') || (c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR))
 	 break;
       pos--;
    }
@@ -574,7 +574,7 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
    if ((pos > 0) && (uoffset(tmp, pos) < ((int)sizeof(tmp) - ucwidth(OTHER_PATH_SEPARATOR) - ucwidth(0)))) {
       c = ugetat(tmp, pos-1);
 
-      if ((c != '/') && (c != OTHER_PATH_SEPARATOR) && (c != DEVICE_SEPARATOR) && (c != '#')) {
+      if ((c != '/') && (c != OTHER_PATH_SEPARATOR) && (c != DEVICE_SEPARATOR)) {
 	 pos = uoffset(tmp, pos);
 	 pos += usetc(tmp+pos, OTHER_PATH_SEPARATOR);
 	 usetc(tmp+pos, 0);
@@ -606,7 +606,7 @@ char *get_filename(AL_CONST char *path)
    for (;;) {
       c = ugetxc(&ptr);
       if (!c) break;
-      if ((c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR) || (c == '#'))
+      if ((c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR))
          ret = (char*)ptr;
    }
    return (char*)ret;
@@ -627,7 +627,7 @@ char *get_extension(AL_CONST char *filename)
 
    while (pos>0) {
       c = ugetat(filename, pos-1);
-      if ((c == '.') || (c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR) || (c == '#'))
+      if ((c == '.') || (c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR))
 	 break;
       pos--;
    }
@@ -825,7 +825,7 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
       else {
 	 /* read object from a regular datafile */
 	 ustrzcpy(fname,  sizeof(fname), filename);
-	 p = ustrchr(fname, '#');
+	 p = ustrrchr(fname, '#');
 	 usetat(p, 0, 0);
 	 ustrzcpy(objname, sizeof(objname), p+uwidth(p));
       }
@@ -868,8 +868,6 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
 	    *aret = FA_DAT_FLAGS;
 	 return ((attrib & FA_DAT_FLAGS) == FA_DAT_FLAGS) ? TRUE : FALSE;
       }
-      else
-	 return FALSE;
    }
 
    if (!_al_file_isok(filename))
@@ -919,8 +917,6 @@ long file_size(AL_CONST char *filename)
 	 pack_fclose(f);
 	 return ret;
       }
-      else
-	 return 0;
    }
 
    if (!_al_file_isok(filename))
@@ -939,10 +935,6 @@ long file_size(AL_CONST char *filename)
 time_t file_time(AL_CONST char *filename)
 {
    ASSERT(filename);
-   if (ustrchr(filename, '#')) {
-      *allegro_errno = EPERM;
-      return 0;
-   }
 
    if (!_al_file_isok(filename))
       return 0;
@@ -959,11 +951,6 @@ int delete_file(AL_CONST char *filename)
 {
    char tmp[1024];
    ASSERT(filename);
-
-   if (ustrchr(filename, '#')) {
-      *allegro_errno = EROFS;
-      return -1;
-   }
 
    if (!_al_file_isok(filename))
       return -1;
@@ -996,11 +983,6 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
    struct al_ffblk info;
    int c = 0;
    ASSERT(name);
-
-   if (ustrchr(name, '#')) {
-      *allegro_errno = ENOTDIR;
-      return 0;
-   }
 
    if (!_al_file_isok(name))
       return 0;
@@ -1055,11 +1037,6 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
    struct al_ffblk info;
    int ret, c = 0;
    ASSERT(name);
-
-   if (ustrchr(name, '#')) {
-      *allegro_errno = ENOTDIR;
-      return 0;
-   }
 
    if (!_al_file_isok(name))
       return 0;
@@ -1693,8 +1670,11 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
    _packfile_type = 0;
 
-   if (ustrchr(filename, '#'))
-      return pack_fopen_special_file(filename, mode);
+   if (ustrchr(filename, '#')) {
+      PACKFILE *special = pack_fopen_special_file(filename, mode);
+      if (special)
+	 return special;
+   }
 
    if (!_al_file_isok(filename))
       return NULL;
