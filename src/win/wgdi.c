@@ -110,18 +110,29 @@ static LRESULT CALLBACK _window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM 
  */
 static struct BITMAP *gfx_gdi_dblbuf_init(int w, int h, int v_w, int v_h, int color_depth)
 {
+   RECT win_size;
+   
    wnd_paint_back = TRUE;
-
-   gfx_gdi.w = w;
-   gfx_gdi.h = h;
 
    /* virtual screen are not supported */
    if ((v_w!=0 && v_w!=w) || (v_h!=0 && v_h!=h)) return NULL;
-
+   
    /* resize window */
+   gfx_gdi.w = w;
+   gfx_gdi.h = h;
+   win_size.left = wnd_x = (GetSystemMetrics(SM_CXSCREEN)-w)/2;
+   win_size.right = wnd_x + w;
+   win_size.top = wnd_y = (GetSystemMetrics(SM_CYSCREEN)-h)/2;
+   win_size.bottom = wnd_y + h;
+   wnd_width = w;
+   wnd_height = h;
+   wnd_windowed = TRUE;
+   set_display_switch_mode(SWITCH_BACKGROUND);
+
+   AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    SetWindowPos(allegro_wnd, HWND_NOTOPMOST, 
-      (GetSystemMetrics(SM_CXSCREEN)-w)/2, (GetSystemMetrics(SM_CYSCREEN)-h)/2, 
-      w, h, 0);
+      win_size.left, win_size.top, 
+      win_size.right - win_size.left, win_size.bottom - win_size.top, 0);
 
    /* install custom window proc */
    _old_window_proc = (WNDPROC)SetWindowLong(allegro_wnd, GWL_WNDPROC, (LONG)_window_proc);
