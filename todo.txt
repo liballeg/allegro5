@@ -11,7 +11,6 @@ General (Platform independant) todos:
 ---------------------------------------------------------------------------
 
 - Add caching system to speed up filename#object and load_datafile_object()
-- Even newer GFX_SAFE behaviour (return error instead of quitting)
 - New example to test P3D scene rendering
 - merge Angelo's menu auto popup patch
 
