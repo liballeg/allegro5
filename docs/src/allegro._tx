@@ -8320,9 +8320,47 @@ developing your own 3d code.
 
 Allegro uses a right-handed coordinate system, i.e. if you point the thumb 
 of your right hand along the x axis, and the index finger along the y axis, 
-your middle finger points in the direction of the z axis. This also means, 
-for any rotation, if you point the thumb of your right hand along the axis 
-of rotation, then the fingers curl in the positive direction of rotation.
+your middle finger points in the direction of the z axis.
+
+Allegro's world coordinate system typically has the positive x axis right,
+the positive y axis up, and the positive z axis out of the screen.  What
+all this means is this: Assume, the viewer is located at the origin (0/0/0)
+in world space, looks along the negative z axis (0/0/-1), and is oriented
+so up is along the positive y axis (0/1/0). Then something located at
+(100/200/-300) will be 100 to the right, 200 above, and 300 in front of the
+viewer. Just like in OpenGL. (Of course, both OpenGL and Allegro allow to
+use a different system.) Here's a short piece of code demonstrating the
+transformation pipeline of a point from world space to the screen.
+
+<codeblock>
+ /* First, set up the projection viewport. */
+ set_projection_viewport (0, 0, SCREEN_W, SCREEN_H);
+
+ /* Next, get a camera matrix, depending on the current viewer position and
+  * orientation.
+  */
+ get_camera_matrix_f (&m,
+    0, 0, 0,  /* Viewer position, in this case, 0/0/0. */
+    0, 0, -1, /* Viewer direction, in this case along negative z. */
+    0, 1, 0,  /* Up vector, in this case positive y. */
+    32, /* The FOV, here 45°. */
+    (float)SCREEN_W / (float)SCREEN_H)); /* Aspect ratio. */
+
+ /* Applying the matrix transforms the point 100/200/-300 from world space
+  * into camera space. The transformation moves and rotates the point so it
+  * is relative to the camera, scales it according to the FOV and aspect
+  * parameters, and also flips up and front direction - ready to project
+  * the point to the viewport.
+  */
+ apply_matrix (&m, 100, 200, -300, &x, &y, &z);
+
+ /* Finally, the point is projected from camera space to the screen. */
+ persp_project_f (cx, cy, cz, &sx, &sy);
+<endblock>
+
+For more details, look at the function descriptions of
+set_projection_viewport, get_camera_matrix, and persp_project, as well as
+the relevant example programs.
 
 All the 3d math functions are available in two versions: one which uses 
 fixed point arithmetic, and another which uses floating point. The syntax 
@@ -8418,16 +8456,21 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @xref get_x_rotate_matrix, get_y_rotate_matrix, get_z_rotate_matrix
 @xref get_align_matrix
 @eref ex12bit, exquat, exstars
-   Constructs a transformation matrix which will rotate points around all 
-   three axes by the specified amounts (given in binary, 256 degrees to a 
-   circle format).
+   Constructs a transformation matrix which will rotate points around all
+   three axes by the specified amounts (given in binary, 256 degrees to a
+   circle format). The direction of rotation can simply be found out with
+   the right-hand rule: Point the dumb of your right hand towards the
+   origin along the axis of rotation, and the fingers will curl in the
+   positive direction of rotation. E.g. if you rotate around the y axis,
+   and look at the scene from above, a positive angle will rotate in
+   clockwise direction.
 
 @\void @get_align_matrix(MATRIX *m, fixed xfront, yfront, zfront, 
 @@                                 fixed xup, fixed yup, fixed zup);
 @xref apply_matrix, get_camera_matrix
    Rotates a matrix so that it is aligned along the specified coordinate 
    vectors (they need not be normalized or perpendicular, but the up and 
-   front must not be equal). A front vector of 1,0,0 and up vector of 0,1,0 
+   front must not be equal). A front vector of 0,0,-1 and up vector of 0,1,0 
    will return the identity matrix.
 
 @\void @get_align_matrix_f(MATRIX *m, float xfront, yfront, zfront, 
@@ -8459,19 +8502,31 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 
 @\void @get_camera_matrix(MATRIX *m, fixed x, y, z, xfront, yfront, zfront,
 @@                       fixed xup, yup, zup, fov, aspect);
-@xref apply_matrix, get_align_matrix
-   Constructs a camera matrix for translating world-space objects into a 
-   normalised view space, ready for the perspective projection. The x, y, 
-   and z parameters specify the camera position, xfront, yfront, and zfront 
-   are the 'in front' vector specifying which way the camera is facing (this 
-   can be any length: normalisation is not required), and xup, yup, and zup 
-   are the 'up' direction vector. The fov parameter specifies the field of 
-   view (ie. width of the camera focus) in binary, 256 degrees to the circle 
-   format. For typical projections, a field of view in the region 32-48 will 
-   work well. Finally, the aspect ratio is used to scale the Y dimensions of 
-   the image relative to the X axis, so you can use it to adjust the 
-   proportions of the output image (set it to 1 for no scaling). Note that
-   versions prior to 4.1.0 multiplied this aspect ratio by 4/3.
+@xref apply_matrix, get_align_matrix, set_projection_viewport, persp_project
+   Constructs a camera matrix for translating world-space objects into a
+   normalised view space, ready for the perspective projection. The x, y,
+   and z parameters specify the camera position, xfront, yfront, and zfront
+   are the 'in front' vector specifying which way the camera is facing
+   (this can be any length: normalisation is not required), and xup, yup,
+   and zup are the 'up' direction vector.
+
+   The fov parameter specifies the field of view (ie. width of the camera
+   focus) in binary, 256 degrees to the circle format. For typical
+   projections, a field of view in the region 32-48 will work well. 32
+   (45°) applies no extra scaling - so something which is one unit away
+   from the viewer will be directly scaled to the viewport. A bigger FOV
+   moves you closer to the viewing plane, so more objects will appear. A
+   smaller FOV moves you away from the viewing plane, which means you see a
+   smaller part of the world.
+
+   Finally, the aspect ratio is used to scale the Y dimensions of the image
+   relative to the X axis, so you can use it to adjust the proportions of
+   the output image (set it to 1 for no scaling - but keep in mind that the
+   projection also performs scaling according to the viewport size).
+   Typically, you will pass (float)w/(float)h, where w and h are the
+   parameters you passed to set_projection_viewport.
+
+   Note that versions prior to 4.1.0 multiplied this aspect ratio by 4/3.
 
 @\void @get_camera_matrix_f(MATRIX_f *m, float x, y, z, xfront, yfront, zfront,
 @@                         float xup, yup, zup, fov, aspect);
@@ -8552,15 +8607,23 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
    the result in (*xout, *yout, *zout).
 
 @@void @set_projection_viewport(int x, int y, int w, int h);
-@xref persp_project
+@xref persp_project, get_camera_matrix
 @eref ex3d, excamera, exquat, exscn3d, exstars, exzbuf
-   Sets the viewport used to scale the output of the persp_project() 
-   function. Pass the dimensions of the screen area you want to draw onto, 
-   which will typically be 0, 0, SCREEN_W, and SCREEN_H.
+   Sets the viewport used to scale the output of the persp_project()
+   function. Pass the dimensions of the screen area you want to draw onto,
+   which will typically be 0, 0, SCREEN_W, and SCREEN_H. Also don't forget
+   to pass an appropriate aspect ratio to get_camera_matrix later. The
+   width and height you specify here will determine how big your viewport
+   is in 3d space. So if an object in your 3D space is w units wide, it
+   will fill the complete screen when you run into it (i.e., if it has a
+   distance of 1.0 after the camera matrix was applied. The fov and
+   aspect-ratio parameters to get_camera_matrix also apply some scaling
+   though, so this isn't always completely true). If you pass -1/-1/2/2 as
+   parameters, no extra scaling will be performed by the projection.
 
 @@void @persp_project(fixed x, y, z, *xout, *yout);
 @@void @persp_project_f(float x, y, z, *xout, *yout);
-@xref set_projection_viewport
+@xref set_projection_viewport, get_camera_matrix
 @eref ex3d, exstars
    Projects the 3d point (x, y, z) into 2d screen space, storing the result 
    in (*xout, *yout) and using the scaling parameters previously set by 
