@@ -10,13 +10,12 @@ in the subject.
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
 
-- find solution or API to timer/multithread problem
+- make the library thread-safe
+- fix use of 32-bit 'long' on 64-bit platforms
+- add set_harware_volume()
+- add asm/C sincos() internal routine
 - don't use BITMAPs for zbuffers
-- Unified color conversion routines for all windowed gfx drivers (now
-  that we have a Mac port, it's a total of 4 possible windowed drivers,
-  and the need of an unified set of window updating routines is stronger)
 - make the 'save' method of plugins return FALSE on failure
-- add an asm sincos() internal routine
 
 DOS todos:
 ---------------------------------------------------------------------------
