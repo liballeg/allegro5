@@ -157,7 +157,7 @@ static int alsa_rawmidi_init(int input, int voices)
 #if ALLEGRO_ALSA_VERSION == 9
       device = get_config_string(uconvert_ascii("sound", tmp1),
 				 uconvert_ascii("alsa_rawmidi_device", tmp2),
-				 0);
+				 "default");
 
       err = snd_rawmidi_open(NULL, &rawmidi_handle, device, 0);
 #else  /* ALLEGRO_ALSA_VERSION == 5 */
