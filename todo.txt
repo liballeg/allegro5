@@ -97,7 +97,6 @@ Wishlist:
 - OSS MIDI pitch bend is wrong
 - size_t where appropriate (get more opinions first)
 - keyboard set_rate
-- make zipwin.sh work with cygwin.
 
 Wishlist: (definitely post 4.0)
 ---------------------------------------------------------------------------
