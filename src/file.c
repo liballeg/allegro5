@@ -1815,7 +1815,7 @@ int pack_iputw(int w, PACKFILE *f)
 
 
 
-/* pack_iputw:
+/* pack_iputl:
  *  Writes a 32 bit long to a file, using intel byte ordering.
  */
 long pack_iputl(long l, PACKFILE *f)

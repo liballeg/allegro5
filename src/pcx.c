@@ -85,7 +85,7 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    b = create_bitmap_ex(bpp, width, height);
    if (!b) {
       pack_fclose(f);
-      return FALSE;
+      return NULL;
    }
 
    for (y=0; y<height; y++) {       /* read RLE encoded PCX data */
@@ -147,7 +147,7 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 
    if (*allegro_errno) {
       destroy_bitmap(b);
-      return FALSE;
+      return NULL;
    }
 
    if (dest_depth != bpp)
