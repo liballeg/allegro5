@@ -26,6 +26,10 @@
 #include "allegro/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
+   #ifdef ALLEGRO_BCC32
+      #undef NONAMELESSUNION
+   #endif
+
    #include <ddraw.h>
 #endif
 

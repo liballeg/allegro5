@@ -38,16 +38,16 @@ static void (*_orig_masked_blit) (BITMAP * source, BITMAP * dest, int source_x, 
  */
 static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
-   RECT src_rect = {
-      source_x + source->x_ofs,
-      source_y + source->y_ofs,
-      source_x + source->x_ofs + width,
-      source_y + source->y_ofs + height
-   };
+   RECT src_rect;
    int dest_parent_x = dest_x + dest->x_ofs;
    int dest_parent_y = dest_y + dest->y_ofs;
    BITMAP *dest_parent;
    BITMAP *source_parent;
+
+   src_rect.left = source_x + source->x_ofs;
+   src_rect.top = source_y + source->y_ofs;
+   src_rect.right = source_x + source->x_ofs + width;
+   src_rect.bottom = source_y + source->y_ofs + height;
 
    /* find parents */
    dest_parent = dest;
@@ -83,28 +83,24 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
  */
 static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
-   RECT dest_rect = {
-      dest_x + dest->x_ofs,
-      dest_y + dest->y_ofs,
-      dest_x + dest->x_ofs + width,
-      dest_y + dest->y_ofs + height
-   };
-
-   RECT source_rect = {
-      source_x + source->x_ofs,
-      source_y + source->y_ofs,
-      source_x + source->x_ofs + width,
-      source_y + source->y_ofs + height
-   };
-
-   DDCOLORKEY src_key = {
-      source->vtable->mask_color,
-      source->vtable->mask_color
-   };
-
+   RECT dest_rect, source_rect;
+   DDCOLORKEY src_key;
    HRESULT hr;
    BITMAP *dest_parent;
    BITMAP *source_parent;
+
+   dest_rect.left = dest_x + dest->x_ofs;
+   dest_rect.top = dest_y + dest->y_ofs;
+   dest_rect.right = dest_x + dest->x_ofs + width;
+   dest_rect.bottom = dest_y + dest->y_ofs + height;
+
+   source_rect.left = source_x + source->x_ofs;
+   source_rect.top = source_y + source->y_ofs;
+   source_rect.right = source_x + source->x_ofs + width;
+   source_rect.bottom = source_y + source->y_ofs + height;
+
+   src_key.dwColorSpaceLowValue = source->vtable->mask_color;
+   src_key.dwColorSpaceHighValue = source->vtable->mask_color;
 
    if (is_video_bitmap(source) || is_system_bitmap(source)) {
 
@@ -198,15 +194,15 @@ static void ddraw_draw_sprite(BITMAP * bmp, BITMAP * sprite, int x, int y)
  */
 static void ddraw_clear_to_color(BITMAP * bitmap, int color)
 {
-   RECT dest_rect = {
-      bitmap->cl + bitmap->x_ofs,
-      bitmap->ct + bitmap->y_ofs,
-      bitmap->x_ofs + bitmap->cr,
-      bitmap->y_ofs + bitmap->cb
-   };
+   RECT dest_rect;
    HRESULT hr;
    DDBLTFX blt_fx;
    BITMAP *parent;
+
+   dest_rect.left = bitmap->cl + bitmap->x_ofs;
+   dest_rect.top = bitmap->ct + bitmap->y_ofs;
+   dest_rect.right = bitmap->x_ofs + bitmap->cr;
+   dest_rect.bottom = bitmap->y_ofs + bitmap->cb;
 
    /* find parent */
    parent = bitmap;
