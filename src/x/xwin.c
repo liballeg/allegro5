@@ -331,7 +331,7 @@ static void _xwin_hide_x_mouse(void)
    unsigned long gcmask;
    XGCValues gcvalues;
    Pixmap pixmap;
-   
+
    pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
    if (pixmap != None) {
       GC temp_gc;
@@ -376,7 +376,7 @@ static int _xwin_private_create_window(void)
 
    /* Create window.  */
    setattr.border_pixel = XBlackPixel(_xwin.display, _xwin.screen);
-   setattr.event_mask = (KeyPressMask | KeyReleaseMask 
+   setattr.event_mask = (KeyPressMask | KeyReleaseMask
 			 | EnterWindowMask | LeaveWindowMask
 			 | FocusChangeMask | ExposureMask | PropertyChangeMask
 			 | ButtonPressMask | ButtonReleaseMask | PointerMotionMask
@@ -420,13 +420,13 @@ static int _xwin_private_create_window(void)
 
    /* Create invisible X cursor.  */
    _xwin_hide_x_mouse();
-   
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    /* Detect if ARGB cursors are supported */
    _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
 #endif
    _xwin.hw_cursor_ok = 0;
-   
+
    return 0;
 }
 
@@ -625,7 +625,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv)
 
    /* Prepare driver description.  */
    if (_xwin.matching_formats) {
-      uszprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc), 
+      uszprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc),
 	        uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
 	        _xwin.window_depth,
 	        uconvert_ascii("real depth", tmp2));
@@ -736,7 +736,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
       XSync(_xwin.display, False);
-	  
+
       /* Grab the keyboard and mouse.  */
       if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
 			GrabModeAsync, GrabModeAsync, CurrentTime) != GrabSuccess) {
@@ -1532,7 +1532,7 @@ void _xwin_enable_hardware_cursor(int mode)
    else
 #endif
       _xwin.hw_cursor_ok = 0;
-   
+
    /* Switch to non-warped mode */
    if (_xwin.hw_cursor_ok) {
       _xwin.mouse_warped = 0;
@@ -1576,14 +1576,14 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
    if (!_xwin.support_argb_cursor) {
       return -1;
    }
-   
+
    if (_xwin.xcursor_image != None) {
       XLOCK();
       XcursorImageDestroy(_xwin.xcursor_image);
       XUNLOCK();
       _xwin.xcursor_image = None;
    }
-   
+
    if (sprite) {
       int ix, iy;
       int r = 0, g = 0, b = 0, a = 0, c, col;
@@ -1592,12 +1592,12 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
       if (_xwin.xcursor_image == None) {
          return -1;
       }
-      
-      
+
+
       switch(bitmap_color_depth(mouse_sprite)) {
          GET_PIXEL_DATA(8, _getpixel)
             break;
-                  
+
          GET_PIXEL_DATA(15, _getpixel15)
             break;
 
@@ -1610,16 +1610,16 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
          GET_PIXEL_DATA(32, _getpixel32)
             break;
       } /* End switch */
-      
+
       _xwin.xcursor_image->xhot = mouse_x_focus;
       _xwin.xcursor_image->yhot = mouse_y_focus;
-      
+
       return 0;
    }
-   
+
 #undef GET_PIXEL_DATA
 
-   return -1;  
+   return -1;
 }
 
 
@@ -1632,7 +1632,7 @@ int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
    /* Only draw on screen */
    if (!is_same_bitmap(bmp, screen))
       return -1;
-      
+
    if (!_xwin.support_argb_cursor) {
       return -1;
    }
@@ -1641,7 +1641,7 @@ int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
       return -1;
    }
 
-   /* Hardware cursor is disabled (mickey mode) */   
+   /* Hardware cursor is disabled (mickey mode) */
    if (!_xwin.hw_cursor_ok) {
       return -1;
    }
@@ -1650,12 +1650,12 @@ int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
    if (_xwin.cursor != None) {
       XUndefineCursor(_xwin.display, _xwin.window);
       XFreeCursor(_xwin.display, _xwin.cursor);
-   }   
+   }
 
    _xwin.cursor = XcursorImageLoadCursor(_xwin.display, _xwin.xcursor_image);
    XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
 
-   XUNLOCK();   
+   XUNLOCK();
    return 0;
 }
 
@@ -1693,7 +1693,7 @@ void _xwin_move_mouse(int x, int y)
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
 {
    GRAPHICS_RECT src_rect, dest_rect;
- 
+
    /* set up source and destination rectangles */
    src_rect.height = sh;
    src_rect.width  = sw;
@@ -1720,7 +1720,7 @@ static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
    #define DEFAULT_RGB_B_POS_24  (2-DEFAULT_RGB_B_SHIFT_24/8)
 #else
    #error endianess not defined
-#endif 
+#endif
 
 #define MAKE_FAST_TRUECOLOR(name,stype,dtype,rshift,gshift,bshift,rmask,gmask,bmask)    \
 static void name(int sx, int sy, int sw, int sh)                                        \
@@ -2078,7 +2078,7 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
             _set_colorconv_palette(p, from, to);
          }
       }
-      
+
       /* Set "hardware" colors.  */
       (*(_xwin.set_colors))(p, from, to);
 
@@ -2123,7 +2123,7 @@ static void _xwin_private_set_window_defaults(void)
    wm_hints.input = True;
    wm_hints.initial_state = NormalState;
    wm_hints.window_group = _xwin.window;
-   
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
    if (allegro_icon) {
       wm_hints.flags |= IconPixmapHint | IconMaskHint;
@@ -2311,9 +2311,11 @@ static void _xwin_private_process_event(XEvent *event)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
 	 break;
       case Expose:
+	 XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
 	 /* Request to redraw part of the window.  */
 	 (*_xwin_window_redrawer)(event->xexpose.x, event->xexpose.y,
 				     event->xexpose.width, event->xexpose.height);
+	 XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin.real_drawing_mode, -1);
 	 break;
       case MappingNotify:
 	 /* Keyboard mapping changed.  */
@@ -2697,7 +2699,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h)
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VidMode extension requires local display"));
       return 0;
    }
-   
+
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
        || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
@@ -2706,7 +2708,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h)
    }
 
    /* Get list of modelines.  */
-   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, 
+   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen,
 				   &_xwin.num_modes, &_xwin.modesinfo))
       return 0;
 
