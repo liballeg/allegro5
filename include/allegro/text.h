@@ -44,6 +44,7 @@ typedef struct FONT
 } FONT;
 
 AL_VAR(FONT *, font);
+AL_VAR(int, allegro_404_char);
 AL_FUNC(int, text_mode, (int mode));
 AL_FUNC(void, textout, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
 AL_FUNC(void, textout_centre, (struct BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color));
@@ -56,8 +57,6 @@ AL_PRINTFUNC(void, textprintf_justify, (struct BITMAP *bmp, AL_CONST FONT *f, in
 AL_FUNC(int, text_length, (AL_CONST FONT *f, AL_CONST char *str));
 AL_FUNC(int, text_height, (AL_CONST FONT *f));
 AL_FUNC(void, destroy_font, (FONT *f));
-
-AL_VAR(int, allegro_404_char);
 
 #ifdef __cplusplus
    }
