@@ -277,15 +277,15 @@ static int install_timer_int(void *proc, void *param, long speed, int param_used
 
    if (param_used) {
       if (timer_driver->install_param_int) 
-	 return timer_driver->install_param_int(proc, param, speed);
+	 return timer_driver->install_param_int((void (*)(void *))proc, param, speed);
 
-      x = find_param_timer_slot(proc, param);
+      x = find_param_timer_slot((void (*)(void *))proc, param);
    }
    else {
       if (timer_driver->install_int) 
-	 return timer_driver->install_int(proc, speed);
+	 return timer_driver->install_int((void (*)(void))proc, speed);
 
-      x = find_timer_slot(proc); 
+      x = find_timer_slot((void (*)(void))proc); 
    }
 
    if (x < 0)
