@@ -54,6 +54,55 @@ Trivial problems
 
 
 @heading
+The giftware licence
+
+   The Allegro licence is absolutely clear unless you are a a lawyer.
+   However it's written quite informal so this mini-FAQ tries to clarify
+   some things.
+
+<div class="faq-shift-to-right">
+@@   Does the licence mean that Allegro is public domain?
+      No. Every Allegro contributor holds the copyright for the code he or
+      she wrote. This means he or she grants you the right to use it for
+      any purpose you want. But the fact that the contributor holds the
+      copyright means that you e.g. cannot claim that you wrote the code.
+
+@@   Can I use Allegro for commercial purposes?
+      Yes.
+
+@@   Is Allegro compatible with licence XXX (e.g. GPL)?
+      Because the Allegro licence has no restrictions on use you can combine
+      it with any licence you want.
+
+@@   Is Allegro open source (OSI) compatible?
+      See the previous question. Since Allegro is compatible with about any
+      license, it also is OSI compatible. It clearly is compatible to all the
+      points in the OSD (open source definition). You can search the OSI
+      mailing list for "Allegro" to see that OSI shares this view. (OSI
+      officials still were reluctant to consider it for approval though and
+      suggested to use an existing license like MIT instead.)
+
+@@   How are modifications of the library licensed?
+      You can modify Allegro and distribute the modified Allegro under
+      any licence you want, but the original unmodified parts will still
+      be licenced under the Allegro licence. If you offer your
+      modifications to be included in the official Allegro distribution
+      (e.g. by sending them to the Allegro developers mailing list) you
+      automatically agree with licencing the modification under the
+      Allegro licence.
+
+@\   I took your code. Will you sue me?
+@@   Your library destroyed my PC. Who do I sue?
+      We are programmers not lawyers. This FAQ represents our current
+      understanding of copyright law (or copyright laws in different
+      countries). But given the license, which allows everything, and
+      the disclaimer, which says we take no responsibility for anything,
+      we really don't see how there could be any problems.
+</div>
+
+
+
+@heading
 DJGPP problems
 
 <div class="faq-shift-to-right">
