@@ -194,7 +194,8 @@ information about how to install Allegro and link your program with it.
    On platforms that have a close button, this routine installs a callback 
    function to handle the close event. In other words, when the user clicks 
    the close button on your program's window or any equivalent device, the
-   function you specify here will be called.
+   function you specify here will be called. Returns 0 on success and
+   non-zero on failure (e.g. the feature is not supported by the platform).
 
    This function should not generally attempt to exit the program or save 
    any data itself. The function could be called at any time, and there is 
