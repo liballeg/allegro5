@@ -74,7 +74,7 @@ static POST *_search_post_section(const char *filename);
 static POST *_search_post_section_with_token(const char *token);
 static POST *_create_post_section(const char *filename);
 static void _destroy_post_page(POST *p);
-static const char *_get_clean_xref_token(const char *text);
+static char *_get_clean_xref_token(const char *text);
 static void _post_process_filename(char *filename);
 static int _verify_correct_input(void);
 static void _close_html_file(FILE *file);
@@ -645,6 +645,7 @@ static void _post_process_pending_xrefs(void)
       _destroy_post_page(_post[f]);
       
    free(_post);
+   _post = 0;
 }
 
 
@@ -654,18 +655,21 @@ static void _post_process_pending_xrefs(void)
  */
 static void _add_post_process_xref(const char *token)
 {
+   char *clean_token;
    POST *p;
 
-   token = _get_clean_xref_token(token);
-   if (!token[0])
+   clean_token = _get_clean_xref_token(token);
+   if (!clean_token[0]) {
+      free(clean_token);
       return ;
+   }
 
    p = _search_post_section(_filename);
    if (!p)
       p = _create_post_section(_filename);
 
    p->token = m_xrealloc(p->token, sizeof(char*) * (1 + p->num));
-   p->token[p->num++] = m_strdup(token);
+   p->token[p->num++] = clean_token;
 }
 
 
@@ -673,29 +677,31 @@ static void _add_post_process_xref(const char *token)
 /* _get_clean_xref_token:
  * Given a text, extracts the clean xref token, which either has to be
  * surrounded by #..", inside a <a name=".." tag, or without any
- * html characters around. Otherwise returns an empty string.
+ * html characters around. Otherwise returns an empty string. The
+ * returned string has to be freed always.
  */
-static const char *_get_clean_xref_token(const char *text)
+static char *_get_clean_xref_token(const char *text)
 {
-   static char buf[256], *t;
+   char *buf = 0, *t;
    const char *p;
 
    if ((p = strstr(text, "<a name=\""))) {
-      strcpy(buf, p + 9);
+      buf = m_strdup(p + 9);
       t = strchr(buf, '"');
       *t = 0;
    }
    else if ((p = strchr(text, '#'))) {
-      strcpy(buf, p+1);
+      buf = m_strdup(p + 1);
       t = strchr(buf, '"');
       *t = 0;
    }
    else if (!strchr(text, '<') && !strchr(text, '>'))
-      strcpy(buf, text);
+      buf = m_strdup(text);
    else { /* this is mainly for debugging */
       printf("'%s' was rejected as clean xref token\n", text);
-      buf[0] = 0;
+      buf = m_strdup("");
    }
+   assert(buf);
    return buf;
 }
 
@@ -807,7 +813,8 @@ static void _post_process_filename(char *filename)
 
    while ((line = m_fgets(f1))) {
       if ((p = strstr(line, "\"post_process#"))) {
-	 POST *page = _search_post_section_with_token(_get_clean_xref_token(p + 2));
+	 char *clean_token = _get_clean_xref_token(p + 2);
+	 POST *page = _search_post_section_with_token(clean_token);
 	 if (!page) {
 	    printf("Didn't find xref for %s", line);
 	    fputs(line, f2);
@@ -826,6 +833,7 @@ static void _post_process_filename(char *filename)
 	    fputs(temp, f2);
 	    free(temp);
 	 }
+	 free(clean_token);
       }
       else
 	 fputs(line, f2);
