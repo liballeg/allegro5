@@ -143,16 +143,13 @@ information about how to install Allegro and link your program with it.
       OSTYPE_QNX        - QNX
 </pre>
 @@extern int @os_version;
-@xref os_type, os_revision
-   Set by allegro_init().
-   The major version of the Operating System currently running.
-   For example: Under Win98 SE (v4.10.2222) this will return 4.
-
 @@extern int @os_revision;
-@xref os_type, os_version
-   Set by allegro_init().
-   The minor version of the Operating System currently running.
-   For example: Under Win98 SE (v4.10.2222) this will return 10.
+@xref os_type
+   The major and minor version of the Operating System currently running.
+   Set by allegro_init(). If Allegro for some reason was not able to
+   retrieve the version of the Operating System, os_version and
+   os_revision will be set to zero. For example: Under Win98 SE (v4.10.2222)
+   os_version will be set to 4 and os_revision to 10.
 
 @@void @allegro_message(char *msg, ...);
    Outputs a message, using a printf() format string. This function must 
@@ -7404,15 +7401,6 @@ DOS specifics
    sub-bitmaps to access the two sections (see examples/exscroll.c for a 
    demonstration of how this could be done). To disable the split, call 
    split_modex_screen(0).
-
-@@extern int @windows_version;
-@@extern int @windows_sub_version;
-@xref allegro_init, os_type
-   In the DOS library, these are set by allegro_init() to detect the 
-   presence of Microsoft Windows. Under windows 3.1, windows_version will be 
-   set to 3, under win95 it will be 4, under NT it will be 0x100, and if 
-   windows isn't present it will be zero. These variables only exist for 
-   backward compatibility: you would be better off using os_type instead.
 
 @@extern int @i_love_bill;
 @xref install_timer, allegro_init, os_type
