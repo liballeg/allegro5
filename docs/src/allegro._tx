@@ -164,7 +164,7 @@ information about how to install Allegro and link your program with it.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
 
-@@void @allegro_message(char *msg, ...);
+@@void @allegro_message(const char *msg, ...);
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
    set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
@@ -2099,7 +2099,7 @@ Joystick routines
    "analogue", there are some #define aliases in allegro/joystick.h that
    will allow you to write "analog" instead.
 
-@@char *@calibrate_joystick_name(int n);
+@@const char *@calibrate_joystick_name(int n);
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
    Returns a text description for the next type of calibration that will be 
    done on the specified joystick, or NULL if no more calibration is 
@@ -3354,7 +3354,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref polygon, triangle3d, drawing_mode
    Draws a filled triangle between the three points.
 
-@@void @polygon(BITMAP *bmp, int vertices, int *points, int color);
+@@void @polygon(BITMAP *bmp, int vertices, const int *points, int color);
 @xref triangle, polygon3d, drawing_mode
    Draws a filled polygon with an arbitrary number of corners. Pass the 
    number of vertices and an array containing a series of x, y points (a 
@@ -3422,7 +3422,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    full circle, 64 a right angle, etc. Zero is to the right of the centre 
    point, and larger values rotate anticlockwise from there.
 
-@@void @calc_spline(int points[8], int npts, int *x, int *y);
+@@void @calc_spline(const int points[8], int npts, int *x, int *y);
 @xref spline
    Calculates a series of npts values along a bezier spline, storing them in 
    the output x and y arrays. The bezier curve is specified by the four x/y 
@@ -3438,7 +3438,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    useful for constructing smooth paths around a series of control points, 
    as in exspline.c.
 
-@@void @spline(BITMAP *bmp, int points[8], int color);
+@@void @spline(BITMAP *bmp, const int points[8], int color);
 @xref calc_spline, drawing_mode
    Draws a bezier spline using the four control points specified in the 
    points array.
@@ -4096,7 +4096,7 @@ Polygon rendering
       polygon3d_f(bmp, type, tex, 4, v[]);
 
 @\int @clip3d_f(int type, float min_z, float max_z, int vc,
-@@             V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
+@@             const V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
    Clips the polygon given in vtx. The number of vertices is vc, the result 
    goes in vout, and vtmp and out are needed for internal purposes. The 
@@ -4113,7 +4113,7 @@ Polygon rendering
    no provision is made for high/truecolor GCOL.
 
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
-@@           V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
+@@           const V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
 @xref polygon3d, clip3d_f
    Fixed point version of clip3d_f(). This function should be used with 
    caution, due to the limited precision of fixed point arithmetic and high 
@@ -6057,13 +6057,13 @@ directly from a specific datafile object.
 @xref load_datafile_object
    Frees an object previously loaded by load_datafile_object().
 
-@@DATAFILE *@find_datafile_object(DATAFILE *dat, const char *objectname);
+@@DATAFILE *@find_datafile_object(const DATAFILE *dat, const char *objectname);
 @xref load_datafile, load_datafile_object
    Searches an already loaded datafile for an object with the specified 
    name, returning a pointer to it, or NULL if the object cannot be found. 
    It understands '/' and '#' separators for nested datafile paths.
 
-@@char *@get_datafile_property(DATAFILE *dat, int type);
+@@const char *@get_datafile_property(const DATAFILE *dat, int type);
    Returns the specified property string for the object, or an empty string 
    if the property isn't present. See grabber.txt for more information.
 
@@ -8459,7 +8459,7 @@ will make debugging much easier, and includes assert tests that will help to
 locate errors in your code at an earlier stage. Allegro also contains some 
 debugging helper functions:
 
-@@void @al_assert(char *file, int line);
+@@void @al_assert(const char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
    Raises an assert for an error at the specified file and line number. The 
    file parameter is always given in ASCII format. If you have installed a 
@@ -8469,7 +8469,7 @@ debugging helper functions:
    will usually want to use the ASSERT() macro instead of calling this 
    function directly.
 
-@@void @al_trace(char *msg, ...);
+@@void @al_trace(const char *msg, ...);
 @xref TRACE, al_assert, register_trace_handler
    Outputs a debugging trace message, using a printf() format string given 
    in ASCII. If you have installed a custom trace handler it uses that, or 
@@ -8490,7 +8490,7 @@ debugging helper functions:
    defined the preprocessor symbol DEBUGMODE before including Allegro headers,
    it passes the supplied message given in ASCII format to al_trace().
 
-@@void @register_assert_handler(int (*handler)(char *msg));
+@@void @register_assert_handler(int (*handler)(const char *msg));
 @xref al_assert, ASSERT, register_trace_handler
    Supplies a custom handler function for dealing with assert failures. Your 
    callback will be passed a formatted error message in ASCII, and should 
@@ -8499,7 +8499,7 @@ debugging helper functions:
    display the error messages on a graphics mode screen without aborting the 
    program.
 
-@@void @register_trace_handler(int (*handler)(char *msg));
+@@void @register_trace_handler(int (*handler)(const char *msg));
 @xref al_trace, TRACE, register_assert_handler
    Supplies a custom handler function for dealing with trace output. Your 
    callback will be passed a formatted error message in ASCII, and should 
