@@ -65,10 +65,9 @@
    Windows/Cygwin    - see docs/build/mingw32.txt
    Windows/Borland   - see docs/build/bcc32.txt
    Linux (console)   - see docs/build/linux.txt
-   Unix (X)          - see docs/build/unix.txt
+   Unix (X11)        - see docs/build/unix.txt
    BeOS              - see docs/build/beos.txt
    QNX               - see docs/build/qnx.txt
-   MacOS/MPW         - see docs/build/macos.txt
 
    General API information can be found in the main manual, usually referred
    to as docs/txt/allegro.txt or simply allegro.txt throughout this document
