@@ -613,7 +613,6 @@ static GFX_MODE_LIST *vesa_fetch_mode_list()
 
    mode_list = malloc(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
-   mode_list->malloced = TRUE;
 
    /* fetch list of VESA modes */
    if (get_vesa_info()) return NULL;
@@ -622,11 +621,11 @@ static GFX_MODE_LIST *vesa_fetch_mode_list()
 
    /* count number of VESA modes */
    mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
-   for (mode_list->modes = 0; _farnspeekw(mode_ptr) != 0xFFFF; mode_list->modes++)
+   for (mode_list->num_modes = 0; _farnspeekw(mode_ptr) != 0xFFFF; mode_list->num_modes++)
       mode_ptr += sizeof(unsigned short);
 
    /* allocate and fill in temporary vesa mode list */
-   vesa_mode = malloc(sizeof(unsigned short) * mode_list->modes);
+   vesa_mode = malloc(sizeof(unsigned short) * mode_list->num_modes);
    if (!vesa_mode) return NULL;
 
    mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
@@ -635,19 +634,19 @@ static GFX_MODE_LIST *vesa_fetch_mode_list()
       mode_ptr += sizeof(unsigned short);
    }
 
-   vesa_list_length = mode_list->modes;
+   vesa_list_length = mode_list->num_modes;
 
    /* zero out text and <8 bpp modes for later exclusion */
-   for (mode = 0; mode < mode_list->modes; mode++) {
+   for (mode = 0; mode < mode_list->num_modes; mode++) {
       if (get_mode_info(vesa_mode[mode])) return NULL;
       if ((mode_info.MemoryModel == 0) || (mode_info.BitsPerPixel < 8)) {
          vesa_mode[mode] = 0;
-         mode_list->modes--;
+         mode_list->num_modes--;
       }
    }
 
    /* allocate mode list */
-   mode_list->mode = malloc(sizeof(GFX_MODE) * (mode_list->modes + 1));
+   mode_list->mode = malloc(sizeof(GFX_MODE) * (mode_list->num_modes + 1));
    if (!mode_list->mode) return NULL;
 
    /* fill in width, height and color depth for each VESA mode */
@@ -662,9 +661,9 @@ static GFX_MODE_LIST *vesa_fetch_mode_list()
    }
 
    /* terminate list */
-   mode_list->mode[mode_list->modes].width  = 0;
-   mode_list->mode[mode_list->modes].height = 0;
-   mode_list->mode[mode_list->modes].bpp    = 0;
+   mode_list->mode[mode_list->num_modes].width  = 0;
+   mode_list->mode[mode_list->num_modes].height = 0;
+   mode_list->mode[mode_list->num_modes].bpp    = 0;
 
    /* free up temporary vesa mode list */
    free(vesa_mode);

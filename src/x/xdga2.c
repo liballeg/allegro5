@@ -153,7 +153,6 @@ static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
    mode_list = malloc(sizeof(GFX_MODE_LIST));
    if (!mode_list)
       goto error;
-   mode_list->malloced = TRUE;
    mode_list->mode = NULL;
 
    stored_modes = 0;
@@ -187,7 +186,7 @@ static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
    mode_list->mode[stored_modes].width = 0;
    mode_list->mode[stored_modes].height = 0;
    mode_list->mode[stored_modes].bpp = 0;
-   mode_list->modes = stored_modes;
+   mode_list->num_modes = stored_modes;
 
    XFree(mode);
    return mode_list;

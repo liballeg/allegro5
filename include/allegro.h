@@ -777,8 +777,7 @@ typedef struct GFX_MODE {
 } GFX_MODE;
 
 typedef struct GFX_MODE_LIST {
-   int modes;      /* number of gfx modes                   */
-   int malloced;   /* malloc'ed or hardcoded?               */
+   int num_modes;  /* number of gfx modes                   */
    GFX_MODE *mode; /* pointer to the actual mode list array */
 } GFX_MODE_LIST;
 

@@ -272,25 +272,25 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
    gfx_mode_list = (GFX_MODE_LIST *) gfx_mode_list_ptr;
 
    /* build gfx mode-list */
-   gfx_mode_list->mode = realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->modes + 1));
+   gfx_mode_list->mode = realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
    if (!gfx_mode_list->mode)
       return DDENUMRET_CANCEL;
 
-   gfx_mode_list->mode[gfx_mode_list->modes].width  = lpDDSurfaceDesc->dwWidth;
-   gfx_mode_list->mode[gfx_mode_list->modes].height = lpDDSurfaceDesc->dwHeight;
-   gfx_mode_list->mode[gfx_mode_list->modes].bpp    = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].width  = lpDDSurfaceDesc->dwWidth;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].height = lpDDSurfaceDesc->dwHeight;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].bpp    = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
 
    /* check if 16 bpp mode is 16 bpp or 15 bpp */
-   if (gfx_mode_list->mode[gfx_mode_list->modes].bpp == 16) {
+   if (gfx_mode_list->mode[gfx_mode_list->num_modes].bpp == 16) {
       real_bpp = get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
                  get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
                  get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
 
       if (real_bpp == 15)
-         gfx_mode_list->mode[gfx_mode_list->modes].bpp = real_bpp;
+         gfx_mode_list->mode[gfx_mode_list->num_modes].bpp = real_bpp;
    }
 
-   gfx_mode_list->modes++;
+   gfx_mode_list->num_modes++;
 
    return DDENUMRET_OK;
 }
@@ -324,8 +324,7 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
    gfx_mode_list = malloc(sizeof(GFX_MODE_LIST));
    if (!gfx_mode_list) return NULL;
 
-   gfx_mode_list->modes = 0;
-   gfx_mode_list->malloced = TRUE;
+   gfx_mode_list->num_modes = 0;
    gfx_mode_list->mode = NULL;
 
    hr = IDirectDraw2_EnumDisplayModes(directdraw, enum_flags, NULL, gfx_mode_list, EnumModesCallback);
@@ -338,11 +337,11 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
    }
 
    /* terminate mode list */
-   gfx_mode_list->mode = realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->modes + 1));
+   gfx_mode_list->mode = realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
 
-   gfx_mode_list->mode[gfx_mode_list->modes].width  = 0;
-   gfx_mode_list->mode[gfx_mode_list->modes].height = 0;
-   gfx_mode_list->mode[gfx_mode_list->modes].bpp    = 0;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].width  = 0;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].height = 0;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].bpp    = 0;
 
    if (dx_was_off)
       exit_directx();

@@ -213,7 +213,7 @@ GFX_MODE_LIST *get_gfx_mode_list(int card)
    if(!drv) return NULL;
 
    /* sort the list and finish */
-   qsort(gfx_mode_list->mode, gfx_mode_list->modes, sizeof(GFX_MODE), (void *) sort_gfx_mode_list);
+   qsort(gfx_mode_list->mode, gfx_mode_list->num_modes, sizeof(GFX_MODE), (void *) sort_gfx_mode_list);
 
    return gfx_mode_list;
 }
@@ -226,7 +226,7 @@ GFX_MODE_LIST *get_gfx_mode_list(int card)
 void destroy_gfx_mode_list(GFX_MODE_LIST *gfx_mode_list)
 {
    if (gfx_mode_list) {
-      if (gfx_mode_list->malloced) free(gfx_mode_list->mode);
+      if (gfx_mode_list->mode) free(gfx_mode_list->mode);
       free(gfx_mode_list);
    }
 }

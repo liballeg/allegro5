@@ -596,8 +596,7 @@ static GFX_MODE_LIST *svga_fetch_mode_list(void)
    mode_list->mode[count].height = 0;
    mode_list->mode[count].bpp = 0;
 
-   mode_list->modes = count;
-   mode_list->malloced = TRUE;
+   mode_list->num_modes = count;
 
    return mode_list;
 }

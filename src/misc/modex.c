@@ -824,9 +824,11 @@ static GFX_MODE_LIST *xtended_fetch_mode_list()
    mode_list = malloc(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
    
-   mode_list->malloced = FALSE;
-   mode_list->mode = xtended_gfx_modes;
-   mode_list->modes = sizeof(xtended_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
+   mode_list->mode = malloc(sizeof(xtended_gfx_modes));
+   if (!mode_list->mode) return NULL;
+
+   memcpy(mode_list->mode, xtended_gfx_modes, sizeof(xtended_gfx_modes));
+   mode_list->num_modes = sizeof(xtended_gfx_modes) / sizeof(GFX_MODE) - 1;
 
    return mode_list;
 }
@@ -1612,10 +1614,12 @@ static GFX_MODE_LIST *modex_fetch_mode_list()
 
    mode_list = malloc(sizeof(GFX_MODE_LIST));
    if (!mode_list) return NULL;
-   
-   mode_list->malloced = FALSE;
-   mode_list->mode = modex_gfx_modes;
-   mode_list->modes = sizeof(modex_gfx_modes) / sizeof(GFX_MODE_LIST) - 1;
+
+   mode_list->mode = malloc(sizeof(modex_gfx_modes));
+   if (!mode_list->mode) return NULL;
+
+   memcpy(mode_list->mode, modex_gfx_modes, sizeof(modex_gfx_modes));
+   mode_list->num_modes = sizeof(modex_gfx_modes) / sizeof(GFX_MODE) - 1;
 
    return mode_list;
 }
