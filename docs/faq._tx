@@ -377,6 +377,18 @@ General problems
       operations are expensive and will require a fast PC!
 
 <h4><li>
+@@   I tried using fade_in() and fade_out() with truecolor modes but nothing
+   happened. What am I doing wrong?
+</h4>
+      fade_in() and fade_out() only work in 8-bit paletted modes. One of the
+      ways to fade a bitmap in is to loop through all the pixels and change
+      them individually. An alternative is to draw lots of translucent black
+      boxes over the screen. However, these methods can be slow. The example
+      exxfade.c demonstrates how to fade between two bitmaps. You could
+      modify this so it fades in or out from/to a black screen. See also the
+      previous question.
+
+<h4><li>
 @@   How can I generate FLI or FLC format animations?
 </h4>
       See the Allegro homepage (<link>http://www.talula.demon.co.uk/allegro/</a>)
@@ -391,13 +403,6 @@ General problems
       will depend on what units your software uses), and the green one right 
       down to zero. The result is a special shade of Magic Pink, or as some 
       people prefer to call it, magenta.
-
-<h4><li>
-@@   The textout() function doesn't work after I use any of the GUI routines!
-</h4>
-      One of the GUI objects has changed the text_mode() setting while it 
-      was drawing itself. Call text_mode() again to select whatever 
-      background color you want to use.
 
 <h4><li>
 @@   I can't get the 3D polygon functions to work!
