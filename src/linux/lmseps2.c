@@ -51,35 +51,34 @@ static int packet_size;
  *  mouse down or left the data bytes become negative and have ones 
  *  here instead.
  */
-static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
+static int processor (unsigned char *buf, int buf_size)
 {
-   info->updated = 0;
+   int r, l, m, x, y, z;
+
    if (buf_size < packet_size) return 0;  /* not enough data, spit it out for now */
 
    /* if data is invalid, return no motion and all buttons released */
-   info->l = info->r = info->m = info->x = info->y = info->z = 0;
-   info->updated = 1;
    if ((buf[0] & 0xc0) != 0x00) return 1; /* invalid byte, eat it */
 
    /* data is valid, process it */
-   info->l = !!(buf[0] & 1);
-   info->r = !!(buf[0] & 2);
-   info->m = !!(buf[0] & 4);
+   l = !!(buf[0] & 1);
+   r = !!(buf[0] & 2);
+   m = !!(buf[0] & 4);
 
-   info->x = buf[1];
-   info->y = buf[2];
-   if (buf[0] & 0x10) info->x -= 256;
-   if (buf[0] & 0x20) info->y -= 256;
+   x = buf[1];
+   y = buf[2];
+   if (buf[0] & 0x10) x -= 256;
+   if (buf[0] & 0x20) y -= 256;
 
    if (intellimouse) {
-      info->z = buf[3] & 0xf;
-      if (info->z) 
-	 info->z = (info->z-7) >> 3;
+      z = buf[3] & 0xf;
+      if (z) 
+	 z = (z-7) >> 3;
    }
    else
-      info->z = 0;
+      z = 0;
 
-   info->updated = 1;
+   __al_linux_mouse_handler(x, y, z, l+(r<<1)+(m<<2));
    return packet_size; /* yum */
 }
 

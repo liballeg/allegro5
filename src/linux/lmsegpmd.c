@@ -44,24 +44,22 @@
  *  bit set and the next four bits not set -- while this can occur in the 
  *  data bytes, it's pretty unlikely.
  */
-static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
+static int processor (unsigned char *buf, int buf_size)
 {
-   info->updated = 0;
+   int r, m, l, x, y, z;
+
    if (buf_size < 5) return 0;  /* not enough data, spit it out for now */
 
-   /* if the packet is invalid, return no motion and no buttons pressed */
-   info->r = info->m = info->l = info->x = info->y = 0;
-   info->updated = 1;
    if ((buf[0] & 0xf8) != 0x80) return 1; /* invalid byte, eat it */
 
    /* packet is valid, process the data */
-   info->r = !(buf[0] & 1);
-   info->m = !(buf[0] & 2);
-   info->l = !(buf[0] & 4);
-   info->x = (signed char)buf[1] + (signed char)buf[3];
-   info->y = (signed char)buf[2] + (signed char)buf[4];
-   info->z = 0;
-   info->updated = 1;
+   r = !(buf[0] & 1);
+   m = !(buf[0] & 2);
+   l = !(buf[0] & 4);
+   x = (signed char)buf[1] + (signed char)buf[3];
+   y = (signed char)buf[2] + (signed char)buf[4];
+   z = 0;
+   __al_linux_mouse_handler(x, y, z, l+(r<<1)+(m<<2));
    return 5; /* yum */
 }
 

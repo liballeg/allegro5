@@ -1399,6 +1399,7 @@ mouse = x<br>
       LPS2 - PS2 mouse
       LIPS - PS2 mouse with Intellimouse extension
       GPMD - GPM repeater data (Mouse Systems protocol)
+      EV   - Event interfaces (EVDEV)
 <endblock>
 <li>
 num_buttons = x<br>
@@ -1412,6 +1413,25 @@ emulate_three = x<br>
 <li>
 mouse_device = x<br>
    Linux only: specifies the name of the mouse device file (eg. /dev/mouse).
+<li>
+ev_absolute = x<br>
+   Linux only: specifies the mode for the default EV input:
+      0 - relative mode: pointer position changes if the input moves,
+      1 - absolute mode: pointer position is the input position.
+   If unspecified, the mode is relative.
+   If the device supports several tools (such as a graphic tablet), the
+   default input is the mouse. If the device has only one tool (e.g. a
+   normal mouse) the default input is this tool. All additionnal tools
+   work in absolute mode.
+<li>
+ev_min_x = x<br>
+ev_max_x = x<br>
+ev_min_y = x<br>
+ev_max_y = x<br>
+ev_min_z = x<br>
+ev_max_z = x<br>
+   Linux only: for absolute EV inputs, minimum and maximum value. By default
+   this information is autodetected.
 <li>
 mouse_accel_factor = x<br>
    Windows only: specifies the mouse acceleration factor. Defaults to 1.

@@ -42,11 +42,10 @@ static int packet_size;
  *  bits of the Y offset (second data byte), and the last two are the 
  *  top bits of the X offset (first data byte).
  */
-static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
+static int processor (unsigned char *buf, int buf_size)
 {
-   /* if we don't have enough input, we don't want the caller to process
-    * the `info' struct */
-   info->updated = 0;
+   int r, l, m, x, y, z;
+
    if (buf_size < packet_size) return 0;     /* not enough data, spit it out for now */
 
    /* if packet is invalid, just eat it */
@@ -55,24 +54,24 @@ static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
    if (buf[2] & 0x40) return 2;    /* second data byte is actually a header */
    
    /* packet is valid, decode the data */
-   info->l = !!(buf[0] & 0x20);
-   info->r = !!(buf[0] & 0x10);
+   l = !!(buf[0] & 0x20);
+   r = !!(buf[0] & 0x10);
 
    if (intellimouse) {
-      info->m = !!(buf[3] & 0x10);
-      info->z = (buf[3] & 0x0f);
-      if (info->z) 
-	 info->z = (info->z-7) >> 3;
+      m = !!(buf[3] & 0x10);
+      z = (buf[3] & 0x0f);
+      if (z) 
+         z = (z-7) >> 3;
    }
    else {
-      info->m = 0;
-      info->z = 0;
+      m = 0;
+      z = 0;
    }
 
-   info->x =  (signed char) (((buf[0] & 0x03) << 6) | (buf[1] & 0x3F));
-   info->y = -(signed char) (((buf[0] & 0x0C) << 4) | (buf[2] & 0x3F));
+   x =  (signed char) (((buf[0] & 0x03) << 6) | (buf[1] & 0x3F));
+   y = -(signed char) (((buf[0] & 0x0C) << 4) | (buf[2] & 0x3F));
 
-   info->updated = 1;
+   __al_linux_mouse_handler(x, y, z, l+(r<<1)+(m<<2));
    return packet_size; /* yum */
 }
 

@@ -126,7 +126,7 @@ void __al_linux_mouse_get_mickeys(int *mickeyx, int *mickeyy)
 /* __al_linux_mouse_handler:
  *  Movement callback for mickey-mode driver.
  */
-static void __al_linux_mouse_handler (int x, int y, int z, int b)
+void __al_linux_mouse_handler (int x, int y, int z, int b)
 {
    _mouse_b = b;
 
@@ -179,23 +179,6 @@ static int resume_count;
 static INTERNAL_MOUSE_DRIVER *internal_driver;
 
 
-/* process_mouse_data:
- *  Reads an event from the buffer, if a complete event is there;
- *  returns the number of bytes eaten.
- */
-static int process_mouse_data (unsigned char *buf, int buf_size)
-{
-   int eaten;
-   struct mouse_info info;
-
-   eaten = internal_driver->process (buf, buf_size, &info);
-   if (info.updated)
-      __al_linux_mouse_handler (info.x, info.y, info.z, info.l + (info.r << 1) + (info.m << 2));
-
-   return eaten;
-}
-
-
 /* update_mouse:
  *  Reads data from the mouse, attempting to process it.
  */
@@ -220,7 +203,7 @@ static int update_mouse (void)
 
    bytes_in_buffer += bytes_read;
 
-   while (bytes_in_buffer && (bytes_read = process_mouse_data (buf, bytes_in_buffer))) {
+   while (bytes_in_buffer && (bytes_read = internal_driver->process (buf, bytes_in_buffer))) {
       int i;
       bytes_in_buffer -= bytes_read;
       for (i = 0; i < bytes_in_buffer; i++)

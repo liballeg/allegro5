@@ -236,14 +236,9 @@ BITMAP *__al_linux_gfx_mode_set_helper (
 /************ Mouse ************/ /* (src/linux/lmouse.c) */
 /*******************************/
 
-struct mouse_info {
-   int x, y, z, l, r, m;
-   int updated;
-};
-
 typedef struct INTERNAL_MOUSE_DRIVER {
    int device;
-   int (*process) (unsigned char *buf, int buf_size, struct mouse_info *info);
+   int (*process) (unsigned char *buf, int buf_size);
    int num_buttons;
 } INTERNAL_MOUSE_DRIVER;
 
@@ -253,6 +248,7 @@ void __al_linux_mouse_position (int x, int y);
 void __al_linux_mouse_set_range (int x1, int y1, int x2, int y2);
 void __al_linux_mouse_set_speed (int xspeed, int yspeed);
 void __al_linux_mouse_get_mickeys (int *mickeyx, int *mickeyy);
+void __al_linux_mouse_handler (int x, int y, int z, int b);
 
 
 #ifdef __cplusplus

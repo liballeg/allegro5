@@ -252,6 +252,9 @@ AL_VAR(MOUSE_DRIVER, mousedrv_linux_ms);
 #define MOUSEDRV_LINUX_IMS       AL_ID('I','M','S',' ')
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 
+#define MOUSEDRV_LINUX_EVDEV     AL_ID('E','V',' ',' ')
+AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
+
 #define JOY_TYPE_LINUX_ANALOGUE  AL_ID('L','N','X','A')
 AL_VAR(JOYSTICK_DRIVER, joystick_linux_analogue);
 
