@@ -75,12 +75,26 @@ static LPDIRECTDRAWSURFACE offscreen_surface = NULL;
 static LPDIRECTDRAWSURFACE preconv_offscreen_surface = NULL;
 static RECT window_rect;
 static void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+static int clipped_updating_mode;
 static int allegro_palette_size;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
+/* handle_window_moving_win
+ *  makes the driver switch to the clipped updating mode,
+ *  if window is moved and color conversion is in use,  
+ */
+void handle_window_moving_win(void)
+{
+   if (!same_color_depth && !clipped_updating_mode) {
+      clipped_updating_mode = TRUE;
+      _TRACE("clipped updating mode on\n");
+   }
+}
+
+
 /* handle_window_size_win:
- *  updates window_rect if window is moved or resized
+ *  updates window_rect if window has been moved or resized
  */
 void handle_window_size_win(void)
 {
@@ -100,8 +114,9 @@ void handle_window_size_win(void)
          SetWindowPos(allegro_wnd, 0, dwin_rect.left + lmod, dwin_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
       }   
 
-      /* to avoid side effects */
-      update_window(NULL); 
+      clipped_updating_mode = FALSE;
+      _TRACE("clipped updating mode off\n");
+      update_window(NULL);
    }
 }
 
@@ -126,11 +141,18 @@ void update_window_hw (RECT* rect)
    else
       update_rect = window_rect;
    
+   _enter_gfx_critical();
+
    /* blit offscreen backbuffer to the window */
    hr = IDirectDrawSurface_Blt(dd_prim_surface,
         		       &update_rect,
 			       BMP_EXTRA(pseudo_screen)->surf,
 			       rect, 0, NULL);
+
+   if (FAILED(hr))
+      _TRACE("Blt failed\n");
+
+   _exit_gfx_critical();
 }
 
 
@@ -162,37 +184,18 @@ void update_window_ex (RECT* rect)
    else
       update_rect = window_rect;
 
-   if ((GetForegroundWindow() == allegro_wnd) || !preconv_offscreen_surface) {
-      /* blit directly to the primary surface WITHOUT clipping */
-      hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
-      if (FAILED(hr))
-         return;
+   _enter_gfx_critical();
 
-      hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
-      if (FAILED(hr)) {
-         IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
-         return;
-      }
-   
-      src_desc.dwWidth = update_rect.right - update_rect.left;
-      src_desc.dwHeight = update_rect.bottom - update_rect.top;
-
-      /* function doing the hard work */
-      _update (&src_desc, &dest_desc);
-
-      IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
-      IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
-   }
-   else {
+   if (clipped_updating_mode || (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer then blit to the primary surface WITH clipping */ 
       hr = IDirectDrawSurface_Lock(preconv_offscreen_surface, rect, &dest_desc, DDLOCK_WAIT, NULL);
       if (FAILED(hr))
-         return;
+         goto End;
 
       hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
       if (FAILED(hr)) {
          IDirectDrawSurface_Unlock(preconv_offscreen_surface, NULL);
-         return;
+         goto End;
       }
    
       src_desc.dwWidth = update_rect.right - update_rect.left;
@@ -206,10 +209,36 @@ void update_window_ex (RECT* rect)
 
       /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
       hr = IDirectDrawSurface_Blt(dd_prim_surface,
-        		       &update_rect,
-			       preconv_offscreen_surface,
-			       rect, 0, NULL);
+        		          &update_rect,
+			          preconv_offscreen_surface,
+			          rect, 0, NULL);
+      if (FAILED(hr))
+         _TRACE("Blt failed\n");
    }
+   else {
+      /* blit directly to the primary surface WITHOUT clipping */
+      hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
+      if (FAILED(hr))
+         goto End;
+
+      hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
+      if (FAILED(hr)) {
+         IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
+         goto End;
+      }
+   
+      src_desc.dwWidth = update_rect.right - update_rect.left;
+      src_desc.dwHeight = update_rect.bottom - update_rect.top;
+
+      /* function doing the hard work */
+      _update (&src_desc, &dest_desc);
+
+      IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
+      IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
+   }
+
+  End:
+   _exit_gfx_critical();
 }
 
 
@@ -422,6 +451,7 @@ static int verify_color_depth (int color_depth)
       } /* end of switch(desktop_depth) */
 
       update_window = update_window_ex;
+      clipped_updating_mode = FALSE;
    }
 
    return 0;
@@ -455,17 +485,24 @@ static int create_offscreen(int w, int h, int color_depth)
       offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
    }
    else {
-      /* create pre-converted offscreen buffer */
+      /* create pre-converted offscreen surface */
       preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
 
-      if (!preconv_offscreen_surface)
-         _TRACE("Can't create preconverted offscreen buffer.\n");
+      if (!preconv_offscreen_surface) {
+         _TRACE("Can't create preconverted offscreen surface in video memory.\n");
+         preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
+
+         if (!preconv_offscreen_surface) {
+            _TRACE("Can't create preconverted offscreen surface.\n");
+            return -1;
+         }
+      }
 
       offscreen_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 0, 0, 0);
    }
 
    if (!offscreen_surface) {
-      _TRACE("Can't create offscreen buffer.\n");
+      _TRACE("Can't create offscreen surface.\n");
       return -1;
    }
 

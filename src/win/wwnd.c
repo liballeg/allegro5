@@ -147,6 +147,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	    PostMessage(allegro_wnd, msg_call_proc, (DWORD) sys_switch_in, 0);
 	 break;
 
+      case WM_MOVING:
+         if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
+            handle_window_moving_win();
+         break;
+
       case WM_MOVE:
 	 if (GetActiveWindow() == allegro_wnd) {
 	    if (!IsIconic(allegro_wnd)) {
