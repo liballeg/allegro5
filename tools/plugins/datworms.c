@@ -238,6 +238,7 @@ DATEDIT_MENU_INFO datworms_menu =
    &worms_menu,
    NULL,
    DATEDIT_MENU_HELP,
-   0
+   0,
+   NULL
 };
 

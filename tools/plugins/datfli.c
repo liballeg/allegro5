@@ -96,6 +96,7 @@ DATEDIT_GRABBER_INFO datfli_grabber =
    "fli;flc",
    "fli;flc",
    NULL,
+   NULL,
    NULL
 };
 

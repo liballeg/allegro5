@@ -2310,11 +2310,11 @@ static int reader(void)
       params.colordepth = -1;
       params.relative = (opt_menu[MENU_RELF].flags & D_SELECTED);
 
-      dat = datedit_grab(&params);
+      dat = datedit_grab(NULL, &params);
 
       set_busy_mouse(FALSE);
 
-      if ((dat) && (dat->dat)) {
+      if (dat) {
 	 grabber_graphic = dat->dat;
 	 memcpy(grabber_palette, datedit_last_read_pal, sizeof(PALETTE));
 
@@ -3381,10 +3381,10 @@ static int sheller(void)
    params.filename = filename;
    /* params.name = */
    /* params.type = */
-   params.x = datedit_numprop(dat, DAT_XPOS);
-   params.y = datedit_numprop(dat, DAT_YPOS);
-   params.w = datedit_numprop(dat, DAT_XSIZ);
-   params.h = datedit_numprop(dat, DAT_YSIZ);
+   /* params.x = */
+   /* params.y = */
+   /* params.w = */
+   /* params.h = */
    /* params.colordepth */
    params.relative = relf;
 

@@ -267,7 +267,8 @@ DATEDIT_MENU_INFO datitype_type_menu =
    &change_type_menu,
    change_query,
    DATEDIT_MENU_OBJECT | DATEDIT_MENU_POPUP,
-   0
+   0,
+   NULL
 };
 
 
@@ -288,7 +289,8 @@ DATEDIT_MENU_INFO datitype_depth_menu =
    &change_depth_menu,
    change_query,
    DATEDIT_MENU_OBJECT | DATEDIT_MENU_POPUP,
-   0
+   0,
+   NULL
 };
 
 

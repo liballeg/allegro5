@@ -478,7 +478,8 @@ DATEDIT_MENU_INFO datgrab_grabber_menu =
    &grabber_menu,
    grabber_query,
    DATEDIT_MENU_OBJECT,
-   0
+   0,
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 
 
@@ -499,7 +500,8 @@ DATEDIT_MENU_INFO datgrab_boxgrab_menu =
    &boxgrab_menu,
    boxgrab_query,
    DATEDIT_MENU_OBJECT | DATEDIT_MENU_POPUP,
-   2  /* ctrl+B */
+   2,  /* ctrl+B */
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 
 
@@ -520,6 +522,7 @@ DATEDIT_MENU_INFO datgrab_ungrab_menu =
    &ungrab_menu,
    ungrab_query,
    DATEDIT_MENU_OBJECT | DATEDIT_MENU_POPUP,
-   0
+   0,
+   NULL
 };
 

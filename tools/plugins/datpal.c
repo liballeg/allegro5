@@ -116,7 +116,7 @@ static int export_palette(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 
 
 /* grabs a palette from an external file */
-static void *grab_palette(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_palette(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    int oldcolordepth = _color_depth;
    RGB *pal;
@@ -138,8 +138,7 @@ static void *grab_palette(AL_CONST char *filename, long *size, int x, int y, int
 
    destroy_bitmap(bmp);
 
-   *size = sizeof(PALETTE);
-   return pal;
+   return datedit_construct(type, pal, sizeof(PALETTE), prop);
 }
 
 
@@ -197,7 +196,8 @@ DATEDIT_MENU_INFO datpal_grabber_menu =
    &grabber_menu,
    grabber_query,
    DATEDIT_MENU_OBJECT,
-   0
+   0,
+   NULL
 };
 
 
@@ -223,6 +223,7 @@ DATEDIT_GRABBER_INFO datpal_grabber =
    "bmp;lbm;pcx;tga",
    "bmp;pcx;tga",
    grab_palette,
-   export_palette
+   export_palette,
+   NULL
 };
 

@@ -17,6 +17,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -33,6 +34,8 @@ static char info_msg[] = "For internal use by the grabber";
 DATAFILE datedit_info = { info_msg, DAT_INFO, sizeof(info_msg), NULL };
 
 static int file_datasize;
+
+static DATAFILE_PROPERTY *builtin_prop = NULL;
 
 void (*grabber_sel_palette)(PALETTE pal) = NULL;
 void (*grabber_select_property)(int type) = NULL;
@@ -68,10 +71,37 @@ static int menu_cmp(MENU *m1, MENU *m2)
 
 
 
+/* helper function for inserting a list of builtin properties */
+static void insert_builtin_prop(AL_CONST char *prop_types)
+{
+   int type;
+
+   while (TRUE) {
+      ASSERT(strlen(prop_types)>=4 && (!prop_types[4] || prop_types[4]==';'));
+      type = DAT_ID(prop_types[0], prop_types[1], prop_types[2], prop_types[3]);
+      datedit_insert_property(&builtin_prop, type, "*");
+      if (!prop_types[4])
+         break;
+      prop_types += 5;
+   }
+}
+
+
+
+/* main cleanup routine */
+static void datedit_exit(void)
+{
+   if (builtin_prop)
+      free(builtin_prop);
+}
+
+
+
 /* main initialisation routine */
 void datedit_init(void)
 {
    int done, i;
+   AL_CONST char *prop_types;
 
    #if defined ALLEGRO_DJGPP
       #include "obj/djgpp/plugins.h"
@@ -122,6 +152,24 @@ void datedit_init(void)
 	 }
       }
    } while (!done);
+
+   /* Build the list of builtin properties. */
+   datedit_insert_property(&builtin_prop, DAT_ORIG, "*");
+   datedit_insert_property(&builtin_prop, DAT_DATE, "*");
+
+   for (i=0; datedit_grabber_info[i]->type != DAT_END; i++) {
+      prop_types = datedit_grabber_info[i]->prop_types;
+      if (prop_types)
+	 insert_builtin_prop(prop_types);
+   }
+
+   for (i=0; (datedit_menu_info[i]) && (datedit_menu_info[i+1]); i++) {
+      prop_types = datedit_menu_info[i]->prop_types;
+      if (prop_types)
+	 insert_builtin_prop(prop_types);
+   }
+
+   atexit(datedit_exit);
 }
 
 
@@ -147,7 +195,7 @@ static int export_binary(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 
 
 /* grab raw binary data */
-static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_binary(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    void *mem;
    long sz = file_size(filename);
@@ -172,8 +220,7 @@ static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int 
 
    pack_fclose(f);
 
-   *size = sz;
-   return mem;
+   return datedit_construct(type, mem, sz, prop);
 }
 
 
@@ -327,7 +374,7 @@ static DATAFILE *extract_info(DATAFILE *dat, int save)
 
 
 /* grabs a child datafile */
-static void *grab_datafile(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_datafile(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    DATAFILE *dat = load_datafile(filename);
 
@@ -335,9 +382,10 @@ static void *grab_datafile(AL_CONST char *filename, long *size, int x, int y, in
       load_header(dat, datedit_pretty_name(filename, "h", TRUE));
       generate_names(dat, 0);
       dat = extract_info(dat, FALSE);
+      return datedit_construct(type, dat, 0, prop);
    }
 
-   return dat;
+   return NULL;
 }
 
 
@@ -355,19 +403,10 @@ static int should_save_prop(int type, AL_CONST int *fixed_prop, int strip)
       }
    }
 
-   if (strip >= 2) {
+   if (strip >= 2)
       return FALSE;
-   }
-   else {
-      return ((type != DAT_ORIG) &&
-	      (type != DAT_DATE) && 
-	      (type != DAT_XPOS) && 
-	      (type != DAT_YPOS) &&
-	      (type != DAT_XSIZ) && 
-	      (type != DAT_YSIZ) &&
-              (type != DAT_XCRP) &&
-              (type != DAT_YCRP));
-   }
+   else
+      return (datedit_get_property(&builtin_prop, type) == empty_string);  /* not builtin */
 }
 
 
@@ -519,7 +558,8 @@ DATEDIT_GRABBER_INFO datfile_grabber =
    "dat",
    "dat",
    grab_datafile,
-   export_datafile
+   export_datafile,
+   NULL
 };
 
 
@@ -542,6 +582,7 @@ DATEDIT_OBJECT_INFO datend_info =
 DATEDIT_GRABBER_INFO datend_grabber =
 {
    DAT_END,
+   NULL,
    NULL,
    NULL,
    NULL,
@@ -801,49 +842,87 @@ int datedit_clean_typename(AL_CONST char *type)
 
 
 
-/* sets an object property string */
-void datedit_set_property(DATAFILE *dat, int type, AL_CONST char *value)
+/* returns the property string for the specified property (if any) */
+AL_CONST char *datedit_get_property(DATAFILE_PROPERTY **prop, int type)
 {
-   int i, size, pos;
+   DATAFILE_PROPERTY *iter = *prop;
 
-   if (dat->prop) {
-      pos = -1;
-      for (size=0; dat->prop[size].type != DAT_END; size++)
-	 if (dat->prop[size].type == type)
-	    pos = size;
+   if (iter) {
+      while (iter->type != DAT_END) {
+	 if (iter->type == type)
+	    return (iter->dat ? iter->dat : empty_string);
+
+	 iter++;
+      }
+   }
+
+   return empty_string;
+}
+
+
+
+/* insert a new property into a list without duplication */
+void datedit_insert_property(DATAFILE_PROPERTY **prop, int type, AL_CONST char *value)
+{
+   DATAFILE_PROPERTY *iter = *prop, *the_prop;
+   int size;
+
+   if (iter) {
+      size = 0;
+      the_prop = NULL;
+
+      for (; iter->type != DAT_END; iter++) {
+         size++;
+	 if (iter->type == type)
+	    the_prop = iter;
+	    /* no break, we need the full size of the array */
+      }
 
       if ((value) && (strlen(value) > 0)) {
-	 if (pos >= 0) {
-	    dat->prop[pos].dat = _al_realloc(dat->prop[pos].dat, strlen(value)+1);
-	    strcpy(dat->prop[pos].dat, value);
+	 if (the_prop) {
+	    the_prop->dat = _al_realloc(the_prop->dat, strlen(value)+1);
+	    strcpy(the_prop->dat, value);
 	 }
 	 else {
-	    dat->prop = _al_realloc(dat->prop, sizeof(DATAFILE_PROPERTY)*(size+2));
-	    dat->prop[size+1] = dat->prop[size];
-	    dat->prop[size].type = type;
-	    dat->prop[size].dat = _al_malloc(strlen(value)+1);
-	    strcpy(dat->prop[size].dat, value);
+	    *prop = _al_realloc(*prop, sizeof(DATAFILE_PROPERTY)*(size+2));
+	    the_prop = *prop + size;
+	    the_prop->type = type;
+	    the_prop->dat = _al_malloc(strlen(value)+1);
+	    strcpy(the_prop->dat, value);
+	    the_prop++;
+	    the_prop->type = DAT_END;
+	    the_prop->dat = NULL;
 	 }
       }
       else {
-	 if (pos >= 0) {
-	    _al_free(dat->prop[pos].dat);
-	    for (i=pos; i<size; i++)
-	       dat->prop[i] = dat->prop[i+1];
-	    dat->prop = _al_realloc(dat->prop, sizeof(DATAFILE_PROPERTY)*size);
+	 if (the_prop) {
+	    _al_free(the_prop->dat);
+	    for (iter = the_prop; iter->type != DAT_END; iter++)
+	       *iter = *(iter+1);
+	    *prop = _al_realloc(*prop, sizeof(DATAFILE_PROPERTY)*size);
 	 }
       }
    }
    else {
       if ((value) && (strlen(value) > 0)) {
-	 dat->prop = _al_malloc(sizeof(DATAFILE_PROPERTY) * 2);
-	 dat->prop[0].type = type;
-	 dat->prop[0].dat = _al_malloc(strlen(value)+1);
-	 strcpy(dat->prop[0].dat, value);
-	 dat->prop[1].type = DAT_END;
-	 dat->prop[1].dat = NULL;
+	 *prop = _al_malloc(sizeof(DATAFILE_PROPERTY)*2);
+	 the_prop = *prop;
+	 the_prop->type = type;
+	 the_prop->dat = _al_malloc(strlen(value)+1);
+	 strcpy(the_prop->dat, value);
+	 the_prop++;
+	 the_prop->type = DAT_END;
+	 the_prop->dat = NULL;
       }
    }
+}
+
+
+
+/* sets an object property string */
+void datedit_set_property(DATAFILE *dat, int type, AL_CONST char *value)
+{
+   datedit_insert_property(&dat->prop, type, value);
 }
 
 
@@ -1424,25 +1503,67 @@ AL_CONST char *datedit_ftime2asc_int(long time)
 
 
 
-/* grabs an object from a disk file */
-DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params)
+/* constructs a datafile object
+ * WARNING: the object is private so it must be duplicated.
+ */
+DATAFILE *datedit_construct(int type, void *dat, long size, DATAFILE_PROPERTY **prop)
 {
-   static DATAFILE dat;
-   void *(*grab)(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth) = NULL;
+   static DATAFILE datafile;
+
+   if (!dat)
+      return NULL;
+
+   ASSERT(size >= 0);
+
+   datafile.type = type;
+   datafile.dat = dat;
+   datafile.size = size;
+   datafile.prop = *prop;
+
+   /* Make sure we own the property list. */
+   *prop = NULL;
+
+   return &datafile;
+}
+
+
+
+/* clone properties */
+static DATAFILE_PROPERTY *clone_properties(DATAFILE_PROPERTY *prop)
+{
+   DATAFILE_PROPERTY *clone, *iter;
+   int size = 0;
+
+   if (!prop)
+      return NULL;
+
+   for (iter = prop; iter->type != DAT_END; iter++)
+      size++;
+
+   clone = _al_malloc(sizeof(DATAFILE_PROPERTY)*(size+1));
+   memcpy(clone, prop, sizeof(DATAFILE_PROPERTY)*(size+1));
+
+   return clone;
+}
+
+
+
+/* grabs an object from a disk file
+ * WARNING: the object is private so it must be duplicated.
+ */
+DATAFILE *datedit_grab(DATAFILE_PROPERTY *prop, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
+{
+   DATAFILE *dat;
+   DATAFILE *(*grab)(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth);
    char *ext = get_extension(params->filename);
    char *tok;
    char tmp[1024];
-   int c;
+   int type, type_index, c;
 
-   dat.dat = NULL;
-   dat.size = 0;
-   dat.prop = NULL;
+   type = params->type;
 
-   if (params->type) {
-      dat.type = params->type;
-   }
-   else {
-      dat.type = DAT_DATA;
+   if (!type) {
+      type = DAT_DATA;
 
       if ((ext) && (*ext)) {
 	 for (c=0; datedit_grabber_info[c]->type != DAT_END; c++) {
@@ -1451,7 +1572,7 @@ DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 	       tok = strtok(tmp, ";");
 	       while (tok) {
 		  if (stricmp(tok, ext) == 0) {
-		     dat.type = datedit_grabber_info[c]->type;
+		     type = datedit_grabber_info[c]->type;
 		     goto found_type;
 		  }
 		  tok = strtok(NULL, ";");
@@ -1461,51 +1582,85 @@ DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params)
       }
    }
 
-   found_type:
+  found_type:
+   type_index = -1;
 
    for (c=0; datedit_grabber_info[c]->type != DAT_END; c++) {
-      if ((datedit_grabber_info[c]->type == dat.type) && (datedit_grabber_info[c]->grab_ext) && (datedit_grabber_info[c]->grab)) {
+      if ((datedit_grabber_info[c]->type == type) && (datedit_grabber_info[c]->grab_ext) && (datedit_grabber_info[c]->grab)) {
 	 if ((ext) && (*ext)) {
 	    strcpy(tmp, datedit_grabber_info[c]->grab_ext);
 	    tok = strtok(tmp, ";");
 	    while (tok) {
 	       if (stricmp(tok, ext) == 0) {
-		  grab = datedit_grabber_info[c]->grab;
+		  type_index = c;
 		  goto found_grabber;
 	       }
 	       tok = strtok(NULL, ";");
 	    }
 	 }
-	 if (!grab)
-	    grab = datedit_grabber_info[c]->grab;
+	 if (!type_index < 0)
+	    type_index = c;
       }
    }
 
-   if (!grab)
+  found_grabber:
+   if (type_index >= 0)
+      grab = datedit_grabber_info[type_index]->grab;
+   else
       grab = grab_binary;
 
-   found_grabber:
-
-   dat.dat = grab(params->filename, &dat.size, params->x, params->y, params->w, params->h, params->colordepth);
-
-   if (dat.dat) {
-      datedit_set_property(&dat, DAT_NAME, params->name);
+   if (prop)
+      prop = clone_properties(prop);
+   else {
+      /* Set standard properties. */
+      datedit_insert_property(&prop, DAT_NAME, params->name);
       if (params->relative) {
 	 make_relative_filename(tmp, params->datafile, params->filename, sizeof(tmp));
-	 datedit_set_property(&dat, DAT_ORIG, tmp);
+	 datedit_insert_property(&prop, DAT_ORIG, tmp);
       }
-      else {
-	 datedit_set_property(&dat, DAT_ORIG, params->filename);
+      else
+	 datedit_insert_property(&prop, DAT_ORIG, params->filename);
+
+      /* Set specific properties. */
+      if ((type_index >= 0) && (datedit_grabber_info[type_index]->prop_types)) {
+	 strcpy(tmp, datedit_grabber_info[type_index]->prop_types);
+	 tok = strtok(tmp, ";");
+	 while (tok) {
+	    if (stricmp(tok, "XPOS") == 0) {
+	       sprintf(tmp, "%d", params->x);
+	       datedit_insert_property(&prop, DAT_XPOS, tmp);
+	    }
+	    else if (stricmp(tok, "YPOS") == 0) {
+	       sprintf(tmp, "%d", params->y);
+	       datedit_insert_property(&prop, DAT_YPOS, tmp);
+	    }
+	    else if (stricmp(tok, "XSIZ") == 0) {
+	       sprintf(tmp, "%d", params->w);
+	       datedit_insert_property(&prop, DAT_XSIZ, tmp);
+	    }
+	    else if (stricmp(tok, "YSIZ") == 0) {
+	       sprintf(tmp, "%d", params->h);
+	       datedit_insert_property(&prop, DAT_YSIZ, tmp);
+	    }
+
+	    tok = strtok(NULL, ";");
+	 }
       }
-      datedit_set_property(&dat, DAT_DATE, datedit_ftime2asc(file_time(params->filename)));
-   }
-   else {
-      datedit_error("Error reading %s as type %c%c%c%c", params->filename, 
-		    dat.type>>24, (dat.type>>16)&0xFF,
-		    (dat.type>>8)&0xFF, dat.type&0xFF);
    }
 
-   return &dat;
+   /* Always modify the date. */
+   datedit_insert_property(&prop, DAT_DATE, datedit_ftime2asc(file_time(params->filename)));
+
+   dat = grab(type, params->filename, &prop, params->colordepth);
+
+   if (!dat) {
+      datedit_error("Error reading %s as type %c%c%c%c", params->filename, 
+		    type>>24, (type>>16)&0xFF, (type>>8)&0xFF, type&0xFF);
+      if (prop)
+	 free(prop);
+   }
+
+   return dat;
 }
 
 
@@ -1513,9 +1668,9 @@ DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 /* grabs an object over the top of an existing one */
 int datedit_grabreplace(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 {
-   DATAFILE *tmp = datedit_grab(params);
+   DATAFILE *tmp = datedit_grab(NULL, params);
 
-   if (tmp->dat) {
+   if (tmp) {
       _unload_datafile_object(dat);
       *dat = *tmp;
       return TRUE;
@@ -1530,22 +1685,14 @@ int datedit_grabreplace(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 int datedit_grabupdate(DATAFILE *dat, DATEDIT_GRAB_PARAMETERS *params)
 {
    DATAFILE *tmp;
-   DATAFILE_PROPERTY *tmp_prop;
 
    params->name = "dummyname";
    params->type = dat->type;
    params->colordepth = -1;
 
-   tmp = datedit_grab(params);
+   tmp = datedit_grab(dat->prop, params);
 
-   if (tmp->dat) {
-      /* exchange properties */
-      tmp_prop = tmp->prop;
-      tmp->prop = dat->prop;
-      dat->prop = tmp_prop;
-
-      datedit_set_property(tmp, DAT_DATE, get_datafile_property(dat, DAT_DATE));
-
+   if (tmp) {
       /* adjust color depth? */
       if ((dat->type == DAT_BITMAP) || (dat->type == DAT_RLE_SPRITE) ||
 	  (dat->type == DAT_C_SPRITE) || (dat->type == DAT_XC_SPRITE)) {
@@ -1614,10 +1761,10 @@ int datedit_grabupdate(DATAFILE *dat, DATEDIT_GRAB_PARAMETERS *params)
 /* grabs a new object, inserting it into the datafile */
 DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 {
-   DATAFILE *tmp = datedit_grab(params);
+   DATAFILE *tmp = datedit_grab(NULL, params);
    int len;
 
-   if (tmp->dat) {
+   if (tmp) {
       len = 0;
       while (dat[len].type != DAT_END)
 	 len++;
@@ -1660,9 +1807,9 @@ DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, AL_CONST char *name, int
 
 
 /* wrapper for examining numeric property values */
-int datedit_numprop(AL_CONST DATAFILE *dat, int type)
+int datedit_numprop(DATAFILE_PROPERTY **prop, int type)
 {
-   AL_CONST char *p = get_datafile_property(dat, type);
+   AL_CONST char *p = datedit_get_property(prop, type);
 
    if (*p)
       return atoi(p);
@@ -1805,11 +1952,11 @@ int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int force, int verbos
    params.filename = filename;
    /* params.name = */
    /* params.type = */
-   params.x = datedit_numprop(dat, DAT_XPOS);
-   params.y = datedit_numprop(dat, DAT_YPOS);
-   params.w = datedit_numprop(dat, DAT_XSIZ);
-   params.h = datedit_numprop(dat, DAT_YSIZ);
-   /* params.colordepth */
+   /* params.x = */
+   /* params.y = */
+   /* params.w = */
+   /* params.h = */
+   /* params.colordepth = */
    params.relative = relf;
 
    return datedit_grabupdate(dat, &params);

@@ -331,9 +331,10 @@ static int view_bitmap(DATAFILE *dat)
 
 
 /* reads a bitmap from an external file */
-static void *grab_bitmap(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_bitmap(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    BITMAP *bmp;
+   int x, y, w, h;
 
    if (depth > 0) {
       int oldcolordepth = _color_depth;
@@ -352,15 +353,20 @@ static void *grab_bitmap(AL_CONST char *filename, long *size, int x, int y, int 
    if (!bmp)
       return NULL;
 
+   x = datedit_numprop(prop, DAT_XPOS);
+   y = datedit_numprop(prop, DAT_YPOS);
+   w = datedit_numprop(prop, DAT_XSIZ);
+   h = datedit_numprop(prop, DAT_YSIZ);
+
    if ((x >= 0) && (y >= 0) && (w >= 0) && (h >= 0)) {
       BITMAP *b2 = create_bitmap_ex(bitmap_color_depth(bmp), w, h);
       clear_to_color(b2, bitmap_mask_color(b2));
       blit(bmp, b2, x, y, 0, 0, w, h);
       destroy_bitmap(bmp);
-      return b2;
+      bmp = b2;
    }
-   else 
-      return bmp;
+   
+   return datedit_construct(type, bmp, 0, prop);
 }
 
 
@@ -553,19 +559,21 @@ static int export_rle_sprite(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 
 
 /* reads an RLE sprite from an external file */
-static void *grab_rle_sprite(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_rle_sprite(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
+   DATAFILE *dat;
    BITMAP *bmp;
    RLE_SPRITE *spr;
 
-   bmp = (BITMAP *)grab_bitmap(filename, size, x, y, w, h, depth);
-   if (!bmp)
+   dat = grab_bitmap(type, filename, prop, depth);
+   if (!dat)
       return NULL;
 
-   spr = get_rle_sprite(bmp);
+   bmp = dat->dat;
+   dat->dat = get_rle_sprite(bmp);
    destroy_bitmap(bmp);
 
-   return spr;
+   return dat;
 }
 
 
@@ -764,7 +772,8 @@ DATEDIT_GRABBER_INFO datbitmap_grabber =
    "bmp;lbm;pcx;tga",
    "bmp;pcx;tga",
    grab_bitmap,
-   export_bitmap
+   export_bitmap,
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 
 
@@ -790,7 +799,8 @@ DATEDIT_GRABBER_INFO datrlesprite_grabber =
    "bmp;lbm;pcx;tga",
    "bmp;pcx;tga",
    grab_rle_sprite,
-   export_rle_sprite
+   export_rle_sprite,
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 
 
@@ -816,7 +826,8 @@ DATEDIT_GRABBER_INFO datcsprite_grabber =
    "bmp;lbm;pcx;tga",
    "bmp;pcx;tga",
    grab_bitmap,
-   export_bitmap
+   export_bitmap,
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 
 
@@ -842,6 +853,7 @@ DATEDIT_GRABBER_INFO datxcsprite_grabber =
    "bmp;lbm;pcx;tga",
    "bmp;pcx;tga",
    grab_bitmap,
-   export_bitmap
+   export_bitmap,
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 

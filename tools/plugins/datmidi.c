@@ -101,9 +101,9 @@ static int export_midi(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 
 
 /* imports a MIDI object from an external file */
-static void *grab_midi(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_midi(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
-   return load_midi(filename);
+   return datedit_construct(type, load_midi(filename), 0, prop);
 }
 
 
@@ -149,7 +149,8 @@ DATEDIT_GRABBER_INFO datmidi_grabber =
    "mid",
    "mid",
    grab_midi,
-   export_midi
+   export_midi,
+   NULL
 };
 
 

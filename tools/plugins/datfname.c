@@ -175,6 +175,7 @@ DATEDIT_MENU_INFO datfname_type_menu =
    &change_filename_menu,
    change_query,
    DATEDIT_MENU_OBJECT | DATEDIT_MENU_POPUP,
-   0
+   0,
+   NULL
 };
 

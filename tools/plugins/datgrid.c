@@ -775,7 +775,8 @@ DATEDIT_MENU_INFO datgrid_griddler_menu =
    &griddler_menu,
    griddler_query,
    DATEDIT_MENU_FILE | DATEDIT_MENU_POPUP,
-   0
+   0,
+   "XPOS;YPOS;XSIZ;YSIZ"
 };
 
 
@@ -796,6 +797,7 @@ DATEDIT_MENU_INFO datgrid_autocrop_menu =
    &autocrop_menu,
    autocrop_query,
    DATEDIT_MENU_OBJECT | DATEDIT_MENU_POPUP,
-   0
+   0,
+   "XCRP;YCRP"
 };
 

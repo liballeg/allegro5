@@ -540,7 +540,7 @@ static void mem_write_file(PACKFILE *f, int size)
 
 
 /* imports data from a GUS patch file */
-static void *grab_patch(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_patch(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    PACKFILE *f;
    long sz = file_size(filename);
@@ -586,8 +586,7 @@ static void *grab_patch(AL_CONST char *filename, long *size, int x, int y, int w
 	 }
       }
 
-      *size = sz;
-      return mem;
+      return datedit_construct(type, mem, sz, prop);
    }
 
    /* have to parse the file to adjust the sample format */
@@ -737,8 +736,7 @@ static void *grab_patch(AL_CONST char *filename, long *size, int x, int y, int w
       return NULL;
    }
 
-   *size = mem_size;
-   return mem;
+   return datedit_construct(type, mem, mem_size, prop);
 }
 
 
@@ -820,11 +818,11 @@ static void add_gus_patches(void)
    params.filename = buf;
    params.name = "default_cfg";
    params.type = DAT_DATA;
-   params.x = -1;
-   params.y = -1;
-   params.w = -1;
-   params.h = -1;
-   params.colordepth = -1;
+   /* params.x = */
+   /* params.y = */
+   /* params.w = */
+   /* params.h = */
+   /* params.colordepth = */
    params.relative = FALSE;  /* required (see above) */
 
    printf("Grabbing %s\n", buf);
@@ -1946,11 +1944,11 @@ static void add_soundfont_patches(void)
    params.filename = buf;
    params.name = "default_cfg";
    params.type = DAT_DATA;
-   params.x = -1;
-   params.y = -1;
-   params.w = -1;
-   params.h = -1;
-   params.colordepth = -1;
+   /* params.x = */
+   /* params.y = */
+   /* params.w = */
+   /* params.h = */
+   /* params.colordepth = */
    params.relative = FALSE;  /* required (see above) */
 
    d = datedit_grabnew(datafile, &params);

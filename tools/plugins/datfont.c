@@ -769,9 +769,10 @@ static FONT* import_scripted_font(AL_CONST char* filename)
 
 
 /* imports a font from an external file (handles various formats) */
-static void *grab_font(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_font(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
    PACKFILE *f;
+   FONT *font;
    int id;
 
    if (stricmp(get_extension(filename), "fnt") == 0) {
@@ -783,16 +784,18 @@ static void *grab_font(AL_CONST char *filename, long *size, int x, int y, int w,
       pack_fclose(f);
 
       if (id == FONTMAGIC)
-	 return import_grx_font(filename);
+	 font = import_grx_font(filename);
       else
-	 return import_bios_font(filename);
+	 font = import_bios_font(filename);
    }
    else if (stricmp(get_extension(filename), "txt") == 0) {
-      return import_scripted_font(filename);
+      font = import_scripted_font(filename);
    }
    else {
-      return import_bitmap_font(filename, ' ', -1, TRUE);
+      font = import_bitmap_font(filename, ' ', -1, TRUE);
    }
+
+   return datedit_construct(type, font, 0, prop);
 }
 
 
@@ -995,8 +998,8 @@ static int import_proc(int msg, DIALOG *d, int c)
 {
    char name[80*6]; /* 80 chars * max UTF8 char width */
    int ret = d_button_proc(msg, d, c);
+   DATAFILE *dat;
    FONT *fnt, *f;
-   long size;
    int base;
    int i;
 
@@ -1011,14 +1014,16 @@ static int import_proc(int msg, DIALOG *d, int c)
 	 strcpy(grabber_import_file, name);
 
 	 grabber_busy_mouse(TRUE);
-	 fnt = grab_font(name, &size, -1, -1, -1, -1, -1);
+	 dat = grab_font(DAT_FONT, name, NULL, -1);
 	 grabber_busy_mouse(FALSE);
 
-	 if (!fnt) {
+	 if (!dat) {
 	    datedit_error("Error importing %s", name);
 	 }
 	 else {
 	    int import_begin, import_end;
+
+	    fnt = dat->dat;
 
 	    centre_dialog(char_dlg);
 	    set_dialog_color(char_dlg, gui_fg_color, gui_bg_color);
@@ -1404,6 +1409,7 @@ DATEDIT_GRABBER_INFO datfont_grabber =
    "txt;fnt;bmp;lbm;pcx;tga",
    "txt;bmp;pcx;tga",
    grab_font,
-   export_font
+   export_font,
+   NULL
 };
 

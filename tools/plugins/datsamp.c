@@ -108,9 +108,9 @@ static int export_sample(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 
 
 /* imports a sample from an external file */
-static void *grab_sample(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
+static DATAFILE *grab_sample(int type, AL_CONST char *filename, DATAFILE_PROPERTY **prop, int depth)
 {
-   return load_sample(filename);
+   return datedit_construct(type, load_sample(filename), 0, prop);
 }
 
 
@@ -169,6 +169,7 @@ DATEDIT_GRABBER_INFO datpatch_grabber =
    "pat",
    "pat",
    NULL,
+   NULL,
    NULL
 };
 
@@ -195,6 +196,7 @@ DATEDIT_GRABBER_INFO datsample_grabber =
    "voc;wav",
    "wav",
    grab_sample,
-   export_sample
+   export_sample,
+   NULL
 };
 

@@ -280,7 +280,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
       params.colordepth = -1;
       params.relative = FALSE;  /* required (see above) */
 
-      alpha = datedit_grab(&params);
+      alpha = datedit_grab(NULL, &params);
 
       if ((alpha) && (alpha->dat)) {
 	 if (pal)
@@ -422,7 +422,8 @@ DATEDIT_MENU_INFO datalpha_menu1 =
    &alpha_menu,
    alpha_query,
    DATEDIT_MENU_POPUP | DATEDIT_MENU_OBJECT,
-   0
+   0,
+   NULL
 };
 
 
@@ -432,6 +433,7 @@ DATEDIT_MENU_INFO datalpha_menu2 =
    &read_alpha_menu,
    NULL,
    DATEDIT_MENU_FILE,
-   0
+   0,
+   NULL
 };
 
