@@ -13,6 +13,17 @@ Changes from 4.0.1 to 4.0.2 (Jun 2002)
 <ul><li>
    Many clarifications in the docs.
 <li>
+   Sven Sandberg improved accuracy and fixed bugs in do_arc().
+<li>
+   Matthew Leverton added missing header files to be installed by the
+   Windows binary distribution.
+<li>
+   Grzegorz Adam Hankiewicz fixed a problem with the TOC of the FAQ.
+<li>
+   Eric Botcazou fixed a bug with stretch_blit() under Windows XP.
+<li>
+   Peter Wang fixed various configure machinery problems under Unix.
+<li>
    Sven Sandberg updated the Swedish translation file.
 <li>
    Sven Sandberg fixed a crash in the exswitch example when compiled
@@ -53,7 +64,7 @@ Changes from 4.0.1 to 4.0.2 (Jun 2002)
 <li>
    Peter Wang fixed a bug in ALSA device detection.
 <li>
-   Peter Wang Peter fixed a bug in al_find* under Unix when running as root.
+   Peter Wang fixed a bug in al_find* under Unix when running as root.
 <li>
    Matthew Leverton and Eric Botcazou fixed a bug with mouse mickeys in
    windowed mode under Windows.

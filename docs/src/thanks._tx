@@ -434,7 +434,8 @@ Contributors
 
    Matthew Leverton (<email>matthew@leverton.cc</a>).<br>
    Fixed a bug with mouse mickeys in windowed mode under Windows. Fixed a
-   problem with al_find*() and NTFS partitions under Windows.
+   problem with al_find*() and NTFS partitions under Windows. Added missing
+   header files to be installed by the Windows binary distribution.
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
