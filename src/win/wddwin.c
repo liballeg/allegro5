@@ -184,6 +184,10 @@ static void handle_window_move_win(int x, int y, int w, int h)
                 xmod, xmod > 1 ? "ls" : "l", x > 0 ? "left" : "right");
       }
    }
+   else {
+      /* JG: avoid artifacts when moving fast the window on WinXP. */
+      InvalidateRect(allegro_wnd, NULL, FALSE);
+   }
 }
 
 
