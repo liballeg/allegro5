@@ -78,6 +78,7 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
 
    mode = XDGAQueryModes(_xwin.display, _xwin.screen, &num_modes);
 
+   /* Let's first try setting also requested refresh rate */
    for (i=0; i<num_modes; i++) {
       bpp = mode[i].depth;
       if (bpp == 24) bpp = mode[i].bitsPerPixel;
@@ -86,12 +87,27 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
           (mode[i].viewportHeight == h) &&
           (mode[i].imageWidth >= vw) &&
           (mode[i].imageHeight >= vh) &&
+          (mode[i].verticalRefresh >= _refresh_rate_request) &&
           (bpp == depth)) break;
    }
 
    if (i == num_modes) {
-      XFree(mode);
-      return 0;
+      /* No modes were found, so now we don't care about refresh rate */
+      for (i=0; i<num_modes; i++) {
+         bpp = mode[i].depth;
+         if (bpp == 24) bpp = mode[i].bitsPerPixel;
+      
+         if ((mode[i].viewportWidth == w) &&
+            (mode[i].viewportHeight == h) &&
+            (mode[i].imageWidth >= vw) &&
+            (mode[i].imageHeight >= vh) &&
+            (bpp == depth)) break;
+      }
+      if (i == num_modes) {
+         /* No way out: mode not found */
+         XFree(mode);
+         return 0;
+      }
    }
    
    found = mode[i].num;
@@ -285,6 +301,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
       return NULL;
    }
    _xwin.in_dga_mode = 2;
+   _current_refresh_rate = dga_device->mode.verticalRefresh;
    set_display_switch_mode(SWITCH_NONE);
 
    /* Installs DGA color map */
@@ -456,7 +473,7 @@ void _xdga2_gfxdrv_exit(BITMAP *bmp)
       set_display_switch_mode(SWITCH_BACKGROUND);
 
    }
-
+   
    ENABLE();
 }
 
