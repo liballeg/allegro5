@@ -16,6 +16,8 @@
  *
  *      Bresenham arc routine by Romano Signorelli.
  *
+ *      Cohen-Sutherland line clipping by Jon Rafkind.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -681,58 +683,125 @@ void do_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(BI
 
 /* _normal_line:
  *  Draws a line from x1, y1 to x2, y2, using putpixel() to do the work.
+ *  This is an implementation of the Cohen-Sutherland line clipping algorithm.
+ *  Loops over the line until it can be either trivially rejected or trivially
+ *  accepted. If it is neither rejected nor accepted, subdivide it into two
+ *  segments, one of which can be rejected.
  */
 void _normal_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
-   int sx, sy, dx, dy, t;
+   int code0, code1;
+   int outcode;
+   int x, y;
+   int xmax, xmin, ymax, ymin;
+   int done = 0, accept = 0;
+   int clip_orig;
+   ASSERT(bmp);
 
-   if (x1 == x2) {
-      vline(bmp, x1, y1, y2, color);
-      return;
-   }
+   if ((clip_orig = bmp->clip) != 0) {  /* save clipping state */
+      #define TOP     0x8
+      #define BOTTOM  0x4
+      #define LEFT    0x2
+      #define RIGHT   0x1
 
-   if (y1 == y2) {
-      hline(bmp, x1, y1, x2, color);
-      return;
-   }
-
-   /* use a bounding box to check if the line needs clipping */
-   if (bmp->clip) {
-      sx = x1;
-      sy = y1;
-      dx = x2;
-      dy = y2;
-
-      if (sx > dx) {
-	 t = sx;
-	 sx = dx;
-	 dx = t;
+      #define COMPCLIP(code, x, y)  \
+      {                             \
+	 code = 0;                  \
+	 if (y < ymin)              \
+	    code |= TOP;            \
+	 else if (y > ymax)         \
+	    code |= BOTTOM;         \
+	 if (x < xmin)              \
+	    code |= LEFT;           \
+	 else if (x > xmax)         \
+	    code |= RIGHT;          \
       }
 
-      if (sy > dy) {
-	 t = sy;
-	 sy = dy;
-	 dy = t;
-      }
+      xmin = bmp->cl;
+      xmax = bmp->cr-1;
+      ymin = bmp->ct;
+      ymax = bmp->cb-1;
 
-      if ((sx >= bmp->cr) || (sy >= bmp->cb) || (dx < bmp->cl) || (dy < bmp->ct))
+      COMPCLIP(code0, x1, y1);
+      COMPCLIP(code1, x2, y2);
+
+      do {
+
+	 if (!(code0 | code1)) {
+	    /* Trivially accept. */
+	    accept = done = 1;
+	 }
+	 else if (code0 & code1) {
+	    /* Trivially reject. */
+	    done = 1;
+	 }
+	 else {
+	    /* Didn't reject or accept, so do some calculations. */
+	    outcode = code0 ? code0 : code1;  /* pick one endpoint */
+
+	    if (outcode & TOP) {
+	       if (y2 == y1)
+		  x = x1;
+	       else
+		  x = x1 + (x2 - x1) * (ymin - y1) / (y2 - y1);
+	       y = ymin;
+	    }
+	    else if (outcode & BOTTOM) {
+	       if (y2 == y1)
+		  x = x1;
+	       else
+		  x = x1 + (x2 - x1) * (ymax - y1) / (y2 - y1);
+	       y = ymax;
+	    }
+	    else if (outcode & LEFT) {
+	       if (x2 == x1)
+		  y = y1;
+	       else
+		  y = y1 + (y2 - y1) * (xmin - x1) / (x2 - x1);
+	       x = xmin;
+	    }
+	    else {  /* outcode & RIGHT */
+	       if (x2 == x1)
+		  y = y1;
+	       else
+		  y = y1 + (y2 - y1) * (xmax - x1) / (x2 - x1);
+	       x = xmax;
+	    }
+
+	    if (outcode == code0) {
+	       x1 = x;
+	       y1 = y;
+	       COMPCLIP(code0, x1, y1);
+	    }
+	    else {
+	       x2 = x;
+	       y2 = y;
+	       COMPCLIP(code1, x2, y2);
+	    }
+	 }
+      } while (!done);
+
+      if (!accept)
 	 return;
 
-      if ((sx >= bmp->cl) && (sy >= bmp->ct) && (dx < bmp->cr) && (dy < bmp->cb))
-	 bmp->clip = FALSE;
-
-      t = TRUE;
+      /* We have already done the clipping, no need to do it again. */
+      bmp->clip = FALSE;
    }
-   else
-      t= FALSE;
 
-   acquire_bitmap(bmp);
+   if (x1 == x2) {
+      bmp->vtable->vline(bmp, x1, y1, y2, color);
+   }
+   else if (y1 == y2) {
+      bmp->vtable->hline(bmp, x1, y1, x2, color);
+   }
+   else {
+      acquire_bitmap(bmp);
+      do_line(bmp, x1, y1, x2, y2, color, bmp->vtable->putpixel);
+      release_bitmap(bmp);
+   }
 
-   do_line(bmp, x1, y1, x2, y2, color, bmp->vtable->putpixel);
-
-   release_bitmap(bmp);
-
-   bmp->clip = t;
+   /* Restore original clipping state. */
+   bmp->clip = clip_orig;
 }
 
 
