@@ -390,6 +390,12 @@ static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST 
       *config = NULL;
    }
 
+   /* Special case when allegro_init has not been called yet. */
+   if (!system_driver) {
+      set_config(config, NULL, 0, savefile);
+      return;
+   }
+
    length = file_size(filename);
 
    if (length > 0) {
