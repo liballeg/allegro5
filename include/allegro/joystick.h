@@ -10,136 +10,83 @@
  *
  *      Joystick routines.
  *
- *      By Shawn Hargreaves.
- *
  *      See readme.txt for copyright information.
  */
 
+#ifndef _al_included_joystick_h
+#define _al_included_joystick_h
 
-#ifndef ALLEGRO_JOYSTICK_H
-#define ALLEGRO_JOYSTICK_H
+#include "allegro/base.h"
 
-#include "base.h"
-
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
-#define JOY_TYPE_AUTODETECT      -1
-#define JOY_TYPE_NONE            0
+AL_BEGIN_EXTERN_C
 
 
-#define MAX_JOYSTICKS            8
-#define MAX_JOYSTICK_AXIS        3
-#define MAX_JOYSTICK_STICKS      5
-#define MAX_JOYSTICK_BUTTONS     32
+
+/* internal values */
+#define _AL_MAX_JOYSTICK_AXES	   3
+#define _AL_MAX_JOYSTICK_STICKS    8
+#define _AL_MAX_JOYSTICK_BUTTONS   32
 
 
-/* information about a single joystick axis */
-typedef struct JOYSTICK_AXIS_INFO
+
+/* Abstract data type */
+typedef struct AL_JOYSTICK AL_JOYSTICK;
+
+
+
+/* All fields public and read-only */
+typedef struct AL_JOYSTATE
 {
-   int pos;
-   int d1, d2;
-   AL_CONST char *name;
-} JOYSTICK_AXIS_INFO;
-
-
-/* information about one or more axis (a slider or directional control) */
-typedef struct JOYSTICK_STICK_INFO
-{
-   int flags;
-   int num_axis;
-   JOYSTICK_AXIS_INFO axis[MAX_JOYSTICK_AXIS];
-   AL_CONST char *name;
-} JOYSTICK_STICK_INFO;
-
-
-/* information about a joystick button */
-typedef struct JOYSTICK_BUTTON_INFO
-{
-   int b;
-   AL_CONST char *name;
-} JOYSTICK_BUTTON_INFO;
-
-
-/* information about an entire joystick */
-typedef struct JOYSTICK_INFO
-{
-   int flags;
-   int num_sticks;
-   int num_buttons;
-   JOYSTICK_STICK_INFO stick[MAX_JOYSTICK_STICKS];
-   JOYSTICK_BUTTON_INFO button[MAX_JOYSTICK_BUTTONS];
-} JOYSTICK_INFO;
-
-
-/* joystick status flags */
-#define JOYFLAG_DIGITAL             1
-#define JOYFLAG_ANALOGUE            2
-#define JOYFLAG_CALIB_DIGITAL       4
-#define JOYFLAG_CALIB_ANALOGUE      8
-#define JOYFLAG_CALIBRATE           16
-#define JOYFLAG_SIGNED              32
-#define JOYFLAG_UNSIGNED            64
-
-
-/* alternative spellings */
-#define JOYFLAG_ANALOG              JOYFLAG_ANALOGUE
-#define JOYFLAG_CALIB_ANALOG        JOYFLAG_CALIB_ANALOGUE
-
-
-/* global joystick information */
-AL_ARRAY(JOYSTICK_INFO, joy);
-AL_VAR(int, num_joysticks);
-
-
-typedef struct JOYSTICK_DRIVER         /* driver for reading joystick input */
-{
-   int  id;
-   AL_CONST char *name;
-   AL_CONST char *desc;
-   AL_CONST char *ascii_name;
-   AL_METHOD(int, init, (void));
-   AL_METHOD(void, exit, (void));
-   AL_METHOD(int, poll, (void));
-   AL_METHOD(int, save_data, (void));
-   AL_METHOD(int, load_data, (void));
-   AL_METHOD(AL_CONST char *, calibrate_name, (int n));
-   AL_METHOD(int, calibrate, (int n));
-} JOYSTICK_DRIVER;
-
-
-AL_VAR(JOYSTICK_DRIVER, joystick_none);
-AL_VAR(JOYSTICK_DRIVER *, joystick_driver);
-AL_ARRAY(_DRIVER_INFO, _joystick_driver_list);
-
-
-/* macros for constructing the driver list */
-#define BEGIN_JOYSTICK_DRIVER_LIST                             \
-   _DRIVER_INFO _joystick_driver_list[] =                      \
+   struct
    {
+      struct
+      {
+         int pos;                               /* -32767 to +32767 */
+         int d;                                 /* -1, 0, +1 */
+      } axis[_AL_MAX_JOYSTICK_AXES];
+   } stick[_AL_MAX_JOYSTICK_STICKS];
+   int button[_AL_MAX_JOYSTICK_BUTTONS];        /* 0 to 32767 */
+} AL_JOYSTATE;
 
-#define END_JOYSTICK_DRIVER_LIST                               \
-      {  JOY_TYPE_NONE,    &joystick_none,      TRUE  },       \
-      {  0,                NULL,                0     }        \
-   };
 
 
-AL_FUNC(int, install_joystick, (int type));
-AL_FUNC(void, remove_joystick, (void));
+/* Flags for al_joystick_stick_flags */
+enum
+{
+   AL_JOYFLAG_DIGITAL  = 0x01,
+   AL_JOYFLAG_ANALOGUE = 0x02
+};
 
-AL_FUNC(int, poll_joystick, (void));
 
-AL_FUNC(int, save_joystick_data, (AL_CONST char *filename));
-AL_FUNC(int, load_joystick_data, (AL_CONST char *filename));
 
-AL_FUNC(AL_CONST char *, calibrate_joystick_name, (int n));
-AL_FUNC(int, calibrate_joystick, (int n));
+AL_FUNC(bool,           al_install_joystick_driver, (void));
+AL_FUNC(void,           al_uninstall_joystick_driver, (void));
 
-#ifdef __cplusplus
-   }
+AL_FUNC(int,            al_num_joysticks,       (void));
+AL_FUNC(AL_JOYSTICK*,   al_request_joystick,    (int joyn));
+AL_FUNC(void,           al_release_joystick,    (AL_JOYSTICK*));
+
+AL_FUNC(int,            al_joystick_num_sticks, (AL_JOYSTICK*));
+AL_FUNC(int,            al_joystick_stick_flags,(AL_JOYSTICK*, int stick)); /* junk? */
+AL_FUNC(AL_CONST char*, al_joystick_stick_name, (AL_JOYSTICK*, int stick));
+
+AL_FUNC(int,            al_joystick_num_axes,   (AL_JOYSTICK*, int stick));
+AL_FUNC(AL_CONST char*, al_joystick_axis_name,  (AL_JOYSTICK*, int stick, int axis));
+
+AL_FUNC(int,		al_joystick_num_buttons,(AL_JOYSTICK*));
+AL_FUNC(AL_CONST char*, al_joystick_button_name,(AL_JOYSTICK*, int buttonn));
+
+AL_FUNC(void,           al_get_joystick_state,  (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
+
+
+
+AL_END_EXTERN_C
+
 #endif
 
-#endif          /* ifndef ALLEGRO_JOYSTICK_H */
-
-
+/*
+ * Local Variables:
+ * c-basic-offset: 3
+ * indent-tabs-mode: nil
+ * End:
+ */

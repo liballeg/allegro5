@@ -17,9 +17,13 @@
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 
 
 
-BEGIN_JOYSTICK_DRIVER_LIST
-   /* todo */
-END_JOYSTICK_DRIVER_LIST
+_AL_BEGIN_JOYSTICK_DRIVER_LIST
+/* Nothing to see here.  See the system driver
+ * get_joystick_driver_list() methods instead. */
+_AL_END_JOYSTICK_DRIVER_LIST

@@ -183,12 +183,6 @@ AL_VAR(int, _key_accent4_flag);
 AL_VAR(int, _key_standard_kb);
 
 
-/* various bits of joystick stuff */
-AL_VAR(int, _joy_type);
-
-AL_VAR(int, _joystick_installed);
-
-
 /* some GUI innards that other people need to use */
 AL_FUNC(int, _gui_shadow_box_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_ctext_proc, (int msg, DIALOG *d, int c));

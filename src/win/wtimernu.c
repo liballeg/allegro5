@@ -23,6 +23,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 
 #ifndef SCAN_DEPEND
    #include <mmsystem.h>

@@ -133,6 +133,7 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
       remove_mouse();
    }
 
+#if 0 /* XXX */
    if (_joystick_installed) {
       if (wm) {
          wm->joystick = TRUE;
@@ -141,6 +142,7 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
 
       remove_joystick();
    }
+#endif
 
    if (_sound_installed) {
       if (wm) {
@@ -693,5 +695,5 @@ void win_grab_input(void)
 {
    wnd_schedule_proc(key_dinput_acquire);
    wnd_schedule_proc(mouse_dinput_grab);
-   wnd_schedule_proc(joystick_dinput_acquire);
+   wnd_schedule_proc(_al_win_joystick_dinput_acquire);
 }

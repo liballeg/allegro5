@@ -77,8 +77,9 @@ typedef struct AL_DISPLAY_EVENT
 typedef struct AL_JOYSTICK_EVENT
 {
    _AL_EVENT_HEADER(struct AL_JOYSTICK);
+   int stick;
    int axis;
-   int pos, digital_pos;
+   int pos, d;
    int button;
 } AL_JOYSTICK_EVENT;
 

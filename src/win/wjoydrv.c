@@ -18,6 +18,9 @@
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
@@ -25,7 +28,6 @@
 
 
 
-BEGIN_JOYSTICK_DRIVER_LIST
-JOYSTICK_DRIVER_DIRECTX
-JOYSTICK_DRIVER_WIN32
-END_JOYSTICK_DRIVER_LIST
+_AL_BEGIN_JOYSTICK_DRIVER_LIST
+_AL_JOYSTICK_DRIVER_DIRECTX
+_AL_END_JOYSTICK_DRIVER_LIST

@@ -32,6 +32,9 @@
    #include ALLEGRO_INTERNAL_HEADER
 #endif
 
+ /* FIXME: for _al_joystick_driver_list */
+#include "allegro/internal/aintern2.h"
+
 #include "setup.h"
 
 
@@ -1795,7 +1798,7 @@ static void get_joystick_drivers(_DRIVER_INFO **list, int *list_size)
    if (system_driver->joystick_drivers)
       l = system_driver->joystick_drivers();
    else
-      l = _joystick_driver_list;
+      l = _al_joystick_driver_list;
 
    c = 0;
    while (l[c].driver)

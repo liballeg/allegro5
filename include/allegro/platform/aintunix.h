@@ -200,33 +200,12 @@ AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
 })
 
 
-/* events */
-struct AL_EVENT_SOURCE
-{
-   unsigned long event_mask;
-   size_t event_size;
-   _AL_MUTEX mutex;
-   _AL_VECTOR queues;
-   AL_EVENT *all_events;
-   AL_EVENT *free_events;
-};
-
-AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, unsigned long event_mask, size_t event_size));
-AL_FUNC(void, _al_event_source_free, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_lock, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_unlock, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_on_registration_to_queue, (AL_EVENT_SOURCE*, AL_EVENT_QUEUE*));
-AL_FUNC(void, _al_event_source_on_unregistration_from_queue, (AL_EVENT_SOURCE*, AL_EVENT_QUEUE*));
-AL_FUNC(bool, _al_event_source_needs_to_generate_event, (AL_EVENT_SOURCE*, unsigned long event_type));
-AL_FUNC(AL_EVENT*, _al_event_source_get_unused_event, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_emit_event, (AL_EVENT_SOURCE *, AL_EVENT*));
-
-AL_FUNC(void, _al_release_event, (AL_EVENT*));
-
-AL_FUNC(void, _al_event_queue_push_event, (AL_EVENT_QUEUE*, AL_EVENT*));
-
 /* time */
 AL_FUNC(void, _al_unix_init_time, (void));
+
+/* fdwatch */
+void _al_unix_start_watching_fd(int fd, void (*callback)(void *), void *cb_data);
+void _al_unix_stop_watching_fd(int fd);
 
 AL_END_EXTERN_C
 

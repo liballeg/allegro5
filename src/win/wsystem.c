@@ -330,7 +330,7 @@ static void sys_directx_restore_console_state(void)
    /* unacquire input devices */
    wnd_schedule_proc(key_dinput_unacquire);
    wnd_schedule_proc(mouse_dinput_unacquire);
-   wnd_schedule_proc(joystick_dinput_unacquire);
+   wnd_schedule_proc(_al_win_joystick_dinput_unacquire);
 
    /* reset switch mode */
    sys_reset_switch_mode();

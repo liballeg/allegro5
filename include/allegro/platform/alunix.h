@@ -252,8 +252,8 @@ AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 #define MOUSEDRV_LINUX_EVDEV     AL_ID('E','V',' ',' ')
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
 
-#define JOY_TYPE_LINUX_ANALOGUE  AL_ID('L','N','X','A')
-AL_VAR(JOYSTICK_DRIVER, joystick_linux_analogue);
+#define AL_JOY_TYPE_LINUX_ANALOGUE  AL_ID('L','N','X','A')
+AL_VAR(struct AL_JOYSTICK_DRIVER, _al_joydrv_linux_analogue);
 
 
 AL_FUNC(void, split_modex_screen, (int line));

@@ -316,7 +316,7 @@ static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void)
  */
 static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void)
 {
-   return _linux_joystick_driver_list;
+   return _al_linux_joystick_driver_list;
 }
 #endif
 

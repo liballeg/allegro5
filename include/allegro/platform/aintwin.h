@@ -135,29 +135,8 @@ AL_FUNC(int, mouse_set_sysmenu, (int state));
 
 
 /* joystick routines */
-#define WINDOWS_MAX_AXES   6
-
-#define WINDOWS_JOYSTICK_INFO_MEMBERS        \
-   int caps;                                 \
-   int num_axes;                             \
-   int axis[WINDOWS_MAX_AXES];               \
-   char *axis_name[WINDOWS_MAX_AXES];        \
-   int hat;                                  \
-   char *hat_name;                           \
-   int num_buttons;                          \
-   int button[MAX_JOYSTICK_BUTTONS];         \
-   char *button_name[MAX_JOYSTICK_BUTTONS];
-
-typedef struct WINDOWS_JOYSTICK_INFO {
-   WINDOWS_JOYSTICK_INFO_MEMBERS
-} WINDOWS_JOYSTICK_INFO;
-
-AL_FUNC(int, win_add_joystick, (WINDOWS_JOYSTICK_INFO *win_joy));
-AL_FUNC(void, win_remove_all_joysticks, (void));
-AL_FUNC(int, win_update_joystick_status, (int n, WINDOWS_JOYSTICK_INFO *win_joy));
-
-AL_FUNC(int, joystick_dinput_acquire, (void));
-AL_FUNC(int, joystick_dinput_unacquire, (void));
+AL_FUNC(int, _al_win_joystick_dinput_acquire, (void));
+AL_FUNC(int, _al_win_joystick_dinput_unacquire, (void));
 
 
 /* thread routines */
@@ -261,31 +240,6 @@ AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
       LeaveCriticalSection(&m->cs);
 })
 
-
-/* events */
-struct AL_EVENT_SOURCE
-{
-   unsigned long event_mask;
-   size_t event_size;
-   _AL_MUTEX mutex;
-   _AL_VECTOR queues;
-   AL_EVENT *all_events;
-   AL_EVENT *free_events;
-};
-
-AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, unsigned long event_mask, size_t event_size));
-AL_FUNC(void, _al_event_source_free, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_lock, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_unlock, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_on_registration_to_queue, (AL_EVENT_SOURCE*, AL_EVENT_QUEUE*));
-AL_FUNC(void, _al_event_source_on_unregistration_from_queue, (AL_EVENT_SOURCE*, AL_EVENT_QUEUE*));
-AL_FUNC(bool, _al_event_source_needs_to_generate_event, (AL_EVENT_SOURCE*, unsigned long event_type));
-AL_FUNC(AL_EVENT*, _al_event_source_get_unused_event, (AL_EVENT_SOURCE*));
-AL_FUNC(void, _al_event_source_emit_event, (AL_EVENT_SOURCE *, AL_EVENT*));
-
-AL_FUNC(void, _al_release_event, (AL_EVENT*));
-
-AL_FUNC(void, _al_event_queue_push_event, (AL_EVENT_QUEUE*, AL_EVENT*));
 
 /* time */
 AL_FUNC(void, _al_win_init_time, (void));

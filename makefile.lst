@@ -30,7 +30,7 @@ ALLEGRO_SRC_FILES = \
 	src/gui.c \
 	src/guiproc.c \
 	src/inline.c \
-	src/joystick.c \
+	src/joynu.c \
 	src/keyboard.c \
 	src/lbm.c \
 	src/libc.c \
@@ -62,6 +62,7 @@ ALLEGRO_SRC_FILES = \
 	src/vtable24.c \
 	src/vtable32.c \
 	src/vtable8.c \
+	src/compat/cojoy.c \
 	src/compat/cotimer.c \
 	src/misc/vector.c
 
@@ -194,9 +195,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wgfxdrv.c \
 	src/win/winput.c \
 	src/win/wjoydrv.c \
-	src/win/wjoydx.c \
-	src/win/wjoyhelp.c \
-	src/win/wjoyw32.c \
+	src/win/wjoydxnu.c \
 	src/win/wkeybd.c \
 	src/win/wmidi.c \
 	src/win/wmouse.c \
@@ -250,7 +249,7 @@ ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/fbcon.c \
 	src/linux/lconsole.c \
 	src/linux/lgfxdrv.c \
-	src/linux/ljoy.c \
+	src/linux/ljoynu.c \
 	src/linux/lkeybd.c \
 	src/linux/lmemory.c \
 	src/linux/lmouse.c \
@@ -285,6 +284,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/udummy.c \
 	src/unix/uesd.c \
 	src/unix/uevents.c \
+	src/unix/ufdwatch.c \
 	src/unix/ufile.c \
 	src/unix/ugfxdrv.c \
 	src/unix/ujoydrv.c \
