@@ -519,7 +519,7 @@ uninstall-man:
 	  | xargs -n 1 rm -f
 	sed -n -e "s,^@@Example.*@\(ex.*\),$(mandir)/man3/\1.3,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
-	sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),/usr/local/man/man3/\2.3,p" $(srcdir)/docs/src/allegro._tx \
+	sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),$(mandir)/man3/\2.3,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
 
 depend:
