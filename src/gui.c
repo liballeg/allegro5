@@ -302,17 +302,17 @@ int object_message(DIALOG *dialog, int msg, int c)
    int ret;
 
    if (msg == MSG_DRAW) {
-      if (d->flags & D_HIDDEN) return D_O_K;
+      if (dialog->flags & D_HIDDEN) return D_O_K;
       acquire_screen();
    }
 
-   ret = d->proc(msg, d, c);
+   ret = dialog->proc(msg, dialog, c);
 
    if (msg == MSG_DRAW)
       release_screen();
 
    if (ret & D_REDRAWME) {
-      d->flags |= D_DIRTY;
+      dialog->flags |= D_DIRTY;
       ret &= ~D_REDRAWME;
    }
 
@@ -412,17 +412,17 @@ static int find_mouse_object(DIALOG *d)
 /* offer_focus:
  *  Offers the input focus to a particular object.
  */
-int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
+int offer_focus(DIALOG *dialog, int obj, int *focus_obj, int force)
 {
    int res = D_O_K;
 
    if ((obj == *focus_obj) || 
-       ((obj >= 0) && (d[obj].flags & (D_HIDDEN | D_DISABLED))))
+       ((obj >= 0) && (dialog[obj].flags & (D_HIDDEN | D_DISABLED))))
       return D_O_K;
 
    /* check if object wants the focus */
    if (obj >= 0) {
-      res = object_message(d+obj, MSG_WANTFOCUS, 0);
+      res = object_message(dialog+obj, MSG_WANTFOCUS, 0);
       if (res & D_WANTFOCUS)
 	 res ^= D_WANTFOCUS;
       else
@@ -432,16 +432,16 @@ int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
    if ((obj >= 0) || (force)) {
       /* take focus away from old object */
       if (*focus_obj >= 0) {
-	 res |= object_message(d+*focus_obj, MSG_LOSTFOCUS, 0);
+	 res |= object_message(dialog+*focus_obj, MSG_LOSTFOCUS, 0);
 	 if (res & D_WANTFOCUS) {
 	    if (obj < 0)
 	       return D_O_K;
 	    else
 	       res &= ~D_WANTFOCUS;
 	 }
-	 d[*focus_obj].flags &= ~D_GOTFOCUS;
+	 dialog[*focus_obj].flags &= ~D_GOTFOCUS;
 	 scare_mouse();
-	 res |= object_message(d+*focus_obj, MSG_DRAW, 0);
+	 res |= object_message(dialog+*focus_obj, MSG_DRAW, 0);
 	 unscare_mouse();
       }
 
@@ -450,9 +450,9 @@ int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
       /* give focus to new object */
       if (obj >= 0) {
 	 scare_mouse();
-	 d[obj].flags |= D_GOTFOCUS;
-	 res |= object_message(d+obj, MSG_GOTFOCUS, 0);
-	 res |= object_message(d+obj, MSG_DRAW, 0);
+	 dialog[obj].flags |= D_GOTFOCUS;
+	 res |= object_message(dialog+obj, MSG_GOTFOCUS, 0);
+	 res |= object_message(dialog+obj, MSG_DRAW, 0);
 	 unscare_mouse();
       }
    }

@@ -7081,7 +7081,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    same place it was when the dialog was last displayed, as you can call 
    do_dialog(dlg, find_dialog_focus(dlg));
 
-@@int @offer_focus(DIALOG *d, int obj, int *focus_obj, int force);
+@@int @offer_focus(DIALOG *dialog, int obj, int *focus_obj, int force);
 @xref find_dialog_focus
    Offers the input focus to a particular object. Normally the function sends
    the MSG_WANTFOCUS message to query whether the object is willing to accept
