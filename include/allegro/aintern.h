@@ -78,7 +78,7 @@ AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
 AL_FUNC(int, _al_file_exists, (AL_CONST char *filename, int attrib, int *aret));
 AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
-AL_FUNC(long, _al_file_time, (AL_CONST char *filename));
+AL_FUNC(time_t, _al_file_time, (AL_CONST char *filename));
 AL_FUNC(void *, _al_findfirst, (AL_CONST char *name, int attrib, char *nameret, int *aret));
 AL_FUNC(int, _al_findnext, (void *dta, char *nameret, int *aret));
 AL_FUNC(void, _al_findclose, (void *dta));
@@ -578,14 +578,7 @@ typedef void (COLORCONV_BLITTER_FUNC)(GRAPHICS_RECT *src_rect, GRAPHICS_RECT *de
 
 AL_FUNC(COLORCONV_BLITTER_FUNC *, _get_colorconv_blitter, (int from_depth, int to_depth));
 AL_FUNC(void, _release_colorconv_blitter, (COLORCONV_BLITTER_FUNC *blitter));
-AL_FUNC(unsigned char *, _get_colorconv_map, (int color_depth));
-AL_FUNC(void, _release_colorconv_map, (void));
 AL_FUNC(void, _set_colorconv_palette, (AL_CONST struct RGB *p, int from, int to));
-
-AL_FUNC(void, _colorconv_blit_8_to_8, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
-AL_FUNC(void, _colorconv_blit_16_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
-AL_FUNC(void, _colorconv_blit_24_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
-AL_FUNC(void, _colorconv_blit_32_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 
 #ifdef ALLEGRO_COLOR8
 
@@ -598,13 +591,8 @@ AL_FUNC(void, _colorconv_blit_8_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *
 
 #ifdef ALLEGRO_COLOR16
 
-AL_FUNC(void, _colorconv_blit_15_to_8, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
-AL_FUNC(void, _colorconv_blit_15_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_15_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_15_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
-
-AL_FUNC(void, _colorconv_blit_16_to_8, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
-AL_FUNC(void, _colorconv_blit_16_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_16_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_16_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 
@@ -612,7 +600,6 @@ AL_FUNC(void, _colorconv_blit_16_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT 
 
 #ifdef ALLEGRO_COLOR24
 
-AL_FUNC(void, _colorconv_blit_24_to_8, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_24_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_24_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_24_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
@@ -621,7 +608,6 @@ AL_FUNC(void, _colorconv_blit_24_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT 
 
 #ifdef ALLEGRO_COLOR32
 
-AL_FUNC(void, _colorconv_blit_32_to_8, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_32_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_32_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_32_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
