@@ -1,4 +1,3 @@
-
 /*         ______   ___    ___ 
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -9,14 +8,20 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Get dx_version of installed DirectX 
+ *      Get version of installed DirectX.
  *
  *      By Stefan Schimanski.
  *
- *      modified dx_version from DirectX 7 SDK
+ *      Modified get_dx_ver() from DirectX 7 SDK.
  *
  *      See readme.txt for copyright information.
  */
+
+/* Set DIRECTX_SDK_VERSION according to the installed SDK version.
+ * Note that this file requires at least the SDK version 5 to compile,
+ * so that DIRECTX_SDK_VERSION must be >= 0x500.
+ */
+#define DIRECTX_SDK_VERSION 0x700
 
 
 #include "allegro.h"
@@ -35,15 +40,16 @@ typedef HRESULT(WINAPI * DIRECTINPUTCREATE) (HINSTANCE, DWORD, LPDIRECTINPUT *,
 
 
 /* get_dx_ver:
- *  returns the DirectX dx_version number
+ *  returns the DirectX dx_version number:
  *
  *          0       No DirectX installed
- *          0x100   DirectX dx_version 1 installed
+ *          0x100   DirectX 1 installed
  *          0x200   DirectX 2 installed
  *          0x300   DirectX 3 installed
- *          0x500   At least DirectX 5 installed.
- *          0x600   At least DirectX 6 installed.
- *          0x700   at least DirectX 7 installed.
+ *          0x500   At least DirectX 5 installed
+ *          0x600   At least DirectX 6 installed
+ *          0x700   At least DirectX 7 installed
+ *
  */
 int get_dx_ver(void)
 {
@@ -57,9 +63,17 @@ int get_dx_ver(void)
    OSVERSIONINFO os_version;
    LPDIRECTDRAWSURFACE ddraw_surf = 0;
    LPDIRECTDRAWSURFACE3 ddraw_surf3 = 0;
-   LPDIRECTDRAWSURFACE4 ddraw_surf4 = 0;
-   DDSURFACEDESC ddraw_surf_desc;
 
+#if DIRECTX_SDK_VERSION >= 0x600
+   LPDIRECTDRAWSURFACE4 ddraw_surf4 = 0;
+
+#if DIRECTX_SDK_VERSION >= 0x700
+   LPDIRECTDRAWSURFACE7 ddraw_surf7 = 0;
+#endif
+
+#endif
+
+   DDSURFACEDESC ddraw_surf_desc;
    int dx_version = 0;
 
    /*
@@ -217,7 +231,7 @@ int get_dx_ver(void)
     * We can tell if DX5 is present by checking for the existence of IDirectDrawSurface3.
     * First we need a surface to QI off of.
     */
-   ZeroMemory(&ddraw_surf_desc, sizeof(ddraw_surf_desc));
+   memset(&ddraw_surf_desc, 0, sizeof(ddraw_surf_desc));
    ddraw_surf_desc.dwSize = sizeof(ddraw_surf_desc);
    ddraw_surf_desc.dwFlags = DDSD_CAPS;
    ddraw_surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
@@ -247,7 +261,7 @@ int get_dx_ver(void)
    /*
     * Try for the IDirectDrawSurface3 interface. If it works, we're on DX5 at least
     */
-   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface3, (LPVOID *) & ddraw_surf3))) {
+   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface3, (LPVOID *) &ddraw_surf3))) {
       IDirectDraw_Release(directdraw);
       FreeLibrary(ddraw_hinst);
       return dx_version;
@@ -258,10 +272,11 @@ int get_dx_ver(void)
     */
    dx_version = 0x500;
 
+#if DIRECTX_SDK_VERSION >= 0x600
    /*
     * Try for the IDirectDrawSurface4 interface. If it works, we're on DX6 at least
     */
-   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface4, (LPVOID *) & ddraw_surf4))) {
+   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface4, (LPVOID *) &ddraw_surf4))) {
       IDirectDraw_Release(directdraw);
       FreeLibrary(ddraw_hinst);
       return dx_version;
@@ -272,10 +287,11 @@ int get_dx_ver(void)
     */
    dx_version = 0x600;
 
+#if DIRECTX_SDK_VERSION >= 0x700
    /*
     * Try for the IDirectDrawSurface7 interface. If it works, we're on DX7 at least
     */
-   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface7, (LPVOID *) & ddraw_surf4))) {
+   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface7, (LPVOID *) &ddraw_surf7))) {
       IDirectDraw_Release(directdraw);
       FreeLibrary(ddraw_hinst);
       return dx_version;
@@ -285,6 +301,9 @@ int get_dx_ver(void)
     * QI for IDirectDrawSurface7 succeeded. We must be at least DX7
     */
    dx_version = 0x700;
+#endif
+
+#endif
 
    IDirectDrawSurface_Release(ddraw_surf);
    IDirectDraw_Release(directdraw);
