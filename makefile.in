@@ -222,8 +222,11 @@ $(obj_unix_asmdef_inc): $(OBJDIR)/asmdef.s
 
 else
 
-$(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
-	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
+$(obj_unix_asmdef_inc): $(OBJDIR)/asmdef$(EXE)
+	$(OBJDIR)/asmdef$(EXE) $(obj_unix_asmdef_inc)
+
+$(OBJDIR)/asmdef$(EXE): $(srcdir)/src/i386/asmdef.c $(ALLEGRO_ASMCAPA_HEADER) $(allegro_h)
+	$(COMPILE_PROGRAM) $(srcdir)/src/i386/asmdef.c -o $(OBJDIR)/asmdef$(EXE)
 
 endif
 
@@ -672,8 +675,6 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depdlib.sh tools/datedit.c' >>makefile.dep
 	@echo "Generating dependencies for datafile programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/depdexe.sh $(ALLEGRO_DATAFILE_EXE_SOURCES)' >>makefile.dep
-	@echo "Generating dependencies for programs without libraries"
-	$(SHELL) -c 'cd $(srcdir) && misc/depnexe.sh $(ALLEGRO_NOLIB_EXE_SOURCES)' >>makefile.dep
 	@echo "Generating dependencies for makedoc"
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh docs/makedoc $(ALLEGRO_MAKEDOC_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
