@@ -209,9 +209,9 @@ unsigned long _blender_color24(unsigned long x, unsigned long y, unsigned long n
  */
 unsigned long _blender_difference24(unsigned long x, unsigned long y, unsigned long n)
 {
-   return BLEND(24, ABS(getr24(x) - getr24(y)),
-		    ABS(getg24(x) - getg24(y)),
-		    ABS(getb24(x) - getb24(y)));
+   return BLEND(24, ABS(getr24(y) - getr24(x)),
+		    ABS(getg24(y) - getg24(x)),
+		    ABS(getb24(y) - getb24(x)));
 }
 
 
@@ -496,9 +496,9 @@ unsigned long _blender_color16(unsigned long x, unsigned long y, unsigned long n
  */
 unsigned long _blender_difference16(unsigned long x, unsigned long y, unsigned long n)
 {
-   return BLEND(16, ABS(getr16(x) - getr16(y)),
-		    ABS(getg16(x) - getg16(y)),
-		    ABS(getb16(x) - getb16(y)));
+   return BLEND(16, ABS(getr16(y) - getr16(x)),
+		    ABS(getg16(y) - getg16(x)),
+		    ABS(getb16(y) - getb16(x)));
 }
 
 
@@ -776,9 +776,9 @@ unsigned long _blender_color15(unsigned long x, unsigned long y, unsigned long n
  */
 unsigned long _blender_difference15(unsigned long x, unsigned long y, unsigned long n)
 {
-   return BLEND(15, ABS(getr15(x) - getr15(y)),
-		    ABS(getg15(x) - getg15(y)),
-		    ABS(getb15(x) - getb15(y)));
+   return BLEND(15, ABS(getr15(y) - getr15(x)),
+		    ABS(getg15(y) - getg15(x)),
+		    ABS(getb15(y) - getb15(x)));
 }
 
 
