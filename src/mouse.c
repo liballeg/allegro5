@@ -363,6 +363,34 @@ END_OF_FUNCTION(_handle_mouse_input);
 
 
 
+/* create_mouse_pointer:
+ *  Creates the default arrow mouse sprite using the current color depth
+ *  and palette.
+ */
+static BITMAP *create_mouse_pointer()
+{
+   BITMAP *bmp;
+   int x, y;
+   int col;
+   
+   bmp = create_bitmap(DEFAULT_SPRITE_W, DEFAULT_SPRITE_H);
+
+   for (y=0; y<DEFAULT_SPRITE_H; y++) {
+      for (x=0; x<DEFAULT_SPRITE_W; x++) {
+	 switch (mouse_pointer_data[y][x]) {
+	    case 1:  col = makecol(255, 255, 255);  break;
+	    case 2:  col = makecol(0, 0, 0);        break;
+	    default: col = bmp->vtable->mask_color; break;
+	 }
+	 putpixel(bmp, x, y, col);
+      }
+   }
+
+   return bmp;
+}
+
+
+
 /* set_mouse_sprite:
  *  Sets the sprite to be used for the mouse pointer. If the sprite is
  *  NULL, restores the default arrow.
@@ -379,8 +407,12 @@ void set_mouse_sprite(struct BITMAP *sprite)
 
    if (sprite)
       mouse_sprite = sprite;
-   else
+   else {
+      if (_mouse_pointer)
+	 destroy_bitmap(_mouse_pointer);
+      _mouse_pointer = create_mouse_pointer();
       mouse_sprite = _mouse_pointer;
+   }
 
    lock_bitmap((struct BITMAP*)mouse_sprite);
 
@@ -747,44 +779,13 @@ END_OF_FUNCTION(mouse_needs_poll);
  */
 void _set_mouse_range()
 {
-   int x, y;
-   int col;
-
    if ((!mouse_driver) || (!gfx_driver))
       return;
 
    if ((!_mouse_pointer) || 
        ((screen) && (_mouse_pointer) &&
-	(bitmap_color_depth(_mouse_pointer) != bitmap_color_depth(screen)))) {
-
-      if (_mouse_pointer) {
-	 destroy_bitmap(_mouse_pointer);
-	 _mouse_pointer = NULL;
-      }
-
-      if (ms) {
-	 destroy_bitmap(ms);
-	 ms = NULL;
-
-	 destroy_bitmap(mtemp);
-	 mtemp = NULL;
-      }
-
-      _mouse_pointer = create_bitmap(DEFAULT_SPRITE_W, DEFAULT_SPRITE_H);
-
-      for (y=0; y<DEFAULT_SPRITE_H; y++) {
-	 for (x=0; x<DEFAULT_SPRITE_W; x++) {
-	    switch (mouse_pointer_data[y][x]) {
-	       case 1:  col = makecol(255, 255, 255);             break;
-	       case 2:  col = makecol(0, 0, 0);                   break;
-	       default: col = _mouse_pointer->vtable->mask_color; break;
-	    }
-	    putpixel(_mouse_pointer, x, y, col);
-	 }
-      }
-
-      set_mouse_sprite(_mouse_pointer);
-   }
+	(bitmap_color_depth(_mouse_pointer) != bitmap_color_depth(screen))))
+      set_mouse_sprite(NULL);
    else
       hw_cursor_dirty = TRUE;
 

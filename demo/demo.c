@@ -2073,6 +2073,7 @@ int main(int argc, char *argv[])
 
    clear(screen);
    set_gui_colors();
+   set_mouse_sprite(NULL);
 
    if (!gfx_mode_select(&c, &w, &h))
       exit(1);

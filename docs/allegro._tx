@@ -1276,6 +1276,10 @@ Mouse routines
    an alternative of your own. If you change the pointer and then want to 
    get my lovely arrow back again, call set_mouse_sprite(NULL).
 
+   As a bonus, set_mouse_sprite(NULL) uses the current palette in choosing
+   colors for the arrow. So if your arrow mouse sprite looks ugly after
+   changing the palette, call set_mouse_sprite(NULL).
+
 @@void @set_mouse_sprite_focus(int x, int y);
 @xref set_mouse_sprite
    The mouse focus is the bit of the pointer that represents the actual 
