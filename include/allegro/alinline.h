@@ -34,4 +34,6 @@
 
 #include "inline/matrix.inl"
 
-#include "alcompat.h"
+#ifndef ALLEGRO_LIB_BUILD
+   #include "alcompat.h"
+#endif
