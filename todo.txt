@@ -33,7 +33,6 @@ Linux todos:
 ---------------------------------------------------------------------------
 
 - fix fb 24-bit scrolling (allegro presuming padding?)
-- memory leaks in ljoy.c (search for malloc)
 - make spec file work with older rpms, e.g. from RedHat 6.0
   They don't like lines in %files section starting with non-`/'.
 - awaiting svgalib folks to provide an atexit-free vga_init

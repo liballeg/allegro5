@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# By: Henrik Stokseth.
-#
 # This is a helper script for using a cross compiler to build and install
 # the Allegro library. It is currently set up to use the Mingw32
 # cross-compiler out of the box but you can edit XC_PATH and INSTALL_BASE
