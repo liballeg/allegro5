@@ -271,7 +271,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
    gfx_fbcon.vid_mem = fix_info.smem_len;
 
-   stride = fix_info.line_length * BYTES_PER_PIXEL(color_depth);
+   stride = fix_info.line_length;
    v_w = my_mode.xres_virtual;
    v_h = my_mode.yres_virtual;
    p = fbaddr;
