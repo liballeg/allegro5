@@ -49,27 +49,27 @@ AL_INLINE(int, _default_ds, (void),
     * the same calling convention on both sides.
     */
 
-AL_FUNC(uintptr_t, bmp_write_line, (BITMAP *bmp, int line));
-AL_FUNC(uintptr_t, bmp_read_line, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne));
+AL_FUNC(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne));
 AL_FUNC(void, bmp_unwrite_line, (BITMAP *bmp));
 
 #else
 
-typedef AL_METHOD(uintptr_t, _BMP_BANK_SWITCHER, (BITMAP *bmp, int line));
+typedef AL_METHOD(uintptr_t, _BMP_BANK_SWITCHER, (BITMAP *bmp, int lyne));
 typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
 
 
-AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int line),
+AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
 {
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
-   return switcher(bmp, line);
+   return switcher(bmp, lyne);
 })
 
 
-AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int line),
+AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne),
 {
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->read_bank;
-   return switcher(bmp, line);
+   return switcher(bmp, lyne);
 })
 
 
@@ -249,13 +249,13 @@ AL_INLINE(int, is_inside_bitmap, (BITMAP *bmp, int x, int y, int clip),
 })
 
 
-AL_INLINE(void, get_clip_rect, (BITMAP *bitmap, int *x1, int *y1, int *x2, int *y2),
+AL_INLINE(void, get_clip_rect, (BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2),
 {
    ASSERT(bitmap);
 
    /* internal clipping is inclusive-exclusive */
    *x1 = bitmap->cl;
-   *y1 = bitmap->ct;
+   *y_1 = bitmap->ct;
    *x2 = bitmap->cr-1;
    *y2 = bitmap->cb-1;
 })

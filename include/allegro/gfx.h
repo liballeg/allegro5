@@ -159,13 +159,13 @@ typedef struct GFX_VTABLE        /* functions for drawing onto bitmaps */
    AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent));
    AL_METHOD(int,  getpixel, (struct BITMAP *bmp, int x, int y));
    AL_METHOD(void, putpixel, (struct BITMAP *bmp, int x, int y, int color));
-   AL_METHOD(void, vline, (struct BITMAP *bmp, int x, int y1, int y2, int color));
+   AL_METHOD(void, vline, (struct BITMAP *bmp, int x, int y_1, int y2, int color));
    AL_METHOD(void, hline, (struct BITMAP *bmp, int x1, int y, int x2, int color));
    AL_METHOD(void, hfill, (struct BITMAP *bmp, int x1, int y, int x2, int color));
-   AL_METHOD(void, line, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
-   AL_METHOD(void, fastline, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
-   AL_METHOD(void, rectfill, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
-   AL_METHOD(void, triangle, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color));
+   AL_METHOD(void, line, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, fastline, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, rectfill, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
+   AL_METHOD(void, triangle, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color));
    AL_METHOD(void, draw_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
    AL_METHOD(void, draw_256_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
    AL_METHOD(void, draw_sprite_v_flip, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y));
@@ -196,7 +196,7 @@ typedef struct GFX_VTABLE        /* functions for drawing onto bitmaps */
    AL_METHOD(void, draw_sprite_end, (void));
    AL_METHOD(void, blit_end, (void));
    AL_METHOD(void, polygon, (struct BITMAP *bmp, int vertices, AL_CONST int *points, int color));
-   AL_METHOD(void, rect, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
+   AL_METHOD(void, rect, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
    AL_METHOD(void, circle, (struct BITMAP *bmp, int x, int y, int radius, int color));
    AL_METHOD(void, circlefill, (struct BITMAP *bmp, int x, int y, int radius, int color));
    AL_METHOD(void, ellipse, (struct BITMAP *bmp, int x, int y, int rx, int ry, int color));
@@ -399,8 +399,8 @@ AL_FUNC(BITMAP *, create_sub_bitmap, (BITMAP *parent, int x, int y, int width, i
 AL_FUNC(BITMAP *, create_video_bitmap, (int width, int height));
 AL_FUNC(BITMAP *, create_system_bitmap, (int width, int height));
 AL_FUNC(void, destroy_bitmap, (BITMAP *bitmap));
-AL_FUNC(void, set_clip_rect, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
-AL_FUNC(void, add_clip_rect, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
+AL_FUNC(void, set_clip_rect, (BITMAP *bitmap, int x1, int y_1, int x2, int y2));
+AL_FUNC(void, add_clip_rect, (BITMAP *bitmap, int x1, int y_1, int x2, int y2));
 AL_FUNC(void, clear_bitmap, (BITMAP *bitmap));
 AL_FUNC(void, vsync, (void));
 

@@ -162,9 +162,9 @@ AL_INLINE(int, geta32, (int c),
 
 #ifndef ALLEGRO_DOS
 
-AL_INLINE(void, _set_color, (int index, AL_CONST RGB *p),
+AL_INLINE(void, _set_color, (int idx, AL_CONST RGB *p),
 {
-   set_color(index, p);
+   set_color(idx, p);
 })
 
 #endif

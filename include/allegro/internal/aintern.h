@@ -213,7 +213,7 @@ AL_FUNC(int, _gui_list_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_text_list_proc, (int msg, DIALOG *d, int c));
 
 AL_FUNC(void, _handle_scrollable_scroll_click, (DIALOG *d, int listsize, int *offset, int height));
-AL_FUNC(void, _handle_scrollable_scroll, (DIALOG *d, int listsize, int *index, int *offset));
+AL_FUNC(void, _handle_scrollable_scroll, (DIALOG *d, int listsize, int *idx, int *offset));
 AL_FUNC(void, _handle_listbox_click, (DIALOG *d));
 AL_FUNC(void, _draw_scrollable_frame, (DIALOG *d, int listsize, int offset, int height, int fg_color, int bg));
 AL_FUNC(void, _draw_listbox, (DIALOG *d));
@@ -269,13 +269,13 @@ AL_VAR(int, _last_bank_2);
 AL_VAR(int *, _gfx_bank);
 
 /* bank switching routines (these use a non-C calling convention on i386!) */
-AL_FUNC(uintptr_t, _stub_bank_switch, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, _stub_bank_switch, (BITMAP *bmp, int lyne));
 AL_FUNC(void, _stub_unbank_switch, (BITMAP *bmp));
 AL_FUNC(void, _stub_bank_switch_end, (void));
 
 #ifdef GFX_HAS_VGA
 
-AL_FUNC(uintptr_t, _x_bank_switch, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, _x_bank_switch, (BITMAP *bmp, int lyne));
 AL_FUNC(void, _x_unbank_switch, (BITMAP *bmp));
 AL_FUNC(void, _x_bank_switch_end, (void));
 
@@ -472,15 +472,15 @@ AL_FUNC(unsigned long, _blender_write_alpha, (unsigned long x, unsigned long y, 
 
 
 /* graphics drawing routines */
-AL_FUNC(void, _normal_line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
-AL_FUNC(void, _fast_line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
-AL_FUNC(void, _normal_rectfill, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
+AL_FUNC(void, _normal_line, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
+AL_FUNC(void, _fast_line, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
+AL_FUNC(void, _normal_rectfill, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
 
 #ifdef ALLEGRO_COLOR8
 
 AL_FUNC(int,  _linear_getpixel8, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _linear_putpixel8, (BITMAP *bmp, int x, int y, int color));
-AL_FUNC(void, _linear_vline8, (BITMAP *bmp, int x, int y1, int y2, int color));
+AL_FUNC(void, _linear_vline8, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline8, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite8, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_sprite_v_flip8, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -503,7 +503,7 @@ AL_FUNC(void, _linear_clear_to_color8, (BITMAP *bitmap, int color));
 #ifdef ALLEGRO_COLOR16
 
 AL_FUNC(void, _linear_putpixel15, (BITMAP *bmp, int x, int y, int color));
-AL_FUNC(void, _linear_vline15, (BITMAP *bmp, int x, int y1, int y2, int color));
+AL_FUNC(void, _linear_vline15, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline15, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_trans_sprite15, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_trans_rgba_sprite15, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -515,7 +515,7 @@ AL_FUNC(void, _linear_draw_lit_rle_sprite15, (BITMAP *bmp, AL_CONST struct RLE_S
 
 AL_FUNC(int,  _linear_getpixel16, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _linear_putpixel16, (BITMAP *bmp, int x, int y, int color));
-AL_FUNC(void, _linear_vline16, (BITMAP *bmp, int x, int y1, int y2, int color));
+AL_FUNC(void, _linear_vline16, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline16, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite16, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_256_sprite16, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -542,7 +542,7 @@ AL_FUNC(void, _linear_clear_to_color16, (BITMAP *bitmap, int color));
 
 AL_FUNC(int,  _linear_getpixel24, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _linear_putpixel24, (BITMAP *bmp, int x, int y, int color));
-AL_FUNC(void, _linear_vline24, (BITMAP *bmp, int x, int y1, int y2, int color));
+AL_FUNC(void, _linear_vline24, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline24, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite24, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_256_sprite24, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -569,7 +569,7 @@ AL_FUNC(void, _linear_clear_to_color24, (BITMAP *bitmap, int color));
 
 AL_FUNC(int,  _linear_getpixel32, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _linear_putpixel32, (BITMAP *bmp, int x, int y, int color));
-AL_FUNC(void, _linear_vline32, (BITMAP *bmp, int x, int y1, int y2, int color));
+AL_FUNC(void, _linear_vline32, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _linear_hline32, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _linear_draw_sprite32, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _linear_draw_256_sprite32, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -594,7 +594,7 @@ AL_FUNC(void, _linear_clear_to_color32, (BITMAP *bitmap, int color));
 
 AL_FUNC(int,  _x_getpixel, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _x_putpixel, (BITMAP *bmp, int x, int y, int color));
-AL_FUNC(void, _x_vline, (BITMAP *bmp, int x, int y1, int y2, int color));
+AL_FUNC(void, _x_vline, (BITMAP *bmp, int x, int y_1, int y2, int color));
 AL_FUNC(void, _x_hline, (BITMAP *bmp, int x1, int y, int x2, int color));
 AL_FUNC(void, _x_draw_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y));
 AL_FUNC(void, _x_draw_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y));
@@ -1032,7 +1032,7 @@ AL_FUNC(int, _midi_allocate_voice, (int min, int max));
 
 AL_VAR(volatile long, _midi_tick);
 
-AL_FUNC(int, _digmid_find_patches, (char *dir, int dir_size, char *file, int file_size));
+AL_FUNC(int, _digmid_find_patches, (char *dir, int dir_size, char *file, int size_of_file));
 
 #define VIRTUAL_VOICES  256
 
@@ -1082,15 +1082,15 @@ AL_FUNC(int,  _mixer_get_position, (int voice));
 AL_FUNC(void, _mixer_set_position, (int voice, int position));
 AL_FUNC(int,  _mixer_get_volume, (int voice));
 AL_FUNC(void, _mixer_set_volume, (int voice, int volume));
-AL_FUNC(void, _mixer_ramp_volume, (int voice, int time, int endvol));
+AL_FUNC(void, _mixer_ramp_volume, (int voice, int tyme, int endvol));
 AL_FUNC(void, _mixer_stop_volume_ramp, (int voice));
 AL_FUNC(int,  _mixer_get_frequency, (int voice));
 AL_FUNC(void, _mixer_set_frequency, (int voice, int frequency));
-AL_FUNC(void, _mixer_sweep_frequency, (int voice, int time, int endfreq));
+AL_FUNC(void, _mixer_sweep_frequency, (int voice, int tyme, int endfreq));
 AL_FUNC(void, _mixer_stop_frequency_sweep, (int voice));
 AL_FUNC(int,  _mixer_get_pan, (int voice));
 AL_FUNC(void, _mixer_set_pan, (int voice, int pan));
-AL_FUNC(void, _mixer_sweep_pan, (int voice, int time, int endpan));
+AL_FUNC(void, _mixer_sweep_pan, (int voice, int tyme, int endpan));
 AL_FUNC(void, _mixer_stop_pan_sweep, (int voice));
 AL_FUNC(void, _mixer_set_echo, (int voice, int strength, int delay));
 AL_FUNC(void, _mixer_set_tremolo, (int voice, int rate, int depth));

@@ -219,7 +219,7 @@ AL_VAR(MOUSE_DRIVER, mousedrv_linux_evdev);
 
 AL_VAR(JOYSTICK_DRIVER, joystick_linux_analogue);
 
-AL_FUNC(void, split_modex_screen, (int line));
+AL_FUNC(void, split_modex_screen, (int lyne));
 
 
 /* Port I/O functions -- maybe these should be internal */

@@ -262,7 +262,7 @@ AL_VAR(GFX_DRIVER, gfx_xtended);
 AL_VAR(GFX_VTABLE, __modex_vtable);
 
 
-AL_FUNC(void, split_modex_screen, (int line));
+AL_FUNC(void, split_modex_screen, (int lyne));
 
 
 AL_INLINE(void, _set_color, (int index, AL_CONST RGB *p),

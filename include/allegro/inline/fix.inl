@@ -221,16 +221,16 @@ inline void normalize_vector(fix *x, fix *y, fix *z)
 }
 
 
-inline void cross_product(fix x1, fix y1, fix z1, fix x2, fix y2, fix z2, fix *xout, fix *yout, fix *zout)
+inline void cross_product(fix x1, fix y_1, fix z1, fix x2, fix y2, fix z2, fix *xout, fix *yout, fix *zout)
 {
-   cross_product(x1.v, y1.v, z1.v, x2.v, y2.v, z2.v, &xout->v, &yout->v, &zout->v);
+   cross_product(x1.v, y_1.v, z1.v, x2.v, y2.v, z2.v, &xout->v, &yout->v, &zout->v);
 }
 
 
-inline fix dot_product(fix x1, fix y1, fix z1, fix x2, fix y2, fix z2)
+inline fix dot_product(fix x1, fix y_1, fix z1, fix x2, fix y2, fix z2)
 {
    fix t;
-   t.v = dot_product(x1.v, y1.v, z1.v, x2.v, y2.v, z2.v);
+   t.v = dot_product(x1.v, y_1.v, z1.v, x2.v, y2.v, z2.v);
    return t;
 }
 

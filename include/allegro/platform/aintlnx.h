@@ -231,7 +231,7 @@ typedef struct INTERNAL_MOUSE_DRIVER {
 int  __al_linux_mouse_init (INTERNAL_MOUSE_DRIVER *drv);
 void __al_linux_mouse_exit (void);
 void __al_linux_mouse_position (int x, int y);
-void __al_linux_mouse_set_range (int x1, int y1, int x2, int y2);
+void __al_linux_mouse_set_range (int x1, int y_1, int x2, int y2);
 void __al_linux_mouse_set_speed (int xspeed, int yspeed);
 void __al_linux_mouse_get_mickeys (int *mickeyx, int *mickeyy);
 void __al_linux_mouse_handler (int x, int y, int z, int b);

@@ -60,7 +60,7 @@ extern "C" {
 
 
    /* Module support */
-   AL_FUNC(void, _unix_load_modules, (int system_driver));
+   AL_FUNC(void, _unix_load_modules, (int system_driver_id));
    AL_FUNC(void, _unix_unload_modules, (void));
 
 
