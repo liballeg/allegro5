@@ -204,19 +204,19 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 
             case 15:
                create_indexed_palette(15);
-               return _colorconv_blit_8_to_15;
+               return &_colorconv_blit_8_to_15;
 
             case 16:
                create_indexed_palette(16);
-               return _colorconv_blit_8_to_16;
+               return &_colorconv_blit_8_to_16;
 
             case 24:
                create_indexed_palette(24);
-               return _colorconv_blit_8_to_24;
+               return &_colorconv_blit_8_to_24;
 
             case 32:
                create_indexed_palette(32);
-               return _colorconv_blit_8_to_32;
+               return &_colorconv_blit_8_to_32;
          }
          break;
 #endif
@@ -232,11 +232,11 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 
             case 24:
                build_rgb_scale_5235_table(24);
-               return _colorconv_blit_15_to_24;
+               return &_colorconv_blit_15_to_24;
 
             case 32:
                build_rgb_scale_5235_table(32);
-               return _colorconv_blit_15_to_32;
+               return &_colorconv_blit_15_to_32;
          }
          break;
 
@@ -250,11 +250,11 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 
             case 24:
                build_rgb_scale_5335_table(24);
-               return _colorconv_blit_16_to_24;
+               return &_colorconv_blit_16_to_24;
 
             case 32:
                build_rgb_scale_5335_table(32);
-               return _colorconv_blit_16_to_32;
+               return &_colorconv_blit_16_to_32;
          }
          break;
 #endif
@@ -267,16 +267,16 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return NULL;
 
             case 15:
-               return _colorconv_blit_24_to_15;
+               return &_colorconv_blit_24_to_15;
 
             case 16:
-               return _colorconv_blit_24_to_16;
+               return &_colorconv_blit_24_to_16;
 
             case 24:
                return NULL;
 
             case 32:
-               return _colorconv_blit_24_to_32;
+               return &_colorconv_blit_24_to_32;
          }
          break;
 #endif
@@ -289,13 +289,13 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return NULL;
 
             case 15:
-               return _colorconv_blit_32_to_15;
+               return &_colorconv_blit_32_to_15;
 
             case 16:
-               return _colorconv_blit_32_to_16;
+               return &_colorconv_blit_32_to_16;
 
             case 24:
-               return _colorconv_blit_32_to_24;
+               return &_colorconv_blit_32_to_24;
 
             case 32:
                return NULL;
