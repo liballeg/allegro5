@@ -39,12 +39,20 @@ typedef struct DDRAW_SURFACE {
    LPDIRECTDRAWSURFACE2 id;
    int flags;
    int lock_nesting;
+   BITMAP *parent_bmp;  /* only used by the flipping chain */
    struct DDRAW_SURFACE *next;
    struct DDRAW_SURFACE *prev;
 } DDRAW_SURFACE;
 
+
 #define DDRAW_SURFACE_OF(bmp) ((DDRAW_SURFACE *)(bmp->extra))
-#define DDRAW_SURFACE_LOST 1
+#define DDRAW_SURFACE_PRIMARY   0x01
+#define DDRAW_SURFACE_OVERLAY   0x02
+#define DDRAW_SURFACE_VIDEO     0x04
+#define DDRAW_SURFACE_SYSTEM    0x08
+#define DDRAW_SURFACE_TYPE_MASK 0x0F
+#define DDRAW_SURFACE_INDEXED   0x10
+#define DDRAW_SURFACE_LOST      0x20
 
 
 /* DirectDraw globals (from wddraw.c) */
@@ -115,11 +123,6 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation (from wddbmp.c) */
-#define DDRAW_SURFACE_PRIMARY  1
-#define DDRAW_SURFACE_OVERLAY  2
-#define DDRAW_SURFACE_VIDEO    3
-#define DDRAW_SURFACE_SYSTEM   4
-
 AL_FUNC(DDRAW_SURFACE *, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format, int type));
 AL_FUNC(void, gfx_directx_destroy_surface, (DDRAW_SURFACE *surf));
 AL_FUNC(BITMAP *, make_bitmap_from_surface, (DDRAW_SURFACE *surf, int w, int h, int id));

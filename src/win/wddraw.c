@@ -126,10 +126,18 @@ int create_palette(DDRAW_SURFACE *surf)
    }
 
    hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, palette_entry, &ddpalette, NULL);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      _TRACE("Can't create palette (%x)\n", hr);
       return -1;
+   }
 
-   IDirectDrawSurface2_SetPalette(surf->id, ddpalette);
+   hr = IDirectDrawSurface2_SetPalette(surf->id, ddpalette);
+     if (FAILED(hr)) {
+      _TRACE("Can't set palette (%x)\n", hr);
+      return -1;
+   }
+
+   surf->flags |= DDRAW_SURFACE_INDEXED;
 
    return 0;
 }
