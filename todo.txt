@@ -28,7 +28,6 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Investigate plugins script support
 - Investigate problem with keyboard in the dxwindow test
 - Modify convert_hbitmap_to_bitmap() behaviour with 8-bit DDBs
 
