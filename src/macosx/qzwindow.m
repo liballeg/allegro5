@@ -162,8 +162,10 @@ static void set_window_alpha()
 
 - (void)resetCursorRects
 {
+   [super resetCursorRects];
    [self addCursorRect: NSMakeRect(0, 0, gfx_quartz_window.w, gfx_quartz_window.h)
       cursor: osx_cursor];
+   [osx_cursor setOnMouseEntered: YES];
 }
 
 @end
