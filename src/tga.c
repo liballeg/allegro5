@@ -11,6 +11,8 @@
  *      TGA reader by Tim Gunn.
  *
  *      RLE support added by Michal Mertl and Salvador Eduardo Tropea.
+ * 
+ *	Palette reading improved by Peter Wang.
  *
  *      See readme.txt for copyright information.
  */
@@ -207,7 +209,28 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
    descriptor_bits = pack_getc(f);
 
    pack_fread(image_id, id_length, f);
-   pack_fread(image_palette, palette_colors*3 , f);
+
+   for (i = 0; i < palette_colors; i++) {
+
+      switch (palette_entry_size) {
+
+	 case 16: 
+	    c = pack_igetw(f);
+	    image_palette[i][0] = (c & 0x1F) << 3;
+	    image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
+	    image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
+	    break;
+
+	 case 24:
+	 case 32:
+	    pal[i].b = pack_getc(f);
+	    pal[i].g = pack_getc(f);
+	    pal[i].r = pack_getc(f);
+	    if (palette_entry_size == 32)
+	       pack_getc(f);
+	    break;
+      }
+   }
 
    /* Image type:
     *    0 = no image data
