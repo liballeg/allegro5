@@ -2608,6 +2608,10 @@ static int sprint_string(STRING_ARG *string_arg, SPRINT_INFO *info, AL_CONST cha
    int pos = 0, len = 0;
    int c;
 
+   /* discard empty strings */
+   if (ugetc(s) == 0)
+      return 0;
+
    string_arg->data = malloc((MAX(ustrlen(s), info->field_width) * uwidth_max(U_CURRENT)
                                                             + ucwidth(0)) * sizeof(char));
 

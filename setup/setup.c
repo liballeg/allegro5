@@ -1415,6 +1415,20 @@ static void build_freq_list(char *freq[], int nfreq, int freq_value[])
 
 
 
+static void destroy_freq_list(char *freq[], int nfreq)
+{
+   int i;
+
+   for (i=0; i<nfreq; i++) {
+      if (freq[i]) {
+         free(freq[i]);
+         freq[i] = NULL;
+      }
+   }
+}
+
+
+
 /* dialog callback for retrieving the SB frequency list */
 static char *freq_getter(int index, int *list_size)
 {
@@ -1441,6 +1455,9 @@ static char *freq_getter(int index, int *list_size)
 	       *list_size = 4;
 	       break;
 	 }
+      }
+      else {
+         destroy_freq_list(freq, 4);
       }
 
       return NULL;
@@ -2797,6 +2814,9 @@ int main()
 
    do {
    } while (update());
+
+   /* to avoid leaking memory */
+   freq_getter(-1, NULL);
 
    destroy_bitmap(buffer);
 

@@ -156,8 +156,20 @@ static int ff_match(AL_CONST char *s1, AL_CONST char *s2)
 {
    static unsigned int size = 0;
    static struct FF_MATCH_DATA *data = NULL;
-   AL_CONST char *s1end = s1 + strlen(s1);
+   AL_CONST char *s1end;
    int index, c1, c2;
+
+   /* handle NULL arguments */
+   if ((!s1) && (!s2)) {
+      if (data) {
+         free(data);
+         data = NULL;
+      }
+
+      return 0;
+   }
+
+   s1end = s1 + strlen(s1);
 
    /* allocate larger working area if necessary */
    if (data && (size < strlen(s2))) {
@@ -446,6 +458,9 @@ void al_findclose(struct al_ffblk *info)
       closedir(ff_data->dir);
       free(ff_data);
       info->ff_data = NULL;
+
+      /* to avoid leaking memory */
+      ff_match(NULL, NULL);
    }
 }
 
