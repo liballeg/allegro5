@@ -5188,8 +5188,8 @@ Sound init routines
 Digital sample routines
 
 @@SAMPLE *@load_sample(const char *filename);
-@xref destroy_sample, load_voc, load_wav, play_sample, Voice control
-@xref register_sample_file_type
+@xref destroy_sample, load_voc, load_wav, play_sample, save_sample
+@xref register_sample_file_type, Voice control
    Loads a sample from a file, returning a pointer to it, or NULL on error. 
    At present this function supports both mono and stereo WAV and mono VOC 
    files, in 8 or 16 bit formats, as well as formats handled by functions
@@ -5202,6 +5202,13 @@ Digital sample routines
 @@SAMPLE *@load_voc(const char *filename);
 @xref load_sample, register_sample_file_type
    Loads a sample from a Creative Labs VOC file.
+
+@@int @save_sample(const char *filename, SAMPLE *spl);
+@xref load_sample, register_sample_file_type
+   Writes a sample into a file, returning non-zero on error. The output
+   format is determined from the filename extension. At present Allegro does
+   not natively support the writing of any sample formats, so you must 
+   register a custom saver routine with register_sample_file_type().
 
 @@SAMPLE *@create_sample(int bits, int stereo, int freq, int len);
 @xref load_sample, destroy_sample
@@ -5223,14 +5230,11 @@ Digital sample routines
 
 @\void @register_sample_file_type(const char *ext,
 @\                          SAMPLE *(*load)(const char *filename),
-@@                          int (*save)(const char *filename, SAMPLE *smp));
-@header allegro/digi.h
-@xref load_sample
+@@                          int (*save)(const char *filename, SAMPLE *spl));
+@xref load_sample, save_sample
    Informs the load_sample() function of a new sample file type,
    providing routines to read and write samples in this format (either
-   function may be NULL). Note that since save_sample does not exist,
-   supplying the save parameter is not very useful, but still is
-   included in case such a routine is added in the future.
+   function may be NULL).
 
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, Voice control

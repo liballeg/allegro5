@@ -138,6 +138,7 @@ AL_FUNC(int, detect_digi_driver, (int driver_id));
 AL_FUNC(SAMPLE *, load_sample, (AL_CONST char *filename));
 AL_FUNC(SAMPLE *, load_wav, (AL_CONST char *filename));
 AL_FUNC(SAMPLE *, load_voc, (AL_CONST char *filename));
+AL_FUNC(int, save_sample, (AL_CONST char *filename, SAMPLE *spl));
 AL_FUNC(SAMPLE *, create_sample, (int bits, int stereo, int freq, int len));
 AL_FUNC(void, destroy_sample, (SAMPLE *spl));
 
@@ -201,7 +202,7 @@ AL_FUNCPTR(void, digi_recorder, (void));
 
 AL_FUNC(void, lock_sample, (struct SAMPLE *spl));
 
-AL_FUNC(void, register_sample_file_type, (AL_CONST char *ext, AL_METHOD(struct SAMPLE *, load, (AL_CONST char *filename)), AL_METHOD(int, save, (AL_CONST char *filename, struct SAMPLE *smp))));
+AL_FUNC(void, register_sample_file_type, (AL_CONST char *ext, AL_METHOD(struct SAMPLE *, load, (AL_CONST char *filename)), AL_METHOD(int, save, (AL_CONST char *filename, struct SAMPLE *spl))));
 
 #ifdef __cplusplus
    }
