@@ -2782,7 +2782,8 @@ Allegro supports several different types of bitmaps:
 @@void @destroy_bitmap(BITMAP *bitmap);
 @xref create_bitmap, load_bitmap
    Destroys a memory bitmap, sub-bitmap, video memory bitmap, or system 
-   bitmap when you are finished with it.
+   bitmap when you are finished with it. See above for the restrictions
+   as to when you are allowed to destroy the various types of bitmaps.
 
 @@void @lock_bitmap(BITMAP *bitmap);
    Under DOS, locks all the memory used by a bitmap. You don't normally need
