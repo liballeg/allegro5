@@ -143,6 +143,10 @@ static int pad_arrow_codes[NUM_PAD_KEYS] = {
 	KEY_DEL
 };
 static char pad_asciis[NUM_PAD_KEYS] = "0123456789+-*/\r,.";
+static char pad_asciis_no_numlock[NUM_PAD_KEYS] = { 
+	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
+	'+', '-', '*', '/', '\r', -1, -1
+};
 
 
 static void process_keyboard_data (unsigned char *buf, size_t bytes_read) 
@@ -242,7 +246,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                                 } else {
 					int val = KVAL(kbe.kb_value);
 					if ((val >= 0) && (val < NUM_PAD_KEYS) && pad_arrow_codes[val]) {
-						ascii = -1;
+					    	ascii = pad_asciis_no_numlock[val];
 						mycode = pad_arrow_codes[val];
 					}
                                 }
