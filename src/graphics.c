@@ -311,6 +311,17 @@ void set_color_conversion(int mode)
 
 
 
+/* get_color_conversion:
+ *  Returns the bitmask specifying which types of color format
+ *  conversion are valid when loading data from disk.
+ */
+int get_color_conversion(void)
+{
+   return _color_conv;
+}
+
+
+
 /* _color_load_depth:
  *  Works out which color depth an image should be loaded as, given the
  *  current conversion mode.

@@ -3264,7 +3264,7 @@ will not be known, so the file may be converted wrongly.
 
 @@void @set_color_conversion(int mode);
 @xref set_color_depth, load_bitmap, load_datafile, fixup_datafile
-@xref makecol15_dither
+@xref makecol15_dither, get_color_conversion
    Specifies how to convert images between the various color depths when 
    reading graphics from external bitmap files or datafiles. The mode is a 
    bitmask specifying which types of conversion are allowed. If the 
@@ -3343,6 +3343,10 @@ will not be known, so the file may be converted wrongly.
    other and adjusting colors which would be converted to the transparent 
    color otherwise. It affects every blit() operation between distinct pixel 
    formats and every automatic conversion.
+
+@@int @get_color_conversion();
+@xref set_color_conversion
+   Returns the current color conversion mode.
 
 
 
