@@ -2302,14 +2302,14 @@ Graphics modes
    screen width, and the virtual height will be set accordingly (the VGA has 
    256k of vram, so the virtual height will be 256*1024/virtual_width).
 
-   Currently using a big virtual screen for page flipping is considered bad
+   Currently, using a big virtual screen for page flipping is considered bad
    practice.  There are platforms which don't support virtual screens bigger
    than the physical screen but can create different video pages to flip back
-   and forth. This means that if you want page flipping and aren't going to
-   use hardware scrolling you should call set_gfx_mode() with zero as
-   parameter for virtual screen size, and later create the different video
-   pages with create_video_bitmap. Otherwise, your program will be limited to
-   the platforms supporting hardware scrolling.
+   and forth. This means that, if you want page flipping and aren't going to
+   use hardware scrolling, you should call set_gfx_mode() with (0,0) as the
+   virtual screen size and later create the different video pages with
+   create_video_bitmap(). Otherwise your program will be limited to the
+   platforms supporting hardware scrolling.
 
    After you select a graphics mode, the physical and virtual screen sizes 
    can be checked with the macros SCREEN_W, SCREEN_H, VIRTUAL_W, and 
