@@ -1092,9 +1092,9 @@ int anim_desc_proc(int msg, DIALOG *d, int c)
 DIALOG anim_type_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)     (d1)  (d2)  (dp)                 (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    280,  150,  0,    1,    0,    0,          0,    0,    NULL,                NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    281,  151,  0,    1,    0,    0,          0,    0,    NULL,                NULL, NULL  },
    { d_ctext_proc,      140,  8,    1,    1,    0,    1,    0,    0,          0,    0,    "Animation Method",  NULL, NULL  },
-   { anim_list_proc,    16,   28,   152,  43,   0,    1,    0,    D_EXIT,     4,    0,    anim_list_getter,    NULL, NULL  },
+   { anim_list_proc,    16,   28,   153,  44,   0,    1,    0,    D_EXIT,     4,    0,    anim_list_getter,    NULL, NULL  },
    { anim_desc_proc,    16,   90,   248,  48,   0,    1,    0,    0,          0,    0,    0,                   NULL, NULL  },
    { d_button_proc,     184,  28,   80,   16,   0,    1,    13,   D_EXIT,     0,    0,    "OK",                NULL, NULL  },
    { d_button_proc,     184,  50,   80,   16,   0,    1,    27,   D_EXIT,     0,    0,    "Cancel",            NULL, NULL  },
