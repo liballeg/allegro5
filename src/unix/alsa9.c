@@ -285,9 +285,8 @@ static int alsa_init(int input, int voices)
 {
    int ret = 0;
    char tmp1[128], tmp2[128];
-   unsigned int dir = 0;
-   int format = 0, fragsize = 0, numfrags = 0;
-   snd_pcm_sframes_t buffer_size;
+   int format = 0, numfrags = 0;
+   snd_pcm_sframes_t fragsize;
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
@@ -381,19 +380,19 @@ static int alsa_init(int input, int voices)
    ALSA9_CHECK(snd_pcm_hw_params_set_format(pcm_handle, hwparams, format));
    ALSA9_CHECK(snd_pcm_hw_params_set_channels(pcm_handle, hwparams, alsa_stereo + 1));
 
-   snd_pcm_hw_params_set_rate_near(pcm_handle, hwparams, &alsa_rate, &dir);
-
-   ALSA9_CHECK(snd_pcm_hw_params_set_period_size(pcm_handle, hwparams, fragsize, dir));
-   ALSA9_CHECK(snd_pcm_hw_params_set_periods(pcm_handle, hwparams, numfrags, dir));
+   ALSA9_CHECK(snd_pcm_hw_params_set_rate_near(pcm_handle, hwparams, &alsa_rate, NULL));
+   ALSA9_CHECK(snd_pcm_hw_params_set_period_size_near(pcm_handle, hwparams, &fragsize, NULL));
+   ALSA9_CHECK(snd_pcm_hw_params_set_periods_near(pcm_handle, hwparams, &numfrags, NULL)); 
 
    ALSA9_CHECK(snd_pcm_hw_params(pcm_handle, hwparams));
 
-   ALSA9_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_bufsize, &dir));
-   ALSA9_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_fragments, &dir));
-   ALSA9_CHECK(snd_pcm_hw_params_get_buffer_size(hwparams, &buffer_size));
+   ALSA9_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_bufsize, NULL));
+   ALSA9_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_fragments, NULL));
+
+   TRACE ("ALSA 9 driver: alsa_bufsize = %i, alsa_fragments = %i\n", alsa_bufsize, alsa_fragments);
 
    ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
-   ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, buffer_size));
+   ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, alsa_bufsize));
    ALSA9_CHECK(snd_pcm_sw_params_set_avail_min(pcm_handle, swparams, fragsize));
    ALSA9_CHECK(snd_pcm_sw_params_set_xfer_align(pcm_handle, swparams, 1));
    ALSA9_CHECK(snd_pcm_sw_params(pcm_handle, swparams));
