@@ -798,7 +798,7 @@ is best to set it with set_uformat() just before you call these.
       }<endblock>
 @retval
    Returns the currently selected text encoding format. See the documentation
-   of set_uformat for a list of encoding formats.
+   of set_uformat() for a list of encoding formats.
 
 @\void @register_uformat(int type,
 @\                      int (*u_getc)(const char *s),
@@ -1486,10 +1486,12 @@ or the directory pointed to by the ALLEGRO environment variable. Under Unix,
 it also checks for `~/allegro.cfg', `~/.allegrorc', `/etc/allegro.cfg', and
 `/etc/allegrorc', in that order; under BeOS only the last two are also
 checked. MacOS X also checks in the Contents/Resources directory of the
-application bundle, if any, before doing the checks above. If you don't like
-this approach, you can specify any filename you like, or use a block of
-binary configuration data provided by your program (which could for example
-be loaded from a datafile).
+application bundle, if any, before doing the checks above.
+
+If you don't like this approach, you can specify any filename you like, or
+use a block of binary configuration data provided by your program (which
+could for example be loaded from a datafile). You can also extend the paths
+searched for allegro resources with set_allegro_resource_path().
 
 You can store whatever custom information you like in the config file, along 
 with the standard variables that are used by Allegro (see below). Allegro
@@ -7118,14 +7120,41 @@ directories, but not hidden files and directories. Similarly, if you pass
 @\                          const char *ext, const char *datafile, 
 @\                          const char *objectname, const char *envvar, 
 @@                          const char *subdir, int size);
+@xref set_allegro_resource_path
    Searches for a support file, eg. allegro.cfg or language.dat. Passed a 
    resource string describing what you are looking for, along with extra 
    optional information such as the default extension, what datafile to look 
    inside, what the datafile object name is likely to be, any special 
    environment variable to check, and any subdirectory that you would like 
    to check as well as the default location, this function looks in a hell 
-   of a lot of different places :-) Returns zero on success, and stores a 
-   full path to the file (at most size bytes) into the dest buffer.
+   of a lot of different places :-). Check the documentation chapter specific
+   to your platform for information on additional paths this function might
+   search for.
+@retval
+   Returns zero on success, and stores a full path to the file (at most size
+   bytes) into the dest buffer.
+
+@@int @set_allegro_resource_path(int priority, const char *path);
+@xref find_allegro_resource
+   Sometimes Allegro doesn't look in enough places to find a resource. For
+   those special cases, you can call this function before loading your
+   resource with additional paths to search for. You set up the priorities,
+   higher numbers are searched for first. To modify an already setup path,
+   call this function with the same priority and the new path. To remove an
+   already setup path, call this function with the priority of the path and
+   NULL as the path parameter. Example:
+<codeblock>
+      set_allegro_resource_path(10, "my_game/configs");
+      set_allegro_resource_path(0, "users/configs/");
+      set_allegro_resource_path(-45, "temp");
+<endblock>
+   These custom paths will be valid until you call allegro_exit(). You can
+   call this function before install_allegro(), but after set_uformat() if
+   you want to use a text encoding format other than the default.
+@retval
+   Returns non zero on success, zero if the path could not be added or you
+   wanted to remove a path and the priority used didn't have any associated
+   path. Modification of existing paths always succeeds.
 
 @@void @packfile_password(const char *password);
 @xref pack_fopen, load_datafile
@@ -9141,7 +9170,7 @@ it will instruct the library to use console features and also to disable the
 special processing of the main() function described above.
 
 When creating the main window, Allegro searches the executable for an ICON 
-resource named "allegro_icon". If it is present, Allegro automatically 
+resource named "allegro_icon". If it is present, Allegro automatically
 loads it and uses it as its application icon; otherwise, Allegro uses the 
 default IDI_APPLICATION icon. See the manual of your compiler for a method 
 to create an ICON resource, or use the wfixicon utility from the tools/win 
@@ -9438,9 +9467,10 @@ Under Unix resources are searched for in many different paths. When a
 configuration resource is looked for, it is usually tried with the variations
 `name.cfg' or `.namerc' in multiple paths: the current directory, the
 directory pointed to by the ALLEGRO environment variable, the user's home
-directory and one or more global system directories which usually only the
-root user has access to. Text files, like the main allegro config file or a
-language text translation files are looked for in the following places:
+directory, one or more global system directories which usually only the
+root user has access to and any custom paths set up with
+set_allegro_resource_path(). Text files, like the main allegro config file or
+a language text translation files are looked for in the following places:
 <textblock>
    ./allegro.cfg
    $ALLEGRO/allegro.cfg

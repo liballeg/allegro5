@@ -189,10 +189,10 @@ Contributors
    Enlarged the starfield in exstars, and fixed an incorrect range in
    exlights.
 
-   Daniel Schlydler (<email>daniel@dascdev.net</a>).<br>
+   Daniel Schlyder (<email>daniel@bitblaze.com</a>).<br>
    Fixed problems with get_executable_name() under Windows, another one with
-   set_window_title() under BeOS and potentially unsafe constructs in the
-   Windows code.
+   set_window_title() under BeOS, potentially unsafe constructs in the
+   Windows code and added set_allegro_resource_path().
 
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
