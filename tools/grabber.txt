@@ -392,6 +392,9 @@ line dat utility. This accepts the following options:
    '-w'
       Always updates the entire contents of the datafile.
 
+   '-x <objects>'
+      Alias for '-e <objects>'.
+
    '-007 password'
       Sets the file encryption key.
 
