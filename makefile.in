@@ -198,7 +198,7 @@ $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 
 DOCBASEFILES = ahack changes faq help thanks allegro const abi
 
-DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack changes faq help allegro const abi))
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
 DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
@@ -232,8 +232,9 @@ THANKS: docs/src/thanks._tx
 	$(MAKEDOC) -part -ascii THANKS $<
 	cp THANKS docs/txt/thanks.txt
 
-CHANGES: docs/txt/changes.txt
-	cp $< $@
+CHANGES: docs/src/changes._tx
+	$(MAKEDOC) -ascii CHANGES $<
+	cp CHANGES docs/txt/changes.txt
 
 docs/allegro.dvi: docs/texi/allegro.texi
 	cd docs && texi2dvi -c texi/allegro.texi && cd ..
