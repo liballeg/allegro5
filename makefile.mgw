@@ -124,9 +124,24 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/i386 src/misc tests/win
+VPATH = src/win src/misc tests/win
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+ifdef ALLEGRO_USE_C
+
+# build a C-only version
+VPATH += src/c
+MY_OBJECTS = $(C_OBJECTS) cmiscs
+CFLAGS += -DALLEGRO_USE_C
+
+else
+
+# build the normal asm version
+VPATH += src/i386
+MY_OBJECTS = $(I386_OBJECTS)
+
+endif # ALLEGRO_USE_C
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 
@@ -404,8 +419,8 @@ GCC2MINGW = -D__MINGW32__ -UDJGPP -U__unix__
 DEPEND_PARAMS = $(GCC2MINGW) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/win/*.s >> _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/c/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/c/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld\/\1\.o:/" _depend2.tmp > obj/mingw32/alld/makefile.dep
