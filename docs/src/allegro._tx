@@ -9621,9 +9621,9 @@ code from one platform to another (you can find a more detailed version of
 this in the docs section of the Allegro website).
 
 The Windows, Unix and MacOS X versions require you to write END_OF_MAIN() 
-after your main() function, which is used to magically turn an ANSI C style 
-main() into a Windows style WinMain(), and so that the Unix code can grab a 
-copy of your argv[] parameter. MacOS X uses it to shell the user main() 
+after your main() function. This is used to magically turn an ISO C style 
+main() into a Windows style WinMain(), or by the Unix code to grab a copy
+of your argv[] parameter, or by the MacOS X code to shell the user main() 
 inside a Cocoa application.
 
 On many platforms Allegro runs very slowly if you rely on it in order to 
