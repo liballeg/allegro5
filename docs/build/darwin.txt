@@ -23,9 +23,12 @@
 =================================
 
    This file explains how to build the X Window port of Allegro on a Darwin
-   system. It is important to note that there is no sound because the sound
-   drivers have not yet been ported.
+   system.
 
+   It is important to note that there is no sound because the sound drivers
+   have not yet been ported.
+
+   This library cannot yet be compiled as a shared library, only static.
 
 
 =================================
@@ -38,8 +41,9 @@
 
       http://connect.apple.com
 
-   At some point, the new version of GCC will support Mach-O binary 
-   compilation, and you may be able to use those tools directly.
+   Recently, GCC 3.1 has been released which supports the Mach-O binary
+   format, and you may be able to use it directly (if you compile it
+   yourself or find a binary distribution.)
 
    You will also need X Window. You can use either the Darwin/MacOS X port
    of XFree86 from the XonX project or Xtools, a proprietary version. The
@@ -73,7 +77,9 @@
 
       make
 
-   You will probably see lots of preprocessing errors. Just ignore them.
+   If you are using an older version of Apple's tools, you will probably see
+   lots of preprocessing errors. Just ignore them (they are due to Apple's
+   modifications to GCC and do not affect the resulting object code).
 
    To install Allegro, you will need root permissions. If you don't have 
    root permissions set up on your system (in MacOS X, for example), you 
