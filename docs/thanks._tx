@@ -472,7 +472,7 @@ Contributors
    Peter Puck (<email>zaqhaq@netscape.net</a>).<br>
    Helped with the Mingw32 native build.
 
-   Peter Wang (<email>tjaden@psynet.net</a>).<br>
+   Peter Wang (<email>tjaden@users.sourceforge.net</a>).<br>
    Added the mouse_z wheel input support to the Linux code, fixed problems
    with the ESD sound driver, wrote the ALSA sound driver, wrote the BeOS
    sound driver, added OSS MIDI and sample input support, added banked mode
