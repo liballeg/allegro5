@@ -9,7 +9,7 @@
 #
 #  This is heavily based on a similar script from GTK.
 
-version=3.9.32
+version=3.9.33
 
 prefix=@prefix@
 exec_prefix=$prefix
@@ -136,6 +136,6 @@ if test "$echo_libs" = "yes"; then
    if test "$static_libs" = "yes"; then
       echo $libdirs -l${lib_type} $allegro_libs
    else
-      echo $libdirs -l${lib_type}-${version} -l${lib_type}_unsharable $allegro_libs
+      echo $libdirs -l${lib_type}-${version} -l${lib_type}_unsharable #$allegro_libs
    fi
 fi 
