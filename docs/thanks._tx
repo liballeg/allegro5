@@ -554,7 +554,8 @@ Contributors
    Tomohiko Sugiura (<email>tmsugi@d4.dion.ne.jp</a>).<br>
    Added the KEY_YEN, KEY_YEN2, KEY_KANA, KEY_HENKAN and KEY_MUHENKAN keys 
    to the input handler, and organised getting the IF-SEGA joystick drivers 
-   by S.Suzuki merged into my codebase.
+   by S.Suzuki merged into my codebase. Added more aggressive Sidewinder 
+   joystick driver.
 
    Vincent Penquerc'h (<email>vpenquerch@cr2a-di.fr</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
