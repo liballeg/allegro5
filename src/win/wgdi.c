@@ -507,12 +507,12 @@ static void gfx_gdi_exit(struct BITMAP *bmp)
 {
    _enter_critical();
 
-   save_window_pos();
-
    _enter_gfx_critical();
 
-   if (bmp)
+   if (bmp) {
+      save_window_pos();
       clear_bitmap(bmp);
+   }
 
    /* stop timer */
    remove_int(render_proc);

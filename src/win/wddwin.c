@@ -690,10 +690,10 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
 { 
    _enter_gfx_critical();
 
-   save_window_pos();
-
-   if (bmp)
+   if (bmp) {
+      save_window_pos();
       clear_bitmap(bmp);
+   }
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
