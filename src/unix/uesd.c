@@ -126,7 +126,7 @@ static void _al_esd_update(int threaded)
 
    if (select(_al_esd_fd+1, NULL, &wfds, NULL, &timeout) > 0) {
       write(_al_esd_fd, _al_esd_bufdata, _al_esd_bufsize);
-      _mix_some_samples((unsigned long) _al_esd_bufdata, 0, _al_esd_signed);
+      _mix_some_samples((uintptr_t) _al_esd_bufdata, 0, _al_esd_signed);
    }
 }
 
@@ -224,7 +224,7 @@ static int _al_esd_init(int input, int voices)
       return -1;
    }
 
-   _mix_some_samples((unsigned long) _al_esd_bufdata, 0, _al_esd_signed);
+   _mix_some_samples((uintptr_t) _al_esd_bufdata, 0, _al_esd_signed);
 
    /* Add audio interrupt.  */
    _unix_bg_man->register_func(_al_esd_update);

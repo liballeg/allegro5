@@ -56,7 +56,8 @@ Required software
 	 Optional: GNU sed. Used by "<tt>make depend</tt>" and "<tt>fixdll.sh</tt>"<br>
 	 Optional: GNU sort (textutils). Used by "<tt>fixdll.sh</tt>".<br><br>
    </ul></ul>
-   Allegro should work ok with MSVC versions 4, 5, 6 and 7.
+   Allegro should work ok with MSVC versions 4, 5, 6, 7.0 (.NET)
+   and 7.1 (.NET 2003). However note that the lowest tested version is 6.
 
    The DirectX SDK can be obtained directly from Microsoft. An old version 
    of the headers is included with MSVC, but Allegro requires more recent 
@@ -131,6 +132,10 @@ Installing Allegro
    you are using DJGPP or MinGW), type "<tt>fix.bat msvc</tt>". If you are 
    using MinGW and want the <tt>fix.bat</tt> to solve problems with long paths,
    type "<tt>fix.bat msvc --msvcpaths</tt>".
+   
+   If you are using MSVC 7 or higher you can specify "msvc7" instead of "msvc"
+   which will enable better optimalization. However it can make the compilation
+   slower especially for the statically linked version.
 
    If you are compiling from CVS, before continuing you must run both
    "<tt>make depend</tt>" and "<tt>misc/fixdll.sh</tt>" as explained below, or the build will

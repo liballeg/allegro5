@@ -43,11 +43,11 @@ AL_INLINE(void, putpixel, (BITMAP *bmp, int x, int y, int color),
 })
 
 
-AL_INLINE(void, vline, (BITMAP *bmp, int x, int y1, int y2, int color),
+AL_INLINE(void, vline, (BITMAP *bmp, int x, int y_1, int y2, int color),
 {
    ASSERT(bmp);
 
-   bmp->vtable->vline(bmp, x, y1, y2, color);
+   bmp->vtable->vline(bmp, x, y_1, y2, color);
 })
 
 
@@ -59,35 +59,35 @@ AL_INLINE(void, hline, (BITMAP *bmp, int x1, int y, int x2, int color),
 })
 
 
-AL_INLINE(void, line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
+AL_INLINE(void, line, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color),
 {
    ASSERT(bmp);
 
-   bmp->vtable->line(bmp, x1, y1, x2, y2, color);
+   bmp->vtable->line(bmp, x1, y_1, x2, y2, color);
 })
 
 
-AL_INLINE(void, fastline, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
+AL_INLINE(void, fastline, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color),
 {
    ASSERT(bmp);
 
-   bmp->vtable->fastline(bmp, x1, y1, x2, y2, color);
+   bmp->vtable->fastline(bmp, x1, y_1, x2, y2, color);
 })
 
 
-AL_INLINE(void, rectfill, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
+AL_INLINE(void, rectfill, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color),
 {
    ASSERT(bmp);
 
-   bmp->vtable->rectfill(bmp, x1, y1, x2, y2, color);
+   bmp->vtable->rectfill(bmp, x1, y_1, x2, y2, color);
 })
 
 
-AL_INLINE(void, triangle, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color),
+AL_INLINE(void, triangle, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color),
 {
    ASSERT(bmp);
 
-   bmp->vtable->triangle(bmp, x1, y1, x2, y2, x3, y3, color);
+   bmp->vtable->triangle(bmp, x1, y_1, x2, y2, x3, y3, color);
 })
 
 
@@ -99,11 +99,11 @@ AL_INLINE(void, polygon, (BITMAP *bmp, int vertices, AL_CONST int *points, int c
 })
 
 
-AL_INLINE(void, rect, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
+AL_INLINE(void, rect, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int color),
 {
    ASSERT(bmp);
 
-   bmp->vtable->rect(bmp, x1, y1, x2, y2, color);
+   bmp->vtable->rect(bmp, x1, y_1, x2, y2, color);
 })
 
 
@@ -402,7 +402,7 @@ AL_INLINE(void, pivot_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x,
 
 AL_INLINE(void, _putpixel, (BITMAP *bmp, int x, int y, int color),
 {
-   unsigned long addr;
+   uintptr_t addr;
 
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
@@ -413,7 +413,7 @@ AL_INLINE(void, _putpixel, (BITMAP *bmp, int x, int y, int color),
 
 AL_INLINE(int, _getpixel, (BITMAP *bmp, int x, int y),
 {
-   unsigned long addr;
+   uintptr_t addr;
    int c;
 
    bmp_select(bmp);
@@ -427,7 +427,7 @@ AL_INLINE(int, _getpixel, (BITMAP *bmp, int x, int y),
 
 AL_INLINE(void, _putpixel15, (BITMAP *bmp, int x, int y, int color),
 {
-   unsigned long addr;
+   uintptr_t addr;
 
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
@@ -438,7 +438,7 @@ AL_INLINE(void, _putpixel15, (BITMAP *bmp, int x, int y, int color),
 
 AL_INLINE(int, _getpixel15, (BITMAP *bmp, int x, int y),
 {
-   unsigned long addr;
+   uintptr_t addr;
    int c;
 
    bmp_select(bmp);
@@ -452,7 +452,7 @@ AL_INLINE(int, _getpixel15, (BITMAP *bmp, int x, int y),
 
 AL_INLINE(void, _putpixel16, (BITMAP *bmp, int x, int y, int color),
 {
-   unsigned long addr;
+   uintptr_t addr;
 
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
@@ -463,7 +463,7 @@ AL_INLINE(void, _putpixel16, (BITMAP *bmp, int x, int y, int color),
 
 AL_INLINE(int, _getpixel16, (BITMAP *bmp, int x, int y),
 {
-   unsigned long addr;
+   uintptr_t addr;
    int c;
 
    bmp_select(bmp);
@@ -477,7 +477,7 @@ AL_INLINE(int, _getpixel16, (BITMAP *bmp, int x, int y),
 
 AL_INLINE(void, _putpixel24, (BITMAP *bmp, int x, int y, int color),
 {
-   unsigned long addr;
+   uintptr_t addr;
 
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
@@ -488,7 +488,7 @@ AL_INLINE(void, _putpixel24, (BITMAP *bmp, int x, int y, int color),
 
 AL_INLINE(int, _getpixel24, (BITMAP *bmp, int x, int y),
 {
-   unsigned long addr;
+   uintptr_t addr;
    int c;
 
    bmp_select(bmp);
@@ -502,23 +502,23 @@ AL_INLINE(int, _getpixel24, (BITMAP *bmp, int x, int y),
 
 AL_INLINE(void, _putpixel32, (BITMAP *bmp, int x, int y, int color),
 {
-   unsigned long addr;
+   uintptr_t addr;
 
    bmp_select(bmp);
    addr = bmp_write_line(bmp, y);
-   bmp_write32(addr+x*sizeof(long), color);
+   bmp_write32(addr+x*sizeof(int32_t), color);
    bmp_unwrite_line(bmp);
 })
 
 
 AL_INLINE(int, _getpixel32, (BITMAP *bmp, int x, int y),
 {
-   unsigned long addr;
+   uintptr_t addr;
    int c;
 
    bmp_select(bmp);
    addr = bmp_read_line(bmp, y);
-   c = bmp_read32(addr+x*sizeof(long));
+   c = bmp_read32(addr+x*sizeof(int32_t));
    bmp_unwrite_line(bmp);
 
    return c;

@@ -24,15 +24,15 @@
 #endif
 
 
-AL_INLINE(fixed, dot_product, (fixed x1, fixed y1, fixed z1, fixed x2, fixed y2, fixed z2),
+AL_INLINE(fixed, dot_product, (fixed x1, fixed y_1, fixed z1, fixed x2, fixed y2, fixed z2),
 {
-   return fixmul(x1, x2) + fixmul(y1, y2) + fixmul(z1, z2);
+   return fixmul(x1, x2) + fixmul(y_1, y2) + fixmul(z1, z2);
 })
 
 
-AL_INLINE(float, dot_product_f, (float x1, float y1, float z1, float x2, float y2, float z2),
+AL_INLINE(float, dot_product_f, (float x1, float y_1, float z1, float x2, float y2, float z2),
 {
-   return (x1 * x2) + (y1 * y2) + (z1 * z2);
+   return (x1 * x2) + (y_1 * y2) + (z1 * z2);
 })
 
 

@@ -26,10 +26,10 @@ Changes from 4.1.17 to 4.1.18 (Januari 2005)
    Marcio Fialho fixed a warning when compiling Allegro with DJGPP.
 <li>
    Evert Glebbeek fixed a bug that prevented system cursors from working in 
-   Windows, as pointed out by Peter Johanson.
+   Windows, as pointed out by Peter Johansson.
 <li>
-   Evert Glebbeek font loading routine and various other font functions to
-   the library.
+   Evert Glebbeek added a font loading routine and various other font 
+   functions to the library.
 <li>
    Peter Wang added custom packfile functions and packfile vtables.
 <li>
@@ -38,7 +38,7 @@ Changes from 4.1.17 to 4.1.18 (Januari 2005)
 <li>
    Daniel Schlyder fixed some problems with the font loading code.
 <li>
-   AJ added 64 bit, SSE2 and SSE3 detection code.
+   AJ added IA64, SSE3 and AMD64 detection code.
 <li>
    Daniel Schlyder fixed some warnings with MinGW gcc 3.4.2
 <li>
@@ -65,7 +65,7 @@ Changes from 4.1.17 to 4.1.18 (Januari 2005)
 <li>
    Peter Wang made scancode_to_name never return NULL.
 <li>
-   Peter Wang fixed some problems if the Linux joystick driver.
+   Peter Wang fixed some problems in the Linux joystick driver.
 <li>
    Grzegorz Adam Hankiewicz added a lot of ASSERTions to the code.
 <li>

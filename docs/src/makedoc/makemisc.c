@@ -70,6 +70,27 @@ int mystricmp(const char *s1, const char *s2)
 
 
 
+/* mystristr:
+ * Like strstr but ignoring case during comparisons.
+ */
+char *mystristr(const char *HAYSTACK, const char *NEEDLE)
+{
+   const char *end;
+   assert(HAYSTACK);
+   assert(NEEDLE);
+   assert(strlen(NEEDLE) > 0);
+
+   end = strchr(HAYSTACK, 0) - strlen(NEEDLE);
+   while (HAYSTACK <= end) {
+      if (strincmp(HAYSTACK, NEEDLE) == 0)
+	 return (char*)HAYSTACK;
+      HAYSTACK++;
+   }
+   return 0;
+}
+
+
+
 /* mystrlwr:
  */
 char *mystrlwr(char *string)
@@ -87,7 +108,7 @@ char *mystrlwr(char *string)
 /* strincmp:
  * Compares two strings ignoring case up to s2's length.
  */
-int strincmp(char *s1, char *s2)
+int strincmp(const char *s1, const char *s2)
 {
    while (*s2) {
       if (mytolower(*s1) != mytolower(*s2))

@@ -11,7 +11,7 @@
 
 #include <time.h>
 
-#include "allegro.h"
+#include <allegro.h>
 #include "example.h"
 
 

@@ -147,7 +147,7 @@ static void alsa_update(int threaded)
    for (i = 0;  i < alsa_fragments; i++) {
       if (snd_pcm_write(pcm_handle, alsa_bufdata, alsa_bufsize) != alsa_bufsize)
 	 break;
-      _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
+      _mix_some_samples((uintptr_t) alsa_bufdata, 0, alsa_signed);
    }
 }
 
@@ -319,7 +319,7 @@ static int alsa_init(int input, int voices)
       goto error;
    }
 
-   _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
+   _mix_some_samples((uintptr_t) alsa_bufdata, 0, alsa_signed);
 
    /* Add audio interrupt.  */
    _unix_bg_man->register_func(alsa_update);

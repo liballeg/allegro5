@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#include "allegro.h"
+#include <allegro.h>
 #include "example.h"
 
 
@@ -221,9 +221,9 @@ DIALOG the_dialog[] =
    { d_radio_proc,      160, 100,  160,   19,   0,  0,  's',      0,       0,   0,    "&Select Me!",          NULL, NULL  },
    { d_radio_proc,      320, 100,  160,   19,   0,  0,  'o',      0,       0,   0,    "&Or Me!",              NULL, NULL  },
    { d_edit_proc,       160, 130,  160,    8,   0,  0,    0,      0,     LEN,   0,    the_string,             NULL, NULL  },
-   { d_list_proc,       160, 150,  160,   44,   0,  0,    0,      0,       0,   0,    listbox_getter,         sel,  NULL  },
-   { d_text_list_proc,  160, 200,  160,   44,   0,  0,    0,      0,       0,   0,    listbox_getter,         NULL, NULL  },
-   { d_textbox_proc,    160, 250,  160,   48,   0,  0,    0,      0,       0,   0,    the_text,               NULL, NULL  },
+   { d_list_proc,       160, 150,  160,   44,   0,  0,    0,      0,       0,   0,    (void *)listbox_getter, sel,  NULL  },
+   { d_text_list_proc,  160, 200,  160,   44,   0,  0,    0,      0,       0,   0,    (void *)listbox_getter, NULL, NULL  },
+   { d_textbox_proc,    160, 250,  160,   48,   0,  0,    0,      0,       0,   0,    (void *)the_text,       NULL, NULL  },
    { d_slider_proc,     160, 300,  160,   12,   0,  0,    0,      0,     100,   0,    NULL,                   NULL, NULL  },
    { d_box_proc,        160, 330,  160,   20,   0,  0,    0,      0,       0,   0,    NULL,                   NULL, NULL  },
    { d_shadow_box_proc, 160, 360,  160,   20,   0,  0,    0,      0,       0,   0,    NULL,                   NULL, NULL  },
@@ -233,13 +233,13 @@ DIALOG the_dialog[] =
    { d_icon_proc,       480,  80,   30,   30,   0,  0,    0,      0,       0,   0,    NULL,                   NULL, NULL  },
    
    /* the quit and info buttons use our customized dialog procedure, using dp3 as callback */
-   { my_button_proc,      0, 450,  160,   20,   0,  0,  'q', D_EXIT,       0,   0,    "&Quit",                NULL, quit  },
-   { my_button_proc,    400, 150,  160,   20,   0,  0,  'i', D_EXIT,       0,   0,    "&Info",                NULL, info1 },
-   { my_button_proc,    400, 200,  160,   20,   0,  0,  'n', D_EXIT,       0,   0,    "I&nfo",                NULL, info2 },
-   { my_button_proc,    400, 300,  160,   20,   0,  0,  'f', D_EXIT,       0,   0,    "In&fo",                NULL, info3 },
+   { my_button_proc,      0, 450,  160,   20,   0,  0,  'q', D_EXIT,       0,   0,    "&Quit",                NULL, (void *)quit  },
+   { my_button_proc,    400, 150,  160,   20,   0,  0,  'i', D_EXIT,       0,   0,    "&Info",                NULL, (void *)info1 },
+   { my_button_proc,    400, 200,  160,   20,   0,  0,  'n', D_EXIT,       0,   0,    "I&nfo",                NULL, (void *)info2 },
+   { my_button_proc,    400, 300,  160,   20,   0,  0,  'f', D_EXIT,       0,   0,    "In&fo",                NULL, (void *)info3 },
 
    /* the next two elements don't draw anything */
-   { d_keyboard_proc,     0,   0,    0,    0,   0,  0,    0,      0,  KEY_F1,   0,    about,                  NULL, NULL  },
+   { d_keyboard_proc,     0,   0,    0,    0,   0,  0,    0,      0,  KEY_F1,   0,    (void *)about,          NULL, NULL  },
    { d_yield_proc,        0,   0,    0,    0,   0,  0,    0,      0,       0,   0,    NULL,                   NULL, NULL  },
    { NULL,                0,   0,    0,    0,   0,  0,    0,      0,       0,   0,    NULL,                   NULL, NULL  }
 };

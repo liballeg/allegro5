@@ -1,8 +1,6 @@
 /*
  *    Example program for the Allegro library, by Richard Mitton.
  *
- *    or "How to get a 12-bit mode on an 8-bit card".
- *
  *    This program sets up a 12-bit mode on any 8-bit card, by
  *    setting up a 256-colour palette that will fool the eye into
  *    grouping two 8-bit pixels into one 12-bit pixel. In order
@@ -46,7 +44,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 
@@ -312,7 +310,7 @@ BITMAP *make_ball(int w, int h, int br, int bg, int bb)
 
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
    BITMAP *rgbpic, *ball[4], *buffer, *bigball;
    int x, r=0, g=0, b=0, numpoints, thispoint;

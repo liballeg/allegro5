@@ -134,6 +134,7 @@ HEADERS = $(WATDIR_U)/h/allegro/platform/aintdos.h  \
           $(WATDIR_U)/h/allegro/platform/al386wat.h \
           $(WATDIR_U)/h/allegro/platform/alwatcom.h \
           $(WATDIR_U)/h/allegro/platform/alplatf.h  \
+          $(WATDIR_U)/h/allegro/platform/astdint.h  \
           $(WATDIR_U)/h/allegro/platform/aldos.h
 
 INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib \

@@ -173,7 +173,7 @@ static void oss_update(int threaded)
       /* Write fragments.  */
       for (i = 0; i < bufinfo.fragments; i++) {
 	 write(oss_fd, oss_bufdata, oss_bufsize);
-	 _mix_some_samples((unsigned long) oss_bufdata, 0, oss_signed);
+	 _mix_some_samples((uintptr_t) oss_bufdata, 0, oss_signed);
       }
    }
 }
@@ -391,7 +391,7 @@ static int oss_init(int input, int voices)
       return -1;
    }
 
-   _mix_some_samples((unsigned long) oss_bufdata, 0, oss_signed);
+   _mix_some_samples((uintptr_t) oss_bufdata, 0, oss_signed);
 
    /* Add audio interrupt.  */
    _unix_bg_man->register_func(oss_update);

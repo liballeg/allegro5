@@ -47,8 +47,23 @@
     _rgb_scale_5 DATA
     _rgb_scale_6 DATA
     _set_color
-    _sort_out_getc
-    _sort_out_putc
+    _soft_arc
+    _soft_circle
+    _soft_circlefill
+    _soft_draw_gouraud_sprite
+    _soft_ellipse
+    _soft_ellipsefill
+    _soft_floodfill
+    _soft_polygon
+    _soft_polygon3d
+    _soft_polygon3d_f
+    _soft_quad3d
+    _soft_quad3d_f
+    _soft_rect
+    _soft_spline
+    _soft_triangle
+    _soft_triangle3d
+    _soft_triangle3d_f
     _system_driver_list DATA
     _tan_tbl DATA
     _textmode DATA
@@ -118,6 +133,8 @@
     create_blender_table
     create_color_table
     create_light_table
+    create_lzss_pack_data
+    create_lzss_unpack_data
     create_rgb_table
     create_sample
     create_scene
@@ -200,6 +217,7 @@
     enable_hardware_cursor
     enable_triple_buffer
     exists
+    extract_font_range
     fade_from
     fade_from_range
     fade_in
@@ -251,6 +269,8 @@
     for_each_file
     for_each_file_ex
     free_audio_stream_buffer
+    free_lzss_pack_data
+    free_lzss_unpack_data
     freeze_mouse_flag DATA
     ftofix
     generate_332_palette
@@ -279,6 +299,9 @@
     get_executable_name
     get_extension
     get_filename
+    get_font_range_begin
+    get_font_range_end
+    get_font_ranges
     get_gfx_mode_list
     get_mixer_bits
     get_mixer_buffer_length
@@ -353,6 +376,7 @@
     gui_edit_proc DATA
     gui_fg_color DATA
     gui_font_baseline DATA
+    gui_get_screen
     gui_list_proc DATA
     gui_menu_draw_menu DATA
     gui_menu_draw_menu_item DATA
@@ -362,6 +386,7 @@
     gui_mouse_x DATA
     gui_mouse_y DATA
     gui_mouse_z DATA
+    gui_set_screen
     gui_shadow_box_proc DATA
     gui_strlen
     gui_text_list_proc DATA
@@ -388,9 +413,12 @@
     install_sound
     install_sound_input
     install_timer
+    is_color_font
+    is_compatible_font
     is_inside_bitmap
     is_linear_bitmap
     is_memory_bitmap
+    is_mono_font
     is_planar_bitmap
     is_relative_filename
     is_same_bitmap
@@ -412,23 +440,37 @@
     keyboard_ucallback DATA
     keypressed
     line
+    load_bios_font
     load_bitmap
+    load_bitmap_font
     load_bmp
+    load_bmp_pf
+    load_dat_font
     load_datafile
     load_datafile_callback
     load_datafile_object
+    load_font
+    load_grx_font
+    load_grx_or_bios_font
     load_joystick_data
     load_lbm
     load_midi
     load_midi_patches
     load_pcx
+    load_pcx_pf
     load_sample
     load_tga
+    load_tga_pf
+    load_txt_font
     load_voc
+    load_voc_pf
     load_wav
+    load_wav_pf
     lock_bitmap
     lock_midi
     lock_sample
+    lzss_read
+    lzss_write
     make_absolute_filename
     make_relative_filename
     makeacol
@@ -448,6 +490,7 @@
     matrix_mul
     matrix_mul_f
     matrix_to_quat
+    merge_fonts
     midi_card DATA
     midi_digmid DATA
     midi_driver DATA
@@ -498,10 +541,12 @@
     pack_fgets
     pack_fopen
     pack_fopen_chunk
+    pack_fopen_vtable
     pack_fputs
     pack_fread
     pack_fseek
     pack_fwrite
+    pack_get_userdata
     pack_getc
     pack_igetl
     pack_igetw
@@ -512,6 +557,7 @@
     pack_mputl
     pack_mputw
     pack_putc
+    pack_ungetc
     packfile_password
     palette_color DATA
     persp_project
@@ -561,6 +607,7 @@
     register_assert_handler
     register_bitmap_file_type
     register_datafile_object
+    register_font_file_type
     register_sample_file_type
     register_trace_handler
     register_uformat
@@ -597,10 +644,13 @@
     rotate_sprite_v_flip
     save_bitmap
     save_bmp
+    save_bmp_pf
     save_joystick_data
     save_pcx
+    save_pcx_pf
     save_sample
     save_tga
+    save_tga_pf
     scancode_to_ascii
     scare_mouse
     scare_mouse_area
@@ -645,6 +695,7 @@
     set_leds
     set_luminance_blender
     set_mixer_quality
+    set_mouse_cursor_bitmap
     set_mouse_range
     set_mouse_speed
     set_mouse_sprite
@@ -1301,6 +1352,7 @@
     _prev_current_palette DATA
     _refresh_rate_request DATA
     _register_bitmap_file_type_init
+    _register_font_file_type_init
     _register_sample_file_type_init
     _register_switch_bitmap
     _release_colorconv_blitter

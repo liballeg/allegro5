@@ -40,7 +40,7 @@ typedef struct MOUSE_DRIVER
    AL_METHOD(void, poll, (void));
    AL_METHOD(void, timer_poll, (void));
    AL_METHOD(void, position, (int x, int y));
-   AL_METHOD(void, set_range, (int x1, int y1, int x2, int y2));
+   AL_METHOD(void, set_range, (int x1, int y_1, int x2, int y2));
    AL_METHOD(void, set_speed, (int xspeed, int yspeed));
    AL_METHOD(void, get_mickeys, (int *mickeyx, int *mickeyy));
    AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
@@ -100,7 +100,7 @@ AL_FUNC(void, scare_mouse_area, (int x, int y, int w, int h));
 AL_FUNC(void, unscare_mouse, (void));
 AL_FUNC(void, position_mouse, (int x, int y));
 AL_FUNC(void, position_mouse_z, (int z));
-AL_FUNC(void, set_mouse_range, (int x1, int y1, int x2, int y2));
+AL_FUNC(void, set_mouse_range, (int x1, int y_1, int x2, int y2));
 AL_FUNC(void, set_mouse_speed, (int xspeed, int yspeed));
 AL_FUNC(void, select_mouse_cursor, (int cursor));
 AL_FUNC(void, set_mouse_cursor_bitmap, (int cursor, struct BITMAP *bmp));

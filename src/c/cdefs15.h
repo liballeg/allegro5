@@ -25,10 +25,10 @@
 #define INC_PIXEL_PTR(p)       ((p)++)
 #define DEC_PIXEL_PTR(p)       ((p)--)
 
-#define PUT_PIXEL(p,c)         bmp_write15((unsigned long) (p), (c))
+#define PUT_PIXEL(p,c)         bmp_write15((uintptr_t) (p), (c))
 #define PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
-#define PUT_RGB(p,r,g,b)       bmp_write15((unsigned long) (p), makecol15((r), (g), (b)))
-#define GET_PIXEL(p)           bmp_read15((unsigned long) (p))
+#define PUT_RGB(p,r,g,b)       bmp_write15((uintptr_t) (p), makecol15((r), (g), (b)))
+#define GET_PIXEL(p)           bmp_read15((uintptr_t) (p))
 #define GET_MEMORY_PIXEL(p)    (*(p))
 
 #define IS_MASK(c)             ((unsigned long) (c) == MASK_COLOR_15)

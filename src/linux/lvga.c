@@ -131,7 +131,7 @@ static struct MAPPED_MEMORY vram = {
 /* _set_vga_mode:
  *  Helper for the VGA and mode-X drivers to set a video mode.
  */
-unsigned long _set_vga_mode (int modenum)
+uintptr_t _set_vga_mode (int modenum)
 {
 	MODE_REGISTERS *regs;
 

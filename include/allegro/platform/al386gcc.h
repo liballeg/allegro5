@@ -43,9 +43,9 @@ AL_INLINE(int, _default_ds, (void),
 /* bmp_write_line:
  *  Bank switch function.
  */
-AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
+AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int lyne),
 {
-   unsigned long result;
+   uintptr_t result;
 
    __asm__ volatile (
       "  call *%3 "
@@ -53,7 +53,7 @@ AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
    : "=a" (result)                     /* result in eax */
 
    : "d" (bmp),                        /* bitmap in edx */
-     "0" (line),                       /* line number in eax */
+     "0" (lyne),                       /* line number in eax */
      "r" (bmp->write_bank)             /* the bank switch routine */
    );
 
@@ -65,9 +65,9 @@ AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
 /* bmp_read_line:
  *  Bank switch function.
  */
-AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
+AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int lyne),
 {
-   unsigned long result;
+   uintptr_t result;
 
    __asm__ volatile (
       "  call *%3 "
@@ -75,7 +75,7 @@ AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
    : "=a" (result)                     /* result in eax */
 
    : "d" (bmp),                        /* bitmap in edx */
-     "0" (line),                       /* line number in eax */
+     "0" (lyne),                       /* line number in eax */
      "r" (bmp->read_bank)              /* the bank switch routine */
    );
 

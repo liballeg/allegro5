@@ -60,6 +60,7 @@ AL_FUNC(int, get_font_range_begin, (FONT *f, int range));
 AL_FUNC(int, get_font_range_end, (FONT *f, int range));
 AL_FUNC(FONT *, extract_font_range, (FONT *f, int begin, int end));
 AL_FUNC(FONT *, merge_fonts, (FONT *f1, FONT *f2));
+AL_FUNC(int, transpose_font, (FONT *f, int drange));
 #ifdef __cplusplus
    }
 #endif

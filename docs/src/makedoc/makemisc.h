@@ -4,8 +4,9 @@
 int myisalnum(int c);
 int mytolower(int c);
 int mystricmp(const char *s1, const char *s2);
+char *mystristr(const char *HAYSTACK, const char *NEEDLE);
 char *mystrlwr(char *string);
-int strincmp(char *s1, char *s2);
+int strincmp(const char *s1, const char *s2);
 int myisspace(int c);
 char *strip_html(char *p);
 int is_empty(char *s);

@@ -555,7 +555,7 @@ static void sys_dos_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
 /* _set_vga_mode:
  *  Helper for the VGA and mode-X drivers to set a video mode.
  */
-unsigned long _set_vga_mode(int modenum)
+uintptr_t _set_vga_mode(int modenum)
 {
    __dpmi_regs r;
 

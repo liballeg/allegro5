@@ -219,8 +219,8 @@ static PARAMETER parameters[] =
 
  #ifdef DIGI_OSS
    { "oss_driver",         param_str,     "",      "/dev/dsp", NULL,             "Drv:",     "",         NULL,    "Name of the driver (e.g. /dev/dsp)" },
-   { "oss_numfrags",       param_int,     "",      "-1",       &_oss_numfrags,   "NumFr:",   NULL,       NULL,    "Number of fragments (use 2, other values make little difference)" },
-   { "oss_fragsize",       param_num,     "",      "-1",       &_oss_fragsize,   "Siz:",     NULL,       NULL,    "Size of fragment (small values -- choppy sound, large values -- delayed sound)" },
+   { "oss_numfrags",       param_int,     "",      "-1",       NULL,             "NumFr:",   NULL,       NULL,    "Number of fragments (use 2, other values make little difference)" },
+   { "oss_fragsize",       param_num,     "",      "-1",       NULL,             "Siz:",     NULL,       NULL,    "Size of fragment (small values -- choppy sound, large values -- delayed sound)" },
  #endif
 
  #ifdef MIDI_OSS

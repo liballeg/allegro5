@@ -52,7 +52,7 @@ int _my_cs(void);
 /* bmp_write_line/bmp_read_line:
  *  Bank switch functions.
  */
-unsigned long _bmp_bank_switcher(BITMAP *bmp, int line, void *bank_switch);
+uintptr_t _bmp_bank_switcher(BITMAP *bmp, int lyne, void *bank_switch);
 
 #pragma aux _bmp_bank_switcher =    \
    " call ecx "                     \
@@ -60,8 +60,8 @@ unsigned long _bmp_bank_switcher(BITMAP *bmp, int line, void *bank_switch);
    parm [edx] [eax] [ecx]           \
    value [eax];
 
-#define bmp_write_line(bmp, line)   _bmp_bank_switcher(bmp, line, (void *)bmp->write_bank)
-#define bmp_read_line(bmp, line)    _bmp_bank_switcher(bmp, line, (void *)bmp->read_bank)
+#define bmp_write_line(bmp, lyne)   _bmp_bank_switcher(bmp, lyne, (void *)bmp->write_bank)
+#define bmp_read_line(bmp, lyne)    _bmp_bank_switcher(bmp, lyne, (void *)bmp->read_bank)
 
 
 

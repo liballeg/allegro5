@@ -6,7 +6,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 

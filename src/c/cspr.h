@@ -590,7 +590,7 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy
    bmp_select(dst);
 
    for (y = 0; y < h; y++) {
-      unsigned long *s = (unsigned long *)src->line[sybeg + y] + sxbeg;
+      uint32_t *s = (uint32_t *)src->line[sybeg + y] + sxbeg;
       PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
       PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
 
@@ -1177,7 +1177,7 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *sr
    int x, y, w, h;
    int dxbeg, dybeg;
    int sxbeg, sybeg;
-   unsigned long *s;
+   uint32_t *s;
    RGBA_BLENDER blender;
 
    ASSERT(dst);
@@ -1214,7 +1214,7 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *sr
    }
 
    blender = MAKE_RGBA_BLENDER();
-   s = (unsigned long *) (src->dat);
+   s = (uint32_t *) (src->dat);
 
    /* Clip top.  */
    for (y = sybeg - 1; y >= 0; y--) {

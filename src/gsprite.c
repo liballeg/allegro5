@@ -35,7 +35,7 @@ void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1
    int y2 = y + sprite->h;
    int i, j;
    int pixel;
-   unsigned long addr;
+   uintptr_t addr;
 
    ASSERT(bmp);
    ASSERT(sprite);
@@ -155,7 +155,7 @@ void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1
 	 #ifdef ALLEGRO_COLOR32
 
 	    case 32:
-	       addr = bmp_write_line(bmp, j) + x1*sizeof(long);
+	       addr = bmp_write_line(bmp, j) + x1*sizeof(int32_t);
 	       for (i=x1; i<x2; i++) {
 		  pixel = ((unsigned long *)sprite->line[j-y])[i-x];
 		  if (pixel != MASK_COLOR_32) {
@@ -163,7 +163,7 @@ void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1
 		     bmp_write32(addr, pixel);
 		  }
 		  hc += mh;
-		  addr += sizeof(long);
+		  addr += sizeof(int32_t);
 	       }
 	       break;
 

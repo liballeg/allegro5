@@ -155,7 +155,7 @@ void _linear_draw_glyph8(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, 
  */
 void _linear_draw_glyph16(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
-   DRAW_GLYPH(16, sizeof(short));
+   DRAW_GLYPH(16, sizeof(int16_t));
 }
 
 #endif
@@ -183,7 +183,7 @@ void _linear_draw_glyph24(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y,
  */
 void _linear_draw_glyph32(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg)
 {
-   DRAW_GLYPH(32, sizeof(long));
+   DRAW_GLYPH(32, sizeof(int32_t));
 }
 
 #endif

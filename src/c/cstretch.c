@@ -35,8 +35,8 @@ static struct
 #define DECLARE_STRETCHER(type, size, set, get)                           \
 int dd = _al_stretch.dd;                                                  \
 type *s = (type*) sptr;                                                   \
-unsigned long d = dptr;                                                   \
-unsigned long dend = d + _al_stretch.dw;                                  \
+uintptr_t d = dptr;							  \
+uintptr_t dend = d + _al_stretch.dw;					  \
 ASSERT(s);                                                                \
 ASSERT(d);                                                                \
 for (; d < dend; d += (size), s = (type *)                                \
@@ -54,7 +54,7 @@ for (; d < dend; d += (size), s = (type *)                                \
 /*
  * Mode-X line stretcher.
  */
-static void stretch_linex(unsigned long dptr, unsigned char *sptr)
+static void stretch_linex(uintptr_t dptr, unsigned char *sptr)
 {
    int plane;
    int dw = _al_stretch.dw;
@@ -66,8 +66,8 @@ static void stretch_linex(unsigned long dptr, unsigned char *sptr)
    for (plane = 0; plane < 4; plane++) {
       int dd = first_dd;
       unsigned char *s = sptr;
-      unsigned long d = dptr / 4;
-      unsigned long dend = (dptr + dw) / 4;
+      uintptr_t d = dptr / 4;
+      uintptr_t dend = (dptr + dw) / 4;
 
       outportw(0x3C4, (0x100 << (dptr & 3)) | 2);
       for (; d < dend; d++, s += 4 * _al_stretch.sinc) {
@@ -95,19 +95,19 @@ static void stretch_linex(unsigned long dptr, unsigned char *sptr)
 #endif
 
 #ifdef ALLEGRO_COLOR8
-static void stretch_line8(unsigned long dptr, unsigned char *sptr)
+static void stretch_line8(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_STRETCHER(unsigned char, 1, bmp_write8, *);
 }
 #endif
 
 #ifdef ALLEGRO_COLOR16
-static void stretch_line15(unsigned long dptr, unsigned char *sptr)
+static void stretch_line15(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_STRETCHER(unsigned short, sizeof(unsigned short), bmp_write15, *);
 }
 
-static void stretch_line16(unsigned long dptr, unsigned char *sptr)
+static void stretch_line16(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_STRETCHER(unsigned short, sizeof(unsigned short), bmp_write16, *);
 }
@@ -115,16 +115,16 @@ static void stretch_line16(unsigned long dptr, unsigned char *sptr)
 
 #ifdef ALLEGRO_COLOR24
 
-static void stretch_line24(unsigned long dptr, unsigned char *sptr)
+static void stretch_line24(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES);
 }
 #endif
 
 #ifdef ALLEGRO_COLOR32
-static void stretch_line32(unsigned long dptr, unsigned char *sptr)
+static void stretch_line32(uintptr_t dptr, unsigned char *sptr)
 {
-   DECLARE_STRETCHER(unsigned long, sizeof(unsigned long), bmp_write32, *);
+   DECLARE_STRETCHER(uint32_t, sizeof(uint32_t), bmp_write32, *);
 }
 #endif
 
@@ -136,8 +136,8 @@ static void stretch_line32(unsigned long dptr, unsigned char *sptr)
 #define DECLARE_MASKED_STRETCHER(type, size, set, get, mask)              \
 int dd = _al_stretch.dd;                                                  \
 type *s = (type*) sptr;                                                   \
-unsigned long d = dptr;                                                   \
-unsigned long dend = d + _al_stretch.dw;                                  \
+uintptr_t d = dptr;                                                   \
+uintptr_t dend = d + _al_stretch.dw;                                  \
 ASSERT(s);                                                                \
 ASSERT(d);                                                                \
 for (; d < dend; d += (size), s = (type*)                                 \
@@ -157,7 +157,7 @@ for (; d < dend; d += (size), s = (type*)                                 \
 /*
  * Mode-X masked line stretcher.
  */
-static void stretch_masked_linex(unsigned long dptr, unsigned char *sptr)
+static void stretch_masked_linex(uintptr_t dptr, unsigned char *sptr)
 {
    int plane;
    int dw = _al_stretch.dw;
@@ -169,8 +169,8 @@ static void stretch_masked_linex(unsigned long dptr, unsigned char *sptr)
    for (plane = 0; plane < 4; plane++) {
       int dd = first_dd;
       unsigned char *s = sptr;
-      unsigned long d = dptr / 4;
-      unsigned long dend = (dptr + dw) / 4;
+      uintptr_t d = dptr / 4;
+      uintptr_t dend = (dptr + dw) / 4;
 
       outportw(0x3C4, (0x100 << (dptr & 3)) | 2);
       for (; d < dend; d++, s += 4 * _al_stretch.sinc) {
@@ -200,20 +200,20 @@ static void stretch_masked_linex(unsigned long dptr, unsigned char *sptr)
 #endif
 
 #ifdef ALLEGRO_COLOR8
-static void stretch_masked_line8(unsigned long dptr, unsigned char *sptr)
+static void stretch_masked_line8(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_MASKED_STRETCHER(unsigned char, 1, bmp_write8, *, 0);
 }
 #endif
 
 #ifdef ALLEGRO_COLOR16
-static void stretch_masked_line15(unsigned long dptr, unsigned char *sptr)
+static void stretch_masked_line15(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_MASKED_STRETCHER(unsigned short, sizeof(unsigned short),
 			    bmp_write15, *, MASK_COLOR_15);
 }
 
-static void stretch_masked_line16(unsigned long dptr, unsigned char *sptr)
+static void stretch_masked_line16(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_MASKED_STRETCHER(unsigned short, sizeof(unsigned short),
 			    bmp_write16, *, MASK_COLOR_16);
@@ -221,16 +221,16 @@ static void stretch_masked_line16(unsigned long dptr, unsigned char *sptr)
 #endif
 
 #ifdef ALLEGRO_COLOR24
-static void stretch_masked_line24(unsigned long dptr, unsigned char *sptr)
+static void stretch_masked_line24(uintptr_t dptr, unsigned char *sptr)
 {
    DECLARE_MASKED_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES, MASK_COLOR_24);
 }
 #endif
 
 #ifdef ALLEGRO_COLOR32
-static void stretch_masked_line32(unsigned long dptr, unsigned char *sptr)
+static void stretch_masked_line32(uintptr_t dptr, unsigned char *sptr)
 {
-   DECLARE_MASKED_STRETCHER(unsigned long, sizeof(unsigned long), bmp_write32, *, MASK_COLOR_32);
+   DECLARE_MASKED_STRETCHER(uint32_t, sizeof(uint32_t), bmp_write32, *, MASK_COLOR_32);
 }
 #endif
 
@@ -250,7 +250,7 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
    int dxbeg, dxend;
    int dybeg, dyend;
    int sxofs, dxofs;
-   void (*stretch_line)(unsigned long dptr, unsigned char *sptr);
+   void (*stretch_line)(uintptr_t dptr, unsigned char *sptr);
 
    ASSERT(src);
    ASSERT(dst);
@@ -316,13 +316,13 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
    switch (bitmap_color_depth(dst)) {
       case 15:
       case 16:
-	 fixup = sizeof(short);
+	 fixup = sizeof(uint16_t);
 	 break;
       case 24:
 	 fixup = 3;
 	 break;
       case 32:
-	 fixup = sizeof(long);
+	 fixup = sizeof(uint32_t);
 	 break;
       default:
 	 fixup = 1;

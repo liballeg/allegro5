@@ -60,7 +60,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
    #ifdef ALLEGRO_COLOR8
 
    int *dest_palette_color;
-   unsigned long s, d;
+   uintptr_t s, d;
    unsigned char *ss;
    int x, y, c, rc;
 
@@ -131,7 +131,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
       #ifdef ALLEGRO_COLOR16
       case 15:
       case 16:
-         EXPAND_BLIT(16, sizeof(short));
+         EXPAND_BLIT(16, sizeof(int16_t));
          break;
       #endif
 
@@ -143,7 +143,7 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 
       #ifdef ALLEGRO_COLOR32
       case 32:
-         EXPAND_BLIT(32, sizeof(long));
+         EXPAND_BLIT(32, sizeof(int32_t));
          break;
       #endif
    }
@@ -344,7 +344,7 @@ static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    #ifdef ALLEGRO_COLOR16
 
    int x, y, c, r, g, b;
-   unsigned long s, d;
+   uintptr_t s, d;
 
    switch (bitmap_color_depth(dest)) {
 
@@ -353,23 +353,23 @@ static void blit_from_15(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
          if (_color_conv & COLORCONV_DITHER_PAL)
             dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
          else 
-            CONVERT_BLIT(15, sizeof(short), 8, 1)
+            CONVERT_BLIT(15, sizeof(int16_t), 8, 1)
          break;
       #endif
 
       case 16:
-         CONVERT_BLIT(15, sizeof(short), 16, sizeof(short))
+         CONVERT_BLIT(15, sizeof(int16_t), 16, sizeof(int16_t))
          break;
 
       #ifdef ALLEGRO_COLOR24
       case 24:
-         CONVERT_BLIT(15, sizeof(short), 24, 3)
+         CONVERT_BLIT(15, sizeof(int16_t), 24, 3)
          break;
       #endif
 
       #ifdef ALLEGRO_COLOR32
       case 32:
-         CONVERT_BLIT(15, sizeof(short), 32, sizeof(long))
+         CONVERT_BLIT(15, sizeof(int16_t), 32, sizeof(int32_t))
          break;
       #endif
    }
@@ -387,7 +387,7 @@ static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    #ifdef ALLEGRO_COLOR16
 
    int x, y, c, r, g, b;
-   unsigned long s, d;
+   uintptr_t s, d;
 
    switch (bitmap_color_depth(dest)) {
 
@@ -396,23 +396,23 @@ static void blit_from_16(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
          if (_color_conv & COLORCONV_DITHER_PAL)
             dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
          else 
-            CONVERT_BLIT(16, sizeof(short), 8, 1)
+            CONVERT_BLIT(16, sizeof(int16_t), 8, 1)
          break;
       #endif
 
       case 15:
-         CONVERT_BLIT(16, sizeof(short), 15, sizeof(short))
+         CONVERT_BLIT(16, sizeof(int16_t), 15, sizeof(int16_t))
          break;
 
       #ifdef ALLEGRO_COLOR24
       case 24:
-         CONVERT_BLIT(16, sizeof(short), 24, 3)
+         CONVERT_BLIT(16, sizeof(int16_t), 24, 3)
          break;
       #endif
 
       #ifdef ALLEGRO_COLOR32
       case 32:
-         CONVERT_BLIT(16, sizeof(short), 32, sizeof(long))
+         CONVERT_BLIT(16, sizeof(int16_t), 32, sizeof(int32_t))
          break;
       #endif
    }
@@ -430,7 +430,7 @@ static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    #ifdef ALLEGRO_COLOR24
 
    int x, y, c, r, g, b;
-   unsigned long s, d;
+   uintptr_t s, d;
 
    switch (bitmap_color_depth(dest)) {
 
@@ -446,22 +446,22 @@ static void blit_from_24(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
       #ifdef ALLEGRO_COLOR16
       case 15:
          if (_color_conv & COLORCONV_DITHER_HI)
-            CONVERT_DITHER_BLIT(24, 3, 15, sizeof(short))
+            CONVERT_DITHER_BLIT(24, 3, 15, sizeof(int16_t))
          else
-            CONVERT_BLIT(24, 3, 15, sizeof(short))
+            CONVERT_BLIT(24, 3, 15, sizeof(int16_t))
          break;
 
       case 16:
          if (_color_conv & COLORCONV_DITHER_HI)
-            CONVERT_DITHER_BLIT(24, 3, 16, sizeof(short))
+            CONVERT_DITHER_BLIT(24, 3, 16, sizeof(int16_t))
          else
-            CONVERT_BLIT(24, 3, 16, sizeof(short))
+            CONVERT_BLIT(24, 3, 16, sizeof(int16_t))
          break;
       #endif
 
       #ifdef ALLEGRO_COLOR32
       case 32:
-         CONVERT_BLIT(24, 3, 32, sizeof(long))
+         CONVERT_BLIT(24, 3, 32, sizeof(int32_t))
          break;
       #endif
    }
@@ -479,7 +479,7 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
    #ifdef ALLEGRO_COLOR32
 
    int x, y, c, r, g, b;
-   unsigned long s, d;
+   uintptr_t s, d;
 
    switch (bitmap_color_depth(dest)) {
 
@@ -488,29 +488,29 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
          if (_color_conv & COLORCONV_DITHER_PAL)
             dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
          else 
-            CONVERT_BLIT(32, sizeof(long), 8, 1)
+            CONVERT_BLIT(32, sizeof(int32_t), 8, 1)
          break;
       #endif
 
       #ifdef ALLEGRO_COLOR16
       case 15:
          if (_color_conv & COLORCONV_DITHER_HI)
-            CONVERT_DITHER_BLIT(32, sizeof(long), 15, sizeof(short))
+            CONVERT_DITHER_BLIT(32, sizeof(int32_t), 15, sizeof(int16_t))
          else
-            CONVERT_BLIT(32, sizeof(long), 15, sizeof(short))
+            CONVERT_BLIT(32, sizeof(int32_t), 15, sizeof(int16_t))
          break;
 
       case 16:
          if (_color_conv & COLORCONV_DITHER_HI)
-            CONVERT_DITHER_BLIT(32, sizeof(long), 16, sizeof(short))
+            CONVERT_DITHER_BLIT(32, sizeof(int32_t), 16, sizeof(int16_t))
          else
-            CONVERT_BLIT(32, sizeof(long), 16, sizeof(short))
+            CONVERT_BLIT(32, sizeof(int32_t), 16, sizeof(int16_t))
          break;
       #endif
 
       #ifdef ALLEGRO_COLOR24
       case 24:
-         CONVERT_BLIT(32, sizeof(long), 24, 3)
+         CONVERT_BLIT(32, sizeof(int32_t), 24, 3)
          break;
       #endif
    }

@@ -40,7 +40,7 @@
 
 #include <stdio.h>
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 

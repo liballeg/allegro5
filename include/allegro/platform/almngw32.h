@@ -26,6 +26,11 @@
 #endif
 
 
+/* a static auto config */
+#define HAVE_INTTYPES_H
+#define HAVE_STDINT_H
+
+
 /* describe this platform */
 #ifdef ALLEGRO_STATICLINK
    #define ALLEGRO_PLATFORM_STR  "MinGW32.s"

@@ -108,7 +108,7 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
    int x, y, w, h, c, r, g, b, a;
    int destbits, rgba;
    unsigned short *p16;
-   unsigned long *p32;
+   uint32_t *p32;
    BITMAP *bmp;
 
    if (bits < 0) {
@@ -195,7 +195,7 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
       case 32:
 	 /* 32bit rgba */
 	 for (y=0; y<h; y++) {
-	    p32 = (unsigned long *)bmp->line[y];
+	    p32 = (uint32_t *)bmp->line[y];
 
 	    for (x=0; x<w; x++) {
 	       r = pack_getc(f);
@@ -673,7 +673,7 @@ static RLE_SPRITE *read_rle_sprite(PACKFILE *f, int bits)
    unsigned int eol_marker;
    signed short s16;
    signed short *p16;
-   signed long *p32;
+   int32_t *p32;
 
    if (bits < 0) {
       bits = -bits;
@@ -747,13 +747,13 @@ static RLE_SPRITE *read_rle_sprite(PACKFILE *f, int bits)
       case 24:
       case 32:
 	 /* read truecolor data */
-	 p32 = (signed long *)s->dat;
+	 p32 = (int32_t *)s->dat;
 	 eol_marker = (bits == 24) ? MASK_COLOR_24 : MASK_COLOR_32;
 
 	 for (y=0; y<h; y++) {
 	    c = pack_igetl(f);
 
-	    while ((unsigned long)c != MASK_COLOR_32) {
+	    while ((uint32_t)c != MASK_COLOR_32) {
 	       if (c < 0) {
 		  /* skip count */
 		  *p32 = c;
@@ -1659,9 +1659,9 @@ void fixup_datafile(DATAFILE *data)
    int bpp, depth;
    unsigned char *p8;
    unsigned short *p16;
-   unsigned long *p32;
+   uint32_t *p32;
    signed short *s16;
-   signed long *s32;
+   int32_t *s32;
    int eol_marker;
    ASSERT(data);
 
@@ -1769,7 +1769,7 @@ void fixup_datafile(DATAFILE *data)
 	       case 32:
 		  /* fix up a 32 bit truecolor bitmap */
 		  for (y=0; y<bmp->h; y++) {
-		     p32 = (unsigned long *)bmp->line[y];
+		     p32 = (uint32_t *)bmp->line[y];
 
 		     for (x=0; x<bmp->w; x++) {
 			c = p32[x];
@@ -1887,10 +1887,10 @@ void fixup_datafile(DATAFILE *data)
 		     eol_marker = MASK_COLOR_24;
 		  }
 
-		  s32 = (signed long *)rle->dat;
+		  s32 = (int32_t *)rle->dat;
 
 		  for (y=0; y<rle->h; y++) {
-		     while ((unsigned long)*s32 != MASK_COLOR_24) {
+		     while ((uint32_t)*s32 != MASK_COLOR_24) {
 			if (*s32 > 0) {
 			   x = *s32;
 			   s32++;
@@ -1928,10 +1928,10 @@ void fixup_datafile(DATAFILE *data)
 		     eol_marker = MASK_COLOR_32;
 		  }
 
-		  s32 = (signed long *)rle->dat;
+		  s32 = (int32_t *)rle->dat;
 
 		  for (y=0; y<rle->h; y++) {
-		     while ((unsigned long)*s32 != MASK_COLOR_32) {
+		     while ((uint32_t)*s32 != MASK_COLOR_32) {
 			if (*s32 > 0) {
 			   x = *s32;
 			   s32++;
@@ -1976,7 +1976,7 @@ static void initialise_bitmap(BITMAP *bmp)
    int i;
 
    for (i=0; _vtable_list[i].vtable; i++) {
-      if (_vtable_list[i].color_depth == (int)(unsigned long)bmp->vtable) {
+      if (_vtable_list[i].color_depth == (int)(uintptr_t)bmp->vtable) {
 	 bmp->vtable = _vtable_list[i].vtable;
 	 bmp->write_bank = _stub_bank_switch;
 	 bmp->read_bank = _stub_bank_switch;
@@ -2015,7 +2015,7 @@ static void initialise_datafile(DATAFILE *data)
 
 	 case DAT_FONT:
 	    f = data[c].dat;
-	    color_flag = (int)(unsigned long)f->vtable;
+	    color_flag = (int)(uintptr_t)f->vtable;
 	    if (color_flag == 1) {
 	       FONT_COLOR_DATA *cf = (FONT_COLOR_DATA *)f->data;
 	       while (cf) {

@@ -26,7 +26,7 @@
 /* _poly_scanline_gcol:
  *  Fills a single-color gouraud shaded polygon scanline.
  */
-void FUNC_POLY_SCANLINE_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_GCOL(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    fixed c, dc;
@@ -52,7 +52,7 @@ void FUNC_POLY_SCANLINE_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
 /* _poly_scanline_grgb:
  *  Fills an gouraud shaded polygon scanline.
  */
-void FUNC_POLY_SCANLINE_GRGB(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_GRGB(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    fixed r, g, b;
@@ -83,7 +83,7 @@ void FUNC_POLY_SCANLINE_GRGB(unsigned long addr, int w, POLYGON_SEGMENT *info)
 /* _poly_scanline_atex:
  *  Fills an affine texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_ATEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_ATEX(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    int vmask, vshift, umask;
@@ -119,7 +119,7 @@ void FUNC_POLY_SCANLINE_ATEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 /* _poly_scanline_atex_mask:
  *  Fills a masked affine texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_ATEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_ATEX_MASK(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    int vmask, vshift, umask;
@@ -157,7 +157,7 @@ void FUNC_POLY_SCANLINE_ATEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *in
 /* _poly_scanline_atex_lit:
  *  Fills a lit affine texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_ATEX_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    int vmask, vshift, umask;
@@ -199,7 +199,7 @@ void FUNC_POLY_SCANLINE_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
 /* _poly_scanline_atex_mask_lit:
  *  Fills a masked lit affine texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_ATEX_MASK_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    int vmask, vshift, umask;
@@ -243,7 +243,7 @@ void FUNC_POLY_SCANLINE_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
 /* _poly_scanline_ptex:
  *  Fills a perspective correct texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_PTEX(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
    int vmask, vshift, umask;
@@ -307,7 +307,7 @@ void FUNC_POLY_SCANLINE_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 /* _poly_scanline_ptex_mask:
  *  Fills a masked perspective correct texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_PTEX_MASK(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
    int vmask, vshift, umask;
@@ -373,7 +373,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *in
 /* _poly_scanline_ptex_lit:
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_PTEX_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
    int vmask, vshift, umask;
@@ -442,7 +442,7 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
 /* _poly_scanline_ptex_mask_lit:
  *  Fills a masked lit perspective correct texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
    int vmask, vshift, umask;
@@ -513,7 +513,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
 /* _poly_scanline_atex_trans:
  *  Fills a trans affine texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_ATEX_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    int vmask, vshift, umask;
@@ -554,7 +554,7 @@ void FUNC_POLY_SCANLINE_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *i
 /* _poly_scanline_atex_mask_trans:
  *  Fills a trans masked affine texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_ATEX_MASK_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
    int vmask, vshift, umask;
@@ -597,7 +597,7 @@ void FUNC_POLY_SCANLINE_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGME
 /* _poly_scanline_ptex_trans:
  *  Fills a trans perspective correct texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_PTEX_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
    int vmask, vshift, umask;
@@ -664,7 +664,7 @@ void FUNC_POLY_SCANLINE_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *i
 /* _poly_scanline_ptex_mask_trans:
  *  Fills a trans masked perspective correct texture mapped polygon scanline.
  */
-void FUNC_POLY_SCANLINE_PTEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+void FUNC_POLY_SCANLINE_PTEX_MASK_TRANS(uintptr_t addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
    int vmask, vshift, umask;

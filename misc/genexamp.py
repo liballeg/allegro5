@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- mode:Python; tab-width: 3 -*-
 """
 This is a helper script which reads the .c files of the examples
 directory, extracts the comments from the source, and updates
@@ -15,13 +16,19 @@ ok. Usage example:
    ...review...
    python misc/genexamp.py | patch -p0
 
-In order to work, this script requires Python (tested with 1.5.2
-and 2.2.2) and the diff binary in your path. Written by Grzegorz
-Adam Hankiewicz, gradha@users.sourceforge.net. Notify me of any
-broken behaviour, like uncaught exceptions. This script falls under
-Allegro's giftware license.
+In order to work, this script requires Python (tested with 2.3.3) and
+the diff binary in your path. Written by Grzegorz Adam Hankiewicz,
+gradha@users.sourceforge.net. Notify me of any broken behaviour,
+like uncaught exceptions. This script falls under Allegro's giftware
+license.
 """
-import sys, re, os, os.path, glob, popen2, string
+import glob
+import os
+import os.path
+import popen2
+import re
+import string
+import sys
 
 path_to_documentation = apply(os.path.join, ["docs", "src", "allegro._tx"])
 path_to_example_dir = apply(os.path.join, ["examples"])
@@ -33,7 +40,7 @@ limit_example_reference = "Available Allegro examples"
 START_MARK = "start genexamp.py chunk"
 END_MARK = "end genexamp.py chunk"
 XREF_WIDTH = 70
-regular_expression_for_tx_identifiers = r"@@[^@]+@(?P<name>\w+)"
+regular_expression_for_tx_identifiers = r"@[@\\][^@]+@(?P<name>\w+)"
 comment_line = re.compile(r"Example pr|Modified by")
 
 # the order of the examples is aimed at the newbie, going from easy
@@ -47,6 +54,8 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
    "exaccel", "exspline", "exupdate", "exswitch", "exdodgy", "exstream"]
 
+# Holds examples' short descriptions. Loaded from disk at runtime.
+short_descriptions = {}
 
 
 def detect_all_available_examples(path):
@@ -67,7 +76,30 @@ def detect_all_available_examples(path):
       examples_order.extend(examples)
       
 
+
+def load_example_short_descriptions(path):
+   """func(path_to_directory)
+
+   Loads the file examples.txt from the specified directory and
+   extracts the short example descriptions which are in "exblah -
+   text" format. The short descriptions are stored in the global
+   dictionary short_descriptions.
+   """
+   file_input = file(os.path.join(path, "examples.txt"), "rt")
+   try:
+      regex = re.compile(r"(ex\w+)[.]c\s+-\s(.*)")
+      line = file_input.readline()
+      while line:
+         m = regex.match(line)
+         if m:
+            short_descriptions[m.group(1)] = m.group(2)
+            
+         line = file_input.readline()
+   finally:
+      file_input.close()
+
    
+
 def retrieve_documentation_identifiers(file_name):
    """func(path_to_documentation._tx) -> {documentation_identifiers}
 
@@ -209,10 +241,13 @@ def build_example_output(example_name, comment_lines, xref_list):
 
    @@Example @example_name
    @@xrefs
+   @shortdesc
       comment
    """
    lines = ["@@Example @%s\n" % example_name]
    lines.extend(build_xref_block(xref_list))
+   if short_descriptions.has_key(example_name):
+      lines.append("@shortdesc %s\n" % short_descriptions[example_name])
    lines.extend(map(lambda x: "   %s\n" % x, comment_lines))
    lines.append("\n")
    return lines
@@ -322,14 +357,18 @@ def replace_example_references(documentation, ids_to_examples):
    Allegro documentation chapter.
    """
    new_lines = []
+   short_desc = []
    found_id = ""
    exp = re.compile(regular_expression_for_tx_identifiers)
    for line in documentation:
       if found_id:
          if line[0] == '@':
-            # don't append erefs, which will be regenerated
-            if line[1:5] == "xref" or line[1] == "@":
+            # Don't append erefs, which will be regenerated.
+            if line[1:5] == "xref" or line[1] == "@" or line[1:3] == "\\ ":
                new_lines.append(line)
+            # Append shortdesc, but after @erefs as a special case.
+            if line[1:10] == "shortdesc":
+               short_desc = [line]
          else:
             # create the eref block and append before normal text
             eref_list = ids_to_examples[found_id]
@@ -338,9 +377,18 @@ def replace_example_references(documentation, ids_to_examples):
                new_lines.append("@eref %s\n" % limit_example_reference)
             else:
                new_lines.extend(build_xref_block(eref_list, "@eref"))
+               
+            if short_desc:
+               new_lines.extend(short_desc)
+               short_desc = []
+               
             new_lines.append(line)
             found_id = ""
       else:
+         if short_desc:
+            new_lines.extend(short_desc)
+            short_desc = []
+            
          new_lines.append(line)
          match = exp.match(line)
          if match and ids_to_examples.has_key(match.group("name")):
@@ -352,6 +400,7 @@ def replace_example_references(documentation, ids_to_examples):
 
 def main(path_to_documentation, path_to_example_dir, incremental):        
    detect_all_available_examples(path_to_example_dir)
+   load_example_short_descriptions(path_to_example_dir)
    chapter, ids_to_examples = generate_example_chapter(path_to_documentation,
       map(lambda x: os.path.join(path_to_example_dir, "%s.c" % x),
       examples_order), incremental)

@@ -44,12 +44,12 @@ END_OF_INLINE(_default_ds);
 /* bmp_write_line:
  *  Bank switch function.
  */
-INLINE _AL_DLL unsigned long bmp_write_line(BITMAP *bmp, int line)
+INLINE _AL_DLL uintptr_t bmp_write_line(BITMAP *bmp, int lyne)
 { 
    _asm { 
       mov edx, bmp
       mov ecx, [edx]BITMAP.write_bank
-      mov eax, line
+      mov eax, lyne
       call ecx
    }
 }
@@ -61,12 +61,12 @@ END_OF_INLINE(bmp_write_line);
 /* bmp_read_line:
  *  Bank switch function.
  */
-INLINE _AL_DLL unsigned long bmp_read_line(BITMAP *bmp, int line)
+INLINE _AL_DLL uintptr_t bmp_read_line(BITMAP *bmp, int lyne)
 {
    _asm {
       mov edx, bmp
       mov ecx, [edx]BITMAP.read_bank
-      mov eax, line
+      mov eax, lyne
       call ecx
    }
 }

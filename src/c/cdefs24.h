@@ -25,10 +25,10 @@
 #define INC_PIXEL_PTR(p)       ((p) += 3)
 #define DEC_PIXEL_PTR(p)       ((p) -= 3)
 
-#define PUT_PIXEL(p,c)         bmp_write24((unsigned long) (p), (c))
+#define PUT_PIXEL(p,c)         bmp_write24((uintptr_t) (p), (c))
 #define PUT_MEMORY_PIXEL(p,c)  WRITE3BYTES((p), (c))
-#define PUT_RGB(p,r,g,b)       bmp_write24((unsigned long) (p), makecol24((r), (g), (b)))
-#define GET_PIXEL(p)           bmp_read24((unsigned long) (p))
+#define PUT_RGB(p,r,g,b)       bmp_write24((uintptr_t) (p), makecol24((r), (g), (b)))
+#define GET_PIXEL(p)           bmp_read24((uintptr_t) (p))
 #define GET_MEMORY_PIXEL(p)    READ3BYTES((p))
 #define IS_MASK(c)             ((unsigned long) (c) == MASK_COLOR_24)
 #define IS_SPRITE_MASK(b,c)    ((unsigned long) (c) == MASK_COLOR_24)
@@ -64,7 +64,7 @@
 #define GET_PATTERN_PIXEL(x,y) GET_MEMORY_PIXEL(OFFSET_PIXEL_PTR(PATTERN_LINE(y), \
                                                 ((x) - _drawing_x_anchor) & _drawing_x_mask))
 
-#define RLE_PTR                signed long*
+#define RLE_PTR                int32_t*
 #define RLE_IS_EOL(c)          ((unsigned long) (c) == MASK_COLOR_24)
 
 #define FUNC_LINEAR_CLEAR_TO_COLOR          _linear_clear_to_color24

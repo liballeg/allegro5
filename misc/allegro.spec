@@ -6,7 +6,7 @@ Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
 Name: allegro
-Version: 4.1.18
+Version: 4.1.19
 Release: 1
 License: Gift Ware
 Packager: Allegro development team
@@ -187,7 +187,7 @@ rm -rf %{buildroot}
 
 %files tools
 %defattr(-,root,root)
-%doc tools/grabber.txt
+%doc docs/txt/grabber.txt
 %doc tools/plugins/plugins.txt
 %{_bindir}/colormap
 %{_bindir}/dat

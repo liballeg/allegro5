@@ -25,6 +25,8 @@
 
 
 /* a static auto config */
+#define HAVE_INTTYPES_H		/* TODO: check this */
+#define HAVE_STDINT_H		/* TODO: check this */
 #define HAVE_STRICMP
 #define HAVE_STRLWR
 #define HAVE_STRUPR

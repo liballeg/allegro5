@@ -12,7 +12,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 
@@ -69,7 +69,7 @@ void tick(void)
    t++;
 }
 
-END_OF_FUNCTION(tick);
+END_OF_FUNCTION(tick)
 
 
 

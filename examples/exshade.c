@@ -14,7 +14,7 @@
 
 #include <math.h>
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 
@@ -25,6 +25,10 @@ COLOR_MAP light_table;
 
 
 
+/* Considered a line between (x1, y1) and (x2, y2), the longer the line,
+ * the smaller the return value will be. If the line length is zero, the
+ * function returns the maximum value of 255.
+ */
 int distance(int x1, int y1, int x2, int y2)
 {
    int dx = x2 - x1;

@@ -1084,7 +1084,7 @@ END_OF_STATIC_FUNCTION(mix_hq2_16x2_samples);
  *  frequency, etc, set when you called _mixer_init(). This should be called
  *  by the audio driver to get the next buffer full of samples.
  */
-void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
+void _mix_some_samples(uintptr_t buf, unsigned short seg, int issigned)
 {
    signed int *p = mix_buffer;
    int i;

@@ -8,7 +8,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 
@@ -60,7 +60,7 @@ void draw_bottom_line_of_fire(void)
 int main(void)
 {
    PALETTE palette;
-   unsigned long address;
+   uintptr_t address;
    int x, y, c;
 
    if (allegro_init() != 0)
@@ -191,8 +191,8 @@ int main(void)
 	 address = bmp_read_line(screen, y+1);
 
 	 /* read line in 32 bit chunks */
-	 for (x=0; x<SCREEN_W; x += sizeof(unsigned long))
-	    *((unsigned long *)&temp[x]) = bmp_read32(address+x);
+	 for (x=0; x<SCREEN_W; x += sizeof(uint32_t))
+	    *((uint32_t *)&temp[x]) = bmp_read32(address+x);
 
 	 /* adjust it */
 	 for (x=0; x<SCREEN_W; x++)
@@ -203,8 +203,8 @@ int main(void)
 	 address = bmp_write_line(screen, y);
 
 	 /* write line in 32 bit chunks */
-	 for (x=0; x<SCREEN_W; x += sizeof(unsigned long))
-	    bmp_write32(address+x, *((unsigned long *)&temp[x]));
+	 for (x=0; x<SCREEN_W; x += sizeof(uint32_t))
+	    bmp_write32(address+x, *((uint32_t *)&temp[x]));
       }
 
       bmp_unwrite_line(screen);

@@ -36,6 +36,11 @@
 #pragma disable_message (120 201 202)
 
 
+/* these are available in OpenWatcom 1.3, at least */
+#define HAVE_INTTYPES_H
+#define HAVE_STDINT_H
+
+
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "Watcom"
 #define ALLEGRO_DOS
@@ -45,6 +50,8 @@
 #define ALLEGRO_VRAM_SINGLE_SURFACE
 
 #define ALLEGRO_LFN  0
+
+#define LONG_LONG    long long
 
 #if __WATCOMC__ >= 1100
    #define ALLEGRO_MMX
@@ -178,5 +185,3 @@ void _unlock_dpmi_data(void *addr, int size);
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/aldos.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintdos.h"
-
-#define LONG_LONG long long

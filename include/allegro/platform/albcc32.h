@@ -39,6 +39,8 @@
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
+#define ALLEGRO_GUESS_INTTYPES_OK
+   /* TODO: check if BCC has inttypes.h and/or stdint.h */
 #define ALLEGRO_MULTITHREADED
 
 #ifdef ALLEGRO_USE_CONSOLE

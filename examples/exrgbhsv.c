@@ -19,7 +19,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 #define DIALOG_NUM_SLIDERS       6
@@ -64,12 +64,12 @@ int update_color_value(void *dp3, int val);
 DIALOG the_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)     (dp2)          (dp3) */
-   { my_slider_proc,    32,   16,   256,  16,   0,    255,  0,    0,       255,  0,    NULL,    update_color_value,  &colors[S_R]  },
-   { my_slider_proc,    32,   64,   256,  16,   0,    255,  0,    0,       255,  0,    NULL,    update_color_value,  &colors[S_G]  },
-   { my_slider_proc,    32,   112,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    update_color_value,  &colors[S_B]  },
-   { my_slider_proc,    352,  336,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    update_color_value,  &colors[S_H]  },
-   { my_slider_proc,    352,  384,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    update_color_value,  &colors[S_S]  },
-   { my_slider_proc,    352,  432,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    update_color_value,  &colors[S_V]  },
+   { my_slider_proc,    32,   16,   256,  16,   0,    255,  0,    0,       255,  0,    NULL,    (void *)update_color_value,  &colors[S_R]  },
+   { my_slider_proc,    32,   64,   256,  16,   0,    255,  0,    0,       255,  0,    NULL,    (void *)update_color_value,  &colors[S_G]  },
+   { my_slider_proc,    32,   112,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    (void *)update_color_value,  &colors[S_B]  },
+   { my_slider_proc,    352,  336,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    (void *)update_color_value,  &colors[S_H]  },
+   { my_slider_proc,    352,  384,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    (void *)update_color_value,  &colors[S_S]  },
+   { my_slider_proc,    352,  432,  256,  16,   0,    255,  0,    0,       255,  0,    NULL,    (void *)update_color_value,  &colors[S_V]  },
    { d_text_proc,       308,  22,   0,    0,    0,    255,  0,    0,       0,    0,    "R",     NULL,          NULL          },
    { d_text_proc,       308,  70,   0,    0,    0,    255,  0,    0,       0,    0,    "G",     NULL,          NULL          },
    { d_text_proc,       308,  118,  0,    0,    0,    255,  0,    0,       0,    0,    "B",     NULL,          NULL          },
@@ -137,7 +137,7 @@ int update_color_value(void *dp3, int val)
 {
    /* 'val' is the value of the slider's position (0-255),
       'type' is which slider was changed */
-   int type = ((unsigned long)dp3 - (unsigned long)colors) / sizeof(colors[0]);
+   int type = ((uintptr_t)dp3 - (uintptr_t)colors) / sizeof(colors[0]);
    int r, g, b;
    float h, s, v;
 

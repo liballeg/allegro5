@@ -37,10 +37,10 @@
 AL_FUNC(void, drawing_mode, (int mode, struct BITMAP *pattern, int x_anchor, int y_anchor));
 AL_FUNC(void, xor_mode, (int on));
 AL_FUNC(void, solid_mode, (void));
-AL_FUNC(void, do_line, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int d, AL_METHOD(void, proc, (struct BITMAP *, int, int, int))));
-AL_FUNC(void, _soft_triangle, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color));
+AL_FUNC(void, do_line, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int d, AL_METHOD(void, proc, (struct BITMAP *, int, int, int))));
+AL_FUNC(void, _soft_triangle, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color));
 AL_FUNC(void, _soft_polygon, (struct BITMAP *bmp, int vertices, AL_CONST int *points, int color));
-AL_FUNC(void, _soft_rect, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
+AL_FUNC(void, _soft_rect, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int color));
 AL_FUNC(void, do_circle, (struct BITMAP *bmp, int x, int y, int radius, int d, AL_METHOD(void, proc, (struct BITMAP *, int, int, int))));
 AL_FUNC(void, _soft_circle, (struct BITMAP *bmp, int x, int y, int radius, int color));
 AL_FUNC(void, _soft_circlefill, (struct BITMAP *bmp, int x, int y, int radius, int color));

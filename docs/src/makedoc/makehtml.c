@@ -1196,6 +1196,10 @@ static void _post_process_filename(char *filename)
 	 }
 	 else {
 	    /* Remove the description then. */
+	    if (strncmp(p - 8, "&mdash; ", 8) == 0) {
+	       /* Remove the previous dash too. */
+	       p -= 8;
+	    }
 	    memmove(p, end + 1, strlen(end));
 	 }
       }
@@ -1490,6 +1494,7 @@ static char *_do_text_substitution(char *input)
 static void _output_symbol_index(void)
 {
    int f, g, num = 0;
+   char last_letter;
    char **list = NULL;
    
    for(f = 0; _post[f]; f++) {
@@ -1512,7 +1517,34 @@ static void _output_symbol_index(void)
 
    qsort(list, num, sizeof(char *), _str_cmp);
 
-   for (f = 0; f < num; f++) {
+   /* Create minitoc scanning first letters of sorted list. */
+   fprintf(_file, "<div class='mini_toc' id='top'>\n\t");
+   for (f = 0, last_letter = -1; f < num; f++) {
+      /* Valid range? */
+      if (list[f][0] >= 'A' && list[f][0] <= 'z') {
+	 /* Different letter? */
+	 if (last_letter != list[f][0]) {
+	    last_letter = list[f][0];
+	    fprintf(_file, "<a href='#mini_toc_%c%d'>%c</a>\n\t",
+	       last_letter, last_letter > '_', last_letter);
+	 }
+      }
+   }
+   fprintf(_file, "\n</div>\n\n");
+
+   for (f = 0, last_letter = -1; f < num; f++) {
+      /* Did we change letter section? */
+      if (list[f][0] >= 'A' && list[f][0] <= 'z' && list[f][0] != last_letter) {
+	 /* Is this the first section or another one? */
+	 if (last_letter != -1)
+	    fprintf(_file, "\n</ul>\n");
+            
+	 last_letter = list[f][0];
+	 fprintf(_file, "<h1 class='mini_toc' "
+	    "id='mini_toc_%c%d'><a href='#top'>%c</a></h1>\n<ul>\n",
+	    last_letter, last_letter > '_', last_letter);
+      }
+      
       /* Before writing the string, remove possible short descriptions. */
       char *p, *temp = m_strdup(list[f]);
       p = strchr(temp, ',');
@@ -1523,6 +1555,7 @@ static void _output_symbol_index(void)
       fprintf(_file, " &mdash; ");
       _hfprintf("@SHORTDESC %s@\n", temp);
    }
+   fprintf(_file, "</ul>");
 }
 
 

@@ -34,48 +34,48 @@ AL_VAR(int, _crtc);
 
 AL_FUNC(void, _vga_regs_init, (void));
 AL_FUNC(void, _vga_vsync, (void));
-AL_FUNC(void, _vga_set_palette_range, (AL_CONST PALETTE p, int from, int to, int sync));
+AL_FUNC(void, _vga_set_palette_range, (AL_CONST PALETTE p, int from, int to, int do_sync));
 AL_FUNC(void, _set_vga_virtual_width, (int old_width, int new_width));
-AL_FUNC(unsigned long, _set_vga_mode, (int modenum));
+AL_FUNC(uintptr_t, _set_vga_mode, (int modenum));
 AL_FUNC(void, _unset_vga_mode, (void));
 AL_FUNC(void, _save_vga_mode, (void));
 AL_FUNC(void, _restore_vga_mode, (void));
 
 
 /* reads the current value of a VGA hardware register */
-AL_INLINE(int, _read_vga_register, (int port, int index),
+AL_INLINE(int, _read_vga_register, (int port, int idx),
 {
    if (port==0x3C0)
       inportb(_crtc+6); 
 
-   outportb(port, index);
+   outportb(port, idx);
    return inportb(port+1);
 })
 
 
 /* writes to a VGA hardware register */
-AL_INLINE(void, _write_vga_register, (int port, int index, int v),
+AL_INLINE(void, _write_vga_register, (int port, int idx, int v),
 {
    if (port==0x3C0) {
       inportb(_crtc+6);
-      outportb(port, index);
+      outportb(port, idx);
       outportb(port, v);
    }
    else {
-      outportb(port, index);
+      outportb(port, idx);
       outportb(port+1, v);
    }
 })
 
 
 /* alters specific bits of a VGA hardware register */
-AL_INLINE(void, _alter_vga_register, (int port, int index, int mask, int v),
+AL_INLINE(void, _alter_vga_register, (int port, int idx, int mask, int v),
 {
    int temp;
-   temp = _read_vga_register(port, index);
+   temp = _read_vga_register(port, idx);
    temp &= (~mask);
    temp |= (v & mask);
-   _write_vga_register(port, index, temp);
+   _write_vga_register(port, idx, temp);
 })
 
 

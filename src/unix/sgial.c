@@ -131,7 +131,7 @@ static void *_al_sgial_puller_thread_func(void *arg)
       FD_SET(fd, &fds);
       select(FD_SETSIZE, NULL, &fds, NULL, NULL);
       alWriteFrames(_al_sgial_port, _al_sgial_bufdata, _al_sgial_bufsize);
-      _mix_some_samples((unsigned long) _al_sgial_bufdata, 0, _al_sgial_signed);
+      _mix_some_samples((uintptr_t) _al_sgial_bufdata, 0, _al_sgial_signed);
    }
 }
 
@@ -226,7 +226,7 @@ static int _al_sgial_init(int input, int voices)
       return -1;
    }
 
-   _mix_some_samples((unsigned long) _al_sgial_bufdata, 0, _al_sgial_signed);
+   _mix_some_samples((uintptr_t) _al_sgial_bufdata, 0, _al_sgial_signed);
 
    /* Add audio thread. */
    pthread_create(&thread, NULL, _al_sgial_puller_thread_func, NULL);

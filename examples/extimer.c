@@ -11,7 +11,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 
@@ -28,7 +28,7 @@ void inc_x(void)
    x++;
 }
 
-END_OF_FUNCTION(inc_x);
+END_OF_FUNCTION(inc_x)
 
 
 
@@ -38,7 +38,7 @@ void inc_y(void)
    y++;
 }
 
-END_OF_FUNCTION(inc_y);
+END_OF_FUNCTION(inc_y)
 
 
 
@@ -48,7 +48,7 @@ void inc_z(void)
    z++;
 }
 
-END_OF_FUNCTION(inc_z);
+END_OF_FUNCTION(inc_z)
 
 
 

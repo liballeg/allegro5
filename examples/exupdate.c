@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 
@@ -44,7 +44,7 @@ void timer_proc(void)
    update_count++;
 }
 
-END_OF_FUNCTION(timer_proc);
+END_OF_FUNCTION(timer_proc)
 
 
 
@@ -55,7 +55,7 @@ void fps_proc(void)
    frame_count = 0;
 }
 
-END_OF_FUNCTION(fps_proc);
+END_OF_FUNCTION(fps_proc)
 
 
 

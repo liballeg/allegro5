@@ -216,7 +216,7 @@ AL_INLINE_DEPRECATED(void, set_window_close_hook, (void (*proc)(void)),
 
 
 /* the weird old clipping API */
-AL_FUNC_DEPRECATED(void, set_clip, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
+AL_FUNC_DEPRECATED(void, set_clip, (BITMAP *bitmap, int x1, int y_1, int x2, int y2));
 
 
 /* unnecessary, can use rest(0) */
@@ -277,8 +277,8 @@ AL_FUNCPTR(void, retrace_proc, (void));
 #endif
 AL_FUNC(int,  timer_is_using_retrace, (void));
 
-AL_FUNC(void, rest, (unsigned int time));
-AL_FUNC(void, rest_callback, (unsigned int time, AL_METHOD(void, callback, (void))));
+AL_FUNC(void, rest, (unsigned int tyme));
+AL_FUNC(void, rest_callback, (unsigned int tyme, AL_METHOD(void, callback, (void))));
 
 
 /* the old joystick API */
