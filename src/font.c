@@ -895,12 +895,17 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
 
     g = _color_find_glyph(f, ch);
     if(g) {
-	if(fg < 0) {
-	    bmp->vtable->draw_256_sprite(bmp, g, x, y + (h-g->h)/2);
-	}
+        if (bitmap_color_depth(bmp) == 8) {
+	    if(fg < 0) {
+	        bmp->vtable->draw_256_sprite(bmp, g, x, y + (h-g->h)/2);
+	    }
+            else {
+	        bmp->vtable->draw_character(bmp, g, x, y + (h-g->h)/2, fg, bg);
+	    }
+        }
         else {
-	    bmp->vtable->draw_character(bmp, g, x, y + (h-g->h)/2, fg, bg);
-	}
+	    masked_blit(g, bmp, 0, 0, x, y + (h-g->h)/2, g->w, g->h);
+        }        
 
 	w = g->w;
     }

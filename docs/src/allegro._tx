@@ -6834,6 +6834,7 @@ bitmapped version of a TrueType font with tools like TTF2PCX
 
 @@FONT *@load_bitmap_font(const char *filename, RGB *pal, void *param)
 @xref register_font_file_type, load_font, load_bitmap, set_color_depth
+@xref grab_font_from_bitmap
 @shortdesc Grabs a font from a bitmap file.
    Tries to grab a font from a bitmap. The bitmap can be in any format that
    load_bitmap understands but it must have a color depth of 8 bits.
@@ -6851,6 +6852,18 @@ bitmapped version of a TrueType font with tools like TTF2PCX
    the `demo.dat' file and export the TITLE_FONT into a PCX file. Have a look
    at the resulting picture in your paint program: that is the format a font
    should be in.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@grab_font_from_bitmap(BITMAP *bmp)
+@xref load_bitmap_font
+@shortdesc Grabs a font from a bitmap
+   This function is the work-horse of load_bitmap_font, and can be used to
+   grab a font from a bitmap in memory. You can use this if you want to
+   generate or modify a font at runtime. The bitmap should follow the layout
+   described for load_bitmap_font.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
