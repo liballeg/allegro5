@@ -347,6 +347,7 @@ static int prepare_dat2c(struct dat2c* dat2c)
             case OSTYPE_LINUX:
             case OSTYPE_SUNOS:
             case OSTYPE_FREEBSD:
+            case OSTYPE_NETBSD:
             case OSTYPE_IRIX:
             case OSTYPE_QNX:
             case OSTYPE_UNIX:

@@ -152,6 +152,7 @@ information about how to install Allegro and link your program with it.
       OSTYPE_LINUX      - Linux
       OSTYPE_SUNOS      - SunOS/Solaris
       OSTYPE_FREEBSD    - FreeBSD
+      OSTYPE_NETBSD     - NetBSD
       OSTYPE_IRIX       - IRIX
       OSTYPE_DARWIN     - Darwin
       OSTYPE_QNX        - QNX
