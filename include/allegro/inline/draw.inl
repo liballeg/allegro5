@@ -83,7 +83,7 @@ AL_INLINE(void, rectfill, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int col
 })
 
 
-AL_INLINE(void, triangle, (struct BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color),
+AL_INLINE(void, triangle, (BITMAP *bmp, int x1, int y_1, int x2, int y2, int x3, int y3, int color),
 {
    ASSERT(bmp);
 
@@ -169,7 +169,7 @@ AL_INLINE(void, floodfill, (BITMAP *bmp, int x, int y, int color),
 
 
 
-AL_INLINE(void, polygon3d, (BITMAP *bmp, int type, struct BITMAP *texture, int vc, V3D *vtx[]),
+AL_INLINE(void, polygon3d, (BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[]),
 {
    ASSERT(bmp);
 
