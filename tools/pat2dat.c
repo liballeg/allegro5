@@ -798,7 +798,7 @@ static void add_gus_patches()
       strcpy(file, get_filename(opt_configfile));
    }
    else {
-      if (!_digmid_find_patches(dir, file)) {
+      if (!_digmid_find_patches(dir, sizeof dir, file, sizeof file)) {
 	 fprintf(stderr, "\nError: MIDI patch set not found!\n\n");
 	 fprintf(stderr, "You should have a directory containing a collection of GUS format .pat\n");
 	 fprintf(stderr, "files and a default.cfg index file, or a SoundFont 2 .sf2 sample bank.\n");
