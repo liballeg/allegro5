@@ -8051,7 +8051,7 @@ ensure there is room for the check.
 @xref alert, alert3, file_select_ex, gfx_mode_select, gui_fg_color
    If set, these functions will be used by the standard Allegro dialogs.
    This allows you to customise the look and feel, much like gui_fg_color
-   and gui_bg_color, but much more flexiblely.
+   and gui_bg_color, but much more flexibly.
 
 
 @!man
