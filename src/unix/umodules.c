@@ -70,6 +70,7 @@ void _unix_load_modules(int system_driver)
    char **path;
    char buf[1024];
    char buf2[1024];
+   char buf3[1024];
    char *filename;
    void *handle;
    void (*init)(int);
@@ -86,22 +87,24 @@ void _unix_load_modules(int system_driver)
    found:
 
    while (!pack_feof(f)) {
-      pack_fgets(buf2, sizeof buf2, f);
-      uconvert_toascii(buf2, buf);
-      strip(buf);
-      if ((buf[0] == '#') || (strlen(buf) == 0))
+      if (!pack_fgets(buf, sizeof buf, f))
+         break;
+      filename = uconvert_toascii(buf, buf2);
+      strip(filename);
+      if ((filename[0] == '#') || (strlen(filename) == 0))
 	 continue;
 
-      if (buf[0] == '/')
-	 filename = buf;
-      else {
-	 snprintf(buf2, sizeof buf2, "%s%s", *path, buf);
-	 filename = buf2;
+      if (filename[0] != '/') {
+	 snprintf(buf3, sizeof buf3, "%s%s", *path, filename);
+	 filename = buf3;
       }
 
       handle = dlopen(filename, RTLD_NOW);
-      if (!handle)
+      if (!handle) {
+	 /* useful during development */
+	 /* printf("Error loading module: %s\n", dlerror()); */
 	 continue;
+      }
       
       init = dlsym(handle, "_module_init");
       if (init)
