@@ -14,8 +14,7 @@ Changes from 4.0.2 to 4.0.3 (Feb 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
 <li>
-   Hein Zelle and Elias Pschernig revamped the cross-compilation section of
-   docs/build/mingw32.txt.
+   Hein Zelle revamped the cross-compilation section of docs/build/mingw32.txt.
 <li>
    Marcel Smit and Eric Botcazou made the show_video_bitmap() method of the
    Windows windowed driver wait for a vsync.
@@ -32,6 +31,8 @@ Changes from 4.0.2 to 4.0.3 (Feb 2003)
    before proceeding in the setup program.
 <li>
    Eric Botcazou made the Watcom port compile in warnmode with Open Watcom.
+<li>
+   Elias Pschernig fixed the build with the Unix->MinGW cross-compiler.
 <li>
    Magnus Henoch made the gfx mode selector keep the current selection as
    much as possible.
