@@ -146,7 +146,7 @@ Changes from 4.1.11 to 4.1.12 (Nov 2003)
    preprocessor constructs in the asm files and, as a consequence, let the
    Watcom port use its own preprocessor on assembly files.
 <li>
-   Peter Wang prevented non-mapped memory from being munmapped under Linux.
+   Peter Wang prevented non-mmapped memory from being munmapped under Linux.
 <li>
    Annie Testes prevented __al_linux_shutdown_vga_helpers from being called
    unless the corresponding init function was first called under Linux.
