@@ -1831,12 +1831,16 @@ Graphics modes
    will guarantee that the mode will always be set correctly. It will try to 
    select the resolution that you request, and if that fails, it will fall 
    back upon whatever mode is known to be reliable on the current platform 
-   (this is 320x200 VGA mode under DOS, or a 640x480 resolution under 
-   Windows). If it absolutely cannot set any graphics mode at all, it will 
-   abort the program with an error message. This fake driver is useful for 
-   situations where you just want to get into some kind of workable display 
-   mode, and can't be bothered with trying multiple different resolutions 
-   and doing all the error checking yourself.
+   (this is 320x200 VGA mode under DOS, a 640x480 resolution under Windows,
+   the actual framebuffer's resolution under Linux if it's supported, etc).
+   If it absolutely cannot set any graphics mode at all, it will abort the
+   program with an error message. This fake driver is useful for situations
+   where you just want to get into some kind of workable display mode, and
+   can't be bothered with trying multiple different resolutions and doing
+   all the error checking yourself. Note however, that after a successful
+   call to set_gfx_mode with this driver, you cannot make any assumptions
+   about the width, height or color depth of the screen: your code will have
+   to deal with this little detail.
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
@@ -6484,8 +6488,8 @@ DOS specifics
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
-      don't really care what resolution. See the set_gfx_mode() 
-      documentation for details.
+      don't really care what resolution or color depth you get. See the
+      set_gfx_mode() documentation for details.
 <li>
    GFX_VGA<br>
       The standard 256 color VGA mode 13h, using the GFX_VGA driver. This is 
@@ -6722,8 +6726,8 @@ correctly.
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
-      don't really care what resolution. See the set_gfx_mode() 
-      documentation for details.
+      don't really care what resolution or color depth you get. See the
+      set_gfx_mode() documentation for details.
 <li>
    GFX_DIRECTX<br>
       Alias for GFX_DIRECTX_ACCEL.
@@ -6890,8 +6894,8 @@ function to remind you :-)
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
-      don't really care what resolution. See the set_gfx_mode() 
-      documentation for details.
+      don't really care what resolution or color depth you get. See the
+      set_gfx_mode() documentation for details.
 <li>
    GFX_FBCON<br>
       Use the framebuffer device (eg. dev/fb0). This requires you to have 
@@ -6933,8 +6937,8 @@ function to remind you :-)
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
-      don't really care what resolution. See the set_gfx_mode() 
-      documentation for details.
+      don't really care what resolution or color depth you get. See the
+      set_gfx_mode() documentation for details.
 <li>
    GFX_XWINDOWS<br>
       The standard X graphics driver. This should work on any Unix system, 
