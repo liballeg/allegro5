@@ -578,30 +578,15 @@ static void mono_destroy(FONT* f)
 
 
 
-/* mono_get_font_range_begin:
+/* mono_get_font_ranges:
  *  (mono vtable entry)
- *  Get first character for font.
+ *  Returns the number of character ranges in a font, or -1 if that information
+ *   is not available.
  */
-static int mono_get_font_range_begin(FONT* f)
+int mono_get_font_ranges(FONT *f)
 {
     FONT_MONO_DATA* mf = 0;
-
-    if (!f || !f->data) 
-      return -1;
-
-    mf = (FONT_MONO_DATA*)(f->data);
-    return mf->begin;
-}
-
-
-
-/* mono_get_font_range_end:
- *  (mono vtable entry)
- *  Get last character for font.
- */
-static int mono_get_font_range_end(FONT* f)
-{
-    FONT_MONO_DATA* mf = 0;
+    int ranges = 0;
 
     if (!f) 
         return -1;
@@ -611,12 +596,74 @@ static int mono_get_font_range_end(FONT* f)
     while(mf) {
         FONT_MONO_DATA* next = mf->next;
         
+        ranges++;
         if (!next)
-            return mf->end;
+            return ranges;
          mf = next;
     }
 
     return -1;
+}
+
+
+
+/* mono_get_font_range_begin:
+ *  (mono vtable entry)
+ *  Get first character for font range. Pass -1 to get the start of the font.
+ */
+static int mono_get_font_range_begin(FONT* f, int range)
+{
+   FONT_MONO_DATA* mf = 0;
+   int n;
+
+   if (!f || !f->data) 
+      return -1;
+      
+   if (range < 0)
+      range = 0;
+   n = 0;
+
+   mf = (FONT_MONO_DATA*)(f->data);
+   while(mf && n<=range) {
+      FONT_MONO_DATA* next = mf->next;
+        
+      if (!next || range == n)
+         return mf->begin;
+      mf = next;
+      n++;
+   }
+
+   return -1;
+}
+
+
+
+/* mono_get_font_range_end:
+ *  (mono vtable entry)
+ *  Get last character for font range. Pass -1 to search the entire font
+ */
+static int mono_get_font_range_end(FONT* f, int range)
+{
+   FONT_MONO_DATA* mf = 0;
+   int n;
+
+   if (!f) 
+      return -1;
+
+   n = 0;
+
+   mf = (FONT_MONO_DATA*)(f->data);
+
+   while(mf && (n<=range || range==-1)) {
+      FONT_MONO_DATA* next = mf->next;
+        
+      if (!next || range == n)
+         return mf->end;
+      mf = next;
+      n++;
+   }
+
+   return -1;
 }
 
 
@@ -688,8 +735,8 @@ FONT *mono_extract_font_range(FONT *f, int begin, int end)
    fontout->data = NULL;
 
    /* Get real character ranges */
-   first = MAX(begin, mono_get_font_range_begin(f));
-   last = (end>-1) ? MIN(end, mono_get_font_range_end(f)) : mono_get_font_range_end(f);
+   first = MAX(begin, mono_get_font_range_begin(f, -1));
+   last = (end>-1) ? MIN(end, mono_get_font_range_end(f, -1)) : mono_get_font_range_end(f, -1);
    
    mf = NULL;
    mfin = f->data;
@@ -895,19 +942,62 @@ static void color_destroy(FONT* f)
 
 
 
+/* color_get_font_ranges:
+ *  (color vtable entry)
+ *  Returns the number of character ranges in a font, or -1 if that information
+ *   is not available.
+ */
+int color_get_font_ranges(FONT *f)
+{
+    FONT_COLOR_DATA* cf = 0;
+    int ranges = 0;
+
+    if (!f) 
+        return -1;
+
+    cf = (FONT_COLOR_DATA*)(f->data);
+
+    while(cf) {
+        FONT_COLOR_DATA* next = cf->next;
+        
+        ranges++;
+        if (!next)
+            return ranges;
+         cf = next;
+    }
+
+    return -1;
+}
+
+
+
 /* color_get_font_range_begin:
  *  (color vtable entry)
  *  Get first character for font.
  */
-static int color_get_font_range_begin(FONT* f)
+static int color_get_font_range_begin(FONT* f, int range)
 {
-    FONT_COLOR_DATA* cf = 0;
+   FONT_COLOR_DATA* cf = 0;
+   int n;
 
-    if (!f || !f->data) 
+   if (!f || !f->data) 
       return -1;
+      
+   if (range < 0)
+      range = 0;
+   n = 0;
 
-    cf = (FONT_COLOR_DATA* )(f->data);
-    return cf->begin;
+   cf = (FONT_COLOR_DATA*)(f->data);
+   while(cf && n<=range) {
+      FONT_COLOR_DATA* next = cf->next;
+        
+      if (!next || range == n)
+         return cf->begin;
+      cf = next;
+      n++;
+   }
+
+   return -1;
 }
 
 
@@ -916,23 +1006,28 @@ static int color_get_font_range_begin(FONT* f)
  *  (color vtable entry)
  *  Get last character for font.
  */
-static int color_get_font_range_end(FONT* f)
+static int color_get_font_range_end(FONT* f, int range)
 {
-    FONT_COLOR_DATA* cf = 0;
+   FONT_COLOR_DATA* cf = 0;
+   int n;
 
-    if (!f) 
-        return -1;
+   if (!f) 
+      return -1;
 
-    cf = (FONT_COLOR_DATA*)(f->data);
+   n = 0;
 
-    while (cf) {
-        FONT_COLOR_DATA* next = cf->next;
+   cf = (FONT_COLOR_DATA*)(f->data);
+
+   while(cf && (n<=range || range==-1)) {
+      FONT_COLOR_DATA* next = cf->next;
         
-        if (!next)
-            return cf->end;
-    }
+      if (!next || range == n)
+         return cf->end;
+      cf = next;
+      n++;
+   }
 
-    return -1;
+   return -1;
 }
 
 
@@ -1055,8 +1150,8 @@ FONT *color_extract_font_range(FONT *f, int begin, int end)
    fontout->data = NULL;
 
    /* Get real character ranges */
-   first = MAX(begin, mono_get_font_range_begin(f));
-   last = (end>-1) ? MIN(end, mono_get_font_range_end(f)) : mono_get_font_range_end(f);
+   first = MAX(begin, color_get_font_range_begin(f, -1));
+   last = (end>-1) ? MIN(end, color_get_font_range_end(f, -1)) : color_get_font_range_end(f, -1);
    
    cf = NULL;
    cfin = f->data;
@@ -1148,92 +1243,6 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
 
    return fontout;
 }
-#if 0
-/* color_merge_fonts:
- *  (color vtable entry)
- *  Merges font2 with font1 and returns a new font
- */
-FONT *color_merge_fonts(FONT *font1, FONT *font2)
-{
-   FONT *fontout = NULL, *fontin = NULL;
-   FONT_COLOR_DATA *cf, *cf1, *cf2;
-   BITMAP **gl;
-   BITMAP *g;
-   int first, last, num, c;
-   int colconv;
-   
-   if (!font1 || !font2)
-      return NULL;
-   
-   /* Promote font 2 to colour if it is a monochrome font */
-   if (!is_color_font(font1))
-      return NULL;
-   
-   if (is_mono_font(font2))
-      fontin = upgrade_to_color(font2);
-   else
-      fontin = font2;
-
-   if (!is_color_font(font2))
-      return NULL;
-   
-   /* Get output font */
-   fontout = _al_malloc(sizeof *fontout);
-   fontout->height = font1->height;
-   fontout->vtable = font1->vtable;
-   cf = fontout->data = NULL;
-   
-   cf1 = font1->data;
-   cf2 = fontin->data;
-   
-   colconv = get_color_conversion();
-   set_color_conversion(COLORCONV_NONE);
-   
-   while (cf1 || cf2) {
-      if (cf1 && (!cf2 ||  (cf1->begin < cf2->begin))) {
-         if (cf) {
-            cf->next = _al_malloc(sizeof *cf);
-            cf = cf->next;
-         } else {
-            fontout->data = cf = _al_malloc(sizeof *cf);
-         }
-         num = cf1->end - cf1->begin+1;
-         cf->begin = cf1->begin;
-         cf->end = cf1->end;
-         gl = cf->bitmaps = _al_malloc(num *sizeof *gl);
-         for (c=0; c<num; c++) {
-            g = cf1->bitmaps[c];
-            gl[c] = create_bitmap_ex(8, g->w, g->h);
-            blit(g, gl[c], 0,0, 0,0, g->w,g->h);
-         }
-         cf1 = cf1->next;
-      } else {
-         if (cf) {
-            cf->next = _al_malloc(sizeof *cf);
-            cf = cf->next;
-         } else {
-            fontout->data = cf = _al_malloc(sizeof *cf);
-         }
-         num = cf2->end - cf2->begin+1;
-         cf->begin = cf2->begin;
-         cf->end = cf2->end;
-         gl = cf->bitmaps = _al_malloc(num * sizeof *gl);
-         for (c=0; c<num; c++) {
-            g = cf2->bitmaps[c];
-            gl[c] = create_bitmap_ex(8, g->w, g->h);
-            blit(g, gl[c], 0,0, 0,0, g->w,g->h);
-         }
-         cf2 = cf2->next;
-      }
-   }
-   set_color_conversion(colconv);
-   
-   if (fontin != font2)
-      destroy_font(fontin);
-   
-   return fontout;
-}
-#endif
 
 
 
@@ -1249,6 +1258,7 @@ FONT_VTABLE _font_vtable_mono = {
     mono_render,
     mono_destroy,
     
+    mono_get_font_ranges,
     mono_get_font_range_begin,
     mono_get_font_range_end,
     mono_extract_font_range,
@@ -1265,6 +1275,7 @@ FONT_VTABLE _font_vtable_color = {
     color_render,
     color_destroy,
     
+    color_get_font_ranges,
     color_get_font_range_begin,
     color_get_font_range_end,
     color_extract_font_range,
@@ -1344,14 +1355,28 @@ FONT *merge_fonts(FONT *f1, FONT *f2)
 
 
 
+/* get_font_ranges:
+ *  Returns the number of character ranges in a font, or -1 if that information
+ *   is not available.
+ */
+int get_font_ranges(FONT *f)
+{
+   if (f->vtable->get_font_ranges)
+      return f->vtable->get_font_ranges(f);
+   
+   return -1;
+}
+
+
+
 /* get_font_range_begin:
  *  Returns the starting character for the font in question, or -1 if that
  *   information is not available.
  */
-int get_font_range_begin(FONT *f)
+int get_font_range_begin(FONT *f, int range)
 {
    if (f->vtable->get_font_range_begin)
-      return f->vtable->get_font_range_begin(f);
+      return f->vtable->get_font_range_begin(f, range);
    
    return -1;
 }
@@ -1362,10 +1387,10 @@ int get_font_range_begin(FONT *f)
  *  Returns the last character for the font in question, or -1 if that
  *   information is not available.
  */
-int get_font_range_end(FONT *f)
+int get_font_range_end(FONT *f, int range)
 {
    if (f->vtable->get_font_range_end)
-      return f->vtable->get_font_range_end(f);
+      return f->vtable->get_font_range_end(f, range);
    
    return -1;
 }

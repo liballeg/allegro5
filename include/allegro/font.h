@@ -43,6 +43,7 @@ typedef struct FONT
 
 AL_FUNC(int, is_color_font, (FONT *f));
 AL_FUNC(int, is_mono_font, (FONT *f));
+AL_FUNC(int, is_compatible_font, (FONT *f1, FONT *f2));
 
 AL_FUNC(void, register_font_file_type, (AL_CONST char *ext, FONT *(*load)(AL_CONST char *filename, RGB *pal, void *param)));
 AL_FUNC(FONT *, load_font, (AL_CONST char *filename, RGB *pal, void *param));
@@ -54,8 +55,9 @@ AL_FUNC(FONT *, load_grx_or_bios_font, (AL_CONST char *filename, RGB *pal, void 
 AL_FUNC(FONT *, load_bitmap_font, (AL_CONST char *fname, RGB *pal, void *param));
 AL_FUNC(FONT *, load_txt_font, (AL_CONST char *fname, RGB *pal, void *param));
 
-AL_FUNC(int, get_font_range_begin, (FONT *f));
-AL_FUNC(int, get_font_range_end, (FONT *f));
+AL_FUNC(int, get_font_ranges, (FONT *f));
+AL_FUNC(int, get_font_range_begin, (FONT *f, int range));
+AL_FUNC(int, get_font_range_end, (FONT *f, int range));
 AL_FUNC(FONT *, extract_font_range, (FONT *f, int begin, int end));
 AL_FUNC(FONT *, merge_fonts, (FONT *f1, FONT *f2));
 #ifdef __cplusplus
