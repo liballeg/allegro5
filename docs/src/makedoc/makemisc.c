@@ -140,11 +140,12 @@ char *strip_html(char *p)
 
 
 /* is_empty:
+ * Returns true if the string constist of something more than space or tabs.
  */
 int is_empty(char *s)
 {
    while (*s) {
-      if (*s != ' ')
+      if ((*s) != ' ' && (*s) != '\t')
 	 return 0;
 
       s++;

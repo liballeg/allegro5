@@ -66,7 +66,8 @@ static void _transform_custom_tags(char *buf);
 static int _read_file(char *filename);
 static void _free_data(void);
 static void _add_line(char *buf, int flags);
-static void _add_toc_line(char *buf, char *alt, int root, int num, int texinfoable, int htmlable, int otherfile);
+static void _add_toc_line(const char *buf, const char *alt, int root, int num, int texinfoable, int htmlable, int otherfile);
+static void _add_external_file(const char *buf, int line_number);
 static char *_my_fgets(char *p, int max, FILE *f);
 static void _add_toc(char *buf, int root, int num, int texinfoable, int htmlable);
 
@@ -393,10 +394,10 @@ static int _read_file(char *filename)
 	    _add_line(buf+10, (flags | HTML_FLAG | HTML_CMD_FLAG | NO_EOL_FLAG ) & (~TEXT_FLAG));
 	 else if (buf[1] == '<')
 	    _add_line(buf+1, (flags | HTML_FLAG | HTML_CMD_FLAG | NO_EOL_FLAG ) & (~TEXT_FLAG));
-	 else if (strincmp(buf+1, "htmlindex") == 0)
+	 else if (strincmp(buf+1, "htmlindex ") == 0)
 	    _add_toc_line(buf+11, NULL, 1, line, 0, 1, 1);
-
-
+	 else if (strincmp(buf+1, "externalfile ") == 0)
+	    _add_external_file(buf+14, line);
 	 else if (strincmp(buf+1, "rtfh=") == 0)
 	    strcpy(rtfheader, buf+6);
 	 else if (strincmp(buf+1, "manh=") == 0)
@@ -507,8 +508,15 @@ static void _add_line(char *buf, int flags)
 
 
 /* _add_toc_line:
+ * Adds a line to the table of contents. buf is the filename to be linked,
+ * alt can be NULL, and in such case buf will be used to represent the link:
+ * if alt is not NULL, it will be the link's name. root is a boolean,
+ * indicates that the line should be added to the toc's root index. num
+ * is the line number. texinfoable, htmlable and otherfile are boolean
+ * values which say if this line should appear in the toc of those file
+ * formats.
  */
-static void _add_toc_line(char *buf, char *alt, int root, int num, int texinfoable, int htmlable, int otherfile)
+static void _add_toc_line(const char *buf, const char *alt, int root, int num, int texinfoable, int htmlable, int otherfile)
 {
    TOC *toc;
 
@@ -534,6 +542,32 @@ static void _add_toc_line(char *buf, char *alt, int root, int num, int texinfoab
       tochead = toc;
 
    toctail = toc;
+}
+
+
+
+/* _add_external_file:
+ * A special wrapper around _add_toc_line. buf contains both the filename
+ * and the name which should be given to the link. Split both and call the
+ * real funcion.
+ */
+static void _add_external_file(const char *buf, int line_number)
+{
+   char *filename, *title;
+
+   /* First validate buffer */
+   title = strpbrk(buf, "\t ");
+   if (!title || is_empty(title)) {
+      printf("Line %d has externalfile without title part (%s). "
+	 "Ignoring.\n", line_number, buf);
+      return;
+   }
+
+   filename = m_strdup(buf);
+   title = strpbrk(filename, "\t ");
+   *title = 0;
+   _add_toc_line(filename, title+1, 1, line_number, 0, 1, 1);
+   free(filename);
 }
 
 

@@ -8719,14 +8719,14 @@ makefiles also provide some special pseudo-targets:
 </ul>
 
 
-@htmlindex Changes
-@htmlindex Thanks
-@htmlindex FAQ
-@htmlindex Help
-@htmlindex api
-@htmlindex abi
-@htmlindex aHack
-@htmlindex const
+@externalfile changes Changes since previous versions
+@externalfile thanks Contributors: The Hall of Fame
+@externalfile faq Frequently asked questions (FAQ)
+@externalfile help Help: what to do when your Allegro program doesn't work
+@externalfile api API compatibility information
+@externalfile abi ABI compatibility information
+@externalfile ahack The Allegro hacker's guide
+@externalfile const Allegro `const'-correctness
 @headingnocontent
 Conclusion
 

@@ -166,7 +166,15 @@
 
    @htmlindex xxx
       Used in the main index HTML file of the document, creates a link to an
-      external file.
+      external file, xxx being the name without extension. Please try to
+      avoid this and use the next command instead.
+
+   @externalfile filename title
+      A replacement of htmlindex. The main difference is that htmlindex
+      would name the link exactly as it's filename. This is usually not
+      enough descriptive and tends to get in the way of translators.
+      filename can't contain spaces, which are used to mark the
+      beginning of title, or extension.
 
 
 
