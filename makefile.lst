@@ -203,6 +203,7 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bkeyapi.cpp \
 	src/beos/bkeydrv.c \
 	src/beos/bmidi.c \
+	src/beos/bmidiapi.cpp \
 	src/beos/bmididrv.c \
 	src/beos/bmousapi.cpp \
 	src/beos/bmousdrv.c \

@@ -42,7 +42,7 @@ ifdef DEBUGMODE
 # -------- debugging build --------
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-LFLAGS = -lbe -lgame -ldevice -g
+LFLAGS = -lbe -lgame -ldevice -lmidi -g
 
 
 else
@@ -51,7 +51,7 @@ ifdef PROFILEMODE
 # -------- profiling build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -pg
 SFLAGS = $(WFLAGS)
-LFLAGS = -lbe -lgame -ldevice -pg
+LFLAGS = -lbe -lgame -ldevice -lmidi -pg
 
 else
 
@@ -60,9 +60,9 @@ CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifdef SYMBOLMODE
-LFLAGS = -lbe -lgame -ldevice -s
+LFLAGS = -lbe -lgame -ldevice -lmidi -s
 else
-LFLAGS = -lbe -lgame -ldevice
+LFLAGS = -lbe -lgame -ldevice -lmidi
 endif
 
 endif
@@ -79,12 +79,42 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 
 # -------- rules for installing and removing the library files --------
 
-install:
-	@echo Todo: install target
+INC_DIR = /boot/develop/headers/cpp
+LIB_DIR = /boot/develop/lib/x86
+
+$(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
+	cp $(LIB_NAME) $(LIB_DIR)
+
+$(INC_DIR)/%: include/%
+	cp $< $@
+
+$(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
+	cp $< $@
+
+$(INC_DIR)/allegro:
+	mkdir $(INC_DIR)/allegro
+
+HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
+
+INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a \
+		$(INC_DIR)/allegro.h \
+		$(INC_DIR)/bealleg.h \
+		$(INC_DIR)/allegro \
+		$(HEADERS)
+
+install: $(INSTALL_FILES)
+	cp misc/allegro-config.be /bin/allegro-config
+	chmod a+x /bin/allegro-config
+	@echo The $(DESCRIPTION) BeOS library has been installed.
+
+UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.a \
+		$(INC_DIR)/allegro.h $(INC_DIR)/bealleg.h $(INC_DIR)/allegro/*.h
 
 uninstall:
-	@echo Todo: install target
-
+	rm -f $(UNINSTALL_FILES)
+	rm -fr $(INC_DIR)/allegro
+	rm -f /bin/allegro-config
+	@echo All gone!	
 
 # -------- autodetect whether the assembler supports MMX instructions --------
 
