@@ -51,6 +51,32 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
 			      int dx, int dy, int w, int h);
 static void _xwin_clear_to_color(BITMAP *dst, int color);
 
+/* True if the GC is using the proper drawing mode */
+static int _xwin_drawmode_ok = TRUE;
+
+
+
+/* _xwin_drawing_mode:
+ *  Set the GC's drawing mode
+ */
+void _xwin_drawing_mode(void)
+{
+   int gc_func;
+
+   if(_drawing_mode == DRAW_MODE_SOLID)
+      gc_func = GXcopy;
+   else if (_drawing_mode == DRAW_MODE_XOR)
+      gc_func = GXxor;
+   else
+   {
+      _xwin_drawmode_ok = FALSE;
+      return;
+   }
+
+   _xwin_drawmode_ok = TRUE;
+   XSetState(_xwin.display, _xwin.gc, 0, 0, gc_func, -1);
+}
+
 
 
 /* _xwin_replace_vtable:
@@ -80,9 +106,7 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
    vtable->draw_character = _xwin_draw_character;
    vtable->draw_glyph = _xwin_draw_glyph;
    vtable->blit_from_memory = _xwin_blit_anywhere;
-   vtable->blit_to_memory = _xwin_blit_anywhere;
    vtable->blit_from_system = _xwin_blit_anywhere;
-   vtable->blit_to_system = _xwin_blit_anywhere;
    vtable->blit_to_self = _xwin_blit_anywhere;
    vtable->blit_to_self_forward = _xwin_blit_anywhere;
    vtable->blit_to_self_backward = _xwin_blit_backward;
@@ -118,7 +142,23 @@ static void _xwin_putpixel(BITMAP *dst, int dx, int dy, int color)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.putpixel(dst, dx, dy, color);
    _xwin_in_gfx_call = 0;
-   _xwin_update_video_bitmap(dst, dx, dy, 1, 1);
+
+   if (_xwin.matching_formats && _xwin_drawmode_ok)
+   {
+      dx += dst->x_ofs - _xwin.scroll_x;
+      dy += dst->y_ofs - _xwin.scroll_y;
+
+      if((dx >= _xwin.screen_width) || (dx < 0) || 
+         (dy >= _xwin.screen_height) || (dy < 0))
+         return;
+
+      XLOCK();
+      XSetForeground(_xwin.display, _xwin.gc, color);
+      XDrawPoint(_xwin.display, _xwin.window, _xwin.gc, dx, dy);
+      XUNLOCK();
+   }
+   else
+      _xwin_update_video_bitmap(dst, dx, dy, 1, 1);
 }
 
 
@@ -151,7 +191,26 @@ static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.hline(dst, dx1, dy, dx2, color);
    _xwin_in_gfx_call = 0;
-   _xwin_update_video_bitmap(dst, dx1, dy, dx2 - dx1 + 1, 1);
+
+   if (_xwin.matching_formats && _xwin_drawmode_ok) {
+      dx1 += dst->x_ofs - _xwin.scroll_x;
+      dx2 += dst->x_ofs - _xwin.scroll_x;
+      dy += dst->y_ofs - _xwin.scroll_y;
+
+      if (dx1 < 0)
+         dx1 = 0;
+      if (dx2 >= _xwin.screen_width)
+         dx2 = _xwin.screen_width - 1;
+      if ((dx1 > dx2) || (dy < 0) || (dy >= _xwin.screen_height))
+         return;
+
+      XLOCK();
+      XSetForeground(_xwin.display, _xwin.gc, color);
+      XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx1, dy, dx2, dy);
+      XUNLOCK();
+   }
+   else
+      _xwin_update_video_bitmap(dst, dx1, dy, dx2 - dx1 + 1, 1);
 }
 
 
@@ -184,7 +243,26 @@ static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.vline(dst, dx, dy1, dy2, color);
    _xwin_in_gfx_call = 0;
-   _xwin_update_video_bitmap(dst, dx, dy1, 1, dy2 - dy1 + 1);
+
+   if (_xwin.matching_formats && _xwin_drawmode_ok) {
+      dx += dst->x_ofs - _xwin.scroll_x;
+      dy1 += dst->y_ofs - _xwin.scroll_y;
+      dy2 += dst->y_ofs - _xwin.scroll_y;
+
+      if (dy1 < 0)
+         dy1 = 0;
+      if (dy2 >= _xwin.screen_height)
+         dy2 = _xwin.screen_height - 1;
+      if ((dy1 > dy2) || (dx < 0) || (dx >= _xwin.screen_width))
+         return;
+
+      XLOCK();
+      XSetForeground(_xwin.display, _xwin.gc, color);
+      XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx, dy1, dx, dy2);
+      XUNLOCK();
+   }
+   else
+      _xwin_update_video_bitmap(dst, dx, dy1, 1, dy2 - dy1 + 1);
 }
 
 
@@ -230,7 +308,34 @@ static void _xwin_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.rectfill(dst, dx1, dy1, dx2, dy2, color);
    _xwin_in_gfx_call = 0;
-   _xwin_update_video_bitmap(dst, dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1);
+
+   if (_xwin.matching_formats && _xwin_drawmode_ok) {
+      dx1 += dst->x_ofs - _xwin.scroll_x;
+      dx2 += dst->x_ofs - _xwin.scroll_x;
+      dy1 += dst->y_ofs - _xwin.scroll_y;
+      dy2 += dst->y_ofs - _xwin.scroll_y;
+
+      if (dx1 < 0)
+         dx1 = 0;
+      if (dx2 >= _xwin.screen_width)
+         dx2 = _xwin.screen_width - 1;
+      if (dx1 > dx2)
+         return;
+
+      if (dy1 < 0)
+         dy1 = 0;
+      if (dy2 >= _xwin.screen_height)
+         dy2 = _xwin.screen_height - 1;
+      if (dy1 > dy2)
+         return;
+
+      XLOCK();
+      XSetForeground(_xwin.display, _xwin.gc, color);
+      XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
+      XUNLOCK();
+   }
+   else
+      _xwin_update_video_bitmap(dst, dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1);
 }
 
 
@@ -248,7 +353,34 @@ static void _xwin_clear_to_color(BITMAP *dst, int color)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.clear_to_color(dst, color);
    _xwin_in_gfx_call = 0;
-   _xwin_update_video_bitmap(dst, dst->cl, dst->ct, dst->cr - dst->cl, dst->cb - dst->ct);
+
+   if (_xwin.matching_formats && (_drawing_mode == DRAW_MODE_SOLID)) {
+      int dx1 = dst->cl + dst->x_ofs - _xwin.scroll_x;
+      int dx2 = dst->cr + dst->x_ofs - 1 - _xwin.scroll_x;
+      int dy1 = dst->ct + dst->y_ofs - _xwin.scroll_y;
+      int dy2 = dst->cb + dst->y_ofs - 1 - _xwin.scroll_y;
+
+      if (dx1 < 0)
+         dx1 = 0;
+      if (dx2 >= _xwin.screen_width)
+         dx2 = _xwin.screen_width - 1;
+      if (dx1 > dx2)
+         return;
+
+      if (dy1 < 0)
+         dy1 = 0;
+      if (dy2 >= _xwin.screen_height)
+         dy2 = _xwin.screen_height - 1;
+      if (dy1 > dy2)
+         return;
+
+      XLOCK();
+      XSetForeground(_xwin.display, _xwin.gc, color);
+      XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
+      XUNLOCK();
+   }
+   else
+      _xwin_update_video_bitmap(dst, dst->cl, dst->ct, dst->cr - dst->cl, dst->cb - dst->ct);
 }
 
 
@@ -295,7 +427,7 @@ static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
  *  Wrapper for masked_blit.
  */
 static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
-			      int dx, int dy, int w, int h)
+                              int dx, int dy, int w, int h)
 {
    if (_xwin_in_gfx_call) {
       _xwin_vtable.masked_blit(src, dst, sx, sy, dx, dy, w, h);
@@ -322,7 +454,7 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
       tmp = dst->cr - x_orig;                                      \
       w = ((tmp > w_orig) ? w_orig : tmp) - x_delta;               \
       if (w <= 0)                                                  \
-	 return;                                                   \
+         return;                                                   \
                                                                    \
       tmp = dst->ct - y_orig;                                      \
       y_delta = ((tmp < 0) ? 0 : tmp);                             \

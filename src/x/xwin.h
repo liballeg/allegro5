@@ -61,6 +61,7 @@ AL_FUNC(GFX_MODE_LIST*, _xwin_fetch_mode_list, (void));
 
 /* Defined in xvtable.c.  */
 AL_FUNC(void, _xwin_replace_vtable, (struct GFX_VTABLE *vtable));
+AL_FUNC(void, _xwin_drawing_mode, (void));
 
 #endif /* !__bma_xwin_h */
 
