@@ -252,11 +252,14 @@ int main(int argc, char *argv[])
 	 XQueryTextExtents16(display, font, string, 1, &dir, &ascent,
 			     &descent, &overall);
 
+	 if (overall.width < 1)
+	    overall.width = 1;
+
 	 /* create pixmap and draw character there */
 	 pixmap =
 	     XCreatePixmap(display, window, overall.width, max_height,
 			   default_depth);
-	 /* some fonts draw outside there ascent/descent, so we need to clear
+	 /* some fonts draw outside their ascent/descent, so we need to clear
 	  * the pixmap before drawing the glyph */
 	 XFillRectangle(display, pixmap, gc2, 0, 0, overall.width,
 			max_height);
