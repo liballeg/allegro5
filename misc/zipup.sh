@@ -204,7 +204,7 @@ scan_for_empties()
 {
    if [ -f $1/tmpfile.txt ]; then rm $1/tmpfile.txt; fi
 
-   files=$1/*
+   files=`echo $1/*`
    if [ "$files" = "$1/CVS" -o "$files" = "$1/cvs" -o "$files" = "$1/*" ]; then
       echo "This file is needed because some unzip programs skip empty directories." > $1/tmpfile.txt
    else
