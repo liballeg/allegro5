@@ -9,7 +9,8 @@
 @#
 @locale=latin1
 @h=<html><head><title>#</title></head><body>
-@f=<p><hr><p><a href="allegro.html">Back to Contents</a><p>
+@f1=<p><hr><p><a href="
+@f2=">Back to Contents</a><p></body></html>
 @rtfh=Allegro - a game programming library
 @manh="version 3.9.38 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
