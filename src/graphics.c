@@ -970,7 +970,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    BITMAP *bitmap;
    int i;
    ASSERT(width >= 0);
-   ASSERT(height >= 0);
+   ASSERT(height > 0);
    ASSERT(system_driver);
 
    if (system_driver->create_bitmap)
@@ -1020,7 +1020,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
 BITMAP *create_bitmap(int width, int height)
 {
    ASSERT(width >= 0);
-   ASSERT(height >= 0);
+   ASSERT(height > 0);
    return create_bitmap_ex(_color_depth, width, height);
 }
 
@@ -1194,6 +1194,9 @@ BITMAP *create_video_bitmap(int width, int height)
    BITMAP *bmp;
    int x = 0, y = 0;
 
+   ASSERT(width >= 0);
+   ASSERT(height > 0);
+   
    if (_dispsw_status)
       return NULL;
 
@@ -1319,6 +1322,8 @@ BITMAP *create_system_bitmap(int width, int height)
 {
    BITMAP *bmp;
 
+   ASSERT(width >= 0);
+   ASSERT(height > 0);
    ASSERT(gfx_driver != NULL);
 
    if (gfx_driver->create_system_bitmap)
