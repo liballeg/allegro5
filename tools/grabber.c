@@ -284,9 +284,13 @@ static int box_active = FALSE;
 /* updates the window title */
 static void update_title(void)
 {
-   char buf[128];
-   snprintf(buf, sizeof buf, "grabber - %s%s", data_file,
-	    is_modified ? " (modified)" : "");
+   char buf[1024];
+
+   if (data_file[0])
+      sprintf(buf, "grabber - %s%s", data_file, is_modified ? " (modified)" : "");
+   else
+      strcpy(buf, "grabber");
+
    set_window_title(buf);
 }
 
