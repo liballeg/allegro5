@@ -309,5 +309,5 @@ examples: $(EXAMPLE_FILES)
 
 # -------- automatic source dependencies --------
 
-include $(OBJ_DIR)/makefile.dep
+-include $(OBJ_DIR)/makefile.dep
 
