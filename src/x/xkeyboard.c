@@ -417,7 +417,7 @@ static int find_allegro_key(KeySym sym)
  *  In a future version, this could be simplified by mapping *all* the X11
  *  KeySyms to KEY_* codes.
  */
-void x_get_keyboard_mapping(void)
+void _xwin_get_keyboard_mapping(void)
 {
    int i;
    int count;
@@ -610,7 +610,7 @@ static int x_keyboard_init(void)
    }
 #endif
 
-   x_get_keyboard_mapping ();
+   _xwin_get_keyboard_mapping ();
 
    XUNLOCK ();
 
