@@ -27,8 +27,10 @@ if [%1] == [bcc32]   goto head
 if [%1] == [djgpp]   goto head
 if [%1] == [mingw32] goto head
 if [%1] == [msvc]    goto head
+if [%1] == [msvc7]   goto head
 if [%1] == [watcom]  goto head
 goto help
+
 
 :head
 rem Generate header of makefile and alplatf.h,
@@ -40,6 +42,7 @@ if [%1] == [bcc32]   goto bcc32
 if [%1] == [djgpp]   goto djgpp
 if [%1] == [mingw32] goto mingw32
 if [%1] == [msvc]    goto msvc
+if [%1] == [msvc7]   goto msvc7
 if [%1] == [watcom]  goto watcom
 
 echo fix.bat internal error: not reached
@@ -63,6 +66,10 @@ echo MAKEFILE_INC = makefile.mgw >> makefile
 echo #define ALLEGRO_MINGW32 >> include\allegro\platform\alplatf.h
 goto tail
 
+:msvc7
+echo COMPILER_MSVC7 = 1 >> makefile
+goto msvc
+
 :msvc
 echo Configuring Allegro for Windows/MSVC...
 echo MAKEFILE_INC = makefile.vc >> makefile
@@ -79,7 +86,7 @@ goto tail
 echo.
 echo Usage: fix platform [--quick] [--msvcpaths]
 echo.
-echo Where platform is one of: bcc32, djgpp, mingw32, msvc or watcom.
+echo Where platform is one of: bcc32, djgpp, mingw32, msvc, msvc7 or watcom.
 echo.
 echo The --quick parameter is used to turn off LF to CR/LF conversion.
 echo.
@@ -112,6 +119,8 @@ if [%2] == [--quick] goto done
 if [%3] == [--quick] goto done
 if [%1] == [bcc32]   goto done
 if [%1] == [mingw32] goto done
+if [%1] == [msvc]    goto done
+if [%1] == [msvc7]   goto done
 
 echo Converting Allegro files to DOS CR/LF format...
 utod .../*.bat .../*.sh .../*.c *.cfg .../*.h .../*.inc .../*.rc

@@ -163,9 +163,16 @@ else
 
 # -------- optimised build --------
 
-CFLAGS = $(WFLAGS) -Gd -Ox -GB $(RUNTIME_FLAGS)
+CFLAGS = $(WFLAGS) -Gd -O2 -GB $(RUNTIME_FLAGS)
 SFLAGS = -Wall
 LFLAGS = -release
+LIBPARMS = 
+
+ifdef COMPILER_MSVC7
+   CFLAGS += -GL
+   LFLAGS += -LTCG
+   LIBPARMS += -LTCG
+endif
 
 endif
 endif
@@ -282,7 +289,7 @@ ifdef STATICLINK
 # -------- link as a static library --------
 
 define MAKE_LIB
-   $(RUNNER) lib @ -nologo -out:$(LIB_NAME) $(OBJECTS)
+   $(RUNNER) lib @ -nologo $(LIBPARMS) -out:$(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -387,7 +394,7 @@ else
 endif
 
 define MAKE_PLUGIN_LIB
-   $(RUNNER) lib @ -nologo -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
+   $(RUNNER) lib @ -nologo $(LIBPARMS) -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
