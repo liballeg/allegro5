@@ -125,7 +125,7 @@ int write_texinfo(char *filename)
 	    str = strstr(p, "<a name=\"");
 	    if (str > p) {
 	       str += strlen("<a name=\"");
-	       for (i=0; str[i] && str[i] != '"'; i++)
+	       for (i=0; str[i] && str[i] != '\"'; i++)
 		  buf[i] = str[i];
 	       buf[i] = 0;
 
@@ -596,12 +596,12 @@ char **build_types_lookup_table(char **found_table)
    /* Scan document in memory finding definition lines with upper case types */
    while (line) {
       if ((line->flags & STRUCT_FLAG)) {
-	 char *p = strchr(line->text, '"'); /* Find start of <a name=... */
+	 char *p = strchr(line->text, '\"'); /* Find start of <a name=... */
 	 assert(p);
 	 table = m_xrealloc(table, sizeof(char*) * (i + 2));
 	 table[i] = m_strdup(++p); /* Duplicate rest of line */
-	 assert(strchr(table[i], '"'));
-	 *strchr(table[i], '"') = 0; /* Eliminate >... part after name */
+	 assert(strchr(table[i], '\"'));
+	 *strchr(table[i], '\"') = 0; /* Eliminate >... part after name */
 	 table[++i] = 0;
       }
       line = line->next;
