@@ -1861,9 +1861,13 @@ static void pack_ungetc (int ch, PACKFILE *f)
  */
 char *pack_fgets(char *p, int max, PACKFILE *f)
 {
-   char *pmax = p+max - ucwidth(0);
+   char *pmax;
    int c;
-   
+
+   *allegro_errno = 0;
+
+   pmax = p+max - ucwidth(0);
+
    if (pack_feof(f)) {
       if (ucwidth(0) < max) usetc (p,0);
       return NULL;
@@ -1908,7 +1912,11 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
  */
 int pack_fputs(AL_CONST char *p, PACKFILE *f)
 {
-   char *s = uconvert(p, U_CURRENT, NULL, U_UTF8, -1);
+   char *s;
+
+   *allegro_errno = 0;
+
+   s = uconvert(p, U_CURRENT, NULL, U_UTF8, -1);
 
    while (*s) {
       #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
