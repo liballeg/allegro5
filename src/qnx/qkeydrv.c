@@ -49,6 +49,9 @@ KEYBOARD_DRIVER keyboard_qnx =
 };
 
 
+static int main_pid;
+
+
 
 /* qnx_keyboard_handler:
  *  Keyboard "interrupt" handler.
@@ -64,7 +67,7 @@ void qnx_keyboard_handler(int pressed, int code)
    /* Exit by Ctrl-Alt-End.  */
    if (((scancode == 0x4F) || (scancode == 0x53)) && three_finger_flag
        && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
-      exit(0);
+      kill(main_pid, SIGTERM);
 }
 
 
@@ -95,7 +98,11 @@ void qnx_keyboard_focused(int focused, int state)
  */
 static int qnx_keyboard_init(void)
 {
+   /* get the pid, which we use for the three finger salute */
+   main_pid = getpid();
+
    _pckeys_init();
+   
    return 0;
 }
 
