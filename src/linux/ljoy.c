@@ -24,6 +24,7 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 
+#define NO_KEY_DEFINES
 
 #include "allegro.h"
 #include "allegro/aintunix.h"
