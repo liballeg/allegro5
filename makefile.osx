@@ -391,8 +391,9 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) `cat < $(PLUGIN_SCRIPTS)` $(LIB_NAME) $(LIBRARIES))
+   $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix `cat < ,$(addsuffix `,$(PLUGIN_SCRIPTS))) $(LIB_NAME) $(LIBRARIES))
 endef
+
 
 tools/macosx/%: $(OBJ_DIR)/%.o $(LIB_NAME)
 ifdef STATICLINK
