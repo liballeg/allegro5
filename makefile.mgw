@@ -131,7 +131,7 @@ ifdef ALLEGRO_USE_CYGWIN
 endif
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused
+   WFLAGS = -Wall -W -Wstrict-prototypes -Wno-unused -Werror
 else
    WFLAGS = -Wall -Wno-unused
 endif
