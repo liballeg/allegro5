@@ -129,8 +129,8 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    }
 
    if (bpp == 8) {                  /* look for a 256 color palette */
-      while (!pack_feof(f)) { 
-	 if (pack_getc(f)==12) {
+      while ((c = pack_getc(f)) != EOF) { 
+	 if (c == 12) {
 	    for (c=0; c<256; c++) {
 	       pal[c].r = pack_getc(f) / 4;
 	       pal[c].g = pack_getc(f) / 4;

@@ -1630,7 +1630,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
    PACKFILE *parent = f->parent;
    PACKFILE *tmp;
    char *name = f->filename;
-   int header;
+   int header, c;
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
       /* finish writing a chunk */
@@ -1683,8 +1683,8 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       else
 	 pack_mputl(_packfile_datasize, parent);
 
-      while (!pack_feof(tmp))
-	 pack_putc(pack_getc(tmp), parent);
+      while ((c = pack_getc(tmp)) != EOF)
+	 pack_putc(c, parent);
 
       pack_fclose(tmp);
 

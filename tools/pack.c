@@ -101,8 +101,7 @@ int main(int argc, char *argv[])
 
    printf("%sing %s into %s...\n", t, f1, f2);
 
-   while (!pack_feof(in)) {
-      c = pack_getc(in);
+   while ((c = pack_getc(in)) != EOF) {
       if (pack_putc(c, out) != c)
 	 break;
    }

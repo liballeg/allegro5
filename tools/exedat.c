@@ -263,8 +263,8 @@ void update_file(char *filename, char *dataname)
 
 	 f = pack_fopen_chunk(f, opt_compress);
 
-	 while (!pack_feof(df))
-	    pack_putc(pack_getc(df), f);
+	 while ((c = pack_getc(df)) != EOF)
+	    pack_putc(c, f);
 
 	 f = pack_fclose_chunk(f);
 
@@ -296,6 +296,7 @@ void update_file(char *filename, char *dataname)
 void extract_data(void)
 {
    PACKFILE *f, *df;
+   int c;
 
    get_stats();
 
@@ -333,8 +334,8 @@ void extract_data(void)
 	 return;
       }
 
-      while (!pack_feof(f))
-	 pack_putc(pack_getc(f), df);
+      while ((c = pack_getc(f)) != EOF)
+	 pack_putc(c, df);
 
       printf("%d bytes extracted from %s into %s\n", stat_uncompressed_size, opt_filename, opt_dataname);
 

@@ -914,7 +914,7 @@ SAMPLE *load_wav(AL_CONST char *filename)
    if (memcmp(buffer, "RIFF", 4) || memcmp(buffer+8, "WAVE", 4))
       goto getout;
 
-   while (!pack_feof(f)) {
+   while (TRUE) {
       if (pack_fread(buffer, 4, f) != 4)
 	 break;
 

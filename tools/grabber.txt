@@ -803,14 +803,18 @@ type, in the form:
 
       char buf[MAX_LEN];
       char *p;
-      int c;
+      int i, c;
 
-      for (c=0; (c<MAX_LEN-1) && (!pack_feof(f)); c++)
-	 buf[c] = pack_getc(f);
+      for (i=0; i<MAX_LEN-1; i++) {
+	 if ((c = pack_getc(f)) == EOF)
+	    break;
 
-      buf[c] = 0;
+	 buf[i] = c;
+      }
 
-      p = malloc(c+1);
+      buf[i] = 0;
+
+      p = malloc(i+1);
       strcpy(p, buf);
 
       return p;
