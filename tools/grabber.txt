@@ -738,7 +738,12 @@ Alternatively, you can use the datafile array for compatibility with code
 that was originally written for separately loaded datafiles, with the 
 standard syntax item_data[index].dat.
 
-Note: compiled datafiles appended to dynamically linked Allegro programs
+If your datafile contains truecolor images, be sure to call fixup_datafile()
+after you have set the graphics mode. You must also call fixup_datafile()
+if your platform does not support constructors (currently any non GCC-based
+platform).
+
+Note that compiled datafiles appended to dynamically linked Allegro programs
 don't work under Windows in this release (they will fail to link). This
 problem has been corrected in the 4.1.1 WIP and later releases.
 

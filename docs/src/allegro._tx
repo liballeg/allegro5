@@ -6300,16 +6300,15 @@ directly from a specific datafile object.
 @@void @fixup_datafile(DATAFILE *data);
 @xref set_gfx_mode, set_color_conversion
    If you are using compiled datafiles (produced by the dat2s utility) on a
-   platform that doesn't support constructors, or on a platform that does
-   support constructors and the datafiles contain truecolor images, you
-   must call this function once after your set the video mode that you will
-   be using. This will ensure the datafiles are properly initialised in the
-   first case and convert the color values into the appropriate format in
-   the second case. It handles flipping between RGB and BGR formats, and
-   converting between different color depths whenever that can be done
-   without changing the size of the image (ie. changing 15&lt-&gt16-bit
-   hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32-bit truecolor
-   for RLE sprites).
+   platform that doesn't support constructors (currently any non GCC-based
+   platform), or if the datafiles contain truecolor images, you must call
+   this function once after your set the video mode that you will be using.
+   This will ensure the datafiles are properly initialised in the first case
+   and convert the color values into the appropriate format in the second
+   case. It handles flipping between RGB and BGR formats, and converting
+   between different color depths whenever that can be done without changing
+   the size of the image (ie. changing 15&lt-&gt16-bit hicolor for both
+   bitmaps and RLE sprites, and 24&lt-&gt32-bit truecolor for RLE sprites).
 
 @hnode using datafiles
 When you load a datafile, you will obtain a pointer to an array of DATAFILE 
