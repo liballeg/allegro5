@@ -119,15 +119,15 @@ esac
 
 # someone ordered a text conversion?
 
-case "$2" in
-   "--utod"  ) proc_utod;;
-   "--dtou"  ) proc_dtou;;
-   "--utom"  ) proc_utom;;
-   "--mtou"  ) proc_mtou;;
-   "--quick" ) echo "No text file conversion...";;
-   *         ) if [ "$AL_NOCONV" != "1" ]; then
-                  proc_dtou
-               fi;;
-esac
+if [ "$AL_NOCONV" != "1" ]; then
+   case "$2" in
+      "--utod"  ) proc_utod;;
+      "--dtou"  ) proc_dtou;;
+      "--utom"  ) proc_utom;;
+      "--mtou"  ) proc_mtou;;
+      "--quick" ) echo "No text file conversion...";;
+      *         ) proc_dtou;;
+   esac
+fi
 
 echo "Done!"
