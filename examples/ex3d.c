@@ -2,10 +2,17 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program demonstrates how to use the 3d matrix functions.
- *    It isn't a very elegant or efficient piece of code, but it does 
- *    show the stuff in action. I'll leave it to you to design a proper 
- *    model structure and rendering pipeline: after all, the best way to 
- *    do that sort of stuff varies hugely from one game to another.
+ *    It isn't a very elegant or efficient piece of code, but it
+ *    does show the stuff in action. It is left to the reader as
+ *    an exercise to design a proper model structure and rendering
+ *    pipeline: after all, the best way to do that sort of stuff
+ *    varies hugely from one game to another.
+ *
+ *    The example first shows a screen resolution selection dialog.
+ *    Then, a number of bouncing 3d cubes are animated. Pressing
+ *    a key modifies the rendering of the cubes, which can be
+ *    wireframe, the more complex transparent perspective correct
+ *    texture mapped version, and many other.
  */
 
 
@@ -198,8 +205,10 @@ void translate_shapes(void)
 
       /* output the vertices */
       for (d=0; d<NUM_VERTICES; d++) {
-	 apply_matrix(&matrix, points[d].x, points[d].y, points[d].z, &outpoint[d].x, &outpoint[d].y, &outpoint[d].z);
-	 persp_project(outpoint[d].x, outpoint[d].y, outpoint[d].z, &outpoint[d].x, &outpoint[d].y);
+	 apply_matrix(&matrix, points[d].x, points[d].y, points[d].z,
+		      &outpoint[d].x, &outpoint[d].y, &outpoint[d].z);
+	 persp_project(outpoint[d].x, outpoint[d].y, outpoint[d].z,
+		       &outpoint[d].x, &outpoint[d].y);
       }
 
       /* output the faces */
@@ -219,7 +228,8 @@ void translate_shapes(void)
 void wire(BITMAP *b, VTX *v1, VTX *v2)
 {
    int col = MID(128, 255 - fixtoi(v1->z+v2->z) / 16, 255);
-   line(b, fixtoi(v1->x), fixtoi(v1->y), fixtoi(v2->x), fixtoi(v2->y), palette_color[col]);
+   line(b, fixtoi(v1->x), fixtoi(v1->y), fixtoi(v2->x), fixtoi(v2->y),
+	palette_color[col]);
 }
 
 
@@ -460,8 +470,10 @@ int main(void)
       translate_shapes();
       draw_shapes(buffer);
 
-      textprintf_ex(buffer, font, 0, 0, palette_color[192], -1, "%s, %d bpp", mode_desc[render_mode], bitmap_color_depth(screen));
-      textout_ex(buffer, font, "Press a key to change", 0, 12, palette_color[192], -1);
+      textprintf_ex(buffer, font, 0, 0, palette_color[192], -1, "%s, %d bpp",
+		    mode_desc[render_mode], bitmap_color_depth(screen));
+      textout_ex(buffer, font, "Press a key to change", 0, 12,
+		 palette_color[192], -1);
 
       vsync();
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H); 

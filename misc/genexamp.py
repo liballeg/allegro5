@@ -42,8 +42,8 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exdbuf", "exflip", "exfixed", "exmouse", "extimer", "exkeys",
    "exjoy", "exsample", "exmidi", "exgui", "excustom", "exunicod",
    "exbitmap", "exscale", "exconfig", "exdata", "exsprite", "exexedat",
-   "extrans", "extruec", "excolmap", "exrgbhsv", "exshade", "exxfade",
-   "exblend", "exalpha", "exlights", "ex3d", "excamera", "exquat",
+   "extrans", "extruec", "excolmap", "exrgbhsv", "exshade", "exblend",
+   "exxfade", "exalpha", "exlights", "ex3d", "excamera", "exquat",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
    "exaccel", "exspline", "exupdate", "exswitch", "exdodgy", "exstream"]
 

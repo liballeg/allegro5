@@ -3,6 +3,11 @@
  *
  *    This program demonstrates how to load and display bitmap files
  *    in truecolor video modes, and how to crossfade between them.
+ *    You have to use this example from the commandline to specify
+ *    as parameters a number of graphic files. Use at least two
+ *    files to see the graphical effect (you can use two alternating
+ *    files in a repeated chain if you prefer). The example will
+ *    crossfade from one image to another with each keypress.
  */
 
 
@@ -29,7 +34,8 @@ int show(char *name)
    /* fade it in on top of the previous picture */
    for (alpha=0; alpha<256; alpha+=8) {
       set_trans_blender(0, 0, 0, alpha);
-      draw_trans_sprite(buffer, bmp, (SCREEN_W-bmp->w)/2, (SCREEN_H-bmp->h)/2);
+      draw_trans_sprite(buffer, bmp,
+			(SCREEN_W-bmp->w)/2, (SCREEN_H-bmp->h)/2);
       vsync();
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
       if (keypressed()) {
@@ -42,7 +48,8 @@ int show(char *name)
       }
    }
 
-   blit(bmp, screen, 0, 0, (SCREEN_W-bmp->w)/2, (SCREEN_H-bmp->h)/2, bmp->w, bmp->h);
+   blit(bmp, screen, 0, 0, (SCREEN_W-bmp->w)/2, (SCREEN_H-bmp->h)/2,
+	bmp->w, bmp->h);
 
    destroy_bitmap(bmp);
    destroy_bitmap(buffer);
@@ -79,7 +86,8 @@ int main(int argc, char *argv[])
 	    set_color_depth(24);
 	    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
 	       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	       allegro_message("Error setting graphics mode\n%s\n", allegro_error);
+	       allegro_message("Error setting graphics mode\n%
+			       s\n", allegro_error);
 	       return 1;
 	    }
 	 }

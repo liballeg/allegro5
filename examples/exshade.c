@@ -1,7 +1,14 @@
 /*
  *    Example program for the Allegro library, by Patrick Hogan
  *
- *    This program demonstrates how to draw gouraud shaded (lit) sprites.
+ *    This program demonstrates how to draw gouraud shaded (lit)
+ *    sprites.  In an apparently black screen, a planet like sprite
+ *    is drawn close to the middle of the screen. In a similar
+ *    way to how the first test of extrans works, you move the
+ *    cursor on the screen with the mouse. Attached to this mouse
+ *    you can imagine a virtual spotlight illuminating the scene
+ *    around. Depending on where the mouse is, the goraud shaded
+ *    sprite will show the direction of the light.
  */
 
 
@@ -48,7 +55,8 @@ int main(int argc, char *argv[])
    if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 240, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
@@ -80,11 +88,15 @@ int main(int argc, char *argv[])
 
       draw_gouraud_sprite(buffer, planet, SCREEN_W/2, SCREEN_H/2,
 			  distance(SCREEN_W/2, SCREEN_H/2, mouse_x, mouse_y),
-			  distance(SCREEN_W/2 + planet->w, SCREEN_H/2, mouse_x, mouse_y),
-			  distance(SCREEN_W/2 + planet->w, SCREEN_H/2 + planet->h, mouse_x, mouse_y),
-			  distance(SCREEN_W/2, SCREEN_H/2 + planet->h, mouse_x, mouse_y));
+			  distance(SCREEN_W/2 + planet->w, SCREEN_H/2,
+				   mouse_x, mouse_y),
+			  distance(SCREEN_W/2 + planet->w,
+				   SCREEN_H/2 + planet->h, mouse_x, mouse_y),
+			  distance(SCREEN_W/2, SCREEN_H/2 + planet->h,
+				   mouse_x, mouse_y));
 
-      textout_ex(buffer, font, "Gouraud Shaded Sprite Demo", 0, 0, palette_color[10], -1);
+      textout_ex(buffer, font, "Gouraud Shaded Sprite Demo", 0, 0,
+		 palette_color[10], -1);
 
       show_mouse(buffer);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
