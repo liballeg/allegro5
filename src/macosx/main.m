@@ -132,23 +132,7 @@ int main(int argc, char *argv[])
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    AllegroAppDelegate *app_delegate = [[AllegroAppDelegate alloc] init];
    CPSProcessSerNum psn;
-   char path[1024], *p;
-   int i;
    
-   if ((argc >= 2) && (!strncmp(argv[1], "-psn", 4))) {
-      /* Launched from the finder; set working directory to the one that holds
-       * the app bundle.
-       */
-      argc = 1;
-      strcmp(path, argv[0]);
-      for (i = 0; i < 3; i++) {
-         for (p = path + strlen(path); (p > path) && (*p != '/'); p--)
-            ;
-	 *p = '\0';
-      }
-      chdir(path);
-//      fprintf(stderr, "%s\n", path);
-   }
    __crt0_argc = argc;
    __crt0_argv = argv;
    
