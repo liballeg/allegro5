@@ -59,7 +59,7 @@ endif
 
 ifndef DJDIR
 baddjgpp:
-	@echo Your DJDIR environment variable is not set correctly! It should
+	@echo Your DJGPP environment variable is not set correctly! It should
 	@echo point to the djgpp.env file: see the djgpp readme.1st for details.
 endif
 
