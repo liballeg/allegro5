@@ -7,6 +7,28 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.6 to 4.1.7 (Dec 2002)
+<ul><li>
+   Eric Botcazou made the joystick initialization routine correctly handle
+   zero as the joytype.
+<li>
+   Eric Botcazou fixed the compile-time check for the MMX asm support.
+<li>
+   Eric Botcazou fixed the non-MMX asm color copy routine.
+<li>
+   Eric Botcazou implemented the synchronization routines for the BeOS port.
+<li>
+   Eric Botcazou turned the set_window_close_* macros into inline functions.
+<li>
+   Eric Botcazou fixed an oversight that caused the SGI AL audio driver not
+   to be built as a module on Unix.
+<li>
+   Stepan Roh fixed a glitch with autoconf 2.53 on Unix.
+<li>
+   Eric Botcazou fixed the compilation bug with MingGW.
+</ul>
+
+@heading
 Changes from 4.1.5 to 4.1.6 (Nov 2002)
 <ul><li>
    Grzegorz Adam Hankiewicz added informations on the FLI format provided
@@ -24,7 +46,7 @@ Changes from 4.1.5 to 4.1.6 (Nov 2002)
    Eric Botcazou made the new 'save' method of plugins use the same return
    value convention as the 'export' method (see tools/plugins/plugins.txt).
 <li>
-   Eric Botcazou added the support for plugin scripts to the MinGW port
+   Eric Botcazou added the support for plugin scripts to the MinGW port.
 <li>
    Peter Wang changed the default sound mixing quality to 2 (highest).
 <li>
