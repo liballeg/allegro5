@@ -7644,8 +7644,8 @@ still drawn too large until version 4.1.0.
 @@int @d_rtext_proc(int msg, DIALOG *d, int c);
 @eref exgui, exrgbhsv
    These draw text onto the screen. The dp field should point to the string 
-   to display. d_ctext_proc() centres the string around the x coordinate, 
-   and d_rtext_proc() right aligns it. Any '&' characters in the string will 
+   to display. d_ctext_proc() centers the string horizontally, and
+   d_rtext_proc() right aligns it. Any '&' characters in the string will 
    be replaced with lines underneath the following character, for displaying 
    keyboard shortcuts (as in MS Windows). To display a single ampersand, put 
    "&&". To draw the text in something other than the default font, set the 
