@@ -92,7 +92,7 @@ _default: default
 ifdef WARNMODE
     WFLAGS = -w
 else
-    WFLAGS =
+    WFLAGS = -w-8060
 endif
 
 OFLAGS = -O2 -OS
