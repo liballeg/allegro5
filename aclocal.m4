@@ -435,27 +435,11 @@ fi])
 dnl
 dnl Test where is sched_yield (SunOS).
 dnl
-dnl Variables:
-dnl  allegro_sched_yield_lib
-dnl
 dnl LIBS can be modified.
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_SCHED_YIELD,
-[AC_MSG_CHECKING(for sched_yield)
-allegro_sched_yield_lib="no"
-AC_TRY_LINK([ extern void sched_yield (); ],
-  [ sched_yield (); ],
-  AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
-  allegro_sched_yield_lib="-lc",
-  AC_CHECK_LIB(posix4, sched_yield,
-    [ LIBS="-lposix4 $LIBS"
-    AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
-    allegro_sched_yield_lib="-lposix4"],
-    AC_CHECK_LIB(rt, sched_yield,
-      [ LIBS="-lrt $LIBS"
-      AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
-      allegro_sched_yield_lib="-lrt"])))
-AC_MSG_RESULT($allegro_sched_yield_lib)])
+[AC_CHECK_LIB(c, sched_yield,,
+AC_SEARCH_LIBS(sched_yield, posix4 rt))])
 
 dnl
 dnl Test for constructor attribute support.
