@@ -64,11 +64,11 @@ Format and decompression algorithm
    byte sequence containing an index and a length. The index is the first
    byte OR'd together with the higher 4 bits of the second byte as the higher
    order bits, thus making a 12-bit unsigned number (0-4095). The length is
-   the lower 4 bits of the second byte, plus 2.
+   the lower 4 bits of the second byte, plus 3.
    In less hand-wavy C syntax:
 <codeblock>
-      index  = byte1 | ((byte2 & 0xF0) << 4);
-      length = (byte2 & 0x0F) + 2;
+      index  = byte1 | ((byte2 & 0xF0) &lt&lt 4);
+      length = (byte2 & 0x0F) + 3;
 <endblock>
    Then, "length" number of bytes from the ring buffer, starting at "index",
    are to be sent to the output. In addition, all these bytes must be put
