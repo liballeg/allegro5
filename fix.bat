@@ -4,13 +4,21 @@ rem Sets up the Allegro package for building with the specified compiler,
 rem and if possible converting text files from LF to CR/LF format.
 
 rem Test if there are too many args.
-if [%3] == []        goto arg2
+if [%4] == []        goto arg3
+goto help
+
+:arg3
+rem Test if third arg is ok.
+if [%3] == [--quick]     goto arg2
+if [%3] == [--msvcpaths] goto arg2
+if [%3] == []            goto arg2
 goto help
 
 :arg2
 rem Test if second arg is ok.
-if [%2] == [--quick] goto arg1
-if [%2] == []        goto arg1
+if [%2] == [--quick]     goto arg1
+if [%2] == [--msvcpaths] goto arg1
+if [%2] == []            goto arg1
 goto help
 
 :arg1
@@ -69,18 +77,39 @@ goto tail
 
 :help
 echo.
-echo Usage: fix platform [--quick]
+echo Usage: fix platform [--quick] [--msvcpaths]
 echo.
 echo Where platform is one of: bcc32, djgpp, mingw32, msvc or watcom.
+echo.
 echo The --quick parameter is used to turn off LF to CR/LF conversion.
+echo.
+echo Use the --msvcpaths parameter if your MSVCDir variable contains 
+echo spaces (you can view content of that variable by typing 
+echo SET MSVCDir
+echo on the command line). Remember that this will only work if you
+echo have MinGW gcc in your PATH.
 echo.
 goto end
 
+:convertmsvcdir
+echo Converting MSVCDir path...
+gcc -s -o msvchelp.exe misc/msvchelp.c
+msvchelp MSVCDir
+del msvchelp.exe
+echo include makefile.helper >> makefile
+goto realtail
+
 :tail
+
+if [%3] == [--msvcpaths] goto convertmsvcdir
+if [%2] == [--msvcpaths] goto convertmsvcdir
+
+:realtail
 rem Generate last line of makefile and optionally convert CR/LF.
 echo include makefile.all >> makefile
 
 if [%2] == [--quick] goto done
+if [%3] == [--quick] goto done
 if [%1] == [bcc32]   goto done
 if [%1] == [mingw32] goto done
 
