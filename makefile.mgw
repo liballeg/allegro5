@@ -16,11 +16,11 @@ OBJ = .o
 HTML = html
 
 ifdef CROSSCOMPILE
-  UNIX_TOOLS = 1
+   UNIX_TOOLS = 1
 endif
 
 ifdef ALLEGRO_USE_CYGWIN
-  UNIX_TOOLS = 1
+   UNIX_TOOLS = 1
 endif
 
 ifdef STATICLINK
@@ -51,16 +51,16 @@ endif # STATICLINK
 .PHONY: badwin badming
 
 ifeq ($(OS),Windows_NT)
-  WINSYSDIR = $(SystemRoot)
-  WINSUBDIR = system32
+   WINSYSDIR = $(SystemRoot)
+   WINSUBDIR = system32
 else
-  WINSYSDIR = $(windir)
-  WINSUBDIR = system
+   WINSYSDIR = $(windir)
+   WINSUBDIR = system
 endif
 
 ifneq ($(WINSYSDIR),)
-  WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
-  WINDIR_D = $(subst /,\,$(WINSYSDIR)\$(WINSUBDIR))
+   WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
+   WINDIR_D = $(subst /,\,$(WINSYSDIR)\$(WINSUBDIR))
 else
 ifndef CROSSCOMPILE
 ifndef ALLEGRO_USE_CYGWIN
@@ -71,8 +71,8 @@ endif
 endif
 
 ifdef MINGDIR
-  MINGDIR_U = $(subst \,/,$(MINGDIR))
-  MINGDIR_D = $(subst /,\,$(MINGDIR))
+   MINGDIR_U = $(subst \,/,$(MINGDIR))
+   MINGDIR_D = $(subst /,\,$(MINGDIR))
 else
 badming:
 	@echo Please specify your mingw32 directory via MINGDIR=. See the readme.mgw file!
@@ -116,23 +116,29 @@ endif
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
 ifdef DEBUGMODE
-   # -------- debugging build --------
-   CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
-   SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-   LFLAGS += -g
+
+# -------- debugging build --------
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
+SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
+LFLAGS += -g
+
 else
 ifdef PROFILEMODE
-   # -------- profiling build --------
-   CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
-   SFLAGS = $(WFLAGS)
-   LFLAGS += -pg
+
+# -------- profiling build --------
+CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
+SFLAGS = $(WFLAGS)
+LFLAGS += -pg
+
 else
-   # -------- optimised build --------
-   CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer -fno-strength-reduce
-   SFLAGS = $(WFLAGS)
-   ifndef SYMBOLMODE
-      LFLAGS += -s
-   endif
+
+# -------- optimised build --------
+CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer -fno-strength-reduce
+SFLAGS = $(WFLAGS)
+ifndef SYMBOLMODE
+   LFLAGS += -s
+endif
+
 endif
 endif
 
@@ -144,14 +150,14 @@ VPATH = src/win src/misc tests/win tools/win
 
 ifdef ALLEGRO_USE_C
 
-# build a C-only version
+# ------ build a C-only version ------
 VPATH += src/c
 MY_OBJECTS = $(C_OBJECTS) cmiscs
 CFLAGS += -DALLEGRO_USE_C
 
 else
 
-# build the normal asm version
+# ------ build the normal asm version ------
 VPATH += src/i386
 MY_OBJECTS = $(I386_OBJECTS)
 
@@ -162,11 +168,11 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_
 LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
 
 ifdef PROFILEMODE
-  LIBRARIES += -lgmon
+   LIBRARIES += -lgmon
 endif
 
 ifdef ALLEGRO_USE_CYGWIN
-  LIBRARIES += -L/lib/mingw -lmoldname -lmsvcrt
+   LIBRARIES += -L/lib/mingw -lmoldname -lmsvcrt
 endif
 
 PROGRAMS = dibgrab dibhello dibsound scrsave wfixicon
@@ -233,11 +239,11 @@ INSTALL_FILES = $(MINGDIR_U)/include $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
                 $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
 
 ifndef CROSSCOMPILE
-  ifndef STATICLINK
-    ifndef ALLEGRO_USE_CYGWIN
-      INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
-    endif
-  endif
+ifndef STATICLINK
+ifndef ALLEGRO_USE_CYGWIN
+   INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+endif
+endif
 endif
 
 install: $(INSTALL_FILES)
@@ -296,18 +302,18 @@ endif
 # -------- finally, we get to the fun part... --------
 
 ifndef CROSSCOMPILE
-  DLLWRAP = dllwrap
-  WINDRES = windres
+   DLLWRAP = dllwrap
+   WINDRES = windres
 else
-  DLLWRAP = i386-mingw32msvc-dllwrap
-  WINDRES = i386-mingw32msvc-windres
+   DLLWRAP = i386-mingw32msvc-dllwrap
+   WINDRES = i386-mingw32msvc-windres
 endif
 
 ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-  ar rs $(LIB_NAME) $(OBJECTS)
+   ar rs $(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -317,7 +323,7 @@ else
 # -------- link as a DLL --------
 
 define MAKE_LIB
-  $(DLLWRAP) $(PFLAGS) --target i386-mingw32 --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
+   $(DLLWRAP) $(PFLAGS) --target i386-mingw32 --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
 endef
 
 endif # STATICLINK
@@ -334,12 +340,12 @@ $(OBJ_DIR)/%.o: %.s
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(IMPLIB_NAME)
-   ifneq ($(wildcard demo/demo.dat),)
+ifneq ($(wildcard demo/demo.dat),)
 	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
-   else
+else
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME) $(LIBRARIES)
-   endif
+endif
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
@@ -351,11 +357,7 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
-
-define LINK_CONSOLE
-  gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
-endef
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 $(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
 	$(WINDRES) -O coff -o $(OBJ_DIR)/dibsound.res -i tests/win/dibsound.rc
@@ -367,6 +369,10 @@ $(OBJ_DIR)/dllver.o: src/win/dllver.rc
 	$(WINDRES) -O coff -o $(OBJ_DIR)/dllver.o -i src/win/dllver.rc --include-dir include
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
+
+define LINK_CONSOLE
+   gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+endef
 
 ifdef CROSSCOMPILE
 
@@ -395,27 +401,27 @@ PLUGIN_SCR = scv
 ifdef UNIX_TOOLS
 
 define GENERATE_PLUGINS_H
-  cat tools/plugins/*.inc > obj/mingw32/plugins.h
+   cat tools/plugins/*.inc > obj/mingw32/plugins.h
 endef
 
 else
 
 define GENERATE_PLUGINS_H
-  copy tools\plugins\*.inc obj\mingw32\plugins.h
+   copy tools\plugins\*.inc obj\mingw32\plugins.h
 endef
 
 endif # UNIX_TOOLS
 
 define MAKE_PLUGIN_LIB
-  ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-  gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   gcc $(LFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-  gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   gcc $(LFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 

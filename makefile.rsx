@@ -44,9 +44,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-WFLAGS = -Wall -W -Werror -Wno-unused
+   WFLAGS = -Wall -W -Werror -Wno-unused
 else
-WFLAGS = -Wall -Wno-unused
+   WFLAGS = -Wall -Wno-unused
 endif
 
 ifdef TARGET_ARCH_COMPAT
@@ -136,7 +136,7 @@ uninstall:
 $(LIB_NAME): lib/msvc/$(SHORT_VERSION)$(LIBRARY_VERSION).dll
 
 define MAKE_LIB
-makelib lib/msvc/$(SHORT_VERSION)$(LIBRARY_VERSION).dll -o $(LIB_NAME)
+   makelib lib/msvc/$(SHORT_VERSION)$(LIBRARY_VERSION).dll -o $(LIB_NAME)
 endef
 
 $(OBJ_DIR)/%.o: %.c
@@ -146,12 +146,12 @@ $(OBJ_DIR)/%.o: %.c
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(LIB_NAME)
-   ifneq ($(wildcard demo/demo.dat),)
+ifneq ($(wildcard demo/demo.dat),)
 	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
 	$(RSXGCC) $(LFLAGS) -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(LIB_NAME) $(LIBRARIES)
-   else
+else
 	$(RSXGCC) $(LFLAGS) -o demo/demo.exe $(OBJ_DIR)/demo.o $(LIB_NAME) $(LIBRARIES)
-   endif
+endif
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(LIB_NAME) $(LIBRARIES)
@@ -180,15 +180,15 @@ PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scx
 
 define GENERATE_PLUGINS_H
-copy tools\plugins\*.inc obj\rsxnt\plugins.h
+   copy tools\plugins\*.inc obj\rsxnt\plugins.h
 endef
 
 define MAKE_PLUGIN_LIB
-ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-$(RSXGCC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
+   $(RSXGCC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
 endef
 
 
