@@ -2009,6 +2009,11 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       while (f->normal.todo > 0)
 	 pack_getc(f);
 
+      if (f->normal.unpack_data) {
+	 free_lzss_unpack_data(f->normal.unpack_data);
+	 f->normal.unpack_data = NULL;
+      }
+
       free_packfile(f);
    }
 
