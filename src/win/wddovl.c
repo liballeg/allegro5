@@ -353,7 +353,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    win_size.bottom = wnd_y + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -429,10 +428,8 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       enable_acceleration(&gfx_directx_ovl);
 
    /* set default switching policy */
-   if (same_color_depth)
-      set_display_switch_mode(SWITCH_BACKGROUND);
-   else
-      set_display_switch_mode(SWITCH_PAUSE);
+   wnd_windowed = TRUE;
+   set_display_switch_mode(SWITCH_PAUSE);
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_overlay;

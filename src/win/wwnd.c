@@ -30,7 +30,7 @@ int wnd_x = 0;
 int wnd_y = 0;
 int wnd_width = 0;
 int wnd_height = 0;
-int wnd_windowed = FALSE;
+int wnd_windowed = TRUE;
 int wnd_sysmenu = FALSE;
 int wnd_paint_back = FALSE;
 
@@ -282,7 +282,7 @@ static HWND create_directx_window(void)
 			  ALLEGRO_WND_CLASS,
 			  title,
 			  WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,
-			  -1000, -1000, 0, 0,
+			  -100, -100, 0, 0,
 			  NULL, NULL,
 			  allegro_inst,
 			  NULL);

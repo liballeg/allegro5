@@ -53,6 +53,7 @@ static LPWAVEHDR lpWaveHdr = NULL;
 static int digiwobufsize, digiwobufdivs, digiwobufpos;
 static unsigned char * digiwobufdata = NULL;
 static int _freq, _bits, _stereo;
+static BOOL waveout_paused = FALSE;
 
 static UINT dbgtid;
 
@@ -123,6 +124,27 @@ static void CALLBACK digi_waveout_mixer_callback(
 { 
 MMTIME mmt;
 int writecurs;
+int switch_mode;
+
+    switch_mode = get_display_switch_mode();
+
+    if (waveout_paused) {
+       if (app_foreground ||
+           (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
+          waveout_paused = FALSE;
+          waveOutRestart(hWaveOut);
+       }
+       else
+          return;
+    }
+    else {
+      if (!app_foreground &&
+          ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
+         waveout_paused = TRUE;
+         waveOutPause(hWaveOut);
+         return;
+      }
+    }
 
 	memset (&mmt, 0, sizeof (MMTIME));
 	mmt.wType = TIME_BYTES;

@@ -366,7 +366,7 @@ static int digi_directsound_init(int input, int voices)
    /* create primary buffer */
    ZeroMemory(&desc, sizeof(DSBUFFERDESC));
    desc.dwSize = sizeof(DSBUFFERDESC);
-   desc.dwFlags = DSBCAPS_CTRL3D | DSBCAPS_PRIMARYBUFFER;
+   desc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME;
 
    hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
    if (hr != DS_OK) { 
@@ -414,6 +414,9 @@ static int digi_directsound_init(int input, int voices)
    allegro_to_decibel[0] = 0;
    for (v = 1; v < 256; v++)
       allegro_to_decibel[v] = (unsigned char)(106.0 * log10(v));       /* 255 / log10(255) ~ 106 */
+
+   /* set primary buffer (global) volume */
+   IDirectSoundBuffer_SetVolume(prim_buf, DSBVOLUME_MAX); 
 
    return 0;
 
@@ -548,6 +551,12 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE * sample)
 
    /* need default controls (pan, volume, frequency) */
    dsbdesc.dwFlags = DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY;
+   switch (get_display_switch_mode()) {
+      case SWITCH_BACKAMNESIA:
+      case SWITCH_BACKGROUND:
+         dsbdesc.dwFlags |= DSBCAPS_STICKYFOCUS;
+         break;
+   }
 
    dsbdesc.dwBufferBytes = sample->len * (sample->bits / 8) * (sample->stereo ? 2 : 1);
    dsbdesc.lpwfxFormat = (LPWAVEFORMATEX) & pcmwf;

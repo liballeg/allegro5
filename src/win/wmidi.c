@@ -210,10 +210,17 @@ void midi_win32_raw_midi(int data)
 
       if (midi_msg_pos == midi_msg_len) {
 	 if (midi_device != NULL) {
-	    if (app_foreground)
-	       midiOutShortMsg(midi_device, midi_msg);
-	    else
-	       midiOutReset(midi_device);
+            switch (get_display_switch_mode()) {
+               case SWITCH_AMNESIA:
+               case SWITCH_PAUSE:
+	          if (app_foreground)
+	             midiOutShortMsg(midi_device, midi_msg);
+	          else
+	             midiOutReset(midi_device);
+                  break;
+               default:
+                  midiOutShortMsg(midi_device, midi_msg);
+            }
 	 }
       }
    }

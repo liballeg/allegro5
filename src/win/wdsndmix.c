@@ -58,6 +58,8 @@ static int _digidsbufsize;
 static unsigned char * _digidsbufdata;
 static int _digidsbufpos;
 static int bufdivs = 16;
+static BOOL prim_buf_paused = FALSE;
+static int prim_buf_vol;
 
 static UINT dbgtid;
 
@@ -142,13 +144,34 @@ DWORD dwBytes2;
 DWORD writecurs;
 HRESULT hr;
 int i;
+int switch_mode;
+
+    switch_mode = get_display_switch_mode();
+
+    if (prim_buf_paused) {
+       if (app_foreground ||
+           (switch_mode == SWITCH_BACKGROUND) || (switch_mode == SWITCH_BACKAMNESIA)) {
+          prim_buf_paused = FALSE;
+          IDirectSoundBuffer_Play (prim_buf, 0, 0, DSBPLAY_LOOPING);
+       }
+       else
+          return;
+    }
+    else {
+      if (!app_foreground &&
+          ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))) {
+         prim_buf_paused = TRUE;
+         IDirectSoundBuffer_Stop (prim_buf);
+         return;
+      }
+    }
+
 
 	if (IDirectSoundBuffer_GetStatus (prim_buf, &dwBytes1) == DS_OK) {
 		if (dwBytes1 == DSBSTATUS_BUFFERLOST) {
 			IDirectSoundBuffer_Restore (prim_buf);
 			IDirectSoundBuffer_Play (prim_buf, 0, 0, DSBPLAY_LOOPING);
-			IDirectSoundBuffer_SetPan (prim_buf, DSBPAN_CENTER);
-			IDirectSoundBuffer_SetVolume (prim_buf, DSBVOLUME_MAX);
+            IDirectSoundBuffer_SetVolume (prim_buf, prim_buf_vol);
 		}
 	}
 	if (IDirectSoundBuffer_GetCurrentPosition (prim_buf, NULL, &writecurs) != DS_OK)
@@ -283,7 +306,7 @@ int v, id;
 
 	memset (&desc, 0, sizeof(DSBUFFERDESC));
 	desc.dwSize = sizeof(DSBUFFERDESC);
-	desc.dwFlags = DSBCAPS_PRIMARYBUFFER;
+    desc.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME | DSBCAPS_STICKYFOCUS;
 
 	hr = IDirectSound_CreateSoundBuffer(directsound, &desc, &prim_buf, NULL);
 	if (hr != DS_OK) { 
@@ -364,8 +387,8 @@ int v, id;
 /*	install_int (digi_directsound_mixer_callback, BPS_TO_TIMER(50)); */
 	dbgtid = timeSetEvent (20, 10, digi_directsound_mixer_callback, 0, TIME_PERIODIC);
 	IDirectSoundBuffer_Play (prim_buf, 0, 0, DSBPLAY_LOOPING);
-	IDirectSoundBuffer_SetPan (prim_buf, DSBPAN_CENTER);
 	IDirectSoundBuffer_SetVolume (prim_buf, DSBVOLUME_MAX);
+    prim_buf_vol = DSBVOLUME_MAX;
 	return 0;
 
 Error:
@@ -411,13 +434,11 @@ static int digi_directsound_buffer_size(void)
  */
 static int digi_directsound_mixer_volume(int volume)
 {
-int ds_vol;
-
 	if (prim_buf) {
 		volume = allegro_to_decibel[MID(0, volume, 255)];
-		ds_vol = DSBVOLUME_MIN + volume * (DSBVOLUME_MAX - DSBVOLUME_MIN) / 255;
+        prim_buf_vol = DSBVOLUME_MIN + volume * (DSBVOLUME_MAX - DSBVOLUME_MIN) / 255;
 
-		IDirectSoundBuffer_SetVolume(prim_buf, ds_vol); 
+        IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol); 
 	}
 
 	return 0;

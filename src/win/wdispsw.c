@@ -41,7 +41,7 @@ static void (*_switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, 
 void sys_directx_display_switch_init(void)
 {
    _foreground_event = CreateEvent(NULL, TRUE, TRUE, NULL);
-   set_display_switch_mode(SWITCH_AMNESIA);
+   set_display_switch_mode(SWITCH_PAUSE);
 }
 
 
@@ -63,15 +63,9 @@ int sys_directx_set_display_switch_mode(int mode)
 
    switch (mode)
    {
+      case SWITCH_BACKGROUND:
       case SWITCH_PAUSE:
 	 if (!wnd_windowed)
-	    return -1;
-	 break;
-
-      case SWITCH_BACKGROUND:
-         /* color conversion adds a significant overhead, so we have to pause
-            in order to let the other apps live */
-	 if (!wnd_windowed || !same_color_depth)
 	    return -1;
 	 break;
 

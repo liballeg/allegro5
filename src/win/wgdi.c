@@ -126,8 +126,6 @@ static struct BITMAP *gfx_gdi_dblbuf_init(int w, int h, int v_w, int v_h, int co
    win_size.bottom = wnd_y + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_windowed = TRUE;
-   set_display_switch_mode(SWITCH_BACKGROUND);
 
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    SetWindowPos(allegro_wnd, HWND_NOTOPMOST, 
@@ -162,6 +160,7 @@ static void gfx_gdi_dblbuf_exit(struct BITMAP *b)
 
    /* before restoring video mode, hide window */
    wnd_paint_back = FALSE;
+   set_display_switch_mode(SWITCH_PAUSE);
    restore_window_style();
    SetWindowPos(allegro_wnd, HWND_TOP,
 		-100, -100, 0, 0, SWP_SHOWWINDOW); 

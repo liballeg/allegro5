@@ -591,7 +591,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -661,12 +660,8 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    memset(dirty_lines, 0, 4*(h+1));
 
    /* set default switching policy */
-   if (same_color_depth)
-      set_display_switch_mode(SWITCH_BACKGROUND);
-   else
-      /* color conversion adds a significant overhead, so we have to pause
-         in order to let the other apps live */  
-      set_display_switch_mode(SWITCH_PAUSE);
+   wnd_windowed = TRUE;
+   set_display_switch_mode(SWITCH_PAUSE);
 
    pseudo_screen = dd_frontbuffer;
 
