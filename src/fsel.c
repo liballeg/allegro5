@@ -173,7 +173,7 @@ static int get_x_drive(int index)
    for (i=0; i<26; i++) {
       if (_al_drive_exists(i)) {
 	 c++;
-	 if (c==index)
+	 if (c == index)
 	    return i;
       }
    }
@@ -461,10 +461,11 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
       /* Do we need to allocate more space in the structure? */
       /* This doubles the capacity of the array each time, */
       /* which gives 'linear' compexity */
-      if (flist->size==flist->capacity) {
-	 flist->name=_al_sane_realloc(flist->name, sizeof(char*)*(flist->capacity*=2));
-	 if (flist->name==NULL) {
-	    *allegro_error=ENOMEM;
+      if (flist->size == flist->capacity) {
+         flist->capacity *= 2;
+	 flist->name = _al_sane_realloc(flist->name, sizeof(char *) * flist->capacity);
+	 if (flist->name == NULL) {
+	    *allegro_error = ENOMEM;
 	    /* Stop the enumeration by returning non-zero */
 	    return -1;
 	 }
@@ -538,23 +539,25 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 	    *allegro_errno = ENOMEM;
 	    return D_CLOSE; 
 	 }
-	 flist->capacity=FLIST_START_CAPACITY;
-	 flist->name=malloc(flist->capacity*sizeof(char*));
+	 flist->capacity = FLIST_START_CAPACITY;
+	 flist->name = malloc(flist->capacity * sizeof(char *));
 	 if (!flist->name) {
 	    *allegro_errno = ENOMEM;
 	    return D_CLOSE;
          }
       }
       else {
-	 for (i=0; i<flist->size; i++)
+	 for (i=0; i<flist->size; i++) {
 	    if (flist->name[i]) {
 	       free(flist->name[i]);
 	       /* PH add: maybe avoid multiple frees */
-	       flist->name[i]=NULL;
+	       flist->name[i] = NULL;
 	    }
+	 }
 	 /* Maybe shrink the structure */
-	 if (flist->capacity>FLIST_UPPER_CAPACITY) {
-	    flist->name=_al_sane_realloc(flist->name, sizeof(char*)*(flist->capacity=FLIST_UPPER_CAPACITY));
+	 if (flist->capacity > FLIST_UPPER_CAPACITY) {
+	    flist->capacity = FLIST_UPPER_CAPACITY;
+	    flist->name = _al_sane_realloc(flist->name, sizeof(char *) * flist->capacity);
 	    if (!flist) {
 	       /* Oops! Should never happen, I hope */
 	       *allegro_errno = ENOMEM;
