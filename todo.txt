@@ -42,6 +42,11 @@ Linux todos:
 - memory leaks in ljoy.c (search for malloc)
 - make spec file work with older rpms, e.g. from RedHat 6.0
   They don't like lines in %files section starting with non-`/'.
+- awaiting svgalib folks to provide an atexit-free vga_init
+- some problems with display switching
+  [see AD thread "fbcon backgrounding" 2001-11-28 for symptoms]
+- ALSA driver should try different parameters when it cannot set the
+  parameters it wants the first time, ie. because the sound card is crap
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -60,7 +65,8 @@ Unix todos:
 ---------------------------------------------------------------------------
 
 - "still PIC-related problems with X lib, waiting for XFree people"
-- threads don't get killed properly, eg. by salute or SIGINT
+  [fixed in newer distros?]
+- makeinfo should be detected and be optional
 
 Macintosh todos:
 ---------------------------------------------------------------------------
