@@ -1426,7 +1426,7 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
 
    set_modified(TRUE);
 
-   return (do_dialog(prop_dlg, (change_type ? PROP_DLG_TYPE : PROP_DLG_VALUE)) == PROP_DLG_OK);
+   return (popup_dialog(prop_dlg, (change_type ? PROP_DLG_TYPE : PROP_DLG_VALUE)) == PROP_DLG_OK);
 }
 
 
