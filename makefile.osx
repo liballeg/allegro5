@@ -296,7 +296,7 @@ $(TEMPLATE): $(FRAMEWORK)
 	@cp misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj
-	@echo Allegro application template for Project Builder (XCode) installed in:
+	@echo Allegro application template for Project Builder \(XCode\) installed in:
 	@echo $(TEMPLATE)
 
 
