@@ -49,7 +49,7 @@ static int _xdga2_request_video_bitmap(BITMAP *bmp);
 static int _xdga2_scroll_screen(int x, int y);
 static void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static void _xdga2_acquire(BITMAP *bmp);
-static int _xdga2_fetch_mode_list(void);
+static GFX_MODE_LIST *_xdga2_fetch_mode_list(void);
 
 #ifdef ALLEGRO_NO_ASM
 unsigned long _xdga2_write_line(BITMAP *bmp, int line);
@@ -139,46 +139,66 @@ GFX_DRIVER gfx_xdga2_soft =
 /* _xdga2_fetch_mode_list:
  *  Creates list of available DGA2 video modes.
  */
-static int _xdga2_fetch_mode_list(void)
+static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
 {
    XDGAMode *mode;
    int bpp, num_modes, stored_modes, i, j, already_there;
+   GFX_MODE_LIST *mode_list;
+   GFX_MODE *tmp;
 
    mode = XDGAQueryModes(_xwin.display, _xwin.screen, &num_modes);
    if (!mode)
-      return -1;
-      
-   destroy_gfx_mode_list();
+      return NULL;
+
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list)
+      goto error;
+   mode_list->malloced = TRUE;
+   mode_list->mode = NULL;
 
    stored_modes = 0;
    for (i=0; i<num_modes; i++) {
-      bpp = mode[i].depth == 24 ? mode[i].bitsPerPixel : mode[i].depth;
+      bpp = (mode[i].depth == 24) ? mode[i].bitsPerPixel : mode[i].depth;
       already_there = FALSE;
       for (j=0; j<stored_modes; j++) {
-         if ((gfx_mode_list[j].width == mode[i].viewportWidth) &&
-             (gfx_mode_list[j].height == mode[i].viewportHeight) &&
-             (gfx_mode_list[j].bpp == bpp)) {
+         if ((mode_list->mode[j].width == mode[i].viewportWidth) &&
+             (mode_list->mode[j].height == mode[i].viewportHeight) &&
+             (mode_list->mode[j].bpp == bpp)) {
             already_there = TRUE;
             break;
          }
       }
       if (!already_there) {
-         gfx_mode_list = realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (stored_modes + 1));
-         gfx_mode_list[stored_modes].width = mode[i].viewportWidth;
-         gfx_mode_list[stored_modes].height = mode[i].viewportHeight;
-         gfx_mode_list[stored_modes].bpp = bpp;
-         stored_modes++;
+	 tmp = realloc(mode_list->mode, sizeof(GFX_MODE) * (stored_modes + 1));
+	 if (!tmp)
+            goto error;
+         mode_list->mode = tmp;
+         mode_list->mode[stored_modes].width = mode[i].viewportWidth;
+         mode_list->mode[stored_modes].height = mode[i].viewportHeight;
+         mode_list->mode[stored_modes].bpp = bpp;
+	 stored_modes++;
       }
    }
-   gfx_mode_list = realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (stored_modes + 1));
-   gfx_mode_list[stored_modes].width = 0;
-   gfx_mode_list[stored_modes].height = 0;
-   gfx_mode_list[stored_modes].bpp = 0;
 
-   _gfx_mode_list_malloced = TRUE;
+   tmp = realloc(mode_list->mode, sizeof(GFX_MODE) * (stored_modes + 1));
+   if (!tmp)
+      goto error;
+   mode_list->mode = tmp;
+   mode_list->mode[stored_modes].width = 0;
+   mode_list->mode[stored_modes].height = 0;
+   mode_list->mode[stored_modes].bpp = 0;
+   mode_list->modes = stored_modes;
 
    XFree(mode);
-   return stored_modes;
+   return mode_list;
+
+   error:
+   if (mode_list) {
+      free(mode_list->mode);
+      free(mode_list);
+   }
+   XFree (mode);
+   return NULL;
 }
 
 
