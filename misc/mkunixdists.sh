@@ -79,12 +79,16 @@ echo "Stripping to form end-user distribution"
 	(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
 	(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
 	(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
+	mkdir .saveme
+	cp readme.txt docs/build/unix.txt docs/build/linux.txt .saveme
 	rm -rf demo docs examples resource setup tests tools
 	rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
 	rm -f makefile.all makefile.be makefile.qnx makefile.bcc makefile.dj
 	rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat makefile.tst
 	rm -f xmake.sh
 	rm -f keyboard.dat language.dat
+	mv .saveme/* .
+	rmdir .saveme
 	{       # Tweak makefile.in
 		cp makefile.in makefile.old &&
 		cat makefile.old |
