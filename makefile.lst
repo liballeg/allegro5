@@ -89,7 +89,8 @@ ALLEGRO_SRC_C_FILES = \
 	src/c/czscan16.c \
 	src/c/czscan24.c \
 	src/c/czscan32.c \
-	src/c/czscan8.c 
+	src/c/czscan8.c \
+	src/misc/ccolconv.c
 
 ALLEGRO_SRC_I386_FILES = \
 	src/i386/iblit16.s \
@@ -113,7 +114,8 @@ ALLEGRO_SRC_I386_FILES = \
 	src/i386/ispr32.s \
 	src/i386/ispr8.s \
 	src/i386/istretch.c \
-	src/i386/izbuf.s
+	src/i386/izbuf.s \
+	src/misc/icolconv.s
 
 ALLEGRO_SRC_DOS_FILES = \
 	src/dos/adlib.c \
@@ -199,7 +201,6 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wtimer.c \
 	src/win/wwnd.c \
 	src/misc/colconv.c \
-	src/misc/icolconv.s \
 	src/misc/pckeys.c
 
 ALLEGRO_SRC_BEOS_FILES = \
@@ -236,7 +237,6 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bwscreen.cpp \
 	src/unix/ufile.c \
 	src/misc/colconv.c \
-	src/misc/icolconv.s \
 	src/misc/pckeys.c
 
 ALLEGRO_SRC_LINUX_FILES = \
@@ -307,8 +307,6 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xdga2s.s \
 	src/x/xwins.s \
 	src/misc/colconv.c \
-	src/misc/ccolconv.c \
-	src/misc/icolconv.s \
 	src/misc/pckeys.c
 	
 ALLEGRO_SRC_QNX_FILES = \
@@ -331,7 +329,6 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
 	src/misc/colconv.c \
-	src/misc/icolconv.s \
 	src/misc/pckeys.c
 
 ALLEGRO_SRC_MACOSX_FILES = \
@@ -353,7 +350,6 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/unix/uptimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
-	src/misc/ccolconv.c \
 	src/misc/colconv.c
 
 ALLEGRO_MODULE_VGA_FILES = \
