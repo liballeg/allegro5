@@ -900,7 +900,7 @@ void _clip_polygon_segment_f(POLYGON_SEGMENT *info, int gap, int flags)
 static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE *e1, POLYGON_EDGE *e2, SCANLINE_FILLER drawer, int flags, int color, POLYGON_SEGMENT *info)
 {
    int x, y, w, gap;
-   fixed step;
+   fixed step, width;
    POLYGON_SEGMENT *s1, *s2;
    AL_CONST SCANLINE_FILLER save_drawer = drawer;
 
@@ -921,7 +921,6 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
    for (y=ytop; y<=ybottom; y++) {
       x = fceil(e1->x);
       w = fceil(e2->x) - x;
-      step = (x << 16) - e1->x;
       drawer = save_drawer;
 
       if (drawer == _poly_scanline_dummy) {
@@ -929,27 +928,29 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	    hline(bmp, x, y, x+w-1, color);
       }
       else {
+         step = (x << 16) - e1->x;
+         width = e2->x - e1->x;
 /*
  *  Nasty trick :
- *  In order to avoid divisions by zero, w is set to -1. This way s1 and s2
- *  are still being updated but the scanline is not drawn since w < 0.
+ *  In order to avoid divisions by zero, width is set to -1. This way s1 and s2
+ *  are still being updated but the scanline is not drawn since w == 0.
  */
-	 if (w == 0)
-	    w = -1;
+	 if (width == 0)
+	    width = -1 << 16;
 /*
  *  End of nasty trick.
  */
 	 if (flags & INTERP_1COL) {
-	    info->dc = (s2->c - s1->c) / w;
+	    info->dc = fdiv(s2->c - s1->c, width);
 	    info->c = s1->c + fmul(step, info->dc);
 	    s1->c += s1->dc;
 	    s2->c += s2->dc;
 	 }
 
 	 if (flags & INTERP_3COL) {
-	    info->dr = (s2->r - s1->r) / w;
-	    info->dg = (s2->g - s1->g) / w;
-	    info->db = (s2->b - s1->b) / w;
+	    info->dr = fdiv(s2->r - s1->r, width);
+	    info->dg = fdiv(s2->g - s1->g, width);
+	    info->db = fdiv(s2->b - s1->b, width);
 	    info->r = s1->r + fmul(step, info->dr);
 	    info->g = s1->g + fmul(step, info->dg);
 	    info->b = s1->b + fmul(step, info->db);
@@ -963,8 +964,8 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	 }
 
 	 if (flags & INTERP_FIX_UV) {
-	    info->du = (s2->u - s1->u) / w;
-	    info->dv = (s2->v - s1->v) / w;
+	    info->du = fdiv(s2->u - s1->u, width);
+	    info->dv = fdiv(s2->v - s1->v, width);
 	    info->u = s1->u + fmul(step, info->du);
 	    info->v = s1->v + fmul(step, info->dv);
 
@@ -976,7 +977,7 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 
 	 if (flags & INTERP_Z) {
 	    float step_f = fixtof(step);
-	    float w1 = 1. / w;
+	    float w1 = 65536. / width;
 
 	    info->dz = (s2->z - s1->z) * w1;
 	    info->z = s1->z + info->dz * step_f;
@@ -1417,7 +1418,7 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
       float w1 = 65536. / w;
 
       /* Z (depth) interpolation */
-      float z1 = 65536. / v->z;
+      float z1 = 1. / v->z;
 
       info->dz = (s1->z - z1) * w1;
 
