@@ -2283,6 +2283,13 @@ Graphics modes
    you cannot make any assumptions about the width, height or color depth
    of the screen: your code will have to deal with this little detail.
 
+   Finally, GFX_TEXT is another magic driver which usually closes any
+   previously opened graphic mode, making you unable to use the global
+   variable screen, and in those environments that have text modes, sets one
+   previously used or the closest match to that (usually 80x25). With this
+   driver the size parameters of set_gfx_mode don't mean anything, so you can
+   leave them all to zero or any other number you prefer.
+
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
    Sets how the program should handle being switched into the background, 
@@ -7668,7 +7675,7 @@ below for the consequences for windowed and overlay DirectX drivers.
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      Return to text mode.
+      This closes any graphic mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -7968,7 +7975,7 @@ function to remind you :-)
    for the set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      Return to text mode.
+      This closes any graphic mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -8047,7 +8054,7 @@ BeOS specifics
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      Return to text mode.
+      This closes any graphic mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -8104,7 +8111,7 @@ QNX specifics
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      Return to text mode.
+      This closes any graphic mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
