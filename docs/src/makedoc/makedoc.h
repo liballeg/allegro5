@@ -30,7 +30,7 @@
 #define START_TITLE_FLAG      0x01000000
 #define END_TITLE_FLAG        0x02000000
 #define STRUCT_FLAG           0x04000000
-#define MANGLE_EMAILS         0x08000000
+#define SHORT_DESC_FLAG       0x08000000
 #define RETURN_VALUE_FLAG     0x10000000
 #define EREF_FLAG             0x20000000
 #define CHAPTER_FLAG          0x40000000

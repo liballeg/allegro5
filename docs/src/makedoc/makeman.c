@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "makeman.h"
 #include "makedoc.h"
@@ -38,6 +39,7 @@ static int _mpreindent = 0;
 static void _write_man_xref(FILE *f, char *xref, char *ext, int notfirst);
 static char *_man_name(char *p);
 static void _mfputs(char *p, FILE *f);
+static void _write_short_desc(FILE *f, LINE *line);
 
 
 
@@ -110,6 +112,8 @@ int write_man(char *filename)
 		     l2 = l2->next;
 		  }
 	       }
+
+	       _write_short_desc(f, line);
 
 	       fprintf(f, "\n.SH SYNOPSIS\n");
 
@@ -380,6 +384,37 @@ static void _mfputs(char *p, FILE *f)
       fputc('\n', f);
 }
 
+/* _write_short_desc:
+ * Advances the line pointer until the next man page definition
+ * looking for a short description, which would be printed to
+ * the currently open file.
+ */
+static void _write_short_desc(FILE *f, LINE *line)
+{
+   assert(f);
+   assert(line);
+   assert(line->flags & (MAN_FLAG | DEFINITION_FLAG));
+
+   /* Jump current definition. */
+   while (line && line->flags & DEFINITION_FLAG)
+      line = line->next;
+      
+   while (1) {
+      if (!line)
+	 return ;
+      if (line->flags & (MAN_FLAG | DEFINITION_FLAG))
+	 return ;
+      if (line->flags & (HEADING_FLAG | DEFINITION_FLAG | NODE_FLAG))
+	 return ;
+
+      if (line->flags & SHORT_DESC_FLAG) {
+	 fprintf(f, " \\- %s\\&", line->text);
+	 return ;
+      }
+         
+      line = line->next;
+   }
+}
 
 
 
