@@ -31,6 +31,9 @@ else
 
 # -------- link as a shared library --------
 LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
+DYLINK_FLAGS = -single_module -flat_namespace -Wl,-U,__mangled_main_address
+DYLINK_FLAGS += -install_name lib$(VERSION)-$(shared_version).dylib
+DYLINK_FLAGS += -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version)
 
 endif # STATICLINK
 
@@ -47,9 +50,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double
+   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double -fno-strict-aliasing
 else
-   WFLAGS = -Wall -Wno-unused -Wno-long-double
+   WFLAGS = -Wall -Wno-unused -Wno-long-double -fno-strict-aliasing
 endif
 
 ifdef TARGET_ARCH_COMPAT
@@ -104,9 +107,9 @@ CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-LINK_LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+STATIC_LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
 ifdef STATICLINK
-LIBRARIES = $(LINK_LIBRARIES)
+LIBRARIES = $(STATIC_LIBRARIES)
 else
 LIBRARIES = -lpthread -framework Cocoa
 endif
@@ -117,6 +120,11 @@ PROGRAMS =
 # -------- rules for installing and removing the library files --------
 
 INSTALL_DIR = /usr/local
+
+FRAMEWORK_DIR = /Library/Frameworks
+FRAMEWORK_NAME = Allegro
+
+FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
 
 ifdef STATICLINK
 
@@ -167,7 +175,7 @@ endif
 	sed -e "s/@prefix@/\/usr\/local/" temp > temp2
 	sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
 	sed -e "s/@LDFLAGS@//" temp > temp2
-	sed -e "s/@LIBS@/$(LINK_LIBRARIES)/" temp2 > temp
+	sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
 	sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
 	sed -e "s/-l\$${lib_type}_unsharable/$(LIBRARIES)/" temp2 >$(INSTALL_DIR)/bin/allegro-config
 	rm -f temp temp2
@@ -219,7 +227,32 @@ uninstall:
 	-rmdir $(INSTALL_DIR)/include/allegro/inline
 	-rmdir $(INSTALL_DIR)/include/allegro/internal
 	-rmdir $(INSTALL_DIR)/include/allegro
+	-rm -fr $(FRAMEWORK)
 	@echo All gone!	
+
+install_framework: $(LIB_NAME)
+ifdef STATICKLINK
+	@echo You need to compile Allegro as a dynamic library to install the framework.
+else
+	@rm -fr $(FRAMEWORK)
+	@mkdir $(FRAMEWORK)
+	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Resources
+	@cp $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
+	@chmod a+x $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
+	@cp include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@cp include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@cp -r include/allegro $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@(cd $(FRAMEWORK)/Versions; ln -s $(shared_version) Current)
+	@(cd $(FRAMEWORK); ln -s Versions/Current/Headers $(FRAMEWORK)/Headers)
+	@(cd $(FRAMEWORK); ln -s Versions/Current/Resources $(FRAMEWORK)/Resources)
+	@(cd $(FRAMEWORK); ln -s Versions/Current/$(FRAMEWORK_NAME) $(FRAMEWORK)/$(FRAMEWORK_NAME))
+	@sed -e "s/@NAME@/$(FRAMEWORK_NAME)/" misc/Info.plist >temp
+	@sed -e "s/@VERSION@/$(shared_version) ($(DESCRIPTION))/" temp >$(FRAMEWORK)/Resources/Info.plist
+	@rm -f temp
+	@echo Allegro has been successfully installed as a framework in:
+	@echo $(FRAMEWORK)
+endif
 
 
 
@@ -237,7 +270,7 @@ else
 # -------- link as a shared library --------
 
 define MAKE_LIB
-$(CC) -dynamiclib -single_module -flat_namespace -undefined suppress -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version) $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LINK_LIBRARIES)
+$(CC) -dynamiclib $(DYLINK_FLAGS) $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(STATIC_LIBRARIES)
 endef
 
 endif # STATICLINK
