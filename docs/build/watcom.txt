@@ -27,8 +27,7 @@
    respect.
 
    This library works with version 10.6 and the various 11.0 versions of the
-   Watcom C compiler, except the latest one (11.0c) which can build the
-   library but cannot link Allegro programs.
+   Watcom C compiler, as well as with Open Watcom 1.0 or later.
 
 
 
@@ -36,13 +35,12 @@
 ============ Required software ============
 ===========================================
 
-   - Watcom C, version 10.6 or 11.0 (but not 11.0c).
+   - Watcom C version 10.6 or 11.0x, or Open Watcom 1.0 or later.
    - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
    - GNU make (mak*b.zip).
    - GNU sed (sed*b.zip):
         Required for 10.6: Used to build asm sources.
-        Optional for 11.0: Used by "make depend".
-   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+        Optional for other versions: Used by "make depend".
 
    Except for the Watcom compiler itself, all of the above packages can be 
    downloaded from your nearest SimTel mirror site, in the 

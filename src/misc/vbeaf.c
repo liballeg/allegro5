@@ -2653,7 +2653,7 @@ static int vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, i
  */
 static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color)
 {
-   unsigned char *data = glyph->dat;
+   AL_CONST unsigned char *data = glyph->dat;
    int w = glyph->w;
    int h = glyph->h;
    int stride = (w+7)/8;
@@ -2700,7 +2700,7 @@ static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int
 
       af_driver->PutMonoImage(af_driver, color, d,
 			      x+bmp->x_ofs, y+bmp->y_ofs,
-			      stride, 0, 0, stride*8, h, data);
+			      stride, 0, 0, stride*8, h, (unsigned char *)data);
 
       af_driver->SetMix(af_driver, vbeaf_fg_mix, vbeaf_bg_mix);
    );
