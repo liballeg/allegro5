@@ -1235,7 +1235,7 @@ inline  int operator >= (const float x, const fix y)  { return (ftofix(x) >= y.v
 inline  int operator >= (const fix x, const double y) { return (x.v >= ftofix(y)); }
 inline  int operator >= (const double x, const fix y) { return (ftofix(x) >= y.v); }
 
-inline  fix sqrt(fix x)          { fix t;  t.v = fixsqrt(x.v);  return t; }
+inline  fix sqrt(fix x)          { fix t;  t.v = fsqrt(x.v);  return t; }
 inline  fix cos(fix x)           { fix t;  t.v = fcos(x.v);   return t; }
 inline  fix sin(fix x)           { fix t;  t.v = fsin(x.v);   return t; }
 inline  fix tan(fix x)           { fix t;  t.v = ftan(x.v);   return t; }
