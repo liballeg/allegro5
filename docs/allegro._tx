@@ -5713,8 +5713,10 @@ directories. Flags can be combined using '|' (binary OR operator).
 @xref findfirst, findnext
    This closes a previously opened search with findfirst/findnext.
 
-@\int @find_allegro_resource(char *dest, const char *resource, *ext, *datafile
-@@                          char *objectname, *envvar, *subdir, int size);
+@\int @find_allegro_resource(char *dest, const char *resource, 
+@\                          const char *ext, const char *datafile, 
+@\                          const char *objectname, const char *envvar, 
+@@                          const char *subdir, int size);
    Searches for a support file, eg. allegro.cfg or language.dat. Passed a 
    resource string describing what you are looking for, along with extra 
    optional information such as the default extension, what datafile to look 
