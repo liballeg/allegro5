@@ -31,6 +31,8 @@ static AL_CONST char *gfx_mode_getter(int index, int *list_size);
 static AL_CONST char *gfx_card_getter(int index, int *list_size);
 static AL_CONST char *gfx_depth_getter(int index, int *list_size);
 
+int d_listchange_proc(int msg, DIALOG* d, int c);
+
 
 #define ALL_BPP(w, h) { w, h, { TRUE, TRUE, TRUE, TRUE, TRUE }}
 
@@ -109,39 +111,6 @@ static DIALOG *what_dialog;
 
 
 
-/* d_listchange_proc
- *
- *  Stores the current driver in d1 and graphics mode in d2;
- *  if a new driver is selected in the listbox, it changes the
- *  w/h and cdepth listboxes so that they redraw and they
- *  lose their selections. likewise if a new w/h is selected the
- *  cdepth listbox is updated.
- */
-int d_listchange_proc(int msg, DIALOG* d, int c)
-{
-    if(msg != MSG_IDLE) return D_O_K;
-
-    if(what_dialog[GFX_DRIVERLIST].d1 != d->d1) {
-       d->d1 = what_dialog[GFX_DRIVERLIST].d1;
-       d->d2 = what_dialog[GFX_MODELIST].d1;
-       what_dialog[GFX_MODELIST].d1 = 0;
-       what_dialog[GFX_MODELIST].d2 = 0;
-       what_dialog[GFX_MODELIST].proc(MSG_DRAW, what_dialog + GFX_MODELIST, 0);
-       what_dialog[GFX_DEPTHLIST].d1 = 0;
-       what_dialog[GFX_DEPTHLIST].proc(MSG_DRAW, what_dialog + GFX_DEPTHLIST, 0);
-    }
-
-    if(what_dialog[GFX_MODELIST].d1 != d->d2) {
-       d->d2 = what_dialog[GFX_MODELIST].d1;
-       what_dialog[GFX_DEPTHLIST].d1 = 0;
-       what_dialog[GFX_DEPTHLIST].proc(MSG_DRAW, what_dialog + GFX_DEPTHLIST, 0);
-    }
-
-    return D_O_K;
-}
-
-
-
 static DIALOG gfx_mode_dialog[] =
 {
    /* (dialog proc)        (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)                     (dp2) (dp3) */
@@ -172,6 +141,43 @@ static DIALOG gfx_mode_ex_dialog[] =
    { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                    NULL, NULL  },
    { NULL,                 0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                    NULL, NULL  }
 };
+
+
+
+/* d_listchange_proc
+ *
+ *  Stores the current driver in d1 and graphics mode in d2;
+ *  if a new driver is selected in the listbox, it changes the
+ *  w/h and cdepth listboxes so that they redraw and they
+ *  lose their selections. likewise if a new w/h is selected the
+ *  cdepth listbox is updated.
+ */
+int d_listchange_proc(int msg, DIALOG* d, int c)
+{
+    if(msg != MSG_IDLE) return D_O_K;
+
+    if(what_dialog[GFX_DRIVERLIST].d1 != d->d1) {
+       d->d1 = what_dialog[GFX_DRIVERLIST].d1;
+       d->d2 = what_dialog[GFX_MODELIST].d1;
+       what_dialog[GFX_MODELIST].d1 = 0;
+       what_dialog[GFX_MODELIST].d2 = 0;
+       what_dialog[GFX_MODELIST].proc(MSG_DRAW, what_dialog + GFX_MODELIST, 0);
+       if (what_dialog == gfx_mode_ex_dialog) {
+          what_dialog[GFX_DEPTHLIST].d1 = 0;
+          what_dialog[GFX_DEPTHLIST].proc(MSG_DRAW, what_dialog + GFX_DEPTHLIST, 0);
+       }
+    }
+
+    if(what_dialog[GFX_MODELIST].d1 != d->d2) {
+       d->d2 = what_dialog[GFX_MODELIST].d1;
+       if (what_dialog == gfx_mode_ex_dialog) {
+          what_dialog[GFX_DEPTHLIST].d1 = 0;
+          what_dialog[GFX_DEPTHLIST].proc(MSG_DRAW, what_dialog + GFX_DEPTHLIST, 0);
+       }
+    }
+
+    return D_O_K;
+}
 
 
 
