@@ -780,6 +780,9 @@ with the standard variables that are used by Allegro (see below).
    allegro.cfg file, looking first in the same directory as your program and 
    then in the directory pointed to by the ALLEGRO environment variable.
 
+   All pointers returned by previous calls to get_config_string() and
+   other related functions are invalidated when you call this function!
+
 @@void @set_config_data(const char *data, int length);
 @xref set_config_file, override_config_data, push_config_state
 @xref standard config variables, set_config_string, get_config_string
