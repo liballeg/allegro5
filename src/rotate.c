@@ -344,8 +344,9 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
       if (clip_bottom_i > bmp->cb)
 	 clip_bottom_i = bmp->cb;
    }
-   else
+   else {
       ASSERT(clip_bottom_i <= bmp->h);
+   }
 
    /* Calculate y coordinate of first scanline. */
    if (sub_pixel_accuracy)
@@ -356,8 +357,9 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
       if (bmp_y_i < bmp->ct)
 	 bmp_y_i = bmp->ct;
    }
-   else
+   else {
       ASSERT(bmp_y_i >= 0);
+   }
 
    /* Sprite is above or below bottom clipping area. */
    if (bmp_y_i >= clip_bottom_i)
