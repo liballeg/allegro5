@@ -417,9 +417,9 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
  *  Fills an RGB_MAP lookup table with conversion data for the specified
  *  palette. This is the faster version by Jan Hubicka.
  *
- *  Uses alg. similiar to foodfill - it adds one seed per every color in 
- *  palette to its best possition. Then areas around seed are filled by 
- *  same color because it is best aproximation for them, and then areas 
+ *  Uses alg. similar to floodfill - it adds one seed per every color in
+ *  palette to its best position. Then areas around seed are filled by
+ *  same color because it is best approximation for them, and then areas
  *  about them etc...
  *
  *  It does just about 80000 tests for distances and this is about 100
@@ -461,19 +461,23 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
 		     (((int)dist((r1), (g1), (b1), \
 				 (pal1).r, (pal1).g, (pal1).b)) > (int)dist2)
 
-   /* checking of possition */
+   /* checking of position */
    #define dopos(rp, gp, bp, ts) \
       if ((rp > -1 || r > 0) && (rp < 1 || r < 61) && \
 	  (gp > -1 || g > 0) && (gp < 1 || g < 61) && \
 	  (bp > -1 || b > 0) && (bp < 1 || b < 61)) { \
 	 i = first + rp * 32 * 32 + gp * 32 + bp; \
-	 if (ts ? data[i] != val : !data[i]) { \
+         if (!data[i]) { \
+	    data[i] = val; \
+	    add1(i); \
+	 } \
+	 else if ((ts) && (data[i] != val)) { \
 	    dist2 = (rp ? (col_diff+128)[(r+2*rp-pal[val].r) & 0x7F] : r2) + \
-		    (gp ? (col_diff)[(g+2*gp-pal[val].g) & 0x7F] : g2) + \
+		    (gp ? (col_diff    )[(g+2*gp-pal[val].g) & 0x7F] : g2) + \
 		    (bp ? (col_diff+256)[(b+2*bp-pal[val].b) & 0x7F] : b2); \
 	    if (better((r+2*rp), (g+2*gp), (b+2*bp), pal[data[i]])) { \
 	       data[i] = val; \
-	       add1 (i); \
+	       add1(i); \
 	    } \
 	 } \
       }
@@ -496,7 +500,7 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
 
    data = (unsigned char *)table->data;
 
-   /* add starting seeds for foodfill */
+   /* add starting seeds for floodfill */
    for (i=1; i<256; i++) { 
       curr = pos(pal[i].r, pal[i].g, pal[i].b);
       if (next[curr] == UNUSED) {
@@ -505,7 +509,7 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
       }
    }
 
-   /* main foodfill: two versions of loop for faster growing in blue axis */
+   /* main floodfill: two versions of loop for faster growing in blue axis */
    while (first != LAST) { 
       depos(first, r, g, b);
 
