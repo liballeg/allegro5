@@ -45,7 +45,7 @@ char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
 pthread_mutex_t osx_event_mutex;
 NSCursor *osx_cursor = NULL;
-NSWindow *osx_window = NULL;
+AllegroWindow *osx_window = NULL;
 char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
@@ -569,7 +569,7 @@ static int osx_sys_desktop_color_depth(void)
       return -1;
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &color_depth);
    
-   return color_depth == 32 ? color_depth : 15;
+   return color_depth == 16 ? 15 : color_depth;
 }
 
 

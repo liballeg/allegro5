@@ -79,6 +79,9 @@ GFX_DRIVER gfx_quartz_full =
 
 
 
+/* osx_qz_full_init:
+ *  Initializes fullscreen gfx mode.
+ */
 static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
@@ -145,7 +148,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot switch main display mode"));
       return NULL;
    }
-   HideMenuBar();
+   [NSMenu setMenuBarVisible: NO];
    CGDisplayRestoreColorSyncSettings();
    
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
@@ -206,6 +209,10 @@ static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 }
 
 
+
+/* osx_qz_full_exit:
+ *  Shuts down fullscreen gfx mode.
+ */
 static void osx_qz_full_exit(BITMAP *bmp)
 {
    CGDisplayFadeReservationToken token = -1;
@@ -229,7 +236,7 @@ static void osx_qz_full_exit(BITMAP *bmp)
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
       CGDisplayShowCursor(kCGDirectMainDisplay);
-      ShowMenuBar();
+      [NSMenu setMenuBarVisible: YES];
       if (token >= 0) {
          CGDisplayFade(token, 0.5, kCGDisplayBlendSolidColor, kCGDisplayBlendNormal, 0.0, 0.0, 0.0, true);
          CGReleaseDisplayFadeReservation(token);

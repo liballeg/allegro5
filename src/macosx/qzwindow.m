@@ -135,6 +135,9 @@ static void prepare_window_for_animation(int refresh_view)
 
 @implementation AllegroWindow
 
+/* display:
+ *  Called when the window is about to be deminiaturized.
+ */
 - (void)display
 {
    [super display];
@@ -142,6 +145,11 @@ static void prepare_window_for_animation(int refresh_view)
       prepare_window_for_animation(TRUE);
 }
 
+
+
+/* miniaturize:
+ *  Called when the window is miniaturized.
+ */
 - (void)miniaturize: (id)sender
 {
    if (desktop_depth == 32)
@@ -155,6 +163,10 @@ static void prepare_window_for_animation(int refresh_view)
 
 @implementation AllegroWindowDelegate
 
+/* windowShouldClose:
+ *  Called when the user attempts to close the window.
+ *  Default behaviour is to call the user callback (if any) and deny closing.
+ */
 - (BOOL)windowShouldClose: (id)sender
 {
    if (osx_window_close_hook)
@@ -162,6 +174,12 @@ static void prepare_window_for_animation(int refresh_view)
    return NO;
 }
 
+
+
+/* windowDidDeminiaturize:
+ *  Called when the window deminiaturization animation ends; marks the whole
+ *  window contents as dirty, so it is updated on next refresh.
+ */
 - (void)windowDidDeminiaturize: (NSNotification *)aNotification
 {
    pthread_mutex_lock(&osx_window_mutex);
@@ -175,6 +193,10 @@ static void prepare_window_for_animation(int refresh_view)
 
 @implementation AllegroView
 
+/* resetCursorRects:
+ *  Called when the view needs to reset its cursor rects; this restores the
+ *  Allegro cursor rect and enables it.
+ */
 - (void)resetCursorRects
 {
    [super resetCursorRects];
@@ -253,7 +275,8 @@ static void osx_qz_unwrite_line_win(BITMAP *bmp)
 
 
 /* update_dirty_lines:
- *  Dirty lines updater routine.
+ *  Dirty lines updater routine. This is always called from the main app
+ *  thread only.
  */
 void osx_update_dirty_lines(void)
 {
@@ -351,9 +374,12 @@ int osx_setup_colorconv_blitter()
    
    return (colorconv_blitter ? 0 : -1);
 }
-      
 
 
+
+/* osx_qz_window_init:
+ *  Initializes windowed gfx mode.
+ */
 static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    CFDictionaryRef mode;
@@ -403,7 +429,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       backing: NSBackingStoreBuffered
       defer: NO];
    
-   window_delegate = [[AllegroWindowDelegate alloc] init];
+   window_delegate = [[[AllegroWindowDelegate alloc] init] autorelease];
    [osx_window setDelegate: window_delegate];
    [osx_window setOneShot: YES];
    [osx_window setAcceptsMouseMovedEvents: YES];
@@ -499,6 +525,10 @@ static BITMAP *osx_qz_window_init(int w, int h, int v_w, int v_h, int color_dept
 }
 
 
+
+/* osx_qz_window_exit:
+ *  Shuts down windowed gfx mode.
+ */
 static void osx_qz_window_exit(BITMAP *bmp)
 {
    pthread_mutex_lock(&osx_event_mutex);
@@ -513,10 +543,7 @@ static void osx_qz_window_exit(BITMAP *bmp)
    }
    
    if (osx_window) {
-      [qd_view release];
       [osx_window close];
-      [osx_window release];
-      [window_delegate release];
       osx_window = NULL;
    }
    

@@ -64,6 +64,8 @@ static int mouse_maxy = 199;
 static int mymickey_x = 0;
 static int mymickey_y = 0;
 
+static char driver_desc[256];
+
 
 
 /* osx_mouse_handler:
@@ -94,95 +96,41 @@ void osx_mouse_handler(int x, int y, int z, int buttons)
 
 
 
-/* lookup_button_elements:
- *  Recursive function to scan for mouse button elements in the given HID
- *  elements collection.
- */
-static void lookup_button_elements(const void *elements_array, int *num_buttons)
-{
-   int i, usage_page, usage_id, type;
-   const void *element;
-   
-   if ((!elements_array) || ((CFGetTypeID(elements_array) != CFArrayGetTypeID())))
-      return;
-   for (i = 0; i < CFArrayGetCount(elements_array); i++) {
-      element = CFArrayGetValueAtIndex(elements_array, i);
-      if (CFGetTypeID(element) != CFDictionaryGetTypeID())
-         continue;
-      CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementUsagePageKey)), kCFNumberSInt32Type, &usage_page);
-      CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementUsageKey)), kCFNumberSInt32Type, &usage_id);
-      CFNumberGetValue(CFDictionaryGetValue(element, CFSTR(kIOHIDElementTypeKey)), kCFNumberSInt32Type, &type);
-      /* Check if this is a button element */
-      if ((type) && (usage_page == 0x9) && (usage_id > 0))
-	 (*num_buttons)++;
-      /* Element is a collection of other elements. Descend into it */
-      if (type == kIOHIDElementTypeCollection)
-         lookup_button_elements(CFDictionaryGetValue(element, CFSTR(kIOHIDElementKey)), num_buttons);
-   }
-}
-
-
-
 /* osx_mouse_init:
  *  Initializes the mickey-mode driver.
  */
 static int osx_mouse_init(void)
 {
-   int num_buttons, max_num_buttons = 0;
-   mach_port_t master_port = NULL;
-   io_iterator_t hid_object_iterator = NULL;
-   io_object_t hid_device = NULL;
-   CFMutableDictionaryRef class_dictionary = NULL;
-   CFMutableDictionaryRef properties = NULL;
-   CFArrayRef elements_array = NULL;
-   const void *element = NULL;
-   IOReturn result;
-   int i, usage_id, usage_page;
-
-   pthread_mutex_lock(&osx_event_mutex);
+   HID_DEVICE *device;
+   int i, j, num_devices;
+   int buttons, max_buttons = -1;
    
-   result = IOMasterPort(bootstrap_port, &master_port);
-   if (result == kIOReturnSuccess) {
-      class_dictionary = IOServiceMatching(kIOHIDDeviceKey);
-      result = IOServiceGetMatchingServices(master_port, class_dictionary, &hid_object_iterator);
-      if ((result == kIOReturnSuccess) && (hid_object_iterator)) {
-         /* Ok, we have a list of attached HID devices. Scan them for mice */
-	 while ((hid_device = IOIteratorNext(hid_object_iterator))) {
-            result = IORegistryEntryCreateCFProperties(hid_device, &properties, kCFAllocatorDefault, kNilOptions);
-	    if ((result == KERN_SUCCESS) && (properties)) {
-	       CFNumberGetValue(CFDictionaryGetValue(properties, CFSTR(kIOHIDPrimaryUsageKey)), kCFNumberSInt32Type, &usage_id);
-	       CFNumberGetValue(CFDictionaryGetValue(properties, CFSTR(kIOHIDPrimaryUsagePageKey)), kCFNumberSInt32Type, &usage_page);
-	       /* Look for mouse devices (0x2) on generic desktop page (0x1) */
-	       if ((usage_page == 0x1) && (usage_id == 0x2)) {
-	          /* Found a mouse! */
-		  num_buttons = 0;
-		  elements_array = CFDictionaryGetValue(properties, CFSTR(kIOHIDElementKey));
-		  lookup_button_elements(elements_array, &num_buttons);
-		  max_num_buttons = MAX(max_num_buttons, num_buttons);
-	       }
-	       CFRelease(properties);
-	    }
-	 }
-         IOObjectRelease(hid_object_iterator);
+   device = osx_hid_scan(HID_MOUSE, &num_devices);
+   for (i = 0; i < num_devices; i++) {
+      buttons = 0;
+      for (j = 0; j < device[i].num_elements; j++) {
+         if (device[i].element[j].type == HID_ELEMENT_BUTTON)
+	    buttons++;
       }
-      mach_port_deallocate(mach_task_self(), master_port);
+      if (buttons > max_buttons) {
+         max_buttons = buttons;
+	 strcpy(driver_desc, "");
+	 if (device[i].manufacturer) {
+	    strcat(driver_desc, device[i].manufacturer);
+	    strcat(driver_desc, " ");
+	 }
+	 if (device[i].product)
+	    strcat(driver_desc, device[i].product);
+	 mouse_macosx.desc = driver_desc;
+      }
    }
+   osx_hid_free(device, num_devices);
    
-   if (max_num_buttons == 0) {
-      /* No mouse found */
-      pthread_mutex_unlock(&osx_event_mutex);
-      return -1;
-   }
-   
-   /* On my iBook the HID Manager recognizes the integrated trackpad as a two
-    * buttons mouse... Yes it is weird as it actually has only one button.
-    * So we activate emulation if less than 3 buttons are found, just in case.
-    */
-   osx_emulate_mouse_buttons = (max_num_buttons < 3) ? TRUE : FALSE;
-   
+   pthread_mutex_lock(&osx_event_mutex);
+   osx_emulate_mouse_buttons = (max_buttons == 1) ? TRUE : FALSE;
    pthread_mutex_unlock(&osx_event_mutex);
    
-   return max_num_buttons;
+   return max_buttons;
 }
 
 

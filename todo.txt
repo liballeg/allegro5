@@ -86,10 +86,9 @@ MacOS X todos
 ---------------------------------------------------------------------------
 
 - implement a joystick driver
-- unified HID Manager interface for mouse and joystick drivers
-- investigate in current mouse HID detection
+- windowed mode crashes if several mode switches are done (possible OSX bug
+  related to thread safetiness)
 - fix weird kCGErrorIllegalArgument error report when closing fullscreen mode
-- fixbundle script/application
 
 BeOS todos:
 ---------------------------------------------------------------------------

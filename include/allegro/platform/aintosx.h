@@ -31,11 +31,24 @@
 #include <pthread.h>
 
 
-#define display_id       kCGDirectMainDisplay
+#define display_id                      kCGDirectMainDisplay
 
-#define OSX_GFX_NONE     0
-#define OSX_GFX_WINDOW   1
-#define OSX_GFX_FULL     2
+#define OSX_GFX_NONE                    0
+#define OSX_GFX_WINDOW                  1
+#define OSX_GFX_FULL                    2
+
+#define BMP_EXTRA(bmp)                  ((BMP_EXTRA_INFO *)((bmp)->extra))
+
+#define HID_MAX_DEVICES                 16
+#define HID_MOUSE                       0
+#define HID_JOYSTICK                    1
+#define HID_GAMEPAD                     2
+
+#define HID_MAX_DEVICE_ELEMENTS         64
+#define HID_ELEMENT_BUTTON              0
+#define HID_ELEMENT_AXIS                1
+#define HID_ELEMENT_DIGITAL_AXIS        2
+
 
 
 @interface AllegroAppDelegate : NSObject
@@ -65,12 +78,31 @@
 
 typedef void RETSIGTYPE;
 
+
 typedef struct BMP_EXTRA_INFO
 {
    GrafPtr port;
 } BMP_EXTRA_INFO;
 
-#define BMP_EXTRA(bmp)     ((BMP_EXTRA_INFO *)((bmp)->extra))
+
+typedef struct HID_ELEMENT
+{
+   int type;
+   IOHIDElementCookie cookie;
+   int max, min;
+   char *name;
+} HID_ELEMENT;
+
+
+typedef struct HID_DEVICE
+{
+   int type;
+   char *manufacturer;
+   char *product;
+   int num_elements;
+   HID_ELEMENT element[HID_MAX_DEVICE_ELEMENTS];
+} HID_DEVICE;
+
 
 
 void osx_event_handler(void);
@@ -94,6 +126,9 @@ void osx_keyboard_modifiers(unsigned int new_mods);
 void osx_keyboard_focused(int focused, int state);
 
 void osx_mouse_handler(int dx, int dy, int dz, int buttons);
+
+HID_DEVICE *osx_hid_scan(int type, int *num_devices);
+void osx_hid_free(HID_DEVICE *devices, int num_devices);
 
 
 AL_VAR(NSBundle *, osx_bundle);

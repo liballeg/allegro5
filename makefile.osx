@@ -104,19 +104,23 @@ CFLAGS += -pipe
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/macosx src/unix src/misc src/c
+VPATH = src/macosx src/unix src/misc src/c tools/macosx
 CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+STATIC_LIBRARIES = -framework Cocoa -framework IOKit -framework System -framework QuickTime
 ifdef STATICLINK
 LIBRARIES = $(STATIC_LIBRARIES)
 else
 LIBRARIES = -framework Cocoa
 endif
 
-PROGRAMS =
+PROGRAMS = fixbundle
+
+fixbundle: tools/macosx/fixbundle
+
+DISTCLEAN_FILES += tools/macosx/fixbundle
 
 
 # -------- rules for installing and removing the library files --------
@@ -297,6 +301,7 @@ ifdef STATICLINK
 # -------- link as a static library --------
 define MAKE_LIB
 ar rs $(LIB_NAME) $(OBJECTS)
+ranlib $(LIB_NAME)
 endef
 
 else
@@ -341,6 +346,19 @@ define LINK_WITH_PLUGINS
    $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
 endef
 
+tools/macosx/%: $(OBJ_DIR)/%.o $(LIB_NAME)
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+
+
+
+# -------- demo program iconification --------
+
+.PHONY: fixdemo
+
+fixdemo: demo/demo demo/demo.dat tools/macosx/fixbundle
+	tools/macosx/fixbundle demo/demo -d demo/demo.dat GAME_PAL SHIP3
+
+
 
 
 # -------- generate automatic dependencies --------
@@ -349,7 +367,8 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MACOSX
 
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/macosx/*.m src/unix/*.c src/misc/*.c demo/*.c > _depend.tmp
-	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) tools/*.c tools/plugins/*.c tools/macosx/*.c >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alleg\/\1/" _depend2.tmp > obj/macosx/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alld\/\1/" _depend2.tmp > obj/macosx/alld/makefile.dep

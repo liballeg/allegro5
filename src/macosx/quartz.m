@@ -209,6 +209,7 @@ BITMAP *osx_qz_create_system_bitmap(int width, int height)
 
 
 /* osx_qz_destroy_video_bitmap:
+ *  Frees memory used by bitmap structure and releases associated GWorld.
  */
 void osx_qz_destroy_video_bitmap(BITMAP *bmp)
 {
