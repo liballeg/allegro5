@@ -17,10 +17,9 @@ Changes from 3.11 to current
    3.9.36: Annie Testes added font_height, render_char, char_length hooks
    to FONT_VTABLE.
 <li>
-   3.9.36: (fix this one)
-   	   2001-04-28 05:19  icruz
-	* src/win/: wddraw.c, wgdi.c, wsystem.c, wwnd.c, wddmode.c,
-	wddovl.c, wddwin.c, wgdi.c, wmouse.c: no message
+   3.9.36: Eric Botcazou made some minor changes related to AllegroGL in
+   the window management code, and fixed two little mouse bugs Javier
+   Gonzalez had found (both under Windows).
 <li>
    3.9.36: Eric Botcazou added a get_desktop_resolution() function for
    Windows and X. Joshua Haberman added a BeOS version.
