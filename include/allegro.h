@@ -2041,7 +2041,6 @@ typedef struct DIALOG_PLAYER
    int mouse_oz;
    int mouse_b;
    DIALOG *dialog;
-   struct DIALOG_PLAYER *previous;
 } DIALOG_PLAYER;
 
 

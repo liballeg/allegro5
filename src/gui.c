@@ -39,6 +39,15 @@ DIALOG *active_dialog = NULL;
 MENU *active_menu = NULL;
 
 
+/* list of currently active (initialized) dialog players */
+struct al_active_player {
+   DIALOG_PLAYER *player;
+   struct al_active_player *next;
+};
+
+static struct al_active_player *first_active_player = 0;
+
+
 
 /* hook function for reading the mouse x position */
 static int default_mouse_x(void)
@@ -655,7 +664,21 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
 DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 {
    DIALOG_PLAYER *player = malloc(sizeof(DIALOG_PLAYER));
+   struct al_active_player *n = 0;
    int c;
+
+   if (!player)
+      return NULL;
+
+   /* add player to the list */
+   n = malloc(sizeof(struct al_active_player));
+   if (!n) {
+      free (player);
+      return NULL;
+   }
+   n->next = first_active_player;
+   n->player = player;
+   first_active_player = n;
 
    player->res = D_REDRAW;
    player->joy_on = TRUE;
@@ -667,7 +690,6 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    player->mouse_b = gui_mouse_b();
 
    /* set up the global  dialog pointer */
-   player->previous = active_player;
    active_player = player;
    active_dialog = dialog;
 
@@ -1021,6 +1043,7 @@ int update_dialog(DIALOG_PLAYER *player)
  */
 int shutdown_dialog(DIALOG_PLAYER *player)
 {
+   struct al_active_player *iter, *prev;
    int obj;
 
    /* send the finish messages */
@@ -1037,7 +1060,22 @@ int shutdown_dialog(DIALOG_PLAYER *player)
    if (player->mouse_obj >= 0)
       player->dialog[player->mouse_obj].flags &= ~D_GOTMOUSE;
 
-   active_player = player->previous;
+   /* remove dialog player from the list of active players */
+   for (iter = first_active_player, prev = 0; iter != 0; prev = iter, iter = iter->next) {
+      if (iter->player == player) {
+	 if (prev)
+	    prev->next = iter->next;
+	 else
+	    first_active_player = iter->next;
+	 free (iter);
+	 break;
+      }
+   }
+
+   if (first_active_player)
+      active_player = first_active_player->player;
+   else
+      active_player = NULL;
 
    if (active_player)
       active_dialog = active_player->dialog;
