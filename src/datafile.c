@@ -1853,7 +1853,7 @@ static void initialise_bitmap(BITMAP *bmp)
  */
 static void initialise_datafile(DATAFILE *data)
 {
-   int c, c2;
+   int c, c2, color_flag;
    FONT *f;
    SAMPLE *s;
    MIDI *m;
@@ -1872,8 +1872,8 @@ static void initialise_datafile(DATAFILE *data)
 
 	 case DAT_FONT:
 	    f = data[c].dat;
-	    c = (int)f->vtable;  /* color flag */
-	    if (c == 1) {
+	    color_flag = (int)f->vtable;
+	    if (color_flag == 1) {
 	       FONT_COLOR_DATA *cf = (FONT_COLOR_DATA *)f->data;
 	       while (cf) {
 		  for (c2 = cf->begin; c2 < cf->end; c2++)
