@@ -40,9 +40,10 @@
    install them in the Windows system directory.
 
    This is known to work with the Borland C++ 5.5 command line compiler.
+   Earlier versions may cause problems (for example v5.02).
 
    You need to use GNU make, since Borland make is really ugly about its
-   makefiles.  You can grab it from either the MinGW32 or DJGPP
+   makefiles. You can grab it from either the MinGW32 or DJGPP
    distributions; more info on this in available in the following files:
    docs/build/mingw32.txt and docs/build/djgpp.txt.
 
