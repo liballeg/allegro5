@@ -272,7 +272,7 @@ AC_CACHE_VAL(allegro_cv_support_alsamidi,
   AC_MSG_CHECKING(for supported ALSA version for MIDI)
   AC_TRY_RUN([#include <sys/asoundlib.h>
     int main (void) { return SND_LIB_MAJOR < 0 || SND_LIB_MINOR < 5; }],
-  allegro_cv_support_alsamidi=yes,
+  [allegro_cv_support_alsamidi=yes LIBS="-lasound $LIBS"],
   allegro_cv_support_alsamidi=no,
   allegro_cv_support_alsamidi=no)
   AC_MSG_RESULT($allegro_cv_support_alsamidi)])
