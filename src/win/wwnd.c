@@ -222,8 +222,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_SETCURSOR:
-         mouse_set_syscursor();
-         return 1;  /* not TRUE */
+         if (!user_wnd_proc || _mouse_installed) {
+            mouse_set_syscursor();
+            return 1;  /* not TRUE */
+         }
+         break;
 
       case WM_ACTIVATE:
          if (LOWORD(wparam) == WA_INACTIVE) {
