@@ -2965,5 +2965,5 @@ int main(void)
 }
 
 #ifndef SETUP_EMBEDDED
-END_OF_MAIN();
+END_OF_MAIN()
 #endif
