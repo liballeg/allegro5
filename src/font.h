@@ -423,7 +423,8 @@ static FONT extended_a_font =
    NULL,                /* next range pointer */
    NULL,                /* render hook */
    NULL,                /* width hook */
-   NULL                 /* height hook */
+   NULL,                /* height hook */
+   NULL                 /* destroy hook */
 };
 
 
@@ -437,7 +438,8 @@ static FONT latin1_font =
    &extended_a_font,    /* next range pointer */
    NULL,                /* render hook */
    NULL,                /* width hook */
-   NULL                 /* height hook */
+   NULL,                /* height hook */
+   NULL                 /* destroy hook */
 };
 
 
@@ -451,6 +453,7 @@ FONT _default_font =
    &latin1_font,        /* next range pointer */
    NULL,                /* render hook */
    NULL,                /* width hook */
-   NULL                 /* height hook */
+   NULL,                /* height hook */
+   NULL                 /* destroy hook */
 };
 
