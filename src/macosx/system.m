@@ -346,7 +346,7 @@ void osx_event_handler()
 static int osx_sys_init(void)
 {
    long result;
-   char exe_name[1024];
+   AL_CONST char *exe_name;
    char resource_dir[1024];
    
    /* Install emergency-exit signal handlers */
@@ -360,9 +360,8 @@ static int osx_sys_init(void)
    
    /* Get into bundle resource directory if appropriate */
    if (osx_bundle) {
-      get_executable_name(exe_name, 1023);
-      snprintf(resource_dir, 1023, "%s/%s", [[osx_bundle resourcePath] cString], get_filename(exe_name));
-      resource_dir[strlen(resource_dir) - 4] = '\0';
+      exe_name = [[osx_bundle executablePath] lossyCString];
+      snprintf(resource_dir, 1023, "%s/%s", [[osx_bundle resourcePath] lossyCString], get_filename(exe_name));
       if (file_exists(resource_dir, FA_DIREC, NULL))
          chdir(resource_dir);
    }

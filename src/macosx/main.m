@@ -97,7 +97,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       }
       chdir(path);
       osx_bundle = [NSBundle mainBundle];
-      arg0 = strdup([[osx_bundle bundlePath] cString]);
+      arg0 = strdup([[osx_bundle bundlePath] lossyCString]);
       al_argv = &arg0;
       al_argc = 1;
    }
