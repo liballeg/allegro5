@@ -3021,9 +3021,9 @@ static int sheller(void)
 }
 
 
-
-/* callback for the datedit functions to display a message */
-void datedit_msg(AL_CONST char *fmt, ...)
+#if 0
+/* callback for the grabber functions to display a message */
+static void grabber_msg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -3044,8 +3044,8 @@ void datedit_msg(AL_CONST char *fmt, ...)
 
 
 
-/* callback for the datedit functions to start a multi-part message */
-void datedit_startmsg(AL_CONST char *fmt, ...)
+/* callback for the grabber functions to start a multi-part message */
+static void grabber_startmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -3059,8 +3059,8 @@ void datedit_startmsg(AL_CONST char *fmt, ...)
 
 
 
-/* callback for the datedit functions to end a multi-part message */
-void datedit_endmsg(AL_CONST char *fmt, ...)
+/* callback for the grabber functions to end a multi-part message */
+static void grabber_endmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -3081,8 +3081,8 @@ void datedit_endmsg(AL_CONST char *fmt, ...)
 
 
 
-/* callback for the datedit functions to report an error */
-void datedit_error(AL_CONST char *fmt, ...)
+/* callback for the grabber functions to report an error */
+static void grabber_error(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -3101,8 +3101,8 @@ void datedit_error(AL_CONST char *fmt, ...)
 
 
 
-/* callback for the datedit functions to ask a question */
-int datedit_ask(AL_CONST char *fmt, ...)
+/* callback for the grabber functions to ask a question */
+static int grabber_ask(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -3126,7 +3126,7 @@ int datedit_ask(AL_CONST char *fmt, ...)
    else
       return 'n';
 }
-
+#endif
 
 
 /* close button callback */
