@@ -399,7 +399,7 @@ void allegro_message(AL_CONST char *msg, ...)
 
    va_list ap;
    va_start(ap, msg);
-   uvsnprintf(buf, 4096, msg, ap);
+   uvszprintf(buf, 4096, msg, ap);
    va_end(ap);
 
    if ((system_driver) && (system_driver->message))
@@ -503,7 +503,7 @@ void al_trace(AL_CONST char *msg, ...)
 
    va_list ap;
    va_start(ap, msg);
-   uvsnprintf(buf, 512, msg, ap);
+   uvszprintf(buf, sizeof(buf), msg, ap);
    va_end(ap);
 
    if (trace_handler) {

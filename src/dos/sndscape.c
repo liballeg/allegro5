@@ -619,7 +619,7 @@ static int soundscape_detect(int input)
       return FALSE;
 
    if (!detect_soundscape()) {
-      ustrncpy(allegro_error, get_config_text("Soundscape not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Soundscape not found"));
       return FALSE;
    } 
 
@@ -642,7 +642,7 @@ static int soundscape_detect(int input)
       soundscape_freq = 48000;
 
    /* set up the card description */
-   usnprintf(soundscape_desc, sizeof(soundscape_desc),
+   uszprintf(soundscape_desc, sizeof(soundscape_desc),
              get_config_text("Soundscape %s (%d hz) on port %X, using IRQ %d, DMA channel %d and waveport %X"),
              uconvert_ascii(ensoniq_gate_array[soundscape_hw_ver], tmp), 
 	     soundscape_freq, soundscape_baseport, soundscape_waveirq, soundscape_dma, soundscape_waveport);

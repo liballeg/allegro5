@@ -32,8 +32,6 @@ static void sound_mac_exit(int input);
 static int sound_mac_mixer_volume(int volume);
 static int sound_mac_buffer_size(void);
 
-static char sb_desc[160] = EMPTY_STRING;
-
 
 DIGI_DRIVER digi_macos={
    DIGI_MACOS,
@@ -107,7 +105,7 @@ static int sound_mac_16bit = 0;
 static int sound_mac_buf_size = 4096;
 static int sound_mac_freq=44100;
 static long _mac_sound=0;
-static char sound_mac_desc[256]="";
+static char sound_mac_desc[256]=EMPTY_STRING;
 static SndDoubleBackUPP myDBUPP=NULL;
 static SndChannelPtr chan=NULL;
 static SndDoubleBufferHeader myDblHeader;
@@ -169,7 +167,7 @@ static int sound_mac_detect(int input){
 		  sound_mac_freq=44100;
 		  _sound_freq=sound_mac_freq;
 		  sound_mac_buf_size=1024;
-                  usprintf(sound_mac_desc,
+                  uszprintf(sound_mac_desc, sizeof(sound_mac_desc),
 		     get_config_text("Apple SoundManager %d.x %d hz, %d-bit, %s"),
 		     myVersion.majorRev,sound_mac_freq,
 		     sound_mac_16bit?16:8,sound_mac_stereo?"stereo":"mono");
@@ -177,23 +175,23 @@ static int sound_mac_detect(int input){
                   return 1;
 	       }
 	       else{
-		  usprintf(allegro_error, get_config_text("Sorry your system can't do double buffer sound"));		  
+		  ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry your system can't do double buffer sound"));		  
 	       }
 	    }
 	    else{
-	       usprintf(allegro_error, get_config_text("Sorry Can't get information about sound"));
+	       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry Can't get information about sound"));
 	    }
 	 }
 	 else{
-	    usprintf(allegro_error, get_config_text("Sorry SoundManager 3.0 or later requerid"));
+	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry SoundManager 3.0 or later requerid"));
 	 }
       }
       else{
-	 usprintf(allegro_error, get_config_text("Sorry SoundManager  not Found"));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry SoundManager  not Found"));
       }
    }
    else{
-      usprintf(allegro_error, get_config_text("Input is not supported"));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
    }
    return 0;
 }

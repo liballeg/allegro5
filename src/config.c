@@ -202,7 +202,7 @@ static void init_config(int loaddata)
       if (find_allegro_resource(filename, cfg_name, NULL, NULL, NULL, NULL, NULL, sizeof(filename)) != 0) {
 	 get_executable_name(filename, sizeof(filename));
 	 usetc(get_filename(filename), 0);
-	 ustrncat(filename, cfg_name, sizeof(filename)-ustrsizez(filename));
+	 ustrzcat(filename, sizeof(filename), cfg_name);
       }
 
       set_config_file(filename);
@@ -272,14 +272,14 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
    if (j) {
       /* got a variable */
       usetc(buf2+j, 0);
-      ustrncpy(name, buf2, name_size - ucwidth(0));
+      ustrzcpy(name, name_size, buf2);
 
       while ((c) && ((uisspace(c)) || (c == '='))) {
 	 i += uwidth(buf+i);
 	 c = ugetc(buf+i);
       }
 
-      ustrncpy(val, buf+i, val_size - ucwidth(0));
+      ustrzcpy(val, val_size, buf+i);
 
       /* strip trailing spaces */
       i = ustrlen(val) - 1;
@@ -289,7 +289,7 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
    else {
       /* blank line or comment */
       usetc(name, 0);
-      ustrncpy(val, buf, val_size - ucwidth(0));
+      ustrzcpy(val, val_size, buf);
    }
 
    return inpos;
@@ -504,7 +504,7 @@ static void prettify_section_name(AL_CONST char *in, char *out, int out_size)
       else
 	 usetc(out, 0);
 
-      ustrncat(out, in, out_size - ustrsizez(out) - ucwidth(']'));
+      ustrzcat(out, out_size - ucwidth(']'), in);
 
       out += uoffset(out, -1);
 
@@ -813,7 +813,7 @@ char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
       return NULL;
    }
 
-   ustrncpy(buf, s, sizeof(buf) - ucwidth(0));
+   ustrzcpy(buf, sizeof(buf), s);
    pos = 0;
    ac = 0;
 
@@ -995,7 +995,7 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 void set_config_int(AL_CONST char *section, AL_CONST char *name, int val)
 {
    char buf[32];
-   usnprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
+   uszprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
    set_config_string(section, name, buf);
 }
 
@@ -1009,7 +1009,7 @@ void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
    char buf[32];
 
    if (val >= 0) {
-      usnprintf(buf, sizeof(buf), uconvert_ascii("%X", NULL), val);
+      uszprintf(buf, sizeof(buf), uconvert_ascii("%X", NULL), val);
       set_config_string(section, name, buf);
    }
    else
@@ -1024,7 +1024,7 @@ void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
 void set_config_float(AL_CONST char *section, AL_CONST char *name, float val)
 {
    char buf[32];
-   usnprintf(buf, sizeof(buf), uconvert_ascii("%f", NULL), val);
+   uszprintf(buf, sizeof(buf), uconvert_ascii("%f", NULL), val);
    set_config_string(section, name, buf);
 }
 
@@ -1041,7 +1041,7 @@ void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
    int i;
 
    if (val < 256) {
-      usnprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
+      uszprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
    }
    else {
       v[0] = (val>>24)&0xFF;

@@ -149,7 +149,7 @@ static int sys_directx_init(void)
 
    _dx_ver = get_dx_ver();
 
-   usnprintf(sys_directx_desc, sizeof(sys_directx_desc),
+   uszprintf(sys_directx_desc, sizeof(sys_directx_desc),
              uconvert_ascii("DirectX %u.%x", tmp), _dx_ver >> 8, _dx_ver & 0xff);
    system_directx.desc = sys_directx_desc;
 

@@ -195,18 +195,18 @@ static int open_oss_device(int input)
    char tmp1[80], tmp2[80], tmp3[80];
    int fragsize, fragbits, bits, stereo, freq;
 
-   ustrncpy(_oss_driver, get_config_string(uconvert_ascii("sound", tmp1),
-					   uconvert_ascii("oss_driver", tmp2),
-					   uconvert_ascii("/dev/dsp", tmp3)), sizeof(_oss_driver) - ucwidth(0));
+   ustrzcpy(_oss_driver, sizeof(_oss_driver), get_config_string(uconvert_ascii("sound", tmp1),
+					                        uconvert_ascii("oss_driver", tmp2),
+					                        uconvert_ascii("/dev/dsp", tmp3)));
 
-   ustrncpy(_oss_mixer_driver, get_config_string(uconvert_ascii("sound", tmp1),
-						 uconvert_ascii("oss_mixer_driver", tmp2),
-						 uconvert_ascii("/dev/mixer", tmp3)), sizeof(_oss_mixer_driver) - ucwidth(0));
-   
+   ustrzcpy(_oss_mixer_driver, sizeof(_oss_mixer_driver), get_config_string(uconvert_ascii("sound", tmp1),
+					                                    uconvert_ascii("oss_mixer_driver", tmp2),
+					                                    uconvert_ascii("/dev/mixer", tmp3)));
+
    oss_fd = open(uconvert_toascii(_oss_driver, tmp1), (input ? O_RDONLY : O_WRONLY) | O_NONBLOCK);
 
    if (oss_fd < 0) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: %s"), _oss_driver, ustrerror(errno));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: %s"), _oss_driver, ustrerror(errno));
       return -1;
    }
 
@@ -268,7 +268,7 @@ static int open_oss_device(int input)
    fragsize = (_oss_numfrags << 16) | fragbits;
 
    if (ioctl(oss_fd, SNDCTL_DSP_SETFRAGMENT, &fragsize) == -1) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Setting fragment size: %s"), ustrerror(errno));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Setting fragment size: %s"), ustrerror(errno));
       close(oss_fd);
       return -1;
    }
@@ -281,7 +281,7 @@ static int open_oss_device(int input)
    if ((ioctl(oss_fd, SNDCTL_DSP_SETFMT, &oss_format) == -1) || 
        (ioctl(oss_fd, SNDCTL_DSP_STEREO, &stereo) == -1) || 
        (ioctl(oss_fd, SNDCTL_DSP_SPEED, &freq) == -1)) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Setting DSP parameters: %s"), ustrerror(errno));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Setting DSP parameters: %s"), ustrerror(errno));
       close(oss_fd);
       return -1;
    }
@@ -305,20 +305,20 @@ static int open_oss_device(int input)
       case AFMT_U16_NE:
 	 bits = 16;
 	 if (sizeof(short) != 2) {
-	    ustrncpy(allegro_error, get_config_text("Unsupported sample format"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
 	    close(oss_fd);
 	    return -1;
 	 }
 	 break;
 
       default:
-	 ustrncpy(allegro_error, get_config_text("Unsupported sample format"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
 	 close(oss_fd);
 	 return -1;
    }
 
    if ((stereo != 0) && (stereo != 1)) {
-      ustrncpy(allegro_error, get_config_text("Not in stereo or mono mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not in stereo or mono mode"));
       close(oss_fd);
       return -1;
    }
@@ -339,8 +339,7 @@ static int oss_detect(int input)
 {
    if (input) {
       if (digi_driver != digi_input_driver) {
-	 ustrncpy(allegro_error, get_config_text("OSS output driver must be installed before input can be read"),
-                                                                                 ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("OSS output driver must be installed before input can be read"));
 	 return FALSE;
       }
       return TRUE;
@@ -373,7 +372,7 @@ static int oss_init(int input, int voices)
       return -1;
 
    if (ioctl(oss_fd, SNDCTL_DSP_GETOSPACE, &bufinfo) == -1) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Getting buffer size: %s"), ustrerror(errno));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Getting buffer size: %s"), ustrerror(errno));
       close(oss_fd);
       return -1;
    }
@@ -382,7 +381,7 @@ static int oss_init(int input, int voices)
    oss_bufdata = malloc(oss_bufsize);
 
    if (oss_bufdata == 0) {
-      ustrncpy(allegro_error, get_config_text("Can not allocate audio buffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       close(oss_fd);
       return -1;
    }
@@ -393,7 +392,7 @@ static int oss_init(int input, int voices)
 		   _sound_stereo, ((_sound_bits == 16) ? 1 : 0),
 		   &digi_oss.voices) != 0) {
 
-      ustrncpy(allegro_error, get_config_text("Can not init software mixer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
       close(oss_fd);
       return -1;
    }
@@ -405,10 +404,10 @@ static int oss_init(int input, int voices)
    _sigalrm_digi_interrupt_handler = oss_update;
    ENABLE();
 
-   usnprintf(oss_desc, sizeof(oss_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
-	     _oss_driver, _sound_bits,
-	     uconvert_ascii((oss_signed ? "signed" : "unsigned"), tmp1), _sound_freq,
-	     uconvert_ascii((_sound_stereo ? "stereo" : "mono"), tmp2));
+   uszprintf(oss_desc, sizeof(oss_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
+		      _oss_driver, _sound_bits,
+		      uconvert_ascii((oss_signed ? "signed" : "unsigned"), tmp1), _sound_freq,
+		      uconvert_ascii((_sound_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = oss_desc;
 
@@ -548,7 +547,7 @@ static int oss_rec_start(int rate, int bits, int stereo)
       return 0;
 
    if (ioctl(oss_fd, SNDCTL_DSP_GETISPACE, &bufinfo) == -1) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Getting buffer size: %s"), ustrerror(errno));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Getting buffer size: %s"), ustrerror(errno));
       close(oss_fd);
       return 0;
    }

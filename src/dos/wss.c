@@ -249,7 +249,7 @@ static int wss_detect(int input)
       }
    }
 
-   usnprintf(wss_desc, sizeof(wss_desc),
+   uszprintf(wss_desc, sizeof(wss_desc),
              uconvert_ascii("Windows Sound System (%d hz) on port %X, using IRQ %d and DMA channel %d", NULL),
 	     codec_rates[wss_usedrate].freq, _sound_port, _sound_irq, _sound_dma);
    digi_wss.desc = wss_desc;

@@ -80,14 +80,14 @@ int __al_linux_init_console(void)
    __al_linux_vt = get_tty(STDIN_FILENO);
 
    if (__al_linux_vt < 0) {
-      usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Error finding our VT: %s"), ustrerror(errno));
+      uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Error finding our VT: %s"), ustrerror(errno));
       return 1;
    }
 
    if (__al_linux_vt != 0) {
       /* Open our current console */
       if ((__al_linux_console_fd = open("/dev/tty", O_RDWR)) < 0) {
-	 usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to open %s: %s"),
+	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to open %s: %s"),
 		    uconvert_ascii("/dev/tty", tmp), ustrerror(errno));
 	 return 1;
       }
@@ -117,7 +117,7 @@ int __al_linux_init_console(void)
 
       if ((console_fd = open ("/dev/console", O_WRONLY)) < 0) {
 	 int n;
-	 usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii("%s /dev/console: %s", tmp),
+	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii("%s /dev/console: %s", tmp),
 		    get_config_text("Unable to open"), ustrerror (errno));
 	 /* Try some ttys instead... */
 	 for (n = 1; n <= 24; n++) {
@@ -129,7 +129,7 @@ int __al_linux_init_console(void)
 
       /* Get the state of the console -- in particular, the free VT field */
       if (ioctl (console_fd, VT_GETSTATE, &vts)) {
-	 usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii("VT_GETSTATE: %s", tmp), ustrerror (errno));
+	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii("VT_GETSTATE: %s", tmp), ustrerror (errno));
 	 close (console_fd);
 	 return 1;
       }
@@ -156,7 +156,7 @@ int __al_linux_init_console(void)
       seteuid (getuid());
 
       if (!mask) {
-	 ustrncpy (allegro_error, get_config_text ("Unable to find a usable VT"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to find a usable VT"));
 	 close (console_fd);
 	 return 1;
       }
@@ -167,7 +167,7 @@ int __al_linux_init_console(void)
 
       if (child < 0) {
 	 /* fork failed */
-	 usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii ("fork: %s", tmp), ustrerror (errno));
+	 uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii ("fork: %s", tmp), ustrerror (errno));
 	 close (console_fd);
 	 return 1;
       }
@@ -192,7 +192,7 @@ int __al_linux_init_console(void)
       seteuid(getuid());
 
       if (fd == -1) {
-	 ustrncpy (allegro_error, get_config_text ("Unable to reopen new console"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to reopen new console"));
 	 return 1;
       }
 
@@ -205,7 +205,7 @@ int __al_linux_init_console(void)
       /* Check we can reliably wait until we have the display */
       if (__al_linux_wait_for_display()) {
 	 close (fd);
-	 ustrncpy (allegro_error, get_config_text ("VT_WAITACTIVE failure"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("VT_WAITACTIVE failure"));
 	 return 1;
       }
 

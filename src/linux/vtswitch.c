@@ -292,7 +292,7 @@ int __al_linux_init_vtswitch(void)
 	sa.sa_flags = 0;
 	sa.sa_handler = vt_switch_requested;
 	if ((sigaction(SIGRELVT, &sa, NULL) < 0) || (sigaction(SIGACQVT, &sa, NULL) < 0)) {
-		ustrncpy (allegro_error, get_config_text ("Unable to control VT switching"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+		ustrzcpy (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to control VT switching"));
 		return 1;
 	}
 

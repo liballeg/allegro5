@@ -38,7 +38,7 @@ static int cur_vol[17];
 extern "C" int be_midi_detect(int input)
 {
    if (input) {
-      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return FALSE;
    }
    
@@ -61,13 +61,13 @@ extern "C" int be_midi_init(int input, int voices)
       { "no", "closet", "garage", "ballroom", "cavern", "dungeon" };
    
    if (input) {
-      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return -1;
    }
          
    be_midisynth = new BMidiSynth();
    if (!be_midisynth) {
-      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return -1;
    }
    
@@ -81,7 +81,7 @@ extern "C" int be_midi_init(int input, int voices)
        (!be_synth->IsLoaded())) {
       delete be_midisynth;
       be_midisynth = NULL;
-      ustrncpy(allegro_error, get_config_text("Can not load MIDI instruments data file"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not load MIDI instruments data file"));
       return -1;
    }
    
@@ -110,17 +110,17 @@ extern "C" int be_midi_init(int input, int voices)
          break;
       case 1:
          im = B_2_POINT_INTERPOLATION;
-         ustrncpy(tmp2, uconvert_ascii("fast", tmp), sizeof(tmp2) - ucwidth(0));
+         ustrzcpy(tmp2, sizeof(tmp2), uconvert_ascii("fast", tmp));
          break;
       case 2:
          im = B_LINEAR_INTERPOLATION;
-         ustrncpy(tmp2, uconvert_ascii("linear", tmp), sizeof(tmp2) - ucwidth(0));
+         ustrzcpy(tmp2, sizeof(tmp2), uconvert_ascii("linear", tmp));
          break;
    }
    be_synth->SetInterpolation(im);
    
    /* Sets up driver description */
-   usnprintf(be_midi_driver_desc, sizeof(be_midi_driver_desc),
+   uszprintf(be_midi_driver_desc, sizeof(be_midi_driver_desc),
              uconvert_ascii("BeOS %s quality synth, %s %d kHz, %s reverberation", tmp),
              (mode ? "high" : "low"), tmp2, (be_synth->SamplingRate() / 1000), reverb_name[reverb]);
    midi_beos.desc = be_midi_driver_desc;

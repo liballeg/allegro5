@@ -198,11 +198,11 @@ static int mpu_detect(int input)
       mpu_input();
 
       if (wait_for_mpu(0x40, _mpu_port+1) != 0) {
-	 ustrncpy(allegro_error, get_config_text("MPU-401 not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("MPU-401 not found"));
 	 return FALSE;
       }
 
-      usnprintf(mpu_desc, sizeof(mpu_desc), get_config_text("MPU-401 MIDI interface on port %X, using IRQ %d"),
+      uszprintf(mpu_desc, sizeof(mpu_desc), get_config_text("MPU-401 MIDI interface on port %X, using IRQ %d"),
 		_mpu_port, _mpu_irq);
       midi_mpu401.desc = mpu_desc;
    }
@@ -222,7 +222,7 @@ static int mpu_detect(int input)
 	    if (_sound_irq == _mpu_irq) {
 	       mpu_piggyback = TRUE;
 	       if (digi_card != DIGI_SB16) {
-		  usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("MPU-401 and %s conflict over IRQ %d"),
+		  uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("MPU-401 and %s conflict over IRQ %d"),
 			    digi_driver->name, _mpu_irq);
 		  return FALSE;
 	       }

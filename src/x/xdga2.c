@@ -255,7 +255,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    }
 
    if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)) {
-      ustrncpy(allegro_error, get_config_text("Unsupported screen size"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported screen size"));
       return NULL;
    }
 
@@ -279,40 +279,40 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
        && (depth != 32)
 #endif
        ) {
-      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       return NULL;
    }
 
    /* Checks presence of DGA extension */
    if (!XDGAQueryExtension(_xwin.display, &dga_event_base, &dga_error_base) ||
        !XDGAQueryVersion(_xwin.display, &dga_major_version, &dga_minor_version)) {
-      ustrncpy(allegro_error, get_config_text("DGA extension is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DGA extension is not supported"));
       return NULL;
    }
 
    /* Works only with DGA 2.0 or newer */
    if (dga_major_version < 2) {
-      ustrncpy(allegro_error, get_config_text("DGA 2.0 or newer is required"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DGA 2.0 or newer is required"));
       return NULL;
    }
 
    /* Attempts to access the framebuffer */
    if (!XDGAOpenFramebuffer(_xwin.display, _xwin.screen)) {
-      ustrncpy(allegro_error, get_config_text("Can not open framebuffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not open framebuffer"));
       return NULL;
    }
 
    /* Finds suitable video mode number */
    mode = _xdga2_find_mode(w, h, vw, vh, depth);
    if (!mode) {
-      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       return NULL;
    }
 
    /* Sets DGA video mode */
    dga_device = XDGASetMode(_xwin.display, _xwin.screen, mode);
    if (dga_device == NULL) {
-      ustrncpy(allegro_error, get_config_text("Can not switch to DGA mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not switch to DGA mode"));
       return NULL;
    }
    _xwin.in_dga_mode = 2;
@@ -385,7 +385,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
          (unsigned long)dga_device->data, drv, depth,
          dga_device->mode.bytesPerScanline);
    if (!bmp) {
-      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
    drv->w = bmp->cr = w;
@@ -445,7 +445,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
       gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
 
    /* Sets up driver description */
-   usnprintf(_xdga2_driver_desc, sizeof(_xdga2_driver_desc),
+   uszprintf(_xdga2_driver_desc, sizeof(_xdga2_driver_desc),
       uconvert_ascii("X-Windows DGA 2.0 graphics%s", tmp),
       accel ? (gfx_capabilities ? " (accelerated)" : "") : " (software only)");
    drv->desc = _xdga2_driver_desc;

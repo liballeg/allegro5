@@ -112,13 +112,13 @@ static int seq_attempt_open()
    char tmp1[80], tmp2[80], tmp3[80];
    int fd;
 
-   ustrncpy(seq_driver, get_config_string(uconvert_ascii("sound", tmp1),
-					  uconvert_ascii("oss_midi_driver", tmp2),
-					  uconvert_ascii("/dev/sequencer", tmp3)), sizeof(seq_driver) - ucwidth(0));
+   ustrzcpy(seq_driver, sizeof(seq_driver), get_config_string(uconvert_ascii("sound", tmp1),
+					                      uconvert_ascii("oss_midi_driver", tmp2),
+					                      uconvert_ascii("/dev/sequencer", tmp3)));
 
    fd = open(uconvert_toascii(seq_driver, tmp1), O_WRONLY);
    if (fd < 0) 
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: %s"), seq_driver, ustrerror(errno));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: %s"), seq_driver, ustrerror(errno));
 
    return fd;
 }
@@ -163,7 +163,7 @@ static int seq_find_synth(int fd)
 	 break;
    }
 
-   usnprintf(seq_desc, sizeof(seq_desc), uconvert_ascii("Open Sound System (%s)", tmp2), s);
+   uszprintf(seq_desc, sizeof(seq_desc), uconvert_ascii("Open Sound System (%s)", tmp2), s);
    midi_driver->desc = seq_desc;
 
    return ret;
@@ -205,7 +205,7 @@ static void seq_set_fm_patches(int fd)
 static int oss_midi_detect(int input)
 {
    if (input) {
-      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return FALSE;
    }
 
@@ -228,7 +228,7 @@ static int oss_midi_init(int input, int voices)
    int i;
 
    if (input) {
-      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return -1;
    }
 
@@ -238,7 +238,7 @@ static int oss_midi_init(int input, int voices)
 
    if (!seq_find_synth(seq_fd)) {
       close(seq_fd);
-      ustrncpy(allegro_error, get_config_text("No support synth type found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("No support synth type found"));
       return -1;
    }
 
@@ -253,9 +253,9 @@ static int oss_midi_init(int input, int voices)
       seq_patch[i] = -1;
 
    /* for the mixer routine */
-   ustrncpy(mixer_driver, get_config_string(uconvert_ascii("sound", tmp1),
-					    uconvert_ascii("oss_mixer_driver", tmp2),
-					    uconvert_ascii("/dev/mixer", tmp3)), sizeof(mixer_driver) - ucwidth(0));
+   ustrzcpy(mixer_driver, sizeof(mixer_driver), get_config_string(uconvert_ascii("sound", tmp1),
+					                          uconvert_ascii("oss_mixer_driver", tmp2),
+					                          uconvert_ascii("/dev/mixer", tmp3)));
 
    return 0;
 }

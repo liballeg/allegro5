@@ -596,7 +596,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
        && (color_depth != 32)
 #endif
        ) {
-      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       return NULL;
    }
 
@@ -627,7 +627,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    be_allegro_screen = new BeAllegroScreen(exe, mode, &error, false);
 
    if(error != B_OK) {
-      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto cleanup;
    }
 
@@ -650,7 +650,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
 
    if (be_allegro_screen->CanControlFrameBuffer()) {
       if (!be_sort_out_virtual_resolution(w, h, &v_w, &v_h, color_depth)) {
-         ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto cleanup;
       }
    }
@@ -671,7 +671,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
             color_depth, fbuffer->bytes_per_row);
 
    if(bmp == NULL) {
-      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       goto cleanup;
    }
 
@@ -1218,7 +1218,7 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
        && (color_depth != 32)
 #endif
        ) {
-      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       return NULL;
    }
 
@@ -1228,7 +1228,7 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
    }
 
    if ((w != v_w) || (h != v_h)) {
-      ustrncpy(allegro_error, get_config_text("Unsupported virtual resolution"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
    }
    
@@ -1244,7 +1244,7 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
 			      B_CURRENT_WORKSPACE, v_w, v_h, color_depth);
 
    if (!be_allegro_window->SupportsWindowMode()) {
-      ustrncpy(allegro_error, get_config_text("Windowed mode not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Windowed mode not supported"));
       goto cleanup;
    }
 
@@ -1275,7 +1275,7 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
 		      color_depth, v_w * bpp);
   
    if (!bmp) {
-      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       goto cleanup;
    }
 

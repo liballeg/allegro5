@@ -590,7 +590,7 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* check it is a valid resolution */
    if (color_depth != 8) {
-      ustrncpy(allegro_error, get_config_text("Mode-X only supports 8 bit color"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Mode-X only supports 8 bit color"));
       return NULL;
    }
 
@@ -599,7 +599,7 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth)
       mode++;
 
    if (!mode->regs) {
-      ustrncpy(allegro_error, get_config_text("Not a VGA mode-X resolution"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not a VGA mode-X resolution"));
       return NULL;
    }
 
@@ -608,7 +608,7 @@ static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth)
    v_h = MAX(h, v_h);
 
    if (v_h > 0x40000/v_w) {
-      ustrncpy(allegro_error, get_config_text("Virtual screen size too large"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Virtual screen size too large"));
       return NULL;
    }
 
@@ -735,12 +735,12 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* check it is a valid resolution */
    if (color_depth != 8) {
-      ustrncpy(allegro_error, get_config_text("Xtended mode only supports 8 bit color"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Xtended mode only supports 8 bit color"));
       return NULL;
    }
 
    if ((w != 640) || (h != 400) || (v_w > 640) || (v_h > 400)) {
-      ustrncpy(allegro_error, get_config_text("Xtended mode only supports 640x400"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Xtended mode only supports 640x400"));
       return NULL;
    }
 
@@ -754,7 +754,7 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
    addr = _set_vga_mode(0x100);
 
    if (!addr) {
-      ustrncpy(allegro_error, get_config_text("VESA mode 0x100 not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VESA mode 0x100 not available"));
       return NULL;
    }
 

@@ -40,7 +40,7 @@ const char refconst[16];
 const RGBColor ForeDef={0,0,0};
 const RGBColor BackDef={0xFFFF,0xFFFF,0xFFFF};
 
-static char dspr_desc[256]="";
+static char dspr_desc[256]=EMPTY_STRING;
 
 static BITMAP *dspr_init(int w, int h, int v_w, int v_h, int color_depth);
 static void dspr_exit(struct BITMAP *b);
@@ -191,8 +191,8 @@ static BITMAP *dspr_init(int w, int h, int v_w, int v_h, int color_depth)
 
       gfx_drawsprocket.w = w;
       gfx_drawsprocket.h = h;
-	  
-	  usprintf(dspr_desc, get_config_text("DrawSprocket %d x %d, %dbpp, %dhz"), w, h, dspr_depth, _current_refresh_rate);
+
+      uszprintf(dspr_desc, sizeof(dspr_desc), get_config_text("DrawSprocket %d x %d, %dbpp, %dhz"), w, h, dspr_depth, _current_refresh_rate);
       gfx_drawsprocket.desc = dspr_desc;
       return b;
    }

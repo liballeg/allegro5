@@ -86,7 +86,7 @@ int _sg_pci_init(void)
    r.d.edi = 0x00000000;
    __dpmi_int(0x1a, &r);
    if (r.d.edx != 0x20494350) { /* ' ICP' */
-      ustrncpy(allegro_error, get_config_text("PCI BIOS not installed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("PCI BIOS not installed"));
       return -1;
    }
 
@@ -97,7 +97,7 @@ int _sg_pci_init(void)
 
    __dpmi_int(0x1a, &r);
    if (r.h.ah != 0) {
-      ustrncpy(allegro_error, get_config_text("IF-SEGA2/PCI: device not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("IF-SEGA2/PCI: device not found"));
       return -1;
    }
 
@@ -109,19 +109,19 @@ int _sg_pci_init(void)
 
    __dpmi_int(0x1a, &r);
    if (r.h.ah != 0) {
-      ustrncpy(allegro_error, get_config_text("IF-SEGA2/PCI: read configuration dword error"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("IF-SEGA2/PCI: read configuration dword error"));
       return -1;
    }
    PowerVR_Physical_Address = r.d.ecx & 0xffff0000;
 
    if (_create_linear_mapping(&PowerVR_Linear_Address, PowerVR_Physical_Address, 0x10000) != 0) {
-      ustrncpy(allegro_error, get_config_text("IF-SEGA2/PCI: _create_linear_mapping error"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("IF-SEGA2/PCI: _create_linear_mapping error"));
       return -1;
    }
 
    if (_create_selector(&PowerVR_Linear_Selector, PowerVR_Linear_Address, 0x10000) != 0) {
       _remove_linear_mapping(&PowerVR_Linear_Address);
-      ustrncpy(allegro_error, get_config_text("IF-SEGA2/PCI: _create_selector error"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("IF-SEGA2/PCI: _create_selector error"));
       return -1;
    }
 

@@ -236,7 +236,7 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
  #endif
 
    /* add our path, and clean it up a bit */
-   ustrncpy(buf+pos, path, sizeof(buf)-pos-ucwidth(0));
+   ustrzcpy(buf+pos, sizeof(buf)-pos, path);
 
    fix_filename_case(buf);
    fix_filename_slashes(buf);
@@ -291,7 +291,7 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
    }
 
    /* all done! */
-   ustrncpy(dest, buf, size-ucwidth(0));
+   ustrzcpy(dest, size, buf);
 
    errno = saved_errno;
 
@@ -318,11 +318,10 @@ char *replace_filename(char *dest, AL_CONST char *path, AL_CONST char *filename,
       pos--;
    }
 
-   usetc(tmp, 0);
-   ustrncat(tmp, path, MIN((int)(sizeof(tmp)-ucwidth(0)), uoffset(path, pos)));
-   ustrncat(tmp, filename, sizeof(tmp)-ustrsizez(tmp));
+   ustrzncpy(tmp, sizeof(tmp), path, pos);
+   ustrzcat(tmp, sizeof(tmp), filename);
 
-   ustrncpy(dest, tmp, size-ucwidth(0));
+   ustrzcpy(dest, size, tmp);
 
    return dest;
 }
@@ -350,11 +349,11 @@ char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext,
    if (ugetat(filename, pos-1) == '.')
       end = pos-1;
 
-   ustrncpy(tmp, filename, MIN((int)(sizeof(tmp)-ucwidth(0)), uoffset(filename, end)));
-   ustrncat(tmp, uconvert_ascii(".", NULL), sizeof(tmp)-ustrsizez(tmp));
-   ustrncat(tmp, ext, sizeof(tmp)-ustrsizez(tmp));
+   ustrzncpy(tmp, sizeof(tmp), filename, end);
+   ustrzcat(tmp, sizeof(tmp), uconvert_ascii(".", NULL));
+   ustrzcat(tmp, sizeof(tmp), ext);
 
-   ustrncpy(dest, tmp, size-ucwidth(0));
+   ustrzcpy(dest, size, tmp);
 
    return dest;
 }
@@ -369,7 +368,7 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
    char tmp[512];
    int pos, c;
 
-   ustrncpy(tmp, path, sizeof(tmp)-ucwidth(0));
+   ustrzcpy(tmp, sizeof(tmp), path);
    pos = ustrlen(tmp);
 
    if ((pos > 0) && (uoffset(tmp, pos) < ((int)sizeof(tmp) - ucwidth(OTHER_PATH_SEPARATOR) - ucwidth(0)))) {
@@ -382,9 +381,9 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
       }
    }
 
-   ustrncat(tmp, filename, sizeof(tmp)-ustrsizez(tmp));
+   ustrzcat(tmp, sizeof(tmp), filename);
 
-   ustrncpy(dest, tmp, size-ucwidth(0));
+   ustrzcpy(dest, size, tmp);
 
    return dest;
 }
@@ -615,15 +614,15 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
    else {
       if (ugetc(filename) == '#') {
 	 /* read object from an appended datafile */
-	 ustrncpy(fname, uconvert_ascii("#", NULL), sizeof(fname) - ucwidth(0));
-	 ustrncpy(objname, filename+uwidth(filename), sizeof(objname) - ucwidth(0));
+	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", NULL));
+	 ustrzcpy(objname, sizeof(objname), filename+uwidth(filename));
       }
       else {
 	 /* read object from a regular datafile */
-	 ustrncpy(fname, filename, sizeof(fname) - ucwidth(0));
+	 ustrzcpy(fname,  sizeof(fname), filename);
 	 p = ustrchr(fname, '#');
 	 usetat(p, 0, 0);
-	 ustrncpy(objname, p+uwidth(p), sizeof(objname) - ucwidth(0));
+	 ustrzcpy(objname, sizeof(objname), p+uwidth(p));
       }
 
       /* open the file */
@@ -819,7 +818,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
    int i;
 
    /* convert from name.ext to name_ext (datafile object name format) */
-   ustrncpy(_name, name, sizeof(_name)-ucwidth(0));
+   ustrzcpy(_name, sizeof(_name), name);
 
    for (i=0; i<ustrlen(_name); i++) {
       if (ugetat(_name, i) == '.')
@@ -827,7 +826,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
    }
 
    if (objectname) {
-      ustrncpy(_objectname, objectname, sizeof(_objectname)-ucwidth(0));
+      ustrzcpy(_objectname, sizeof(_objectname), objectname);
 
       for (i=0; i<ustrlen(_objectname); i++) {
 	 if (ugetat(_objectname, i) == '.')
@@ -841,8 +840,8 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path/name */ 
    if (ugetc(name)) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, name, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, name);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -850,8 +849,8 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path#_name */
    if ((ustrchr(path, '#')) && (ugetc(name))) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, _name, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, _name);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -859,10 +858,10 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path/name#_objectname */
    if ((ustricmp(get_extension(name), uconvert_ascii("dat", NULL)) == 0) && (objectname)) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, name, size-ustrsizez(dest));
-      ustrncat(dest, hash, size-ustrsizez(dest));
-      ustrncat(dest, _objectname, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, name);
+      ustrzcat(dest, size, hash);
+      ustrzcat(dest, size, _objectname);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -870,10 +869,10 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path/datafile#_name */
    if ((datafile) && (ugetc(name))) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, datafile, size-ustrsizez(dest));
-      ustrncat(dest, hash, size-ustrsizez(dest));
-      ustrncat(dest, _name, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, datafile);
+      ustrzcat(dest, size, hash);
+      ustrzcat(dest, size, _name);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -881,10 +880,10 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path/datafile#_objectname */
    if ((datafile) && (objectname)) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, datafile, size-ustrsizez(dest));
-      ustrncat(dest, hash, size-ustrsizez(dest));
-      ustrncat(dest, _objectname, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, datafile);
+      ustrzcat(dest, size, hash);
+      ustrzcat(dest, size, _objectname);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -892,8 +891,8 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path/objectname */ 
    if (objectname) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, objectname, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, objectname);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -901,8 +900,8 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path#_objectname */
    if ((ustrchr(path, '#')) && (objectname)) {
-      ustrncpy(dest, path, size-ucwidth(0));
-      ustrncat(dest, _objectname, size-ustrsizez(dest));
+      ustrzcpy(dest, size, path);
+      ustrzcat(dest, size, _objectname);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -910,10 +909,10 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
    /* try path/subdir/objectname */
    if ((subdir) && (objectname)) {
-      ustrncpy(dest, path, size-ucwidth(0)-ucwidth(OTHER_PATH_SEPARATOR));
-      ustrncat(dest, subdir, size-ustrsizez(dest)-ucwidth(OTHER_PATH_SEPARATOR));
+      ustrzcpy(dest, size - ucwidth(OTHER_PATH_SEPARATOR), path);
+      ustrzcat(dest, size - ucwidth(OTHER_PATH_SEPARATOR), subdir);
       put_backslash(dest);
-      ustrncat(dest, objectname, size-ustrsizez(dest));
+      ustrzcat(dest, size, objectname);
 
       if (file_exists(dest, FA_RDONLY | FA_ARCH, NULL))
 	 return 0;
@@ -949,11 +948,11 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    /* if we have a path+filename, just use it directly */
    if ((resource) && (ustrpbrk(resource, uconvert_ascii("\\/#", NULL)))) {
       if (file_exists(resource, FA_RDONLY | FA_ARCH, NULL)) {
-	 ustrncpy(dest, resource, size-ucwidth(0));
+	 ustrzcpy(dest, size, resource);
 
 	 /* if the resource is a datafile, try looking inside it */
 	 if ((ustricmp(get_extension(dest), uconvert_ascii("dat", NULL)) == 0) && (objectname)) {
-	    ustrncat(dest, uconvert_ascii("#", NULL), size-ustrsizez(dest));
+	    ustrzcat(dest, size, uconvert_ascii("#", NULL));
 
 	    for (i=0; i<ustrlen(objectname); i++) {
 	       c = ugetat(objectname, i);
@@ -975,12 +974,12 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
    /* clean up the resource name, adding any default extension */
    if (resource) {
-      ustrncpy(rname, resource, sizeof(rname)-ucwidth(0));
+      ustrzcpy(rname, sizeof(rname), resource);
 
       if (ext) {
 	 s = get_extension(rname);
 	 if (!ugetc(s))
-	    ustrncat(s, ext, sizeof(rname)-ustrsizez(rname));
+	    ustrzcat(rname, sizeof(rname), ext);
       }
    }
    else
@@ -1029,18 +1028,18 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
       if ((datafile) && ((ugetc(rname)) || (objectname)) && (sys_find_resource(path, (char *)datafile, sizeof(path)) == 0)) {
 	 if (!ugetc(rname))
-	    ustrncpy(rname, objectname, sizeof(rname)-ucwidth(0));
+	    ustrzcpy(rname, sizeof(rname), objectname);
 
 	 for (i=0; i<ustrlen(rname); i++) {
 	    if (ugetat(rname, i) == '.')
 	       usetat(rname, i, '_');
 	 }
 
-	 ustrncat(path, uconvert_ascii("#", NULL), sizeof(path)-ustrsizez(path));
-	 ustrncat(path, rname, sizeof(path)-ustrsizez(path));
+	 ustrzcat(path, sizeof(path), uconvert_ascii("#", NULL));
+	 ustrzcat(path, sizeof(path), rname);
 
 	 if (file_exists(path, FA_RDONLY | FA_ARCH, NULL)) {
-	    ustrncpy(dest, path, size-ucwidth(0));
+	    ustrzcpy(dest, size, path);
 	    return 0;
 	 }
       }

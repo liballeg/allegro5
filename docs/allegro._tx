@@ -558,14 +558,26 @@ table to the set_ucodepage() function.
    allocater function.
 
 @@char *@ustrcpy(char *dest, const char *src);
-@xref uconvert, ustrsize, ustrsizez, ustrncpy
-   This function copies src into dest (including the terminating NULL
-   character). The return value is the value of dest.
+@xref uconvert, ustrzcpy, ustrncpy
+   This function copies src (including the terminating NULL character) into 
+   dest. The return value is the value of dest.
+
+@@char *@ustrzcpy(char *dest, int size, const char *src);
+@xref uconvert, ustrcpy, ustrzncpy
+   This function copies src (including the terminating NULL character) into 
+   dest, whose length in bytes is specified by size and which is guaranteed 
+   to be NULL-terminated. The return value is the value of dest.
 
 @@char *@ustrcat(char *dest, const char *src);
-@xref uconvert, ustrsize, ustrsizez, ustrncat
+@xref uconvert, ustrzcat, ustrncat
    This function concatenates src to the end of dest. The return value is the
    value of dest.
+
+@@char *@ustrzcat(char *dest, int size, const char *src);
+@xref uconvert, ustrcat, ustrzncat
+   This function concatenates src to the end of dest, whose length in bytes 
+   is specified by size and which is guaranteed to be NULL-terminated. The 
+   return value is the value of dest.
 
 @@int @ustrlen(const char *s);
 @xref uconvert, ustrsize, ustrsizez
@@ -579,25 +591,40 @@ table to the set_ucodepage() function.
    else a negative number.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
-@xref uconvert, ustrsize, ustrsizez, ustrcpy
-   This function is like ustrcpy() except that not more than n bytes from 
-   src are copied into dest. The n parameter is given in bytes rather than 
-   characters on the assumption that you will be using this function to 
-   prevent overflowing the size of a memory buffer. A single null character 
-   is always appended to dest, so that the total amount of bytes actually 
-   written at the end of dest can reach n + ucwidth(0) bytes. The return 
+@xref uconvert, ustrcpy, ustrzncpy
+   This function is like ustrcpy() except that no more than n characters 
+   from src are copied into dest. If src is shorter than n characters, NULL 
+   characters are appended to dest as padding until n characters have been 
+   written. Note that if src is longer than n characters, dest will not be 
+   NULL-terminated. The return value is the value of dest.
+
+@@char *@ustrzncpy(char *dest, int size, const char *src, int n);
+@xref uconvert, ustrzcpy, ustrncpy
+   This function is like ustrzcpy() except that no more than n characters 
+   from src are copied into dest. If src is shorter than n characters, NULL 
+   characters are appended to dest as padding until n characters have been 
+   written. Note that dest is guaranteed to be NULL-terminated. The return 
    value is the value of dest.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
-@xref uconvert, ustrsize, ustrsizez, ustrcat, ucwidth
-   This function is like ustrcat() except that not more than n bytes from 
-   src are appended to the end of dest. The n parameter is given in bytes
-   rather than characters on the assumption that you will be using this
-   function to prevent overflowing the size of a memory buffer. A single
-   null character is always appended to dest, so that the total amount of 
-   bytes actually written at the end of dest can reach n + ucwidth(0) bytes.
-   The return value is the value of dest.
-   
+@xref uconvert, ustrcat, ustrzncat
+   This function is like ustrcat() except that no more than n characters 
+   from src are appended to the end of dest. If the terminating NULL 
+   character in src is reached before n characters have been written, the 
+   NULL character is copied, but no other characters are written. If n 
+   characters are written before a terminating NULL is encountered, the 
+   function appends its own NULL character to dest, so that n+1 characters 
+   are written. The return value is the value of dest.
+
+@@char *@ustrzncat(char *dest, int size, const char *src, int n);
+@xref uconvert, ustrzcat, ustrncat
+   This function is like ustrzcat() except that no more than n characters 
+   from src are appended to the end of dest. If the terminating NULL 
+   character in src is reached before n characters have been written, the 
+   NULL character is copied, but no other characters are written. Note that 
+   dest is guaranteed to be NULL-terminated. The return value is the value 
+   of dest.
+
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp
    This function compares up to n characters of s1 and s2. Returns zero if
@@ -680,29 +707,26 @@ table to the set_ucodepage() function.
    calls to ustrerror, the string might be overwritten.
 
 @@int @usprintf(char *buf, const char *format, ...);
-@xref uconvert, usnprintf, uvsprintf
-   Unicode-aware version of the standard sprintf(): the function writes
-   formatted data into the output buffer. A NULL character is written to mark
-   the end of the string. Returns the number of characters written, not
-   including the trailing NULL character.
+@xref uconvert, uszprintf, uvsprintf
+   This function writes formatted data into the output buffer. A NULL character 
+   is written to mark the end of the string. Returns the number of characters 
+   written, not including the terminating NULL character.
 
-@@int @usnprintf(char *buf, int size, const char *format, ...);
-@xref uconvert, usprintf, uvsnprintf
-   This is like usprintf(), except that at most size bytes are written into
-   the output buffer. The size parameter is given in bytes rather than
-   characters on the assumption that you will be using this function to
-   prevent overflowing the size of a memory buffer. Returns the number of
-   characters that would have been written without truncation (like with
-   usprintf), not including the trailing NULL character.
+@@int @uszprintf(char *buf, int size, const char *format, ...);
+@xref uconvert, usprintf, uvszprintf
+   This function writes formatted data into the output buffer, whose length in 
+   bytes is specified by size and which is guaranteed to be NULL-terminated.
+   Returns the number of characters that would have been written without eventual
+   truncation (like with usprintf), not including the terminating NULL character.
    
 @@int @uvsprintf(char *buf, const char *format, va_list args);
-@xref uconvert, usprintf, uvsnprintf
+@xref uconvert, usprintf, uvszprintf
    This is like usprintf(), but you pass the variable argument list directly,
    instead of the arguments themselves.
    
-@@int @uvsnprintf(char *buf, int size, const char *format, va_list args);
-@xref uconvert, uvsprintf, usnprintf
-   This is like usnprintf(), but you pass the variable argument list directly,
+@@int @uvszprintf(char *buf, int size, const char *format, va_list args);
+@xref uconvert, uszprintf, uvsprintf
+   This is like uszprintf(), but you pass the variable argument list directly,
    instead of the arguments themselves.
 
 

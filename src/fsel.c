@@ -320,15 +320,15 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_START) {
       fix_filename_path(b, s, sizeof(b));
-      ustrncpy(s, b, size - ucwidth(0));
+      ustrzcpy(s, size, b);
    }
 
    if (msg == MSG_KEY) {
       if ((!ugetc(s)) || (ugetat(s, -1) == DEVICE_SEPARATOR))
-	 ustrncat(s, uconvert_ascii("./", NULL), size - ustrsizez(s));
+	 ustrzcat(s, size, uconvert_ascii("./", NULL));
 
       fix_filename_path(b, s, sizeof(b));
-      ustrncpy(s, b, size - ucwidth(0) - ucwidth(OTHER_PATH_SEPARATOR));
+      ustrzcpy(s, size - ucwidth(OTHER_PATH_SEPARATOR), b);
 
       ch = ugetat(s, -1);
       if ((ch != '/') && (ch != OTHER_PATH_SEPARATOR)) {
@@ -471,7 +471,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
    fix_filename_case(s);
 
    if (fext) {
-      ustrncpy(tmp, fext, sizeof(tmp) - ucwidth(0));
+      ustrzcpy(tmp, sizeof(tmp), fext);
       ustrtok(tmp, ext_tokens);
       c = (ustrtok(NULL, ext_tokens) ? 1 : 0);
       if (!c) {
@@ -480,7 +480,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
       }
 
       if (c && (!(attrib & FA_DIREC))) {
-	 ustrncpy(tmp, fext, sizeof(tmp) - ucwidth(0));
+	 ustrzcpy(tmp, sizeof(tmp), fext);
 	 ext = get_extension(s);
 	 tok = ustrtok(tmp, ext_tokens);
 
@@ -501,7 +501,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
       c += usetc(ext_tokens+c, '/');
       usetc(ext_tokens+c, 0);
 
-      ustrncpy(tmp, fext, sizeof(tmp) - ucwidth(0));
+      ustrzcpy(tmp, sizeof(tmp), fext);
       tok = ustrchr(tmp, '/');
 
       if (tok)
@@ -579,7 +579,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 	 flist->name[c2] = flist->name[c2-1];
 
       flist->name[c] = name;
-      ustrcpy(flist->name[c], s);  /* ustrncpy() not needed */
+      ustrcpy(flist->name[c], s);  /* ustrzcpy() not needed */
 
       if (attrib & FA_DIREC)
 	 put_backslash(flist->name[c]);
@@ -667,7 +667,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
       /* check if we want to `cd ..' */
       if ((!ustrncmp(flist->name[d->d1], "..", 2)) && (ret == D_CLOSE)) {
 	 /* let's remember the previous directory */
-	 ustrncpy(updir, empty_string, sizeof(updir) - ucwidth(0));
+	 usetc(updir, 0);
 	 i = ustrlen(flist->dir);
 	 count = 0;
 	 while (i>0) {
@@ -682,7 +682,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 	 /* ok, we have the dirname in updir */
       }
       else {
-	 ustrncpy(updir, empty_string, sizeof(updir) - ucwidth(0));
+	 usetc(updir, 0);
       }
       scare_mouse();
       SEND_MESSAGE(file_selector+FS_EDIT, MSG_START, 0);
@@ -873,10 +873,10 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
 
    p = get_extension(path);
    if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", NULL)))) {
-      size -= ((long)p - (long)path + ucwidth('.') + ucwidth(0));
-      if (size >= uwidth_max(U_CURRENT)) {  /* do not end with '.' */
+      size -= ((long)p - (long)path + ucwidth('.'));
+      if (size >= uwidth_max(U_CURRENT) + ucwidth(0)) {  /* do not end with '.' */
          p += usetc(p, '.');
-         ustrncpy(p, ext, size);
+         ustrzcpy(p, size, ext);
       }
    }
 

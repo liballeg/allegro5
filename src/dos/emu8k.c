@@ -1089,7 +1089,7 @@ int emu8k_detect()
    char *envvar;
 
    if (!(envvar = getenv("BLASTER"))) {
-      ustrncpy(allegro_error, get_config_text("BLASTER environment variable not set"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("BLASTER environment variable not set"));
       return 0;
    }
 
@@ -1107,11 +1107,11 @@ int emu8k_detect()
    }
 
    if (!_emu8k_baseport) {
-      ustrncpy(allegro_error, get_config_text("BLASTER environment variable has no E section"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("BLASTER environment variable has no E section"));
       return 0;
    }
 
-   usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("AWE32 detection failed on port 0x%04x"), _emu8k_baseport);
+   uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("AWE32 detection failed on port 0x%04x"), _emu8k_baseport);
 
    if ((read_word(7, 0, 3) & 0x000f) != 0x000c)
       return 0;

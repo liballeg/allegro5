@@ -315,7 +315,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
    if (info) { 
       vid_mem = vga_setlinearaddressing();
       if (vid_mem < 0) {
-	 ustrncpy(allegro_error, get_config_text("Cannot enable linear addressing"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot enable linear addressing"));
 	 return NULL;
       }
 
@@ -326,7 +326,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       gfx_svgalib.vid_mem = vid_mem;
       gfx_svgalib.scroll = svga_scroll;
 
-      ustrncpy(svga_desc, uconvert_ascii("SVGAlib (linear)", NULL), sizeof(svga_desc) - ucwidth(0));
+      ustrzcpy(svga_desc, sizeof(svga_desc), uconvert_ascii("SVGAlib (linear)", NULL));
       gfx_svgalib.desc = svga_desc;
 
       /* For hardware scrolling.  */
@@ -347,7 +347,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
    /* We don't support virtual screens larger than the screen itself 
     * in banked mode.  */
    if ((v_w > w) || (v_h > h)) {
-      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       return NULL;
    }
 
@@ -368,7 +368,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       gfx_svgalib.vid_mem = vid_mem;
       gfx_svgalib.scroll = NULL;
 
-      ustrncpy(svga_desc, uconvert_ascii("SVGAlib (banked)", NULL), sizeof(svga_desc) - ucwidth(0));
+      ustrzcpy(svga_desc, sizeof(svga_desc), uconvert_ascii("SVGAlib (banked)", NULL));
       gfx_svgalib.desc = svga_desc;
 
       /* Set truecolor format.  */
@@ -393,7 +393,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       return bmp;
    }
 
-   ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+   ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
    return NULL;
 }
 
@@ -414,7 +414,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 #endif
 
    if ((!svgalib2) && (!__al_linux_have_ioperms)) {
-      ustrncpy(allegro_error, get_config_text("This driver needs root privileges"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs root privileges"));
       return NULL;
    }
 

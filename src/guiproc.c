@@ -1054,7 +1054,7 @@ void _draw_listbox(DIALOG *d)
 	    fg = fg_color;
 	    bg = d->bg;
 	 }
-	 ustrncpy(s, (*(getfuncptr)d->dp)(i+d->d2, NULL), sizeof(s)-ucwidth(0));
+	 ustrzcpy(s, sizeof(s), (*(getfuncptr)d->dp)(i+d->d2, NULL));
 	 x = d->x + 2;
 	 y = d->y + 2 + i*text_height(font);
 	 rtm = text_mode(bg);

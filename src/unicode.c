@@ -18,7 +18,7 @@
  *
  *      Peter Cech added some non-ASCII characters to uissspace().
  *
- *      usnprintf() and uvsnprintf() added by Eric Botcazou.
+ *      size-aware (aka 'z') functions added by Eric Botcazou.
  *
  *      See readme.txt for copyright information.
  */
@@ -1713,7 +1713,7 @@ char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
    char *s = malloc_func(ustrsizez(src));
 
    if (s)
-      ustrcpy(s, src);  /* ustrncpy() not needed */
+      ustrcpy(s, src);  /* ustrzcpy() not needed */
 
    return s;
 }
@@ -1754,16 +1754,26 @@ int ustrsizez(AL_CONST char *s)
 
 
 
-/* ustrcpy:
- *  Unicode-aware version of the ANSI strcpy() function.
+/* ustrzcpy:
+ *  Enhanced Unicode-aware version of the ANSI strcpy() function
+ *  that can handle the size (in bytes) of the destination string.
+ *  The raw Unicode-aware version of ANSI strcpy() is defined as:
+ *   #define ustrcpy(dest, src) ustrzcpy(dest, INT_MAX, src)
  */
-char *ustrcpy(char *dest, AL_CONST char *src)
+char *ustrzcpy(char *dest, int size, AL_CONST char *src)
 {
    int pos = 0;
    int c;
 
-   while ((c = ugetxc(&src)) != 0)
+   size -= ucwidth(0);
+
+   while ((c = ugetxc(&src)) != 0) {
+      size -= ucwidth(c);
+      if (size < 0)
+         break;
+
       pos += usetc(dest+pos, c);
+   }
 
    usetc(dest+pos, 0);
 
@@ -1772,16 +1782,26 @@ char *ustrcpy(char *dest, AL_CONST char *src)
 
 
 
-/* ustrcat:
- *  Unicode-aware version of the ANSI strcat() function.
+/* ustrzcat:
+ *  Enhanced Unicode-aware version of the ANSI strcat() function
+ *  that can handle the size (in bytes) of the destination string.
+ *  The raw Unicode-aware version of ANSI strcat() is defined as:
+ *   #define ustrcat(dest, src) ustrzcat(dest, INT_MAX, src)
  */
-char *ustrcat(char *dest, AL_CONST char *src)
+char *ustrzcat(char *dest, int size, AL_CONST char *src)
 {
    int pos = ustrsize(dest);
    int c;
 
-   while ((c = ugetxc(&src)) != 0)
+   size -= pos + ucwidth(0);
+
+   while ((c = ugetxc(&src)) != 0) {
+      size -= ucwidth(c);
+      if (size < 0)
+         break;
+
       pos += usetc(dest+pos, c);
+   }
 
    usetc(dest+pos, 0);
 
@@ -1826,25 +1846,73 @@ int ustrcmp(AL_CONST char *s1, AL_CONST char *s2)
 
 
 
-/* ustrncpy:
- *  Unicode-aware version of the ANSI strncpy() function. The n parameter
- *  is in bytes, on the assumption that you want to use this function to
- *  prevent overflowing a buffer size.
- *  But unlike the ANSI version, it doesn't append null characters as 
- *  padding until n bytes have been written and it always appends its
- *  own terminating null character.
+/* ustrzncpy:
+ *  Enhanced Unicode-aware version of the ANSI strncpy() function
+ *  that can handle the size (in bytes) of the destination string.
+ *  The raw Unicode-aware version of ANSI strncpy() is defined as:
+ *   #define ustrncpy(dest, src, n) ustrzncpy(dest, INT_MAX, src, n)
  */
-char *ustrncpy(char *dest, AL_CONST char *src, int n)
+char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
 {
-   int pos = 0;
+   int pos = 0, len = 0;
+   int ansi_oddness = FALSE;
    int c;
 
-   while ((c = ugetxc(&src)) != 0) {
-      n -= ucwidth(c);
-      if (n<0)
+   /* detect raw ustrncpy() call */
+   if (size == INT_MAX)
+      ansi_oddness = TRUE;
+
+   size -= ucwidth(0);
+
+   /* copy at most n characters */
+   while (((c = ugetxc(&src)) != 0) && (len < n)) {
+      size -= ucwidth(c);
+      if (size<0)
          break;
 
       pos += usetc(dest+pos, c);
+      len++;
+   }
+
+   /* pad with NULL characters */
+   while (len < n) {
+      size -= ucwidth(0);
+      if (size < 0)
+         break;
+
+      pos += usetc(dest+pos, 0);
+      len++;
+   }
+
+   /* ANSI C doesn't append the terminating NULL character */
+   if (!ansi_oddness)
+      usetc(dest+pos, 0);
+
+   return dest;
+}
+
+
+
+/* ustrzncat:
+ *  Enhanced Unicode-aware version of the ANSI strncat() function
+ *  that can handle the size (in bytes) of the destination string.
+ *  The raw Unicode-aware version of ANSI strncat() is defined as:
+ *   #define ustrncat(dest, src, n) ustrzncat(dest, INT_MAX, src, n)
+ */
+char *ustrzncat(char *dest, int size, AL_CONST char *src, int n)
+{
+   int pos = ustrsize(dest), len = 0;
+   int c;
+
+   size -= pos + ucwidth(0);
+
+   while (((c = ugetxc(&src)) != 0) && (len < n)) {
+      size -= ucwidth(c);
+      if (size<0)
+         break;
+
+      pos += usetc(dest+pos, c);
+      len++;
    }
 
    usetc(dest+pos, 0);
@@ -1854,36 +1922,8 @@ char *ustrncpy(char *dest, AL_CONST char *src, int n)
 
 
 
-/* ustrncat:
- *  Unicode-aware version of the ANSI strncat() function. The n parameter
- *  is in bytes, on the assumption that you want to use this function to
- *  prevent overflowing a buffer size.
- */
-char *ustrncat(char *dest, AL_CONST char *src, int n)
-{
-   char *d = dest + ustrsize(dest);
-   int pos = 0;
-   int c;
-
-   while ((c = ugetxc(&src)) != 0) {
-      n -= ucwidth(c);
-      if (n<0)
-         break;
-
-      pos += usetc(d+pos, c);
-   }
-
-   usetc(d+pos, 0);
-
-   return dest;
-}
-
-
-
 /* ustrncmp:
- *  Unicode-aware version of the ANSI strncmp() function. The n parameter
- *  is in characters, on the assumption that you want to use this function 
- *  to compare only a few letters from a string.
+ *  Unicode-aware version of the ANSI strncmp() function.
  */
 int ustrncmp(AL_CONST char *s1, AL_CONST char *s2, int n)
 {
@@ -2868,39 +2908,30 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 
 
 
-/* uvsprintf:
- *  Unicode-aware version of the ANSI vsprintf() function.
+/* uvszprintf:
+ *  Enhanced Unicode-aware version of the ANSI vsprintf() function
+ *  than can handle the size (in bytes) of the destination buffer.
+ *  The raw Unicode-aware version of ANSI vsprintf() is defined as:
+ *   #define uvsprintf(buf, format, args) uvszprintf(buf, INT_MAX, format, args)
  */
-int uvsprintf(char *buf, AL_CONST char *format, va_list args)
-{
-   return uvsnprintf(buf, INT_MAX, format, args);
-}
-
-
-
-/* uvsnprintf:
- *  Unicode-aware version of the ANSI vsprintf() function. The size parameter
- *  is in bytes, on the assumption that you want to use this function to
- *  prevent overflowing a buffer size.
- */
-int uvsnprintf(char *buf, int size, AL_CONST char *format, va_list args)
+int uvszprintf(char *buf, int size, AL_CONST char *format, va_list args)
 {
    char *decoded_format, *df;
-   STRING_ARG *string_arg, *iter_arg;
+   STRING_ARG *string_args, *iter_arg;
    int c, len;
 
    /* decoding can only lower the length of the format string */
    df = decoded_format = malloc(ustrsizez(format) * sizeof(char));
 
    /* allocate first item */
-   string_arg = malloc(sizeof(STRING_ARG));
-   string_arg->next = NULL;
+   string_args = malloc(sizeof(STRING_ARG));
+   string_args->next = NULL;
 
    /* 1st pass: decode */
-   len = decode_format_string(decoded_format, string_arg, format, args);
+   len = decode_format_string(decoded_format, string_args, format, args);
 
    size -= ucwidth(0);
-   iter_arg = string_arg;
+   iter_arg = string_args;
 
    /* 2nd pass: concatenate */
    while ((c = ugetx(&decoded_format)) != 0) {
@@ -2915,7 +2946,7 @@ int uvsnprintf(char *buf, int size, AL_CONST char *format, va_list args)
 	 }
 	 else if (c == 's') {
             /* string argument */
-            ustrncpy(buf, iter_arg->data, size);
+            ustrzcpy(buf, size+ucwidth(0), iter_arg->data);
             buf += iter_arg->size;
             size -= iter_arg->size;
             if (size<0) {
@@ -2937,13 +2968,13 @@ int uvsnprintf(char *buf, int size, AL_CONST char *format, va_list args)
    usetc(buf, 0);
 
    /* free allocated resources */
-   while (string_arg->next) {
-      free(string_arg->data);
-      iter_arg = string_arg;
-      string_arg = string_arg->next;
+   while (string_args->next) {
+      free(string_args->data);
+      iter_arg = string_args;
+      string_args = string_args->next;
       free(iter_arg);
    }
-   free(string_arg);
+   free(string_args);
    free(df);  /* alias for decoded_format */
 
    return len;
@@ -2960,7 +2991,7 @@ int usprintf(char *buf, AL_CONST char *format, ...)
 
    va_list ap;
    va_start(ap, format);
-   ret = uvsnprintf(buf, INT_MAX, format, ap);
+   ret = uvszprintf(buf, INT_MAX, format, ap);
    va_end(ap);
 
    return ret;
@@ -2968,18 +2999,17 @@ int usprintf(char *buf, AL_CONST char *format, ...)
 
 
 
-/* usnprintf:
- *  Unicode-aware version of the ANSI sprintf() function. The size parameter
- *  is in bytes, on the assumption that you want to use this function to
- *  prevent overflowing a buffer size.
+/* uszprintf:
+ *  Enhanced Unicode-aware version of the ANSI sprintf() function
+ *  that can handle the size (in bytes) of the destination buffer.
  */
-int usnprintf(char *buf, int size, AL_CONST char *format, ...)
+int uszprintf(char *buf, int size, AL_CONST char *format, ...)
 {
    int ret;
 
    va_list ap;
    va_start(ap, format);
-   ret = uvsnprintf(buf, size, format, ap);
+   ret = uvszprintf(buf, size, format, ap);
    va_end(ap);
 
    return ret;

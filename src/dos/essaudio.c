@@ -365,7 +365,7 @@ static int ess_detect(int input)
    /* check if the card really exists */
    ess_read_dsp_version();
    if (ess_hw_ver < 0) {
-      ustrncpy(allegro_error, get_config_text("ESS AudioDrive not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("ESS AudioDrive not found"));
       _sound_port = orig_port;
       _sound_irq = orig_irq;
       _sound_dma = orig_dma;
@@ -398,7 +398,7 @@ static int ess_detect(int input)
    }
 
    /* set up the card description */
-   usnprintf(ess_desc, sizeof(ess_desc), get_config_text("ES%X (%d hz) on port %X, using IRQ %d and DMA channel %d"),
+   uszprintf(ess_desc, sizeof(ess_desc), get_config_text("ES%X (%d hz) on port %X, using IRQ %d and DMA channel %d"),
 	     ess_hw_ver, _sound_freq, _sound_port, _sound_irq, _sound_dma);
 
    digi_audiodrive.desc = ess_desc;

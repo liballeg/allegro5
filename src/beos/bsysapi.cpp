@@ -247,18 +247,18 @@ int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
    /* look for /etc/file */
    append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
    if (exists(buf)) {
-      ustrncpy(dest, buf, size-ucwidth(0));
+      ustrzcpy(dest, size, buf);
       return 0;
    }
 
    /* if it is a .cfg, look for /etc/filerc */
    if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
-      ustrncpy(buf, uconvert_ascii("/etc/", tmp), sizeof(buf)-ucwidth(0));
-      ustrncpy(tmp, resource, sizeof(tmp)-ucwidth(0));
-      ustrncat(buf, ustrtok(tmp, "."), sizeof(buf)-ucwidth(0));
-      ustrncat(buf, uconvert_ascii("rc", tmp), sizeof(buf)-ucwidth(0));
+      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
+      ustrzcpy(tmp, sizeof(tmp), resource);
+      ustrzcat(buf, sizeof(buf), ustrtok(tmp, "."));
+      ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
       if (exists(buf)) {
-	 ustrncpy(dest, buf, size-ucwidth(0));
+	 ustrzcpy(dest, size, buf);
 	 return 0;
       }
    }

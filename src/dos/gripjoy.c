@@ -223,12 +223,12 @@ static int grip_init()
    int i = 0;
 
    if (grip_link()) {
-      ustrncpy(allegro_error, get_config_text("Could not find GRIP.GLL"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Could not find GRIP.GLL"));
       return -1;
    }
 
    if (!_GrInitialize()) {
-      ustrncpy(allegro_error, get_config_text("Could not initialize GrIP system"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Could not initialize GrIP system"));
       grip_unlink();
       return -1;
    }
@@ -249,7 +249,7 @@ static int grip_init()
    }
 
    if (num_joysticks == 0) {
-      ustrncpy(allegro_error, get_config_text("No GrIP devices available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("No GrIP devices available"));
       grip_exit();
       return -1;
    }
@@ -629,7 +629,7 @@ static int grip_link()
       if (s) {
 	 do_uconvert(s, U_ASCII, name, U_CURRENT, sizeof(name) - ucwidth(OTHER_PATH_SEPARATOR));
 	 put_backslash(name);
-	 ustrncat(name, uconvert_ascii("grip.gll", NULL), sizeof(name) - ustrsizez(name));
+	 ustrzcat(name, sizeof(name), uconvert_ascii("grip.gll", NULL));
       }
    }
 

@@ -249,7 +249,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
    close(fbfd);
-   ustrncpy(allegro_error, get_config_text("Framebuffer resolution not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+   ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer resolution not available"));
    return NULL;
 
    got_a_nice_mode:
@@ -259,7 +259,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (fbaddr == MAP_FAILED) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       close(fbfd);
-      ustrncpy(allegro_error, get_config_text("Can't map framebuffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't map framebuffer"));
       return NULL;
    }
 
@@ -296,8 +296,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    do_uconvert(fix_info.id, U_ASCII, fb_desc, U_CURRENT, sizeof(fb_desc));
 
    if (fb_approx) {
-      ustrncat(fb_desc, uconvert_ascii(", ", NULL), sizeof(fb_desc) - ustrsizez(fb_desc));
-      ustrncat(fb_desc, get_config_text("approx."), sizeof(fb_desc) - ustrsizez(fb_desc));
+      ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", NULL));
+      ustrzcat(fb_desc, sizeof(fb_desc), get_config_text("approx."));
    }
 
    gfx_fbcon.desc = fb_desc;
@@ -356,8 +356,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (!(vblank_flags & (FB_VBLANK_HAVE_VBLANK | FB_VBLANK_HAVE_STICKY | FB_VBLANK_HAVE_VCOUNT)))
  #endif
    {
-      ustrncat(fb_desc, uconvert_ascii(", ", NULL), sizeof(fb_desc) - ustrsizez(fb_desc));
-      ustrncat(fb_desc, get_config_text("no vsync"), sizeof(fb_desc) - ustrsizez(fb_desc));
+      ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", NULL));
+      ustrzcat(fb_desc, sizeof(fb_desc), get_config_text("no vsync"));
    }
 
    /* is scrolling available? */
@@ -414,14 +414,14 @@ static int fb_open_device(void)
 
    /* open the framebuffer device */
    if ((fbfd = open(fname, O_RDWR)) < 0) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp1));
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp1));
       return 1;
    }
 
    /* read video mode information */
    if ((ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) ||
        (ioctl(fbfd, FBIOGET_VSCREENINFO, &orig_mode) != 0)) {
-      ustrncpy(allegro_error, get_config_text("Framebuffer ioctl() failed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Framebuffer ioctl() failed"));
       return 2;
    }
 
@@ -675,7 +675,7 @@ static int read_config_file (int w, int h)
    int argc;
 
    /* Let the setup program know what config string we read for this mode */
-   usnprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp), w, h);
+   uszprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp), w, h);
 
    /* First try the config file */
    argv = get_config_argv (NULL, temp_timings.config_item, &argc);
@@ -876,7 +876,7 @@ static void set_default_timings (void)
    cp(xres);
    cp(yres);
    #undef cp
-   usnprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp),
+   uszprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp),
 	     orig_mode.xres, orig_mode.yres);
 }
 

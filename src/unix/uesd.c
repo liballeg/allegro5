@@ -151,7 +151,7 @@ static int _al_esd_detect(int input)
    setenv("ESD_NO_SPAWN","1",0);
 
    if (input) {
-      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return FALSE;
    }
 
@@ -163,7 +163,7 @@ static int _al_esd_detect(int input)
    /* Try to open ESD server.  */
    fd = esd_open_sound(uconvert_toascii(server, s));
    if (fd < 0) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: can not open"),
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: can not open"),
 		(ugetc(server) ? server : get_config_text("No server")));
       return FALSE;
    }
@@ -184,7 +184,7 @@ static int _al_esd_init(int input, int voices)
    char s[256];
 
    if (input) {
-      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return -1;
    }
 
@@ -204,7 +204,7 @@ static int _al_esd_init(int input, int voices)
    _al_esd_fd = esd_play_stream_fallback(_al_esd_format, _al_esd_rate,
 					 uconvert_toascii(server, s), NULL);
    if (_al_esd_fd < 0) {
-      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: can not open"),
+      uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: can not open"),
 		(ugetc(server) ? server : get_config_text("No server")));
       return -1;
    }
@@ -212,7 +212,7 @@ static int _al_esd_init(int input, int voices)
    _al_esd_bufsize = ESD_BUF_SIZE;
    _al_esd_bufdata = malloc(_al_esd_bufsize);
    if (_al_esd_bufdata == 0) {
-      ustrncpy(allegro_error, get_config_text("Can not allocate audio buffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       close(_al_esd_fd);
    }
 
@@ -221,7 +221,7 @@ static int _al_esd_init(int input, int voices)
    if (_mixer_init(_al_esd_bufsize / (_al_esd_bits / 8), _al_esd_rate,
 		   _al_esd_stereo, ((_al_esd_bits == 16) ? 1 : 0),
 		   &digi_esd.voices) != 0) {
-      ustrncpy(allegro_error, get_config_text("Can not init software mixer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
       close(_al_esd_fd);
       return -1;
    }
@@ -233,10 +233,10 @@ static int _al_esd_init(int input, int voices)
    _sigalrm_digi_interrupt_handler = _al_esd_update;
    ENABLE();
 
-   usnprintf(_al_esd_desc, sizeof(_al_esd_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
-	     server, _al_esd_bits,
-	     uconvert_ascii((_al_esd_signed ? "signed" : "unsigned"), tmp1), _al_esd_rate,
-	     uconvert_ascii((_al_esd_stereo ? "stereo" : "mono"), tmp2));
+   uszprintf(_al_esd_desc, sizeof(_al_esd_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
+			  server, _al_esd_bits,
+			  uconvert_ascii((_al_esd_signed ? "signed" : "unsigned"), tmp1), _al_esd_rate,
+			  uconvert_ascii((_al_esd_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = _al_esd_desc;
 

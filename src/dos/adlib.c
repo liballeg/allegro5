@@ -710,7 +710,7 @@ static int fm_detect(int input)
    }
 
    if (!fm_is_there()) {
-      ustrncpy(allegro_error, get_config_text("OPL synth not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("OPL synth not found"));
       return FALSE;
    }
 
@@ -729,13 +729,13 @@ static int fm_detect(int input)
 
    if (midi_card == MIDI_OPL3) {
       if (opl_type != MIDI_OPL3) {
-	 ustrncpy(allegro_error, get_config_text("OPL3 synth not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("OPL3 synth not found"));
 	 return FALSE;
       }
    }
    else if (midi_card == MIDI_2XOPL2) {
       if (opl_type != MIDI_2XOPL2) {
-	 ustrncpy(allegro_error, get_config_text("Second OPL2 synth not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Second OPL2 synth not found"));
 	 return FALSE;
       }
    }
@@ -749,7 +749,7 @@ static int fm_detect(int input)
    else
       s = get_config_text("OPL3 synth");
 
-   usnprintf(adlib_desc, sizeof(adlib_desc), get_config_text("%s on port %X"), s, _fm_port);
+   uszprintf(adlib_desc, sizeof(adlib_desc), get_config_text("%s on port %X"), s, _fm_port);
    midi_driver->desc = adlib_desc;
 
    return TRUE;
@@ -863,7 +863,7 @@ static int fm_init(int input, int voices)
       s = get_config_string(uconvert_ascii("sound", tmp1), uconvert_ascii(((i == 0) ? "ibk_file" : "ibk_drum_file"), tmp2), NULL);
       if ((s) && (ugetc(s))) {
 	 if (load_ibk(s, (i > 0)) != 0) {
-	    usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Error reading .IBK file '%s'"), s);
+	    uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Error reading .IBK file '%s'"), s);
 	    return -1;
 	 }
       }

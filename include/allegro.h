@@ -35,6 +35,7 @@
    #include <stddef.h>
    #include <stdlib.h>
    #include <stdarg.h>
+   #include <limits.h>
    #include <errno.h>
 #endif
 
@@ -244,12 +245,13 @@ AL_FUNC(int, uisspace, (int c));
 AL_FUNC(int, uisdigit, (int c));
 AL_FUNC(int, ustrsize, (AL_CONST char *s));
 AL_FUNC(int, ustrsizez, (AL_CONST char *s));
-AL_FUNC(char *, ustrcpy, (char *dest, AL_CONST char *src));
-AL_FUNC(char *, ustrcat, (char *dest, AL_CONST char *src));
+AL_FUNC(char *, _ustrdup, (AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t))));
+AL_FUNC(char *, ustrzcpy, (char *dest, int size, AL_CONST char *src));
+AL_FUNC(char *, ustrzcat, (char *dest, int size, AL_CONST char *src));
 AL_FUNC(int, ustrlen, (AL_CONST char *s));
 AL_FUNC(int, ustrcmp, (AL_CONST char *s1, AL_CONST char *s2));
-AL_FUNC(char *, ustrncpy, (char *dest, AL_CONST char *src, int n));
-AL_FUNC(char *, ustrncat, (char *dest, AL_CONST char *src, int n));
+AL_FUNC(char *, ustrzncpy, (char *dest, int size, AL_CONST char *src, int n));
+AL_FUNC(char *, ustrzncat, (char *dest, int size, AL_CONST char *src, int n));
 AL_FUNC(int, ustrncmp, (AL_CONST char *s1, AL_CONST char *s2, int n));
 AL_FUNC(int, ustricmp, (AL_CONST char *s1, AL_CONST char *s2));
 AL_FUNC(char *, ustrlwr, (char *s));
@@ -263,14 +265,17 @@ AL_FUNC(double, uatof, (AL_CONST char *s));
 AL_FUNC(long, ustrtol, (AL_CONST char *s, char **endp, int base));
 AL_FUNC(double, ustrtod, (AL_CONST char *s, char **endp));
 AL_FUNC(AL_CONST char *, ustrerror, (int err));
+AL_PRINTFUNC(int, uszprintf, (char *buf, int size, AL_CONST char *format, ...), 3, 4);
+AL_FUNC(int, uvszprintf, (char *buf, int size, AL_CONST char *format, va_list args));
 AL_PRINTFUNC(int, usprintf, (char *buf, AL_CONST char *format, ...), 2, 3);
-AL_PRINTFUNC(int, usnprintf, (char *buf, int size, AL_CONST char *format, ...), 3, 4);
-AL_FUNC(int, uvsprintf, (char *buf, AL_CONST char *format, va_list args));
-AL_FUNC(int, uvsnprintf, (char *buf, int size, AL_CONST char *format, va_list args));
 
-AL_FUNC(char *, _ustrdup, (AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t))));
+#define ustrdup(src)                  _ustrdup(src, malloc)
+#define ustrcpy(dest, src)            ustrzcpy(dest, INT_MAX, src)
+#define ustrcat(dest, src)            ustrzcat(dest, INT_MAX, src)
+#define ustrncpy(dest, src, n)        ustrzncpy(dest, INT_MAX, src, n)
+#define ustrncat(dest, src, n)        ustrzncat(dest, INT_MAX, src, n)
+#define uvsprintf(buf, format, args)  uvszprintf(buf, INT_MAX, format, args)
 
-#define ustrdup(src)    _ustrdup(src, malloc)
 
 
 /************************************************/

@@ -1526,12 +1526,12 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
    char buf[512];
    int size;
 
-   ustrncpy(buf, filename, sizeof(buf)-ucwidth(0));
+   ustrzcpy(buf, sizeof(buf), filename);
 
    if (ustrcmp(buf, uconvert_ascii("#", NULL)) != 0)
-      ustrncat(buf, uconvert_ascii("#", NULL), sizeof(buf)-ustrsizez(buf));
+      ustrzcat(buf, sizeof(buf), uconvert_ascii("#", NULL));
 
-   ustrncat(buf, objectname, sizeof(buf)-ustrsizez(buf));
+   ustrzcat(buf, sizeof(buf), objectname);
 
    f = pack_fopen(buf, F_READ_PACKED);
    if (!f)

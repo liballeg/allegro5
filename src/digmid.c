@@ -379,10 +379,10 @@ int _digmid_find_patches(char *dir, int dir_size, char *file, int file_size)
       return FALSE;
 
    s = get_filename(filename);
-   ustrncpy(file, s, file_size - ucwidth(0));
+   ustrzcpy(file, file_size, s);
 
    usetc(s, 0);
-   ustrncpy(dir, filename, dir_size - ucwidth(0));
+   ustrzcpy(dir, dir_size, filename);
 
    return TRUE;
 }
@@ -444,8 +444,8 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
    for (i=0; i<256; i++)
       todo[i][0] = 0;
 
-   ustrncpy(buf, dir, sizeof(buf) - ucwidth(0));
-   ustrncat(buf, file, sizeof(buf) - ustrsizez(buf));
+   ustrzcpy(buf, sizeof(buf), dir);
+   ustrzcat(buf, sizeof(buf), file);
    f = pack_fopen(buf, F_READ);
    if (!f)
       return -1;
@@ -582,10 +582,10 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
       /* read from regular disk files */
       for (i=0; i<256; i++) {
 	 if (todo[i][0]) {
-	    ustrncpy(filename, dir, sizeof(filename) - ucwidth(0));
-	    ustrncat(filename, uconvert_ascii(todo[i], NULL), sizeof(filename) - ustrsizez(filename));
+	    ustrzcpy(filename, sizeof(filename), dir);
+	    ustrzcat(filename, sizeof(filename), uconvert_ascii(todo[i], NULL));
 	    if (ugetc(get_extension(filename)) == 0)
-	       ustrncat(filename, uconvert_ascii(".pat", NULL), sizeof(filename) - ustrsizez(filename));
+	       ustrzcat(filename, sizeof(filename), uconvert_ascii(".pat", NULL));
 	    f = pack_fopen(filename, F_READ);
 	    if (f) {
 	       patch[i] = load_patch(f, (i >= 128));
@@ -919,7 +919,7 @@ static int digmid_detect(int input)
       return FALSE;
 
    if (!_digmid_find_patches(dir, sizeof(dir), file, sizeof(file))) {
-      ustrncpy(allegro_error, get_config_text("DIGMID patch set not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DIGMID patch set not found"));
       return FALSE;
    }
 

@@ -399,7 +399,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
       _safe_gfx_mode_change = 1;
-      ustrncpy(buf, allegro_error, sizeof(buf)-ucwidth(0));
+      ustrzcpy(buf, sizeof(buf), allegro_error);
       if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
 	 set_color_depth(8);
 	 allow_config = FALSE;
@@ -416,7 +416,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 allow_config = TRUE;
       }
 
-      ustrncpy(allegro_error, buf, ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
       _safe_gfx_mode_change = 0;
       return 0;
    }
@@ -515,22 +515,22 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
 	    case -2:
 	       /* example: gfx_card_640x480x16 = */
-	       usnprintf(buf, sizeof(buf), uconvert_ascii("gfx_card_%dx%dx%d", tmp), w, h, _color_depth);
+	       uszprintf(buf, sizeof(buf), uconvert_ascii("gfx_card_%dx%dx%d", tmp), w, h, _color_depth);
 	       break;
 
 	    case -1:
 	       /* example: gfx_card_24bpp = */
-	       usnprintf(buf, sizeof(buf), uconvert_ascii("gfx_card_%dbpp", tmp), _color_depth);
+	       uszprintf(buf, sizeof(buf), uconvert_ascii("gfx_card_%dbpp", tmp), _color_depth);
 	       break;
 
 	    case 0:
 	       /* example: gfx_card = */
-	       ustrncpy(buf, uconvert_ascii("gfx_card", tmp), sizeof(buf) - ucwidth(0));
+	       ustrzcpy(buf, sizeof(buf), uconvert_ascii("gfx_card", tmp));
 	       break;
 
 	    default:
 	       /* example: gfx_card1 = */
-	       usnprintf(buf, sizeof(buf), uconvert_ascii("gfx_card%d", tmp), n);
+	       uszprintf(buf, sizeof(buf), uconvert_ascii("gfx_card%d", tmp), n);
 	       break;
 	 }
 	 card = get_config_id(uconvert_ascii("graphics", tmp), buf, GFX_AUTODETECT);
@@ -603,7 +603,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       screen = NULL;
 
       if (!ugetc(allegro_error))
-	 ustrncpy(allegro_error, get_config_text("Unable to find a suitable graphics driver"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to find a suitable graphics driver"));
 
       if (system_driver->display_switch_lock)
 	 system_driver->display_switch_lock(FALSE, FALSE);

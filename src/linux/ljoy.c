@@ -66,7 +66,7 @@ static int joy_init (void)
 
 		/* User is allow to override our simple assumption of which
 		 * axis number (kernel) the throttle is located at. */
-		usnprintf(tmp, sizeof(tmp), uconvert_ascii("throttle_axis_%d", tmp1), i);
+		uszprintf(tmp, sizeof(tmp), uconvert_ascii("throttle_axis_%d", tmp1), i);
 		throttle = get_config_int(uconvert_ascii("joystick", tmp1), tmp, -1);
 		if (throttle == -1) {
 			throttle = get_config_int(uconvert_ascii("joystick", tmp1), 
@@ -96,7 +96,7 @@ static int joy_init (void)
 				j->stick[s].axis[0].name = get_config_text("X");
 				j->stick[s].axis[1].name = get_config_text("Y");
 				j->stick[s].name = malloc (32);
-				usnprintf ((char *)j->stick[s].name, 32, get_config_text("Stick %d"), s+1);
+				uszprintf ((char *)j->stick[s].name, 32, get_config_text("Stick %d"), s+1);
 				axis[i][a++] = &j->stick[s].axis[0];
 				axis[i][a++] = &j->stick[s].axis[1];
 			}
@@ -106,14 +106,14 @@ static int joy_init (void)
 
 		for (b = 0; b < num_buttons; b++) {
 			j->button[b].name = malloc (16);
-			usnprintf ((char *)j->button[b].name, 16, uconvert_ascii("%c", tmp), 'A' + b);
+			uszprintf ((char *)j->button[b].name, 16, uconvert_ascii("%c", tmp), 'A' + b);
 		}
 		j->num_buttons = num_buttons;
 	}
 
 	num_joysticks = i;
 	if (num_joysticks == 0) {
-		usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
+		uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
 			   uconvert_ascii ("/dev/js0", tmp), ustrerror (errno));
 		return -1;
 	}

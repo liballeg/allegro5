@@ -96,7 +96,7 @@ static int ww_init()
 
    if (r.x.ax != 1) {
       /* SWIFT functions not present */
-      ustrncpy(allegro_error, get_config_text("SWIFT Device not detected"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("SWIFT Device not detected"));
       free(wingman);
       wingman = NULL;
       return -1;
@@ -105,9 +105,9 @@ static int ww_init()
    if (wingman->swift.type != 1) {
       /* no SWIFT device, or not Wingman */
       if (wingman->swift.type == 0)
-	 ustrncpy(allegro_error, get_config_text("Wingman Warrior not connected"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Wingman Warrior not connected"));
       else
-	 ustrncpy(allegro_error, get_config_text("Device connected is not a Wingman Warrior"), ALLEGRO_ERROR_SIZE - ucwidth(0));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Device connected is not a Wingman Warrior"));
 
       free(wingman);
       wingman = NULL;
