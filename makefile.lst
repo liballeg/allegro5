@@ -36,6 +36,7 @@ ALLEGRO_SRC_FILES = \
 	src/keyboard.c \
 	src/lbm.c \
 	src/libc.c \
+	src/lzss.c \
 	src/math.c \
 	src/math3d.c \
 	src/midi.c \

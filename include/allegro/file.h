@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      File I/O and compression routines.
+ *      File I/O.
  *
  *      By Shawn Hargreaves.
  *
@@ -85,8 +85,8 @@ AL_FUNC(void, al_findclose, (struct al_ffblk *info));
 typedef struct PACKFILE_VTABLE PACKFILE_VTABLE;
 typedef struct PACKFILE PACKFILE;
 
-typedef struct LZSS_PACK_DATA LZSS_PACK_DATA;
-typedef struct LZSS_UNPACK_DATA LZSS_UNPACK_DATA;
+struct LZSS_PACK_DATA;
+struct LZSS_UNPACK_DATA;
 
 
 struct _al_normal_packfile_details
@@ -97,8 +97,8 @@ struct _al_normal_packfile_details
    int buf_size;                       /* number of bytes in the buffer */
    long todo;                          /* number of bytes still on the disk */
    struct PACKFILE *parent;            /* nested, parent file */
-   LZSS_PACK_DATA *pack_data;          /* for LZSS compression */
-   LZSS_UNPACK_DATA *unpack_data;      /* for LZSS decompression */
+   struct LZSS_PACK_DATA *pack_data;   /* for LZSS compression */
+   struct LZSS_UNPACK_DATA *unpack_data; /* for LZSS decompression */
    char *filename;                     /* name of the file */
    char *passdata;                     /* encryption key data */
    char *passpos;                      /* current key position */
@@ -156,15 +156,6 @@ AL_FUNC(int, pack_ungetc, (int c, PACKFILE *f));
 AL_FUNC(char *, pack_fgets, (char *p, int max, PACKFILE *f));
 AL_FUNC(int, pack_fputs, (AL_CONST char *p, PACKFILE *f));
 AL_FUNC(void *, pack_get_userdata, (PACKFILE *f));
-
-
-AL_FUNC(LZSS_PACK_DATA *, create_lzss_pack_data, (void));
-AL_FUNC(void, free_lzss_pack_data, (LZSS_PACK_DATA *dat));
-AL_FUNC(int, lzss_write, (PACKFILE *file, LZSS_PACK_DATA *dat, int size, unsigned char *buf, int last));
-
-AL_FUNC(LZSS_UNPACK_DATA *, create_lzss_unpack_data, (void));
-AL_FUNC(void, free_lzss_unpack_data, (LZSS_UNPACK_DATA *dat));
-AL_FUNC(int, lzss_read, (PACKFILE *file, LZSS_UNPACK_DATA *dat, int s, unsigned char *buf));
 
 
 #ifdef __cplusplus
