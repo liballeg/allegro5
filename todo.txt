@@ -14,7 +14,6 @@ General (Platform independant) todos:
 - rewrite set_gfx_mode, or at least have dynamic driver lists
 - find solution or API to timer/multithread problem
 - don't use BITMAPs for zbuffers
-- buffer overflows and unicode (Annie's patch needs some changes)
 - Unified color conversion routines for all windowed gfx drivers (now
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
@@ -29,9 +28,8 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Fix switching bug (likely a race condition)
-- Fix mouse pointer not hidden bug (likely a race condition)
-- Confirm sample played twice bug with the DirectSound driver
+- Fix 'screen not redrawn after switching' bug (likely a race condition)
+- Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Add backward playing to the DirectSound driver
 
 Linux todos:
