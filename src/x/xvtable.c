@@ -54,6 +54,9 @@ static void _xwin_clear_to_color(BITMAP *dst, int color);
 /* True if the GC is using the proper drawing mode */
 static int _xwin_drawmode_ok = TRUE;
 
+/* The drawing mode the current GC is actually in */
+static int _xwin_real_drawmode = GXcopy;
+
 /* A counter for the number of locks held on the X display */
 static int _xwin_lock_count = 0;
 
@@ -64,20 +67,28 @@ static int _xwin_lock_count = 0;
  */
 void _xwin_drawing_mode(void)
 {
-   int gc_func;
+   if (!_xwin.matching_formats) {
+      if (_drawing_mode == DRAW_MODE_SOLID)
+	 _xwin_drawmode_ok = TRUE;
+      else
+	 _xwin_drawmode_ok = FALSE;
 
-   if(_drawing_mode == DRAW_MODE_SOLID)
-      gc_func = GXcopy;
-   else if (_drawing_mode == DRAW_MODE_XOR)
-      gc_func = GXxor;
-   else
-   {
-      _xwin_drawmode_ok = FALSE;
+      _xwin_real_drawmode = GXcopy;
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
       return;
    }
 
    _xwin_drawmode_ok = TRUE;
-   XSetState(_xwin.display, _xwin.gc, 0, 0, gc_func, -1);
+   if(_drawing_mode == DRAW_MODE_SOLID)
+      _xwin_real_drawmode = GXcopy;
+   else if (_drawing_mode == DRAW_MODE_XOR)
+      _xwin_real_drawmode = GXxor;
+   else {
+      _xwin_drawmode_ok = FALSE;
+      _xwin_real_drawmode = GXcopy;
+   }
+
+   XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -430,7 +441,12 @@ static void _xwin_blit_anywhere(BITMAP *src, BITMAP *dst, int sx, int sy,
    _xwin_in_gfx_call = 1;
    _xwin_vtable.blit_from_memory(src, dst, sx, sy, dx, dy, w, h);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dx, dy, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -449,7 +465,12 @@ static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
    _xwin_in_gfx_call = 1;
    _xwin_vtable.blit_to_self_backward(src, dst, sx, sy, dx, dy, w, h);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dx, dy, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -468,7 +489,12 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
    _xwin_in_gfx_call = 1;
    _xwin_vtable.masked_blit(src, dst, sx, sy, dx, dy, w, h);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dx, dy, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -523,7 +549,12 @@ static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -545,7 +576,12 @@ static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_256_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -567,7 +603,12 @@ static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite_v_flip(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -589,7 +630,12 @@ static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite_h_flip(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -611,7 +657,12 @@ static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite_vh_flip(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -633,7 +684,12 @@ static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -655,7 +711,12 @@ static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int d
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_rgba_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -677,7 +738,12 @@ static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_lit_sprite(dst, src, dx, dy, color);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -699,7 +765,12 @@ static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int c
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_character(dst, src, dx, dy, color, bg);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -721,7 +792,12 @@ static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_glyph(dst, src, dx, dy, color, bg);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -743,7 +819,12 @@ static void _xwin_draw_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx,
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_rle_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -765,7 +846,12 @@ static void _xwin_draw_trans_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, i
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_rle_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -787,7 +873,12 @@ static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *s
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_rgba_rle_sprite(dst, src, dx, dy);
    _xwin_in_gfx_call = 0;
+
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
 }
 
 
@@ -809,6 +900,10 @@ static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_lit_rle_sprite(dst, src, dx, dy, color);
    _xwin_in_gfx_call = 0;
-   _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
-}
 
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
+   _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
+   if (_xwin_real_drawmode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin_real_drawmode, -1);
+}
