@@ -20,9 +20,7 @@
 #define ASMDEFS_INC
 
 
-#if defined DJGPP
-   #include "obj/djgpp/asmdef.inc"
-#elif defined __MINGW32__
+#if defined __MINGW32__
    #include "obj/mingw32/asmdef.inc"
 #elif defined _MSC_VER
    #include "obj/msvc/asmdef.inc"
@@ -32,6 +30,8 @@
    #include "obj/unix/asmdef.inc"
 #elif defined __BEOS__
    #include "obj/beos/asmdef.inc"
+#elif defined DJGPP
+   #include "obj/djgpp/asmdef.inc"
 #else
    #error unknown platform
 #endif
