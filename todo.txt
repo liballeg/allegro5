@@ -61,7 +61,6 @@ Unix todos:
 
 - "still PIC-related problems with X lib, waiting for XFree people"
   [fixed in newer distros?]
-- makeinfo should be detected and be optional
 
 Macintosh todos:
 ---------------------------------------------------------------------------
