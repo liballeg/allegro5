@@ -377,13 +377,23 @@ static void mouse_directx_poll(void)
 	    switch (ofs) {
 
 	       case DIMOFS_X:
-		  if (!wnd_windowed)
+	          if (!wnd_windowed) {
+		     if ((data > 32) || (data < -32)) 
+			data *= 4;
+		     else if ((data > 16) || (data < -16)) 
+			data *= 2;
 		     dinput_x += data;
+		  }
 		  break;
 
 	       case DIMOFS_Y:
-		  if (!wnd_windowed)
+	          if (!wnd_windowed) {
+		     if ((data > 32) || (data < -32)) 
+			data *= 4;
+		     else if ((data > 16) || (data < -16)) 
+			data *= 2;
 		     dinput_y += data;
+		  }
 		  break;
 
 	       case DIMOFS_Z:

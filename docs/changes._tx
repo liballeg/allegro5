@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Javier Gonzalez corrected mouse movement speed in Windows.
+<li>
    3.9.34: Ben Davis adapted polygon functions to handle two coincident
    vertices, and changed and clarified texture coordinate alignment in
    code and documentation.

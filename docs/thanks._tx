@@ -241,7 +241,8 @@ Contributors
    Wrote the quaternion math routines, and contributed the BeOS port.
 
    Javier Gonzalez (<email>javigg@wanadoo.es</a>).<br>
-   Made bug reports and suggestions for improvement.
+   Corrected mouse movement speed in Windows and made bug reports and
+   suggestions for improvement.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
