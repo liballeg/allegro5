@@ -267,7 +267,7 @@ mmxtest:
 	echo // no MMX > obj\msvc\mmx.h
 	echo .text > obj\msvc\mmxtest.s
 	echo emms >> obj\msvc\mmxtest.s
-	echo maskmovq %mm3, %mm1 >> obj\msvc\mmxtest.s
+	echo maskmovq %%mm3, %%mm1 >> obj\msvc\mmxtest.s
 	gcc -c obj/msvc/mmxtest.s -o obj/msvc/mmxtest.o
 	echo #define ALLEGRO_MMX > obj\msvc\mmx.h
 
