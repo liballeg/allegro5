@@ -34,13 +34,20 @@ static int allegro_thread_priority = THREAD_PRIORITY_NORMAL;
 
 
 /* sys_reset_switch_mode:
- *  Resets the switch mode to its initial state.
+ *  Resets the switch mode to its default state.
  */
 void sys_reset_switch_mode(void)
 {
+   /* The default state must be SWITCH_BACKGROUND so that the
+      threads don't get blocked when the focus moves forth and
+      back during window creation and destruction.  This seems
+      to be particularly relevant to WinXP.  */
+   set_display_switch_mode(SWITCH_BACKGROUND);
+
    app_foreground = TRUE;
+   
+   /* This has a nice side-effect: releasing the blocked threads. */
    SetEvent(foreground_event);
-   set_display_switch_mode(SWITCH_PAUSE);
 }
 
 
