@@ -268,7 +268,7 @@ static unsigned int col_diff[3*128];
  *  Color matching is done with weighted squares, which are much faster
  *  if we pregenerate a little lookup table...
  */
-static void bestfit_init()
+static void bestfit_init(void)
 {
    int i;
 

@@ -210,8 +210,8 @@ void _register_bitmap_file_type_init(void)
 
 
 #ifdef ALLEGRO_USE_CONSTRUCTOR
-   CONSTRUCTOR_FUNCTION(static void bitmap_filetype_constructor());
-   DESTRUCTOR_FUNCTION(static void bitmap_filetype_destructor());
+   CONSTRUCTOR_FUNCTION(static void bitmap_filetype_constructor(void));
+   DESTRUCTOR_FUNCTION(static void bitmap_filetype_destructor(void));
 
    /* bitmap_filetype_constructor:
     *  Register bitmap filetype functions if this object file is linked
@@ -219,7 +219,7 @@ void _register_bitmap_file_type_init(void)
     *  functions aren't used in a program, thus saving a little space
     *  in statically linked programs.
     */
-   static void bitmap_filetype_constructor()
+   static void bitmap_filetype_constructor(void)
    {
       _register_bitmap_file_type_init();
    }
@@ -229,7 +229,7 @@ void _register_bitmap_file_type_init(void)
     *  quit, not just when allegro_exit() is called, we need to use a
     *  destructor to accomplish this.
     */
-   static void bitmap_filetype_destructor()
+   static void bitmap_filetype_destructor(void)
    {
       BITMAP_TYPE_INFO *iter = bitmap_type_list, *next;
 

@@ -2073,10 +2073,10 @@ void _construct_datafile(DATAFILE *data)
  *  Register my loader functions with the code in dataregi.c.
  */
 #ifdef ALLEGRO_USE_CONSTRUCTOR
-   CONSTRUCTOR_FUNCTION(void _initialize_datafile_types());
+   CONSTRUCTOR_FUNCTION(void _initialize_datafile_types(void));
 #endif
 
-void _initialize_datafile_types()
+void _initialize_datafile_types(void)
 {
    register_datafile_object(DAT_FILE,         load_file_object,             (void (*)(void *data))unload_datafile        );
    register_datafile_object(DAT_FONT,         load_font_object,             (void (*)(void *data))destroy_font           );

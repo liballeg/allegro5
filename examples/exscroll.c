@@ -14,7 +14,7 @@
 
 
 
-int main()
+int main(void)
 {
    BITMAP *scroller, *status_bar;
    int counter = 0;

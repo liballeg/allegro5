@@ -36,7 +36,7 @@ void _i_get_cpuid_info(long cpuid_levels, long *reg);
 /* cyrix_type:
  *  Detects which type of Cyrix CPU is in use.
  */
-static void cyrix_type()
+static void cyrix_type(void)
 {
    char orgc2, newc2, orgc3, newc3;
    int cr2_rw = FALSE, cr3_rw = FALSE, type;

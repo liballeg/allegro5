@@ -35,9 +35,9 @@
 
 
 
-void _x_draw_sprite_end();
-void _x_blit_from_memory_end();
-void _x_blit_to_memory_end();
+void _x_draw_sprite_end(void);
+void _x_blit_from_memory_end(void);
+void _x_blit_to_memory_end(void);
 
 
 
@@ -97,7 +97,7 @@ static int modex_scroll(int x, int y);
 static int request_modex_scroll(int x, int y);
 static int poll_modex_scroll(void);
 static void modex_enable_triple_buffer(void);
-static GFX_MODE_LIST *modex_fetch_mode_list();
+static GFX_MODE_LIST *modex_fetch_mode_list(void);
 
 
 
@@ -1576,7 +1576,7 @@ void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int co
 /* modex_fetch_mode_list:
  *  Creates a list of of currently implemented ModeX modes.
  */
-static GFX_MODE_LIST *modex_fetch_mode_list()
+static GFX_MODE_LIST *modex_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
 

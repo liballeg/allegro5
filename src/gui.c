@@ -1143,7 +1143,7 @@ typedef struct MENU_INFO            /* information about a popup menu */
    int size;                        /* number of items in the menu */
    int sel;                         /* selected item */
    int x, y, w, h;                  /* screen position of the menu */
-   int (*proc)();                   /* callback function */
+   int (*proc)(void);               /* callback function */
    BITMAP *saved;                   /* saved what was underneath it */
 } MENU_INFO;
 

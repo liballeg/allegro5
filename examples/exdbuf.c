@@ -11,7 +11,7 @@
 
 
 
-int main()
+int main(void)
 {
    BITMAP *buffer;
    int c;

@@ -154,7 +154,7 @@ void _unix_load_modules(int system_driver)
 void _unix_unload_modules(void)
 {
    MODULE *m, *next;
-   void (*shutdown)();
+   void (*shutdown)(void);
    
    for (m = module_list; m; m = next) {
       next = m->next;

@@ -60,7 +60,7 @@ void test(int colordepth)
 
 
 
-int main()
+int main(void)
 {
    allegro_init();
    install_keyboard(); 

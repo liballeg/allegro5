@@ -509,7 +509,7 @@ int main(int argc, char *argv[])
 #else       /* ifdef ALLEGRO_DOS */
 
 
-int main()
+int main(void)
 {
    allegro_init();
    allegro_message("Sorry, the VESAINFO program only works on DOS\n");

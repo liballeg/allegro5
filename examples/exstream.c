@@ -14,7 +14,7 @@
 
 
 
-int main()
+int main(void)
 {
    AUDIOSTREAM *stream;
    int updates = 0;

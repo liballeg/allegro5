@@ -490,7 +490,7 @@ static int get_config_gfx_driver(char *gfx_card, int check_mode, int require_win
 int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 {
    static int allow_config = TRUE;
-   extern void blit_end();
+   extern void blit_end(void);
    _DRIVER_INFO *driver_list;
    int tried = FALSE;
    char buf[ALLEGRO_ERROR_SIZE], tmp[64];

@@ -111,7 +111,7 @@ void draw_cube(BITMAP* buffer, V3D_f x1[], V3D_f x2[])
 
 
 
-int main()
+int main(void)
 {
    ZBUFFER *zbuf;
    BITMAP *buffer;

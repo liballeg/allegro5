@@ -58,8 +58,8 @@ extern "C" {
    AL_VAR(_DRIVER_INFO *, _unix_gfx_driver_list);
    AL_VAR(_DRIVER_INFO *, _unix_digi_driver_list);
    AL_VAR(_DRIVER_INFO *, _unix_midi_driver_list);
-   AL_FUNC(void, _unix_driver_lists_init, ());
-   AL_FUNC(void, _unix_driver_lists_shutdown, ());
+   AL_FUNC(void, _unix_driver_lists_init, (void));
+   AL_FUNC(void, _unix_driver_lists_shutdown, (void));
    AL_FUNC(void, _unix_register_gfx_driver, (int id, GFX_DRIVER *driver, int autodetect, int priority));
    AL_FUNC(void, _unix_register_digi_driver, (int id, DIGI_DRIVER *driver, int autodetect, int priority));
    AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));

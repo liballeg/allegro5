@@ -543,7 +543,7 @@ static int saved_vw;
 static int saved_vh;
 static int saved_wret;
 
-extern void _af_int86(), _af_call_rm(), _af_wrapper(), _af_wrapper_end();
+extern void _af_int86(void), _af_call_rm(void), _af_wrapper(void), _af_wrapper_end(void);
 
 
 
@@ -679,7 +679,7 @@ static int call_vbeaf_asm(void *proc)
 /* vbeaf_no_wait:
  *  Dummy wait-till-idle routine for non-accelerated drivers.
  */
-static void vbeaf_no_wait()
+static void vbeaf_no_wait(void)
 {
 }
 
@@ -747,7 +747,7 @@ static int load_vbeaf_driver(AL_CONST char *filename)
 /* initialise_freebeaf_extensions:
  *  Prepares the FreeBE/AF extension functions.
  */
-static void initialise_freebeaf_extensions()
+static void initialise_freebeaf_extensions(void)
 {
    typedef unsigned long (*EXT_INIT_FUNC)(AF_DRIVER *af, unsigned long id);
    EXT_INIT_FUNC ext_init;
@@ -800,7 +800,7 @@ static void initialise_freebeaf_extensions()
  *  Sets up the DPMI memory mappings required by the VBE/AF driver, 
  *  returning zero on success.
  */
-static int initialise_vbeaf_driver()
+static int initialise_vbeaf_driver(void)
 {
    int c;
 
@@ -2245,7 +2245,7 @@ static void prepare_mono_pattern(BITMAP *bmp)
 /* go_accel:
  *  Prepares the hardware for an accelerated drawing operation.
  */
-static INLINE void go_accel()
+static INLINE void go_accel(void)
 {
    /* turn on the accelerator */
    if (!_accel_active) {

@@ -120,7 +120,7 @@ void __al_linux_remove_display_switch_callback (void (*cb) (void))
 /* go_away:
  *  Performs a switch away.
  */
-static void go_away()
+static void go_away(void)
 {
 	int i;
 
@@ -159,7 +159,7 @@ static void go_away()
 /* come_back:
  *  Performs a switch back.
  */
-static void come_back()
+static void come_back(void)
 {
 	int i;
 

@@ -11,7 +11,7 @@
 
 
 
-int main()
+int main(void)
 {
    BITMAP *memory_bitmap;
    int x, y;

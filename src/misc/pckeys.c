@@ -269,7 +269,7 @@ unsigned short *_key_accent4_upper_table = standard_key_empty_table;
 /* set_standard_keyboard:
  *  Sets up pointers ready to use the standard US keyboard mapping.
  */
-static INLINE void set_standard_keyboard()
+static INLINE void set_standard_keyboard(void)
 {
    _key_ascii_table         = standard_key_ascii_table;
    _key_capslock_table      = standard_key_capslock_table;
@@ -294,7 +294,7 @@ static INLINE void set_standard_keyboard()
 /* set_custom_keyboard:
  *  Sets up pointers ready to use the custom keyboard mapping.
  */
-static INLINE void set_custom_keyboard()
+static INLINE void set_custom_keyboard(void)
 {
    _key_ascii_table         = custom_key_ascii_table;
    _key_capslock_table      = custom_key_capslock_table;
