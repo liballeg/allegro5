@@ -395,7 +395,7 @@ AC_FUNC_MEMCMP
 AC_FUNC_MMAP
 AC_TYPE_SIGNAL
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS(findfirst memcmp stricmp strlwr strupr mkstemp)
+AC_CHECK_FUNCS(findfirst memcmp mkstemp stricmp strlwr strupr)
 
 dnl Prepare initial dependencies file (if missing).
 if test -f "$srcdir/makefile.dep"; then
