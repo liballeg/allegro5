@@ -1334,11 +1334,10 @@ struct FONT_VTABLE;
 
 typedef struct FONT
 {
-    void* data;
-    int height;
-
-    struct FONT_VTABLE* vtable;
-}FONT;
+   void *data;
+   int height;
+   struct FONT_VTABLE *vtable;
+} FONT;
 
 AL_VAR(FONT *, font);
 

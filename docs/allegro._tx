@@ -7929,25 +7929,25 @@ makefiles also provide some special pseudo-targets:
    'docs'<br>
    Converts the documentation files from the ._tx sources.
 <li>
-   'docs-dvi' (unix only)<br>
-   Creates the allegro.dvi device independant documentation file. This is
+   'docs-dvi' (Unix only)<br>
+   Creates the allegro.dvi device independent documentation file. This is
    not a default target, since you need the texi2dvi tool to create it. The
    generated file is especially prepared to be printed on paper.
 <li>
-  'docs-ps' or 'docs-gzipped-ps' (unix only)<br>
-   Creates a postcript file from the previously generated dvi file. This is
+  'docs-ps' or 'docs-gzipped-ps' (Unix only)<br>
+   Creates a Postcript file from the previously generated DVI file. This is
    not a default target, since you need the texi2dvi and dvips tools to
-   create it. The second target compresses the generated postscript file.
-   The generated file is especialy prepared to be printed on paper
+   create it. The second target compresses the generated Postscript file.
+   The generated file is especially prepared to be printed on paper.
 <li>
-   'install-man' or 'install-gzipped-man' (unix only)<br>
-   This generates unix man pages for each Allegro function or variable and
-   installs them. The second target compresses the manual pages before
+   'install-man' or 'install-gzipped-man' (Unix only)<br>
+   This generates Unix man pages for each Allegro function or variable and
+   installs them. The second target compresses the manual pages after
    installing them.
 <li>
-   'install-info' or 'install-gzipped-info' (unix only)<br>
-   Converts the documentation to info format and installs it. The second
-   target compresses the info file before installing it.
+   'install-info' or 'install-gzipped-info' (Unix only)<br>
+   Converts the documentation to Info format and installs it. The second
+   target compresses the info file after installing it.
 <li>
    'clean'<br>
    Removes generated object and library files, either to recover disk space 
@@ -7976,7 +7976,7 @@ makefiles also provide some special pseudo-targets:
    this after "make veryclean", or whenever you add new headers to the 
    Allegro sources.
 <li>
-   'compress' (djgpp, mingw32 and msvc only)<br>
+   'compress' (djgpp, Mingw32 and MSVC only)<br>
    Uses the DJP or UPX executable compressors (whichever you have installed) 
    to compress the example executables and utility programs, which can 
    recover a significant amount of disk space.

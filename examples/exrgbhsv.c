@@ -138,7 +138,7 @@ int main()
    install_mouse();
    install_timer();
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-      allegro_message("Couldn't set an 8bpp resolution!?!\n%s", allegro_error);
+      allegro_message("Error setting graphics mode\n%s\n", allegro_error);
       return 1;
    }
    set_palette(desktop_palette);

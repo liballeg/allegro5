@@ -9,8 +9,8 @@
 #        WARNMODE=1        selects strict compiler warnings.
 #        STATICLINK=1      use static linking (MSVC, Mingw32).
 #        PGCC=1            use PGCC compiler switches (djgpp, RSXNT).
-#        PENTIUMONLY=1     make the library faster, but pentium-only.
-#        CROSSCOMPILE=1    build djgpp version under Linux (djgpp, Mingw32).
+#        PENTIUMONLY=1     make the library faster, but Pentium-only.
+#        CROSSCOMPILE=1    build djgpp or Mingw32 versions under Linux.
 #        ALLEGRO_USE_C=1   use C drawing code instead of asm (djgpp only).
 #
 #     Targets: 
