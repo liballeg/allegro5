@@ -2515,6 +2515,7 @@ static int sysinfo()
       case OSTYPE_WINME:      s = "Windows ME";                 break;
       case OSTYPE_WINNT:      s = "Windows NT";                 break;
       case OSTYPE_WIN2000:    s = "Windows 2000";               break;
+      case OSTYPE_WINXP:      s = "Windows XP";                 break;
       case OSTYPE_OS2:        s = "OS/2";                       break;
       case OSTYPE_WARP:       s = "OS/2 Warp 3";                break;
       case OSTYPE_DOSEMU:     s = "Linux DOSEMU";               break;
