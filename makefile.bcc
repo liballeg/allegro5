@@ -320,11 +320,11 @@ COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 $(OBJ_DIR)/%.obj: %.c
 	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
 
-$(OBJ_DIR)/%.res: %.rc
+obj/bcc32/%.res: %.rc
 	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<)
 
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	@echo $(subst /,\\,$(OBJ_DIR)/dibsound.res) > res.rsp
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj obj/bcc32/dibsound.res $(IMPLIB_NAME)
+	@echo obj\\bcc32\\dibsound.res > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/dibsound.obj),tests\win\dibsound.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 ifdef UNIX_TOOLS
 	@rm res.rsp

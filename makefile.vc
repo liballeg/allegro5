@@ -383,11 +383,11 @@ $(OBJ_DIR)/%.obj: %.s
 $(OBJ_DIR)/%.obj: %.rc
 	rc -i"include" -fo$@ $<
 
-$(OBJ_DIR)/%.res: %.rc
+obj/msvc/%.res: %.rc
 	rc -fo$@ $<
 
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)

@@ -442,11 +442,11 @@ $(OBJ_DIR)/%.o: %.s
 $(OBJ_DIR)/%.o: %.rc
 	$(WINDRES) --include-dir include -O coff -o $@ -i $<
 
-$(OBJ_DIR)/%.res: %.rc
+obj/mingw32/%.res: %.rc
 	$(WINDRES) -O coff -o $@ -i $<
 
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
