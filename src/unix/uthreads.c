@@ -16,6 +16,7 @@
  */
 
 
+#include "allegro.h"
 #include "allegro/aintunix.h"
 
 #ifdef HAVE_LIBPTHREAD
