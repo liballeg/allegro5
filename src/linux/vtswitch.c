@@ -44,8 +44,8 @@ static struct vt_mode startup_vtmode;
 
 volatile int __al_linux_switching_blocked = 0;
 
-volatile static int console_active = 1;            /* are we active? */
-volatile static int console_should_be_active = 1;  /* should we be? */
+static volatile int console_active = 1;            /* are we active? */
+static volatile int console_should_be_active = 1;  /* should we be? */
 
 
 

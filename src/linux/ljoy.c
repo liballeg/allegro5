@@ -52,9 +52,11 @@ static int joy_init (void)
 
 	for (i = 0; i < MAX_JOYSTICKS; i++) {
 		snprintf (tmp, sizeof(tmp), "/dev/input/js%d", i);
+		tmp[sizeof(tmp)-1] = 0;
 		joy_fd[i] = open (tmp, O_RDONLY);
 		if (joy_fd[i] == -1) {
 			snprintf (tmp, sizeof(tmp), "/dev/js%d", i);
+			tmp[sizeof(tmp)-1] = 0;
 			joy_fd[i] = open (tmp, O_RDONLY);
 			if (joy_fd[i] == -1) 
 				break;

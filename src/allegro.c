@@ -460,8 +460,8 @@ void al_assert(AL_CONST char *file, int line)
    if (asserted)
       return;
 
-   /* todo: use snprintf() */
-   sprintf(buf, "Assert failed at line %d of %s", line, file);
+   snprintf(buf, sizeof(buf), "Assert failed at line %d of %s", line, file);
+   buf[sizeof(buf)-1] = 0;
 
    if (assert_handler) {
       if (assert_handler(buf))
@@ -513,10 +513,10 @@ void al_trace(AL_CONST char *msg, ...)
    char buf[512];
    char *s;
 
-   /* todo: use vsnprintf() */
    va_list ap;
    va_start(ap, msg);
-   vsprintf(buf, msg, ap);
+   vsnprintf(buf, sizeof(buf), msg, ap);
+   buf[sizeof(buf)-1] = 0;
    va_end(ap);
 
    if (trace_handler) {

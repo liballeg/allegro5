@@ -551,9 +551,9 @@ void thread_safe_trace(char *msg,...)
    char buf[256];
    va_list ap;
 
-   /* todo: use vsnprintf() */
    va_start(ap, msg);
-   vsprintf(buf, msg, ap);
+   vsnprintf(buf, msg, ap);
+   buf[sizeof(buf)-1] = 0;
    va_end(ap);
 
    OutputDebugString(buf);

@@ -53,7 +53,8 @@ struct termios __al_linux_work_termio;
 static int get_tty (int fd)
 {
    char name[16];
-   int tty, inode;
+   int tty;
+   ino_t inode;
    struct stat st;
 
    if (fstat (fd, &st))
@@ -62,6 +63,7 @@ static int get_tty (int fd)
    inode = st.st_ino;
    for (tty = 1; tty <= 24; tty++) {
       snprintf (name, sizeof(name), "/dev/tty%d", tty);
+      name[sizeof(name)-1] = 0;
       if (!stat (name, &st) && (inode == st.st_ino))
 	 break;
    }
@@ -122,6 +124,7 @@ int __al_linux_init_console(void)
 	 /* Try some ttys instead... */
 	 for (n = 1; n <= 24; n++) {
 	     snprintf (tty_name, sizeof(tty_name), "/dev/tty%d", n);
+	     tty_name[sizeof(tty_name)-1] = 0;
 	     if ((console_fd = open (tty_name, O_WRONLY)) >= 0) break;
 	 }
 	 if (n > 24) return 1; /* leave the error message about /dev/console */
@@ -147,6 +150,7 @@ int __al_linux_init_console(void)
       for (tty = 1, mask = 2; mask; tty++, mask <<= 1)
 	 if (!(vts.v_state & mask)) {
 	    snprintf (tty_name, sizeof(tty_name), "/dev/tty%d", tty);
+	    tty_name[sizeof(tty_name)-1] = 0;
 	    if ((fd = open (tty_name, O_RDWR)) != -1) {
 	       close (fd);
 	       break;
@@ -235,6 +239,7 @@ int __al_linux_done_console (void)
 	 snprintf(msg, sizeof(msg), "\nProgram finished: press %s+F%d to switch back to the previous console\n", 
 		      (__al_linux_prev_vt > 12) ? "AltGR" : "Alt", 
 		      __al_linux_prev_vt%12);
+	 msg[sizeof(msg)-1] = 0;
 
 	 do {
 	    ret = write(STDERR_FILENO, msg, strlen(msg));
