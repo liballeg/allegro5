@@ -23,26 +23,6 @@
 
 #ifdef ALLEGRO_COLOR8
 
-#ifdef TEST_ACCESS
-#define INIT_READ_TEST(bitmap) pusha ; leal bitmap, %eax ; call GLOBL(init_read_test) ; popa
-#define TEST_BYTE_READ(offset) pusha ; leal offset, %eax ; call GLOBL(test_byte_read) ; popa
-#define TEST_WORD_READ(offset) pusha ; leal offset, %eax ; call GLOBL(test_word_read) ; popa
-#define TEST_LONG_READ(offset) pusha ; leal offset, %eax ; call GLOBL(test_long_read) ; popa
-#define INIT_WRITE_TEST(bitmap) pusha ; leal bitmap, %eax ; call GLOBL(init_write_test) ; popa
-#define TEST_BYTE_WRITE(offset) pusha ; leal offset, %eax ; call GLOBL(test_byte_write) ; popa
-#define TEST_WORD_WRITE(offset) pusha ; leal offset, %eax ; call GLOBL(test_word_write) ; popa
-#define TEST_LONG_WRITE(offset) pusha ; leal offset, %eax ; call GLOBL(test_long_write) ; popa
-#else
-#define INIT_READ_TEST(bitmap)
-#define TEST_BYTE_READ(offset)
-#define TEST_WORD_READ(offset)
-#define TEST_LONG_READ(offset)
-#define INIT_WRITE_TEST(bitmap)
-#define TEST_BYTE_WRITE(offset)
-#define TEST_WORD_WRITE(offset)
-#define TEST_LONG_WRITE(offset)
-#endif
-
 .text
 
 
@@ -79,7 +59,6 @@ FUNC(_linear_draw_sprite8)
       leal (%esi, %ebp), %eax                /* check unaligned bytes */   ; \
       testb $1, %al                                                        ; \
       jz sprite_##name##_before_waligned                                   ; \
-      TEST_BYTE_READ((%esi, %ebp))                                         ; \
       movb (%esi, %ebp), %bl                 /* write unaligned byte */    ; \
       incl %ebp                                                            ; \
       testb %bl, %bl                                                       ; \
@@ -89,7 +68,6 @@ FUNC(_linear_draw_sprite8)
       incb %al                                                             ; \
       testb $2, %al                                                        ; \
       jz sprite_##name##_before_laligned                                   ; \
-      TEST_WORD_READ((%esi, %ebp))                                         ; \
       movw (%esi, %ebp), %bx                 /* write unaligned word */    ; \
       addl $2, %ebp                                                        ; \
       testb %bl, %bl                                                       ; \
@@ -102,7 +80,6 @@ FUNC(_linear_draw_sprite8)
    sprite_##name##_before_laligned:          /* now src is long-aligned */ ; \
                                                                            ; \
    sprite_x_loop_##name##_begin:             /* write longs */             ; \
-      TEST_LONG_READ((%esi, %ebp))                                         ; \
       movl (%esi, %ebp), %eax                                              ; \
       testl %eax, %eax                                                     ; \
       jz sprite_x_loop_##name##_skip_all     /* skip empty long */         ; \
@@ -148,7 +125,6 @@ FUNC(_linear_draw_sprite8)
       movl %ebp, %eax                                                      ; \
       testb $1, %al                          /* test for leftover byte */  ; \
       jz sprite_##name##_after_waligned                                    ; \
-      TEST_BYTE_READ((%esi, %ebp))                                         ; \
       movb (%esi, %ebp), %bl                                               ; \
       incl %ebp                                                            ; \
       testb %bl, %bl                                                       ; \
@@ -159,7 +135,6 @@ FUNC(_linear_draw_sprite8)
       incb %al                                                             ; \
       testb $2, %al                          /* test for leftover word */  ; \
       jz sprite_##name##_after_laligned                                    ; \
-      TEST_WORD_READ((%esi, %ebp))                                         ; \
       movw (%esi, %ebp), %bx                                               ; \
       testb %bl, %bl                                                       ; \
       jz sprite_##name##_after_lalign_skip_0 /* skip byte #0 */            ; \
@@ -201,19 +176,16 @@ FUNC(_linear_draw_sprite8)
       WRITE_BANK()                           /* select bank */             ; \
       addl S_X, %eax                         /* add x offset */            ; \
       movl S_W, %ecx                         /* x loop counter */          ; \
-      TEST_BYTE_READ((%esi, %ecx))                                         ; \
       movb (%esi, %ecx), %bl                                               ; \
       jmp sprite_tiny_next_pixel                                           ; \
    sprite_tiny_write_pixel:                                                ; \
       movb %bl, %es:(%eax, %ecx)                                           ; \
-      TEST_BYTE_READ((%esi, %ecx))                                         ; \
       movb (%esi, %ecx), %bl                                               ; \
       jz sprite_tiny_line_complete                                         ; \
    sprite_tiny_next_pixel:                                                 ; \
       cmpb $1, %bl                                                         ; \
       incl %ecx                                                            ; \
       jnc sprite_tiny_write_pixel                                          ; \
-      TEST_BYTE_READ((%esi, %ecx))                                         ; \
       movb (%esi, %ecx), %bl                                               ; \
       jnz sprite_tiny_next_pixel                                           ; \
    sprite_tiny_line_complete:                                              ; \
@@ -227,8 +199,6 @@ FUNC(_linear_draw_sprite8)
 
    /* the actual sprite drawing routine */
    START_SPRITE_DRAW(sprite)
-
-   INIT_READ_TEST((%esi))
 
    movl BMP_LINE+4(%esi), %eax
    subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
