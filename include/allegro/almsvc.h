@@ -79,7 +79,6 @@
 
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"
-#define ALLEGRO_MMX
 
 
 /* life would be so easy if compilers would all use the same names! */
@@ -92,4 +91,5 @@
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/aintwin.h"
+#define ALLEGRO_MMX_HEADER       "obj/msvc/mmx.h"
 

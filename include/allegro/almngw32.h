@@ -95,8 +95,6 @@
 
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"
-#define ALLEGRO_MMX
-
 
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/alwin.h"

@@ -229,6 +229,23 @@ uninstall:
 
 
 
+# -------- autodetect whether the assembler supports MMX instructions --------
+
+.PHONY: mmxtest
+
+mmxtest:
+	echo // no MMX > obj\msvc\mmx.h
+	echo .text > obj\msvc\mmxtest.s
+	echo emms >> obj\msvc\mmxtest.s
+	gcc -c obj/msvc/mmxtest.s -o obj/msvc/mmxtest.o
+	echo #define ALLEGRO_MMX > obj\msvc\mmx.h
+
+obj/msvc/mmx.h:
+	@echo Testing for MMX assembler support...
+	-$(MAKE) mmxtest
+
+
+
 # -------- finally, we get to the fun part... --------
 
 ifdef STATICLINK
