@@ -24,7 +24,7 @@ write_code() {
     echo "	rm -f \$@"
     # gf: This bit is obviously gcc-specific
     # eb: Yes, but the GNU C Compiler doesn't always spell 'gcc'
-    echo "	\$(CC) -shared -o \$@ ${shareobj} \$(LDFLAGS) -Wl,-h,lib${1}.so.\$(shared_major_minor) \$(LIBS)"
+    echo "	\$(CC) -shared -o \$@ ${shareobj} ${3} \$(LDFLAGS) -Wl,-h,lib${1}.so.\$(shared_major_minor) \$(LIBS)"
     echo ""
     echo "\$(LIBDIR)/${unsharelib}: ${unshareobj}"
     echo "	rm -f \$@"
@@ -70,7 +70,7 @@ for file in .. $unsharable_objects; do
 done
 echo "$prev"
 echo ""
-write_code alleg LIBALLEG
+write_code alleg LIBALLEG -s
 echo ""
 echo ""
 
@@ -101,7 +101,7 @@ for file in .. $unsharable_objects; do
 done
 echo "$prev"
 echo ""
-write_code alld LIBALLD
+write_code alld LIBALLD -g
 echo ""
 echo ""
 
@@ -132,7 +132,7 @@ for file in .. $unsharable_objects; do
 done
 echo "$prev"
 echo ""
-write_code allp LIBALLP
+write_code allp LIBALLP -pg
 echo ""
 echo ""
 
