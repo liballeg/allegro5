@@ -40,5 +40,12 @@ Changes between 4.0.x and 4.1.x series
    strictly conforms to the documentation; in particular, setting it to 1
    instructs the functions to do no scaling. This was not the case before,
    because the functions multiplied this aspect ratio by 4/3.
+<li>
+   Menus created from a DIALOG array (by using d_menu_proc for the proc pointer)
+   now correctly use the w and h fields as a minimum for their inclusive
+   dimensions (in the same way as all other GUI elements). Before, they would
+   draw the border outside of this dimension (1 pixel overdraw with other GUI
+   elements), and also add an additional 'shadow' to the right and the bottom
+   (2 pixels overdraw with other GUI elements).
 </ul>
 

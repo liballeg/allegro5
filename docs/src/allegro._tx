@@ -6854,6 +6854,9 @@ changes are the following:
    of the parent menu, trying not to overlap it.
 </ul><br>
 
+Menus had been forgotten during the changes for 3.9.33 (CVS), so they were
+still drawn too large until version 4.1.0.
+
 @@int @d_clear_proc(int msg, DIALOG *d, int c);
    This just clears the screen when it is drawn. Useful as the first object 
    in a dialog.

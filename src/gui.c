@@ -1173,7 +1173,7 @@ static void get_menu_pos(MENU_INFO *m, int c, int *x, int *y, int *w)
    else {
       *x = m->x+1;
       *y = m->y+c*(text_height(font)+4)+1;
-      *w = m->w-2;
+      *w = m->w-3;
    }
 }
 
@@ -1272,9 +1272,9 @@ static void draw_menu(MENU_INFO *m)
    if (gui_menu_draw_menu)
       gui_menu_draw_menu(m->x, m->y, m->w, m->h);
    else {
-      rect(screen, m->x, m->y, m->x+m->w-1, m->y+m->h-1, gui_fg_color);
-      vline(screen, m->x+m->w, m->y+1, m->y+m->h, gui_fg_color);
-      hline(screen, m->x+1, m->y+m->h, m->x+m->w, gui_fg_color);
+      rect(screen, m->x, m->y, m->x+m->w-2, m->y+m->h-2, gui_fg_color);
+      vline(screen, m->x+m->w-1, m->y+1, m->y+m->h-1, gui_fg_color);
+      hline(screen, m->x+1, m->y+m->h-1, m->x+m->w-1, gui_fg_color);
    }
 
    for (c=0; m->menu[c].text; c++)
@@ -1354,8 +1354,8 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    m->bar = bar;
    m->x = x;
    m->y = y;
-   m->w = 2;
-   m->h = (m->bar) ? (text_height(font)+6) : 2;
+   m->w = 3;
+   m->h = (m->bar) ? (text_height(font)+7) : 3;
    m->proc = NULL;
    m->sel = -1;
 
@@ -1814,13 +1814,13 @@ int d_menu_proc(int msg, DIALOG *d, int c)
    switch (msg) {
 
       case MSG_START:
-	 fill_menu_info(&m, d->dp, NULL, TRUE, d->x-1, d->y-1, d->w+2, d->h+2);
-	 d->w = m.w-2;
-	 d->h = m.h-2;
+	 fill_menu_info(&m, d->dp, NULL, TRUE, d->x, d->y, d->w, d->h);
+	 d->w = m.w;
+	 d->h = m.h;
 	 break;
 
       case MSG_DRAW:
-	 fill_menu_info(&m, d->dp, NULL, TRUE, d->x-1, d->y-1, d->w+2, d->h+2);
+	 fill_menu_info(&m, d->dp, NULL, TRUE, d->x, d->y, d->w, d->h);
 	 draw_menu(&m);
 	 break;
 
@@ -1844,7 +1844,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	    }
 
 	 /* run the menu */
-	 _do_menu(d->dp, NULL, TRUE, d->x-1, d->y-1, FALSE, &x, d->w+2, d->h+2);
+	 _do_menu(d->dp, NULL, TRUE, d->x, d->y, FALSE, &x, d->w, d->h);
 	 ret |= x;
 	 do {
 	 } while (gui_mouse_b());
