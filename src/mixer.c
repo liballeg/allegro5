@@ -18,6 +18,8 @@
  *      programmed the silent mixer so that silent voices don't freeze,
  *      and fixed a few minor bugs elsewhere.
  *
+ *      Synchronization added by Sam Hocevar.
+ *
  *      See readme.txt for copyright information.
  */
 

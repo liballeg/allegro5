@@ -12,6 +12,8 @@
  *
  *      By George Foot and Peter Wang.
  *
+ *      Synchronization functions added by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 

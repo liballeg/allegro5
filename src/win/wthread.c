@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Synchronization functions added by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 
