@@ -43,7 +43,7 @@
       #import <IOKit/IOCFPlugIn.h>
       #import <IOKit/hid/IOHIDLib.h>
       #import <IOKit/hid/IOHIDKeys.h>
-      #import <IOKit/hid/IOHIDUsageTables.h>
+      #import <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
       #undef TRUE
       #undef FALSE
       #undef assert

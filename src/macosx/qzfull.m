@@ -25,6 +25,9 @@
 #endif
 
 
+#define FADE_STEPS               64
+
+
 static BITMAP *osx_qz_full_init(int, int, int, int, int);
 static void osx_qz_full_exit(BITMAP *);
 static void osx_qz_full_vsync(void);
@@ -40,6 +43,8 @@ static int lock_nesting = 0;
 static char driver_desc[256];
 static CFDictionaryRef old_mode = NULL;
 static CGrafPtr screen_port = NULL;
+static CGGammaValue original_table[768];
+
 
 
 GFX_DRIVER gfx_quartz_full =
@@ -81,6 +86,31 @@ GFX_DRIVER gfx_quartz_full =
 
 
 
+static void fade_screen(int fade_in, double seconds)
+{
+   int interval = (int)((seconds * 1000000.0) / (double)FADE_STEPS);
+   int i, j;
+   double factor;
+   CGGammaValue table[768];
+   
+   for (i = 0; i < FADE_STEPS; i++) {
+      if (fade_in)
+         factor = (double)i / (double)FADE_STEPS;
+      else
+         factor = (double)(FADE_STEPS - i) / (double)FADE_STEPS;
+      for (j = 0; j < 256; j++) {
+         table[j] = original_table[j] * factor;
+	 table[256 + j] = original_table[256 + j] * factor;
+	 table[512 + j] = original_table[512 + j] * factor;
+      }
+      if (CGSetDisplayTransferByTable(kCGDirectMainDisplay, 256, &table[0], &table[256], &table[512]) != kCGErrorSuccess)
+         break;
+      usleep(interval);
+   }
+}
+
+
+
 /* osx_qz_full_init:
  *  Initializes fullscreen gfx mode.
  */
@@ -88,7 +118,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 {
    BITMAP *bmp;
    CFDictionaryRef mode = NULL;
-   CGDisplayFadeReservationToken token;
+   CGTableCount samples;
    boolean_t match = FALSE;
    int bpp, refresh_rate;
    char tmp1[128];
@@ -127,21 +157,15 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 	 (double)_refresh_rate_request, &match);
    if (!match)
       mode = CGDisplayBestModeForParameters(kCGDirectMainDisplay, bpp, w, h, &match);
-   if (!match)
-      mode = CGDisplayBestModeForParametersAndRefreshRateWithProperty(kCGDirectMainDisplay,
-         bpp, w, h, (_refresh_rate_request > 0) ? (double)_refresh_rate_request : 60.0,
-	 kCGDisplayModeIsStretched, &match);
    if (!match) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       return NULL;
    }
    
+   CGGetDisplayTransferByTable(kCGDirectMainDisplay, 256, &original_table[0], &original_table[256], &original_table[512], &samples);
    old_mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CGDisplayHideCursor(kCGDirectMainDisplay);
-   if (CGAcquireDisplayFadeReservation(kCGMaxDisplayReservationInterval, &token) == kCGErrorSuccess) {
-      CGDisplayFade(token, 0.5, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, true);
-      CGReleaseDisplayFadeReservation(token);
-   }
+   fade_screen(FALSE, 0.3);
    if (CGDisplayCapture(kCGDirectMainDisplay) != kCGErrorSuccess) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot capture main display"));
       return NULL;
@@ -150,7 +174,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot switch main display mode"));
       return NULL;
    }
-   [NSMenu setMenuBarVisible: NO];
+   HideMenuBar();
    CGDisplayRestoreColorSyncSettings();
    
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
@@ -217,8 +241,6 @@ static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 static void osx_qz_full_exit(BITMAP *bmp)
 {
-   CGDisplayFadeReservationToken token = -1;
-   
    pthread_mutex_lock(&osx_event_mutex);
    
    if ((bmp) && (bmp->extra)) {
@@ -233,16 +255,12 @@ static void osx_qz_full_exit(BITMAP *bmp)
    }
    
    if (old_mode) {
-      if (CGAcquireDisplayFadeReservation(kCGMaxDisplayReservationInterval, &token) == kCGErrorSuccess)
-         CGDisplayFade(token, 0.3, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, true);
+      fade_screen(FALSE, 0.2);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
       CGDisplayShowCursor(kCGDirectMainDisplay);
-      [NSMenu setMenuBarVisible: YES];
-      if (token >= 0) {
-         CGDisplayFade(token, 0.5, kCGDisplayBlendSolidColor, kCGDisplayBlendNormal, 0.0, 0.0, 0.0, true);
-         CGReleaseDisplayFadeReservation(token);
-      }
+      ShowMenuBar();
+      fade_screen(TRUE, 0.3);
       CGDisplayRestoreColorSyncSettings();
       old_mode = NULL;
    }
