@@ -81,6 +81,7 @@ GFX_DRIVER gfx_drawsprocket ={
    NULL,
    NULL,
    NULL,
+   NULL,
    640, 480,
    TRUE,
    0,
