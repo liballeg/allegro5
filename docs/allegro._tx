@@ -778,7 +778,7 @@ with the standard variables that are used by Allegro (see below).
 @xref get_config_hex, get_config_int, get_config_id
    Retrieves a string variable from the current config file. If the named 
    variable cannot be found, the value of def is returned. The section name 
-   may be set to NULL to accept variables from any part of the file, or used 
+   may be set to NULL to read variables from the root of the file, or used 
    to control which set of parameters (eg. sound or joystick) you are 
    interested in reading.
 
@@ -879,43 +879,13 @@ with the standard variables that are used by Allegro (see below).
 Allegro uses these standard variables from the configuration file:
 @tallbullets
 <ul><li>
+[system]<br>
+   Section containing general purpose variables:
+<ul><li>
 system = x<br>
    Specifies which system driver to use. This is currently only useful on 
    Linux, for choosing between the XWindows ("XWIN") or console ("LNXC") 
    modes.
-<li>
-gfx_card = x<br>
-   Specifies which graphics driver to use when the program requests 
-   GFX_AUTODETECT. Multiple possible drivers can be suggested with extra 
-   lines in the form "gfx_card1 = x", "gfx_card2 = x", etc, or you can 
-   specify different drivers for each mode and color depth with variables in 
-   the form "gfx_card_24bpp = x", "gfx_card_640x480x16 = x", etc.
-<li>
-vbeaf_driver = x<br>
-   DOS and Linux only: specifies where to look for the VBE/AF driver 
-   (vbeaf.drv). If this variable is not set, Allegro will look in the same 
-   directory as the program, and then fall back on the standard locations 
-   (c:\ for DOS, /usr/local/lib, /usr/lib, /lib, and / for Linux, or the 
-   directory specified with the VBEAF_PATH environment variable).
-<li>
-framebuffer = x<br>
-   Linux only: specifies what device file to use for the fbcon driver. If 
-   this variable is not set, Allegro checks the FRAMEBUFFER environment 
-   variable, and then defaults to /dev/fb0.
-<li>
-dga_mouse = x<br>
-   X only: disable to work around a bug in some X servers' DGA modes, 
-   concerning the mouse.  Default is on; enable the workaround by setting the
-   variable to "0".
-<li>
-dga_centre = x<br>
-   X only: instructs the DGA driver to centre the Allegro screen if the actual
-   screen resolution is higher than Allegro's.  Default is on; disable this 
-   feature by setting the variable to "0".
-<li>
-dga_clear = x<br>
-   X only: instructs the DGA driver to clear visible video memory on startup. 
-   Default is on; disable this feature by setting the variable to "0".
 <li>
 keyboard = x<br>
    Specifies which keyboard layout to use. The parameter is the name of a 
@@ -939,6 +909,50 @@ language = x<br>
    location pointed to by the ALLEGRO environment variable. Look in the 
    language.dat file to see which mappings are currently available.
 <li>
+disable_mt_timer = x<br>
+   Windows only: sets whether to disable the multi-threaded timer driver (yes 
+   or no). The multi-threaded driver can cause problems with the MSVC debugger.
+   Defaults to no.
+<li>
+dga_mouse = x<br>
+   X only: disable to work around a bug in some X servers' DGA modes, 
+   concerning the mouse.  Default is on; enable the workaround by setting the
+   variable to "0".
+<li>
+dga_centre = x<br>
+   X only: instructs the DGA driver to centre the Allegro screen if the actual
+   screen resolution is higher than Allegro's.  Default is on; disable this 
+   feature by setting the variable to "0".
+<li>
+dga_clear = x<br>
+   X only: instructs the DGA driver to clear visible video memory on startup. 
+   Default is on; disable this feature by setting the variable to "0".
+</ul><li>
+[graphics]<br>
+   Section containing graphics configuration information, using the variables:
+<ul><li>
+gfx_card = x<br>
+   Specifies which graphics driver to use when the program requests 
+   GFX_AUTODETECT. Multiple possible drivers can be suggested with extra 
+   lines in the form "gfx_card1 = x", "gfx_card2 = x", etc, or you can 
+   specify different drivers for each mode and color depth with variables in 
+   the form "gfx_card_24bpp = x", "gfx_card_640x480x16 = x", etc.
+<li>
+vbeaf_driver = x<br>
+   DOS and Linux only: specifies where to look for the VBE/AF driver 
+   (vbeaf.drv). If this variable is not set, Allegro will look in the same 
+   directory as the program, and then fall back on the standard locations 
+   (c:\ for DOS, /usr/local/lib, /usr/lib, /lib, and / for Linux, or the 
+   directory specified with the VBEAF_PATH environment variable).
+<li>
+framebuffer = x<br>
+   Linux only: specifies what device file to use for the fbcon driver. If 
+   this variable is not set, Allegro checks the FRAMEBUFFER environment 
+   variable, and then defaults to /dev/fb0.
+</ul><li>
+[mouse]<br>
+   Section containing mouse configuration information, using the variables:
+<ul><li>
 mouse = x<br>
    Mouse driver type. Available DOS drivers are:<pre>
       MICK - mickey mode driver (normally the best)
@@ -951,14 +965,19 @@ mouse = x<br>
       LIPS - PS2 mouse with Intellimouse extension
       GPMD - GPM repeater data (Mouse Systems protocol)</pre>
 <li>
+num_buttons = x<br>
+   Sets the number of mouse buttons viewed by Allegro. You don't normally need 
+   to set this variable because Allegro will autodetect it. You can only use 
+   it to restrict the set of actual mouse buttons.
+<li>
 emulate_three = x<br>
    Sets whether to emulate a third mouse button by detecting chords of the 
-   left and right buttons (yes or no). Defaults to on if you have a two 
-   button mouse, off otherwise.
+   left and right buttons (yes or no). Defaults to yes if you have a two 
+   button mouse, no otherwise.
 <li>
 mouse_device = x<br>
    Linux only: specifies the name of the mouse device file (eg. /dev/mouse).
-<li>
+</ul><li>
 [sound]<br>
    Section containing sound configuration information, using the variables:
 <ul><li>
@@ -1081,7 +1100,7 @@ alsa_fragsize = x<br>
 alsa_rawmidi_card = x<br>
    Unix only: ALSA card to use for midi output.
 <li>
-alsa_rawmidi_device = x<br>.
+alsa_rawmidi_device = x<br>
    Unix only: ALSA rawmidi device to use for output.
 <li>
 be_midi_quality = x<br>
@@ -1142,13 +1161,22 @@ p&ltn&gt = bank0 bank1 prog pitch<br>
    by an octave.
 </ul><li>
 [joystick]<br>
-   Section containing a set of variables used by the save_joystick_data() 
-   and load_joystick_data() functions.
+   Section containing joystick configuration information, using the variables:
 <ul><li>
+joytype = x<br>
+   Specifies which joystick driver to use when the program requests 
+   JOY_TYPE_AUTODETECT.
+<li>
 joystick_device = x<br>
    BeOS only: specifies the name of the joystick device to be used. First
    device found is used by default.
-</ul><li>
+<li>
+throttle_axis = x<br>
+   Linux only: sets which axis number the throttle is located at. This variable 
+   will be used for every detected joystick. If you want to specify the axis 
+   number for each joystick individually, use variables of the form 
+   throttle_axis_n, where n is the joystick number.
+</ul>
 </ul>
 
 
