@@ -44,6 +44,9 @@ ed in altri tipi di programmazione multimediale.
 Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
 Computerspielen und anderen Formen von Multimediaprogrammierung.
 
+# Prevent building of debuginfo package on RedHat 9
+%define debug_package %{nil}
+
 %package devel
 Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
@@ -184,9 +187,10 @@ rm -rf %{buildroot}
 %files tools
 %defattr(-,root,root)
 %doc tools/grabber.txt
-%doc docs/makedoc.c
+%doc tools/plugins/plugins.txt
 %{_bindir}/colormap
 %{_bindir}/dat
+%{_bindir}/dat2c
 %{_bindir}/dat2s
 %{_bindir}/exedat
 %{_bindir}/grabber
@@ -196,6 +200,13 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
+* Sat Apr 05 2003 Shawn Walker <eviltypeguy@icculus.org>  4.1.10-1
+- added dat2c to tools package
+- added additional documentation to tools package
+- removed makedoc source code entry from tools package
+- prevent building of useless debuginfo package on RedHat 9
+- fixed source rpm rebuilding for RedHat 9
+
 * Fri Feb 07 2003 Philipp Thomas <pthomas@suse.de>  4.1.10-1
 - turned on automatic dependency generation
 - used DESTDIR
