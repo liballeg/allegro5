@@ -553,7 +553,7 @@ Contributors
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
    masked_blits with SSE instructions.  Added some routines to the unified
-   color convertor.  Revamped the retreival mechanism of CPU capabilities.
+   color convertor.  Revamped the retrieval mechanism of CPU capabilities.
    Did plenty of other things too.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
