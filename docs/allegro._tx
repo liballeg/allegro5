@@ -2508,7 +2508,9 @@ Bitmap objects
 Once you have selected a graphics mode, you can draw things onto the display 
 via the 'screen' bitmap. All the Allegro graphics routines draw onto BITMAP 
 structures, which are areas of memory containing rectangular images, stored 
-as packed byte arrays (eight bits per pixel). You can create and manipulate 
+as packed byte arrays (in 8 bit modes one byte per pixel, in 15 and 16 bit 
+modes sizeof(short) bytes per pixel, in 24 bit modes 3 bytes per pixel and 
+in 32 bit modes sizeof(long) bytes per pixel). You can create and manipulate 
 bitmaps in system RAM, or you can write to the special 'screen' bitmap which 
 represents the video memory in your graphics card.
 
@@ -4588,15 +4590,15 @@ formats, you can use create_bitmap_ex() in place of create_bitmap(), and
 call bitmap_color_depth() to query the format of a specific image. Most of 
 the graphics routines require all their input parameters to be in the same 
 format (eg. you cannot stretch a 15 bit source bitmap onto a 24 bit 
-destination), but there are four exceptions: blit() can copy between bitmaps 
-of any format, converting the data as required, draw_sprite() can draw 256 
-color source images onto destinations of any format, draw_character() 
-_always_ uses a 256 color source bitmap, whatever the format of the 
-destination, the draw_trans_sprite() and draw_trans_rle_sprite() functions 
-are able to draw 32 bit RGBA images onto any hicolor or truecolor 
-destination, as long as you call set_alpha_blender() first, and the 
-draw_trans_sprite() function is able to draw an 8 bit alpha channel image 
-over the top of an existing 32 bit image, as long as you call 
+destination), but there are some exceptions: blit() and the rotation routines 
+can copy between bitmaps of any format, converting the data as required, 
+draw_sprite() can draw 256 color source images onto destinations of any 
+format, draw_character() _always_ uses a 256 color source bitmap, whatever 
+the format of the destination, the draw_trans_sprite() and 
+draw_trans_rle_sprite() functions are able to draw 32 bit RGBA images onto 
+any hicolor or truecolor destination, as long as you call set_alpha_blender() 
+first, and the draw_trans_sprite() function is able to draw an 8 bit alpha 
+channel image over the top of an existing 32 bit image, as long as you call 
 set_write_alpha_blender() first.
 
 Expanding a 256 color source onto a truecolor destination is fairly fast 
