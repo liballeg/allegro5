@@ -166,6 +166,10 @@ int main()
 	 x += joy[0].stick[0].axis[0].pos/40;
 	 y += joy[0].stick[0].axis[1].pos/40;
 
+	 /* for informational purposes, show the input values on screen */
+         textprintf(bmp, font, 0,  0, palette_color[255], "Axis 0: %d", joy[0].stick[0].axis[0].pos);
+         textprintf(bmp, font, 0, 10, palette_color[255], "Axis 1: %d", joy[0].stick[0].axis[1].pos);
+
 	 /* by checking if the values were positive or negative, we
 	  * can know in which the direction the user pulled the joy.
 	  */
