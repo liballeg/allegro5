@@ -84,5 +84,8 @@ Changes between 4.0.x and 4.1.x series
    The behaviour of the GFX_SAFE driver has changed: it doesn't try to first
    set up GFX_AUTODETECTed drivers anymore and is now guaranteed to be a
    windowed driver when the platform has got a windowing system.
+<li>
+   A datafile object returned by load_datafile_object() used not to contain
+   the properties attached to the object. This has been fixed.
 </ul>
 

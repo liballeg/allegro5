@@ -1139,19 +1139,142 @@ static void unload_midi(MIDI *m)
 
 
 /* load_object:
- *  Helper to load an object from a datafile.
+ *  Helper to load an object from a datafile and store it in 'obj'.
+ *  Returns 0 on success and -1 on failure.
  */
-static void *load_object(PACKFILE *f, int type, long size)
+static int load_object(DATAFILE *obj, PACKFILE *f, int type)
 {
-   int i;
+   PACKFILE *ff;
+   int d, i;
 
-   /* look for a load function */
-   for (i=0; i<MAX_DATAFILE_TYPES; i++)
-      if (_datafile_type[i].type == type)
-	 return _datafile_type[i].load(f, size);
+   /* load actual data */
+   ff = pack_fopen_chunk(f, FALSE);
 
-   /* if not found, load binary data */
-   return load_data_object(f, size);
+   if (ff) {
+      d = ff->todo;
+
+      /* look for a load function */
+      for (i=0; i<MAX_DATAFILE_TYPES; i++) {
+	 if (_datafile_type[i].type == type) {
+	    obj->dat = _datafile_type[i].load(ff, d);
+	    goto Found;
+	 }
+      }
+
+      /* if not found, load binary data */
+      obj->dat = load_data_object(ff, d);
+
+    Found:
+      pack_fclose_chunk(ff);
+
+      if (!obj->dat)
+	 return -1;
+
+      obj->type = type;
+      obj->size = d;
+      return 0;
+   }
+
+   return -1;
+}
+
+
+
+/* load_property:
+ *  Helper to load a property from a datafile and store it in 'prop'.
+ *  Returns 0 on success and -1 on failure.
+ */
+static int load_property(DATAFILE_PROPERTY *prop, PACKFILE *f)
+{
+   int type, size;
+   char *p;
+
+   type = pack_mgetl(f);
+   size = pack_mgetl(f);
+
+   prop->type = type;
+   prop->dat = malloc(size+1); /* '1' for end-of-string delimiter */
+   if (!prop->dat) {
+      *allegro_errno = ENOMEM;
+      pack_fseek(f, size);
+      return -1;
+   }
+
+   /* read the property */
+   pack_fread(prop->dat, size, f);
+   prop->dat[size] = 0;
+
+   /* convert to current encoding format if needed */
+   if (need_uconvert(prop->dat, U_UTF8, U_CURRENT)) {
+      p = malloc(uconvert_size(prop->dat, U_UTF8, U_CURRENT));
+      if (!p) {
+	 *allegro_errno = ENOMEM;
+	 return -1;
+      }
+
+      do_uconvert(prop->dat, U_UTF8, p, U_CURRENT, -1);
+      free(prop->dat);
+      prop->dat = p;
+   }
+
+   return 0;
+}
+
+
+
+/* add_property:
+ *  Helper to add a new property to a property list. Returns 0 on
+ *  success or -1 on failure.
+ */
+static int add_property(DATAFILE_PROPERTY **list, DATAFILE_PROPERTY *prop)
+{
+   DATAFILE_PROPERTY *iter;
+   int length = 0;
+
+   ASSERT(list);
+   ASSERT(prop);
+
+   /* find the length of the list */
+   if (*list) {
+      iter = *list;
+      while (iter->type != DAT_END) {
+	 length++;
+	 iter++;
+      }
+   }
+
+   /* grow the list */
+   *list = _al_sane_realloc(*list, sizeof(DATAFILE_PROPERTY)*(length+2));
+   if (!(*list)) {
+      *allegro_errno = ENOMEM;
+      return -1;
+   }
+
+   /* copy the new property */
+   (*list)[length] = *prop;
+
+   /* set end-of-array marker */
+   (*list)[length+1].type = DAT_END;
+   (*list)[length+1].dat = NULL;
+
+   return 0;
+}
+
+
+
+/* destroy_property_list:
+ *  Helper to destroy a property list.
+ */
+static void destroy_property_list(DATAFILE_PROPERTY *list)
+{
+   int c;
+
+   for (c=0; list[c].type != DAT_END; c++) {
+      if (list[c].dat)
+	 free(list[c].dat);
+   }
+
+   free(list);
 }
 
 
@@ -1161,13 +1284,9 @@ static void *load_object(PACKFILE *f, int type, long size)
  */
 static void *load_file_object(PACKFILE *f, long size)
 {
-   #define MAX_PROPERTIES  64
-
-   DATAFILE_PROPERTY prop[MAX_PROPERTIES];
    DATAFILE *dat;
-   PACKFILE *ff;
-   int prop_count, count, type, c, d;
-   char *p;
+   DATAFILE_PROPERTY prop, *list;
+   int count, c, type, failed;
 
    count = pack_mgetl(f);
 
@@ -1177,107 +1296,50 @@ static void *load_file_object(PACKFILE *f, long size)
       return NULL;
    }
 
-   for (c=0; c<=count; c++) {
-      dat[c].type = DAT_END;
-      dat[c].dat = NULL;
-      dat[c].size = 0;
-      dat[c].prop = NULL;
-   }
+   list = NULL;
+   failed = FALSE;
 
-   for (c=0; c<MAX_PROPERTIES; c++)
-      prop[c].dat = NULL;
-
-   c = 0;
-   prop_count = 0;
-
-   *allegro_errno = 0;
-
-   while (c < count) {
+   /* search the packfile for properties or objects */
+   for (c=0; c<count;) {
       type = pack_mgetl(f);
 
       if (type == DAT_PROPERTY) {
-	 /* load an object property */
-	 type = pack_mgetl(f);
-	 d = pack_mgetl(f);
-	 if (prop_count < MAX_PROPERTIES) {
-	    prop[prop_count].type = type;
-	    prop[prop_count].dat = malloc(d+1);
-	    if (prop[prop_count].dat != NULL) {
-	       pack_fread(prop[prop_count].dat, d, f);
-	       prop[prop_count].dat[d] = 0;
-	       if (need_uconvert(prop[prop_count].dat, U_UTF8, U_CURRENT)) {
-		  p = malloc(uconvert_size(prop[prop_count].dat, U_UTF8, U_CURRENT));
-		  if (p)
-		     do_uconvert(prop[prop_count].dat, U_UTF8, p, U_CURRENT, -1);
-		  free(prop[prop_count].dat);
-		  prop[prop_count].dat = p;
-	       }
-	       prop_count++;
-	       d = 0;
-	    }
+	 if ((load_property(&prop, f) != 0) || (add_property(&list, &prop) != 0)) {
+	    failed = TRUE;
+	    break;
 	 }
-	 while (d-- > 0)
-	    pack_getc(f);
       }
       else {
-	 /* load actual data */
-	 ff = pack_fopen_chunk(f, FALSE);
-
-	 if (ff) {
-	    d = ff->todo;
-
-	    dat[c].dat = load_object(ff, type, d);
-
-	    if (dat[c].dat) {
-	       dat[c].type = type;
-	       dat[c].size = d;
-
-	       if (prop_count > 0) {
-		  dat[c].prop = malloc(sizeof(DATAFILE_PROPERTY)*(prop_count+1));
-		  if (dat[c].prop != NULL) {
-		     for (d=0; d<prop_count; d++) {
-			dat[c].prop[d].dat = prop[d].dat;
-			dat[c].prop[d].type = prop[d].type;
-			prop[d].dat = NULL;
-		     }
-		     dat[c].prop[d].dat = NULL;
-		     dat[c].prop[d].type = DAT_END;
-		  }
-		  else {
-		     for (d=0; d<prop_count; d++) {
-			free(prop[d].dat);
-			prop[d].dat = NULL;
-		     }
-		  }
-		  prop_count = 0;
-	       }
-	       else
-		  dat[c].prop = NULL;
-	    }
-
-	    f = pack_fclose_chunk(ff);
-
-	    if (datafile_callback)
-	       datafile_callback(dat+c);
-
-	    c++;
+	 if (load_object(&dat[c], f, type) != 0) {
+	    failed = TRUE;
+	    break;
 	 }
-      }
 
-      if (*allegro_errno) {
-	 unload_datafile(dat);
+	 /* attach the property list to the object */
+	 dat[c].prop = list;
+	 list = NULL;
 
-	 for (c=0; c<MAX_PROPERTIES; c++)
-	    if (prop[c].dat)
-	       free(prop[c].dat);
+	 if (datafile_callback)
+	    datafile_callback(dat+c);
 
-	 return NULL;
+	 c++;
       }
    }
 
-   for (c=0; c<MAX_PROPERTIES; c++)
-      if (prop[c].dat)
-	 free(prop[c].dat);
+   /* set end-of-array marker */
+   dat[c].type = DAT_END;
+   dat[c].dat = NULL;
+
+   /* destroy the property list if not assigned to an object */
+   if (list)
+      destroy_property_list(list);
+
+   /* gracefully handle failure */
+   if (failed) {
+      unload_datafile(dat);
+      free(dat);
+      dat = NULL;
+   }
 
    return dat;
 }
@@ -1340,46 +1402,115 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
 {
    PACKFILE *f;
    DATAFILE *dat;
-   void *object;
-   char buf[1024], tmp[16];
-   int size;
+   DATAFILE_PROPERTY prop, *list;
+   char parent[1024], child[1024], tmp[8];
+   char *bufptr, *prevptr, *separator;
+   int count, c, type, size, found;
+
    ASSERT(filename);
    ASSERT(objectname);
+  
+   /* concatenate to filename#objectname */
+   ustrzcpy(parent, sizeof(parent), filename);
 
-   ustrzcpy(buf, sizeof(buf), filename);
+   if (ustrcmp(parent, uconvert_ascii("#", tmp)) != 0)
+      ustrzcat(parent, sizeof(parent), uconvert_ascii("#", tmp));
 
-   if (ustrcmp(buf, uconvert_ascii("#", tmp)) != 0)
-      ustrzcat(buf, sizeof(buf), uconvert_ascii("#", tmp));
+   ustrzcat(parent, sizeof(parent), objectname);
+   
+   /* split into path and actual objectname (for nested files) */
+   prevptr = bufptr = parent;
+   separator = NULL;
+   while ((c = ugetx(&bufptr)) != 0) {
+      if ((c == '#') || (c == '/') || (c == OTHER_PATH_SEPARATOR))
+	 separator = prevptr;
 
-   ustrzcat(buf, sizeof(buf), objectname);
+      prevptr = bufptr;
+   }
+   
+   ustrzcpy(child, sizeof(child), separator + uwidth (separator));
 
-   f = pack_fopen(buf, F_READ_PACKED);
+   if (separator == parent)
+      usetc(separator + uwidth (separator), 0);
+   else
+      usetc(separator, 0);
+
+   /* open the parent datafile */
+   f = pack_fopen(parent, F_READ_PACKED);
    if (!f)
       return NULL;
 
-   size = f->todo;
+   if ((f->flags & PACKFILE_FLAG_CHUNK) && (!(f->flags & PACKFILE_FLAG_EXEDAT)))
+      type = (_packfile_type == DAT_FILE) ? DAT_MAGIC : 0;
+   else
+      type = pack_mgetl(f);
 
-   dat = malloc(sizeof(DATAFILE));
-   if (!dat) {
+   /* only support V2 datafile format */
+   if (type != DAT_MAGIC) {
       pack_fclose(f);
       return NULL;
    }
 
-   object = load_object(f, _packfile_type, size);
+   count = pack_mgetl(f);
 
-   pack_fclose(f);
+   dat = NULL;
+   list = NULL;
+   found = FALSE;
 
-   if (!object) {
-      free(dat);
-      return NULL;
+   /* search the packfile for properties or objects */
+   for (c=0; c<count;) {
+      type = pack_mgetl(f);
+
+      if (type == DAT_PROPERTY) {
+	 if ((load_property(&prop, f) != 0) || (add_property(&list, &prop) != 0))
+	    break;
+
+	 if ((prop.type == DAT_NAME) && (ustricmp(prop.dat, child) == 0))
+	    found = TRUE;
+      }
+      else {
+	 if (found) {
+	    /* we have found the object, load it */
+	    dat = malloc(sizeof(DATAFILE));
+	    if (!dat) {
+	       *allegro_errno = ENOMEM;
+	       break;
+	    }
+
+	    if (load_object(dat, f, type) != 0) {
+	       free(dat);
+	       dat = NULL;
+	       break;
+	    }
+
+	    /* attach the property list to the object */
+	    dat->prop = list;
+	    list = NULL;
+
+	    break;
+	 }
+	 else {
+	    /* skip an unwanted object */
+	    size = pack_mgetl(f);
+	    pack_fseek(f, size+4);  /* '4' for the chunk size */
+
+	    /* destroy the property list */
+	    if (list) {
+	       destroy_property_list(list);
+	       list = NULL;
+	    }
+
+	    c++;
+	 }
+      }
    }
 
-   dat->dat = object;
-   dat->type = _packfile_type;
-   dat->size = size;
-   dat->prop = NULL;
+   /* destroy the property list if not assigned to an object */
+   if (list)
+      destroy_property_list(list);
 
-   return dat; 
+   pack_fclose(f);
+   return dat;
 }
 
 
@@ -1391,14 +1522,9 @@ void _unload_datafile_object(DATAFILE *dat)
 {
    int i;
 
-   /* free the property list */
-   if (dat->prop) {
-      for (i=0; dat->prop[i].type != DAT_END; i++)
-	 if (dat->prop[i].dat)
-	    free(dat->prop[i].dat);
-
-      free(dat->prop);
-   }
+   /* destroy the property list */
+   if (dat->prop)
+      destroy_property_list(dat->prop);
 
    /* look for a destructor function */
    for (i=0; i<MAX_DATAFILE_TYPES; i++) {
