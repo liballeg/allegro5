@@ -619,7 +619,6 @@ FUNC (_colorconv_blit_8_to_15)
 FUNC (_colorconv_blit_24_to_32)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_4, LOOP_RATIO_4)
-   movl 4(%esi), %ebx  /* init first line */
 
    _align_
    next_line_24_to_32_no_mmx:
@@ -630,6 +629,7 @@ FUNC (_colorconv_blit_24_to_32)
       /* 100% Pentium pairable loop */
       /* 9 cycles = 8 cycles/4 pixels + 1 cycle loop */
       next_block_24_to_32_no_mmx:
+         movl 4(%esi), %ebx        /* next: ebx = r8g8 pixel2   */  /**** to fix ****/
          shll $8, %ebx             /* ebx = r8g8b0 pixel2       */
          movl (%esi), %eax         /* eax = pixel1              */
          movl 8(%esi), %ecx        /* ecx = pixel4 | r8 pixel 3 */
@@ -642,7 +642,7 @@ FUNC (_colorconv_blit_24_to_32)
          movb 6(%esi), %al         /* eax = r8g0b8 pixel3       */
          movb 7(%esi), %ah         /* eax = r8g8b8 pixel3       */
          movl %ecx, 12(%edi)       /* write pixel4              */
-         movl 16(%esi), %ebx       /* next: ebx = r8g8 pixel2   */
+         /* nop */
          addl $12, %esi            /* 4 pixels read             */
          movl %eax, 8(%edi)        /* write pixel3              */
          addl $16, %edi            /* 4 pixels written          */
@@ -653,7 +653,6 @@ FUNC (_colorconv_blit_24_to_32)
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
       decl %ecx
-      movl 4(%esi), %ebx  /* init next line */
       jnz next_line_24_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -731,7 +730,6 @@ FUNC (_colorconv_blit_8_to_32)
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_4, LOOP_RATIO_4)
    movl $0, %eax  /* init first line */
    movl GLOBL(_colorconv_indexed_palette), %ebp
-   movb (%esi), %al  /* init first line */
 
    _align_
    next_line_8_to_32_no_mmx:
@@ -742,6 +740,7 @@ FUNC (_colorconv_blit_8_to_32)
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_8_to_32_no_mmx:
+         movb (%esi), %al           /* next: al = pixel1    */ /**** to fix ****/
          movl $0, %ebx
          movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel1 */
          movb 1(%esi), %bl          /* bl = pixel2          */
@@ -757,7 +756,7 @@ FUNC (_colorconv_blit_8_to_32)
          movl %eax, -8(%edi)        /* write pixel3         */
          movl $0, %eax
          movl (%ebp,%ecx,4), %ecx   /* lookup: ecx = pixel4 */
-         movb 4(%esi), %al          /* next: al = pixel1    */
+         /* nop */
          movl %ecx, -4(%edi)        /* write pixel4         */
          addl $4, %esi              /* 4 pixels read        */
          decl %edx
@@ -767,7 +766,6 @@ FUNC (_colorconv_blit_8_to_32)
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
       decl %ecx
-      movb (%esi), %al  /* init next line */
       jnz next_line_8_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -780,7 +778,6 @@ FUNC (_colorconv_blit_8_to_32)
 FUNC (_colorconv_blit_32_to_24)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_3, LOOP_RATIO_4)
-   movl 4(%esi), %ebx  /* init first line */
 
    _align_
    next_line_32_to_24_no_mmx:
@@ -791,6 +788,7 @@ FUNC (_colorconv_blit_32_to_24)
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_32_to_24_no_mmx:
+         movl 4(%esi), %ebx     /* next: ebx = pixel 2             */  /**** to fix ****/
          movl %ebx, %ebp        /* ebp = pixel2                    */
          addl $12, %edi         /* 4 pixels written                */
          shll $24, %ebx         /* ebx = b8 pixel2 << 24           */
@@ -806,7 +804,7 @@ FUNC (_colorconv_blit_32_to_24)
          shll $16, %ebx         /* ebx = g8b8 pixel3 << 16         */
          movl %ecx, -4(%edi)    /* write r8 pixel3..pixel4         */
          orl  %ebx, %eax        /* eax = g8b8 pixel3 | r8g8 pixel2 */
-         movl 20(%esi), %ebx    /* next: ebx = pixel 2             */
+         /* nop */
          movl %eax, -8(%edi)    /* write g8r8 pixel2..b8g8 pixel3  */
          addl $16, %esi         /* 4 pixels read                   */
          decl %edx
@@ -816,7 +814,6 @@ FUNC (_colorconv_blit_32_to_24)
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
       decl %ecx
-      movl 4(%esi), %ebx  /* init first line */
       jnz next_line_32_to_24_no_mmx
 
    DESTROY_STACK_FRAME
