@@ -175,7 +175,8 @@ Contributors
    DIGMID driver, implemented the digmid_set_pan function, rewrote part of
    the Allegro mixer, made the Allegro mixer the default one in Windows,
    improved the threaded UNIX timer code, helped improve responsiveness under 
-   X11 and tweaked tests/play.c.
+   X11, tweaked tests/play.c, added drawing primitives and video bitmap locking
+   to the X11 port and did plenty of other things too.
 
    Christer Sandberg (<email>christer.sandberg@mdh.se</a>).<br>
    Made dat2c work better with ISO C90 compilers, made dat2c correctly detect
@@ -486,6 +487,9 @@ Contributors
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler and fixed a
    couple of bugs.
+   
+   Greg Lee (<email>greg@ling.lll.hawaii.edu</a>.<br>
+   Pointed out that Linux joystick driver should read all events.
 
    Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
    Contributed the Norwegian message translation.
@@ -560,6 +564,9 @@ Contributors
 
    Martijn Van Lersel (<email>amarillion@yahoo.com</a>).<br>
    Fixed an overflow in create_light_table().
+
+   Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
+   Added a MIDI input driver to the Windows port.
 
    Martijn Versteegh (<email>m.versteegh@hccnet.nl</a>).<br>
    Added the config hook extension mechanism.
@@ -784,8 +791,9 @@ Contributors
 
    Sam Hocevar (<email>sam@zoy.org</a>).<br>
    Fixed a Bashism in fix.sh that makes Solaris' sh choke, a race
-   condition in the mixer under Unix w/ threads, Windows, BeOS and MacOS X
-   and a crash in makedoc.
+   condition in the mixer under Unix w/ threads, Windows, BeOS and MacOS X,
+   a crash in makedoc and made it possible to put functions from .s sources 
+   in a shared library under Unix.
 
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.
