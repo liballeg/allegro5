@@ -37,10 +37,13 @@ int dd = _al_stretch.dd;                                                  \
 type *s = (type*) sptr;                                                   \
 unsigned long d = dptr;                                                   \
 unsigned long dend = d + _al_stretch.dw;                                  \
-for (; d < dend; d += (size), (unsigned char*) s += _al_stretch.sinc) {   \
+for (; d < dend; d += (size), s = (type*)                                 \
+      ((unsigned char*)s + _al_stretch.sinc)) {                           \
    set(d, get(s));                                                        \
-   if (dd >= 0)                                                           \
-      (unsigned char*) s += (size), dd += _al_stretch.i2;                 \
+   if (dd >= 0) {                                                         \
+      s = (type *)((unsigned char*)s + (size));                           \
+      dd += _al_stretch.i2;                                               \
+   }                                                                      \
    else                                                                   \
       dd += _al_stretch.i1;                                               \
 }
@@ -130,12 +133,15 @@ int dd = _al_stretch.dd;                                                  \
 type *s = (type*) sptr;                                                   \
 unsigned long d = dptr;                                                   \
 unsigned long dend = d + _al_stretch.dw;                                  \
-for (; d < dend; d += (size), (unsigned char*) s += _al_stretch.sinc) {   \
+for (; d < dend; d += (size),                                             \
+      s = (type*) ((unsigned char*) s + _al_stretch.sinc)) {              \
    unsigned long color = get(s);                                          \
    if (color != (mask))                                                   \
    set(d, color);                                                         \
-   if (dd >= 0)                                                           \
-      (unsigned char*) s += (size), dd += _al_stretch.i2;                 \
+   if (dd >= 0) {                                                         \
+      s = (type*)((unsigned char*)s + (size));                            \
+      dd += _al_stretch.i2;                                               \
+   }                                                                      \
    else                                                                   \
       dd += _al_stretch.i1;                                               \
 }
