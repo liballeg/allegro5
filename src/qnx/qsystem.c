@@ -144,15 +144,18 @@ static void *qnx_events_handler(void *data)
 
       /* Special mouse handling while in fullscreen mode */
       if ((_mouse_installed) && (ph_screen_context)) {
+         PtGetAbsPosition(ph_window, &mx, &my);
          ig = PhInputGroup(NULL);
          PhQueryCursor(ig, &cursor_info);
-         dx = cursor_info.pos.x - (SCREEN_W / 2);
-         dy = cursor_info.pos.y - (SCREEN_H / 2);
+         dx = cursor_info.pos.x - (mx + (SCREEN_W / 2));
+         dy = cursor_info.pos.y - (my + (SCREEN_H / 2));
          buttons = (cursor_info.button_state & Ph_BUTTON_SELECT ? 0x1 : 0) |
                    (cursor_info.button_state & Ph_BUTTON_MENU ? 0x2 : 0) |
                    (cursor_info.button_state & Ph_BUTTON_ADJUST ? 0x4 : 0);
          qnx_mouse_handler(dx, dy, 0, buttons);
-         PhMoveCursorAbs(ig, SCREEN_W / 2, SCREEN_H / 2);
+         if (dx || dy) {
+            PhMoveCursorAbs(ig, mx + (SCREEN_W / 2), my + (SCREEN_H / 2));
+         }
       }
 
       /* Checks if there is a pending event */
@@ -243,8 +246,6 @@ static void *qnx_events_handler(void *data)
                      break;
                   case Ph_WM_FOCUS:
                      if (window_event->event_state == Ph_WM_EVSTATE_FOCUS) {
-                        if (ph_window_context)
-                           ph_update_window(NULL);
                         PgSetPalette(ph_palette, 0, 0, 256, Pg_PALSET_HARDLOCKED, 0);
                         PgFlush();
                         for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
@@ -252,7 +253,7 @@ static void *qnx_events_handler(void *data)
                               switch_in_cb[i]();
                         }
                      }
-                     else {
+                     else if (window_event->event_state == Ph_WM_EVSTATE_FOCUSLOST) {
                         for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
                            if (switch_out_cb[i])
                               switch_out_cb[i]();
@@ -265,6 +266,11 @@ static void *qnx_events_handler(void *data)
                      break;
                }
             }
+            break;
+         case Ph_EV_INFO:
+            /*
+             *  TODO: validate offscreen contexts
+             */
             break;
       }
       pthread_mutex_unlock(&qnx_events_mutex);
@@ -283,6 +289,8 @@ int qnx_sys_init(void)
    PhRegion_t region;
    PtArg_t arg[6];
    PhDim_t dim;
+   struct sched_param sparam;
+   int spolicy;
    
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, qnx_signal_handler);
@@ -317,7 +325,7 @@ int qnx_sys_init(void)
    PtRealizeWidget(ph_window);
 
    region.cursor_type = Ph_CURSOR_NONE;
-   region.events_sense = Ph_EV_WM | Ph_EV_KEY | Ph_EV_PTR_ALL | Ph_EV_EXPOSE | Ph_EV_BOUNDARY;
+   region.events_sense = Ph_EV_WM | Ph_EV_KEY | Ph_EV_PTR_ALL | Ph_EV_EXPOSE | Ph_EV_BOUNDARY | Ph_EV_INFO;
    region.rid = PtWidgetRid(ph_window);
    PhRegionChange(Ph_REGION_CURSOR | Ph_REGION_EV_SENSE, 0, &region, NULL, NULL);
 
@@ -331,6 +339,16 @@ int qnx_sys_init(void)
    pthread_mutex_init(&qnx_events_mutex, NULL);
    pthread_create(&qnx_events_thread, NULL, qnx_events_handler, NULL);
    
+   nice(3);
+   if(pthread_getschedparam(pthread_self(), &spolicy, &sparam) == EOK) {
+      sparam.sched_priority -= 2;
+      pthread_setschedparam(pthread_self(), spolicy, &sparam);
+   }
+   if(pthread_getschedparam(qnx_events_thread, &spolicy, &sparam) == EOK) {
+      sparam.sched_priority += 2;
+      pthread_setschedparam(qnx_events_thread, spolicy, &sparam);
+   }
+
    os_type = OSTYPE_QNX;
 
    set_display_switch_mode(SWITCH_BACKGROUND);

@@ -129,7 +129,8 @@ static int find_video_mode(int w, int h, int depth)
 static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth, int accel)
 {
    BITMAP *bmp = NULL;
-   PhRegion_t region;
+   PhDim_t dim;
+   PtArg_t arg;
    PgHWCaps_t caps;
    PgDisplaySettings_t settings;
    PgVideoModeInfo_t mode_info;
@@ -166,6 +167,11 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
       return NULL;
    }
+
+   dim.w = ph_window_w = w;
+   dim.h = ph_window_h = h;
+   PtSetArg(&arg, Pt_ARG_DIM, &dim, 0);
+   PtSetResources(ph_window, 1, &arg);
    
    PgGetVideoMode(&original_settings);
    
