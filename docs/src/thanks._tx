@@ -128,6 +128,9 @@ Contributors
    Cloud Wu (<email>cloudwu@263.net</a>).<br>
    Optimised the truecolor pixel blending functions.
 
+   Charles Bilyue (<email>Esaelon@aol.com</a>).<br>
+   Optimized the i386 blitters.
+
    Chris Graham.<br>
    Suggested to add a new flag for Windows NTFS compressed files.
 
@@ -184,7 +187,10 @@ Contributors
 
    Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
    Added a COLORCONV_KEEP_TRANS mode. Contributed the wfixicon utility.
-   Contributed several enhancements to the grabber. 
+   Contributed several enhancements to the grabber. Added a window position
+   saving feature to the Windows port. Fixed menu dimensions in the GUI
+   engine. Fixed the get_camera_matrix*() functions. Added chm ouput support
+   for the documentation.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -240,8 +246,8 @@ Contributors
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
-   texi2dvi output, improved the makedoc utility, added reload_config_texts()
-   and did plenty of other things too.
+   texi2dvi output, improved the makedoc utility and contributed a new doc
+   format, added reload_config_texts() and did plenty of other things too.
 
    Grzegorz Godlewski.<br>
    Contributed a Polish localization patch and added support for lower and
@@ -271,6 +277,9 @@ Contributors
    VESA, VBE/AF and DIRECTX drivers for a list of possible GFX modes.
    Rewrote the mode-selector to use get_gfx_mode_list(). Rewrote/updated
    some scripts and reworked the build system many times.
+
+   Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
+   Removed the requirements for fileutils on DOS/Windows platforms.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
@@ -303,6 +312,9 @@ Contributors
    reports and suggestions for improvement. Contributed bidirectional
    looping and backward playing support for the DirectSound driver. Fixed
    a latency problem with audiostreams.
+
+   Jeremiah Blanchard (<email>squirminworm@yahoo.com</a>).<br>
+   Contributed modifications in order for Allegro to compile on Darwin/MacOS X.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -367,7 +379,9 @@ Contributors
    Contributed the Norwegian message translation.
 
    Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
-   Contributed the gfxinfo utility and added two FAQ entries.
+   Contributed the gfxinfo utility, added two FAQ entrie, added a
+   xwin_set_window_name() function to the X11 port, added support for
+   switch callbacks under X11 and refactored the display switching code.
 
    Lucas Vignoli Reis (<email>lucasvr@bestway.com.br</a>).<br>
    Added the Portuguese (Brazil) message translation and keyboard mapping.
@@ -454,6 +468,9 @@ Contributors
    Wrote all the 24 bit graphics code, the optimised palette generation 
    function, and a fair amount of the other truecolor stuff too (bitmap 
    scaling, image loading, etc).
+
+   Mike Pichagin (<email>mailfrom@mail.ru</a>).<br>
+   Contributed the ustrnicmp() function.
 
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
    Improved the fire routine in examples/exflame.c (my original version

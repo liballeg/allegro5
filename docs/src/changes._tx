@@ -6,6 +6,115 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.0.2 to 4.1.0 (Jul 2002)
+<ul><li>
+   Charles Bilyue optimized the i386 blitters.
+<li>
+   Peter Wang fixed the mis-treatment of empty files by the library and
+   the 'pack' utility.
+<li>
+   Eric Botcazou simplified pack_f{read,write} and cleaned up several
+   uses of pack_feof().
+<li>
+   Eric Botcazou split USE_CONSOLE into ALLEGRO_USE_CONSOLE and
+   ALLEGRO_NO_MAGIC_MAIN.
+<li>
+   Eric Botcazou simplified and cleaned up the asm bank switchers.
+<li>
+   Peter Wang added support for the environment variable ALLEGRO_MODULES
+   under Unix.
+<li>
+   Peter Wang made 'configure --disable-vga' remove more stuff out of the
+   core under Unix.
+<li>
+   Eric Botcazou made the DirectDraw code try to restore its surfaces as
+   soon as it detects they have been lost.
+<li>
+   Peter Wang added a description of the packfile format.
+<li>
+   Peter Wang added an aRts sound driver to the Unix port.
+<li>
+   Sven Sandberg optimized create_video_bitmap() for systems with a single
+   video memory surface.
+<li>
+   Grzegorz Adam Hankiewicz reindented the documentation sources, improving
+   the text/info/html output in the process.
+<li>
+   Grzegorz Adam Hankiewicz improved chm output for the documentation.
+<li>
+   Sven Sandberg optimized and reduced numeric errors in create_trans_table().
+<li>
+   Lorenzo Petrone added a xwin_set_window_name() function to the X11 port.
+<li>
+   Peter Wang made install_allegro()/allegro_init() not abort the program
+   on failure.
+<li>
+   Sven Sandberg and Grzegorz Adam Hankiewicz added backward compatibility
+   to the new doc processor.
+<li>
+   Sven Sandberg fixed various problem in the makefiles.
+<li>
+   Elias Pschernig made it so that the COLORCONV_KEEP_TRANS flag is checked
+   when converting bitmaps out of datafiles.
+<li>
+   Eric Botcazou added preliminary support for hardware acceleration and
+   video bitmaps to the QNX port.
+<li>
+   Elias Pschernig added a window position saving feature to the Windows port.
+<li>
+   Vincent Penquerc'h added a -s-PROP option to the dat utility in order
+   to preserve properties when stripping.
+<li>
+   Henrik Stokseth made the zipwin.sh script for packaging the Windows
+   binary distribution work with Cygwin.
+<li>
+   Peter Wang and Eric Botcazou made it so that Allegro C programs can
+   compile with gcc -ansi -pedantic.
+<li>
+   Vincent Penquerc'h added a 'sort' option to the grabber and the dat
+   utility.
+<li>
+   Eric Botcazou added preliminary support for native windows under Windows.
+<li>
+   Vincent Penquerc'h made gcc use pipes on Unix when building the library.
+<li>
+   Lorenzo Petrone added support for switch callbacks under X11 and
+   refactored the display switching code.
+<li>
+   Javier Gonzalez changed the default value of emulate_three to no in all
+   cases.
+<li>
+   Eric Botcazou modified the behaviour of the retrace_* objects to take
+   into account the refresh rate if known.
+<li>
+   Eric Botcazou fixed the 'configure --disable-constructor' problem.
+<li>
+   Elias Pschernig fixed menu dimensions in the GUI engine.
+<li>
+   Eric Botcazou added documentation on API compatibility.
+<li>
+   Elias Pschernig and Eric Botcazou fixed the get_camera_matrix*() functions.
+<li>
+   Igor Gnip removed the requirements for fileutils on DOS/Windows platforms.
+<li>
+   Jeremiah Blanchard contributed modifications in order for Allegro to
+   compile on Darwin/MacOS X.
+<li>
+   Henrik Stokseth merged standard and extended mode-selectors.
+<li>
+   Elias Pschernig added chm ouput support for the documentation.
+<li>
+   Eric Botcazou merged the three input threads into a single one under Windows.
+<li>
+   Mike Pichagin contributed the ustrnicmp() function.
+<li>
+   Grzegorz Adam Hankiewicz contributed a new documentation format for better
+   html output.
+<li>
+   Eric Botcazou added a DirectInput joystick driver to the Windows port.
+</ul>
+
+@heading
 Changes from 4.0.1 to 4.0.2 (Jun 2002)
 <ul><li>
    Many clarifications in the docs.
