@@ -525,13 +525,13 @@ install-headers:
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(includedir)/allegro/platform/; \
 	done
 
-install-programs: programs
+INSTALL_EXES = $(filter tools/%, $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES))
+
+install-programs: $(INSTALL_EXES)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@for prog in $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES); do \
-	  if test "X`echo $$prog | sed -e s,tools/.\*,,`" = X; then \
+	@for prog in $^; do \
 	    echo Installing $$prog to $(DESTDIR)$(bindir); \
 	    $(INSTALL_PROGRAM) $$prog $(DESTDIR)$(bindir); \
-	  fi; \
 	done
 
 install-info: docs
