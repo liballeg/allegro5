@@ -74,7 +74,7 @@ static WIN_GFX_DRIVER win_gfx_driver_overlay =
 {
    TRUE,
    switch_in_overlay,
-   _switch_out,
+   NULL,                        // AL_METHOD(void, switch_out, (void));
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));
    move_overlay,
@@ -95,7 +95,7 @@ static HBRUSH original_brush, overlay_brush;
  */
 static void switch_in_overlay(void)
 {
-   restore_all_ddraw_surfaces();  /* calls _switch_in() */
+   restore_all_ddraw_surfaces();
    show_overlay();
 }
 

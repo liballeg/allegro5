@@ -92,8 +92,8 @@ static void gdi_update_window(RECT *rect);
 static WIN_GFX_DRIVER win_gfx_driver_gdi =
 {
    TRUE,
-   _switch_in,
-   _switch_out,
+   NULL,                        // AL_METHOD(void, switch_in, (void));
+   NULL,                        // AL_METHOD(void, switch_out, (void));
    gdi_enter_sysmode,
    gdi_exit_sysmode,
    NULL,                        // AL_METHOD(void, move, (int x, int y, int w, int h));

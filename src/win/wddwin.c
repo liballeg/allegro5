@@ -83,7 +83,7 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
 {
    TRUE,
    switch_in_win,
-   _switch_out,
+   NULL,                        // AL_METHOD(void, switch_out, (void));
    handle_window_enter_sysmode_win,
    handle_window_exit_sysmode_win,
    handle_window_move_win,
@@ -127,7 +127,7 @@ static void get_working_area(RECT *working_area)
  */
 static void switch_in_win(void)
 {
-   restore_all_ddraw_surfaces();  /* calls _switch_in() */
+   restore_all_ddraw_surfaces();
    get_working_area(&working_area);
 }
 
