@@ -282,13 +282,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
         }
     }
 
-    pal[0].r = pal[0].b = 63;
-    pal[0].g = 0;
-
-    for(i = 1; i < 255; i++) pal[i].r = pal[i].g = pal[i].b = ((i - 1) * 63) / 253;
-
-    pal[255].r = pal[255].g = 63;
-    pal[255].b = 0;
+    get_palette(pal);
 
     save_bitmap(filename, bmp, pal);
     destroy_bitmap(bmp);
