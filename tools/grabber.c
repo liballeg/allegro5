@@ -824,6 +824,21 @@ static BITMAP *my_busy_pointer = NULL;
 
 
 
+/* changes the mouse pointer */
+static void set_busy_mouse(int busy)
+{
+   if (busy) {
+      set_mouse_sprite(my_busy_pointer);
+      busy_mouse = TRUE;
+   }
+   else {
+      set_mouse_sprite(my_mouse_pointer);
+      busy_mouse = FALSE;
+   }
+}
+
+
+
 /* selects a palette, sorting out all the colors so things look ok */
 static void sel_palette(RGB *pal)
 {
@@ -868,23 +883,7 @@ static void sel_palette(RGB *pal)
       }
    }
 
-   set_mouse_sprite(my_mouse_pointer);
-   busy_mouse = FALSE;
-}
-
-
-
-/* changes the mouse pointer */
-static void set_busy_mouse(int busy)
-{
-   if (busy) {
-      set_mouse_sprite(my_busy_pointer);
-      busy_mouse = TRUE;
-   }
-   else {
-      set_mouse_sprite(my_mouse_pointer);
-      busy_mouse = FALSE;
-   }
+   set_busy_mouse(FALSE);
 }
 
 
@@ -1639,8 +1638,7 @@ static void load(char *filename, int flush)
    int new_obj_count;
    int items_num;
 
-   set_mouse_sprite(my_busy_pointer);
-   busy_mouse = TRUE;
+   set_busy_mouse(TRUE);
 
    if ((datafile) && (flush)) {
       unload_datafile(datafile);
@@ -1708,8 +1706,7 @@ static void load(char *filename, int flush)
 
    rebuild_list(NULL, TRUE);
 
-   set_mouse_sprite(my_mouse_pointer);
-   busy_mouse = FALSE;
+   set_busy_mouse(FALSE);
 }
 
 
@@ -1771,8 +1768,7 @@ static int save(int strip)
 
       box_start();
 
-      set_mouse_sprite(my_busy_pointer);
-      busy_mouse = TRUE;
+      set_busy_mouse(TRUE);
 
       fix_filename_case(buf);
       strcpy(data_file, buf);
@@ -1799,8 +1795,7 @@ static int save(int strip)
 	    err = TRUE;
       }
 
-      set_mouse_sprite(my_mouse_pointer);
-      busy_mouse = FALSE;
+      set_busy_mouse(FALSE);
 
       box_end(!err);
    }
@@ -1887,8 +1882,7 @@ static int updater(void)
 
    box_start();
 
-   set_mouse_sprite(my_busy_pointer);
-   busy_mouse = TRUE;
+   set_busy_mouse(TRUE);
 
    for (c=1; c<data_count; c++) {
       if (data[c].dat->type != DAT_FILE) {
@@ -1900,8 +1894,7 @@ static int updater(void)
       }
    }
 
-   set_mouse_sprite(my_mouse_pointer);
-   busy_mouse = FALSE;
+   set_busy_mouse(FALSE);
 
    if (!err) {
       box_out("Done!");
@@ -1930,8 +1923,7 @@ static int sel_updater(void)
 
    box_start();
 
-   set_mouse_sprite(my_busy_pointer);
-   busy_mouse = TRUE;
+   set_busy_mouse(TRUE);
 
    for (c=1; c<data_count; c++) {
       if ((c==SELECTED_ITEM) || data_sel[c]) {
@@ -1945,8 +1937,7 @@ static int sel_updater(void)
       }
    }
 
-   set_mouse_sprite(my_mouse_pointer);
-   busy_mouse = FALSE;
+   set_busy_mouse(FALSE);
 
    if (!err) {
       box_out("Done!");
@@ -1975,8 +1966,7 @@ static int force_updater(void)
 
    box_start();
 
-   set_mouse_sprite(my_busy_pointer);
-   busy_mouse = TRUE;
+   set_busy_mouse(TRUE);
 
    for (c=1; c<data_count; c++) {
       if (data[c].dat->type != DAT_FILE) {
@@ -1988,8 +1978,7 @@ static int force_updater(void)
       }
    }
 
-   set_mouse_sprite(my_mouse_pointer);
-   busy_mouse = FALSE;
+   set_busy_mouse(FALSE);
 
    if (!err) {
       box_out("Done!");
@@ -2064,8 +2053,8 @@ static int reader(void)
 
    if (file_select_ex(buf2, buf, s, sizeof(buf), 0, 0)) {
       fix_filename_case(buf);
-      set_mouse_sprite(my_busy_pointer);
-      busy_mouse = TRUE;
+
+      set_busy_mouse(TRUE);
 
       if (grabber_graphic)
 	 destroy_bitmap(grabber_graphic);
@@ -2074,8 +2063,7 @@ static int reader(void)
 
       dat = datedit_grab(grabber_import_file, grabber_import_file, DAT_BITMAP, -1, -1, -1, -1, -1);
 
-      set_mouse_sprite(my_mouse_pointer);
-      busy_mouse = FALSE;
+      set_busy_mouse(FALSE);
 
       if ((dat) && (dat->dat)) {
 	 grabber_graphic = dat->dat;
@@ -2191,8 +2179,8 @@ static int grabber(void)
 
    if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
-      set_mouse_sprite(my_busy_pointer);
-      busy_mouse = TRUE;
+
+      set_busy_mouse(TRUE);
 
       strcpy(grabber_import_file, name);
       sprintf(type, "%c%c%c%c", dat->type>>24, (dat->type>>16)&0xFF, (dat->type>>8)&0xFF, dat->type&0xFF);
@@ -2204,8 +2192,7 @@ static int grabber(void)
       if (dat->type == DAT_FILE)
 	 rebuild_list(NULL, TRUE);
 
-      set_mouse_sprite(my_mouse_pointer);
-      busy_mouse = FALSE;
+      set_busy_mouse(FALSE);
    }
 
    datedit_sort_properties(dat->prop);
@@ -2261,15 +2248,14 @@ static int exporter(void)
 
    if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
-      set_mouse_sprite(my_busy_pointer);
-      busy_mouse = TRUE;
+
+      set_busy_mouse(TRUE);
 
       strcpy(grabber_import_file, name);
       update_info();
       datedit_export(dat, name);
 
-      set_mouse_sprite(my_mouse_pointer);
-      busy_mouse = FALSE;
+      set_busy_mouse(FALSE);
    }
 
    return D_REDRAW;
