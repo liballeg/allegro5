@@ -49,6 +49,27 @@
 #define XWIN_DEFAULT_APPLICATION_CLASS "Allegro"
 
 
+static volatile int x_lock_count = 0;
+
+#define XLOCK() \
+	if (_xwin_bg_man->multi_threaded) { \
+		if (_xwin.display) { \
+			XLockDisplay (_xwin.display); \
+		} \
+	} else { \
+		x_lock_count++; \
+	}
+
+#define XUNLOCK() \
+	if (_xwin_bg_man->multi_threaded) { \
+		if (_xwin.display) { \
+			XUnlockDisplay (_xwin.display); \
+		} \
+	} else { \
+		x_lock_count--; \
+	}
+
+
 struct _xwin_type _xwin =
 {
    0,           /* display */
@@ -300,9 +321,9 @@ static int _xwin_private_open_display(char *name)
 int _xwin_open_display(char *name)
 {
    int result;
-   DISABLE();
+   XLOCK();
    result = _xwin_private_open_display(name);
-   ENABLE();
+   XUNLOCK();
    return result;
 }
 
@@ -323,9 +344,9 @@ static void _xwin_private_close_display(void)
 
 void _xwin_close_display(void)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_close_display();
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -420,9 +441,9 @@ static int _xwin_private_create_window(void)
 int _xwin_create_window(void)
 {
    int result;
-   DISABLE();
+   XLOCK();
    result = (*_xwin_window_creator)();
-   ENABLE();
+   XUNLOCK();
    return result;
 }
 
@@ -466,9 +487,9 @@ static void _xwin_private_destroy_window(void)
 
 void _xwin_destroy_window(void)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_destroy_window();
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -701,11 +722,11 @@ BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
 			    int vw, int vh, int depth)
 {
    BITMAP *bmp;
-   DISABLE();
+   XLOCK();
    bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth);
    if (bmp == 0)
       _xwin_private_destroy_screen();
-   ENABLE();
+   XUNLOCK();
    return bmp;
 }
 
@@ -737,9 +758,9 @@ static void _xwin_private_destroy_screen(void)
 
 void _xwin_destroy_screen(void)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_destroy_screen();
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -1744,9 +1765,9 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
 void _xwin_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_set_palette_range(p, from, to, vsync);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -1789,9 +1810,9 @@ static void _xwin_private_flush_buffers(void)
 
 void _xwin_flush_buffers(void)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_flush_buffers();
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -1809,9 +1830,9 @@ static void _xwin_private_vsync(void)
 
 void _xwin_vsync(void)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_vsync();
-   ENABLE();
+   XUNLOCK();
 
    if (_timer_installed) {
       int prev = retrace_count;
@@ -2121,7 +2142,9 @@ static void _xwin_private_handle_input(void)
 
 void _xwin_handle_input(void)
 {
-   DISABLE();
+   if (x_lock_count) return;
+
+   XLOCK();
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
    if (_xwin.in_dga_mode == 2)
@@ -2130,7 +2153,7 @@ void _xwin_handle_input(void)
 #endif
    _xwin_private_handle_input();
 
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2145,9 +2168,9 @@ static void _xwin_private_set_warped_mouse_mode(int permanent)
 
 void _xwin_set_warped_mouse_mode(int permanent)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_set_warped_mouse_mode(permanent);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2204,9 +2227,9 @@ static void _xwin_private_redraw_window(int x, int y, int w, int h)
 
 void _xwin_redraw_window(int x, int y, int w, int h)
 {
-   DISABLE();
+   XLOCK();
    (*_xwin_window_redrawer)(x, y, w, h);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2236,9 +2259,9 @@ static int _xwin_private_scroll_screen(int x, int y)
 int _xwin_scroll_screen(int x, int y)
 {
    int result;
-   DISABLE();
+   XLOCK();
    result = _xwin_private_scroll_screen(x, y);
-   ENABLE();
+   XUNLOCK();
    return result;
 }
 
@@ -2282,9 +2305,9 @@ static void _xwin_private_update_screen(int x, int y, int w, int h)
 
 void _xwin_update_screen(int x, int y, int w, int h)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_update_screen(x, y, w, h);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2305,9 +2328,9 @@ static void _xwin_private_set_window_title(AL_CONST char *name)
 
 void _xwin_set_window_title(AL_CONST char *name)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_set_window_title(name);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2330,9 +2353,9 @@ static void _xwin_private_change_keyboard_control(int led, int on)
 
 void _xwin_change_keyboard_control(int led, int on)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_change_keyboard_control(led, on);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2348,9 +2371,9 @@ static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap)
 int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
 {
    int num;
-   DISABLE();
+   XLOCK();
    num = _xwin_private_get_pointer_mapping(map, nmap);
-   ENABLE();
+   XUNLOCK();
    return num;
 }
 
@@ -2542,9 +2565,9 @@ static void _xwin_private_init_keyboard_tables(void)
 
 void _xwin_init_keyboard_tables(void)
 {
-   DISABLE();
+   XLOCK();
    _xwin_private_init_keyboard_tables();
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -2906,13 +2929,13 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 BITMAP *_xdga_create_screen(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int fullscr)
 {
    BITMAP *bmp;
-   DISABLE();
+   XLOCK();
    bmp = _xdga_private_create_screen(drv, w, h, vw, vh, depth, fullscr);
    if (bmp == 0)
       _xdga_private_destroy_screen();
    else
       _mouse_on = TRUE;
-   ENABLE();
+   XUNLOCK();
    return bmp;
 }
 
@@ -2971,9 +2994,9 @@ static void _xdga_private_destroy_screen(void)
 
 void _xdga_destroy_screen(void)
 {
-   DISABLE();
+   XLOCK();
    _xdga_private_destroy_screen();
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -3029,9 +3052,9 @@ static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
 void _xdga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
-   DISABLE();
+   XLOCK();
    _xdga_private_set_palette_range(p, from, to, vsync);
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -3061,9 +3084,9 @@ static int _xdga_private_scroll_screen(int x, int y)
 int _xdga_scroll_screen(int x, int y)
 {
    int result;
-   DISABLE();
+   XLOCK();
    result = _xdga_private_scroll_screen(x, y);
-   ENABLE();
+   XUNLOCK();
    return result;
 }
 #endif

@@ -48,6 +48,9 @@ static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void);
 
 
+struct bg_manager *_xwin_bg_man;
+
+
 /* the main system driver for running under X-Windows */
 SYSTEM_DRIVER system_xwin =
 {
@@ -101,9 +104,6 @@ static RETSIGTYPE (*old_sig_ill)(int num);
 static RETSIGTYPE (*old_sig_segv)(int num);
 static RETSIGTYPE (*old_sig_term)(int num);
 static RETSIGTYPE (*old_sig_int)(int num);
-#ifdef SIGKILL
-static RETSIGTYPE (*old_sig_kill)(int num);
-#endif
 #ifdef SIGQUIT
 static RETSIGTYPE (*old_sig_quit)(int num);
 #endif
@@ -121,9 +121,6 @@ static RETSIGTYPE _xwin_signal_handler(int num)
       signal(SIGSEGV, old_sig_segv);
       signal(SIGTERM, old_sig_term);
       signal(SIGINT,  old_sig_int);
-#ifdef SIGKILL
-      signal(SIGKILL, old_sig_kill);
-#endif
 #ifdef SIGQUIT
       signal(SIGQUIT, old_sig_quit);
 #endif
@@ -146,10 +143,16 @@ static void _xwin_interrupts_handler(unsigned long interval)
 {
    if (_unix_timer_interrupt)
       (*_unix_timer_interrupt)(interval);
-
-   _xwin_handle_input();
 }
 
+
+/* _xwin_bg_handler:
+ *  Really used for synchronous stuff
+ */
+static void _xwin_bg_handler (int threaded)
+{
+   _xwin_handle_input();
+}
 
 
 /* _xwin_sysdrv_init:
@@ -169,21 +172,38 @@ static int _xwin_sysdrv_init(void)
    old_sig_term = signal(SIGTERM, _xwin_signal_handler);
    old_sig_int  = signal(SIGINT,  _xwin_signal_handler);
 
-#ifdef SIGKILL
-   old_sig_kill = signal(SIGKILL, _xwin_signal_handler);
-#endif
-
 #ifdef SIGQUIT
    old_sig_quit = signal(SIGQUIT, _xwin_signal_handler);
 #endif
 
+#ifdef HAVE_LIBPTHREAD
+   _xwin_bg_man = &_bg_man_pthreads;
+#else
+   _xwin_bg_man = &_bg_man_sigalrm;
+#endif
+
+   /* Initialise sigalrm before bg_man, in case bg_man depends on sigalrm */
+   if (_sigalrm_init(_xwin_interrupts_handler)
+        || _xwin_bg_man->init()) {
+      _xwin_sysdrv_exit();
+      return -1;
+   }
+   /* If multithreaded bg_man, need to init X's lock/unlock facility. 
+    * Note that no X calls must be made before this point! */
+   if (_xwin_bg_man->multi_threaded) {
+      printf ("XInitThreads\n");
+      XInitThreads();
+   }
+
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
 
+   /* Open the display, create a window, and background-process 
+    * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
-       || _sigalrm_init(_xwin_interrupts_handler)) {
-      _xwin_sysdrv_exit();
-      return -1;
+       || _xwin_bg_man->register_func (_xwin_bg_handler)) {
+	 _xwin_sysdrv_exit();
+	 return -1;
    }
 
    set_display_switch_mode(SWITCH_BACKGROUND);
@@ -198,10 +218,9 @@ static int _xwin_sysdrv_init(void)
  */
 static void _xwin_sysdrv_exit(void)
 {
+   _xwin_bg_man->exit();
    _sigalrm_exit();
-
    _xwin_destroy_window();
-
    _xwin_close_display();
 
    signal(SIGABRT, old_sig_abrt);
@@ -210,10 +229,6 @@ static void _xwin_sysdrv_exit(void)
    signal(SIGSEGV, old_sig_segv);
    signal(SIGTERM, old_sig_term);
    signal(SIGINT,  old_sig_int);
-
-#ifdef SIGKILL
-   signal(SIGKILL, old_sig_kill);
-#endif
 
 #ifdef SIGQUIT
    signal(SIGQUIT, old_sig_quit);
