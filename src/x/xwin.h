@@ -56,6 +56,10 @@ extern "C" {
 
    AL_FUNC(GFX_MODE_LIST*, _xwin_fetch_mode_list, (void));
 
+   /* Defined in xsystem.c.  */
+   AL_FUNC(void, _xwin_switch_in, (void));
+   AL_FUNC(void, _xwin_switch_out, (void));
+
    /* Defined in xvtable.c.  */
    AL_FUNC(void, _xwin_replace_vtable, (struct GFX_VTABLE *vtable));
    
