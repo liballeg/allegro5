@@ -615,7 +615,7 @@ static void _xwin_private_select_set_colors_function(void)
  */
 static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
 {
-   char tmp1[80], tmp2[80], tmp3[80], tmp4[80];
+   char tmp1[256], tmp2[128], tmp3[128], tmp4[128];
 
    /* Prepare driver description.  */
    if (_xwin.matching_formats) {
@@ -2585,7 +2585,8 @@ static void _xwin_private_init_keyboard_tables(void)
    int min_keycode;
    int max_keycode;
    KeySym keysym;
-   char *section, *option_format, option[80], tmp1[80], tmp2[80];
+   char *section, *option_format;
+   char option[128], tmp1[128], tmp2[128];
 
    if (_xwin.display == 0)
       return;
@@ -2684,7 +2685,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    int offset_x, offset_y;
    char *fb_addr;
    struct passwd *pass;
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    int vid_event_base, vid_error_base;
    int vid_major_version, vid_minor_version;

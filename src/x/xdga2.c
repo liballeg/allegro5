@@ -397,7 +397,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    int dga_error_base, dga_major_version, dga_minor_version;
    int mode, mask, red_shift = 0, green_shift = 0, blue_shift = 0;
    long input_mask;
-   char tmp[80];
+   char tmp[256];
    BITMAP *bmp;
 
    /* This is just to test if the system driver has been installed properly */
