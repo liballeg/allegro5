@@ -277,6 +277,7 @@ void unselect_palette()
 	 palette_color[c] = prev_palette_color[c];
    }
 
+   ASSERT(_got_prev_current_palette == TRUE);
    _got_prev_current_palette = FALSE;
 
    _current_palette_changed = 0xFFFFFFFF & ~(1<<(_color_depth-1));
