@@ -8,9 +8,11 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Sound setup utility for the Allegro library.
+ *      General setup utility for the Allegro library.
  *
  *      By Shawn Hargreaves.
+ *
+ *      Unicode support added by Eric Botcazou.
  *
  *      See readme.txt for copyright information.
  */
@@ -81,6 +83,57 @@
 
 
 
+/* helper for converting a static string */
+static char *uconvert_static_string(char *str)
+{
+   int size;
+   char *new_str;
+
+   if (need_uconvert(str, U_ASCII, U_CURRENT)) {
+      size = uconvert_size(str, U_ASCII, U_CURRENT);
+      new_str = malloc(size);
+      do_uconvert(str, U_ASCII, new_str, U_CURRENT, size);
+      return new_str;
+   }
+   else
+      return str;
+}
+
+
+
+/* helper for converting a static const string */
+static AL_CONST char *uconvert_static_const_string(AL_CONST char *str)
+{
+   int size;
+   char *new_str;
+
+   if (need_uconvert(str, U_ASCII, U_CURRENT)) {
+      size = uconvert_size(str, U_ASCII, U_CURRENT);
+      new_str = malloc(size);
+      do_uconvert(str, U_ASCII, new_str, U_CURRENT, size);
+      return new_str;
+   }
+   else
+      return str;
+}
+
+
+
+/* helper for converting a static string array */
+static char **uconvert_static_string_array(char *str_array[])
+{
+   int i = 0;
+
+   while (str_array[i]) {
+      str_array[i] = uconvert_static_string(str_array[i]);
+      i++;
+   }
+
+   return str_array;
+}
+
+
+
 /* info about a hardware driver */
 typedef struct SOUNDCARD
 {
@@ -93,10 +146,7 @@ typedef struct SOUNDCARD
 
 
 static SOUNDCARD *soundcard;
-
-static SOUNDCARD digi_cards[64];
-
-static SOUNDCARD midi_cards[64];
+static SOUNDCARD digi_cards[64], midi_cards[64];
 
 
 
@@ -121,7 +171,7 @@ typedef struct PARAMETER
 {
    char *name;
    PARAM_TYPE type;
-   char value[80];
+   char value[512];
    char *def;
    int *detect;
    char *label;
@@ -180,18 +230,38 @@ static PARAMETER parameters[] =
    { "alsa_pcmdevice",     param_int,     "",      "",         NULL,             "Dev:",     NULL,       NULL,    "ALSA PCM device number" },
    { "alsa_numfrags",      param_int,     "",      "2",        NULL,             "NumFr:",   NULL,       NULL,    "Number of fragments (use 2, other values make little difference)" },
  #endif
- 
-  #ifdef MIDI_ALSA
-   { "alsa_rawmidi_card",   param_int,     "",      "",         NULL,             "Card:",    NULL,       NULL,    "ALSA RawMIDI card number" },
-   { "alsa_rawmidi_device", param_int,     "",      "",         NULL,             "Dev:",     NULL,       NULL,    "ALSA RawMIDI device number" },
+
+ #ifdef MIDI_ALSA
+   { "alsa_rawmidi_card",  param_int,     "",      "",         NULL,             "Card:",    NULL,       NULL,    "ALSA RawMIDI card number" },
+   { "alsa_rawmidi_device",param_int,     "",      "",         NULL,             "Dev:",     NULL,       NULL,    "ALSA RawMIDI device number" },
  #endif
 
  #ifdef MIDI_DIGMID
    { "patches",            param_file,    "",      "",         NULL,             "Patches:", "CFG;DAT",  NULL,    "MIDI patch set (GUS format default.cfg or Allegro format patches.dat)" },
  #endif
 
-   { NULL,                 param_none,    "",      "",         NULL,             NULL,       NULL,       NULL,    NULL } 
+   { NULL,                 param_none,    "",      "",         NULL,             NULL,       NULL,       NULL,    NULL }
 };
+
+
+
+/* helper for converting a parameter array */
+static void uconvert_static_parameter(PARAMETER *p)
+{
+   while (p->name) {
+      p->name = uconvert_static_string(p->name);
+      usetc(p->value, 0);
+      p->def = uconvert_static_string(p->def);
+      p->label = uconvert_static_string(p->label);
+      if (p->e1)
+         p->e1 = uconvert_static_string(p->e1);
+      if (p->e2)
+         p->e2 = uconvert_static_string(p->e2);
+      p->desc = uconvert_static_string(p->desc);
+
+      p++;
+   }
+}
 
 
 
@@ -204,8 +274,8 @@ static PARAMETER parameters[] =
  */
 static void find_sound_drivers()
 {
-   static char *digi_param[] = { "11", "digi_volume", NULL };
-   static char *midi_param[] = { "11", "midi_volume", NULL };
+   static char *digi_param[] = {"11", "digi_volume", NULL};
+   static char *midi_param[] = {"11", "midi_volume", NULL};
    _DRIVER_INFO *info;
    int c;
 
@@ -216,9 +286,9 @@ static void find_sound_drivers()
 
    /* fill in list of digital drivers */
    digi_cards[0].id = DIGI_AUTODETECT;
-   digi_cards[0].name = "Autodetect";
-   digi_cards[0].param = digi_param;
-   digi_cards[0].desc = "Attempt to autodetect the digital sound hardware";
+   digi_cards[0].name = uconvert_static_string("Autodetect");
+   digi_cards[0].param = uconvert_static_string_array(digi_param);
+   digi_cards[0].desc = uconvert_static_string("Attempt to autodetect the digital sound hardware");
    digi_cards[0].present = FALSE;
 
    if (system_driver->digi_drivers)
@@ -230,144 +300,122 @@ static void find_sound_drivers()
 
    while ((info->driver) && (info->id != DIGI_NONE)) {
       digi_cards[c].id = info->id;
-      digi_cards[c].name = digi_cards[c].desc = ((DIGI_DRIVER *)info->driver)->ascii_name;
+      digi_cards[c].name = digi_cards[c].desc = uconvert_static_const_string(((DIGI_DRIVER *)info->driver)->ascii_name);
       digi_cards[c].param = NULL;
       digi_cards[c].present = FALSE;
 
       switch (info->id) {
 
-	 #ifdef DIGI_SB10
+       #ifdef DIGI_SB10
+         case DIGI_SB10:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "digi_volume", "digi_voices", "sound_freq", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("SB v1.0, 8 bit mono using single-shot dma");
+	    break;
+	 }
+       #endif
 
-	    case DIGI_SB10:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "digi_volume", "digi_voices", "sound_freq", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "SB v1.0, 8 bit mono using single-shot dma";
-	       break;
-	    }
+       #ifdef DIGI_SB15
+	 case DIGI_SB15:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "digi_volume", "digi_voices", "sound_freq", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("SB v1.5, 8 bit mono using single shot dma");
+	    break;
+	 }
+       #endif
 
-	 #endif
+       #ifdef DIGI_SB20
+	 case DIGI_SB20:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "digi_volume", "digi_voices", "sound_freq", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("SB v2.0, 8 bit mono using auto-initialised dma");
+	    break;
+	 }
+       #endif
 
-	 #ifdef DIGI_SB15
+       #ifdef DIGI_SBPRO
+	 case DIGI_SBPRO:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("SB Pro, 8 bit stereo DAC");
+	    break;
+	 }
+       #endif
 
-	    case DIGI_SB15:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "digi_volume", "digi_voices", "sound_freq", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "SB v1.5, 8 bit mono using single shot dma";
-	       break;
-	    }
+       #ifdef DIGI_SB16
+	 case DIGI_SB16:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("SB16 or AWE32, 16 bit stereo DAC");
+	    break;
+	 }
+       #endif
 
-	 #endif
+       #ifdef DIGI_AUDIODRIVE
+	 case DIGI_AUDIODRIVE:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("ESS AudioDrive (16 bit stereo DAC)");
+	    break;
+	 }
+       #endif
 
-	 #ifdef DIGI_SB20
+       #ifdef DIGI_SOUNDSCAPE
+	 case DIGI_SOUNDSCAPE:
+	 {
+	    static char *param[] = {"02", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("Ensoniq Soundscape (16 bit stereo DAC)");
+	    break;
+	 }
+       #endif
 
-	    case DIGI_SB20:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "digi_volume", "digi_voices", "sound_freq", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "SB v2.0, 8 bit mono using auto-initialised dma";
-	       break;
-	    }
+       #ifdef DIGI_WINSOUNDSYS
+	 case DIGI_WINSOUNDSYS:
+	 {
+	    static char *param[] = {"sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("Windows Sound System or compatible (AD1848, CS4248, CS4231/A or CS4232 CODEC)");
+	    break;
+	 }
+       #endif
 
-	 #endif
+       #ifdef DIGI_OSS
+	 case DIGI_OSS:
+	 {
+	    static char *param[] = {"flip_pan", "sound_bits", "sound_stereo", "oss_numfrags", "oss_fragsize", "sound_freq", "oss_driver", "digi_volume", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("Open Sound System");
+	    break;
+	 }
+       #endif
 
-	 #ifdef DIGI_SBPRO
+       #ifdef DIGI_ESD
+	 case DIGI_ESD:
+	 {
+	    static char *param[] = {"flip_pan", "sound_bits", "sound_stereo", "sound_freq", "esd_server", "digi_volume", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("Enlightened Sound Daemon");
+	    break;
+	 }
+       #endif
 
-	    case DIGI_SBPRO:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "SB Pro, 8 bit stereo DAC";
-	       break;
-	    }
+       #ifdef DIGI_ALSA
+	 case DIGI_ALSA:
+	 {
+	    static char *param[] = {"flip_pan", "sound_bits", "sound_stereo", "alsa_numfrags", "alsa_card", "alsa_pcmdevice", "sound_freq", "digi_volume", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("ALSA Sound System");
+	    break;
+	 }
+       #endif
 
-	 #endif
-
-	 #ifdef DIGI_SB16
-
-	    case DIGI_SB16:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "SB16 or AWE32, 16 bit stereo DAC";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef DIGI_AUDIODRIVE
-
-	    case DIGI_AUDIODRIVE:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "ESS AudioDrive (16 bit stereo DAC)";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef DIGI_SOUNDSCAPE
-
-	    case DIGI_SOUNDSCAPE:
-	    {
-	       static char *param[] = { "02", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "Ensoniq Soundscape (16 bit stereo DAC)";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef DIGI_WINSOUNDSYS
-
-	    case DIGI_WINSOUNDSYS:
-	    {
-	       static char *param[] = { "sound_port", "sound_dma", "sound_irq", "flip_pan", "quality", "sound_freq", "digi_volume", "digi_voices", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "Windows Sound System or compatible (AD1848, CS4248, CS4231/A or CS4232 CODEC)";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef DIGI_OSS
-
-	    case DIGI_OSS:
-	    {
-	       static char *param[] = { "flip_pan", "sound_bits", "sound_stereo", "oss_numfrags", "oss_fragsize", "sound_freq", "oss_driver", "digi_volume", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "Open Sound System";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef DIGI_ESD
-
-	    case DIGI_ESD:
-	    {
-	       static char *param[] = { "flip_pan", "sound_bits", "sound_stereo", "sound_freq", "esd_server", "digi_volume", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "Enlightened Sound Daemon";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef DIGI_ALSA
-
-	    case DIGI_ALSA:
-	    {
-	       static char *param[] = { "flip_pan", "sound_bits", "sound_stereo", "alsa_numfrags", "alsa_card", "alsa_pcmdevice", "sound_freq", "digi_volume", NULL };
-	       digi_cards[c].param = param;
-	       digi_cards[c].desc = "ALSA Sound System";
-	       break;
-	    }
-
-	 #endif
-	 
       }
 
       info++;
@@ -375,16 +423,16 @@ static void find_sound_drivers()
    }
 
    digi_cards[c].id = DIGI_NONE;
-   digi_cards[c].name = "No Sound";
+   digi_cards[c].name = uconvert_static_string("No Sound");
    digi_cards[c].param = NULL;
-   digi_cards[c].desc = "The Sound of Silence...";
+   digi_cards[c].desc = uconvert_static_string("The Sound of Silence...");
    digi_cards[c].present = FALSE;
 
    /* fill in list of MIDI drivers */
    midi_cards[0].id = MIDI_AUTODETECT;
-   midi_cards[0].name = "Autodetect";
-   midi_cards[0].param = midi_param;
-   midi_cards[0].desc = "Attempt to autodetect the MIDI hardware";
+   midi_cards[0].name = uconvert_static_string("Autodetect");
+   midi_cards[0].param = uconvert_static_string_array(midi_param);
+   midi_cards[0].desc = uconvert_static_string("Attempt to autodetect the MIDI hardware");
    midi_cards[0].present = FALSE;
 
    if (system_driver->midi_drivers)
@@ -396,119 +444,101 @@ static void find_sound_drivers()
 
    while ((info->driver) && (info->id != MIDI_NONE)) {
       midi_cards[c].id = info->id;
-      midi_cards[c].name = midi_cards[c].desc = ((MIDI_DRIVER *)info->driver)->ascii_name;
+      midi_cards[c].name = midi_cards[c].desc = uconvert_static_const_string(((MIDI_DRIVER *)info->driver)->ascii_name);
       midi_cards[c].param = NULL;
       midi_cards[c].present = FALSE;
 
       switch (info->id) {
 
-	 #ifdef MIDI_OPL2
+       #ifdef MIDI_OPL2
+	 case MIDI_OPL2:
+	 {
+	    static char *param[] = {"22", "fm_port", "midi_volume", "", "ibk_file", "ibk_drum_file", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("(mono) OPL2 FM synth (used in Adlib and standard SB cards)");
+	    break;
+	 }
+       #endif
 
-	    case MIDI_OPL2:
-	    {
-	       static char *param[] = { "22", "fm_port", "midi_volume", "", "ibk_file", "ibk_drum_file", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "(mono) OPL2 FM synth (used in Adlib and standard SB cards)";
-	       break;
-	    }
+       #ifdef MIDI_2XOPL2
+	 case MIDI_2XOPL2:
+	 {
+	    static char *param[] = {"22", "fm_port", "midi_volume", "", "ibk_file", "ibk_drum_file", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("(stereo) Two OPL2 FM synths (early SB Pro cards)");
+	    break;
+	 }
+       #endif
 
-	 #endif
+       #ifdef MIDI_OPL3
+	 case MIDI_OPL3:
+	 {
+	    static char *param[] = {"22", "fm_port", "midi_volume", "", "ibk_file", "ibk_drum_file", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("(stereo) OPL3 FM synth (Adlib Gold, later SB Pro boards, SB16)");
+	    break;
+	 }
+       #endif
 
-	 #ifdef MIDI_2XOPL2
+       #ifdef MIDI_AWE32
+	 case MIDI_AWE32:
+	 {
+	    static char *param[] = {"21", "midi_voices", "midi_volume", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("SoundBlaster AWE32 (EMU8000 synth chip)");
+	    break;
+	 }
+       #endif
 
-	    case MIDI_2XOPL2:
-	    {
-	       static char *param[] = { "22", "fm_port", "midi_volume", "", "ibk_file", "ibk_drum_file", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "(stereo) Two OPL2 FM synths (early SB Pro cards)";
-	       break;
-	    }
+       #ifdef MIDI_SB_OUT
+	 case MIDI_SB_OUT:
+	 {
+	    static char *param[] = {"21", "sound_port", "midi_volume", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("Raw SB MIDI output to an external synth module");
+	    break;
+	 }
+       #endif
 
-	 #endif
+       #ifdef MIDI_MPU
+	 case MIDI_MPU:
+	 {
+	    static char *param[] = {"22", "mpu_port", "mpu_irq", "", "midi_volume", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("MIDI output to an external synth module or wavetable card");
+	    break;
+	 }
+       #endif
 
-	 #ifdef MIDI_OPL3
+       #ifdef MIDI_OSS
+	 case MIDI_OSS:
+	 {
+	    static char *param[] = {"21", "oss_midi_driver", "midi_volume", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("Open Sound System");
+	    break;
+	 }
+       #endif
 
-	    case MIDI_OPL3:
-	    {
-	       static char *param[] = { "22", "fm_port", "midi_volume", "", "ibk_file", "ibk_drum_file", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "(stereo) OPL3 FM synth (Adlib Gold, later SB Pro boards, SB16)";
-	       break;
-	    }
+       #ifdef MIDI_ALSA
+	 case MIDI_ALSA:
+	 {
+	    static char *param[] = {"22", "alsa_rawmidi_card", "alsa_rawmidi_device", "", "midi_volume", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("ALSA RawMIDI");
+	    break;
+	 }
+       #endif
 
-	 #endif
-
-	 #ifdef MIDI_AWE32
-
-	    case MIDI_AWE32:
-	    {
-	       static char *param[] = { "21", "midi_voices", "midi_volume", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "SoundBlaster AWE32 (EMU8000 synth chip)";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef MIDI_SB_OUT
-
-	    case MIDI_SB_OUT:
-	    {
-	       static char *param[] = { "21", "sound_port", "midi_volume", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "Raw SB MIDI output to an external synth module";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef MIDI_MPU
-
-	    case MIDI_MPU:
-	    {
-	       static char *param[] = { "22", "mpu_port", "mpu_irq", "", "midi_volume", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "MIDI output to an external synth module or wavetable card";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef MIDI_OSS
-
-	    case MIDI_OSS:
-	    {
-	       static char *param[] = { "21", "oss_midi_driver", "midi_volume", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "Open Sound System";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef MIDI_ALSA
-
-	    case MIDI_ALSA:
-	    {
-	       static char *param[] = { "22", "alsa_rawmidi_card", "alsa_rawmidi_device", "", "midi_volume", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "ALSA RawMIDI";
-	       break;
-	    }
-
-	 #endif
-
-	 #ifdef MIDI_DIGMID
-
-	    case MIDI_DIGMID:
-	    {
-	       static char *param[] = { "22", "midi_voices", "midi_volume", "", "patches", NULL };
-	       midi_cards[c].param = param;
-	       midi_cards[c].desc = "Software wavetable synthesis using the digital sound hardware";
-	       break;
-	    }
-
-	 #endif 
+       #ifdef MIDI_DIGMID
+	 case MIDI_DIGMID:
+	 {
+	    static char *param[] = {"22", "midi_voices", "midi_volume", "", "patches", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("Software wavetable synthesis using the digital sound hardware");
+	    break;
+	 }
+       #endif
       }
 
       info++;
@@ -516,9 +546,9 @@ static void find_sound_drivers()
    }
 
    midi_cards[c].id = MIDI_NONE;
-   midi_cards[c].name = "No Sound";
+   midi_cards[c].name = uconvert_static_string("No Sound");
    midi_cards[c].param = NULL;
-   midi_cards[c].desc = "The Sound of Silence...";
+   midi_cards[c].desc = uconvert_static_string("The Sound of Silence...");
    midi_cards[c].present = FALSE;
 }
 
@@ -531,9 +561,9 @@ static BITMAP *buffer;
 
 /* background graphic, font, and test sounds */
 #ifdef SETUP_USE_DAT2S
-   extern DATAFILE setup_data[];
+extern DATAFILE setup_data[];
 #else
-   static DATAFILE *setup_data;
+static DATAFILE *setup_data;
 #endif
 
 
@@ -573,13 +603,49 @@ static int dialog_count = 0;
 
 
 /* scrolly text message at the base of the screen */
+#define SCROLLER_LENGTH  (SCREEN_W/8+2)
+
 static volatile int scroller_time = 0;
 static char scroller_msg[256];
 static int scroller_pos = 0;
 static int scroller_alpha = 256;
-static char *scroller_string = "";
-static char *wanted_scroller = "";
+static char *scroller_string = EMPTY_STRING;
+static char *wanted_scroller = EMPTY_STRING;
 static int scroller_string_pos = 0;
+
+
+
+/* helper function for clearing the scroller message */
+static void clear_scroller(void)
+{
+   int i;
+   char *p;
+
+   p = scroller_msg;
+
+   for (i=0; i<SCROLLER_LENGTH; i++)
+      p += usetc(p, ' ');
+}
+
+
+
+/* helper function to shift the scroller message */
+static void shift_scroller(int c)
+{
+   int i;
+   char *buffer, *p_src, *p_dest;
+
+   buffer = malloc(SCROLLER_LENGTH * uwidth_max(U_CURRENT));
+   p_src = scroller_msg + uwidth(scroller_msg);
+   p_dest = buffer;
+
+   for (i=0; i<SCROLLER_LENGTH-1; i++)
+      p_dest += usetc(p_dest, ugetx(&p_src));
+
+   usetc(p_dest, c);
+   ustrncpy(scroller_msg, buffer, SCROLLER_LENGTH);
+   free(buffer);
+}
 
 
 
@@ -597,32 +663,30 @@ END_OF_STATIC_FUNCTION(inc_scroller_time);
 static int scroller_proc(int msg, DIALOG *d, int c)
 {
    int redraw = FALSE;
-   int a, i, x;
+   int ch, a, i, x;
+   char *p;
+   char tmp[32];
 
-   yield_timeslice();
-   
    if (msg == MSG_IDLE) {
       while (scroller_time > 0) {
 	 scroller_pos--;
 	 if (scroller_pos <= -8) {
 	    scroller_pos = 0;
-	    for (i=0; i<SCREEN_W/8+1; i++)
-	       scroller_msg[i] = scroller_msg[i+1];
-	    if (scroller_string[scroller_string_pos])
-	       scroller_msg[i] = scroller_string[scroller_string_pos++];
-	    else 
-	       scroller_msg[i] = ' ';
+	    if ((ch = ugetat(scroller_string, scroller_string_pos))) {
+	       shift_scroller(ch);
+               scroller_string_pos++;
+            }
+	    else
+               shift_scroller(' ');
 	    if (wanted_scroller != scroller_string) {
 	       scroller_alpha -= MIN(32, scroller_alpha);
 	       if (scroller_alpha <= 0) {
-		  memset(scroller_msg, ' ', SCREEN_W/8+2);
+                  clear_scroller();
 		  scroller_string = wanted_scroller;
 		  scroller_string_pos = 0;
-		  for (x=0; x<4; x++) {
-		     if (scroller_string[scroller_string_pos]) {
-			for (i=0; i<SCREEN_W/8+1; i++)
-			   scroller_msg[i] = scroller_msg[i+1];
-			scroller_msg[i] = scroller_string[scroller_string_pos];
+		  for (i=0; i<4; i++) {
+		     if ((ch = ugetat(scroller_string, scroller_string_pos))) {
+                        shift_scroller(ch);
 			scroller_string_pos++;
 		     }
 		  }
@@ -637,9 +701,9 @@ static int scroller_proc(int msg, DIALOG *d, int c)
       }
    }
    else if (msg == MSG_RADIO) {
-      memset(scroller_msg, ' ', SCREEN_W/8+2);
+      clear_scroller();
       scroller_string = wanted_scroller;
-      scroller_string_pos = strlen(scroller_string);
+      scroller_string_pos = ustrlen(scroller_string);
       scroller_alpha = 256;
       redraw = TRUE;
    }
@@ -649,10 +713,11 @@ static int scroller_proc(int msg, DIALOG *d, int c)
       acquire_screen();
       text_mode(0);
 
-      for (i=0; i<SCREEN_W/8+2; i++) {
+      p = scroller_msg;
+      for (i=0; i<SCROLLER_LENGTH; i++) {
 	 x = i*8+scroller_pos;
 	 a = 16 + MID(0, 15-ABS(SCREEN_W/2-x)/(SCREEN_W/32), 15) * scroller_alpha/256;
-	 textprintf(screen, font, x, SCREEN_H-16, a, "%c", scroller_msg[i]);
+	 textprintf(screen, font, x, SCREEN_H-16, a, uconvert_ascii("%c", tmp), ugetx(&p));
       }
 
       release_screen();
@@ -671,13 +736,13 @@ static void draw_dialog(ACTIVE_DIALOG *d)
    int nowhere;
 
    if (d->player->focus_obj >= 0) {
-      SEND_MESSAGE(d->dialog+d->player->focus_obj, MSG_LOSTFOCUS, 0);
+      object_message(d->dialog+d->player->focus_obj, MSG_LOSTFOCUS, 0);
       d->dialog[d->player->focus_obj].flags &= ~D_GOTFOCUS;
       d->player->focus_obj = -1;
    }
 
    if (d->player->mouse_obj >= 0) {
-      SEND_MESSAGE(d->dialog+d->player->mouse_obj, MSG_LOSTMOUSE, 0);
+      object_message(d->dialog+d->player->mouse_obj, MSG_LOSTMOUSE, 0);
       d->dialog[d->player->mouse_obj].flags &= ~D_GOTMOUSE;
       d->player->mouse_obj = -1;
    }
@@ -685,7 +750,7 @@ static void draw_dialog(ACTIVE_DIALOG *d)
    d->player->res &= ~D_WANTFOCUS;
 
    clear(d->buffer);
-   screen = d->buffer; 
+   screen = d->buffer;
    dialog_message(d->dialog, MSG_DRAW, 0, &nowhere);
    screen = oldscreen;
 }
@@ -735,6 +800,7 @@ static int update()
    BITMAP *b;
    int pos, ppos, pppos;
    int ret;
+   char tmp[256];
 
    if (dialog_count <= 0)
       return FALSE;
@@ -781,9 +847,9 @@ static int update()
       stretch_blit(b, buffer, 0, 0, b->w, b->h, 0, 0, SCREEN_W, SCREEN_H);
 
       text_mode(0);
-      textout_centre(buffer, font, SETUP_TITLE, SCREEN_W/2, 0, -1);
+      textout_centre(buffer, font, uconvert_ascii(SETUP_TITLE, tmp), SCREEN_W/2, 0, -1);
 
-      wanted_scroller = "";
+      wanted_scroller = empty_string;
       screen = buffer;
       scroller_proc(MSG_IDLE, NULL, 0);
       screen = oldscreen;
@@ -914,8 +980,8 @@ static void detect_sound()
 /* helper for initialising the sound code */
 static int init_sound(char *msg)
 {
-   char b1[80], b2[80];
-   int i;
+   char b1[256], b2[256], tmp[32];
+   int i, begin, end;
 
    show_mouse(NULL);
 
@@ -924,22 +990,23 @@ static int init_sound(char *msg)
    if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) == 0)
       return 0;
 
-   if (strlen(allegro_error) <= 32) {
-      strcpy(b1, allegro_error);
-      b2[0] = 0;
+   if (ustrlen(allegro_error) <= 32) {
+      ustrzcpy(b1, sizeof(b1), allegro_error);
+      usetc(b2, 0);
    }
    else {
-      for (i=strlen(allegro_error)*9/16; i>10; i--)
-	 if (allegro_error[i] == ' ')
+      begin = ustrlen(allegro_error)*9/16;
+      end = 10;
+
+      for (i=begin; i>end; i--)
+	 if (ugetat(allegro_error, i) == ' ')
 	    break;
 
-      strncpy(b1, allegro_error, i);
-      b1[i] = 0;
-
-      strcpy(b2, allegro_error+i+1);
+      ustrzncpy(b1, sizeof(b1), allegro_error, i);
+      ustrzcpy(b2, sizeof(b2), allegro_error+uoffset(allegro_error, (i == end) ? end : i+1));
    }
 
-   alert(msg, b1, b2, "Ok", NULL, 0, 0);
+   alert(msg, b1, b2, uconvert_ascii("Ok", tmp), NULL, 0, 0);
 
    return -1;
 }
@@ -1036,7 +1103,7 @@ static void end_popup()
 /* joystick test display */
 static void plot_joystick_state(BITMAP *bmp, int i)
 {
-   char buf[80];
+   char buf[512], tmp[256];
    int j, x, y;
    int c = 0;
 
@@ -1044,7 +1111,8 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 
    if (joystick_driver) {
       if (num_joysticks > 1)
-	 textprintf(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, "%s (%d/%d)", joystick_driver->name, i+1, num_joysticks);
+	 textprintf(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, uconvert_ascii("%s (%d/%d)", tmp),
+                    joystick_driver->name, i+1, num_joysticks);
       else
 	 textprintf(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, joystick_driver->name);
       c++;
@@ -1061,25 +1129,25 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 	    circlefill(bmp, x, y, 4, 31);
 	 }
 	 else {
-	    sprintf(buf, "%s:", joy[i].stick[j].name);
-	    if (joy[i].stick[j].axis[1].d1) 
-	       strcat(buf, " up");
-	    if (joy[i].stick[j].axis[1].d2) 
-	       strcat(buf, " down");
-	    if (joy[i].stick[j].axis[0].d1) 
-	       strcat(buf, " left");
-	    if (joy[i].stick[j].axis[0].d2) 
-	       strcat(buf, " right");
+	    uszprintf(buf, sizeof(buf), uconvert_ascii("%s:", tmp), joy[i].stick[j].name);
+	    if (joy[i].stick[j].axis[1].d1)
+	       ustrzcat(buf, sizeof(buf), uconvert_ascii(" up", tmp));
+	    if (joy[i].stick[j].axis[1].d2)
+	       ustrzcat(buf, sizeof(buf), uconvert_ascii(" down", tmp));
+	    if (joy[i].stick[j].axis[0].d1)
+	       ustrzcat(buf, sizeof(buf), uconvert_ascii(" left", tmp));
+	    if (joy[i].stick[j].axis[0].d2)
+	       ustrzcat(buf, sizeof(buf), uconvert_ascii(" right", tmp));
 	    textout(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1);
 	    c++;
 	 }
       }
       else {
-	 sprintf(buf, "%s: %s %4d %s", 
-		joy[i].stick[j].name, 
-		(joy[i].stick[j].axis[0].d1) ? "<-" : "  ", 
-		joy[i].stick[j].axis[0].pos, 
-		(joy[i].stick[j].axis[0].d2) ? "->" : "  ");
+	 uszprintf(buf, sizeof(buf), uconvert_ascii("%s: %s %4d %s", tmp),
+                   joy[i].stick[j].name,
+		   uconvert_ascii((joy[i].stick[j].axis[0].d1) ? "<-" : "  ", tmp),
+		   joy[i].stick[j].axis[0].pos,
+		   uconvert_ascii((joy[i].stick[j].axis[0].d2) ? "->" : "  ", tmp));
 
 	 textout(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1);
 	 c++;
@@ -1087,7 +1155,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
    }
 
    for (j=0; j<joy[i].num_buttons; j++) {
-      sprintf(buf, "%s: %s", joy[i].button[j].name, (joy[i].button[j].b) ? "*" : "");
+      uszprintf(buf, sizeof(buf), uconvert_ascii("%s: %c", tmp), joy[i].button[j].name, joy[i].button[j].b ? '*' : 0);
 
       if (j&1) {
 	 textout(bmp, font, buf, SCREEN_W/2+32, SCREEN_H/2-60+c*20, -1);
@@ -1097,7 +1165,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 	 textout(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1);
    }
 
-   textout_centre(bmp, font, "- press a key to accept -", SCREEN_W/2, SCREEN_H-16, 255);
+   textout_centre(bmp, font, uconvert_ascii("- press a key to accept -", tmp), SCREEN_W/2, SCREEN_H-16, 255);
 }
 
 
@@ -1106,6 +1174,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 static void joystick_proc(int type)
 {
    int i, c;
+   char tmp1[256], tmp2[32];
 
    scroller_proc(MSG_RADIO, NULL, 0);
    scare_mouse();
@@ -1113,14 +1182,14 @@ static void joystick_proc(int type)
    remove_joystick();
 
    if (install_joystick(type) != 0) {
-      alert("Error:", allegro_error, NULL, "Ok", NULL, 0, 0);
+      alert(uconvert_ascii("Error:", tmp1), allegro_error, NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
       unscare_mouse();
       return;
    }
 
    for (i=0; i<num_joysticks; i++) {
       while (joy[i].flags & JOYFLAG_CALIBRATE) {
-	 popup(calibrate_joystick_name(i), "and press a button");
+	 popup(calibrate_joystick_name(i), uconvert_ascii("and press a button", tmp1));
 
 	 rest(10);
 	 do {
@@ -1129,7 +1198,7 @@ static void joystick_proc(int type)
 
 	 if (calibrate_joystick(i) != 0) {
 	    remove_joystick();
-	    alert("Error calibrating joystick", NULL, NULL, "Ok", NULL, 0, 0);
+	    alert(uconvert_ascii("Error calibrating joystick", tmp1), NULL, NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
 	    end_popup();
 	    unscare_mouse();
 	    return;
@@ -1217,89 +1286,81 @@ static void mouse_proc(int type)
 
 
 
-static void save_mouse_data(void)
-{
-   char tmp1[64], tmp2[64];
-   set_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), _mouse_type);
-}
-
-
-
 #ifdef ALLEGRO_LINUX
-
 static void get_mouse_drivers(_DRIVER_INFO **list, int *list_size);
 
 static int detect_mouse(void)
 {
    int fd;
    int i;
+   int w,l,r,t,b;
    int retval = -1;
    char buffer[256];
+   char tmp1[256], tmp2[256], tmp3[64], tmp4[64];
    int count;
    _DRIVER_INFO *list;
    int list_size;
 
    remove_mouse();
 
-   fd = open ("/dev/mouse", O_RDONLY | O_NONBLOCK);
+   fd = open("/dev/mouse", O_RDONLY | O_NONBLOCK);
    if (fd == -1) {
-      alert ("Error opening /dev/mouse:", strerror(errno), NULL, "Ok", NULL, 0, 0);
+      alert(uconvert_ascii("Error opening /dev/mouse:", tmp1), ustrerror(errno), NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
       retval = -1;
       goto finished;
    }
 
-   while (read(fd, buffer, 1) == 1);
+   while (read(fd, buffer, 1) == 1)
+      ;
 
-   popup ("Move your mouse around", "Press any key to cancel");
+   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
 
-   {
-      int w,l,r,t,b;
-      w = sizeof buffer;
-      l = (SCREEN_W - w)/2;
-      r = l + w;
-      t = SCREEN_H/2 + 64;
-      b = t + 16;
+   w = sizeof(buffer);
+   l = (SCREEN_W - w)/2;
+   r = l + w;
+   t = SCREEN_H/2 + 64;
+   b = t + 16;
 
-      rect(popup_bitmap2, l-1, t-1, r, b+1, gui_fg_color);
-      blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+   rect(popup_bitmap2, l-1, t-1, r, b+1, gui_fg_color);
+   blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 
-      for (count = 0; count < sizeof buffer;) {
-	 if (read(fd, buffer+count, 1) == 1) {
-	    vline(popup_bitmap2, l + count*w/sizeof buffer, t, b, gui_mg_color);
-	    blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-	    count++;
-	 }
-	 if (keypressed() && readkey()) break;
+   for (count = 0; count < sizeof(buffer); ) {
+      if (read(fd, buffer+count, 1) == 1) {
+         vline(popup_bitmap2, l + count*w/sizeof buffer, t, b, gui_mg_color);
+	 blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+	 count++;
       }
+      if (keypressed() && readkey())
+            break;
    }
 
-   if (count == 0) {
-      popup ("No data received", NULL);
-   } else if (count < sizeof buffer) {
-      popup ("Insufficient data received", NULL);
-   }
+   if (count == 0)
+      popup(uconvert_ascii("No data received", tmp1), NULL);
+   else if (count < sizeof(buffer))
+      popup(uconvert_ascii("Insufficient data received", tmp1), NULL);
 
-   if (count < sizeof buffer) {
+   if (count < sizeof(buffer)) {
       retval = -1;
       goto finished;
    }
 
-   popup ("Analysing data...", NULL);
+   popup(uconvert_ascii("Analysing data...", tmp1), NULL);
 
    get_mouse_drivers(&list, &list_size);
    for (i = 0; i < list_size; i++) {
       MOUSE_DRIVER *drv = list[i].driver;
       if (drv->analyse_data && drv->analyse_data (buffer, count)) {
-	 int x;
-	 x = alert ("This driver understands your mouse:", drv->ascii_name, "Select it?", "Yes", "No", 'y', 'n');
-	 if (x == 1) break;
+	 if (alert(uconvert_ascii("This driver understands your mouse:", tmp1), drv->name, uconvert_ascii("Select it?", tmp2),
+             uconvert_ascii("Yes", tmp3), uconvert_ascii("No", tmp4), 'y', 'n') == 1)
+	    break;
       }
    }
 
    if (i < list_size)
       retval = i;
    else {
-      alert ("No drivers understand your mouse", NULL, "Try using the GPM repeater", "Ok", NULL, 0, 0);
+      alert(uconvert_ascii("No drivers understand your mouse", tmp1), NULL, uconvert_ascii("Try using the GPM repeater", tmp2),
+            uconvert_ascii("Ok", tmp3), NULL, 0, 0);
       retval = -1;
    }
 
@@ -1308,34 +1369,47 @@ static int detect_mouse(void)
    install_mouse();
    return retval;
 }
-
 #endif
+
+
+
+/* helper function for building a frequency list */
+#define FREQ_ENTRY_SIZE  64
+
+static void build_freq_list(char *freq[], int nfreq, int freq_value[])
+{
+   int i;
+   char tmp[64];
+
+   for (i=0; i<nfreq; i++) {
+      freq[i] = malloc(FREQ_ENTRY_SIZE);
+      uszprintf(freq[i], FREQ_ENTRY_SIZE, uconvert_ascii("%d hz", tmp), freq_value[i]);
+   }
+}
 
 
 
 /* dialog callback for retrieving the SB frequency list */
 static char *freq_getter(int index, int *list_size)
 {
+   static char *freq[4];
+
    if (index < 0) {
       if (list_size) {
 	 switch (soundcard->id) {
 
-	    #if (defined DIGI_SB10) || (defined DIGI_SB15)
+          #if (defined DIGI_SB10) || (defined DIGI_SB15)
+            case DIGI_SB10:
+	    case DIGI_SB15:
+	       *list_size = 2;
+               break;
+          #endif
 
-	       case DIGI_SB10:
-	       case DIGI_SB15:
-		  *list_size = 2;
-		  break;
-
-	    #endif
-
-	    #ifdef DIGI_SBPRO
-
-	       case DIGI_SBPRO:
-		  *list_size = 3;
-		  break;
-
-	    #endif
+          #ifdef DIGI_SBPRO
+	    case DIGI_SBPRO:
+               *list_size = 3;
+               break;
+          #endif
 
 	    default:
 	       *list_size = 4;
@@ -1346,86 +1420,81 @@ static char *freq_getter(int index, int *list_size)
       return NULL;
    }
 
-   #ifdef DIGI_AUDIODRIVE
-
+   /* first time ? */
+   if (!freq[0]) {
+    #ifdef DIGI_AUDIODRIVE
       if (soundcard->id == DIGI_AUDIODRIVE) {
-	 static char *ess_freq[] =
+	 int ess_freq[] =
 	 {
-	    "11363 hz",
-	    "17046 hz",
-	    "22729 hz",
-	    "44194 hz"
+	    11363,
+	    17046,
+	    22729,
+	    44194
 	 };
 
-	 return ess_freq[index];
+         build_freq_list(freq, 4, ess_freq);
       }
-      else 
+      else
+    #endif
 
-   #endif
-
-   #ifdef DIGI_SOUNDSCAPE
-
+    #ifdef DIGI_SOUNDSCAPE
       if (soundcard->id == DIGI_SOUNDSCAPE) {
-	 static char *esc_freq[] =
+	 int esc_freq[] =
 	 {
-	    "11025 hz",
-	    "16000 hz",
-	    "22050 hz",
-	    "48000 hz"
+	    11025,
+	    16000,
+	    22050,
+	    48000
 	 };
 
-	 return esc_freq[index];
+         build_freq_list(freq, 4, esc_freq);
       }
-      else 
+      else
+    #endif
 
-   #endif
-
-   #ifdef DIGI_WINSOUNDSYS
-
+    #ifdef DIGI_WINSOUNDSYS
       if (soundcard->id == DIGI_WINSOUNDSYS) {
-	 static char *wss_freq[] =
+	 int wss_freq[] =
 	 {
-	    "11025 hz",
-	    "22050 hz",
-	    "44100 hz",
-	    "48000 hz"
+	    11025,
+	    22050,
+	    44100,
+	    48000
 	 };
 
-	 return wss_freq[index];
+         build_freq_list(freq, 4, wss_freq);
       }
-      else 
+      else
+    #endif
 
-   #endif
-
-   #ifdef ALLEGRO_DOS
-
+    #ifdef ALLEGRO_DOS
       {
-	 static char *sb_freq[] =
+	 int sb_freq[] =
 	 {
-	    "11906 hz",
-	    "16129 hz",
-	    "22727 hz",
-	    "45454 hz"
+	    11906,
+	    16129,
+	    22727,
+	    45454
 	 };
 
-	 return sb_freq[index];
+         build_freq_list(freq, 4, sb_freq);
       }
-
-   #else
-
+    #else
       {
-	 static char *default_freq[] =
+	 int default_freq[] =
 	 {
-	    "11025 hz",
-	    "22050 hz",
-	    "44100 hz",
-	    "48000 hz"
+	    11025,
+	    22050,
+	    44100,
+	    48000
 	 };
 
-	 return default_freq[index];
+         build_freq_list(freq, 4, default_freq);
       }
+    #endif
+   }
 
-   #endif
+   return freq[index];
 }
 
 
@@ -1433,7 +1502,8 @@ static char *freq_getter(int index, int *list_size)
 /* dialog callback for retrieving information about the soundcard list */
 static char *card_getter(int index, int *list_size)
 {
-   static char buf[80];
+   static char buf[256];
+   char tmp[64];
    int i;
 
    if (index < 0) {
@@ -1446,16 +1516,16 @@ static char *card_getter(int index, int *list_size)
    }
 
    if (soundcard[index].present)
-      usprintf(buf, "- %s", soundcard[index].name);
+      uszprintf(buf, sizeof(buf), uconvert_ascii("- %s", tmp), soundcard[index].name);
    else
-      usprintf(buf, "  %s", soundcard[index].name);
+      uszprintf(buf, sizeof(buf), uconvert_ascii("  %s", tmp), soundcard[index].name);
 
    return buf;
 }
 
 
 
-static char keyboard_type[256] = "";
+static char keyboard_type[256] = EMPTY_STRING;
 
 static int num_keyboard_layouts = 0;
 static char *keyboard_layouts[256];
@@ -1463,7 +1533,7 @@ static char *keyboard_names[256];
 
 
 
-static char language_type[256] = "";
+static char language_type[256] = EMPTY_STRING;
 
 static int num_language_layouts = 0;
 static char *language_layouts[256];
@@ -1480,7 +1550,7 @@ static void sort_keyboards()
       done = TRUE;
 
       for (i=0; i<num_keyboard_layouts-1; i++) {
-	 if (stricmp(keyboard_names[i], keyboard_names[i+1]) > 0) {
+	 if (ustricmp(keyboard_names[i], keyboard_names[i+1]) > 0) {
 	    char *tl = keyboard_layouts[i];
 	    char *tn = keyboard_names[i];
 
@@ -1508,7 +1578,7 @@ static void sort_languages()
       done = TRUE;
 
       for (i=0; i<num_language_layouts-1; i++) {
-	 if (stricmp(language_names[i], language_names[i+1]) > 0) {
+	 if (ustricmp(language_names[i], language_names[i+1]) > 0) {
 	    char *tl = language_layouts[i];
 	    char *tn = language_names[i];
 
@@ -1589,7 +1659,7 @@ static AL_CONST char *joystick_getter(int index, int *list_size)
       return NULL;
    }
 
-   return ((JOYSTICK_DRIVER *)list[index].driver)->ascii_name;
+   return uconvert_static_const_string(((JOYSTICK_DRIVER *)list[index].driver)->ascii_name);
 }
 
 
@@ -1615,7 +1685,7 @@ static void get_mouse_drivers(_DRIVER_INFO **list, int *list_size)
 
 
 
-/* dialog callback for retrieving information about the joystick list */
+/* dialog callback for retrieving information about the mouse list */
 static AL_CONST char *mouse_getter(int index, int *list_size)
 {
    _DRIVER_INFO *list;
@@ -1628,7 +1698,7 @@ static AL_CONST char *mouse_getter(int index, int *list_size)
       return NULL;
    }
 
-   return ((MOUSE_DRIVER *)list[index].driver)->ascii_name;
+   return uconvert_static_const_string(((MOUSE_DRIVER *)list[index].driver)->ascii_name);
 }
 
 
@@ -1644,19 +1714,20 @@ static int card_proc(int msg, DIALOG *d, int c)
 
 
 /* dialog procedure for the filename selection objects */
+#define FILENAME_SIZE  512  /* > 80 chars * max UTF8 char width */
+
 static int filename_proc(int msg, DIALOG *d, int c)
 {
    PARAMETER *p = d->dp2;
    BITMAP *b;
-   char buf[80*6];  /* 80 chars * max UTF8 char width */
-   char buf2[256];
+   char buf[FILENAME_SIZE], buf2[256], tmp[256];
+   char *q;
    int ret;
-   int i;
 
    if (msg == MSG_START) {
       if (!p->e2)
-	 p->e2 = malloc(80);
-      strcpy(p->e2, p->value);
+         p->e2 = malloc(FILENAME_SIZE);
+         ustrzcpy(p->e2, FILENAME_SIZE, p->value);
    }
    else if (msg == MSG_END) {
       if (p->e2) {
@@ -1668,27 +1739,26 @@ static int filename_proc(int msg, DIALOG *d, int c)
    ret = d_check_proc(msg, d, c);
 
    if (ret & D_CLOSE) {
-      if (p->value[0]) {
-	 strcpy(p->e2, p->value);
-	 p->value[0] = 0;
+      if (ugetc(p->value)) {
+	 ustrzcpy(p->e2, FILENAME_SIZE, p->value);
+	 usetc(p->value, 0);
       }
       else {
 	 scroller_proc(MSG_RADIO, NULL, 0);
 
-	 strcpy(buf2, p->desc);
+	 ustrzcpy(buf2, sizeof(buf2), p->desc);
 
-	 for (i=1; buf2[i]; i++) {
-	    if (buf2[i] == '(') {
-	       buf2[i-1] = 0;
-	       break;
-	    }
-	 }
+         q = ustrchr(buf2 + uwidth(buf2), '(');
+         if (q) {
+            usetc(q, 0);
+            usetat(buf2, -1, 0);
+         }
 
-	 strcpy(buf, p->e2);
+	 ustrzcpy(buf, sizeof(buf), p->e2);
 
 	 if (file_select_ex(buf2, buf, p->e1, sizeof(buf), 0, 0)) {
-	    strcpy(p->value, buf);
-	    strcpy(p->e2, buf);
+	    ustrzcpy(p->value, sizeof(p->value), buf);
+	    ustrzcpy(p->e2, FILENAME_SIZE, buf);
 	 }
 
 	 scare_mouse();
@@ -1697,7 +1767,7 @@ static int filename_proc(int msg, DIALOG *d, int c)
 	 stretch_blit(b, screen, 0, 0, b->w, b->h, 0, 0, SCREEN_W, SCREEN_H);
 
 	 text_mode(0);
-	 textout_centre(screen, font, SETUP_TITLE, SCREEN_W/2, 0, -1);
+	 textout_centre(screen, font, uconvert_ascii(SETUP_TITLE, tmp), SCREEN_W/2, 0, -1);
 	 unscare_mouse();
       }
 
@@ -1733,9 +1803,9 @@ static int d_xlist_proc(int msg, DIALOG *d, int c)
 
 
 
-static char backup_str[] =  "Go back to the previous menu";
-static char midi_desc[160];
-static char digi_desc[160];
+static char backup_str[256] = "Go back to the previous menu";
+static char digi_desc[256] = EMPTY_STRING;
+static char midi_desc[256] = EMPTY_STRING;
 
 
 
@@ -1751,8 +1821,8 @@ static DIALOG main_dlg[] =
    { d_button_proc,     30,   116,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Mouse",                      NULL,    "Configure your mouse" },
    { d_button_proc,     30,   144,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Save and Exit",              NULL,    "Exit from the program, saving the current settings into the file '" SETUP_CFG_FILE "'" },
    { d_button_proc,     166,  144,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Just Exit",                  NULL,    "Exit from the program, without saving the current settings" },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
 
@@ -1766,8 +1836,8 @@ static DIALOG test_dlg[] =
    { d_button_proc,     120,  87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Centre",                     NULL,    digi_desc },
    { d_button_proc,     210,  87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Right",                      NULL,    digi_desc },
    { d_button_proc,     100,  124,  121,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Exit",                       NULL,    backup_str },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
 
@@ -1779,8 +1849,8 @@ static DIALOG card_dlg[] =
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this driver" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { card_proc,         20,   36,   281,  84,   255,  16,   0,       D_EXIT,     0,             0,       card_getter,                  NULL,    NULL },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
 
@@ -1795,8 +1865,8 @@ static DIALOG locale_dlg[] =
    { d_list_proc,       166,  50,   147,  68,   255,  16,   0,       D_EXIT,     0,             0,       language_getter,              NULL,    "Select language for system messages" },
    { d_ctext_proc,      81,   30,   0,    0,    16,   -1,   0,       0,          0,             0,       "Keyboard",                   NULL,    NULL },
    { d_ctext_proc,      239,  30,   0,    0,    16,   -1,   0,       0,          0,             0,       "Language",                   NULL,    NULL },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
 
@@ -1808,8 +1878,8 @@ static DIALOG joystick_dlg[] =
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this joystick type" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { d_list_proc,       60,   36,   201,  84,   255,  16,   0,       D_EXIT,     0,             0,       (void*)joystick_getter,       NULL,    "Select a type of joystick" },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
 
@@ -1821,15 +1891,14 @@ static DIALOG mouse_dlg[] =
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { d_list_proc,       70,   36,   181,  84,   255,  16,   0,       D_EXIT,     0,             0,       (void*)mouse_getter,          NULL,    "Select a type of mouse" },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
 
 
 
 #ifdef ALLEGRO_LINUX
-
 static DIALOG linux_mouse_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
@@ -1837,11 +1906,10 @@ static DIALOG linux_mouse_dlg[] =
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { d_list_proc,       30,   36,   151,  84,   255,  16,   0,       D_EXIT,     0,             0,       mouse_getter,                 NULL,    "Select a type of mouse" },
    { d_button_proc,     192,  36,   125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Detect",                     NULL,    "Attempt to detect the type of your mouse" },
-   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
-
 #endif
 
 
@@ -1859,9 +1927,10 @@ static DIALOG_STATE param_handler(int c)
    PARAMETER *p;
    DIALOG *d = param_dlg;
    int i;
+   char tmp[64];
 
    if (c == param_ok) {
-      /* save the changes */ 
+      /* save the changes */
       while (d->proc) {
 	 p = d->dp2;
 
@@ -1871,50 +1940,50 @@ static DIALOG_STATE param_handler(int c)
 	       case param_int:
 	       case param_num:
 		  if (p->value[0])
-		     i = strtol(p->value, NULL, 0);
+		     i = ustrtol(p->value, NULL, 0);
 		  else
 		     i = -1;
-		  set_config_int("sound", p->name, i);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  set_config_int(uconvert_ascii("sound", tmp), p->name, i);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       case param_hex:
 		  if (p->value[0])
-		     i = strtol(p->value, NULL, 16);
+		     i = ustrtol(p->value, NULL, 16);
 		  else
 		     i = -1;
-		  set_config_hex("sound", p->name, i);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  set_config_hex(uconvert_ascii("sound", tmp), p->name, i);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       case param_id:
 		  if (p->value[0])
-		     i = strtol(p->value, NULL, 0);
+		     i = ustrtol(p->value, NULL, 0);
 		  else
 		     i = -1;
-		  set_config_id("sound", p->name, i);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  set_config_id(uconvert_ascii("sound", tmp), p->name, i);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       case param_bool:
-		  set_config_int("sound", p->name, (d->flags & D_SELECTED) ? 1 : 0);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  set_config_int(uconvert_ascii("sound", tmp), p->name, (d->flags & D_SELECTED) ? 1 : 0);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       case param_file:
-		  set_config_string("sound", p->name, p->value);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  set_config_string(uconvert_ascii("sound", tmp), p->name, p->value);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       case param_list:
-		  i = strtol(freq_getter(d->d1, NULL), NULL, 0);
-		  set_config_int("sound", p->name, i);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  i = ustrtol(freq_getter(d->d1, NULL), NULL, 0);
+		  set_config_int(uconvert_ascii("sound", tmp), p->name, i);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       case param_str:
-		  set_config_string("sound", p->name, p->value);
-		  strcpy(p->value, get_config_string("sound", p->name, ""));
+		  set_config_string(uconvert_ascii("sound", tmp), p->name, p->value);
+		  ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 		  break;
 
 	       default:
@@ -1927,12 +1996,12 @@ static DIALOG_STATE param_handler(int c)
       }
    }
    else {
-      /* discard the changes */ 
+      /* discard the changes */
       while (d->proc) {
 	 p = d->dp2;
 
 	 if (p)
-	    strcpy(p->value, get_config_string("sound", p->name, ""));
+	    ustrzcpy(p->value, sizeof(p->value), get_config_string(uconvert_ascii("sound", tmp), p->name, empty_string));
 
 	 d++;
       }
@@ -1950,6 +2019,7 @@ static void setup_param_dialog()
    DIALOG *d = param_dlg;
    char **c = soundcard->param;
    char *s;
+   char tmp[64];
    int pos = 0;
    int xo = 0;
    int yo = 0;
@@ -1975,12 +2045,12 @@ static void setup_param_dialog()
    }
 
    while (*c) {
-      if ((uisdigit((*c)[0])) && (uisdigit((*c)[1]))) {
-	 xo = (*c)[0] - '0';
+      if ((uisdigit(ugetat(*c, 0))) && (uisdigit(ugetat(*c, 1)))) {
+	 xo = ugetat(*c, 0) - '0';
 	 if (xo)
 	    xo = 100 / xo;
 
-	 yo = (*c)[1] - '0';
+	 yo = ugetat(*c, 1) - '0';
 	 if (yo)
 	    yo = 38 / yo;
       }
@@ -1992,7 +2062,7 @@ static void setup_param_dialog()
 	 p = NULL;
 
 	 for (i=0; parameters[i].name; i++) {
-	    if (stricmp(parameters[i].name, *c) == 0) {
+	    if (ustricmp(parameters[i].name, *c) == 0) {
 	       p = &parameters[i];
 	       break;
 	    }
@@ -2009,8 +2079,8 @@ static void setup_param_dialog()
 		  break;
 
 	       case param_hex:
-		  if (stricmp(p->value, "FFFFFFFF") == 0)
-		     strcpy(p->value, "-1");
+		  if (ustricmp(p->value, uconvert_ascii("FFFFFFFF", tmp)) == 0)
+		     ustrzcpy(p->value, sizeof(p->value), uconvert_ascii("-1", tmp));
 
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
 		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
@@ -2019,7 +2089,7 @@ static void setup_param_dialog()
 		  break;
 
 	       case param_bool:
-		  if (strtol(p->value, NULL, 0) != 0)
+		  if (ustrtol(p->value, NULL, 0) != 0)
 		     f = D_SELECTED;
 		  else
 		     f = 0;
@@ -2027,11 +2097,11 @@ static void setup_param_dialog()
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
 		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
-		  DLG(d_check_proc,    x+54, y+3,  32,   16,   255,  16,   0,    f,       0,    0,    " ",           p,          p->desc);
+		  DLG(d_check_proc,    x+54, y+3,  32,   16,   255,  16,   0,    f,       0,    0,    uconvert_static_string(" "),p,p->desc);
 		  break;
 
 	       case param_file:
-		  if (p->value[0])
+		  if (ugetc(p->value))
 		     f = D_SELECTED | D_EXIT;
 		  else
 		     f = D_EXIT;
@@ -2039,16 +2109,16 @@ static void setup_param_dialog()
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
 		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
-		  DLG(filename_proc,   x+62, y+3,  32,   16,   255,  16,   0,    f,       0,    0,    "",            p,          p->desc);
+		  DLG(filename_proc,   x+62, y+3,  32,   16,   255,  16,   0,    f,       0,    0,    empty_string,  p,          p->desc);
 		  break;
 
 	       case param_list:
-		  i = strtol(p->value, NULL, 0);
+		  i = ustrtol(p->value, NULL, 0);
 		  freq_getter(-1, &f);
 		  if (i > 0) {
 		     for (g=0; g<f; g++) {
 			s = freq_getter(g, NULL);
-			if (i <= strtol(s, NULL, 0))
+			if (i <= ustrtol(s, NULL, 0))
 			   break;
 		     }
 		  }
@@ -2085,12 +2155,35 @@ static void setup_param_dialog()
    param_ok = ((int)d - (int)param_dlg) / sizeof(DIALOG);
 
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)        (p)                        (help) */
-   DLG(d_button_proc,   30,   142,  125,  25,   -1,   16,   13,   D_EXIT,  0,    0,    "OK",       NULL,                      "Use these parameters");
-   DLG(d_button_proc,   166,  142,  125,  25,   -1,   16,   0,    D_EXIT,  0,    0,    "Cancel",   NULL,                      backup_str);
+   DLG(d_button_proc,   30,   142,  125,  25,   -1,   16,   13,   D_EXIT,  0,    0,    uconvert_static_string("OK"), NULL,    uconvert_static_string("Use these parameters"));
+   DLG(d_button_proc,   166,  142,  125,  25,   -1,   16,   0,    D_EXIT,  0,    0,    uconvert_static_string("Cancel"), NULL,backup_str);
    DLG(scroller_proc,   0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,       NULL,                      NULL);
+   DLG(d_yield_proc,    0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,       NULL,                      NULL);
    DLG(NULL,            0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,       NULL,                      NULL);
 
    activate_dialog(param_dlg, param_handler, TRUE);
+}
+
+
+
+/* helper for converting a static dialog array */
+static void uconvert_static_dialog(DIALOG *d)
+{
+   while (d->proc) {
+      if ((d->proc == d_button_proc) || (d->proc == d_ctext_proc)) {
+         if (d->dp)
+            d->dp = uconvert_static_string((char *)d->dp);
+
+         if (d->dp3 && (d->dp3 != backup_str) && (d->dp3 != digi_desc) && (d->dp3 != midi_desc))
+            d->dp3 = uconvert_static_string((char *)d->dp3);
+      }
+      else if (d->proc == d_list_proc) {
+         if (d->dp3)
+            d->dp3 = uconvert_static_string((char *)d->dp3);
+      }
+
+      d++;
+   }
 }
 
 
@@ -2135,6 +2228,7 @@ static DIALOG_STATE test_handler(int c)
 static DIALOG_STATE card_handler(int c)
 {
    int i;
+   char tmp[64];
 
    switch (c) {
 
@@ -2143,8 +2237,8 @@ static DIALOG_STATE card_handler(int c)
 	 /* select driver */
 	 i = (soundcard == digi_cards) ? 0 : 1;
 	 soundcard += card_dlg[2].d1;
-	 set_config_id("sound", parameters[i].name, soundcard->id);
-	 strcpy(parameters[i].value, get_config_string("sound", parameters[i].name, ""));
+	 set_config_id(uconvert_ascii("sound", tmp), parameters[i].name, soundcard->id);
+	 ustrzcpy(parameters[i].value, sizeof(parameters[i].value), get_config_string(uconvert_ascii("sound", tmp), parameters[i].name, empty_string));
 	 if (soundcard->param)
 	    setup_param_dialog();
 	 else
@@ -2164,6 +2258,8 @@ static DIALOG_STATE card_handler(int c)
 /* handle input from the locale selection dialog */
 static DIALOG_STATE locale_handler(int c)
 {
+   char buf[256], tmp[256];
+
    switch (c) {
 
       case 0:
@@ -2171,16 +2267,14 @@ static DIALOG_STATE locale_handler(int c)
       case 3:
 	 /* select driver */
 	 if (locale_dlg[2].d1 < num_keyboard_layouts)
-	    strcpy(keyboard_type, keyboard_layouts[locale_dlg[2].d1]);
+	    ustrzcpy(keyboard_type, sizeof(keyboard_type), keyboard_layouts[locale_dlg[2].d1]);
 
 	 if (locale_dlg[3].d1 < num_language_layouts) {
-	    char tmp[128];
-
-	    strcpy(language_type, language_layouts[locale_dlg[3].d1]);
+	    ustrzcpy(language_type, sizeof(language_type), language_layouts[locale_dlg[3].d1]);
 
 	    push_config_state();
-	    sprintf(tmp, "language = %s\n", language_type);
-	    set_config_data(tmp, strlen(tmp));
+	    uszprintf(buf, sizeof(buf), uconvert_ascii("language = %s\n", tmp), language_type);
+	    set_config_data(buf, ustrsize(buf));
 	    _load_config_text();
 	    pop_config_state();
 	 }
@@ -2228,9 +2322,9 @@ static DIALOG_STATE mouse_handler(int c)
    _DRIVER_INFO *list;
    int list_size;
 
-   #ifdef ALLEGRO_LINUX
-      int x;
-   #endif
+ #ifdef ALLEGRO_LINUX
+   int x;
+ #endif
 
    switch (c) {
 
@@ -2239,17 +2333,16 @@ static DIALOG_STATE mouse_handler(int c)
 	 /* select mouse */
 	 get_mouse_drivers(&list, &list_size);
 
-	 #ifdef ALLEGRO_LINUX
-	    if (system_driver->id == SYSTEM_LINUX)
-	       mouse_proc(list[linux_mouse_dlg[2].d1].id);
-	    else
-	 #endif
-	       mouse_proc(list[mouse_dlg[2].d1].id);
+       #ifdef ALLEGRO_LINUX
+         if (system_driver->id == SYSTEM_LINUX)
+	    mouse_proc(list[linux_mouse_dlg[2].d1].id);
+	 else
+       #endif
 
+	 mouse_proc(list[mouse_dlg[2].d1].id);
 	 return state_exit;
 
-   #ifdef ALLEGRO_LINUX
-
+    #ifdef ALLEGRO_LINUX
       case 3:
 	 if (system_driver->id == SYSTEM_LINUX) {
 	    x = detect_mouse();
@@ -2259,8 +2352,7 @@ static DIALOG_STATE mouse_handler(int c)
 	    }
 	 }
 	 return state_exit;
-
-   #endif
+    #endif
 
       default:
 	 /* quit */
@@ -2275,7 +2367,7 @@ static DIALOG_STATE mouse_handler(int c)
 /* handle input from the main dialog */
 static DIALOG_STATE main_handler(int c)
 {
-   char b1[256], b2[80];
+   char b1[256], b2[256], tmp1[256], tmp2[256];
    int i;
    AL_CONST char *s;
    char* s2;
@@ -2291,7 +2383,7 @@ static DIALOG_STATE main_handler(int c)
 	 scroller_proc(MSG_RADIO, NULL, 0);
 
 	 for (i=0; parameters[i].name; i++) {
-	    set_config_string("sound", parameters[i].name, "");
+	    set_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, empty_string);
 	    parameters[i].value[0] = 0;
 	 }
 
@@ -2304,12 +2396,12 @@ static DIALOG_STATE main_handler(int c)
 	 else
 	    _sound_hq = 2;
 
-	 if (init_sound("Unable to autodetect!") != 0)
+	 if (init_sound(uconvert_ascii("Unable to autodetect!", tmp1)) != 0)
 	    return state_redraw;
 
-	 sprintf(b1, "Digital: %s", digi_driver->name);
-	 sprintf(b2, "MIDI: %s", midi_driver->name);
-	 alert("- detected hardware -", b1, b2, "Ok", NULL, 0, 0);
+	 uszprintf(b1, sizeof(b1), uconvert_ascii("Digital: %s", tmp1), digi_driver->name);
+	 uszprintf(b2, sizeof(b2), uconvert_ascii("MIDI: %s", tmp1), midi_driver->name);
+	 alert(uconvert_ascii("- detected hardware -", tmp1), b1, b2, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
 
 	 for (i=0; parameters[i].name; i++) {
 	    if (parameters[i].detect) {
@@ -2319,15 +2411,15 @@ static DIALOG_STATE main_handler(int c)
 		  case param_num:
 		  case param_bool:
 		  case param_list:
-		     set_config_int("sound", parameters[i].name, *parameters[i].detect);
+		     set_config_int(uconvert_ascii("sound", tmp1), parameters[i].name, *parameters[i].detect);
 		     break;
 
 		  case param_id:
-		     set_config_id("sound", parameters[i].name, *parameters[i].detect);
+		     set_config_id(uconvert_ascii("sound", tmp1), parameters[i].name, *parameters[i].detect);
 		     break;
 
 		  case param_hex:
-		     set_config_hex("sound", parameters[i].name, *parameters[i].detect);
+		     set_config_hex(uconvert_ascii("sound", tmp1), parameters[i].name, *parameters[i].detect);
 		     break;
 
 		  default:
@@ -2335,9 +2427,9 @@ static DIALOG_STATE main_handler(int c)
 	       }
 	    }
 	    else
-	       set_config_string("sound", parameters[i].name, parameters[i].def);
+	       set_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, parameters[i].def);
 
-	    strcpy(parameters[i].value, get_config_string("sound", parameters[i].name, ""));
+	    ustrzcpy(parameters[i].value, sizeof(parameters[i].value), get_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, empty_string));
 	 }
 
 	 remove_sound();
@@ -2346,10 +2438,12 @@ static DIALOG_STATE main_handler(int c)
       case 1:
 	 /* test */
 	 scroller_proc(MSG_RADIO, NULL, 0);
-	 if (init_sound("Sound initialization failed!") != 0)
+	 if (init_sound(uconvert_ascii("Sound initialization failed!", tmp1)) != 0)
 	    return state_redraw;
-	 sprintf(midi_desc, "Driver: %s        Description: %s", midi_driver->name, midi_driver->desc);
-	 sprintf(digi_desc, "Driver: %s        Description: %s", digi_driver->name, digi_driver->desc);
+	 uszprintf(digi_desc, sizeof(digi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
+                   digi_driver->name, digi_driver->desc);
+         uszprintf(midi_desc, sizeof(midi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
+                   midi_driver->name, midi_driver->desc);
 	 activate_dialog(test_dlg, test_handler, FALSE);
 	 break;
 
@@ -2357,7 +2451,7 @@ static DIALOG_STATE main_handler(int c)
 	 /* choose digital driver */
 	 soundcard = digi_cards;
 	 for (i=0; soundcard[i].id; i++)
-	    if (soundcard[i].id == get_config_id("sound", "digi_card", DIGI_AUTODETECT))
+	    if (soundcard[i].id == get_config_id(uconvert_ascii("sound", tmp1), uconvert_ascii("digi_card", tmp2), DIGI_AUTODETECT))
 	       break;
 	 card_dlg[2].d1 = i;
 	 activate_dialog(card_dlg, card_handler, FALSE);
@@ -2367,7 +2461,7 @@ static DIALOG_STATE main_handler(int c)
 	 /* choose MIDI driver */
 	 soundcard = midi_cards;
 	 for (i=0; soundcard[i].id; i++)
-	    if (soundcard[i].id == get_config_id("sound", "midi_card", MIDI_AUTODETECT))
+	    if (soundcard[i].id == get_config_id(uconvert_ascii("sound", tmp1), uconvert_ascii("midi_card", tmp2), MIDI_AUTODETECT))
 	       break;
 	 card_dlg[2].d1 = i;
 	 activate_dialog(card_dlg, card_handler, FALSE);
@@ -2376,32 +2470,37 @@ static DIALOG_STATE main_handler(int c)
       case 4:
 	 /* read list of keyboard mappings */
 	 if (num_keyboard_layouts <= 0) {
-	    if (find_allegro_resource(b1, SETUP_KEYBOARD_FILE, NULL, NULL, NULL, NULL, NULL, sizeof(b1)) == 0)
+	    if (find_allegro_resource(b1, uconvert_ascii(SETUP_KEYBOARD_FILE, tmp1), NULL, NULL, NULL, NULL, NULL, sizeof(b1)) == 0)
 	       data = load_datafile(b1);
 	    else
 	       data = NULL;
 
 	    if (!data) {
 	       scroller_proc(MSG_RADIO, NULL, 0);
-	       alert("Error reading " SETUP_KEYBOARD_FILE, NULL, NULL, "Ok", NULL, 0, 0);
+	       alert(uconvert_ascii("Error reading " SETUP_KEYBOARD_FILE, tmp1), NULL, NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
 	    }
 	    else {
+               ustrzcat(b1, sizeof(b1), uconvert_ascii("#", tmp1));
+
 	       for (i=0; data[i].type != DAT_END; i++) {
 		  s = get_datafile_property(data+i, DAT_ID('N','A','M','E'));
 
 		  if (s) {
-		     s2 = strstr(s, "_CFG");
+		     s2 = ustrstr(s, uconvert_ascii("_CFG", tmp1));
 
-		     if ((s2) && (s2[4]==0)) {
-			s2 = keyboard_layouts[num_keyboard_layouts] = malloc(strlen(s)+1);
-			strcpy(s2, s);
-			s2[strlen(s2)-4] = 0;
+		     if ((s2) && (ugetat(s2, 4) == 0)) {
+			s2 = ustrdup(s);
+			usetat(s2, -4, 0);
+			keyboard_layouts[num_keyboard_layouts] = s2;
+
+                        ustrzcpy(b2, sizeof(b2), b1);
+                        ustrzcat(b2, sizeof(b2), s);
 
 			push_config_state();
-			set_config_data(data[i].dat, data[i].size);
-			s = get_config_string(NULL, "keyboard_name", s2);
-			s2 = keyboard_names[num_keyboard_layouts] = malloc(strlen(s)+1);
-			strcpy(s2, s);
+			set_config_file(b2);
+			s = get_config_string(NULL, uconvert_ascii("keyboard_name", tmp1), s2);
+			s2 = ustrdup(s);
+			keyboard_names[num_keyboard_layouts] = s2;
 			pop_config_state();
 
 			num_keyboard_layouts++;
@@ -2417,17 +2516,16 @@ static DIALOG_STATE main_handler(int c)
 	    sort_keyboards();
 
 	    for (i=0; i<num_keyboard_layouts; i++)
-	       if (stricmp(keyboard_type, keyboard_layouts[i]) == 0)
+	       if (ustricmp(keyboard_type, keyboard_layouts[i]) == 0)
 		  break;
 
-	    if (i>=num_keyboard_layouts) {
-	       sprintf(b1, "(%s)", keyboard_type);
+	    if (i==num_keyboard_layouts) {
+	       uszprintf(b1, sizeof(b1), uconvert_ascii("(%s)", tmp1), keyboard_type);
 	       scroller_proc(MSG_RADIO, NULL, 0);
-	       alert("Warning: current keyboard", b1, "not found in " SETUP_KEYBOARD_FILE, "Ok", NULL, 0, 0);
-	       keyboard_layouts[num_keyboard_layouts] = malloc(strlen(keyboard_type)+1);
-	       strcpy(keyboard_layouts[num_keyboard_layouts], keyboard_type);
-	       keyboard_names[num_keyboard_layouts] = malloc(strlen(keyboard_type)+1);
-	       strcpy(keyboard_names[num_keyboard_layouts], keyboard_type);
+	       alert(uconvert_ascii("Warning: current keyboard", tmp1), b1, uconvert_ascii("not found in " SETUP_KEYBOARD_FILE, tmp2),
+                     uconvert_ascii("Ok", NULL), NULL, 0, 0);
+	       keyboard_layouts[num_keyboard_layouts] = ustrdup(keyboard_type);
+	       keyboard_names[num_keyboard_layouts] = ustrdup(keyboard_type);
 	       num_keyboard_layouts++;
 	    }
 
@@ -2436,32 +2534,37 @@ static DIALOG_STATE main_handler(int c)
 
 	 /* read list of languages */
 	 if (num_language_layouts <= 0) {
-	    if (find_allegro_resource(b1, SETUP_LANGUAGE_FILE, NULL, NULL, NULL, NULL, NULL, sizeof(b1)) == 0)
+	    if (find_allegro_resource(b1, uconvert_ascii(SETUP_LANGUAGE_FILE, tmp1), NULL, NULL, NULL, NULL, NULL, sizeof(b1)) == 0)
 	       data = load_datafile(b1);
 	    else
 	       data = NULL;
 
 	    if (!data) {
 	       scroller_proc(MSG_RADIO, NULL, 0);
-	       alert("Error reading " SETUP_LANGUAGE_FILE, NULL, NULL, "Ok", NULL, 0, 0);
+	       alert(uconvert_ascii("Error reading " SETUP_LANGUAGE_FILE, tmp1), NULL, NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
 	    }
 	    else {
+               ustrzcat(b1, sizeof(b1), uconvert_ascii("#", tmp1));
+
 	       for (i=0; data[i].type != DAT_END; i++) {
 		  s = get_datafile_property(data+i, DAT_ID('N','A','M','E'));
 
 		  if (s) {
-		     s2 = strstr(s, "TEXT_CFG");
+		     s2 = ustrstr(s, uconvert_ascii("TEXT_CFG", tmp1));
 
-		     if ((s2) && (s2[8]==0)) {
-			s2 = language_layouts[num_language_layouts] = malloc(strlen(s)+1);
-			strcpy(s2, s);
-			s2[strlen(s2)-8] = 0;
+		     if ((s2) && (ugetat(s2, 8) == 0)) {
+			s2 = ustrdup(s);
+			usetat(s2, -8, 0);
+			language_layouts[num_language_layouts] = s2;
+
+                        ustrzcpy(b2, sizeof(b2), b1);
+                        ustrzcat(b2, sizeof(b2), s);
 
 			push_config_state();
-			set_config_data(data[i].dat, data[i].size);
-			s = get_config_string(NULL, "language_name", s2);
-			s2 = language_names[num_language_layouts] = malloc(strlen(s)+1);
-			strcpy(s2, s);
+			set_config_file(b2);
+			s = get_config_string(NULL, uconvert_ascii("language_name", tmp1), s2);
+			s2 = ustrdup(s);
+			language_names[num_language_layouts] = s2;
 			pop_config_state();
 
 			num_language_layouts++;
@@ -2480,14 +2583,13 @@ static DIALOG_STATE main_handler(int c)
 	       if (stricmp(language_type, language_layouts[i]) == 0)
 		  break;
 
-	    if (i>=num_language_layouts) {
-	       sprintf(b1, "(%s)", language_type);
+	    if (i==num_language_layouts) {
+	       uszprintf(b1, sizeof(b1), uconvert_ascii("(%s)", tmp1), language_type);
 	       scroller_proc(MSG_RADIO, NULL, 0);
-	       alert("Warning: current language", b1, "not found in " SETUP_LANGUAGE_FILE, "Ok", NULL, 0, 0);
-	       language_layouts[num_language_layouts] = malloc(strlen(language_type)+1);
-	       strcpy(language_layouts[num_language_layouts], language_type);
-	       language_names[num_language_layouts] = malloc(strlen(language_type)+1);
-	       strcpy(language_names[num_language_layouts], language_type);
+	       alert(uconvert_ascii("Warning: current language", tmp1), b1, uconvert_ascii("not found in " SETUP_LANGUAGE_FILE, tmp2),
+                     uconvert_ascii("Ok", NULL), NULL, 0, 0);
+	       language_layouts[num_language_layouts] = ustrdup(language_type);
+	       language_names[num_language_layouts] = ustrdup(language_type);
 	       num_language_layouts++;
 	    }
 
@@ -2517,10 +2619,10 @@ static DIALOG_STATE main_handler(int c)
 	 /* configure mouse */
 	 dlg = mouse_dlg;
 
-	 #ifdef ALLEGRO_LINUX
-	    if (system_driver->id == SYSTEM_LINUX)
-	       dlg = linux_mouse_dlg;
-	 #endif
+       #ifdef ALLEGRO_LINUX
+         if (system_driver->id == SYSTEM_LINUX)
+	    dlg = linux_mouse_dlg;
+       #endif
 
 	 dlg[2].d1 = 0;
 	 get_mouse_drivers(&list, &list_size);
@@ -2537,15 +2639,15 @@ static DIALOG_STATE main_handler(int c)
 
       case 7:
 	 /* save settings and quit */
-	 set_config_file(SETUP_CFG_FILE);
-	 set_config_string("system", "keyboard", keyboard_type);
-	 set_config_string("system", "language", language_type);
-	 save_mouse_data();
+	 set_config_file(uconvert_ascii(SETUP_CFG_FILE, tmp1));
+	 set_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("keyboard", tmp2), keyboard_type);
+	 set_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("language", tmp2), language_type);
+	 set_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), _mouse_type);
 	 for (i=0; parameters[i].name; i++) {
 	    if (parameters[i].value[0])
-	       set_config_string("sound", parameters[i].name, parameters[i].value);
+	       set_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, parameters[i].value);
 	    else
-	       set_config_string("sound", parameters[i].name, " ");
+	       set_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, uconvert_ascii(" ", tmp2));
 	 }
 	 save_joystick_data(NULL);
 	 return state_exit;
@@ -2561,57 +2663,57 @@ static DIALOG_STATE main_handler(int c)
 
 
 #ifdef SETUP_EMBEDDED
-   int setup_main()
+int setup_main()
 #else
-   int main()
+int main()
 #endif
 {
-   char buf[256];
+   char buf[512], tmp1[256], tmp2[256];
    int i;
 
-   #ifndef SETUP_EMBEDDED
-      allegro_init();
-      install_mouse();
-      install_keyboard();
-      install_timer();
+ #ifndef SETUP_EMBEDDED
+   allegro_init();
+   install_mouse();
+   install_keyboard();
+   install_timer();
 
-      fade_out(4);
-      if (set_gfx_mode(GFX_AUTODETECT, SETUP_SCREEN_W, SETUP_SCREEN_H, 0, 0) != 0) {
-         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-         allegro_message("Unable to set graphic mode\n%s\n", allegro_error);
-         return 1;
-      }
-   #endif
+   fade_out(4);
+   if (set_gfx_mode(GFX_AUTODETECT, SETUP_SCREEN_W, SETUP_SCREEN_H, 0, 0) != 0) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message(uconvert_ascii("Unable to set graphic mode\n%s\n", tmp1), allegro_error);
+      return 1;
+   }
+ #endif
 
    set_palette(black_palette);
 
-   #ifdef SETUP_USE_DAT2S
-      fixup_datafile(setup_data);
-   #else
-      setup_data = load_datafile("#");
+ #ifdef SETUP_USE_DAT2S
+   fixup_datafile(setup_data);
+ #else
+   setup_data = load_datafile(uconvert_ascii("#", tmp1));
 
-      if (!setup_data) {
-	 if (find_allegro_resource(buf, SETUP_DATA_FILE, NULL, NULL, NULL, NULL, NULL, sizeof(buf)) == 0)
-	    setup_data = load_datafile(buf);
-      }
+   if (!setup_data) {
+      if (find_allegro_resource(buf, uconvert_ascii(SETUP_DATA_FILE, tmp1), NULL, NULL, NULL, NULL, NULL, sizeof(buf)) == 0)
+	 setup_data = load_datafile(buf);
+   }
 
-      if (!setup_data) {
-	 #ifdef SETUP_EMBEDDED
-	    set_palette(default_palette);
-	    alert("Error loading " SETUP_DATA_FILE, NULL, NULL, "OK", NULL, 13, 0);
-	 #else
-	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	    allegro_message("Error loading " SETUP_DATA_FILE "\n");
-	 #endif
-	 return 1;
-      }
-   #endif
+   if (!setup_data) {
+    #ifdef SETUP_EMBEDDED
+      set_palette(default_palette);
+      alert(uconvert_ascii("Error loading " SETUP_DATA_FILE, tmp1), NULL, NULL, uconvert_ascii("OK", tmp2), NULL, 13, 0);
+    #else
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message(uconvert_ascii("Error loading " SETUP_DATA_FILE "\n", tmp1));
+    #endif
+      return 1;
+   }
+ #endif
 
    set_mouse_range(0, 20, SCREEN_W-1, SCREEN_H-32);
 
    font = setup_data[SETUP_FONT].dat;
 
-   memset(scroller_msg, ' ', SCREEN_W/8+2);
+   clear_scroller();
 
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
@@ -2619,38 +2721,50 @@ static DIALOG_STATE main_handler(int c)
    LOCK_FUNCTION(inc_scroller_time);
    install_int_ex(inc_scroller_time, BPS_TO_TIMER(160));
 
-   set_config_file(SETUP_CFG_FILE);
-   for (i=0; parameters[i].name; i++) {
-      strcpy(parameters[i].value, get_config_string("sound", parameters[i].name, parameters[i].def));
-      if (!parameters[i].value[0])
-	 strcpy(parameters[i].value, parameters[i].def);
-   }
+   set_config_file(uconvert_ascii(SETUP_CFG_FILE, tmp1));
+   uconvert_static_parameter(parameters);
+   for (i=0; parameters[i].name; i++)
+      ustrzcpy(parameters[i].value, sizeof(parameters[i].value), get_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, parameters[i].def));
 
-   strcpy(keyboard_type, get_config_string("system", "keyboard", ""));
+   ustrzcpy(keyboard_type, sizeof(keyboard_type), get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("keyboard", tmp2), empty_string));
    for (i=0; keyboard_type[i]; i++)
       if (!uisspace(keyboard_type[i]))
 	 break;
 
    if (!keyboard_type[i])
-      strcpy(keyboard_type, "us");
+      ustrzcpy(keyboard_type, sizeof(keyboard_type), uconvert_ascii("us", tmp1));
 
-   strcpy(language_type, get_config_string("system", "language", ""));
+   ustrzcpy(language_type, sizeof(language_type), get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("language", tmp2), empty_string));
    for (i=0; language_type[i]; i++)
       if (!uisspace(language_type[i]))
 	 break;
 
    if (!language_type[i])
-      strcpy(language_type, "en");
+      ustrzcpy(language_type, sizeof(language_type), uconvert_ascii("en", tmp2));
 
    install_joystick(JOY_TYPE_AUTODETECT);
 
    find_sound_drivers();
 
-   set_config_data("", 0);
+   set_config_data(empty_string, 0);
    for (i=0; parameters[i].name; i++)
-      set_config_string("sound", parameters[i].name, parameters[i].value);
+      set_config_string(uconvert_ascii("sound", tmp1), parameters[i].name, parameters[i].value);
 
    detect_sound();
+
+   if (need_uconvert(backup_str, U_ASCII, U_CURRENT)) {
+      do_uconvert(backup_str, U_ASCII, tmp1, U_CURRENT, sizeof(tmp1));
+      ustrzcpy(backup_str, sizeof(backup_str), tmp1);
+   }
+   uconvert_static_dialog(main_dlg);
+   uconvert_static_dialog(test_dlg);
+   uconvert_static_dialog(card_dlg);
+   uconvert_static_dialog(locale_dlg);
+   uconvert_static_dialog(joystick_dlg);
+   uconvert_static_dialog(mouse_dlg);
+ #ifdef ALLEGRO_LINUX
+   uconvert_static_dialog(linux_mouse_dlg);
+ #endif
 
    activate_dialog(main_dlg, main_handler, FALSE);
    dialog_count++;
@@ -2672,9 +2786,9 @@ static DIALOG_STATE main_handler(int c)
 
    set_mouse_range(0, 0, SCREEN_W-1, SCREEN_H-1);
 
-   #ifndef SETUP_USE_DAT2S
-      unload_datafile(setup_data);
-   #endif
+ #ifndef SETUP_USE_DAT2S
+   unload_datafile(setup_data);
+ #endif
 
    remove_int(inc_scroller_time);
 
@@ -2682,6 +2796,5 @@ static DIALOG_STATE main_handler(int c)
 }
 
 #ifndef SETUP_EMBEDDED
-   END_OF_MAIN();
+END_OF_MAIN();
 #endif
-
