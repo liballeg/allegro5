@@ -34,6 +34,14 @@ echo "Patching include/allegro.h..."
 cp include/allegro.h fixver.tmp
 sed -f fixver.sed fixver.tmp > include/allegro.h
 
+#echo patch dllver.rc
+echo "s/VALUE \"InternalName\", .*/VALUE \"InternalName\", \"ALL$1$2$3\\\\000\"/" > fixver.sed
+echo "s/VALUE \"OriginalFilename\", .*/VALUE \"OriginalFilename\", \"ALL$1$2$3\\\\.DLL\\\\000\"/" >> fixver.sed
+
+echo "Patching src/win/dllver.rc..."
+cp src/win/dllver.rc fixver.tmp
+sed -f fixver.sed fixver.tmp > src/win/dllver.rc
+
 # patch readme.txt
 echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
 echo "s/By Shawn Hargreaves, .*\./By Shawn Hargreaves, $datestr\./" >> fixver.sed
