@@ -84,9 +84,9 @@
 
 
 /* life would be so easy if compilers would all use the same names! */
-#ifndef S_IRUSR
-#define S_IRUSR   S_IREAD
-#define S_IWUSR   S_IWRITE
+#if (!defined S_IRUSR) && (!defined SCAN_DEPEND)
+   #define S_IRUSR   S_IREAD
+   #define S_IWUSR   S_IWRITE
 #endif
 
 
