@@ -615,6 +615,28 @@ static int32 palette_updater_thread(void *data)
 
 
 
+/* be_gfx_fullscreen_fetch_mode_list:
+ *  Builds the list of available video modes.
+ */
+extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
+{
+   int i, num_modes;
+   
+   if (gfx_mode_list)
+      free(gfx_mode_list);
+   
+   for (num_modes=0; _be_mode_table[num_modes].d > 0; num_modes++);
+   gfx_mode_list = (GFX_MODE_LIST *)malloc(sizeof(GFX_MODE_LIST) * num_modes);
+   for (i=0; i<num_modes; i++) {
+      gfx_mode_list[i].width = _be_mode_table[i].w;
+      gfx_mode_list[i].height = _be_mode_table[i].h;
+      gfx_mode_list[i].bpp = _be_mode_table[i].d;
+   }
+   return 0;
+}
+
+
+
 static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth, bool accel)
 {
    BITMAP             *bmp;

@@ -65,6 +65,7 @@ void be_gfx_fullscreen_release(struct BITMAP *b);
 void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
 int  be_gfx_fullscreen_scroll(int x, int y);
 void be_gfx_fullscreen_vsync(void);
+int be_gfx_fullscreen_fetch_mode_list(void);
 void be_gfx_fullscreen_accelerate(int color_depth);
 #ifdef ALLEGRO_NO_ASM
 unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line);

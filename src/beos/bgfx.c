@@ -51,7 +51,7 @@ GFX_DRIVER gfx_beos_fullscreen = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
-   NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
+   be_gfx_fullscreen_fetch_mode_list, // AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
    0,                                 // long bank_size;  /* bank size, in bytes */
@@ -89,7 +89,7 @@ GFX_DRIVER gfx_beos_fullscreen_safe = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
-   NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
+   be_gfx_fullscreen_fetch_mode_list, // AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
    0,                                 // long bank_size;  /* bank size, in bytes */
