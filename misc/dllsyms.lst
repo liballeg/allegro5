@@ -1043,7 +1043,6 @@
     _linear_vline24
     _linear_vline32
     _linear_vline8
-    _load_config_text
     _make_bitmap
     _midi_allocate_voice
     _midi_none DATA
