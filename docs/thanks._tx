@@ -95,8 +95,9 @@ Contributors
    Photoshop-compatible blender functions.
 
    Calin Andrian (<email>calin@ibd.dbio.ro</a>).<br>
-   Wrote the truecolor, MMX, 3DNow!, masked lit mode and Z-buffered polygon
-   rendering routines, and the clip3d_f() function.
+   Wrote the truecolor, MMX, 3DNow!, masked lit mode, translucent and
+   Z-buffered polygon rendering routines, the clip3d_f() function, and also
+   the scanline sorting functions for 3D scene rendering.
 
    Calvin French (<email>frenchc@home.com</a>).<br>
    Added the -w (always update) switch to dat.exe.
