@@ -285,34 +285,34 @@ int write_html(char *filename)
 	    
 	    if (!prev_continued) {
 	       if (!(html_flags & HTML_IGNORE_CSS)) {
-	           if (!last_line_was_a_definition) {
-		       fputs("<div class=\"al-api\"><b>", _file);
-		   }
-		   else {
-		       fputs("<div class=\"al-api-cont\"><b>", _file);
-		   }
+	          if (!last_line_was_a_definition) {
+		     fputs("<div class=\"al-api\"><b>", _file);
+		  }
+		  else {
+		     fputs("<div class=\"al-api-cont\"><b>", _file);
+		  }
 	       }
 	       else {
-	           if (!last_line_was_a_definition) {
-		       fputs("<hr><font size=\"+1\"><b>", _file);
-		   }
-		   else {
-		       fputs("<font size=\"+1\"><b>", _file);
-		   }
+	          if (!last_line_was_a_definition) {
+		     fputs("<hr><font size=\"+1\"><b>", _file);
+		  }
+		  else {
+		     fputs("<font size=\"+1\"><b>", _file);
+		  }
 	       }
 	    }
 	    _hfprintf("%s", temp);
 	    if (!(line->flags & CONTINUE_FLAG)) {
-	        if (!(html_flags & HTML_IGNORE_CSS)) {
-		   fputs("</b></div><br>", _file);
-		}
-		else {
-		   fputs("</b></font><br>", _file);
-		}
-	   	prev_continued = 0;
+	       if (!(html_flags & HTML_IGNORE_CSS)) {
+		  fputs("</b></div><br>", _file);
+	       }
+	       else {
+		  fputs("</b></font><br>", _file);
+	       }
+	       prev_continued = 0;
 	    }
 	    else {
-		prev_continued = 1;
+	       prev_continued = 1;
 	    }
 	    fputs("\n", _file);
 	    free(temp);
