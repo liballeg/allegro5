@@ -45,6 +45,7 @@ static JOYSTICK_AXIS_INFO *axis[MAX_JOYSTICKS][TOTAL_JOYSTICK_AXES];
 static int joy_init(void)
 {
    JOYSTICK_INFO *j;
+   AL_CONST char *device_name = NULL;
    char tmp[128], tmp1[128], tmp2[128];
    int version;
    char num_axes, num_buttons;
@@ -52,17 +53,34 @@ static int joy_init(void)
    int i, s, a, b;
 
    for (i = 0; i < MAX_JOYSTICKS; i++) {
-      snprintf(tmp, sizeof(tmp), "/dev/input/js%d", i);
-      tmp[sizeof(tmp)-1] = 0;
+      /* Check for a user override on the device to use. */
+      uszprintf(tmp, sizeof(tmp), uconvert_ascii("joystick_device_%d", tmp1), i);
+      device_name = get_config_string(uconvert_ascii("joystick", tmp1), tmp, NULL);
 
-      joy_fd[i] = open(tmp, O_RDONLY);
-      if (joy_fd[i] == -1) {
-	 snprintf(tmp, sizeof(tmp), "/dev/js%d", i);
+      /* Special case for the first joystick. */
+      if (!device_name && (i == 0))
+	 device_name = get_config_string(uconvert_ascii("joystick", tmp1),
+					 uconvert_ascii("joystick_device", tmp2),
+					 NULL);
+
+      if (device_name) {
+	 joy_fd[i] = open(uconvert_toascii(device_name, tmp), O_RDONLY);
+	 if (joy_fd[i] == -1)
+	    break;
+      }
+      else {
+	 snprintf(tmp, sizeof(tmp), "/dev/input/js%d", i);
 	 tmp[sizeof(tmp)-1] = 0;
 
 	 joy_fd[i] = open(tmp, O_RDONLY);
-	 if (joy_fd[i] == -1) 
-	    break;
+	 if (joy_fd[i] == -1) {
+	    snprintf(tmp, sizeof(tmp), "/dev/js%d", i);
+	    tmp[sizeof(tmp)-1] = 0;
+
+	    joy_fd[i] = open(tmp, O_RDONLY);
+	    if (joy_fd[i] == -1) 
+	       break;
+	 }
       }
 
       ioctl(joy_fd[i], JSIOCGVERSION, &version);
@@ -128,7 +146,7 @@ static int joy_init(void)
    num_joysticks = i;
    if (num_joysticks == 0) {
       uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to open %s: %s"),
-		uconvert_ascii("/dev/js0", tmp), ustrerror(errno));
+		device_name ? device_name : uconvert_ascii("/dev/js0", tmp), ustrerror(errno));
       return -1;
    }
 

@@ -2047,11 +2047,14 @@ joytype = x<br>
    JOY_TYPE_AUTODETECT.
 <li>
 joystick_device = x<br>
-   BeOS only: specifies the name of the joystick device to be used. First
-   device found is used by default.
+   BeOS and Linux only: specifies the name of the joystick device to be used
+   (as reported in the system joystick preferences under BeOS). The first
+   device found is used by default. If you want to specify the device for
+   each joystick, use variables of the form joystick_device_n, where n is
+   the joystick number.
 <li>
 throttle_axis = x<br>
-   Linux only: sets which axis number the throttle is located at. This
+   Linux only: sets the axis number the throttle is located at. This
    variable will be used for every detected joystick. If you want to specify
    the axis number for each joystick individually, use variables of the form
    throttle_axis_n, where n is the joystick number.
