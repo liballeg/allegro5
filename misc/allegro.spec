@@ -202,8 +202,11 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
+* Fri Feb 07 2003 Philipp Thomas <pthomas@suse.de>  4.0.3-1
+- added German translation
+
 * Fri Dec 07 2001 Angelo Mottola <lillo@users.sourceforge.net>  4.0.0-1
-- added italian translation
+- added Italian translation
 
 * Tue Oct 02 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
 - icon courtesy of Johan Peitz
