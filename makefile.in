@@ -444,7 +444,7 @@ uninstall-info:
 	  echo Decompressing documentation...; \
 	  gunzip $(infodir)/allegro.info.gz; \
 	fi;
-	@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
+	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
 	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
 	    $(INSTALL_INFO) --remove $(infodir)/allegro.info; \
 	  else \
