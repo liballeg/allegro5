@@ -94,11 +94,6 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static DDRAW_SURFACE *offscreen_surface = NULL;
-/* If the allegro color depth is not the same as the desktop color depth,
- * we need a pre-converted offscreen surface that will be blitted to the window
- * when in background, in order to ensure a proper clipping.
- */ 
-static DDRAW_SURFACE *preconv_offscreen_surface = NULL;
 static RECT working_area;
 static COLORCONV_BLITTER_FUNC *colorconv_blit = NULL;
 static int direct_updating_mode_enabled; /* configuration flag */
@@ -241,15 +236,15 @@ static void update_matching_window(RECT* rect)
 
 
 
-/* is_not_contained:
+/* is_contained:
  *  Helper to find the relative position of two rectangles.
  */ 
-static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
+static INLINE int is_contained(RECT *rect1, RECT *rect2)
 {
-   if ( (rect1->left   < rect2->left)   ||
-        (rect1->top    < rect2->top)    ||
-        (rect1->right  > rect2->right)  ||
-        (rect1->bottom > rect2->bottom) )
+   if ((rect1->left >= rect2->left) &&
+       (rect1->top >= rect2->top) &&
+       (rect1->right <= rect2->right) &&
+       (rect1->bottom <= rect2->bottom))
       return TRUE;
    else
       return FALSE;
@@ -311,6 +306,9 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
 static void update_colorconv_window(RECT* rect)
 {
    RECT src_rect, dest_rect;
+   HDC src_dc, dest_dc;
+   HRESULT hr;
+   int direct;
 
    _enter_gfx_critical();
 
@@ -337,30 +335,46 @@ static void update_colorconv_window(RECT* rect)
       src_rect.bottom = gfx_directx_win.h;
    }
 
-   dest_rect = src_rect; 
+   dest_rect = src_rect;
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
 
-   if (!direct_updating_mode_on || is_not_contained(&dest_rect, &working_area) ||
-                                       (GetForegroundWindow() != allegro_wnd)) {
-      /* first blit to the pre-converted offscreen buffer */
-      if (ddsurf_blit_ex(preconv_offscreen_surface->id, &src_rect,
-                         offscreen_surface->id, &src_rect) != 0) {
-         _exit_gfx_critical();
-         return;
-      }
- 
-      /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
-      IDirectDrawSurface2_Blt(primary_surface->id, &dest_rect,
-                              preconv_offscreen_surface->id, &src_rect,
-                              0, NULL);
-   }
-   else {
-      /* blit directly to the primary surface WITHOUT clipping */
+   direct = (direct_updating_mode_on &&
+             is_contained(&dest_rect, &working_area) &&
+             GetForegroundWindow() == allegro_wnd);
+
+   if (direct) {
+      /* blit directly to the primary surface without clipping */
       ddsurf_blit_ex(primary_surface->id, &dest_rect,
                      offscreen_surface->id, &src_rect);
    }
+   else {
+      /* blit to the window using GDI */
+      hr = IDirectDrawSurface2_GetDC(offscreen_surface->id, &src_dc);
+      if (FAILED(hr))
+         goto End;
 
+      dest_dc = GetDC(allegro_wnd);
+      if (!dest_dc) {
+         IDirectDrawSurface2_ReleaseDC(offscreen_surface->id, src_dc);
+         goto End;
+      }
+
+      BitBlt(dest_dc,
+             src_rect.left,
+             src_rect.top,
+             src_rect.right - src_rect.left,
+             src_rect.bottom - src_rect.top,
+             src_dc,
+             src_rect.left,
+             src_rect.top,
+             SRCCOPY);
+
+      ReleaseDC(allegro_wnd, dest_dc);
+      IDirectDrawSurface2_ReleaseDC(offscreen_surface->id, src_dc);
+   }
+
+ End:
    _exit_gfx_critical();
 }
 
@@ -494,7 +508,12 @@ static void gfx_directx_set_palette_win_8(AL_CONST struct RGB *p, int from, int 
  */
 static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
+   /* for the normal updating mode */
+   gfx_directx_set_palette(p, from, to, FALSE);
+
+   /* for the direct updating mode */
    _set_colorconv_palette(p, from, to);
+
    update_window(NULL);
 }
 
@@ -568,21 +587,7 @@ static int verify_color_depth (int color_depth)
 static int create_offscreen(int w, int h, int color_depth)
 {
    if (colorconv_blit) {
-      /* create pre-converted offscreen surface in video memory */
-      preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_VIDEO);
-
-      if (!preconv_offscreen_surface) {
-         _TRACE("Can't create preconverted offscreen surface in video memory.\n");
-
-         /* create pre-converted offscreen surface in plain memory */
-         preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_SYSTEM);
-
-         if (!preconv_offscreen_surface) {
-            _TRACE("Can't create preconverted offscreen surface.\n");
-            return -1;
-         }
-      }
-
+      /* create offscreen surface in system memory */
       offscreen_surface = gfx_directx_create_surface(w, h, ddpixel_format, DDRAW_SURFACE_SYSTEM);
    }
    else {
@@ -592,7 +597,7 @@ static int create_offscreen(int w, int h, int color_depth)
       if (!offscreen_surface) {
          _TRACE("Can't create offscreen surface in video memory.\n");
 
-         /* create offscreen surface in plain memory */
+         /* create offscreen surface in system memory */
          offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_SYSTEM);
       }
    }
@@ -707,6 +712,9 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       if (color_depth == 8) {
          gfx_directx_win.set_palette = gfx_directx_set_palette_win;
 
+         if (create_palette(offscreen_surface) != 0)
+            goto Error;
+
          /* init the core library color conversion functions */ 
          if (gfx_directx_update_color_format(primary_surface, desktop_depth) != 0)
             goto Error;
@@ -786,12 +794,6 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
       offscreen_surface = NULL;
       reused_offscreen_surface = FALSE;
       forefront_bitmap = NULL;
-   }
-
-   /* destroy the pre-converted offscreen buffer */
-   if (preconv_offscreen_surface) {
-      gfx_directx_destroy_surface(preconv_offscreen_surface);
-      preconv_offscreen_surface = NULL;
    }
 
    /* release the color conversion blitter */

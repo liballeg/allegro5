@@ -28,7 +28,6 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Fix ALT+Tab bug under WinXP
 - Investigate plugins script support
 - Investigate problem with keyboard in the dxwindow test
 - Modify convert_hbitmap_to_bitmap() behaviour with 8-bit DDBs
