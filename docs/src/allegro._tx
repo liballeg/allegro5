@@ -7648,10 +7648,10 @@ resource named "allegro_icon". If it is present, Allegro automatically
 loads it and uses it as its application icon. Otherwise, Allegro uses the 
 default IDI_APPLICATION icon.
 
-DirectX requires that video bitmaps (including the screen) be locked before
-you can draw onto them. This will be done automatically, but you can usually
-get much better performance by doing it yourself: see the acquire_bitmap()
-function for details.
+DirectX requires that system and video bitmaps (including the screen) be 
+locked before you can draw onto them. This will be done automatically, but 
+you can usually get much better performance by doing it yourself: see the 
+acquire_bitmap() function for details.
 
 Due to a major oversight in the design of DirectX, there is no way to 
 preserve the contents of video memory when the user switches away from your 
@@ -7706,11 +7706,11 @@ below for the consequences for windowed and overlay DirectX drivers.
    GFX_DIRECTX_WIN<br>
       The regular windowed DirectX driver, running in color conversion mode 
       when the color depth doesn't match that of the Windows desktop. Color 
-      conversion is much slower than direct drawing and is not supported on 
-      8-bit desktops and between 15-bit and 16-bit color depths. This latter 
-      limitation is needed to work around that of desktop_color_depth() (see 
-      above) and allows to select the direct drawing mode in a reliable way 
-      on desktops reported as 16-bit:
+      conversion is much slower than direct drawing and is not supported 
+      between 15-bit and 16-bit color depths. This limitation is needed to 
+      work around that of desktop_color_depth() (see above) and allows to 
+      select the direct drawing mode in a reliable way on desktops reported 
+      as 16-bit:
 <pre>
    if (desktop_color_depth() == 16) {
       set_color_depth(16);
