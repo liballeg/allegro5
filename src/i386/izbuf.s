@@ -973,7 +973,7 @@ FUNC(_poly_zbuf_atex_trans8)
    shll $8, %eax
    pushl %edi
    movl READ_ADDR, %edi
-   movb FSEG(%edi), %al
+   movb FSEG (%edi), %al
    popl %edi
    movl GLOBL(color_map), %ecx
    movb (%ecx, %eax), %al
@@ -998,7 +998,7 @@ FUNC(_poly_zbuf_atex_mask_trans8)
    shll $8, %eax
    pushl %edi
    movl READ_ADDR, %edi
-   movb FSEG(%edi), %al
+   movb FSEG (%edi), %al
    popl %edi
    movl GLOBL(color_map), %ecx
    movb (%ecx, %eax), %al
@@ -1025,7 +1025,7 @@ FUNC(_poly_zbuf_atex_trans15)
    pushl GLOBL(_blender_alpha)
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    movw (%esi, %eax, 2), %ax    /* read texel */
    pushl %ecx
@@ -1055,7 +1055,7 @@ FUNC(_poly_zbuf_atex_mask_trans15)
    jz 2f
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    pushl %edx
    pushl GLOBL(_blender_alpha)
@@ -1087,7 +1087,7 @@ FUNC(_poly_zbuf_atex_trans16)
    pushl GLOBL(_blender_alpha)
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    movw (%esi, %eax, 2), %ax     /* read texel */
    pushl %ecx
@@ -1117,7 +1117,7 @@ FUNC(_poly_zbuf_atex_mask_trans16)
    jz 2f
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    pushl %edx
    pushl GLOBL(_blender_alpha)
@@ -1152,7 +1152,7 @@ FUNC(_poly_zbuf_atex_trans32)
    pushl GLOBL(_blender_alpha)
    movl %edi, ALPHA
    movl READ_ADDR, %edi
-   pushl FSEG(%edi)
+   pushl FSEG (%edi)
    movl ALPHA, %edi
    pushl (%esi, %eax, 4)
 
@@ -1182,7 +1182,7 @@ FUNC(_poly_zbuf_atex_mask_trans32)
    pushl GLOBL(_blender_alpha)
    movl %edi, ALPHA
    movl READ_ADDR, %edi
-   pushl FSEG(%edi)
+   pushl FSEG (%edi)
    movl ALPHA, %edi
    pushl %eax
 
@@ -1219,7 +1219,7 @@ FUNC(_poly_zbuf_atex_trans24)
    movb 2(%esi, %ecx), %al        /* read texel */
    shll $16, %edx
    shll $16, %eax
-   movw FSEG(%edi), %dx
+   movw FSEG (%edi), %dx
    popl %edi
    movw (%esi, %ecx), %ax
    pushl %edx
@@ -1259,7 +1259,7 @@ FUNC(_poly_zbuf_atex_mask_trans24)
    movl ALPHA, %edi
    pushl GLOBL(_blender_alpha)
    shll $16, %ecx
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    pushl %ecx
    pushl %eax
 
@@ -1940,7 +1940,7 @@ FUNC(_poly_zbuf_ptex_trans8)
    shll $8, %eax
    pushl %edi
    movl READ_ADDR, %edi
-   movb FSEG(%edi), %al
+   movb FSEG (%edi), %al
    popl %edi
    movl GLOBL(color_map), %ecx
    movb (%ecx, %eax), %al
@@ -1965,7 +1965,7 @@ FUNC(_poly_zbuf_ptex_mask_trans8)
    shll $8, %eax
    pushl %edi
    movl READ_ADDR, %edi
-   movb FSEG(%edi), %al
+   movb FSEG (%edi), %al
    popl %edi
    movl GLOBL(color_map), %ecx
    movb (%ecx, %eax), %al
@@ -1991,7 +1991,7 @@ FUNC(_poly_zbuf_ptex_trans15)
    pushl GLOBL(_blender_alpha)
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    movw (%esi, %eax, 2), %ax    /* read texel */
    pushl %ecx
@@ -2021,7 +2021,7 @@ FUNC(_poly_zbuf_ptex_mask_trans15)
    jz 2f
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    pushl %edx
    pushl GLOBL(_blender_alpha)
@@ -2053,7 +2053,7 @@ FUNC(_poly_zbuf_ptex_trans16)
    pushl GLOBL(_blender_alpha)
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    movw (%esi, %eax, 2), %ax     /* read texel */
    pushl %ecx
@@ -2083,7 +2083,7 @@ FUNC(_poly_zbuf_ptex_mask_trans16)
    jz 2f
    pushl %edi
    movl READ_ADDR, %edi
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    popl %edi
    pushl %edx
    pushl GLOBL(_blender_alpha)
@@ -2118,7 +2118,7 @@ FUNC(_poly_zbuf_ptex_trans32)
    pushl GLOBL(_blender_alpha)
    movl %edi, ALPHA
    movl READ_ADDR, %edi
-   pushl FSEG(%edi)
+   pushl FSEG (%edi)
    movl ALPHA, %edi
    pushl (%esi, %eax, 4)
 
@@ -2148,7 +2148,7 @@ FUNC(_poly_zbuf_ptex_mask_trans32)
    pushl GLOBL(_blender_alpha)
    movl %edi, ALPHA
    movl READ_ADDR, %edi
-   pushl FSEG(%edi)
+   pushl FSEG (%edi)
    movl ALPHA, %edi
    pushl %eax
 
@@ -2185,7 +2185,7 @@ FUNC(_poly_zbuf_ptex_trans24)
    movb 2(%esi, %ecx), %al        /* read texel */
    shll $16, %edx
    shll $16, %eax
-   movw FSEG(%edi), %dx
+   movw FSEG (%edi), %dx
    popl %edi
    movw (%esi, %ecx), %ax
    pushl %edx
@@ -2224,7 +2224,7 @@ FUNC(_poly_zbuf_ptex_mask_trans24)
    pushl %edx
    pushl GLOBL(_blender_alpha)
    shll $16, %ecx
-   movw FSEG(%edi), %cx
+   movw FSEG (%edi), %cx
    movl ALPHA, %edi
    pushl %ecx
    pushl %eax
