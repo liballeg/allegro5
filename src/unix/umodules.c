@@ -99,7 +99,7 @@ void _unix_load_modules(int system_driver)
 	 filename = buf3;
       }
 
-      if (!exists(filename))
+      if (!exists(uconvert_ascii(filename, buf)))
 	 continue;
 
       handle = dlopen(filename, RTLD_NOW);
