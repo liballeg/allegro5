@@ -928,7 +928,7 @@ unsigned long _blender_screen15(unsigned long x, unsigned long y, unsigned long 
 #define SET_BLENDER_FUNC(name)                                 \
    void set_##name##_blender(int r, int g, int b, int a)       \
    {                                                           \
-      if (gfx_driver->set_blender_mode)                        \
+      if (gfx_driver && gfx_driver->set_blender_mode)          \
          gfx_driver->set_blender_mode(blender_mode_##name, r, g, b, a);\
       set_blender_mode(BF16(_blender_##name##15),              \
 		       BF16(_blender_##name##16),              \
@@ -962,7 +962,7 @@ void set_alpha_blender()
    int r, b;
 
    /* Call gfx_driver->set_blender_mode() for hardware acceleration */
-   if (gfx_driver->set_blender_mode)
+   if (gfx_driver && gfx_driver->set_blender_mode)
       gfx_driver->set_blender_mode(blender_mode_alpha, 0, 0, 0, 0);
 
    /* check which way around the 32 bit pixels are */
