@@ -235,6 +235,8 @@ offset_entry_t list[] = {
 #endif
 #ifdef ALLEGRO_WATCOM
   {"#define FUNC(name)            .globl " PREFIX "name ; nop ; _align_ ; " PREFIX "name:", 0},
+#elif defined ALLEGRO_UNIX
+  {"#define FUNC(name)            .globl " PREFIX "name ; _align_ ; .type name,@function ; " PREFIX "name:", 0},
 #else
   {"#define FUNC(name)            .globl " PREFIX "name ; _align_ ; " PREFIX "name:", 0},
 #endif
