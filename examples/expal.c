@@ -27,6 +27,9 @@ int main(void)
       }
    }
 
+   install_mouse();
+   show_mouse(screen);
+
    /* first set the palette to black to hide what we are doing */
    set_palette(black_palette);
 
