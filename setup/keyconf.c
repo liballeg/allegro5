@@ -24,6 +24,9 @@
 #include "allegro/internal/aintern.h"
 
 
+/* The code can't link on platforms that don't use src/misc/pckeys.c (Linux console, MacOS X). */
+#if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS) || (defined ALLEGRO_WITH_XWINDOWS) || (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
+
 
 char *scancode_name[] = 
 {
@@ -102,41 +105,9 @@ unsigned short my_key_accent4_lower_table[KEY_MAX];
 unsigned short my_key_accent4_upper_table[KEY_MAX];
 
 
-#if (!defined ALLEGRO_DOS) && (!defined ALLEGRO_WINDOWS) && (!defined ALLEGRO_WITH_XWINDOWS) && (!defined ALLEGRO_QNX) && (!defined ALLEGRO_BEOS)
-
-   /* if this platform isn't using pckeys.c, we declare these ourselves */
-   int _key_accent1 = 0;
-   int _key_accent2 = 0;
-   int _key_accent3 = 0;
-   int _key_accent4 = 0;
-   int _key_accent1_flag = 0;
-   int _key_accent2_flag = 0;
-   int _key_accent3_flag = 0;
-   int _key_accent4_flag = 0;
-
-   int _key_standard_kb;
-
-   unsigned short *_key_ascii_table;
-   unsigned short *_key_capslock_table;
-   unsigned short *_key_shift_table;
-   unsigned short *_key_control_table;
-   unsigned short *_key_altgr_lower_table;
-   unsigned short *_key_altgr_upper_table;
-   unsigned short *_key_accent1_lower_table;
-   unsigned short *_key_accent1_upper_table;
-   unsigned short *_key_accent2_lower_table;
-   unsigned short *_key_accent2_upper_table;
-   unsigned short *_key_accent3_lower_table;
-   unsigned short *_key_accent3_upper_table;
-   unsigned short *_key_accent4_lower_table;
-   unsigned short *_key_accent4_upper_table;
-
-#endif
-
-
 char keyboard_name[64] = EMPTY_STRING;
 
-#define FILENAME_LENGTH (512)
+#define FILENAME_LENGTH  512
 char config_file[FILENAME_LENGTH] = EMPTY_STRING;
 
 unsigned short *editor_table;
@@ -1003,5 +974,19 @@ int main(int argc, char *argv[])
 
    return 0;
 }
+
+
+#else
+
+
+int main(void)
+{
+   allegro_init();
+   allegro_message("The KEYCONF utility is not needed on this platform.\n");
+   return 1;
+}
+
+
+#endif
 
 END_OF_MAIN();
