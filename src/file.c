@@ -1923,22 +1923,17 @@ long pack_mputl(long l, PACKFILE *f)
 long pack_fread(void *p, long n, PACKFILE *f)
 {
    unsigned char *cp = (unsigned char *)p;
-   long c;
-   int i;
+   long i;
+   int c;
 
-   for (c=0; c<n; c++) {
-      if (--(f->buf_size) > 0)
-	 *(cp++) = *(f->buf_pos++);
-      else {
-	 i = _sort_out_getc(f);
-	 if (i == EOF)
-	    return c;
-	 else
-	    *(cp++) = i;
-      }
+   for (i=0; i<n; i++) {
+      if ((c = pack_getc(f)) == EOF)
+	 break;
+
+      *(cp++) = c;
    }
 
-   return n;
+   return i;
 }
 
 
@@ -1951,19 +1946,14 @@ long pack_fread(void *p, long n, PACKFILE *f)
 long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 {
    AL_CONST unsigned char *cp = (AL_CONST unsigned char *)p;
-   long c;
+   long i;
 
-   for (c=0; c<n; c++) {
-      if (++(f->buf_size) >= F_BUF_SIZE) {
-	 if (_sort_out_putc(*cp,f) != *cp)
-	    return c;
-	 cp++;
-      }
-      else
-	 *(f->buf_pos++)=*(cp++);
+   for (i=0; i<n; i++) {
+      if (pack_putc(*cp++, f) == EOF)
+	 break;
    }
 
-   return n;
+   return i;
 }
 
 
