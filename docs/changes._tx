@@ -11,6 +11,99 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+<li>
+   3.9.35: Eric Botcazou made Windows restore the original sound volume
+   after an Allegro program quits.
+<li>
+   3.9.35: Eric Botcazou fixed sample looping in DirectSound driver.
+<li>
+   3.9.35: Grzegorz Adam Hankiewicz solved some color problems in the
+   demo game.
+<li>
+   3.9.35: Angelo Mottola implemented a close button hook for X11.
+<li>
+   3.9.35: Eric Botcazou fixed _the_ Windows 2000 keyboard bug.
+<li>
+   3.9.35: Eric Botcazou made some changes to the locking/unlocking
+   mechanism in the Windows port.
+<li>
+   3.9.35: Laurence Withers made some modules avoid linking
+   dependencies.
+<li>
+   3.9.35: Javier Gonzalez added close button support for Windows.
+<li>	
+   3.9.35: Eric Botcazou improved mouse handling in the GFX_GDI driver
+   and fixed some other mouse glitches.
+<li>
+   3.9.35: Peter Wang made set_mouse_sprite(NULL) regenerate the
+   default arrow bitmap (using the current palette).
+<li>
+   3.9.35: Eric Botcazou made hardware accelerated primitives stop
+   when the user switches out in Windows.
+<li>
+   3.9.35: Tom St Denis fixed clipping of transparent objects.
+<li>
+   3.9.35: Eric Botcazou and Javier Gonzalez improved switching in
+   Windows and other things.
+<li>
+   3.9.35: Peter Wang made the Linux joystick driver use standard
+   constants.
+<li>
+   3.9.35: Sven Sandberg changed the Z-buffer API.
+<li>
+   3.9.35: Peter Wang made the default mouse sprite independent of the
+   palette in 8 bpp modes.
+<li>
+   3.9.35: Bertrand Coconnier added documentation for the P3D merge.
+<li>
+   3.9.35: Angelo Mottola fixed desktop_color_depth() and added window
+   close button support for the BeOS port.
+<li>
+   3.9.35: Ben Davis added the set_window_close_button() and
+   set_window_close_hook() framework.
+<li>
+   3.9.35: Peter Wang exposed the mouse_sprite, mouse_x_focus and
+   mouse_y_focus variables.
+<li>
+   3.9.35: Robert Ohannessian and Javier Gonzalez fixed bad clearing
+   of subbitmaps.
+<li>
+   3.9.35: Peter Wang renamed GFX_XDFS to GFX_XDGA_FULLSCREEN.
+<li>
+   3.9.35: Henrik Stokseth updated the cross-compilation system.
+<li>
+   3.9.35: Tomohiko Sugiura added some keys and renamed some JP keys.
+<li>
+   3.9.35: Eric Botcazou added a DirectDraw2 interface, with support
+   for refresh rates.
+<li>
+   3.9.35: Bertrand Coconnier merged in Calin Andrian's P3D library.
+<li>
+   3.9.35: Javier Gonzalez made allegro_message() use the title from
+   set_window_title() in Windows.
+<li>
+   3.9.35: Andreas Kluge fixed division bugs in the fix class.
+<li>
+   3.9.35: Stepan Roh documented the FA_* flags.
+<li>
+   3.9.35: Peter Wang added hooks to allow overriding the look of
+   standard dialogs.
+<li>
+   3.9.35: Peter Wang changed X window placement and mapping behaviour.
+<li>
+   3.9.35: David A. Capello made dotted_rect() avoid bank switches.
+<li>
+   3.9.35: Eric Botcazou fixed a freezing problem under Window with
+   locking/unlocking bitmaps under heavy load. He received help
+   tracking down the bug from Javier Gonzalez.
+<li>
+   3.9.35: Stepan Roh fixed a bug with FA_RDONLY constant under Unix.
+<li>
+   3.9.35: Eric Botcazou cleaned up the Windows graphics subsystem.
+<li>
+   3.9.35: "Sask Allegro" added support for more than two joysticks in
+   the Windows port.
+<li>
    3.9.34: Ben Davis made close button in Windows windowed modes not
    simulate Escape key, in preparation for new behaviour (in next WIP).
 <li>

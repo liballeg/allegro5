@@ -33,7 +33,8 @@ Contributors
    Added the Italian translation of the system messages.
 
    Andreas Kluge (<email>bitland@aol.com</a>).<br>
-   Wrote the Ensoniq Soundscape driver.
+   Wrote the Ensoniq Soundscape driver and fixed division bugs in the fix
+   class.
 
    Andrei 'old-boy' Ellman (<email>ellman@xs4all.nl</a>).<br>
    Contributed the polygon_z_normal() function.
@@ -50,9 +51,9 @@ Contributors
    tweaked VGA mode, and wrote the d_text_list_proc() dialog object.
 
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
-   Added the BeOS joystick driver, MIDI driver, windowed graphics driver,
-   mouse wheel support, display switching support and wrote the DGA2
-   driver for X.
+   Added the BeOS joystick, MIDI and windowed graphics drivers, added
+   mouse wheel, display switching and close button support for BeOS, and
+   wrote the DGA2 driver and close button support for X.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -82,13 +83,15 @@ Contributors
    Ben Davis (<email>ben@vjpoole.freeserve.co.uk</a>).<br>
    Added set_volume_per_voice(), made silent voices continue playing, and 
    fixed other minor bugs in the mixer. Fixed a bug in create_rgb_table(). 
-   Adapted polygon functions to handle two coincident vertices.
+   Adapted polygon functions to handle two coincident vertices. Added the 
+   set_window_close_button() and set_window_close_hook() framework.
 
    Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
    Modified routines in poly3d.c for subpixel and subtexel accuracy.
    Speed enhancements in polygon functions. Fixed blending in C version of 
    atex_lit scanline functions, added scanline subdivisions in C scanline 
-   functions and Z-buffer polygon functions.
+   functions and Z-buffer polygon functions. Merged in Calin Andrian's P3D
+   library.
 
    Burton Radons (<email>loth@gec.net</a>).<br>
    Optimised the truecolor pixel blending function, converted the blenders 
@@ -98,7 +101,8 @@ Contributors
    Calin Andrian (<email>calin@ibd.dbio.ro</a>).<br>
    Wrote the truecolor, MMX, 3DNow!, masked lit mode, translucent and
    Z-buffered polygon rendering routines, the clip3d_f() function, and also
-   the scanline sorting functions for 3D scene rendering.
+   the scanline sorting functions for 3D scene rendering, and his P3D
+   addon library was merged in.
 
    Calvin French (<email>frenchc@home.com</a>).<br>
    Added the -w (always update) switch to dat.exe.
@@ -123,6 +127,9 @@ Contributors
    Daniel Nilsson (<email>daniel7@algonet.se</a>).<br>
    Enlarged the starfield in exstars, and fixed an incorrect range in 
    exlights.
+
+   David A. Capello (<email>davidcapello@yahoo.com</a>).<br>
+   Made dotted_rect() avoid bank switches.
 
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
@@ -152,9 +159,10 @@ Contributors
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
-   Made the DGA driver work better in 8bpp and 32bpp modes, fixed some
-   bugs in Windows code, improved the directx windowed driver and added
-   the file_select_ex() function.
+   Made the DGA driver work better in 8bpp and 32bpp modes, improved the
+   DirectX windowed driver and Windows graphics subsystem, added the
+   file_select_ex() function, fixed lots of bugs and did truckloads more
+   work on the Windows port.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -243,8 +251,10 @@ Contributors
    Wrote the quaternion math routines, and contributed the BeOS port.
 
    Javier Gonzalez (<email>javigg@wanadoo.es</a>).<br>
-   Corrected mouse movement speed in Windows and made bug reports and
-   suggestions for improvement.
+   Corrected mouse movement speed, made allegro_message() use title from
+   set_window_title(), added close button hook support and improved
+   switching in Windows, fixed bad clearing of subbitmaps, and made bug
+   reports and suggestions for improvement.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -294,7 +304,8 @@ Contributors
 
    Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
    Added destroy hook to font structure, worked on const-correctness
-   throughout the library and implemented the new FONT structure.
+   throughout the library, implemented the new FONT structure and made
+   some modules avoid linking dependencies.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
@@ -477,7 +488,8 @@ Contributors
    PSX, and throttle input code.
 
    Robert Ohannessian (<email>varobert@colba.net</a>).<br>
-   Added MMX optimisation for the 8 and 16 bit clear() functions.
+   Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
+   bad clearing of subbitmaps.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -505,6 +517,9 @@ Contributors
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.
 
+   Sask Allegro (<email>sask_allegro@iespana.es</a>).<br>
+   Added support for more than two joysticks in the Windows port.
+
    Scott Harrison (<email>scotth@calderauk.com</a>).<br>
    Added the OpenDOS detection code.
 
@@ -531,7 +546,7 @@ Contributors
    Added a Czech keyboard mapping and system message translation, the Latin 
    Extended-A characters in the default font, and the codepage support in 
    the textconv utility, fixed some problems with the ESD sound driver, and 
-   helped make Allegro build better on some Unix platforms.  Fixed const 
+   helped make Allegro build better on some Unix platforms. Fixed const 
    related problems in C versions of ASM routines.
 
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
@@ -542,8 +557,8 @@ Contributors
    the create_light_table() function, optimised the fixed point trig 
    routines, provided the Swedish message translations, improved the file 
    selector sorting algorithm, optimised the spline routines, added the 
-   ustrrchr() function, improved the usprintf() handling of floats, and 
-   provided other bug fixes.
+   ustrrchr() function, improved the usprintf() handling of floats, changed
+   the Z-buffer API and provided other bug fixes.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
@@ -580,11 +595,14 @@ Contributors
    Tom Novelli (<email>tnovelli@cyber3.servtech.com</a>).<br>
    Wrote the original version of the digital MIDI driver.
 
+   Tom St Denis (<email>tomstdenis@yahoo.com</a>).<br>
+   Fixed clipping of transparent objects.
+
    Tomohiko Sugiura (<email>tmsugi@d4.dion.ne.jp</a>).<br>
-   Added the KEY_YEN, KEY_YEN2, KEY_KANA, KEY_HENKAN and KEY_MUHENKAN keys 
-   to the input handler, and organised getting the IF-SEGA joystick drivers 
-   by S.Suzuki merged into my codebase. Added more aggressive Sidewinder 
-   joystick driver.
+   Added the KEY_ABNT_C1, KEY_YEN, KEY_KANA, KEY_CONVERT, KEY_NOCONVERT
+   and other keys to the input handler, and organised getting the IF-SEGA
+   joystick drivers by S.Suzuki merged into my codebase. Added more
+   aggressive Sidewinder joystick driver.
 
    Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
