@@ -38,7 +38,9 @@ FUNC (gfx_directx_write_bank)
       pushl %ecx
       pushl %eax
       pushl %edx
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_directx_autolock)
+      popl %edx
       popl %edx
       popl %eax
       popl %ecx
@@ -65,7 +67,9 @@ FUNC (gfx_directx_unwrite_bank)
       pushl %ecx
       pushl %eax
       pushl %edx
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_directx_unlock)
+      popl %edx
       popl %edx
       popl %eax
       popl %ecx
@@ -98,7 +102,9 @@ FUNC (gfx_directx_write_bank_win)
       /* lock the surface */
       pushl %eax
       pushl %edx
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_directx_autolock)
+      popl %edx
       popl %edx
       popl %eax
 
@@ -126,7 +132,9 @@ FUNC (gfx_directx_unwrite_bank_win)
 
       /* unlock surface */
       pushl %edx
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_directx_unlock)
+      popl %edx
       popl %edx
 
       /* clear the autolock flag */
@@ -153,7 +161,9 @@ FUNC(gfx_directx_unlock_win)
       /* unlock surface */
       movl 4(%esp), %edx
       pushl %edx 
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_directx_unlock)
+      popl %edx
       popl %edx
 
       /* forefront_bitmap may still be locked in case of nested locking */
@@ -246,7 +256,9 @@ FUNC (gfx_gdi_write_bank)
       /* lock the surface */
       pushl %eax
       pushl %edx
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_gdi_autolock) 
+      popl %edx
       popl %edx
       popl %eax
 
@@ -273,7 +285,9 @@ FUNC (gfx_gdi_unwrite_bank)
       pushl %ecx
       pushl %eax
       pushl %edx
+      pushl %edx  /* argument */
       call *GLOBL(ptr_gfx_gdi_unlock) 
+      popl %edx
       popl %edx
       popl %eax
       popl %ecx
