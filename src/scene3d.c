@@ -407,7 +407,6 @@ int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
    V3D *v1, *v2;
    POLYGON_EDGE *edge;
    POLYGON_INFO *poly;
-   ASSERT(texture);
 
    ASSERT(scene_nedge + vc <= scene_maxedge);
    ASSERT(scene_npoly < scene_maxpoly);
@@ -453,7 +452,6 @@ int scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[])
    V3D_f *v1, *v2;
    POLYGON_EDGE *edge;
    POLYGON_INFO *poly;
-   ASSERT(texture);
 
    ASSERT(scene_nedge + vc <= scene_maxedge);
    ASSERT(scene_npoly < scene_maxpoly);
