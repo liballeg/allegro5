@@ -399,7 +399,6 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	setup/setup.c \
 	tests/afinfo.c \
 	tests/akaitest.c \
-	tests/cpptest.cc \
 	tests/digitest.c \
 	tests/filetest.c \
 	tests/gfxinfo.c \
@@ -416,6 +415,9 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	tools/rgbmap.c \
 	tools/textconv.c
 
+ALLEGRO_LIB_CPP_EXE_SOURCES = \
+	tests/cpptest.cpp
+
 ALLEGRO_LIB_X_EXE_SOURCES = \
 	tools/x11/xkeymap.c \
 	tools/x11/xf2pcx.c
@@ -426,7 +428,6 @@ ALLEGRO_LIB_EXES = \
 	setup/setup \
 	tests/afinfo \
 	tests/akaitest \
-	tests/cpptest \
 	tests/digitest \
 	tests/filetest \
 	tests/gfxinfo \
@@ -442,7 +443,10 @@ ALLEGRO_LIB_EXES = \
 	tools/pack \
 	tools/rgbmap \
 	tools/textconv
-	
+
+ALLEGRO_LIB_CPP_EXES = \
+	tests/cpptest
+
 ALLEGRO_LIB_X_EXES = \
 	tools/x11/xkeymap \
 	tools/x11/xf2pcx

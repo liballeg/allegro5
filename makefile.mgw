@@ -409,7 +409,9 @@ endif
 
 
 
-# -------- test assembler capabilities --------
+# -------- test capabilities --------
+
+TEST_CPP = $(CC) -fno-exceptions -c src/misc/test.cpp -o $(PLATFORM_DIR)/test.o
 
 include makefile.tst
 
@@ -449,6 +451,9 @@ COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+
+$(OBJ_DIR)/%.o: %.cpp
+	$(CC) -fno-exceptions $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.s
 	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
@@ -602,7 +607,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MINGW32
 
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
-	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c* tests/win/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

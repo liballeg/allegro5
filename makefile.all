@@ -106,8 +106,17 @@ OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
 
 OBJECTS_DOC = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_MAKEDOC_SOURCES)))))
 
-PROGRAMS += $(notdir $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES)) \
-	    examples makedoc
+PROGRAMS += $(notdir $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES))
+
+ifneq (,$(wildcard $(PLATFORM_DIR)/cpp-yes))
+   CPP_PROGRAMS = $(notdir $(ALLEGRO_LIB_CPP_EXES))
+else
+ifeq (,$(wildcard $(PLATFORM_DIR)/cpp-tested))
+   CPP_PROGRAMS = maybe-cpp-programs 
+endif
+endif
+
+PROGRAMS += $(CPP_PROGRAMS) examples makedoc
 
 EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 
@@ -132,8 +141,8 @@ endif
 
 # -------- top level boss targets like "default" and "all" --------
 
-.PHONY: default all msg lib install installall uninstall docs \
-	clean distclean veryclean depend $(PROGRAMS) chm-docs
+.PHONY: default all msg lib install installall uninstall docs chm-docs \
+	clean distclean veryclean depend $(PROGRAMS) $(CPP_PROGRAMS)
 
 .PRECIOUS: $(OBJ_DIR)/%$(OBJ)
 
@@ -370,6 +379,15 @@ tools/pat2dat$(EXE): $(OBJ_DIR)/pat2dat$(OBJ) $(PLUGIN_DEPS)
 
 
 
+# -------- special rules for C++ programs --------
+
+maybe-cpp-programs: $(PLATFORM_DIR)/cpp-tested
+	$(MAKE) cpp-programs
+
+cpp-programs: $(CPP_PROGRAMS)
+
+
+
 # -------- shortcuts for building various programs --------
 
 demo: demo/demo$(EXE)
@@ -378,6 +396,7 @@ keyconf: setup/keyconf$(EXE)
 setup: setup/setup$(EXE)
 afinfo: tests/afinfo$(EXE)
 akaitest: tests/akaitest$(EXE)
+cpptest: tests/cpptest$(EXE)
 digitest: tests/digitest$(EXE)
 filetest: tests/filetest$(EXE)
 gfxinfo: tests/gfxinfo$(EXE)

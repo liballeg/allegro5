@@ -242,9 +242,12 @@ uninstall:
 	@echo All gone!	
 
 
-# test assembler capabilities.
+# -------- test capabilities --------
+
+TEST_CPP = @echo ...system compiler
 
 include makefile.tst
+
 
 
 # -------- finally, we get to the fun part... --------
@@ -331,7 +334,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c > _depend.tmp
-	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c* tools/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) tools/beos/*.cpp tools/plugins/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp

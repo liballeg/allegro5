@@ -22,6 +22,8 @@ EXE = .exe
 OBJ = .obj
 HTML = htm
 
+PLATFORM_DIR = obj/watcom
+
 ifneq (,$(findstring bash,$(SHELL)))
    UNIX_TOOLS = 1
 endif
@@ -228,6 +230,14 @@ endif
 
 
 
+# -------- test capabilities --------
+
+TEST_CPP = wpp386 src\misc\test.cpp -zq -fr=nul -fo=obj\watcom\test.o
+
+include makefile.tst
+
+
+
 # -------- finally, we get to the fun part... --------
 
 define MAKE_LIB
@@ -240,6 +250,9 @@ COMPILE_FLAGS = $(subst src/,-dALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.obj: %.c $(RUNNER)
 	$(RUNNER) wcc386 \\ $< @ $(COMPILE_FLAGS) -zq -fr=nul -I. -I./include -fo=$@
+
+$(OBJ_DIR)/%.obj: %.cpp $(RUNNER)
+	$(RUNNER) wpp386 \\ $< @ $(COMPILE_FLAGS) -zq -fr=nul -I. -I./include -fo=$@
 
 ifeq ($(WATCOM_VERSION),11)
 
@@ -309,7 +322,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_WATCOM
 
 depend:
 	$(GCC) $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
-	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(GCC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c* tools/*.c tools/plugins/*.c >> _depend.tmp
 	$(GCC) $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS

@@ -581,3 +581,23 @@ AC_TRY_COMPILE(,int main(){return 0;},allegro_cv_can_use_pipe=yes, allegro_cv_ca
 ])
 CFLAGS=$allegro_save_CFLAGS
 AC_MSG_RESULT($allegro_cv_can_use_pipe)])
+
+dnl
+dnl Test for the presence of a C++ compiler.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_cplusplus=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_CXX,
+[AC_MSG_CHECKING(whether a C++ compiler is installed)
+AC_CACHE_VAL(allegro_cv_support_cplusplus,
+[if test $GCC = yes; then
+   allegro_save_CFLAGS=$CFLAGS
+   CFLAGS="-x c++"
+   AC_TRY_COMPILE(,class foo {foo() {}};, allegro_cv_support_cplusplus=yes, allegro_cv_support_cplusplus=no)
+   CFLAGS=$allegro_save_CFLAGS
+else
+   allegro_cv_support_cplusplus=no
+fi
+])
+AC_MSG_RESULT($allegro_cv_support_cplusplus)])

@@ -300,6 +300,14 @@ endif
 
 
 
+# -------- test capabilities --------
+
+TEST_CPP = @echo ...integrated
+
+include makefile.tst
+
+
+
 # -------- link as a DLL (sort of ;-) --------
 
 ifdef UNIX_TOOLS
@@ -322,6 +330,9 @@ endif
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.obj: %.c
+	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
+
+$(OBJ_DIR)/%.obj: %.cpp
 	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
 
 obj/bcc32/%.res: %.rc
@@ -543,7 +554,7 @@ endif
 DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 
 depend:
-	$(GCC) $(DEPEND_PARMS) demo/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
+	$(GCC) $(DEPEND_PARMS) demo/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c* > _depend.tmp
 	$(GCC) $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/asmdef\.o/asmdef\.exe/" _depend2.tmp > _depend.tmp

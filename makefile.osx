@@ -331,6 +331,14 @@ install-man: docs docs/man/install_allegro.3
 
 
 
+# -------- test capabilities --------
+
+TEST_CPP = $(CC) -fno-exceptions -c src/misc/test.cpp -o $(PLATFORM_DIR)/test.o
+
+include makefile.tst
+
+
+
 # -------- finally, we get to the fun part... --------
 
 ifdef STATICLINK
@@ -355,6 +363,9 @@ COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+
+$(OBJ_DIR)/%.o: %.cpp
+	$(CC) -fno-exceptions $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.m
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
@@ -408,7 +419,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MACOSX
 
 depend:
 	$(CC) $(DEPEND_PARAMS) src/*.c src/macosx/*.m src/unix/*.c src/misc/*.c demo/*.c > _depend.tmp
-	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c* >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) tools/*.c tools/plugins/*.c tools/macosx/*.c >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alleg\/\1/" _depend2.tmp > obj/macosx/alleg/makefile.dep
