@@ -249,6 +249,12 @@ endef
 tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
 	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
+demo/demo: $(OBJ_DIR)/demo.o bfixicon $(LIB_NAME)
+	gcc $(LFLAGS) -o demo/demo $(OBJ_DIR)/demo.o $(LIB_NAME)
+   ifneq ($(wildcard demo/demo.dat),)
+	tools/beos/bfixicon demo/demo -d demo/demo.dat SHIP3 GAME_PAL
+   endif
+
 
 
 # -------- generate automatic dependencies --------
