@@ -76,6 +76,8 @@
 
 #define LONG_LONG    __int64
 
+#define AL_CONST     const
+
 
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"
