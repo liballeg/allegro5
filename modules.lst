@@ -1,0 +1,9 @@
+# List of modules to be loaded by the Unix version of Allegro.
+
+alleg-vga.so
+alleg-fbcon.so
+alleg-svgalib.so
+alleg-dga2.so
+alleg-esddigi.so
+alleg-alsadigi.so
+alleg-alsamidi.so
