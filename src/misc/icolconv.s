@@ -1686,14 +1686,23 @@ FUNC (_colorconv_blit_32_to_24)
  */
 FUNC (_colorconv_blit_8_to_8)
    CREATE_STACK_FRAME
+
+#ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
+   INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_1, LOOP_RATIO_4)
+#else
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_1, LOOP_RATIO_1)
+#endif
+
    movl GLOBL(_colorconv_rgb_map), %ebp
 
    _align_
    next_line_8_to_8_no_mmx:
-      movl MYLOCAL1, %edx      
+      movl MYLOCAL1, %edx
+
+#ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       shrl $2, %edx                /* work in packs of 4 pixels */
       jz do_one_pixel_8_to_8_no_mmx
+#endif
 
       pushl %ecx
 
@@ -1708,18 +1717,14 @@ FUNC (_colorconv_blit_8_to_8)
          movb %ah, %cl
          shrl $16, %eax
          movb (%ebp, %ebx), %bl    /* lookup the new palette entries */
-         movb (%ebp, %ecx), %cl
-         shll $8, %edx
-         orl %edx, %ebx            /* combine them */
+         movb (%ebp, %ecx), %bh
          movl $0, %ecx
          movb %ah, %cl             /* repeat for the top 16 bits */
          andl $0xff, %eax
-         movb (%ebp, %ecx), %cl
          movb (%ebp, %eax), %al
-         shll $24, %ecx
+         movb (%ebp, %ecx), %ah
          shll $16, %eax
-         orl %ecx, %ebx            /* put everything together */
-         orl %ebx, %eax
+         orl %ebx, %eax            /* put everything together */
          movl %eax, -4(%edi)       /* write 4 pixels */
 
          decl %edx
@@ -1727,6 +1732,7 @@ FUNC (_colorconv_blit_8_to_8)
 
       popl %ecx
 
+#ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_8_no_mmx:
          movl MYLOCAL1, %edx
          andl $3, %edx
@@ -1740,7 +1746,7 @@ FUNC (_colorconv_blit_8_to_8)
          incl %edi
          incl %esi
          movb (%ebp, %eax), %al    /* lookup the new palette entry */
-         movb %al, -1(%edi)        /* write 1 pixels */
+         movb %al, -1(%edi)        /* write 1 pixel */
 
       do_two_pixels_8_to_8_no_mmx:
          shrl $1, %edx
@@ -1759,6 +1765,8 @@ FUNC (_colorconv_blit_8_to_8)
 
    _align_
    end_of_line_8_to_8_no_mmx:
+#endif
+
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
       decl %ecx
