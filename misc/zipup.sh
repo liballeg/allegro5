@@ -138,8 +138,7 @@ touch stamp-h.in
 # convert documentation from the ._tx source files
 echo "Converting documentation..."
 
-tr -d \\\r < docs/makedoc.c > _tmpdoc.c
-gcc _tmpdoc.c -o _makedoc.exe
+gcc -o _makedoc.exe docs/src/makedoc/*.c
 
 ./_makedoc.exe -ascii CHANGES docs/src/changes._tx
 ./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
@@ -148,7 +147,7 @@ for base in abi ahack allegro const faq help; do
    ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
 done
 
-rm _tmpdoc.c _makedoc.exe
+rm _makedoc.exe
 
 
 # create language.dat and keyboard.dat files
