@@ -23,7 +23,6 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Add backward playing to the DirectSound driver
-- Finish ALLEGRO_USE_C support for Mingw32 port.
 - Do not export functions and variables that are not a part of the API.
 
 Linux todos:

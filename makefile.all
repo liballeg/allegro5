@@ -11,7 +11,7 @@
 #        PGCC=1            use PGCC compiler switches (djgpp, RSXNT).
 #        PENTIUMONLY=1     make the library faster, but Pentium-only.
 #        CROSSCOMPILE=1    build djgpp or Mingw32 versions under Linux.
-#        ALLEGRO_USE_C=1   use C drawing code instead of asm (djgpp only).
+#        ALLEGRO_USE_C=1   use C drawing code instead of asm (djgpp, Mingw32).
 #
 #     Targets: 
 #        default:          build library version, docs, and programs.

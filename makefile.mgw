@@ -289,15 +289,9 @@ else
 
 # -------- link as a DLL --------
 
-ifdef FASTDLL
-  define MAKE_LIB
-    gcc $(LFLAGS) -shared -Wl,--out-implib,$(IMPLIB_NAME),--just-symbols,$(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
-  endef
-else
-  define MAKE_LIB
-    $(DLLWRAP) --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
-  endef
-endif
+define MAKE_LIB
+  $(DLLWRAP) --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
+endef
 
 endif # STATICLINK
 

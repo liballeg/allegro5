@@ -524,7 +524,9 @@ AL_FUNC(void, _x_clear_to_color, (BITMAP *bitmap, int color));
 
 
 /* asm helper for stretch_blit() */
+#ifndef SCAN_EXPORT
 AL_FUNC(void, _do_stretch, (BITMAP *source, BITMAP *dest, void *drawer, int sx, fixed sy, fixed syd, int dx, int dy, int dh, int color_depth));
+#endif
 
 
 /* number of fractional bits used by the polygon rasteriser */
@@ -636,7 +638,9 @@ AL_FUNC(void, _poly_scanline_ptex_trans8, (unsigned long addr, int w, POLYGON_SE
 AL_FUNC(void, _poly_scanline_atex_mask_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
+#ifndef SCAN_EXPORT
 AL_FUNC(void, _poly_scanline_grgb8x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+#endif
 
 AL_FUNC(void, _poly_zbuf_flat8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_gcol8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -670,6 +674,7 @@ AL_FUNC(void, _poly_scanline_ptex_trans15, (unsigned long addr, int w, POLYGON_S
 AL_FUNC(void, _poly_scanline_atex_mask_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
+#ifndef SCAN_EXPORT
 AL_FUNC(void, _poly_scanline_grgb15x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit15x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_lit15x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -678,6 +683,7 @@ AL_FUNC(void, _poly_scanline_ptex_mask_lit15x, (unsigned long addr, int w, POLYG
 
 AL_FUNC(void, _poly_scanline_ptex_lit15d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit15d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+#endif
 
 AL_FUNC(void, _poly_zbuf_grgb15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_atex_mask15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -705,6 +711,7 @@ AL_FUNC(void, _poly_scanline_ptex_trans16, (unsigned long addr, int w, POLYGON_S
 AL_FUNC(void, _poly_scanline_atex_mask_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
+#ifndef SCAN_EXPORT
 AL_FUNC(void, _poly_scanline_grgb16x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit16x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_lit16x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -713,6 +720,7 @@ AL_FUNC(void, _poly_scanline_ptex_mask_lit16x, (unsigned long addr, int w, POLYG
 
 AL_FUNC(void, _poly_scanline_ptex_lit16d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit16d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+#endif
 
 AL_FUNC(void, _poly_zbuf_flat16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_grgb16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -747,6 +755,7 @@ AL_FUNC(void, _poly_scanline_ptex_trans24, (unsigned long addr, int w, POLYGON_S
 AL_FUNC(void, _poly_scanline_atex_mask_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
+#ifndef SCAN_EXPORT
 AL_FUNC(void, _poly_scanline_grgb24x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit24x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_lit24x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -755,6 +764,7 @@ AL_FUNC(void, _poly_scanline_ptex_mask_lit24x, (unsigned long addr, int w, POLYG
 
 AL_FUNC(void, _poly_scanline_ptex_lit24d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit24d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+#endif
 
 AL_FUNC(void, _poly_zbuf_flat24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_grgb24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -789,6 +799,7 @@ AL_FUNC(void, _poly_scanline_ptex_trans32, (unsigned long addr, int w, POLYGON_S
 AL_FUNC(void, _poly_scanline_atex_mask_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
+#ifndef SCAN_EXPORT
 AL_FUNC(void, _poly_scanline_grgb32x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit32x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_lit32x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -797,6 +808,7 @@ AL_FUNC(void, _poly_scanline_ptex_mask_lit32x, (unsigned long addr, int w, POLYG
 
 AL_FUNC(void, _poly_scanline_ptex_lit32d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit32d, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+#endif
 
 AL_FUNC(void, _poly_zbuf_flat32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_grgb32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
