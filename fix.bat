@@ -86,7 +86,7 @@ if [%1] == [mingw32] goto done
 
 echo Converting Allegro files to DOS CR/LF format...
 utod .../*.bat .../*.sh .../*.c *.cfg .../*.h .../*.inc .../*.rc
-utod .../*.inl .../*.s .../*.txt .../*._tx makefile.*
+utod .../*.rh .../*.inl .../*.s .../*.txt .../*._tx makefile.*
 
 :done
 echo Done!
