@@ -20,11 +20,11 @@ OBJ_DIR = obj/djgpp/$(VERSION)
 LIB_NAME = lib/djgpp/lib$(VERSION).a
 
 ifdef CROSSCOMPILE
-  UNIX_TOOLS = 1
+   UNIX_TOOLS = 1
 endif
 
 ifneq (,$(findstring bash,$(SHELL)))
-  UNIX_TOOLS = 1
+   UNIX_TOOLS = 1
 endif
 
 
