@@ -15,21 +15,11 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef _ALLEGRO_ALUNIX_H
-#define _ALLEGRO_ALUNIX_H
 
 #ifndef ALLEGRO_UNIX
    #error bad include
 #endif
 
-
-
-/**************************************/
-/************ General Unix ************/
-/**************************************/
-
-#define ALLEGRO_CONSOLE_OK
-#define ALLEGRO_VRAM_SINGLE_SURFACE
 
 /* magic to capture name of executable file */
 extern int    __crt0_argc;
@@ -45,6 +35,11 @@ extern char **__crt0_argv;
    #define END_OF_MAIN() void *_mangled_main_address;
 #endif
 
+
+
+/**************************************/
+/************ General Unix ************/
+/**************************************/
 
 #ifdef HAVE_LIBPTHREAD
 
@@ -293,8 +288,3 @@ static INLINE unsigned long inportl(unsigned short port)
 
 
 #endif /* ALLEGRO_LINUX */
-
-
-
-#endif /* !_ALLEGRO_ALUNIX_H */
-

@@ -16,23 +16,20 @@
  */
 
 
-#ifndef ALUCFG_H
-#define ALUCFG_H
-
 #include <fcntl.h>
 #include <unistd.h>
 
 /* Describe this platform.  */
 #define ALLEGRO_PLATFORM_STR  "Unix"
-
 #define ALLEGRO_CONSOLE_OK
+#define ALLEGRO_VRAM_SINGLE_SURFACE
 
 #define ALLEGRO_EXTRA_HEADER "allegro/platform/alunix.h"
 #define ALLEGRO_INTERNAL_HEADER "allegro/platform/aintunix.h"
 
 #ifndef O_BINARY
-# define O_BINARY  0
-# define O_TEXT    0
+#define O_BINARY  0
+#define O_TEXT    0
 #endif
 
 /* These defines will be provided by configure script.  */
@@ -60,6 +57,3 @@
 #ifndef HAVE_MEMCMP
 #define ALLEGRO_NO_MEMCMP
 #endif
-
-#endif /* ifndef ALUCFG_H */
-
