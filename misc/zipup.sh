@@ -128,6 +128,14 @@ echo "Generating QNX dependencies..."
 
 make depend
 
+
+# generate dependencies for MacOS X
+echo "Generating MacOS X dependencies..."
+
+./fix.sh macosx --quick
+
+make depend
+
 unset UNIX_TOOLS
 
 
