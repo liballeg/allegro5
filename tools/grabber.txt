@@ -493,12 +493,14 @@ would import the first 96 characters from ascii.fnt as the range 0x20-0x7F,
 the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire 
 contents of dingbats.fnt starting at Unicode position 0x1000.
 
-When reading a font from a bitmap file the size of each character is 
+When reading a font from a bitmap file, the size of each character is 
 determined by the layout of the image, which should be a rectangular grid 
-containing all the ASCII characters from space (32) up to the tilde (126). 
-The spaces between each letter should be filled with color 255. If each 
-character is sized exactly 8x8 or 8x16 the grabber will create a fixed size 
-font, otherwise it will make a proportional font. Probably the easiest way 
+containing all the ASCII characters from space (32) up to the tilde (126), 
+unless you are using the script mechanism described above, in which case the 
+range(s) should match the one(s) specified in the .txt file. The spaces 
+between each letter should be filled with color 255. If each character is 
+sized exactly 8x8 or 8x16 the grabber will create a fixed size font, 
+otherwise it will make a proportional font. Probably the easiest way 
 to get to grips with how this works is to load up the demo.dat file and 
 export the TITLE_FONT into a PCX file. Have a look at the resulting picture 
 in your paint program: that is the format a font should be in...
