@@ -105,7 +105,6 @@ ALLEGRO_ACTEST_GCC_VERSION
 ALLEGRO_ACTEST_GCC_PIPE
 AC_PROG_CPP
 ALLEGRO_ACTEST_PROG_LD_S
-ALLEGRO_ACTEST_AR_SUPPORT
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
@@ -216,15 +215,6 @@ AC_SUBST(ALLEGRO_DEBUG_CFLAGS)
 AC_SUBST(ALLEGRO_PROFILE_CFLAGS)
 AC_SUBST(ALLEGRO_SFLAGS)
 AC_SUBST(ALLEGRO_SHAREDLIB_CFLAGS)
-
-dnl How to make the library archive
-if test "X$allegro_cv_support_ar" = "Xyes"; then
-  AR="ar rvs"
-else
-  AR="\$(LD) -r -keep_private_externs -o"
-fi
-
-AC_SUBST(AR)
 
 dnl Which version of library to link with (shared/debugging/profiling/normal)?
 if test "X$allegro_build_debugging_programs" = "Xyes"; then
@@ -507,11 +497,17 @@ case "$allegro_system" in
 *darwin*)
   AC_DEFINE(ALLEGRO_DARWIN)
   LIBS="-lcc_dynamic $LIBS"
+  AR="\$(LD) -r -keep_private_externs -o"
+  ;;
+
+*)
+  AR="ar rvs"
   ;;
 
 esac
 
 AC_SUBST(LIBS)
+AC_SUBST(AR)
 
 dnl Headers, features, functions and macros.
 AC_HEADER_STDC
