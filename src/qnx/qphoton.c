@@ -12,6 +12,8 @@
  *
  *      By Angelo Mottola.
  *
+ *      Dirty rectangles mechanism by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -24,6 +26,8 @@
 #error Something is wrong with the makefile
 #endif
 
+#include <pthread.h>
+
 
 static struct BITMAP *qnx_ph_init(int, int, int, int, int);
 static void qnx_ph_exit(struct BITMAP *);
@@ -32,44 +36,6 @@ static void qnx_phd_exit(struct BITMAP *);
 static void qnx_ph_vsync(void);
 static void qnx_ph_set_palette(AL_CONST struct RGB *, int, int, int);
 static GFX_MODE_LIST *qnx_fetch_mode_list(void);
-
-
-GFX_DRIVER gfx_photon =
-{
-   GFX_PHOTON,
-   empty_string, 
-   empty_string,
-   "Photon", 
-   qnx_ph_init,                  /* AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth)); */
-   qnx_ph_exit,                  /* AL_METHOD(void, exit, (struct BITMAP *b)); */
-   NULL,                         /* AL_METHOD(int, scroll, (int x, int y)); */
-   qnx_ph_vsync,                 /* AL_METHOD(void, vsync, (void)); */
-   qnx_ph_set_palette,           /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
-   NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
-   NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
-   NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
-   NULL,                         /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
-   NULL,                         /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height)); */
-   NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus)); */
-   NULL,                         /* AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y)); */
-   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
-   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
-   NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
-   NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
-   NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
-   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
-   0, 0,                         /* physical (not virtual!) screen size */
-   TRUE,                         /* true if video memory is linear */
-   0,                            /* bank size, in bytes */
-   0,                            /* bank granularity, in bytes */
-   0,                            /* video memory size, in bytes */
-   0,                            /* physical address of video memory */
-   TRUE
-};
 
 
 GFX_DRIVER gfx_photon_direct =
@@ -110,6 +76,44 @@ GFX_DRIVER gfx_photon_direct =
 };
 
 
+GFX_DRIVER gfx_photon =
+{
+   GFX_PHOTON,
+   empty_string, 
+   empty_string,
+   "Photon", 
+   qnx_ph_init,                  /* AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth)); */
+   qnx_ph_exit,                  /* AL_METHOD(void, exit, (struct BITMAP *b)); */
+   NULL,                         /* AL_METHOD(int, scroll, (int x, int y)); */
+   qnx_ph_vsync,                 /* AL_METHOD(void, vsync, (void)); */
+   qnx_ph_set_palette,           /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
+   NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
+   NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus)); */
+   NULL,                         /* AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y)); */
+   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
+   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
+   NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
+   NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
+   NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
+   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
+   0, 0,                         /* physical (not virtual!) screen size */
+   TRUE,                         /* true if video memory is linear */
+   0,                            /* bank size, in bytes */
+   0,                            /* bank granularity, in bytes */
+   0,                            /* video memory size, in bytes */
+   0,                            /* physical address of video memory */
+   TRUE
+};
+
+
 /* global variables */
 int ph_gfx_mode = PH_GFX_NONE;
 void (*ph_update_window)(PhRect_t* rect) = NULL;
@@ -118,11 +122,12 @@ PgColor_t ph_palette[256];
 
 /* exported only for qswitch.s */
 char *ph_dirty_lines = NULL;
-int ph_window_w = 0;
-int ph_window_h = 0;
 
 static PdDirectContext_t *ph_direct_context = NULL;
 static PdOffscreenContext_t *ph_screen_context = NULL;
+
+static pthread_mutex_t ph_screen_lock;
+static int lock_nesting = 0;
 
 static char driver_desc[256];
 static PgDisplaySettings_t original_settings;
@@ -134,29 +139,30 @@ static char *window_addr = NULL;
 static int window_pitch;
 static int desktop_depth;
 
+#define RENDER_DELAY (1000/70)  /* 70 Hz */
+static void update_dirty_lines(void);
+
+static void phd_acquire(struct BITMAP *bmp);
+static void phd_release(struct BITMAP *bmp);
+static void ph_acquire(struct BITMAP *bmp);
+static void ph_release(struct BITMAP *bmp);
+
 
 #ifdef ALLEGRO_NO_ASM
 
-static inline void update_dirty_lines();
-static unsigned long phd_write_line(BITMAP *bmp, int line);
-static void phd_unwrite_line(BITMAP *bmp);
-static void phd_acquire(BITMAP *bmp);
-static void phd_release(BITMAP *bmp);
-static unsigned long ph_write_line(BITMAP *bmp, int line);
-static void ph_unwrite_line(BITMAP *bmp);
-static void ph_acquire(BITMAP *bmp);
-static void ph_release(BITMAP *bmp);
+static unsigned long phd_write_line(struct BITMAP *bmp, int line);
+static void phd_unwrite_line(struct BITMAP *bmp);
+static unsigned long ph_write_line(struct BITMAP *bmp, int line);
+static void ph_unwrite_line(struct BITMAP *bmp);
 
 #else
 
-unsigned long phd_write_line_asm(BITMAP *bmp, int line);
-void phd_unwrite_line_asm(BITMAP *bmp);
-void phd_acquire_asm(BITMAP *bmp);
-void phd_release_asm(BITMAP *bmp);
-unsigned long ph_write_line_asm(BITMAP *bmp, int line);
-void ph_unwrite_line_asm(BITMAP *bmp);
-void ph_acquire_asm(BITMAP *bmp);
-void ph_release_asm(BITMAP *bmp);
+void (*ptr_ph_acquire)(struct BITMAP *) = &ph_acquire;
+void (*ptr_ph_release)(struct BITMAP *) = &ph_release;
+unsigned long phd_write_line_asm(struct BITMAP *bmp, int line);
+void phd_unwrite_line_asm(struct BITMAP *bmp);
+unsigned long ph_write_line_asm(struct BITMAP *bmp, int line);
+void ph_unwrite_line_asm(struct BITMAP *bmp);
 
 #endif
 
@@ -306,8 +312,8 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       return NULL;
    }
 
-   dim.w = ph_window_w = w;
-   dim.h = ph_window_h = h;
+   dim.w = gfx_photon_direct.w = w;
+   dim.h = gfx_photon_direct.h = h;
    PtSetArg(&arg, Pt_ARG_DIM, &dim, 0);
    PtSetResources(ph_window, 1, &arg);
    
@@ -370,14 +376,13 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
 #ifdef ALLEGRO_NO_ASM
    bmp->write_bank = phd_write_line;
    bmp->read_bank = phd_write_line;
-   _screen_vtable.acquire = phd_acquire;
-   _screen_vtable.release = phd_release;
 #else
    bmp->write_bank = phd_write_line_asm;
    bmp->read_bank = phd_write_line_asm;
-   _screen_vtable.acquire = phd_acquire_asm;
-   _screen_vtable.release = phd_release_asm;
 #endif
+
+   _screen_vtable.acquire = phd_acquire;
+   _screen_vtable.release = phd_release; 
 
    drv->w = bmp->cr = w;
    drv->h = bmp->cb = h;
@@ -455,23 +460,6 @@ static void qnx_phd_exit(struct BITMAP *bmp)
 
 
 
-#ifdef ALLEGRO_NO_ASM
-
-
-/* phd_write_line:
- *  Line switcher for Photon direct mode.
- */
-static unsigned long phd_write_line(BITMAP *bmp, int line)
-{
-   if (!(bmp->id & BMP_ID_LOCKED)) {
-      bmp->id |= BMP_ID_LOCKED;
-      PgWaitHWIdle();
-   }
-   return (unsigned long)(bmp->line[line]);
-}
-
-
-
 /* phd_acquire:
  *  Bitmap locking for direct mode.
  */
@@ -491,6 +479,23 @@ static void phd_acquire(BITMAP *bmp)
 static void phd_release(BITMAP *bmp)
 {
    bmp->id &= ~BMP_ID_LOCKED;
+}
+
+
+
+#ifdef ALLEGRO_NO_ASM
+
+
+/* phd_write_line:
+ *  Line switcher for Photon direct mode.
+ */
+static unsigned long phd_write_line(BITMAP *bmp, int line)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      bmp->id |= BMP_ID_LOCKED;
+      PgWaitHWIdle();
+   }
+   return (unsigned long)(bmp->line[line]);
 }
 
 
@@ -547,8 +552,8 @@ static void update_window_hw(PhRect_t *rect)
    if (!rect) {
       temp.ul.x = 0;
       temp.ul.y = 0;
-      temp.lr.x = ph_window_w;
-      temp.lr.y = ph_window_h;
+      temp.lr.x = gfx_photon.w;
+      temp.lr.y = gfx_photon.h;
       rect = &temp;
    }
    pthread_mutex_lock(qnx_gfx_mutex);
@@ -569,8 +574,8 @@ static void update_window(PhRect_t *rect)
    if (!rect) {
       temp.ul.x = 0;
       temp.ul.y = 0;
-      temp.lr.x = ph_window_w;
-      temp.lr.y = ph_window_h;
+      temp.lr.x = gfx_photon.w;
+      temp.lr.y = gfx_photon.h;
       rect = &temp;
    }
 
@@ -649,8 +654,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
       
    PgGetVideoModeInfo(settings.mode, &mode_info);
 
-   dim.w = ph_window_w = w;
-   dim.h = ph_window_h = h;
+   dim.w = gfx_photon.w = w;
+   dim.h = gfx_photon.h = h;
    PtSetArg(&arg, Pt_ARG_DIM, &dim, 0);
    PtSetResources(ph_window, 1, &arg);
 
@@ -698,28 +703,28 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    }
 
    bmp = _make_bitmap(w, h, (unsigned long)addr, drv, color_depth, pitch);
-   ph_dirty_lines = (char *)calloc(h + 1, sizeof(char));
+   ph_dirty_lines = (char *)calloc(h, sizeof(char));
    
    if ((!bmp) || (!ph_dirty_lines)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
 
-   ph_dirty_lines[h] = 0;
+   pthread_mutex_init(&ph_screen_lock, NULL);
+
    drv->w = bmp->cr = w;
    drv->h = bmp->cb = h;
 
 #ifdef ALLEGRO_NO_ASM
    bmp->write_bank = ph_write_line;
    _screen_vtable.unwrite_bank = ph_unwrite_line;
-   _screen_vtable.acquire = ph_acquire;
-   _screen_vtable.release = ph_release;
 #else
    bmp->write_bank = ph_write_line_asm;
    _screen_vtable.unwrite_bank = ph_unwrite_line_asm;
-   _screen_vtable.acquire = ph_acquire_asm;
-   _screen_vtable.release = ph_release_asm;
 #endif
+
+   _screen_vtable.acquire = ph_acquire;
+   _screen_vtable.release = ph_release;
 
    setup_direct_shifts();
    uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Photon windowed, %d bpp %s", tmp1), color_depth,
@@ -728,6 +733,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 
    PgFlush();
    PgWaitHWIdle();
+
+   install_int(update_dirty_lines, RENDER_DELAY);
 
    return bmp;
 }
@@ -740,6 +747,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 static void qnx_private_ph_exit(void)
 {
    PhDim_t dim;
+   
+   remove_int(update_dirty_lines);
    
    PgSetPalette(ph_palette, 0, 0, -1, 0, 0);
    PgFlush();
@@ -754,6 +763,7 @@ static void qnx_private_ph_exit(void)
       free(ph_dirty_lines);
    ph_dirty_lines = NULL;
    blitter = NULL;
+   pthread_mutex_destroy(&ph_screen_lock);
    dim.w = 1;
    dim.h = 1;
    PtSetResource(ph_window, Pt_ARG_DIM, &dim, 0);
@@ -771,9 +781,9 @@ static struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_dept
    pthread_mutex_lock(&qnx_events_mutex);
    bmp = qnx_private_ph_init(&gfx_photon, w, h, v_w, v_h, color_depth);
    ph_gfx_mode = PH_GFX_WINDOW;
-   if (!bmp) {
+   if (!bmp)
       qnx_private_ph_exit();
-   }
+      
    pthread_mutex_unlock(&qnx_events_mutex);
 
    return bmp;
@@ -793,35 +803,86 @@ static void qnx_ph_exit(struct BITMAP *b)
 
 
 
-#ifdef ALLEGRO_NO_ASM
-
-
 /* update_dirty_lines:
  *  Dirty line updater routine.
  */
-static inline void update_dirty_lines(void)
+static void update_dirty_lines(void)
 {
    PhRect_t rect;
-   int i = 0;
+   
+   /* to prevent the drawing threads and the rendering proc
+      from concurrently accessing the dirty lines array */
+   pthread_mutex_lock(&ph_screen_lock);
+   
+   /* pseudo dirty rectangles mechanism:
+    *  at most only one PgFlush() call is performed for each frame.
+    */
 
    rect.ul.x = 0;
-   rect.lr.x = ph_window_w;
-   do {
-      if (ph_dirty_lines[i]) {
-         rect.ul.y = i;
-         while (ph_dirty_lines[i]) {
-            ph_dirty_lines[i] = 0;
-            i++;
-         }
-         rect.lr.y = i;
-         ph_update_window(&rect);
-      }      
-      i++;
-   } while (i < ph_window_h);
+   rect.lr.x = gfx_photon.w;
+
+   /* find the first dirty line */
+   rect.ul.y = 0;
+
+   while (!ph_dirty_lines[rect.ul.y])
+      rect.ul.y++;
+
+   if (rect.ul.y < gfx_photon.h) {
+      /* find the last dirty line */
+      rect.lr.y = gfx_photon.h;
+
+      while (!ph_dirty_lines[rect.lr.y-1])
+         rect.lr.y--;
+
+      ph_update_window(&rect);
    
-   PgFlush();
+      PgFlush();
+      
+      /* clean up the dirty lines */
+      while (rect.ul.y < rect.lr.y)
+         ph_dirty_lines[rect.ul.y++] = 0;
+   }
+   
+   pthread_mutex_unlock(&ph_screen_lock);
 }
 
+
+
+/* ph_acquire:
+ *  Bitmap locking for windowed mode.
+ */
+static void ph_acquire(struct BITMAP *bmp)
+{
+   PgWaitHWIdle();
+   
+   /* to prevent the drawing threads and the rendering proc
+      from concurrently accessing the dirty lines array */
+   pthread_mutex_lock(&ph_screen_lock);
+
+   lock_nesting++;
+   bmp->id |= BMP_ID_LOCKED;
+}
+
+ 
+
+/* ph_release:
+ *  Bitmap unlocking for windowed mode.
+ */
+static void ph_release(struct BITMAP *bmp)
+{
+   if (lock_nesting > 0) {
+      lock_nesting--;
+
+      if (!lock_nesting)
+         bmp->id &= ~BMP_ID_LOCKED;
+
+      pthread_mutex_unlock(&ph_screen_lock);
+   }
+}
+
+
+
+#ifdef ALLEGRO_NO_ASM
 
 
 /* ph_write_line:
@@ -830,10 +891,12 @@ static inline void update_dirty_lines(void)
 static unsigned long ph_write_line(BITMAP *bmp, int line)
 {
    ph_dirty_lines[line + bmp->y_ofs] = 1;
+   
    if (!(bmp->id & BMP_ID_LOCKED)) {
-      bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
-      PgWaitHWIdle();
+      ph_acquire(bmp);   
+      bmp->id |= BMP_ID_AUTOLOCK;
    }
+
    return (unsigned long)(bmp->line[line]);
 }
 
@@ -845,34 +908,8 @@ static unsigned long ph_write_line(BITMAP *bmp, int line)
 static void ph_unwrite_line(BITMAP *bmp)
 {
    if (bmp->id & BMP_ID_AUTOLOCK) {
-      bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
-      update_dirty_lines();
-   }
-}
-
-
-
-/* ph_acquire:
- *  Bitmap locking for windowed mode.
- */
-static void ph_acquire(BITMAP *bmp)
-{
-   if (!(bmp->id & BMP_ID_LOCKED)) {
-      bmp->id |= BMP_ID_LOCKED;
-      PgWaitHWIdle();
-   }
-}
-
-
-
-/* ph_release:
- *  Bitmap unlocking for windowed mode.
- */
-static void ph_release(BITMAP *bmp)
-{
-   if (bmp->id & BMP_ID_LOCKED) {
-      bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
-      update_dirty_lines();
+      ph_release(bmp);
+      bmp->id &= ~BMP_ID_AUTOLOCK;
    }
 }
 
