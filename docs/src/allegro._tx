@@ -5532,8 +5532,10 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref create_blender_table, set_trans_blender, draw_trans_sprite
 @xref draw_lit_sprite, draw_gouraud_sprite, drawing_mode
 @eref ex3d, excolmap, exlights, exshade, extrans
-   Global pointer to the color mapping table. This must be set before using 
-   any translucent or lit drawing functions in a 256-color video mode!
+   Global pointer to the color mapping table. You must allocate your own
+   COLOR_MAP either statically or dynamically and set color_map to it 
+   before using any translucent or lit drawing functions in a 256-color 
+   video mode!
 
 @\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
