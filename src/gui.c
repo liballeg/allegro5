@@ -1045,7 +1045,7 @@ int update_dialog(DIALOG_PLAYER *player)
          player->mouse_b = new_mouse_b;
       }
       else
-	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
+	 player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
    }
 
    /* need to reinstall the dclick and switch handlers? */
@@ -1069,7 +1069,7 @@ int update_dialog(DIALOG_PLAYER *player)
 
       /* waiting... */
       if ((dclick_status != DCLICK_AGAIN) && (dclick_status != DCLICK_NOT)) {
-	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
+	 player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
 	 check_for_redraw(player);
 	 return TRUE;
       }
