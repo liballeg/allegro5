@@ -3547,12 +3547,26 @@ bitmap.
    destination bitmaps to be of different color depths, so it can be used to 
    convert images from one pixel format to another.
 
+@\void @stretch_blit(BITMAP *source, BITMAP *dest,
+@\                  int source_x, source_y, source_width, source_height,
+@@                  int dest_x, dest_y, dest_width, dest_height);
+@xref blit, masked_stretch_blit, stretch_sprite
+   Like blit(), except it can scale images (so the source and destination 
+   rectangles don't need to be the same size) and requires the source and 
+   destination bitmaps to be of the same color depth. This routine doesn't 
+   do as much safety checking as the regular blit(): in particular you must 
+   take care not to copy from areas outside the source bitmap, and you 
+   cannot blit between overlapping regions, ie. you must use different 
+   bitmaps for the source and the destination. Moreover, the source must 
+   be a memory bitmap.
+
 @\void @masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@                  int dest_x, int dest_y, int width, int height);
 @xref blit, masked_stretch_blit, draw_sprite, bitmap_mask_color
    Like blit(), but skips transparent pixels, which are marked by a zero in 
    256 color modes or bright pink for truecolor data (maximum red and blue, 
-   zero green). The source and destination regions must not overlap.
+   zero green), and requires the source and destination bitmaps to be of 
+   the same color depth. The source and destination regions must not overlap.
 
    If the GFX_HW_VRAM_BLIT_MASKED bit in the gfx_capabilities flag is set, 
    the current driver supports hardware accelerated masked blits from one 
@@ -3561,29 +3575,18 @@ bitmap.
    sprites in an offscreen portion of the video memory.
 
    Warning: if the hardware acceleration flag is not set, masked_blit() will 
-   not work correctly when used with a video memory source image, and the 
-   input graphic must always be a memory bitmap!
-
-@\void @stretch_blit(BITMAP *source, BITMAP *dest,
-@\                  int source_x, source_y, source_width, source_height,
-@@                  int dest_x, dest_y, dest_width, dest_height);
-@xref blit, masked_stretch_blit, stretch_sprite
-   Like blit(), except it can scale images so the source and destination 
-   rectangles don't need to be the same size. This routine doesn't do as 
-   much safety checking as the regular blit: in particular you must take 
-   care not to copy from areas outside the source bitmap, and you cannot 
-   blit between overlapping regions, ie. you must use different bitmaps for 
-   the source and the destination. Also, the source must be a memory bitmap 
-   or sub-bitmap, not the hardware screen.
+   not work correctly when used with a source image in system or video 
+   memory so the latter must be a memory bitmap.
 
 @\void @masked_stretch_blit(BITMAP *source, BITMAP *dest,
 @\                         int source_x, source_y, source_w, source_h,
 @@                         int dest_x, dest_y, dest_w, dest_h);
 @xref blit, masked_blit, stretch_blit, stretch_sprite
-   Like stretch_blit(), but skips transparent pixels, which are marked by a 
-   zero in 256 color modes or bright pink for truecolor data (maximum red 
-   and blue, zero green). The source and destination regions must not 
-   overlap.
+   Like masked_blit(), except it can scale images (so the source and 
+   destination rectangles don't need to be the same size). This routine 
+   doesn't do as much safety checking as the regular masked_blit(): in 
+   particular you must take care not to copy from areas outside the source 
+   bitmap. Moreover, the source must be a memory bitmap.
 
 @@void @draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite_v_flip, draw_trans_sprite, draw_lit_sprite
@@ -3606,13 +3609,20 @@ bitmap.
    memory.
 
    Warning: if the hardware acceleration flag is not set, draw_sprite() will 
-   not work correctly when used with a video memory source image, and the 
-   input graphic must always be a memory bitmap!
+   not work correctly when used with a sprite image in system or video 
+   memory so the latter must be a memory bitmap.
 
    Although generally not supporting graphics of mixed color depths, as a 
    special case this function can be used to draw 256 color source images 
    onto truecolor destination bitmaps, so you can use palette effects on 
    specific sprites within a truecolor program.
+
+@@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
+@xref draw_sprite, stretch_blit, bitmap_mask_color
+   Like draw_sprite(), except it can stretch the sprite image to the 
+   specified width and height and requires the sprite image and destination 
+   bitmap to be of the same color depth. Moreover, the sprite image must 
+   be a memory bitmap.
 
 @@void @draw_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @@void @draw_sprite_h_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
@@ -3732,14 +3742,6 @@ bitmap.
    Like rotate_scaled_sprite_v_flip(), but aligns the point in the sprite
    given by (cx, cy) to (x, y) in the bitmap, then rotates and scales around
    this point.
-
-@@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
-@xref draw_sprite, stretch_blit, bitmap_mask_color
-   Draws the sprite image onto the bitmap at the specified position, 
-   stretching it to the specified width and height. The difference between 
-   stretch_sprite() and stretch_blit() is that stretch_sprite() masks out 
-   transparent pixels, which are marked by a zero in 256 color modes or 
-   bright pink for truecolor data (maximum red and blue, zero green).
 
 
 
