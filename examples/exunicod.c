@@ -18,8 +18,15 @@
 
 #define DATAFILE_NAME   "unifont.dat"
 
-#define NLANGUAGES 10
+#define NLANGUAGES 12
 
+
+/* Animation timer. */
+volatile int ticks = 0;
+void ticker(void)
+{
+    ticks++;
+}
 
 #if defined ALLEGRO_LITTLE_ENDIAN
 
@@ -40,9 +47,13 @@ char message_he[] = "\x20\x00\xDC\x05\xD0\x05\x20\x00\xDD\x05\xD9\x05\xD0\x05\xD
 
 char message_ja[] = "\x78\x30\x88\x30\x46\x30\x53\x30\x5d\x30\x00\x00";
 
+char message_ka[] = "\x20\x00\xa8\x0C\xbf\x0C\xae\x0C\x97\x0C\xc6\x0C\x20\x00\xb8\x0C\xc1\x0C\xb8\x0C\xcd\x0C\xb5\x0C\xbe\x0C\x97\x0C\xa4\x0C";
+
 char message_ta[] = "\x20\x00\x89\x0B\x99\x0B\x82\x0B\x95\x0B\xC8\x0B\xB3\x0B\x20\x00\xB5\x0B\xB0\x0B\xC7\x0B\xB5\x0B\xB1\x0B\x82\x0B\x95\x0B\xBF\x0B\xB1\x0B\xA5\x0B\x00\x00";
-                                                          
+
 char message_zh[] = "\x22\x6b\xCE\x8F\x7F\x4f\x28\x75\x20\x00\x00\x00";
+
+char message_de[] = "\x57\x00\x69\x00\x6c\x00\x6c\x00\x6b\x00\x6f\x00\x6d\x00\x6d\x00\x65\x00\x6e\x00\x20\x00\x62\x00\x65\x00\x69\x00\x20\x00\x00\x00";
 
 char allegro_str[] = "\x41\x00\x6c\x00\x6c\x00\x65\x00\x67\x00\x72\x00\x6f\x00\x00\x00";
 
@@ -65,9 +76,13 @@ char message_he[] = "\x00\x20\x05\xDC\x05\xD0\x00\x20\x05\xDD\x05\xD9\x05\xD0\x0
 
 char message_ja[] = "\x30\x78\x30\x88\x30\x46\x30\x53\x30\x5d\x00\x00";
 
+char message_ka[] = "\x20\x00\x0C\xa8\x0C\xbf\x0C\xae\x0C\x97\x0C\xc6\x20\x00\x0C\xb8\x0C\xc1\x0C\xb8\x0C\xcd\x0C\xb5\x0C\xbe\x0C\x97\xa4\x0C";
+
 char message_ta[] = "\x00\x20\x0B\x89\x0B\x99\x0B\x82\x0B\x95\x0B\xC8\x0B\xB3\x00\x20\x0B\xB5\x0B\xB0\x0B\xC7\x0B\xB5\x0B\xB1\x0B\x82\x0B\x95\x0B\xBF\x0B\xB1\x0B\xA5\x00\x00";
 
 char message_zh[] = "\x6b\x22\x8F\xCE\x4f\x7F\x75\x28\x00\x20\x00\x00";
+
+char message_de[] = "\x00\x57\x00\x69\x00\x6c\x00\x6c\x00\x6b\x00\x6f\x00\x6d\x00\x6d\x00\x65\x00\x6e\x00\x20\x00\x62\x00\x65\x00\x69\x00\x20\x00\x00";
 
 char allegro_str[] = "\x00\x41\x00\x6c\x00\x6c\x00\x65\x00\x67\x00\x72\x00\x6f\x00\x00";
 
@@ -77,33 +92,48 @@ char allegro_str[] = "\x00\x41\x00\x6c\x00\x6c\x00\x65\x00\x67\x00\x72\x00\x6f\x
 
 
 struct MESSAGE {
-   char *data;
-   int right_to_left;
+   char *data, *str;
+   int prefix_allegro;
+   int dx, dy;
+   int x, y, w, h;
+   int c;
 };
 
 
-struct MESSAGE message[] = { {message_en, FALSE},
-                             {message_fr, FALSE},
-                             {message_es, FALSE},
-                             {message_it, FALSE},
-                             {message_el, FALSE},
-                             {message_ru, FALSE},
-                             {message_he, TRUE},
-                             {message_ja, TRUE},
-                             {message_ta, TRUE},
-                             {message_zh, FALSE} };
+struct MESSAGE message[] = { {message_en, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_fr, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_es, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_it, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_el, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_ru, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_he, NULL, TRUE,   1,  0, 0, 0, 0, 0, 0},
+                             {message_ja, NULL, TRUE,  -1,  0, 0, 0, 0, 0, 0},
+                             {message_ka, NULL, TRUE,  -1,  0, 0, 0, 0, 0, 0},
+                             {message_ta, NULL, TRUE,  -1,  0, 0, 0, 0, 0, 0},
+                             {message_zh, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0},
+                             {message_de, NULL, FALSE, -1,  0, 0, 0, 0, 0, 0}
+};
 
-int speed[] = {1, 2, 4, 3, 2, 3, 2, 4, 5, 3};
+
+static int overlap(int i, int j, int pad)
+{
+   return message[i].x - pad < message[j].x + message[j].w + pad &&
+      message[j].x - pad < message[i].x + message[i].w + pad &&
+      message[i].y - pad < message[j].y + message[j].h + pad &&
+      message[j].y - pad < message[i].y + message[i].h + pad;
+}
 
 
 int main(int argc, char *argv[])
 {
    DATAFILE *data;
    FONT *f;
-   BITMAP *mesg_bmp[NLANGUAGES];
-   int length[NLANGUAGES], pos[NLANGUAGES];
-   int i, nmesgs, height, hpad, delta;
-   char *mesg, buf[256], tmp[256], tmp2[256];
+   BITMAP *buffer;
+   int i, j, k, height;
+   char buf[256], tmp[256], tmp2[256];
+   int counter = 0, drawn = 0;
+   int scroll_w, scroll_h;
+   int background_color;
 
    /* set the text encoding format BEFORE initializing the library */
    set_uformat(U_UNICODE);
@@ -112,6 +142,7 @@ int main(int argc, char *argv[])
     *  from any Allegro API call must be in 16-bit Unicode format
     */
 
+   srand(time(NULL));
    if (allegro_init() != 0)
       return 1;
    install_keyboard();
@@ -137,61 +168,103 @@ int main(int argc, char *argv[])
    /* set the window title for windowed modes */
    set_window_title(uconvert_ascii("Unicode example program", tmp));
 
-   clear_to_color(screen, makecol(255, 255, 255));
+   /* create a buffer for drawing */
+   buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
    /* get a handle to the Unicode font */
    f = data[0].dat;
-   height = text_height(f) + 8;
+   height = text_height(f);
 
-   /* find the number of actually displayed messages */
-   nmesgs = MIN(SCREEN_H/height, NLANGUAGES);
-   hpad = (SCREEN_H - nmesgs*height)/(nmesgs+1);
+   /* The are for the text messages. If it gets too crowded once we have more
+    * languages, this can be increased.
+    */
+   scroll_w = SCREEN_W * 2;
+   scroll_h = SCREEN_H + height;
 
-   /* prepare the bitmaps */
-   for (i=0; i<nmesgs; i++) {
+   /* one of the bright colors in the default palette */
+   background_color = 56 + AL_RAND() % 48;
+
+   /* prepare the messages */
+   for (i = 0; i < NLANGUAGES; i++) {
 
       /* the regular Standard C string manipulation functions don't work
        * with 16-bit Unicode, so we use the Allegro Unicode API
        */
-      mesg = malloc(ustrsize(message[i].data) + ustrsizez(allegro_str));
+      message[i].str = malloc(ustrsize(message[i].data) + ustrsizez(allegro_str));
 
-      if (message[i].right_to_left) {
-         ustrcpy(mesg, allegro_str);
-         ustrcat(mesg, message[i].data);
+      if (message[i].prefix_allegro) {
+         ustrcpy(message[i].str, allegro_str);
+         ustrcat(message[i].str, message[i].data);
       }
       else {
-         ustrcpy(mesg, message[i].data);
-         ustrcat(mesg, allegro_str);
+         ustrcpy(message[i].str, message[i].data);
+         ustrcat(message[i].str, allegro_str);
       }
 
-      length[i] = text_length(f, mesg) + 8;
-      pos[i] = ((float)AL_RAND()/RAND_MAX) * SCREEN_W;
-      mesg_bmp[i] = create_system_bitmap(length[i], height);
-      clear_to_color(mesg_bmp[i], makecol(255, 255, 255));
-      textout_ex(mesg_bmp[i], f, mesg, 8, 1, makecol(0, 0, 0), -1);
+      message[i].w = text_length(f, message[i].str);
+      message[i].h = text_height(f);
 
-      free(mesg);
+      /* one of the dark colors in the default palette */
+      message[i].c = 104 + AL_RAND() % 144;
+
+      message[i].dx *= 1 + AL_RAND() % 4;
+      message[i].dy = AL_RAND() % 3 - 1;
+
+      /* find not-overlapped position, try 1000 times */
+      for (k = 0; k < 1000; k++) {
+         message[i].x = AL_RAND() % scroll_w;
+         /* make sure the message is not sliced by a screen edge */
+         message[i].y = 10 + AL_RAND() % (SCREEN_H - height - 20);
+         for (j = 0; j < i; j++) {
+            if (overlap(i, j, 10))
+               break;
+         }
+         if (j == i)
+            break;
+      }
    }
 
+   install_int_ex(ticker, BPS_TO_TIMER(30));
    /* do the scrolling */
    while (!keypressed()) {
-      for (i=0; i<nmesgs; i++) {
-         blit(mesg_bmp[i], screen, 0, 0, pos[i], hpad + i*(height+hpad), length[i], height);
-         delta = pos[i] + length[i] - SCREEN_W;
-         if (delta > 0)
-            blit(mesg_bmp[i], screen, length[i] - delta, 0, 0, hpad + i*(height+hpad), delta, height);
-
-         pos[i] += speed[i];
-         if (pos[i] >= SCREEN_W)
-            pos[i] -= SCREEN_W;
+      /* Animation. */
+      while (counter <= ticks) {
+         for (i = 0; i < NLANGUAGES; i++) {
+            message[i].x += message[i].dx;
+            if (message[i].x >= scroll_w)
+               message[i].x -= scroll_w;
+            if (message[i].x < 0)
+               message[i].x += scroll_w;
+            message[i].y += message[i].dy;
+            if (message[i].y >= scroll_h)
+               message[i].y -= scroll_h;
+            if (message[i].y < 0)
+               message[i].y += scroll_h;
+         }
+         counter++;
       }
 
-      rest(33);
+      /* Draw current frame. */
+      if (drawn < counter) {
+         clear_to_color(buffer, background_color);
+         for (i = 0; i < NLANGUAGES; i++) {
+            char *str = message[i].str;
+            int x = message[i].x;
+            int y = message[i].y;
+            int c = message[i].c;
+            /* draw it 4 times to get the wrap-around effect */
+            textout_ex(buffer, f, str, x, y, c, -1);
+            textout_ex(buffer, f, str, x - scroll_w, y, c, -1);
+            textout_ex(buffer, f, str, x, y - scroll_h, c, -1);
+            textout_ex(buffer, f, str, x - scroll_w, y - scroll_h, c, -1);
+         }
+         blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+         drawn = counter;
+      }
+      else {
+         rest(10); /* We are too fast, give time to the OS. */
+      }
    }
-
-   /* free allocated resources */
-   for (i=0; i<nmesgs; i++)
-      destroy_bitmap(mesg_bmp[i]);
 
    unload_datafile(data);
 
