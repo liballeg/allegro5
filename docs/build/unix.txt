@@ -13,7 +13,7 @@
 
 	 See readme.txt for a more general overview.
 
-      Also see readme.lnx for Linux-specific information.
+      Also see linux.txt for Linux-specific information.
 
 
 
@@ -24,7 +24,7 @@
    On Linux you have two different system drivers -- one for running using 
    X, and one for running without X. This file describes the X version, 
    which should in theory be totally portable to any Unix variant. For 
-   information about the Linux-specific console routines, see readme.lnx.
+   information about the Linux-specific console routines, see linux.txt.
 
 
 

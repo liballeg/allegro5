@@ -22,7 +22,7 @@
    Status: complete and fully functional, but not so widely used and tested 
    as the djgpp code. This version is heavily based on the djgpp version, 
    basically just emulating whatever parts of the djgpp libc aren't provided 
-   by Watcom. See readme.dj for information about the available hardware 
+   by Watcom. See djgpp.txt for information about the available hardware 
    drivers: the djgpp and Watcom versions are 100% identical in this respect.
 
    This library should work with Watcom C versions 10.6 or 11.0, but I have 

@@ -13,7 +13,7 @@
 
 	 See readme.txt for a more general overview.
 
-      Also see readme.uni for general Unix information.
+      Also see unix.txt for general Unix information.
 
 
 
@@ -24,7 +24,7 @@
    On Linux you have two different system drivers -- one for running using 
    X, and one for running without X. For information on the X version, and 
    instructions telling how to install Allegro and compile your programs on 
-   a Unix system, see readme.uni. This file only describes the Linux console 
+   a Unix system, see unix.txt. This file only describes the Linux console 
    routines.
 
    Normally the X version is used in preference to the console version, if 
@@ -39,7 +39,7 @@
 ============ Installing Allegro ============
 ============================================
 
-   See readme.uni: this process is identical for the console and X versions.
+   See unix.txt: this process is identical for the console and X versions.
 
 
 
