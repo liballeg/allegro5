@@ -845,6 +845,8 @@ static void _xwin_private_destroy_screen(void)
       blitter_func = NULL;
    }
 
+   XUnmapWindow (_xwin.display, _xwin.window);
+
    (*_xwin_window_defaultor)();
 }
 
