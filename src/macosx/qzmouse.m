@@ -167,7 +167,7 @@ static void osx_mouse_position(int x, int y)
    _mouse_x = point.x = x;
    _mouse_y = point.y = y;
    
-   if (osx_gfx_mode == OSX_GFX_WINDOW) {
+   if (osx_window) {
       CFNumberGetValue(CFDictionaryGetValue(CGDisplayCurrentMode(kCGDirectMainDisplay), kCGDisplayHeight), kCFNumberSInt32Type, &screen_height);
       frame = [osx_window frame];
       point.x += frame.origin.x;
