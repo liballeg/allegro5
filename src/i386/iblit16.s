@@ -324,7 +324,7 @@ FUNC(_linear_blit16)
    jz blit_only_one_word         /* blit only one word */
    jnc blit_longsmmx
    shrl $1, B_WIDTH              /* divide for use longs64 */
-   jz blit_only_one_long         /* blit one long and word */
+   jz blit_long_word             /* blit one long and word */
    jnc blit_even_wmmxlongs       /* blit longs64 and word */
    jmp blit_mmxlong_word         /* blit longs64 and long and word */
 blit_longsmmx:
@@ -337,10 +337,11 @@ blit_mmxlong_long:               /* blit longs64 and long */
    BLIT_LOOP(long_longsmmx, 2,
    even_llmmx_loop:
       movq %ds:(%esi), %mm0 ;
-      movq %mm0, %es:(%edi) ;
       addl $8, %esi ;
+      movq %mm0, %es:(%edi) ;
       addl $8, %edi ;
-      loop even_llmmx_loop ;
+      decl %ecx ;
+      jnz even_llmmx_loop ;
       movsl
    )
    emms
@@ -351,10 +352,11 @@ blit_mmxlong_word:
    BLIT_LOOP(word_longsmmx, 2,
    even_wlmmx_loop:
       movq %ds:(%esi), %mm0 ;
-      movq %mm0, %es:(%edi) ;
       addl $8, %esi ;
+      movq %mm0, %es:(%edi) ;
       addl $8, %edi ;
-      loop even_wlmmx_loop ;
+      decl %ecx ;
+      jnz even_wlmmx_loop ;
       movsl ;
       movsw
    )
@@ -366,10 +368,11 @@ blit_even_wmmxlongs:
    BLIT_LOOP(word_wlongsmmx, 2,
    even_wmmx_loop:
       movq %ds:(%esi), %mm0 ;
-      movq %mm0, %es:(%edi) ;
       addl $8, %esi ;
+      movq %mm0, %es:(%edi) ;
       addl $8, %edi ;
-      loop even_wmmx_loop ;
+      decl %ecx ;
+      jnz even_wmmx_loop ;
       movsw
    )
    emms
@@ -380,10 +383,20 @@ blit_even_mmxlongs:
    BLIT_LOOP(even_longsmmx, 2,
    even_lmmx_loop:
       movq %ds:(%esi), %mm0 ;
-      movq %mm0, %es:(%edi) ;
       addl $8, %esi ;
+      movq %mm0, %es:(%edi) ;
       addl $8, %edi ;
-      loop even_lmmx_loop
+      decl %ecx ;
+      jnz even_lmmx_loop
+   )
+   emms
+   jmp blit_done
+
+   _align_
+blit_long_word:
+   BLIT_LOOP(long_word, 2,
+      movsl ;
+      movsw
    )
    emms
    jmp blit_done
