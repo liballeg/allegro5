@@ -774,7 +774,7 @@ void _mac_sys_clear_to_color8 (BITMAP *bmp, int color){
 		};
 	};
 
-void _mac_sys_blit8(AL_CONST BITMAP *src,BITMAP *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h){
+void _mac_sys_blit8(BITMAP *src,BITMAP *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h){
 	Rect rsrc,rdst;
 	mac_bitmap *msrc;
 	mac_bitmap *mdst;
@@ -817,7 +817,7 @@ void _mac_sys_blit8(AL_CONST BITMAP *src,BITMAP *dst, int src_x, int src_y, int 
 			_linear_blit8(src,dst,src_x,src_y,dst_x,dst_y,w,h);
 		};
 	};
-void system_stretch_blit(AL_CONST BITMAP *src,BITMAP *dst,int sx,int sy,int sw,int sh,int dx,int dy,int dw,int dh){
+void system_stretch_blit(BITMAP *src,BITMAP *dst,int sx,int sy,int sw,int sh,int dx,int dy,int dw,int dh){
 	Rect rsrc,rdst;
 	RgnHandle rclip;
 	mac_bitmap *msrc;
@@ -836,7 +836,7 @@ void system_stretch_blit(AL_CONST BITMAP *src,BITMAP *dst,int sx,int sy,int sw,i
 				&rsrc,&rdst,srcCopy,NULL);
 	};
 
-void _mac_sys_selfblit8(AL_CONST BITMAP *src,BITMAP *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h){
+void _mac_sys_selfblit8(BITMAP *src,BITMAP *dst, int src_x, int src_y, int dst_x, int dst_y, int w, int h){
 	Rect rsrc,rdst;
 	mac_bitmap *msrc;
 	mac_bitmap *mdst;
