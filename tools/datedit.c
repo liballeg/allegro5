@@ -1216,7 +1216,25 @@ int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST ch
    FILE *f;
    int c;
 
-   tmp_name = tmpnam(NULL);
+   #ifdef HAVE_MKSTEMP
+
+      char tmp_buf[] = "XXXXXX";
+      char tmp[512];
+      int tmp_fd;
+
+      tmp_fd = mkstemp(tmp_buf);
+      if (tmp_fd < 0) {
+	 datedit_error("Error creating temporary file");
+	 return FALSE;
+      }
+      close(tmp_fd);
+      tmp_name = uconvert_ascii(tmp_buf, tmp);
+
+   #else
+
+      tmp_name = tmpnam(NULL);
+
+   #endif
 
    if (prefix)
       strcpy(p, prefix);

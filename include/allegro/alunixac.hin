@@ -121,6 +121,9 @@
 /* Define if you have the memcmp function.  */
 #undef HAVE_MEMCMP
 
+/* Define if you have the mkstemp function.  */
+#undef HAVE_MKSTEMP
+
 /* Define if you have the stricmp function.  */
 #undef HAVE_STRICMP
 

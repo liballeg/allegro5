@@ -1409,9 +1409,28 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
    int c;
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
+
       /* write a sub-chunk */ 
-      name = uconvert_ascii(tmpnam(NULL), tmp);
-      chunk = pack_fopen(name, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
+      #ifdef HAVE_MKSTEMP
+
+         {
+	    char tmp_name[] = "XXXXXX";
+	    int tmp_fd;
+
+	    tmp_fd = mkstemp(tmp_name);
+	    if (tmp_fd < 0)
+	       return NULL;
+	    close(tmp_fd);
+	    name = uconvert_ascii(tmp_name, tmp);
+	    chunk = pack_fopen(name, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
+	 }
+
+      #else
+
+         name = uconvert_ascii(tmpnam(NULL), tmp);
+         chunk = pack_fopen(name, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
+
+      #endif
 
       if (chunk) {
 	 chunk->filename = malloc(ustrsizez(name));
