@@ -1,7 +1,12 @@
 #! /bin/sh
 
+# Usage: deplexe.sh libraries sources ...
+
 # Generate dependencies and rules for building simple programs
 # from one source file and library.
+
+libs=$1
+shift
 
 missing=
 symbols=
@@ -55,7 +60,11 @@ for file in .. $*; do
 
     # Program.
     echo "$dir/$name\$(EXE): \$(OBJDIR)/$name\$(OBJ) \$(LIBALLEG)"
-    echo "	\$(LINK) -o $dir/$name\$(EXE) \$(OBJDIR)/$name\$(OBJ) \$(LINK_LIBALLEG)"
+    if test "$libs" = "--"; then
+      echo "	\$(LINK) -o $dir/$name\$(EXE) \$(OBJDIR)/$name\$(OBJ) \$(LINK_LIBALLEG)"
+    else
+      echo "	\$(LINK) -o $dir/$name\$(EXE) \$(OBJDIR)/$name\$(OBJ) \$(LINK_LIBALLEG) $libs"
+    fi
     echo ""
 
     # Object file.
