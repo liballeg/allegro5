@@ -103,7 +103,7 @@ struct _al_normal_packfile_details
    char *passdata;                     /* encryption key data */
    char *passpos;                      /* current key position */
    unsigned char buf[F_BUF_SIZE];      /* the actual data buffer */
-} _al_normal_packfile_details;
+};
 
 
 struct PACKFILE                           /* our very own FILE structure... */
