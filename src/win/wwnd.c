@@ -580,23 +580,51 @@ void restore_window_style(void)
 int adjust_window(int w, int h)
 {
    RECT working_area, win_size;
+   TITLEBARINFO tb_info;
+   int tb_height;
+   static int last_w=-1, last_h=-1;
 
    if (!user_wnd) {
-      if (last_wnd_x < 0) {
+      SystemParametersInfo(SPI_GETWORKAREA, 0, &working_area, 0);
+
+      if ((last_w == -1) && (last_h == -1)) {
          /* first window placement: try to center it */
-         SystemParametersInfo(SPI_GETWORKAREA, 0, &working_area, 0);
          last_wnd_x = (working_area.left + working_area.right - w)/2;
          last_wnd_y = (working_area.top + working_area.bottom - h)/2;
+      }
+      else {
+	 /* try to get the height of the window's title bar */
+         tb_info.cbSize = sizeof(TITLEBARINFO);
+	 if (!GetTitleBarInfo(allegro_wnd, &tb_info))
+	    tb_height = 0;
+         else
+	    tb_height = (tb_info.rcTitleBar.bottom - tb_info.rcTitleBar.top);
+
+	 /* try to center the window relative to its last position */
+	 last_wnd_x += (last_w - w)/2;
+	 last_wnd_y += (last_h - h)/2;
+	 
+	 if (last_wnd_x + w >= working_area.right)
+	    last_wnd_x = working_area.right - w;
+	 if (last_wnd_y + h >= working_area.bottom)
+	    last_wnd_y = working_area.bottom - h;
+	 if (last_wnd_x < working_area.left)
+	    last_wnd_x = working_area.left;
+	 if (last_wnd_y - tb_height < working_area.top)
+	    last_wnd_y = working_area.top + tb_height;
+      }
 
 #ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
-         last_wnd_x &= 0xfffffffc;
+      last_wnd_x &= 0xfffffffc;
 #endif
-      }
 
       win_size.left = last_wnd_x;
       win_size.top = last_wnd_y;
       win_size.right = last_wnd_x+w;
       win_size.bottom = last_wnd_y+h;
+
+      last_w = w;
+      last_h = h;
 
       /* retrieve the size of the decorated window */
       AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
