@@ -102,6 +102,9 @@
    Unix graphics drivers for X, DGA, fbcon, SVGAlib, VBE/AF, mode-X, and
    standard VGA.
 
+   BeOS graphics drivers using BWindowScreen in fullscreen and BDirectWindow
+   in windowed modes.
+
    Hardware scrolling and triple buffering (where available), mode-X split 
    screens, and palette manipulation.
 
@@ -116,8 +119,9 @@
    currently supports Adlib, SB, SB Pro, SB16, AWE32, MPU-401, ESS 
    AudioDrive, Ensoniq Soundscape, and Windows Sound System. Windows version 
    supports WaveOut and DirectSound interfaces and the system MIDI drivers. 
-   Unix version supports OSS, ESD, and ALSA sound drivers. All versions 
-   provide software wavetable MIDI playback.
+   Unix version supports OSS, ESD, and ALSA sound drivers. BeOS version
+   supports BSoundPlayer and BMidiSynth interfaces. All versions provide
+   software wavetable MIDI playback.
 
    Easy access to the mouse, keyboard, joystick, and high resolution timer 
    interrupts, including a vertical retrace interrupt simulator in the DOS 
@@ -186,7 +190,7 @@
    of these strings, you must distribute a copy of language.dat along with 
    your program.
 
-   Under Unix, the config file routines also check for ~/allegro.cfg, 
+   Under Unix and BeOS, the config file routines also check for ~/allegro.cfg, 
    ~/.allegrorc, /etc/allegro.cfg, and /etc/allegrorc, in that order, and 
    the keyboard and language files can be stored in your home directory or 
    in /etc/.
