@@ -65,7 +65,7 @@ static int view_proc(int, DIALOG *, int);
 static int list_proc(int, DIALOG *, int);
 static int prop_proc(int, DIALOG *, int);
 static int droplist_proc(int, DIALOG *, int);
-static int dither_proc(int, DIALOG *, int);
+static int colorconv_proc(int, DIALOG *, int);
 static int custkey_proc(int, DIALOG *, int);
 static char *list_getter(int, int *);
 static char *pack_getter(int, int *);
@@ -198,9 +198,10 @@ static DIALOG main_dlg[] =
    { d_text_proc,       315,  10,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",        NULL, NULL  },
    { d_edit_proc,       379,  10,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
    { d_check_proc,      430,  8,    83,   13,   0,    0,    0,       0,          0,             0,       "Backups:",       NULL, NULL  },
-   { dither_proc,       550,  8,    75,   13,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
-   { droplist_proc,     430,  30,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
-   { prop_proc,         260,  86,   364,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
+   { colorconv_proc,    550,  8,    75,   13,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
+   { colorconv_proc,    430,  24,   195,  13,   0,    0,    0,       0,          0,             1,       "Preserve transparency:", NULL, NULL},
+   { droplist_proc,     430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
+   { prop_proc,         260,  86,   365,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('s'),  0,          0,             0,       saver,            NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('u'),  0,          0,             0,       updater,          NULL, NULL  },
@@ -246,11 +247,12 @@ static DIALOG main_dlg[] =
 #define DLG_YGRIDSTRING       13
 #define DLG_BACKUPCHECK       14
 #define DLG_DITHERCHECK       15
-#define DLG_PACKLIST          16
-#define DLG_PROP              17
-#define DLG_FIRSTWHITE        18
-#define DLG_LIST              48
-#define DLG_VIEW              49
+#define DLG_TRANSCHECK        16
+#define DLG_PACKLIST          17
+#define DLG_PROP              18
+#define DLG_FIRSTWHITE        19
+#define DLG_LIST              49
+#define DLG_VIEW              50
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
@@ -940,26 +942,27 @@ static int droplist_proc(int msg, DIALOG *d, int c)
 
 
 
-/* dialog procedure for toggling dither mode on and off */
-static int dither_proc(int msg, DIALOG *d, int c)
+/* dialog procedure for setting the color conversion mode */
+static int colorconv_proc(int msg, DIALOG *d, int c)
 {
-   static int current = -1;
-   int ret, wanted;
+   static int current[2] = {-1, -1};
+   int ret, mode, wanted[2];
 
    ret = d_check_proc(msg, d, c);
 
    if (d->flags & D_SELECTED)
-      wanted = 1;
+      wanted[d->d2] = 1;
    else
-      wanted = 0;
+      wanted[d->d2] = 0;
 
-   if (wanted != current) {
-      if (wanted)
-	 set_color_conversion(COLORCONV_DITHER);
+   if (wanted[d->d2] != current[d->d2]) {
+      current[d->d2] = wanted[d->d2];
+
+      mode = (current[0] ? COLORCONV_DITHER : 0) | (current[1] ? COLORCONV_KEEP_TRANS : 0);
+      if (mode)
+         set_color_conversion(mode);
       else
-	 set_color_conversion(COLORCONV_NONE);
-
-      current = wanted;
+         set_color_conversion(COLORCONV_NONE);
    } 
 
    return ret;
@@ -2509,10 +2512,13 @@ static int sysinfo()
       case OSTYPE_WINNT:      s = "Windows NT (score: 0)";              break;
       case OSTYPE_OS2:        s = "OS/2 (score: 5)";                    break;
       case OSTYPE_WARP:       s = "OS/2 Warp 3 (score: 6)";             break;
-      case OSTYPE_LINUX:      s = "Linux (score: 42)";                  break;
-      case OSTYPE_UNIX:       s = "Unix (score: 11)";                   break;
       case OSTYPE_DOSEMU:     s = "Linux DOSEMU (score: 11)";           break;
       case OSTYPE_OPENDOS:    s = "Caldera OpenDOS (score: 8)";         break;
+      case OSTYPE_LINUX:      s = "Linux (score: 42)";                  break;
+      case OSTYPE_FREEBSD:    s = "FreeBSD (score: 40)";                break;
+      case OSTYPE_UNIX:       s = "Unix (score: 11)";                   break;
+      case OSTYPE_BEOS:       s = "BeOS (score: 6)";                    break;
+      case OSTYPE_QNX:        s = "QNX (score: 14)";                    break;
       default:                s = "Unknown (score: 3.14)";              break;
    }
 
@@ -3100,10 +3106,10 @@ int main(int argc, char *argv[])
       main_dlg[DLG_BACKUPCHECK].y += 20;
 
       main_dlg[DLG_DITHERCHECK].flags |= (D_HIDDEN | D_DISABLED);
+      main_dlg[DLG_TRANSCHECK].flags |= (D_HIDDEN | D_DISABLED);
 
       main_dlg[DLG_PACKLIST].x = main_dlg[DLG_PACKLIST].x * SCREEN_W / 640;
       main_dlg[DLG_PACKLIST].w = main_dlg[DLG_PACKLIST].w * SCREEN_W / 640;
-      main_dlg[DLG_PACKLIST].y += 18;
 
       for (i=DLG_PROP; main_dlg[i].proc; i++) {
 	 main_dlg[i].x = main_dlg[i].x * SCREEN_W / 640;
@@ -3218,14 +3224,19 @@ int main(int argc, char *argv[])
       sprintf(ygrid_string, "%d", get_config_int("grabber", "ygrid", 16));
 
       if (strpbrk(get_config_string("grabber", "backups", ""), "yY1"))
-	 main_dlg[DLG_BACKUPCHECK].flags |= D_SELECTED;
+         main_dlg[DLG_BACKUPCHECK].flags |= D_SELECTED;
       else
-	 main_dlg[DLG_BACKUPCHECK].flags &= ~D_SELECTED;
+         main_dlg[DLG_BACKUPCHECK].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "dither", ""), "yY1"))
-	 main_dlg[DLG_DITHERCHECK].flags |= D_SELECTED;
+         main_dlg[DLG_DITHERCHECK].flags |= D_SELECTED;
       else
-	 main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
+         main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
+
+      if (strpbrk(get_config_string("grabber", "transparency", ""), "yY1"))
+         main_dlg[DLG_TRANSCHECK].flags |= D_SELECTED;
+      else
+         main_dlg[DLG_TRANSCHECK].flags &= ~D_SELECTED;
    }
 
    do_dialog(main_dlg, DLG_LIST);
@@ -3254,6 +3265,11 @@ int main(int argc, char *argv[])
       set_config_string("grabber", "dither", "y");
    else
       set_config_string("grabber", "dither", "n");
+
+   if (main_dlg[DLG_TRANSCHECK].flags & D_SELECTED)
+      set_config_string("grabber", "transparency", "y");
+   else
+      set_config_string("grabber", "transparency", "n");
 
    return 0;
 }

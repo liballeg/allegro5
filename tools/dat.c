@@ -94,6 +94,7 @@ static void usage()
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
    printf("\t'-t type' sets the object type when adding files\n");
+   printf("\t'-transparency' preserves transparency through color conversion\n");
    printf("\t'-u' updates the contents of the datafile\n");
    printf("\t'-v' selects verbose mode\n");
    printf("\t'-w' always updates the entire contents of the datafile\n");
@@ -677,10 +678,9 @@ static int do_save_dependencies(DATAFILE *dat, char *srcname, char *depname)
 
 int main(int argc, char *argv[])
 {
-   int c;
+   int c, colorconv_mode = 0;
 
    install_allegro(SYSTEM_NONE, &errno, atexit);
-   set_color_conversion(COLORCONV_NONE);
    datedit_init();
 
    for (c=0; c<PAL_SIZE; c++)
@@ -693,7 +693,7 @@ int main(int argc, char *argv[])
 
 	    case 'd':
 	       if (stricmp(argv[c]+2, "ither") == 0) {
-		  set_color_conversion(COLORCONV_DITHER);
+		  colorconv_mode |= COLORCONV_DITHER;
 		  break;
 	       }
 	       /* fall through */
@@ -807,6 +807,11 @@ int main(int argc, char *argv[])
 	       break;
 
 	    case 't':
+	       if (stricmp(argv[c]+2, "ransparency") == 0) {
+		  colorconv_mode |= COLORCONV_KEEP_TRANS;
+		  break;
+	       }
+
 	       if ((opt_objecttype) || (c >= argc-1)) {
 		  usage();
 		  return 1;
@@ -860,6 +865,11 @@ int main(int argc, char *argv[])
       usage();
       return 1;
    }
+
+   if (colorconv_mode)
+      set_color_conversion(colorconv_mode);
+   else
+      set_color_conversion(COLORCONV_NONE);
 
    datafile = datedit_load_datafile(opt_datafile, FALSE, opt_password);
 

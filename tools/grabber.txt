@@ -123,9 +123,9 @@ the DAT_ID() macro. Allegro defines the standard properties:
       For autocropped bitmap objects, the amount of cropping at the top of 
       the image.
 
-The properties "PACK", "HNAM", "HPRE", "BACK", "XGRD", and "YGRD" are also 
-used internally by the grabber, but you can use whatever other ID's you like 
-to store custom information about your objects.
+The properties "HNAM", "HPRE", "XGRD", "YGRD", "BACK", "DITH" and "PACK", are 
+also used internally by the grabber, but you can use whatever other ID's you 
+like to store custom information about your objects.
 
 
 
@@ -156,10 +156,13 @@ the screen. You can edit the name of the datafile, the name of the header
 file for exporting object indexes (leave this blank if you don't want to 
 output a header), and the prefix string for the header file definitions. You 
 can change the grid settings for grabbing bitmaps, and alter the compression 
-mode (see below). You can also enable or disable backups: if this box is 
-checked, the old version will be renamed to a .bak extension when datafiles 
-are saved, and turn dithering on or off (this can improve the image quality 
-when you reduce graphics from 24 or 32 bits to 15 or 16 bit color).
+mode (see below). You can enable or disable backups: if this box is checked, 
+the old version will be renamed to a .bak extension when datafiles are saved.
+You can also turn dithering on (this can improve the image quality when you 
+reduce graphics from 15, 16, 24 or 32-bit color to 8-bit color and from 24 or 
+32-bit color to 15 or 16-bit color) and enable transparency preserving (this 
+will ensure that the masked areas in bitmaps stay exactly the same through 
+color conversion).
 
 The contents of the datafile are listed in the box at the bottom left of the 
 screen, and can be selected with the mouse or arrow keys. Multiple objects 
@@ -298,7 +301,7 @@ line dat utility. This accepts the following options:
       Deletes the named objects from the datafile.
 
    '-dither'
-      Dithers graphics when reducing from truecolor to hicolor formats.
+      Dithers graphics when reducing color depths.
 
    '-e <objects>'
       Extracts the named objects from the datafile. To extract everything, 
@@ -342,6 +345,9 @@ line dat utility. This accepts the following options:
       Sets the strip mode (see below). These can be used on their own to 
       strip properties from the datafile, or in combination with any other 
       options.
+
+   '-transparency'
+      Preserves transparency when converting between color depths.
 
    '-u'
       Updates the contents of the datafile. See below.
