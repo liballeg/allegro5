@@ -65,7 +65,7 @@ Windows notes
 Linux notes
 
    To make sure an Allegro binary compiled on your machine will work on
-   another machine, do not disable any features with `configure'. Your
+   another machine, do not disable any "features" with `configure'. Your
    copy of Allegro must have assembly routines, threads, modules, all
    colour depths and X11 support enabled, amongst other things. If in
    doubt, leave it at the default setting.
@@ -84,6 +84,13 @@ Linux notes
 
    See also the Windows section if you need to use a modified version of
    Allegro.
+
+   For people packaging Allegro for redistribution: Drivers that are
+   built as dynamically loaded modules may be disabled or left out, but
+   all others should be left in. Examples of drivers that are _not_
+   dynamically loaded include: VBE/AF, DGA1, OSS digital, OSS MIDI. In
+   short, if a program built against a copy of default-options Allegro
+   will work with your final library, all is goodly.
 
 
 
