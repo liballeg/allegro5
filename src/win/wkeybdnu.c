@@ -592,7 +592,6 @@ static void handle_key_press(unsigned char scancode)
 {
    int mycode;
    int ascii;
-   int unmodascii;
    unsigned int modifiers;
    bool is_repeat;
    unsigned int event_type;
@@ -653,19 +652,6 @@ static void handle_key_press(unsigned char scancode)
          ascii = chars[0];
       else
          ascii = 0;
-
-      /* unmodascii */
-      {
-         keystate[VK_SHIFT] = keystate[VK_LSHIFT] = keystate[VK_RSHIFT] =
-            keystate[VK_CONTROL] = keystate[VK_LCONTROL] = keystate[VK_RCONTROL] =
-            keystate[VK_MENU] = keystate[VK_LMENU] = keystate[VK_RMENU] =
-            keystate[VK_SCROLL] = keystate[VK_NUMLOCK] = keystate[VK_CAPITAL] = 0;
-
-         if (ToAscii(vkey, scancode, keystate, (WORD *)chars, 0) == 1)
-            unmodascii = chars[0];
-         else
-            unmodascii = 0;
-      }
    }
 
    is_repeat = _AL_KBDSTATE_KEY_DOWN(key_state, mycode);
@@ -686,7 +672,6 @@ static void handle_key_press(unsigned char scancode)
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;
-   event->keyboard.unmodchar = unmodascii;
    event->keyboard.unichar = ascii;
    event->keyboard.modifiers = modifiers;
 
@@ -743,7 +728,6 @@ static void handle_key_release(unsigned char scancode)
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;
-   event->keyboard.unmodchar = 0; /* TODO: _pckey_scancode_to_ascii(mycode); */
    event->keyboard.unichar = 0;
    event->keyboard.modifiers = 0;
 

@@ -81,8 +81,8 @@ static void lkeybd_get_state(AL_KBDSTATE *ret_state);
 
 static void process_new_data(void *unused);
 static void process_character(unsigned char ch);
-static void handle_key_press(int mycode, unsigned int unmodascii, unsigned int ascii);
-static void handle_key_release(int mycode, unsigned int unmodascii);
+static void handle_key_press(int mycode, unsigned int ascii);
+static void handle_key_release(int mycode);
 
 
 
@@ -206,8 +206,9 @@ static const unsigned int modifier_table[AL_KEY_MAX - AL_KEY_MODIFIERS] =
  *  number is returned, the absolute value of which is the VT to
  *  switch to. Yes, ugly.
  */
-static int keycode_to_char(int keycode, unsigned int modifiers)
+static int keycode_to_char(int keycode)
 {
+   const unsigned int modifiers = the_keyboard.modifiers;
    struct kbentry kbe;
    int keymap;
    int ascii;
@@ -489,12 +490,11 @@ static void process_character(unsigned char ch)
 
    /* call the handlers */
    if (press) {
-      int ascii_unmod = keycode_to_char(keycode, 0);;
-      int ascii_mod   = keycode_to_char(keycode, the_keyboard.modifiers);
+      int ascii = keycode_to_char(keycode);
 
       /* switch VT if the user requested so */
-      if (ascii_mod < 0) {
-         int console = -ascii_mod;
+      if (ascii < 0) {
+         int console = -ascii;
          int last_console;
 
          ioctl(the_keyboard.fd, VT_OPENQRY, &last_console);
@@ -503,10 +503,10 @@ static void process_character(unsigned char ch)
                return;
       }
 
-      handle_key_press(mycode, ascii_unmod, ascii_mod);
+      handle_key_press(mycode, ascii);
    }
    else {
-      handle_key_release(mycode, keycode_to_char(keycode, 0));
+      handle_key_release(mycode);
    }
    
    /* three-finger salute for killing the program */
@@ -522,7 +522,7 @@ static void process_character(unsigned char ch)
 /* handle_key_press: [fdwatch thread]
  *  Helper: stuff to do when a key is pressed.
  */
-static void handle_key_press(int mycode, unsigned int unmodascii, unsigned int ascii)
+static void handle_key_press(int mycode, unsigned int ascii)
 {
    unsigned int event_type;
    AL_EVENT *event;
@@ -546,7 +546,6 @@ static void handle_key_press(int mycode, unsigned int unmodascii, unsigned int a
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;
-   event->keyboard.unmodchar = unmodascii;
    event->keyboard.unichar = ascii;
    event->keyboard.modifiers = the_keyboard.modifiers;
 
@@ -558,7 +557,7 @@ static void handle_key_press(int mycode, unsigned int unmodascii, unsigned int a
 /* handle_key_release: [fdwatch thread]
  *  Helper: stuff to do when a key is released.
  */
-static void handle_key_release(int mycode, unsigned int unmodascii)
+static void handle_key_release(int mycode)
 {
    AL_EVENT *event;
 
@@ -583,7 +582,6 @@ static void handle_key_release(int mycode, unsigned int unmodascii)
    event->keyboard.timestamp = al_current_time();
    event->keyboard.__display__dont_use_yet__ = NULL;
    event->keyboard.keycode = mycode;
-   event->keyboard.unmodchar = unmodascii;
    event->keyboard.unichar = 0;
    event->keyboard.modifiers = 0;
 

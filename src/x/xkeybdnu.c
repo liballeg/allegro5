@@ -192,27 +192,16 @@ static void xkeybd_get_state(AL_KBDSTATE *ret_state)
 
 /* get_latin1_char: [bgman thread]
  *  Helper to return the latin-1 character corresponding to the
- *  XKeyEvent given.  If WITH_MODIFIERS is true then the state of the
- *  modifiers in the event are taken into account.  If no latin-1
- *  character corresponds to the XKeyEvent then 0 is returned.
+ *  XKeyEvent given, or 0 if there is no corresponding character.
  */
-static unsigned char get_latin1_char(XKeyEvent *ke, bool with_modifiers)
+static unsigned char get_latin1_char(XKeyEvent *ke)
 {
-   unsigned int old_state;
    unsigned char buf[5];
-   int nchars;
 
-   if (with_modifiers) {
-      nchars = XLookupString(ke, buf, sizeof buf, NULL, NULL);
-   }
-   else {
-      old_state = ke->state;
-      ke->state = 0;
-      nchars = XLookupString(ke, buf, sizeof buf, NULL, NULL);
-      ke->state = old_state;
-   }
+   if (XLookupString(ke, buf, sizeof buf, NULL, NULL) == 1)
+      return buf[0];
 
-   return (nchars == 1) ? buf[0] : 0;
+   return 0;
 }
 
 
@@ -290,8 +279,7 @@ static void handle_key_press(XKeyEvent *ke, bool state_field_reliable)
          event->keyboard.timestamp = al_current_time();
          event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
          event->keyboard.keycode   = mycode;
-         event->keyboard.unmodchar = get_latin1_char(ke, false);
-         event->keyboard.unichar   = get_latin1_char(ke, true);
+         event->keyboard.unichar   = get_latin1_char(ke);
          event->keyboard.modifiers = get_modifiers(ke);
          _al_event_source_emit_event(&the_keyboard.parent.es, event);
       }
@@ -351,7 +339,6 @@ static void handle_key_release(XKeyEvent *ke, bool state_field_reliable)
          event->keyboard.timestamp = al_current_time();
          event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
          event->keyboard.keycode = mycode;
-         event->keyboard.unmodchar = get_latin1_char(ke, false);
          event->keyboard.unichar = 0;
          event->keyboard.modifiers = 0;
          _al_event_source_emit_event(&the_keyboard.parent.es, event);

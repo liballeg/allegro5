@@ -90,13 +90,6 @@ typedef struct AL_KEYBOARD_EVENT
    _AL_EVENT_HEADER(struct AL_KEYBOARD);
    struct AL_DISPLAY *__display__dont_use_yet__;
    int keycode;                 /* the physical key pressed */
-   unsigned int unmodchar;      /* what unicode character the key
-                                 * pressed would generate if no
-                                 * modifiers were in effect, or 0 if
-                                 * the key wouldn't generate a
-                                 * character at all.
-                                 * XXX: badly named
-                                 */
    unsigned int unichar;        /* unicode character */
    unsigned int modifiers;      /* bitfield */
 } AL_KEYBOARD_EVENT;
