@@ -465,7 +465,7 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
 [AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
 AC_CACHE_VAL(allegro_cv_support_fomit_frame_pointer,
-[if test $GCC = yes && $CC --version | grep -q '3\.0\(\.\?[[012]]\)\?$'; then
+[if test $GCC = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
   allegro_cv_support_fomit_frame_pointer=no
 else
   allegro_cv_support_fomit_frame_pointer=yes
