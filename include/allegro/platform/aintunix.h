@@ -69,9 +69,6 @@ extern "C" {
 
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-   AL_FUNCPTR(void, _al_xwin_key_press_handler, (XKeyEvent *ke, bool state_field_reliable));
-   AL_FUNCPTR(void, _al_xwin_key_release_handler, (XKeyEvent *ke, bool state_field_reliable));
-   AL_FUNCPTR(void, _al_xwin_focus_change_handler, (bool focused));
    AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
 
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);

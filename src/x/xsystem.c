@@ -30,9 +30,6 @@
 
 
 
-void (*_al_xwin_key_press_handler)(XKeyEvent *ke, bool) = 0;
-void (*_al_xwin_key_release_handler)(XKeyEvent *ke, bool) = 0;
-void (*_al_xwin_focus_change_handler)(bool focused) = 0;
 void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 
 

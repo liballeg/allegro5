@@ -548,8 +548,6 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    input_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask
               | ButtonReleaseMask | PointerMotionMask;
    XDGASelectInput(_xwin.display, _xwin.screen, input_mask);
-   if (_al_xwin_focus_change_handler)
-      (*_al_xwin_focus_change_handler)(true);
    _mouse_on = TRUE;
 
    /* Creates screen bitmap */
