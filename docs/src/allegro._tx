@@ -6947,7 +6947,9 @@ changes are the following:
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
    An invisible helper object that yields timeslices for the scheduler (if
    the system supports it) when the gui has nothing to do but waiting for
-   user actions.
+   user actions. You should put one instance of this object in each dialog 
+   array because it may be needed on systems with an unusual scheduling 
+   algorithm (for instance QNX) in order to make the GUI fully responsive.
 
 @!texinfo
 The behaviour of the dialog manager can be controlled by the variables:
