@@ -276,6 +276,22 @@ fi
 ])
 
 dnl
+dnl Test for debugging with DMalloc.
+dnl
+dnl Variables:
+dnl  allegro_debug_with_dmalloc=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_DEBUG_WITH_DMALLOC,
+[AC_ARG_ENABLE(dbg-with-dmalloc,
+[  --enable-dbg-with-dmalloc[=x]    enable debugging with DMalloc [default=no]],
+test "X$enableval" != "Xno" && allegro_enable_debug_with_dmalloc=yes)
+
+if test -n "$allegro_enable_debug_with_dmalloc"; then
+   AC_CHECK_HEADER(dmalloc.h, allegro_debug_with_dmalloc=yes)
+fi
+])
+
+dnl
 dnl Test for Linux Framebuffer Console support.
 dnl
 dnl Variables:

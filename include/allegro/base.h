@@ -33,6 +33,10 @@
    #include <fortify/fortify.h>
 #endif
 
+#if (defined DEBUGMODE) && (defined DMALLOC)
+   #include <dmalloc.h>
+#endif
+
 #include "internal/alconfig.h"
 
 #ifdef __cplusplus

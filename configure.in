@@ -327,6 +327,12 @@ if test -n "$allegro_debug_with_fortify"; then
   LIBS="$LIBS -lfortify"
 fi
 
+dnl Test for debugging with DMalloc.
+ALLEGRO_ACTEST_DEBUG_WITH_DMALLOC
+if test -n "$allegro_debug_with_dmalloc"; then
+  LIBS="$LIBS -ldmalloc"
+fi
+
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
 if test -n "$allegro_support_ossdigi"; then
@@ -664,6 +670,9 @@ if test -n "GCC"; then
   if test "X$allegro_debug_with_fortify" = "Xyes"; then
      ALLEGRO_DEBUG_CFLAGS="$ALLEGRO_DEBUG_CFLAGS -DFORTIFY"
   fi
+  if test "X$allegro_debug_with_dmalloc" = "Xyes"; then
+     ALLEGRO_DEBUG_CFLAGS="$ALLEGRO_DEBUG_CFLAGS -DDMALLOC"
+  fi
   ALLEGRO_PROFILE_CFLAGS="$CFLAGS -pg $TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
   if test "X$allegro_cv_support_fomit_frame_pointer" = "Xyes"; then
     CFLAGS="$CFLAGS $TARGET_ARCH -O2 -funroll-loops -ffast-math -fomit-frame-pointer $WFLAGS"
@@ -726,6 +735,24 @@ EOF
   if test -z "$allegro_build_debugging_programs"; then
     cat >> makefile.info << EOF
  Warning: the programs will not be built with Fortify support.
+          The support is only enabled with the debug version.
+
+EOF
+  fi 
+fi
+
+dnl Warn if passed --enable-dbg-with-dmalloc
+if test -n "$allegro_debug_with_dmalloc"; then
+  if test -z "$allegro_build_debugging_library"; then
+    cat >> makefile.info << EOF
+ Warning: the library will not be built with DMalloc support.
+          The support is only enabled with the debug version.
+
+EOF
+  fi 
+  if test -z "$allegro_build_debugging_programs"; then
+    cat >> makefile.info << EOF
+ Warning: the programs will not be built with DMalloc support.
           The support is only enabled with the debug version.
 
 EOF
