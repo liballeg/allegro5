@@ -262,9 +262,7 @@ static void read_24bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
       c.b = pack_getc(f);
       c.g = pack_getc(f);
       c.r = pack_getc(f);
-      bmp->line[line][i*3+_rgb_r_shift_24/8] = c.r;
-      bmp->line[line][i*3+_rgb_g_shift_24/8] = c.g;
-      bmp->line[line][i*3+_rgb_b_shift_24/8] = c.b;
+      bmp_write24((unsigned long)bmp->line[line]+i*3, makecol24(c.r, c.g, c.b));
       nbytes += 3;
    }
 
