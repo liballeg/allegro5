@@ -17,9 +17,6 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Update docs to mention cross-compilation support.
-- Video mode switching inefficient: "don't poll drivers for acceptable
-  modes before switching into them and deciding it can't do that so switches
-  back to Windows"
 - Mouse pointer update ratio extremely slow when using GFX_GDI driver
 - Better behaviour when no linear low-res modes available
 

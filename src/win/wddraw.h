@@ -112,6 +112,7 @@ AL_VAR(int, wnd_sysmenu);
 
 
 /* windowed mode */
+AL_FUNC(void, handle_window_moving_win, (void));
 AL_FUNC(void, handle_window_size_win, (void));
 AL_FUNCPTR(void, update_window, (RECT* rect));
 AL_FUNC(void, wddwin_switch_out, (void));

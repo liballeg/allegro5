@@ -42,7 +42,7 @@ static DDPIXELFORMAT pixel_format[] = {
    /* 32-bit RGB */
    {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 32-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}	} 
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}} 
 };
 
 
@@ -84,7 +84,7 @@ static int wnd_set_video_mode(void)
 
 
 /* _get_color_shift:
- *  return shift value for color mask
+ *  returns shift value for color mask
  */
 static int _get_color_shift(int mask)
 {
@@ -119,7 +119,7 @@ static int _get_color_bits(int mask)
 /* gfx_directx_compare_color_depth:
  *  compares the requested color depth with the desktop depth and find the best
  *   pixel format for color conversion if they don't match
- *  return value: 0 if the depths match, -1 if they don't
+ *  returns 0 if the depths match, -1 if they don't
  */ 
 int gfx_directx_compare_color_depth(int color_depth)
 {
@@ -166,7 +166,7 @@ int gfx_directx_compare_color_depth(int color_depth)
 
 
 /* gfx_directx_update_color_format:
- *  set the _rgb variables for correct color format
+ *  sets the _rgb variables for correct color format
  */
 int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE surf, int color_depth)
 {
@@ -219,64 +219,61 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE surf, int color_depth)
 
 
 
-/* try_video_mode:
- *  sets the passed video mode. 
- *  drv_depth means the color depth that is passed to the driver.
- *  all_depth is the allegro color depth.
- */
-static int try_video_mode(int w, int h, int drv_depth, int all_depth)
+static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc,
+                                                               LPVOID addr)
 {
-   _wnd_width = w;
-   _wnd_height = h;
-   _wnd_depth = drv_depth;
-
-   _TRACE("Setting display mode(%u, %u, %u)\n", w, h, drv_depth);
-   if (wnd_call_proc(wnd_set_video_mode) != 0)
-      return -1;
-
-   return gfx_directx_compare_color_depth(all_depth);
+   int *mode_supported = (int *) addr;
+   *mode_supported = TRUE;
+   return DDENUMRET_OK;
 }
 
 
 
 /* set_video_mode:
+ *  sets the requested fullscreen video mode
  */
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
-   int ret;
+   DDSURFACEDESC surf_desc;
+   int mode_supported, i;
+   HRESULT hr;
 
-   /* let the window thread do the hard work */
-   ret = try_video_mode(w, h, color_depth, color_depth);
+   surf_desc.dwSize   = sizeof(DDSURFACEDESC);
+   surf_desc.dwFlags  = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+   surf_desc.dwHeight = h;
+   surf_desc.dwWidth  = w;  
 
-   /* check whether the requested mode was set by driver */
-   if (ret != 0) {
-      if (color_depth == 15 || color_depth == 16) {
-	 _TRACE("Wrong color depth set by DirectDraw (passed: %u, set: %u)\n", color_depth, desktop_depth);
+   for (i=0 ; pixel_realdepth[i] ; i++)
+      if (pixel_realdepth[i] == color_depth) {
+         surf_desc.ddpfPixelFormat = pixel_format[i];
+         mode_supported = FALSE;
 
-	 /* Some graphic drivers set a 15 bit mode, although 16 bit was passed. If 
-	  * this is the case we have to try out the other high color mode.
-	  */
-	 if (color_depth == 15) {
-	    _TRACE("Trying to set 16 bit mode instead.\n");
-	    ret = try_video_mode(w, h, 16, color_depth);
-	 }
-	 else {
-	    _TRACE("Trying to set 15 bit mode instead.\n");
-	    ret = try_video_mode(w, h, 15, color_depth);
-	 }
+         /* check wether the request mode is supported */
+         hr = IDirectDraw_EnumDisplayModes(directdraw, 0, &surf_desc,
+                                           &mode_supported, EnumModesCallback);
+         if (FAILED(hr))
+            break;
 
-	 if (ret != 0) {
-	    _TRACE("Wrong color depth set by DirectDraw (passed: %u, set: %u)\n", color_depth, desktop_depth);
-	    _TRACE("Unable to set correct color depth.\n");
-	    return -1;
-	 }
-      }
-      else {
-	 _TRACE("Unable to set correct color depth.\n");
-	 return -1;
-      }
-   }
+         if (mode_supported) {
+            _wnd_width = w;
+            _wnd_height = h;
+            _wnd_depth = pixel_format[i].dwRGBBitCount; /* not color_depth */
 
+            /* let the window thread do the hard work */ 
+            _TRACE("Setting display mode(%u, %u, %u)\n", w, h, color_depth);
+            if (wnd_call_proc(wnd_set_video_mode) != 0)
+               break;
+
+            /* check whether the requested mode was properly set by the driver */
+            if (gfx_directx_compare_color_depth(color_depth) == 0)
+               goto ModeSet;
+         }
+      }  /* end of 'if (pixel_realdepth[i] == color_depth)' */ 
+      
+   _TRACE("Unable to set any display mode.\n");
+   return -1;
+
+ ModeSet:
    /* remove window controls */
    SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
    ShowWindow(allegro_wnd, SW_MAXIMIZE);
