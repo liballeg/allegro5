@@ -319,3 +319,9 @@
 
 #endif
 
+
+/* parameters for the color conversion code */
+#ifdef ALLEGRO_WINDOWS
+   #define ALLEGRO_COLORCONV_ALIGNED_WIDTH
+#endif
+

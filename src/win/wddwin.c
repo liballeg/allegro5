@@ -277,9 +277,13 @@ static void update_colorconv_window(RECT* rect)
    }
 
    if (rect) {
-      /* align the rectangle */
+#ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       src_rect.left   = rect->left & 0xfffffffc;
       src_rect.right  = (rect->right+3) & 0xfffffffc;
+#else
+      src_rect.left   = rect->left;
+      src_rect.right  = rect->right;
+#endif
       src_rect.top    = rect->top;
       src_rect.bottom = rect->bottom;
    }
@@ -478,9 +482,10 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       return NULL;
    }
 
-   /* alignment restrictions (for color conversion) */
+#ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
    if (w%4)
       return NULL;
+#endif
 
    _enter_critical();
 
