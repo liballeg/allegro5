@@ -32,6 +32,7 @@
 #define DAT_HPRE  DAT_ID('H','P','R','E')
 #define DAT_BACK  DAT_ID('B','A','C','K')
 #define DAT_DITH  DAT_ID('D','I','T','H')
+#define DAT_TRAN  DAT_ID('T','R','A','N')
 #define DAT_XGRD  DAT_ID('X','G','R','D')
 #define DAT_YGRD  DAT_ID('Y','G','R','D')
 #define DAT_XCRP  DAT_ID('X','C','R','P')

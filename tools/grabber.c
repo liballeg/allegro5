@@ -1609,6 +1609,9 @@ static void update_info(void)
    datedit_set_property(&datedit_info, DAT_DITH, 
 		  (main_dlg[DLG_DITHERCHECK].flags & D_SELECTED) ? "y" : "n");
 
+   datedit_set_property(&datedit_info, DAT_TRAN, 
+		  (main_dlg[DLG_TRANSCHECK].flags & D_SELECTED) ? "y" : "n");
+
    sprintf(buf, "%d", main_dlg[DLG_PACKLIST].d1);
    datedit_set_property(&datedit_info, DAT_PACK, buf);
 }
@@ -1696,6 +1699,11 @@ static void load(char *filename, int flush)
       main_dlg[DLG_DITHERCHECK].flags |= D_SELECTED;
    else
       main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
+
+   if (utolower(*get_datafile_property(&datedit_info, DAT_TRAN)) == 'y')
+      main_dlg[DLG_TRANSCHECK].flags |= D_SELECTED;
+   else
+      main_dlg[DLG_TRANSCHECK].flags &= ~D_SELECTED;
 
    main_dlg[DLG_PACKLIST].d1 = atoi(get_datafile_property(&datedit_info, DAT_PACK));
    pack_getter(-1, &items_num);
