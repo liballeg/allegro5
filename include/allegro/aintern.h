@@ -172,7 +172,7 @@ AL_VAR(int, _key_standard_kb);
 
 
 /* some GUI innards that other people need to use */
-AL_FUNC(void, _handle_scrollable_scroll_click, (DIALOG *d, int listsize, int *offset));
+AL_FUNC(void, _handle_scrollable_scroll_click, (DIALOG *d, int listsize, int *offset, int height));
 AL_FUNC(void, _handle_scrollable_scroll, (DIALOG *d, int listsize, int *index, int *offset));
 AL_FUNC(void, _handle_listbox_click, (DIALOG *d););
 AL_FUNC(void, _draw_scrollable_frame, (DIALOG *d, int listsize, int offset, int height, int fg_color, int bg));

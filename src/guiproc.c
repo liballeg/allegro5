@@ -811,16 +811,10 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 /* _handle_scrollable_click:
  *  Helper to process a click on a scrollable object.
  */
-void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
+void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, int height)
 {
    int xx, yy;
-   int height;
    int hh = d->h - 5;
-
-   if (d->proc == d_textbox_proc)
-      height = (d->h-8) / text_height(font);
-   else 
-      height = (d->h-4) / text_height(font);
 
    while (gui_mouse_b()) {
       int i = (hh * height + listsize/2) / listsize;
@@ -1170,9 +1164,9 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	       _handle_listbox_click(d);
 	       d->flags &= ~D_INTERNAL;
 	    }
-	 }
+         }
 	 else {
-	    _handle_scrollable_scroll_click(d, listsize, &d->d2);
+	    _handle_scrollable_scroll_click(d, listsize, &d->d2, height);
 	 }
 	 break;
 
@@ -1625,7 +1619,7 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	 }
 	 else {
 	    /* clicked on the scroll area */
-	    _handle_scrollable_scroll_click(d, d->d1, &d->d2);
+	    _handle_scrollable_scroll_click(d, d->d1, &d->d2, height);
 	 }
 	 break;
 

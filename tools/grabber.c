@@ -2348,9 +2348,6 @@ static MENU grabber_help_topic[] =
 
 static int d_helptext_proc(int msg, DIALOG *d, int c)
 {
-   int (*proc)(int, DIALOG *, int);
-   int ret;
-
    if (d->dp == NULL)
       d->dp = grabber_help_text;
 
@@ -2367,13 +2364,8 @@ static int d_helptext_proc(int msg, DIALOG *d, int c)
 
       return D_O_K;
    }
-   else {
-      proc = d->proc;
-      d->proc = d_textbox_proc;
-      ret = d_textbox_proc(msg, d, c);
-      d->proc = proc;
-      return ret;
-   }
+   else
+      return d_textbox_proc(msg, d, c);
 };
 
 
