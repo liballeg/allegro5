@@ -169,10 +169,11 @@ int get_gfx_mode_list(int card)
    _DRIVER_INFO *list, *entry;
    GFX_DRIVER *drv;
 
-   /* GFX_AUTODETECT isn't a driver! */
+   /* these aren't drivers */
    if ((card == GFX_AUTODETECT) ||
        (card == GFX_AUTODETECT_WINDOWED) ||
-       (card == GFX_AUTODETECT_FULLSCREEN))
+       (card == GFX_AUTODETECT_FULLSCREEN) ||
+       (card == GFX_SAFE))
       return -1;
 
    /* ask the system driver for a list of graphics hardware drivers */
