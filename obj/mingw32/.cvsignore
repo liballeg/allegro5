@@ -3,3 +3,5 @@ asmdef.s
 cpp-tested
 cpp-yes
 *.res
+setupdat.s
+

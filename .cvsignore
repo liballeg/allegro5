@@ -15,3 +15,5 @@ autom4te.cache
 readme.txt
 makefile.info
 *.pdb
+keyboard.dat
+language.dat
