@@ -64,7 +64,7 @@ GFX_DRIVER gfx_directx_accel =
 
 GFX_DRIVER gfx_directx_soft =
 {
-   GFX_DIRECTX_ACCEL,
+   GFX_DIRECTX_SOFT,
    empty_string,
    empty_string,
    "DirectDraw soft",

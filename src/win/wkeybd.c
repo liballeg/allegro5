@@ -255,7 +255,7 @@ void key_dinput_unacquire(void)
 
       for (key=0; key<256; key++)
          if (key_state[key] & 0x80)
-            key_dinput_handle_scancode((unsigned key)key, FALSE);
+            key_dinput_handle_scancode((unsigned char)key, FALSE);
 
       IDirectInputDevice_Unacquire(key_dinput_device);
    }

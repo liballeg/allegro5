@@ -161,7 +161,7 @@ int get_refresh_rate(void)
 
 /* set_color_depth:
  *  Sets the pixel size (in bits) which will be used by subsequent calls to 
- *  set_gfx_mode() and create_bitmap(). Valid depths are 8, 15, 16, and 32.
+ *  set_gfx_mode() and create_bitmap(). Valid depths are 8, 15, 16, 24 and 32.
  */
 void set_color_depth(int depth)
 {

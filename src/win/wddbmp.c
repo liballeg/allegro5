@@ -94,7 +94,7 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
       surf_desc.dwBackBufferCount = 2;
    }
    else if (overlay) {
-      surf_desc.ddsCaps.dwCaps = DDSCAPS_OVERLAY | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OVERLAY | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
       surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT | DDSD_HEIGHT | DDSD_WIDTH;
       surf_desc.dwBackBufferCount = 2;
       surf_desc.dwHeight = h;
