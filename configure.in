@@ -117,10 +117,13 @@ AC_PROG_MAKE_SET
 AC_PROG_LN_S
 
 dnl LDCONFIG is used for installing shared libraries, in Linux/ELF at least
-AC_PATH_PROGS(LDCONFIG, ldconfig, [echo ought to run ldconfig], $PATH:/sbin:/usr/sbin)
+AC_PATH_PROG(LDCONFIG, ldconfig, [echo ought to run ldconfig], $PATH:/sbin:/usr/sbin)
 
+dnl MAKEINFO is needed for producing the info pages
+AC_PATH_PROG(MAKEINFO, makeinfo, [echo ought to run makeinfo], $PATH:/sbin/:/usr/bin)
+ 
 dnl INSTALL_INFO is needed for installing the info pages
-AC_PATH_PROGS(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
+AC_PATH_PROG(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
 
 dnl Test for asm support.
 ALLEGRO_ACTEST_SUPPORT_ASM

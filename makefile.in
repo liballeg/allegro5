@@ -43,7 +43,7 @@ transform = @program_transform_name@
 
 CC = @CC@
 CPP = @CPP@
-MAKEINFO = makeinfo --no-split
+MAKEINFO = @MAKEINFO@
 RANLIB = @RANLIB@
 AR = ar
 LIBS = @LIBS@
@@ -218,7 +218,7 @@ $(filter %.texi,$(DOCS)): docs/texi/%.texi: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -texi $@ $<
 
 $(filter %.info,$(DOCS)): docs/info/%.info: docs/texi/%.texi $(MAKEDOC)
-	$(MAKEINFO) -o $@ $<
+	$(MAKEINFO) --no-split -o $@ $<
 
 $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -html $@ $<
