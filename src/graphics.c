@@ -688,6 +688,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
    }
 
+   clear_bitmap(screen);
+
+   /* set up the default colors */
    for (c=0; c<256; c++)
       _palette_color8[c] = c;
 
@@ -703,8 +706,6 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       gui_mg_color = makecol(128, 128, 128);
       gui_bg_color = makecol(255, 255, 255);
    }
-
-   clear_bitmap(screen);
 
    if (_al_linker_mouse)
       _al_linker_mouse->set_mouse_etc();
