@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -20,6 +20,10 @@
  *
  *      Synchronization added by Sam Hocevar.
  *
+ *      Chris Robinson included functions to report the mixer's settings,
+ *      switched to signed 24-bit mixing, and cleaned up some of the mess the
+ *      code had gathered.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -34,9 +38,13 @@
 typedef struct MIXER_VOICE
 {
    int playing;               /* are we active? */
-   int stereo;                /* mono or stereo input data? */
-   unsigned char *data8;      /* data for 8 bit samples */
-   unsigned short *data16;    /* data for 16 bit samples */
+   int channels;              /* # of chaanels for input data? */
+   int bits;                  /* sample bit-depth */
+   union {
+      unsigned char *u8;      /* data for 8 bit samples */
+      unsigned short *u16;    /* data for 16 bit samples */
+      void *buffer;           /* generic data pointer */
+   } data;
    long pos;                  /* fixed point position in sample */
    long diff;                 /* fixed point speed of play */
    long len;                  /* fixed point sample length */
@@ -47,7 +55,7 @@ typedef struct MIXER_VOICE
 } MIXER_VOICE;
 
 
-#define MIX_VOLUME_LEVELS     32
+/* MIX_FIX_SHIFT must be <= (sizeof(int)*8)-24 */
 #define MIX_FIX_SHIFT         8
 #define MIX_FIX_SCALE         (1<<MIX_FIX_SHIFT)
 
@@ -59,41 +67,22 @@ typedef struct MIXER_VOICE
 static MIXER_VOICE mixer_voice[MIXER_MAX_SFX];
 
 /* temporary sample mixing buffer */
-static unsigned short *mix_buffer = NULL; 
+static signed int *mix_buffer = NULL;
 
 /* lookup table for converting sample volumes */
-typedef signed short MIXER_VOL_TABLE[256];
+#define MIX_VOLUME_LEVELS     32
+typedef signed int MIXER_VOL_TABLE[256];
 static MIXER_VOL_TABLE *mix_vol_table = NULL;
 
-/* lookup table for amplifying and clipping samples */
-static unsigned short *mix_clip_table = NULL;
-
-#define MIX_RES_16            14
-#define MIX_RES_8             10
-
-/* alternative table system for high-quality sample mixing */
-#define BITS_PAN              7 
-#define BITS_VOL              7 
-#define BITS_MIXER_CORE       32
-#define BITS_SAMPLES          16
-
-typedef unsigned short VOLUME_T;
-
-#define BITS_TOT (BITS_PAN+BITS_VOL) 
-#define ENTRIES_VOL_TABLE (1<<BITS_TOT)
-#define SIZE_VOLUME_TABLE (sizeof(VOLUME_T)*ENTRIES_VOL_TABLE)
-
-static VOLUME_T *volume_table = NULL;
-
-/* flags for the mixing code */
+/* stats for the mixing code */
 static int mix_voices;
 static int mix_size;
 static int mix_freq;
-static int mix_stereo;
-static int mix_16bit;
+static int mix_channels;
+static int mix_bits;
 
 /* shift factor for volume per voice */
-static int voice_volume_scale = -1;
+static int voice_volume_scale = 1;
 
 static void mixer_lock_mem(void);
 
@@ -102,6 +91,116 @@ static void mixer_lock_mem(void);
 static void *mixer_mutex = NULL;
 #endif
 
+
+
+/* set_mixer_quality:
+ *  Sets the resampling quality of the mixer. Valid values are the same as
+ *  the 'quality' config variable.
+ */
+void set_mixer_quality(int quality)
+{
+   if((quality < 0) || (quality > 2))
+      quality = 2;
+   if(mix_channels == 1)
+      quality = 0;
+
+   _sound_hq = quality;
+}
+
+END_OF_FUNCTION(set_mixer_quality);
+
+
+
+/* get_mixer_quality:
+ *  Returns the current mixing quality, as loaded by the 'quality' config
+ *  variable, or a previous call to set_mixer_quality.
+ */
+int get_mixer_quality(void)
+{
+   return _sound_hq;
+}
+
+END_OF_FUNCTION(get_mixer_quality);
+
+
+
+/* get_mixer_frequency:
+ *  Returns the mixer frequency, in Hz.
+ */
+int get_mixer_frequency(void)
+{
+   return mix_freq;
+}
+
+END_OF_FUNCTION(get_mixer_frequency);
+
+
+
+/* get_mixer_bits:
+ *  Returns the mixer bitdepth.
+ */
+int get_mixer_bits(void)
+{
+   return mix_bits;
+}
+
+END_OF_FUNCTION(get_mixer_bits);
+
+
+
+/* get_mixer_channels:
+ *  Returns the number of output channels.
+ */
+int get_mixer_channels(void)
+{
+   return mix_channels;
+}
+
+END_OF_FUNCTION(get_mixer_channels);
+
+
+
+/* get_mixer_voices:
+ *  Returns the number of voices allocated to the mixer.
+ */
+int get_mixer_voices(void)
+{
+   return mix_voices;
+}
+
+END_OF_FUNCTION(get_mixer_voices);
+
+
+
+/* get_mixer_buffer_length:
+ *  Returns the number of samples per channel in the mixer buffer.
+ */
+int get_mixer_buffer_length(void)
+{
+   if(mix_channels)
+      return mix_size / mix_channels;
+   return 0;
+}
+
+END_OF_FUNCTION(get_mixer_buffer_length);
+
+
+
+/* clamp_volume:
+ *  Clamps an integer between 0 and the specified (positive!) value.
+ */
+static INLINE int clamp_val(int i, int max)
+{
+   /* Clamp to 0 */
+   i &= (~i) >> 31;
+
+   /* Clamp to max */
+   i -= max;
+   i &= i >> 31;
+   i += max;
+
+   return i;
+}
 
 
 /* set_volume_per_voice:
@@ -114,160 +213,114 @@ static void *mixer_mutex = NULL;
  *  - pass 1 if you want to pan a full-volume sample to one side without
  *    distortion,
  *  - each time the scale parameter increases by 1, the volume halves.
- *
- *  This must be called _before_ install_sound().
  */
+static void update_mixer_volume(MIXER_VOICE *mv, PHYS_VOICE *pv);
 void set_volume_per_voice(int scale)
 {
-   voice_volume_scale = scale;
-}
-
-
-/* create_volume_table:
- *  Builds a volume table for the high quality 16 bit mixing mode.
- */
-static int create_volume_table(int vol_scale)
-{
-   double step;
-   double acum = 0;
    int i;
 
-   if (!volume_table) {
-      volume_table = (VOLUME_T *)malloc(SIZE_VOLUME_TABLE);
-      if (!volume_table)
-	 return 1;
-      LOCK_DATA(volume_table, SIZE_VOLUME_TABLE);
+   if(scale < 0) {
+      /* Work out the # of voices and the needed scale */
+      scale = 1;
+      for(i = 1;i < mix_voices;i <<= 1)
+         scale++;
+
+      /* Backwards compatiblity with 3.12 */
+      if(scale < 2)
+         scale = 2;
    }
 
-   step = (double)(32768 >> vol_scale) / ENTRIES_VOL_TABLE;
+   /* Update the mixer voices' volumes */
+#ifdef ALLEGRO_MULTITHREADED
+   if(mixer_mutex)
+      system_driver->lock_mutex(mixer_mutex);
+#endif
+   voice_volume_scale = scale;
 
-   for (i=0; i<ENTRIES_VOL_TABLE; i++, acum+=step)
-      volume_table[i] = acum;
-
-   return 0;
+   for(i = 0;i < MIXER_MAX_SFX;++i)
+      update_mixer_volume(mixer_voice+i, _phys_voice+i);
+#ifdef ALLEGRO_MULTITHREADED
+   if(mixer_mutex)
+      system_driver->unlock_mutex(mixer_mutex);
+#endif
 }
+
+END_OF_FUNCTION(set_volume_per_voice);
 
 
 
 /* _mixer_init:
  *  Initialises the sample mixing code, returning 0 on success. You should
  *  pass it the number of samples you want it to mix each time the refill
- *  buffer routine is called, the sample rate to mix at, and two flags 
- *  indicating whether the mixing should be done in stereo or mono and with 
+ *  buffer routine is called, the sample rate to mix at, and two flags
+ *  indicating whether the mixing should be done in stereo or mono and with
  *  eight or sixteen bits. The bufsize parameter is the number of samples,
- *  not bytes. It should take into account whether you are working in stereo 
+ *  not bytes. It should take into account whether you are working in stereo
  *  or not (eg. double it if in stereo), but it should not be affected by
  *  whether each sample is 8 or 16 bits.
  */
 int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 {
    int i, j;
-   int clip_size;
-   int clip_scale;
-   int clip_max;
-   int mix_vol_scale;
 
-   mix_voices = 1;
-   mix_vol_scale = -1;
+   if((_sound_hq < 0) || (_sound_hq > 2))
+      _sound_hq = 2;
 
-   while ((mix_voices < MIXER_MAX_SFX) && (mix_voices < *voices)) {
-      mix_voices <<= 1;
-      mix_vol_scale++;
-   }
-
-   if (voice_volume_scale >= 0)
-      mix_vol_scale = voice_volume_scale;
-   else {
-      /* backward compatibility with 3.12 version */
-      if (mix_vol_scale < 2)
-         mix_vol_scale = 2;
-   }
-
-   *voices = mix_voices;
+   mix_voices = *voices;
+   if(mix_voices > MIXER_MAX_SFX)
+      *voices = mix_voices = MIXER_MAX_SFX;
 
    mix_size = bufsize;
    mix_freq = freq;
-   mix_stereo = stereo;
-   mix_16bit = is16bit;
+   mix_channels = (stereo ? 2 : 1);
+   mix_bits = (is16bit ? 16 : 8);
 
    for (i=0; i<MIXER_MAX_SFX; i++) {
       mixer_voice[i].playing = FALSE;
-      mixer_voice[i].data8 = NULL;
-      mixer_voice[i].data16 = NULL;
+      mixer_voice[i].data.buffer = NULL;
    }
 
    /* temporary buffer for sample mixing */
-   mix_buffer = malloc(mix_size*sizeof(short));
+   mix_buffer = malloc(mix_size * sizeof(*mix_buffer));
    if (!mix_buffer)
       return -1;
 
-   LOCK_DATA(mix_buffer, mix_size*sizeof(short));
+   LOCK_DATA(mix_buffer, mix_size * sizeof(*mix_buffer));
 
-   /* volume table for mixing samples into the temporary buffer */
-   mix_vol_table = malloc(sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
-   if (!mix_vol_table) {
-      free(mix_buffer);
-      mix_buffer = NULL;
-      return -1;
-   }
-
-   LOCK_DATA(mix_vol_table, sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
-
-   for (j=0; j<MIX_VOLUME_LEVELS; j++)
-      for (i=0; i<256; i++)
-         mix_vol_table[j][i] = ((i-128) * j * 128 / MIX_VOLUME_LEVELS) >> mix_vol_scale;
-
-   if ((_sound_hq) && (mix_stereo) && (mix_16bit)) {
-      /* make high quality table if requested and output is 16 bit stereo */
-      if (create_volume_table(mix_vol_scale) != 0)
-	 return -1;
-   }
-   else
+   /* 16 bit output isn't required for the high quality mixers */
+   if ((!_sound_hq) || (mix_channels == 1)) {
+      /* no high quality mixer available */
       _sound_hq = 0;
 
-   /* lookup table for amplifying and clipping sample buffers */
-   if (mix_16bit) {
-      clip_size = 1 << MIX_RES_16;
-      clip_scale = 18 - MIX_RES_16;
-      clip_max = 0xFFFF;
-   }
-   else {
-      clip_size = 1 << MIX_RES_8;
-      clip_scale = 10 - MIX_RES_8;
-      clip_max = 0xFF;
-   }
+      /* volume table for mixing samples into the temporary buffer */
+      mix_vol_table = malloc(sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
+      if (!mix_vol_table) {
+         free(mix_buffer);
+         mix_buffer = NULL;
+         return -1;
+      }
 
-   /* We now always use a clip table, owing to the new set_volume_per_voice()
-    * functionality. It is not a big loss in performance.
-    */
-   mix_clip_table = malloc(sizeof(short) * clip_size);
-   if (!mix_clip_table) {
-      free(mix_buffer);
-      mix_buffer = NULL;
-      free(mix_vol_table);
-      mix_vol_table = NULL;
-      free(volume_table);
-      volume_table = NULL;
-      return -1;
+      LOCK_DATA(mix_vol_table, sizeof(MIXER_VOL_TABLE) * MIX_VOLUME_LEVELS);
+
+      for (j=0; j<MIX_VOLUME_LEVELS; j++)
+         for (i=0; i<256; i++)
+            mix_vol_table[j][i] = ((i-128) * 256 * j / MIX_VOLUME_LEVELS) << 8;
    }
-
-   LOCK_DATA(mix_clip_table, sizeof(short) * clip_size);
-
-   /* clip extremes of the sample range */
-   for (i=0; i<clip_size*3/8; i++) {
-      mix_clip_table[i] = 0;
-      mix_clip_table[clip_size-1-i] = clip_max;
-   }
-
-   for (i=0; i<clip_size/4; i++)
-      mix_clip_table[clip_size*3/8 + i] = i<<clip_scale;
+   /* We no longer need to use prebuilt stuff for the high quality mixers */
 
    mixer_lock_mem();
 
 #ifdef ALLEGRO_MULTITHREADED
+   /* Woops. Forgot to clean up incase this fails. :) */
    mixer_mutex = system_driver->create_mutex();
-   if (!mixer_mutex)
+   if (!mixer_mutex) {
+      if(mix_vol_table)
+         free(mix_vol_table);
+      mix_vol_table = NULL;
+      free(mix_buffer);
+      mix_buffer = NULL;
       return -1;
+   }
 #endif
 
    return 0;
@@ -285,69 +338,49 @@ void _mixer_exit(void)
    mixer_mutex = NULL;
 #endif
 
-   if (mix_buffer) {
+   if (mix_buffer)
       free(mix_buffer);
-      mix_buffer = NULL;
-   }
+   mix_buffer = NULL;
 
-   if (mix_vol_table) {
+   if (mix_vol_table)
       free(mix_vol_table);
-      mix_vol_table = NULL;
-   }
+   mix_vol_table = NULL;
 
-   if (mix_clip_table) {
-      free(mix_clip_table);
-      mix_clip_table = NULL;
-   }
-
-   if (volume_table) {
-      free(volume_table);
-      volume_table = NULL;
-   }
+   mix_size = 0;
+   mix_freq = 0;
+   mix_channels = 0;
+   mix_bits = 0;
+   mix_voices = 0;
 }
 
 
-
 /* update_mixer_volume:
- *  Called whenever the voice volume or pan changes, to update the mixer 
+ *  Called whenever the voice volume or pan changes, to update the mixer
  *  amplification table indexes.
  */
 static void update_mixer_volume(MIXER_VOICE *mv, PHYS_VOICE *pv)
 {
    int vol, pan, lvol, rvol;
 
-   if (_sound_hq) {
-      vol = pv->vol>>13;
-      pan = pv->pan>>13;
+   /* now use full 16 bit volume ranges */
+   vol = pv->vol>>12;
+   pan = pv->pan>>12;
 
-      /* no need to check for mix_stereo if we're using hq */
-      lvol = vol*(127-pan);
-      rvol = vol*pan;
+   lvol = vol * (255-pan);
+   rvol = vol * pan;
 
-      /* adjust for 127*127<128*128-1 */
-      lvol += lvol>>6;
-      rvol += rvol>>6;
+   /* Adjust for 255*255 < 256*256-1 */
+   lvol += lvol >> 7;
+   rvol += rvol >> 7;
 
-      mv->lvol = MID(0, lvol, ENTRIES_VOL_TABLE-1);
-      mv->rvol = MID(0, rvol, ENTRIES_VOL_TABLE-1);
-   }
-   else {
-      vol = pv->vol >> 12;
-      pan = pv->pan >> 12;
+   /* Apply voice volume scale and clamp */
+   mv->lvol = clamp_val((lvol<<1) >> voice_volume_scale, 65535);
+   mv->rvol = clamp_val((rvol<<1) >> voice_volume_scale, 65535);
 
-      if (mix_stereo) {
-	 lvol = vol * (256-pan) * MIX_VOLUME_LEVELS / 65536;
-	 rvol = vol * pan * MIX_VOLUME_LEVELS / 65536;
-      }
-      else if (mv->stereo) {
-	 lvol = vol * (256-pan) * MIX_VOLUME_LEVELS / 131072;
-	 rvol = vol * pan * MIX_VOLUME_LEVELS / 131072;
-      }
-      else
-	 lvol = rvol = vol * MIX_VOLUME_LEVELS / 512;
-
-      mv->lvol = MID(0, lvol, MIX_VOLUME_LEVELS-1);
-      mv->rvol = MID(0, rvol, MIX_VOLUME_LEVELS-1);
+   if (!_sound_hq) {
+      /* Scale 16-bit -> table size */
+      mv->lvol = mv->lvol * MIX_VOLUME_LEVELS / 65536;
+      mv->rvol = mv->rvol * MIX_VOLUME_LEVELS / 65536;
    }
 }
 
@@ -374,43 +407,41 @@ static INLINE void update_mixer_freq(MIXER_VOICE *mv, PHYS_VOICE *pv)
  */
 static void update_mixer(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
 {
-   if ((len & (UPDATE_FREQ-1)) == 0) {
-      if ((voice->dvol) || (voice->dpan)) {
-	 /* update volume ramp */
-	 if (voice->dvol) {
-	    voice->vol += voice->dvol;
-	    if (((voice->dvol > 0) && (voice->vol >= voice->target_vol)) ||
-		((voice->dvol < 0) && (voice->vol <= voice->target_vol))) {
-	       voice->vol = voice->target_vol; 
-	       voice->dvol = 0; 
-	    } 
-	 } 
+   if ((voice->dvol) || (voice->dpan)) {
+      /* update volume ramp */
+      if (voice->dvol) {
+         voice->vol += voice->dvol;
+         if (((voice->dvol > 0) && (voice->vol >= voice->target_vol)) ||
+             ((voice->dvol < 0) && (voice->vol <= voice->target_vol))) {
+            voice->vol = voice->target_vol;
+            voice->dvol = 0;
+         }
+      }
 
-	 /* update pan sweep */ 
-	 if (voice->dpan) { 
-	    voice->pan += voice->dpan; 
-	    if (((voice->dpan > 0) && (voice->pan >= voice->target_pan)) ||
-		((voice->dpan < 0) && (voice->pan <= voice->target_pan))) { 
-	       voice->pan = voice->target_pan; 
-	       voice->dpan = 0; 
-	    } 
-	 } 
+      /* update pan sweep */
+      if (voice->dpan) {
+         voice->pan += voice->dpan;
+         if (((voice->dpan > 0) && (voice->pan >= voice->target_pan)) ||
+             ((voice->dpan < 0) && (voice->pan <= voice->target_pan))) {
+            voice->pan = voice->target_pan;
+            voice->dpan = 0;
+         }
+      }
 
-	 update_mixer_volume(spl, voice); 
-      } 
+      update_mixer_volume(spl, voice);
+   }
 
-      /* update frequency sweep */ 
-      if (voice->dfreq) { 
-	 voice->freq += voice->dfreq; 
-	 if (((voice->dfreq > 0) && (voice->freq >= voice->target_freq)) || 
-	     ((voice->dfreq < 0) && (voice->freq <= voice->target_freq))) { 
-	    voice->freq = voice->target_freq; 
-	    voice->dfreq = 0; 
-	 } 
+   /* update frequency sweep */
+   if (voice->dfreq) {
+      voice->freq += voice->dfreq;
+      if (((voice->dfreq > 0) && (voice->freq >= voice->target_freq)) ||
+          ((voice->dfreq < 0) && (voice->freq <= voice->target_freq))) {
+         voice->freq = voice->target_freq;
+         voice->dfreq = 0;
+      }
 
-	 update_mixer_freq(spl, voice); 
-      } 
-   } 
+      update_mixer_freq(spl, voice);
+   }
 }
 
 END_OF_STATIC_FUNCTION(update_mixer);
@@ -425,13 +456,13 @@ static void update_silent_mixer(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
 {
    len >>= UPDATE_FREQ_SHIFT;
 
+   /* update pan sweep */
    if (voice->dpan) {
-      /* update pan sweep */
       voice->pan += voice->dpan * len;
       if (((voice->dpan > 0) && (voice->pan >= voice->target_pan)) ||
-	  ((voice->dpan < 0) && (voice->pan <= voice->target_pan))) {
-	 voice->pan = voice->target_pan;
-	 voice->dpan = 0;
+          ((voice->dpan < 0) && (voice->pan <= voice->target_pan))) {
+         voice->pan = voice->target_pan;
+         voice->dpan = 0;
       }
    }
 
@@ -439,9 +470,9 @@ static void update_silent_mixer(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
    if (voice->dfreq) {
       voice->freq += voice->dfreq * len;
       if (((voice->dfreq > 0) && (voice->freq >= voice->target_freq)) ||
-	  ((voice->dfreq < 0) && (voice->freq <= voice->target_freq))) {
+          ((voice->dfreq < 0) && (voice->freq <= voice->target_freq))) {
          voice->freq = voice->target_freq;
-	 voice->dfreq = 0;
+         voice->dfreq = 0;
       }
 
       update_mixer_freq(spl, voice);
@@ -457,58 +488,61 @@ END_OF_STATIC_FUNCTION(update_silent_mixer);
 {                                                                            \
    if ((voice->playmode & PLAYMODE_LOOP) &&                                  \
        (spl->loop_start < spl->loop_end)) {                                  \
-									     \
+                                                                             \
       if (voice->playmode & PLAYMODE_BACKWARD) {                             \
-	 /* mix a backward looping sample */                                 \
-	 while (len-- > 0) {                                                 \
-	    MIX();                                                           \
-	    spl->pos += spl->diff;                                           \
-	    if (spl->pos < spl->loop_start) {                                \
-	       if (voice->playmode & PLAYMODE_BIDIR) {                       \
-		  spl->diff = -spl->diff;                                    \
+         /* mix a backward looping sample */                                 \
+         while (len--) {                                                     \
+            MIX();                                                           \
+            spl->pos += spl->diff;                                           \
+            if (spl->pos < spl->loop_start) {                                \
+               if (voice->playmode & PLAYMODE_BIDIR) {                       \
+                  spl->diff = -spl->diff;                                    \
                   /* however far the sample has overshot, move it the same */\
                   /* distance from the loop point, within the loop section */\
                   spl->pos = (spl->loop_start << 1) - spl->pos;              \
-		  voice->playmode ^= PLAYMODE_BACKWARD;                      \
-	       }                                                             \
-	       else                                                          \
-		  spl->pos += (spl->loop_end - spl->loop_start);             \
-	    }                                                                \
-	    update_mixer(spl, voice, len);                                   \
-	 }                                                                   \
+                  voice->playmode ^= PLAYMODE_BACKWARD;                      \
+               }                                                             \
+               else                                                          \
+                  spl->pos += (spl->loop_end - spl->loop_start);             \
+            }                                                                \
+            if ((len & (UPDATE_FREQ-1)) == 0)                                \
+               update_mixer(spl, voice, len);                                \
+         }                                                                   \
       }                                                                      \
       else {                                                                 \
-	 /* mix a forward looping sample */                                  \
-	 while (len-- > 0) {                                                 \
-	    MIX();                                                           \
-	    spl->pos += spl->diff;                                           \
-	    if (spl->pos >= spl->loop_end) {                                 \
-	       if (voice->playmode & PLAYMODE_BIDIR) {                       \
-		  spl->diff = -spl->diff;                                    \
+         /* mix a forward looping sample */                                  \
+         while (len--) {                                                     \
+            MIX();                                                           \
+            spl->pos += spl->diff;                                           \
+            if (spl->pos >= spl->loop_end) {                                 \
+               if (voice->playmode & PLAYMODE_BIDIR) {                       \
+                  spl->diff = -spl->diff;                                    \
                   /* however far the sample has overshot, move it the same */\
                   /* distance from the loop point, within the loop section */\
                   spl->pos = ((spl->loop_end - 1) << 1) - spl->pos;          \
-		  voice->playmode ^= PLAYMODE_BACKWARD;                      \
-	       }                                                             \
-	       else                                                          \
-		  spl->pos -= (spl->loop_end - spl->loop_start);             \
-	    }                                                                \
-	    update_mixer(spl, voice, len);                                   \
-	 }                                                                   \
+                  voice->playmode ^= PLAYMODE_BACKWARD;                      \
+               }                                                             \
+               else                                                          \
+                  spl->pos -= (spl->loop_end - spl->loop_start);             \
+            }                                                                \
+            if ((len & (UPDATE_FREQ-1)) == 0)                                \
+               update_mixer(spl, voice, len);                                \
+         }                                                                   \
       }                                                                      \
    }                                                                         \
    else {                                                                    \
       /* mix a non-looping sample */                                         \
-      while (len-- > 0) {                                                    \
-	 MIX();                                                              \
-	 spl->pos += spl->diff;                                              \
-	 if ((unsigned long)spl->pos >= (unsigned long)spl->len) {           \
-	    /* note: we don't need a different version for reverse play, */  \
-	    /* as this will wrap and automatically do the Right Thing */     \
-	    spl->playing = FALSE;                                            \
-	    return;                                                          \
-	 }                                                                   \
-	 update_mixer(spl, voice, len);                                      \
+      while (len--) {                                                        \
+         MIX();                                                              \
+         spl->pos += spl->diff;                                              \
+         if ((unsigned long)spl->pos >= (unsigned long)spl->len) {           \
+            /* note: we don't need a different version for reverse play, */  \
+            /* as this will wrap and automatically do the Right Thing */     \
+            spl->playing = FALSE;                                            \
+            return;                                                          \
+         }                                                                   \
+         if ((len & (UPDATE_FREQ-1)) == 0)                                   \
+            update_mixer(spl, voice, len);                                   \
       }                                                                      \
    }                                                                         \
 }
@@ -526,15 +560,16 @@ END_OF_STATIC_FUNCTION(update_silent_mixer);
  *  mix_hq?_*_samples() functions (those which write to a stereo mixing
  *  buffer) divide len by 2 before using it in the MIXER() macro.
  *  Therefore, all the mix_silent_samples() for stereo buffers must divide
- *  the len parameter by 2. This is done in _mix_some_samples().
+ *  the len parameter by 2.
  */
 static void mix_silent_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
 {
+   len /= mix_channels;
    if ((voice->playmode & PLAYMODE_LOOP) &&
        (spl->loop_start < spl->loop_end)) {
 
       if (voice->playmode & PLAYMODE_BACKWARD) {
-	 /* mix a backward looping sample */
+         /* mix a backward looping sample */
          spl->pos += spl->diff * len;
          if (spl->pos < spl->loop_start) {
             if (voice->playmode & PLAYMODE_BIDIR) {
@@ -557,7 +592,7 @@ static void mix_silent_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
          update_silent_mixer(spl, voice, len);
       }
       else {
-	 /* mix a forward looping sample */
+         /* mix a forward looping sample */
          spl->pos += spl->diff * len;
          if (spl->pos >= spl->loop_end) {
             if (voice->playmode & PLAYMODE_BIDIR) {
@@ -576,7 +611,7 @@ static void mix_silent_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
                   spl->pos -= (spl->loop_end - spl->loop_start);
                } while (spl->pos >= spl->loop_end);
             }
-	 }
+         }
          update_silent_mixer(spl, voice, len);
       }
    }
@@ -584,10 +619,10 @@ static void mix_silent_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
       /* mix a non-looping sample */
       spl->pos += spl->diff * len;
       if ((unsigned long)spl->pos >= (unsigned long)spl->len) {
-	 /* note: we don't need a different version for reverse play, */
-	 /* as this will wrap and automatically do the Right Thing */
-	 spl->playing = FALSE;
-	 return;
+         /* note: we don't need a different version for reverse play, */
+         /* as this will wrap and automatically do the Right Thing */
+         spl->playing = FALSE;
+         return;
       }
       update_silent_mixer(spl, voice, len);
    }
@@ -598,15 +633,17 @@ END_OF_STATIC_FUNCTION(mix_silent_samples);
 
 
 /* mix_mono_8x1_samples:
- *  Mixes from an eight bit sample into a mono buffer, until either len 
+ *  Mixes from an eight bit sample into a mono buffer, until either len
  *  samples have been mixed or until the end of the sample is reached.
  */
-static void mix_mono_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_mono_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *vol = (short *)(mix_vol_table + spl->lvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    #define MIX()                                                             \
-      *(buf++) += vol[spl->data8[spl->pos>>MIX_FIX_SHIFT]];
+      *(buf)   += lvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];               \
+      *(buf++) += rvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];
 
    MIXER();
 
@@ -618,17 +655,17 @@ END_OF_STATIC_FUNCTION(mix_mono_8x1_samples);
 
 
 /* mix_mono_8x2_samples:
- *  Mixes from an eight bit stereo sample into a mono buffer, until either 
+ *  Mixes from an eight bit stereo sample into a mono buffer, until either
  *  len samples have been mixed or until the end of the sample is reached.
  */
-static void mix_mono_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_mono_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *lvol = (short *)(mix_vol_table + spl->lvol);
-   signed short *rvol = (short *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    #define MIX()                                                             \
-      *(buf)   += lvol[spl->data8[(spl->pos>>MIX_FIX_SHIFT)*2]];             \
-      *(buf++) += rvol[spl->data8[(spl->pos>>MIX_FIX_SHIFT)*2+1]];
+      *(buf)   += lvol[spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2  ]];         \
+      *(buf++) += rvol[spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2+1]];
 
    MIXER();
 
@@ -640,15 +677,17 @@ END_OF_STATIC_FUNCTION(mix_mono_8x2_samples);
 
 
 /* mix_mono_16x1_samples:
- *  Mixes from a 16 bit sample into a mono buffer, until either len samples 
+ *  Mixes from a 16 bit sample into a mono buffer, until either len samples
  *  have been mixed or until the end of the sample is reached.
  */
-static void mix_mono_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_mono_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *vol = (short *)(mix_vol_table + spl->lvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    #define MIX()                                                             \
-      *(buf++) += vol[(spl->data16[spl->pos>>MIX_FIX_SHIFT])>>8];
+      *(buf)   += lvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];         \
+      *(buf++) += rvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];
 
    MIXER();
 
@@ -660,17 +699,17 @@ END_OF_STATIC_FUNCTION(mix_mono_16x1_samples);
 
 
 /* mix_mono_16x2_samples:
- *  Mixes from a 16 bit stereo sample into a mono buffer, until either len 
+ *  Mixes from a 16 bit stereo sample into a mono buffer, until either len
  *  samples have been mixed or until the end of the sample is reached.
  */
-static void mix_mono_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_mono_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *lvol = (short *)(mix_vol_table + spl->lvol);
-   signed short *rvol = (short *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    #define MIX()                                                             \
-      *(buf)   += lvol[(spl->data16[(spl->pos>>MIX_FIX_SHIFT)*2])>>8];       \
-      *(buf++) += rvol[(spl->data16[(spl->pos>>MIX_FIX_SHIFT)*2+1])>>8];
+      *(buf)   += lvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2  ])>>8];   \
+      *(buf++) += rvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2+1])>>8];
 
    MIXER();
 
@@ -682,19 +721,19 @@ END_OF_STATIC_FUNCTION(mix_mono_16x2_samples);
 
 
 /* mix_stereo_8x1_samples:
- *  Mixes from an eight bit sample into a stereo buffer, until either len 
+ *  Mixes from an eight bit sample into a stereo buffer, until either len
  *  samples have been mixed or until the end of the sample is reached.
  */
-static void mix_stereo_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_stereo_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *lvol = (short *)(mix_vol_table + spl->lvol);
-   signed short *rvol = (short *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += lvol[spl->data8[spl->pos>>MIX_FIX_SHIFT]];                 \
-      *(buf++) += rvol[spl->data8[spl->pos>>MIX_FIX_SHIFT]];
+      *(buf++) += lvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];               \
+      *(buf++) += rvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];
 
    MIXER();
 
@@ -706,19 +745,19 @@ END_OF_STATIC_FUNCTION(mix_stereo_8x1_samples);
 
 
 /* mix_stereo_8x2_samples:
- *  Mixes from an eight bit stereo sample into a stereo buffer, until either 
+ *  Mixes from an eight bit stereo sample into a stereo buffer, until either
  *  len samples have been mixed or until the end of the sample is reached.
  */
-static void mix_stereo_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_stereo_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *lvol = (short *)(mix_vol_table + spl->lvol);
-   signed short *rvol = (short *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += lvol[spl->data8[(spl->pos>>MIX_FIX_SHIFT)*2]];             \
-      *(buf++) += rvol[spl->data8[(spl->pos>>MIX_FIX_SHIFT)*2+1]];
+      *(buf++) += lvol[spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2  ]];         \
+      *(buf++) += rvol[spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2+1]];
 
    MIXER();
 
@@ -730,19 +769,19 @@ END_OF_STATIC_FUNCTION(mix_stereo_8x2_samples);
 
 
 /* mix_stereo_16x1_samples:
- *  Mixes from a 16 bit sample into a stereo buffer, until either len samples 
+ *  Mixes from a 16 bit sample into a stereo buffer, until either len samples
  *  have been mixed or until the end of the sample is reached.
  */
-static void mix_stereo_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_stereo_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *lvol = (short *)(mix_vol_table + spl->lvol);
-   signed short *rvol = (short *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += lvol[(spl->data16[spl->pos>>MIX_FIX_SHIFT])>>8];           \
-      *(buf++) += rvol[(spl->data16[spl->pos>>MIX_FIX_SHIFT])>>8];
+      *(buf++) += lvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];         \
+      *(buf++) += rvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];
 
    MIXER();
 
@@ -754,19 +793,19 @@ END_OF_STATIC_FUNCTION(mix_stereo_16x1_samples);
 
 
 /* mix_stereo_16x2_samples:
- *  Mixes from a 16 bit stereo sample into a stereo buffer, until either len 
+ *  Mixes from a 16 bit stereo sample into a stereo buffer, until either len
  *  samples have been mixed or until the end of the sample is reached.
  */
-static void mix_stereo_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_stereo_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed short *lvol = (short *)(mix_vol_table + spl->lvol);
-   signed short *rvol = (short *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
+   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += lvol[(spl->data16[(spl->pos>>MIX_FIX_SHIFT)*2])>>8];       \
-      *(buf++) += rvol[(spl->data16[(spl->pos>>MIX_FIX_SHIFT)*2+1])>>8];
+      *(buf++) += lvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2  ])>>8];   \
+      *(buf++) += rvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2+1])>>8];
 
    MIXER();
 
@@ -775,23 +814,21 @@ static void mix_stereo_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigne
 
 END_OF_STATIC_FUNCTION(mix_stereo_16x2_samples);
 
-
-
 /* mix_hq1_8x1_samples:
- *  Mixes from a mono 8 bit sample into a high quality stereo buffer, 
- *  until either len samples have been mixed or until the end of the 
+ *  Mixes from a mono 8 bit sample into a high quality stereo buffer,
+ *  until either len samples have been mixed or until the end of the
  *  sample is reached.
  */
-static void mix_hq1_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq1_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += ((spl->data8[spl->pos>>MIX_FIX_SHIFT]-0x80)*lvol)>>8;      \
-      *(buf++) += ((spl->data8[spl->pos>>MIX_FIX_SHIFT]-0x80)*rvol)>>8;
+      *(buf++) += (spl->data.u8[spl->pos>>MIX_FIX_SHIFT]-0x80) * lvol;       \
+      *(buf++) += (spl->data.u8[spl->pos>>MIX_FIX_SHIFT]-0x80) * rvol;
 
    MIXER();
 
@@ -803,20 +840,20 @@ END_OF_STATIC_FUNCTION(mix_hq1_8x1_samples);
 
 
 /* mix_hq1_8x2_samples:
- *  Mixes from a stereo 8 bit sample into a high quality stereo buffer, 
- *  until either len samples have been mixed or until the end of the 
+ *  Mixes from a stereo 8 bit sample into a high quality stereo buffer,
+ *  until either len samples have been mixed or until the end of the
  *  sample is reached.
  */
-static void mix_hq1_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq1_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += ((spl->data8[(spl->pos>>MIX_FIX_SHIFT)*2]-0x80)*lvol)>>8;  \
-      *(buf++) += ((spl->data8[(spl->pos>>MIX_FIX_SHIFT)*2+1]-0x80)*rvol)>>8;
+      *(buf++) += (spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2  ]-0x80) * lvol; \
+      *(buf++) += (spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2+1]-0x80) * rvol;
 
    MIXER();
 
@@ -828,20 +865,20 @@ END_OF_STATIC_FUNCTION(mix_hq1_8x2_samples);
 
 
 /* mix_hq1_16x1_samples:
- *  Mixes from a mono 16 bit sample into a high-quality stereo buffer, 
- *  until either len samples have been mixed or until the end of the sample 
+ *  Mixes from a mono 16 bit sample into a high-quality stereo buffer,
+ *  until either len samples have been mixed or until the end of the sample
  *  is reached.
  */
-static void mix_hq1_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq1_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
 
    len >>= 1;
 
    #define MIX()                                                             \
-      *(buf++) += ((spl->data16[spl->pos>>MIX_FIX_SHIFT]-0x8000)*lvol)>>16;  \
-      *(buf++) += ((spl->data16[spl->pos>>MIX_FIX_SHIFT]-0x8000)*rvol)>>16;
+      *(buf++) += ((spl->data.u16[spl->pos>>MIX_FIX_SHIFT]-0x8000)*lvol)>>8; \
+      *(buf++) += ((spl->data.u16[spl->pos>>MIX_FIX_SHIFT]-0x8000)*rvol)>>8;
 
    MIXER();
 
@@ -853,20 +890,20 @@ END_OF_STATIC_FUNCTION(mix_hq1_16x1_samples);
 
 
 /* mix_hq1_16x2_samples:
- *  Mixes from a stereo 16 bit sample into a high-quality stereo buffer, 
- *  until either len samples have been mixed or until the end of the sample 
+ *  Mixes from a stereo 16 bit sample into a high-quality stereo buffer,
+ *  until either len samples have been mixed or until the end of the sample
  *  is reached.
  */
-static void mix_hq1_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq1_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
 
    len >>= 1;
 
    #define MIX()                                                                 \
-      *(buf++) += ((spl->data16[(spl->pos>>MIX_FIX_SHIFT)*2]-0x8000)*lvol)>>16;  \
-      *(buf++) += ((spl->data16[(spl->pos>>MIX_FIX_SHIFT)*2+1]-0x8000)*rvol)>>16;
+      *(buf++) += ((spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2  ]-0x8000)*lvol)>>8;\
+      *(buf++) += ((spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2+1]-0x8000)*rvol)>>8;
 
    MIXER();
 
@@ -876,41 +913,43 @@ static void mix_hq1_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned s
 END_OF_STATIC_FUNCTION(mix_hq1_16x2_samples);
 
 
+/* Helper to apply a 16-bit volume to a 24-bit sample */
+#define MULSC(a, b) ((int)((LONG_LONG)((a) << 4) * ((b) << 12) >> 32))
 
 /* mix_hq2_8x1_samples:
- *  Mixes from a mono 8 bit sample into an interpolated stereo buffer, 
- *  until either len samples have been mixed or until the end of the 
+ *  Mixes from a mono 8 bit sample into an interpolated stereo buffer,
+ *  until either len samples have been mixed or until the end of the
  *  sample is reached.
  */
-static void mix_hq2_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq2_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
    int v, v1, v2;
 
    len >>= 1;
 
    #define MIX()                                                             \
       v = spl->pos>>MIX_FIX_SHIFT;                                           \
-									     \
-      v1 = spl->data8[v];                                                    \
+                                                                             \
+      v1 = (spl->data.u8[v]<<16) - 0x800000;                                 \
                                                                              \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
          if ((voice->playmode & (PLAYMODE_LOOP |                             \
                                  PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
              spl->loop_start < spl->loop_end && spl->loop_end == spl->len)   \
-            v2 = spl->data8[spl->loop_start>>MIX_FIX_SHIFT];                 \
+            v2 = (spl->data.u8[spl->loop_start>>MIX_FIX_SHIFT]<<16)-0x800000;\
          else                                                                \
-            v2 = 0x80;                                                       \
+            v2 = 0;                                                          \
       }                                                                      \
       else                                                                   \
-	 v2 = spl->data8[v+1];                                               \
-									     \
+         v2 = (spl->data.u8[v+1]<<16) - 0x800000;                            \
+                                                                             \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
-      v = (v1*(MIX_FIX_SCALE-v) + v2*v) / MIX_FIX_SCALE;                     \
-									     \
-      *(buf++) += ((v-0x80)*lvol)>>8;                                        \
-      *(buf++) += ((v-0x80)*rvol)>>8;
+      v = ((v2*v) + (v1*(MIX_FIX_SCALE-v))) >> MIX_FIX_SHIFT;                \
+                                                                             \
+      *(buf++) += MULSC(v, lvol);                                            \
+      *(buf++) += MULSC(v, rvol);
 
    MIXER();
 
@@ -922,14 +961,14 @@ END_OF_STATIC_FUNCTION(mix_hq2_8x1_samples);
 
 
 /* mix_hq2_8x2_samples:
- *  Mixes from a stereo 8 bit sample into an interpolated stereo buffer, 
- *  until either len samples have been mixed or until the end of the 
+ *  Mixes from a stereo 8 bit sample into an interpolated stereo buffer,
+ *  until either len samples have been mixed or until the end of the
  *  sample is reached.
  */
-static void mix_hq2_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq2_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
    int v, va, v1a, v2a, vb, v1b, v2b;
 
    len >>= 1;
@@ -937,30 +976,30 @@ static void mix_hq2_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned sh
    #define MIX()                                                             \
       v = (spl->pos>>MIX_FIX_SHIFT) << 1; /* x2 for stereo */                \
                                                                              \
-      v1a = spl->data8[v];                                                   \
-      v1b = spl->data8[v+1];                                                 \
-									     \
+      v1a = (spl->data.u8[v]<<16) - 0x800000;                                \
+      v1b = (spl->data.u8[v+1]<<16) - 0x800000;                              \
+                                                                             \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
          if ((voice->playmode & (PLAYMODE_LOOP |                             \
                                  PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
              spl->loop_start < spl->loop_end && spl->loop_end == spl->len) { \
-            v2a = spl->data8[((spl->loop_start>>MIX_FIX_SHIFT)<<1)];         \
-            v2b = spl->data8[((spl->loop_start>>MIX_FIX_SHIFT)<<1)+1];       \
+            v2a = (spl->data.u8[((spl->loop_start>>MIX_FIX_SHIFT)<<1)]<<16) - 0x800000;\
+            v2b = (spl->data.u8[((spl->loop_start>>MIX_FIX_SHIFT)<<1)+1]<<16) - 0x800000;\
          }                                                                   \
          else                                                                \
-            v2a = v2b = 0x80;                                                \
+            v2a = v2b = 0;                                                   \
       }                                                                      \
       else {                                                                 \
-	 v2a = spl->data8[v+2];                                              \
-	 v2b = spl->data8[v+3];                                              \
+         v2a = (spl->data.u8[v+2]<<16) - 0x800000;                           \
+         v2b = (spl->data.u8[v+3]<<16) - 0x800000;                           \
       }                                                                      \
-									     \
+                                                                             \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
-      va = (v1a*(MIX_FIX_SCALE-v) + v2a*v) / MIX_FIX_SCALE;                  \
-      vb = (v1b*(MIX_FIX_SCALE-v) + v2b*v) / MIX_FIX_SCALE;                  \
-									     \
-      *(buf++) += ((va-0x80)*lvol)>>8;                                       \
-      *(buf++) += ((vb-0x80)*rvol)>>8;
+      va = ((v2a*v) + (v1a*(MIX_FIX_SCALE-v))) >> MIX_FIX_SHIFT;             \
+      vb = ((v2b*v) + (v1b*(MIX_FIX_SCALE-v))) >> MIX_FIX_SHIFT;             \
+                                                                             \
+      *(buf++) += MULSC(va, lvol);                                           \
+      *(buf++) += MULSC(vb, rvol);
 
    MIXER();
 
@@ -972,14 +1011,14 @@ END_OF_STATIC_FUNCTION(mix_hq2_8x2_samples);
 
 
 /* mix_hq2_16x1_samples:
- *  Mixes from a mono 16 bit sample into an interpolated stereo buffer, 
- *  until either len samples have been mixed or until the end of the sample 
+ *  Mixes from a mono 16 bit sample into an interpolated stereo buffer,
+ *  until either len samples have been mixed or until the end of the sample
  *  is reached.
  */
-static void mix_hq2_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq2_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
    int v, v1, v2;
 
    len >>= 1;
@@ -987,24 +1026,24 @@ static void mix_hq2_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned s
    #define MIX()                                                             \
       v = spl->pos>>MIX_FIX_SHIFT;                                           \
                                                                              \
-      v1 = spl->data16[v];                                                   \
-									     \
+      v1 = (spl->data.u16[v]<<8) - 0x800000;                                 \
+                                                                             \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
          if ((voice->playmode & (PLAYMODE_LOOP |                             \
                                  PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
              spl->loop_start < spl->loop_end && spl->loop_end == spl->len)   \
-            v2 = spl->data16[spl->loop_start>>MIX_FIX_SHIFT];                \
+            v2 = (spl->data.u16[spl->loop_start>>MIX_FIX_SHIFT]<<8)-0x800000;\
          else                                                                \
-            v2 = 0x8000;                                                     \
+            v2 = 0;                                                          \
       }                                                                      \
       else                                                                   \
-	 v2 = spl->data16[v+1];                                              \
-									     \
+         v2 = (spl->data.u16[v+1]<<8) - 0x800000;                            \
+                                                                             \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
-      v = (v1*(MIX_FIX_SCALE-v) + v2*v) / MIX_FIX_SCALE;                     \
-									     \
-      *(buf++) += ((v-0x8000)*lvol)>>16;                                     \
-      *(buf++) += ((v-0x8000)*rvol)>>16;
+      v = ((v2*v) + (v1*(MIX_FIX_SCALE-v))) >> MIX_FIX_SHIFT;                \
+                                                                             \
+      *(buf++) += MULSC(v, lvol);                                            \
+      *(buf++) += MULSC(v, rvol);
 
    MIXER();
 
@@ -1016,14 +1055,14 @@ END_OF_STATIC_FUNCTION(mix_hq2_16x1_samples);
 
 
 /* mix_hq2_16x2_samples:
- *  Mixes from a stereo 16 bit sample into an interpolated stereo buffer, 
- *  until either len samples have been mixed or until the end of the sample 
+ *  Mixes from a stereo 16 bit sample into an interpolated stereo buffer,
+ *  until either len samples have been mixed or until the end of the sample
  *  is reached.
  */
-static void mix_hq2_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned short *buf, int len)
+static void mix_hq2_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   int lvol = volume_table[spl->lvol];
-   int rvol = volume_table[spl->rvol];
+   int lvol = spl->lvol;
+   int rvol = spl->rvol;
    int v, va, v1a, v2a, vb, v1b, v2b;
 
    len >>= 1;
@@ -1031,30 +1070,30 @@ static void mix_hq2_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, unsigned s
    #define MIX()                                                             \
       v = (spl->pos>>MIX_FIX_SHIFT) << 1; /* x2 for stereo */                \
                                                                              \
-      v1a = spl->data16[v];                                                  \
-      v1b = spl->data16[v+1];                                                \
-									     \
+      v1a = (spl->data.u16[v]<<8) - 0x800000;                                \
+      v1b = (spl->data.u16[v+1]<<8) - 0x800000;                              \
+                                                                             \
       if (spl->pos >= spl->len-MIX_FIX_SCALE) {                              \
          if ((voice->playmode & (PLAYMODE_LOOP |                             \
                                  PLAYMODE_BIDIR)) == PLAYMODE_LOOP &&        \
              spl->loop_start < spl->loop_end && spl->loop_end == spl->len) { \
-            v2a = spl->data16[((spl->loop_start>>MIX_FIX_SHIFT)<<1)];        \
-            v2b = spl->data16[((spl->loop_start>>MIX_FIX_SHIFT)<<1)+1];      \
+            v2a = (spl->data.u16[((spl->loop_start>>MIX_FIX_SHIFT)<<1)]<<8) - 0x800000;\
+            v2b = (spl->data.u16[((spl->loop_start>>MIX_FIX_SHIFT)<<1)+1]<<8) - 0x800000;\
          }                                                                   \
          else                                                                \
-            v2a = v2b = 0x8000;                                              \
+            v2a = v2b = 0;                                                   \
       }                                                                      \
       else {                                                                 \
-	 v2a = spl->data16[v+2];                                             \
-	 v2b = spl->data16[v+3];                                             \
+         v2a = (spl->data.u16[v+2]<<8) - 0x800000;                           \
+         v2b = (spl->data.u16[v+3]<<8) - 0x800000;                           \
       }                                                                      \
-									     \
+                                                                             \
       v = spl->pos & (MIX_FIX_SCALE-1);                                      \
-      va = (v1a*(MIX_FIX_SCALE-v) + v2a*v) / MIX_FIX_SCALE;                  \
-      vb = (v1b*(MIX_FIX_SCALE-v) + v2b*v) / MIX_FIX_SCALE;                  \
-									     \
-      *(buf++) += ((va-0x8000)*lvol)>>16;                                    \
-      *(buf++) += ((vb-0x8000)*rvol)>>16;
+      va = ((v2a*v) + (v1a*(MIX_FIX_SCALE-v))) >> MIX_FIX_SHIFT;             \
+      vb = ((v2b*v) + (v1b*(MIX_FIX_SCALE-v))) >> MIX_FIX_SHIFT;             \
+                                                                             \
+      *(buf++) += MULSC(va, lvol);                                           \
+      *(buf++) += MULSC(vb, rvol);
 
    MIXER();
 
@@ -1065,125 +1104,100 @@ END_OF_STATIC_FUNCTION(mix_hq2_16x2_samples);
 
 
 
+#define MAX_24 (0x00FFFFFF)
+
 /* _mix_some_samples:
- *  Mixes samples into a buffer in conventional memory (the buf parameter
- *  should be a linear offset into the specified segment), using the buffer 
- *  size, sample frequency, etc, set when you called _mixer_init(). This 
- *  should be called by the hardware end-of-buffer interrupt routine to 
- *  get the next buffer full of samples to DMA to the card.
+ *  Mixes samples into a buffer in memory (the buf parameter should be a
+ *  linear offset into the specified segment), using the buffer size, sample
+ *  frequency, etc, set when you called _mixer_init(). This should be called
+ *  by the audio driver to get the next buffer full of samples.
  */
 void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
 {
+   signed int *p = mix_buffer;
    int i;
-   unsigned short *p = mix_buffer;
-   unsigned long *l = (unsigned long *)p;
 
    /* clear mixing buffer */
-   for (i=0; i<mix_size/2; i++)
-      *(l++) = 0x80008000;
+   memset(p, 0, mix_size * sizeof(*p));
 
 #ifdef ALLEGRO_MULTITHREADED
    system_driver->lock_mutex(mixer_mutex);
 #endif
 
-   if (_sound_hq >= 2) {
-      /* top quality interpolated 16 bit mixing */
-      for (i=0; i<mix_voices; i++) {
-	 if (mixer_voice[i].playing) {
-            if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
-	       if (mixer_voice[i].stereo) {
-	          /* stereo input -> interpolated output */
-	          if (mixer_voice[i].data8)
-		     mix_hq2_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_hq2_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
-	       else {
-	          /* mono input -> interpolated output */
-	          if (mixer_voice[i].data8)
-		     mix_hq2_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_hq2_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
+   for (i=0; i<mix_voices; i++) {
+      if (mixer_voice[i].playing) {
+         if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
+            /* Interpolated mixing */
+            if (_sound_hq >= 2) {
+               /* stereo input -> interpolated output */
+               if (mixer_voice[i].channels != 1) {
+                  if (mixer_voice[i].bits == 8)
+                     mix_hq2_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_hq2_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
+               /* mono input -> interpolated output */
+               else {
+                  if (mixer_voice[i].bits == 8)
+                     mix_hq2_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_hq2_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
             }
-            else
-               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size>>1);
-	 }
-      }
-   }
-   else if (_sound_hq) {
-      /* high quality 16 bit mixing */
-      for (i=0; i<mix_voices; i++) {
-	 if (mixer_voice[i].playing) {
-	    if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
-	       if (mixer_voice[i].stereo) {
-	          /* stereo input -> high quality output */
-	          if (mixer_voice[i].data8)
-		     mix_hq1_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_hq1_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
-	       else {
-	          /* mono input -> high quality output */
-	          if (mixer_voice[i].data8)
-		     mix_hq1_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_hq1_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
+            /* high quality mixing */
+            else if (_sound_hq) {
+               /* stereo input -> high quality output */
+               if (mixer_voice[i].channels != 1) {
+                  if (mixer_voice[i].bits == 8)
+                     mix_hq1_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_hq1_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
+               /* mono input -> high quality output */
+               else {
+                  if (mixer_voice[i].bits == 8)
+                     mix_hq1_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_hq1_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
             }
-            else
-               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size>>1);
-	 }
-      }
-   }
-   else if (mix_stereo) { 
-      /* lower quality (faster) stereo mixing */
-      for (i=0; i<mix_voices; i++) {
-	 if (mixer_voice[i].playing) {
-	    if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
-	       if (mixer_voice[i].stereo) {
-	          /* stereo input -> stereo output */
-	          if (mixer_voice[i].data8)
-		     mix_stereo_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_stereo_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
-	       else {
-	          /* mono input -> stereo output */
-	          if (mixer_voice[i].data8)
-		     mix_stereo_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_stereo_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
+            /* low quality (fast?) stereo mixing */
+            else if (mix_channels != 1) {
+               /* stereo input -> stereo output */
+               if (mixer_voice[i].channels != 1) {
+                  if (mixer_voice[i].bits == 8)
+                     mix_stereo_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_stereo_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
+               /* mono input -> stereo output */
+               else {
+                  if (mixer_voice[i].bits == 8)
+                     mix_stereo_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_stereo_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
             }
-            else
-               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size>>1);
-	 }
-      }
-   }
-   else {
-      /* lower quality (fast) mono mixing */
-      for (i=0; i<mix_voices; i++) {
-	 if (mixer_voice[i].playing) {
-	    if ((_phys_voice[i].vol > 0) || (_phys_voice[i].dvol > 0)) {
-	       if (mixer_voice[i].stereo) {
-	          /* stereo input -> mono output */
-	          if (mixer_voice[i].data8)
-		     mix_mono_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_mono_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
-	       else {
-	          /* mono input -> mono output */
-	          if (mixer_voice[i].data8)
-		     mix_mono_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	          else
-		     mix_mono_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
-	       }
+            /* low quality (fast?) mono mixing */
+            else {
+               /* stereo input -> mono output */
+               if (mixer_voice[i].channels != 1) {
+                  if (mixer_voice[i].bits == 8)
+                     mix_mono_8x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_mono_16x2_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
+               /* mono input -> mono output */
+               else {
+                  if (mixer_voice[i].bits == 8)
+                     mix_mono_8x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+                  else
+                     mix_mono_16x1_samples(mixer_voice+i, _phys_voice+i, p, mix_size);
+               }
             }
-            else
-               mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size);
-	 }
+         }
+         else
+            mix_silent_samples(mixer_voice+i, _phys_voice+i, mix_size);
       }
    }
 
@@ -1193,28 +1207,37 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
 
    _farsetsel(seg);
 
-   /* transfer to conventional memory buffer using a clip table */
-   if (mix_16bit) {
+   /* transfer to the audio driver's buffer */
+   if (mix_bits == 16) {
       if (issigned) {
-	 for (i=0; i<mix_size; i++) {
-	    _farnspokew(buf, mix_clip_table[*p >> (16-MIX_RES_16)] ^ 0x8000);
-	    buf += sizeof(short);
-	    p++;
+         for (i=0; i<mix_size; i++) {
+            _farnspokew(buf, (clamp_val((*p)+0x800000, MAX_24) >> 8) ^ 0x8000);
+            buf += 2;
+            p++;
          }
       }
       else {
-	 for (i=0; i<mix_size; i++) {
-	    _farnspokew(buf, mix_clip_table[*p >> (16-MIX_RES_16)]);
-            buf += sizeof(short);
+         for (i=0; i<mix_size; i++) {
+            _farnspokew(buf, clamp_val((*p)+0x800000, MAX_24) >> 8);
+            buf += 2;
             p++;
          }
       }
    }
    else {
-      for (i=0; i<mix_size; i++) {
-	 _farnspokeb(buf, mix_clip_table[*p >> (16-MIX_RES_8)]);
-         buf++;
-         p++;
+      if(issigned) {
+         for (i=0; i<mix_size; i++) {
+            _farnspokeb(buf, (clamp_val((*p)+0x800000, MAX_24) >> 16) ^ 0x80);
+            buf++;
+            p++;
+         }
+      }
+      else {
+         for (i=0; i<mix_size; i++) {
+            _farnspokeb(buf, clamp_val((*p)+0x800000, MAX_24) >> 16);
+            buf++;
+            p++;
+         }
       }
    }
 }
@@ -1229,20 +1252,14 @@ END_OF_FUNCTION(_mix_some_samples);
 void _mixer_init_voice(int voice, AL_CONST SAMPLE *sample)
 {
    mixer_voice[voice].playing = FALSE;
-   mixer_voice[voice].stereo = sample->stereo;
+   mixer_voice[voice].channels = (sample->stereo ? 2 : 1);
+   mixer_voice[voice].bits = sample->bits;
    mixer_voice[voice].pos = 0;
    mixer_voice[voice].len = sample->len << MIX_FIX_SHIFT;
    mixer_voice[voice].loop_start = sample->loop_start << MIX_FIX_SHIFT;
    mixer_voice[voice].loop_end = sample->loop_end << MIX_FIX_SHIFT;
 
-   if (sample->bits == 8) {
-      mixer_voice[voice].data8 = sample->data;
-      mixer_voice[voice].data16 = NULL;
-   }
-   else {
-      mixer_voice[voice].data8 = NULL;
-      mixer_voice[voice].data16 = sample->data;
-   }
+   mixer_voice[voice].data.buffer = sample->data;
 
    update_mixer_volume(mixer_voice+voice, _phys_voice+voice);
    update_mixer_freq(mixer_voice+voice, _phys_voice+voice);
@@ -1262,8 +1279,7 @@ void _mixer_release_voice(int voice)
 #endif
 
    mixer_voice[voice].playing = FALSE;
-   mixer_voice[voice].data8 = NULL;
-   mixer_voice[voice].data16 = NULL;
+   mixer_voice[voice].data.buffer = NULL;
 
 #ifdef ALLEGRO_MULTITHREADED
    system_driver->unlock_mutex(mixer_mutex);
@@ -1334,8 +1350,9 @@ END_OF_FUNCTION(_mixer_get_position);
  */
 void _mixer_set_position(int voice, int position)
 {
-   mixer_voice[voice].pos = (position << MIX_FIX_SHIFT);
+   ASSERT (position >= 0);
 
+   mixer_voice[voice].pos = (position << MIX_FIX_SHIFT);
    if (mixer_voice[voice].pos >= mixer_voice[voice].len)
       mixer_voice[voice].playing = FALSE;
 }
@@ -1544,12 +1561,19 @@ static void mixer_lock_mem(void)
    LOCK_VARIABLE(mixer_voice);
    LOCK_VARIABLE(mix_buffer);
    LOCK_VARIABLE(mix_vol_table);
-   LOCK_VARIABLE(mix_clip_table);
    LOCK_VARIABLE(mix_voices);
    LOCK_VARIABLE(mix_size);
    LOCK_VARIABLE(mix_freq);
-   LOCK_VARIABLE(mix_stereo);
-   LOCK_VARIABLE(mix_16bit);
+   LOCK_VARIABLE(mix_channels);
+   LOCK_VARIABLE(mix_bits);
+   LOCK_FUNCTION(set_mixer_quality);
+   LOCK_FUNCTION(get_mixer_quality);
+   LOCK_FUNCTION(get_mixer_buffer_length);
+   LOCK_FUNCTION(get_mixer_frequency);
+   LOCK_FUNCTION(get_mixer_bits);
+   LOCK_FUNCTION(get_mixer_channels);
+   LOCK_FUNCTION(get_mixer_voices);
+   LOCK_FUNCTION(set_volume_per_voice);
    LOCK_FUNCTION(mix_silent_samples);
    LOCK_FUNCTION(mix_mono_8x1_samples);
    LOCK_FUNCTION(mix_mono_8x2_samples);
@@ -1594,6 +1618,3 @@ static void mixer_lock_mem(void)
    LOCK_FUNCTION(_mixer_set_tremolo);
    LOCK_FUNCTION(_mixer_set_vibrato);
 }
-
-
-

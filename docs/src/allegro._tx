@@ -6177,80 +6177,82 @@ Sound init routines
 
 @@void @reserve_voices(int digi_voices, int midi_voices);
 @xref set_volume_per_voice, install_sound, detect_digi_driver, detect_midi_driver
-   Call this function to specify the number of voices that are to be used by 
-   the digital and MIDI sound drivers respectively. This must be done 
-   _before_ calling install_sound(). If you reserve too many voices, 
-   subsequent calls to install_sound() will fail. How many voices are 
-   available depends on the driver, and in some cases you will actually get 
-   more than you reserve (eg. the FM synth drivers will always provide 9 
-   voices on an OPL2 and 18 on an OPL3, and the SB digital driver will round 
-   the number of voices up to the nearest power of two). Pass negative 
-   values to restore the default settings. You should be aware that the 
-   sound quality is usually inversely related to how many voices you use, so 
+@xref get_mixer_voices
+   Call this function to specify the number of voices that are to be used by
+   the digital and MIDI sound drivers respectively. This must be done
+   _before_ calling install_sound(). If you reserve too many voices,
+   subsequent calls to install_sound() will fail. How many voices are
+   available depends on the driver, and in some cases you will actually get
+   more than you reserve (eg. the FM synth drivers will always provide 9
+   voices on an OPL2 and 18 on an OPL3, and the SB digital driver will round
+   the number of voices up to the nearest power of two). Pass negative
+   values to restore the default settings. You should be aware that the
+   sound quality is usually inversely related to how many voices you use, so
    don't reserve any more than you really need.
 
 @@void @set_volume_per_voice(int scale);
 @xref reserve_voices, set_volume, install_sound, detect_digi_driver, detect_midi_driver
-   By default, when you reserve more voices for the digital sound driver, 
-   Allegro will reduce the volume of each voice to compensate. This is done 
-   to avoid too much distortion. The default volume per voice is such that, 
-   if you reserve n voices, you can play up to n/2 normalised samples with 
-   centre panning without risking distortion. The exception is when you have 
-   fewer than 8 voices, where the volume remains the same as for 8 voices.
+   By default, Allegro will play a centered sample at half volume on both
+   the left and right channel. A sample panned to the far right or left
+   will be played at maximum volume on that channel only. This is done so
+   you can play a single panned sample without distortion. If you play
+   multiple samples at full volume, the mixing process can result in
+   clipping, a noticeable form of distortion. The more samples, the more
+   likely clipping is to occur, and the more clipping, the worse the output
+   will sound.
 
-   If the resultant output is either too loud or too quiet, this function 
-   can be used to adjust the volume of each voice. You should first check 
-   that your speakers are at a reasonable volume, Allegro's global volume 
-   is at maximum (see set_volume() below), and any other mixers such as 
-   the Windows Volume Control are set reasonably.
+   If clipping is a problem - or if the output is too quiet - this function
+   can be used to adjust the volume of each voice. You should first check
+   that your speakers are at a reasonable volume, Allegro's global volume
+   is at maximum (see set_volume() below), and any other mixers such as the
+   Windows Volume Control are set reasonably. Once you are sure that
+   Allegro's output level is unsuitable for your application, use this
+   function to adjust it.
 
-   Once you are sure that Allegro's output level is unsuitable for your 
-   application, use this function to adjust it. This must be done _before_ 
-   calling install_sound(). Note that this function is currently only 
-   relevant for drivers that use the Allegro mixer (which is most of them).
-
-   If you pass 0 to this function, each centred sample will play at the 
-   maximum volume possible without distortion, as will all samples played 
-   through a mono driver. Samples at the extreme left and right will distort 
-   if played at full volume. If you wish to play panned samples at full 
-   volume without distortion, you should pass 1 to this function.
-   Note: this is different from the function's behaviour in WIPs 3.9.34, 
-   3.9.35 and 3.9.36. If you used this function under one of these WIPs, 
-   you will have to increase your parameter by one to get the same volume.
-
-   Each time you increase the parameter by one, the volume of each voice 
-   will halve. For example, if you pass 4, you can play up to 16 centred 
+   Each time you increase the parameter by one, the volume of each voice
+   will halve. For example, if you pass 4, you can play up to 16 centred
    samples at maximum volume without distortion.
 
-   Here are the default values, dependent on the number of voices:
+   If you pass 0 to this function, each centred sample will play at the
+   maximum volume possible without distortion, as will all samples played
+   through a mono driver. Samples at the extreme left and right will distort
+   if played at full volume. If you wish to play panned samples at full
+   volume without distortion, you should pass 1 to this function.
+   Note: this is different from the function's behaviour in WIPs 3.9.34,
+   3.9.35 and 3.9.36. If you used this function under one of these WIPs,
+   you will have to increase your parameter by one to get the same volume.
+
+   Note: The default behaviour has changed as of Allegro 4.1.15. If you
+   would like the behaviour of earlier versions of Allegro, pass -1 to this
+   function. Allegro will choose a value dependent on the number of voices,
+   so that if you reserve n voices, you can play up to n/2 normalised
+   samples with centre panning without risking distortion. The exception is
+   when you have fewer than 8 voices, where the volume remains the same as
+   for 8 voices. Here are the values, dependent on the number of voices:
 <textblock>
      1-8 voices - set_volume_per_voice(2)
       16 voices - set_volume_per_voice(3)
       32 voices - set_volume_per_voice(4)
       64 voices - set_volume_per_voice(5)
 <endblock>
-   Of course this function does not override the volume you specify with 
-   play_sample() or voice_set_volume(). It simply alters the overall output 
-   of the program. If you play samples at lower volumes, or if they are not 
+
+   Of course this function does not override the volume you specify with
+   play_sample() or voice_set_volume(). It simply alters the overall output
+   of the program. If you play samples at lower volumes, or if they are not
    normalised, then you can play more of them without distortion.
 
-   Warning: Allegro uses a clipping table to clip the waveform. The table is 
-   big enough to accommodate a total output of up to 4 times the maximum 
-   possible without distortion. If your output goes above this limit, the 
-   wave will 'wrap around' (peaks become troughs and vice versa), thus 
-   distorting much more. You should be careful that this does not happen.
-
-   It is recommended that you hard-code the parameter into your program, 
-   rather than offering it to the user. The user can alter the volume with 
-   the configuration file instead, or you can provide for this with 
+   It is recommended that you hard-code the parameter into your program,
+   rather than offering it to the user. The user can alter the volume with
+   the configuration file instead, or you can provide for this with
    set_volume().
 
-   To restore volume per voice to its default behaviour, pass -1.
+   To restore volume per voice to its default behaviour, pass 1.
 
 @@int @install_sound(int digi, int midi, const char *cfg_path);
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
 @xref set_volume, play_sample, Voice control, play_midi, play_audio_stream
 @xref install_sound_input, allegro_error, Standard config variables
+@xref set_mixer_quality
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref DIGI_*/MacOSX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
@@ -6286,6 +6288,46 @@ Sound init routines
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
    value to leave one of the settings unchanged. This routine will use the
    hardware mixer to control the volume if it exists, otherwise do nothing.
+
+
+
+@heading
+Mixer routines
+
+
+
+@@void @set_mixer_quality(int quality);
+@xref get_mixer_quality
+@xref Standard config variables
+   Sets the resampling quality of the mixer. Valid values are the same as
+   the 'quality' config variable, please look there for details.
+
+@@int @get_mixer_quality(void);
+@xref set_mixer_quality
+@xref Standard config variables
+   Returns the current mixing quality, as specified by the 'quality' config
+   variable, or a previous call to set_mixer_quality.
+
+@@int @get_mixer_frequency(void);
+@xref Standard config variables
+   Returns the mixer frequency, in Hz.
+
+@@int @get_mixer_bits(void);
+@xref Standard config variables
+   Returns the mixer bitdepth (8 or 16).
+
+@@int @get_mixer_channels(void);
+@xref Standard config variables
+   Returns the number of output channels. 2 for stereo, 1 for mono, 0 if
+   the mixer isn't active.
+
+@@int @get_mixer_voices(void);
+@xref reserve_voices
+   Returns the number of voices allocated to the mixer.
+
+@@int @get_mixer_buffer_length(void);
+@xref Standard config variables
+   Returns the number of samples per channel in the mixer buffer.
 
 
 
