@@ -246,10 +246,13 @@ DOS problems
 Windows problems
 
 <ul><h4><li>
-@@   I get lots of compile errors about things like "DDCAPS2_FLIPNOVSYNC"!
+@@   I get lots of compile errors about things like "DDSCAPS_VIDEOMEMORY"!
 </h4>
-      You need to upgrade to a more recent version of the DirectX SDK, which 
-      you can get from the Microsoft site.
+      You need to tell your compiler how to find the DirectX include files
+      and libraries: put the DirectX SDK /include and /lib directories in the
+      compiler/linker path. Alternatively, if you don't want to modify any
+      configuration stuff, you can simply copy the files from the DirectX SDK
+      /include and /lib directories to the corresponding ones for your compiler.
 
 <h4><li>
 @@   I get errors about a missing WinMain() or main() function!
