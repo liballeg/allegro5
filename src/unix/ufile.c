@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Helper routines to make file.c work on POSIX platforms.
+ *      Helper routines to make file.c work on Unix (POSIX) platforms.
  *
  *      By Michael Bukin.
  *
