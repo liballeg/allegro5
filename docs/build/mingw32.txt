@@ -76,8 +76,8 @@
      box.
 
    Note: You will need a program to decompress .zip, .tar.gz and optionally
-   .tar.bz2 files. I recommend PowerArchiver which can be downloaded from:
-   'http://www.powerarchiver.com'.
+   .tar.bz2 files. I recommend PowerArchiver (shareware) which can be
+   downloaded from: 'http://www.powerarchiver.com'.
 
 
 
@@ -100,6 +100,9 @@
 
    3) Install the MingW32 distribution from step 1. I recommend you unzip it
       to 'c:\mingw32' (the following steps assume this is what you used).
+      Do NOT install it in a directory name with spaces, plus signs, minus
+      signs, slashes, or anything else that's fancy enough to break the
+      compiler. That goes double for people installing in C:\Program Files.
 
    4) Unzip the file from step 2 to 'c:\mingw32'. Overwrite any existing
       files. Note: If you use an older copy of MingW32 where the Include and
@@ -163,7 +166,9 @@
 
    4) Install the package from step 1. I recommend you unzip it
       to 'C:\Dev-Cpp' (the following steps assume this is what you used).
-      Important Note: Avoid using the '+' character in the directory name.
+      Do NOT install it in a directory name with spaces, plus signs, minus
+      signs, slashes, or anything else that's fancy enough to break the
+      compiler. That goes double for people installing in C:\Program Files.
 
    5) Install the package from step 2 to 'C:\Dev-Cpp'. Overwrite any existing
       files.
