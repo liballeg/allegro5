@@ -98,6 +98,11 @@
       still use it, it will deactivate immediately CSS generation and the
       generated HTML code won't be valid (at least the header part)
 
+   @html_see_also_text=xxx
+      Optional command. By default, when HTML cross references are generated,
+      the text "See also:" precedes the links. With this command you can
+      customize it, which is necessary for non-english documents.
+
    @html_footer=xxx
       Required for multifile HTML output. This is the text that will appear
       at the footer of each individual html file which is not the index.

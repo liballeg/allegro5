@@ -15,6 +15,7 @@ extern char charset[256];
 extern const char *html_extension;
 extern char *document_title;
 extern char *html_footer;
+extern char *html_see_also_text;
 
 
 int write_html(char *filename);

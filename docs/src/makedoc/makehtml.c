@@ -46,6 +46,7 @@ char charset[256]="iso-8859-1";
 const char *html_extension = "html";
 char *document_title;
 char *html_footer;
+char *html_see_also_text;
 
 static POST **_post;
 static FILE *_file;
@@ -92,6 +93,10 @@ int write_html(char *filename)
 
    if (_verify_correct_input())
       return 1;
+
+   /* English default text initialization */
+   if(!html_see_also_text)
+      html_see_also_text = m_strdup("See also:");
    
    printf("writing %s\n", filename);
 
@@ -186,7 +191,8 @@ int write_html(char *filename)
    _close_html_file(_file);
    
    _post_process_pending_xrefs();
-   
+   free(html_see_also_text);
+
    return 0;
 }
 
@@ -252,6 +258,7 @@ static void _output_custom_markers(LINE *line)
 static void _write_html_xref_list(char **xref, int *xrefs)
 {
    int i;
+   assert(html_see_also_text);
 
    if (!(*xrefs))
       return ;
@@ -261,7 +268,11 @@ static void _write_html_xref_list(char **xref, int *xrefs)
    fputs("\n<blockquote", _file);
    if (!(html_flags & HTML_IGNORE_CSS))
       fputs(" class=\"xref\"", _file);
-   fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>See also:</b></em>\n", _file);
+      
+   fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>", _file);
+   fputs(html_see_also_text, _file);
+   fputs("</b></em>\n", _file);
+   
    for (i=0; i<(*xrefs); i++) {
       if (i) _hfprintf(",\n");
       _write_html_xref(xref[i]);

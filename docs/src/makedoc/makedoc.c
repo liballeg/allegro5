@@ -372,6 +372,11 @@ static int _read_file(char *filename)
 	    document_title = m_strdup(buf+16);
 	    html_flags |= HTML_DOCUMENT_TITLE_FLAG;
 	 }
+	 else if (strincmp(buf+1, "html_see_also_text=") == 0) {
+	    if (html_see_also_text)
+	       free(html_see_also_text);
+	    html_see_also_text = m_strdup(buf+20);
+	 }
 	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='=')) {
 	    html_footer = m_strdup(buf+3);
 	    html_flags |= HTML_OLD_F_TAG_FLAG | HTML_FOOTER_FLAG;
