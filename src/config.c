@@ -764,11 +764,12 @@ int get_config_int(AL_CONST char *section, AL_CONST char *name, int def)
 int get_config_hex(AL_CONST char *section, AL_CONST char *name, int def)
 {
    AL_CONST char *s = get_config_string(section, name, NULL);
+   char tmp[64];
    int i;
 
    if ((s) && (ugetc(s))) {
       i = ustrtol(s, NULL, 16);
-      if ((i == 0x7FFFFFFF) && (ustricmp(s, uconvert_ascii("7FFFFFFF", NULL)) != 0))
+      if ((i == 0x7FFFFFFF) && (ustricmp(s, uconvert_ascii("7FFFFFFF", tmp)) != 0))
 	 i = -1;
       return i;
    }
@@ -1024,8 +1025,8 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
  */
 void set_config_int(AL_CONST char *section, AL_CONST char *name, int val)
 {
-   char buf[32];
-   uszprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
+   char buf[32], tmp[32];
+   uszprintf(buf, sizeof(buf), uconvert_ascii("%d", tmp), val);
    set_config_string(section, name, buf);
 }
 
@@ -1036,10 +1037,10 @@ void set_config_int(AL_CONST char *section, AL_CONST char *name, int val)
  */
 void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
 {
-   char buf[32];
+   char buf[32], tmp[32];
 
    if (val >= 0) {
-      uszprintf(buf, sizeof(buf), uconvert_ascii("%X", NULL), val);
+      uszprintf(buf, sizeof(buf), uconvert_ascii("%X", tmp), val);
       set_config_string(section, name, buf);
    }
    else
@@ -1053,8 +1054,8 @@ void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
  */
 void set_config_float(AL_CONST char *section, AL_CONST char *name, float val)
 {
-   char buf[32];
-   uszprintf(buf, sizeof(buf), uconvert_ascii("%f", NULL), val);
+   char buf[32], tmp[32];
+   uszprintf(buf, sizeof(buf), uconvert_ascii("%f", tmp), val);
    set_config_string(section, name, buf);
 }
 
@@ -1065,13 +1066,13 @@ void set_config_float(AL_CONST char *section, AL_CONST char *name, float val)
  */
 void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
 {
-   char buf[32];
+   char buf[32], tmp[32];
    int v[4];
    int pos = 0;
    int i;
 
    if (val < 256) {
-      uszprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
+      uszprintf(buf, sizeof(buf), uconvert_ascii("%d", tmp), val);
    }
    else {
       v[0] = (val>>24)&0xFF;

@@ -188,7 +188,7 @@ static void register_bitmap_file_type_exit(void)
  */
 void _register_bitmap_file_type_init(void)
 {
-   char buf[16];
+   char buf[32];
 
    _add_exit_func(register_bitmap_file_type_exit);
 

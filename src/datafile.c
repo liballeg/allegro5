@@ -1523,13 +1523,13 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
    PACKFILE *f;
    DATAFILE *dat;
    void *object;
-   char buf[512];
+   char buf[512], tmp[16];
    int size;
 
    ustrzcpy(buf, sizeof(buf), filename);
 
-   if (ustrcmp(buf, uconvert_ascii("#", NULL)) != 0)
-      ustrzcat(buf, sizeof(buf), uconvert_ascii("#", NULL));
+   if (ustrcmp(buf, uconvert_ascii("#", tmp)) != 0)
+      ustrzcat(buf, sizeof(buf), uconvert_ascii("#", tmp));
 
    ustrzcat(buf, sizeof(buf), objectname);
 

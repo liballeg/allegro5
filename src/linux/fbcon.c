@@ -116,6 +116,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    AL_CONST char *p;
    int stride, tries, original_color_depth = _color_depth;
    BITMAP *b;
+   char tmp[16];
 
    /* open framebuffer and store info in global variables */
    if (fb_open_device() != 0)
@@ -298,7 +299,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    do_uconvert(fix_info.id, U_ASCII, fb_desc, U_CURRENT, sizeof(fb_desc));
 
    if (fb_approx) {
-      ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", NULL));
+      ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", tmp));
       ustrzcat(fb_desc, sizeof(fb_desc), get_config_text("approx."));
    }
 
@@ -358,7 +359,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (!(vblank_flags & (FB_VBLANK_HAVE_VBLANK | FB_VBLANK_HAVE_STICKY | FB_VBLANK_HAVE_VCOUNT)))
  #endif
    {
-      ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", NULL));
+      ustrzcat(fb_desc, sizeof(fb_desc), uconvert_ascii(", ", tmp));
       ustrzcat(fb_desc, sizeof(fb_desc), get_config_text("no vsync"));
    }
 

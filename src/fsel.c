@@ -314,7 +314,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
    int size = (d->d1 + 1) * uwidth_max(U_CURRENT); /* of s (in bytes) */
    int list_size;
    int found = 0;
-   char b[512];
+   char b[512], tmp[16];
    int ch, attr;
    int i;
 
@@ -325,7 +325,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_KEY) {
       if ((!ugetc(s)) || (ugetat(s, -1) == DEVICE_SEPARATOR))
-	 ustrzcat(s, size, uconvert_ascii("./", NULL));
+	 ustrzcat(s, size, uconvert_ascii("./", tmp));
 
       fix_filename_path(b, s, sizeof(b));
       ustrzcpy(s, size - ucwidth(OTHER_PATH_SEPARATOR), b);
@@ -665,7 +665,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
    if (((sel != d->d1) || (ret == D_CLOSE)) && (recurse_flag == 0)) {
       replace_filename(s, flist->dir, flist->name[d->d1], size);
       /* check if we want to `cd ..' */
-      if ((!ustrncmp(flist->name[d->d1], uconvert_ascii("..", NULL), 2)) && (ret == D_CLOSE)) {
+      if ((!ustrncmp(flist->name[d->d1], uconvert_ascii("..", tmp), 2)) && (ret == D_CLOSE)) {
 	 /* let's remember the previous directory */
 	 usetc(updir, 0);
 	 i = ustrlen(flist->dir);
@@ -706,11 +706,12 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 static void stretch_dialog(DIALOG *d, int width, int height)
 {
    int font_w, font_h, hpad, vpad;
+   char tmp[16];
     
    #ifdef HAVE_DIR_LIST
 
       /* horizontal settings */
-      font_w = text_length(font, uconvert_ascii("A", NULL));
+      font_w = text_length(font, uconvert_ascii("A", tmp));
 
       if (width == 0)
           width = 0.95*SCREEN_W + 1;
@@ -760,7 +761,7 @@ static void stretch_dialog(DIALOG *d, int width, int height)
    #else
 
       /* horizontal settings */
-      font_w = text_length(font, uconvert_ascii("A", NULL));
+      font_w = text_length(font, uconvert_ascii("A", tmp));
 
       if (width == 0)
           width = 0.95*SCREEN_W + 1;
@@ -872,7 +873,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
       return FALSE;
 
    p = get_extension(path);
-   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", NULL)))) {
+   if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", buf)))) {
       size -= ((long)p - (long)path + ucwidth('.'));
       if (size >= uwidth_max(U_CURRENT) + ucwidth(0)) {  /* do not end with '.' */
          p += usetc(p, '.');

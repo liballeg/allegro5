@@ -583,9 +583,9 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
       for (i=0; i<256; i++) {
 	 if (todo[i][0]) {
 	    ustrzcpy(filename, sizeof(filename), dir);
-	    ustrzcat(filename, sizeof(filename), uconvert_ascii(todo[i], NULL));
+	    ustrzcat(filename, sizeof(filename), uconvert_ascii(todo[i], buf));
 	    if (ugetc(get_extension(filename)) == 0)
-	       ustrzcat(filename, sizeof(filename), uconvert_ascii(".pat", NULL));
+	       ustrzcat(filename, sizeof(filename), uconvert_ascii(".pat", buf));
 	    f = pack_fopen(filename, F_READ);
 	    if (f) {
 	       patch[i] = load_patch(f, (i >= 128));

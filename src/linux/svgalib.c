@@ -321,6 +321,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
    int vid_mem, width, height;
    vga_modeinfo *info;
    BITMAP *bmp;
+   char tmp[64];
 
    /* Try get a linear frame buffer.  */
 
@@ -339,7 +340,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       gfx_svgalib.vid_mem = vid_mem;
       gfx_svgalib.scroll = svga_scroll;
 
-      ustrzcpy(svga_desc, sizeof(svga_desc), uconvert_ascii("SVGAlib (linear)", NULL));
+      ustrzcpy(svga_desc, sizeof(svga_desc), uconvert_ascii("SVGAlib (linear)", tmp));
       gfx_svgalib.desc = svga_desc;
 
       /* For hardware scrolling.  */
@@ -381,7 +382,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       gfx_svgalib.vid_mem = vid_mem;
       gfx_svgalib.scroll = NULL;
 
-      ustrzcpy(svga_desc, sizeof(svga_desc), uconvert_ascii("SVGAlib (banked)", NULL));
+      ustrzcpy(svga_desc, sizeof(svga_desc), uconvert_ascii("SVGAlib (banked)", tmp));
       gfx_svgalib.desc = svga_desc;
 
       /* Set truecolor format.  */

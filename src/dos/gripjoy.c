@@ -595,7 +595,7 @@ static int already_linked = 0;
  */
 static int grip_link()
 {
-   char name[256], *s;
+   char name[256], tmp[256], *s;
    PACKFILE *f;
    long size;
    void *image;
@@ -629,7 +629,7 @@ static int grip_link()
       if (s) {
 	 do_uconvert(s, U_ASCII, name, U_CURRENT, sizeof(name) - ucwidth(OTHER_PATH_SEPARATOR));
 	 put_backslash(name);
-	 ustrzcat(name, sizeof(name), uconvert_ascii("grip.gll", NULL));
+	 ustrzcat(name, sizeof(name), uconvert_ascii("grip.gll", tmp));
       }
    }
 

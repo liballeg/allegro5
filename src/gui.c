@@ -1160,6 +1160,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
    char *last;
    int my;
    int rtm;
+   char tmp[16];
 
    get_menu_pos(m, c, &x, &y, &w);
 
@@ -1195,7 +1196,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
 
    if (ugetc(m->menu[c].text)) {
       buf = ustrdup(m->menu[c].text);
-      tok = ustrtok_r(buf, uconvert_ascii("\t", NULL), &last);
+      tok = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
 
       gui_textout(screen, tok, x+8, y+1, fg, FALSE);
 
@@ -1316,6 +1317,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    int extra = 0;
    int c;
    int child = FALSE;
+   char tmp[16];
 
    m->menu = menu;
    m->parent = parent;
@@ -1335,7 +1337,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
 
       if (ugetc(m->menu[m->size].text)) {
          buf = ustrdup(m->menu[m->size].text);
-         tok = ustrtok_r(buf, uconvert_ascii("\t", NULL), &last);
+         tok = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
          c = gui_strlen(tok);
       }
       else {

@@ -568,7 +568,7 @@ static int find_vesa_mode(int w, int h, int color_depth, int vbe_version)
  */
 static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
 {
-   char tmp1[64], tmp2[64];
+   char tmp1[64], tmp2[1600];
 
    /* VESA version number */
    uszprintf(vesa_desc, sizeof(vesa_desc), uconvert_ascii("%4.4s %d.%d (", tmp1), 
@@ -577,22 +577,22 @@ static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
 		                           vesa_info.VESAVersion&0xFF);
 
    /* VESA description string */
-   ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(oem_string, NULL));
-   ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(")", NULL));
+   ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(oem_string, tmp2));
+   ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(")", tmp1));
 
    /* warn about dodgy hardware */
    if (evilness_flag & 1)
-      ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", Trio64 bodge", NULL));
+      ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", Trio64 bodge", tmp1));
 
    if (evilness_flag & 2)
-      ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", 0x4F06 N.A.", NULL));
+      ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", 0x4F06 N.A.", tmp1));
 
    /* banked/linear status for VBE 3.0 */
    if (vbe_version >= 3) {
       if (linear)
-	 ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", linear", NULL));
+	 ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", linear", tmp1));
       else
-	 ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", banked", NULL));
+	 ustrzcat(vesa_desc, sizeof(vesa_desc), uconvert_ascii(", banked", tmp1));
    }
 
    driver->desc = vesa_desc;

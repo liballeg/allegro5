@@ -777,9 +777,11 @@ void lock_sample(SAMPLE *spl)
  */
 SAMPLE *load_sample(AL_CONST char *filename)
 {
-   if (ustricmp(get_extension(filename), uconvert_ascii("wav", NULL)) == 0)
+   char tmp[32];
+
+   if (ustricmp(get_extension(filename), uconvert_ascii("wav", tmp)) == 0)
       return load_wav(filename);
-   else if (ustricmp(get_extension(filename), uconvert_ascii("voc", NULL)) == 0)
+   else if (ustricmp(get_extension(filename), uconvert_ascii("voc", tmp)) == 0)
       return load_voc(filename);
    else
       return NULL;

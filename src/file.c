@@ -336,7 +336,7 @@ char *replace_filename(char *dest, AL_CONST char *path, AL_CONST char *filename,
  */
 char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext, int size)
 {
-   char tmp[512];
+   char tmp[512], tmp2[16];
    int pos, end, c;
 
    pos = end = ustrlen(filename);
@@ -352,7 +352,7 @@ char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext,
       end = pos-1;
 
    ustrzncpy(tmp, sizeof(tmp), filename, end);
-   ustrzcat(tmp, sizeof(tmp), uconvert_ascii(".", NULL));
+   ustrzcat(tmp, sizeof(tmp), uconvert_ascii(".", tmp2));
    ustrzcat(tmp, sizeof(tmp), ext);
 
    ustrzcpy(dest, size, tmp);
@@ -596,7 +596,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
  */
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode)
 {
-   char fname[512], objname[512];
+   char fname[512], objname[512], tmp[16];
    PACKFILE *f;
    char *p;
    int c;
@@ -609,14 +609,14 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
       }
    }
 
-   if (ustrcmp(filename, uconvert_ascii("#", NULL)) == 0) {
+   if (ustrcmp(filename, uconvert_ascii("#", tmp)) == 0) {
       /* read appended executable data */
       return pack_fopen_exe_file();
    }
    else {
       if (ugetc(filename) == '#') {
 	 /* read object from an appended datafile */
-	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", NULL));
+	 ustrzcpy(fname,  sizeof(fname), uconvert_ascii("#", tmp));
 	 ustrzcpy(objname, sizeof(objname), filename+uwidth(filename));
       }
       else {
@@ -752,6 +752,8 @@ time_t file_time(AL_CONST char *filename)
  */
 int delete_file(AL_CONST char *filename)
 {
+   char tmp[1024*6];
+
    *allegro_errno = 0;
 
    if (ustrchr(filename, '#')) {
@@ -762,7 +764,7 @@ int delete_file(AL_CONST char *filename)
    if (!_al_file_isok(filename))
       return *allegro_errno;
 
-   unlink(uconvert_toascii(filename, NULL));
+   unlink(uconvert_toascii(filename, tmp));
    *allegro_errno = errno;
 
    return *allegro_errno;
@@ -831,6 +833,7 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
 static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, AL_CONST char *datafile, AL_CONST char *objectname, AL_CONST char *subdir, int size)
 {
    char _name[128], _objectname[128], hash[8];
+   char tmp[16];
    int i;
 
    /* convert from name.ext to name_ext (datafile object name format) */
@@ -873,7 +876,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
    }
 
    /* try path/name#_objectname */
-   if ((ustricmp(get_extension(name), uconvert_ascii("dat", NULL)) == 0) && (objectname)) {
+   if ((ustricmp(get_extension(name), uconvert_ascii("dat", tmp)) == 0) && (objectname)) {
       ustrzcpy(dest, size, path);
       ustrzcat(dest, size, name);
       ustrzcat(dest, size, hash);
@@ -953,7 +956,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ext, AL_CONST char *datafile, AL_CONST char *objectname, AL_CONST char *envvar, AL_CONST char *subdir, int size)
 {
    int (*sys_find_resource)(char *, AL_CONST char *, int);
-   char rname[128], path[512];
+   char rname[128], path[512], tmp[512];
    char *s;
    int i, c;
 
@@ -962,13 +965,13 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
       return find_resource(dest, resource, empty_string, datafile, objectname, subdir, size);
 
    /* if we have a path+filename, just use it directly */
-   if ((resource) && (ustrpbrk(resource, uconvert_ascii("\\/#", NULL)))) {
+   if ((resource) && (ustrpbrk(resource, uconvert_ascii("\\/#", tmp)))) {
       if (file_exists(resource, FA_RDONLY | FA_ARCH, NULL)) {
 	 ustrzcpy(dest, size, resource);
 
 	 /* if the resource is a datafile, try looking inside it */
-	 if ((ustricmp(get_extension(dest), uconvert_ascii("dat", NULL)) == 0) && (objectname)) {
-	    ustrzcat(dest, size, uconvert_ascii("#", NULL));
+	 if ((ustricmp(get_extension(dest), uconvert_ascii("dat", tmp)) == 0) && (objectname)) {
+	    ustrzcat(dest, size, uconvert_ascii("#", tmp));
 
 	    for (i=0; i<ustrlen(objectname); i++) {
 	       c = ugetat(objectname, i);
@@ -1021,7 +1024,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 
    /* try any extra environment variable that the parameters say to use */
    if (envvar) {
-      s = getenv(uconvert_toascii(envvar, NULL));
+      s = getenv(uconvert_toascii(envvar, tmp));
 
       if (s) {
 	 do_uconvert(s, U_ASCII, path, U_CURRENT, sizeof(path)-ucwidth(OTHER_PATH_SEPARATOR));
@@ -1051,7 +1054,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
 	       usetat(rname, i, '_');
 	 }
 
-	 ustrzcat(path, sizeof(path), uconvert_ascii("#", NULL));
+	 ustrzcat(path, sizeof(path), uconvert_ascii("#", tmp));
 	 ustrzcat(path, sizeof(path), rname);
 
 	 if (file_exists(path, FA_RDONLY | FA_ARCH, NULL)) {
@@ -1163,6 +1166,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
    PACKFILE *f, *f2;
    long header = FALSE;
    int c;
+   char tmp[1024];
 
    _packfile_type = 0;
 
@@ -1233,9 +1237,9 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 	    return NULL;
 	 }
 #ifndef ALLEGRO_MPW
-	 f->hndl = open(uconvert_toascii(filename, NULL), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	 f->hndl = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 #else
-	 f->hndl = _al_open(uconvert_toascii(filename, NULL), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
+	 f->hndl = _al_open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
 #endif
 	 if (f->hndl < 0) {
 	    *allegro_errno = errno;
@@ -1341,9 +1345,9 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 	 }
 
 #ifndef ALLEGRO_MPW
-	 f->hndl = open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
+	 f->hndl = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 #else
-	 f->hndl = _al_open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY);
+	 f->hndl = _al_open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY);
 #endif
 
 	 if (f->hndl < 0) {

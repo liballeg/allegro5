@@ -1028,7 +1028,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
 
    BITMAP *b;
    AF_MODE_INFO mode_info;
-   char filename[256], tmp1[128], tmp2[128];
+   char filename[256], tmp1[512], tmp2[128];
    int bpp = BYTES_PER_PIXEL(color_depth);
    int bytes_per_scanline, width, height;
    int scrollable, mode, attrib;
@@ -1448,31 +1448,31 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    }
 
    /* set up the VBE/AF description string */
-   ustrzcpy(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(af_driver->OemVendorName, NULL));
+   ustrzcpy(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(af_driver->OemVendorName, tmp1));
 
    if (gfx_vbeaf.linear)
-      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", linear", NULL));
+      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", linear", tmp1));
    else
-      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", banked", NULL));
+      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", banked", tmp1));
 
    if (faf_ext > 0)
       uszprintf(vbeaf_desc+ustrsize(vbeaf_desc), sizeof(vbeaf_desc) - ustrsize(vbeaf_desc),
-                                          uconvert_ascii(", FreeBE ex%02d", NULL), faf_ext);
+		uconvert_ascii(", FreeBE ex%02d", tmp1), faf_ext);
    else if (faf_id)
-      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", FreeBE noex", NULL));
+      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", FreeBE noex", tmp1));
 
    if (faf_farptr)
-      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", farptr", NULL));
+      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", farptr", tmp1));
 
    /* is this an accelerated or dumb framebuffer mode? */
    if (mode_info.Attributes & 16) {
       gfx_vbeaf.drawing_mode = vbeaf_drawing_mode;
       vbeaf_drawing_mode();
-      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", accel", NULL));
+      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", accel", tmp1));
    }
    else {
       gfx_vbeaf.drawing_mode = NULL;
-      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", noaccel", NULL));
+      ustrzcat(vbeaf_desc, sizeof(vbeaf_desc), uconvert_ascii(", noaccel", tmp1));
    }
 
    gfx_vbeaf.desc = vbeaf_desc;
