@@ -255,12 +255,13 @@ Windows problems
       normal main() function into a Windows-style WinMain() entrypoint.
 
 <li><font size="+1">
-@@   I get an error about an "unresolved external symbol _main" with MSVC!
+@@   I get an error about an "unresolved external symbol _main"!
 </font>
-      Make sure you're building a Windows Application, and NOT a Windows
+      Make sure you're building a Windows GUI Application, and not a Windows
       Console Application. This is a setting when you create the project in
-      MSVC. Either that, or #define USE_CONSOLE at the top if you really need
-      the console for your program.
+      MSVC. This is specified by the '-tW' flag for the Borland C++ command
+      line compiler. Either that, or #define USE_CONSOLE at the top if you
+      really need the console for your program.
 
 <li><font size="+1">
 @\   I get an "out of environment space" error when I run fix.bat or
