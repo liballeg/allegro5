@@ -873,7 +873,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
 
    p = get_extension(path);
    if ((!ugetc(p)) && (ext) && (!ustrpbrk(ext, uconvert_ascii(" ,;", NULL)))) {
-      size -= (p - path + ucwidth('.') + ucwidth(0));
+      size -= ((long)p - (long)path + ucwidth('.') + ucwidth(0));
       if (size >= uwidth_max(U_CURRENT)) {  /* do not end with '.' */
          p += usetc(p, '.');
          ustrncpy(p, ext, size);
