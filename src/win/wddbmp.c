@@ -109,7 +109,7 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
       }
    }
    else if (video) {
-      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OFFSCREENPLAIN;
       surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
       surf_desc.dwHeight = h;
       surf_desc.dwWidth = w;
@@ -184,6 +184,7 @@ void gfx_directx_destroy_surf(LPDIRECTDRAWSURFACE2 surf)
          primbuffersurf = NULL;
          backbuffersurf = NULL;
          tripbuffersurf = NULL;
+         reused_screen = 0;
       }
    }
 }
