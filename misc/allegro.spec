@@ -3,6 +3,7 @@
 Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
+Summary(it): Una libreria per la programmazione di videogiochi.
 Name: allegro
 Version: 4.0.0
 Release: 1
@@ -38,10 +39,15 @@ programación de juegos u otro tipo de programación multimedia.
 Allegro est une librairie multi-plateforme destinée à être utilisée dans
 les jeux vidéo ou d'autres types de programmation multimédia.
 
+%description -l it
+Allegro Ã¨ una libreria multipiattaforma dedicata all'uso nei videogiochi
+ed in altri tipi di programmazione multimediale.
+
 %package devel
 Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
+Summary(it): Una libreria per la programmazione di videogiochi.
 Group: Development/C
 Prereq: allegro
 Autoreq: on
@@ -61,10 +67,16 @@ Allegro est une librairie multi-plateforme destinée à être utilisée dans
 les jeux vidéo ou d'autres types de programmation multimédia. Ce package
 est nécessaire pour compiler les programmes utilisant Allegro.
 
+%description devel -l it
+Allegro Ã¨ una libreria multipiattaforma dedicata all'uso nei videogiochi
+ed in altri tipi di programmazione multimediale. Questo pacchetto Ã¨
+necessario per compilare programmi scritti con Allegro.
+
 %package tools
 Summary: Extra tools for the Allegro programming library.
 Summary(es): Herramientas adicionales para la librería de programación Allegro.
 Summary(fr): Outils supplémentaires pour la librairie de programmation Allegro.
+Summary(it): Programmi di utilitÃ  aggiuntivi per la libreria Allegro.
 Group: Development/Other
 Prereq: allegro
 Autoreq: on
@@ -85,6 +97,12 @@ Allegro est une librairie multi-plateforme destinée à être utilisée dans
 les jeux vidéo ou d'autres types de programmation multimédia. Ce package
 contient des outils supplémentaires qui sont utiles pour le développement
 de programmes avec Allegro.
+
+%description tools -l it
+Allegro Ã¨ una libreria multipiattaforma dedicata all'uso nei videogiochi
+ed in altri tipi di programmazione multimediale. Questo pacchetto
+contiene programmi di utilitÃ  aggiuntivi utili allo sviluppo di programmi
+con Allegro.
 
 %prep
 %setup -q
@@ -165,6 +183,9 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
+* Fri Dec 07 2001 Angelo Mottola <lillo@users.sourceforge.net>
+- added italian translation
+
 * Tue Oct 02 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
 - icon courtesy of Johan Peitz
 
