@@ -134,9 +134,5 @@ AL_FUNC(void, unregister_directx_bitmap, (BITMAP *bmp));
 AL_FUNC(void, unregister_all_directx_bitmaps, (void));
 
 
-/* windowed mode (from wddwin.c) */
-AL_VAR(BITMAP*, pseudo_screen);
-
-
 #endif
 

@@ -21,8 +21,6 @@
 #include "wddraw.h"
 
 
-BITMAP* pseudo_screen = NULL;   /* for page-flipping          */
-
 /* exported only for asmlock.s */
 char* wd_dirty_lines = NULL;    /* used in WRITE_BANK()       */
 void (*update_window) (RECT* rect) = NULL;  /* window updater */
@@ -225,7 +223,7 @@ static void update_matching_window(RECT* rect)
 
    _enter_gfx_critical();
 
-   if (!pseudo_screen) {
+   if (!dd_frontbuffer) {
       _exit_gfx_critical();
       return;
    }
@@ -244,7 +242,7 @@ static void update_matching_window(RECT* rect)
  
    /* blit offscreen backbuffer to the window */
    IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
-                           BMP_EXTRA(pseudo_screen)->surf, rect,
+                           BMP_EXTRA(dd_frontbuffer)->surf, rect,
                            0, NULL);
    _exit_gfx_critical();
 }
@@ -322,7 +320,7 @@ static void update_colorconv_window(RECT* rect)
 
    _enter_gfx_critical();
 
-   if (!pseudo_screen) {
+   if (!dd_frontbuffer) {
       _exit_gfx_critical();
       return;
    }
@@ -353,7 +351,7 @@ static void update_colorconv_window(RECT* rect)
                                        (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer */
       if (ddsurf_blit_ex(preconv_offscreen_surface, &src_rect,
-                         BMP_EXTRA(pseudo_screen)->surf, &src_rect) != 0) {
+                         BMP_EXTRA(dd_frontbuffer)->surf, &src_rect) != 0) {
          _exit_gfx_critical();
          return;
       }
@@ -366,7 +364,7 @@ static void update_colorconv_window(RECT* rect)
    else {
       /* blit directly to the primary surface WITHOUT clipping */
       ddsurf_blit_ex(dd_prim_surface, &dest_rect,
-                     BMP_EXTRA(pseudo_screen)->surf, &src_rect);
+                     BMP_EXTRA(dd_frontbuffer)->surf, &src_rect);
    }
 
    _exit_gfx_critical();
@@ -380,13 +378,13 @@ static void update_colorconv_window(RECT* rect)
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
 {
    if (BMP_EXTRA(bitmap)->surf) {
-      pseudo_screen->vtable->release = gfx_directx_unlock;
-      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank;
-      pseudo_screen->write_bank = gfx_directx_write_bank;
-      pseudo_screen = bitmap;
-      pseudo_screen->vtable->release = gfx_directx_unlock_win;
-      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
-      pseudo_screen->write_bank = gfx_directx_write_bank_win;
+      dd_frontbuffer->vtable->release = gfx_directx_unlock;
+      dd_frontbuffer->vtable->unwrite_bank = gfx_directx_unwrite_bank;
+      dd_frontbuffer->write_bank = gfx_directx_write_bank;
+      dd_frontbuffer = bitmap;
+      dd_frontbuffer->vtable->release = gfx_directx_unlock_win;
+      dd_frontbuffer->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
+      dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
       update_window(NULL);
       return 0;
    }
@@ -660,8 +658,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    wd_dirty_lines = calloc(h+1, sizeof(char));
    wd_dirty_lines[h] = 0;
 
-   pseudo_screen = dd_frontbuffer;
-
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_windowed;
 
@@ -708,7 +704,7 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
    /* destroy the offscreen backbuffer */
    gfx_directx_destroy_surf(offscreen_surface);
    offscreen_surface = NULL;
-   pseudo_screen = NULL;
+   dd_frontbuffer = NULL;
 
    /* destroy the pre-converted offscreen buffer */
    gfx_directx_destroy_surf(preconv_offscreen_surface);

@@ -135,7 +135,7 @@ FUNC (gfx_directx_unwrite_bank_win)
       /* update dirty lines: this is safe because autolocking
        * is guaranteed to be the only level of locking.
        */
-      movl GLOBL(pseudo_screen), %edx
+      movl GLOBL(dd_frontbuffer), %edx
       call update_dirty_lines
 
       popl %eax
@@ -156,8 +156,8 @@ FUNC(gfx_directx_unlock_win)
       call *GLOBL(ptr_gfx_directx_unlock)
       popl %edx
 
-      /* pseudo_screen may still be locked in case of nested locking */
-      movl GLOBL(pseudo_screen), %edx
+      /* dd_frontbuffer may still be locked in case of nested locking */
+      movl GLOBL(dd_frontbuffer), %edx
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz No_update_win
 
@@ -170,7 +170,7 @@ FUNC(gfx_directx_unlock_win)
 
 
 /* update_dirty_lines
- *  edx = pseudo_screen
+ *  edx = dd_frontbuffer
  *  clobbers: %eax, %ecx
  */
 
@@ -186,10 +186,10 @@ update_dirty_lines:
       subl $16, %esp  /* allocate a RECT structure */
 
       movl $0, RECT_LEFT
-      movl BMP_W(%edx), %ecx           /* ecx = pseudo_screen->w */
+      movl BMP_W(%edx), %ecx           /* ecx = dd_frontbuffer->w */
       movl %ecx, RECT_RIGHT
       movl GLOBL(wd_dirty_lines), %ebx /* ebx = wd_dirty_lines   */
-      movl BMP_H(%edx), %esi           /* esi = pseudo_screen->h */
+      movl BMP_H(%edx), %esi           /* esi = dd_frontbuffer->h */
       movl $0, %edi  
 
    _align_

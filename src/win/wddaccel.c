@@ -68,7 +68,7 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
    _exit_gfx_critical();
    
    /* only for windowed mode */
-   if (dest_parent == pseudo_screen) {
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == dd_frontbuffer)) {
       src_rect.left   = dest_parent_x;
       src_rect.top    = dest_parent_y;
       src_rect.right  = dest_parent_x + width;
@@ -133,7 +133,7 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
 	 _TRACE("Blt failed (%x)\n", hr);
 
       /* only for windowed mode */
-      if (dest_parent == pseudo_screen)
+      if ((gfx_driver->id == GFX_DIRECTX_WIN) && (dest_parent == dd_frontbuffer))
          win_gfx_driver->paint(&dest_rect);
    }
    else {
@@ -230,7 +230,7 @@ static void ddraw_clear_to_color(BITMAP * bitmap, int color)
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if (parent == pseudo_screen)
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == dd_frontbuffer))
       win_gfx_driver->paint(&dest_rect);
 }
 
@@ -310,7 +310,7 @@ static void ddraw_rectfill(BITMAP *bitmap, int x1, int y1, int x2, int y2, int c
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if (parent == pseudo_screen)
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == dd_frontbuffer))
       win_gfx_driver->paint(&dest_rect);
 }
 
@@ -378,7 +378,7 @@ static void ddraw_hline(BITMAP *bitmap, int x1, int y, int x2, int color)
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if (parent == pseudo_screen)
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == dd_frontbuffer))
       win_gfx_driver->paint(&dest_rect);
 }
 
@@ -445,7 +445,7 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
       _TRACE("Blt failed (%x)\n", hr);
 
    /* only for windowed mode */
-   if (parent == pseudo_screen)
+   if ((gfx_driver->id == GFX_DIRECTX_WIN) && (parent == dd_frontbuffer))
       win_gfx_driver->paint(&dest_rect);
 }
 
