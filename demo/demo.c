@@ -12,6 +12,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Multiple bullets and extra lives added by David Cullen.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -65,10 +67,11 @@ int pos;
 int xspeed, yspeed, ycounter;
 int ship_state;
 int ship_burn;
+int ship_count;
 int shot;
 int skip_speed, skip_count;
 volatile int frame_count, fps;
-volatile int game_time;
+volatile unsigned int game_time;
 
 #define MAX_SPEED       32
 #define SPEED_SHIFT     3
@@ -107,11 +110,17 @@ volatile int new_alien_count;
 RLE_SPRITE *explosion[EXPLODE_FRAMES];
 
 
-/* position of the bullet */
+/* position of the bullets */
 #define BULLET_SPEED    6
+#define BULLET_DELAY   20
 
-volatile int bullet_flag;
-volatile int bullet_x, bullet_y; 
+typedef struct BULLET {
+   int x;
+   int y;
+   struct BULLET *next;
+} BULLET;
+
+BULLET *bullet_list;
 
 
 /* dirty rectangle list */
@@ -162,16 +171,72 @@ END_OF_FUNCTION(fps_proc);
 
 
 
+/* add a bullet to the list */
+BULLET *add_bullet(int x, int y)
+{
+   BULLET *iter, *bullet;
+
+   bullet = (BULLET *)malloc(sizeof(BULLET));
+   bullet->x = x;
+   bullet->y = y;
+   bullet->next = NULL;
+
+   /* special treatment for head */
+   if (!bullet_list) {
+      bullet_list = bullet;
+   }
+   else {
+      for (iter = bullet_list; iter->next; iter = iter->next)
+	 ;
+
+      iter->next = bullet;
+   }
+
+   return bullet;
+}
+
+
+
+/* delete a bullet and return the next in the list */
+BULLET *delete_bullet(BULLET *bullet)
+{
+   BULLET *iter;
+
+   /* special treatment for head */
+   if (bullet == bullet_list) {
+      bullet_list = bullet->next;
+      free(bullet);
+      return bullet_list;
+   }
+   else {
+      for (iter = bullet_list; iter->next != bullet; iter = iter->next)
+	 ;
+
+      iter->next = bullet->next;
+      free(bullet);
+      return iter->next;
+   }
+}
+
+
+
 /* the main game update function */
 void move_everyone(void)
 {
+   static unsigned int last_bullet_time = 0;
+
    int c;
+   BULLET *bullet;
 
    if (shot) {
       /* player dead */
       if (skip_count <= 0) {
-	 if (ship_state >= EXPLODE_FLAG+EXPLODE_FRAMES-1)
-	    dead = TRUE;
+	 if (ship_state >= EXPLODE_FLAG+EXPLODE_FRAMES-1) {
+	    if (--ship_count <= 0)
+	       dead = TRUE;
+	    else
+	       shot = FALSE;
+	 }
 	 else
 	    ship_state++;
 
@@ -267,8 +332,8 @@ void move_everyone(void)
       ycounter += yspeed;
 
       while (ycounter >= (1 << SPEED_SHIFT)) {
-	 if (bullet_flag)
-	    bullet_y++;
+	 for (bullet = bullet_list; bullet; bullet = bullet->next)
+	    bullet->y++;
 
 	 for (c=0; c<MAX_STARS; c++) {
 	    if (++star[c].oy >= SCREEN_H)
@@ -283,25 +348,34 @@ void move_everyone(void)
    }
 
    /* move bullet */
-   if (bullet_flag) {
-      bullet_y -= BULLET_SPEED;
+   bullet = bullet_list;
+   while (bullet) {
+      bullet->y -= BULLET_SPEED;
 
-      if (bullet_y < 8) {
-	 bullet_flag = FALSE;
+      /* if the bullet is at the top of the screen, delete it */
+      if (bullet->y < 8) {
+	 bullet = delete_bullet(bullet);
+	 goto bullet_updated;
       }
       else {
 	 /* shot an alien? */
 	 for (c=0; c<alien_count; c++) {
-	    if ((ABS(bullet_y - alien[c].y) < 20) && (ABS(bullet_x - alien[c].x) < 20) && (!alien[c].shot)) {
+	    if ((ABS(bullet->y - alien[c].y) < 20) && (ABS(bullet->x - alien[c].x) < 20) && (!alien[c].shot)) {
 	       alien[c].shot = TRUE;
 	       alien[c].state = EXPLODE_FLAG;
-	       bullet_flag = FALSE;
 	       score += 10;
-	       play_sample(data[BOOM_SPL].dat, 255, PAN(bullet_x), 1000, FALSE);
-	       break; 
+	       play_sample(data[BOOM_SPL].dat, 255, PAN(bullet->x), 1000, FALSE);
+	       /* delete the bullet that killed the alien */
+	       bullet = delete_bullet(bullet);
+	       goto bullet_updated;
 	    }
 	 }
       }
+
+      bullet = bullet->next;
+
+    bullet_updated:
+      ; /* prevent GCC 3.3.1 from complaining */
    }
 
    /* move stars */
@@ -313,11 +387,12 @@ void move_everyone(void)
    /* fire bullet? */
    if (!shot) {
       if ((key[KEY_SPACE]) || (joy[0].button[0].b) || (joy[0].button[1].b)) {
-	 if (!bullet_flag) {
-	    bullet_x = (pos>>SPEED_SHIFT)-2;
-	    bullet_y = SCREEN_H-64;
-	    bullet_flag = TRUE;
-	    play_sample(data[SHOOT_SPL].dat, 100, PAN(bullet_x), 1000, FALSE);
+	 if (last_bullet_time + BULLET_DELAY < game_time) {
+	    bullet = add_bullet((pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
+	    if (bullet) {
+	       play_sample(data[SHOOT_SPL].dat, 100, PAN(bullet->x), 1000, FALSE);
+	       last_bullet_time = game_time;
+	    }
 	 } 
       }
    }
@@ -363,7 +438,7 @@ void move_everyone(void)
       else {
 	 /* alien collided with player? */
 	 if ((ABS(alien[c].x - (pos>>SPEED_SHIFT)) < 48) && (ABS(alien[c].y - (SCREEN_H-42)) < 32)) {
-	    if (!shot) {
+            if ((!shot) && (!alien[c].shot)) {
 	       if (!cheat) {
 		  ship_state = EXPLODE_FLAG;
 		  shot = TRUE;
@@ -431,6 +506,7 @@ void draw_screen(void)
    BITMAP *bmp;
    RLE_SPRITE *spr;
    char *animation_type_str;
+   BULLET *bullet;
 
    if (animation_type == DOUBLE_BUFFER) {
       /* for double buffering, draw onto the memory bitmap. The first step 
@@ -567,10 +643,10 @@ void draw_screen(void)
 	 add_to_list(&dirty, x-spr->h/2, y-spr->h/2, spr->w, spr->h);
    }
 
-   /* draw the bullet */
-   if (bullet_flag) {
-      x = bullet_x;
-      y = bullet_y;
+   /* draw the bullets */
+   for (bullet = bullet_list; bullet; bullet = bullet->next) {
+      x = bullet->x;
+      y = bullet->y;
 
       spr = (RLE_SPRITE *)data[ROCKET].dat;
       draw_rle_sprite(bmp, spr, x-spr->w/2, y-spr->h/2);
@@ -689,6 +765,7 @@ void play_game(void)
    int c;
    BITMAP *b, *b2;
    int esc = FALSE;
+   unsigned int prev_update_time;
 
    stop_midi();
 
@@ -698,8 +775,9 @@ void play_game(void)
    xspeed = yspeed = ycounter = 0;
    ship_state = SHIP3;
    ship_burn = FALSE;
+   ship_count = 3;   /* 3 lives instead of one... */
    frame_count = fps = 0;
-   bullet_flag = FALSE;
+   bullet_list = NULL;
    score = 0;
    old_dirty.count = dirty.count = 0;
 
@@ -788,15 +866,16 @@ void play_game(void)
       install_int(game_timer, 6400/SCREEN_W);
 
    game_time = 0;
+   prev_update_time = 0;
 
    /* main game loop */
    while (!dead) {
       poll_keyboard();
       poll_joystick();
 
-      while (game_time > 0) {
+      while (prev_update_time < game_time) {
 	 move_everyone();
-	 game_time--;
+	 prev_update_time++;
       }
 
       draw_screen();
@@ -815,6 +894,9 @@ void play_game(void)
       remove_int(game_timer);
 
    stop_sample(data[ENGINE_SPL].dat);
+
+   while (bullet_list)
+      delete_bullet(bullet_list);
 
    if (esc) {
       while (current_page != 0)
