@@ -148,8 +148,67 @@ information about how to install Allegro and link your program with it.
    will bring up a GUI message box.
 
 @@void @set_window_title(const char *name);
+@xref set_window_close_button, set_window_close_hook
    On platforms that are capable of it, this routine alters the window title 
-   for your Allegro program.
+   for your Allegro program. Note that Allegro cannot set the window title 
+   when running in a DOS box under Windows.
+
+@@int @set_window_close_button(int enable);
+@xref set_window_close_hook, set_window_title
+   On platforms that are capable of it, this routine disables or enables the 
+   window close button for your Allegro program. You can call it before the 
+   window is created if you wish. If the close button is successfully 
+   disabled, this function returns zero.
+
+   On platforms where the close button either does not exist or cannot be 
+   disabled, this function returns -1. If this happens, you may wish 
+   to use set_window_close_hook() to handle the close event yourself.
+
+   When enabling the close button, the function will return the same value 
+   for your platform as when disabling. That means it will return non-zero 
+   if the button cannot be disabled, even though you are not trying to 
+   disable it.
+
+   Note that Allegro cannot manipulate the close button of a DOS box in 
+   Windows.
+
+@@void @set_window_close_hook(void (*proc)());
+@xref set_window_close_button, set_window_title, get_config_text
+@xref three_finger_flag
+   On platforms that have a close button, this routine installs a hook 
+   function to handle the close event. In other words, when the user clicks 
+   the close button on your program's window, the function you specify here 
+   will be called. You can use this function to display a box offering to 
+   save data or checking that the user really wants to exit, or you can use 
+   it just to save config data, free memory and exit.
+
+   This function should not generally attempt to exit the program or save 
+   any data itself. The function could be called at any time, and there is 
+   usually a risk of trying to save when the data are invalid. Instead, you 
+   should set a flag during this function, and test the flag on a regular 
+   basis in the main program.
+
+   Pass NULL to this function to restore the close button's default 
+   functionality. On Windows and BeOS, the following message will appear:
+
+      Warning: forcing program shutdown may lead to data loss and unexpected 
+      results. It is preferable to use the exit command inside the window.
+
+      Proceed anyway?
+
+      [Yes] [No]
+
+   This message will be translated into your selected language if a 
+   translation is available in language.dat (see get_config_text()).
+
+   If the user clicks [Yes], the program will exit immediately in the same 
+   style as Ctrl+Alt+End (see three_finger_flag).
+
+   In other operating systems, the program will exit immediately without 
+   prompting the user.
+
+   Note that Allegro cannot intercept the close button of a DOS box in 
+   Windows.
 
 @@int @desktop_color_depth();
    On platforms that can run Allegro programs in a window on an existing 

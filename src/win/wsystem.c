@@ -57,6 +57,8 @@ SYSTEM_DRIVER system_directx =
    sys_directx_get_executable_name,
    NULL,                        /* AL_METHOD(int, find_resource, (char *dest, char *resource, int size)); */
    sys_directx_set_window_title,
+   NULL,                        /* AL_METHOD(int, set_window_close_button, (int enable)); */
+   NULL,                        /* AL_METHOD(void, set_window_close_hook, (void (*proc)())); */
    sys_directx_message,
    sys_directx_assert,
    sys_directx_save_console_state,

@@ -66,6 +66,8 @@ SYSTEM_DRIVER system_linux =
    _unix_get_executable_name,
    _unix_find_resource,
    NULL, /* set_window_title */
+   NULL, /* set_window_close_button */
+   NULL, /* set_window_close_hook */
    sys_linux_message,
    NULL, /* assert */
    NULL, /* save_console_state */

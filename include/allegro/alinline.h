@@ -217,6 +217,26 @@ AL_INLINE(void, set_window_title, (char *name),
 })
 
 
+AL_INLINE(int, set_window_close_button, (int enable),
+{
+   ASSERT(system_driver);
+
+   if (system_driver->set_window_close_button)
+      return system_driver->set_window_close_button(enable);
+
+   return -1;
+})
+
+
+AL_INLINE(void, set_window_close_hook, (void (*proc)()),
+{
+   ASSERT(system_driver);
+
+   if (system_driver->set_window_close_hook)
+      system_driver->set_window_close_hook(proc);
+})
+
+
 AL_INLINE(int, desktop_color_depth, (void),
 {
    ASSERT(system_driver);

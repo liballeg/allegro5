@@ -156,6 +156,8 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(void, get_executable_name, (char *output, int size));
    AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size));
    AL_METHOD(void, set_window_title, (AL_CONST char *name));
+   AL_METHOD(int, set_window_close_button, (int enable));
+   AL_METHOD(void, set_window_close_hook, (void (*proc)()));
    AL_METHOD(void, message, (AL_CONST char *msg));
    AL_METHOD(void, assert, (AL_CONST char *msg));
    AL_METHOD(void, save_console_state, (void));

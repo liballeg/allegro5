@@ -119,7 +119,7 @@ SYSTEM_DRIVER system_dos =
    sys_dos_init,
    sys_dos_exit,
    sys_dos_get_executable_name,
-   NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL, NULL,
    sys_dos_assert,
    sys_dos_save_console_state,
    sys_dos_restore_console_state,
