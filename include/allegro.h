@@ -37,6 +37,7 @@
    #include <stdarg.h>
    #include <limits.h>
    #include <errno.h>
+   #include <time.h>
 #endif
 
 #include "allegro/alconfig.h"
@@ -1774,7 +1775,7 @@ AL_FUNC(void, put_backslash, (char *filename));
 AL_FUNC(int, file_exists, (AL_CONST char *filename, int attrib, int *aret));
 AL_FUNC(int, exists, (AL_CONST char *filename));
 AL_FUNC(long, file_size, (AL_CONST char *filename));
-AL_FUNC(long, file_time, (AL_CONST char *filename));
+AL_FUNC(time_t, file_time, (AL_CONST char *filename));
 AL_FUNC(int, delete_file, (AL_CONST char *filename));
 AL_FUNC(int, for_each_file, (AL_CONST char *name, int attrib, AL_METHOD(void, callback, (AL_CONST char *filename, int attrib, int param)), int param));
 AL_FUNC(int, find_allegro_resource, (char *dest, AL_CONST char *resource, AL_CONST char *ext, AL_CONST char *datafile, AL_CONST char *objectname, AL_CONST char *envvar, AL_CONST char *subdir, int size));

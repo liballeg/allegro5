@@ -78,7 +78,7 @@ AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
 AL_FUNC(int, _al_file_exists, (AL_CONST char *filename, int attrib, int *aret));
 AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
-AL_FUNC(long, _al_file_time, (AL_CONST char *filename));
+AL_FUNC(time_t, _al_file_time, (AL_CONST char *filename));
 AL_FUNC(void *, _al_findfirst, (AL_CONST char *name, int attrib, char *nameret, int *aret));
 AL_FUNC(int, _al_findnext, (void *dta, char *nameret, int *aret));
 AL_FUNC(void, _al_findclose, (void *dta));

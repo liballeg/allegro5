@@ -725,7 +725,7 @@ long file_size(AL_CONST char *filename)
  *  If the file does not exist or an error occurs, it will return zero
  *  and store the system error code in errno.
  */
-long file_time(AL_CONST char *filename)
+time_t file_time(AL_CONST char *filename)
 {
    if (ustrchr(filename, '#')) {
       *allegro_errno = ENOSYS;

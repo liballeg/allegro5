@@ -512,9 +512,9 @@ long _al_file_size(const char *filename){
 /*
  *
  */
-long _al_file_time(const char *filename){
+time_t _al_file_time(const char *filename){
    void *dta;
-   long ft;
+   time_t ft;
    
    dta = _al_findfirst(filename,0/*FA_RDONLY | FA_HIDDEN | FA_ARCH*/,NULL,NULL);
    if (dta){

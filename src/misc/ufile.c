@@ -81,7 +81,7 @@ long _al_file_size(AL_CONST char *filename)
 /* _al_file_time:
  *  Returns the timestamp of the specified file.
  */
-long _al_file_time(AL_CONST char *filename)
+time_t _al_file_time(AL_CONST char *filename)
 {
    struct stat s;
 
