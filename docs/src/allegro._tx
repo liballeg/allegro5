@@ -2650,9 +2650,9 @@ information for more details.
 @xref install_mouse, show_mouse, set_mouse_sprite_focus
 @eref exmouse
 @shortdesc Sets the mouse sprite.
-   You don't like my mouse pointer? No problem. Use this function to supply 
-   an alternative of your own. If you change the pointer and then want to 
-   get my lovely arrow back again, call set_mouse_sprite(NULL).
+   You don't like Allegro's mouse pointer? No problem. Use this function to
+   supply an alternative of your own. If you change the pointer and then want
+   to get Allegro's lovely arrow back again, call set_mouse_sprite(NULL).
 
    As a bonus, set_mouse_sprite(NULL) uses the current palette in choosing
    colors for the arrow. So if your arrow mouse sprite looks ugly after
@@ -5773,8 +5773,16 @@ clipping rectangle of the destination bitmap.
    to copy from the source bitmap, and dest_x and dest_y are the 
    corresponding position in the destination bitmap. This routine respects 
    the destination clipping rectangle, and it will also clip if you try to 
-   blit from areas outside the source bitmap.
-
+   blit from areas outside the source bitmap. Example:
+<codeblock>
+      BITMAP *bmp;
+      ...
+      /* Blit src on the screen. */
+      blit(bmp, screen, 0, 0, 0, 0, bmp-&gtw, bmp-&gth);
+      
+      /* Now copy a chunk to a corner, slightly outside. /*
+      blit(screen, screen, 100, 100, -10, -10, 25, 30);
+<endblock>
    You can blit between any parts of any two bitmaps, even if the two memory 
    areas overlap (ie. source and dest are the same, or one is sub-bitmap of 
    the other). You should be aware, however, that a lot of SVGA cards don't 
@@ -5819,7 +5827,13 @@ clipping rectangle of the destination bitmap.
    take care not to copy from areas outside the source bitmap, and you 
    cannot blit between overlapping regions, ie. you must use different 
    bitmaps for the source and the destination. Moreover, the source must 
-   be a memory bitmap.
+   be a memory bitmap. Example:
+<codeblock>
+      BITMAP *bmp;
+      ...
+      /* Stretch bmp to fill the screen. */
+      stretch_blit(bmp, screen, 0, 0, bmp-&gtw, bmp-&gth,
+		   0, 0, SCREEN_W, SCREEN_H);<endblock>
 
 @\void @masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@                 int dest_x, int dest_y, int width, int height);
@@ -5829,6 +5843,13 @@ clipping rectangle of the destination bitmap.
    256-color modes or bright pink for truecolor data (maximum red and blue, 
    zero green), and requires the source and destination bitmaps to be of 
    the same color depth. The source and destination regions must not overlap.
+   Example:
+<codeblock>
+      BITMAP *hud_overlay;
+      ...
+      /* Paint hud overlay on the screen. */
+      masked_blit(hud_overlay, screen, 0, 0, 0, 0,
+		  hud_overlay-&gtw, hud_overlay-&gth);<endblock>
 
    If the GFX_HW_VRAM_BLIT_MASKED bit in the gfx_capabilities flag is set, 
    the current driver supports hardware accelerated masked blits from one 
@@ -5849,7 +5870,14 @@ clipping rectangle of the destination bitmap.
    destination rectangles don't need to be the same size). This routine 
    doesn't do as much safety checking as the regular masked_blit(): in 
    particular you must take care not to copy from areas outside the source 
-   bitmap. Moreover, the source must be a memory bitmap.
+   bitmap. Moreover, the source must be a memory bitmap. Example:
+<codeblock>
+      BITMAP *hud_overlay;
+      ...
+      /* Stretch hud overlay over the screen. */
+      masked_stretch_blit(hud_overlay, screen, 0, 0,
+			  hud_overlay-&gtw, hud_overlay-&gth,
+			  0, 0, SCREEN_W, SCREEN_H);<endblock>
 
 @@void @draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite_v_flip, draw_trans_sprite, draw_lit_sprite
@@ -5864,7 +5892,11 @@ clipping rectangle of the destination bitmap.
    transparent pixels are skipped, so the background image will show through 
    the masked parts of the sprite. Transparent pixels are marked by a zero 
    in 256-color modes or bright pink for truecolor data (maximum red and 
-   blue, zero green).
+   blue, zero green). Example:
+<codeblock>
+      BITMAP *spaceship;
+      ...
+      draw_sprite(screen, spaceship, x, y);<endblock>
 
    If the GFX_HW_VRAM_BLIT_MASKED bit in the gfx_capabilities flag is set, 
    the current driver supports hardware accelerated sprite drawing when the 
@@ -5888,7 +5920,15 @@ clipping rectangle of the destination bitmap.
    Like draw_sprite(), except it can stretch the sprite image to the 
    specified width and height and requires the sprite image and destination 
    bitmap to be of the same color depth. Moreover, the sprite image must 
-   be a memory bitmap.
+   be a memory bitmap. Example:
+<codeblock>
+      /* Create tunnel like effect. */
+      for (step = 1; step < 16; step++) {
+	 int width = SCREEN_W / f;
+	 int height = SCREEN_H / f;
+	 stretch_sprite(screen, image, SCREEN_W / 2 - width / 2,
+			SCREEN_H / 2 - height / 2, width, height);
+      }<endblock>
 
 @@void @draw_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @@void @draw_sprite_h_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
@@ -5902,7 +5942,14 @@ clipping rectangle of the destination bitmap.
    that the x-axis is reversed, between the source and the destination.
    This produces exact mirror images, which is not the same as rotating the
    sprite (and it is a lot faster than the rotation routine). The sprite
-   must be a memory bitmap.
+   must be a memory bitmap. Example:
+<codeblock>
+      if (key[KEY_RIGHT])
+	 draw_sprite(screen, hero_right, pos_x, pos_y);
+      else if (key[KEY_LEFT])
+	 draw_h_sprite(screen, hero_right, pos_x, pos_y);
+      else
+	 draw_sprite(screen, hero_idle, pos_x, pos_y);<endblock>
 
 @@void @draw_trans_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite, draw_lit_sprite, draw_trans_rle_sprite, color_map
@@ -5910,20 +5957,34 @@ clipping rectangle of the destination bitmap.
 @xref bitmap_mask_color
 @eref exalpha, exblend, exlights, extrans, exxfade
 @shortdesc Draws a sprite blending it with the destination.
-   Uses the global color_map table or truecolor blender functions to overlay 
+   Uses the global color_map table or truecolor blender functions to overlay
    the sprite on top of the existing image. This must only be used after you 
    have set up the color mapping table (for 256-color modes) or blender 
    functions (for truecolor modes). Because it involves reading as well as 
    writing the bitmap memory, translucent drawing is very slow if you draw 
    directly to video RAM, so wherever possible you should use a memory 
-   bitmap instead. The bitmap and sprite must normally be in the same color 
-   depth, but as a special case you can draw 32 bit RGBA format sprites onto 
-   any hicolor or truecolor bitmap, as long as you call set_alpha_blender() 
-   first, and you can draw 8-bit alpha images onto a 32-bit RGBA 
-   destination, as long as you call set_write_alpha_blender() first. 
-   As draw_sprite() this function skips transparent pixels, except if the 
-   source sprite is an 8-bit image; if this is the case, you should pay 
-   attention to properly set up your color map table for index 0.
+   bitmap instead. Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_trans_table;
+      create_trans_table(&global_trans_table, my_palette,
+			 128, 128, 128, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_trans_table;
+      else
+	 set_trans_blender(128, 128, 128, 128);
+
+      draw_trans_sprite(buffer, ghost_sprite, x, y);<endblock>
+
+   The bitmap and sprite must normally be in the same color depth, but as a
+   special case you can draw 32 bit RGBA format sprites onto any hicolor or
+   truecolor bitmap, as long as you call set_alpha_blender() first, and you
+   can draw 8-bit alpha images onto a 32-bit RGBA destination, as long as you
+   call set_write_alpha_blender() first. As draw_sprite() this function skips
+   transparent pixels, except if the source sprite is an 8-bit image; if this
+   is the case, you should pay attention to properly set up your color map
+   table for index 0.
 
 @@void @draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
@@ -5940,7 +6001,20 @@ clipping rectangle of the destination bitmap.
    draws the resulting image to the destination bitmap. The 'color' parameter
    must be in the range [0-255] whatever its actual meaning is. This must
    only be used after you have set up the color mapping table (for 256-color
-   modes) or blender functions (for truecolor modes).
+   modes) or blender functions (for truecolor modes). Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_light_table;
+      create_light_table(&global_trans_table, my_palette,
+			 10, 10, 60, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_light_table;
+      else
+	 set_trans_blender(40, 40, 255, 255);
+
+      /* Lit the cape with a bluish light. */
+      draw_lit_sprite(buffer, colored_cape, x, y);<endblock>
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int c1, int c2, int c3, int c4);
@@ -5949,7 +6023,26 @@ clipping rectangle of the destination bitmap.
 @shortdesc Draws a sprite with gouraud shading.
    More sophisticated version of draw_lit_sprite(): the 'color' parameter is
    not constant across the sprite image anymore but interpolated between the
-   four specified corner colors, which have the same actual meaning as it.
+   four specified corner colors. The corner values passed to this function
+   indicate the strength of the color applied on them, ranging from 0 (no
+   strength) to 255 (full strength). Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_light_table;
+      create_light_table(&global_trans_table, my_palette,
+			 0, 0, 0, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_light_table;
+      else
+	 set_trans_blender(0, 0, 0, 128);
+
+      /* Enemies are in shadow unless lit by torch. */
+      draw_gouraud_sprite(buffer, menacing_spy, x, y,
+			  light_strength_on_corner_1,
+			  light_strength_on_corner_2,
+			  light_strength_on_corner_3,
+			  light_strength_on_corner_4);<endblock>
 
 @\void @draw_character_ex(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                       color, bg);
@@ -9532,7 +9625,10 @@ If you have appended a datafile to the end of your executable with the
 exedat utility, use load_datafile("#") to read the entire thing into memory, 
 load_datafile_object("#", "object_name") to load a specific object, and 
 pack_fopen("#object_name", F_READ) to read one of the objects directly with 
-your own code.
+your own code. Note that unless you use the previous functions to load the
+appended data, the OS will not load it into memory just because you are
+running the program, so you shouldn't have problems attaching datafiles to
+your binary larger than the available system memory.
 
 By default, all graphic objects loaded from a datafile will be converted 
 into the current color depth. This conversion may be both lossy and very 
