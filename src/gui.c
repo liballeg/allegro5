@@ -1437,6 +1437,8 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
    unscare_mouse();
 
    do {
+      yield_timeslice();
+
       old_sel = m.sel;
 
       c = menu_mouse_object(&m);
