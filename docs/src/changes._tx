@@ -10,9 +10,49 @@
 
 
 @heading
-Changes from 4.0.2 to 4.0.3 (Dec 2002)
+Changes from 4.0.2 to 4.0.3 (Jan 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
+<li>
+   Annie Testes fixed some device name strings in the setup program.
+<li>
+   Eric Botcazou disabled hackish centering code in fullscreen mode
+   under X11 which caused some artifacts to appear on KDE desktops.
+<li>
+   Eric Botcazou fixed a bug with Alt+TAB under X11.
+<li>
+   Eric Botcazou added a configure check for the include prefix problem
+   with gcc 3.1 or later on Unix systems.
+<li>
+   Eric Botcazou made the scroll() method of the Linux SVGAlib driver wait
+   for a retrace.
+<li>
+   Ben Davis documented the non-standard behaviour of pack_feof().
+<li>
+   Eric Botcazou worked around a weird problem with some X11 window managers
+   that prevented the fullscreen driver from setting up.
+<li>
+   Grzegorz Adam Hankiewicz added a warning about DJGPP stability under some
+   Windows versions.
+<li>
+   Eric Botcazou made it so that the window is centered at startup under
+   Windows.
+<li>
+   Eric Botcazou worked around a problem with DOS file attributes under Win2k
+   with the help of Chris Jones.
+<li>
+   Eric Botcazou made the filetest work better with the keyboard.
+<li>
+   Elias Pschernig added support to use the saved window position for initial
+   window placing under Windows.
+<li>
+   Eric Botcazou fixed the mishandling of TAB characters in menu bar entries.
+<li>
+   Elias Pschernig optimized the load_bitmap() function family when no
+   palette is specified and documented the feature.
+<li>
+   Eric Botcazou added a new DEBUGMODE level so that debuggers will not be
+   flooded by internal debug messages any more under Windows.
 <li>
    Grzegorz Adam Hankiewicz improved the internationalization of the close
    button message.
@@ -27,9 +67,6 @@ Changes from 4.0.2 to 4.0.3 (Dec 2002)
 <li>
    Eric Botcazou fixed a buffer overflow in the Windows debug version
    spotted by aj.
-<li>
-   Eric Botcazou made the joystick initialization routine correctly handle
-   zero as the joytype.
 <li>
    Eric Botcazou fixed the compile-time check for the MMX asm support.
 <li>
@@ -104,8 +141,6 @@ Changes from 4.0.2 to 4.0.3 (Dec 2002)
 <li>
    Peter Wang made fix.sh and zipup.sh not destroy timestamps when just
    changing EOL markers.
-<li>
-   Peter Wang fixed a misuse of the -I option with gcc 3.0 and later.
 <li>
    Robert J. Ohannessian added more caveats to docs/build/mingw32.txt.
 <li>

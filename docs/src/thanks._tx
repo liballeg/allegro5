@@ -62,7 +62,8 @@ Contributors
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
    Fixed several glitches in the unicode support. Added a pack_fdopen()
    function. Caught a misordering in the X system shutdown. Found ASCII
-   strings that needed to be converted.
+   strings that needed to be converted. Fixed some device name strings
+   in the setup program.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -97,7 +98,8 @@ Contributors
    fixed other minor bugs in the mixer. Fixed a bug in create_rgb_table(). 
    Adapted polygon functions to handle two coincident vertices. Added the 
    set_window_close_button() and set_window_close_hook() framework. Added
-   support for timers with parameters under Windows.
+   support for timers with parameters under Windows. Documented the
+   non-standard behaviour of pack_feof().
 
    Benjamin Joel Stover (<email>stovertech@intellisys.net</a>).<br>
    Wrote the initial version of the fullscreen X-Windows graphics driver.
@@ -195,7 +197,9 @@ Contributors
    Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
    Added a COLORCONV_KEEP_TRANS mode. Contributed the wfixicon utility.
    Contributed several enhancements to the grabber. Fixed a bug in
-   midi_seek().
+   midi_seek(). Added support to use the saved window position for initial
+   window placing under Windows. Optimized the load_bitmap() function family
+   when no palette is specified and documented the feature.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
