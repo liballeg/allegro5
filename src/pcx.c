@@ -31,6 +31,7 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    PACKFILE *f;
    BITMAP *b;
    PALETTE tmppal;
+   int want_palette = TRUE;
    int c;
    int width, height;
    int bpp, bytes_per_line;
@@ -39,8 +40,11 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    char ch;
    int dest_depth;
 
-   if (!pal)
+   /* we really need a palette */
+   if (!pal) {
+      want_palette = FALSE;
       pal = tmppal;
+   }
 
    f = pack_fopen(filename, F_READ);
    if (!f)
@@ -140,8 +144,6 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 	 }
       }
    }
-   else
-      generate_332_palette(pal);
 
    pack_fclose(f);
 
@@ -150,8 +152,17 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
-   if (dest_depth != bpp)
+   if (dest_depth != bpp) {
+      /* restore original palette except if it comes from the bitmap */
+      if ((bpp != 8) && (!want_palette))
+	 pal = NULL;
+
       b = _fixup_loaded_bitmap(b, pal, dest_depth);
+   }
+
+   /* construct a fake palette if 8-bit mode is not involved */
+   if ((bpp != 8) && (dest_depth != 8) && want_palette)
+      generate_332_palette(pal);
 
    return b;
 }

@@ -189,9 +189,13 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
    PACKFILE *f;
    BITMAP *bmp;
    PALETTE tmppal;
+   int want_palette = TRUE;
 
-   if (!pal)
+   /* we really need a palette */
+   if (!pal) {
+      want_palette = FALSE;
       pal = tmppal;
+   }
 
    f = pack_fopen(filename, F_READ);
    if (!f)
@@ -273,11 +277,9 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 	 /* truecolor image */
 	 if ((palette_type == 0) && ((bpp == 15) || (bpp == 16))) {
 	    bpp = 15;
-	    generate_332_palette(pal);
 	    dest_depth = _color_load_depth(15, FALSE);
 	 }
 	 else if ((palette_type == 0) && ((bpp == 24) || (bpp == 32))) {
-	    generate_332_palette(pal);
 	    dest_depth = _color_load_depth(bpp, (bpp == 32));
 	 }
 	 else {
@@ -379,9 +381,18 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
-   if (dest_depth != bpp)
-      bmp = _fixup_loaded_bitmap(bmp, pal, dest_depth);
+   if (dest_depth != bpp) {
+      /* restore original palette except if it comes from the bitmap */
+      if ((bpp != 8) && (!want_palette))
+	 pal = NULL;
 
+      bmp = _fixup_loaded_bitmap(bmp, pal, dest_depth);
+   }
+   
+   /* construct a fake palette if 8-bit mode is not involved */
+   if ((bpp != 8) && (dest_depth != 8) && want_palette)
+      generate_332_palette(pal);
+      
    return bmp;
 }
 

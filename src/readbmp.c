@@ -112,6 +112,12 @@ int save_bitmap(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
 /* _fixup_loaded_bitmap:
  *  Helper function for adjusting the color depth of a loaded image.
+ *  Converts the bitmap BMP to the color depth BPP. If BMP is a 8-bit
+ *  bitmap, PAL must be the palette attached to the bitmap. If BPP is
+ *  equal to 8, the conversion is performed either by building a palette
+ *  optimized for the bitmap if PAL is not NULL (in which case PAL gets
+ *  filled in with this palette) or by using the current palette if PAL
+ *  is NULL. In any other cases, PAL is unused.
  */
 BITMAP *_fixup_loaded_bitmap(BITMAP *bmp, PALETTE pal, int bpp)
 {
@@ -126,7 +132,10 @@ BITMAP *_fixup_loaded_bitmap(BITMAP *bmp, PALETTE pal, int bpp)
    if (bpp == 8) {
       RGB_MAP *old_map = rgb_map;
 
-      generate_optimized_palette(bmp, pal, NULL);
+      if (pal)
+	 generate_optimized_palette(bmp, pal, NULL);
+      else
+	 pal = _current_palette;
 
       rgb_map = malloc(sizeof(RGB_MAP));
       if (rgb_map != NULL)
