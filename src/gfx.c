@@ -178,7 +178,7 @@ void vsync()
  */
 void set_color(int index, AL_CONST RGB *p)
 {
-   set_palette_range((RGB *)p-index, index, index, FALSE);
+   set_palette_range((struct RGB *)p-index, index, index, FALSE);
 }
 
 
