@@ -420,19 +420,19 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
  */
 char *get_filename(AL_CONST char *path)
 {
-   int c;
-   const char *ptr, *ret;
+   int pos, c;
    ASSERT(path);
 
-   ptr = path;
-   ret = ptr;
-   for (;;) {
-      c = ugetxc(&ptr);
-      if (!c) break;
+   pos = ustrlen(path);
+
+   while (pos>0) {
+      c = ugetat(path, pos-1);
       if ((c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR) || (c == '#'))
-         ret = (char*)ptr;
+	 break;
+      pos--;
    }
-   return (char*)ret;
+
+   return (char *)path + uoffset(path, pos);
 }
 
 
