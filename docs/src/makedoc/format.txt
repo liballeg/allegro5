@@ -22,7 +22,7 @@
    During years the makedoc program has been used to output Allegro's
    documentation in different file formats. Nobody ever cared to document
    the _tx format or makedoc's source code. The result is that this late
-   reference might be wrong or inacurate, please take it with a grain of
+   reference might be wrong or inaccurate, please take it with a grain of
    salt. And remember that makedoc is not a _real_ program, it's a hack,
    just don't tell anybody else...
 
@@ -41,7 +41,7 @@
 
    Taking the original allegro._tx as a reference, you can see that _tx
    files are really a rich mixture of the supported output formats, and this
-   richness is stripped out apropiately for each output (ie: HTML tags won't
+   richness is stripped out appropriately for each output (ie: HTML tags won't
    appear in plain ascii output, etc).
 
    Lines starting with $@ will go unprocessed to the texi (and later info)
@@ -57,7 +57,7 @@
       the other output formats.
 
    @ignore_css
-      By default the HTML ouptut will use CSS to color text. Since CSS
+      By default the HTML output will use CSS to color text. Since CSS
       implementation quality varies from a browser to another, you can use
       this to avoid having unreadable documentation. Or just get a better
       browser...
@@ -83,7 +83,7 @@
    @charset=xxx
       This command is used by HTML output. Each generated HTML file needs a
       meta tag with information about the used character set. By default
-      makedoc will use iso-8859-1 as character set. You can use this commnd
+      makedoc will use iso-8859-1 as character set. You can use this command
       to override that meta tag. Example for Korean HTML files:
 
       @charset=euc-kr
@@ -117,15 +117,15 @@
 
    @!html
    @html
-      Lines enlosed between those two commands won't appear in HTML output.
+      Lines enclosed between those two commands won't appear in HTML output.
 
-   @!html
-   @html
-      Lines enlosed between those two commands won't appear in text output.
+   @!text
+   @text
+      Lines enclosed between those two commands won't appear in text output.
 
    @!texinfo
    @texinfo
-      Lines enlosed between those two commands won't appear in texinfo
+      Lines enclosed between those two commands won't appear in texinfo
       output.
 
    @heading
@@ -158,7 +158,7 @@
 ===================================
 
    The _tx format is about documenting functions. Functions, variables and
-   macros are specified with several @ characters at the apropiate points.
+   macros are specified with several @ characters at the appropriate points.
    Given the function "int get_uformat(void);", you would write in a _tx
    source file:
 
@@ -166,7 +166,7 @@
          Returns the currently selected text encoding format.
 
    If you want to generate a cross reference for that function, you can use
-   the @xref command followed by a sequence of tokens separated by commans.
+   the @xref command followed by a sequence of tokens separated by commas.
    Several @xref commands can appear together for the same function:
 
       @@void @set_uformat(int type);
@@ -201,7 +201,7 @@
    _tx files previously used the <pre> and </pre> tags in source files to
    generate preformatted text in HTML, which was used to represent code
    which had to appear verbatim. Now with the use of optional CSS for HTML
-   code, the HTML tags needed to generate the apropiate effect are longer
+   code, the HTML tags needed to generate the appropriate effect are longer
    than a simple <pre>. Makedoc provides some "macros" or "meta tags" which
    you can use to avoid typing long HTML commands:
 
