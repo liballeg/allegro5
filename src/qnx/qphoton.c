@@ -24,13 +24,24 @@
 #endif
 
 
+PdOffscreenContext_t        *ph_screen_context = NULL;
+PdOffscreenContext_t        *ph_window_context = NULL;
+int                          ph_gfx_initialized = FALSE;
+
 static PgDisplaySettings_t   original_settings;
 static PdDirectContext_t    *direct_context = NULL;
 static PgColor_t             ph_palette[256];
+static int                   ph_last_line = -1;
+static char                  driver_desc[128];
 
 
 static int find_video_mode(int w, int h, int depth);
 static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth, int accel);
+
+unsigned long ph_write_line(BITMAP *bmp, int line);
+#ifndef ALLEGRO_NO_ASM
+unsigned long ph_write_line_asm(BITMAP *bmp, int line);
+#endif
 
 
 
@@ -91,12 +102,13 @@ static int find_video_mode(int w, int h, int depth)
  */
 static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth, int accel)
 {
-   BITMAP *bmp;
+   BITMAP *bmp = NULL;
+   PhRegion_t region;
    PgHWCaps_t caps;
-   PdOffscreenContext_t *screen_context;
    PgDisplaySettings_t settings;
    PgVideoModeInfo_t mode_info;
    int mode_num;
+   char *addr;
 
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -148,25 +160,23 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    }
    if (!(direct_context = PdCreateDirectContext())) {
       ustrcpy(allegro_error, get_config_text("Cannot create direct context"));
+      PgSetVideoMode(&original_settings);
       return NULL;
    }
    if (!PdDirectStart(direct_context)) {
       ustrcpy(allegro_error, get_config_text("Cannot start direct context"));
       return NULL;
    }
-   if (!(screen_context = PdCreateOffscreenContext(0, w, h, 
-       Pg_OSC_MAIN_DISPLAY | Pg_OSC_MEM_PAGE_ALIGN))) {
+   if (!(ph_screen_context = PdCreateOffscreenContext(0, w, h, 
+       Pg_OSC_MAIN_DISPLAY | Pg_OSC_MEM_PAGE_ALIGN | Pg_OSC_CRTC_SAFE))) {
       ustrcpy(allegro_error, get_config_text("Cannot access the framebuffer"));
       return NULL;
    }
-   if (!PdGetOffscreenContextPtr(screen_context)) {
+   if (!(addr = PdGetOffscreenContextPtr(ph_screen_context))) {
       ustrcpy(allegro_error, get_config_text("Cannot access the framebuffer"));
       return NULL;
    }
-   PgWaitHWIdle();
-      
-   drv->w = w;
-   drv->h = h;
+   
    drv->linear = TRUE;
    if (PgGetGraphicsHWCaps(&caps)) {
       drv->vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
@@ -175,15 +185,27 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       drv->vid_mem = caps.total_video_ram;
    }
 
-   bmp = _make_bitmap(w, h, (unsigned long)screen_context->shared_ptr, drv,
-                      color_depth, screen_context->pitch);
-                      
+   bmp = _make_bitmap(w, h, (unsigned long)addr, drv,
+                      color_depth, ph_screen_context->pitch);
    if(!bmp) {
       ustrcpy(allegro_error, get_config_text("Not enough memory"));
       return NULL;
    }
 
+   drv->w = bmp->cr = w;
+   drv->h = bmp->cb = h;
+
    setup_direct_shifts();
+   sprintf(driver_desc, "Photon direct mode (%s)", caps.chip_name);
+   drv->desc = driver_desc;
+
+//   region.cursor_type = Ph_CURSOR_NONE;
+//   region.rid = ph_screen_context->target_rid;
+//   PhRegionChange(Ph_REGION_CURSOR, 0, &region, NULL, NULL);
+   _mouse_on = TRUE;
+   
+   PgFlush();
+   PgWaitHWIdle();
 
    return bmp;
 }
@@ -202,6 +224,8 @@ struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
    ENABLE();
    if (!bmp)
       qnx_phd_exit(bmp);
+   else
+      ph_gfx_initialized = TRUE;
    return bmp;
 }
 
@@ -212,24 +236,32 @@ struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 void qnx_phd_exit(struct BITMAP *b)
 {
+//   PhRegion_t region;
+   
    DISABLE();
+   ph_gfx_initialized = FALSE;
+   if (ph_screen_context) {
+//      region.cursor_type = Ph_CURSOR_POINTER;
+//      region.rid = ph_screen_context->target_rid;
+//      PhRegionChange(Ph_REGION_CURSOR, 0, &region, NULL, NULL);
+      PhDCRelease(ph_screen_context);
+   }
+   ph_screen_context = NULL;
    if (direct_context) {
       PdDirectStop(direct_context);
       PdReleaseDirectContext(direct_context);
       direct_context = NULL;
+      PgSetVideoMode(&original_settings);
    }
-   PgSetVideoMode(&original_settings);
-   PgFlush();
-   PgWaitHWIdle();
    ENABLE();
 }
 
 
 
-/* qnx_phd_vsync:
+/* qnx_ph_vsync:
  *  Waits for vertical retrace.
  */
-void qnx_phd_vsync(void)
+void qnx_ph_vsync(void)
 {
    DISABLE();
    PgWaitHWIdle();
@@ -239,10 +271,10 @@ void qnx_phd_vsync(void)
 
 
 
-/* qnx_phd_set_palette:
+/* qnx_ph_set_palette:
  *  Sets hardware palette.
  */
-void qnx_phd_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesync)
+void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesync)
 {
    int i;
    
@@ -255,8 +287,189 @@ void qnx_phd_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesy
    if (retracesync) {
       PgWaitVSync();
    }
-   PgSetPalette(ph_palette, 0, from, to - from + 1, Pg_PALSET_HARD, 0);
+   PgSetPalette(ph_palette, 0, from, to - from + 1, (ph_window_context ? Pg_PALSET_SOFT : Pg_PALSET_HARDLOCKED), 0);
    PgFlush();
    ENABLE();
 }
 
+
+
+static inline void ph_update_screen(int line)
+{
+   PhRect_t rect;
+
+   rect.ul.x = 0;
+   rect.ul.y = line;
+   rect.lr.x = ph_window_context->dim.w;
+   rect.lr.y = line + 1;
+   PgContextBlit(ph_window_context, &rect, NULL, &rect);
+}
+
+
+
+unsigned long ph_write_line(struct BITMAP *bmp, int line)
+{
+   int new_line = line + bmp->y_ofs;
+   
+   if ((new_line != ph_last_line) && (ph_last_line >= 0))
+      ph_update_screen(ph_last_line);
+   ph_last_line = new_line;
+   return (unsigned long)(bmp->line[line]);
+}
+
+
+
+/* ph_unwrite_line:
+ *  Update last selected line.
+ */
+static void ph_unwrite_line(struct BITMAP *bmp)
+{
+   if (ph_last_line >= 0)
+      ph_update_screen(ph_last_line);
+   ph_last_line = -1;
+}
+
+
+
+static void ph_release(struct BITMAP *bmp)
+{
+   PgFlush();
+}
+
+
+
+/* qnx_private_ph_init:
+ *  Real screen initialization runs here.
+ */
+static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth)
+{
+   BITMAP *bmp = NULL;
+   PtArg_t arg;
+   PhDim_t dim;
+   int type = 0;
+   char *addr;
+
+   if (1
+#ifdef ALLEGRO_COLOR8
+       && (color_depth != 8)
+#endif
+#ifdef ALLEGRO_COLOR16
+       && (color_depth != 15)
+       && (color_depth != 16)
+#endif
+#ifdef ALLEGRO_COLOR24
+       && (color_depth != 24)
+#endif
+#ifdef ALLEGRO_COLOR32
+       && (color_depth != 32)
+#endif
+       ) {
+      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      return NULL;
+   }
+
+   if ((w == 0) && (h == 0)) {
+      w = 320;
+      h = 200;
+   }
+   if (v_w < w) v_w = w;
+   if (v_h < h) v_h = h;
+   
+   if ((v_w != w) || (v_h != h)) {
+      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      return NULL;
+   }
+
+   dim.w = w;
+   dim.h = h;
+   PtSetArg(&arg, Pt_ARG_DIM, &dim, 0);
+   PtSetResources(ph_window, 1, &arg);
+
+   ph_window_context = PdCreateOffscreenContext(0, w, h, Pg_OSC_MEM_PAGE_ALIGN);
+   if (!ph_window_context) {
+      ustrcpy(allegro_error, get_config_text("Cannot create offscreen context"));
+      return NULL;
+   }
+   addr = PdGetOffscreenContextPtr(ph_window_context);
+/*
+   switch (color_depth) {
+      case 8: type = Pg_IMAGE_PALETTE_BYTE; break;
+      case 15: type = Pg_IMAGE_DIRECT_555; break;
+      case 16: type = Pg_IMAGE_DIRECT_565; break;
+      case 24: type = Pg_IMAGE_DIRECT_888; break;
+      case 32: type = Pg_IMAGE_DIRECT_8888; break;
+   }
+   if (ph_window_context->format != type) {
+      ustrcpy(allegro_error, get_config_text("bad color depth matching"));
+      return NULL;
+   }
+*/
+
+   drv->linear = TRUE;
+   drv->vid_mem = ph_window_context->shared_size;
+
+   bmp = _make_bitmap(w, h, (unsigned long)addr, drv, 
+                      color_depth, ph_window_context->pitch);
+   if(!bmp) {
+      ustrcpy(allegro_error, get_config_text("Not enough memory"));
+      return NULL;
+   }
+
+   drv->w = bmp->cr = w;
+   drv->h = bmp->cb = h;
+
+#ifdef ALLEGRO_NO_ASM
+   bmp->write_bank = ph_write_line;
+   bmp->read_bank = ph_write_line;
+#else
+   bmp->write_bank = ph_write_line_asm;
+   bmp->read_bank = ph_write_line_asm;
+#endif
+
+   _screen_vtable.release = ph_release;
+   _screen_vtable.unwrite_bank = ph_unwrite_line;
+   ph_last_line = -1;
+
+   setup_direct_shifts();
+   sprintf(driver_desc, "Photon windowed");
+   drv->desc = driver_desc;
+
+   PgFlush();
+   PgWaitHWIdle();
+
+   return bmp;
+}
+
+
+
+/* qnx_ph_init:
+ *  Initializes normal windowed Photon gfx driver.
+ */
+struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
+{
+   BITMAP *bmp;
+   
+   DISABLE();
+   bmp = qnx_private_ph_init(&gfx_photon, w, h, v_w, v_h, color_depth);
+   ENABLE();
+   if (!bmp)
+      qnx_ph_exit(bmp);
+   else
+      ph_gfx_initialized = TRUE;
+   return bmp;
+}
+
+
+
+/* qnx_ph_exit:
+ *  Shuts down photon windowed gfx driver.
+ */
+void qnx_ph_exit(struct BITMAP *b)
+{
+   DISABLE();
+   ph_gfx_initialized = FALSE;
+   if (ph_window_context)
+      PhDCRelease(ph_window_context);
+   ph_window_context = NULL;
+   ENABLE();
+}

@@ -35,7 +35,7 @@ SYSTEM_DRIVER system_qnx =
    "QNX Realtime Platform",
    qnx_sys_init,                    /* AL_METHOD(int, init, (void)); */
    qnx_sys_exit,                    /* AL_METHOD(void, exit, (void)); */
-   NULL,                            /* AL_METHOD(void, get_executable_name, (char *output, int size)); */
+   qnx_get_executable_name,         /* AL_METHOD(void, get_executable_name, (char *output, int size)); */
    NULL,                            /* AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size)); */
    NULL,                            /* AL_METHOD(void, set_window_title, (AL_CONST char *name)); */
    NULL,                            /* AL_METHOD(int, set_window_close_button, (int enable)); */
@@ -109,14 +109,68 @@ _DRIVER_INFO _keyboard_driver_list[] =
 
 /* Mouse driver */
 
+MOUSE_DRIVER mouse_qnx =
+{
+   MOUSE_QNX,
+   empty_string,
+   empty_string,
+   "Photon mouse",
+   qnx_mouse_init,
+   qnx_mouse_exit,
+   NULL, //qnx_mouse_poll,
+   NULL, //qnx_mouse_timer_poll,
+   qnx_mouse_position,
+   qnx_mouse_set_range,
+   NULL, //qnx_mouse_set_speed,
+   qnx_mouse_get_mickeys,
+   NULL
+};
+
 _DRIVER_INFO _mouse_driver_list[] =
 {
+   { MOUSE_QNX,         &mouse_qnx,         TRUE  },
    { 0,                 NULL,               0     }
 };
 
 
 
 /* Graphics drivers */
+
+GFX_DRIVER gfx_photon = {
+   GFX_PHOTON,
+   empty_string, 
+   empty_string,
+   "Photon", 
+   qnx_ph_init,                  /* AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth)); */
+   qnx_ph_exit,                  /* AL_METHOD(void, exit, (struct BITMAP *b)); */
+   NULL,                         /* AL_METHOD(int, scroll, (int x, int y)); */
+   qnx_ph_vsync,                 /* AL_METHOD(void, vsync, (void)); */
+   qnx_ph_set_palette,           /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
+   NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
+   NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus)); */
+   NULL,                         /* AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y)); */
+   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
+   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
+   NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
+   NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
+   NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
+   0, 0,                         /* physical (not virtual!) screen size */
+   TRUE,                         /* true if video memory is linear */
+   0,                            /* bank size, in bytes */
+   0,                            /* bank granularity, in bytes */
+   0,                            /* video memory size, in bytes */
+   0                             /* physical address of video memory */
+};
+
+
 
 GFX_DRIVER gfx_photon_direct = {
    GFX_PHOTON_DIRECT,
@@ -126,8 +180,8 @@ GFX_DRIVER gfx_photon_direct = {
    qnx_phd_init,                 /* AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth)); */
    qnx_phd_exit,                 /* AL_METHOD(void, exit, (struct BITMAP *b)); */
    NULL,                         /* AL_METHOD(int, scroll, (int x, int y)); */
-   qnx_phd_vsync,                /* AL_METHOD(void, vsync, (void)); */
-   qnx_phd_set_palette,          /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   qnx_ph_vsync,                 /* AL_METHOD(void, vsync, (void)); */
+   qnx_ph_set_palette,           /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
    NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
    NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
    NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
@@ -156,6 +210,7 @@ GFX_DRIVER gfx_photon_direct = {
 
 BEGIN_GFX_DRIVER_LIST
    { GFX_PHOTON_DIRECT, &gfx_photon_direct, TRUE  },
+   { GFX_PHOTON,        &gfx_photon,        TRUE  },
 END_GFX_DRIVER_LIST
 
 
