@@ -808,7 +808,7 @@ void _colorconv_blit_24_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
 #ifdef ALLEGRO_LITTLE_ENDIAN
          temp = (*(unsigned char *)src) | ((*(unsigned char *)(src + 1)) << 8) | ((*(unsigned char *)(src + 2)) << 16);
 #else
-         temp = (*(unsigned char *)(src + 3)) | ((*(unsigned char *)(src + 2)) << 8) | ((*(unsigned char *)(src + 1)) << 16);
+         temp = (*(unsigned char *)(src + 2)) | ((*(unsigned char *)(src + 1)) << 8) | ((*(unsigned char *)(src)) << 16);
 #endif
 	 *(unsigned int *)dest = temp;
 	 src += 3;
