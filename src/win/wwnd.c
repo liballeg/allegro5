@@ -367,7 +367,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             BeginPaint(wnd, &ps);
             win_gfx_driver->paint(&ps.rcPaint);
             EndPaint(wnd, &ps);
-            return 0;
          }
          break;
 
@@ -434,6 +433,37 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       return CallWindowProc(user_wnd_proc, wnd, message, wparam, lparam);
    else
       return DefWindowProc(wnd, message, wparam, lparam);
+}
+
+
+
+/* adjust_window:
+ *  Moves and resizes the window if we have full control over it.
+ */
+int adjust_window(int x, int y, int w, int h)
+{
+   RECT win_size = {x, y, x+w, y+h };
+
+   if (!user_wnd) {
+      /* retrieve the size of the decorated window */
+      AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
+   
+      /* display the window */
+      MoveWindow(allegro_wnd, win_size.left, win_size.top,
+                 win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+
+      /* check that the actual window size is the one requested */
+      GetClientRect(allegro_wnd, &win_size);
+      if (((win_size.right - win_size.left) != w) || ((win_size.bottom - win_size.top) != h))
+         return -1;
+
+      wnd_x = x;
+      wnd_y = y;
+      wnd_width = w;
+      wnd_height = h;
+   }
+
+   return 0;
 }
 
 
@@ -561,6 +591,7 @@ static void wnd_thread_proc(HANDLE setup_event)
  */
 int init_directx_window(void)
 {
+   RECT win_rect;
    HANDLE events[2];
    long result;
 
@@ -580,12 +611,19 @@ int init_directx_window(void)
       user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
       if (!user_wnd_proc)
          return -1;
+
       allegro_wnd = user_wnd;
+
+      /* retrieve the window dimensions */
+      GetWindowRect(allegro_wnd, &win_rect);
+      ClientToScreen(allegro_wnd, (LPPOINT)&win_rect);
+      ClientToScreen(allegro_wnd, (LPPOINT)&win_rect + 1);
+      wnd_x = win_rect.left;
+      wnd_y = win_rect.top;
+      wnd_width = win_rect.right - win_rect.left;
+      wnd_height = win_rect.bottom - win_rect.top;
    }
    else {
-      /* initialize gfx critical section */
-      InitializeCriticalSection(&gfx_crit_sect);
-
       /* create window thread */
       events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);        /* acknowledges that thread is up */
       events[1] = (HANDLE) _beginthread(wnd_thread_proc, 0, events[0]);
@@ -608,6 +646,9 @@ int init_directx_window(void)
 	 return -1;
    }
 
+   /* initialize gfx critical section */
+   InitializeCriticalSection(&gfx_crit_sect);
+
    /* save window style */
    old_style = GetWindowLong(allegro_wnd, GWL_STYLE);
 
@@ -622,10 +663,12 @@ int init_directx_window(void)
  */
 void exit_directx_window(void)
 {
-   if (user_wnd_proc) {
+   if (user_wnd) {
       /* restore old window proc */
       SetWindowLong(user_wnd, GWL_WNDPROC, (long)user_wnd_proc);
       user_wnd_proc = NULL;
+      user_wnd = NULL;
+      allegro_wnd = NULL;
    }
    else {
       /* destroy the window: we cannot directly use DestroyWindow()
@@ -636,7 +679,7 @@ void exit_directx_window(void)
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
       wnd_thread = NULL;
-
-      DeleteCriticalSection(&gfx_crit_sect);
    }
+
+   DeleteCriticalSection(&gfx_crit_sect);
 }

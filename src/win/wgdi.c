@@ -447,30 +447,20 @@ static void gfx_gdi_unlock(struct BITMAP *bmp)
  */
 static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_depth)
 {
-   RECT win_size;
-
    /* virtual screen are not supported */
    if ((v_w!=0 && v_w!=w) || (v_h!=0 && v_h!=h))
       return NULL;
    
    _enter_critical();
 
-   /* resize window */
    gfx_gdi.w = w;
    gfx_gdi.h = h;
-   win_size.left = wnd_x = 32;
-   win_size.right = 32 + w;
-   win_size.top = wnd_y = 32;
-   win_size.bottom = 32 + h;
-   wnd_width = w;
-   wnd_height = h;
 
-   /* retrieve the size of the decorated window */
-   AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
-
-   /* display the window */
-   MoveWindow(allegro_wnd, win_size.left, win_size.top, 
-      win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+   if (adjust_window(32, 32, w, h) != 0) {
+      _TRACE("window size not supported.\n");
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
+      goto Error;
+   }
 
    /* the last flag serves as an end of loop delimiter */
    gdi_dirty_lines = calloc(h+1, sizeof(char));
@@ -500,6 +490,13 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    _exit_critical();
 
    return gdi_screen;
+
+ Error:
+   _exit_critical();
+
+   gfx_gdi_exit(NULL);
+
+   return NULL;
 }
 
 
