@@ -154,7 +154,8 @@ Part 3 - when your program crashes
    Look at your filesystem: there should be a file named core or something
    similar with information telling you exactly where the crash occurred.
    If there is no core, check your environment settings, under bash this is
-   done with the 'ulimit -a' command. Usually 'ulimit -c 0' will do fine.
+   done with the 'ulimit -a' command. Usually 'ulimit -c unlimited'
+   somewhere in your login scripts should work fine.
 
    Just like with djgpp, to make sense of the core, you should compile your
    program with debugging information (using the -g switch), and then run
