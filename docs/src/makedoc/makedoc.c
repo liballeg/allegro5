@@ -19,6 +19,9 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Grzegorz Adam Hankiewicz added email mangling, custom metatags for
+ *      easier CSS HTML output, and cleaned up some code.
+ *
  *      See readme.txt for copyright information.
  *
  *      See allegro/docs/src/makedoc/format.txt for a brief description of
@@ -52,15 +55,9 @@ int flags = TEXT_FLAG | HTML_FLAG | TEXINFO_FLAG | RTF_FLAG | MAN_FLAG;
 
 /* other globals */
 
-LINE *tail = NULL;
-TOC *toctail = NULL;
-
-int last_toc_line = INT_MIN;
-int last_toc_line2 = INT_MIN;
-int warn_on_long_lines = 0;
-
-char *texinfo_extension = "txi";
-char *email_mangle_at, *email_mangle_dot;
+static int _last_toc_line = INT_MIN;
+static int _warn_on_long_lines = 0;
+static char *_email_mangle_at, *_email_mangle_dot;
 
 
 /* internal functions */
@@ -92,6 +89,7 @@ int main(int argc, char *argv[])
    char manname[256] = "";
    char chmname[256] = "";
    char devhelpname[256] = "";
+   char *texinfo_extension = "txi";
    int err = 0;
    int partial = 0;
    int i;
@@ -132,7 +130,7 @@ int main(int argc, char *argv[])
 	 partial = 1;
       }
       else if (mystricmp(argv[i], "-warn") == 0) {
-	 warn_on_long_lines = 1;
+	 _warn_on_long_lines = 1;
       }
       else if (mystricmp(argv[i], "-ochm") == 0) {
 	 html_flags |= HTML_OPTIMIZE_FOR_CHM;
@@ -374,8 +372,8 @@ static int _read_file(char *filename)
 	    flags |= NONODE_FLAG;
 	 else if (strincmp(buf+1, "xref ") == 0) {
 	    _add_line(buf+6, XREF_FLAG);
-	    if (last_toc_line == line-1)
-	       last_toc_line = line;
+	    if (_last_toc_line == line-1)
+	       _last_toc_line = line;
 	 }
 	 else if (strincmp(buf+1, "header ") == 0)
 	    _add_line(buf+8, HEADER_FLAG);
@@ -483,7 +481,7 @@ static int _read_file(char *filename)
 
 	 _add_line(buf, flags);
 
-	 if (warn_on_long_lines) {
+	 if (_warn_on_long_lines) {
 	    int len = strlen (buf);
 	    if (len > 77)
 	       printf("Warning: line %d exceded in %d caracters '...%s'\n",
@@ -530,10 +528,10 @@ static void _free_data(void)
       free(tocprev);
    }
 
-   if (email_mangle_at)
-      free(email_mangle_at);
-   if (email_mangle_dot)
-      free(email_mangle_dot);
+   if (_email_mangle_at)
+      free(_email_mangle_at);
+   if (_email_mangle_dot)
+      free(_email_mangle_dot);
 }
 
 
@@ -542,6 +540,7 @@ static void _free_data(void)
  */
 static void _add_line(char *buf, int flags)
 {
+   static LINE *tail = NULL;
    LINE *line;
 
    line = m_xmalloc(sizeof(LINE));
@@ -570,6 +569,7 @@ static void _add_line(char *buf, int flags)
  */
 static void _add_toc_line(const char *buf, const char *alt, int root, int num, int texinfoable, int htmlable, int otherfile)
 {
+   static TOC *toctail = NULL;
    TOC *toc;
 
    toc = m_xmalloc(sizeof(TOC));
@@ -582,13 +582,13 @@ static void _add_toc_line(const char *buf, const char *alt, int root, int num, i
 
    toc->next = NULL;
    toc->root = root;
-   toc->texinfoable = ((texinfoable) && (num > last_toc_line+1));
+   toc->texinfoable = ((texinfoable) && (num > _last_toc_line+1));
    toc->htmlable = htmlable;
    toc->otherfile = otherfile;
 
-   last_toc_line = num;
+   _last_toc_line = num;
 
-   if (toctail) 
+   if (toctail)
       toctail->next = toc;
    else
       tochead = toc;
@@ -628,6 +628,7 @@ static void _add_external_file(const char *buf, int line_number)
  */
 static void _add_toc(char *buf, int root, int num, int texinfoable, int htmlable)
 {
+   static int last_toc_line2 = INT_MIN;
    char b[256], b2[256];
    int c, d;
    int done;
@@ -740,16 +741,16 @@ static void _activate_email_mangling(const char *txt)
 
    flags |= MANGLE_EMAILS;
    /* free previous strings if they existed */
-   if (email_mangle_at) free(email_mangle_at);
-   if (email_mangle_dot) free(email_mangle_dot);
+   if (_email_mangle_at) free(_email_mangle_at);
+   if (_email_mangle_dot) free(_email_mangle_dot);
 
    /* find space separator to detect words */
    p = strchr(txt, ' ');
    assert(p);     /* format specification requires two words with space */
-   email_mangle_at = m_strdup(txt);
-   *(email_mangle_at + (p - txt)) = 0;
+   _email_mangle_at = m_strdup(txt);
+   *(_email_mangle_at + (p - txt)) = 0;
    assert(*(p + 1));                            /* second word required */
-   email_mangle_dot = m_strdup(p+1);
+   _email_mangle_dot = m_strdup(p+1);
 }
 
 
@@ -776,8 +777,8 @@ static void _mangle_email_links(char *buf)
 
 /* _mangle_email:
  * Given a string, len characters will be parsed. '@' will be substituted
- * by "' %s ', email_mangle_at", and '.' will be substituted by "' %s ",
- * email_mangle_dot". The returned string has to be freed by the caller.
+ * by "' %s ', _email_mangle_at", and '.' will be substituted by "' %s ",
+ * _email_mangle_dot". The returned string has to be freed by the caller.
  */
 static char *_mangle_email(const char *email, int len)
 {
@@ -793,12 +794,12 @@ static char *_mangle_email(const char *email, int len)
    for(pos = 0; pos < len; pos++) {
       if(email[pos] == '@') {
          temp = m_strcat(temp, " ");
-         temp = m_strcat(temp, email_mangle_at);
+         temp = m_strcat(temp, _email_mangle_at);
          temp = m_strcat(temp, " ");
       }
       else if(email[pos] == '.') {
          temp = m_strcat(temp, " ");
-         temp = m_strcat(temp, email_mangle_dot);
+         temp = m_strcat(temp, _email_mangle_dot);
          temp = m_strcat(temp, " ");
       }
       else {

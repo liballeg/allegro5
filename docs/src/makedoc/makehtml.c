@@ -17,6 +17,9 @@
  *      output, added support for auto types' cross references generation,
  *      and a few smaller details more.
  *
+ *      Robert J. Ohannessian did some cosmetic improvements to the HTML
+ *      output and separated the CSS file.
+ *
  *      See readme.txt for copyright information.
  *
  *      See allegro/docs/src/makedoc/format.txt for a brief description of
