@@ -43,20 +43,17 @@ Required software
 	 GNU make (<tt>mak*b.zip</tt>).<br>
 	 Optional: GNU sed (<tt>sed*b.zip</tt>). Used by "<tt>make depend</tt>" and
 	 "<tt>fixdll.bat</tt>".<br>
-	 Optional: GNU sort (<tt>txt*b.zip</tt>). Used by "<tt>fixdll.bat</tt>".<br>
-	 Optional: GNU C++ (<tt>gpp*b.zip</tt>). Used by "<tt>make depend</tt>".<br><br>
+	 Optional: GNU sort (<tt>txt*b.zip</tt>). Used by "<tt>fixdll.bat</tt>".<br><br>
 
-      <li>MinGW: compiler (mingw-runtime, gcc, g++, binutils).<br>
+      <li>MinGW: compiler (mingw-runtime, gcc, binutils).<br>
 	 GNU make.<br>
 	 Optional: GNU sed. Used by "<tt>make depend</tt>" and "<tt>fixdll.bat</tt>".<br>
-	 Optional: GNU sort (textutils). Used by "<tt>fixdll.bat</tt>".<br>
-	 Optional: GNU C++ (g++). Used by "<tt>make depend</tt>".<br><br>
+	 Optional: GNU sort (textutils). Used by "<tt>fixdll.bat</tt>".<br><br>
 
-      <li>Cygwin: compiler (cygwin, gcc, g++, binutils).<br>
+      <li>Cygwin: compiler (cygwin, gcc, binutils).<br>
 	 GNU make.<br>
 	 Optional: GNU sed. Used by "<tt>make depend</tt>" and "<tt>fixdll.sh</tt>"<br>
-	 Optional: GNU sort (textutils). Used by "<tt>fixdll.sh</tt>".<br>
-	 Optional: GNU C++ (g++). Used by "<tt>make depend</tt>".<br><br>
+	 Optional: GNU sort (textutils). Used by "<tt>fixdll.sh</tt>".<br><bt>
    </ul></ul>
    Allegro should work ok with MSVC versions 4, 5, 6 and 7.
 
