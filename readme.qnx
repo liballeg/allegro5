@@ -19,9 +19,10 @@
 ============ QNX notes ============
 ===================================
 
-   Status: it works. The ALSA digital sound driver needs some investigations
-   as it seems to have initialization problems: it sounds bad for a while,
-   and after some time it starts sounding nicely as it should.
+   Status: it works. Only annoying bug left seems to be the display switching
+   in fullscreen mode; just don't try to change workspace while in fullscreen
+   or your program will crash... Also, video bitmaps and hardware acceleration
+   are still not yet implemented.
 
 
 
