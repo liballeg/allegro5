@@ -330,27 +330,25 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
-ifdef STATICLINK
-
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(IMPLIB_NAME)
    ifneq ($(wildcard demo/demo.dat),)
 	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
    else
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME) $(LIBRARIES)
    endif
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -358,37 +356,6 @@ tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 define LINK_CONSOLE
   gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 endef
-
-else 
-
-*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)
-
-demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(IMPLIB_NAME)
-   ifneq ($(wildcard demo/demo.dat),)
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
-   else
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME)
-   endif
-
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-
-tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)
-
-tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
-
-tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME)
-
-define LINK_CONSOLE
-  gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME)
-endef
-
-endif # STATICLINK
 
 $(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
 	$(WINDRES) -O coff -o $(OBJ_DIR)/dibsound.res -i tests/win/dibsound.rc
