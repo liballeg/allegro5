@@ -189,7 +189,7 @@ static int sys_linux_init (void)
 	/* Initialise dynamic driver lists */
 	dynamic_gfx_driver_list = _create_driver_list();
 	if (dynamic_gfx_driver_list)
-		_driver_list_add_list(dynamic_gfx_driver_list, _linux_gfx_driver_list);
+		dynamic_gfx_driver_list = _driver_list_add_list(dynamic_gfx_driver_list, _linux_gfx_driver_list);
 	_unix_driver_lists_init();
 
 	/* Load dynamic modules */
