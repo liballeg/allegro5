@@ -105,10 +105,6 @@ static void fill_ffblk(struct al_ffblk *info)
 
 
 
-/* Windows specific flag: NTFS compressed files */
-#define FA_COMPRESSED  0x800
-
-
 /* al_findfirst:
  *  Initiates a directory search.
  */
@@ -128,8 +124,19 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* attach it to the info structure */
    info->ff_data = (void *) ff_data;
 
-   /* initialize it */
-   ff_data->attrib = attrib | FA_COMPRESSED;
+   /* Windows defines specific flags for NTFS permissions:
+    *   FA_TEMPORARY            0x0100
+    *   FA_SPARSE_FILE          0x0200 
+    *   FA_REPARSE_POINT        0x0400
+    *   FA_COMPRESSED           0x0800
+    *   FA_OFFLINE              0x1000
+    *   FA_NOT_CONTENT_INDEXED  0x2000
+    *   FA_ENCRYPTED            0x4000
+    * so we must set them in the mask by default; moreover,
+    * in order to avoid problems with flags added in the
+    * future, we simply set all bits past the first byte.
+    */
+   ff_data->attrib = attrib | 0xFFFFFF00;
 
    /* start the search */
    errno = *allegro_errno = 0;
