@@ -234,7 +234,7 @@ else
 VPATH += src/i386
 MY_OBJECTS = $(I386_OBJECTS)
 
-endif
+endif # ALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) \
 	      $(basename $(notdir $(ALLEGRO_SRC_DOS_FILES))) \

@@ -64,15 +64,14 @@ endif
 
 OFLAGS =  $(TARGET_ARCH) $(TARGET_OPTS)
 
+
+
 ifdef DEBUGMODE
-
-
 
 # -------- debugging build --------
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
 LFLAGS = -g
-
 
 else
 ifdef PROFILEMODE
@@ -100,12 +99,28 @@ endif
 
 # -------- list which platform specific objects to include --------
 
-VPATH = src/beos src/i386 src/misc src/unix tools/beos
+VPATH = src/beos src/misc src/unix tools/beos
+
+ifdef ALLEGRO_USE_C
+
+# ------ build a C-only version ------
+
+VPATH += src/c
+MY_OBJECTS = $(C_OBJECTS) cmiscs
+CFLAGS += -DALLEGRO_USE_C
+
+else
+
+# ------ build the normal asm version ------
+
+VPATH += src/i386
+MY_OBJECTS = $(I386_OBJECTS)
+
+endif # ALLEGRO_USE_C
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
 
 LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
-
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
-	      $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
 
 PROGRAMS = bfixicon
 
