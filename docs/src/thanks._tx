@@ -38,7 +38,8 @@ Contributors
    class.
 
    Andrei Ellman (<email>ae-a@wackonet.fsnet.co.uk</a>).<br>
-   Contributed the polygon_z_normal() function.
+   Contributed the polygon_z_normal() function and suggested some additions
+   to the docs.
 
    Andrew Ellem (<email>krand@ican.net</a>).<br>
    Wrote the original version of the digital audio streaming code.
@@ -756,6 +757,9 @@ Contributors
    and other keys to the input handler, and organised getting the IF-SEGA
    joystick drivers by S.Suzuki merged into my codebase. Added more
    aggressive Sidewinder joystick driver.
+
+   Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
+   Fixed a problem with make install libdir= and modules on Unix systems.
 
    Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI

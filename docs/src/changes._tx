@@ -10,9 +10,27 @@
 
 
 @heading
-Changes from 4.0.2 to 4.0.3 (Mar 2003)
+Changes from 4.0.2 to 4.0.3 (Apr 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
+<li>
+   Eric Botcazou updated the FAQ about DJGPP's va_list problem (thanks
+   to aj for spotting this).
+<li>
+   Andrei Ellman suggested some additions to the docs.
+<li>
+   Eric Botcazou added makeinfo detection under Unix.
+<li>
+   Ville Skyttä fixed a problem with make install libdir= and modules on
+   Unix systems.
+<li>
+   Peter Wang added a hack to not unload the SVGAlib module if SVGAlib
+   installs an atexit() handler.
+<li>
+   Grzegorz Adam Hankiewicz corrected broken chapter references emitted by
+   the doc processor.
+<li>
+   Grzegorz Adam Hankiewicz documented the END_OF_MAIN macro.
 <li>
    Eric Botcazou added big-endian support to the BMP, PCX and TGA loaders
    as well as to the X11 driver.
