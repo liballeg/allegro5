@@ -362,8 +362,6 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    if (_allegro_count == 0) {
       if (atexit_ptr)
 	 atexit_ptr(allegro_exit);
-      else
-	 atexit(allegro_exit);
    }
 
    _allegro_count++;
