@@ -16,6 +16,10 @@
  */
 
 
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
@@ -52,6 +56,11 @@ _DRIVER_INFO _xwin_keyboard_driver_list[] =
    {  KEYBOARD_XWINDOWS, &keyboard_xwin, TRUE  },
    {  0,                 NULL,           0     }
 };
+
+
+
+/* the pid to kill when three finger saluting */
+static int main_pid;
 
 
 
@@ -114,7 +123,7 @@ static void _xwin_keydrv_handler(int pressed, int code)
          _sigalrm_request_abort();
       else
 #endif
-         exit(EXIT_SUCCESS);
+         kill(main_pid, SIGTERM);
    }
 }
 
@@ -157,6 +166,8 @@ static int _xwin_keydrv_init(void)
    _xwin_keyboard_focused = _xwin_keydrv_focused;
 
    XUNLOCK();
+
+   main_pid = getpid();
 
    return 0;
 }
