@@ -353,29 +353,26 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
+$(OBJ_DIR)/%.o: %.rc
+	$(WINDRES) --include-dir include -O coff -o $@ -i $<
+
+$(OBJ_DIR)/%.res: %.rc
+	$(WINDRES) -O coff -o $@ -i $<
+
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
-
-tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
-
-$(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
-	$(WINDRES) -O coff -o $(OBJ_DIR)/dibsound.res -i tests/win/dibsound.rc
-
-$(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
-	$(WINDRES) -O coff -o $(OBJ_DIR)/scrsave.res -i tests/win/scrsave.rc
-
-$(OBJ_DIR)/dllver.o: src/win/dllver.rc
-	$(WINDRES) -O coff -o $(OBJ_DIR)/dllver.o -i src/win/dllver.rc --include-dir include
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 

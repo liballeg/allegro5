@@ -142,15 +142,18 @@ endef
 $(OBJ_DIR)/%.o: %.c
 	$(RSXGCC) $(CFLAGS) -I. -I./include -o $@ -c $<
 
+$(OBJ_DIR)/%.res: %.rc
+	grc -o $@ $<
+
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
+	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+
+tests/win/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(LIB_NAME) $(LIBRARIES)
 	rsrc $(OBJ_DIR)/dibsound.res tests/win/dibsound.exe
-
-tests/win/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
-	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/scrsave.exe $(OBJ_DIR)/scrsave.o $(LIB_NAME) $(LIBRARIES)
@@ -159,12 +162,6 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
-
-$(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
-	grc -o $(OBJ_DIR)/dibsound.res tests/win/dibsound.rc
-
-$(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
-	grc -o $(OBJ_DIR)/scrsave.res tests/win/scrsave.rc
 
 PLUGIN_LIB = lib/rsxnt/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/rsxnt/plugins.h
