@@ -287,15 +287,6 @@ General problems
       that will build everything for you.
 
 <h4><li>
-@@   Make aborts with a message something like this:
-     Error: no such 386 instruction: 'movd'
-     Error: no such 386 instruction: 'emms'
-</h4>
-      This means that you have an old version of GAS (the GNU assembler)
-      which doesn't recognize MMX instructions. GAS is a part of the
-      binutils package and by upgrading it you will fix the problem.
-
-<h4><li>
 @@   Can I use Allegro with my &ltfoobar&gt compiler?
 </h4>
       Not unless &ltfoobar&gt is mentioned in readme.txt as one of the 
