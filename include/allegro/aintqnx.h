@@ -32,6 +32,11 @@ AL_FUNC(void, qnx_sys_exit, (void));
 AL_FUNC(void, qnx_sys_message, (AL_CONST char*));
 AL_FUNC(_DRIVER_INFO *, qnx_timer_drivers, (void));
 
+AL_FUNC(int, qnx_keyboard_init, (void));
+AL_FUNC(void, qnx_keyboard_exit, (void));
+AL_FUNC(void, qnx_keyboard_handler, (int, int));
+AL_FUNC(void, qnx_keyboard_focused, (int, int));
+
 
 #ifdef __cplusplus
 }

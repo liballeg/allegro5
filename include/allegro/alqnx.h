@@ -25,6 +25,11 @@
 AL_VAR(SYSTEM_DRIVER, system_qnx);
 
 
+/* Keyboard driver */
+#define KEYBOARD_QNX          AL_ID('Q','K','E','Y')
+AL_VAR(KEYBOARD_DRIVER, keyboard_qnx);
+
+
 /* Sound driver */
 #define DIGI_ALSA             AL_ID('A','L','S','A')
 AL_VAR(DIGI_DRIVER, digi_alsa);

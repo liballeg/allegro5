@@ -33,9 +33,12 @@ extern "C" {
 #include <Ph.h>
 #include <Pt.h>
 
+#define EVENT_SIZE   sizeof(PhEvent_t) + 1000
+
 
 /* Globals */
-PtWidget_t *ph_window;
+PtWidget_t       *ph_window;
+PhEvent_t        *ph_event;
 
 
 typedef void RETSIGTYPE;

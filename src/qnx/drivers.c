@@ -80,9 +80,28 @@ _DRIVER_INFO _system_driver_list[] =
 
 /* Keyboard driver */
 
+KEYBOARD_DRIVER keyboard_qnx =
+{
+   KEYBOARD_QNX,
+   empty_string,
+   empty_string,
+   "QNX keyboard",
+   TRUE,
+   qnx_keyboard_init,
+   qnx_keyboard_exit,
+   NULL,
+   NULL,
+   NULL,
+   NULL, NULL,
+   _pckey_scancode_to_ascii
+};
+
+
+
 _DRIVER_INFO _keyboard_driver_list[] =
 {
-   { 0,               NULL,            0     }
+   {  KEYBOARD_QNX,      &keyboard_qnx,  TRUE  },
+   {  0,                 NULL,           0     }
 };
 
 
