@@ -71,7 +71,7 @@ SYSTEM_DRIVER system_directx =
    NULL,                        /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp)); */
    NULL,                        /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
    NULL,                        /* AL_METHOD(void, read_hardware_palette, (void)); */
-   NULL,                        /* AL_METHOD(void, set_palette_range, (struct RGB *p, int from, int to, int vsync)); */
+   NULL,                        /* AL_METHOD(void, set_palette_range, (PALETTE p, int from, int to, int vsync)); */
    NULL,                        /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
    sys_directx_set_display_switch_mode,
    NULL,                        /* AL_METHOD(void, display_switch_lock, (int lock)); */
@@ -551,9 +551,9 @@ void thread_safe_trace(char *msg,...)
    char buf[256];
    va_list ap;
 
+   /* todo, some day: use vsnprintf (C99) */
    va_start(ap, msg);
-   vsnprintf(buf, msg, ap);
-   buf[sizeof(buf)-1] = 0;
+   vsprintf(buf, msg, ap);
    va_end(ap);
 
    OutputDebugString(buf);

@@ -513,10 +513,10 @@ void al_trace(AL_CONST char *msg, ...)
    char buf[512];
    char *s;
 
+   /* todo, some day: use vsnprintf (C99) */
    va_list ap;
    va_start(ap, msg);
-   vsnprintf(buf, sizeof(buf), msg, ap);
-   buf[sizeof(buf)-1] = 0;
+   vsprintf(buf, msg, ap);
    va_end(ap);
 
    if (trace_handler) {
