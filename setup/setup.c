@@ -2654,12 +2654,16 @@ static DIALOG_STATE main_handler(int c)
 	 joystick_dlg[2].d1 = 0;
 	 get_joystick_drivers(&list, &list_size);
 
+	 install_joystick(JOY_TYPE_AUTODETECT);
+
 	 for (i=0; list[i].driver; i++) {
 	    if (list[i].id == _joy_type) {
 	       joystick_dlg[2].d1 = i;
 	       break;
 	    }
 	 }
+
+	 remove_joystick();
 
 	 activate_dialog(joystick_dlg, joystick_handler, FALSE);
 	 break;
