@@ -74,12 +74,13 @@ GFX_DRIVER gfx_gdi =
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
    NULL,                        // AL_METHOD(int, fetch_mode_list, (void));
-   0, 0,                        // int w, h;                     /* physical (not virtual!) screen size */
-   TRUE,                        // int linear;                   /* true if video memory is linear */
-   0,                           // long bank_size;               /* bank size, in bytes */
-   0,                           // long bank_gran;               /* bank granularity, in bytes */
-   0,                           // long vid_mem;                 /* video memory size, in bytes */
-   0,                           // long vid_phys_base;           /* physical address of video memory */
+   0, 0,                        // int w, h;
+   TRUE,                        // int linear;
+   0,                           // long bank_size;
+   0,                           // long bank_gran;
+   0,                           // long vid_mem;
+   0,                           // long vid_phys_base;
+   TRUE                         // int windowed;
 };
 
 
