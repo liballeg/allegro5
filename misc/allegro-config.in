@@ -18,7 +18,7 @@ exec_prefix_set=no
 static_libs=@LINK_WITH_STATIC_LIBS@
 lib_type=@LIB_TO_LINK@
 
-allegro_ldflags=`echo "@LDFLAGS@" | sed -e "s/ -s //"`
+allegro_ldflags=`echo "@LDFLAGS@" | sed -e "s/ -s\b//"`
 allegro_libs="@LIBS@"
 allegro_cflags=""
 

@@ -227,7 +227,7 @@ if test -z "$no_x"; then
     CPPFLAGS="-I$x_includes $CPPFLAGS"
   fi
   if test -n "$x_libraries"; then
-    LDFLAGS="-L$x_libraries  $LDFLAGS"
+    LDFLAGS="-L$x_libraries $LDFLAGS"
     ALLEGRO_XWINDOWS_LIBDIR="$x_libraries"
   fi
   LIBS="-lX11 $LIBS"
