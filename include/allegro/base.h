@@ -37,10 +37,10 @@
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      1
-#define ALLEGRO_WIP_VERSION      0
-#define ALLEGRO_VERSION_STR      "4.1.0 (CVS)"
+#define ALLEGRO_WIP_VERSION      1
+#define ALLEGRO_VERSION_STR      "4.1.1 (CVS)"
 #define ALLEGRO_DATE_STR         "2002"
-#define ALLEGRO_DATE             20020210    /* yyyymmdd */
+#define ALLEGRO_DATE             20020713    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/
