@@ -146,6 +146,7 @@ echo "Converting documentation..."
 
 gcc -o _makedoc.exe docs/src/makedoc/*.c
 
+./_makedoc.exe -ascii readme.txt docs/src/readme._tx
 ./_makedoc.exe -ascii CHANGES docs/src/changes._tx
 ./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
 ./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx

@@ -1,7 +1,7 @@
 #! /bin/sh
 #
 #  Shell script to adjust the version numbers and dates in allegro.h,
-#  dllver.rc, readme.txt, allegro._tx, makefile.ver, allegro-config.in,
+#  dllver.rc, readme._tx, allegro._tx, makefile.ver, allegro-config.in,
 #  allegro-config.qnx, modules.lst and allegro.spec .
 #
 #  Note: if you pass "datestamp" as the only argument, then the version
@@ -87,13 +87,13 @@ FILETYPE VFT_DLL
 
 END_OF_DLLVER
 
-# patch readme.txt
+# patch readme._tx
 echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
 echo "s/By Shawn Hargreaves, .*\./By Shawn Hargreaves, $datestr\./" >> fixver.sed
 
-echo "Patching readme.txt..."
-cp readme.txt fixver.tmp
-sed -f fixver.sed fixver.tmp > readme.txt
+echo "Patching readme._tx..."
+cp docs/src/readme._tx fixver.tmp
+sed -f fixver.sed fixver.tmp > docs/src/readme._tx
 
 # patch allegro._tx
 echo "s/@manh=\"version [^\"]*\"/@manh=\"version $verstr\"/" >> fixver.sed

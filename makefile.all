@@ -106,12 +106,12 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
-DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile
+DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile readme
 
-DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi api packfile))
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
-DOCS += CHANGES AUTHORS THANKS
+DOCS += CHANGES AUTHORS THANKS readme.txt
 CHMDOCS = $(addprefix docs/chm/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 
 endif
@@ -228,7 +228,7 @@ docs/chm/allegro.chm: $(filter %.$(HTML),$(CHMDOCS)) docs/src/allegro._tx $(OBJE
 	$(MAKEDOC) -chm docs/chm/allegro.$(HTML) docs/src/allegro._tx
 	-hhc docs/chm/allegro.hhp
 
-$(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
+$(filter %.txt,$(filter-out readme.txt, $(DOCS))): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
 
 $(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)
@@ -240,7 +240,7 @@ $(filter %.$(HTML),$(DOCS)): docs/html/%.$(HTML): docs/src/%._tx $(MAKEDOC)
 $(filter %.$(HTML),$(CHMDOCS)): docs/chm/%.$(HTML): docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ochm -$(HTML) $@ $<
 
-AUTHORS: docs/src/thanks._tx
+AUTHORS: docs/src/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii AUTHORS $<
 ifdef UNIX_TOOLS
 	cp AUTHORS docs/txt/authors.txt
@@ -248,20 +248,28 @@ else
 	copy AUTHORS docs\txt\authors.txt
 endif
 
-THANKS: docs/src/thanks._tx
-	$(MAKEDOC) -part -ascii THANKS $<
+THANKS: docs/src/thanks._tx $(MAKEDOC)
+	$(MAKEDOC) -part -ascii $@ $<
 ifdef UNIX_TOOLS
 	cp THANKS docs/txt/thanks.txt
 else
 	copy THANKS docs\txt\thanks.txt
 endif
 
-CHANGES: docs/src/changes._tx
-	$(MAKEDOC) -ascii CHANGES $<
+CHANGES: docs/src/changes._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii $@ $<
 ifdef UNIX_TOOLS
 	cp CHANGES docs/txt/changes.txt
 else
 	copy CHANGES docs\txt\changes.txt
+endif
+
+readme.txt: docs/src/readme._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii $@ $<
+ifdef UNIX_TOOLS
+	cp readme.txt docs/txt/readme.txt
+else
+	copy readme.txt docs\txt\readme.txt
 endif
 
 endif
