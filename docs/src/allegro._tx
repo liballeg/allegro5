@@ -7124,6 +7124,10 @@ changes are the following:
    typed into this object. The d1 field specifies the maximum number of 
    characters that it will accept, and d2 is the text cursor position within 
    the string.
+   
+   Note: dp must point to a buffer at least (d1 + 1) * 6 bytes long because,
+   depending on the encoding format in use, a single character can occupy
+   up to 6 bytes and room must be reserved for the terminating null character.
 
 @@int @d_list_proc(int msg, DIALOG *d, int c);
    A list box object. This will allow the user to scroll through a list of 
