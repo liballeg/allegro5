@@ -1396,7 +1396,7 @@ static void _output_symbol_index(void)
 	    continue;
 	 tok++;
 	 /* filter normal tokens from the example list */
-	 if (strstr(_full_eref_list, tok))
+	 if (_full_eref_list && strstr(_full_eref_list, tok))
 	    continue;
 	 list = m_xrealloc(list, sizeof(char *) * (num + 1));
 	 list[num++] = tok;
