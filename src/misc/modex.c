@@ -23,6 +23,9 @@
 #include <string.h>
 
 #include "allegro.h"
+
+#ifdef GFX_MODEX
+
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintvga.h"
 
@@ -30,7 +33,6 @@
    #include ALLEGRO_INTERNAL_HEADER
 #endif
 
-#ifdef GFX_MODEX
 #if (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 

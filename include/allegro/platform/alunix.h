@@ -251,6 +251,8 @@ AL_FUNC(void, split_modex_screen, (int line));
 
 /* Port I/O functions -- maybe these should be internal */
 
+#ifdef ALLEGRO_LINUX_VGA
+
 static INLINE void outportb(unsigned short port, unsigned char value)
 {
    __asm__ volatile ("outb %0, %1" : : "a" (value), "d" (port));
@@ -286,6 +288,8 @@ static INLINE unsigned long inportl(unsigned short port)
    __asm__ volatile ("inl %1, %0" : "=a" (value) : "d" (port));
    return value;
 }
+
+#endif /* ALLEGRO_LINUX_VGA */
 
 
 #endif /* ALLEGRO_LINUX */

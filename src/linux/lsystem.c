@@ -26,7 +26,9 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
+#ifdef ALLEGRO_LINUX_VGA
 #include "allegro/internal/aintvga.h"
+#endif
 #include "linalleg.h"
 
 #ifdef HAVE_SYS_IO_H
@@ -187,8 +189,10 @@ static int sys_linux_init (void)
 	if (__al_linux_init_console()) return -1;
 
 	/* Initialise VGA helpers */
+#ifdef ALLEGRO_LINUX_VGA
 	if (__al_linux_have_ioperms)
 		if (__al_linux_init_vga_helpers()) return -1;
+#endif
 
 	/* Install emergency-exit signal handlers */
 	old_sig_abrt = signal(SIGABRT, signal_handler);
@@ -240,7 +244,9 @@ static void sys_linux_exit (void)
 #endif
 
 	/* shut down VGA helpers */
+#ifdef ALLEGRO_LINUX_VGA
 	__al_linux_shutdown_vga_helpers();
+#endif
 
 	/* shut down the console subsystem */
 	__al_linux_done_console();
