@@ -147,7 +147,7 @@ information about how to install Allegro and link your program with it.
    accented characters to 7 bit ASCII approximations, or under Windows it 
    will bring up a GUI message box.
 
-@@void @set_window_title(char *name);
+@@void @set_window_title(const char *name);
    On platforms that are capable of it, this routine alters the window title 
    for your Allegro program.
 
@@ -274,10 +274,10 @@ table to the set_ucodepage() function.
    Returns the currently selected text encoding format.
 
 @\void @register_uformat(int type,
-@\                      int (*u_getc)(char *s),
+@\                      int (*u_getc)(const char *s),
 @\                      int (*u_getx)(char **s),
 @\                      int (*u_setc)(char *s, int c),
-@\                      int (*u_width)(char *s),
+@\                      int (*u_width)(const char *s),
 @\                      int (*u_cwidth)(int c),
 @@                      int (*u_isok)(int c));
 @xref set_uformat, uconvert, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
@@ -288,7 +288,8 @@ table to the set_ucodepage() function.
    parameters are handlers that implement the character access for your new 
    type: see below for details of these.
 
-@@void @set_ucodepage(unsigned short *table, unsigned short *extras);
+@\void @set_ucodepage(const unsigned short *table,
+@@                   const unsigned short *extras);
 @xref set_uformat
    When you select the U_ASCII_CP encoding mode, a set of tables are used to 
    convert between 8 bit characters and their Unicode equivalents. You can 
@@ -303,7 +304,7 @@ table to the set_ucodepage() function.
    many different Unicode characters can be represented by a single codepage 
    value (eg. for reducing accented vowels to 7 bit ASCII).
 
-@@int @need_uconvert(char *s, int type, int newtype);
+@@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
    Given a pointer to a string, a description of the type of the string, and 
    the type that you would like this string to be converted into, this 
@@ -314,21 +315,23 @@ table to the set_ucodepage() function.
    either of the type parameters, to represent whatever text format is 
    currently selected.
 
-@@int @uconvert_size(char *s, int type, int newtype);
+@@int @uconvert_size(const char *s, int type, int newtype);
 @xref need_uconvert, do_uconvert
    Returns the number of bytes that will be required to store the specified 
    string after a conversion from type to newtype, including the zero 
    terminator. The type parameters can use the value U_CURRENT as a shortcut 
    to represent the currently selected encoding format.
 
-@@void @do_uconvert(char *s, int type, char *buf, int newtype, int size);
+@\void @do_uconvert(const char *s, int type,
+@@                 char *buf, int newtype, int size);
 @xref uconvert
    Converts the specified string from type to newtype, storing at most size 
    bytes into the output buf. The type parameters can use the value 
    U_CURRENT as a shortcut to represent the currently selected encoding 
    format.
 
-@@char *@uconvert(char *s, int type, char *buf, int newtype, int size);
+@\char *@uconvert(const char *s, int type,
+@@               char *buf, int newtype, int size);
 @xref set_uformat, need_uconvert, uconvert, uconvert_ascii, uconvert_toascii
    Higher level function running on top of do_uconvert(). This function 
    converts the specified string from type to newtype, storing at most size 
@@ -344,12 +347,12 @@ table to the set_ucodepage() function.
    routine is called, so don't expect the data to persist across any other 
    library calls.
 
-@@char *@uconvert_ascii(char *s, char buf[]);
+@@char *@uconvert_ascii(const char *s, char buf[]);
 @xref uconvert
    Helper macro for converting strings from ASCII into the current encoding 
    format. Expands to uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf)).
 
-@@char *@uconvert_toascii(char *s, char buf[]);
+@@char *@uconvert_toascii(const char *s, char buf[]);
 @xref uconvert
    Helper macro for converting strings from the current encoding format into 
    ASCII. Expands to uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf)).
@@ -360,7 +363,7 @@ table to the set_ucodepage() function.
    will be a valid empty string no matter whether the program is running in 
    ASCII, Unicode, or UTF-8 mode.
 
-@@int @ugetc(char *s);
+@@int @ugetc(const char *s);
 @xref ugetx, usetc, uwidth, ucwidth, uisok
    Low level helper function for reading Unicode text data. Given a pointer 
    to a string in the current encoding format, it returns the next character 
@@ -374,7 +377,8 @@ table to the set_ucodepage() function.
    returns the next character from the string, and advances the pointer to 
    the character after the one just read.
 
-   ugetxc is provided for working with pointer-to-pointer-to-const char data.
+   ugetxc is provided for working with pointer-to-pointer-to-const char 
+   data.
 
 @@int @usetc(char *s, int c);
 @xref ugetc, ugetx, uwidth, ucwidth, uisok
@@ -382,7 +386,7 @@ table to the set_ucodepage() function.
    specified character to the given address in the current encoding format, 
    and returns the number of bytes written.
 
-@@int @uwidth(char *s);
+@@int @uwidth(const char *s);
 @xref uwidth_max, ugetc, ugetx, usetc, ucwidth, uisok
    Low level helper function for testing Unicode text data. It returns the 
    number of bytes occupied by the first character of the specified string, 
@@ -399,14 +403,14 @@ table to the set_ucodepage() function.
    Low level helper function for testing Unicode text data. Tests whether 
    the specified value can be correctly encoded in the current format.
 
-@@int @uoffset(char *s, int index);
+@@int @uoffset(const char *s, int index);
 @xref ugetat, usetat, uinsert, uremove
    Returns the offset in bytes from the start of the string to the character 
    at the specified index. A zero index parameter will just return a copy of 
    s. If the index is negative, it counts backward from the end of the 
    string, so an index of -1 will return an offset to the last character.
 
-@@int @ugetat(char *s, int index);
+@@int @ugetat(const char *s, int index);
 @xref uoffset, usetat, uinsert, uremove
    Returns the character value at the specified index within the string. A 
    zero index parameter will return the first character of the string. If 
@@ -436,12 +440,12 @@ table to the set_ucodepage() function.
    which the trailing part of the string was moved. If the index is 
    negative, it counts backward from the end of the string.
 
-@@int @ustrsize(char *s);
+@@int @ustrsize(const char *s);
 @xref ustrsizez
    Returns the size of the specified string in bytes, not including the 
    trailing zero.
 
-@@int @ustrsizez(char *s);
+@@int @ustrsizez(const char *s);
 @xref ustrsize
    Returns the size of the specified string in bytes, including the trailing 
    zero.
@@ -459,28 +463,28 @@ table to the set_ucodepage() function.
 @@int    @utoupper(int c);
 @@int    @uisspace(int c);
 @@int    @uisdigit(int c);
-@@char * @ustrdup(char *src)
-@@char * @ustrcpy(char *dest, char *src);
-@@char * @ustrcat(char *dest, char *src);
-@@int    @ustrlen(char *s);
-@@int    @ustrcmp(char *s1, char *s2);
-@@char * @ustrncpy(char *dest, char *src, int n);
-@@char * @ustrncat(char *dest, char *src, int n);
-@@int    @ustrncmp(char *s1, char *s2, int n);
-@@int    @ustricmp(char *s1, char *s2);
+@@char * @ustrdup(const char *src)
+@@char * @ustrcpy(char *dest, const char *src);
+@@char * @ustrcat(char *dest, const char *src);
+@@int    @ustrlen(const char *s);
+@@int    @ustrcmp(const char *s1, const char *s2);
+@@char * @ustrncpy(char *dest, const char *src, int n);
+@@char * @ustrncat(char *dest, const char *src, int n);
+@@int    @ustrncmp(const char *s1, const char *s2, int n);
+@@int    @ustricmp(const char *s1, const char *s2);
 @@char * @ustrlwr(char *s);
 @@char * @ustrupr(char *s);
-@@char * @ustrchr(char *s, int c);
-@@char * @ustrrchr(char *s, int c);
-@@char * @ustrstr(char *s1, char *s2);
-@@char * @ustrpbrk(char *s, char *set);
-@@char * @ustrtok(char *s, char *set);
-@@double @uatof(char *s);
-@@long   @ustrtol(char *s, char **endp, int base);
-@@double @ustrtod(char *s, char **endp);
-@@char * @ustrerror(int err);
-@@int    @uvsprintf(char *buf, char *format, va_list args);
-@@int    @usprintf(char *buf, char *format, ...);
+@@char * @ustrchr(const char *s, int c);
+@@char * @ustrrchr(const char *s, int c);
+@@char * @ustrstr(const char *s1, const char *s2);
+@@char * @ustrpbrk(const char *s, const char *set);
+@@char * @ustrtok(char *s, const char *set);
+@@double @uatof(const char *s);
+@@long   @ustrtol(const char *s, char **endp, int base);
+@@double @ustrtod(const char *s, char **endp);
+@@const char * @ustrerror(int err);
+@@int    @uvsprintf(char *buf, const char *format, va_list args);
+@@int    @usprintf(char *buf, const char *format, ...);
 @!rtf
 
 @rtf
@@ -490,9 +494,7 @@ table to the set_ucodepage() function.
    the assumption that you will be using these routines to prevent 
    overflowing the size of a memory buffer), while the size parameter to 
    ustrncmp() is given in characters (because it doesn't make any sense for 
-   this to be in bytes). The usprintf() implementation complies with as much 
-   of the ANSI spec as I could remember when I wrote it, except that it 
-   doesn't support exponential notation for floating point values.
+   this to be in bytes).
 
 
 
@@ -520,7 +522,7 @@ could for example be loaded from a datafile).
 You can store whatever custom information you like in the config file, along 
 with the standard variables that are used by Allegro (see below).
 
-@@void @set_config_file(char *filename);
+@@void @set_config_file(const char *filename);
 @xref set_config_data, override_config_file, push_config_state
 @xref standard config variables, set_config_string, get_config_string
    Sets the configuration file to be used by all subsequent config 
@@ -528,7 +530,7 @@ with the standard variables that are used by Allegro (see below).
    allegro.cfg file, looking first in the same directory as your program and 
    then in the directory pointed to by the ALLEGRO environment variable.
 
-@@void @set_config_data(char *data, int length);
+@@void @set_config_data(const char *data, int length);
 @xref set_config_file, override_config_data, push_config_state
 @xref standard config variables, set_config_string, get_config_string
    Specifies a block of data to be used by all subsequent config functions, 
@@ -537,7 +539,7 @@ with the standard variables that are used by Allegro (see below).
    makes a copy of the information, so you can safely free the data after 
    calling it.
 
-@@void @override_config_file(char *filename);
+@@void @override_config_file(const char *filename);
 @xref override_config_data, set_config_file
    Specifies a file containing config overrides. These settings will be used 
    in addition to the parameters in the main config file, and where a 
@@ -549,7 +551,7 @@ with the standard variables that are used by Allegro (see below).
    still use an allegro.cfg file to specify the port settings and irq 
    numbers.
 
-@@void @override_config_data(char *data, int length);
+@@void @override_config_data(const char *data, int length);
 @xref override_config_file, set_config_data
    Version of override_config_file() which uses a block of data that has 
    already been read into memory.
@@ -569,10 +571,10 @@ with the standard variables that are used by Allegro (see below).
    Pops a configuration state previously stored by push_config_state(), 
    replacing the current config source with it.
 
-@\void @hook_config_section(char *section,
-@\                         int (*intgetter)(char *name, int def),
-@\                         char *(*stringgetter)(char *name, char *def),
-@@                         void (*stringsetter)(char *name, char *value));
+@\void @hook_config_section(const char *section,
+@\       int (*intgetter)(const char *name, int def),
+@\       const char *(*stringgetter)(const char *name, const char *def),
+@@       void (*stringsetter)(const char *name, const char *value));
 @xref config_is_hooked
    Takes control of the specified config file section, so that your hook 
    functions will be used to manipulate it instead of the normal disk file 
@@ -582,11 +584,12 @@ with the standard variables that are used by Allegro (see below).
    can also hook a '#' section: even override_config_file() cannot override 
    a hooked section.
 
-@@int @config_is_hooked(char *section);
+@@int @config_is_hooked(const char *section);
 @xref hook_config_section
    Returns TRUE if the specified config section has been hooked.
 
-@@char *@get_config_string(char *section, char *name, char *def);
+@\const char *@get_config_string(const char *section,
+                                const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
 @xref get_config_hex, get_config_int, get_config_id
    Retrieves a string variable from the current config file. If the named 
@@ -595,31 +598,31 @@ with the standard variables that are used by Allegro (see below).
    to control which set of parameters (eg. sound or joystick) you are 
    interested in reading.
 
-@@int @get_config_int(char *section, char *name, int def);
+@@int @get_config_int(const char *section, const char *name, int def);
 @xref set_config_file, set_config_int, get_config_string, get_config_argv
 @xref get_config_float, get_config_hex, get_config_id
    Reads an integer variable from the current config file. See the comments 
    about get_config_string().
 
-@@int @get_config_hex(char *section, char *name, int def);
+@@int @get_config_hex(const char *section, const char *name, int def);
 @xref set_config_file, set_config_hex, get_config_string, get_config_argv
 @xref get_config_float, get_config_int, get_config_id
    Reads an integer variable from the current config file, in hexadecimal 
    format. See the comments about get_config_string().
 
-@@float @get_config_float(char *section, char *name, float def);
+@@float @get_config_float(const char *section, const char *name, float def);
 @xref set_config_file, set_config_float, get_config_string, get_config_argv
 @xref get_config_hex, get_config_int, get_config_id
    Reads a floating point variable from the current config file. See the 
    comments about get_config_string().
 
-@@int @get_config_id(char *section, char *name, int def);
+@@int @get_config_id(const char *section, const char *name, int def);
 @xref set_config_file, set_config_id, get_config_string, get_config_argv
 @xref get_config_float, get_config_hex, get_config_int
    Reads a 4-letter driver ID variable from the current config file. See the 
    comments about get_config_string().
 
-@@char **@get_config_argv(char *section, char *name, int *argc);
+@@char **@get_config_argv(const char *section, const char *name, int *argc);
 @xref set_config_file, get_config_string, get_config_float, get_config_hex
 @xref get_config_int, get_config_id
    Reads a token list (words separated by spaces) from the current config 
@@ -629,7 +632,7 @@ with the standard variables that are used by Allegro (see below).
    is stored in a temporary buffer that will be clobbered by the next call 
    to get_config_argv(), so the data should not be expected to persist.
 
-@@char *@get_config_text(char *msg);
+@@const char *@get_config_text(const char *msg);
 @xref get_config_string, standard config variables
    This function is primarily intended for use by internal library code, but 
    it may perhaps be helpful to application programmers as well. It uses the 
@@ -644,7 +647,8 @@ with the standard variables that are used by Allegro (see below).
    being allocated as required, so you can assume that this pointer will 
    persist without having to manually allocate storage space for each string.
 
-@@void @set_config_string(char *section, char *name, char *val);
+@@void @set_config_string(const char *section, const char *name,
+			 const char *val);
 @xref set_config_file, get_config_string, set_config_float, set_config_hex
 @xref set_config_int, set_config_id
    Writes a string variable to the current config file, replacing any 
@@ -662,25 +666,25 @@ with the standard variables that are used by Allegro (see below).
    status information into the config module, from where it can be read with 
    the get_config_string() function.
 
-@@void @set_config_int(char *section, char *name, int val);
+@@void @set_config_int(const char *section, const char *name, int val);
 @xref set_config_file, get_config_int, set_config_string, set_config_float
 @xref set_config_hex, set_config_id
    Writes an integer variable to the current config file. See the comments 
    about set_config_string().
 
-@@void @set_config_hex(char *section, char *name, int val);
+@@void @set_config_hex(const char *section, const char *name, int val);
 @xref set_config_file, get_config_hex, set_config_string, set_config_float
 @xref set_config_int, set_config_id
    Writes an integer variable to the current config file, in hexadecimal 
    format. See the comments about set_config_string().
 
-@@void @set_config_float(char *section, char *name, float val);
+@@void @set_config_float(const char *section, const char *name, float val);
 @xref set_config_file, get_config_float, set_config_string, set_config_hex
 @xref set_config_int, set_config_id
    Writes a floating point variable to the current config file. See the 
    comments about set_config_string().
 
-@@void @set_config_id(char *section, char *name, int val);
+@@void @set_config_id(const char *section, const char *name, int val);
 @xref set_config_file, get_config_id, set_config_string, set_config_float
 @xref set_config_hex, set_config_int
    Writes a 4-letter driver ID variable to the current config file. See the 
@@ -1719,7 +1723,7 @@ Joystick routines
 	 }
       }
 </pre>
-@@int @save_joystick_data(char *filename);
+@@int @save_joystick_data(const char *filename);
 @xref load_joystick_data, set_config_file
    After all the headache of calibrating the joystick, you may not want to 
    make your poor users repeat the process every time they run your program. 
@@ -1728,7 +1732,7 @@ Joystick routines
    load_joystick_data(). Pass a NULL filename to write the data to the 
    currently selected configuration file. Returns zero on success.
 
-@@int @load_joystick_data(char *filename);
+@@int @load_joystick_data(const char *filename);
 @xref install_joystick, save_joystick_data, set_config_file
    Restores calibration data previously stored by save_joystick_data() or 
    the setup utility. This sets up all aspects of the joystick code: you 
@@ -2358,7 +2362,7 @@ Warning: when using truecolor images, you should always set the graphics
 mode before loading any bitmap data! Otherwise the pixel format (RGB or BGR)
 will not be known, so the file may be converted wrongly.
 
-@@BITMAP *@load_bitmap(char *filename, RGB *pal);
+@@BITMAP *@load_bitmap(const char *filename, RGB *pal);
 @xref load_bmp, load_lbm, load_pcx, load_tga, destroy_bitmap, save_bitmap
 @xref register_bitmap_file_type, set_color_depth, set_color_conversion
    Loads a bitmap from a file, returning a pointer to a bitmap and storing 
@@ -2369,24 +2373,24 @@ will not be known, so the file may be converted wrongly.
    extension. If the file contains a truecolor image, you must set the video 
    mode or call set_color_conversion() before loading it.
 
-@@BITMAP *@load_bmp(char *filename, RGB *pal);
+@@BITMAP *@load_bmp(const char *filename, RGB *pal);
 @xref load_bitmap
    Loads a 256 color or 24 bit truecolor Windows or OS/2 BMP file.
 
-@@BITMAP *@load_lbm(char *filename, RGB *pal);
+@@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
    Loads a 256 color IFF ILBM/PBM file.
 
-@@BITMAP *@load_pcx(char *filename, RGB *pal);
+@@BITMAP *@load_pcx(const char *filename, RGB *pal);
 @xref load_bitmap
    Loads a 256 color or 24 bit truecolor PCX file.
 
-@@BITMAP *@load_tga(char *filename, RGB *pal);
+@@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
    Loads a 256 color, 15 bit hicolor, 24 bit truecolor, or 32 bit 
    truecolor+alpha TGA file.
 
-@@int @save_bitmap(char *filename, BITMAP *bmp, RGB *pal);
+@@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
    Writes a bitmap into a file, using the specified palette, which should be 
    an array of 256 RGB structures. Returns non-zero on error. The output 
@@ -2405,22 +2409,22 @@ will not be known, so the file may be converted wrongly.
       save_bitmap("dump.pcx", bmp, pal);
       destroy_bitmap(bmp);
 </pre>
-@@int @save_bmp(char *filename, BITMAP *bmp, RGB *pal);
+@@int @save_bmp(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
    Writes a bitmap into a 256 color or 24 bit truecolor BMP file.
 
-@@int @save_pcx(char *filename, BITMAP *bmp, RGB *pal);
+@@int @save_pcx(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
    Writes a bitmap into a 256 color or 24 bit truecolor PCX file.
 
-@@int @save_tga(char *filename, BITMAP *bmp, RGB *pal);
+@@int @save_tgaconst (char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
    Writes a bitmap into a 256 color, 15 bit hicolor, 24 bit truecolor, or 32 
    bit truecolor+alpha TGA file.
 
-@\void @register_bitmap_file_type(char *ext,
-@\                    BITMAP *(*load)(char *filename, RGB *pal),
-@@                    int (*save)(char *filename, BITMAP *bmp, RGB *pal));
+@\void @register_bitmap_file_type(const char *ext,
+@\          BITMAP *(*load)(const char *filename, RGB *pal),
+@@          int (*save)(const char *filename, BITMAP *bmp, const RGB *pal));
 @xref load_bitmap, save_bitmap
    Informs the load_bitmap() and save_bitmap() functions of a new file type, 
    providing routines to read and write images in this format (either 
@@ -2546,13 +2550,13 @@ happily accept either spelling, due to some #defines in allegro.h.
    scrolling, though, so you don't normally need to bother with this 
    function.
 
-@@void @set_color(int index, RGB *p);
+@@void @set_color(int index, const RGB *p);
 @xref set_palette, get_color, _set_color
    Sets the specified palette entry to the specified RGB triplet. Unlike the 
    other palette functions this doesn't do any retrace synchronisation, so 
    you should call vsync() before it to prevent snow problems.
 
-@@void @_set_color(int index, RGB *p);
+@@void @_set_color(int index, const RGB *p);
 @xref set_color, set_gfx_mode, timer_simulate_retrace
    This is an inline version of set_color(), intended for use in the 
    vertical retrace simulator callback function. It should only be used in 
@@ -2560,14 +2564,14 @@ happily accept either spelling, due to some #defines in allegro.h.
    aren't VGA compatible (set_color() and set_palette() will use VESA calls 
    on these cards, but _set_color() doesn't know about that).
 
-@@void @set_palette(PALETTE p);
+@@void @set_palette(const PALETTE p);
 @xref set_gfx_mode, set_palette_range, set_color, get_palette
 @xref select_palette, palette_color
    Sets the entire palette of 256 colors. You should provide an array of 256 
    RGB structures. Unlike set_color(), there is no need to call vsync() 
    before this function.
 
-@@void @set_palette_range(PALETTE p, int from, int to, int vsync);
+@@void @set_palette_range(const PALETTE p, int from, int to, int vsync);
 @xref set_palette, get_palette_range
    Sets the palette entries between from and to (inclusive: pass 0 and 255 
    to set the entire palette). If vsync is set it waits for the vertical 
@@ -2587,7 +2591,8 @@ happily accept either spelling, due to some #defines in allegro.h.
    Retrieves the palette entries between from and to (inclusive: pass 0 and 
    255 to get the entire palette).
 
-@@void @fade_interpolate(PALETTE source, dest, output, int pos, int from, to);
+@\void @fade_interpolate(const PALETTE source, const PALETTE dest,
+@@                      PALETTE output, int pos, int from, to);
 @xref fade_in, fade_out, fade_from
    Calculates a temporary palette part way between source and dest, 
    returning it in the output parameter. The position between the two 
@@ -2596,14 +2601,15 @@ happily accept either spelling, due to some #defines in allegro.h.
    etc. This routine only affects colors between from and to (inclusive: 
    pass 0 and 255 to interpolate the entire palette).
 
-@@void @fade_from_range(PALETTE source, dest, int speed, int from, to);
+@\void @fade_from_range(const PALETTE source, const PALETTE dest,
+@@                     int speed, int from, to);
 @xref fade_from
    Gradually fades a part of the palette from the source palette to the dest 
    palette. The speed is from 1 (the slowest) up to 64 (instantaneous). This 
    routine only affects colors between from and to (inclusive: pass 0 and 
    255 to fade the entire palette).
 
-@@void @fade_in_range(PALETTE p, int speed, int from, to);
+@@void @fade_in_range(const PALETTE p, int speed, int from, to);
 @xref fade_in
    Gradually fades a part of the palette from a black screen to the 
    specified palette. The speed is from 1 (the slowest) up to 64 
@@ -2617,12 +2623,12 @@ happily accept either spelling, due to some #defines in allegro.h.
    routine only affects colors between from and to (inclusive: pass 0 and 
    255 to fade the entire palette).
 
-@@void @fade_from(PALETTE source, PALETTE dest, int speed);
+@@void @fade_from(const PALETTE source, const PALETTE dest, int speed);
 @xref fade_in, fade_out, fade_interpolate, fade_from_range
    Fades gradually from the source palette to the dest palette. The speed is 
    from 1 (the slowest) up to 64 (instantaneous).
 
-@@void @fade_in(PALETTE p, int speed);
+@@void @fade_in(const PALETTE p, int speed);
 @xref fade_out, fade_from, fade_interpolate, fade_in_range
    Fades gradually from a black screen to the specified palette. The speed 
    is from 1 (the slowest) up to 64 (instantaneous).
@@ -2632,7 +2638,7 @@ happily accept either spelling, due to some #defines in allegro.h.
    Fades gradually from the current palette to a black screen. The speed is 
    from 1 (the slowest) up to 64 (instantaneous).
 
-@@void @select_palette(PALETTE p);
+@@void @select_palette(const PALETTE p);
 @xref set_palette, unselect_palette
    Ugly hack for use in various dodgy situations where you need to convert 
    between paletted and truecolor image formats. Sets the internal palette 
@@ -2653,7 +2659,8 @@ happily accept either spelling, due to some #defines in allegro.h.
    does not contain a palette itself (ie. you are reading a truecolor 
    bitmap).
 
-@@int @generate_optimized_palette(BITMAP *bmp, PALETTE pal, char rsvd[256]);
+@\int @generate_optimized_palette(BITMAP *bmp, PALETTE pal,
+@@                               const char rsvd[256]);
 @xref generate_332_palette, set_color_depth
    Generates a 256 color palette suitable for making a reduced color version 
    of the specified truecolor image. The rsvd parameter points to a table 
@@ -3233,12 +3240,14 @@ in grabber datafiles by making a bitmap object and checking the 'RLE' button.
 @xref get_rle_sprite
    Destroys an RLE sprite structure previously returned by get_rle_sprite().
 
-@@void @draw_rle_sprite(BITMAP *bmp, RLE_SPRITE *sprite, int x, int y);
+@\void @draw_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
+@@                     int x, int y);
 @xref get_rle_sprite, draw_sprite, draw_compiled_sprite
 @xref draw_trans_rle_sprite, draw_lit_rle_sprite, bitmap_mask_color
    Draws an RLE sprite onto a bitmap at the specified position.
 
-@@void @draw_trans_rle_sprite(BITMAP *bmp, RLE_SPRITE *sprite, int x, int y);
+@\void @draw_trans_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
+@@                           int x, int y);
 @xref draw_rle_sprite, draw_lit_rle_sprite, draw_trans_sprite, color_map
 @xref set_trans_blender, set_alpha_blender, bitmap_mask_color
    Translucent version of draw_rle_sprite(). See the description of 
@@ -3249,7 +3258,8 @@ in grabber datafiles by making a bitmap object and checking the 'RLE' button.
    sprites onto any hicolor or truecolor bitmap, as long as you call 
    set_alpha_blender() first.
 
-@@void @draw_lit_rle_sprite(BITMAP *bmp, RLE_SPRITE *sprite, int x, y, color);
+@\void @draw_lit_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
+@@                         int x, y, color);
 @xref draw_rle_sprite, draw_trans_rle_sprite, draw_lit_sprite, color_map
 @xref set_trans_blender, bitmap_mask_color
    Tinted version of draw_rle_sprite(). See the description of
@@ -3289,7 +3299,8 @@ Compiled' buttons.
    Destroys a compiled sprite structure previously returned by 
    get_compiled_sprite().
 
-@@void @draw_compiled_sprite(BITMAP *bmp, COMPILED_SPRITE *sprite, int x, int y);
+@\void @draw_compiled_sprite(BITMAP *bmp, const COMPILED_SPRITE *sprite,
+@@                          int x, int y);
 @xref get_compiled_sprite, draw_sprite, draw_rle_sprite, bitmap_mask_color
    Draws a compiled sprite onto a bitmap at the specified position. The 
    sprite must have been compiled for the correct type of bitmap (linear or 
@@ -3330,7 +3341,8 @@ allegro.h for details.
    negative, text will be drawn transparently (ie. the background of the 
    characters will not be altered). The default is a mode of zero.
 
-@@void @textout(BITMAP *bmp, FONT *f, char *s, int x, y, int color);
+@\void @textout(BITMAP *bmp, const FONT *f, const char *s,
+@@             int x, y, int color);
 @xref font, text_mode, textout_centre, textout_right, textout_justify
 @xref textprintf, text_height, text_length
    Writes the string s onto the bitmap at position x, y, using the current 
@@ -3339,48 +3351,53 @@ allegro.h for details.
    original font bitmap (the one you imported into the grabber program), 
    which allows multicolored text output.
 
-@@void @textout_centre(BITMAP *bmp, FONT *f, char *s, int x, y, color);
+@\void @textout_centre(BITMAP *bmp, const FONT *f, const char *s,
+@@                    int x, y, color);
 @xref textout, textprintf_centre
    Like textout(), but interprets the x coordinate as the centre rather than 
    the left edge of the string.
 
-@@void @textout_right(BITMAP *bmp, FONT *f, char *s, int x, y, color);
+@\void @textout_right(BITMAP *bmp, const FONT *f, const char *s,
+@@                   int x, y, color);
 @xref textout, textprintf_right
    Like textout(), but interprets the x coordinate as the right rather than 
    the left edge of the string.
 
-@\void @textout_justify(BITMAP *bmp, FONT *f, char *s,
+@\void @textout_justify(BITMAP *bmp, const FONT *f, const char *s,
 @@                     int x1, int x2, int y, int diff, int color);
 @xref textout, textprintf_justify
    Draws justified text within the region x1-x2. If the amount of spare 
    space is greater than the diff value, it will give up and draw regular 
    left justified text instead.
 
-@@void @textprintf(BITMAP *bmp, FONT *f, int x, y, color, char *fmt, ...);
+@\void @textprintf(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                const char *fmt, ...);
 @xref font, text_mode, textprintf_centre, textprintf_right
 @xref textprintf_justify, textout, text_height, text_length
    Formatted text output, using a printf() style format string.
 
-@@void @textprintf_centre(BITMAP *bmp, FONT *f, int x, y, color, char *fmt, ...);
+@\void @textprintf_centre(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                       const char *fmt, ...);
 @xref textprintf, textout_centre
    Like textprintf(), but interprets the x coordinate as the centre rather 
    than the left edge of the string.
 
-@@void @textprintf_right(BITMAP *bmp, FONT *f, int x, y, color, char *fmt, ...);
+@\void @textprintf_right(BITMAP *bmp, const FONT *f, int x, y, color,
+@@                      const char *fmt, ...);
 @xref textprintf, textout_right
    Like textprintf(), but interprets the x coordinate as the right rather 
    than the left edge of the string.
 
-@\void @textprintf_justify(BITMAP *bmp, FONT *f, int x1, int x2, int y,
-@@                        int diff, int color, char *fmt, ...);
+@\void @textprintf_justify(BITMAP *bmp, const FONT *f, int x1, int x2, int y,
+@@                        int diff, int color, const char *fmt, ...);
 @xref textprintf, textout_justify
    Like textout_justify, but using a printf() style format string.
 
-@@int @text_length(FONT *f, char *str);
+@@int @text_length(const FONT *f, const char *str);
 @xref text_height
    Returns the length (in pixels) of a string in the specified font.
 
-@@int @text_height(FONT *f)
+@@int @text_height(const FONT *f)
 @xref text_length
    Returns the height (in pixels) of the specified font.
 
@@ -3724,7 +3741,7 @@ typedef struct {
    Global pointer to the color mapping table. This must be set before using 
    any translucent or lit drawing functions in a 256 color video mode!
 
-@\void @create_light_table(COLOR_MAP *table, PALETTE pal,
+@\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_trans_table, create_color_table
 @xref create_blender_table, draw_lit_sprite
@@ -3738,7 +3755,7 @@ typedef struct {
    callback function is not NULL, it will be called 256 times during the 
    calculation, allowing you to display a progress indicator.
 
-@\void @create_trans_table(COLOR_MAP *table, PALETTE pal,
+@\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_light_table, create_color_table
 @xref create_blender_table, draw_trans_sprite
@@ -3753,7 +3770,7 @@ typedef struct {
    If the callback function is not NULL, it will be called 256 times during 
    the calculation, allowing you to display a progress indicator.
 
-@\void @create_color_table(COLOR_MAP *table, PALETTE pal,
+@\void @create_color_table(COLOR_MAP *table, const PALETTE pal,
 @\                        void (*blend)(PALETTE pal, int x, int y, RGB *rgb),
 @@                        void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_blender_table
@@ -3768,7 +3785,7 @@ typedef struct {
    not NULL, it will be called 256 times during the calculation, allowing 
    you to display a progress indicator.
 
-@\void @create_blender_table(COLOR_MAP *table, PALETTE pal,
+@\void @create_blender_table(COLOR_MAP *table, const PALETTE pal,
 @@                          void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_color_table
 @xref set_trans_blender, set_blender_mode
@@ -3959,7 +3976,7 @@ reducing truecolor images to a 256 color destination is very slow (it can be
 sped up significantly if you set up the global rgb_map table before doing 
 the conversion).
 
-@@int @bestfit_color(PALETTE pal, int r, int g, int b);
+@@int @bestfit_color(const PALETTE pal, int r, int g, int b);
 @xref makecol8
    Searches the specified palette for the closest match to the requested 
    color, which are specified in the VGA hardware 0-63 format. Normally you 
@@ -3980,7 +3997,8 @@ the conversion).
       unsigned char data[32][32][32];
    } RGB_MAP;
 </pre>
-@@void @create_rgb_table(RGB_MAP *table, PALETTE pal, void (*callback)(int pos));
+@\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
+@@                       void (*callback)(int pos));
 @xref rgb_map
    Fills the specified RGB mapping table with lookup data for the specified 
    palette. If the callback function is not NULL, it will be called 256 
@@ -4197,12 +4215,13 @@ for example if you want to superimpose a text scroller on top of the
 animation, or to play it back at a different speed. You could do both of 
 these with the lower level functions described below.
 
-@@int @play_fli(char *filename, BITMAP *bmp, int loop, int (*callback)());
+@@int @play_fli(const char *filename, BITMAP *bmp, int loop, int (*callback)());
 @xref play_memory_fli, install_timer, fli_frame
    Plays an Autodesk Animator FLI or FLC animation file, reading the data 
    from disk as it is required.
 
-@@int @play_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)());
+@\int @play_memory_fli(const void *fli_data, BITMAP *bmp, int loop,
+@@                     int (*callback)());
 @xref play_fli, install_timer, fli_frame
    Plays an Autodesk Animator FLI or FLC animation, reading the data from a 
    copy of the file which is held in memory. You can obtain the fli_data 
@@ -4213,8 +4232,8 @@ these with the lower level functions described below.
    very large, though, so in most cases you will probably be better just 
    using play_fli().
 
-@@int @open_fli(char *filename);
-@@int @open_memory_fli(void *fli_data);
+@@int @open_fli(const char *filename);
+@@int @open_memory_fli(const void *fli_data);
 @xref close_fli, next_fli_frame
    Open FLI files ready for playing, reading the data from disk or memory 
    respectively. Return FLI_OK on success. Information about the current FLI 
@@ -4321,7 +4340,7 @@ Sound init routines
    sound quality is usually inversely related to how many voices you use, so 
    don't reserve any more than you really need.
 
-@@int @install_sound(int digi, int midi, char *cfg_path);
+@@int @install_sound(int digi, int midi, const char *cfg_path);
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
 @xref set_volume, play_sample, voice control, play_midi, play_audio_stream
 @xref install_sound_input, allegro_error, standard config variables
@@ -4356,17 +4375,17 @@ Sound init routines
 @heading
 Digital sample routines
 
-@@SAMPLE *@load_sample(char *filename);
+@@SAMPLE *@load_sample(const char *filename);
 @xref destroy_sample, load_voc, load_wav, play_sample, voice control
    Loads a sample from a file, returning a pointer to it, or NULL on error. 
    At present this function supports both mono and stereo WAV and mono VOC 
    files, in 8 or 16 bit formats.
 
-@@SAMPLE *@load_wav(char *filename);
+@@SAMPLE *@load_wav(const char *filename);
 @xref load_sample
    Loads a sample from a RIFF WAV file.
 
-@@SAMPLE *@load_voc(char *filename);
+@@SAMPLE *@load_voc(const char *filename);
 @xref load_sample
    Loads a sample from a Creative Labs VOC file.
 
@@ -4382,7 +4401,7 @@ Digital sample routines
    this even when the sample might be playing, because it checks and will 
    kill it off if it is active.
 
-@@int @play_sample(SAMPLE *spl, int vol, int pan, int freq, int loop);
+@@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, voice control
    Triggers a sample at the specified volume, pan position, and frequency. 
    The volume and pan range from 0 (min/left) to 255 (max/right). Frequency 
@@ -4391,7 +4410,7 @@ Digital sample routines
    the sample will repeat until you call stop_sample(), and can be 
    manipulated while it is playing by calling adjust_sample().
 
-@@void @adjust_sample(SAMPLE *spl, int vol, int pan, int freq, int loop);
+@@void @adjust_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref play_sample
    Alters the parameters of a sample while it is playing (useful for 
    manipulating looped sounds). You can alter the volume, pan, and 
@@ -4400,7 +4419,7 @@ Digital sample routines
    the same sample playing, this will adjust the first one it comes across. 
    If the sample is not playing it has no effect.
 
-@@void @stop_sample(SAMPLE *spl);
+@@void @stop_sample(const SAMPLE *spl);
 @xref play_sample
    Kills off a sample, which is required if you have set a sample going in 
    looped mode. If there are several copies of the sample playing, it will 
@@ -4430,7 +4449,7 @@ sample structure:
       Loop position in sample units, by default set to the start and end of 
       the sample.
 </pre>
-@@int @allocate_voice(SAMPLE *spl);
+@@int @allocate_voice(const SAMPLE *spl);
 @xref voice control, deallocate_voice, reallocate_voice, release_voice
 @xref load_sample
    Allocates a soundcard voice and prepares it for playing the specified 
@@ -4444,7 +4463,7 @@ sample structure:
    Frees a soundcard voice, stopping it from playing and releasing whatever 
    resources it is using.
 
-@@void @reallocate_voice(int voice, SAMPLE *spl);
+@@void @reallocate_voice(int voice, const SAMPLE *spl);
 @xref allocate_voice, deallocate_voice, load_sample
    Switches an already-allocated voice to use a different sample. Calling 
    reallocate_voice(voice, sample) is equivalent to:
@@ -4592,7 +4611,7 @@ sample structure:
 @heading
 MIDI music routines
 
-@@MIDI *@load_midi(char *filename);
+@@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi
    Loads a MIDI file (handles both format 0 and format 1), returning a 
    pointer to a MIDI structure, or NULL on error.
@@ -4679,8 +4698,8 @@ MIDI music routines
    file respectively.
 
 @@extern void (*@midi_msg_callback)(int msg, int byte1, int byte2);
-@@extern void (*@midi_meta_callback)(int type, unsigned char *data, int length);
-@@extern void (*@midi_sysex_callback)(unsigned char *data, int length);
+@@extern void (*@midi_meta_callback)(int type, const unsigned char *data, int length);
+@@extern void (*@midi_sysex_callback)(const unsigned char *data, int length);
 @xref play_midi
    Hook functions allowing you to intercept MIDI player events. If set to 
    anything other than NULL, these routines will be called for each MIDI 
@@ -4887,37 +4906,40 @@ the value F_NOPACK_MAGIC.
    character. On DOS platforms, this is a backslash. Returns a copy of the 
    path parameter.
 
-@@char *@fix_filename_path(char *dest, char *path, int size);
+@@char *@fix_filename_path(char *dest, const char *path, int size);
 @xref fix_filename_case, fix_filename_slashes
    Converts a partial filename into a full path, generating up to the 
    specified maximum number of characters. Returns a copy of the dest 
    parameter.
 
-@@char *@replace_filename(char *dest, char *path, char *filename, int size);
+@\char *@replace_filename(char *dest, const char *path, 
+@@                        const char *filename, int size);
 @xref get_filename, replace_extension, append_filename
    Replaces the specified path+filename with a new filename tail, generating 
    up to the specified maximum number of characters. Returns a copy of the 
    dest parameter.
 
-@@char *@replace_extension(char *dest, char *filename, char *ext, int size);
+@\char *@replace_extension(char *dest, const char *filename, 
+@@                         const char *ext, int size);
 @xref get_extension, replace_filename
    Replaces the specified filename+extension with a new extension tail, 
    generating up to the specified maximum number of characters. Returns a 
    copy of the dest parameter.
 
-@@char *@append_filename(char *dest, char *path, char *filename, int size);
+@\char *@append_filename(char *dest, const char *path, 
+@@                       const char *filename, int size);
 @xref replace_filename
    Concatenates the specified filename onto the end of the specified path, 
    generating up to the specified maximum number of characters. Returns a 
    copy of the dest parameter.
 
-@@char *@get_filename(char *path);
+@@char *@get_filename(const char *path);
 @xref get_extension, put_backslash, replace_filename
    When passed a completely specified file path, this returns a pointer to 
    the filename portion. Both '\' and '/' are recognized as directory 
    separators.
 
-@@char *@get_extension(char *filename);
+@@char *@get_extension(const char *filename);
 @xref get_filename, put_backslash, replace_extension
    When passed a complete filename (with or without path information) this 
    returns a pointer to the file extension.
@@ -4927,7 +4949,7 @@ the value F_NOPACK_MAGIC.
    If the last character of the filename is not a '\', '/', or '#', this 
    routine will concatenate a '\' on to it.
 
-@@int @file_exists(char *filename, int attrib, int *aret);
+@@int @file_exists(const char *filename, int attrib, int *aret);
 @xref exists, file_size, file_time
    Checks whether a file matching the given name and attributes exists, 
    returning non-zero if it does. The file attribute may contain any of the 
@@ -4935,27 +4957,27 @@ the value F_NOPACK_MAGIC.
    attributes of the matching file. If an error occurs the system error code 
    will be stored in errno.
 
-@@int @exists(char *filename);
+@@int @exists(const char *filename);
 @xref file_exists
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
 
-@@long @file_size(char *filename);
+@@long @file_size(const char *filename);
 @xref file_exists, file_time
    Returns the size of a file, in bytes. If the file does not exist or an 
    error occurs, it will return zero and store the system error code in 
    errno.
 
-@@long @file_time(char *filename);
+@@long @file_time(const char *filename);
 @xref file_exists, file_size
    Returns the modification time of a file.
 
-@@int @delete_file(char *filename);
+@@int @delete_file(const char *filename);
    Removes a file from the disk.
 
-@\int @for_each_file(char *name, int attrib,
-@\                  void (*callback)(char *filename, int attrib, int param),
+@\int @for_each_file(const char *name, int attrib,
+@\                  void (*callback)(const char *filename, int attrib, int param),
 @@                  int param);
    Finds all the files on the disk which match the given wildcard 
    specification and file attributes, and executes callback() once for each. 
@@ -4968,7 +4990,7 @@ the value F_NOPACK_MAGIC.
    callback(). The file attribute may contain any of the FA_* flags from 
    dir.h.
 
-@@int @findfirst(char *pattern, struct ffblk *ffblk, int attrib);
+@@int @findfirst(const char *pattern, struct ffblk *ffblk, int attrib);
 @xref findnext, findclose
    If your platform doesn't have the find* set of functions, Allegro will
    emulate them. This function finds the first file which matches the
@@ -4988,7 +5010,7 @@ the value F_NOPACK_MAGIC.
 @xref findfirst, findnext
    This closes a previously opened search with findfirst/findnext.
 
-@\int @find_allegro_resource(char *dest, *resource, *ext, *datafile
+@\int @find_allegro_resource(char *dest, const char *resource, *ext, *datafile
 @@                          char *objectname, *envvar, *subdir, int size);
    Searches for a support file, eg. allegro.cfg or language.dat. Passed a 
    resource string describing what you are looking for, along with extra 
@@ -4999,7 +5021,7 @@ the value F_NOPACK_MAGIC.
    of a lot of different places :-) Returns zero on success, and stores a 
    full path to the file (at most size bytes) in the dest parameter.
 
-@@void @packfile_password(char *password);
+@@void @packfile_password(const char *password);
 @xref pack_fopen, load_datafile
    Sets the encryption password to be used for all future read/writes of 
    compressed files. Files written with an encryption password cannot be 
@@ -5011,7 +5033,7 @@ the value F_NOPACK_MAGIC.
    are any strings like "I'm the password for the datafile", it would be 
    fairly easy to get access to your data :-)
 
-@@PACKFILE *@pack_fopen(char *filename, char *mode);
+@@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref packfile functions, pack_fopen_chunk, packfile_password, file_select
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
@@ -5083,9 +5105,9 @@ the value F_NOPACK_MAGIC.
 @@int  @pack_mputw(int w, PACKFILE *f);
 @@long @pack_mputl(long l, PACKFILE *f);
 @@long @pack_fread(void *p, long n, PACKFILE *f);
-@@long @pack_fwrite(void *p, long n, PACKFILE *f);
+@@long @pack_fwrite(const void *p, long n, PACKFILE *f);
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
-@@int  @pack_fputs(char *p, PACKFILE *f);
+@@int  @pack_fputs(const char *p, PACKFILE *f);
 @!rtf
 
 @rtf
@@ -5162,7 +5184,7 @@ will not be known, so the file may be converted wrongly.
 See the documentation for pack_fopen() for information about how to read 
 directly from a specific datafile object.
 
-@@DATAFILE *@load_datafile(char *filename);
+@@DATAFILE *@load_datafile(const char *filename);
 @xref load_datafile_callback, unload_datafile, load_datafile_object
 @xref set_color_conversion, fixup_datafile, packfile_password
 @xref find_datafile_object, register_datafile_object
@@ -5172,7 +5194,7 @@ directly from a specific datafile object.
    for more information. If the datafile contains truecolor graphics, you 
    must set the video mode or call set_color_conversion() before loading it.
 
-@\DATAFILE *@load_datafile_callback(char *filename,
+@\DATAFILE *@load_datafile_callback(const char *filename,
 @@                                 void (*callback)(DATAFILE *d));
 @xref load_datafile, unload_datafile, load_datafile_object
 @xref set_color_conversion, fixup_datafile, packfile_password
@@ -5184,7 +5206,8 @@ directly from a specific datafile object.
 @xref load_datafile
    Frees all the objects in a datafile.
 
-@@DATAFILE *@load_datafile_object(char *filename, char *objectname);
+@\DATAFILE *@load_datafile_object(const char *filename, 
+@@                                const char *objectname);
 @xref unload_datafile_object, load_datafile, set_color_conversion
 @xref find_datafile_object, register_datafile_object
    Loads a specific object from a datafile. This won't work if you strip the 
@@ -5195,7 +5218,7 @@ directly from a specific datafile object.
 @xref load_datafile_object
    Frees an object previously loaded by load_datafile_object().
 
-@@DATAFILE *@find_datafile_object(DATAFILE *dat, char *objectname);
+@@DATAFILE *@find_datafile_object(DATAFILE *dat, const char *objectname);
 @xref load_datafile, load_datafile_object
    Searches an already loaded datafile for an object with the specified 
    name, returning a pointer to it, or NULL if the object cannot be found. 
@@ -5580,8 +5603,8 @@ typedef struct MATRIX_f          - floating point matrix structure
    adds in the scale factor, so there is no need to build two temporary 
    matrices and then multiply them together.
 
-@@void @matrix_mul(MATRIX *m1, MATRIX *m2, MATRIX *out);
-@@void @matrix_mul_f(MATRIX_f *m1, MATRIX_f *m2, MATRIX_f *out);
+@@void @matrix_mul(const MATRIX *m1, *m2, MATRIX *out);
+@@void @matrix_mul_f(const MATRIX_f *m1, *m2, MATRIX_f *out);
 @xref apply_matrix
    Multiplies two matrices, storing the result in out (this may be a 
    duplicate of one of the input matrices, but it is faster when the inputs 
@@ -5616,8 +5639,8 @@ typedef struct MATRIX_f          - floating point matrix structure
    result in (*xout, *yout, *zout). The cross product is perpendicular to 
    both of the input vectors, so it can be used to generate polygon normals.
 
-@@fixed @polygon_z_normal(V3D *v1, V3D *v2, V3D *v3);
-@@float @polygon_z_normal_f(V3D_f *v1, V3D_f *v2, V3D_f *v3);
+@@fixed @polygon_z_normal(const V3D *v1, *v2, *v3);
+@@float @polygon_z_normal_f(const V3D_f *v1, *v2, *v3);
 @xref cross_product
    Finds the Z component of the normal vector to the specified three 
    vertices (which must be part of a convex polygon). This is used mainly in 
@@ -5627,8 +5650,8 @@ typedef struct MATRIX_f          - floating point matrix structure
    polygon can safely be culled. If it is zero, the polygon is perpendicular 
    to the screen.
 
-@@void @apply_matrix(MATRIX *m, fixed x, y, z, *xout, *yout, *zout);
-@@void @apply_matrix_f(MATRIX_f *m, float x, y, z, *xout, *yout, *zout);
+@@void @apply_matrix(const MATRIX *m, fixed x, y, z, *xout, *yout, *zout);
+@@void @apply_matrix_f(const MATRIX_f *m, float x, y, z, *xout, *yout, *zout);
 @xref matrix_mul
    Multiplies the point (x, y, z) by the transformation matrix m, storing 
    the result in (*xout, *yout, *zout).
@@ -5705,29 +5728,29 @@ me.
    x,y,z vector by the specified angle (given in binary, 256 degrees to a 
    circle format).
 
-@@void @quat_to_matrix(QUAT *q, MATRIX_f *m);
+@@void @quat_to_matrix(const QUAT *q, MATRIX_f *m);
    Constructs a rotation matrix from a quaternion.
 
-@@void @matrix_to_quat(MATRIX_f *m, QUAT *q);
+@@void @matrix_to_quat(const MATRIX_f *m, QUAT *q);
    Constructs a quaternion from a rotation matrix. Translation is discarded 
    during the conversion. Use get_align_matrix_f() if the matrix is not 
    orthonormalized, because strange things may happen otherwise.
 
-@@void @quat_mul(QUAT *p, QUAT *q, QUAT *out);
+@@void @quat_mul(const QUAT *p, const QUAT *q, QUAT *out);
    Multiplies two quaternions, storing the result in out. The resulting 
    quaternion will have the same effect as the combination of p and q, ie. 
    when applied to a point, (point * out) = ((point * p) * q). Any number of 
    rotations can be concatenated in this way. Note that quaternion 
    multiplication is not commutative, ie. quat_mul(p, q) != quat_mul(q, p). 
 
-@@void @apply_quat(QUAT *q, float x, y, z, *xout, *yout, *zout);
+@@void @apply_quat(const QUAT *q, float x, y, z, *xout, *yout, *zout);
    Multiplies the point (x, y, z) by the quaternion q, storing the result in 
    (*xout, *yout, *zout). This is quite a bit slower than apply_matrix_f(), 
    so only use it to translate a few points. If you have many points, it is 
    much more efficient to call quat_to_matrix() and then use 
    apply_matrix_f().
 
-@@void @quat_interpolate(QUAT *from, QUAT *to, float t, QUAT *out);
+@@void @quat_interpolate(const QUAT *from, *to, float t, QUAT *out);
    Constructs a quaternion that represents a rotation between from and to. 
    The argument t can be anything between 0 and 1 and represents where 
    between from and to the result will be. 0 returns from, 1 returns to, and 
@@ -5735,7 +5758,7 @@ me.
    out. This function will create the short rotation (less than 180 degrees) 
    between from and to.
 
-@@void @quat_slerp(QUAT *from, QUAT *to, float t, QUAT *out, int how);
+@@void @quat_slerp(const QUAT *from, *to, float t, QUAT *out, int how);
    The same as quat_interpolate(), but allows more control over how the 
    rotation is done. The how parameter can be any one of the values:
 
@@ -6134,13 +6157,13 @@ something other than the standard 8x8 font. The standard dialog procedures,
 menus, and alert boxes, will work with fonts of any size, but the 
 gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
-@@int @gui_textout(BITMAP *bmp, unsigned char *s, int x, y, color, centre);
+@@int @gui_textout(BITMAP *bmp, const char *s, int x, y, color, centre);
 @xref gui_strlen
    Helper function for use by the GUI routines. Draws a text string onto the 
    screen, interpreting the '&' character as an underbar for displaying 
    keyboard shortcuts. Returns the width of the output string in pixels.
 
-@@int @gui_strlen(unsigned char *s);
+@@int @gui_strlen(const char *s);
 @xref gui_textout
    Helper function for use by the GUI routines. Returns the length of a 
    string in pixels, ignoring '&' characters.
@@ -6278,7 +6301,7 @@ ensure there is room for the check.
    item that was selected, so your routine can determine where it was called 
    from.
 
-@@int @alert(char *s1, *s2, *s3, char *b1, *b2, int c1, c2);
+@@int @alert(const char *s1, *s2, *s3, const char *b1, *b2, int c1, c2);
 @xref alert3, gui_fg_color
    Displays a popup alert box, containing three lines of text (s1-s3), and 
    with either one or two buttons. The text for these buttons is passed in 
@@ -6288,11 +6311,11 @@ ensure there is room for the check.
    it treats it as a click on the second button (this is consistent with the 
    common "Ok", "Cancel" alert).
 
-@@int @alert3(char *s1, *s2, *s3, char *b1, *b2, *b3, int c1, c2, c3);
+@@int @alert3(const char *s1, *s2, *s3, const char *b1, *b2, *b3, int c1, c2, c3);
 @xref alert, gui_fg_color
    Like alert(), but with three buttons. Returns 1, 2, or 3.
 
-@@int @file_select(char *message, char *path, char *ext);
+@@int @file_select(const char *message, char *path, const char *ext);
 @xref file_select_ex, gui_fg_color
    Displays the Allegro file selector, with the message as caption. The path 
    parameter contains the initial filename to display (this can be used to 
@@ -6312,7 +6335,8 @@ ensure there is room for the check.
    but not directories. Returns zero if it was closed with the Cancel 
    button, non-zero if it was OK'd.
 
-@@int @file_select_ex(char *message, char *path, char *ext, int w, int h);
+@\int @file_select_ex(const char *message, char *path, const char *ext,
+@@                    int w, int h);
 @xref file_select, gui_fg_color
    Does the same as file_select(), but stretches the dialog to the width and
    height specified and to the font size. If either size argument is set to
