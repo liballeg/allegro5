@@ -9,6 +9,12 @@ AC_ARG_PROGRAM
 dnl Build CFLAGS from scratch
 CFLAGS=
 
+dnl Enable asm code in the library (default)
+AC_ARG_ENABLE(asm,
+[  --enable-asm[=x]        enable the use of asm code [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_asm=yes,
+allegro_enable_asm=yes)
+
 dnl Enable 8-bpp color depth (default).
 AH_TEMPLATE([ALLEGRO_COLOR8], [Define if you want support for 8 bpp modes.])
 AC_ARG_ENABLE(color8,
@@ -130,36 +136,40 @@ AC_PATH_PROG(MAKEINFO, makeinfo, [echo ought to run makeinfo], $PATH:/sbin:/usr/
 dnl INSTALL_INFO is needed for installing the info pages
 AC_PATH_PROG(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
 
+dnl Test for processor type.
+ALLEGRO_ACTEST_PROCESSOR_TYPE
+
 dnl Test for asm support.
-ALLEGRO_ACTEST_SUPPORT_ASM
-if test "$allegro_cv_support_asm" = i386; then
-  ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
-  _code_features="i386"
-else
+if test "X$allegro_enable_asm" = "Xyes"; then
+  if test "X$allegro_cv_processor_type" = "Xi386"; then
+    ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
+    _code_features="i386 ASM"
+
+    dnl Test for MMX support.
+    ALLEGRO_ACTEST_SUPPORT_MMX
+    if test "X$allegro_cv_support_mmx" = "Xyes"; then
+      AC_DEFINE(ALLEGRO_MMX,1,[Define if assembler supports MMX.])
+      _code_features="$_code_features, MMX"
+    fi
+  
+    dnl Test for SSE support.
+    ALLEGRO_ACTEST_SUPPORT_SSE
+    if test "X$allegro_cv_support_sse" = "Xyes"; then
+      AC_DEFINE(ALLEGRO_SSE,1,[Define if assembler supports SSE.])
+      _code_features="$_code_features, SSE"
+    fi
+  fi
+fi
+
+if test -z "$ALLEGRO_MAYBE_ASM_FILES"; then
   ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_C_FILES
+  CFLAGS="$CFLAGS -DALLEGRO_USE_C"
   AC_DEFINE(ALLEGRO_NO_ASM,1,
 	    [Define for Unix platforms, to use C convention for bank switching.])
   _code_features="C only"
 fi
+
 AC_SUBST(ALLEGRO_MAYBE_ASM_FILES)
-
-dnl Test for MMX support.
-ALLEGRO_ACTEST_SUPPORT_MMX
-if test "$allegro_cv_support_mmx" = yes; then
-  AC_DEFINE(ALLEGRO_MMX,1,[Define if assembler supports MMX.])
-  _code_features="$_code_features, MMX"
-else
-  _code_features="$_code_features, no MMX"
-fi
-
-dnl Test for SSE support.
-ALLEGRO_ACTEST_SUPPORT_SSE
-if test "$allegro_cv_support_sse" = yes; then
-  AC_DEFINE(ALLEGRO_SSE,1,[Define if assembler supports SSE.])
-  _code_features="$_code_features, SSE"
-else
-  _code_features="$_code_features, no SSE"
-fi
 
 dnl Test for underscore prepended by compiler.
 ALLEGRO_ACTEST_ASM_PREFIX
@@ -426,13 +436,21 @@ case "$allegro_system" in
 
     AC_CHECK_HEADERS(sys/io.h linux/joystick.h linux/input.h)
 
-    if test "X$allegro_enable_vga" = "Xyes"; then
+    if test "X$allegro_cv_processor_type" = "Xi386" -a "X$allegro_enable_vga" = "Xyes"; then
       allegro_support_vga=yes
       AC_DEFINE(ALLEGRO_LINUX_VGA,1,
 		[Define to enable Linux console VGA driver.])
       _enabled_modules="vga $_enabled_modules"
     else
       _disabled_modules="vga $_disabled_modules"
+    fi
+
+    if test "X$allegro_cv_processor_type" = "Xi386" -a "X$allegro_enable_vbeaf" = "Xyes"; then
+      AC_DEFINE(ALLEGRO_LINUX_VBEAF,1,
+		[Define to enable Linux console VBE/AF driver.])
+      _enabled_modules="vbeaf $_enabled_modules"
+    else
+      _disabled_modules="vbeaf $_disabled_modules"
     fi
 
     _do_fbcon="no"
@@ -449,14 +467,6 @@ case "$allegro_system" in
       _enabled_modules="fbcon $_enabled_modules"
     else
       _disabled_modules="fbcon $_disabled_modules"
-    fi
-
-    if test "X$allegro_enable_vbeaf" = "Xyes"; then
-      AC_DEFINE(ALLEGRO_LINUX_VBEAF,1,
-		[Define to enable Linux console VBE/AF driver.])
-      _enabled_modules="vbeaf $_enabled_modules"
-    else
-      _disabled_modules="vbeaf $_disabled_modules"
     fi
 
     _do_svgalib="no"
@@ -607,7 +617,7 @@ if test -n "GCC"; then
   else
     WFLAGS="-Wall -Wno-unused"
   fi
-  if test "$allegro_cv_support_asm" = i386; then
+  if test "X$allegro_cv_processor_type" = "Xi386"; then
     if test "$allegro_exclusive_optimizations" != none; then
       TARGET_ARCH="-march=$allegro_exclusive_optimizations"
     else
@@ -618,9 +628,6 @@ if test -n "GCC"; then
   fi
   if test "X$allegro_cv_can_use_pipe" = "Xyes"; then
     CFLAGS="$CFLAGS -pipe"
-  fi
-  if test "$allegro_cv_support_asm" != i386; then
-    CFLAGS="$CFLAGS -DALLEGRO_USE_C"
   fi
   dnl Allow to specify additional flags.
   CFLAGS="$CFLAGS $XCFLAGS"

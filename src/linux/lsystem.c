@@ -26,15 +26,16 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
-#ifdef ALLEGRO_LINUX_VGA
-#include "allegro/internal/aintvga.h"
-#endif
-#include "linalleg.h"
+#include "allegro/platform/aintlnx.h"
 
+#ifdef ALLEGRO_LINUX_VGA
 #ifdef HAVE_SYS_IO_H
 /* iopl() exists in here instead of unistd.h in glibc */
 #include <sys/io.h>
 #endif
+#endif
+
+#include "linalleg.h"
 
 #ifndef ALLEGRO_LINUX
    #error Something is wrong with the makefile
@@ -182,7 +183,9 @@ static int sys_linux_init (void)
 	 * we attempt to set our euid to 0, in case this is the
 	 * second time we've been called. */
 	__al_linux_have_ioperms  = !seteuid (0);
+#ifdef ALLEGRO_LINUX_VGA
 	__al_linux_have_ioperms &= !iopl (3);
+#endif
 	__al_linux_have_ioperms &= !__al_linux_init_memory();
 
 	/* At this stage we can drop the root privileges. */
@@ -270,7 +273,9 @@ static void sys_linux_exit (void)
 	_unix_driver_lists_shutdown();
 
 	__al_linux_shutdown_memory();
+#ifdef ALLEGRO_LINUX_VGA
 	iopl (0);
+#endif
 }
 
 
