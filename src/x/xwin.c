@@ -127,6 +127,8 @@ int _xwin_in_gfx_call = 0;
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 int _xdga_last_line = -1;
+static int _xdga_installed_colormap; 
+static Colormap _xdga_colormap[2];
 #endif
 
 #define MOUSE_WARP_DELAY   200
@@ -2810,6 +2812,26 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+   /* Create the colormaps for swapping in 8-bit mode */
+   if (_xwin.fast_visual_depth == 8)
+   {
+      const int cmap_size = 256;
+      XColor color[cmap_size];
+      int i;
+    
+      _xdga_colormap[0] = _xwin.colormap;  
+      _xdga_colormap[1] = XCreateColormap(_xwin.display, _xwin.window, _xwin.visual, AllocAll);
+
+      for (i = 0; i < cmap_size; i++)
+         color[i].pixel = i;
+	  
+      XQueryColors(_xwin.display, _xdga_colormap[0], color, cmap_size);
+      XStoreColors(_xwin.display, _xdga_colormap[1], color, cmap_size);
+
+      _xdga_installed_colormap = 0;
+   }
+
+
    /* Clear video memory */
    if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
       int offset;
@@ -2871,6 +2893,11 @@ static void _xdga_private_destroy_screen(void)
       if (_xwin.num_modes > 0) {
 	 XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, _xwin.modesinfo[0]);
 	 _xdga_private_free_mode_lines();
+      }
+
+      if (_xwin.fast_visual_depth == 8) {
+         _xwin.colormap = _xdga_colormap[0];
+         XFreeColormap(_xwin.display, _xdga_colormap[1]);
       }
 
       XInstallColormap(_xwin.display, _xwin.colormap);
@@ -2937,13 +2964,15 @@ static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to
       /* Set "hardware" colors.  */
       (*(_xwin.set_colors))(p, from, to);
 
-      /* Update frame buffer.  */
-      if (!_xwin.matching_formats)
+      if (_xwin.matching_formats) {
+	 /* Have to install colormap again, but with another ID. */
+         _xdga_installed_colormap = 1 - _xdga_installed_colormap;
+         _xwin.colormap = _xdga_colormap[_xdga_installed_colormap];
+         (*(_xwin.set_colors))(p, from, to);
+	 XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap);
+      }
+      else /* Update frame buffer.  */
 	 _xwin_private_update_screen(0, 0, _xwin.virtual_width, _xwin.virtual_height);
-
-      /* Have to install colormap again, but with another ID. */
-      _xwin.colormap = XCopyColormapAndFree(_xwin.display, _xwin.colormap);
-      XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap);
    }
 }
 
