@@ -85,9 +85,9 @@ Macintosh todos:
 MacOS X todos
 ---------------------------------------------------------------------------
 
-- implement a joystick driver
 - fix weird kCGErrorIllegalArgument error report when closing fullscreen mode
-- find solution to occasional CloseComponent memory leak reports
+- find solution to occasional CloseComponent memory leak reports (fixed? I
+  haven't seen it in a while, maybe it was related to now fixed memory leaks)
 
 BeOS todos:
 ---------------------------------------------------------------------------
