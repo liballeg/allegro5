@@ -324,9 +324,11 @@ include makefile.tst
 ifndef CROSSCOMPILE
    DLLWRAP = dllwrap
    WINDRES = windres
+   AR = ar
 else
    DLLWRAP = $(XPREFIX)dllwrap
    WINDRES = $(XPREFIX)windres
+   AR = $(XPREFIX)ar
 endif
 
 ifdef STATICLINK
@@ -334,7 +336,7 @@ ifdef STATICLINK
 # -------- link as a static library --------
 
 define MAKE_LIB
-   ar rs $(LIB_NAME) $(OBJECTS)
+   $(AR) rs $(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -490,7 +492,7 @@ else
 endif
 
 define MAKE_PLUGIN_LIB
-   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   $(AR) rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
