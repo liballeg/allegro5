@@ -149,6 +149,9 @@ Contributors
    Enlarged the starfield in exstars, and fixed an incorrect range in 
    exlights.
 
+   Daniel Schlydler (<email>daniel@dascdev.net</a>).<br>
+   Fixed problems with get_executable_name() under Windows.
+
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches. Fixed a problem with lost GUI
    mouse clicks. Made d_menu_proc steal/return focus when
@@ -210,7 +213,8 @@ Contributors
 
    Evert Glebbeek (<email>eglebbk@phys.uva.nl</a>).<br>
    Put set_gfx_mode on a diet and added a config entry for specifying the
-   card to be used for GFX_AUTODETECT_WINDOWED.
+   card to be used for GFX_AUTODETECT_WINDOWED. Added a '-fullscreen' switch
+   to the grabber.
 
    Fabian Nunez (<email>faybs@iafrica.com</a>).<br>
    Added support for the CH Flightstick Pro and Logitech Wingman Extreme 
@@ -377,7 +381,7 @@ Contributors
    throughout the library, implemented the new FONT structure, made
    some modules avoid linking dependencies and contributed the dat2c
    utility. Added two fixed point ratios for converting to and from
-   radians.
+   radians. Added a '-windowed' switch to the grabber.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 

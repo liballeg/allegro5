@@ -6,6 +6,25 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.2 to 4.1.3 (Sep 2002)
+<ul><li>
+   Eric Botcazou modified the querying of DirectSound devices under Windows.
+<li>
+   Evert Glebbeek added a '-fullscreen' switch to the grabber, Laurence
+   Withers a '-windowed' switch.
+<li>
+   Eric Botcazou temporarily disabled screensavers and power downs under
+   Windows.
+<li>
+   Daniel Schlydler fixed problems with get_executable_name() under Windows.
+<li>
+   Eric Botcazou added a FAQ entry on the C++ headers problem with gcc 3.x
+   and Mingw32, summarizing findings by Robert J. Ohannessian.
+<li>
+   Robert J. Ohannessian fixed the compilation problem with MSVC.
+</ul>
+
+@heading
 Changes from 4.1.1 to 4.1.2 (Sep 2002)
 <ul><li>
    Many minor changes in the code and the docs.
