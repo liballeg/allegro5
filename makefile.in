@@ -292,7 +292,9 @@ install-lib: lib
 	@echo Installing allegro-config to $(bindir)
 	@$(INSTALL_PROGRAM) allegro-config $(bindir)
 	@if test -n "$(LIBDIR)/liball*-$(shared_version).so"; then \
-		grep -q $(libdir) /etc/ld.so.conf && ($(LDCONFIG) $(libdir) || true) || (\
+		(grep -q $(libdir) /etc/ld.so.conf || \
+		 test $(libdir) = /lib || test $(libdir) = /usr/lib) \
+		&& ($(LDCONFIG) $(libdir) || true) || (\
 			echo "" ; \
 			echo "Warning: shared library destination $(libdir) is not in ldd search path." ; \
 			echo "Unless you add it to /etc/ld.so.conf, you must set LD_LIBRARY_PATH to include"; \
