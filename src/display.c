@@ -1120,7 +1120,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
       return NULL;
       
    new_display_ptr = _al_vector_alloc_back(&display_list);
-   if (!new_display) {
+   if (!new_display_ptr) {
       free (new_display);
       return NULL;
    }
@@ -1140,8 +1140,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
    if (depth>0)
       set_color_depth(depth);
    if (do_set_gfx_mode(new_display, driver, w, h, v_w, v_h, depth) == -1) {
-      free(new_display);
-      return NULL;
+      goto Error;
    }
    
    new_display->page = NULL;
@@ -1176,14 +1175,12 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
                   destroy_bitmap(new_display->page[c]);
                free(new_display->page);
                do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
-               free(new_display);
-               return NULL;
+	       goto Error;
             }
          }
          else {
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
-            free(new_display);
-            return NULL;
+	    goto Error;
          }
          break;
 
@@ -1205,8 +1202,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
                destroy_bitmap(new_display->page[c]);
             free(new_display->page);
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
-            free(new_display);
-            return NULL;
+	    goto Error;
          }
          break;
 
@@ -1232,8 +1228,7 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
                destroy_bitmap(new_display->page[c]);
             free(new_display->page);
             do_set_gfx_mode(new_display, GFX_TEXT, 0, 0, 0, 0, 0);
-            free(new_display);
-            return NULL;
+	    goto Error;
          }
          break;
    }
@@ -1244,6 +1239,13 @@ AL_DISPLAY *al_create_display(int driver, int flags, int depth, int w, int h, in
       al_main_display = new_display;
       
    return new_display;
+
+  Error:
+
+   ASSERT(new_display);
+   _al_vector_find_and_delete(&display_list, &new_display);
+   free(new_display);
+   return NULL;
 }
 
 /* al_set_update_method:
@@ -1364,7 +1366,6 @@ int al_set_update_method(AL_DISPLAY *display, int method)
 void al_destroy_display(AL_DISPLAY *display)
 {
    int n;
-   unsigned int c;
    
    ASSERT(system_driver);
    
@@ -1380,14 +1381,10 @@ void al_destroy_display(AL_DISPLAY *display)
    if (display == al_main_display)
       al_main_display = NULL;
 
-   /* Remove the display from the list */   
-   for (c = 0; c < _al_vector_size(&display_list); c++) {
-      AL_DISPLAY **dpy = _al_vector_ref(&display_list, c);
-      if (*dpy == display) {
-         _al_vector_delete_at(&display_list, c);
-         break;
-      }
-   }
+   /* Remove the display from the list */
+   _al_vector_find_and_delete(&display_list, &display);
+
+   free(display);
 }
 
 /* al_flip_display:
