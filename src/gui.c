@@ -1807,12 +1807,13 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 
       case MSG_GOTMOUSE:
       case MSG_CLICK:
-	 /* steal the focus */
-	 i = find_dialog_focus(active_dialog);
-	 if (i >= 0) {
-	    active_dialog[i].flags &= ~D_GOTMOUSE;
-	    SEND_MESSAGE(active_dialog+i, MSG_LOSTMOUSE, 0);
-	 }
+	 /* steal the mouse */
+	 for (i=0; active_dialog[i].proc; i++)
+	    if (active_dialog[i].flags & D_GOTMOUSE) {
+	       active_dialog[i].flags &= ~D_GOTMOUSE;
+	       SEND_MESSAGE(active_dialog+i, MSG_LOSTMOUSE, 0);
+	       break;
+	    }
 
 	 /* run the menu */
 	 _do_menu(d->dp, NULL, TRUE, d->x-1, d->y-1, FALSE, &x, d->w+2, d->h+2);
@@ -1820,7 +1821,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	 do {
 	 } while (gui_mouse_b());
 
-	 /* put the focus */
+	 /* put the mouse */
 	 i = find_mouse_object(active_dialog);
 	 if (i >= 0) {
 	    active_dialog[i].flags |= D_GOTMOUSE;
