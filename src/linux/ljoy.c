@@ -121,7 +121,7 @@ static int joy_init(void)
       j = &joy[i];
       j->flags = JOYFLAG_ANALOGUE;
 
-      for (s = 0, a = 0; a < num_axes; s++) {
+      for (s = 0, a = 0; (s < MAX_JOYSTICK_STICKS) && (a < num_axes); s++) {
 	 if ((a == throttle) || (a == num_axes-1)) {
 	    /* One axis throttle */
 	    j->stick[s].flags = JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
@@ -137,6 +137,7 @@ static int joy_init(void)
 	    j->stick[s].axis[0].name = get_config_text("X");
 	    j->stick[s].axis[1].name = get_config_text("Y");
 	    j->stick[s].name = malloc (32);
+	    ASSERT(j->stick[s].name);
 	    uszprintf((char *)j->stick[s].name, 32, get_config_text("Stick %d"), s+1);
 	    axis[i][a++] = &j->stick[s].axis[0];
 	    axis[i][a++] = &j->stick[s].axis[1];
@@ -147,6 +148,7 @@ static int joy_init(void)
 
       for (b = 0; b < num_buttons; b++) {
 	 j->button[b].name = malloc (16);
+	 ASSERT(j->button[b].name);
 	 uszprintf((char *)j->button[b].name, 16, uconvert_ascii("%c", tmp), 'A' + b);
       }
 
@@ -181,10 +183,11 @@ static void joy_exit(void)
 
 static void set_axis(JOYSTICK_AXIS_INFO *axis, int value)
 {
-   ASSERT(axis);
-   axis->pos = value * 127 / 32767;
-   axis->d1 = (value < -8192);
-   axis->d2 = (value > 8192);
+   if (axis) {
+      axis->pos = value * 127 / 32767;
+      axis->d1 = (value < -8192);
+      axis->d2 = (value > 8192);
+   }
 }
 
 
@@ -210,7 +213,7 @@ static int joy_poll(void)
 	 n = bytes / sizeof(e[0]);
 	 for (k = 0; k < n; k++) {
 	    if (e[k].type & JS_EVENT_BUTTON) {
-	       if (e[k].number < MAX_JOYSTICK_BUTTONS)
+	       if (e[k].number < joy[i].num_buttons)
 		  joy[i].button[e[k].number].b = e[k].value;
 	    }
 	    else if (e[k].type & JS_EVENT_AXIS) {
