@@ -64,6 +64,7 @@ AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
 
 /* main window */
+#define WND_TITLE_SIZE  128
 AL_ARRAY(char, wnd_title);
 AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);

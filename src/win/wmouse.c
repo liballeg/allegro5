@@ -53,7 +53,7 @@ MOUSE_DRIVER mouse_directx =
    MOUSE_DIRECTX,
    empty_string,
    empty_string,
-   "DirectInput",
+   "DirectInput mouse",
    mouse_directx_init,
    mouse_directx_exit,
    NULL,                        /* mouse_directx_poll, */

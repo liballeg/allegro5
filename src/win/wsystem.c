@@ -236,7 +236,7 @@ static void sys_directx_get_executable_name(char *output, int size)
  */
 static void sys_directx_set_window_title(AL_CONST char *name)
 {
-   strncpy(wnd_title, name, 64);
+   do_uconvert(name, U_CURRENT, wnd_title, U_ASCII, WND_TITLE_SIZE);
    SetWindowText(allegro_wnd, wnd_title);
 }
 
@@ -296,19 +296,12 @@ static void sys_directx_set_window_close_hook(void (*proc)(void))
  */
 static void sys_directx_message(AL_CONST char *msg)
 {
-   char *tmp1 = malloc(4096);
-   char *tmp2 = malloc(4096);
+   char tmp[4096];
 
    while ((ugetc(msg) == '\r') || (ugetc(msg) == '\n'))
       msg += uwidth(msg);
 
-   MessageBoxW(allegro_wnd,
-	       (unsigned short *)uconvert(msg, U_CURRENT, tmp1, U_UNICODE, 4096),
-	       (unsigned short *)uconvert(wnd_title, U_CURRENT, tmp2, U_UNICODE, 4096),
-	       MB_OK);
-
-   free(tmp1);
-   free(tmp2);
+   MessageBox(allegro_wnd, uconvert_toascii(msg, tmp), wnd_title, MB_OK);
 }
 
 

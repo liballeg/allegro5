@@ -250,11 +250,11 @@ static void _xwin_sysdrv_exit(void)
  */
 static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
 {
-   char title[100];
+   char title[128];
 
    do_uconvert(name, U_CURRENT, title, U_ASCII, sizeof(title));
 
-   _xwin_set_window_title(name);
+   _xwin_set_window_title(title);
 }
 
 

@@ -38,7 +38,7 @@
 
 /* general */
 HWND allegro_wnd = NULL;
-char wnd_title[64];
+char wnd_title[WND_TITLE_SIZE];  /* ASCII string */
 int wnd_x = 0;
 int wnd_y = 0;
 int wnd_width = 0;
@@ -372,7 +372,7 @@ static HWND create_directx_window(void)
    if (ugetat(fname, -1) == '.')
       usetat(fname, -1, 0);
 
-   do_uconvert(get_filename(fname), U_CURRENT, wnd_title, U_ASCII, sizeof(wnd_title));
+   do_uconvert(get_filename(fname), U_CURRENT, wnd_title, U_ASCII, WND_TITLE_SIZE);
 
    /* create the window now */
    wnd = CreateWindowEx(WS_EX_APPWINDOW, ALLEGRO_WND_CLASS, wnd_title,
