@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.0.33: Daniel Nilsson tweaked exstars and exlights
+<li>
    3.0.33: Isaac Cruz fixed a nasty bug with subbitmap locking, and added
    desktop_color_depth and yield_timeslice support to the Windows version.
 <li>

@@ -114,7 +114,7 @@ BITMAP *create_light_graphic()
 
 	 dir = fixtoi(fatan2(itofix(dy), itofix(dx)));
 
-	 hsv_to_rgb(dir*320.0/256.0, MID(0, dist/128.0, 1), 1, &r, &g, &b);
+	 hsv_to_rgb(dir*360.0/256.0, MID(0, dist/128.0, 1), 1, &r, &g, &b);
 
 	 r = r * (128-dist) / 1024;
 	 g = g * (128-dist) / 1024;
