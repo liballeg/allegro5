@@ -110,10 +110,11 @@ static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
    int x = ((x1+y1) & 1) ? 1 : 0;
    int c;
 
-   for (c=x1; c<=x2; c++) {
+   /* two loops to avoid bank switches */
+   for (c=x1; c<=x2; c++)
       putpixel(screen, c, y1, (((c+y1) & 1) == x) ? fg : bg);
+   for (c=x1; c<=x2; c++)
       putpixel(screen, c, y2, (((c+y2) & 1) == x) ? fg : bg);
-   }
 
    for (c=y1+1; c<y2; c++) {
       putpixel(screen, x1, c, (((c+x1) & 1) == x) ? fg : bg);
