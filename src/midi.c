@@ -1508,7 +1508,7 @@ static void midi_lock_mem()
 /* midi_constructor:
  *  Register my functions with the code in sound.c.
  */
-#ifdef CONSTRUCTOR_FUNCTION
+#ifdef ALLEGRO_USE_CONSTRUCTOR
    CONSTRUCTOR_FUNCTION(void _midi_constructor());
 #endif
 

@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
 	 delete_file(outfilenameheader);
    }
    else {
-      #ifdef ALLEGRO_DJGPP
+      #ifdef ALLEGRO_USE_CONSTRUCTOR
 	 if (truecolor) {
 	    printf("\nI noticed some truecolor images, so you must call fixup_datafile()\n");
 	    printf("before using this data! (after setting a video mode).\n");

@@ -961,7 +961,7 @@ void remove_mouse(void)
 /* _mouse_constructor:
  *  Register mouse functions if this object file is linked in.
  */
-#ifdef CONSTRUCTOR_FUNCTION
+#ifdef ALLEGRO_USE_CONSTRUCTOR
    CONSTRUCTOR_FUNCTION(void _mouse_constructor());
 #endif
 

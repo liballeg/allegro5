@@ -17,7 +17,6 @@ General (Platform independant) todos:
   and the need of an unified set of window updating routines is stronger)
 - include dat2c once finished
 - remove joystick control from main part of setup
-- configure --disable-constructor doesn't work because of part of alconfig.h
 
 DOS todos:
 ---------------------------------------------------------------------------
