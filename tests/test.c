@@ -1720,6 +1720,8 @@ void caps()
 
 int mouse_proc(void)
 {
+   int mickey_x, mickey_y;
+
    show_mouse(NULL);
    text_mode(palette_color[0]);
    clear_to_color(screen, palette_color[0]);
@@ -1727,21 +1729,37 @@ int mouse_proc(void)
    textout_centre(screen, font, "Press a key", SCREEN_W/2, SCREEN_H-10, palette_color[15]);
 
    do {
+      rest(50);
       poll_mouse();
-      sprintf(buf, "X=%-4d Y=%-4d Z=%-4d", mouse_x, mouse_y, mouse_z);
+      get_mouse_mickeys(&mickey_x, &mickey_y);
+      sprintf(buf, "X axis:   pos=%-4d   ", mouse_x);
+      if (mickey_x)
+         strcat(buf,"moving");
+      else
+         strcat(buf,"      ");
+      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 - 30, palette_color[15]);
+      sprintf(buf, "Y axis:   pos=%-4d   ", mouse_y);
+      if (mickey_y)
+         strcat(buf,"moving");
+      else
+         strcat(buf,"      ");
+      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 - 10, palette_color[15]);
+      sprintf(buf, "Z axis:   pos=%-4d         ", mouse_z);
+      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 + 10, palette_color[15]);
+      sprintf(buf, "Buttons:    ");
       if (mouse_b & 1)
-	 strcat(buf," left");
+         strcat(buf,"left");
       else
-	 strcat(buf,"     ");
+         strcat(buf,"    ");
       if (mouse_b & 4)
-	 strcat(buf," middle");
+         strcat(buf,"middle");
       else
-	 strcat(buf,"       ");
+         strcat(buf,"      ");
       if (mouse_b & 2)
-	 strcat(buf," right"); 
+         strcat(buf,"right"); 
       else
-	 strcat(buf,"      ");
-      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15]);
+         strcat(buf,"     ");
+      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 + 30, palette_color[15]);
    } while (!keypressed());
 
    clear_keybuf();
