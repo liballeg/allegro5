@@ -7,6 +7,25 @@ Updates or comments can be sent to the Allegro developer's mailing list
 in the subject.
 
 
+Miscellaneous 4.2 todos:
+---------------------------------------------------------------------------
+
+- Make the test program report the SSE3/64 bit detection flags from AJ's
+  patch when that is applied
+- Make the grabber (try to) use system cursors
+- Purge main docs of DOSisms if that hasn't been done already
+- Check if the examples correctly demonstrate new features since 4.0
+
+4.2 wishlist todos:
+---------------------------------------------------------------------------
+
+- Extend FONT vtable to make it easier/more attractive for plugin writers 
+  to have their addons work with Allegro FONT structures rather than 
+  defining their own.
+- Packfile vtable
+- MSVC template for building Allegro, already posted on Allegro.cc (AJ will
+  look into this).
+
 General (Platform independent) todos:
 ---------------------------------------------------------------------------
 
