@@ -62,7 +62,8 @@ MOUSE_DRIVER mouse_directx =
    mouse_directx_set_range,
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
-   NULL                        // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
+   NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
+   NULL                        // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
 };
 
 

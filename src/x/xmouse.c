@@ -64,7 +64,8 @@ static MOUSE_DRIVER mouse_xwin =
    _xwin_mousedrv_set_range,
    _xwin_mousedrv_set_speed,
    _xwin_mousedrv_get_mickeys,
-   NULL
+   NULL,
+   _xwin_enable_hardware_cursor
 };
 
 

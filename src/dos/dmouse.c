@@ -95,6 +95,7 @@ MOUSE_DRIVER mousedrv_mickeys =
    mick_set_range,
    mick_set_speed,
    mick_get_mickeys,
+   NULL,
    NULL
 };
 
@@ -123,6 +124,7 @@ MOUSE_DRIVER mousedrv_int33 =
    int33_set_range,
    int33_set_speed,
    int33_get_mickeys,
+   NULL,
    NULL
 };
 
@@ -148,6 +150,7 @@ MOUSE_DRIVER mousedrv_polling =
    int33_set_range,
    int33_set_speed,
    int33_get_mickeys,
+   NULL,
    NULL
 };
 
@@ -171,6 +174,7 @@ MOUSE_DRIVER mousedrv_winnt =
    int33_set_range,
    int33_set_speed,
    int33_get_mickeys,
+   NULL,
    NULL
 };
 
@@ -194,6 +198,7 @@ MOUSE_DRIVER mousedrv_win2k =
    mick_set_range,
    mick_set_speed,
    mick_get_mickeys,
+   NULL,
    NULL
 };
 

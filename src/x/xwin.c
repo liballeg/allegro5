@@ -430,10 +430,8 @@ static int _xwin_private_create_window(void)
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    /* Detect if ARGB cursors are supported */
    _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
-   _xwin.hw_cursor_ok = 1;
-#else
-   _xwin.hw_cursor_ok = 0;
 #endif
+   _xwin.hw_cursor_ok = 0;
    
    return 0;
 }
@@ -1529,6 +1527,31 @@ static int _xwin_private_fast_visual_depth(void)
 
 
 
+/* _xwin_enable_hardware_cursor:
+ *  enable the hardware cursor; this disables the mouse mickey warping hack
+ */
+void _xwin_enable_hardware_cursor(int mode)
+{
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   if (_xwin.support_argb_cursor)
+      _xwin.hw_cursor_ok = mode;
+   else
+#endif
+      _xwin.hw_cursor_ok = 0;
+   
+   /* Switch to non-warped mode */
+   if (_xwin.hw_cursor_ok) {
+      _xwin.mouse_warped = 0;
+      /* Move X-cursor to Allegro cursor.  */
+      XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
+		   0, 0, _xwin.window_width, _xwin.window_height,
+		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
+		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+   }
+}
+
+
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
 
 /* _xwin_set_mouse_sprite:
@@ -1664,8 +1687,6 @@ void _xwin_hide_mouse(void)
  */
 void _xwin_move_mouse(int x, int y)
 {
-      _mouse_x = x;
-      _mouse_y = y;
 }
 
 #endif   /* ALLEGRO_XWINDOWS_WITH_XCURSOR */
@@ -2382,14 +2403,6 @@ void _xwin_private_handle_input(void)
 		   0, 0, _xwin.window_width, _xwin.window_height,
 		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
-      /* Re-enable hardware cursor */
-      _xwin.hw_cursor_ok = 1;
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-      if (_xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
-	 show_mouse(_mouse_screen);
-      }
-#endif
-         
    }
 
    /* Flush X-buffers.  */
@@ -2461,15 +2474,9 @@ void _xwin_handle_input(void)
  */
 static void _xwin_private_set_warped_mouse_mode(int permanent)
 {
-   _xwin.mouse_warped = ((permanent) ? 1 : (MOUSE_WARP_DELAY*7/8));
-   
-   /* Disable hardware cursor in warp mode */
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   if (_xwin.hw_cursor_ok && permanent && _xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
-      show_mouse(_mouse_screen);
-   }
-#endif
-   _xwin.hw_cursor_ok = !permanent;
+   /* Don't enable warp mode if the hardware cursor is being displayed */
+   if (!_xwin.hw_cursor_ok)
+      _xwin.mouse_warped = ((permanent) ? 1 : (MOUSE_WARP_DELAY*7/8));
 }
 
 void _xwin_set_warped_mouse_mode(int permanent)
