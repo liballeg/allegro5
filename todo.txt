@@ -88,7 +88,7 @@ BeOS todos:
 
 - Write a safe windowed driver using BBitmap
 - Keyboard driver rewrite
-- Investigate the SMP problems with the sound thread
+- Launching programs from the Be menu still doesn't work (Tracker works though)
 
 QNX todos:
 ---------------------------------------------------------------------------
