@@ -282,7 +282,7 @@ Windows problems
       the "Auto-Protect" feature. Otherwise, try something else ;-)
 
 <li><font size="+1">
-@@   I get errors about a missing WinMain() or main() function!
+@@   I get an error about a missing WinMain() or main() function!
 </font>
       You need to write END_OF_MAIN() just after your main() function. 
       Allegro uses this, along with some preprocessor magic, to turn a 
@@ -297,6 +297,16 @@ Windows problems
       the Borland C++ command line compiler. Either that, or define the
       preprocessor symbol ALLEGRO_USE_CONSOLE prior to including Allegro
       headers if you really need the console for your program.
+
+<li><font size="+1">
+@@   I get lots of compile errors about conflicting types for "struct BITMAP"!
+</font>
+      If your program directly includes Win32 API header files, see the
+      "Windows specifics" section of the documentation. If your program only
+      includes header files of the C++ standard library, you're very likely
+      trying to compile it with gcc 3.x for Mingw32; if so, define the
+      symbol __GTHREAD_HIDE_WIN32API on the compiler command line:
+         g++ -D__GTHREAD_HIDE_WIN32API program.cpp -lalleg
 
 <li><font size="+1">
 @\   In windowed mode artifacts are left on the desktop when the window
