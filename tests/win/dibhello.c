@@ -154,9 +154,9 @@ int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance, LPSTR lpszCmdParam, i
    a = create_bitmap_ex(24, 320, 200);
 
    /* we could load some 8 bit bitmap */
-   b = load_bitmap("..\\examples\\allegro.pcx", pal);
+   b = load_bitmap("..\\..\\examples\\allegro.pcx", pal);
    if (!b) {
-      MessageBox(NULL, "Can't load ..\\examples\\allegro.pcx!", "Error", MB_OK);
+      MessageBox(NULL, "Can't load ..\\..\\examples\\allegro.pcx!", "Error", MB_OK);
       exit(0);
    }
 
