@@ -135,14 +135,22 @@ static int sys_directx_init(void)
 
    /* get versions */
    win_ver = GetVersion();
+   os_version = win_ver & 0xFF;
+   os_revision = (win_ver & 0xFF00) >> 8;
+
    if (win_ver < 0x80000000) {
-      os_type = OSTYPE_WINNT;
-   }
-   else if ((win_ver & 0xFF) == 4) {
-      if ((win_ver & 0xFF00) < 40)
-         os_type = OSTYPE_WIN95;
+      if (os_version == 5)
+         os_type = OSTYPE_WIN2000;
       else
+         os_type = OSTYPE_WINNT;
+   }
+   else if (os_version == 4) {
+      if (os_revision == 90)
+         os_type = OSTYPE_WINME;
+      else if (os_revision == 10)
          os_type = OSTYPE_WIN98;
+      else
+         os_type = OSTYPE_WIN95;
    }
    else
       os_type = OSTYPE_WIN3;

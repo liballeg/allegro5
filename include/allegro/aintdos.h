@@ -56,7 +56,10 @@
 
 AL_INLINE(void, _enter_critical, (void),
 {
-   if (windows_version >= 3) {
+   /* check if windows version is >= 3 */
+   if ((os_type == OSTYPE_WIN3)  || (os_type == OSTYPE_WIN95) ||
+       (os_type == OSTYPE_WIN98) || (os_type == OSTYPE_WINME) ||
+       (os_type == OSTYPE_WINNT) || (os_type == OSTYPE_WIN2000)) {
       __dpmi_regs r;
       r.x.ax = 0x1681; 
       __dpmi_int(0x2F, &r);
@@ -68,7 +71,10 @@ AL_INLINE(void, _enter_critical, (void),
 
 AL_INLINE(void, _exit_critical, (void),
 {
-   if (windows_version >= 3) {
+   /* check if windows version is >= 3 */
+   if ((os_type == OSTYPE_WIN3)  || (os_type == OSTYPE_WIN95) ||
+       (os_type == OSTYPE_WIN98) || (os_type == OSTYPE_WINME) || 
+       (os_type == OSTYPE_WINNT) || (os_type == OSTYPE_WIN2000)) {
       __dpmi_regs r;
       r.x.ax = 0x1682; 
       __dpmi_int(0x2F, &r);

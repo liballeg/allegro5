@@ -57,7 +57,11 @@ int main(int argc, char *argv[])
    #ifdef ALLEGRO_DOS
 
       /* messages for DOS users */
-      if (windows_version) {
+      if ((os_type == OSTYPE_WIN3)   || (os_type == OSTYPE_WIN95)   ||
+          (os_type == OSTYPE_WIN98)  || (os_type == OSTYPE_WINME)   ||
+          (os_type == OSTYPE_WINNT)  || (os_type == OSTYPE_WIN2000) ||
+          (os_type == OSTYPE_OS2)    || (os_type == OSTYPE_WARP)    ||
+          (os_type == OSTYPE_DOSEMU)) {
 	 strcat(msg, "I seem to be running under a multitasking environment. This means that I\n");
 	 strcat(msg, "may not work properly, and even if I do, the sound will probably cut out\n");
 	 strcat(msg, "whenever you exit from a child program. Please run me under DOS instead!\n\n");

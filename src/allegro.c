@@ -173,6 +173,8 @@ int *_gfx_bank = NULL;
 
 /* what OS are we running under? */
 int os_type = OSTYPE_UNKNOWN;
+int os_version = 0;
+int os_revision = 0;
 
 
 /* processor information */

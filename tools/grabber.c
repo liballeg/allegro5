@@ -2508,21 +2508,23 @@ static int sysinfo()
    strcpy(systext, "System Status\n=============\n\n\n\n");
 
    switch (os_type) {
-      case OSTYPE_UNKNOWN:    s = "DOS (score: 7)";                     break;
-      case OSTYPE_WIN3:       s = "Windows 3.1 or earlier (score: -1)"; break;
-      case OSTYPE_WIN95:      s = "Windows 95 (score: 3)";              break;
-      case OSTYPE_WIN98:      s = "Windows 98 (score: 3)";              break;
-      case OSTYPE_WINNT:      s = "Windows NT (score: 0)";              break;
-      case OSTYPE_OS2:        s = "OS/2 (score: 5)";                    break;
-      case OSTYPE_WARP:       s = "OS/2 Warp 3 (score: 6)";             break;
-      case OSTYPE_DOSEMU:     s = "Linux DOSEMU (score: 11)";           break;
-      case OSTYPE_OPENDOS:    s = "Caldera OpenDOS (score: 8)";         break;
-      case OSTYPE_LINUX:      s = "Linux (score: 42)";                  break;
-      case OSTYPE_FREEBSD:    s = "FreeBSD (score: 40)";                break;
-      case OSTYPE_UNIX:       s = "Unix (score: 11)";                   break;
-      case OSTYPE_BEOS:       s = "BeOS (score: 6)";                    break;
-      case OSTYPE_QNX:        s = "QNX (score: 14)";                    break;
-      default:                s = "Unknown (score: 3.14)";              break;
+      case OSTYPE_UNKNOWN:    s = "DOS";                        break;
+      case OSTYPE_WIN3:       s = "Windows 3.x (using win32s)"; break;
+      case OSTYPE_WIN95:      s = "Windows 95";                 break;
+      case OSTYPE_WIN98:      s = "Windows 98";                 break;
+      case OSTYPE_WINME:      s = "Windows ME";                 break;
+      case OSTYPE_WINNT:      s = "Windows NT";                 break;
+      case OSTYPE_WIN2000:    s = "Windows 2000";               break;
+      case OSTYPE_OS2:        s = "OS/2";                       break;
+      case OSTYPE_WARP:       s = "OS/2 Warp 3";                break;
+      case OSTYPE_DOSEMU:     s = "Linux DOSEMU";               break;
+      case OSTYPE_OPENDOS:    s = "Caldera OpenDOS";            break;
+      case OSTYPE_LINUX:      s = "Linux";                      break;
+      case OSTYPE_FREEBSD:    s = "FreeBSD";                    break;
+      case OSTYPE_UNIX:       s = "Unix";                       break;
+      case OSTYPE_BEOS:       s = "BeOS";                       break;
+      case OSTYPE_QNX:        s = "QNX";                        break;
+      default:                s = "Unknown";                    break;
    }
 
    sprintf(systext+strlen(systext), "Platform: %s\n\n\n\n", s);

@@ -89,7 +89,9 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_WIN3        AL_ID('W','I','N','3')
 #define OSTYPE_WIN95       AL_ID('W','9','5',' ')
 #define OSTYPE_WIN98       AL_ID('W','9','8',' ')
-#define OSTYPE_WINNT       AL_ID('N','T',' ',' ')
+#define OSTYPE_WINME       AL_ID('W','M','E',' ')
+#define OSTYPE_WINNT       AL_ID('W','N','T',' ')
+#define OSTYPE_WIN2000     AL_ID('W','2','K',' ')
 #define OSTYPE_OS2         AL_ID('O','S','2',' ')
 #define OSTYPE_WARP        AL_ID('W','A','R','P')
 #define OSTYPE_DOSEMU      AL_ID('D','E','M','U')
@@ -101,6 +103,8 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_QNX         AL_ID('Q','N','X',' ')
 
 AL_VAR(int, os_type);
+AL_VAR(int, os_version);
+AL_VAR(int, os_revision);
 
 AL_VAR(int *, allegro_errno);
 

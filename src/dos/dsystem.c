@@ -60,9 +60,6 @@
 
 
 /* some DOS-specific globals */
-int windows_version = 0;
-int windows_sub_version = 0;
-
 int i_love_bill = FALSE;
 
 static int a_rez = 3;
@@ -170,25 +167,26 @@ static void detect_os()
    int i;
 
    os_type = OSTYPE_UNKNOWN;
-   windows_version = 0;
-   windows_sub_version = 0;
 
-   /* check for Windows 3.1 or 95 */
+   /* check for Windows 3.x or 9x */
    r.x.ax = 0x1600; 
    __dpmi_int(0x2F, &r);
 
    if ((r.h.al != 0) && (r.h.al != 1) && (r.h.al != 0x80) && (r.h.al != 0xFF)) {
-      if (r.h.al == 4) {
-	 if (r.h.ah < 10)
-	    os_type = OSTYPE_WIN95;
+      os_version = r.h.al;
+      os_revision = r.h.ah;
+
+      if (os_version == 4) {
+         if (os_revision == 90)
+            os_type = OSTYPE_WINME;
+         else if (os_revision == 10)
+            os_type = OSTYPE_WIN98;
 	 else
-	    os_type = OSTYPE_WIN98;
+            os_type = OSTYPE_WIN95;
       }
       else
 	 os_type = OSTYPE_WIN3;
 
-      windows_version = r.h.al;
-      windows_sub_version = r.h.ah;
       i_love_bill = TRUE;
       return;
    }
@@ -198,8 +196,6 @@ static void detect_os()
 
    if (((p) && (stricmp(p, "Windows_NT") == 0)) || (_get_dos_version(1) == 0x0532)) {
       os_type = OSTYPE_WINNT;
-      windows_version = 0x100;
-      windows_sub_version = 0;
       i_love_bill = TRUE;
       return;
    }
@@ -214,8 +210,6 @@ static void detect_os()
       else
 	 os_type = OSTYPE_OS2;
 
-      windows_version = -1;
-      windows_sub_version = -1;
       i_love_bill = TRUE;
       return;
    }
@@ -234,8 +228,6 @@ static void detect_os()
 
       if (r.x.ax == 0xAA55) {
 	 os_type = OSTYPE_DOSEMU;
-	 windows_version = -1;
-	 windows_sub_version = -1;
 	 i_love_bill = TRUE;     /* (evil chortle) */
 	 return;
       }
@@ -254,8 +246,6 @@ static void detect_os()
       __dpmi_int(0x2F, &r);
 
       if ((r.x.ax == 0) && (r.x.bx == 0xEDC0)) {
-	 windows_version = -1;
-	 windows_sub_version = -1;
 	 i_love_bill = TRUE;
       }
 
@@ -270,10 +260,16 @@ static void detect_os()
 
    if ((r.x.bx == 3) && !(r.x.flags & 1)) {
       os_type = OSTYPE_WIN95;
-      windows_version = -1;
-      windows_sub_version = -1;
       i_love_bill = TRUE;
       return;
+   }
+
+   /* fetch DOS version if pure DOS is likely to be the running OS */
+   if (os_type == OSTYPE_UNKNOWN) {
+      r.x.ax = 0x3000;
+      __dpmi_int(0x21, &r);
+      os_version = r.h.al;
+      os_revision = r.h.ah;
    }
 }
 
@@ -292,10 +288,6 @@ static int sys_dos_init()
 
    /* initialise the irq wrapper functions */
    _dos_irq_init();
-
-   /* lock some important variables */
-   LOCK_VARIABLE(windows_version);
-   LOCK_VARIABLE(windows_sub_version);
 
    /* check which OS we are running under */
    detect_os();
