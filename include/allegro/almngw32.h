@@ -55,7 +55,7 @@
 
 #define AL_VAR(type, name)                   extern _AL_DLL type name
 #define AL_ARRAY(type, name)                 extern _AL_DLL type name[]
-#define AL_FUNC(type, name, args)            extern _AL_DLL type name args
+#define AL_FUNC(type, name, args)            extern type name args
 #define AL_METHOD(type, name, args)          type (*name) args
 #define AL_FUNCPTR(type, name, args)         extern _AL_DLL type (*name) args
 
