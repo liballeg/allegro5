@@ -121,7 +121,6 @@ END_OF_STATIC_FUNCTION(fli_timer_callback);
 static void *fli_read(void *buf, int size)
 {
    int result;
-   ASSERT(buf);
 
    if (fli_mem_data) {
       if (buf)
