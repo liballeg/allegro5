@@ -31,6 +31,7 @@ extern "C" {
 int  be_key_init(void);
 void be_key_exit(void);
 void be_key_set_leds(int leds);
+void be_key_set_rate(int delay, int repeat);
 void be_key_wait_for_input(void);
 void be_key_stop_waiting_for_input(void);
 void be_key_suspend(void);

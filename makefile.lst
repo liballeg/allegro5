@@ -227,7 +227,8 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/btimer.c \
 	src/misc/ufile.c \
 	src/misc/colconv.c \
-	src/misc/icolconv.s
+	src/misc/icolconv.s \
+	src/misc/pckeys.c
 
 ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/fbcon.c \
