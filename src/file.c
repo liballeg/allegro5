@@ -2348,6 +2348,18 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
 
 
 
+/* pack_get_userdata:
+ *  Returns the userdata field of packfiles using user-defined vtables.
+ */
+void *pack_get_userdata(PACKFILE *f)
+{
+   ASSERT(f);
+
+   return f->userdata;
+}
+
+
+
 /***************************************************
  ************ "Normal" packfile vtable *************
  ***************************************************
