@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define ALLEGRO_INCLUDE_MATH_H
 
@@ -4306,7 +4307,11 @@ void change_mode()
 	    if ((gfx_card == GFX_AUTODETECT) && (gfx_bpp > 8) && (gfx_w == 640) && (gfx_h == 480)) {
 	       set_color_depth(8);
 	       request_refresh_rate(0);
-	       set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+	       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0)!=0) {
+		  set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+		  allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+		  abort();
+	       }
 	       set_palette(mypal);
 
 	       gui_fg_color = palette_color[255];
@@ -4327,7 +4332,11 @@ void change_mode()
 	    else {
 	       set_color_depth(8);
 	       request_refresh_rate(0);
-	       set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+	       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0)!=0) {
+		  set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+		  allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+		  abort();
+	       }
 	       set_palette(mypal);
 
 	       gui_fg_color = palette_color[255];
@@ -4620,7 +4629,11 @@ int main()
    install_timer();
    install_int(tm_tick, 10);
 
-   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0)!=0) {
+     set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+     allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+     return 1;
+   }
    set_palette(mypal);
 
    if (gfx_mode() != 0) {
