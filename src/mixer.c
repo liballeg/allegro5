@@ -12,7 +12,7 @@
  *
  *      By Shawn Hargreaves.
  *
- *      Proper 16 bit sample support added by SET.
+ *      Proper 16 bit sample support added by Salvador Eduardo Tropea.
  *
  *      Ben Davis provided the voice_volume_scale functionality, programmed
  *      the silent mixer so that silent voices don't freeze, and fixed a

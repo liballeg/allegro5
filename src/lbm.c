@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      LBM reader by Adrian Oboroc.
+ *      LBM reader.
+ *
+ *      By Adrian Oboroc.
  *
  *      See readme.txt for copyright information.
  */

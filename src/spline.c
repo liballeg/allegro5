@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Bezier spline plotter, by Seymour Shlien.
+ *      Bezier spline plotter.
+ *
+ *      By Seymour Shlien.
  *
  *      Optimised version by Sven Sandberg.
  *

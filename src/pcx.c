@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Bitmap reading routines.
+ *      PCX reader.
  *
  *      By Shawn Hargreaves.
  *

@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Fixed point version of clip3df.c, by Chris Robinson.
+ *      Fixed point version of the 3D polygon clipper.
+ *
+ *      By Chris Robinson.
  *
  *      See readme.txt for copyright information.
  */

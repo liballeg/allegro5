@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      BMP reader by Seymour Shlien.
+ *      BMP reader.
+ *
+ *      By Seymour Shlien.
  *
  *      OS/2 BMP support and BMP save function by Jonas Petersen.
  *

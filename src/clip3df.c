@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      The 3D polygon clipper, by Calin Andrian.
+ *      The 3D polygon clipper.
+ *
+ *      By Calin Andrian.
  *
  *      See readme.txt for copyright information.
  */

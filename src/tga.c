@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      TGA reader by Tim Gunn.
+ *      TGA reader.
+ *
+ *      By Tim Gunn.
  *
  *      RLE support added by Michal Mertl and Salvador Eduardo Tropea.
  * 
