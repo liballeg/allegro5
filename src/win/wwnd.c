@@ -580,7 +580,6 @@ void restore_window_style(void)
 int adjust_window(int w, int h)
 {
    RECT working_area, win_size;
-   TITLEBARINFO tb_info;
    int tb_height;
    static int last_w=-1, last_h=-1;
 
@@ -594,12 +593,8 @@ int adjust_window(int w, int h)
       }
       else {
 	 /* try to get the height of the window's title bar */
-         tb_info.cbSize = sizeof(TITLEBARINFO);
-	 if (!GetTitleBarInfo(allegro_wnd, &tb_info))
-	    tb_height = 0;
-         else
-	    tb_height = (tb_info.rcTitleBar.bottom - tb_info.rcTitleBar.top);
-
+	 tb_height = GetSystemMetrics(SM_CYSIZE);
+         
 	 /* try to center the window relative to its last position */
 	 last_wnd_x += (last_w - w)/2;
 	 last_wnd_y += (last_h - h)/2;
