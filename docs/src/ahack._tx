@@ -354,7 +354,9 @@ If the function takes parameters, document if they are required to follow a
 specific format (e.g. string encoding), what they are for, and their range of
 values (if any). The latter is particularly important for boolean parameters,
 because there's no way to tell the user that an integer must be either `true'
-or `false' in the C programming language.
+or `false' in the C programming language. Parameters are always referred to
+between single quotes, left and right. These are tt-ized in the HTML version,
+but only if there are no space characters between the left and right quote.
 
 If it is possible to include a little fragment of code which demonstrates the
 usage of the function, do it just before the @retval command if there is one,
@@ -366,7 +368,7 @@ Usually a single line will be enough, but don't hesitate to add whatever
 comments you might think of as useful for newbies. Also, if you are writing
 such a one liner, try to use verbose variable names to indicate where they
 come from or what they should contain. Compare the following lines, where the
-second is more likely to be found in `real life' code, but should be avoided
+second is more likely to be found in `<tt>real life</tt>' code, but should be avoided
 in these little code fragments taken out of context:
 <textblock>
    blit(source_bitmap, destination_bitmap, source_x, source_y,

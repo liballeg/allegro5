@@ -1478,38 +1478,43 @@ Configuration routines
 
 Various parts of Allegro, such as the sound routines and the 
 load_joystick_data() function, require some configuration information. This 
-data is stored in text files as a collection of "variable=value" lines, 
-along with comments that begin with a '#' character and continue to the end 
+data is stored in text files as a collection of `variable=value' lines,
+along with comments that begin with a `#' character and continue to the end
 of the line. The configuration file may optionally be divided into sections, 
-which begin with a "[sectionname]" line. Each section has a unique 
+which begin with a `[sectionname]' line. Each section has a unique
 namespace, to prevent variable name conflicts, but any variables that aren't 
 in a section are considered to belong to all the sections simultaneously.
 
-By default the configuration data is read from a file called allegro.cfg, 
+By default the configuration data is read from a file called `allegro.cfg',
 which can be located either in the same directory as the program executable, 
 or the directory pointed to by the ALLEGRO environment variable. Under Unix, 
-it also checks for ~/allegro.cfg, ~/.allegrorc, /etc/allegro.cfg, and 
-/etc/allegrorc, in that order; under BeOS only the last two are also checked.
-MacOS X also checks in the Contents/Resources directory of the application
-bundle, if any, before doing the checks above.
-If you don't like this approach, you can specify any filename you like, or
-use a block of binary configuration data provided by your program (which
-could for example be loaded from a datafile).
+it also checks for `~/allegro.cfg', `~/.allegrorc', `/etc/allegro.cfg', and
+`/etc/allegrorc', in that order; under BeOS only the last two are also
+checked. MacOS X also checks in the Contents/Resources directory of the
+application bundle, if any, before doing the checks above. If you don't like
+this approach, you can specify any filename you like, or use a block of
+binary configuration data provided by your program (which could for example
+be loaded from a datafile).
 
 You can store whatever custom information you like in the config file, along 
 with the standard variables that are used by Allegro (see below).
 
 @@void @set_config_file(const char *filename);
-@xref set_config_data, override_config_file, push_config_state
+@xref set_config_data, override_config_file, push_config_state, set_uformat
 @xref Standard config variables, set_config_string, get_config_string
 @eref exconfig
    Sets the configuration file to be used by all subsequent config 
    functions. If you don't call this function, Allegro will use the default 
-   allegro.cfg file, looking first in the same directory as your program and 
-   then in the directory pointed to by the ALLEGRO environment variable.
+   `allegro.cfg' file, looking first in the same directory as your program
+   and then in the directory pointed to by the ALLEGRO environment variable
+   and the usual platform-specific paths for configuration files. For example
+   it will look for `/etc/allegro.cfg' under Unix.
 
    All pointers returned by previous calls to get_config_string() and
    other related functions are invalidated when you call this function!
+   You can call this function before install_allegro() to change the
+   configuration file, but after set_uformat() if you want to use a text 
+   encoding format other than the default.
 
 @@void @set_config_data(const char *data, int length);
 @xref set_config_file, override_config_data, push_config_state
@@ -1529,16 +1534,23 @@ with the standard variables that are used by Allegro (see below).
    settings from their code, while still leaving the main config file free 
    for the end user to customise. For example, you could specify a 
    particular sample frequency and IBK instrument file, but the user could 
-   still use an allegro.cfg file to specify the port settings and irq 
+   still use an `allegro.cfg' file to specify the port settings and irq
    numbers.
 
 @@void @override_config_data(const char *data, int length);
 @xref override_config_file, set_config_data
    Version of override_config_file() which uses a block of data that has 
-   already been read into memory.
+   already been read into memory. The length of the block has to be specified
+   in bytes. Example:
+<codeblock>
+      /* Force German as system language, Spanish keyboard map. */
+      const char *override_data = "[system]
+	 language=DE
+	 keyboard=ES";
+      override_config_data(override_data, ustrsize(override_data));<endblock>
 
 @@void @push_config_state();
-@xref pop_config_state, set_config_file
+@xref pop_config_state, set_config_file, save_joystick_data
 @eref exconfig
    Pushes the current configuration state (filename, variable values, etc). 
    onto an internal stack, allowing you to select some other config source 
@@ -1561,15 +1573,19 @@ with the standard variables that are used by Allegro (see below).
 
 @@void @reload_config_texts(const char *new_language);
 @xref get_config_text, get_config_string, Standard config variables
-   Reloads the translated strings returned by get_config_text. This is
+   Reloads the translated strings returned by get_config_text(). This is
    useful to switch to another language in your program at runtime. If you
-   want to modify the [system] language configuration variable yourself, or
+   want to modify the `[system]' language configuration variable yourself, or
    you have switched configuration files, you will want to pass NULL to
    just reload whatever language is currently selected. Or you can pass a
    string containing the two letter code of the language you desire to
    switch to, and the function will modify the language variable. After you
-   call this function, the previously returned pointers of get_config_text
-   will be invalid.
+   call this function, the previously returned pointers of get_config_text()
+   will be invalid. Example:
+<codeblock>
+      ...
+      /* The user selects French from a language choice menu. */
+      reload_config_texts("FR");<endblock>
 
 @\void @hook_config_section(const char *section,
 @\       int (*intgetter)(const char *name, int def),
@@ -1582,21 +1598,55 @@ with the standard variables that are used by Allegro (see below).
    present hook will be unhooked. Hooked functions have the highest 
    priority. If a section is hooked, the hook will always be called, so you 
    can also hook a '#' section: even override_config_file() cannot override 
-   a hooked section.
+   a hooked section. Example:
+<codeblock>
+      int decode_encrypted_int(const char *name, int def)
+      {
+	 ...
+      }
+      
+      const char *decode_encrypted_string(const char *name, const char *def)
+      {
+	 ...
+      }
+      
+      void encode_plaintext_string(const char *name, const char *value)
+      {
+	 ...
+      }
+      
+      int main(int argc, char *argv[])
+      {
+	 ...
+	 /* Make it harder for users to tinker with the high scores. */
+	 hook_config_section("high_scores", decode_encrypted_int,
+	    decode_encrypted_string, encode_plaintext_string);
+	 ...
+      } END_OF_MAIN()<endblock>
 
 @@int @config_is_hooked(const char *section);
 @xref hook_config_section
-   Returns TRUE if the specified config section has been hooked.
+   Returns TRUE if the specified config section has been hooked. Example:
+<codeblock>
+      if (config_is_hooked("high_scores")) {
+	 hook_config_section("high_scores, NULL, NULL, NULL);
+      }<endblock>
 
 @\const char *@get_config_string(const char *section,
 @@                              const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
 @xref get_config_hex, get_config_int, get_config_id
-   Retrieves a string variable from the current config file. If the named
-   variable cannot be found, or its entry in the config file is empty, the
-   value of def is returned. The section name may be set to NULL to read
-   variables from the root of the file, or used to control which set of
-   parameters (eg. sound or joystick) you are interested in reading.
+   Retrieves a string variable from the current config file. The section name
+   may be set to NULL to read variables from the root of the file, or used to
+   control which set of parameters (eg. sound or joystick) you are interested
+   in reading. Example:
+<codeblock>
+      const char *lang = get_config_string("system", "language", "EN");
+<endblock>
+@retval
+   Returns a pointer to the constant string found in the configuration file.
+   If the named variable cannot be found, or its entry in the config file is
+   empty, the value of `def' is returned.
 
 @@int @get_config_int(const char *section, const char *name, int def);
 @xref set_config_file, set_config_int, get_config_string, get_config_argv
@@ -1627,35 +1677,41 @@ with the standard variables that are used by Allegro (see below).
 @xref set_config_file, get_config_string, get_config_float, get_config_hex
 @xref get_config_int, get_config_id
 @eref exconfig
-   Reads a token list (words separated by spaces) from the current config 
-   file, returning a an argv style argument list, and setting argc to the 
-   number of tokens (unlike argc/argv, this list is zero based). Returns 
-   NULL and sets argc to zero if the variable is not present. The token list 
-   is stored in a temporary buffer that will be clobbered by the next call 
-   to get_config_argv(), so the data should not be expected to persist.
+   Reads a token list (words separated by spaces) from the current config
+   file. The token list is stored in a temporary buffer that will be clobbered
+   by the next call to get_config_argv(), so the data should not be expected
+   to persist.
+@retval
+   Returns an argv style argument list and sets `argc' to the number of
+   retrieved tokens. If the variable is not present, returns NULL and sets 
+   argc to zero.
 
 @@const char *@get_config_text(const char *msg);
 @xref get_config_string, reload_config_texts, Standard config variables
    This function is primarily intended for use by internal library code, but 
    it may perhaps be helpful to application programmers as well. It uses the 
-   language.dat or XXtext.cfg files (where XX is a language code) to look up
-   a translated version of the parameter in the currently selected language,
-   returning a suitable translation if one can be found or a copy of the
-   parameter if nothing else is available. This is basically the same thing
-   as calling get_config_string() with [language] as the section, msg as the
-   variable name, and msg as the default value, but it contains some special
-   code to handle Unicode format conversions. The msg parameter is always
-   given in ASCII format, but the returned string will be converted into the
-   current text encoding, with memory being allocated as required, so you
-   can assume that this pointer will persist without having to manually
-   allocate storage space for each string.
+   `language.dat' or `XXtext.cfg' files (where XX is a language code) to look 
+   up a translated version of the parameter in the currently selected 
+   language.
+
+   This is basically the same thing as calling get_config_string() with 
+   `[language]' as the section, `msg' as the variable name, and `msg' as the 
+   default value, but it contains some special code to handle Unicode format 
+   conversions. The `msg' parameter is always given in ASCII format, but the 
+   returned string will be converted into the current text encoding, with 
+   memory being allocated as required, so you can assume that this pointer 
+   will persist without having to manually allocate storage space for each 
+   string.
+@retval
+   Returns a suitable translation if one can be found or a copy of the 
+   parameter if nothing else is available. 
 
 @\void @set_config_string(const char *section, const char *name,
 @@                       const char *val);
 @xref set_config_file, get_config_string, set_config_float, set_config_hex
 @xref set_config_int, set_config_id
    Writes a string variable to the current config file, replacing any 
-   existing value it may have, or removes the variable if val is NULL. The 
+   existing value it may have, or removes the variable if `val' is NULL. The
    section name may be set to NULL to write the variable to the root of the 
    file, or used to control which section the variable is inserted into. The 
    altered file will be cached in memory, and not actually written to disk 
@@ -1709,43 +1765,43 @@ system = x<br>
 keyboard = x<br>
    Specifies which keyboard layout to use. The parameter is the name of a 
    keyboard mapping file produced by the keyconf utility, and can either be 
-   a fully qualified file path or a basename like "us" or "uk". If the 
+   a fully qualified file path or a basename like `us' or `uk'. If the 
    latter, Allegro will look first for a separate config file with that name 
-   (eg. "uk.cfg") and then for an object with that name in the keyboard.dat 
-   file (eg. "UK_CFG"). The config file or keyboard.dat file can be stored 
+   (eg. `uk.cfg') and then for an object with that name in the `keyboard.dat'
+   file (eg. `UK_CFG'). The config file or `keyboard.dat' file can be stored 
    in the same directory as the program, or in the location pointed to by 
-   the ALLEGRO environment variable. Look in the keyboard.dat file to see 
+   the ALLEGRO environment variable. Look in the `keyboard.dat' file to see 
    what mappings are currently available.
 <li>
 language = x<br>
    Specifies which language file to use for error messages and other bits of 
    system text. The parameter is the name of a translation file, and can 
-   either be a fully qualified file path or a basename like "en" or "sp". If 
+   either be a fully qualified file path or a basename like `en' or `sp`. If 
    the latter, Allegro will look first for a separate config file with a 
-   name in the form "entext.cfg", and then for an object with that name in 
-   the language.dat file (eg. "ENTEXT_CFG"). The config file or language.dat 
-   file can be stored in the same directory as the program, or in the 
-   location pointed to by the ALLEGRO environment variable. Look in the 
-   language.dat file to see which mappings are currently available.
+   name in the form `entext.cfg', and then for an object with that name in 
+   the `language.dat' file (eg. `ENTEXT_CFG'). The config file or 
+   `language.dat' file can be stored in the same directory as the program, or 
+   in the location pointed to by the ALLEGRO environment variable. Look in the 
+   `language.dat' file to see which mappings are currently available.
 <li>
 menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in
-   milliseconds (default is 300). Specifying -1 will disable the auto-opening
-   feature.
+   milliseconds (default is `300'). Specifying `-1' will disable the 
+   auto-opening feature.
 <li>
 dga_mouse = x<br>
    X only: disable to work around a bug in some X servers' DGA modes, 
    concerning the mouse.  Default is on; enable the workaround by setting the
-   variable to "0".
+   variable to `0'.
 <li>
 dga_centre = x<br>
    X only: instructs the DGA driver to centre the Allegro screen if the
    actual screen resolution is higher than Allegro's.  Default is on; disable
-   this feature by setting the variable to "0".
+   this feature by setting the variable to `0'.
 <li>
 dga_clear = x<br>
    X only: instructs the DGA driver to clear visible video memory on startup.
-   Default is on; disable this feature by setting the variable to "0".
+   Default is on; disable this feature by setting the variable to `0'.
 </ul><li>
 [graphics]<br>
    Section containing graphics configuration information, using the
@@ -1754,9 +1810,9 @@ dga_clear = x<br>
 gfx_card = x<br>
    Specifies which graphics driver to use when the program requests 
    GFX_AUTODETECT. Multiple possible drivers can be suggested with extra 
-   lines in the form "gfx_card1 = x", "gfx_card2 = x", etc, or you can 
+   lines in the form `gfx_card1 = x', `gfx_card2 = x', etc, or you can 
    specify different drivers for each mode and color depth with variables in 
-   the form "gfx_card_24bpp = x", "gfx_card_640x480x16 = x", etc.
+   the form `gfx_card_24bpp = x', `gfx_card_640x480x16 = x', etc.
 <li>
 gfx_cardw = x<br>
    Specifies which graphics driver to use when the program requests 
@@ -1774,13 +1830,13 @@ vbeaf_driver = x<br>
    DOS and Linux only: specifies where to look for the VBE/AF driver 
    (vbeaf.drv). If this variable is not set, Allegro will look in the same 
    directory as the program, and then fall back on the standard locations 
-   (c:\ for DOS, /usr/local/lib, /usr/lib, /lib, and / for Linux, or the 
-   directory specified with the VBEAF_PATH environment variable).
+   (`c:\' for DOS, `/usr/local/lib', `/usr/lib', `/lib', and `/' for Linux, or 
+   the directory specified with the VBEAF_PATH environment variable).
 <li>
 framebuffer = x<br>
    Linux only: specifies what device file to use for the fbcon driver. If 
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
-   variable, and then defaults to /dev/fb0.
+   variable, and then defaults to `/dev/fb0'.
 <li>
 force_centering = x<br>
    Unix/X11 only: specifies whether to force window centering in fullscreen
@@ -1823,7 +1879,8 @@ emulate_three = x<br>
    left and right buttons (yes or no). Defaults to no.
 <li>
 mouse_device = x<br>
-   Linux only: specifies the name of the mouse device file (eg. /dev/mouse).
+   Linux only: specifies the name of the mouse device file (eg. 
+   `/dev/mouse').
 <li>
 ev_absolute = x<br>
    Linux only: specifies the mode for the default EV input:
@@ -1887,8 +1944,8 @@ quality = x<br>
 <li>
 flip_pan = x<br>
    Toggling this between 0 and 1 reverses the left/right panning of samples, 
-   which might be needed because some SB cards (including mine :-) get the 
-   stereo image the wrong way round.
+   which might be needed because some SB cards get the stereo image the wrong
+   way round.
 <li>
 sound_freq = x<br>
    DOS, Unix and BeOS: sets the sample frequency. With the SB driver, 
@@ -1935,8 +1992,8 @@ ibk_drum_file = x<br>
    the standard set of Adlib percussion patches.
 <li>
 oss_driver = x<br>
-   Unix only: sets the OSS device driver name. Usually /dev/dsp or 
-   /dev/audio, but could be a particular device (e.g. /dev/dsp2).
+   Unix only: sets the OSS device driver name. Usually `/dev/dsp' or 
+   `/dev/audio', but could be a particular device (e.g. `/dev/dsp2').
 <li>
 oss_numfrags = x<br>
 oss_fragsize = x<br>
@@ -1950,10 +2007,10 @@ oss_fragsize = x<br>
    between action which triggers sound and sound itself.
 <li>
 oss_midi_driver = x<br>
-   Unix only: sets the OSS MIDI device name. Usually /dev/sequencer.
+   Unix only: sets the OSS MIDI device name. Usually `/dev/sequencer'.
 <li>
 oss_mixer_driver = x<br>
-   Unix only: sets the OSS mixer device name. Usually /dev/mixer.
+   Unix only: sets the OSS mixer device name. Usually `/dev/mixer'.
 <li>
 esd_server = x<br>
    Unix only: where to find the ESD (Enlightened Sound Daemon) server.
@@ -1964,7 +2021,7 @@ alsa_pcmdevice = x<br>
 <li>
 alsa_device = x<br>
    Unix only: device name for the ALSA 0.9 sound driver. The format is
-   <driver>[:<card>,<device>], for example: hw:0,1.
+   <driver>[:<card>,<device>], for example: `hw:0,1'.
 <li>
 alsa_mixer_elem = x<br>
    Unix only: mixer element name for the ALSA 0.9 driver. The default
@@ -2013,10 +2070,10 @@ ca_midi_reverb = x<br>
 patches = x<br>
    Specifies where to find the sample set for the DIGMID driver. This can 
    either be a Gravis style directory containing a collection of .pat files 
-   and a default.cfg index, or an Allegro datafile produced by the pat2dat 
+   and a `default.cfg' index, or an Allegro datafile produced by the pat2dat 
    utility. If this variable is not set, Allegro will look either for a 
-   default.cfg or patches.dat file in the same directory as the program, the 
-   directory pointed to by the ALLEGRO environment variable, and the 
+   `default.cfg' or `patches.dat' file in the same directory as the program, 
+   the directory pointed to by the ALLEGRO environment variable, and the 
    standard GUS directory pointed to by the ULTRASND environment variable.
 </ul><li>
 [midimap]<br>
@@ -2039,9 +2096,9 @@ p&ltn&gt = bank0 bank1 prog pitch<br>
    prevent them from being sent.
 
    For example, the line:
-
+<textblock>
       p36 = 0 34 9 12
-
+<endblock>
    specifies that whenever GM program 36 (which happens to be a fretless 
    bass) is selected, Allegro should send a bank change message #0 with a 
    parameter of 0, a bank change message #32 with a parameter of 34, a 
@@ -2081,8 +2138,9 @@ Mouse routines
 @xref Standard config variables
 @eref Available Allegro examples
    Installs the Allegro mouse handler. You must do this before using any 
-   other mouse functions. Returns -1 on failure, otherwise the number of 
-   buttons on the mouse.
+   other mouse functions. 
+@retval
+   Returns -1 on failure, otherwise the number of buttons on the mouse.
 
 @@void @remove_mouse();
 @xref install_mouse, allegro_exit
@@ -2100,8 +2158,10 @@ Mouse routines
    after the first time that you call this function Allegro will switch into 
    polling mode, so from that point onwards you will have to call this 
    routine in order to get any mouse input at all, regardless of whether the 
-   current driver actually needs to be polled or not. Returns zero on
-   success, or a negative number on failure (ie. no mouse driver installed).
+   current driver actually needs to be polled or not. 
+@retval
+   Returns zero on success, or a negative number on failure (ie. no mouse 
+   driver installed).
 
 @@int @mouse_needs_poll();
 @xref poll_mouse, install_mouse, mouse_x
@@ -2117,11 +2177,11 @@ Mouse routines
    Global variables containing the current mouse position and button state. 
    Wherever possible these values will be updated asynchronously, but if 
    mouse_needs_poll() returns TRUE, you must manually call poll_mouse() to 
-   update them with the current input state. The mouse_x and mouse_y 
+   update them with the current input state. The `mouse_x' and `mouse_y' 
    positions are integers ranging from zero to the bottom right corner of 
-   the screen. The mouse_z variable holds the current wheel position, when 
-   using an input driver that supports wheel mice. The mouse_b variable is a 
-   bitfield indicating the state of each button: bit 0 is the left button, 
+   the screen. The `mouse_z' variable holds the current wheel position, when 
+   using an input driver that supports wheel mice. The `mouse_b' variable is 
+   a bitfield indicating the state of each button: bit 0 is the left button, 
    bit 1 the right, and bit 2 the middle button. For example:
 <codeblock>
       if (mouse_b & 1)
@@ -2130,7 +2190,7 @@ Mouse routines
       if (!(mouse_b & 2))
 	 printf("Right button is not pressed\n");
 <endblock>
-   The mouse_pos variable has the current X coordinate in the high word and 
+   The `mouse_pos' variable has the current X coordinate in the high word and 
    the Y in the low word. This may be useful in tight polling loops where a 
    mouse interrupt could occur between your reading of the two separate 
    variables, since you can copy this value into a local variable with a 
@@ -2150,14 +2210,16 @@ Mouse routines
 @eref exmouse, exshade, exspline
    Tells Allegro to display a mouse pointer on the screen. This will only 
    work if the timer module has been installed. The mouse pointer will be 
-   drawn onto the specified bitmap, which should normally be 'screen' (see 
+   drawn onto the specified bitmap, which should normally be `screen' (see 
    later for information about bitmaps). To hide the mouse pointer, call 
-   show_mouse(NULL). Warning: if you draw anything onto the screen while the 
-   pointer is visible, a mouse movement interrupt could occur in the middle 
-   of your drawing operation. If this happens the mouse buffering and SVGA 
-   bank switching code will get confused and will leave 'mouse droppings' 
-   all over the screen. To prevent this, you must make sure you turn off the 
-   mouse pointer whenever you draw onto the screen.
+   show_mouse(NULL). 
+   
+   Warning: if you draw anything onto the screen while the pointer is 
+   visible, a mouse movement interrupt could occur in the middle of your 
+   drawing operation. If this happens the mouse buffering and SVGA bank 
+   switching code will get confused and will leave 'mouse droppings' all over 
+   the screen. To prevent this, you must make sure you turn off the mouse 
+   pointer whenever you draw onto the screen.
 
 @@void @scare_mouse();
 @xref unscare_mouse, scare_mouse_area, show_mouse
