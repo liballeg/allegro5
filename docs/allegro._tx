@@ -6800,6 +6800,17 @@ ensure there is room for the check.
    driver. This version of the function reads the initial values from the 
    parameters when it activates, so you can specify the default values.
 
+@@extern int (*@gui_shadow_box_proc)(int msg, struct DIALOG *d, int c);
+@@extern int (*@gui_ctext_proc)(int msg, struct DIALOG *d, int c);
+@@extern int (*@gui_button_proc)(int msg, struct DIALOG *d, int c);
+@@extern int (*@gui_edit_proc)(int msg, struct DIALOG *d, int c);
+@@extern int (*@gui_list_proc)(int msg, struct DIALOG *d, int c);
+@@extern int (*@gui_text_list_proc)(int msg, struct DIALOG *d, int c);
+@xref alert, alert3, file_select, gfx_mode_select, gui_fg_color
+   If set, these functions will be used by the standard Allegro dialogs.
+   This allows you to customise the look and feel, much like gui_fg_color
+   and gui_bg_color, but much more flexiblely.
+
 
 @!man
 
