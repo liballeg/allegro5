@@ -138,6 +138,11 @@ AL_VAR(volatile int, _retrace_hpp_value);
 
 AL_VAR(long, _vsync_speed);
 
+#ifdef ALLEGRO_LINUX
+AL_FUNC(void, _al_suspend_old_timer_emulation, (void));
+AL_FUNC(void, _al_resume_old_timer_emulation, (void));
+#endif
+
 /* various bits of keyboard stuff */
 AL_FUNC(void, _handle_key_press, (int keycode, int scancode));
 AL_FUNC(void, _handle_key_release, (int scancode));

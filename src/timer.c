@@ -483,6 +483,60 @@ void remove_timer(void)
 
 
 
+/* This section is to allow src/linux/vtswitch.c to suspend the timer
+ * emulation subsystem when switching away in SWITCH_PAUSE or
+ * SWITCH_AMNESIA modes.  It used to do it by calling TIMER_DRIVER
+ * init() and exit() methods directly...
+ */
+
+#ifdef ALLEGRO_LINUX
+
+void _al_suspend_old_timer_emulation(void)
+{
+   TRACE("_al_suspend_old_timer_emulation called\n");
+
+   if (!timer_driver)
+      return;
+
+   _al_mutex_lock(&timer_mutex);
+   {
+      int x;
+
+      for (x=0; x<MAX_TIMERS; x++)
+         if (_timer_queue[x].timer)
+            al_stop_timer(_timer_queue[x].timer);
+
+      al_stop_timer(retrace_timer);
+
+      al_flush_event_queue(event_queue);
+   }
+   _al_mutex_unlock(&timer_mutex);
+}
+
+void _al_resume_old_timer_emulation(void)
+{
+   TRACE("_al_resume_old_timer_emulation called\n");
+
+   if (!timer_driver)
+      return;
+
+   _al_mutex_lock(&timer_mutex);
+   {
+      int x;
+
+      al_start_timer(retrace_timer);
+
+      for (x=0; x<MAX_TIMERS; x++)
+         if (_timer_queue[x].timer)
+            al_start_timer(_timer_queue[x].timer);
+   }
+   _al_mutex_unlock(&timer_mutex);
+}
+
+#endif /* ALLEGRO_LINUX */
+
+
+
 /*
  * Local Variables:
  * c-basic-offset: 3
