@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -10,7 +10,7 @@
  *
  *      Windows keyboard driver.
  *
- *      By Stefan Schimanski.
+ *      By Stefan Schimanski, hacked up by Peter Wang and Elias Pschernig.
  *
  *      See readme.txt for copyright information.
  */
@@ -32,75 +32,84 @@
 #endif
 
 
-static KEYBOARD_DRIVER keyboard_directx;
-
-
-_DRIVER_INFO _keyboard_driver_list[] =
-{
-   {KEYBOARD_DIRECTX, &keyboard_directx, TRUE},
-   {0, NULL, 0}
-};
-
-
-static int key_directx_init(void);
-static void key_directx_exit(void);
-static void key_directx_wait_for_input(void);
-static void key_directx_stop_wait(void);
-
-
-static KEYBOARD_DRIVER keyboard_directx =
-{
-   KEYBOARD_DIRECTX,
-   0,
-   0,
-   "DirectInput keyboard",
-   1,
-   key_directx_init,
-   key_directx_exit,
-   NULL, NULL, NULL,
-   key_directx_wait_for_input,
-   key_directx_stop_wait,
-   _pckey_scancode_to_ascii,
-   _pckey_scancode_to_name
-};
-
-/* Map Windows keyboard IDs to Allegro ID strings */
-typedef struct {
-    unsigned int code;
-    char* name;
-} language_map_t;
-
-static language_map_t language_map[] = {
-    { 0x0813, "BE" },
-    { 0x0416, "BR" },
-    { 0x1009, "CF" },
-    { 0x0807, "CH" },
-    { 0x0405, "CZ" },
-    { 0x0407, "DE" },
-    { 0x0406, "DK" },
-    { 0x040a, "ES" },
-    { 0x040b, "FI" },
-    { 0x040c, "FR" },
-    { 0x0410, "IT" },
-    { 0x0414, "NO" },
-    { 0x0415, "PL" },
-    { 0x0416, "PT" },
-    { 0x0816, "PT" },
-    { 0x0419, "RU" },
-    { 0x041d, "SE" },
-    { 0x041b, "SK" },
-    { 0x0424, "SK" },
-    { 0x0809, "UK" },
-    { 0x0409, "US" },
-    { 0, NULL }    
-};
-
 #define DINPUT_BUFFERSIZE 256
 static HANDLE key_input_event = NULL;
 static HANDLE key_input_processed_event = NULL;
 static LPDIRECTINPUT key_dinput = NULL;
 static LPDIRECTINPUTDEVICE key_dinput_device = NULL;
 
+
+/* lookup table for converting DIK_* scancodes into Allegro KEY_* codes */
+/* this table was from pckeys.c  */
+static const unsigned char hw_to_mycode[256] = {
+   /* 0x00 */ 0, KEY_ESC, KEY_1, KEY_2,
+   /* 0x04 */ KEY_3, KEY_4, KEY_5, KEY_6,
+   /* 0x08 */ KEY_7, KEY_8, KEY_9, KEY_0,
+   /* 0x0C */ KEY_MINUS, KEY_EQUALS, KEY_BACKSPACE, KEY_TAB,
+   /* 0x10 */ KEY_Q, KEY_W, KEY_E, KEY_R,
+   /* 0x14 */ KEY_T, KEY_Y, KEY_U, KEY_I,
+   /* 0x18 */ KEY_O, KEY_P, KEY_OPENBRACE, KEY_CLOSEBRACE,
+   /* 0x1C */ KEY_ENTER, KEY_LCONTROL, KEY_A, KEY_S,
+   /* 0x20 */ KEY_D, KEY_F, KEY_G, KEY_H,
+   /* 0x24 */ KEY_J, KEY_K, KEY_L, KEY_SEMICOLON,
+   /* 0x28 */ KEY_QUOTE, KEY_TILDE, KEY_LSHIFT, KEY_BACKSLASH,
+   /* 0x2C */ KEY_Z, KEY_X, KEY_C, KEY_V,
+   /* 0x30 */ KEY_B, KEY_N, KEY_M, KEY_COMMA,
+   /* 0x34 */ KEY_STOP, KEY_SLASH, KEY_RSHIFT, KEY_ASTERISK,
+   /* 0x38 */ KEY_ALT, KEY_SPACE, KEY_CAPSLOCK, KEY_F1,
+   /* 0x3C */ KEY_F2, KEY_F3, KEY_F4, KEY_F5,
+   /* 0x40 */ KEY_F6, KEY_F7, KEY_F8, KEY_F9,
+   /* 0x44 */ KEY_F10, KEY_NUMLOCK, KEY_SCRLOCK, KEY_7_PAD,
+   /* 0x48 */ KEY_8_PAD, KEY_9_PAD, KEY_MINUS_PAD, KEY_4_PAD,
+   /* 0x4C */ KEY_5_PAD, KEY_6_PAD, KEY_PLUS_PAD, KEY_1_PAD,
+   /* 0x50 */ KEY_2_PAD, KEY_3_PAD, KEY_0_PAD, KEY_DEL_PAD,
+   /* 0x54 */ KEY_PRTSCR, 0, KEY_BACKSLASH2, KEY_F11,
+   /* 0x58 */ KEY_F12, 0, 0, KEY_LWIN,
+   /* 0x5C */ KEY_RWIN, KEY_MENU, 0, 0,
+   /* 0x60 */ 0, 0, 0, 0,
+   /* 0x64 */ 0, 0, 0, 0,
+   /* 0x68 */ 0, 0, 0, 0,
+   /* 0x6C */ 0, 0, 0, 0,
+   /* 0x70 */ KEY_KANA, 0, 0, KEY_ABNT_C1,
+   /* 0x74 */ 0, 0, 0, 0,
+   /* 0x78 */ 0, KEY_CONVERT, 0, KEY_NOCONVERT,
+   /* 0x7C */ 0, KEY_YEN, 0, 0,
+   /* 0x80 */ 0, 0, 0, 0,
+   /* 0x84 */ 0, 0, 0, 0,
+   /* 0x88 */ 0, 0, 0, 0,
+   /* 0x8C */ 0, 0, 0, 0,
+   /* 0x90 */ 0, KEY_AT, KEY_COLON2, 0,
+   /* 0x94 */ KEY_KANJI, 0, 0, 0,
+   /* 0x98 */ 0, 0, 0, 0,
+   /* 0x9C */ KEY_ENTER_PAD, KEY_RCONTROL, 0, 0,
+   /* 0xA0 */ 0, 0, 0, 0,
+   /* 0xA4 */ 0, 0, 0, 0,
+   /* 0xA8 */ 0, 0, 0, 0,
+   /* 0xAC */ 0, 0, 0, 0,
+   /* 0xB0 */ 0, 0, 0, 0,
+   /* 0xB4 */ 0, KEY_SLASH_PAD, 0, KEY_PRTSCR,
+   /* 0xB8 */ KEY_ALTGR, 0, 0, 0,
+   /* 0xBC */ 0, 0, 0, 0,
+   /* 0xC0 */ 0, 0, 0, 0,
+   /* 0xC4 */ 0, KEY_PAUSE, 0, KEY_HOME,
+   /* 0xC8 */ KEY_UP, KEY_PGUP, 0, KEY_LEFT,
+   /* 0xCC */ 0, KEY_RIGHT, 0, KEY_END,
+   /* 0xD0 */ KEY_DOWN, KEY_PGDN, KEY_INSERT, KEY_DEL,
+   /* 0xD4 */ 0, 0, 0, 0,
+   /* 0xD8 */ 0, 0, 0, KEY_LWIN,
+   /* 0xDC */ KEY_RWIN, KEY_MENU, 0, 0,
+   /* 0xE0 */ 0, 0, 0, 0,
+   /* 0xE4 */ 0, 0, 0, 0,
+   /* 0xE8 */ 0, 0, 0, 0,
+   /* 0xEC */ 0, 0, 0, 0,
+   /* 0xF0 */ 0, 0, 0, 0,
+   /* 0xF4 */ 0, 0, 0, 0,
+   /* 0xF8 */ 0, 0, 0, 0,
+   /* 0xFC */ 0, 0, 0, 0
+};
+
+/* Used in scancode_to_name. */
+static unsigned char reverse_mapping[256];
 
 
 /* dinput_err_str:
@@ -144,6 +153,150 @@ static char* dinput_err_str(long err)
 
 
 
+/* Update the key_shifts.
+ */
+static void update_shifts(BYTE * keystate)
+{
+   /* TODO: There must be a more efficient way to maintain key_modifiers? */
+   /* Can't we just deprecate key_shifts, now that pckeys.c is gone? EP */
+   unsigned int modifiers = 0;
+
+   if ((keystate[VK_LSHIFT] & 0x80) || (keystate[VK_RSHIFT] & 0x80))
+      modifiers |= KB_SHIFT_FLAG;
+   if ((keystate[VK_LCONTROL] & 0x80) || (keystate[VK_RCONTROL] & 0x80))
+      modifiers |= KB_CTRL_FLAG;
+   if (keystate[VK_LMENU] & 0x80 || keystate[VK_RMENU] & 0x80)
+      modifiers |= KB_ALT_FLAG;
+   if (keystate[VK_SCROLL] & 1)
+      modifiers |= KB_SCROLOCK_FLAG;
+   if (keystate[VK_NUMLOCK] & 1)
+      modifiers |= KB_NUMLOCK_FLAG;
+   if (keystate[VK_CAPITAL] & 1)
+      modifiers |= KB_CAPSLOCK_FLAG;
+
+   _key_shifts = modifiers;
+
+}
+
+
+
+/* handle_key_press: [input thread]
+ *  Does stuff when a key is pressed.
+ */
+static void handle_key_press(unsigned char scancode)
+{
+   int mycode;
+   int unicode;
+   unsigned int modifiers;
+   int n;
+   UINT vkey;
+   BYTE keystate[256];
+   WCHAR chars[16];
+
+   vkey = MapVirtualKey(scancode, 1);
+
+   GetKeyboardState(keystate);
+   update_shifts(keystate);
+
+   /* TODO: shouldn't we base the mapping on vkey? */
+   mycode = hw_to_mycode[scancode];
+   if (mycode == 0)
+      return;
+
+   /* we always want the number characters */
+   keystate[VK_NUMLOCK] |= 1;
+   /* what's life without a few special cases */
+   switch (scancode) {
+      case DIK_NUMPAD0:
+         vkey = VK_NUMPAD0;
+         break;
+      case DIK_NUMPAD1:
+         vkey = VK_NUMPAD1;
+         break;
+      case DIK_NUMPAD2:
+         vkey = VK_NUMPAD2;
+         break;
+      case DIK_NUMPAD3:
+         vkey = VK_NUMPAD3;
+         break;
+      case DIK_NUMPAD4:
+         vkey = VK_NUMPAD4;
+         break;
+      case DIK_NUMPAD5:
+         vkey = VK_NUMPAD5;
+         break;
+      case DIK_NUMPAD6:
+         vkey = VK_NUMPAD6;
+         break;
+      case DIK_NUMPAD7:
+         vkey = VK_NUMPAD7;
+         break;
+      case DIK_NUMPAD8:
+         vkey = VK_NUMPAD8;
+         break;
+      case DIK_NUMPAD9:
+         vkey = VK_NUMPAD9;
+         break;
+      case DIK_DECIMAL:
+         vkey = VK_DECIMAL;
+         break;
+      case DIK_DIVIDE:
+         vkey = VK_DIVIDE;
+         break;
+      case DIK_MULTIPLY:
+         vkey = VK_MULTIPLY;
+         break;
+      case DIK_SUBTRACT:
+         vkey = VK_SUBTRACT;
+         break;
+      case DIK_ADD:
+         vkey = VK_ADD;
+         break;
+      case DIK_NUMPADENTER:
+         vkey = VK_RETURN;
+   }
+
+   /* Nice, seems Windows has a function to just get the unicode character. */
+   n = ToUnicode(vkey, scancode, keystate, chars, sizeof chars, 0);
+   if (n == 1)
+   {
+      unicode = chars[0];
+   }
+   else
+   {
+      /* Don't generate key presses for modifier keys. */
+      if (mycode >= KEY_MODIFIERS)
+         unicode = -1;
+      else
+         unicode = 0;
+   }
+
+   _handle_key_press(unicode, mycode);
+}
+
+
+
+/* handle_key_release: [input thread]
+ *  Does stuff when a key is released.  The keyboard event source
+ *  should be locked.
+ */
+static void handle_key_release(unsigned char scancode)
+{
+   int mycode = hw_to_mycode[scancode];
+   if (mycode == 0)
+      return;
+
+   {
+      BYTE keystate[256];
+      GetKeyboardState(keystate);
+      update_shifts(keystate);
+   }
+
+   _handle_key_release(mycode);
+}
+
+
+
 /* key_dinput_handle_scancode: [input thread]
  *  Handles a single scancode.
  */
@@ -162,6 +315,16 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
       return;
    }
 
+   /* Special case KEY_PAUSE as flip-flop key. */
+   if (scancode == DIK_PAUSE) {
+      if (!pressed)
+         return;
+      if (key[KEY_PAUSE])
+         pressed = 0;
+      else
+         pressed = 1;
+   }
+
    /* if not foreground, filter out press codes and handle only release codes */
    if (!wnd_sysmenu || !pressed) {
 
@@ -170,44 +333,13 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
           && ((_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
           && three_finger_flag) {
          _TRACE("Terminating application\n");
-         ExitProcess(0);  /* unsafe */
+         abort();
       }
 
-      /* emulate PAUSE scancode sequence */
-      if (scancode == DIK_PAUSE) {
-	 int i;
-
-	 /* DirectInput appears to get DIK_PAUSED events when the app
-	  * loses focus, with pressed = false.  Don't pass these fake
-	  * events on, or they will end up in the readkey() buffer
-	  * when the app regains focus.  I didn't find any reference
-	  * to any such behaviour on the net, though... --pw
-	  */
-	 if (!_key[KEY_PAUSE] && !pressed) /* hacky */
-	    return;
-
-	 _handle_pckey(0xE1);
-	 for (i=0; i < 5; i++)
-	    _handle_pckey(0);
-
-         return;
-      }
-
-      /* dirty hack to let Allegro for Windows use the DOS/Linux way of handling CapsLock */
-      /* Disabled - it doesn't seem to be nescessary anymore (?) */
-      /*
-      if (((scancode == DIK_CAPITAL) || (scancode == DIK_LSHIFT) || (scancode == DIK_RSHIFT))
-          && pressed
-          && (_key_shifts & KB_CAPSLOCK_FLAG)) {
-         keybd_event(VK_CAPITAL, 0, 0, 0);
-         keybd_event(VK_CAPITAL, 0, KEYEVENTF_KEYUP, 0);
-      }
-      */
-
-      if (scancode & 0x80)
-	 _handle_pckey(0xE0);
-
-      _handle_pckey((scancode & 0x7F) | (pressed ? 0 : 0x80));
+      if (pressed)
+         handle_key_press(scancode);
+      else
+         handle_key_release(scancode);
    }
 }
 
@@ -283,7 +415,7 @@ int key_dinput_acquire(void)
          state |= KB_CAPSLOCK_FLAG;
 
       _key_shifts = (_key_shifts & ~mask) | (state & mask);
- 
+
       hr = IDirectInputDevice_Acquire(key_dinput_device);
 
       if (FAILED(hr)) {
@@ -314,7 +446,7 @@ int key_dinput_unacquire(void)
 
       /* release all keys */
       for (key=0; key<256; key++)
-         if ((key != 0x61) && (key != 0xE1))  /* PAUSE */
+         if (key != KEY_PAUSE)
             key_dinput_handle_scancode((unsigned char) key, FALSE);
 
       return 0;
@@ -359,6 +491,24 @@ static int key_dinput_exit(void)
 
 
 
+/* get_reverse_mapping:
+ *  Helper to build the reverse mapping table.
+ */
+static void get_reverse_mapping(void)
+{
+   int i, j;
+   for (i = 0; i < 256; i++) {
+      for (j = 0; j < 256; j++) {
+         if (hw_to_mycode[j] == i) {
+            reverse_mapping[i] = j;
+            break;
+         }
+      }
+   }
+}
+
+
+
 /* key_dinput_init: [primary thread]
  *  Sets up the DirectInput keyboard device.
  */
@@ -369,10 +519,10 @@ static int key_dinput_init(void)
    {
       /* the header */
       {
-	  sizeof(DIPROPDWORD),   // diph.dwSize
-	  sizeof(DIPROPHEADER),  // diph.dwHeaderSize
-	  0,                     // diph.dwObj
-	  DIPH_DEVICE,           // diph.dwHow
+         sizeof(DIPROPDWORD),  // diph.dwSize
+         sizeof(DIPROPHEADER), // diph.dwHeaderSize
+         0,                     // diph.dwObj
+         DIPH_DEVICE,           // diph.dwHow
       },
 
       /* the data */
@@ -414,6 +564,8 @@ static int key_dinput_init(void)
    if (input_register_event(key_input_event, key_dinput_handle) != 0)
       goto Error;
 
+   get_reverse_mapping();
+
    /* Acquire the device */
    wnd_call_proc(key_dinput_acquire);
 
@@ -430,28 +582,6 @@ static int key_dinput_init(void)
  */
 static int key_directx_init(void)
 {
-   char buffer[KL_NAMELENGTH+1];
-   unsigned int lang_id;
-   int i;
-   
-   /* Detect default keyboard layout */
-   if (GetKeyboardLayoutName(buffer)) {
-      lang_id = strtol(buffer, NULL, 16);
-      lang_id &= 0xffff;
-      for (i=0; language_map[i].code; i++) {
-         if (language_map[i].code == lang_id) {
-            _keyboard_layout = language_map[i].name;
-            break;
-         }
-      }
-   }
-   
-   /* Because DirectInput uses the same scancodes as the pc keyboard
-    * controller, the DirectX keyboard driver passes them into the
-    * pckeys translation routines.
-    */
-   _pckeys_init();
-
    /* keyboard input is handled by the window thread */
    key_input_processed_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
@@ -502,3 +632,52 @@ static void key_directx_stop_wait(void)
    SetEvent(key_input_processed_event);
 }
 
+
+
+/* scancode_to_name:
+ *  Converts the given scancode to a description of the key.
+ */
+static AL_CONST char *key_directx_scancode_to_name(int scancode)
+{
+   static char name[256];
+   TCHAR str[256];
+   WCHAR wstr[256];
+   ASSERT (scancode >= 0 && scancode < KEY_MAX);
+   if (GetKeyNameText(reverse_mapping[scancode] << 16, str, sizeof str))
+   {
+      /* let Windows translate from the current encoding into UTF16 */
+      MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, wstr, sizeof wstr);
+      /* translate from utf16 to Allegro's current encoding */
+      uconvert((char *)wstr, U_UNICODE, name, U_CURRENT, sizeof name);
+      /* why oh why doesn't everybody just use UTF8/16 */
+      return name;
+   }
+   else
+      return _keyboard_common_names[scancode];
+}
+
+
+
+static KEYBOARD_DRIVER keyboard_directx =
+{
+   KEYBOARD_DIRECTX,
+   0,
+   0,
+   "DirectInput keyboard",
+   1,
+   key_directx_init,
+   key_directx_exit,
+   NULL, NULL, NULL,
+   key_directx_wait_for_input,
+   key_directx_stop_wait,
+   NULL,
+   key_directx_scancode_to_name
+};
+
+
+
+_DRIVER_INFO _keyboard_driver_list[] =
+{
+   {KEYBOARD_DIRECTX, &keyboard_directx, TRUE},
+   {0, NULL, 0}
+};
