@@ -6,11 +6,8 @@
  */
 
 
-
 #include "allegro.h"
 
-/* works lik strcmp, but ignores case */
-int strcmp_no_case(const char *lhs, const char *rhs);
 
 int main(void)
 {
@@ -65,7 +62,7 @@ int main(void)
     * So we need to read a string and see what it contains.
     * If the entry is not found, we use "FALSE" by default
     */
-   if (strcmp_no_case(get_config_string("graphics", "windowed", "FALSE"), "FALSE") == 0) 
+   if (ustricmp(get_config_string("graphics", "windowed", "FALSE"), "FALSE") == 0) 
       windowed = GFX_AUTODETECT_FULLSCREEN;
    else
       windowed = GFX_AUTODETECT_WINDOWED;
@@ -102,7 +99,7 @@ int main(void)
    /* and it's tiling mode */
    display = get_config_int("content", "display", 0);
    if (display <0 || display > 2) {
-      allegro_message("content.display must be within 0..2");
+      allegro_message("content.display must be within 0..2\n");
       display = 0; 
    } 
 
@@ -143,7 +140,7 @@ int main(void)
       }
    }
    else {
-      allegro_message("%s not found", filename); 
+      allegro_message("%s not found\n", filename); 
    }
 
    text_mode(-1);
@@ -157,27 +154,3 @@ int main(void)
    return 0;
 }
 END_OF_MAIN()
-
-/* works lik strcmp, but ignores case */
-int strcmp_no_case(const char *lhs, const char *rhs)
-{
-    char v;
-
-    while (*lhs && *rhs) {
-
-        v = utolower(*lhs) - utolower(*rhs);
-        if (v) 
-           return v;
-
-        ++lhs;
-        ++rhs;
-    }
-
-    if (*lhs) 
-       return 1;
-
-    if (*rhs) 
-        return -1;
-
-    return 0;
-}
