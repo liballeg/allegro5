@@ -121,6 +121,7 @@ void stop_audio_stream(AUDIOSTREAM *stream)
 void *get_audio_stream_buffer(AUDIOSTREAM *stream)
 {
    int pos;
+   char *data = NULL;
 
    if (stream->bufnum == stream->active * stream->bufcount) {
       /* waiting for the sample to switch halves */
@@ -143,7 +144,10 @@ void *get_audio_stream_buffer(AUDIOSTREAM *stream)
       pos = (1-stream->active) * stream->bufcount * stream->len;
 
       if (digi_driver->lock_voice)
-	 stream->locked = digi_driver->lock_voice(stream->voice, pos, pos+stream->bufcount*stream->len);
+	 data = digi_driver->lock_voice(stream->voice, pos, pos+stream->bufcount*stream->len);
+
+      if (data) 
+	 stream->locked = data;
       else
 	 stream->locked = (char *)stream->samp->data + (pos * ((stream->samp->bits==8) ? 1 : sizeof(short)) * ((stream->samp->stereo) ? 2 : 1));
    }
