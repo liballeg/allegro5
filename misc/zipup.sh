@@ -193,6 +193,10 @@ utod CHANGES AUTHORS THANKS
 rm _tmpdoc.c _makedoc.exe
 
 
+# create language.dat and keyboard.dat files
+misc/mkdata.sh
+
+
 # convert files to djgpp format for distribution
 run_batch_file fixdjgpp.bat
 
