@@ -7508,6 +7508,11 @@ the preprocessor symbol USE_CONSOLE before #include &ltallegro.h&gt; it will
 instruct the library to use console features and also to disable the special
 processing of the main() function described above.
 
+When creating the main window, Allegro searches the executable for an ICON 
+resource named "allegro_icon". If it is present, Allegro automatically 
+loads it and uses it as its application icon. Otherwise, Allegro uses the 
+default IDI_APPLICATION icon.
+
 DirectX requires bitmaps to be locked before you can draw onto them. This 
 will be done automatically, but you can usually get much better performance 
 by doing it yourself: see the acquire_bitmap() function for details.

@@ -356,7 +356,9 @@ static HWND create_directx_window(void)
    wnd_class.cbClsExtra = 0;
    wnd_class.cbWndExtra = 0;
    wnd_class.hInstance = allegro_inst;
-   wnd_class.hIcon = LoadIcon(allegro_inst, IDI_APPLICATION);
+   wnd_class.hIcon = LoadIcon(allegro_inst, "allegro_icon");
+   if (!wnd_class.hIcon)
+      wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
    wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
    wnd_class.hbrBackground = CreateSolidBrush(0);
    wnd_class.lpszMenuName = NULL;
