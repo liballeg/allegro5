@@ -27,9 +27,6 @@ int main(void)
       }
    }
 
-   install_mouse();
-   show_mouse(screen);
-
    /* first set the palette to black to hide what we are doing */
    set_palette(black_palette);
 
@@ -40,6 +37,9 @@ int main(void)
       circlefill(screen, SCREEN_W/2, SCREEN_H/2, c, c);
 
    release_screen();
+
+   install_mouse();
+   show_mouse(screen);
 
    /* fill our palette with a gradually altering sequence of colors */
    for (c=0; c<64; c++) {
