@@ -8619,7 +8619,7 @@ sample structure:
 Music routines (MIDI)
 
 @@MIDI *@load_midi(const char *filename);
-@xref destroy_midi, play_midi
+@xref destroy_midi, play_midi, get_midi_length
 @eref exdodgy, exmidi
 @shortdesc Loads a MIDI file.
    Loads a MIDI file (handles both format 0 and format 1), returning a 
@@ -8642,7 +8642,7 @@ Music routines (MIDI)
 
 @@int @play_midi(MIDI *midi, int loop);
 @xref install_sound, load_midi, play_looped_midi, stop_midi, midi_pause
-@xref midi_seek, midi_pos, midi_msg_callback
+@xref midi_seek, midi_pos, midi_time, midi_msg_callback
 @eref exdodgy, exmidi
 @shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
@@ -8691,6 +8691,27 @@ Music routines (MIDI)
    determine the length of a MIDI file). A return value of 2 means the MIDI
    file looped back to the start.
 
+@@int @get_midi_length(MIDI *midi);
+@xref load_midi, midi_time, midi_pos
+@shortdesc Determines the total playing time of a midi, in seconds.
+   This function will simulate playing the given MIDI, from start to end, to
+   determine how long it takes to play. After calling this function, midi_pos
+   will contain the negative number of beats, and midi_time the length of the
+   midi, in seconds. This length also is returned.
+
+   Note that any currently playing midi is stopped when you call this function.
+   Usually you would call it before play_midi, to get the length of the midi to
+   be played, like in this example:
+   <codeblock>
+      length = get_midi_length(my_midi);
+      play_midi(my_midi);
+      do {
+         pos = midi_time;
+         textprintf_ex(screen, font, 0, 0, c, -1, "%d:%02d / %d:%02d\n",
+            pos / 60, pos % 60, length / 60, length % 60);
+         rest(100);
+      } while(pos &lt;= length);<endblock>
+
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
 @shortdesc Streams a block of MIDI commands into the player.
@@ -8714,6 +8735,13 @@ Music routines (MIDI)
    a negative number if no music is currently playing. Useful for 
    synchronising animations with the music, and for checking whether a MIDI 
    file has finished playing.
+
+@@extern volatile long @midi_time;
+@xref play_midi, midi_pos, get_midi_length
+@shortdesc The current position in the MIDI file, in seconds.
+   Contains the position in seconds in the currently playing midi. This is
+   useful if you want to display the current song position in seconds, not as
+   beat number.
 
 @@extern long @midi_loop_start;
 @@extern long @midi_loop_end;

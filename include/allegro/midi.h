@@ -106,7 +106,8 @@ AL_VAR(int, midi_card);
 
 AL_VAR(int, midi_input_card);
 
-AL_VAR(volatile long, midi_pos);       /* current position in the midi file */
+AL_VAR(volatile long, midi_pos);       /* current position in the midi file, in beats */
+AL_VAR(volatile long, midi_time);      /* current position in the midi file, in seconds */
 
 AL_VAR(long, midi_loop_start);         /* where to loop back to at EOF */
 AL_VAR(long, midi_loop_end);           /* loop when we hit this position */
@@ -121,6 +122,7 @@ AL_FUNC(void, stop_midi, (void));
 AL_FUNC(void, midi_pause, (void));
 AL_FUNC(void, midi_resume, (void));
 AL_FUNC(int, midi_seek, (int target));
+AL_FUNC(int, get_midi_length, (MIDI *midi));
 AL_FUNC(void, midi_out, (unsigned char *data, int length));
 AL_FUNC(int, load_midi_patches, (void));
 
