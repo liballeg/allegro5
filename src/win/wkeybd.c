@@ -50,7 +50,7 @@ KEYBOARD_DRIVER keyboard_directx =
    KEYBOARD_DIRECTX,
    0,
    0,
-   "DirectInput",
+   "DirectInput keyboard",
    1,
    key_directx_init,
    key_directx_exit,

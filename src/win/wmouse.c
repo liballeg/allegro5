@@ -119,7 +119,7 @@ static int mymickey_oy = 0;
 
 
 /* dinput_err_str:
- *  returns a DirectInput error string
+ *  Returns a DirectInput error string.
  */
 #ifdef DEBUGMODE
 static char* dinput_err_str(long err)
@@ -276,7 +276,7 @@ int mouse_set_sysmenu(int state)
 
 
 /* mouse_dinput_exit:
- *  releases DirectInput mouse device
+ *  Shuts down the DirectInput mouse device.
  */
 static void mouse_dinput_exit(void)
 {
@@ -304,7 +304,7 @@ static void mouse_dinput_exit(void)
 
 
 /* mouse_enum_callback:
- *  helper to find out how many buttons we have
+ *  Helper function for finding out how many buttons we have.
  */
 static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
@@ -319,7 +319,7 @@ static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOI
 
 
 /* mouse_dinput_init:
- *  setup DirectInput mouse device
+ *  Sets up the DirectInput mouse device.
  */
 static int mouse_dinput_init(void)
 {
@@ -391,7 +391,7 @@ static int mouse_dinput_init(void)
 
 
 /* mouse_directx_poll:
- *  handles queued mouse input
+ *  Handles queued mouse input.
  */
 static void mouse_directx_poll(void)
 {
@@ -567,7 +567,7 @@ static void mouse_directx_poll(void)
 
 
 /* mouse_directx_thread:
- *  thread loop function
+ *  Mouse thread loop function.
  */
 static void mouse_directx_thread(HANDLE setup_event)
 {

@@ -213,7 +213,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_CREATE:
          if (!user_wnd_proc)
             allegro_wnd = wnd;
-	 break;
+         break;
 
       case WM_DESTROY:
          if (user_wnd_proc) {
@@ -230,23 +230,28 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_ACTIVATE:
-	 if (LOWORD(wparam) == WA_INACTIVE)
-	    sys_switch_out();
-	 else if (!HIWORD(wparam)) {
-	    if (gfx_driver && !gfx_driver->windowed)
-	       SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);  /* 1.2s delay */
-	    else
-	       PostMessage(allegro_wnd, msg_call_proc, (DWORD)sys_switch_in, 0);
-	 }
-	 break;
+         if (LOWORD(wparam) == WA_INACTIVE) {
+            sys_switch_out();
+         }
+         else if (!HIWORD(wparam)) {
+            if (gfx_driver && !gfx_driver->windowed) {
+               /* 1.2s delay to let Windows complete the switch in fullscreen mode */
+               SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);
+            }
+            else {
+               /* no delay in windowed mode */
+               PostMessage(allegro_wnd, msg_call_proc, (DWORD)sys_switch_in, 0);
+            }
+         }
+         break;
 
       case WM_TIMER:
-	 if (wparam == SWITCH_TIMER) {
-	    KillTimer(allegro_wnd, SWITCH_TIMER);
-	    sys_switch_in();
-	    return 0;
-	 }
-	 break;
+         if (wparam == SWITCH_TIMER) {
+            KillTimer(allegro_wnd, SWITCH_TIMER);
+            sys_switch_in();
+            return 0;
+         }
+         break;
 
       case WM_ENTERSIZEMOVE:
          if (win_gfx_driver && win_gfx_driver->enter_sysmode)
@@ -259,23 +264,24 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_MOVE:
-	 if (GetActiveWindow() == allegro_wnd) {
-	    if (!IsIconic(allegro_wnd)) {
-	       wnd_x = (short) LOWORD(lparam);
-	       wnd_y = (short) HIWORD(lparam);
+         if (GetActiveWindow() == allegro_wnd) {
+            if (!IsIconic(allegro_wnd)) {
+               wnd_x = (short) LOWORD(lparam);
+               wnd_y = (short) HIWORD(lparam);
 
                if (win_gfx_driver && win_gfx_driver->move)
                   win_gfx_driver->move(wnd_x, wnd_y, wnd_width, wnd_height);
-	    }
-	    else if (win_gfx_driver && win_gfx_driver->iconify)
+            }
+            else if (win_gfx_driver && win_gfx_driver->iconify) {
                win_gfx_driver->iconify();
-	 }
-	 break;
+            }
+         }
+         break;
 
       case WM_SIZE:
-	 wnd_width = LOWORD(lparam);
-	 wnd_height = HIWORD(lparam);
-	 break;
+         wnd_width = LOWORD(lparam);
+         wnd_height = HIWORD(lparam);
+         break;
 
       case WM_PAINT:
          if (win_gfx_driver && win_gfx_driver->paint) {
@@ -284,7 +290,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             EndPaint(wnd, &ps);
             return 0;
          }
-	 break;
+         break;
 
       case WM_KEYDOWN:
       case WM_KEYUP:
@@ -306,22 +312,22 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_INITMENUPOPUP:
-	 wnd_sysmenu = TRUE;
-	 mouse_set_sysmenu(TRUE);
+         wnd_sysmenu = TRUE;
+         mouse_set_sysmenu(TRUE);
 
          if (win_gfx_driver && win_gfx_driver->enter_sysmode)
             win_gfx_driver->enter_sysmode();
-	 break;
+         break;
 
       case WM_MENUSELECT:
-	 if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
-	    wnd_sysmenu = FALSE;
-	    mouse_set_sysmenu(FALSE);
+         if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
+            wnd_sysmenu = FALSE;
+            mouse_set_sysmenu(FALSE);
 
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
-	 }
-	 break;
+         }
+         break;
 
       case WM_CLOSE:
          if (!user_wnd_proc) {
