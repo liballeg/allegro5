@@ -61,7 +61,7 @@
    DOS/djgpp         - see docs/build/djgpp.txt
    DOS/Watcom        - see docs/build/watcom.txt
    Windows/MSVC      - see docs/build/msvc.txt
-   Windows/MinGW32   - see docs/build/mingw32.txt
+   Windows/MinGW     - see docs/build/mingw32.txt
    Windows/Cygwin    - see docs/build/mingw32.txt
    Windows/Borland   - see docs/build/bcc32.txt
    Linux (console)   - see docs/build/linux.txt

@@ -222,7 +222,7 @@ This is used to include one of the files aldos.h, alwin.h, etc, which define
 platform-specific things like ID values for the hardware drivers. Unlike the 
 platform files included from the top of allegro.h, these are specific per-OS 
 rather than per-compiler, so the same alwin.h can be used by both MSVC and 
-MinGW32. They describe library functions that relate to this platform, while 
+MinGW. They describe library functions that relate to this platform, while 
 the earlier header described the basic language syntax.
 
 aintern.h is like the internal.h in earlier Allegro versions, defining 

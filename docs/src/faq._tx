@@ -261,7 +261,7 @@ Windows problems
 </h4>
       Make sure that you don't have a semi-colon appended to your MSVCDIR 
       variable if you are using MSVC, to your MINGDIR variable if you are 
-      using Mingw32 or to your BCC32DIR variable if you are using BCC.
+      using MinGW or to your BCC32DIR variable if you are using BCC.
 
 <h4><li>
 @@   I get lots of compile errors about things like "LPDIRECTDRAWSURFACE2"!
@@ -310,7 +310,7 @@ Windows problems
       If your program directly includes Win32 API header files, see the
       "Windows specifics" section of the documentation. If your program only
       includes header files of the C++ standard library, you're very likely
-      trying to compile it with gcc 3.x for Mingw32; if so, define the
+      trying to compile it with gcc 3.x for MinGW; if so, define the
       symbol __GTHREAD_HIDE_WIN32API on the compiler command line:
          g++ -D__GTHREAD_HIDE_WIN32API program.cpp -lalleg
 
