@@ -105,6 +105,9 @@ Changes between 4.0.x and 4.2.x series
    consequence, gui_ctext_proc is now expected to behave the same.
 <li>
    dialog_message() now passes user messages to hidden objects.
+<li>
+   set_volume() doesn't use the hardware mixer anymore to alter the global
+   volume. Use set_hardware_volume() instead to get the old behaviour.
 </ul>
 
 @heading
