@@ -228,7 +228,7 @@ AL_INLINE(int, set_window_close_button, (int enable),
 })
 
 
-AL_INLINE(void, set_window_close_hook, (void (*proc)()),
+AL_INLINE(void, set_window_close_hook, (void (*proc)(void)),
 {
    ASSERT(system_driver);
 
