@@ -3068,14 +3068,16 @@ typedef struct RGB
    unsigned char r, g, b;
 } RGB;
 </pre>
-For example:
+It contains an additional field for the purpose of padding but you should
+not usually care about it. For example:
 <pre>
    RGB black = { 0,  0,  0  };
    RGB white = { 63, 63, 63 };
    RGB green = { 0,  63, 0  };
    RGB grey  = { 32, 32, 32 };
 </pre>
-The type PALETTE is defined to be an array of 256 RGB structures.
+The type PALETTE is defined to be an array of PAL_SIZE RGB structures, where
+PAL_SIZE is a preprocessor constant greater or equal to 256.
 
 You may notice that a lot of the code in Allegro spells 'palette' as 
 'pallete'. This is because the headers from my old Mark Williams compiler on 
