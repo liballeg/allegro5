@@ -1111,7 +1111,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzcpy(char *dest, int size, const char *src);
 @xref uconvert, ustrcpy, ustrzncpy
-@eref exgui
+@eref ex3buf, exgui
    This function copies `src' (including the terminating NULL character into
    `dest', whose length in bytes is specified by `size' and which is
    guaranteed to be null-terminated even if `src' is bigger than `size'.
@@ -1135,7 +1135,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzcat(char *dest, int size, const char *src);
 @xref uconvert, ustrcat, ustrzncat
-@eref exgui
+@eref ex3buf, exgui
    This function concatenates `src' to the end of `dest', whose length in
    bytes is specified by `size' and which is guaranteed to be null-terminated
    even when `src' is bigger than `size'.
@@ -2382,7 +2382,7 @@ Allegro does not provide such devices.)
 
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
-@eref extimer, exupdate
+@eref excamera, extimer, exupdate
    Adds a function to the list of user timer handlers or, if it is already 
    installed, retroactively adjusts its speed (i.e makes as though the speed
    change occured precisely at the last tick). The speed is given in hardware
@@ -8661,7 +8661,7 @@ ensure there is room for the check.
 
 @@int @alert(const char *s1, *s2, *s3, const char *b1, *b2, int c1, c2);
 @xref alert3, gui_fg_color
-@eref ex3buf, exgui, exspline
+@eref exgui, exspline
    Displays a popup alert box, containing three lines of text (s1-s3), and 
    with either one or two buttons. The text for these buttons is passed in 
    b1 and b2 (b2 may be NULL), and the keyboard shortcuts in c1 and c2. 
@@ -10568,27 +10568,28 @@ and avoid missing any important bit of information.
 @# for the gory details. The basic idea is: don't touch these comment lines!
 @# start genexamp.py chunk
 @@Example @exhello
-@xref END_OF_MAIN, acquire_screen, allegro_error, allegro_init
-@xref allegro_message, clear_to_color, desktop_palette, font
-@xref install_keyboard, makecol, readkey, release_screen, screen
+@xref END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen, allegro_error
+@xref allegro_init, allegro_message, clear_to_color, desktop_palette
+@xref font, install_keyboard, makecol, readkey, release_screen, screen
 @xref set_gfx_mode, set_palette
    This is a very simple program showing how to get into graphics
    mode and draw text onto the screen.
 
 @@Example @exmem
-@xref BITMAP, END_OF_MAIN, acquire_screen, allegro_error, allegro_init
-@xref allegro_message, circle, clear_bitmap, create_bitmap
-@xref desktop_palette, destroy_bitmap, install_keyboard, palette_color
-@xref readkey, release_screen, screen, set_gfx_mode, set_palette
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, circle, clear_bitmap
+@xref create_bitmap, desktop_palette, destroy_bitmap, install_keyboard
+@xref palette_color, readkey, release_screen, screen, set_gfx_mode
+@xref set_palette
    This program demonstrates the use of memory bitmaps. It creates
    a small temporary bitmap in memory, draws some circles onto it,
    and then blits lots of copies of it onto the screen.
 
 @@Example @expal
-@xref END_OF_MAIN, PALETTE, RGB, acquire_screen, allegro_error
-@xref allegro_init, allegro_message, black_palette, circlefill
-@xref install_keyboard, keypressed, release_screen, screen, set_gfx_mode
-@xref set_palette
+@xref END_OF_MAIN, PALETTE, RGB, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, black_palette
+@xref circlefill, install_keyboard, keypressed, release_screen, screen
+@xref set_gfx_mode, set_palette
    This program demonstrates how to manipulate the palette. It draws
    a set of concentric circles onto the screen and animates them by
    cycling the palette.
@@ -10603,29 +10604,31 @@ and avoid missing any important bit of information.
    This program demonstrates the use of patterned drawing and sub-bitmaps.
 
 @@Example @exflame
-@xref END_OF_MAIN, PALETTE, acquire_screen, allegro_error, allegro_init
-@xref allegro_message, clear_keybuf, font, getpixel, install_keyboard
-@xref keypressed, line, makecol, putpixel, release_screen, screen
-@xref set_gfx_mode, set_palette
+@xref END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, clear_keybuf, font
+@xref getpixel, install_keyboard, keypressed, line, makecol, putpixel
+@xref release_screen, screen, set_gfx_mode, set_palette
    This program demonstrates how to write directly to video memory.
    It implements a simple fire effect, first by calling getpixel() and
    putpixel(), then by accessing video memory directly a byte at a
    time, and finally using block memory copy operations.
 
 @@Example @exdbuf
-@xref BITMAP, END_OF_MAIN, acquire_screen, allegro_error, allegro_init
-@xref allegro_message, circlefill, clear_to_color, create_bitmap
-@xref desktop_palette, destroy_bitmap, font, install_timer, makecol
-@xref release_screen, retrace_count, screen, set_gfx_mode, set_palette
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, circlefill
+@xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
+@xref font, install_timer, makecol, release_screen, retrace_count, screen
+@xref set_gfx_mode, set_palette
    This program demonstrates the use of double buffering.
    It moves a circle across the screen, first just erasing and
    redrawing directly to the screen, then with a double buffer.
 
 @@Example @exflip
-@xref BITMAP, END_OF_MAIN, allegro_error, allegro_init, allegro_message
-@xref circlefill, clear_to_color, create_bitmap, create_video_bitmap
-@xref desktop_palette, destroy_bitmap, font, install_timer, makecol
-@xref retrace_count, screen, set_gfx_mode, set_palette, show_video_bitmap
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, circlefill, clear_to_color
+@xref create_bitmap, create_video_bitmap, desktop_palette, destroy_bitmap
+@xref font, install_timer, makecol, retrace_count, screen, set_gfx_mode
+@xref set_palette, show_video_bitmap
    This program moves a circle across the screen, first with a
    double buffer and then using page flips.
 
@@ -10635,18 +10638,19 @@ and avoid missing any important bit of information.
    This program demonstrates how to use fixed point numbers.
 
 @@Example @exmouse
-@xref BITMAP, END_OF_MAIN, acquire_screen, allegro_error, allegro_init
-@xref allegro_message, bitmap_mask_color, circle, clear_keybuf
-@xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
-@xref font, get_mouse_mickeys, install_keyboard, install_mouse
-@xref install_timer, key, keypressed, makecol, mouse_b, mouse_x, mouse_y
-@xref mouse_z, palette_color, poll_mouse, readkey, release_screen, screen
-@xref set_gfx_mode, set_mouse_sprite, set_mouse_sprite_focus, set_palette
-@xref show_mouse, vsync
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, bitmap_mask_color
+@xref circle, clear_keybuf, clear_to_color, create_bitmap
+@xref desktop_palette, destroy_bitmap, font, get_mouse_mickeys
+@xref install_keyboard, install_mouse, install_timer, key, keypressed
+@xref makecol, mouse_b, mouse_x, mouse_y, mouse_z, palette_color
+@xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
+@xref set_mouse_sprite, set_mouse_sprite_focus, set_palette, show_mouse
+@xref vsync
    This program demonstrates how to get mouse input.
 
 @@Example @extimer
-@xref END_OF_MAIN, allegro_error, allegro_init, allegro_message
+@xref END_OF_MAIN, SCREEN_W, allegro_error, allegro_init, allegro_message
 @xref clear_to_color, desktop_palette, font, install_int, install_int_ex
 @xref install_keyboard, install_timer, key, keypressed, makecol, readkey
 @xref rest, screen, set_gfx_mode, set_palette
@@ -10655,38 +10659,39 @@ and avoid missing any important bit of information.
    all the memory that is used inside your interrupt handlers.
 
 @@Example @exkeys
-@xref END_OF_MAIN, acquire_screen, allegro_error, allegro_init
-@xref allegro_message, clear_keybuf, clear_to_color, desktop_palette
-@xref font, install_keyboard, key, key_shifts, makecol, readkey, rectfill
-@xref release_screen, screen, set_gfx_mode, set_palette, ureadkey
-@xref usprintf
+@xref END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen, allegro_error
+@xref allegro_init, allegro_message, clear_keybuf, clear_to_color
+@xref desktop_palette, font, install_keyboard, key, key_shifts, makecol
+@xref readkey, rectfill, release_screen, screen, set_gfx_mode
+@xref set_palette, ureadkey, usprintf
    This program demonstrates how to access the keyboard.
 
 @@Example @exjoy
-@xref BITMAP, END_OF_MAIN, allegro_error, allegro_init, allegro_message
-@xref calibrate_joystick, calibrate_joystick_name, circle, clear_bitmap
-@xref clear_keybuf, create_bitmap, default_palette, destroy_bitmap
-@xref drawing_mode, font, install_joystick, install_keyboard, joy, key
-@xref keypressed, num_joysticks, palette_color, poll_joystick, putpixel
-@xref readkey, screen, set_gfx_mode, set_palette
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, calibrate_joystick
+@xref calibrate_joystick_name, circle, clear_bitmap, clear_keybuf
+@xref create_bitmap, default_palette, destroy_bitmap, drawing_mode, font
+@xref install_joystick, install_keyboard, joy, key, keypressed
+@xref num_joysticks, palette_color, poll_joystick, putpixel, readkey
+@xref screen, set_gfx_mode, set_palette
    This program uses the Allegro library to detect and read the value
    of a joystick. The output of the program is a small target sight
    on the screen which you can move. At the same time the program will
    tell you what you are doing with the joystick (moving or firing).
 
 @@Example @exsample
-@xref END_OF_MAIN, SAMPLE, adjust_sample, allegro_error, allegro_init
-@xref allegro_message, clear_to_color, desktop_palette, destroy_sample
-@xref font, install_keyboard, install_sound, install_timer, key
-@xref load_sample, makecol, play_sample, poll_keyboard, rest, screen
-@xref set_gfx_mode, set_palette
+@xref END_OF_MAIN, SAMPLE, SCREEN_H, SCREEN_W, adjust_sample
+@xref allegro_error, allegro_init, allegro_message, clear_to_color
+@xref desktop_palette, destroy_sample, font, install_keyboard
+@xref install_sound, install_timer, key, load_sample, makecol
+@xref play_sample, poll_keyboard, rest, screen, set_gfx_mode, set_palette
    This program demonstrates how to play samples.
 
 @@Example @exmidi
-@xref END_OF_MAIN, MIDI, allegro_error, allegro_init, allegro_message
-@xref clear_to_color, desktop_palette, destroy_midi, font
-@xref install_keyboard, install_sound, install_timer, load_midi, makecol
-@xref play_midi, readkey, screen, set_gfx_mode, set_palette
+@xref END_OF_MAIN, MIDI, SCREEN_H, SCREEN_W, allegro_error, allegro_init
+@xref allegro_message, clear_to_color, desktop_palette, destroy_midi
+@xref font, install_keyboard, install_sound, install_timer, load_midi
+@xref makecol, play_midi, readkey, screen, set_gfx_mode, set_palette
    This program demonstrates how to play MIDI files.
 
 @@Example @exgui
@@ -10715,34 +10720,36 @@ and avoid missing any important bit of information.
    This program demonstrates how to write your own GUI objects.
 
 @@Example @exunicod
-@xref BITMAP, DATAFILE, END_OF_MAIN, FONT, allegro_error, allegro_init
-@xref allegro_message, clear_to_color, create_system_bitmap
-@xref destroy_bitmap, font, install_keyboard, install_timer, keypressed
-@xref load_datafile, makecol, rest, screen, set_gfx_mode, set_uformat
-@xref set_window_title, text_height, text_length, uconvert_ascii
-@xref unload_datafile, ustrcat, ustrcpy, ustrsize, ustrsizez
+@xref BITMAP, DATAFILE, END_OF_MAIN, FONT, SCREEN_H, SCREEN_W
+@xref allegro_error, allegro_init, allegro_message, clear_to_color
+@xref create_system_bitmap, destroy_bitmap, font, install_keyboard
+@xref install_timer, keypressed, load_datafile, makecol, rest, screen
+@xref set_gfx_mode, set_uformat, set_window_title, text_height
+@xref text_length, uconvert_ascii, unload_datafile, ustrcat, ustrcpy
+@xref ustrsize, ustrsizez
    This program demonstrates the use of the 16-bit Unicode text
    encoding format with Allegro.
 
 @@Example @exconfig
-@xref BITMAP, END_OF_MAIN, RGB, allegro_init, allegro_message
-@xref clear_bitmap, font, get_config_argv, get_config_int
-@xref install_keyboard, line, load_bitmap, makecol, pop_config_state
-@xref push_config_state, readkey, screen, set_color_depth
-@xref set_config_file, set_gfx_mode, set_palette, ustrdup, ustricmp
+@xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, allegro_init
+@xref allegro_message, clear_bitmap, font, get_config_argv
+@xref get_config_int, install_keyboard, line, load_bitmap, makecol
+@xref pop_config_state, push_config_state, readkey, screen
+@xref set_color_depth, set_config_file, set_gfx_mode, set_palette
+@xref ustrdup, ustricmp
    This is a very simple program showing how to use the allegro config (ini file)
    routines.
 
 @@Example @exbitmap
-@xref BITMAP, END_OF_MAIN, PALETTE, allegro_error, allegro_init
-@xref allegro_message, destroy_bitmap, install_keyboard, load_bitmap
-@xref readkey, screen, set_gfx_mode, set_palette
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, destroy_bitmap, install_keyboard
+@xref load_bitmap, readkey, screen, set_gfx_mode, set_palette
    This program demonstrates how to load and display a bitmap file.
 
 @@Example @exscale
-@xref BITMAP, END_OF_MAIN, PALETTE, allegro_error, allegro_init
-@xref allegro_message, destroy_bitmap, install_keyboard, keypressed
-@xref load_pcx, screen, set_gfx_mode, set_palette, vsync
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, destroy_bitmap, install_keyboard
+@xref keypressed, load_pcx, screen, set_gfx_mode, set_palette, vsync
    This example demonstrates how to use pcx files, palettes and stretch
    blits. It loads a pcx file, sets its palette and does some random
    stretch_blits. Don't worry - it's VERY slowed down using vsync().
@@ -10804,28 +10811,29 @@ and avoid missing any important bit of information.
    3) Finally run your program.
 
 @@Example @extrans
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP
-@xref allegro_error, allegro_init, allegro_message, bitmap_color_depth
-@xref circlefill, clear_bitmap, clear_keybuf, color_map, create_bitmap
-@xref create_bitmap_ex, destroy_bitmap, draw_trans_sprite, drawing_mode
-@xref install_keyboard, install_mouse, install_timer, keypressed
-@xref load_bitmap, mouse_x, mouse_y, poll_mouse, rectfill, rgb_map
-@xref screen, set_alpha_blender, set_gfx_mode, set_palette
-@xref set_trans_blender, set_write_alpha_blender
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP, SCREEN_H
+@xref SCREEN_W, allegro_error, allegro_init, allegro_message
+@xref bitmap_color_depth, circlefill, clear_bitmap, clear_keybuf
+@xref color_map, create_bitmap, create_bitmap_ex, destroy_bitmap
+@xref draw_trans_sprite, drawing_mode, install_keyboard, install_mouse
+@xref install_timer, keypressed, load_bitmap, mouse_x, mouse_y
+@xref poll_mouse, rectfill, rgb_map, screen, set_alpha_blender
+@xref set_gfx_mode, set_palette, set_trans_blender
+@xref set_write_alpha_blender
    This program demonstrates how to use the lighting and translucency
    functions.
 
 @@Example @extruec
-@xref END_OF_MAIN, PALETTE, RGB, acquire_screen, allegro_init
-@xref clear_to_color, font, generate_332_palette, install_keyboard, key
-@xref makecol, readkey, release_screen, screen, set_color_depth
-@xref set_gfx_mode, set_palette, vline
+@xref END_OF_MAIN, PALETTE, RGB, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_init, clear_to_color, font, generate_332_palette
+@xref install_keyboard, key, makecol, readkey, release_screen, screen
+@xref set_color_depth, set_gfx_mode, set_palette, vline
    This program shows how to specify colors in the various different
    truecolor pixel formats.
 
 @@Example @excolmap
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP
-@xref allegro_error, allegro_init, allegro_message, circlefill
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP, SCREEN_H
+@xref SCREEN_W, allegro_error, allegro_init, allegro_message, circlefill
 @xref clear_keybuf, color_map, create_bitmap, destroy_bitmap
 @xref drawing_mode, font, generate_332_palette, install_keyboard
 @xref keypressed, makecol, rectfill, rgb_map, screen, set_gfx_mode
@@ -10845,48 +10853,51 @@ and avoid missing any important bit of information.
    color-space representations.
 
 @@Example @exshade
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP
-@xref allegro_error, allegro_init, allegro_message, clear_bitmap
-@xref color_map, create_bitmap, destroy_bitmap, font, install_keyboard
-@xref install_mouse, keypressed, load_bitmap, mouse_x, mouse_y
-@xref palette_color, poll_mouse, rgb_map, screen, set_gfx_mode
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP, SCREEN_H
+@xref SCREEN_W, allegro_error, allegro_init, allegro_message
+@xref clear_bitmap, color_map, create_bitmap, destroy_bitmap, font
+@xref install_keyboard, install_mouse, keypressed, load_bitmap, mouse_x
+@xref mouse_y, palette_color, poll_mouse, rgb_map, screen, set_gfx_mode
 @xref set_palette, set_trans_blender, show_mouse
    This program demonstrates how to draw gouraud shaded (lit) sprites.
 
 @@Example @exxfade
-@xref BITMAP, END_OF_MAIN, PALETTE, allegro_error, allegro_exit
-@xref allegro_init, allegro_message, create_bitmap, destroy_bitmap
-@xref draw_trans_sprite, install_keyboard, keypressed, line, load_bitmap
-@xref readkey, screen, set_color_conversion, set_color_depth
-@xref set_gfx_mode, set_palette, set_trans_blender, vsync
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_exit, allegro_init, allegro_message, create_bitmap
+@xref destroy_bitmap, draw_trans_sprite, install_keyboard, keypressed
+@xref line, load_bitmap, readkey, screen, set_color_conversion
+@xref set_color_depth, set_gfx_mode, set_palette, set_trans_blender
+@xref vsync
    This program demonstrates how to load and display bitmap files
    in truecolor video modes, and how to crossfade between them.
 
 @@Example @exblend
-@xref BITMAP, END_OF_MAIN, PALETTE, allegro_error, allegro_init
-@xref allegro_message, circle, clear_bitmap, clear_keybuf, create_bitmap
-@xref destroy_bitmap, draw_lit_sprite, draw_trans_sprite, fixcos, fixsin
-@xref fixtoi, font, install_keyboard, install_timer, itofix, keypressed
-@xref load_bitmap, makecol, retrace_count, screen, set_color_conversion
-@xref set_color_depth, set_gfx_mode, set_trans_blender, vsync
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, circle, clear_bitmap, clear_keybuf
+@xref create_bitmap, destroy_bitmap, draw_lit_sprite, draw_trans_sprite
+@xref fixcos, fixsin, fixtoi, font, install_keyboard, install_timer
+@xref itofix, keypressed, load_bitmap, makecol, retrace_count, screen
+@xref set_color_conversion, set_color_depth, set_gfx_mode
+@xref set_trans_blender, vsync
    This program demonstrates how to use the translucency functions in
    truecolor video modes.
 
 @@Example @exalpha
-@xref BITMAP, END_OF_MAIN, allegro_error, allegro_init, allegro_message
-@xref clear_keybuf, create_bitmap, destroy_bitmap, draw_trans_sprite
-@xref drawing_mode, font, getb, getg, getpixel, getr, install_keyboard
-@xref install_mouse, install_timer, keypressed, load_bitmap, makecol
-@xref mouse_x, mouse_y, putpixel, rectfill, screen, set_alpha_blender
-@xref set_color_conversion, set_color_depth, set_gfx_mode
-@xref set_multiply_blender, set_write_alpha_blender, solid_mode
-   This program demonstrates how to use the 32-bit RGBA translucency
+@xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, clear_keybuf, create_bitmap
+@xref destroy_bitmap, draw_trans_sprite, drawing_mode, font, getb, getg
+@xref getpixel, getr, install_keyboard, install_mouse, install_timer
+@xref keypressed, load_bitmap, makecol, mouse_x, mouse_y, putpixel
+@xref rectfill, screen, set_alpha_blender, set_color_conversion
+@xref set_color_depth, set_gfx_mode, set_multiply_blender
+@xref set_write_alpha_blender, solid_mode
+   This program demonstrates how to use the 32 bit RGBA translucency
    functions to store an alpha channel along with a bitmap graphic.
 
 @@Example @exlights
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, allegro_error
-@xref allegro_init, allegro_message, bitmap_color_depth, circlefill
-@xref clear_bitmap, clear_keybuf, color_map, create_bitmap_ex
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W
+@xref allegro_error, allegro_init, allegro_message, bitmap_color_depth
+@xref circlefill, clear_bitmap, clear_keybuf, color_map, create_bitmap_ex
 @xref destroy_bitmap, draw_trans_sprite, fixatan2, fixsqrt, fixtoi
 @xref getb_depth, getg_depth, getpixel, getr_depth, hsv_to_rgb
 @xref install_keyboard, install_mouse, install_timer, itofix, key
@@ -10899,43 +10910,43 @@ and avoid missing any important bit of information.
    I just thought it was a cool concept that would be worth
    demonstrating.
    
-   The basic approach is to select a 15 or 16-bit screen mode, but
-   then draw onto 24-bit memory bitmaps. Since we only need the bottom
-   5 bits of each 8-bit color in order to store 15-bit data within a
-   24-bit location, we can fit a light level into the top 3 bits.
-   The tricky bit is that these aren't actually 24-bit images at all:
-   they are implemented as 8-bit memory bitmaps, and we just store the
+   The basic approach is to select a 15 or 16 bit screen mode, but
+   then draw onto 24 bit memory bitmaps. Since we only need the bottom
+   5 bits of each 8 bit color in order to store 15 bit data within a
+   24 bit location, we can fit a light level into the top 3 bits.
+   The tricky bit is that these aren't actually 24 bit images at all:
+   they are implemented as 8 bit memory bitmaps, and we just store the
    red level in one pixel, green in the next, and blue in the next,
    making the total image be three times wider than we really wanted.
-   This allows us to use all the normal 256-color graphics routines
+   This allows us to use all the normal 256 color graphics routines
    for drawing onto our memory surfaces, most importantly the lookup
    table translucency, which can be used to combine the low 5 bits
    of color and the top 3 bits of light in a single drawing operation.
-   Some trickery is needed to load 24-bit data into this fake 8-bit
+   Some trickery is needed to load 24 bit data into this fake 8 bit
    format, and of course it needs a custom routine to convert the
    resulting image while copying it across to the hardware screen.
    
    This program chugs slightly on my p133, but not significantly
    worse than any double buffering in what amounts to a 1920x640,
-   256-color resolution. The light blending doesn't seem to slow
+   256 color resolution. The light blending doesn't seem to slow
    it down too badly, so I think this technique would be quite usable
    on faster machines and in lower resolution hicolor modes. The
-   biggest problem is that although you keep the full 15-bit color
+   biggest problem is that although you keep the full 15 bit color
    resolution, you only get 3 bits of light, ie. 8 light levels.
    You can do some nice colored light patches, but smooth gradients
    aren't going to work too well :-)
 
 @@Example @ex3d
-@xref BITMAP, COLOR_MAP, END_OF_MAIN, MATRIX, PALETTE, RGB, RGB_MAP, V3D
-@xref allegro_error, allegro_exit, allegro_init, allegro_message
-@xref apply_matrix, bitmap_color_depth, bitmap_mask_color, clear_bitmap
-@xref clear_to_color, color_map, create_bitmap, desktop_palette
-@xref destroy_bitmap, fixed, fixtoi, font, gfx_mode_select_ex
-@xref install_keyboard, install_mouse, install_timer, itofix, key
-@xref keypressed, line, palette_color, persp_project, polygon_z_normal
-@xref quad3d, readkey, rect, retrace_count, rgb_map, screen
-@xref set_color_depth, set_gfx_mode, set_palette, set_projection_viewport
-@xref set_trans_blender, vsync
+@xref BITMAP, COLOR_MAP, END_OF_MAIN, MATRIX, PALETTE, RGB, RGB_MAP
+@xref SCREEN_H, SCREEN_W, V3D, allegro_error, allegro_exit, allegro_init
+@xref allegro_message, apply_matrix, bitmap_color_depth
+@xref bitmap_mask_color, clear_bitmap, clear_to_color, color_map
+@xref create_bitmap, desktop_palette, destroy_bitmap, fixed, fixtoi, font
+@xref gfx_mode_select_ex, install_keyboard, install_mouse, install_timer
+@xref itofix, key, keypressed, line, palette_color, persp_project
+@xref polygon_z_normal, quad3d, readkey, rect, retrace_count, rgb_map
+@xref screen, set_color_depth, set_gfx_mode, set_palette
+@xref set_projection_viewport, set_trans_blender, vsync
    This program demonstrates how to use the 3d matrix functions.
    It isn't a very elegant or efficient piece of code, but it does
    show the stuff in action. I'll leave it to you to design a proper
@@ -10943,14 +10954,20 @@ and avoid missing any important bit of information.
    do that sort of stuff varies hugely from one game to another.
 
 @@Example @excamera
-@xref BITMAP, END_OF_MAIN, MATRIX_f, V3D_f, allegro_error, allegro_init
-@xref allegro_message, apply_matrix_f, clear_to_color, create_bitmap
-@xref desktop_palette, destroy_bitmap, font, get_vector_rotation_matrix_f
-@xref install_keyboard, key, key_shifts, makecol, persp_project_f
-@xref poll_keyboard, polygon, polygon3d_f, rect, screen, set_clip_rect
-@xref set_gfx_mode, set_palette, set_projection_viewport, vsync
+@xref BITMAP, END_OF_MAIN, MATRIX_f, SCREEN_H, SCREEN_W, V3D_f
+@xref allegro_error, allegro_init, allegro_message, apply_matrix_f
+@xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
+@xref font, get_vector_rotation_matrix_f, install_int_ex
+@xref install_keyboard, install_timer, key, key_shifts, makecol
+@xref persp_project_f, poll_keyboard, polygon, polygon3d_f, rect, screen
+@xref set_clip_rect, set_gfx_mode, set_palette, set_projection_viewport
+@xref vsync
    This program demonstrates how to use the get_camera_matrix() function
    to view a 3d world from any position and angle.
+   
+   Modified by Francisco Pires:
+   + Added FPS counter.
+   + Added option to enable/disable waiting for vsync.
 
 @@Example @exquat
 @xref BITMAP, END_OF_MAIN, MATRIX_f, QUAT, acquire_bitmap, allegro_error
@@ -10987,35 +11004,36 @@ and avoid missing any important bit of information.
    of rotation.
 
 @@Example @exstars
-@xref BITMAP, END_OF_MAIN, MATRIX, PALETTE, allegro_error, allegro_init
-@xref allegro_message, apply_matrix, clear_bitmap, create_bitmap
-@xref cross_product, destroy_bitmap, dot_product, fixed, fixmul, fixtof
-@xref fixtoi, font, get_rotation_matrix, get_translation_matrix
-@xref install_keyboard, install_timer, itofix, key, normalize_vector
-@xref palette_color, persp_project, poll_keyboard, putpixel, rectfill
-@xref screen, set_gfx_mode, set_palette, set_projection_viewport
-@xref triangle, vsync
+@xref BITMAP, END_OF_MAIN, MATRIX, PALETTE, SCREEN_H, SCREEN_W
+@xref allegro_error, allegro_init, allegro_message, apply_matrix
+@xref clear_bitmap, create_bitmap, cross_product, destroy_bitmap
+@xref dot_product, fixed, fixmul, fixtof, fixtoi, font
+@xref get_rotation_matrix, get_translation_matrix, install_keyboard
+@xref install_timer, itofix, key, normalize_vector, palette_color
+@xref persp_project, poll_keyboard, putpixel, rectfill, screen
+@xref set_gfx_mode, set_palette, set_projection_viewport, triangle, vsync
    This program draws a 3D starfield (depth-cued) and a polygon
    starship (controllable), using the Allegro math functions.
 
 @@Example @exscn3d
-@xref BITMAP, END_OF_MAIN, MATRIX_f, PALETTE, V3D_f, allegro_error
-@xref allegro_exit, allegro_init, allegro_message, apply_matrix_f
-@xref bitmap_color_depth, clear_bitmap, clear_scene, create_bitmap
-@xref create_scene, desktop_palette, destroy_bitmap, destroy_scene, font
-@xref get_rotation_matrix_f, get_translation_matrix_f, gfx_mode_select_ex
-@xref install_int, install_keyboard, install_mouse, install_timer, key
-@xref matrix_mul_f, palette_color, persp_project_f, polygon_z_normal_f
-@xref render_scene, scene_polygon3d_f, screen, set_color_depth
-@xref set_gfx_mode, set_palette, set_projection_viewport
+@xref BITMAP, END_OF_MAIN, MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f
+@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref apply_matrix_f, bitmap_color_depth, clear_bitmap, clear_scene
+@xref create_bitmap, create_scene, desktop_palette, destroy_bitmap
+@xref destroy_scene, font, get_rotation_matrix_f
+@xref get_translation_matrix_f, gfx_mode_select_ex, install_int
+@xref install_keyboard, install_mouse, install_timer, key, matrix_mul_f
+@xref palette_color, persp_project_f, polygon_z_normal_f, render_scene
+@xref scene_polygon3d_f, screen, set_color_depth, set_gfx_mode
+@xref set_palette, set_projection_viewport
    This program demonstrates how to use scanline sorting algo in Allegro
    (create_scene, clear_scene, ... functions). It also provides an example
    of how to use the 3D clipping function.
    
 
 @@Example @exzbuf
-@xref BITMAP, END_OF_MAIN, MATRIX_f, PALETTE, V3D_f, ZBUFFER
-@xref allegro_error, allegro_exit, allegro_init, allegro_message
+@xref BITMAP, END_OF_MAIN, MATRIX_f, PALETTE, SCREEN_H, SCREEN_W, V3D_f
+@xref ZBUFFER, allegro_error, allegro_exit, allegro_init, allegro_message
 @xref apply_matrix_f, bitmap_color_depth, clear_bitmap, clear_zbuffer
 @xref create_bitmap, create_zbuffer, desktop_palette, destroy_bitmap
 @xref destroy_zbuffer, font, gfx_mode_select_ex, install_int
@@ -11029,26 +11047,26 @@ and avoid missing any important bit of information.
    
 
 @@Example @exscroll
-@xref BITMAP, END_OF_MAIN, RGB, acquire_bitmap, allegro_init
-@xref allegro_message, clear_keybuf, create_sub_bitmap, desktop_palette
-@xref destroy_bitmap, font, install_keyboard, keypressed, line, rectfill
-@xref release_bitmap, screen, scroll_screen, set_color, set_gfx_mode
-@xref set_palette, split_modex_screen, vline
+@xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, acquire_bitmap
+@xref allegro_init, allegro_message, clear_keybuf, create_sub_bitmap
+@xref desktop_palette, destroy_bitmap, font, install_keyboard, keypressed
+@xref line, rectfill, release_bitmap, screen, scroll_screen, set_color
+@xref set_gfx_mode, set_palette, split_modex_screen, vline
    This program demonstrates how to use hardware scrolling and split
    screens in mode-X. The split screen part only works on DOS and Linux
    console platforms, but the scrolling should work on anything that
    supports large virtual screens.
 
 @@Example @ex3buf
-@xref BITMAP, END_OF_MAIN, RGB, _set_color, acquire_bitmap, alert
-@xref allegro_error, allegro_init, allegro_message, clear_bitmap
-@xref clear_keybuf, create_video_bitmap, desktop_palette, destroy_bitmap
-@xref enable_triple_buffer, fixcos, fixed, fixmul, fixsin, fixtoi, font
-@xref gfx_capabilities, install_keyboard, install_mouse, install_timer
-@xref itofix, keypressed, poll_scroll, release_bitmap
+@xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, _set_color
+@xref acquire_bitmap, allegro_error, allegro_init, allegro_message
+@xref clear_bitmap, clear_keybuf, create_video_bitmap, desktop_palette
+@xref destroy_bitmap, enable_triple_buffer, fixcos, fixed, fixmul, fixsin
+@xref fixtoi, font, gfx_capabilities, install_keyboard, install_mouse
+@xref install_timer, itofix, keypressed, poll_scroll, release_bitmap
 @xref request_video_bitmap, retrace_proc, screen, set_gfx_mode
 @xref set_palette, timer_can_simulate_retrace, timer_simulate_retrace
-@xref triangle
+@xref triangle, ustrzcat, ustrzcpy
    This program demonstrates the use of triple buffering and vertical
    retrace interrupt simulation.
 
@@ -11076,15 +11094,15 @@ and avoid missing any important bit of information.
    
    It's all very simple really. Honest.
    
-   To start with, you set a normal 256-color VESA mode, and construct a
+   To start with, you set a normal 256 color VESA mode, and construct a
    special palette for it. But then comes the trick: you need to write
-   to a set of two adjacent pixels to form a single 12-bit dot. Two eight
-   bit pixels is the same as one 16-bit pixel, so after setting the video
+   to a set of two adjacent pixels to form a single 12 bit dot. Two eight
+   bit pixels is the same as one 16 bit pixel, so after setting the video
    mode you need to hack the screen bitmap about, halving the width and
-   changing it to use the 16-bit drawing code. Then, once you have packed
+   changing it to use the 16 bit drawing code. Then, once you have packed
    a color into the correct format (using the makecol12() function below),
-   any of the normal Allegro drawing functions can be used with this 12-bit
-   display!
+   any of the normal Allegro drawing functions can be used with this 12
+   bit display!
    
    Things to note:
    
@@ -11095,32 +11113,33 @@ and avoid missing any important bit of information.
    be darker than in a normal video mode.
    
    Any bitmap data will obviously need converting to the correct 12
-   bit format: regular 15 or 16-bit images won't display correctly...
+   bit format: regular 15 or 16 bit images won't display correctly...
    
    Although this works like a truecolor mode, it is actually using a
-   256-color palette, so palette fades are still possible!
+   256 color palette, so palette fades are still possible!
    
    Note: This code only works in linear screen modes (don't try Mode-X).
 
 @@Example @exaccel
-@xref BITMAP, END_OF_MAIN, PALETTE, acquire_bitmap, allegro_error
-@xref allegro_init, allegro_message, clear_bitmap, create_video_bitmap
-@xref destroy_bitmap, font, gfx_capabilities, install_keyboard
-@xref install_timer, keypressed, load_bitmap, readkey, release_bitmap
-@xref screen, set_gfx_mode, set_palette, show_video_bitmap
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap
+@xref allegro_error, allegro_init, allegro_message, clear_bitmap
+@xref create_video_bitmap, destroy_bitmap, font, gfx_capabilities
+@xref install_keyboard, install_timer, keypressed, load_bitmap, readkey
+@xref release_bitmap, screen, set_gfx_mode, set_palette
+@xref show_video_bitmap
    This program demonstrates how to use an offscreen part of the
    video memory to store source graphics for a hardware accelerated
    graphics driver.
 
 @@Example @exspline
-@xref END_OF_MAIN, acquire_screen, alert, allegro_error, allegro_init
-@xref allegro_message, calc_spline, circlefill, clear_keybuf
-@xref clear_to_color, desktop_palette, fixatan2, fixcos, fixed, fixmul
-@xref fixsin, fixsqrt, fixtof, fixtoi, font, ftofix, install_keyboard
-@xref install_mouse, install_timer, itofix, key, keypressed, line
-@xref makecol, mouse_b, mouse_x, mouse_y, palette_color, poll_mouse
-@xref readkey, release_screen, screen, set_gfx_mode, set_palette
-@xref show_mouse, spline, vsync, xor_mode
+@xref END_OF_MAIN, SCREEN_W, acquire_screen, alert, allegro_error
+@xref allegro_init, allegro_message, calc_spline, circlefill
+@xref clear_keybuf, clear_to_color, desktop_palette, fixatan2, fixcos
+@xref fixed, fixmul, fixsin, fixsqrt, fixtof, fixtoi, font, ftofix
+@xref install_keyboard, install_mouse, install_timer, itofix, key
+@xref keypressed, line, makecol, mouse_b, mouse_x, mouse_y, palette_color
+@xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
+@xref set_palette, show_mouse, spline, vsync, xor_mode
    This program demonstrates the use of spline curves to create smooth
    paths connecting a number of node points. This can be useful for
    constructing realistic motion and animations.
@@ -11157,31 +11176,32 @@ and avoid missing any important bit of information.
    the object slow down for the curve.
 
 @@Example @exupdate
-@xref BITMAP, END_OF_MAIN, PALETTE, acquire_bitmap, allegro_error
-@xref allegro_init, allegro_message, bitmap_color_depth, clear_bitmap
-@xref create_bitmap, create_system_bitmap, create_video_bitmap
-@xref desktop_palette, destroy_bitmap, enable_triple_buffer, fixcos
-@xref fixed, fixmul, fixsin, fixtoi, font, ftofix, generate_332_palette
-@xref gfx_capabilities, gfx_mode_select_ex, install_int_ex
-@xref install_keyboard, install_mouse, install_timer, keypressed, line
-@xref makecol, poll_scroll, release_bitmap, request_video_bitmap, screen
-@xref set_color_depth, set_gfx_mode, set_palette, show_video_bitmap
-@xref triangle, vsync, xor_mode
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap
+@xref allegro_error, allegro_init, allegro_message, bitmap_color_depth
+@xref clear_bitmap, create_bitmap, create_system_bitmap
+@xref create_video_bitmap, desktop_palette, destroy_bitmap
+@xref enable_triple_buffer, fixcos, fixed, fixmul, fixsin, fixtoi, font
+@xref ftofix, generate_332_palette, gfx_capabilities, gfx_mode_select_ex
+@xref install_int_ex, install_keyboard, install_mouse, install_timer
+@xref keypressed, line, makecol, poll_scroll, release_bitmap
+@xref request_video_bitmap, screen, set_color_depth, set_gfx_mode
+@xref set_palette, show_video_bitmap, triangle, vsync, xor_mode
    This program demonstrates how to support double buffering, page
    flipping, and triple buffering as options within a single program,
    and how to make things run at a constant rate no matter what the
    speed of your computer.
 
 @@Example @exswitch
-@xref BITMAP, END_OF_MAIN, PALETTE, acquire_bitmap, acquire_screen
-@xref allegro_error, allegro_exit, allegro_init, allegro_message
-@xref bitmap_color_depth, clear_to_color, create_sub_bitmap
-@xref desktop_palette, destroy_bitmap, font, get_display_switch_mode
-@xref gfx_mode_select_ex, install_int, install_keyboard, install_mouse
-@xref install_timer, keypressed, makecol, palette_color, putpixel
-@xref readkey, rectfill, release_bitmap, release_screen, screen
-@xref set_color_depth, set_display_switch_callback
-@xref set_display_switch_mode, set_gfx_mode, set_palette
+@xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, acquire_bitmap
+@xref acquire_screen, allegro_error, allegro_exit, allegro_init
+@xref allegro_message, bitmap_color_depth, clear_to_color
+@xref create_sub_bitmap, desktop_palette, destroy_bitmap, font
+@xref get_display_switch_mode, gfx_mode_select_ex, install_int
+@xref install_keyboard, install_mouse, install_timer, keypressed, makecol
+@xref palette_color, putpixel, readkey, rectfill, release_bitmap
+@xref release_screen, screen, set_color_depth
+@xref set_display_switch_callback, set_display_switch_mode, set_gfx_mode
+@xref set_palette
    This program shows how to control the console switching mode, and
    let your program run in the background. These functions don't apply
    to every platform, for example you can't control the switching mode
@@ -11199,10 +11219,10 @@ and avoid missing any important bit of information.
    really useful for anything, but I think it is pretty cool!
 
 @@Example @exstream
-@xref AUDIOSTREAM, END_OF_MAIN, allegro_error, allegro_init
-@xref allegro_message, clear_to_color, desktop_palette, font
-@xref free_audio_stream_buffer, get_audio_stream_buffer, install_keyboard
-@xref install_sound, install_timer, keypressed, makecol
+@xref AUDIOSTREAM, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
+@xref allegro_init, allegro_message, clear_to_color, desktop_palette
+@xref font, free_audio_stream_buffer, get_audio_stream_buffer
+@xref install_keyboard, install_sound, install_timer, keypressed, makecol
 @xref play_audio_stream, readkey, screen, set_gfx_mode, set_palette
 @xref stop_audio_stream, voice_start, voice_stop
    This program shows how to use the audio stream functions to transfer
