@@ -161,6 +161,26 @@ int get_refresh_rate(void)
 
 
 
+/* sort_gfx_mode_list:
+ *  callback for quick-sorting a mode-list.
+ */
+static int sort_gfx_mode_list(GFX_MODE_LIST *entry_1, GFX_MODE_LIST *entry_2)
+{
+   if (entry_1->width > entry_2->width) return +1;
+   else if (entry_1->width < entry_2->width) return -1;
+   else {
+      if (entry_1->height > entry_2->height) return +1;
+      else if (entry_1->height < entry_2->height) return -1;
+      else {
+         if (entry_1->bpp > entry_2->bpp) return +1;
+         else if (entry_1->bpp < entry_2->bpp) return -1;
+         else return 0;
+      }
+   }
+}
+
+
+
 /* get_gfx_mode_list:
  *  Attempts to create a list of all the supported video modes for a certain
  *  GFX driver. The result is placed in the gfx_mode_list array.
@@ -171,13 +191,7 @@ int get_gfx_mode_list(int card)
 {
    _DRIVER_INFO *list, *entry;
    GFX_DRIVER *drv;
-
-   /* these aren't drivers */
-   if ((card == GFX_AUTODETECT) ||
-       (card == GFX_AUTODETECT_WINDOWED) ||
-       (card == GFX_AUTODETECT_FULLSCREEN) ||
-       (card == GFX_SAFE))
-      return -1;
+   int entries;
 
    /* ask the system driver for a list of graphics hardware drivers */
    if (system_driver->gfx_drivers)
@@ -188,16 +202,20 @@ int get_gfx_mode_list(int card)
    /* find the graphics driver, and if it can fetch mode lists, do so */
    for (entry = list; entry->driver; entry++) {
       if (entry->id == card) {
-	 drv = entry->driver;
-	 if (!drv->fetch_mode_list)
-	    return -2;
-	 if (drv->fetch_mode_list() < 0)
-	    return -1;
-	 return 0;
+         drv = entry->driver;
+         if (!drv->fetch_mode_list)
+            return -2;
+         if (drv->fetch_mode_list() < 0)
+            return -1;
+         break;
       }
    }
    
-   return -1;
+   /* sort the list and finish */
+   for (entries=0; gfx_mode_list[entries].width; entries++);
+   qsort(gfx_mode_list, entries, sizeof(GFX_MODE_LIST), (void *) sort_gfx_mode_list);
+
+   return 0;
 }
 
 
