@@ -214,22 +214,28 @@ information about how to install Allegro and link your program with it.
    Operating System is multitasking or not.
 
 @@void @allegro_message(const char *text_format, ...);
-@xref set_uformat
+@xref allegro_init, install_allegro, set_uformat
 @eref Available Allegro examples
    Outputs a message, using a printf() format string. Usually you want to
    use this to report messages to the user in an OS independant way when some
-   Allegro subsystem (or allegro itself) cannot be initialised. But you must
-   not use this function if you are in a graphic mode, only before calling
-   set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have
-   a text console (DOS and Unix) it will print the string to that console,
-   attempting to work around codepage differences by reducing any accented
-   characters to 7-bit ASCII approximations, and on platforms featuring a
-   windowing system it will bring up a blocking GUI message box. Example:
+   Allegro subsystem cannot be initialised. But you must not use this function
+   if you are in a graphic mode, only before calling set_gfx_mode(), or after
+   a set_gfx_mode(GFX_TEXT). Also, this function depends on a system driver
+   being installed, which means that it won't display the message at all on
+   some platforms if Allegro has not been initialised correctly.
+
+   On platforms that have a text console (DOS and Unix) it will print the
+   string to that console, attempting to work around codepage differences by
+   reducing any accented characters to 7-bit ASCII approximations, and on
+   platforms featuring a windowing system it will bring up a blocking GUI
+   message box. Example:
 <codeblock>
-      ret = allegro_init();
-      if (ret != 0) {
-	 allegro_message("Sorry, couldn't init Allegro (%d).\n", ret);
-	 exit(ret);
+      if (allegro_init() != 0)
+	 exit(1);
+
+      if (init_my_data() != 0) {
+	 allegro_message("Sorry, missing game data!\n");
+	 exit(2);
       }<endblock>
 
 @@void @set_window_title(const char *name);
