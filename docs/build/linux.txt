@@ -127,6 +127,10 @@
 	most of the video modes that SVGAlib provides. It requires root
 	privileges if your version of SVGAlib requires them.
 
+   * Sound:
+	The ALSA drivers currently only support the older (stable) version
+	of the ALSA API (0.5.x). The 0.9.x beta series are NOT supported yet.
+
    * Keyboard:
 	The keyboard driver uses the kernel mapping tables to map scancodes 
 	to character codes and key functions, so your keyboard mapping 
