@@ -230,8 +230,6 @@ AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 AL_VAR(JOYSTICK_DRIVER, joystick_linux_analogue);
 
 
-AL_FUNC(int, request_modex_scroll, (int x, int y));
-AL_FUNC(int, poll_modex_scroll, (void));
 AL_FUNC(void, split_modex_screen, (int line));
 
 

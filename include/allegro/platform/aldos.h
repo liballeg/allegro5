@@ -261,9 +261,8 @@ AL_VAR(GFX_DRIVER, gfx_xtended);
 
 AL_VAR(GFX_VTABLE, __modex_vtable);
 
-AL_FUNC(int, request_modex_scroll, (int x, int y));
-AL_FUNC(int, poll_modex_scroll, (void));
-AL_FUNC(void, split_modex_screen, (int screenline));
+
+AL_FUNC(void, split_modex_screen, (int line));
 
 
 AL_INLINE(void, _set_color, (int index, AL_CONST RGB *p),

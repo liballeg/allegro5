@@ -96,6 +96,8 @@ GFX_VTABLE __modex_vtable =
 static BITMAP *modex_init(int w, int h, int v_w, int v_h, int color_depth);
 static void modex_exit(BITMAP *b);
 static int modex_scroll(int x, int y);
+static int request_modex_scroll(int x, int y);
+static int poll_modex_scroll(void);
 static void modex_enable_triple_buffer(void);
 static GFX_MODE_LIST *modex_fetch_mode_list();
 
@@ -875,12 +877,9 @@ static int modex_scroll(int x, int y)
  *  can be used together with poll_modex_scroll to implement triple buffered
  *  animation systems (see examples/ex20.c).
  */
-int request_modex_scroll(int x, int y)
+static int request_modex_scroll(int x, int y)
 {
    long a = x + (y * VIRTUAL_W);
-
-   if (gfx_driver != &gfx_modex)
-      return -1;
 
    DISABLE();
 
@@ -911,7 +910,7 @@ int request_modex_scroll(int x, int y)
  *  set by request_modex_scroll(). Only works if vertical retrace interrupts 
  *  are enabled.
  */
-int poll_modex_scroll()
+static int poll_modex_scroll(void)
 {
    if ((_retrace_hpp_value < 0) || (!_timer_use_retrace))
       return FALSE;
@@ -924,7 +923,7 @@ int poll_modex_scroll()
 /* modex_enable_triple_buffer:
  *  Tries to turn on triple buffering mode, if that is currently possible.
  */
-static void modex_enable_triple_buffer()
+static void modex_enable_triple_buffer(void)
 {
    if ((!_timer_use_retrace) && (timer_can_simulate_retrace()))
       timer_simulate_retrace(TRUE);
