@@ -147,13 +147,13 @@ static int _al_esd_detect(int input)
    char tmp1[80], tmp2[80], tmp3[80];
    char s[256];
 	 
-   /* we don't want esdlib to spawn esd while we are detecting it */
-   setenv("ESD_NO_SPAWN","1",0);
-
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
       return FALSE;
    }
+
+   /* We don't want esdlib to spawn ESD while we are detecting it.  */
+   setenv("ESD_NO_SPAWN", "1", 0);
 
    /* Get ESD server name.  */
    server = get_config_string(uconvert_ascii("sound", tmp1),
