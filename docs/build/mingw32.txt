@@ -17,6 +17,8 @@
    and added an example on how to use Dev-C++ with Allegro.
 
    Elias Pschernig and Hein Zelle revamped the cross-compilation section.
+   
+   Andrei Ellman updated the Cygwin section.
 
    See readme.txt for a more general overview.
 
@@ -35,10 +37,11 @@
    The screensaver example is built, but you must copy scrsave.scr to your
    windows directory if you want to test it.
    
-   If you have both GNU Bash and GNU fileutils installed then set the
-   environment variable UNIX_TOOLS (set UNIX_TOOLS=1) so that compilation
-   will work. This is because GNU make will automatically use sh.exe instead
-   of command.com if it finds it somewhere in the path.
+   If you have both GNU bash and GNU fileutils installed on your system, then
+   set the environment variable UNIX_TOOLS (set UNIX_TOOLS=1). This is needed
+   because GNU make will automatically use sh.exe instead of command.com if
+   it finds it somewhere in the PATH. This step is not necessary when using
+   Cygwin as the makefile automatically sets UNIX_TOOLS for you.
 
    "make depend" and "fixdll.bat" require that you have GNU sed installed.
    "fixdll.bat" requires that you have GNU sort (not DOS !) installed.
@@ -228,25 +231,31 @@
       from 'http://alleg.sourceforge.net/wip.html' and unzip it to a
       temporary directory, for instance 'C:\Temp'. Then move the contents of
       'C:\Temp\lib' to 'C:\cygwin\lib\w32api', and the contents of
-      'C:\Temp\include' to 'c:\cygwin\usr\include\w32api'.
+      'C:\Temp\include' to 'c:\cygwin\usr\include\w32api'. If you are asked
+      if you want to overwrite any existing files, choose to overwrite them.
 
    3) put the following text in '/etc/profile' (c:\cygwin\etc\profile)
       export ALLEGRO_USE_CYGWIN=1
       export MINGDIR=/usr/local
+      export CPATH=/usr/local/include
+      export LIBRARY_PATH=/usr/local/lib
+
+      Note: if the CPATH or LIBRARY_PATH variables are already set, you will
+      have to append the new path to the existing one by using a colon (":")
+      as the separator.
 
    4) Start your cygwin BASH shell which you can find either on your desktop
-      and/or on your Windows start menu. Make sure /bin/sh exists, if not
+      and/or on your Windows start menu. Make sure /bin/sh.exe exists, if not
       just run: 'ln -s /bin/bash.exe /bin/sh.exe'.
 
-   5) Then run './fix.sh mingw32 --dtou'. This will take a while...
 
    Test the installation by typing the following in the BASH shell:
    'gcc -v'. The answer should be similar to:
    
-   Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/2.95.3-5/specs
-   gcc version 2.95.3-5 (cygwin special)
+   Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/3.2/specs
+   gcc version 3.2 20020927 (prerelease)
 
-   Note! If you have problems installing the profiling version of the Allegro
+   Note: if you have problems installing the profiling version of the Allegro
    library, you will probably need to copy a file called libgmon.a from the
    MingW32 distribution to your /lib/mingw directory (c:\cygwin\lib\mingw) in
    cygwin. This is expected to be fixed in a later release of the
@@ -327,31 +336,74 @@
 ============================================
 
    Step-by-step instructions on how to build the MingW32 version of Allegro.
-   This assumes you have unzipped allegro to c:\allegro
+   This assumes you have unzipped allegro to c:\allegro or, if you are using
+   Cygwin, you have unzipped it to c:\cygwin\allegro (which is equivalent to
+   /allegro from within the Cygwin environment).
 
-   First configure Allegro by entering the following on the commandline:
-   (click on Start -> Run then type "command" or "cmd" to get a command
-   prompt)
+   First configure Allegro. Unless you are using Cygwin, enter the following
+   on the commandline: (click on Start -> Run then type "command" or "cmd" to
+   get a command prompt)
 
    cd c:\allegro
    fix.bat mingw32
+   
+   If you are using Cygwin, start your Cygwin Bash shell. The following
+   commands should then be used instead of the ones above:
 
-   The dynamically linked version of Allegro gets built by default but if
-   you want to build the statically linked version of Allegro write the
-   following on the command line:
-
-   SET STATICLINK=1
-
-   If you want to build either the debug or the profiling version of
-   the library enter one of the following. Skip them to build the
-   release (default) version.
-
-   SET DEBUGMODE=1
-   SET PROFILEMODE=1
-
-   Now we're ready to make the Allegro library. 
+   cd /allegro
+   ./fix.sh mingw32 --dtou
+   
+   Now we're ready to build the Allegro library with:
 
    make
+
+   The dynamically linked version of Allegro gets built by default. If you
+   want to build the statically linked version of Allegro, use:
+
+   make STATICLINK=1
+
+   If you want to build either the debug or the profile version of the
+   library, enter one of the following commands:
+
+   make DEBUGMODE=1 (dynamically linked)
+   make DEBUGMODE=1 STATICLINK=1 (statically linked)
+   make PROFILEMODE=1 (dynamically linked)
+   make PROFILEMODE=1 STATICLINK=1 (statically linked)
+
+   A list of all the available options:
+    CROSSCOMPILE
+                Set this if you are crosscompiling; it implies
+                UNIX_TOOLS.
+
+    WARNMODE
+                Set this if you want Allegro to display and stop on
+                nearly all warnings issued by the compiler. Allegro
+                should compile fine with this set.
+
+    TARGET_ARCH_COMPAT
+      or
+    TARGET_ARCH_EXCL
+                These affect the level of processor dependant optimisation
+                that Allegro uses. You can set either of these to the
+                processor type you want to optimize for. The difference
+                between these two is that TARGET_ARCH_COMPAT optimise for
+                the given processor so that the code will still run on older
+                processors, while TARGET_ARCH_EXCL will generate code that
+                will run exclusively on the given processor and of course
+                newer ones. Example: set TARGET_ARCH_COMPAT=i686
+
+    TARGET_OPTS
+                Affects the general optimisations that Allegro uses.
+
+    UNIX_TOOLS
+                If your system does not have the usual DOS tools
+                available (`md', `rd', `copy', etc., and commands which
+                understand the \ character), then set this to 1 to use
+                the unix equivalents. This is set implicitly when you
+                set CROSSCOMPILE, and is also set automatically when you
+                are running under bash.
+
+   To activate any of these, type (for example) "make WARNMODE=1".
 
    If your copy of Allegro does not include the linker .def file (unlikely,
    unless you have run "make veryclean" at some point, or are using the CVS
@@ -370,12 +422,14 @@
    space, you can run "make clean" to get rid of all the temporary files and
    HTML format documentation.
 
-   And then the last thing; Installing the Allegro library.
+   And then the last thing: installing the library. Run:
 
    make install
-  
-   You have now installed MingW32 and allegro! See the rest of the
-   documentation and examples to learn more about it.
+
+   with the same options you passed to 'make' in order to build the library.
+
+   You have now installed Allegro! See the rest of the documentation and
+   examples to learn more about it.
 
 
 
@@ -392,17 +446,27 @@
    When using a statically linked library, you must define the preprocessor
    symbol ALLEGRO_STATICLINK before including any of the Allegro headers and
    link your program against Allegro and the main Win32/DirectX libraries
-   in that order (see the variable LIBRARIES in makefile.mgw).
+   in that order (see the variable LIBRARIES in makefile.mgw). The names of
+   the statically linked Allegro libraries are post-fixed with '_s' so that
+   you will link with either liballeg_s.a, liballd_s.a or liballp_s.a .
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function.
 
 =======================================
 
-   A simple example of a command line to compile an allegro program
-   with MingW32:
+   A simple example of a command line to compile an Allegro program with
+   MingW32 looks like:
 
-   gcc foo.c -mwindows -O2 -Wall -o foo.exe -lalleg
+   gcc foo.c -Wl,--subsystem,windows -O2 -Wall -o foo.exe -lalleg
+
+   If you are compiling with Cygwin, the compiler option -mno-cygwin must
+   be added, both at compile-time and at link-time:
+
+   gcc foo.c -Wl,--subsystem,windows -mno-cygwin -O2 -Wall -o foo.exe -lalleg
+
+   Note that, if you want to make a console application, you must use
+   '-Wl,--subsystem,console' instead of '-Wl,--subsystem,windows'.
 
 =======================================
 
