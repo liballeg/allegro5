@@ -23,6 +23,9 @@ General (Platform independant) todos:
 - asm draw_sprite et al. don't work with sub-bitmaps
 - include dat2c once finished
 - resolve findfirst issues
+- remove joystick control from main part of setup
+- Polish keyboard patch
+- bug in menus related to auto-opening patch
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -45,6 +48,7 @@ Linux todos:
 - Find out more about sched_yield
 - switch to proper SRPMs and RPMS (esp. now that we have modules)
 - fix fb 24-bit scrolling (allegro presuming padding?)
+- fbcon-as-module patch
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -63,6 +67,7 @@ Unix todos:
 - check which parts of makefiles break with non-GNU make
 - update ALSA drivers to latest stable version
 - "still PIC-related problems with X lib, waiting for XFree people"
+- disable pthreads option in configure
 
 Macintosh todos:
 ---------------------------------------------------------------------------
@@ -117,5 +122,7 @@ Wishlist
 - size_t where appropriate (get more opinions first)
 - make zipwin.sh work with mingw32.
 - make allegro not use uconvert static buffer; reserve for user
+- more modularity under Linux
+- XVideo driver under XFree86
 
 ---------------------------------------------------------------------------
