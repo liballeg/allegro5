@@ -30,11 +30,6 @@
 #include <signal.h>
 #include <pthread.h>
 
-/* pthread_sigmask seems to be missing in libpthread shipped with 10.1.x */
-#ifndef pthread_sigmask
-#define pthread_sigmask(how, set, oset)    sigprocmask((how), (set), (oset))
-#endif
-
 
 #define display_id                      kCGDirectMainDisplay
 
@@ -44,15 +39,18 @@
 
 #define BMP_EXTRA(bmp)                  ((BMP_EXTRA_INFO *)((bmp)->extra))
 
-#define HID_MAX_DEVICES                 16
+#define HID_MAX_DEVICES                 MAX_JOYSTICKS
 #define HID_MOUSE                       0
 #define HID_JOYSTICK                    1
 #define HID_GAMEPAD                     2
 
-#define HID_MAX_DEVICE_ELEMENTS         64
+#define HID_MAX_DEVICE_ELEMENTS         ((MAX_JOYSTICK_AXIS * MAX_JOYSTICK_STICKS) + MAX_JOYSTICK_BUTTONS)
 #define HID_ELEMENT_BUTTON              0
 #define HID_ELEMENT_AXIS                1
-#define HID_ELEMENT_DIGITAL_AXIS        2
+#define HID_ELEMENT_AXIS_PRIMARY_X      2
+#define HID_ELEMENT_AXIS_PRIMARY_Y      3
+#define HID_ELEMENT_STANDALONE_AXIS     4
+#define HID_ELEMENT_HAT                 5
 
 
 
@@ -94,6 +92,8 @@ typedef struct HID_ELEMENT
    int type;
    IOHIDElementCookie cookie;
    int max, min;
+   int stick;
+   int index;
    char *name;
 } HID_ELEMENT;
 
@@ -105,6 +105,7 @@ typedef struct HID_DEVICE
    char *product;
    int num_elements;
    HID_ELEMENT element[HID_MAX_DEVICE_ELEMENTS];
+   IOHIDDeviceInterface **interface;
 } HID_DEVICE;
 
 

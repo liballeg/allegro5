@@ -34,7 +34,7 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
 {
    HID_ELEMENT *hid_element;
    CFTypeRef type_ref;
-   AL_CONST char *name;
+   AL_CONST char *name, *s;
    
    if (device->num_elements >= HID_MAX_DEVICE_ELEMENTS)
       return;
@@ -48,6 +48,13 @@ static void hid_store_element_data(CFTypeRef element, int type, HID_DEVICE *devi
       hid_element->name = strdup(name);
    else
       hid_element->name = NULL;
+   switch (type) {
+      case HID_ELEMENT_BUTTON: s = "button"; break;
+      case HID_ELEMENT_AXIS: s = "axis"; break;
+      case HID_ELEMENT_STANDALONE_AXIS: s = "standalone axis"; break;
+      case HID_ELEMENT_HAT: s = "hat"; break;
+   }
+   fprintf(stderr, "%s: min = %d, max = %d, cookie = %d\n", s, hid_element->min, hid_element->max, hid_element->cookie);
 }
 
 
@@ -68,16 +75,28 @@ static void hid_scan_element(CFTypeRef element, HID_DEVICE *device)
 	 switch (usage) {
 	    
 	    case kHIDUsage_GD_X:
+	       hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_X, device);
+	       break;
+	       
 	    case kHIDUsage_GD_Y:
+	       hid_store_element_data(element, HID_ELEMENT_AXIS_PRIMARY_Y, device);
+	       break;
+	       
 	    case kHIDUsage_GD_Z:
+	    case kHIDUsage_GD_Rx:
+	    case kHIDUsage_GD_Ry:
+	    case kHIDUsage_GD_Rz:
+	       hid_store_element_data(element, HID_ELEMENT_AXIS, device);
+	       break;
+	    
 	    case kHIDUsage_GD_Slider:
 	    case kHIDUsage_GD_Dial:
 	    case kHIDUsage_GD_Wheel:
-	       hid_store_element_data(element, HID_ELEMENT_AXIS, device);
+	       hid_store_element_data(element, HID_ELEMENT_STANDALONE_AXIS, device);
 	       break;
 	       
 	    case kHIDUsage_GD_Hatswitch:
-	       hid_store_element_data(element, HID_ELEMENT_DIGITAL_AXIS, device);
+	       hid_store_element_data(element, HID_ELEMENT_HAT, device);
 	       break;
 	 }
       }
@@ -118,8 +137,11 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
    CFTypeRef type_ref;
    CFNumberRef usage_ref = NULL, usage_page_ref = NULL;
    CFMutableDictionaryRef properties = NULL, usb_properties = NULL;
+   IOCFPlugInInterface **plugin_interface = NULL;
    IOReturn result;
    AL_CONST char *string;
+   SInt32 score = 0;
+   int error;
    
    usage_page = kHIDPage_GenericDesktop;
    switch (type) {
@@ -131,10 +153,6 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
       case HID_JOYSTICK:
          usage = kHIDUsage_GD_Joystick;
 	 break;
-	 
-      case HID_GAMEPAD:
-         usage = kHIDUsage_GD_GamePad;
-	 break;
    }
    
    *num_devices = 0;
@@ -144,6 +162,7 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
 
    result = IOMasterPort(bootstrap_port, &master_port);
    if (result == kIOReturnSuccess) {
+start_scan:
       class_dictionary = IOServiceMatching(kIOHIDDeviceKey);
       if (class_dictionary) {
          /* Add key for device type to refine the matching dictionary. */
@@ -164,6 +183,7 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
                 (IORegistryEntryGetParentEntry (parent1, kIOServicePlane, &parent2) == KERN_SUCCESS) &&
                 (IORegistryEntryCreateCFProperties (parent2, &usb_properties, kCFAllocatorDefault, kNilOptions) == KERN_SUCCESS) &&
 		(properties) && (usb_properties) && (*num_devices < HID_MAX_DEVICES)) {
+	       error = FALSE;
 	       this_device = &device[*num_devices];
 	       (*num_devices)++;
 	       this_device->type = type;
@@ -194,6 +214,29 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
 	          hid_scan_collection(properties, this_device);
 	       }
 	       
+	       this_device->interface = NULL;
+	       if ((type == HID_JOYSTICK) || (type == HID_GAMEPAD)) {
+	          /* Joystick or gamepad device: create HID interface */
+		  if (IOCreatePlugInInterfaceForService(hid_device, kIOHIDDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &plugin_interface, &score) != kIOReturnSuccess)
+		     error = TRUE;
+		  else {
+		     if ((*plugin_interface)->QueryInterface(plugin_interface, CFUUIDGetUUIDBytes(kIOHIDDeviceInterfaceID), (void *)&(this_device->interface)) != S_OK)
+		        error = TRUE;
+		     (*plugin_interface)->Release(plugin_interface);
+		     if ((*(this_device->interface))->open(this_device->interface, 0) != KERN_SUCCESS)
+		        error = TRUE;
+		  }
+	       }
+	       if (error) {
+	          if (this_device->manufacturer)
+		     free(this_device->manufacturer);
+	          if (this_device->product)
+		     free(this_device->product);
+		  if (this_device->interface)
+                     (*(this_device->interface))->Release(this_device->interface);
+		  (*num_devices)--;
+	       }
+	       
 	       CFRelease(properties);
 	       CFRelease(usb_properties);
 	    }
@@ -202,6 +245,11 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
       }
       CFRelease(usage_ref);
       CFRelease(usage_page_ref);
+      if (type == HID_JOYSTICK) {
+         type = HID_GAMEPAD;
+	 usage = kHIDUsage_GD_GamePad;
+	 goto start_scan;
+      }
       mach_port_deallocate(mach_task_self(), master_port);
    }
    
@@ -226,6 +274,10 @@ void osx_hid_free(HID_DEVICE *devices, int num_devices)
          element = &device->element[j];
          if (element->name)
 	    free(element->name);
+      }
+      if ((device->type == HID_JOYSTICK) || (device->type == HID_GAMEPAD)) {
+         (*(device->interface))->close(device->interface);
+         (*(device->interface))->Release(device->interface);
       }
    }
    free(devices);
