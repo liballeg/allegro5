@@ -91,12 +91,13 @@ See readme.txt for a general introduction, copyright details, and
 information about how to install Allegro and link your program with it.
 
 @@int @install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)());
-@xref allegro_init, allegro_exit, set_uformat
+@xref allegro_init, allegro_exit, set_uformat, set_config_file.
    Initialises the Allegro library. You must call either this or 
    allegro_init() before doing anything other than using the Unicode 
    routines. If you want to use a text mode other than UTF-8, you can set
    it with set_uformat() before you call this. The other functions that can
-   be called before this one will be marked explicitly in the documentation.
+   be called before this one will be marked explicitly in the documentation,
+   like set_config_file().
 
    The available system ID codes will vary from one platform to another, but
    you will almost always want to pass SYSTEM_AUTODETECT. Alternatively,
@@ -2337,7 +2338,7 @@ speeds.
 Under DOS it will constantly reprogram the clock to make sure they are all
 called at the correct times. Because they alter the low level timer chip
 settings, these routines should not be used together with other DOS timer
-functions like the djgpp uclock() routine. Moreover, the FPU state is not
+functions like the DJGPP uclock() routine. Moreover, the FPU state is not
 preserved across Allegro interrupts so you ought not to use floating point
 or MMX code inside timer interrupt handlers.
 
@@ -2413,7 +2414,7 @@ Allegro does not provide such devices.)
    you should just set some flags and respond to these later in your main 
    control loop.
 
-   In a DOS protected mode environment like djgpp, memory is virtualised and 
+   In a DOS protected mode environment like DJGPP, memory is virtualised and 
    can be swapped to disk. Due to the non-reentrancy of DOS, if a disk swap 
    occurs inside an interrupt handler the system will die a painful death, 
    so you need to make sure you lock all the memory (both code and data) 
@@ -2445,6 +2446,18 @@ Allegro does not provide such devices.)
    Returns zero on success, or a negative number if there is no room to add
    a new user timer.
 
+@@Macro @LOCK_VARIABLE(variable_name);
+@xref install_int, install_int_ex
+   Due to interrupts/threading, you are required to lock all the memory used
+   by your timer routines. See the description of install_int_ex() for a
+   more detailed explanation and usage example.
+   
+@@Macro @END_OF_FUNCTION(function_name);
+@xref install_int, install_int_ex
+   Due to interrupts/threading, you are required to lock all the code used
+   by your timer routines. See the description of install_int_ex() for a
+   more detailed explanation and usage example.
+   
 @@void @remove_int(void (*proc)());
 @xref install_int, install_int_ex, remove_param_int
    Removes a function from the list of user interrupt routines. At program 
@@ -2556,10 +2569,19 @@ routines" for more information about this.
    fail).
 
 @@void @remove_keyboard();
-@xref install_keyboard, allegro_exit
+@xref install_keyboard, allegro_exit, set_config_string.
    Removes the keyboard handler, returning control to the operating system. 
    You don't normally need to bother calling this, because allegro_exit() 
-   will do it for you.
+   will do it for you. However, you might want to call this during runtime if
+   you want to change the keyboard mapping on those platforms were keyboard
+   mappings are needed. You would first modify the configuration variable
+   holding the keyboard mapping and then reinstall the keyboard handler.
+   Example:
+<codeblock>
+      remove_keyboard();
+      /* Switch to Spanish keyboard mapping. */
+      set_config_string("system", "keyboard", "es");
+      install_keyboard();<endblock>
 
 @@void @install_keyboard_hooks(int (*keypressed)(), int (*readkey)());
 @xref install_keyboard, keypressed, readkey
@@ -2791,7 +2813,24 @@ routines" for more information about this.
    added into the input buffer, and can either return this value unchanged, 
    return zero to cause the key to be ignored, or return a modified value to 
    change what readkey() will later return. This routine executes in an 
-   interrupt context, so it must be in locked memory.
+   interrupt context, so it must be in locked memory. Example:
+<codeblock>
+      int enigma_scrambler(int key)
+      {
+	 /* Add one to both the scancode and ascii values. */
+	 return (((key >> 8) + 1) << 8) | ((key & 0xff) + 1);
+      }
+      END_OF_FUNCTION(enigma_scrambler)
+      
+      ...
+      
+	 install_timer();
+	 LOCK_FUNCTION(enigma_scrambler);
+	 install_keyboard();
+	 keyboard_callback = enigma_scrambler;<endblock>
+
+   Note that this callback will be ignored if you also set the unicode
+   keyboard callback.
 
 @@extern int (*@keyboard_ucallback)(int key, int *scancode);
 @xref install_keyboard, readkey, ureadkey, keyboard_callback
@@ -2802,21 +2841,85 @@ routines" for more information about this.
    the input buffer, can modify the scancode value, and returns a new or 
    modified key code. If it both sets the scancode to zero and returns zero, 
    the keypress will be ignored. This routine executes in an interrupt 
-   context, so it must be in locked memory.
+   context, so it must be in locked memory. Example:
+<codeblock>
+      int silence_g_key(int key, int *scancode)
+      {
+	 if (key == 'g') {
+	    *scancode = 0;
+	    return 0;
+	 }
+	 return key;
+      } END_OF_FUNCTION(silence_g_key)
+
+      ...
+      
+	 install_timer();
+	 LOCK_FUNCTION(silence_g_key);
+	 install_keyboard();
+	 keyboard_ucallback = silence_g_key;<endblock>
+
+   Note that this keyboard callback has priority over the non unicode
+   callback. If you set both, only the unicode one will work.
 
 @@extern void (*@keyboard_lowlevel_callback)(int scancode);
 @xref install_keyboard, keyboard_callback, keyboard_ucallback
    If set, this function is called by the keyboard handler in response to 
-   every keyboard event, both presses and releases. It will be passed a raw 
-   keyboard scancode byte, with the top bit clear if the key has been 
-   pressed or set if it was released. This routine executes in an interrupt 
-   context, so it must be in locked memory.
+   every keyboard event, both presses (including keyboard repeat rate) and
+   releases. It will be passed a raw keyboard scancode byte (scancodes are
+   7 bits long), with the top bit (8th bit) clear if the key has been
+   pressed or set if it was released. This routine executes in an interrupt
+   context, so it must be in locked memory. Example:
+<codeblock>
+      volatile int key_down, key_up;
+      
+      void keypress_watcher(int scancode)
+      {
+	 if (scancode & 0x80) {
+	    key_up = 1;
+	 } else {
+	    key_down = 1;
+	 }
+      } END_OF_FUNCTION(keypress_watcher)
 
+      ...
+
+	 install_timer();
+	 LOCK_FUNCTION(silence_g_key);
+	 LOCK_VARIABLE(key_down);
+	 LOCK_VARIABLE(key_up);
+	 install_keyboard();
+	 keyboard_lowlevel_callback = keypress_watcher;
+	 /* Disable keyboard repeat to get typewriter effect. */
+	 set_keyboard_rate(0, 0);
+
+      ...
+
+	 while (game_loop) {
+	    if (key_down) {
+	       key_down = 0;
+	       /* Play sample of typewriter key press. */
+	    }
+	    if (key_up) {
+	       key_up = 0;
+	       /* Play sample of typewriter key release. */
+	    }
+	 }<endblock>
+         
 @@void @set_leds(int leds);
 @xref install_keyboard, key_led_flag
    Overrides the state of the keyboard LED indicators. The parameter is a 
    bitmask containing any of the values KB_SCROLOCK_FLAG, KB_NUMLOCK_FLAG, 
-   and KB_CAPSLOCK_FLAG, or -1 to restore the default behavior.
+   and KB_CAPSLOCK_FLAG, or -1 to restore the default behavior. Example:
+<codeblock>
+      /* Cycle led indicators. */
+      set_leds(KB_SCROLOCK_FLAG);
+      rest(1000);
+      set_leds(KB_CAPSLOCK_FLAG);
+      rest(1000);
+      set_leds(KB_NUMLOCK_FLAG);
+      rest(1000);
+      set_leds(-1);<endblock>
 
 @@void @set_keyboard_rate(int delay, int repeat);
 @xref install_keyboard, readkey, ureadkey
@@ -2826,11 +2929,13 @@ routines" for more information about this.
 @@void @clear_keybuf();
 @xref install_keyboard, keypressed, readkey, ureadkey
 @eref Available Allegro examples
-   Empties the keyboard buffer.
+   Empties the keyboard buffer. Usually you want to use this in your program
+   before reading keys to avoid previously buffered keys to be returned by
+   calls to readkey() or ureadkey().
 
 @@extern int @three_finger_flag;
 @xref install_keyboard
-   The djgpp keyboard handler provides an 'emergency exit' sequence which 
+   The DJGPP keyboard handler provides an 'emergency exit' sequence which
    you can use to kill off your program. If you are running under DOS this 
    is the three finger salute, ctrl+alt+del. Most multitasking OS's will 
    trap this combination before it reaches the Allegro handler, in which 
@@ -2850,6 +2955,14 @@ routines" for more information about this.
 @heading
 Joystick routines
 
+Unlike keyboard or mouse input, which are usually read through hardware
+interrupts by Allegro, joystick input functions have to be polled because
+there are no hardware interrupts for them on most platforms. This doesn't
+mean that you have to poll the joysticks on each line of code you want to
+read their values, but you should make sure to poll them at least once per
+frame in your game loop. Otherwise you face the possibility of reading stale
+incorrect data.
+
 @@int @install_joystick(int type);
 @xref remove_joystick, load_joystick_data, calibrate_joystick
 @xref calibrate_joystick_name, poll_joystick, Standard config variables
@@ -2859,7 +2972,8 @@ Joystick routines
    type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
    specific documentation for a list of the available drivers. You must call 
    this routine before using any other joystick functions, and you should 
-   make sure that the joystick is in the middle position at the time. 
+   make sure that the joystick is in the middle position at the time.
+@retval
    Returns zero on success. As soon as you have installed the joystick 
    module, you will be able to read the button state and digital (on/off 
    toggle) direction information, which may be enough for some games. If you 
@@ -2876,9 +2990,10 @@ Joystick routines
 @xref install_joystick, joy, num_joysticks
 @eref exjoy
    The joystick is not interrupt driven, so you need to call this function 
-   every now and again to update the global position values. Returns zero
-   on success or a negative number on failure (usually because no joystick
-   driver was installed).
+   every now and again to update the global position values.
+@retval
+   Returns zero on success or a negative number on failure (usually because
+   no joystick driver was installed).
 
 @@extern int @num_joysticks;
 @xref install_joystick, joy
@@ -3000,7 +3115,9 @@ Joystick routines
 @@const char *@calibrate_joystick_name(int n);
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
 @eref exjoy
-   Returns a text description for the next type of calibration that will be 
+   As parameter pass the number of joystick you want to calibrate.
+@retval
+   Returns a text description for the next type of calibration that will be
    done on the specified joystick, or NULL if no more calibration is 
    required.
 
@@ -3019,15 +3136,19 @@ Joystick routines
       for (i=0; i&lt;num_joysticks; i++) {
 	 while (joy[i].flags & JOYFLAG_CALIBRATE) {
 	    char *msg = calibrate_joystick_name(i);
-	    printf("%s, and press a key\n", msg);
+	    textprintf_ex(..., "%s, and press a key\n", msg);
 	    readkey();
 	    if (calibrate_joystick(i) != 0) {
-	       printf("oops!\n");
+	       textprintf_ex(..., "oops!\n");
+	       readkey();
 	       exit(1);
 	    }
 	 }
       }<endblock>
-
+@retval
+   Returns zero on success, non zero if the calibration could not be
+   performed successfully.
+   
 @@int @save_joystick_data(const char *filename);
 @xref load_joystick_data, set_config_file
    After all the headache of calibrating the joystick, you may not want to 
@@ -3035,7 +3156,9 @@ Joystick routines
    Call this function to save the joystick calibration data into the 
    specified configuration file, from which it can later be read by 
    load_joystick_data(). Pass a NULL filename to write the data to the 
-   currently selected configuration file. Returns zero on success.
+   currently selected configuration file.
+@retval
+   Returns zero on success, non zero if the data could not be saved.
 
 @@int @load_joystick_data(const char *filename);
 @xref install_joystick, save_joystick_data, set_config_file
@@ -3043,8 +3166,10 @@ Joystick routines
    the setup utility. This sets up all aspects of the joystick code: you 
    don't even need to call install_joystick() if you are using this 
    function. Pass a NULL filename to read the data from the currently 
-   selected configuration file. Returns zero on success: if it fails the 
-   joystick state is undefined and you must reinitialise it from scratch.
+   selected configuration file.
+@retval
+   Returns zero on success: if it fails the joystick state is undefined and
+   you must reinitialise it from scratch.
 
 @@int @initialise_joystick();
 @xref install_joystick
@@ -3093,7 +3218,8 @@ Graphics modes
    graphics driver. This function returns a pointer to a list structure of 
    the type GFX_MODE_LIST which has the following definition:
 <codeblock>
-      typedef struct GFX_MODE_LIST {
+      typedef struct GFX_MODE_LIST
+      {
 	 int num_modes;
 	 GFX_MODE *mode;
       } GFX_MODE_LIST;
@@ -3101,7 +3227,8 @@ Graphics modes
    If this function returns NULL, it means the call failed. The mode entry
    points to the actual list of video modes.
 <codeblock>
-      typedef struct GFX_MODE {
+      typedef struct GFX_MODE
+      {
 	 int width, height, bpp;
       } GFX_MODE;
 <endblock>
@@ -5882,7 +6009,8 @@ the conversion).
    precalculated with the rgbmap utility, or generated at runtime. The 
    RGB_MAP structure is defined as:
 <codeblock>
-      typedef struct {
+      typedef struct
+      {
 	 unsigned char data[32][32][32];
       } RGB_MAP;<endblock>
       
@@ -6028,11 +6156,11 @@ example, a mode-X putpixel is:
       bmp_write8((unsigned long)bmp-&gtline[y]+(x&gt&gt2), color);
    }<endblock>
 
-Oh yeah: the djgpp nearptr hack. Personally I don't like this very much 
+Oh yeah: the DJGPP nearptr hack. Personally I don't like this very much 
 because it disables memory protection and isn't portable to other platforms, 
 but a lot of people swear by it because it can give you direct access to the 
 screen memory via a normal C pointer. Warning: this method will only work 
-with the djgpp library, when using VGA 13h or a linear framebuffer modes!
+with the DJGPP library, when using VGA 13h or a linear framebuffer modes!
 
 In your setup code:
 <codeblock>
@@ -9938,7 +10066,7 @@ various attributes of the current platform:
 
 <b>ALLEGRO_LFN</b><br>
    Non-zero if long filenames are supported, or zero if you are limited to 
-   8.3 format (in the djgpp version, this is a variable depending on the 
+   8.3 format (in the DJGPP version, this is a variable depending on the 
    runtime environment).
 
 <b>LONG_LONG</b><br>
@@ -10034,7 +10162,7 @@ Miscellaneous
 Reducing your executable size
 
 Some people complain that Allegro produces very large executables. This is 
-certainly true: with the djgpp version, a simple "hello world" program will 
+certainly true: with the DJGPP version, a simple "hello world" program will 
 be about 200k, although the per-executable overhead is much less for 
 platforms that support dynamic linking. But don't worry, Allegro takes up a 
 relatively fixed amount of space, and won't increase as your program gets 
@@ -10049,7 +10177,7 @@ For all platforms, you can use an executable compressor called UPX, which
 is available at <link>http://upx.sourceforge.net/</a>. This usually manages a
 compression ratio of about 40%.
 <li>
-When using djgpp: for starters, read the djgpp FAQ section 8.14, and take
+When using DJGPP: for starters, read the DJGPP FAQ section 8.14, and take
 note of the -s switch. And don't forget to compile your program with
 optimisation enabled!
 <li>
@@ -10190,7 +10318,7 @@ will work on any platform, though.
 If you are distributing a copy of the setup program along with your game, 
 you may be able to get a dramatic size reduction by merging the setup code 
 into your main program, so that only one copy of the Allegro routines will 
-need to be linked. See setup.txt for details. In the djgpp version, after 
+need to be linked. See setup.txt for details. In the DJGPP version, after 
 compressing the executable, this will probably save you about 200k compared 
 to having two separate programs for the setup and the game itself.
 
