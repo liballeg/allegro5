@@ -168,12 +168,12 @@ endif
 
 
 ifdef TARGET_ARCH_COMPAT
-   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
+   TARGET_ARCH = $(GCC_MTUNE)=$(TARGET_ARCH_COMPAT)
 else
    ifdef TARGET_ARCH_EXCL
       TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
    else
-      TARGET_ARCH = -mcpu=pentium
+      TARGET_ARCH = $(GCC_MTUNE)=i586
    endif
 endif
 

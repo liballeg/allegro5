@@ -89,6 +89,26 @@ I386_OBJECTS = $(basename $(notdir $(ALLEGRO_SRC_I386_FILES)))
 
 # -------- include platform-specific definitions --------
 
+ifneq (,$(findstring $(suffix $(MAKEFILE_INC)),.be .dj .mgw .osx .qnx))
+   ifndef GCC_MTUNE
+      gcc_version = $(subst ., ,$(shell gcc -dumpversion))
+      ifeq (2,$(word 1,$(gcc_version)))
+         GCC_MTUNE = -mcpu
+      else
+         ifeq (3,$(word 1,$(gcc_version)))
+            gcc3_minor_using_mcpu = 0 1 2 3
+            ifneq (,$(findstring \
+                  $(word 2,$(gcc_version)),$(gcc3_minor_using_mcpu)))
+               GCC_MTUNE = -mcpu
+            endif
+         endif
+      endif
+      ifndef GCC_MTUNE
+         GCC_MTUNE = -mtune
+      endif
+   endif
+endif
+
 include $(MAKEFILE_INC)
 
 # rm doesn't support -v on Darwin
