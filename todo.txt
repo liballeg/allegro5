@@ -25,6 +25,7 @@ General (Platform independant) todos:
 DOS todos:
 ---------------------------------------------------------------------------
 
+- Write an unified Sidewinder driver
 
 Win32 todos:
 ---------------------------------------------------------------------------

@@ -34,6 +34,8 @@ static int sw_init_aggressive(void);
 static void sw_exit(void);
 static int sw_poll(void);
 
+#define DETECT_TRIES 1
+
 
 static int read_sidewinder(void);
 static int change_mode_b(void);
@@ -141,7 +143,7 @@ static int sw_init(void)
       portindex = 0;
       while (portindex < 8) {
 	 g_port = port[portindex];
-	 for (success=0, i=0; i<16; i++) {	/* Try to detect 16 times */
+	 for (success=0, i=0; i<DETECT_TRIES; i++) {
 	    /* Wait for a while to confirm sw is inactive */
 	    wait_for_sw_sleep (g_port, 4096);
 	    validcount = _sw_poll(g_port, 0);
@@ -157,13 +159,15 @@ static int sw_init(void)
 	    success++;
 	 }
 
-	 /* if detection succeeded 16 times, We consider sidewinder exists this port. */
-	 if (success == 16)
+	 if (success == DETECT_TRIES)
 	    break;
+
 	 portindex += 1;
       }
-      if (!(success == 16))
-	 return -1;				/* detection failed */
+
+      if (success != DETECT_TRIES)
+	 return -1;
+
       change_mode_b();
    }
    else {
