@@ -2897,7 +2897,7 @@ int polygon3d_proc(void)
    #define NUM_POINTS   8+6
    #define NUM_FACES    6
    #define BUFFER_SIZE  128
-   #define NUM_MODES    11
+   #define NUM_MODES    15
 
    /* a 3d x,y,z position */
    typedef struct POINT
@@ -2974,7 +2974,11 @@ int polygon3d_proc(void)
       "POLYTYPE_ATEX_LIT",
       "POLYTYPE_PTEX_LIT",
       "POLYTYPE_ATEX_MASK_LIT",
-      "POLYTYPE_PTEX_MASK_LIT"
+      "POLYTYPE_PTEX_MASK_LIT",
+      "POLYTYPE_ATEX_TRANS",
+      "POLYTYPE_PTEX_TRANS",
+      "POLYTYPE_ATEX_MASK_TRANS",
+      "POLYTYPE_PTEX_MASK_TRANS"
    };
 
    int c;
@@ -2997,7 +3001,6 @@ int polygon3d_proc(void)
    texture = create_bitmap(32, 32);
 
    check_tables();
-   color_map = light_map;
 
    blit(global_sprite, texture, 0, 0, 0, 0, 32, 32);
    rect(texture, 0, 0, 31, 31, palette_color[1]);
@@ -3063,9 +3066,20 @@ int polygon3d_proc(void)
 	 persp_project_f(vtx[c].x, vtx[c].y, vtx[c].z, &vtx[c].x, &vtx[c].y);
       }
 
+      /* color_map to use */
+      if ((mode == POLYTYPE_ATEX_MASK_TRANS) || (mode == POLYTYPE_PTEX_MASK_TRANS) ||
+	  (mode == POLYTYPE_ATEX_TRANS) || (mode == POLYTYPE_PTEX_TRANS)) {
+	 color_map = trans_map;
+      }
+      else {
+	 color_map = light_map;
+      }
+
       /* if mask mode, draw backfaces that may be seen through holes */
       if ((mode == POLYTYPE_ATEX_MASK) || (mode == POLYTYPE_PTEX_MASK) || 
-	  (mode == POLYTYPE_ATEX_MASK_LIT) || (mode == POLYTYPE_PTEX_MASK_LIT)) {
+	  (mode == POLYTYPE_ATEX_MASK_LIT) || (mode == POLYTYPE_PTEX_MASK_LIT) ||
+	  (mode == POLYTYPE_ATEX_MASK_TRANS) || (mode == POLYTYPE_PTEX_MASK_TRANS) ||
+	  (mode == POLYTYPE_ATEX_TRANS) || (mode == POLYTYPE_PTEX_TRANS)) {
 	 for (c=0; c<NUM_FACES; c++) {
 	    if (!face[c].visible) {
 	       quad3d_f(buffer, mode, texture, 
