@@ -15,7 +15,6 @@ General (Platform independant) todos:
 - Unified color conversion routines for all windowed gfx drivers (now
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
-- include dat2c once finished
 - remove joystick control from main part of setup
 
 DOS todos:

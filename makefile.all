@@ -288,6 +288,9 @@ tests/gfxinfo$(EXE): $(OBJ_DIR)/gfxinfo$(OBJ) $(LINK_CONSOLE_DEPS)
 tools/colormap$(EXE): $(OBJ_DIR)/colormap$(OBJ) $(LINK_CONSOLE_DEPS)
 	$(LINK_CONSOLE)
 
+tools/dat2c$(EXE): $(OBJ_DIR)/dat2c$(OBJ) $(LINK_CONSOLE_DEPS)
+	$(LINK_CONSOLE)
+
 tools/exedat$(EXE): $(OBJ_DIR)/exedat$(OBJ) $(LINK_CONSOLE_DEPS)
 	$(LINK_CONSOLE)
 
@@ -357,6 +360,7 @@ test: tests/test$(EXE)
 vesainfo: tests/vesainfo$(EXE)
 colormap: tools/colormap$(EXE)
 dat: tools/dat$(EXE)
+dat2c: tools/dat2c$(EXE)
 dat2s: tools/dat2s$(EXE)
 exedat: tools/exedat$(EXE)
 grabber: tools/grabber$(EXE)
