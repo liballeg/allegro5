@@ -1448,7 +1448,7 @@ int menu_alt_key(int k, MENU *m)
 
 
 
-/* _do_menu:
+/* __do_menu:
  *  The core menu control function, called by do_menu() and d_menu_proc().
  *  The navigation through the arborescence of menus can be done:
  *   - with the arrow keys,
@@ -1456,7 +1456,7 @@ int menu_alt_key(int k, MENU *m)
  *   - with mouse movements when the mouse button is being held down,
  *   - with mouse movements only if gui_menu_opening_delay is non negative.
  */
-int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh)
+static int __do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh, int auto_open)
 {
    MENU_INFO m;
    MENU_INFO *i;
@@ -1499,8 +1499,10 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 
       c = menu_mouse_object(&m);
 
-      if ((gui_mouse_b()) || (c != mouse_sel))
+      if ((gui_mouse_b()) || (c != mouse_sel)) {
 	 m.sel = mouse_sel = c;
+	 auto_open = TRUE;
+      }
 
       if (gui_mouse_b()) {                            /* button pressed? */
 	 /* dismiss menu if:
@@ -1529,6 +1531,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 
 	 if (keypressed()) {                          /* keyboard input */
 	    gui_timer = 0;
+	    auto_open = FALSE;
 
 	    c = readkey();
 
@@ -1647,7 +1650,8 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	 unscare_mouse();
       }
 
-      if (gui_menu_opening_delay >= 0) {             /* menu auto-opening on? */
+      if (auto_open &&
+	  (gui_menu_opening_delay >= 0)) {            /* menu auto-opening on? */
          if (mouse_in_parent_menu(m.parent)) {
             /* automatically goes back to parent */
             ret = -2;
@@ -1687,18 +1691,10 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	       child_y = m.y + (text_height(font)+4)*ret + text_height(font)/4 + 1;
 	    }
 
-	    /* make sure that the mouse won't cause the child menu to be stillborn when 
-	     * keys are used to open it and auto-opening is on: thanks to a feature of 
-	     * mouse_in_parent_menu(), the mouse is not detected if it is pointing to 
-	     * the selected item of the parent menu.
-	     */
-	    m.sel = mouse_sel;
-
             /* recursively call child menu */
-	    c = _do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0);
+	    c = __do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0, auto_open);
 
 	    if (c < 0) {                            /* return to parent? */
-	       m.sel = ret;
 	       ret = -1;
 	       mouse_button_was_pressed = FALSE;
 	       mouse_sel = menu_mouse_object(&m);
@@ -1707,7 +1703,11 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 		  m.sel = mouse_sel;
 		  redraw = TRUE;
 		  gui_timer = 0;
+		  auto_open = TRUE;
 		  back_from_child = TRUE;
+	       }
+	       else {				    /* return caused by keyboard */
+		  auto_open = FALSE;
 	       }
 	    }
 	 }
@@ -1748,6 +1748,16 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
    }
 
    return ret;
+}
+
+
+
+/* _do_menu:
+ *  Top-level wrapper around __do_menu.
+ */
+static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh)
+{
+   return __do_menu(menu, parent, bar, x, y, repos, dret, minw, minh, TRUE);
 }
 
 
