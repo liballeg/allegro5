@@ -46,6 +46,9 @@ void gfx_directx_restore(void)
 {
    BMP_EXTRA_INFO *item = directx_bmp_list;
 
+   if (!item)
+      return;
+
    _enter_gfx_critical();
 
    while (item) {
