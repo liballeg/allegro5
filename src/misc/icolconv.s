@@ -1075,9 +1075,8 @@ FUNC (_colorconv_blit_32_to_15)
          movd %mm6, (%ebx)
          addl $4, %ebx
 
-         incl %ebp
-         cmpl %edx, %ebp
-         jb next_block_32_to_15
+         decl %edx
+         jnz next_block_32_to_15
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_32_to_15:
