@@ -162,6 +162,10 @@ gcc -o _makedoc.exe docs/src/makedoc/*.c
 for base in abi ahack allegro const faq help; do
    ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
 done
+for base in bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom; do
+   ./_makedoc.exe -ascii docs/build/$base.txt docs/src/build/$base._tx
+done
+
 
 rm _makedoc.exe
 
