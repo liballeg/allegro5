@@ -116,7 +116,19 @@ Installing Allegro
       autoheader   
       autoconf
 <endblock>
-
+   It is possible to add compilation and link flags to the make command line.
+   This is done by passing CFLAGS and/or LDFLAGS to make, with the flags
+   you want. This is meant as a generic customization ability and you should 
+   really use configure to set the flags if possible. Note that any flags you
+   pass using the make command line are transient: they will only apply to
+   whatever compilation and link happen to be spawned by this particular
+   invokation of make.
+   When you pass CFLAGS and/or LDFLAGS to the make command line Allegro's
+   build system will use these as a starting point and will add its own
+   flags to those. This means that you should be aware that flags you pass
+   this way may be overridden. For this reason, it is best to only use this
+   to specify flags that do not interfere with the code generation. Useful
+   flags to pass are -save-temps, or -pipe.
 
 @heading
 Using Allegro
