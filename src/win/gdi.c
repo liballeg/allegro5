@@ -21,7 +21,7 @@
 #include "allegro/platform/aintwin.h"
 
 #ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
+   #error something is wrong with the makefile
 #endif
 
 
@@ -30,9 +30,9 @@ static HPALETTE current_hpalette = NULL;
 
 
 /* set_gdi_color_format:
- *  Sets right values for pixel color format to work with GDI as well.
+ *  Sets right values for pixel color format to work with GDI.
  */
-void set_gdi_color_format()
+void set_gdi_color_format(void)
 {
    _rgb_r_shift_15 = 10;
    _rgb_g_shift_15 = 5;
@@ -53,42 +53,42 @@ void set_gdi_color_format()
 
 
 
-/* destroy_hpalette:
- *  Destroys main hpalette at the end of the program.
+/* destroy_current_hpalette:
+ *  Destroys the current Windows PALETTE.
  */
-static void destroy_hpalette(void)
+static void destroy_current_hpalette(void)
 {
    if (current_hpalette) {
       DeleteObject(current_hpalette);
       current_hpalette = NULL;
    }
 
-   _remove_exit_func(destroy_hpalette);
+   _remove_exit_func(destroy_current_hpalette);
 }
 
 
 
 /* set_palette_to_hdc:
- *  Selects and realizes an Allegro PALETTE to a specified DC.
+ *  Selects and realizes an Allegro PALETTE to a Windows DC.
  */
 void set_palette_to_hdc(HDC dc, PALETTE pal)
 {
    PALETTEENTRY palPalEntry[256];
-   int x;
+   int i;
 
    if (current_hpalette) {
-      for (x = 0; x < 256; x++) {
-	 palPalEntry[x].peRed = _rgb_scale_6[pal[x].r];
-	 palPalEntry[x].peGreen = _rgb_scale_6[pal[x].g];
-	 palPalEntry[x].peBlue = _rgb_scale_6[pal[x].b];
-	 palPalEntry[x].peFlags = 0;
+      for (i = 0; i < 256; i++) {
+	 palPalEntry[i].peRed = _rgb_scale_6[pal[i].r];
+	 palPalEntry[i].peGreen = _rgb_scale_6[pal[i].g];
+	 palPalEntry[i].peBlue = _rgb_scale_6[pal[i].b];
+	 palPalEntry[i].peFlags = 0;
       }
 
       SetPaletteEntries(current_hpalette, 0, 256, (LPPALETTEENTRY) & palPalEntry);
    }
    else {
       current_hpalette = convert_palette_to_hpalette(pal);
-      _add_exit_func(destroy_hpalette);
+      _add_exit_func(destroy_current_hpalette);
    }
 
    SelectPalette(dc, current_hpalette, FALSE);
@@ -99,31 +99,31 @@ void set_palette_to_hdc(HDC dc, PALETTE pal)
 
 
 /* convert_palette_to_hpalette:
- *  Converts Allegro PALETTE to Windows HPALETTE
+ *  Converts an Allegro PALETTE to a Windows PALETTE.
  */
 HPALETTE convert_palette_to_hpalette(PALETTE pal)
 {
    HPALETTE hpal;
    LOGPALETTE *lp;
-   int x;
+   int i;
 
-   lp = (LOGPALETTE *) LocalAlloc(LPTR, sizeof(LOGPALETTE) + sizeof(PALETTEENTRY) * 256);
+   lp = (LOGPALETTE *) malloc(sizeof(LOGPALETTE) + sizeof(PALETTEENTRY) * 256);
    if (!lp)
       return NULL;
 
    lp->palNumEntries = 256;
    lp->palVersion = 0x300;
 
-   for (x = 0; x < 256; x++) {
-      lp->palPalEntry[x].peRed = _rgb_scale_6[pal[x].r];
-      lp->palPalEntry[x].peGreen = _rgb_scale_6[pal[x].g];
-      lp->palPalEntry[x].peBlue = _rgb_scale_6[pal[x].b];
-      lp->palPalEntry[x].peFlags = 0;
+   for (i = 0; i < 256; i++) {
+      lp->palPalEntry[i].peRed = _rgb_scale_6[pal[i].r];
+      lp->palPalEntry[i].peGreen = _rgb_scale_6[pal[i].g];
+      lp->palPalEntry[i].peBlue = _rgb_scale_6[pal[i].b];
+      lp->palPalEntry[i].peFlags = 0;
    }
 
    hpal = CreatePalette(lp);
 
-   LocalFree((HANDLE) lp);
+   free(lp);
 
    return hpal;
 }
@@ -131,29 +131,68 @@ HPALETTE convert_palette_to_hpalette(PALETTE pal)
 
 
 /* convert_hpalette_to_palette:
- *  Converts Windows HPALETTE to Allegro PALETTE
+ *  Converts a Windows PALETTE to an Allegro PALETTE.
  */
 void convert_hpalette_to_palette(HPALETTE hpal, PALETTE pal)
 {
    PALETTEENTRY lp[256];
-   int x;
+   int i;
 
    GetPaletteEntries(hpal, 0, 256, (LPPALETTEENTRY) & lp);
 
-   for (x = 0; x < 256; x++) {
-      pal[x].r = lp[x].peRed >> 2;
-      pal[x].g = lp[x].peGreen >> 2;
-      pal[x].b = lp[x].peBlue >> 2;
+   for (i = 0; i < 256; i++) {
+      pal[i].r = lp[i].peRed >> 2;
+      pal[i].g = lp[i].peGreen >> 2;
+      pal[i].b = lp[i].peBlue >> 2;
    }
 }
 
 
 
-/* get_dib:
- *  Creates device independent bitmap (DIB) from Allegro BITMAP.
- *  You have to free memory returned by this function by calling free()
+/* get_bitmap_info:
+ *  Returns a BITMAPINFO structure suited to an Allegro BITMAP.
+ *  You have to free the memory allocated by this function.
  */
-static BYTE *get_dib(BITMAP * bitmap)
+static BITMAPINFO *get_bitmap_info(BITMAP *bitmap, PALETTE pal)
+{
+   BITMAPINFO *bi;
+   int bpp, i;
+
+   bi = (BITMAPINFO *) malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
+
+   bpp = bitmap_color_depth(bitmap);
+   if (bpp == 15)
+      bpp = 16;
+
+   ZeroMemory(&bi->bmiHeader, sizeof(BITMAPINFOHEADER));
+
+   bi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+   bi->bmiHeader.biBitCount = bpp;
+   bi->bmiHeader.biPlanes = 1;
+   bi->bmiHeader.biWidth = bitmap->w;
+   bi->bmiHeader.biHeight = -bitmap->h;
+   bi->bmiHeader.biClrUsed = 256;
+   bi->bmiHeader.biCompression = BI_RGB;
+
+   if (pal) {
+      for (i = 0; i < 256; i++) {
+	 bi->bmiColors[i].rgbRed = _rgb_scale_6[pal[i].r];
+	 bi->bmiColors[i].rgbGreen = _rgb_scale_6[pal[i].g];
+	 bi->bmiColors[i].rgbBlue = _rgb_scale_6[pal[i].b];
+	 bi->bmiColors[i].rgbReserved = 0;
+      }
+   }
+
+   return bi;
+}
+
+
+
+/* get_dib_from_bitmap:
+ *  Creates a Windows device-independent bitmap (DIB) from an Allegro BITMAP.
+ *  You have to free the memory allocated by this function.
+ */
+static BYTE *get_dib_from_bitmap(BITMAP *bitmap)
 {
    int bpp;
    int x, y;
@@ -170,9 +209,6 @@ static BYTE *get_dib(BITMAP * bitmap)
    if (!pixels)
       return NULL;
 
-   /* this code will probably need optimalization. if anybody can
-    * optimalize it, do so!
-    */
    switch (bpp) {
 
       case 8:
@@ -202,6 +238,7 @@ static BYTE *get_dib(BITMAP * bitmap)
 	 break;
 
       case 16:
+	 /* the format of a 16-bit DIB is 5-5-5 as above */
 	 for (y = 0; y < bitmap->h; y++) {
 	    src = bitmap->line[y];
 	    dst = pixels + y * pitch;
@@ -265,8 +302,8 @@ static BYTE *get_dib(BITMAP * bitmap)
 
 
 /* get_dib_from_hbitmap:
- *  Returns pointer to DIB created from hbitmap. You have to free memory returned by this
- *  function.
+ *  Creates a Windows device-independent bitmap (DIB) from a Windows BITMAP.
+ *  You have to free the memory allocated by this function.
  */
 static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
 {
@@ -320,8 +357,8 @@ static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
 
    ptr = pixels;
 
-   /* This never occurs, because if screen or memory bitmap is 8 bit, 
-    * we ask windows to convert it to true color. It "safer", but little 
+   /* This never occurs, because if screen or memory bitmap is 8-bit, 
+    * we ask Windows to convert it to truecolor. It is safer, but a little 
     * bit slower.
     */
 
@@ -353,25 +390,22 @@ static BYTE *get_dib_from_hbitmap(int bpp, HBITMAP hbitmap)
 
 
 
-/* copy_dib_to_bitmap:
- *  Copies 1:1 DIB to Allegro BITMAP. They have to be same w, h, and bpp!
+/* get_bitmap_from_dib:
+ *  Creates an Allegro BITMAP from a Windows device-independent bitmap (DIB).
  */
-static void copy_dib_to_bitmap(BYTE * pixels, BITMAP * bitmap)
+static BITMAP *get_bitmap_from_dib(int bpp, int w, int h, BYTE *pixels)
 {
-   int bpp;
    int x, y;
    int pitch;
    int col;
    int b, g, r;
    BYTE *src, *dst;
+   BITMAP *bitmap;
 
-   bpp = bitmap_color_depth(bitmap);
+   bitmap = create_bitmap_ex(bpp, w, h);
    pitch = bitmap->w * BYTES_PER_PIXEL(bpp);
    pitch = (pitch + 3) & ~3;	/* align on dword */
 
-   /* this code will probably need optimalization. if anybody can
-    * optimalize it, do so!
-    */
    switch (bpp) {
 
       case 8:
@@ -401,6 +435,7 @@ static void copy_dib_to_bitmap(BYTE * pixels, BITMAP * bitmap)
 	 break;
 
       case 16:
+	 /* the format of a 16-bit DIB is 5-5-5 as above */
 	 for (y = 0; y < bitmap->h; y++) {
 	    dst = bitmap->line[y];
 	    src = pixels + y * pitch;
@@ -460,55 +495,16 @@ static void copy_dib_to_bitmap(BYTE * pixels, BITMAP * bitmap)
 	 }
 	 break;
    }
-}
 
-
-
-/* get_bitmap_info:
- *  Returns pointer to BITMAPINFO structure with bitmap info.
- *  You have to free this memory, when you no longer need it.
- *  Palette is color table for DIB
- */
-static BITMAPINFO *get_bitmap_info(BITMAP * bitmap, PALETTE pal)
-{
-   BITMAPINFO *bi;
-   int x;
-   int bpp;
-
-   bi = malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
-
-   bpp = bitmap_color_depth(bitmap);
-   if (bpp == 15)
-      bpp = 16;
-
-   ZeroMemory(&bi->bmiHeader, sizeof(BITMAPINFOHEADER));
-
-   bi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-   bi->bmiHeader.biBitCount = bpp;
-   bi->bmiHeader.biPlanes = 1;
-   bi->bmiHeader.biWidth = bitmap->w;
-   bi->bmiHeader.biHeight = -bitmap->h;
-   bi->bmiHeader.biClrUsed = 256;
-   bi->bmiHeader.biCompression = BI_RGB;
-
-   if (pal) {
-      for (x = 0; x < 256; x++) {
-	 bi->bmiColors[x].rgbRed = _rgb_scale_6[pal[x].r];
-	 bi->bmiColors[x].rgbGreen = _rgb_scale_6[pal[x].g];
-	 bi->bmiColors[x].rgbBlue = _rgb_scale_6[pal[x].b];
-	 bi->bmiColors[x].rgbReserved = 0;
-      }
-   }
-
-   return bi;
+   return bitmap;
 }
 
 
 
 /* convert_bitmap_to_hbitmap:
- *  Converts Allegro BITMAP to device dependent bitmap HBITMAP.
+ *  Converts an Allegro BITMAP to a Windows BITMAP.
  */
-HBITMAP convert_bitmap_to_hbitmap(BITMAP * bitmap)
+HBITMAP convert_bitmap_to_hbitmap(BITMAP *bitmap)
 {
    HDC hdc;
    HBITMAP hbmp;
@@ -516,14 +512,13 @@ HBITMAP convert_bitmap_to_hbitmap(BITMAP * bitmap)
    HPALETTE hpal, holdpal;
    BYTE *pixels;
 
-   pixels = get_dib(bitmap);
-
-   /* when we have DIB, we can convert it to DDB */
-   hdc = GetDC(NULL);
-
+   /* get the DIB first */
    bi = get_bitmap_info(bitmap, NULL);
-
+   pixels = get_dib_from_bitmap(bitmap);
    hpal = convert_palette_to_hpalette(_current_palette);
+
+   /* now that we have the DIB, convert it to a DDB */
+   hdc = GetDC(NULL);
    holdpal = SelectPalette(hdc, hpal, TRUE);
    RealizePalette(hdc);
    hbmp = CreateDIBitmap(hdc, &bi->bmiHeader, CBM_INIT, pixels, bi, DIB_RGB_COLORS);
@@ -541,7 +536,7 @@ HBITMAP convert_bitmap_to_hbitmap(BITMAP * bitmap)
 
 
 /* convert_hbitmap_to_bitmap:
- *  Converts HBITMAP to Allegro BITMAP.
+ *  Converts a Windows BITMAP to an Allegro BITMAP.
  */
 BITMAP *convert_hbitmap_to_bitmap(HBITMAP bitmap)
 {
@@ -560,11 +555,11 @@ BITMAP *convert_hbitmap_to_bitmap(HBITMAP bitmap)
    else
       bpp = bm.bmBitsPixel;
 
+   /* get the DIB first */
    pixels = get_dib_from_hbitmap(bpp, bitmap);
 
-   bmp = create_bitmap_ex(bpp, bm.bmWidth, bm.bmHeight);
-
-   copy_dib_to_bitmap(pixels, bmp);
+   /* now that we have the DIB, convert it to a BITMAP */
+   bmp = get_bitmap_from_dib(bpp, bm.bmWidth, bm.bmHeight, pixels);
 
    free(pixels);
 
@@ -574,9 +569,9 @@ BITMAP *convert_hbitmap_to_bitmap(HBITMAP bitmap)
 
 
 /* draw_to_hdc:
- *  Draws entire Allegro BITMAP to HDC. See blit_to_hdc() for details.
+ *  Draws an entire Allegro BITMAP to a Windows DC. Has a syntax similar to draw_sprite().
  */
-void draw_to_hdc(HDC dc, BITMAP * bitmap, int x, int y)
+void draw_to_hdc(HDC dc, BITMAP *bitmap, int x, int y)
 {
    stretch_blit_to_hdc(bitmap, dc, 0, 0, bitmap->w, bitmap->h, x, y, bitmap->w, bitmap->h);
 }
@@ -584,9 +579,9 @@ void draw_to_hdc(HDC dc, BITMAP * bitmap, int x, int y)
 
 
 /* blit_to_hdc:
- *  Blits Allegro BITMAP to HDC. Has similar syntax as Allegro blit().
+ *  Blits an Allegro BITMAP to a Windows DC. Has a syntax similar to blit().
  */
-void blit_to_hdc(BITMAP * bitmap, HDC dc, int src_x, int src_y, int dest_x, int dest_y, int w, int h)
+void blit_to_hdc(BITMAP *bitmap, HDC dc, int src_x, int src_y, int dest_x, int dest_y, int w, int h)
 {
    stretch_blit_to_hdc(bitmap, dc, src_x, src_y, w, h, dest_x, dest_y, w, h);
 }
@@ -594,15 +589,15 @@ void blit_to_hdc(BITMAP * bitmap, HDC dc, int src_x, int src_y, int dest_x, int 
 
 
 /* stretch_blit_to_hdc:
- *  Blits Allegro BITMAP to HDC. Has similar syntax as Allegro stretch_blit().
+ *  Blits an Allegro BITMAP to a Windows DC. Has a syntax similar to stretch_blit().
  */
-void stretch_blit_to_hdc(BITMAP * bitmap, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
+void stretch_blit_to_hdc(BITMAP *bitmap, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
 {
    BYTE *pixels;
    BITMAPINFO *bi;
 
-   pixels = get_dib(bitmap);
    bi = get_bitmap_info(bitmap, _current_palette);
+   pixels = get_dib_from_bitmap(bitmap);
 
    StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h, src_x, bitmap->h - src_y - src_h, src_w, src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
 
@@ -613,9 +608,9 @@ void stretch_blit_to_hdc(BITMAP * bitmap, HDC dc, int src_x, int src_y, int src_
 
 
 /* blit_from_hdc:
- *  Blits from HDC to Allegro BITMAP. Has similar syntax as Allegro blit().
+ *  Blits from a Windows DC to an Allegro BITMAP. Has a syntax similar to blit().
  */
-void blit_from_hdc(HDC dc, BITMAP * bitmap, int src_x, int src_y, int dest_x, int dest_y, int w, int h)
+void blit_from_hdc(HDC dc, BITMAP *bitmap, int src_x, int src_y, int dest_x, int dest_y, int w, int h)
 {
    stretch_blit_from_hdc(dc, bitmap, src_x, src_y, w, h, dest_x, dest_y, w, h);
 }
@@ -623,9 +618,9 @@ void blit_from_hdc(HDC dc, BITMAP * bitmap, int src_x, int src_y, int dest_x, in
 
 
 /* stretch_blit_from_hdc:
- *  Blits from HDC to Allegro BITMAP. Has similar syntax as Allegro stretch_blit().
+ *  Blits from a Windows DC to an Allegro BITMAP. Has a syntax similar to stretch_blit().
  */
-void stretch_blit_from_hdc(HDC dc, BITMAP * bitmap, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
+void stretch_blit_from_hdc(HDC dc, BITMAP *bitmap, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
 {
    HBITMAP hbmp, holdbmp;
    HDC hmemdc;
