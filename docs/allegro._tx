@@ -5798,8 +5798,23 @@ directories, but not hidden files and directories. Similarly, if you pass
    password, call packfile_password(NULL) again. Better still, don't touch
    this function at all. Ever.
 
+@@PACKFILE *@pack_fdopen(int fd, const char *mode);
+@xref packfile functions, pack_fopen
+   Converts the given file descriptor to a PACKFILE. The mode can have the
+   same values as for pack_fopen() and must be compatible with the mode
+   of the file descriptor. Unlike libc fdopen, pack_fdopen() is unable to
+   convert an already partially read or written file (i.e. the file offset
+   must be 0).
+
+   On success, it returns a pointer to a packfile structure, and on error
+   it returns NULL and stores an error code in errno. An attempt to read
+   a normal file in packed mode will cause errno to be set to EDOM. An
+   attempt to convert a partially read or written file will cause
+   errno to be set to EINVAL.
+
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
-@xref packfile functions, pack_fopen_chunk, packfile_password, file_select
+@xref packfile functions, pack_fdopen, pack_fopen_chunk, packfile_password
+@xref file_select
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
       'r' - open file for reading.

@@ -1141,6 +1141,322 @@ static int clone_password(PACKFILE *f)
 
 
 
+/* _compute_flags:
+ *  Converts the given mode in flags.
+ */
+static int _compute_flags(AL_CONST char *mode, long *header)
+{
+   int flags = 0;
+   int c;
+
+   *header = FALSE;
+   while ((c = *(mode++)) != 0) {
+      switch (c) {
+         case 'r': case 'R': flags &= ~PACKFILE_FLAG_WRITE; break;
+         case 'w': case 'W': flags |= PACKFILE_FLAG_WRITE; break;
+         case 'p': case 'P': flags |= PACKFILE_FLAG_PACK; break;
+         case '!': flags &= ~PACKFILE_FLAG_PACK; *header = TRUE; break;
+      }
+   }
+
+   return flags;
+}
+
+
+
+/* _create_packfile_struct:
+ *  Creates and partially initialize a PACKFILE structure.
+ */
+static PACKFILE *_create_packfile_struct(int flags)
+{
+   PACKFILE *f;
+
+   if ((f = malloc(sizeof(PACKFILE))) == NULL) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   f->buf_pos = f->buf;
+   f->flags = flags;
+   f->buf_size = 0;
+   f->filename = NULL;
+   f->passdata = NULL;
+   f->passpos = NULL;
+   f->parent = NULL;
+   f->pack_data = NULL;
+   f->todo = 0;
+
+   return f;
+}
+
+
+/* _create_pack_data:
+ *  Creates and partially initialize a PACK_DATA structure.
+ */
+static PACK_DATA *_create_pack_data(void)
+{
+  int c;
+  PACK_DATA *dat = malloc(sizeof(PACK_DATA));
+
+  if (dat) {
+     for (c=0; c < N - F; c++)
+        dat->text_buf[c] = 0;
+     dat->state = 0;
+  }
+
+  return dat;
+}
+
+
+
+/* _create_unpack_data:
+ *  Creates and partially initialize a PACK_UNDATA structure.
+ */
+static UNPACK_DATA *_create_unpack_data(void)
+{
+  int c;
+  UNPACK_DATA *dat = malloc(sizeof(UNPACK_DATA));
+
+  if (dat) {
+     for (c=0; c < N - F; c++)
+        dat->text_buf[c] = 0;
+     dat->state = 0;
+  }
+
+  return dat;
+}
+
+
+
+/* _free_packfile:
+ *  free the PACKFILE struct and its fields
+ */
+static void _free_packfile(PACKFILE *f)
+{
+   if (f) {
+      if (f->pack_data) free(f->pack_data);
+      if (f->passdata) free(f->passdata);
+      free(f);
+   }
+}
+
+
+
+static int _open(AL_CONST char *fname, int flags, int mode)
+{
+#ifndef ALLEGRO_MPW
+   return open(fname, flags, mode);
+#else
+   return _al_open(fname, flags);
+#endif
+}
+
+
+
+/* _open_old_packed_file:
+ *  Returns FALSE if an error occured
+ */
+static int _open_old_packed_file(PACKFILE *f, long *header, int fd)
+{
+   pack_fclose(f->parent);
+
+   if (!clone_password(f)) {
+      return FALSE;
+   }
+
+   if ((f->parent = pack_fdopen(fd, F_READ)) == NULL) {
+      return FALSE;
+   }
+
+   f->parent->flags |= PACKFILE_FLAG_OLD_CRYPT;
+   f->flags |= PACKFILE_FLAG_OLD_CRYPT;
+
+   pack_mgetl(f->parent);
+
+   if (*header == encrypt_id(F_PACK_MAGIC, FALSE))
+      *header = encrypt_id(F_PACK_MAGIC, TRUE);
+   else
+      *header = encrypt_id(F_NOPACK_MAGIC, TRUE);
+
+   return TRUE;
+}
+
+
+
+/* _new_mode_is_valid:
+ *  Tests if the flags (PACKFILE_FLAG_*) are compatible with the file
+ *  descriptor mode.
+ */
+static int _new_mode_is_valid(int filedesc, int flags)
+{
+   /* this function used to use fcntl which seems to be highly non-portable.
+      Now it asks fdopen from stdio to do the test */
+   FILE *tmpf;
+   int fd = dup(filedesc);
+
+   if (fd < 0) {
+      *allegro_errno = errno;
+      return FALSE;
+   }
+
+   if (flags & PACKFILE_FLAG_WRITE)
+      tmpf = fdopen(fd, "w");
+   else
+      tmpf = fdopen(fd, "r");
+
+   if (!tmpf) {
+      *allegro_errno = errno;
+      return FALSE;
+   }
+   fclose(tmpf);
+
+   return TRUE;
+}
+
+
+
+/* pack_fdopen:
+ *  Converts the given file descriptor to a PACKFILE. The mode can have the
+ *  same values as for pack_fopen() and must be compatible with the mode
+ *  of the file descriptor. Unlike libc fdopen, pack_fdopen() is unable to
+ *  convert an already partially read or written file (i.e. the file offset
+ *  must be 0).
+ *  On success, it returns a pointer to a file structure, and on error it
+ *  returns NULL and stores an error code in errno. An attempt to read
+ *  a normal file in packed mode will cause errno to be set to EDOM. An
+ *  attempt to convert a partially read or written file will cause
+ *  errno to be set to EINVAL.
+ */
+PACKFILE *pack_fdopen(int fd, AL_CONST char *mode)
+{
+   PACKFILE *f, *f2;
+   long header = FALSE;
+   int flags;
+
+   /* cannot convert a partially written/read file */
+   if (lseek(fd, 0, SEEK_CUR) != 0) {
+      *allegro_errno = EINVAL;
+      return NULL;
+   }
+
+   /* the given mode must be compatible with the file descriptor's */
+   flags = _compute_flags(mode, &header);
+   if (!_new_mode_is_valid(fd, flags)) {
+      return NULL;
+   }
+   
+   f = _create_packfile_struct(flags);
+
+   if (f->flags & PACKFILE_FLAG_WRITE) {
+      if (f->flags & PACKFILE_FLAG_PACK) {
+	 /* write a packed file */
+         f->pack_data = _create_pack_data();
+
+         if (!f->pack_data) {
+	    *allegro_errno = ENOMEM;
+            _free_packfile(f);
+	    return NULL;
+	 }
+
+         if ((f->parent = pack_fdopen(fd, F_WRITE)) == NULL) {
+            _free_packfile(f);
+	    return NULL;
+	 }
+
+	 pack_mputl(encrypt_id(F_PACK_MAGIC, TRUE), f->parent);
+
+	 f->todo = 4;
+      }
+      else {
+	 /* write a 'real' file */
+	 if (!clone_password(f)) {
+            _free_packfile(f);
+	    return NULL;
+	 }
+         f->hndl = fd;
+
+	 errno = 0;
+	 f->todo = 0;
+
+	 if (header)
+	    pack_mputl(encrypt_id(F_NOPACK_MAGIC, TRUE), f);
+      }
+   }
+   else { 
+      if (f->flags & PACKFILE_FLAG_PACK) {
+	 /* read a packed file */
+         f->pack_data = _create_unpack_data();
+
+         if (!f->pack_data) {
+	    *allegro_errno = ENOMEM;
+            _free_packfile(f);
+	    return NULL;
+	 }
+
+         if ((f->parent = pack_fdopen(fd, F_READ)) == NULL) {
+            _free_packfile(f);
+	    return NULL;
+	 }
+
+	 header = pack_mgetl(f->parent);
+
+	 if ((f->parent->passpos) &&
+	     ((header == encrypt_id(F_PACK_MAGIC, FALSE)) ||
+	      (header == encrypt_id(F_NOPACK_MAGIC, FALSE)))) {
+
+	    /* backward compatibility mode */
+            if (_open_old_packed_file(f, &header, fd) == FALSE) {
+               _free_packfile(f);
+               return NULL;
+            }
+	 }
+
+	 if (header == encrypt_id(F_PACK_MAGIC, TRUE)) {
+	    f->todo = LONG_MAX;
+	 }
+	 else if (header == encrypt_id(F_NOPACK_MAGIC, TRUE)) {
+	    f2 = f->parent;
+            _free_packfile(f);
+	    return f2;
+	 }
+	 else {
+	    pack_fclose(f->parent);
+            _free_packfile(f);
+	    if (*allegro_errno == 0)
+	       *allegro_errno = EDOM;
+	    return NULL;
+	 }
+      }
+      else {
+	 /* read a 'real' file */
+         /* compute the size of the file */
+         f->todo = lseek(fd, 0, SEEK_END);
+         if (f->todo < 0) {
+            *allegro_errno = errno;
+            free(f);
+            return NULL;
+         }
+         lseek(fd, 0, SEEK_SET);
+
+	 if (*allegro_errno) {
+            _free_packfile(f);
+	    return NULL;
+	 }
+
+	 if (!clone_password(f)) {
+            _free_packfile(f);
+	    return NULL;
+	 }
+
+         f->hndl = fd;
+      }
+   }
+
+   return f;
+}
+
+
+
 /* pack_fopen:
  *  Opens a file according to mode, which may contain any of the flags:
  *  'r': open file for reading.
@@ -1164,10 +1480,9 @@ static int clone_password(PACKFILE *f)
  */
 PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 {
-   PACKFILE *f, *f2;
-   long header = FALSE;
-   int c;
-   char tmp[1024];
+   int flags;
+   long header;
+   int fd;
 
    _packfile_type = 0;
 
@@ -1179,189 +1494,24 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
    errno = *allegro_errno = 0;
 
-   if ((f = malloc(sizeof(PACKFILE))) == NULL) {
-      *allegro_errno = ENOMEM;
+   flags = _compute_flags(mode, &header);
+
+   if (flags & PACKFILE_FLAG_WRITE) {
+      fd = _open(uconvert_toascii(filename, NULL),
+                 O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
+                 S_IRUSR | S_IWUSR);
+   }
+   else {
+      fd = _open(uconvert_toascii(filename, NULL),
+                 O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
+   }
+
+   if (fd < 0) {
+      *allegro_errno = errno;
       return NULL;
    }
 
-   f->buf_pos = f->buf;
-   f->flags = 0;
-   f->buf_size = 0;
-   f->filename = NULL;
-   f->passdata = NULL;
-   f->passpos = NULL;
-
-   while ((c = *(mode++)) != 0) {
-      switch (c) {
-	 case 'r': case 'R': f->flags &= ~PACKFILE_FLAG_WRITE; break;
-	 case 'w': case 'W': f->flags |= PACKFILE_FLAG_WRITE; break;
-	 case 'p': case 'P': f->flags |= PACKFILE_FLAG_PACK; break;
-	 case '!': f->flags &= ~PACKFILE_FLAG_PACK; header = TRUE; break;
-      }
-   }
-
-   if (f->flags & PACKFILE_FLAG_WRITE) {
-      if (f->flags & PACKFILE_FLAG_PACK) {
-	 /* write a packed file */
-	 PACK_DATA *dat = malloc(sizeof(PACK_DATA));
-
-	 if (!dat) {
-	    *allegro_errno = ENOMEM;
-	    free(f);
-	    return NULL;
-	 }
-
-	 if ((f->parent = pack_fopen(filename, F_WRITE)) == NULL) {
-	    free(dat);
-	    free(f);
-	    return NULL;
-	 }
-
-	 pack_mputl(encrypt_id(F_PACK_MAGIC, TRUE), f->parent);
-
-	 f->todo = 4;
-
-	 for (c=0; c < N - F; c++)
-	    dat->text_buf[c] = 0; 
-
-	 dat->state = 0;
-
-	 f->pack_data = dat;
-      }
-      else {
-	 /* write a 'real' file */
-	 f->parent = NULL;
-	 f->pack_data = NULL;
-
-	 if (!clone_password(f)) {
-	    free(f);
-	    return NULL;
-	 }
-#ifndef ALLEGRO_MPW
-	 f->hndl = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-#else
-	 f->hndl = _al_open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
-#endif
-	 if (f->hndl < 0) {
-	    *allegro_errno = errno;
-	    if (f->passdata)
-	       free(f->passdata);
-	    free(f);
-	    return NULL;
-	 }
-
-	 errno = 0;
-	 f->todo = 0;
-
-	 if (header)
-	    pack_mputl(encrypt_id(F_NOPACK_MAGIC, TRUE), f);
-      }
-   }
-   else { 
-      if (f->flags & PACKFILE_FLAG_PACK) {
-	 /* read a packed file */
-	 UNPACK_DATA *dat = malloc(sizeof(UNPACK_DATA));
-
-	 if (!dat) {
-	    *allegro_errno = ENOMEM;
-	    free(f);
-	    return NULL;
-	 }
-
-	 if ((f->parent = pack_fopen(filename, F_READ)) == NULL) {
-	    free(dat);
-	    free(f);
-	    return NULL;
-	 }
-
-	 header = pack_mgetl(f->parent);
-
-	 if ((f->parent->passpos) &&
-	     ((header == encrypt_id(F_PACK_MAGIC, FALSE)) ||
-	      (header == encrypt_id(F_NOPACK_MAGIC, FALSE)))) {
-
-	    /* backward compatibility mode */
-	    pack_fclose(f->parent);
-
-	    if (!clone_password(f)) {
-	       free(dat);
-	       free(f);
-	       return NULL;
-	    }
-
-	    if ((f->parent = pack_fopen(filename, F_READ)) == NULL) {
-	       free(dat);
-	       free(f);
-	       return NULL;
-	    }
-
-	    f->parent->flags |= PACKFILE_FLAG_OLD_CRYPT;
-	    f->flags |= PACKFILE_FLAG_OLD_CRYPT;
-
-	    pack_mgetl(f->parent);
-
-	    if (header == encrypt_id(F_PACK_MAGIC, FALSE))
-	       header = encrypt_id(F_PACK_MAGIC, TRUE);
-	    else
-	       header = encrypt_id(F_NOPACK_MAGIC, TRUE);
-	 }
-
-	 if (header == encrypt_id(F_PACK_MAGIC, TRUE)) {
-	    for (c=0; c < N - F; c++)
-	       dat->text_buf[c] = 0; 
-	    dat->state = 0;
-	    f->todo = LONG_MAX;
-	    f->pack_data = (char *)dat;
-	 }
-	 else if (header == encrypt_id(F_NOPACK_MAGIC, TRUE)) {
-	    f2 = f->parent;
-	    free(dat);
-	    free(f);
-	    return f2;
-	 }
-	 else {
-	    pack_fclose(f->parent);
-	    free(dat);
-	    free(f);
-	    if (*allegro_errno == 0)
-	       *allegro_errno = EDOM;
-	    return NULL;
-	 }
-      }
-      else {
-	 /* read a 'real' file */
-	 f->parent = NULL;
-	 f->pack_data = NULL;
-
-	 f->todo = _al_file_size(filename);
-
-	 if (*allegro_errno) {
-	    free(f);
-	    return NULL;
-	 }
-
-	 if (!clone_password(f)) {
-	    free(f);
-	    return NULL;
-	 }
-
-#ifndef ALLEGRO_MPW
-	 f->hndl = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
-#else
-	 f->hndl = _al_open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY);
-#endif
-
-	 if (f->hndl < 0) {
-	    *allegro_errno = errno;
-	    if (f->passdata)
-	       free(f->passdata);
-	    free(f);
-	    return NULL;
-	 }
-      }
-   }
-
-   return f;
+   return pack_fdopen(fd, mode);
 }
 
 
@@ -1376,24 +1526,23 @@ int pack_fclose(PACKFILE *f)
 {
    if (f) {
       if (f->flags & PACKFILE_FLAG_WRITE) {
-	 if (f->flags & PACKFILE_FLAG_CHUNK)
-	    return pack_fclose(pack_fclose_chunk(f));
+	 if (f->flags & PACKFILE_FLAG_CHUNK) {
+            f = pack_fclose_chunk(f);
+            if (f == NULL) {
+               return *allegro_errno;
+            }
+            return pack_fclose(f);
+         }
 
 	 flush_buffer(f, TRUE);
       }
-
-      if (f->passdata)
-	 free(f->passdata);
-
-      if (f->pack_data)
-	 free(f->pack_data);
 
       if (f->parent)
 	 pack_fclose(f->parent);
       else
 	 close(f->hndl);
 
-      free(f);
+      _free_packfile(f);
       *allegro_errno = errno;
       return *allegro_errno;
    }
@@ -1426,31 +1575,32 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
    char tmp[512];
    PACKFILE *chunk;
    char *name;
-   int c;
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
 
       /* write a sub-chunk */ 
+      int tmp_fd = -1;
+
+      /* The file is open in read/write mode, even if the pack file seems to
+         be in write only mode */
       #ifdef HAVE_MKSTEMP
-
-         {
-	    char tmp_name[] = "XXXXXX";
-	    int tmp_fd;
-
-	    tmp_fd = mkstemp(tmp_name);
-	    if (tmp_fd < 0)
-	       return NULL;
-	    close(tmp_fd);
-	    name = uconvert_ascii(tmp_name, tmp);
-	    chunk = pack_fopen(name, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
-	 }
-
+         char tmp_name[] = "XXXXXX";
+         tmp_fd = mkstemp(tmp_name);
       #else
-
-         name = uconvert_ascii(tmpnam(NULL), tmp);
-         chunk = pack_fopen(name, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
-
+         /* Note: since the filename creation and the opening are not an
+            atomic operation, this is not secure */
+         char *tmp_name = tmpnam(NULL);
+         if (tmp_name) {
+            tmp_fd = _open(tmp_name,
+                           O_RDWR | O_BINARY | O_CREAT | O_EXCL,
+                           S_IRUSR | S_IWUSR);
+         }
       #endif
+
+      if (tmp_fd < 0)
+         return NULL;
+      name = uconvert_ascii(tmp_name, tmp);
+      chunk = pack_fdopen(tmp_fd, (pack ? F_WRITE_PACKED : F_WRITE_NOPACK));
 
       if (chunk) {
          chunk->filename = ustrdup(name);
@@ -1468,17 +1618,11 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       _packfile_filesize = pack_mgetl(f);
       _packfile_datasize = pack_mgetl(f);
 
-      if ((chunk = malloc(sizeof(PACKFILE))) == NULL) {
-	 *allegro_errno = ENOMEM;
-	 return NULL;
+      chunk = _create_packfile_struct(PACKFILE_FLAG_CHUNK);
+      if (chunk == NULL) {
+         *allegro_errno = ENOMEM;
+         return NULL;
       }
-
-      chunk->buf_pos = chunk->buf;
-      chunk->flags = PACKFILE_FLAG_CHUNK;
-      chunk->buf_size = 0;
-      chunk->filename = NULL;
-      chunk->passdata = NULL;
-      chunk->passpos = NULL;
       chunk->parent = f;
 
       if (f->flags & PACKFILE_FLAG_OLD_CRYPT) {
@@ -1498,28 +1642,21 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 
       if (_packfile_datasize < 0) {
 	 /* read a packed chunk */
-	 UNPACK_DATA *dat = malloc(sizeof(UNPACK_DATA));
+         chunk->pack_data = _create_unpack_data();
 
-	 if (!dat) {
+	 if (!chunk->pack_data) {
 	    *allegro_errno = ENOMEM;
-	    if (chunk->passdata) free(chunk->passdata);
-	    free(chunk);
+            _free_packfile(chunk);
 	    return NULL;
 	 }
 
-	 for (c=0; c < N - F; c++)
-	    dat->text_buf[c] = 0; 
-
-	 dat->state = 0;
 	 _packfile_datasize = -_packfile_datasize;
 	 chunk->todo = _packfile_datasize;
-	 chunk->pack_data = (char *)dat;
 	 chunk->flags |= PACKFILE_FLAG_PACK;
       }
       else {
 	 /* read an uncompressed chunk */
 	 chunk->todo = _packfile_datasize;
-	 chunk->pack_data = NULL;
       }
    }
 
@@ -1533,6 +1670,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
  *  and returns a pointer to the original file structure (the one you
  *  passed to pack_fopen_chunk()), to allow you to read or write data 
  *  after the chunk.
+ *  If an error occurs, returns NULL and allegro_errno is set.
  */
 PACKFILE *pack_fclose_chunk(PACKFILE *f)
 {
@@ -1543,6 +1681,19 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
       /* finish writing a chunk */
+
+      /* Duplicate the file descriptor to create a readable pack file.
+         The file descriptor must have been opened in read/write mode */
+      int hndl;
+      if (f->flags & PACKFILE_FLAG_PACK)
+         hndl = dup(f->parent->hndl);
+      else
+         hndl = dup(f->hndl);
+      if (hndl<0) {
+         *allegro_errno = errno;
+         return NULL;
+      }
+
       _packfile_datasize = f->todo + f->buf_size - 4;
 
       if (f->flags & PACKFILE_FLAG_PACK) {
@@ -1552,10 +1703,17 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       else
 	 f->parent = NULL;
 
+      /* Close the writeable temp file. It'll not be physically closed
+         because the descriptor has been dup'ed */
       f->flags &= ~PACKFILE_FLAG_CHUNK;
       pack_fclose(f);
 
-      tmp = pack_fopen(name, F_READ);
+      /* Create a readable pack file */
+      lseek(hndl, 0, SEEK_SET);
+      tmp = pack_fdopen(hndl, F_READ);
+      if (!tmp) {
+         return NULL;
+      }
       _packfile_filesize = tmp->todo - 4;
 
       header = pack_mgetl(tmp);
@@ -1583,13 +1741,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
       if ((f->passpos) && (f->flags & PACKFILE_FLAG_OLD_CRYPT))
 	 parent->passpos = parent->passdata + (long)f->passpos - (long)f->passdata;
 
-      if (f->passdata)
-	 free(f->passdata);
-
-      if (f->pack_data)
-	 free(f->pack_data);
-
-      free(f);
+      _free_packfile(f);
    }
 
    return parent;
