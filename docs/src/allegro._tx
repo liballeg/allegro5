@@ -4997,7 +4997,9 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref getpixel, _putpixel, drawing_mode
 @eref ex12bit, exalpha, exflame, exjoy, exstars, exswitch
    Writes a pixel to the specified position in the bitmap, using the current 
-   drawing mode and the bitmap's clipping rectangle.
+   drawing mode and the bitmap's clipping rectangle. Example: 
+<codeblock>
+      putpixel(screen, 10, 30, some_color);<endblock>
 
 @@void @_putpixel(BITMAP *bmp, int x, int y, int color);
 @@void @_putpixel15(BITMAP *bmp, int x, int y, int color);
@@ -5047,7 +5049,15 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Calculates all the points along a line from point (x1, y1) to (x2, y2), 
    calling the supplied function for each one. This will be passed a copy of 
    the bmp parameter, the x and y position, and a copy of the d parameter, 
-   so it is suitable for use with putpixel().
+   so it is suitable for use with putpixel(). Example:
+<codeblock>
+      void draw_dust_particle(BITMAP *bmp, int x, int y, int d)
+      {
+	 ...
+      }
+      
+	 do_line(screen, 0, 0, SCREEN_W-1, SCREEN_H-2,
+		 dust_strength, draw_dust_particle);<endblock>
 
 @@void @line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref fastline, hline, vline, do_line, drawing_mode
@@ -5070,7 +5080,13 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @eref excamera
    Draws a filled polygon with an arbitrary number of corners. Pass the 
    number of vertices and an array containing a series of x, y points (a 
-   total of vertices*2 values).
+   total of vertices*2 values). Example:
+<codeblock>
+      int points[12] = { 50, 50,   100, 100,  100, 150,
+			 50, 200,  0,   150,  0,   100 };
+      ...
+      clear_to_color(screen, makecol(255, 255, 255));
+      polygon(screen, 6, points, makecol(0, 0, 0));<endblock>
 
 @@void @rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rectfill, drawing_mode
@@ -5090,7 +5106,16 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Calculates all the points in a circle around point (x, y) with radius r, 
    calling the supplied function for each one. This will be passed a copy of 
    the bmp parameter, the x and y position, and a copy of the d parameter, 
-   so it is suitable for use with putpixel().
+   so it is suitable for use with putpixel(). Example:
+<codeblock>
+      void draw_explosion_ring(BITMAP *bmp, int x, int y, int d)
+      {
+	 ...
+      }
+      
+	 do_circle(screen, SCREEN_W/2, SCREEN_H/2,
+		   SCREEN_H/16, flame_color,
+		   draw_explosion_ring);<endblock>
 
 @@void @circle(BITMAP *bmp, int x, int y, int radius, int color);
 @xref ellipse, arc, circlefill, do_circle, drawing_mode
@@ -5109,7 +5134,16 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Calculates all the points in an ellipse around point (x, y) with radius 
    rx and ry, calling the supplied function for each one. This will be 
    passed a copy of the bmp parameter, the x and y position, and a copy of 
-   the d parameter, so it is suitable for use with putpixel().
+   the d parameter, so it is suitable for use with putpixel(). Example:
+<codeblock>
+      void draw_explosion_ring(BITMAP *bmp, int x, int y, int d)
+      {
+	 ...
+      }
+      
+	 do_ellipse(screen, SCREEN_W/2, SCREEN_H/2,
+		   SCREEN_H/16, SCREEN_H/32, flame_color,
+		   draw_explosion_ring);<endblock>
 
 @@void @ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color);
 @xref circle, arc, ellipsefill, do_ellipse, drawing_mode
@@ -5125,13 +5159,21 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref do_circle, do_ellipse, do_line, arc
    Calculates all the points in a circular arc around point (x, y) with 
    radius r, calling the supplied function for each one. This will be passed 
-   a copy of the bmp parameter, the x and y position, and a copy of the d 
+   a copy of the bmp parameter, the x and y position, and a copy of the d
    parameter, so it is suitable for use with putpixel(). The arc will be 
    plotted in an anticlockwise direction starting from the angle a1 and 
    ending when it reaches a2. These values are specified in 16.16 fixed 
    point format, with 256 equal to a full circle, 64 a right angle, etc. 
    Zero is to the right of the centre point, and larger values rotate 
-   anticlockwise from there.
+   anticlockwise from there. Example:
+<codeblock>
+      void draw_explosion_ring(BITMAP *bmp, int x, int y, int d)
+      {
+	 ...
+      }
+	 arc(screen, SCREEN_W/2, SCREEN_H/2,
+	     itofix(-21), itofix(43), 50, flame_color,
+	     draw_explosion_ring);<endblock>
 
 @@void @arc(BITMAP *bmp, int x, y, fixed ang1, ang2, int r, int color);
 @xref circle, ellipse, drawing_mode
@@ -5139,7 +5181,11 @@ drawing mode and the clipping rectangle of the destination bitmap.
    direction starting from the angle a1 and ending when it reaches a2. These 
    values are specified in 16.16 fixed point format, with 256 equal to a 
    full circle, 64 a right angle, etc. Zero is to the right of the centre 
-   point, and larger values rotate anticlockwise from there.
+   point, and larger values rotate anticlockwise from there. Example:
+<codeblock>
+      /* Draw a black arc from 4 to 1 o'clock. */
+      arc(screen, SCREEN_W/2, SCREEN_H/2,
+	  itofix(-21), itofix(43), 50, makecol(0, 0, 0));<endblock>
 
 @@void @calc_spline(const int points[8], int npts, int *x, int *y);
 @xref spline
@@ -5162,7 +5208,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref calc_spline, drawing_mode
 @eref exspline
    Draws a bezier spline using the four control points specified in the 
-   points array.
+   points array. Read the description of calc_spline() for information on
+   how to build the points array.
 
 @@void @floodfill(BITMAP *bmp, int x, int y, int color);
 @xref drawing_mode
