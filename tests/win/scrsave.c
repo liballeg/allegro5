@@ -275,14 +275,29 @@ static void dispsw_callback(void)
 /* run the saver normally, in fullscreen mode */
 int do_saver(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 {
+   HANDLE scrsaver_mutex;
    int mx, my, t;
+
+   /* prevent multiple instances from running */
+   scrsaver_mutex = CreateMutex(NULL, TRUE, "Allegro screensaver");
+
+   if (!scrsaver_mutex || (GetLastError() == ERROR_ALREADY_EXISTS))
+      return -1;
 
    allegro_init();
    install_keyboard();
    install_mouse();
    install_timer();
-   set_gfx_mode(GFX_SAFE, 640, 480, 0, 0);
-   set_display_switch_mode(SWITCH_BACKAMNESIA);
+   
+   /* try to set a fullscreen mode */
+   if (set_gfx_mode(GFX_DIRECTX_ACCEL, 640, 480, 0, 0) != 0)
+      if (set_gfx_mode(GFX_DIRECTX_SOFT, 640, 480, 0, 0) != 0)
+         if (set_gfx_mode(GFX_DIRECTX_SAFE, 640, 480, 0, 0) != 0) {
+            ReleaseMutex(scrsaver_mutex);
+            return -1;
+         }
+
+   set_display_switch_mode(SWITCH_BACKAMNESIA);  /* not SWITCH_AMNESIA */
    set_display_switch_callback(SWITCH_OUT, dispsw_callback);
 
    buf = create_bitmap(SCREEN_W, SCREEN_H);
@@ -310,6 +325,7 @@ int do_saver(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
    ss_exit();
    destroy_bitmap(buf);
 
+   ReleaseMutex(scrsaver_mutex);
    return 0;
 }
 
@@ -318,15 +334,8 @@ int do_saver(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 /* the main program body */
 int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
-   HANDLE scrsaver_mutex;
    HWND hwnd;
    char *args;
-
-   /* prevent multiple instances from running */
-   scrsaver_mutex = CreateMutex(NULL, TRUE, "Allegro screensaver");
-
-   if (!scrsaver_mutex || (GetLastError() == ERROR_ALREADY_EXISTS))
-      return -1;
 
    args = lpszCmdParam;
 
@@ -353,8 +362,5 @@ int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance, LPSTR lpszCmdParam, i
 	 return do_saver(hInstance, hPrevInstance, hwnd);
    }
 
-   ReleaseMutex(scrsaver_mutex);
    return 0;
 }
-
-

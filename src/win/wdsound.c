@@ -845,7 +845,7 @@ static int create_directsound_buffer(LPDIRECTSOUNDBUFFER *snd_buf, AL_CONST SAMP
    HRESULT hr;
    LPVOID buf_a;
    DWORD size_a;
-   LPVOID buf_b;
+   LPVOID buf_b = NULL;
    DWORD size_b;
    DWORD pos;
    int offset, len;
@@ -883,7 +883,7 @@ static int create_directsound_buffer(LPDIRECTSOUNDBUFFER *snd_buf, AL_CONST SAMP
    }
 
    dsbdesc.dwBufferBytes = len * (sample->bits / 8) * (sample->stereo ? 2 : 1);
-   dsbdesc.lpwfxFormat = (LPWAVEFORMATEX) & pcmwf;
+   dsbdesc.lpwfxFormat = (LPWAVEFORMATEX) &pcmwf;
 
    /* create buffer */
    hr = IDirectSound_CreateSoundBuffer(directsound, &dsbdesc, snd_buf, NULL);
@@ -924,15 +924,15 @@ static int create_directsound_buffer(LPDIRECTSOUNDBUFFER *snd_buf, AL_CONST SAMP
    }
    else {
       memcpy(buf_a, (char *)(sample->data) + offset, size_a);
-      if (buf_b != NULL)
-         memcpy(buf_b, (char *)(sample->data) + offset+ size_a, size_b);
+
+      if (buf_b)
+         memcpy(buf_b, (char *)(sample->data) + offset + size_a, size_b);
    }
 
    /* release the data back to DirectSound */
    hr = IDirectSoundBuffer_Unlock(*snd_buf, buf_a, size_a, buf_b, size_b);
-   if (hr != DS_OK) {
+   if (FAILED(hr))
       _TRACE("Can't unlock sound buffer.\n");
-   }
 
    return 0;
 }
