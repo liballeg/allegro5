@@ -7241,14 +7241,14 @@ BeOS specifics
       don't really care what resolution. See the set_gfx_mode() 
       documentation for details.
 <li>
-   GFX_FULLSCREEN<br>
+   GFX_BEOS_FULLSCREEN<br>
       Fullscreen exclusive mode. Supports only resolutions higher or equal
       to 640x480, and uses hardware acceleration if available.
 <li>
-   GFX_FULLSCREEN_SAFE<br>
+   GFX_BEOS_FULLSCREEN_SAFE<br>
       Works the same as GFX_FULLSCREEN, but disables acceleration.
 <li>
-   GFX_WINDOWED<br>
+   GFX_BEOS_WINDOWED<br>
       Fast windowed mode using the BDirectWindow class. Not all graphics
       cards support this.
 </ul>
