@@ -49,7 +49,9 @@
 #endif
 
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <X11/xpm.h>
+#endif
 #include "alex.xpm"
 
 
@@ -2040,7 +2042,9 @@ static void _xwin_private_set_window_defaults(void)
 {
    XClassHint hint;
    XWMHints wm_hints;
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
    XpmAttributes attributes;
+#endif
 
    if (_xwin.window == None)
       return;
@@ -2058,11 +2062,13 @@ static void _xwin_private_set_window_defaults(void)
    wm_hints.initial_state = NormalState;
    wm_hints.window_group = _xwin.window;
    
+#ifdef ALLEGRO_XWINDOWS_WITH_XPM
    if (allegro_icon) {
       wm_hints.flags |= IconPixmapHint | IconMaskHint;
       attributes.valuemask = XpmReturnAllocPixels | XpmReturnExtensions;
       XpmCreatePixmapFromData(_xwin.display,_xwin.window,allegro_icon,&wm_hints.icon_pixmap,&wm_hints.icon_mask, &attributes);
    }
+#endif
 
    XSetWMHints(_xwin.display, _xwin.window, &wm_hints);
 }
