@@ -288,21 +288,8 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
       return FALSE;
    }
 
-   if (dest_depth != 8) {
-      BITMAP *b2 = b;
-
-      b = create_bitmap_ex(dest_depth, b2->w, b2->h);
-      if (!b) {
-	 destroy_bitmap(b2);
-	 return NULL;
-      }
-
-      select_palette(pal);
-      blit(b2, b, 0, 0, 0, 0, b->w, b->h);
-      unselect_palette();
-
-      destroy_bitmap(b2);
-   }
+   if (dest_depth != 8)
+      b = _fixup_loaded_bitmap(b, pal, dest_depth);
 
    return b;
 }
