@@ -119,7 +119,7 @@ static void rebuild_list(void *old, int clear);
 /* variable-sized */
 static MENU file_menu[32] =
 {
-   { "&New\t(ctrl+N)",              renewer,          NULL,       0, NULL  },
+   { "&New",                        renewer,          NULL,       0, NULL  },
    { "&Load\t(ctrl+L)",             loader,           NULL,       0, NULL  },
    { "&Save\t(ctrl+S)",             saver,            NULL,       0, NULL  },
    { "Save S&tripped",              strip_saver,      NULL,       0, NULL  },
@@ -161,7 +161,7 @@ static MENU objc_menu[32] =
    { "&Grab\t(ctrl+G)",             grabber,          NULL,       0, NULL  },
    { "&Export\t(ctrl+E)",           exporter,         NULL,       0, NULL  },
    { "&Delete\t(ctrl+D)",           deleter,          NULL,       0, NULL  },
-   { "&Rename\t(ctrl+M)",           renamer,          NULL,       0, NULL  },
+   { "&Rename\t(ctrl+N)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
    { "&Shell Edit\t(ctrl+Z)",       sheller,          NULL,       0, NULL  },
    { "&Convert Path",               NULL,             path_menu,  0, NULL  },
@@ -254,7 +254,7 @@ static DIALOG main_dlg[] =
    { d_edit_proc,       439,  16,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
    { droplist_mod_proc, 430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
    { prop_proc,         260,  86,   365,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
-   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('n'),  0,          0,             0,       renewer,          NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       renewer,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('s'),  0,          0,             0,       saver,            NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('u'),  0,          0,             0,       updater,          NULL, NULL  },
@@ -264,7 +264,7 @@ static DIALOG main_dlg[] =
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('g'),  0,          0,             0,       grabber,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('e'),  0,          0,             0,       exporter,         NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('d'),  0,          0,             0,       deleter,          NULL, NULL  },
-   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('m'),  0,          0,             0,       renamer,          NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('n'),  0,          0,             0,       renamer,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('p'),  0,          0,             0,       property_insert,  NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('z'),  0,          0,             0,       sheller,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    27,      0,          0,             0,       quitter,          NULL, NULL  },
