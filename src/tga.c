@@ -257,7 +257,6 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
    short unsigned int first_color, palette_colors;
    short unsigned int left, top, image_width, image_height;
    unsigned int c, i, y, yc;
-   unsigned short *s;
    int dest_depth;
    int compressed;
    PACKFILE *f;
