@@ -346,7 +346,11 @@ define LINK_WITH_PLUGINS
 endef
 
 tools/macosx/%: $(OBJ_DIR)/%.o $(LIB_NAME)
+ifdef STATICLINK
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+else
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES) -framework Carbon
+endif
 
 
 

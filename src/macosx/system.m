@@ -308,7 +308,8 @@ void osx_event_handler()
 		   * move the mouse though)
 		   */
 	          if (osx_window) {
-		     [osx_window invalidateShadow];
+                     [osx_window setHasShadow: NO];
+                     [osx_window setHasShadow: YES];
 		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
 		  }
 		  break;

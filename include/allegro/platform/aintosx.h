@@ -30,6 +30,11 @@
 #include <signal.h>
 #include <pthread.h>
 
+/* pthread_sigmask seems to be missing in libpthread shipped with 10.1.x */
+#ifndef pthread_sigmask
+#define pthread_sigmask(how, set, oset)    sigprocmask((how), (set), (oset))
+#endif
+
 
 #define display_id                      kCGDirectMainDisplay
 
