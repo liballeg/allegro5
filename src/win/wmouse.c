@@ -209,8 +209,8 @@ static char* dinput_err_str(long err)
  */
 static void mouse_dinput_handle_event(int ofs, int data)
 {
-   static int last_mickeyx = 0;
-   static int last_mickeyy = 0;
+   static int last_data_x = 0;
+   static int last_data_y = 0;
    static int last_was_x = 0;
    int mag;
 
@@ -219,9 +219,11 @@ static void mouse_dinput_handle_event(int ofs, int data)
       case DIMOFS_X:
          if (!gfx_driver || !gfx_driver->windowed) {
             if (last_was_x)
-               last_mickeyy = 0;
+               last_data_y = 0;
+            last_data_x = data;
+            last_was_x = 1;
             if (mouse_accel_mult) {
-               mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
+               mag = last_data_x*last_data_x + last_data_y*last_data_y;
                if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
                else if (mag >= mouse_accel_thr1) 
@@ -229,17 +231,17 @@ static void mouse_dinput_handle_event(int ofs, int data)
             }
 
             dinput_x += data;
-            last_mickeyx = data;
-            last_was_x = 1;
          }
          break;
 
       case DIMOFS_Y:
          if (!gfx_driver || !gfx_driver->windowed) {
             if (!last_was_x)
-               last_mickeyx = 0;
+               last_data_x = 0;
+            last_data_y = data;
+            last_was_x = 0;
             if (mouse_accel_mult) {
-               mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
+               mag = last_data_x*last_data_x + last_data_y*last_data_y;
                if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
                else if (mag >= mouse_accel_thr1) 
@@ -247,8 +249,6 @@ static void mouse_dinput_handle_event(int ofs, int data)
             }
 
             dinput_y += data;
-            last_mickeyy = data;
-            last_was_x = 0;
          }
          break;
 
