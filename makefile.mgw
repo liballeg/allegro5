@@ -234,11 +234,11 @@ obj/mingw32/mmx.h:
 .PHONY: compress
 
 compress: $(PROGRAMS)
-ifdef UPX
-	$(UPX) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/*/all*.dll
+ifdef UPX_BIN
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/*/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
-	@echo UPX to point to upx.exe.
+	@echo UPX_BIN to point to upx.exe.
 endif
 
 
