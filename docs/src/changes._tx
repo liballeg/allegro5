@@ -8,6 +8,99 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.14 to 4.1.15 (July 2004)
+<ul><li>
+   Chris Robinson tweaked tests/play.c slightly.
+<li>
+   Elias Pschernig deprecated yield_timeslice in favour of rest(0) and adjusted 
+   yield_timeslice on BeOS, QNX and MacOS X to behave the same as on other 
+   platforms.
+<li>
+   Eric Botcazou fixed a problem with the asm colour converter.
+<li>
+   Elias Pschernig fixed some gcc warnings.
+<li>
+   Vincent Penquerc'h added the ability to pass extra CFLAGS and LDFLAGS on the
+   make commandline.
+<li>
+   Elias Pschernig made ex3buf work outside of DOS.
+<li>
+   Chris Robinson made the alleg mixer default instead of the directx one in 
+   windows.
+<li>
+   Angelo Mottola fixed a bug where vsync() was blocking on a mutex if called 
+   when the screen was already acquired in windowed mode.
+<li>
+   Evert Glebbeek made tripple buffering work in the demo if VRAM is a single 
+   surface.
+<li>
+   Jon Rafkind provided an m4 macro for Allegro.
+<li>
+   Eric Botcazou and Henrik Stokseth made some improvements to the build
+   process.
+<li>
+   Grzegroz Adam Hankiewicz added various fixes to the documentation and
+   to the documentation generation system.
+<li>
+   V Karthik Kumar added a Tamil language greeting to exunicode.
+<li>   
+   Chris Robinson and Elias Pschernig reduced lag under X11 when X11
+   locks are held for too long.
+<li>
+   Vincent Penquerc'h fixed a problem with dependency generation under
+   bash.
+<li>
+   Evert Glebbek added an icon to the X11 port and contributed the xfixicon 
+   script.
+<li>
+   Angelo Mottola fixed an endianess issue when loading/saving 24 bit
+   images from datafiles.
+<li>
+   Angelo Mottola made datafile plugins return FALSE on error.
+<li>
+   Angelo Mottola fixed the docs for pack_putc.
+<li>
+   Vincent Penquerc'h made the grabber choose better default menu
+   shortcuts.
+<li>
+   Henrik Stokseth enabled the asm color converters for the X11 port.
+<li>
+   Henrik Stokseth improved buffer security in various parts of the
+   library.
+<li>
+   Evert Gebbek made strncpy use sizeof() for fixed length strings.
+<li>
+   Eric Botcazou made KEY_PAUSE work properly in windows.
+<li>
+   Chris Robinson improved the threaded UNIX timer code.
+<li>
+   Elias Pschernig fixed some problems with the ALSA driver.
+<li>
+   Angelo Mottola made  Command-Q and Quit trigger the
+   close_button_callback in OSX.
+<li>
+   Grady Martin fixed a bug in the handling of %n in the printf style
+   text functions.
+<li>
+   Chris Robinson rewrote parts of Allegro's mixer.
+<li>
+   Chris Robinson increased the default volume, which was set very quiet
+   previously.
+<li>
+   Grzegroz Adam Hankiewicz clarified the bahavior of install_mouse.
+<li>
+   Elias Pschernig improved the pause key behavior.
+<li>
+   Vincent Penquerc'h added MSG_WANTMOUSE to the GUI.
+<li>
+   Vincent Penquerc'h sped up get_filename.
+<li>
+   Chris Robinson implemented the digmid_set_pan function
+<li>
+   Chris Robinson improved the performance of the DIGMID driver.
+</ul>
+
+@heading
 Changes from 4.1.13 to 4.1.14 (April 2004)
 <ul><li>
    Elias Pschernig added a missing install dependency on Linux.

@@ -168,7 +168,11 @@ Contributors
    different font heights, and added the right aligned text functions.
 
    Chris Robinson (<email>crobin_99@yahoo.com</a>).<br>
-   Wrote the fixed point clip3d() function.
+   Wrote the fixed point clip3d() function, improved the performance of the
+   DIGMID driver, implemented the digmid_set_pan function, rewrote part of
+   the Allegro mixer, made the Allegro mixer the default one in Windows,
+   improved the threaded UNIX timer code, helped improve responsiveness under 
+   X11 and tweaked tests/play.c.
 
    Christer Sandberg (<email>christer.sandberg@mdh.se</a>).<br>
    Made dat2c work better with ISO C90 compilers, made dat2c correctly detect
@@ -293,6 +297,9 @@ Contributors
    Gorka Olaizola (<email>olsago@jet.es</a>).<br>
    Added the Redhat RPM .spec file.
 
+   Grady Martin (<email>shadygrady@budweiser.com</a>).<br>
+   Fixed a bug in the handling of %n in the printf style text functions.
+
    Greg Hackmann (<email>hacker@ididitmyway.com</a>).<br>
    Contributed the Borland C++ Builder port.
 
@@ -416,8 +423,8 @@ Contributors
    framebuffer console driver.
 
    Jon Rafkind (<email>workmin@ccs.neu.edu</a>).<br>
-   Added more ASSERTs to the code and implemented the Cohen-Sutherland
-   clipping algorithm for the line() function.
+   Added more ASSERTs to the code, implemented the Cohen-Sutherland clipping 
+   algorithm for the line() function and supplied an m4 macro for allegro.
 
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
@@ -884,6 +891,9 @@ Contributors
    and other keys to the input handler, organised getting the IF-SEGA
    joystick drivers by S.Suzuki merged into my codebase and added a more
    aggressive Sidewinder joystick driver.
+
+   V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
+   Added a Tamil language greeting to exunicode.
 
    Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
    Fixed a problem with make install libdir= and modules on Unix systems.
