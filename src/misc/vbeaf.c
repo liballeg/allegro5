@@ -155,6 +155,7 @@ GFX_DRIVER gfx_vbeaf =
    NULL,                         /* no drawing mode hook */
    vbeaf_save,
    vbeaf_restore,
+   NULL,
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 

@@ -69,6 +69,7 @@ GFX_DRIVER gfx_svgalib =
    NULL,                         /* no drawing mode hook */
    svga_save,
    svga_restore,
+   NULL,
    0, 0,
    TRUE,
    0, 0, 0, 0, FALSE

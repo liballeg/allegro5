@@ -1980,6 +1980,8 @@ Joystick routines
 
 
 @heading
+@html
+@texinfo
 Graphics modes
 
 @@void @set_color_depth(int depth);
@@ -2004,6 +2006,28 @@ Graphics modes
 @xref request_refresh_rate
    Returns the current refresh rate, if known (not all drivers are able to 
    report this information). Returns zero if the actual rate is unknown.
+
+@@int @get_gfx_mode_list(int card);
+@xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
+   Attempts to create a list of all the supported video modes for a certain
+   GFX driver. The result is placed in the gfx_mode_list array.
+   gfx_mode_list is a pointer to a list structure of the type GFX_MODE_LIST
+   which has the following definition:
+<pre>
+   typedef struct GFX_MODE_LIST {
+      int width;
+      int height;
+      int bpp;
+   } GFX_MODE_LIST;
+</pre>
+   This list is terminated with an { 0, 0, 0 } entry.
+   Returns: 0 on success, and -1 if the function is not supported, or if the
+   call failed.
+
+@@int @destroy_gfx_mode_list(void);
+@xref get_gfx_mode_list, set_gfx_mode, set_color_depth
+   Removes the mode list created by get_gfx_mode_list() from memory.
+   Returns 0 on success and -1 if the mode list does not exist.
 
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities

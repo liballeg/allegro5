@@ -19,6 +19,7 @@ General (Platform independant) todos:
   and the need of an unified set of window updating routines is stronger)
   [Eric or Angelo: remove this when it's done]
 - use unicode functions in setup.c
+- implement fetch_mode_list() method on all GFX drivers.
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -76,6 +77,7 @@ Macintosh todos:
 - Update the docs.
 - Window close button?
 - fix script must write #define ALLEGRO_MPW into include/allegro/alplatf.h
+- mac/mdraw.c must add fetch_mode_list entry to GFX_DRIVER struct.
 
 BeOS todos:
 ---------------------------------------------------------------------------
@@ -108,7 +110,6 @@ Wishlist
   need of rewritting the user setup ui.
 - Play with switch_in/out X events, just for the sake of it :-)
 - OSS MIDI pitch bend.
-- function to get a list of supported video modes
 - hook function to handle window resizing
 - usnprintf() and uvsnprintf() functions
 - DirectInput 5 joystick driver

@@ -59,6 +59,7 @@ GFX_DRIVER gfx_vga =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
+   NULL,
    320, 200,
    TRUE,
    0, 0,

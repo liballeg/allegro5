@@ -41,6 +41,7 @@ static void vesa_vsync(void);
 static void vesa_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int vesa_request_scroll(int x, int y);
 static int vesa_poll_scroll(void);
+static int vesa_fetch_mode_list();
 
 static char vesa_desc[256] = EMPTY_STRING;
 
@@ -63,6 +64,7 @@ GFX_DRIVER gfx_vesa_1 =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 
@@ -85,6 +87,7 @@ GFX_DRIVER gfx_vesa_2b =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 
@@ -107,6 +110,7 @@ GFX_DRIVER gfx_vesa_2l =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 
@@ -131,15 +135,16 @@ GFX_DRIVER gfx_vesa_3 =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 
 
 
-#define MASK_LINEAR(addr)     (addr & 0x000FFFFF)
-#define RM_TO_LINEAR(addr)    (((addr & 0xFFFF0000) >> 12) + (addr & 0xFFFF))
-#define RM_OFFSET(addr)       (addr & 0xF)
-#define RM_SEGMENT(addr)      ((addr >> 4) & 0xFFFF)
+#define MASK_LINEAR(addr)     ((addr) & 0x000FFFFF)
+#define RM_TO_LINEAR(addr)    ((((addr) & 0xFFFF0000) >> 12) + ((addr) & 0xFFFF))
+#define RM_OFFSET(addr)       ((addr) & 0xF)
+#define RM_SEGMENT(addr)      (((addr) >> 4) & 0xFFFF)
 
 
 
@@ -591,6 +596,76 @@ static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
    }
 
    driver->desc = vesa_desc;
+}
+
+
+
+/* vesa_fetch_mode_list:
+ *  Generates a list of valid video modes for the VESA drivers.
+ *  Returns 0 on success and -1 on failure.
+ */
+static int vesa_fetch_mode_list()
+{
+   unsigned long  mode_ptr;
+   unsigned short *vesa_mode;
+   int            mode, modes, pos, vesa_list_length;
+
+   /* fetch list of VESA modes */
+   if (get_vesa_info()) return -1;
+
+   _farsetsel(_dos_ds);
+
+   /* count number of VESA modes */
+   mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
+   for (modes = 0; _farnspeekw(mode_ptr) != 0xFFFF; modes++)
+      mode_ptr += sizeof(unsigned short);
+
+   /* allocate and fill in temporary vesa mode list */
+   vesa_mode = malloc(sizeof(unsigned short) * modes);
+   if (!vesa_mode) return -1;
+
+   mode_ptr = RM_TO_LINEAR(vesa_info.VideoModePtr);
+   for (mode = 0; _farnspeekw(mode_ptr) != 0xFFFF; mode++) {
+      vesa_mode[mode] = _farnspeekw(mode_ptr);
+      mode_ptr += sizeof(unsigned short);
+   }
+
+   vesa_list_length = modes;
+
+   /* zero out text and <8 bpp modes for later exclusion */
+   for (mode = 0; mode < modes; mode++) {
+      if (get_mode_info(vesa_mode[mode])) return -1;
+      if ((mode_info.MemoryModel == 0) || (mode_info.BitsPerPixel < 8)) {
+         vesa_mode[mode] = 0;
+         modes--;
+      }
+   }
+
+   /* allocate gfx_mode_list */
+   if (gfx_mode_list) free(gfx_mode_list);
+   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (modes + 1));
+   if (!gfx_mode_list) return -1;
+
+   /* fill in width, height and color depth for each VESA mode */
+   mode = 0;
+   for (pos = 0; pos < vesa_list_length; pos++) {
+      if (get_mode_info(vesa_mode[pos])) return -1;
+      if (!vesa_mode[pos]) continue;
+      gfx_mode_list[mode].width  = mode_info.XResolution;
+      gfx_mode_list[mode].height = mode_info.YResolution;
+      gfx_mode_list[mode].bpp    = mode_info.BitsPerPixel;
+      mode++;
+   }
+
+   /* terminate list */
+   gfx_mode_list[modes].width  = 0;
+   gfx_mode_list[modes].height = 0;
+   gfx_mode_list[modes].bpp    = 0;
+
+   /* free up temporary vesa mode list */
+   free(vesa_mode);
+
+   return 0;
 }
 
 

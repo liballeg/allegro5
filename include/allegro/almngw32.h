@@ -43,19 +43,19 @@
 
 
 /* describe how function prototypes look to MINGW32 */
-#if (defined ALLEGRO_STATICLINK) 
+#ifdef ALLEGRO_STATICLINK
    #define _AL_DLL
 #else
-	#if (defined ALLEGRO_SRC)
-	   #define _AL_DLL   __declspec(dllexport)
-	#else
-   	  #define _AL_DLL   __declspec(dllimport)
-	#endif
+   #ifdef ALLEGRO_SRC
+      #define _AL_DLL   __declspec(dllexport)
+   #else
+      #define _AL_DLL   __declspec(dllimport)
+   #endif
 #endif
 
 #define AL_VAR(type, name)                   extern _AL_DLL type name
 #define AL_ARRAY(type, name)                 extern _AL_DLL type name[]
-#define AL_FUNC(type, name, args)            type __cdecl name args
+#define AL_FUNC(type, name, args)            extern _AL_DLL type name args
 #define AL_METHOD(type, name, args)          type (*name) args
 #define AL_FUNCPTR(type, name, args)         extern _AL_DLL type (*name) args
 
@@ -67,24 +67,24 @@
 
 /* should WINNT be defined on win9x systems? */
 #ifdef WINNT
-	#undef WINNT
+   #undef WINNT
 #endif
 
 /* defined in windef.h */
 #ifndef HMONITOR_DECLARED
-        #define HMONITOR_DECLARED 1
+   #define HMONITOR_DECLARED 1
 #endif
 
 /* already defined... */
 #ifndef _LPCWAVEFORMATEX_DEFINED
-	#define _LPCWAVEFORMATEX_DEFINED
+   #define _LPCWAVEFORMATEX_DEFINED
 #endif
 
 #endif /* ALLEGRO_SRC */
 
 /* another instance of missing constants in the mingw32 headers */
 #ifndef ENUM_CURRENT_SETTINGS
-	#define ENUM_CURRENT_SETTINGS       ((DWORD)-1)
+   #define ENUM_CURRENT_SETTINGS       ((DWORD)-1)
 #endif
 
 /* describe the asm syntax for this platform */

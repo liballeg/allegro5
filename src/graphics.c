@@ -159,6 +159,63 @@ int get_refresh_rate(void)
 
 
 
+/* get_gfx_mode_list:
+ *  Attempts to create a list of all the supported video modes for a certain
+ *  GFX driver. The result is placed in the gfx_mode_list array.
+ *  Returns: 0 on success and -1 if the function is not supported.
+ */
+int get_gfx_mode_list(int card)
+{
+   GFX_DRIVER   *temp_gfx_driver;
+   _DRIVER_INFO *driver_list, *driver_list_entry;
+
+   /* ask the system driver for a list of graphics hardware drivers */
+   if (system_driver->gfx_drivers)
+      driver_list = system_driver->gfx_drivers();
+   else
+      driver_list = _gfx_driver_list;
+
+   /* GFX_AUTODETECT isn't a driver! */
+   if (card == GFX_AUTODETECT) return -1;
+
+   /* check if the graphics hardware driver exists and select it.   */
+   for (driver_list_entry = driver_list;; driver_list_entry++) {
+      temp_gfx_driver = driver_list_entry->driver;
+      if (temp_gfx_driver == NULL) return -1;
+      if (card == driver_list_entry->id) break;
+   }
+
+   /* check if the gfx driver has support for fetching a mode list,
+      if it has then fetch the list                                 */
+   if (temp_gfx_driver->fetch_mode_list)
+      temp_gfx_driver->fetch_mode_list();
+   else
+      return -1;
+
+   return 0;
+}
+
+
+
+/* destroy_gfx_mode_list:
+ *  Removes the mode list created by get_gfx_mode_list() from memory.
+ *  Returns 0 on success and -1 if the mode list does not exist.
+ */
+int destroy_gfx_mode_list(void)
+{
+  if (gfx_mode_list) {
+    free(gfx_mode_list);
+    gfx_mode_list = NULL;
+  }
+  else {
+    return -1;
+  }
+
+  return 0;
+}
+
+
+
 /* set_color_depth:
  *  Sets the pixel size (in bits) which will be used by subsequent calls to 
  *  set_gfx_mode() and create_bitmap(). Valid depths are 8, 15, 16, 24 and 32.

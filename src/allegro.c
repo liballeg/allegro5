@@ -50,6 +50,8 @@ GFX_DRIVER *gfx_driver = NULL;
 /* abilities of the current graphics driver */
 int gfx_capabilities = 0;
 
+/* pointer to list of valid video modes */
+GFX_MODE_LIST *gfx_mode_list = NULL;
 
 /* a bitmap structure for accessing the physical screen */
 BITMAP *screen = NULL;

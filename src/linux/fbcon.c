@@ -77,6 +77,7 @@ GFX_DRIVER gfx_fbcon =
    NULL,                         /* no drawing mode hook */
    fb_save,
    fb_restore,
+   NULL,
    0, 0,
    TRUE,
    0, 0, 0, 0, FALSE
