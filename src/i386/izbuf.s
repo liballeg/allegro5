@@ -7,16 +7,14 @@
  *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
  *                                           /\____/
  *                                           \_/__/
- *      By Shawn Hargreaves
- *      shawn@talula.demon.co.uk
- *      http://alleg.sourceforge.net/
  *
- *      Z-buffered polygon scanline filler helpers (gouraud shading, tmapping,
- *	etc). Uses MMX instructions when possible, but these will be #ifdef'ed
+ *      Z-buffered polygon scanline filler helpers (gouraud shading, tmapping, etc).
+ *      Uses MMX instructions when possible, but these will be #ifdef'ed
  *      out if your assembler doesn't support them.
  *
- *      This file written by Calin Andrian.
- *	Updated to Allegro 3.9.34 by Bertrand Coconnier.
+ *      By Calin Andrian.
+ *
+ *      Updated to Allegro 3.9.34 by Bertrand Coconnier.
  *
  *      See readme.txt for copyright information.
  */
