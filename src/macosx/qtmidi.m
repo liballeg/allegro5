@@ -18,7 +18,6 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintosx.h"
-#include <QuickTime/QuickTimeMusic.h>
 
 #ifndef ALLEGRO_MACOSX
 #error something is wrong with the makefile
@@ -105,7 +104,6 @@ static int osx_midi_detect(int input)
 static int osx_midi_init(int input, int voices)
 {
    NoteRequest note_request;
-   SynthesizerDescription synth_desc;
    ComponentResult result;
    char tmp[256], tmp2[256];
    int i, j;

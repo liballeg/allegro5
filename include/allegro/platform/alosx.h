@@ -30,12 +30,18 @@
    #include <unistd.h>
    #include <signal.h>
    #include <pthread.h>
-   
    #undef TRUE
    #undef FALSE
+   #import <mach/mach.h>
+   #import <mach/mach_error.h>
    #import <ApplicationServices/ApplicationServices.h>
    #import <Cocoa/Cocoa.h>
    #import <Carbon/Carbon.h>
+   #import <QuickTime/QuickTime.h>
+   #import <IOKit/IOKitLib.h>
+   #import <IOKit/IOCFPlugIn.h>
+   #import <IOKit/hid/IOHIDLib.h>
+   #import <IOKit/hid/IOHIDKeys.h>
    #undef TRUE
    #undef FALSE
    #undef assert

@@ -2,7 +2,7 @@
 #  Rules for building the Allegro library with MacOS X. This file is included
 #  by the primary makefile, and should not be used directly.
 #
-#  The "depend" target uses sed.
+#  The "depend" and "install" targets use sed.
 #
 #  See makefile.all for a list of the available targets.
 
@@ -21,6 +21,18 @@ HTML = html
 PLATFORM_DIR = obj/macosx
 
 UNIX_TOOLS = 1
+
+ifdef STATICLINK
+
+# -------- link as a static library --------
+LIB_NAME = lib/macosx/lib$(VERSION).a
+
+else
+
+# -------- link as a shared library --------
+LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
+
+endif # STATICLINK
 
 
 
@@ -54,6 +66,8 @@ endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
+
+
 ifdef DEBUGMODE
 
 # -------- debugging build --------
@@ -72,11 +86,11 @@ LFLAGS = -pg
 else
 
 # -------- optimised build --------
-CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer -pipe
+CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
-#ifndef SYMBOLMODE
-#   LFLAGS += -s
-#endif
+ifndef SYMBOLMODE
+LFLAGS += -s
+endif
 
 endif
 endif
@@ -90,16 +104,32 @@ CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+LINK_LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+ifdef STATICLINK
+LIBRARIES = $(LINK_LIBRARIES)
+else
+LIBRARIES = -lpthread -framework Cocoa
+endif
 
+PROGRAMS =
 
 
 # -------- rules for installing and removing the library files --------
 
-INSTALL_DIR = /usr
+INSTALL_DIR = /usr/local
+
+ifdef STATICLINK
 
 $(INSTALL_DIR)/lib/lib$(VERSION).a: $(LIB_NAME)
 	cp $(LIB_NAME) $(INSTALL_DIR)/lib
+
+else
+
+$(INSTALL_DIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
+	cp $(LIB_NAME) $(INSTALL_DIR)/lib
+
+endif
+
 
 $(INSTALL_DIR)/include/%: include/%
 	cp $< $@
@@ -129,15 +159,25 @@ $(INSTALL_DIR)/include/allegro/platform:
 	mkdir $(INSTALL_DIR)/include/allegro/platform
 
 $(INSTALL_DIR)/bin/allegro-config:
-	cp misc/allegro-config-qnx.sh $(INSTALL_DIR)/bin/allegro-config
-	chmod +x $(INSTALL_DIR)/bin/allegro-config
+ifdef STATICLINK
+	sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
+else
+	sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
+endif
+	sed -e "s/@prefix@/\/usr\/local/" temp > temp2
+	sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
+	sed -e "s/@LDFLAGS@//" temp > temp2
+	sed -e "s/@LIBS@/$(LINK_LIBRARIES)/" temp2 > temp
+	sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
+	sed -e "s/-l\$${lib_type}_unsharable/$(LIBRARIES)/" temp2 >$(INSTALL_DIR)/bin/allegro-config
+	rm -f temp temp2
+	chmod a+x $(INSTALL_DIR)/bin/allegro-config
 
 HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
 
-INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a                 \
-		$(INSTALL_DIR)/include/allegro.h                   \
+INSTALL_FILES = $(INSTALL_DIR)/include/allegro.h                   \
 		$(INSTALL_DIR)/include/allegro                     \
 		$(INSTALL_DIR)/include/allegro/internal            \
 		$(INSTALL_DIR)/include/allegro/inline              \
@@ -150,12 +190,21 @@ INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a                 \
 		$(HEADERS)                                         \
 		$(INSTALL_DIR)/bin/allegro-config
 
+ifdef STATICLINK
+	INSTALL_FILES += $(INSTALL_DIR)/lib/lib$(VERSION).a 
+else
+	INSTALL_FILES += $(INSTALL_DIR)/lib/lib$(VERSION)-$(shared_version).dylib
+endif
+
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
 UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a               \
 		  $(INSTALL_DIR)/lib/liballd.a                \
 		  $(INSTALL_DIR)/lib/liballp.a                \
+		  $(INSTALL_DIR)/lib/liballeg-$(shared_version).dylib \
+		  $(INSTALL_DIR)/lib/liballd-$(shared_version).dylib \
+		  $(INSTALL_DIR)/lib/liballp-$(shared_version).dylib \
 		  $(INSTALL_DIR)/include/allegro.h            \
 		  $(INSTALL_DIR)/include/osxalleg.h           \
 		  $(INSTALL_DIR)/include/allegro/*.h          \
@@ -176,9 +225,22 @@ uninstall:
 
 # -------- finally, we get to the fun part... --------
 
+ifdef STATICLINK
+
+# -------- link as a static library --------
 define MAKE_LIB
-   ar rs $(LIB_NAME) $(OBJECTS)
+ar rs $(LIB_NAME) $(OBJECTS)
 endef
+
+else
+
+# -------- link as a shared library --------
+
+define MAKE_LIB
+$(CC) -dynamiclib -single_module -flat_namespace -undefined suppress -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version) $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LINK_LIBRARIES)
+endef
+
+endif # STATICLINK
 
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 

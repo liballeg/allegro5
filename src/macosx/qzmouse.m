@@ -19,12 +19,6 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintosx.h"
-#include <mach/mach.h>
-#include <mach/mach_error.h>
-#include <IOKit/IOKitLib.h>
-#include <IOKit/IOCFPlugIn.h>
-#include <IOKit/hid/IOHIDLib.h>
-#include <IOKit/hid/IOHIDKeys.h>
 
 #ifndef ALLEGRO_MACOSX
 #error Something is wrong with the makefile

@@ -433,6 +433,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       userData: nil
       assumeInside: YES];
    
+   osx_keyboard_focused(FALSE, 0);
    osx_gfx_mode = OSX_GFX_WINDOW;
    
    return pseudo_screen;
