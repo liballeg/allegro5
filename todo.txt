@@ -27,6 +27,7 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
+- Add a configuration option to specify the monitor on multi-monitor systems
 - Re-enable docs build with a MinGW cross-compiler
 - Investigate Alt+Tab pop-up window being overdrawn in windowed mode
 - Investigate problem with keyboard in the dxwindow test
