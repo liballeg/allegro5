@@ -30,70 +30,74 @@
  * Scanline drawers.
  */
 
-#define SCANLINE_DRAWER_GENERIC(name, INIT, PUTPIXEL) \
-   static void draw_scanline_##name(BITMAP *bmp, BITMAP *spr, \
-				    fixed l_bmp_x, int bmp_y_i, \
-				    fixed r_bmp_x, \
-				    fixed l_spr_x, fixed l_spr_y, \
-				    fixed spr_dx, fixed spr_dy) \
-   { \
-      int c; \
-      int mask_color; \
-   \
-      INIT; \
-      mask_color = bmp->vtable->mask_color; \
-      r_bmp_x >>= 16; \
-      l_bmp_x >>= 16; \
-      for (; l_bmp_x <= r_bmp_x; l_bmp_x++) { \
-	 c = getpixel(spr, l_spr_x>>16, l_spr_y>>16); \
-	 if (c != mask_color) \
-	    PUTPIXEL; \
-	 l_spr_x += spr_dx; \
-	 l_spr_y += spr_dy; \
-      } \
+#define SCANLINE_DRAWER_GENERIC(name, INIT, PUTPIXEL)              \
+   static void draw_scanline_##name(BITMAP *bmp, BITMAP *spr,      \
+				    fixed l_bmp_x, int bmp_y_i,    \
+				    fixed r_bmp_x,                 \
+				    fixed l_spr_x, fixed l_spr_y,  \
+				    fixed spr_dx, fixed spr_dy)    \
+   {                                                               \
+      int c;                                                       \
+      int mask_color;                                              \
+                                                                   \
+      INIT;                                                        \
+      mask_color = bmp->vtable->mask_color;                        \
+      r_bmp_x >>= 16;                                              \
+      l_bmp_x >>= 16;                                              \
+      for (; l_bmp_x <= r_bmp_x; l_bmp_x++) {                      \
+	 c = getpixel(spr, l_spr_x>>16, l_spr_y>>16);              \
+	 if (c != mask_color)                                      \
+	    PUTPIXEL;                                              \
+	 l_spr_x += spr_dx;                                        \
+	 l_spr_y += spr_dy;                                        \
+      }                                                            \
    }
-SCANLINE_DRAWER_GENERIC(generic_convert,
-			   int bmp_depth;
-			   int spr_depth;
-			   bmp_depth = bitmap_color_depth(bmp);
-			   spr_depth = bitmap_color_depth(spr);
+
+SCANLINE_DRAWER_GENERIC(generic_convert
+			,
+			int bmp_depth;
+			int spr_depth;
+			bmp_depth = bitmap_color_depth(bmp);
+			spr_depth = bitmap_color_depth(spr);
 			,
 			putpixel(bmp, l_bmp_x, bmp_y_i,
 				 makecol_depth(bmp_depth,
 					       getr_depth(spr_depth, c),
 					       getg_depth(spr_depth, c),
 					       getb_depth(spr_depth, c))))
-SCANLINE_DRAWER_GENERIC(generic,
-               ;
+
+SCANLINE_DRAWER_GENERIC(generic
+			,
+			; /* nop */
 			,
 			putpixel(bmp, l_bmp_x, bmp_y_i, c))
 
 
 
-#define SCANLINE_DRAWER(bits_pp, GETPIXEL) \
-   static void draw_scanline_##bits_pp(BITMAP *bmp, BITMAP *spr, \
-				       fixed l_bmp_x, int bmp_y_i, \
-				       fixed r_bmp_x, \
-				       fixed l_spr_x, fixed l_spr_y, \
-				       fixed spr_dx, fixed spr_dy) \
-   { \
-      int c; \
-      unsigned long addr, end_addr; \
-      unsigned char **spr_line = spr->line; \
-      \
-      r_bmp_x >>= 16; \
-      l_bmp_x >>= 16; \
-      bmp_select(bmp); \
-      addr = bmp_write_line(bmp, bmp_y_i); \
-      end_addr = addr + r_bmp_x * ((bits_pp + 7) / 8); \
-      addr += l_bmp_x * ((bits_pp + 7) / 8); \
-      for (; addr <= end_addr; addr += ((bits_pp + 7) / 8)) { \
-	 GETPIXEL; \
-	 if (c != MASK_COLOR_##bits_pp) \
-	    bmp_write##bits_pp(addr, c); \
-	 l_spr_x += spr_dx; \
-	 l_spr_y += spr_dy; \
-      } \
+#define SCANLINE_DRAWER(bits_pp, GETPIXEL)                            \
+   static void draw_scanline_##bits_pp(BITMAP *bmp, BITMAP *spr,      \
+				       fixed l_bmp_x, int bmp_y_i,    \
+				       fixed r_bmp_x,                 \
+				       fixed l_spr_x, fixed l_spr_y,  \
+				       fixed spr_dx, fixed spr_dy)    \
+   {                                                                  \
+      int c;                                                          \
+      unsigned long addr, end_addr;                                   \
+      unsigned char **spr_line = spr->line;                           \
+                                                                      \
+      r_bmp_x >>= 16;                                                 \
+      l_bmp_x >>= 16;                                                 \
+      bmp_select(bmp);                                                \
+      addr = bmp_write_line(bmp, bmp_y_i);                            \
+      end_addr = addr + r_bmp_x * ((bits_pp + 7) / 8);                \
+      addr += l_bmp_x * ((bits_pp + 7) / 8);                          \
+      for (; addr <= end_addr; addr += ((bits_pp + 7) / 8)) {         \
+	 GETPIXEL;                                                    \
+	 if (c != MASK_COLOR_##bits_pp)                               \
+	    bmp_write##bits_pp(addr, c);                              \
+	 l_spr_x += spr_dx;                                           \
+	 l_spr_y += spr_dy;                                           \
+      }                                                               \
    }
 
 
@@ -802,7 +806,8 @@ void _pivot_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
  *  Rotates and scales a sprite, optionally flipping it about either axis.
  *  Coordinates are given in fixed point format.
  */
-/* static void _rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
+#if 0
+static void _rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
 				          fixed x, fixed y,
 				          fixed angle, fixed scale, int v_flip)
 {
@@ -811,7 +816,8 @@ void _pivot_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
 			     y + (sprite->h * scale) / 2,
 			     sprite->w << 15, sprite->h << 15,
 			     angle, scale, v_flip);
-} */
+}
+#endif
 
 
 
