@@ -123,7 +123,6 @@ SHARED_LIB_DIR = /boot/home/config/lib
 
 ifdef STATICLINK
 
-LFLAGS += $(LIBRARIES)
 $(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
 	cp $< $@
 	
@@ -263,7 +262,7 @@ $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
-	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
+	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 obj/beos/asmdef.inc: obj/beos/asmdef
 	obj/beos/asmdef obj/beos/asmdef.inc
