@@ -597,8 +597,10 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy
       for (x = w - 1; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
 	 unsigned long c = *s;
 
-	 c = RGBA_BLEND(blender, GET_PIXEL(ds), c);
-	 PUT_PIXEL(dd, c);
+	 if (c != MASK_COLOR_32) {
+	    c = RGBA_BLEND(blender, GET_PIXEL(ds), c);
+	    PUT_PIXEL(dd, c);
+	 }
       }
    }
 
