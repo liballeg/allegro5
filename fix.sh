@@ -58,7 +58,6 @@ proc_unix()
    AL_MAKEFILE="dummy"
    AL_PLATFORM="ALLEGRO_UNIX"
    AL_NOMAKE="1"
-   chmod -f +x configure *.sh misc/*.sh misc/*.pl
 }
 
 proc_watcom()
@@ -125,6 +124,7 @@ proc_dtou()
       touch -r _tmpfile $file
       rm _tmpfile
    done
+   chmod -f +x configure *.sh misc/*.sh misc/*.pl
 }
 
 # take action!
