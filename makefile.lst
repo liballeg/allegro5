@@ -166,6 +166,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/update.s \
 	src/win/wdsound.c \
 	src/win/wdsndmix.c \
+	src/win/wsndwo.c \
 	src/win/wdxver.c \
 	src/win/wdispsw.c \
 	src/win/wfile.c \
