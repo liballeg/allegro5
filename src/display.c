@@ -275,12 +275,13 @@ BITMAP *al_create_system_bitmap(AL_DISPLAY *display, int width, int height)
 
    sysbmp = _al_vector_alloc_back(&sysbmp_list);
    if (display->gfx_driver->create_system_bitmap) {
-      sysbmp->root_display = display;
       sysbmp->bmp = display->gfx_driver->create_system_bitmap(width, height);
    } else {
       sysbmp->bmp = create_bitmap(width, height);
       sysbmp->bmp->id |= BMP_ID_SYSTEM;
    }
+
+   sysbmp->root_display = display;
 
    return sysbmp->bmp;
 }
