@@ -11,6 +11,76 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.36: Eric Botcazou made it so that set_keyboard_rate(0, 0) will
+   disable keyboard repeat, as in the documentation.
+<li>
+   3.9.36: Annie Testes added font_height, render_char, char_length hooks
+   to FONT_VTABLE.
+<li>
+   3.9.36: (fix this one)
+   	   2001-04-28 05:19  icruz
+	* src/win/: wddraw.c, wgdi.c, wsystem.c, wwnd.c, wddmode.c,
+	wddovl.c, wddwin.c, wgdi.c, wmouse.c: no message
+<li>
+   3.9.36: Eric Botcazou added a get_desktop_resolution() function for
+   Windows and X. Joshua Haberman added a BeOS version.
+<li>
+   3.9.36: Angelo Mottola comprehensively started a QNX port.
+<li>
+   3.9.36: Robert Ohannessian corrected src/dest ordering in additive
+   blenders.
+<li>
+   3.9.36: Eric Botcazou improved support of external windows in Windows.
+<li>
+   3.9.36: Peter Wang updated the SVGAlib driver for version 2.
+<li>
+   3.9.36: Peter Wang added a fullscreen version of the X-Windows graphics
+   driver. The original was by Benjamin Stover.
+<li>
+   3.9.36: Peter Wang made grabber use file_select_ex(). This is just here
+   so you don't get a shock :-)
+<li>
+   3.9.36: Eric Botcazou fixed some small bugs in the DirectSound input code.
+<li>
+   3.9.36: Eric Botcazou fixed the NumLock state in X not matching
+   keyboard LEDs.
+<li>
+   3.9.36: Eric Botcazou reenabled the multi-threaded timer under Windows.
+<li>
+   3.9.36: Eric Botcazou and Javier Gonzalez made the keyboard repeat
+   system more efficient.
+<li>
+   3.9.36: Eric Botcazou fixed some asm blitters, and also a bug with
+   changing timer speeds.
+<li>
+   3.9.36: Peter Wang made the keypad return / * - + ASCII values even if
+   NumLock is off, under Linux console.
+<li>
+   3.9.36: Ronaldo Hideki Yamada made a big update of the Mac port,
+   including some new PPC files.
+<li>
+   3.9.36: The GGI driver was removed, due to its inability to actually
+   work. It is no longer supported, unless someone rewrites it.
+<li>
+   3.9.36: Eric Botcazou fixed a problem with the GDI driver when compiled
+   with MSVC.
+<li>
+   3.9.36: Some MIDI fixes by Javier Gonzalez and Eric Botcazou.
+<li>
+   3.9.36: Grzegorz Adam Hankiewicz improved the fb.modes line parsing
+   function in the fbcon driver.
+<li>
+   3.9.36: Grzegorz Adam Hankiewicz changed the behaviour of GFX_SAFE.
+   This means that "set_gfx_mode(GFX_SAFE, ...)" now returns an error if
+   it is unable to set a video mode, just like any other video driver.
+<li>
+   3.9.36: Eric Botcazou fixed volume setting in Windows.
+<li>
+   3.9.36: Eric Botcazou added DirectX 3 compatibility.
+<li>
+   3.9.36: Nick Kochakian added input routines to the DirectSound driver.
+   It was also modified by Javier Gonzalez.
+<li>
    3.9.35: Eric Botcazou made Windows restore the original sound volume
    after an Allegro program quits.
 <li>

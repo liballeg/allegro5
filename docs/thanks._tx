@@ -53,7 +53,11 @@ Contributors
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
    Added the BeOS joystick, MIDI and windowed graphics drivers, added
    mouse wheel, display switching and close button support for BeOS, and
-   wrote the DGA2 driver and close button support for X.
+   wrote the DGA2 driver and close button support for X. And, oh,
+   contributed the QNX port too.
+
+   Annie Testes (email unknown).<br>
+   Added font_height, render_char, char_length hooks to FONT_VTABLE.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -399,6 +403,9 @@ Contributors
    Neil Townsend (<email>neil@robots.ox.ac.uk</a>).<br>
    Improved the accuracy of the timer routines, and added the callback 
    parameters.
+
+   Nick Kochakian (<email>nickk@worldnet.att.net</a>).<br>
+   Wrote the DirectSound input driver.
 
    Ole Laursen (<email>98zOLaw@aalborghus.dk</a>).<br>
    Contributed the Danish keyboard mapping table and system message 
