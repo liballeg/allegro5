@@ -11,6 +11,7 @@
  *      Digitized sample driver for the MIDI player.
  *
  *      By Shawn Hargreaves, based on code by Tom Novelli.
+ *      Chris Robinson added some optimizations and the digmid_set_pan method.
  *
  *      See readme.txt for copyright information.
  */
