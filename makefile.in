@@ -175,6 +175,7 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(srcdir)/include/allegro/text.h \
 	$(srcdir)/include/allegro/timer.h \
 	$(srcdir)/include/allegro/unicode.h \
+	$(srcdir)/include/allegro/graphics.h \
 	$(srcdir)/include/allegro/inline/3dmaths.inl \
 	$(srcdir)/include/allegro/inline/asm.inl \
 	$(srcdir)/include/allegro/inline/color.inl \
