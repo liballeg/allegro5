@@ -941,7 +941,7 @@ SAMPLE *load_wav(AL_CONST char *filename)
 
 	 if (spl) {
 	    if (bits == 8) {
-	       if (pack_fread(spl->data, length, f) < len) {
+	       if (pack_fread(spl->data, length, f) < length) {
 		  destroy_sample(spl);
 		  spl = NULL;
 	       }
