@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 	 html_flags |= HTML_OPTIMIZE_FOR_CHM;
       }
       else if (mystricmp(argv[i], "-odevhelp") == 0) {
-	 html_flags |= HTML_OPTIMIZE_FOR_DEVHELP;
+	 html_flags |= HTML_OPTIMIZE_FOR_DEVHELP | HTML_IGNORE_CSS;
       }
       else if (argv[i][0] == '-') {
 	 fprintf(stderr, "Unknown option '%s'\n", argv[i]);
