@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- mode:Python; tab-width: 3 -*-
 """
 This is a helper script which reads the .c files of the examples
 directory, extracts the comments from the source, and updates
@@ -21,7 +22,13 @@ Adam Hankiewicz, gradha@users.sourceforge.net. Notify me of any
 broken behaviour, like uncaught exceptions. This script falls under
 Allegro's giftware license.
 """
-import sys, re, os, os.path, glob, popen2, string
+import glob
+import os
+import os.path
+import popen2
+import re
+import string
+import sys
 
 path_to_documentation = apply(os.path.join, ["docs", "src", "allegro._tx"])
 path_to_example_dir = apply(os.path.join, ["examples"])
@@ -322,14 +329,18 @@ def replace_example_references(documentation, ids_to_examples):
    Allegro documentation chapter.
    """
    new_lines = []
+   short_desc = []
    found_id = ""
    exp = re.compile(regular_expression_for_tx_identifiers)
    for line in documentation:
       if found_id:
          if line[0] == '@':
-            # don't append erefs, which will be regenerated
+            # Don't append erefs, which will be regenerated.
             if line[1:5] == "xref" or line[1] == "@":
                new_lines.append(line)
+            # Append shortdesc, but after @erefs as a special case.
+            if line[1:10] == "shortdesc":
+               short_desc = [line]
          else:
             # create the eref block and append before normal text
             eref_list = ids_to_examples[found_id]
@@ -338,9 +349,18 @@ def replace_example_references(documentation, ids_to_examples):
                new_lines.append("@eref %s\n" % limit_example_reference)
             else:
                new_lines.extend(build_xref_block(eref_list, "@eref"))
+               
+            if short_desc:
+               new_lines.extend(short_desc)
+               short_desc = []
+               
             new_lines.append(line)
             found_id = ""
       else:
+         if short_desc:
+            new_lines.extend(short_desc)
+            short_desc = []
+            
          new_lines.append(line)
          match = exp.match(line)
          if match and ids_to_examples.has_key(match.group("name")):
