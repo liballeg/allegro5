@@ -218,4 +218,3 @@ int fceil(fixed x);
 				 \
    parm [eax]			 \
    value [eax];
-}
