@@ -285,13 +285,12 @@ Contributors
    Jason Wilkins (<email>fenix at io dot com</a>).<br>
    Wrote the quaternion math routines, and contributed the BeOS port.
 
-   Javier Gonzalez (<email>javigg@wanadoo.es</a>).<br>
+   Javier Gonzalez (<email>xaviergonz@hotmail.com</a>).<br>
    Corrected mouse movement speed, made allegro_message() use title from
    set_window_title(), added close button hook support and improved
    switching in Windows, fixed bad clearing of subbitmaps, and made bug
    reports and suggestions for improvement. Contributed bidirectional
    looping and backward playing support for the directsound driver.
-   
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
