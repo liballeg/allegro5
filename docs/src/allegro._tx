@@ -6958,8 +6958,10 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@void @get_executable_name(char *buf, int size);
    Fills buf with the full path to the current executable, writing at most 
    size bytes.  This generally comes from argv[0] but on Unix systems we
-   try to get the information from /proc/pid/exe first. If this fails and
-   argv[0] does not specify the path, we search for our file in $PATH.
+   try to get the information from the /proc filesystem first, searching the
+   directories specified in $PATH if nescessary. If this fails we try to find 
+   the executable name from the output of the ps command, using argv[0] only
+   as a last resort if all other options fail.
 
 @@char *@fix_filename_case(char *path);
 @xref fix_filename_slashes, canonicalize_filename
