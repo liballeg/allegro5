@@ -56,8 +56,9 @@ Contributors
    support in the image viewer and the flipped rotated sprite routines.
 
    Andy Goth (<email>unununium@openverse.com</a>).<br>
-   Made the gfx_card config variable more flexible, added the 256x256
-   tweaked VGA mode and wrote the d_text_list_proc() dialog object.
+   Made the gfx_card config variable more flexible, added the 256x256 tweaked
+   VGA mode, wrote the d_text_list_proc() dialog object and fixed the
+   constructor support in dat2s on Unix.
 
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
    Added the BeOS joystick, MIDI and windowed graphics drivers, added mouse
@@ -157,8 +158,9 @@ Contributors
    Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
    Fixed a bug with 16-bit samples loading, worked around a problem with DOS
    file attributes under Win2k, let the MIDI player pass controller events to
-   the raw player by default and made the MIDI player handle the
-   'All Sound Off' controller message.
+   the raw player by default, made the MIDI player handle the 'All Sound Off'
+   controller message and added support for the bitfield compressed BMP image
+   format.
 
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog
@@ -186,8 +188,9 @@ Contributors
 
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
-   mouse clicks, made d_menu_proc() steal/return focus when
-   activated/deactivated and fixed a problem with submenus.
+   mouse clicks, made d_menu_proc() steal/return focus when activated then
+   deactivated, fixed a problem with submenus and fixed a bug with FLI
+   frames containing odd-sized chunks
 
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
@@ -263,6 +266,10 @@ Contributors
 
    Fabrizio Gennari (<email>faybs@iafrica.com</a>).<br>
    Contributed the DB9 and TurboGraFXoystick drivers.
+
+   Francisco Pires (<email>fmlvp@hotmail.com</a>).<br>
+   Added an FPS counter and an option to disable vsync to the excamera
+   example.
 
    Francois Charton (<email>deef@pobox.oleane.com</a>).<br>
    Wrote the Paradise graphics driver (now available as part of the
@@ -430,9 +437,9 @@ Contributors
    Wrote the original version of the OSS sound driver.
 
    Julien Cugnière (<email>jcugniere@free.fr</a>).<br>
-   Improved the support for non-blocking menus and fixed a bug related to the
+   Improved the support for non-blocking menus, fixed a bug related to the
    retrieval of the inital volume when no primary buffer was present under
-   Windows.
+   Windows and fixed the crash on exit with the aRts sound driver.
 
    Kalle Toivonen (<email>allegro@korpiq.iki.fi</a>).<br>
    Fixed a bug in _parallelogram_map().
@@ -586,7 +593,8 @@ Contributors
    scaling, image loading, etc).
 
    Michal Molhanec (<email>molhanec@seznam.cz</a>).<br>
-   Simplified the build instructions for Dev-C++.
+   Simplified the build instructions for Dev-C++ and replaced all occurences
+   of MingW32 by MinGW in the docs.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
@@ -595,6 +603,9 @@ Contributors
    Improved the fire routine in examples/exflame.c (my original version
    didn't really look very much like flames :-) and gave me some extremely
    useful ideas about how to implement translucency.
+
+   Nathan Smith (<email>white_door@dread.nl</a>).<br>
+   Implemented the recursive handling of directories for the dat utility.
 
    Neil Townsend (<email>neil@robots.ox.ac.uk</a>).<br>
    Improved the accuracy of the timer routines and added the callback
@@ -618,7 +629,10 @@ Contributors
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
 
    Omar Cornut (<email>cornut@noos.fr</a>).<br>
-   Spotted an asm locking bug under Windows.
+   Spotted an asm locking bug under Windows, bumped the maximum number of
+   buttons per joystick to 32, fixed the Windows joystick driver to handle a
+   weird peculiarity of the DirectInput API and improved the handling of
+   KEY_COLON2 on Japanese keyboards.
 
    Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
    Added the Catalan translation, corrected the Spanish translation, fixed a

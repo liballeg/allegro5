@@ -8,6 +8,106 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.12 to 4.1.13 (March 2004)
+<ul><li>
+   Minor changes and clarifications in the docs by Sven Sandberg, Andy Goth,
+   Jon Rafkind and Nathan Smith.
+<li>
+   Elias Pchernig extensively modified the ALSA 0.9/1.0 sound driver to make
+   it work more nicely.
+<li>
+   Julien Cugniere and Eric Botcazou fixed the crash on exit with the aRts
+   sound driver.
+<li>
+   Nathan Smith implemented the recursive handling of directories for the
+   dat utility.
+<li>
+   Eric Botcazou renamed the new '-r' option of the dat utility into '-f'.
+<li>
+   Omar Cornut improved the handling of KEY_COLON2 on Japanese keyboards.
+<li>
+   Omar Cornut fixed the Windows joystick driver to handle a weird peculiarity
+   of the DirectInput API.
+<li>
+   Elias Pchernig corrected the value of the alpha-channel depth field in the
+   header when saving TGA image files.
+<li>
+   Eric Botcazou fixed again the formula giving the stride value in the Linux
+   framebuffer console.
+<li>
+   Eric Botcazou restored the pixel-correct version of line() and added
+   fastline() after Doug Eleveld had reported the problem.
+<li>
+   Andy Goth and Eric Botcazou fixed the constructor support in dat2s on Unix.
+<li>
+   Angelo Mottola revamped the MacOS X package creation process to make it
+   work under 10.3 and create an enduser package that holds just the shared
+   framework.
+<li>
+   Angelo Mottola changed the MacOS X shared library building process to have
+   a prebound shared library separated from a small static libray holding just
+   the magic main stuff.
+<li>
+   Angelo Mottola removed window shadow flickering when moving the program
+   window around on MacOS X.
+<li>
+   Elias Pchernig changed the behavior of yield_timeslice() to sleeping
+   instead of just yielding.
+<li>
+   Angelo Mottola made the MacOS X port reuse the screen on the first video
+   bitmap creation and made the screen fade on mode switches faster.
+<li>
+   Elias Pchernig made d_menu_proc() automatically yield when the dialog
+   is driven by do_dialog().
+<li>
+   Elias Pchernig added missing d_yield_proc()s to the grabber.
+<li>
+   Eric Botcazou fixed a bug which caused too many sliders to be reported
+   in the presence of a POV device on Windows.
+<li>
+   Chris Jones added support for the bitfield compressed BMP image format.
+<li>
+   Eric Botcazou removed all uses of GCC's cast-expression-as-lvalue
+   extension in preparation for GCC 3.4.
+<li>
+   Michal Molhanec replaced all occurences of MingW32 by MinGW in the docs.
+<li>
+   Omar Cornut bumped the maximum number of buttons per joystick to 32.
+<li>
+   Eric Botcazou implemented automatic screensaver disabling (only on
+   Windows for the time being).
+<li>
+   Elias Pchernig added mode 1280x960 to the gfx mode selector.
+<li>
+   Elias Pchernig fixed the video mode error display in the test program.
+<li>
+   Eric Botcazou fixed the final animation of the demo game.
+<li>
+   Elias Pchernig made the X11 gfx driver ignore repeated key-events.
+<li>
+   Eric Botcazou added set_hardware_volume().
+<li>
+   Francisco Pires added an FPS counter and an option to disable vsync to
+   the excamera example.
+<li>
+   Eric Botcazou and Sven Sandberg documented the limitations of getpixel()
+   and added is_inside_bitmap().
+<li>
+   Eric Botcazou added i386 sincos optimization to GCC-based ports.
+<li>
+   David Capello fixed a bug with FLI frames containing odd-sized chunks.
+<li>
+   Elias Pchernig and Sven Sandberg improved the GUI focus algorithm.
+<li>
+   Eric Botcazou modified the dat/grabber plugins interface to expose
+   datafile properties to plugins.
+<li>
+   Eric Botcazou added a new clipping API and deprecated the old one.
+<li>
+   Grzegorz Adam Hankiewicz updated the MSVC build instructions.
+</ul>
+
+@heading
 Changes from 4.1.11 to 4.1.12 (Nov 2003)
 <ul><li>
    Many minor changes and clarifications in the docs, some of them based on
