@@ -293,7 +293,8 @@ $(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	copy include\winalleg.h $(MINGDIR_D)\include
 
 $(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	md $(MINGDIR_D)\include\allegro 
+	-md $(MINGDIR_D)\include\allegro
+# workaround for a weird make problem
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
