@@ -9315,6 +9315,47 @@ END_OF_MAIN() right after your main() function. Pretty easy, really, and if
 you forget, you'll get a nice linker error about a missing _mangled_main 
 function to remind you :-)
 
+Under Unix resources are searched for in many different paths. When a
+configuration resource is looked for, it is usually tried with the variations
+`name.cfg' or `.namerc' in multiple paths: the current directory, the
+directory pointed to by the ALLEGRO environment variable, the user's home
+directory and one or more global system directories which usually only the
+root user has access to. Text files, like the main allegro config file or a
+language text translation files are looked for in the following places:
+<textblock>
+   ./allegro.cfg
+   $ALLEGRO/allegro.cfg
+   ~/allegro.cfg
+   ~/.allegrorc
+   /etc/allegro.cfg
+   /etc/allegrorc
+<endblock>
+Binary resources like the keyboard mappings (keyboard.dat) or the language
+translation files packfile (language.dat) are looked for in:
+<textblock>
+   ./keyboard.dat
+   $ALLEGRO/keyboard.dat
+   ~/keyboard.dat
+   /etc/keyboard.dat
+   /usr/share/allegro/keyboard.dat
+   /usr/local/share/allegro/keyboard.dat
+<endblock>
+Note that if you have installed Allegro from the source distribution with
+the typical `<tt>make install</tt>', global files like `keyboard.dat', `language.dat'
+and `allegro.cfg' will not have been installed. As a system administrator
+you are required to install them manually wherever you prefer to have them.
+If you suspect that an Allegro program is somehow not finding the correct
+configuration file, you could try using the following command:
+<textblock>
+   strace program 2>&1|egrep "(open|stat)"
+<endblock>
+The strace program traces system calls and signals. By default it outputs
+the information to stderr, so that's why we redirect it to stdin with `<tt>2>&1</tt>'.
+Since we are interested only in files being (un)successfully opened, we
+restrict the output of the log to stat or open calls with the extended grep
+command. You could add another grep to filter only lines with text like
+`keyboard' or `allegro'.
+
 @@Drivers @GFX_*/Linux
 @xref set_gfx_mode, GFX_*/X
    When running in Linux console mode, Allegro supports the following card 
