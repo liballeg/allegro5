@@ -696,8 +696,16 @@ static void draw_dialog(ACTIVE_DIALOG *d)
 static void activate_dialog(DIALOG *dlg, DIALOG_STATE (*handler)(int c), int chain)
 {
    ACTIVE_DIALOG *d = &dialogs[dialog_count];
+   int i;
 
-   centre_dialog(dlg);
+   for (i=0; dlg[i].proc; i++) {
+      if (dlg[i].proc == scroller_proc) {
+	 dlg[i].proc = NULL;
+	 centre_dialog(dlg);
+	 dlg[i].proc = scroller_proc;
+	 break;
+      }
+   }
 
    d->state = state_start;
    d->time = retrace_count;

@@ -6830,8 +6830,6 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @@void @centre_dialog(DIALOG *dialog);
 @xref position_dialog, set_dialog_color
    Moves an array of dialog objects so that it is centered in the screen.
-   Objects with zero width and zero height are treated as "invisible"
-   objects and will not affect the calculation of the total dialog size.
 
 @@void @set_dialog_color(DIALOG *dialog, int fg, int bg);
 @xref gui_fg_color, gui_mg_color, centre_dialog
