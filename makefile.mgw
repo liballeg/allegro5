@@ -25,8 +25,8 @@ ifdef ALLEGRO_USE_CYGWIN
    UNIX_TOOLS = 1
 endif
 
-ifeq ($(SHELL), /bin/sh.exe)
-   UNIX_TOOLS=1
+ifneq (,$(findstring /sh.exe,$(SHELL)))
+  UNIX_TOOLS = 1
 endif
 
 
