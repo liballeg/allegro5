@@ -170,8 +170,24 @@ int rename_file(char *oldname, char *newname)
 void update_file(char *filename, char *dataname)
 {
    PACKFILE *f, *ef, *df = NULL;
-   char *tmpname = tmpnam(NULL);
+   char *tmpname;
    int c;
+
+   #ifdef HAVE_MKSTEMP
+
+      char tmp_buf[] = "XXXXXX";
+      char tmp[512];
+      int tmp_fd;
+
+      tmp_fd = mkstemp(tmp_buf);
+      close(tmp_fd);
+      tmpname = uconvert_ascii(tmp_buf, tmp);
+
+   #else
+
+      tmpname = tmpnam(NULL);
+
+   #endif
 
    get_stats();
 
