@@ -54,7 +54,7 @@ Changes from 4.0.0 to 4.0.1 (Mar 2002)
 <li>
    Peter Wang removed the hack which switched off fix aliases under IRIX.
 <li>
-   Vincent Penquerc'h fixed a problem with the SIGARLM timer and
+   Vincent Penquerc'h fixed a problem with the SIGALRM timer and
    SWITCH_PAUSE.
 <li>
    Javier Gonzalez fixed a latency problem with audiostreams.
@@ -92,7 +92,7 @@ Changes from 4.0.0 to 4.0.1 (Mar 2002)
 <li>
    Eric Botcazou fixed a bug in the 32->15 MMX color conversion routine.
 <li>
-   Eric Botcazou fixed the DLL linking problem with Borland C++Builder 4.
+   Eric Botcazou fixed the DLL linking problem with Borland C++ Builder 4.
 <li>
    Sven Sandberg made exaccel more responsive.
 <li>
