@@ -29,7 +29,7 @@ exquat.c   - quaternion rotations, by Jason Wilkins
 exrgbhsv.c - RGB <-> HSV colorspace conversions
 exsample.c - playing digital samples
 exscale.c  - loading PCX files and bitmap stretching, by Grzegorz Ludorowski
-exscn3d.c  - using the scanline sorting algorithm (scene functions), by Bertrand Coconnier.
+exscn3d.c  - using the scene functions, by Bertrand Coconnier
 exscroll.c - mode-X hardware scrolling and split screens
 exshade.c  - gouraud shaded sprites, by Patrick Hogan
 exspline.c - constructing smooth movement paths from spline curves
