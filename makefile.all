@@ -4,28 +4,31 @@
 #  Available options:
 #
 #     Environment variables:
-#        DEBUGMODE=1       selects a debug build.
-#        PROFILEMODE=1     selects a profiling build.
-#        WARNMODE=1        selects strict compiler warnings.
-#        STATICLINK=1      use static linking (MSVC, Mingw32).
-#        PGCC=1            use PGCC compiler switches (djgpp, RSXNT).
-#        PENTIUMONLY=1     make the library faster, but Pentium-only.
-#        CROSSCOMPILE=1    build djgpp or Mingw32 versions under Linux.
-#        ALLEGRO_USE_C=1   use C drawing code instead of asm (djgpp, Mingw32).
+#        DEBUGMODE=1        selects a debug build.
+#        PROFILEMODE=1      selects a profiling build.
+#        WARNMODE=1         selects strict compiler warnings.
+#        STATICLINK=1       use static linking (MSVC, Mingw32).
+#        TARGET_ARCH_COMPAT optimize for the given processor while preserving
+#                           backwards compatibility with older processors.
+#        TARGET_ARCH_EXCL   optimize for the given processor. this will cause
+#                           the library to *NOT* be backwards compatible.
+#        TARGET_OPTS        allows you to customize general optimalization.
+#        CROSSCOMPILE=1     build djgpp or Mingw32 versions under Linux.
+#        ALLEGRO_USE_C=1    use C drawing code instead of asm (djgpp, Mingw32).
 #
 #     Targets: 
-#        default:          build library version, docs, and programs.
-#        all:              build all versions and programs.
-#        lib:              build a single library only, no programs.
-#        install:          install single library version.
-#        installall:       install all library versions.
-#        uninstall:        remove Allegro from system directories.
-#        docs:             convert documentation from ._tx sources.
-#        clean:            remove object files.
-#        distclean:        remove objects and executables.
-#        veryclean:        remove all generated files.
-#        depend:           regenerate the dependency files.
-#        compress:         compress the executable files (djgpp only).
+#        default:           build library version, docs, and programs.
+#        all:               build all versions and programs.
+#        lib:               build a single library only, no programs.
+#        install:           install single library version.
+#        installall:        install all library versions.
+#        uninstall:         remove Allegro from system directories.
+#        docs:              convert documentation from ._tx sources.
+#        clean:             remove object files.
+#        distclean:         remove objects and executables.
+#        veryclean:         remove all generated files.
+#        depend:            regenerate the dependency files.
+#        compress:          compress the executable files (djgpp only).
 #
 #  The "clean", "distclean", "veryclean", and "uninstall" targets require
 #  a Unix-style rm command to be installed, eg. from the djgpp fileutils

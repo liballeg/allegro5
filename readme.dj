@@ -57,9 +57,6 @@
    prefer), and unzip everything. Allegro contains several subdirectories, 
    so you must specify the -d flag if you are using pkunzip.
 
-   If you are using PGCC, set the environment variable "PGCC=1", or type
-   "make PGCC=1" on the command line.
-
    If you are running under Linux, and want to cross-compile the djgpp 
    version of Allegro, set the environment variable "CROSSCOMPILE=1", set 
    DJDIR to the directory where your djgpp cross-compiler is installed, 
@@ -118,16 +115,20 @@
                 nearly all warnings issued by the compiler. Allegro
                 should compile fine with this set.
 
-    PENTIUMONLY
+    TARGET_ARCH_COMPAT
       or
-    I686ONLY
-                These affect the level of optimisation that Allegro
-                uses. Please note that if you compile with either of
-                these options, your executables will not be portable to
-                an earlier processor architecture. Simply set to 1 to
-                activate. The default level of optimisation Allegro uses
-                will run adequately on these systems, and will also work
-                on anything from a 386 upwards.
+    TARGET_ARCH_EXCL
+                These affect the level of processor dependant optimisation
+                that Allegro uses. You can set either of these to the
+                processor type you want to optimize for. The difference
+                between these two is that TARGET_ARCH_COMPAT optimise for
+                the given processor so that the code will still run on older
+                processors, while TARGET_ARCH_EXCL will generate code that
+                will run exclusively on the given processor and of course
+                newer ones. Example: set TARGET_ARCH_COMPAT=i686
+
+    TARGET_OPTS
+                Affects the general optimisations that Allegro uses.
 
     UNIX_TOOLS
                 If your system does not have the usual DOS tools

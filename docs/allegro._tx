@@ -8206,12 +8206,18 @@ platforms you can set the environment variables:
    STATICLINK=1 (MSVC and Mingw32 only)<br>
    Link as a static library, rather than the default DLL.
 <li>
-   PGCC=1 (djgpp, RSXNT, and Mingw32 only)<br>
-   Uses optimisation options suitable for the Pentium optimising compiler, 
-   rather than the stock djgpp version of gcc.
+   TARGET_ARCH_COMPAT=[cpu] (djgpp, RSXNT and Mingw32 only)<br>
+   This option will optimize for the given processor while maintaining
+   compatibility with older processors.
+   Example: set TARGET_ARCH_COMPAT=i586
 <li>
-   PENTIUMONLY=1 (djgpp, RSXNT, and Mingw32 only)<br>
-   Make the library faster, but Pentium-only.
+   TARGET_ARCH_EXCL=[cpu] (djgpp, RSXNT and Mingw32 only)<br>
+   This option will optimize for the given processor. Please note that
+   using it will cause the code to *NOT* run on older processors.
+   Example: set TARGET_ARCH_EXCL=i586
+<li>
+   TARGET_OPTS=[opts] (djgpp, RSXNT and Mingw32 only)<br>
+   This option allows you to customize general compiler optimisations.
 <li>
    CROSSCOMPILE=1 (djgpp only)<br>
    Allows you to build the djgpp library under Linux, using djgpp as a 

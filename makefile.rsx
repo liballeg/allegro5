@@ -49,15 +49,21 @@ else
 WFLAGS = -Wall -Wno-unused
 endif
 
-ifdef PGCC
-OFLAGS = -mpentium -O6 -ffast-math
+ifdef TARGET_ARCH_COMPAT
+   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
 else
-ifdef PENTIUMONLY
-OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
-else
-OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
+   ifdef TARGET_ARCH_EXCL
+      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
+   else
+      TARGET_ARCH = -mpentium
+   endif
 endif
+
+ifndef TARGET_OPTS
+   TARGET_OPTS = -O2 -funroll-loops -ffast-math
 endif
+
+OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
 ifdef DEBUGMODE
 

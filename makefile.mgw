@@ -90,39 +90,49 @@ _default: default
 # -------- decide what compiler options to use --------
 #
 ifdef ALLEGRO_USE_CYGWIN
-  PFLAGS = -mno-cygwin
+   PFLAGS = -mno-cygwin
 endif
 
 ifdef WARNMODE
-  WFLAGS = -Wall -W -Werror -Wno-unused
+   WFLAGS = -Wall -W -Werror -Wno-unused
 else
-  WFLAGS = -Wall -Wno-unused
+   WFLAGS = -Wall -Wno-unused
 endif
 
-ifdef PENTIUMONLY
-  OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
+ifdef TARGET_ARCH_COMPAT
+   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
 else
-  OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
+   ifdef TARGET_ARCH_EXCL
+      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
+   else
+      TARGET_ARCH = -mpentium
+   endif
 endif
+
+ifndef TARGET_OPTS
+   TARGET_OPTS = -O2 -funroll-loops -ffast-math
+endif
+
+OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
 ifdef DEBUGMODE
-  # -------- debugging build --------
-  CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
-  SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-  LFLAGS += -g
+   # -------- debugging build --------
+   CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
+   SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
+   LFLAGS += -g
 else
 ifdef PROFILEMODE
-  # -------- profiling build --------
-  CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
-  SFLAGS = $(WFLAGS)
-  LFLAGS += -pg
+   # -------- profiling build --------
+   CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
+   SFLAGS = $(WFLAGS)
+   LFLAGS += -pg
 else
-  # -------- optimised build --------
-  CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer -fno-strength-reduce
-  SFLAGS = $(WFLAGS)
-  ifndef SYMBOLMODE
-    LFLAGS += -s
-  endif
+   # -------- optimised build --------
+   CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer -fno-strength-reduce
+   SFLAGS = $(WFLAGS)
+   ifndef SYMBOLMODE
+      LFLAGS += -s
+   endif
 endif
 endif
 
