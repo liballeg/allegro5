@@ -227,7 +227,7 @@ END_OF_STATIC_FUNCTION(draw_mouse);
 /* update_mouse:
  *  Worker function to update the mouse position variables with new values.
  */
-static void update_mouse()
+static void update_mouse(void)
 {
    int x, y, z, b, flags = 0;
 
@@ -352,7 +352,7 @@ END_OF_STATIC_FUNCTION(mouse_move);
  *  Callback for an asynchronous driver to tell us when it has changed the
  *  position.
  */
-void _handle_mouse_input()
+void _handle_mouse_input(void)
 {
    if (!mouse_polled)
       update_mouse();
@@ -366,7 +366,7 @@ END_OF_FUNCTION(_handle_mouse_input);
  *  Creates the default arrow mouse sprite using the current color depth
  *  and palette.
  */
-static BITMAP *create_mouse_pointer()
+static BITMAP *create_mouse_pointer(void)
 {
    BITMAP *bmp;
    int x, y;
@@ -527,7 +527,7 @@ void show_mouse(BITMAP *bmp)
  *  cursor is in use). This operation can later be reversed by calling
  *  unscare_mouse().
  */
-void scare_mouse()
+void scare_mouse(void)
 {
    if (!mouse_driver)
       return;
@@ -611,7 +611,7 @@ void scare_mouse_area(int x, int y, int w, int h)
  *  Restores the original mouse state, after a call to scare_mouse() or
  *  scare_mouse_area.
  */
-void unscare_mouse()
+void unscare_mouse(void)
 {
    if (!mouse_driver)
       return;
@@ -742,7 +742,7 @@ void get_mouse_mickeys(int *mickeyx, int *mickeyy)
  *  and will no longer operate asynchronously even if the driver actually
  *  does support that.
  */
-int poll_mouse()
+int poll_mouse(void)
 {
    if (!mouse_driver)
       return -1;
@@ -764,7 +764,7 @@ END_OF_FUNCTION(poll_mouse);
 /* mouse_needs_poll:
  *  Checks whether the current driver uses polling.
  */
-int mouse_needs_poll()
+int mouse_needs_poll(void)
 {
    return mouse_polled;
 }
@@ -801,7 +801,7 @@ static void set_mouse_etc(void)
  *  other mouse functions. Return -1 if it can't find a mouse driver,
  *  otherwise the number of buttons on the mouse.
  */
-int install_mouse()
+int install_mouse(void)
 {
    _DRIVER_INFO *driver_list;
    int num_buttons = -1;
@@ -971,7 +971,7 @@ static struct _AL_LINKER_MOUSE mouse_linker = {
    &_mouse_screen
 };
 
-void _mouse_constructor()
+void _mouse_constructor(void)
 {
    _al_linker_mouse = &mouse_linker;
 }
