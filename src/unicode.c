@@ -1794,9 +1794,10 @@ char *ustrzcpy(char *dest, int size, AL_CONST char *src)
    int c;
    ASSERT(dest);
    ASSERT(src);
-   ASSERT(size >= 0);
+   ASSERT(size > 0);
 
    size -= ucwidth(0);
+   ASSERT(size >= 0);
 
    while ((c = ugetxc(&src)) != 0) {
       size -= ucwidth(c);
@@ -1825,10 +1826,11 @@ char *ustrzcat(char *dest, int size, AL_CONST char *src)
    int c;
    ASSERT(dest);
    ASSERT(src);
-   ASSERT(size >= 0);
+   ASSERT(size > 0);
 
    pos = ustrsize(dest);
    size -= pos + ucwidth(0);
+   ASSERT(size >= 0);
 
    while ((c = ugetxc(&src)) != 0) {
       size -= ucwidth(c);
@@ -1897,7 +1899,7 @@ char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
    int c;
    ASSERT(dest);
    ASSERT(src);
-   ASSERT(size >= 0);
+   ASSERT(size > 0);
    ASSERT(n >= 0);
 
    /* detect raw ustrncpy() call */
@@ -1905,6 +1907,7 @@ char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
       ansi_oddness = TRUE;
 
    size -= ucwidth(0);
+   ASSERT(size >= 0);
 
    /* copy at most n characters */
    while (((c = ugetxc(&src)) != 0) && (len < n)) {
