@@ -17,7 +17,8 @@
 
 
 #include "allegro.h"
-#include "aintunix.h"
+#include "allegro/aintern.h"
+#include "allegro/aintunix.h"
 
 
 
