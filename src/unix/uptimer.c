@@ -19,6 +19,15 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
+/* See hack later.  */
+#ifdef ALLEGRO_LINUX
+#include <unistd.h>
+#ifdef HAVE_SYS_IO_H
+#include <sys/io.h>
+#endif
+#include "allegro/platform/aintlnx.h"
+#endif
+
 
 
 #ifdef HAVE_LIBPTHREAD
@@ -68,6 +77,25 @@ static void block_all_signals(void)
 
 
 
+/* privileges_hack_for_linux:
+ *  One of the jobs of the timer thread is to update the mouse pointer
+ *  on screen.  When using the Mode-X driver under Linux console, this
+ *  involves selecting different planes (in modexgfx.s), which requires
+ *  special priviledges.  This function gets those priviledges.
+ */
+static void privileges_hack_for_linux(void)
+{
+#ifdef ALLEGRO_LINUX
+   if ((system_driver == &system_linux) && (__al_linux_have_ioperms)) {
+      seteuid(0);
+      iopl(3);
+      seteuid(getuid());
+   }
+#endif
+}
+
+
+
 /* ptimer_thread_func:
  *  The timer thread.
  */
@@ -79,6 +107,8 @@ static void *ptimer_thread_func(void *unused)
    long interval = 0x8000;
 
    block_all_signals();
+
+   privileges_hack_for_linux();
 
    gettimeofday(&old_time, 0);
 
