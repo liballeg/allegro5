@@ -34,6 +34,29 @@
 #endif
 
 
+/* DirectDraw globals */
+typedef struct BMP_EXTRA_INFO {
+   LPDIRECTDRAWSURFACE2 surf;
+   struct BMP_EXTRA_INFO *next;
+   struct BMP_EXTRA_INFO *prev;
+   int flags;
+   int lock_nesting;
+} BMP_EXTRA_INFO;
+
+#define BMP_EXTRA(bmp) ((BMP_EXTRA_INFO *)(bmp->extra))
+
+#define BMP_FLAG_LOST      1
+
+AL_VAR(LPDIRECTDRAW2, directdraw);
+AL_VAR(LPDIRECTDRAWSURFACE2, dd_prim_surface);
+AL_VAR(LPDIRECTDRAWPALETTE, dd_palette);
+AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
+AL_VAR(DDCAPS, dd_caps);
+AL_VAR(LPDDPIXELFORMAT, dd_pixelformat);
+AL_VAR(BITMAP *, dd_frontbuffer);
+AL_VAR(char *, pseudo_surf_mem);
+
+
 /* vtable routines */
 AL_FUNC(void, gfx_directx_exit, (BITMAP *b));
 AL_FUNC(void, gfx_directx_sync, (void));
@@ -81,7 +104,6 @@ AL_FUNC(void, gfx_directx_write_bank, (void));
 AL_FUNC(void, gfx_directx_unwrite_bank, (void));
 AL_FUNC(void, gfx_directx_write_bank_win, (void));
 AL_FUNC(void, gfx_directx_unwrite_bank_win, (void));
-AL_FUNC(void, gfx_directx_restore, (void));
 AL_FUNCPTR(void, ptr_gfx_directx_autolock, (BITMAP* bmp));
 AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 

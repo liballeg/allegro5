@@ -34,19 +34,17 @@
 
 #include "winalleg.h"
 
-#ifndef SCAN_DEPEND
-   /* workaround for buggy mingw headers */
-   #ifdef ALLEGRO_MINGW32
-      #ifndef HMONITOR_DECLARED
-         #define HMONITOR_DECLARED
-      #endif
-      #if (defined _HRESULT_DEFINED) && (defined WINNT)
-         #undef WINNT
-      #endif
+/* workaround for buggy MinGW32 headers */
+#ifdef ALLEGRO_MINGW32
+   #ifndef HMONITOR_DECLARED
+      #define HMONITOR_DECLARED
    #endif
-
-   #include <ddraw.h>
+   #if (defined _HRESULT_DEFINED) && (defined WINNT)
+      #undef WINNT
+   #endif
 #endif
+
+
 
 /*******************************************/
 /***************** general *****************/
@@ -63,6 +61,7 @@ AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
 
+
 /* main window */
 #define WND_TITLE_SIZE  128
 AL_ARRAY(char, wnd_title);
@@ -74,6 +73,7 @@ AL_VAR(int, wnd_sysmenu);
 
 AL_FUNCPTR(void, user_close_proc, (void));
 
+
 /* gfx synchronization */
 AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
 AL_VAR(int, gfx_crit_sect_nesting);
@@ -84,27 +84,8 @@ AL_VAR(int, gfx_crit_sect_nesting);
                                gfx_crit_sect_nesting--
 #define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
 
-/* stuff moved over from wddraw.h */
-typedef struct BMP_EXTRA_INFO {
-   LPDIRECTDRAWSURFACE2 surf;
-   struct BMP_EXTRA_INFO *next;
-   struct BMP_EXTRA_INFO *prev;
-   int flags;
-   int lock_nesting;
-} BMP_EXTRA_INFO;
+AL_FUNC(void, gfx_directx_restore, (void));
 
-#define BMP_EXTRA(bmp) ((BMP_EXTRA_INFO *)(bmp->extra))
-
-#define BMP_FLAG_LOST      1
-
-AL_VAR(LPDIRECTDRAW2, directdraw);
-AL_VAR(LPDIRECTDRAWSURFACE2, dd_prim_surface);
-AL_VAR(LPDIRECTDRAWPALETTE, dd_palette);
-AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
-AL_VAR(DDCAPS, dd_caps);
-AL_VAR(LPDDPIXELFORMAT, dd_pixelformat);
-AL_VAR(BITMAP *, dd_frontbuffer);
-AL_VAR(char *, pseudo_surf_mem);
 
 /* focus switch routines */
 AL_VAR(BOOL, app_foreground);

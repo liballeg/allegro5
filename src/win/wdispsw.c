@@ -19,7 +19,6 @@
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
-#include "wddraw.h"
 
 
 #ifndef ALLEGRO_WINDOWS

@@ -174,7 +174,7 @@ void *_al_findfirst(AL_CONST char *name, int attrib, char *nameret, int *aret)
 
 
 /* _al_findnext:
- *  Retrives the next file from a directory search.
+ *  Retrieves the next file from a directory search.
  */
 int _al_findnext(void *dta, char *nameret, int *aret)
 {
