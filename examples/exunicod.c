@@ -11,7 +11,7 @@
 
 #define DATAFILE_NAME   "unifont.dat"
 
-#define NLANGUAGES 8
+#define NLANGUAGES 9
 
 
 char message_en[] = "W\x00" "e\x00" "l\x00" "c\x00" "o\x00" "m\x00" "e\x00" " \x00" "t\x00" "o\x00"
@@ -22,6 +22,9 @@ char message_fr[] = "B\x00" "i\x00" "e\x00" "n\x00" "v\x00" "e\x00" "n\x00" "u\x
 
 char message_es[] = "B\x00" "i\x00" "e\x00" "n\x00" "v\x00" "e\x00" "n\x00" "i\x00" "d\x00" "o\x00"
                     " \x00" "a\x00" " \x00\x00\x00";
+
+char message_it[] = "B\x00" "e\x00" "n\x00" "v\x00" "e\x00" "n\x00" "u\x00" "t\x00" "i\x00"
+                    " \x00" "a\x00" "d\x00" " \x00\x00\x00";
 
 char message_el[] = "\x9A\x03\xB1\x03\xBB\x03\xCE\x03\xC2\x03"
                     " \x00\xAE\x03\xC1\x03\xB8\x03\xB1\x03\xC4\x03\xB5\x03"
@@ -51,13 +54,14 @@ struct MESSAGE {
 struct MESSAGE message[] = { {message_en, FALSE},
                              {message_fr, FALSE},
                              {message_es, FALSE},
+                             {message_it, FALSE},
                              {message_el, FALSE},
                              {message_ru, FALSE},
                              {message_he, TRUE},
                              {message_ja, TRUE},
                              {message_zh, FALSE} };
 
-int speed[] = {1, 2, 4, 3, 2, 3, 2, 4};
+int speed[] = {1, 2, 4, 3, 2, 3, 2, 4, 3};
 
 
 int main(int argc, char *argv[])
