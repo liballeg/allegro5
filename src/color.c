@@ -680,41 +680,51 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
    int x, y, i, j, k;
    unsigned char *p;
    int tr, tg, tb;
-   int div, add;
+   int add;
+
+   /* This is a bit ugly, but accounts for the solidity parameters
+      being in the range 0-255 rather than 0-256. Given that the
+      precision of r,g,b components is only 6 bits it shouldn't do any
+      harm. */
+   if (r > 128)
+      r++;
+   if (g > 128)
+      g++;
+   if (b > 128)
+      b++;
 
    if (rgb_map)
-      div = 510;
+      add = 255;
    else
-      div = 255;
-   add = div/2;
+      add = 127;
 
    for (x=0; x<256; x++) {
-      tmp[x*3]   = (pal[x].r * (255-r) + add) / div;
-      tmp[x*3+1] = (pal[x].g * (255-g) + add) / div;
-      tmp[x*3+2] = (pal[x].b * (255-b) + add) / div;
+      tmp[x*3]   = pal[x].r * (256-r) + add;
+      tmp[x*3+1] = pal[x].g * (256-g) + add;
+      tmp[x*3+2] = pal[x].b * (256-b) + add;
    }
 
    for (x=1; x<PAL_SIZE; x++) {
-      i = (pal[x].r * r + add) / div;
-      j = (pal[x].g * g + add) / div;
-      k = (pal[x].b * b + add) / div;
+      i = pal[x].r * r;
+      j = pal[x].g * g;
+      k = pal[x].b * b;
 
       p = table->data[x];
       q = tmp;
 
       if (rgb_map) {
 	 for (y=0; y<PAL_SIZE; y++) {
-	    tr = i + *(q++);
-	    tg = j + *(q++);
-	    tb = k + *(q++);
+	    tr = (i + *(q++)) >> 9;
+	    tg = (j + *(q++)) >> 9;
+	    tb = (k + *(q++)) >> 9;
 	    p[y] = rgb_map->data[tr][tg][tb];
 	 }
       }
       else {
 	 for (y=0; y<PAL_SIZE; y++) {
-	    tr = i + *(q++); 
-	    tg = j + *(q++); 
-	    tb = k + *(q++);
+	    tr = (i + *(q++)) >> 8;
+	    tg = (j + *(q++)) >> 8;
+	    tb = (k + *(q++)) >> 8;
 	    p[y] = bestfit_color(pal, tr, tg, tb);
 	 }
       }
