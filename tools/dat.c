@@ -743,7 +743,7 @@ int main(int argc, char *argv[])
 	       opt_gridy = atoi(argv[++c]);
 	       opt_gridw = atoi(argv[++c]);
 	       opt_gridh = atoi(argv[++c]);
-	       if ((opt_gridx <= 0) || (opt_gridy <= 0) ||
+	       if ((opt_gridx <  0) || (opt_gridy <  0) ||
 		   (opt_gridw <= 0) || (opt_gridh <= 0)) {
 		  usage();
 		  return 1;
