@@ -93,6 +93,7 @@
     calc_spline
     calibrate_joystick
     calibrate_joystick_name
+    canonicalize_filename
     centre_dialog
     check_cpu
     circle
@@ -212,7 +213,6 @@
     find_datafile_object
     find_dialog_focus
     fix_filename_case
-    fix_filename_path
     fix_filename_slashes
     fixacos
     fixadd
@@ -257,6 +257,8 @@
     get_camera_matrix
     get_camera_matrix_f
     get_color
+    get_color_conversion
+    get_color_depth
     get_compiled_sprite
     get_config_argv
     get_config_float
@@ -376,6 +378,7 @@
     is_linear_bitmap
     is_memory_bitmap
     is_planar_bitmap
+    is_relative_filename
     is_same_bitmap
     is_screen_bitmap
     is_sub_bitmap
@@ -412,6 +415,8 @@
     lock_bitmap
     lock_midi
     lock_sample
+    make_absolute_filename
+    make_relative_filename
     makeacol
     makeacol32
     makeacol_depth
@@ -810,8 +815,10 @@
     _al_linker_midi DATA
     _al_linker_mouse DATA
     _al_malloc
+    _al_rand
     _al_realloc
     _al_sane_realloc
+    _al_srand
     _allegro_count DATA
     _blender_add15
     _blender_add16
