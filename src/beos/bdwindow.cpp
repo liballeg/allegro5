@@ -330,9 +330,7 @@ static struct BITMAP *_be_gfx_bdirectwindow_init(GFX_DRIVER *drv, int w, int h, 
 {
    BITMAP *bmp;
    int bpp;
-   char path[MAXPATHLEN];
    char tmp[128];
-   char *exe;
 
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -363,13 +361,9 @@ static struct BITMAP *_be_gfx_bdirectwindow_init(GFX_DRIVER *drv, int w, int h, 
       return NULL;
    }
    
-   _be_sys_get_executable_name(path, sizeof(path));
-   path[sizeof(path)-1] = '\0';
-   exe = get_filename(path);
-
    set_display_switch_mode(SWITCH_PAUSE);
 
-   _be_allegro_direct_window = new BeAllegroDirectWindow(BRect(0, 0, w-1, h-1), exe,
+   _be_allegro_direct_window = new BeAllegroDirectWindow(BRect(0, 0, w-1, h-1), wnd_title,
 			      B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
 			      B_NOT_RESIZABLE | B_NOT_ZOOMABLE,
 			      B_CURRENT_WORKSPACE, v_w, v_h, color_depth);

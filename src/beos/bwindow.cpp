@@ -278,8 +278,6 @@ bool BeAllegroWindow::QuitRequested(void)
 extern "C" struct BITMAP *be_gfx_bwindow_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
-   char path[MAXPATHLEN];
-   char *exe;
    
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -307,13 +305,9 @@ extern "C" struct BITMAP *be_gfx_bwindow_init(int w, int h, int v_w, int v_h, in
       return NULL;
    }
    
-   _be_sys_get_executable_name(path, sizeof(path));
-   path[sizeof(path)-1] = '\0';
-   exe = get_filename(path);
-
    set_display_switch_mode(SWITCH_PAUSE);
 
-   _be_allegro_window = new BeAllegroWindow(BRect(0, 0, w-1, h-1), exe,
+   _be_allegro_window = new BeAllegroWindow(BRect(0, 0, w-1, h-1), wnd_title,
 			      B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
 			      B_NOT_RESIZABLE | B_NOT_ZOOMABLE,
 			      B_CURRENT_WORKSPACE, v_w, v_h, color_depth);

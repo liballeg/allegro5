@@ -258,9 +258,7 @@ static struct BITMAP *_be_gfx_bwindowscreen_init(GFX_DRIVER *drv, int w, int h, 
    graphics_card_info *gfx_card;
    frame_buffer_info  *fbuffer;
    accelerant_device_info info;
-   char  path[MAXPATHLEN];
    char tmp1[128], tmp2[128];
-   char *exe;
 
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -299,13 +297,9 @@ static struct BITMAP *_be_gfx_bwindowscreen_init(GFX_DRIVER *drv, int w, int h, 
    
    _be_lock_count = 0;
 
-   _be_sys_get_executable_name(path, sizeof(path));
-   path[sizeof(path)-1] = '\0';
-   exe = get_filename(path);
-
    set_display_switch_mode(SWITCH_AMNESIA);
    
-   _be_allegro_screen = new BeAllegroScreen(exe, mode, &error, false);
+   _be_allegro_screen = new BeAllegroScreen(wnd_title, mode, &error, false);
    _be_window = _be_allegro_screen;
 
    if(error != B_OK) {

@@ -49,6 +49,7 @@ static thread_id main_thread_id = -1;
 static sem_id system_started = -1;
 
 static char app_path[MAXPATHLEN] = ".";
+char wnd_title[WND_TITLE_SIZE];
 
 
 static bool      using_custom_allegro_app;
@@ -153,6 +154,7 @@ extern "C" int be_sys_init(void)
    int32       cookie;
    thread_info info;
    struct utsname os_name;
+   char path[MAXPATHLEN];
 
    cookie = 0;
 
@@ -199,6 +201,10 @@ extern "C" int be_sys_init(void)
    os_revision = atoi(strtok(NULL, "."));
 
    chdir(app_path);
+
+   _be_sys_get_executable_name(path, sizeof(path));
+   path[sizeof(path)-1] = '\0';
+   do_uconvert(get_filename(path), U_CURRENT, wnd_title, U_UTF8, WND_TITLE_SIZE);
 
    return 0;
 
@@ -329,11 +335,9 @@ int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 
 extern "C" void be_sys_set_window_title(AL_CONST char *name)
 {
-   char uname[256];
-
-   do_uconvert(name, U_CURRENT, uname, U_UTF8, sizeof(uname));
+   do_uconvert(name, U_CURRENT, wnd_title, U_UTF8, WND_TITLE_SIZE);
    if (_be_window)
-      _be_window->SetTitle(uname);
+      _be_window->SetTitle(wnd_title);
 }
 
 

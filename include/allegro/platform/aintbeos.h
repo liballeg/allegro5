@@ -28,6 +28,10 @@ extern volatile int32 focus_count;
 extern "C" {
 #endif
 
+#define WND_TITLE_SIZE  128
+
+AL_ARRAY(char, wnd_title);
+
 int  be_key_init(void);
 void be_key_exit(void);
 void be_key_set_leds(int leds);

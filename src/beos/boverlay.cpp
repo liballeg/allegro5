@@ -150,8 +150,6 @@ extern "C" struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, in
 {
    BITMAP *bmp;
    BRect src, dest;
-   char path[MAXPATHLEN];
-   char *exe;
    int i;
    
    if (1
@@ -176,10 +174,6 @@ extern "C" struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, in
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
    }
-   
-   _be_sys_get_executable_name(path, sizeof(path));
-   path[sizeof(path)-1] = '\0';
-   exe = get_filename(path);
 
    set_display_switch_mode(SWITCH_PAUSE);
    
@@ -199,7 +193,7 @@ extern "C" struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, in
    src = BRect(0, 0, w - 1, h - 1);
    dest = BScreen().Frame();
    
-   _be_allegro_overlay = new BeAllegroOverlay(src, exe,
+   _be_allegro_overlay = new BeAllegroOverlay(src, wnd_title,
 			      B_NO_BORDER_WINDOW_LOOK,
 			      B_NORMAL_WINDOW_FEEL,
 			      B_NOT_RESIZABLE | B_NOT_ZOOMABLE,
