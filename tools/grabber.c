@@ -92,6 +92,7 @@ static int quitter(void);
 static int grabber(void);
 static int exporter(void);
 static int deleter(void);
+static int replacer(int);
 static int absolute_setter(void);
 static int relative_setter(void);
 static int sheller(void);
@@ -110,6 +111,7 @@ static int property_delete(void);
 static int property_insert(void);
 static int property_change(void);
 static int new_object(void);
+static int replace_object(void);
 
 static int add_new(int type);
 
@@ -140,6 +142,14 @@ static MENU file_menu[32] =
 
 
 /* variable-sized */
+static MENU replace_menu[32] =
+{
+   { "Other",                       replace_object,   NULL,       0, NULL  }
+};
+
+
+
+/* variable-sized */
 static MENU new_menu[32] =
 {
    { "Other",                       new_object,       NULL,       0, NULL  },
@@ -163,6 +173,7 @@ static MENU objc_menu[32] =
    { "&Grab\t(ctrl+G)",             grabber,          NULL,       0, NULL  },
    { "&Export\t(ctrl+E)",           exporter,         NULL,       0, NULL  },
    { "&Delete\t(ctrl+D)",           deleter,          NULL,       0, NULL  },
+   { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename\t(ctrl+N)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
    { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
@@ -223,6 +234,7 @@ static MENU popup_menu[32] =
    { "&Grab",                       grabber,          NULL,       0, NULL  },
    { "&Export",                     exporter,         NULL,       0, NULL  },
    { "&Delete",                     deleter,          NULL,       0, NULL  },
+   { "Rep&lace",                    NULL,             replace_menu, 0, NULL},
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
@@ -760,7 +772,8 @@ static MENU *which_menu(int sel)
 
       if ((compare_menu_names(popup_menu[i].text, "Grab") == 0) ||
 	  (compare_menu_names(popup_menu[i].text, "Export") == 0) ||
-	  (compare_menu_names(popup_menu[i].text, "Rename") == 0)) {
+	  (compare_menu_names(popup_menu[i].text, "Rename") == 0) ||
+	  (compare_menu_names(popup_menu[i].text, "Replace") == 0)) {
 	 if (get_single_selection())
 	    ok = TRUE;
       }
@@ -2474,7 +2487,7 @@ static int deleter(void)
    }
 
    if (todel_count == 1)
-      sprintf(buf, "%s?", name);
+      sprintf(buf, "%s?", name[0] ? name : "this item");
    else
       sprintf(buf, "these %d items?", todel_count);
 
@@ -2545,6 +2558,92 @@ static int relative_setter(void)
    }
    
    return D_O_K;
+}
+
+
+
+/* creates a new binary data object */
+static void *makenew_data(long *size)
+{
+   static char msg[] = "Binary Data";
+
+   void *v = _al_malloc(sizeof(msg));
+
+   strcpy(v, msg);
+   *size = sizeof(msg);
+
+   return v;
+}
+
+
+
+/* handle the replace command */
+static int replacer(int type)
+{
+   DATAFILE *dat;
+   char buf[256];
+   AL_CONST char *name;
+   int i, sel;
+   void *v = NULL;
+   long size;
+
+   CHECK_MENU_HOOK("Replace", DATEDIT_MENU_OBJECT);
+
+   sel = single_selection();
+
+   if ((sel > 0) && (sel < data_count)) {
+      dat = data[sel].dat;
+   }
+   else {
+      if (sel < 0)
+	 alert("Can't replace a multiple selection!", NULL, NULL, "OK", NULL, 13, 0);
+      else
+	 alert("Nothing to replace!", NULL, NULL, "OK", NULL, 13, 0);
+
+      return D_O_K;
+   }
+
+   name = get_datafile_property(dat, DAT_NAME);
+   sprintf(buf, "%s?", name[0] ? name : "this item");
+
+   if (alert("Really delete", buf, NULL, "Yes", "Cancel", 'y', 27) != 1)
+      return D_O_K;
+
+   if (!do_edit("New Object", "Type:", "Name:", type, NULL, (type == 0), TRUE))
+      return D_O_K;
+
+   if (prop_type_string[0]) {
+      type = datedit_clean_typename(prop_type_string);
+      check_valid_name(prop_value_string);
+
+      for (i=0; datedit_object_info[i]->type != DAT_END; i++) {
+	 if ((datedit_object_info[i]->type == type) && (datedit_object_info[i]->makenew)) {
+	    v = datedit_object_info[i]->makenew(&size);
+	    break;
+	 }
+      }
+
+      if (!v)
+	 v = makenew_data(&size);
+   }
+   else {
+      alert("Invalid type!", NULL, NULL, "OK", NULL, 13, 0);
+      return D_O_K;
+   }
+
+   _unload_datafile_object(dat);
+   dat->dat = v;
+   dat->size = size;
+   dat->type = type;
+   dat->prop = NULL;
+   datedit_set_property(dat, DAT_NAME, prop_value_string);
+
+   rebuild_list(NULL, TRUE);
+   select_property(DAT_NAME);
+
+   set_modified(TRUE);
+
+   return D_REDRAW;
 }
 
 
@@ -2999,21 +3098,6 @@ static int about(void)
 
 
 
-/* creates a new binary data object */
-static void *makenew_data(long *size)
-{
-   static char msg[] = "Binary Data";
-
-   void *v = _al_malloc(sizeof(msg));
-
-   strcpy(v, msg);
-   *size = sizeof(msg);
-
-   return v;
-}
-
-
-
 /* worker for creating new objects */
 static int add_new(int type)
 {
@@ -3056,6 +3140,10 @@ static int add_new(int type)
          
 	 set_modified(TRUE);
       }
+      else {
+	 alert("Invalid type!", NULL, NULL, "OK", NULL, 13, 0);
+	 return D_O_K;
+      }
    }
 
    return D_REDRAW;
@@ -3067,6 +3155,14 @@ static int add_new(int type)
 static int new_object(void)
 {
    return add_new((int)((unsigned long)active_menu->dp));
+}
+
+
+
+/* handle the replace object command */
+static int replace_object(void)
+{
+   return replacer((int)((unsigned long)active_menu->dp));
 }
 
 
@@ -3591,6 +3687,10 @@ int main(int argc, char *argv[])
 	 tmpmenu.dp = (void *)(unsigned long)datedit_object_info[i]->type;
 
 	 add_to_menu(new_menu, &tmpmenu, TRUE, NULL, NULL, 0);
+
+	 tmpmenu.proc = replace_object;
+
+	 add_to_menu(replace_menu, &tmpmenu, TRUE, NULL, NULL, 0);
       }
    }
 
@@ -3631,6 +3731,7 @@ int main(int argc, char *argv[])
    }
 
    add_menu_shortcuts(new_menu);
+   add_menu_shortcuts(replace_menu);
    add_menu_shortcuts(file_menu);
    add_menu_shortcuts(objc_menu);
    add_menu_shortcuts(help_menu);
