@@ -49,39 +49,39 @@ endif
 .PHONY: badwin badmsvc badspaces
 
 ifeq ($(OS),Windows_NT)
-WINSYSDIR = $(SYSTEMROOT)
-ifeq ($(WINSYSDIR),)
-WINSYSDIR = $(SystemRoot)
-endif
-WINSUBDIR = system32
+   WINSYSDIR = $(SYSTEMROOT)
+   ifeq ($(WINSYSDIR),)
+      WINSYSDIR = $(SystemRoot)
+   endif
+   WINSUBDIR = system32
 else
-WINSYSDIR = $(windir)
-WINSUBDIR = system
+   WINSYSDIR = $(windir)
+   WINSUBDIR = system
 endif
 
 ifneq ($(WINSYSDIR),)
-WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
-WINDIR_D = $(subst /,\,$(WINSYSDIR)/$(WINSUBDIR))
+   WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
+   WINDIR_D = $(subst /,\,$(WINSYSDIR)/$(WINSUBDIR))
 else
 badwin:
 	@echo Your SYSTEMROOT or windir environment variable is not set!
 endif
 
 ifdef MSVCDIR
-MSVCDIR_U = $(subst \,/,$(MSVCDIR))
-MSVCDIR_D = $(subst /,\,$(MSVCDIR))
+   MSVCDIR_U = $(subst \,/,$(MSVCDIR))
+   MSVCDIR_D = $(subst /,\,$(MSVCDIR))
 else
 ifdef MSVCDir
-MSVCDIR_U = $(subst \,/,$(MSVCDir))
-MSVCDIR_D = $(subst /,\,$(MSVCDir))
+   MSVCDIR_U = $(subst \,/,$(MSVCDir))
+   MSVCDIR_D = $(subst /,\,$(MSVCDir))
 else
 ifdef MSDEVDIR
-MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
-MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
+   MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
+   MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
 else
 ifdef MSDevDir
-MSVCDIR_U = $(subst \,/,$(MSDevDir))
-MSVCDIR_D = $(subst /,\,$(MSDevDir))
+   MSVCDIR_U = $(subst \,/,$(MSDevDir))
+   MSVCDIR_D = $(subst /,\,$(MSDevDir))
 else
 badmsvc:
 	@echo Your MSVCDIR or MSDEVDIR environment variable is not set!
@@ -113,15 +113,15 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-WFLAGS = -W3 -WX
+   WFLAGS = -W3 -WX
 else
-WFLAGS = -W1
+   WFLAGS = -W1
 endif
 
 ifdef DEBUGMODE
 
 # -------- debugging build --------
-CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -Gd -Zi -MTd
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -Gd -Zi -MDd
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) -Wall
 LFLAGS = -debug -debugtype:cv
 
@@ -129,14 +129,14 @@ else
 ifdef PROFILEMODE
 
 # -------- profiling build --------
-CFLAGS = $(WFLAGS) -Gd -Ox -GB -MT
+CFLAGS = $(WFLAGS) -Gd -Ox -GB -MD
 SFLAGS = -Wall
 LFLAGS = -profile
 
 else
 
 # -------- optimised build --------
-CFLAGS = $(WFLAGS) -Gd -Ox -GB -MT
+CFLAGS = $(WFLAGS) -Gd -Ox -GB -MD
 SFLAGS = -Wall
 LFLAGS = -release
 
@@ -167,7 +167,7 @@ wfixicon: tools/win/wfixicon.exe
 # -------- rules for installing and removing the library files --------
 
 ifneq ($(wildcard $(DJDIR)/bin/cp.exe),)
-HAVE_CP = 1
+   HAVE_CP = 1
 endif
 
 ifndef STATICLINK
@@ -221,7 +221,7 @@ INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME) \
 		$(HEADERS)
 
 ifndef STATICLINK
-INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+   INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
 endif
 
 install: $(INSTALL_FILES)
@@ -280,7 +280,7 @@ ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-$(RUNNER) lib @ -nologo -out:$(LIB_NAME) $(OBJECTS)
+   $(RUNNER) lib @ -nologo -out:$(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -289,7 +289,7 @@ else
 
 # -------- link as a DLL --------
 define MAKE_LIB
-$(RUNNER) link @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
+   $(RUNNER) link @ -nologo $(LFLAGS) -dll -def:lib/msvc/allegro.def -out:$(DLL_NAME) -implib:$(IMPLIB_NAME) $(OBJECTS) $(LIBRARIES)
 endef
 
 endif
@@ -306,12 +306,12 @@ $(OBJ_DIR)/%.obj: %.s
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 demo/demo.exe: $(OBJ_DIR)/demo.obj tools/win/wfixicon.exe $(IMPLIB_NAME) $(RUNNER)
-   ifneq ($(wildcard demo/demo.dat),)
+ifneq ($(wildcard demo/demo.dat),)
 	$(RUNNER) tools\win\wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
-   else
+else
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(IMPLIB_NAME) $(LIBRARIES)
-   endif
+endif
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
@@ -337,7 +337,7 @@ $(OBJ_DIR)/dllver.obj: src/win/dllver.rc
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME) $(RUNNER)
 
 define LINK_CONSOLE
-$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 endef
 
 obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
@@ -357,27 +357,27 @@ PLUGIN_SCR = scv
 ifneq ($(wildcard $(DJDIR)/bin/cat.exe),)
 
 define GENERATE_PLUGINS_H
-$(DJDIR)/bin/cat tools/plugins/*.inc > obj/msvc/plugins.h
+   $(DJDIR)/bin/cat tools/plugins/*.inc > obj/msvc/plugins.h
 endef
 
 else
 
 define GENERATE_PLUGINS_H
-copy tools\plugins\*.inc obj\msvc\plugins.h
+   copy tools\plugins\*.inc obj\msvc\plugins.h
 endef
 
 endif
 
 define MAKE_PLUGIN_LIB
-$(RUNNER) lib @ -nologo -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
+   $(RUNNER) lib @ -nologo -out:$(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 
