@@ -9426,7 +9426,7 @@ function to remind you :-)
       DIGI_ESD             - Enlightened Sound Daemon
       DIGI_ARTS            - aRts (Analog Real-Time Synthesizer)
       DIGI_ALSA            - ALSA sound driver
-	  DIGI_JACK            - JACK sound driver<endblock>
+      DIGI_JACK            - JACK sound driver<endblock>
 
 @@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
