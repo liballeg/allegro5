@@ -30,6 +30,28 @@
 static int osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
 
+
+/* pointers to the layout mapping; this is a hack as the layout is system
+ * defined under OSX Allegro.
+ */
+static short empty_table[KEY_MAX];
+unsigned short *_key_ascii_table         = empty_table;
+unsigned short *_key_capslock_table      = empty_table;
+unsigned short *_key_shift_table         = empty_table;
+unsigned short *_key_control_table       = empty_table;
+unsigned short *_key_altgr_lower_table   = empty_table;
+unsigned short *_key_altgr_upper_table   = empty_table;
+unsigned short *_key_accent1_lower_table = empty_table;
+unsigned short *_key_accent1_upper_table = empty_table;
+unsigned short *_key_accent2_lower_table = empty_table;
+unsigned short *_key_accent2_upper_table = empty_table;
+unsigned short *_key_accent3_lower_table = empty_table;
+unsigned short *_key_accent3_upper_table = empty_table;
+unsigned short *_key_accent4_lower_table = empty_table;
+unsigned short *_key_accent4_upper_table = empty_table;
+
+
+/* Mac keycode to Allegro scancode conversion table */
 static const int mac_to_scancode[128] = {
 /* 0x00 */ KEY_A,          KEY_S,          KEY_D,          KEY_F,
 /* 0x04 */ KEY_H,          KEY_G,          KEY_Z,          KEY_X,
@@ -38,7 +60,7 @@ static const int mac_to_scancode[128] = {
 /* 0x10 */ KEY_Y,          KEY_T,          KEY_1,          KEY_2,
 /* 0x14 */ KEY_3,          KEY_4,          KEY_6,          KEY_5,
 /* 0x18 */ KEY_EQUALS,     KEY_9,          KEY_7,          KEY_MINUS,
-/* 0x1c */ KEY_8,          KEY_0,          KEY_CLOSEBRACE, KEY_O,
+/* 0x1c */ KEY_8,          KEY_0,          KEY_CLOSEBRACE, KEY_O,
 /* 0x20 */ KEY_U,          KEY_OPENBRACE,  KEY_I,          KEY_P,
 /* 0x24 */ KEY_ENTER,      KEY_L,          KEY_J,          KEY_QUOTE,
 /* 0x28 */ KEY_K,          KEY_SEMICOLON,  KEY_BACKSLASH,  KEY_COMMA,

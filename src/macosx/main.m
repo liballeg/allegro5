@@ -75,7 +75,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    NSAutoreleasePool *pool = NULL;
    FSRef processRef;
    FSCatalogInfo processInfo;
-   ProcessSerialNumber psn = {0, kCurrentProcess};
+   ProcessSerialNumber psn = { 0, kCurrentProcess };
    char path[1024], *p;
    int i;
    
