@@ -180,7 +180,7 @@ update_dirty_lines:
       subl $16, %esp  /* allocate a RECT structure */
 
       movl $0, RECT_LEFT
-      movl (%eax), %ecx                /* ecx = pseudo_screen->w */
+      movl BMP_W(%eax), %ecx           /* ecx = pseudo_screen->w */
       movl %ecx, RECT_RIGHT
       movl GLOBL(wd_dirty_lines), %ebx /* ebx = wd_dirty_lines   */
       movl BMP_H(%eax), %esi           /* esi = pseudo_screen->h */
