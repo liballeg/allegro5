@@ -316,6 +316,9 @@ line dat utility. This accepts the following options:
 
 	 dat myfile.dat -e * -o c:\output\
 
+   '-g x y w h'
+      Grabs bitmap data from a specific grid location.
+
    '-h outputfile.h'
       Sets the output header file, for exporting object index definitions. 
       This may be used on its own to produce a header file from an existing 
@@ -345,6 +348,15 @@ line dat utility. This accepts the following options:
       sort the objects of the datafile, or in combination with any other 
       options.
 
+   '-o output'
+      Sets the output file or directory when extracting data.
+
+   '-p prefixstring'
+      Sets the prefix for the output header file.
+
+   '-pal objectname'
+      Specifies which palette to use.
+
    '-s0' - no strip: save everything
    '-s1' - strip grabber specific information from the file
    '-s2' - strip all object properties and names from the file
@@ -365,6 +377,12 @@ line dat utility. This accepts the following options:
    '-v'
       Selects verbose mode. This can be used in combination with any other 
       options to produce more detailed output.
+
+   '-w'
+      Always updates the entire contents of the datafile.
+
+   '-007 password'
+      Sets the file encryption key.
 
    '<objects> PROP=value'
       Sets properties for the specified objects. This works like environment 
