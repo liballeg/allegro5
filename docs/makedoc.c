@@ -109,11 +109,11 @@ int mpreindent = 0;
 static void _activate_email_mangling(const char *txt);
 static void _mangle_email_links(char *buf);
 static char *_mangle_email(const char *email, int len);
-static char *_strcat(char *dynamic_string, const char *normal_string);
-static char *_strdup(const char *text);
-static void *_xrealloc(void *ptr, size_t new_size);
-static void *_xmalloc(size_t size);
-static void _abort(int code);
+static char *my_strcat(char *dynamic_string, const char *normal_string);
+static char *my_strdup(const char *text);
+static void *my_xrealloc(void *ptr, size_t new_size);
+static void *my_xmalloc(size_t size);
+static void my_abort(int code);
 
 
 
@@ -615,10 +615,10 @@ static void _activate_email_mangling(const char *txt)
    /* find space separator to detect words */
    p = strchr(txt, ' ');
    assert(p);     /* format specification requires two words with space */
-   email_mangle_at = _strdup(txt);
+   email_mangle_at = my_strdup(txt);
    *(email_mangle_at + (p - txt)) = 0;
    assert(*(p + 1));                            /* second word required */
-   email_mangle_dot = _strdup(p+1);
+   email_mangle_dot = my_strdup(p+1);
 }
 
 
@@ -656,23 +656,23 @@ static char *_mangle_email(const char *email, int len)
    assert(*email);
    assert(len > 0);
 
-   temp = _strdup(email);
+   temp = my_strdup(email);
    *temp = 0;
    buf[1] = 0;
    for(pos = 0; pos < len; pos++) {
       if(email[pos] == '@') {
-         temp = _strcat(temp, " ");
-         temp = _strcat(temp, email_mangle_at);
-         temp = _strcat(temp, " ");
+         temp = my_strcat(temp, " ");
+         temp = my_strcat(temp, email_mangle_at);
+         temp = my_strcat(temp, " ");
       }
       else if(email[pos] == '.') {
-         temp = _strcat(temp, " ");
-         temp = _strcat(temp, email_mangle_dot);
-         temp = _strcat(temp, " ");
+         temp = my_strcat(temp, " ");
+         temp = my_strcat(temp, email_mangle_dot);
+         temp = my_strcat(temp, " ");
       }
       else {
          buf[0] = email[pos];
-         temp = _strcat(temp, buf);
+         temp = my_strcat(temp, buf);
       }
    }
    return temp;
@@ -2637,74 +2637,74 @@ int main(int argc, char *argv[])
 
 
 
-/* _strcat:
+/* my_strcat:
  * Special strcat function, which is a mixture of realloc and strcat.
  * The first parameter has to be a pointer to dynamic memory, since it's
- * space will be resized with _xrealloc (it can be NULL). The second
+ * space will be resized with my_xrealloc (it can be NULL). The second
  * pointer can be any type of string, and will be appended to the first
  * one. This function returns a new pointer to the memory holding both
  * strings.
  */
-static char *_strcat(char *dynamic_string, const char *normal_string)
+static char *my_strcat(char *dynamic_string, const char *normal_string)
 {
    int len;
 
    if(!dynamic_string)
-      return _strdup(normal_string);
+      return my_strdup(normal_string);
 
    len = strlen(dynamic_string);
-   dynamic_string = _xrealloc(dynamic_string, 1 + len + strlen(normal_string));
+   dynamic_string = my_xrealloc(dynamic_string, 1 + len + strlen(normal_string));
    strcpy(dynamic_string + len, normal_string);
    return dynamic_string;
 }
 
 
 
-/* _strdup:
+/* my_strdup:
  * Safe wrapper around strdup, always returns the duplicated string.
  */
-static char *_strdup(const char *text)
+static char *my_strdup(const char *text)
 {
-   char *p = _xmalloc(strlen(text)+1);
+   char *p = my_xmalloc(strlen(text)+1);
    return strcpy(p, text);
 }
 
 
 
-/* _xrealloc:
+/* my_xrealloc:
  * Wrapper around real realloc call. Returns the new chunk of memory or
  * aborts execution if it couldn't realloc it.
  */
-static void *_xrealloc(void *ptr, size_t new_size)
+static void *my_xrealloc(void *ptr, size_t new_size)
 {
    if (!ptr)
-      return _xmalloc(new_size);
+      return my_xmalloc(new_size);
    ptr = realloc(ptr, new_size);
-   if (!ptr) _abort(1);
+   if (!ptr) my_abort(1);
    return ptr;
 }
 
 
 
-/* _xmalloc:
+/* my_xmalloc:
  * Returns the requested chunk of memory. If there's not enough
  * memory, the program will abort.
  */
-static void *_xmalloc(size_t size)
+static void *my_xmalloc(size_t size)
 {
    void *p = malloc(size);
-   if (!p) _abort(1);
+   if (!p) my_abort(1);
    return p;
 }
 
 
 
-/* _abort:
+/* my_abort:
  * Aborts execution with a hopefully meaningful message. If code is less
  * than 1, an undefined exit will happen. Available error codes:
  * 1: insufficient memory
  */
-static void _abort(int code)
+static void my_abort(int code)
 {
    switch(code) {
       case 1:  printf("Aborting due to insuficcient memory\n"); break;
