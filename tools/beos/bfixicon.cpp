@@ -91,8 +91,12 @@ extern "C" void usage(void)
 {
    printf("\nBeOS executable icon patcher for Allegro " ALLEGRO_VERSION_STR "\n");
    printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
-   printf("Usage: bfixicon exename bitmap [bitmap...] [-d datafile bitmap [bitmap...]\n"
-          " [palette] [bitmap...]]\n");
+   printf("Usage: bfixicon exename bitmap [bitmap]\n");
+   printf(" or\n");
+   printf("       bfixicon exename -d datafile object [palette] [object [palette]]\n");
+   printf(" where object is either a bitmap or a RLE sprite.\n");
+   printf("Options:\n");
+   printf("   -d datafile   use datafile as the source for objects and palettes\n");
    exit(EXIT_FAILURE);
 }
 
