@@ -361,6 +361,8 @@ AL_FUNC(BITMAP *, create_system_bitmap, (int width, int height));
 AL_FUNC(void, destroy_bitmap, (BITMAP *bitmap));
 AL_FUNC(void, set_clip, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
 AL_FUNC(void, clear_bitmap, (BITMAP *bitmap));
+AL_FUNC(void, vsync, (void));
+
 
 
 #define SWITCH_NONE           0
