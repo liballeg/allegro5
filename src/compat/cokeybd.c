@@ -622,8 +622,6 @@ AL_CONST char *scancode_to_name(int scancode)
  */
 int install_keyboard()
 {
-   int i;
-
    if (keyboard_driver)
       return 0;
 

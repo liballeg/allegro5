@@ -417,8 +417,6 @@ static void clear_timer_queue(void)
  */
 int install_timer()
 {
-   int i;
-
    if (timer_driver)
       return 0;
 
@@ -456,8 +454,6 @@ int install_timer()
  */
 void remove_timer(void)
 {
-   int i;
-
    if (!timer_driver)
       return;
 
