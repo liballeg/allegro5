@@ -174,13 +174,13 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 /* app_quit:
  *  Called upon Command-Q or "Quit" menu item selection.
- *  If an user-specified callback is set, calls it, otherwise behaves like
+ *  If the window close callback is set, calls it, otherwise behaves like
  *  Ctrl-Alt-End.
  */
 - (void)app_quit: (id)sender
 {
-   if (osx_app_quit_hook)
-      osx_app_quit_hook();
+   if (osx_window_close_hook)
+      osx_window_close_hook();
    else
       raise(SIGTERM);
 }

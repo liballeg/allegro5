@@ -48,7 +48,6 @@ NSCursor *osx_cursor = NULL;
 AllegroWindow *osx_window = NULL;
 char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
-void (*osx_app_quit_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
@@ -521,7 +520,8 @@ static void osx_sys_set_window_title(AL_CONST char *title)
 
 
 /* osx_sys_set_close_button_callback:
- *  Sets the window close callback.
+ *  Sets the window close callback. Also used when user hits Command-Q or
+ *  selects "Quit" from the application menu.
  */
 static int osx_sys_set_close_button_callback(void (*proc)(void))
 {
@@ -598,15 +598,3 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    
    return 0;
 }
-
-
-
-/* set_application_quit_callback:
- *  Sets a callback to be called on Command-Q or "Quit" application menu
- *  selection. MacOS X specific.
- */
-void set_application_quit_callback(void (*proc)(void))
-{
-   osx_app_quit_hook = proc;
-}
-
