@@ -633,13 +633,8 @@ static CONFIG_ENTRY *find_config_string(CONFIG *config, AL_CONST char *section, 
 	    }
 	    if ((in_section) || (ugetc(name) == '[')) {
 	       /* is this the one? */
-	       if (ustricmp(p->name, name) == 0) {
-	          /* check if entry really exists */
-	          if (p->data && (ustrlen(p->data) != 0))
-	             return p;
-	          else
-	             return NULL;
-	       }
+	       if (ustricmp(p->name, name) == 0)
+		  return p;
 	    }
 	 }
 
@@ -691,7 +686,7 @@ AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL
 	 p = find_config_string(config[0], section_name, name, NULL);
    }
 
-   if (p)
+   if (p && p->data && (ustrlen(p->data) != 0))
       return p->data;
    else
       return def;
