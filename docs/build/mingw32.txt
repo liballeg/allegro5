@@ -14,10 +14,10 @@
    Written by Henrik Stokseth.
 
    Robert J Ohannessian added some updates to the installation instructions
-   and added an example on how to use Dev-C++ with Allegro.
+   and an example on how to use Dev-C++ with Allegro.
 
    Elias Pschernig and Hein Zelle revamped the cross-compilation section.
-   
+
    Andrei Ellman updated the Cygwin section.
 
    See readme.txt for a more general overview.
@@ -29,28 +29,24 @@
 =======================================
 
    This is a complete MingW32 port of Allegro. This build doesn't rely
-   on the DLL files produced by MSVC but can make them itself.
+   on the DLL files produced by MSVC any longer but can make them itself.
    I'm proud to say Allegro can now make Win32 programs entirely using
    free professional tools. On that note I'd like to thank Peter Puck for
    making this a reality and for finishing off what I started. Enjoy!
 
    The screensaver example is built, but you must copy scrsave.scr to your
-   windows directory if you want to test it.
-   
+   Windows directory if you want to test it.
+
    If you have both GNU bash and GNU fileutils installed on your system, then
    set the environment variable UNIX_TOOLS (set UNIX_TOOLS=1). This is needed
    because GNU make will automatically use sh.exe instead of command.com if
    it finds it somewhere in the PATH. This step is not necessary when using
-   Cygwin as the makefile automatically sets UNIX_TOOLS for you.
+   MSYS or Cygwin as the makefile automatically sets UNIX_TOOLS for you.
 
    "make depend" and "fixdll.bat" require that you have GNU sed installed.
-   "fixdll.bat" requires that you have GNU sort (not DOS !) installed.
+   "fixdll.bat" requires that you have GNU sort (not DOS sort!) installed.
    You can download some extra utilities for MingW32 from:
-      http://sourceforge.net/projects/gnuwin32/
-
-   If you at any stage in the installation process get an
-   'Out of Environment space' message, then please see the Allegro F.A.Q.
-   for how to fix this.
+   'http://sourceforge.net/projects/gnuwin32/'
 
 
 
@@ -59,20 +55,20 @@
 =====================================================
 
    You have four choices when it comes to installing MingW32 and Allegro
-   on your computer.
+   on your computer:
 
    - The section 'Setting up MingW32 to build Allegro' describes how to set
-     up the MingW32 command line tools which is the prefered choice for
+     up the MingW32 command line tools which is the preferred choice for
      those who like to work on the command line.
 
    - The section 'Setting up Dev-C++ to build Allegro' describes how to set
      up the MingW32 command line tools in addition to the Dev-C++ IDE. This
-     is the prefered choice for those who like to work in a graphical
+     is the preferred choice for those who like to work in a graphical
      development environment.
 
    - The section 'Setting up Cygwin to build Allegro' describes how to set
      up your Cygwin compiler to build Allegro. Cygwin offers a mature
-     UNIX-like environment for you to work in.
+     Unix-like environment for you to work in.
 
    - The last section 'Cross compilation' describes how to set up the
      MingW32 command line tools to compile Win32 programs from your Linux
@@ -88,51 +84,72 @@
 ==== Setting up MingW32 to build Allegro ====
 =============================================
 
-   For the MingW32 part, you will need to obtain the following 
-   distributions from the internet. Please don't unzip/install until step 3.
+   For the MingW32 part, you will need to obtain the following distributions
+   from the Internet. Please do not unzip or install anything until step 3.
+
+   Getting what you need:
 
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
-      or 'http://sourceforge.net/projects/mingw/'. You should download the
-      complete package instead of the many small ones unless you want to
-      move files manually. :-) Note that gcc 2.95.3 at least is required.
+      or 'http://sourceforge.net/projects/mingw/'. The files you want are
+      'MinGW-2.0.0-3.exe' and optionally 'MSYS-1.0.8.exe', or newer equivalents
+      of both.
 
-   2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html'. Please don't confuse it
-      with dx70_min.zip.
+   2) Get the minimal DirectX 7 SDK for MingW32 (dx70_mgw.zip). Download it
+      from 'http://alleg.sourceforge.net/wip.html'. Note that this is NOT
+      the same as 'dx70_min.zip' as libraries and headers are different.
 
-   3) Install the MingW32 distribution from step 1. I recommend you unzip it
-      to 'c:\mingw32' (the following steps assume this is what you used).
-      Do NOT install it in a directory name with spaces, plus signs, minus
-      signs, slashes, or anything else that's fancy enough to break the
-      compiler. That goes double for people installing in C:\Program Files.
+   Installation process:
 
-   4) Unzip the file from step 2 to 'c:\mingw32'. Overwrite any existing
-      files. Note: If you use an older copy of MingW32 where the Include and
-      Lib subdirectories doesn't exist, then unzip the file to
-      'c:\mingw32\i386-mingw32msvc' instead.
+   3) Install 'MinGW-2.0.0-3.exe' from step 1 to 'c:\develop\mingw32' (the
+      following steps assume that's the directory you used). Do NOT install
+      it in a directory name with spaces, plus signs, minus signs, slashes,
+      or anything else that's fancy enough to break the compiler. That goes
+      double for people installing in 'C:\Program Files'.
 
-   5) You now need to add 'c:\mingw32\bin' to the *beginning* of your PATH.
+      Optionally if you want MSYS, install 'MSYS-1.0.8.exe' from step 1 to
+      'c:\develop\msys'. In the post-install answer 'y' (yes) to everything,
+      except when asked where MingW32 is installed then answer:
+      'c:/develop/mingw32'.
 
-      If you use Windows 9x you can add the line
-      'path c:\mingw32\bin;%PATH%' to the end of your 'c:\autoexec.bat'
-      file. You can use 'edit', 'msconfig', 'sysedit', 'notepad' or any
-      other editor capable of editing ASCII text.
+   4) Unzip the file from step 2 to 'c:\develop\mingw32'. Overwrite any
+      existing files. Note: It seems like you don't need the libraries from
+      'dx7_mgw.zip' anymore, so if you want you can leave the DirectX
+      libraries that came with MingW32 alone.
 
-      If you use Windows NT (which includes 2000 and XP) then open
+   5) You now need to add 'c:\develop\mingw32\bin' to the *beginning* of your
+      PATH environment variable.
+
+      If you use Windows 9x you can add the line 
+      'PATH c:\develop\mingw32\bin;%PATH%' to the end of your
+      'c:\autoexec.bat' file. You can use 'edit', 'msconfig', 'sysedit',
+      'notepad' or any other editor capable of editing ASCII text.
+
+      If you use Windows ME, you'll need to run 'msconfig', then select the
+      'Environment' tab, and add 'c:\develop\mingw32\bin' to PATH.
+
+      If you use Windows NT (which includes 2000 and XP) then open the
       Control Panel, and click the 'System' applet, then the 'Advanced' tab,
       and finally the 'Environment' button. Select the PATH= entry, and add
-      'c:\mingw32\bin' to it.
+      'c:\develop\mingw32\bin' to it.
 
-   6) Likewise add the line 'set MINGDIR=c:\mingw32' to your
+   6) Likewise add the line 'set MINGDIR=c:\develop\mingw32' to your
       'c:\autoexec.bat'.
+
+      If you use MSYS, append the line 'export MINGDIR=/mingw' to the end of
+      the file 'c:\develop\msys\etc\profile'.
 
    7) Now reboot!
 
    Test the installation by typing the following on the command line:
    'gcc -v'. The answer should be similar to:
-   
-   Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32msvc\2.95.3\specs
-   gcc version 2.95.3 20010726 (release)
+
+   Reading specs from ../lib/gcc-lib/mingw32/3.2/specs
+   Configured with: ../gcc/configure --with-gcc --with-gnu-ld --with-gnu-as
+   --host=mingw32 --target=mingw32 --prefix=/mingw --enable-threads
+   --disable-nls --enable-languages=f77,c++,objc,ada --disable-win32-registry
+   --disable-shared
+   Thread model: win32
+   gcc version 3.2 (mingw special 20020817-1)
 
    (If you don't know how, you can click on Start -> Run then type "command".
    Under Windows 2000 and XP, you should type "cmd" instead.)
@@ -143,73 +160,80 @@
 ==== Setting up Dev-C++ to build Allegro ====
 =============================================
 
-   Some people prefer to use the Dev-C++ distribution to make Allegro
-   programs. Dev-C++ is a neat development IDE and includes an updated
-   MingW32 compiler. Please do not unzip or install anything until step 4.
+   Some people prefer to use the Dev-C++ software to make Allegro programs.
+   Dev-C++ is a neat development IDE (Integrated Development Environment).
+   Please do not unzip or install anything until step 4.
 
    Getting what you need:
 
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
-      You should download the complete package instead the many small ones
-      unless you want to move files manually. :-) At the time of writing
-      (November, 2001) version 1.1 is the newest. A direct link is here:
-      'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
+      or 'http://sourceforge.net/projects/mingw/'. The file you want is
+      'MinGW-2.0.0-3.exe' or a newer equivalent.
 
-   2) Download the Dev-C++ 4 IDE (without MingW32 compiler and libraries)
-      from 'http://www.bloodshed.net/dev/download.html'.
-      Once again, make sure you do not install it until you get to step 4.
+   2) Download the Dev-C++ 5.0 beta IDE executable only (without MingW32)
+      from 'http://www.bloodshed.net/dev/devcpp.html'. The file you want is
+      'devcpp4980exe.exe' or a newer equivalent.
 
    3) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html'. Please don't confuse it
-      with dx70_min.zip.
-
+      from 'http://alleg.sourceforge.net/wip.html'. Note that this is NOT
+      the same as dx70_min.zip as libraries and headers are different.
 
    Installation process:
 
-   4) Install the package from step 1. I recommend you unzip it
-      to 'C:\Dev-Cpp' (the following steps assume this is what you used).
-      Do NOT install it in a directory name with spaces, plus signs, slashes, 
-      or anything else that's fancy enough to break the compiler. 
-      That goes double for people installing in C:\Program Files.
+   4) Install 'MinGW-2.0.0-3.exe' from step 1 to 'c:\develop\mingw32' (the
+      following steps assume that's the directory you used). Do NOT install
+      it in a directory name with spaces, plus signs, minus signs, slashes,
+      or anything else that's fancy enough to break the compiler. That goes
+      double for people installing in C:\Program Files.
 
-   5) Install the package from step 2 to 'C:\Dev-Cpp'. Overwrite any existing
-      files.
+   5) Install 'devcpp4980exe.exe' from step 2 to 'C:\develop\dev-cpp'.
 
-   6) Unzip the file from step 3 to 'C:\Dev-Cpp' Overwrite any existing
-      files.
+   6) Unzip 'dx70_mgw.zip' from step 3 to 'C:\develop\mingw32'. Overwrite any
+      existing files. Note: It seems like you don't need the libraries from
+      'dx7_mgw.zip' anymore, so if you want you can leave the DirectX
+      libraries that came with MingW32 alone.
 
-   7) You now need to add 'C:\Dev-Cpp\bin' to the *beginning* of your PATH.
+   7) You now need to add 'c:\develop\mingw32\bin' to the *beginning* of your
+      PATH environment variable.
 
       If you use Windows 9x you can add the line
-      'path c:\Dev-Cpp\bin;%PATH%' to the end of your 'c:\autoexec.bat'
+      'path c:\develop\mingw32\bin;%PATH%' to the end of your 'c:\autoexec.bat'
       file. You can use 'edit', 'msconfig', 'sysedit', 'notepad' or any
       other editor capable of editing ASCII text.
 
       If you use Windows ME, you'll need to run 'msconfig', then select the
-      'Environment' tab, and add 'c:\Dev-Cpp\bin' to PATH.
+      'Environment' tab, and add 'c:\develop\mingw32\bin' to PATH.
 
-      If you use Windows NT (which includes 2000 and XP) then open
+      If you use Windows NT (which includes 2000 and XP) then open the
       Control Panel, and click the 'System' applet, then the 'Advanced' tab,
       and finally the 'Environment' button. Select the PATH= entry, and add
-      'c:\Dev-Cpp\bin' to it.
+      'c:\develop\mingw32\bin' to it.
 
-   8) Likewise add the line 'set MINGDIR=C:\Dev-Cpp' to your
+   8) Likewise add the line 'set MINGDIR=c:\develop\mingw32' to your
       'c:\autoexec.bat'.
 
-   9) Now reboot!
+   9) Dev-C++ needs to be configured a little in order to use MingW32.
+      Open Dev-C++ and from the menu select Tools -> Compiler Options and
+      select the Directories tab. In the Binaries tab replace the line:
+      'c:\develop\dev-cpp\bin' with 'c:\develop\mingw32\bin'. Likewise in
+      the Libraries, C includes and C++ includes tabs replace the dev-cpp
+      directories with the mingw32 equivalents.
+
+   10) Now reboot!
 
    Test the installation by typing the following on the command line:
    'gcc -v'. The answer should be simmilar to:
-   
-   Using builtin specs.
-   gcc version 2.95.2 19991024 (release)
 
-   (click on Start -> Run then type "command" or "cmd" to get a command
-   prompt.)
+   Reading specs from ../lib/gcc-lib/mingw32/3.2/specs
+   Configured with: ../gcc/configure --with-gcc --with-gnu-ld --with-gnu-as
+   --host=mingw32 --target=mingw32 --prefix=/mingw --enable-threads
+   --disable-nls --enable-languages=f77,c++,objc,ada --disable-win32-registry
+   --disable-shared
+   Thread model: win32
+   gcc version 3.2 (mingw special 20020817-1)
 
-
-   10) Now scroll down a bit for instructions on how to install Allegro
-       and an example program.
+   (If you don't know how, you can click on Start -> Run then type "command".
+   Under Windows 2000 and XP, you should type "cmd" instead.)
 
 
 
@@ -225,8 +249,8 @@
 
       Install these packages (run setup.exe once more). The rest of these
       instructions assumes you installed to 'c:\cygwin'. When setup asks
-      you which line endings you want, select unix-style instead of DOS.
-      
+      you which line endings you want, select Unix-style instead of DOS.
+
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
       from 'http://alleg.sourceforge.net/wip.html' and unzip it to a
       temporary directory, for instance 'C:\Temp'. Then move the contents of
@@ -244,21 +268,21 @@
       have to append the new path to the existing one by using a colon (":")
       as the separator.
 
-   4) Start your cygwin BASH shell which you can find either on your desktop
+   4) Start your Cygwin environment, which you can find either on your desktop
       and/or on your Windows start menu. Make sure /bin/sh.exe exists, if not
       just run: 'ln -s /bin/bash.exe /bin/sh.exe'.
 
 
-   Test the installation by typing the following in the BASH shell:
+   Test the installation by typing the following in the Bash shell:
    'gcc -v'. The answer should be similar to:
-   
+
    Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/3.2/specs
    gcc version 3.2 20020927 (prerelease)
 
    Note: if you have problems installing the profiling version of the Allegro
    library, you will probably need to copy a file called libgmon.a from the
    MingW32 distribution to your /lib/mingw directory (c:\cygwin\lib\mingw) in
-   cygwin. This is expected to be fixed in a later release of the
+   Cygwin. This is expected to be fixed in a later release of the
    mingw-runtime package (I'm currently using mingw-runtime-1.2-1).
 
 
@@ -319,7 +343,7 @@
       If you are using a CVS version of Allegro, run 'make depend' to
       generate the build dependencies, then run 'misc/fixdll.sh' to generate
       the allegro.def file. You are now finished with all the preparations.
-   
+
    5) You can now run './xmake.sh' to build the Allegro library and then run
       './xmake.sh install' as root to install it. Afterwards, you can use
       'xmake.sh' as you would use 'make' to compile your Allegro programs, or
@@ -337,23 +361,26 @@
 
    Step-by-step instructions on how to build the MingW32 version of Allegro.
    This assumes you have unzipped allegro to c:\allegro or, if you are using
-   Cygwin, you have unzipped it to c:\cygwin\allegro (which is equivalent to
-   /allegro from within the Cygwin environment).
+   MSYS, you have unzipped it to c:\develop\msys\allegro (which is equivalent
+   to /allegro from within the MSYS environment) or, if you are using Cygwin,
+   you have unzipped it to c:\cygwin\allegro (which is equivalent to /allegro
+   from within the Cygwin environment).
 
-   First configure Allegro. Unless you are using Cygwin, enter the following
-   on the commandline: (click on Start -> Run then type "command" or "cmd" to
-   get a command prompt)
+   First configure Allegro for MingW32. Unless you are using MSYS or Cygwin,
+   enter the following on the commandline (click on Start -> Run then type
+   "command" or "cmd" to get a command prompt):
 
    cd c:\allegro
    fix.bat mingw32
-   
-   If you are using Cygwin, start your Cygwin Bash shell. The following
-   commands should then be used instead of the ones above:
+
+   If you are using MSYS or Cygwin, start your environment, which you can
+   find either on your desktop and/or on your Windows start menu. The
+   following commands should then be used instead of the ones above:
 
    cd /allegro
-   ./fix.sh mingw32 --dtou
-   
-   Now we're ready to build the Allegro library with:
+   ./fix.sh mingw32 --dtou   (--dtou can be replaced by --quick for MSYS).
+
+   Now you're ready to build the Allegro library with:
 
    make
 
@@ -422,7 +449,7 @@
    space, you can run "make clean" to get rid of all the temporary files and
    HTML format documentation.
 
-   And then the last thing: installing the library. Run:
+   And then the last thing, installing the library. Run:
 
    make install
 
@@ -489,7 +516,7 @@
          allegro_message("Hello World!");
          return 0;
       }
-      END_OF_MAIN();
+      END_OF_MAIN()
 
    You now need to tell Dev-C++ that you'd like to make a program that
    uses Allegro. For that, go in the Project Options screen
