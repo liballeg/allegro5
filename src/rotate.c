@@ -26,12 +26,6 @@
 
 
 
-#ifndef M_PI
-   #define M_PI   3.14159265358979323846
-#endif
-
-
-
 /*
  * Scanline drawers.
  */
@@ -719,10 +713,10 @@ void _rotate_scale_flip_coordinates(fixed w, fixed h,
       /* Faster way to obtain both sin and cos with one call under djgpp.
 	 Todo: Do other platforms support this? (not watcom, mingw or msvc)
       */
-      sincos(&cos_angle, &sin_angle, angle * (M_PI / (double)0x800000));
+      sincos(&cos_angle, &sin_angle, angle * (AL_PI / (double)0x800000));
    #else
-      cos_angle = cos(angle * (M_PI / (double)0x800000));
-      sin_angle = sin(angle * (M_PI / (double)0x800000));
+      cos_angle = cos(angle * (AL_PI / (double)0x800000));
+      sin_angle = sin(angle * (AL_PI / (double)0x800000));
    #endif
 
    if (cos_angle >= 0)

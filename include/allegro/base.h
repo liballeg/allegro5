@@ -65,6 +65,8 @@
 #undef SGN
 #define SGN(x)       (((x) >= 0) ? 1 : -1)
 
+#define AL_PI        3.14159265358979323846
+
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
 AL_VAR(int *, allegro_errno);
