@@ -252,7 +252,7 @@ if test -z "$no_x"; then
     [LIBS="-lXext $LIBS"])
 
   dnl Test for Xpm library.
-  AC_CHECK_HEADER(X11/xpm.h, AC_CHECK_LIB(Xpm, XMissingExtension,
+  AC_CHECK_HEADER(X11/xpm.h, AC_CHECK_LIB(Xpm, XpmCreatePixmapFromData,
     [LIBS="-lXpm $LIBS"
     AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XPM,1,[Define if xpm bitmap support is available.])
     ])
