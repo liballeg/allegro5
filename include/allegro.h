@@ -287,7 +287,10 @@ AL_PRINTFUNC(int, uszprintf, (char *buf, int size, AL_CONST char *format, ...), 
 AL_FUNC(int, uvszprintf, (char *buf, int size, AL_CONST char *format, va_list args));
 AL_PRINTFUNC(int, usprintf, (char *buf, AL_CONST char *format, ...), 2, 3);
 
-#define ustrdup(src)                  _ustrdup(src, malloc)
+#ifndef ustrdup
+   #define ustrdup(src)               _ustrdup(src, malloc)
+#endif
+
 #define ustrcpy(dest, src)            ustrzcpy(dest, INT_MAX, src)
 #define ustrcat(dest, src)            ustrzcat(dest, INT_MAX, src)
 #define ustrncpy(dest, src, n)        ustrzncpy(dest, INT_MAX, src, n)
