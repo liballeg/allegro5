@@ -398,8 +398,8 @@ if test -f "$srcdir/makefile.dep"; then
   fi
 elif test ! -f makefile.dep; then
   echo '# Execute "make depend".' >makefile.dep
+  AC_MSG_WARN([execute \"make depend\" first])
 fi
-AC_MSG_WARN([execute \"make depend\" first])
 
 dnl Wait for a moment, to ensure the makefile gets a nice late
 dnl timestamp, otherwise `makefile.dep' looks too new.
