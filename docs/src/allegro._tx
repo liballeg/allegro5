@@ -8240,6 +8240,7 @@ the differences between systems:
 <b>ALLEGRO_LINUX</b><br>
 <b>ALLEGRO_BEOS</b><br>
 <b>ALLEGRO_QNX</b><br>
+<b>ALLEGRO_DARWIN</b><br>
 <b>ALLEGRO_GCC</b><br>
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW32.
