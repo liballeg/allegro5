@@ -44,7 +44,7 @@ Changes from 3.11 to current
    3.9.38: Eric Botcazou and Sven Sandberg fixed compilation under
    Watcom 10.6.
 <li>
-   3.9.38: Elias Pschernig contributed an icon fixer resource fixer for the
+   3.9.38: Elias Pschernig contributed an icon resource fixer for the
    Windows port and added support for shared library under BeOS.
 <li>
    3.9.38: Angelo Mottola added a bfixicon utility.
