@@ -633,8 +633,13 @@ static CONFIG_ENTRY *find_config_string(CONFIG *config, AL_CONST char *section, 
 	    }
 	    if ((in_section) || (ugetc(name) == '[')) {
 	       /* is this the one? */
-	       if (ustricmp(p->name, name) == 0)
-		  return p;
+	       if (ustricmp(p->name, name) == 0) {
+		  if ((!p->data) || (ustrlen(p->data) == 0))
+		     /* check if entry exists but is undefined */
+		     return NULL;
+		  else
+		     return p;
+	       }
 	    }
 	 }
 
