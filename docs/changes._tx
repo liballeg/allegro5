@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Henrik Stokseth added support for cross-compilation in the
+   mingw32 build.
+<li>
    3.9.34: Grzegorz Adam Hankiewicz updated more examples for GFX_SAFE.
 <li>
    3.9.34: Ben Davis added set_volume_per_voice(), made silent voices

@@ -212,8 +212,9 @@ Contributors
    Wrote the original version of the LZSS compression code.
 
    Henrik Stokseth (<email>hstokset@privat.cybercity.no</a>).<br>
-   Added code to distinguish between win95 and win98, and worked on the 
-   Mingw32 native build version.
+   Contributed a native Mingw32 build complete with cross-compilation
+   support. He's also done various hacking and bugfixing and added some
+   code to distinguish between win95 and win98.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
