@@ -134,7 +134,7 @@ Contributors
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
    Eric Botcazou (<email>botcazou@club-internet.fr</a>).<br>
-   Made the DGA driver work better in 32bpp modes.
+   Made the DGA driver work better in 8bpp and 32bpp modes.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -417,6 +417,9 @@ Contributors
    DOS file selector from listing virtual drives, did the same for the Windows
    file selector, improved the support for accented character maps in the 
    keyboard driver, and made aesthetic modifications to the GUI menu system.
+
+   Peter Puck (<email>zaqhaq@netscape.net</a>).<br>
+   Helped with the Mingw32 native build.
 
    Peter Wang (<email>tjaden@alphalink.com.au</a>).<br>
    Contributed to the Linux GGI driver, added the mouse_z wheel input 
