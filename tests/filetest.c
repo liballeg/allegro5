@@ -91,7 +91,7 @@ static int fa_button_proc(int msg, DIALOG *d, int c)
 {
    int ret;
 
-   if (msg == MSG_CLICK) {
+   if ((msg == MSG_CLICK) || (msg == MSG_KEY)) {
       ret = d_check_proc(msg, d, c);
 
       if (d->flags & D_SELECTED)
