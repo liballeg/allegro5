@@ -8451,7 +8451,6 @@ BeOS specifics
    GFX_BEOS_WINDOWED<br>
       Fast windowed mode using the BDirectWindow class. Not all graphics
       cards support this.
-</ul>
 <li>
    GFX_BEOS_WINDOWED_SAFE<br>
       Safe windowed mode using the normal BWindow class. Slow but
