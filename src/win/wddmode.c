@@ -272,7 +272,7 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
    gfx_mode_list = (GFX_MODE_LIST *) gfx_mode_list_ptr;
 
    /* build gfx mode-list */
-   gfx_mode_list->mode = realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
+   gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
    if (!gfx_mode_list->mode)
       return DDENUMRET_CANCEL;
 
@@ -337,7 +337,7 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
    }
 
    /* terminate mode list */
-   gfx_mode_list->mode = realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
+   gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
 
    gfx_mode_list->mode[gfx_mode_list->num_modes].width  = 0;
    gfx_mode_list->mode[gfx_mode_list->num_modes].height = 0;

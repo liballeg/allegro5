@@ -229,7 +229,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
          /* add resolution. */
          if (!res_exist) {
             driver_list_entry->mode_count++;
-            temp_mode_list = realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count));
+            temp_mode_list = _al_sane_realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count));
             if (!temp_mode_list) return -1;
             mode = driver_list_entry->mode_count - 1;
 
@@ -252,7 +252,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
       }
 
       /* terminate mode list */
-      temp_mode_list = realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count + 1));
+      temp_mode_list = _al_sane_realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count + 1));
       if (!temp_mode_list) return -1;
       temp_mode_list[driver_list_entry->mode_count].w = 0;
       temp_mode_list[driver_list_entry->mode_count].h = 0;
@@ -309,7 +309,7 @@ static int create_driver_list()
    driver_count = 0;
 
    while(driver_info[driver_count].driver) {
-      driver_list = realloc(driver_list, sizeof(DRIVER_LIST) * (driver_count + 4));
+      driver_list = _al_sane_realloc(driver_list, sizeof(DRIVER_LIST) * (driver_count + 4));
       if (!driver_list) return -1;
       driver_list[driver_count+3].id = driver_info[driver_count].id;
       gfx_driver = driver_info[driver_count].driver;

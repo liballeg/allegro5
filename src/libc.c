@@ -12,6 +12,8 @@
  *
  *      By Michael Bukin.
  *
+ *      Henrik Stokseth added _al_sane_realloc() function.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -98,3 +100,27 @@ int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
 #endif
 
 
+
+/* _al_sane_realloc:
+ *  realloc() substitution with guaranteed behaviour.
+ */
+void *_al_sane_realloc(void *ptr, size_t size)
+{
+   void *tmp_ptr;
+
+   tmp_ptr = NULL;
+
+   if (ptr && size) {
+      tmp_ptr = realloc(ptr, size);
+      if (!tmp_ptr && ptr) free(ptr);
+   }
+   else if (!size) {
+      tmp_ptr = NULL;
+      if (ptr) free(ptr);
+   }
+   else if (!ptr) {
+      tmp_ptr = malloc(size);
+   }
+   
+   return tmp_ptr;
+}
