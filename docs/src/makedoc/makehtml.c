@@ -289,7 +289,8 @@ static void _write_html_xref_list(char **xref, int *xrefs)
       _write_html_xref(xref[i]);
    }
    *xrefs = 0;
-   _hfprintf(".</font></blockquote>\n");
+   _hfprintf(".%s</blockquote>\n",
+      (html_flags & HTML_IGNORE_CSS) ? "</font>" : "");
    _empty_count = 0;
 }
 
