@@ -8117,7 +8117,7 @@ For all platforms, you can use an executable compressor called UPX, which
 is available at http://upx.tsx.org/ . This usually manages a compression
 ratio of about 40%.
 <li>
-When using djgpp: for starters, read the djgpp FAQ section 8.15, and take
+When using djgpp: for starters, read the djgpp FAQ section 8.14, and take
 note of the -s switch. And don't forget to compile your program with
 optimisation enabled!
 <li>
