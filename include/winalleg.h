@@ -58,7 +58,7 @@ AL_VAR(WIN_GFX_DRIVER *, win_gfx_driver);
 
 AL_FUNC(void, win_set_window, (HWND wnd));
 AL_FUNC(HWND, win_get_window, (void));
-AL_FUNC(void, win_set_wnd_create_proc, (HWND));
+AL_FUNC(void, win_set_wnd_create_proc, (AL_METHOD(HWND, proc, (WNDPROC))));
 
 AL_FUNC(void, win_grab_input, (void));
 

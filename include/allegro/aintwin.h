@@ -58,7 +58,7 @@ AL_VAR(int, _dx_ver);
 
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));
-AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
+AL_FUNC(int, wnd_call_proc, (AL_METHOD(int, proc, (void))));
 AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
@@ -112,8 +112,8 @@ AL_VAR(HANDLE, _foreground_event);
 AL_FUNC(void, sys_directx_display_switch_init, (void));
 AL_FUNC(void, sys_directx_display_switch_exit, (void));
 AL_FUNC(int, sys_directx_set_display_switch_mode, (int mode));
-AL_FUNC(int, sys_directx_set_display_switch_callback, (int dir, void (*cb)(void)));
-AL_FUNC(void, sys_directx_remove_display_switch_callback, (void (*cb)(void)));
+AL_FUNC(int, sys_directx_set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void))));
+AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
 
 AL_FUNC(void, sys_switch_in, (void));
 

@@ -95,7 +95,7 @@ HWND win_get_window(void)
 /* win_set_wnd_create_proc:
  *  sets a custom window creation proc
  */
-void win_set_wnd_create_proc(HWND proc)
+void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
 {
    wnd_create_proc = proc;
 }
