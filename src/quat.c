@@ -391,7 +391,7 @@ void apply_quat(AL_CONST QUAT *q, float x, float y, float z, float *xout, float 
     *       by the fact that the inverse of a zero quaternion is undefined
     *       and therefore causes an exception below.
     */
-   ASSERT(!((x == 0) && (y == 0) && (z == 0)));
+   ASSERT(!((q->x == 0.0) && (q->y == 0.0) && (q->z == 0.0) && (q->w == 0.0)));
 
    quat_inverse(q, &i);
    quat_mul(&i, &v, &t);
