@@ -15,7 +15,7 @@
  *      See readme.txt for copyright information.
  */
 
-#include "..\i386\asmdefs.inc"
+#include "src/i386/asmdefs.inc"
 
 
 .text

@@ -61,7 +61,7 @@
    DOS/djgpp         - see readme.dj
    DOS/Watcom        - see readme.wat
    Windows/MSVC      - see readme.vc
-   Windows/Mingw32   - see readme.mgw and readme.mgs
+   Windows/Mingw32   - see readme.mgw
    Windows/RSXNT     - see readme.rsx
    Windows/Borland   - see readme.bcc
    Linux (console)   - see readme.lnx
