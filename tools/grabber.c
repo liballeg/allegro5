@@ -85,6 +85,7 @@ static int strip_saver(void);
 static int updater(void);
 static int sel_updater(void);
 static int force_updater(void);
+static int force_sel_updater(void);
 static int reader(void);
 static int viewer(void);
 static int quitter(void);
@@ -126,7 +127,8 @@ static MENU file_menu[32] =
    { "&Merge",                      merger,           NULL,       0, NULL  },
    { "&Update\t(ctrl+U)",           updater,          NULL,       0, NULL  },
    { "Update S&election",           sel_updater,      NULL,       0, NULL  },
-   { "&Force Update",               force_updater,    NULL,       0, NULL  },
+   { "&Force Update\t(ctrl+F)",     force_updater,    NULL,       0, NULL  },
+   { "F&orce Update Selection",     force_sel_updater,NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&Read Bitmap\t(ctrl+R)",      reader,           NULL,       0, NULL  },
    { "&View Bitmap\t(ctrl+V)",      viewer,           NULL,       0, NULL  },
@@ -258,6 +260,7 @@ static DIALOG main_dlg[] =
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('s'),  0,          0,             0,       saver,            NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('u'),  0,          0,             0,       updater,          NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('f'),  0,          0,             0,       force_updater,    NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('r'),  0,          0,             0,       reader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('v'),  0,          0,             0,       viewer,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('q'),  0,          0,             0,       quitter,          NULL, NULL  },
@@ -538,7 +541,7 @@ static int foreach_selection(int (*proc)(DATAFILE *, int *, int), int *count, in
 
 
 /* checks whether two menus have the same name */
-static int compare_menu_names(char *n1, char *n2)
+static int compare_menu_names(AL_CONST char *n1, AL_CONST char *n2)
 {
    char buf1[256], buf2[256];
    int i, j;
@@ -668,7 +671,7 @@ static void add_menu_shortcuts(MENU *menu)
 
 
 /* allow plugins to override the default menu actions */
-static int check_menu_hook(char *name, int flags, int *ret)
+static int check_menu_hook(AL_CONST char *name, int flags, int *ret)
 {
    int i;
 
@@ -2062,64 +2065,23 @@ static int strip_saver(void)
 
 
 
-/* handle the update command */
-static int updater(void)
+/* worker function for the update commands */
+static int update_worker(AL_CONST char *name, int selection_only, int force)
 {
    int c;
    int nowhere;
    int err = FALSE;
 
-   CHECK_MENU_HOOK("Update", DATEDIT_MENU_FILE);
+   CHECK_MENU_HOOK(name, DATEDIT_MENU_FILE);
 
    box_start();
 
    set_busy_mouse(TRUE);
 
    for (c=1; c<data_count; c++) {
-      if (data[c].dat->type != DAT_FILE) {
-	 if (!datedit_update(data[c].dat, data_file, FALSE, &nowhere)) {
-	    err = TRUE;
-	    break;
-	 }
-	 datedit_sort_properties(data[c].dat->prop);
-      }
-   }
-
-   set_busy_mouse(FALSE);
-
-   if (!err) {
-      box_out("Done!");
-      box_eol();
-   }
-
-   box_end(!err);
-
-   select_property(DAT_NAME);
-
-   set_modified(TRUE);
-
-   return D_REDRAW;
-}
-
-
-
-/* handle the update_selection command */
-static int sel_updater(void)
-{
-   int c;
-   int nowhere;
-   int err = FALSE;
-
-   CHECK_MENU_HOOK("Update selection", DATEDIT_MENU_FILE);
-
-   box_start();
-
-   set_busy_mouse(TRUE);
-
-   for (c=1; c<data_count; c++) {
-      if ((c==SELECTED_ITEM) || data_sel[c]) {
+      if (!selection_only || (c==SELECTED_ITEM) || data_sel[c]) {
 	 if (data[c].dat->type != DAT_FILE) {
-	    if (!datedit_update(data[c].dat, data_file, FALSE, &nowhere)) {
+	    if (!datedit_update(data[c].dat, data_file, force, FALSE, &nowhere)) {
 	       err = TRUE;
 	       break;
 	    }
@@ -2146,43 +2108,34 @@ static int sel_updater(void)
 
 
 
+/* handle the update command */
+static int updater(void)
+{
+   return update_worker("Update", FALSE, FALSE);
+}
+
+
+
+/* handle the update_selection command */
+static int sel_updater(void)
+{
+   return update_worker("Update selection", TRUE, FALSE);
+}
+
+
+
 /* handle the force_update command */
 static int force_updater(void)
 {
-   int c;
-   int nowhere;
-   int err = FALSE;
+   return update_worker("Force Update", FALSE, TRUE);
+}
 
-   CHECK_MENU_HOOK("Force Update", DATEDIT_MENU_FILE);
 
-   box_start();
 
-   set_busy_mouse(TRUE);
-
-   for (c=1; c<data_count; c++) {
-      if (data[c].dat->type != DAT_FILE) {
-	 if (!datedit_force_update(data[c].dat, data_file, FALSE, &nowhere)) {
-	    err = TRUE;
-	    break;
-	 }
-	 datedit_sort_properties(data[c].dat->prop);
-      }
-   }
-
-   set_busy_mouse(FALSE);
-
-   if (!err) {
-      box_out("Done!");
-      box_eol();
-   }
-
-   box_end(!err);
-
-   select_property(DAT_NAME);
-
-   set_modified(TRUE);
-
-   return D_REDRAW;
+/* handle the force_update_selection command */
+static int force_sel_updater(void)
+{
+   return update_worker("Force Update selection", TRUE, TRUE);
 }
 
 
@@ -3433,8 +3386,8 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
 /* close button callback */
 static void close_callback(void)
-{  
-   simulate_keypress(27 + (KEY_ESC << 8));   
+{
+   simulate_keypress(27 + (KEY_ESC << 8));
 }
 
 

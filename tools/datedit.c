@@ -1752,13 +1752,11 @@ AL_CONST char *datedit_export_ext(int type)
 }
 
 
-
-/* worker function for the two following ones */
-static int do_datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed, int force)
+/* (un)conditionally update an object */
+int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int force, int verbose, int *changed)
 {
    AL_CONST char *name = get_datafile_property(dat, DAT_NAME);
    AL_CONST char *origin = get_datafile_property(dat, DAT_ORIG);
-   AL_CONST char *date = get_datafile_property(dat, DAT_DATE);
    DATEDIT_GRAB_PARAMETERS params;
    char filename[1024];
    int relf;
@@ -1782,14 +1780,18 @@ static int do_datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose
       return TRUE;
    }
 
-   if ((!force) && (*date)) {
-      time_t origt = file_time(filename);
-      time_t datat = datedit_asc2ftime(date);
+   if (!force) {
+      AL_CONST char *date = get_datafile_property(dat, DAT_DATE);
 
-      if ((origt/60) <= (datat/60)) {
-	 if (verbose)
-	    datedit_msg("%s: %s has not changed - skipping", name, origin);
-	 return TRUE;
+      if (date[0]) {
+	 time_t origt = file_time(filename);
+	 time_t datat = datedit_asc2ftime(date);
+
+	 if ((origt/60) <= (datat/60)) {
+	    if (verbose)
+	       datedit_msg("%s: %s has not changed - skipping", name, origin);
+	    return TRUE;
+	 }
       }
    }
 
@@ -1812,18 +1814,3 @@ static int do_datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose
    return datedit_grabupdate(dat, &params);
 }
 
-
-
-/* conditionally update an out-of-date object */
-int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed)
-{
-   return do_datedit_update(dat, datafile, verbose, changed, FALSE /* don't force */);
-}
-
-
-
-/* unconditionally update an object */
-int datedit_force_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed)
-{
-   return do_datedit_update(dat, datafile, verbose, changed, TRUE /* force */);
-}

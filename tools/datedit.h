@@ -165,15 +165,7 @@ int datedit_grabreplace(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 int datedit_grabupdate(DATAFILE *dat, DATEDIT_GRAB_PARAMETERS *params);
 DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params);
 
-#if 0
-DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, int type, int colordepth, int x, int y, int w, int h);
-int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, int type, int colordepth, int x, int y, int w, int h);
-int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int w, int h);
-DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, int x, int y, int w, int h, int colordepth);
-#endif
-
-int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed);
-int datedit_force_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed);
+int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int force, int verbose, int *changed);
 
 extern void (*grabber_sel_palette)(PALETTE pal);
 extern void (*grabber_select_property)(int type);

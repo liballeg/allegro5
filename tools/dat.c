@@ -456,7 +456,7 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
 
 
 /* does an update operation */
-static void do_update(DATAFILE *dat, char *parentname)
+static void do_update(DATAFILE *dat, int force, char *parentname)
 {
    int i;
    AL_CONST char *name;
@@ -469,41 +469,12 @@ static void do_update(DATAFILE *dat, char *parentname)
 
       if (dat[i].type == DAT_FILE) {
 	 strcat(tmp, "/");
-	 do_update((DATAFILE *)dat[i].dat, tmp);
+	 do_update((DATAFILE *)dat[i].dat, force, tmp);
 	 if (err)
 	    return;
       }
       else if ((opt_numnames <= 0) || (is_name(tmp))) {
-	 if (!datedit_update(dat+i, canonical_datafilename, opt_verbose, &changed)) {
-	    err = 1;
-	    return;
-	 }
-      }
-   }
-}
-
-
-
-/* does a forced update operation */
-static void do_force_update(DATAFILE *dat, char *parentname)
-{
-   int i;
-   AL_CONST char *name;
-   char tmp[256];
-
-   for (i=0; dat[i].type != DAT_END; i++) {
-      name = get_datafile_property(dat+i, DAT_NAME);
-      strcpy(tmp, parentname);
-      strcat(tmp, name);
-
-      if (dat[i].type == DAT_FILE) {
-	 strcat(tmp, "/");
-	 do_force_update((DATAFILE *)dat[i].dat, tmp);
-	 if (err)
-	    return;
-      }
-      else if ((opt_numnames <= 0) || (is_name(tmp))) {
-	 if (!datedit_force_update(dat+i, canonical_datafilename, opt_verbose, &changed)) {
+	 if (!datedit_update(dat+i, canonical_datafilename, force, opt_verbose, &changed)) {
 	    err = 1;
 	    return;
 	 }
@@ -987,11 +958,11 @@ int main(int argc, char *argv[])
 	       break;
 
 	    case 'u':
-	       do_update(datafile, "");
+	       do_update(datafile, FALSE, "");
 	       break;
 
 	    case 'w':
-	       do_force_update(datafile, "");
+	       do_update(datafile, TRUE, "");
 	       break;
 	 }
       }
