@@ -136,6 +136,14 @@ struct _xwin_type _xwin =
    XWIN_DEFAULT_APPLICATION_NAME,       /* application_name */
    XWIN_DEFAULT_APPLICATION_CLASS,      /* application_class */
 
+   0,           /* screen_lock_count */
+   GXcopy,      /* real_drawing_mode */
+   TRUE,        /* drawing_mode_ok */
+
+#ifdef ALLEGRO_MULTITHREADED
+   (pthread_t)0, /* locked_thread */
+#endif
+
    NULL         /* window close hook */
 };
 
@@ -1656,6 +1664,8 @@ void _xwin_hide_mouse(void)
  */
 void _xwin_move_mouse(int x, int y)
 {
+      _mouse_x = x;
+      _mouse_y = y;
 }
 
 #endif   /* ALLEGRO_XWINDOWS_WITH_XCURSOR */
