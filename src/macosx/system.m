@@ -50,6 +50,7 @@ char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
+int osx_window_first_expose = FALSE;
 
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
@@ -304,12 +305,13 @@ void osx_event_handler()
 	       
 	       case NSWindowMovedEventType:
                   /* This is needed to ensure the shadow gets drawn when the window is
-		   * created. It's weird, but sometimes it doesn't get drawn if we omit
-		   * the next two lines... The same applies to the cursor rectangle,
-		   * which doesn't seem to be set at window creation (it works once you
-		   * move the mouse though)
+		   * created. It's weird, but when the window is created on another
+		   * thread, sometimes its shadow doesn't get drawn. The same applies
+		   * to the cursor rectangle, which doesn't seem to be set at window
+		   * creation (it works once you move the mouse though).
 		   */
-	          if (osx_window) {
+	          if ((osx_window) && (osx_window_first_expose)) {
+		     osx_window_first_expose = FALSE;
                      [osx_window setHasShadow: NO];
                      [osx_window setHasShadow: YES];
 		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
