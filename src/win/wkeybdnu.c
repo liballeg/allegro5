@@ -510,6 +510,7 @@ static AL_KEYBOARD_DRIVER keyboard_directx =
    wkeybd_exit,
    wkeybd_get_keyboard,
    NULL, /* bool set_leds(int leds) */
+   NULL, /* const char *keycode_to_name(int keycode) */
    wkeybd_get_state
 };
 

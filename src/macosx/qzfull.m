@@ -69,13 +69,14 @@ GFX_DRIVER gfx_quartz_full =
    NULL,                         /* AL_METHOD(int, request_video_bitmap, (BITMAP *bitmap)); */
    osx_qz_create_system_bitmap,  /* AL_METHOD(BITMAP *, create_system_bitmap, (int width, int height)); */
    osx_qz_destroy_video_bitmap,  /* AL_METHOD(void, destroy_system_bitmap, (BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (BITMAP *sprite, int xfocus, int yfocus)); */
-   NULL,                         /* AL_METHOD(int, show_mouse, (BITMAP *bmp, int x, int y)); */
-   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
-   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
+   osx_mouse_set_sprite,         /* AL_METHOD(int, set_mouse_sprite, (BITMAP *sprite, int xfocus, int yfocus)); */
+   osx_mouse_show,               /* AL_METHOD(int, show_mouse, (BITMAP *bmp, int x, int y)); */
+   osx_mouse_hide,               /* AL_METHOD(void, hide_mouse, (void)); */
+   osx_mouse_move,               /* AL_METHOD(void, move_mouse, (int x, int y)); */
    NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
    NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
    NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
+   NULL,                         /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    osx_qz_fetch_mode_list,       /* AL_METHOD(int, fetch_mode_list, (void)); */
    0, 0,                         /* physical (not virtual!) screen size */
    TRUE,                         /* true if video memory is linear */
@@ -174,7 +175,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    
    osx_init_fade_system();
    old_mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-   CGDisplayHideCursor(kCGDirectMainDisplay);
    osx_fade_screen(FALSE, 0.2);
    if (CGDisplayCapture(kCGDirectMainDisplay) != kCGErrorSuccess) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot capture main display"));
@@ -229,6 +229,23 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    osx_skip_mouse_move = TRUE;
    osx_screen_used = FALSE;
    
+   if (color_depth != 8) {
+      gfx_quartz_full.set_mouse_sprite = osx_mouse_set_sprite;
+      gfx_quartz_full.show_mouse = osx_mouse_show;
+      gfx_quartz_full.hide_mouse = osx_mouse_hide;
+      gfx_quartz_full.move_mouse = osx_mouse_move;
+      gfx_capabilities = GFX_HW_CURSOR;
+   }
+   else {
+      /* 8 bit modes have problems handling hardware cursor so we disable it */
+      gfx_quartz_full.set_mouse_sprite = NULL;
+      gfx_quartz_full.show_mouse = NULL;
+      gfx_quartz_full.hide_mouse = NULL;
+      gfx_quartz_full.move_mouse = NULL;
+      CGDisplayHideCursor(kCGDirectMainDisplay);
+      gfx_capabilities = 0;
+   }
+   
    old_visible_bmp = bmp;
    
    return bmp;
@@ -269,8 +286,9 @@ static void osx_qz_full_exit(BITMAP *bmp)
       osx_fade_screen(FALSE, 0.1);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
-      CGDisplayShowCursor(kCGDirectMainDisplay);
       ShowMenuBar();
+      if (bitmap_color_depth(bmp) == 8)
+         CGDisplayShowCursor(kCGDirectMainDisplay);
       osx_fade_screen(TRUE, 0.2);
       CGDisplayRestoreColorSyncSettings();
       old_mode = NULL;

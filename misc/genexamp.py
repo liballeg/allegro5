@@ -18,7 +18,8 @@ ok. Usage example:
 In order to work, this script requires Python (tested with 1.5.2
 and 2.2.2) and the diff binary in your path. Written by Grzegorz
 Adam Hankiewicz, gradha@users.sourceforge.net. Notify me of any
-broken behaviour, like uncaught exceptions.
+broken behaviour, like uncaught exceptions. This script falls under
+Allegro's giftware license.
 """
 import sys, re, os, os.path, glob, popen2, string
 
@@ -40,9 +41,9 @@ comment_line = re.compile(r"Example pr|Modified by")
 examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exdbuf", "exflip", "exfixed", "exmouse", "extimer", "exkeys",
    "exjoy", "exsample", "exmidi", "exgui", "excustom", "exunicod",
-   "exconfig", "exbitmap", "exscale", "exdata", "exsprite", "exexedat",
-   "extrans", "extruec", "excolmap", "exrgbhsv", "exshade", "exxfade",
-   "exblend", "exalpha", "exlights", "ex3d", "excamera", "exquat",
+   "exbitmap", "exscale", "exconfig", "exdata", "exsprite", "exexedat",
+   "extrans", "extruec", "excolmap", "exrgbhsv", "exshade", "exblend",
+   "exxfade", "exalpha", "exlights", "ex3d", "excamera", "exquat",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
    "exaccel", "exspline", "exupdate", "exswitch", "exdodgy", "exstream"]
 

@@ -1,10 +1,18 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to support double buffering, page
- *    flipping, and triple buffering as options within a single program,
- *    and how to make things run at a constant rate no matter what the
- *    speed of your computer.
+ *    This program demonstrates how to support double buffering,
+ *    page flipping, and triple buffering as options within a single
+ *    program, and how to make things run at a constant rate no
+ *    matter what the speed of your computer. You have to use this
+ *    example from the commandline to specify as first parameter a
+ *    number which represents the type of video update you want: 1
+ *    for double buffering with memory bitmaps, 2 for page flipping,
+ *    3 for triple buffering and 4 for double buffering with system
+ *    bitmaps. After this, a dialog allows you to select a screen
+ *    resolution and finally you will see a kaleidoscopic animation,
+ *    along with a frames per second counter on the top left of
+ *    the screen.
  */
 
 
@@ -60,12 +68,17 @@ fixed r4 = 0;
 
 
 /* helper to draw four mirrored versions of a triangle */
-void kalid(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int r, int g, int b)
+void kalid(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3,
+	   int r, int g, int b)
 {
-   triangle(bmp, SCREEN_W/2+x1, SCREEN_H/2+y1, SCREEN_W/2+x2, SCREEN_H/2+y2, SCREEN_W/2+x3, SCREEN_H/2+y3, makecol(r, g, b));
-   triangle(bmp, SCREEN_W/2-x1, SCREEN_H/2+y1, SCREEN_W/2-x2, SCREEN_H/2+y2, SCREEN_W/2-x3, SCREEN_H/2+y3, makecol(r, g, b));
-   triangle(bmp, SCREEN_W/2-x1, SCREEN_H/2-y1, SCREEN_W/2-x2, SCREEN_H/2-y2, SCREEN_W/2-x3, SCREEN_H/2-y3, makecol(r, g, b));
-   triangle(bmp, SCREEN_W/2+x1, SCREEN_H/2-y1, SCREEN_W/2+x2, SCREEN_H/2-y2, SCREEN_W/2+x3, SCREEN_H/2-y3, makecol(r, g, b));
+   triangle(bmp, SCREEN_W/2+x1, SCREEN_H/2+y1, SCREEN_W/2+x2, SCREEN_H/2+y2,
+	    SCREEN_W/2+x3, SCREEN_H/2+y3, makecol(r, g, b));
+   triangle(bmp, SCREEN_W/2-x1, SCREEN_H/2+y1, SCREEN_W/2-x2, SCREEN_H/2+y2,
+	    SCREEN_W/2-x3, SCREEN_H/2+y3, makecol(r, g, b));
+   triangle(bmp, SCREEN_W/2-x1, SCREEN_H/2-y1, SCREEN_W/2-x2, SCREEN_H/2-y2,
+	    SCREEN_W/2-x3, SCREEN_H/2-y3, makecol(r, g, b));
+   triangle(bmp, SCREEN_W/2+x1, SCREEN_H/2-y1, SCREEN_W/2+x2, SCREEN_H/2-y2,
+	    SCREEN_W/2+x3, SCREEN_H/2-y3, makecol(r, g, b));
 }
 
 
@@ -107,14 +120,18 @@ void draw_screen(BITMAP *bmp)
 
    if (num_pages == 1) {
       if (use_system_bitmaps)
-	 textout_ex(bmp, font, "Double buffered (system bitmap)", 0, 0, makecol(255, 255, 255), -1);
+	 textout_ex(bmp, font, "Double buffered (system bitmap)", 0, 0,
+		    makecol(255, 255, 255), -1);
       else
-	 textout_ex(bmp, font, "Double buffered (memory bitmap)", 0, 0, makecol(255, 255, 255), -1);
+	 textout_ex(bmp, font, "Double buffered (memory bitmap)", 0, 0,
+		    makecol(255, 255, 255), -1);
    }
    else if (num_pages == 2)
-      textout_ex(bmp, font, "Page flipping (two pages of vram)", 0, 0, makecol(255, 255, 255), -1);
+      textout_ex(bmp, font, "Page flipping (two pages of vram)", 0, 0,
+		 makecol(255, 255, 255), -1);
    else
-      textout_ex(bmp, font, "Triple buffered (three pages of vram)", 0, 0, makecol(255, 255, 255), -1);
+      textout_ex(bmp, font, "Triple buffered (three pages of vram)", 0, 0,
+		 makecol(255, 255, 255), -1);
 
    textout_ex(bmp, font, gfx_driver->name, 0, 16, makecol(255, 255, 255), -1);
 
@@ -239,9 +256,11 @@ int main(int argc, char *argv[])
 	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 
 	    #ifdef ALLEGRO_DOS
-	       allegro_message("This driver does not support triple buffering\n\nTry using mode-X in clean DOS mode (not under Windows)\n");
+	    allegro_message("This driver does not support triple buffering\n"
+			    "\nTry using mode-X in clean DOS mode (not under "
+			    "Windows)\n");
 	    #else
-	       allegro_message("This driver does not support triple buffering\n");
+	    allegro_message("This driver does not support triple buffering\n");
 	    #endif
 
 	    return 1;
@@ -256,7 +275,8 @@ int main(int argc, char *argv[])
    for (i=0; i<num_pages; i++) {
       if (!bmp[i]) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to create %d video memory pages\n", num_pages);
+	 allegro_message("Unable to create %d video memory pages\n",
+			 num_pages);
 	 return 1;
       }
    }

@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 
@@ -38,6 +40,7 @@ static int _xwin_sysdrv_init(void);
 static void _xwin_sysdrv_exit(void);
 static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
 static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void));
+static void _xwin_sysdrv_message(AL_CONST char *msg);
 static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
 static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height);
@@ -65,7 +68,7 @@ SYSTEM_DRIVER system_xwin =
    _unix_find_resource,
    _xwin_sysdrv_set_window_title,
    _xwin_sysdrv_set_close_button_callback,
-   NULL, /* message */
+   _xwin_sysdrv_message,
    NULL, /* assert */
    NULL, /* save_console_state */
    NULL, /* restore_console_state */
@@ -178,10 +181,7 @@ static int _xwin_sysdrv_init(void)
       return -1;
    }
 
-   /* If multithreaded bg_man, need to init X's lock/unlock facility. 
-    * Note that no X calls must be made before this point! */
-   if (_unix_bg_man->multi_threaded)
-      XInitThreads();
+   _al_mutex_init_recursive(&_xwin.mutex);
 
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
@@ -231,6 +231,8 @@ static void _xwin_sysdrv_exit(void)
 #ifdef SIGQUIT
    signal(SIGQUIT, old_sig_quit);
 #endif
+
+   _al_mutex_destroy(&_xwin.mutex);
 }
 
 
@@ -257,6 +259,64 @@ static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void))
    _xwin.close_button_callback = proc;
    
    return 0;
+}
+
+
+
+/* _xwin_sysdrv_message:
+ *  Displays a message. Uses xmessage if possible, and stdout if not.
+ */
+static void _xwin_sysdrv_message(AL_CONST char *msg)
+{
+   char buf[ALLEGRO_MESSAGE_SIZE];
+   char *msg2;
+   int fd[2];
+   pid_t pid;
+   int ret, status;
+   int err;
+
+   /* convert message to ASCII */
+   msg2 = uconvert(msg, U_CURRENT, buf, U_ASCII, ALLEGRO_MESSAGE_SIZE);
+
+   /* create a pipe */
+   if (pipe(fd) != 0) {
+      fputs(msg2, stdout);
+      return;
+   }
+
+   /* fork a child */
+   pid = fork();
+   switch (pid) {
+
+      case -1: /* fork error */
+	 close(fd[0]);
+	 close(fd[1]);
+	 fputs(msg2, stdout);
+	 break;
+
+      case 0: /* child process */
+	 if ((close(STDIN_FILENO) != -1)
+	     && (dup2(fd[0], STDIN_FILENO) != -1)
+	     && (close(fd[1]) != -1))
+	 {
+	    execlp("xmessage", "xmessage", "-buttons", "OK", "-default", "OK", "-center", "-file", "-", NULL);
+	 }
+	 /* if execution reaches here, it means execlp failed */
+	 _exit(EXIT_FAILURE);
+	 break;
+
+      default: /* parent process */
+	 if ((close(fd[0]) == -1)
+	     || (write(fd[1], msg2, strlen(msg2)) == -1)
+	     || (close(fd[1]) == -1)
+	     || (waitpid(pid, &status, 0) != pid)
+	     || (!WIFEXITED(status))
+	     || (WEXITSTATUS(status) != 101)) /* ok button */
+	 {
+	    fputs(msg2, stdout);
+	 }
+	 break;
+   }
 }
 
 
@@ -365,9 +425,10 @@ static int _xwin_sysdrv_desktop_color_depth(void)
  */
 static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height)
 {
+   XLOCK();
    *width = DisplayWidth(_xwin.display, _xwin.screen);
    *height = DisplayHeight(_xwin.display, _xwin.screen);
-
+   XUNLOCK();
    return 0;
 }
 

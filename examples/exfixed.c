@@ -1,11 +1,13 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to use fixed point numbers.
+ *    This program demonstrates how to use fixed point numbers, which
+ *    are signed 32-bit integers storing the integer part in the
+ *    upper 16 bits and the decimal part in the 16 lower bits. This
+ *    example also uses the unusual approach of communicating with
+ *    the user exclusively via the allegro_message() function.
  */
 
-
-#include <stdio.h>
 
 #include "allegro.h"
 
@@ -55,5 +57,4 @@ int main(void)
 
    return 0;
 }
-
 END_OF_MAIN()

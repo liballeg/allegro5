@@ -156,58 +156,46 @@ static void blit_from_256(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, 
 
 
 
-/* makecol_trans:
- *  Helper function to convert pixel values with transparency preserving.
- */
-static int makecol_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, int b)
-{
-   static int rc;
-   static BITMAP *rc_bmp = NULL;
-
-   if (c == bitmap_mask_color(src)) {
-      c = bitmap_mask_color(dest);
-      return c;
-   }
-
-   c = makecol_depth(bitmap_color_depth(dest), r, g, b);
-
-   if (c == bitmap_mask_color(dest)) {
-      if (dest != rc_bmp) {
-         rc = get_replacement_mask_color(dest);
-         rc_bmp = dest;
-      }
-      c = rc;
-   }
-
-   return c;
-}
-
-
-
-/* worker macro for converting between two color formats */
-#define CONVERT_BLIT(sbits, ssize, dbits, dsize)                             \
+/* worker macro for converting between two color formats, possibly with dithering */
+#define CONVERT_BLIT_EX(sbits, ssize, dbits, dsize, MAKECOL)                 \
 {                                                                            \
-   for (y=0; y<h; y++) {                                                     \
-      s = bmp_read_line(src, s_y+y) + s_x*ssize;                             \
-      d = bmp_write_line(dest, d_y+y) + d_x*dsize;                           \
+   if (_color_conv & COLORCONV_KEEP_TRANS) {                                 \
+      int rc = get_replacement_mask_color(dest);                             \
+      int src_mask = bitmap_mask_color(src);                                 \
+      int dest_mask = bitmap_mask_color(dest);                               \
                                                                              \
-      if (_color_conv & COLORCONV_KEEP_TRANS) {                              \
+      for (y=0; y<h; y++) {                                                  \
+	 s = bmp_read_line(src, s_y+y) + s_x*ssize;                          \
+	 d = bmp_write_line(dest, d_y+y) + d_x*dsize;                        \
+                                                                             \
          for (x=0; x<w; x++) {                                               \
             bmp_select(src);                                                 \
             c = bmp_read##sbits(s);                                          \
                                                                              \
-            r = getr##sbits(c);                                              \
-            g = getg##sbits(c);                                              \
-            b = getb##sbits(c);                                              \
+            if (c == src_mask)                                               \
+               c = dest_mask;                                                \
+            else {                                                           \
+	       r = getr##sbits(c);                                           \
+	       g = getg##sbits(c);                                           \
+	       b = getb##sbits(c);                                           \
+               c = MAKECOL;                                                  \
+               if (c == dest_mask)                                           \
+		 c = rc;			\
+            }                                                                \
                                                                              \
             bmp_select(dest);                                                \
-            bmp_write##dbits(d, makecol_trans(src, dest, c, r, g, b));       \
+            bmp_write##dbits(d, c);                                          \
                                                                              \
             s += ssize;                                                      \
             d += dsize;                                                      \
          }                                                                   \
       }                                                                      \
-      else {                                                                 \
+   }                                                                         \
+   else {                                                                    \
+      for (y=0; y<h; y++) {                                                  \
+	 s = bmp_read_line(src, s_y+y) + s_x*ssize;                          \
+	 d = bmp_write_line(dest, d_y+y) + d_x*dsize;                        \
+                                                                             \
          for (x=0; x<w; x++) {                                               \
             bmp_select(src);                                                 \
             c = bmp_read##sbits(s);                                          \
@@ -217,7 +205,7 @@ static int makecol_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, int b)
             b = getb##sbits(c);                                              \
                                                                              \
             bmp_select(dest);                                                \
-            bmp_write##dbits(d, makecol##dbits(r, g, b));                    \
+            bmp_write##dbits(d, MAKECOL);                                    \
                                                                              \
             s += ssize;                                                      \
             d += dsize;                                                      \
@@ -229,89 +217,15 @@ static int makecol_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, int b)
    bmp_unwrite_line(dest);                                                   \
 }
 
-
-
-/* makecol_dither_trans:
- *  Helper function to convert pixel values with dithering and transparency preserving.
- */
-static int makecol_dither_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, int b,
-                                                                         int x, int y)
-{
-   static int rc;
-   static BITMAP *rc_bmp = NULL;
-
-   if (c == bitmap_mask_color(src)) {
-      c = bitmap_mask_color(dest);
-      return c;
-   }
-
-   if (bitmap_color_depth(dest) == 15)
-      c = makecol15_dither(r, g, b, x, y);
-   else
-      c = makecol16_dither(r, g, b, x, y);
-
-   if (c == bitmap_mask_color(dest)) {
-      if (dest != rc_bmp) {
-         rc = get_replacement_mask_color(dest);
-         rc_bmp = dest;
-      }
-      c = rc;
-   }
-
-   return c;
-}
+#define CONVERT_BLIT(sbits, ssize, dbits, dsize) \
+   CONVERT_BLIT_EX(sbits, ssize, dbits, dsize, makecol##dbits(r, g, b))
+#define CONVERT_DITHER_BLIT(sbits, ssize, dbits, dsize) \
+   CONVERT_BLIT_EX(sbits, ssize, dbits, dsize, \
+                   makecol##dbits##_dither(r, g, b, x, y))
 
 
 
-/* worker macro for converting formats with dithering */
-#define CONVERT_DITHER_BLIT(sbits, ssize, dbits, dsize)                      \
-{                                                                            \
-   for (y=0; y<h; y++) {                                                     \
-      s = bmp_read_line(src, s_y+y) + s_x*ssize;                             \
-      d = bmp_write_line(dest, d_y+y) + d_x*dsize;                           \
-                                                                             \
-      if (_color_conv & COLORCONV_KEEP_TRANS) {                              \
-         for (x=0; x<w; x++) {                                               \
-            bmp_select(src);                                                 \
-            c = bmp_read##sbits(s);                                          \
-                                                                             \
-            r = getr##sbits(c);                                              \
-            g = getg##sbits(c);                                              \
-            b = getb##sbits(c);                                              \
-                                                                             \
-            bmp_select(dest);                                                \
-            bmp_write##dbits(d, makecol_dither_trans(src, dest, c, r, g, b,  \
-                                                                   x ,y ));  \
-                                                                             \
-            s += ssize;                                                      \
-            d += dsize;                                                      \
-         }                                                                   \
-      }                                                                      \
-      else {                                                                 \
-         for (x=0; x<w; x++) {                                               \
-            bmp_select(src);                                                 \
-            c = bmp_read##sbits(s);                                          \
-                                                                             \
-            r = getr##sbits(c);                                              \
-            g = getg##sbits(c);                                              \
-            b = getb##sbits(c);                                              \
-                                                                             \
-            bmp_select(dest);                                                \
-            bmp_write##dbits(d, makecol##dbits##_dither(r, g, b, x, y));     \
-                                                                             \
-            s += ssize;                                                      \
-            d += dsize;                                                      \
-         }                                                                   \
-      }                                                                      \
-   }                                                                         \
-                                                                             \
-   bmp_unwrite_line(src);                                                    \
-   bmp_unwrite_line(dest);                                                   \
-}
-
-
-
-#if (defined ALLEGRO_COLOR8) || (defined GFX_MODEX)
+#if (defined ALLEGRO_COLOR8) || (defined GFX_HAS_VGA)
 
 /* dither_blit:
  *  Blits with Floyd-Steinberg error diffusion.
@@ -613,7 +527,7 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
  */
 static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
-   #ifdef GFX_MODEX
+   #ifdef GFX_HAS_VGA
 
    int x, y, c, r, g, b;
    int src_depth = bitmap_color_depth(src);
@@ -844,4 +758,3 @@ void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, 
 
    dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
 }
-

@@ -287,6 +287,12 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    char flags;
    int i;
 
+   /* vtable hook */   
+   if (source->vtable->do_stretch_blit) {
+      source->vtable->do_stretch_blit(source, dest, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, masked);
+      return;
+   }
+
    /* trivial reject for zero sizes */
    if ((source_width <= 0) || (source_height <= 0) || 
        (dest_width <= 0) || (dest_height <= 0))
@@ -389,7 +395,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       compiler_pos = make_stretcher(0, sx, sxd, dest_width, masked, dest->vtable->color_depth);
    }
 
- #ifdef GFX_MODEX
+ #ifdef GFX_HAS_VGA
 
    else { 
       int plane, d;
@@ -422,7 +428,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       dest_x >>= 2;
    }
 
- #endif     /* ifdef GFX_MODEX */
+ #endif     /* ifdef GFX_HAS_VGA */
 
    COMPILER_RET();
 
@@ -478,4 +484,3 @@ void stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h)
 {
    do_stretch_blit(sprite, bmp, 0, 0, sprite->w, sprite->h, x, y, w, h, 1); 
 }
-

@@ -125,11 +125,14 @@ typedef struct AL_KEYBOARD_DRIVER /* new keyboard driver structure */
    AL_METHOD(void, exit, (void));
    AL_METHOD(AL_KEYBOARD*, get_keyboard, (void));
    AL_METHOD(bool, set_leds, (int leds));
+   AL_METHOD(AL_CONST char *, keycode_to_name, (int keycode));
    AL_METHOD(void, get_state, (AL_KBDSTATE *ret_state));
 } AL_KEYBOARD_DRIVER;
 
 
 AL_ARRAY(_DRIVER_INFO, _al_keyboard_driver_list);
+
+AL_ARRAY(AL_CONST char *, _al_keyboard_common_names);
 
 
 struct AL_KEYBOARD

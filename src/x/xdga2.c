@@ -26,12 +26,10 @@
 #include <X11/extensions/xf86dga.h>
 
 
-#define MAX_EVENTS   5
+#define DGA_MAX_EVENTS 5
 
 #define RESYNC()     XDGASync(_xwin.display, _xwin.screen);
 
-
-extern int _xwin_keycode_pressed[];
 
 static XDGADevice *dga_device = NULL;
 static char _xdga2_driver_desc[256] = EMPTY_STRING;
@@ -73,6 +71,7 @@ static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int
 static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
+#define DGA_MAX_EVENTS 5
 
 
 GFX_DRIVER gfx_xdga2 =
@@ -95,6 +94,7 @@ GFX_DRIVER gfx_xdga2 =
    NULL, NULL, NULL, NULL,
    NULL,
    NULL, NULL,
+   NULL,
    _xdga2_fetch_mode_list,
    640, 480,
    TRUE,
@@ -126,6 +126,7 @@ GFX_DRIVER gfx_xdga2_soft =
    NULL, NULL, NULL, NULL,
    NULL,
    NULL, NULL,
+   NULL,
    _xdga2_fetch_mode_list,
    640, 480,
    TRUE,
@@ -140,7 +141,7 @@ GFX_DRIVER gfx_xdga2_soft =
 /* _xdga2_fetch_mode_list:
  *  Creates list of available DGA2 video modes.
  */
-static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
+static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
 {
    XDGAMode *mode;
    int bpp, num_modes, stored_modes, i, j, already_there;
@@ -199,6 +200,17 @@ static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
    }
    XFree (mode);
    return NULL;
+}
+
+
+
+static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
+{
+   GFX_MODE_LIST *list;
+   XLOCK ();
+   list = _xdga2_private_fetch_mode_list();
+   XUNLOCK ();
+   return list;
 }
 
 
@@ -266,17 +278,15 @@ static int _xdga_process_event(XDGAEvent *cur_event, XDGAEvent *next_event)
    switch (cur_event->type - dga_event_base) {
 
       case KeyPress:
-	 if (_al_xwin_key_press_handler != 0) {
-	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
-	    (*_al_xwin_key_press_handler)(&key, false);
-	 }
+	 XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+	 key.type -= dga_event_base;
+	 _al_xwin_keyboard_handler(&key, true);
 	 return 1;
 
       case KeyRelease:
-	 if (_al_xwin_key_release_handler != 0) {
-	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
-	    (*_al_xwin_key_release_handler)(&key, false);
-	 }
+	 XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+	 key.type -= dga_event_base;
+	 _al_xwin_keyboard_handler (&key, TRUE);
 	 return 1;
 
       case ButtonPress:
@@ -327,7 +337,13 @@ static int _xdga_process_event(XDGAEvent *cur_event, XDGAEvent *next_event)
 static void _xdga2_handle_input(void)
 {
    int i, events, events_queued;
-   static XDGAEvent event[MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
+   static XDGAEvent event[DGA_MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
+/***
+   XDGAEvent *cur_event;
+   XKeyEvent key;
+   int kcode, scode, dx, dy, dz = 0;
+   static int mouse_buttons = 0;
+***/
 
    if (_xwin.display == 0)
       return;
@@ -340,8 +356,8 @@ static void _xdga2_handle_input(void)
       return;
 
    /* Limit amount of events we read at once.  */
-   if (events > MAX_EVENTS)
-      events = MAX_EVENTS;
+   if (events > DGA_MAX_EVENTS)
+      events = DGA_MAX_EVENTS;
 
    /* Read pending events.  */
    for (i = 0; i < events; i++)

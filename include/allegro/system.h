@@ -20,6 +20,8 @@
 #define ALLEGRO_SYSTEM_H
 
 #include "base.h"
+#include "unicode.h"
+#include "config.h"
 
 #ifdef __cplusplus
    extern "C" {
@@ -67,7 +69,25 @@ AL_VAR(int, os_multitasking);
 #define SYSTEM_AUTODETECT  0
 #define SYSTEM_NONE        AL_ID('N','O','N','E')
 
-AL_FUNC(int, install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
+#if (ALLEGRO_SUB_VERSION&1)
+#define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8)|(c))
+#else
+#define MAKE_VERSION(a, b, c) (((a)<<16)|((b)<<8))
+#endif
+
+AL_FUNC(int, _get_allegro_version, (void));
+AL_FUNC(int, _install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
+
+AL_INLINE(int, install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))),
+{
+   if (MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION) !=
+       _get_allegro_version()) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Library version mismatch"));
+      return !0;
+   }
+
+   return _install_allegro(system_id, errno_ptr, atexit_ptr);
+})
 #define allegro_init()  install_allegro(SYSTEM_AUTODETECT, &errno, (int (*)(void (*)(void)))atexit)
 AL_FUNC(void, allegro_exit, (void));
 

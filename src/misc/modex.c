@@ -24,7 +24,7 @@
 
 #include "allegro.h"
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintvga.h"
@@ -62,7 +62,7 @@ GFX_VTABLE __modex_vtable =
    _normal_line,
    _fast_line,
    _normal_rectfill,
-   NULL,
+   _soft_triangle,
    _x_draw_sprite,
    _x_draw_sprite,
    _x_draw_sprite_v_flip,
@@ -88,8 +88,26 @@ GFX_VTABLE __modex_vtable =
    _x_masked_blit,
    _x_clear_to_color,
    _pivot_scaled_sprite_flip,
+   NULL,    /* AL_METHOD(void, do_stretch_blit, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked)); */
+   _soft_draw_gouraud_sprite,
    _x_draw_sprite_end,
-   _x_blit_from_memory_end
+   _x_blit_from_memory_end,
+   _soft_polygon,
+   _soft_rect,
+   _soft_circle,
+   _soft_circlefill,
+   _soft_ellipse,
+   _soft_ellipsefill,
+   _soft_arc,
+   _soft_spline,
+   _soft_floodfill,
+
+   _soft_polygon3d,
+   _soft_polygon3d_f,
+   _soft_triangle3d,
+   _soft_triangle3d_f,
+   _soft_quad3d,
+   _soft_quad3d_f
 };
 
 
@@ -123,6 +141,7 @@ GFX_DRIVER gfx_modex =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
+   NULL,                         /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    modex_fetch_mode_list,
    0, 0,
    TRUE,
@@ -1666,5 +1685,10 @@ void _module_init_modex(int system_driver)
 #endif
 
 
+#else      /* ifdef GFX_MODEX */
 
-#endif      /* ifdef GFX_MODEX */
+void split_modex_screen(int line)
+{
+}
+
+#endif

@@ -1,8 +1,13 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to use the 32 bit RGBA translucency
- *    functions to store an alpha channel along with a bitmap graphic.
+ *    This program demonstrates how to use the 32 bit RGBA
+ *    translucency functions to store an alpha channel along with
+ *    a bitmap graphic.  Two images are loaded from disk. One will
+ *    be used for the background and the other as a sprite. The
+ *    example generates an alpha channel for the sprite image,
+ *    composing the 32 bit RGBA bitmap during runtime, and draws
+ *    it at the position of the mouse cursor.
  */
 
 
@@ -58,7 +63,8 @@ int main(int argc, char *argv[])
    /* did the video mode set properly? */
    if (ret != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting %d bit graphics mode\n%s\n", bpp, allegro_error);
+      allegro_message("Error setting %d bit graphics mode\n%s\n", bpp,
+		      allegro_error);
       return 1;
    }
 
@@ -119,16 +125,19 @@ int main(int argc, char *argv[])
    /* darken the background image down a bit */
    drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
    set_multiply_blender(0, 0, 0, 255);
-   rectfill(background, 0, 0, background->w, background->h, makecol(32, 16, 128));
+   rectfill(background, 0, 0, background->w, background->h,
+	    makecol(32, 16, 128));
    solid_mode();
 
    /* create a double buffer bitmap */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
    /* scale the background image to be the same size as the screen */
-   stretch_blit(background, buffer, 0, 0, background->w, background->h, 0, 0, SCREEN_W, SCREEN_H);
+   stretch_blit(background, buffer, 0, 0, background->w, background->h,
+		0, 0, SCREEN_W, SCREEN_H);
 
-   textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1, "%dx%d, %dbpp", SCREEN_W, SCREEN_H, bpp);
+   textprintf_ex(buffer, font, 0, 0, makecol(255, 255, 255), -1,
+		 "%dx%d, %dbpp", SCREEN_W, SCREEN_H, bpp);
 
    destroy_bitmap(background);
    background = create_bitmap(SCREEN_W, SCREEN_H);

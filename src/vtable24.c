@@ -46,7 +46,7 @@ GFX_VTABLE __linear_vtable24 =
    _normal_line,
    _fast_line,
    _normal_rectfill,
-   NULL,
+   _soft_triangle,
    _linear_draw_sprite24,
    _linear_draw_256_sprite24,
    _linear_draw_sprite_v_flip24,
@@ -72,8 +72,26 @@ GFX_VTABLE __linear_vtable24 =
    _linear_masked_blit24,
    _linear_clear_to_color24,
    _pivot_scaled_sprite_flip,
+   NULL,    // AL_METHOD(void, do_stretch_blit, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked))
+   _soft_draw_gouraud_sprite,
    _linear_draw_sprite24_end,
-   _linear_blit24_end
+   _linear_blit24_end,
+   _soft_polygon,
+   _soft_rect,
+   _soft_circle,
+   _soft_circlefill,
+   _soft_ellipse,
+   _soft_ellipsefill,
+   _soft_arc,
+   _soft_spline,
+   _soft_floodfill,
+
+   _soft_polygon3d,
+   _soft_polygon3d_f,
+   _soft_triangle3d,
+   _soft_triangle3d_f,
+   _soft_quad3d,
+   _soft_quad3d_f
 };
 
 

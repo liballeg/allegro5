@@ -30,12 +30,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.1.16 (CVS)
+				       \_/__/     Version 4.1.17 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Jul 29, 2004.
+	     By Shawn Hargreaves, Oct 04, 2004.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -188,7 +188,15 @@ Copyright
    would be nice if you mentioned Allegro somewhere in the credits, but you 
    are not required to do this. We trust you not to abuse our generosity.
 
+   Disclaimer:
 
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+   SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+   FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+   DEALINGS IN THE SOFTWARE.
 
 @heading
 Configuration

@@ -228,6 +228,16 @@ static struct al_exit_func *exit_func_list = NULL;
 
 
 
+/* _get_allegro_version:
+ *  Retrieves the library version.
+ */
+int _get_allegro_version(void)
+{
+   return MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION);
+}
+
+
+
 /* _add_exit_func:
  *  Adds a function to the list that need to be called by allegro_exit().
  */
@@ -285,10 +295,10 @@ static void allegro_exit_stub(void)
 
 
 
-/* install_allegro:
+/* _install_allegro:
  *  Initialises the Allegro library, activating the system driver.
  */
-int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
+int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
 {
    RGB black_rgb = {0, 0, 0, 0};
    char tmp1[64], tmp2[64];

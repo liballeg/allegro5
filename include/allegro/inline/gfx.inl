@@ -84,6 +84,15 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 #endif      /* C vs. inline asm */
 
 
+AL_INLINE(int, is_windowed_mode, (void),
+{
+   ASSERT (gfx_driver);
+
+   return gfx_driver->windowed;
+})
+
+
+
 AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
 {
    ASSERT(bitmap);

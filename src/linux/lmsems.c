@@ -224,7 +224,8 @@ MOUSE_DRIVER mousedrv_linux_ms =
 	__al_linux_mouse_set_speed,
 	__al_linux_mouse_get_mickeys,
 	analyse_data,
-	NULL /* enable_hardware_cursor */
+	NULL, /* enable_hardware_cursor */
+	NULL
 };
 
 MOUSE_DRIVER mousedrv_linux_ims =
@@ -242,5 +243,6 @@ MOUSE_DRIVER mousedrv_linux_ims =
 	__al_linux_mouse_set_speed,
 	__al_linux_mouse_get_mickeys,
 	analyse_data,
-	NULL /* enable_hardware_cursor */
+	NULL, /* enable_hardware_cursor */
+	NULL
 };

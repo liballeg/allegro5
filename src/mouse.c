@@ -36,7 +36,7 @@ MOUSE_DRIVER mousedrv_none =
    "No mouse",
    nomouse_init,
    nomouse_exit,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -71,27 +71,50 @@ int mouse_y_focus = 1;
 #define MOUSE_OFFSCREEN    -4096       /* somewhere to put unwanted cursors */
 
 
-#define DEFAULT_SPRITE_W   10          /* default arrow cursor */
+/* default mouse cursor sizes */
+#define DEFAULT_SPRITE_W   16
 #define DEFAULT_SPRITE_H   16
 
-static char mouse_pointer_data[DEFAULT_SPRITE_H][DEFAULT_SPRITE_W] =
+/* Default cursor shapes */
+/* TODO: add other shapes! */
+static char mouse_arrow_data[DEFAULT_SPRITE_H * DEFAULT_SPRITE_W] =
 {
-   { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
-   { 1, 2, 1, 0, 0, 0, 0, 0, 0, 0 },
-   { 1, 2, 2, 1, 0, 0, 0, 0, 0, 0 },
-   { 1, 2, 2, 2, 1, 0, 0, 0, 0, 0 },
-   { 1, 2, 2, 2, 2, 1, 0, 0, 0, 0 },
-   { 1, 2, 2, 2, 2, 2, 1, 0, 0, 0 },
-   { 1, 2, 2, 2, 2, 2, 2, 1, 0, 0 },
-   { 1, 2, 2, 2, 2, 2, 2, 2, 1, 0 },
-   { 1, 2, 2, 2, 2, 2, 2, 2, 2, 1 },
-   { 1, 2, 2, 2, 2, 2, 1, 1, 1, 0 },
-   { 1, 2, 2, 1, 2, 2, 1, 0, 0, 0 },
-   { 1, 2, 1, 0, 1, 2, 2, 1, 0, 0 },
-   { 0, 1, 0, 0, 1, 2, 2, 1, 0, 0 },
-   { 0, 0, 0, 0, 0, 1, 2, 2, 1, 0 },
-   { 0, 0, 0, 0, 0, 1, 2, 2, 1, 0 },
-   { 0, 0, 0, 0, 0, 0, 1, 1, 0, 0 }
+   2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 1, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+   2, 1, 2, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
+   0, 2, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 
+   0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 
+   0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 
+   0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+static char mouse_busy_data[DEFAULT_SPRITE_H * DEFAULT_SPRITE_W] =
+{
+   0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 2, 2, 1, 1, 2, 2, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0,
+   0, 0, 0, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 0, 0, 0,
+   0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0,
+   0, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 2, 0,
+   0, 2, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 2, 0,
+   2, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 2,
+   2, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 2,
+   0, 2, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 2, 0,
+   0, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 2, 0,
+   0, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0,
+   0, 0, 0, 2, 1, 1, 1, 0, 0, 1, 1, 1, 2, 0, 0, 0,
+   0, 0, 0, 0, 2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 2, 2, 1, 1, 2, 2, 0, 0, 0, 0, 0,
+   0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -101,8 +124,13 @@ BITMAP *mouse_sprite = NULL;	       /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 
+static BITMAP *cursors[NUM_MOUSE_CURSORS];
+
+static int allow_system_cursor;        /* Allow native OS cursor? */
+static int use_system_cursor = FALSE;  /* Use native OS cursor? */
 static int got_hw_cursor = FALSE;      /* hardware pointer available? */
 static int hw_cursor_dirty = FALSE;    /* need to set a new pointer? */
+static int current_cursor = MOUSE_CURSOR_ALLEGRO;
 
 static int mx, my;                     /* previous mouse pointer position */
 static BITMAP *ms = NULL;              /* previous screen data */
@@ -204,7 +232,7 @@ static void draw_mouse(int remove, int add)
 
       if (add) {
 	 blit(_mouse_screen, ms, newmx-mouse_x_focus, newmy-mouse_y_focus, 0, 0, mouse_sprite->w, mouse_sprite->h);
-	 draw_sprite(_mouse_screen, mouse_sprite, newmx-mouse_x_focus, newmy-mouse_y_focus);
+	 draw_sprite(_mouse_screen, cursors[current_cursor], newmx-mouse_x_focus, newmy-mouse_y_focus);
       }
    }
    else
@@ -329,13 +357,15 @@ static void mouse_move(void)
 	 }
       }
       else {
+#ifdef ALLEGRO_DOS
 	 /* bodge to avoid using non legacy 386 asm code inside a timer handler */
 	 int old_capabilities = cpu_capabilities;
 	 cpu_capabilities = 0;
-
+#endif
 	 draw_mouse(TRUE, TRUE);
-
+#ifdef ALLEGRO_DOS
 	 cpu_capabilities = old_capabilities;
+#endif
       }
 
       release_bitmap(_mouse_screen);
@@ -366,7 +396,7 @@ END_OF_FUNCTION(_handle_mouse_input);
  *  Creates the default arrow mouse sprite using the current color depth
  *  and palette.
  */
-static BITMAP *create_mouse_pointer(void)
+static BITMAP *create_mouse_pointer(char *data)
 {
    BITMAP *bmp;
    int x, y;
@@ -376,7 +406,7 @@ static BITMAP *create_mouse_pointer(void)
 
    for (y=0; y<DEFAULT_SPRITE_H; y++) {
       for (x=0; x<DEFAULT_SPRITE_W; x++) {
-	 switch (mouse_pointer_data[y][x]) {
+	 switch (data[x+y*DEFAULT_SPRITE_W]) {
 	    case 1:  col = makecol(255, 255, 255);  break;
 	    case 2:  col = makecol(0, 0, 0);        break;
 	    default: col = bmp->vtable->mask_color; break;
@@ -397,11 +427,12 @@ static BITMAP *create_mouse_pointer(void)
 void set_mouse_sprite(struct BITMAP *sprite)
 {
    BITMAP *old_mouse_screen = _mouse_screen;
+   int am_using_sys_cursor = use_system_cursor;
 
    if (!mouse_driver)
       return;
 
-   if (_mouse_screen)
+   if (_mouse_screen && !am_using_sys_cursor)
       show_mouse(NULL);
 
    if (sprite)
@@ -409,10 +440,12 @@ void set_mouse_sprite(struct BITMAP *sprite)
    else {
       if (_mouse_pointer)
 	 destroy_bitmap(_mouse_pointer);
-      _mouse_pointer = create_mouse_pointer();
+      _mouse_pointer = create_mouse_pointer(mouse_arrow_data);
       mouse_sprite = _mouse_pointer;
    }
 
+   cursors[MOUSE_CURSOR_ALLEGRO] = mouse_sprite;
+   
    lock_bitmap((struct BITMAP*)mouse_sprite);
 
    /* make sure the ms bitmap is big enough */
@@ -433,10 +466,23 @@ void set_mouse_sprite(struct BITMAP *sprite)
    mouse_x_focus = 1;
    mouse_y_focus = 1;
 
-   hw_cursor_dirty = TRUE;
+   if (!am_using_sys_cursor)
+      hw_cursor_dirty = TRUE;
 
-   if (old_mouse_screen)
+   if (old_mouse_screen && !am_using_sys_cursor)
       show_mouse(old_mouse_screen);
+}
+
+
+
+/* select_mouse_cursor:
+ *  Selects the shape of the mouse cursor.
+ */
+void select_mouse_cursor(int cursor)
+{
+   ASSERT(cursor < NUM_MOUSE_CURSORS);
+
+   current_cursor = cursor;
 }
 
 
@@ -474,12 +520,13 @@ void show_mouse(BITMAP *bmp)
 
    remove_int(mouse_move);
 
+   /* Remove the mouse cursor */
    if (_mouse_screen) {
       acquire_bitmap(_mouse_screen);
 
       if (gfx_capabilities & GFX_HW_CURSOR) {
 	 gfx_driver->hide_mouse();
-	 gfx_capabilities &= ~GFX_HW_CURSOR;
+	 gfx_capabilities &= ~(GFX_HW_CURSOR|GFX_SYSTEM_CURSOR);
       }
       else
 	 draw_mouse(TRUE, FALSE);
@@ -489,9 +536,24 @@ void show_mouse(BITMAP *bmp)
 
    _mouse_screen = bmp;
 
-   if (bmp) {
+   if (bmp && (current_cursor!=MOUSE_CURSOR_NONE)) {
       acquire_bitmap(_mouse_screen);
 
+      /* Default system cursor? */
+      if ((current_cursor != MOUSE_CURSOR_ALLEGRO) && allow_system_cursor) {
+         if (mouse_driver && mouse_driver->select_system_cursor) {
+            use_system_cursor = mouse_driver->select_system_cursor(current_cursor);
+            if (use_system_cursor) {
+               gfx_capabilities |= GFX_HW_CURSOR|GFX_SYSTEM_CURSOR;
+               hw_cursor_dirty = FALSE;
+               got_hw_cursor = TRUE;
+            }
+         }
+      } else {
+         use_system_cursor = FALSE;
+      }
+
+      /* Custom hardware cursor? */
       if (hw_cursor_dirty) {
 	 got_hw_cursor = FALSE;
 
@@ -501,13 +563,17 @@ void show_mouse(BITMAP *bmp)
 
 	 hw_cursor_dirty = FALSE;
       }
-
-      if ((got_hw_cursor) && (bmp->vtable == &_screen_vtable))
+      
+      /* Try to display hardware (custom or system) cursor */
+      if ((got_hw_cursor) && (is_same_bitmap(bmp, screen)))
 	 if (gfx_driver->show_mouse(bmp, mx=mouse_x, my=mouse_y) == 0)
 	    gfx_capabilities |= GFX_HW_CURSOR;
 
-      if (!(gfx_capabilities & GFX_HW_CURSOR))
+      /* Draw cursor manually if we can't do that */
+      if (!(gfx_capabilities & GFX_HW_CURSOR)) {
 	 draw_mouse(FALSE, TRUE);
+         use_system_cursor = FALSE;
+      }
 
       release_bitmap(_mouse_screen);
 
@@ -738,12 +804,13 @@ void get_mouse_mickeys(int *mickeyx, int *mickeyy)
 
 /* enable_hardware_cursor:
  *  enabels the hardware cursor on platforms where this needs to be done
- *  explicitly
+ *  explicitly and allows system cursors to be used.
  */
 void enable_hardware_cursor(void)
 {
    if ((mouse_driver) && (mouse_driver->enable_hardware_cursor)) {
       mouse_driver->enable_hardware_cursor(TRUE);
+      allow_system_cursor = TRUE;
       if (is_same_bitmap(_mouse_screen, screen)) {
          BITMAP *bmp = _mouse_screen;
          show_mouse(NULL);
@@ -755,12 +822,14 @@ void enable_hardware_cursor(void)
 
 
 /* disable_hardware_cursor:
- *  disables the hardware cursor on platforms where this interferes with mickeys
+ *  disables the hardware cursor on platforms where this interferes with 
+ *  mickeys and disables system cursors.
  */
 void disable_hardware_cursor(void)
 {
    if ((mouse_driver) && (mouse_driver->enable_hardware_cursor)) {
       mouse_driver->enable_hardware_cursor(FALSE);
+      allow_system_cursor = FALSE;
       if (is_same_bitmap(_mouse_screen, screen)) {
          BITMAP *bmp = _mouse_screen;
          show_mouse(NULL);
@@ -880,6 +949,7 @@ int install_mouse(void)
    LOCK_VARIABLE(mtemp);
    LOCK_VARIABLE(mouse_polled);
    LOCK_VARIABLE(mouse_semaphore);
+   LOCK_VARIABLE(cursors);
    LOCK_FUNCTION(draw_mouse_doublebuffer);
    LOCK_FUNCTION(draw_mouse);
    LOCK_FUNCTION(update_mouse);
@@ -887,6 +957,16 @@ int install_mouse(void)
    LOCK_FUNCTION(poll_mouse);
    LOCK_FUNCTION(mouse_needs_poll);
    LOCK_FUNCTION(_handle_mouse_input);
+   
+   /* Construct mouse pointers */
+   if (!cursors[MOUSE_CURSOR_ARROW])
+      cursors[MOUSE_CURSOR_ARROW] = create_mouse_pointer(mouse_arrow_data);
+   if (!cursors[MOUSE_CURSOR_BUSY])
+      cursors[MOUSE_CURSOR_BUSY] = create_mouse_pointer(mouse_busy_data);
+   if (!cursors[MOUSE_CURSOR_QUESTION])
+      cursors[MOUSE_CURSOR_QUESTION] = create_mouse_pointer(mouse_arrow_data);
+   if (!cursors[MOUSE_CURSOR_EDIT])
+      cursors[MOUSE_CURSOR_EDIT] = create_mouse_pointer(mouse_arrow_data);
 
    if (system_driver->mouse_drivers)
       driver_list = system_driver->mouse_drivers();
@@ -945,6 +1025,8 @@ int install_mouse(void)
    mouse_polled = (mouse_driver->poll) ? TRUE : FALSE;
 
    _mouse_installed = TRUE;
+   
+   disable_hardware_cursor();
 
    set_mouse_etc();
    _add_exit_func(remove_mouse);

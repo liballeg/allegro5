@@ -1,12 +1,19 @@
 /*
  *    Example program for the Allegro library, by Grzegorz Adam Hankiewicz.
  *
- *    This program demonstrates how to create custom graphic effects with
- *    the create_color_table function, this time a greyscale effect.
+ *    This program demonstrates how to create custom graphic effects
+ *    with the create_color_table function. Allegro drawing routines
+ *    are affected by any color table you might have set up. In
+ *    the first part of this example, a greyscale color table is
+ *    set. The result is that a simple rectfill call, instead of
+ *    drawing a rectangle with color zero, uses the already drawn
+ *    pixels to determine the pixel to be drawn (read the comment
+ *    of return_grey_color() for a precise description of the
+ *    algorithm). In the second part of the test, the color table
+ *    is changed to be an inverse table, meaning that any pixel
+ *    drawn will be shown as its color values had been inverted.
  */
 
-
-#include <stdio.h>
 
 #include "allegro.h"
 
@@ -21,19 +28,6 @@ COLOR_MAP greyscale_table, negative_table;
 PALETTE pal;
 BITMAP *background;
 BITMAP *temp;
-
-
-
-/* progress indicator for the color table calculations */
-void callback_func(int pos)
-{
-   #ifdef ALLEGRO_CONSOLE_OK
-
-      printf(".");
-      fflush(stdout);
-
-   #endif
-}
 
 
 
@@ -72,8 +66,8 @@ void return_grey_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 
 void return_negative_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 {
-   /* to get the negative color, substract the color values of red, green and
-    * blue from the full (63) color value
+   /* To get the negative color, substract the color values of red, green
+    * and blue from the full (63) color value.
     */
    rgb->r = 63-pal[y].r;
    rgb->g = 63-pal[y].g;
@@ -86,19 +80,20 @@ void generate_background(void)
 {
    int i;
 
-   /* first get some usual colors */
+   /* First get some usual colors. */
    generate_332_palette(pal);
 
-   /* now remap the first 64 for a perfect greyscale gradient */
+   /* Now remap the first 64 for a perfect greyscale gradient. */
    for (i=0; i<64; i++) {
       pal[i].r = i;
       pal[i].g = i;
       pal[i].b = i;
    }
 
-   /* draws some things on the screen using not-greyscale colors */
+   /* Draws some things on the screen using not-greyscale colors. */
    for (i=0; i<3000; i++)
-      circlefill(background, AL_RAND()%320, AL_RAND()%200, AL_RAND()%25, 64+AL_RAND()%192);
+      circlefill(background, AL_RAND() % 320, AL_RAND() % 200,
+		 AL_RAND() % 25, 64 + AL_RAND() % 192);
 }
 
 
@@ -116,43 +111,28 @@ int main(void)
 
    generate_background();
 
-   /* this isn't needed, but it speeds up the color table calculations */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("Generating RGB Table (3.25 lines to go)\n");
-   #endif
-
-   create_rgb_table(&rgb_table, pal, callback_func);
+   /* This isn't needed, but it speeds up the color table calculations. */
+   create_rgb_table(&rgb_table, pal, NULL);
    rgb_map = &rgb_table;
 
-   /* build a color lookup table for greyscale effect */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\nGenerating Greyscale Table (3.25 lines to go)\n");
-   #endif
+   /* Build a color lookup table for greyscale effect. */
+   create_color_table(&greyscale_table, pal, return_grey_color, NULL);
 
-   create_color_table(&greyscale_table, pal, return_grey_color, callback_func);
-
-   /* build a color lookup table for negative effect */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\nGenerating Negative Table (3.25 lines to go)\n");
-   #endif
-
-   create_color_table(&negative_table, pal, return_negative_color, callback_func);
-
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\n");
-   #endif
+   /* Build a color lookup table for negative effect. */
+   create_color_table(&negative_table, pal, return_negative_color, NULL);
 
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
 
    set_palette(pal);
 
-   /* we have set the drawing mode to TRANS. This makes all the drawing
+   /* We have set the drawing mode to TRANS. This makes all the drawing
     * functions use the general color_map table, which is _NOT_ translucent,
     * since we are using a custom color_map table.
     */
@@ -178,7 +158,8 @@ int main(void)
 	 deltay *= -1;
 
       blit(background, temp, 0, 0, 0, 0, 320, 200);
-      textout_centre_ex(temp, font, "Greyscale effect", SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 255), -1);
+      textout_centre_ex(temp, font, "Greyscale effect",
+			SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 255), -1);
       rectfill(temp, x, y, x+50, y+50, 0);
       vsync();
       blit(temp, screen, 0, 0, 0, 0, 320, 200);
@@ -186,18 +167,20 @@ int main(void)
 
    clear_keybuf();
 
-   /* now it's time for the negative part. The negative example is easier to
+   /* Now it's time for the negative part. The negative example is easier to
     * see with greyscale colors. Therefore we will change the color of the
     * background to a greyscale one, but only in a restricted area...
     */
 
-   rectfill(background, SCREEN_H/4, SCREEN_H/4, background->w-SCREEN_H/4, background->h-SCREEN_H/4, 0);
+   rectfill(background, SCREEN_H/4, SCREEN_H/4,
+	    background->w-SCREEN_H/4, background->h-SCREEN_H/4, 0);
 
    /* this should go inside the next loop, but since we won't use the
     * background image any more, we can optimize it's speed printing the
     * text now.
     */
-   textout_centre_ex(background, font, "Negative effect", SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0), -1);
+   textout_centre_ex(background, font, "Negative effect",
+		     SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0), -1);
 
    /* switch the active color table... */
    color_map = &negative_table;

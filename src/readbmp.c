@@ -102,7 +102,7 @@ int save_bitmap(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
    for (iter = bitmap_type_list; iter; iter = iter->next) {
       if (stricmp(iter->ext, aext) == 0) {
-	 if (iter->load)
+	 if (iter->save)
 	    return iter->save(filename, bmp, pal);
 	 return 1;
       }

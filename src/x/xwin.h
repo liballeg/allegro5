@@ -73,5 +73,10 @@ AL_FUNC(void, _xwin_drawing_mode, (void));
 AL_FUNC(void, _xwin_lock, (BITMAP *bmp));
 AL_FUNC(void, _xwin_unlock, (BITMAP *bmp));
 
+/* Defined in xkeyboard.c. */
+AL_FUNC(void, _al_xwin_keyboard_handler, (XKeyEvent *event, bool dga2_hack));
+AL_FUNC(void, _al_xwin_get_keyboard_mapping, (void));
+AL_FUNC(void, _al_xwin_keyboard_focus_handler, (XFocusChangeEvent *event));
+
 #endif /* !__bma_xwin_h */
 

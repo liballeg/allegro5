@@ -181,7 +181,7 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SR
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
 
-PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon keyconf
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
@@ -189,6 +189,7 @@ dibsound: tests/win/dibsound.exe
 dxwindow: tests/win/dxwindow.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
+keyconf: setup/keyconf.exe
 
 
 

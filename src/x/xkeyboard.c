@@ -12,9 +12,14 @@
  *
  *      By Elias Pschernig.
  *
+ *      Modified for the new keyboard API by Peter Wang.
+ *
  *      See readme.txt for copyright information.
  */
 
+#define ALLEGRO_NO_COMPATIBILITY
+
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -25,9 +30,16 @@
 #include <X11/Xproto.h>
 
 #include "allegro.h"
-#include "xalleg.h"
 #include "allegro/internal/aintern.h"
-#include "allegro/platform/aintosx.h"
+#include ALLEGRO_INTERNAL_HEADER
+#include "allegro/internal/aintern2.h"
+#include "xwin.h"
+
+/*----------------------------------------------------------------------*/
+static void handle_key_press(int mycode, int unichar, unsigned int modifiers);
+static void handle_key_release(int mycode);
+static int _key_shifts;
+/*----------------------------------------------------------------------*/
 
 // TODO: Add "Ctrl-Alt-End" shortcut
 // TODO: Once this driver is deemed more stable, reduce debugging output.
@@ -38,30 +50,30 @@ static XIC xic = NULL;
 #endif
 static XModifierKeymap *xmodmap = NULL;
 static int xkeyboard_installed = 0;
-static int used[KEY_MAX];
+static int used[AL_KEY_MAX];
 static int sym_per_key;
 static int min_keycode, max_keycode;
 static KeySym *keysyms = NULL;
 
 /* This table can be ammended to provide more reasonable defaults for
  * mappings other than US/UK. They are used to map X11 KeySyms as found in
- * X11/keysym.h to Allegro's KEY_* codes. This will only work well on US/UK
- * keyboards since Allegro simply doesn't have KEY_* codes for non US/UK
+ * X11/keysym.h to Allegro's AL_KEY_* codes. This will only work well on US/UK
+ * keyboards since Allegro simply doesn't have AL_KEY_* codes for non US/UK
  * keyboards. So with other mappings, the unmapped keys will be distributed
- * arbitrarily to the remaining KEY_* codes.
+ * arbitrarily to the remaining AL_KEY_* codes.
  *
- * TODO: Better to just map them to KEY_UNKNOWN1 KEY_UNKNOWN2 ...
+ * TODO: Better to just map them to AL_KEY_UNKNOWN1 AL_KEY_UNKNOWN2 ...
  *
  * Double mappings should be avoided, else they can lead to different keys
- * producing the same KEY_* code on some mappings.
+ * producing the same AL_KEY_* code on some mappings.
  *
  * In cases where there is no other way to detect a key, since we have no
- * ASCII applied to it, like KEY_LEFT or KEY_PAUSE, multiple mappings should
+ * ASCII applied to it, like AL_KEY_LEFT or AL_KEY_PAUSE, multiple mappings should
  * be ok though. This table will never be able to be 100% perfect, so just
  * try to make it work for as many as possible, using additional hacks in
  * some cases. There is also still the possibility to override keys with
  * the [xkeyboard] config section, so users can always re-map keys. (E.g.
- * to play an Allegro game which hard-coded KEY_Y and KEY_X for left and
+ * to play an Allegro game which hard-coded AL_KEY_Y and AL_KEY_X for left and
  * right.)
  */
 static struct {
@@ -69,174 +81,174 @@ static struct {
    int allegro_key;
 }
 translation_table[] = {
-   {XK_a, KEY_A},
-   {XK_b, KEY_B},
-   {XK_c, KEY_C},
-   {XK_d, KEY_D},
-   {XK_e, KEY_E},
-   {XK_f, KEY_F},
-   {XK_g, KEY_G},
-   {XK_h, KEY_H},
-   {XK_i, KEY_I},
-   {XK_j, KEY_J},
-   {XK_k, KEY_K},
-   {XK_l, KEY_L},
-   {XK_m, KEY_M},
-   {XK_n, KEY_N},
-   {XK_o, KEY_O},
-   {XK_p, KEY_P},
-   {XK_q, KEY_Q},
-   {XK_r, KEY_R},
-   {XK_s, KEY_S},
-   {XK_t, KEY_T},
-   {XK_u, KEY_U},
-   {XK_v, KEY_V},
-   {XK_w, KEY_W},
-   {XK_x, KEY_X},
-   {XK_y, KEY_Y},
-   {XK_z, KEY_Z},
-   {XK_0, KEY_0},
-   {XK_1, KEY_1},
-   {XK_2, KEY_2},
-   {XK_3, KEY_3},
-   {XK_4, KEY_4},
-   {XK_5, KEY_5},
-   {XK_6, KEY_6},
-   {XK_7, KEY_7},
-   {XK_8, KEY_8},
-   {XK_9, KEY_9},
+   {XK_a, AL_KEY_A},
+   {XK_b, AL_KEY_B},
+   {XK_c, AL_KEY_C},
+   {XK_d, AL_KEY_D},
+   {XK_e, AL_KEY_E},
+   {XK_f, AL_KEY_F},
+   {XK_g, AL_KEY_G},
+   {XK_h, AL_KEY_H},
+   {XK_i, AL_KEY_I},
+   {XK_j, AL_KEY_J},
+   {XK_k, AL_KEY_K},
+   {XK_l, AL_KEY_L},
+   {XK_m, AL_KEY_M},
+   {XK_n, AL_KEY_N},
+   {XK_o, AL_KEY_O},
+   {XK_p, AL_KEY_P},
+   {XK_q, AL_KEY_Q},
+   {XK_r, AL_KEY_R},
+   {XK_s, AL_KEY_S},
+   {XK_t, AL_KEY_T},
+   {XK_u, AL_KEY_U},
+   {XK_v, AL_KEY_V},
+   {XK_w, AL_KEY_W},
+   {XK_x, AL_KEY_X},
+   {XK_y, AL_KEY_Y},
+   {XK_z, AL_KEY_Z},
+   {XK_0, AL_KEY_0},
+   {XK_1, AL_KEY_1},
+   {XK_2, AL_KEY_2},
+   {XK_3, AL_KEY_3},
+   {XK_4, AL_KEY_4},
+   {XK_5, AL_KEY_5},
+   {XK_6, AL_KEY_6},
+   {XK_7, AL_KEY_7},
+   {XK_8, AL_KEY_8},
+   {XK_9, AL_KEY_9},
 
    /* Double mappings for numeric keyboard.
     * If an X server actually uses both at the same time, Allegro will
     * detect them as the same. But normally, an X server just reports it as
-    * either of them, and therefore we always get the keys as KEY_*_PAD.
+    * either of them, and therefore we always get the keys as AL_KEY_PAD_*.
     */
-   {XK_KP_0, KEY_0_PAD},
-   {XK_KP_Insert, KEY_0_PAD},
-   {XK_KP_1, KEY_1_PAD},
-   {XK_KP_End, KEY_1_PAD},
-   {XK_KP_2, KEY_2_PAD},
-   {XK_KP_Down, KEY_2_PAD},
-   {XK_KP_3, KEY_3_PAD},
-   {XK_KP_Page_Down, KEY_3_PAD},
-   {XK_KP_4, KEY_4_PAD},
-   {XK_KP_Left, KEY_4_PAD},
-   {XK_KP_5, KEY_5_PAD},
-   {XK_KP_Begin, KEY_5_PAD},
-   {XK_KP_6, KEY_6_PAD},
-   {XK_KP_Right, KEY_6_PAD},
-   {XK_KP_7, KEY_7_PAD},
-   {XK_KP_Home, KEY_7_PAD},
-   {XK_KP_8, KEY_8_PAD},
-   {XK_KP_Up, KEY_8_PAD},
-   {XK_KP_9, KEY_9_PAD},
-   {XK_KP_Page_Up, KEY_9_PAD},
-   {XK_KP_Delete, KEY_DEL_PAD},
-   {XK_KP_Decimal, KEY_DEL_PAD},
+   {XK_KP_0, AL_KEY_PAD_0},
+   {XK_KP_Insert, AL_KEY_PAD_0},
+   {XK_KP_1, AL_KEY_PAD_1},
+   {XK_KP_End, AL_KEY_PAD_1},
+   {XK_KP_2, AL_KEY_PAD_2},
+   {XK_KP_Down, AL_KEY_PAD_2},
+   {XK_KP_3, AL_KEY_PAD_3},
+   {XK_KP_Page_Down, AL_KEY_PAD_3},
+   {XK_KP_4, AL_KEY_PAD_4},
+   {XK_KP_Left, AL_KEY_PAD_4},
+   {XK_KP_5, AL_KEY_PAD_5},
+   {XK_KP_Begin, AL_KEY_PAD_5},
+   {XK_KP_6, AL_KEY_PAD_6},
+   {XK_KP_Right, AL_KEY_PAD_6},
+   {XK_KP_7, AL_KEY_PAD_7},
+   {XK_KP_Home, AL_KEY_PAD_7},
+   {XK_KP_8, AL_KEY_PAD_8},
+   {XK_KP_Up, AL_KEY_PAD_8},
+   {XK_KP_9, AL_KEY_PAD_9},
+   {XK_KP_Page_Up, AL_KEY_PAD_9},
+   {XK_KP_Delete, AL_KEY_PAD_DELETE},
+   {XK_KP_Decimal, AL_KEY_PAD_DELETE},
 
    /* Double mapping!
     * Same as above - but normally, the X server just reports one or the
     * other for the Pause key, and the other is not reported for any key.
     */
-   {XK_Pause, KEY_PAUSE},
-   {XK_Break, KEY_PAUSE},
+   {XK_Pause, AL_KEY_PAUSE},
+   {XK_Break, AL_KEY_PAUSE},
 
-   {XK_F1, KEY_F1},
-   {XK_F2, KEY_F2},
-   {XK_F3, KEY_F3},
-   {XK_F4, KEY_F4},
-   {XK_F5, KEY_F5},
-   {XK_F6, KEY_F6},
-   {XK_F7, KEY_F7},
-   {XK_F8, KEY_F8},
-   {XK_F9, KEY_F9},
-   {XK_F10, KEY_F10},
-   {XK_F11, KEY_F11},
-   {XK_F12, KEY_F12},
-   {XK_Escape, KEY_ESC},
-   {XK_grave, KEY_TILDE}, /* US left of 1 */
-   {XK_minus, KEY_MINUS}, /* US right of 0 */
-   {XK_equal, KEY_EQUALS}, /* US 2 right of 0 */
-   {XK_BackSpace, KEY_BACKSPACE},
-   {XK_Tab, KEY_TAB},
-   {XK_bracketleft, KEY_OPENBRACE}, /* US right of P */
-   {XK_bracketright, KEY_CLOSEBRACE}, /* US 2 right of P */
-   {XK_Return, KEY_ENTER},
-   {XK_semicolon, KEY_COLON}, /* US right of L */
-   {XK_apostrophe, KEY_QUOTE}, /* US 2 right of L */
-   {XK_backslash, KEY_BACKSLASH}, /* US 3 right of L */
-   {XK_less, KEY_BACKSLASH2}, /* US left of Y */
-   {XK_comma, KEY_COMMA}, /* US right of M */
-   {XK_period, KEY_STOP}, /* US 2 right of M */
-   {XK_slash, KEY_SLASH}, /* US 3 right of M */
-   {XK_space, KEY_SPACE},
-   {XK_Insert, KEY_INSERT},
-   {XK_Delete, KEY_DEL},
-   {XK_Home, KEY_HOME},
-   {XK_End, KEY_END},
-   {XK_Page_Up, KEY_PGUP},
-   {XK_Page_Down, KEY_PGDN},
-   {XK_Left, KEY_LEFT},
-   {XK_Right, KEY_RIGHT},
-   {XK_Up, KEY_UP},
-   {XK_Down, KEY_DOWN},
-   {XK_KP_Divide, KEY_SLASH_PAD},
-   {XK_KP_Multiply, KEY_ASTERISK},
-   {XK_KP_Subtract, KEY_MINUS_PAD},
-   {XK_KP_Add, KEY_PLUS_PAD},
-   {XK_KP_Enter, KEY_ENTER_PAD},
-   {XK_Print, KEY_PRTSCR},
+   {XK_F1, AL_KEY_F1},
+   {XK_F2, AL_KEY_F2},
+   {XK_F3, AL_KEY_F3},
+   {XK_F4, AL_KEY_F4},
+   {XK_F5, AL_KEY_F5},
+   {XK_F6, AL_KEY_F6},
+   {XK_F7, AL_KEY_F7},
+   {XK_F8, AL_KEY_F8},
+   {XK_F9, AL_KEY_F9},
+   {XK_F10, AL_KEY_F10},
+   {XK_F11, AL_KEY_F11},
+   {XK_F12, AL_KEY_F12},
+   {XK_Escape, AL_KEY_ESCAPE},
+   {XK_grave, AL_KEY_TILDE}, /* US left of 1 */
+   {XK_minus, AL_KEY_MINUS}, /* US right of 0 */
+   {XK_equal, AL_KEY_EQUALS}, /* US 2 right of 0 */
+   {XK_BackSpace, AL_KEY_BACKSPACE},
+   {XK_Tab, AL_KEY_TAB},
+   {XK_bracketleft, AL_KEY_OPENBRACE}, /* US right of P */
+   {XK_bracketright, AL_KEY_CLOSEBRACE}, /* US 2 right of P */
+   {XK_Return, AL_KEY_ENTER},
+   {XK_semicolon, AL_KEY_SEMICOLON}, /* US right of L */
+   {XK_apostrophe, AL_KEY_QUOTE}, /* US 2 right of L */
+   {XK_backslash, AL_KEY_BACKSLASH}, /* US 3 right of L */
+   {XK_less, AL_KEY_BACKSLASH2}, /* US left of Y */
+   {XK_comma, AL_KEY_COMMA}, /* US right of M */
+   {XK_period, AL_KEY_FULLSTOP}, /* US 2 right of M */
+   {XK_slash, AL_KEY_SLASH}, /* US 3 right of M */
+   {XK_space, AL_KEY_SPACE},
+   {XK_Insert, AL_KEY_INSERT},
+   {XK_Delete, AL_KEY_DELETE},
+   {XK_Home, AL_KEY_HOME},
+   {XK_End, AL_KEY_END},
+   {XK_Page_Up, AL_KEY_PGUP},
+   {XK_Page_Down, AL_KEY_PGDN},
+   {XK_Left, AL_KEY_LEFT},
+   {XK_Right, AL_KEY_RIGHT},
+   {XK_Up, AL_KEY_UP},
+   {XK_Down, AL_KEY_DOWN},
+   {XK_KP_Divide, AL_KEY_PAD_SLASH},
+   {XK_KP_Multiply, AL_KEY_PAD_ASTERISK},
+   {XK_KP_Subtract, AL_KEY_PAD_MINUS},
+   {XK_KP_Add, AL_KEY_PAD_PLUS},
+   {XK_KP_Enter, AL_KEY_PAD_ENTER},
+   {XK_Print, AL_KEY_PRINTSCREEN},
 
-   //{, KEY_ABNT_C1},
-   //{, KEY_YEN},
-   //{, KEY_KANA},
-   //{, KEY_CONVERT},
-   //{, KEY_NOCONVERT},
-   //{, KEY_AT},
-   //{, KEY_CIRCUMFLEX},
-   //{, KEY_COLON2},
-   //{, KEY_KANJI},
-   {XK_KP_Equal, KEY_EQUALS_PAD},  /* MacOS X */
-   //{, KEY_BACKQUOTE},  /* MacOS X */
-   //{, KEY_SEMICOLON},  /* MacOS X */
-   //{, KEY_COMMAND},  /* MacOS X */
+   //{, AL_KEY_ABNT_C1},
+   //{, AL_KEY_YEN},
+   //{, AL_KEY_KANA},
+   //{, AL_KEY_CONVERT},
+   //{, AL_KEY_NOCONVERT},
+   //{, AL_KEY_AT},
+   //{, AL_KEY_CIRCUMFLEX},
+   //{, AL_KEY_COLON2},
+   //{, AL_KEY_KANJI},
+   {XK_KP_Equal, AL_KEY_EQUALS_PAD},  /* MacOS X */
+   //{, AL_KEY_BACKQUOTE},  /* MacOS X */
+   //{, AL_KEY_SEMICOLON},  /* MacOS X */
+   //{, AL_KEY_COMMAND},  /* MacOS X */
 
-   {XK_Shift_L, KEY_LSHIFT},
-   {XK_Shift_R, KEY_RSHIFT},
-   {XK_Control_L, KEY_LCONTROL},
-   {XK_Control_R, KEY_RCONTROL},
-   {XK_Alt_L, KEY_ALT},
+   {XK_Shift_L, AL_KEY_LSHIFT},
+   {XK_Shift_R, AL_KEY_RSHIFT},
+   {XK_Control_L, AL_KEY_LCTRL},
+   {XK_Control_R, AL_KEY_RCTRL},
+   {XK_Alt_L, AL_KEY_ALT},
 
    /* Double mappings. This is a bit of a problem, since you can configure
     * X11 differently to what report for those keys.
     */
-   {XK_Alt_R, KEY_ALTGR},
-   {XK_ISO_Level3_Shift, KEY_ALTGR},
-   {XK_Meta_L, KEY_LWIN},
-   {XK_Super_L, KEY_LWIN},
-   {XK_Meta_R, KEY_RWIN},
-   {XK_Super_R, KEY_RWIN},
+   {XK_Alt_R, AL_KEY_ALTGR},
+   {XK_ISO_Level3_Shift, AL_KEY_ALTGR},
+   {XK_Meta_L, AL_KEY_LWIN},
+   {XK_Super_L, AL_KEY_LWIN},
+   {XK_Meta_R, AL_KEY_RWIN},
+   {XK_Super_R, AL_KEY_RWIN},
 
-   {XK_Menu, KEY_MENU},
-   {XK_Scroll_Lock, KEY_SCRLOCK},
-   {XK_Num_Lock, KEY_NUMLOCK},
-   {XK_Caps_Lock, KEY_CAPSLOCK}
+   {XK_Menu, AL_KEY_MENU},
+   {XK_Scroll_Lock, AL_KEY_SCROLLLOCK},
+   {XK_Num_Lock, AL_KEY_NUMLOCK},
+   {XK_Caps_Lock, AL_KEY_CAPSLOCK}
 };
 
 /* Table of: Allegro's modifier flag, assiciated X11 flag, toggle method. */
 static int modifier_flags[8][3] = {
-   {KB_SHIFT_FLAG, ShiftMask, 0},
-   {KB_CAPSLOCK_FLAG, LockMask, 1},
-   {KB_CTRL_FLAG, ControlMask, 0},
-   {KB_ALT_FLAG, Mod1Mask, 0},
-   {KB_NUMLOCK_FLAG, Mod2Mask, 1},
-   {KB_SCROLOCK_FLAG, Mod3Mask, 1},
-   {KB_LWIN_FLAG | KB_RWIN_FLAG, Mod4Mask, 0}, /* Should we use only one? */
-   {KB_MENU_FLAG, Mod5Mask, 0} /* AltGr */
+   {AL_KEYMOD_SHIFT, ShiftMask, 0},
+   {AL_KEYMOD_CAPSLOCK, LockMask, 1},
+   {AL_KEYMOD_CTRL, ControlMask, 0},
+   {AL_KEYMOD_ALT, Mod1Mask, 0},
+   {AL_KEYMOD_NUMLOCK, Mod2Mask, 1},
+   {AL_KEYMOD_SCROLLLOCK, Mod3Mask, 1},
+   {AL_KEYMOD_LWIN | AL_KEYMOD_RWIN, Mod4Mask, 0}, /* Should we use only one? */
+   {AL_KEYMOD_MENU, Mod5Mask, 0} /* AltGr */
 };
 
 /* Table of key names. */
-static char AL_CONST *key_names[1 + KEY_MAX];
+static char AL_CONST *key_names[1 + AL_KEY_MAX];
 
 
 
@@ -325,23 +337,25 @@ static void dga2_update_shifts(XKeyEvent *event)
 static int find_unknown_key_assignment (int i)
 {
    int j;
-   for (j = 1; j < KEY_MAX; j++) {
+   for (j = 1; j < AL_KEY_MAX; j++) {
       if (!used[j]) {
 	 AL_CONST char *str;
 	 _xwin.keycode_to_scancode[i] = j;
 	 str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode)]);
 	 if (str)
 	    key_names[j] = str;
-	 else
-	    key_names[j] = _keyboard_common_names[j];
+	 else {
+	    ASSERT(false);
+	    key_names[j] = _al_keyboard_common_names[j];
+	 }
 	 used[j] = 1;
 	 break;
       }
    }
 
-   if (j == KEY_MAX) {
+   if (j == AL_KEY_MAX) {
       TRACE ("Fatal: You have more keys reported by X than Allegro's "
-	     "maximum of %i keys. Please send a bug report.\n", KEY_MAX);
+	     "maximum of %i keys. Please send a bug report.\n", AL_KEY_MAX);
       _xwin.keycode_to_scancode[i] = 0;
    }
 
@@ -356,17 +370,14 @@ static int find_unknown_key_assignment (int i)
 
 
 
-/* _xwin_keyboard_handler:
+/* _al_xwin_keyboard_handler:
  *  Keyboard "interrupt" handler.
  */
-void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
+void _al_xwin_keyboard_handler(XKeyEvent *event, bool dga2_hack)
 {
    int keycode;
    if (!xkeyboard_installed)
       return;
-
-   if (_xwin_keyboard_callback)
-      (*_xwin_keyboard_callback)(event->type == KeyPress ? 1 : 0, event->keycode);
 
    keycode = _xwin.keycode_to_scancode[event->keycode];
    if (keycode == -1)
@@ -403,38 +414,42 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 	  * should not be added to the keyboard buffer (parameter -1) if it was
           * filtered out as a compose key, or if it is a modifier key.
 	  */
-	 if (r || keycode >= KEY_MODIFIERS)
+	 if (r || keycode >= AL_KEY_MODIFIERS)
 	    unicode = -1;
 	 else {
 	    /* Historically, Allegro expects to get only the scancode when Alt is
 	     * held down.
 	     */
-	    if (_key_shifts & KB_ALT_FLAG)
+	    if (_key_shifts & AL_KEYMOD_ALT)
 	       unicode = 0;
          }
-	 _handle_key_press(unicode, keycode);
+	 handle_key_press(keycode, unicode, _key_shifts);
       }
    }
    else { /* Key release. */
-      _handle_key_release(keycode);
+      handle_key_release(keycode);
    }
 }
 
 
 
-/* _xwin_keyboard_focus_handler:
+/* _al_xwin_keyboard_focus_handler:
  *  Handles switching of X keyboard focus.
  */
-void _xwin_keyboard_focus_handler (XFocusChangeEvent *event)
+void _al_xwin_keyboard_focus_handler (XFocusChangeEvent *event)
 {
+   /* TODO */
+
+#if 0
    /* Simulate release of all keys on focus out. */
    if (event->type == FocusOut) {
       int i;
-      for (i = 0; i < KEY_MAX; i++) {
+      for (i = 0; i < AL_KEY_MAX; i++) {
 	 if (key[i])
-	    _handle_key_release(i);
+	    handle_key_release(i);
       }
    }
+#endif
 }
 
 
@@ -461,26 +476,27 @@ static int find_allegro_key(KeySym sym)
  */
 static AL_CONST char *x_scancode_to_name(int scancode)
 {
-   ASSERT (scancode >= 0 && scancode < KEY_MAX);
+   ASSERT (scancode >= 0 && scancode < AL_KEY_MAX);
    return key_names[scancode];
 }
 
 
 
-/* x_get_keyboard_mapping:
- *  Generate a mapping from X11 keycodes to Allegro KEY_* codes. We have
- *  two goals: Every keypress should be mapped to a distinct Allegro KEY_*
- *  code. And we want the KEY_* codes to match the pressed
+/* al_xwin_get_keyboard_mapping:
+ *  Generate a mapping from X11 keycodes to Allegro AL_KEY_* codes. We have
+ *  two goals: Every keypress should be mapped to a distinct Allegro AL_KEY_*
+ *  code. And we want the AL_KEY_* codes to match the pressed
  *  key to some extent. To do the latter, the X11 KeySyms produced by a key
  *  are examined. If a match is found in the table above, the mapping is
  *  added to the mapping table. If no known KeySym is found for a key (or
  *  the same KeySym is found for more keys) - the remaining keys are
- *  distributed arbitrarily to the remaining KEY_* codes.
+ *  distributed arbitrarily to the remaining AL_KEY_* codes.
  *
  *  In a future version, this could be simplified by mapping *all* the X11
- *  KeySyms to KEY_* codes.
+ *  KeySyms to AL_KEY_* codes.
  */
-void _xwin_get_keyboard_mapping(void)
+
+static void private_get_keyboard_mapping(void)
 {
    int i;
    int count;
@@ -488,8 +504,6 @@ void _xwin_get_keyboard_mapping(void)
 
    memset (used, 0, sizeof used);
    memset (_xwin.keycode_to_scancode, 0, sizeof _xwin.keycode_to_scancode);
-
-   XLOCK ();
 
    XDisplayKeycodes(_xwin.display, &min_keycode, &max_keycode);
    count = 1 + max_keycode - min_keycode;
@@ -510,7 +524,7 @@ void _xwin_get_keyboard_mapping(void)
 
       TRACE ("key [%i: %s %s]", i, XKeysymToString(sym), XKeysymToString(sym2));
 
-      /* Hack for French keyboards, to correctly map KEY_0 to KEY_9. */
+      /* Hack for French keyboards, to correctly map AL_KEY_0 to AL_KEY_9. */
       if (sym2 >= XK_0 && sym2 <= XK_9)
       {
 	 allegro_key = find_allegro_key(sym2);
@@ -570,7 +584,7 @@ void _xwin_get_keyboard_mapping(void)
    }
 
    /* The [xkeymap] section can be useful, e.g. if trying to play a
-    * game which has X and Y hardcoded as KEY_X and KEY_Y to mean
+    * game which has X and Y hardcoded as AL_KEY_X and AL_KEY_Y to mean
     * left/right movement, but on the X11 keyboard X and Y are far apart.
     * For normal use, a user never should have to touch [xkeymap] anymore
     * though, and proper written programs will not hardcode such mappings.
@@ -593,8 +607,13 @@ void _xwin_get_keyboard_mapping(void)
 	 }
       }
    }
+}
 
-   XUNLOCK ();
+void _al_xwin_get_keyboard_mapping(void)
+{
+   XLOCK();
+   private_get_keyboard_mapping();
+   XUNLOCK();
 }
 
 
@@ -606,21 +625,20 @@ static void x_set_leds(int leds)
 {
    XKeyboardControl values;
 
-   if (!xkeyboard_installed)
-      return;
+   ASSERT(xkeyboard_installed);
 
    XLOCK();
 
    values.led = 1;
-   values.led_mode = leds & KB_NUMLOCK_FLAG ? LedModeOn : LedModeOff;
+   values.led_mode = leds & AL_KEYMOD_NUMLOCK ? LedModeOn : LedModeOff;
    XChangeKeyboardControl(_xwin.display, KBLed | KBLedMode, &values);
 
    values.led = 2;
-   values.led_mode = leds & KB_CAPSLOCK_FLAG ? LedModeOn : LedModeOff;
+   values.led_mode = leds & AL_KEYMOD_CAPSLOCK ? LedModeOn : LedModeOff;
    XChangeKeyboardControl(_xwin.display, KBLed | KBLedMode, &values);
 
    values.led = 3;
-   values.led_mode = leds & KB_SCROLOCK_FLAG ? LedModeOn : LedModeOff;
+   values.led_mode = leds & AL_KEYMOD_SCROLLLOCK ? LedModeOn : LedModeOff;
    XChangeKeyboardControl(_xwin.display, KBLed | KBLedMode, &values);
 
    XUNLOCK();
@@ -644,7 +662,7 @@ static int x_keyboard_init(void)
    if (xkeyboard_installed)
       return 0;
 
-   memcpy (key_names, _keyboard_common_names, sizeof key_names);
+   memcpy (key_names, _al_keyboard_common_names, sizeof key_names);
 
    XLOCK ();
 
@@ -700,7 +718,7 @@ static int x_keyboard_init(void)
    }
 #endif
 
-   _xwin_get_keyboard_mapping ();
+   private_get_keyboard_mapping ();
 
    XUNLOCK ();
 
@@ -751,27 +769,221 @@ static void x_keyboard_exit(void)
 
 
 
-static KEYBOARD_DRIVER keyboard_x =
+/*----------------------------------------------------------------------
+ *
+ * Supports for new API.  For now this code is kept separate from the
+ * above to ease merging changes made in the trunk.
+ *
+ */
+
+
+typedef struct AL_KEYBOARD_XWIN
 {
-   KEYBOARD_XWINDOWS,
+   AL_KEYBOARD parent;
+   AL_KBDSTATE state;
+} AL_KEYBOARD_XWIN;
+
+
+
+/* the one and only keyboard object */
+static AL_KEYBOARD_XWIN the_keyboard;
+
+/* the pid to kill when three finger saluting */
+static pid_t main_pid;
+
+
+
+/* forward declarations */
+static bool xkeybd_init(void);
+static void xkeybd_exit(void);
+static AL_KEYBOARD *xkeybd_get_keyboard(void);
+static bool xkeybd_set_leds(int leds);
+static AL_CONST char *xkeybd_keycode_to_name(int keycode);
+static void xkeybd_get_state(AL_KBDSTATE *ret_state);
+
+
+
+/* the driver vtable */
+#define KEYDRV_XWIN  AL_ID('X','W','I','N')
+
+static AL_KEYBOARD_DRIVER keydrv_xwin =
+{
+   KEYDRV_XWIN,
+   empty_string,
+   empty_string,
    "X11 keyboard",
-   "X11 keyboard",
-   "X11 keyboard",
-   TRUE,
-   x_keyboard_init,
-   x_keyboard_exit,
-   NULL,   // AL_METHOD(void, poll, (void));
-   x_set_leds,
-   NULL,   // AL_METHOD(void, set_rate, (int delay, int rate));
-   NULL,   // AL_METHOD(void, wait_for_input, (void));
-   NULL,   // AL_METHOD(void, stop_waiting_for_input, (void));
-   NULL,   // AL_METHOD(int,  scancode_to_ascii, (int scancode));
-   x_scancode_to_name
+   xkeybd_init,
+   xkeybd_exit,
+   xkeybd_get_keyboard,
+   xkeybd_set_leds,
+   xkeybd_keycode_to_name,
+   xkeybd_get_state
 };
 
+
+
 /* list the available drivers */
-_DRIVER_INFO _xwin_keyboard_driver_list[] =
+_DRIVER_INFO _al_xwin_keyboard_driver_list[] =
 {
-   {  KEYBOARD_XWINDOWS, &keyboard_x,    TRUE  },
-   {  0,                 NULL,           0     }
+   {  KEYDRV_XWIN, &keydrv_xwin, TRUE  },
+   {  0,           NULL,         0     }
 };
+
+
+
+/* xkeybd_init:
+ *  Initialise the driver.
+ */
+static bool xkeybd_init(void)
+{
+   if (x_keyboard_init() != 0)
+      return false;
+
+   memset(&the_keyboard, 0, sizeof the_keyboard);
+
+   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS, sizeof(AL_KEYBOARD_EVENT));
+
+   //_xwin_keydrv_set_leds(_key_shifts);
+   
+   /* Get the pid, which we use for the three finger salute */
+   main_pid = getpid();
+
+   return true;
+}
+
+
+
+/* xkeybd_exit:
+ *  Shut down the keyboard driver.
+ */
+static void xkeybd_exit(void)
+{
+   x_keyboard_exit();
+
+   _al_event_source_free(&the_keyboard.parent.es);
+}
+
+
+
+/* xkeybd_get_keyboard:
+ *  Returns the address of a AL_KEYBOARD structure representing the keyboard.
+ */
+static AL_KEYBOARD *xkeybd_get_keyboard(void)
+{
+   return (AL_KEYBOARD *)&the_keyboard;
+}
+
+
+
+/* xkeybd_set_leds:
+ *  Updates the LED state.
+ */
+static bool xkeybd_set_leds(int leds)
+{
+   x_set_leds(leds);
+   return true;
+}
+
+
+
+/* xkeybd_keycode_to_name:
+ *  Converts the given keycode to a description of the key.
+ */
+static AL_CONST char *xkeybd_keycode_to_name(int keycode)
+{
+   return x_scancode_to_name(keycode);
+}
+
+
+
+/* xkeybd_get_state:
+ *  Copy the current keyboard state into RET_STATE, with any necessary locking.
+ */
+static void xkeybd_get_state(AL_KBDSTATE *ret_state)
+{
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      *ret_state = the_keyboard.state;
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}
+
+
+
+/* handle_key_press: [bgman thread]
+ *  Hook for the X event dispatcher to handle key presses.
+ *  The caller must lock the X-display.
+ */
+static int last_press_code = -1;
+
+static void handle_key_press(int mycode, int unichar, unsigned int modifiers)
+{
+   bool is_repeat;
+   AL_EVENT *event;
+   unsigned int type;
+
+   is_repeat = (last_press_code == mycode);
+   last_press_code = mycode;
+
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      /* Update the key_down array.  */
+      _AL_KBDSTATE_SET_KEY_DOWN(the_keyboard.state, mycode);
+
+      /* Generate the press event if necessary. */
+      type = is_repeat ? AL_EVENT_KEY_REPEAT : AL_EVENT_KEY_DOWN;
+      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, type)) &&
+          (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
+      {
+         event->keyboard.type = type;
+         event->keyboard.timestamp = al_current_time();
+         event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
+         event->keyboard.keycode   = mycode;
+         event->keyboard.unichar   = unichar;
+         event->keyboard.modifiers = modifiers;
+         _al_event_source_emit_event(&the_keyboard.parent.es, event);
+      }
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+
+   /* Exit by Ctrl-Alt-End.  */
+   if ((_al_three_finger_flag)
+       && ((mycode == AL_KEY_DELETE) || (mycode == AL_KEY_END))
+       && (modifiers & AL_KEYMOD_CTRL)
+       && (modifiers & (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)))
+      kill(main_pid, SIGTERM);
+}
+
+
+
+/* handle_key_release: [bgman thread]
+ *  Hook for the X event dispatcher to handle key releases.
+ *  The caller must lock the X-display.
+ */
+static void handle_key_release(int mycode)
+{
+   AL_EVENT *event;
+
+   if (last_press_code == mycode)
+      last_press_code = -1;
+
+   _al_event_source_lock(&the_keyboard.parent.es);
+   {
+      /* Update the key_down array.  */
+      _AL_KBDSTATE_CLEAR_KEY_DOWN(the_keyboard.state, mycode);
+
+      /* Generate the release event if necessary. */
+      if ((_al_event_source_needs_to_generate_event(&the_keyboard.parent.es, AL_EVENT_KEY_UP)) &&
+          (event = _al_event_source_get_unused_event(&the_keyboard.parent.es)))
+      {
+         event->keyboard.type = AL_EVENT_KEY_UP;
+         event->keyboard.timestamp = al_current_time();
+         event->keyboard.__display__dont_use_yet__ = NULL; /* TODO */
+         event->keyboard.keycode = mycode;
+         event->keyboard.unichar = 0;
+         event->keyboard.modifiers = 0;
+         _al_event_source_emit_event(&the_keyboard.parent.es, event);
+      }
+   }
+   _al_event_source_unlock(&the_keyboard.parent.es);
+}

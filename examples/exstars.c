@@ -2,11 +2,10 @@
  *    Example program for the Allegro library, by Dave Thomson.
  *
  *    This program draws a 3D starfield (depth-cued) and a polygon
- *    starship (controllable), using the Allegro math functions.
+ *    starship (controllable with the keyboard cursor keys), using
+ *    the Allegro math functions.
  */
 
-
-#include <stdio.h>
 
 #include "allegro.h"
 
@@ -99,10 +98,12 @@ void draw_stars(void)
 
    for (i=0; i<NUM_STARS; i++) {
       get_translation_matrix(&m, delta.x, delta.y, delta.z);
-      apply_matrix(&m, stars[i].x, stars[i].y, stars[i].z, &outs[i].x, &outs[i].y, &outs[i].z);
+      apply_matrix(&m, stars[i].x, stars[i].y, stars[i].z,
+		   &outs[i].x, &outs[i].y, &outs[i].z);
       persp_project(outs[i].x, outs[i].y, outs[i].z, &star_x[i], &star_y[i]);
       c = (fixtoi(outs[i].z) >> 8) + 16;
-      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]), palette_color[c]);
+      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]),
+	       palette_color[c]);
    }
 }
 
@@ -114,7 +115,8 @@ void erase_stars(void)
    int i;
 
    for (i=0; i<NUM_STARS; i++)
-      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]), palette_color[0]);
+      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]),
+	       palette_color[0]);
 }
 
 
@@ -182,7 +184,8 @@ void init_ship(void)
    v2.x = (pts[face->v3].x - pts[face->v1].x);
    v2.y = (pts[face->v3].y - pts[face->v1].y);
    v2.z = (pts[face->v3].z - pts[face->v1].z);
-   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, &(face->normal.x), &(face->normal.y), &(face->normal.z));
+   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z,
+		 &(face->normal.x), &(face->normal.y), &(face->normal.z));
 
    ship.faces[1].v1 = 2;
    ship.faces[1].v2 = 0;
@@ -194,7 +197,8 @@ void init_ship(void)
    v2.x = (pts[face->v3].x - pts[face->v1].x);
    v2.y = (pts[face->v3].y - pts[face->v1].y);
    v2.z = (pts[face->v3].z - pts[face->v1].z);
-   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, &(face->normal.x), &(face->normal.y), &(face->normal.z));
+   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, &(face->normal.x),
+		 &(face->normal.y), &(face->normal.z));
 
    ship.faces[2].v1 = 1;
    ship.faces[2].v2 = 0;
@@ -206,7 +210,8 @@ void init_ship(void)
    v2.x = (pts[face->v3].x - pts[face->v1].x);
    v2.y = (pts[face->v3].y - pts[face->v1].y);
    v2.z = (pts[face->v3].z - pts[face->v1].z);
-   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, &(face->normal.x), &(face->normal.y), &(face->normal.z));
+   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z,
+		 &(face->normal.x), &(face->normal.y), &(face->normal.z));
 
    ship.faces[3].v1 = 2;
    ship.faces[3].v2 = 3;
@@ -218,12 +223,14 @@ void init_ship(void)
    v2.x = (pts[face->v3].x - pts[face->v1].x);
    v2.y = (pts[face->v3].y - pts[face->v1].y);
    v2.z = (pts[face->v3].z - pts[face->v1].z);
-   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, &(face->normal.x), &(face->normal.y), &(face->normal.z));
+   cross_product(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z,
+		 &(face->normal.x), &(face->normal.y), &(face->normal.z));
 
    for (i=0; i<NUM_FACES; i++) {
       ship.faces[i].colour = 32;
       ship.faces[i].range = 15;
-      normalize_vector(&ship.faces[i].normal.x, &ship.faces[i].normal.y, &ship.faces[i].normal.z);
+      normalize_vector(&ship.faces[i].normal.x, &ship.faces[i].normal.y,
+		       &ship.faces[i].normal.z);
       ship.faces[i].rnormal.x = ship.faces[i].normal.x;
       ship.faces[i].rnormal.y = ship.faces[i].normal.y;
       ship.faces[i].rnormal.z = ship.faces[i].normal.z;
@@ -253,18 +260,23 @@ void draw_ship(void)
    ship.maxx = ship.maxy = 0;
 
    get_rotation_matrix(&m, ship.rx, ship.ry, ship.rz);
-   apply_matrix(&m, ship.aim.x, ship.aim.y, ship.aim.z, &outs[0].x, &outs[0].y, &outs[0].z);
+   apply_matrix(&m, ship.aim.x, ship.aim.y, ship.aim.z,
+		&outs[0].x, &outs[0].y, &outs[0].z);
    direction.x = outs[0].x;
    direction.y = outs[0].y;
    direction.z = outs[0].z;
 
    for (i=0; i<NUM_FACES; i++)
-      apply_matrix(&m, ship.faces[i].normal.x, ship.faces[i].normal.y, ship.faces[i].normal.z, &ship.faces[i].rnormal.x, &ship.faces[i].rnormal.y, &ship.faces[i].rnormal.z);
+      apply_matrix(&m, ship.faces[i].normal.x, ship.faces[i].normal.y,
+		   ship.faces[i].normal.z, &ship.faces[i].rnormal.x,
+		   &ship.faces[i].rnormal.y, &ship.faces[i].rnormal.z);
 
-   get_transformation_matrix(&m, itofix(1), ship.rx, ship.ry, ship.rz, ship.x, ship.y, ship.z);
+   get_transformation_matrix(&m, itofix(1), ship.rx, ship.ry, ship.rz,
+			     ship.x, ship.y, ship.z);
 
    for (i=0; i<NUM_VERTS; i++) {
-      apply_matrix(&m, ship.points[i].x, ship.points[i].y, ship.points[i].z, &outs[i].x, &outs[i].y, &outs[i].z);
+      apply_matrix(&m, ship.points[i].x, ship.points[i].y, ship.points[i].z,
+		   &outs[i].x, &outs[i].y, &outs[i].z);
       persp_project(outs[i].x, outs[i].y, outs[i].z, &outs[i].x, &outs[i].y);
       if (fixtoi(outs[i].x) < ship.minx)
 	 ship.minx = fixtoi(outs[i].x);
@@ -278,16 +290,22 @@ void draw_ship(void)
 
    for (i=0; i<NUM_FACES; i++) {
       if (fixtof(ship.faces[i].rnormal.z) < 0.0) {
-	 col = fixtoi(fixmul(dot_product(ship.faces[i].rnormal.x, ship.faces[i].rnormal.y, ship.faces[i].rnormal.z, 0, 0, itofix(1)), itofix(ship.faces[i].range)));
+	 col = fixtoi(fixmul(dot_product(ship.faces[i].rnormal.x,
+					 ship.faces[i].rnormal.y,
+					 ship.faces[i].rnormal.z, 0, 0,
+					 itofix(1)),
+			     itofix(ship.faces[i].range)));
 	 if (col < 0)
 	    col = -col + ship.faces[i].colour;
 	 else
 	    col = col + ship.faces[i].colour;
 
-	 triangle(buffer, fixtoi(outs[ship.faces[i].v1].x), fixtoi(outs[ship.faces[i].v1].y),
-		  fixtoi(outs[ship.faces[i].v2].x), fixtoi(outs[ship.faces[i].v2].y),
-		  fixtoi(outs[ship.faces[i].v3].x), fixtoi(outs[ship.faces[i].v3].y),
-		  palette_color[col]);
+	 triangle(buffer, fixtoi(outs[ship.faces[i].v1].x),
+		  fixtoi(outs[ship.faces[i].v1].y),
+		  fixtoi(outs[ship.faces[i].v2].x),
+		  fixtoi(outs[ship.faces[i].v2].y),
+		  fixtoi(outs[ship.faces[i].v3].x),
+		  fixtoi(outs[ship.faces[i].v3].y), palette_color[col]);
       }
    }
 }
@@ -297,7 +315,8 @@ void draw_ship(void)
 /* removes the ship model from the screen */
 void erase_ship(void)
 {
-   rectfill(buffer, ship.minx, ship.miny, ship.maxx, ship.maxy, palette_color[0]);
+   rectfill(buffer, ship.minx, ship.miny, ship.maxx, ship.maxy,
+	    palette_color[0]);
 }
 
 
@@ -315,7 +334,8 @@ int main(int argc, char *argv[])
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
@@ -363,12 +383,23 @@ int main(int argc, char *argv[])
       move_stars();
       draw_stars();
 
-      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-10, palette_color[17], 0, "     direction: [%f] [%f] [%f]     ", fixtof(direction.x), fixtof(direction.y), fixtof(direction.z));
-      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-20, palette_color[17], 0, "   delta: [%f] [%f] [%f]   ", fixtof(delta.x), fixtof(delta.y), fixtof(delta.z));
-      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-30, palette_color[17], 0, "   velocity: %d   ", ship.velocity);
+      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-10,
+			   palette_color[17], 0,
+			   "     direction: [%f] [%f] [%f]     ",
+			   fixtof(direction.x), fixtof(direction.y),
+			   fixtof(direction.z));
+      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-20,
+			   palette_color[17], 0,
+			   "   delta: [%f] [%f] [%f]   ", fixtof(delta.x),
+			   fixtof(delta.y), fixtof(delta.z));
+      textprintf_centre_ex(buffer, font, SCREEN_W / 2, SCREEN_H-30,
+			   palette_color[17], 0, "   velocity: %d   ",
+			   ship.velocity);
 
-      textout_centre_ex(buffer, font, "Press ESC to exit", SCREEN_W/2, 16, palette_color[18], 0);
-      textout_centre_ex(buffer, font, "Press CTRL to fire engine", SCREEN_W/2, 32, palette_color[18], 0);
+      textout_centre_ex(buffer, font, "Press ESC to exit", SCREEN_W/2, 16,
+			palette_color[18], 0);
+      textout_centre_ex(buffer, font, "Press CTRL to fire engine",
+			SCREEN_W/2, 32, palette_color[18], 0);
 
       draw_ship();
 

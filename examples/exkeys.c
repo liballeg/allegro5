@@ -1,7 +1,16 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to access the keyboard.
+ *    This program demonstrates how to access the keyboard. The
+ *    first part shows the basic use of readkey(). The second part
+ *    shows how to extract the ASCII value. Next come the scancodes.
+ *    The fourth test detects modifier keys like alt or shift. The
+ *    fifth test requires some focus to be passed. The final step
+ *    shows how to use the global key array to read simultaneous
+ *    keypresses.
+ *    The last method to detect key presses are keyboard callbacks.
+ *    This is demonstrated by by installing a keyboard callback,
+ *    which marks all pressed keys by drawing to a grid.
  */
 
 
@@ -39,21 +48,43 @@ char *key_names[] =
    "KEY_MINUS_PAD",  "KEY_PLUS_PAD",   "KEY_DEL_PAD",    "KEY_ENTER_PAD",
    "KEY_PRTSCR",     "KEY_PAUSE",      "KEY_ABNT_C1",    "KEY_YEN",
    "KEY_KANA",       "KEY_CONVERT",    "KEY_NOCONVERT",  "KEY_AT",
-   "KEY_CIRCUMFLEX", "KEY_COLON2",     "KEY_KANJI",
-   "KEY_EQUALS_PAD", "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_COMMAND",
-   "KEY_LSHIFT",     "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",
-   "KEY_ALT",        "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",
-   "KEY_MENU",       "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",
-   "KEY_MAX"
+   "KEY_CIRCUMFLEX", "KEY_COLON2",     "KEY_KANJI",      "KEY_EQUALS_PAD",
+   "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_COMMAND",    "KEY_UNKNOWN1",
+   "KEY_UNKNOWN2",   "KEY_UNKNOWN3",   "KEY_UNKNOWN4",   "KEY_UNKNOWN5",
+   "KEY_UNKNOWN6",   "KEY_UNKNOWN7",   "KEY_UNKNOWN8",   "KEY_LSHIFT",
+   "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",   "KEY_ALT",
+   "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",       "KEY_MENU",
+   "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",   "KEY_MAX"
 };
+
+
+
+/* Keyboard callback. We are very evil and draw to the screen from within
+ * the callback. Don't do this in your own programs ;)
+ */
+void keypress_handler(int scancode)
+{
+   int i, x, y, color;
+   char str[64];
+   i = scancode & 0x7f;
+   x = SCREEN_W - 100 * 3 + (i % 3) * 100;
+   y = SCREEN_H / 2 + (i / 3 - 21) * 10;
+   color = scancode & 0x80 ? makecol (255, 255, 0) : makecol (128, 0, 0);
+   rectfill (screen, x, y, x + 95, y + 8, color);
+   ustrzncpy (str, sizeof str, scancode_to_name (i), 12);
+   if (str)
+      textprintf_ex (screen, font, x + 1, y + 1, makecol (0, 0, 0), -1,
+	 "%s", str);
+}
+END_OF_FUNCTION(keypress_handler)
 
 
 
 /* helper function for making more room on the screen */
 void scroll(void)
 {
-   blit(screen, screen, 0, 32, 0, 24, SCREEN_W, SCREEN_H-32);
-   rectfill(screen, 0, SCREEN_H-16, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
+   blit(screen, screen, 0, 32, 0, 24, SCREEN_W / 2, SCREEN_H-32);
+   rectfill(screen, 0, SCREEN_H-16, SCREEN_W / 2, SCREEN_H-1, makecol(255, 255, 255));
 }
 
 
@@ -67,8 +98,8 @@ int main(void)
       return 1;
    install_keyboard();
 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
-      if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
 	 return 1;
@@ -77,8 +108,17 @@ int main(void)
 
    set_palette(desktop_palette);
 
-   acquire_screen();
    clear_to_color(screen, makecol(255, 255, 255));
+
+   /* Draw the initial keys grid by simulating release of every key. */
+   for (k = 0; k < KEY_MAX; k++)
+      keypress_handler (k + 0x80);
+
+   /* Install our keyboard callback. */
+   LOCK_FUNCTION(keypress_handler);
+   keyboard_lowlevel_callback = keypress_handler;
+
+   acquire_screen();
    textprintf_centre_ex(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0), makecol(255, 255, 255),
 			"Driver: %s", keyboard_driver->name);
 
@@ -165,7 +205,7 @@ int main(void)
    k = readkey();
    acquire_screen();
 
-   while ((k>>8) != KEY_F6) {
+   while ((k>>8) != KEY_F6 && (k>>8) != KEY_ESC) {
       scroll();
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
 		    "Wrong key, stupid! I said press F6");
@@ -195,9 +235,11 @@ int main(void)
       if (key[KEY_9]) buf[9] = '9'; else buf[9] = ' ';
       buf[10] = 0;
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), buf);
-   } while (!key[KEY_ESC]);
+      rest(1);
+   } while (!keypressed() || (readkey() >> 8) != KEY_ESC);
 
    clear_keybuf();
+   keyboard_lowlevel_callback = NULL;
    return 0;
 }
 

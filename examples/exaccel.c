@@ -1,9 +1,15 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to use an offscreen part of the 
- *    video memory to store source graphics for a hardware accelerated 
- *    graphics driver.
+ *    This program demonstrates how to use an offscreen part of
+ *    the video memory to store source graphics for a hardware
+ *    accelerated graphics driver. The example loads the `mysha.pcx'
+ *    file and then blits it several times on the screen. Depending
+ *    on whether you have enough video memory and Allegro supports
+ *    the hardware acceleration features of your card, your success
+ *    running this example may be none at all, sluggish performance
+ *    due to software emulation, or flicker free smooth hardware
+ *    accelerated animation.
  */
 
 
@@ -100,7 +106,8 @@ int main(int argc, char *argv[])
 
    if ((!page[0]) || (!page[1]) || (!vimage)) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Not enough video memory (need two 1024x768 pages and a 320x200 image)\n");
+      allegro_message("Not enough video memory (need two 1024x768 pages "
+		      "and a 320x200 image)\n");
       return 1;
    }
 
@@ -115,20 +122,27 @@ int main(int argc, char *argv[])
 
       /* draw onto it */
       for (i=0; i<num_images; i++)
-	 blit(vimage, page[page_num], 0, 0, images[i].x, images[i].y, vimage->w, vimage->h);
+	 blit(vimage, page[page_num], 0, 0, images[i].x, images[i].y,
+	      vimage->w, vimage->h);
 
-      textprintf_ex(page[page_num], font, 0, 0, 255, -1, "Images: %d (arrow keys to change)", num_images);
+      textprintf_ex(page[page_num], font, 0, 0, 255, -1,
+		    "Images: %d (arrow keys to change)", num_images);
 
       /* tell the user which functions are being done in hardware */
       if (gfx_capabilities & GFX_HW_FILL)
-	 textout_ex(page[page_num], font, "Clear: hardware accelerated", 0, 16, 255, -1);
+	 textout_ex(page[page_num], font, "Clear: hardware accelerated",
+		    0, 16, 255, -1);
       else
-	 textout_ex(page[page_num], font, "Clear: software (urgh, this is not good!)", 0, 16, 255, -1);
+	 textout_ex(page[page_num], font, "Clear: software (urgh, this "
+		    "is not good!)", 0, 16, 255, -1);
 
       if (gfx_capabilities & GFX_HW_VRAM_BLIT)
-	 textout_ex(page[page_num], font, "Blit: hardware accelerated", 0, 32, 255, -1);
+	 textout_ex(page[page_num], font, "Blit: hardware accelerated",
+		    0, 32, 255, -1);
       else
-	 textout_ex(page[page_num], font, "Blit: software (urgh, this program will run too sloooooowly without hardware acceleration!)", 0, 32, 255, -1);
+	 textout_ex(page[page_num], font, "Blit: software (urgh, this program "
+		    "will run too sloooooowly without hardware acceleration!)",
+		    0, 32, 255, -1);
 
       release_bitmap(page[page_num]);
 

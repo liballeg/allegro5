@@ -8,6 +8,112 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.16 to 4.1.17 (December 2004)
+<ul><li>
+   Sven Sandberg fixed a few problems with the sprite rotation code.
+<li>
+   Sven Sandberg optimized blitting between different colour depths.
+<li>
+   Evert Glebbeek added support for the use of native window manager cursors.
+<li>
+   Chris Robinson made install_allegro() check if the library version matches
+   the version of the headerfiles installed.
+<li>
+   Peter Wang fixed some problems with rest() on UNIX systems.
+<li>
+   Evert Glebbeek added an is_windowed_mode() function.
+<li>
+   Elias Pschernig added the scancode_to_name function.
+<li>
+   Elias Pschernig made rest use usleep() on MacOSX.
+<li>
+   Chris Robinson fixed the incorrect use of -export-dynamic on UNIX
+<li>
+   Elias Pschernig, Chris Robinson and Peter Wang fixed XOR mode leaving 
+   droppings in X11.
+<li>
+   Elias Pschernig fixed several dependency issues.
+<li>
+   James Lohr fixed a problem with mouse acceleration in fullscreen modes under
+   Windows.
+<li>
+   Peter Wang fixed a problem in the TGA loader.
+<li>
+   Lennart Steinke contributed keyboard layout detection code for Windows.
+<li>
+   Peter Wang fixed a bug that caused Allegro to crash if it failed to 
+   initialize.
+<li>
+   Peter Wang fixed a deadlock related to X vsync emulation.
+<li>
+   Daniel Schlyder fixed make uninstall with mingw make.
+<li>
+   Elias Pschernig fixed QNX issue of not including utimer.c
+<li>
+   Angelo Mottola fixed compilation problems on BeOS and fixed the detection
+   of VRAM.
+<li>
+   Evert Glebbeek fixed compilation problems on *BSD.
+<li>
+   Elias Pschernig made the X11 window hidden in GFX_TEXT mode.
+<li>
+   Peter Wang removed remapping of numpad keys when NumLock was off in Linux
+<li>
+   David A. Capello made override_config_file also be used for writing to the 
+   config file.
+<li>
+   Julien Cugniere added an X11 message box for allegro_message under X11.
+<li>
+   Vitaliy Chetverikov a small bug in the GUI where the return value of 
+   MSG_IDLE was ignored.
+<li>
+   Peter Wang made several improvements to the examples.
+<li>
+   Grzegorz Adam Hankiewicz made a lot of improvements to the documentation.
+<li>
+   Elias Pschernig made make-install not build examples.
+<li>
+   Peter Wang fixed several instances of symbols not declared static that should
+   have been.
+<li>
+   Elias Pschernig replaced the X11 keyboard driver with a new XIM driver.
+<li>
+   Peter Wang fixed a problem with Linux headers and Allegro headers both
+   declaring KEY_ constants, as pointed out by David A. Capello.
+<li>
+   Elias Pschernig fixed X11 async reply in DGA2 mode detection due to missing 
+   XLOCK/XUNLOCK
+<li>
+   Peter Wang fixed problems in ex3buf, which was trying to lock symbols which 
+   had been removed.
+<li>
+   Elias Pschernig cleaned up grabber/dat documentation.
+<li>
+   Daniel Schlyder added ALLEGRO_LIB_BUILD flag for gcc variants not using 
+   configure.
+<li>
+   Elias Pschernig fixed bugs in matrix_to_quat and get_align_matrix.
+<li>
+   Evert Glebbeek fixed a problem with the X11 port when 
+   ALLEGRO_MULTITHREADED was not defined.
+<li>
+   Matthew Leverton added support for a fourth mouse button to the Windows port.
+<li>
+   Michal Molhanec added a faq section about the giftware license.
+<li>
+   Elias Pschernig added the license disclaimer to the docs.
+<li>
+   Evert Glebbeek added missing vtable entries for AllegroGL, as requested by 
+   Robert Ohannessian.
+<li>
+   Dustin Dettmer spotted a typo in save_bitmap.
+<li>
+   Sam Hocevar removed deprecated use of init_read_test, test_byte_read, etc.
+<li>
+   Peter Wang fixed a bug in the Windows keyboard driver.
+</ul>
+
+@heading
 Changes from 4.1.15 to 4.1.16 (October 2004)
 <ul><li>
    Peter Wang fixed two problems with the keyboard driver on Windows.

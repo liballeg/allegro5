@@ -96,6 +96,7 @@ struct _xwin_type _xwin =
    200,         /* virtual_height */
 
    0,           /* mouse_warped */
+   { 0 },       /* keycode_to_scancode */
 
    0,           /* matching formats */
    0,           /* fast_visual_depth */
@@ -134,13 +135,9 @@ struct _xwin_type _xwin =
    XWIN_DEFAULT_APPLICATION_NAME,       /* application_name */
    XWIN_DEFAULT_APPLICATION_CLASS,      /* application_class */
 
-   0,           /* screen_lock_count */
-   GXcopy,      /* real_drawing_mode */
-   TRUE,        /* drawing_mode_ok */
+   FALSE,       /* drawing_mode_ok */
 
-#ifdef ALLEGRO_MULTITHREADED
-   (pthread_t)0, /* locked_thread */
-#endif
+   _AL_MUTEX_UNINITED,			/* mutex */
 
    NULL         /* window close hook */
 };
@@ -153,7 +150,7 @@ int _xwin_in_gfx_call = 0;
 static COLORCONV_BLITTER_FUNC *blitter_func = NULL;
 static int use_bgr_palette_hack = FALSE; /* use BGR hack for color conversion palette? */
 
-#define MAX_EVENTS   5
+#define X_MAX_EVENTS   5
 #define MOUSE_WARP_DELAY   200
 
 static char _xwin_driver_desc[256] = EMPTY_STRING;
@@ -189,7 +186,7 @@ static int _xwin_private_fast_visual_depth(void);
 static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to);
-static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
 static void _xwin_private_resize_window(int w, int h);
@@ -200,7 +197,6 @@ static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
 static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group);
-static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
@@ -319,7 +315,7 @@ static void _xwin_hide_x_mouse(void)
    unsigned long gcmask;
    XGCValues gcvalues;
    Pixmap pixmap;
-   
+
    pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
    if (pixmap != None) {
       GC temp_gc;
@@ -364,7 +360,7 @@ static int _xwin_private_create_window(void)
 
    /* Create window.  */
    setattr.border_pixel = XBlackPixel(_xwin.display, _xwin.screen);
-   setattr.event_mask = (KeyPressMask | KeyReleaseMask 
+   setattr.event_mask = (KeyPressMask | KeyReleaseMask
 			 | EnterWindowMask | LeaveWindowMask
 			 | FocusChangeMask | ExposureMask | PropertyChangeMask
 			 | ButtonPressMask | ButtonReleaseMask | PointerMotionMask
@@ -408,7 +404,7 @@ static int _xwin_private_create_window(void)
 
    /* Create invisible X cursor.  */
    _xwin_hide_x_mouse();
-   
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    /* Detect if ARGB cursors are supported */
    _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
@@ -613,7 +609,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv)
 
    /* Prepare driver description.  */
    if (_xwin.matching_formats) {
-      uszprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc), 
+      uszprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc),
 	        uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
 	        _xwin.window_depth,
 	        uconvert_ascii("real depth", tmp2));
@@ -724,7 +720,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
       XSync(_xwin.display, False);
-	  
+
       /* Grab the keyboard and mouse.  */
       if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
 			GrabModeAsync, GrabModeAsync, CurrentTime) != GrabSuccess) {
@@ -833,6 +829,8 @@ static void _xwin_private_destroy_screen(void)
       blitter_func = NULL;
    }
 
+   XUnmapWindow (_xwin.display, _xwin.window);
+
    (*_xwin_window_defaultor)();
 }
 
@@ -933,6 +931,9 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
 
    /* Replace entries in vtable with magical wrappers.  */
    _xwin_replace_vtable(bmp->vtable);
+
+   /* The drawing mode may not be ok for direct updates anymore. */
+   _xwin_drawing_mode();
 
    /* Initialize other fields in _xwin structure.  */
    _xwin_last_line = -1;
@@ -1520,7 +1521,7 @@ void _xwin_enable_hardware_cursor(int mode)
    else
 #endif
       _xwin.hw_cursor_ok = 0;
-   
+
    /* Switch to non-warped mode */
    if (_xwin.hw_cursor_ok) {
       _xwin.mouse_warped = 0;
@@ -1564,14 +1565,14 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
    if (!_xwin.support_argb_cursor) {
       return -1;
    }
-   
+
    if (_xwin.xcursor_image != None) {
       XLOCK();
       XcursorImageDestroy(_xwin.xcursor_image);
       XUNLOCK();
       _xwin.xcursor_image = None;
    }
-   
+
    if (sprite) {
       int ix, iy;
       int r = 0, g = 0, b = 0, a = 0, c, col;
@@ -1580,12 +1581,12 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
       if (_xwin.xcursor_image == None) {
          return -1;
       }
-      
-      
+
+
       switch(bitmap_color_depth(mouse_sprite)) {
          GET_PIXEL_DATA(8, _getpixel)
             break;
-                  
+
          GET_PIXEL_DATA(15, _getpixel15)
             break;
 
@@ -1598,16 +1599,16 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
          GET_PIXEL_DATA(32, _getpixel32)
             break;
       } /* End switch */
-      
+
       _xwin.xcursor_image->xhot = mouse_x_focus;
       _xwin.xcursor_image->yhot = mouse_y_focus;
-      
+
       return 0;
    }
-   
+
 #undef GET_PIXEL_DATA
 
-   return -1;  
+   return -1;
 }
 
 
@@ -1620,7 +1621,7 @@ int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
    /* Only draw on screen */
    if (!is_same_bitmap(bmp, screen))
       return -1;
-      
+
    if (!_xwin.support_argb_cursor) {
       return -1;
    }
@@ -1629,7 +1630,7 @@ int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
       return -1;
    }
 
-   /* Hardware cursor is disabled (mickey mode) */   
+   /* Hardware cursor is disabled (mickey mode) */
    if (!_xwin.hw_cursor_ok) {
       return -1;
    }
@@ -1638,12 +1639,12 @@ int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
    if (_xwin.cursor != None) {
       XUndefineCursor(_xwin.display, _xwin.window);
       XFreeCursor(_xwin.display, _xwin.cursor);
-   }   
+   }
 
    _xwin.cursor = XcursorImageLoadCursor(_xwin.display, _xwin.xcursor_image);
    XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
 
-   XUNLOCK();   
+   XUNLOCK();
    return 0;
 }
 
@@ -1681,7 +1682,7 @@ void _xwin_move_mouse(int x, int y)
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
 {
    GRAPHICS_RECT src_rect, dest_rect;
- 
+
    /* set up source and destination rectangles */
    src_rect.height = sh;
    src_rect.width  = sw;
@@ -1708,7 +1709,7 @@ static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
    #define DEFAULT_RGB_B_POS_24  (2-DEFAULT_RGB_B_SHIFT_24/8)
 #else
    #error endianess not defined
-#endif 
+#endif
 
 #define MAKE_FAST_TRUECOLOR(name,stype,dtype,rshift,gshift,bshift,rmask,gmask,bmask)    \
 static void name(int sx, int sy, int sw, int sh)                                        \
@@ -2035,15 +2036,11 @@ static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int t
    }
 }
 
-static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to)
 {
    RGB *pal;
    int c;
    unsigned char temp;
-
-   /* Wait for VBI.  */
-   if (vsync)
-      _xwin_vsync();
 
    if (_xwin.set_colors != 0) {
       if (blitter_func) {
@@ -2066,7 +2063,7 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
             _set_colorconv_palette(p, from, to);
          }
       }
-      
+
       /* Set "hardware" colors.  */
       (*(_xwin.set_colors))(p, from, to);
 
@@ -2078,8 +2075,12 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
 void _xwin_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
+   if (vsync) {
+      _xwin_vsync();
+   }
+
    XLOCK();
-   _xwin_private_set_palette_range(p, from, to, vsync);
+   _xwin_private_set_palette_range(p, from, to);
    XUNLOCK();
 }
 
@@ -2111,7 +2112,7 @@ static void _xwin_private_set_window_defaults(void)
    wm_hints.input = True;
    wm_hints.initial_state = NormalState;
    wm_hints.window_group = _xwin.window;
-   
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
    if (allegro_icon) {
       wm_hints.flags |= IconPixmapHint | IconMaskHint;
@@ -2151,8 +2152,21 @@ void _xwin_vsync(void)
    if (_timer_installed) {
       int prev = retrace_count;
 
+      XLOCK();
+      XSync(_xwin.display, False);
+      XUNLOCK();
+
       do {
       } while (retrace_count == prev);
+   }
+   else {
+      /* This does not wait for the VBI - but it waits until X11 has
+       * synchronized, i.e. until actual changes are visible. So it
+       * has a similar effect.
+       */
+      XLOCK();
+      XSync(_xwin.display, False);
+      XUNLOCK();
    }
 }
 
@@ -2207,9 +2221,7 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 
    switch (event->type) {
       case KeyPress:
-	 /* Key pressed.  */
-	 if (_al_xwin_key_press_handler != 0)
-	    (*_al_xwin_key_press_handler)(&event->xkey, true);
+         _al_xwin_keyboard_handler(&event->xkey, false);
 	 return 1;
       case KeyRelease:
 	 /* Hack: if a KeyRelease is sent at the same time as a
@@ -2222,25 +2234,18 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 	     (event->xkey.time == next_event->xkey.time))
 	 {
 	    /* Key repeat. */
-	    if (_al_xwin_key_press_handler != 0)
-	       (*_al_xwin_key_press_handler)(&event->xkey, true);
+	     _al_xwin_keyboard_handler(&next_event->xkey, false);
 	    return 2;
 	 }
-	 /* Key release.  */
-	 if (_al_xwin_key_release_handler != 0)
-	    (*_al_xwin_key_release_handler)(&event->xkey, true);
+	 _al_xwin_keyboard_handler(&event->xkey, false);
 	 return 1;
       case FocusIn:
-	 /* Gaining input focus.  */
-	 if (_al_xwin_focus_change_handler)
-	    (*_al_xwin_focus_change_handler)(true);
 	 _switch_in();
+         _al_xwin_keyboard_focus_handler(&event->xfocus);
 	 return 1;
       case FocusOut:
-	 /* Losing input focus.  */
-	 if (_al_xwin_focus_change_handler)
-	    (*_al_xwin_focus_change_handler)(false);
 	 _switch_out();
+         _al_xwin_keyboard_focus_handler(&event->xfocus);
 	 return 1;
       case ButtonPress:
 	 /* Mouse button pressed.  */
@@ -2325,10 +2330,8 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 	 return 1;
       case MappingNotify:
 	 /* Keyboard mapping changed.  */
-#if 0 /* TODO */
 	 if (event->xmapping.request == MappingKeyboard)
-	    _xwin_private_init_keyboard_tables();
-#endif
+	    _al_xwin_get_keyboard_mapping();
 	 return 1;
       case ClientMessage:
          /* Window close request */
@@ -2351,7 +2354,7 @@ static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 void _xwin_private_handle_input(void)
 {
    int i, events, events_queued;
-   static XEvent event[MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
+   static XEvent event[X_MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
 
    if (_xwin.display == 0)
       return;
@@ -2375,8 +2378,8 @@ void _xwin_private_handle_input(void)
       return;
 
    /* Limit amount of events we read at once.  */
-   if (events > MAX_EVENTS)
-      events = MAX_EVENTS;
+   if (events > X_MAX_EVENTS)
+      events = X_MAX_EVENTS;
 
    /* Read pending events.  */
    for (i = 0; i < events; i++)
@@ -2630,31 +2633,6 @@ void xwin_set_window_name(AL_CONST char *name, AL_CONST char *group)
 
 
 
-/* _xwin_change_keyboard_control:
- *  Wrapper for XChangeKeyboardControl.
- */
-static void _xwin_private_change_keyboard_control(int led, int on)
-{
-   XKeyboardControl values;
-
-   if (_xwin.display == 0)
-      return;
-
-   values.led = led;
-   values.led_mode = (on ? LedModeOn : LedModeOff);
-
-   XChangeKeyboardControl(_xwin.display, KBLed | KBLedMode, &values);
-}
-
-void _xwin_change_keyboard_control(int led, int on)
-{
-   XLOCK();
-   _xwin_private_change_keyboard_control(led, on);
-   XUNLOCK();
-}
-
-
-
 /* _xwin_get_pointer_mapping:
  *  Wrapper for XGetPointerMapping.
  */
@@ -2719,7 +2697,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h)
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VidMode extension requires local display"));
       return 0;
    }
-   
+
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
        || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
@@ -2728,7 +2706,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h)
    }
 
    /* Get list of modelines.  */
-   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, 
+   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen,
 				   &_xwin.num_modes, &_xwin.modesinfo))
       return 0;
 

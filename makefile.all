@@ -123,7 +123,8 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
-DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile readme
+DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile \
+               readme makedoc datafiles grabber dat dat2c dat2s license
 DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
@@ -264,16 +265,15 @@ else
     INSTALL_DIRS := $(subst /,\,$(INSTALL_DIRS))
 endif
 
-# Make sure we don't try to create already existing directories.
-existing_dirs := $(foreach dir,$(INSTALL_DIRS),$(wildcard $(dir)))
-INSTALL_DIRS := $(filter-out $(existing_dirs),$(INSTALL_DIRS))
+existing_dirs = $(foreach dir, $(INSTALL_DIRS), $(wildcard $(dir)))
 
 .PHONY: create-install-dirs
 
 create-install-dirs:
 ifneq (,$(INSTALL_DIRS))
     define MKDIRS
-    $(foreach file,$(INSTALL_DIRS),mkdir $(MKDIR_OPTS) $(file)
+    $(foreach file, $(filter-out $(existing_dirs), $(INSTALL_DIRS)), \
+        mkdir $(MKDIR_OPTS) $(file)
     )
     endef
 	$(MKDIRS)
@@ -334,10 +334,24 @@ INSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h                          
 
 generic-install: create-install-dirs $(INSTALL_FILES)
 
-UNINSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h            \
-		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/*.h          \
-		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/*.h \
-		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/*.inl
+
+UNINSTALL_FILES := \
+    $(wildcard \
+        $(filter-out \
+            $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%, \
+            $(UNINSTALL_FILES) \
+        ) \
+    ) \
+    $(filter \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%, \
+        $(UNINSTALL_FILES) \
+    ) \
+    $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h \
+    $(wildcard \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/*.h \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/*.inl \
+        $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/*.h \
+    )
 
 generic-uninstall:
 ifdef UNIX_TOOLS
@@ -348,7 +362,7 @@ ifdef UNIX_TOOLS
 	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro
 else
    define RM_FILES
-      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      $(foreach file, $(UNINSTALL_FILES), del $(subst /,\,$(file))
       )
    endef
 	-$(RM_FILES)

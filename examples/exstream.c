@@ -1,17 +1,18 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program shows how to use the audio stream functions to transfer
- *    large blocks of sample data to the soundcard.
+ *    This program shows how to use the audio stream functions to
+ *    transfer large blocks of sample data to the soundcard. In
+ *    this case, the sample data is generated during runtime,
+ *    and the resulting sound reminds of a car engine when you
+ *    are accelerating.
  */
 
 
 #include "allegro.h"
 
 
-
 #define BUFFER_SIZE  1024
-
 
 
 int main(void)
@@ -31,7 +32,8 @@ int main(void)
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
@@ -42,14 +44,16 @@ int main(void)
    /* install a digital sound driver */
    if (install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error initialising sound driver\n%s\n", allegro_error);
+      allegro_message("Error initialising sound driver\n%s\n",
+		      allegro_error);
       return 1;
    }
 
    /* we want a _real_ sound driver */
    if (digi_card == DIGI_NONE) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Unable to find a sound driver\n%s\n", allegro_error);
+      allegro_message("Unable to find a sound driver\n%s\n",
+		      allegro_error);
       return 1;
    }
    
@@ -61,9 +65,15 @@ int main(void)
       return 1;
    }
 
-   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3-24, makecol(0, 0, 0), makecol(255, 255, 255), "Audio stream is now playing...");
-   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0), makecol(255, 255, 255), "Driver: %s", digi_driver->name);
-   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3+24, makecol(0, 0, 0), makecol(255, 255, 255), "Press [space] to stop/resume");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3-24,
+			makecol(0, 0, 0), makecol(255, 255, 255),
+			"Audio stream is now playing...");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3,
+			makecol(0, 0, 0), makecol(255, 255, 255),
+			"Driver: %s", digi_driver->name);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3+24,
+			makecol(0, 0, 0), makecol(255, 255, 255),
+			"Press [space] to stop/resume");
 
    while (TRUE) {
       if (keypressed()) {
@@ -88,7 +98,9 @@ int main(void)
 
       if (p) {
 	 /* if so, generate a bit more of our waveform... */
-	 textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H*2/3, makecol(0, 0, 0), makecol(255, 255, 255), "update #%d", updates++);
+	 textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H*2/3,
+			      makecol(0, 0, 0), makecol(255, 255, 255),
+			      "update #%d", updates++);
 
 	 for (i=0; i<BUFFER_SIZE; i++) {
 	    /* this is just a sawtooth wave that gradually increases in 

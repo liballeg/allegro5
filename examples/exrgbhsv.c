@@ -4,7 +4,18 @@
  *    Modified by Andrei Ellman to include color-bars.
  *
  *    This program shows how to convert colors between the different
- *    color-space representations.
+ *    color-space representations. The central area of the screen
+ *    will display the current color. On the top left corner of the
+ *    screen, three sliders allow you to modify the red, green and
+ *    blue value of the color. On the bottom right corner of the
+ *    screen, three sliders allow you to modify the hue, saturation
+ *    and value of the color. The color bars beneath the sliders
+ *    show what the resulting color will look like when the slider
+ *    is dragged to that position.
+ *
+ *    Additionally this example also shows how to "inherit" the
+ *    behaviour of a GUI object and extend it, here used to create
+ *    the sliders.
  */
 
 
@@ -87,7 +98,8 @@ void update_color_rectangle(int r, int g, int b)
 
 
 
-/* helper that updates all six color-bar bitmaps according to the given RGB and HSV values */
+/* helper that updates all six color-bar bitmaps according to the
+ * given RGB and HSV values */
 void update_color_bars(int r, int g, int b, float h, float s, float v)
 {
    int i;
@@ -95,20 +107,26 @@ void update_color_bars(int r, int g, int b, float h, float s, float v)
 
 
    for (i=0; i<256; i++) {
-      vline(color_bar_bitmap[S_R], i, 0, 15, makecol32(i, g, b));   /* Red color-bar */
+      /* Red color-bar */
+      vline(color_bar_bitmap[S_R], i, 0, 15, makecol32(i, g, b));
 
-      vline(color_bar_bitmap[S_G], i, 0, 15, makecol32(r, i, b));   /* Green color-bar */
+      /* Green color-bar */
+      vline(color_bar_bitmap[S_G], i, 0, 15, makecol32(r, i, b));
 
-      vline(color_bar_bitmap[S_B], i, 0, 15, makecol32(r, g, i));   /* Blue color-bar */
+      /* Blue color-bar */
+      vline(color_bar_bitmap[S_B], i, 0, 15, makecol32(r, g, i));
 
+      /* Hue color-bar */
       hsv_to_rgb(i*360.0f/255.0f, s, v, &hr, &hg, &hb);
-      vline(color_bar_bitmap[S_H], i, 0, 15, makecol32(hr, hg, hb));   /* Hue color-bar */
+      vline(color_bar_bitmap[S_H], i, 0, 15, makecol32(hr, hg, hb));
 
+      /* Saturation color-bar */
       hsv_to_rgb(h, i/255.0f, v, &hr, &hg, &hb);
-      vline(color_bar_bitmap[S_S], i, 0, 15, makecol32(hr, hg, hb));   /* Saturation color-bar */
+      vline(color_bar_bitmap[S_S], i, 0, 15, makecol32(hr, hg, hb));
 
+      /* Value color-bar */
       hsv_to_rgb(h, s, i/255.0f, &hr, &hg, &hb);
-      vline(color_bar_bitmap[S_V], i, 0, 15, makecol32(hr, hg, hb));   /* Value color-bar */
+      vline(color_bar_bitmap[S_V], i, 0, 15, makecol32(hr, hg, hb));
    }
 }
 
@@ -117,7 +135,8 @@ void update_color_bars(int r, int g, int b, float h, float s, float v)
 /* helper for reacting to the changing one of the sliders */
 int update_color_value(void *dp3, int val)
 {
-   /* 'val' is the value of the slider's position (0-255), 'type' is which slider was changed */
+   /* 'val' is the value of the slider's position (0-255),
+      'type' is which slider was changed */
    int type = ((unsigned long)dp3 - (unsigned long)colors) / sizeof(colors[0]);
    int r, g, b;
    float h, s, v;
@@ -126,28 +145,30 @@ int update_color_value(void *dp3, int val)
       colors[type] = val;
 
       if ((type == S_R) || (type == S_G) || (type == S_B)) {
-         /* The slider that's changed is either R, G, or B. Convert RGB color to HSV */
-         r = colors[S_R];
-         g = colors[S_G];
-         b = colors[S_B];
+	 /* The slider that's changed is either R, G, or B.
+	    Convert RGB color to HSV. */
+	 r = colors[S_R];
+	 g = colors[S_G];
+	 b = colors[S_B];
 
-        rgb_to_hsv(r, g, b, &h, &s, &v);
+	 rgb_to_hsv(r, g, b, &h, &s, &v);
 
-         colors[S_H] = h * 255.0f / 360.0f + 0.5f;
-         colors[S_S] = s * 255.0f + 0.5f;
-         colors[S_V] = v * 255.0f + 0.5f;
+	 colors[S_H] = h * 255.0f / 360.0f + 0.5f;
+	 colors[S_S] = s * 255.0f + 0.5f;
+	 colors[S_V] = v * 255.0f + 0.5f;
       }
       else {
-         /* The slider that's changed is either H, S, or V. Convert HSV color to RGB */
-         h = colors[S_H] * 360.0f / 255.0f;
-         s = colors[S_S] / 255.0f;
-         v = colors[S_V] / 255.0f;
+	 /* The slider that's changed is either H, S, or V.
+	    Convert HSV color to RGB. */
+	 h = colors[S_H] * 360.0f / 255.0f;
+	 s = colors[S_S] / 255.0f;
+	 v = colors[S_V] / 255.0f;
 
-         hsv_to_rgb(h, s, v, &r, &g, &b);
+	 hsv_to_rgb(h, s, v, &r, &g, &b);
 
-         colors[S_R] = r;
-         colors[S_G] = g;
-         colors[S_B] = b;
+	 colors[S_R] = r;
+	 colors[S_G] = g;
+	 colors[S_B] = b;
       }
 
       update_color_bars(r,g,b,h,s,v);
@@ -155,13 +176,14 @@ int update_color_value(void *dp3, int val)
       vsync();
 
       if (get_color_depth() == 8) {
-         /* set the screen background to the new color if in paletted mode */
-         RGB rgb;
-         rgb.r = colors[S_R]>>2;
-         rgb.g = colors[S_G]>>2;
-         rgb.b = colors[S_B]>>2;
+	 /* set the screen background to the new color if in paletted mode */
+	 RGB rgb;
+	 rgb.r = colors[S_R]>>2;
+	 rgb.g = colors[S_G]>>2;
+	 rgb.b = colors[S_B]>>2;
 
-         set_color(255, &rgb);   /* in 8-bit color modes, we're changing the 'white' background-color */
+	 set_color(255, &rgb);   /* in 8-bit color modes, we're changing the
+				    'white' background-color */
       }
 
       /* Update the rectangle in the middle to the new color */
@@ -190,17 +212,17 @@ int my_slider_proc(int msg, DIALOG *d, int c)
    switch (msg) {
 
       case MSG_START:
-         /* initialise the slider position */
-         d->d2 = *color;
-         break;
+	 /* initialise the slider position */
+	 d->d2 = *color;
+	 break;
 
       case MSG_IDLE:
-         /* has the slider position changed? */
-         if (d->d2 != *color) {
-             d->d2 = *color;
-             object_message(d, MSG_DRAW, 0);
-         }
-         break;
+	 /* has the slider position changed? */
+	 if (d->d2 != *color) {
+	    d->d2 = *color;
+	    object_message(d, MSG_DRAW, 0);
+	 }
+	 break;
    }
 
    return d_slider_proc(msg, d, c);
@@ -223,17 +245,18 @@ int main(void)
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       set_color_depth(24);
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-         set_color_depth(16);
-         if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-            set_color_depth(15);
-            if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-               set_color_depth(8);
-               if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-                 allegro_message("Error setting a graphics mode\n%s\n", allegro_error);
-                 return 1;
-               }
-            }
-         }
+	 set_color_depth(16);
+	 if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	    set_color_depth(15);
+	    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	       set_color_depth(8);
+	       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+		 allegro_message("Error setting a graphics mode\n%s\n",
+				 allegro_error);
+		 return 1;
+	       }
+	    }
+	 }
       }
    }
 
@@ -246,13 +269,15 @@ int main(void)
          we can get with 8-bit color */
       set_palette(pal332);
 
-      /* In 8-bit color mode, if there's an RGB table, thie sliders will move a
-         lot more smoothly and the updating will be a lot quicker. But if there's
-         no RGB table, this has the advantage that the color conversion routines
-         will take into account any changes in the background color. Instead of
-         changing background color, we could also rely on the colored rectangle
-         like in the other color modes, but using the 3-3-2 palette, this doesn't
-         display the color as accurately as changing the background color */
+      /* In 8-bit color mode, if there's an RGB table, thie sliders
+	 will move a lot more smoothly and the updating will be
+	 a lot quicker. But if there's no RGB table, this has the
+	 advantage that the color conversion routines will take into
+	 account any changes in the background color. Instead of
+	 changing background color, we could also rely on the colored
+	 rectangle like in the other color modes, but using the 3-3-2
+	 palette, this doesn't display the color as accurately as
+	 changing the background color. */
 #if 0
       /* Create an RGB table to speedup makecol8() */
       create_rgb_table(&rgb_table, pal332, NULL);
@@ -263,13 +288,19 @@ int main(void)
    clear_to_color(screen,makecol(255,255,255));
 
    /* color the dialog controls appropriately */
-   the_dlg[S_R].fg = the_dlg[DIALOG_NUM_SLIDERS+S_R].fg = makecol(255,0,0);   /* R -> Red */
-   the_dlg[S_G].fg = the_dlg[DIALOG_NUM_SLIDERS+S_G].fg = makecol(0,255,0);   /* G -> Green */
-   the_dlg[S_B].fg = the_dlg[DIALOG_NUM_SLIDERS+S_B].fg = makecol(0,0,255);   /* B -> Blue */
+   /* R -> Red */
+   the_dlg[S_R].fg = the_dlg[DIALOG_NUM_SLIDERS+S_R].fg = makecol(255,0,0);
+   /* G -> Green */
+   the_dlg[S_G].fg = the_dlg[DIALOG_NUM_SLIDERS+S_G].fg = makecol(0,255,0);
+   /* B -> Blue */
+   the_dlg[S_B].fg = the_dlg[DIALOG_NUM_SLIDERS+S_B].fg = makecol(0,0,255);
 
-   the_dlg[S_H].fg = the_dlg[DIALOG_NUM_SLIDERS+S_H].fg = makecol(192,192,192);   /* H -> Grey */
-   the_dlg[S_S].fg = the_dlg[DIALOG_NUM_SLIDERS+S_S].fg = makecol(128,128,128);   /* S -> Dark Grey */
-   the_dlg[S_V].fg = the_dlg[DIALOG_NUM_SLIDERS+S_V].fg = makecol(0,0,0);         /* V -> Black */
+   /* H -> Grey */
+   the_dlg[S_H].fg = the_dlg[DIALOG_NUM_SLIDERS+S_H].fg = makecol(192,192,192);
+   /* S -> Dark Grey */
+   the_dlg[S_S].fg = the_dlg[DIALOG_NUM_SLIDERS+S_S].fg = makecol(128,128,128);
+   /* V -> Black */
+   the_dlg[S_V].fg = the_dlg[DIALOG_NUM_SLIDERS+S_V].fg = makecol(0,0,0);
 
    /* Create the bitmaps for the color-bars */
    for (i=0; i<DIALOG_NUM_SLIDERS; i++) {
@@ -286,48 +317,65 @@ int main(void)
 
    the_dlg[DIALOG_COLOR_BOX].fg = makecol(0,0,0);
 
-   textout_ex(screen,font,"RGB<->HSV color spaces example.",344,4,makecol(0,0,0),-1);
-   textout_ex(screen,font,"Drag sliders to change color values.",344,12,makecol(0,0,0),-1);
+   textout_ex(screen,font,"RGB<->HSV color spaces example.",344,4,
+	      makecol(0,0,0),-1);
+   textout_ex(screen,font,"Drag sliders to change color values.",344,12,
+	      makecol(0,0,0),-1);
 
-   textout_ex(screen,font,"The color-bars beneath the sliders",24,384,makecol(128,128,128),-1);
-   textout_ex(screen,font,"show what the resulting color will",24,392,makecol(128,128,128),-1);
-   textout_ex(screen,font,"look like when the slider is",24,400,makecol(128,128,128),-1);
-   textout_ex(screen,font,"dragged to that position.",24,408,makecol(128,128,128),-1);
+   textout_ex(screen,font,"The color-bars beneath the sliders",24,384,
+	      makecol(128,128,128),-1);
+   textout_ex(screen,font,"show what the resulting color will",24,392,
+	      makecol(128,128,128),-1);
+   textout_ex(screen,font,"look like when the slider is",24,400,
+	      makecol(128,128,128),-1);
+   textout_ex(screen,font,"dragged to that position.",24,408,
+	      makecol(128,128,128),-1);
 
    switch (get_color_depth()) {
 
       case 32:
-         textout_ex(screen,font,"Running in truecolor (32-bit 888)",352,24,makecol(128,128,128),-1);
-         textout_ex(screen,font,"16777216 colors",352,32,makecol(128,128,128),-1);
-         break;
+	 textout_ex(screen,font,"Running in truecolor (32-bit 888)",352,24,
+		    makecol(128,128,128),-1);
+	 textout_ex(screen,font,"16777216 colors",352,32,
+		    makecol(128,128,128),-1);
+	 break;
 
       case 24:
-         textout_ex(screen,font,"Running in truecolor (24-bit 888)",352,24,makecol(128,128,128),-1);
-         textout_ex(screen,font,"16777216 colors",352,32,makecol(128,128,128),-1);
-         break;
+	 textout_ex(screen,font,"Running in truecolor (24-bit 888)",352,24,
+		    makecol(128,128,128),-1);
+	 textout_ex(screen,font,"16777216 colors",352,32,
+		    makecol(128,128,128),-1);
+	 break;
 
       case 16:
-         textout_ex(screen,font,"Running in hicolor (16-bit 565)",352,24,makecol(128,128,128),-1);
-         textout_ex(screen,font,"65536 colors",352,32,makecol(128,128,128),-1);
-         break;
+	 textout_ex(screen,font,"Running in hicolor (16-bit 565)",352,24,
+		    makecol(128,128,128),-1);
+	 textout_ex(screen,font,"65536 colors",352,32,
+		    makecol(128,128,128),-1);
+	 break;
 
       case 15:
-         textout_ex(screen,font,"Running in hicolor (15-bit 555)",352,24,makecol(128,128,128),-1);
-         textout_ex(screen,font,"32768 colors",352,32,makecol(128,128,128),-1);
-         break;
+	 textout_ex(screen,font,"Running in hicolor (15-bit 555)",352,24,
+		    makecol(128,128,128),-1);
+	 textout_ex(screen,font,"32768 colors",352,32,
+		    makecol(128,128,128),-1);
+	 break;
 
       case 8:
-         textout_ex(screen,font,"Running in paletted mode (8-bit 332)",352,24,makecol(128,128,128),-1);
-         textout_ex(screen,font,"256 colors",352,32,makecol(128,128,128),-1);
-         break;
+	 textout_ex(screen,font,"Running in paletted mode (8-bit 332)",352,24,
+		    makecol(128,128,128),-1);
+	 textout_ex(screen,font,"256 colors",352,32,
+		    makecol(128,128,128),-1);
+	 break;
 
       default:
-         textout_ex(screen,font,"Unknown color depth",400,16,0,-1);
+	 textout_ex(screen,font,"Unknown color depth",400,16,0,-1);
    }
 
    update_color_rectangle(colors[S_R], colors[S_G], colors[S_B]);
    update_color_bars(colors[S_R], colors[S_G], colors[S_B],
-      colors[S_H]*360.0f/255.0f,colors[S_S]/255.0f, colors[S_V]/255.0f);
+		     colors[S_H]*360.0f/255.0f,
+		     colors[S_S]/255.0f, colors[S_V]/255.0f);
 
    do_dialog(the_dlg, -1);
 

@@ -2,7 +2,9 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program demonstrates how to access the contents of an
- *    Allegro datafile (created by the grabber utility).
+ *    Allegro datafile (created by the grabber utility). The example
+ *    loads the file `example.dat', then blits a bitmap and shows
+ *    a font, both from this datafile.
  */
 
 
@@ -28,7 +30,8 @@ int main(int argc, char *argv[])
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
@@ -52,12 +55,13 @@ int main(int argc, char *argv[])
    set_color_conversion(COLORCONV_TOTAL);
    
    /* display the bitmap from the datafile */
-   textout_ex(screen, font, "This is the bitmap:", 32, 16, makecol(255, 255, 255), -1);
+   textout_ex(screen, font, "This is the bitmap:", 32, 16,
+	      makecol(255, 255, 255), -1);
    blit(datafile[SILLY_BITMAP].dat, screen, 0, 0, 64, 32, 64, 64);
 
    /* and use the font from the datafile */
-   textout_ex(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128,
-	      makecol(0, 255, 0), -1);
+   textout_ex(screen, datafile[BIG_FONT].dat, "And this is a big font!",
+	      32, 128, makecol(0, 255, 0), -1);
 
    readkey();
 

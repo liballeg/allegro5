@@ -20,10 +20,6 @@
 #include "allegro/platform/aintunix.h"
 #include "xwin.h"
 
-#ifdef ALLEGRO_MULTITHREADED
-#include <pthread.h>
-#endif
-
 
 static GFX_VTABLE _xwin_vtable;
 
@@ -61,28 +57,159 @@ static void _xwin_clear_to_color(BITMAP *dst, int color);
  */
 void _xwin_drawing_mode(void)
 {
-   if (!_xwin.matching_formats) {
-      if (_drawing_mode == DRAW_MODE_SOLID)
-	 _xwin.drawing_mode_ok = TRUE;
-      else
-	 _xwin.drawing_mode_ok = FALSE;
-
-      _xwin.real_drawing_mode = GXcopy;
-      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
-      return;
-   }
-
-   _xwin.drawing_mode_ok = TRUE;
-   if(_drawing_mode == DRAW_MODE_SOLID)
-      _xwin.real_drawing_mode = GXcopy;
-   else if (_drawing_mode == DRAW_MODE_XOR)
-      _xwin.real_drawing_mode = GXxor;
-   else {
+   /* Only SOLID can be handled directly by X11. */
+   if(_xwin.matching_formats && _drawing_mode == DRAW_MODE_SOLID)
+      _xwin.drawing_mode_ok = TRUE;
+   else
       _xwin.drawing_mode_ok = FALSE;
-      _xwin.real_drawing_mode = GXcopy;
-   }
+}
 
-   XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin.real_drawing_mode, -1);
+
+
+/* Direct X11 version of the function. */
+static inline int _xwin_direct_putpixel(BITMAP *dst, int dx, int dy, int color)
+{
+   if (!_xwin.drawing_mode_ok)
+      return 0;
+
+   dx += dst->x_ofs - _xwin.scroll_x;
+   dy += dst->y_ofs - _xwin.scroll_y;
+
+   if((dx >= _xwin.screen_width) || (dx < 0) ||
+      (dy >= _xwin.screen_height) || (dy < 0))
+      return 1;
+
+   XLOCK();
+   XSetForeground(_xwin.display, _xwin.gc, color);
+   XDrawPoint(_xwin.display, _xwin.window, _xwin.gc, dx, dy);
+   XUNLOCK();
+
+   return 1;
+}
+
+
+
+/* Direct X11 version of the function. */
+static inline int _xwin_direct_hline(BITMAP *dst, int dx1, int dy, int dx2, int color)
+{
+   if (!_xwin.drawing_mode_ok)
+      return 0;
+
+   dx1 += dst->x_ofs - _xwin.scroll_x;
+   dx2 += dst->x_ofs - _xwin.scroll_x;
+   dy += dst->y_ofs - _xwin.scroll_y;
+
+   if (dx1 < 0)
+      dx1 = 0;
+   if (dx2 >= _xwin.screen_width)
+      dx2 = _xwin.screen_width - 1;
+   if ((dx1 > dx2) || (dy < 0) || (dy >= _xwin.screen_height))
+      return 1;
+
+   XLOCK();
+   XSetForeground(_xwin.display, _xwin.gc, color);
+   XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx1, dy, dx2, dy);
+   XUNLOCK();;
+
+   return 1;
+}
+
+
+
+/* Direct X11 version of the function. */
+static inline int _xwin_direct_vline(BITMAP *dst, int dx, int dy1, int dy2, int color)
+{
+   if (!_xwin.drawing_mode_ok)
+      return 0;
+
+   dx += dst->x_ofs - _xwin.scroll_x;
+   dy1 += dst->y_ofs - _xwin.scroll_y;
+   dy2 += dst->y_ofs - _xwin.scroll_y;
+
+   if (dy1 < 0)
+      dy1 = 0;
+   if (dy2 >= _xwin.screen_height)
+      dy2 = _xwin.screen_height - 1;
+   if ((dy1 > dy2) || (dx < 0) || (dx >= _xwin.screen_width))
+      return 1;
+
+   XLOCK();
+   XSetForeground(_xwin.display, _xwin.gc, color);
+   XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx, dy1, dx, dy2);
+   XUNLOCK();
+
+   return 1;
+}
+
+
+
+/* Direct X11 version of the function. */
+static inline int _xwin_direct_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int color)
+{
+   if (!_xwin.drawing_mode_ok)
+      return 0;
+
+   dx1 += dst->x_ofs - _xwin.scroll_x;
+   dx2 += dst->x_ofs - _xwin.scroll_x;
+   dy1 += dst->y_ofs - _xwin.scroll_y;
+   dy2 += dst->y_ofs - _xwin.scroll_y;
+
+   if (dx1 < 0)
+      dx1 = 0;
+   if (dx2 >= _xwin.screen_width)
+      dx2 = _xwin.screen_width - 1;
+   if (dx1 > dx2)
+      return 1;
+
+   if (dy1 < 0)
+      dy1 = 0;
+   if (dy2 >= _xwin.screen_height)
+      dy2 = _xwin.screen_height - 1;
+   if (dy1 > dy2)
+      return 1;
+
+   XLOCK();
+   XSetForeground(_xwin.display, _xwin.gc, color);
+   XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
+   XUNLOCK();
+
+   return 1;
+}
+
+
+
+/* Direct X11 version of the function. */
+static inline int _xwin_direct_clear_to_color(BITMAP *dst, int color)
+{
+   int dx1, dy1, dx2, dy2;
+   if (!_xwin.drawing_mode_ok)
+      return 0;
+
+   dx1 = dst->cl + dst->x_ofs - _xwin.scroll_x;
+   dx2 = dst->cr + dst->x_ofs - 1 - _xwin.scroll_x;
+   dy1 = dst->ct + dst->y_ofs - _xwin.scroll_y;
+   dy2 = dst->cb + dst->y_ofs - 1 - _xwin.scroll_y;
+
+   if (dx1 < 0)
+      dx1 = 0;
+   if (dx2 >= _xwin.screen_width)
+      dx2 = _xwin.screen_width - 1;
+   if (dx1 > dx2)
+      return 1;
+
+   if (dy1 < 0)
+      dy1 = 0;
+   if (dy2 >= _xwin.screen_height)
+      dy2 = _xwin.screen_height - 1;
+   if (dy1 > dy2)
+      return 1;
+
+   XLOCK();
+   XSetForeground(_xwin.display, _xwin.gc, color);
+   XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
+   XUNLOCK();
+
+   return 1;
 }
 
 
@@ -131,19 +258,7 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
  */
 void _xwin_lock(BITMAP *bmp)
 {
-#ifdef ALLEGRO_MULTITHREADED
-   /* We want to force another mutex lock if another thread is trying to
-    * acquire the screen
-    */
-   if ((_xwin.screen_lock_count == 0) ||
-       (_xwin.locked_thread != pthread_self())) {
-#else
-   if (_xwin.screen_lock_count == 0) {
-#endif
-      XLOCK();
-      _xwin.locked_thread = pthread_self();
-   }
-   _xwin.screen_lock_count++;
+   XLOCK ();
 }
 
 
@@ -154,9 +269,7 @@ void _xwin_lock(BITMAP *bmp)
  */
 void _xwin_unlock(BITMAP *bmp)
 {
-   _xwin.screen_lock_count--;
-   if (_xwin.screen_lock_count == 0)
-      XUNLOCK();
+   XUNLOCK();
 }
 
 
@@ -166,13 +279,7 @@ void _xwin_unlock(BITMAP *bmp)
  */
 static void _xwin_update_video_bitmap(BITMAP *dst, int x, int y, int w, int h)
 {
-   if (_xwin.real_drawing_mode != GXcopy)
-      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
-
    _xwin_update_screen(x + dst->x_ofs, y + dst->y_ofs, w, h);
-
-   if (_xwin.real_drawing_mode != GXcopy)
-      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin.real_drawing_mode, -1);
 }
 
 
@@ -194,22 +301,10 @@ static void _xwin_putpixel(BITMAP *dst, int dx, int dy, int color)
    _xwin_vtable.putpixel(dst, dx, dy, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin.drawing_mode_ok)
-   {
-      dx += dst->x_ofs - _xwin.scroll_x;
-      dy += dst->y_ofs - _xwin.scroll_y;
+   if (_xwin_direct_putpixel(dst, dx, dy, color))
+      return;
 
-      if((dx >= _xwin.screen_width) || (dx < 0) || 
-	 (dy >= _xwin.screen_height) || (dy < 0))
-	 return;
-
-      _xwin_lock(NULL);
-      XSetForeground(_xwin.display, _xwin.gc, color);
-      XDrawPoint(_xwin.display, _xwin.window, _xwin.gc, dx, dy);
-      _xwin_unlock(NULL);
-   }
-   else
-      _xwin_update_video_bitmap(dst, dx, dy, 1, 1);
+   _xwin_update_video_bitmap(dst, dx, dy, 1, 1);
 }
 
 
@@ -243,25 +338,10 @@ static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color)
    _xwin_vtable.hline(dst, dx1, dy, dx2, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin.drawing_mode_ok) {
-      dx1 += dst->x_ofs - _xwin.scroll_x;
-      dx2 += dst->x_ofs - _xwin.scroll_x;
-      dy += dst->y_ofs - _xwin.scroll_y;
+   if (_xwin_direct_hline(dst, dx1, dy, dx2, color))
+      return;
 
-      if (dx1 < 0)
-	 dx1 = 0;
-      if (dx2 >= _xwin.screen_width)
-	 dx2 = _xwin.screen_width - 1;
-      if ((dx1 > dx2) || (dy < 0) || (dy >= _xwin.screen_height))
-	 return;
-
-      _xwin_lock(NULL);
-      XSetForeground(_xwin.display, _xwin.gc, color);
-      XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx1, dy, dx2, dy);
-      _xwin_unlock(NULL);
-   }
-   else
-      _xwin_update_video_bitmap(dst, dx1, dy, dx2 - dx1 + 1, 1);
+   _xwin_update_video_bitmap(dst, dx1, dy, dx2 - dx1 + 1, 1);
 }
 
 
@@ -295,25 +375,10 @@ static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color)
    _xwin_vtable.vline(dst, dx, dy1, dy2, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin.drawing_mode_ok) {
-      dx += dst->x_ofs - _xwin.scroll_x;
-      dy1 += dst->y_ofs - _xwin.scroll_y;
-      dy2 += dst->y_ofs - _xwin.scroll_y;
+   if (_xwin_direct_vline(dst, dx, dy1, dy2, color))
+      return;
 
-      if (dy1 < 0)
-	 dy1 = 0;
-      if (dy2 >= _xwin.screen_height)
-	 dy2 = _xwin.screen_height - 1;
-      if ((dy1 > dy2) || (dx < 0) || (dx >= _xwin.screen_width))
-	 return;
-
-      _xwin_lock(NULL);
-      XSetForeground(_xwin.display, _xwin.gc, color);
-      XDrawLine(_xwin.display, _xwin.window, _xwin.gc, dx, dy1, dx, dy2);
-      _xwin_unlock(NULL);
-   }
-   else
-      _xwin_update_video_bitmap(dst, dx, dy1, 1, dy2 - dy1 + 1);
+   _xwin_update_video_bitmap(dst, dx, dy1, 1, dy2 - dy1 + 1);
 }
 
 
@@ -360,33 +425,10 @@ static void _xwin_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int 
    _xwin_vtable.rectfill(dst, dx1, dy1, dx2, dy2, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin.drawing_mode_ok) {
-      dx1 += dst->x_ofs - _xwin.scroll_x;
-      dx2 += dst->x_ofs - _xwin.scroll_x;
-      dy1 += dst->y_ofs - _xwin.scroll_y;
-      dy2 += dst->y_ofs - _xwin.scroll_y;
+   if (_xwin_direct_rectfill(dst, dx1, dy1, dx2, dy2, color))
+      return;
 
-      if (dx1 < 0)
-	 dx1 = 0;
-      if (dx2 >= _xwin.screen_width)
-	 dx2 = _xwin.screen_width - 1;
-      if (dx1 > dx2)
-	 return;
-
-      if (dy1 < 0)
-	 dy1 = 0;
-      if (dy2 >= _xwin.screen_height)
-	 dy2 = _xwin.screen_height - 1;
-      if (dy1 > dy2)
-	 return;
-
-      _xwin_lock(NULL);
-      XSetForeground(_xwin.display, _xwin.gc, color);
-      XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
-      _xwin_unlock(NULL);
-   }
-   else
-      _xwin_update_video_bitmap(dst, dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1);
+   _xwin_update_video_bitmap(dst, dx1, dy1, dx2 - dx1 + 1, dy2 - dy1 + 1);
 }
 
 
@@ -405,33 +447,10 @@ static void _xwin_clear_to_color(BITMAP *dst, int color)
    _xwin_vtable.clear_to_color(dst, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && (_drawing_mode == DRAW_MODE_SOLID)) {
-      int dx1 = dst->cl + dst->x_ofs - _xwin.scroll_x;
-      int dx2 = dst->cr + dst->x_ofs - 1 - _xwin.scroll_x;
-      int dy1 = dst->ct + dst->y_ofs - _xwin.scroll_y;
-      int dy2 = dst->cb + dst->y_ofs - 1 - _xwin.scroll_y;
+   if (_xwin_direct_clear_to_color(dst, color))
+      return;
 
-      if (dx1 < 0)
-	 dx1 = 0;
-      if (dx2 >= _xwin.screen_width)
-	 dx2 = _xwin.screen_width - 1;
-      if (dx1 > dx2)
-	 return;
-
-      if (dy1 < 0)
-	 dy1 = 0;
-      if (dy2 >= _xwin.screen_height)
-	 dy2 = _xwin.screen_height - 1;
-      if (dy1 > dy2)
-	 return;
-
-      _xwin_lock(NULL);
-      XSetForeground(_xwin.display, _xwin.gc, color);
-      XFillRectangle(_xwin.display, _xwin.window, _xwin.gc, dx1, dy1, dx2-dx1+1, dy2-dy1+1);
-      _xwin_unlock(NULL);
-   }
-   else
-      _xwin_update_video_bitmap(dst, dst->cl, dst->ct, dst->cr - dst->cl, dst->cb - dst->ct);
+   _xwin_update_video_bitmap(dst, dst->cl, dst->ct, dst->cr - dst->cl, dst->cb - dst->ct);
 }
 
 

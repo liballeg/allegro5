@@ -419,6 +419,7 @@ AL_FUNC(void, clear_keybuf, (void));
 AL_FUNC(void, set_leds, (int leds));
 AL_FUNC(void, set_keyboard_rate, (int delay, int repeat));
 AL_FUNC(int, scancode_to_ascii, (int scancode));
+AL_FUNC(AL_CONST char *, scancode_to_name, (int scancode));
 
 #ifndef ALLEGRO_NO_KEY_DEFINES
 

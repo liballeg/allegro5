@@ -116,6 +116,9 @@ Changes between 4.0.x and 4.2.x series
 <li>
    The semantics of rest are clarified so rest(0) does yielding when
    possible.
+<li>
+   The get_align_matrix[_f] functions would return mirrored matrices in some
+   cases, this was fixed.
 </ul>
 
 @heading

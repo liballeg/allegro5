@@ -260,63 +260,37 @@ void quat_to_matrix(AL_CONST QUAT *q, MATRIX_f *m)
  */
 void matrix_to_quat(AL_CONST MATRIX_f *m, QUAT *q)
 {
-   float diag;
-   float s;
-   int   i;
-   int   j;
-   int   k;
-   float out[4];
-   static int next[3] = { 1, 2, 0 };
-   ASSERT(m);
-   ASSERT(q);
+   float trace = m->v[0][0] + m->v[1][1] + m->v[2][2] + 1.0f;
 
-   diag = m->v[0][0] + m->v[1][1] + m->v[2][2];
-
-   if (diag > 0.0f) {
-      s    = (float)(sqrt(diag + 1.0));
-      q->w = s / 2.0;
-      s    = 0.5 / s;
-      q->x = (m->v[1][2] - m->v[2][1]) * s;
-      q->y = (m->v[2][0] - m->v[0][2]) * s;
-      q->z = (m->v[0][1] - m->v[1][0]) * s;
+   if (trace > EPSILON) {
+      float s = 0.5f / (float)sqrt(trace);
+      q->w = 0.25f / s;
+      q->x = (m->v[2][1] - m->v[1][2]) * s;
+      q->y = (m->v[0][2] - m->v[2][0]) * s;
+      q->z = (m->v[1][0] - m->v[0][1]) * s;
    }
    else {
-      i = 0;
-
-      if (m->v[1][1] > m->v[0][0]) {
-	 i = 1;
+      if (m->v[0][0] > m->v[1][1] && m->v[0][0] > m->v[2][2]) {
+         float s = 2.0f * (float)sqrt(1.0f + m->v[0][0] - m->v[1][1] - m->v[2][2]);
+         q->x = 0.25f * s;
+         q->y = (m->v[0][1] + m->v[1][0]) / s;
+         q->z = (m->v[0][2] + m->v[2][0]) / s;
+         q->w = (m->v[1][2] - m->v[2][1]) / s;
       }
-
-      if (m->v[2][2] > m->v[i][i]) {
-	 i = 2;
+      else if (m->v[1][1] > m->v[2][2]) {
+         float s = 2.0f * (float)sqrt(1.0f + m->v[1][1] - m->v[0][0] - m->v[2][2]);
+         q->x = (m->v[0][1] + m->v[1][0]) / s;
+         q->y = 0.25f * s;
+         q->z = (m->v[1][2] + m->v[2][1]) / s;
+         q->w = (m->v[0][2] - m->v[2][0]) / s;
       }
-
-      j = next[i];
-      k = next[j];
-
-      s = m->v[i][i] - (m->v[j][j] + m->v[k][k]);
-
-      /* NOTE: Passing non-orthonormalized matrices can result in odd things
-       *       happening, like the calculation of s below trying to find the
-       *       square-root of a negative number, which is imaginary.  Some
-       *       implementations of sqrt will crash, while others return this
-       *       as not-a-number (NaN). NaN could be very subtle because it will
-       *       not throw an exception on Intel processors.
-       */
-      ASSERT(s > 0.0);
-
-      s = (float)(sqrt(s) + 1.0);
-
-      out[i] = s / 2.0;
-      s      = 0.5 / s;
-      out[j] = (m->v[i][j] + m->v[j][i]) * s;
-      out[k] = (m->v[i][k] + m->v[k][i]) * s;
-      out[3] = (m->v[j][k] - m->v[k][j]) * s;
-
-      q->x = out[0];
-      q->y = out[1];
-      q->z = out[2];
-      q->w = out[3];
+      else {
+         float s = 2.0f * (float)sqrt(1.0f + m->v[2][2] - m->v[0][0] - m->v[1][1]);
+         q->x = (m->v[0][2] + m->v[2][0]) / s;
+         q->y = (m->v[1][2] + m->v[2][1]) / s;
+         q->z = 0.25f * s;
+         q->w = (m->v[0][1] - m->v[1][0]) / s;
+      }
    }
 }
 

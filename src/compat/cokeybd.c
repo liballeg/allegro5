@@ -606,6 +606,16 @@ int scancode_to_ascii(int scancode)
 
 
 
+/* scancode_to_name:
+ *  Converts the given scancode to a description of the key.
+ */
+AL_CONST char *scancode_to_name(int scancode)
+{
+   return al_keycode_to_name(scancode);
+}
+
+
+
 /* install_keyboard: [primary thread]
  *  Installs Allegro's keyboard handler. You must call this before using 
  *  any of the keyboard input routines. Returns -1 on failure.

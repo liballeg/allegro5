@@ -46,7 +46,7 @@ static void mouse_directx_position(int x, int y);
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
-
+static int mouse_directx_select_system_cursor(AL_CONST int cursor);
 
 MOUSE_DRIVER mouse_directx =
 {
@@ -63,7 +63,8 @@ MOUSE_DRIVER mouse_directx =
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
    NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
-   NULL                        // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   NULL,                       // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   mouse_directx_select_system_cursor
 };
 
 
@@ -92,8 +93,8 @@ static int mouse_sy = 2;
 #define MAF_DEFAULT 1                 /* mouse acceleration parameters */
 static int mouse_accel_fact = MAF_DEFAULT;
 static int mouse_accel_mult = MAF_DEFAULT;
-static int mouse_accel_thr1 = 5;
-static int mouse_accel_thr2 = 16;
+static int mouse_accel_thr1 = 5 * 5;
+static int mouse_accel_thr2 = 16 * 16;
 
 static int mouse_minx = 0;            /* mouse range */
 static int mouse_miny = 0;
@@ -208,31 +209,46 @@ static char* dinput_err_str(long err)
  */
 static void mouse_dinput_handle_event(int ofs, int data)
 {
+   static int last_mickeyx = 0;
+   static int last_mickeyy = 0;
+   static int last_was_x = 0;
+   int mag;
+
    switch (ofs) {
 
       case DIMOFS_X:
          if (!gfx_driver || !gfx_driver->windowed) {
+            if (last_was_x)
+               last_mickeyy = 0;
             if (mouse_accel_mult) {
-               if (ABS(data) >= mouse_accel_thr2)
+               mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
+               if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
-               else if (ABS(data) >= mouse_accel_thr1) 
+               else if (mag >= mouse_accel_thr1) 
                   data *= mouse_accel_mult;
             }
 
             dinput_x += data;
+            last_mickeyx = data;
+            last_was_x = 1;
          }
          break;
 
       case DIMOFS_Y:
          if (!gfx_driver || !gfx_driver->windowed) {
+            if (!last_was_x)
+               last_mickeyx = 0;
             if (mouse_accel_mult) {
-               if (ABS(data) >= mouse_accel_thr2)
+               mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
+               if (mag >= mouse_accel_thr2)
                   data *= (mouse_accel_mult<<1);
-               else if (ABS(data) >= mouse_accel_thr1) 
+               else if (mag >= mouse_accel_thr1) 
                   data *= mouse_accel_mult;
             }
 
             dinput_y += data;
+            last_mickeyy = data;
+            last_was_x = 0;
          }
          break;
 
@@ -266,6 +282,15 @@ static void mouse_dinput_handle_event(int ofs, int data)
          }
          else
             _mouse_b &= ~4;
+         break;
+
+      case DIMOFS_BUTTON3:
+         if (data & 0x80) {
+            if (_mouse_on)
+               _mouse_b |= 8;
+         }
+         else
+            _mouse_b &= ~8;
          break;
    }
 }
@@ -748,3 +773,36 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
    *mickeyy = temp_y;
 }
 
+
+
+/* mouse_directx_select_system_cursor:
+ *  Select an OS native cursor 
+ */
+static int mouse_directx_select_system_cursor (AL_CONST int cursor)
+{
+   HCURSOR wc;
+   
+   wc = NULL;
+   switch(cursor) {
+      case MOUSE_CURSOR_ARROW:
+         wc = LoadCursor(NULL, IDC_ARROW);
+         break;
+      case MOUSE_CURSOR_BUSY:
+         wc = LoadCursor(NULL, IDC_WAIT);
+         break;
+      case MOUSE_CURSOR_QUESTION:
+         wc = LoadCursor(NULL, IDC_HELP);
+         break;
+      case MOUSE_CURSOR_EDIT:
+         wc = LoadCursor(NULL, IDC_IBEAM);
+         break;
+      default:
+         return 0;
+   }
+
+   _win_hcursor = wc;
+   SetCursor(_win_hcursor);
+   PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
+   
+   return cursor;
+}

@@ -65,12 +65,14 @@ endif
 
 OFLAGS =  $(TARGET_ARCH) $(TARGET_OPTS)
 
+CFLAGS = -DALLEGRO_LIB_BUILD
+
 
 
 ifdef DEBUGMODE
 
 # -------- debugging build --------
-CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
+CFLAGS += -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
 LFLAGS = -g
 
@@ -78,14 +80,14 @@ else
 ifdef PROFILEMODE
 
 # -------- profiling build --------
-CFLAGS = $(WFLAGS) $(OFLAGS) -pg
+CFLAGS += $(WFLAGS) $(OFLAGS) -pg
 SFLAGS = $(WFLAGS)
 LFLAGS = -pg
 
 else
 
 # -------- optimised build --------
-CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
+CFLAGS += $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifndef SYMBOLMODE
@@ -121,7 +123,7 @@ endif # ALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
 
-LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
+LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia -lnet
 
 PROGRAMS = bfixicon
 

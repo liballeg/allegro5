@@ -170,6 +170,7 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
 #ifdef ALLEGRO_LINUX_VGA
    AL_VAR(GFX_DRIVER, gfx_vga);
    AL_VAR(GFX_DRIVER, gfx_modex);
+   #define GFX_HAS_VGA
 #endif
 
 #ifndef ALLEGRO_WITH_MODULES
@@ -185,6 +186,7 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
 
 #ifdef ALLEGRO_LINUX_VBEAF
    AL_VAR(GFX_DRIVER, gfx_vbeaf);
+   #define GFX_HAS_VBEAF
 #endif
 
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ps2);

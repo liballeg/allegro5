@@ -4,7 +4,7 @@
  *    This program demonstrates how to use hardware scrolling and split
  *    screens in mode-X. The split screen part only works on DOS and Linux
  *    console platforms, but the scrolling should work on anything that
- *    supports large virtual screens.
+ *    supports virtual screens larger than the physical screen.
  */
 
 
@@ -35,7 +35,8 @@ int main(void)
       if (set_gfx_mode(GFX_MODEX, 320, 240, 640, 240) != 0) {
 	 if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 640, 240) != 0) {
 	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	    allegro_message("Unable to set a 320x240 mode with 640x240 virtual dimensions\n");
+	    allegro_message("Unable to set a 320x240 mode with 640x240 "
+			    "virtual dimensions\n");
 	    return 1;
 	 }
       }
@@ -51,14 +52,16 @@ int main(void)
       /* no mode-X on this platform, so just make do the best we can */
       if (set_gfx_mode(GFX_AUTODETECT, 320, 240, 640, 240) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set a 320x240 mode with 640x240 virtual dimensions\n");
+	 allegro_message("Unable to set a 320x240 mode with 640x240 "
+			 "virtual dimensions\n");
 	 return 1;
       }
 
    #endif
 
    /* the scrolling area is sized 640x200 and starts at line 40 */
-   scroller = create_sub_bitmap(screen, 0, split_h, SCREEN_W*2, SCREEN_H-split_h);
+   scroller = create_sub_bitmap(screen, 0, split_h,
+				SCREEN_W*2, SCREEN_H-split_h);
 
    /* the status bar is sized 320x40 and starts at line 0 */
    if (split_h > 0)

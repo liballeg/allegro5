@@ -38,6 +38,9 @@ int main(void)
 
    release_screen();
 
+   install_mouse();
+   show_mouse(screen);
+
    /* fill our palette with a gradually altering sequence of colors */
    for (c=0; c<64; c++) {
       palette[c].r = c;

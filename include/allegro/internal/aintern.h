@@ -161,6 +161,7 @@ AL_VAR(volatile int, _key_shifts);
 AL_FUNC(void, _pckeys_init, (void));
 AL_FUNC(void, _handle_pckey, (int code));
 AL_FUNC(int,  _pckey_scancode_to_ascii, (int scancode));
+AL_FUNC(AL_CONST char *, _pckey_scancode_to_name, (int scancode));
 
 AL_VAR(unsigned short *, _key_ascii_table);
 AL_VAR(unsigned short *, _key_capslock_table);
@@ -252,7 +253,7 @@ AL_FUNC(unsigned long, _stub_bank_switch, (BITMAP *bmp, int line));
 AL_FUNC(void, _stub_unbank_switch, (BITMAP *bmp));
 AL_FUNC(void, _stub_bank_switch_end, (void));
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 
 AL_FUNC(unsigned long, _x_bank_switch, (BITMAP *bmp, int line));
 AL_FUNC(void, _x_unbank_switch, (BITMAP *bmp));
@@ -260,7 +261,7 @@ AL_FUNC(void, _x_bank_switch_end, (void));
 
 #endif
 
-#ifdef GFX_VBEAF
+#ifdef GFX_HAS_VBEAF
 
 AL_FUNC(void, _accel_bank_stub, (void));
 AL_FUNC(void, _accel_bank_stub_end, (void));
@@ -569,7 +570,7 @@ AL_FUNC(void, _linear_clear_to_color32, (BITMAP *bitmap, int color));
 
 #endif
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 
 AL_FUNC(int,  _x_getpixel, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _x_putpixel, (BITMAP *bmp, int x, int y, int color));
@@ -1192,6 +1193,7 @@ AL_FUNC(void, _al_thread_join, (_AL_THREAD*));
 
 typedef struct _AL_MUTEX _AL_MUTEX;
 AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
+AL_FUNC(void, _al_mutex_init_recursive, (_AL_MUTEX*));
 AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
 /* static inline void _al_mutex_lock(_AL_MUTEX*); */
 /* static inline void _al_mutex_unlock(_AL_MUTEX*); */

@@ -301,7 +301,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \
-	src/x/xkeybdnu.c \
+	src/x/xkeyboard.c \
 	src/x/xmouse.c \
 	src/x/xsystem.c \
 	src/x/xvtable.c \

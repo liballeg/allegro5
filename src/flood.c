@@ -206,7 +206,7 @@ static int check_flood_line(BITMAP *bmp, int y, int left, int right, int src_col
 /* floodfill:
  *  Fills an enclosed area (starting at point x, y) with the specified color.
  */
-void floodfill(BITMAP *bmp, int x, int y, int color)
+void _soft_floodfill(BITMAP *bmp, int x, int y, int color)
 {
    int src_color;
    int c, done;

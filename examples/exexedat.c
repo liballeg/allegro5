@@ -3,7 +3,8 @@
  *
  *    This program demonstrates how to access the contents of an Allegro
  *    datafile (created by the grabber utility) linked to the exe by the
- *    exedat tool. It is based on the exdata example.
+ *    exedat tool. It is basically the exdata example with minor
+ *    modifications.
  *
  *    You may ask: how do you compile, append and exec your program?
  *
@@ -15,6 +16,9 @@
  *    2) Once you compressed your program, run "exedat foo.exe data.dat"
  *
  *    3) Finally run your program.
+ *
+ *    Note that appending data to the end of binaries may not be portable
+ *    accross all platforms supported by Allegro.
  */
 
 
@@ -22,8 +26,8 @@
 
 
 /* the grabber produces this header, which contains defines for the names
- * of all the objects in the datafile (BIG_FONT, SILLY_BITMAP, etc).
- * We still need to keep this, since we want to know the names of the objects.
+ * of all the objects in the datafile (BIG_FONT, SILLY_BITMAP, etc). We
+ * still need to keep this, since we want to know the names of the objects.
  */
 #include "example.h"
 
@@ -40,7 +44,8 @@ int main(int argc, char *argv[])
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
@@ -52,16 +57,17 @@ int main(int argc, char *argv[])
    datafile = load_datafile("#");
    if (!datafile) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Unable to load the appended datafile!\n\n"
-		      "This program reads graphics from the end of the executable file.\n"
-		      "Before running it, you must append this data with the exedat utility.\n\n"
-		      "Example command line:\n\n"
+      allegro_message("Unable to load the appended datafile!\n\nThis program"
+		      " reads graphics from the end of the executable file.\n"
+		      "Before running it, you must append this data with the "
+		      "exedat utility.\n\nExample command line:\n\n"
 		  #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
 		      "\texedat exexedat.exe example.dat\n\n"
 		  #else
 		      "\texedat exexedat example.dat\n\n"
 		  #endif
-		      "To compress the appended data, pass the -c switch to exedat.\n");
+		      "To compress the appended data, pass the -c switch "
+		      "to exedat.\n");
       return 1;
    }
 
@@ -72,12 +78,13 @@ int main(int argc, char *argv[])
    set_color_conversion(COLORCONV_TOTAL);
    
    /* display the bitmap from the datafile */
-   textout_ex(screen, font, "This is the bitmap:", 32, 16, makecol(255, 255, 255), -1);
+   textout_ex(screen, font, "This is the bitmap:", 32, 16,
+	      makecol(255, 255, 255), -1);
    blit(datafile[SILLY_BITMAP].dat, screen, 0, 0, 64, 32, 64, 64);
 
    /* and use the font from the datafile */
-   textout_ex(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128,
-	      makecol(0, 255, 0), -1);
+   textout_ex(screen, datafile[BIG_FONT].dat, "And this is a big font!",
+	      32, 128, makecol(0, 255, 0), -1);
 
    readkey();
 

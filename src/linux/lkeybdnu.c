@@ -99,6 +99,7 @@ static AL_KEYBOARD_DRIVER keydrv_linux =
    lkeybd_exit,
    lkeybd_get_keyboard,
    lkeybd_set_leds,
+   NULL, /* const char *keycode_to_name(int keycode) */
    lkeybd_get_state
 };
 

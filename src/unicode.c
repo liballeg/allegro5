@@ -467,7 +467,7 @@ static int utf8_isok(int c)
 
 
 /* string format table, to allow user expansion with other encodings */
-UTYPE_INFO utypes[] =
+static UTYPE_INFO utypes[] =
 {
    { U_ASCII,    ascii_getc,    ascii_getx,    ascii_setc,    ascii_width,   ascii_cwidth,   ascii_isok,    1    },
    { U_UTF8,     utf8_getc,     utf8_getx,     utf8_setc,     utf8_width,    utf8_cwidth,    utf8_isok,     6     },

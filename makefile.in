@@ -210,6 +210,7 @@ allegro_aintern_h = $(srcdir)/include/allegro/internal/aintern.h
 allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
 	$(srcdir)/include/allegro/internal/aintvga.h
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
+xalleg_h = $(srcdir)/include/xalleg.h
 
 ifdef CROSSCOMPILE
 
@@ -234,7 +235,8 @@ endif
 
 # -------- documentation --------
 
-DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile readme
+DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile \
+               readme makedoc datafiles grabber dat dat2c dat2s license
 DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
@@ -524,13 +526,13 @@ install-headers:
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(includedir)/allegro/platform/; \
 	done
 
-install-programs: programs
+INSTALL_EXES = $(filter tools/%, $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES))
+
+install-programs: $(INSTALL_EXES)
 	$(mkinstalldirs) $(DESTDIR)$(bindir)
-	@for prog in $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES); do \
-	  if test "X`echo $$prog | sed -e s,tools/.\*,,`" = X; then \
+	@for prog in $^; do \
 	    echo Installing $$prog to $(DESTDIR)$(bindir); \
 	    $(INSTALL_PROGRAM) $$prog $(DESTDIR)$(bindir); \
-	  fi; \
 	done
 
 install-info: docs

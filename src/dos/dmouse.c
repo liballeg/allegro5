@@ -96,6 +96,7 @@ MOUSE_DRIVER mousedrv_mickeys =
    mick_set_speed,
    mick_get_mickeys,
    NULL,
+   NULL,
    NULL
 };
 
@@ -198,6 +199,7 @@ MOUSE_DRIVER mousedrv_win2k =
    mick_set_range,
    mick_set_speed,
    mick_get_mickeys,
+   NULL,
    NULL,
    NULL
 };

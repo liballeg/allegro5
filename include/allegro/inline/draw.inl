@@ -20,6 +20,7 @@
 #define ALLEGRO_DRAW_INL
 
 #include "allegro/debug.h"
+#include "allegro/3d.h"
 #include "gfx.inl"
 
 #ifdef __cplusplus
@@ -80,6 +81,148 @@ AL_INLINE(void, rectfill, (BITMAP *bmp, int x1, int y1, int x2, int y2, int colo
 
    bmp->vtable->rectfill(bmp, x1, y1, x2, y2, color);
 })
+
+
+AL_INLINE(void, triangle, (struct BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->triangle(bmp, x1, y1, x2, y2, x3, y3, color);
+})
+
+
+AL_INLINE(void, polygon, (BITMAP *bmp, int vertices, AL_CONST int *points, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->polygon(bmp, vertices, points, color);
+})
+
+
+AL_INLINE(void, rect, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->rect(bmp, x1, y1, x2, y2, color);
+})
+
+
+AL_INLINE(void, circle, (BITMAP *bmp, int x, int y, int radius, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->circle(bmp, x, y, radius, color);
+})
+
+
+AL_INLINE(void, circlefill, (BITMAP *bmp, int x, int y, int radius, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->circlefill(bmp, x, y, radius, color);
+})
+
+
+
+AL_INLINE(void, ellipse, (BITMAP *bmp, int x, int y, int rx, int ry, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->ellipse(bmp, x, y, rx, ry, color);
+})
+
+
+
+AL_INLINE(void, ellipsefill, (BITMAP *bmp, int x, int y, int rx, int ry, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->ellipsefill(bmp, x, y, rx, ry, color);
+})
+
+
+
+AL_INLINE(void, arc, (BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->arc(bmp, x, y, ang1, ang2, r, color);
+})
+
+
+
+AL_INLINE(void, spline, (BITMAP *bmp, AL_CONST int points[8], int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->spline(bmp, points, color);
+})
+
+
+
+AL_INLINE(void, floodfill, (BITMAP *bmp, int x, int y, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->floodfill(bmp, x, y, color);
+})
+
+
+
+AL_INLINE(void, polygon3d, (BITMAP *bmp, int type, struct BITMAP *texture, int vc, V3D *vtx[]),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->polygon3d(bmp, type, texture, vc, vtx);
+})
+
+
+
+AL_INLINE(void, polygon3d_f, (BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[]),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->polygon3d_f(bmp, type, texture, vc, vtx);
+})
+
+
+
+AL_INLINE(void, triangle3d, (BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->triangle3d(bmp, type, texture, v1, v2, v3);
+})
+
+
+
+AL_INLINE(void, triangle3d_f, (BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->triangle3d_f(bmp, type, texture, v1, v2, v3);
+})
+
+
+
+AL_INLINE(void, quad3d, (BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->quad3d(bmp, type, texture, v1, v2, v3, v4);
+})
+
+
+
+AL_INLINE(void, quad3d_f, (BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->quad3d_f(bmp, type, texture, v1, v2, v3, v4);
+})
+
+
+
 
 
 AL_INLINE(void, draw_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y),
@@ -150,6 +293,16 @@ AL_INLINE(void, draw_lit_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp->vtable->draw_lit_sprite(bmp, sprite, x, y, color);
+})
+
+
+AL_INLINE(void, draw_gouraud_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+   ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
+
+   bmp->vtable->draw_gouraud_sprite(bmp, sprite, x, y, c1, c2, c3, c4);
 })
 
 

@@ -35,6 +35,50 @@ bool _al_key_led_flag = true;
 
 
 
+/* Provide a default naming for the most common keys. Keys whose
+ * mapping changes dependind on the layout aren't listed - it's up to
+ * the keyboard driver to do that.  All keyboard drivers should
+ * provide their own implementation though, especially if they use
+ * positional mapping.
+ */
+AL_CONST char *_al_keyboard_common_names[AL_KEY_MAX] =
+{
+   "(none)",     "A",          "B",          "C",
+   "D",          "E",          "F",          "G",
+   "H",          "I",          "J",          "K",
+   "L",          "M",          "N",          "O",
+   "P",          "Q",          "R",          "S",
+   "T",          "U",          "V",          "W",
+   "X",          "Y",          "Z",          "0",
+   "1",          "2",          "3",          "4",
+   "5",          "6",          "7",          "8",
+   "9",          "PAD 0",      "PAD 1",      "PAD 2",
+   "PAD 3",      "PAD 4",      "PAD 5",      "PAD 6",
+   "PAD 7",      "PAD 8",      "PAD 9",      "F1",
+   "F2",         "F3",         "F4",         "F5",
+   "F6",         "F7",         "F8",         "F9",
+   "F10",        "F11",        "F12",        "ESCAPE",
+   "KEY60",      "KEY61",      "KEY62",      "BACKSPACE",
+   "TAB",        "KEY65",      "KEY66",      "ENTER",
+   "KEY68",      "KEY69",      "BACKSLASH",  "KEY71",
+   "KEY72",      "KEY73",      "KEY74",      "SPACE",
+   "INSERT",     "DELETE",     "HOME",       "END",
+   "PGUP",       "PGDN",       "LEFT",       "RIGHT",
+   "UP",         "DOWN",       "PAD /",      "PAD *",
+   "PAD -",      "PAD +",      "PAD DELETE", "PAD ENTER",
+   "PRINTSCREEN","PAUSE",      "KEY94",      "KEY95",
+   "KEY96",      "KEY97",      "KEY98",      "KEY99",
+   "KEY100",     "KEY101",     "KEY102",     "PAD =",
+   "KEY104",     "KEY105",     "KEY106",     "KEY107",
+   "KEY108",     "KEY109",     "KEY110",     "KEY111",
+   "KEY112",     "KEY113",     "KEY114",     "LSHIFT",
+   "RSHIFT",     "LCTRL",      "RCTRL",      "ALT",
+   "ALTGR",      "LWIN",       "RWIN",       "MENU",
+   "SCROLLLOCK", "NUMLOCK",    "CAPSLOCK"
+};
+
+
+
 /* al_install_keyboard: [primary thread]
  *  Install a keyboard driver. Returns true if successful. If a driver
  *  was already installed, nothing happens and true is returned.
@@ -125,6 +169,29 @@ bool al_set_keyboard_leds(int leds)
       return new_keyboard_driver->set_leds(leds);
 
    return false;
+}
+
+
+
+/* al_keycode_to_name:
+ *  Converts the given keycode to a description of the key.
+ */
+AL_CONST char *al_keycode_to_name(int keycode)
+{
+   AL_CONST char *name = NULL;
+
+   ASSERT(new_keyboard_driver);
+   ASSERT((keycode >= 0) && (keycode < AL_KEY_MAX));
+
+   if (new_keyboard_driver->keycode_to_name)
+      name = new_keyboard_driver->keycode_to_name(keycode);
+
+   if (!name)
+      name = _al_keyboard_common_names[keycode];
+
+   ASSERT(name);
+
+   return name;
 }
 
 

@@ -27,7 +27,7 @@
  *  Polygon helper function: initialises an edge structure for the 2d
  *  rasteriser.
  */
-void fill_edge_structure(POLYGON_EDGE *edge, AL_CONST int *i1, AL_CONST int *i2)
+static void fill_edge_structure(POLYGON_EDGE *edge, AL_CONST int *i1, AL_CONST int *i2)
 {
    if (i2[1] < i1[1]) {
       AL_CONST int *it;
@@ -113,7 +113,7 @@ POLYGON_EDGE *_remove_edge(POLYGON_EDGE *list, POLYGON_EDGE *edge)
  *  number of vertices, then an array containing a series of x, y points 
  *  (a total of vertices*2 values).
  */
-void polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
+void _soft_polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 {
    int c;
    int top = INT_MAX;
@@ -211,12 +211,9 @@ void polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
 /* triangle:
  *  Draws a filled triangle between the three points.
  */
-void triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color)
+void _soft_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color)
 {
    ASSERT(bmp);
-   if (bmp->vtable->triangle)
-      if (bmp->vtable->triangle(bmp, x1, y1, x2, y2, x3, y3, color))
-	 return;
 
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
 

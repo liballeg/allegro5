@@ -113,13 +113,16 @@ Notes on drivers
       It also supports fbcon, for which you do not need privileges, but 
       you do need a recent kernel, correctly configured.
       
-      The VBE/AF system does require root privileges. You also need to get 
-      a VBE/AF driver that works in Linux -- the FreeBE/AF project has two 
-      at present, but the project itself hasn't been ported to Linux. You 
-      can just copy out the driver binaries, though. Put the appropriate 
-      driver into `<tt>/usr/local/lib</tt>', `<tt>/usr/lib</tt>', `<tt>/lib</tt>' or `<tt>/</tt>', filename
-      `<tt>vbeaf.drv</tt>' -- or put it anywhere you like, specifying the location
-      in the config file as for the DOS version.
+      The VBE/AF system does require root privileges. Note it is not built by
+      default and hasn't been tested in a long time. Basically, you should
+      not bother with it. But if you insist, you need to get a VBE/AF driver
+      that works in Linux -- the FreeBE/AF project has two at present, but
+      the project itself hasn't been ported to Linux. You can just copy out
+      the driver binaries, though. Put the appropriate driver into
+      `<tt>/usr/local/lib</tt>', `<tt>/usr/lib</tt>', `<tt>/lib</tt>' or
+      `<tt>/</tt>', filename `<tt>vbeaf.drv</tt>' -- or put it anywhere you
+      like, specifying the location in the config file as for the DOS
+      version.
       
       For security reasons, the VBE/AF driver binary must be owned by root
       and only writable by root. You really don't want to load and execute 
@@ -130,8 +133,9 @@ Notes on drivers
       privileges if your version of SVGAlib requires them.</dd>
 
    <dt><b>Sound:</b></dt><dd>
-      The ALSA drivers currently only support the older (stable) version
-      of the ALSA API (0.5.x). The 0.9.x beta series are NOT supported yet.</dd>
+      The ALSA drivers support both the older 0.5.x version of the ALSA API
+      as well as the newer 0.9.x+ series. Support for the older API will be
+      dropped later.</dd>
 
    <dt><b>Keyboard:</b></dt><dd>
       The keyboard driver uses the kernel mapping tables to map scancodes
@@ -139,16 +143,15 @@ Notes on drivers
       should be fine without special configuration in the setup program.</dd>
 
    <dt><b>Joystick:</b></dt><dd>
-      To compile Allegro with joystick support you must have a recent 
-      (2.2.* or late 2.1.*) kernel, i.e. with kernel-based joystick 
-      support. Look for <tt>/usr/src/linux/include/linux/joystick.h</tt>. You
-      shouldn't have to actually configure the kernel with joystick 
-      support though, you just need that header file.
+      To compile Allegro with joystick support you must have a 2.2.* or newer
+      kernel, i.e. with kernel-based joystick support. Look for
+      <tt>/usr/src/linux/include/linux/joystick.h</tt>. You shouldn't have to
+      actually configure the kernel with joystick support though, you just
+      need that header file.
       
-      Similarly, to run Allegro programs with joystick support you need a 
-      recent kernel, and here you must have configured it into the kernel. 
-      You also need to create the device file <tt>/dev/js0</tt>, if it's not
-      already there.
+      Similarly, to run Allegro programs with joystick support you must have
+      configured joystick support into the kernel. You also need to create
+      the device file <tt>/dev/input/js0</tt>, if it's not already there.
       
       See <tt>/usr/src/linux/Documentation/joystick.txt</tt> for details.</dd>
 
@@ -162,5 +165,8 @@ Notes on drivers
       
       When using the PS/2 Intellimouse protocol, it is necessary to
       explicitly put the mouse into wheel mode, which requires Allegro
-      to have write permissions to the device.</dd>
+      to have write permissions to the device.
+
+      There is now also a input events-based driver which reads events from
+      <tt>/dev/input/eventN</tt>.</dd>
 </dl></blockquote>

@@ -1,47 +1,48 @@
 /*
  *    Example program for the Allegro library, by Richard Mitton.
  *
- *    or "How to get a 12-bit mode on an 8-bit card"
+ *    or "How to get a 12-bit mode on an 8-bit card".
  *
- *    This program sets up a 12-bit mode on any 8-bit card, by setting up
- *    a 256-colour palette that will fool the eye into grouping two 8-bit
- *    pixels into one 12-bit pixel.
+ *    This program sets up a 12-bit mode on any 8-bit card, by
+ *    setting up a 256-colour palette that will fool the eye into
+ *    grouping two 8-bit pixels into one 12-bit pixel. In order
+ *    to do this, you make your 256-colour palette with all the
+ *    combinations of blue and green, assuming green ranges from 0-15
+ *    and blue from 0-14. This takes up 16x15=240 colours. This
+ *    leaves 16 colours to use as red (red ranges from 0-15).
+ *    Then you put your green/blue in one pixel, and your red in
+ *    the pixel next to it. The eye gets fooled into thinking it's
+ *    all one pixel.
  *
- *    It's quite simple (sort of). You make your 256-colour palette with
- *    all the combinations of blue and green, assuming green ranges from
- *    0-15 and blue from 0-14. This takes up 16x15=240 colours. This leaves
- *    16 colours to use as red (red ranges from 0-15).
- *
- *    Then you put your green/blue in one pixel, and your red in the pixel
- *    next to it. The eye gets fooled into thinking it's all one pixel.
- *
- *    It's all very simple really. Honest.
- *
- *    To start with, you set a normal 256 color VESA mode, and construct a 
- *    special palette for it. But then comes the trick: you need to write
- *    to a set of two adjacent pixels to form a single 12 bit dot. Two eight
- *    bit pixels is the same as one 16 bit pixel, so after setting the video
- *    mode you need to hack the screen bitmap about, halving the width and
- *    changing it to use the 16 bit drawing code. Then, once you have packed
- *    a color into the correct format (using the makecol12() function below),
- *    any of the normal Allegro drawing functions can be used with this 12
- *    bit display!
+ *    The example starts setting a normal 256 color mode, and
+ *    construct a special palette for it. But then comes the trick:
+ *    you need to write to a set of two adjacent pixels to form a
+ *    single 12 bit dot. Two eight bit pixels is the same as one 16
+ *    bit pixel, so after setting the video mode you need to hack
+ *    the screen bitmap about, halving the width and changing it
+ *    to use the 16 bit drawing code. Then, once you have packed a
+ *    color into the correct format (using the makecol12() function
+ *    below), any of the normal Allegro drawing functions can be
+ *    used with this 12 bit display!
  *
  *    Things to note:
  *
- *    The horizontal width is halved, so you get resolutions like 320x480,
- *    400x600, and 512x768.
+ *    <ul><li>The horizontal width is halved, so you get resolutions
+ *    like 320x480, 400x600, and 512x768.
  *
- *    Because each dot is spread over two actual pixels, the display will
- *    be darker than in a normal video mode.
+ *    <li>Because each dot is spread over two actual pixels, the
+ *    display will be darker than in a normal video mode.
  *
- *    Any bitmap data will obviously need converting to the correct 12
- *    bit format: regular 15 or 16 bit images won't display correctly...
+ *    <li>Any bitmap data will obviously need converting to the
+ *    correct 12 bit format: regular 15 or 16 bit images won't
+ *    display correctly...
  *
- *    Although this works like a truecolor mode, it is actually using a
- *    256 color palette, so palette fades are still possible!
+ *    <li>Although this works like a truecolor mode, it is
+ *    actually using a 256 color palette, so palette fades are
+ *    still possible!
  *
- *    Note: This code only works in linear screen modes (don't try Mode-X).
+ *    <li>This code only works in linear screen modes (don't try
+ *    Mode-X).</ul>
  */
 
 
@@ -327,9 +328,11 @@ int main(int argc, char *argv[])
    /* first set your graphics mode as normal, except twice as wide because
     * we are using 2-bytes per pixel, but the graphics card doesn't know this.
     */
-   if (set_gfx_mode(GFX_AUTODETECT, GFXW*sizeof(short), GFXH, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, GFXW * 2, GFXH, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting %ix%ix12 (really %ix%ix8, but we fake it):\n%s\n", GFXW, GFXH, GFXW*(int)sizeof(short), GFXH, allegro_error);
+      allegro_message("Error setting %ix%ix12 (really %ix%ix8, but we fake "
+		      "it):\n%s\n", GFXW, GFXH, GFXW* 2, GFXH,
+		      allegro_error);
       return 1;
    }
 
@@ -387,8 +390,10 @@ int main(int argc, char *argv[])
    xangle = yangle = zangle = 0;
 
    /* put a message in the top-left corner */
-   textprintf_ex(rgbpic, font, 3, 3, makecol12(255, 255, 255), -1, "%ix%i 12-bit colour on an 8-bit card", GFXW, GFXH);
-   textprintf_ex(rgbpic, font, 3, 13, makecol12(255, 255, 255), -1, "(3840 colours at once!)");
+   textprintf_ex(rgbpic, font, 3, 3, makecol12(255, 255, 255), -1,
+		 "%ix%i 12-bit colour on an 8-bit card", GFXW, GFXH);
+   textprintf_ex(rgbpic, font, 3, 13, makecol12(255, 255, 255), -1,
+		 "(3840 colours at once!)");
 
    while (!keypressed()) {
       /* first, draw some vector balls moving in a circle round the edge */

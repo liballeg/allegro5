@@ -1,7 +1,15 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to get mouse input.
+ *    This program demonstrates how to get mouse input. The
+ *    first part of the test retrieves the raw mouse input data
+ *    and displays it on the screen without using any mouse
+ *    cursor. When you press a key the standard arrow-like mouse
+ *    cursor appears.  You are not restricted to this shape,
+ *    and a second keypress modifies the cursor to be several
+ *    concentric colored circles. They are not joined together,
+ *    so you can still see bits of what's behind when you move the
+ *    cursor over the printed text message.
  */
 
 
@@ -37,12 +45,14 @@ int main(void)
    /* Detect mouse presence */
    if (install_mouse() < 0) {
       textout_centre_ex(screen, font, "No mouse detected, but you need one!",
-			SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0), makecol(255, 255, 255));
+			SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0),
+			makecol(255, 255, 255));
       readkey();
       return 0;
    }
 
-   textprintf_centre_ex(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0), makecol(255, 255, 255),
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0),
+			makecol(255, 255, 255),
 			"Driver: %s", mouse_driver->name);
 
    do {
@@ -56,8 +66,10 @@ int main(void)
       acquire_screen();
 
       /* the mouse position is stored in the variables mouse_x and mouse_y */
-      textprintf_ex(screen, font, 16, 48, makecol(0, 0, 0), makecol(255, 255, 255), "mouse_x = %-5d", mouse_x);
-      textprintf_ex(screen, font, 16, 64, makecol(0, 0, 0), makecol(255, 255, 255), "mouse_y = %-5d", mouse_y);
+      textprintf_ex(screen, font, 16, 48, makecol(0, 0, 0),
+		    makecol(255, 255, 255), "mouse_x = %-5d", mouse_x);
+      textprintf_ex(screen, font, 16, 64, makecol(0, 0, 0),
+		    makecol(255, 255, 255), "mouse_y = %-5d", mouse_y);
 
       /* or you can use this function to measure the speed of movement.
        * Note that we only call it every fourth time round the loop:
@@ -68,27 +80,36 @@ int main(void)
       if ((c & 3) == 0)
 	 get_mouse_mickeys(&mickeyx, &mickeyy);
 
-      textprintf_ex(screen, font, 16,  88, makecol(0, 0, 0), makecol(255, 255, 255), "mickey_x = %-7d", mickeyx);
-      textprintf_ex(screen, font, 16, 104, makecol(0, 0, 0), makecol(255, 255, 255), "mickey_y = %-7d", mickeyy);
+      textprintf_ex(screen, font, 16,  88, makecol(0, 0, 0),
+		    makecol(255, 255, 255), "mickey_x = %-7d", mickeyx);
+      textprintf_ex(screen, font, 16, 104, makecol(0, 0, 0),
+		    makecol(255, 255, 255), "mickey_y = %-7d", mickeyy);
 
       /* the mouse button state is stored in the variable mouse_b */
       if (mouse_b & 1)
-	 textout_ex(screen, font, "left button is pressed ", 16, 128, makecol(0, 0, 0), makecol(255, 255, 255));
+	 textout_ex(screen, font, "left button is pressed ", 16, 128,
+		    makecol(0, 0, 0), makecol(255, 255, 255));
       else
-	 textout_ex(screen, font, "left button not pressed", 16, 128, makecol(0, 0, 0), makecol(255, 255, 255));
+	 textout_ex(screen, font, "left button not pressed", 16, 128,
+		    makecol(0, 0, 0), makecol(255, 255, 255));
 
       if (mouse_b & 2)
-	 textout_ex(screen, font, "right button is pressed ", 16, 144, makecol(0, 0, 0), makecol(255, 255, 255));
+	 textout_ex(screen, font, "right button is pressed ", 16, 144,
+		    makecol(0, 0, 0), makecol(255, 255, 255));
       else
-	 textout_ex(screen, font, "right button not pressed", 16, 144, makecol(0, 0, 0), makecol(255, 255, 255));
+	 textout_ex(screen, font, "right button not pressed", 16, 144,
+		    makecol(0, 0, 0), makecol(255, 255, 255));
 
       if (mouse_b & 4)
-	 textout_ex(screen, font, "middle button is pressed ", 16, 160, makecol(0, 0, 0), makecol(255, 255, 255));
+	 textout_ex(screen, font, "middle button is pressed ", 16, 160,
+		    makecol(0, 0, 0), makecol(255, 255, 255));
       else
-	 textout_ex(screen, font, "middle button not pressed", 16, 160, makecol(0, 0, 0), makecol(255, 255, 255));
+	 textout_ex(screen, font, "middle button not pressed", 16, 160,
+		    makecol(0, 0, 0), makecol(255, 255, 255));
 
       /* the wheel position is stored in the variable mouse_z */
-      textprintf_ex(screen, font, 16, 184, makecol(0, 0, 0), makecol(255, 255, 255), "mouse_z = %-5d", mouse_z);
+      textprintf_ex(screen, font, 16, 184, makecol(0, 0, 0),
+		    makecol(255, 255, 255), "mouse_z = %-5d", mouse_z);
 
       release_screen();
 
@@ -108,7 +129,8 @@ int main(void)
     */
    clear_to_color(screen, makecol(255, 255, 255));
    textout_centre_ex(screen, font, "Press a key to change cursor",
-		     SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0), makecol(255, 255, 255));
+		     SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0),
+		     makecol(255, 255, 255));
    show_mouse(screen);
    readkey();
    show_mouse(NULL);

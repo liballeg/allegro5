@@ -1,8 +1,12 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to use the translucency functions in
- *    truecolor video modes.
+ *    This program demonstrates how to use the translucency functions
+ *    in truecolor video modes. Two image files are loaded from
+ *    disk and displayed moving slowly around the screen. One of
+ *    the images will be tinted to different colors. The other
+ *    image will be faded out with a varying alpha strength, and
+ *    drawn on top of the other image.
  */
 
 
@@ -61,7 +65,8 @@ int main(int argc, char *argv[])
    /* did the video mode set properly? */
    if (ret != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting %d bit graphics mode\n%s\n", bpp, allegro_error);
+      allegro_message("Error setting %d bit graphics mode\n%s\n", bpp,
+		      allegro_error);
       return 1;
    }
 
@@ -98,7 +103,8 @@ int main(int argc, char *argv[])
 
    prevx1 = prevy1 = prevx2 = prevy2 = 0;
 
-   textprintf_ex(screen, font, 0, SCREEN_H-8, makecol(255, 255, 255), 0, "%d bpp", bpp);
+   textprintf_ex(screen, font, 0, SCREEN_H-8, makecol(255, 255, 255), 0,
+		 "%d bpp", bpp);
 
    while (!keypressed()) {
       timer = retrace_count;

@@ -83,22 +83,20 @@ extern "C" {
 
    #define XLOCK()                              \
       do {                                      \
-         if (_xwin.display)                     \
-            XLockDisplay(_xwin.display);        \
+         _al_mutex_lock(&_xwin.mutex);		\
          _xwin.lock_count++;                    \
       } while (0)
 
    #define XUNLOCK()                            \
       do {                                      \
-         if (_xwin.display)                     \
-            XUnlockDisplay(_xwin.display);      \
+         _al_mutex_unlock(&_xwin.mutex);	\
          _xwin.lock_count--;                    \
       } while (0)
 
 #endif
 
 
-#ifdef DIGI_OSS
+#ifdef ALLEGRO_WITH_OSSDIGI
    /* So the setup program can read what we detected */
    AL_VAR(int, _oss_fragsize);
    AL_VAR(int, _oss_numfrags);
@@ -247,4 +245,3 @@ AL_END_EXTERN_C
 
 
 #endif /* ifndef AINTUNIX_H */
-

@@ -16,6 +16,9 @@
  */
 
 
+#define _XOPEN_SOURCE 500       /* for Unix98 recursive mutexes */
+                                /* XXX: added configure test */
+
 #include <sys/time.h>
 
 #include "allegro.h"
@@ -78,6 +81,25 @@ void _al_mutex_init(_AL_MUTEX *mutex)
     
    pthread_mutex_init(&mutex->mutex, NULL);
    mutex->inited = true;
+}
+
+
+void _al_mutex_init_recursive(_AL_MUTEX *mutex)
+{
+   pthread_mutexattr_t attr;
+
+   ASSERT(mutex);
+
+   pthread_mutexattr_init(&attr);
+   if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == EINVAL) {
+      pthread_mutexattr_destroy(&attr);
+      abort(); /* XXX */
+   }
+
+   pthread_mutex_init(&mutex->mutex, &attr);
+   mutex->inited = true;
+
+   pthread_mutexattr_destroy(&attr);
 }
 
 

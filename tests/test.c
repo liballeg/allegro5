@@ -157,52 +157,28 @@ BITMAP *make_sprite(void)
 
 
 
-void table_callback(int pos)
-{
-   rect(screen, (SCREEN_W-256)/2-1, 128, (SCREEN_W+256)/2+1, 140, palette_color[255]);
-   rectfill(screen, (SCREEN_W-256)/2, 129, (SCREEN_W-256)/2+pos, 139, palette_color[1]);
-}
-
-
-
 int check_tables(void)
 {
    if (bitmap_color_depth(screen) > 8) {
       set_trans_blender(0, 0, 0, 128);
    }
    else if ((!rgb_map) || (!trans_map) || (!light_map)) {
-      scare_mouse();
-
       if (!rgb_map) {
-	 acquire_screen();
-	 clear_to_color(screen, palette_color[0]);
-	 textout_centre_ex(screen, font, "Creating RGB table", SCREEN_W/2, 64, palette_color[255], palette_color[0]);
 	 rgb_map = malloc(sizeof(RGB_MAP));
-	 create_rgb_table(rgb_map, mypal, table_callback);
-	 release_screen();
+	 create_rgb_table(rgb_map, mypal, NULL);
       }
 
       if (!trans_map) {
-	 acquire_screen();
-	 clear_to_color(screen, palette_color[0]);
-	 textout_centre_ex(screen, font, "Creating translucency table", SCREEN_W/2, 64, palette_color[255], palette_color[0]);
 	 trans_map = malloc(sizeof(COLOR_MAP));
-	 create_trans_table(trans_map, mypal, 96, 96, 96, table_callback);
-	 release_screen();
+	 create_trans_table(trans_map, mypal, 96, 96, 96, NULL);
       }
 
       if (!light_map) {
-	 acquire_screen();
-	 clear_to_color(screen, palette_color[0]);
-	 textout_centre_ex(screen, font, "Creating lighting table", SCREEN_W/2, 64, palette_color[255], palette_color[0]);
 	 light_map = malloc(sizeof(COLOR_MAP));
-	 create_light_table(light_map, mypal, 0, 0, 0, table_callback);
-	 release_screen();
+	 create_light_table(light_map, mypal, 0, 0, 0, NULL);
       }
 
       color_map = trans_map;
-
-      unscare_mouse();
 
       return D_REDRAW;
    }

@@ -90,6 +90,7 @@ MOUSE_DRIVER mouse_adb ={
       mouse_adb_set_range,
       NULL,
       mouse_adb_get_mickeys,
+      NULL,
       NULL
 };
 

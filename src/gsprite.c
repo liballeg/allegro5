@@ -25,7 +25,7 @@
  *  Draws a lit or tinted sprite, interpolating the four corner colors
  *  over the surface of the image.
  */
-void draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4)
+void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4)
 {
    fixed mc1, mc2, mh;
    fixed lc, rc, hc;
@@ -70,7 +70,7 @@ void draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int 
       if ((bmp->clip) && (x < bmp->cl))
 	 hc += mh * (bmp->cl - x);
 
-   #ifdef GFX_MODEX
+   #ifdef GFX_HAS_VGA
 
       /* modex version */
       if (is_planar_bitmap(bmp)) {
@@ -178,4 +178,3 @@ void draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int 
 
    bmp_unwrite_line(bmp);
 }
-

@@ -364,11 +364,15 @@ void get_align_matrix(MATRIX *m, fixed xfront, fixed yfront, fixed zfront, fixed
    fixed xright, yright, zright;
    ASSERT(m);
 
-   normalize_vector(&xfront, &yfront, &zfront);
-   normalize_vector(&xup, &yup, &zup);
+   xfront = -xfront;
+   yfront = -yfront;
+   zfront = -zfront;
 
-   cross_product(xfront, yfront, zfront, xup, yup, zup, &xright, &yright, &zright);
-   cross_product(xright, yright, zright, xfront, yfront, zfront, &xup, &yup, &zup);
+   normalize_vector(&xfront, &yfront, &zfront);
+   cross_product(xup, yup, zup, xfront, yfront, zfront, &xright, &yright, &zright);
+   normalize_vector(&xright, &yright, &zright);
+   cross_product(xfront, yfront, zfront, xright, yright, zright, &xup, &yup, &zup);
+   /* No need to normalize up here, since right and front are perpendicular and normalized. */
 
    m->v[0][0] = xright; 
    m->v[0][1] = xup; 
@@ -395,11 +399,15 @@ void get_align_matrix_f(MATRIX_f *m, float xfront, float yfront, float zfront, f
    float xright, yright, zright;
    ASSERT(m);
 
-   normalize_vector_f(&xfront, &yfront, &zfront);
-   normalize_vector_f(&xup, &yup, &zup);
+   xfront = -xfront;
+   yfront = -yfront;
+   zfront = -zfront;
 
-   cross_product_f(xfront, yfront, zfront, xup, yup, zup, &xright, &yright, &zright);
-   cross_product_f(xright, yright, zright, xfront, yfront, zfront, &xup, &yup, &zup);
+   normalize_vector_f(&xfront, &yfront, &zfront);
+   cross_product_f(xup, yup, zup, xfront, yfront, zfront, &xright, &yright, &zright);
+   normalize_vector_f(&xright, &yright, &zright);
+   cross_product_f(xfront, yfront, zfront, xright, yright, zright, &xup, &yup, &zup);
+   /* No need to normalize up here, since right and front are perpendicular and normalized. */
 
    m->v[0][0] = xright; 
    m->v[0][1] = xup; 

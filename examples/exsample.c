@@ -1,7 +1,13 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to play samples.
+ *    This program demonstrates how to play samples. You have to
+ *    use this example from the commandline to specify as first
+ *    parameter a WAV or VOC sound file to play. If the file is
+ *    loaded successfully, the sound will be played in an infinite
+ *    loop. While it is being played, you can use the left and right
+ *    arrow keys to modify the panning of the sound. You can also
+ *    use the up and down arrow keys to modify the pitch.
  */
 
 

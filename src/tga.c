@@ -290,26 +290,33 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 
    pack_fread(image_id, id_length, f);
 
-   for (i = 0; i < palette_colors; i++) {
+   if (palette_type == 1) {
 
-      switch (palette_entry_size) {
+      for (i = 0; i < palette_colors; i++) {
 
-	 case 16: 
-	    c = pack_igetw(f);
-	    image_palette[i][0] = (c & 0x1F) << 3;
-	    image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
-	    image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
-	    break;
+	 switch (palette_entry_size) {
 
-	 case 24:
-	 case 32:
-	    image_palette[i][0] = pack_getc(f);
-	    image_palette[i][1] = pack_getc(f);
-	    image_palette[i][2] = pack_getc(f);
-	    if (palette_entry_size == 32)
-	       pack_getc(f);
-	    break;
+	    case 16: 
+	       c = pack_igetw(f);
+	       image_palette[i][0] = (c & 0x1F) << 3;
+	       image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
+	       image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
+	       break;
+
+	    case 24:
+	    case 32:
+	       image_palette[i][0] = pack_getc(f);
+	       image_palette[i][1] = pack_getc(f);
+	       image_palette[i][2] = pack_getc(f);
+	       if (palette_entry_size == 32)
+		  pack_getc(f);
+	       break;
+	 }
       }
+   }
+   else if (palette_type != 0) {
+      pack_fclose(f);
+      return NULL;
    }
 
    /* Image type:

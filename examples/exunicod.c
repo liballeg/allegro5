@@ -2,7 +2,14 @@
  *    Example program for the Allegro library, by Eric Botcazou.
  *
  *    This program demonstrates the use of the 16-bit Unicode text
- *    encoding format with Allegro. 
+ *    encoding format with Allegro. The example displays a message
+ *    translated to different languages scrolling on the screen
+ *    using an external font containing the required characters to
+ *    display those messages.
+ *
+ *    Note how the Allegro unicode string functions resemble the
+ *    functions you can find in the standard C library, only these
+ *    handle Unicode on all platforms.
  */
 
 

@@ -38,5 +38,6 @@ KEYBOARD_DRIVER keyboard_beos = {
    be_key_set_rate,
    be_key_wait_for_input,
    be_key_stop_waiting_for_input,
+   NULL,
    NULL
 };

@@ -36,16 +36,6 @@ void usage(void)
 
 
 
-void print_progress(int pos)
-{
-   if ((pos & 3) == 3) {
-      printf("*");
-      fflush(stdout);
-   }
-}
-
-
-
 PALETTE the_pal;
 RGB_MAP the_map;
 
@@ -75,10 +65,8 @@ int main(int argc, char *argv[])
 
    printf("Palette read from '%s'\n", argv[1]);
    printf("Creating RGB map\n");
-   printf("<................................................................>\r<");
 
-   create_rgb_table(&the_map, the_pal, print_progress);
-   printf("\n");
+   create_rgb_table(&the_map, the_pal, NULL);
 
    f = pack_fopen(argv[2], F_WRITE);
    if (!f) {

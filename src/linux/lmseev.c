@@ -682,7 +682,8 @@ MOUSE_DRIVER mousedrv_linux_evdev =
    mouse_set_speed,
    mouse_get_mickeys,
    analyse_data,
-	NULL /* enable_hardware_cursor */
+   NULL, /* enable_hardware_cursor */
+   NULL
 };
 
 #endif

@@ -24,7 +24,7 @@
 
 #include "allegro.h"
 
-#ifdef GFX_VGA
+#ifdef GFX_HAS_VGA
 
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintvga.h"
@@ -61,6 +61,7 @@ GFX_DRIVER gfx_vga =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
+   NULL,                         /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    vga_fetch_mode_list,
    320, 200,
    TRUE,
@@ -382,4 +383,4 @@ void _module_init(int system_driver)
 
 
 #endif      /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ...) */
-#endif      /* ifdef GFX_VGA */
+#endif      /* ifdef GFX_HAS_VGA */

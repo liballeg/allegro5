@@ -142,7 +142,7 @@ fi
 AC_MSG_RESULT(\"$allegro_cv_asm_prefix\")])
 
 dnl
-dnl Test for modules support (dlopen interface and -export-dynamic linker flag).
+dnl Test for modules support (dlopen interface and --export-dynamic linker flag).
 dnl
 dnl Variables:
 dnl  allegro_support_modules=(yes|)
@@ -158,10 +158,10 @@ allegro_enable_modules=yes)
 
 if test -n "$allegro_enable_modules"; then
   AC_CHECK_HEADERS(dlfcn.h,
-    [AC_CACHE_CHECK(whether -export-dynamic linker flag is supported,
+    [AC_CACHE_CHECK(whether --export-dynamic linker flag is supported,
       allegro_cv_support_export_dynamic,
       [allegro_save_LDFLAGS="$LDFLAGS"
-      LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
+      LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
       AC_TRY_LINK(,,
         allegro_cv_support_export_dynamic=yes,
         allegro_cv_support_export_dynamic=no,
@@ -172,7 +172,7 @@ if test -n "$allegro_enable_modules"; then
       dnl Use libdl if found, else assume dl* functions in libc.
       AC_CHECK_LIB(dl, dlopen,
         [LIBS="-ldl $LIBS"])
-      LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
+      LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
     fi])
 fi
 ])
@@ -186,8 +186,13 @@ dnl
 AC_MSG_CHECKING(for System V sys/procfs)
 AC_DEFUN(ALLEGRO_SV_PROCFS,
 [AC_CHECK_HEADER(sys/procfs.h,
-AC_TRY_COMPILE([#include  <sys/procfs.h>], [struct prpsinfo psinfo;],
-allegro_sv_procfs=yes, allegro_sv_procfs=no), allegro_sv_procfs=no)])
+AC_TRY_COMPILE([
+   #include <sys/procfs.h> 
+   #include <sys/ioctl.h>], 
+  [struct prpsinfo psinfo; 
+   ioctl(0, PIOCPSINFO, &psinfo);],
+  allegro_sv_procfs=yes, allegro_sv_procfs=no), allegro_sv_procfs=no)]
+)
 AC_MSG_RESULT($allegro_sv_procfs)
 
 dnl
@@ -227,6 +232,10 @@ AC_ARG_ENABLE(xwin-dga2,
 [  --enable-xwin-dga2[=x]  enable the use of DGA 2.0 Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga2=yes,
 allegro_enable_xwin_xf86dga2=yes)
+AC_ARG_ENABLE(xim,
+[  --enable-xim[=x]        enable the use of XIM keyboard input [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_xim=yes,
+allegro_enable_xim=yes)
 
 dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 AC_PATH_X
@@ -288,6 +297,12 @@ if test -z "$no_x"; then
         LIBS="-lXxf86dga $LIBS"
       fi
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2,1,[Define if DGA version 2.0 or newer is supported])])
+  fi
+
+  dnl Test for XIM support.
+  if test -n "$allegro_enable_xim"; then
+    AC_CHECK_LIB(X11, XOpenIM,
+      [AC_DEFINE(ALLEGRO_USE_XIM,1,[Define if XIM extension is supported.])])
   fi
 
 fi

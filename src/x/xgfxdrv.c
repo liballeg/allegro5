@@ -49,6 +49,7 @@ static GFX_DRIVER gfx_xwin =
 #endif
    _xwin_drawing_mode,
    NULL, NULL,
+   NULL,    // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    NULL,
    320, 200,
    TRUE,
@@ -88,6 +89,7 @@ static GFX_DRIVER gfx_xwin_fullscreen =
 #endif
    _xwin_drawing_mode,
    NULL, NULL,
+   NULL,
    _xwin_fetch_mode_list,
    320, 200,
    TRUE,

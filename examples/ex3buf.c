@@ -1,7 +1,13 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates the use of triple buffering.
+ *    This program demonstrates the use of triple buffering. Several
+ *    triangles are displayed rotating and bouncing on the screen
+ *    until you press a key. Note that on some platforms you
+ *    can't get real hardware triple buffering.  The Allegro code
+ *    remains the same, but most likely the graphic driver will
+ *    emulate it. Unfortunately, in these cases you can't expect
+ *    the animation to be completely smooth and flicker free.
  */
 
 
@@ -88,12 +94,18 @@ void draw(BITMAP *b)
 
    for (c=0; c<NUM_SHAPES; c++) {
       triangle(b, 
-	       fixtoi(shapes[c].x+fixmul(shapes[c].dist1, fixcos(shapes[c].dir1))),
-	       fixtoi(shapes[c].y+fixmul(shapes[c].dist1, fixsin(shapes[c].dir1))),
-	       fixtoi(shapes[c].x+fixmul(shapes[c].dist2, fixcos(shapes[c].dir2))),
-	       fixtoi(shapes[c].y+fixmul(shapes[c].dist2, fixsin(shapes[c].dir2))),
-	       fixtoi(shapes[c].x+fixmul(shapes[c].dist3, fixcos(shapes[c].dir3))),
-	       fixtoi(shapes[c].y+fixmul(shapes[c].dist3, fixsin(shapes[c].dir3))),
+	       fixtoi(shapes[c].x+fixmul(shapes[c].dist1,
+					 fixcos(shapes[c].dir1))),
+	       fixtoi(shapes[c].y+fixmul(shapes[c].dist1,
+					 fixsin(shapes[c].dir1))),
+	       fixtoi(shapes[c].x+fixmul(shapes[c].dist2,
+					 fixcos(shapes[c].dir2))),
+	       fixtoi(shapes[c].y+fixmul(shapes[c].dist2,
+					 fixsin(shapes[c].dir2))),
+	       fixtoi(shapes[c].x+fixmul(shapes[c].dist3,
+					 fixcos(shapes[c].dir3))),
+	       fixtoi(shapes[c].y+fixmul(shapes[c].dist3,
+					 fixsin(shapes[c].dir3))),
 	       shapes[c].color);
 
       move_shape(shapes+c);
@@ -169,9 +181,10 @@ int main(void)
    if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
 #endif
       if (set_gfx_mode(GFX_SAFE, w, h, 0, 0) != 0) {
-         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-         allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
-         return 1;
+	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
+	 return 1;
       }
    }
 
@@ -200,9 +213,6 @@ int main(void)
    /* initialise the shapes */
    for (c=0; c<NUM_SHAPES; c++)
       init_shape(shapes+c);
-
-   LOCK_VARIABLE(fade_color);
-   LOCK_FUNCTION(fade);
 
    triple_buffer(page1, page2, page3);
 

@@ -1,12 +1,16 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to use the get_camera_matrix() function
- *    to view a 3d world from any position and angle.
+ *    Modified by Francisco Pires to include a FPS counter and
+ *    option to enable/disable waiting for vsync.
  *
- *    Modified by Francisco Pires:
- *    + Added FPS counter.
- *    + Added option to enable/disable waiting for vsync.
+ *    This program demonstrates how to use the get_camera_matrix()
+ *    function to view a 3d world from any position and angle. The
+ *    example draws a checkered floor through a viewport region
+ *    on the screen. You can use the keyboard to move around the
+ *    camera or modify the size of the viewport. The keys that can
+ *    be used with this example are displayed between brackets at
+ *    the top of the screen.
  */
 
 
@@ -89,7 +93,8 @@ void draw_square(BITMAP *bmp, MATRIX_f *camera, int x, int z)
 
    /* apply the camera matrix, translating world space -> view space */
    for (c=0; c<4; c++) {
-      apply_matrix_f(camera, v[c]->x, v[c]->y, v[c]->z, &v[c]->x, &v[c]->y, &v[c]->z);
+      apply_matrix_f(camera, v[c]->x, v[c]->y, v[c]->z,
+		     &v[c]->x, &v[c]->y, &v[c]->z);
 
       flags[c] = 0;
 
@@ -114,7 +119,8 @@ void draw_square(BITMAP *bmp, MATRIX_f *camera, int x, int z)
 
    if (flags[0] | flags[1] | flags[2] | flags[3]) {
       /* clip if any vertices are off the edge of the screen */
-      vc = clip3d_f(POLYTYPE_FLAT, 0.1, 0.1, 4, (AL_CONST V3D_f **)v, vout, vtmp, out);
+      vc = clip3d_f(POLYTYPE_FLAT, 0.1, 0.1, 4, (AL_CONST V3D_f **)v,
+		    vout, vtmp, out);
 
       if (vc <= 0)
 	 return;
@@ -131,7 +137,8 @@ void draw_square(BITMAP *bmp, MATRIX_f *camera, int x, int z)
 
    /* project view space -> screen space */
    for (c=0; c<vc; c++)
-      persp_project_f(vout[c]->x, vout[c]->y, vout[c]->z, &vout[c]->x, &vout[c]->y);
+      persp_project_f(vout[c]->x, vout[c]->y, vout[c]->z,
+		      &vout[c]->x, &vout[c]->y);
 
    /* set the color */
    vout[0]->c = ((x + z) & 1) ? makecol(0, 255, 0) : makecol(255, 255, 0);
@@ -169,7 +176,8 @@ void render(BITMAP *bmp)
    zfront = cos(heading) * cos(pitch);
 
    /* rotate the up vector around the in-front vector by the roll angle */
-   get_vector_rotation_matrix_f(&roller, xfront, yfront, zfront, roll*128.0/M_PI);
+   get_vector_rotation_matrix_f(&roller, xfront, yfront, zfront,
+				roll*128.0/M_PI);
    apply_matrix_f(&roller, 0, -1, 0, &xup, &yup, &zup);
 
    /* build the camera matrix */
@@ -187,19 +195,32 @@ void render(BITMAP *bmp)
 
    /* overlay some text */
    set_clip_rect(bmp, 0, 0, bmp->w, bmp->h);
-   textprintf_ex(bmp, font, 0,  0, makecol(0, 0, 0), -1, "Viewport width: %d (w/W changes)", viewport_w);
-   textprintf_ex(bmp, font, 0,  8, makecol(0, 0, 0), -1, "Viewport height: %d (h/H changes)", viewport_h);
-   textprintf_ex(bmp, font, 0, 16, makecol(0, 0, 0), -1, "Field of view: %d (f/F changes)", fov);
-   textprintf_ex(bmp, font, 0, 24, makecol(0, 0, 0), -1, "Aspect ratio: %.2f (a/A changes)", aspect);
-   textprintf_ex(bmp, font, 0, 32, makecol(0, 0, 0), -1, "X position: %.2f (x/X changes)", xpos);
-   textprintf_ex(bmp, font, 0, 40, makecol(0, 0, 0), -1, "Y position: %.2f (y/Y changes)", ypos);
-   textprintf_ex(bmp, font, 0, 48, makecol(0, 0, 0), -1, "Z position: %.2f (z/Z changes)", zpos);
-   textprintf_ex(bmp, font, 0, 56, makecol(0, 0, 0), -1, "Heading: %.2f deg (left/right changes)", DEG(heading));
-   textprintf_ex(bmp, font, 0, 64, makecol(0, 0, 0), -1, "Pitch: %.2f deg (pgup/pgdn changes)", DEG(pitch));
-   textprintf_ex(bmp, font, 0, 72, makecol(0, 0, 0), -1, "Roll: %.2f deg (r/R changes)", DEG(roll));
-   textprintf_ex(bmp, font, 0, 80, makecol(0, 0, 0), -1, "Front vector: %.2f, %.2f, %.2f", xfront, yfront, zfront);
-   textprintf_ex(bmp, font, 0, 88, makecol(0, 0, 0), -1, "Up vector: %.2f, %.2f, %.2f", xup, yup, zup);
-   textprintf_ex(bmp, font, 0, 96, makecol(0, 0, 0), -1, "Frames per second: %d", fps);
+   textprintf_ex(bmp, font, 0,  0, makecol(0, 0, 0), -1,
+		 "Viewport width: %d (w/W changes)", viewport_w);
+   textprintf_ex(bmp, font, 0,  8, makecol(0, 0, 0), -1,
+		 "Viewport height: %d (h/H changes)", viewport_h);
+   textprintf_ex(bmp, font, 0, 16, makecol(0, 0, 0), -1,
+		 "Field of view: %d (f/F changes)", fov);
+   textprintf_ex(bmp, font, 0, 24, makecol(0, 0, 0), -1,
+		 "Aspect ratio: %.2f (a/A changes)", aspect);
+   textprintf_ex(bmp, font, 0, 32, makecol(0, 0, 0), -1,
+		 "X position: %.2f (x/X changes)", xpos);
+   textprintf_ex(bmp, font, 0, 40, makecol(0, 0, 0), -1,
+		 "Y position: %.2f (y/Y changes)", ypos);
+   textprintf_ex(bmp, font, 0, 48, makecol(0, 0, 0), -1,
+		 "Z position: %.2f (z/Z changes)", zpos);
+   textprintf_ex(bmp, font, 0, 56, makecol(0, 0, 0), -1,
+		 "Heading: %.2f deg (left/right changes)", DEG(heading));
+   textprintf_ex(bmp, font, 0, 64, makecol(0, 0, 0), -1,
+		 "Pitch: %.2f deg (pgup/pgdn changes)", DEG(pitch));
+   textprintf_ex(bmp, font, 0, 72, makecol(0, 0, 0), -1,
+		 "Roll: %.2f deg (r/R changes)", DEG(roll));
+   textprintf_ex(bmp, font, 0, 80, makecol(0, 0, 0), -1,
+		 "Front vector: %.2f, %.2f, %.2f", xfront, yfront, zfront);
+   textprintf_ex(bmp, font, 0, 88, makecol(0, 0, 0), -1,
+		 "Up vector: %.2f, %.2f, %.2f", xup, yup, zup);
+   textprintf_ex(bmp, font, 0, 96, makecol(0, 0, 0), -1,
+		 "Frames per second: %d", fps);
 }
 
 
@@ -344,7 +365,8 @@ int main(void)
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }

@@ -1,13 +1,12 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    Plays MIDI files in the background. A dodgy trick, and not
- *    really useful for anything, but I think it is pretty cool!
+ *    Plays MIDI files in the background of a system shell. A dodgy
+ *    trick, and not really useful for anything, but I think it is
+ *    pretty cool!
  */
 
-
 #include <stdio.h>
-#include <string.h>
 
 #include "allegro.h"
 
@@ -49,37 +48,37 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   strcpy(msg, "\nMusic driver: ");
-   strcat(msg, midi_driver->name);
-   strcat(msg, "\nPlaying ");
-   strcat(msg, argv[1]);
-   strcat(msg, "\n\n");
+   ustrcpy(msg, "\nMusic driver: ");
+   ustrcat(msg, midi_driver->name);
+   ustrcat(msg, "\nPlaying ");
+   ustrcat(msg, argv[1]);
+   ustrcat(msg, "\n\n");
 
    #ifdef ALLEGRO_DOS
 
       /* messages for DOS users */
       if (os_multitasking) {
-	 strcat(msg, "I seem to be running under a multitasking environment. This means that I\n");
-	 strcat(msg, "may not work properly, and even if I do, the sound will probably cut out\n");
-	 strcat(msg, "whenever you exit from a child program. Please run me under DOS instead!\n\n");
+	 ustrcat(msg, "I seem to be running under a multitasking environment. This means that I\n");
+	 ustrcat(msg, "may not work properly, and even if I do, the sound will probably cut out\n");
+	 ustrcat(msg, "whenever you exit from a child program. Please run me under DOS instead!\n\n");
       }
 
-      strcat(msg, "You must not run any programs that trap hardware interrupts\n");
-      strcat(msg, "or access the soundcard from this command prompt!\n\n");
+      ustrcat(msg, "You must not run any programs that trap hardware interrupts\n");
+      ustrcat(msg, "or access the soundcard from this command prompt!\n\n");
 
    #else
 
       /* messages for other platforms */
-      strcat(msg, "This program is _really_ nasty. It works under DOS, but you aren't using DOS\n");
-      strcat(msg, "so that won't help you very much :-) Don't blame me if it locks up or does\n");
-      strcat(msg, "other bad things, because I'm telling you now, that is likely to happen...\n\n");
+      ustrcat(msg, "This program is _really_ nasty. It works under DOS, but you aren't using DOS\n");
+      ustrcat(msg, "so that won't help you very much :-) Don't blame me if it locks up or does\n");
+      ustrcat(msg, "other bad things, because I'm telling you now, that is likely to happen...\n\n");
 
    #endif
 
-   strcat(msg, "Type \"exit\" to quit from the subshell.\n");
+   ustrcat(msg, "Type \"exit\" to quit from the subshell.\n");
 
    #ifdef ALLEGRO_CONSOLE_OK
-      strcat(msg, "\n----------------------------------------------------------------\n\n");
+      ustrcat(msg, "\n----------------------------------------------------------------\n\n");
    #endif
 
    allegro_message(msg);
@@ -97,13 +96,13 @@ int main(int argc, char *argv[])
    destroy_midi(the_music);
 
    #ifdef ALLEGRO_CONSOLE_OK
-      strcpy(msg, "\n----------------------------------------------------------------\n\n");
+      ustrcpy(msg, "\n----------------------------------------------------------------\n\n");
    #else
       msg[0] = 0;
    #endif
 
-   strcat(msg, "Shutting down the music player...\n");
-   strcat(msg, "Goodbye!\n");
+   ustrcat(msg, "Shutting down the music player...\n");
+   ustrcat(msg, "Goodbye!\n");
 
    allegro_message(msg);
 

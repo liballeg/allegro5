@@ -3,12 +3,15 @@
  *
  *    This program shows how to control the console switching mode, and
  *    let your program run in the background. These functions don't apply
- *    to every platform, for example you can't control the switching mode
- *    from a DOS program.
+ *    to every platform and driver, for example you can't control the
+ *    switching mode from a DOS program.
  *
  *    Yes, I know the fractal drawing is very slow: that's the point!
  *    This is so you can easily check whether it goes on working in the
  *    background after you switch away from the app.
+ *
+ *    Depending on the type of selected switching mode, you will see
+ *    whether the contents of the screen are preserved or not.
  */
 
 
@@ -48,10 +51,12 @@ void show_msg(char *msg)
    acquire_bitmap(text_area);
 
    blit(text_area, text_area, 0, 8, 0, 0, text_area->w, text_area->h-8);
-   rectfill(text_area, 0, text_area->h-8, text_area->w, text_area->h, palette_color[0]);
+   rectfill(text_area, 0, text_area->h-8, text_area->w, text_area->h,
+	    palette_color[0]);
 
    if (msg)
-      textout_centre_ex(text_area, font, msg, text_area->w/2, text_area->h-8, palette_color[255], palette_color[0]);
+      textout_centre_ex(text_area, font, msg, text_area->w/2, text_area->h-8,
+			palette_color[255], palette_color[0]);
 
    release_bitmap(text_area);
 }
@@ -225,7 +230,8 @@ int main(void)
    set_palette(pal);
 
    text_area = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H/2);
-   graphics_area = create_sub_bitmap(screen, 0, SCREEN_H/2, SCREEN_W/2, SCREEN_H/2);
+   graphics_area = create_sub_bitmap(screen, 0, SCREEN_H/2, SCREEN_W/2,
+				     SCREEN_H/2);
    if ((!text_area) || (!graphics_area)) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Out of memory!\n");
@@ -250,7 +256,8 @@ int main(void)
 
 	 acquire_screen();
 	 textprintf_centre_ex(screen, font, SCREEN_W*3/4, SCREEN_H*3/4,
-			      palette_color[255], palette_color[0], "Time: %d", last_counter);
+			      palette_color[255], palette_color[0],
+			      "Time: %d", last_counter);
 	 release_screen();
 
 	 acquire_bitmap(graphics_area);
