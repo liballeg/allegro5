@@ -26,6 +26,10 @@
 #include "allegro/internal/aintern.h"
 #include "opcodes.h"
 
+#ifdef ALLEGRO_WINDOWS
+   #include "winalleg.h"   /* For VirtualProtect */
+#endif     /* ifdef ALLEGRO_WINDOWS */
+
 
 
 /* helper macro for generating stretchers in each color depth */
@@ -272,6 +276,9 @@ static void free_stretchers(void)
  */
 static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked)
 {
+ #ifdef ALLEGRO_WINDOWS
+   DWORD old_protect;
+ #endif     /* ifdef ALLEGRO_WINDOWS */
    fixed sx, sy, sxd, syd;
    void *prev_scratch_mem;
    int prev_scratch_mem_size;
@@ -418,6 +425,11 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
  #endif     /* ifdef GFX_MODEX */
 
    COMPILER_RET();
+
+ #ifdef ALLEGRO_WINDOWS
+   /* Play nice with Windows executable memory protection */
+   VirtualProtect(_scratch_mem, _scratch_mem_size, PAGE_EXECUTE_READWRITE, &old_protect);
+ #endif     /* ifdef ALLEGRO_WINDOWS */
 
    /* call the stretcher */
    _do_stretch(source, dest, _scratch_mem, sx>>16, sy, syd, 
