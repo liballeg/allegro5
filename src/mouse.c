@@ -1080,10 +1080,10 @@ void remove_mouse(void)
 
    mouse_polled = FALSE;
 
-   free(default_cursors[MOUSE_CURSOR_ARROW]);
-   free(default_cursors[MOUSE_CURSOR_BUSY]);
-   free(default_cursors[MOUSE_CURSOR_QUESTION]);
-   free(default_cursors[MOUSE_CURSOR_EDIT]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_ARROW]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_BUSY]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_QUESTION]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_EDIT]);
 
    cursors[MOUSE_CURSOR_ARROW] = default_cursors[MOUSE_CURSOR_ARROW] = NULL;
    cursors[MOUSE_CURSOR_BUSY] = default_cursors[MOUSE_CURSOR_BUSY] = NULL;
