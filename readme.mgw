@@ -61,10 +61,10 @@
 
 
    3) Get the DirectX 7 libraries for mingw32. Download them from
-      http://sites.netscape.net/zaqhaq/directx.htm
+      http://sites.netscape.net/ptrpck/directx.htm
       Direct link is:
 
-      http://sites.netscape.net/zaqhaq/dxlibs.zip
+      http://sites.netscape.net/ptrpck/dxlibs.zip
 
 
    4) Get the DirectX 7 header files from Microsoft. You can find a minimal
