@@ -500,7 +500,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @RGB_MAP
 @xref Converting between color formats, create_rgb_table
-@eref ex3d, excolmap, exshade, extrans
+@eref ex3d, excolmap, exrgbhsv, exshade, extrans
 <codeblock>
    unsigned char data[32][32][32];
 <endblock>
@@ -520,7 +520,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @DATAFILE
 @xref load_datafile, Using datafiles
-@eref exdata, exexedat, exgui, exsprite, exunicod
+@eref excustom, exdata, exexedat, exgui, exsprite, exunicod
 <codeblock>
    void *dat;     - pointer to the actual data
    int type;      - type of the data
@@ -577,6 +577,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @MENU
 @xref do_menu, GUI menus
+@eref exgui
 <codeblock>
    char *text;          - the text to display for the menu item
    int (*proc)(void);   - called when the menu item is clicked
@@ -601,7 +602,7 @@ available in past/future versions of Allegro.
    
 @@typedef struct @FONT
 @xref font
-@eref exgui, exunicod
+@eref excustom, exunicod
    A structure holding an Allegro font, usually created beforehand with the
    grabber tool or Allegro's default font.
 
@@ -952,6 +953,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzcpy(char *dest, int size, const char *src);
 @xref uconvert, ustrcpy, ustrzncpy
+@eref exgui
    This function copies src (including the terminating NULL character) into 
    dest, whose length in bytes is specified by size and which is guaranteed 
    to be NULL-terminated. The return value is the value of dest.
@@ -964,6 +966,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzcat(char *dest, int size, const char *src);
 @xref uconvert, ustrcat, ustrzncat
+@eref exgui
    This function concatenates src to the end of dest, whose length in bytes 
    is specified by size and which is guaranteed to be NULL-terminated. The 
    return value is the value of dest.
@@ -1062,6 +1065,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrtok(char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk, ustrtok_r
+@eref exgui
    This function retrieves tokens from s which are delimited by characters
    from set. To initiate the search, pass the string to be searched as s.
    For the remaining tokens, pass NULL instead. Returns a pointer to the
@@ -1116,6 +1120,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
+@eref exgui
    This function writes formatted data into the output buffer, whose length
    in bytes is specified by size and which is guaranteed to be NULL
    terminated. Returns the number of characters that would have been written
@@ -2600,6 +2605,7 @@ Graphics modes
 
 @@int @get_color_depth(void);
 @xref set_color_depth
+@eref exrgbhsv
    Returns the current pixel format.
 
 @@void @request_refresh_rate(int rate);
@@ -3150,7 +3156,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_bitmap_ex(int color_depth, int width, int height);
 @xref create_bitmap, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, is_memory_bitmap
-@eref ex12bit, exlights, extrans
+@eref ex12bit, exlights, exrgbhsv, extrans
    Creates a bitmap in a specific color depth (8, 15, 16, 24 or 32 bits per 
    pixel).
 
@@ -3629,7 +3635,7 @@ before including Allegro headers).
 
 @@void @generate_332_palette(PALETTE pal);
 @xref generate_optimized_palette, set_color_depth
-@eref excolmap, extruec, exupdate
+@eref excolmap, exrgbhsv, extruec, exupdate
    Constructs a fake truecolor palette, using three bits for red and green 
    and two for the blue. The load_bitmap() function returns this if the file 
    does not contain a palette itself (ie. you are reading a truecolor 
@@ -3688,6 +3694,7 @@ routines!
 @@int @makecol32(int r, int g, int b);
 @xref makeacol32, makecol, makecol_depth, makecol15_dither, rgb_map
 @xref bestfit_color, set_color_depth
+@eref exrgbhsv
    These functions convert colors from a hardware independent form (red, 
    green, and blue values ranging 0-255) into various display dependent 
    pixel formats. Converting to 15, 16, 24, or 32 bit formats only takes a 
@@ -3851,7 +3858,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 
 @@void @vline(BITMAP *bmp, int x, int y1, int y2, int color);
 @xref hline, line, drawing_mode
-@eref exscroll, extruec
+@eref exrgbhsv, exscroll, extruec
    Draws a vertical line onto the bitmap, from point (x, y1) to (x, y2).
 
 @@void @hline(BITMAP *bmp, int x1, int y, int x2, int color);
@@ -5288,7 +5295,7 @@ the conversion).
 
 @@extern RGB_MAP *@rgb_map;
 @xref create_rgb_table, makecol8
-@eref ex3d, excolmap, exshade, extrans
+@eref ex3d, excolmap, exrgbhsv, exshade, extrans
    To speed up reducing RGB values to 8 bit paletted colors, Allegro uses a 
    32k lookup table (5 bits for each color component). You must set up this 
    table before using the gouraud shading routines, and if present the table 
@@ -6768,7 +6775,7 @@ directly from a specific datafile object.
 @xref load_datafile_callback, unload_datafile, load_datafile_object
 @xref set_color_conversion, fixup_datafile, packfile_password
 @xref find_datafile_object, register_datafile_object
-@eref exdata, exexedat, exgui, exsprite, exunicod
+@eref excustom, exdata, exexedat, exgui, exsprite, exunicod
    Loads a datafile into memory, and returns a pointer to it, or NULL on 
    error. If the datafile has been encrypted, you must first use the 
    packfile_password() function to set the appropriate key. See grabber.txt 
@@ -6785,7 +6792,7 @@ directly from a specific datafile object.
 
 @@void @unload_datafile(DATAFILE *dat);
 @xref load_datafile
-@eref exdata, exexedat, exgui, exsprite, exunicod
+@eref excustom, exdata, exexedat, exgui, exsprite, exunicod
    Frees all the objects in a datafile.
 
 @\DATAFILE *@load_datafile_object(const char *filename, 
@@ -7615,16 +7622,18 @@ still drawn too large until version 4.1.0.
 
 @@int @d_box_proc(int msg, DIALOG *d, int c);
 @@int @d_shadow_box_proc(int msg, DIALOG *d, int c);
+@eref exgui, exrgbhsv
    These draw boxes onto the screen, with or without a shadow.
 
 @@int @d_bitmap_proc(int msg, DIALOG *d, int c);
+@eref exgui, exrgbhsv
    This draws a bitmap onto the screen, which should be pointed to by the 
    dp field.
 
 @@int @d_text_proc(int msg, DIALOG *d, int c);
 @@int @d_ctext_proc(int msg, DIALOG *d, int c);
 @@int @d_rtext_proc(int msg, DIALOG *d, int c);
-@eref exrgbhsv
+@eref exgui, exrgbhsv
    These draw text onto the screen. The dp field should point to the string 
    to display. d_ctext_proc() centres the string around the x coordinate, 
    and d_rtext_proc() right aligns it. Any '&' characters in the string will 
@@ -7642,7 +7651,7 @@ still drawn too large until version 4.1.0.
    be used to display the keyboard shortcut of the button.
 
 @@int @d_check_proc(int msg, DIALOG *d, int c);
-@eref excustom
+@eref excustom, exgui
    This is an example of how you can derive objects from other objects. Most 
    of the functionality comes from d_button_proc(), but it displays itself 
    as a check box. If the d1 field is non-zero, the text will be printed to 
@@ -7652,6 +7661,7 @@ still drawn too large until version 4.1.0.
    check box (which is square, with sides equal to the object height).
 
 @@int @d_radio_proc(int msg, DIALOG *d, int c);
+@eref exgui
    A radio button object. A dialog can contain any number of radio button 
    groups: selecting a radio button causes other buttons within the same 
    group to be deselected. The dp field points to the text string, d1 
@@ -7659,6 +7669,7 @@ still drawn too large until version 4.1.0.
    1=square).
 
 @@int @d_icon_proc(int msg, DIALOG *d, int c);
+@eref exgui
    A bitmap button. The fg color is used for the dotted line showing focus, 
    and the bg color for the shadow used to fill in the top and left sides of 
    the button when "pressed". d1 is the "push depth", ie. the number of 
@@ -7669,6 +7680,7 @@ still drawn too large until version 4.1.0.
    images respectively (optional, may be NULL).
 
 @@int @d_keyboard_proc(int msg, DIALOG *d, int c);
+@eref exgui
    This is an invisible object for implementing keyboard shortcuts. You can 
    put an ASCII code in the key field of the dialog object (a character such 
    as 'a' to respond to a simple keypress, or a number 1-26 to respond to a 
@@ -7713,11 +7725,13 @@ still drawn too large until version 4.1.0.
    objects in the list!
 
 @@int @d_text_list_proc(int msg, DIALOG *d, int c);
+@eref exgui
    Like d_list_proc, but allows the user to type in the first few characters 
    of a listbox entry in order to select it. Uses dp3 internally, so you 
    mustn't store anything important there yourself.
 
 @@int @d_textbox_proc(int msg, DIALOG *d, int c);
+@eref exgui
    A text box object. The dp field points to the text which is to be 
    displayed in the box. If the text is long, there will be a vertical 
    scrollbar on the right hand side of the object which can be used to 
@@ -7728,7 +7742,7 @@ still drawn too large until version 4.1.0.
    through the text.
 
 @@int @d_slider_proc(int msg, DIALOG *d, int c);
-@eref exrgbhsv
+@eref exgui, exrgbhsv
    A slider control object. This object holds a value in d2, in the range 
    from 0 to d1. It will display as a vertical slider if h is greater than 
    or equal to w, otherwise it will display as a horizontal slider. The dp 
@@ -7742,6 +7756,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_menu_proc(int msg, DIALOG *d, int c);
 @xref GUI menus, active_menu, gui_menu_draw_menu
+@eref exgui
    This object is a menu bar which will drop down child menus when it is 
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
@@ -7756,6 +7771,7 @@ still drawn too large until version 4.1.0.
    should return D_O_K, D_REDRAW, or D_CLOSE.
 
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
+@eref exgui
    An invisible helper object that yields timeslices for the scheduler (if
    the system supports it) when the gui has nothing to do but waiting for
    user actions. You should put one instance of this object in each dialog 
@@ -7773,11 +7789,13 @@ The behaviour of the dialog manager can be controlled by the variables:
 @@extern int @gui_fg_color;
 @@extern int @gui_bg_color;
 @xref gui_mg_color, set_dialog_color
+@eref exgui
    The foreground and background colors for the standard dialogs (alerts, 
    menus, and the file selector). They default to 255 and 0.
 
 @@extern int @gui_mg_color;
 @xref gui_fg_color, set_dialog_color
+@eref exgui
    The color used for displaying greyed-out dialog objects (with the 
    D_DISABLED flag set). Defaults to 8.
 
@@ -7813,6 +7831,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@void @position_dialog(DIALOG *dialog, int x, int y);
 @xref centre_dialog
+@eref exgui
    Moves an array of dialog objects to the specified screen position 
    (specified as the top left corner of the dialog).
 
@@ -7822,6 +7841,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@void @set_dialog_color(DIALOG *dialog, int fg, int bg);
 @xref gui_fg_color, gui_mg_color, centre_dialog
+@eref exgui
    Sets the foreground and background colors of an array of dialog objects.
 
 @@int @find_dialog_focus(DIALOG *dialog);
@@ -7982,6 +8002,7 @@ ensure there is room for the check.
    
 @@extern MENU *@active_menu;
 @xref GUI menus
+@eref exgui
    When a menu callback procedure is triggered, this will be set to the menu 
    item that was selected, so your routine can determine where it was called 
    from.
@@ -9774,21 +9795,28 @@ and avoid missing any important bit of information.
    This program demonstrates how to play MIDI files.
 
 @@Example @exgui
-@xref DATAFILE, DIALOG, END_OF_MAIN, FONT, alert, allegro_error
-@xref allegro_init, allegro_message, d_button_proc, d_clear_proc
-@xref d_edit_proc, d_list_proc, desktop_palette, do_dialog, font
+@xref DATAFILE, DIALOG, END_OF_MAIN, MENU, active_menu, alert
+@xref allegro_error, allegro_init, allegro_message, d_bitmap_proc
+@xref d_box_proc, d_button_proc, d_check_proc, d_clear_proc, d_ctext_proc
+@xref d_edit_proc, d_icon_proc, d_keyboard_proc, d_list_proc, d_menu_proc
+@xref d_radio_proc, d_rtext_proc, d_shadow_box_proc, d_slider_proc
+@xref d_text_list_proc, d_text_proc, d_textbox_proc, d_yield_proc
+@xref do_dialog, gui_bg_color, gui_fg_color, gui_mg_color
 @xref install_keyboard, install_mouse, install_timer, key, load_datafile
-@xref makecol, screen, set_gfx_mode, set_palette, unload_datafile
+@xref makecol, position_dialog, screen, set_dialog_color, set_gfx_mode
+@xref set_palette, unload_datafile, ustrtok, ustrzcat, ustrzcpy
+@xref uszprintf
    This program demonstrates how to use the GUI routines.
 
 @@Example @excustom
-@xref BITMAP, DIALOG, END_OF_MAIN, allegro_error, allegro_init
-@xref allegro_message, circle, circlefill, clear_to_color, create_bitmap
-@xref d_button_proc, d_check_proc, d_clear_proc, d_edit_proc
-@xref desktop_palette, destroy_bitmap, do_dialog, fixcos, fixed, fixmul
-@xref fixsin, fixtoi, install_keyboard, install_mouse, install_timer
-@xref itofix, key, line, makecol, object_message, screen, set_gfx_mode
-@xref set_palette
+@xref BITMAP, DATAFILE, DIALOG, END_OF_MAIN, FONT, allegro_error
+@xref allegro_init, allegro_message, circle, circlefill, clear_to_color
+@xref create_bitmap, d_button_proc, d_check_proc, d_clear_proc
+@xref d_edit_proc, desktop_palette, destroy_bitmap, do_dialog, fixcos
+@xref fixed, fixmul, fixsin, fixtoi, font, install_keyboard
+@xref install_mouse, install_timer, itofix, key, line, load_datafile
+@xref makecol, object_message, screen, set_gfx_mode, set_palette
+@xref unload_datafile
    This program demonstrates how to write your own GUI objects.
 
 @@Example @exunicod
@@ -9911,13 +9939,15 @@ and avoid missing any important bit of information.
    the create_color_table function, this time a greyscale effect.
 
 @@Example @exrgbhsv
-@xref DIALOG, END_OF_MAIN, RGB, allegro_error, allegro_init
-@xref allegro_message, clear_bitmap, d_slider_proc, d_text_proc
-@xref desktop_palette, do_dialog, hsv_to_rgb, install_keyboard
-@xref install_mouse, install_timer, key, object_message, rgb_to_hsv
-@xref screen, set_color, set_gfx_mode, set_palette, vsync
-   This program shows how to convert colors between the RGB and HSV
-   representations.
+@xref BITMAP, DIALOG, END_OF_MAIN, PALETTE, RGB, RGB_MAP, allegro_error
+@xref allegro_init, allegro_message, clear_to_color, create_bitmap_ex
+@xref d_bitmap_proc, d_box_proc, d_slider_proc, d_text_proc, do_dialog
+@xref font, generate_332_palette, get_color_depth, hsv_to_rgb
+@xref install_keyboard, install_mouse, install_timer, key, makecol
+@xref makecol32, makecol8, object_message, rgb_map, rgb_to_hsv, screen
+@xref set_color, set_color_depth, set_gfx_mode, set_palette, vline, vsync
+   This program shows how to convert colors between the different
+   color-space representations.
 
 @@Example @exshade
 @xref BITMAP, COLOR_MAP, END_OF_MAIN, PALETTE, RGB, RGB_MAP
