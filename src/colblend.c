@@ -929,7 +929,7 @@ unsigned long _blender_screen15(unsigned long x, unsigned long y, unsigned long 
    void set_##name##_blender(int r, int g, int b, int a)       \
    {                                                           \
       if (gfx_driver->set_blender_mode)                        \
-         gfx_driver->set_blender_mode(blender_mode_##name##, r, g, b, a);\
+         gfx_driver->set_blender_mode(blender_mode_##name, r, g, b, a);\
       set_blender_mode(BF16(_blender_##name##15),              \
 		       BF16(_blender_##name##16),              \
 		       BF24(_blender_##name##24),              \
