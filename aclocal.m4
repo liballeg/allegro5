@@ -221,6 +221,7 @@ dnl
 dnl Test for X-Windows support.
 dnl
 dnl Variables:
+dnl  allegro_enable_xwin_xcursor=(yes|)
 dnl  allegro_enable_xwin_shm=(yes|)
 dnl  allegro_enable_xwin_xf86vidmode=(yes|)
 dnl  allegro_enable_xwin_xf86dga=(yes|)
@@ -230,7 +231,11 @@ dnl
 dnl CPPFLAGS, LDFLAGS and LIBS can be modified.
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_XWINDOWS,
-[AC_ARG_ENABLE(xwin-shm,
+[AC_ARG_ENABLE(xwin-xcursor,
+[  --enable-xwin-xcursor[=x] enable the use of Xcursor library [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_xwin_xcursor=yes,
+allegro_enable_xwin_xcursor=yes)
+AC_ARG_ENABLE(xwin-shm,
 [  --enable-xwin-shm[=x]   enable the use of MIT-SHM Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_shm=yes,
 allegro_enable_xwin_shm=yes)
@@ -274,17 +279,19 @@ if test -z "$no_x"; then
    )
    
   dnl Test for Xcursor library.
-  AC_CHECK_LIB(Xcursor, XcursorImageCreate,
-    AC_TRY_COMPILE([#include <X11/Xlib.h>
-                    #include <X11/Xcursor/Xcursor.h>], 
-                   [XcursorImage *xcursor_image;
-                    XcursorImageLoadCursor(0, xcursor_image);
-                    XcursorSupportsARGB(0);
-                   ],
-      [LIBS="-lXcursor $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
-      ])
-   )
+  if test -n "$allegro_enable_xwin_xcursor"; then
+    AC_CHECK_LIB(Xcursor, XcursorImageCreate,
+      AC_TRY_COMPILE([#include <X11/Xlib.h>
+                      #include <X11/Xcursor/Xcursor.h>], 
+                     [XcursorImage *xcursor_image;
+                      XcursorImageLoadCursor(0, xcursor_image);
+                      XcursorSupportsARGB(0);
+                     ],
+        [LIBS="-lXcursor $LIBS"
+        AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
+        ])
+     )
+  fi
 
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
