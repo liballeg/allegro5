@@ -187,6 +187,15 @@
       filename can't contain spaces, which are used to mark the
       beginning of title, or extension.
 
+   @mangle_emails=xxx yyy
+      From the line this command is found on, <email> tags will be mangled.
+      The mangling will depend on xxx and yyy, which have to be separated
+      exactly by one space. '@' characters in email addresses will be
+      replaced by the xxx part, dots will be replaced by the yyy part.
+      Possible example for a spanish document:
+
+      @mangle_emails=EN PUNTO
+
 
 
 ===================================

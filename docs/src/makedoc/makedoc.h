@@ -30,6 +30,7 @@
 #define START_TITLE_FLAG      0x01000000
 #define END_TITLE_FLAG        0x02000000
 #define STRUCT_FLAG           0x04000000
+#define MANGLE_EMAILS         0x08000000
 
 #define TOC_SIZE     8192
 

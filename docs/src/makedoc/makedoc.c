@@ -32,6 +32,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "makedoc.h"
 #include "makehtml.h"
@@ -59,6 +60,7 @@ int last_toc_line2 = INT_MIN;
 int warn_on_long_lines = 0;
 
 char *texinfo_extension = "txi";
+char *email_mangle_at, *email_mangle_dot;
 
 
 /* internal functions */
@@ -71,9 +73,15 @@ static void _add_toc_line(const char *buf, const char *alt, int root, int num, i
 static void _add_external_file(const char *buf, int line_number);
 static char *_my_fgets(char *p, int max, FILE *f);
 static void _add_toc(char *buf, int root, int num, int texinfoable, int htmlable);
+static void _activate_email_mangling(const char *txt);
+static void _mangle_email_links(char *buf);
+static char *_mangle_email(const char *email, int len);
 
 
-/* binary entry point */
+
+/* main:
+ * Binary entry point
+ */
 int main(int argc, char *argv[])
 {
    char filename[256] = "";
@@ -309,6 +317,9 @@ static int _read_file(char *filename)
 
       _transform_custom_tags(buf);
 
+      if (flags & MANGLE_EMAILS)
+	 _mangle_email_links(buf);
+
       if (buf[0] == '@') {
 	 /* a marker line */
 	 if (mystricmp(buf+1, "text") == 0)
@@ -377,6 +388,9 @@ static int _read_file(char *filename)
 	 else if (strincmp(buf+1, "rtf_language_header=") == 0) {
 	    rtf_language_header = m_strcat(rtf_language_header, buf+21);
 	    rtf_language_header = m_strcat(rtf_language_header, "\n");
+	 }
+	 else if (strincmp(buf+1, "mangle_emails=") == 0) {
+	    _activate_email_mangling(buf+15);
 	 }
 	 /* html specific tags */
 	 else if (strincmp(buf+1, "charset=") == 0)
@@ -515,6 +529,11 @@ static void _free_data(void)
 
       free(tocprev);
    }
+
+   if (email_mangle_at)
+      free(email_mangle_at);
+   if (email_mangle_dot)
+      free(email_mangle_dot);
 }
 
 
@@ -707,4 +726,86 @@ static char *_my_fgets(char *p, int max, FILE *f)
 
 
 
+/* _activate_email_mangling:
+ * Called when the input ._tx file contains @mangle_emails=x. Activates
+ * the global mangling flag, and reads from txt two strings separated
+ * by space character which are meant to be used for '@' and '.'
+ * respectively in the email mangling.
+ */
+static void _activate_email_mangling(const char *txt)
+{
+   const char *p;
+   assert(txt);
+   assert(*txt);
+
+   flags |= MANGLE_EMAILS;
+   /* free previous strings if they existed */
+   if (email_mangle_at) free(email_mangle_at);
+   if (email_mangle_dot) free(email_mangle_dot);
+
+   /* find space separator to detect words */
+   p = strchr(txt, ' ');
+   assert(p);     /* format specification requires two words with space */
+   email_mangle_at = m_strdup(txt);
+   *(email_mangle_at + (p - txt)) = 0;
+   assert(*(p + 1));                            /* second word required */
+   email_mangle_dot = m_strdup(p+1);
+}
+
+
+
+/* _mangle_email_links:
+ * Checks the given buffer for <email>..</a> links and mangles them.
+ * Modifications are made directly over buf, make sure there's enough
+ * space in it.
+ */
+static void _mangle_email_links(char *buf)
+{
+   assert(buf);
+   while(*buf && (buf = strstr(buf, "<email>"))) {
+      char *temp, *end = strstr(buf, "</a>");
+      assert(end);                       /* can't have multiline emails */
+      buf += 7;
+      temp = _mangle_email(buf, end - buf);
+      memmove(buf + strlen(temp), end, strlen(end) + 1);
+      strncpy(buf, temp, strlen(temp));
+      free(temp);
+   }
+}
+
+
+/* _mangle_email:
+ * Given a string, len characters will be parsed. '@' will be substituted
+ * by "' %s ', email_mangle_at", and '.' will be substituted by "' %s ",
+ * email_mangle_dot". The returned string has to be freed by the caller.
+ */
+static char *_mangle_email(const char *email, int len)
+{
+   char *temp, buf[2];
+   int pos;
+   assert(email);
+   assert(*email);
+   assert(len > 0);
+
+   temp = m_strdup(email);
+   *temp = 0;
+   buf[1] = 0;
+   for(pos = 0; pos < len; pos++) {
+      if(email[pos] == '@') {
+         temp = m_strcat(temp, " ");
+         temp = m_strcat(temp, email_mangle_at);
+         temp = m_strcat(temp, " ");
+      }
+      else if(email[pos] == '.') {
+         temp = m_strcat(temp, " ");
+         temp = m_strcat(temp, email_mangle_dot);
+         temp = m_strcat(temp, " ");
+      }
+      else {
+         buf[0] = email[pos];
+         temp = m_strcat(temp, buf);
+      }
+   }
+   return temp;
+}
 
