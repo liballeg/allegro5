@@ -205,15 +205,34 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	 else if (s) {
 	    d->d1 = allocate_voice(s);
 	    if (d->d1 >= 0) {
-	       voice_set_position(d->d1, d->d2);
-
 	       switch (thedialog[PLAYMODE].d1) {
-		  case 0: voice_set_playmode(d->d1, PLAYMODE_PLAY); break;
-		  case 1: voice_set_playmode(d->d1, PLAYMODE_LOOP); break;
-		  case 2: voice_set_playmode(d->d1, PLAYMODE_BACKWARD); break;
-		  case 3: voice_set_playmode(d->d1, PLAYMODE_BACKWARD | PLAYMODE_LOOP); break;
-		  case 4: voice_set_playmode(d->d1, PLAYMODE_BIDIR | PLAYMODE_LOOP); break;
+
+		  case 0:
+                     voice_set_playmode(d->d1, PLAYMODE_PLAY);
+                     break;
+
+		  case 1:
+                     voice_set_playmode(d->d1, PLAYMODE_LOOP);
+                     break;
+
+		  case 2:
+                     voice_set_playmode(d->d1, PLAYMODE_BACKWARD);
+                     if (d->d2 == 0)
+                        d->d2 = s->len - 1;
+                     break;
+
+		  case 3:
+                     voice_set_playmode(d->d1, PLAYMODE_BACKWARD | PLAYMODE_LOOP);
+                     if (d->d2 == 0)
+                        d->d2 = s->len - 1;
+                     break;
+
+		  case 4:
+                     voice_set_playmode(d->d1, PLAYMODE_BIDIR | PLAYMODE_LOOP);
+                     break;
 	       }
+
+	       voice_set_position(d->d1, d->d2);
 
 	       val = atoi(thedialog[VOLUME].dp);
 	       i = atoi(thedialog[END_VOLUME].dp);
