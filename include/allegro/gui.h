@@ -104,8 +104,6 @@ typedef struct DIALOG_PLAYER
 #define MSG_GOTFOCUS    11       /* got the input focus */
 #define MSG_LOSTFOCUS   12       /* lost the input focus */
 #define MSG_GOTMOUSE    13       /* mouse on top of object */
-#define MSG_LOSTFOCUS   12       /* lost the input focus */
-#define MSG_GOTMOUSE    13       /* mouse on top of object */
 #define MSG_LOSTMOUSE   14       /* mouse moved away from object */
 #define MSG_IDLE        15       /* update any background stuff */
 #define MSG_RADIO       16       /* clear radio buttons */
