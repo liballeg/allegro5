@@ -280,6 +280,9 @@ Contributors
    Added more flexible wildcard matching for object names in dat.exe, and 
    the find_datafile_object() function.
 
+   Johan Peitz (<email>d98peitz@dtek.chalmers.se</a>).<br>
+   Fixed and enhanced the Win32 joystick driver.
+
    Johan Venter (<email>leonjventer@bigpond.com</a>).<br>
    Fixed some problems with the RSXNT and Mingw32 makefiles.
 

@@ -11,6 +11,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.37: Johan Peitz fixed and enhanced the Win32 joystick driver.
+<li>
    3.9.37: Sven Sandberg added Ctrl + arrow keys to d_edit_proc().
 <li>
    3.9.37: Eric Botcazou changed the color key for the Windows overlay
