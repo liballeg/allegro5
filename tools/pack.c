@@ -115,10 +115,11 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   if (s1 > 0) {
-      s2 = file_size(f2);
+   s2 = file_size(f2);
+   if (s1 == 0)
+      printf("\nInput size: %ld\nOutput size: %ld\n", s1, s2);
+   else
       printf("\nInput size: %ld\nOutput size: %ld\n%ld%%\n", s1, s2, (s2*100+(s1>>1))/s1);
-   }
 
    return 0;
 }
