@@ -78,6 +78,8 @@ int __al_linux_map_memory (struct MAPPED_MEMORY *info)
  */
 int __al_linux_unmap_memory (struct MAPPED_MEMORY *info)
 {
+	if (info->data == NULL)
+		return 0;
 	if (!munmap (info->data, info->size)) {
 		info->data = NULL;
 		return 0;
