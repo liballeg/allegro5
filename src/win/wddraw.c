@@ -173,17 +173,13 @@ int finalize_directx_init(void)
    HRESULT hr;
    long int freq;
 
-   /* set correct sync timer speed */
+   /* set current refresh rate */
    hr = IDirectDraw2_GetMonitorFrequency(directdraw, &freq);
 
-   if ((FAILED(hr)) || (freq < 40) || (freq > 200)) {
-      set_sync_timer_freq(70);
+   if (FAILED(hr))
       _set_current_refresh_rate(0);
-   }
-   else {
-      set_sync_timer_freq(freq);
+   else
       _set_current_refresh_rate(freq);
-   }
 
    return 0;
 }
@@ -302,7 +298,7 @@ void gfx_directx_exit(struct BITMAP *bmp)
 { 
    _enter_critical();
 
-   set_sync_timer_freq(70);
+   _set_current_refresh_rate(0);
 
    if (bmp)
       clear_bitmap(bmp);

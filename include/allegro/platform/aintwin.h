@@ -61,7 +61,6 @@ AL_VAR(int, _dx_ver);
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));
 AL_FUNC(int, get_dx_ver, (void));
-AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
 
 

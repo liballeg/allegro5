@@ -47,8 +47,7 @@ _DRIVER_INFO _timer_driver_list[] =
 static int tim_win32_high_perf_init(void);
 static int tim_win32_low_perf_init(void);
 static void tim_win32_exit(void);
-static int can_simulate_retrace(void);
-static void win32_rest(long time, AL_METHOD(void, callback, (void)));
+static void tim_win32_rest(long time, AL_METHOD(void, callback, (void)));
 
 
 TIMER_DRIVER timer_win32_high_perf =
@@ -59,10 +58,8 @@ TIMER_DRIVER timer_win32_high_perf =
    "Win32 high performance timer",
    tim_win32_high_perf_init,
    tim_win32_exit,
-   NULL, NULL, NULL, NULL,
-   can_simulate_retrace,
-   NULL,
-   win32_rest
+   NULL, NULL, NULL, NULL, NULL, NULL,
+   tim_win32_rest
 };
 
 
@@ -74,19 +71,13 @@ TIMER_DRIVER timer_win32_low_perf =
    "Win32 low performance timer",
    tim_win32_low_perf_init,
    tim_win32_exit,
-   NULL, NULL, NULL, NULL,
-   can_simulate_retrace,
-   NULL,
-   win32_rest
+   NULL, NULL, NULL, NULL, NULL, NULL,
+   tim_win32_rest
 };
 
 
 static HANDLE timer_thread = NULL;       /* dedicated timer thread      */
 static HANDLE timer_stop_event = NULL;   /* thread termination event    */
-static long timer_delay = 0;             /* how long between interrupts */
-static int timer_semaphore = FALSE;      /* reentrant interrupt ?       */
-static long vsync_counter;               /* retrace position counter    */
-static long vsync_speed;                 /* retrace speed               */
 
 /* high performance driver */
 static LARGE_INTEGER counter_freq;
@@ -98,77 +89,6 @@ static LARGE_INTEGER counter_per_msec;
 #define MSEC_TO_COUNTER(x) (x * counter_per_msec.QuadPart)
 #define TIMER_TO_COUNTER(x) (x * counter_freq.QuadPart / TIMERS_PER_SECOND)
 #define TIMER_TO_MSEC(x) ((unsigned long)(x) / (TIMERS_PER_SECOND / 1000))
-
-
-
-/* set_sync_timer_freq:
- *  Sets the speed of the retrace counter.
- */
-void set_sync_timer_freq(int freq)
-{
-   vsync_speed = BPS_TO_TIMER(freq);
-}
-
-
-
-/* tim_win32_handle_timer_tick:
- *  Called by the driver to handle a tick.
- */
-static int tim_win32_handle_timer_tick(int interval)
-{
-   long d;
-   int i;
-   long new_delay = 0x8000;
-
-   timer_delay += interval;
-
-   /* reentrant interrupt ? */
-   if (timer_semaphore)
-      return 0x2000;
-
-   timer_semaphore = TRUE;
-   d = timer_delay;
-
-   /* deal with retrace synchronisation */
-   vsync_counter -= d;
-
-   if (vsync_counter <= 0) {
-      vsync_counter += vsync_speed;
-      retrace_count++;
-      if (retrace_proc)
-	 retrace_proc();
-   }
-
-   if (vsync_counter < new_delay)
-      new_delay = vsync_counter;
-
-   /* process the user callbacks */
-   for (i = 0; i < MAX_TIMERS; i++) {
-      if (((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) && (_timer_queue[i].speed > 0)) {
-	 _timer_queue[i].counter -= d;
-
-	 while ((_timer_queue[i].counter <= 0) && ((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) && (_timer_queue[i].speed > 0)) {
-	    _timer_queue[i].counter += _timer_queue[i].speed;
-	    if (_timer_queue[i].param_proc)
-	       _timer_queue[i].param_proc(_timer_queue[i].param);
-	    else
-	       _timer_queue[i].proc();
-	 }
-
-	 if ((_timer_queue[i].counter > 0) && (_timer_queue[i].counter < new_delay))
-	    new_delay = _timer_queue[i].counter;
-      }
-   }
-
-   timer_delay -= d;
-   timer_semaphore = FALSE;
-
-   /* fudge factor to prevent interrupts from coming too close to each other */
-   if (new_delay < MSEC_TO_TIMER(1))
-      new_delay = MSEC_TO_TIMER(1);
-
-   return new_delay;
-}
 
 
 
@@ -206,7 +126,7 @@ static void tim_win32_high_perf_thread(void *unused)
       prev_tick.QuadPart = curr_counter.QuadPart;
 
       /* call timer proc */
-      delay = tim_win32_handle_timer_tick(COUNTER_TO_TIMER(diff_counter.QuadPart));
+      delay = _handle_timer_tick(COUNTER_TO_TIMER(diff_counter.QuadPart));
 
       /* wait calculated time */
       result = WaitForSingleObject(timer_stop_event, TIMER_TO_MSEC(delay));
@@ -253,7 +173,7 @@ static void tim_win32_low_perf_thread(void *unused)
       prev_time = curr_time;
 
       /* call timer proc */
-      delay = tim_win32_handle_timer_tick(MSEC_TO_TIMER(diff_time));
+      delay = _handle_timer_tick(MSEC_TO_TIMER(diff_time));
 
       /* wait calculated time */
       result = WaitForSingleObject(timer_stop_event, TIMER_TO_MSEC(delay));
@@ -329,20 +249,10 @@ static void tim_win32_exit(void)
 
 
 
-/* can_simulate_retrace:
- *  Simulated retrace doesn't work under Windows.
- */
-static int can_simulate_retrace(void)
-{
-   return 0;
-}
-
-
-
-/* win32_rest:
+/* tim_win32_rest:
  *  Rests the specified amount of milliseconds.
  */
-static void win32_rest(long time, AL_METHOD(void, callback, (void)))
+static void tim_win32_rest(long time, AL_METHOD(void, callback, (void)))
 {
    unsigned long start;
    unsigned long ms = time;
