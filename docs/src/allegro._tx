@@ -2291,7 +2291,9 @@ information for more details.
    the screen. The `mouse_z' variable holds the current wheel position, when 
    using an input driver that supports wheel mice. The `mouse_b' variable is 
    a bitfield indicating the state of each button: bit 0 is the left button, 
-   bit 1 the right, and bit 2 the middle button. For example:
+   bit 1 the right, and bit 2 the middle button. Additional non standard
+   mouse buttons might be available as higher bits in this variable. Usage
+   example:
 <codeblock>
       if (mouse_b & 1)
 	 printf("Left button is pressed\n");
@@ -2301,9 +2303,9 @@ information for more details.
 <endblock>
    The `mouse_pos' variable has the current X coordinate in the upper 16 bits
    and  the Y in the lower 16 bits. This may be useful in tight polling loops 
-   where a mouse interrupt could occur between your reading of the two separate
-   variables, since you can copy this value into a local variable with a 
-   single instruction and then split it up at your leisure. Example:
+   where a mouse interrupt could occur between your reading of the two
+   separate variables, since you can copy this value into a local variable
+   with a single instruction and then split it up at your leisure. Example:
 <codeblock>
    int pos, x, y;
    
@@ -2420,7 +2422,8 @@ information for more details.
    call, which is a bitmask containing any of the values MOUSE_FLAG_MOVE, 
    MOUSE_FLAG_LEFT_DOWN, MOUSE_FLAG_LEFT_UP, MOUSE_FLAG_RIGHT_DOWN, 
    MOUSE_FLAG_RIGHT_UP, MOUSE_FLAG_MIDDLE_DOWN, MOUSE_FLAG_MIDDLE_UP, and 
-   MOUSE_FLAG_MOVE_Z.
+   MOUSE_FLAG_MOVE_Z. Note that even if the mouse has more than three buttons,
+   only the first three can be trapped using a callback.
 
 
 
