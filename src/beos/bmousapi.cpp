@@ -55,7 +55,7 @@ static int limit_down   = 0;
 static int limit_left   = 0;
 static int limit_right  = 0;
 
-static bool be_mouse_on = false;
+static bool be_mouse_warped = false;
 
 
 int32 mouse_thread(void *mouse_started)
@@ -85,8 +85,15 @@ int32 mouse_thread(void *mouse_started)
 	    int dx = (int)cursor.x - 320;
 	    int dy = (int)cursor.y - 240;
 
-	    be_mickey_x += dx;
-	    be_mickey_y += dy;
+	    if (be_mouse_warped) {
+	       be_mickey_x = 0;
+	       be_mickey_y = 0;
+	       be_mouse_warped = false;
+	    }
+	    else {
+	       be_mickey_x += dx;
+	       be_mickey_y += dy;
+	    }
 	    be_mouse_x += dx;
 	    be_mouse_y += dy;
 	    
@@ -101,22 +108,27 @@ int32 mouse_thread(void *mouse_started)
 	       int old_x = be_mouse_x;
 	       int old_y = be_mouse_y;
 	       
-	       if (!be_mouse_on) {
-	          _mouse_on = TRUE;
-	          be_mouse_on = true;
+	       _mouse_on = TRUE;
+	       if (!be_app->IsCursorHidden()) {
 	          be_app->HideCursor();
 	       }
 
 	       be_mouse_x = (int)(cursor.x - bounds.left);
 	       be_mouse_y = (int)(cursor.y - bounds.top);
-	       be_mickey_x += (be_mouse_x - old_x);
-	       be_mickey_y += (be_mouse_y - old_y);
+	       if (!be_mouse_warped) {
+	          be_mickey_x += (be_mouse_x - old_x);
+	          be_mickey_y += (be_mouse_y - old_y);
+	       }
+	       else {
+	          be_mouse_warped = false;
+	          be_mickey_x = 0;
+	          be_mickey_y = 0;
+	       }
 	    }
 	    else {
 	       buttons = 0;
-	       if (be_mouse_on) {
-	          _mouse_on = FALSE;
-	          be_mouse_on = false;
+	       _mouse_on = FALSE;
+	       if (be_app->IsCursorHidden()) {
 	          be_app->ShowCursor();
 	       }
 	    }
@@ -226,18 +238,25 @@ extern "C" void be_mouse_exit(void)
 
 extern "C" void be_mouse_position(int x, int y)
 {
+   acquire_sem(_be_mouse_view_attached);
    be_mouse_x = x;
    be_mouse_y = y;
+   be_mouse_warped = true;
+   if (!_be_mouse_window_mode)
+      set_mouse_position(320, 240);
+   release_sem(_be_mouse_view_attached);
 }
 
 
 
 extern "C" void be_mouse_set_range(int x1, int y1, int x2, int y2)
 {
+   acquire_sem(_be_mouse_view_attached);
    limit_up     = y1;
    limit_down   = y2;
    limit_left   = x1;
    limit_right  = x2;
+   release_sem(_be_mouse_view_attached);
 }
 
 
@@ -250,6 +269,7 @@ extern "C" void be_mouse_set_speed(int xspeed, int yspeed)
 
 extern "C" void be_mouse_get_mickeys(int *mickeyx, int *mickeyy)
 {
+   acquire_sem(_be_mouse_view_attached);
    if (mickeyx != NULL) {
       *mickeyx = be_mickey_x;
    }
@@ -260,4 +280,5 @@ extern "C" void be_mouse_get_mickeys(int *mickeyx, int *mickeyy)
 
    be_mickey_x = 0;
    be_mickey_y = 0;
+   release_sem(_be_mouse_view_attached);
 }

@@ -745,6 +745,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
 
    _be_mouse_window = _be_allegro_screen;
    _be_mouse_window_mode = false;
+   _mouse_on = TRUE;
 
    release_sem(_be_mouse_view_attached);
 
@@ -817,6 +818,10 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    palette_thread_id = spawn_thread(palette_updater_thread, "palette updater", 
 				    B_DISPLAY_PRIORITY, (void *)_be_allegro_screen);
    resume_thread(palette_thread_id);
+
+   if (!be_app->IsCursorHidden()) {
+      be_app->HideCursor();
+   }
 
    release_sem(_be_fullscreen_lock);
 
