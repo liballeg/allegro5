@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 
    if (scitename[0]) {
       if (write_scite(scitename, filename) != 0) {
-	 fprintf(stderr, "Error writing DevHelp output file\n");
+	 fprintf(stderr, "Error writing SciTE output file\n");
 	 err = 1;
 	 goto getout;
       }
