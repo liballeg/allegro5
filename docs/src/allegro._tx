@@ -1875,7 +1875,8 @@ mouse = x<br>
 num_buttons = x<br>
    Sets the number of mouse buttons viewed by Allegro. You don't normally
    need to set this variable because Allegro will autodetect it. You can only
-   use it to restrict the set of actual mouse buttons.
+   use it to restrict the set of actual mouse buttons to zero or positive
+   values, negative values will be ignored.
 <li>
 emulate_three = x<br>
    Sets whether to emulate a third mouse button by detecting chords of the 
@@ -2151,7 +2152,18 @@ Mouse routines
    Installs the Allegro mouse handler. You must do this before using any 
    other mouse functions. 
 @retval
-   Returns -1 on failure, otherwise the number of buttons on the mouse.
+   Returns -1 on failure, zero if the mouse handler is already installed (in
+   which case this function does nothing) and the number of buttons on the
+   mouse if a mouse handler was correctly initialised (ie. this is the first
+   time a handler is installed or you have removed the previous one).
+
+   Note that the number of mouse buttons returned by this function is more
+   an indication than a physical reality. With most devices there is no way
+   of telling how many buttons there are, and any user can override the
+   number of mouse buttons returned by this function with a custom
+   configuration file and the variable num_buttons. Even if this value is
+   overriden by the user, the global mouse variables will still report
+   whatever the hardware is sending.
 
 @@void @remove_mouse();
 @xref install_mouse, allegro_exit

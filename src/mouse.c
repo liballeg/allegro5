@@ -809,6 +809,7 @@ int install_mouse(void)
 {
    _DRIVER_INFO *driver_list;
    int num_buttons = -1;
+   int config_num_buttons;
    AL_CONST char *emulate;
    char tmp1[64], tmp2[64];
    int i;
@@ -889,8 +890,12 @@ int install_mouse(void)
       return -1;
    }
 
-   num_buttons = get_config_int(uconvert_ascii("mouse", tmp1), uconvert_ascii("num_buttons", tmp2), num_buttons);
+   config_num_buttons = get_config_int(uconvert_ascii("mouse", tmp1), uconvert_ascii("num_buttons", tmp2), -1);
    emulate = get_config_string(uconvert_ascii("mouse", tmp1), uconvert_ascii("emulate_three", tmp2), NULL);
+
+   /* clamp config_num_buttons to zero/positive values */
+   if (config_num_buttons >= 0)
+      num_buttons = config_num_buttons;
 
    if ((emulate) && ((i = ugetc(emulate)) != 0)) {
       if ((i == 'y') || (i == 'Y') || (i == '1'))
