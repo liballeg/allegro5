@@ -9,11 +9,11 @@
 				       \_/__/
 
 
-		MingW32-specific information.
+   Notes on building the MingW32 version of Allegro.
 
-		 Written by Henrik Stokseth.
+   Written by: Henrik Stokseth.
 
-	 See readme.txt for a more general overview.
+   See readme.txt for a more general overview.
 
 
 
@@ -27,7 +27,7 @@
    free professional tools. On that note I'd like to thank Peter for
    making this a reality and for finishing off what I started. Enjoy!
 
-   The screensaver example is built but you must copy scrsave.scr to your
+   The screensaver example is built, but you must copy scrsave.scr to your
    windows directory if you want to test it.
    
    If you have GNU Bash and GNU fileutils installed then set the
@@ -45,16 +45,17 @@
 === Obtaining and installing the compiler & tools ===
 =====================================================
 
-   You have three choices when it comes to installing MingW32 and Allegro
+   You have four choices when it comes to installing MingW32 and Allegro
    on your computer. The section 'Setting up MingW32 to build Allegro'
    describes how to set up the MingW32 command line tools which is the
-   preferred choice for those who like to work on the command line. The
+   prefered choice for those who like to work on the command line. The
    section 'Setting up Dev-C++ to build Allegro' describes how to set up the
    MingW32 command line tools in addition to the Dev-C++ IDE. This is the
-   preferred choice for those who like to work in a graphical development
-   environment. The last section 'Cross compilation' describes how to set up
-   the MingW32 command line tools to compile Win32 programs from your Linux
-   box. 
+   prefered choice for those who like to work in a graphical development
+   environment. The section 'Setting up Cygwin to build Allegro' describes
+   how to set up your CygWin compiler to build Allegro. The last section
+   'Cross compilation' describes how to set up the MingW32 command line tools
+   to compile Win32 programs from your Linux box. 
 
 
 
@@ -87,8 +88,7 @@
 
 
    3) Get the minimal DirectX 7 SDK for MingW32. Download it from
-
-      http://sunsite.dk/allegro/wipdll/dx70_mgw.zip
+      http://sunsite.auc.dk/allegro/wipdll/dx70_mgw.zip
 
 
    4) Install the MingW32 packages from step 1. The default path to install
@@ -97,6 +97,9 @@
       same directory, overwrite old files.
 
    5) Unzip the file from step 3 to c:\mingw32\i386-mingw32msvc
+      Note: If you have a newer copy of mingw32 where the
+      i386-mingw32msvc directory does not exist, then unzip DirectX
+      to c:\mingw32 instead.
 
    6) You now need to add the mingw32\bin path. The best way to do this is
       to add it to autoexec.bat, if you have another compiler make sure the
@@ -120,12 +123,12 @@
    Some people prefer to use the Dev-C++ distribution to make Allegro
    programs. Dev-C++ is a neat development IDE and includes an updated
    MingW32 compiler. If you would rather like to use Dev-C++ than the
-   command line MingW32 tools ignore the previous section and follow
+   command line MingW32 tools ignore the previous chapter and follow
    these instructions.
 
    1) Obtain the complete Dev-C++ package from
 
-      http://www.blodshed.net/devcpp.html
+      http://www.bloodshed.net/devcpp.html
 
    2) Get the latest MingW32 runtime.
       ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/runtime/
@@ -136,11 +139,11 @@
 
    3) Get the minimal DirectX 7 SDK for MingW32. Download it from
 
-      http://sunsite.dk/allegro/wipdll/dx70_mgw.zip
+      http://sunsite.auc.dk/allegro/wipdll/dx70_mgw.zip
 
    4) Install the package from step 1.
 
-   5) Unzip the package from step 2 to a temporary directory, for example
+   5) Unzip the package from step 2 to a temporary directory. For instance
       C:\Temp. Then move the contents from C:\Temp\bin to C:\Dev-C++\Bin.
       Also move the files in C:\Temp\i386-mingw32msvc\include to
       C:\Dev-C++\Include and the files in C:\Temp\i386-mingw32msvc\lib to
@@ -149,7 +152,7 @@
    6) Unzip the file from step 3 to C:\Dev-C++
 
    7) You now need to add the C:\Dev-C++\Bin path. The best way to do this is
-      to add it to autoexec.bat. If you have another compiler make sure the
+      to add it to autoexec.bat, if you have another compiler make sure the
       mingw path is before it. This path will be added the next time you
       reboot, if you want to add it now, type:
 
@@ -157,11 +160,39 @@
       
 
    Test the installation by typing: gcc -v.
-   The answer should be similar to
-   Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32msvc\2.95.2\specs
+   The answer should be simmilar to
+   Using builtin specs.
    gcc version 2.95.2 19991024 (release)
 
 
+
+============================================
+==== Setting up CygWin to build Allegro ====
+============================================
+
+   1) Obtain and install a CygWin compiler. Get setup.exe from
+      http://sources.redhat.com/cygwin/
+      Start the CygWin setup program and download these packages:
+      bash, binutils, cygwin, diff, fileutils, findutils, gcc, gdb,
+      gzip, less, login, make, man, mingw, patch, sed, sh-utils,
+      tar, texinfo, textutils, w32api.
+
+   2) put the following text in /etc/profile (c:\cygwin\etc\profile)
+      export ALLEGRO_USE_CYGWIN=1
+      export MINGDIR=/usr/local
+      
+   3) Download the DirectX 7.0 SDK from
+      http://sunsite.auc.dk/allegro/wipdll/dx70_mgw.zip
+      and unzip it to your a temporary directory, for instance C:\Temp.
+      Then move the contents of C:\Temp\lib to C:\cygwin\lib\w32api, and
+      the contents of C:\Temp\include to c:\cygwin\usr\include\w32api.
+
+   4) Then run './fixming.sh'. This will take a while...
+
+   Test the installation by typing: gcc -v.
+   The answer should be similar to
+   Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/2.95.2-5/specs
+   gcc version 2.95.2-5 19991024 (cygwin experimental)
 
 =======================================
 ========== Cross compilation ==========
@@ -169,23 +200,23 @@
 
    Brief example of how to set up a Mingw32 cross-compiler system:
 
-   Download the prebuilt Mingw32 cross-compiler from:
-   http://www.devolution.com/~slouken/SDL/Xmingw32/
-   Uncompress this file to /usr/local/
-   If you put the cross-compiler elsewhere you will have to edit xmake.sh
-   and replace XC_PATH and INSTALL_BASE with the right directory names.
+   1) Download the prebuilt Mingw32 cross-compiler from:
+      http://www.devolution.com/~slouken/SDL/Xmingw32/
+      Uncompress this file to /usr/local/
+      If you put the cross-compiler elsewhere you will have to edit xmake.sh
+      and replace XC_PATH and INSTALL_BASE with the right directory names.
 
-   Replace the directx libraries and headers with the ones you find here:
-   http://sites.netscape.net/ptrpck/dxlibs.zip
-   http://sunsite.dk/allegro/wipdll/dx70_min.zip
-   Make sure you convert all text files to Unix style or cpp will croak.
+   2) Download the DirectX 7.0 SDK from
+      http://sunsite.auc.dk/allegro/wipdll/dx70_mgw.zip
+      and unzip it to /usr/local/cross-tools/i386-mingw32msvc/
+      Make sure you convert all text files to unix style or cpp will croak.
 
-   Then run './fixming.sh'. Now you are finished with all the preparations.
+   3) Then run './fixming.sh'. You are now finished with all the preparations.
    
-   You can now run './xmake.sh' to build the Allegro library and 
-   then run './xmake.sh install' as root to install Allegro.
-   You can use xmake.sh as you would use make to compile any Allegro stuff.
-   To make documentation you can run './xmake.sh docs'
+   4) You can now run './xmake.sh' to build the Allegro library and 
+      then run './xmake.sh install' as root to install Allegro.
+      You can use xmake.sh as you would use make to compile any Allegro stuff.
+      To make documentation you can run './xmake.sh docs'
 
 
 
@@ -196,7 +227,7 @@
    Step-by-step instructions on how to build the MingW32 version of Allegro.
    This assumes you have unzipped allegro to c:\allegro
 
-   First configure Allegro by entering the following on the command-line:
+   First configure Allegro by entering the following on the commandline:
 
    cd c:\allegro
    fixming
@@ -249,9 +280,8 @@
    All the Allegro functions, variables, and data structures are defined 
    in allegro.h. You should include this in your programs, and link with 
    either the optimised library liballeg.a, the debugging library 
-   liballd.a, or the profiling library liballp.a. You should copy
-   the Allegro DLLs to your Windows directory and also include them in
-   software you release to the public.
+   liballd.a, or the profiling library liballp.a. You should include the
+   Allegro DLLs in any software you release to the public.
 
    When using a statically linked library, you must define the preprocessor 
    symbol ALLEGRO_STATICLINK before including any of the Allegro headers.
