@@ -28,9 +28,9 @@
 
 /* describe this platform */
 #ifdef ALLEGRO_STATICLINK
-   #define ALLEGRO_PLATFORM_STR  "Mingw32.s"
+   #define ALLEGRO_PLATFORM_STR  "MinGW32.s"
 #else
-   #define ALLEGRO_PLATFORM_STR  "Mingw32"
+   #define ALLEGRO_PLATFORM_STR  "MinGW32"
 #endif
 
 #define ALLEGRO_WINDOWS
