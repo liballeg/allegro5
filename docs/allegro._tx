@@ -3836,16 +3836,17 @@ Polygon rendering
 @xref polygon3d, clip3d
    Clips the polygon given in vtx. The number of vertices is vc, the result 
    goes in vout, and vtmp and out are needed for internal purposes. The 
-   pointers in vtx, vout and vtmp must point to valid V3D_f structures. The 
-   size of vout, vtmp and out should be at least vc*2 (additional vertices 
-   may appear in the process of clipping). The frustum (viewing volume) is 
-   defined by -z&ltx&ltz, -z&lty&ltz, 0&ltmin_z&ltz&ltmax_z. If 
-   max_z&lt=min_z, the z&ltmax_z clipping is not done. As you can see, 
-   clipping is done in the camera space, with perspective in mind, so this 
-   routine should be called after you apply the camera matrix, but before 
-   the perspective projection. The routine will correctly interpolate u, v, 
-   and c in the vertex structure. However, no provision is made for 
-   high/truecolor GCOL.
+   pointers in vtx, vout and vtmp must point to valid V3D_f structures. 
+   As additional vertices may appear in the process of clipping, so the 
+   size of vout, vtmp and out should be at least vc * (1.5 ^ n), where n is
+   the number of clipping planes (5 or 6), and '^' denotes "to the power of".
+   The frustum (viewing volume) is defined by -z&ltx&ltz, -z&lty&ltz,
+   0&ltmin_z&ltz&ltmax_z. If  max_z&lt=min_z, the z&ltmax_z clipping is
+   not done. As you can see, clipping is done in the camera space, with
+   perspective in mind, so this routine should be called after you apply
+   the camera matrix, but before the perspective projection. The routine
+   will correctly interpolate u, v, and c in the vertex structure. However,
+   no provision is made for high/truecolor GCOL.
 
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
 @@           V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
@@ -6623,7 +6624,7 @@ changes are the following:
    The d_slider_proc object will return the value of the callback function.
 
 @@int @d_menu_proc(int msg, DIALOG *d, int c);
-@xref gui menus, active_menu
+@xref gui menus, active_menu, gui_menu_draw_menu
    This object is a menu bar which will drop down child menus when it is 
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
@@ -6777,7 +6778,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    an object needs to iterate through a list of all its siblings.
 
 @hnode gui menus
-@xref do_menu, d_menu_proc
+@xref do_menu, d_menu_proc, gui_menu_draw_menu
 Popup or pulldown menus are created as an array of the structures:
 <pre>
 typedef struct MENU
@@ -6809,7 +6810,7 @@ would be a good idea to prefix all your options with a space or two, to
 ensure there is room for the check.
 
 @@int @do_menu(MENU *menu, int x, int y)
-@xref gui menus, d_menu_proc, active_menu
+@xref gui menus, d_menu_proc, active_menu, gui_menu_draw_menu
    Displays and animates a popup menu at the specified screen coordinates 
    (these will be adjusted if the menu does not entirely fit on the screen). 
    Returns the index of the menu item that was selected, or -1 if the menu 
@@ -6822,6 +6823,21 @@ ensure there is room for the check.
    When a menu callback procedure is triggered, this will be set to the menu 
    item that was selected, so your routine can determine where it was called 
    from.
+
+@@extern void (*@gui_menu_draw_menu)(int x, int y, int w, int h);
+@\extern void (*@gui_menu_draw_menu_item)(MENU *m, int x, int y, int w,
+@@                                        int h, int bar, int sel);
+@xref gui menus
+   If set, these functions will be called whenever a menu needs to be
+   drawn, so you can change how menus look.
+
+   gui_menu_draw_menu() is passed the position and size of the
+   menu. It should draw the background of the menu onto screen.
+
+   gui_menu_draw_menu_item() is called once for each menu item that is
+   to be drawn. bar will be set if the item is part of a top-level
+   horizontal menu bar, and sel will be set if the menu item is
+   selected. It should also draw onto screen.
 
 @@int @alert(const char *s1, *s2, *s3, const char *b1, *b2, int c1, c2);
 @xref alert3, gui_fg_color
