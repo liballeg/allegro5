@@ -104,7 +104,7 @@ AL_FUNC(void, sys_switch_in, (void));
 AL_FUNC(void, sys_switch_out, (void));
 AL_FUNC(void, sys_reset_switch_mode, (void));
 
-AL_FUNC(void, thread_switch_out, (void));
+AL_FUNC(int, thread_switch_out, (void));
 
 
 /* main window routines */

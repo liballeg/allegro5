@@ -160,11 +160,16 @@ void sys_switch_out(void)
 
 /* thread_switch_out:
  *  Handles a switch out event for the calling thread.
+ *  Returns TRUE if the thread was blocked, FALSE otherwise.
  */
-void thread_switch_out(void)
+int thread_switch_out(void)
 {
    int mode = get_display_switch_mode();
 
-   if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE))
+   if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
       WaitForSingleObject(foreground_event, INFINITE);
+      return TRUE;
+   }
+
+   return FALSE;
 }
