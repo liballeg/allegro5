@@ -405,10 +405,12 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    static int virgin = 1;
    BITMAP *bmp = NULL;
-   int svgalib2;
+   int svgalib2 = 0;
 
    /* SVGAlib 2.0 doesn't require special permissions.  */
+#ifdef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
    svgalib2 = vga_version >= 0x1900;
+#endif
 
    if ((!svgalib2) && (!__al_linux_have_ioperms)) {
       ustrcpy(allegro_error, get_config_text("This driver needs root privileges"));

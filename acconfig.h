@@ -34,6 +34,9 @@
 /* Define to enable Linux console SVGAlib driver */
 #undef ALLEGRO_LINUX_SVGALIB
 
+/* Define if SVGAlib driver can check vga_version */
+#undef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
+
 /* Define if target machine is little endian.  */
 #undef ALLEGRO_LITTLE_ENDIAN
 

@@ -366,6 +366,15 @@ case "$allegro_system" in
 	AC_CHECK_LIB(vga, vga_init,
 	  AC_DEFINE(ALLEGRO_LINUX_SVGALIB)
 	  LIBS="-lvga $LIBS"
+          AC_MSG_CHECKING(for vga_version in vga.h)
+          AC_CACHE_VAL(allegro_cv_have_vga_version,
+          [AC_TRY_COMPILE([#include <vga.h>], [int x = vga_version;],
+            allegro_cv_have_vga_version=yes,
+            allegro_cv_have_vga_version=no)])
+          AC_MSG_RESULT($allegro_cv_have_vga_version)
+          if test "$allegro_cv_have_vga_version" = yes; then
+            AC_DEFINE(ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION)
+          fi
 	)
       )
     fi
