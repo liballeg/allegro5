@@ -470,13 +470,13 @@ static int create_offscreen(int w, int h, int color_depth)
 {
    if (colorconv_blit) {
       /* create pre-converted offscreen surface in video memory */
-      preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
+      preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_VIDEO);
 
       if (!preconv_offscreen_surface) {
          _TRACE("Can't create preconverted offscreen surface in video memory.\n");
 
          /* create pre-converted offscreen surface in plain memory */
-         preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
+         preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_SYSTEM);
 
          if (!preconv_offscreen_surface) {
             _TRACE("Can't create preconverted offscreen surface.\n");
@@ -484,17 +484,17 @@ static int create_offscreen(int w, int h, int color_depth)
          }
       }
 
-      offscreen_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 0, 0, 0);
+      offscreen_surface = gfx_directx_create_surface(w, h, dd_pixelformat, SURF_SYSTEM);
    }
    else {
       /* create offscreen surface in video memory */
-      offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
+      offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_VIDEO);
       
       if (!offscreen_surface) {
          _TRACE("Can't create offscreen surface in video memory.\n");
 
          /* create offscreen surface in plain memory */
-         offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
+         offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_SYSTEM);
       }
    }
 
@@ -642,7 +642,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if (setup_driver(&gfx_directx_win, w, h, color_depth) != 0)
       goto Error;
 
-   dd_frontbuffer = make_directx_bitmap(offscreen_surface, w, h, color_depth, BMP_ID_VIDEO);
+   dd_frontbuffer = make_directx_bitmap(offscreen_surface, w, h, BMP_ID_VIDEO);
 
    enable_acceleration(&gfx_directx_win);
    memcpy (&_special_vtable, &_screen_vtable, sizeof (GFX_VTABLE));
@@ -684,12 +684,12 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 /* gfx_directx_win_exit:
  *  Shuts down the driver.
  */
-static void gfx_directx_win_exit(struct BITMAP *b)
+static void gfx_directx_win_exit(struct BITMAP *bmp)
 { 
    _enter_gfx_critical();
 
-   if (b)
-      clear_bitmap(b);
+   if (bmp)
+      clear_bitmap(bmp);
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
@@ -713,12 +713,14 @@ static void gfx_directx_win_exit(struct BITMAP *b)
       colorconv_blit = NULL;
    }
 
-   /* unlink surface from bitmap */
-   if (b)
-      b->extra = NULL;
-
-   _exit_gfx_critical();
+   /* unregister bitmap */
+   if (bmp) {
+      unregister_directx_bitmap(bmp);
+      free(bmp->extra);
+   }
    
    gfx_directx_exit(NULL);
+
+   _exit_gfx_critical();
 }
 

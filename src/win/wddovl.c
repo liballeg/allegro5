@@ -270,7 +270,7 @@ static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
  */
 static int create_overlay(int w, int h, int color_depth)
 {
-   overlay_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 0, 0, 1);
+   overlay_surface = gfx_directx_create_surface(w, h, dd_pixelformat, SURF_OVERLAY);
    
    if (!overlay_surface) {
       _TRACE("Can't create overlay surface.\n");
@@ -393,7 +393,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (setup_driver(&gfx_directx_ovl, w, h, color_depth) != 0)
       goto Error;
 
-   dd_frontbuffer = make_directx_bitmap(overlay_surface, w, h, color_depth, BMP_ID_VIDEO);
+   dd_frontbuffer = make_directx_bitmap(overlay_surface, w, h, BMP_ID_VIDEO);
 
    /* display the overlay surface */
    key.dwColorSpaceLowValue = dd_frontbuffer->vtable->mask_color;
@@ -437,12 +437,12 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 /* gfx_directx_ovl_exit:
  *  shuts down the driver
  */
-static void gfx_directx_ovl_exit(struct BITMAP *b)
+static void gfx_directx_ovl_exit(struct BITMAP *bmp)
 {
    _enter_gfx_critical();
 
-   if (b)
-      clear_bitmap(b);
+   if (bmp)
+      clear_bitmap(bmp);
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
@@ -456,11 +456,14 @@ static void gfx_directx_ovl_exit(struct BITMAP *b)
       overlay_surface = NULL;
    }
 
-   /* unlink surface from bitmap */
-   if (b)
-      b->extra = NULL;
+   /* unregister bitmap */
+   if (bmp) {
+      unregister_directx_bitmap(bmp);
+      free(bmp->extra);
+   }
+
+   gfx_directx_exit(NULL);
 
    _exit_gfx_critical();
-   
-   gfx_directx_exit(NULL);
 }
+

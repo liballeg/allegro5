@@ -47,17 +47,17 @@ AL_VAR(char *, pseudo_surf_mem);
 
 /* driver routines */
 AL_FUNC(BITMAP *, gfx_directx_init, (GFX_DRIVER *drv, int accel, int w, int h, int v_w, int v_h, int color_depth));
-AL_FUNC(void, gfx_directx_exit, (BITMAP *b));
+AL_FUNC(void, gfx_directx_exit, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_sync, (void));
 AL_FUNC(void, gfx_directx_set_palette, (AL_CONST RGB *p, int from, int to, int vsync));
 AL_FUNC(int, gfx_directx_poll_scroll, (void));
 AL_FUNC(void, gfx_directx_created_sub_bitmap, (BITMAP *bmp, BITMAP *parent));
 AL_FUNC(BITMAP *, gfx_directx_create_video_bitmap, (int width, int height));
-AL_FUNC(void, gfx_directx_destroy_video_bitmap, (BITMAP *bitmap));
-AL_FUNC(int, gfx_directx_show_video_bitmap, (BITMAP *bitmap));
-AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bitmap));
+AL_FUNC(void, gfx_directx_destroy_video_bitmap, (BITMAP *bmp));
+AL_FUNC(int, gfx_directx_show_video_bitmap, (BITMAP *bmp));
+AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bmp));
 AL_FUNC(BITMAP *, gfx_directx_create_system_bitmap, (int width, int height));
-AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bitmap));
+AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_destroy_surf, (LPDIRECTDRAWSURFACE2 surf));
 AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
 
@@ -114,10 +114,14 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation (from wddbmp.c) */
-AL_FUNC(LPDIRECTDRAWSURFACE2, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format,
-   int video, int primary, int overlay));
-AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE2 surf, int w, int h, int color_depth, int id));
-AL_FUNC(void, release_directx_bitmap, (struct BITMAP *bmp));
+#define SURF_PRIMARY   1
+#define SURF_OVERLAY   2
+#define SURF_SYSTEM    3
+#define SURF_VIDEO     4
+
+AL_FUNC(LPDIRECTDRAWSURFACE2, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format, int type));
+AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE2 surf, int w, int h, int id));
+AL_FUNC(void, destroy_directx_bitmap, (BITMAP *bmp));
 
 
 /* video bitmap list (from wddbmpl.c) */

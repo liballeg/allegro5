@@ -76,7 +76,7 @@ int init_directx(void)
 int create_primary(void)
 {
    /* create primary surface */
-   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, 0, 1, 0);
+   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, SURF_PRIMARY);
    if (!dd_prim_surface) {
       _TRACE("Can't create primary surface.\n");
       return -1;
@@ -251,7 +251,7 @@ struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int accel, int w, int h, int v_
       goto Error;
 
    /* create front buffer */
-   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO);
+   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, BMP_ID_VIDEO);
 
    if (accel)
       enable_acceleration(drv);
@@ -301,14 +301,14 @@ void gfx_directx_sync(void)
 
 /* gfx_directx_exit:
  */
-void gfx_directx_exit(struct BITMAP *b)
+void gfx_directx_exit(struct BITMAP *bmp)
 { 
    _enter_critical();
 
    set_sync_timer_freq(70);
 
-   if (b)
-      clear_bitmap(b);
+   if (bmp)
+      clear_bitmap(bmp);
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
@@ -317,9 +317,11 @@ void gfx_directx_exit(struct BITMAP *b)
    gfx_directx_destroy_surf(dd_prim_surface);
    dd_prim_surface = NULL;
 
-   /* unlink surface from bitmap */
-   if (b)
-      b->extra = NULL;
+   /* unregister bitmap */
+   if (bmp) {
+      unregister_directx_bitmap(bmp);
+      free(bmp->extra);
+   }
 
    /* normally this list must be empty */
    unregister_all_directx_bitmaps();
@@ -354,3 +356,4 @@ void gfx_directx_exit(struct BITMAP *b)
 
    _exit_critical();
 }
+
