@@ -51,6 +51,7 @@
 # undef fatan2
 # undef fsqrt
 # undef fhypot
+# undef fceil
 #endif
 #undef ALLEGRO_INCLUDE_MATH_H
 
