@@ -353,6 +353,9 @@ line dat utility. This accepts the following options:
       strip properties from the datafile, or in combination with any other 
       options.
 
+   '-t type'
+      Sets the object type when adding files.
+
    '-transparency'
       Preserves transparency when converting between color depths.
 
