@@ -48,7 +48,7 @@ static int digi_waveout_buffer_size(void);
 
 
 /* sound driver globals */
-static HANDLE hWaveOut = NULL;
+static HWAVEOUT hWaveOut = NULL;
 static LPWAVEHDR lpWaveHdr = NULL;
 static long int initial_volume;
 static int digiwobufsize, digiwobufdivs, digiwobufpos;
