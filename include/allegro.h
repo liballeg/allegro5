@@ -513,7 +513,7 @@ AL_FUNC(void, set_leds, (int leds));
 AL_FUNC(void, set_keyboard_rate, (int delay, int repeat));
 AL_FUNC(int, scancode_to_ascii, (int scancode));
 
-#ifndef NO_KEY_DEFINES
+#ifndef ALLEGRO_NO_KEY_DEFINES
 
 #define KB_SHIFT_FLAG         0x0001
 #define KB_CTRL_FLAG          0x0002
@@ -650,7 +650,7 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 
 #define KEY_MAX               115
 
-#endif /* NO_KEY_DEFINES */
+#endif /* ALLEGRO_NO_KEY_DEFINES */
 
 
 
