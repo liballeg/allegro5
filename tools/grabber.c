@@ -29,6 +29,9 @@
 #endif
 
 
+/* 80 characters * maximum character width (6 bytes for UTF8) */
+#define FILENAME_LENGTH (80*6)
+
 
 typedef struct DATAITEM
 {
@@ -1653,14 +1656,14 @@ static void load(char *filename, int flush)
 /* handle the load command */
 static int loader()
 {
-   char buf[256];
+   char buf[FILENAME_LENGTH];
 
    CHECK_MENU_HOOK("Load", DATEDIT_MENU_FILE);
 
    strcpy(buf, data_file);
    *get_filename(buf) = 0;
 
-   if (file_select_ex("Load datafile", buf, "dat", 0, 0)) {
+   if (file_select_ex("Load datafile", buf, "dat", sizeof(buf), 0, 0)) {
       fix_filename_case(buf);
       load(buf, 1);
    }
@@ -1673,14 +1676,14 @@ static int loader()
 /* handle the merge command */
 static int merger()
 {
-   char buf[256];
+   char buf[FILENAME_LENGTH];
 
    CHECK_MENU_HOOK("Merge", DATEDIT_MENU_FILE);
 
    strcpy(buf, data_file);
    *get_filename(buf) = 0;
 
-   if (file_select_ex("Merge datafile", buf, "dat", 0, 0)) {
+   if (file_select_ex("Merge datafile", buf, "dat", sizeof(buf), 0, 0)) {
       fix_filename_case(buf);
       load(buf, 0);
    }
@@ -1693,12 +1696,12 @@ static int merger()
 /* do the actual work of saving a file */
 static int save(int strip)
 {
-   char buf[256], buf2[256];
+   char buf[FILENAME_LENGTH], buf2[256];
    int err = FALSE;
 
    strcpy(buf, data_file);
 
-   if (file_select_ex("Save datafile", buf, "dat", 0, 0)) {
+   if (file_select_ex("Save datafile", buf, "dat", sizeof(buf), 0, 0)) {
       if ((stricmp(data_file, buf) != 0) && (exists(buf))) {
 	 sprintf(buf2, "%s already exists, overwrite?", buf);
 	 if (alert(buf2, NULL, NULL, "Yes", "Cancel", 'y', 27) != 1)
@@ -1971,7 +1974,7 @@ static void format_file_select_heading(char *dest, char *s1, char *s2, AL_CONST 
 static int reader()
 {
    DATAFILE *dat;
-   char buf[256], buf2[256];
+   char buf[FILENAME_LENGTH], buf2[256];
    AL_CONST char *s;
 
    CHECK_MENU_HOOK("Read", DATEDIT_MENU_FILE);
@@ -1990,7 +1993,7 @@ static int reader()
 
    format_file_select_heading(buf2, "Read bitmap file", NULL, s);
 
-   if (file_select_ex(buf2, buf, s, 0, 0)) {
+   if (file_select_ex(buf2, buf, s, sizeof(buf), 0, 0)) {
       fix_filename_case(buf);
       set_mouse_sprite(my_busy_pointer);
       busy_mouse = TRUE;
@@ -2069,7 +2072,7 @@ static int grabber()
    DATAFILE *dat;
    char *desc = "binary data";
    AL_CONST char *ext = NULL;
-   char buf[256], name[256], type[8];
+   char buf[256], name[FILENAME_LENGTH], type[8];
    int sel;
    int i;
 
@@ -2104,7 +2107,7 @@ static int grabber()
 
    format_file_select_heading(buf, "Grab", desc, ext);
 
-   if (file_select_ex(buf, name, ext, 0, 0)) {
+   if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
       set_mouse_sprite(my_busy_pointer);
       busy_mouse = TRUE;
@@ -2134,7 +2137,7 @@ static int exporter()
 {
    char *desc = "binary data";
    AL_CONST char *ext = NULL;
-   char buf[256], name[256];
+   char buf[256], name[FILENAME_LENGTH];
    DATAFILE *dat;
    int sel;
    int i;
@@ -2172,7 +2175,7 @@ static int exporter()
 
    format_file_select_heading(buf, "Export", desc, ext);
 
-   if (file_select_ex(buf, name, ext, 0, 0)) {
+   if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
       set_mouse_sprite(my_busy_pointer);
       busy_mouse = TRUE;

@@ -24,6 +24,9 @@
 #include "../datedit.h"
 
 
+/* 80 characters * maximum character width (6 bytes for UTF8) */
+#define FILENAME_LENGTH (80*6)
+
 
 /* creates a monochrome image containing the alpha channel of this bitmap */
 static BITMAP *get_alpha_bitmap(BITMAP *bmp)
@@ -130,7 +133,7 @@ static int export_alpha(void)
    DATAFILE tmpdat;
    RLE_SPRITE *rle;
    BITMAP *bmp;
-   char buf[256], name[256] = "";
+   char buf[256], name[FILENAME_LENGTH] = EMPTY_STRING;
    AL_CONST char *ext = NULL;
    int ret = 0;
 
@@ -163,7 +166,7 @@ static int export_alpha(void)
       strcpy(name, grabber_import_file);
       *get_filename(name) = 0;
 
-      if (file_select_ex(buf, name, ext, 0, 0)) {
+      if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
 	 fix_filename_case(name);
 	 strcpy(grabber_import_file, name);
 	 grabber_busy_mouse(TRUE);
@@ -251,7 +254,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
 {
    BITMAP *newbmp;
    DATAFILE *alpha;
-   char buf[256], name[256];
+   char buf[256], name[FILENAME_LENGTH];
    AL_CONST char *ext = NULL;
    int x, y, c, r, g, b, a;
 
@@ -263,7 +266,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
    strcpy(name, grabber_import_file);
    *get_filename(name) = 0;
 
-   if (file_select_ex(buf, name, ext, 0, 0)) {
+   if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
       strcpy(grabber_import_file, name);
       grabber_busy_mouse(TRUE);

@@ -23,6 +23,9 @@
  *      Peter Wang and Eric Botcazou modified it to stretch to screen and
  *      font sizes.
  *
+ *      Annie Testes modified it so that buffer overflows cannot occur
+ *      anymore.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -308,6 +311,7 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
 static int fs_edit_proc(int msg, DIALOG *d, int c)
 {
    char *s = d->dp;
+   int size = (d->d1 + 1) * uwidth_max(U_CURRENT); /* of s (in bytes) */
    int list_size;
    int found = 0;
    char b[512];
@@ -316,21 +320,24 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_START) {
       fix_filename_path(b, s, sizeof(b));
-      ustrcpy(s, b);
+      ustrncpy(s, b, size - ucwidth(0));
    }
 
    if (msg == MSG_KEY) {
       if ((!ugetc(s)) || (ugetat(s, -1) == DEVICE_SEPARATOR))
-	 ustrcat(s, uconvert_ascii("./", NULL));
+	 ustrncat(s, uconvert_ascii("./", NULL), size - ustrsizez(s));
 
       fix_filename_path(b, s, sizeof(b));
-      ustrcpy(s, b);
+      ustrncpy(s, b, size - ucwidth(0));
 
       ch = ugetat(s, -1);
       if ((ch != '/') && (ch != OTHER_PATH_SEPARATOR)) {
 	 if (file_exists(s, FA_RDONLY | FA_HIDDEN | FA_DIREC, &attr)) {
-	    if (attr & FA_DIREC)
-	       put_backslash(s);
+	    if (attr & FA_DIREC) {
+               /* make sure there is enough place */
+               if (ustrsizez(s) + ucwidth(OTHER_PATH_SEPARATOR) <= size)
+	          put_backslash(s);
+            }
 	    else
 	       return D_CLOSE;
 	 }
@@ -610,6 +617,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
    static int recurse_flag = 0;
    char *s = file_selector[FS_EDIT].dp;
    char tmp[32];
+   int size = (file_selector[FS_EDIT].d1 + 1) * uwidth_max(U_CURRENT); /* of s (in bytes) */
    int sel = d->d1;
    int i, ret;
    int ch, count;
@@ -658,7 +666,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
    recurse_flag--;
 
    if (((sel != d->d1) || (ret == D_CLOSE)) && (recurse_flag == 0)) {
-      replace_filename(s, flist->dir, flist->name[d->d1], 512);
+      replace_filename(s, flist->dir, flist->name[d->d1], size);
       /* check if we want to `cd ..' */
       if ((!ustrncmp(flist->name[d->d1], "..", 2)) && (ret == D_CLOSE)) {
 	 /* let's remember the previous directory */
@@ -803,45 +811,51 @@ static void stretch_dialog(DIALOG *d, int width, int height)
 
 
 
-/* file_select:
+/* file_select_ex:
  *  Displays the Allegro file selector, with the message as caption. 
- *  Allows the user to select a file, and stores the selection in path 
- *  (which should have room for at least 80 characters). The files are
- *  filtered according to the file extensions in ext. Passing NULL
- *  includes all files, "PCX;BMP" includes only files with .PCX or .BMP
- *  extensions. Returns zero if it was closed with the Cancel button, 
- *  non-zero if it was OK'd.
+ *  Allows the user to select a file, and stores the selection in the 
+ *  path buffer, whose length in bytes is given by size and should have 
+ *  room for at least 80 characters. The files are filtered according to 
+ *  the file extensions in ext. Passing NULL includes all files, "PCX;BMP" 
+ *  includes only files with .PCX or .BMP extensions. Returns zero if it 
+ *  was closed with the Cancel button or non-zero if it was OK'd.
  */
-int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
-{
-   #ifdef HAVE_DIR_LIST
-
-      return file_select_ex(message, path, ext, 305, 161);
-
-   #else
-      
-      return file_select_ex(message, path, ext, 305, 189);
-
-   #endif      
-}
-
-
-int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int width, int height)
+int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height)
 {
    char buf[512];
    int ret;
    char *p;
 
+   if (width == OLD_FILESEL_WIDTH)
+      width = 305;
+
+   #ifdef HAVE_DIR_LIST
+
+      if (height == OLD_FILESEL_HEIGHT)
+         height = 161;
+
+   #else
+
+      if (height == OLD_FILESEL_HEIGHT)
+         height = 189;
+
+   #endif
+
+   /* for fs_dlist_proc() */
+   ASSERT(size >= 4 * uwidth_max(U_CURRENT));
+
    ustrcpy(updir, empty_string);
    file_selector[FS_MESSAGE].dp = (char *)message;
+   file_selector[FS_EDIT].d1 = size/uwidth_max(U_CURRENT) - 1;
    file_selector[FS_EDIT].dp = path;
    file_selector[FS_OK].dp = (void*)get_config_text("OK");
    file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
    fext = ext;
 
    if (!ugetc(path)) {
-      getcwd(buf, 80);
-      do_uconvert(buf, U_ASCII, path, U_CURRENT, -1);
+      if (!getcwd(buf, sizeof(buf)))
+         buf[0]=0;
+      do_uconvert(buf, U_ASCII, path, U_CURRENT, size);
       fix_filename_case(path);
       fix_filename_slashes(path);
       put_backslash(path);
@@ -867,5 +881,16 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int w
    }
 
    return TRUE; 
+}
+
+
+
+/* file_select:
+ *  The good old file selector.
+ */
+int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
+{
+   return file_select_ex(message, path, ext, 80*uwidth_max(U_CURRENT),
+			 OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
 }
 

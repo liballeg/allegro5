@@ -6929,11 +6929,19 @@ ensure there is room for the check.
 
 @@int @file_select(const char *message, char *path, const char *ext);
 @xref file_select_ex, gui_fg_color
+   Deprecated. Use file_select_ex() instead, passing the two constants 
+   OLD_FILESEL_WIDTH and OLD_FILESEL_HEIGHT if you want the file selector 
+   to be displayed with the dimensions of the old file selector.
+
+@\int @file_select_ex(const char *message, char *path, const char *ext,
+@@                    int size, int w, int h);
+@xref gui_fg_color
    Displays the Allegro file selector, with the message as caption. The path 
    parameter contains the initial filename to display (this can be used to 
    set the starting directory, or to provide a default filename for a 
-   save-as operation). The user selection is returned by altering path, so 
-   it should have room for at least 80 characters. The list of files is 
+   save-as operation). The user selection is returned by altering the path 
+   buffer, whose length in bytes is specified by size. Note that it should 
+   have room for at least 80 characters (not bytes). The list of files is 
    filtered according to the file extensions in ext. Passing NULL includes 
    all files, "PCX;BMP" includes only files with .PCX or .BMP extensions. To 
    control files by their attributes, one of the fields in the extension 
@@ -6944,16 +6952,10 @@ ensure there is room for the check.
    characters are 'r' (read-only), 'h' (hidden), 's' (system), 'd' 
    (directory), and 'a' (archive). For example, an extension string of 
    "PCX;BMP;/+r-d" will display only PCX or BMP files that are read-only, 
-   but not directories. Returns zero if it was closed with the Cancel 
-   button, non-zero if it was OK'd.
-
-@\int @file_select_ex(const char *message, char *path, const char *ext,
-@@                    int w, int h);
-@xref file_select, gui_fg_color
-   Does the same as file_select(), but stretches the dialog to the width and
+   but not directories. The file selector is stretched to the width and
    height specified and to the font size. If either size argument is set to
-   zero, the function stretches the selector to the corresponding screen 
-   dimension.
+   zero, it is stretched to the corresponding screen dimension. Returns zero 
+   if it was closed with the Cancel button or non-zero if it was OK'd.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color

@@ -1000,7 +1000,7 @@ static char *range_getter(int index, int *list_size)
 /* imports a new font range */
 static int import_proc(int msg, DIALOG *d, int c)
 {
-   char name[256];
+   char name[80*6]; /* 80 chars * max UTF8 char width */
    int ret = d_button_proc(msg, d, c);
    FONT *fnt, *f;
    long size;
@@ -1013,7 +1013,7 @@ static int import_proc(int msg, DIALOG *d, int c)
       strcpy(name, grabber_import_file);
       *get_filename(name) = 0;
 
-      if (file_select_ex("Import range (" EXT_LIST ")", name, EXT_LIST, 0, 0)) {
+      if (file_select_ex("Import range (" EXT_LIST ")", name, EXT_LIST, sizeof(name), 0, 0)) {
 	 fix_filename_case(name);
 	 strcpy(grabber_import_file, name);
 

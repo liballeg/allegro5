@@ -1155,8 +1155,8 @@ static void get_menu_pos(MENU_INFO *m, int c, int *x, int *y, int *w)
 static void draw_menu_item(MENU_INFO *m, int c)
 {
    int fg, bg;
-   int i, j, x, y, w;
-   char buf[256], *tok;
+   int x, y, w;
+   char *buf, *tok;
    int my;
    int rtm;
 
@@ -1193,22 +1193,14 @@ static void draw_menu_item(MENU_INFO *m, int c)
    rtm = text_mode(bg);
 
    if (ugetc(m->menu[c].text)) {
-      i = 0;
-      j = ugetc(m->menu[c].text);
+      buf = ustrdup(m->menu[c].text);
+      tok = ustrtok(buf, uconvert_ascii("\t", NULL));
 
-      while ((j) && (j != '\t')) {
-	 i += usetc(buf+i, j);
-	 j = ugetc(m->menu[c].text+i);
-      }
+      gui_textout(screen, tok, x+8, y+1, fg, FALSE);
 
-      usetc(buf+i, 0);
-
-      gui_textout(screen, buf, x+8, y+1, fg, FALSE);
-
-      if (j == '\t') {
-	 tok = m->menu[c].text+i + uwidth(m->menu[c].text+i);
-	 gui_textout(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, FALSE);
-      }
+      tok = ustrtok(NULL, empty_string);
+      if (tok)
+ 	 gui_textout(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, FALSE);
 
       if ((m->menu[c].child) && (!m->bar)) {
          my = y + text_height(font)/2;
@@ -1222,7 +1214,8 @@ static void draw_menu_item(MENU_INFO *m, int c)
          hline(screen, x+w-8, my+4, x+w-7, fg);
          putpixel(screen, x+w-8, my+5, fg);
       }
-      
+
+      free(buf);
    }
    else
       hline(screen, x, y+text_height(font)/2+2, x+w, fg);
@@ -1303,9 +1296,9 @@ static int mouse_in_parent_menu(MENU_INFO *m)
  */
 static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar, int x, int y, int minw, int minh)
 {
-   char buf[80], *tok;
+   char *buf, *tok;
    int extra = 0;
-   int c, i, j;
+   int c;
    int child = FALSE;
 
    m->menu = menu;
@@ -1321,19 +1314,18 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    /* calculate size of the menu */
    for (m->size=0; m->menu[m->size].text; m->size++) {
 
-      if ((m->menu[m->size].child) && (!m->bar)) child = TRUE;
+      if ((m->menu[m->size].child) && (!m->bar))
+         child = TRUE;
 
-      i = 0;
-      j = ugetc(m->menu[m->size].text);
-
-      while ((j) && (j != '\t')) {
-	 i += usetc(buf+i, j);
-	 j = ugetc(m->menu[m->size].text+i);
+      if (ugetc(m->menu[m->size].text)) {
+         buf = ustrdup(m->menu[m->size].text);
+         tok = ustrtok(buf, uconvert_ascii("\t", NULL));
+         c = gui_strlen(tok);
       }
-
-      usetc(buf+i, 0);
-
-      c = gui_strlen(buf);
+      else {
+         buf = NULL;
+         c = 0;
+      }
 
       if (m->bar) {
 	 m->w += c+16;
@@ -1343,10 +1335,13 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
 	 m->w = MAX(m->w, c+16);
       }
 
-      if (j == '\t') {
-	 tok = m->menu[m->size].text+i + uwidth(m->menu[m->size].text+i);
-	 c = gui_strlen(tok);
-	 extra = MAX(extra, c);
+      if (buf) {
+	 tok = ustrtok(NULL, empty_string);
+	 if (tok) {
+	    c = gui_strlen(tok);
+	    extra = MAX(extra, c);
+	 }
+	 free(buf);
       }
    }
 

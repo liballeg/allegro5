@@ -93,11 +93,13 @@ void textout_right(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int
 /* textout_justify:
  *  Like textout(), but justifies the string to the specified area.
  */
+#define MAX_TOKEN  128
+
 void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color)
 {
    char toks[32];
-   char *tok[128];
-   char strbuf[512];
+   char *tok[MAX_TOKEN];
+   char *strbuf;
    int i, minlen, last, space;
    float fleft, finc;
 
@@ -108,13 +110,22 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
    usetc(toks+i, 0);
 
    /* count words and measure min length (without spaces) */ 
-   minlen = 0;
-   ustrcpy(strbuf, str);
-   last = 0;
+   strbuf = ustrdup(str);
+   if (!strbuf) {
+      /* Can't justify ! */
+      textout(bmp, f, str, x1, y, color);
+      return;
+   }
 
-   for (tok[last] = ustrtok(strbuf, toks); tok[last]; tok[last] = ustrtok(NULL, toks)) {
+   minlen = 0;
+   last = 0;
+   tok[last] = ustrtok(strbuf, toks);
+
+   while (tok[last]) {
       minlen += text_length(f, tok[last]);
-      last++; 
+      if (++last == MAX_TOKEN)
+         break;
+      tok[last] = ustrtok(NULL, toks);
    }
 
    /* amount of room for space between words */
@@ -122,6 +133,7 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
 
    if ((space <= 0) || (space > diff) || (last < 2)) {
       /* can't justify */
+      free(strbuf);
       textout(bmp, f, str, x1, y, color);
       return; 
    }
@@ -133,6 +145,8 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
       textout(bmp, f, tok[i], (int)fleft, y, color);
       fleft += (float)text_length(f, tok[i]) + finc;
    }
+
+   free(strbuf);
 }
 
 

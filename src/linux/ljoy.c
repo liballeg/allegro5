@@ -17,8 +17,9 @@
  *      See readme.txt for copyright information.
  */
 
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
@@ -49,7 +50,7 @@ static int joy_init (void)
 	int i, s, a, b;
 
 	for (i = 0; i < MAX_JOYSTICKS; i++) {
-		usprintf (tmp, "/dev/js%d", i);
+		sprintf (tmp, "/dev/js%d", i);
 		joy_fd[i] = open (tmp, O_RDONLY);
 		if (joy_fd[i] == -1) 
 			break;

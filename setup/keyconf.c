@@ -129,9 +129,11 @@ unsigned short my_key_accent4_upper_table[KEY_MAX];
 #endif
 
 
-char keyboard_name[64] = "";
+char keyboard_name[64] = EMPTY_STRING;
 
-char config_file[256] = "";
+/* 80 characters * maximum character width (6 bytes for UTF8) */
+#define FILENAME_LENGTH (80*6)
+char config_file[FILENAME_LENGTH] = EMPTY_STRING;
 
 unsigned short *editor_table;
 
@@ -240,11 +242,11 @@ void load_table(unsigned short *table, char *section)
 /* handle the load command */
 int loader()
 {
-   char buf[256];
+   char buf[FILENAME_LENGTH];
 
    strcpy(buf, config_file);
 
-   if (file_select("Load Keyboard Config", buf, "CFG")) {
+   if (file_select_ex("Load Keyboard Config", buf, "CFG", sizeof(buf), 0, 0)) {
       strlwr(buf);
       strcpy(config_file, buf);
 
@@ -319,11 +321,11 @@ void save_table(unsigned short *table, unsigned short *origtable, char *section)
 /* handle the save command */
 int saver()
 {
-   char buf[256];
+   char buf[FILENAME_LENGTH];
 
    strcpy(buf, config_file);
 
-   if (file_select("Save Keyboard Config", buf, "CFG")) {
+   if (file_select_ex("Save Keyboard Config", buf, "CFG", sizeof(buf), 0, 0)) {
       if ((stricmp(config_file, buf) != 0) && (exists(buf))) {
 	 if (alert("Overwrite existing file?", NULL, NULL, "Yes", "Cancel", 'y', 27) != 1)
 	    return D_REDRAW;

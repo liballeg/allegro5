@@ -3187,7 +3187,7 @@ int do_profile(BITMAP *old_screen)
 
    int old_mode = mode;
 
-   static char fname[256] = "";
+   static char fname[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
    FILE *f;
 
    int i;
@@ -3385,7 +3385,7 @@ int do_profile(BITMAP *old_screen)
    clear_to_color(screen, palette_color[0]);
    show_mouse(screen);
 
-   if (file_select("Save profile log", fname, NULL)) {
+   if (file_select_ex("Save profile log", fname, NULL, sizeof(fname), 0, 0)) {
       if (exists(fname))
 	 if (alert(fname, "already exists: overwrite?", NULL, "OK", "Cancel", 13, 27) == 2)
 	    goto abort;
@@ -3624,7 +3624,7 @@ int p3d_profile_proc(void)
    int old_3d = cpu_3dnow;
    BITMAP *old_screen = screen;
    BITMAP *buffer;
-   static char fname[256] = "";
+   static char fname[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
    FILE *f;
    int i;
 
@@ -3664,7 +3664,7 @@ int p3d_profile_proc(void)
    clear_to_color(screen, palette_color[0]);
    show_mouse(screen);
 
-   if (file_select("Save profile log", fname, NULL)) {
+   if (file_select_ex("Save profile log", fname, NULL, sizeof(fname), 0, 0)) {
       if (exists(fname))
 	 if (alert(fname, "already exists: overwrite?", NULL, "OK", "Cancel", 13, 27) == 2)
 	    goto abort;

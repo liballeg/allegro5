@@ -2160,7 +2160,7 @@ AL_FUNC(int, do_menu, (MENU *menu, int x, int y));
 AL_FUNC(int, alert, (AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, int c1, int c2));
 AL_FUNC(int, alert3, (AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, AL_CONST char *b3, int c1, int c2, int c3));
 AL_FUNC(int, file_select, (AL_CONST char *message, char *path, AL_CONST char *ext));
-AL_FUNC(int, file_select_ex, (AL_CONST char *message, char *path, AL_CONST char *ext, int w, int h));
+AL_FUNC(int, file_select_ex, (AL_CONST char *message, char *path, AL_CONST char *ext, int size, int w, int h));
 AL_FUNC(int, gfx_mode_select, (int *card, int *w, int *h));
 AL_FUNC(int, gfx_mode_select_ex, (int *card, int *w, int *h, int *color_depth));
 

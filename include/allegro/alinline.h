@@ -1364,7 +1364,9 @@ AL_INLINE(int, object_message, (DIALOG *d, int msg, int c),
 #define KB_NORMAL       1
 #define KB_EXTENDED     2
 
-#define SEND_MESSAGE    object_message
+#define SEND_MESSAGE        object_message
+#define OLD_FILESEL_WIDTH   -1
+#define OLD_FILESEL_HEIGHT  -1
 
 #define joy_x           (joy[0].stick[0].axis[0].pos)
 #define joy_y           (joy[0].stick[0].axis[1].pos)

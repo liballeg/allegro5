@@ -118,7 +118,7 @@ static int seq_attempt_open()
 
    fd = open(uconvert_toascii(seq_driver, tmp1), O_WRONLY);
    if (fd < 0) 
-      usprintf(allegro_error, get_config_text("%s: %s"), tmp1, ustrerror(errno));
+      usprintf(allegro_error, get_config_text("%s: %s"), seq_driver, ustrerror(errno));
 
    return fd;
 }
@@ -131,6 +131,7 @@ static int seq_find_synth(int fd)
    struct synth_info info;
    int num_synths, i, ret = 0;
    char *s;
+   char tmp1[64], tmp2[256];
 
    if (ioctl(fd, SNDCTL_SEQ_NRSYNTHS, &num_synths) == -1)
       return 0;
@@ -152,17 +153,17 @@ static int seq_find_synth(int fd)
 
    switch (info.synth_subtype) {
       case FM_TYPE_ADLIB:
-	 s = "Adlib";
+	 s = uconvert_ascii("Adlib", tmp1);
 	 break;
       case FM_TYPE_OPL3:
-	 s = "OPL3";
+	 s = uconvert_ascii("OPL3", tmp1);
 	 break;
       default:
-	 s = "Error!";
+	 s = uconvert_ascii("Error!", tmp1);
 	 break;
    }
 
-   usprintf(seq_desc, "Open Sound System (%s)", s);
+   usprintf(seq_desc, uconvert_ascii("Open Sound System (%s)", tmp2), s);
    midi_driver->desc = seq_desc;
 
    return ret;

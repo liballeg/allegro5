@@ -23,7 +23,7 @@
 
 
 
-char samplename[256] = "";
+char samplename[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
 
 
 extern DIALOG thedialog[];
@@ -336,7 +336,7 @@ int load_proc(int msg, DIALOG *d, int c)
    if (ret & D_CLOSE) {
       ret &= ~D_CLOSE;
 
-      if (file_select("Load sample (voc;wav)", samplename, "VOC;WAV")) {
+      if (file_select_ex("Load sample (voc;wav)", samplename, "VOC;WAV", sizeof(samplename), 0, 0)) {
 	 SEND_MESSAGE(thedialog+WAVEFORM, MSG_START, 0);
       }
 
@@ -429,7 +429,7 @@ int main(int argc, char *argv[])
    set_palette(desktop_palette);
 
    if (!samplename[0]) {
-      if (!file_select("Load sample (voc;wav)", samplename, "VOC;WAV"))
+      if (!file_select_ex("Load sample (voc;wav)", samplename, "VOC;WAV", sizeof(samplename), 0, 0))
 	 return 0;
    }
 

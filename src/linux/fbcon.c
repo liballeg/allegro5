@@ -110,7 +110,6 @@ static int update_timings(struct fb_var_screeninfo *mode);
  */
 static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 {
-   char fname[256], tmp[256];
    AL_CONST char *p;
    int stride, tries, original_color_depth = _color_depth;
    BITMAP *b;
@@ -259,7 +258,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (fbaddr == MAP_FAILED) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       close(fbfd);
-      usprintf(allegro_error, get_config_text("Can't map framebuffer %s"), uconvert_ascii(fname, tmp));
+      usprintf(allegro_error, get_config_text("Can't map framebuffer"));
       return NULL;
    }
 
@@ -296,8 +295,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    do_uconvert(fix_info.id, U_ASCII, fb_desc, U_CURRENT, sizeof(fb_desc));
 
    if (fb_approx) {
-      ustrcat(fb_desc, uconvert_ascii(", ", NULL));
-      ustrcat(fb_desc, get_config_text("approx."));
+      ustrncat(fb_desc, uconvert_ascii(", ", NULL), sizeof(fb_desc) - ustrsizez(fb_desc));
+      ustrncat(fb_desc, get_config_text("approx."), sizeof(fb_desc) - ustrsizez(fb_desc));
    }
 
    gfx_fbcon.desc = fb_desc;
@@ -356,8 +355,8 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (!(vblank_flags & (FB_VBLANK_HAVE_VBLANK | FB_VBLANK_HAVE_STICKY | FB_VBLANK_HAVE_VCOUNT)))
  #endif
    {
-      ustrcat(fb_desc, uconvert_ascii(", ", NULL));
-      ustrcat(fb_desc, get_config_text("no vsync"));
+      ustrncat(fb_desc, uconvert_ascii(", ", NULL), sizeof(fb_desc) - ustrsizez(fb_desc));
+      ustrncat(fb_desc, get_config_text("no vsync"), sizeof(fb_desc) - ustrsizez(fb_desc));
    }
 
    /* is scrolling available? */

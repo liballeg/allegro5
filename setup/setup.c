@@ -1648,7 +1648,7 @@ static int filename_proc(int msg, DIALOG *d, int c)
 {
    PARAMETER *p = d->dp2;
    BITMAP *b;
-   char buf[256];
+   char buf[80*6];  /* 80 chars * max UTF8 char width */
    char buf2[256];
    int ret;
    int i;
@@ -1686,7 +1686,7 @@ static int filename_proc(int msg, DIALOG *d, int c)
 
 	 strcpy(buf, p->e2);
 
-	 if (file_select(buf2, buf, p->e1)) {
+	 if (file_select_ex(buf2, buf, p->e1, sizeof(buf), 0, 0)) {
 	    strcpy(p->value, buf);
 	    strcpy(p->e2, buf);
 	 }
