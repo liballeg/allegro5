@@ -262,9 +262,7 @@ static void read_24bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
       c.b = pack_getc(f);
       c.g = pack_getc(f);
       c.r = pack_getc(f);
-      bmp->line[line][i*3+_rgb_r_shift_24/8] = c.r;
-      bmp->line[line][i*3+_rgb_g_shift_24/8] = c.g;
-      bmp->line[line][i*3+_rgb_b_shift_24/8] = c.b;
+      WRITE3BYTES(bmp->line[line]+i*3, makecol24(c.r, c.g, c.b));
       nbytes += 3;
    }
 
@@ -471,12 +469,16 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
    PACKFILE *f;
    BITMAP *bmp;
    PALETTE tmppal;
+   int want_palette = TRUE;
    int ncol;
    unsigned long biSize;
    int bpp, dest_depth;
 
-   if (!pal)
+   /* we really need a palette */
+   if (!pal) {
+      want_palette = FALSE;
       pal = tmppal;
+   }
 
    f = pack_fopen(filename, F_READ);
    if (!f)
@@ -512,10 +514,8 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
-   if (infoheader.biBitCount == 24) {
+   if (infoheader.biBitCount == 24)
       bpp = 24;
-      generate_332_palette(pal);
-   }
    else
       bpp = 8;
 
@@ -548,8 +548,17 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 	 bmp = NULL;
    }
 
-   if (dest_depth != bpp)
+   if (dest_depth != bpp) {
+      /* restore original palette except if it comes from the bitmap */
+      if ((bpp != 8) && (!want_palette))
+	 pal = NULL;
+
       bmp = _fixup_loaded_bitmap(bmp, pal, dest_depth);
+   }
+   
+   /* construct a fake palette if 8-bit mode is not involved */
+   if ((bpp != 8) && (dest_depth != 8) && want_palette)
+      generate_332_palette(pal);
 
    pack_fclose(f);
    return bmp;

@@ -107,7 +107,7 @@ struct _xwin_type _xwin =
    { 0 },       /* bmap */
 
 #ifdef ALLEGRO_XWINDOWS_WITH_SHM
-   { 0 },       /* shminfo */
+   { 0, 0, 0, 0 },  /* shminfo */
 #endif
    0,           /* use_shm */
 
@@ -662,12 +662,6 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       h = 200;
    }
 
-   if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)
-       || (vw > 4096) || (vh > 4096)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported screen size"));
-      return 0;
-   }
-
    if (vw < w)
       vw = w;
    if (vh < h)
@@ -712,6 +706,10 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    if (fullscreen) {
+      AL_CONST char *fc;
+      char tmp1[64], tmp2[128];
+      int i;
+
       /* Switch video mode.  */
       if (!_xvidmode_private_set_fullscreen(w, h, 0, 0)) {
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
@@ -721,10 +719,19 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       /* Hack: make the window fully visible and center cursor.  */
       XMoveWindow(_xwin.display, _xwin.window, 0, 0);
       XF86VidModeSetViewPort(_xwin.display, _xwin.screen, 0, 0);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
+
+      /* This chunk is disabled by default because of problems on KDE desktops.  */
+      fc = get_config_string(uconvert_ascii("graphics", tmp1),
+			     uconvert_ascii("force_centering", tmp2),
+			     NULL);
+
+      if ((fc) && ((i = ugetc(fc)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1'))) {
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
+      }
+
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
       XSync(_xwin.display, False);
 	  
@@ -768,8 +775,15 @@ BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
    BITMAP *bmp;
    XLOCK();
    bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
-   if (bmp == 0)
+   if (bmp == 0) {
       _xwin_private_destroy_screen();
+      /* Work around a weird bug with some window managers (KWin, Window Maker).  */
+      if (fullscreen) {
+	 bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
+	 if (bmp == 0)
+	    _xwin_private_destroy_screen();
+      }
+   }
    XUNLOCK();
    return bmp;
 }
@@ -1103,8 +1117,10 @@ static int _xwin_private_create_ximage(int w, int h)
 		  _xwin.shminfo.readOnly = True;
 
 		  /* Attach shared memory to the X-server address space.  */
-		  if (XShmAttach(_xwin.display, &_xwin.shminfo))
+		  if (XShmAttach(_xwin.display, &_xwin.shminfo)) {
+		     XSync(_xwin.display, False);
 		     break;
+		   }
 
 		  shmdt(_xwin.shminfo.shmaddr);
 	       }
@@ -1488,6 +1504,18 @@ if (_xwin.bank_switch)                  \
 /*
  * Functions for copying screen data to frame buffer.
  */
+#ifdef ALLEGRO_LITTLE_ENDIAN
+   #define DEFAULT_RGB_R_POS_24  (DEFAULT_RGB_R_SHIFT_24/8)
+   #define DEFAULT_RGB_G_POS_24  (DEFAULT_RGB_G_SHIFT_24/8)
+   #define DEFAULT_RGB_B_POS_24  (DEFAULT_RGB_B_SHIFT_24/8)
+#elif defined ALLEGRO_BIG_ENDIAN
+   #define DEFAULT_RGB_R_POS_24  (2-DEFAULT_RGB_R_SHIFT_24/8)
+   #define DEFAULT_RGB_G_POS_24  (2-DEFAULT_RGB_G_SHIFT_24/8)
+   #define DEFAULT_RGB_B_POS_24  (2-DEFAULT_RGB_B_SHIFT_24/8)
+#else
+   #error endianess not defined
+#endif 
+
 #define MAKE_FAST_TRUECOLOR(name,stype,dtype,rshift,gshift,bshift,rmask,gmask,bmask)    \
 static void name(int sx, int sy, int sw, int sh)                                        \
 {                                                                                       \
@@ -1514,7 +1542,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
       XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
-	 *d++ = (_xwin.rmap[s[0]] | _xwin.gmap[s[1]] | _xwin.bmap[s[2]]);               \
+	 *d++ = (_xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                                    \
+		 | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                                  \
+		 | _xwin.bmap[s[DEFAULT_RGB_B_POS_24]]);                                \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1532,9 +1562,7 @@ static void name(int sx, int sy, int sw, int sh)                                
 	 color = (_xwin.rmap[(color >> (rshift)) & (rmask)]                             \
 		  | _xwin.gmap[(color >> (gshift)) & (gmask)]                           \
 		  | _xwin.bmap[(color >> (bshift)) & (bmask)]);                         \
-	 d[0] = (color & 0xFF);                                                         \
-	 d[1] = (color >> 8) & 0xFF;                                                    \
-	 d[2] = (color >> 16) & 0xFF;                                                   \
+	 WRITE3BYTES(d, color);                                                         \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1548,10 +1576,10 @@ static void name(int sx, int sy, int sw, int sh)                                
       unsigned char *d = _xwin.buffer_line[y] + 3 * sx;                                 \
       XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, d += 3, x--) {                                   \
-	 unsigned long color = _xwin.rmap[s[0]] | _xwin.gmap[s[1]] | _xwin.bmap[s[2]];  \
-	 d[0] = (color & 0xFF);                                                         \
-	 d[1] = (color >> 8) & 0xFF;                                                    \
-	 d[2] = (color >> 16) & 0xFF;                                                   \
+	 unsigned long color = _xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                      \
+	 		       | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                    \
+			       | _xwin.bmap[s[DEFAULT_RGB_B_POS_24]];                   \
+	 WRITE3BYTES(d, color);                                                         \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1645,9 +1673,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
       XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
-	 *d++ = _xwin.cmap[((((unsigned long) s[0] << 4) & 0xF00)                       \
-			    | ((unsigned long) s[1] & 0xF0)                             \
-			    | (((unsigned long) s[2] >> 4) & 0x0F))];                   \
+	 *d++ = _xwin.cmap[((((unsigned long) s[DEFAULT_RGB_R_POS_24] << 4) & 0xF00)    \
+			    | ((unsigned long) s[DEFAULT_RGB_G_POS_24] & 0xF0)          \
+			    | (((unsigned long) s[DEFAULT_RGB_B_POS_24] >> 4) & 0x0F))];\
       }                                                                                 \
    }                                                                                    \
 }
@@ -1711,7 +1739,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       for (x = sx; x < (sx + sw); s += 3, x++) {                                        \
 	 XPutPixel(_xwin.ximage, x, y,                                                  \
-		   (_xwin.rmap[s[0]] | _xwin.gmap[s[1]] | _xwin.bmap[s[2]]));           \
+		   (_xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                                 \
+		    | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                               \
+		    | _xwin.bmap[s[DEFAULT_RGB_B_POS_24]]));                            \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1762,9 +1792,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       for (x = sx; x < (sx + sw); s += 3, x++) {                                        \
 	 XPutPixel(_xwin.ximage, x, y,                                                  \
-		   _xwin.cmap[((((unsigned long) s[0] << 4) & 0xF00)                    \
-			       | ((unsigned long) s[1] & 0xF0)                          \
-			       | (((unsigned long) s[2] >> 4) & 0x0F))]);               \
+		   _xwin.cmap[((((unsigned long) s[DEFAULT_RGB_R_POS_24] << 4) & 0xF00) \
+			       | ((unsigned long) s[DEFAULT_RGB_G_POS_24] & 0xF0)       \
+			       | (((unsigned long) s[DEFAULT_RGB_B_POS_24] >> 4) & 0x0F))]); \
       }                                                                                 \
    }                                                                                    \
 }
@@ -2013,8 +2043,15 @@ static void _xwin_private_process_event(XEvent *event)
 	 /* Losing input focus.  */
 	 if (_xwin_keyboard_focused)
 	    (*_xwin_keyboard_focused)(FALSE, 0);
-	 for (kcode = 0; kcode < 256; kcode++)
-	    _xwin_keycode_pressed[kcode] = FALSE;
+	 for (kcode = 0; kcode < 256; kcode++) {
+	    if (_xwin_keycode_pressed[kcode]) {
+	       scode = _xwin.keycode_to_scancode[kcode];
+	       if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
+		  (*_xwin_keyboard_interrupt)(0, scode);
+		  _xwin_keycode_pressed[kcode] = FALSE;
+	       }
+	    }
+	 }
 	 break;
       case ButtonPress:
 	 /* Mouse button pressed.  */
@@ -2088,8 +2125,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 mouse_was_warped = 0;
 	 if (!_xwin.mouse_warped) {
 	    /* Move Allegro cursor to X-cursor.  */
-	    dx = event->xmotion.x - _mouse_x;
-	    dy = event->xmotion.y - _mouse_y;
+	    dx = event->xmotion.x - (_mouse_x - _xwin.scroll_x);
+	    dy = event->xmotion.y - (_mouse_y - _xwin.scroll_y);
 	 }
 	 if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
 	    if (_xwin.mouse_warped && (mouse_warp_now++ & 4)) {
@@ -2123,8 +2160,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 mouse_was_warped = 0;
 	 if (!_xwin.mouse_warped) {
 	    /* Move Allegro cursor to X-cursor.  */
-	    dx = event->xcrossing.x - _mouse_x;
-	    dy = event->xcrossing.y - _mouse_y;
+	    dx = event->xcrossing.x - (_mouse_x - _xwin.scroll_x);
+	    dy = event->xcrossing.y - (_mouse_y - _xwin.scroll_y);
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
 	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
 	 }
@@ -2152,7 +2189,7 @@ static void _xwin_private_process_event(XEvent *event)
 	 break;
       case ClientMessage:
          /* Window close request */
-         if (event->xclient.data.l[0] == wm_delete_window) {
+         if ((Atom)event->xclient.data.l[0] == wm_delete_window) {
             if (_xwin.window_close_hook)
                _xwin.window_close_hook();
             else
@@ -2184,7 +2221,7 @@ static void _xwin_private_handle_input(void)
 	 /* Move X-cursor to Allegro cursor.  */
 	 XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
 		      0, 0, _xwin.window_width, _xwin.window_height,
-		      _mouse_x, _mouse_y);
+		      _mouse_x - _xwin.scroll_x, _mouse_y - _xwin.scroll_y);
       }
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    }
@@ -2722,11 +2759,6 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    if ((w == 0) && (h == 0)) {
       w = 320;
       h = 200;
-   }
-
-   if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported screen size"));
-      return 0;
    }
 
    if (vw < w)

@@ -31,10 +31,6 @@
    #define WIN32_LEAN_AND_MEAN   /* to save compilation time */
 #endif
 
-#ifndef ALLEGRO_NO_MAGIC_MAIN
-   #define NO_STRICT  /* needed by the magic main emulation */
-#endif
-
 
 
 /* bodges to avoid conflicts between Allegro and Windows */

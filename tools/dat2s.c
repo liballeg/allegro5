@@ -27,6 +27,18 @@
 #include "datedit.h"
 
 
+/* unused callbacks for datedit.c */
+void datedit_msg(AL_CONST char *fmt, ...) { }
+void datedit_startmsg(AL_CONST char *fmt, ...) { }
+void datedit_endmsg(AL_CONST char *fmt, ...) { }
+void datedit_error(AL_CONST char *fmt, ...) { }
+int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
+
+
+/* this program is not portable! */
+#ifdef ALLEGRO_I386
+
+
 #ifndef ALLEGRO_ASM_PREFIX
    #define ALLEGRO_ASM_PREFIX    ""
 #endif
@@ -48,14 +60,6 @@ static FILE *outfile = NULL;
 static FILE *outfileheader = NULL;
 
 static void output_object(DATAFILE *object, char *name);
-
-
-/* unused callbacks for datedit.c */
-void datedit_msg(AL_CONST char *fmt, ...) { }
-void datedit_startmsg(AL_CONST char *fmt, ...) { }
-void datedit_endmsg(AL_CONST char *fmt, ...) { }
-void datedit_error(AL_CONST char *fmt, ...) { }
-int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
 
 
 
@@ -325,7 +329,7 @@ static void output_rle_sprite(RLE_SPRITE *sprite, char *name)
    fprintf(outfile, "\t.long %-16d# color depth\n", bpp);
    fprintf(outfile, "\t.long %-16d# size\n", sprite->size);
 
-   write_data(sprite->dat, sprite->size);
+   write_data((unsigned char *)sprite->dat, sprite->size);
 
    fprintf(outfile, "\n");
 }
@@ -621,7 +625,7 @@ int main(int argc, char *argv[])
 
    output_datafile(data, "data", TRUE);
 
-   #ifdef ALLEGRO_DJGPP
+   #ifdef ALLEGRO_USE_CONSTRUCTOR
 
       fprintf(outfile, ".text\n");
       fprintf(outfile, ".balign 4\n");
@@ -660,18 +664,36 @@ int main(int argc, char *argv[])
 	 delete_file(outfilenameheader);
    }
    else {
-      #ifdef ALLEGRO_DJGPP
+      #ifdef ALLEGRO_USE_CONSTRUCTOR
+
 	 if (truecolor) {
 	    printf("\nI noticed some truecolor images, so you must call fixup_datafile()\n");
 	    printf("before using this data! (after setting a video mode).\n");
 	 }
+
       #else
+
 	 printf("\nI don't know how to do constructor functions on this platform, so you must\n");
 	 printf("call fixup_datafile() before using this data! (after setting a video mode).\n");
+
       #endif
    }
 
    return err;
 }
+
+
+#else       /* ifdef ALLEGRO_I386 */
+
+
+int main(void)
+{
+   allegro_init();
+   allegro_message("Sorry, the DAT2S program only works on x86 processors\n");
+   return 1;
+}
+
+
+#endif
 
 END_OF_MAIN();

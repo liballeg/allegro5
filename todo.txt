@@ -18,7 +18,6 @@ General (Platform independant) todos:
 - check and/or fix compilation with gcc 3.0
 - include dat2c once finished
 - remove joystick control from main part of setup
-- configure --disable-constructor doesn't work because of part of alconfig.h
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -28,7 +27,6 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Fix the bug in the emergency exit mechanism when called from the DLL
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
 - Investigate mouse problem with USB Wacom Tablet (bug #226445)
 
@@ -100,7 +98,6 @@ Wishlist:
 - OSS MIDI pitch bend is wrong
 - size_t where appropriate (get more opinions first)
 - keyboard set_rate
-- make zipwin.sh work with cygwin.
 
 Wishlist: (definitely post 4.0)
 ---------------------------------------------------------------------------

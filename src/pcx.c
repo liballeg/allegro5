@@ -31,6 +31,7 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    PACKFILE *f;
    BITMAP *b;
    PALETTE tmppal;
+   int want_palette = TRUE;
    int c;
    int width, height;
    int bpp, bytes_per_line;
@@ -39,8 +40,11 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    char ch;
    int dest_depth;
 
-   if (!pal)
+   /* we really need a palette */
+   if (!pal) {
+      want_palette = FALSE;
       pal = tmppal;
+   }
 
    f = pack_fopen(filename, F_READ);
    if (!f)
@@ -85,12 +89,18 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    b = create_bitmap_ex(bpp, width, height);
    if (!b) {
       pack_fclose(f);
-      return FALSE;
+      return NULL;
    }
 
    for (y=0; y<height; y++) {       /* read RLE encoded PCX data */
       x = xx = 0;
+#ifdef ALLEGRO_LITTLE_ENDIAN
       po = _rgb_r_shift_24/8;
+#elif defined ALLEGRO_BIG_ENDIAN
+      po = 2 - _rgb_r_shift_24/8;
+#else
+   #error endianess not defined
+#endif
 
       while (x < bytes_per_line*bpp/8) {
 	 ch = pack_getc(f);
@@ -115,11 +125,23 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 	       x++;
 	       if (x == bytes_per_line) {
 		  xx = 0;
+#ifdef ALLEGRO_LITTLE_ENDIAN
 		  po = _rgb_g_shift_24/8;
+#elif defined ALLEGRO_BIG_ENDIAN
+		  po = 2 - _rgb_g_shift_24/8;
+#else
+   #error endianess not defined
+#endif
 	       }
 	       else if (x == bytes_per_line*2) {
 		  xx = 0;
+#ifdef ALLEGRO_LITTLE_ENDIAN
 		  po = _rgb_b_shift_24/8;
+#elif defined ALLEGRO_BIG_ENDIAN
+		  po = 2 - _rgb_b_shift_24/8;
+#else
+   #error endianess not defined
+#endif
 	       }
 	       else
 		  xx++;
@@ -140,18 +162,25 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 	 }
       }
    }
-   else
-      generate_332_palette(pal);
 
    pack_fclose(f);
 
    if (*allegro_errno) {
       destroy_bitmap(b);
-      return FALSE;
+      return NULL;
    }
 
-   if (dest_depth != bpp)
+   if (dest_depth != bpp) {
+      /* restore original palette except if it comes from the bitmap */
+      if ((bpp != 8) && (!want_palette))
+	 pal = NULL;
+
       b = _fixup_loaded_bitmap(b, pal, dest_depth);
+   }
+
+   /* construct a fake palette if 8-bit mode is not involved */
+   if ((bpp != 8) && (dest_depth != 8) && want_palette)
+      generate_332_palette(pal);
 
    return b;
 }

@@ -106,14 +106,10 @@ static void stretch_line16(unsigned long dptr, unsigned char *sptr)
 #endif
 
 #ifdef ALLEGRO_COLOR24
-static long bmp_memory_read24(unsigned char *p)
-{
-   return ((*(p)) | ((*(p + 1)) << 8) | ((*(p + 2)) << 16));
-}
 
 static void stretch_line24(unsigned long dptr, unsigned char *sptr)
 {
-   DECLARE_STRETCHER(unsigned char, 3, bmp_write24, bmp_memory_read24);
+   DECLARE_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES);
 }
 #endif
 
@@ -211,7 +207,7 @@ static void stretch_masked_line16(unsigned long dptr, unsigned char *sptr)
 #ifdef ALLEGRO_COLOR24
 static void stretch_masked_line24(unsigned long dptr, unsigned char *sptr)
 {
-   DECLARE_MASKED_STRETCHER(unsigned char, 3, bmp_write24, bmp_memory_read24, MASK_COLOR_24);
+   DECLARE_MASKED_STRETCHER(unsigned char, 3, bmp_write24, READ3BYTES, MASK_COLOR_24);
 }
 #endif
 

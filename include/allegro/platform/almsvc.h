@@ -43,6 +43,10 @@
    #define ALLEGRO_NO_MAGIC_MAIN
 #endif
 
+#ifdef ALLEGRO_AND_MFC
+   #define ALLEGRO_NO_MAGIC_MAIN
+#endif
+
 
 /* describe how function prototypes look to MSVC */
 #if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)

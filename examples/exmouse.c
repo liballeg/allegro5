@@ -11,7 +11,7 @@
 
 
 
-int main()
+int main(void)
 {
    int mickeyx = 0;
    int mickeyy = 0;
@@ -21,7 +21,6 @@ int main()
 
    allegro_init();
    install_keyboard(); 
-   install_mouse();
    install_timer();
    if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
@@ -32,6 +31,14 @@ int main()
    text_mode(makecol(255, 255, 255));
    clear_to_color(screen, makecol(255, 255, 255));
 
+   /* Detect mouse presence */
+   if (install_mouse() < 0) {
+      textout_centre(screen, font, "No mouse detected, but you need one!",
+	 SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0));
+      readkey();
+      return 0;
+   }
+   
    textprintf_centre(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0),
 		     "Driver: %s", mouse_driver->name);
 

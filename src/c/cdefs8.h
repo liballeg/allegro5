@@ -56,7 +56,8 @@
 #define PS_ALPHA_BLEND(b,o,c)  ((b)->data[(o) & 0xFF][(c) & 0xFF])
 
 #define PATTERN_LINE(y)        _drawing_pattern->line[((y) - _drawing_y_anchor) & _drawing_y_mask]
-#define GET_PATTERN_PIXEL(x,y) GET_MEMORY_PIXEL(OFFSET_PIXEL_PTR(PATTERN_LINE(y), (x)))
+#define GET_PATTERN_PIXEL(x,y) GET_MEMORY_PIXEL(OFFSET_PIXEL_PTR(PATTERN_LINE(y), \
+                                                ((x) - _drawing_x_anchor) & _drawing_x_mask))
 
 #define RLE_PTR                signed char*
 #define RLE_IS_EOL(c)          ((c) == 0)

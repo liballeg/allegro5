@@ -83,7 +83,7 @@ volatile long _midi_tick = 0;                   /* counter for killing notes */
 
 static void midi_player(void);                  /* core MIDI player routine */
 static void prepare_to_play(MIDI *midi);
-static void midi_lock_mem();
+static void midi_lock_mem(void);
 
 static MIDI *midifile = NULL;                   /* the file that is playing */
 
@@ -602,7 +602,7 @@ END_OF_STATIC_FUNCTION(reset_controllers);
 /* update_controllers:
  *  Checks cached controller information and updates active voices.
  */
-static void update_controllers()
+static void update_controllers(void)
 {
    int c, c2, vol, bend, note;
 
@@ -1341,7 +1341,7 @@ int midi_seek(int target)
       prepare_to_play(midifile);
 
    /* now sit back and let midi_player get to the position */
-   while ((midi_pos < target) && (midi_pos != -1)) {
+   while ((midi_pos < target) && (midi_pos >= 0)) {
       int mmpc = midi_pos_counter;
       int mmp = midi_pos;
 
@@ -1362,7 +1362,7 @@ int midi_seek(int target)
    midi_driver = old_driver;
    midi_seeking = 0;
 
-   if (midi_pos != -1) {
+   if (midi_pos >= 0) {
       /* refresh the driver with any changed parameters */
       if (midi_driver->raw_midi) {
 	 for (c=0; c<16; c++) {
@@ -1394,7 +1394,7 @@ int midi_seek(int target)
       return 0;
    }
 
-   if ((midi_loop) && (!midi_looping)) {  /* was file was looped? */
+   if ((midi_loop) && (!midi_looping)) {  /* was file looped? */
       prepare_to_play(old_midifile);
       install_int(midi_player, 20);
       return 2;                           /* seek past EOF => file restarted */
@@ -1455,7 +1455,7 @@ int load_midi_patches()
  *  Locks all the memory that the midi player touches inside the timer
  *  interrupt handler (which is most of it).
  */
-static void midi_lock_mem()
+static void midi_lock_mem(void)
 {
    LOCK_VARIABLE(midi_pos);
    LOCK_VARIABLE(midi_pos_counter);
@@ -1508,8 +1508,8 @@ static void midi_lock_mem()
 /* midi_constructor:
  *  Register my functions with the code in sound.c.
  */
-#ifdef CONSTRUCTOR_FUNCTION
-   CONSTRUCTOR_FUNCTION(void _midi_constructor());
+#ifdef ALLEGRO_USE_CONSTRUCTOR
+   CONSTRUCTOR_FUNCTION(void _midi_constructor(void));
 #endif
 
 static struct _AL_LINKER_MIDI midi_linker = {
@@ -1517,7 +1517,7 @@ static struct _AL_LINKER_MIDI midi_linker = {
    midi_exit
 };
 
-void _midi_constructor()
+void _midi_constructor(void)
 {
    _al_linker_midi = &midi_linker;
 }

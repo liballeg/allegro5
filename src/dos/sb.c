@@ -215,7 +215,7 @@ static void sb_lock_mem(void);
 /* sb_read_dsp:
  *  Reads a byte from the SB DSP chip. Returns -1 if it times out.
  */
-static INLINE RET_VOLATILE int sb_read_dsp()
+static INLINE RET_VOLATILE int sb_read_dsp(void)
 {
    int x;
 
@@ -412,7 +412,7 @@ int _sb_reset_dsp(int data)
 /* _sb_read_dsp_version:
  *  Reads the version number of the SB DSP chip, returning -1 on error.
  */
-int _sb_read_dsp_version()
+int _sb_read_dsp_version(void)
 {
    int x, y;
 
@@ -440,7 +440,7 @@ int _sb_read_dsp_version()
 /* sb_buffer_size:
  *  Returns the current DMA buffer size, for use by the audiostream code.
  */
-static int sb_buffer_size()
+static int sb_buffer_size(void)
 {
    return (sb_stereo ? sb_dma_mix_size/2 : sb_dma_mix_size);
 }
@@ -522,7 +522,7 @@ END_OF_STATIC_FUNCTION(sb_record_buffer);
  *  if the card doesn't have auto-initialised dma, and then refills the
  *  buffer that just finished playing.
  */
-static int sb_interrupt()
+static int sb_interrupt(void)
 {
    unsigned char isr;
 
@@ -598,7 +598,7 @@ END_OF_STATIC_FUNCTION(sb_interrupt);
 /* sb_start:
  *  Starts up the sound output.
  */
-static void sb_start()
+static void sb_start(void)
 {
    sb_bufnum = 0;
 
@@ -621,7 +621,7 @@ static void sb_start()
 /* sb_stop:
  *  Stops the sound output.
  */
-static void sb_stop()
+static void sb_stop(void)
 {
    /* halt sound output */
    _sb_voice(0);
@@ -1143,7 +1143,7 @@ static int sb_rec_start(int rate, int bits, int stereo)
 /* sb_rec_stop:
  *  Stops recording, switches the SB back to D/A mode, and restarts playback.
  */
-static void sb_rec_stop()
+static void sb_rec_stop(void)
 {
    if (!sb_recording)
       return;
@@ -1186,7 +1186,7 @@ END_OF_STATIC_FUNCTION(sb_rec_read);
 /* sb_midi_interrupt:
  *  Interrupt handler for the SB MIDI input.
  */
-static int sb_midi_interrupt()
+static int sb_midi_interrupt(void)
 {
    int c = sb_read_dsp();
 
@@ -1291,9 +1291,9 @@ static void sb_midi_exit(int input)
  *  Locks all the memory touched by parts of the SB code that are executed
  *  in an interrupt context.
  */
-static void sb_lock_mem()
+static void sb_lock_mem(void)
 {
-   extern void _mpu_poll_end();
+   extern void _mpu_poll_end(void);
 
    LOCK_VARIABLE(digi_sb10);
    LOCK_VARIABLE(digi_sb15);

@@ -210,21 +210,19 @@ void sys_switch_out(void)
 
 
 /* thread_switch_out:
- *  Called by threads that wants to be handled by system driver on switch out
+ *  Handles a switch out event for the calling thread.
+ *  Returns TRUE if the thread was blocked, FALSE otherwise.
  */
-void thread_switch_out()
-{ 
-   /* handle switch modes */
-   switch(get_display_switch_mode())
-   { 
-      case SWITCH_AMNESIA:
-      case SWITCH_PAUSE:
-	 WaitForSingleObject(_foreground_event, INFINITE);
-	 break;
+int thread_switch_out(void)
+{
+   int mode = get_display_switch_mode();
 
-      default:
-	 break;
-   } 
+   if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
+      WaitForSingleObject(_foreground_event, INFINITE);
+      return TRUE;
+   }
+
+   return FALSE;
 }
 
 

@@ -48,7 +48,7 @@ END_OF_FUNCTION(inc_z);
 
 
 
-int main()
+int main(void)
 {
    int c;
 
@@ -91,7 +91,7 @@ int main()
    /* or in beats per second (this is 10 ticks a second) */
    install_int_ex(inc_y, BPS_TO_TIMER(10));
 
-   /* or in seconds (this is 10 ticks a second) */
+   /* or in seconds (this is 10 seconds a tick) */
    install_int_ex(inc_z, SECS_TO_TIMER(10));
 
    /* the interrupts are now active... */

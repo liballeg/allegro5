@@ -30,6 +30,7 @@ static void bg_man_pthreads_enable_interrupts (void);
 static void bg_man_pthreads_disable_interrupts (void);
 
 #define MAX_FUNCS 16
+
 static bg_func funcs[MAX_FUNCS];
 static int max_func; /* highest+1 used entry */
 
@@ -38,11 +39,11 @@ static pthread_mutex_t cli_mutex;
 static pthread_cond_t cli_cond;
 static int cli_count;
 
-static void block_all_signals(void)
+static void block_all_signals (void)
 {
 	sigset_t mask;
-	sigfillset(&mask);
-	pthread_sigmask(SIG_BLOCK, &mask, NULL);
+	sigfillset (&mask);
+	pthread_sigmask (SIG_BLOCK, &mask, NULL);
 }
 
 static void *bg_man_pthreads_threadfunc (void *arg)
@@ -68,10 +69,15 @@ static void *bg_man_pthreads_threadfunc (void *arg)
 			i = i * (TIMERS_PER_SECOND/100) / 10000L;
 
 			pthread_mutex_lock (&cli_mutex);
+			
+			/* wait until interrupts are enabled */
 			while (cli_count > 0)
 				pthread_cond_wait (&cli_cond, &cli_mutex);
+
+			/* call all the callbacks */
 			for (n = 0; n < max_func; n++)
 				if (funcs[n]) funcs[n](1);
+
 			pthread_mutex_unlock (&cli_mutex);
 		}
 
@@ -129,23 +135,51 @@ static int bg_man_pthreads_register_func (bg_func f)
 	return ret;
 }
 
-static int bg_man_pthreads_unregister_func (bg_func f)
+static int really_unregister_func (bg_func f)
 {
-	int i, ret = 0;
-	bg_man_pthreads_disable_interrupts ();
+	int i;
 
-	for (i = 0; funcs[i] != f && i < max_func; i++);
+	for (i = 0; i < max_func && funcs[i] != f; i++);
 	if (i == max_func)
-		ret = -1;
+		return -1;
 	else {
-		funcs[i] = NULL;
+		funcs[i] = NULL;			
 		if (i+1 == max_func)
 			do {
 				max_func--;
 			} while ((max_func > 0) && !funcs[max_func-1]);
+		return 0;
+	}
+}
+
+static int bg_man_pthreads_unregister_func (bg_func f)
+{
+	/* Normally we just bg_man_pthread_disable_interrupts(), remove `f',
+	 * then bg_man_pthread_enable_interrupts().
+	 *
+	 * However, the X system driver's input handler is a bg_man callback.
+	 * When it receives a close event, it calls exit(), which calls
+	 * allegro_exit().  Eventually various subsystems will try to
+	 * unregister their callbacks, i.e. call this function.  But we're in
+	 * the middle of input handler call, and `cli_mutex' is still locked.
+	 *
+	 * So we... special case!  If the calling thread is the bg_man thread
+	 * we simply bypass the locking, as there's no synchronisation
+	 * problem to avoid anyway.
+	 */
+
+	int ret;
+
+	if (pthread_equal (pthread_self (), thread))
+		/* Being called from a bg_man registered callback.  */
+		ret = really_unregister_func (f);
+	else {
+		/* Normal case.  */
+		bg_man_pthreads_disable_interrupts ();
+		ret = really_unregister_func (f);
+		bg_man_pthreads_enable_interrupts ();
 	}
 
-	bg_man_pthreads_enable_interrupts ();
 	return ret;
 }
 

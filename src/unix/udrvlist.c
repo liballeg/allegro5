@@ -31,7 +31,7 @@ _DRIVER_INFO *_unix_midi_driver_list = 0;
 /* _unix_driver_lists_init:
  *  Initialise driver lists.
  */
-void _unix_driver_lists_init()
+void _unix_driver_lists_init(void)
 {
    _unix_gfx_driver_list = _create_driver_list();
    if (_unix_gfx_driver_list)
@@ -51,7 +51,7 @@ void _unix_driver_lists_init()
 /* _unix_driver_lists_shutdown:
  *  Free driver lists.
  */
-void _unix_driver_lists_shutdown()
+void _unix_driver_lists_shutdown(void)
 {
    if (_unix_gfx_driver_list) {
       _destroy_driver_list(_unix_gfx_driver_list);

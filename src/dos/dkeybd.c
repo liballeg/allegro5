@@ -74,7 +74,7 @@ _DRIVER_INFO _keyboard_driver_list[] =
 /* kb_wait_for_write_ready:
  *  Wait for the keyboard controller to set the ready-for-write bit.
  */
-static INLINE int kb_wait_for_write_ready()
+static INLINE int kb_wait_for_write_ready(void)
 {
    int timeout = 4096;
 
@@ -89,7 +89,7 @@ static INLINE int kb_wait_for_write_ready()
 /* kb_wait_for_read_ready:
  *  Wait for the keyboard controller to set the ready-for-read bit.
  */
-static INLINE int kb_wait_for_read_ready()
+static INLINE int kb_wait_for_read_ready(void)
 {
    int timeout = 16384;
 

@@ -66,7 +66,9 @@ AL_FUNC(void, exit_directx_window, (void));
 AL_FUNC(int, wnd_call_proc, (AL_METHOD(int, proc, (void))));
 AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
+AL_FUNC(int, adjust_window, (int w, int h));
 AL_FUNC(void, restore_window_style, (void));
+AL_FUNC(void, save_window_pos, (void));
 
 
 /* main window */
@@ -109,7 +111,7 @@ AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (
 AL_FUNC(void, sys_switch_in, (void));
 
 AL_FUNC(void, sys_switch_out, (void));
-AL_FUNC(void, thread_switch_out, (void));
+AL_FUNC(int, thread_switch_out, (void));
 AL_FUNC(void, midi_switch_out, (void));
 
 AL_FUNC(void, sys_directx_switch_out_callback, (void));
@@ -120,6 +122,7 @@ AL_FUNC(void, sys_directx_switch_in_callback, (void));
 /*******************************************/
 /************** keyboard routines **********/
 /*******************************************/
+AL_VAR(HANDLE, key_thread);
 AL_FUNC(int, key_dinput_acquire, (void));
 AL_FUNC(int, key_dinput_unacquire, (void));
 AL_FUNC(void, wnd_acquire_keyboard, (void));
@@ -130,12 +133,14 @@ AL_FUNC(void, wnd_unacquire_keyboard, (void));
 /*******************************************/
 /************** mouse routines *************/
 /*******************************************/
+AL_VAR(HANDLE, mouse_thread);
 AL_FUNC(int, mouse_dinput_acquire, (void));
 AL_FUNC(int, mouse_dinput_unacquire, (void));
-AL_FUNC(int, mouse_set_syscursor, (void));
-AL_FUNC(int, mouse_set_sysmenu, (void));
+AL_FUNC(int, mouse_set_syscursor, (int state));
+AL_FUNC(int, mouse_set_sysmenu, (int state));
 AL_FUNC(void, wnd_acquire_mouse, (void));
 AL_FUNC(void, wnd_unacquire_mouse, (void));
+AL_FUNC(void, wnd_set_syscursor, (int state));
 
 
 
@@ -177,7 +182,7 @@ AL_FUNC(int, digi_directsound_rec_read, (void *buf));
 AL_FUNC(char* , win_err_str, (long err));
 AL_FUNC(void, thread_safe_trace, (char *msg, ...));
 
-#ifdef DEBUGMODE
+#if DEBUGMODE >= 2
    #define _TRACE                 thread_safe_trace
 #else
    #define _TRACE                 1 ? (void) 0 : thread_safe_trace

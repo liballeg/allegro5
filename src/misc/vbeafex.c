@@ -55,7 +55,7 @@
 typedef struct LIBC_DATA
 {
    long  size;
-   void  (*abort)();
+   void  (*abort)(void);
    void *(*calloc)(unsigned long num_elements, unsigned long size);
    void  (*exit)(int status);
    void  (*free)(void *ptr);
@@ -76,7 +76,7 @@ typedef struct LIBC_DATA
    int   (*rename)(const char *oldname, const char *newname);
    unsigned int (*time)(unsigned int *t);
    void  (*setfileattr)(const char *filename, unsigned attrib);
-   unsigned long (*getcurrentdate)();
+   unsigned long (*getcurrentdate)(void);
 } LIBC_DATA;
 
 
@@ -95,7 +95,7 @@ static void setfileattr(const char *filename, unsigned attrib)
  *  Export function for checking the current date. Returns the number of
  *  days since 1/1/1980.
  */
-static unsigned long getcurrentdate()
+static unsigned long getcurrentdate(void)
 {
    unsigned long t = time(NULL);
 
@@ -191,16 +191,16 @@ typedef struct
 typedef struct PMODE_DATA
 {
    long  size;
-   int   (*getModeType)();
-   void *(*getBIOSPointer)();
-   void *(*getA0000Pointer)();
+   int   (*getModeType)(void);
+   void *(*getBIOSPointer)(void);
+   void *(*getA0000Pointer)(void);
    void *(*mapPhysicalAddr)(unsigned long base, unsigned long limit);
    void *(*mallocShared)(long size);
    int   (*mapShared)(void *ptr);
    void  (*freeShared)(void *ptr);
    void *(*mapToProcess)(void *linear, unsigned long limit);
-   void  (*loadDS)();
-   void  (*saveDS)();
+   void  (*loadDS)(void);
+   void  (*saveDS)(void);
    void *(*mapRealPointer)(unsigned int r_seg, unsigned int r_off);
    void *(*allocRealSeg)(unsigned int size, unsigned int *r_seg, unsigned int *r_off);
    void  (*freeRealSeg)(void *mem);
@@ -215,23 +215,23 @@ typedef struct PMODE_DATA
    int   (*int386x)(int intno, SCITECH_REGS *in, SCITECH_REGS *out, SCITECH_SREGS *sregs);
    void  (*availableMemory)(unsigned long *physical, unsigned long *total);
    void *(*getVESABuf)(unsigned int *len, unsigned int *rseg, unsigned int *roff);
-   long  (*getOSType)();
+   long  (*getOSType)(void);
    void  (*fatalError)(const char *msg);
    void  (*setBankA)(int bank);
    void  (*setBankAB)(int bank);
-   const char *(*getCurrentPath)();
-   const char *(*getVBEAFPath)();
-   const char *(*getNucleusPath)();
-   const char *(*getNucleusConfigPath)();
-   const char *(*getUniqueID)();
-   const char *(*getMachineName)();
-   int   (*VF_available)();
+   const char *(*getCurrentPath)(void);
+   const char *(*getVBEAFPath)(void);
+   const char *(*getNucleusPath)(void);
+   const char *(*getNucleusConfigPath)(void);
+   const char *(*getUniqueID)(void);
+   const char *(*getMachineName)(void);
+   int   (*VF_available)(void);
    void *(*VF_init)(unsigned long baseAddr, int bankSize, int codeLen, void *bankFunc);
-   void  (*VF_exit)();
-   int   (*kbhit)();
-   int   (*getch)();
-   int   (*openConsole)();
-   int   (*getConsoleStateSize)();
+   void  (*VF_exit)(void);
+   int   (*kbhit)(void);
+   int   (*getch)(void);
+   int   (*openConsole)(void);
+   int   (*getConsoleStateSize)(void);
    void  (*saveConsoleState)(void *stateBuf, int console_id);
    void  (*restoreConsoleState)(const void *stateBuf, int console_id);
    void  (*closeConsole)(int console_id);
@@ -246,7 +246,7 @@ typedef struct PMODE_DATA
 /* get_mode_type:
  *  Return that we are running in 386 mode.
  */
-static int get_mode_type()
+static int get_mode_type(void)
 {
    return 2;      /* 0=real mode, 1=16 bit pmode, 2=32 bit pmode */
 }
@@ -256,7 +256,7 @@ static int get_mode_type()
 /* get_bios_pointer:
  *  Returns a pointer to the BIOS data area at segment 0x400.
  */
-static void *get_bios_pointer()
+static void *get_bios_pointer(void)
 {
    if (!(_crt0_startup_flags & _CRT0_FLAG_NEARPTR))
       if (__djgpp_nearptr_enable() == 0)
@@ -270,7 +270,7 @@ static void *get_bios_pointer()
 /* get_a0000_pointer:
  *  Returns a linear pointer to the VGA frame buffer memory.
  */
-static void *get_a0000_pointer()
+static void *get_a0000_pointer(void)
 {
    if (!(_crt0_startup_flags & _CRT0_FLAG_NEARPTR))
       if (__djgpp_nearptr_enable() == 0)
@@ -348,7 +348,7 @@ static unsigned short saved_ds = 0;
 /* save_ds:
  *  Saves the current data segment selector into a code segment variable.
  */
-static void save_ds()
+static void save_ds(void)
 {
    saved_ds = _default_ds();
 }
@@ -358,7 +358,7 @@ static void save_ds()
 /* load_ds:
  *  Restores a data segment selector previously stored by save_ds().
  */
-static void load_ds()
+static void load_ds(void)
 {
    #ifdef ALLEGRO_GCC
 
@@ -819,7 +819,7 @@ static void *vesa_ptr = NULL;
 /* free_vesa_buf:
  *  Cleanup routine.
  */
-static void free_vesa_buf()
+static void free_vesa_buf(void)
 {
    if (vesa_ptr) {
       free_real_seg(vesa_ptr);
@@ -857,7 +857,7 @@ static void *get_vesa_buf(unsigned int *len, unsigned int *rseg, unsigned int *r
 /* get_os_type:
  *  Returns the OS type flag.
  */
-static long get_os_type()
+static long get_os_type(void)
 {
    return 1;      /* _OS_DOS */
 }
@@ -917,7 +917,7 @@ static void set_bankab(int bank)
 /* get_current_path:
  *  Returns the current working directory.
  */
-static const char *get_current_path()
+static const char *get_current_path(void)
 {
    static char *buffer = NULL;
 
@@ -934,7 +934,7 @@ static const char *get_current_path()
 /* get_vbeaf_path:
  *  Returns the VBE/AF driver directory.
  */
-static const char *get_vbeaf_path()
+static const char *get_vbeaf_path(void)
 {
    return "c:\\";
 }
@@ -944,7 +944,7 @@ static const char *get_vbeaf_path()
 /* get_nucleus_path:
  *  Returns the Nucleus driver directory.
  */
-static const char *get_nucleus_path()
+static const char *get_nucleus_path(void)
 {
    static char *buffer = NULL;
    char *p;
@@ -971,7 +971,7 @@ static const char *get_nucleus_path()
 /* get_nucleus_config_path:
  *  Returns the Nucleus config directory.
  */
-static const char *get_nucleus_config_path()
+static const char *get_nucleus_config_path(void)
 {
    static char *buffer = NULL;
 
@@ -990,7 +990,7 @@ static const char *get_nucleus_config_path()
 /* get_unique_id:
  *  Returns a network unique machine identifier as a string.
  */
-static const char *get_unique_id()
+static const char *get_unique_id(void)
 {
    return "DOS";
 }
@@ -1000,7 +1000,7 @@ static const char *get_unique_id()
 /* get_machine_name:
  *  Returns the network machine name as a string.
  */
-static const char *get_machine_name()
+static const char *get_machine_name(void)
 {
    static char *buffer = NULL;
 
@@ -1021,7 +1021,7 @@ static const char *get_machine_name()
 /* vf_available:
  *  Checks whether the virtual framebuffer mode is avaliable (no, it isn't).
  */
-static int vf_available()
+static int vf_available(void)
 {
    return 0;
 }
@@ -1041,7 +1041,7 @@ static void *vf_init(unsigned long baseAddr, int bankSize, int codeLen, void *ba
 /* vf_exit:
  *  Shuts down the virtual framebuffer mode.
  */
-static void vf_exit()
+static void vf_exit(void)
 {
 }
 
@@ -1059,7 +1059,7 @@ typedef struct
 /* open_console:
  *  Prepares the system for console output.
  */
-static int open_console()
+static int open_console(void)
 {
    return 0;
 }
@@ -1069,7 +1069,7 @@ static int open_console()
 /* get_console_state_size:
  *  Returns the size of a console state buffer.
  */
-static int get_console_state_size()
+static int get_console_state_size(void)
 {
    return sizeof(CONSOLE_STATE);
 }

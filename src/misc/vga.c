@@ -38,7 +38,7 @@
 static BITMAP *vga_init(int w, int h, int v_w, int v_h, int color_depth);
 static void vga_exit(BITMAP *b);
 static int vga_scroll(int x, int y);
-static GFX_MODE_LIST *vga_fetch_mode_list();
+static GFX_MODE_LIST *vga_fetch_mode_list(void);
 
 
 GFX_DRIVER gfx_vga = 
@@ -340,7 +340,7 @@ static int vga_scroll(int x, int y)
 /* vga_fetch_mode_list:
  *  Creates a list of of currently implemented VGA modes.
  */
-static GFX_MODE_LIST *vga_fetch_mode_list()
+static GFX_MODE_LIST *vga_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
 

@@ -13,7 +13,8 @@
        By Ronaldo H. Yamada
   
        See readme.txt for copyright information.
- 
+
+       
  
 ====================================
 ============ MPW notes =============
@@ -27,11 +28,13 @@
    missing or otherwise not working very well.
 
 
+
 ===========================================
 ============ Required hardware ============
 ===========================================
 
    - An Power Macintosh
+
 
 
 ===========================================
@@ -52,9 +55,11 @@
    developer/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./MPW-GM_Images/>
    An old version of the headers is included with MPW, but I use a new set
    <ftp://ftp.apple.com/developer/Development_Kits/UniversalHeaders3.3.1.img.bin>
-   DrawSprocketSDK and SoundManager can be obtained directly from Apple
+   DrawSprocketSDK and SoundManager can be obtained directly from Apple.
 
-   *the final users can need theses softwares 
+   * the final users can need theses softwares.
+
+
 
 ============================================
 ============ Installing Allegro ============
@@ -63,13 +68,16 @@
    This is a source-only distribution, so you will have to compile Allegro 
    before you can use it. To do this you should:
 
-   Set up the current directory to main allegro dir(which contains this file).
-   If launch MPW droping this file then, this is probably done
+   Set up the current directory to main allegro dir (which contains the file
+   fixmpw.sh). If launch MPW droping this file then, this is probably done.
 
-   On Worksheet window type fixmpw.sh followed by Command-Return or Enter
-   this set the library up ready for use.
-   install a debugging version of the library. be patient this take many minutes
-   If required you must quit the MPW Shell before use the library
+   On Worksheet window type fixmpw.sh followed by Command-Return or Enter.
+   This sets the library up ready for use.
+   
+   Install a debugging version of the library, be patient this take many
+   minutes. If required you must quit the MPW Shell before use the library.
+
+
 
 ================================================
 ============ Custom install Allegro ============
@@ -86,10 +94,11 @@
 
    	fixmpw.sh alld tests <enter>
 
+      
+
 =======================================
 ============ Using Allegro ============
 =======================================
-
 
    Allegro could be work like an Shared Library, so for future compatibility
    you must define the preprocessor should symbol ALLEGRO_STATICLINK before 
@@ -120,7 +129,8 @@
 	"{PPCLibraries}PPCCRuntime.o"
 	"{PPCLibraries}PPCToolLibs.o"
 
-   you always should tell about allegro entry point in linking, include this option
+   you always should tell about allegro entry point in linking, include this
+   option:
    
    -m MacEntry
 
@@ -135,10 +145,11 @@
    see examples in tests:mac folder
 
 
+
 ==========================================
 ============ Unistall Allegro ============
 ==========================================
 
-   delete the Allegro Folder at Interfaces&Libraries
-   and the Script "SetAllegro" from Startup Itens Folder
+   Delete the Allegro Folder at Interfaces&Libraries
+   and the Script "SetAllegro" from Startup Items Folder.
    

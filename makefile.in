@@ -19,7 +19,7 @@ includedir = @includedir@
 infodir = @infodir@
 mandir = @mandir@
 libdir = @libdir@
-modulebasedir = @libdir@/allegro
+modulebasedir = $(libdir)/allegro
 moduledir = $(modulebasedir)/$(shared_major_minor)
 
 EXE =
@@ -27,6 +27,7 @@ OBJ = .o
 OBJDIR = obj/unix
 LIBDIR = lib/unix
 INFO_DIR = $(infodir)/dir
+DESTDIR =
 
 ACLOCAL = aclocal
 ACLOCAL_M4 = $(srcdir)/aclocal.m4
@@ -42,7 +43,7 @@ transform = @program_transform_name@
 
 CC = @CC@
 CPP = @CPP@
-MAKEINFO = makeinfo --no-split
+MAKEINFO = @MAKEINFO@
 RANLIB = @RANLIB@
 AR = ar
 LIBS = @LIBS@
@@ -217,7 +218,7 @@ $(filter %.texi,$(DOCS)): docs/texi/%.texi: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -texi $@ $<
 
 $(filter %.info,$(DOCS)): docs/info/%.info: docs/texi/%.texi $(MAKEDOC)
-	$(MAKEINFO) -o $@ $<
+	$(MAKEINFO) --no-split -o $@ $<
 
 $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -html $@ $<
@@ -225,15 +226,15 @@ $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<
 
-AUTHORS: docs/src/thanks._tx
+AUTHORS: docs/src/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii AUTHORS $<
 	cp AUTHORS docs/txt/authors.txt 
 
-THANKS: docs/src/thanks._tx
+THANKS: docs/src/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii THANKS $<
 	cp THANKS docs/txt/thanks.txt
 
-CHANGES: docs/src/changes._tx
+CHANGES: docs/src/changes._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii CHANGES $<
 	cp CHANGES docs/txt/changes.txt
 
@@ -244,7 +245,7 @@ docs/allegro.ps: docs/allegro.dvi
 	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
 
 # Dependencies and rules for building libraries and simple programs.
-include makefile.dep
+-include makefile.dep
 
 all: lib modules programs docs
 
@@ -274,14 +275,38 @@ suid: $(ALLEGRO_EXE_TARGETS)
 	touch suid
 
 clean:
-	rm -f $(OBJ_CLEAN_FILES)
-	rm -f $(OTHER_CLEAN_FILES)
+
+   define RM_OBJ_CLEAN_FILES
+      $(foreach file, $(OBJ_CLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+   define RM_OTHER_CLEAN_FILES
+      $(foreach file, $(OTHER_CLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_OBJ_CLEAN_FILES)
+	$(RM_OTHER_CLEAN_FILES)
 
 distclean: clean
-	rm -f $(DISTCLEAN_FILES)
+
+   define RM_DISTCLEAN_FILES
+      $(foreach file, $(DISTCLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_DISTCLEAN_FILES)
 
 veryclean: distclean
-	rm -f $(VERYCLEAN_FILES) makefile
+
+   define RM_VERYCLEAN_FILES
+      $(foreach file, $(VERYCLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_VERYCLEAN_FILES) 
+	rm -f makefile
 
 maintainer-clean: veryclean
 	rm -f configure
@@ -300,86 +325,90 @@ full-install: install-headers install-programs install-lib
 	@echo "and/or make install-gzipped-info"
 
 install-lib: lib
-	$(mkinstalldirs) $(libdir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
 	@for l in alleg alld allp; do \
 	  if test -f $(LIBDIR)/lib$${l}.a; then \
-	    echo Installing $(LIBDIR)/lib$${l}.a to $(libdir); \
-	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}.a $(libdir)/; \
+	    echo Installing $(LIBDIR)/lib$${l}.a to $(DESTDIR)$(libdir); \
+	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}.a $(DESTDIR)$(libdir)/; \
 	  fi; \
 	done
 	@for l in alleg alld allp; do \
 	  if test -f $(LIBDIR)/lib$${l}-$(shared_version).so; then \
-	    echo Installing $(LIBDIR)/lib$${l}-$(shared_version).so to $(libdir); \
-	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}-$(shared_version).so $(libdir)/; \
-	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}_unsharable.a $(libdir)/; \
+	    echo Installing $(LIBDIR)/lib$${l}-$(shared_version).so to $(DESTDIR)$(libdir); \
+	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}-$(shared_version).so $(DESTDIR)$(libdir)/; \
+	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}_unsharable.a $(DESTDIR)$(libdir)/; \
 	  fi; \
 	done
 	@if test -n "$(ALLEGRO_MODULE_TARGETS)"; then \
-	  $(mkinstalldirs) $(moduledir); \
+	  $(mkinstalldirs) $(DESTDIR)$(moduledir); \
 	  for m in $(ALLEGRO_MODULE_TARGETS) modules.lst; do \
-	   echo Installing $$m to $(moduledir); \
-	   $(INSTALL_DATA) $$m $(moduledir)/; \
+	   echo Installing $$m to $(DESTDIR)$(moduledir); \
+	   $(INSTALL_DATA) $$m $(DESTDIR)$(moduledir)/; \
 	  done; \
 	fi
-	$(mkinstalldirs) $(bindir)
-	@echo Installing allegro-config to $(bindir)
-	@$(INSTALL_PROGRAM) allegro-config $(bindir)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@echo Installing allegro-config to $(DESTDIR)$(bindir)
+	@$(INSTALL_PROGRAM) allegro-config $(DESTDIR)$(bindir)
 	@if test -n "$(LIBDIR)/liball*-$(shared_version).so"; then \
-		(grep -q $(libdir) /etc/ld.so.conf || \
+		(cat /etc/ld.so.conf | grep $(libdir) >/dev/null || \
 		 test $(libdir) = /lib || test $(libdir) = /usr/lib) \
 		&& ($(LDCONFIG) $(libdir) || true) || (\
 			echo "" ; \
 			echo "Warning: shared library destination $(libdir) is not in ldd search path." ; \
 			echo "Unless you add it to /etc/ld.so.conf, you must set LD_LIBRARY_PATH to include"; \
 			echo "$(libdir) each time you want to run an Allegro program." ; \
-			$(LDCONFIG) -n $(libdir) ; \
 		) ; \
 	fi
+	@for l in alleg alld allp; do \
+	  if test -f $(DESTDIR)$(libdir)/lib$${l}-$(shared_version).so -a \! -h $(DESTDIR)$(libdir)/lib$${l}.so.${shared_major_minor}; then \
+	    (cd $(DESTDIR)$(libdir); ln -s lib$${l}-$(shared_version).so lib$${l}.so.${shared_major_minor}); \
+	  fi; \
+	done
 
 install-headers:
-	$(mkinstalldirs) $(includedir)/allegro
-	$(mkinstalldirs) $(includedir)/allegro/inline
-	$(mkinstalldirs) $(includedir)/allegro/internal
-	$(mkinstalldirs) $(includedir)/allegro/platform
-	$(INSTALL_DATA) $(srcdir)/include/allegro.h $(includedir)/
-	$(INSTALL_DATA) $(srcdir)/include/xalleg.h $(includedir)/
-	$(INSTALL_DATA) $(srcdir)/include/linalleg.h $(includedir)/
-	$(INSTALL_DATA) $(CONFIG_H) $(includedir)/allegro/
+	$(mkinstalldirs) $(DESTDIR)$(includedir)/allegro
+	$(mkinstalldirs) $(DESTDIR)$(includedir)/allegro/inline
+	$(mkinstalldirs) $(DESTDIR)$(includedir)/allegro/internal
+	$(mkinstalldirs) $(DESTDIR)$(includedir)/allegro/platform
+	$(INSTALL_DATA) $(srcdir)/include/allegro.h $(DESTDIR)$(includedir)/
+	$(INSTALL_DATA) $(srcdir)/include/xalleg.h $(DESTDIR)$(includedir)/
+	$(INSTALL_DATA) $(srcdir)/include/linalleg.h $(DESTDIR)$(includedir)/
+	$(INSTALL_DATA) $(CONFIG_H) $(DESTDIR)$(includedir)/allegro/
 	@for file in $(srcdir)/include/allegro/*.h; do \
-	  echo Installing $$file to $(includedir)/allegro; \
-	  $(INSTALL_DATA) $$file $(includedir)/allegro/; \
+	  echo Installing $$file to $(DESTDIR)$(includedir)/allegro; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(includedir)/allegro/; \
 	done
 	@for file in $(srcdir)/include/allegro/inline/*.inl; do \
-	  echo Installing $$file to $(includedir)/allegro/inline; \
-	  $(INSTALL_DATA) $$file $(includedir)/allegro/inline/; \
+	  echo Installing $$file to $(DESTDIR)$(includedir)/allegro/inline; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(includedir)/allegro/inline/; \
 	done
 	@for file in $(srcdir)/include/allegro/internal/*.h; do \
-	  echo Installing $$file to $(includedir)/allegro/internal; \
-	  $(INSTALL_DATA) $$file $(includedir)/allegro/internal/; \
+	  echo Installing $$file to $(DESTDIR)$(includedir)/allegro/internal; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(includedir)/allegro/internal/; \
 	done
 	@for file in $(srcdir)/include/allegro/platform/*.h; do \
-	  echo Installing $$file to $(includedir)/allegro/platform; \
-	  $(INSTALL_DATA) $$file $(includedir)/allegro/platform/; \
+	  echo Installing $$file to $(DESTDIR)$(includedir)/allegro/platform; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(includedir)/allegro/platform/; \
 	done
 
 install-programs: programs
-	$(mkinstalldirs) $(bindir)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
 	@for prog in $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES); do \
 	  if test "X`echo $$prog | sed -e s,tools/.\*,,`" = X; then \
-	    echo Installing $$prog to $(bindir); \
-	    $(INSTALL_PROGRAM) $$prog $(bindir); \
+	    echo Installing $$prog to $(DESTDIR)$(bindir); \
+	    $(INSTALL_PROGRAM) $$prog $(DESTDIR)$(bindir); \
 	  fi; \
 	done
 
 install-info: docs
 	@echo Installing Allegro info documentation...
-	$(mkinstalldirs) $(infodir)
-	@$(INSTALL_DATA) docs/info/allegro.info $(infodir)
+	$(mkinstalldirs) $(DESTDIR)$(infodir)
+	@$(INSTALL_DATA) docs/info/allegro.info $(DESTDIR)$(infodir)
 	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
-	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
-	    $(INSTALL_INFO) --section Development -- $(infodir)/allegro.info; \
+	  if $(INSTALL_INFO) --version 2>&1 | grep "Debian" >/dev/null; then \
+	    $(INSTALL_INFO) --section Development -- $(DESTDIR)$(infodir)/allegro.info; \
 	  else \
-	    $(INSTALL_INFO) $(infodir)/allegro.info $(INFO_DIR); \
+	    $(INSTALL_INFO) $(DESTDIR)$(infodir)/allegro.info $(INFO_DIR); \
 	  fi; \
 	else \
 	  true; \
@@ -387,21 +416,21 @@ install-info: docs
 
 install-gzipped-info: install-info
 	@echo Compressing documentation...
-	@gzip -9 -f $(infodir)/allegro.info
+	@gzip -9 -f $(DESTDIR)$(infodir)/allegro.info
 
 install-man: docs
-	$(mkinstalldirs) $(mandir)/man3
+	$(mkinstalldirs) $(DESTDIR)$(mandir)/man3
 	@for file in $(srcdir)/docs/man/*.3; do \
-	  echo Installing $$file to $(mandir)/man3; \
-	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
+	  echo Installing $$file to $(DESTDIR)$(mandir)/man3; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man3/; \
 	done
 
 install-gzipped-man: docs
-	$(mkinstalldirs) $(mandir)/man3
+	$(mkinstalldirs) $(DESTDIR)$(mandir)/man3
 	@for file in $(srcdir)/docs/man/*.3; do \
-	  echo Installing $$file.gz to $(mandir)/man3; \
-	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
-	  gzip -9 -f $(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
+	  echo Installing $$file.gz to $(DESTDIR)$(mandir)/man3; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man3/; \
+	  gzip -9 -f $(DESTDIR)$(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
 	done
 
 uninstall: uninstall-lib uninstall-modules uninstall-headers uninstall-programs uninstall-info uninstall-man
@@ -423,8 +452,8 @@ uninstall-shared:
 	@echo "Uninstalling shared libraries..."
 	@for l in alleg alld allp; do \
 	  rm -f $(libdir)/lib$${l}-${shared_version}.so; \
+	  rm -f $(libdir)/lib$${l}.so.${shared_major_minor}; \
 	done
-	$(LDCONFIG) -n $(libdir)    # remove symlinks
 	-$(LDCONFIG) $(libdir)       # update cache (only works if we're root)
 
 uninstall-modules:
@@ -451,7 +480,7 @@ uninstall-info:
 	  gunzip $(infodir)/allegro.info.gz; \
 	fi;
 	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
-	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
+	  if $(INSTALL_INFO) --version 2>&1 | grep "Debian" >/dev/null; then \
 	    $(INSTALL_INFO) --remove $(infodir)/allegro.info; \
 	  else \
 	    $(INSTALL_INFO) --remove $(infodir)/allegro.info $(INFO_DIR); \
@@ -478,7 +507,8 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh fbcon -- $(ALLEGRO_MODULE_FBCON_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsadigi -lasound $(ALLEGRO_MODULE_ALSADIGI_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsamidi -lasound $(ALLEGRO_MODULE_ALSAMIDI_FILES)' >>makefile.dep
-	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi -lesd $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi "\`esd-config --libs\`" $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh artsdigi "\`artsc-config --libs\`" $(ALLEGRO_MODULE_ARTS_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh dga2 -lXxf86dga $(ALLEGRO_MODULE_DGA2_FILES)' >> makefile.dep
 	@echo "Generating dependencies for simple programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep

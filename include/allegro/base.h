@@ -37,10 +37,10 @@
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      0
-#define ALLEGRO_WIP_VERSION      1
-#define ALLEGRO_VERSION_STR      "4.0.1 (CVS)"
-#define ALLEGRO_DATE_STR         "2001"
-#define ALLEGRO_DATE             20011215    /* yyyymmdd */
+#define ALLEGRO_WIP_VERSION      3
+#define ALLEGRO_VERSION_STR      "4.0.3 (CVS)"
+#define ALLEGRO_DATE_STR         "2002"
+#define ALLEGRO_DATE             20020704    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/
@@ -64,6 +64,8 @@
      
 #undef SGN
 #define SGN(x)       (((x) >= 0) ? 1 : -1)
+
+#define AL_PI        3.14159265358979323846
 
 #define AL_ID(a,b,c,d)     (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 

@@ -112,6 +112,12 @@ int save_bitmap(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
 /* _fixup_loaded_bitmap:
  *  Helper function for adjusting the color depth of a loaded image.
+ *  Converts the bitmap BMP to the color depth BPP. If BMP is a 8-bit
+ *  bitmap, PAL must be the palette attached to the bitmap. If BPP is
+ *  equal to 8, the conversion is performed either by building a palette
+ *  optimized for the bitmap if PAL is not NULL (in which case PAL gets
+ *  filled in with this palette) or by using the current palette if PAL
+ *  is NULL. In any other cases, PAL is unused.
  */
 BITMAP *_fixup_loaded_bitmap(BITMAP *bmp, PALETTE pal, int bpp)
 {
@@ -126,7 +132,10 @@ BITMAP *_fixup_loaded_bitmap(BITMAP *bmp, PALETTE pal, int bpp)
    if (bpp == 8) {
       RGB_MAP *old_map = rgb_map;
 
-      generate_optimized_palette(bmp, pal, NULL);
+      if (pal)
+	 generate_optimized_palette(bmp, pal, NULL);
+      else
+	 pal = _current_palette;
 
       rgb_map = malloc(sizeof(RGB_MAP));
       if (rgb_map != NULL)
@@ -174,7 +183,7 @@ static void register_bitmap_file_type_exit(void)
     * down to valid modules. So we clean up as usual, but then reinstall
     * the internal modules.
     */
-   #if defined(CONSTRUCTOR_FUNCTION) && defined(DESTRUCTOR_FUNCTION)
+   #ifdef ALLEGRO_USE_CONSTRUCTOR
       _register_bitmap_file_type_init();
    #endif
 
@@ -200,9 +209,9 @@ void _register_bitmap_file_type_init(void)
 
 
 
-#if (defined CONSTRUCTOR_FUNCTION) && (defined DESTRUCTOR_FUNCTION)
-   CONSTRUCTOR_FUNCTION(static void bitmap_filetype_constructor());
-   DESTRUCTOR_FUNCTION(static void bitmap_filetype_destructor());
+#ifdef ALLEGRO_USE_CONSTRUCTOR
+   CONSTRUCTOR_FUNCTION(static void bitmap_filetype_constructor(void));
+   DESTRUCTOR_FUNCTION(static void bitmap_filetype_destructor(void));
 
    /* bitmap_filetype_constructor:
     *  Register bitmap filetype functions if this object file is linked
@@ -210,7 +219,7 @@ void _register_bitmap_file_type_init(void)
     *  functions aren't used in a program, thus saving a little space
     *  in statically linked programs.
     */
-   static void bitmap_filetype_constructor()
+   static void bitmap_filetype_constructor(void)
    {
       _register_bitmap_file_type_init();
    }
@@ -220,7 +229,7 @@ void _register_bitmap_file_type_init(void)
     *  quit, not just when allegro_exit() is called, we need to use a
     *  destructor to accomplish this.
     */
-   static void bitmap_filetype_destructor()
+   static void bitmap_filetype_destructor(void)
    {
       BITMAP_TYPE_INFO *iter = bitmap_type_list, *next;
 

@@ -12,7 +12,7 @@
 @f1=<p><hr><p><a href="
 @f2=">Back to Contents</a><p></body></html>
 @rtfh=Allegro - a game programming library
-@manh="version 4.0.1 (CVS)" "Allegro" "Allegro manual"
+@manh="version 4.0.3 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @$\input texinfo
 @$@setfilename allegro.inf
@@ -47,12 +47,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.0.1 (CVS)
+				       \_/__/     Version 4.0.3 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Dec 15, 2001.
+	     By Shawn Hargreaves, Jul 04, 2002.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -117,6 +117,24 @@ information about how to install Allegro and link your program with it.
    to this function, because allegro_init() installs it as an atexit() 
    routine so it will be called automatically when your program exits.
 
+@@Macro @END_OF_MAIN()
+@xref Windows specifics, Unix specifics, Differences between platforms
+   In order to maintain cross-platform compatibility, you have to put this
+   macro at the very end of your main function. This macro uses some `magic'
+   to mangle your main procedure on platforms that need it like Windows
+   or Linux. On the other platforms this macro compiles to nothing, so you
+   don't have to #ifdef around it. Example:
+<pre>
+      int main(void)
+      {
+	 allegro_init();
+	 /* more stuff goes here */
+	 ...
+	 return 0;
+      }
+      END_OF_MAIN()
+</pre>
+
 @@extern char @allegro_id[];
    Text string containing a date and version number for the library, in case 
    you want to display these somewhere.
@@ -144,10 +162,13 @@ information about how to install Allegro and link your program with it.
       OSTYPE_DOSEMU     - Linux DOSEMU
       OSTYPE_OPENDOS    - Caldera OpenDOS
       OSTYPE_LINUX      - Linux
+      OSTYPE_SUNOS      - SunOS/Solaris
       OSTYPE_FREEBSD    - FreeBSD
+      OSTYPE_NETBSD     - NetBSD
+      OSTYPE_IRIX       - IRIX
+      OSTYPE_QNX        - QNX
       OSTYPE_UNIX       - Unknown Unix variant
       OSTYPE_BEOS       - BeOS
-      OSTYPE_QNX        - QNX
       OSTYPE_MACOS      - MacOS
 </pre>
 @@extern int @os_version;
@@ -164,14 +185,14 @@ information about how to install Allegro and link your program with it.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
 
-@@void @allegro_message(char *msg, ...);
+@@void @allegro_message(const char *msg, ...);
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
    set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
-   a text mode console (DOS, Unix and BeOS) it will print the string to the 
-   console, attempting to work around codepage differences by reducing any 
-   accented characters to 7 bit ASCII approximations, or under Windows it 
-   will bring up a GUI message box.
+   a text console (DOS and Unix) it will print the string to that console,
+   attempting to work around codepage differences by reducing any accented
+   characters to 7 bit ASCII approximations, and on platforms featuring a
+   windowing system it will bring up a GUI message box.
 
 @@void @set_window_title(const char *name);
 @xref set_window_close_button, set_window_close_hook
@@ -204,15 +225,13 @@ information about how to install Allegro and link your program with it.
    On platforms that have a close button, this routine installs a hook 
    function to handle the close event. In other words, when the user clicks 
    the close button on your program's window, the function you specify here 
-   will be called. You can use this function to display a box offering to 
-   save data or checking that the user really wants to exit, or you can use 
-   it just to save config data, free memory and exit.
+   will be called.
 
    This function should not generally attempt to exit the program or save 
    any data itself. The function could be called at any time, and there is 
-   usually a risk of trying to save when the data are invalid. Instead, you 
-   should set a flag during this function, and test the flag on a regular 
-   basis in the main program.
+   usually a risk of conflict with the main thread of the program. Instead, 
+   you should set a flag during this function, and test it on a regular 
+   basis in the main loop of the program.
 
    Pass NULL to this function to restore the close button's default 
    functionality. On Windows and BeOS, the following message will appear:
@@ -1074,6 +1093,18 @@ framebuffer = x<br>
    Linux only: specifies what device file to use for the fbcon driver. If 
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
+<li>
+force_centering = x<br>
+   Unix/X11 only: specifies whether to force window centering in fullscreen
+   mode when the XWFS driver is used (yes or no). Enabling this setting may
+   cause some artifacts to appear on KDE desktops.
+<li>
+disable_direct_updating = x<br>
+   Windows only: specifies whether to disable direct updating when the 
+   GFX_DIRECTX_WIN driver is used in color conversion mode (yes or no).
+   Direct updating can cause artifacts to be left on the desktop when the 
+   window is moved or minimized; disabling it results in a significant
+   performance loss.
 </ul><li>
 [mouse]<br>
    Section containing mouse configuration information, using the variables:
@@ -1234,7 +1265,7 @@ alsa_rawmidi_device = x<br>
    Unix only: ALSA rawmidi device to use for output.
 <li>
 be_midi_quality = x<br>
-   BeOS only: system MIDI synthentetizer instruments quality. 0 uses low
+   BeOS only: system MIDI synthesizer instruments quality. 0 uses low
    quality 8-bit 11 kHz samples, 1 uses 16-bit 22 kHz samples.
 <li>
 be_midi_freq = x<br>
@@ -1346,7 +1377,7 @@ Mouse routines
 
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
-@@exterm volatile int @mouse_z;
+@@extern volatile int @mouse_z;
 @@extern volatile int @mouse_b;
 @@extern volatile int @mouse_pos;
 @xref install_mouse, poll_mouse, mouse_needs_poll
@@ -1374,7 +1405,7 @@ Mouse routines
 
 @@extern BITMAP *@mouse_sprite;
 @@extern int @mouse_x_focus;
-@@exterm int @mouse_y_focus;
+@@extern int @mouse_y_focus;
 @xref set_mouse_sprite, set_mouse_sprite_focus
    Global variables containing the current mouse sprite and the focus
    point.  These are read-only, and only to be modified using the
@@ -1404,7 +1435,7 @@ Mouse routines
    unscare_mouse().
 
 @@void @scare_mouse_area(int x, int y, int w, int h);
-@xref unscare_mouse, scare_mouse_area, show_mouse
+@xref unscare_mouse, scare_mouse, show_mouse
    Like scare_mouse(), but will only hide the cursor if it is inside the 
    specified rectangle. Otherwise the cursor will simply be frozen in place 
    until you call unscare_mouse(), so it cannot interfere with your drawing.
@@ -1486,7 +1517,9 @@ speeds.
 Under DOS it will constantly reprogram the clock to make sure they are all
 called at the correct times. Because they alter the low level timer chip
 settings, these routines should not be used together with other DOS timer
-functions like the djgpp uclock() routine.
+functions like the djgpp uclock() routine. Moreover, the FPU state is not
+preserved across Allegro interrupts so you ought not to use floating point
+or MMX code inside timer interrupt handlers.
 
 Under other platforms, they are usually implemented using threads, which run
 parallel to the main thread. Therefore timer callbacks on such platforms
@@ -1571,7 +1604,7 @@ Allegro does not provide such devices.)
 	 counter++;
       }
 
-      END_OF_FUNCTION(my_timer_handler);
+      END_OF_FUNCTION(my_timer_handler)
 </pre>
    and in your initialisation code you should lock the memory:
 <pre>
@@ -1619,7 +1652,7 @@ Allegro does not provide such devices.)
 @xref timer_can_simulate_retrace, timer_is_using_retrace
 @xref enable_triple_buffer
    The DOS timer handler can be used to simulate vertical retrace 
-   interrupts. An retrace interrupt can be extremely useful for implementing 
+   interrupts. A retrace interrupt can be extremely useful for implementing 
    smooth animation, but unfortunately the VGA hardware doesn't support it. 
    The EGA did, and some SVGA chipsets do, but not enough, and not in a 
    sufficiently standardised way, for it to be useful. Allegro works around 
@@ -2099,7 +2132,7 @@ Joystick routines
    "analogue", there are some #define aliases in allegro/joystick.h that
    will allow you to write "analog" instead.
 
-@@char *@calibrate_joystick_name(int n);
+@@const char *@calibrate_joystick_name(int n);
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
    Returns a text description for the next type of calibration that will be 
    done on the specified joystick, or NULL if no more calibration is 
@@ -2158,10 +2191,12 @@ Joystick routines
 Graphics modes
 
 @@void @set_color_depth(int depth);
-@xref set_gfx_mode, set_color_conversion, makecol, getr
+@xref set_gfx_mode, set_color_conversion, makecol, getr, bitmap_color_depth
    Sets the pixel format to be used by subsequent calls to set_gfx_mode() 
    and create_bitmap(). Valid depths are 8 (the default), 15, 16, 24, and 32 
-   bits.
+   bits. Note that you can retrieve the pixel format currently in use by
+   calling bitmap_color_depth() on the 'screen' bitmap, once a graphics mode
+   has been set.
 
 @@void @request_refresh_rate(int rate);
 @xref set_gfx_mode, get_refresh_rate
@@ -2183,8 +2218,8 @@ Graphics modes
 @@GFX_MODE_LIST *@get_gfx_mode_list(int card);
 @xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
    Attempts to create a list of all the supported video modes for a certain
-   GFX driver. This function returns a pointer to a list structure of the
-   type GFX_MODE_LIST which has the following definition:
+   graphics driver. This function returns a pointer to a list structure of 
+   the type GFX_MODE_LIST which has the following definition:
 <pre>
    typedef struct GFX_MODE_LIST {
       int num_modes;
@@ -2199,6 +2234,9 @@ Graphics modes
    } GFX_MODE;
 </pre>
    This list is terminated with an { 0, 0, 0 } entry.
+
+   Note that the card parameter must refer to a _real_ driver. This function
+   fails if you pass GFX_SAFE, GFX_AUTODETECT, or any other "magic" driver.
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
@@ -2308,7 +2346,7 @@ Graphics modes
       Pauses the program whenever it is in the background. Execution will be 
       resumed as soon as the user switches back to it. This is the default 
       in most fullscreen multitasking environments, for example the Linux 
-      console.
+      console, but not under Windows.
 <li>
    SWITCH_AMNESIA<br>
       Like SWITCH_PAUSE, but this mode doesn't bother to remember the 
@@ -2571,9 +2609,11 @@ Graphics modes
    Attempts to page flip the hardware screen to display the specified video 
    bitmap object, which must be the same size as the physical screen, and 
    should have been obtained by calling the create_video_bitmap() function. 
-   Returns zero on success. This function will wait for a vertical retrace 
-   if the graphics card requires it, so you don't need to call vsync() 
-   yourself.
+   Returns zero on success and non-zero on failure.
+   
+   Allegro will handle any necessary vertical retrace synchronisation when 
+   page flipping, so you don't need to call vsync() before it. This means
+   that show_video_bitmap() has the same time delay effects as vsync().
 
 @@int @request_video_bitmap(BITMAP *bitmap);
 @xref poll_scroll, request_scroll, gfx_capabilities, timer_simulate_retrace
@@ -2618,7 +2658,7 @@ Allegro supports several different types of bitmaps:
 
    - The screen bitmap, which represents the hardware video memory. 
      Ultimately you have to draw onto this in order for your image to be 
-     visible.
+     visible. It is destroyed by any subsequent calls to set_gfx_mode().
 
    - Memory bitmaps, which are located in system RAM and can be used to 
      store graphics or as temporary drawing spaces for double buffered 
@@ -2635,7 +2675,8 @@ Allegro supports several different types of bitmaps:
 
    - Video memory bitmaps. These are created by the create_video_bitmap() 
      function, and are usually implemented as sub-bitmaps of the screen 
-     object.
+     object. They must be destroyed by destroy_bitmap() before any subsequent
+     calls to set_gfx_mode().
 
    - System bitmaps. These are created by the create_system_bitmap() 
      function, and are a sort of halfway house between memory and video 
@@ -2648,7 +2689,8 @@ Allegro supports several different types of bitmaps:
      video bitmaps, using the bank switch functions and bmp_write*() macros. 
      Not every platform implements this type of bitmap: if they aren't 
      available, create_system_bitmap() will function identically to 
-     create_bitmap().
+     create_bitmap(). They must be destroyed by destroy_bitmap() before any
+     subsequent calls to set_gfx_mode().
 
 @@extern BITMAP *@screen;
 @xref set_gfx_mode, is_screen_bitmap, create_video_bitmap, scroll_screen
@@ -2721,6 +2763,9 @@ Allegro supports several different types of bitmaps:
 @@int @bitmap_color_depth(BITMAP *bmp);
 @xref set_color_depth, bitmap_mask_color
    Returns the color depth of the specified bitmap (8, 15, 16, 24, or 32).
+   Note that calling it on the 'screen' bitmap will return the pixel format
+   currently in use, as specified by the latest call to set_color_depth(),
+   once a graphics mode has been set.
 
 @@int @bitmap_mask_color(BITMAP *bmp);
 @xref MASK_COLOR_8, set_color_depth, bitmap_color_depth
@@ -2822,13 +2867,24 @@ will not be known, so the file may be converted wrongly.
 @@BITMAP *@load_bitmap(const char *filename, RGB *pal);
 @xref load_bmp, load_lbm, load_pcx, load_tga, destroy_bitmap, save_bitmap
 @xref register_bitmap_file_type, set_color_depth, set_color_conversion
+@xref generate_optimized_palette, generate_332_palette
    Loads a bitmap from a file, returning a pointer to a bitmap and storing 
    the palette data in the specified location, which should be an array of 
    256 RGB structures. You are responsible for destroying the bitmap when 
    you are finished with it. Returns NULL on error. At present this function 
    supports BMP, LBM, PCX, and TGA files, determining the type from the file 
-   extension. If the file contains a truecolor image, you must set the video 
-   mode or call set_color_conversion() before loading it.
+   extension.
+
+   If the file contains a truecolor image, you must set the video mode or
+   call set_color_conversion() before loading it. In this case, if the
+   destination color depth is 8-bit, the palette will be generated by calling
+   generate_optimized_palette() on the bitmap; otherwise, the returned
+   palette will be generated by calling generate_332_palette().
+
+   The pal argument may be NULL. In this case, the palette data are simply
+   not returned. Additionally, if the file is a truecolor image and the
+   destination color depth is 8-bit, the color conversion process will use
+   the current palette instead of generating an optimized one.
 
 @@BITMAP *@load_bmp(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -2852,11 +2908,14 @@ will not be known, so the file may be converted wrongly.
    Writes a bitmap into a file, using the specified palette, which should be 
    an array of 256 RGB structures. Returns non-zero on error. The output 
    format is determined from the filename extension: at present this 
-   function supports BMP, PCX and TGA formats. One thing to watch out for: 
-   if you use this to dump the screen into a file you may end up with an 
-   image much larger than you were expecting, because Allegro often creates 
-   virtual screens larger than the visible screen. You can get around this 
-   by using a sub-bitmap to specify which part of the screen to save, eg:
+   function supports BMP, PCX and TGA formats.
+
+   Two things to watch out for: on some video cards it may be faster to copy
+   the screen to a memory bitmap and save the latter, and if you use this to
+   dump the screen into a file you may end up with an image much larger than
+   you were expecting, because Allegro often creates virtual screens larger
+   than the visible screen. You can get around this by using a sub-bitmap to
+   specify which part of the screen to save, eg:
 <pre>
       BITMAP *bmp;
       PALETTE pal;
@@ -3338,7 +3397,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref vline, line, drawing_mode
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
 
-@@void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, void (*proc)());
+@\void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, 
+@@             void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_arc, line
    Calculates all the points along a line from point (x1, y1) to (x2, y2), 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3353,7 +3413,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref polygon, triangle3d, drawing_mode
    Draws a filled triangle between the three points.
 
-@@void @polygon(BITMAP *bmp, int vertices, int *points, int color);
+@@void @polygon(BITMAP *bmp, int vertices, const int *points, int color);
 @xref triangle, polygon3d, drawing_mode
    Draws a filled polygon with an arbitrary number of corners. Pass the 
    number of vertices and an array containing a series of x, y points (a 
@@ -3368,7 +3428,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
 
-@@void @do_circle(BITMAP *bmp, int x, int y, int radius, int d, void (*proc)());
+@\void @do_circle(BITMAP *bmp, int x, int y, int radius, int d,
+@@               void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_ellipse, do_arc, do_line, circle, circlefill
    Calculates all the points in a circle around point (x, y) with radius r, 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3383,7 +3444,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref ellipsefill, circle, do_circle, drawing_mode
    Draws a filled circle with the specified centre and radius.
 
-@@void @do_ellipse(BITMAP *bmp, int x, y, int rx, ry, int d, void (*proc)());
+@\void @do_ellipse(BITMAP *bmp, int x, int y, int rx, ry, int d,
+@@                void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_arc, do_line, ellipse, ellipsefill
    Calculates all the points in an ellipse around point (x, y) with radius 
    rx and ry, calling the supplied function for each one. This will be 
@@ -3398,7 +3460,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref circlefill, ellipse, do_ellipse, drawing_mode
    Draws a filled ellipse with the specified centre and radius.
 
-@@void @do_arc(BITMAP *bmp, int x, y, fixed a1, a2, int r, d, void (*proc)());
+@\void @do_arc(BITMAP *bmp, int x, int y, fixed a1, fixed a2, int r, int d,
+@@            void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_line, arc
    Calculates all the points in a circular arc around point (x, y) with 
    radius r, calling the supplied function for each one. This will be passed 
@@ -3418,7 +3481,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    full circle, 64 a right angle, etc. Zero is to the right of the centre 
    point, and larger values rotate anticlockwise from there.
 
-@@void @calc_spline(int points[8], int npts, int *x, int *y);
+@@void @calc_spline(const int points[8], int npts, int *x, int *y);
 @xref spline
    Calculates a series of npts values along a bezier spline, storing them in 
    the output x and y arrays. The bezier curve is specified by the four x/y 
@@ -3434,7 +3497,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    useful for constructing smooth paths around a series of control points, 
    as in exspline.c.
 
-@@void @spline(BITMAP *bmp, int points[8], int color);
+@@void @spline(BITMAP *bmp, const int points[8], int color);
 @xref calc_spline, drawing_mode
    Draws a bezier spline using the four control points specified in the 
    points array.
@@ -3509,12 +3572,26 @@ bitmap.
    destination bitmaps to be of different color depths, so it can be used to 
    convert images from one pixel format to another.
 
+@\void @stretch_blit(BITMAP *source, BITMAP *dest,
+@\                  int source_x, source_y, source_width, source_height,
+@@                  int dest_x, dest_y, dest_width, dest_height);
+@xref blit, masked_stretch_blit, stretch_sprite
+   Like blit(), except it can scale images (so the source and destination 
+   rectangles don't need to be the same size) and requires the source and 
+   destination bitmaps to be of the same color depth. This routine doesn't 
+   do as much safety checking as the regular blit(): in particular you must 
+   take care not to copy from areas outside the source bitmap, and you 
+   cannot blit between overlapping regions, ie. you must use different 
+   bitmaps for the source and the destination. Moreover, the source must 
+   be a memory bitmap.
+
 @\void @masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@                  int dest_x, int dest_y, int width, int height);
 @xref blit, masked_stretch_blit, draw_sprite, bitmap_mask_color
    Like blit(), but skips transparent pixels, which are marked by a zero in 
    256 color modes or bright pink for truecolor data (maximum red and blue, 
-   zero green). The source and destination regions must not overlap.
+   zero green), and requires the source and destination bitmaps to be of 
+   the same color depth. The source and destination regions must not overlap.
 
    If the GFX_HW_VRAM_BLIT_MASKED bit in the gfx_capabilities flag is set, 
    the current driver supports hardware accelerated masked blits from one 
@@ -3523,29 +3600,18 @@ bitmap.
    sprites in an offscreen portion of the video memory.
 
    Warning: if the hardware acceleration flag is not set, masked_blit() will 
-   not work correctly when used with a video memory source image, and the 
-   input graphic must always be a memory bitmap!
-
-@\void @stretch_blit(BITMAP *source, BITMAP *dest,
-@\                  int source_x, source_y, source_width, source_height,
-@@                  int dest_x, dest_y, dest_width, dest_height);
-@xref blit, masked_stretch_blit, stretch_sprite
-   Like blit(), except it can scale images so the source and destination 
-   rectangles don't need to be the same size. This routine doesn't do as 
-   much safety checking as the regular blit: in particular you must take 
-   care not to copy from areas outside the source bitmap, and you cannot 
-   blit between overlapping regions, ie. you must use different bitmaps for 
-   the source and the destination. Also, the source must be a memory bitmap 
-   or sub-bitmap, not the hardware screen.
+   not work correctly when used with a source image in system or video 
+   memory so the latter must be a memory bitmap.
 
 @\void @masked_stretch_blit(BITMAP *source, BITMAP *dest,
 @\                         int source_x, source_y, source_w, source_h,
 @@                         int dest_x, dest_y, dest_w, dest_h);
 @xref blit, masked_blit, stretch_blit, stretch_sprite
-   Like stretch_blit(), but skips transparent pixels, which are marked by a 
-   zero in 256 color modes or bright pink for truecolor data (maximum red 
-   and blue, zero green). The source and destination regions must not 
-   overlap.
+   Like masked_blit(), except it can scale images (so the source and 
+   destination rectangles don't need to be the same size). This routine 
+   doesn't do as much safety checking as the regular masked_blit(): in 
+   particular you must take care not to copy from areas outside the source 
+   bitmap. Moreover, the source must be a memory bitmap.
 
 @@void @draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite_v_flip, draw_trans_sprite, draw_lit_sprite
@@ -3568,13 +3634,20 @@ bitmap.
    memory.
 
    Warning: if the hardware acceleration flag is not set, draw_sprite() will 
-   not work correctly when used with a video memory source image, and the 
-   input graphic must always be a memory bitmap!
+   not work correctly when used with a sprite image in system or video 
+   memory so the latter must be a memory bitmap.
 
    Although generally not supporting graphics of mixed color depths, as a 
    special case this function can be used to draw 256 color source images 
    onto truecolor destination bitmaps, so you can use palette effects on 
    specific sprites within a truecolor program.
+
+@@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
+@xref draw_sprite, stretch_blit, bitmap_mask_color
+   Like draw_sprite(), except it can stretch the sprite image to the 
+   specified width and height and requires the sprite image and destination 
+   bitmap to be of the same color depth. Moreover, the sprite image must 
+   be a memory bitmap.
 
 @@void @draw_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @@void @draw_sprite_h_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
@@ -3604,19 +3677,25 @@ bitmap.
 @@void @draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
 @xref draw_lit_rle_sprite, color_map, set_trans_blender, bitmap_mask_color
-   Tints the sprite image to the specified color or light level, using the 
-   global color_map table, and draws the resulting image to the destination 
-   bitmap. This must only be used after you have set up the color mapping 
-   table (for 256 color modes) or blender functions (for truecolor modes).
+   In 256 color modes, uses the global color_map table to tint the sprite
+   image to the specified color or to light it to the level specified by
+   'color', depending on the function which was used to build the table
+   (create_trans_table or create_light_table), and draws the resulting image
+   to the destination bitmap. In truecolor modes, uses the blender functions
+   to light the sprite image using the alpha level specified by 'color' (the
+   alpha level which was passed to the blender functions is ignored) and
+   draws the resulting image to the destination bitmap. The 'color' parameter
+   must be in the range [0-255] whatever its actual meaning is. This must
+   only be used after you have set up the color mapping table (for 256 color
+   modes) or blender functions (for truecolor modes).
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int c1, int c2, int c3, int c4);
 @xref draw_sprite, draw_lit_sprite, color_map, set_trans_blender
 @xref bitmap_mask_color
-   Tints the sprite to the specified color or light level, interpolating the 
-   four corner colors across the surface of the image. This must only be 
-   used after you have set up the color mapping table (for 256 color modes) 
-   or blender functions (for truecolor modes).
+   More sophisticated version of draw_lit_sprite(): the 'color' parameter is
+   not constant across the sprite image anymore but interpolated between the
+   four specified corner colors, which have the same actual meaning as it.
 
 @@void @draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, bitmap_mask_color
@@ -3688,14 +3767,6 @@ bitmap.
    Like rotate_scaled_sprite_v_flip(), but aligns the point in the sprite
    given by (cx, cy) to (x, y) in the bitmap, then rotates and scales around
    this point.
-
-@@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
-@xref draw_sprite, stretch_blit, bitmap_mask_color
-   Draws the sprite image onto the bitmap at the specified position, 
-   stretching it to the specified width and height. The difference between 
-   stretch_sprite() and stretch_blit() is that stretch_sprite() masks out 
-   transparent pixels, which are marked by a zero in 256 color modes or 
-   bright pink for truecolor data (maximum red and blue, zero green).
 
 
 
@@ -4092,7 +4163,7 @@ Polygon rendering
       polygon3d_f(bmp, type, tex, 4, v[]);
 
 @\int @clip3d_f(int type, float min_z, float max_z, int vc,
-@@             V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
+@@             const V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
    Clips the polygon given in vtx. The number of vertices is vc, the result 
    goes in vout, and vtmp and out are needed for internal purposes. The 
@@ -4109,7 +4180,7 @@ Polygon rendering
    no provision is made for high/truecolor GCOL.
 
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
-@@           V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
+@@           const V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
 @xref polygon3d, clip3d_f
    Fixed point version of clip3d_f(). This function should be used with 
    caution, due to the limited precision of fixed point arithmetic and high 
@@ -4371,7 +4442,7 @@ Transparency and patterned drawing
    Sets the graphics drawing mode. This only affects the geometric routines 
    like putpixel, lines, rectangles, circles, polygons, floodfill, etc, not 
    the text output, blitting, or sprite drawing functions. The mode should 
-   be one of the values:
+   be one of the following constants:
 <pre>
       DRAW_MODE_SOLID               - the default, solid color
                                       drawing
@@ -4381,6 +4452,9 @@ Transparency and patterned drawing
       DRAW_MODE_MASKED_PATTERN      - masked pattern fill
       DRAW_MODE_TRANS               - translucent color blending
 </pre>
+   In DRAW_MODE_SOLID, pixels of the bitmap being drawn onto are simply 
+   replaced by those produced by the drawing function.
+
    In DRAW_MODE_XOR, pixels are written to the bitmap with an exclusive-or 
    operation rather than a simple copy, so drawing the same shape twice will 
    erase it. Because it involves reading as well as writing the bitmap 
@@ -4439,9 +4513,9 @@ Transparency and patterned drawing
 
 @hnode 256 color transparency
 In paletted video modes, translucency and lighting are implemented with a 
-64k lookup table, which contain the result of combining any two colors c1 
-and c2. You must set up this table before you use any of the lighting or 
-translucency routines. Depending on how you construct the table, a range of 
+64k lookup table, which contains the result of combining any two colors c1 
+and c2. You must set up this table before you use any of the translucency 
+or lighting routines. Depending on how you construct the table, a range of 
 different effects are possible. For example, translucency can be implemented 
 by using a color halfway between c1 and c2 as the result of the combination. 
 Lighting is achieved by treating one of the colors as a light level (0-255) 
@@ -4460,28 +4534,15 @@ typedef struct {
 @@extern COLOR_MAP *@color_map;
 @xref create_color_table, create_light_table, create_trans_table
 @xref create_blender_table, set_trans_blender, draw_trans_sprite
-@xref draw_lit_sprite, drawing_mode
+@xref draw_lit_sprite, draw_gouraud_sprite, drawing_mode
    Global pointer to the color mapping table. This must be set before using 
    any translucent or lit drawing functions in a 256 color video mode!
-
-@\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
-@@                        int r, g, b, void (*callback)(int pos));
-@xref color_map, create_trans_table, create_color_table
-@xref create_blender_table, draw_lit_sprite
-   Fills the specified color mapping table with lookup data for doing 
-   lighting effects with the specified palette. When combining the colors c1 
-   and c2 with this table, c1 is treated as a light level from 0-255. At 
-   light level 255 the table will output color c2 unchanged, at light level 
-   0 it will output the r, g, b value you specify to this function, and at 
-   intermediate light levels it will output a color somewhere between the 
-   two extremes. The r, g, and b values are in the range 0-63. If the 
-   callback function is not NULL, it will be called 256 times during the 
-   calculation, allowing you to display a progress indicator.
 
 @\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_light_table, create_color_table
-@xref create_blender_table, draw_trans_sprite
+@xref create_blender_table, draw_trans_sprite, draw_lit_sprite
+@xref draw_gouraud_sprite
    Fills the specified color mapping table with lookup data for doing 
    translucency effects with the specified palette. When combining the 
    colors c1 and c2 with this table, the result will be a color somewhere 
@@ -4493,10 +4554,26 @@ typedef struct {
    If the callback function is not NULL, it will be called 256 times during 
    the calculation, allowing you to display a progress indicator.
 
+@\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
+@@                        int r, g, b, void (*callback)(int pos));
+@xref color_map, create_trans_table, create_color_table
+@xref create_blender_table, draw_trans_sprite, draw_lit_sprite
+@xref draw_gouraud_sprite
+   Fills the specified color mapping table with lookup data for doing 
+   lighting effects with the specified palette. When combining the colors c1 
+   and c2 with this table, c1 is treated as a light level from 0-255. At 
+   light level 255 the table will output color c2 unchanged, at light level 
+   0 it will output the r, g, b value you specify to this function, and at 
+   intermediate light levels it will output a color somewhere between the 
+   two extremes. The r, g, and b values are in the range 0-63. If the 
+   callback function is not NULL, it will be called 256 times during the 
+   calculation, allowing you to display a progress indicator.
+
 @\void @create_color_table(COLOR_MAP *table, const PALETTE pal,
 @\                        void (*blend)(PALETTE pal, int x, int y, RGB *rgb),
 @@                        void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_blender_table
+@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
    Fills the specified color mapping table with lookup data for doing 
    customised effects with the specified palette, calling the blend function 
    to determine the results of each color combination. Your blend routine 
@@ -4511,6 +4588,7 @@ typedef struct {
 @\void @create_blender_table(COLOR_MAP *table, const PALETTE pal,
 @@                          void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_color_table
+@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
 @xref set_trans_blender, set_blender_mode
    Fills the specified color mapping table with lookup data for doing a 
    paletted equivalent of whatever truecolor blender mode is currently 
@@ -4521,13 +4599,32 @@ typedef struct {
 
 @hnode truecolor transparency
 In truecolor video modes, translucency and lighting are implemented by a 
-blender function in the form:
+blender function of the form:
 <pre>
 unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);
 </pre>
-This routine takes two color parameters, decomposes them into their red, 
-green, and blue components, combines them according to the interpolation 
-value n, and then merges the result back into a single return color value.
+
+For each pixel to be drawn, this routine is passed two color parameters x 
+and y, decomposes them into their red, green and blue components, combines 
+them according to some mathematical transformation involving the 
+interpolation factor n, and then merges the result back into a single 
+return color value, which will be used to draw the pixel onto 
+the destination bitmap.
+
+The parameter x represents the blending modifier color and the parameter y 
+represents the base color to be modified. The interpolation factor n is in 
+the range [0-255] and controls the solidity of the blending.
+
+When a translucent drawing function is used, x is the color of the source, 
+y is the color of the bitmap begin drawn onto and n is the alpha level   
+that was passed to the function that sets the blending mode (the RGB triplet 
+that was passed to this function is not taken into account).
+
+When a lit sprite drawing function is used, x is the color represented by 
+the RGB triplet that was passed to the function that sets the blending mode 
+(the alpha level that was passed to this function is not taken into 
+account), y is the color of the sprite and n is the alpha level that was 
+passed to the drawing function itself.
 
 Since these routines may be used from various different color depths, there 
 are three such callbacks, one for use with 15 bit 5.5.5 pixels, one for 16 
@@ -4541,16 +4638,8 @@ between the 24 and 32 bit code since the bit packing is the same).
 @xref set_difference_blender, set_dissolve_blender, set_dodge_blender
 @xref set_hue_blender, set_invert_blender, set_luminance_blender
 @xref set_multiply_blender, set_saturation_blender, set_screen_blender
-   Selects the default set of truecolor blender routines, which perform a 
-   simple linear interpolation between the source and destination colors. 
-   When a translucent drawing function is called, the alpha parameter set by 
-   this routine is used as the interpolation factor, which controls the 
-   solidity of the drawing (range 0 to 255). When a lit sprite drawing 
-   function is called, the alpha value passed to this routine is ignored, 
-   and instead the color passed to the sprite function is used to select an 
-   alpha level. The blender routine will then be used to interpolate between 
-   the sprite color and the RGB values that were passed to this function 
-   (ranging 0-255).
+   Enables a linear interpolator blender mode for combining translucent 
+   or lit truecolor pixels.
 
 @@void @set_alpha_blender();
 @xref set_trans_blender, draw_trans_sprite, draw_trans_rle_sprite,
@@ -4578,77 +4667,77 @@ between the 24 and 32 bit code since the bit packing is the same).
 
 @@void @set_add_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables an additive color blender mode for combining lit or translucent 
+   Enables an additive blender mode for combining translucent or lit 
    truecolor pixels.
 
 @@void @set_burn_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a burn blender mode for combining lit or translucent truecolor 
-   pixels. Here the lightness values of the colours of the source image
+   Enables a burn blender mode for combining translucent or lit truecolor 
+   pixels. Here the lightness values of the colours of the source image 
    reduce the lightness of the destination image, darkening the image.
 
 @@void @set_color_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a color blender mode for combining lit or translucent truecolor 
-   pixels. Applies only the hue and saturation of the source image to the
+   Enables a color blender mode for combining translucent or lit truecolor 
+   pixels. Applies only the hue and saturation of the source image to the 
    destination image. The luminance of the destination image is not affected.
 
 @@void @set_difference_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a difference blender mode for combining lit or translucent 
-   truecolor pixels. This makes an image which has colours calculated by the
+   Enables a difference blender mode for combining translucent or lit 
+   truecolor pixels. This makes an image which has colours calculated by the 
    difference between the source and destination colours.
 
 @@void @set_dissolve_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a dissolve blender mode for combining lit or translucent 
-   truecolor pixels. Randomly replaces the colours of some pixels in the
-   destination image with those of the source image. The number of pixels
-   replaced depends on the alpha value (higher value, more pixels replaced;
+   Enables a dissolve blender mode for combining translucent or lit 
+   truecolor pixels. Randomly replaces the colours of some pixels in the 
+   destination image with those of the source image. The number of pixels 
+   replaced depends on the alpha value (higher value, more pixels replaced; 
    you get the idea :).
 
 @@void @set_dodge_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a dodge blender mode for combining lit or translucent truecolor 
-   pixels. The lightness of colours in the source lighten the colours of the
+   Enables a dodge blender mode for combining translucent or lit truecolor 
+   pixels. The lightness of colours in the source lighten the colours of the 
    destination. White has the most effect; black has none.
 
 @@void @set_hue_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a hue blender mode for combining lit or translucent truecolor 
+   Enables a hue blender mode for combining translucent or lit truecolor 
    pixels. This applies the hue of the source to the destination.
 
 @@void @set_invert_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables an invert blender mode for combining lit or translucent truecolor 
-   pixels. Blends the inverse (or negative) colour of the source with the
+   Enables an invert blender mode for combining translucent or lit truecolor 
+   pixels. Blends the inverse (or negative) colour of the source with the 
    destination.
 
 @@void @set_luminance_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a luminance blender mode for combining lit or translucent 
+   Enables a luminance blender mode for combining translucent or lit 
    truecolor pixels. Applies the luminance of the source to the destination.
    The colour of the destination is not affected.
 
 @@void @set_multiply_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a multiply blender mode for combining lit or translucent 
-   truecolor pixels. Combines the source and destination images, multiplying
-   the colours to produce a darker colour. If a colour is multiplied by
-   white it remains unchanged; when multiplied by black it also becomes
+   Enables a multiply blender mode for combining translucent or lit 
+   truecolor pixels. Combines the source and destination images, multiplying 
+   the colours to produce a darker colour. If a colour is multiplied by 
+   white it remains unchanged; when multiplied by black it also becomes 
    black.
 
 @@void @set_saturation_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a saturation blender mode for combining lit or translucent 
-   truecolor pixels. Applies the saturation of the source to the destination
+   Enables a saturation blender mode for combining translucent or lit 
+   truecolor pixels. Applies the saturation of the source to the destination 
    image.
 
 @@void @set_screen_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a screen blender mode for combining lit or translucent truecolor 
-   pixels. This blender mode lightens the colour of the destination image by
-   multiplying the inverse of the source and destination colours. Sort of
+   Enables a screen blender mode for combining translucent or lit truecolor 
+   pixels. This blender mode lightens the colour of the destination image by 
+   multiplying the inverse of the source and destination colours. Sort of 
    like the opposite of the multiply blender mode.
 
 @@void @set_blender_mode(BLENDER_FUNC b15, b16, b24, int r, g, b, a);
@@ -5197,7 +5286,9 @@ Digital sample routines
    is relative rather than absolute: 1000 represents the frequency that the 
    sample was recorded at, 2000 is twice this, etc. If the loop flag is set, 
    the sample will repeat until you call stop_sample(), and can be 
-   manipulated while it is playing by calling adjust_sample().
+   manipulated while it is playing by calling adjust_sample(). Returns the
+   voice number that was allocated for the sample (a non-negative number if
+   successful).
 
 @@void @adjust_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref play_sample
@@ -5454,10 +5545,11 @@ MIDI music routines
    Seeks to the given midi_pos in the current MIDI file. If the target is 
    earlier in the file than the current midi_pos it seeks from the 
    beginning; otherwise it seeks from the current position. Returns zero if 
-   successful, non-zero if it hit the end of the file (1 means it stopped 
-   playing, 2 means it looped back to the start). If this function stops 
-   because it reached EOF, midi_pos will be set to the negative length of 
-   the MIDI file.
+   it could successfully seek to the requested position. Otherwise, a
+   return value of 1 means it stopped playing, and midi_pos is set to the
+   negative length of the MIDI file (so you can use this function to
+   determine the length of a MIDI file). A return value of 2 means the MIDI
+   file looped back to the start.
 
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
@@ -5511,7 +5603,7 @@ MIDI music routines
    call this before or after initialising the sound code, or can simply set 
    the ibk_file and ibk_drum_file variables in the configuration file to 
    have the data loaded automatically. Note that this function has no effect 
-   on any drivers other than the Adlib one!
+   on any drivers other than the Adlib one! Returns non-zero on error.
 
 
 
@@ -5527,15 +5619,18 @@ doing something clever like generating the waveform on the fly.
 @xref install_sound, get_audio_stream_buffer, stop_audio_stream
    This function creates a new audio stream and starts it playing. The 
    length is the size of each transfer buffer (in samples), which should 
-   normally be a power of two somewhere around 1k in size: larger buffers 
-   are more efficient and require fewer updates, but result in more latency 
-   between you providing the data and it actually being played. The bits 
-   parameter must be 8 or 16, freq is the sample rate of the data, and the 
-   vol and pan values use the same 0-255 ranges as the regular sample 
-   playing functions. If you want to adjust the pitch, volume, or panning of 
-   a stream once it is playing, you can use the regular voice_*() functions 
-   with stream->voice as a parameter. The sample data is always in unsigned 
-   format, with stereo waveforms consisting of alternate left/right samples.
+   normally (but doesn't have to) be a power of two somewhere around 1k in
+   size. Larger buffers are more efficient and require fewer updates, but
+   result in more latency between you providing the data and it actually
+   being played. The bits parameter must be 8 or 16, freq is the sample
+   rate of the data in Hertz. The vol and pan values use the same 0-255
+   ranges as the regular sample playing functions. The stereo parameter
+   should be set to 1 for stereo streams, or 0 otherwise. If you want to
+   adjust the pitch, volume, or panning of a stream once it is playing,
+   you can use the regular voice_*() functions with stream-&gtvoice as a
+   parameter. The sample data is always in unsigned format, with stereo
+   waveforms consisting of alternating left/right samples, left sample
+   first.
 
 @@void @stop_audio_stream(AUDIOSTREAM *stream);
 @xref play_audio_stream
@@ -5773,7 +5868,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    error code will be stored in errno.
 
 @@int @exists(const char *filename);
-@xref file_exists
+@xref file_exists, file_size, file_time
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
@@ -5787,7 +5882,8 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@time_t @file_time(const char *filename);
 @xref file_exists, file_size
    Returns the modification time (number of seconds since 00:00:00 GMT 
-   1/1/1970) of a file.
+   1/1/1970) of a file. If the file does not exist or an error occurs, it 
+   will return zero and store the system error code in errno.
 
 @@int @delete_file(const char *filename);
    Removes a file from the disk.
@@ -5853,18 +5949,32 @@ directories, but not hidden files and directories. Similarly, if you pass
 @xref pack_fopen, load_datafile
    Sets the encryption password to be used for all read/write operations
    on files opened in future using Allegro's packfile functions (whether
-   they are compressed or not). Files written with an encryption password
-   cannot be read unless the same password is selected, so be careful: if
-   you forget the key, I can't make your data come back again! Pass NULL
-   or an empty string to return to the normal, non-encrypted mode. If you
-   are using this function to prevent people getting access to your
-   datafiles, be careful not to store an obvious copy of the password in
-   your executable: if there are any strings like "I'm the password for
-   the datafile", it would be fairly easy to get access to your data :-)
+   they are compressed or not), including all the save, load and config
+   routines. Files written with an encryption password cannot be read
+   unless the same password is selected, so be careful: if you forget the
+   key, I can't make your data come back again! Pass NULL or an empty
+   string to return to the normal, non-encrypted mode. If you are using
+   this function to prevent people getting access to your datafiles, be
+   careful not to store an obvious copy of the password in your executable:
+   if there are any strings like "I'm the password for the datafile", it
+   would be fairly easy to get access to your data :-)
 
-   Important: as soon as you have opened a file using an encryption
-   password, call packfile_password(NULL) again. Better still, don't touch
-   this function at all. Ever.
+   Note #1: when writing a packfile, you can change the password to whatever
+   you want after opening the file, without affecting the write operation.
+   On the contrary, when writing a sub-chunk of a packfile, you must make
+   sure that the password that was active at the time the sub-chunk was
+   opened is still active before closing the sub-chunk. This is guaranteed
+   to be true if you didn't call the packfile_password() routine in the
+   meantime. Read operations, either on packfiles or sub-chunks, have no
+   such restriction.
+
+   Note #2: as explained above, the password is used for all read/write
+   operations on files, including for several functions of the library that
+   operate on files without explicitly using packfiles, e.g load_bitmap().
+   The unencrypted mode is mandatory in order for those functions to work.
+   Therefore remember to call packfile_password(NULL) before using them if
+   you previously changed the password. As a rule of thumb, always call
+   packfile_password(NULL) when you are done with operations on packfiles.
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref packfile functions, pack_fopen_chunk, packfile_password
@@ -5945,16 +6055,36 @@ directories, but not hidden files and directories. Similarly, if you pass
 @!rtf
 
 @rtf
-   These work like the equivalent stdio functions, except that pack_fread() 
-   and pack_fwrite() take a single size parameter instead of that silly size 
-   and num_elements system, seeking only supports forward movement relative 
-   to the current position, and the pack_fgets() function does not include a 
-   trailing carriage return in the returned string. The pack_i* and pack_m* 
-   routines read and write 16 and 32 bit values using the Intel and Motorola 
-   byte ordering systems (endianness) respectively. Note that seeking is 
-   very slow when reading compressed files, and so should be avoided unless 
-   you are sure that the file is not compressed.
-
+   These work like the equivalent stdio functions. There are some
+   differences, however:
+<ul><li>
+   Seeking only supports forward movement relative to the current position.
+   Note that seeking is very slow when reading compressed files, and so
+   should be avoided unless you are sure that the file is not compressed.
+<li>
+   The pack_i* and pack_m* routines read and write 16 and 32 bit values using
+   the Intel and Motorola byte ordering systems (endianness) respectively.
+   Intel is least significant byte first (little-endian); Motorola is most
+   significant byte first (big-endian).
+<li>
+   pack_fread() and pack_fwrite() take a single size parameter instead of
+   that silly size and num_elements system.
+<li>
+   The pack_fgets() function does not include a trailing carriage return in
+   the returned string.
+<li>
+   pack_fputs() always writes in the UTF-8 text encoding format, converting
+   from the current text encoding. Newlines (\n) are written as \r\n on
+   DOS/Windows. If you do not want either of these things to happen,
+   use pack_fwrite() and/or pack_putc() instead.
+<li>
+   pack_feof() returns nonzero as soon as you reach the end of the file. It 
+   does not wait for you to attempt to read beyond the end of the file,
+   contrary to the ISO C feof() function. The only way to know whether you
+   have read beyond the end of the file is to check the return value of the
+   read operation you use (and be wary of pack_*getl() as EOF is also a valid
+   return value with these functions).
+</ul>
 @@PACKFILE *@pack_fopen_chunk(PACKFILE *f, int pack);
 @xref pack_fclose_chunk, pack_fopen
    Opens a sub-chunk of a file. Chunks are primarily intended for use by the 
@@ -6052,13 +6182,13 @@ directly from a specific datafile object.
 @xref load_datafile_object
    Frees an object previously loaded by load_datafile_object().
 
-@@DATAFILE *@find_datafile_object(DATAFILE *dat, const char *objectname);
+@@DATAFILE *@find_datafile_object(const DATAFILE *dat, const char *objectname);
 @xref load_datafile, load_datafile_object
    Searches an already loaded datafile for an object with the specified 
    name, returning a pointer to it, or NULL if the object cannot be found. 
    It understands '/' and '#' separators for nested datafile paths.
 
-@@char *@get_datafile_property(DATAFILE *dat, int type);
+@@const char *@get_datafile_property(const DATAFILE *dat, int type);
    Returns the specified property string for the object, or an empty string 
    if the property isn't present. See grabber.txt for more information.
 
@@ -6070,13 +6200,16 @@ directly from a specific datafile object.
 
 @@void @fixup_datafile(DATAFILE *data);
 @xref set_gfx_mode, set_color_conversion
-   If you are using compiled datafiles (produced by the dat2s utility) that 
-   contain truecolor images, you must call this function once after your set 
-   the video mode that you will be using, to convert the color values into 
-   the appropriate format. It handles flipping between RGB and BGR formats, 
-   and converting between different color depths whenever that can be done 
-   without changing the size of the image (ie. changing between 15&lt-&gt16 
-   bit hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32 bit 
+   If you are using compiled datafiles (produced by the dat2s utility) on a
+   platform that doesn't support constructors, or on a platform that does
+   support constructors and the datafiles contain truecolor images, you
+   must call this function once after your set the video mode that you will
+   be using. This will ensure the datafiles are properly initialised in the
+   first case and convert the color values into the appropriate format in
+   the second case. It handles flipping between RGB and BGR formats, and
+   converting between different color depths whenever that can be done
+   without changing the size of the image (ie. changing between 15&lt-&gt16
+   bit hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32 bit
    truecolor for RLE sprites).
 
 @hnode using datafiles
@@ -6166,11 +6299,11 @@ integer' is not.
    Returns the smallest integer not less than x. That is, it rounds towards
    positive infinity.
 
-@@fixed @ftofix(float x);
+@@fixed @ftofix(double x);
 @xref fixtof, itofix, fixtoi
    Converts a floating point value to fixed point.
 
-@@float @fixtof(fixed x);
+@@double @fixtof(fixed x);
 @xref ftofix, itofix, fixtoi
    Converts fixed point to floating point.
 
@@ -6861,8 +6994,8 @@ changes are the following:
    and d_rtext_proc() right aligns it. Any '&' characters in the string will 
    be replaced with lines underneath the following character, for displaying 
    keyboard shortcuts (as in MS Windows). To display a single ampersand, put 
-   "&&". To use draw the text in something other than the default font, set 
-   the dp2 field to point to your custom font data.
+   "&&". To draw the text in something other than the default font, set the 
+   dp2 field to point to your custom font data.
 
 @@int @d_button_proc(int msg, DIALOG *d, int c);
    A button object (the dp field points to the text string). This object can 
@@ -6968,7 +7101,8 @@ changes are the following:
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
    in particular the color is taken from the gui_*_color variables, and the 
-   width and height are calculated automatically. The dp field points to an 
+   width and height are calculated automatically (the w and h fields from 
+   the DIALOG are only used as a minimum size.) The dp field points to an 
    array of menu structures: see do_menu() for more information. The top 
    level menu will be displayed as a horizontal bar, but when child menus 
    drop down from it they will be in the normal vertical format used by 
@@ -7141,7 +7275,7 @@ Popup or pulldown menus are created as an array of the structures:
 typedef struct MENU
 {
    char *text;                   - the text to display for the menu item
-   int (*proc)();                - called when the menu item is clicked
+   int (*proc)(void);            - called when the menu item is clicked
    struct MENU *child;           - nested child menu
    int flags;                    - disabled or checked state
    void *dp;                     - pointer to any data you need
@@ -7274,7 +7408,7 @@ ensure there is room for the check.
 @heading
 DOS specifics
 
-@@Drivers: @JOY_TYPE_*/DOS
+@@Drivers @JOY_TYPE_*/DOS
 @xref install_joystick
    The DOS library supports the following type parameters for the 
    install_joystick() function:
@@ -7359,7 +7493,7 @@ DOS specifics
       The Sony Dual Shock or Namco Jogcon will reset themselves (to digital 
       mode) after not being polled for 5 seconds. This is normal, the same 
       thing happens on a Playstation, it's designed to stop any vibration in 
-      case the host machine crashes. other mode switching controllers may 
+      case the host machine crashes. Other mode switching controllers may 
       have similar quirks. However, if this happens to a Jogcon controller 
       the mode button is disabled. To reenable the mode button on the Jogcon 
       you need to hold down the Start and Select buttons at the same time.
@@ -7414,7 +7548,7 @@ DOS specifics
       Drivers for the IF-SEGA joystick interface cards by the IO-DATA 
       company (these come in PCI, PCI2, and ISA variants).
 </ul>
-@@Drivers: @GFX_*/DOS
+@@Drivers @GFX_*/DOS
 @xref set_gfx_mode
    The DOS library supports the following card parameters for the 
    set_gfx_mode() function:
@@ -7559,7 +7693,7 @@ DOS specifics
       normal VESA 640x400 mode will be chosen instead), so if you want to 
       use it you will have to explicitly pass GFX_XTENDED to set_gfx_mode().
 </ul>
-@@Drivers: @DIGI_*/DOS
+@@Drivers @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
    The DOS sound functions support the following digital soundcards:
 <pre>
@@ -7576,7 +7710,7 @@ DOS specifics
       DIGI_SOUNDSCAPE      - Ensoniq Soundscape
       DIGI_WINSOUNDSYS     - Windows Sound System
 </pre>
-@@Drivers: @MIDI_*/DOS
+@@Drivers @MIDI_*/DOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The DOS sound functions support the following MIDI soundcards:
 <pre>
@@ -7655,8 +7789,10 @@ processing of the main() function described above.
 
 When creating the main window, Allegro searches the executable for an ICON 
 resource named "allegro_icon". If it is present, Allegro automatically 
-loads it and uses it as its application icon. Otherwise, Allegro uses the 
-default IDI_APPLICATION icon.
+loads it and uses it as its application icon; otherwise, Allegro uses the 
+default IDI_APPLICATION icon. See the manual of your compiler for a method 
+to create an ICON resource, or use the wfixicon utility from the tools/win 
+directory.
 
 DirectX requires that system and video bitmaps (including the screen) be 
 locked before you can draw onto them. This will be done automatically, but 
@@ -7675,7 +7811,7 @@ function are 8, 16, 24 and 32. This means that 15-bit and 16-bit desktops
 cannot be differentiated and are both reported as 16-bit desktops. See
 below for the consequences for windowed and overlay DirectX drivers.
 
-@@Drivers: @GFX_*/Windows
+@@Drivers @GFX_*/Windows
 @xref set_gfx_mode
    The Windows library supports the following card parameters for the 
    set_gfx_mode() function:
@@ -7734,6 +7870,8 @@ below for the consequences for windowed and overlay DirectX drivers.
       /* ok, we are in direct drawing mode */
    }
 </pre>
+      Note that, mainly for performance reasons, this driver requires the
+      width of the screen to be a multiple of 4.
 <li>
    GFX_DIRECTX_OVL<br>
       The DirectX overlay driver. It uses special hardware features to run 
@@ -7763,7 +7901,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       this driver features a hardware mouse cursor emulation in order to 
       speed up basic mouse operations (like GUI operations).
 </ul>
-@@Drivers: @DIGI_*/Windows
+@@Drivers @DIGI_*/Windows
 @xref detect_digi_driver, install_sound, install_sound_input
    The Windows sound functions support the following digital soundcards:
 <pre>
@@ -7775,7 +7913,7 @@ below for the consequences for windowed and overlay DirectX drivers.
                              Allegro mixing
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
 </pre>
-@@Drivers: @MIDI_*/Windows
+@@Drivers @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
    The Windows sound functions support the following MIDI soundcards:
 <pre>
@@ -7796,14 +7934,26 @@ you must include winalleg.h after other Allegro headers.
    unless you have installed the neutral system driver (SYSTEM_NONE).
 
 @@void @win_set_window(HWND wnd);
-   Registers an user-created window to be used by Allegro. This functions
-   must be called *before* initializing the library with allegro_init() or
-   installing the autodetected system driver (SYSTEM_AUTODETECT). It lets
-   you attach Allegro to any already existing window and prevents the
+   Registers an user-created window to be used by Allegro. This function is
+   meant to be called before initialising the library with allegro_init()
+   or installing the autodetected system driver (SYSTEM_AUTODETECT). It
+   lets you attach Allegro to any already existing window and prevents the
    library from creating its own, thus leaving you total control over the
-   window (in particular, you are responsible for processing the events).
-   You can then use every component of the library (mouse, keyboard,
-   sound, timers and so on) except the graphics subsystem.
+   window; in particular, you are responsible for processing the events as
+   usual (Allegro will automatically monitor a few of them, but will not
+   filter out any of them). You can then use every component of the library 
+   (mouse, keyboard, sound, timers and so on) except the graphics subsystem,
+   bearing in mind that some Allegro functions are blocking (e.g readkey()
+   if the key buffer is empty) and thus must be carefully manipulated by the
+   window thread.
+
+   However you can also call it after the library has been initialised,
+   provided that no graphics mode is set. In this case the keyboard, mouse,
+   sound and sound recording modules will be restarted.
+
+   Passing NULL instructs Allegro to switch back to its built-in window if
+   an user-created window was registered, or to request a new handle from
+   Windows for its built-in window if this was already in use.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
    Registers an user-defined procedure to be used by Allegro for creating
@@ -7927,7 +8077,7 @@ END_OF_MAIN() right after your main() function. Pretty easy, really, and if
 you forget, you'll get a nice linker error about a missing _mangled_main 
 function to remind you :-)
 
-@@Drivers: @GFX_*/Linux
+@@Drivers @GFX_*/Linux
 @xref set_gfx_mode, GFX_*/X
    When running in Linux console mode, Allegro supports the following card 
    parameters for the set_gfx_mode() function:
@@ -7952,7 +8102,7 @@ function to remind you :-)
       set_gfx_mode() documentation for details.
 <li>
    GFX_FBCON<br>
-      Use the framebuffer device (eg. dev/fb0). This requires you to have 
+      Use the framebuffer device (eg. /dev/fb0). This requires you to have 
       framebuffer support compiled into your kernel, and correctly 
       configured for your hardware. It is currently the only console mode 
       driver that will work without root permissions, unless you are using
@@ -7975,7 +8125,7 @@ function to remind you :-)
       supporting the same modes as in the DOS versions of these drivers. 
       Requires root permissions.
 </ul>
-@@Drivers: @GFX_*/X
+@@Drivers @GFX_*/X
 @xref set_gfx_mode, GFX_*/Linux
    When running in X mode, Allegro supports the following card parameters 
    for the set_gfx_mode() function:
@@ -8028,7 +8178,7 @@ function to remind you :-)
       The same as GFX_XDGA2, but turns off hardware acceleration support.
       This driver requires root permissions.
 </ul>
-@@Drivers: @DIGI_*/Unix
+@@Drivers @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input
    The Unix sound functions support the following digital soundcards:
 <pre>
@@ -8036,9 +8186,10 @@ function to remind you :-)
       DIGI_NONE            - no digital sound
       DIGI_OSS             - Open Sound System
       DIGI_ESD             - Enlightened Sound Daemon
+      DIGI_ARTS            - aRts (Analog Real-Time Synthesizer)
       DIGI_ALSA            - ALSA sound driver
 </pre>
-@@Drivers: @MIDI_*/Unix
+@@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
    The Unix sound functions support the following MIDI soundcards:
 <pre>
@@ -8054,7 +8205,7 @@ function to remind you :-)
 @heading
 BeOS specifics
 
-@@Drivers: @GFX_*/BeOS
+@@Drivers @GFX_*/BeOS
 @xref set_gfx_mode
    BeOS Allegro supports the following card parameters for the
    set_gfx_mode() function:
@@ -8088,7 +8239,7 @@ BeOS specifics
       Fast windowed mode using the BDirectWindow class. Not all graphics
       cards support this.
 </ul>
-@@Drivers: @DIGI_*/BeOS
+@@Drivers @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following digital soundcards:
 <pre>
@@ -8096,7 +8247,7 @@ BeOS specifics
       DIGI_NONE            - no digital sound
       DIGI_BEOS            - BeOS digital output
 </pre>
-@@Drivers: @MIDI_*/BeOS
+@@Drivers @MIDI_*/BeOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following MIDI soundcards:
 <pre>
@@ -8111,7 +8262,7 @@ BeOS specifics
 @heading
 QNX specifics
 
-@@Drivers: @GFX_*/QNX
+@@Drivers @GFX_*/QNX
 @xref set_gfx_mode
    QNX Allegro supports the following card parameters for the
    set_gfx_mode() function:
@@ -8138,9 +8289,11 @@ QNX specifics
       Fullscreen exclusive mode through Photon.
 <li>
    GFX_PHOTON<br>
-      Windowed mode in a Photon window.
+      Windowed mode in a Photon window. Note that, mainly for performance
+      reasons, this driver requires the width of the screen to be a multiple
+      of 4.
 </ul>
-@@Drivers: @DIGI_*/QNX
+@@Drivers @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input
    The QNX sound functions support the following digital soundcards:
 <pre>
@@ -8148,7 +8301,7 @@ QNX specifics
       DIGI_NONE            - no digital sound
       DIGI_ALSA            - ALSA sound driver
 </pre>
-@@Drivers: @MIDI_*/QNX
+@@Drivers @MIDI_*/QNX
 @xref detect_midi_driver, install_sound, install_sound_input
    The QNX sound functions support the following MIDI soundcards:
 <pre>
@@ -8177,14 +8330,14 @@ code from one platform to another (you can find a more detailed version of
 this in the docs section of the Allegro website).
 
 The Windows and Unix versions require you to write END_OF_MAIN() after your 
-main() function, which is used to magically turn an ANSI C style main() into 
-a Windows style WinMain(), and so that the Unix code can grab a copy of your 
-argv[] parameter.
+main() function, which is used to magically turn an ANSI C style main() 
+into a Windows style WinMain(), and so that the Unix code can grab a copy 
+of your argv[] parameter.
 
-On many platforms Allegro runs very slowly if you rely on it to
-automatically lock bitmaps when drawing onto them. For good performance, you
-need to call acquire_bitmap() and release_bitmap() yourself, and try to keep
-the amount of locking to a minimum.
+On many platforms Allegro runs very slowly if you rely on it in order to 
+automatically lock bitmaps when drawing onto them. For good performance, 
+you need to call acquire_bitmap() and release_bitmap() yourself, and try 
+to keep the amount of locking to a minimum.
 
 The Windows version may lose the contents of video memory if the user 
 switches away from your program, so you need to deal with that.
@@ -8195,8 +8348,7 @@ portability of your program, you should call poll_mouse() and
 poll_keyboard() in all the relevant places.
 
 Allegro defines a number of standard macros that can be used to check 
-various attributes of the current platform, or to insulate you from some of 
-the differences between systems:
+various attributes of the current platform:
 
 <b>ALLEGRO_PLATFORM_STR</b><br>
    Text string containing the name of the current platform.
@@ -8233,23 +8385,17 @@ the differences between systems:
    graphics mode. If this define is absent, you are running in an 
    environment like Windows that has no stdout at all.
 
+<b>ALLEGRO_MAGIC_MAIN</b><br>
+   Defined if Allegro uses a magic main, i.e takes over the main() entry 
+   point and turns it into a secondary entry point suited to its needs.
+
 <b>ALLEGRO_LFN</b><br>
    Non-zero if long filenames are supported, or zero if you are limited to 
    8.3 format (in the djgpp version, this is a variable depending on the 
    runtime environment).
 
-<b>INLINE</b><br>
-   Use this in place of the regular "inline" function modifier keyword, and 
-   your code will work correctly on any of the supported compilers.
-
-<b>ZERO_SIZE</b><br>
-   Use this to declare zero sized arrays, eg. the "char *line[ZERO_SIZE]" in 
-   the BITMAP structure. Some compilers want an actual zero there, while 
-   others want nothing between the [], so this macro enables the same code 
-   to work either way.
-
 <b>LONG_LONG</b><br>
-   Defined to whatever represents a 64 bit "long long" integer for the 
+   Defined to whatever represents a 64-bit "long long" integer for the 
    current compiler, or not defined if that isn't supported.
 
 <b>OTHER_PATH_SEPARATOR</b><br>
@@ -8259,17 +8405,24 @@ the differences between systems:
 
 <b>DEVICE_SEPARATOR</b><br>
    Defined to the filename device separator character (a colon for DOS and 
-   Windows), or to zero if there are no explicit devices in paths (eg. Unix).
+   Windows), or to zero if there are no explicit devices in paths (Unix).
+
+Allegro also defines a number of standard macros that can be used to 
+insulate you from some of the differences between systems:
 
 <b>USE_CONSOLE</b><br>
-   If you define this prior to including Allegro headers, the Windows version
-   will be set up for building a console application rather than the normal
-   GUI program.
+   If you define this prior to including Allegro headers, Allegro will be 
+   set up for building a console application rather than the default GUI 
+   program on some platforms (especially Windows).
 
-<b>END_OF_MAIN()</b><br>
-   Putting this after your main() function will enable Windows programs to 
-   work with a regular main() routine, so you don't need to change 
-   everything to use WinMain().
+<b>INLINE</b><br>
+   Use this in place of the regular "inline" function modifier keyword, and 
+   your code will work correctly on any of the supported compilers.
+
+<b>ZERO_SIZE_ARRAY(type, name)</b><br>
+   Use this to declare zero-sized arrays in terminal position inside 
+   structures, like in the BITMAP structure. These arrays are effectively 
+   equivalent to the flexible array members of ISO C99.
 
 
 
@@ -8452,7 +8605,7 @@ will make debugging much easier, and includes assert tests that will help to
 locate errors in your code at an earlier stage. Allegro also contains some 
 debugging helper functions:
 
-@@void @al_assert(char *file, int line);
+@@void @al_assert(const char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
    Raises an assert for an error at the specified file and line number. The 
    file parameter is always given in ASCII format. If you have installed a 
@@ -8462,7 +8615,7 @@ debugging helper functions:
    will usually want to use the ASSERT() macro instead of calling this 
    function directly.
 
-@@void @al_trace(char *msg, ...);
+@@void @al_trace(const char *msg, ...);
 @xref TRACE, al_assert, register_trace_handler
    Outputs a debugging trace message, using a printf() format string given 
    in ASCII. If you have installed a custom trace handler it uses that, or 
@@ -8483,7 +8636,7 @@ debugging helper functions:
    defined the preprocessor symbol DEBUGMODE before including Allegro headers,
    it passes the supplied message given in ASCII format to al_trace().
 
-@@void @register_assert_handler(int (*handler)(char *msg));
+@@void @register_assert_handler(int (*handler)(const char *msg));
 @xref al_assert, ASSERT, register_trace_handler
    Supplies a custom handler function for dealing with assert failures. Your 
    callback will be passed a formatted error message in ASCII, and should 
@@ -8492,7 +8645,7 @@ debugging helper functions:
    display the error messages on a graphics mode screen without aborting the 
    program.
 
-@@void @register_trace_handler(int (*handler)(char *msg));
+@@void @register_trace_handler(int (*handler)(const char *msg));
 @xref al_trace, TRACE, register_assert_handler
    Supplies a custom handler function for dealing with trace output. Your 
    callback will be passed a formatted error message in ASCII, and should 
@@ -8512,6 +8665,10 @@ platforms you can set the environment variables:
 <ul><li>
    DEBUGMODE=1<br>
    Selects a debug build, rather than the normal optimised version.
+<li>
+   DEBUGMODE=2<br>
+   Selects a build intended to debug Allegro itself, rather than the
+   normal optimised version.
 <li>
    PROFILEMODE=1<br>
    Selects a profiling build, rather than the normal optimised version.
@@ -8578,8 +8735,6 @@ makefiles also provide some special pseudo-targets:
 <li>
    'uninstall'<br>
    Removes the Allegro library and headers from your compiler directories. 
-   This requires a Unix-style 'rm' utility to be available, eg. from the GNU 
-   fileutils package.
 <li>
    'docs'<br>
    Converts the documentation files from the ._tx sources.
@@ -8608,14 +8763,12 @@ makefiles also provide some special pseudo-targets:
    Removes generated object and library files, either to recover disk space 
    or to force a complete rebuild the next time you run make. This target is 
    designed so that if you run a "make install" followed by "make clean", 
-   you will still have a functional version of Allegro. This requires a 
-   Unix-style 'rm' utility to be available, eg. from the GNU fileutils 
-   package.
+   you will still have a functional version of Allegro.
 <li>
    'distclean'<br>
    Like "make clean", but more so. This removes all the executable files and 
-   HTML format documentation, leaving you with only the same files that are 
-   included when you unzip a new Allegro distribution.
+   the documentation, leaving you with only the same files that are included
+   when you unzip a new Allegro distribution.
 <li>
    'veryclean'<br>
    Use with extreme caution! This target deletes absolutely all generated 

@@ -61,7 +61,7 @@ static unsigned char *input_wave_data = NULL;
 #ifdef DEBUGMODE
 static char *ds_err(long err)
 {
-   static char err_str[32];
+   static char err_str[64];
 
    switch (err) {
 

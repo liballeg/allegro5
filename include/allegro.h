@@ -9,9 +9,11 @@
  *                                           \_/__/
  *
  *      Main header file for the entire Allegro library.
- *      Separate modules can be included from the allegro/ directory.
+ *      (separate modules can be included from the allegro/ directory)
  *
  *      By Shawn Hargreaves.
+ *
+ *      Vincent Penquerc'h split the original allegro.h into separate headers.
  *
  *      See readme.txt for copyright information.
  */

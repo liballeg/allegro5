@@ -53,13 +53,13 @@
 
 
 /* driver functions */
-static int n64_init();
-static void n64p1_exit(); 
-static void n64p2_exit(); 
-static void n64p3_exit(); 
-static int n64p1_poll();
-static int n64p2_poll();
-static int n64p3_poll();
+static int n64_init(void);
+static void n64p1_exit(void); 
+static void n64p2_exit(void); 
+static void n64p3_exit(void); 
+static int n64p1_poll(void);
+static int n64p2_poll(void);
+static int n64p3_poll(void);
 static int n64_detect(int base, int joynum);
 
 
@@ -112,7 +112,7 @@ JOYSTICK_DRIVER joystick_n643 =
 /* n64_init:
  *  Initialiases the N64 joypad driver.
  */
-static int n64_init()
+static int n64_init(void)
 {
    int i;
 
@@ -157,7 +157,7 @@ static int n64_init()
 /* n64p1_exit:
  *  Shuts down the driver.
  */
-static void n64p1_exit()
+static void n64p1_exit(void)
 {
    outportb(LPT1_BASE, 0x00);
 }
@@ -167,7 +167,7 @@ static void n64p1_exit()
 /* n64p2_exit:
  *  Shuts down the driver.
  */
-static void n64p2_exit()
+static void n64p2_exit(void)
 {
    outportb(LPT2_BASE, 0x00);
 }
@@ -177,7 +177,7 @@ static void n64p2_exit()
 /* n64p3_exit:
  *  Shuts down the driver.
  */
-static void n64p3_exit()
+static void n64p3_exit(void)
 {
    outportb(LPT3_BASE, 0x00);
 }
@@ -333,7 +333,7 @@ static int n64_poll(int base, int joynum)
 /* n64p1_poll:
  *  Input polling function.
  */
-static int n64p1_poll()
+static int n64p1_poll(void)
 {
    int joynum;
 
@@ -348,7 +348,7 @@ static int n64p1_poll()
 /* n64p2_poll:
  *  Input polling function.
  */
-static int n64p2_poll()
+static int n64p2_poll(void)
 {
    int joynum;
 
@@ -363,7 +363,7 @@ static int n64p2_poll()
 /* n64p3_poll:
  *  Input polling function.
  */
-static int n64p3_poll()
+static int n64p3_poll(void)
 {
    int joynum;
 

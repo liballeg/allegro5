@@ -130,7 +130,7 @@ static INLINE void set_timer_rate(long time)
 /* read_timer:
  *  Reads the elapsed time from PIT channel 1.
  */
-static INLINE long read_timer()
+static INLINE long read_timer(void)
 {
    long x;
 
@@ -146,7 +146,7 @@ static INLINE long read_timer()
 /* fixed_timer_handler:
  *  Interrupt handler for the fixed-rate timer driver.
  */
-static int fixed_timer_handler()
+static int fixed_timer_handler(void)
 {
    int bios;
 
@@ -224,7 +224,7 @@ void fixed_timer_exit()
 /* var_timer_handler:
  *  Interrupt handler for the variable-rate timer driver.
  */
-static int var_timer_handler()
+static int var_timer_handler(void)
 {
    long new_delay = 0x8000;
    int callback[MAX_TIMERS];
@@ -358,7 +358,7 @@ END_OF_STATIC_FUNCTION(var_timer_handler);
 /* var_timer_can_simulate_retrace:
  *  Checks whether it is cool to enable retrace syncing at the moment.
  */
-int var_timer_can_simulate_retrace()
+int var_timer_can_simulate_retrace(void)
 {
    return ((gfx_driver) && ((gfx_driver->id == GFX_VGA) || 
 			    (gfx_driver->id == GFX_MODEX)));
@@ -370,7 +370,7 @@ int var_timer_can_simulate_retrace()
  *  Times several vertical retraces, and calibrates the retrace syncing
  *  code accordingly.
  */
-static void timer_calibrate_retrace()
+static void timer_calibrate_retrace(void)
 {
    int ot = _timer_use_retrace;
    int c;

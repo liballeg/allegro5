@@ -85,8 +85,8 @@ static WIN_GFX_DRIVER win_gfx_driver_overlay =
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE2 overlay_surface = NULL;
+static BITMAP *viewport = NULL, *background = NULL;
 static BOOL overlay_visible = FALSE;
-static HBRUSH original_brush, overlay_brush;
 
 
 
@@ -116,6 +116,11 @@ static int update_overlay(int x, int y, int w, int h)
 {
    HRESULT hr;
    RECT dest_rect = {x, y, x + w, y + h};
+
+   /* paint the window background with the overlay color key */
+   background->x_ofs = x + viewport->x_ofs;
+   background->y_ofs = y + viewport->y_ofs;
+   clear_to_color(background, background->vtable->mask_color);
 
    /* show the overlay surface */
    hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
@@ -287,7 +292,6 @@ static int create_overlay(int w, int h, int color_depth)
  */
 static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color_depth)
 {
-   RECT win_size;
    HRESULT hr;
    DDCOLORKEY key;
 
@@ -315,37 +319,14 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (finalize_directx_init() != 0)
       goto Error;
   
-   /* adjust window */
-   win_size.left = wnd_x = 32;
-   win_size.right = wnd_x + w;
-   win_size.top = wnd_y = 32;
-   win_size.bottom = wnd_y + h;
-   wnd_width = w;
-   wnd_height = h;
-
-   /* paint window background with overlay color key */
-   original_brush = (HBRUSH) GetClassLong(allegro_wnd, GCL_HBRBACKGROUND);
-   overlay_brush = CreateSolidBrush(MASK_COLOR_32);
-   SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) overlay_brush);
-
-   /* retrieve the size of the decorated window */
-   AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
-
-   /* display the window */
-   MoveWindow(allegro_wnd, win_size.left, win_size.top,
-              win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
-
-   /* check that the actual window size is the one requested */
-   GetClientRect(allegro_wnd, &win_size);
-   if ( ((win_size.right - win_size.left) != w) || 
-        ((win_size.bottom - win_size.top) != h) ) {
+   if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
    }
 
    /* create surfaces */
-   if (create_primary() != 0)
+   if (create_primary(FALSE) != 0)
       goto Error;
 
    if (create_overlay(w, h, color_depth) != 0)
@@ -394,6 +375,8 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    dd_frontbuffer = make_directx_bitmap(overlay_surface, w, h, BMP_ID_VIDEO);
+   viewport = make_directx_bitmap(dd_prim_surface, w, h, BMP_ID_VIDEO);
+   background = create_sub_bitmap(viewport, 0, 0, w, h);
 
    /* display the overlay surface */
    key.dwColorSpaceLowValue = dd_frontbuffer->vtable->mask_color;
@@ -444,19 +427,26 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
 {
    _enter_gfx_critical();
 
-   if (bmp)
+   if (bmp) {
+      save_window_pos();
       clear_bitmap(bmp);
+   }
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
 
-   /* destroy overlay surface */
+   /* destroy the overlay surface */
    if (overlay_surface) {
       hide_overlay();
-      SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) original_brush);
-      DeleteObject(overlay_brush);
       gfx_directx_destroy_surf(overlay_surface);
       overlay_surface = NULL;
+      destroy_bitmap(background);
+   }
+
+   /* destroy the viewport */
+   if (viewport) {
+      free(viewport);
+      viewport = NULL;
    }
 
    /* unregister bitmap */

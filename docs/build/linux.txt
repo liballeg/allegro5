@@ -160,10 +160,5 @@
 
 	When using the PS/2 Intellimouse protocol, it is necessary to
 	explicitly put the mouse into wheel mode, which requires Allegro
-	to have write permissions to the device. As this only has to be
-	done once (the mouse will remember its state unless you unplug
-	it), an alternative to changing device file permissions is to
-	initialise the mouse during boot up with GPM. To do this, edit
-	your init scripts and use the `-t imps2 -m /dev/psaux' options for
-	GPM. If you do not want GPM active, kill it with `gpm -k'.
+	to have write permissions to the device.
 

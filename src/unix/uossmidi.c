@@ -107,7 +107,7 @@ void seqbuf_dump()
 
 
 /* attempt to open sequencer device */
-static int seq_attempt_open()
+static int seq_attempt_open(void)
 {
    char tmp1[128], tmp2[128], tmp3[128];
    int fd;
@@ -225,7 +225,7 @@ static int oss_midi_detect(int input)
 static int oss_midi_init(int input, int voices)
 {
    char tmp1[128], tmp2[128], tmp3[128];
-   int i;
+   unsigned int i;
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));

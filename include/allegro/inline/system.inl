@@ -26,7 +26,7 @@
 #include "allegro/debug.h"
 
 
-AL_INLINE(void, set_window_title, (char *name),
+AL_INLINE(void, set_window_title, (AL_CONST char *name),
 {
    ASSERT(system_driver);
 

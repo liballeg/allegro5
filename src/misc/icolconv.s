@@ -1250,6 +1250,10 @@ FUNC (_colorconv_blit_32_to_24)
    pushl %edi
 
    /* init register values */
+   movl $0xFFFFFF, %eax               /* get RGB mask           */
+   movd %eax, %mm5                    /* low RGB mask in mm5    */
+   movd %eax, %mm6 
+   psllq $32, %mm6                    /* high RGB mask in mm6   */
 
    movl ARG1, %eax                    /* eax = src_rect         */
    movl GFXRECT_WIDTH(%eax), %ecx     /* ecx = src_rect->width  */
@@ -1287,29 +1291,37 @@ FUNC (_colorconv_blit_32_to_24)
 
       _align_
       next_block_32_to_24:
-         movq (%esi), %mm0         /* mm0 = [.RGB1][.RGB0] */
-         movq 8(%esi), %mm1        /* mm1 = [.RGB3][.RGB2] */
-         movq %mm0, %mm2
-         movq %mm1, %mm3
-         movq %mm1, %mm4
-         psllq $48, %mm3
-         psllq $40, %mm0
-         psrlq $32, %mm2
-         psrlq $40, %mm0
-         psllq $24, %mm2
-         por %mm3, %mm0
-         por %mm2, %mm0
-         psllq $8, %mm4
-         psllq $40, %mm1
-         psrlq $32, %mm4
-         psrlq $56, %mm1
-         por %mm4, %mm1
-         movq %mm0, (%edi)
-         movd %mm1, 8(%edi)
-         addl $16, %esi
+         /* i686: 14 cycles/4 pixels, i586: 11 cycles/4 pixels  */
+         movq (%esi), %mm0         /* mm0 = [ARGBARGB](1)(0)    */
          addl $12, %edi
+         movq 8(%esi), %mm2        /* mm2 = [ARGBARGB](3)(2)    */
+         addl $16, %esi
 
+         movq %mm0, %mm1           /* mm1 = [ARGBARGB](1)(0)    */
+         movq %mm2, %mm3           /* mm3 = [ARGBARGB](3)(2)    */
+         
+         pand %mm6, %mm1           /* mm1 = [.RGB....](1)       */
+         pand %mm5, %mm2           /* mm2 = [.....RGB](2)       */
+
+         psrlq $8, %mm1            /* mm1 = [..RGB...](1)       */
+         pand %mm6, %mm3           /* mm3 = [.RGB....](3)       */
+         
+         movq %mm2, %mm4           /* mm4 = [.....RGB](2)       */
+         pand %mm5, %mm0           /* mm0 = [.....RGB](0)       */
+         
+         psrlq $16, %mm2           /* mm2 = [.......R](2)       */
+         por %mm1, %mm0            /* mm0 = [..RGBRGB](1)(0)    */
+
+         psrlq $24, %mm3           /* mm3 = [....RGB.](3)       */
          decl %ecx
+
+         psllq $48, %mm4           /* mm4 = [GB......](2)       */
+         por %mm3, %mm2            /* mm2 = [....RGBR](3)(2)    */
+
+         por %mm4, %mm0            /* mm0 = [GBRGBRGB](2)(1)(0) */
+         movq %mm0, -12(%edi)
+         movd %mm2, -4(%edi)
+
          jnz next_block_32_to_24
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
@@ -1335,16 +1347,17 @@ FUNC (_colorconv_blit_32_to_24)
          shrl $1, %ecx
          jnc end_of_line_32_to_24
 
-         movq (%esi), %mm0         /* read 2 pixels */
+         /* 4 cycles/2 pixels */
+         movq (%esi), %mm0         /* mm0 = [.RGB.RGB](1)(0) */
 
-         movq %mm0, %mm1
+         movq %mm0, %mm1           /* mm1 = [.RGB.RGB](1)(0) */
 
-         psllq $40, %mm0
-         psrlq $32, %mm1
-         psrlq $40, %mm0
-         psllq $24, %mm1
+         pand %mm5, %mm0           /* mm0 = [.....RGB](0)    */
+         pand %mm6, %mm1           /* mm1 = [.RGB....](1)    */
 
-         por %mm1, %mm0
+         psrlq $8, %mm1            /* mm1 = [..RGB...](1)    */
+
+         por %mm1, %mm0            /* mm0 = [..RGBRGB](1)(0) */
 
          movd %mm0, (%edi)
          psrlq $32, %mm0
@@ -2957,6 +2970,8 @@ FUNC (_colorconv_blit_32_to_24)
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_3, LOOP_RATIO_1)
 #endif
 
+   movl $0xFFFFFF, %ebp
+
    _align_
    next_line_32_to_24_no_mmx:
       movl MYLOCAL1, %ecx
@@ -2970,27 +2985,31 @@ FUNC (_colorconv_blit_32_to_24)
 
       _align_
       /* 100% Pentium pairable loop */
-      /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
+      /* 12 cycles = 11 cycles/4 pixels + 1 cycle loop */
       next_block_32_to_24_no_mmx:
-         movl 4(%esi), %ebx     /* ebx = pixel2                    */
+         movl 4(%esi), %ebx     /* ebx = [ARGB](2)     */
          addl $12, %edi         /* 4 pixels written                */
-         movl %ebx, %ebp        /* ebp = pixel2                    */
-         movl 12(%esi), %edx    /* edx = pixel4                    */
-         shll $8, %edx          /* edx = pixel4 << 8               */
-         movl (%esi), %eax      /* eax = pixel1                    */
-         shll $24, %ebx         /* ebx = b8 pixel2 << 24           */
-         movb 10(%esi), %dl     /* edx = pixel4 | r8 pixel3        */
-         orl  %eax, %ebx        /* ebx = b8 pixel2 | pixel1        */
-         movl %ebp, %eax        /* eax = pixel2                    */
-         shrl $8, %eax          /* eax = r8g8 pixel2               */
-         movl %ebx, -12(%edi)   /* write pixel1..b8 pixel2         */
-         movl 8(%esi), %ebx     /* ebx = pixel 3                   */
-         movl %edx, -4(%edi)    /* write r8 pixel3..pixel4         */
-         shll $16, %ebx         /* ebx = g8b8 pixel3 << 16         */
+         movl (%esi), %eax      /* eax = [ARGB](1)     */
+         movl %ebx, %edx        /* edx = [ARGB](2)     */
+         shll $24, %edx         /* edx = [B...](2)     */
+         andl %ebp, %ebx        /* ebx = [.RGB](2)     */
+         shrl $8, %ebx          /* ebx = [..RG](2)     */
+         andl %ebp, %eax        /* eax = [.RGB](1)     */
+         orl %edx, %eax         /* eax = [BRGB](2)(1)  */
+         movl 8(%esi), %edx     /* edx = [ARGB](3)     */
+         movl %eax, -12(%edi)   /* write [BRGB](2)(1)  */
+         movl %edx, %eax        /* eax = [ARGB](3)     */
+         shll $16, %edx         /* edx = [GB..](3)     */
+         andl %ebp, %eax        /* eax = [.RGB](3)     */
+         shrl $16, %eax         /* eax = [...R](3)     */
+         orl %edx, %ebx         /* ebx = [GBRG](3)(2)  */
+         movl 12(%esi), %edx    /* edx = [ARGB](4)     */
+         movl %ebx, -8(%edi)    /* write [GBRG](3)(2)  */
+         shll $8, %edx          /* edx = [RGB.](4)     */
          addl $16, %esi         /* 4 pixels read                   */
-         orl  %ebx, %eax        /* eax = g8b8 pixel3 | r8g8 pixel2 */
+         orl %edx, %eax         /* eax = [RGBR](4)(3)  */
          decl %ecx
-         movl %eax, -8(%edi)    /* write g8r8 pixel2..b8g8 pixel3  */
+         movl %eax, -4(%edi)    /* write [RGBR](4)(3)  */
          jnz next_block_32_to_24_no_mmx
 
       popl %edx
@@ -3019,7 +3038,7 @@ FUNC (_colorconv_blit_32_to_24)
          movl 4(%esi), %ebx
          addl $8, %esi
          movl %ebx, %ecx
-         andl $0xFFFFFF, %eax
+         andl %ebp, %eax
          shll $24, %ebx
          orl %ebx, %eax
          shrl $8, %ecx
@@ -3068,34 +3087,33 @@ FUNC (_colorcopy)
    movl GFXRECT_WIDTH(%eax), %eax
    mull %ebx
 
-   movl %eax, %edx                  /* edx = src_rect->width * bpp    */
+   movl %eax, %ecx                  /* ecx = src_rect->width * bpp    */
    movl ARG1, %eax
-   movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx = src_rect->height         */
+   movl GFXRECT_HEIGHT(%eax), %edx  /* edx = src_rect->height         */
    movl GFXRECT_DATA(%eax), %esi    /* esi = src_rect->data           */
    movl GFXRECT_PITCH(%eax), %eax   /* eax = src_rect->pitch          */
-   subl %edx, %eax                  /* eax = (src_rect->pitch) - edx  */
+   subl %ecx, %eax                  /* eax = (src_rect->pitch) - ecx  */
 
    movl ARG2, %ebx                  /* ebx = dest_rect                */
    movl GFXRECT_DATA(%ebx), %edi    /* edi = dest_rect->data          */
    movl GFXRECT_PITCH(%ebx), %ebx   /* ebx = dest_rect->pitch         */
-   subl %edx, %ebx                  /* ebx = (dest_rect->pitch) - edx */
+   subl %ecx, %ebx                  /* ebx = (dest_rect->pitch) - ecx */
 
-   pushl %edx
+   movl %ecx, %ebp                  /* save for later */
 
 #ifdef ALLEGRO_MMX
-   movl GLOBL(cpu_capabilities), %edx     /* if MMX is enabled (or not disabled :) */
-   andl $CPU_MMX, %edx
+   movl GLOBL(cpu_capabilities), %ecx     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %ecx
    jz next_line_no_mmx
 
-   popl %edx
-   movd %edx, %mm7                  /* save for later */
-   shrl $5, %edx                    /* we work with 32 pixels at a time */
-   movd %edx, %mm6
+   movl %ebp, %ecx
+   shrl $5, %ecx                    /* we work with 32 pixels at a time */
+   movd %ecx, %mm6
 
    _align_
    next_line:
-      movd %mm6, %edx
-      orl %edx, %edx
+      movd %mm6, %ecx
+      orl %ecx, %ecx
       jz do_one_byte
 
       _align_
@@ -3110,21 +3128,21 @@ FUNC (_colorcopy)
          addl $32, %edi
          movq %mm2, -16(%edi)
          movq %mm3, -8(%edi)
-         decl %edx
+         decl %ecx
          jnz next_block
 
       do_one_byte:
-         movd %mm7, %edx
-         andl $31, %edx
+         movl %ebp, %ecx
+         andl $31, %ecx
          jz end_of_line
 
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_two_bytes
 
          movsb      
 
       do_two_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_four_bytes
 
          movsb
@@ -3132,14 +3150,14 @@ FUNC (_colorcopy)
 
       _align_
       do_four_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_eight_bytes
 
          movsl
 
       _align_
       do_eight_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_sixteen_bytes
 
          movq (%esi), %mm0
@@ -3149,7 +3167,7 @@ FUNC (_colorcopy)
 
       _align_
       do_sixteen_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc end_of_line
 
          movq (%esi), %mm0
@@ -3163,7 +3181,7 @@ FUNC (_colorcopy)
    end_of_line:
       addl %eax, %esi
       addl %ebx, %edi
-      decl %ecx
+      decl %edx
       jnz next_line
 
    emms
@@ -3172,27 +3190,25 @@ FUNC (_colorcopy)
 
    _align_
    next_line_no_mmx:
-      popl %edx
-      pushl %edx
-      shrl $2, %edx
-      orl %edx, %edx
+      movl %ebp, %ecx
+      shrl $2, %ecx
+      orl %ecx, %ecx
       jz do_one_byte_no_mmx
 
       rep; movsl
 
       do_one_byte_no_mmx:
-         popl %edx
-         pushl %edx
-         andl $3, %edx
+         movl %ebp, %ecx
+         andl $3, %ecx
          jz end_of_line_no_mmx
 
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_two_bytes_no_mmx
 
          movsb
 
       do_two_bytes_no_mmx:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc end_of_line_no_mmx
 
          movsb
@@ -3202,10 +3218,8 @@ FUNC (_colorcopy)
    end_of_line_no_mmx:
       addl %eax, %esi
       addl %ebx, %edi
-      decl %ecx
+      decl %edx
       jnz next_line_no_mmx
-
-      popl %edx
 
 end_of_function:
    popl %edi

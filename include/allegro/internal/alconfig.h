@@ -58,13 +58,17 @@
    #define ALLEGRO_GCC
 
    #ifndef AL_INLINE
-      #define AL_INLINE(type, name, args, code)    extern inline type name args code
+      #ifdef __cplusplus
+         #define AL_INLINE(type, name, args, code)    static inline type name args code
+      #else
+         #define AL_INLINE(type, name, args, code)    extern __inline__ type name args code
+      #endif
    #endif
 
    #define AL_PRINTFUNC(type, name, args, a, b)    AL_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
 
    #ifndef INLINE
-      #define INLINE          inline
+      #define INLINE          __inline__
    #endif
 
    #if __GNUC__ >= 3
@@ -78,11 +82,11 @@
       #define RET_VOLATILE    volatile
    #endif
 
-   #ifndef ZERO_SIZE
+   #ifndef ZERO_SIZE_ARRAY
       #if __GNUC__ < 3
-         #define ZERO_SIZE    0
+         #define ZERO_SIZE_ARRAY(type, name)  __extension__ type name[0]
       #else
-         #define ZERO_SIZE
+         #define ZERO_SIZE_ARRAY(type, name)  type name[] /* ISO C99 flexible array members */
       #endif
    #endif
    
@@ -108,15 +112,6 @@
 #endif
 
 
-
-/* if we are using gcc, then constructors are supported */
-#ifdef __GNUC__
-   #undef CONSTRUCTOR_FUNCTION
-   #undef DESTRUCTOR_FUNCTION
-   #define CONSTRUCTOR_FUNCTION(func)              func __attribute__ ((constructor))
-   #define DESTRUCTOR_FUNCTION(func)               func __attribute__ ((destructor))
-#endif
-
 /* the rest of this file fills in some default definitions of language
  * features and helper functions, which are conditionalised so they will
  * only be included if none of the above headers defined custom versions.
@@ -130,8 +125,8 @@
    #define RET_VOLATILE   volatile
 #endif
 
-#ifndef ZERO_SIZE
-   #define ZERO_SIZE
+#ifndef ZERO_SIZE_ARRAY
+   #define ZERO_SIZE_ARRAY(type, name)             type name[]
 #endif
 
 #ifndef AL_CONST
@@ -248,6 +243,32 @@
 #endif
 
 
+/* endian-independent 3-byte accessor macros */
+#ifdef ALLEGRO_LITTLE_ENDIAN
+
+   #define READ3BYTES(p)  (((int) *(p))               \
+                           | ((int) *((p) + 1) << 8)  \
+                           | ((int) *((p) + 2) << 16))
+
+   #define WRITE3BYTES(p,c)  ((*(p) = (c)),             \
+                              (*((p) + 1) = (c) >> 8),  \
+                              (*((p) + 2) = (c) >> 16))
+
+#elif defined ALLEGRO_BIG_ENDIAN
+
+   #define READ3BYTES(p)  (((int) *(p) << 16)         \
+                           | ((int) *((p) + 1) << 8)  \
+                           | ((int) *((p) + 2)))
+
+   #define WRITE3BYTES(p,c)  ((*(p) = (c) >> 16),       \
+                              (*((p) + 1) = (c) >> 8),  \
+                              (*((p) + 2) = (c)))
+
+#else
+   #error endianess not defined
+#endif
+
+
 /* generic versions of the video memory access helpers */
 #ifndef bmp_select
    #define bmp_select(bmp)
@@ -264,55 +285,22 @@
    #define bmp_read16(addr)            (*((unsigned short *)(addr)))
    #define bmp_read32(addr)            (*((unsigned long  *)(addr)))
 
-   #ifdef ALLEGRO_LITTLE_ENDIAN
+   AL_INLINE(int, bmp_read24, (unsigned long addr),
+   {
+      unsigned char *p = (unsigned char *)addr;
+      int c;
 
-      AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
-      {
-	 unsigned char *p = (unsigned char *)addr;
+      c = READ3BYTES(p);
 
-	 p[0] = c & 0xFF;
-	 p[1] = (c>>8) & 0xFF;
-	 p[2] = (c>>16) & 0xFF;
-      })
+      return c;
+   })
 
-      AL_INLINE(int, bmp_read24, (unsigned long addr),
-      {
-	 unsigned char *p = (unsigned char *)addr;
-	 int c;
+   AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
+   {
+      unsigned char *p = (unsigned char *)addr;
 
-	 c = p[0];
-	 c |= (int)p[1] << 8;
-	 c |= (int)p[2] << 16;
-
-	 return c;
-      })
-
-   #elif defined ALLEGRO_BIG_ENDIAN
-
-      AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
-      {
-	 unsigned char *p = (unsigned char *)addr;
-
-	 p[0] = (c>>16) & 0xFF;
-	 p[1] = (c>>8) & 0xFF;
-	 p[2] = c & 0xFF;
-      })
-
-      AL_INLINE(int, bmp_read24, (unsigned long addr),
-      {
-	 unsigned char *p = (unsigned char *)addr;
-	 int c;
-
-	 c = (int)p[0] << 16;
-	 c |= (int)p[1] << 8;
-	 c |= p[2];
-
-	 return c;
-      })
-
-   #else
-      #error endianess not defined
-   #endif
+      WRITE3BYTES(p, c);
+   })
 
 #endif
 

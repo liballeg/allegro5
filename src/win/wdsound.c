@@ -191,14 +191,8 @@ static LPGUID driver_guids[MAX_DRIVERS];
  */
 static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext)
 {
-   if (num_drivers < MAX_DRIVERS) {
-      if (lpGuid) {
-         driver_guids[num_drivers] = malloc(sizeof(GUID));
-         memcpy(driver_guids[num_drivers], lpGuid, sizeof(GUID));
-      }
-      else
-         driver_guids[num_drivers] = NULL;
-
+   if (lpGuid) {
+      driver_guids[num_drivers] = lpGuid;
       driver_names[num_drivers] = malloc(strlen(lpcstrDescription)+1);
       strcpy(driver_names[num_drivers], lpcstrDescription);
       num_drivers++;
@@ -217,29 +211,32 @@ static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPC
 _DRIVER_INFO *_get_win_digi_driver_list(void)
 {
    DIGI_DRIVER *driver;
+   HRESULT hr;
    int i;
 
    if (!driver_list) {
-      /* enumerate the DirectSound drivers */
-      DirectSoundEnumerate(DSEnumCallback, NULL);
-
       driver_list = _create_driver_list();
 
-      /* pure DirectSound drivers */
-      for (i=0; i<num_drivers; i++) {
-         driver = malloc(sizeof(DIGI_DRIVER));
-         memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
-         driver->id = DIGI_DIRECTX(i);
-         driver->ascii_name = driver_names[i];
+      /* enumerate the DirectSound drivers */
+      hr = DirectSoundEnumerate(DSEnumCallback, NULL);
 
-         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
-      }
+      if (hr == DS_OK) {
+         /* pure DirectSound drivers */
+         for (i=0; i<num_drivers; i++) {
+            driver = malloc(sizeof(DIGI_DRIVER));
+            memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
+            driver->id = DIGI_DIRECTX(i);
+            driver->ascii_name = driver_names[i];
 
-      /* Allegro mixer to DirectSound drivers */
-      for (i=0; i<num_drivers; i++) {
-         driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
+            _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         }
 
-         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         /* Allegro mixer to DirectSound drivers */
+         for (i=0; i<num_drivers; i++) {
+            driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
+
+            _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         }
       }
 
       /* Allegro mixer to WaveOut drivers */
@@ -281,7 +278,7 @@ void _free_win_digi_driver_list(void)
 #ifdef DEBUGMODE
 static char *ds_err(long err)
 {
-   static char err_str[32];
+   static char err_str[64];
 
    switch (err) {
 
@@ -556,7 +553,7 @@ static int digi_directsound_mixer_volume(int volume)
 /* create_dsound_buffer:
  *  Worker function for creating a DirectSound buffer.
  */
-static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int stereo)
+static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int stereo, int vol, int pan)
 {
    LPDIRECTSOUNDBUFFER snd_buf;
    PCMWAVEFORMAT pcmwf;
@@ -596,6 +593,12 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
       _TRACE(" - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
       return NULL;
    }
+
+   /* set volume */
+   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[MID(0, vol, 255)]);
+
+   /* set pan */
+   IDirectSoundBuffer_SetPan(snd_buf, alleg_to_dsound_pan[MID(0, pan, 255)]);
 
    return snd_buf;
 }
@@ -713,7 +716,9 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE *sample)
    ds_voices[voice].ds_buffer = create_dsound_buffer(ds_voices[voice].len,
                                                      ds_voices[voice].freq,
                                                      ds_voices[voice].bits,
-                                                     ds_voices[voice].stereo);
+                                                     ds_voices[voice].stereo,
+                                                     ds_voices[voice].vol,
+                                                     ds_voices[voice].pan);
    if (!ds_voices[voice].ds_buffer)
       return;
 
@@ -805,7 +810,9 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
          ds_voices[voice].ds_loop_buffer = create_dsound_buffer(ds_voices[voice].loop_len * (bidir ? 2 : 1),
                                                                 ds_voices[voice].freq,
                                                                 ds_voices[voice].bits,
-                                                                ds_voices[voice].stereo);
+                                                                ds_voices[voice].stereo,
+                                                                ds_voices[voice].vol,
+                                                                ds_voices[voice].pan);
          update_loop_buffer = TRUE;
       }
       else if (update_bidir) {
@@ -814,7 +821,9 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
          ds_voices[voice].ds_loop_buffer = create_dsound_buffer(ds_voices[voice].loop_len * (bidir ? 2 : 1),
                                                                 ds_voices[voice].freq,
                                                                 ds_voices[voice].bits,
-                                                                ds_voices[voice].stereo);
+                                                                ds_voices[voice].stereo,
+                                                                ds_voices[voice].vol,
+                                                                ds_voices[voice].pan);
          update_loop_buffer = TRUE;
       }
    }

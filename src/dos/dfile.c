@@ -130,10 +130,6 @@ static void fill_ffblk(struct al_ffblk *info)
 
 
 
-/* we pass all the flags to findfirst() in order to work around the DOS limitations */
-#define FA_ALL (FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_DIREC | FA_ARCH)
-
-
 /* al_findfirst:
  *  Initiates a directory search.
  */
@@ -154,18 +150,23 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    /* attach it to the info structure */
    info->ff_data = (void *) ff_data;
 
-   /* initialize it */
-   ff_data->attrib = attrib;
+   /* Win2k appears to set bit7 for files which otherwise
+    * would not have any attribute flag set.
+    */
+   ff_data->attrib = attrib | 0x80;
 
    /* start the search */
    errno = *allegro_errno = 0;
 
-   /* The return value of findfirst() and findnext() is not meaningful because the
+   /* We pass all the flags to findfirst() in order to work around the DOS limitations
+    * for FA_RDONLY and FA_ARCH which are normally ignored.
+    *
+    * The return value of findfirst() and findnext() is not meaningful because the
     * functions return an errno code under DJGPP (ENOENT or ENMFILE) whereas they
     * return a DOS error code under Watcom (02h, 03h or 12h).
     * However the functions of both compilers set errno accordingly.
     */
-   ret = findfirst(uconvert_toascii(pattern, tmp), &ff_data->data, FA_ALL);
+   ret = findfirst(uconvert_toascii(pattern, tmp), &ff_data->data, 0xFF);
 
    if (ret != 0) {
 #ifdef ALLEGRO_DJGPP

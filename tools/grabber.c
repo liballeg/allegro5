@@ -64,6 +64,7 @@ static int busy_mouse = FALSE;
 
 static int entered_password = FALSE;
 static int no_sound = FALSE;
+static int autodetect_card = GFX_AUTODETECT;
 
 
 static int view_proc(int, DIALOG *, int);
@@ -2607,10 +2608,13 @@ static int sysinfo(void)
       case OSTYPE_DOSEMU:     s = "Linux DOSEMU";               break;
       case OSTYPE_OPENDOS:    s = "Caldera OpenDOS";            break;
       case OSTYPE_LINUX:      s = "Linux";                      break;
+      case OSTYPE_SUNOS:      s = "SunOS/Solaris";              break;
       case OSTYPE_FREEBSD:    s = "FreeBSD";                    break;
+      case OSTYPE_NETBSD:     s = "NetBSD";                     break;
+      case OSTYPE_IRIX:       s = "IRIX";                       break;
+      case OSTYPE_QNX:        s = "QNX";                        break;
       case OSTYPE_UNIX:       s = "Unix";                       break;
       case OSTYPE_BEOS:       s = "BeOS";                       break;
-      case OSTYPE_QNX:        s = "QNX";                        break;
       case OSTYPE_MACOS:      s = "MacOS";                      break;
       default:                s = "Unknown";                    break;
    }
@@ -2786,7 +2790,7 @@ static int add_new(int type)
 /* handle the new object command */
 static int new_object(void)
 {
-   return add_new((int)active_menu->dp);
+   return add_new((int)((unsigned long)active_menu->dp));
 }
 
 
@@ -2929,7 +2933,7 @@ static int sheller(void)
    install_mouse();
    install_timer();
 
-   if (set_gfx_mode(GFX_AUTODETECT, oldw, oldh, 0, 0) != 0) {
+   if (set_gfx_mode(autodetect_card, oldw, oldh, 0, 0) != 0) {
       destroy_bitmap(my_mouse_pointer);
       my_mouse_pointer = NULL;
       destroy_bitmap(my_busy_pointer);
@@ -3106,9 +3110,15 @@ int main(int argc, char *argv[])
    allegro_init();
 
    for (i=1; i<argc; i++) {
-      if ((argv[i][0] == '-') || (argv[i][0] == '/')) {
+      if (argv[i][0] == '-') {
 	 if (strcmp(argv[i]+1, "nosound") == 0) {
 	    no_sound = TRUE;
+	 }
+	 else if (strcmp(argv[i]+1, "windowed") == 0) {
+	    autodetect_card = GFX_AUTODETECT_WINDOWED;
+	 }
+	 else if (strcmp(argv[i]+1, "fullscreen") == 0) {
+	    autodetect_card = GFX_AUTODETECT_FULLSCREEN;
 	 }
 	 else if ((argv[i][1] == 'p') || (argv[i][1] == 'P')) {
 	    strcpy(password, argv[i]+2);
@@ -3157,13 +3167,13 @@ int main(int argc, char *argv[])
 
    if (bpp > 0) {
       set_color_depth(bpp);
-      ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
+      ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
    }
    else {
       for (i=0; color_depths[i]; i++) {
 	 bpp = color_depths[i];
 	 set_color_depth(bpp);
-	 ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
+	 ret = set_gfx_mode(autodetect_card, w, h, 0, 0);
 	 if (ret == 0)
 	    break;
       }
@@ -3287,7 +3297,7 @@ int main(int argc, char *argv[])
 	 tmpmenu.proc = new_object;
 	 tmpmenu.child = NULL;
 	 tmpmenu.flags = 0;
-	 tmpmenu.dp = (void *)datedit_object_info[i]->type;
+	 tmpmenu.dp = (void *)(unsigned long)datedit_object_info[i]->type;
 
 	 add_to_menu(new_menu, &tmpmenu, TRUE, NULL, NULL, 0);
       }

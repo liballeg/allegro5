@@ -30,7 +30,7 @@ struct BITMAP;
 typedef struct FONT_GLYPH           /* a single monochrome font character */
 {
    short w, h;
-   unsigned char dat[ZERO_SIZE];
+   ZERO_SIZE_ARRAY(unsigned char, dat);
 } FONT_GLYPH;
 
 

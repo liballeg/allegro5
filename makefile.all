@@ -5,6 +5,7 @@
 #
 #     Environment variables:
 #        DEBUGMODE=1        selects a debug build.
+#        DEBUGMODE=2        selects a build intended to debug Allegro itself.
 #        PROFILEMODE=1      selects a profiling build.
 #        WARNMODE=1         selects strict compiler warnings.
 #        STATICLINK=1       use static linking (MSVC, Mingw32).
@@ -28,11 +29,7 @@
 #        distclean:         remove objects and executables.
 #        veryclean:         remove all generated files.
 #        depend:            regenerate the dependency files.
-#        compress:          compress the executable files (djgpp only).
-#
-#  The "clean", "distclean", "veryclean", and "uninstall" targets require
-#  a Unix-style rm command to be installed, eg. from the djgpp fileutils
-#  package.
+#        compress:          compress the executable files (djgpp, Mingw32, MSVC).
 
 
 
@@ -131,7 +128,13 @@ endif
 
 default: msg lib $(PROGRAMS) docs
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been compiled.
-	@echo Run make install to complete the installation.
+ifdef UNIX_TOOLS
+	@echo Run \"make install\" with the options you passed to \"make\"
+	@echo in order to complete the installation.
+else
+	@echo Run "make install" with the options you passed to "make"
+	@echo in order to complete the installation.
+endif
 
 all:
 	$(MAKE) msg lib
@@ -140,7 +143,13 @@ all:
 	@echo Compiling utilities, examples and test programs. Please wait...
 	$(MAKE) $(PROGRAMS) docs
 	@echo All $(PLATFORM) library versions have been compiled.
-	@echo Run make installall to complete the installation.
+ifdef UNIX_TOOLS
+	@echo Run \"make installall\" with the options you passed to \"make all\"
+	@echo in order to complete the installation.
+else
+	@echo Run "make installall" with the options you passed to "make all"
+	@echo in order to complete the installation.
+endif
 
 installall:
 	$(MAKE) msg lib install
@@ -163,14 +172,40 @@ $(LIB_NAME): $(OBJECTS) $(RUNNER)
 # -------- rules for deleting the generated files --------
 
 clean:
+ifdef UNIX_TOOLS
 	-rm -fv $(OBJ_CLEAN_FILES)
 	-rm -fv $(OTHER_CLEAN_FILES)
+else
+   define RM_CLEAN
+      $(foreach file, $(wildcard $(OBJ_CLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+      $(foreach file, $(wildcard $(OTHER_CLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_CLEAN)
+endif
 
 distclean: clean
+ifdef UNIX_TOOLS
 	-rm -fv $(DISTCLEAN_FILES)
+else
+   define RM_DISTCLEAN
+      $(foreach file, $(wildcard $(DISTCLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_DISTCLEAN)
+endif
 
 veryclean: distclean
+ifdef UNIX_TOOLS
 	-rm -fv $(VERYCLEAN_FILES)
+else
+   define RM_VERYCLEAN
+      $(foreach file, $(wildcard $(VERYCLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_VERYCLEAN)
+endif
 
 
 

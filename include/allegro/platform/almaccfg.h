@@ -33,7 +33,7 @@
 #undef ALLEGRO_CONSOLE_OK
 
 #define INLINE
-#define ZERO_SIZE								64
+#define ZERO_SIZE_ARRAY(type, name)             type name[64]
 #define AL_CONST								const
 #define AL_VAR(type, name)                      extern type name
 #define AL_ARRAY(type, name)                    extern type name[]
@@ -46,11 +46,11 @@
 
 #define END_OF_FUNCTION(x)			void x##_end(void) { }
 #define END_OF_STATIC_FUNCTION(x)	static void x##_end(void) { }
-#define LOCK_DATA(d, s)				_mac_lock(d, s)
-#define LOCK_CODE(c, s)				_mac_lock(c, s)
-#define UNLOCK_DATA(d,s)			_mac_unlock(d, s)
+#define LOCK_DATA(d, s)				_mac_lock((void *)d, s)
+#define LOCK_CODE(c, s)				_mac_lock((void *)c, s)
+#define UNLOCK_DATA(d,s)			_mac_unlock((void *)d, s)
 #define LOCK_VARIABLE(x)			LOCK_DATA((void *)&x, sizeof(x))
-#define LOCK_FUNCTION(x)			LOCK_CODE(x, (long)x##_end - (long)x)
+#define LOCK_FUNCTION(x)			LOCK_CODE((void *)x, (long)x##_end - (long)x)
 
 /* long filename status */
 #define ALLEGRO_LFN  0

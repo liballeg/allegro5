@@ -169,8 +169,18 @@ void _read_os_type()
       if (!strcmp(utsn.sysname, "Linux")) {
 	 os_type = OSTYPE_LINUX;
       }
+      else if (!strcmp(utsn.sysname, "SunOS")) {
+	 os_type = OSTYPE_SUNOS;
+      }
       else if (!strcmp(utsn.sysname, "FreeBSD")) {
 	 os_type = OSTYPE_FREEBSD;
+      }
+      else if (!strcmp(utsn.sysname, "NetBSD")) {
+	 os_type = OSTYPE_NETBSD;
+      }
+      else if ((!strcmp(utsn.sysname, "IRIX"))
+	       || (!strcmp(utsn.sysname, "IRIX64"))) {
+	 os_type = OSTYPE_IRIX;
       }
       else if (!strcmp(utsn.sysname, "QNX")) {
 	 os_type = OSTYPE_QNX;

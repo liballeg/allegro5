@@ -35,6 +35,25 @@
 
 
 
+/* permissions to use when opening files */
+#ifndef ALLEGRO_MPW
+
+/* some OSes have no concept of "group" and "other" */
+#ifndef S_IRGRP
+   #define S_IRGRP   0
+   #define S_IWGRP   0
+#endif
+#ifndef S_IROTH
+   #define S_IROTH   0
+   #define S_IWOTH   0
+#endif
+
+#define OPEN_PERMS   (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+
+#endif /* !ALLEGRO_MPW */
+
+
+
 #define N            4096           /* 4k buffers for LZ compression */
 #define F            18             /* upper limit for LZ match length */
 #define THRESHOLD    2              /* LZ encode string into pos and length
@@ -1443,9 +1462,9 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 #ifndef ALLEGRO_MPW
    if (strpbrk(mode, "wW"))  /* write mode? */
-      fd = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+      fd = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
    else
-      fd = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
+      fd = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
 #else
    if (strpbrk(mode, "wW"))  /* write mode? */
       fd = _al_open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
@@ -1544,7 +1563,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          char *tmp_name = tmpnam(NULL);
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
-            tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+            tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, OPEN_PERMS);
 #else
             tmp_fd = _al_open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL);
 #endif
@@ -1815,7 +1834,7 @@ int pack_iputw(int w, PACKFILE *f)
 
 
 
-/* pack_iputw:
+/* pack_iputl:
  *  Writes a 32 bit long to a file, using intel byte ordering.
  */
 long pack_iputl(long l, PACKFILE *f)
@@ -1992,7 +2011,7 @@ static void pack_ungetc (int ch, PACKFILE *f)
  */
 char *pack_fgets(char *p, int max, PACKFILE *f)
 {
-   char *pmax;
+   char *pmax, *orig_p = p;
    int c;
 
    *allegro_errno = 0;
@@ -2033,7 +2052,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
    if (c == '\0' || *allegro_errno)
       return NULL;
 
-   return p;
+   return orig_p; /* p has changed */
 }
 
 

@@ -29,14 +29,14 @@ class fix      /* C++ wrapper for the fixed point routines */
 public:
    fixed v;
 
-   fix()                                     { }
-   fix(const fix &x)                         { v = x.v; }
-   fix(const int x)                          { v = itofix(x); }
-   fix(const long x)                         { v = itofix(x); }
-   fix(const unsigned int x)                 { v = itofix(x); }
-   fix(const unsigned long x)                { v = itofix(x); }
-   fix(const float x)                        { v = ftofix(x); }
-   fix(const double x)                       { v = ftofix(x); }
+   fix() : v(0)                              { }
+   fix(const fix &x) : v(x.v)                { }
+   fix(const int x) : v(itofix(x))           { }
+   fix(const long x) : v(itofix(x))          { }
+   fix(const unsigned int x) : v(itofix(x))  { }
+   fix(const unsigned long x) : v(itofix(x)) { }
+   fix(const float x) : v(ftofix(x))         { }
+   fix(const double x) : v(ftofix(x))        { }
 
    operator int() const                      { return fixtoi(v); }
    operator long() const                     { return fixtoi(v); }

@@ -201,7 +201,7 @@ static int joy2_old_x, joy2_old_y;
 /* poll_mask:
  *  Returns a mask indicating which axes to poll.
  */
-static int poll_mask()
+static int poll_mask(void)
 {
    int mask = MASK_1X | MASK_1Y;
 
@@ -254,7 +254,7 @@ static int averaged_poll(int *x, int *y, int *x2, int *y2, int mask)
  *  Called after each calibration operation, to calculate what else might
  *  need to be measured for the current hardware.
  */
-static void recalc_calibration_flags()
+static void recalc_calibration_flags(void)
 {
    #define FLAG_SET(n)  ((joystick_flags & (n)) == (n))
 
@@ -310,7 +310,7 @@ static void recalc_calibration_flags()
 /* joy_init:
  *  Initialises the driver.
  */
-static int joy_init()
+static int joy_init(void)
 {
    int i;
 
@@ -433,7 +433,7 @@ static int joy_init()
 /* joy_exit:
  *  Shuts down the driver.
  */
-static void joy_exit()
+static void joy_exit(void)
 {
    joystick_flags = 0;
 }
@@ -512,7 +512,7 @@ static int calibrate_corner(int stick, int corner)
 /* calibrate_joystick_tl:
  *  For backward compatibility with the old API.
  */
-int calibrate_joystick_tl()
+int calibrate_joystick_tl(void)
 {
    int ret;
 
@@ -532,7 +532,7 @@ int calibrate_joystick_tl()
 /* calibrate_joystick_br:
  *  For backward compatibility with the old API.
  */
-int calibrate_joystick_br()
+int calibrate_joystick_br(void)
 {
    int ret;
 
@@ -555,7 +555,7 @@ int calibrate_joystick_br()
  *  (the user decides whether this is all the way forwards or all the
  *  way back), and also call calibrate_joystick_throttle_max().
  */
-int calibrate_joystick_throttle_min()
+int calibrate_joystick_throttle_min(void)
 {
    int dummy;
 
@@ -583,7 +583,7 @@ int calibrate_joystick_throttle_min()
  *  (the user decides whether this is all the way forwards or all the
  *  way back), and also call calibrate_joystick_throttle_min().
  */
-int calibrate_joystick_throttle_max()
+int calibrate_joystick_throttle_max(void)
 {
    int dummy;
 
@@ -677,7 +677,7 @@ static int sort_out_analogue(int x, int min, int low_margin, int high_margin, in
 /* joy_poll:
  *  Updates the joystick status variables.
  */
-static int joy_poll()
+static int joy_poll(void)
 {
    int x, y, x2, y2, i;
    unsigned char status;
@@ -900,7 +900,7 @@ static int poll(int *x, int *y, int *x2, int *y2, int poll_mask)
 /* joy_save_data:
  *  Writes calibration data into the config file.
  */
-static int joy_save_data()
+static int joy_save_data(void)
 {
    char tmp1[128], tmp2[128];
    char *j = uconvert_ascii("joystick", tmp1);
@@ -945,7 +945,7 @@ static int joy_save_data()
 /* joy_load_data:
  *  Loads calibration data from the config file.
  */
-static int joy_load_data()
+static int joy_load_data(void)
 {
    char tmp1[128], tmp2[128];
    char *j = uconvert_ascii("joystick", tmp1);

@@ -172,7 +172,8 @@ static int alsa_detect(int input)
 			   uconvert_ascii("alsa_pcmdevice", tmp2),
 			   snd_defaults_pcm_device());
 
-   if (snd_pcm_open(&handle, card, device, SND_PCM_OPEN_PLAYBACK) == 0) {
+   if (snd_pcm_open(&handle, card, device, (SND_PCM_OPEN_PLAYBACK
+					    | SND_PCM_OPEN_NONBLOCK)) == 0) {
       if ((snd_pcm_info(handle, &info) == 0)
 	  && (info.flags & SND_PCM_INFO_PLAYBACK))
 	 ret = TRUE;

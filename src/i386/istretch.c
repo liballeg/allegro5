@@ -317,6 +317,15 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
 	 return;
    }
 
+   /* compensate for a problem where the first column or row can get
+    * an extra pixel than it should do for little -> big scaling, due
+    * to fixed point number representation imprecisions
+    */
+   if (sxd < itofix(1))
+      sx += (sxd >> 1);
+   if (syd < itofix(1))
+      sy += (syd >> 1);
+
    /* search the cache */
    stretcher_count++;
    if (stretcher_count <= 0) {

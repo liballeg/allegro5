@@ -217,18 +217,18 @@ MMAP af_linear_mem = NOMM;
 #ifdef ALLEGRO_DOS
 
 /* hooks to let the driver call BIOS routines */
-extern void _af_int86(), _af_call_rm();
+extern void _af_int86(void), _af_call_rm(void);
 
 #else
 
 /* no BIOS on this platform, my friend! */
-void nobios() { }
+void nobios(void) { }
 
 #endif
 
 
 
-void af_exit()
+void af_exit(void)
 {
    int c;
 
@@ -322,7 +322,7 @@ int load_vbeaf_driver(char *filename)
 
 
 
-void initialise_freebeaf_extensions()
+void initialise_freebeaf_extensions(void)
 {
    typedef unsigned long (*EXT_INIT_FUNC)(AF_DRIVER *af, unsigned long id);
    EXT_INIT_FUNC ext_init;
@@ -377,7 +377,7 @@ void initialise_freebeaf_extensions()
 
 
 
-static int initialise_vbeaf()
+static int initialise_vbeaf(void)
 {
    int c;
 
@@ -469,7 +469,7 @@ void print_af_attributes(unsigned long attrib)
 
 
 
-int get_af_info()
+int get_af_info(void)
 {
    static char *possible_filenames[] =
    {
@@ -778,7 +778,7 @@ int main(int argc, char *argv[])
 #else       /* ifdef VBE/AF cool on this platform */
 
 
-int main()
+int main(void)
 {
    allegro_init();
    allegro_message("Sorry, the AFINFO program only works on DOS or Linux\n");

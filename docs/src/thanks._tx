@@ -2,6 +2,7 @@
 @# This is the source for the Allegro thanks list, in a weird custom format.
 @# Read makedoc.c for a description of what is going on...
 @#
+@mangle_emails=at dot
 @<html>
 @<head>
 @<title>Allegro Contributors</title>
@@ -36,8 +37,9 @@ Contributors
    Wrote the Ensoniq Soundscape driver and fixed division bugs in the fix
    class.
 
-   Andrei 'old-boy' Ellman (<email>ellman@xs4all.nl</a>).<br>
-   Contributed the polygon_z_normal() function.
+   Andrei Ellman (<email>ae-a@wackonet.fsnet.co.uk</a>).<br>
+   Contributed the polygon_z_normal() function and suggested some additions
+   to the docs.
 
    Andrew Ellem (<email>krand@ican.net</a>).<br>
    Wrote the original version of the digital audio streaming code.
@@ -58,11 +60,13 @@ Contributors
    fetch_mode_list() to the BeOS and DGA2 fullscreen drivers.  And, oh,
    contributed the QNX port too.
 
-   Annie Testes (email unknown).<br>
-   Added font_height, render_char, char_length hooks to FONT_VTABLE.
-   Fixed several glitches in the unicode support. Added a pack_fdopen()
-   function. Caught a misordering in the X system shutdown. Found ASCII
-   strings that needed to be converted.
+   Annie Testes (<email>annie@kezako.net</a>).<br>
+   Added font_height, render_char, char_length hooks to FONT_VTABLE. Fixed
+   several glitches in the unicode support. Added a pack_fdopen() function.
+   Caught a misordering in the X system shutdown. Found ASCII strings that
+   needed to be converted. Fixed some device name strings in the setup
+   program. Fixed a bug with patterned drawing in the C version and another
+   one with asynchronous I/O mode restoring under Linux.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -81,6 +85,9 @@ Contributors
    Arne Steinarson (<email>arst@ludd.luth.se</a>).<br>
    The fixed point square root routine came from his fix-float library.
 
+   Attila Szilagyi (<email>attilabox@hotmail.com</a>).<br>
+   Fixed SVGAlib horizontal scrolling.
+
    Ben Chauveau (<email>bendomc@worldnet.fr</a>).<br>
    Added support for Tseng ET6000 cards (now available as part of the 
    FreeBE/AF project).
@@ -93,11 +100,15 @@ Contributors
    Added set_volume_per_voice(), made silent voices continue playing, and 
    fixed other minor bugs in the mixer. Fixed a bug in create_rgb_table(). 
    Adapted polygon functions to handle two coincident vertices. Added the 
-   set_window_close_button() and set_window_close_hook() framework.
-   Added support for timers with parameters under Windows.
+   set_window_close_button() and set_window_close_hook() framework. Added
+   support for timers with parameters under Windows. Documented the
+   non-standard behaviour of pack_feof().
 
    Benjamin Joel Stover (<email>stovertech@intellisys.net</a>).<br>
    Wrote the initial version of the fullscreen X-Windows graphics driver.
+
+   Benny Colyn (email unknown).<br>
+   Added a Dutch translation.
 
    Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
    Modified routines in poly3d.c for subpixel and subtexel accuracy.
@@ -132,6 +143,9 @@ Contributors
    Chris Graham.<br>
    Suggested to add a new flag for Windows NTFS compressed files.
 
+   Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
+   Worked around a problem with DOS file attributes under Win2k.
+
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog 
    objects, added the D_DISABLED flag, improved the GUI handling of 
@@ -147,6 +161,9 @@ Contributors
    Enlarged the starfield in exstars, and fixed an incorrect range in 
    exlights.
 
+   Daniel Schlydler (<email>daniel@dascdev.net</a>).<br>
+   Fixed problems with get_executable_name() under Windows.
+
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches. Fixed a problem with lost GUI
    mouse clicks. Made d_menu_proc steal/return focus when
@@ -161,6 +178,9 @@ Contributors
 
    David Calvin (<email>calvid@rpi.edu</a>).<br>
    Wrote the original version of the sound setup utility.
+
+   Deepak T (<email>coolbool@gmx.net</a>).<br>
+   Fixed clipping in three C sprite drawing routines.
 
    Dmitriy Kazimirow (<email>mariann@mail.ru</a>).<br>
    Provided the Russian keyboard mapping and message translation files.
@@ -182,6 +202,11 @@ Contributors
 
    Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
    Added a COLORCONV_KEEP_TRANS mode. Contributed the wfixicon utility.
+   Contributed several enhancements to the grabber. Fixed a bug in
+   midi_seek(). Added support to use the saved window position for initial
+   window placing under Windows. Optimized the load_bitmap() function family
+   when no palette is specified and documented the feature. Revamped the
+   cross-compilation section of docs/build/mingw32.txt.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -198,9 +223,11 @@ Contributors
    Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
    Optimised the linear -&gt mode-X blitting function.
 
-   Evert Glebbeek (<email>eglebbk@phys.uva.nl</a>).<br>
-   Put set_gfx_mode on a diet and added a config entry for specifying the
-   card to be used for GFX_AUTODETECT_WINDOWED.
+   Evert Glebbeek (<email>eglebbk@dds.nl</a>).<br>
+   Put set_gfx_mode on a diet, added a config entry for specifying the card
+   to be used for GFX_AUTODETECT_WINDOWED, added a '-fullscreen' switch to
+   the grabber, added the detection of SunOS/Solaris and added configure
+   options for x86 processor optimisations on Unix systems.
 
    Fabian Nunez (<email>faybs@iafrica.com</a>).<br>
    Added support for the CH Flightstick Pro and Logitech Wingman Extreme 
@@ -217,7 +244,7 @@ Contributors
    Frodo Baggins (<email>l41273@alfa.ist.utl.pt</a>).<br>
    Made the Portuguese keyboard mapping.
 
-   Garret Thomson (<email>gart@terraport.net</a>).<br>
+   Garret Thomson (<email>g@sirsonic.com</a>).<br>
    Wrote the music used in the demo game.
 
    George Foot (<email>gfoot@users.sourceforge.net</a>).<br>
@@ -237,8 +264,8 @@ Contributors
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
-   texi2dvi output, improved the makedoc utility, added reload_config_texts()
-   and did plenty of other things too.
+   texi2dvi output, improved the makedoc utility, added reload_config_texts(),
+   added the email address mangling code and did plenty of other things too.
 
    Grzegorz Godlewski.<br>
    Contributed a Polish localization patch and added support for lower and
@@ -258,8 +285,13 @@ Contributors
    Haruhiko Okumura, 12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, JP.<br>
    Wrote the original version of the LZSS compression code.
 
-   Henrik Schmidt.<br>
-   Found a workaround for the switching problem under Windows.
+   Hein Zelle (<email>hein@icce.rug.nl</a>).<br>
+   Revamped the cross-compilation section of docs/build/mingw32.txt.
+
+   Henrik Schmidt (<email>hbs@ks.informatik.uni-kiel.de</a>).<br>
+   Found a workaround for the switching problem under Windows, made gcc pass
+   '-h' instead of '-soname' to the linker and replaced '-L' by '-h' in shell
+   comparisons so as not to break on Solaris.
 
    Henrik Stokseth (<email>hstokset@tiscali.no</a>).<br>
    Contributed a native Mingw32 build which can also be built with a
@@ -268,6 +300,10 @@ Contributors
    VESA, VBE/AF and DIRECTX drivers for a list of possible GFX modes.
    Rewrote the mode-selector to use get_gfx_mode_list(). Rewrote/updated
    some scripts and reworked the build system many times.
+
+   Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
+   Removed the requirements for fileutils on DOS/Windows platforms and added
+   the detection of MSYS to the MingW32 port.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
@@ -287,10 +323,13 @@ Contributors
    Added support for quoted strings in the get_config_argv() function, and 
    the dithering code for paletted images.
 
+   Jan Bruun Andersen (<email>jba-dk@users.sourceforge.net</a>).<br>
+   Fixed a compilation problem with Cygwin.
+
    Jan Hubicka (<email>hubicka@horac.ta.jcu.cz</a>).<br>
    Vastly improved the speed of the create_rgb_table() function.
 
-   Jason Wilkins (<email>fenix at io dot com</a>).<br>
+   Jason Wilkins (<email>fenix@io.com</a>).<br>
    Wrote the quaternion math routines, and contributed the BeOS port.
 
    Javier Gonzalez (<email>xaviergonz@hotmail.com</a>).<br>
@@ -298,7 +337,8 @@ Contributors
    set_window_title(), added close button hook support and improved
    switching in Windows, fixed bad clearing of subbitmaps, and made bug
    reports and suggestions for improvement. Contributed bidirectional
-   looping and backward playing support for the DirectSound driver.
+   looping support, backward playing support and bugfixes for the
+   DirectSound driver, and did plenty of other things too.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -350,10 +390,11 @@ Contributors
    Krzysztof Krzyzaniak (<email>eloy@arrakis.cs.put.poznan.pl</a>).<br>
    Wrote the load_voc() function.
 
-   Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
+   Laurence Withers (<email>lwithers@users.sf.net</a>).<br>
    Added destroy hook to font structure, worked on const-correctness
-   throughout the library, implemented the new FONT structure and made
-   some modules avoid linking dependencies.
+   throughout the library, implemented the new FONT structure, made
+   some modules avoid linking dependencies and added a '-windowed'
+   switch to the grabber.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
@@ -362,12 +403,18 @@ Contributors
    Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
    Contributed the Norwegian message translation.
 
+   Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
+   Spotted a BSDism that IRIX doesn't like@all and added IRIX detection.
+
    Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
    Contributed the gfxinfo utility and added two FAQ entries.
 
    Lucas Vignoli Reis (<email>lucasvr@bestway.com.br</a>).<br>
    Added the Portuguese (Brazil) message translation and keyboard mapping.
 
+   Magnus Henoch (<email>mange@freemail.hu</a>).<br>
+   Made the gfx mode selector keep the current selection as much as possible.
+   
    Maiolino Carmelo (<email>cmaiolino@ctonline.it</a>).<br>
    Added the Italian keyboard mapping table.
 
@@ -381,9 +428,10 @@ Contributors
    of the joystick code that didn't come from Jonathan, and to locate a 
    stupid mistake in my VESA linear framebuffer code.
 
-   Marcel Smit.<br>
+   Marcel Smit (<email>marcel.athlon@hccnet.nl</a>).<br>
    Corrected a bug that caused errors when drawing persp. correct polys
-   facing the screen.
+   facing the screen. Made the show_video_bitmap() method of the Windows
+   windowed driver wait for a vsync.
 
    Marco Campinoti (<email>marco@etruscan.li.it</a>).<br>
    Added 15 and 24 bit support to the native Tseng ET4000 driver (now 
@@ -421,8 +469,22 @@ Contributors
    Added the French keyboard mapping, support for the Pause/PrtScr keys, and 
    changed the key[] table to a normal/extended bitfield.
 
+   Matt Witherspoon (<email>spoon@vt.edu</a>).<br>
+   Fixed a bug in the scroll() method of the Linux SVGAlib driver.
+
    Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
    Added support for 4-button joysticks.
+
+   Matthew Leverton (<email>matthew@leverton.cc</a>).<br>
+   Fixed a bug with mouse mickeys in windowed mode under Windows. Fixed a
+   problem with al_find*() and NTFS partitions under Windows. Added missing
+   header files to be installed by the Windows binary distribution, made the
+   DOS/Windows makefiles use 'copy /B' instead of 'copy', added the detection
+   of left-hand mouse configuration under Windows and fixed a bug with
+   pack_fgets().
+
+   Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
+   Contributed the Canada (French) keyboard mapping file.
 
    Michael Bevin (<email>michael.bevin@stonebow.otago.ac.nz</a>).<br>
    Optimised the create_trans_table() function.
@@ -452,6 +514,9 @@ Contributors
    Improved the accuracy of the timer routines, and added the callback 
    parameters.
 
+   Nicholas Davies(<email>master_goodbytes@hotmail.com</a>).<br>
+   Made the fix class not trigger warnings with gcc -Weffc++.
+
    Nick Kochakian (<email>nickk@worldnet.att.net</a>).<br>
    Wrote the DirectSound input driver.
 
@@ -462,6 +527,10 @@ Contributors
 
    Olly Betts (<email>olly@muscat.co.uk</a>).<br>
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
+
+   Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
+   Added the Catalan translation, corrected the Spanish translation and fixed
+   a conflict between the magic main and the MFC.
 
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.
@@ -532,6 +601,13 @@ Contributors
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
 
+   Philipp Thomas (<email>pthomas@suse.de</a>).<br>
+   Fixed all comparisons between signed and unsigned types, thus allowing to
+   build with -W -Wno-unused on Unix systems, fixed the compilation on
+   x86-64, fixed all function prototypes, thus allowing to build with
+   -Wstrict-prototypes on Unix systems, and added the German translation to
+   the RPM spec file.
+
    Przemek Podsiadly (<email>ppodsiad@elka.pw.edu.pl</a>).<br>
    Added hicolor versions of the 3d polygon code.
 
@@ -545,16 +621,22 @@ Contributors
    Added support for 6-button joysticks, and wrote the 12-bit color example 
    program (ex12bit.c).
 
+   Richard Reeve (<email>r.e.reeve@stir.ac.uk</a>).<br>
+   Fixed a silly mistake with gcc 3.0.x detection.
+
    Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
    Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 
    PSX, and throttle input code.
 
-   Robert J. Ohannessian (<email>voidstar_@excite.com</a>).<br>
+   Robert J. Ohannessian (<email>voidstar@ifrance.com</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
-   masked_blits with SSE instructions.  Added some routines to the unified
-   color convertor.  Revamped the retrieval mechanism of CPU capabilities.
-   Did plenty of other things too.
+   masked_blits with SSE instructions. Added some routines to the unified
+   color convertor and made some of them more robust. Revamped the retrieval
+   mechanism of CPU capabilities. Did plenty of other things too.
+
+   Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
+   Added an srand() call in the demo game.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -606,7 +688,7 @@ Contributors
    Added support for a second joystick.
 
    Stefan Schimanski (<email>1Stein@gmx.de</a>).<br>
-   Wrote the Windows version pretty much single-handedly.
+   Wrote the original Windows version pretty much single-handedly.
 
    Stefan T. Boettner (<email>virtual.man@t-online.de</a>).<br>
    Wrote the Linux SVGAlib driver.
@@ -621,7 +703,7 @@ Contributors
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
 
-   Sven Sandberg (<email>svsa1977@student.uu.se</a>).<br>
+   Sven Sandberg (<email>svens@it.uu.se</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 
    the create_light_table() function, optimised the fixed point trig 
    routines, provided the Swedish message translations, improved the file 
@@ -641,6 +723,9 @@ Contributors
    Theuzifan Sumachingun (<email>uzi@simauria.upv.es</a>).<br>
    Improved the cpu detection for Cyrix chips and made the file selector 
    only list valid drive letters.
+
+   Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
+   Added NetBSD detection.
 
    Thomas Wolf (<email>two@chello.at</a>).<br>
    Corrected some errors in the German keyboard mapping, and added the 
@@ -672,6 +757,9 @@ Contributors
    and other keys to the input handler, and organised getting the IF-SEGA
    joystick drivers by S.Suzuki merged into my codebase. Added more
    aggressive Sidewinder joystick driver.
+
+   Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
+   Fixed a problem with make install libdir= and modules on Unix systems.
 
    Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
@@ -737,7 +825,7 @@ Thanks!
    John Pollard (<email>74723.1626@compuserve.com</a>).<br>
    The FM instrument definitions are based on his MID-KIT library.
 
-   Kendall Bennett and all the other cool people at SciTech Software.<br>
+   Kendall Bennett and all the other cool people@SciTech Software.<br>
    These guys gave the world UniVBE, the VBE/AF API, and a lot of free 
    information and example code. Plus they very kindly sent me a copy of the 
    VBE/AF spec when I wanted one.

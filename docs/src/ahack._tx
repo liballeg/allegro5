@@ -188,32 +188,34 @@ for including a version number in things like the DLL filename.
 @heading
 Header Files
 
-allegro.h lives in the include/ directory. This includes other headers which 
-live in the include/allegro/ tree. The reason for this slightly odd approach is
-that allegro.h can include things like "allegro/internal/alconfig.h", which
-will work both in-situ within the build directory, and if we copy allegro.h to
-the system include directory and the other headers into
-system_include/allegro/. This avoids cluttering the system directories with
-lots of our headers, while still allowing programs to just include
-&ltallegro.h&gt, and also makes it possible for people to access internal
-headers with #include &ltallegro/internal/aintern.h&gt.
+allegro.h lives in the include/ directory. It is only a placeholder which
+includes other headers which live in the include/allegro/ tree. The reason
+for this slightly odd approach is that allegro.h can include things like
+"allegro/keyboard.h", which will work both in-situ within the build
+directory, and if we copy allegro.h to the system include directory and the
+other headers into system_include/allegro/. This avoids cluttering the
+system directories with lots of our headers, while still allowing programs
+to just #include &ltallegro.h&gt, and also makes it possible for people to
+access keyboard stuff with #include &ltallegro/keyboard.h&gt.
 
-allegro.h includes alconfig.h, which checks the current platform and 
-includes a helper header for this compiler (aldjgpp.h, almsvc.h, alwatcom.h, 
-etc). That helper header defines a bunch of macros describing the system, 
-emulates whatever things are needed to make the code compile properly, and 
-optionally defines ALLEGRO_EXTRA_HEADER and ALLEGRO_INTERNAL_HEADER if it is 
-going to need any other platform-specific includes.
+base.h includes alconfig.h, which checks the current platform and includes
+a helper header for this compiler (aldjgpp.h, almsvc.h, alwatcom.h,  etc).
+That helper header defines a bunch of macros describing the system, emulates
+whatever things are needed to make the code compile properly, and optionally
+defines ALLEGRO_EXTRA_HEADER and ALLEGRO_INTERNAL_HEADER if it is going to
+need any other platform-specific includes.
 
 After including the platform header, the rest of alconfig.h defines a lot of 
 generic helper macros to their default values, but only if the platform 
 header hasn't already overridden these to something specific.
 
-allegro.h contains structure definitions and function prototypes. At the end 
-of the file, it includes alinline.h, which defines all the inline routines 
-and vtable wrappers, along with C versions of the fixed point math routines 
-if no inline asm is available. If inline asm is supported, it includes one 
-of al386gcc.h, al386vc.h, or al386wat.h.
+Every module-specific header contains structure definitions and function
+prototypes. At the end of the file, it may include a header from the
+include/allegro/inline/ directory which defines related inline routines.
+If inline asm is supported, this can include in turn asm.inl which imports
+routines from one of the compiler-specific files al386gcc.h, al386vc.h and
+al386wat.h; otherwise C versions are used instead. The header alinline.h
+is a placeholder which includes all the headers defining inline functions.
 
 If ALLEGRO_EXTRA_HEADER is defined, allegro.h includes this at the very end. 
 This is used to include one of the files aldos.h, alwin.h, etc, which define 
@@ -225,10 +227,7 @@ the earlier header described the basic language syntax.
 
 aintern.h is like the internal.h in earlier Allegro versions, defining 
 routines that are shared between multiple sources, but that we don't 
-generally want user programs to see. For platform-specific internal 
-definitions, we have aintdos.h, aintwin.h, etc. These headers are not 
-included directly by allegro.h, but can still be included by the more brave 
-or foolish type of user program :-)
+generally want user programs to see.
 
 On platforms which have specific, non-portable API routines of their own, 
 these should go in a special header in the root of the include directory, 
@@ -256,10 +255,11 @@ C sources.
 
 The symbol ALLEGRO_SRC is defined while compiling library source files. If 
 you want to inline a function in one of your sources, use the INLINE macro. 
-To declare a zero-sized array in a structure, use int x[ZERO_SIZE]. To use 
-64 bit integers, declare a LONG_LONG variable (this won't be defined on all 
-platforms). To do things with filenames, check the macros ALLEGRO_LFN, 
-OTHER_PATH_SEPARATOR, and DEVICE_SEPARATOR. See the headers for details.
+To declare a zero-sized array in terminal position inside a structure, use 
+the ZERO_SIZE_ARRAY(type, name) macro. To use 64 bit integers, declare a 
+LONG_LONG variable (this won't be defined on all platforms). To do things 
+with filenames, check the macros ALLEGRO_LFN, OTHER_PATH_SEPARATOR, and 
+DEVICE_SEPARATOR. See the headers for details.
 
 
 
@@ -352,6 +352,108 @@ gracefully no matter whether the user calls allegro_exit(), falls off the
 bottom of main(), or the program dies suddenly due to a runtime error. You 
 must call _remove_exit_func() from inside your shutdown routine, or you will 
 find yourself stuck in an endless loop.
+
+
+
+@heading
+How to contribute patches
+
+Once you are willing to contribute that beautiful hack which does what
+everybody has been waiting for, the fix for that hideous bug which has been
+driving you mad for several nights, the nice improved documentation you would
+have liked to read in the manual for the first time, etc, you have already
+done the hardest part. Now you only need a way to let the Allegro developers
+merge your changes in the main distribution.
+
+You could probably send your patch to one of the people working on Allegro,
+but this is not very safe, it depends on the person you chose being available
+and willing to do the work for you. The best you can do is to send your patch
+to the Allegro Developers mailing list. Read the readme.txt file for
+information on how to subscribe to this list.  Alternatively, updated
+subscription instructions should always be available at
+<link>http://alleg.sourceforge.net/maillist.en</a>.
+
+Sending your patches to the mailing list instead of a single person is good,
+because all the subscribed developers can take a look at your modifications,
+suggest improvements, or find problems, which you can discuss on the same
+mailing list, letting other developers join the conversation when they
+consider appropriate. If the modifications are good, they will probably be
+accepted and merged in the WIP version for the next release. If you aren't
+lucky, or your patch still needs some work, you will be told why it's not
+accepted, or what you have to do to improve it. If you aren't subscribed to
+the list, remember to tell it in your email.
+
+
+
+@hnode Building your patch against an existent release
+
+If you have obtained Allegro from an existent release, stable or unstable,
+you will have all the source code contained in some archive format. You will
+need it, because to create a patch you need two versions of each modified
+file, the original version, and your modified version.  You will also need
+the diff tool, which is used to create the patches. This tool is usually
+packaged as a standalone package in most GNU/Linux distributions with the
+same name. For DOS, you can get a port from <link>http://www.delorie.com/djgpp/</a>.
+Just choose a mirror from <link>http://www.delorie.com/djgpp/getting.html</a>,
+enter the v2gnu directory and download the difxxb.zip package. While you are
+at it, you can also get a tool named patch (patxxb.zip), which is used to
+apply patches generated by diff, in case you have to apply the patches
+somebody else sends to you. Install the binaries in some directory of your
+path, so that you can use them from anywhere.
+
+If you are planing to modify only one file, you will usually copy this file
+to the same name in the same directory with the appended extension '.old'
+before starting to work on it. After you have made your modifications to the
+file, and verified that they please you, go to the directory containing the
+modified and original files and type at the prompt:
+<pre>
+   diff -u file.c.old file.c > patch
+</pre>
+This command will generate a text file which contains the differences
+between both files in unified output format. Open it with your prefered
+editor and verify that it contains the modifications you wanted to do: lines
+you have added will be marked with a plus sign '+', lines you have removed
+will be marked with a minus sign '-'. If the file is bigger than a few
+kilobytes, compress it before sending to the developers mailing list, and of
+course remember to add an explanation of what the patch is meant to do, why
+it's needed, and any other information you consider relevant.
+
+If the modifications you want to do are scattered through several files
+and/or directories, this form of patch generation is very tiresome for both
+ends (you, and the developers). So unpack a fresh copy of the Allegro source
+somewhere and move it to the parent directory where your current version is,
+after giving it another name of course, so as to obtain two complete sources
+trees side by side. Modify the files you wish in your working
+directory. Once you are finished, go back to the parent directory housing the
+two source trees and type:
+<pre>
+   diff -ur fresh_original_directory working_directory > patch
+</pre>
+The '-r' switch makes diff compare directories recursively. Again, do the
+previous steps of verifying your patch, compressing and sending with correct
+instructions.  If your patch adds or removes files, you will have to add the
+'-N' switch, because by default diff will ignore files which are only in one
+of the trees. Of course, you might want to run a 'make clean' in your working
+directory before running this command, or you will include lots of generated
+files which have nothing to do with your patch.  Or you could edit the
+resulting patch, but that can be error prone.
+
+
+
+@hnode Building your patch against a CVS version
+
+If you are working with the cvs version of Allegro which you can get from
+Sourceforge (<link>http://sourceforge.net/projects/alleg/</a>), you won't need
+to copy any files at all. Just modify the files you want, go to the root
+directory of the cvs copy and type:
+<pre>
+   cvs diff -u > patch
+</pre>
+Unlike the standalone diff, the cvs diff command will work recursively
+through the Allegro source tree, comparing each file against the Sourceforge
+repository. The patch will have slightly different headers, but that's ok,
+once you have it follow the previous process to send it to the developers
+mailing list. Of course, check cvs' manual for more information and options.
 
 
 @</body>

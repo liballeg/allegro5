@@ -26,10 +26,8 @@
    hardware drivers: the djgpp and Watcom versions are 100% identical in this
    respect.
 
-   This library should work with Watcom C versions 10.6 or 11.0, but I have 
-   no way to test anything but 10.6, and only minimal interest in 
-   maintaining this port, so I'm afraid you are pretty much on your own if 
-   you have problems with any different compiler versions.
+   This library works with version 10.6 and the various 11.0 versions of the
+   Watcom C compiler, as well as with Open Watcom 1.0 or later.
 
 
 
@@ -37,11 +35,12 @@
 ============ Required software ============
 ===========================================
 
-   - Watcom C, version 10.6 or 11.0
+   - Watcom C version 10.6 or 11.0x, or Open Watcom 1.0 or later.
    - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
    - GNU make (mak*b.zip).
-   - sed (sed*b.zip).
-   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+   - GNU sed (sed*b.zip):
+        Required for 10.6: Used to build asm sources.
+        Optional for other versions: Used by "make depend".
 
    Except for the Watcom compiler itself, all of the above packages can be 
    downloaded from your nearest SimTel mirror site, in the 

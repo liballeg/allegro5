@@ -413,6 +413,16 @@ static void find_sound_drivers(void)
 	 }
        #endif
 
+       #ifdef DIGI_ARTS
+	 case DIGI_ARTS:
+	 {
+	    static char *param[] = {"flip_pan", "sound_bits", "sound_stereo", "sound_freq", "digi_volume", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("aRts");
+	    break;
+	 }
+       #endif
+
        #ifdef DIGI_ALSA
 	 case DIGI_ALSA:
 	 {
@@ -1323,6 +1333,7 @@ static int detect_mouse(void)
    int retval = -1;
    char buffer[256];
    char tmp1[256], tmp2[256], tmp3[64], tmp4[64];
+   AL_CONST char *drv_name;
    int count;
    _DRIVER_INFO *list;
    int list_size;
@@ -1336,10 +1347,10 @@ static int detect_mouse(void)
       goto finished;
    }
 
+   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
+
    while (read(fd, buffer, 1) == 1)
       ;
-
-   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
 
    w = sizeof(buffer);
    l = (SCREEN_W - w)/2;
@@ -1350,7 +1361,7 @@ static int detect_mouse(void)
    rect(popup_bitmap2, l-1, t-1, r, b+1, gui_fg_color);
    blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 
-   for (count = 0; count < sizeof(buffer); ) {
+   for (count = 0; count < (int)sizeof(buffer); ) {
       if (read(fd, buffer+count, 1) == 1) {
          vline(popup_bitmap2, l + count*w/sizeof buffer, t, b, gui_mg_color);
 	 blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
@@ -1362,10 +1373,10 @@ static int detect_mouse(void)
 
    if (count == 0)
       popup(uconvert_ascii("No data received", tmp1), NULL);
-   else if (count < sizeof(buffer))
+   else if (count < (int)sizeof(buffer))
       popup(uconvert_ascii("Insufficient data received", tmp1), NULL);
 
-   if (count < sizeof(buffer)) {
+   if (count < (int)sizeof(buffer)) {
       retval = -1;
       goto finished;
    }
@@ -1376,17 +1387,19 @@ static int detect_mouse(void)
    for (i = 0; i < list_size; i++) {
       MOUSE_DRIVER *drv = list[i].driver;
       if (drv->analyse_data && drv->analyse_data (buffer, count)) {
-	 if (alert(uconvert_ascii("This driver understands your mouse:", tmp1), drv->name, uconvert_ascii("Select it?", tmp2),
-             uconvert_ascii("Yes", tmp3), uconvert_ascii("No", tmp4), 'y', 'n') == 1)
+	 drv_name = get_config_text(drv->ascii_name);
+	 if (alert(uconvert_ascii("This driver understands your mouse:", tmp1), drv_name, uconvert_ascii("Select it?", tmp2),
+		   uconvert_ascii("Yes", tmp3), uconvert_ascii("No", tmp4), 'y', 'n') == 1)
 	    break;
       }
    }
 
-   if (i < list_size)
+   if (i < list_size) {
       retval = i;
+   }
    else {
-      alert(uconvert_ascii("No drivers understand your mouse", tmp1), NULL, uconvert_ascii("Try using the GPM repeater", tmp2),
-            uconvert_ascii("Ok", tmp3), NULL, 0, 0);
+      alert(uconvert_ascii("No driver understands your mouse", tmp1), uconvert_ascii("Try using the GPM repeater", tmp2),
+	    uconvert_ascii("or set the device filename by hand", tmp3), uconvert_ascii("Ok", tmp4), NULL, 0, 0);
       retval = -1;
    }
 
@@ -2196,7 +2209,7 @@ static void setup_param_dialog(void)
       c++;
    }
 
-   param_ok = ((int)d - (int)param_dlg) / sizeof(DIALOG);
+   param_ok = (int)(d - param_dlg);
 
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)        (p)                        (help) */
    DLG(d_button_proc,   30,   142,  125,  25,   -1,   16,   13,   D_EXIT,  0,    0,    uconvert_static_string("OK"), NULL,    uconvert_static_string("Use these parameters"));
@@ -2443,8 +2456,8 @@ static DIALOG_STATE main_handler(int c)
 	 if (init_sound(uconvert_ascii("Unable to autodetect!", tmp1)) != 0)
 	    return state_redraw;
 
-	 uszprintf(b1, sizeof(b1), uconvert_ascii("Digital: %s", tmp1), digi_driver->name);
-	 uszprintf(b2, sizeof(b2), uconvert_ascii("MIDI: %s", tmp1), midi_driver->name);
+	 uszprintf(b1, sizeof(b1), uconvert_ascii("Digital: %s", tmp1), uconvert_ascii(digi_driver->ascii_name, tmp2));
+	 uszprintf(b2, sizeof(b2), uconvert_ascii("MIDI: %s", tmp1), uconvert_ascii(midi_driver->ascii_name, tmp2));
 	 alert(uconvert_ascii("- detected hardware -", tmp1), b1, b2, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
 
 	 for (i=0; parameters[i].name; i++) {
@@ -2485,9 +2498,9 @@ static DIALOG_STATE main_handler(int c)
 	 if (init_sound(uconvert_ascii("Sound initialization failed!", tmp1)) != 0)
 	    return state_redraw;
 	 uszprintf(digi_desc, sizeof(digi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
-                   digi_driver->name, digi_driver->desc);
-         uszprintf(midi_desc, sizeof(midi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
-                   midi_driver->name, midi_driver->desc);
+		   uconvert_ascii(digi_driver->ascii_name, tmp2), digi_driver->desc);
+	 uszprintf(midi_desc, sizeof(midi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
+		   uconvert_ascii(midi_driver->ascii_name, tmp2), midi_driver->desc);
 	 activate_dialog(test_dlg, test_handler, FALSE);
 	 break;
 
@@ -2649,12 +2662,16 @@ static DIALOG_STATE main_handler(int c)
 	 joystick_dlg[2].d1 = 0;
 	 get_joystick_drivers(&list, &list_size);
 
+	 install_joystick(JOY_TYPE_AUTODETECT);
+
 	 for (i=0; list[i].driver; i++) {
 	    if (list[i].id == _joy_type) {
 	       joystick_dlg[2].d1 = i;
 	       break;
 	    }
 	 }
+
+	 remove_joystick();
 
 	 activate_dialog(joystick_dlg, joystick_handler, FALSE);
 	 break;
@@ -2785,8 +2802,6 @@ int main(void)
 
    if (!language_type[i])
       ustrzcpy(language_type, sizeof(language_type), uconvert_ascii("en", tmp2));
-
-   install_joystick(JOY_TYPE_AUTODETECT);
 
    find_sound_drivers();
 

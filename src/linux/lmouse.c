@@ -159,11 +159,12 @@ static void resume_mouse (void);
 static void suspend_mouse (void);
 
 static STD_DRIVER std_mouse = {
-	STD_MOUSE,
-	update_mouse,
-	resume_mouse,
-	suspend_mouse,
-	-1  /* fd -- filled in later */
+   STD_MOUSE,
+   update_mouse,
+   resume_mouse,
+   suspend_mouse,
+   -1,  /* fd -- filled in later */
+   { 0 }
 };
 
 

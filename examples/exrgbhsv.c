@@ -131,7 +131,7 @@ DIALOG the_dlg[] =
 
 
 
-int main()
+int main(void)
 {
    allegro_init();
    install_keyboard();

@@ -529,7 +529,7 @@ static void do_fli_lc(unsigned char *p, int sz)
 /* do_fli_black:
  *  Processes an FLI BLACK chunk
  */
-static void do_fli_black()
+static void do_fli_black(void)
 {
    clear_bitmap(fli_bitmap);
 
@@ -704,7 +704,7 @@ static int _fli_parse_chunk(FLI_CHUNK *chunk, unsigned char *p, unsigned long fr
 /* read_frame:
  *  Advances to the next frame in the FLI.
  */
-static void read_frame()
+static void read_frame(void)
 {
    unsigned char *p;
    FLI_CHUNK chunk;
@@ -823,7 +823,7 @@ static void read_frame()
  *  reading a frame and displaying it, rather than between one frame and
  *  the next, in order to make the playback as smooth as possible.
  */
-static int do_play_fli(BITMAP *bmp, int loop, int (*callback)())
+static int do_play_fli(BITMAP *bmp, int loop, int (*callback)(void))
 {
    int ret;
 
@@ -902,7 +902,7 @@ int play_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void)
 /* do_open_fli:
  *  Worker function used by open_fli() and open_memory_fli().
  */
-static int do_open_fli()
+static int do_open_fli(void)
 {
    long speed;
 

@@ -53,6 +53,7 @@ static char *module_path[] =
 static void strip(char *s)
 {
     char *x;
+    if (!s[0]) return;
     for (x = s + strlen(s) - 1; isspace(*x); x--);
     x[1] = '\0';
     for (x = s; isspace(*x); x++);
@@ -67,26 +68,43 @@ static void strip(char *s)
 void _unix_load_modules(int system_driver)
 {
    PACKFILE *f;
-   char **path;
+   char fullpath[1024];
+   char *fullpath_slash;
    char buf[1024];
    char buf2[1024];
-   char buf3[1024];
+   char **pathptr;
    char *filename;
    void *handle;
    void (*init)(int);
    MODULE *m;
  
-   for (path = module_path; *path; path++) {
-      snprintf(buf, sizeof buf, "%s%d.%d/modules.lst", *path,
-	       ALLEGRO_VERSION, ALLEGRO_SUB_VERSION);
-      f = pack_fopen(uconvert_ascii(buf, buf2), F_READ);
-      if (f) goto found;
+   /* Read the ALLEGRO_MODULES environment variable.
+    * But don't do it if we are root (for obvious reasons).
+    */
+   if (geteuid() != 0) {
+      char *env = getenv("ALLEGRO_MODULES");
+      if (env) {
+	 snprintf(fullpath, sizeof fullpath, "%s/%s", env, "modules.lst");
+	 fullpath[(sizeof fullpath) - 1] = 0;
+	 f = pack_fopen(uconvert_ascii(fullpath, buf), F_READ);
+	 if (f) goto found;
+      }
    }
 
-   return;
+   for (pathptr = module_path; *pathptr; pathptr++) {
+      snprintf(fullpath, sizeof fullpath, "%s/%d.%d/modules.lst",
+	       *pathptr, ALLEGRO_VERSION, ALLEGRO_SUB_VERSION);
+      fullpath[(sizeof fullpath) - 1] = 0;
+      f = pack_fopen(uconvert_ascii(fullpath, buf), F_READ);
+      if (f) goto found;
+   }
    
+   return;
+
    found:
 
+   fullpath_slash = strrchr(fullpath, '/');
+   
    while (!pack_feof(f)) {
       if (!pack_fgets(buf, sizeof buf, f))
          break;
@@ -95,16 +113,19 @@ void _unix_load_modules(int system_driver)
       if ((filename[0] == '#') || (strlen(filename) == 0))
 	 continue;
 
-      if (filename[0] != '/') {
-	 snprintf(buf3, sizeof buf3, "%s%d.%d/%s", *path,
-		  ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, filename);
-	 filename = buf3;
+      if (!fullpath_slash) {
+         snprintf(fullpath, sizeof fullpath, filename);
+	 fullpath[(sizeof fullpath) - 1] = 0;
       }
-
-      if (!exists(uconvert_ascii(filename, buf)))
+      else {
+	 snprintf(fullpath_slash+1, (sizeof fullpath) - (fullpath_slash - fullpath) - 1, filename);
+	 fullpath[(sizeof fullpath) - 1] = 0;
+      }
+      
+      if (!exists(uconvert_ascii(fullpath, buf)))
 	 continue;
 
-      handle = dlopen(filename, RTLD_NOW);
+      handle = dlopen(fullpath, RTLD_NOW);
       if (!handle) {
 	 /* useful during development */
 	 /* printf("Error loading module: %s\n", dlerror()); */
@@ -134,14 +155,27 @@ void _unix_load_modules(int system_driver)
 void _unix_unload_modules(void)
 {
    MODULE *m, *next;
-   void (*shutdown)();
+   void (*shutdown)(void);
+   int *dont_unload;
    
    for (m = module_list; m; m = next) {
       next = m->next;
+
       shutdown = dlsym(m->handle, "_module_shutdown");
       if (shutdown)
          shutdown();
-      dlclose(m->handle);
+
+      /* Dirty hack: If the loaded module registers its own cleanup
+       * function with atexit, we mustn't unload the module, otherwise
+       * the atexit machinery will end up referring to a function that
+       * won't exist by the end of the program.  This problem only
+       * affects SVGAlib currently.
+       */
+      dont_unload = dlsym(m->handle, "_module_dont_unload_me_dirty_hack");
+
+      if ((!dont_unload) || !(*dont_unload))
+	  dlclose(m->handle);
+
       free(m);
    }
    

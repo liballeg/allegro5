@@ -23,7 +23,8 @@ write_code() {
     echo "\$(LIBDIR)/${sharelib}: ${shareobj}"
     echo "	rm -f \$@"
     # gf: This bit is obviously gcc-specific
-    echo "	gcc -shared -o \$@ ${shareobj} \$(LDFLAGS) -Wl,-soname,lib${1}.so.\$(shared_major_minor) \$(LIBS)"
+    # eb: Yes, but the GNU C Compiler doesn't always spell 'gcc'
+    echo "	\$(CC) -shared -o \$@ ${shareobj} \$(LDFLAGS) -Wl,-h,lib${1}.so.\$(shared_major_minor) \$(LIBS)"
     echo ""
     echo "\$(LIBDIR)/${unsharelib}: ${unshareobj}"
     echo "	rm -f \$@"
@@ -31,9 +32,12 @@ write_code() {
 }
 
 
+# See src/unix/udummy.c for the rationale
 sources=`echo $* | sed 's,[^	 ]*/,,g'`
 sharable_sources=`echo $sources | sed 's,[^.	 ]*\.s,,g'`
+sharable_sources=`echo $sharable_sources | sed 's,[	 ]*udummy\.c,,g'`
 unsharable_sources=`echo $sources | sed 's,[^.	 ]*\.[^s],,g'`
+unsharable_sources=`echo $unsharable_sources udummy.c`
 
 objects=`echo $sources | sed 's,\.[^.	 ]*,,g'`
 sharable_objects=`echo $sharable_sources | sed 's,\.[^.	 ]*,,g'`

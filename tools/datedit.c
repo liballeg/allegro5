@@ -34,16 +34,16 @@ DATAFILE datedit_info = { info_msg, DAT_INFO, sizeof(info_msg), NULL };
 
 static int file_datasize;
 
-void (*grabber_sel_palette)() = NULL;
-void (*grabber_select_property)() = NULL;
-void (*grabber_get_grid_size)() = NULL;
-void (*grabber_rebuild_list)() = NULL;
-void (*grabber_get_selection_info)() = NULL;
-int (*grabber_foreach_selection)() = NULL;
-DATAFILE *(*grabber_single_selection)() = NULL;
-void (*grabber_set_selection)() = NULL;
-void (*grabber_busy_mouse)() = NULL;
-void (*grabber_modified)() = NULL;
+void (*grabber_sel_palette)(PALETTE pal) = NULL;
+void (*grabber_select_property)(int type) = NULL;
+void (*grabber_get_grid_size)(int *x, int *y) = NULL;
+void (*grabber_rebuild_list)(void *old, int clear) = NULL;
+void (*grabber_get_selection_info)(DATAFILE **dat, DATAFILE ***parent) = NULL;
+int (*grabber_foreach_selection)(int (*proc)(DATAFILE *, int *, int), int *count, int *param, int param2) = NULL;
+DATAFILE *(*grabber_single_selection)(void) = NULL;
+void (*grabber_set_selection)(void *object) = NULL;
+void (*grabber_busy_mouse)(int busy) = NULL;
+void (*grabber_modified)(int modified) = NULL;
 
 BITMAP *grabber_graphic = NULL;
 PALETTE grabber_palette;

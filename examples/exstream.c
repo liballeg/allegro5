@@ -14,7 +14,7 @@
 
 
 
-int main()
+int main(void)
 {
    AUDIOSTREAM *stream;
    int updates = 0;
@@ -37,10 +37,17 @@ int main()
    /* install a digital sound driver */
    if (install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error initialising sound system\n%s\n", allegro_error);
+      allegro_message("Error initialising sound driver\n%s\n", allegro_error);
       return 1;
    }
 
+   /* we want a _real_ sound driver */
+   if (digi_card == DIGI_NONE) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Unable to find a sound driver\n%s\n", allegro_error);
+      return 1;
+   }
+   
    /* create an audio stream */
    stream = play_audio_stream(BUFFER_SIZE, 8, FALSE, 22050, 255, 128);
    if (!stream) {

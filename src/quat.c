@@ -22,13 +22,8 @@
 
 
 
-#ifndef M_PI
-   #define M_PI   3.14159265358979323846
-#endif
-
-
-#define floatcos(x)   ((float)(cos((x) * M_PI / 128.0)))
-#define floatsin(x)   ((float)(sin((x) * M_PI / 128.0)))
+#define floatcos(x)   ((float)(cos((x) * AL_PI / 128.0)))
+#define floatsin(x)   ((float)(sin((x) * AL_PI / 128.0)))
 
 
 #define EPSILON (0.001)

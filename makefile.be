@@ -43,7 +43,7 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-WFLAGS = -Wall -W -Werror -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
+WFLAGS = -Wall -W -Wstrict-prototypes -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy -Werror
 else
 WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 endif
@@ -88,7 +88,7 @@ else
 CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
-ifdef SYMBOLMODE
+ifndef SYMBOLMODE
 LFLAGS = -s
 else
 LFLAGS = 
@@ -100,7 +100,7 @@ endif
 
 # -------- list which platform specific objects to include --------
 
-VPATH = src/beos src/i386 src/misc tools/beos
+VPATH = src/beos src/i386 src/misc src/unix tools/beos
 
 LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
 
@@ -234,11 +234,15 @@ include makefile.tst
 
 # -------- finally, we get to the fun part... --------
 
+ifdef PROFILEMODE
+OTHER_OBJECTS = /boot/develop/lib/x86/i386-mcount.o
+endif
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+ar rs $(LIB_NAME) $(OBJECTS) $(OTHER_OBJECTS)
 endef
 
 else
@@ -246,7 +250,7 @@ else
 # -------- link as a shared library --------
 
 define MAKE_LIB
-gcc -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LIBRARIES)
+gcc -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(OTHER_OBJECTS) $(LIBRARIES)
 endef
 
 endif # STATICLINK
@@ -267,7 +271,7 @@ $(OBJ_DIR)/%.o: %.s
 
 # link without Allegro, because we have no shared library yet
 docs/makedoc: $(OBJ_DIR)/makedoc$(OBJ)
-	gcc -o $@ $<
+	gcc -o $@ $< $(OTHER_OBJECTS)
 
 obj/beos/asmdef.inc: obj/beos/asmdef
 	obj/beos/asmdef obj/beos/asmdef.inc
@@ -311,7 +315,7 @@ fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/beos/*.cpp tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/beos/*.cpp tools/plugins/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alleg\/\1/" _depend2.tmp > obj/beos/alleg/makefile.dep

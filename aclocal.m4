@@ -149,11 +149,6 @@ fi
 AC_MSG_RESULT(\"$allegro_cv_asm_prefix\")])
 
 dnl
-dnl Turn off Pentium optimizations by default.
-dnl
-allegro_pentium_optimizations=no
-
-dnl
 dnl Test for modules support (dlopen interface and -export-dynamic linker flag).
 dnl
 dnl Variables:
@@ -207,7 +202,7 @@ AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_XWINDOWS,
 test "X$enableval" != "Xno" && allegro_enable_xwin_shm=yes,
 allegro_enable_xwin_shm=yes)
 AC_ARG_ENABLE(xwin-vidmode,
-[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Extension [default=yes]],
+[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Ext. [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86vidmode=yes,
 allegro_enable_xwin_xf86vidmode=yes)
 AC_ARG_ENABLE(xwin-dga,
@@ -378,10 +373,62 @@ test "X$enableval" != "Xno" && allegro_enable_esddigi=yes,
 allegro_enable_esddigi=yes)
 
 if test -n "$allegro_enable_esddigi"; then
-  AC_CHECK_HEADER(esd.h, allegro_support_esddigi=yes)
-  if test -n "$allegro_support_esddigi" && 
-     test -z "$allegro_support_modules"; then
-    LIBS="-lesd $LIBS"
+  AC_PATH_PROG(ESD_CONFIG, esd-config)
+  if test -n "$ESD_CONFIG"; then
+    ALLEGRO_OLD_LIBS="$LIBS"
+    ALLEGRO_OLD_CFLAGS="$CFLAGS"
+    LIBS="`$ESD_CONFIG --libs` $LIBS"
+    CFLAGS="`$ESD_CONFIG --cflags` $CFLAGS"
+    AC_MSG_CHECKING(for esd_open_sound)
+    AC_TRY_LINK([#include <esd.h>],
+      [esd_open_sound(0);],
+      [allegro_support_esddigi=yes
+       if test -n "$allegro_support_modules"; then
+         LIBS="$ALLEGRO_OLD_LIBS"
+       fi],
+      [CFLAGS="$ALLEGRO_OLD_CFLAGS"
+       LIBS="$ALLEGRO_OLD_LIBS"])
+    if test -n "$allegro_support_esddigi"; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
+    fi
+  fi
+fi])
+
+dnl
+dnl Test for ARTS DIGI driver.
+dnl
+dnl Variables:
+dnl  allegro_support_artsdigi=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_ARTSDIGI,
+[AC_ARG_ENABLE(artsdigi,
+[  --enable-artsdigi[=x]    enable building ARTS DIGI driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_artsdigi=yes,
+allegro_enable_artsdigi=yes)
+
+if test -n "$allegro_enable_artsdigi"; then
+  AC_PATH_PROG(ARTSC_CONFIG, artsc-config)
+  if test -n "$ARTSC_CONFIG"; then
+    ALLEGRO_OLD_LIBS="$LIBS"
+    ALLEGRO_OLD_CFLAGS="$CFLAGS"
+    LIBS="`$ARTSC_CONFIG --libs` $LIBS"
+    CFLAGS="`$ARTSC_CONFIG --cflags` $CFLAGS"
+    AC_MSG_CHECKING(for arts_init)
+    AC_TRY_LINK([#include <artsc.h>],
+      [arts_init();],
+      [allegro_support_artsdigi=yes
+       if test -n "$allegro_support_modules"; then
+         LIBS="$ALLEGRO_OLD_LIBS"
+       fi],
+      [CFLAGS="$ALLEGRO_OLD_CFLAGS"
+       LIBS="$ALLEGRO_OLD_LIBS"])
+    if test -n "$allegro_support_artsdigi"; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
+    fi
   fi
 fi])
 
@@ -462,10 +509,30 @@ dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
 [AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
 AC_CACHE_VAL(allegro_cv_support_fomit_frame_pointer,
-[if test $GCC = yes && $CC --version | grep -q '3\.0\(\.\?[[012]]\)\?$'; then
+[if test $GCC = yes && $CC --version | grep '3\.0\(\.\?[[012]]\)\?$' >/dev/null; then
   allegro_cv_support_fomit_frame_pointer=no
 else
   allegro_cv_support_fomit_frame_pointer=yes
 fi
 ])
 AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])
+
+dnl Test for include path conflict with gcc 3.1 or later.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_include_prefix
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX,
+[AC_MSG_CHECKING(whether an include prefix is needed)
+allegro_save_CFLAGS="$CFLAGS"
+CFLAGS="-Werror -I$prefix/include $CFLAGS"
+AC_CACHE_VAL(allegro_cv_support_include_prefix,
+[if test $GCC = yes; then
+   AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_include_prefix=yes, allegro_cv_support_include_prefix=no)
+else
+   allegro_cv_support_include_prefix=yes
+fi
+])
+CFLAGS="$allegro_save_CFLAGS"
+AC_MSG_RESULT($allegro_cv_support_include_prefix)])
+

@@ -335,7 +335,7 @@ static int awe32_detect(int input)
 /* awe32_lockmem:
  *  Locks required memory blocks
  */
-static void awe32_lockmem()
+static void awe32_lockmem(void)
 {
    /* functions */
    LOCK_FUNCTION(awe32_key_on);

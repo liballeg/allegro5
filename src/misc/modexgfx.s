@@ -21,7 +21,7 @@
  */
  
  
-#include "src/i386/asmdefs.inc"
+#include "../i386/asmdefs.inc"
 
 
 .text

@@ -36,12 +36,13 @@ extern int    __crt0_argc;
 extern char **__crt0_argv;
 
 #ifndef USE_CONSOLE
-# define main _mangled_main
-# undef END_OF_MAIN
-# define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
+   #define ALLEGRO_MAGIC_MAIN
+   #define main _mangled_main
+   #undef END_OF_MAIN
+   #define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
 #else
-# undef END_OF_MAIN
-# define END_OF_MAIN() void *_mangled_main_address;
+   #undef END_OF_MAIN
+   #define END_OF_MAIN() void *_mangled_main_address;
 #endif
 
 
@@ -99,6 +100,21 @@ AL_VAR(DIGI_DRIVER, digi_esd);
 #endif
 
 #endif /* ALLEGRO_WITH_ESDDIGI */
+
+#ifdef ALLEGRO_WITH_ARTSDIGI
+
+#define DIGI_ARTS             AL_ID('A','R','T','S')
+
+#ifndef ALLEGRO_WITH_MODULES
+
+AL_VAR(DIGI_DRIVER, digi_arts);
+
+#define DIGI_DRIVER_ARTS                                         \
+      {  DIGI_ARTS,       &digi_arts,            TRUE  },
+
+#endif
+
+#endif /* ALLEGRO_WITH_ARTSDIGI */
 
 #ifdef ALLEGRO_WITH_ALSADIGI
 
@@ -235,36 +251,36 @@ AL_FUNC(void, split_modex_screen, (int line));
 
 /* Port I/O functions -- maybe these should be internal */
 
-static inline void outportb(unsigned short port, unsigned char value)
+static INLINE void outportb(unsigned short port, unsigned char value)
 {
    __asm__ volatile ("outb %0, %1" : : "a" (value), "d" (port));
 }
 
-static inline void outportw(unsigned short port, unsigned short value)
+static INLINE void outportw(unsigned short port, unsigned short value)
 {
    __asm__ volatile ("outw %0, %1" : : "a" (value), "d" (port));
 }
 
-static inline void outportl(unsigned short port, unsigned long value)
+static INLINE void outportl(unsigned short port, unsigned long value)
 {
    __asm__ volatile ("outl %0, %1" : : "a" (value), "d" (port));
 }
 
-static inline unsigned char inportb(unsigned short port)
+static INLINE unsigned char inportb(unsigned short port)
 {
    unsigned char value;
    __asm__ volatile ("inb %1, %0" : "=a" (value) : "d" (port));
    return value;
 }
 
-static inline unsigned short inportw(unsigned short port)
+static INLINE unsigned short inportw(unsigned short port)
 {
    unsigned short value;
    __asm__ volatile ("inw %1, %0" : "=a" (value) : "d" (port));
    return value;
 }
 
-static inline unsigned long inportl(unsigned short port)
+static INLINE unsigned long inportl(unsigned short port)
 {
    unsigned long value;
    __asm__ volatile ("inl %1, %0" : "=a" (value) : "d" (port));

@@ -49,6 +49,11 @@ proc_filelist()
    if [ "$1" != "omit_sh" ]; then
       AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh'`"
    fi
+
+   # touch DOS batch files?
+   if [ "$1" != "omit_bat" ]; then
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat'`"
+   fi
 }
 
 proc_utod()
@@ -56,24 +61,31 @@ proc_utod()
    echo "Converting files from Unix to DOS/Win32..."
    proc_filelist "omit_sh"
    for file in $AL_FILELIST; do
-      echo "$file"
-      cp $file _tmpfile
-      perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" _tmpfile
-      touch -r $file _tmpfile
-      mv _tmpfile $file
+      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+         unix2dos $file
+      else
+         echo "$file"
+         perl -p -e "s/([^\r]|^)\n/\1\r\n/" $file > _tmpfile
+         touch -r $file _tmpfile
+         mv _tmpfile $file
+      fi
    done
 }
 
 proc_dtou()
 {
    echo "Converting files from DOS/Win32 to Unix..."
-   proc_filelist
+   proc_filelist "omit_bat"
    for file in $AL_FILELIST; do
-      echo "$file"
-      mv $file _tmpfile
-      tr -d '\015' < _tmpfile > $file
-      touch -r _tmpfile $file
-      rm _tmpfile
+      if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+         dos2unix $file
+      else
+         echo "$file"
+         mv $file _tmpfile
+         tr -d '\015' < _tmpfile > $file
+         touch -r _tmpfile $file
+         rm _tmpfile
+      fi
    done
    chmod +x *.sh misc/*.sh misc/*.pl
    if [ -e configure ]; then
@@ -127,12 +139,12 @@ esac
 
 if [ "$AL_NOCONV" != "1" ]; then
    case "$2" in
-      "--utod"  ) proc_utod;;
-      "--dtou"  ) proc_dtou;;
-      "--utom"  ) proc_utom;;
-      "--mtou"  ) proc_mtou;;
+      "--utod"  ) proc_utod "$1";;
+      "--dtou"  ) proc_dtou "$1";;
+      "--utom"  ) proc_utom "$1";;
+      "--mtou"  ) proc_mtou "$1";;
       "--quick" ) echo "No text file conversion...";;
-      *         ) proc_dtou;;
+      *         ) proc_dtou "$1";;
    esac
 fi
 

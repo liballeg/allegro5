@@ -84,29 +84,20 @@ ifdef MSVCDir
    MSVCDIR_U = $(subst \,/,$(MSVCDir))
    MSVCDIR_D = $(subst /,\,$(MSVCDir))
 else
-ifdef MSDEVDIR
-   MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
-   MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
-else
-ifdef MSDevDir
-   MSVCDIR_U = $(subst \,/,$(MSDevDir))
-   MSVCDIR_D = $(subst /,\,$(MSDevDir))
-else
 badmsvc:
-	@echo Your MSVCDIR or MSDEVDIR environment variable is not set!
-endif
-endif
+	@echo Your MSVCDIR environment variable is not set!
+	@echo See the docs/build/msvc.txt file!
 endif
 endif
 
 NULLSTRING :=
 SPACE := $(NULLSTRING) # special magic to get an isolated space character
 
-ifneq ($(findstring $(SPACE),$(MSVCDIR)$(MSDEVDIR)),)
+ifneq ($(findstring $(SPACE),$(MSVCDIR)),)
 badspaces:
-	@echo There are spaces in your MSVCDIR or MSDEVDIR environment
-	@echo variables: please change these to the 8.3 short filename
-	@echo version, or move your compiler to a different directory.
+	@echo There are spaces in your MSVCDIR environment variable:
+	@echo please change it to the 8.3 short filename version,
+	@echo or move your compiler to a different directory.
 endif
 
 
@@ -173,8 +164,6 @@ dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
-
-DISTCLEAN_FILES += $(addprefix tests/win/, dibgrab.exe dibhello.exe dibsound.exe scrsave.scr) tools/win/wfixicon.exe
 
 
 
@@ -343,7 +332,7 @@ endif
 
 .PHONY: compress
 
-compress: $(PROGRAMS)
+compress:
 ifdef UPX_BIN
 	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/msvc/all*.dll
 else
@@ -392,23 +381,43 @@ $(OBJ_DIR)/%.obj: %.s
 $(OBJ_DIR)/%.obj: %.rc
 	rc -i"include" -fo$@ $<
 
-$(OBJ_DIR)/%.res: %.rc
+obj/msvc/%.res: %.rc
 	rc -fo$@ $<
 
-*/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj obj/msvc/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
-
-tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj obj/msvc/scrsave.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj obj/msvc/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+obj/msvc/demo.res: demo/demo.dat tools/win/wfixicon.exe
+ifdef STATICLINK
+	tools/win/wfixicon.exe obj/msvc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+else
+   ifdef UNIX_TOOLS
+	cp tools/win/wfixicon.exe lib/msvc/wfixicon.exe
+   else
+	copy tools\win\wfixicon.exe lib\msvc\wfixicon.exe
+   endif
+	lib/msvc/wfixicon.exe obj/msvc/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+   ifdef UNIX_TOOLS
+	rm lib/msvc/wfixicon.exe
+   else
+	del lib\msvc\wfixicon.exe
+   endif
+endif
+
+demo/demo.exe: $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj obj/msvc/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+
+*/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME) $(RUNNER)
 
@@ -436,7 +445,7 @@ ifdef UNIX_TOOLS
    endef
 else
    define GENERATE_PLUGINS_H
-      copy tools\plugins\*.inc obj\msvc\plugins.h
+      copy /B tools\plugins\*.inc obj\msvc\plugins.h
    endef
 endif
 
@@ -451,18 +460,6 @@ endef
 define LINK_CONSOLE_WITH_PLUGINS
    $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
-
-
-
-# -------- demo program iconification --------
-
-.PHONY: fixdemo
-
-$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-
-fixdemo: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 
 

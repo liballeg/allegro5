@@ -16,6 +16,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <assert.h>
 
 
 #define TEXT_FLAG             0x00000001
@@ -44,6 +45,7 @@
 #define HEADER_FLAG           0x00800000
 #define START_TITLE_FLAG      0x01000000
 #define END_TITLE_FLAG        0x02000000
+#define MANGLE_EMAILS         0x08000000
 
 
 #define TOC_SIZE     8192
@@ -97,9 +99,21 @@ char mansynopsis[256] = "";
 
 char *html_extension = "html";
 char *texinfo_extension = "txi";
+char *email_mangle_at, *email_mangle_dot;
 
 int mpreformat = 0;
 int mpreindent = 0;
+
+
+
+static void _activate_email_mangling(const char *txt);
+static void _mangle_email_links(char *buf);
+static char *_mangle_email(const char *email, int len);
+static char *my_strcat(char *dynamic_string, const char *normal_string);
+static char *my_strdup(const char *text);
+static void *my_xrealloc(void *ptr, size_t new_size);
+static void *my_xmalloc(size_t size);
+static void my_abort(int code);
 
 
 
@@ -246,6 +260,11 @@ void free_data(void)
 
       free(tocprev);
    }
+
+   if (email_mangle_at)
+      free(email_mangle_at);
+   if (email_mangle_dot)
+      free(email_mangle_dot);
 }
 
 
@@ -438,6 +457,9 @@ int read_file(char *filename, char *htmlname)
 	 p--;
       }
 
+      if (flags & MANGLE_EMAILS)
+	 _mangle_email_links(buf);
+
       if (buf[0] == '@') {
 	 /* a marker line */
 	 if (mystricmp(buf+1, "text") == 0)
@@ -523,6 +545,9 @@ int read_file(char *filename, char *htmlname)
 	    add_toc_line(buf+11, NULL, 1, line, 0, 1, 1);
 	 else if (strincmp(buf+1, "multiwordheaders") == 0)
 	    multiwordheaders = 1;
+	 else if (strincmp(buf+1, "mangle_emails=") == 0) {
+	    _activate_email_mangling(buf+15);
+	 }
 	 else if (buf[1] == '<')
 	    add_line(buf+1, (flags | HTML_FLAG | HTML_CMD_FLAG | NO_EOL_FLAG ) & (~TEXT_FLAG));
 	 else if (buf[1] == '$')
@@ -566,6 +591,91 @@ int read_file(char *filename, char *htmlname)
 
    fclose(f);
    return 0;
+}
+
+
+
+/* _activate_email_mangling:
+ * Called when the input ._tx file contains @mangle_emails=x. Activates
+ * the global mangling flag, and reads from txt two strings separated
+ * by space character which are meant to be used for '@' and '.'
+ * respectively in the email mangling.
+ */
+static void _activate_email_mangling(const char *txt)
+{
+   const char *p;
+   assert(txt);
+   assert(*txt);
+
+   flags |= MANGLE_EMAILS;
+   /* free previous strings if they existed */
+   if (email_mangle_at) free(email_mangle_at);
+   if (email_mangle_dot) free(email_mangle_dot);
+
+   /* find space separator to detect words */
+   p = strchr(txt, ' ');
+   assert(p);     /* format specification requires two words with space */
+   email_mangle_at = my_strdup(txt);
+   *(email_mangle_at + (p - txt)) = 0;
+   assert(*(p + 1));                            /* second word required */
+   email_mangle_dot = my_strdup(p+1);
+}
+
+
+
+/* _mangle_email_links:
+ * Checks the given buffer for <email>..</a> links and mangles them.
+ * Modifications are made directly over buf, make sure there's enough
+ * space in it.
+ */
+static void _mangle_email_links(char *buf)
+{
+   assert(buf);
+   while(*buf && (buf = strstr(buf, "<email>"))) {
+      char *temp, *end = strstr(buf, "</a>");
+      assert(end);                       /* can't have multiline emails */
+      buf += 7;
+      temp = _mangle_email(buf, end - buf);
+      memmove(buf + strlen(temp), end, strlen(end) + 1);
+      strncpy(buf, temp, strlen(temp));
+      free(temp);
+   }
+}
+
+
+/* _mangle_email:
+ * Given a string, len characters will be parsed. '@' will be substituted
+ * by "' %s ', email_mangle_at", and '.' will be substituted by "' %s ",
+ * email_mangle_dot". The returned string has to be freed by the caller.
+ */
+static char *_mangle_email(const char *email, int len)
+{
+   char *temp, buf[2];
+   int pos;
+   assert(email);
+   assert(*email);
+   assert(len > 0);
+
+   temp = my_strdup(email);
+   *temp = 0;
+   buf[1] = 0;
+   for(pos = 0; pos < len; pos++) {
+      if(email[pos] == '@') {
+         temp = my_strcat(temp, " ");
+         temp = my_strcat(temp, email_mangle_at);
+         temp = my_strcat(temp, " ");
+      }
+      else if(email[pos] == '.') {
+         temp = my_strcat(temp, " ");
+         temp = my_strcat(temp, email_mangle_dot);
+         temp = my_strcat(temp, " ");
+      }
+      else {
+         buf[0] = email[pos];
+         temp = my_strcat(temp, buf);
+      }
+   }
+   return temp;
 }
 
 
@@ -789,7 +899,7 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	    else {
 	       strcpy(name, filename);
 	       s = extension(name)-1;
-	       if ((int)s - (int)get_filename(name) > 5)
+	       if (s - get_filename(name) > 5)
 		  s = get_filename(name)+5;
 	       sprintf(s, "%03d.%s", section_number, html_extension);
 	       hfprintf(f, "<li><a href=\"%s\">%s</a>\n", get_filename(name), ALT_TEXT(toc));
@@ -846,8 +956,15 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	    toc = toc->next;
 	 }
 
-	 if (nested)
+	 if (nested) {
+	    if (i > 1)
+	       qsort(ptr, i, sizeof(TOC *), toc_scmp);
+	    for (j = 0; j < i; j++)
+	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", ptr[j]->text, ALT_TEXT(ptr[j]));
+
+	    nested = i = 0;
 	    fprintf(f, "</h4></ul>\n");
+	 }
 
 	 if (root)
 	    fprintf(f, "</h2></ul>\n");
@@ -1175,7 +1292,7 @@ int write_html(char *filename)
 	       fclose(f);
 	       strcpy(buf, filename);
 	       s = extension(buf)-1;
-	       if ((int)s - (int)get_filename(buf) > 5)
+	       if (s - get_filename(buf) > 5)
 		  s = get_filename(buf)+5;
 	       sprintf(s, "%03d.%s", section_number-1, html_extension);
 	       printf("writing %s\n", buf);
@@ -1325,16 +1442,25 @@ void html2texinfo(FILE *f, char *p)
 
 
 
-void write_textinfo_xref(FILE *f, char *xref)
+void write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes)
 {
    char *tok;
 
    tok = strtok(xref, ",;");
 
    while (tok) {
+      char **p = chapter_nodes;
       while ((*tok) && (myisspace(*tok)))
 	 tok++;
-      tfprintf(f, "@xref{%s}.@*\n", tok);
+      while(*p) {
+	 if(!strincmp(tok, strip_html(*p)))
+	    break;
+	 p++;
+      }
+      if(*p)
+	 tfprintf(f, "@xref{%s, %s}.@*\n", first_word(tok), strip_html(*p));
+      else
+	 tfprintf(f, "@xref{%s}.@*\n", tok);
       tok = strtok(NULL, ",;");
    }
 }
@@ -1346,14 +1472,14 @@ int write_texinfo(char *filename)
    char buf[256];
    LINE *line = head, *title_line = 0;
    char *p, *str, *next, *prev;
-   char *xref[256];
+   char *xref[256], *chapter_nodes[256];
    int xrefs = 0;
    int in_item = 0;
    int section_number = 0;
    int toc_waiting = 0;
    int continue_def = 0;
    int title_pass = 0;
-   int i;
+   int i = 0;
    FILE *f;
 
    printf("writing %s\n", filename);
@@ -1362,6 +1488,26 @@ int write_texinfo(char *filename)
    if (!f)
       return 1;
 
+   /* First scan all the chapters of the documents and build a lookup table
+    * with their text lines. This lookup table will be used during the
+    * generation of @xref texinfo commands, due to textinfo's restriction
+    * that nodes can't contain spaces, and hence remain as a single word.
+    */
+   chapter_nodes[0] = 0;
+   while (line) {
+      if (line->flags & TEXINFO_FLAG) {
+	 p = line->text;
+
+	 if (line->flags & HEADING_FLAG) {
+	    chapter_nodes[i++] = p;
+	    chapter_nodes[i] = 0;
+	 }
+      }
+      line = line->next;
+   }
+
+   line = head;
+   
    while (line) {
       if (line->flags & TEXINFO_FLAG) {
 	 p = line->text;
@@ -1392,7 +1538,7 @@ int write_texinfo(char *filename)
 		  if (xrefs > 0) {
 		     fputs("See also:@*\n", f);
 		     for (i=0; i<xrefs; i++)
-			write_textinfo_xref(f, xref[i]);
+			write_textinfo_xref(f, xref[i], chapter_nodes);
 		     xrefs = 0;
 		  }
 		  tfprintf(f, "@node %s, %s, %s, %s\n", buf, next, prev, node_name(section_number-1));
@@ -1456,7 +1602,7 @@ int write_texinfo(char *filename)
 	       if (xrefs > 0) {
 		  fputs("See also:@*\n", f);
 		  for (i=0; i<xrefs; i++)
-		     write_textinfo_xref(f, xref[i]);
+		     write_textinfo_xref(f, xref[i], chapter_nodes);
 		  xrefs = 0;
 	       }
 	       p = strip_html(p);
@@ -1527,7 +1673,7 @@ int write_texinfo(char *filename)
 	    if (xrefs > 0) {
 	       fputs("See also:@*\n", f);
 	       for (i=0; i<xrefs; i++)
-		  write_textinfo_xref(f, xref[i]);
+		  write_textinfo_xref(f, xref[i], chapter_nodes);
 	       xrefs = 0;
 	    }
 	    tfprintf(f, "@node %s, %s, %s, %s\n", line->text, next, prev, node_name(section_number-1));
@@ -2517,4 +2663,85 @@ int main(int argc, char *argv[])
 
    return err;
 }
+
+
+
+/* my_strcat:
+ * Special strcat function, which is a mixture of realloc and strcat.
+ * The first parameter has to be a pointer to dynamic memory, since it's
+ * space will be resized with my_xrealloc (it can be NULL). The second
+ * pointer can be any type of string, and will be appended to the first
+ * one. This function returns a new pointer to the memory holding both
+ * strings.
+ */
+static char *my_strcat(char *dynamic_string, const char *normal_string)
+{
+   int len;
+
+   if(!dynamic_string)
+      return my_strdup(normal_string);
+
+   len = strlen(dynamic_string);
+   dynamic_string = my_xrealloc(dynamic_string, 1 + len + strlen(normal_string));
+   strcpy(dynamic_string + len, normal_string);
+   return dynamic_string;
+}
+
+
+
+/* my_strdup:
+ * Safe wrapper around strdup, always returns the duplicated string.
+ */
+static char *my_strdup(const char *text)
+{
+   char *p = my_xmalloc(strlen(text)+1);
+   return strcpy(p, text);
+}
+
+
+
+/* my_xrealloc:
+ * Wrapper around real realloc call. Returns the new chunk of memory or
+ * aborts execution if it couldn't realloc it.
+ */
+static void *my_xrealloc(void *ptr, size_t new_size)
+{
+   if (!ptr)
+      return my_xmalloc(new_size);
+   ptr = realloc(ptr, new_size);
+   if (!ptr) my_abort(1);
+   return ptr;
+}
+
+
+
+/* my_xmalloc:
+ * Returns the requested chunk of memory. If there's not enough
+ * memory, the program will abort.
+ */
+static void *my_xmalloc(size_t size)
+{
+   void *p = malloc(size);
+   if (!p) my_abort(1);
+   return p;
+}
+
+
+
+/* my_abort:
+ * Aborts execution with a hopefully meaningful message. If code is less
+ * than 1, an undefined exit will happen. Available error codes:
+ * 1: insufficient memory
+ */
+static void my_abort(int code)
+{
+   switch(code) {
+      case 1:  printf("Aborting due to insuficcient memory\n"); break;
+      default: printf("An undefined error caused abnormal termination\n");
+   }
+   abort();
+}
+
+
+
 

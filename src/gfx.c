@@ -20,6 +20,7 @@
  */
 
 
+#include <math.h>
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
@@ -1160,6 +1161,24 @@ void ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 
 
 
+/* get_point_on_arc:
+ *  Helper function for the do_arc() function, converting from (radius, angle)
+ *  to (x, y).
+ */
+static INLINE void get_point_on_arc(int r, fixed a, int *out_x, int *out_y)
+{
+   double s, c;
+   double double_a = a * (AL_PI * 2 / (1 << 24));
+   s = sin(double_a);
+   c = cos(double_a);
+   s = -s * r;
+   c = c * r;
+   *out_x = (int)((c < 0) ? (c - 0.5) : (c + 0.5));
+   *out_y = (int)((s < 0) ? (s - 0.5) : (s + 0.5));
+}
+
+
+
 /* do_arc:
  *  Helper function for the arc function. Calculates the points in an arc
  *  of radius r around point x, y, going anticlockwise from fixed point
@@ -1170,243 +1189,180 @@ void ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
  */
 void do_arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int d, void (*proc)(BITMAP *, int, int, int))
 {
-   unsigned long rr = r*r;
-   unsigned long rr1, rr2, rr3;
+   /* start position */
+   int sx, sy;
+   /* current position */
    int px, py;
+   /* end position */
    int ex, ey;
-   int px1, px2, px3;
-   int py1, py2, py3;
-   int d1, d2, d3;
-   int ax, ay;
-   int q, qe;
-   long tg_cur, tg_end;
-   int done = FALSE;
+   /* square of radius of circle */
+   long rr;
+   /* difference between main radius squared and radius squared of three
+      potential next points */
+   long rr1, rr2, rr3;
+   /* square of x and of y */
+   unsigned long xx, yy, xx_new, yy_new;
+   /* start quadrant, current quadrant and end quadrant */
+   int sq, q, qe;
+   /* direction of movement */
+   int dx, dy;
+   /* temporary variable for determining if we have reached end point */
+   int det;
 
-   rr1 = r;
-   rr2 = itofix(x);
-   rr3 = itofix(y);
+   /* Calculate the start point and the end point. */
+   /* We have to flip y because bitmaps count y coordinates downwards. */
+   get_point_on_arc(r, ang1, &sx, &sy);
+   px = sx;
+   py = sy;
+   get_point_on_arc(r, ang2, &ex, &ey);
 
-   /* evaluate the start point and the end point */
-   px = fixtoi(rr2 + rr1 * fixcos(ang1));
-   py = fixtoi(rr3 - rr1 * fixsin(ang1));
-   ex = fixtoi(rr2 + rr1 * fixcos(ang2));
-   ey = fixtoi(rr3 - rr1 * fixsin(ang2));
+   rr = r*r;
+   xx = px*px;
+   yy = py*py - rr;
 
-   /* start quadrant */
-   if (px >= x) {
-      if (py <= y)
-	 q = 1;                           /* quadrant 1 */
-      else
-	 q = 4;                           /* quadrant 4 */
-   }
-   else {
-      if (py < y)
-	 q = 2;                           /* quadrant 2 */
+   /* Find start quadrant. */
+   if (px >= 0) {
+      if (py <= 0)
+	 q = 0;                           /* quadrant 0 */
       else
 	 q = 3;                           /* quadrant 3 */
    }
-
-   /* end quadrant */
-   if (ex >= x) {
-      if (ey <= y)
-	 qe = 1;                          /* quadrant 1 */
-      else
-	 qe = 4;                          /* quadrant 4 */
-   }
    else {
-      if (ey < y)
-	 qe = 2;                          /* quadrant 2 */
+      if (py < 0)
+	 q = 1;                           /* quadrant 1 */
+      else
+	 q = 2;                           /* quadrant 2 */
+   }
+   sq = q;
+
+   /* Find end quadrant. */
+   if (ex >= 0) {
+      if (ey <= 0)
+	 qe = 0;                          /* quadrant 0 */
       else
 	 qe = 3;                          /* quadrant 3 */
    }
-
-   #define loc_tg(_y, _x)  (_x-x) ? itofix(_y-y)/(_x-x) : itofix(_y-y)
-
-   tg_end = loc_tg(ey, ex);
-
-   while (!done) {
-      proc(bmp, px, py, d);
-
-      /* from here, we have only 3 possible direction of movement, eg.
-       * for the first quadrant:
-       *
-       *    OOOOOOOOO
-       *    OOOOOOOOO
-       *    OOOOOO21O
-       *    OOOOOO3*O
-       */
-
-      /* evaluate the 3 possible points */
-      switch (q) {
-
-	 case 1:
-	    px1 = px;
-	    py1 = py-1;
-	    px2 = px-1;
-	    py2 = py-1;
-	    px3 = px-1;
-	    py3 = py;
-
-	    /* 2nd quadrant check */
-	    if (px != x) {
-	       break;
-	    }
-	    else {
-	       /* we were in the end quadrant, changing is illegal. Exit. */
-	       if (qe == q)
-		  done = TRUE;
-	       q++;
-	    }
-	    /* fall through */
-
-	 case 2:
-	    px1 = px-1;
-	    py1 = py;
-	    px2 = px-1;
-	    py2 = py+1;
-	    px3 = px;
-	    py3 = py+1;
-
-	    /* 3rd quadrant check */
-	    if (py != y) {
-	       break;
-	    }
-	    else {
-	       /* we were in the end quadrant, changing is illegal. Exit. */
-	       if (qe == q)
-		  done = TRUE;
-	       q++;
-	    }
-	    /* fall through */
-
-	 case 3:
-	    px1 = px;
-	    py1 = py+1;
-	    px2 = px+1;
-	    py2 = py+1;
-	    px3 = px+1;
-	    py3 = py;
-
-	    /* 4th quadrant check */
-	    if (px != x) {
-	       break;
-	    }
-	    else {
-	       /* we were in the end quadrant, changing is illegal. Exit. */
-	       if (qe == q)
-		  done = TRUE;
-	       q++;
-	    }
-	    /* fall through */
-
-	 case 4:
-	    px1 = px+1;
-	    py1 = py;
-	    px2 = px+1;
-	    py2 = py-1;
-	    px3 = px;
-	    py3 = py-1;
-
-	    /* 1st quadrant check */
-	    if (py == y) {
-	       /* we were in the end quadrant, changing is illegal. Exit. */
-	       if (qe == q)
-		  done = TRUE;
-
-	       q = 1;
-	       px1 = px;
-	       py1 = py-1;
-	       px2 = px-1;
-	       py2 = py-1;
-	       px3 = px-1;
-	       py3 = py;
-	    }
-	    break;
-
-	 default:
-	    return;
-      }
-
-      /* now, we must decide which of the 3 points is the right point.
-       * We evaluate the distance from center and, then, choose the
-       * nearest point.
-       */
-      ax = x-px1;
-      ay = y-py1;
-      rr1 = ax*ax + ay*ay;
-
-      ax = x-px2;
-      ay = y-py2;
-      rr2 = ax*ax + ay*ay;
-
-      ax = x-px3;
-      ay = y-py3;
-      rr3 = ax*ax + ay*ay;
-
-      /* difference from the main radius */
-      if (rr1 > rr)
-	 d1 = rr1-rr;
+   else {
+      if (ey < 0)
+	 qe = 1;                          /* quadrant 1 */
       else
-	 d1 = rr-rr1;
-      if (rr2 > rr)
-	 d2 = rr2-rr;
-      else
-	 d2 = rr-rr2;
-      if (rr3 > rr)
-	 d3 = rr3-rr;
-      else
-	 d3 = rr-rr3;
-
-      /* what is the minimum? */
-      if (d1 <= d2) {
-	 px = px1;
-	 py = py1;
-      }
-      else if (d2 <= d3) {
-	 px = px2;
-	 py = py2;
-      }
-      else {
-	 px = px3;
-	 py = py3;
-      }
-
-      /* are we in the final quadrant? */
-      if (qe == q) {
-	 tg_cur = loc_tg(py, px);
-
-	 /* is the arc finished? */
-	 switch (q) {
-
-	    case 1:
-	       /* end quadrant = 1? */
-	       if (tg_cur <= tg_end)
-		  done = TRUE;
-	       break;
-
-	    case 2:
-	       /* end quadrant = 2? */
-	       if (tg_cur <= tg_end)
-		  done = TRUE;
-	       break;
-
-	    case 3:
-	       /* end quadrant = 3? */
-	       if (tg_cur <= tg_end)
-		  done = TRUE;
-	       break;
-
-	    case 4:
-	       /* end quadrant = 4? */
-	       if (tg_cur <= tg_end)
-		  done = TRUE;
-	       break;
-	 }
-      }
+	 qe = 2;                          /* quadrant 2 */
    }
 
-   /* draw the last evaluated point */
-   proc(bmp, px, py, d);
+   if (q > qe) {
+      /* qe must come after q. */
+      qe += 4;
+   }
+   else if (q == qe) {
+      /* If q==qe but the beginning comes after the end, make qe be
+       * strictly after q.
+       */
+      if (((ang2&0xffffff) < (ang1&0xffffff)) ||
+	  (((ang1&0xffffff) < 0x400000) && ((ang2&0xffffff) >= 0xc00000)))
+         qe += 4;
+   }
+
+   /* initial direction of movement */
+   if (((q+1)&2) == 0)
+      dy = -1;
+   else
+      dy = 1;
+   if ((q&2) == 0)
+      dx = -1;
+   else
+      dx = 1;
+
+   while (TRUE) {
+      /* Change quadrant when needed.
+       * dx and dy determine the possible directions to go in this
+       * quadrant, so they must be updated when we change quadrant.
+       */
+      if ((q&1) == 0) {
+         if (px == 0) {
+            if (qe == q)
+	       break;
+	    q++;
+	    dy = -dy;
+	 }
+      }
+      else {
+         if (py == 0) {
+	    if (qe == q)
+	       break;
+	    q++;
+	    dx = -dx;
+	 }
+      }
+
+      /* Are we in the final quadrant? */
+      if (qe == q) {
+	 /* Have we reached (or passed) the end point both in x and y? */
+	 det = 0;
+
+	 if (dy > 0) {
+	    if (py >= ey)
+	       det++;
+	 }
+	 else {
+	    if (py <= ey)
+	       det++;
+	 }
+	 if (dx > 0) {
+	    if (px >= ex)
+	       det++;
+	 }
+	 else {
+	    if (px <= ex)
+	       det++;
+	 }
+	 
+	 if (det == 2)
+	    break;
+      }
+
+      proc(bmp, x+px, y+py, d);
+
+      /* From here, we have only 3 possible directions of movement, eg.
+       * for the first quadrant:
+       *
+       *    .........
+       *    .........
+       *    ......21.
+       *    ......3*.
+       *
+       * These are reached by adding dx to px and/or adding dy to py.
+       * We need to find which of these points gives the best
+       * approximation of the (square of the) radius.
+       */
+
+      xx_new = (px+dx) * (px+dx);
+      yy_new = (py+dy) * (py+dy) - rr;
+      rr1 = xx_new + yy;
+      rr2 = xx_new + yy_new;
+      rr3 = xx     + yy_new;
+
+      /* Set rr1, rr2, rr3 to be the difference from the main radius of the
+       * three points.
+       */
+      if (rr1 < 0)
+	 rr1 = -rr1;
+      if (rr2 < 0)
+	 rr2 = -rr2;
+      if (rr3 < 0)
+	 rr3 = -rr3;
+
+      if (rr3 >= MIN(rr1, rr2)) {
+         px += dx;
+	 xx = xx_new;
+      }
+      if (rr1 > MIN(rr2, rr3)) {
+         py += dy;
+	 yy = yy_new;
+      }
+   }
+   /* Only draw last point if it doesn't overlap with first one. */
+   if ((px != sx) || (py != sy) || (sq == qe))
+      proc(bmp, x+px, y+py, d);
 }
 
 

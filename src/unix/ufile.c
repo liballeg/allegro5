@@ -264,17 +264,20 @@ static int ff_match(AL_CONST char *s1, AL_CONST char *s2)
 static int ff_get_attrib(AL_CONST char *name, struct stat *s)
 {
    int attrib = 0;
+   uid_t euid = geteuid();
 
-   if (s->st_uid == geteuid()) {
-      if ((s->st_mode & S_IWUSR) == 0)
-         attrib |= FA_RDONLY;
-   }
-   else if (s->st_gid == getegid()) {
-      if ((s->st_mode & S_IWGRP) == 0)
-         attrib |= FA_RDONLY;
-   }
-   else if ((s->st_mode & S_IWOTH) == 0) {
-      attrib |= FA_RDONLY;
+   if (euid != 0) {
+      if (s->st_uid == euid) {
+	 if ((s->st_mode & S_IWUSR) == 0)
+	    attrib |= FA_RDONLY;
+      }
+      else if (s->st_gid == getegid()) {
+	 if ((s->st_mode & S_IWGRP) == 0)
+	    attrib |= FA_RDONLY;
+      }
+      else if ((s->st_mode & S_IWOTH) == 0) {
+	 attrib |= FA_RDONLY;
+      }
    }
 
    if (S_ISDIR(s->st_mode))

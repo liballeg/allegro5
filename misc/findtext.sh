@@ -9,9 +9,13 @@
 
 echo "Scanning for translation strings..."
 
-echo "language_name = English" > entext.cfg
-echo >> entext.cfg
-echo "[language]" >> entext.cfg
+if [ -e resource/language/entext.cfg ]; then
+   cat resource/language/entext.cfg > entext.cfg
+else
+   echo "language_name = English" > entext.cfg
+   echo >> entext.cfg
+   echo "[language]" >> entext.cfg
+fi
 
 grep get_config_text src/*.c src/*/*.c | \
    sed -n -e "s/.*get_config_text *(\"\(.*\)\").*/\1/p" \

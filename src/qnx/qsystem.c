@@ -165,7 +165,6 @@ static void qnx_event_handler(int threaded)
    static PhKeyEvent_t *key_event;
    static PhPointerEvent_t *mouse_event;
    static PhCursorInfo_t cursor_info;
-   static char *close_buttons[2];
    static int old_x = 0, old_y = 0, ig, dx, dy, buttons = 0, res, i;
    static short mx, my;
       
@@ -289,20 +288,25 @@ static void qnx_event_handler(int threaded)
                      window_close_hook();
                   }
                   else {
+                     /* display the default close box */
+                     char *close_buttons[2];
+                     char tmp[1024];
+                     char *mesg;
+
                      qnx_keyboard_focused(FALSE, 0);
                      pthread_mutex_lock(&qnx_gfx_mutex);
                      DISABLE();
 
-                     /* display the default close box */
-                     close_buttons[0] = malloc(16);
-                     close_buttons[1] = malloc(16);
-                     
-                     do_uconvert(get_config_text("Yes"), U_CURRENT, close_buttons[0], U_UTF8, 16);
-                     do_uconvert(get_config_text("No"), U_CURRENT, close_buttons[1], U_UTF8, 16);
-                     
-                     res = PtAlert(ph_window, NULL, window_title, NULL,
-                                   get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE),
-                                   NULL, 2, (const char **)close_buttons, NULL, 2, 2, Pt_MODAL);
+                     #define CB_BUFSIZE  16
+                     close_buttons[0] = malloc(CB_BUFSIZE);
+                     close_buttons[1] = malloc(CB_BUFSIZE);
+
+                     do_uconvert(get_config_text("Yes"), U_CURRENT, close_buttons[0], U_UTF8, CB_BUFSIZE);
+                     do_uconvert(get_config_text("No"), U_CURRENT, close_buttons[1], U_UTF8, CB_BUFSIZE);
+                     mesg = uconvert(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), U_CURRENT, tmp, U_UTF8, sizeof(tmp));
+    
+                     res = PtAlert(ph_window, NULL, window_title, NULL, mesg, NULL, 2,
+                                   (const char **)close_buttons, NULL, 2, 2, Pt_MODAL);
                                    
                      free(close_buttons[0]);
                      free(close_buttons[1]);

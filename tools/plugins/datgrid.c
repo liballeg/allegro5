@@ -720,7 +720,7 @@ static int autocrop(void)
 
 
 /* initialisation code for the grab-from-grid plugin */
-void datgrid_init()
+void datgrid_init(void)
 {
    int i;
 

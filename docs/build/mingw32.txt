@@ -16,6 +16,8 @@
    Robert J Ohannessian added some updates to the installation instructions
    and added an example on how to use Dev-C++ with Allegro.
 
+   Elias Pschernig and Hein Zelle revamped the cross-compilation section.
+
    See readme.txt for a more general overview.
 
 
@@ -38,12 +40,11 @@
    will work. This is because GNU make will automatically use sh.exe instead
    of command.com if it finds it somewhere in the path.
 
-   'make depend' and 'fixdll.bat' requires that you have GNU sed installed.
-   'make clean' and 'make uninstall' requires that you have GNU fileutils
-   installed. You can download some extra utilities for MingW32 from
-   'http://agnes.dida.physik.uni-essen.de/~janjaap/mingw32/download.html'
-   and
-   'ftp://ftp.franken.de/pub/win32/develop/gnuwin32/mingw32/porters/Mikey/'.
+   "make depend" and "fixdll.bat" requires that you have GNU sed installed.
+   "fixdll.bat" requires that you have GNU sort (not DOS !) installed.
+   The clean targets require that you have GNU fileutils installed.
+   You can download some extra utilities for MingW32 from:
+      http://sourceforge.net/projects/gnuwin32/
 
    If you at any stage in the installation process get an
    'Out of Environment space' message, then please see the Allegro F.A.Q.
@@ -89,10 +90,9 @@
    distributions from the internet. Please don't unzip/install until step 3.
 
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
-      You should download the complete package instead the many small ones
-      unless you want to move files manually. :-) At the time of writing
-      (November, 2001) version 1.1 is the newest. A direct link is here:
-      'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
+      or 'http://sourceforge.net/projects/mingw/'. You should download the
+      complete package instead of the many small ones unless you want to
+      move files manually. :-) Note that gcc 2.95.3 at least is required.
 
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
       from 'http://alleg.sourceforge.net/wip.html'. Please don't confuse it
@@ -153,8 +153,8 @@
       (November, 2001) version 1.1 is the newest. A direct link is here:
       'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
 
-   2) Download the Dev-C++ 4 IDE (without Mingw compiler and libraries) from
-      'http://www.bloodshed.net/dev/download.html'.
+   2) Download the Dev-C++ 4 IDE (without MingW32 compiler and libraries)
+      from 'http://www.bloodshed.net/dev/download.html'.
       Once again, make sure you do not install it until you get to step 4.
 
    3) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
@@ -166,9 +166,9 @@
 
    4) Install the package from step 1. I recommend you unzip it
       to 'C:\Dev-Cpp' (the following steps assume this is what you used).
-      Do NOT install it in a directory name with spaces, plus signs, minus
-      signs, slashes, or anything else that's fancy enough to break the
-      compiler. That goes double for people installing in C:\Program Files.
+      Do NOT install it in a directory name with spaces, plus signs, slashes, 
+      or anything else that's fancy enough to break the compiler. 
+      That goes double for people installing in C:\Program Files.
 
    5) Install the package from step 2 to 'C:\Dev-Cpp'. Overwrite any existing
       files.
@@ -210,18 +210,20 @@
        and an example program.
 
 
+
 ============================================
 ==== Setting up Cygwin to build Allegro ====
 ============================================
 
    1) Obtain the Cygwin packages. Get setup.exe from
       'http://sources.redhat.com/cygwin/'. Start the Cygwin setup program
-      and download these packages: bash, binutils, cygwin, fileutils, gcc,
-      gdb, login, make, man, mingw, sed, sh-utils, texinfo, textutils and
-      w32api.
+      and download these packages: bash, binutils, cygwin, cygutils,
+      fileutils, gcc, gdb, login, make, man, mingw-runtime, sed, sh-utils,
+      texinfo, textutils and w32api.
 
-      Install these packages. The rest of these instructions assumes
-      you installed to 'c:\cygwin'.
+      Install these packages (run setup.exe once more). The rest of these
+      instructions assumes you installed to 'c:\cygwin'. When setup asks
+      you which line endings you want, select unix-style instead of DOS.
       
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
       from 'http://alleg.sourceforge.net/wip.html' and unzip it to a
@@ -237,13 +239,19 @@
       and/or on your Windows start menu. Make sure /bin/sh exists, if not
       just run: 'ln -s /bin/bash.exe /bin/sh.exe'.
 
-   5) Then run './fix.sh mingw32'. This will take a while...
+   5) Then run './fix.sh mingw32 --dtou'. This will take a while...
 
    Test the installation by typing the following in the BASH shell:
    'gcc -v'. The answer should be similar to:
    
    Reading specs from /usr/lib/gcc-lib/i686-pc-cygwin/2.95.3-5/specs
    gcc version 2.95.3-5 (cygwin special)
+
+   Note! If you have problems installing the profiling version of the Allegro
+   library, you will probably need to copy a file called libgmon.a from the
+   MingW32 distribution to your /lib/mingw directory (c:\cygwin\lib\mingw) in
+   cygwin. This is expected to be fixed in a later release of the
+   mingw-runtime package (I'm currently using mingw-runtime-1.2-1).
 
 
 
@@ -253,24 +261,62 @@
 
    Brief example of how to set up a MingW32 cross-compiler system:
 
-   1) Download the prebuilt MingW32 cross-compiler from
-      'http://www.devolution.com/~slouken/SDL/Xmingw32/'
-      Uncompress this file to '/usr/local/'. If you put the cross-compiler
-      elsewhere you will have to edit the file 'xmake.sh' and replace
-      XC_PATH and INSTALL_BASE with the right directory names.
+   1) Download and install the MingW32 cross-compiler. You can get the
+      software:
+      - directly from the MingW site:
+          http://sourceforge.net/projects/mingw/
+        You need the following packages (as of February 2003):
+          - gcc (gcc-3.2.2-20030208-1-src.tar.gz)
+          - binutils (binutils-2.13.90-20030111-1-src.tar.gz)
+          - mingw runtime (mingw-runtime-2.4.tar.gz)
+          - w32api (w32api-2.2.tar.gz)
+        Optionally, you can get from the SDL site,
+         http://www.libsdl.org/extras/win32/common:
+          - opengl-devel (opengl-devel.tar.gz)
+      - using a more convenient script with instructions for downloading:
+         http://www.libsdl.org/extras/win32/cross/README.txt
+        Follow the instructions, and make sure to edit the build-crosh.sh
+        script so it downloads the most recent version of gcc and binutils.
+      - as a premade Debian package called 'mingw32', which you can install
+        with 'apt-get install mingw32'.
 
-   2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html' and unzip it to
-      '/usr/local/cross-tools/i386-mingw32msvc/'. Make sure you convert all
-      text files to unix style (unzip -a) or the pre-processor will croak.
+   2) Get the minimal DirectX 7 SDK for MingW32 (dx70_mgw.zip).
+      Download it from 'http://alleg.sourceforge.net/wip.html' and unzip it
+      in the cross-compiler base directory. Make sure you convert all text
+      files to unix style (unzip -a) or the preprocessor will croak. The
+      DirectX package downloaded and installed by the SDL script is not up
+      to date: replace it with the package from the Allegro site.
 
-   3) Then run './fix.sh mingw32 --dtou'. You are now finished with all the
-      preparations.
+   3) Edit the file 'xmake.sh' in the root of your Allegro directory,
+      replacing XC_PATH, XPREFIX and INSTALL_BASE with the right names.
+      For example, if your compiler's base dir (the one with bin, lib and
+      include sub-folders) is /usr/i586-mingw32msvc, and you have prefix-less
+      binaries in /usr/i586-mingw32msvc/bin, you would use:
+
+      XC_PATH=/usr/i586-mingw32msvc/bin
+      XPREFIX=
+      INSTALL_BASE=/usr/i586-mingw32msvc
+
+      Note that the build-cross.sh script from SDL installs binaries both
+      with and without prefix, but some binaries (windres specifically)
+      are installed only with prefix. If you installed the crosscompiler
+      in /opt/cross-tools using this script, you would use:
+
+      XC_PATH=/opt/cross-tools/i386-mingw32msvc/bin:/opt/cross-tools/bin
+      XPREFIX=i386-mingw32msvc-
+      INSTALL_BASE=/opt/cross-tools/i386-mingw32msvc
+
+   4) Run './fix.sh mingw32 --dtou' (--dtou is only needed if your Allegro
+      directory has text files in DOS format, otherwise you can use --quick).
+      If you are using a CVS version of Allegro, run 'make depend' to
+      generate the build dependencies, then run 'misc/fixdll.sh' to generate
+      the allegro.def file. You are now finished with all the preparations.
    
-   4) You can now run './xmake.sh' to build the Allegro library and then run
-      './xmake.sh install' as root to install Allegro. You can use
-      'xmake.sh' as you would use 'make' to compile any Allegro stuff.
-      For instance: To make documentation you can run './xmake.sh docs'.
+   5) You can now run './xmake.sh' to build the Allegro library and then run
+      './xmake.sh install' as root to install it. Afterwards, you can use
+      'xmake.sh' as you would use 'make' to compile your Allegro programs, or
+      you can use the 'cross-make.sh' and 'cross-configure.sh' scripts from
+      the SDL site. You must use 'xmake.sh' to compile Allegro itself though.
 
 
 
@@ -305,6 +351,14 @@
 
    make
 
+   If your copy of Allegro does not include the linker .def file (unlikely,
+   unless you have run "make veryclean" at some point, or are using the CVS
+   version of Allegro), you can regenerate it by running "misc\fixdll.bat".
+   You will need to have GNU sed and sort installed for this operation to
+   work. The version of sed that is linked from the MingW32 site does not
+   work properly; it has issues with end-of-line characters. You should get
+   sed and sort from the link at the top of this document.
+
    Once the build is finished you can recover some disk space by running
    "make compress", which uses the UPX program to compress the executable
    files and the optimized dll. Before running "make compress", you must set
@@ -318,7 +372,7 @@
 
    make install
   
-   You have now installed mingW32 and allegro! See the rest of the
+   You have now installed MingW32 and allegro! See the rest of the
    documentation and examples to learn more about it.
 
 
