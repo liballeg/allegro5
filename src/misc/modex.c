@@ -940,7 +940,7 @@ void _x_vline(BITMAP *bmp, int x, int y1, int y2, int color)
 /* _x_draw_sprite_v_flip:
  *  Draws a vertically flipped sprite onto a mode-X screen.
  */
-void _x_draw_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+void _x_draw_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y)
 {
    int c1, c2;
 
@@ -957,7 +957,7 @@ void _x_draw_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
 /* _x_draw_sprite_h_flip:
  *  Draws a horizontally flipped sprite onto a mode-X screen.
  */
-void _x_draw_sprite_h_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+void _x_draw_sprite_h_flip(BITMAP *bmp, BITMAP *sprite, int x, int y)
 {
    int c1, c2;
 
@@ -974,7 +974,7 @@ void _x_draw_sprite_h_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
 /* _x_draw_sprite_vh_flip:
  *  Draws a diagonally flipped sprite onto a mode-X screen.
  */
-void _x_draw_sprite_vh_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+void _x_draw_sprite_vh_flip(BITMAP *bmp, BITMAP *sprite, int x, int y)
 {
    int c1, c2;
 
@@ -991,7 +991,7 @@ void _x_draw_sprite_vh_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
 /* _x_draw_trans_sprite:
  *  Draws a translucent sprite onto a mode-X screen.
  */
-void _x_draw_trans_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+void _x_draw_trans_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
 {
    int sx, sy, sy2;
    int dx, dy;
@@ -1053,7 +1053,7 @@ void _x_draw_trans_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
 /* _x_draw_lit_sprite:
  *  Draws a lit sprite onto a mode-X screen.
  */
-void _x_draw_lit_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int color)
+void _x_draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
 {
    int sx, sy, sy2;
    int dx, dy;
@@ -1429,7 +1429,7 @@ void _x_draw_lit_rle_sprite(BITMAP *bmp, AL_CONST RLE_SPRITE *sprite, int x, int
 /* _x_draw_character:
  *  Draws a character from a proportional font onto a mode-X screen.
  */
-void _x_draw_character(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int color)
+void _x_draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
 {
    int c1, c2;
 

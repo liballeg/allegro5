@@ -58,7 +58,7 @@ BITMAP *screen = NULL;
 /* info about the current graphics drawing mode */
 int _drawing_mode = DRAW_MODE_SOLID;
 
-AL_CONST BITMAP *_drawing_pattern = NULL;
+BITMAP *_drawing_pattern = NULL;
 
 int _drawing_x_anchor = 0;
 int _drawing_y_anchor = 0;

@@ -98,7 +98,7 @@ static char mouse_pointer_data[DEFAULT_SPRITE_H][DEFAULT_SPRITE_W] =
 
 BITMAP *_mouse_pointer = NULL;         /* default mouse pointer */
 
-AL_CONST BITMAP *_mouse_sprite = NULL; /* current mouse pointer */
+BITMAP *_mouse_sprite = NULL; /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 
@@ -367,7 +367,7 @@ END_OF_FUNCTION(_handle_mouse_input);
  *  Sets the sprite to be used for the mouse pointer. If the sprite is
  *  NULL, restores the default arrow.
  */
-void set_mouse_sprite(AL_CONST struct BITMAP *sprite)
+void set_mouse_sprite(struct BITMAP *sprite)
 {
    BITMAP *old_mouse_screen = _mouse_screen;
 

@@ -699,7 +699,7 @@ void datedit_sort_properties(DATAFILE_PROPERTY *prop)
 
 
 /* splits bitmaps into sub-sprites, using regions bounded by col #255 */
-void datedit_find_character(AL_CONST BITMAP *bmp, int *x, int *y, int *w, int *h)
+void datedit_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h)
 {
    int c1;
    int c2;

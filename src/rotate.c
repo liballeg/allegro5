@@ -52,7 +52,7 @@
 /* pivot_sprite:
  *  Rotates a sprite around the specified pivot centre point.
  */
-void pivot_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int cx, int cy, fixed angle)
+void pivot_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle)
 {
    pivot_scaled_sprite(bmp, sprite, x, y, cx, cy, angle, itofix(1));
 }
@@ -60,7 +60,7 @@ void pivot_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int cx, in
 /* pivot_sprite_v_flip:
  *  Similar to pivot_sprite, except flips the sprite vertically first.
  */
-void pivot_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int cx, int cy, fixed angle)
+void pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle)
 {
    pivot_scaled_sprite_v_flip(bmp, sprite, x, y, cx, cy, angle, itofix(1));
 }
@@ -69,7 +69,7 @@ void pivot_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int
 /* pivot_scaled_sprite:
  *  Rotates a sprite around the specified pivot centre point.
  */
-void pivot_scaled_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale)
+void pivot_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale)
 {
    x -= fixtoi(sprite->w*scale/2);
    y -= fixtoi(sprite->h*scale/2);
@@ -86,7 +86,7 @@ void pivot_scaled_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int
 /* pivot_scaled_sprite_v_flip:
  *  Similar to pivot_scaled_sprite, except flips the sprite vertically first.
  */
-void pivot_scaled_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale)
+void pivot_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale)
 {
    x -= fixtoi(sprite->w*scale/2);
    y -= fixtoi(sprite->h*scale/2);
@@ -108,7 +108,7 @@ void pivot_scaled_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int
  *  to a full circle, 64 a right angle, etc. This function can draw onto
  *  both linear and mode-X bitmaps.
  */
-void rotate_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fixed angle)
+void rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle)
 {
    rotate_scaled_sprite(bmp, sprite, x, y, angle, itofix(1));
 }
@@ -116,7 +116,7 @@ void rotate_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fixed ang
 /* rotate_sprite_v_flip:
  *  Similar to rotate_sprite, except flips the sprite vertically first.
  */
-void rotate_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fixed angle)
+void rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle)
 {
    rotate_scaled_sprite_v_flip(bmp, sprite, x, y, angle, itofix(1));
 }
@@ -125,7 +125,7 @@ void rotate_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fi
 /* rotate_scaled_sprite_flip:
  *  Rotates and scales a sprite, optionally flipping it about either axis.
  */
-void rotate_scaled_sprite_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fixed angle, fixed scale, int h_flip, int v_flip)
+void rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale, int h_flip, int v_flip)
 {
    fixed f1x, f1y, f1xd, f1yd;
    fixed f2x, f2y, f2xd, f2yd;
@@ -327,7 +327,7 @@ void rotate_scaled_sprite_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int 
  *  to a full circle, 64 a right angle, etc. This function can draw onto
  *  both linear and mode-X bitmaps.
  */
-void rotate_scaled_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fixed angle, fixed scale)
+void rotate_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale)
 {
    rotate_scaled_sprite_flip(bmp, sprite, x, y, angle, scale, 0, 0);
 }
@@ -335,7 +335,7 @@ void rotate_scaled_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fi
 /* rotate_scaled_sprite_v_flip:
  *  Similar to rotate_scaled_sprite, except flips the sprite vertically first.
  */
-void rotate_scaled_sprite_v_flip(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, fixed angle, fixed scale)
+void rotate_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale)
 {
 	rotate_scaled_sprite_flip(bmp, sprite, x, y, angle, scale, 0, 1);
 }

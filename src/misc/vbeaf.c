@@ -91,7 +91,7 @@ static int vbeaf_scroll(int x, int y);
 static void vbeaf_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int vbeaf_request_scroll(int x, int y);
 static int vbeaf_poll_scroll(void);
-static int vbeaf_set_mouse_sprite(AL_CONST BITMAP *sprite, int xfocus, int yfocus);
+static int vbeaf_set_mouse_sprite(BITMAP *sprite, int xfocus, int yfocus);
 static int vbeaf_show_mouse(BITMAP *bmp, int x, int y);
 static void vbeaf_hide_mouse(void);
 static void vbeaf_move_mouse(int x, int y);
@@ -106,10 +106,10 @@ static void vbeaf_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void vbeaf_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static int  vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color);
 static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color);
-static void vbeaf_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y);
-static void vbeaf_blit_from_memory(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-static void vbeaf_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-static void vbeaf_masked_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void vbeaf_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
+static void vbeaf_blit_from_memory(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void vbeaf_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void vbeaf_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 static void vbeaf_clear_to_color(BITMAP *bitmap, int color);
 
 
@@ -126,8 +126,8 @@ static void (*orig_hline)(BITMAP *bmp, int x1, int y, int x2, int color);
 static void (*orig_line)(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void (*orig_rectfill)(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void (*orig_draw_glyph)(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color);
-static void (*orig_draw_sprite)(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y);
-static void (*orig_masked_blit)(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void (*orig_draw_sprite)(BITMAP *bmp, BITMAP *sprite, int x, int y);
+static void (*orig_masked_blit)(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
 
 static char vbeaf_desc[256] = "";
@@ -520,7 +520,7 @@ static int vbeaf_cur_x;                /* cursor position */
 static int vbeaf_cur_y;
 static int vbeaf_cur_on;
 
-static AL_CONST BITMAP *vbeaf_pattern = NULL;   /* currently loaded pattern bitmap */
+static BITMAP *vbeaf_pattern = NULL;   /* currently loaded pattern bitmap */
 
 static MMAP af_memmap[4] = { NOMM, NOMM, NOMM, NOMM };
 static MMAP af_banked_mem = NOMM;
@@ -1693,7 +1693,7 @@ static int vbeaf_poll_scroll()
  *  Attempts to download a new hardware cursor graphic, returning zero on
  *  success or non-zero if this image is unsuitable.
  */
-static int vbeaf_set_mouse_sprite(AL_CONST BITMAP *sprite, int xfocus, int yfocus)
+static int vbeaf_set_mouse_sprite(BITMAP *sprite, int xfocus, int yfocus)
 {
    AF_CURSOR cursor;
    int bpp = bitmap_color_depth(sprite);
@@ -1952,7 +1952,7 @@ static void vbeaf_drawing_mode()
 /* prepare_color_pattern:
  *  Sets up the hardware ready for a colored pattern drawing operation.
  */
-static void prepare_color_pattern(AL_CONST BITMAP *bmp)
+static void prepare_color_pattern(BITMAP *bmp)
 {
    static unsigned long pattern[64];
    int x, y, xx, yy, xo, yo;
@@ -2033,7 +2033,7 @@ static void prepare_color_pattern(AL_CONST BITMAP *bmp)
 /* prepare_mono_pattern:
  *  Sets up the hardware ready for a mono pattern drawing operation.
  */
-static void prepare_mono_pattern(AL_CONST BITMAP *bmp)
+static void prepare_mono_pattern(BITMAP *bmp)
 {
    static unsigned char pattern[8];
    int x, y, xx, yy, xo, yo;
@@ -2587,7 +2587,7 @@ static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int
 /* vbeaf_draw_sprite:
  *  Accelerated sprite drawing routine.
  */
-static void vbeaf_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+static void vbeaf_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
 {
    int sx, sy, w, h;
    int pitch;
@@ -2668,7 +2668,7 @@ END_OF_STATIC_FUNCTION(vbeaf_draw_sprite);
 /* vbeaf_blit_from_memory:
  *  Accelerated system memory -> vram blitting routine.
  */
-static void vbeaf_blit_from_memory(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void vbeaf_blit_from_memory(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    int pitch;
 
@@ -2697,7 +2697,7 @@ END_OF_STATIC_FUNCTION(vbeaf_blit_from_memory);
 /* vbeaf_blit_to_self:
  *  Accelerated vram -> vram blitting routine.
  */
-static void vbeaf_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void vbeaf_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    SAFISH_CALL(
       go_accel();
@@ -2717,7 +2717,7 @@ static void vbeaf_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source
 /* vbeaf_masked_blit:
  *  Accelerated masked blitting routine.
  */
-static void vbeaf_masked_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void vbeaf_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    int pitch;
 

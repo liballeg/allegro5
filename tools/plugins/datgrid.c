@@ -151,7 +151,7 @@ static int griddler_query(int popup)
 
 
 /* checks whether a bitmap contains any data */
-static int bitmap_is_empty(AL_CONST BITMAP *bmp)
+static int bitmap_is_empty(BITMAP *bmp)
 {
    int x, y;
    int c = getpixel(bmp, 0, 0);

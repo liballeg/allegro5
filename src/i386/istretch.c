@@ -266,7 +266,7 @@ static void free_stretchers(void)
  *  chunk of machine code to scale a line of the bitmap, and then calls this. 
  *  I just _had_ to use self modifying code _somewhere_ in Allegro :-) 
  */
-static void do_stretch_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked)
+static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int source_width, int source_height, int dest_x, int dest_y, int dest_width, int dest_height, int masked)
 {
    fixed sx, sy, sxd, syd;
    void *prev_scratch_mem;
@@ -429,7 +429,7 @@ static void do_stretch_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x,
 /* stretch_blit:
  *  Opaque bitmap scaling function.
  */
-void stretch_blit(AL_CONST BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
+void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
 {
    do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 0);
 }
@@ -439,7 +439,7 @@ void stretch_blit(AL_CONST BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int 
 /* masked_stretch_blit:
  *  Masked bitmap scaling function.
  */
-void masked_stretch_blit(AL_CONST BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
+void masked_stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h)
 {
    do_stretch_blit(s, d, s_x, s_y, s_w, s_h, d_x, d_y, d_w, d_h, 1);
 }
@@ -449,7 +449,7 @@ void masked_stretch_blit(AL_CONST BITMAP *s, BITMAP *d, int s_x, int s_y, int s_
 /* stretch_sprite:
  *  Masked version of stretch_blit().
  */
-void stretch_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int w, int h)
+void stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h)
 {
    do_stretch_blit(sprite, bmp, 0, 0, sprite->w, sprite->h, x, y, w, h, 1); 
 }

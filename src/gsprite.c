@@ -24,7 +24,7 @@
  *  Draws a lit or tinted sprite, interpolating the four corner colors
  *  over the surface of the image.
  */
-void draw_gouraud_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4)
+void draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4)
 {
    fixed mc1, mc2, mh;
    fixed lc, rc, hc;

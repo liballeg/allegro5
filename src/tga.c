@@ -389,7 +389,7 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
  *  Writes a bitmap into a TGA file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-int save_tga(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal)
+int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 {
    unsigned char image_palette[256][3];
    int x, y, c, r, g, b;

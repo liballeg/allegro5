@@ -107,7 +107,7 @@ int datedit_ask(AL_CONST char *fmt, ...);
 char *datedit_pretty_name(AL_CONST char *name, AL_CONST char *ext, int force_ext);
 int datedit_clean_typename(AL_CONST char *type);
 void datedit_set_property(DATAFILE *dat, int type, AL_CONST char *value);
-void datedit_find_character(AL_CONST BITMAP *bmp, int *x, int *y, int *w, int *h);
+void datedit_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h);
 AL_CONST char *datedit_desc(AL_CONST DATAFILE *dat);
 void datedit_sort_datafile(DATAFILE *dat);
 void datedit_sort_properties(DATAFILE_PROPERTY *prop);

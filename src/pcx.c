@@ -162,7 +162,7 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
  *  Writes a bitmap into a PCX file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-int save_pcx(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal)
+int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 {
    PACKFILE *f;
    PALETTE tmppal;

@@ -27,7 +27,7 @@
 
 
 /* checks whether this bitmap has an alpha channel */
-static int bitmap_has_alpha(AL_CONST BITMAP *bmp)
+static int bitmap_has_alpha(BITMAP *bmp)
 {
    int x, y, c;
 

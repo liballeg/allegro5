@@ -30,7 +30,7 @@
  *  lines, rectangles, triangles, etc, not the blitting or sprite
  *  drawing functions.
  */
-void drawing_mode(int mode, AL_CONST BITMAP *pattern, int x_anchor, int y_anchor)
+void drawing_mode(int mode, BITMAP *pattern, int x_anchor, int y_anchor)
 {
    _drawing_mode = mode;
    _drawing_pattern = pattern;

@@ -37,7 +37,7 @@
  *  same format (16 or 32 bits, 24 bpp data is padded to 32 bit aligment), 
  *  and the mask color (bright pink) is used as the EOL marker.
  */
-RLE_SPRITE *get_rle_sprite(AL_CONST BITMAP *bitmap)
+RLE_SPRITE *get_rle_sprite(BITMAP *bitmap)
 {
    int depth = bitmap_color_depth(bitmap);
    RLE_SPRITE *s;

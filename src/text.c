@@ -73,7 +73,7 @@ int text_mode(int mode)
 /* masked_character:
  *  Helper routine for masked multicolor output of proportional fonts.
  */
-static void masked_character(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int color)
+static void masked_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
 {
    bmp->vtable->draw_256_sprite(bmp, sprite, x, y);
 }
@@ -83,7 +83,7 @@ static void masked_character(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y,
 /* opaque_character:
  *  Helper routine for opaque multicolor output of proportional fonts.
  */
-static void opaque_character(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int color)
+static void opaque_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
 {
    blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
 }
