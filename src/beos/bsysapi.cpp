@@ -231,7 +231,39 @@ extern "C" void be_sys_get_executable_name(char *output, int size)
 
 
 
-extern "C" void be_sys_set_window_title(char *name)
+/* be_sys_find_resource:
+ *  Under BeOS we look for resources in /etc; this is just a copy of a part
+ *  of the Unix resource finder routine...
+ */
+int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
+{
+   char buf[256], tmp[256];
+   
+   /* look for /etc/file */
+   append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
+   if (exists(buf)) {
+      ustrncpy(dest, buf, size-ucwidth(0));
+      return 0;
+   }
+
+   /* if it is a .cfg, look for /etc/filerc */
+   if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
+      ustrncpy(buf, uconvert_ascii("/etc/", tmp), sizeof(buf)-ucwidth(0));
+      ustrncpy(tmp, resource, sizeof(tmp)-ucwidth(0));
+      ustrncat(buf, ustrtok(tmp, "."), sizeof(buf)-ucwidth(0));
+      ustrncat(buf, uconvert_ascii("rc", tmp), sizeof(buf)-ucwidth(0));
+      if (exists(buf)) {
+	 ustrncpy(dest, buf, size-ucwidth(0));
+	 return 0;
+      }
+   }
+
+   return -1;
+}
+
+
+
+extern "C" void be_sys_set_window_title(AL_CONST char *name)
 {
    char uname[256];
 
@@ -246,7 +278,7 @@ extern "C" void be_sys_set_window_title(char *name)
 
 
 
-extern "C" void be_sys_message(char *msg)
+extern "C" void be_sys_message(AL_CONST char *msg)
 {
    char  filename[MAXPATHLEN];
    char *title;

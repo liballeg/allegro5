@@ -71,13 +71,33 @@ class BeAllegroWindow
    : public BDirectWindow
 {
    public:
-      BeAllegroWindow(BRect, const char *, window_look, window_feel, uint32, uint32);
+      BeAllegroWindow(BRect, const char *, window_look, window_feel, uint32, uint32, uint32, uint32, uint32);
      ~BeAllegroWindow();
 
       void DirectConnected(direct_buffer_info *);
       void MessageReceived(BMessage *);
       bool QuitRequested(void);
       void WindowActivated(bool);
+
+      void *screen_data;	  
+      void **screen_line; 
+      uint32 screen_height;
+      uint32 screen_depth;
+      uint32 scroll_x;
+      uint32 scroll_y;
+
+      void **display_line;
+      uint32 display_depth;
+
+      uint32 num_rects;
+      clipping_rect *rects;
+      clipping_rect window;
+      void (*blitter)(void **src, void **dest, int sx, int sy, int sw, int sh);
+
+      bool connected;
+      bool dying;
+      BLocker *locker;
+      thread_id	drawing_thread_id;
 };
 
 
@@ -88,6 +108,7 @@ class BeAllegroScreen
    public:
       BeAllegroScreen(const char *title, uint32 space, status_t *error, bool debugging = false);
 
+      void MessageReceived(BMessage *);
       bool QuitRequested(void);
       void ScreenConnected(bool connected);
 };
@@ -114,7 +135,7 @@ extern BeAllegroScreen *be_allegro_screen;
 extern sem_id   be_mouse_view_attached;
 extern BWindow *be_mouse_window;
 extern BView   *be_mouse_view; 
-
+extern bool     be_mouse_window_mode;
 
 
 void be_terminate(thread_id caller);

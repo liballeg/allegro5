@@ -42,16 +42,16 @@ AL_VAR(MOUSE_DRIVER, mouse_beos);
 AL_VAR(JOYSTICK_DRIVER, joystick_beos);
 
 /* graphics drivers */
-#define GFX_BEOS                 AL_ID('B','F','S','S')
+#define GFX_BEOS                 AL_ID('B','F','S',' ')
 
 #define GFX_BEOS_FULLSCREEN      AL_ID('B','F','S',' ')
 #define GFX_BEOS_FULLSCREEN_SAFE AL_ID('B','F','S','S')
 AL_VAR(GFX_DRIVER, gfx_beos_fullscreen);
 AL_VAR(GFX_DRIVER, gfx_beos_fullscreen_safe);
 
-//#define GFX_BEOS_WINDOWED        AL_ID('B','W','N',' ')
-//#define GFX_BEOS_WINDOWED_SAFE   AL_ID('B','W','N','S')
-//AL_VAR(GFX_DRIVER, gfx_beos_windowed);
+#define GFX_BEOS_WINDOWED        AL_ID('B','W','N',' ')
+#define GFX_BEOS_WINDOWED_SAFE   AL_ID('B','W','N','S')
+AL_VAR(GFX_DRIVER, gfx_beos_windowed);
 //AL_VAR(GFX_DRIVER, gfx_beos_windowed_safe);
 
 /* digi drivers */
@@ -60,19 +60,19 @@ AL_VAR(DIGI_DRIVER, digi_beos);
 
 /* midi drivers */
 #define MIDI_BEOS             AL_ID('B','M','I','D')
-//AL_VAR(MIDI_DRIVER, midi_beos);
+AL_VAR(MIDI_DRIVER, midi_beos);
 
 #define GFX_DRIVER_BEOS                                                 \
    { GFX_BEOS_FULLSCREEN,      &gfx_beos_fullscreen,      TRUE },	\
    { GFX_BEOS_FULLSCREEN_SAFE, &gfx_beos_fullscreen_safe, TRUE },	\
- /*{ GFX_BEOS_WINDOWED,        &gfx_beos_windowed,        TRUE },*/	\
+   { GFX_BEOS_WINDOWED,        &gfx_beos_windowed,        TRUE },	\
  /*{ GFX_BEOS_WINDOWED_SAFE,   &gfx_beos_windowed_safe,   TRUE },*/
 
 #define DIGI_DRIVER_BEOS                                                \
    {  DIGI_BEOS,       &digi_beos,      TRUE  },
 
 #define MIDI_DRIVER_BEOS                                                \
-   /* {  MIDI_BEOS,       &midi_beos,      TRUE  }, */
+   {  MIDI_BEOS,       &midi_beos,      TRUE  },
 
 #define JOYSTICK_DRIVER_BEOS                                            \
    {  JOYSTICK_BEOS,   &joystick_beos,  TRUE  },

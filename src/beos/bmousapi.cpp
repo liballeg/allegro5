@@ -12,6 +12,10 @@
  *
  *      By Jason Wilkins.
  *
+ *      Windowed mode modifications by Peter Wang.
+ *
+ *      Cursor show/hide in windowed mode added by Angelo Mottola.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -37,9 +41,11 @@ static volatile bool mouse_thread_running = false;
 sem_id   be_mouse_view_attached = -1;
 BWindow *be_mouse_window        = NULL;
 BView   *be_mouse_view          = NULL;
+bool	 be_mouse_window_mode   = false;
 
 static int be_mouse_x  = 0;
 static int be_mouse_y  = 0;
+extern int be_mouse_z;
 static int be_mouse_b  = 0;
 
 static int be_mickey_x = 0;
@@ -49,7 +55,8 @@ static int limit_up     = 0;
 static int limit_down   = 0;
 static int limit_left   = 0;
 static int limit_right  = 0;
-         
+
+static bool be_mouse_on = false;
 
 
 int32 mouse_thread(void *mouse_started)
@@ -57,7 +64,9 @@ int32 mouse_thread(void *mouse_started)
    BPoint cursor(0, 0);
    uint32 buttons;
 
-   set_mouse_position(320, 200);
+   if (!be_mouse_window_mode) {
+      set_mouse_position(320, 240);
+   }
 
    release_sem(*(sem_id *)mouse_started);
 
@@ -73,34 +82,59 @@ int32 mouse_thread(void *mouse_started)
 
       if ((focus_count > 0) && be_mouse_window->Lock()) {
          be_mouse_view->GetMouse(&cursor, &buttons);
-         be_mouse_window->Unlock();
+	 if (!be_mouse_window_mode) {
+	    int dx = (int)cursor.x - 320;
+	    int dy = (int)cursor.y - 240;
 
-         int dx = (int)cursor.x - 320;
-         int dy = (int)cursor.y - 240;
+	    be_mickey_x += dx;
+	    be_mickey_y += dy;
+	    be_mouse_x += dx;
+	    be_mouse_y += dy;
+	    
+	    if (dx != 0 || dy != 0) {
+	       set_mouse_position(320, 240);
+	    }
+	 }
+	 else {
+	    BRect bounds = be_mouse_window->Bounds();
+	    
+	    if (bounds.Contains(cursor)) {
+	       int old_x = be_mouse_x;
+	       int old_y = be_mouse_y;
+	       
+	       if (!be_mouse_on) {
+	          be_mouse_on = true;
+	          be_app->HideCursor();
+	       }
 
-         be_mickey_x += dx;
-         be_mickey_y += dy;
+	       be_mouse_x = (int)(cursor.x - bounds.left);
+	       be_mouse_y = (int)(cursor.y - bounds.top);
+	       be_mickey_x += (be_mouse_x - old_x);
+	       be_mickey_y += (be_mouse_y - old_y);
+	    }
+	    else {
+	       if (be_mouse_on) {
+	          be_mouse_on = false;
+	          be_app->ShowCursor();
+	       }
+	    }
+	 }
 
-         be_mouse_x += dx;
-         be_mouse_x = CLAMP(limit_left, be_mouse_x, limit_right);
+	 be_mouse_window->Unlock();
+	    
+	 be_mouse_x = CLAMP(limit_left, be_mouse_x, limit_right);
+	 be_mouse_y = CLAMP(limit_up,   be_mouse_y, limit_down);
+	 
+	 be_mouse_b = 0;
+	 be_mouse_b |= (buttons & B_PRIMARY_MOUSE_BUTTON)   ? 1 : 0;
+	 be_mouse_b |= (buttons & B_SECONDARY_MOUSE_BUTTON) ? 2 : 0;
+	 be_mouse_b |= (buttons & B_TERTIARY_MOUSE_BUTTON)  ? 4 : 0;
 
-         be_mouse_y += dy;
-         be_mouse_y = CLAMP(limit_up,   be_mouse_y, limit_down);
-
-         be_mouse_b = 0;
-         be_mouse_b |= (buttons & B_PRIMARY_MOUSE_BUTTON)   ? 1 : 0;
-         be_mouse_b |= (buttons & B_SECONDARY_MOUSE_BUTTON) ? 2 : 0;
-         be_mouse_b |= (buttons & B_TERTIARY_MOUSE_BUTTON)  ? 4 : 0;
-
-         _mouse_x = be_mouse_x;
-         _mouse_y = be_mouse_y;
-         _mouse_b = be_mouse_b;
-
-         _handle_mouse_input();
-
-         if (dx != 0 || dy != 0) {
-            set_mouse_position(320, 240);
-         }
+	 _mouse_x = be_mouse_x;
+	 _mouse_y = be_mouse_y;
+	 _mouse_z = be_mouse_z;
+	 _mouse_b = be_mouse_b;
+	 _handle_mouse_input();
       }
 
       release_sem(be_mouse_view_attached);
@@ -148,7 +182,7 @@ extern "C" int be_mouse_init(void)
 
    get_mouse_type(&num_buttons);
 
-   return 2;//num_buttons;
+   return num_buttons;
 
    cleanup: {
       if (mouse_started > 0) {

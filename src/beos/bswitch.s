@@ -8,9 +8,11 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      BeOS Stuff
+ *      BeOS gfx line switchers.
  *
  *      By Jason Wilkins
+ *
+ *	    Windowed mode support added by Angelo Mottola.
  *
  *      See readme.txt for copyright information.
  */
@@ -22,18 +24,18 @@
 
 .text
 
-/* _be_gfx_fullscreen_read_write_bank:
+/* _be_gfx_fullscreen_read_write_bank_asm:
  *   eax = line number
  *   edx = bitmap
  */
-FUNC(_be_gfx_fullscreen_read_write_bank)
+FUNC(_be_gfx_fullscreen_read_write_bank_asm)
    testl $BMP_ID_LOCKED, BMP_ID(%edx)
    jnz be_gfx_fullscreen_already_acquired
 
    pushl %eax
    pushl %ecx
    pushl %edx
-   pushl GLOBL(fullscreen_lock)
+   pushl GLOBL(be_fullscreen_lock)
    call GLOBL(acquire_sem)
    addl $4, %esp
    popl %edx
@@ -49,10 +51,10 @@ be_gfx_fullscreen_already_acquired:
 
 
 
-/* _be_gfx_fullscreen_unwrite_bank:
+/* _be_gfx_fullscreen_unwrite_bank_asm:
  *   edx = bitmap
  */
-FUNC(_be_gfx_fullscreen_unwrite_bank)
+FUNC(_be_gfx_fullscreen_unwrite_bank_asm)
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
    jz be_gfx_fullscreen_no_release
 
@@ -62,7 +64,7 @@ FUNC(_be_gfx_fullscreen_unwrite_bank)
    pushl %eax
    pushl %ecx
    pushl %edx
-   pushl GLOBL(fullscreen_lock)
+   pushl GLOBL(be_fullscreen_lock)
    call GLOBL(release_sem)
    addl $4, %esp
    popl %edx
@@ -71,3 +73,34 @@ FUNC(_be_gfx_fullscreen_unwrite_bank)
 
 be_gfx_fullscreen_no_release:
    ret
+
+
+
+/* _be_gfx_windowed_unwrite_bank_asm:
+ *   edx = bitmap
+ */
+FUNC(_be_gfx_windowed_unwrite_bank_asm)
+   pushl %eax
+   pushl %ecx
+   pushl %edx
+   pushl GLOBL(be_window_lock)
+   call GLOBL(release_sem)
+   addl $4, %esp
+   popl %edx
+   popl %ecx
+   popl %eax
+   ret 
+
+
+/* _be_gfx_windowed_read_write_bank_asm:
+ *   eax = line number
+ *   edx = bitmap
+ */
+FUNC(_be_gfx_windowed_read_write_bank_asm)
+   pushl %ecx
+   movl GLOBL(be_dirty_lines), %ecx
+   movl $1, (%ecx, %eax, 4)
+   popl %ecx
+   movl BMP_LINE(%edx, %eax, 4), %eax
+   ret
+

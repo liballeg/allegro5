@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Stuff for BeOS.
+ *      MIDI drivers list for BeOS.
  *
  *      By Jason Wilkins.
  *
@@ -24,4 +24,5 @@
 
 BEGIN_MIDI_DRIVER_LIST
 MIDI_DRIVER_BEOS
+MIDI_DRIVER_DIGMID
 END_MIDI_DRIVER_LIST

@@ -524,7 +524,7 @@ static int32 keyboard_thread(void *keyboard_started)
                      lookup_character(be_key, key_info_new.modifiers, keycode);
                   }
                   else {
-                     keycode[0] = -1;
+                     keycode[0] = (unsigned long)-1;
                      keycode[1] = 0;
                   }
 

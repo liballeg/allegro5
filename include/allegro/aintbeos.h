@@ -42,19 +42,40 @@ int  be_sys_init(void);
 void be_sys_exit(void);
 void _be_sys_get_executable_name(char *output, int size);
 void be_sys_get_executable_name(char *output, int size);
-void be_sys_set_window_title(char *name);
-void be_sys_message(char *msg);
+int be_sys_find_resource(char *dest, AL_CONST char *resource, int size);
+void be_sys_set_window_title(AL_CONST char *name);
+void be_sys_message(AL_CONST char *msg);
 
 struct BITMAP *be_gfx_fullscreen_init(int w, int h, int v_w, int v_h, int color_depth);
 struct BITMAP *be_gfx_fullscreen_safe_init(int w, int h, int v_w, int v_h, int color_depth);
 void be_gfx_fullscreen_exit(struct BITMAP *b);
 void be_gfx_fullscreen_acquire(struct BITMAP *b);
 void be_gfx_fullscreen_release(struct BITMAP *b);
-void be_gfx_fullscreen_set_palette(struct RGB *p, int from, int to, int vsync);
+void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
 int  be_gfx_fullscreen_scroll(int x, int y);
 void be_gfx_fullscreen_vsync(void);
-void _be_gfx_fullscreen_read_write_bank(void);
-void _be_gfx_fullscreen_unwrite_bank(void);
+#ifdef ALLEGRO_NO_ASM
+void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp);
+unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line);
+#else
+void _be_gfx_fullscreen_unwrite_bank_asm(BITMAP *bmp);
+unsigned long _be_gfx_fullscreen_read_write_bank_asm(BITMAP *bmp, int line);
+#endif
+
+struct BITMAP *be_gfx_windowed_init(int w, int h, int v_w, int v_h, int color_depth);
+void be_gfx_windowed_exit(struct BITMAP *b);
+void be_gfx_windowed_acquire(struct BITMAP *bmp);
+void be_gfx_windowed_release(struct BITMAP *bmp);
+void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
+int  be_gfx_windowed_scroll(int x, int y);
+void be_gfx_windowed_vsync(void);
+#ifdef ALLEGRO_NO_ASM
+void be_gfx_windowed_unwrite_bank(BITMAP *bmp);
+unsigned long be_gfx_windowed_read_write_bank(BITMAP *bmp, int line);
+#else
+void _be_gfx_windowed_unwrite_bank_asm(BITMAP *bmp);
+unsigned long _be_gfx_windowed_read_write_bank_asm(BITMAP *bmp, int line);
+#endif
 
 int  be_time_init(void);
 void be_time_exit(void);
@@ -78,6 +99,16 @@ int be_sound_init(int input, int voices);
 void be_sound_exit(int input);
 int be_sound_buffer_size();
 int be_sound_mixer_volume(int volume);
+
+int be_midi_detect(int input);
+int be_midi_init(int input, int voices);
+void be_midi_exit(int input);
+int be_midi_mixer_volume(int volume);
+void be_midi_key_on(int inst, int note, int bend, int vol, int pan);
+void be_midi_key_off(int voice);
+void be_midi_set_volume(int voice, int vol);
+void be_midi_set_pitch(int voice, int note, int bend);
+void be_midi_set_pan(int voice, int pan);
 
 #ifdef __cplusplus
 }
