@@ -12,8 +12,6 @@ General (Platform independent) todos:
 
 - make the library internally thread-safe
 - fix use of 32-bit 'long' on 64-bit platforms
-- don't use BITMAPs for zbuffers
-- replacement for set_color_depth/set_gfx_mode
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -40,8 +38,6 @@ Linux todos:
 X11 todos:
 ---------------------------------------------------------------------------
 
-- remove `dga_mouse' config var when appropriate (newer servers have fixed
-  the bug this works around).  Wait until XF86 4.0 propagated..
 - Rewrite the X11 keyboard driver, following the model of the unix console
   driver and the Mac OSX driver. Currently, we expect application users to
   fiddle with xkeymap.
