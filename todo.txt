@@ -13,6 +13,7 @@ General (Platform independant) todos:
 - Add caching system to speed up filename#object and load_datafile_object()
 - Even newer GFX_SAFE behaviour (return error instead of quitting)
 - New example to test P3D scene rendering
+- merge Angelo's menu auto popup patch
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -35,8 +36,8 @@ Linux todos:
   since it's pretty inexpensive to write a correct fb.modes file and quite
   rare to request exotic resolutions, but should be dealt with at least
   before 4.0.
-- Rewrite GGI driver
-- Linux keyboard set_rate 
+- Rewrite GGI driver or remove it
+- keyboard set_rate
 - Find out more about sched_yield
 - svgalib leaves crap on screen at exit
   maybe svgalib problem
@@ -44,7 +45,6 @@ Linux todos:
 - vt switching in BACKAMNESIA mode only causes font weirdity in text
   mode on a Voodoo Banshee (using SVGAlib VESA and BANSHEE drivers), even
   if I cheat and use vga_flip.  Font returns after program quits.
-- check which parts of makefiles break with non-GNU make
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -52,6 +52,14 @@ X11 todos:
 - num-lock state in X window may not match state on keyboard
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
+- speed up X11 driver
+
+Unix todos:
+---------------------------------------------------------------------------
+
+- check which parts of makefiles break with non-GNU make
+- update ALSA drivers to latest stable version
+- use mkstemp instead of tmpnam in as many places as possible
 
 Macintosh todos:
 ---------------------------------------------------------------------------
@@ -90,12 +98,12 @@ Wishlist
   should be written in such a way to support future additions without the
   need of rewritting the user setup ui.
 - Play with switch_in/out X events, just for the sake of it :-)
-- merge Angelo's menu auto popup patch
 - separate fullscreen option from XDFS, XDGA, etc.
 - OSS MIDI pitch bend.
 - function to get a list of supported video modes
 - hook function to handle window resizing
 - dynamically linked wrappers for drivers under Linux
+- uvsnprintf
 - function to get the desktop resolution in windowed environments
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
