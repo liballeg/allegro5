@@ -521,8 +521,8 @@ void set_uformat(int type)
    if (info) {
       utype = info->id;
       ugetc = info->u_getc;
-      ugetx = (int (*)(char**)) info->u_getx;
-      ugetxc = (int (*)(AL_CONST char**)) info->u_getx;
+      ugetx = (int (*)(char **)) info->u_getx;
+      ugetxc = (int (*)(AL_CONST char **)) info->u_getx;
       usetc = info->u_setc;
       uwidth = info->u_width;
       ucwidth = info->u_cwidth;
@@ -629,7 +629,7 @@ int uconvert_size(AL_CONST char *s, int type, int newtype)
 
    size = 0;
 
-   while ((c = info->u_getx((char**)&s)) != 0)
+   while ((c = info->u_getx((char **)&s)) != 0)
       size += outfo->u_cwidth(c);
 
    return size + outfo->u_cwidth(0);

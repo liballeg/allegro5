@@ -182,32 +182,33 @@ AL_FUNC(void, _draw_listbox, (DIALOG *d));
 AL_FUNC(void, _draw_textbox, (char *thetext, int *listsize, int draw, int offset, int wword, int tabsize, int x, int y, int w, int h, int disabled, int fore, int deselect, int disable));
 
 /* text- and font-related stuff */
-typedef struct FONT_VTABLE {
-
-    AL_METHOD(int, text_length, (AL_CONST FONT* f, AL_CONST char* text));
-    AL_METHOD(void, render, (AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, BITMAP* bmp, int x, int y));
-    AL_METHOD(void, destroy, (FONT* f));
-
-}FONT_VTABLE;
+typedef struct FONT_VTABLE
+{
+   AL_METHOD(int, text_length, (AL_CONST FONT *f, AL_CONST char *text));
+   AL_METHOD(void, render, (AL_CONST FONT *f, AL_CONST char *text, int fg, int bg, BITMAP *bmp, int x, int y));
+   AL_METHOD(void, destroy, (FONT *f));
+} FONT_VTABLE;
 
 AL_VAR(FONT, _default_font);
 AL_VAR(FONT_VTABLE, _font_vtable_mono);
-AL_VAR(FONT_VTABLE*, font_vtable_mono);
+AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);
-AL_VAR(FONT_VTABLE*, font_vtable_color);
+AL_VAR(FONT_VTABLE *, font_vtable_color);
 AL_VAR(int, allegro_404_char);
 
-typedef struct FONT_MONO_DATA {
-    int begin, end;                 /* first char and one-past-the-end char */
-    FONT_GLYPH** glyphs;            /* our glyphs */
-    struct FONT_MONO_DATA* next;    /* linked list structure */
-}FONT_MONO_DATA;
+typedef struct FONT_MONO_DATA 
+{
+   int begin, end;                  /* first char and one-past-the-end char */
+   FONT_GLYPH **glyphs;             /* our glyphs */
+   struct FONT_MONO_DATA *next;     /* linked list structure */
+} FONT_MONO_DATA;
 
-typedef struct FONT_COLOR_DATA {
-    int begin, end;                 /* first char and one-past-the-end char */
-    BITMAP** bitmaps;               /* our glyphs */
-    struct FONT_COLOR_DATA* next;   /* linked list structure */
-}FONT_COLOR_DATA;
+typedef struct FONT_COLOR_DATA
+{
+   int begin, end;                  /* first char and one-past-the-end char */
+   BITMAP **bitmaps;                /* our glyphs */
+   struct FONT_COLOR_DATA *next;    /* linked list structure */
+} FONT_COLOR_DATA;
 
 
 /* caches and tables for svga bank switching */
@@ -583,7 +584,8 @@ typedef struct POLYGON_EDGE
 } POLYGON_EDGE;
 
 
-typedef struct POLYGON_INFO {       /* a polygon waiting rendering */
+typedef struct POLYGON_INFO         /* a polygon waiting rendering */
+{
    struct POLYGON_INFO *next, *prev;/* double linked list */
    int inside;                      /* flag for "scanlining" */
    int flags;                       /* INTERP_* flags */
@@ -982,14 +984,16 @@ AL_FUNC(void, register_bitmap_file_type_init, (void));
 
 
 /* for module linking system; see comment in allegro.c */
-struct _AL_LINKER_MIDI {
+struct _AL_LINKER_MIDI
+{
    AL_METHOD(int, init, (void));
    AL_METHOD(void, exit, (void));
 };
 
 AL_VAR(struct _AL_LINKER_MIDI *, _al_linker_midi);
 
-struct _AL_LINKER_MOUSE {
+struct _AL_LINKER_MOUSE
+{
    AL_METHOD(void, set_mouse_etc, (void));
    AL_METHOD(void, show_mouse, (BITMAP *));
    BITMAP **mouse_screen_ptr;

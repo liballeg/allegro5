@@ -206,7 +206,7 @@ static void output_midi(MIDI *midi, char *name)
 
 
 
-static void output_font_color(FONT_COLOR_DATA* cf, char* name, int depth)
+static void output_font_color(FONT_COLOR_DATA *cf, char *name, int depth)
 {
    char buf[1000], goodname[1000];
    int ch = 0;
@@ -290,7 +290,7 @@ static void output_font_mono(FONT_MONO_DATA *mf, char *name, int depth)
 
 static void output_font(FONT *f, char *name, int depth)
 {
-   if(f->vtable == font_vtable_mono)
+   if (f->vtable == font_vtable_mono)
       output_font_mono(f->data, name, 0);
    else
       output_font_color(f->data, name, 0);

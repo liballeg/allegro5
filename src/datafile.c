@@ -420,54 +420,54 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
 /* read_font_fixed:
  *  Reads a fixed pitch font from a file. This format is no longer used.
  */
-static FONT* read_font_fixed(PACKFILE* pack, int height, int maxchars)
+static FONT *read_font_fixed(PACKFILE *pack, int height, int maxchars)
 {
-    FONT* f = 0;
-    FONT_MONO_DATA* mf = 0;
-    FONT_GLYPH** gl = 0;
-
-    int i = 0;
-
-    f = malloc(sizeof(FONT));
-    mf = malloc(sizeof(FONT_MONO_DATA));
-    gl = malloc(sizeof(FONT_GLYPH*) * maxchars);
-
-    if(!f || !mf || !gl) {
-        free(f);
-        free(mf);
-        free(gl);
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
-
-    f->data = mf;
-    f->height = height;
-    f->vtable = font_vtable_mono;
-
-    mf->begin = ' ';
-    mf->end = ' ' + maxchars;
-    mf->next = 0;
-    mf->glyphs = gl;
-
-    memset(gl, 0, sizeof(FONT_GLYPH*) * maxchars);
-
-    for(i = 0; i < maxchars; i++) {
-        FONT_GLYPH* g = malloc(sizeof(FONT_GLYPH) + height);
-
-        if(!g) {
-            destroy_font(f);
-            *allegro_errno = ENOMEM;
-            return 0;
-        }
-
-        gl[i] = g;
-        g->w = 8;
-        g->h = height;
-
-        pack_fread(g->dat, height, pack);
-    }
-
-    return f;
+   FONT *f = NULL;
+   FONT_MONO_DATA *mf = NULL;
+   FONT_GLYPH **gl = NULL;
+   
+   int i = 0;
+   
+   f = malloc(sizeof(FONT));
+   mf = malloc(sizeof(FONT_MONO_DATA));
+   gl = malloc(sizeof(FONT_GLYPH *) * maxchars);
+   
+   if (!f || !mf || !gl) {
+      free(f);
+      free(mf);
+      free(gl);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+   
+   f->data = mf;
+   f->height = height;
+   f->vtable = font_vtable_mono;
+   
+   mf->begin = ' ';
+   mf->end = ' ' + maxchars;
+   mf->next = NULL;
+   mf->glyphs = gl;
+   
+   memset(gl, 0, sizeof(FONT_GLYPH *) * maxchars);
+   
+   for (i = 0; i < maxchars; i++) {
+      FONT_GLYPH *g = malloc(sizeof(FONT_GLYPH) + height);
+      
+      if (!g) {
+	 destroy_font(f);
+	 *allegro_errno = ENOMEM;
+	 return NULL;
+      }
+      
+      gl[i] = g;
+      g->w = 8;
+      g->h = height;
+      
+      pack_fread(g->dat, height, pack);
+   }
+   
+   return f;
 }
 
 
@@ -475,65 +475,62 @@ static FONT* read_font_fixed(PACKFILE* pack, int height, int maxchars)
 /* read_font_prop:
  *  Reads a proportional font from a file. This format is no longer used.
  */
-static FONT* read_font_prop(PACKFILE* pack, int maxchars)
+static FONT *read_font_prop(PACKFILE *pack, int maxchars)
 {
-    FONT* f = 0;
-    FONT_COLOR_DATA* cf = 0;
-    BITMAP** bits = 0;
-    int i = 0, h = 0;
-
-    f = malloc(sizeof(FONT));
-    cf = malloc(sizeof(FONT_COLOR_DATA));
-    bits = malloc(sizeof(BITMAP*) * maxchars);
-
-    if(!f || !cf || !bits) {
-        free(f);
-        free(cf);
-        free(bits);
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
-
-    f->data = cf;
-    f->vtable = font_vtable_color;
-
-    cf->begin = ' ';
-    cf->end = ' ' + maxchars;
-    cf->next = 0;
-    cf->bitmaps = bits;
-
-    memset(bits, 0, sizeof(BITMAP*) * maxchars);
-
-    for(i = 0; i < maxchars; i++) {
-
-        if(pack_feof(pack)) break;
-
-        bits[i] = read_bitmap(pack, 8, FALSE);
-        if(!bits[i]) {
-            destroy_font(f);
-            return 0;
-        }
-
-        if(bits[i]->h > h) h = bits[i]->h;
-
-    }
-
-    while(i < maxchars) {
-
-        bits[i] = create_bitmap_ex(8, 8, h);
-        if(!bits[i]) {
-            destroy_font(f);
-            *allegro_errno = ENOMEM;
-            return 0;
-        }
-
-        clear(bits[i]);
-        i++;
-    }
-
-    f->height = h;
-
-    return f;
+   FONT *f = NULL;
+   FONT_COLOR_DATA *cf = NULL;
+   BITMAP **bits = NULL;
+   int i = 0, h = 0;
+   
+   f = malloc(sizeof(FONT));
+   cf = malloc(sizeof(FONT_COLOR_DATA));
+   bits = malloc(sizeof(BITMAP *) * maxchars);
+   
+   if (!f || !cf || !bits) {
+      free(f);
+      free(cf);
+      free(bits);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+   
+   f->data = cf;
+   f->vtable = font_vtable_color;
+   
+   cf->begin = ' ';
+   cf->end = ' ' + maxchars;
+   cf->next = NULL;
+   cf->bitmaps = bits;
+   
+   memset(bits, 0, sizeof(BITMAP *) * maxchars);
+   
+   for (i = 0; i < maxchars; i++) {
+      if (pack_feof(pack)) break;
+      
+      bits[i] = read_bitmap(pack, 8, FALSE);
+      if (!bits[i]) {
+	 destroy_font(f);
+	 return NULL;
+      }
+      
+      if (bits[i]->h > h) h = bits[i]->h;
+   }
+   
+   while (i < maxchars) {
+      bits[i] = create_bitmap_ex(8, 8, h);
+      if (!bits[i]) {
+	 destroy_font(f);
+	 *allegro_errno = ENOMEM;
+	 return NULL;
+      }
+      
+      clear(bits[i]);
+      i++;
+   }
+   
+   f->height = h;
+   
+   return f;
 }
 
 
@@ -541,57 +538,57 @@ static FONT* read_font_prop(PACKFILE* pack, int maxchars)
 /* read_font_mono:
  *  Helper for read_font, below
  */
-static FONT_MONO_DATA* read_font_mono(PACKFILE* f, int* hmax)
+static FONT_MONO_DATA *read_font_mono(PACKFILE *f, int *hmax)
 {
-    FONT_MONO_DATA* mf = 0;
-    int max = 0, i = 0;
-    FONT_GLYPH** gl = 0;
-
-    mf = malloc(sizeof(FONT_MONO_DATA));
-    if(!mf) {
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
-
-    mf->begin = pack_mgetl(f);
-    mf->end = pack_mgetl(f) + 1;
-    mf->next = 0;
-    max = mf->end - mf->begin;
-
-    mf->glyphs = gl = malloc(sizeof(FONT_GLYPH*) * max);
-    if(!gl) {
-        free(mf);
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
-
-    for(i = 0; i < max; i++) {
-        int w, h, sz;
-
-        w = pack_mgetw(f);
-        h = pack_mgetw(f);
-        sz = ((w + 7) / 8) * h;
-
-        if(h > *hmax) *hmax = h;
-
-        gl[i] = malloc(sizeof(FONT_GLYPH) + sz);
-        if(!gl[i]) {
-            while(i) {
-                i--;
-                free(mf->glyphs[i]);
-            }
-            free(mf);
-            free(mf->glyphs);
-            *allegro_errno = ENOMEM;
-            return 0;
-        }
-
-        gl[i]->w = w;
-        gl[i]->h = h;
-        pack_fread(gl[i]->dat, sz, f);
-    }
-
-    return mf;
+   FONT_MONO_DATA *mf = NULL;
+   int max = 0, i = 0;
+   FONT_GLYPH **gl = NULL;
+   
+   mf = malloc(sizeof(FONT_MONO_DATA));
+   if (!mf) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+   
+   mf->begin = pack_mgetl(f);
+   mf->end = pack_mgetl(f) + 1;
+   mf->next = NULL;
+   max = mf->end - mf->begin;
+   
+   mf->glyphs = gl = malloc(sizeof(FONT_GLYPH *) * max);
+   if (!gl) {
+      free(mf);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+   
+   for (i = 0; i < max; i++) {
+      int w, h, sz;
+      
+      w = pack_mgetw(f);
+      h = pack_mgetw(f);
+      sz = ((w + 7) / 8) * h;
+      
+      if (h > *hmax) *hmax = h;
+      
+      gl[i] = malloc(sizeof(FONT_GLYPH) + sz);
+      if (!gl[i]) {
+	 while (i) {
+	    i--;
+	    free(mf->glyphs[i]);
+	 }
+	 free(mf);
+	 free(mf->glyphs);
+	 *allegro_errno = ENOMEM;
+	 return NULL;
+      }
+      
+      gl[i]->w = w;
+      gl[i]->h = h;
+      pack_fread(gl[i]->dat, sz, f);
+   }
+   
+   return mf;
 }
 
 
@@ -599,47 +596,48 @@ static FONT_MONO_DATA* read_font_mono(PACKFILE* f, int* hmax)
 /* read_font_color:
  *  Helper for read_font, below.
  */
-static FONT_COLOR_DATA* read_font_color(PACKFILE* pack, int* hmax)
+static FONT_COLOR_DATA *read_font_color(PACKFILE *pack, int *hmax)
 {
-    FONT_COLOR_DATA* cf = 0;
-    int max = 0, i = 0;
-    BITMAP** bits = 0;
+   FONT_COLOR_DATA *cf = NULL;
+   int max = 0, i = 0;
+   BITMAP **bits = NULL;
+   
+   cf = malloc(sizeof(FONT_COLOR_DATA));
+   if (!cf) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+   
+   cf->begin = pack_mgetl(pack);
+   cf->end = pack_mgetl(pack) + 1;
+   cf->next = NULL;
+   max = cf->end - cf->begin;
 
-    cf = malloc(sizeof(FONT_COLOR_DATA));
-    if(!cf) {
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
+   cf->bitmaps = bits = malloc(sizeof(BITMAP *) * max);
+   if (!bits) {
+      free(cf);
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+   
+   for (i = 0; i < max; i++) {
+      bits[i] = read_bitmap(pack, 8, FALSE);
+      if (!bits[i]) {
+	 while (i) {
+	    i--;
+	    destroy_bitmap(bits[i]);
+	 }
+	 free(bits);
+	 free(cf);
+	 *allegro_errno = ENOMEM;
+	 return 0;
+      }
+      
+      if (bits[i]->h > *hmax) 
+	 *hmax = bits[i]->h;
+   }
 
-    cf->begin = pack_mgetl(pack);
-    cf->end = pack_mgetl(pack) + 1;
-    cf->next = 0;
-    max = cf->end - cf->begin;
-
-    cf->bitmaps = bits = malloc(sizeof(BITMAP*) * max);
-    if(!bits) {
-        free(cf);
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
-
-    for(i = 0; i < max; i++) {
-        bits[i] = read_bitmap(pack, 8, FALSE);
-        if(!bits[i]) {
-            while(i) {
-                i--;
-                destroy_bitmap(bits[i]);
-            }
-            free(bits);
-            free(cf);
-            *allegro_errno = ENOMEM;
-            return 0;
-        }
-
-        if(bits[i]->h > *hmax) *hmax = bits[i]->h;
-    }
-
-    return cf;
+   return cf;
 }
 
 
@@ -647,61 +645,62 @@ static FONT_COLOR_DATA* read_font_color(PACKFILE* pack, int* hmax)
 /* read_font:
  *  Reads a new style, Unicode format font from a file.
  */
-static FONT* read_font(PACKFILE* pack)
+static FONT *read_font(PACKFILE *pack)
 {
-    FONT* f = 0;
-    int num_ranges = 0;
-    int height = 0;
+   FONT *f = NULL;
+   int num_ranges = 0;
+   int height = 0;
 
-    f = malloc(sizeof(FONT));
-    if(!f) {
-        *allegro_errno = ENOMEM;
-        return 0;
-    }
+   f = malloc(sizeof(FONT));
+   if (!f) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
 
-    f->data = 0;
+   f->data = NULL;
 
-    num_ranges = pack_mgetw(pack);
-    while(num_ranges--) {
-        if(pack_getc(pack)) {
-            FONT_MONO_DATA* mf = 0, * iter = (FONT_MONO_DATA*) f->data;
+   num_ranges = pack_mgetw(pack);
+   while (num_ranges--) {
+      if (pack_getc(pack)) {
+	 FONT_MONO_DATA *mf = 0, *iter = (FONT_MONO_DATA *)f->data;
+	 
+	 f->vtable = font_vtable_mono;
 
-            f->vtable = font_vtable_mono;
+	 mf = read_font_mono(pack, &height);
+	 if (!mf) {
+	    destroy_font(f);
+	    return NULL;
+	 }
 
-            mf = read_font_mono(pack, &height);
-            if(!mf) {
-                destroy_font(f);
-                return 0;
-            }
+	 if (!iter)
+	    f->data = mf;
+	 else {
+	    while (iter->next) iter = iter->next;
+	    iter->next = mf;
+	 }
+      } 
+      else {
+	 FONT_COLOR_DATA *cf = NULL, *iter = (FONT_COLOR_DATA *)f->data;
 
-            if(!iter) f->data = mf;
-            else {
-                while(iter->next) iter = iter->next;
-                iter->next = mf;
-            }
+	 f->vtable = font_vtable_color;
 
-        } else {
-            FONT_COLOR_DATA* cf = 0, * iter = (FONT_COLOR_DATA*) f->data;
+	 cf = read_font_color(pack, &height);
+	 if (!cf) {
+	    destroy_font(f);
+	    return NULL;
+	 }
 
-            f->vtable = font_vtable_color;
+	 if (!iter) 
+	    f->data = cf;
+	 else {
+	    while (iter->next) iter = iter->next;
+	    iter->next = cf;
+	 }
+      }
+   }
 
-            cf = read_font_color(pack, &height);
-            if(!cf) {
-                destroy_font(f);
-                return 0;
-            }
-
-            if(!iter) f->data = cf;
-            else {
-                while(iter->next) iter = iter->next;
-                iter->next = cf;
-            }
-
-        }
-    }
-
-    f->height = height;
-    return f;
+   f->height = height;
+   return f;
 }
 
 
@@ -2035,12 +2034,13 @@ void _construct_datafile(DATAFILE *data)
 
 	 case DAT_FONT:
 	    f = data[c].dat;
-	    if(f->vtable == font_vtable_color) {
-	        FONT_COLOR_DATA* cf = (FONT_COLOR_DATA*) f->data;
-	        while(cf) {
-	            for(c2 = cf->begin; c2 < cf->end; c2++) cf->bitmaps[c2 - cf->begin]->seg = _default_ds();
-	            cf = cf->next;
-	        }
+	    if (f->vtable == font_vtable_color) {
+	       FONT_COLOR_DATA *cf = (FONT_COLOR_DATA *)f->data;
+	       while (cf) {
+		  for (c2 = cf->begin; c2 < cf->end; c2++)
+		     cf->bitmaps[c2 - cf->begin]->seg = _default_ds();
+		  cf = cf->next;
+	       }
 	    }
 	    break;
 

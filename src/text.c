@@ -57,7 +57,7 @@ int text_mode(int mode)
  */
 void textout(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
-    f->vtable->render(f, str, color, _textmode, bmp, x, y);
+   f->vtable->render(f, str, color, _textmode, bmp, x, y);
 }
 
 
@@ -212,7 +212,7 @@ void textprintf_justify(BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, in
  */
 int text_length(AL_CONST FONT *f, AL_CONST char *str)
 {
-    return f->vtable->text_length(f, str);
+   return f->vtable->text_length(f, str);
 }
 
 
@@ -222,7 +222,7 @@ int text_length(AL_CONST FONT *f, AL_CONST char *str)
  */
 int text_height(AL_CONST FONT *f)
 {
-    return f->height;
+   return f->height;
 }
 
 
@@ -233,6 +233,6 @@ int text_height(AL_CONST FONT *f)
  */
 void destroy_font(FONT *f)
 {
-    f->vtable->destroy(f);
+   f->vtable->destroy(f);
 }
 

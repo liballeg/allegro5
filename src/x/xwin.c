@@ -1875,13 +1875,13 @@ static void _xwin_private_process_event(XEvent *event)
          if (keyboard_got_focus && _xwin_keyboard_focused) {
             int state = 0;
 
-            if (event->xkey.state&Mod5Mask)
+            if (event->xkey.state & Mod5Mask)
                state |= KB_SCROLOCK_FLAG;
 
-            if (event->xkey.state&Mod2Mask)
+            if (event->xkey.state & Mod2Mask)
                state |= KB_NUMLOCK_FLAG;
 
-            if (event->xkey.state&LockMask)
+            if (event->xkey.state & LockMask)
                state |= KB_CAPSLOCK_FLAG;
 
             (*_xwin_keyboard_focused)(TRUE, state);
