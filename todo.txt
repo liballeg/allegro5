@@ -49,8 +49,6 @@ X11 todos:
 - key[] should not be internationalised (e.g. KEY_S should always be set
   for the key two to the right of CapsLock).  If we can't solve this in
   time, include bukinm's xkeymap program.
-- play nice with WindowMaker (there's no appicon, for one)
-- ufixicon (generate src file that when linked, automatically sets icon)
 - problem with mouse and keyboard events [fixed?]
 - add an option to use the current palette in 8-bit mode
 
