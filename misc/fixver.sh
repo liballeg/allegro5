@@ -34,7 +34,7 @@ echo "Patching include/allegro.h..."
 cp include/allegro.h fixver.tmp
 sed -f fixver.sed fixver.tmp > include/allegro.h
 
-#echo patch dllver.rc
+echo "Patching src/win/dllver.rc..."
 cat > src/win/dllver.rc << END_OF_DLLVER
 1 VERSIONINFO 
 FILEVERSION $1, $2, $3, 0
@@ -49,12 +49,12 @@ FILETYPE 0x00000002L /* VFT_DLL */
    VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
    VALUE "CompanyName", "Allegro Developers\000\000"
    VALUE "FileDescription", "Allegro\000"
-   VALUE "FileVersion", "$verstr" "\000"
+   VALUE "FileVersion", "$verstr\000"
    VALUE "InternalName", "ALL$1$2$3\000"
    VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
    VALUE "OriginalFilename", "ALL$1$2$3.DLL\000"
    VALUE "ProductName", "Allegro\000"
-   VALUE "ProductVersion", "$verstr" "\000"
+   VALUE "ProductVersion", "$verstr\000"
   }
 
  }
