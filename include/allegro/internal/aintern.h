@@ -1153,6 +1153,12 @@ AL_FUNC(void, _driver_list_prepend_driver, (_DRIVER_INFO **drvlist, int id, void
 AL_FUNC(void, _driver_list_append_list, (_DRIVER_INFO **drvlist, _DRIVER_INFO *srclist));
 
 
+/* various libc stuff */
+#define _AL_RAND_MAX  0xFFFF
+
+AL_FUNC(void, _al_srand, (int seed));
+AL_FUNC(int, _al_rand, (void));
+
 AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));
 
 
