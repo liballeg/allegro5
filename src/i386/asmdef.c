@@ -12,6 +12,11 @@
 
 #define USE_CONSOLE
 
+/* to avoid linking errors with compilers that don't properly
+ * support the 'static inline' keyword (Watcom)
+ */
+#define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
