@@ -230,14 +230,14 @@ int main(int argc, char *argv[])
 	    vol -= 8;
 	    if (vol < 0)
 	       vol = 0;
-	    set_volume(-1, vol);
+	    set_volume(vol, -1);
 	    break;
 
 	 case 'V':
 	    vol += 8;
 	    if (vol > 255)
 	       vol = 255;
-	    set_volume(-1, vol);
+	    set_volume(vol, -1);
 	    break;
 
 	 case 'p':
