@@ -358,6 +358,7 @@
     identity_matrix_f DATA
     identity_quat DATA
     init_dialog
+    init_menu
     initialise_joystick
     install_allegro
     install_int
@@ -595,6 +596,7 @@
     set_blender_mode_ex
     set_burn_blender
     set_clip
+    set_close_button_callback
     set_color
     set_color_blender
     set_color_conversion
@@ -634,14 +636,13 @@
     set_uformat
     set_volume
     set_volume_per_voice
-    set_window_close_button
-    set_window_close_hook
     set_window_title
     set_write_alpha_blender
     set_zbuffer
     show_mouse
     show_video_bitmap
     shutdown_dialog
+    shutdown_menu
     simulate_keypress
     simulate_ukeypress
     solid_mode
@@ -700,6 +701,7 @@
     unselect_palette
     uoffset
     update_dialog
+    update_menu
     ureadkey
     uremove
     usetat
