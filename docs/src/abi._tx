@@ -24,10 +24,11 @@
 @heading
 Introduction
 
-   Once Allegro 4.0 is released, we plan to maintain Application Binary
-   Interface compatibility for the rest of the 4.0.x series. For example,
-   that means you will be able to use a executable compiled using version
-   4.0.10 with a version 4.0.42 dynamic linker library, or even 4.0.0.
+   Once Allegro 4.2 is released, we plan to maintain backward compatibility
+   at the Application Binary Interface level for the subsequent releases of
+   the 4.2.x series. For example, that means you will be able to use an
+   executable compiled using version 4.2.0 with version 4.2.5 or 4.2.41 of
+   the dynamically linked library.
 
    "Whew," you sigh, "I don't have to put allxxxx.dll in my zips anymore."
 
