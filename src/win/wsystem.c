@@ -17,9 +17,10 @@
  *      See readme.txt for copyright information.
  */
 
-#include <string.h>
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"

@@ -10,7 +10,7 @@
  *
  *      Allegro mixer to WaveOut driver
  *
- *      by Robin Burrows.
+ *      By Robin Burrows.
  *
  *      Based on original src/unix/uoss.c by Joshua Heyer.
  *

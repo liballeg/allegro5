@@ -18,7 +18,9 @@
 
 #define DIRECTINPUT_VERSION 0x0300
 
-#include "wddraw.h"
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>

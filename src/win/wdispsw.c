@@ -8,14 +8,17 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Display switch handling for Windows.
+ *      Display switch handling.
  *
  *      By Stefan Schimanski.
  *
  *      See readme.txt for copyright information.
  */
 
-#include "wddraw.h"
+
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintwin.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

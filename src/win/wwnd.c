@@ -16,14 +16,19 @@
  */
 
 
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintwin.h"
+
 #ifndef SCAN_DEPEND
    #include <string.h>
    #include <process.h>
    #include <time.h>
 #endif
 
-#include "wddraw.h"
-
+#ifndef ALLEGRO_WINDOWS
+#error something is wrong with the makefile
+#endif
 
 #ifndef WM_APPCOMMAND
 /* from the Platform SDK July 2000 */

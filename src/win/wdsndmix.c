@@ -10,7 +10,7 @@
  *
  *      Allegro mixer to DirectSound driver.
  *
- *      by Robin Burrows.
+ *      By Robin Burrows.
  *
  *      Based on original src/win/wdsound.c by Stefan Schimanski
  *      and src/unix/oss.c by Joshua Heyer.
@@ -19,6 +19,7 @@
  *
  *      See readme.txt for copyright information.
  */
+
 
 #define DIRECTSOUND_VERSION 0x0300
 

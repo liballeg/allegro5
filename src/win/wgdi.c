@@ -18,9 +18,15 @@
  *      See readme.txt for copyright information.
  */
 
+
 #include "allegro.h" 
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
+
+#ifndef ALLEGRO_WINDOWS
+#error something is wrong with the makefile
+#endif
+
 
 /* function from asmlock.s */ 
 extern void gfx_gdi_write_bank(void);

@@ -1,4 +1,3 @@
-
 /*         ______   ___    ___ 
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -9,12 +8,13 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      thread management 
+ *      Thread management.
  *
  *      By Stefan Schimanski.
  *
  *      See readme.txt for copyright information.
  */
+
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -23,6 +23,11 @@
 #ifndef SCAN_DEPEND
    #include <objbase.h>
 #endif
+
+#ifndef ALLEGRO_WINDOWS
+#error something is wrong with the makefile
+#endif
+
 
 typedef UINT(CALLBACK * LPFNDLLFUNC1) (DWORD, UINT);
 

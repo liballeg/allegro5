@@ -17,6 +17,7 @@
  *      See readme.txt for copyright information.
  */
 
+
 /* Set DIRECTX_SDK_VERSION according to the installed SDK version.
  * Note that this file requires at least the SDK version 5 to compile,
  * so that DIRECTX_SDK_VERSION must be >= 0x500.
@@ -34,6 +35,10 @@
 #ifndef SCAN_DEPEND
    #include <ddraw.h>
    #include <dinput.h>
+#endif
+
+#ifndef ALLEGRO_WINDOWS
+#error something is wrong with the makefile
 #endif
 
 

@@ -10,7 +10,9 @@
  *
  *      Win32 joystick driver.
  *
- *      By Stefan Schimanski. Bugfixes by Jose Antonio Luque.
+ *      By Stefan Schimanski.
+ *
+ *      Bugfixes by Jose Antonio Luque.
  *
  *      See readme.txt for copyright information.
  */
@@ -31,6 +33,7 @@
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
 #endif
+
 
 /* driver functions */
 static int joy_init(void);

@@ -8,19 +8,16 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      DirectDraw gfx drivers header
+ *      DirectDraw gfx drivers header.
  *
  *      By Stefan Schimanski.
  *
  *      See readme.txt for copyright information.
  */
 
+
 #ifndef WDDRAW_H_INCLUDED
 #define WDDRAW_H_INCLUDED
-
-#ifdef DIRECTDRAW_VERSION
-  #undef DIRECTDRAW_VERSION
-#endif
 
 #define DIRECTDRAW_VERSION 0x0300
 
@@ -35,6 +32,7 @@
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
 #endif
+
 
 /* vtable routines */
 AL_FUNC(void, gfx_directx_exit, (BITMAP *b));

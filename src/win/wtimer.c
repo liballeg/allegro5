@@ -15,6 +15,7 @@
  *      See readme.txt for copyright information.
  */
 
+
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
@@ -22,7 +23,6 @@
 #ifndef SCAN_DEPEND
    #include <process.h>
 #endif
-
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

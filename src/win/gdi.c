@@ -17,9 +17,12 @@
 
 
 #include "allegro.h"
-#include "winalleg.h"
 #include "allegro/aintern.h"
+#include "allegro/aintwin.h"
 
+#ifndef ALLEGRO_WINDOWS
+#error something is wrong with the makefile
+#endif
 
 
 static HPALETTE current_hpalette = NULL;

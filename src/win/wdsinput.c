@@ -18,6 +18,7 @@
  *      See readme.txt for copyright information.
  */
 
+
 #define DIRECTSOUND_VERSION 0x0500
 
 #include "allegro.h"

@@ -10,11 +10,15 @@
  *
  *      DirectDraw acceleration.
  *
- *      By Stefan Schimanski. Bugfixes by Isaac Cruz. Acceleration for
- *      rectfill() and hline() added by Shawn Hargreaves.
+ *      By Stefan Schimanski.
+ *
+ *      Bugfixes by Isaac Cruz.
+ *
+ *      Accelerated rectfill() and hline() added by Shawn Hargreaves.
  *
  *      See readme.txt for copyright information.
  */
+
 
 #include "wddraw.h"
 
