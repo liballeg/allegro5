@@ -30,9 +30,8 @@
 /* different ways to update the screen */
 #define DOUBLE_BUFFER      1
 #define PAGE_FLIP          2
-#define RETRACE_FLIP       3
-#define TRIPLE_BUFFER      4
-#define DIRTY_RECTANGLE    5
+#define TRIPLE_BUFFER      3
+#define DIRTY_RECTANGLE    4
 
 int animation_type = 0;
 
@@ -50,8 +49,6 @@ BITMAP *s;
 
 BITMAP *page1, *page2, *page3;
 int current_page = 0;
-
-int use_retrace_proc = FALSE;
 
 PALETTE title_palette;
 
@@ -516,7 +513,7 @@ void draw_screen(void)
       bmp = s;
       clear_bitmap(bmp);
    }
-   else if ((animation_type == PAGE_FLIP) || (animation_type == RETRACE_FLIP)) {
+   else if (animation_type == PAGE_FLIP) {
       /* for page flipping we draw onto one of the sub-bitmaps which
        * describe different parts of the large virtual screen.
        */ 
@@ -672,7 +669,7 @@ void draw_screen(void)
       /* when double buffering, just copy the memory bitmap to the screen */
       blit(s, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
    }
-   else if ((animation_type == PAGE_FLIP) || (animation_type == RETRACE_FLIP)) {
+   else if (animation_type == PAGE_FLIP) {
       /* for page flipping we scroll to display the image */ 
       show_video_bitmap(bmp);
    }
@@ -860,10 +857,7 @@ void play_game(void)
    /* set up the interrupt routines... */
    install_int(fps_proc, 1000);
 
-   if (use_retrace_proc)
-      retrace_proc = game_timer;
-   else
-      install_int(game_timer, 6400/SCREEN_W);
+   install_int(game_timer, 6400/SCREEN_W);
 
    game_time = 0;
    prev_bullet_time = 0;
@@ -889,10 +883,7 @@ void play_game(void)
    /* cleanup */
    remove_int(fps_proc);
 
-   if (use_retrace_proc)
-      retrace_proc = NULL;
-   else
-      remove_int(game_timer);
+   remove_int(game_timer);
 
    stop_sample(data[ENGINE_SPL].dat);
 
@@ -916,7 +907,7 @@ void play_game(void)
    fps = 0;
    draw_screen();
 
-   if ((animation_type == PAGE_FLIP) || (animation_type == RETRACE_FLIP) || (animation_type == TRIPLE_BUFFER)) {
+   if ((animation_type == PAGE_FLIP) || (animation_type == TRIPLE_BUFFER)) {
       while (current_page != 0)
 	 draw_screen();
 
@@ -1109,17 +1100,6 @@ int anim_desc_proc(int msg, DIALOG *d, int c)
       NULL
    };
 
-   static char *retrace_flip_desc[] = 
-   {
-      "This is basically the same",
-      "as page flipping, but it uses",
-      "the vertical retrace interrupt",
-      "simulator instead of retrace",
-      "polling. Only works in mode-X,",
-      "and not under win95.",
-      NULL
-   };
-
    static char *triple_buffer_desc[] = 
    {
       "Uses three pages of video",
@@ -1146,7 +1126,6 @@ int anim_desc_proc(int msg, DIALOG *d, int c)
    {
       double_buffer_desc,
       page_flip_desc,
-      retrace_flip_desc,
       triple_buffer_desc,
       dirty_rectangle_desc
    };
@@ -1765,10 +1744,7 @@ int title_screen(void)
 
    scroll_count = 0;
 
-   if (use_retrace_proc)
-      retrace_proc = scroll_counter;
-   else
-      install_int(scroll_counter, 6);
+   install_int(scroll_counter, 6);
 
    do {
       do {
@@ -1813,7 +1789,7 @@ int title_screen(void)
 	 }
 
 	 /* move the scroller */
-	 text_scroll += (use_retrace_proc ? 2 : 1);
+	 text_scroll++;
 
 	 /* update the credits position */
 	 if (credit_scroll <= 0) {
@@ -2047,10 +2023,7 @@ int title_screen(void)
 
    } while ((!keypressed()) && (!joy[0].button[0].b) && (!joy[0].button[1].b));
 
-   if (use_retrace_proc)
-      retrace_proc = NULL;
-   else
-      remove_int(scroll_counter);
+   remove_int(scroll_counter);
 
    fade_out(5);
 
@@ -2182,7 +2155,6 @@ int main(int argc, char *argv[])
    switch (animation_type) {
 
       case PAGE_FLIP:
-      case RETRACE_FLIP: 
 	 num_pages = 2;
 	 break;
 
@@ -2212,26 +2184,6 @@ int main(int argc, char *argv[])
 
       case PAGE_FLIP:
 	 /* set up page flipping bitmaps */
-	 page1 = create_video_bitmap(SCREEN_W, SCREEN_H);
-	 page2 = create_video_bitmap(SCREEN_W, SCREEN_H);
-
-	 if ((!page1) || (!page2)) {
-	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	    allegro_message("Not enough video memory for page flipping\n");
-	    exit(1);
-	 }
-	 break;
-
-      case RETRACE_FLIP: 
-	 /* set up retrace-synced page flipping bitmaps */
-	 if (!timer_can_simulate_retrace()) {
-	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	    allegro_message("Retrace syncing is not possible in this environment\n");
-	    exit(1);
-	 }
-
-	 timer_simulate_retrace(TRUE);
-
 	 page1 = create_video_bitmap(SCREEN_W, SCREEN_H);
 	 page2 = create_video_bitmap(SCREEN_W, SCREEN_H);
 
@@ -2272,8 +2224,6 @@ int main(int argc, char *argv[])
 	 break;
    }
 
-   use_retrace_proc = timer_is_using_retrace();
-
    LOCK_VARIABLE(game_time);
    LOCK_FUNCTION(game_timer);
 
@@ -2300,7 +2250,7 @@ int main(int argc, char *argv[])
 
    destroy_bitmap(s);
 
-   if ((animation_type == PAGE_FLIP) || (animation_type == RETRACE_FLIP)) {
+   if (animation_type == PAGE_FLIP) {
       destroy_bitmap(page1);
       destroy_bitmap(page2);
    }

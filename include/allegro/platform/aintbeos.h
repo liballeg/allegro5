@@ -109,8 +109,6 @@ void be_gfx_overlay_exit(struct BITMAP *b);
 
 int  be_time_init(void);
 void be_time_exit(void);
-//int  be_time_can_simulate_retrace(void);
-//void be_time_simulate_retrace(int enable);
 void be_time_rest(unsigned int time, AL_METHOD(void, callback, (void)));
 void be_time_suspend(void);
 void be_time_resume(void);

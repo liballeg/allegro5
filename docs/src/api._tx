@@ -313,4 +313,13 @@ Deprecated materials
    generate_optimized_pallete (generate_optimized_palette).
 <li>
    yield_timeslice (rest, passing 0 as parameter)
+<li>
+   retrace_proc (retrace_count or install_int).
+<li>
+   timer_can_simulate_retrace.
+<li>
+   timer_is_using_retrace.
+<li>
+   timer_simulate_retrace (when enable_triple_buffer is called, the mode-X
+   driver still enables retrace simulation automatically where possible).
 </ul>

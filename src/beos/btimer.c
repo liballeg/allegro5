@@ -36,7 +36,7 @@ TIMER_DRIVER timer_beos = {
    NULL,		// AL_METHOD(void, remove_int, (AL_METHOD(void, proc, (void))));
    NULL,		// AL_METHOD(int, install_param_int, (AL_METHOD(void, proc, (void *param)), void *param, long speed));
    NULL,		// AL_METHOD(void, remove_param_int, (AL_METHOD(void, proc, (void *param)), void *param));
-   NULL, // be_time_can_simulate_retrace,	// AL_METHOD(int, can_simulate_retrace, (void));
-   NULL, // be_time_simulate_retrace,		// AL_METHOD(void, simulate_retrace, (int enable));
+   NULL,		// AL_METHOD(int, can_simulate_retrace, (void));
+   NULL,		// AL_METHOD(void, simulate_retrace, (int enable));
    be_time_rest,	// AL_METHOD(void, rest, (long time, AL_METHOD(void, callback, (void))));
 };

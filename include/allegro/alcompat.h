@@ -229,6 +229,18 @@ AL_INLINE_DEPRECATED(void, yield_timeslice, (void),
 })
 
 
+/* DOS-ish monitor retrace ideas that don't work elsewhere */
+AL_FUNCPTR(void, retrace_proc, (void));
+
+#ifdef ALLEGRO_LIB_BUILD
+   AL_FUNC(int,  timer_can_simulate_retrace, (void));
+   AL_FUNC(void, timer_simulate_retrace, (int enable));
+#else
+   AL_FUNC_DEPRECATED(int,  timer_can_simulate_retrace, (void));
+   AL_FUNC_DEPRECATED(void, timer_simulate_retrace, (int enable));
+#endif
+AL_FUNC_DEPRECATED(int,  timer_is_using_retrace, (void));
+
 #ifdef __cplusplus
    }
 #endif

@@ -1,8 +1,7 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates the use of triple buffering and vertical
- *    retrace interrupt simulation.
+ *    This program demonstrates the use of triple buffering.
  */
 
 
@@ -25,7 +24,6 @@ typedef struct SHAPE
 
 SHAPE shapes[NUM_SHAPES];
 int triplebuffer_not_available = 0;
-int retrace_sync_not_available = 0;
 
 
 
@@ -106,36 +104,10 @@ void draw(BITMAP *b)
    else
       ustrzcpy (message, sizeof message, "Real triple buffering");
 
-   if (retrace_sync_not_available)
-      ustrzcat(message,  sizeof message, " with simulated retrace sync");
-   else
-      ustrzcat(message,  sizeof message, " with real retrace sync");
-
    textout_ex(b, font, message, 0, 0, 255, -1);
 
    release_bitmap(b);
 }
-
-
-
-int fade_color = 63;
-
-/* vertical retrace callback function for doing the palette fade */
-void fade(void)
-{
-   int c = (fade_color < 64) ? fade_color : 127 - fade_color;
-   RGB rgb;
-
-   rgb.r = rgb.g = rgb.b = c;
-
-   _set_color(0, &rgb);
-
-   fade_color++;
-   if (fade_color >= 128)
-      fade_color = 0;
-}
-
-END_OF_FUNCTION(fade);
 
 
 
@@ -232,25 +204,11 @@ int main(void)
    LOCK_VARIABLE(fade_color);
    LOCK_FUNCTION(fade);
 
-   if (timer_can_simulate_retrace()) {
-      timer_simulate_retrace(TRUE);
-      retrace_proc = fade;
-   }
-   else {
-      /* Well, we don't have retrace simulation. But we still can
-       * do the palette fading.
-       */
-      retrace_sync_not_available = TRUE;
-      retrace_proc = fade;
-   }
-
    triple_buffer(page1, page2, page3);
 
    destroy_bitmap(page1);
    destroy_bitmap(page2);
    destroy_bitmap(page3);
-
-   retrace_proc = NULL;
 
    return 0;
 }

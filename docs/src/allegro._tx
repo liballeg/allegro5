@@ -2471,100 +2471,18 @@ Allegro does not provide such devices.)
    (so you can't have more than one copy of a handler using an identical 
    parameter).
 
-@@int @timer_can_simulate_retrace()
-@xref timer_simulate_retrace, timer_is_using_retrace
-@eref ex3buf
-   Checks whether it is possible to sync the timer module with the monitor 
-   retrace, given the current platform and environment (at the moment this 
-   is only possible when running in clean DOS mode in a VGA or mode-X 
-   resolution).
-@retval
-   Returns non-zero if simulation is possible, zero otherwise.
-
-@@void @timer_simulate_retrace(int enable);
-@xref install_timer, retrace_count, retrace_proc, request_scroll, vsync
-@xref timer_can_simulate_retrace, timer_is_using_retrace
-@xref enable_triple_buffer
-@eref ex3buf
-   The DOS timer handler can be used to simulate vertical retrace 
-   interrupts. A retrace interrupt can be extremely useful for implementing 
-   smooth animation, but unfortunately the VGA hardware doesn't support it. 
-   The EGA did, and some SVGA chipsets do, but not enough, and not in a 
-   sufficiently standardised way, for it to be useful. Allegro works around 
-   this by programming the timer to generate an interrupt when it thinks a 
-   retrace is next likely to occur, and polling the VGA inside the interrupt 
-   handler to make sure it stays in sync with the monitor refresh. This 
-   works quite well in some situations, but there are a lot of caveats:
-<ul><li>
-     You can't use the retrace simulator in SVGA modes. It will work with
-     some chipsets, but not others, and it conflicts with most VESA 
-     implementations. Retrace simulation is only reliable in VGA mode 13h 
-     and mode-X.
-<li>
-     Retrace simulation doesn't work under win95, because win95 returns
-     garbage when I try to read the elapsed time from the PIT. If anyone 
-     knows how I can make this work, please tell me!
-<li>
-     Retrace simulation involves a lot of waiting around in the timer
-     handler with interrupts disabled. This will significantly slow down 
-     your entire system, and may also cause static when playing samples on 
-     SB 1.0 cards (because they don't support auto-initialised DMA: SB 2.0 
-     and above will be fine).
-</ul>
-   Bearing all those problems in mind, I'd strongly advise against relying
-   on the retrace simulator. If you are coding in mode-X, and don't care 
-   about your program working under win95, it is great, but it would be a 
-   good idea to give the user an option to disable it.
-
-   Retrace simulation must be enabled before you use the triple buffering 
-   functions in a mode-X resolution. It can also be useful for simple 
-   retrace detection, because the polling vsync() function can occasionally 
-   miss retraces if a soundcard or timer interrupt occurs at exactly the 
-   same time as the retrace. When retrace interrupt simulation is enabled, 
-   vsync() will check the retrace_count variable rather than polling the 
-   VGA, so it won't miss retraces even if they are masked by other 
-   interrupts.
-
-@@int @timer_is_using_retrace()
-@xref timer_simulate_retrace, timer_can_simulate_retrace
-   Checks whether the timer module is currently synced with the monitor 
-   retrace or not.
-@retval
-   Returns non-zero if it is, zero otherwise.
-
 @@extern volatile int @retrace_count;
-@xref timer_simulate_retrace, timer_is_using_retrace, retrace_proc
 @eref ex3d, exblend, exdbuf, exflip, exlights
    If the retrace simulator is installed, this count is incremented on each
    vertical retrace; otherwise, if the refresh rate is known, the count is
    incremented at the same rate (ignoring retraces); otherwise, it is
-   incremented 70 times a second. This provides a useful way of controlling
-   the speed of your program without the hassle of installing user timer
-   functions.
+   incremented 70 times a second. This provides a way of controlling
+   the speed of your program without installing user timer functions.
 
    The speed of retraces varies depending on the graphics mode. In mode 13h 
    and 200/400 line mode-X resolutions there are 70 retraces a second, and 
    in 240/480 line modes there are 60. It can be as low as 50 (in 376x282 
    mode) or as high as 92 (in 400x300 mode).
-
-@@extern void (*@retrace_proc)();
-@xref timer_simulate_retrace, timer_is_using_retrace, retrace_count
-@xref _set_color
-@eref ex3buf
-   If the retrace simulator is installed, this function is called during 
-   every vertical retrace; otherwise, if the refresh rate is known, the 
-   function is called at the same rate (ignoring retraces); otherwise it is 
-   called 70 times a second. Set it to NULL to disable the callback. The 
-   function must obey the same rules as regular timer handlers (ie. it must 
-   be locked, and mustn't call OS or libc functions) but even more so: it 
-   must execute very quickly, or it will mess up the timer synchronisation. 
-   The only use I can see for this function is for palette manipulations, 
-   because triple buffering can be done with the request_scroll() function, 
-   and the retrace_count variable can be used for timing your code. If you 
-   want to alter the palette in the retrace_proc you should use the inline 
-   _set_color() function rather than the regular set_color() or 
-   set_palette(), and you shouldn't try to alter more than two or three 
-   palette entries in a single retrace.
 
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
@@ -2578,9 +2496,11 @@ Allegro does not provide such devices.)
    users, and also does things like saving battery power and making fans
    less noisy.
 
-   Note that calling this inside your active game loop is a very bad idea,
+   Note that calling this inside your active game loop is a bad idea, as
    you never know when the OS will give you the CPU back, so you could end up
-   missing the vertical retrace and skipping frames.
+   missing the vertical retrace and skipping frames. On the other hand, on
+   multitasking operating systems it is good form to give up the CPU for a
+   while if you will not be using it.
 
    In DOS, where Allegro takes over the timer, the standard delay() function will 
    no longer work, so you should use this routine instead.
@@ -3443,8 +3363,7 @@ Graphics modes
    screen" system.
 
 @@int @enable_triple_buffer();
-@xref gfx_capabilities, timer_simulate_retrace, request_scroll
-@xref request_video_bitmap
+@xref gfx_capabilities, request_scroll, request_video_bitmap
 @eref ex3buf, exupdate
    If the GFX_CAN_TRIPLE_BUFFER bit of the gfx_capabilities field is not 
    set, you can attempt to enable it by calling this function. In particular 
@@ -3480,7 +3399,7 @@ Graphics modes
 
 @@int @request_scroll(int x, int y);
 @xref poll_scroll, request_video_bitmap, gfx_capabilities
-@xref timer_simulate_retrace, scroll_screen
+@xref scroll_screen
    This function is used for triple buffering. It requests a hardware scroll 
    to the specified position, but returns immediately rather than waiting 
    for a retrace. The scroll will then take place during the next vertical 
@@ -3492,7 +3411,9 @@ Graphics modes
    win95), plus it is supported by the VBE 3.0 and VBE/AF drivers for a 
    limited number of high-end graphics cards. You can look at the 
    GFX_CAN_TRIPLE_BUFFER bit in the gfx_capabilities flag to see if it will 
-   work with the current driver. This function returns zero on success.
+   work with the current driver.
+@retval
+   This function returns zero on success.
 
 @@int @poll_scroll();
 @xref request_scroll, request_video_bitmap
@@ -3515,7 +3436,7 @@ Graphics modes
    that show_video_bitmap() has the same time delay effects as vsync().
 
 @@int @request_video_bitmap(BITMAP *bitmap);
-@xref poll_scroll, request_scroll, gfx_capabilities, timer_simulate_retrace
+@xref poll_scroll, request_scroll, gfx_capabilities
 @xref create_video_bitmap, scroll_screen
 @eref ex3buf, exupdate
    This function is used for triple buffering. It requests a page flip to 
@@ -3527,7 +3448,7 @@ Graphics modes
    the comments about request_scroll(). Returns zero on success.
 
 @@void @vsync();
-@xref set_palette, scroll_screen, timer_simulate_retrace
+@xref set_palette, scroll_screen
 @eref Available Allegro examples
    Waits for a vertical retrace to begin. The retrace happens when the
    electron beam in your monitor has reached the bottom of the screen and is
@@ -4077,13 +3998,16 @@ before including Allegro headers).
    you should call vsync() before it to prevent snow problems.
 
 @@void @_set_color(int index, const RGB *p);
-@xref set_color, set_gfx_mode, timer_simulate_retrace
+@xref set_color, set_gfx_mode
 @eref ex3buf
-   This is an inline version of set_color(), intended for use in the 
-   vertical retrace simulator callback function. It should only be used in 
-   VGA mode 13h and mode-X, because some of the more recent SVGA chipsets 
-   aren't VGA compatible (set_color() and set_palette() will use VESA calls 
-   on these cards, but _set_color() doesn't know about that).
+   This is an inline version of set_color(), intended for use in the
+   vertical retrace simulator callback function (retrace_proc, which is now
+   deprecated).
+
+   If you really must use _set_color from retrace_proc, note that it should
+   only be used under DOS, in VGA mode 13h and mode-X. Some SVGA chipsets
+   aren't VGA compatible (set_color() and set_palette() will use VESA calls on
+   these cards, but _set_color() doesn't know about that).
 
 @@void @set_palette(const PALETTE p);
 @xref set_gfx_mode, set_palette_range, set_color, get_palette
@@ -11075,11 +10999,9 @@ and avoid missing any important bit of information.
 @xref destroy_bitmap, enable_triple_buffer, fixcos, fixed, fixmul, fixsin
 @xref fixtoi, font, gfx_capabilities, install_keyboard, install_mouse
 @xref install_timer, itofix, keypressed, poll_scroll, release_bitmap
-@xref request_video_bitmap, retrace_proc, screen, set_gfx_mode
-@xref set_palette, timer_can_simulate_retrace, timer_simulate_retrace
-@xref triangle, ustrzcat, ustrzcpy
-   This program demonstrates the use of triple buffering and vertical
-   retrace interrupt simulation.
+@xref request_video_bitmap, screen, set_gfx_mode
+@xref set_palette, triangle, ustrzcat, ustrzcpy
+   This program demonstrates the use of triple buffering.
 
 @@Example @ex12bit
 @xref BITMAP, END_OF_MAIN, MATRIX, PALETTE, RGB, allegro_error

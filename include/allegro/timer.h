@@ -64,11 +64,6 @@ AL_FUNC(int, install_param_int, (AL_METHOD(void, proc, (void *param)), void *par
 AL_FUNC(void, remove_param_int, (AL_METHOD(void, proc, (void *param)), void *param));
 
 AL_VAR(volatile int, retrace_count);
-AL_FUNCPTR(void, retrace_proc, (void));
-
-AL_FUNC(int,  timer_can_simulate_retrace, (void));
-AL_FUNC(void, timer_simulate_retrace, (int enable));
-AL_FUNC(int,  timer_is_using_retrace, (void));
 
 AL_FUNC(void, rest, (unsigned int time));
 AL_FUNC(void, rest_callback, (unsigned int time, AL_METHOD(void, callback, (void))));

@@ -196,7 +196,7 @@ void rest(unsigned int time)
 
 
 
-/* timer_can_simulate_retrace:
+/* timer_can_simulate_retrace: [deprecated but used internally]
  *  Checks whether the current driver is capable of a video retrace
  *  syncing mode.
  */
@@ -210,7 +210,7 @@ int timer_can_simulate_retrace()
 
 
 
-/* timer_simulate_retrace:
+/* timer_simulate_retrace: [deprecated but used internally]
  *  Turns retrace simulation on or off, and if turning it on, calibrates
  *  the retrace timer.
  */
@@ -224,7 +224,7 @@ void timer_simulate_retrace(int enable)
 
 
 
-/* timer_is_using_retrace:
+/* timer_is_using_retrace: [deprecated]
  *  Tells the user whether the current driver is providing a retrace
  *  sync.
  */

@@ -129,7 +129,6 @@ int next(void)
    poll_mouse();
 
    if (mouse_b) {
-      retrace_proc = NULL;
       do {
 	 poll_mouse();
       } while (mouse_b);
@@ -1868,72 +1867,6 @@ void fade(void)
 }
 
 END_OF_FUNCTION(fade)
-
-
-
-void retrace_test(void)
-{
-   RGB rgb;
-   int x, x2;
-
-   clear_to_color(screen, palette_color[0]);
-
-   if (!timer_can_simulate_retrace()) {
-      alert("Retrace interrupts not available",
-	 #ifdef ALLEGRO_DOS
-	    "Try using standard VGA or mode-X",
-	    "in clean DOS mode (not win95)",
-	 #else
-	    NULL, NULL,
-	 #endif
-	    "Sorry", NULL, 13, 0);
-      return;
-   }
-
-   message("Vertical retrace interrupt test");
-   textout_centre_ex(screen, font, "Without retrace synchronisation", SCREEN_W/2, SCREEN_H/2-32, palette_color[15], palette_color[0]);
-
-   LOCK_VARIABLE(int_c1);
-   LOCK_VARIABLE(fade_color);
-   LOCK_FUNCTION(int1);
-   LOCK_FUNCTION(fade);
-
-   install_int(int1, 1000);
-   retrace_proc = fade;
-   int_c1 = 0;
-   x = retrace_count;
-
-   while (!next()) {
-      if (int_c1 > 0) {
-	 int_c1 = 0;
-	 x2 = retrace_count - x;
-	 x = retrace_count;
-	 sprintf(buf, "%d retraces per second", MID(0, x2, 99));
-	 textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15], palette_color[0]);
-      }
-   }
-
-   textout_centre_ex(screen, font, "  With retrace synchronisation  ", SCREEN_W/2, SCREEN_H/2-32, palette_color[15], palette_color[0]);
-   timer_simulate_retrace(TRUE);
-   retrace_proc = fade;
-
-   while (!next()) {
-      if (int_c1 > 0) {
-	 int_c1 = 0;
-	 x2 = retrace_count - x;
-	 x = retrace_count;
-	 sprintf(buf, "%d retraces per second", x2);
-	 textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15], palette_color[0]);
-      }
-   }
-
-   timer_simulate_retrace(FALSE);
-   remove_int(int1);
-   retrace_proc = NULL;
-
-   rgb.r = rgb.g = rgb.b = 63;
-   _set_color(0, &rgb);
-}
 
 
 
@@ -3807,16 +3740,6 @@ int interrupts_proc(void)
 
 
 
-int vsync_proc(void)
-{
-   show_mouse(NULL);
-   retrace_test();
-   show_mouse(screen);
-   return D_REDRAW;
-}
-
-
-
 int quit_proc(void)
 {
    return D_CLOSE;
@@ -4174,7 +4097,6 @@ MENU io_menu[] =
    { "&Mouse",                   mouse_proc,       NULL, 0, NULL  },
    { "&Keyboard",                keyboard_proc,    NULL, 0, NULL  },
    { "&Timers",                  interrupts_proc,  NULL, 0, NULL  },
-   { "&Retrace",                 vsync_proc,       NULL, 0, NULL  },
    { NULL,                       NULL,             NULL, 0, NULL  }
 };
 
