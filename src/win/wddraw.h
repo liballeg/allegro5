@@ -46,7 +46,7 @@ AL_VAR(char *, pseudo_surf_mem);
 
 
 /* driver routines */
-AL_FUNC(BITMAP *, gfx_directx_init, (GFX_DRIVER *drv, int accel, int w, int h, int v_w, int v_h, int color_depth));
+AL_FUNC(BITMAP *, gfx_directx_init, (GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth));
 AL_FUNC(void, gfx_directx_exit, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_sync, (void));
 AL_FUNC(void, gfx_directx_set_palette, (AL_CONST RGB *p, int from, int to, int vsync));
@@ -74,6 +74,7 @@ AL_FUNC(int, exit_directx, (void));
 
 /* driver initialisation and shutdown (from wddaccel.c) */
 AL_FUNC(int, enable_acceleration, (GFX_DRIVER *drv));
+AL_FUNC(int, enable_triple_buffering, (GFX_DRIVER *drv));
 
 
 /* video mode setting (from wddmode.c) */

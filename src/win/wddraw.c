@@ -212,7 +212,7 @@ int exit_directx(void)
 
 /* gfx_directx_init:
  */
-struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int accel, int w, int h, int v_w, int v_h, int color_depth)
+struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth)
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
@@ -252,9 +252,6 @@ struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int accel, int w, int h, int v_
 
    /* create front buffer */
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, BMP_ID_VIDEO);
-
-   if (accel)
-      enable_acceleration(drv);
 
    return dd_frontbuffer;
 

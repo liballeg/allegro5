@@ -51,7 +51,7 @@ GFX_DRIVER gfx_directx_win =
    gfx_directx_create_video_bitmap,
    gfx_directx_destroy_video_bitmap,
    gfx_directx_show_video_bitmap_win,
-   gfx_directx_show_video_bitmap_win,
+   NULL,
    gfx_directx_create_system_bitmap,
    gfx_directx_destroy_system_bitmap,
    NULL,                        // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));

@@ -452,7 +452,7 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
 
 
 /* enable_acceleration:
- *  checks graphic driver for capabilities to accelerate Allegro
+ *  Checks graphic driver for capabilities to accelerate Allegro.
  */
 int enable_acceleration(GFX_DRIVER * drv)
 {
@@ -498,12 +498,24 @@ int enable_acceleration(GFX_DRIVER * drv)
       gfx_capabilities |= (GFX_HW_VRAM_BLIT_MASKED | GFX_HW_SYS_TO_VRAM_BLIT_MASKED);
    }
 
-   /* triple buffering? */
+   return 0;
+}
+
+
+
+/* enable_triple_buffering:
+ *  Checks graphic driver for triple buffering capability.
+ */
+int enable_triple_buffering(GFX_DRIVER *drv)
+{
+   HRESULT hr;
+
    hr = IDirectDrawSurface2_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
-   if (hr == DDERR_WASSTILLDRAWING || hr == DD_OK) {
+   if ((hr == DD_OK) || (hr == DDERR_WASSTILLDRAWING)) {
       drv->poll_scroll = gfx_directx_poll_scroll;
       gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
    }
 
    return 0;
 }
+

@@ -410,6 +410,9 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    /* use hardware accelerated primitives */
    enable_acceleration(&gfx_directx_ovl);
 
+   /* use triple buffering */
+   enable_triple_buffering(&gfx_directx_ovl);
+
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_overlay;
 
