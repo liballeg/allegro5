@@ -3416,15 +3416,19 @@ Allegro supports several different types of bitmaps:
    the pointers are equal, one is a sub-bitmap of the other, or they are 
    both sub-bitmaps of a common parent.
 
-@@int @is_linear_bitmap(BITMAP *bmp);
-@xref is_planar_bitmap, is_memory_bitmap
-   Returns TRUE if bmp is a linear bitmap, ie. a memory bitmap, mode 13h 
-   screen, or SVGA screen. Linear bitmaps can be used with the _putpixel(), 
-   _getpixel(), bmp_write_line(), and bmp_read_line() functions.
-
 @@int @is_planar_bitmap(BITMAP *bmp);
 @xref is_linear_bitmap, is_memory_bitmap
    Returns TRUE if bmp is a planar (mode-X or Xtended mode) screen bitmap.
+
+@@int @is_linear_bitmap(BITMAP *bmp);
+@xref is_planar_bitmap, is_memory_bitmap
+   Returns TRUE if bmp is a linear bitmap, i.e. a bitmap that can be accessed
+   linearly within each scanline (for example a memory bitmap, the DOS VGA
+   or SVGA screen, Windows bitmaps, etc). Linear bitmaps can be used with the
+   _putpixel(), _getpixel(), bmp_write_line(), and bmp_read_line() functions.
+
+   Historically there were only linear and planar bitmaps for Allegro, so
+   is_linear_bitmap is actually an alias for !is_planar_bitmap.
 
 @@int @is_memory_bitmap(BITMAP *bmp);
 @xref is_linear_bitmap, is_planar_bitmap
