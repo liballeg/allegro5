@@ -114,7 +114,8 @@
    allp_s.lib     - statically linked profiling library
 
    When using a statically linked library, you must define the preprocessor 
-   symbol ALLEGRO_STATICLINK before including any of the Allegro headers.
+   symbol ALLEGRO_STATICLINK before including any of the Allegro headers and 
+   make sure that your program is linked against the multi-threaded DLL libc.
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function!
