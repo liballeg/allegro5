@@ -8338,8 +8338,10 @@ special processing of the main() function described above.
 
 When creating the main window, Allegro searches the executable for an ICON 
 resource named "allegro_icon". If it is present, Allegro automatically 
-loads it and uses it as its application icon. Otherwise, Allegro uses the 
-default IDI_APPLICATION icon.
+loads it and uses it as its application icon; otherwise, Allegro uses the 
+default IDI_APPLICATION icon. See the manual of your compiler for a method 
+to create an ICON resource, or use the wfixicon utility from the tools/win 
+directory.
 
 DirectX requires that system and video bitmaps (including the screen) be 
 locked before you can draw onto them. This will be done automatically, but 
