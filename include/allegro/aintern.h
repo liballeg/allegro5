@@ -830,9 +830,6 @@ AL_VAR(int, _sound_dma);
 AL_VAR(int, _sound_irq);
 
 
-AL_FUNCPTR(int, _midi_init, (void));
-AL_FUNCPTR(void, _midi_exit, (void));
-
 AL_FUNC(int, _midi_allocate_voice, (int min, int max));
 
 AL_VAR(volatile long, _midi_tick);
@@ -971,6 +968,23 @@ AL_FUNC(void, _construct_datafile, (DATAFILE *data));
 
 /* for readbmp.c */
 AL_FUNC(void, register_bitmap_file_type_init, (void));
+
+
+/* for module linking system; see comment in allegro.c */
+struct _AL_LINKER_MIDI {
+   AL_METHOD(int, init, (void));
+   AL_METHOD(void, exit, (void));
+};
+
+AL_VAR(struct _AL_LINKER_MIDI *, _al_linker_midi);
+
+struct _AL_LINKER_MOUSE {
+   AL_METHOD(void, set_mouse_etc, (void));
+   AL_METHOD(void, show_mouse, (BITMAP *));
+   BITMAP **mouse_screen_ptr;
+};
+
+AL_VAR(struct _AL_LINKER_MOUSE *, _al_linker_mouse);
 
 
 #ifdef __cplusplus

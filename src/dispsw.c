@@ -341,8 +341,9 @@ void _save_switch_state(int switch_mode)
    if (!screen)
       return;
 
-   if (is_same_bitmap(_mouse_screen, screen)) {
-      show_mouse(NULL);
+   if (_al_linker_mouse && 
+       is_same_bitmap(*(_al_linker_mouse->mouse_screen_ptr), screen)) {
+      _al_linker_mouse->show_mouse(NULL);
       hadmouse = TRUE;
    }
    else
@@ -357,7 +358,7 @@ void _save_switch_state(int switch_mode)
    _dispsw_status = switch_mode;
 
    if (hadmouse)
-      show_mouse(screen);
+      _al_linker_mouse->show_mouse(screen);
 }
 
 
@@ -393,8 +394,9 @@ void _restore_switch_state()
    if (!screen)
       return;
 
-   if (is_same_bitmap(_mouse_screen, screen)) {
-      show_mouse(NULL);
+   if (_al_linker_mouse &&
+       is_same_bitmap(*(_al_linker_mouse->mouse_screen_ptr), screen)) {
+      _al_linker_mouse->show_mouse(NULL);
       hadmouse = TRUE;
    }
    else
@@ -419,7 +421,7 @@ void _restore_switch_state()
    }
 
    if (hadmouse)
-      show_mouse(screen);
+      _al_linker_mouse->show_mouse(screen);
 
    _timer_installed = hadtimer;
 }

@@ -113,7 +113,7 @@ MIDI_DRIVER midi_none =
 int digi_card = DIGI_AUTODETECT;          /* current driver ID numbers */
 int midi_card = MIDI_AUTODETECT;
 
-int digi_input_card = MIDI_AUTODETECT;
+int digi_input_card = DIGI_AUTODETECT;
 int midi_input_card = MIDI_AUTODETECT;
 
 DIGI_DRIVER *digi_driver = &digi_none;    /* these things do all the work */
@@ -152,9 +152,6 @@ int _sound_irq = -1;
 
 static void update_sweeps(void);
 static void sound_lock_mem(void);
-
-int (*_midi_init)(void) = NULL;
-void (*_midi_exit)(void) = NULL;
 
 
 
@@ -313,8 +310,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       _phys_voice[c].num = -1;
 
    /* initialise the MIDI file player */
-   if (_midi_init)
-      if (_midi_init() != 0)
+   if (_al_linker_midi)
+      if (_al_linker_midi->init() != 0)
 	 return -1;
 
    usetc(allegro_error, 0);
@@ -360,8 +357,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
 	 digi_driver = digi_drivers[c].driver;
 	 if (!digi_driver->detect(FALSE)) {
 	    digi_driver = &digi_none; 
-	    if (_midi_exit)
-	       _midi_exit();
+	    if (_al_linker_midi)
+	       _al_linker_midi->exit();
 	    if (!ugetc(allegro_error))
 	       ustrcpy(allegro_error, get_config_text("Digital sound driver not found"));
 	    return -1;
@@ -402,8 +399,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
 	 if (!midi_driver->detect(FALSE)) {
 	    digi_driver = &digi_none; 
 	    midi_driver = &midi_none; 
-	    if (_midi_exit)
-	       _midi_exit();
+	    if (_al_linker_midi)
+	       _al_linker_midi->exit();
 	    if (!ugetc(allegro_error))
 	       ustrcpy(allegro_error, get_config_text("MIDI music driver not found"));
 	    return -1;
@@ -452,8 +449,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       usprintf(allegro_error, get_config_text("Insufficient %s voices available"), (digi_voices > DIGI_VOICES) ? get_config_text("digital") : get_config_text("MIDI"));
       digi_driver = &digi_none; 
       midi_driver = &midi_none; 
-      if (_midi_exit)
-	 _midi_exit();
+      if (_al_linker_midi)
+	 _al_linker_midi->exit();
       return -1;
    }
 
@@ -461,8 +458,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
    if (digi_driver->init(FALSE, digi_voices) != 0) {
       digi_driver = &digi_none; 
       midi_driver = &midi_none; 
-      if (_midi_exit)
-	 _midi_exit();
+      if (_al_linker_midi)
+	 _al_linker_midi->exit();
       if (!ugetc(allegro_error))
 	 ustrcpy(allegro_error, get_config_text("Failed to init digital sound driver"));
       return -1;
@@ -473,8 +470,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       digi_driver->exit(FALSE);
       digi_driver = &digi_none; 
       midi_driver = &midi_none; 
-      if (_midi_exit)
-	 _midi_exit();
+      if (_al_linker_midi)
+	 _al_linker_midi->exit();
       if (!ugetc(allegro_error))
 	 ustrcpy(allegro_error, get_config_text("Failed to init MIDI music driver"));
       return -1;
@@ -491,8 +488,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       digi_driver->exit(FALSE);
       digi_driver = &digi_none; 
       midi_driver = &midi_none; 
-      if (_midi_exit)
-	 _midi_exit();
+      if (_al_linker_midi)
+	 _al_linker_midi->exit();
       return -1;
    }
 
@@ -668,8 +665,8 @@ void remove_sound(void)
 	 if (_voice[c].sample)
 	    deallocate_voice(c);
 
-      if (_midi_exit)
-	 _midi_exit();
+      if (_al_linker_midi)
+	 _al_linker_midi->exit();
 
       midi_driver->exit(FALSE);
       midi_driver = &midi_none; 

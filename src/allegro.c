@@ -196,6 +196,16 @@ static int (*assert_handler)(AL_CONST char *msg) = NULL;
 static int (*trace_handler)(AL_CONST char *msg) = NULL;
 
 
+/* Module linking system stuff: if an object file is linked in, then its
+ * constructor function is executed; this function should fill in the
+ * data structures below (declared in aintern.h). If the module is not
+ * linked in, then the structure pointers will be null, so we don't need
+ * to bother with that bit of code elsewhere.
+ */
+struct _AL_LINKER_MIDI *_al_linker_midi = NULL;
+struct _AL_LINKER_MOUSE *_al_linker_mouse = NULL;
+
+
 /* dynamic registration system for cleanup code */
 struct al_exit_func {
    void (*funcptr)(void);
@@ -257,9 +267,11 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
       /* call constructor functions manually */
       extern void _initialize_datafile_types();
       extern void _midi_constructor();
+      extern void _mouse_constructor();
 
       _initialize_datafile_types();
       _midi_constructor();
+      _mouse_constructor();
    #endif
 
    if (errno_ptr)

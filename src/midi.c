@@ -1513,9 +1513,13 @@ static void midi_lock_mem()
    CONSTRUCTOR_FUNCTION(void _midi_constructor());
 #endif
 
+static struct _AL_LINKER_MIDI midi_linker = {
+   midi_init,
+   midi_exit
+};
+
 void _midi_constructor()
 {
-   _midi_init = midi_init;
-   _midi_exit = midi_exit;
+   _al_linker_midi = &midi_linker;
 }
 

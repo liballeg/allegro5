@@ -774,11 +774,11 @@ END_OF_FUNCTION(mouse_needs_poll);
 
 
 
-/* _set_mouse_range:
+/* set_mouse_etc:
  *  Hook for setting up the motion range, cursor graphic, etc, called by
  *  the mouse init and whenever we change the graphics mode.
  */
-void _set_mouse_range()
+static void set_mouse_etc(void)
 {
    if ((!mouse_driver) || (!gfx_driver))
       return;
@@ -906,7 +906,7 @@ int install_mouse()
 
    _mouse_installed = TRUE;
 
-   _set_mouse_range();
+   set_mouse_etc();
    _add_exit_func(remove_mouse);
 
    if (mouse_driver->timer_poll)
@@ -955,4 +955,24 @@ void remove_mouse(void)
    }
 
    _remove_exit_func(remove_mouse);
+}
+
+
+
+/* _mouse_constructor:
+ *  Register mouse functions if this object file is linked in.
+ */
+#ifdef CONSTRUCTOR_FUNCTION
+   CONSTRUCTOR_FUNCTION(void _mouse_constructor());
+#endif
+
+static struct _AL_LINKER_MOUSE mouse_linker = {
+   set_mouse_etc,
+   show_mouse,
+   &_mouse_screen
+};
+
+void _mouse_constructor()
+{
+   _al_linker_mouse = &mouse_linker;
 }
