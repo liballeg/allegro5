@@ -12,6 +12,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Nathan Smith added the recursive handling of directories.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -56,6 +58,8 @@ static char *opt_prefixstring = NULL;
 static char *opt_password = NULL;
 static char *opt_palette = NULL;
 
+static int attrib_ok = FA_ARCH|FA_RDONLY;
+
 static char canonical_datafilename[1024];
 
 #define MAX_FILES    256
@@ -88,6 +92,7 @@ static void usage(void)
    printf("\t'-d' deletes the named objects from the datafile\n");
    printf("\t'-dither' dithers when reducing color depths\n");
    printf("\t'-e' extracts the named objects from the datafile\n");
+   printf("\t'-f' store references to original files as relative filenames\n");
    printf("\t'-g x y w h' grabs bitmap data from a specific grid location\n");
    printf("\t'-h outputfile.h' sets the output header file\n");
    printf("\t'-k' keeps the original filenames when grabbing objects\n");
@@ -98,7 +103,7 @@ static void usage(void)
    printf("\t'-o output' sets the output file or directory when extracting data\n");
    printf("\t'-p prefixstring' sets the prefix for the output header file\n");
    printf("\t'-pal objectname' specifies which palette to use\n");
-   printf("\t'-r' store references to original files as relative filenames\n");
+   printf("\t'-r' recursively adds directories as nested datafiles\n");
    printf("\t'-s0' no strip: save everything\n");
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
@@ -393,6 +398,51 @@ static void do_delete(DATAFILE **dat, char *parentname)
 
 
 
+/* open a sub-datafile in the parent datafile */
+static DATAFILE *open_sub_datafile(DATAFILE *parent, AL_CONST char *name)
+{
+   DATAFILE *dat;
+   int c;
+
+   /* Return the datafile if it already exists. */
+   for (c=0; parent[c].type != DAT_END; c++) {
+      if ((parent[c].type == DAT_FILE) && (stricmp(name, get_datafile_property(parent+c, DAT_NAME)) == 0))
+	 return parent[c].dat;
+   }
+
+   /* Otherwise create a new datafile. */
+   printf("Creating sub-datafile %s\n", name);
+
+   dat = malloc(sizeof(DATAFILE));
+   dat->dat = NULL;
+   dat->type = DAT_END;
+   dat->size = 0;
+   dat->prop = NULL;
+
+   return dat;
+}
+
+
+
+/* close a sub-datafile from the parent datafile */
+static DATAFILE *close_sub_datafile(DATAFILE *parent, AL_CONST char *name, DATAFILE *dat)
+{
+   int c;
+
+   /* Adjust the datafile if it already exists. */
+   for (c=0; parent[c].type != DAT_END; c++) {
+      if ((parent[c].type == DAT_FILE) && (stricmp(name, get_datafile_property(parent+c, DAT_NAME)) == 0)) {
+	 parent[c].dat = dat;
+	 return parent;
+      }
+   }
+
+   /* Otherwise insert the datafile. */
+   return datedit_insert(parent, NULL, name, DAT_FILE, dat, 0);
+}
+
+
+
 /* adds a file to the archive */
 static int do_add_file(AL_CONST char *filename, int attrib, void *param)
 {
@@ -407,12 +457,37 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
 
    strcpy(name, get_filename(fname));
 
+   if ((strcmp(name, ".") == 0) || (strcmp(name, "..") == 0))
+      return 0;
+
    if (!opt_keepnames) {
       strupr(name);
 
       for (c=0; name[c]; c++)
 	 if (name[c] == '.')
 	    name[c] = '_';
+   }
+
+   if (attrib & FA_DIREC) {
+      DATAFILE *sub_dat = open_sub_datafile(*dat, name);
+
+      if (!sub_dat) {
+	 fprintf(stderr, "Error: failed to create sub-datafile %s\n", name);
+	 err = 1;
+	 return -1;
+      }
+
+      append_filename(fname, fname, "*", sizeof(fname));
+
+      if (for_each_file_ex(fname, 0, ~attrib_ok, do_add_file, &sub_dat) <= 0) {
+	 fprintf(stderr, "Error: failed to add objects to %s\n", name);
+	 err = 1;
+	 return -1;
+      }
+
+      *dat = close_sub_datafile(*dat, name, sub_dat);
+      changed = TRUE;
+      return 0;
    }
 
    params.datafile = canonical_datafilename;
@@ -737,6 +812,10 @@ int main(int argc, char *argv[])
 	       opt_compression = argv[c][2] - '0'; 
 	       break;
 
+	    case 'f':
+	       opt_relf = TRUE;
+	       break;
+
 	    case 'g':
 	       if ((opt_gridx > 0) || (c >= argc-4)) {
 		  usage();
@@ -810,8 +889,8 @@ int main(int argc, char *argv[])
 	       break;
                
 	    case 'r':
-               opt_relf = TRUE;
-               break;
+	       attrib_ok |= FA_DIREC;
+	       break;
 
 	    case 's':
 	       if (argv[c][2] == '-') {
@@ -924,7 +1003,7 @@ int main(int argc, char *argv[])
 	       }
 	       else {
 		  for (c=0; c<opt_numnames; c++) {
-		     if (for_each_file_ex(opt_namelist[c], 0, ~(FA_ARCH | FA_RDONLY), do_add_file, (void *)&datafile) <= 0) {
+		     if (for_each_file_ex(opt_namelist[c], 0, ~attrib_ok, do_add_file, &datafile) <= 0) {
 			fprintf(stderr, "Error: %s not found\n", opt_namelist[c]);
 			err = 1;
 			break;

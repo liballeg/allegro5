@@ -322,6 +322,11 @@ line dat utility. This accepts the following options:
 
 	 dat myfile.dat -e * -o c:\output\
 
+   '-f'
+      Stores the references to original files as relative filenames instead of
+      absolute filenames. This greatly increases the portability of complete
+      source trees containing the source data.
+
    '-g x y w h'
       Grabs bitmap data from a specific grid location.
 
@@ -364,9 +369,8 @@ line dat utility. This accepts the following options:
       Specifies which palette to use.
 
    '-r'
-      Stores the references to original files as relative filenames instead of
-      absolute filenames. This greatly increases the portability of complete
-      source trees containing the source data.
+      Recursively adds directories as nested datafiles. This makes it possible
+      to maintain the data hierarchy within the datafile.
 
    '-s0' - no strip: save everything
    '-s1' - strip grabber specific information from the file
