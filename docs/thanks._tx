@@ -472,6 +472,9 @@ Contributors
    Romano Signorelli (<email>romanos@bigfoot.com</a>).<br>
    Added an arc plotting routine.
 
+   Ronaldo Hideki Yamada (<email>r.yamada@uol.com.br</a>).<br>
+   Contributed the macintosh port of Allegro.
+
    S.Sakamaki (<email>emt@geocities.co.jp</a>).<br>
    Added the VESA 3.0 refresh rate control code.
 

@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Ronaldo Hideki Yamada contributed a macintosh port of Allegro.
+<li>
    3.9.34: Grzegorz Adam Hankiewicz changed and documented new GFX_SAFE
    behaviour (that color depth is undefined), updated the fbcon driver to
    take advantage of this and updated example programs.
