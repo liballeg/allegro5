@@ -40,6 +40,8 @@
    installed djgpp according to the instructions in readme.1st, and that you 
    aren't mixing it with any files from different compilers (eg. the Borland 
    version of make).
+   
+   Note that you must have Binutils 2.9.x or above.
 
 
 
