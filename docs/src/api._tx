@@ -101,7 +101,8 @@ Changes between 4.0.x and 4.2.x series
 <li>
    d_ctext_proc() now behaves like d_text_proc() and d_rtext_proc(), that is
    it takes into account the bounding box to calculate the position which the
-   string is centered around. It previously used only the x field.
+   string is centered around. It previously used only the x field. And, as a
+   consequence, gui_ctext_proc is now expected to behave the same.
 </ul>
 
 @heading
