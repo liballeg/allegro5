@@ -103,8 +103,6 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       toTarget: [AllegroAppDelegate class]
       withObject: nil];
    
-//   [NSThread setThreadPriority: [NSThread threadPriority] + 0.1];
-   
    while (1) {
       pthread_mutex_lock(&osx_event_mutex);
       osx_event_handler();
@@ -185,7 +183,10 @@ int main(int argc, char *argv[])
    
    [NSApplication sharedApplication];
       
-   /* Tell the dock about us */
+   /* Tell the dock about us; the origins of this hack are unknown, but it's
+    * currently the only way to make a Cocoa app to work when started from a
+    * console.
+    */
    if ((!CPSGetCurrentProcess(&psn)) &&
        (!CPSEnableForegroundOperation(&psn, 0x03, 0x3C, 0x2C, 0x1103)) &&
        (!CPSSetFrontProcess(&psn)))
