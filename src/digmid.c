@@ -399,23 +399,21 @@ static int parse_string(char *buf, char *argv[])
 {
    int c = 0;
 
-   while ((*buf) && (c<16)) {
-      while ((*buf == ' ') || (*buf == '\t') || (*buf == '='))
-	 buf++;
+   while (ugetc(buf) && (c<16)) {
+      while ((ugetc(buf) == ' ') || (ugetc(buf) == '\t') || (ugetc(buf) == '='))
+	 buf += uwidth(buf);
 
-      if (*buf == '#')
+      if (ugetc(buf) == '#')
 	 return c;
 
-      if (*buf)
+      if (ugetc(buf))
 	 argv[c++] = buf;
 
-      while ((*buf) && (*buf != ' ') && (*buf != '\t') && (*buf != '='))
-	 buf++;
+      while (ugetc(buf) && (ugetc(buf) != ' ') && (ugetc(buf) != '\t') && (ugetc(buf) != '='))
+	 buf += uwidth(buf);
 
-      if (*buf) {
-	 *buf = 0;
-	 buf++;
-      }
+      if (ugetc(buf))
+	 buf += usetc(buf, 0);
    }
 
    return c;
@@ -430,24 +428,26 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 {
    PACKFILE *f;
    char dir[1024], file[1024], buf[1024], filename[1024];
-   char todo[256][16];
-   char *argv[16];
+   char todo[256][32];
+   char *argv[16], *p;
+   char tmp[128];
    int argc;
    int patchnum, flag_num;
    int drum_mode = FALSE;
    int override_mode = FALSE;
    int drum_start = 0;
    int type, size;
-   int i, j;
+   int i, j, c;
 
    if (!_digmid_find_patches(dir, sizeof(dir), file, sizeof(file)))
       return -1;
 
    for (i=0; i<256; i++)
-      todo[i][0] = 0;
+      usetc(todo[i], 0);
 
    ustrzcpy(buf, sizeof(buf), dir);
    ustrzcat(buf, sizeof(buf), file);
+
    f = pack_fopen(buf, F_READ);
    if (!f)
       return -1;
@@ -458,26 +458,27 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
       if (argc > 0) {
 	 /* is first word all digits? */
 	 flag_num = TRUE;
-	 for (i=0; i<(int)strlen(argv[0]); i++) {
-	    if ((!uisdigit(argv[0][i])) && (argv[0][i] != '-')) {
+         p = argv[0];
+         while ((c = ugetx(&p)) != 0) {
+	    if ((!uisdigit(c)) && (c != '-')) {
 	       flag_num = FALSE;
 	       break;
 	    }
 	 }
 
 	 if ((flag_num) && (argc >= 2)) {
-	    if (stricmp(argv[1], "begin_multipatch") == 0) {
+	    if (ustricmp(argv[1], uconvert_ascii("begin_multipatch", tmp)) == 0) {
 	       /* start the block of percussion instruments */
-	       drum_start = atoi(argv[0])-1;
+	       drum_start = ustrtol(argv[0], NULL, 10) - 1;
 	       drum_mode = TRUE;
 	    }
-	    else if (stricmp(argv[1], "override_patch") == 0) {
+	    else if (ustricmp(argv[1], uconvert_ascii("override_patch", tmp)) == 0) {
 	       /* ignore patch overrides */
 	       override_mode = TRUE;
 	    }
 	    else if (!override_mode) {
 	       /* must be a patch number */
-	       patchnum = atoi(argv[0]);
+	       patchnum = ustrtol(argv[0], NULL, 10);
 
 	       if (!drum_mode)
 		  patchnum--;
@@ -491,15 +492,14 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 
 		  if (!patch[patchnum]) {
 		     /* need to load this sample */
-		     strncpy(todo[patchnum], argv[1], 15);
-		     todo[patchnum][15] = 0;
+		     ustrzcpy(todo[patchnum], sizeof(todo[patchnum]), argv[1]);
 		  }
 	       }
 	    }
 	 }
 	 else {
 	    /* handle other keywords */
-	    if (stricmp(argv[0], "end_multipatch") == 0) {
+	    if (ustricmp(argv[0], uconvert_ascii("end_multipatch", tmp)) == 0) {
 	       drum_mode = FALSE;
 	       override_mode = FALSE;
 	    }
@@ -528,7 +528,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 
       pack_mgetl(f);
 
-      filename[0] = 0;
+      usetc(filename, 0);
 
       /* scan through the file */
       while (!pack_feof(f)) {
@@ -537,10 +537,12 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 	 if (type == DAT_PROPERTY) {
 	    type = pack_mgetl(f);
 	    size = pack_mgetl(f);
+
 	    if (type == DAT_ID('N','A','M','E')) {
 	       /* store name property */
-	       pack_fread(filename, size, f);
-	       filename[size] = 0;
+	       pack_fread(buf, size, f);
+	       buf[size] = 0;
+	       do_uconvert(buf, U_ASCII, filename, U_CURRENT, sizeof(filename));
 	    }
 	    else {
 	       /* skip other properties */
@@ -550,7 +552,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 	 else if (type == DAT_PATCH) {
 	    /* do we want this patch? */
 	    for (i=0; i<256; i++)
-	       if ((todo[i][0]) && (stricmp(filename, todo[i]) == 0))
+	       if (ugetc(todo[i]) && (ustricmp(filename, todo[i]) == 0))
 		  break;
 
 	    if (i < 256) {
@@ -558,14 +560,16 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 	       f = pack_fopen_chunk(f, FALSE);
 	       patch[i] = load_patch(f, (i >= 128));
 	       f = pack_fclose_chunk(f);
+
 	       for (j=i+1; j<256; j++) {
 		  /* share multiple copies of the instrument */
-		  if (stricmp(todo[i], todo[j]) == 0) {
+		  if (ustricmp(todo[i], todo[j]) == 0) {
 		     patch[j] = patch[i];
-		     todo[j][0] = 0;
+		     usetc(todo[j], 0);
 		  }
 	       }
-	       todo[i][0] = 0;
+
+	       usetc(todo[i], 0);
 	    }
 	    else {
 	       /* skip unwanted patch */
@@ -583,22 +587,26 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
    else {
       /* read from regular disk files */
       for (i=0; i<256; i++) {
-	 if (todo[i][0]) {
+	 if (ugetc(todo[i])) {
 	    ustrzcpy(filename, sizeof(filename), dir);
-	    ustrzcat(filename, sizeof(filename), uconvert_ascii(todo[i], buf));
+	    ustrzcat(filename, sizeof(filename), todo[i]);
+
 	    if (ugetc(get_extension(filename)) == 0)
-	       ustrzcat(filename, sizeof(filename), uconvert_ascii(".pat", buf));
+	       ustrzcat(filename, sizeof(filename), uconvert_ascii(".pat", tmp));
+
 	    f = pack_fopen(filename, F_READ);
 	    if (f) {
 	       patch[i] = load_patch(f, (i >= 128));
 	       pack_fclose(f);
 	    }
+
 	    *allegro_errno = 0;
+
 	    for (j=i+1; j<256; j++) {
 	       /* share multiple copies of the instrument */
-	       if (stricmp(todo[i], todo[j]) == 0) {
+	       if (ustricmp(todo[i], todo[j]) == 0) {
 		  patch[j] = patch[i];
-		  todo[j][0] = 0;
+		  usetc(todo[j], 0);
 	       }
 	    }
 	 }
