@@ -1574,6 +1574,7 @@ static void load(char *filename, int flush)
    DATAFILE *new_datafile;
    int obj_count;
    int new_obj_count;
+   int items_num;
 
    set_mouse_sprite(my_busy_pointer);
    busy_mouse = TRUE;
@@ -1632,8 +1633,9 @@ static void load(char *filename, int flush)
       main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
 
    main_dlg[DLG_PACKLIST].d1 = atoi(get_datafile_property(&datedit_info, DAT_PACK));
-   if (main_dlg[DLG_PACKLIST].d1 > 2)
-      main_dlg[DLG_PACKLIST].d1 = 2;
+   pack_getter(-1, &items_num);
+   if (main_dlg[DLG_PACKLIST].d1 >= items_num)
+      main_dlg[DLG_PACKLIST].d1 = items_num-1;
    else if (main_dlg[DLG_PACKLIST].d1 < 0)
       main_dlg[DLG_PACKLIST].d1 = 0;
 
