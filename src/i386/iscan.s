@@ -72,6 +72,49 @@
 #define PI2FD_R(src, dst)           OP3D(src, dst, 0x0d)
 #define PMULHRW_R(src, dst)         OP3D(src, dst, 0xb7)
 
+/* This is a workaround for cases when ALLEGRO_MMX is not defined and
+ * functions are left out which can cause the Mingw32 dllwrap tool to
+ * complain about missing exports. We add some dummy functions to
+ * deal with this for the moment.
+ */
+
+#ifndef ALLEGRO_MMX
+   FUNC(_poly_scanline_atex_lit15x)
+   FUNC(_poly_scanline_atex_lit16x)
+   FUNC(_poly_scanline_atex_lit24x)
+   FUNC(_poly_scanline_atex_lit32x)
+
+   FUNC(_poly_scanline_atex_mask_lit15x)
+   FUNC(_poly_scanline_atex_mask_lit16x)
+   FUNC(_poly_scanline_atex_mask_lit24x)
+   FUNC(_poly_scanline_atex_mask_lit32x)
+
+   FUNC(_poly_scanline_ptex_lit15d)
+   FUNC(_poly_scanline_ptex_lit15x)
+   FUNC(_poly_scanline_ptex_lit16d)
+   FUNC(_poly_scanline_ptex_lit16x)
+   FUNC(_poly_scanline_ptex_lit24d)
+   FUNC(_poly_scanline_ptex_lit24x)
+   FUNC(_poly_scanline_ptex_lit32d)
+   FUNC(_poly_scanline_ptex_lit32x)
+
+   FUNC(_poly_scanline_grgb8x)
+   FUNC(_poly_scanline_grgb15x)
+   FUNC(_poly_scanline_grgb16x)
+   FUNC(_poly_scanline_grgb24x)
+   FUNC(_poly_scanline_grgb32x)
+
+   FUNC(_poly_scanline_ptex_mask_lit15d)
+   FUNC(_poly_scanline_ptex_mask_lit15x)
+   FUNC(_poly_scanline_ptex_mask_lit16d)
+   FUNC(_poly_scanline_ptex_mask_lit16x)
+   FUNC(_poly_scanline_ptex_mask_lit24d)
+   FUNC(_poly_scanline_ptex_mask_lit24x)
+   FUNC(_poly_scanline_ptex_mask_lit32d)
+   FUNC(_poly_scanline_ptex_mask_lit32x)
+
+   ret /* return if dummy function is called by an idiot */
+#endif
 
 
 #ifdef ALLEGRO_COLOR8
