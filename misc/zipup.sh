@@ -73,8 +73,8 @@ utod()
 
 export UNIX_TOOLS=1
 
-# generate dependencies for djgpp
-echo "Generating djgpp dependencies..."
+# generate dependencies for DJGPP
+echo "Generating DJGPP dependencies..."
 
 ./fix.sh djgpp --quick
 
@@ -98,7 +98,7 @@ make depend
 
 
 # generate dependencies for MinGW32
-echo "Generating Mingw32 dependencies..."
+echo "Generating MinGW32 dependencies..."
 
 ./fix.sh mingw32 --quick
 
