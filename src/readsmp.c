@@ -103,7 +103,7 @@ int save_sample(AL_CONST char *filename, SAMPLE *smp)
 
    for (iter = sample_type_list; iter; iter = iter->next) {
       if (stricmp(iter->ext, aext) == 0) {
-	 if (iter->load)
+	 if (iter->save)
 	    return iter->save(filename, smp);
 	 return 1;
       }
