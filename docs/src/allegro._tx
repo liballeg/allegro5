@@ -1718,13 +1718,15 @@ combinations are possible seems to vary from one keyboard to another).
 @xref remove_keyboard, poll_keyboard, key, keypressed, readkey, ureadkey
 @xref keyboard_callback, keyboard_ucallback, keyboard_lowlevel_callback
 @xref three_finger_flag, key_led_flag, set_leds, set_keyboard_rate
-@xref standard config variables
+@xref set_gfx_mode, standard config variables
    Installs the Allegro keyboard interrupt handler. You must call this 
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
    library functions to access the keyboard. Returns zero on success, or a
    negative number on failure (but you may decide not to check the return
-   value as this function is very unlikely to fail).
+   value as this function is very unlikely to fail). Note that on some
+   platforms the keyboard won't work unless you have set a graphic mode,
+   even if this function returns zero before calling set_gfx_mode.
 
 @@void @remove_keyboard();
 @xref install_keyboard, allegro_exit
