@@ -454,10 +454,8 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
 /* enable_acceleration:
  *  Checks graphic driver for capabilities to accelerate Allegro.
  */
-int enable_acceleration(GFX_DRIVER * drv)
+void enable_acceleration(GFX_DRIVER * drv)
 {
-   HRESULT hr;
-
    /* safe pointer to software versions */
    _orig_hline = _screen_vtable.hline;
    _orig_vline = _screen_vtable.vline;
@@ -483,7 +481,7 @@ int enable_acceleration(GFX_DRIVER * drv)
       _screen_vtable.hline = ddraw_hline;
       _screen_vtable.vline = ddraw_vline;
 
-      gfx_capabilities |= GFX_HW_HLINE | GFX_HW_FILL;
+      gfx_capabilities |= (GFX_HW_HLINE | GFX_HW_FILL);
    }
 
    /* accelerated color key blits? */
@@ -497,8 +495,6 @@ int enable_acceleration(GFX_DRIVER * drv)
 
       gfx_capabilities |= (GFX_HW_VRAM_BLIT_MASKED | GFX_HW_SYS_TO_VRAM_BLIT_MASKED);
    }
-
-   return 0;
 }
 
 
@@ -506,7 +502,7 @@ int enable_acceleration(GFX_DRIVER * drv)
 /* enable_triple_buffering:
  *  Checks graphic driver for triple buffering capability.
  */
-int enable_triple_buffering(GFX_DRIVER *drv)
+void enable_triple_buffering(GFX_DRIVER *drv)
 {
    HRESULT hr;
 
@@ -515,7 +511,5 @@ int enable_triple_buffering(GFX_DRIVER *drv)
       drv->poll_scroll = gfx_directx_poll_scroll;
       gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
    }
-
-   return 0;
 }
 

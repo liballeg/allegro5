@@ -73,8 +73,8 @@ AL_FUNC(int, exit_directx, (void));
 
 
 /* driver initialisation and shutdown (from wddaccel.c) */
-AL_FUNC(int, enable_acceleration, (GFX_DRIVER *drv));
-AL_FUNC(int, enable_triple_buffering, (GFX_DRIVER *drv));
+AL_FUNC(void, enable_acceleration, (GFX_DRIVER *drv));
+AL_FUNC(void, enable_triple_buffering, (GFX_DRIVER *drv));
 
 
 /* video mode setting (from wddmode.c) */
