@@ -179,7 +179,11 @@ void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
       return;
 
    for (n = from; n <= to; n++) {
-      color = makecol_depth(indexed_palette_depth, p[n].r<<2, p[n].g<<2, p[n].b<<2);
+      color = makecol_depth(indexed_palette_depth,
+                            (p[n].r << 2) | ((p[n].r & 0x30) >> 4),
+                            (p[n].g << 2) | ((p[n].g & 0x30) >> 4),
+                            (p[n].b << 2) | ((p[n].b & 0x30) >> 4));
+ 
       _colorconv_indexed_palette[n] = color;
 
       if ((indexed_palette_depth == 15) || (indexed_palette_depth == 16)) {
