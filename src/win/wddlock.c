@@ -22,13 +22,17 @@ void (*ptr_gfx_directx_autolock) (BITMAP* bmp) = gfx_directx_autolock;
 void (*ptr_gfx_directx_unlock) (BITMAP* bmp) = gfx_directx_unlock;
 
 
+
 /* gfx_directx_switch_out:
  *  Arranges for drawing requests to pause when we are in the background.
  */
 static void gfx_directx_switch_out(void)
-{ 
+{
    _exit_gfx_critical();
-   thread_switch_out();
+
+   if (GFX_CRITICAL_RELEASED)
+      thread_switch_out();
+
    _enter_gfx_critical();
 }
 
@@ -49,17 +53,6 @@ void gfx_directx_lock(BITMAP *bmp)
    unsigned char *data;
    int y, h;
 
-   /* require exclusive ownership of the bitmap
-    *  Note1: as there is only one gfx critical section, two different threads can't be locking
-    *         bitmaps at the same time *even* if the bitmaps are distinct. Performance issue ?
-    *  Note2: locking a sub-bitmap ends up adding 2 _enter_gfx_critical() nesting levels 
-    */
-   _enter_gfx_critical();
-
-   /* handle display switch */
-   if (!app_foreground)
-      gfx_directx_switch_out();
-
    if (bmp->id & BMP_ID_SUB) {
       /* if it's a sub-bitmap, start by locking our parent */
       parent = (BITMAP *)bmp->extra;
@@ -79,6 +72,13 @@ void gfx_directx_lock(BITMAP *bmp)
       }
    }
    else {
+      /* require exclusive ownership of the bitmap */
+      _enter_gfx_critical();
+
+      /* handle display switch */
+      if (!app_foreground)
+         gfx_directx_switch_out();
+
       /* this is a real bitmap, so can be locked directly */
       bmp_extra = BMP_EXTRA(bmp);
       bmp_extra->lock_nesting++;
@@ -158,11 +158,6 @@ void gfx_directx_autolock(BITMAP *bmp)
    int y, h;
 
    if (bmp->id & BMP_ID_SUB) {
-      /* we have to manually add this _enter_gfx_critical() in order to
-       * comply with gfx_directx_lock() (see note 2)
-       */
-      _enter_gfx_critical();
-
       /* if it's a sub-bitmap, start by locking our parent */
       parent = (BITMAP *)bmp->extra;
       gfx_directx_autolock(parent);
@@ -223,22 +218,22 @@ void gfx_directx_unlock(BITMAP *bmp)
       /* regular bitmaps can be unlocked directly */
       bmp_extra = BMP_EXTRA(bmp);
 
-      if (bmp_extra->lock_nesting > 0)
+      if (bmp_extra->lock_nesting > 0) {
 	 bmp_extra->lock_nesting--;
 
-      if ((!bmp_extra->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
-	 if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
-	    /* only unlock if it doesn't use pseudo video memory */
-	    IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
-	 }
+         if ((!bmp_extra->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
+            if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
+	       /* only unlock if it doesn't use pseudo video memory */
+	       IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+            }
 
-	 bmp->id &= ~BMP_ID_LOCKED;
+            bmp->id &= ~BMP_ID_LOCKED;
+         }
+
+         /* release bitmap for other threads */
+         _exit_gfx_critical();
       }
    }
-
-   /* release bitmap for other threads */
-   /* Note: unlocking a sub-bitmap ends up releasing 2 _exit_gfx_critical() nesting levels */
-   _exit_gfx_critical();
 }
 
 

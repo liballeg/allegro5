@@ -355,8 +355,12 @@ static void gdi_update_window(RECT *rect)
 {
    HDC hdc;
 
-   if (!gdi_screen)
+   _enter_gfx_critical();
+
+   if (!gdi_screen) {
+      _exit_gfx_critical();
       return;
+   }
 
    hdc = GetDC(allegro_wnd);
 
@@ -367,6 +371,8 @@ static void gdi_update_window(RECT *rect)
                rect->right - rect->left, rect->bottom - rect->top);
 
    ReleaseDC(allegro_wnd, hdc);
+
+   _exit_gfx_critical();
 }
 
 
@@ -386,7 +392,8 @@ void gfx_gdi_lock(struct BITMAP *bmp)
 
       _exit_gfx_critical();
 
-      thread_switch_out();
+      if (GFX_CRITICAL_RELEASED)
+         thread_switch_out();
 
       _enter_gfx_critical();
 

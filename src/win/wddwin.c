@@ -159,8 +159,12 @@ static void update_window_hw(RECT* rect)
 {
    RECT dest_rect;
 
-   if (!pseudo_screen)
+   _enter_gfx_critical();
+
+   if (!pseudo_screen) {
+      _exit_gfx_critical();
       return;
+   }
 
    if (rect)
       dest_rect = *rect;
@@ -178,6 +182,7 @@ static void update_window_hw(RECT* rect)
    IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
                            BMP_EXTRA(pseudo_screen)->surf, rect,
                            0, NULL);
+   _exit_gfx_critical();
 }
 
 
@@ -244,8 +249,12 @@ static void update_window_ex(RECT* rect)
 {
    RECT src_rect, dest_rect;
 
-   if (!pseudo_screen)
+   _enter_gfx_critical();
+
+   if (!pseudo_screen) {
+      _exit_gfx_critical();
       return;
+   }
 
    if (rect) {
       /* align the rectangle */
@@ -282,6 +291,8 @@ static void update_window_ex(RECT* rect)
       ddsurf_blit_ex(dd_prim_surface, &dest_rect,
                      BMP_EXTRA(pseudo_screen)->surf, &src_rect);
    }
+
+   _exit_gfx_critical();
 }
 
 

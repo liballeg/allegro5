@@ -39,6 +39,7 @@ struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
 void (*user_close_proc)(void) = NULL;
 
 CRITICAL_SECTION gfx_crit_sect;
+int gfx_crit_sect_nesting = 0;
 
 #define ALLEGRO_WND_CLASS "AllegroWindow"
 static HWND user_wnd = NULL;

@@ -73,6 +73,16 @@ AL_VAR(int, wnd_paint_back);
 
 AL_FUNCPTR(void, user_close_proc, (void));
 
+/* gfx synchronization */
+AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
+AL_VAR(int, gfx_crit_sect_nesting);
+
+#define _enter_gfx_critical()  EnterCriticalSection(&gfx_crit_sect); \
+                               gfx_crit_sect_nesting++
+#define _exit_gfx_critical()   LeaveCriticalSection(&gfx_crit_sect); \
+                               gfx_crit_sect_nesting--
+#define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
+
 struct WIN_GFX_DRIVER {
    void (*switch_in)(void);
    void (*switch_out)(void);
@@ -84,12 +94,6 @@ struct WIN_GFX_DRIVER {
 };   
 
 AL_VAR(struct WIN_GFX_DRIVER *, win_gfx_driver);
-
-#define _enter_gfx_critical() EnterCriticalSection(&gfx_crit_sect);
-#define _exit_gfx_critical() LeaveCriticalSection(&gfx_crit_sect);
-
-AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
-AL_VAR(char *, pseudo_surf_mem);
 
 /* stuff moved over from wddraw.h */
 typedef struct BMP_EXTRA_INFO {
@@ -111,6 +115,7 @@ AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
 AL_VAR(DDCAPS, dd_caps);
 AL_VAR(LPDDPIXELFORMAT, dd_pixelformat);
 AL_VAR(BITMAP *, dd_frontbuffer);
+AL_VAR(char *, pseudo_surf_mem);
 
 /* focus switch routines */
 AL_VAR(BOOL, app_foreground);
