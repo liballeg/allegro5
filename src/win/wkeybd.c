@@ -141,10 +141,21 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 
       /* emulate PAUSE scancode sequence */
       if (scancode == DIK_PAUSE) {
-         int i;
-         _handle_pckey(0xE1);
-         for (i=0; i < 5; i++)
-            _handle_pckey(0);
+	 int i;
+
+	 /* DirectInput appears to get DIK_PAUSED events when the app
+	  * loses focus, with pressed = false.  Don't pass these fake
+	  * events on, or they will end up in the readkey() buffer
+	  * when the app regains focus.  I didn't find any reference
+	  * to any such behaviour on the net, though... --pw
+	  */
+	 if (!_key[KEY_PAUSE] && !pressed) /* hacky */
+	    return;
+
+	 _handle_pckey(0xE1);
+	 for (i=0; i < 5; i++)
+	    _handle_pckey(0);
+
          return;
       }
 
