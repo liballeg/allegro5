@@ -312,17 +312,17 @@ static void sys_directx_message(AL_CONST char *msg)
 
 
 /* sys_directx_assert
- *  handles assertions
+ *  Handles assertions.
  */
 static void sys_directx_assert(AL_CONST char *msg)
 {
-   OutputDebugString(msg);
+   OutputDebugString(msg);  /* thread safe */
 }
 
 
 
 /* sys_directx_save_console_state:
- *  safes window size
+ *  Saves console window size and position.
  */
 static void sys_directx_save_console_state(void)
 {
@@ -332,7 +332,7 @@ static void sys_directx_save_console_state(void)
 
 
 /* sys_directx_restore_console_state:
- *  restores old window size
+ *  Restores console window size and position.
  */
 static void sys_directx_restore_console_state(void)
 {
@@ -350,7 +350,7 @@ static void sys_directx_restore_console_state(void)
 
 
 /* sys_directx_desktop_color_depth:
- *  returns the current desktop color depth
+ *  Returns the current desktop color depth.
  */
 static int sys_directx_desktop_color_depth(void)
 {
@@ -380,7 +380,7 @@ static int sys_directx_desktop_color_depth(void)
 
 
 /* sys_directx_get_desktop_resolution:
- *  returns the current desktop resolution
+ *  Returns the current desktop resolution.
  */
 static int sys_directx_get_desktop_resolution(int *width, int *height)
 {
@@ -412,7 +412,7 @@ static int sys_directx_get_desktop_resolution(int *width, int *height)
 
 
 /* sys_directx_yield_timeslice:
- *  yields remaining timeslice portion to the system
+ *  Yields remaining timeslice portion to the system.
  */
 static void sys_directx_yield_timeslice(void)
 {
@@ -422,11 +422,11 @@ static void sys_directx_yield_timeslice(void)
 
 
 /* sys_directx_trace_handler
- *  handles trace output
+ *  Handles trace output.
  */
 static int sys_directx_trace_handler(AL_CONST char *msg)
 {
-   OutputDebugString(msg);
+   OutputDebugString(msg);  /* thread safe */
    return 0;
 }
 
@@ -512,7 +512,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
 
 /* win_err_str:
- *  returns a error string for a window error
+ *  Returns a error string for a window error.
  */
 char *win_err_str(long err)
 {
@@ -528,7 +528,7 @@ char *win_err_str(long err)
 
 
 /* thread_safe_trace:
- *  outputs trace message inside threads
+ *  Outputs internal trace message.
  */
 void thread_safe_trace(char *msg,...)
 {
@@ -540,5 +540,5 @@ void thread_safe_trace(char *msg,...)
    vsprintf(buf, msg, ap);
    va_end(ap);
 
-   OutputDebugString(buf);
+   OutputDebugString(buf);  /* thread safe */
 }
