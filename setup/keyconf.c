@@ -17,6 +17,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "allegro.h"
@@ -72,7 +73,8 @@ unsigned short orig_key_ascii_table[KEY_MAX];
 unsigned short orig_key_capslock_table[KEY_MAX];
 unsigned short orig_key_shift_table[KEY_MAX];
 unsigned short orig_key_control_table[KEY_MAX];
-unsigned short orig_key_altgr_table[KEY_MAX];
+unsigned short orig_key_altgr_lower_table[KEY_MAX];
+unsigned short orig_key_altgr_upper_table[KEY_MAX];
 unsigned short orig_key_accent1_lower_table[KEY_MAX];
 unsigned short orig_key_accent1_upper_table[KEY_MAX];
 unsigned short orig_key_accent2_lower_table[KEY_MAX];
@@ -87,7 +89,8 @@ unsigned short my_key_ascii_table[KEY_MAX];
 unsigned short my_key_capslock_table[KEY_MAX];
 unsigned short my_key_shift_table[KEY_MAX];
 unsigned short my_key_control_table[KEY_MAX];
-unsigned short my_key_altgr_table[KEY_MAX];
+unsigned short my_key_altgr_lower_table[KEY_MAX];
+unsigned short my_key_altgr_upper_table[KEY_MAX];
 unsigned short my_key_accent1_lower_table[KEY_MAX];
 unsigned short my_key_accent1_upper_table[KEY_MAX];
 unsigned short my_key_accent2_lower_table[KEY_MAX];
@@ -116,7 +119,8 @@ unsigned short my_key_accent4_upper_table[KEY_MAX];
    unsigned short *_key_capslock_table;
    unsigned short *_key_shift_table;
    unsigned short *_key_control_table;
-   unsigned short *_key_altgr_table;
+   unsigned short *_key_altgr_lower_table;
+   unsigned short *_key_altgr_upper_table;
    unsigned short *_key_accent1_lower_table;
    unsigned short *_key_accent1_upper_table;
    unsigned short *_key_accent2_lower_table;
@@ -131,11 +135,12 @@ unsigned short my_key_accent4_upper_table[KEY_MAX];
 
 char keyboard_name[64] = EMPTY_STRING;
 
-/* 80 characters * maximum character width (6 bytes for UTF8) */
-#define FILENAME_LENGTH (80*6)
+#define FILENAME_LENGTH (512)
 char config_file[FILENAME_LENGTH] = EMPTY_STRING;
 
 unsigned short *editor_table;
+
+int split_altgr = FALSE;
 
 int codepage;
 
@@ -167,6 +172,7 @@ MENU edit_menu[] =
    { "Shifted",               editor,     NULL,       0,    NULL  },
    { "Control",               editor,     NULL,       0,    NULL  },
    { "Alt+Gr",                editor,     NULL,       0,    NULL  },
+   { "Alt+Gr (caps)",         editor,     NULL,       0,    NULL  },
    { "Accent1",               editor,     NULL,       0,    NULL  },
    { "Accent1 (caps)",        editor,     NULL,       0,    NULL  },
    { "Accent2",               editor,     NULL,       0,    NULL  },
@@ -254,7 +260,8 @@ int loader()
       memcpy(_key_capslock_table, orig_key_capslock_table, sizeof(orig_key_capslock_table));
       memcpy(_key_shift_table, orig_key_shift_table, sizeof(orig_key_shift_table));
       memcpy(_key_control_table, orig_key_control_table, sizeof(orig_key_control_table));
-      memcpy(_key_altgr_table, orig_key_altgr_table, sizeof(orig_key_altgr_table));
+      memcpy(_key_altgr_lower_table, orig_key_altgr_lower_table, sizeof(orig_key_altgr_lower_table));
+      memcpy(_key_altgr_upper_table, orig_key_altgr_upper_table, sizeof(orig_key_altgr_upper_table));
       memcpy(_key_accent1_lower_table, orig_key_accent1_lower_table, sizeof(orig_key_accent1_lower_table));
       memcpy(_key_accent1_upper_table, orig_key_accent1_upper_table, sizeof(orig_key_accent1_upper_table));
       memcpy(_key_accent2_lower_table, orig_key_accent2_lower_table, sizeof(orig_key_accent2_lower_table));
@@ -271,7 +278,13 @@ int loader()
       load_table(_key_capslock_table,            "key_capslock");
       load_table(_key_shift_table,               "key_shift");
       load_table(_key_control_table,             "key_control");
-      load_table(_key_altgr_table,               "key_altgr");
+
+      load_table(_key_altgr_lower_table,         "key_altgr");
+      load_table(_key_altgr_upper_table,         "key_altgr");
+
+      load_table(_key_altgr_lower_table,         "key_altgr_lower");
+      load_table(_key_altgr_upper_table,         "key_altgr_upper");
+
       load_table(_key_accent1_lower_table,       "key_accent1_lower");
       load_table(_key_accent1_upper_table,       "key_accent1_upper");
       load_table(_key_accent2_lower_table,       "key_accent2_lower");
@@ -352,7 +365,15 @@ int saver()
       save_table(_key_capslock_table,            orig_key_capslock_table,            "key_capslock");
       save_table(_key_shift_table,               orig_key_shift_table,               "key_shift");
       save_table(_key_control_table,             orig_key_control_table,             "key_control");
-      save_table(_key_altgr_table,               orig_key_altgr_table,               "key_altgr");
+
+      if (split_altgr) {
+         save_table(_key_altgr_lower_table,      orig_key_altgr_lower_table,         "key_altgr_lower");
+         save_table(_key_altgr_upper_table,      orig_key_altgr_upper_table,         "key_altgr_upper");
+      }
+      else {
+         save_table(_key_altgr_lower_table,      orig_key_altgr_lower_table,         "key_altgr");
+      }
+
       save_table(_key_accent1_lower_table,       orig_key_accent1_lower_table,       "key_accent1_lower");
       save_table(_key_accent1_upper_table,       orig_key_accent1_upper_table,       "key_accent1_upper");
       save_table(_key_accent2_lower_table,       orig_key_accent2_lower_table,       "key_accent2_lower");
@@ -846,7 +867,7 @@ int tester()
 
 
 
-int main()
+int main(int argc, char *argv[])
 {
    static char config_override[] = "[system]\nkeyboard = \n";
    RGB black_rgb = {0, 0, 0, 0};
@@ -854,6 +875,17 @@ int main()
    int c;
 
    allegro_init();
+
+   if (argc > 1) {
+      if (strcmp(argv[1], "--split-altgr") == 0) {
+         split_altgr = TRUE;
+      }
+      else {
+         allegro_message("Error: unrecognized option\n");
+         exit(EXIT_FAILURE);
+      }
+   }
+
    install_mouse();
    install_timer();
 
@@ -866,7 +898,8 @@ int main()
    memcpy(orig_key_capslock_table, _key_capslock_table, sizeof(orig_key_capslock_table));
    memcpy(orig_key_shift_table, _key_shift_table, sizeof(orig_key_shift_table));
    memcpy(orig_key_control_table, _key_control_table, sizeof(orig_key_control_table));
-   memcpy(orig_key_altgr_table, _key_altgr_table, sizeof(orig_key_altgr_table));
+   memcpy(orig_key_altgr_lower_table, _key_altgr_lower_table, sizeof(orig_key_altgr_lower_table));
+   memcpy(orig_key_altgr_upper_table, _key_altgr_upper_table, sizeof(orig_key_altgr_upper_table));
    memcpy(orig_key_accent1_lower_table, _key_accent1_lower_table, sizeof(orig_key_accent1_lower_table));
    memcpy(orig_key_accent1_upper_table, _key_accent1_upper_table, sizeof(orig_key_accent1_upper_table));
    memcpy(orig_key_accent2_lower_table, _key_accent2_lower_table, sizeof(orig_key_accent2_lower_table));
@@ -880,7 +913,8 @@ int main()
    memcpy(my_key_capslock_table, _key_capslock_table, sizeof(my_key_capslock_table));
    memcpy(my_key_shift_table, _key_shift_table, sizeof(my_key_shift_table));
    memcpy(my_key_control_table, _key_control_table, sizeof(my_key_control_table));
-   memcpy(my_key_altgr_table, _key_altgr_table, sizeof(my_key_altgr_table));
+   memcpy(my_key_altgr_lower_table, _key_altgr_lower_table, sizeof(my_key_altgr_lower_table));
+   memcpy(my_key_altgr_upper_table, _key_altgr_upper_table, sizeof(my_key_altgr_upper_table));
    memcpy(my_key_accent1_lower_table, _key_accent1_lower_table, sizeof(my_key_accent1_lower_table));
    memcpy(my_key_accent1_upper_table, _key_accent1_upper_table, sizeof(my_key_accent1_upper_table));
    memcpy(my_key_accent2_lower_table, _key_accent2_lower_table, sizeof(my_key_accent2_lower_table));
@@ -894,7 +928,8 @@ int main()
    _key_capslock_table = my_key_capslock_table;
    _key_shift_table = my_key_shift_table;
    _key_control_table = my_key_control_table;
-   _key_altgr_table = my_key_altgr_table;
+   _key_altgr_lower_table = my_key_altgr_lower_table;
+   _key_altgr_upper_table = my_key_altgr_upper_table;
    _key_accent1_lower_table = my_key_accent1_lower_table;
    _key_accent1_upper_table = my_key_accent1_upper_table;
    _key_accent2_lower_table = my_key_accent2_lower_table;
@@ -908,20 +943,24 @@ int main()
    edit_menu[1].dp = _key_capslock_table;
    edit_menu[2].dp = _key_shift_table;
    edit_menu[3].dp = _key_control_table;
-   edit_menu[4].dp = _key_altgr_table;
-   edit_menu[5].dp = _key_accent1_lower_table;
-   edit_menu[6].dp = _key_accent1_upper_table;
-   edit_menu[7].dp = _key_accent2_lower_table;
-   edit_menu[8].dp = _key_accent2_upper_table;
-   edit_menu[9].dp = _key_accent3_lower_table;
-   edit_menu[10].dp = _key_accent3_upper_table;
-   edit_menu[11].dp = _key_accent4_lower_table;
-   edit_menu[12].dp = _key_accent4_upper_table;
+   edit_menu[4].dp = _key_altgr_lower_table;
+   edit_menu[5].dp = _key_altgr_upper_table;
+   edit_menu[6].dp = _key_accent1_lower_table;
+   edit_menu[7].dp = _key_accent1_upper_table;
+   edit_menu[8].dp = _key_accent2_lower_table;
+   edit_menu[9].dp = _key_accent2_upper_table;
+   edit_menu[10].dp = _key_accent3_lower_table;
+   edit_menu[11].dp = _key_accent3_upper_table;
+   edit_menu[12].dp = _key_accent4_lower_table;
+   edit_menu[13].dp = _key_accent4_upper_table;
+
+   if (!split_altgr)
+      edit_menu[5].flags = D_DISABLED;
 
    if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
-      return 1;
+      exit(EXIT_FAILURE);
    }
    set_palette(desktop_palette);
    set_color(0, &black_rgb);
@@ -958,7 +997,7 @@ int main()
    if (font_data)
       unload_datafile_object(font_data);
 
-   return 0;
+   exit(EXIT_SUCCESS);
 }
 
 END_OF_MAIN();

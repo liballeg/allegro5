@@ -57,9 +57,13 @@ Control
    You will not normally need to edit this table, unless some of the 
    alphabetic characters have been mapped onto different keys.
 
-Alt-GR
-   Alternate ASCII codes for use when the Alt-GR key is held down. Any keys 
+Alt-Gr
+   Alternate ASCII codes for use when the Alt-Gr key is held down. Any keys 
    that don't behave specially in this context should be mapped to zero.
+   Note that, by default, lowercase and uppercase letters are not 
+   differentiated by keyconf when Alt-Gr is being held down. If you do want 
+   to specify two different mappings for lowercase and uppercase letters, 
+   run keyconf with the option --split-altgr from the command line.
 
 Accent*
    Lists of accented ASCII characters. There are four accent escape keys, 

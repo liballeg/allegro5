@@ -236,7 +236,8 @@ static unsigned short custom_key_ascii_table[KEY_MAX];
 static unsigned short custom_key_capslock_table[KEY_MAX];
 static unsigned short custom_key_shift_table[KEY_MAX];
 static unsigned short custom_key_control_table[KEY_MAX];
-static unsigned short custom_key_altgr_table[KEY_MAX];
+static unsigned short custom_key_altgr_lower_table[KEY_MAX];
+static unsigned short custom_key_altgr_upper_table[KEY_MAX];
 static unsigned short custom_key_accent1_lower_table[KEY_MAX];
 static unsigned short custom_key_accent1_upper_table[KEY_MAX];
 static unsigned short custom_key_accent2_lower_table[KEY_MAX];
@@ -252,7 +253,8 @@ unsigned short *_key_ascii_table         = standard_key_ascii_table;
 unsigned short *_key_capslock_table      = standard_key_capslock_table;
 unsigned short *_key_shift_table         = standard_key_shift_table;
 unsigned short *_key_control_table       = standard_key_control_table;
-unsigned short *_key_altgr_table         = standard_key_empty_table;
+unsigned short *_key_altgr_lower_table   = standard_key_empty_table;
+unsigned short *_key_altgr_upper_table   = standard_key_empty_table;
 unsigned short *_key_accent1_lower_table = standard_key_empty_table;
 unsigned short *_key_accent1_upper_table = standard_key_empty_table;
 unsigned short *_key_accent2_lower_table = standard_key_empty_table;
@@ -273,7 +275,8 @@ static INLINE void set_standard_keyboard()
    _key_capslock_table      = standard_key_capslock_table;
    _key_shift_table         = standard_key_shift_table;
    _key_control_table       = standard_key_control_table;
-   _key_altgr_table         = standard_key_empty_table;
+   _key_altgr_lower_table   = standard_key_empty_table;
+   _key_altgr_upper_table   = standard_key_empty_table;
    _key_accent1_lower_table = standard_key_empty_table;
    _key_accent1_upper_table = standard_key_empty_table;
    _key_accent2_lower_table = standard_key_empty_table;
@@ -297,7 +300,8 @@ static INLINE void set_custom_keyboard()
    _key_capslock_table      = custom_key_capslock_table;
    _key_shift_table         = custom_key_shift_table;
    _key_control_table       = custom_key_control_table;
-   _key_altgr_table         = custom_key_altgr_table;
+   _key_altgr_lower_table   = custom_key_altgr_lower_table;
+   _key_altgr_upper_table   = custom_key_altgr_upper_table;
    _key_accent1_lower_table = custom_key_accent1_lower_table;
    _key_accent1_upper_table = custom_key_accent1_upper_table;
    _key_accent2_lower_table = custom_key_accent2_lower_table;
@@ -526,8 +530,12 @@ void _handle_pckey(int code)
 	 /* alt+key */
 	 if (_key_ascii_table[mycode] == 0xFFFF)
 	    i = 0xFFFF;
-	 else if (key_altgr)
-	    i = _key_altgr_table[mycode];
+         else if (key_altgr) {
+            if (((_key_shifts & KB_SHIFT_FLAG) != 0) ^ ((_key_shifts & KB_CAPSLOCK_FLAG) != 0))
+               i = _key_altgr_upper_table[mycode];
+            else
+               i = _key_altgr_lower_table[mycode];
+         }
 	 else
 	    i = 0;
       }
@@ -633,7 +641,14 @@ static void read_keyboard_config()
    read_key_table(custom_key_capslock_table,       standard_key_capslock_table,  "key_capslock");
    read_key_table(custom_key_shift_table,          standard_key_shift_table,     "key_shift");
    read_key_table(custom_key_control_table,        standard_key_control_table,   "key_control");
-   read_key_table(custom_key_altgr_table,          standard_key_empty_table,     "key_altgr");
+
+   /* preserve backward compatibility with former unique key_altgr table */
+   read_key_table(custom_key_altgr_lower_table,    standard_key_empty_table,     "key_altgr");
+   read_key_table(custom_key_altgr_upper_table,    standard_key_empty_table,     "key_altgr");
+
+   read_key_table(custom_key_altgr_lower_table,    custom_key_altgr_lower_table, "key_altgr_lower");
+   read_key_table(custom_key_altgr_upper_table,    custom_key_altgr_upper_table, "key_altgr_upper");
+
    read_key_table(custom_key_accent1_lower_table,  standard_key_empty_table,     "key_accent1_lower");
    read_key_table(custom_key_accent1_upper_table,  standard_key_empty_table,     "key_accent1_upper");
    read_key_table(custom_key_accent2_lower_table,  standard_key_empty_table,     "key_accent2_lower");
@@ -690,7 +705,8 @@ void _pckeys_init()
    memcpy(custom_key_capslock_table,         standard_key_capslock_table,  sizeof(custom_key_capslock_table));
    memcpy(custom_key_shift_table,            standard_key_shift_table,     sizeof(custom_key_shift_table));
    memcpy(custom_key_control_table,          standard_key_control_table,   sizeof(custom_key_control_table));
-   memcpy(custom_key_altgr_table,            standard_key_empty_table,     sizeof(custom_key_altgr_table));
+   memcpy(custom_key_altgr_lower_table,      standard_key_empty_table,     sizeof(custom_key_altgr_lower_table));
+   memcpy(custom_key_altgr_upper_table,      standard_key_empty_table,     sizeof(custom_key_altgr_upper_table));
    memcpy(custom_key_accent1_lower_table,    standard_key_empty_table,     sizeof(custom_key_accent1_lower_table));
    memcpy(custom_key_accent1_upper_table,    standard_key_empty_table,     sizeof(custom_key_accent1_upper_table));
    memcpy(custom_key_accent2_lower_table,    standard_key_empty_table,     sizeof(custom_key_accent2_lower_table));
@@ -713,7 +729,8 @@ void _pckeys_init()
    LOCK_VARIABLE(custom_key_capslock_table);
    LOCK_VARIABLE(custom_key_shift_table);
    LOCK_VARIABLE(custom_key_control_table);
-   LOCK_VARIABLE(custom_key_altgr_table);
+   LOCK_VARIABLE(custom_key_altgr_lower_table);
+   LOCK_VARIABLE(custom_key_altgr_upper_table);
    LOCK_VARIABLE(custom_key_accent1_lower_table);
    LOCK_VARIABLE(custom_key_accent1_upper_table);
    LOCK_VARIABLE(custom_key_accent2_lower_table);
@@ -726,7 +743,8 @@ void _pckeys_init()
    LOCK_VARIABLE(_key_capslock_table);
    LOCK_VARIABLE(_key_shift_table);
    LOCK_VARIABLE(_key_control_table);
-   LOCK_VARIABLE(_key_altgr_table);
+   LOCK_VARIABLE(_key_altgr_lower_table);
+   LOCK_VARIABLE(_key_altgr_upper_table);
    LOCK_VARIABLE(_key_accent1_lower_table);
    LOCK_VARIABLE(_key_accent1_upper_table);
    LOCK_VARIABLE(_key_accent2_lower_table);
