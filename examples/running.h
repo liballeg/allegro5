@@ -1,6 +1,6 @@
-/* Allegro data file object indexes, produced by grabber v2.1 + WIP */
+/* Allegro datafile object indexes, produced by grabber v4.1.2 (CVS), MinGW32 */
 /* Datafile: c:\allegro\examples\running.dat */
-/* Date: Sun Dec  1 19:24:13 1996 */
+/* Date: Thu Sep 05 17:27:10 2002 */
 /* Do not hand edit! */
 
 #define FRAME_01                         0        /* BMP  */
@@ -14,4 +14,5 @@
 #define FRAME_09                         8        /* BMP  */
 #define FRAME_10                         9        /* BMP  */
 #define PALETTE_001                      10       /* PAL  */
+#define SOUND_01                         11       /* SAMP */
 

@@ -132,11 +132,12 @@ VPATH = tests/win tools/win
 
 LIBRARIES = cw32 import32
 
-PROGRAMS = dibgrab dibhello dibsound scrsave wfixicon
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
+dxwindow: tests/win/dxwindow.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
 
@@ -335,6 +336,21 @@ else
 	@del res.rsp
    ifdef DELETE_TDS_FILES
 	@del tests\win\dibsound.tds
+   endif
+endif
+
+tests/win/dxwindow.exe: $(OBJ_DIR)/dxwindow.obj obj/bcc32/dxwindow.res $(IMPLIB_NAME)
+	@echo obj\\bcc32\\dxwindow.res > res.rsp
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/dxwindow.obj),tests\win\dxwindow.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
+ifdef UNIX_TOOLS
+	@rm res.rsp
+   ifdef DELETE_TDS_FILES
+	@rm tests/win/dxwindow.tds
+   endif
+else
+	@del res.rsp
+   ifdef DELETE_TDS_FILES
+	@del tests\win\dxwindow.tds
    endif
 endif
 

@@ -212,11 +212,12 @@ ifdef ALLEGRO_USE_CYGWIN
    LIBRARIES += -L/lib/mingw -lmoldname -lmsvcrt
 endif
 
-PROGRAMS = dibgrab dibhello dibsound scrsave wfixicon
+PROGRAMS = dibgrab dibhello dibsound dxwindow scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
+dxwindow: tests/win/dxwindow.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
 
@@ -448,6 +449,9 @@ obj/mingw32/%.res: %.rc
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+
+tests/win/dxwindow.exe: $(OBJ_DIR)/dxwindow.o obj/mingw32/dxwindow.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dxwindow.exe $(OBJ_DIR)/dxwindow.o obj/mingw32/dxwindow.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)

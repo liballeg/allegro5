@@ -1,0 +1,45 @@
+// Windows resource file for the dxwindow example
+
+#include <windows.h>
+#include "dxwindow.rh" 
+
+MYACCEL ACCELERATORS
+BEGIN
+   VK_F1, CMD_FILE_RUN, VIRTKEY
+   VK_F2, CMD_FILE_STOP, VIRTKEY
+   VK_ADD, CMD_SET_SPEED_UP, CONTROL, VIRTKEY
+   VK_SUBTRACT, CMD_SET_SPEED_DOWN, CONTROL, VIRTKEY
+END
+
+MYMENU MENU
+BEGIN
+   POPUP "&File"
+   BEGIN
+      MENUITEM "&Run\tF1", CMD_FILE_RUN
+      MENUITEM "&Stop\tF2", CMD_FILE_STOP
+      MENUITEM SEPARATOR
+      MENUITEM "E&xit", CMD_FILE_EXIT
+   END
+
+   POPUP "&Settings"
+   BEGIN
+      MENUITEM "Speed up\tCtrl +", CMD_SET_SPEED_UP
+      MENUITEM "Speed down\tCtrl -", CMD_SET_SPEED_DOWN
+      MENUITEM "Default Speed", CMD_SET_SPEED_DEFAULT
+   END
+
+   POPUP "&Help", HELP
+   BEGIN
+      MENUITEM "&About", CMD_HELP_ABOUT
+   END
+END
+
+ABOUTDLG DIALOG 25, 0, 150, 100
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Shell Dlg"
+BEGIN
+   CONTROL "&OK", IDOK, "BUTTON", BS_DEFPUSHBUTTON | BS_CENTER | WS_CHILD | WS_VISIBLE | WS_TABSTOP, 50, 80, 50, 15
+   CONTROL "", -1, "button", BS_GROUPBOX | WS_CHILD | WS_VISIBLE | WS_GROUP, 5, 5, 140, 65
+   CONTROL "An example program showing how to use Allegro's DirectX windowed driver with a native window.", -1, "static", SS_CENTER | WS_CHILD | WS_VISIBLE, 25, 25, 100, 35
+END
