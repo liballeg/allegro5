@@ -171,11 +171,7 @@ endef
 
 GCC2RSXNT = -D__RSXNT__ -UDJGPP -U__unix__
 
-ifdef CROSSCOMPILE
-  DEPEND_PARAMS = $(GCC2RSXNT) -MM -MG -I. -I./include -DSCAN_DEPEND
-else
-  DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
-endif
+DEPEND_PARAMS = $(GCC2RSXNT) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp

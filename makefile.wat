@@ -202,11 +202,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-ifdef CROSSCOMPILE
-  DEPEND_PARAMS = $(GCC2WATCOM) -MM -MG -I. -I./include -DSCAN_DEPEND
-else
-  DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
-endif
+DEPEND_PARAMS = $(GCC2WATCOM) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp

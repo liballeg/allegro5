@@ -225,11 +225,7 @@ endef
 
 GCC2BCC = -D__BORLANDC__ -U__GNUC__ -UDJGPP -U__unix__
 
-ifdef CROSSCOMPILE
-  DEPEND_PARMS = $(GCC2BCC) -MM -MG -I. -I./include -DSCAN_DEPEND
-else
-  DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND
-endif
+DEPEND_PARMS = $(GCC2BCC) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
