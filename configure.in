@@ -167,7 +167,7 @@ if test -n "GCC"; then
   else
     TARGET_ARCH=
   fi
-  CFLAGS="$TARGET_ARCH -O2 -funroll-loops -ffast-math -fomit-frame-pointer $WFLAGS"
+  CFLAGS="$TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
   ALLEGRO_DEBUG_CFLAGS="-g $WFLAGS -DDEBUGMODE"
   ALLEGRO_PROFILE_CFLAGS="-pg $TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
   if test "$allegro_cv_support_asm" != i386; then
