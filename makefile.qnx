@@ -150,14 +150,14 @@ $(INSTALL_DIR)/include/allegro/platform:
 	mkdir $(INSTALL_DIR)/include/allegro/platform
 
 $(INSTALL_DIR)/bin/allegro-config:
-	cp misc/allegro-config.qnx $(INSTALL_DIR)/bin/allegro-config
-	chmod a+x $(INSTALL_DIR)/bin/allegro-config
+	cp misc/allegro-config-qnx.sh $(INSTALL_DIR)/bin/allegro-config
+	chmod +x $(INSTALL_DIR)/bin/allegro-config
 
 HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
 
-INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a             \
+INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a                 \
 		$(INSTALL_DIR)/include/allegro.h                   \
 		$(INSTALL_DIR)/include/allegro                     \
 		$(INSTALL_DIR)/include/allegro/internal            \
@@ -169,15 +169,15 @@ INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a             \
 		$(INSTALL_DIR)/include/allegro/platform/alqnxcfg.h \
 		$(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
 		$(INSTALL_DIR)/include/allegro/platform/alqnx.h    \
-		$(HEADERS)                             \
+		$(HEADERS)                                         \
 		$(INSTALL_DIR)/bin/allegro-config
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a           \
-		  $(INSTALL_DIR)/lib/liballd.a            \
-		  $(INSTALL_DIR)/lib/liballp.a            \
+UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a               \
+		  $(INSTALL_DIR)/lib/liballd.a                \
+		  $(INSTALL_DIR)/lib/liballp.a                \
 		  $(INSTALL_DIR)/include/allegro.h            \
 		  $(INSTALL_DIR)/include/qnxalleg.h           \
 		  $(INSTALL_DIR)/include/allegro/*.h          \
