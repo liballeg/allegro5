@@ -2191,7 +2191,7 @@ char *ustrtok_r(char *s, AL_CONST char *set, char **last)
    char *prev_str, *tok;
    AL_CONST char *setp;
    int c, sc;
-   ASSERT(s);
+
    ASSERT(last);
 
    if (!s) {
