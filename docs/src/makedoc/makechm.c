@@ -316,7 +316,7 @@ int write_chm(char *filename)
    if (!found_signature) {
       printf("\nCannot find the HTML Help Compiler necessary to generate .chm output.\n");
       printf("You can try to obtain it from Microsoft:\n");
-      printf("http://msdn.microsoft.com/library/en-us/htmlhelp/html/htmlhelp.exe\n\n");
+      printf("http://download.microsoft.com/download/msdnlib/Install/1.32/W9X2KMeXP/EN-US/htmlhelp.exe\n\n");
       return 1;
    }
 
