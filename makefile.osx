@@ -98,6 +98,8 @@ endif
 endif
 endif
 
+CFLAGS += -pipe
+
 
 
 # -------- list platform specific objects and programs --------
@@ -265,7 +267,7 @@ endif
 install-template: install-framework
 	@rm -fr $(TEMPLATE)
 	@mkdir -p $(TEMPLATE)/AllegroApp.pbproj
-	@cp misc/template.m $(TEMPLATE)/main.m
+	@cp misc/template.c $(TEMPLATE)/main.c
 	@cp misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj

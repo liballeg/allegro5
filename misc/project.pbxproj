@@ -97,7 +97,7 @@
 		29B97316FDCFA39411CA2CEA = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			path = main.m;
+			path = main.c;
 			refType = 4;
 		};
 		29B97317FDCFA39411CA2CEA = {
@@ -132,7 +132,6 @@
 				JAVA_COMPILER_DEBUGGING_SYMBOLS = NO;
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "-O2";
-				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = "«PROJECTNAME»";

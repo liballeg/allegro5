@@ -21,6 +21,8 @@
 
 #include "allegro/platform/aintunix.h"
 
+#ifdef __OBJC__
+
 #define display_id       kCGDirectMainDisplay
 
 #define OSX_GFX_NONE     0
@@ -97,5 +99,7 @@ AL_VAR(int, osx_emulate_mouse_buttons);
 AL_VAR(NSTrackingRectTag, osx_mouse_tracking_rect);
 AL_VAR(NoteAllocator, osx_note_allocator);
 
+
+#endif
 
 #endif

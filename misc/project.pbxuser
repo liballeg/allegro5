@@ -234,7 +234,7 @@
 	43666B64047E430400A80104 = {
 		fRef = 29B97316FDCFA39411CA2CEA;
 		isa = PBXTextBookmark;
-		name = "main.m: _mangled_main";
+		name = "main.c: _mangled_main";
 		rLen = 0;
 		rLoc = 541;
 		rType = 0;
@@ -244,7 +244,7 @@
 	43666B65047E430400A80104 = {
 		fRef = 29B97316FDCFA39411CA2CEA;
 		isa = PBXTextBookmark;
-		name = "main.m: _mangled_main";
+		name = "main.c: _mangled_main";
 		rLen = 0;
 		rLoc = 541;
 		rType = 0;
@@ -272,7 +272,7 @@
 	43666B67047E430400A80104 = {
 		fRef = 29B97316FDCFA39411CA2CEA;
 		isa = PBXTextBookmark;
-		name = "main.m: 30";
+		name = "main.c: 30";
 		rLen = 0;
 		rLoc = 570;
 		rType = 0;
