@@ -342,8 +342,10 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
    gfx_mode_list->mode = NULL;
 
    hr = IDirectDraw2_EnumDisplayModes(directdraw, enum_flags, NULL, gfx_mode_list, EnumModesCallback);
-   if (FAILED(hr))
+   if (FAILED(hr)) {
+      free(gfx_mode_list);
       goto Error;
+   }
 
    /* terminate mode list */
    gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
