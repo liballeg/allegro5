@@ -810,6 +810,7 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
       return 0;
    }
 
+   errno = *allegro_errno = 0;
    do {
       replace_filename(buf, name, info.name, sizeof(buf));
       (*callback)(buf, info.attrib, param);
