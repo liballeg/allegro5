@@ -24,8 +24,8 @@ Changes from 4.0.2 to 4.0.3 (Jan 2003)
    Eric Botcazou added a configure check for the include prefix problem
    with gcc 3.1 or later on Unix systems.
 <li>
-   Eric Botcazou made the scroll() method of the Linux SVGAlib driver wait
-   for a retrace.
+   Matt Witherspoon and Eric Botcazou fixed a bug in the scroll() method of
+   the Linux SVGAlib driver so as to make it wait for the vertical retrace.
 <li>
    Ben Davis documented the non-standard behaviour of pack_feof().
 <li>
@@ -38,8 +38,8 @@ Changes from 4.0.2 to 4.0.3 (Jan 2003)
    Eric Botcazou made it so that the window is centered at startup under
    Windows.
 <li>
-   Eric Botcazou worked around a problem with DOS file attributes under Win2k
-   with the help of Chris Jones.
+   Chris Jones and Eric Botcazou worked around a problem with DOS file
+   attributes under Win2k.
 <li>
    Eric Botcazou made the filetest work better with the keyboard.
 <li>

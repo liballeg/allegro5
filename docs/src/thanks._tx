@@ -140,6 +140,9 @@ Contributors
    Chris Graham.<br>
    Suggested to add a new flag for Windows NTFS compressed files.
 
+   Chris Jones (<email>cj at jibblers dot plus dot com</a>).<br>
+   Worked around a problem with DOS file attributes under Win2k.
+
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog 
    objects, added the D_DISABLED flag, improved the GUI handling of 
@@ -454,6 +457,9 @@ Contributors
    Mathieu Lafon (<email>mlafon@ifhamy.insa-lyon.fr</a>).<br>
    Added the French keyboard mapping, support for the Pause/PrtScr keys, and 
    changed the key[] table to a normal/extended bitfield.
+
+   Matt Witherspoon (<email>spoon at vt dot edu</a>).<br>
+   Fixed a bug in the scroll() method of the Linux SVGAlib driver.
 
    Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
    Added support for 4-button joysticks.
