@@ -1031,7 +1031,7 @@ int open_memory_fli(void *fli_data)
 /* close_fli:
  *  Shuts down the FLI player at the end of the file.
  */
-void close_fli()
+void close_fli(void)
 {
    remove_int(fli_timer_callback);
 
@@ -1097,7 +1097,7 @@ int next_fli_frame(int loop)
  *  Clears the information about which parts of the FLI bitmap and palette
  *  are dirty, after the screen hardware has been updated.
  */
-void reset_fli_variables()
+void reset_fli_variables(void)
 {
    fli_bmp_dirty_from = INT_MAX;
    fli_bmp_dirty_to = INT_MIN;
