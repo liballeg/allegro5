@@ -287,6 +287,12 @@ Windows problems
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
       file (eg. "shell=c:\command.com /e:8192").
+<h4><li>
+@@   I get an error about a "missing separator" when I run make!
+</h4>
+      Make sure that you don't have a semi-colon appended to your MSVCDIR 
+      variable if you are using MSVC, to your MINGDIR variable if you are 
+      using Mingw32 or to your BCC32DIR variable if you are using BCC.
 </ul>
 
 
