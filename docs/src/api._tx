@@ -80,5 +80,9 @@ Changes between 4.0.x and 4.1.x series
    All BeOS gfx driver IDs and constants have been replaced by more meaningful
    ones. You may have to modify your allegro.cfg to reflect the change, or
    update and recompile your programs if you used BeOS specific gfx drivers.
+<li>
+   The behaviour of the GFX_SAFE driver has changed: it doesn't try to first
+   set up GFX_AUTODETECTed drivers anymore and is now guaranteed to be a
+   windowed driver when the platform has got a windowing system.
 </ul>
 
