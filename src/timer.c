@@ -440,6 +440,7 @@ static void remove_timer_int(void *proc, void *param, int param_used)
    system_driver->lock_mutex(timer_mutex);
 #endif
 
+   _timer_queue[x].proc = NULL;
    _timer_queue[x].param_proc = NULL;
    _timer_queue[x].param = NULL;
    _timer_queue[x].speed = 0;
