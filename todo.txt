@@ -2,7 +2,7 @@
 This is the public TODO list for the Allegro Game/Multimedia Library.
 ---------------------------------------------------------------------------
 
-Updates or comments can be sent to the TODO list maintainter Peter Wang
+Updates or comments can be sent to the TODO list maintainer Peter Wang
 <tjaden@alphalink.com.au> or to the Allegro developer's mailinglist
 <conductors@canvaslink.com>, preferrably with the text [TODO] in the subject.
 
@@ -17,7 +17,6 @@ Win32 todos:
 
 - Mouse doesn't move fast enough when using hires modes in Windows
 - Fix pageflipping problem with overlay driver
-- Win32 port doesn't build when ALLEGRO_MMX is not defined.
 - Update docs to mention cross-compilation support.
 - Update docs for Robin Burrows' sound drivers.
 
