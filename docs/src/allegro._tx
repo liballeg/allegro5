@@ -117,6 +117,25 @@ information about how to install Allegro and link your program with it.
    to this function, because allegro_init() installs it as an atexit() 
    routine so it will be called automatically when your program exits.
 
+@@Macro @END_OF_MAIN()
+@xref Windows specifics, Unix specifics, Differences between platforms
+@xref exhello
+   In order to maintain cross-platform compatibility, you have to put this
+   macro at the very end of your main function. This macro uses some `magic'
+   to mangle your main procedure on platforms that need it like Windows
+   or Linux. On the other platforms this macro compiles to nothing, so you
+   don't have to #ifdef around it. Example:
+<codeblock>
+      int main(void)
+      {
+	 allegro_init();
+	 /* more stuff goes here */
+	 ...
+	 return 0;
+      }
+      END_OF_MAIN()
+<endblock>
+
 @@extern char @allegro_id[];
    Text string containing a date and version number for the library, in case 
    you want to display these somewhere.
@@ -1586,7 +1605,7 @@ Allegro does not provide such devices.)
 	 counter++;
       }
 
-      END_OF_FUNCTION(my_timer_handler);
+      END_OF_FUNCTION(my_timer_handler)
 </pre>
    and in your initialisation code you should lock the memory:
 <pre>
