@@ -264,13 +264,13 @@ if test "X$allegro_build_static_programs" = "Xyes"; then
   LINK_LIBALLEG="$LIBALLEG \$(LIBS)"
   LINK_WITH_STATIC_LIBS=yes
   allegro_static_libraries=yes
-  _programs="static $_programs"
+  _programs="statically linked $_programs"
 else
   LIBALLEG="lib/unix/lib${LIB_TO_LINK}-\$(shared_version).so lib/unix/lib${LIB_TO_LINK}_unsharable.a"
   LINK_LIBALLEG="-Llib/unix -l${LIB_TO_LINK}-\$(shared_version) -l${LIB_TO_LINK}_unsharable -lm"
   LINK_WITH_STATIC_LIBS=no
   allegro_shared_libraries=yes
-  _programs="shared $_programs"
+  _programs="dynamically linked $_programs"
 fi
 AC_SUBST(LIBALLEG)
 AC_SUBST(LINK_LIBALLEG)
@@ -299,6 +299,10 @@ if test "X$allegro_static_libraries" = "Xyes"; then
   fi
 fi
 if test "X$allegro_shared_libraries" = "Xyes"; then
+  if test -n "$_libraries"; then
+    _libraries="$_libraries,"
+  fi
+
   _libraries="$_libraries shared"
   if test "X$allegro_build_normal_library" = "Xyes"; then
     ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballeg-\$(shared_version).so lib/unix/liballeg_unsharable.a"
