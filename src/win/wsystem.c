@@ -367,7 +367,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    argc = 0;
    argc_max = 64;
    argv = malloc(sizeof(char *) * argc_max);
-   if (!argv) return -1;
+   if (!argv) return 1;
    i = 0;
 
    /* parse commandline into argc/argv format */
@@ -391,7 +391,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
             argv = realloc(sizeof(char *) * argc_max);
             if (!argv) {
                free(argbuf);
-               return -1;
+               return 1;
             }
          }
 
