@@ -412,7 +412,7 @@ case "$allegro_system" in
     AC_DEFINE(ALLEGRO_LINUX)
     ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_SRC_LINUX_FILES
 
-    AC_CHECK_HEADERS(sys/io.h linux/joystick.h)
+    AC_CHECK_HEADERS(sys/io.h linux/joystick.h linux/input.h)
 
     if test "$allegro_enable_vga" = yes; then
       allegro_support_vga=yes

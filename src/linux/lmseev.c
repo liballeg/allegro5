@@ -26,16 +26,19 @@
  */
 
 
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <linux/input.h>
-
-/* linux/input.h also define KEY_A, etc. Just like Allegro :( */
+/* linux/input.h also defines KEY_A et al. */
 #define ALLEGRO_NO_KEY_DEFINES
 #include "allegro.h"
+
+#ifdef HAVE_LINUX_INPUT_H
+
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 #include "linalleg.h"
+
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
 
 
 
@@ -661,4 +664,6 @@ MOUSE_DRIVER mousedrv_linux_evdev =
    mouse_get_mickeys,
    analyse_data
 };
+
+#endif
 
