@@ -1381,6 +1381,8 @@ static int detect_mouse(void)
       goto End;
    }
 
+   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
+
    /* Flush the files. */
    while (TRUE) {
       reset_for_select(fd, &readfds, &timeout);
@@ -1403,8 +1405,6 @@ static int detect_mouse(void)
 	 }
       }
    }
-
-   popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
 
    w = buffer_size;
    l = (SCREEN_W - w)/2;
