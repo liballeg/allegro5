@@ -22,10 +22,10 @@ AC_CACHE_VAL(allegro_cv_processor_type,
 allegro_cv_processor_type=i386,
 AC_TRY_COMPILE([], [asm (".globl _dummy_function\n"
 "_dummy_function:\n"
-"     save %sp, -120, %sp\n"
-"     ld [%fp-20], %f12\n"
-"     fitod %f12, %f10\n"
-"     faddd %f10, %f8, %f8\n"
+"     save %%sp, -120, %%sp\n"
+"     ld [[%%fp-20]], %%f12\n"
+"     fitod %%f12, %%f10\n"
+"     faddd %%f10, %%f8, %%f8\n"
 "     ret\n"
 "     restore" : :)],
 allegro_cv_processor_type=sparc,
