@@ -9601,8 +9601,7 @@ command. You could add another grep to filter only lines with text like
 
 @@extern void *@allegro_icon;
    This is a pointer to the Allegro X11 icon, which is in the format of 
-   standard .xpm bitmap data. It is implemented in the library as a weak
-   symbol that can be overridden by your own declaration.
+   standard .xpm bitmap data.
    You do not normally have to bother with this at all: you can use the
    xfixicon.sh utility from the tools/x11 directory to convert a true 
    colour bitmap to a C file that you only need to link with your own code
