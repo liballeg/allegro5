@@ -890,7 +890,7 @@ static void sel_palette(RGB *pal)
    int c, x, y;
    int (*proc)(int, DIALOG *, int);
 
-   memcpy(datedit_current_palette, pal, sizeof(PALETTE));
+   memmove(datedit_current_palette, pal, sizeof(PALETTE));
    set_palette(datedit_current_palette);
 
    gui_fg_color = makecol(0, 0, 0);
