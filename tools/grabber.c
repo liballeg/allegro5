@@ -91,6 +91,8 @@ static int quitter(void);
 static int grabber(void);
 static int exporter(void);
 static int deleter(void);
+static int absolute_path_setter(void);
+static int relative_path_setter(void);
 static int sheller(void);
 static int helper(void);
 static int sysinfo(void);
@@ -102,6 +104,7 @@ static int dither_toggler(void);
 static int index_toggler(void);
 static int sort_toggler(void);
 static int trans_toggler(void);
+static int relp_toggler(void);
 static int property_delete(void);
 static int property_insert(void);
 static int property_change(void);
@@ -143,6 +146,15 @@ static MENU new_menu[32] =
 
 
 
+static MENU path_menu[] =
+{
+   { "To &Relative",                relative_path_setter,NULL,    0, NULL  },
+   { "To &Absolute",                absolute_path_setter,NULL,    0, NULL  },
+   { NULL,                          NULL,             NULL,       0, NULL  }
+};
+
+
+
 /* variable-sized */
 static MENU objc_menu[32] =
 {
@@ -152,6 +164,7 @@ static MENU objc_menu[32] =
    { "&Rename\t(ctrl+M)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
    { "&Shell Edit\t(ctrl+Z)",       sheller,          NULL,       0, NULL  },
+   { "&Convert Path",               NULL,             path_menu,  0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -162,18 +175,20 @@ static MENU objc_menu[32] =
 static MENU opt_menu[] =
 {
    { "&Backup Datafiles",           backup_toggler,   NULL,       0, NULL  },
-   { "&Dither Images",              dither_toggler,   NULL,       0, NULL  },
    { "&Index Objects",              index_toggler,    NULL,       0, NULL  },
    { "&Sort Objects",               sort_toggler,     NULL,       0, NULL  },
+   { "Store &Relative Paths",       relp_toggler,     NULL,       0, NULL  },
+   { "&Dither Images",              dither_toggler,   NULL,       0, NULL  },
    { "Preserve &Transparency",      trans_toggler,    NULL,       0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
 #define MENU_BACKUP           0
-#define MENU_DITHER           1
-#define MENU_INDEX            2
-#define MENU_SORT             3
-#define MENU_TRANS            4
+#define MENU_INDEX            1
+#define MENU_SORT             2
+#define MENU_RELP             3
+#define MENU_DITHER           4
+#define MENU_TRANS            5
 
 
 
@@ -208,6 +223,7 @@ static MENU popup_menu[32] =
    { "&Delete",                     deleter,          NULL,       0, NULL  },
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
+   { "&Convert Path",               NULL,             path_menu,  0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -745,7 +761,8 @@ static MENU *which_menu(int sel)
 	 if (get_single_selection())
 	    ok = TRUE;
       }
-      else if (compare_menu_names(popup_menu[i].text, "Delete") == 0) {
+      else if ((compare_menu_names(popup_menu[i].text, "Delete") == 0) || 
+               (compare_menu_names(popup_menu[i].text, "Convert Path") == 0)) {
 	 for (k=1; k<data_count; k++) {
 	    if ((k == SELECTED_ITEM) || (data_sel[k])) {
 	       ok = TRUE;
@@ -1694,6 +1711,9 @@ static void update_info(void)
    datedit_set_property(&datedit_info, DAT_SORT, 
 		  (opt_menu[MENU_SORT].flags & D_SELECTED) ? "y" : "n");
 
+   datedit_set_property(&datedit_info, DAT_RELP, 
+		  (opt_menu[MENU_RELP].flags & D_SELECTED) ? "y" : "n");
+
    sprintf(buf, "%d", main_dlg[DLG_PACKLIST].d1);
    datedit_set_property(&datedit_info, DAT_PACK, buf);
 }
@@ -1796,6 +1816,11 @@ static void load(char *filename, int flush)
       opt_menu[MENU_TRANS].flags |= D_SELECTED;
    else
       opt_menu[MENU_TRANS].flags &= ~D_SELECTED;
+
+   if (utolower(*get_datafile_property(&datedit_info, DAT_RELP)) == 'y')
+      opt_menu[MENU_RELP].flags |= D_SELECTED;
+   else
+      opt_menu[MENU_RELP].flags &= ~D_SELECTED;
 
    if (sort)
       opt_menu[MENU_SORT].flags |= D_SELECTED;
@@ -1940,6 +1965,7 @@ static int save(int strip)
       options.verbose = TRUE;
       options.write_msg = FALSE;
       options.backup = (opt_menu[MENU_BACKUP].flags & D_SELECTED);
+      options.relative_path = (opt_menu[MENU_RELP].flags & D_SELECTED);
 
       if (!datedit_save_datafile(datafile, data_file, NULL, &options, password))
 	 err = TRUE;
@@ -2307,7 +2333,7 @@ static int grabber(void)
    DATAFILE *dat;
    char *desc = "binary data";
    AL_CONST char *ext;
-   char buf[256], name[FILENAME_LENGTH], type[8];
+   char buf[256], name[FILENAME_LENGTH], type[8], relpath[FILENAME_LENGTH];
    int sel;
    int i;
 
@@ -2345,6 +2371,12 @@ static int grabber(void)
    if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
 
+      /* Convert the filename to a relative filename if required. */
+      if (opt_menu[MENU_RELP].flags & D_SELECTED) {
+         make_relative_filename(relpath, data_file, name, FILENAME_LENGTH);
+         strcpy(name, relpath);
+      }
+      
       set_busy_mouse(TRUE);
 
       strcpy(grabber_import_file, name);
@@ -2491,6 +2523,50 @@ static int deleter(void)
 
 
 
+/* handle the convert to absolute path command */
+static int absolute_path_setter(void)
+{
+   int i;
+   char *orig;
+   char absolute_path[FILENAME_LENGTH];
+   
+   for (i=1; i<data_count; i++) {
+      if ((i == SELECTED_ITEM) || (data_sel[i])) {
+         orig = (char *)get_datafile_property(data[i].dat, DAT_ORIG);
+         if (is_relative_filename(orig)) {
+            make_absolute_filename(absolute_path, data_file, orig, FILENAME_LENGTH);
+            set_property(&(data[i]), DAT_ORIG, absolute_path);
+         }
+      }
+   }
+   
+   return D_O_K;
+}
+
+
+
+/* handle the convert to relative path command */
+static int relative_path_setter(void)
+{
+   int i;
+   char *orig;
+   char relative_path[FILENAME_LENGTH];
+   
+   for (i=1; i<data_count; i++) {
+      if ((i == SELECTED_ITEM) || (data_sel[i])) {
+         orig = (char *)get_datafile_property(data[i].dat, DAT_ORIG);
+         if (!is_relative_filename(orig)) {
+            make_relative_filename(relative_path, data_file, orig, FILENAME_LENGTH);
+            set_property(&(data[i]), DAT_ORIG, relative_path);
+         }
+      }
+   }
+   
+   return D_O_K;
+}
+
+
+
 /* handle the backup option */
 static int backup_toggler(void)
 {
@@ -2538,6 +2614,15 @@ static int trans_toggler(void)
    return D_O_K;
 }
 
+
+
+
+/* handle the relative paths option */
+static int relp_toggler(void)
+{
+   opt_menu[MENU_RELP].flags ^= D_SELECTED;
+   return D_O_K;
+}
 
 
 
@@ -3564,11 +3649,6 @@ int main(int argc, char *argv[])
       else
          opt_menu[MENU_BACKUP].flags &= ~D_SELECTED;
 
-      if (strpbrk(get_config_string("grabber", "dither", ""), "yY1"))
-         opt_menu[MENU_DITHER].flags |= D_SELECTED;
-      else
-         opt_menu[MENU_DITHER].flags &= ~D_SELECTED;
-
       if (strpbrk(get_config_string("grabber", "index", ""), "yY1"))
          opt_menu[MENU_INDEX].flags |= D_SELECTED;
       else
@@ -3578,6 +3658,16 @@ int main(int argc, char *argv[])
          opt_menu[MENU_SORT].flags |= D_SELECTED;
       else
          opt_menu[MENU_SORT].flags &= ~D_SELECTED;
+
+      if (strpbrk(get_config_string("grabber", "relative", ""), "yY1"))
+         opt_menu[MENU_RELP].flags |= D_SELECTED;
+      else
+         opt_menu[MENU_RELP].flags &= ~D_SELECTED;
+
+      if (strpbrk(get_config_string("grabber", "dither", ""), "yY1"))
+         opt_menu[MENU_DITHER].flags |= D_SELECTED;
+      else
+         opt_menu[MENU_DITHER].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "transparency", ""), "yY1"))
          opt_menu[MENU_TRANS].flags |= D_SELECTED;
@@ -3607,11 +3697,6 @@ int main(int argc, char *argv[])
    else
       set_config_string("grabber", "backups", "n");
 
-   if (opt_menu[MENU_DITHER].flags & D_SELECTED)
-      set_config_string("grabber", "dither", "y");
-   else
-      set_config_string("grabber", "dither", "n");
-
    if (opt_menu[MENU_INDEX].flags & D_SELECTED)
       set_config_string("grabber", "index", "y");
    else
@@ -3622,6 +3707,16 @@ int main(int argc, char *argv[])
    else
       set_config_string("grabber", "sort", "n");
 
+   if (opt_menu[MENU_RELP].flags & D_SELECTED)
+      set_config_string("grabber", "relative", "y");
+   else
+      set_config_string("grabber", "relative", "n");
+
+   if (opt_menu[MENU_DITHER].flags & D_SELECTED)
+      set_config_string("grabber", "dither", "y");
+   else
+      set_config_string("grabber", "dither", "n");
+
    if (opt_menu[MENU_TRANS].flags & D_SELECTED)
       set_config_string("grabber", "transparency", "y");
    else
@@ -3630,4 +3725,4 @@ int main(int argc, char *argv[])
    return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
