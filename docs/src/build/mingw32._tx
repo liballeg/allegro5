@@ -96,7 +96,7 @@ Setting up MinGW to build Allegro
       the Minimal SYStem (MSYS) environment with Allegro.
 
    2. Get the minimal DirectX 7 SDK for MinGW (<tt>dx70_mgw.zip</tt>). You
-      download it hrom '<link>http://alleg.sourceforge.net/wip.html</a>'. Note
+      download it from '<link>http://alleg.sourceforge.net/wip.html</a>'. Note
       that this is *not* the same package as '<tt>dx70_min.zip</tt>'. Unzip it
       to the compiler directory, overwriting any existing files.
 
