@@ -48,7 +48,7 @@ static int opt_gridx = -1;
 static int opt_gridy = -1;
 static int opt_gridw = -1;
 static int opt_gridh = -1;
-static char *opt_datafile = NULL;
+static char *opt_datafilename = NULL;
 static char *opt_outputname = NULL;
 static char *opt_headername = NULL;
 static char *opt_dependencyfile = NULL;
@@ -62,12 +62,13 @@ static char *opt_palette = NULL;
 static char *opt_proplist[MAX_FILES];
 static int opt_numprops = 0;
 
-static char *opt_keep_proplist[MAX_FILES];
-static int opt_keep_numprops = 0;
+static char *opt_fixedproplist[MAX_FILES];
+static int opt_numfixedprops = 0;
 
 static char *opt_namelist[MAX_FILES];
-static int opt_usedname[MAX_FILES];
 static int opt_numnames = 0;
+
+static int opt_usedname[MAX_FILES];
 
 
 
@@ -686,7 +687,7 @@ static int do_save_dependencies(DATAFILE *dat, char *srcname, char *depname)
 int main(int argc, char *argv[])
 {
    int c, colorconv_mode = 0;
-   int *opt_keep_typelist = NULL;
+   int *opt_fixed_prop = NULL;
 
    if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
       return 1;
@@ -817,8 +818,8 @@ int main(int argc, char *argv[])
 
 	    case 's':
 	       if (argv[c][2] == '-') {
-		  if (opt_keep_numprops < MAX_FILES)
-		     opt_keep_proplist[opt_keep_numprops++] = argv[c]+3;
+		  if (opt_numfixedprops < MAX_FILES)
+		     opt_fixedproplist[opt_numfixedprops++] = argv[c]+3;
 	       }
 	       else {
 		  if ((opt_strip >= 0) || 
@@ -877,8 +878,8 @@ int main(int argc, char *argv[])
 	       opt_proplist[opt_numprops++] = argv[c];
 	 }
 	 else {
-	    if (!opt_datafile)
-	       opt_datafile = argv[c];
+	    if (!opt_datafilename)
+	       opt_datafilename = argv[c];
 	    else {
 	       if (opt_numnames < MAX_FILES) {
 		  opt_namelist[opt_numnames] = argv[c];
@@ -890,7 +891,7 @@ int main(int argc, char *argv[])
       }
    }
 
-   if ((!opt_datafile) || 
+   if ((!opt_datafilename) || 
        ((!opt_command) && 
 	(opt_compression < 0) && 
 	(opt_strip < 0) && 
@@ -907,7 +908,7 @@ int main(int argc, char *argv[])
    else
       set_color_conversion(COLORCONV_NONE);
 
-   datafile = datedit_load_datafile(opt_datafile, FALSE, opt_password);
+   datafile = datedit_load_datafile(opt_datafilename, FALSE, opt_password);
 
    if (datafile) {
 
@@ -999,36 +1000,36 @@ int main(int argc, char *argv[])
 	    }
 	 }
 
-	 if (opt_keep_numprops > 0) {
+	 if (opt_numfixedprops > 0) {
 	    if (opt_strip < 0) {
 	       printf("Error: no strip mode\n");
 	       err = 1;
 	    }
 	    else {
-	       opt_keep_typelist = malloc((opt_keep_numprops+1)*sizeof(int));
+	       opt_fixed_prop = malloc((opt_numfixedprops+1)*sizeof(int));
 
-	       for (c=0; c<opt_keep_numprops; c++)
-		  opt_keep_typelist[c] = datedit_clean_typename(opt_keep_proplist[c]);
+	       for (c=0; c<opt_numfixedprops; c++)
+		  opt_fixed_prop[c] = datedit_clean_typename(opt_fixedproplist[c]);
 
-	       opt_keep_typelist[opt_keep_numprops] = 0;
+	       opt_fixed_prop[c] = 0;  /* end of array delimiter */
 	    }
 	 }
       }
 
       if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0) || (opt_sort >= 0)))
-	 if (!datedit_save_datafile(datafile, opt_datafile, opt_strip, opt_keep_typelist, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
+	 if (!datedit_save_datafile(datafile, opt_datafilename, opt_strip, opt_fixed_prop, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
 	    err = 1;
 
       if ((!err) && (opt_headername))
-	 if (!datedit_save_header(datafile, opt_datafile, opt_headername, "dat", opt_prefixstring, opt_verbose))
+	 if (!datedit_save_header(datafile, opt_datafilename, opt_headername, "dat", opt_prefixstring, opt_verbose))
 	    err = 1;
 
       if ((!err) && (opt_dependencyfile))
-	 if (!do_save_dependencies(datafile, opt_datafile, opt_dependencyfile))
+	 if (!do_save_dependencies(datafile, opt_datafilename, opt_dependencyfile))
 	    err = 1;
 
-      if (opt_keep_typelist)
-	 free(opt_keep_typelist);
+      if (opt_fixed_prop)
+	 free(opt_fixed_prop);
 
       unload_datafile(datafile);
    }
