@@ -2112,8 +2112,7 @@ Graphics modes
    type GFX_MODE_LIST which has the following definition:
 <pre>
    typedef struct GFX_MODE_LIST {
-      int modes;
-      int malloced;
+      int num_modes;
       GFX_MODE *mode;
    } GFX_MODE_LIST;
 </pre>
@@ -2126,7 +2125,7 @@ Graphics modes
 </pre>
    This list is terminated with an { 0, 0, 0 } entry.
 
-@@void @destroy_gfx_mode_list(void);
+@@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
    Removes the mode list created by get_gfx_mode_list() from memory.
 
