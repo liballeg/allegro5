@@ -196,7 +196,7 @@ static int get_capture_format_support(int bits, int stereo, int rate,
 
       /* return the actual capture buffer settings */
       if (wfx)
-         memcpy(&dsc_buf_wfx, wfx, sizeof(WAVEFORMATEX));
+         memcpy(wfx, &dsc_buf_wfx, sizeof(WAVEFORMATEX));
 
       return 0;
    }
