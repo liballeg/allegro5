@@ -514,7 +514,7 @@ available in past/future versions of Allegro.
 @@typedef RGB @PALETTE[PAL_SIZE]
 @xref RGB, Palette routines
 @eref Available Allegro examples
-   Allegro palettes are arrays of PAL_SIZE(256) RGB entries.
+   Allegro palettes are arrays of PAL_SIZE RGB entries.
 
 @@typedef struct @RGB
 @xref Palette routines, PALETTE
@@ -522,8 +522,9 @@ available in past/future versions of Allegro.
 <codeblock>
    unsigned char r, g, b;
 <endblock>
-   Palette entry. Read chapter "Palette routines" for a description on
-   how to obtain/use this structure.
+   Palette entry. It contains an additional field for the purpose of padding
+   but you should not usually care about it. Read chapter "Palette routines"
+   for a description on how to obtain/use this structure.
 
 @@typedef struct @V3D
 @xref V3D_f, polygon3d, Fixed point trig
@@ -3865,14 +3866,16 @@ defined as:
       unsigned char r, g, b;
    } RGB;
 <endblock>
-For example:
+It contains an additional field for the purpose of padding but you should
+not usually care about it. For example:
 <codeblock>
    RGB black = { 0,  0,  0  };
    RGB white = { 63, 63, 63 };
    RGB green = { 0,  63, 0  };
    RGB grey  = { 32, 32, 32 };
 <endblock>
-The type PALETTE is defined to be an array of 256 RGB structures.
+The type PALETTE is defined to be an array of PAL_SIZE RGB structures, where
+PAL_SIZE is a preprocessor constant greater or equal to 256.
 
 You may notice that a lot of the code in Allegro spells 'palette' as 
 'pallete'. This is because the headers from my old Mark Williams compiler on 
