@@ -45,7 +45,8 @@ Changes from 4.0.1 to 4.0.2 (Jun 2002)
    Robert J. Ohannessian made the 32->24 color convertors more robust and
    improved the MMX one in the process.
 <li>
-   Robert J. Ohannessian and Eric Botcazou fixed a bug in the hue blender.
+   Robert J. Ohannessian, Eric Botcazou and Sven Sandberg fixed a bug in
+   the hue blender and the hsv_to_rgb() routine.
 <li>
    Matthew Leverton fixed another problem with al_find*() and NTFS
    partitions under Windows.

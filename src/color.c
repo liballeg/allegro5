@@ -354,13 +354,17 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
    }
    else {
       h = fmod(h, 360.0) / 60.0;
+      if (h < 0)
+	 h += 6.0f;
+
       i = (int)h;
       f = h - i;
-      x = v * (1.0f - s);
-      y = v * (1.0f - (s * f));
-      z = v * (1.0f - (s * (1.0f - f)));
+      x = v * (1.0f - s) + 0.5f;
+      y = v * (1.0f - (s * f)) + 0.5f;
+      z = v * (1.0f - (s * (1.0f - f))) + 0.5f;
 
       switch (i) {
+	 case 6:
 	 case 0: *r = v; *g = z; *b = x; break;
 	 case 1: *r = y; *g = v; *b = x; break;
 	 case 2: *r = x; *g = v; *b = z; break;
