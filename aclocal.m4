@@ -186,8 +186,13 @@ dnl
 AC_MSG_CHECKING(for System V sys/procfs)
 AC_DEFUN(ALLEGRO_SV_PROCFS,
 [AC_CHECK_HEADER(sys/procfs.h,
-AC_TRY_COMPILE([#include  <sys/procfs.h>], [struct prpsinfo psinfo;],
-allegro_sv_procfs=yes, allegro_sv_procfs=no), allegro_sv_procfs=no)])
+AC_TRY_COMPILE([
+   #include <sys/procfs.h> 
+   #include <sys/ioctl.h>], 
+  [struct prpsinfo psinfo; 
+   ioctl(0, PIOCPSINFO, &psinfo);],
+  allegro_sv_procfs=yes, allegro_sv_procfs=no), allegro_sv_procfs=no)]
+)
 AC_MSG_RESULT($allegro_sv_procfs)
 
 dnl
