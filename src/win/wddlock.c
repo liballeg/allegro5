@@ -250,6 +250,10 @@ void gfx_directx_release_lock(BITMAP *bmp)
 {
    BMP_EXTRA_INFO *bmp_extra;
 
+   /* handle display switch */
+   if (!app_foreground)
+      gfx_directx_switch_out();
+
    /* find parent */
    while (bmp->id & BMP_ID_SUB) {
       bmp->id &= ~BMP_ID_LOCKED;
