@@ -15,6 +15,7 @@ General (Platform independant) todos:
 - merge Angelo's menu auto popup patch
 - rewrite set_gfx_mode, or at least have dynamic driver lists
 - find solution or API to timer/multithread problem
+- don't use BITMAPs for zbuffers
 
 DOS todos:
 ---------------------------------------------------------------------------
