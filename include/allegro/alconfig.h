@@ -174,22 +174,22 @@
 /* emulate missing library functions */
 #ifdef ALLEGRO_NO_STRICMP
    AL_FUNC(int, _alemu_stricmp, (AL_CONST char *s1, AL_CONST char *s2));
-   #define stricmp(s1, s2) _alemu_stricmp(s1, s2)
+   #define stricmp _alemu_stricmp
 #endif
 
 #ifdef ALLEGRO_NO_STRLWR
    AL_FUNC(char *, _alemu_strlwr, (char *string));
-   #define strlwr(string) _alemu_strlwr(string)
+   #define strlwr _alemu_strlwr
 #endif
 
 #ifdef ALLEGRO_NO_STRUPR
    AL_FUNC(char *, _alemu_strupr, (char *string));
-   #define strupr(string) _alemu_strupr(string)
+   #define strupr _alemu_strupr
 #endif
 
 #ifdef ALLEGRO_NO_MEMCMP
    AL_FUNC(int, _alemu_memcmp, (AL_CONST void *s1, AL_CONST void *s2, size_t num));
-   #define memcmp(s1, s2, num) _alemu_memcmp(s1, s2, num)
+   #define memcmp _alemu_memcmp
 #endif
 
 #ifdef ALLEGRO_NO_FINDFIRST
