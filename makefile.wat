@@ -168,7 +168,7 @@ $(OBJ_DIR)/%.obj: %.s $(RUNNER)
 	$(RUNNER) wasm \\ $(WFLAGS) -zq -fr=nul -fp3 -fo=$@ $(OBJ_DIR)/$*.asm
 
 $(OBJ_DIR)/iscanmmx.obj: iscanmmx.s $(RUNNER)
-	$(RUNNER) echo \\ .text > $(OBJ_DIR)/iscanmmx.asm
+	$(RUNNER) echo \\ END > $(OBJ_DIR)/iscanmmx.asm
 	$(RUNNER) wasm \\ $(WFLAGS) -zq -fr=nul -fp3 -fo=$(OBJ_DIR)/iscanmmx.obj $(OBJ_DIR)/iscanmmx.asm
 
 endif
