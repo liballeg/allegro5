@@ -127,7 +127,6 @@ Makedoc wishlist:
 - Generate plain LaTeX output for proper pdf/postscript output. This
   would potentially allow more flexibility with the final look.
 - Lout output?
-- Improve readability of HTML index: CSS and alphabetic mini toc.
 - makexml as template for next generation makedoc?
 
 ---------------------------------------------------------------------------
