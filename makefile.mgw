@@ -50,11 +50,23 @@ endif # STATICLINK
 #
 .PHONY: badwin badming
 
+ifdef ALLEGRO_USE_CYGWIN
+
+WINDIR_S = $(shell cygpath -S)
+WINDIR_U = $(subst \,/,$(WINDIR_S))
+WINDIR_D = $(subst /,\,$(WINDIR_S))
+
+else # ALLEGRO_USE_CYGWIN
+
 ifeq ($(OS),Windows_NT)
    WINSYSDIR = $(SystemRoot)
    WINSUBDIR = system32
 else
-   WINSYSDIR = $(windir)
+   ifneq ($(windir),)
+      WINSYSDIR = $(windir)
+   else
+      WINSYSDIR = $(WINDIR)
+   endif
    WINSUBDIR = system
 endif
 
@@ -63,12 +75,12 @@ ifneq ($(WINSYSDIR),)
    WINDIR_D = $(subst /,\,$(WINSYSDIR)\$(WINSUBDIR))
 else
 ifndef CROSSCOMPILE
-ifndef ALLEGRO_USE_CYGWIN
 badwin:
 	@echo Your SYSTEMROOT or WINDIR environment variable is not set!
 endif
 endif
-endif
+
+endif # ALLEGRO_USE_CYGWIN
 
 ifdef MINGDIR
    MINGDIR_U = $(subst \,/,$(MINGDIR))
@@ -188,6 +200,13 @@ wfixicon: tools/win/wfixicon.exe
 
 ifdef UNIX_TOOLS
 
+ifndef STATICLINK
+
+$(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
+	cp lib/mingw32/$(DLL_BASENAME) $(WINDIR_U)
+
+endif # STATICLINK
+
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
 
@@ -239,11 +258,9 @@ INSTALL_FILES = $(MINGDIR_U)/include $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
                 $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
 
 ifndef CROSSCOMPILE
-ifndef STATICLINK
-ifndef ALLEGRO_USE_CYGWIN
-   INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
-endif
-endif
+   ifndef STATICLINK
+      INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+   endif
 endif
 
 install: $(INSTALL_FILES)
