@@ -102,6 +102,12 @@ long _handle_timer_tick(int interval)
    timer_delay -= d;
    timer_semaphore = FALSE;
 
+#ifdef ALLEGRO_WINDOWS
+   /* fudge factor to prevent interrupts from coming too close to each other */
+   if (new_delay < MSEC_TO_TIMER(1))
+      new_delay = MSEC_TO_TIMER(1);
+#endif
+
    return new_delay;
 }
 
