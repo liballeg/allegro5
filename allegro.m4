@@ -93,16 +93,7 @@ main()
 
  /* Compare allegro-config output to the Allegro headers */
   if ((allegro_major_version != $ALLEGRO_CONFIG_major_version) ||
-      (allegro_minor_version != $ALLEGRO_CONFIG_minor_version)
-#if 0
-      ||
-/* The last released version of liballegro-1.x has an incorrect micro version in
- * the header file so neither the includes nor the library will match the
- * micro_version to the output of allegro-config
- */
-      (allegro_micro_version != $ALLEGRO_CONFIG_micro_version)
-#endif 
-	  )
+      (allegro_minor_version != $ALLEGRO_CONFIG_minor_version))
 	  
     {
       printf("*** Allegro header files (version %d.%d.%d) do not match\n",
