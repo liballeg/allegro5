@@ -539,6 +539,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exquat.c \
 	examples/exrgbhsv.c \
 	examples/exsample.c \
+	examples/exsyscur.c \
 	examples/exscale.c \
 	examples/exscn3d.c \
 	examples/exscroll.c \
@@ -588,6 +589,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exquat \
 	examples/exrgbhsv \
 	examples/exsample \
+	examples/exsyscur \
 	examples/exscale \
 	examples/exscn3d \
 	examples/exscroll \
