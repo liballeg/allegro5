@@ -217,10 +217,19 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_DESTROY:
          if (user_wnd_proc) {
-            /* remove the DirectX stuff */
+            /* We need to remove here the modules that depend upon the main window:
+             *  - all the DirectX stuff (keyboard, mouse, sound),
+             *  - timers.
+             */
             remove_keyboard();
             remove_mouse();
             remove_sound();
+
+            /* The system just sent a WA_INACTIVE message, so we need to wake up the
+             * timer thread, supposing we are in SWITCH_PAUSE or SWITCH_AMNESIA mode.
+             */
+            SetEvent(_foreground_event);
+            remove_timer();
          }
          else {
             PostQuitMessage(0);
