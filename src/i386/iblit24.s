@@ -169,6 +169,9 @@ notcarry2:
 
    popw %es
 
+   movl B_SOURCE, %edx
+   UNREAD_BANK()
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
@@ -253,6 +256,9 @@ not_carry2:
 
    popw %es
 
+   movl B_SOURCE, %edx
+   UNREAD_BANK()
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
@@ -336,6 +342,11 @@ befloop:
    jg blit_loop_blitter          /* and loop */
 
    popw %es
+
+   /* the source must be a memory bitmap, no need for
+    *  movl B_SOURCE, %edx
+    *  UNREAD_BANK()
+    */
 
    movl B_DEST, %edx
    UNWRITE_BANK()

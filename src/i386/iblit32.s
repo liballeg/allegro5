@@ -98,6 +98,9 @@ FUNC(_linear_blit32)
 
    popw %es
 
+   movl B_SOURCE, %edx
+   UNREAD_BANK()
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
@@ -166,6 +169,9 @@ blit_backwards_loop:
 
    popw %es
 
+   movl B_SOURCE, %edx
+   UNREAD_BANK()
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
@@ -226,6 +232,11 @@ FUNC(_linear_masked_blit32)
    )
 
    popw %es
+
+   /* the source must be a memory bitmap, no need for
+    *  movl B_SOURCE, %edx
+    *  UNREAD_BANK()
+    */
 
    movl B_DEST, %edx
    UNWRITE_BANK()

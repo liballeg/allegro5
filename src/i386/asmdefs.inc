@@ -70,6 +70,7 @@
 #define READ_BANK()     call *BMP_RBANK(%edx)
 
 #define UNWRITE_BANK()  movl BMP_VTABLE(%edx), %eax ; call *VTABLE_UNBANK(%eax)
+#define UNREAD_BANK()   movl BMP_VTABLE(%edx), %eax ; call *VTABLE_UNBANK(%eax)
 
 
 /* Helper macro for looking up a position in the pattern bitmap. Passed
