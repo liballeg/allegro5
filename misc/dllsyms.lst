@@ -229,6 +229,7 @@
     fixtan
     fixtof
     fixtoi
+    fixtorad_r DATA
     fixup_datafile
     fli_bitmap DATA
     fli_bmp_dirty_from DATA
@@ -527,6 +528,7 @@
     quat_mul
     quat_slerp
     quat_to_matrix
+    radtofix_r DATA
     read_sound_input
     readkey
     reallocate_voice
