@@ -263,6 +263,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
    else {
       driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
       driver_list_entry->mode_list = default_mode_list;
+      driver_list_entry->fetch_mode_list_ptr = NULL;
    }
 
    destroy_gfx_mode_list();
