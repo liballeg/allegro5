@@ -11,6 +11,8 @@ Miscellaneous 4.2 todos:
 ---------------------------------------------------------------------------
 
 - Investigate problems with the Allegro mouse cursor not showing up with AllegroGL
+- Investigate video bitmap problems reported in http://www.allegro.cc/forums/view_thread.php?_id=453220
+- Investigate mouse problem reported in http://www.allegro.cc/forums/view_thread.php?_id=459972
 - Make the test program report the SSE3/64 bit detection flags from AJ's patch
 - Make the grabber (try to) use system cursors
 - Purge main docs of DOSisms if that hasn't been done already
