@@ -10123,11 +10123,21 @@ makefiles also provide some special pseudo-targets:
    Compiles the current library version (one of optimised, debugging, or 
    profiling, selected by the above environment variables).
 <li>
+   'modules' (Unix only)<br>
+    This will compile all the modules currently configured. The 'lib' and
+    'modules' targets together are needed to build a working copy of the
+    library, without documentation or programs.
+<li>
    'install'<br>
    Copies the current library version (one of optimised, debugging, or 
    profiling, selected by the above environment variables), into your 
    compiler lib directory, recompiling it as required, and installs the 
    Allegro headers.
+<li>
+   'install-lib' (Unix only)<br>
+   You can use this to install the library and the modules only, without
+   documentation or programs.  Use the 'install' target to install
+   everything.
 <li>
    'installall' (non-Unix only)<br>
    Copies all three library versions (optimised, debugging, and profiling), 
