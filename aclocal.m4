@@ -208,7 +208,7 @@ AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_XWINDOWS,
 test "X$enableval" != "Xno" && allegro_enable_xwin_shm=yes,
 allegro_enable_xwin_shm=yes)
 AC_ARG_ENABLE(xwin-vidmode,
-[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Extension [default=yes]],
+[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Ext. [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86vidmode=yes,
 allegro_enable_xwin_xf86vidmode=yes)
 AC_ARG_ENABLE(xwin-dga,
@@ -411,7 +411,7 @@ dnl  allegro_support_artsdigi=(yes|)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_ARTSDIGI,
 [AC_ARG_ENABLE(artsdigi,
-[  --enable-artsdigi[=x]    enable building ARTS DIGI driver [default=yes]],
+[  --enable-artsdigi[=x]   enable building ARTS DIGI driver [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_artsdigi=yes,
 allegro_enable_artsdigi=yes)
 
