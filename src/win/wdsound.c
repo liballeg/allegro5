@@ -191,7 +191,8 @@ static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPC
    return (num_drivers < MAX_DRIVERS);
 }
 
-
+/* Function from wdsndmix.c to get a driver */
+DIGI_DRIVER * _get_dsalmix_driver (char *, int);
 
 /* _get_digi_driver_list:
  *  System driver hook for listing the available sound drivers. This 
@@ -206,8 +207,10 @@ _DRIVER_INFO *_get_digi_driver_list()
    if (!driver_list) {
       DirectSoundEnumerate(DSEnumCallback, NULL);
 
-      driver_list = malloc(sizeof(_DRIVER_INFO) * (num_drivers+2));
+/* This function has to allocate drivers for wdsndmix.c as well */
+      driver_list = malloc(sizeof(_DRIVER_INFO) * ((num_drivers*2)+2));
 
+/* wdsound.c drivers */
       for (i=0; i<num_drivers; i++) {
 	 driver = malloc(sizeof(DIGI_DRIVER));
 	 memcpy(driver, &digi_directx, sizeof(DIGI_DRIVER));
@@ -220,17 +223,26 @@ _DRIVER_INFO *_get_digi_driver_list()
 	 driver_list[i].driver = driver;
 	 driver_list[i].autodetect = TRUE;
       }
-
-      driver_list[i].id = DIGI_NONE;
-      driver_list[i].driver = &digi_none;
-      driver_list[i].autodetect = TRUE;
-
-      driver_list[i+1].id = 0;
-      driver_list[i+1].driver = NULL;
-      driver_list[i+1].autodetect = FALSE;
+ 
+/* wdsndmix.c drivers */
+      for (i=0; i<num_drivers; i++) {
+         driver = _get_dsalmix_driver (driver_names[i], i);
+ 
+         driver_list[i+num_drivers].id = driver->id;
+         driver_list[i+num_drivers].driver = driver;
+         driver_list[i+num_drivers].autodetect = TRUE;
+      }
+      driver_list[i+num_drivers].id = DIGI_NONE;
+      driver_list[i+num_drivers].driver = &digi_none;
+      driver_list[i+num_drivers].autodetect = TRUE;
+ 
+      driver_list[i+num_drivers+1].id = 0;
+      driver_list[i+num_drivers+1].driver = NULL;
+      driver_list[i+num_drivers+1].autodetect = FALSE;
    }
 
    return driver_list;
+
 }
 
 
