@@ -12,6 +12,9 @@
  *
  *      By Laurence Withers.
  *
+ *      Christer Sandberg made it work with ISO C90 compilers and
+ *      fixed a couple of other problems.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -902,21 +905,48 @@ static void clear_c_identifiers(void)
 
 
 
+/* make_single_cident()
+ *
+ *  Creates a valid cident from a string. The returned 
+ *  pointer is dynamically allocated and must be freed.
+ */
+static char *make_single_cident(const char *src)
+{
+    char *cident, *p;
+    int c;
+
+    p = cident = malloc(strlen(src) + 1);
+    if (!cident) out_of_memory();
+
+    if ((c=*src++)) {
+        if (isalpha(c))
+            *p++ = toupper(c);
+        else
+            *p++ = '_';
+
+        while ((c=*src++)) {
+            if (isalnum(c))
+                *p++ = toupper(c);
+            else
+                *p++ = '_';
+        }
+    }
+
+    *p = 0;  /* terminating null character */
+
+    return cident;
+}
+
+
+
 /* write_header_start()
  *
  *  Writes the start of the header file.
  */
 static void write_header_start(struct dat2c* dat2c)
 {
-    time_t tm = time(0);
-    struct tm* stm = localtime(&tm);
-    char dat2c_include_guard[22];
+    char *dat2c_include_guard = make_single_cident(dat2c->fname_h);
 
-    sprintf(dat2c_include_guard,
-        "DAT2C_%04d%02d%02d_%02d%02d%02d",
-        stm->tm_year + 1900, stm->tm_mon + 1, stm->tm_mday,
-        stm->tm_hour, stm->tm_min, stm->tm_sec);
-    
     /* comment at top of file */
     cwrite(dat2c, H, "/* $string$$n$"
                      " * $n$"
@@ -941,6 +971,8 @@ static void write_header_start(struct dat2c* dat2c)
         dat2c->fname_c,
         dat2c_include_guard,
         dat2c_include_guard);
+
+    free(dat2c_include_guard);
 }
 
 
