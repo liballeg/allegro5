@@ -4499,7 +4499,7 @@ bitmap.
 
 @\void @blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@          int dest_x, int dest_y, int width, int height);
-@xref masked_blit, stretch_blit, draw_sprite, gfx_capabilities
+@xref masked_blit, stretch_blit, draw_sprite, gfx_capabilities, set_color_conversion
    Copies a rectangular area of the source bitmap to the destination bitmap. 
    The source_x and source_y parameters are the top left corner of the area 
    to copy from the source bitmap, and dest_x and dest_y are the 
@@ -4532,9 +4532,12 @@ bitmap.
    may be worth storing some of your more frequently used graphics in an 
    offscreen portion of the video memory.
 
-   Unlike most of the graphics routines, blit() allows the source and 
-   destination bitmaps to be of different color depths, so it can be used to 
-   convert images from one pixel format to another.
+   Unlike most of the graphics routines, blit() allows the source and
+   destination bitmaps to be of different color depths, so it can be
+   used to convert images from one pixel format to another. In this
+   case, the behavior is affected by the COLORCONV_KEEP_TRANS and
+   COLORCONV_DITHER* flags of the current color conversion mode: see
+   set_color_conversion() for more information.
 
 @\void @stretch_blit(BITMAP *source, BITMAP *dest,
 @\                  int source_x, source_y, source_width, source_height,
