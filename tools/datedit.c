@@ -127,16 +127,16 @@ void datedit_init(void)
 static int export_binary(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    PACKFILE *f = pack_fopen(filename, F_WRITE);
-   int ret = 0;
+   int ret = TRUE;
 
    if (f) {
       if (pack_fwrite(dat->dat, dat->size, f) < dat->size)
-	 ret = -1;
+	 ret = FALSE;
 
       pack_fclose(f);
    }
    else
-      ret = -1;
+      ret = FALSE;
 
    return ret;
 }
