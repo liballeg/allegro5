@@ -13,7 +13,7 @@
  *
  *      By Isaac Cruz.
  *
- *      24-bit color support, non MMX routines by Eric Botcazou. 
+ *      24-bit color support and non MMX routines by Eric Botcazou. 
  *
  *      See readme.txt for copyright information.
  */

@@ -12,9 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
- *      Dirty rectangles mechanism, hardware mouse cursor emulation.
- *
- *      By Eric Botcazou. 
+ *      Dirty rectangles mechanism and hardware mouse cursor emulation
+ *      by Eric Botcazou. 
  *
  *      See readme.txt for copyright information.
  */
