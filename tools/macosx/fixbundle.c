@@ -139,7 +139,8 @@ static int scale_icon(ICON_DATA *icon)
    if (!shape)
       return -1;
    blit(icon->original, shape, 0, 0, 0, 0, icon->original->w, icon->original->h);
-   clear_to_color(icon->workspace, makeacol32(0, 0, 0, 255));
+   clear_to_color(icon->workspace, makeacol32(0, 0, 0, 0));
+   shape->vtable->mask_color = makeacol32(255, 0, 255, 255);
    masked_blit(shape, icon->workspace, 0, 0, x_ofs, y_ofs, shape->w, shape->h);
    destroy_bitmap(shape);
    
