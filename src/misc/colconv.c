@@ -17,7 +17,7 @@
  *
  *      Support for rectangles of any width, 8-bit destination color
  *      and cross-conversion between 15-bit and 16-bit colors,
- *      additional MMX routines by Robert J. Ohannessian.
+ *      additional MMX and color copy routines by Robert J. Ohannessian.
  *
  *      See readme.txt for copyright information.
  */
@@ -276,7 +276,11 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return &_colorconv_blit_15_to_8;
 
             case 15:
+#ifndef ALLEGRO_NO_COLORCOPY
+               return &_colorcopy_blit_15_to_15;
+#else
                return NULL;
+#endif
 
             case 16:
                return &_colorconv_blit_15_to_16;
@@ -302,7 +306,11 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return &_colorconv_blit_16_to_15;
 
             case 16:
+#ifndef ALLEGRO_NO_COLORCOPY
+               return &_colorcopy_blit_16_to_16;
+#else
                return NULL;
+#endif
 
             case 24:
                build_rgb_scale_5335_table(24);
@@ -330,7 +338,11 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return &_colorconv_blit_24_to_16;
 
             case 24:
+#ifndef ALLEGRO_NO_COLORCOPY
+               return &_colorcopy_blit_24_to_24;
+#else
                return NULL;
+#endif
 
             case 32:
                return &_colorconv_blit_24_to_32;
@@ -356,7 +368,11 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return &_colorconv_blit_32_to_24;
 
             case 32:
+#ifndef ALLEGRO_NO_COLORCOPY
+               return &_colorcopy_blit_32_to_32;
+#else
                return NULL;
+#endif
          }
          break;
 #endif

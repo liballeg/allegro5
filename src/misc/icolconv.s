@@ -17,7 +17,7 @@
  *
  *      Support for rectangles of any width, 8-bit destination color
  *      and cross-conversion between 15-bit and 16-bit colors,
- *      additional MMX routines by Robert J. Ohannessian.
+ *      additional MMX and color copy routines by Robert J. Ohannessian.
  *
  *      See readme.txt for copyright information.
  */
@@ -2948,4 +2948,241 @@ FUNC (_colorconv_blit_8_to_8)
    ret
 
 
+
+#ifndef ALLEGRO_NO_COLORCOPY
+
+
+/********************************************************************************************/
+/* color copy routines                                                                      */
+/*  MMX and non MMX versions                                                                */
+/********************************************************************************************/
+
+
+
+/* void _colorcopy (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect, int bpp)
+ */
+FUNC (_colorcopy)
+   
+   pushl %ebp
+   movl %esp, %ebp
+   pushl %ebx
+   pushl %esi
+   pushl %edi
+
+   /* init register values */
+
+   movl ARG3, %ebx
+   movl ARG1, %eax                  /* eax = src_rect                 */
+   movl GFXRECT_WIDTH(%eax), %eax
+   mull %ebx
+
+   movl %eax, %ecx                  /* ecx = src_rect->width * bpp    */
+   movl ARG1, %eax
+   movl GFXRECT_HEIGHT(%eax), %edx  /* edx = src_rect->height         */
+   movl GFXRECT_DATA(%eax), %esi    /* esi = src_rect->data           */
+   movl GFXRECT_PITCH(%eax), %eax   /* eax = src_rect->pitch          */
+   subl %ecx, %eax                  /* eax = (src_rect->pitch) - ecx  */
+
+   movl ARG2, %ebx                  /* ebx = dest_rect                */
+   movl GFXRECT_DATA(%ebx), %edi    /* edi = dest_rect->data          */
+   movl GFXRECT_PITCH(%ebx), %ebx   /* ebx = dest_rect->pitch         */
+   subl %ecx, %ebx                  /* ebx = (dest_rect->pitch) - ecx */
+
+   pushl %ecx
+
+#ifdef ALLEGRO_MMX
+   movl GLOBL(cpu_mmx), %ecx        /* if MMX is enabled (or not disabled :) */
+   orl %ecx, %ecx
+   jz next_line_no_mmx
+
+   popl %ecx
+   movd %ecx, %mm7                  /* save for later */
+   shrl $5, %ecx                    /* we work with 32 pixels at a time */
+   movd %ecx, %mm6
+
+   _align_
+   next_line:
+      movd %mm6, %ecx
+      orl %ecx, %ecx
+      jz do_one_byte
+
+      _align_
+      next_block:
+         movq (%esi), %mm0           /* read */
+         movq 8(%esi), %mm1
+         addl $32, %esi
+         movq -16(%esi), %mm2
+         movq -8(%esi), %mm3
+         movq %mm0, (%edi)           /* write */
+         movq %mm1, 8(%edi)
+         addl $32, %edi
+         movq %mm2, -16(%edi)
+         movq %mm3, -8(%edi)
+         decl %ecx
+         jnz next_block
+
+      do_one_byte:
+         movd %mm7, %ecx
+         andl $31, %ecx
+         jz end_of_line
+
+         shrl $1, %ecx
+         jnc do_two_bytes
+
+         movsb      
+
+      do_two_bytes:
+         shrl $1, %ecx
+         jnc do_four_bytes
+
+         movsb
+         movsb
+
+      _align_
+      do_four_bytes:
+         shrl $1, %ecx
+         jnc do_eight_bytes
+
+         movsl
+
+      _align_
+      do_eight_bytes:
+         shrl $1, %ecx
+         jnc do_sixteen_bytes
+
+         movq (%esi), %mm0
+         addl $8, %esi
+         movq %mm0, (%edi)
+         addl $8, %edi
+
+      _align_
+      do_sixteen_bytes:
+         shrl $1, %ecx
+         jnc end_of_line
+
+         movq (%esi), %mm0
+         movq 8(%esi), %mm1
+         addl $16, %esi
+         movq %mm0, (%edi)
+         movq %mm1, 8(%edi)
+         addl $16, %edi
+
+   _align_
+   end_of_line:
+      addl %eax, %esi
+      addl %ebx, %edi
+      decl %edx
+      jnz next_line
+
+   emms
+   jmp end_of_function
+#endif
+
+   _align_
+   next_line_no_mmx:
+      popl %ecx
+      pushl %ecx
+      shrl $2, %ecx
+      orl %ecx, %ecx
+      jz do_one_byte_no_mmx
+
+      rep; movsl
+
+      do_one_byte_no_mmx:
+         popl %ecx
+         pushl %ecx
+         andl $3, %ecx
+         jz end_of_line_no_mmx
+
+         shrl $1, %ecx
+         jnc do_two_bytes_no_mmx
+
+         movsb
+
+      do_two_bytes_no_mmx:
+         shrl $1, %ecx
+         jnc end_of_line_no_mmx
+
+         movsb
+         movsb
+
+   _align_
+   end_of_line_no_mmx:
+      addl %eax, %esi
+      addl %ebx, %edi
+      decl %edx
+      jnz next_line_no_mmx
+
+      popl %ecx
+
+end_of_function:
+   popl %edi
+   popl %esi
+   popl %ebx
+   popl %ebp
+
+   ret
+
+
+
+/* void _colorcopy_blit_32_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorcopy_blit_32_to_32)
+
+   pushl %ebp
+   movl %esp, %ebp
+
+   pushl $4
+   pushl ARG2
+   pushl ARG1
+
+   call GLOBL(_colorcopy)
+   addl $12, %esp
+
+   popl %ebp
+   ret
+
+
+
+/* void _colorcopy_blit_24_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorcopy_blit_24_to_24)
+
+   pushl %ebp
+   movl %esp, %ebp
+
+   pushl $3
+   pushl ARG2
+   pushl ARG1
+
+   call GLOBL(_colorcopy)
+   addl $12, %esp
+
+   popl %ebp
+   ret
+
+
+
+/* void _colorcopy_blit_16_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+/* void _colorcopy_blit_15_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorcopy_blit_16_to_16)
+FUNC (_colorcopy_blit_15_to_15)
+
+   pushl %ebp
+   movl %esp, %ebp
+
+   pushl $2
+   pushl ARG2
+   pushl ARG1
+
+   call GLOBL(_colorcopy)
+   addl $12, %esp
+
+   popl %ebp
+   ret
+
+
+#endif
 

@@ -624,6 +624,25 @@ AL_FUNC(void, _colorconv_blit_32_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT 
 #endif
 
 
+/* color copy routines */
+#ifndef ALLEGRO_NO_COLORCOPY
+
+#ifdef ALLEGRO_COLOR16
+AL_FUNC(void, _colorcopy_blit_15_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorcopy_blit_16_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+#endif
+
+#ifdef ALLEGRO_COLOR24
+AL_FUNC(void, _colorcopy_blit_24_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+#endif
+
+#ifdef ALLEGRO_COLOR32
+AL_FUNC(void, _colorcopy_blit_32_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+#endif
+
+#endif
+
+
 /* asm helper for stretch_blit() */
 #ifndef SCAN_EXPORT
 AL_FUNC(void, _do_stretch, (BITMAP *source, BITMAP *dest, void *drawer, int sx, fixed sy, fixed syd, int dx, int dy, int dh, int color_depth));
