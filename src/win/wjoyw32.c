@@ -21,7 +21,7 @@
 #include "allegro/aintwin.h"
 
 #ifndef SCAN_DEPEND
-   #ifdef __MINGW32__
+   #ifdef ALLEGRO_MINGW32
       #undef MAKEFOURCC
    #endif
 
