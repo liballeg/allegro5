@@ -1802,7 +1802,7 @@ long pack_fread(void *p, long n, PACKFILE *f)
  */
 long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 {
-   unsigned char *cp = (unsigned char *)p;
+   AL_CONST unsigned char *cp = (AL_CONST unsigned char *)p;
    long c;
 
    for (c=0; c<n; c++) {
