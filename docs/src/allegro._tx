@@ -1492,7 +1492,14 @@ binary configuration data provided by your program (which could for example
 be loaded from a datafile).
 
 You can store whatever custom information you like in the config file, along 
-with the standard variables that are used by Allegro (see below).
+with the standard variables that are used by Allegro (see below). Allegro
+comes with a setup directory where you can find configuration programs. The
+standalone setup program is likely to be of interest to final users. It
+allows any user to create an `allegro.cfg' file without the need to touch a
+text editor and enter values by hand. It also provides a few basic tests like
+sound playing for soundcard testing. You are welcome to include the setup
+program with your game, either as is or with modified graphics to fit better
+your game.
 
 @@void @set_config_file(const char *filename);
 @xref set_config_data, override_config_file, push_config_state, set_uformat
@@ -2504,6 +2511,17 @@ keyboard. Up to two or three keys at a time will work fine, but if you press
 more than that the extras are likely to be ignored (exactly which 
 combinations are possible seems to vary from one keyboard to another).
 
+On some platforms (like DOS and Windows), Allegro requires the user to
+specify the language of the keyboard mapping because it is impossible to
+obtain this information from the OS, otherwise the default US keyboard
+mapping will be used. Allegro comes with a prepackaged `keyboard.dat' file
+which you can put along with your binary. If this file is present, Allegro
+will be able to extract the keyboard mapping information stored there.
+However, the end user still needs to select which keyboard mapping to use.
+This can be acomplished through the keyboard variable of the system section
+in a standard `allegro.cfg' configuration file. Read chapter "Configuration
+routines" for more information about this.
+
 @@int @install_keyboard();
 @xref remove_keyboard, poll_keyboard, key, keypressed, readkey, ureadkey
 @xref keyboard_callback, keyboard_ucallback, keyboard_lowlevel_callback
@@ -2678,26 +2696,31 @@ combinations are possible seems to vary from one keyboard to another).
 @xref install_keyboard, ureadkey, keypressed, clear_keybuf, simulate_keypress
 @eref Available Allegro examples
    Returns the next character from the keyboard buffer, in ASCII format. If 
-   the buffer is empty, it waits until a key is pressed. The low byte of the 
-   return value contains the ASCII code of the key, and the high byte the 
-   scancode. The scancode remains the same whatever the state of the shift, 
-   ctrl and alt keys, while the ASCII code is affected by shift and ctrl in 
-   the normal way (shift changes case, ctrl+letter gives the position of 
-   that letter in the alphabet, eg. ctrl+A = 1, ctrl+B = 2, etc). Pressing 
-   alt+key returns only the scancode, with a zero ASCII code in the low 
-   byte. For example:
+   the buffer is empty, it waits until a key is pressed. You can see if there
+   are queued keypresses with keypressed().
+
+   The low byte of the return value contains the ASCII code of the key, and
+   the high byte the scancode. The scancode remains the same whatever the
+   state of the shift, ctrl and alt keys, while the ASCII code is affected by
+   shift and ctrl in the normal way (shift changes case, ctrl+letter gives
+   the position of that letter in the alphabet, eg. ctrl+A = 1, ctrl+B = 2,
+   etc). Pressing alt+key returns only the scancode, with a zero ASCII code
+   in the low byte. For example:
 <codeblock>
-      if ((readkey() & 0xff) == 'd')         // by ASCII code
-	 printf("You pressed 'd'\n");
+      int val;
+      ...
+      val = readkey();
+      if ((val & 0xff) == 'd')     /* by ASCII code */
+	 allegro_message("You pressed 'd'\n");
 
-      if ((readkey() &gt&gt 8) == KEY_SPACE)     // by scancode
-	 printf("You pressed Space\n");
+      if ((val &gt&gt 8) == KEY_SPACE) /* by scancode */
+	 allegro_message("You pressed Space\n");
 
-      if ((readkey() & 0xff) == 3)           // ctrl+letter
-	 printf("You pressed Control+C\n");
+      if ((val & 0xff) == 3)       /* ctrl+letter */
+	 allegro_message("You pressed Control+C\n");
 
-      if (readkey() == (KEY_X &lt&lt 8))         // alt+letter
-	 printf("You pressed Alt+X\n");
+      if (val == (KEY_X &lt&lt 8))     /* alt+letter */
+	 allegro_message("You pressed Alt+X\n");
 <endblock>
    This function cannot return character values greater than 255. If you 
    need to read Unicode input, use ureadkey() instead.
@@ -2706,25 +2729,57 @@ combinations are possible seems to vary from one keyboard to another).
 @xref install_keyboard, readkey, keypressed, clear_keybuf, simulate_ukeypress
 @eref exkeys
    Returns the next character from the keyboard buffer, in Unicode format. 
-   If the buffer is empty, it waits until a key is pressed. The return value 
-   contains the Unicode value of the key, and if not NULL, the pointer 
-   argument will be set to the scancode. Unlike readkey(), this function is 
-   able to return character values greater than 255.
+   If the buffer is empty, it waits until a key is pressed. You can see if
+   there are queued keypresses with keypressed(). The return value contains
+   the Unicode value of the key, and if not NULL, the pointer argument will
+   be set to the scancode. Unlike readkey(), this function is able to return
+   character values greater than 255. Example:
+<codeblock>
+      int val, scancode;
+      ...
+      val = ureadkey(&scancode);
+      if (val == 0x00F1)
+	 allegro_message("You pressed n with tilde\n");
+
+      if (val == 0x00DF)
+	 allegro_message("You pressed sharp s\n");
+<endblock>
+   You should be able to find Unicode character maps at
+   <link>http://www.unicode.org/</a>. Remember that on some platforms you must specify
+   a custom keyboard map (like those found in `keyboard.dat') usually with
+   the help of a configuration file specifying the language mapping
+   (keyboard variable in system section of `allegro.cfg'), or you will get
+   the default US keyboard mapping.
 
 @@int @scancode_to_ascii(int scancode);
-   Converts the given scancode to an ASCII character for that key, returning 
-   the unshifted uncapslocked result of pressing the key, or zero if the key 
-   isn't a character-generating key or the lookup can't be done.
+   Converts the given scancode to an ASCII character for that key (mangling
+   Unicode values), returning the unshifted uncapslocked result of pressing
+   the key, or zero if the key isn't a character-generating key or the lookup
+   can't be done. Example:
+<codeblock>
+      int ascii;
+      ...
+      ascii = scancode_to_ascii(scancode);
+      allegro_message("You pressed '%c'\n", ascii);<endblock>
 
 @@void @simulate_keypress(int key);
 @xref install_keyboard, simulate_ukeypress, keypressed, readkey
    Stuffs a key into the keyboard buffer, just as if the user had pressed 
-   it. The parameter is in the same format returned by readkey().
+   it. The parameter is in the same format returned by readkey(). Example:
+<codeblock>
+      simulate_keypress(KEY_SPACE &lt&lt 8);
+      if (readkey() == (KEY_SPACE &lt&lt 8))
+	 allegro_message("You simulated Alt+Space\n");<endblock>
 
 @@void @simulate_ukeypress(int key, int scancode);
 @xref install_keyboard, simulate_keypress, keypressed, ureadkey
    Stuffs a key into the keyboard buffer, just as if the user had pressed 
-   it. The parameter is in the same format returned by ureadkey().
+   it. The parameter is in the same format returned by ureadkey(). Example:
+<codeblock>
+      /* We ignore the scancode simulation. */
+      simulate_ukeypress(0x00DF, 0);
+      if (ureadkey(&scancode) == 0x00DF)
+	 allegro_message("You simulated sharp s\n");<endblock>
 
 @@extern int (*@keyboard_callback)(int key);
 @xref install_keyboard, readkey, ureadkey, keyboard_ucallback
