@@ -278,7 +278,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
    /* initialize the library */
    if (allegro_init() != 0)
-      return 1;
+      return 0;
 
    /* install the digital sound module */
    install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL);
