@@ -6156,7 +6156,8 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@time_t @file_time(const char *filename);
 @xref file_exists, file_size
    Returns the modification time (number of seconds since 00:00:00 GMT 
-   1/1/1970) of a file.
+   1/1/1970) of a file. If the file does not exist or an error occurs, it 
+   will return zero and store the system error code in errno.
 
 @@int @delete_file(const char *filename);
    Removes a file from the disk.
