@@ -220,7 +220,7 @@ _DRIVER_INFO *_get_win_digi_driver_list(void)
       /* enumerate the DirectSound drivers */
       hr = DirectSoundEnumerate(DSEnumCallback, NULL);
 
-      if (hr == DD_OK) {
+      if (hr == DS_OK) {
          /* pure DirectSound drivers */
          for (i=0; i<num_drivers; i++) {
             driver = malloc(sizeof(DIGI_DRIVER));
