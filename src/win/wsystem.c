@@ -387,6 +387,8 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
       }
    }
 
+   argv[argc] = NULL;
+
    /* call the application entry point */
    return mainfunc(argc, argv);
 }
