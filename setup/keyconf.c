@@ -28,42 +28,6 @@
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS) || (defined ALLEGRO_WITH_XWINDOWS) || (defined ALLEGRO_QNX) || (defined ALLEGRO_BEOS)
 
 
-char *scancode_name[] = 
-{
-   "(none)",         "KEY_A",          "KEY_B",          "KEY_C",
-   "KEY_D",          "KEY_E",          "KEY_F",          "KEY_G",
-   "KEY_H",          "KEY_I",          "KEY_J",          "KEY_K",
-   "KEY_L",          "KEY_M",          "KEY_N",          "KEY_O",
-   "KEY_P",          "KEY_Q",          "KEY_R",          "KEY_S",
-   "KEY_T",          "KEY_U",          "KEY_V",          "KEY_W",
-   "KEY_X",          "KEY_Y",          "KEY_Z",          "KEY_0",
-   "KEY_1",          "KEY_2",          "KEY_3",          "KEY_4",
-   "KEY_5",          "KEY_6",          "KEY_7",          "KEY_8",
-   "KEY_9",          "KEY_0_PAD",      "KEY_1_PAD",      "KEY_2_PAD",
-   "KEY_3_PAD",      "KEY_4_PAD",      "KEY_5_PAD",      "KEY_6_PAD",
-   "KEY_7_PAD",      "KEY_8_PAD",      "KEY_9_PAD",      "KEY_F1",
-   "KEY_F2",         "KEY_F3",         "KEY_F4",         "KEY_F5",
-   "KEY_F6",         "KEY_F7",         "KEY_F8",         "KEY_F9",
-   "KEY_F10",        "KEY_F11",        "KEY_F12",        "KEY_ESC",
-   "KEY_TILDE",      "KEY_MINUS",      "KEY_EQUALS",     "KEY_BACKSPACE",
-   "KEY_TAB",        "KEY_OPENBRACE",  "KEY_CLOSEBRACE", "KEY_ENTER",
-   "KEY_COLON",      "KEY_QUOTE",      "KEY_BACKSLASH",  "KEY_BACKSLASH2",
-   "KEY_COMMA",      "KEY_STOP",       "KEY_SLASH",      "KEY_SPACE",
-   "KEY_INSERT",     "KEY_DEL",        "KEY_HOME",       "KEY_END",
-   "KEY_PGUP",       "KEY_PGDN",       "KEY_LEFT",       "KEY_RIGHT",
-   "KEY_UP",         "KEY_DOWN",       "KEY_SLASH_PAD",  "KEY_ASTERISK",
-   "KEY_MINUS_PAD",  "KEY_PLUS_PAD",   "KEY_DEL_PAD",    "KEY_ENTER_PAD",
-   "KEY_PRTSCR",     "KEY_PAUSE",      "KEY_ABNT_C1",    "KEY_YEN",
-   "KEY_KANA",       "KEY_CONVERT",    "KEY_NOCONVERT",  "KEY_AT",
-   "KEY_CIRCUMFLEX", "KEY_COLON2",     "KEY_KANJI",
-   "KEY_EQUALS_PAD", "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_COMMAND",
-   "KEY_LSHIFT",     "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",
-   "KEY_ALT",        "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",
-   "KEY_MENU",       "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",
-   "KEY_MAX"
-};
-
-
 char *ascii_name[32] = 
 {
    "", "^a", "^b", "^c", "^d", "^e", "^f", "^g",
@@ -536,9 +500,9 @@ char *keymap_list_getter(int index, int *list_size)
    val = editor_table[index];
 
    if (val >= ' ')
-      usprintf(buf, "%-16s ->  U+%04X - '%c'", scancode_name[index], val, val);
+      usprintf(buf, "%-16s ->  U+%04X - '%c'", scancode_to_name(index), val, val);
    else
-      usprintf(buf, "%-16s ->  U+%04X - %s", scancode_name[index], val, ascii_name[val]);
+      usprintf(buf, "%-16s ->  U+%04X - %s", scancode_to_name(index), val, ascii_name[val]);
 
    return buf;
 }
@@ -595,7 +559,7 @@ int editor()
 
 
 /* dialog callback for retrieving information about the accent key */
-char *accent_list_getter(int index, int *list_size)
+AL_CONST char *accent_list_getter(int index, int *list_size)
 {
    if (index < 0) {
       if (list_size)
@@ -603,7 +567,7 @@ char *accent_list_getter(int index, int *list_size)
       return NULL;
    }
 
-   return scancode_name[index];
+   return scancode_to_name(index);
 }
 
 
@@ -743,8 +707,8 @@ int tester()
    acquire_screen();
    clear_to_color(screen, palette_color[8]);
 
-   for (i=0; i<=KEY_MAX; i++)
-      textout_ex(screen, font, scancode_name[i], 32+(i%4)*160, 60+(i/4)*14, palette_color[255], palette_color[8]);
+   for (i=0; i<KEY_MAX; i++)
+      textout_ex(screen, font, scancode_to_name(i), 32+(i%4)*160, 60+(i/4)*10, palette_color[255], palette_color[8]);
 
    release_screen();
 
@@ -760,7 +724,7 @@ int tester()
       acquire_screen();
 
       for (i=0; i<KEY_MAX; i++)
-	 textout_ex(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 60+(i/4)*14, palette_color[255], palette_color[8]);
+	 textout_ex(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 60+(i/4)*10, palette_color[255], palette_color[8]);
 
       buf[0] = 0;
 
