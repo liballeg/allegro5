@@ -27,14 +27,14 @@ _DRIVER_INFO _timer_driver_list[] ={
       {0, NULL, 0}
 };
 _DRIVER_INFO _mouse_driver_list[] ={
-//      {MOUSE_ADB, &mouse_adb, TRUE},
       {MOUSE_MACOS, &mouse_macos, TRUE},
+      {MOUSE_ADB, &mouse_adb, TRUE},
       {MOUSEDRV_NONE, &mousedrv_none, TRUE},
       {0, NULL, 0}
 };
 _DRIVER_INFO _keyboard_driver_list[] ={
-//      {KEYBOARD_ADB, &keyboard_adb, TRUE},
       {KEYBOARD_MACOS, &keyboard_macos, TRUE},
+      {KEYBOARD_ADB, &keyboard_adb, TRUE},
       {0, NULL, 0}
 };
 _DRIVER_INFO _gfx_driver_list[] ={
@@ -47,6 +47,7 @@ _DRIVER_INFO _digi_driver_list[]={
 };
 _DRIVER_INFO _midi_driver_list[]={
    {MIDI_DIGMID,&midi_digmid,TRUE},
+   {MIDI_QUICKTIME,&midi_quicktime,TRUE},
    {0,NULL,0}
 };
 _DRIVER_INFO _joystick_driver_list[]={

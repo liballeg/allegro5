@@ -46,9 +46,9 @@
 
 #define END_OF_FUNCTION(x)			void x##_end(void) { }
 #define END_OF_STATIC_FUNCTION(x)	static void x##_end(void) { }
-#define LOCK_DATA(d, s)				LockMemory(d, s)
-#define LOCK_CODE(c, s)				LockMemory(c, s)
-#define UNLOCK_DATA(d,s)			UnlockMemory(d, s)
+#define LOCK_DATA(d, s)				_mac_lock(d, s)
+#define LOCK_CODE(c, s)				_mac_lock(c, s)
+#define UNLOCK_DATA(d,s)			_mac_unlock(d, s)
 #define LOCK_VARIABLE(x)			LOCK_DATA((void *)&x, sizeof(x))
 #define LOCK_FUNCTION(x)			LOCK_CODE(x, (long)x##_end - (long)x)
 
@@ -57,8 +57,18 @@
 
 #define ALLEGRO_NO_STRICMP 1
 
+#define ALLEGRO_NO_STRUPR 1
+
 //#define ALLEGRO_NO_STRDUP 1
 char *strdup(const char *);
+
+#ifndef AL_INLINE
+   #define AL_INLINE(type, name, args, code)    static type name args code
+#endif
+
+
+// gm_time has an strange return
+#define gmtime localtime
 
 
 #define ALLEGRO_EXTRA_HEADER     "allegro/almac.h"

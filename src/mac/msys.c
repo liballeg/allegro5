@@ -24,11 +24,15 @@
 
 
 /*Our TimerManager task entry queue*/
-TMTask   tm_entry;
+static TMTask   tm_entry;
+
 /*Our TM task is running*/
 short tm_running = 0;
+long  tm_delay = 0;
 short mac_timer_installed = FALSE;
 short mac_mouse_installed = FALSE;
+static int mouse_delay = 0;
+static int key_delay = 0;
 extern volatile short _mouse2nd;
 short _interrupt_time = FALSE;
 
@@ -333,7 +337,7 @@ static int mac_desktop_color_depth(void)
  */
 static void mac_yield_timeslice(void)
 {
-   SystemTask();
+/*   SystemTask();*/
 }
 
 
@@ -409,21 +413,36 @@ static void mouse_mac_exit(void)
  */
 static pascal void tm_interrupt(TMTaskPtr tmTaskPtr)
 {
-   _interrupt_time = TRUE;
-   if (mac_timer_installed)
-      _handle_timer_tick(MSEC_TO_TIMER(50));
-   if (mac_mouse_installed) {
-      Point pt;
-      pt = (*((volatile Point *)0x082C));
-      _mouse_b = (*((volatile UInt8 *)0x0172)) & 0x80 ? 0: _mouse2nd ? 2 : 1;
-      _mouse_x = pt.h;
-      _mouse_y = pt.v;
-      _handle_mouse_input();
+   int m_b, t;
+   t = tm_delay;
+   if (mac_timer_installed){
+      t = _handle_timer_tick(t*TIMERS_PER_SECOND/1000)*1000/TIMERS_PER_SECOND;
+      if (t < 5) t = 5;
    }
-   if (_mac_keyboard_installed)
-      _key_mac_interrupt();
-   PrimeTime((QElemPtr)tmTaskPtr, 50);
-   _interrupt_time = FALSE;
+   if (mac_mouse_installed) {
+      mouse_delay += t;
+      if(mouse_delay > 50){
+	 Point pt;
+         mouse_delay=0;
+         pt = (*((volatile Point *)0x082C));
+         m_b = (*((volatile UInt8 *)0x0172)) & 0x80 ? 0: _mouse2nd ? 2 : 1;
+	 if(_mouse_b != m_b || _mouse_x != pt.h || _mouse_y != pt.v ){
+	    _mouse_b = m_b;
+            _mouse_x = pt.h;
+            _mouse_y = pt.v;
+            _handle_mouse_input();
+	 };
+      };
+   }
+   if (_mac_keyboard_installed){
+      key_delay += t;
+      if(key_delay > 50){
+         key_delay = 0;
+         _key_mac_interrupt();
+      }
+   }
+   PrimeTime((QElemPtr)tmTaskPtr, t);
+   tm_delay = t;
 }
 
 
@@ -434,11 +453,16 @@ static pascal void tm_interrupt(TMTaskPtr tmTaskPtr)
 int _tm_sys_init()
 {
    if (!tm_running) {
+      LOCK_VARIABLE(tm_entry);
+      LOCK_VARIABLE(tm_delay);
+      LOCK_VARIABLE(mouse_delay);
+      LOCK_VARIABLE(key_delay);
       tm_entry.tmAddr = NewTimerProc(tm_interrupt);
       tm_entry.tmWakeUp = 0;
       tm_entry.tmReserved = 0;
-      InsTime((QElemPtr)&tm_entry);
-      PrimeTime((QElemPtr)&tm_entry, 40);
+      InsXTime((QElemPtr)&tm_entry);
+      tm_delay = 40;
+      PrimeTime((QElemPtr)&tm_entry, tm_delay);
       tm_running = TRUE;
    }
    return 0;
@@ -451,9 +475,11 @@ int _tm_sys_init()
  */
 void _tm_sys_exit()
 {
-   if (tm_running)
+   
+   if (tm_running){
       RmvTime((QElemPtr)&tm_entry);
-   tm_running = FALSE;
+      tm_running = FALSE;
+   }
 }
 /*The our QuickDraw globals */
 QDGlobals qd;
@@ -549,6 +575,7 @@ void MacEntry(){
    char *argv[64];
    int argc;
    int i, q;
+/*   ControlHandle ch;*/
    SysEnvRec envRec;long   heapSize;
    OSErr e;
 
@@ -577,6 +604,16 @@ void MacEntry(){
    if(!(RTrapAvailable(_WaitNextEvent, ToolTrap)))ExitToShell();
 
    GetDateTime((unsigned long*) &qd.randSeed);
+
+/*   memcpy(macsecuremsg, "teste", 254);*/
+/**/
+/*   paramtext(macsecuremsg, "\0", "\0", "\0");*/
+/**/
+/*   Alert(rmac_command, nil);*/
+/*   */
+/*   e=GetDialogItemAsControl(ch);*/
+/*   */
+/*   printf("%d",e);*/
 
    if(_dspr_sys_init()){
       _mac_message("no could start drawsprocket");

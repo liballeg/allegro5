@@ -23,7 +23,7 @@
    #error must include allegro.h first
 #endif
 
-#ifndef ALLEGRO_MACOS
+#ifndef ALLEGRO_MPW
    #error bad include
 #endif
 
