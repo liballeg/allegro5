@@ -145,7 +145,8 @@ static LPDIRECTSOUNDBUFFER prim_buf = NULL;
 /* misc */
 static long int initial_volume;
 static int _freq, _bits, _stereo;
-static int linear_to_millibel[256];
+static int alleg_to_dsound_volume[256];
+static int alleg_to_dsound_pan[256];
 
 
 /* internal driver representation of a voice */
@@ -435,9 +436,18 @@ static int digi_directsound_init(int input, int voices)
    }
 
    /* setup volume lookup table */
-   linear_to_millibel[0] = DSBVOLUME_MIN;
+   alleg_to_dsound_volume[0] = DSBVOLUME_MIN;
    for (v = 1; v < 256; v++)
-      linear_to_millibel[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
+      alleg_to_dsound_volume[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
+
+   /* setup pan lookup table */
+   alleg_to_dsound_pan[0] = DSBPAN_LEFT;
+   for (v = 1; v < 128; v++)
+      alleg_to_dsound_pan[v] = MAX(DSBPAN_LEFT, DSBPAN_CENTER + 2000.0*log10(v/127.0));
+
+   alleg_to_dsound_pan[255] = DSBPAN_RIGHT;
+   for (v = 128; v < 255; v++)
+      alleg_to_dsound_pan[v] = MIN(DSBPAN_RIGHT, DSBPAN_CENTER - 2000.0*log10((255.0-v)/127.0));
 
    /* get primary buffer (global) volume */
    IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume); 
@@ -497,7 +507,7 @@ static int digi_directsound_mixer_volume(int volume)
    int ds_vol;
 
    if (prim_buf) {
-      ds_vol = linear_to_millibel[MID(0, volume, 255)];
+      ds_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(prim_buf, ds_vol); 
    }
 
@@ -914,7 +924,7 @@ static void digi_directsound_set_volume(int voice, int volume)
    ds_voices[voice].vol = volume;
 
    if (ds_voices[voice].ds_buffer) {
-      ds_vol = linear_to_millibel[MID(0, volume, 255)];
+      ds_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(ds_voices[voice].ds_buffer, ds_vol);
 
       if (ds_voices[voice].ds_loop_buffer)
@@ -962,11 +972,12 @@ static int digi_directsound_get_pan(int voice)
  */
 static void digi_directsound_set_pan(int voice, int pan)
 {
+   int ds_pan;
+
    ds_voices[voice].pan = pan;
 
    if (ds_voices[voice].ds_buffer) {
-      int ds_pan = DSBPAN_LEFT + pan * (DSBPAN_RIGHT - DSBPAN_LEFT) / 255;
-
+      ds_pan = alleg_to_dsound_pan[MID(0, pan, 255)];
       IDirectSoundBuffer_SetPan(ds_voices[voice].ds_buffer, ds_pan);
 
       if (ds_voices[voice].ds_loop_buffer)

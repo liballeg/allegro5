@@ -58,7 +58,7 @@ static LPDIRECTSOUND directsound = NULL;
 static LPDIRECTSOUNDBUFFER prim_buf = NULL;
 static long int initial_volume;
 static int _freq, _bits, _stereo;
-static int linear_to_millibel[256];
+static int alleg_to_dsound_volume[256];
 static int digidsbufsize, digidsbufpos;
 static unsigned char *digidsbufdata;
 static int bufdivs = 16;
@@ -404,9 +404,9 @@ static int digi_directsound_init(int input, int voices)
    }
 
    /* setup volume lookup table */
-   linear_to_millibel[0] = DSBVOLUME_MIN;
+   alleg_to_dsound_volume[0] = DSBVOLUME_MIN;
    for (v = 1; v < 256; v++)
-      linear_to_millibel[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
+      alleg_to_dsound_volume[v] = MAX(DSBVOLUME_MIN, DSBVOLUME_MAX + 2000.0*log10(v/255.0));
 
    /* fill the primary buffer with zeros */
    hr = IDirectSoundBuffer_Lock(prim_buf, 0, 0,
@@ -507,7 +507,7 @@ static void digi_directsound_exit(int input)
 static int digi_directsound_mixer_volume(int volume)
 {
    if (prim_buf) {
-      prim_buf_vol = linear_to_millibel[MID(0, volume, 255)];
+      prim_buf_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
       IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol); 
    }
 
