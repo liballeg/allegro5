@@ -154,6 +154,8 @@ static int try_open_joy_device(int num)
          tmp[sizeof(tmp)-1] = 0;
 
          fd = open(tmp, O_RDONLY|O_NONBLOCK);
+         if (fd == -1)
+	    return -1;
       }
    }
 
