@@ -120,11 +120,11 @@ proc_dtou()
    for file in $AL_FILELIST; do
       echo "$file"
       mv $file _tmpfile;
-      tr -d \\\r < _tmpfile > $file
+      tr -d '\015' < _tmpfile > $file
       touch -r _tmpfile $file
       rm _tmpfile
    done
-   chmod -f +x configure *.sh misc/*.sh misc/*.pl
+   chmod +x configure *.sh misc/*.sh misc/*.pl
 }
 
 # take action!
