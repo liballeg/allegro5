@@ -53,7 +53,7 @@ static GFX_DRIVER gfx_xwin =
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static BITMAP *_xdga_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
-static BITMAP *_xdfs_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
+static BITMAP *_xdga_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
 static void _xdga_gfxdrv_exit(BITMAP *bmp);
 
 
@@ -82,13 +82,13 @@ static GFX_DRIVER gfx_xdga =
 };
 
 
-static GFX_DRIVER gfx_xdfs =
+static GFX_DRIVER gfx_xdga_fullscreen =
 {
-   GFX_XDFS,
+   GFX_XDGA_FULLSCREEN,
    empty_string,
    empty_string,
    "Fullscreen DGA 1.0",
-   _xdfs_gfxdrv_init,
+   _xdga_fullscreen_gfxdrv_init,
    _xdga_gfxdrv_exit,
    _xdga_scroll_screen,
    _xwin_vsync,
@@ -177,15 +177,15 @@ static GFX_DRIVER gfx_xdga2_soft =
 _DRIVER_INFO _xwin_gfx_driver_list[] =
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
-   {  GFX_XDGA2,      &gfx_xdga2,      TRUE  },
-   {  GFX_XDGA2_SOFT, &gfx_xdga2_soft, TRUE  },
+   {  GFX_XDGA2,           &gfx_xdga2,           TRUE  },
+   {  GFX_XDGA2_SOFT,      &gfx_xdga2_soft,      TRUE  },
 #endif
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   {  GFX_XDFS,       &gfx_xdfs,       TRUE  },
-   {  GFX_XDGA,       &gfx_xdga,       TRUE  },
+   {  GFX_XDGA_FULLSCREEN, &gfx_xdga_fullscreen, TRUE  },
+   {  GFX_XDGA,            &gfx_xdga,            TRUE  },
 #endif
-   {  GFX_XWINDOWS,   &gfx_xwin,       TRUE  },
-   {  0,              NULL,            0     }
+   {  GFX_XWINDOWS,        &gfx_xwin,            TRUE  },
+   {  0,                   NULL,                 0     }
 };
 
 
@@ -219,10 +219,10 @@ static BITMAP *_xdga_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
    return _xdga_create_screen(&gfx_xdga, w, h, vw, vh, color_depth, FALSE);
 }
 
-static BITMAP *_xdfs_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
+static BITMAP *_xdga_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
 {
    /* attempt to use full screen */
-   return _xdga_create_screen(&gfx_xdfs, w, h, vw, vh, color_depth, TRUE);
+   return _xdga_create_screen(&gfx_xdga_fullscreen, w, h, vw, vh, color_depth, TRUE);
 }
 
 /* _xdga_gfxdrv_exit:

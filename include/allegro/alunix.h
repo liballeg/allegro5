@@ -127,7 +127,7 @@ AL_VAR(SYSTEM_DRIVER, system_xwin);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 #define GFX_XDGA                 AL_ID('X','D','G','A')
-#define GFX_XDFS		 AL_ID('X','D','F','S')
+#define GFX_XDGA_FULLSCREEN	 AL_ID('X','D','F','S')
 #endif
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2

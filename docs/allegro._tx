@@ -3697,7 +3697,7 @@ Polygon rendering
    or
       polygon3d_f(bmp, type, tex, 4, v[]);
 
-@@int @clip3d_f(int type, float min_z, float max_z, int vc,
+@\int @clip3d_f(int type, float min_z, float max_z, int vc,
 @@             V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
    Clips the polygon given in vtx. The number of vertices is vc, the result 
@@ -3713,7 +3713,7 @@ Polygon rendering
    and c in the vertex structure. However, no provision is made for 
    high/truecolor GCOL.
 
-@@int @clip3d(int type, fixed min_z, fixed max_z, int vc,
+@\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
 @@           V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
 @xref polygon3d, clip3d_f
    Fixed point version of clip3d_f(). This function should be used with 
@@ -7186,7 +7186,7 @@ function to remind you :-)
       not produce such well behaved windowed programs, and will not work
       remotely. This driver requires root permissions.
 <li>
-   GFX_XDFS<br>
+   GFX_XDGA_FULLSCREEN<br>
       Like GFX_XDGA, but also changes the screen resolution so that it will 
       run fullscreen. This driver requires root permissions.
 <li>
