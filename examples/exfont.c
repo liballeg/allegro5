@@ -40,6 +40,7 @@ int main(void)
     */
    f1 = load_font("unifont.dat", NULL, NULL);
    if (!f1) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Cannot find unifont.dat in current directory.\n");
       return 1;
    }
