@@ -80,10 +80,14 @@ AL_VAR(MIDI_DRIVER, midi_oss);
 
 #define DIGI_ESD              AL_ID('E','S','D','D')
 
+#ifndef ALLEGRO_WITH_MODULES
+
 AL_VAR(DIGI_DRIVER, digi_esd);
 
 #define DIGI_DRIVER_ESD                                          \
       {  DIGI_ESD,        &digi_esd,            TRUE  },
+
+#endif
 
 #endif /* ALLEGRO_WITH_ESDDIGI */
 
@@ -91,11 +95,15 @@ AL_VAR(DIGI_DRIVER, digi_esd);
 
 #define DIGI_ALSA             AL_ID('A','L','S','A')
 
+#ifndef ALLEGRO_WITH_MODULES
+
 AL_VAR(DIGI_DRIVER, digi_alsa);
 
 #define DIGI_DRIVER_ALSA                                         \
       {  DIGI_ALSA,       &digi_alsa,           TRUE  },
 
+#endif
+      
 #endif /* ALLEGRO_WITH_ALSADIGI */
 
 
@@ -103,12 +111,17 @@ AL_VAR(DIGI_DRIVER, digi_alsa);
 
 #define MIDI_ALSA              AL_ID('A','M','I','D')
 
+#ifndef ALLEGRO_WITH_MODULES
+
 AL_VAR(MIDI_DRIVER, midi_alsa);
 
 #define MIDI_DRIVER_ALSA                                          \
       {  MIDI_ALSA,        &midi_alsa,            TRUE  },
 
+#endif
+
 #endif /* ALLEGRO_WITH_ALSAMIDI */
+
 
 
 /************************************/
@@ -173,7 +186,9 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
 
 #ifdef ALLEGRO_LINUX_SVGALIB
    #define GFX_SVGALIB              AL_ID('S','V','G','A')
+#ifndef ALLEGRO_WITH_MODULES
    AL_VAR(GFX_DRIVER, gfx_svgalib);
+#endif
 #endif
 
 #define KEYDRV_LINUX             AL_ID('L','N','X','C')

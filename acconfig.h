@@ -43,6 +43,9 @@
 /* Define if target machine is big endian.  */
 #undef ALLEGRO_BIG_ENDIAN
 
+/* Define if dynamically loaded modules are supported.  */
+#undef ALLEGRO_WITH_MODULES
+
 /* Define if you need support for X-Windows.  */
 #undef ALLEGRO_WITH_XWINDOWS
 

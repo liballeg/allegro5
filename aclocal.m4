@@ -117,6 +117,23 @@ dnl
 allegro_pentium_optimizations=no
 
 dnl
+dnl Test for modules support.
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_MODULES,
+[AC_ARG_ENABLE(modules,
+[  --enable-modules[=x]    enable dynamically loaded modules [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_modules=yes,
+allegro_enable_modules=yes)
+
+if test -n "$allegro_enable_modules"; then
+  AC_CHECK_HEADERS(dlfcn.h, allegro_support_modules=yes)
+  if test -n "$allegro_support_modules"; then
+    LIBS="-ldl $LIBS"
+  fi
+fi
+])
+
+dnl
 dnl Test for X-Windows support.
 dnl
 dnl Variables:
@@ -249,10 +266,14 @@ AC_CACHE_VAL(allegro_cv_support_alsadigi,
   AC_MSG_CHECKING(for supported ALSA version for digital sound)
   AC_TRY_RUN([#include <sys/asoundlib.h>
     int main (void) { return SND_LIB_MAJOR < 0 || SND_LIB_MINOR < 5; }],
-  [allegro_cv_support_alsadigi=yes LIBS="-lasound $LIBS"],
+  allegro_cv_support_alsadigi=yes,
   allegro_cv_support_alsadigi=no,
   allegro_cv_support_alsadigi=no)
-  AC_MSG_RESULT($allegro_cv_support_alsadigi)])
+  AC_MSG_RESULT($allegro_cv_support_alsadigi)
+  if test -n "$allegro_support_alsadigi" && 
+     test -z "$allegro_support_modules"; then
+    LIBS="-lasound $LIBS"
+  fi])
 fi])
 
 dnl
@@ -272,10 +293,14 @@ AC_CACHE_VAL(allegro_cv_support_alsamidi,
   AC_MSG_CHECKING(for supported ALSA version for MIDI)
   AC_TRY_RUN([#include <sys/asoundlib.h>
     int main (void) { return SND_LIB_MAJOR < 0 || SND_LIB_MINOR < 5; }],
-  [allegro_cv_support_alsamidi=yes LIBS="-lasound $LIBS"],
+  allegro_cv_support_alsamidi=yes,
   allegro_cv_support_alsamidi=no,
   allegro_cv_support_alsamidi=no)
-  AC_MSG_RESULT($allegro_cv_support_alsamidi)])
+  AC_MSG_RESULT($allegro_cv_support_alsamidi)
+  if test -n "$allegro_support_alsamidi" &&
+     test -z "$allegro_support_modules"; then
+    LIBS="-lasound $LIBS"
+  fi])
 fi])
 
 dnl
@@ -292,11 +317,11 @@ allegro_enable_esddigi=yes)
 
 if test -n "$allegro_enable_esddigi"; then
   AC_CHECK_HEADER(esd.h, allegro_support_esddigi=yes)
-  if test -n "$allegro_support_esddigi"; then
+  if test -n "$allegro_support_esddigi" && 
+     test -z "$allegro_support_modules"; then
     LIBS="-lesd $LIBS"
   fi
-fi
-])
+fi])
 
 dnl
 dnl Test where is sched_yield (SunOS).

@@ -1,0 +1,84 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Dynamic driver lists shared by Unixy system drivers.
+ *
+ *      By Peter Wang.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+
+#include "allegro.h"
+#include "aintunix.h"
+
+
+
+_DRIVER_INFO *_unix_digi_driver_list = 0;
+_DRIVER_INFO *_unix_midi_driver_list = 0;
+
+
+
+/* _unix_driver_lists_init:
+ *  Initialise driver lists.
+ */
+void _unix_driver_lists_init()
+{
+   _unix_digi_driver_list = _create_driver_list();
+   if (_unix_digi_driver_list)
+      _unix_digi_driver_list =
+	 _driver_list_add_list(_unix_digi_driver_list, _digi_driver_list);
+   
+   _unix_midi_driver_list = _create_driver_list();
+   if (_unix_midi_driver_list)
+      _unix_midi_driver_list =
+	 _driver_list_add_list(_unix_midi_driver_list, _midi_driver_list);
+}
+
+
+
+/* _unix_driver_lists_shutdown:
+ *  Free driver lists.
+ */
+void _unix_driver_lists_shutdown()
+{
+   if (_unix_digi_driver_list) {
+      _destroy_driver_list(_unix_digi_driver_list);
+      _unix_digi_driver_list = 0;
+   }
+
+   if (_unix_midi_driver_list) {
+      _destroy_driver_list(_unix_midi_driver_list);
+      _unix_midi_driver_list = 0;
+   }
+}
+
+
+
+/* _unix_register_digi_driver:
+ *  Used by modules to register digital sound drivers.
+ */
+void _unix_register_digi_driver(int id, DIGI_DRIVER *driver, int autodetect)
+{
+   _unix_digi_driver_list =
+      _driver_list_add_driver(_unix_digi_driver_list, id, driver, autodetect);
+}
+
+
+
+/* _unix_register_midi_driver:
+ *  Used by modules to register MIDI drivers.
+ */
+void _unix_register_midi_driver(int id, MIDI_DRIVER *driver, int autodetect)
+{
+   _unix_midi_driver_list =
+      _driver_list_add_driver(_unix_midi_driver_list, id, driver, autodetect);
+}
+

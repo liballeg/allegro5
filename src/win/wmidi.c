@@ -70,11 +70,11 @@ _DRIVER_INFO *_get_midi_driver_list()
       if (num_drivers)  /* include the MIDI mapper, which is -1 */
 	 num_drivers++;
 
-      driver_list = malloc(sizeof(_DRIVER_INFO) * (num_drivers+3));
+      driver_list = malloc(sizeof(_DRIVER_INFO) * (num_drivers+2));
 
       for (i=0; i<num_drivers; i++) {
          driver = malloc(sizeof(MIDI_DRIVER));
-         memcpy(driver, &midi_none, sizeof(MIDI_DRIVER));
+         memcpy(driver, &_midi_none, sizeof(MIDI_DRIVER));
 
          if (i == 0)
             driver->id = MIDI_WIN32MAPPER;
@@ -102,13 +102,9 @@ _DRIVER_INFO *_get_midi_driver_list()
       driver_list[i].driver = &midi_digmid;
       driver_list[i].autodetect = TRUE;
 
-      driver_list[i+1].id = MIDI_NONE;
-      driver_list[i+1].driver = &midi_none;
-      driver_list[i+1].autodetect = TRUE;
-
-      driver_list[i+2].id = 0;
-      driver_list[i+2].driver = NULL;
-      driver_list[i+2].autodetect = FALSE;
+      driver_list[i+1].id = 0;
+      driver_list[i+1].driver = NULL;
+      driver_list[i+1].autodetect = FALSE;
    }
 
    return driver_list;

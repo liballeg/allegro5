@@ -21,10 +21,10 @@
 
 
 BEGIN_DIGI_DRIVER_LIST
-#ifdef DIGI_ESD
+#if (defined DIGI_ESD) && (!defined ALLEGRO_WITH_MODULES)
    DIGI_DRIVER_ESD
 #endif
-#ifdef DIGI_ALSA
+#if (defined DIGI_ALSA) && (!defined ALLEGRO_WITH_MODULES)
    DIGI_DRIVER_ALSA
 #endif
 #ifdef DIGI_OSS
@@ -35,7 +35,7 @@ END_DIGI_DRIVER_LIST
 
 BEGIN_MIDI_DRIVER_LIST
    MIDI_DRIVER_DIGMID
-#ifdef MIDI_ALSA
+#if (defined MIDI_ALSA) && (!defined ALLEGRO_WITH_MODULES)
    MIDI_DRIVER_ALSA
 #endif
 #ifdef MIDI_OSS

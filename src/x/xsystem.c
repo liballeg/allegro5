@@ -41,6 +41,8 @@ static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
 static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
+static _DRIVER_INFO *_xwin_sysdrv_digi_drivers(void);
+static _DRIVER_INFO *_xwin_sysdrv_midi_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void);
 #ifdef ALLEGRO_LINUX
@@ -86,8 +88,8 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_get_desktop_resolution,
    _unix_yield_timeslice,
    _xwin_sysdrv_gfx_drivers,
-   NULL, /* digi_driver_list */
-   NULL, /* midi_driver_list */
+   _xwin_sysdrv_digi_drivers,
+   _xwin_sysdrv_midi_drivers,
    _xwin_sysdrv_keyboard_drivers,
    _xwin_sysdrv_mouse_drivers,
 #ifdef ALLEGRO_LINUX
@@ -178,6 +180,10 @@ static int _xwin_sysdrv_init(void)
    old_sig_quit = signal(SIGQUIT, _xwin_signal_handler);
 #endif
 
+   /* Initialise dynamic driver lists and load modules */
+   _unix_driver_lists_init();
+   _unix_load_modules(SYSTEM_XWINDOWS);
+
 #ifdef HAVE_LIBPTHREAD
    _xwin_bg_man = &_bg_man_pthreads;
 #else
@@ -221,6 +227,9 @@ static void _xwin_sysdrv_exit(void)
    _sigalrm_exit();
    _xwin_destroy_window();
    _xwin_close_display();
+
+   _unix_unload_modules();
+   _unix_driver_lists_shutdown();
 
    signal(SIGABRT, old_sig_abrt);
    signal(SIGFPE,  old_sig_fpe);
@@ -266,6 +275,26 @@ static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void))
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void)
 {
    return _xwin_gfx_driver_list;
+}
+
+
+
+/* _xwin_sysdrv_digi_drivers:
+ *  Get the list of digital sound drivers.
+ */
+static _DRIVER_INFO *_xwin_sysdrv_digi_drivers(void)
+{
+   return _unix_digi_driver_list;
+}
+
+
+
+/* _xwin_sysdrv_midi_drivers:
+ *  Get the list of MIDI drivers.
+ */
+static _DRIVER_INFO *_xwin_sysdrv_midi_drivers(void)
+{
+   return _unix_midi_driver_list;
 }
 
 

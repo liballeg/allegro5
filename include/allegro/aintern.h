@@ -924,6 +924,7 @@ AL_FUNC(void, _poly_zbuf_ptex_mask_trans32, (unsigned long addr, int w, POLYGON_
 
 
 /* sound lib stuff */
+AL_VAR(MIDI_DRIVER, _midi_none);
 AL_VAR(int, _digi_volume);
 AL_VAR(int, _midi_volume);
 AL_VAR(int, _sound_flip_pan); 
@@ -1095,6 +1096,13 @@ struct _AL_LINKER_MOUSE
 };
 
 AL_VAR(struct _AL_LINKER_MOUSE *, _al_linker_mouse);
+
+
+/* dynamic driver lists */
+AL_FUNC(_DRIVER_INFO *, _create_driver_list, ());
+AL_FUNC(void, _destroy_driver_list, (_DRIVER_INFO *drvlist));
+AL_FUNC(_DRIVER_INFO *, _driver_list_add_driver, (_DRIVER_INFO *drvlist, int id, void *driver, int autodetect));
+AL_FUNC(_DRIVER_INFO *, _driver_list_add_list, (_DRIVER_INFO *drvlist, _DRIVER_INFO *srclist));
 
 
 #ifdef __cplusplus

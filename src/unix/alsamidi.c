@@ -17,7 +17,7 @@
 
 #include "allegro.h"
 
-#ifdef MIDI_ALSA
+#if (defined MIDI_ALSA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/aintern.h"
 #ifdef ALLEGRO_QNX
@@ -223,5 +223,18 @@ static INLINE int alsa_rawmidi_input(void)
 		return 0;
 }
 */
+
+#ifdef ALLEGRO_MODULE
+
+/* _module_init:
+ *		Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   _unix_register_midi_driver(DIGI_ALSAMIDI, &midi_alsamidi, TRUE);
+}
+
+#endif /* ALLEGRO_MODULE */
+
 #endif /* MIDI_ALSA */
 

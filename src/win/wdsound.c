@@ -222,7 +222,7 @@ _DRIVER_INFO *_get_digi_driver_list()
       /* This function has to allocate drivers for wdsndmix.c as well
        * and also, wsndwo.c ASSUMES 2 DRIVERS
        */
-      driver_list = malloc(sizeof(_DRIVER_INFO) * ((num_drivers*2)+4));
+      driver_list = malloc(sizeof(_DRIVER_INFO) * ((num_drivers*2)+3));
 
       /* wdsound.c drivers */
       for (i=0; i<num_drivers; i++) {
@@ -257,12 +257,6 @@ _DRIVER_INFO *_get_digi_driver_list()
       driver = _get_woalmix_driver(1);
       driver_list[i+num_drivers].id = driver->id;
       driver_list[i+num_drivers].driver = driver;
-      driver_list[i+num_drivers].autodetect = TRUE;
-      i++;
-
-      /* null drivers */
-      driver_list[i+num_drivers].id = DIGI_NONE;
-      driver_list[i+num_drivers].driver = &digi_none;
       driver_list[i+num_drivers].autodetect = TRUE;
       i++;
  

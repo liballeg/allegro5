@@ -1598,8 +1598,6 @@ typedef struct MIDI_DRIVER             /* driver for playing midi music */
 } MIDI_DRIVER;
 
 
-AL_VAR(DIGI_DRIVER, digi_none);
-AL_VAR(MIDI_DRIVER, midi_none);
 AL_VAR(MIDI_DRIVER, midi_digmid);
 
 AL_ARRAY(_DRIVER_INFO, _digi_driver_list);
@@ -1612,7 +1610,6 @@ AL_ARRAY(_DRIVER_INFO, _midi_driver_list);
    {
 
 #define END_DIGI_DRIVER_LIST                                   \
-      {  DIGI_NONE,        &digi_none,          TRUE  },       \
       {  0,                NULL,                0     }        \
    };
 
@@ -1621,7 +1618,6 @@ AL_ARRAY(_DRIVER_INFO, _midi_driver_list);
    {
 
 #define END_MIDI_DRIVER_LIST                                   \
-      {  MIDI_NONE,        &midi_none,          TRUE  },       \
       {  0,                NULL,                0     }        \
    };
 

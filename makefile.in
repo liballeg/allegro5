@@ -19,6 +19,7 @@ includedir = @includedir@
 infodir = @infodir@
 mandir = @mandir@
 libdir = @libdir@
+moduledir = @libdir@/allegro
 
 EXE =
 OBJ = .o
@@ -80,6 +81,7 @@ COMPILE_S_PROGRAM = $(@COMPILE_S_PROGRAM@)
 LIBALLEG = @LIBALLEG@
 LINK_LIBALLEG = @LINK_LIBALLEG@
 ALLEGRO_LIB_TARGETS = @ALLEGRO_LIB_TARGETS@
+ALLEGRO_MODULE_TARGETS = @ALLEGRO_MODULE_TARGETS@
 
 PLUGIN_LIB = @PLUGIN_LIB@
 obj_unix_plugins_h = $(OBJDIR)/plugins.h
@@ -147,7 +149,7 @@ obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
 
-# documentation
+# Documentation.
 DOCS = docs/ahack.html CHANGES docs/changes.html faq.txt docs/faq.html \
        help.txt docs/help.html AUTHORS THANKS docs/thanks.html \
        allegro.txt docs/allegro.html docs/allegro.texi docs/allegro.info \
@@ -212,9 +214,11 @@ allegro.dvi: $(srcdir)/docs/allegro.texi
 # Dependencies and rules for building libraries and simple programs.
 include makefile.dep
 
-all: lib programs docs
+all: lib modules programs docs
 
 lib: $(ALLEGRO_LIB_TARGETS)
+
+modules: $(ALLEGRO_MODULE_TARGETS)
 
 programs: $(ALLEGRO_EXE_TARGETS)
 
@@ -277,6 +281,13 @@ install-lib: lib
 	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}_unsharable.a $(libdir)/; \
 	  fi; \
 	done
+	@if test -n "$(ALLEGRO_MODULE_TARGETS)"; then \
+	  $(mkinstalldirs) $(moduledir); \
+	  for m in $(ALLEGRO_MODULE_TARGETS) modules.lst; do \
+	   echo Installing $$m to $(moduledir); \
+	   $(INSTALL_DATA) $$m $(moduledir)/; \
+	  done; \
+	fi
 	$(mkinstalldirs) $(bindir)
 	@echo Installing allegro-config to $(bindir)
 	@$(INSTALL_PROGRAM) allegro-config $(bindir)
@@ -342,7 +353,7 @@ install-gzipped-man:
 	  gzip -9 -f $(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
 	done
 
-uninstall: uninstall-lib uninstall-headers uninstall-programs uninstall-info uninstall-man
+uninstall: uninstall-lib uninstall-modules uninstall-headers uninstall-programs uninstall-info uninstall-man
 	@echo "All gone. Don't you feel sad now?"
 
 uninstall-lib:
@@ -359,6 +370,9 @@ uninstall-shared:
 	@for l in alleg alld allp; do \
 	  rm -f $(libdir)/lib$${l}-${shared_version}.so; \
 	done
+
+uninstall-modules:
+	rm -rf $(moduledir)
 
 uninstall-headers:
 	rm -f $(includedir)/allegro.h
@@ -402,6 +416,11 @@ depend:
 	@echo "# Automatically generated." >makefile.dep
 	@echo "Generating dependencies for libraries"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplib.sh $(ALLEGRO_LIBRARY_SOURCES)' >>makefile.dep
+	@echo "Generating dependencies for dynamically loaded modules"
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh svgalib -lvga $(ALLEGRO_MODULE_SVGALIB_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsadigi -lasound $(ALLEGRO_MODULE_ALSADIGI_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsamidi -lasound $(ALLEGRO_MODULE_ALSAMIDI_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi -lesd $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
 	@echo "Generating dependencies for simple programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep
 	@echo "Generating dependencies for datafile plugins"
@@ -417,8 +436,8 @@ clean distclean veryclean maintainer-clean \
 install full-install mini-install \
 install-lib install-headers install-programs install-info \
 install-gzipped-info install-man install-gzipped-man depend \
-uninstall uninstall-lib uninstall-headers uninstall-programs \
-uninstall-info uninstall-man
+uninstall uninstall-lib uninstall-modules uninstall-headers \
+uninstall-programs uninstall-info uninstall-man
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -32,7 +32,7 @@ _DRIVER_INFO _linux_gfx_driver_list[] =
    {  GFX_VGA,      &gfx_vga,      TRUE  },
    {  GFX_MODEX,    &gfx_modex,    TRUE  },
 #endif
-#ifdef ALLEGRO_LINUX_SVGALIB
+#if (defined ALLEGRO_LINUX_SVGALIB) && (!defined ALLEGRO_WITH_MODULES)
    {  GFX_SVGALIB,  &gfx_svgalib,  FALSE },
 #endif
    {  0,            NULL,          0     }

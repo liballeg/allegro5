@@ -18,7 +18,7 @@
 
 #include "allegro.h"
 
-#ifdef DIGI_ALSA
+#if (defined DIGI_ALSA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/aintern.h"
 #ifdef ALLEGRO_QNX
@@ -395,6 +395,20 @@ static int alsa_mixer_volume(int volume)
    return 0;
 #endif
 }
+
+
+
+#ifdef ALLEGRO_MODULE
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   _unix_register_digi_driver(DIGI_ALSADIGI, &digi_alsadigi, TRUE);
+}
+
+#endif
 
 #endif
 

@@ -12,7 +12,7 @@
  *
  *      By Michael Bukin.
  *
- *      Bugfixes by Peter Wang and Eduard Bloch.
+ *      Bug fixes by Peter Wang and Eduard Bloch.
  *
  *      See readme.txt for copyright information.
  */
@@ -20,7 +20,7 @@
 
 #include "allegro.h"
 
-#ifdef DIGI_ESD
+#if (defined DIGI_ESD) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/aintern.h"
 #include "allegro/aintunix.h"
@@ -275,6 +275,20 @@ static int _al_esd_mixer_volume(int volume)
 {
    return 0;
 }
+
+
+
+#ifdef ALLEGRO_MODULE
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   _unix_register_digi_driver(DIGI_ESD, &digi_esd, TRUE);
+}
+
+#endif
 
 #endif
 

@@ -65,6 +65,20 @@ extern "C" {
    AL_FUNC(void, _unix_yield_timeslice, (void));
 
 
+   /* Module support */
+   AL_FUNC(void, _unix_load_modules, (int system_driver));
+   AL_FUNC(void, _unix_unload_modules, (void));
+
+
+   /* Dynamic driver lists, for modules */
+   AL_VAR(_DRIVER_INFO *, _unix_digi_driver_list);
+   AL_VAR(_DRIVER_INFO *, _unix_midi_driver_list);
+   AL_FUNC(void, _unix_driver_lists_init, ());
+   AL_FUNC(void, _unix_driver_lists_shutdown, ());
+   AL_FUNC(void, _unix_register_digi_driver, (int id, DIGI_DRIVER *driver, int autodetect));
+   AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect));
+
+
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_FUNCPTR(void, _xwin_keyboard_interrupt, (int pressed, int code));
    AL_FUNCPTR(void, _xwin_keyboard_focused, (int focused, int state));

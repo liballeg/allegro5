@@ -14,4 +14,4 @@ config.status
 help.txt
 allegro-config
 allegro.txt
-
+modules.lst

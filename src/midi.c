@@ -1329,7 +1329,7 @@ int midi_seek(int target)
 
    /* save some variables and give temporary values */
    old_driver = midi_driver;
-   midi_driver = &midi_none;
+   midi_driver = &_midi_none;
    old_midi_loop = midi_loop;
    midi_loop = 0;
    old_midifile = midifile;

@@ -259,6 +259,13 @@ void __al_linux_mouse_set_speed (int xspeed, int yspeed);
 void __al_linux_mouse_get_mickeys (int *mickeyx, int *mickeyy);
 
 
+/***********************************************/
+/************* Module support hooks ************/ /* (src/linux/lsystem.c) */
+/***********************************************/
+
+void __al_linux_register_gfx_driver (int id, GFX_DRIVER *driver, int autodetect);
+
+
 /* VGA register access helpers */
 #include "aintern.h"
 #include "aintvga.h"

@@ -75,6 +75,10 @@ echo "Patching misc/allegro-config.qnx..."
 cp misc/allegro-config.qnx fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config.qnx
 
+# patch modules.in
+cp misc/modules.in fixver.tmp
+sed -e "s/[0-9][0-9.]*[0-9]/$verstr/g" fixver.tmp > misc/modules.in
+
 # patch the spec files
 echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
 echo "s/Version:        .*/Version:        $1.$2.$3/" >> fixver.sed

@@ -143,6 +143,12 @@ if test "X$allegro_support_constructor" = "Xyes"; then
   AC_DEFINE(ALLEGRO_USE_CONSTRUCTOR)
 fi
 
+dnl Test for modules support.
+ALLEGRO_ACTEST_MODULES
+if test "X$allegro_support_modules" = "Xyes"; then
+  AC_DEFINE(ALLEGRO_WITH_MODULES)
+fi
+
 dnl How to compile C and asm files.
 if test -n "GCC"; then
   if test "X$allegro_strict_warnings" = "Xyes"; then
@@ -212,6 +218,9 @@ else
   LINK_LIBALLEG="-Llib/unix -l${LIB_TO_LINK}-\$(shared_version) -l${LIB_TO_LINK}_unsharable"
   LINK_WITH_STATIC_LIBS=no
   allegro_shared_libraries=yes
+fi
+if test "X$allegro_support_modules" = "Xyes"; then
+  LDFLAGS="-rdynamic $LDFLAGS"
 fi
 AC_SUBST(LIBALLEG)
 AC_SUBST(LINK_LIBALLEG)
@@ -364,8 +373,11 @@ case "$allegro_system" in
     if test "$allegro_enable_svgalib" = yes; then
       AC_CHECK_HEADER(vga.h,
 	AC_CHECK_LIB(vga, vga_init,
+	  allegro_support_svgalib=yes
 	  AC_DEFINE(ALLEGRO_LINUX_SVGALIB)
-	  LIBS="-lvga $LIBS"
+	  if test "$allegro_support_modules" != yes; then
+	    LIBS="-lvga $LIBS"
+	  fi
           AC_MSG_CHECKING(for vga_version in vga.h)
           AC_CACHE_VAL(allegro_cv_have_vga_version,
           [AC_TRY_COMPILE([#include <vga.h>], [int x = vga_version;],
@@ -385,8 +397,33 @@ esac
 
 AC_SUBST(ALLEGRO_MAYBE_LINUX_FILES)
 
-dnl Test for pthreads
+dnl Test for pthreads.
 AC_CHECK_HEADER(pthread.h, AC_CHECK_LIB(pthread, pthread_create))
+
+dnl Modules.
+if test "X$allegro_support_modules" = "Xyes"; then
+
+  dnl SVGAlib.
+  if test "X$allegro_support_svgalib" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-svgalib-\$(shared_version).so"
+  fi
+
+  dnl ALSA DIGI.
+  if test "X$allegro_support_alsadigi" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsadigi-\$(shared_version).so"
+  fi
+
+  dnl ALSA MIDI.
+  if test "X$allegro_support_alsamidi" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsamidi-\$(shared_version).so"
+  fi
+
+  dnl ESD DIGI.
+  if test "X$allegro_support_esddigi" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-esddigi-\$(shared_version).so"
+  fi
+fi
+AC_SUBST(ALLEGRO_MODULE_TARGETS)
 
 dnl Additional libraries.
 LIBS="-lm $LIBS"
@@ -413,19 +450,19 @@ dnl Prepare initial dependencies file (if missing).
 if test -f "$srcdir/makefile.dep"; then
   if test `cd "$srcdir" ; pwd` != `cd . ; pwd`; then
     cp "$srcdir/makefile.dep" makefile.dep
+    dnl Wait for a moment, to ensure the makefile gets a nice late
+    dnl timestamp, otherwise `makefile.dep' looks too new.
+    echo 'Having a snooze...'
+    sleep 1
   fi
 elif test ! -f makefile.dep; then
   echo '# Execute "make depend".' >makefile.dep
   allegro_make_depend="yes";
 fi
 
-dnl Wait for a moment, to ensure the makefile gets a nice late
-dnl timestamp, otherwise `makefile.dep' looks too new.
-echo 'Having a snooze...'
-sleep 1
-
-dnl Prepare makefile.
-AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
+dnl Prepare makefile, allegro-config and modules.lst.
+AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in
+	  modules.lst:misc/modules.in,
   [test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
 
 dnl Run "make depend" if necessary.

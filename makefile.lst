@@ -14,6 +14,7 @@ ALLEGRO_SRC_FILES = \
 	src/digmid.c \
 	src/dither.c \
 	src/dispsw.c \
+	src/drvlist.c \
 	src/file.c \
 	src/fli.c \
 	src/flood.c \
@@ -258,11 +259,13 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
 	src/unix/udjgpp.c \
+	src/unix/udrvlist.c \
 	src/unix/uesd.c \
 	src/unix/ugfxdrv.c \
 	src/unix/ujoydrv.c \
 	src/unix/ukeybd.c \
 	src/unix/umain.c \
+	src/unix/umodules.c \
 	src/unix/umouse.c \
 	src/unix/uoss.c \
 	src/unix/uossmidi.c \
@@ -303,6 +306,19 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/misc/icolconv.s \
 	src/misc/pckeys.c \
 	src/misc/ufile.c
+
+ALLEGRO_MODULE_SVGALIB_FILES = \
+	src/linux/svgalib.c \
+	src/linux/svgalibs.s
+
+ALLEGRO_MODULE_ALSADIGI_FILES = \
+	src/unix/alsadigi.c
+
+ALLEGRO_MODULE_ALSAMIDI_FILES = \
+	src/unix/alsamidi.c
+
+ALLEGRO_MODULE_ESD_FILES = \
+	src/unix/uesd.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \
@@ -453,7 +469,8 @@ ALLEGRO_NOLIB_EXE_SOURCES = \
 	src/i386/asmdef.c
 
 CLEAN_FILES = \
-	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 docs/*.txt \
+	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 \
+	docs/*.txt \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
 	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \
@@ -469,7 +486,7 @@ DISTCLEAN_FILES = \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log stamp-h stamp-h[0-9]* suid makefile.dep \
-	config.status include/allegro/alunixac.h allegro-config
+	config.status include/allegro/alunixac.h allegro-config modules.lst
 
 VERYCLEAN_FILES = \
 	authors AUTHORS changes CHANGES thanks THANKS faq.txt \

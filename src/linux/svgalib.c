@@ -24,7 +24,7 @@
 #include "linalleg.h"
 
 
-#ifdef ALLEGRO_LINUX_SVGALIB
+#if (defined ALLEGRO_LINUX_SVGALIB) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include <signal.h>
 #include <termios.h>
@@ -536,4 +536,19 @@ static void svga_restore()
 
 
 
-#endif      /* ifdef ALLEGRO_LINUX_SVGALIB */
+#ifdef ALLEGRO_MODULE
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   if (system_driver == SYSTEM_LINUX)
+      __al_linux_register_gfx_driver(GFX_SVGALIB, &gfx_svgalib, TRUE);
+}
+
+#endif      /* ifdef ALLEGRO_MODULE */
+
+
+
+#endif      /* if (defined ALLEGRO_LINUX_SVGALIB) ... */

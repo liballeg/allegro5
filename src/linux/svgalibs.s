@@ -27,6 +27,7 @@
 
 
 #if (!defined ALLEGRO_NO_ASM) && (defined ALLEGRO_LINUX_SVGALIB)
+#if (!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)
 
 
 FUNC(_svgalib_read_line_asm)
@@ -62,4 +63,5 @@ FUNC(_svgalib_unwrite_line_asm)
 	ret
 
 
+#endif
 #endif

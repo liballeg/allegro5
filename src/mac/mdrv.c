@@ -43,12 +43,10 @@ _DRIVER_INFO _gfx_driver_list[] ={
 };
 _DRIVER_INFO _digi_driver_list[]={
       {DIGI_MACOS,&digi_macos,TRUE},
-      {DIGI_NONE,&digi_none,TRUE},
       {0,NULL,0}
 };
 _DRIVER_INFO _midi_driver_list[]={
    {MIDI_DIGMID,&midi_digmid,TRUE},
-   {MIDI_NONE,&midi_none,TRUE},
    {0,NULL,0}
 };
 _DRIVER_INFO _joystick_driver_list[]={
