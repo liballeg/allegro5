@@ -291,6 +291,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
    set_display_switch_mode(SWITCH_BACKGROUND);
 
    /* load some 8 bit bitmap */
+   set_color_conversion(COLORCONV_NONE);
    bmp = load_bitmap("..\\..\\examples\\allegro.pcx", pal);
    if (!bmp) {
       MessageBox(hwnd, "Can't load ..\\..\\examples\\allegro.pcx", "Error!",
