@@ -20,6 +20,10 @@ General (Platform independant) todos:
 - gfx_mode_select* should use get_gfx_mode_list when available.
 - os_version & os_revision should be set on all platforms.
 - fixver.sh should update version references in dllver.rc
+- check and/or fix compilation with gcc 3.0
+- asm draw_sprite et al. don't work with sub-bitmaps
+- include dat2c once finished
+- include exunicod
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -33,6 +37,7 @@ Win32 todos:
 - Investigate mouse problem with USB Wacom Tablet
 - Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Add backward playing to the DirectSound driver
+- Emulate findfirst
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -49,13 +54,15 @@ X11 todos:
   the bug this works around).  Wait until XF86 4.0 propagated..
 - speed up X11 driver
 - key[] should not be internationalised (e.g. KEY_S should always be set
-  for the key two to the right of CapsLock)
+  for the key two to the right of CapsLock).  If we can't solve this in
+  time, include bukinm's xkeymap program.
 
 Unix todos:
 ---------------------------------------------------------------------------
 
 - check which parts of makefiles break with non-GNU make
 - update ALSA drivers to latest stable version
+- resolve PIC-related problems, esp. on Debian
 
 Macintosh todos:
 ---------------------------------------------------------------------------
@@ -78,6 +85,7 @@ BeOS todos:
 - Write a safe windowed driver using BBitmap
 - shared library support
 - code cleanup
+- check timer speed is correct (MIDI playback esp.)
 
 QNX todos:
 ---------------------------------------------------------------------------
@@ -110,5 +118,6 @@ Wishlist
 - rewrite set_gfx_mode
 - size_t where appropriate (get more opinions first)
 - make zipwin.sh work with mingw32.
+- make allegro not use uconvert static buffer; reserve for user
 
 ---------------------------------------------------------------------------
