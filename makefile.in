@@ -125,6 +125,7 @@ ALLEGRO_LIBRARY_SOURCES = \
 
 ALLEGRO_EXE_TARGETS = \
 	$(ALLEGRO_LIB_EXES) \
+	$(@ALLEGRO_MAYBE_LIB_X_EXES@) \
 	$(ALLEGRO_DATAFILE_EXES) \
 	$(ALLEGRO_EXAMPLE_EXES)
 
@@ -528,7 +529,7 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh artsdigi "\`artsc-config --libs\`" $(ALLEGRO_MODULE_ARTS_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh sgialdigi -laudio $(ALLEGRO_MODULE_SGIAL_FILES)' >>makefile.dep
 	@echo "Generating dependencies for simple programs"
-	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(@ALLEGRO_MAYBE_LIB_X_EXE_SOURCES@) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep
 	@echo "Generating dependencies for datafile plugins"
 	$(SHELL) -c 'cd $(srcdir) && misc/depdlib.sh tools/datedit.c' >>makefile.dep
 	@echo "Generating dependencies for datafile programs"

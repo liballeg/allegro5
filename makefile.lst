@@ -395,6 +395,9 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	tools/rgbmap.c \
 	tools/textconv.c
 
+ALLEGRO_LIB_X_EXE_SOURCES = \
+	tools/x11/xkeymap.c
+
 ALLEGRO_LIB_EXES = \
 	demo/demo \
 	setup/keyconf \
@@ -416,6 +419,9 @@ ALLEGRO_LIB_EXES = \
 	tools/pack \
 	tools/rgbmap \
 	tools/textconv
+	
+ALLEGRO_LIB_X_EXES = \
+	tools/x11/xkeymap
 
 ALLEGRO_DATAFILE_EXE_SOURCES = \
 	tools/dat.c \
