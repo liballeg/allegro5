@@ -515,7 +515,7 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 {
    static char *bpp_string_list[N_COLOR_DEPTH] = {"256", "32K", "64K", "16M", "16M"};
    MODE_LIST *mode;
-   int bpp_count, card_entry, mode_entry, bpp_entry;
+   int card_entry, mode_entry, bpp_entry, bpp_count, bpp_index;
    char tmp[128];
 
    card_entry = what_dialog[GFX_DRIVERLIST].d1;
@@ -524,22 +524,23 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 
    if (index < 0) {
       if (list_size) {
-         bpp_count = 0;
-         for (bpp_entry = 0; bpp_entry < N_COLOR_DEPTH; bpp_entry++) {
+         /* Count the number of BPP entries for the mode. */
+         for (bpp_count = 0, bpp_entry = 0; bpp_entry < N_COLOR_DEPTH; bpp_entry++) {
             if (mode->has_bpp[bpp_entry])
                bpp_count++;
          }
+
          *list_size = bpp_count;
          return NULL;
       }
    }
 
-   bpp_entry = 0;
-   bpp_count = 0;
-   while (bpp_count < index) {
-      bpp_entry++;
-      if (mode->has_bpp[bpp_entry])
-         bpp_count++;
+   /* Find the BPP entry for the mode corresponding to the zero-based index. */
+   bpp_index = -1;
+   bpp_entry = -1;
+   while (bpp_index < index) {
+      if (mode->has_bpp[++bpp_entry])
+         bpp_index++;
    }
 
    uszprintf(mode_string,
