@@ -1973,9 +1973,9 @@ long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
  *  use in the fgets function; maybe it should be in the API.  It only works
  *  for characters just fetched by pack_getc.
  */
-static void pack_ungetc (int ch, PACKFILE *f)
+static void pack_ungetc(int ch, PACKFILE *f)
 {
-   *(--f->buf_pos) = (unsigned char) ch;
+   *(--f->buf_pos) = (unsigned char)ch;
    f->buf_size++;
    f->flags &= ~PACKFILE_FLAG_EOF;
 }
@@ -1998,37 +1998,39 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
    *allegro_errno = 0;
 
    if (pack_feof(f)) {
-      if (ucwidth(0) <= max) usetc (p,0);
+      if (ucwidth(0) <= max)
+         usetc(p,0);
       return NULL;
    }
 
    pmax = p+max - ucwidth(0);
 
-   while ((c = pack_getc (f)) != EOF) {
+   while ((c = pack_getc(f)) != EOF) {
 
       if (c == '\r' || c == '\n') {
 	 /* Technically we should check there's space in the buffer, and if so,
 	  * add a \n.  But pack_fgets has never done this. */
 	 if (c == '\r') {
 	    /* eat the following \n, if any */
-	    if ((c = pack_getc (f)) != '\n') pack_ungetc (c, f);
+	    if ((c = pack_getc(f)) != '\n')
+	       pack_ungetc(c, f);
 	 }
 	 break;
       }
 
       /* is there room in the buffer? */
       if (ucwidth(c) > pmax - p) {
-	 pack_ungetc (c, f);
+	 pack_ungetc(c, f);
 	 c = '\0';
 	 break;
       }
 
       /* write the character */
-      p += usetc (p, c);
+      p += usetc(p, c);
    }
 
    /* terminate the string */
-   usetc (p, 0);
+   usetc(p, 0);
 
    if (c == '\0' || *allegro_errno)
       return NULL;
@@ -2040,6 +2042,9 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
 
 /* pack_fputs:
  *  Writes a string to a text file, returning zero on success, -1 on error.
+ *  The input string is converted from the current text encoding format
+ *  to UTF-8 before writing. Newline characters (\n) are written as \r\n
+ *  on DOS and Windows platforms.
  */
 int pack_fputs(AL_CONST char *p, PACKFILE *f)
 {
