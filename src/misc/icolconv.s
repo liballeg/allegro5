@@ -13,7 +13,7 @@
  *
  *      By Isaac Cruz.
  *
- *      24-bit color support and non MMX routines by Eric Botcazou. 
+ *      24-bit color support and non MMX routines by Eric Botcazou.
  *
  *      See readme.txt for copyright information.
  */
@@ -38,7 +38,7 @@
 
 
 /* helper macro */
-#define INIT_CONVERSION_1(mask_red, mask_green, mask_blue) \
+#define INIT_CONVERSION_1(mask_red, mask_green, mask_blue)                           \
       /* init register values */                                                   ; \
                                                                                    ; \
       movl mask_green, %eax                                                        ; \
@@ -67,7 +67,7 @@
       shrl $2, %edx                    /* edx = SCREEN_W / 2             */
 
 
-#define INIT_CONVERSION_2(mask_red, mask_green, mask_blue) \
+#define INIT_CONVERSION_2(mask_red, mask_green, mask_blue)                           \
       /* init register values */                                                   ; \
                                                                                    ; \
       movl mask_green, %eax                                                        ; \
@@ -121,10 +121,10 @@ FUNC (_colorconv_blit_32_to_16)
     esi = offset from the end of a line to the beginning of the next
     edi = same as esi, but for the dest bitmap
    */
-   
+
    next_line_32_to_16:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
-   
+
    next_block_32_to_16:
       movq (%eax), %mm0
       movq %mm0, %mm1
@@ -150,18 +150,18 @@ FUNC (_colorconv_blit_32_to_16)
       incl %ebp
       cmpl %edx, %ebp
       jb next_block_32_to_16
-      
+
       addl %esi, %eax
       addl %edi, %ebx
       decl %ecx
       jnz next_line_32_to_16
-      
+
    emms
    popl %edi
    popl %esi
    popl %ebx
    popl %ebp
-      
+
    ret
 
 
@@ -190,10 +190,10 @@ FUNC (_colorconv_blit_32_to_15)
     esi = offset from the end of a line to the beginning of the next
     edi = same as esi, but for the dest bitmap
    */
-   
+
    next_line_32_to_15:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
-   
+
    next_block_32_to_15:
       movq (%eax), %mm0
       movq %mm0, %mm1
@@ -216,18 +216,18 @@ FUNC (_colorconv_blit_32_to_15)
       incl %ebp
       cmpl %edx, %ebp
       jb next_block_32_to_15
-      
+
       addl %esi, %eax
       addl %edi, %ebx
       decl %ecx
       jnz next_line_32_to_15
-      
+
    emms
    popl %edi
    popl %esi
    popl %ebx
    popl %ebp
-      
+
    ret
 
 
@@ -256,10 +256,10 @@ FUNC (_colorconv_blit_16_to_32)
     esi = offset from the end of a line to the beginning of the next
     edi = same as esi, but for the dest bitmap
    */
-   
+
    next_line_16_to_32:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
-   
+
    next_block_16_to_32:
       movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
       punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
@@ -280,19 +280,21 @@ FUNC (_colorconv_blit_16_to_32)
       incl %ebp
       cmpl %edx, %ebp
       jb next_block_16_to_32
-      
+
       addl %esi, %eax
       addl %edi, %ebx
       decl %ecx
       jnz next_line_16_to_32
-      
+
    emms
    popl %edi
    popl %esi
    popl %ebx
    popl %ebp
-      
+
    ret
+
+
 
 /* void _colorconv_blit_15_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
@@ -318,10 +320,10 @@ FUNC (_colorconv_blit_15_to_32)
     esi = offset from the end of a line to the beginning of the next
     edi = same as esi, but for the dest bitmap
    */
-   
+
    next_line_15_to_32:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
-   
+
    next_block_15_to_32:
       movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
       punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
@@ -342,19 +344,20 @@ FUNC (_colorconv_blit_15_to_32)
       incl %ebp
       cmpl %edx, %ebp
       jb next_block_15_to_32
-      
+
       addl %esi, %eax
       addl %edi, %ebx
       decl %ecx
       jnz next_line_15_to_32
-      
+
    emms
    popl %edi
    popl %esi
    popl %ebx
    popl %ebp
-      
+
    ret
+
 
 
 /* void _colorconv_blit_8_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -401,10 +404,10 @@ FUNC (_colorconv_blit_8_to_32)
     LOCAL2 = offset from the end of a line to the beginning of the next
     LOCAL3 = same as LOCAL2, but for the dest bitmap
    */
-   
+
    next_line_8_to_32:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
-   
+
    next_block_8_to_32:
       movl (%eax), %edx          /* edx = [4][3][2][1] */ 
       movzbl %dl, %ecx
@@ -428,7 +431,7 @@ FUNC (_colorconv_blit_8_to_32)
       incl %ebp
       cmpl %edi, %ebp
       jb next_block_8_to_32
-      
+
       movl LOCAL2, %edx
       addl %edx, %eax
       movl LOCAL3, %ecx
@@ -437,13 +440,13 @@ FUNC (_colorconv_blit_8_to_32)
       decl %edx
       movl %edx, LOCAL1
       jnz next_line_8_to_32
-      
+
    emms
    popl %edi
    popl %esi
    popl %ebx
    popl %ebp
-      
+
    ret
 
 
@@ -495,10 +498,10 @@ FUNC (_colorconv_blit_8_to_15)
     LOCAL2 = offset from the end of a line to the beginning of the next
     LOCAL3 = same as LOCAL2, but for the dest bitmap
    */
-   
+
    next_line_8_to_16:
       movl $0, %ebp      /* better than xor ebp, ebp */
-   
+
    next_block_8_to_16:
       movl (%eax), %edx         /* edx = [4][3][2][1] */
       movzbl %dl, %ecx
@@ -522,7 +525,7 @@ FUNC (_colorconv_blit_8_to_15)
       incl %ebp
       cmpl %edi, %ebp
       jb next_block_8_to_16
-      
+
       movl LOCAL2, %edx
       addl %edx, %eax
       movl LOCAL3, %ecx
@@ -531,13 +534,13 @@ FUNC (_colorconv_blit_8_to_15)
       decl %edx
       movl %edx, LOCAL1
       jnz next_line_8_to_16
-      
+
    emms
    popl %edi
    popl %esi
    popl %ebx
    popl %ebp
-      
+
    ret
 
 #endif  /* ALLEGRO_MMX */
@@ -576,25 +579,25 @@ FUNC (_colorconv_blit_8_to_15)
 #define LOOP_RATIO_2 1
 #define LOOP_RATIO_4 2
 
-#define INIT_REGISTERS_NO_MMX(src_mul_code, dest_mul_code, width_ratio)           \
-   movl ARG1, %eax                  /* eax    = src_rect                    */  ; \
-   movl GFXRECT_WIDTH(%eax), %ebx   /* ebx    = src_rect->width             */  ; \
-   movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx    = src_rect->height            */  ; \
-   movl GFXRECT_PITCH(%eax), %edx   /* edx    = src_rect->pitch             */  ; \
-   movl %ebx, %edi                  /* edi    = width                       */  ; \
-   src_mul_code                     /* ebx    = width*x                     */  ; \
-   movl GFXRECT_DATA(%eax), %esi    /* esi    = src_rect->data              */  ; \
-   subl %ebx, %edx                                                              ; \
-   movl %edi, %ebx                                                              ; \
-   shrl $width_ratio, %edi                                                      ; \
-   movl ARG2, %eax                  /* eax    = dest_rect                   */  ; \
-   movl %edi, MYLOCAL1              /* LOCAL1 = width/y                     */  ; \
-   movl %edx, MYLOCAL2              /* LOCAL2 = src_rect->pitch - width*x   */  ; \
-   dest_mul_code                    /* ebx    = width*y                     */  ; \
-   movl GFXRECT_PITCH(%eax), %edx   /* edx    = dest_rect->pitch            */  ; \
-   subl %ebx, %edx                                                              ; \
-   movl GFXRECT_DATA(%eax), %edi    /* edi    = dest_rect->data             */  ; \
-   movl %edx, MYLOCAL3              /* LOCAL3 = dest_rect->pitch - width*y  */
+#define INIT_REGISTERS_NO_MMX(src_mul_code, dest_mul_code, width_ratio)             \
+   movl ARG1, %eax                  /* eax      = src_rect                    */  ; \
+   movl GFXRECT_WIDTH(%eax), %ebx   /* ebx      = src_rect->width             */  ; \
+   movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx      = src_rect->height            */  ; \
+   movl GFXRECT_PITCH(%eax), %edx   /* edx      = src_rect->pitch             */  ; \
+   movl %ebx, %edi                  /* edi      = width                       */  ; \
+   src_mul_code                     /* ebx      = width*x                     */  ; \
+   movl GFXRECT_DATA(%eax), %esi    /* esi      = src_rect->data              */  ; \
+   subl %ebx, %edx                                                                ; \
+   movl %edi, %ebx                                                                ; \
+   shrl $width_ratio, %edi                                                        ; \
+   movl ARG2, %eax                  /* eax      = dest_rect                   */  ; \
+   movl %edi, MYLOCAL1              /* MYLOCAL1 = width/y                     */  ; \
+   movl %edx, MYLOCAL2              /* MYLOCAL2 = src_rect->pitch - width*x   */  ; \
+   dest_mul_code                    /* ebx      = width*y                     */  ; \
+   movl GFXRECT_PITCH(%eax), %edx   /* edx      = dest_rect->pitch            */  ; \
+   subl %ebx, %edx                                                                ; \
+   movl GFXRECT_DATA(%eax), %edi    /* edi      = dest_rect->data             */  ; \
+   movl %edx, MYLOCAL3              /* MYLOCAL3 = dest_rect->pitch - width*y  */
 
   /* registers state after initialization:
     eax: free 
@@ -604,11 +607,11 @@ FUNC (_colorconv_blit_8_to_15)
     esi: (char *) source surface pointer
     edi: (char *) destination surface pointer
     ebp: free (for the lookup table base pointer)
-    LOCAL1: (const int) width/ratio
-    LOCAL2: (const int) offset from the end of a line to the beginning of next
-    LOCAL3: (const int) same as LOCAL2, but for the dest bitmap
+    MYLOCAL1: (const int) width/ratio
+    MYLOCAL2: (const int) offset from the end of a line to the beginning of next
+    MYLOCAL3: (const int) same as MYLOCAL2, but for the dest bitmap
    */
-   
+
 
 
 /* void _colorconv_blit_24_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -620,8 +623,8 @@ FUNC (_colorconv_blit_24_to_32)
 
    _align_
    next_line_24_to_32_no_mmx:
-      movl MYLOCAL1, %edx 
-      pushl %ecx     
+      movl MYLOCAL1, %edx
+      pushl %ecx
 
       _align_
       /* 100% Pentium pairable loop */
@@ -631,13 +634,13 @@ FUNC (_colorconv_blit_24_to_32)
          movl (%esi), %eax         /* eax = pixel1              */
          movl 8(%esi), %ecx        /* ecx = pixel4 | r8 pixel 3 */
          movl %eax, (%edi)         /* write pixel1              */
-         movb 3(%esi), %bl         /* ebx = pixel2              */ 
+         movb 3(%esi), %bl         /* ebx = pixel2              */
          movl %ecx, %eax           /* eax = r8 pixel3           */
          shll $16, %eax            /* eax = r8g0b0 pixel3       */
          movl %ebx, 4(%edi)        /* write pixel2              */
          shrl $8, %ecx             /* ecx = pixel4              */
          movb 6(%esi), %al         /* eax = r8g0b8 pixel3       */
-         movb 7(%esi), %ah         /* eax = r8g8b8 pixel3       */ 
+         movb 7(%esi), %ah         /* eax = r8g8b8 pixel3       */
          movl %ecx, 12(%edi)       /* write pixel4              */
          movl 16(%esi), %ebx       /* next: ebx = r8g8 pixel2   */
          addl $12, %esi            /* 4 pixels read             */
@@ -645,7 +648,7 @@ FUNC (_colorconv_blit_24_to_32)
          addl $16, %edi            /* 4 pixels written          */
          decl %edx
          jnz next_block_24_to_32_no_mmx
-   
+
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
@@ -673,7 +676,7 @@ FUNC (_colorconv_blit_16_to_32)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_4, LOOP_RATIO_2)
    movl GLOBL(_colorconv_rgb_scale_5x35), %ebp
-   movl $0, %eax  /* init first line */  
+   movl $0, %eax  /* init first line */
 
    _align_
    next_line_16_to_32_no_mmx:
@@ -690,21 +693,21 @@ FUNC (_colorconv_blit_16_to_32)
          movb 1(%esi), %bl              /* bl = high byte pixel1       */
          movl 1024(%ebp,%eax,4), %eax   /* lookup: eax = r0g8b8 pixel1 */
          movb 2(%esi), %cl              /* cl = low byte pixel2        */
-         movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel1 */ 
+         movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel1 */
          addl $8, %edi                  /* 2 pixels written            */
          addl %ebx, %eax                /* eax = r8g8b8 pixel1         */
-         movl $0, %ebx  
+         movl $0, %ebx
          movl 1024(%ebp,%ecx,4), %ecx   /* lookup: ecx = r0g8b8 pixel2 */
-         movb 3(%esi), %bl              /* bl = high byte pixel2       */  
+         movb 3(%esi), %bl              /* bl = high byte pixel2       */
          movl %eax, -8(%edi)            /* write pixel1                */
          movl $0, %eax
          movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel2 */
          addl $4, %esi                  /* 4 pixels read               */
-         addl %ebx, %ecx                /* ecx = r8g8b8 pixel2         */ 
-         decl %edx         
-         movl %ecx, -4(%edi)            /* write pixel2                */         
+         addl %ebx, %ecx                /* ecx = r8g8b8 pixel2         */
+         decl %edx
+         movl %ecx, -4(%edi)            /* write pixel2                */
          jnz next_block_16_to_32_no_mmx
-        
+
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
@@ -726,14 +729,14 @@ FUNC (_colorconv_blit_8_to_32)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_4, LOOP_RATIO_4)
-   movl $0, %eax     /* init first line */
+   movl $0, %eax  /* init first line */
    movl GLOBL(_colorconv_indexed_palette), %ebp
    movb (%esi), %al  /* init first line */
 
    _align_
    next_line_8_to_32_no_mmx:
       movl MYLOCAL1, %edx
-      pushl %ecx     
+      pushl %ecx
 
       _align_
       /* 100% Pentium pairable loop */
@@ -754,12 +757,12 @@ FUNC (_colorconv_blit_8_to_32)
          movl %eax, -8(%edi)        /* write pixel3         */
          movl $0, %eax
          movl (%ebp,%ecx,4), %ecx   /* lookup: ecx = pixel4 */
-         movb 4(%esi), %al          /* next: al = pixel1    */ 
+         movb 4(%esi), %al          /* next: al = pixel1    */
          movl %ecx, -4(%edi)        /* write pixel4         */
          addl $4, %esi              /* 4 pixels read        */
          decl %edx
          jnz next_block_8_to_32_no_mmx
-        
+
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
@@ -781,15 +784,15 @@ FUNC (_colorconv_blit_32_to_24)
 
    _align_
    next_line_32_to_24_no_mmx:
-      movl MYLOCAL1, %edx           
+      movl MYLOCAL1, %edx
       pushl %ecx
-           
+
       _align_
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_32_to_24_no_mmx:
          movl %ebx, %ebp        /* ebp = pixel2                    */
-         addl $12, %edi         /* 4 pixels written                */ 
+         addl $12, %edi         /* 4 pixels written                */
          shll $24, %ebx         /* ebx = b8 pixel2 << 24           */
          movl 12(%esi), %ecx    /* ecx = pixel4                    */
          shll $8, %ecx          /* ecx = pixel4 << 8               */
@@ -797,7 +800,7 @@ FUNC (_colorconv_blit_32_to_24)
          movb 10(%esi), %cl     /* ecx = pixel4 | r8 pixel3        */
          orl  %eax, %ebx        /* ebx = b8 pixel2 | pixel1        */
          movl %ebx, -12(%edi)   /* write pixel1..b8 pixel2         */
-         movl %ebp, %eax        /* eax = pixel2                    */ 
+         movl %ebp, %eax        /* eax = pixel2                    */
          shrl $8, %eax          /* eax = r8g8 pixel2               */
          movl 8(%esi), %ebx     /* ebx = pixel 3                   */
          shll $16, %ebx         /* ebx = g8b8 pixel3 << 16         */
@@ -808,7 +811,7 @@ FUNC (_colorconv_blit_32_to_24)
          addl $16, %esi         /* 4 pixels read                   */
          decl %edx
          jnz next_block_32_to_24_no_mmx
-       
+
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
@@ -818,7 +821,7 @@ FUNC (_colorconv_blit_32_to_24)
 
    DESTROY_STACK_FRAME
    ret
- 
+
 
 
 /* void _colorconv_blit_15_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -832,8 +835,8 @@ FUNC (_colorconv_blit_16_to_24)
    movl GLOBL(_colorconv_rgb_scale_5x35), %ebp
 
    next_line_16_to_24_no_mmx:
-      movl MYLOCAL1, %edx      
-      pushl %ecx     
+      movl MYLOCAL1, %edx
+      pushl %ecx
 
       _align_
       /* 100% Pentium pairable loop */
@@ -841,25 +844,25 @@ FUNC (_colorconv_blit_16_to_24)
       next_block_16_to_24_no_mmx:
          movl %edx, -16(%esp)           /* fake pushl %edx                  */
          movl $0, %ebx
-         movl $0, %eax  
+         movl $0, %eax
          movb 7(%esi), %bl              /* bl = high byte pixel4            */
-         movl $0, %ecx 
-         movb 6(%esi), %al              /* al = low byte pixel4             */         
+         movl $0, %ecx
+         movb 6(%esi), %al              /* al = low byte pixel4             */
          movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel4      */
-         movb 4(%esi), %cl              /* cl = low byte pixel3             */         
+         movb 4(%esi), %cl              /* cl = low byte pixel3             */
          movl 1024(%ebp,%eax,4), %eax   /* lookup: eax = r0g8b8 pixel4      */
-         movl $0, %edx         
+         movl $0, %edx
          addl %ebx, %eax                /* eax = r8g8b8 pixel4              */
-         movb 5(%esi), %dl              /* dl = high byte pixel3            */          
+         movb 5(%esi), %dl              /* dl = high byte pixel3            */
          shll $8, %eax                  /* eax = r8g8b8 pixel4 << 8         */
-         movl 5120(%ebp,%ecx,4), %ecx   /* lookup: ecx = g8b800r0 pixel3    */         
+         movl 5120(%ebp,%ecx,4), %ecx   /* lookup: ecx = g8b800r0 pixel3    */
          movl 4096(%ebp,%edx,4), %edx   /* lookup: edx = g8b000r8 pixel3    */
          movl $0, %ebx
          addl %edx, %ecx                /* ecx = g8b800r8 pixel3            */
          movb %dl, %al                  /* eax = pixel4 << 8 | r8 pixel3    */
-         movl %eax, 8(%edi)             /* write r8 pixel3..pixel4          */   
-         movb 3(%esi), %bl              /* bl = high byte pixel2            */          
-         movl $0, %eax                
+         movl %eax, 8(%edi)             /* write r8 pixel3..pixel4          */
+         movb 3(%esi), %bl              /* bl = high byte pixel2            */
+         movl $0, %eax
          movl $0, %edx
          movb 2(%esi), %al              /* al = low byte pixel2             */
          movl 2048(%ebp,%ebx,4), %ebx   /* lookup: ebx = b000r8g8 pixel2    */
@@ -877,11 +880,11 @@ FUNC (_colorconv_blit_16_to_24)
          andl $0xff000000, %eax         /* eax = b8 pixel2 << 24            */
          movl 1024(%ebp,%ebx,4), %ebx   /* lookup: ebx = r0g8b8 pixel1      */
          /* nop */
-         addl %edx, %ebx                /* ebx = r8g8b8 pixel1              */ 
+         addl %edx, %ebx                /* ebx = r8g8b8 pixel1              */
          movl -16(%esp), %edx           /* fake popl %edx                   */
          orl  %ebx, %eax                /* eax = b8 pixel2 << 24 | pixel1   */
          decl %edx
-         movl %eax, -12(%edi)           /* write pixel1..b8 pixel2          */                         
+         movl %eax, -12(%edi)           /* write pixel1..b8 pixel2          */
          jnz next_block_16_to_24_no_mmx
 
       popl %ecx
@@ -905,8 +908,8 @@ FUNC (_colorconv_blit_8_to_24)
 
    _align_
    next_line_8_to_24_no_mmx:
-      movl MYLOCAL1, %edx      
-      pushl %ecx     
+      movl MYLOCAL1, %edx
+      pushl %ecx
 
       _align_
       /* 100% Pentium pairable loop */
@@ -918,25 +921,25 @@ FUNC (_colorconv_blit_8_to_24)
          movl $0, %ecx
          movl 3072(%ebp,%eax,4), %eax    /* lookup: eax = pixel4 << 8       */
          movb 1(%esi), %cl               /* cl = pixel 2                    */
-         movl 2048(%ebp,%ebx,4), %ebx    /* lookup: ebx = g8b800r8 pixel3   */ 
-         addl $12, %edi                  /* 4 pixels written                */ 
+         movl 2048(%ebp,%ebx,4), %ebx    /* lookup: ebx = g8b800r8 pixel3   */
+         addl $12, %edi                  /* 4 pixels written                */
          movl 1024(%ebp,%ecx,4), %ecx    /* lookup: ecx = b800r8g8 pixel2   */
-         movb %bl, %al                   /* eax = pixel4 << 8 | r8 pixel3   */ 
-         movl %eax, -4(%edi)             /* write r8 pixel3..pixel4         */  
+         movb %bl, %al                   /* eax = pixel4 << 8 | r8 pixel3   */
+         movl %eax, -4(%edi)             /* write r8 pixel3..pixel4         */
          movl $0, %eax
          movb %cl, %bl                   /* ebx = g8b8 pixel3 | 00g8 pixel2 */
          movb (%esi), %al                /* al = pixel1                     */
          movb %ch, %bh                   /* ebx = g8b8 pixel3 | r8g8 pixel2 */
          andl $0xff000000, %ecx          /* ecx = b8 pixel2 << 24           */
          movl %ebx, -8(%edi)             /* write g8r8 pixel2..b8g8 pixel3  */
-         movl (%ebp,%eax,4), %eax        /* lookup: eax = pixel1            */ 
+         movl (%ebp,%eax,4), %eax        /* lookup: eax = pixel1            */
          orl  %eax, %ecx                 /* ecx = b8 pixel2 << 24 | pixel1  */
-         movl $0, %eax  
+         movl $0, %eax
          movl %ecx, -12(%edi)            /* write pixel1..b8 pixel2         */
-         addl $4, %esi                   /* 4 pixels read                   */ 
+         addl $4, %esi                   /* 4 pixels read                   */
          decl %edx
          jnz next_block_8_to_24_no_mmx
-       
+
       popl %ecx
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
@@ -1032,9 +1035,9 @@ FUNC (_colorconv_blit_8_to_15)
 
    _align_
    next_line_8_to_16_no_mmx:
-      movl MYLOCAL1, %edx        
+      movl MYLOCAL1, %edx
       pushl %ecx
-                 
+
       _align_
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
@@ -1121,7 +1124,7 @@ _colorconv_blit_32_to_15_no_mmx:
 FUNC (_colorconv_blit_32_to_15)
 #endif
    CREATE_STACK_FRAME
-   INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_2, LOOP_RATIO_2)  
+   INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_2, LOOP_RATIO_2)
    CONV_TRUE_TO_15_NO_MMX(32_to_15_no_mmx, 4)
    DESTROY_STACK_FRAME
    ret
@@ -1136,4 +1139,5 @@ FUNC (_colorconv_blit_24_to_15)
    CONV_TRUE_TO_15_NO_MMX(24_to_15_no_mmx, 3)
    DESTROY_STACK_FRAME
    ret
+
 
