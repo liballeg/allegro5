@@ -3540,18 +3540,15 @@ GFX_SAFE:<br>
 @xref set_display_switch_callback, get_display_switch_mode
 @eref exswitch
    Sets how the program should handle being switched into the background, 
-   if the user tabs away from it. Returns 0 and invalidates all callbacks
-   registered with set_display_switch_callback() on success. Not all of the
-   possible modes will be supported by every graphics driver on every
-   platform: you must call this routine after initializing the graphics
-   driver and if you request a mode that isn't currently possible, it will
-   return -1. The available modes are:
+   if the user tabs away from it. Not all of the possible modes will be
+   supported by every graphics driver on every platform. The available modes
+   are:
 <ul><li>
    SWITCH_NONE<br>
       Disables switching. This is the default in single-tasking systems like 
       DOS. It may be supported on other platforms, but you should use it 
       with caution, because your users won't be impressed if they want to 
-      tab away from your program, but you don't let them!
+      switch away from your program, but you don't let them!
 <li>
    SWITCH_PAUSE<br>
       Pauses the program whenever it is in the background. Execution will be 
@@ -3586,6 +3583,10 @@ GFX_SAFE:<br>
    completely finished, because the automatic locking mechanism may not be
    good enough to work when the program runs in the background or has just
    been raised in the foreground.
+@retval
+   Returns zero on success, invalidating at the same time all callbacks
+   previously registered with set_display_switch_callback(). Returns -1 if
+   the requested mode is not currently possible.
 
 @@int @set_display_switch_callback(int dir, void (*cb)());
 @xref remove_display_switch_callback, set_display_switch_mode
@@ -3595,15 +3596,19 @@ GFX_SAFE:<br>
    parameter can either be SWITCH_IN or SWITCH_OUT, depending whether you 
    want to be notified about switches away from your program or back to your 
    program. You can sometimes install callbacks for both directions at the 
-   same time, but not every platform supports this, so this function may
-   return -1 if your request is impossible. You can install several switch
-   callbacks at the same time.
+   same time, but not every platform supports this. You can install several
+   switch callbacks, but no more than eight on any platform.
+@retval
+   Returns zero on success, decreasing the number of empty callback slots by
+   one. Returns -1 if the request is impossible for the current platform or
+   you have reached the maximum number of allowed callbacks.
 
 @@void @remove_display_switch_callback(void (*cb)());
 @xref set_display_switch_callback
    Removes a notification callback that was previously installed by calling 
    set_display_switch_callback(). All the callbacks will automatically be 
-   removed when you call set_display_switch_mode().
+   removed when you call set_display_switch_mode(). You can safely call this
+   function even if the callback you want to remove is not installed.
 
 @@int @get_display_switch_mode();
 @xref set_display_switch_mode
@@ -3768,33 +3773,35 @@ GFX_SAFE:<br>
    set, you can attempt to enable it by calling this function. In particular 
    if you are running in mode-X in a clean DOS environment, this routine 
    will enable the timer retrace simulator, which will activate the triple 
-   buffering functions. Returns zero if triple buffering is enabled.
+   buffering functions.
+@retval
+   Returns zero if triple buffering is enabled, -1 otherwise.
 
 @@int @scroll_screen(int x, int y);
 @xref set_gfx_mode, show_video_bitmap, request_scroll, request_video_bitmap
 @eref exscroll
    Attempts to scroll the hardware screen to display a different part of the 
    virtual screen (initially it will be positioned at 0, 0, which is the top 
-   left corner). Returns zero on success: it may fail if the graphics driver 
-   can't handle hardware scrolling or the virtual screen isn't large enough. 
-   You can use this to move the screen display around in a large virtual 
-   screen space, or to page flip back and forth between two non-overlapping 
-   areas of the virtual screen. Note that to draw outside the original 
-   position in the screen bitmap you will have to alter the clipping 
-   rectangle: see below.
+   left corner). You can use this to move the screen display around in a
+   large virtual screen space, or to page flip back and forth between two
+   non-overlapping areas of the virtual screen. Note that to draw outside the
+   original position in the screen bitmap you will have to alter the clipping
+   rectangle with set_clip_rect().
 
    Mode-X scrolling is reliable and will work on any card. Unfortunately 
    most VESA implementations can only handle horizontal scrolling in four 
    pixel increments, so smooth horizontal panning is impossible in SVGA 
-   modes. This is a shame, but I can't see any way round it. A significant 
-   number of VESA implementations seem to be very buggy when it comes to 
-   scrolling in truecolor video modes, so I suggest you don't depend on this 
-   routine working correctly in the truecolor resolutions unless you can be 
-   sure that SciTech Display Doctor is installed.
+   modes. A significant number of VESA implementations seem to be very buggy
+   when it comes to scrolling in truecolor video modes, so you shouldn't
+   depend on this routine working correctly in the truecolor resolutions
+   unless you can be sure that SciTech Display Doctor is installed.
 
    Allegro will handle any necessary vertical retrace synchronisation when 
    scrolling the screen, so you don't need to call vsync() before it. This 
    means that scroll_screen() has the same time delay effects as vsync().
+@retval
+   Returns zero on success. Returns non zero if the graphics driver can't
+   handle hardware scrolling or the virtual screen is not large enough.
 
 @@int @request_scroll(int x, int y);
 @xref poll_scroll, request_video_bitmap, gfx_capabilities
@@ -3804,23 +3811,25 @@ GFX_SAFE:<br>
    for a retrace. The scroll will then take place during the next vertical 
    retrace, but you can carry on running other code in the meantime and use 
    the poll_scroll() routine to detect when the flip has actually taken 
-   place (see examples/ex3buf.c). Triple buffering is only possible on 
-   certain hardware: it will work in any mode-X resolution if the timer 
-   retrace simulator is active (but this doesn't work correctly under 
-   win95), plus it is supported by the VBE 3.0 and VBE/AF drivers for a 
-   limited number of high-end graphics cards. You can look at the 
-   GFX_CAN_TRIPLE_BUFFER bit in the gfx_capabilities flag to see if it will 
-   work with the current driver.
+   place.
+
+   Triple buffering is only possible on certain hardware: it will work in any
+   DOS mode-X resolution if the timer retrace simulator is active (but this
+   doesn't work correctly under Windows 95), plus it is supported by the
+   VBE 3.0 and VBE/AF drivers for a limited number of high-end graphics
+   cards. You can look at the GFX_CAN_TRIPLE_BUFFER bit in the
+   gfx_capabilities flag to see if it will work with the current driver.
 @retval
-   This function returns zero on success.
+   This function returns zero on success, non zero otherwise.
 
 @@int @poll_scroll();
 @xref request_scroll, request_video_bitmap
 @eref ex3buf, exupdate
    This function is used for triple buffering. It checks the status of a 
-   hardware scroll previously initiated by the request_scroll() routine, 
-   returning non-zero if it is still waiting to take place, and zero if it 
-   has already happened.
+   hardware scroll previously initiated by the request_scroll() routine.
+@retval
+   Returns non zero if it is still waiting to take place, and zero if the
+   requested scroll has already happened.
 
 @@int @show_video_bitmap(BITMAP *bitmap);
 @xref scroll_screen, create_video_bitmap
@@ -3828,11 +3837,12 @@ GFX_SAFE:<br>
    Attempts to page flip the hardware screen to display the specified video 
    bitmap object, which must be the same size as the physical screen, and 
    should have been obtained by calling the create_video_bitmap() function. 
-   Returns zero on success and non-zero on failure.
    
    Allegro will handle any necessary vertical retrace synchronisation when 
    page flipping, so you don't need to call vsync() before it. This means
    that show_video_bitmap() has the same time delay effects as vsync().
+@retval
+   Returns zero on success and non-zero on failure.
 
 @@int @request_video_bitmap(BITMAP *bitmap);
 @xref poll_scroll, request_scroll, gfx_capabilities
@@ -3844,7 +3854,9 @@ GFX_SAFE:<br>
    vertical retrace, but you can carry on running other code in the meantime 
    and use the poll_scroll() routine to detect when the flip has actually 
    taken place. Triple buffering is only possible on certain hardware: see 
-   the comments about request_scroll(). Returns zero on success.
+   the comments about request_scroll().
+@retval
+   Returns zero on success and non-zero on failure.
 
 @@void @vsync();
 @xref set_palette, scroll_screen
