@@ -53,6 +53,10 @@
 ============ Installing Allegro ============
 ============================================
 
+   Set up your environment so that Borland C++ can be used from the
+   commandline. Then set the variable BCC32DIR to the directory where
+   Borland C++ is located, for example 'set BCC32DIR=c:\bcc32'.
+
    Type "cd allegro" and then "fix.bat bcc32".  Then, run "make".  Find
    something fun to do while it's compiling.  It will eventually
    finish; then just type "make install" to set the library up for use.
