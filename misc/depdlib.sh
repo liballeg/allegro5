@@ -47,7 +47,7 @@ echo "$prev"
 echo ""
 echo "\$(LIBDIR)/libapdat.a: \$(LIBAPDAT_OBJECTS)"
 echo "	rm -f \$(LIBDIR)/libapdat.a"
-echo "	\$(AR) rvs \$(LIBDIR)/liballp.a \$(LIBAPDAT_OBJECTS)"
+echo "	\$(AR) rvs \$(LIBDIR)/libapdat.a \$(LIBAPDAT_OBJECTS)"
 echo ""
 
 missing=
