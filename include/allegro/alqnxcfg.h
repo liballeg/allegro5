@@ -24,9 +24,6 @@
 #undef ALLEGRO_INCLUDE_MATH_H
 
 
-/* provide implementations of missing functions */
-#define ALLEGRO_NO_FINDFIRST
-
 /* a static auto config */
 #define HAVE_STRICMP
 #define HAVE_STRLWR

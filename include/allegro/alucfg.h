@@ -80,9 +80,5 @@
 #define ALLEGRO_NO_MEMCMP
 #endif
 
-#ifndef HAVE_FINDFIRST
-#define ALLEGRO_NO_FINDFIRST
-#endif
-
 #endif /* ifndef ALUCFG_H */
 

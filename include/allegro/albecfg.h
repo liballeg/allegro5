@@ -23,7 +23,6 @@
 #define ALLEGRO_NO_STRICMP
 #define ALLEGRO_NO_STRLWR
 #define ALLEGRO_NO_STRUPR
-#define ALLEGRO_NO_FINDFIRST
 
 /* a static auto config */
 #define HAVE_DIRENT_H
