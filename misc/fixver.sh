@@ -101,10 +101,6 @@ echo "Patching misc/allegro-config.in..."
 cp misc/allegro-config.in fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config.in
 
-echo "Patching misc/allegro-config.be..."
-cp misc/allegro-config.be fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/allegro-config.be
-
 echo "Patching misc/allegro-config.qnx..."
 cp misc/allegro-config.qnx fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config.qnx
