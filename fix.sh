@@ -88,7 +88,7 @@ proc_dtou()
       fi
    done
    chmod +x *.sh misc/*.sh misc/*.pl
-   if [ -e configure ]; then
+   if [ -f configure ]; then
       chmod +x configure
    fi
 }
