@@ -1763,15 +1763,46 @@ combinations are possible seems to vary from one keyboard to another).
    Wherever possible these values will be updated asynchronously, but if 
    keyboard_needs_poll() returns TRUE, you must manually call 
    poll_keyboard() to update them with the current input state. The 
-   scancodes are defined in allegro/keyboard.h as a series of KEY_* constants.
-   For example, you could write:
+   scancodes are defined in allegro/keyboard.h as a series of KEY_*
+   constants (and are also listed below). For example, you could write:
 <pre>
       if (key[KEY_SPACE])
 	 printf("Space is pressed\n");
 </pre>
+
    Note that the array is supposed to represent which keys are physically
    held down and which keys are not, so it is semantically read-only.
 
+   These are the keyboard scancodes:
+<pre>
+      KEY_A ... KEY_Z,
+      KEY_0 ... KEY_9,
+      KEY_0_PAD ... KEY_9_PAD,
+      KEY_F1 ... KEY_F12,
+
+      KEY_ESC, KEY_TILDE, KEY_MINUS, KEY_EQUALS,
+      KEY_BACKSPACE, KEY_TAB, KEY_OPENBRACE, KEY_CLOSEBRACE,
+      KEY_ENTER, KEY_COLON, KEY_QUOTE, KEY_BACKSLASH,
+      KEY_BACKSLASH2, KEY_COMMA, KEY_STOP, KEY_SLASH,
+      KEY_SPACE,
+
+      KEY_INSERT, KEY_DEL, KEY_HOME, KEY_END, KEY_PGUP,
+      KEY_PGDN, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN,
+
+      KEY_SLASH_PAD, KEY_ASTERISK, KEY_MINUS_PAD,
+      KEY_PLUS_PAD, KEY_DEL_PAD, KEY_ENTER_PAD,
+
+      KEY_PRTSCR, KEY_PAUSE,
+
+      KEY_ABNT_C1, KEY_YEN, KEY_KANA, KEY_CONVERT, KEY_NOCONVERT,
+      KEY_AT, KEY_CIRCUMFLEX, KEY_COLON2, KEY_KANJI,
+
+      KEY_LSHIFT, KEY_RSHIFT,
+      KEY_LCONTROL, KEY_RCONTROL,
+      KEY_ALT, KEY_ALTGR,
+      KEY_LWIN, KEY_RWIN, KEY_MENU,
+      KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
+</pre>   
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
    Bitmask containing the current state of shift/ctrl/alt, the special 
