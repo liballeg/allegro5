@@ -192,8 +192,8 @@ static int debug_trace_virgin = TRUE;
 static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
 
-static int (*assert_handler)(const char *msg) = NULL;
-static int (*trace_handler)(const char *msg) = NULL;
+static int (*assert_handler)(AL_CONST char *msg) = NULL;
+static int (*trace_handler)(AL_CONST char *msg) = NULL;
 
 
 /* dynamic registration system for cleanup code */

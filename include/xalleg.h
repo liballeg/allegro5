@@ -66,7 +66,7 @@ extern struct _xwin_type
 
    void (*bank_switch)(int line);
    void (*screen_to_buffer)(int sx, int sy, int sw, int sh);
-   void (*set_colors)(PALETTE p, int from, int to);
+   void (*set_colors)(AL_CONST PALETTE p, int from, int to);
 
    unsigned char *screen_data;
    unsigned char **screen_line;

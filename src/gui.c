@@ -1296,7 +1296,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
  *  Returns true if c is indicated as a keyboard shortcut by a '&' character
  *  in the specified string.
  */
-static int menu_key_shortcut(int c, const char *s)
+static int menu_key_shortcut(int c, AL_CONST char *s)
 {
    int d;
 
@@ -1326,7 +1326,7 @@ int menu_alt_key(int k, MENU *m)
       KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z
    };
 
-   const char *s;
+   AL_CONST char *s;
    int c, d;
 
    if (k & 0xFF)

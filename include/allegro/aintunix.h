@@ -46,7 +46,7 @@ extern "C" {
 
 
    /* Helper for locating config files */
-   AL_FUNC(int, _unix_find_resource, (char *dest, char *resource, int size));
+   AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));
 
 
    /* Generic system driver entry for finding the executable */

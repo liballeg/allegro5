@@ -60,7 +60,7 @@ typedef struct FLIST
 
 static FLIST *flist = NULL;
 
-static const char *fext = NULL;
+static AL_CONST char *fext = NULL;
 
 
 
@@ -639,7 +639,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
  *  extensions. Returns zero if it was closed with the Cancel button, 
  *  non-zero if it was OK'd.
  */
-int file_select(AL_CONST char *message, char *path, const char *ext)
+int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
 {
    char buf[512];
    int ret;

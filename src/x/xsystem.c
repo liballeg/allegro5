@@ -35,7 +35,7 @@ void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 
 static int _xwin_sysdrv_init(void);
 static void _xwin_sysdrv_exit(void);
-static void _xwin_sysdrv_set_window_title(char *name);
+static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
 static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
@@ -220,7 +220,7 @@ static void _xwin_sysdrv_exit(void)
 /* _xwin_sysdrv_set_window_title:
  *  Sets window title.
  */
-static void _xwin_sysdrv_set_window_title(char *name)
+static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
 {
    char title[100];
 

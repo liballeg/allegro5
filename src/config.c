@@ -43,8 +43,8 @@ typedef struct CONFIG_HOOK
 {
    char *section;                   /* hooked config section info */
    int (*intgetter)(AL_CONST char *name, int def);
-   AL_CONST char *(*stringgetter)(AL_CONST char *name, const char *def);
-   void (*stringsetter)(AL_CONST char *name, const char *value);
+   AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
+   void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
    struct CONFIG_HOOK *next; 
 } CONFIG_HOOK;
 
@@ -1132,9 +1132,9 @@ void _load_config_text()
 AL_CONST char *get_config_text(AL_CONST char *msg)
 {
    char tmp1[256], tmp2[256], name[256];
-   const char *section = uconvert_ascii("[language]", tmp1);
-   const char *umsg = uconvert_ascii(msg, tmp2);
-   const char *s;
+   AL_CONST char *section = uconvert_ascii("[language]", tmp1);
+   AL_CONST char *umsg = uconvert_ascii(msg, tmp2);
+   AL_CONST char *s;
    CONFIG_HOOK *hook;
    CONFIG_ENTRY *p;
    int c, pos;

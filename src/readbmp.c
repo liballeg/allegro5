@@ -46,7 +46,6 @@ static struct bitmap_loader_type* first_loader_type = 0;
 void register_bitmap_file_type(AL_CONST char *ext, BITMAP *(*load)(AL_CONST char *filename, RGB *pal), int (*save)(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal))
 {
    char tmp[32], *aext;
-   int i;
    struct bitmap_loader_type* iter = first_loader_type;
 
    aext = uconvert_toascii(ext, tmp);
@@ -92,7 +91,6 @@ void register_bitmap_file_type(AL_CONST char *ext, BITMAP *(*load)(AL_CONST char
 BITMAP *load_bitmap(AL_CONST char *filename, RGB *pal)
 {
    char tmp[16], *aext;
-   int i;
    struct bitmap_loader_type* iter = first_loader_type;
 
    aext = uconvert_toascii(get_extension(filename), tmp);
@@ -116,7 +114,6 @@ BITMAP *load_bitmap(AL_CONST char *filename, RGB *pal)
 int save_bitmap(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal)
 {
    char tmp[16], *aext;
-   int i;
    struct bitmap_loader_type* iter = first_loader_type;
 
    aext = uconvert_toascii(get_extension(filename), tmp);

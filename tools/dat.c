@@ -382,7 +382,7 @@ static void do_delete(DATAFILE **dat, char *parentname)
 
 
 /* adds a file to the archive */
-static void do_add_file(const char *filename, int attrib, int param)
+static void do_add_file(AL_CONST char *filename, int attrib, int param)
 {
    char fname[256];
    char name[256];

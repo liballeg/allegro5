@@ -39,7 +39,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth);
 static void svga_exit(BITMAP *b);
 static int  svga_scroll(int x, int y);
 static void svga_vsync(void);
-static void svga_set_palette(RGB *p, int from, int to, int vsync);
+static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync);
 static void svga_flip(void);
 
 #ifndef ALLEGRO_NO_ASM
@@ -449,7 +449,7 @@ static void svga_vsync()
 /* svga_set_palette:
  *  Sets the palette.
  */
-static void svga_set_palette(RGB *p, int from, int to, int vsync)
+static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
 {
    int i;
 

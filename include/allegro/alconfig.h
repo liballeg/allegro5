@@ -70,7 +70,7 @@
    #endif
 
    #ifndef AL_CONST
-      #define AL_CONST const
+      #define AL_CONST     const
    #endif
 
 #endif

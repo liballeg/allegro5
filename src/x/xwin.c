@@ -162,10 +162,10 @@ static int _xwin_private_fast_visual_depth(void);
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static int _xdga_private_fast_visual_depth(void);
 #endif
-static void _xwin_private_set_matching_colors(PALETTE p, int from, int to);
-static void _xwin_private_set_truecolor_colors(PALETTE p, int from, int to);
-static void _xwin_private_set_palette_colors(PALETTE p, int from, int to);
-static void _xwin_private_set_palette_range(PALETTE p, int from, int to, int vsync);
+static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to);
+static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to);
+static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to);
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
 static void _xwin_private_vsync(void);
@@ -176,7 +176,7 @@ static void _xwin_private_set_warped_mouse_mode(int permanent);
 static void _xwin_private_redraw_window(int x, int y, int w, int h);
 static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
-static void _xwin_private_set_window_title(const char *name);
+static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 static void _xwin_private_init_keyboard_tables(void);
@@ -186,7 +186,7 @@ static int _xwin_private_set_auto_repeat(int on);
 static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 					   int vw, int vh, int depth, int fullscr);
 static void _xdga_private_destroy_screen(void);
-static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsync);
+static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int _xdga_private_scroll_screen(int x, int y);
 #endif
 
@@ -1680,7 +1680,7 @@ MAKE_SLOW_PALETTE24(_xwin_private_slow_palette_24);
 /*
  * Functions for setting "hardware" colors in 8bpp modes.
  */
-static void _xwin_private_set_matching_colors(PALETTE p, int from, int to)
+static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to)
 {
    int i;
    static XColor color[256];
@@ -1695,7 +1695,7 @@ static void _xwin_private_set_matching_colors(PALETTE p, int from, int to)
    XStoreColors(_xwin.display, _xwin.colormap, color + from, to - from + 1);
 }
 
-static void _xwin_private_set_truecolor_colors(PALETTE p, int from, int to)
+static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to)
 {
    int i, rmax, gmax, bmax;
 
@@ -1709,7 +1709,7 @@ static void _xwin_private_set_truecolor_colors(PALETTE p, int from, int to)
    }
 }
 
-static void _xwin_private_set_palette_colors(PALETTE p, int from, int to)
+static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to)
 {
    int i;
 
@@ -1720,7 +1720,7 @@ static void _xwin_private_set_palette_colors(PALETTE p, int from, int to)
    }
 }
 
-static void _xwin_private_set_palette_range(PALETTE p, int from, int to, int vsync)
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    /* Wait for VBI.  */
    if (vsync)
@@ -1736,7 +1736,7 @@ static void _xwin_private_set_palette_range(PALETTE p, int from, int to, int vsy
    }
 }
 
-void _xwin_set_palette_range(PALETTE p, int from, int to, int vsync)
+void _xwin_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    DISABLE();
    _xwin_private_set_palette_range(p, from, to, vsync);
@@ -2256,7 +2256,7 @@ void _xwin_update_screen(int x, int y, int w, int h)
 /* _xwin_set_window_title:
  *  Wrapper for XStoreName.
  */
-static void _xwin_private_set_window_title(const char *name)
+static void _xwin_private_set_window_title(AL_CONST char *name)
 {
    if (!name)
       _xwin_safe_copy(_xwin.window_title, XWIN_DEFAULT_WINDOW_TITLE, sizeof(_xwin.window_title));
@@ -2267,7 +2267,7 @@ static void _xwin_private_set_window_title(const char *name)
       XStoreName(_xwin.display, _xwin.window, _xwin.window_title);
 }
 
-void _xwin_set_window_title(const char *name)
+void _xwin_set_window_title(AL_CONST char *name)
 {
    DISABLE();
    _xwin_private_set_window_title(name);
@@ -2947,7 +2947,7 @@ unsigned long _xdga_switch_bank(BITMAP *bmp, int line)
 /* _xdga_set_palette_range:
  *  Set hardware colors in DGA mode.
  */
-static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsync)
+static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    /* Wait for VBI.  */
    if (vsync)
@@ -2967,7 +2967,7 @@ static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsy
    }
 }
 
-void _xdga_set_palette_range(PALETTE p, int from, int to, int vsync)
+void _xdga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    DISABLE();
    _xdga_private_set_palette_range(p, from, to, vsync);

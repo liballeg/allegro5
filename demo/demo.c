@@ -1343,7 +1343,7 @@ CREDIT_NAME *credits = NULL;
 
 
 /* reads credit info from a source file */
-void parse_source(const char *filename, int attrib, int param)
+void parse_source(AL_CONST char *filename, int attrib, int param)
 {
    char buf[256];
    PACKFILE *f;

@@ -43,7 +43,7 @@ static void fb_save(void);
 static void fb_restore(void);
 static int  fb_scroll(int x, int y);
 static void fb_vsync(void);
-static void fb_set_palette(RGB *p, int from, int to, int vsync);
+static void fb_set_palette(AL_CONST RGB *p, int from, int to, int vsync);
 static void fb_save_cmap(void);
 static void fb_restore_cmap(void);
 
@@ -100,7 +100,8 @@ static int update_timings(struct fb_var_screeninfo *mode);
  */
 static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 {
-   char fname[256], tmp[256], *p;
+   char fname[256], tmp[256];
+   AL_CONST char *p;
    int stride, tries;
    BITMAP *b;
 
@@ -502,7 +503,7 @@ static void fb_vsync()
 /* fb_set_palette:
  *  Sets the palette.
  */
-static void fb_set_palette(RGB *p, int from, int to, int vsync)
+static void fb_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
 {
    unsigned short r[256], g[256], b[256];
    struct fb_cmap cmap;

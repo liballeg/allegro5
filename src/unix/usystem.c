@@ -57,7 +57,7 @@ _DRIVER_INFO _system_driver_list[] =
  *  Helper for locating a Unix config file. Looks in the home directory
  *  of the current user, and in /etc.
  */
-int _unix_find_resource(char *dest, char *resource, int size)
+int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256];
    char *home = getenv("HOME");

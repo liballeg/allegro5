@@ -43,7 +43,7 @@
 
 static int  sys_linux_init(void);
 static void sys_linux_exit(void);
-static void sys_linux_message (char *msg);
+static void sys_linux_message (AL_CONST char *msg);
 
 #define make_getter(x) static _DRIVER_INFO *get_##x##_driver_list (void) { return _linux_##x##_driver_list; }
 	make_getter (gfx)
@@ -238,7 +238,7 @@ static void sys_linux_exit (void)
 /* sys_linux_message:
  *  Display a message on our original console.
  */
-static void sys_linux_message (char *msg)
+static void sys_linux_message (AL_CONST char *msg)
 {
    char *tmp = malloc(4096);
    int ret;
