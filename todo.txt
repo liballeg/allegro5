@@ -58,9 +58,6 @@ X11 todos:
 Unix todos:
 ---------------------------------------------------------------------------
 
-- "still PIC-related problems with X lib, waiting for XFree people"
-  [fixed in newer distros?]
-
 Macintosh todos:
 ---------------------------------------------------------------------------
 
