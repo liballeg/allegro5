@@ -25,7 +25,6 @@
 static GFX_VTABLE _xwin_vtable;
 
 
-
 static void _xwin_putpixel(BITMAP *dst, int dx, int dy, int color);
 static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color);
 static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color);
@@ -94,7 +93,7 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
 
 
 /* _xwin_update_video_bitmap:
- *  Update screen with correct offset for sub bitmap.
+ *  Update screen with correct offset for sub-bitmap.
  */
 static void _xwin_update_video_bitmap(BITMAP *dst, int x, int y, int w, int h)
 {
@@ -139,6 +138,7 @@ static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color)
       dx1 = dx2;
       dx2 = tmp;
    }
+
    if (dst->clip) {
       if (dx1 < dst->cl)
 	 dx1 = dst->cl;
@@ -171,6 +171,7 @@ static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color)
       dy1 = dy2;
       dy2 = tmp;
    }
+
    if (dst->clip) {
       if (dy1 < dst->ct)
 	 dy1 = dst->ct;
