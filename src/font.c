@@ -15,6 +15,9 @@
  *          ASCII          (0x0020 to 0x007F)
  *          Latin-1        (0x00A1 to 0x00FF)
  *          Extended-A     (0x0100 to 0x017F)
+ *          Euro           (0x20AC)
+ *
+ *      Elias Pschernig added the Euro character.
  *
  *      See readme.txt for copyright information.
  */
@@ -417,6 +420,19 @@ static FONT_GLYPH* extended_a_data[] =
 
 
 
+/* euro character (0x20AC) */
+static FONT_GLYPH f_0x20AC = { 8, 8, { 0x3C, 0x62, 0xF8, 0x60, 0xF8, 0x62, 0x3C, 0x00 } };
+
+
+
+/* euro character */
+static FONT_GLYPH* euro_data[] =
+{
+   &f_0x20AC
+};
+
+
+
 /* allegro_404_char:
  *  This is what we render missing glyphs as.
  */
@@ -719,10 +735,16 @@ FONT_VTABLE* font_vtable_color = &_font_vtable_color;
  * Declaration of `_default_font' and `font'
  ********/
 
+static FONT_MONO_DATA euro_monofont = {
+    0x20AC, 0x20AD,             /* begin, end characters */
+    euro_data,                  /* the data set */
+    0                           /* next */
+};
+
 static FONT_MONO_DATA extended_a_monofont = {
     0x100, 0x180,               /* begin, end characters */
     extended_a_data,            /* the data set */
-    0                           /* next */
+    &euro_monofont              /* next */
 };
 
 static FONT_MONO_DATA latin1_monofont = {
