@@ -2876,6 +2876,7 @@ Allegro does not provide such devices.)
 
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
+@shortdesc Like rest(), but calls the callback during the wait.
    Like rest(), but continually calls the specified function while it is 
    waiting for the required time to elapse.
 
@@ -5195,7 +5196,12 @@ routines!
 @shortdesc Converts an RGB value into the specified pixel format.
    Converts colors from a hardware independent format (red, green, and blue 
    values ranging 0-255) to the pixel format required by the specified color 
-   depth.
+   depth. Example:
+<codeblock>
+      /* Compose the green color for 15 bit color depth. */
+      int green_15bit = makecol_depth(15, 0, 255, 0);<endblock>
+@retval
+   Returns the requested RGB triplet in the specified color depth.
 
 @@int @makeacol(int r, int g, int b, int a);
 @@int @makeacol_depth(int color_depth, int r, int g, int b, int a);
@@ -5209,6 +5215,8 @@ routines!
    colors as the input to draw_trans_sprite() or draw_trans_rle_sprite() 
    after calling set_alpha_blender(), rather than drawing them directly to 
    the screen.
+@retval
+   Returns the requested RGBA quadruplet.
 
 @@int @makecol15_dither(int r, int g, int b, int x, int y);
 @@int @makecol16_dither(int r, int g, int b, int x, int y);
@@ -5220,6 +5228,8 @@ routines!
    directly, hicolor dithering can be automatically enabled when loading 
    graphics by calling the set_color_conversion() function, for example 
    set_color_conversion (COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
+@retval
+   Returns the RGB value dithered for the specified coordinate.
 
 @@int @getr8(int c);
 @@int @getg8(int c);
@@ -9024,6 +9034,7 @@ directly from a specific datafile object.
 @xref find_datafile_object, register_datafile_object
 @xref Using datafiles
 @eref excustom, exdata, exexedat, exgui, exsprite, exunicod
+@shortdesc Loads a datafile into memory.
    Loads a datafile into memory, and returns a pointer to it, or NULL on 
    error. If the datafile has been encrypted, you must first use the 
    packfile_password() function to set the appropriate key. See grabber.txt 
@@ -9035,12 +9046,14 @@ directly from a specific datafile object.
 @xref load_datafile, unload_datafile, load_datafile_object
 @xref set_color_conversion, fixup_datafile, packfile_password
 @xref find_datafile_object, register_datafile_object
+@shortdesc Loads a datafile into memory, calling a hook per object.
    Loads a datafile into memory, calling the specified hook function once 
    for each object in the file, passing it a pointer to the object just read.
 
 @@void @unload_datafile(DATAFILE *dat);
 @xref load_datafile
 @eref excustom, exdata, exexedat, exgui, exsprite, exunicod
+@shortdesc Frees all the objects in a datafile.
    Frees all the objects in a datafile. Use this to avoid memory leaks in
    your program.
 
@@ -9049,23 +9062,27 @@ directly from a specific datafile object.
 @xref unload_datafile_object, load_datafile, set_color_conversion
 @xref find_datafile_object, register_datafile_object
 @xref Using datafiles
+@shortdesc Loads a specific object from a datafile.
    Loads a specific object from a datafile. This won't work if you strip the 
    object names from the file, and it will be very slow if you save the file 
    with global compression.
 
 @@void @unload_datafile_object(DATAFILE *dat);
 @xref load_datafile_object
+@shortdesc Frees an object previously loaded by load_datafile_object().
    Frees an object previously loaded by load_datafile_object(). Use this to
    avoid memory leaks in your program.
 
 @@DATAFILE *@find_datafile_object(const DATAFILE *dat, const char *objectname);
 @xref load_datafile, load_datafile_object
+@shortdesc Searches a datafile for an object with a name.
    Searches an already loaded datafile for an object with the specified 
    name, returning a pointer to it, or NULL if the object cannot be found. 
    It understands '/' and '#' separators for nested datafile paths.
 
 @@const char *@get_datafile_property(const DATAFILE *dat, int type);
 @xref Using datafiles, DAT_ID
+@shortdesc Returns the property string for the object.
    Returns the specified property string for the object, or an empty string
    if the property isn't present. The type parameter must be a value
    created with the DAT_ID macro.
@@ -9074,11 +9091,13 @@ directly from a specific datafile object.
 @@                              void (*destroy)(void *data));
 @xref load_datafile, load_datafile_object, DAT_ID
 @xref Custom datafile objects
+@shortdesc Registers load/destroy functions for custom object types.
    Used to add custom object types, specifying functions to load and destroy 
    objects of this type.
 
 @@void @fixup_datafile(DATAFILE *data);
 @xref set_gfx_mode, set_color_conversion, Differences between platforms
+@shortdesc Fixes truecolor images in compiled datafiles.
    If you are using compiled datafiles (produced by the dat2s and dat2c
    utilities) on a platform that doesn't support constructors (currently any
    non GCC-based platform), or if the datafiles contain truecolor images, you
@@ -9094,6 +9113,7 @@ directly from a specific datafile object.
 @@Macro @DAT_ID(a, b, c, d);
 @xref register_datafile_object, get_datafile_property
 @xref Custom datafile objects, Using datafiles
+@shortdesc Makes an ID value from four letters.
    Every object or property in a datafile is identified by a 4 letter ID,
    which can be created with this macro. For example, to access the NAME
    property of a datafile object, you could use:
@@ -9431,37 +9451,44 @@ integer' is not.
 @xref fixtoi, ftofix, fixtof
 @eref ex12bit, ex3buf, ex3d, exblend, excustom, exfixed, exlights
 @eref exspline, exsprite, exstars
+@shortdesc Converts an integer to fixed point.
    Converts an integer to fixed point. This is the same thing as x&lt&lt16.
 
 @@int @fixtoi(fixed x);
 @xref itofix, ftofix, fixtof, fixfloor, fixceil
 @eref ex12bit, ex3buf, ex3d, exblend, excustom, exlights, exspline
 @eref exstars, exupdate
+@shortdesc Converts a fixed point to integer with rounding.
    Converts fixed point to integer, rounding as required.
 
 @@int @fixfloor(fixed x);
 @xref fixtoi, fixceil
+@shortdesc Returns the greatest integer not greater than x.
    Returns the greatest integer not greater than x. That is, it rounds 
    towards negative infinity.
 
 @@int @fixceil(fixed x);
 @xref fixtoi, fixfloor
+@shortdesc Returns the smallest integer not less than x.
    Returns the smallest integer not less than x. That is, it rounds towards
    positive infinity.
 
 @@fixed @ftofix(double x);
 @xref fixtof, itofix, fixtoi
 @eref exfixed, exspline, exupdate
+@shortdesc Converts a floating point value to fixed point.
    Converts a floating point value to fixed point.
 
 @@double @fixtof(fixed x);
 @xref ftofix, itofix, fixtoi
 @eref exfixed, exspline, exstars
+@shortdesc Converts a fixed point to floating point.
    Converts fixed point to floating point.
 
 @@fixed @fixmul(fixed x, fixed y);
 @xref fixadd, fixsub, fixdiv
 @eref ex3buf, excustom, exfixed, exspline, exstars, exupdate
+@shortdesc Multiplies two fixed point values together.
    A fixed point value can be multiplied or divided by an integer with the 
    normal '*' and '/' operators. To multiply two fixed point values, though, 
    you must use this function.
@@ -9474,10 +9501,12 @@ integer' is not.
 @@fixed @fixdiv(fixed x, fixed y);
 @xref fixadd, fixsub, fixmul
 @eref exfixed
+@shortdesc Fixed point division.
    Fixed point division: see comments about fixmul().
 
 @@fixed @fixadd(fixed x, fixed y);
 @xref fixsub, fixmul, fixdiv
+@shortdesc Safe function to add fixed point numbers clamping overflow.
    Although fixed point numbers can be added with the normal '+' integer 
    operator, that doesn't provide any protection against overflow. If 
    overflow is a problem, you should use this function instead. It is slower 
@@ -9486,6 +9515,7 @@ integer' is not.
 
 @@fixed @fixsub(fixed x, fixed y);
 @xref fixadd, fixmul, fixdiv
+@shortdesc Safe function to subtract fixed point numbers clamping underflow.
    Fixed point subtraction: see comments about fixadd().
 
 @hnode Fixed point trig
@@ -9501,6 +9531,7 @@ circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 
 @@extern const fixed @fixtorad_r;
 @xref fixmul, radtofix_r
+@shortdesc Constant to convert angles in fixed point format to radians.
    This constant gives a ratio which can be used to convert a number in
    fixed point angle format to a number in radians: if 'y' is an angle in
    fixed point angle format then use: 'x = fixmul(y, fixtorad_r);' to get
@@ -9508,6 +9539,7 @@ circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 
 @@extern const fixed @radtofix_r;
 @xref fixmul, fixtorad_r
+@shortdesc Constant to convert radians to fixed point angles.
    This constant gives a ratio which can be used to convert a number in
    radians to a number in fixed point angle format: if 'x' is an angle in
    radians, then use: 'y = fixmul(x, radtofix_r);' to get its value 'y'
@@ -9516,41 +9548,50 @@ circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 @@fixed @fixsin(fixed x);
 @xref Fixed point trig
 @eref ex12bit, ex3buf, exblend, excustom, exspline, exupdate
+@shortdesc Lookup table sine.
    Lookup table sine.
 
 @@fixed @fixcos(fixed x);
 @xref Fixed point trig
 @eref ex12bit, ex3buf, exblend, excustom, exspline, exupdate
+@shortdesc Lookup table cosine.
    Lookup table cosine.
 
 @@fixed @fixtan(fixed x);
 @xref Fixed point trig
+@shortdesc Lookup table tangent.
    Lookup table tangent.
 
 @@fixed @fixasin(fixed x);
 @xref Fixed point trig
+@shortdesc Lookup table inverse sine.
    Lookup table inverse sine.
 
 @@fixed @fixacos(fixed x);
 @xref Fixed point trig
+@shortdesc Lookup table inverse cosine.
    Lookup table inverse cosine.
 
 @@fixed @fixatan(fixed x);
 @xref Fixed point trig
+@shortdesc Fixed point inverse tangent.
    Fixed point inverse tangent.
 
 @@fixed @fixatan2(fixed y, fixed x);
 @xref Fixed point trig
 @eref exlights, exspline
+@shortdesc Fixed point version of the libc atan2() routine.
    Fixed point version of the libc atan2() routine.
 
 @@fixed @fixsqrt(fixed x);
 @xref Fixed point trig
 @eref exfixed, exlights, exspline
+@shortdesc Fixed point square root.
    Fixed point square root.
 
 @@fixed @fixhypot(fixed x, fixed y);
 @xref Fixed point trig
+@shortdesc Fixed point hypotenuse.
    Fixed point hypotenuse (returns the square root of x*x + y*y).
 
 
@@ -9591,29 +9632,32 @@ use a different system.) Here's a short piece of code demonstrating the
 transformation pipeline of a point from world space to the screen.
 
 <codeblock>
- /* First, set up the projection viewport. */
- set_projection_viewport (0, 0, SCREEN_W, SCREEN_H);
-
- /* Next, get a camera matrix, depending on the current viewer position and
-  * orientation.
-  */
- get_camera_matrix_f (&m,
-    0, 0, 0,  /* Viewer position, in this case, 0/0/0. */
-    0, 0, -1, /* Viewer direction, in this case along negative z. */
-    0, 1, 0,  /* Up vector, in this case positive y. */
-    32, /* The FOV, here 45°. */
-    (float)SCREEN_W / (float)SCREEN_H)); /* Aspect ratio. */
-
- /* Applying the matrix transforms the point 100/200/-300 from world space
-  * into camera space. The transformation moves and rotates the point so it
-  * is relative to the camera, scales it according to the FOV and aspect
-  * parameters, and also flips up and front direction - ready to project
-  * the point to the viewport.
-  */
- apply_matrix_f (&m, 100, 200, -300, &x, &y, &z);
-
- /* Finally, the point is projected from camera space to the screen. */
- persp_project_f (cx, cy, cz, &sx, &sy);
+   /* First, set up the projection viewport. */
+   set_projection_viewport (0, 0, SCREEN_W, SCREEN_H);
+  
+   /* Next, get a camera matrix, depending on the
+    * current viewer position and orientation.
+    */
+   get_camera_matrix_f (&m,
+      0, 0, 0,  /* Viewer position, in this case, 0/0/0. */
+      0, 0, -1, /* Viewer direction, in this case along negative z. */
+      0, 1, 0,  /* Up vector, in this case positive y. */
+      32,       /* The FOV, here 45°. */
+      (float)SCREEN_W / (float)SCREEN_H)); /* Aspect ratio. */
+  
+   /* Applying the matrix transforms the point 100/200/-300
+    * from world space into camera space. The transformation
+    * moves and rotates the point so it is relative to the
+    * camera, scales it according to the FOV and aspect
+    * parameters, and also flips up and front direction -
+    * ready to project the point to the viewport.
+    */
+   apply_matrix_f (&m, 100, 200, -300, &x, &y, &z);
+  
+   /* Finally, the point is projected from
+    * camera space to the screen.
+    */
+   persp_project_f (cx, cy, cz, &sx, &sy);
 <endblock>
 
 For more details, look at the function descriptions of
@@ -9666,6 +9710,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 
 @@extern MATRIX @identity_matrix;
 @@extern MATRIX_f @identity_matrix_f;
+@shortdesc Global containing the identity matrix.
    Global variables containing the 'do nothing' identity matrix. Multiplying 
    by the identity matrix has no effect.
 
@@ -9673,6 +9718,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @get_translation_matrix_f(MATRIX_f *m, float x, float y, float z);
 @xref apply_matrix, get_transformation_matrix, qtranslate_matrix
 @eref exstars
+@shortdesc Constructs a translation matrix.
    Constructs a translation matrix, storing it in m. When applied to the 
    point (px, py, pz), this matrix will produce the point (px+x, py+y, 
    pz+z). In other words, it moves things sideways.
@@ -9680,6 +9726,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @get_scaling_matrix(MATRIX *m, fixed x, fixed y, fixed z);
 @@void @get_scaling_matrix_f(MATRIX_f *m, float x, float y, float z);
 @xref apply_matrix, get_transformation_matrix, qscale_matrix
+@shortdesc Constructs a scaling matrix.
    Constructs a scaling matrix, storing it in m. When applied to the point 
    (px, py, pz), this matrix will produce the point (px*x, py*y, pz*z). In 
    other words, it stretches or shrinks things.
@@ -9688,6 +9735,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @get_x_rotate_matrix_f(MATRIX_f *m, float r);
 @xref apply_matrix, get_rotation_matrix, get_y_rotate_matrix
 @xref get_z_rotate_matrix
+@shortdesc Construct X axis rotation matrices.
    Construct X axis rotation matrices, storing them in m. When applied to a 
    point, these matrices will rotate it about the X axis by the specified 
    angle (given in binary, 256 degrees to a circle format).
@@ -9696,6 +9744,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @get_y_rotate_matrix_f(MATRIX_f *m, float r);
 @xref apply_matrix, get_rotation_matrix, get_x_rotate_matrix
 @xref get_z_rotate_matrix
+@shortdesc Construct Y axis rotation matrices.
    Construct Y axis rotation matrices, storing them in m. When applied to a 
    point, these matrices will rotate it about the Y axis by the specified 
    angle (given in binary, 256 degrees to a circle format).
@@ -9704,6 +9753,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @get_z_rotate_matrix_f(MATRIX_f *m, float r);
 @xref apply_matrix, get_rotation_matrix, get_x_rotate_matrix
 @xref get_y_rotate_matrix
+@shortdesc Construct Z axis rotation matrices.
    Construct Z axis rotation matrices, storing them in m. When applied to a 
    point, these matrices will rotate it about the Z axis by the specified 
    angle (given in binary, 256 degrees to a circle format).
@@ -9714,6 +9764,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @xref get_x_rotate_matrix, get_y_rotate_matrix, get_z_rotate_matrix
 @xref get_align_matrix
 @eref ex12bit, exquat, exstars
+@shortdesc Constructs X, Y, Z rotation matrices.
    Constructs a transformation matrix which will rotate points around all
    three axes by the specified amounts (given in binary, 256 degrees to a
    circle format). The direction of rotation can simply be found out with
@@ -9726,6 +9777,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @\void @get_align_matrix(MATRIX *m, fixed xfront, yfront, zfront, 
 @@                                 fixed xup, fixed yup, fixed zup);
 @xref apply_matrix, get_camera_matrix
+@shortdesc Rotates a matrix to align it along specified coordinate vectors.
    Rotates a matrix so that it is aligned along the specified coordinate 
    vectors (they need not be normalized or perpendicular, but the up and 
    front must not be equal). A front vector of 0,0,-1 and up vector of 0,1,0 
@@ -9734,12 +9786,14 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @\void @get_align_matrix_f(MATRIX *m, float xfront, yfront, zfront, 
 @@                                   float xup, yup, zup);
 @xref get_align_matrix
+@shortdesc Floating point version of get_align_matrix().
    Floating point version of get_align_matrix().
 
 @@void @get_vector_rotation_matrix(MATRIX *m, fixed x, y, z, fixed a);
 @@void @get_vector_rotation_matrix_f(MATRIX_f *m, float x, y, z, float a);
 @xref apply_matrix, get_rotation_matrix, get_align_matrix
 @eref excamera
+@shortdesc Constructs X, Y, Z rotation matrices with an angle.
    Constructs a transformation matrix which will rotate points around the 
    specified x,y,z vector by the specified angle (given in binary, 256 
    degrees to a circle format).
@@ -9748,6 +9802,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@                               fixed xrot, yrot, zrot, x, y, z);
 @xref apply_matrix, get_rotation_matrix, get_scaling_matrix
 @xref get_translation_matrix
+@shortdesc Constructs X, Y, Z rotation matrices with an angle and scaling.
    Constructs a transformation matrix which will rotate points around all 
    three axes by the specified amounts (given in binary, 256 degrees to a 
    circle format), scale the result by the specified amount (pass 1 for no 
@@ -9756,11 +9811,13 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @\void @get_transformation_matrix_f(MATRIX_f *m, float scale,
 @@                                 float xrot, yrot, zrot, x, y, z);
 @xref get_transformation_matrix
+@shortdesc Floating point version of get_transformation_matrix().
    Floating point version of get_transformation_matrix().
 
 @\void @get_camera_matrix(MATRIX *m, fixed x, y, z, xfront, yfront, zfront,
 @@                       fixed xup, yup, zup, fov, aspect);
 @xref apply_matrix, get_align_matrix, set_projection_viewport, persp_project
+@shortdesc Constructs a camera matrix for perspective projection.
    Constructs a camera matrix for translating world-space objects into a
    normalised view space, ready for the perspective projection. The x, y,
    and z parameters specify the camera position, xfront, yfront, and zfront
@@ -9789,11 +9846,13 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @\void @get_camera_matrix_f(MATRIX_f *m, float x, y, z, xfront, yfront, zfront,
 @@                         float xup, yup, zup, fov, aspect);
 @xref get_camera_matrix
+@shortdesc Floating point version of get_camera_matrix().
    Floating point version of get_camera_matrix().
 
 @@void @qtranslate_matrix(MATRIX *m, fixed x, fixed y, fixed z);
 @@void @qtranslate_matrix_f(MATRIX_f *m, float x, float y, float z);
 @xref get_translation_matrix
+@shortdesc Optimised routine for translating an already generated matrix.
    Optimised routine for translating an already generated matrix: this 
    simply adds in the translation offset, so there is no need to build two 
    temporary matrices and then multiply them together.
@@ -9801,6 +9860,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @qscale_matrix(MATRIX *m, fixed scale);
 @@void @qscale_matrix_f(MATRIX_f *m, float scale);
 @xref get_scaling_matrix
+@shortdesc Optimised routine for scaling an already generated matrix.
    Optimised routine for scaling an already generated matrix: this simply 
    adds in the scale factor, so there is no need to build two temporary 
    matrices and then multiply them together.
@@ -9809,6 +9869,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @matrix_mul_f(const MATRIX_f *m1, *m2, MATRIX_f *out);
 @xref apply_matrix
 @eref exquat, exscn3d
+@shortdesc Multiplies two matrices.
    Multiplies two matrices, storing the result in out (this may be a 
    duplicate of one of the input matrices, but it is faster when the inputs 
    and output are all different). The resulting matrix will have the same 
@@ -9820,6 +9881,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@fixed @vector_length(fixed x, fixed y, fixed z);
 @@float @vector_length_f(float x, float y, float z);
 @xref normalize_vector
+@shortdesc Calculates the length of a vector.
    Calculates the length of the vector (x, y, z), using that good 'ole 
    Pythagoras theorem.
 
@@ -9827,6 +9889,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @normalize_vector_f(float *x, float *y, float *z);
 @xref vector_length, dot_product, cross_product
 @eref exstars
+@shortdesc Converts the vector to a unit vector.
    Converts the vector (*x, *y, *z) to a unit vector. This points in the 
    same direction as the original vector, but has a length of one.
 
@@ -9834,6 +9897,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@float @dot_product_f(float x1, y1, z1, x2, y2, z2);
 @xref cross_product, normalize_vector
 @eref exstars
+@shortdesc Calculates the dot product.
    Calculates the dot product (x1, y1, z1) . (x2, y2, z2), returning the 
    result.
 
@@ -9841,6 +9905,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @cross_product_f(float x1, y1, z1, x2, y2, z2, *xout, *yout, *zout);
 @xref dot_product, polygon_z_normal, normalize_vector
 @eref exstars
+@shortdesc Calculates the cross product.
    Calculates the cross product (x1, y1, z1) x (x2, y2, z2), storing the 
    result in (*xout, *yout, *zout). The cross product is perpendicular to 
    both of the input vectors, so it can be used to generate polygon normals.
@@ -9849,6 +9914,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@float @polygon_z_normal_f(const V3D_f *v1, *v2, *v3);
 @xref cross_product
 @eref ex3d
+@shortdesc Finds the Z component of the normal vector to three vertices.
    Finds the Z component of the normal vector to the specified three 
    vertices (which must be part of a convex polygon). This is used mainly in 
    back-face culling. The back-faces of closed polyhedra are never visible 
@@ -9861,12 +9927,14 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @apply_matrix_f(const MATRIX_f *m, float x, y, z, *xout, *yout, *zout);
 @xref matrix_mul
 @eref ex12bit, ex3d, exstars
+@shortdesc Multiplies a point by a transformation matrix.
    Multiplies the point (x, y, z) by the transformation matrix m, storing 
    the result in (*xout, *yout, *zout).
 
 @@void @set_projection_viewport(int x, int y, int w, int h);
 @xref persp_project, get_camera_matrix
 @eref ex3d, excamera, exquat, exscn3d, exstars, exzbuf
+@shortdesc Sets the viewport used to scale the output of persp_project().
    Sets the viewport used to scale the output of the persp_project()
    function. Pass the dimensions of the screen area you want to draw onto,
    which will typically be 0, 0, SCREEN_W, and SCREEN_H. Also don't forget
@@ -9883,6 +9951,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @@void @persp_project_f(float x, y, z, *xout, *yout);
 @xref set_projection_viewport, get_camera_matrix
 @eref ex3d, exstars
+@shortdesc Projects a 3d point into 2d screen space.
    Projects the 3d point (x, y, z) into 2d screen space, storing the result 
    in (*xout, *yout) and using the scaling parameters previously set by 
    calling set_projection_viewport(). This function projects from the 
@@ -9927,36 +9996,43 @@ that is beyond the scope of this documentation. Quaternions do work -- trust
 me.
 
 @@extern QUAT @identity_quat;
+@shortdesc Global variable containing the identity quaternion.
    Global variable containing the 'do nothing' identity quaternion. 
    Multiplying by the identity quaternion has no effect.
 
 @@void @get_x_rotate_quat(QUAT *q, float r);
 @@void @get_y_rotate_quat(QUAT *q, float r);
 @@void @get_z_rotate_quat(QUAT *q, float r);
+@shortdesc Construct axis rotation quaternions.
    Construct axis rotation quaternions, storing them in q. When applied to a 
    point, these quaternions will rotate it about the relevant axis by the 
    specified angle (given in binary, 256 degrees to a circle format).
 
 @@void @get_rotation_quat(QUAT *q, float x, float y, float z);
 @eref exquat
+@shortdesc Constructs a quaternion to rotate points around all three axes.
    Constructs a quaternion that will rotate points around all three axes by 
    the specified amounts (given in binary, 256 degrees to a circle format).
 
 @@void @get_vector_rotation_quat(QUAT *q, float x, y, z, float a);
+@shortdesc Constructs a quaternion to rotate points around a vector.
    Constructs a quaternion that will rotate points around the specified 
    x,y,z vector by the specified angle (given in binary, 256 degrees to a 
    circle format).
 
 @@void @quat_to_matrix(const QUAT *q, MATRIX_f *m);
 @eref exquat
+@shortdesc Constructs a rotation matrix from a quaternion.
    Constructs a rotation matrix from a quaternion.
 
 @@void @matrix_to_quat(const MATRIX_f *m, QUAT *q);
+@shortdesc Constructs a quaternion from a rotation matrix.
    Constructs a quaternion from a rotation matrix. Translation is discarded 
    during the conversion. Use get_align_matrix_f() if the matrix is not 
    orthonormalized, because strange things may happen otherwise.
 
 @@void @quat_mul(const QUAT *p, const QUAT *q, QUAT *out);
+@shortdesc Multiplies two quaternions.
    Multiplies two quaternions, storing the result in out. The resulting 
    quaternion will have the same effect as the combination of p and q, ie. 
    when applied to a point, (point * out) = ((point * p) * q). Any number of 
@@ -9964,6 +10040,7 @@ me.
    multiplication is not commutative, ie. quat_mul(p, q) != quat_mul(q, p). 
 
 @@void @apply_quat(const QUAT *q, float x, y, z, *xout, *yout, *zout);
+@shortdesc Multiplies a point by a quaternion.
    Multiplies the point (x, y, z) by the quaternion q, storing the result in 
    (*xout, *yout, *zout). This is quite a bit slower than apply_matrix_f(), 
    so only use it to translate a few points. If you have many points, it is 
@@ -9972,6 +10049,7 @@ me.
 
 @@void @quat_interpolate(const QUAT *from, *to, float t, QUAT *out);
 @eref exquat
+@shortdesc Constructs a quaternion representing a rotation between from and to.
    Constructs a quaternion that represents a rotation between from and to. 
    The argument t can be anything between 0 and 1 and represents where 
    between from and to the result will be. 0 returns from, 1 returns to, and 
@@ -9980,6 +10058,7 @@ me.
    between from and to.
 
 @@void @quat_slerp(const QUAT *from, *to, float t, QUAT *out, int how);
+@shortdesc Version of quat_interpolate() allowing control over the rotation.
    The same as quat_interpolate(), but allows more control over how the 
    rotation is done. The how parameter can be any one of the values:
 <textblock>
@@ -10201,16 +10280,19 @@ still drawn too large until version 4.1.0.
 
 @@int @d_clear_proc(int msg, DIALOG *d, int c);
 @eref excustom, exgui
+@shortdesc Dialog procedure to clear the screen.
    This just clears the screen when it is drawn. Useful as the first object 
    in a dialog.
 
 @@int @d_box_proc(int msg, DIALOG *d, int c);
 @@int @d_shadow_box_proc(int msg, DIALOG *d, int c);
 @eref exgui, exrgbhsv
+@shortdesc Dialog procedure drawing boxes onto the screen.
    These draw boxes onto the screen, with or without a shadow.
 
 @@int @d_bitmap_proc(int msg, DIALOG *d, int c);
 @eref exgui, exrgbhsv
+@shortdesc Dialog procedure drawing a bitmap.
    This draws a bitmap onto the screen, which should be pointed to by the 
    dp field.
 
@@ -10218,6 +10300,7 @@ still drawn too large until version 4.1.0.
 @@int @d_ctext_proc(int msg, DIALOG *d, int c);
 @@int @d_rtext_proc(int msg, DIALOG *d, int c);
 @eref exgui, exrgbhsv
+@shortdesc Dialogs procedure drawing text onto the screen.
    These draw text onto the screen. The dp field should point to the string 
    to display. d_ctext_proc() centers the string horizontally, and
    d_rtext_proc() right aligns it. Any '&' characters in the string will 
@@ -10228,6 +10311,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_button_proc(int msg, DIALOG *d, int c);
 @eref excustom, exgui
+@shortdesc Dialog procedure implementing a button object.
    A button object (the dp field points to the text string). This object can 
    be selected by clicking on it with the mouse or by pressing its keyboard 
    shortcut. If the D_EXIT flag is set, selecting it will close the dialog, 
@@ -10236,6 +10320,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_check_proc(int msg, DIALOG *d, int c);
 @eref excustom, exgui
+@shortdesc Dialog procedure implementing a check box object.
    This is an example of how you can derive objects from other objects. Most 
    of the functionality comes from d_button_proc(), but it displays itself 
    as a check box. If the d1 field is non-zero, the text will be printed to 
@@ -10246,6 +10331,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_radio_proc(int msg, DIALOG *d, int c);
 @eref exgui
+@shortdesc Dialog procedure implementing a radio button object.
    A radio button object. A dialog can contain any number of radio button 
    groups: selecting a radio button causes other buttons within the same 
    group to be deselected. The dp field points to the text string, d1 
@@ -10254,6 +10340,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_icon_proc(int msg, DIALOG *d, int c);
 @eref exgui
+@shortdesc Dialog procedure implementing a bitmap button.
    A bitmap button. The fg color is used for the dotted line showing focus, 
    and the bg color for the shadow used to fill in the top and left sides of 
    the button when "pressed". d1 is the "push depth", ie. the number of 
@@ -10265,6 +10352,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_keyboard_proc(int msg, DIALOG *d, int c);
 @eref exgui
+@shortdesc Invisible dialog procedure for implementing keyboard shortcuts.
    This is an invisible object for implementing keyboard shortcuts. You can 
    put an ASCII code in the key field of the dialog object (a character such 
    as 'a' to respond to a simple keypress, or a number 1-26 to respond to a 
@@ -10276,6 +10364,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_edit_proc(int msg, DIALOG *d, int c);
 @eref excustom, exgui
+@shortdesc Dialog procedure implementing an editable text object.
    An editable text object (the dp field points to the string). When it has 
    the input focus (obtained by clicking on it with the mouse), text can be 
    typed into this object. The d1 field specifies the maximum number of 
@@ -10288,6 +10377,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_list_proc(int msg, DIALOG *d, int c);
 @eref exgui
+@shortdesc Dialog procedure implementing a list box object.
    A list box object. This will allow the user to scroll through a list of 
    items and to select one by clicking or with the arrow keys. If the D_EXIT 
    flag is set, double clicking on a list item will close the dialog. The 
@@ -10310,12 +10400,14 @@ still drawn too large until version 4.1.0.
 
 @@int @d_text_list_proc(int msg, DIALOG *d, int c);
 @eref exgui
+@shortdesc Dialog procedure implementing a list box object with type ahead.
    Like d_list_proc, but allows the user to type in the first few characters 
    of a listbox entry in order to select it. Uses dp3 internally, so you 
    mustn't store anything important there yourself.
 
 @@int @d_textbox_proc(int msg, DIALOG *d, int c);
 @eref exgui
+@shortdesc Dialog procedure implementing a text box object.
    A text box object. The dp field points to the text which is to be 
    displayed in the box. If the text is long, there will be a vertical 
    scrollbar on the right hand side of the object which can be used to 
@@ -10327,6 +10419,7 @@ still drawn too large until version 4.1.0.
 
 @@int @d_slider_proc(int msg, DIALOG *d, int c);
 @eref exgui, exrgbhsv
+@shortdesc Dialog procedure implementing a slider control object.
    A slider control object. This object holds a value in d2, in the range 
    from 0 to d1. It will display as a vertical slider if h is greater than 
    or equal to w, otherwise it will display as a horizontal slider. The dp 
@@ -10341,6 +10434,7 @@ still drawn too large until version 4.1.0.
 @@int @d_menu_proc(int msg, DIALOG *d, int c);
 @xref GUI menus, active_menu, gui_menu_draw_menu
 @eref exgui
+@shortdesc Dialog procedure implementing a menu bar object.
    This object is a menu bar which will drop down child menus when it is 
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
@@ -10357,6 +10451,7 @@ still drawn too large until version 4.1.0.
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
 @xref rest
 @eref exgui
+@shortdesc Invisible dialog procedure that yields CPU timeslices.
    An invisible helper object that yields timeslices for the scheduler (if
    the system supports it) when the GUI has nothing to do but waiting for
    user actions. You should put one instance of this object in each dialog 
@@ -10368,6 +10463,7 @@ The behaviour of the dialog manager can be controlled by the following
 global variables.
 
 @@extern int @gui_mouse_focus;
+@shortdesc Tells if the input focus follows the mouse pointer.
    If set, the input focus follows the mouse pointer around the dialog, 
    otherwise a click is required to move it.
 
@@ -10375,16 +10471,19 @@ global variables.
 @@extern int @gui_bg_color;
 @xref gui_mg_color, set_dialog_color
 @eref exgui
+@shortdesc The foreground and background colors for the standard dialogs.
    The foreground and background colors for the standard dialogs (alerts, 
    menus, and the file selector). They default to 255 and 0.
 
 @@extern int @gui_mg_color;
 @xref gui_fg_color, set_dialog_color
 @eref exgui
+@shortdesc The color used for displaying greyed-out dialog objects.
    The color used for displaying greyed-out dialog objects (with the 
    D_DISABLED flag set). Defaults to 8.
 
 @@extern int @gui_font_baseline;
+@shortdesc Adjusts the keyboard shortcut underscores height.
    If set to a non-zero value, adjusts the keyboard shortcut underscores to 
    account for the height of the descenders in your font.
 
@@ -10392,6 +10491,7 @@ global variables.
 @@extern int (*@gui_mouse_y)();
 @@extern int (*@gui_mouse_z)();
 @@extern int (*@gui_mouse_b)();
+@shortdesc Hook functions used by the GUI routines to access the mouse state.
    Hook functions, used by the GUI routines whenever they need to access the 
    mouse state. By default these just return copies of the mouse_x, mouse_y, 
    mouse_z, and mouse_b variables, but they could be used to offset or scale 
@@ -10405,18 +10505,21 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@int @gui_textout_ex(BITMAP *bmp, const char *s, int x, y, color, bg, centre);
 @xref gui_strlen
+@shortdesc Draws a text string onto the screen with keyboard shortcut underbars.
    Helper function for use by the GUI routines. Draws a text string onto the 
    screen, interpreting the '&' character as an underbar for displaying 
    keyboard shortcuts. Returns the width of the output string in pixels.
 
 @@int @gui_strlen(const char *s);
 @xref gui_textout_ex
+@shortdesc Returns the length of a string in pixels.
    Helper function for use by the GUI routines. Returns the length of a 
    string in pixels, ignoring '&' characters.
 
 @@void @gui_set_screen(BITMAP *bmp);
 @xref gui_get_screen
-   This function can be used to change the bitmap surface the GUI rourtines
+@shortdesc Changes the bitmap surface GUI routines draw to.
+   This function can be used to change the bitmap surface the GUI routines
    draw to. This can be useful if you are using a double buffering or page 
    flipping system. Passing NULL will cause the default surface (screen) to
    be used again. Example:
@@ -10434,6 +10537,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@BITMAP *@gui_get_screen(void);
 @xref gui_set_screen
+@shortdesc Returns the bitmap surface GUI routines draw to.
    This function returns the current bitmap surface the GUI routines will
    use for drawing. Note that this function will return screen if you have
    called gui_set_screen(NULL) previously, and will never return NULL.
@@ -10441,20 +10545,24 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @@void @position_dialog(DIALOG *dialog, int x, int y);
 @xref centre_dialog
 @eref exgui
+@shortdesc Moves an array of dialog objects to the specified position.
    Moves an array of dialog objects to the specified screen position 
    (specified as the top left corner of the dialog).
 
 @@void @centre_dialog(DIALOG *dialog);
 @xref position_dialog, set_dialog_color
+@shortdesc Centers an array of dialog objects.
    Moves an array of dialog objects so that it is centered in the screen.
 
 @@void @set_dialog_color(DIALOG *dialog, int fg, int bg);
 @xref gui_fg_color, gui_mg_color, centre_dialog
 @eref exgui
+@shortdesc Sets the colors of an array of dialog objects.
    Sets the foreground and background colors of an array of dialog objects.
 
 @@int @find_dialog_focus(DIALOG *dialog);
 @xref do_dialog, init_dialog, offer_focus
+@shortdesc Searches the dialog for the object which has the input focus.
    Searches the dialog for the object which has the input focus, returning 
    an index or -1 if the focus is not set. This is useful if you are calling 
    do_dialog() several times in a row and want to leave the focus in the 
@@ -10463,6 +10571,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@int @offer_focus(DIALOG *dialog, int obj, int *focus_obj, int force);
 @xref find_dialog_focus
+@shortdesc Offers the input focus to a particular object.
    Offers the input focus to a particular object. Normally the function sends
    the MSG_WANTFOCUS message to query whether the object is willing to accept
    the focus. However, passing any non-zero value as force argument instructs
@@ -10471,6 +10580,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @@int @object_message(DIALOG *dialog, int msg, int c);
 @xref dialog_message, scare_mouse, scare_mouse_area, unscare_mouse
 @eref excustom, exrgbhsv
+@shortdesc Sends a message to an object and returns the answer.
    Sends a message to an object and returns the answer it has generated.
    Remember that the first parameter is the dialog object (not a whole
    array) that you wish to send the message to. For example, to make the
@@ -10480,14 +10590,17 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 <endblock>
    The function will take care of scaring and unscaring the mouse if the
    message is MSG_DRAW.
+
 @@int @dialog_message(DIALOG *dialog, int msg, int c, int *obj);
 @xref object_message, broadcast_dialog_message
+@shortdesc Sends a message to all the objects in an array.
    Sends a message to all the objects in an array. If any of the dialog 
    procedures return values other than D_O_K, it returns the value and sets 
    obj to the index of the object which produced it.
 
 @@int @broadcast_dialog_message(int msg, int c);
 @xref dialog_message, active_dialog
+@shortdesc Broadcasts a message to all the objects in the active dialog.
    Broadcasts a message to all the objects in the active dialog. If any of 
    the dialog procedures return values other than D_O_K, it returns that 
    value.
@@ -10496,6 +10609,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @xref popup_dialog, init_dialog, centre_dialog, set_dialog_color
 @xref find_dialog_focus
 @eref excustom, exgui, exrgbhsv
+@shortdesc Basic dialog manager function.
    The basic dialog manager function. This displays a dialog (an array of 
    dialog objects, terminated by one with a NULL dialog procedure), and sets 
    the input focus to the focus_obj (-1 if you don't want anything to have 
@@ -10506,6 +10620,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@int @popup_dialog(DIALOG *dialog, int focus_obj);
 @xref do_dialog
+@shortdesc do_dialog() used for popup dialogs.
    Like do_dialog(), but it stores the data on the screen before drawing the 
    dialog and restores it when the dialog is closed. The screen area to be 
    stored is calculated from the dimensions of the first object in the 
@@ -10513,7 +10628,8 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@DIALOG_PLAYER *@init_dialog(DIALOG *dialog, int focus_obj);
 @xref update_dialog, shutdown_dialog, do_dialog
-   This function provides lower level access to the same functionality as 
+@shortdesc Low level initialisation of a dialog.
+   This function provides lower level access to the same functionality as
    do_dialog(), but allows you to combine a dialog box with your own program 
    control structures. It initialises a dialog, returning a pointer to a 
    player object that can be used with update_dialog() and 
@@ -10529,6 +10645,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@int @update_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
+@shortdesc Low level function to update a dialog player.
    Updates the status of a dialog object returned by init_dialog(). Returns 
    TRUE if the dialog is still active, or FALSE if it has terminated. Upon a 
    return value of FALSE, it is up to you whether to call shutdown_dialog() 
@@ -10537,12 +10654,14 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 
 @@int @shutdown_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
+@shortdesc Destroys a dialog player returned by init_dialog().
    Destroys a dialog player object returned by init_dialog(), returning the 
    object that caused it to exit (this is the same as the return value from 
    do_dialog()).
 
 @@extern DIALOG *@active_dialog;
 @xref do_dialog, init_dialog, broadcast_dialog_message
+@shortdesc Global pointer to the most recent activated dialog.
    Global pointer to the most recent activated dialog. This may be useful if 
    an object needs to iterate through a list of all its siblings.
 
@@ -10573,6 +10692,7 @@ ensure there is room for the check.
 
 @@int @do_menu(MENU *menu, int x, int y);
 @xref GUI menus, d_menu_proc, active_menu, gui_menu_draw_menu, update_menu
+@shortdesc Displays an animates a popup menu.
    Displays and animates a popup menu at the specified screen coordinates 
    (these will be adjusted if the menu does not entirely fit on the screen). 
    Returns the index of the menu item that was selected, or -1 if the menu 
@@ -10582,6 +10702,7 @@ ensure there is room for the check.
 
 @@MENU_PLAYER *@init_menu(MENU *menu, int x, int y);
 @xref update_menu, shutdown_menu, do_menu
+@shortdesc Low level initialisation of a menu.
    This function provides lower level access to the same functionality as 
    do_menu(), but allows you to combine a popup menu with your own program 
    control structures. It initialises a menu, returning a pointer to a menu
@@ -10598,6 +10719,7 @@ ensure there is room for the check.
 
 @@int @update_menu(MENU_PLAYER *player);
 @xref init_menu, shutdown_menu, do_menu
+@shortdesc Low level function to update a menu player.
    Updates the status of a menu object returned by init_menu(). Returns TRUE
    if the menu is still active, or FALSE if it has terminated. Upon a return
    value of FALSE, it is up to you to call shutdown_menu() or to continue
@@ -10605,6 +10727,7 @@ ensure there is room for the check.
 
 @@int @shutdown_menu(MENU_PLAYER *player);
 @xref init_menu, update_menu
+@shortdesc Destroys a menu player object returned by init_menu().
    Destroys a menu player object returned by init_menu(), returning the index
    of the menu item that was selected, or -1 if the menu was cancelled (this
    is the same as the return value from do_menu()).
@@ -10612,6 +10735,7 @@ ensure there is room for the check.
 @@extern MENU *@active_menu;
 @xref GUI menus
 @eref exgui
+@shortdesc Global pointer to the most recent activated menu.
    When a menu callback procedure is triggered, this will be set to the menu 
    item that was selected, so your routine can determine where it was called 
    from.
@@ -10620,6 +10744,7 @@ ensure there is room for the check.
 @\extern void (*@gui_menu_draw_menu_item)(MENU *m, int x, int y, int w,
 @@                                       int h, int bar, int sel);
 @xref GUI menus
+@shortdesc Hooks to modify the appearance of menus.
    If set, these functions will be called whenever a menu needs to be
    drawn, so you can change how menus look.
 
@@ -10634,6 +10759,7 @@ ensure there is room for the check.
 @@int @alert(const char *s1, *s2, *s3, const char *b1, *b2, int c1, c2);
 @xref alert3, gui_fg_color
 @eref exgui, exspline
+@shortdesc Displays a popup alert box.
    Displays a popup alert box, containing three lines of text (s1-s3), and 
    with either one or two buttons. The text for these buttons is passed in 
    b1 and b2 (b2 may be NULL), and the keyboard shortcuts in c1 and c2. 
@@ -10644,11 +10770,13 @@ ensure there is room for the check.
 
 @@int @alert3(const char *s1, *s2, *s3, const char *b1, *b2, *b3, int c1, c2, c3);
 @xref alert, gui_fg_color
+@shortdesc Like alert(), but with three buttons.
    Like alert(), but with three buttons. Returns 1, 2, or 3.
 
 @\int @file_select_ex(const char *message, char *path, const char *ext,
 @@                   int size, int w, int h);
 @xref gui_fg_color
+@shortdesc Displays the Allegro file selector with a caption.
    Displays the Allegro file selector, with the message as caption. The path 
    parameter contains the initial filename to display (this can be used to 
    set the starting directory, or to provide a default filename for a 
@@ -10679,6 +10807,7 @@ ensure there is room for the check.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, gfx_mode_select_filter, set_gfx_mode, gui_fg_color
+@shortdesc Displays the Allegro graphics mode selection dialog.
    Displays the Allegro graphics mode selection dialog, which allows the 
    user to select a screen mode and graphics card. Stores the selection in 
    the three variables, and returns zero if it was closed with the Cancel 
@@ -10688,6 +10817,7 @@ ensure there is room for the check.
 @xref gfx_mode_select, gfx_mode_select_filter, set_color_depth, set_gfx_mode
 @xref gui_fg_color
 @eref ex3d, exscn3d, exswitch, exupdate, exzbuf
+@shortdesc Extended version of the graphics mode selection dialog.
    Extended version of the graphics mode selection dialog, which allows the 
    user to select the color depth as well as the resolution and hardware 
    driver. This version of the function reads the initial values from the 
@@ -10696,6 +10826,7 @@ ensure there is room for the check.
 @\int @gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth,
 @@                            int (*filter)(int, int, int, int));
 @xref gfx_mode_select, gfx_mode_select_ex, set_color_depth, set_gfx_mode, gui_fg_color
+@shortdesc Even more extended version of the graphics mode selection dialog.
    Even more extended version of the graphics mode selection dialog, which
    allows the programmer to customize the contents of the dialog and the user
    to select the color depth as well as the resolution and hardware driver.
@@ -10711,6 +10842,7 @@ ensure there is room for the check.
 @@extern int (*@gui_list_proc)(int msg, struct DIALOG *d, int c);
 @@extern int (*@gui_text_list_proc)(int msg, struct DIALOG *d, int c);
 @xref alert, alert3, file_select_ex, gfx_mode_select, gui_fg_color
+@shortdesc Hooks to customise the look and feel of Allegro dialogs.
    If set, these functions will be used by the standard Allegro dialogs.
    This allows you to customise the look and feel, much like gui_fg_color
    and gui_bg_color, but much more flexibly.
@@ -10724,6 +10856,7 @@ Platform specifics
 DOS specifics
 
 @@Drivers @JOY_TYPE_*/DOS
+@shortdesc Supported DOS joystick drivers.
 @xref install_joystick
    The DOS library supports the following type parameters for the 
    install_joystick() function:
@@ -10868,6 +11001,7 @@ DOS specifics
 </ul>
 @@Drivers @GFX_*/DOS
 @xref set_gfx_mode
+@shortdesc Supported DOS graphic drivers.
    The DOS library supports the following card parameters for the 
    set_gfx_mode() function:
 <ul><li>
@@ -11013,6 +11147,7 @@ DOS specifics
 </ul>
 @@Drivers @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
+@shortdesc Supported DOS digital sound drivers.
    The DOS sound functions support the following digital soundcards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
@@ -11030,6 +11165,7 @@ DOS specifics
 
 @@Drivers @MIDI_*/DOS
 @xref detect_midi_driver, install_sound, install_sound_input
+@shortdesc Supported DOS MIDI sound drivers.
    The DOS sound functions support the following MIDI soundcards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
@@ -11050,6 +11186,7 @@ DOS specifics
 @@void @split_modex_screen(int line);
 @xref set_gfx_mode, scroll_screen
 @eref exscroll
+@shortdesc Splits into two parts the VGA display in mode-X.
    This function is only available in mode-X. It splits the VGA display into 
    two parts at the specified line. The top half of the screen can be 
    scrolled to any part of video memory with the scroll_screen() function, 
@@ -11063,6 +11200,7 @@ DOS specifics
 
 @@extern int @i_love_bill;
 @xref install_timer, allegro_init, os_type
+@shortdesc Tells if Allegro has to used fixed rate timers.
    When running in clean DOS mode, the timer handler dynamically reprograms 
    the clock chip to generate interrupts at exactly the right times, which 
    gives an extremely high accuracy. Unfortunately, this constant speed 
@@ -11134,6 +11272,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 
 @@Drivers @GFX_*/Windows
 @xref set_gfx_mode
+@shortdesc Supported Windows graphic drivers.
    The Windows library supports the following card parameters for the 
    set_gfx_mode() function:
 <ul><li>
@@ -11230,6 +11369,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 </ul>
 @@Drivers @DIGI_*/Windows
 @xref detect_digi_driver, install_sound, install_sound_input
+@shortdesc Supported Windows digital sound drivers.
    The Windows sound functions support the following digital soundcards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
@@ -11243,6 +11383,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 
 @@Drivers @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
+@shortdesc Supported Windows MIDI sound drivers.
    The Windows sound functions support the following MIDI soundcards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
@@ -11258,11 +11399,13 @@ integrate Allegro into general purpose Win32 programs. To use these routines,
 you must include winalleg.h after other Allegro headers.
 
 @@HWND @win_get_window(void);
+@shortdesc Retrieves a handle to the window used by Allegro.
    Retrieves a handle to the window used by Allegro. Note that Allegro
    uses an underlying window even though you don't set any graphics mode,
    unless you have installed the neutral system driver (SYSTEM_NONE).
 
 @@void @win_set_window(HWND wnd);
+@shortdesc Registers an user-created window to be used by Allegro.
    Registers an user-created window to be used by Allegro. This function is
    meant to be called before initialising the library with allegro_init()
    or installing the autodetected system driver (SYSTEM_AUTODETECT). It
@@ -11284,6 +11427,7 @@ you must include winalleg.h after other Allegro headers.
    Windows for its built-in window if this was already in use.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
+@shortdesc Registers a custom procedure to be used by Allegro for creating its window.
    Registers an user-defined procedure to be used by Allegro for creating
    its window. This function must be called *before* initializing the
    library with allegro_init() or installing the autodetected system
@@ -11296,10 +11440,12 @@ you must include winalleg.h after other Allegro headers.
    window. You can then use the full-featured library in the regular way.
 
 @@HDC @win_get_dc(BITMAP *bmp);
+@shortdesc Retrieves a handle to the device context.
    Retrieves a handle to the device context of a DirectX video or system
    bitmap.
 
 @@void @win_release_dc(BITMAP *bmp, HDC dc);
+@shortdesc Releases a handle to the device context.
    Releases a handle to the device context of the bitmap that was
    previously retrieved with win_get_dc().
 
@@ -11331,25 +11477,30 @@ example) the current Allegro palette is not updated along with it!
 To use these routines, you must include winalleg.h after Allegro headers.
 
 @@void @set_gdi_color_format(void);
+@shortdesc Tells Allegro to use the GDI color layout for truecolor images.
    Tells Allegro to use the GDI color layout for truecolor images. This is 
    optional, but it will make the conversions work faster. If you are going 
    to call this, you should do it right after initialising Allegro and 
    before creating any graphics.
 
 @@void @set_palette_to_hdc(HDC dc, PALETTE pal);
+@shortdesc Selects and realizes a palette on the specified device context.
    Selects and realizes an Allegro palette on the specified device context.
 
 @@HPALETTE @convert_palette_to_hpalette(PALETTE pal);
 @xref convert_hpalette_to_palette
+@shortdesc Converts an Allegro palette to a Windows palette.
    Converts an Allegro palette to a Windows palette and returns a handle to 
    it. You should call DeleteObject() when you no longer need it.
 
 @@void @convert_hpalette_to_palette(HPALETTE hpal, PALETTE pal);
 @xref convert_palette_to_hpalette
+@shortdesc Converts a Windows palette to an Allegro palette.
    Converts a Windows palette to an Allegro palette.
 
 @@HBITMAP @convert_bitmap_to_hbitmap(BITMAP *bitmap);
 @xref convert_hbitmap_to_bitmap
+@shortdesc Converts an Allegro memory bitmap to a Windows DDB.
    Converts an Allegro memory bitmap to a Windows DDB and returns a handle 
    to it. This bitmap uses its own memory, so you can destroy the original 
    bitmap without affecting the converted one. You should call 
@@ -11357,26 +11508,31 @@ To use these routines, you must include winalleg.h after Allegro headers.
 
 @@BITMAP *@convert_hbitmap_to_bitmap(HBITMAP bitmap);
 @xref convert_bitmap_to_hbitmap
+@shortdesc Creates an Allegro memory bitmap from a Windows DDB.
    Creates an Allegro memory bitmap from a Windows DDB.
 
 @@void @draw_to_hdc(HDC dc, BITMAP *bitmap, int x, int y);
 @xref blit_to_hdc, stretch_blit_to_hdc, draw_sprite
+@shortdesc Draws an Allegro bitmap to a Windows device context.
    Draws an entire Allegro bitmap to a Windows device context, using the 
    same parameters as the draw_sprite() function.
 
 @@void @blit_to_hdc(BITMAP *bitmap, HDC dc, int sx, sy, dx, dy, w, h);
 @xref draw_to_hdc, stretch_blit_to_hdc, blit_from_hdc, blit
+@shortdesc Blits an Allegro memory bitmap to a Windows device context.
    Blits an Allegro memory bitmap to a Windows device context, using the 
    same parameters as the blit() function.
 
 @\void @stretch_blit_to_hdc(BITMAP *bitmap, HDC dc, int sx, sy, sw, sh,
 @@                                                 int dx, dy, dw, dh);
 @xref draw_to_hdc, blit_to_hdc, stretch_blit_from_hdc, stretch_blit
+@shortdesc Blits an Allegro memory bitmap to a Windows device context.
    Blits an Allegro memory bitmap to a Windows device context, using the 
    same parameters as the stretch_blit() function.
 
 @@void @blit_from_hdc(HDC hdc, BITMAP *bitmap, int sx, sy, dx, dy, w, h);
 @xref stretch_blit_from_hdc, blit_to_hdc, blit
+@shortdesc Blits from a Windows device context to an Allegro memory bitmap.
    Blits from a Windows device context to an Allegro memory bitmap, using 
    the same parameters as the blit() function. See stretch_blit_from_hdc() 
    for details.
@@ -11384,6 +11540,7 @@ To use these routines, you must include winalleg.h after Allegro headers.
 @\void @stretch_blit_from_hdc(HDC hcd, BITMAP *bitmap, int sx, sy, sw, sh,
 @@                                                    int dx, dy, dw, dh);
 @xref blit_from_hdc, stretch_blit_to_hdc, stretch_blit
+@shortdesc Blits from a Windows device context to an Allegro memory bitmap.
    Blits from a Windows device context to an Allegro memory bitmap, using 
    the same parameters as the stretch_blit() function. It uses the current 
    Allegro palette and does conversion to this palette, regardless of the 
@@ -11449,6 +11606,7 @@ command. You could add another grep to filter only lines with text like
 
 @@Drivers @GFX_*/Linux
 @xref set_gfx_mode, GFX_*/X
+@shortdesc Supported Linux console graphic drivers.
    When running in Linux console mode, Allegro supports the following card 
    parameters for the set_gfx_mode() function:
 <ul><li>
@@ -11497,6 +11655,7 @@ command. You could add another grep to filter only lines with text like
 </ul>
 @@Drivers @GFX_*/X
 @xref set_gfx_mode, GFX_*/Linux
+@shortdesc Supported X graphic drivers.
    When running in X mode, Allegro supports the following card parameters 
    for the set_gfx_mode() function:
 <ul><li>
@@ -11548,6 +11707,7 @@ command. You could add another grep to filter only lines with text like
 </ul>
 @@Drivers @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input
+@shortdesc Supported Unix digital sound drivers.
    The Unix sound functions support the following digital soundcards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
@@ -11560,6 +11720,7 @@ command. You could add another grep to filter only lines with text like
 
 @@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
+@shortdesc Supported Unix MIDI sound drivers.
    The Unix sound functions support the following MIDI soundcards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
@@ -11572,6 +11733,7 @@ command. You could add another grep to filter only lines with text like
 
 @@void @xwin_set_window_name(const char *name, const char *group);
 @xref set_window_title
+@shortdesc Specify the window name and group (or class).
    This function is only available under X. It lets you to specify the
    window name and group (or class). They are important because they allow
    the window manager to remember the window attributes (position, layer,
@@ -11580,6 +11742,7 @@ command. You could add another grep to filter only lines with text like
    usually has no other effects on the behaviour of the application.
 
 @@extern void *@allegro_icon;
+@shortdesc Pointer to the Allegro X11 icon.
    This is a pointer to the Allegro X11 icon, which is in the format of 
    standard .xpm bitmap data.
    You do not normally have to bother with this at all: you can use the
@@ -11593,6 +11756,7 @@ BeOS specifics
 
 @@Drivers @GFX_*/BeOS
 @xref set_gfx_mode
+@shortdesc Supported BeOS graphic drivers.
    BeOS Allegro supports the following card parameters for the
    set_gfx_mode() function:
 <ul><li>
@@ -11636,6 +11800,7 @@ BeOS specifics
 </ul>
 @@Drivers @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input
+@shortdesc Supported BeOS digital sound drivers.
    The BeOS sound functions support the following digital soundcards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
@@ -11644,6 +11809,7 @@ BeOS specifics
 
 @@Drivers @MIDI_*/BeOS
 @xref detect_midi_driver, install_sound, install_sound_input
+@shortdesc Supported BeOS MIDI sound drivers.
    The BeOS sound functions support the following MIDI soundcards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
@@ -11658,6 +11824,7 @@ QNX specifics
 
 @@Drivers @GFX_*/QNX
 @xref set_gfx_mode
+@shortdesc Supported QNX graphic drivers.
    QNX Allegro supports the following card parameters for the
    set_gfx_mode() function:
 <ul><li>
@@ -11703,6 +11870,7 @@ QNX specifics
 </ul>
 @@Drivers @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input
+@shortdesc Supported QNX digital sound drivers.
    The QNX sound functions support the following digital soundcards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
@@ -11711,6 +11879,7 @@ QNX specifics
 
 @@Drivers @MIDI_*/QNX
 @xref detect_midi_driver, install_sound, install_sound_input
+@shortdesc Supported QNX MIDI sound drivers.
    The QNX sound functions support the following MIDI soundcards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
@@ -11726,6 +11895,7 @@ integrate Allegro into general purpose QNX programs. To use these routines,
 you must include qnxalleg.h after other Allegro headers.
 
 @@PtWidget_t @qnx_get_window(void);
+@shortdesc Retrieves a handle to the window used by Allegro.
    Retrieves a handle to the window used by Allegro. Note that Allegro
    uses an underlying window even though you don't set any graphics mode,
    unless you have installed the neutral system driver (SYSTEM_NONE).
@@ -11758,6 +11928,7 @@ loop.
 
 @@Drivers @GFX_*/MacOSX
 @xref set_gfx_mode
+@shortdesc Supported MacOSX graphic drivers.
    MacOS X Allegro supports the following card parameters for the
    set_gfx_mode() function:
 <ul><li>
@@ -11789,6 +11960,7 @@ loop.
 </ul>
 @@Drivers @DIGI_*/MacOSX
 @xref detect_digi_driver, install_sound, install_sound_input
+@shortdesc Supported MacOSX digital sound drivers.
    The MacOS X sound functions support the following digital soundcards:
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
@@ -11799,6 +11971,7 @@ loop.
 
 @@Drivers @MIDI_*/MacOSX
 @xref detect_midi_driver, install_sound, install_sound_input
+@shortdesc Supported MacOSX MIDI sound drivers.
    The MacOS X sound functions support the following MIDI soundcards:
 <textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
@@ -12161,6 +12334,7 @@ debugging helper functions:
 
 @@void @al_assert(const char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
+@shortdesc Asserts at the specified file and line number.
    Raises an assert for an error at the specified file and line number. The 
    file parameter is always given in ASCII format. If you have installed a 
    custom assert handler it uses that, or if the environment variable 
@@ -12171,6 +12345,7 @@ debugging helper functions:
 
 @@void @al_trace(const char *msg, ...);
 @xref TRACE, al_assert, register_trace_handler
+@shortdesc Outputs a debugging trace message.
    Outputs a debugging trace message, using a printf() format string given 
    in ASCII. If you have installed a custom trace handler it uses that, or 
    if the environment variable ALLEGRO_TRACE is set it writes into the file 
@@ -12180,18 +12355,21 @@ debugging helper functions:
 
 @@void @ASSERT(condition);
 @xref al_assert, TRACE, register_assert_handler
+@shortdesc Debugging helper macro to assert.
    Debugging helper macro. Normally compiles away to nothing, but if you 
    defined the preprocessor symbol DEBUGMODE before including Allegro headers,
    it will check the supplied condition and call al_assert() if it fails.
 
 @@void @TRACE(char *msg, ...);
 @xref al_trace, ASSERT, register_trace_handler
+@shortdesc Debugging helper macro to trace messages.
    Debugging helper macro. Normally compiles away to nothing, but if you 
    defined the preprocessor symbol DEBUGMODE before including Allegro headers,
    it passes the supplied message given in ASCII format to al_trace().
 
 @@void @register_assert_handler(int (*handler)(const char *msg));
 @xref al_assert, ASSERT, register_trace_handler
+@shortdesc Registers a custom handler for assert failures.
    Supplies a custom handler function for dealing with assert failures. Your 
    callback will be passed a formatted error message in ASCII, and should 
    return non-zero if it has processed the error, or zero to continue with 
@@ -12201,6 +12379,7 @@ debugging helper functions:
 
 @@void @register_trace_handler(int (*handler)(const char *msg));
 @xref al_trace, TRACE, register_assert_handler
+@shortdesc Registers a custom handler for trace output.
    Supplies a custom handler function for dealing with trace output. Your 
    callback will be passed a formatted error message in ASCII, and should 
    return non-zero if it has processed the message, or zero to continue with 
