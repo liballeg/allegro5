@@ -20,7 +20,11 @@
 #ifdef MIDI_ALSA
 
 #include "allegro/aintern.h"
+#ifdef ALLEGRO_QNX
+#include "allegro/aintqnx.h"
+#else
 #include "allegro/aintunix.h"
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>

@@ -40,6 +40,8 @@
    #include "albecfg.h"
 #elif defined __MRC__
    #include "almaccfg.h"
+#elif defined __QNX__
+   #include "alqnxcfg.h"
 #elif defined DJGPP
    #include "aldjgpp.h"
 #elif defined __unix__

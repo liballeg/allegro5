@@ -282,6 +282,15 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xdga2.c \
 	src/x/xwins.s \
 	src/misc/pckeys.c
+	
+ALLEGRO_SRC_QNX_FILES = \
+	src/qnx/drivers.c \
+	src/qnx/qsystem.c \
+	src/misc/ufile.c \
+	src/unix/alsa.c \
+	src/unix/alsamidi.c \
+	src/unix/utimer.c \
+	src/unix/usigalrm.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \

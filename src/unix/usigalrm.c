@@ -17,7 +17,12 @@
 
 
 #include "allegro.h"
+#ifdef ALLEGRO_QNX
+#include "allegro/aintqnx.h"
+#else
 #include "allegro/aintunix.h"
+#endif
+
 
 #include <signal.h>
 #include <sys/time.h>

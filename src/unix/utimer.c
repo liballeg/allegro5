@@ -18,7 +18,11 @@
 
 #include "allegro.h"
 #include "allegro/aintern.h"
+#ifdef ALLEGRO_QNX
+#include "allegro/aintqnx.h"
+#else
 #include "allegro/aintunix.h"
+#endif
 
 
 

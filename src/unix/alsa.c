@@ -21,7 +21,11 @@
 #ifdef DIGI_ALSA
 
 #include "allegro/aintern.h"
+#ifdef ALLEGRO_QNX
+#include "allegro/aintqnx.h"
+#else
 #include "allegro/aintunix.h"
+#endif
 
 #include <sys/asoundlib.h>
 
