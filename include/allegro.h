@@ -1361,6 +1361,8 @@ AL_FUNC(int, text_length, (AL_CONST FONT *f, AL_CONST char *str));
 AL_FUNC(int, text_height, (AL_CONST FONT *f));
 AL_FUNC(void, destroy_font, (FONT *f));
 
+AL_VAR(int, allegro_404_char);
+
 
 typedef struct V3D                  /* a 3d point (fixed point version) */
 {

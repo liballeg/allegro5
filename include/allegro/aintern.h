@@ -204,7 +204,6 @@ AL_VAR(FONT_VTABLE, _font_vtable_mono);
 AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);
 AL_VAR(FONT_VTABLE *, font_vtable_color);
-AL_VAR(int, allegro_404_char);
 
 AL_FUNC(FONT_GLYPH *, _mono_find_glyph, (AL_CONST FONT *f, int ch));
 AL_FUNC(BITMAP *, _color_find_glyph, (AL_CONST FONT *f, int ch));
