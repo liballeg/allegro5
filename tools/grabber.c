@@ -1726,6 +1726,26 @@ static int loader(void)
    *get_filename(buf) = 0;
 
    if (file_select_ex("Load datafile", buf, "dat", sizeof(buf), 0, 0)) {
+      if (is_modified) {
+	 int r = alert3("Previous data may have been modified.",
+			"Do you want to save them?", NULL,
+			"Save", "Don't save", "Cancel", 's', 'd', 27);
+
+	 switch (r) {
+
+	    case 1:
+	       saver();
+	       break;
+
+	    case 2:
+	       break;
+
+	    case 3:
+	    default:
+	       return D_REDRAW;
+	 }
+      }
+
       fix_filename_case(buf);
       load(buf, 1);
    }
