@@ -32,7 +32,7 @@ echo ""
 
 # module rule
 echo "\$(LIBDIR)/$module: \$(${objlist})"
-echo "	gcc -shared -o \$@ \$(${objlist}) \$(LDFLAGS) $modlibs"
+echo "	gcc -shared \$(ALLEGRO_SHAREDLIB_CFLAGS) -o \$@ \$(${objlist}) \$(LDFLAGS) $modlibs"
 echo ""
 
 # explicit object rules (pass -DALLEGRO_MODULE)
@@ -42,9 +42,9 @@ for file in .. $sources; do
     ext=`echo $file | sed 's,^.*\.,,'`
     echo "\$(OBJDIR)/module/$name\$(OBJ): \$(srcdir)/$file"
     if test "$ext" = "c"; then
-      echo "	\$(COMPILE_NORMAL) -DALLEGRO_MODULE -c \$(srcdir)/$file -o \$(OBJDIR)/module/$name\$(OBJ)"
+      echo "	\$(COMPILE_NORMAL) \$(ALLEGRO_SHAREDLIB_CFLAGS) -DALLEGRO_MODULE -c \$(srcdir)/$file -o \$(OBJDIR)/module/$name\$(OBJ)"
     else
-      echo "	\$(COMPILE_S_NORMAL) -DALLEGRO_MODULE -c \$(srcdir)/$file -o \$(OBJDIR)/module/$name\$(OBJ)"
+      echo "	\$(COMPILE_S_NORMAL) \$(ALLEGRO_SHAREDLIB_CFLAGS) -DALLEGRO_MODULE -c \$(srcdir)/$file -o \$(OBJDIR)/module/$name\$(OBJ)"
     fi
   fi
 done
