@@ -12,6 +12,8 @@
  *
  *      By Isaac Cruz.
  *
+ *      General overhaul by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -91,9 +93,9 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
-/* if the allegro color depth is not the same as the desktop color depth,
+/* If the allegro color depth is not the same as the desktop color depth,
  * we need a pre-converted offscreen surface that will be blitted to the window
- * when in background, in order to ensure a proper clipping
+ * when in background, in order to ensure a proper clipping.
  */ 
 static LPDIRECTDRAWSURFACE2 preconv_offscreen_surface = NULL;
 static RECT working_area;
@@ -103,8 +105,32 @@ static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
 
+/* get_working_area:
+ *  Retrieves the rectangle of the working area.
+ */
+static void get_working_area(RECT *working_area)
+{
+   SystemParametersInfo(SPI_GETWORKAREA, 0, working_area, 0);
+   working_area->left   += 3;  /* for the taskbar */
+   working_area->top    += 3;
+   working_area->right  -= 3;
+   working_area->bottom -= 3;
+}
+
+
+
+/* switch_in_win:
+ *  Handles window switched in.
+ */
+static void switch_in_win(void)
+{
+   get_working_area(&working_area);
+}
+
+
+
 /* handle_window_enter_sysmode_win:
- *  causes the driver to switch to indirect updating mode
+ *  Causes the driver to switch to indirect updating mode.
  */
 static void handle_window_enter_sysmode_win(void)
 {
@@ -117,7 +143,7 @@ static void handle_window_enter_sysmode_win(void)
 
 
 /* handle_window_exit_sysmode_win:
- *  causes the driver to switch back to direct updating mode
+ *  Causes the driver to switch back to direct updating mode.
  */
 static void handle_window_exit_sysmode_win(void)
 {
@@ -130,7 +156,7 @@ static void handle_window_exit_sysmode_win(void)
 
 
 /* handle_window_move_win:
- *  makes sure alignment is kept after window has been moved
+ *  Makes sure alignment is kept after the window has been moved.
  */
 static void handle_window_move_win(int x, int y, int w, int h)
 {
@@ -153,7 +179,7 @@ static void handle_window_move_win(int x, int y, int w, int h)
 
 
 /* update_matching_window:
- *  updates a portion of the window when the color depths match
+ *  Updates a portion of the window when the color depths match.
  */
 static void update_matching_window(RECT* rect)
 {
@@ -187,22 +213,8 @@ static void update_matching_window(RECT* rect)
 
 
 
-/* get_working_area:
- *  retrieve the rectangle of the working area
- */
-static void get_working_area(RECT *working_area)
-{
-   SystemParametersInfo(SPI_GETWORKAREA, 0, working_area, 0);
-   working_area->left   += 3;  /* for the taskbar */
-   working_area->top    += 3;
-   working_area->right  -= 3;
-   working_area->bottom -= 3;
-}
-
-
-
 /* is_not_contained:
- *  helper to find the relative position of two rectangles
+ *  Helper to find the relative position of two rectangles.
  */ 
 static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
 {
@@ -218,10 +230,10 @@ static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
 
 
 /* ddsurf_blit_ex:
- *  extended blit function performing color conversion
+ *  Extended blit function performing color conversion.
  */
 static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
-                          LPDIRECTDRAWSURFACE2 src_surf, RECT *src_rect )
+                          LPDIRECTDRAWSURFACE2 src_surf, RECT *src_rect)
 {
    DDSURFACEDESC src_desc, dest_desc;
    struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
@@ -264,7 +276,7 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
 
 
 /* update_colorconv_window:
- *  updates a portion of the window when the color depths don't match
+ *  Updates a portion of the window when the color depths don't match.
  */
 static void update_colorconv_window(RECT* rect)
 {
@@ -324,25 +336,30 @@ static void update_colorconv_window(RECT* rect)
 
 
 
-/* setup_driver_desc:
- *  sets the driver description string
+/* gfx_directx_show_video_bitmap_win:
+ *  Makes the specified video bitmap visible.
  */
-static void setup_driver_desc(void)
+static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
 {
-   char tmp1[80], tmp2[80];
+   if (BMP_EXTRA(bitmap)->surf) {
+      pseudo_screen->vtable->release = gfx_directx_unlock;
+      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank;
+      pseudo_screen->write_bank = gfx_directx_write_bank;
+      pseudo_screen = bitmap;
+      pseudo_screen->vtable->release = gfx_directx_unlock_win;
+      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
+      pseudo_screen->write_bank = gfx_directx_write_bank_win;
+      update_window(NULL);
+      return 0;
+   }
 
-   uszprintf(gfx_driver_desc, sizeof(gfx_driver_desc),
-	     uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
-	     uconvert_ascii((colorconv_blit ? "color conversion" : "matching"), tmp2),
-	     desktop_depth );
-   
-   gfx_directx_win.desc = gfx_driver_desc;
+   return -1;
 }
 
 
 
 /* gfx_directx_set_palette_win_8:
- *  updates the palette for color conversion from 8-bit to 8-bit
+ *  Updates the palette for color conversion from 8-bit to 8-bit.
  */
 static void gfx_directx_set_palette_win_8(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
@@ -360,7 +377,7 @@ static void gfx_directx_set_palette_win_8(AL_CONST struct RGB *p, int from, int 
 
 
 /* gfx_directx_set_palette_win:
- *  updates the palette for color conversion from 8-bit
+ *  Updates the palette for color conversion from 8-bit to hi/true color.
  */
 static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
@@ -370,18 +387,8 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 
 
 
-/* switch_in_win:
- *  handles window switched in
- */
-static void switch_in_win(void)
-{
-   get_working_area(&working_area);
-}
-
-
-
 /* wnd_set_windowed_coop:
- *  sets the DirectDraw cooperative level to normal
+ *  Sets the DirectDraw cooperative level.
  */
 static int wnd_set_windowed_coop(void)
 {
@@ -399,7 +406,7 @@ static int wnd_set_windowed_coop(void)
 
 
 /* verify_color_depth:
- *  compares the requested color depth with the desktop color depth
+ *  Compares the requested color depth with the desktop color depth.
  */
 static int verify_color_depth (int color_depth)
 {
@@ -429,30 +436,8 @@ static int verify_color_depth (int color_depth)
 
 
 
-/* gfx_directx_show_video_bitmap_win:
- *  makes the specified video bitmap visible
- */
-static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
-{
-   if (BMP_EXTRA(bitmap)->surf) {
-      pseudo_screen->vtable->release = gfx_directx_unlock;
-      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank;
-      pseudo_screen->write_bank = gfx_directx_write_bank;
-      pseudo_screen = bitmap;
-      pseudo_screen->vtable->release = gfx_directx_unlock_win;
-      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
-      pseudo_screen->write_bank = gfx_directx_write_bank_win;
-      update_window(NULL);
-      return 0;
-   }
-
-   return -1;
-}
-
-
-
 /* create_offscreen:
- *  create the offscreen backing surface
+ *  Creates the offscreen surface.
  */
 static int create_offscreen(int w, int h, int color_depth)
 {
@@ -495,9 +480,25 @@ static int create_offscreen(int w, int h, int color_depth)
 }
 
 
+/* setup_driver_desc:
+ *  Sets the driver description string.
+ */
+static void setup_driver_desc(void)
+{
+   char tmp1[80], tmp2[80];
+
+   uszprintf(gfx_driver_desc, sizeof(gfx_driver_desc),
+	     uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
+	     uconvert_ascii((colorconv_blit ? "color conversion" : "matching"), tmp2),
+	     desktop_depth);
+   
+   gfx_directx_win.desc = gfx_driver_desc;
+}
+
+
 
 /* init_directx_win:
- *  initializes the driver
+ *  Initializes the driver.
  */
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
 {
@@ -571,7 +572,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    /* create offscreen backbuffer */
-   if (create_offscreen (w, h, color_depth) != 0) {
+   if (create_offscreen(w, h, color_depth) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Windowed mode not supported"));
       goto Error;
    }
@@ -613,6 +614,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    setup_driver_desc();
    if (setup_driver(&gfx_directx_win, w, h, color_depth) != 0)
       goto Error;
+
    dd_frontbuffer = make_directx_bitmap(offscreen_surface, w, h, color_depth, BMP_ID_VIDEO);
 
    enable_acceleration(&gfx_directx_win);
@@ -653,7 +655,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
 
 /* gfx_directx_win_exit:
- *  shuts down the driver
+ *  Shuts down the driver.
  */
 static void gfx_directx_win_exit(struct BITMAP *b)
 { 
@@ -692,3 +694,4 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    
    gfx_directx_exit(NULL);
 }
+
