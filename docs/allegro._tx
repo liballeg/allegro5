@@ -7288,6 +7288,7 @@ correctly.
 <pre>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
+      MIDI_WIN32MAPPER     - use win32 MIDI mapper
       MIDI_WIN32(n)        - use win32 device #n (zero-based)
       MIDI_DIGMID          - sample-based software wavetable player
 </pre>

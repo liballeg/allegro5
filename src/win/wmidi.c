@@ -46,7 +46,6 @@ void midi_win32_raw_midi(int data);
 
 /* driver globals */
 static HMIDIOUT midi_device = NULL;
-static long int initial_volume;
 
 
 /* dynamically generated driver list */
@@ -74,12 +73,15 @@ _DRIVER_INFO *_get_midi_driver_list()
       driver_list = malloc(sizeof(_DRIVER_INFO) * (num_drivers+3));
 
       for (i=0; i<num_drivers; i++) {
-	 driver = malloc(sizeof(MIDI_DRIVER));
-	 memcpy(driver, &midi_none, sizeof(MIDI_DRIVER));
+         driver = malloc(sizeof(MIDI_DRIVER));
+         memcpy(driver, &midi_none, sizeof(MIDI_DRIVER));
 
-	 driver->id = MIDI_WIN32(i);
+         if (i == 0)
+            driver->id = MIDI_WIN32MAPPER;
+         else
+            driver->id = MIDI_WIN32(i-1);
 
-	 midiOutGetDevCaps(i-1, &caps, sizeof(caps));
+         midiOutGetDevCaps(i-1, &caps, sizeof(caps));
 
 	 driver->name = driver->desc = empty_string;
 	 driver->ascii_name = malloc(strlen(caps.szPname)+1);
@@ -135,7 +137,12 @@ int midi_win32_init(int input, int voices)
    int id;
 
    /* deduce our device number from the driver ID code */
-   id = (midi_driver->id & 0xFF) - 'A' - 1;
+   if ((midi_driver->id & 0xFF) == 'M')
+      /* we are using the midi mapper (driver id is WIN32M) */
+      id = MIDI_MAPPER;
+   else
+      /* actual driver */
+      id = (midi_driver->id & 0xFF) - 'A';
 
    /* open midi mapper */
    hr = midiOutOpen(&midi_device, id, 0, 0, CALLBACK_NULL);
@@ -146,9 +153,6 @@ int midi_win32_init(int input, int voices)
 
    /* resets midi mapper */
    midiOutReset(midi_device);
-
-   /* get volume */
-   midiOutGetVolume(midi_device, &initial_volume);
 
    return 0;
 
@@ -166,9 +170,6 @@ void midi_win32_exit(int input)
    /* close midi stream and release device */
    if (midi_device != NULL) {
       midiOutReset(midi_device);
-
-      /* restore initial volume */
-      midiOutSetVolume(midi_device, initial_volume);
 
       midiOutClose(midi_device);
       midi_device = NULL;

@@ -156,6 +156,7 @@ AL_VAR(GFX_DRIVER, gfx_gdi);
 #define DIGI_DIRECTX(n)          AL_ID('D','X','A'+(n),' ')
 #define DIGI_DIRECTAMX(n)        AL_ID('A','X','A'+(n),' ')
 #define DIGI_WAVOUTID(n)         AL_ID('W','O','A'+(n),' ')
+#define MIDI_WIN32MAPPER         AL_ID('W','3','2','M')
 #define MIDI_WIN32(n)            AL_ID('W','3','2','A'+(n))
 
 

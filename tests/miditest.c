@@ -50,7 +50,7 @@ void set_pan(int channel, int pan)
 
    msg[0] = 0xB0+channel;
    msg[1] = 10;
-   msg[2] = pan;
+   msg[2] = pan / 2;
 
    midi_out(msg, 3);
 }
@@ -63,7 +63,7 @@ void note_on(int channel, int pitch, int vel)
 
    msg[0] = 0x90+channel;
    msg[1] = pitch;
-   msg[2] = vel;
+   msg[2] = vel / 2;
 
    midi_out(msg, 3);
 }
@@ -402,8 +402,8 @@ int piano_proc(int msg, DIALOG *d, int c)
 
 
 
-char volume_str[4] = "127";
-char pan_str[4] = "63";
+char volume_str[4] = "255";
+char pan_str[4] = "127";
 
 
 DIALOG thedialog[] =
