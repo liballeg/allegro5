@@ -259,7 +259,7 @@ int d_ctext_proc(int msg, DIALOG *d, int c)
       if (d->dp2)
 	 font = d->dp2;
 
-      gui_textout_ex(screen, d->dp, d->x, d->y, fg, d->bg, TRUE);
+      gui_textout_ex(screen, d->dp, d->x + d->w/2, d->y, fg, d->bg, TRUE);
 
       font = oldfont;
    }

@@ -2139,8 +2139,9 @@ int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST cha
 
    maxlen += avg_w*4;
    alert_dialog[0].w = maxlen;
+   alert_dialog[A_S1].w = alert_dialog[A_S2].w = alert_dialog[A_S3].w = maxlen - avg_w*2;
    alert_dialog[A_S1].x = alert_dialog[A_S2].x = alert_dialog[A_S3].x = 
-						alert_dialog[0].x + maxlen/2;
+						alert_dialog[0].x + avg_w;
 
    alert_dialog[A_B1].w = alert_dialog[A_B2].w = alert_dialog[A_B3].w = len1;
 
