@@ -113,9 +113,15 @@
    alld_s.lib     - statically linked debugging library
    allp_s.lib     - statically linked profiling library
 
-   When using a statically linked library, you must define the preprocessor 
-   symbol ALLEGRO_STATICLINK before including any of the Allegro headers and 
-   make sure that your program is linked against the multi-threaded DLL libc.
+   When using a statically linked library, you must define the preprocessor
+   symbol ALLEGRO_STATICLINK before including any of the Allegro headers and
+   link your program against Allegro and the main Win32/DirectX libraries
+   in that order (see the variable LIBRARIES in makefile.vc). You have also
+   to make sure that your program is linked against the right C run-time
+   library, ie. the multi-threaded DLL version of MSVCRT (or the debug
+   version if you are using the debug library). You can change this option
+   at Project - Settings - C/C++ - Category: Code Generation - Use run-time
+   library.
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function!

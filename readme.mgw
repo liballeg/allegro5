@@ -316,7 +316,9 @@
    Allegro DLLs in any software you release to the public.
 
    When using a statically linked library, you must define the preprocessor
-   symbol ALLEGRO_STATICLINK before including any of the Allegro headers.
+   symbol ALLEGRO_STATICLINK before including any of the Allegro headers and
+   link your program against Allegro and the main Win32/DirectX libraries
+   in that order (see the variable LIBRARIES in makefile.mgw).
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function.
