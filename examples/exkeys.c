@@ -1,7 +1,13 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to access the keyboard.
+ *    This program demonstrates how to access the keyboard. The
+ *    first part shows the basic use of readkey(). The second part
+ *    shows how to extract the ASCII value. Next come the scancodes.
+ *    The fourth test detects modifier keys like alt or shift. The
+ *    fifth test requires some focus to be passed. The final step
+ *    shows how to use the global key array to read simultaneous
+ *    keypresses.
  */
 
 

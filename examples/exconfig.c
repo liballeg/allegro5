@@ -1,8 +1,14 @@
 /*
  *    Example program for the Allegro library, by Lennart Steinke.
  *
- *    This is a very simple program showing how to use the allegro config (ini file)
- *    routines.
+ *    This is a very simple program showing how to use the allegro
+ *    config (ini file) routines. A first look at the example
+ *    shows nothing more than a static graphic and the wait for
+ *    a keypress. However, the way this graphic is displayed is
+ *    configured through a custom exconfig.ini file which is loaded
+ *    manually. From this file the example obtains parameters like
+ *    fullscreen/windowed mode, a specific graphic resolution to set
+ *    up, which graphic to show, how to blit it on the screen, etc.
  */
 
 
@@ -20,20 +26,17 @@ int main(void)
    char *filename;
    int  r,g,b;
 
-
    BITMAP *background;
    int     display;
    RGB     pal[256];
 
    int    x, y;
 
-
    /* you should always do this at the start of Allegro programs */
    if (allegro_init() != 0)
       return 1;
    /* set up the keyboard handler */
    install_keyboard(); 
-
 
    /* save the current ini file, then set the program specific one */
    push_config_state();
@@ -47,7 +50,8 @@ int main(void)
    data = get_config_argv("graphics", "mode", &count);
    if (count != 3) {
       /* We expect only 3 parameters */
-      allegro_message("Found %i parameters in graphics.mode instead of the 3 expected.\n", count);
+      allegro_message("Found %i parameters in graphics.mode instead of "
+		      "the 3 expected.\n", count);
       w = 320;
       h = 200;
       bpp = 8;
@@ -63,7 +67,7 @@ int main(void)
     * So we need to read a string and see what it contains.
     * If the entry is not found, we use "FALSE" by default
     */
-   if (ustricmp(get_config_string("graphics", "windowed", "FALSE"), "FALSE") == 0) 
+   if (ustricmp(get_config_string("graphics", "windowed", "FALSE"), "FALSE") == 0)
       windowed = GFX_AUTODETECT_FULLSCREEN;
    else
       windowed = GFX_AUTODETECT_WINDOWED;
@@ -81,7 +85,8 @@ int main(void)
    data = get_config_argv("content", "headercolor", &count);
    if (count != 3) {
       /* We expect only 3 parameters */
-      allegro_message("Found %i parameters in content.headercolor instead of the 3 expected.\n", count);
+      allegro_message("Found %i parameters in content.headercolor "
+		      "instead of the 3 expected.\n", count);
       r = g = b = 255;
    }
    else {
@@ -95,7 +100,7 @@ int main(void)
     * and would be lost if we call pop_config_state(), so we create
     * a copy of it.
     */   
-   filename= ustrdup(get_config_string("content", "image", "mysha.pcx"));
+   filename = ustrdup(get_config_string("content", "image", "mysha.pcx"));
 
    /* and it's tiling mode */
    display = get_config_int("content", "display", 0);
@@ -125,23 +130,27 @@ int main(void)
 
       switch (display) {
 
-         case 0: /* stretch */
-             stretch_blit(background, screen, 0, 0, background->w, background->h, 0,0, SCREEN_W, SCREEN_H);
-         break;
+	 case 0: /* stretch */
+	    stretch_blit(background, screen, 0, 0, background->w,
+			 background->h, 0, 0, SCREEN_W, SCREEN_H);
+	 break;
 
-         case 1: /* center */
-             blit(background, screen, 0, 0, (SCREEN_W - background->w)/2,(SCREEN_H - background->h)/2, background->w,background->h);
-         break;
+	 case 1: /* center */
+	    blit(background, screen, 0, 0, (SCREEN_W - background->w)/2,
+		 (SCREEN_H - background->h)/2, background->w, background->h);
+	 break;
 
-         case 2: /* tile */
-             for (y = 0; y < SCREEN_H; y+= background->h) 
-                for (x = 0; x < SCREEN_W; x+= background->w) 
-                   blit(background, screen, 0, 0, x, y, background->w,background->h);
+	 case 2: /* tile */
+	    for (y = 0; y < SCREEN_H; y += background->h)
+	       for (x = 0; x < SCREEN_W; x += background->w)
+		  blit(background, screen, 0, 0, x, y,
+		       background->w, background->h);
          break; 
       }
    }
    else {
-      allegro_message("%s not found\n", filename); 
+      textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/2,
+			   makecol(r,g,b), -1, "%s not found", filename);
    }
 
    textout_centre_ex(screen, font, title, SCREEN_W/2, 20, makecol(r,g,b), -1);

@@ -1,7 +1,11 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to write your own GUI objects.
+ *    A follow up of the exgui.c example showing how to customise the
+ *    default Allegro framework. In this case a dialog procedure
+ *    animates a graphical clock without disrupting other GUI
+ *    dialogs.  A more simple option shows how to dynamically change
+ *    the font used by all GUI elements.
  */
 
 

@@ -1,7 +1,11 @@
 /*
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
- *    This program demonstrates how to load and display a bitmap file.
+ *    This program demonstrates how to load and display a bitmap
+ *    file.  You have to use this example from the commandline to
+ *    specify as first parameter a graphic file in one of Allegro's
+ *    supported formats.  If the file is loaded successfully,
+ *    it will be displayed until you press a key.
  */
 
 
@@ -44,7 +48,8 @@ int main(int argc, char *argv[])
    set_palette(the_palette);
 
    /* blit the image onto the screen */
-   blit(the_image, screen, 0, 0, (SCREEN_W-the_image->w)/2, (SCREEN_H-the_image->h)/2, the_image->w, the_image->h);
+   blit(the_image, screen, 0, 0, (SCREEN_W-the_image->w)/2,
+	(SCREEN_H-the_image->h)/2, the_image->w, the_image->h);
 
    /* destroy the bitmap */
    destroy_bitmap(the_image);

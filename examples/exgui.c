@@ -1,7 +1,10 @@
 /*
  *    Example program for the Allegro library, by Elias Pschernig.
  *
- *    This program demonstrates how to use the GUI routines.
+ *    This program demonstrates how to use the GUI routines. From
+ *    the simple dialog controls that display a text or a bitmap to
+ *    more complex multiple choice selection lists, Allegro provides
+ *    a framework which can be customised to suit your needs.
  */
 
 
