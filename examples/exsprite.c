@@ -50,7 +50,7 @@ void animate()
    vsync();
 
    /* blits sprite buffer to screen */
-   blit(sprite_buffer, screen, 0, 0, 120, 80, 85, 85);
+   blit(sprite_buffer, screen, 0, 0, 120, 80, 82, 82);
 
    /* clears sprite buffer with color 0 */
    clear(sprite_buffer);
@@ -99,18 +99,18 @@ int main(int argc, char *argv[])
    set_color_conversion(COLORCONV_TOTAL);
    
    /* create and clear a bitmap for sprite buffering */
-   sprite_buffer = create_bitmap(85, 85);
+   sprite_buffer = create_bitmap(82, 82);
    clear(sprite_buffer);
 
    /* create another bitmap for color conversion from the datafile */
-   running = create_bitmap(85, 85);
+   running = create_bitmap(82, 82);
 
    /* write current sprite drawing method */
    textout(screen, font, "Press a key for next part...", 40, 10, palette_color[1]);
    textout(screen, font, "Using draw_sprite", 1, 190, palette_color[15]);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
       draw_sprite(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
    textout(screen, font, "Using draw_sprite_h_flip", 1, 190, palette_color[15]);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
       draw_sprite_h_flip(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
    textout(screen, font, "Using draw_sprite_v_flip", 1, 190, palette_color[15]);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
       draw_sprite_v_flip(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
    textout(screen, font, "Using draw_sprite_vh_flip", 1, 190, palette_color[15]);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
       draw_sprite_vh_flip(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
       /* The last argument to rotate_sprite() is a fixed point type,
        * so I had to use itofix() routine (integer to fixed).
        */
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
       rotate_sprite(sprite_buffer, running, 0, 0, itofix(angle));
       animate();
       angle += 4;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
       /* The last argument to rotate_sprite_v_flip() is a fixed point type,
        * so I had to use itofix() routine (integer to fixed).
        */
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
       rotate_sprite_v_flip(sprite_buffer, running, 0, 0, itofix(angle));
       animate();
       angle += 4;
