@@ -12,8 +12,9 @@
  *
  *      By Shawn Hargreaves.
  *
- *      Grzegorz Adam Hankiewicz made the output valid HTML 4.0, and added
- *      support for cross references and optional CSS to color output.
+ *      Grzegorz Adam Hankiewicz made the output valid HTML 4.0, made
+ *      sorted TOCs and added support for cross references and optional
+ *      CSS to color output.
  *
  *      See readme.txt for copyright information.
  *
@@ -409,7 +410,7 @@ static void _output_toc(char *filename, int root, int body, int part)
 	 else
 	    fprintf(_file, "</ul>\n");
       }
-      else {
+      else if (!(html_flags & HTML_OPTIMIZE_FOR_CHM)) {
 	 TOC *ptr[TOC_SIZE];
 	 int j, i = 0;
 	 int section_number = 0;
@@ -791,6 +792,8 @@ static void _post_process_filename(char *filename)
    f2 = fopen(new_filename, "wt");
    if (!f1 || !f2) goto cancel;
 
+   printf("post processing %s\n", filename);
+
    while ((line = m_fgets(f1))) {
       if ((p = strstr(line, "\"post_process#"))) {
 	 POST *page = _search_post_section_with_token(_get_clean_xref_token(p + 2));
@@ -893,7 +896,7 @@ static void _close_html_file(FILE *file)
 static void _output_sorted_nested_toc(TOC **list, unsigned int num_items)
 {
    unsigned int f;
-   
+
    if (num_items > 1)
       qsort(list, num_items, sizeof(TOC *), _toc_scmp);
    for (f = 0; f < num_items; f++)

@@ -7,6 +7,7 @@
 #define HTML_FOOTER_FLAG            0x00000008
 #define HTML_SPACED_LI              0x00000010
 #define HTML_IGNORE_CSS             0x00000020
+#define HTML_OPTIMIZE_FOR_CHM       0x00000040
 
 
 extern int html_flags;

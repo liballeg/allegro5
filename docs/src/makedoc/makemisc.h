@@ -9,8 +9,8 @@ int strincmp(char *s1, char *s2);
 int myisspace(int c);
 char *strip_html(char *p);
 int is_empty(char *s);
-char *extension(char *filename);
-char *get_filename(char *path);
+char *extension(const char *filename);
+char *get_filename(const char *path);
 int scmp(const void *e1, const void *e2);
 
 /* Safe memory functions */

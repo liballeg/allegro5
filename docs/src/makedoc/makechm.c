@@ -12,6 +12,8 @@
  *
  *      By Elias Pschernig, based on makehtml.
  *
+ *      Grzegorz Adam Hankiewicz made sorted TOCs.
+ *
  *      See readme.txt for copyright information.
  *
  *      See allegro/docs/src/makedoc/format.txt for a brief description of
@@ -23,8 +25,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "makechm.h"
+#include "makehtml.h"
 #include "makemisc.h"
 #include "makedoc.h"
 
@@ -32,27 +36,23 @@
 #define PREV_ROOT 1
 #define PREV_SUB  2
 
+/* Buffered tocs. Only the 'local' pointer should be freed */
+typedef struct BTOC
+{
+   const char *name;
+   char *local;
+} BTOC;
+
 extern const char *html_extension;
 
 
-
-/* get_stripped_filename:
- *  Copies filename without path and extension to buf.
- */
-static void get_stripped_filename(char *buf, char *filename, int size)
-{
-   int i = 0;
-   char *p;
-
-   for (p = get_filename(filename); (*p && (*p != '.')); p++) {
-      buf[i++] = *p;
-      if (i >= size-1) {
-	 fprintf(stderr, "buffer overflow");
-	 exit(1);
-      }
-   }
-   buf[i] = 0;
-}
+static char *_get_section_name(char *buf, const char *path, int section_number);
+static int _write_toc(const char *filename, int is_index);
+static int _write_hhp(const char *filename);
+static void _replace_extension(char *dest, char *path, char *ext, int size);
+static void _write_object(FILE *file, const char *name, const char *local);
+static void _output_btoc(FILE *file, BTOC *btoc, int *btoc_prev, int *num_btoc);
+static int _qsort_btoc_helper(const void *e1, const void *e2);
 
 
 
@@ -80,13 +80,18 @@ static char *_get_section_name(char *buf, const char *path, int section_number)
 /* _write_toc:
  * Outputs a .hhc or .hhk file which are needed by the HTML Help compiler
  * (along with a .hhp and the standard HTML docs) to generate the CHM docs.
+ * is_index is a boolean, and tells if the output file should be a chm
+ * index file. The main difference is that the internal structure is
+ * slightly different, and it doesn't need toc sorting.
  */
 static int _write_toc(const char *filename, int is_index)
 {
-   FILE *file = fopen(filename, "w");
+   BTOC btoc[TOC_SIZE];
+   FILE *file = fopen(filename, "wt");
    TOC *toc;
-   int section_number = -1;
-   int prev = 0;
+   int btoc_prev[TOC_SIZE];
+   int section_number = -1, prev = 0, num_btoc = 0, buffering = 0;
+   
    if (!file)
       return 1;
 
@@ -101,7 +106,6 @@ static int _write_toc(const char *filename, int is_index)
    fprintf(file, "</head>\n");
 
    fprintf(file, "<body>\n");
-
    fprintf(file, "<ul>\n");
 
    toc = tochead;
@@ -118,6 +122,7 @@ static int _write_toc(const char *filename, int is_index)
 	       fprintf(file, "</li>\n");
 	    }
 	    else {
+	       _output_btoc(file, btoc, btoc_prev, &num_btoc);
 	       if (prev == PREV_SUB)
 		  fprintf(file, "</li></ul></li>\n");
 	       if (prev == PREV_ROOT)
@@ -132,8 +137,11 @@ static int _write_toc(const char *filename, int is_index)
 	       _get_section_name(name, filename, section_number);
 	    }
 
-	    fprintf(file, "<li>");
 	    prev = PREV_ROOT;
+	    if(!is_index)
+	       buffering = 1;
+
+	    _write_object(file, ALT_TEXT(toc), mystrlwr(name));
 	 }
 	 else {
 
@@ -141,32 +149,26 @@ static int _write_toc(const char *filename, int is_index)
 	       fprintf(file, "</li>\n");
 	    }
 	    else {
-	       if (prev == PREV_SUB)
-		  fprintf(file, "</li>\n");
-	       if (prev == PREV_ROOT)
-		  fprintf(file, "<ul>\n");
+	       btoc_prev[num_btoc] = prev;
 	    }
 
 	    _get_section_name(name, filename, section_number);
 	    strcat(name, "#");
 	    strcat(name, toc->text);
 
-	    fprintf(file, "<li>");
 	    prev = PREV_SUB;
+	    if(!is_index) {
+	       /* Buffer toc for posterior output */
+	       btoc[num_btoc].local = m_strdup(mystrlwr(name));
+	       btoc[num_btoc++].name = ALT_TEXT(toc);
+	    }
+	    else
+	       _write_object(file, ALT_TEXT(toc), name);
 	 }
-
-	 mystrlwr(name);
-
-	 fprintf(file, "<object type=\"text/sitemap\">\n");
-
-	 fprintf(file, "<param name=\"Name\" value=\"%s\">\n", ALT_TEXT(toc));
-	 fprintf(file, "<param name=\"Local\" value=\"%s\">\n", name);
-
-	 fprintf(file, "</object>\n");
       }
-
    }
 
+   _output_btoc(file, btoc, btoc_prev, &num_btoc);
    if (prev == PREV_SUB)
       fprintf(file, "</li></ul></li>\n");
    if (prev == PREV_ROOT)
@@ -184,23 +186,83 @@ static int _write_toc(const char *filename, int is_index)
 
 
 
+/* _output_btoc:
+ * Sorts all the buffered tocs read so far and frees their memory after
+ * writting them to the file. Can be safely called at any moment, as long
+ * as the pointer to num_btoc is meaningfull and contains the number of
+ * buffered tocs in the btoc table. Note that btoc_prev is NOT sorted.
+ */
+static void _output_btoc(FILE *file, BTOC *btoc, int *btoc_prev, int *num_btoc)
+{
+   int num;
+
+   assert(btoc);
+   assert(num_btoc);
+   assert(btoc_prev);
+
+   qsort(btoc, *num_btoc, sizeof(BTOC), _qsort_btoc_helper);
+
+   for(num = 0; num < *num_btoc; num++) {
+      if (btoc_prev[num] == PREV_SUB)
+	 fprintf(file, "</li>\n");
+      if (btoc_prev[num] == PREV_ROOT)
+	 fprintf(file, "<ul>\n");
+
+      _write_object(file, btoc[num].name, btoc[num].local);
+      free(btoc[num].local);
+   }
+   *num_btoc = 0;
+}
+
+
+
+/* _qsort_btoc_helper:
+ * qsort helper. BTOC elements are sorted through the name value.
+ */
+static int _qsort_btoc_helper(const void *e1, const void *e2)
+{
+   BTOC *s1 = (BTOC *)e1;
+   BTOC *s2 = (BTOC *)e2;
+
+   return mystricmp(s1->name, s2->name);
+}
+
+
+
+/* _write_object:
+ * Writes to the file a record for a new object. Note that the object
+ * record is not closed, so other's can be nested. This forces the caller
+ * to close the object before writting another.
+ */
+static void _write_object(FILE *file, const char *name, const char *local)
+{
+   assert(file);
+   assert(name);
+   assert(local);
+   
+   fprintf(file, "<li><object type=\"text/sitemap\">\n");
+   fprintf(file, "<param name=\"Name\" value=\"%s\">\n", name);
+   fprintf(file, "<param name=\"Local\" value=\"%s\">\n", local);
+   fprintf(file, "</object>\n");
+}
+
+
+
 /* _write_hhp:
  */
 static int _write_hhp(const char *filename)
-{
-   FILE *file = fopen(filename, "w");
+{        
+   FILE *file = fopen(filename, "wt");
    TOC *toc;
    int section_number = -1;
-   char stripped_filename[256];
-   char title[256];
+   char *stripped_filename, *p;
 
    if (!file)
       return 1;
 
-   get_stripped_filename(stripped_filename, (char *)filename,
-                         sizeof(stripped_filename));
-   strcpy(title, stripped_filename);
-   title[0] = toupper(((unsigned char *)title)[0]);
+   stripped_filename = m_strdup(get_filename(filename));
+   if ((p = extension(stripped_filename)))
+      *(p-1) = 0;
 
    fprintf(file, "[OPTIONS]\n");
    fprintf(file, "Compiled file=%s.chm\n", stripped_filename);
@@ -209,9 +271,17 @@ static int _write_hhp(const char *filename)
    fprintf(file, "Full-text search=Yes\n");
    fprintf(file, "Index file=%s.hhk\n", stripped_filename);
    fprintf(file, "Language=0x409 English (USA)\n");
-   fprintf(file, "Title=%s\n", title);
+   if((html_flags & HTML_DOCUMENT_TITLE_FLAG) && !(html_flags & HTML_OLD_H_TAG_FLAG))
+      fprintf(file, "Title=%s\n", document_title);
+   else {
+      /* Write the filename without extension and capitalized */
+      fputc(toupper(*stripped_filename), file);
+      fprintf(file, "%s", stripped_filename+1);
+   }
    fprintf(file, "\n");
    fprintf(file, "[FILES]\n");
+
+   free(stripped_filename);
 
    toc = tochead;
    if (toc)
@@ -231,7 +301,6 @@ static int _write_hhp(const char *filename)
 	 mystrlwr(name);
 
 	 fprintf(file, "%s\n", name);
-
       }
    }
    return 0;
@@ -304,7 +373,9 @@ int write_chm(char *filename)
 
    _replace_extension(buf, filename, "hhp", sizeof(buf));
    printf("writing '%s'\n", buf);
-   _write_hhp(buf);
+   if (_write_hhp(buf))
+      return 1;
+      
    _replace_extension(buf, filename, "hhc", sizeof(buf));
    printf("writing '%s'\n", buf);
    _write_toc(buf, 0);

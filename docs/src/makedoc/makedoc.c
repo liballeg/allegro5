@@ -121,6 +121,9 @@ int main(int argc, char *argv[])
       else if (mystricmp(argv[i], "-warn") == 0) {
 	 warn_on_long_lines = 1;
       }
+      else if (mystricmp(argv[i], "-ochm") == 0) {
+	 html_flags |= HTML_OPTIMIZE_FOR_CHM;
+      }
       else if (argv[i][0] == '-') {
 	 fprintf(stderr, "Unknown option '%s'\n", argv[i]);
 	 return 1;
@@ -131,7 +134,7 @@ int main(int argc, char *argv[])
    }
 
    if (!filename[0]) {
-      printf("Usage: makedoc [outputs] [-part] [-warn] filename._tx\n\n");
+      printf("Usage: makedoc [outputs] [-part] [-warn] [-ochm] filename._tx\n\n");
       printf("Output formats:\n");
       printf("\t-ascii filename.txt\n");
       printf("\t-htm[l] filename.htm[l]\n");

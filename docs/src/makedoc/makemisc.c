@@ -158,7 +158,7 @@ int is_empty(char *s)
 
 /* get_filename:
  */
-char *get_filename(char *path)
+char *get_filename(const char *path)
 {
    int pos;
 
@@ -168,14 +168,14 @@ char *get_filename(char *path)
    while ((pos>0) && (path[pos-1] != '\\') && (path[pos-1] != '/'))
       pos--;
 
-   return path+pos;
+   return (char*)path+pos;
 }
 
 
 
 /* extension:
  */
-char *extension(char *filename)
+char *extension(const char *filename)
 {
    int pos, end;
 
@@ -189,9 +189,9 @@ char *extension(char *filename)
       pos--;
 
    if (filename[pos-1] == '.')
-      return filename+pos;
+      return (char*)filename+pos;
 
-   return filename+end;
+   return (char*)filename+end;
 }
 
 

@@ -112,6 +112,7 @@ DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi 
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 DOCS += CHANGES AUTHORS THANKS
+CHMDOCS = $(addprefix docs/chm/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 
 endif
 
@@ -152,7 +153,7 @@ msg:
 
 docs: $(DOCS)
 	@echo HTML help files have been generated.
-	@echo To compile them into .CHM format, run make chm-docs.
+	@echo To generate a .CHM version, run make chm-docs.
 
 lib: $(LIB_NAME)
 
@@ -221,11 +222,11 @@ endif
 
 ifdef HTML
 
-chm-docs: docs/html/allegro.chm
+chm-docs: docs/chm/allegro.chm
 
-docs/html/allegro.chm: $(filter %.$(HTML),$(DOCS)) docs/src/allegro._tx $(OBJECTS_DOC) $(MAKEDOC)
-	$(MAKEDOC) -chm docs/src/allegro.html docs/src/allegro._tx
-	-hhc docs/html/allegro.hhp
+docs/chm/allegro.chm: $(filter %.$(HTML),$(CHMDOCS)) docs/src/allegro._tx $(OBJECTS_DOC) $(MAKEDOC)
+	$(MAKEDOC) -chm docs/chm/allegro.$(HTML) docs/src/allegro._tx
+	-hhc docs/chm/allegro.hhp
 
 $(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
@@ -235,6 +236,9 @@ $(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)
 
 $(filter %.$(HTML),$(DOCS)): docs/html/%.$(HTML): docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -$(HTML) $@ $<
+
+$(filter %.$(HTML),$(CHMDOCS)): docs/chm/%.$(HTML): docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -ochm -$(HTML) $@ $<
 
 AUTHORS: docs/src/thanks._tx
 	$(MAKEDOC) -part -ascii AUTHORS $<
