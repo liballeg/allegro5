@@ -117,7 +117,13 @@ dnl
 allegro_pentium_optimizations=no
 
 dnl
-dnl Test for modules support.
+dnl Test for modules support (dlopen interface and -export-dynamic linker flag).
+dnl
+dnl Variables:
+dnl  allegro_support_modules=(yes|)
+dnl  allegro_cv_support_export_dynamic=(yes|no)
+dnl
+dnl LDFLAGS and LIBS can be modified.
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_MODULES,
 [AC_ARG_ENABLE(modules,
@@ -126,10 +132,21 @@ test "X$enableval" != "Xno" && allegro_enable_modules=yes,
 allegro_enable_modules=yes)
 
 if test -n "$allegro_enable_modules"; then
-  AC_CHECK_HEADERS(dlfcn.h, allegro_support_modules=yes)
-  if test -n "$allegro_support_modules"; then
-    LIBS="-ldl $LIBS"
-  fi
+  AC_CHECK_HEADERS(dlfcn.h,
+    [AC_CACHE_CHECK(whether -export-dynamic linker flag is supported,
+      allegro_cv_support_export_dynamic,
+      [allegro_save_LDFLAGS="$LDFLAGS"
+      LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
+      AC_TRY_LINK(,,
+        allegro_cv_support_export_dynamic=yes,
+        allegro_cv_support_export_dynamic=no,
+        allegro_cv_support_export_dynamic=yes)
+      LDFLAGS="$allegro_save_LDFLAGS"])
+    if test $allegro_cv_support_export_dynamic = yes; then
+      allegro_support_modules=yes
+      LIBS="-ldl $LIBS"
+      LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
+    fi])
 fi
 ])
 
