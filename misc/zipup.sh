@@ -71,14 +71,13 @@ utod()
    done
 }
 
-export UNIX_TOOLS=1
 
 # generate dependencies for DJGPP
 echo "Generating DJGPP dependencies..."
 
 ./fix.sh djgpp --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for Watcom
@@ -86,7 +85,7 @@ echo "Generating Watcom dependencies..."
 
 ./fix.sh watcom --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MSVC
@@ -94,7 +93,7 @@ echo "Generating MSVC dependencies..."
 
 ./fix.sh msvc --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MinGW32
@@ -102,7 +101,7 @@ echo "Generating MinGW32 dependencies..."
 
 ./fix.sh mingw32 --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for Borland C++
@@ -110,7 +109,7 @@ echo "Generating BCC32 dependencies..."
 
 ./fix.sh bcc32 --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for BeOS
@@ -118,7 +117,7 @@ echo "Generating BeOS dependencies..."
 
 ./fix.sh beos --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for QNX
@@ -126,7 +125,7 @@ echo "Generating QNX dependencies..."
 
 ./fix.sh qnx --quick
 
-make depend
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate dependencies for MacOS X
@@ -134,9 +133,7 @@ echo "Generating MacOS X dependencies..."
 
 ./fix.sh macosx --quick
 
-make depend
-
-unset UNIX_TOOLS
+make depend UNIX_TOOLS=1 CC=gcc
 
 
 # generate the DLL export definition files for Windows compilers
@@ -148,7 +145,7 @@ autoheader
 
 # running autoconf
 echo "Running autoconf to generate configure script..."
-autoconf
+autoconf || exit 1
 
 # touch stamp-h.in so the user doesn't need autoheader to compile
 touch stamp-h.in
@@ -203,7 +200,7 @@ scan_for_empties "."
 echo "Creating $name.zip..."
 cd ..
 if [ -f $name.zip ]; then rm $name.zip; fi
-if [ -d allegro/autom4te.cache ]; then rm -r allegro/autom4te.cache; fi
+rm -rf allegro/autom4te*
 find allegro -iname "CVS" -prune -o -iname ".*" -prune -o -iname "*.rej" -prune -o -iname "*.orig" -prune -o -print | zip -9 $name.zip -@
 
 
