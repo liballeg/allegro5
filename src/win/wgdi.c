@@ -503,7 +503,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
 
 /* gfx_gdi_exit:
  */
-static void gfx_gdi_exit(struct BITMAP *b)
+static void gfx_gdi_exit(struct BITMAP *bmp)
 {
    _enter_critical();
 
@@ -511,8 +511,8 @@ static void gfx_gdi_exit(struct BITMAP *b)
 
    _enter_gfx_critical();
 
-   if (b)
-      clear_bitmap(b);
+   if (bmp)
+      clear_bitmap(bmp);
 
    /* stop timer */
    remove_int(render_proc);
