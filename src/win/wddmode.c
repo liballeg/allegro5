@@ -67,18 +67,6 @@ static int wnd_set_video_mode(void)
 {
    HRESULT hr;
 
-   /* remove the window controls */
-   SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
-
-   /* maximize the window and make it always-on-top */
-   SetWindowPos(allegro_wnd, HWND_TOPMOST, 0, 0,
-                GetSystemMetrics(SM_CXSCREEN),
-                GetSystemMetrics(SM_CYSCREEN),
-                SWP_NOCOPYBITS);
-
-   /* put it in the foreground */
-   SetForegroundWindow(allegro_wnd);
-
    /* set the cooperative level to allow fullscreen access */
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
    if (FAILED(hr)) {
@@ -278,18 +266,6 @@ int gfx_directx_update_color_format(DDRAW_SURFACE *surf, int color_depth)
 
 
 
-/* check_mode_availability:
- *  Callback function for graphics mode enumeration.
- */ 
-static HRESULT CALLBACK check_mode_availability(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID unused)
-{
-   mode_supported = TRUE;
-
-   return DDENUMRET_OK;
-}
-
-
-
 /* EnumModesCallback:
  *  Callback function for enumerating the graphics modes.
  */ 
@@ -387,70 +363,47 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
  */
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
-   DDSURFACEDESC surf_desc;
-   int flags, i;
-   HRESULT hr;
+   _wnd_width = w;
+   _wnd_height = h;
+   _wnd_depth = (color_depth == 15 ? 16 : color_depth);
+   _wnd_refresh_rate = _refresh_rate_request;
 
-   surf_desc.dwSize   = sizeof(DDSURFACEDESC);
-   surf_desc.dwFlags  = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
-   surf_desc.dwHeight = h;
-   surf_desc.dwWidth  = w;
-
-   /* enumerate VGA Mode 13h under DirectX 5 or greater */
-   if (_dx_ver >= 0x500)
-      flags = DDEDM_STANDARDVGAMODES;
+   /* use VGA Mode 13h under DirectX 5 or greater */
+   if ((w == 320) && (h == 200) && (color_depth == 8) && (_dx_ver >= 0x500))
+      _wnd_flags = DDSDM_STANDARDVGAMODE;
    else
-      flags = 0;
+      _wnd_flags = 0;
 
-   for (i=0 ; pixel_realdepth[i] ; i++)
-      if (pixel_realdepth[i] == color_depth) {
-         surf_desc.ddpfPixelFormat = pixel_format[i];
-         mode_supported = FALSE;
+   while (TRUE) {
+      /* let the window thread do the hard work */ 
+      _TRACE("setting display mode(%u, %u, %u, %u)\n",
+             _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate);
 
-         /* check whether the requested mode is supported */
-         if (_refresh_rate_request) {
-            _TRACE("refresh rate requested: %d Hz\n", _refresh_rate_request);
-            surf_desc.dwFlags |= DDSD_REFRESHRATE;
-            surf_desc.dwRefreshRate = _refresh_rate_request;
-            hr = IDirectDraw2_EnumDisplayModes(directdraw, flags | DDEDM_REFRESHRATES, &surf_desc,
-                                               NULL, check_mode_availability);
-            if (FAILED(hr))
-               break;
-         }
+      if (wnd_call_proc(wnd_set_video_mode) == 0) {
+         /* check that the requested mode was properly set by the driver */
+         if (gfx_directx_compare_color_depth(color_depth) == 0)
+            goto Done;
+      }
 
-         if (!mode_supported) {
-            _TRACE("no refresh rate requested\n");
-            surf_desc.dwFlags &= ~DDSD_REFRESHRATE;
-            surf_desc.dwRefreshRate = 0;
-            hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, &surf_desc,
-                                               NULL, check_mode_availability);
-            if (FAILED(hr))
-               break;
-         }
-
-         if (mode_supported) {
-            _wnd_width        = surf_desc.dwWidth;
-            _wnd_height       = surf_desc.dwHeight;
-            _wnd_depth        = pixel_format[i].dwRGBBitCount; /* not color_depth */
-            _wnd_refresh_rate = surf_desc.dwRefreshRate;
-
-            if ((_wnd_width == 320) && (_wnd_height == 200) && (_wnd_depth == 8) &&
-                                                               (flags & DDEDM_STANDARDVGAMODES))
-               _wnd_flags = DDSDM_STANDARDVGAMODE;
-            else
-               _wnd_flags = 0;
-
-            /* let the window thread do the hard work */ 
-            _TRACE("setting display mode(%u, %u, %u, %u)\n", w, h, color_depth, _wnd_refresh_rate);
-            if (wnd_call_proc(wnd_set_video_mode) != 0)
-               break;
-
-            /* check whether the requested mode was properly set by the driver */
-            if (gfx_directx_compare_color_depth(color_depth) == 0)
-               return 0;
-         }
-      }  /* end of 'if (pixel_realdepth[i] == color_depth)' */ 
+      /* try with no refresh rate request */
+      if (_wnd_refresh_rate > 0)
+         _wnd_refresh_rate = 0;
+      else
+         break;
+   }
       
    _TRACE("Unable to set any display mode.\n");
    return -1;
+
+ Done:
+   /* remove the window controls */
+   SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
+
+   /* maximize the window */
+   ShowWindow(allegro_wnd, SW_MAXIMIZE);
+
+   /* put it in the foreground */
+   SetForegroundWindow(allegro_wnd);
+
+   return 0;
 }
