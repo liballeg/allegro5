@@ -37,6 +37,7 @@
 
 
 static bool be_sound_active = false;
+static bool be_sound_stream_locked = false;
 
 static BLocker *locker = NULL;
 static BSoundPlayer *be_sound = NULL;
@@ -196,6 +197,33 @@ extern "C" void be_sound_exit(int input)
    delete locker;
    be_sound = NULL;
    locker = NULL;
+}
+
+
+
+/* be_sound_lock_voice:
+ *  Locks audio stream for exclusive access.
+ */
+extern "C" void *be_sound_lock_voice(int voice, int start, int end)
+{
+   if (!be_sound_stream_locked) {
+      be_sound_stream_locked = true;
+      acquire_sem(_be_sound_timer_lock);
+   }
+   return NULL;
+}
+
+
+
+/* be_sound_unlock_voice:
+ *  Unlocks audio stream.
+ */
+void be_sound_unlock_voice(int voice)
+{
+   if (be_sound_stream_locked) {
+      be_sound_stream_locked = false;
+      release_sem(_be_sound_timer_lock);
+   }
 }
 
 

@@ -791,6 +791,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    if (accel) {
       be_gfx_fullscreen_accelerate(color_depth);
    }
+   gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
 
 #ifdef ALLEGRO_NO_ASM
    if (gfx_capabilities) {
@@ -878,6 +879,8 @@ extern "C" void be_gfx_fullscreen_exit(struct BITMAP *bmp)
 
       _be_allegro_screen = NULL;
    }
+   
+   be_app->ShowCursor();
 
    _be_mouse_window   = NULL;
    _be_mouse_view     = NULL;
@@ -970,6 +973,46 @@ extern "C" int be_gfx_fullscreen_scroll(int x, int y)
    release_screen();
 
    be_gfx_fullscreen_vsync();
+
+   return rv;
+}
+
+
+
+/* be_gfx_fullscreen_poll_scroll:
+ *  Returns true if there are pending scrolling requests left.
+ */
+extern "C" int be_gfx_fullscreen_poll_scroll(void)
+{
+   return (BScreen(_be_allegro_screen).WaitForRetrace(0) == B_ERROR ? TRUE : FALSE);
+}
+
+
+
+/* be_gfx_fullscreen_request_scroll:
+ *  Starts a screen scroll but doesn't wait for the retrace.
+ */
+extern "C" int be_gfx_fullscreen_request_scroll(int x, int y)
+{
+   acquire_screen();
+   _be_allegro_screen->MoveDisplayArea(x, y);
+   release_screen();
+   
+   return 0;
+}
+
+
+
+/* be_gfx_fullscreen_request_video_bitmap:
+ *  Page flips to display specified bitmap, but doesn't wait for retrace.
+ */
+extern "C" int be_gfx_fullscreen_request_video_bitmap(struct BITMAP *bmp)
+{
+   int rv;
+   
+   acquire_screen();
+   rv = _be_allegro_screen->MoveDisplayArea(bmp->x_ofs, bmp->y_ofs) == B_ERROR ? 1 : 0;
+   release_screen();
 
    return rv;
 }
@@ -1101,6 +1144,7 @@ BeAllegroWindow::BeAllegroWindow(BRect frame, const char *title,
    blitter   = NULL;
    
    _be_dirty_lines = (int *)malloc(v_h * sizeof(int));
+   memset(_be_dirty_lines, 0, v_h * sizeof(int));
    
    _be_window_lock = create_sem(0, "window lock");
       
