@@ -13,7 +13,7 @@
  *      By Robin Burrows.
  *
  *      Based on original src/win/wdsound.c by Stefan Schimanski
- *                        src/unix/oss.c by Joshua Heyer.
+ *      and src/unix/oss.c by Joshua Heyer.
  *
  *      Bugfixes by Javier Gonzalez.
  *
@@ -138,7 +138,7 @@ static unsigned char *digidsbufdata;
 static unsigned int bufdivs = 16;
 static int prim_buf_paused = FALSE;
 static int prim_buf_vol;
-static unsigned int dbgtid;
+static unsigned int tid;
 
 
 
@@ -205,14 +205,12 @@ static void CALLBACK digi_dsoundmix_mixer_callback(UINT uID, UINT uMsg, DWORD dw
       }
    }
 
-   /* get primary buffer current state */
+   /* get current state of primary buffer */
    hr = IDirectSoundBuffer_GetStatus(prim_buf, &dwBytes1);
-   if (hr == DS_OK) {
-      if (dwBytes1 == DSBSTATUS_BUFFERLOST) {
-         IDirectSoundBuffer_Restore(prim_buf);
-         IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
-         IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol);
-      }
+   if (dwBytes1 == DSBSTATUS_BUFFERLOST) {
+      IDirectSoundBuffer_Restore(prim_buf);
+      IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
+      IDirectSoundBuffer_SetVolume(prim_buf, prim_buf_vol);
    }
 
    hr = IDirectSoundBuffer_GetCurrentPosition(prim_buf, NULL, &writecurs);
@@ -225,6 +223,7 @@ static void CALLBACK digi_dsoundmix_mixer_callback(UINT uID, UINT uMsg, DWORD dw
    while (writecurs > (bufdivs-1))
       writecurs -= bufdivs;
 
+   /* avoid locking the buffer if no data to write */
    if (writecurs == digidsbufpos)
       return;
 
@@ -233,11 +232,10 @@ static void CALLBACK digi_dsoundmix_mixer_callback(UINT uID, UINT uMsg, DWORD dw
                                 &lpvPtr2, &dwBytes2,
                                 DSBLOCK_FROMWRITECURSOR | DSBLOCK_ENTIREBUFFER);
 
-   /* if DSERR_BUFFERLOST is returned, we'll catch up next time */
    if (FAILED(hr))
       return;
 
-   /* write datas into the buffer */
+   /* write data into the buffer */
    while (writecurs != digidsbufpos) {
       if (lpvPtr2) {
          memcpy((char*)lpvPtr2 + (((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos),
@@ -253,7 +251,7 @@ static void CALLBACK digi_dsoundmix_mixer_callback(UINT uID, UINT uMsg, DWORD dw
       if (++digidsbufpos > (bufdivs-1))
          digidsbufpos = 0;
 
-      _mix_some_samples((unsigned long)(digidsbufdata+(((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos)), 0, 1);
+      _mix_some_samples((unsigned long) (digidsbufdata+(((dwBytes1+dwBytes2)/bufdivs)*digidsbufpos)), 0, TRUE);
    }
 
    IDirectSoundBuffer_Unlock(prim_buf, lpvPtr1, dwBytes1, lpvPtr2, dwBytes2);
@@ -486,14 +484,14 @@ static int digi_dsoundmix_init(int input, int voices)
       return -1;
    }
 
-   _mix_some_samples((unsigned long)digidsbufdata, 0, 1);
+   _mix_some_samples((unsigned long)digidsbufdata, 0, TRUE);
 
    /* get primary buffer volume */
    IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume);
    prim_buf_vol = initial_volume;
 
    /* start playing */
-   dbgtid = timeSetEvent(20, 10, digi_dsoundmix_mixer_callback, 0, TIME_PERIODIC);
+   tid = timeSetEvent(20, 10, digi_dsoundmix_mixer_callback, 0, TIME_PERIODIC);
    IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
 	
    return 0;
@@ -515,8 +513,10 @@ static void digi_dsoundmix_exit(int input)
       return;
    }
 	
-   if (dbgtid)
-      timeKillEvent(dbgtid);
+   if (tid) {
+      timeKillEvent(tid);
+      tid = 0;
+   }
 
    if (digidsbufdata) {
       free(digidsbufdata);

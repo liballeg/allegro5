@@ -124,7 +124,7 @@ static int digiwobufsize, digiwobufdivs, digiwobufpos;
 static unsigned char * digiwobufdata = NULL;
 static int _freq, _bits, _stereo;
 static int waveout_paused = FALSE;
-static unsigned int dbgtid;
+static unsigned int tid;
 
 
 
@@ -162,6 +162,7 @@ static void CALLBACK digi_waveout_mixer_callback(UINT uID, UINT uMsg, DWORD dwUs
                                                  DWORD dw1, DWORD dw2)
 { 
    MMTIME mmt;
+   MMRESULT mmr;
    int writecurs;
    int switch_mode;
 
@@ -186,23 +187,28 @@ static void CALLBACK digi_waveout_mixer_callback(UINT uID, UINT uMsg, DWORD dwUs
       }
    }
 
-   memset(&mmt, 0, sizeof (MMTIME));
+   /* get current state of buffer */
+   memset(&mmt, 0, sizeof(MMTIME));
    mmt.wType = TIME_BYTES;
 
-   if (waveOutGetPosition(hWaveOut, &mmt, sizeof(MMTIME)) == MMSYSERR_NOERROR) {
-      writecurs = (int) mmt.u.cb;
-      writecurs /= (digiwobufsize/digiwobufdivs);
-      writecurs += 8;
+   mmr = waveOutGetPosition(hWaveOut, &mmt, sizeof(MMTIME));
+   if (mmr != MMSYSERR_NOERROR)
+      return;
 
-      while (writecurs > (digiwobufdivs-1))
-         writecurs -= digiwobufdivs;
+   writecurs = (int) mmt.u.cb;
 
-      while (writecurs != digiwobufpos) {
-         _mix_some_samples((unsigned long) (digiwobufdata+((digiwobufsize/digiwobufdivs)*digiwobufpos)), 0, 1);
-         
-         if (++digiwobufpos > (digiwobufdivs-1))
-            digiwobufpos = 0;
-      }
+   writecurs /= (digiwobufsize/digiwobufdivs);
+   writecurs += 8;
+
+   while (writecurs > (digiwobufdivs-1))
+      writecurs -= digiwobufdivs;
+
+   /* write data into the buffer */
+   while (writecurs != digiwobufpos) {
+      if (++digiwobufpos > (digiwobufdivs-1))
+         digiwobufpos = 0;
+
+      _mix_some_samples((unsigned long) (digiwobufdata+((digiwobufsize/digiwobufdivs)*digiwobufpos)), 0, TRUE);
    }
 }
 
@@ -225,7 +231,7 @@ static int digi_waveout_detect(int input)
  */
 static int digi_waveout_init(int input, int voices)
 {
-   MMRESULT mmres;
+   MMRESULT mmr;
    WAVEFORMATEX format;
    int v, id;
 
@@ -247,19 +253,19 @@ static int digi_waveout_init(int input, int voices)
       _bits = 16;
       _freq = 44100;
       _stereo = 1;
-      digiwobufsize = digiwobufdivs*1024;
+      digiwobufsize = digiwobufdivs * 1024;
    }
    else {
       _bits = 8;
       _freq = 22050;
       _stereo = 0;
-      digiwobufsize = digiwobufdivs*512;
+      digiwobufsize = digiwobufdivs * 512;
    }
 
-   digiwobufdata = malloc (digiwobufsize);
+   digiwobufdata = malloc(digiwobufsize);
    if (!digiwobufdata) {
       _TRACE ("malloc() failed\n");
-      return -1;
+      goto Error;
    }
 
    format.wFormatTag = WAVE_FORMAT_PCM;
@@ -269,41 +275,50 @@ static int digi_waveout_init(int input, int voices)
    format.nBlockAlign = (format.wBitsPerSample * format.nChannels) >> 3;
    format.nAvgBytesPerSec = format.nSamplesPerSec * format.nBlockAlign;
 
-   mmres = waveOutOpen(&hWaveOut, WAVE_MAPPER, &format, 0, 0, CALLBACK_NULL);
-   if (mmres != MMSYSERR_NOERROR) {
+   mmr = waveOutOpen(&hWaveOut, WAVE_MAPPER, &format, 0, 0, CALLBACK_NULL);
+   if (mmr != MMSYSERR_NOERROR) {
       _TRACE ("Can't open WaveOut\n");
-      return -1;
+      goto Error;
    }
 
-   lpWaveHdr = malloc(sizeof (WAVEHDR));
+   lpWaveHdr = malloc(sizeof(WAVEHDR));
    lpWaveHdr->lpData = digiwobufdata;;
    lpWaveHdr->dwBufferLength = digiwobufsize;
    lpWaveHdr->dwFlags = WHDR_BEGINLOOP | WHDR_ENDLOOP;
    lpWaveHdr->dwLoops = 0x7fffffffL;
 
-   if (waveOutPrepareHeader(hWaveOut, lpWaveHdr, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+   mmr = waveOutPrepareHeader(hWaveOut, lpWaveHdr, sizeof(WAVEHDR));
+   if (mmr != MMSYSERR_NOERROR) {
       _TRACE ("waveOutPrepareHeader() failed\n");
+      goto Error;
    } 
 
-   if (waveOutWrite(hWaveOut, lpWaveHdr, sizeof(WAVEHDR)) != MMSYSERR_NOERROR) {
+   mmr = waveOutWrite(hWaveOut, lpWaveHdr, sizeof(WAVEHDR));
+   if (mmr != MMSYSERR_NOERROR) {
       _TRACE ("waveOutWrite() failed\n" );
+      goto Error;
    }
 
    if (_mixer_init((digiwobufsize / (_bits /8)) / digiwobufdivs, _freq,
                     _stereo, ((_bits == 16) ? 1 : 0), &digi_driver->voices) != 0) {
       _TRACE("Can't init software mixer\n");
-      return -1;
+      goto Error;
    }
 
-   _mix_some_samples((unsigned long) digiwobufdata, 0, 1);
+   _mix_some_samples((unsigned long) digiwobufdata, 0, TRUE);
 
    /* get volume */
    waveOutGetVolume(hWaveOut, &initial_volume);
 
    /* start playing */
-   dbgtid = timeSetEvent (20, 10, digi_waveout_mixer_callback, 0, TIME_PERIODIC);
+   tid = timeSetEvent(20, 10, digi_waveout_mixer_callback, 0, TIME_PERIODIC);
 
    return 0;
+
+ Error:
+   _TRACE("digi_waveout_init() failed\n");
+   digi_waveout_exit(0);
+   return -1;
 }
 
 
@@ -312,11 +327,13 @@ static int digi_waveout_init(int input, int voices)
  */
 static void digi_waveout_exit(int input)
 {
-   if (dbgtid)
-      timeKillEvent(dbgtid);
+   if (tid) {
+      timeKillEvent(tid);
+      tid = 0;
+   }
 
    if (hWaveOut) {
-      waveOutReset (hWaveOut);
+      waveOutReset(hWaveOut);
 
       /* restore initial volume */
       waveOutSetVolume(hWaveOut, initial_volume);
@@ -349,7 +366,7 @@ static int digi_waveout_mixer_volume(int volume)
       realvol = (DWORD) volume;
       realvol |= realvol<<8;
       realvol |= realvol<<16;
-      waveOutSetVolume (hWaveOut, realvol);
+      waveOutSetVolume(hWaveOut, realvol);
    }
 
    return 0;

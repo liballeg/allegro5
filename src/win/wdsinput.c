@@ -56,7 +56,7 @@ static unsigned char *input_wave_data = NULL;
 
 
 /* ds_err:
- *  returns an error string
+ *  Returns a DirectSound error string.
  */
 #ifdef DEBUGMODE
 static char *ds_err(long err)
@@ -111,7 +111,7 @@ static char *ds_err(long err)
 
 
 /* create_test_capture_buffer:
- *  an internal function that tries to create a capture buffer with
+ *  Helper function that tries to create a capture buffer with
  *  the specified format and deletes it immediatly.
  */
 static int create_test_capture_buffer(WAVEFORMATEX *wfx)
@@ -129,20 +129,17 @@ static int create_test_capture_buffer(WAVEFORMATEX *wfx)
 
    hr = IDirectSoundCapture_CreateCaptureBuffer(ds_capture, &dsc_trybuf_desc, &dsc_trybuf, NULL);
    
-   /* if we weren't able to create the capture buffer, return error */
    if (FAILED(hr))
       return -1;
 
-   /* else, destroy our capture buffer and return success */
    IDirectSoundCaptureBuffer_Release(dsc_trybuf);
-
    return 0;
 }
 
 
 
 /* get_capture_format_support:
- *  an internal function to see if the specified input device
+ *  Helper function to see if the specified input device
  *  can support a combination of capture settings.
  */
 static int get_capture_format_support(int bits, int stereo, int rate,
@@ -261,7 +258,6 @@ static int get_capture_format_support(int bits, int stereo, int rate,
 
 
 /* digi_directsound_capture_init:
- *  inits DirectSoundCapture stuff.
  */
 int digi_directsound_capture_init(LPGUID guid)
 {
@@ -326,7 +322,6 @@ int digi_directsound_capture_init(LPGUID guid)
 
 
 /* digi_directsound_capture_exit:
- *  closes DirectSoundCapture stuff.
  */
 void digi_directsound_capture_exit(void)
 {
@@ -343,13 +338,12 @@ void digi_directsound_capture_exit(void)
 
 
 /* digi_directsound_capture_detect:
- *  detects DirectSoundCapture.
  */
 int digi_directsound_capture_detect(LPGUID guid)
 {
    HRESULT hr;
 
-   /* The DirectSoundCapture interface is not part of DirectX 3 */
+   /* the DirectSoundCapture interface is not part of DirectX 3 */
    if (_dx_ver < 0x500)
       return 0;  
 
@@ -390,7 +384,7 @@ int digi_directsound_capture_detect(LPGUID guid)
 
 
 /* digi_directsound_rec_cap_rate:
- *  gets the maximum input frequency for the specified parameters.
+ *  Gets the maximum input frequency for the specified parameters.
  */
 int digi_directsound_rec_cap_rate(int bits, int stereo)
 {
@@ -405,7 +399,7 @@ int digi_directsound_rec_cap_rate(int bits, int stereo)
 
 
 /* digi_directsound_rec_cap_param:
- *  determines if the combination of provided parameters can be
+ *  Determines if the combination of provided parameters can be
  *  used for recording.
  */
 int digi_directsound_rec_cap_param(int rate, int bits, int stereo)
@@ -428,7 +422,7 @@ int digi_directsound_rec_cap_param(int rate, int bits, int stereo)
 
 
 /* digi_directsound_rec_source:
- *  sets the source for the audio recording.
+ *  Sets the source for the audio recording.
  */
 int digi_directsound_rec_source(int source)
 {
@@ -441,7 +435,7 @@ int digi_directsound_rec_source(int source)
 
 
 /* digi_directsound_rec_start:
- *  attempts to start recording with the specified parameters.
+ *  Start recording with the specified parameters.
  */
 int digi_directsound_rec_start(int rate, int bits, int stereo)
 {
@@ -494,26 +488,26 @@ int digi_directsound_rec_start(int rate, int bits, int stereo)
 
 
 /* digi_directsound_rec_stop:
- *  stops recording.
+ *  Stops recording.
  */
 void digi_directsound_rec_stop(void)
 {
    if (ds_capture_buf) {
-      if (input_wave_data) {
-         free(input_wave_data);
-         input_wave_data = NULL;
-      }
-
       IDirectSoundCaptureBuffer_Stop(ds_capture_buf);
       IDirectSoundCaptureBuffer_Release(ds_capture_buf);
       ds_capture_buf = NULL;
+   }
+
+   if (input_wave_data) {
+      free(input_wave_data);
+      input_wave_data = NULL;
    }
 }
 
 
 
 /* digi_directsound_rec_read:
- *  reads the input buffer.
+ *  Reads the input buffer.
  */
 int digi_directsound_rec_read(void *buf)
 {
@@ -563,7 +557,7 @@ int digi_directsound_rec_read(void *buf)
       long int bytes_left_to_fill = ds_capture_buffer_size - input_wave_bytes_read;
       long int bytes_to_internal = bytes_to_lock - bytes_left_to_fill;
 
-      /* yes, copy old buffer to user buffer */
+      /* copy old buffer to user buffer */
       memcpy((char*)buf, input_wave_data, input_wave_bytes_read);
 
       /* and the rest of bytes we would need to fill in the buffer */
