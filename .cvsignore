@@ -9,5 +9,7 @@ THANKS
 stamp-h
 config.cache
 makefile.dep
+makefile.info
 config.status
 allegro-config
+autom4te.cache
