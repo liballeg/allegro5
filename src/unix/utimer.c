@@ -34,13 +34,49 @@ _DRIVER_INFO _timer_driver_list[] = {
 
 
 
+/* timeval_subtract:
+ *  Subtract the `struct timeval' values X and Y, storing the result
+ *  in RESULT.  Return 1 if the difference is negative, otherwise 0.
+ *
+ *  This function is from the glibc manual.  It handles weird platforms
+ *  where the tv_sec is unsigned.
+ */
+static int timeval_subtract(struct timeval *result,
+			    struct timeval *x,
+			    struct timeval *y)
+{
+   /* Perform the carry for the later subtraction by updating Y. */
+   if (x->tv_usec < y->tv_usec) {
+      int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+      y->tv_usec -= 1000000 * nsec;
+      y->tv_sec += nsec;
+   }
+   if (x->tv_usec - y->tv_usec > 1000000) {
+      int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+      y->tv_usec += 1000000 * nsec;
+      y->tv_sec -= nsec;
+   }
+
+   /* Compute the time remaining to wait.
+    * `tv_usec' is certainly positive. */
+   result->tv_sec = x->tv_sec - y->tv_sec;
+   result->tv_usec = x->tv_usec - y->tv_usec;
+   /* Return 1 if result is negative. */
+   return x->tv_sec < y->tv_sec;
+}
+
+
+
 void _unix_rest(unsigned int ms, void (*callback) (void))
 {
    if (callback) {
       struct timeval tv, tv_end;
+
       gettimeofday (&tv_end, NULL);
-      tv_end.tv_usec = (tv_end.tv_usec + ms * 1000) % 1000000;
-      tv_end.tv_sec += (tv_end.tv_usec + ms * 1000) / 1000000;
+      tv_end.tv_usec += ms * 1000;
+      tv_end.tv_sec  += (tv_end.tv_usec / 1000000L);
+      tv_end.tv_usec %= 1000000L;
+
       while (1)
       {
          (*callback)();
@@ -50,13 +86,34 @@ void _unix_rest(unsigned int ms, void (*callback) (void))
       }
    }
    else {
+      struct timeval now;
+      struct timeval end;
+      struct timeval delay;
+      int result;
+
+      gettimeofday(&now, NULL);
+
+      end = now;
+      end.tv_usec += ms * 1000;
+      end.tv_sec  += (end.tv_usec / 1000000L);
+      end.tv_usec %= 1000000L;
+
+      while (1) {
+	 if (timeval_subtract(&delay, &end, &now))
+	    break;
+
 #ifdef ALLEGRO_MACOSX
-      usleep(ms * 1000);
+	 result = usleep((delay.tv_usec * 1000000L) + delay.tv_usec);
 #else
-      struct timeval timeout;
-      timeout.tv_sec = 0;
-      timeout.tv_usec = ms * 1000;
-      select(0, NULL, NULL, NULL, &timeout);
+	 result = select(0, NULL, NULL, NULL, &delay);
 #endif
+	 if (result == 0)	/* ok */
+	    break;
+	 if ((result != -1) || (errno != EINTR))
+	    break;
+
+	 /* interrupted */
+	 gettimeofday(&now, NULL);
+      }
    }
 }
