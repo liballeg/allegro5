@@ -332,16 +332,16 @@ $(OBJ_DIR)/%.o: %.s
 
 ifdef STATICLINK
 
-demo/demo.exe: $(OBJ_DIR)/demo.o wfixicon $(IMPLIB_NAME)
+*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(IMPLIB_NAME)
    ifneq ($(wildcard demo/demo.dat),)
-	tools/win/wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
    else
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME) $(LIBRARIES)
    endif
-
-*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
@@ -361,16 +361,16 @@ endef
 
 else 
 
-demo/demo.exe: $(OBJ_DIR)/demo.o wfixicon $(IMPLIB_NAME)
+*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)
+
+demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(IMPLIB_NAME)
    ifneq ($(wildcard demo/demo.dat),)
-	tools/win/wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
    else
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME)
    endif
-
-*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
