@@ -96,13 +96,17 @@ AL_INLINE(void, _vsync_out_v, (void),
 /* waits until the VGA is in a vertical blank */
 AL_INLINE(void, _vsync_in, (void),
 {
+#if 0
+   /* no longer applicable unless someone revives the DOS port */
    if (_timer_use_retrace) {
       int t = retrace_count; 
 
       do {
       } while (t == retrace_count);
    }
-   else {
+   else
+#endif /* #if 0 */
+   {
       do {
       } while (!(inportb(0x3DA) & 8));
    }
@@ -112,13 +116,17 @@ AL_INLINE(void, _vsync_in, (void),
 /* modifies the VGA pelpan register */
 AL_INLINE(void, _write_hpp, (int value),
 {
+#if 0
+   /* no longer applicable unless someone revives the DOS port */
    if (_timer_use_retrace) {
       _retrace_hpp_value = value;
 
       do {
       } while (_retrace_hpp_value == value);
    }
-   else {
+   else
+#endif /* #if 0 */
+   {
       do {
       } while (!(inportb(0x3DA) & 8));
 
