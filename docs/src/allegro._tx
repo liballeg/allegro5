@@ -7043,7 +7043,7 @@ The behaviour of the dialog manager can be controlled by the variables:
    mouse_z, and mouse_b variables, but they could be used to offset or scale 
    the mouse position, or read input from a different source entirely.
 
-@node gui font
+@hnode gui font
 You can change the global 'font' pointer to make the GUI objects use 
 something other than the standard 8x8 font. The standard dialog procedures, 
 menus, and alert boxes, will work with fonts of any size, but the 

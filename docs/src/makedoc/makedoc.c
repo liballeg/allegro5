@@ -332,7 +332,7 @@ static int _read_file(char *filename)
 	    _add_line("", INDEX_FLAG);
 	 else if (strincmp(buf+1, "node ") == 0) {
 	    _add_toc_line(buf+6, NULL, 0, line, 1, 0, 0);
-	    _add_line(buf+6, NODE_FLAG);
+	    _add_line(buf+6, NODE_FLAG | HTML_FLAG);
 	 }
 	 else if (strincmp(buf+1, "hnode ") == 0) {
 	    _add_toc_line(buf+7, NULL, 0, line, 1, 0, 0);
@@ -360,24 +360,33 @@ static int _read_file(char *filename)
 	 /* html specific tags */
 	 else if (strincmp(buf+1, "charset=") == 0)
 	    strcpy(charset, buf+9);
-	 else if ((mytolower(buf[1]=='h')) && (buf[2]=='='))
-	    html_flags |= HTML_OLD_H_TAG_FLAG;
+	 else if ((mytolower(buf[1]=='h')) && (buf[2]=='=')) {
+	    document_title = m_strdup(buf+3);
+	    html_flags |= HTML_OLD_H_TAG_FLAG | HTML_DOCUMENT_TITLE_FLAG | HTML_IGNORE_CSS;
+	 }
 	 else if (strincmp(buf+1, "document_title=") == 0) {
 	    document_title = m_strdup(buf+16);
 	    html_flags |= HTML_DOCUMENT_TITLE_FLAG;
 	 }
-	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='='))
-	    html_flags |= HTML_OLD_F_TAG_FLAG;
-	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='1') && (buf[3]=='='))
-	    html_flags |= HTML_OLD_F_TAG_FLAG;
-	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='2') && (buf[3]=='='))
-	    html_flags |= HTML_OLD_F_TAG_FLAG;
+	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='=')) {
+	    html_footer = m_strdup(buf+3);
+	    html_flags |= HTML_OLD_F_TAG_FLAG | HTML_FOOTER_FLAG;
+	 }
+	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='1') && (buf[3]=='=')) {
+	    html_footer = m_strdup(buf+4);
+	    html_footer = m_strcat(html_footer, "%s");
+	    html_flags |= HTML_OLD_F_TAG_FLAG | HTML_FOOTER_FLAG;
+	 }
+	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='2') && (buf[3]=='=')) {
+	    html_footer = m_strcat(html_footer, buf+4);
+	    html_flags |= HTML_OLD_F_TAG_FLAG | HTML_FOOTER_FLAG;
+	 }
 	 else if (strincmp(buf+1, "html_footer=") == 0) {
 	    html_footer = m_strdup(buf+13);
 	    html_flags |= HTML_FOOTER_FLAG;
 	 }
-	 else if (strincmp(buf+1, "html_line_breaks_as_paragraphs") == 0)
-	    html_flags |= HTML_BR_AS_P;
+	 else if (strincmp(buf+1, "html_spaced_list_bullet") == 0)
+	    html_flags |= HTML_SPACED_LI;
 	 else if (strincmp(buf+1, "ignore_css") == 0)
 	    html_flags |= HTML_IGNORE_CSS;
 	 else if (strincmp(buf+1, "htmlcode") == 0)
@@ -395,11 +404,9 @@ static int _read_file(char *filename)
 	 else if (strincmp(buf+1, "mans=") == 0)
 	    strcpy(mansynopsis, buf+6);
 	 else if (strincmp(buf+1, "locale=") == 0) {
-	    fclose(f);
-	    fprintf(stderr, "'%s' tag obsolete.\n"
-		    "Please use @charset='' or @rtf_language_header='' instead.\n"
-		    "See makedoc.c for more information about this.\n", buf);
-	    return 1; 
+	    printf("'%s' tag obsolete, will be ignored.\n"
+		   "Please use @charset='' or @rtf_language_header='' instead.\n"
+		   "See makedoc.c for more information about this.\n", buf);
 	 }
 	 else if (strincmp(buf+1, "multiwordheaders") == 0)
 	    multiwordheaders = 1;
@@ -418,11 +425,8 @@ static int _read_file(char *filename)
 	 else if (buf[1] == '#') {
 	    /* comment */
 	 }
-	 else {
-	    fclose(f);
-	    fprintf(stderr, "Unknown token '%s'\n", buf);
-	    return 1; 
-	 }
+	 else
+	    printf("Ignoring unknown token '%s'\n", buf);
       }
       else {
 	 /* some actual text */

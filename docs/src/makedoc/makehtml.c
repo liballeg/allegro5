@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "makehtml.h"
 #include "makemisc.h"
@@ -97,10 +98,8 @@ int write_html(char *filename)
    if (!_file)
       return 1;
 
-
-
    strcpy(_filename, filename);
-   _output_html_header(0);
+   if(document_title) _output_html_header(0);
 
    while (line) {
       if (line->flags & HTML_FLAG) {
@@ -142,8 +141,10 @@ int write_html(char *filename)
 	    _output_custom_markers(line);
 	 }
 	 else {
-	    _output_buffered_text();
 	    /* output a normal line */
+	    _output_buffered_text();
+	    if ((html_flags & HTML_SPACED_LI) && strstr(line->text, "<li>"))
+	       fputs("<p>", _file);
 	    _hfputs(line->text);
 	    fputs("\n", _file);
 	 }
@@ -259,13 +260,13 @@ static void _write_html_xref_list(char **xref, int *xrefs)
    fputs("\n<blockquote", _file);
    if (!(html_flags & HTML_IGNORE_CSS))
       fputs(" class=\"xref\"", _file);
-   fputs("><em>See also:</em>\n", _file);
+   fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>See also:</b></em>\n", _file);
    for (i=0; i<(*xrefs); i++) {
       if (i) _hfprintf(",\n");
       _write_html_xref(xref[i]);
    }
    *xrefs = 0;
-   _hfprintf(".</blockquote>\n");
+   _hfprintf(".</font></blockquote>\n");
    _empty_count = 0;
 }
 
@@ -305,8 +306,12 @@ static void _write_html_xref(char *xref)
  */
 static void _output_html_footer(char *main_filename)
 {
-   fprintf(_file, "<hr><a href=\"%s\">%s</a>\n",
-      get_filename(main_filename), html_footer);
+   assert(html_footer);
+   if (html_flags & HTML_OLD_F_TAG_FLAG)
+      fprintf(_file, html_footer, get_filename(main_filename));
+   else
+      fprintf(_file, "<hr><a href=\"%s\">%s</a>\n",
+	 get_filename(main_filename), html_footer);
 }
 
 
@@ -543,36 +548,51 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
  */
 static void _output_html_header(char *section)
 {
-   fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", _file);
-   fputs("<html><head><title>\n", _file);
-   fputs(document_title, _file);
-   if (section && strlen(strip_html(section))) {
-      fputs(": ", _file);
-      fputs(strip_html(section), _file);
+   assert(document_title);
+   
+   if (html_flags & HTML_OLD_H_TAG_FLAG) {
+      if (section && strlen(strip_html(section))) {
+	 int i;
+	 for (i=0; document_title[i]; i++) {
+	    if (document_title[i] == '#')
+	       fputs(strip_html(section), _file);
+	    else
+	       fputc(document_title[i], _file);
+	 }
+      }
    }
-   fputs("\n</title>\n", _file);
-   fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=", _file);
-   fputs(charset, _file);
-   fputs("\">\n", _file);
+   else {
+      fputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n", _file);
+      fputs("<html><head><title>\n", _file);
+      fputs(document_title, _file);
+      if (section && strlen(strip_html(section))) {
+	 fputs(": ", _file);
+	 fputs(strip_html(section), _file);
+      }
+      fputs("\n</title>\n", _file);
+      fputs("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=", _file);
+      fputs(charset, _file);
+      fputs("\">\n", _file);
 
-   /* optional style sheet output */
-   if (!(html_flags & HTML_IGNORE_CSS)) {
-      fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
-      fputs("<style type=\"text/css\">\n", _file);
-      fputs("<!--\n", _file);
-      fputs("A.xref:link    {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
-      fputs("A.xref:visited {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
-      fputs("A.xref:hover   {color: blue; text-decoration: underline; background: rgb(255, 224, 150);}\n", _file);
-      fputs("A.xref:active  {color: red; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
-      fputs("blockquote.xref {border: medium solid rgb(255, 204, 51); color: black; background: rgb(255, 204, 50);}\n", _file);
-      fputs("blockquote.code {border: medium solid rgb(255, 204, 50); color: black; background: rgb(255, 255, 155);}\n", _file);
-      fputs("blockquote.text {border: medium solid rgb(175, 235, 255); color: black; background: rgb(210, 244, 255);}\n", _file);
-      fputs("-->\n", _file);
-      fputs("</style>\n", _file);
+      /* optional style sheet output */
+      if (!(html_flags & HTML_IGNORE_CSS)) {
+	 fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
+	 fputs("<style type=\"text/css\">\n", _file);
+	 fputs("<!--\n", _file);
+	 fputs("A.xref:link    {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
+	 fputs("A.xref:visited {color: blue; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
+	 fputs("A.xref:hover   {color: blue; text-decoration: underline; background: rgb(255, 224, 150);}\n", _file);
+	 fputs("A.xref:active  {color: red; text-decoration: none; background: rgb(255, 204, 50);}\n", _file);
+	 fputs("blockquote.xref {border: medium solid rgb(255, 204, 51); color: black; background: rgb(255, 204, 50);}\n", _file);
+	 fputs("blockquote.code {border: medium solid rgb(255, 204, 50); color: black; background: rgb(255, 255, 155);}\n", _file);
+	 fputs("blockquote.text {border: medium solid rgb(175, 235, 255); color: black; background: rgb(210, 244, 255);}\n", _file);
+	 fputs("-->\n", _file);
+	 fputs("</style>\n", _file);
+      }
+
+      /* header end and body start */
+      fputs("</head><body bgcolor=white text=black link=\"#0000ee\" alink=\"#ff0000\" vlink=\"#551a8b\">\n", _file);
    }
-
-   /* header end and body start */
-   fputs("</head><body bgcolor=\"#ffffff\" text=\"#000000\" link=\"#0000ee\" alink=\"#ff0000\" vlink=\"#551a8b\">\n", _file);
 }
 
 
@@ -587,10 +607,8 @@ static void _output_buffered_text(void)
    if (_empty_count) {
       if (_empty_count > 1)
 	 fputs("<p><br>\n", _file);
-      else if (html_flags & HTML_BR_AS_P)
-	 fputs("<p>\n", _file);
       else
-	 fputs("<br>\n", _file);
+	 fputs("<p>\n", _file);
 
       _empty_count = 0;
    }
@@ -828,14 +846,17 @@ static int _verify_correct_input(void)
    int ret = 0;
    
    if (html_flags & HTML_OLD_H_TAG_FLAG) {
-      printf("The tag '@h=<html><head><title>#</title></head><body>' is obsolete.\n");
-      printf("Please use '@document_title blah blah blah' instead.\n");
+      printf("The tag '@h=<html><head><title>#</title></head><body>' and it's variant ");
+      printf("is obsolete.\nPlease use '@document_title blah blah blah' instead.\n");
+      printf("Otherwise the output won't be valid HTML code and won't use CSS.\n");
       printf("And make sure you aren't using any <head>,<title> or <body> tags!.\n");
-      ret++;
    }
 
-   if (!(html_flags & HTML_DOCUMENT_TITLE_FLAG)) {
-      printf("Missing tag '@document_title=blah blah blah'.\n");
+   if (!(html_flags & HTML_DOCUMENT_TITLE_FLAG) && (flags & MULTIFILE_FLAG)) {
+      printf("Missing tag for document title. You should use one of these:\n");
+      printf("@document_title=Allegro manual. (this is recommended)\n ...or...\n");
+      printf("@h=<html><head><title>#</title></head><body>.\n...and later...\n");
+      printf("@<html>\n@<head>\n@<title>Allegro - a game programming library</title></head>\n@<body>\n");
       ret++;
    }
 
@@ -843,12 +864,10 @@ static int _verify_correct_input(void)
       printf("The tags '@f=blah', '@f1=blah' and '@f2=blah' are obsolete.\n");
       printf("Please use '@html_footer=Back to contents' or something similar instead.\n");
       printf("And make sure you aren't using any <head>,<title> or <body> tags!.\n");
-      ret++;
    }
 
    if (!(html_flags & HTML_FOOTER_FLAG) && (flags & MULTIFILE_FLAG)) {
       printf("For multifile documents please use '@html_footer=Back to contents'.\n");
-      ret++;
    }
 
    return ret;

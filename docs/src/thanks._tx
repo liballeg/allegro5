@@ -3,7 +3,6 @@
 @# Read makedoc.c for a description of what is going on...
 @#
 @document_title=Allegro Contributors
-@html_line_breaks_as_paragraphs
 @<center><h1><b><i>The Hall of Fame</i></b></h1></center><hr>
 @startoutput AUTHORS
 <i>

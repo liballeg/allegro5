@@ -3,6 +3,7 @@
 @# Read makedoc.c for a description of what is going on...
 @#
 @document_title=Allegro FAQ
+@html_spaced_list_bullet
 @!html
 @!rtf
 		___  _ _                        _____ ___   ___ 

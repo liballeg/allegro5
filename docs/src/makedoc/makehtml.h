@@ -5,7 +5,7 @@
 #define HTML_DOCUMENT_TITLE_FLAG    0x00000002
 #define HTML_OLD_F_TAG_FLAG         0x00000004
 #define HTML_FOOTER_FLAG            0x00000008
-#define HTML_BR_AS_P                0x00000010
+#define HTML_SPACED_LI              0x00000010
 #define HTML_IGNORE_CSS             0x00000020
 
 

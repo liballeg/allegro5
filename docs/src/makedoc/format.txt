@@ -93,9 +93,22 @@
       multifile output, to this string makedoc will append the text of the
       @heading command used to generate each individual file.
 
+   @h=<html><head><title>xxx</title></head><body>
+      An old and less flexible version of @document_title. While you can
+      still use it, it will deactivate immediately CSS generation and the
+      generated HTML code won't be valid (at least the header part)
+
    @html_footer=xxx
       Required for multifile HTML output. This is the text that will appear
       at the footer of each individual html file which is not the index.
+
+   @f=<a href="file.html">Back to contents</a>
+      Old version of @html_footer, preserved for backwards compatibility.
+      @html_footer puts the apropiate link tags around the text you provide.
+
+   @f1=<p><hr><p><a href="
+   @f2=">Back to Contents</a><p></body></html>
+      Yet another ugly old version of @html_footer. Same story: don't use it.
 
    @rtfh=xxx
       Similar to @document_title but for rtf output. Soon to be deprecated.
@@ -143,6 +156,10 @@
 
    @tallbullets
       Uses tall bullets in the output formats that support them.
+
+   @html_spaced_list_bullet
+      Prepend a '<p>' to HTML output every time a <li> tag is found. This is
+      useful to space visually lists, used mainly for the changes log.
 
    @contents
       Generates an index for the info and html outputs.
