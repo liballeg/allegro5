@@ -65,41 +65,41 @@ static int mac_trace_handler(const char *msg);
 
 
 SYSTEM_DRIVER system_macos ={
-   SYSTEM_MACOS,
-   empty_string,
-   empty_string,
-   "MacOs",
+   SYSTEM_MACOS, /* id */
+   empty_string, /* name */
+   empty_string, /* desc */
+   "MacOs",      /* ascii_name */
    mac_init,
    mac_exit,
    mac_get_executable_name,
-   NULL,
+   NULL, /* find_resource */
    mac_set_window_title,
-   NULL,
-   NULL,
+   NULL, /* set_window_close_button */
+   NULL, /* set_window_close_hook */
    mac_message,
    mac_assert,
-   NULL,
-   NULL,
-   NULL, /*mac_create_bitmap,*/
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
+   NULL, /* save_console_state */
+   NULL, /* restore_console_state */
+   NULL, /* mac_create_bitmap, */
+   NULL, /* created_bitmap */
+   NULL, /* create_sub_bitmap */
+   NULL, /* created_sub_bitmap */
+   NULL, /* destroy_bitmap */
+   NULL, /* read_hardware_palette */
+   NULL, /* set_palette_range */
+   NULL, /* get_vtable */
+   NULL, /* set_display_switch_mode */
+   NULL, /* display_switch_lock */
    mac_desktop_color_depth,
-   NULL,
+   NULL, /* get_desktop_resolution */
    mac_yield_timeslice,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
+   NULL, /* gfx_drivers */
+   NULL, /* digi_drivers */
+   NULL, /* midi_drivers */
+   NULL, /* keyboard_drivers */
+   NULL, /* mouse_drivers */
+   NULL, /* joystick_drivers */
+   NULL  /* timer_drivers */
 };
 
 

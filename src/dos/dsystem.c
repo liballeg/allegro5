@@ -109,23 +109,41 @@ static void sys_dos_yield_timeslice(void);
 /* the main system driver for running under dos */
 SYSTEM_DRIVER system_dos =
 {
-   SYSTEM_DOS,
-   empty_string,
-   empty_string,
-   "DOS",
+   SYSTEM_DOS,   /* id */
+   empty_string, /* name */
+   empty_string, /* desc */
+   "DOS",        /* ascii_name */
    sys_dos_init,
    sys_dos_exit,
    sys_dos_get_executable_name,
-   NULL, NULL, NULL, NULL, NULL,
+   NULL, /* find_resource */
+   NULL, /* set_window_title */
+   NULL, /* set_window_close_button */
+   NULL, /* set_window_close_hook */
+   NULL, /* message */
    sys_dos_assert,
    sys_dos_save_console_state,
    sys_dos_restore_console_state,
-   NULL, NULL, NULL, NULL, NULL,
+   NULL, /* create_bitmap */
+   NULL, /* created_bitmap */
+   NULL, /* create_sub_bitmap */
+   NULL, /* created_sub_bitmap */
+   NULL, /* destroy_bitmap */
    sys_dos_read_palette,
    sys_dos_set_palette,
-   NULL, NULL, NULL, NULL, NULL,
+   NULL, /* get_vtable */
+   NULL, /* set_display_switch_mode */
+   NULL, /* display_switch_lock */
+   NULL, /* desktop_color_depth */
+   NULL, /* get_desktop_resolution */
    sys_dos_yield_timeslice,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, /* gfx_drivers */
+   NULL, /* digi_drivers */
+   NULL, /* midi_drivers */
+   NULL, /* keyboard_drivers */
+   NULL, /* mouse_drivers */
+   NULL, /* joystick_drivers */
+   NULL  /* timer_drivers */
 };
 
 
