@@ -26,7 +26,7 @@ Changes from 3.11 to current
    file attribute flags, request_scroll and request_video_bitmap.
 <li>
    3.9.39: Eric Botcazou unified the use of internal timers in Windows
-   drivers. Also let digitest use mex volume of Allegro mixer.
+   drivers. Also let digitest use max volume of Allegro mixer.
 <li>
    3.9.39: Paul Hampson improved again the DOS SNESpad joystick driver.
 <li>
@@ -135,7 +135,7 @@ Changes from 3.11 to current
    3.9.39: Eric Botcazou fixed a bug in the menus caused by auto-opening.
 <li>
    3.9.39: Henrik Stokseth updated the makefiles to use -mcpu=pentium instead
-   of the deprechiated -mpentium gcc option. Also let the packaging scripts
+   of the depreciated -mpentium gcc option. Also let the packaging scripts
    run autoconf and remove hidden or leftover files.
 <li>
    3.9.39: Eric Botcazou cleaned up the windows sound code. Also clarified
@@ -360,7 +360,7 @@ Changes from 3.11 to current
 <li>
    3.9.37: Angelo Mottola made GUI submenus automatically open when the
    mouse hovers for long enough. (This was an old patch that finally got
-   merged.) Eric made some related modifications to later.
+   merged.) Eric made some related modifications to it later.
 <li>
    3.9.37: Eric Botcazou made clear_keybuf() not clear the key[] array.
 <li>
@@ -1187,7 +1187,7 @@ Changes from 3.11 to current
 <li>
    3.9.23: added a strictwarn option to the configure script, and fixed 
    everything that it moaned about. The warnings still aren't all that 
-   strict: at some point I want to sit down and make it build clearnly with 
+   strict: at some point I want to sit down and make it build cleanly with 
    -W, as well as -Wall -Werror.
 <li>
    3.9.22: fixed some potential race conditions introduced by my previous 
