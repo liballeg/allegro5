@@ -1770,7 +1770,7 @@ void fixup_datafile(DATAFILE *data)
 			   while (x-- > 0) {
 			      c = *s16;
 			      r = _rgb_scale_5[c & 0x1F];
-			      g = _rgb_scale_6[(c >> 5) & 0x1F];
+			      g = _rgb_scale_5[(c >> 5) & 0x1F];
 			      b = _rgb_scale_5[(c >> 10) & 0x1F];
 			      *s16 = makecol_depth(depth, r, g, b);
 			      s16++;
