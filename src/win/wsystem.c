@@ -218,30 +218,14 @@ static void sys_directx_exit(void)
  */
 static void sys_directx_get_executable_name(char *output, int size)
 {
-   unsigned char *cmd = GetCommandLine();
-   int pos = 0;
-   int i = 0;
-   int q;
+   char *temp = malloc(size);
 
-   while ((cmd[i]) && (uisspace(cmd[i])))
-      i++;
-
-   if ((cmd[i] == '\'') || (cmd[i] == '"'))
-      q = cmd[i++];
+   if (GetModuleFileName(allegro_inst, temp, size))
+      do_uconvert(temp, U_ASCII, output, U_CURRENT, size);
    else
-      q = 0;
+      usetc(output, 0);
 
-   size -= ucwidth(0);
-
-   while ((cmd[i]) && ((q) ? (cmd[i] != q) : (!uisspace(cmd[i])))) {
-      size -= ucwidth(cmd[i]);
-      if (size < 0)
-	 break;
-
-      pos += usetc(output + pos, cmd[i++]);
-   }
-
-   usetc(output + pos, 0);
+   free(temp);
 }
 
 
