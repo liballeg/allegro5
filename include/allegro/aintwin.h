@@ -36,11 +36,13 @@
 
 #if (!defined SCAN_EXPORT) && (!defined SCAN_DEPEND)
    /* workaround for buggy mingw headers */
-   #ifndef HMONITOR_DECLARED
-      #define HMONITOR_DECLARED
-   #endif
-   #if (defined _HRESULT_DEFINED) && (defined WINNT)
-      #undef WINNT
+   #ifdef ALLEGRO_MINGW32
+      #ifndef HMONITOR_DECLARED
+         #define HMONITOR_DECLARED
+      #endif
+      #if (defined _HRESULT_DEFINED) && (defined WINNT)
+         #undef WINNT
+      #endif
    #endif
 
    #include <ddraw.h>
