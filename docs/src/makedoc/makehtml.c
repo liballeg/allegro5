@@ -203,7 +203,7 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
 static void _output_custom_markers(LINE *line);
 static void _output_buffered_text(void);
 static void _output_html_header(char *section);
-static void _add_post_process_ref(const char *token, char type);
+static void _add_post_process_ref(const LINE *token, char type);
 static void _post_process_pending_refs(void);
 static POST *_search_post_section(const char *filename);
 static POST *_search_post_section_with_token(const char *token);
@@ -220,6 +220,8 @@ static void _prepare_html_text_substitution(void);
 static void _free_html_text_substitution_memory(void);
 static char *_do_text_substitution(char *input);
 static void _output_symbol_index(void);
+const char *_find_short_description(const LINE *line);
+const char *_look_up_short_description(const char *token, int len);
 
 
 
@@ -271,7 +273,7 @@ int write_html(char *filename)
 	    _output_buffered_text();
 	    if (_output_section_heading(line, filename, section_number))
 	       return 1;
-	    _add_post_process_ref(line->text, TOKEN_TEXT);
+	    _add_post_process_ref(line, TOKEN_TEXT);
 	    section_number++;
 	 }
 	 else if (line->flags & RETURN_VALUE_FLAG) {
@@ -285,7 +287,7 @@ int write_html(char *filename)
 	    /* output a node marker, which will be followed by a chunk of text inside a chapter */
 	    fprintf(_file, "<br><center><h2><a name=\"%s\">%s</a></h2></center><p>\n",
 	       line->text, line->text);
-	    _add_post_process_ref(line->text, TOKEN_TEXT);
+	    _add_post_process_ref(line, TOKEN_TEXT);
 	 }
 	 else if (line->flags & DEFINITION_FLAG) {
 	    static int prev_continued = 0;
@@ -293,7 +295,7 @@ int write_html(char *filename)
 	    if (_empty_count && !block_empty_lines) _empty_count++;
 	    _output_buffered_text();
 	    /* output a function definition */
-	    _add_post_process_ref(temp, TOKEN_NORMAL);
+	    _add_post_process_ref(line, TOKEN_NORMAL);
 	    temp = _mark_up_auto_types(temp, auto_types);
 	    
 	    if (!prev_continued) {
@@ -529,9 +531,11 @@ static void _write_html_ref(char *ref, const char *type)
       }
     
       if (flags & MULTIFILE_FLAG)
-	 _hfprintf("href=\"post_process#%s\">%s</a>", tok, tok);
+	 _hfprintf("href=\"post_process#%s\" title=\"@SHORTDESC %s@\">%s</a>",
+	    tok, tok, tok);
       else
-	 _hfprintf("href=\"#%s\">%s</a>", tok, tok);
+	 _hfprintf("href=\"#%s\" title=\"@SHORTDESC %s@\">%s</a>",
+	    tok, tok, tok);
 
       tok = strtok(NULL, ",;");
    }
@@ -687,6 +691,7 @@ static void _output_toc(char *filename, int root, int body, int part)
       }
       else if (!(html_flags & HTML_OPTIMIZE_FOR_CHM) &&
                !(html_flags & HTML_OPTIMIZE_FOR_DEVHELP)) {
+	 /* Outputs the function TOC for the current section. */
 	 TOC *ptr[TOC_SIZE];
 	 int j, i = 0;
 	 int section_number = 0;
@@ -707,8 +712,11 @@ static void _output_toc(char *filename, int root, int body, int part)
 	 if (i > 1)
 	    qsort(ptr, i, sizeof(TOC *), _toc_scmp);
 
-	 for (j = 0; j < i; j++)
-	    _hfprintf("<li><a href=\"#%s\">%s</a>\n", ptr[j]->text, ALT_TEXT(ptr[j]));
+	 for (j = 0; j < i; j++) {
+	    _hfprintf("<li><a href=\"#%s\">%s</a>", ptr[j]->text, ALT_TEXT(ptr[j]));
+	    fprintf(_file, " &mdash; ");
+	    _hfprintf("@SHORTDESC %s@\n", ALT_TEXT(ptr[j]));
+	 }
 
 	 fprintf(_file, "</ul>\n");
       }
@@ -961,13 +969,17 @@ static void _post_process_pending_refs(void)
 /* _add_post_process_ref:
  * Adds a token to a buffer with the current filename for a post process.
  * The type of the reference will be stored as the first character of
- * the clean token.
+ * the clean token, and a comma will separate its short description if
+ * there is any available.
  */
-static void _add_post_process_ref(const char *token, char type)
+static void _add_post_process_ref(const LINE *line, char type)
 {
+   const char *token, *short_desc;
    char *clean_token;
    POST *p;
+   assert(line);
 
+   token = line->text;
    clean_token = get_clean_ref_token(token);
    /* ignore empty tokens, or those with space at the beginning */
    if (!clean_token[0] || myisspace(clean_token[0])) {
@@ -979,9 +991,17 @@ static void _add_post_process_ref(const char *token, char type)
    if (!p)
       p = _create_post_section(_filename);
 
+   short_desc = _find_short_description(line);
+
+   /* Reserve memory for the list, and the token with type. */
    p->token = m_xrealloc(p->token, sizeof(char*) * (1 + p->num));
    p->token[p->num] = m_strcat(m_strdup(" "), clean_token);
    p->token[p->num][0] = type;
+   /* If we found a short description, add it with a comma. */
+   if (short_desc) {
+      p->token[p->num] = m_strcat(p->token[p->num], ",");
+      p->token[p->num] = m_strcat(p->token[p->num], short_desc);
+   }
    p->num++;
 }
 
@@ -1013,14 +1033,53 @@ static POST *_search_post_section(const char *filename)
  */
 static POST *_search_post_section_with_token(const char *token)
 {
+   int f, g, len;
+   if (!_post)
+      return 0;
+
+   len = strlen(token);
+
+   for(f = 0; _post[f]; f++) {
+      for(g = 0; g < _post[f]->num; g++) {
+	 if (!strncmp(_post[f]->token[g] + 1, token, len)) {
+	    /* Still, we have to verify the tokens have correct size. */
+	    const char *desc = strchr(_post[f]->token[g], ',');
+	    if (desc && (desc - _post[f]->token[g] - 1) == len)
+	       return _post[f];
+	    else if (!desc && strlen(_post[f]->token[g] + 1) == len)
+	       return _post[f];
+	 }
+      }
+   }
+   return 0;
+}
+
+
+
+/* _look_up_short_description:
+ * Retrieves from the cached short description the one which matches
+ * len characters from the string token. Returns NULL if none is found.
+ */
+const char *_look_up_short_description(const char *token, int len)
+{
    int f, g;
    if (!_post)
       return 0;
 
-   for(f = 0; _post[f]; f++)
-      for(g = 0; g < _post[f]->num; g++)
-	 if (!strcmp(_post[f]->token[g] + 1, token))
-	    return _post[f];
+   for(f = 0; _post[f]; f++) {
+      for(g = 0; g < _post[f]->num; g++) {
+	 /* First see if this entry has a short description. */
+	 const char *desc = strchr(_post[f]->token[g], ',');
+	 if (!desc)
+	    continue;
+	 /* Does the found token have the lenght we are looking for? */
+	 if ((desc - _post[f]->token[g] - 1) != len)
+	    continue;
+	 /* Verify that the token is the same and has correct length. */
+	 if (!strncmp(_post[f]->token[g] + 1, token, len))
+	    return desc + 1; /* Avoid the comma. */
+      }
+   }
    return 0;
 }
 
@@ -1092,6 +1151,7 @@ static void _post_process_filename(char *filename)
    printf("post processing %s\n", filename);
 
    while ((line = m_fgets(f1))) {
+      /* Loop over pending filename post process marks. */
       while ((p = strstr(line, "\"post_process#"))) {
 	 char *clean_token = get_clean_ref_token(p + 2);
 	 POST *page = _search_post_section_with_token(clean_token);
@@ -1114,6 +1174,30 @@ static void _post_process_filename(char *filename)
 	    line = temp;
 	 }
 	 free(clean_token);
+      }
+
+      /* Loop over pending short description marks. */
+      while ((p = strstr(line, "@SHORTDESC "))) {
+	 const char *desc;
+	 char *end = strchr(p + 11, '@');
+	 if (!end) {
+	    printf("Didn't find closing of @SHORTDESC!\n");
+	    abort();
+	 }
+	 desc = _look_up_short_description(p + 11, end - p - 11);
+	 if (desc) {
+	    /* Substitute with found test. */
+	    char *temp = m_xmalloc(1 + strlen(line) + strlen(desc));
+	    strncpy(temp, line, p - line);
+	    strcpy(temp + (p - line), desc);
+	    strcat(temp, end + 1); /* Don't copy the @ from end. */
+	    free(line);
+	    line = temp;
+	 }
+	 else {
+	    /* Remove the description then. */
+	    memmove(p, end + 1, strlen(end));
+	 }
       }
       line = _do_text_substitution(line);
       fputs(line, f2);
@@ -1197,8 +1281,12 @@ static void _output_sorted_nested_toc(TOC **list, unsigned int num_items)
 
    if (num_items > 1)
       qsort(list, num_items, sizeof(TOC *), _toc_scmp);
-   for (f = 0; f < num_items; f++)
-      _hfprintf("<li><a href=\"#%s\">%s</a>\n", list[f]->text, ALT_TEXT(list[f]));
+      
+   for (f = 0; f < num_items; f++) {
+      _hfprintf("<li><a href=\"#%s\">%s</a>", list[f]->text, ALT_TEXT(list[f]));
+      fprintf(_file, " &mdash; ");
+      _hfprintf("@SHORTDESC %s@\n", ALT_TEXT(list[f]));
+   }
    
    fprintf(_file, "</ul>\n");
 }
@@ -1266,7 +1354,7 @@ static char *_mark_up_auto_types(char *line, char **auto_types)
       *p = 0;
       if (flags & MULTIFILE_FLAG) {
 	 int offset = 22;
-	 char *mark = m_xmalloc(2 * length + 47);
+	 char *mark = m_xmalloc(3 * length + 47 + 21);
 	 if (html_flags & HTML_IGNORE_CSS)
 	    strcpy(mark, "<a href=\"post_process#");
 	 else {
@@ -1275,8 +1363,12 @@ static char *_mark_up_auto_types(char *line, char **auto_types)
 	 }
 	 strncpy(mark + offset, temp, length);
 	 offset += length;
-	 strcpy(mark + offset, "\">");
-	 offset += 2;
+	 strcpy(mark + offset, "\" title=\"@SHORTDESC ");
+	 offset += 20;
+	 strncpy(mark + offset, temp, length);
+	 offset += length;
+	 strcpy(mark + offset, "@\">");
+	 offset += 3;
 	 strncpy(mark + offset, temp, length);
 	 offset += length;
 	 strcpy(mark + offset, "</a>");
@@ -1286,7 +1378,7 @@ static char *_mark_up_auto_types(char *line, char **auto_types)
       }
       else {
 	 int offset = 10;
-	 char *mark = m_xmalloc(2 * length + 35);
+	 char *mark = m_xmalloc(3 * length + 35 + 21);
 	 if (html_flags & HTML_IGNORE_CSS)
 	    strcpy(mark, "<a href=\"#");
 	 else {
@@ -1295,8 +1387,12 @@ static char *_mark_up_auto_types(char *line, char **auto_types)
 	 }
 	 strncpy(mark + offset, temp, length);
 	 offset += length;
-	 strcpy(mark + offset, "\">");
-	 offset += 2;
+	 strcpy(mark + offset, "\" title=\"@SHORTDESC ");
+	 offset += 20;
+	 strncpy(mark + offset, temp, length);
+	 offset += length;
+	 strcpy(mark + offset, "@\">");
+	 offset += 3;
 	 strncpy(mark + offset, temp, length);
 	 offset += length;
 	 strcpy(mark + offset, "</a>");
@@ -1416,6 +1512,51 @@ static void _output_symbol_index(void)
 
    qsort(list, num, sizeof(char *), _str_cmp);
 
-   for (f = 0; f < num; f++)
-      _hfprintf("<li><a href=\"post_process#%s\">%s</a>\n", list[f], list[f]);
+   for (f = 0; f < num; f++) {
+      /* Before writing the string, remove possible short descriptions. */
+      char *p, *temp = m_strdup(list[f]);
+      p = strchr(temp, ',');
+      if (p)
+	 *p = 0;
+
+      _hfprintf("<li><a href=\"post_process#%s\">%s</a>", temp, temp);
+      fprintf(_file, " &mdash; ");
+      _hfprintf("@SHORTDESC %s@\n", temp);
+   }
 }
+
+
+
+/* _find_short_description:
+ * Given a line, looks forward enough to find a @shortdesc definition.
+ * Returns a const pointer to the text of the line, or NULL if no
+ * short definition was found.
+ */
+const char *_find_short_description(const LINE *line)
+{
+   assert(line);
+   while (1) {
+      line = line->next;
+      
+      if (!line)
+	 return 0;
+
+      /* So, did we find a short description? */
+      if (line->flags & SHORT_DESC_FLAG)
+	 return line->text;
+
+      /* Continue parsing through continuations or definitions. */
+      if (line->flags & (CONTINUE_FLAG | DEFINITION_FLAG))
+	 continue;
+
+      /* Abort on beginning of new chapters, nodes, and paragraphs. */
+      if (line->flags & (HEADING_FLAG | NODE_FLAG | TEXT_FLAG))
+	 return 0;
+
+      /* Safe abort on (nearl) empty lines. */
+      if (strlen(line->text) < 2)
+	 return 0;
+   }
+   return 0;
+}
+
