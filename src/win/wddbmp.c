@@ -372,15 +372,27 @@ void gfx_directx_destroy_video_bitmap(struct BITMAP *bitmap)
 
 /* gfx_directx_flip_bitmap:
  */
-static __inline int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
+static int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
 {
    LPDIRECTDRAWSURFACE2 visible;
    LPDIRECTDRAWSURFACE2 invisible;
    HRESULT hr;
    int failed = 0;
 
-   invisible = BMP_EXTRA(bitmap)->surf;
+   /* flip only in the foreground */
+   if (!app_foreground) {
+      thread_switch_out();
+      return 0;
+   }
+
    visible = BMP_EXTRA(dd_frontbuffer)->surf;
+   invisible = BMP_EXTRA(bitmap)->surf;
+
+   /* always need to handle DDERR_SURFACELOST, this will happen
+    *  when we get switched away from.
+    */
+   if (IDirectDrawSurface2_IsLost(visible) == DDERR_SURFACELOST)
+      IDirectDrawSurface2_Restore(visible);
 
    /* try to flip already attached surfaces */
    if ((backbuffersurf && (invisible == backbuffersurf)) ||

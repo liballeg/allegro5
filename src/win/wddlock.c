@@ -101,7 +101,8 @@ void gfx_directx_lock(BITMAP *bmp)
 	    item = directx_bmp_list;
 	    while (item) {
 	       /* if restoration fails, stop restoring */
-	       if (FAILED(IDirectDrawSurface2_Restore(item->surf)))
+	       hr = IDirectDrawSurface2_Restore(item->surf);
+               if (FAILED(hr))
 		  break;
 	       item = item->next;
 	    }
