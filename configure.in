@@ -498,6 +498,10 @@ AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
 
 dnl Run "make depend" if necessary.
 if test "X$allegro_make_depend" = "Xyes"; then
-  dnl The makefile doesn't work with pmake at the moment, so force gmake.
-  gmake depend
+  dnl The makefile doesn't work with non-gmake at the moment, so force gmake.
+  if ${MAKE-make} -h | grep -iq gnu; then
+    ${MAKE-make} depend
+  else
+    gmake depend
+  fi
 fi
