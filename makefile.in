@@ -197,9 +197,9 @@ $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 
 # Documentation.
 
-DOCBASEFILES = ahack changes faq help thanks allegro const abi
+DOCBASEFILES = ahack changes faq help thanks allegro const abi api
 
-DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi))
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi api))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
 DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3

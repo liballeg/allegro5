@@ -1,0 +1,44 @@
+@document_title=API compatibility information
+@<pre>
+@!indent
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+        \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+                                       /\____/
+                                       \_/__/
+
+
+                API compatibility information.
+
+         See readme.txt for a more general overview.
+@indent
+@</pre>
+
+
+
+@heading
+Introduction
+
+   Once Allegro 4.0 is released, we plan to maintain Application Programming
+   Interface compatibility for the rest of the 4.x series. For example, that
+   means you will be able to compile your program written for version 4.0
+   with version 4.0.23 or version 4.2.1 of the library. However, in order to
+   fix some inconsistencies of the 4.0 API, we may make exceptions to the
+   rule and break strict API compatibility. But this is guaranteed to never
+   happen in a series for which major and minor version numbers are fixed;
+   in other words, two versions that differ from each other only by the
+   revision (third) number will be strictly API compatible.
+
+@heading
+Changes between 4.0.x and 4.1.x series
+<ul><li>
+   The 'aspect' parameter of get_camera_matrix() and get_camera_matrix_f()
+   strictly conforms to the documentation; in particular, setting it to 1
+   instructs the functions to do no scaling. This was not the case before,
+   because the functions multiplied this aspect ratio by 4/3.
+</ul>
+
