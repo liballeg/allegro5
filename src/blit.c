@@ -785,7 +785,8 @@ void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, 
 {
    BLIT_CLIP();
 
-   if (src->vtable->color_depth != dest->vtable->color_depth) {
+   if (!(is_video_bitmap(dest) && is_video_bitmap(src)) && 
+       (src->vtable->color_depth != dest->vtable->color_depth)) {
       /* need to do a color conversion */
       blit_between_formats(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
