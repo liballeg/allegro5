@@ -584,23 +584,26 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KEY_PAUSE             93
 #define KEY_YEN               94
 #define KEY_YEN2              95
+#define KEY_KANA              96
+#define KEY_HENKAN            97
+#define KEY_MUHENKAN          98
 
-#define KEY_MODIFIERS         96
+#define KEY_MODIFIERS         99
 
-#define KEY_LSHIFT            96
-#define KEY_RSHIFT            97
-#define KEY_LCONTROL          98
-#define KEY_RCONTROL          99
-#define KEY_ALT               100
-#define KEY_ALTGR             101
-#define KEY_LWIN              102
-#define KEY_RWIN              103
-#define KEY_MENU              104
-#define KEY_SCRLOCK           105
-#define KEY_NUMLOCK           106
-#define KEY_CAPSLOCK          107
+#define KEY_LSHIFT            99
+#define KEY_RSHIFT            100
+#define KEY_LCONTROL          101
+#define KEY_RCONTROL          102
+#define KEY_ALT               103
+#define KEY_ALTGR             104
+#define KEY_LWIN              105
+#define KEY_RWIN              106
+#define KEY_MENU              107
+#define KEY_SCRLOCK           108
+#define KEY_NUMLOCK           109
+#define KEY_CAPSLOCK          110
 
-#define KEY_MAX               108
+#define KEY_MAX               111
 
 
 

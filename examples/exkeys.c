@@ -38,6 +38,7 @@ char *key_names[] =
    "KEY_UP",         "KEY_DOWN",       "KEY_SLASH_PAD",  "KEY_ASTERISK",
    "KEY_MINUS_PAD",  "KEY_PLUS_PAD",   "KEY_DEL_PAD",    "KEY_ENTER_PAD",
    "KEY_PRTSCR",     "KEY_PAUSE",      "KEY_YEN",        "KEY_YEN2",
+   "KEY_KANA",       "KEY_HENKAN",     "KEY_MUHENKAN",
    "KEY_LSHIFT",     "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",
    "KEY_ALT",        "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",
    "KEY_MENU",       "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",
