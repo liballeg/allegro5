@@ -20,6 +20,9 @@
 #include "allegro/platform/aintunix.h"
 #include "xwin.h"
 
+#ifdef ALLEGRO_MULTITHREADED
+#include <pthread.h>
+#endif
 
 
 static GFX_VTABLE _xwin_vtable;
@@ -51,12 +54,6 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
 			      int dx, int dy, int w, int h);
 static void _xwin_clear_to_color(BITMAP *dst, int color);
 
-/* True if the GC is using the proper drawing mode */
-static int _xwin_drawmode_ok = TRUE;
-
-/* A counter for the number of locks held on the X display */
-static int _xwin_lock_count = 0;
-
 
 
 /* _xwin_drawing_mode:
@@ -64,20 +61,28 @@ static int _xwin_lock_count = 0;
  */
 void _xwin_drawing_mode(void)
 {
-   int gc_func;
+   if (!_xwin.matching_formats) {
+      if (_drawing_mode == DRAW_MODE_SOLID)
+	 _xwin.drawing_mode_ok = TRUE;
+      else
+	 _xwin.drawing_mode_ok = FALSE;
 
-   if(_drawing_mode == DRAW_MODE_SOLID)
-      gc_func = GXcopy;
-   else if (_drawing_mode == DRAW_MODE_XOR)
-      gc_func = GXxor;
-   else
-   {
-      _xwin_drawmode_ok = FALSE;
+      _xwin.real_drawing_mode = GXcopy;
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
       return;
    }
 
-   _xwin_drawmode_ok = TRUE;
-   XSetState(_xwin.display, _xwin.gc, 0, 0, gc_func, -1);
+   _xwin.drawing_mode_ok = TRUE;
+   if(_drawing_mode == DRAW_MODE_SOLID)
+      _xwin.real_drawing_mode = GXcopy;
+   else if (_drawing_mode == DRAW_MODE_XOR)
+      _xwin.real_drawing_mode = GXxor;
+   else {
+      _xwin.drawing_mode_ok = FALSE;
+      _xwin.real_drawing_mode = GXcopy;
+   }
+
+   XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin.real_drawing_mode, -1);
 }
 
 
@@ -122,14 +127,23 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
 
 
 /* _xwin_lock:
- *  Lock X for drawing onto the display. Unlike XLOCK, this allows nested
- *  locks so be sure it's only called from one thread!
+ *  Lock X for drawing onto the display.
  */
 void _xwin_lock(BITMAP *bmp)
 {
-   if (_xwin_lock_count == 0)
+#ifdef ALLEGRO_MULTITHREADED
+   /* We want to force another mutex lock if another thread is trying to
+    * acquire the screen
+    */
+   if ((_xwin.screen_lock_count == 0) ||
+       (_xwin.locked_thread != pthread_self())) {
+#else
+   if (_xwin.screen_lock_count == 0) {
+#endif
+      _xwin.locked_thread = pthread_self();
       XLOCK();
-   _xwin_lock_count++;
+   }
+   _xwin.screen_lock_count++;
 }
 
 
@@ -140,8 +154,8 @@ void _xwin_lock(BITMAP *bmp)
  */
 void _xwin_unlock(BITMAP *bmp)
 {
-   _xwin_lock_count--;
-   if (_xwin_lock_count == 0)
+   _xwin.screen_lock_count--;
+   if (_xwin.screen_lock_count == 0)
       XUNLOCK();
 }
 
@@ -152,7 +166,13 @@ void _xwin_unlock(BITMAP *bmp)
  */
 static void _xwin_update_video_bitmap(BITMAP *dst, int x, int y, int w, int h)
 {
+   if (_xwin.real_drawing_mode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
+
    _xwin_update_screen(x + dst->x_ofs, y + dst->y_ofs, w, h);
+
+   if (_xwin.real_drawing_mode != GXcopy)
+      XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin.real_drawing_mode, -1);
 }
 
 
@@ -174,7 +194,7 @@ static void _xwin_putpixel(BITMAP *dst, int dx, int dy, int color)
    _xwin_vtable.putpixel(dst, dx, dy, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin_drawmode_ok)
+   if (_xwin.matching_formats && _xwin.drawing_mode_ok)
    {
       dx += dst->x_ofs - _xwin.scroll_x;
       dy += dst->y_ofs - _xwin.scroll_y;
@@ -223,7 +243,7 @@ static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color)
    _xwin_vtable.hline(dst, dx1, dy, dx2, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin_drawmode_ok) {
+   if (_xwin.matching_formats && _xwin.drawing_mode_ok) {
       dx1 += dst->x_ofs - _xwin.scroll_x;
       dx2 += dst->x_ofs - _xwin.scroll_x;
       dy += dst->y_ofs - _xwin.scroll_y;
@@ -275,7 +295,7 @@ static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color)
    _xwin_vtable.vline(dst, dx, dy1, dy2, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin_drawmode_ok) {
+   if (_xwin.matching_formats && _xwin.drawing_mode_ok) {
       dx += dst->x_ofs - _xwin.scroll_x;
       dy1 += dst->y_ofs - _xwin.scroll_y;
       dy2 += dst->y_ofs - _xwin.scroll_y;
@@ -340,7 +360,7 @@ static void _xwin_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int 
    _xwin_vtable.rectfill(dst, dx1, dy1, dx2, dy2, color);
    _xwin_in_gfx_call = 0;
 
-   if (_xwin.matching_formats && _xwin_drawmode_ok) {
+   if (_xwin.matching_formats && _xwin.drawing_mode_ok) {
       dx1 += dst->x_ofs - _xwin.scroll_x;
       dx2 += dst->x_ofs - _xwin.scroll_x;
       dy1 += dst->y_ofs - _xwin.scroll_y;
@@ -811,4 +831,3 @@ static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int
    _xwin_in_gfx_call = 0;
    _xwin_update_video_bitmap(dst, dxbeg, dybeg, w, h);
 }
-

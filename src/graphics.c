@@ -816,6 +816,10 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    else
       _wait_for_vsync = TRUE;
 
+   /* Give the gfx driver an opportunity to set the drawing mode */
+   if ((gfx_driver->drawing_mode) && (!_dispsw_status))
+      gfx_driver->drawing_mode();
+
    clear_bitmap(screen);
 
    /* set up the default colors */

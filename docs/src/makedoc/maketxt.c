@@ -52,6 +52,15 @@ int write_txt(char *filename, int partial)
 	       outputting = 0;
 	 }
       }
+      else if (line->flags & NODE_FLAG) {
+	 p = line->text;
+	 len = strlen(p);
+	 fputs(p, f);
+	 fputs("\n", f);
+	 for (c=0; c<len; c++)
+	    fputc('-', f);
+	 fputs("\n\n", f);
+      }
       else if ((line->flags & TEXT_FLAG) && (outputting)) {
 	 p = line->text;
 

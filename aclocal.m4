@@ -223,10 +223,6 @@ AC_ARG_ENABLE(xwin-vidmode,
 [  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Ext. [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86vidmode=yes,
 allegro_enable_xwin_xf86vidmode=yes)
-AC_ARG_ENABLE(xwin-dga,
-[  --enable-xwin-dga[=x]   enable the use of XF86DGA Extension [default=yes]],
-test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga=yes,
-allegro_enable_xwin_xf86dga=yes)
 AC_ARG_ENABLE(xwin-dga2,
 [  --enable-xwin-dga2[=x]  enable the use of DGA 2.0 Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga2=yes,
@@ -257,6 +253,19 @@ if test -z "$no_x"; then
     AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XPM,1,[Define if xpm bitmap support is available.])
     ])
    )
+   
+  dnl Test for Xcursor library.
+  AC_CHECK_LIB(Xcursor, XcursorImageCreate,
+    AC_TRY_COMPILE([#include <X11/Xlib.h>
+                    #include <X11/Xcursor/Xcursor.h>], 
+                   [XcursorImage *xcursor_image;
+                    XcursorImageLoadCursor(0, xcursor_image);
+                    XcursorSupportsARGB(0);
+                   ],
+      [LIBS="-lXcursor $LIBS"
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
+      ])
+   )
 
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
@@ -269,13 +278,6 @@ if test -z "$no_x"; then
     AC_CHECK_LIB(Xxf86vm, XF86VidModeQueryExtension,
       [LIBS="-lXxf86vm $LIBS"
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE,1,[Define if XF86VidMode extension is supported.])])
-  fi
-
-  dnl Test for XF86DGA extension.
-  if test -n "$allegro_enable_xwin_xf86dga"; then
-    AC_CHECK_LIB(Xxf86dga, XF86DGAQueryExtension,
-      [LIBS="-lXxf86dga $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA,1,[Define if XF86DGA extension is supported.])])
   fi
 
   dnl Test for DGA 2.0 extension.

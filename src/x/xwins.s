@@ -49,19 +49,5 @@ FUNC(_xwin_unwrite_line_asm)
 	popl %ecx
 	ret
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-
-FUNC(_xdga_switch_bank_asm)
-	pushl %ecx
-	pushl %eax
-	pushl %edx
-	call GLOBL(_xdga_switch_bank)
-	popl %edx
-	popl %ecx  /* preserve %eax */
-	popl %ecx
-	ret
-
-#endif
-
 #endif
 

@@ -91,7 +91,7 @@ Linux notes
    For people packaging Allegro for redistribution: Drivers that are
    built as dynamically loaded modules may be disabled or left out, but
    all others should be left in. Examples of drivers that are _not_
-   dynamically loaded include: VBE/AF, DGA1, OSS digital, OSS MIDI. In
+   dynamically loaded include: VBE/AF, OSS digital, OSS MIDI. In
    short, if a program built against a copy of default-options Allegro
    will work with your final library, all is goodly.
 

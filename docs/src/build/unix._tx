@@ -272,18 +272,12 @@ Notes on drivers
       what server you would like to use.</dd>
 
    <dt><b>Graphics:</b></dt><dd>
-      There are three different X graphics drivers: <tt>GFX_XWINDOWS</tt> uses only
-      standard X calls, while <tt>GFX_XDGA</tt> and <tt>GFX_XDGA2</tt> use the XFree86 DGA
-      extension, which allows them to write directly to the screen surface.
-      DGA is normally much faster than the standard X mode, but it requires
-      root permissions and it will not work remotely. <tt>GFX_XDGA</tt> uses DGA 1.0
-      extension provided with XFree86 3.3.x, and it will not produce such
-      well behaved windowed programs as the <tt>GFX_XWINDOWS</tt> driver; both DGA
-      1.0 and X drivers can run windowed as well as in fullscreen mode.
-      <tt>GFX_XDGA2</tt> uses new DGA 2.0 shipped with XFree86 4.0.x, and directly
-      runs in fullscreen mode (as long as X is configured to support the
-      requested resolution), and it will also use hardware acceleration if
-      available.
+      There are two different X graphics drivers: <tt>GFX_XWINDOWS</tt> uses only
+      standard X calls, while <tt>GFX_XDGA2</tt> uses the XFree86 DGA 2.0 extension 
+      (shipped with XFree86 4.0.x) which allows it to write directly to the
+      screen surface, and use hardware acceleration if available. It is
+      normally much faster than the standard X mode, but requires root
+      permissions and will not work remotely.
       
       If your program requests a different color depth to the current X
       display, Allegro will emulate the depth you asked for, so that your

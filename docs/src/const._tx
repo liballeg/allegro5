@@ -123,11 +123,10 @@ around it.
 @heading
 Finally...
 
-I have only tested this myself on DJGPP 2.95.2, so if you have experiences
-of it not working (I have tried to get Linux and BeOS ports right, but I've
-no guarantee it worked...) email me the *exact* error message and I will
-fix it. You can also contact the Allegro mailing list; see `Contact info'
-in the Allegro documentation (readme.txt).
+Allegro `const'-correctness has been tested for quite enough time to say
+that it is working OK. However, if you still find problems with a compiler,
+please contact the Allegro mailing list; see `Contact info' in the Allegro
+documentation (readme.txt).
 
 Email: <email>lwithers@lwithers.demon.co.uk</a>.
 

@@ -410,9 +410,11 @@ void _unix_get_executable_name(char *output, int size)
       return;
    }
 
+#ifdef ALLEGRO_WITH_MAGIC_MAIN
    /* Try the captured argv[0] */   
    if (_find_executable_file(__crt0_argv[0], output, size))
       return;
+#endif
 
    /* Give up; return empty string */
    do_uconvert ("", U_ASCII, output, U_CURRENT, size);

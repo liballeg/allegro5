@@ -25,14 +25,18 @@
 extern int    __crt0_argc;
 extern char **__crt0_argv;
 
-#ifndef ALLEGRO_NO_MAGIC_MAIN
-   #define ALLEGRO_MAGIC_MAIN
-   #define main _mangled_main
-   #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
-#else
-   #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address;
+#ifdef ALLEGRO_WITH_MAGIC_MAIN
+
+   #ifndef ALLEGRO_NO_MAGIC_MAIN
+      #define ALLEGRO_MAGIC_MAIN
+      #define main _mangled_main
+      #undef END_OF_MAIN
+      #define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
+   #else
+      #undef END_OF_MAIN
+      #define END_OF_MAIN() void *_mangled_main_address;
+   #endif
+
 #endif
 
 
@@ -172,13 +176,6 @@ AL_VAR(SYSTEM_DRIVER, system_xwin);
 #endif
 #define KEYBOARD_XWINDOWS        AL_ID('X','W','I','N')
 #define MOUSE_XWINDOWS           AL_ID('X','W','I','N')
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#define GFX_XDGA                 AL_ID('X','D','G','A')
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-#define GFX_XDGA_FULLSCREEN	 AL_ID('X','D','F','S')
-#endif
-#endif
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
 #define GFX_XDGA2                AL_ID('D','G','A','2')

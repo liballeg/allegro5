@@ -455,7 +455,7 @@ static void qnx_sys_set_window_title(AL_CONST char *name)
 /* qnx_sys_set_close_button_callback:
  *  Sets the close button callback function.
  */
-static int qnx_sys_set_close_button_callback(void (*proc)(void));
+static int qnx_sys_set_close_button_callback(void (*proc)(void))
 {
    window_close_hook = proc;
 

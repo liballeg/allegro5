@@ -466,7 +466,11 @@ int _digmid_find_patches(char *dir, int dir_size, char *file, int file_size)
       return FALSE;
 
    if (dir && file) {
-      s = get_filename(filename);
+      s = ustrrchr(filename, '#');
+      if(s == NULL)
+         s = get_filename(filename);
+      else
+         s += ustrlen("#");
       ustrzcpy(file, file_size, s);
 
       usetc(s, 0);

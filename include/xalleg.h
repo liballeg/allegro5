@@ -26,9 +26,6 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#include <pwd.h>
-#endif
 #include <string.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -45,9 +42,10 @@
 #include <X11/extensions/xf86vmode.h>
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#include <X11/extensions/xf86dga.h>
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+#include <X11/Xcursor/Xcursor.h>
 #endif
+
 
 
 #ifdef __cplusplus
@@ -65,10 +63,14 @@ extern struct _xwin_type
    Visual *visual;
    Colormap colormap;
    XImage *ximage;
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   XcursorImage *xcursor_image;
+   XcursorBool support_argb_cursor;
+#endif
    Cursor cursor;
    int cursor_shape;
+   int hw_cursor_ok;
 
-   void (*bank_switch)(int line);
    void (*screen_to_buffer)(int sx, int sy, int sw, int sh);
    void (*set_colors)(AL_CONST PALETTE p, int from, int to);
 
@@ -114,11 +116,7 @@ extern struct _xwin_type
 #endif
    int use_shm;
 
-   int in_dga_mode;
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   int disable_dga_mouse;
-#endif
+   int in_dga_mode; /* 0=no, 2=DGA2 */
 
    int keyboard_grabbed;
    int mouse_grabbed;
@@ -133,6 +131,14 @@ extern struct _xwin_type
    char window_title[1024];
    char application_name[1024];
    char application_class[1024];
+
+   int screen_lock_count;
+   int real_drawing_mode;
+   int drawing_mode_ok;
+
+#ifdef ALLEGRO_MULTITHREADED
+   pthread_t locked_thread;
+#endif
 
    void (*close_button_callback)(void);
 } _xwin;

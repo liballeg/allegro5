@@ -213,13 +213,15 @@ information about how to install Allegro and link your program with it.
 @@void @allegro_message(const char *text_format, ...);
 @xref set_uformat
 @eref Available Allegro examples
-   Outputs a message, using a printf() format string. This function must 
-   only be used when you aren't in graphics mode, eg. before calling 
-   set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
+   Outputs a message, using a printf() format string. Usually you want to
+   use this to report messages to the user in an OS independant way when some
+   Allegro subsystem (or allegro itself) cannot be initialised. But you must
+   not use this function if you are in a graphic mode, only before calling
+   set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have
    a text console (DOS and Unix) it will print the string to that console,
    attempting to work around codepage differences by reducing any accented
    characters to 7-bit ASCII approximations, and on platforms featuring a
-   windowing system it will bring up a GUI message box. Example:
+   windowing system it will bring up a blocking GUI message box. Example:
 <codeblock>
       ret = allegro_init();
       if (ret != 0) {
@@ -468,8 +470,8 @@ available in past/future versions of Allegro.
 <codeblock>
    int flags;                       - status flags for this
 				      input
-   int num_axis;                    - how many axis do we
-				      have?
+   int num_axis;                    - how many axes do we
+				      have? (note the misspelling)
    JOYSTICK_AXIS_INFO axis[n];      - axis state information
    char *name;                      - description of this
 				      input
@@ -1786,20 +1788,6 @@ menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in
    milliseconds (default is `300'). Specifying `-1' will disable the 
    auto-opening feature.
-<li>
-dga_mouse = x<br>
-   X only: disable to work around a bug in some X servers' DGA modes, 
-   concerning the mouse.  Default is on; enable the workaround by setting the
-   variable to `0'.
-<li>
-dga_centre = x<br>
-   X only: instructs the DGA driver to centre the Allegro screen if the
-   actual screen resolution is higher than Allegro's.  Default is on; disable
-   this feature by setting the variable to `0'.
-<li>
-dga_clear = x<br>
-   X only: instructs the DGA driver to clear visible video memory on startup.
-   Default is on; disable this feature by setting the variable to `0'.
 </ul><li>
 [graphics]<br>
    Section containing graphics configuration information, using the
@@ -2136,8 +2124,7 @@ throttle_axis = x<br>
    variable will be used for every detected joystick. If you want to specify
    the axis number for each joystick individually, use variables of the form
    throttle_axis_n, where n is the joystick number.
-</ul>
-</ul>
+</ul></ul>
 
 
 @heading
@@ -2843,7 +2830,7 @@ Joystick routines
    gamepad controller, the coolie hat on a Flightstick Pro or Wingman 
    Extreme, or a normal joystick which hasn't yet been calibrated), or they 
    can be full analogue inputs with a smooth range of motion. Sticks may 
-   also have different numbers of axis, for example a normal directional 
+   also have different numbers of axes, for example a normal directional 
    control has two, but the Flightstick Pro throttle is only a single axis, 
    and it is possible that the system could be extended in the future to 
    support full 3d controllers. A stick input is described by the structure:
@@ -2852,8 +2839,8 @@ Joystick routines
       {
 	 int flags;                       - status flags for this
 					    input
-	 int num_axis;                    - how many axis do we
-					    have?
+	 int num_axis;                    - how many axes do we
+					    have? (note the misspelling)
 	 JOYSTICK_AXIS_INFO axis[n];      - axis state information
 	 char *name;                      - description of this
 					    input
@@ -7717,7 +7704,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @xref get_align_matrix
 @eref ex12bit, exquat, exstars
    Constructs a transformation matrix which will rotate points around all 
-   three axis by the specified amounts (given in binary, 256 degrees to a 
+   three axes by the specified amounts (given in binary, 256 degrees to a 
    circle format).
 
 @\void @get_align_matrix(MATRIX *m, fixed xfront, yfront, zfront, 
@@ -7746,7 +7733,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @xref apply_matrix, get_rotation_matrix, get_scaling_matrix
 @xref get_translation_matrix
    Constructs a transformation matrix which will rotate points around all 
-   three axis by the specified amounts (given in binary, 256 degrees to a 
+   three axes by the specified amounts (given in binary, 256 degrees to a 
    circle format), scale the result by the specified amount (pass 1 for no 
    change of scale), and then translate to the requested x, y, z position.
 
@@ -7916,7 +7903,7 @@ me.
 
 @@void @get_rotation_quat(QUAT *q, float x, float y, float z);
 @eref exquat
-   Constructs a quaternion that will rotate points around all three axis by 
+   Constructs a quaternion that will rotate points around all three axes by 
    the specified amounts (given in binary, 256 degrees to a circle format).
 
 @@void @get_vector_rotation_quat(QUAT *q, float x, y, z, float a);
@@ -8739,7 +8726,7 @@ DOS specifics
 <li>
    JOY_TYPE_GRIP4<br>
       Version of the Gravis GrIP driver that is constrained to only move 
-      along the four main axis.
+      along the four main axes.
 <li>
    JOY_TYPE_SNESPAD_LPT1<br>
    JOY_TYPE_SNESPAD_LPT2<br>
@@ -9475,16 +9462,6 @@ command. You could add another grep to filter only lines with text like
       without root permissions. You're still using the standard X protocol
       though, so expect the same low performances as with the windowed
       driver version.
-<li>
-   GFX_XDGA<br>
-      Use the XFree86 DGA 1.0 extension to write directly to the screen
-      surface. DGA is normally much faster than the standard X mode, but does
-      not produce such well behaved windowed programs, and will not work
-      remotely. This driver requires root permissions.
-<li>
-   GFX_XDGA_FULLSCREEN<br>
-      Like GFX_XDGA, but also changes the screen resolution so that it will 
-      run fullscreen. This driver requires root permissions.
 <li>
    GFX_XDGA2<br>
       Use new DGA 2.0 extension provided by XFree86 4.0.x. This will work
