@@ -166,8 +166,8 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
 
 
 /* wnd_call_proc:
- *  Instructs the window thread to call the specified procedure, and
- *  wait until the procedure has returned.
+ *  Instructs the window thread to call the specified procedure and
+ *  waits until the procedure has returned.
  */
 int wnd_call_proc(int (*proc) (void))
 {
@@ -177,7 +177,7 @@ int wnd_call_proc(int (*proc) (void))
 
 
 /* wnd_schedule_proc:
- *  Instructs the window thread to call the specified procedure, but
+ *  Instructs the window thread to call the specified procedure but
  *  doesn't wait until the procedure has returned.
  */
 void wnd_schedule_proc(int (*proc) (void))
@@ -281,7 +281,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_ERASEBKGND:
          /* Disable the default background eraser in order
-          * to prevent conflicts under Win2k/WinXP.
+          * to prevent conflicts on NT kernels.
           */
          if (!user_wnd_proc || win_gfx_driver)
             return 1;
@@ -301,8 +301,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_KEYUP:
       case WM_SYSKEYDOWN:
       case WM_SYSKEYUP:
-         /* disable the default message-based key handler
-          * needed to prevent conflicts under Win2k
+         /* Disable the default message-based key handler
+          * in order to prevent conflicts on NT kernels.
           */
          if (!user_wnd_proc || _keyboard_installed)
             return 0;
@@ -461,9 +461,8 @@ static void wnd_thread_proc(HANDLE setup_event)
 
 
 /* init_directx_window:
- *  If the user has called win_set_window, the user window will be hooked to
- *  receive messages from Allegro. Otherwise a thread is created that creates
- *  a new window.
+ *  If the user called win_set_window, the user window will be hooked to receive
+ *  messages from Allegro. Otherwise a thread is created to own the new window.
  */
 int init_directx_window(void)
 {
@@ -530,7 +529,7 @@ int init_directx_window(void)
 
 /* exit_directx_window:
  *  If a user window was hooked, the old window proc is set. Otherwise
- *  the created window is destroyed.
+ *  the window thread is destroyed.
  */
 void exit_directx_window(void)
 {
@@ -542,8 +541,8 @@ void exit_directx_window(void)
       allegro_wnd = NULL;
    }
    else {
-      /* destroy the window: we cannot directly use DestroyWindow()
-       * because we are not running in the same thread as that of the window.
+      /* Destroy the window: we cannot directly use DestroyWindow() because
+       * we are not running in the same thread as that of the window.
        */
       PostMessage(allegro_wnd, msg_suicide, 0, 0);
 
@@ -602,8 +601,8 @@ int adjust_window(int w, int h)
 
 
 /* save_window_pos:
- *  Stores the position of the current window, before closing it, so it can be
- *  used as the initial position for the next window.
+ *  Stores the position of the current window before closing it so that 
+ *  it can be used as the initial position for the next window.
  */
 void save_window_pos(void)
 {
@@ -614,8 +613,8 @@ void save_window_pos(void)
 
 
 /* win_set_window:
- *  Selects an user-defined window for Allegro 
- *  or the built-in window if NULL is passed.
+ *  Selects an user-defined window for Allegro or
+ *  the built-in window if NULL is passed.
  */
 void win_set_window(HWND wnd)
 {
