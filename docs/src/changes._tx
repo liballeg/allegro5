@@ -14,8 +14,8 @@ Changes from 4.0.2 to 4.0.3 (Mar 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
 <li>
-   Eric Botcazou fixed an assumption of little-endianness in the 24-bit BMP
-   reader.
+   Eric Botcazou added big-endian support to the BMP, PCX and TGA loaders
+   as well as to the X11 driver.
 <li>
    Eric Botcazou fixed the 'uninstall' target and a problem with
    Mingw32's make for the Watcom port.
