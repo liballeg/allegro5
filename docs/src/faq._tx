@@ -2,6 +2,7 @@
 @# This is the source for the Allegro FAQ list, in a weird custom format.
 @# Read makedoc.c for a description of what is going on...
 @#
+@html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
 @document_title=Allegro FAQ
 @html_spaced_list_bullet
 @!html

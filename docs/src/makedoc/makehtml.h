@@ -20,6 +20,7 @@ extern char *html_see_also_text;
 extern char *html_examples_using_this_text;
 extern char *html_css_filename;
 extern char *html_return_value_text;
+extern char *html_text_substitution[256];
 
 
 int write_html(char *filename);

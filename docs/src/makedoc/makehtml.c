@@ -55,6 +55,7 @@ char *html_see_also_text;
 char *html_examples_using_this_text;
 char *html_css_filename;
 char *html_return_value_text;
+char *html_text_substitution[256];
 
 static POST **_post;
 static FILE *_file;
@@ -62,6 +63,7 @@ static char _filename[1024];
 static char *_xref[256], *_eref[256];
 static int _xrefs, _erefs;
 static int _empty_count;
+static char *_word_substitution[256];
 
 /* MSVC doesn't like long strings. */
 static const char *_css_data1 = "\
@@ -201,6 +203,9 @@ static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
 static int _detect_non_paragraph_sections(const char *text);
 static char *_mark_up_auto_types(char *line, char **auto_types);
 static void _write_css_file(char *html_path, char *css_filename);
+static void _prepare_html_text_substitution(void);
+static void _free_html_text_substitution_memory(void);
+static char *_do_text_substitution(char *input);
 
 
 
@@ -854,19 +859,22 @@ static void _output_buffered_text(void)
 /* _post_process_pending_refs:
  * Reopens all the created files and scans for post process tags, which
  * will be replaced with correct filenames according to the post process
- * info in memory.
+ * info in memory. Additionally, it will also look for text substitutions
+ * placed in the html_text_substitution global array.
  */
 static void _post_process_pending_refs(void)
 {
    int f;
    if (!_post) return ;
 
+   _prepare_html_text_substitution();
    for(f = 0; _post[f]; f++)
       _post_process_filename(_post[f]->filename);
    
    for(f = 0; _post[f]; f++)
       _destroy_post_page(_post[f]);
       
+   _free_html_text_substitution_memory();
    free(_post);
    _post = 0;
 }
@@ -1025,6 +1033,7 @@ static void _post_process_filename(char *filename)
 	 }
 	 free(clean_token);
       }
+      line = _do_text_substitution(line);
       fputs(line, f2);
       free(line);
    }
@@ -1218,4 +1227,78 @@ static char *_mark_up_auto_types(char *line, char **auto_types)
    return line;
 }
 
+
+
+/* _prepare_html_text_substitution():
+ * The html_text_substitution array has pointers to text lines in the form
+ * word|text. This function fills a global array with duplicates of word,
+ * and at the same time makes html_text_substitution point directly at
+ * text. With two arrays it is easier to search for words and replace with
+ * the text when they are found.
+ */
+static void _prepare_html_text_substitution(void)
+{
+   int f;
+   char *p;
+   
+   for (f = 0; html_text_substitution[f]; f++) {
+      assert(f < 256);
+      p = strchr(html_text_substitution[f] + 1, '|');
+      assert(p);
+      *p = 0;
+      _word_substitution[f] = m_strdup(html_text_substitution[f]);
+      p = m_strdup(p + 1);
+      free(html_text_substitution[f]);
+      html_text_substitution[f] = p;
+   }
+}
+
+
+
+/* _free_html_text_substitution_memory:
+ * Frees memory stored in the _word_substitution global array.
+ */
+static void _free_html_text_substitution_memory(void)
+{
+   int f;
+   
+   for (f = 0; _word_substitution[f]; f++) {
+      free(html_text_substitution[f]);
+      free(_word_substitution[f]);
+   }
+}
+
+
+
+/* _do_text_substitution:
+ * Given a malloc'ed string, searches all _word_substitution in it and
+ * replaces them with html_text_substition if found. Returns a new
+ * string or the one you passed if no changes were made.
+ */
+static char *_do_text_substitution(char *input)
+{
+   int start, end, middle, f;
+   char *temp, *found, *reader;
+
+   for (f = 0; _word_substitution[f]; f++) {
+      reader = input;
+      while ((found = strstr(reader, _word_substitution[f]))) {
+	 /* Find lengths */
+	 start = found - input;
+	 middle = strlen(html_text_substitution[f]);
+	 end = strlen(found + strlen(_word_substitution[f]));
+	 /* Create new string and free old one */
+	 temp = m_xmalloc(start + middle + end + 1);
+	 strncpy(temp, input, start);
+	 strcpy(temp + start, html_text_substitution[f]);
+	 strcat(temp, found + strlen(_word_substitution[f]));
+	 free(input);
+	 /* Prepare for next loop */
+	 input = temp;
+	 reader = temp + start + middle;
+      }
+   }
+   
+   return input;
+}
 

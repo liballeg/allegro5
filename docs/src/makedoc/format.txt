@@ -216,6 +216,15 @@
       With this command you can customize it, which is necessary for
       non-english documents.
 
+   @html_text_substitution=xxx|yyy
+      With this command you can improve the hyperlinked nature of the HTML
+      documentation. During the second post processing part of the HTML
+      generation, all xxx texts will be replaced with yyy. This can be used
+      to create links to external documents which are not links in the text
+      version, or provide more complex HTML only features.
+
+      @html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
+
 
 
 ===================================

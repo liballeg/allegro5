@@ -1,3 +1,4 @@
+@html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
 @external-css=allegro.css
 @document_title=ABI compatibility information
 @<pre>

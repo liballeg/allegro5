@@ -487,6 +487,12 @@ static int _read_file(char *filename)
 	    _add_line(buf+2, flags | DEFINITION_FLAG | CONTINUE_FLAG);
 	    flags &= ~NONODE_FLAG;
 	 }
+	 else if (strincmp(buf+1, "html_text_substitution=") == 0 && strchr(buf+25, '|')) {
+	    int i = 0;
+	    while (html_text_substitution[i]) i++;
+	    assert(i < 256);
+	    html_text_substitution[i] = m_strdup(buf+24);
+	 }
 	 else if (buf[1] == '#') {
 	    /* comment */
 	 }
