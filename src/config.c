@@ -527,8 +527,14 @@ void set_config_data(AL_CONST char *data, int length)
  */
 void override_config_file(AL_CONST char *filename)
 {
-   ASSERT(filename);
-   load_config_file(&config_override, filename, NULL);
+   /* load other configuration file to override settings */
+   if (filename)
+      load_config_file(&config_override, filename, filename);
+   /* destroy the current one */
+   else if (config_override) {
+      destroy_config(config_override);
+      config_override = NULL;
+   }
 }
 
 
@@ -1030,6 +1036,8 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
    /* decide which config file to use */
    if ((ugetc(name) == '#') || ((ugetc(section_name) == '[') && (ugetat(section_name, 1) == '#')))
       the_config = system_config;
+   else if (config_override)
+      the_config = config_override;
    else
       the_config = config[0];
 
