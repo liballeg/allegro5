@@ -46,6 +46,7 @@ static void mouse_directx_position(int x, int y);
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
+static void _xwin_enable_hardware_cursor(int mode);
 static int mouse_directx_select_system_cursor(AL_CONST int cursor);
 
 MOUSE_DRIVER mouse_directx =
@@ -63,7 +64,7 @@ MOUSE_DRIVER mouse_directx =
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
    NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
-   NULL,                       // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   _xwin_enable_hardware_cursor,
    mouse_directx_select_system_cursor
 };
 
@@ -771,6 +772,18 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
 
    *mickeyx = temp_x;
    *mickeyy = temp_y;
+}
+
+
+
+/* mouse_directx_enable_hardware_cursor:
+ *  enable the hardware cursor; actually a no-op in Windows, but we need to
+ *  put something in the vtable.
+ */
+static void _xwin_enable_hardware_cursor(int mode)
+{
+   /* Do nothing */
+   (void)mode;
 }
 
 
