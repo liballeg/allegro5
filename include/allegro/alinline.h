@@ -1469,6 +1469,11 @@ AL_INLINE(int, object_message, (DIALOG *d, int msg, int c),
 #define OLD_FILESEL_WIDTH   -1
 #define OLD_FILESEL_HEIGHT  -1
 
+#define cpu_fpu         (cpu_capabilities & CPU_FPU)
+#define cpu_mmx         (cpu_capabilities & CPU_MMX)
+#define cpu_3dnow       (cpu_capabilities & CPU_3DNOW)
+#define cpu_cpuid       (cpu_capabilities & CPU_CPUID)
+
 #define joy_x           (joy[0].stick[0].axis[0].pos)
 #define joy_y           (joy[0].stick[0].axis[1].pos)
 #define joy_left        (joy[0].stick[0].axis[0].d1)
