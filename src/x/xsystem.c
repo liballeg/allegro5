@@ -347,6 +347,6 @@ static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height)
    *width = DisplayWidth(_xwin.display, _xwin.screen);
    *height = DisplayHeight(_xwin.display, _xwin.screen);
 
-   return 1;
+   return 0;
 }
 

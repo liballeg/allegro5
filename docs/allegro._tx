@@ -217,12 +217,13 @@ information about how to install Allegro and link your program with it.
    this information is not available or does not apply, returns zero.
 
 @@int @get_desktop_resolution(int *width, int *height);
-   On platforms that can run Allegro programs in a window on an existing 
-   desktop, retrieves the currently selected desktop resolution and returns
-   a positive number (you may want to call this function before creating a
-   large window because, with some windowed drivers, such a window cannot be
-   created if it is larger than the desktop). On platforms where this
-   information is not available or does not apply, returns zero.
+   On platforms that can run Allegro programs in a window on an existing
+   desktop, this retrieves the current desktop resolution (e.g. you may want
+   to call this function before creating a large window because, with some
+   windowed drivers, a window cannot be created if it is larger than the
+   desktop). Returns zero on success, or a negative number if this
+   information is not available or does not apply, in which case the values
+   stored in width and height are unspecified.
 
 @@void @yield_timeslice();
    On systems that support this, gives up the rest of the current scheduler 

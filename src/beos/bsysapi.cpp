@@ -355,7 +355,7 @@ extern "C" int be_sys_get_desktop_resolution(int *width, int *height)
    *width  = screen.Frame().IntegerWidth() + 1;
    *height = screen.Frame().IntegerHeight() + 1;
 
-   return 1;
+   return 0;
 }
 
 

@@ -385,12 +385,12 @@ static int sys_directx_get_desktop_resolution(int *width, int *height)
     *   display_mode.dmSize = sizeof(DEVMODE);
     *   display_mode.dmDriverExtra = 0;
     *   if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &display_mode) == 0)
-    *      return 0;
+    *      return -1;
     *
     *   *width  = display_mode.dmPelsWidth;
     *   *height = display_mode.dmPelsHeight;
     *
-    *   return 1;
+    *   return 0;
     */
 
    HDC dc;
@@ -400,7 +400,7 @@ static int sys_directx_get_desktop_resolution(int *width, int *height)
    *height = GetDeviceCaps(dc, VERTRES);
    ReleaseDC(NULL, dc);
 
-   return 1;
+   return 0;
 }
 
 
