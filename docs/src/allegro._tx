@@ -90,7 +90,8 @@ information about how to install Allegro and link your program with it.
    Initialises the Allegro library. You must call either this or 
    allegro_init() before doing anything other than using the Unicode 
    routines. If you want to use a text mode other than UTF-8, you can set
-   it with set_uformat() before you call this.
+   it with set_uformat() before you call this. The other functions that can
+   be called before this one will be marked explicitly in the documentation.
 
    The available system ID codes will vary from one platform to another, but
    you will almost always want to pass SYSTEM_AUTODETECT. Alternatively,
@@ -104,8 +105,10 @@ information about how to install Allegro and link your program with it.
    and atexit function from your libc: these are required because when
    Allegro is linked as a DLL, it doesn't have direct access to your local
    libc data.  atexit_ptr may be NULL, in which case it is your
-   responsibility to call allegro_exit() manually.
-
+   responsibility to call allegro_exit() manually. Example:
+<codeblock>
+      install_allegro(SYSTEM_AUTODETECT, &errno, atexit);<endblock>
+@retval
    This function returns zero on success and non-zero on failure (e.g. no
    system driver could be used). Note: in previous versions of Allegro this
    function would abort on error.
@@ -204,7 +207,8 @@ information about how to install Allegro and link your program with it.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
 
-@@void @allegro_message(const char *msg, ...);
+@@void @allegro_message(const char *text_format, ...);
+@xref set_uformat
 @eref Available Allegro examples
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
@@ -212,10 +216,16 @@ information about how to install Allegro and link your program with it.
    a text console (DOS and Unix) it will print the string to that console,
    attempting to work around codepage differences by reducing any accented
    characters to 7-bit ASCII approximations, and on platforms featuring a
-   windowing system it will bring up a GUI message box.
-
+   windowing system it will bring up a GUI message box. Example:
+<codeblock>
+      ret = allegro_init();
+      if (ret != 0) {
+	 allegro_message("Sorry, couldn't init Allegro (%d).\n", ret);
+	 exit(ret);
+      }
+<endblock>
 @@void @set_window_title(const char *name);
-@xref set_close_button_callback
+@xref set_close_button_callback, set_uformat
 @eref exunicod
    On platforms that are capable of it, this routine alters the window title 
    for your Allegro program. Note that Allegro cannot set the window title 
@@ -226,8 +236,7 @@ information about how to install Allegro and link your program with it.
    On platforms that have a close button, this routine installs a callback 
    function to handle the close event. In other words, when the user clicks 
    the close button on your program's window or any equivalent device, the
-   function you specify here will be called. Returns 0 on success and
-   non-zero on failure (e.g. the feature is not supported by the platform).
+   function you specify here will be called.
 
    This function should not generally attempt to exit the program or save 
    any data itself. The function could be called at any time, and there is 
@@ -240,55 +249,92 @@ information about how to install Allegro and link your program with it.
 
    Note that Allegro cannot intercept the close button of a DOS box in 
    Windows.
+@retval
+   Returns zero on success and non-zero on failure (e.g. the feature is not
+   supported by the platform).
 
 @@int @desktop_color_depth();
-@xref get_desktop_resolution
-   On platforms that can run Allegro programs in a window on an existing 
-   desktop, returns the currently selected desktop color depth (your program 
-   is likely to run faster if it uses this same depth). On platforms where 
-   this information is not available or does not apply, returns zero.
+@xref get_desktop_resolution, set_color_depth, set_gfx_mode
+   Finds out the currently selected desktop color depth. You can use this
+   information to make your program use the same color depth as the desktop,
+   which will likely make it run faster because the graphic driver won't be
+   doing unnecessary color conversions behind your back. Usually you want to
+   call this before setting the graphic mode. Example:
+<codeblock>
+      allegro_init();
+      ...
+      if ((depth = desktop_color_depth()) != 0) {
+	 set_color_depth(depth);
+      }<endblock>
+@retval
+   Returns the color depth or zero on platforms where this information is not
+   available or does not apply.
 
 @@int @get_desktop_resolution(int *width, int *height);
-@xref desktop_color_depth
-   On platforms that can run Allegro programs in a window on an existing
-   desktop, this retrieves the current desktop resolution (e.g. you may want
-   to call this function before creating a large window because, with some
-   windowed drivers, a window cannot be created if it is larger than the
-   desktop). Returns zero on success, or a negative number if this
-   information is not available or does not apply, in which case the values
-   stored in width and height are unspecified.
+@xref desktop_color_depth, set_gfx_mode
+   Finds out the currently selected desktop resolution. You can use this
+   information to avoid creating windows bigger than the current resolution.
+   This is especially important for some windowed drivers which are unable
+   to create windows bigger than the desktop. Each parameter is a pointer
+   to an integer where one dimension of the screen will be stored. Usually
+   you want to call this before setting the graphic mode. Example:
+<codeblock>
+      int width, height;
+      
+      allegro_init();
+      ...
+      if (get_desktop_resolution(&width, &height) == 0) {
+	 /* Got the resolution correctly */
+      }<endblock>
+@retval
+   Returns zero on success, or a negative number if this information is not
+   available or does not apply, in which case the values stored in the
+   variables you provided for width and height are undefined.
 
 @@void @yield_timeslice();
-   On systems that support this, gives up the rest of the current scheduler 
-   timeslice. Also known as the "play nice with multitasking" option.
+@xref vsync
+   To "play nice" with other processes you can call this function. On systems
+   that support it, it will give up the rest of the current scheduler
+   timeslice and offer it to some other process. Your CPU consumption rate
+   will drop *only* if there is another process ready to use the freed
+   timeslice.
+
+   Note that calling this inside your active game loop is a very bad idea,
+   you never know when the OS will give you the CPU back, so you could end up
+   missing the vertical retrace and skipping frames.
 
 @@void @check_cpu();
-@xref cpu_vendor, cpu_family, cpu_model, cpu_capabilities
+@xref cpu_vendor, cpu_family, cpu_model, cpu_capabilities, allegro_init
    Detects the CPU type, setting the following global variables. You don't 
    normally need to call this, because allegro_init() will do it for you.
 
 @@extern char @cpu_vendor[];
-@xref check_cpu, cpu_family, cpu_model, cpu_capabilities
+@xref check_cpu, cpu_family, cpu_model, cpu_capabilities, allegro_init
    Contains the CPU vendor name, if known (empty string on non-Intel 
-   platforms).
+   platforms). You can read this variable after you have called check_cpu()
+   (which is automatically called by allegro_init()).
 
 @@extern int @cpu_family;
-@xref check_cpu, cpu_vendor, cpu_model, cpu_capabilities
+@xref check_cpu, cpu_vendor, cpu_model, cpu_capabilities, allegro_init
    Contains the Intel CPU type, where applicable: 3=386, 4=486, 5=Pentium, 
-   6=PPro, etc.
+   6=PPro, etc. You can read this variable after you have called check_cpu()
+   (which is automatically called by allegro_init()).
 
 @@extern int @cpu_model;
-@xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities
+@xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities, allegro_init
    Contains the Intel CPU submodel, where applicable. On a 486 
    (cpu_family=4), zero or one indicates a DX chip, 2 an SX, 3 a 487 (SX) or 
    486 DX, 4 an SL, 5 an SX2, 7 a DX2 write-back enhanced, 8 a DX4 or DX4 
    overdrive, 14 a Cyrix, and 15 is unknown. On a Pentium chip 
    (cpu_family=5), 1 indicates a Pentium (510\66, 567\66), 2 is a Pentium 
    P54C, 3 is a Pentium overdrive processor, 5 is a Pentium overdrive for 
-   IntelDX4, 14 is a Cyrix, and 15 is unknown.
+   IntelDX4, 14 is a Cyrix, and 15 is unknown. You can read this variable
+   after you have called check_cpu() (which is automatically called by
+   allegro_init()).
 
 @@extern int @cpu_capabilities;
-@xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities
+@xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities,
+@xref allegro_init
    Contains CPU flags indicating what features are available on the current 
    CPU. The flags can be any combination of these:
 <textblock>
@@ -315,6 +361,8 @@ information about how to install Allegro and link your program with it.
 	 printf("CPU has both an FPU and MMX instructions!\n");
       }
 <endblock>
+   You can read this variable after you have called check_cpu() (which is
+   automatically called by allegro_init()).
 
 
 
@@ -710,7 +758,7 @@ is best to set it with set_uformat() just before you call these.
 @eref exunicod
    Sets the current text encoding format. This will affect all parts of 
    Allegro, wherever you see a function that returns a char *, or takes a 
-   char * as a parameter. The type should be one of the values:
+   char * as a parameter. "type" should be one of these values:
 <textblock>
       U_ASCII     - fixed size, 8-bit ASCII characters
       U_ASCII_CP  - alternative 8-bit codepage (see set_ucodepage())
@@ -727,7 +775,23 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @get_uformat(void);
 @xref set_uformat
-   Returns the currently selected text encoding format.
+   Finds out what text encoding format is currently selected. This function
+   is probably useful only if you are writing an Allegro addon dealing with
+   text strings and you use a different codepath for each possible format.
+   Example:
+<codeblock>
+      switch(get_uformat()) {
+	 case U_ASCII:
+	    do_something();
+	    break;
+	 case U_UTF8:
+	    do_something_else();
+	    break;
+	 ...
+      }<endblock>
+@retval
+   Returns the currently selected text encoding format. See the documentation
+   of set_uformat for a list of encoding formats.
 
 @\void @register_uformat(int type,
 @\                      int (*u_getc)(const char *s),
@@ -762,46 +826,74 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
-   Given a pointer to a string, a description of the type of the string, and 
-   the type that you would like this string to be converted into, this 
-   function tells you whether any conversion is required. No conversion will 
-   be needed if type and newtype are the same, or if one type is ASCII, the 
-   other is UTF-8, and the string contains only character values less than 
-   128. As a convenience shortcut, you can pass the value U_CURRENT as 
-   either of the type parameters, to represent whatever text format is 
-   currently selected.
+   Given a pointer to a string (s), a description of the type of the string
+   (type), and the type that you would like this string to be converted into
+   (newtype), this function tells you whether any conversion is required. No
+   conversion will be needed if type and newtype are the same, or if one type
+   is ASCII, the other is UTF-8, and the string contains only character
+   values less than 128. As a convenience shortcut, you can pass the value
+   U_CURRENT as either of the type parameters, to represent whatever text
+   encoding format is currently selected. Example:
+<codeblock>
+      if (need_uconvert(text, U_UTF8, U_CURRENT)) {
+	 /* conversion is required */
+      }<endblock>
+@retval
+   Returns non-zero if any conversion is required or zero otherwise.
 
 @@int @uconvert_size(const char *s, int type, int newtype);
 @xref need_uconvert, do_uconvert
-   Returns the number of bytes that will be required to store the specified 
-   string after a conversion from type to newtype, including the zero 
-   terminator. The type parameters can use the value U_CURRENT as a shortcut 
-   to represent the currently selected encoding format.
+   Finds out how many bytes are required to store the specified string s after
+   a conversion from type to newtype, including the mandatory zero terminator
+   of the string. You can use U_CURRENT for either type or newtype as a
+   shortcut to represent whatever text encoding format is currently selected.
+   Example:
+<codeblock>
+      length = uconvert_size(old_string, U_CURRENT, U_UNICODE);
+      new_string = malloc(length);
+      ustrcpy(new_string, old_string);<endblock>
+@retval
+   Returns the number of bytes required to store the string after conversion.
 
 @\void @do_uconvert(const char *s, int type,
 @@                 char *buf, int newtype, int size);
 @xref uconvert
-   Converts the specified string from type to newtype, storing at most size 
-   bytes into the output buf. The type parameters can use the value 
+   Converts the specified string from type to newtype, storing at most size
+   bytes into the output buf. The type parameters can use the value
    U_CURRENT as a shortcut to represent the currently selected encoding 
-   format.
-
+   format. Example:
+<codeblock>
+      char temp_string[256];
+      do_uconvert(input_string, U_CURRENT, temp_string, U_ASCII, 256);
+<endblock>
+   Note that, even for empty strings, your destination string must have at
+   least enough bytes to store the terminating null character of the string,
+   and your parameter size must reflect this. Otherwise, the debug version of
+   Allegro will abort at an assertion, and the release version of Allegro
+   will overrun the destination buffer.
+   
 @\char *@uconvert(const char *s, int type,
 @@               char *buf, int newtype, int size);
 @xref set_uformat, need_uconvert, uconvert, uconvert_ascii, uconvert_toascii
+@xref do_uconvert
    Higher level function running on top of do_uconvert(). This function 
    converts the specified string from type to newtype, storing at most size 
-   bytes into the output buf, but it checks before doing the conversion, and 
-   doesn't bother if the string formats are already the same (either both 
-   types are equal, or one is ASCII, the other is UTF-8, and the string 
-   contains only 7-bit ASCII characters). If a conversion was performed it 
-   returns a pointer to buf, otherwise it returns a copy of s, so you must 
-   use the return value rather than assuming that the string will always be 
-   moved to buf. As a convenience, if buf is NULL it will convert the string 
-   into an internal static buffer. You should be wary of using this feature, 
-   though, because that buffer will be overwritten the next time this 
-   routine is called, so don't expect the data to persist across any other 
-   library calls.
+   bytes into the output buf (including the terminating null character), but
+   it checks before doing the conversion, and doesn't bother if the string
+   formats are already the same (either both types are equal, or one is ASCII,
+   the other is UTF-8, and the string contains only 7-bit ASCII characters).
+
+   As a convenience, if buf is NULL it will convert the string into an
+   internal static buffer and the size parameter will be ignored. You should
+   be wary of using this feature, though, because that buffer will be
+   overwritten the next time this routine is called, so don't expect the data
+   to persist across any other library calls. The static buffer has a size
+   shorter than 1K, so you won't be able to convert large chunks of text.
+@retval
+   Returns a pointer to buf (or the static buffer if you used NULL) if a
+   conversion was performed. Otherwise returns a copy of s. In any cases, you
+   should use the return value rather than assuming that the string will
+   always be moved to buf.
 
 @@char *@uconvert_ascii(const char *s, char buf[]);
 @xref uconvert
@@ -2598,6 +2690,7 @@ Graphics modes
 
 @@void @set_color_depth(int depth);
 @xref get_color_depth, set_gfx_mode, set_color_conversion, makecol, getr
+@xref desktop_color_depth
 @eref Available Allegro examples
    Sets the pixel format to be used by subsequent calls to set_gfx_mode() 
    and create_bitmap(). Valid depths are 8 (the default), 15, 16, 24, and 32 
@@ -2656,6 +2749,7 @@ Graphics modes
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
 @xref allegro_error, Standard config variables, GFX_*/DOS, GFX_*/Windows
 @xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX, create_video_bitmap
+@xref get_desktop_resolution
 @eref Available Allegro examples
    Switches into graphics mode. The card parameter should usually be 
    GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
@@ -6514,7 +6608,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
    Note #2: as explained above, the password is used for all read/write
    operations on files, including for several functions of the library that
-   operate on files without explicitly using packfiles, e.g load_bitmap().
+   operate on files without explicitly using packfiles (e.g. load_bitmap()).
    The unencrypted mode is mandatory in order for those functions to work.
    Therefore remember to call packfile_password(NULL) before using them if
    you previously changed the password. As a rule of thumb, always call
@@ -8645,7 +8739,7 @@ you must include winalleg.h after other Allegro headers.
    usual (Allegro will automatically monitor a few of them, but will not
    filter out any of them). You can then use every component of the library
    (graphics, mouse, keyboard, sound, timers and so on), bearing in mind
-   that some Allegro functions are blocking (e.g readkey() if the key buffer
+   that some Allegro functions are blocking (e.g. readkey() if the key buffer
    is empty) and thus must be carefully manipulated by the window thread.
 
    However you can also call it after the library has been initialised,
