@@ -2209,7 +2209,7 @@ static void setup_param_dialog(void)
       c++;
    }
 
-   param_ok = ((int)d - (int)param_dlg) / sizeof(DIALOG);
+   param_ok = (int)(d - param_dlg);
 
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)        (p)                        (help) */
    DLG(d_button_proc,   30,   142,  125,  25,   -1,   16,   13,   D_EXIT,  0,    0,    uconvert_static_string("OK"), NULL,    uconvert_static_string("Use these parameters"));
