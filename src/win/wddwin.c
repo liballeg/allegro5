@@ -398,6 +398,7 @@ static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
       pseudo_screen->vtable->release = gfx_directx_unlock_win;
       pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
       pseudo_screen->write_bank = gfx_directx_write_bank_win;
+      gfx_directx_sync();
       update_window(NULL);
       return 0;
    }
