@@ -2142,6 +2142,35 @@ throttle_axis = x<br>
 @heading
 Mouse routines
 
+Allegro provides functions for reading the mouse state and displaying a mouse
+cursor on-screen. You can read the absolute position of the mouse and the 
+state of the mouse buttons from global variables. Additionally, you can read
+the mouse position difference as mouse mickeys, which is the number of pixels
+the cursor moved since the last time this information was read.
+
+Allegro offers two ways to display the mouse cursor:
+<ul><li>
+Standard Allegro cursor<br>
+   Allegro is responsible for drawing the mouse cursor from a timer. Use 
+   set_mouse_sprite() and show_mouse() to define your own cursor and display 
+   it on the screen.
+   You need to call scare_mouse()/unscare_mouse() to hide the mouse cursor
+   whenever you draw to the screen.
+<li>
+Custom operating system cursor (hardware cursor)<br>
+   Allegro will let the operating system draw the mouse cursor. Use
+   set_mouse_sprite() and show_mouse() to define your own cursor and display
+   it on the screen. Not all graphics drivers are capable of this and some
+   may only be able to display cursors upto a certain size. Allegro will fall
+   back on its own cursor drawing if it cannot let the OS handle this. On some
+   platforms, the hardware cursor is incompatible with get_mouse_mickeys()
+   and it is therefor disabled by default. In such cases you need to call
+   enable_hardware_cursor() to enable it explicitly.
+<li>
+</ul>
+Not all drivers will support all functionality. See the platform specific
+information for more details.
+
 @@int @install_mouse();
 @xref remove_mouse, poll_mouse, mouse_x, show_mouse, get_mouse_mickeys
 @xref position_mouse, set_mouse_range, set_mouse_speed
@@ -2189,6 +2218,24 @@ Mouse routines
 @xref poll_mouse, install_mouse, mouse_x
    Returns TRUE if the current mouse driver is operating in polling mode.
 
+@@void @enable_hardware_cursor(void);
+@xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys, gfx_capabilities, disable_hardware_cursor
+   After calling this function, Allegro will let the operating system draw the
+   mouse cursor instead of doing it itself. This is not possible with all
+   graphics drivers though: you'll need to check the gfx_capabilities flags
+   after calling show_mouse() to see if this works. On some platforms, enabling
+   the hardware cursor causes get_mouse_mickeys() to return only a limited
+   range of values, so you should not call this function if you need mouse 
+   mickeys.
+
+@@void @disable_hardware_cursor(void);
+@xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys, gfx_capabilities, enable_hardware_cursor
+   After calling this function, Allegro will be responsible for drawing the
+   mouse cursor rather than the operating system. On some platforms calling
+   enable_hardware_cursor() makes the return values of get_mouse_mickeys()
+   unreliable. After calling this function, get_mouse_mickeys() returns 
+   reliable results again.
+
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
 @@extern volatile int @mouse_z;
@@ -2212,11 +2259,19 @@ Mouse routines
       if (!(mouse_b & 2))
 	 printf("Right button is not pressed\n");
 <endblock>
-   The `mouse_pos' variable has the current X coordinate in the high word and 
-   the Y in the low word. This may be useful in tight polling loops where a 
-   mouse interrupt could occur between your reading of the two separate 
+   The `mouse_pos' variable has the current X coordinate in the upper 16 bits
+   and  the Y in the lower 16 bits. This may be useful in tight polling loops 
+   where a mouse interrupt could occur between your reading of the two separate
    variables, since you can copy this value into a local variable with a 
-   single instruction and then split it up at your leisure.
+   single instruction and then split it up at your leisure. Example:
+<codeblock>
+   int pos, x, y;
+   
+   pos = mouse_pos;
+   x = pos >> 16;
+   y = pos & 0x0000ffff;
+<endblock>
+
 
 @@extern BITMAP *@mouse_sprite;
 @@extern int @mouse_x_focus;
@@ -2249,7 +2304,7 @@ Mouse routines
    will temporarily get rid of the pointer, but only if that is really 
    required (ie. the mouse is visible, and is displayed on the physical 
    screen rather than some other memory surface, and it is not a hardware 
-   cursor). The previous mouse state is stored for subsequent calls to 
+   or OS cursor). The previous mouse state is stored for subsequent calls to 
    unscare_mouse().
 
 @@void @scare_mouse_area(int x, int y, int w, int h);
@@ -9384,6 +9439,9 @@ below for the consequences for windowed and overlay DirectX drivers.
 <endblock>
       Note that, mainly for performance reasons, this driver requires the
       width of the screen to be a multiple of 4.
+      This driver is capable of displaying a hardware cursor, but there are
+      size restrictions. Typically, the cursor image cannot be more than
+      32x32 pixels.
 <li>
    GFX_DIRECTX_OVL<br>
       The DirectX overlay driver. It uses special hardware features to run 
@@ -9707,6 +9765,10 @@ command. You could add another grep to filter only lines with text like
    GFX_XWINDOWS<br>
       The standard X graphics driver. This should work on any Unix system, 
       and can operate remotely. It does not require root permissions.
+      If the ARGB cursor extension is available, this driver is capable
+      of displaying a hardware cursor. This needs to be enabled by calling
+      enable_hardware_cursor() becaue it cannot be used reliably alongside
+      get_mouse_mickeys().
 <li>
    GFX_XWINDOWS_FULLSCREEN<br>
       The same as above, but while GFX_XWINDOWS runs windowed, this one uses
@@ -9714,6 +9776,10 @@ command. You could add another grep to filter only lines with text like
       without root permissions. You're still using the standard X protocol
       though, so expect the same low performances as with the windowed
       driver version.
+      If the ARGB cursor extension is available, this driver is capable
+      of displaying a hardware cursor. This needs to be enabled by calling
+      enable_hardware_cursor() becaue it cannot be used reliably alongside
+      get_mouse_mickeys().
 <li>
    GFX_XDGA2<br>
       Use new DGA 2.0 extension provided by XFree86 4.0.x. This will work
