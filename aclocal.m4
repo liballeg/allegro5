@@ -265,7 +265,7 @@ AC_CACHE_VAL(allegro_cv_support_alsadigi,
 [if test "$allegro_enable_alsadigi"; then
   AC_MSG_CHECKING(for supported ALSA version for digital sound)
   AC_TRY_RUN([#include <sys/asoundlib.h>
-    int main (void) { return SND_LIB_MAJOR < 0 || SND_LIB_MINOR < 5; }],
+    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 5; }],
   allegro_cv_support_alsadigi=yes,
   allegro_cv_support_alsadigi=no,
   allegro_cv_support_alsadigi=no)
@@ -292,7 +292,7 @@ AC_CACHE_VAL(allegro_cv_support_alsamidi,
 [if test -n "$allegro_enable_alsamidi"; then
   AC_MSG_CHECKING(for supported ALSA version for MIDI)
   AC_TRY_RUN([#include <sys/asoundlib.h>
-    int main (void) { return SND_LIB_MAJOR < 0 || SND_LIB_MINOR < 5; }],
+    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 5; }],
   allegro_cv_support_alsamidi=yes,
   allegro_cv_support_alsamidi=no,
   allegro_cv_support_alsamidi=no)
