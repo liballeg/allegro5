@@ -556,7 +556,7 @@ static int digi_directsound_mixer_volume(int volume)
 /* create_dsound_buffer:
  *  Worker function for creating a DirectSound buffer.
  */
-static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int stereo)
+static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int stereo, int vol, int pan)
 {
    LPDIRECTSOUNDBUFFER snd_buf;
    PCMWAVEFORMAT pcmwf;
@@ -594,6 +594,12 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
       _TRACE(" - %d Hz, %s, %d bits\n", freq, stereo ? "stereo" : "mono", bits);
       return NULL;
    }
+
+   /* set volume */
+   IDirectSoundBuffer_SetVolume(snd_buf, alleg_to_dsound_volume[MID(0, vol, 255)]);
+
+   /* set pan */
+   IDirectSoundBuffer_SetPan(snd_buf, alleg_to_dsound_pan[MID(0, pan, 255)]);
 
    return snd_buf;
 }
@@ -711,7 +717,9 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE *sample)
    ds_voices[voice].ds_buffer = create_dsound_buffer(ds_voices[voice].len,
                                                      ds_voices[voice].freq,
                                                      ds_voices[voice].bits,
-                                                     ds_voices[voice].stereo);
+                                                     ds_voices[voice].stereo,
+                                                     ds_voices[voice].vol,
+                                                     ds_voices[voice].pan);
    if (!ds_voices[voice].ds_buffer)
       return;
 
@@ -803,7 +811,9 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
          ds_voices[voice].ds_loop_buffer = create_dsound_buffer(ds_voices[voice].loop_len * (bidir ? 2 : 1),
                                                                 ds_voices[voice].freq,
                                                                 ds_voices[voice].bits,
-                                                                ds_voices[voice].stereo);
+                                                                ds_voices[voice].stereo,
+                                                                ds_voices[voice].vol,
+                                                                ds_voices[voice].pan);
          update_loop_buffer = TRUE;
       }
       else if (update_bidir) {
@@ -812,7 +822,9 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
          ds_voices[voice].ds_loop_buffer = create_dsound_buffer(ds_voices[voice].loop_len * (bidir ? 2 : 1),
                                                                 ds_voices[voice].freq,
                                                                 ds_voices[voice].bits,
-                                                                ds_voices[voice].stereo);
+                                                                ds_voices[voice].stereo,
+                                                                ds_voices[voice].vol,
+                                                                ds_voices[voice].pan);
          update_loop_buffer = TRUE;
       }
    }
@@ -858,10 +870,6 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
       /* rewind the buffer */
       IDirectSoundBuffer_SetCurrentPosition(ds_voices[voice].ds_loop_buffer, 0);
    }
-
-   /* set volume and pan for the loop buffer */
-   digi_directsound_set_volume(voice, ds_voices[voice].vol);
-   digi_directsound_set_pan(voice, ds_voices[voice].pan);
 }
 
 
