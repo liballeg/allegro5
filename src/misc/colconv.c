@@ -206,7 +206,7 @@ static void create_rgb_map(int from_depth)
    switch (from_depth) {
       case 8:
          rgb_map_size = 256;  /* 8-bit */
-         return;
+         break;
 
       case 15:
       case 16:
