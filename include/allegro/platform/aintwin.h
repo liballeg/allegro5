@@ -126,11 +126,10 @@ AL_FUNC(void, wnd_unacquire_keyboard, (void));
 /*******************************************/
 AL_FUNC(int, mouse_dinput_acquire, (void));
 AL_FUNC(int, mouse_dinput_unacquire, (void));
-AL_FUNC(int, mouse_set_syscursor, (int state));
-AL_FUNC(int, mouse_set_sysmenu, (int state));
+AL_FUNC(int, mouse_set_syscursor, (void));
+AL_FUNC(int, mouse_set_sysmenu, (void));
 AL_FUNC(void, wnd_acquire_mouse, (void));
 AL_FUNC(void, wnd_unacquire_mouse, (void));
-AL_FUNC(void, wnd_set_syscursor, (int state));
 
 
 

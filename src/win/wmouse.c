@@ -116,6 +116,24 @@ static int mymickey_oy = 0;
    mymickey_oy = 0;                 \
 }
 
+#define READ_CURSOR_POS(p)                          \
+{                                                   \
+   GetCursorPos(&p);                                \
+                                                    \
+   p.x -= wnd_x;                                    \
+   p.y -= wnd_y;                                    \
+                                                    \
+   if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||  \
+       (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
+      _mouse_on = FALSE;                            \
+   }                                                \
+   else {                                           \
+      _mouse_on = TRUE;                             \
+      _mouse_x = p.x;                               \
+      _mouse_y = p.y;                               \
+   }                                                \
+}
+
 
 
 /* dinput_err_str:
@@ -164,6 +182,7 @@ static char* dinput_err_str(long err)
  */
 int mouse_dinput_acquire(void)
 {
+   POINT p;
    HRESULT hr;
 
    if (mouse_dinput_device) {
@@ -176,13 +195,20 @@ int mouse_dinput_acquire(void)
 	 return -1;
       }
 
-      /* the cursor may not be in the client area so we don't set _mouse_on */
-      if (_mouse_on)
-         mouse_set_syscursor(FALSE);
+      /* modify the cursor only if the mouse is installed in windowed mode */
+      if (gfx_driver && gfx_driver->windowed)
+         READ_CURSOR_POS(p);
+   }
+   else {
+      if (gfx_driver && gfx_driver->windowed)
+         _mouse_on = FALSE;
    }
 
+   /* always hide the cursor in fullscreen mode */
    if (gfx_driver && !gfx_driver->windowed)
-      mouse_set_syscursor(FALSE);
+      _mouse_on = TRUE;
+
+   mouse_set_syscursor();
 
    return 0;
 }
@@ -198,10 +224,11 @@ int mouse_dinput_unacquire(void)
       IDirectInputDevice_Unacquire(mouse_dinput_device);
 
       _mouse_b = 0;
-      _mouse_on = FALSE;
    }
 
-   mouse_set_syscursor(TRUE);
+   _mouse_on = FALSE;
+
+   mouse_set_syscursor();
 
    return 0;
 }
@@ -211,20 +238,21 @@ int mouse_dinput_unacquire(void)
 /* mouse_set_syscursor:
  *  Changes the state of the system mouse cursor (called by the window thread).
  */
-int mouse_set_syscursor(int state)
+int mouse_set_syscursor(void)
 {
-   static int count = 0;  /* initial state of the ShowCursor() counter */
+   static int mouse_was_on = FALSE;
 
-   if (state == TRUE) {
-      if (count < 0)
-         count = ShowCursor(TRUE);
+   if (_mouse_on) {
+      if (!mouse_was_on)
+         SetCursor(NULL);
    }
    else {
-      if (count >= 0)
-         count = ShowCursor(FALSE);
+      if (mouse_was_on)
+         SetCursor(LoadCursor(NULL, IDC_ARROW));
    }
 
-   return 0;
+   mouse_was_on = _mouse_on;
+   return TRUE;
 }
 
 
@@ -232,40 +260,18 @@ int mouse_set_syscursor(int state)
 /* mouse_set_sysmenu:
  *  Changes the state of the mouse when going to/from sysmenu mode (called by the window thread).
  */
-int mouse_set_sysmenu(int state)
+int mouse_set_sysmenu(void)
 {
    POINT p;
 
    if (mouse_dinput_device) {
-      if (state == TRUE) {
-         if (_mouse_on) {
-            _mouse_on = FALSE;
-            mouse_set_syscursor(TRUE);
-         }
-      }
-      else {
-         GetCursorPos(&p);
+      if (wnd_sysmenu)
+         _mouse_on = FALSE;
+      else
+         READ_CURSOR_POS(p);
 
-         p.x -= wnd_x;
-         p.y -= wnd_y;
-
-         if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
-             (p.y < mouse_miny) || (p.y > mouse_maxy)) {
-            if (_mouse_on) {
-               _mouse_on = FALSE;
-               mouse_set_syscursor(TRUE);
-            }
-         }
-         else {
-            _mouse_x = p.x;
-            _mouse_y = p.y;
-
-            if (!_mouse_on) {
-               _mouse_on = TRUE;
-               mouse_set_syscursor(FALSE);
-            }
-         }
-      } 
+      /* needed when the sysmenu is pulled down by ALT+Space */
+      mouse_set_syscursor();
 
       _handle_mouse_input();
    }
@@ -497,33 +503,13 @@ static void mouse_directx_poll(void)
 	    if (!wnd_sysmenu) {
 	       POINT p;
 
-	       GetCursorPos(&p);
-
-	       p.x -= wnd_x;
-	       p.y -= wnd_y;
+	       READ_CURSOR_POS(p);
 
 	       mymickey_x += p.x - mymickey_ox;
 	       mymickey_y += p.y - mymickey_oy;
 
 	       mymickey_ox = p.x;
 	       mymickey_oy = p.y;
-
-	       if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
-		   (p.y < mouse_miny) || (p.y > mouse_maxy)) {
-		  if (_mouse_on) {
-		     _mouse_on = FALSE;
-		     wnd_set_syscursor(TRUE);
-		  }
-	       }
-	       else {
-		  _mouse_x = p.x;
-		  _mouse_y = p.y;
-
-		  if (!_mouse_on) {
-		     _mouse_on = TRUE;
-		     wnd_set_syscursor(FALSE);
-		  }
-	       }
 
 	       _handle_mouse_input();
 	    }
@@ -551,10 +537,7 @@ static void mouse_directx_poll(void)
 	       CLEAR_MICKEYS();
 	    }
 
-	    if (!_mouse_on) {
-	       _mouse_on = TRUE;
-	       wnd_set_syscursor(FALSE);
-	    }
+            _mouse_on = TRUE;
 
 	    _handle_mouse_input();
 	 }
