@@ -41,8 +41,7 @@ MOUSE_DRIVER mousedrv_none =
 
 
 MOUSE_DRIVER *mouse_driver = NULL;     /* the active driver */
-int mouse_type = MOUSEDRV_AUTODETECT;  /* driver ID */
-
+int _mouse_type = MOUSEDRV_AUTODETECT;  /* driver ID */
 int _mouse_installed = FALSE;
 
 volatile int mouse_x = 0;              /* user-visible position */
@@ -854,12 +853,12 @@ int install_mouse()
    else
       driver_list = _mouse_driver_list;
 
-   if (mouse_type == MOUSEDRV_AUTODETECT)
-      mouse_type = get_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), MOUSEDRV_AUTODETECT);
+   if (_mouse_type == MOUSEDRV_AUTODETECT)
+      _mouse_type = get_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), MOUSEDRV_AUTODETECT);
 
-   if (mouse_type != MOUSEDRV_AUTODETECT) {
+   if (_mouse_type != MOUSEDRV_AUTODETECT) {
       for (i=0; driver_list[i].driver; i++) {
-	 if (driver_list[i].id == mouse_type) {
+	 if (driver_list[i].id == _mouse_type) {
 	    mouse_driver = driver_list[i].driver;
 	    break;
 	 }

@@ -285,10 +285,10 @@ static int *palette_expansion_table(int bpp)
    int c;
 
    switch (bpp) {
-      case 15: table = palette_color15; break;
-      case 16: table = palette_color16; break;
-      case 24: table = palette_color24; break;
-      case 32: table = palette_color32; break;
+      case 15: table = _palette_color15; break;
+      case 16: table = _palette_color16; break;
+      case 24: table = _palette_color24; break;
+      case 32: table = _palette_color32; break;
       default: ASSERT(FALSE); return NULL;
    }
 

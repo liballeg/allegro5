@@ -30,7 +30,7 @@
 #define AL_INLINE(type, name, args, code)    alldllinl name##_dll
 
 #define ALLEGRO_EXTRA_HEADER     "allegro/alwin.h"
-#define ALLEGRO_INTERNAL_HEADER  "allegro/aintwin.h"
+#define ALLEGRO_INTERNAL_HEADER  "winalleg.h"
 
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_LITTLE_ENDIAN

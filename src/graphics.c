@@ -46,13 +46,13 @@ int _color_conv = COLORCONV_TOTAL;     /* which formats to auto convert? */
 
 static int color_conv_set = FALSE;     /* has the user set conversion mode? */
 
-int palette_color8[256];               /* palette -> pixel mapping */
-int palette_color15[256];
-int palette_color16[256];
-int palette_color24[256];
-int palette_color32[256];
+int _palette_color8[256];               /* palette -> pixel mapping */
+int _palette_color15[256];
+int _palette_color16[256];
+int _palette_color24[256];
+int _palette_color32[256];
 
-int *palette_color = palette_color8; 
+int *palette_color = _palette_color8; 
 
 BLENDER_FUNC _blender_func15 = NULL;   /* truecolor pixel blender routines */
 BLENDER_FUNC _blender_func16 = NULL;
@@ -168,11 +168,11 @@ void set_color_depth(int depth)
    _color_depth = depth;
 
    switch (depth) {
-      case 8:  palette_color = palette_color8;  break;
-      case 15: palette_color = palette_color15; break;
-      case 16: palette_color = palette_color16; break;
-      case 24: palette_color = palette_color24; break;
-      case 32: palette_color = palette_color32; break;
+      case 8:  palette_color = _palette_color8;  break;
+      case 15: palette_color = _palette_color15; break;
+      case 16: palette_color = _palette_color16; break;
+      case 24: palette_color = _palette_color24; break;
+      case 32: palette_color = _palette_color32; break;
       default: ASSERT(FALSE);
    }
 }
@@ -546,7 +546,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    }
 
    for (c=0; c<256; c++)
-      palette_color8[c] = c;
+      _palette_color8[c] = c;
 
    set_palette(default_palette);
 

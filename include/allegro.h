@@ -105,6 +105,7 @@ AL_VAR(int *, allegro_errno);
 #define SYSTEM_NONE        AL_ID('N','O','N','E')
 
 AL_FUNC(int, install_allegro, (int system_id, int *errno_ptr, AL_METHOD(int, atexit_ptr, (AL_METHOD(void, func, (void))))));
+#define allegro_init()  install_allegro(SYSTEM_AUTODETECT, &errno, (int (*)(void (*)(void)))atexit)
 AL_FUNC(void, allegro_exit, (void));
 
 AL_FUNC(void, check_cpu, (void));
@@ -122,11 +123,6 @@ AL_FUNC(void, lock_sample, (struct SAMPLE *spl));
 AL_FUNC(void, lock_midi, (struct MIDI *midi));
 
 AL_PRINTFUNC(void, allegro_message, (AL_CONST char *msg, ...), 1, 2);
-
-#define ALLEGRO_WINDOW_CLOSE_MESSAGE                                         \
-   "Warning: forcing program shutdown may lead to data loss and unexpected " \
-   "results. It is preferable to use the exit command inside the window. " \
-   "Proceed anyway?"
 
 AL_FUNC(void, al_assert, (AL_CONST char *file, int line));
 AL_PRINTFUNC(void, al_trace, (AL_CONST char *msg, ...), 1, 2);
@@ -220,9 +216,6 @@ AL_FUNC(int, uconvert_size, (AL_CONST char *s, int type, int newtype));
 AL_FUNC(void, do_uconvert, (AL_CONST char *s, int type, char *buf, int newtype, int size));
 AL_FUNC(char *, uconvert, (AL_CONST char *s, int type, char *buf, int newtype, int size));
 AL_FUNC(int, uwidth_max, (int type));
-
-#define uconvert_ascii(s, buf)      uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf))
-#define uconvert_toascii(s, buf)    uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf))
 
 #define EMPTY_STRING    "\0\0\0"
 
@@ -332,10 +325,7 @@ typedef struct MOUSE_DRIVER
 
 AL_VAR(MOUSE_DRIVER, mousedrv_none);
 AL_VAR(MOUSE_DRIVER *, mouse_driver);
-AL_VAR(int, mouse_type);
-
 AL_ARRAY(_DRIVER_INFO, _mouse_driver_list);
-AL_VAR(int, _mouse_installed);
 
 AL_FUNC(int, install_mouse, (void));
 AL_FUNC(void, remove_mouse, (void));
@@ -411,7 +401,6 @@ typedef struct TIMER_DRIVER
 
 AL_VAR(TIMER_DRIVER *, timer_driver);
 AL_ARRAY(_DRIVER_INFO, _timer_driver_list);
-AL_VAR(int, _timer_installed);
 
 AL_FUNC(int, install_timer, (void));
 AL_FUNC(void, remove_timer, (void));
@@ -460,7 +449,6 @@ typedef struct KEYBOARD_DRIVER
 
 AL_VAR(KEYBOARD_DRIVER *, keyboard_driver);
 AL_ARRAY(_DRIVER_INFO, _keyboard_driver_list);
-AL_VAR(int, _keyboard_installed);
 
 AL_FUNC(int, install_keyboard, (void));
 AL_FUNC(void, remove_keyboard, (void));
@@ -736,8 +724,6 @@ AL_FUNC(void, remove_joystick, (void));
 
 AL_FUNC(int, initialise_joystick, (void));
 
-AL_VAR(int, _joystick_installed);
-
 AL_FUNC(int, poll_joystick, (void));
 
 AL_FUNC(int, save_joystick_data, (AL_CONST char *filename));
@@ -745,8 +731,6 @@ AL_FUNC(int, load_joystick_data, (AL_CONST char *filename));
 
 AL_FUNC(AL_CONST char *, calibrate_joystick_name, (int n));
 AL_FUNC(int, calibrate_joystick, (int n));
-
-AL_VAR(int, joy_type);
 
 
 
@@ -1093,12 +1077,9 @@ typedef struct RGB
 
 typedef RGB PALETTE[PAL_SIZE];
 
-AL_VAR(RGB, black_rgb);
 AL_VAR(PALETTE, black_palette);
 AL_VAR(PALETTE, desktop_palette);
 AL_VAR(PALETTE, default_palette);
-AL_VAR(PALETTE, _current_palette);
-AL_VAR(int, _current_palette_changed);
 
 typedef struct {
    unsigned char data[32][32][32];
@@ -1111,25 +1092,7 @@ typedef struct {
 AL_VAR(RGB_MAP *, rgb_map);
 AL_VAR(COLOR_MAP *, color_map);
 
-typedef AL_METHOD(unsigned long, BLENDER_FUNC, (unsigned long x, unsigned long y, unsigned long n));
-
-AL_VAR(BLENDER_FUNC, _blender_func15);
-AL_VAR(BLENDER_FUNC, _blender_func16);
-AL_VAR(BLENDER_FUNC, _blender_func24);
-AL_VAR(BLENDER_FUNC, _blender_func32);
-
-AL_VAR(BLENDER_FUNC, _blender_func15x);
-AL_VAR(BLENDER_FUNC, _blender_func16x);
-AL_VAR(BLENDER_FUNC, _blender_func24x);
-
-AL_VAR(int, _blender_col_15);
-AL_VAR(int, _blender_col_16);
-AL_VAR(int, _blender_col_24);
-AL_VAR(int, _blender_col_32);
-
-AL_VAR(int, _blender_alpha);
-
-AL_VAR(int, _color_depth);
+AL_VAR(PALETTE, _current_palette);
 
 AL_VAR(int, _rgb_r_shift_15); 
 AL_VAR(int, _rgb_g_shift_15); 
@@ -1153,12 +1116,6 @@ AL_ARRAY(int, _rgb_scale_6);
 #define MASK_COLOR_16      0xF81F
 #define MASK_COLOR_24      0xFF00FF
 #define MASK_COLOR_32      0xFF00FF
-
-AL_ARRAY(int, palette_color8);
-AL_ARRAY(int, palette_color15);
-AL_ARRAY(int, palette_color16);
-AL_ARRAY(int, palette_color24);
-AL_ARRAY(int, palette_color32);
 
 AL_VAR(int *, palette_color);
 
@@ -1191,6 +1148,8 @@ AL_FUNC(void, create_light_table, (COLOR_MAP *table, AL_CONST PALETTE pal, int r
 AL_FUNC(void, create_trans_table, (COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, AL_METHOD(void, callback, (int pos))));
 AL_FUNC(void, create_color_table, (COLOR_MAP *table, AL_CONST PALETTE pal, AL_METHOD(void, blend, (AL_CONST PALETTE pal, int x, int y, RGB *rgb)), AL_METHOD(void, callback, (int pos))));
 AL_FUNC(void, create_blender_table, (COLOR_MAP *table, AL_CONST PALETTE pal, AL_METHOD(void, callback, (int pos))));
+
+typedef AL_METHOD(unsigned long, BLENDER_FUNC, (unsigned long x, unsigned long y, unsigned long n));
 
 AL_FUNC(void, set_blender_mode, (BLENDER_FUNC b15, BLENDER_FUNC b16, BLENDER_FUNC b24, int r, int g, int b, int a));
 AL_FUNC(void, set_blender_mode_ex, (BLENDER_FUNC b15, BLENDER_FUNC b16, BLENDER_FUNC b24, BLENDER_FUNC b32, BLENDER_FUNC b15x, BLENDER_FUNC b16x, BLENDER_FUNC b24x, int r, int g, int b, int a));
@@ -1672,9 +1631,6 @@ AL_FUNC(void, remove_sound_input, (void));
 
 AL_FUNC(void, set_volume, (int digi_volume, int midi_volume));
 
-AL_VAR(int, _sound_installed);
-AL_VAR(int, _sound_input_installed);
-
 AL_FUNC(SAMPLE *, load_sample, (AL_CONST char *filename));
 AL_FUNC(SAMPLE *, load_wav, (AL_CONST char *filename));
 AL_FUNC(SAMPLE *, load_voc, (AL_CONST char *filename));
@@ -1845,9 +1801,6 @@ AL_FUNC(int, pack_fputs, (AL_CONST char *p, PACKFILE *f));
 
 AL_FUNC(int, _sort_out_getc, (PACKFILE *f));
 AL_FUNC(int, _sort_out_putc, (int c, PACKFILE *f));
-
-#define pack_feof(f)       ((f)->flags & PACKFILE_FLAG_EOF)
-#define pack_ferror(f)     ((f)->flags & PACKFILE_FLAG_ERROR)
 
 
 
@@ -2040,8 +1993,6 @@ AL_FUNC(void, quat_slerp, (AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT
 #define QUAT_CW      2
 #define QUAT_CCW     3
 #define QUAT_USER    4
-
-#define quat_interpolate(from, to, t, out)   quat_slerp((from), (to), (t), (out), QUAT_SHORT)
 
 
 

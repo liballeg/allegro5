@@ -73,7 +73,7 @@ PALETTE _current_palette;
 
 int _current_palette_changed = 0xFFFFFFFF;
 
-RGB black_rgb = { 0, 0, 0, 0 };
+RGB _black_rgb = { 0, 0, 0, 0 };
 
 
 PALETTE desktop_palette = 
@@ -255,7 +255,7 @@ void _remove_exit_func(void (*func)(void))
 
 
 
-/* allegro_init:
+/* install_allegro:
  *  Initialises the Allegro library, activating the system driver.
  */
 int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
@@ -281,7 +281,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
 
    /* set up default palette structures */
    for (i=0; i<256; i++)
-      black_palette[i] = black_rgb;
+      black_palette[i] = _black_rgb;
 
    for (i=16; i<256; i++)
       desktop_palette[i] = desktop_palette[i & 15];

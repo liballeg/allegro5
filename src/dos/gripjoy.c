@@ -126,7 +126,7 @@ static int read_grip(int j)
    for (s=0; s<joy[j].num_sticks; s++) {
       int reverse_factor;     /* messy way to account for up/down reversal */
 
-      if ((joy_type == JOY_TYPE_GRIP4) &&
+      if ((_joy_type == JOY_TYPE_GRIP4) &&
 	  (stick_class[j][s] == GRIP_CLASS_AXIS) &&
 	  (joy[j].stick[s].num_axis == 2)) {
 
@@ -162,7 +162,7 @@ static int read_grip(int j)
    }
 
    /* handle 4-way restriction */
-   if (joy_type == JOY_TYPE_GRIP4) {
+   if (_joy_type == JOY_TYPE_GRIP4) {
       for (s=0; s<joy[j].num_sticks; s++) {
 	 if ((stick_class[j][s] != GRIP_CLASS_AXIS) || 
 	     (joy[j].stick[s].num_axis != 2))

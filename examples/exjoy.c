@@ -49,7 +49,7 @@ int main()
    }
 
    /* make sure that we really do have a joystick */
-   if (joy_type == JOY_TYPE_NONE) {
+   if (!num_joysticks) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error: joystick not found\n");
       return 1;

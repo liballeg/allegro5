@@ -17,6 +17,7 @@
 
 
 #include "allegro.h"
+#include "allegro/aintern.h"
 
 
 
@@ -37,7 +38,6 @@ void draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int 
    unsigned long addr;
 
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
-   ASSERT_TRANS_OK(bmp);
 
    bmp_select(bmp);
 

@@ -104,6 +104,9 @@ AL_VAR(int, _mouse_z);
 AL_VAR(int, _mouse_b);
 AL_VAR(int, _mouse_on);
 
+AL_VAR(int, _mouse_installed);
+
+AL_VAR(int, _mouse_type);
 AL_VAR(BITMAP *, _mouse_screen);
 AL_VAR(BITMAP *, _mouse_pointer);
 
@@ -125,6 +128,8 @@ typedef struct TIMER_QUEUE
 
 AL_ARRAY(TIMER_QUEUE, _timer_queue);
 
+AL_VAR(int, _timer_installed);
+
 AL_VAR(int, _timer_use_retrace);
 AL_VAR(volatile int, _retrace_hpp_value);
 
@@ -132,6 +137,8 @@ AL_VAR(volatile int, _retrace_hpp_value);
 /* various bits of keyboard stuff */
 AL_FUNC(void, _handle_key_press, (int keycode, int scancode));
 AL_FUNC(void, _handle_key_release, (int scancode));
+
+AL_VAR(int, _keyboard_installed);
 
 AL_ARRAY(volatile char, _key);
 AL_VAR(volatile int, _key_shifts);
@@ -165,6 +172,14 @@ AL_VAR(int, _key_accent4_flag);
 
 AL_VAR(int, _key_standard_kb);
 
+
+/* various bits of joystick stuff */
+AL_VAR(int, _joy_type);
+
+AL_VAR(int, _joystick_installed);
+
+
+/* some GUI innards that other people need to use */
 AL_FUNC(int, _gui_shadow_box_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_ctext_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_button_proc, (int msg, DIALOG *d, int c));
@@ -172,14 +187,13 @@ AL_FUNC(int, _gui_edit_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_list_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, _gui_text_list_proc, (int msg, DIALOG *d, int c));
 
-
-/* some GUI innards that other people need to use */
 AL_FUNC(void, _handle_scrollable_scroll_click, (DIALOG *d, int listsize, int *offset, int height));
 AL_FUNC(void, _handle_scrollable_scroll, (DIALOG *d, int listsize, int *index, int *offset));
 AL_FUNC(void, _handle_listbox_click, (DIALOG *d););
 AL_FUNC(void, _draw_scrollable_frame, (DIALOG *d, int listsize, int offset, int height, int fg_color, int bg));
 AL_FUNC(void, _draw_listbox, (DIALOG *d));
 AL_FUNC(void, _draw_textbox, (char *thetext, int *listsize, int draw, int offset, int wword, int tabsize, int x, int y, int w, int h, int disabled, int fore, int deselect, int disable));
+
 
 /* text- and font-related stuff */
 typedef struct FONT_VTABLE
@@ -319,11 +333,37 @@ AL_VAR(int, _textmode);
 
 AL_FUNCPTR(int *, _palette_expansion_table, (int bpp));
 
-AL_VAR(int, _got_prev_current_palette);
-AL_VAR(PALETTE, _prev_current_palette);
+AL_VAR(int, _color_depth);
 
+AL_VAR(RGB, _black_rgb);
+
+AL_VAR(int, _current_palette_changed);
+AL_VAR(PALETTE, _prev_current_palette);
+AL_VAR(int, _got_prev_current_palette);
+
+AL_ARRAY(int, _palette_color8);
+AL_ARRAY(int, _palette_color15);
+AL_ARRAY(int, _palette_color16);
+AL_ARRAY(int, _palette_color24);
+AL_ARRAY(int, _palette_color32);
 
 /* truecolor blending functions */
+AL_VAR(BLENDER_FUNC, _blender_func15);
+AL_VAR(BLENDER_FUNC, _blender_func16);
+AL_VAR(BLENDER_FUNC, _blender_func24);
+AL_VAR(BLENDER_FUNC, _blender_func32);
+
+AL_VAR(BLENDER_FUNC, _blender_func15x);
+AL_VAR(BLENDER_FUNC, _blender_func16x);
+AL_VAR(BLENDER_FUNC, _blender_func24x);
+
+AL_VAR(int, _blender_col_15);
+AL_VAR(int, _blender_col_16);
+AL_VAR(int, _blender_col_24);
+AL_VAR(int, _blender_col_32);
+
+AL_VAR(int, _blender_alpha);
+
 AL_FUNC(unsigned long, _blender_black, (unsigned long x, unsigned long y, unsigned long n));
 
 #ifdef ALLEGRO_COLOR16
@@ -897,6 +937,8 @@ AL_VAR(int, _sound_port);
 AL_VAR(int, _sound_dma);
 AL_VAR(int, _sound_irq);
 
+AL_VAR(int, _sound_installed);
+AL_VAR(int, _sound_input_installed);
 
 AL_FUNC(int, _midi_allocate_voice, (int min, int max));
 

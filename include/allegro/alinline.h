@@ -16,31 +16,6 @@
  */
 
 
-
-/* ftofix and fixtof are used in generic C versions of fmul and fdiv */
-AL_INLINE(fixed, ftofix, (double x),
-{ 
-   if (x > 32767.0) {
-      *allegro_errno = ERANGE;
-      return 0x7FFFFFFF;
-   }
-
-   if (x < -32767.0) {
-      *allegro_errno = ERANGE;
-      return -0x7FFFFFFF;
-   }
-
-   return (long)(x * 65536.0 + (x < 0 ? -0.5 : 0.5)); 
-})
-
-
-AL_INLINE(double, fixtof, (fixed x),
-{ 
-   return (double)x / 65536.0; 
-})
-
-
-
 #ifndef ALLEGRO_NO_ASM
 
 #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
@@ -69,128 +44,9 @@ AL_INLINE(double, fixtof, (fixed x),
 
 
 
-#ifdef ALLEGRO_NO_ASM
-
-   /* use generic C versions */
-
-AL_INLINE(int, _default_ds, (void),
-{
-   return 0;
-})
-
-
-typedef AL_METHOD(unsigned long, _BMP_BANK_SWITCHER, (BITMAP *bmp, int line));
-typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
-
-
-AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
-{
-   _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
-   return switcher(bmp, line);
-})
-
-
-AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
-{
-   _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->read_bank;
-   return switcher(bmp, line);
-})
-
-
-AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
-{
-   _BMP_UNBANK_SWITCHER switcher = (_BMP_UNBANK_SWITCHER)bmp->vtable->unwrite_bank;
-   switcher(bmp);
-})
-
-
-AL_INLINE(fixed, fadd, (fixed x, fixed y),
-{
-   fixed result = x + y;
-
-   if (result >= 0) {
-      if ((x < 0) && (y < 0)) {
-	 *allegro_errno = ERANGE;
-	 return -0x7FFFFFFF;
-      }
-      else
-	 return result;
-   }
-   else {
-      if ((x > 0) && (y > 0)) {
-	 *allegro_errno = ERANGE;
-	 return 0x7FFFFFFF;
-      }
-      else
-	 return result;
-   }
-})
-
-
-AL_INLINE(fixed, fsub, (fixed x, fixed y),
-{
-   fixed result = x - y;
-
-   if (result >= 0) {
-      if ((x < 0) && (y > 0)) {
-	 *allegro_errno = ERANGE;
-	 return -0x7FFFFFFF;
-      }
-      else
-	 return result;
-   }
-   else {
-      if ((x > 0) && (y < 0)) {
-	 *allegro_errno = ERANGE;
-	 return 0x7FFFFFFF;
-      }
-      else
-	 return result;
-   }
-})
-
-
-AL_INLINE(fixed, fmul, (fixed x, fixed y),
-{
-   return ftofix(fixtof(x) * fixtof(y));
-})
-
-
-AL_INLINE(fixed, fdiv, (fixed x, fixed y),
-{
-   if (y == 0) {
-      *allegro_errno = ERANGE;
-      return (x < 0) ? -0x7FFFFFFF : 0x7FFFFFFF;
-   }
-   else
-      return ftofix(fixtof(x) / fixtof(y));
-})
-
-
-AL_INLINE(int, fceil, (fixed x),
-{
-   x += 0xFFFF;
-   if (x >= 0x80000000) {
-      *allegro_errno = ERANGE;
-      return 0x7FFF;
-   }
-
-   return (x >> 16);
-})
-
-
-#endif      /* C vs. inline asm */
-
-
-
 /*****************************************/
 /************ System routines ************/
 /*****************************************/
-
-
-#define allegro_init()  install_allegro(SYSTEM_AUTODETECT,                 \
-					&errno,                            \
-					(int (*)(void (*)(void)))atexit)
 
 
 AL_INLINE(void, get_executable_name, (char *output, int size),
@@ -215,6 +71,12 @@ AL_INLINE(void, set_window_title, (char *name),
    if (system_driver->set_window_title)
       system_driver->set_window_title(name);
 })
+
+
+#define ALLEGRO_WINDOW_CLOSE_MESSAGE                                         \
+   "Warning: forcing program shutdown may lead to data loss and unexpected " \
+   "results. It is preferable to use the exit command inside the window. "   \
+   "Proceed anyway?"
 
 
 AL_INLINE(int, set_window_close_button, (int enable),
@@ -270,31 +132,63 @@ AL_INLINE(void, yield_timeslice, (void),
 
 
 /*******************************************/
+/************* Unicode routines ************/
+/*******************************************/
+
+
+AL_INLINE(char *, uconvert_ascii, (AL_CONST char *s, char *buf),
+{
+   return uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf));
+})
+
+
+AL_INLINE(char *, uconvert_toascii, (AL_CONST char *s, char *buf),
+{
+   return uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf));
+})
+
+
+
+/*******************************************/
 /************ Graphics routines ************/
 /*******************************************/
 
 
-#ifdef DEBUGMODE
+#ifdef ALLEGRO_NO_ASM
 
-   #define ASSERT_TRANS_OK(bmp)                             \
-   {                                                        \
-      if (bmp->vtable->color_depth == 8)                    \
-	 ASSERT(color_map)                                  \
-      else if (bmp->vtable->color_depth == 15)              \
-	 ASSERT(_blender_func15)                            \
-      else if (bmp->vtable->color_depth == 16)              \
-	 ASSERT(_blender_func16)                            \
-      else if (bmp->vtable->color_depth == 24)              \
-	 ASSERT(_blender_func24)                            \
-      else if (bmp->vtable->color_depth == 32)              \
-	 ASSERT(_blender_func32)                            \
-   }
+   /* use generic C versions */
 
-#else
+AL_INLINE(int, _default_ds, (void),
+{
+   return 0;
+})
 
-   #define ASSERT_TRANS_OK(bmp)
 
-#endif
+typedef AL_METHOD(unsigned long, _BMP_BANK_SWITCHER, (BITMAP *bmp, int line));
+typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
+
+
+AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
+{
+   _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
+   return switcher(bmp, line);
+})
+
+
+AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
+{
+   _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->read_bank;
+   return switcher(bmp, line);
+})
+
+
+AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
+{
+   _BMP_UNBANK_SWITCHER switcher = (_BMP_UNBANK_SWITCHER)bmp->vtable->unwrite_bank;
+   switcher(bmp);
+})
+
+#endif      /* C vs. inline asm */
 
 
 AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
@@ -661,7 +555,6 @@ AL_INLINE(void, draw_trans_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y),
 { 
    ASSERT(bmp);
    ASSERT(sprite);
-   ASSERT_TRANS_OK(bmp);
 
    if (sprite->vtable->color_depth == 32) {
       ASSERT(bmp->vtable->draw_trans_rgba_sprite);
@@ -681,7 +574,6 @@ AL_INLINE(void, draw_lit_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int
    ASSERT(bmp);
    ASSERT(sprite);
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
-   ASSERT_TRANS_OK(bmp);
 
    bmp->vtable->draw_lit_sprite(bmp, sprite, x, y, color); 
 })
@@ -711,7 +603,6 @@ AL_INLINE(void, draw_trans_rle_sprite, (BITMAP *bmp, AL_CONST struct RLE_SPRITE 
 {
    ASSERT(bmp);
    ASSERT(sprite);
-   ASSERT_TRANS_OK(bmp);
 
    if (sprite->color_depth == 32) {
       ASSERT(bmp->vtable->draw_trans_rgba_rle_sprite);
@@ -729,7 +620,6 @@ AL_INLINE(void, draw_lit_rle_sprite, (BITMAP *bmp, AL_CONST struct RLE_SPRITE *s
    ASSERT(bmp);
    ASSERT(sprite);
    ASSERT(bmp->vtable->color_depth == sprite->color_depth);
-   ASSERT_TRANS_OK(bmp);
 
    bmp->vtable->draw_lit_rle_sprite(bmp, sprite, x, y, color);
 })
@@ -904,10 +794,126 @@ AL_INLINE(int, pack_putc, (int c, PACKFILE *f),
 })
 
 
+AL_INLINE(int, pack_feof, (PACKFILE *f),
+{
+   return (f->flags & PACKFILE_FLAG_EOF);
+})
+
+
+AL_INLINE(int, pack_ferror, (PACKFILE *f),
+{
+   return (f->flags & PACKFILE_FLAG_ERROR);
+})
+
+
 
 /***************************************/
 /************ Math routines ************/
 /***************************************/
+
+
+/* ftofix and fixtof are used in generic C versions of fmul and fdiv */
+AL_INLINE(fixed, ftofix, (double x),
+{ 
+   if (x > 32767.0) {
+      *allegro_errno = ERANGE;
+      return 0x7FFFFFFF;
+   }
+
+   if (x < -32767.0) {
+      *allegro_errno = ERANGE;
+      return -0x7FFFFFFF;
+   }
+
+   return (long)(x * 65536.0 + (x < 0 ? -0.5 : 0.5)); 
+})
+
+
+AL_INLINE(double, fixtof, (fixed x),
+{ 
+   return (double)x / 65536.0; 
+})
+
+
+#ifdef ALLEGRO_NO_ASM
+
+   /* use generic C versions */
+
+AL_INLINE(fixed, fadd, (fixed x, fixed y),
+{
+   fixed result = x + y;
+
+   if (result >= 0) {
+      if ((x < 0) && (y < 0)) {
+	 *allegro_errno = ERANGE;
+	 return -0x7FFFFFFF;
+      }
+      else
+	 return result;
+   }
+   else {
+      if ((x > 0) && (y > 0)) {
+	 *allegro_errno = ERANGE;
+	 return 0x7FFFFFFF;
+      }
+      else
+	 return result;
+   }
+})
+
+
+AL_INLINE(fixed, fsub, (fixed x, fixed y),
+{
+   fixed result = x - y;
+
+   if (result >= 0) {
+      if ((x < 0) && (y > 0)) {
+	 *allegro_errno = ERANGE;
+	 return -0x7FFFFFFF;
+      }
+      else
+	 return result;
+   }
+   else {
+      if ((x > 0) && (y < 0)) {
+	 *allegro_errno = ERANGE;
+	 return 0x7FFFFFFF;
+      }
+      else
+	 return result;
+   }
+})
+
+
+AL_INLINE(fixed, fmul, (fixed x, fixed y),
+{
+   return ftofix(fixtof(x) * fixtof(y));
+})
+
+
+AL_INLINE(fixed, fdiv, (fixed x, fixed y),
+{
+   if (y == 0) {
+      *allegro_errno = ERANGE;
+      return (x < 0) ? -0x7FFFFFFF : 0x7FFFFFFF;
+   }
+   else
+      return ftofix(fixtof(x) / fixtof(y));
+})
+
+
+AL_INLINE(int, fceil, (fixed x),
+{
+   x += 0xFFFF;
+   if (x >= 0x80000000) {
+      *allegro_errno = ERANGE;
+      return 0x7FFF;
+   }
+
+   return (x >> 16);
+})
+
+#endif      /* C vs. inline asm */
 
 
 AL_INLINE(fixed, itofix, (int x),
@@ -1163,9 +1169,9 @@ AL_INLINE(float, dot_product_f, (float x1, float y1, float z1, float x2, float y
 
 
 #define CALC_ROW(n)     (fmul(x, m->v[n][0]) +        \
-			 fmul(y, m->v[n][1]) +        \
-			 fmul(z, m->v[n][2]) +        \
-			 m->t[n])
+                         fmul(y, m->v[n][1]) +        \
+                         fmul(z, m->v[n][2]) +        \
+                         m->t[n])
 
 AL_INLINE(void, apply_matrix, (MATRIX *m, fixed x, fixed y, fixed z, fixed *xout, fixed *yout, fixed *zout),
 {
@@ -1189,6 +1195,12 @@ AL_INLINE(void, persp_project_f, (float x, float y, float z, float *xout, float 
    float z1 = 1.0f / z;
    *xout = ((x * z1) * _persp_xscale_f) + _persp_xoffset_f;
    *yout = ((y * z1) * _persp_yscale_f) + _persp_yoffset_f;
+})
+
+
+AL_INLINE(void, quat_interpolate, (AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT *out),
+{
+   quat_slerp((from), (to), (t), (out), QUAT_SHORT);
 })
 
 
@@ -1319,7 +1331,8 @@ extern "C" {
 /************ GUI routines ************/
 /**************************************/
 
-AL_INLINE(int, SEND_MESSAGE, (DIALOG *d, int msg, int c),
+
+AL_INLINE(int, object_message, (DIALOG *d, int msg, int c),
 {
    int ret;
 
@@ -1347,8 +1360,11 @@ AL_INLINE(int, SEND_MESSAGE, (DIALOG *d, int msg, int c),
 /************ For backward compatibility ************/
 /****************************************************/
 
+
 #define KB_NORMAL       1
 #define KB_EXTENDED     2
+
+#define SEND_MESSAGE    object_message
 
 #define joy_x           (joy[0].stick[0].axis[0].pos)
 #define joy_y           (joy[0].stick[0].axis[1].pos)

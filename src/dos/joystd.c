@@ -315,7 +315,7 @@ static int joy_init()
    int i;
 
    /* store info about the stick type */
-   switch (joy_type) {
+   switch (_joy_type) {
 
       case JOY_TYPE_STANDARD:
 	 joystick_flags = 0;

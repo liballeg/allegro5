@@ -44,7 +44,7 @@ int _joystick_installed = FALSE;
 
 JOYSTICK_DRIVER *joystick_driver = NULL;
 
-int joy_type = JOY_TYPE_NONE;
+int _joy_type = JOY_TYPE_NONE;
 
 JOYSTICK_INFO joy[MAX_JOYSTICKS];
 int num_joysticks = 0;
@@ -142,12 +142,12 @@ int install_joystick(int type)
       if (driver_list[c].id == type) {
 	 joystick_driver = driver_list[c].driver;
 	 joystick_driver->name = joystick_driver->desc = get_config_text(joystick_driver->ascii_name);
-	 joy_type = type;
+	 _joy_type = type;
 	 if (joystick_driver->init() != 0) {
 	    if (!ugetc(allegro_error))
 	       usprintf(allegro_error, get_config_text("%s not found"), joystick_driver->name);
 	    joystick_driver = NULL; 
-	    joy_type = JOY_TYPE_NONE;
+	    _joy_type = JOY_TYPE_NONE;
 	    return -1;
 	 }
 	 break;
@@ -165,7 +165,7 @@ int install_joystick(int type)
 	 if (driver_list[c].autodetect) {
 	    joystick_driver = driver_list[c].driver;
 	    joystick_driver->name = joystick_driver->desc = get_config_text(joystick_driver->ascii_name);
-	    joy_type = driver_list[c].id;
+	    _joy_type = driver_list[c].id;
 	    if (joystick_driver->init() == 0)
 	       break;
 	 }
@@ -199,7 +199,7 @@ void remove_joystick(void)
       joystick_driver->exit();
 
       joystick_driver = NULL;
-      joy_type = JOY_TYPE_NONE;
+      _joy_type = JOY_TYPE_NONE;
 
       clear_joystick_vars();
 
@@ -237,7 +237,7 @@ int save_joystick_data(AL_CONST char *filename)
       set_config_file(filename);
    }
 
-   set_config_id(uconvert_ascii("joystick", tmp1), uconvert_ascii("joytype", tmp2), joy_type);
+   set_config_id(uconvert_ascii("joystick", tmp1), uconvert_ascii("joytype", tmp2), _joy_type);
 
    if ((joystick_driver) && (joystick_driver->save_data))
       joystick_driver->save_data();
@@ -269,14 +269,14 @@ int load_joystick_data(AL_CONST char *filename)
       set_config_file(filename);
    }
 
-   joy_type = get_config_id(uconvert_ascii("joystick", tmp1), uconvert_ascii("joytype", tmp2), -1);
+   _joy_type = get_config_id(uconvert_ascii("joystick", tmp1), uconvert_ascii("joytype", tmp2), -1);
 
-   if (joy_type < 0) {
-      joy_type = JOY_TYPE_NONE;
+   if (_joy_type < 0) {
+      _joy_type = JOY_TYPE_NONE;
       ret = -1;
    }
    else {
-      ret = install_joystick(joy_type);
+      ret = install_joystick(_joy_type);
 
       if (ret == 0) {
 	 if (joystick_driver->load_data)
@@ -344,7 +344,7 @@ int calibrate_joystick(int n)
  */
 int initialise_joystick()
 {
-   int type = joy_type;
+   int type = _joy_type;
 
    if (_joystick_installed)
       remove_joystick();

@@ -546,11 +546,16 @@ table to the set_ucodepage() function.
    Returns nonzero if c is a digit.
 
 @@char *@ustrdup(const char *src)
-@xref uconvert, ustrsize, ustrsizez
+@xref _ustrdup, uconvert, ustrsize, ustrsizez
    This functions copies the NULL-terminated string src into a newly
    allocated area of memory. The memory returned by this call must be freed
    by the caller. Returns NULL if it cannot allocate space for the duplicated
    string.
+
+@@char *@_ustrdup(const char *src, void* (*malloc_func) (size_t))
+@xref ustrdup, uconvert, ustrsize, ustrsizez
+   Does the same as ustrdup(), but allows the user to specify his own memory
+   allocater function.
 
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrsize, ustrsizez, ustrncpy
@@ -1968,6 +1973,10 @@ Joystick routines
    selected configuration file. Returns zero on success: if it fails the 
    joystick state is undefined and you must reinitialise it from scratch.
 
+@@int @initialise_joystick(void);
+@xref install_joystick
+   Deprecated. Use install_joystick() instead.
+
 
 
 @heading
@@ -2488,6 +2497,10 @@ Allegro supports several different types of bitmaps:
 @xref create_bitmap, load_bitmap
    Destroys a memory bitmap, sub-bitmap, video memory bitmap, or system 
    bitmap when you are finished with it.
+
+@@void @lock_bitmap(BITMAP *bitmap);
+   Under DOS, locks all the memory used by a bitmap. You don't normally need 
+   to call this function unless you are doing very weird things in your program.
 
 @@int @bitmap_color_depth(BITMAP *bmp);
 @xref set_color_depth, bitmap_mask_color
@@ -3383,18 +3396,26 @@ bitmap.
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
 @xref rotate_scaled_sprite_flip, rotate_scaled_sprite_v_flip
-@xref pivot_sprite, pivot_sprite_v_flip, itofix
-@xref fixed point trig, bitmap_mask_color
+@xref pivot_sprite, pivot_sprite_v_flip,
+@xref pivot_scaled_sprite, pivot_scaled_sprite_v_flip,
+@xref itofix, fixed point trig, bitmap_mask_color
    Draws the sprite image onto the bitmap at the specified position, 
    rotating it by the specified angle. The angle is a fixed point 16.16 
    number in the same format used by the fixed point trig routines, with 256 
    equal to a full circle, 64 a right angle, etc. The sprite must be a 
    memory bitmap.
 
+@@void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
+@xref rotate_sprite, rotate_scaled_sprite_v_flip
+@xref pivot_sprite_v_flip, pivot_scaled_sprite_v_flip
+   Like rotate_sprite, but also flips the image vertically.  To flip 
+   horizontally, use this routine but add fixtoi(128) to the angle.  To flip
+   in both directions, use rotate_sprite() and add fixtoi(128) to its angle.
+
 @\void @rotate_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                          fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite_flip, rotate_scaled_sprite_v_flip
-@xref pivot_scaled_sprite, bitmap_mask_color
+@xref pivot_scaled_sprite, pivot_scaled_sprite_v_flip, bitmap_mask_color
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
 
@@ -3410,28 +3431,28 @@ bitmap.
    flips the sprite vertically first. Passes 0, 1 as last two parameters
    to rotate_scaled_sprite_flip().
 
-@@void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
-@xref rotate_sprite, rotate_scaled_sprite_v_flip, pivot_sprite_v_flip
-   Like rotate_sprite, but also flips the image vertically.  To flip 
-   horizontally, use this routine but add fixtoi(128) to the angle.  To flip
-   in both directions, use rotate_sprite() and add fixtoi(128) to its angle.
-
 @\void @pivot_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                  int cx, int cy, fixed angle);
 @xref pivot_scaled_sprite, pivot_sprite_v_flip, rotate_sprite
    Like rotate_sprite(), but rotates the image around the specified pivot 
    location rather than always just using the centre of the sprite.
 
-@\void @pivot_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
-@@                         int cx, int cy, fixed angle, fixed scale));
-@xref pivot_sprite, rotate_scaled_sprite
-   Like rotate_scaled_sprite(), but rotates the image around the specified 
-   pivot location rather than always just using the centre of the sprite.
-
 @\void @pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int cx, int cy, fixed angle);
 @xref pivot_sprite, rotate_sprite_v_flip
    Like rotate_sprite_v_flip(), but rotates the image around the specified
+   pivot location rather than always just using the centre of the sprite.
+
+@\void @pivot_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                         int cx, int cy, fixed angle, fixed scale));
+@xref pivot_sprite, pivot_scaled_sprite_v_flip, rotate_scaled_sprite
+   Like rotate_scaled_sprite(), but rotates the image around the specified 
+   pivot location rather than always just using the centre of the sprite.
+
+@\void @pivot_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                                 fixed angle, fixed scale)
+@xref pivot_sprite, pivot_scaled_sprite
+   Like rotate_scaled_sprite_v_flip(), but rotates the image around the specified 
    pivot location rather than always just using the centre of the sprite.
 
 @@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
@@ -4537,7 +4558,8 @@ eg. a VESA linear framebuffers:
 </pre>
 For truecolor modes you should replace the bmp_write8() with bmp_write16(), 
 bmp_write24(), or bmp_write32(), and multiply the x offset by the number of 
-bytes per pixel.
+bytes per pixel. There are of course similar functions to read a pixel value
+from a bitmap, namely bmp_read8(), bmp_read16(), bmp_read24() and bmp_read32().
 <p><hr><p>
 This still won't work in banked SVGA modes, however, or on platforms like 
 Windows that do special processing inside the bank switching functions. For 
@@ -4912,6 +4934,11 @@ Digital sample routines
    this even when the sample might be playing, because it checks and will 
    kill it off if it is active.
 
+@@void @lock_sample(SAMPLE *spl);
+@xref load_sample, create_sample
+   Under DOS, locks all the memory used by a sample. You don't normally need 
+   to call this function because load_sample() and create_sample() do it for you.
+
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, voice control
    Triggers a sample at the specified volume, pan position, and frequency. 
@@ -5132,6 +5159,11 @@ MIDI music routines
    Destroys a MIDI structure when you are done with it. It is safe to call 
    this even when the MIDI file might be playing, because it checks and will 
    kill it off if it is active.
+
+@@void @lock_midi(MIDI *midi);
+@xref load_midi
+   Under DOS, locks all the memory used by a MIDI file. You don't normally 
+   need to call this function because load_midi() does it for you.
 
 @@int @play_midi(MIDI *midi, int loop);
 @xref install_sound, load_midi, play_looped_midi, stop_midi, midi_pause
@@ -5839,7 +5871,7 @@ integer' is not.
    Converts an integer to fixed point. This is the same thing as x&lt&lt16.
 
 @@int @fixtoi(fixed x);
-@xref itofix, ftofix, fixtof
+@xref itofix, ftofix, fixtof, fceil
    Converts fixed point to integer, rounding as required. If you want to 
    avoid the rounding, use x&gt&gt16 instead.
 
@@ -5877,6 +5909,11 @@ integer' is not.
 @@fixed @fsub(fixed x, fixed y);
 @xref fadd, fmul, fdiv
    Fixed point subtraction: see comments about fadd().
+
+@@int @fceil(fixed x);
+@xref fixtoi
+   Returns the smallest integer not less than x. That is, it rounds towards
+   positive infinity.
 
 @node fixed point trig
 The fixed point square root, sin, cos, tan, inverse sin, and inverse cos 
@@ -6337,7 +6374,7 @@ The flags field may contain any combination of the bit flags:
 Each object is controlled by a dialog procedure, which is stored in the proc 
 pointer. This will be called by the dialog manager whenever any action 
 concerning the object is required, or you can call it directly with the 
-SEND_MESSAGE macro. The dialog procedure should follow the form:
+object_message() function. The dialog procedure should follow the form:
 <pre>
    int foo(int msg, DIALOG *d, int c);
 </pre>
@@ -6705,15 +6742,26 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    Sets the foreground and background colors of an array of dialog objects.
 
 @@int @find_dialog_focus(DIALOG *dialog);
-@xref do_dialog, init_dialog
+@xref do_dialog, init_dialog, offer_focus
    Searches the dialog for the object which has the input focus, returning 
    an index or -1 if the focus is not set. This is useful if you are calling 
    do_dialog() several times in a row and want to leave the focus in the 
    same place it was when the dialog was last displayed, as you can call 
    do_dialog(dlg, find_dialog_focus(dlg));
 
+@@int @offer_focus(DIALOG *d, int obj, int *focus_obj, int force);
+@xref find_dialog_focus
+   Offers the input focus to a particular object. Normally the function sends
+   the MSG_WANTFOCUS message to query whether the object is willing to accept
+   the focus. However, passing any non zero value as force argument instructs
+   the function to authoritatively set the focus to the object.
+
+@@int @object_message(DIALOG *dialog, int msg, int c);
+@xref dialog_message
+   Sends a message to an object and returns the answer it has generated.
+
 @@int @dialog_message(DIALOG *dialog, int msg, int c, int *obj);
-@xref broadcast_dialog_message
+@xref object_message, broadcast_dialog_message
    Sends a message to all the objects in an array. If any of the dialog 
    procedures return values other than D_O_K, it returns the value and sets 
    obj to the index of the object which produced it.

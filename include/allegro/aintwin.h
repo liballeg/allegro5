@@ -34,7 +34,7 @@
 
 #include "winalleg.h"
 
-#if (!defined SCAN_EXPORT) && (!defined SCAN_DEPEND)
+#ifndef SCAN_DEPEND
    /* workaround for buggy mingw headers */
    #ifdef ALLEGRO_MINGW32
       #ifndef HMONITOR_DECLARED

@@ -1209,7 +1209,7 @@ static void joystick_proc(int type)
 static void mouse_proc(int type)
 {
    remove_mouse();
-   mouse_type = type;
+   _mouse_type = type;
    install_mouse();
 }
 
@@ -1218,7 +1218,7 @@ static void mouse_proc(int type)
 static void save_mouse_data(void)
 {
    char tmp1[64], tmp2[64];
-   set_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), mouse_type);
+   set_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), _mouse_type);
 }
 
 
@@ -2495,7 +2495,7 @@ static DIALOG_STATE main_handler(int c)
 	 get_joystick_drivers(&list, &list_size);
 
 	 for (i=0; list[i].driver; i++) {
-	    if (list[i].id == joy_type) {
+	    if (list[i].id == _joy_type) {
 	       joystick_dlg[2].d1 = i;
 	       break;
 	    }
@@ -2517,7 +2517,7 @@ static DIALOG_STATE main_handler(int c)
 	 get_mouse_drivers(&list, &list_size);
 
 	 for (i=0; list[i].driver; i++) {
-	    if (list[i].id == mouse_type) {
+	    if (list[i].id == _mouse_type) {
 	       dlg[2].d1 = i;
 	       break;
 	    }

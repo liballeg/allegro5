@@ -921,7 +921,7 @@ int main()
       return 1;
    }
    set_palette(desktop_palette);
-   set_color(0, &black_rgb);
+   set_color(0, &_black_rgb);
    gui_fg_color = palette_color[255];
    gui_bg_color = palette_color[16];
 
