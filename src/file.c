@@ -2152,7 +2152,10 @@ static int refill_buffer(PACKFILE *f)
       if (f->todo <= 0)
 	 f->flags |= PACKFILE_FLAG_EOF;
 
-   return *(f->buf_pos++);
+   if (f->buf_size < 0)
+      return EOF;
+   else
+      return *(f->buf_pos++);
 
    err:
    *allegro_errno = EFAULT;
