@@ -3561,10 +3561,12 @@ Transparency and patterned drawing
    drawing is very slow if you draw directly to video RAM, so wherever 
    possible you should use a memory bitmap instead.
 
-@@void @xor_mode(int xor);
+@@void @xor_mode(int on);
 @xref drawing_mode
    This is a shortcut for toggling xor drawing mode on and off. Calling 
-   xor_mode(TRUE) is equivalent to drawing_mode(DRAW_MODE_XOR, NULL, 0, 0);
+   xor_mode(TRUE) is equivalent to drawing_mode(DRAW_MODE_XOR, NULL, 0, 0); 
+   Calling xor_mode(FALSE) is equivalent to 
+   drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
 @@void @solid_mode();
 @xref drawing_mode

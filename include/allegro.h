@@ -1233,7 +1233,7 @@ AL_FUNC(void, set_clip, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
 #define DRAW_MODE_TRANS             5
 
 AL_FUNC(void, drawing_mode, (int mode, BITMAP *pattern, int x_anchor, int y_anchor));
-AL_FUNC(void, xor_mode, (int xor));
+AL_FUNC(void, xor_mode, (int on));
 AL_FUNC(void, solid_mode, (void));
 AL_FUNC(void, do_line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int d, AL_METHOD(void, proc, (BITMAP *, int, int, int))));
 AL_FUNC(void, triangle, (BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color));

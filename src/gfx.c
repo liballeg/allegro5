@@ -133,9 +133,9 @@ void set_blender_mode_ex(BLENDER_FUNC b15, BLENDER_FUNC b16, BLENDER_FUNC b24, B
 /* xor_mode:
  *  Shortcut function for toggling XOR mode on and off.
  */
-void xor_mode(int xor)
+void xor_mode(int on)
 {
-   drawing_mode(xor ? DRAW_MODE_XOR : DRAW_MODE_SOLID, NULL, 0, 0);
+   drawing_mode(on ? DRAW_MODE_XOR : DRAW_MODE_SOLID, NULL, 0, 0);
 }
 
 
