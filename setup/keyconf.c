@@ -101,7 +101,7 @@ unsigned short my_key_accent4_lower_table[KEY_MAX];
 unsigned short my_key_accent4_upper_table[KEY_MAX];
 
 
-#if (!defined ALLEGRO_DOS) && (!defined ALLEGRO_WINDOWS) && (!defined ALLEGRO_WITH_XWINDOWS) && (!defined ALLEGRO_QNX)
+#if (!defined ALLEGRO_DOS) && (!defined ALLEGRO_WINDOWS) && (!defined ALLEGRO_WITH_XWINDOWS) && (!defined ALLEGRO_QNX) && (!defined ALLEGRO_BEOS)
 
    /* if this platform isn't using pckeys.c, we declare these ourselves */
    int _key_accent1 = 0;
