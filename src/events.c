@@ -299,79 +299,97 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
 
 
 
+/* wait_on_queue_forever: [primary thread]
+ *  Helper for al_wait_for_event.  The caller must lock the queue
+ *  before calling.
+ */
+static void wait_on_queue_forever(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
+{
+   while (_al_vector_is_empty(&queue->events))
+      _al_cond_wait(&queue->cond, &queue->mutex);
+
+   if (ret_event) {
+      AL_EVENT *next_event = really_get_next_event(queue);
+      ASSERT(next_event);
+      _al_copy_event(ret_event, next_event);
+      _al_release_event(next_event);
+   }
+}
+
+
+
+/* wait_on_queue_timed: [primary thread]
+ *  Helper for al_wait_for_event.  The caller must lock the queue
+ *  before calling.
+ */
+static bool wait_on_queue_timed(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
+{
+   unsigned long timeout = al_current_time() + msecs;
+
+   /* Is the queue is non-empty?  If not, block on a condition
+    * variable, which will be signaled when an event is placed into
+    * the queue.
+    */
+   while (_al_vector_is_empty(&queue->events)) {
+      int result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
+      if (result == -1) /* timed out */
+         return false;
+   }
+
+   /* Copy and remove the event if desired. */
+   if (ret_event) {
+      AL_EVENT *next_event = really_get_next_event(queue);
+      ASSERT(next_event);
+      _al_copy_event(ret_event, next_event);
+      _al_release_event(next_event);
+   }
+
+   return true;
+}
+
+
+
 /* al_wait_for_event: [primary thread]
- *  Wait until the event queue specified is non-empty, then copy the
- *  first event packet in the queue into RET_EVENT (the event packet
- *  will no longer be in the queue).  TIMEOUT_MSECS determines
- *  approximately how many milliseconds to wait.  If TIMEOUT_MSECS is
- *  zero, the call will wait indefinitely.  If the call times out,
- *  false is returned.  Otherwise true is returned.
+ *  Wait until the event queue specified is non-empty.  If RET_EVENT
+ *  is not NULL, the first event packet in the queue will be copied
+ *  into RET_EVENT and removed from the queue.  If RET_EVENT is NULL
+ *  the first event packet is left at the head of the queue.
+ *
+ *  TIMEOUT_MSECS determines approximately how many milliseconds to
+ *  wait.  If it is zero, the call will wait indefinitely.  If the
+ *  call times out, false is returned.  Otherwise true is returned.
  */
 bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
 {
    ASSERT(queue);
-   ASSERT(ret_event);
    ASSERT(msecs >= 0);
-   {
-      AL_EVENT *next_event;
 
-      if (msecs == 0)
-      {
-         /* "Infinite" timeout case.  */
-
-         _al_mutex_lock(&queue->mutex);
-         {
-            while (_al_vector_is_empty(&queue->events))
-               _al_cond_wait(&queue->cond, &queue->mutex);
-
-            next_event = really_get_next_event(queue);
-            ASSERT(next_event);
-         }
-         _al_mutex_unlock(&queue->mutex);
-      }
-      else
-      {
-         /* Finite timeout case.  */
-
-         _al_mutex_lock(&queue->mutex);
-         {
-            unsigned long timeout = al_current_time() + msecs;
-            int result = 0;
-
-            /* Is the queue is non-empty?  If not, block on a condition
-             * variable, which will be signaled when an event is placed into
-             * the queue.
-             */
-            while (_al_vector_is_empty(&queue->events) && (result != -1))
-               result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
-
-            if (result == -1)   /* timed out */
-               next_event = NULL;
-            else {
-               next_event = really_get_next_event(queue);
-               ASSERT(next_event);
-            }
-         }
-         _al_mutex_unlock(&queue->mutex);
-      }
-
-      if (next_event) {
-         _al_copy_event(ret_event, next_event);
-         _al_release_event(next_event);
-         return true;
-      }
-      else
-         return false;
+   if (msecs == 0) {
+      _al_mutex_lock(&queue->mutex);
+      wait_on_queue_forever(queue, ret_event);
+      _al_mutex_unlock(&queue->mutex);
+      return true;
+   }
+   else {
+      bool status;
+      _al_mutex_lock(&queue->mutex);
+      status = wait_on_queue_timed(queue, ret_event, msecs);
+      _al_mutex_unlock(&queue->mutex);
+      return status;
    }
 }
 
 
 
 /* al_wait_for_specific_event: [primary thread]
- *  
+ *
  *  Wait until the head of the event queue contains an event packet
- *  that satisfies the following criteria, then copy that event packet
- *  into RET_EVENT:
+ *  that satisfies the following criteria.  If RET_EVENT is not NULL
+ *  then that event packet is copied into RET_EVENT and removed from
+ *  the queue.  Otherwise the event packet is left at the head of the
+ *  queue.
+ *
+ *  The criteria are:
  *
  *    1. If SRC_OR_NULL is not NULL, then the event must come from the
  *       event source specified.  If SRC_OR_NULL is NULL, there is no
@@ -383,8 +401,8 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
  *  criteria _will be discarded_.
  *
  *  TIMEOUT_MSECS determines how long for the function call to wait.
- *  If TIMEOUT_MSECS is zero, the call will wait indefinitely.  If the
- *  call times out, false is returned.  Otherwise true is returned.
+ *  If it is zero, the call will wait indefinitely.  If the call times
+ *  out, false is returned.  Otherwise true is returned.
  */
 bool al_wait_for_specific_event(AL_EVENT_QUEUE *queue,
                                 AL_EVENT *ret_event,
@@ -398,7 +416,7 @@ bool al_wait_for_specific_event(AL_EVENT_QUEUE *queue,
       while (true) {
          al_wait_for_event(queue, ret_event, 0);
 
-         if (((!source) || (ret_event->any.source == source)) &&
+         if (((source == NULL) || (source == ret_event->any.source)) &&
              (ret_event->type & event_mask))
             return true;
       }
@@ -425,7 +443,7 @@ bool al_wait_for_specific_event(AL_EVENT_QUEUE *queue,
          if (!al_wait_for_event(queue, ret_event, remaining))
             return false;
 
-         if (((!source) || (ret_event->any.source != source)) &&
+         if (((source == NULL) || (source == ret_event->any.source)) &&
              (ret_event->type & event_mask))
             return true;
       }
