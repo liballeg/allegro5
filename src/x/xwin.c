@@ -2125,8 +2125,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 mouse_was_warped = 0;
 	 if (!_xwin.mouse_warped) {
 	    /* Move Allegro cursor to X-cursor.  */
-	    dx = event->xmotion.x - (_mouse_x - _xwin.scroll_x);
-	    dy = event->xmotion.y - (_mouse_y - _xwin.scroll_y);
+	    dx = event->xmotion.x - _mouse_x;
+	    dy = event->xmotion.y - _mouse_y;
 	 }
 	 if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
 	    if (_xwin.mouse_warped && (mouse_warp_now++ & 4)) {
@@ -2160,8 +2160,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 mouse_was_warped = 0;
 	 if (!_xwin.mouse_warped) {
 	    /* Move Allegro cursor to X-cursor.  */
-	    dx = event->xcrossing.x - (_mouse_x - _xwin.scroll_x);
-	    dy = event->xcrossing.y - (_mouse_y - _xwin.scroll_y);
+	    dx = event->xcrossing.x - _mouse_x;
+	    dy = event->xcrossing.y - _mouse_y;
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
 	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
 	 }
@@ -2221,7 +2221,7 @@ static void _xwin_private_handle_input(void)
 	 /* Move X-cursor to Allegro cursor.  */
 	 XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
 		      0, 0, _xwin.window_width, _xwin.window_height,
-		      _mouse_x - _xwin.scroll_x, _mouse_y - _xwin.scroll_y);
+		      _mouse_x, _mouse_y);
       }
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    }
