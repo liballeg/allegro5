@@ -221,7 +221,10 @@ unsigned long _blender_difference24(unsigned long x, unsigned long y, unsigned l
  */
 unsigned long _blender_dissolve24(unsigned long x, unsigned long y, unsigned long n)
 {
-   return ((rand() & 255) > (int)n) ? x : y;
+   if (n == 255)
+      return x;
+
+   return ((rand() & 255) < (int)n) ? x : y;
 }
 
 
@@ -505,7 +508,10 @@ unsigned long _blender_difference16(unsigned long x, unsigned long y, unsigned l
  */
 unsigned long _blender_dissolve16(unsigned long x, unsigned long y, unsigned long n)
 {
-   return ((rand() & 255) > (int)n) ? x : y;
+   if (n == 255)
+      return x;
+
+   return ((rand() & 255) < (int)n) ? x : y;
 }
 
 
@@ -782,7 +788,10 @@ unsigned long _blender_difference15(unsigned long x, unsigned long y, unsigned l
  */
 unsigned long _blender_dissolve15(unsigned long x, unsigned long y, unsigned long n)
 {
-   return ((rand() & 255) > (int)n) ? x : y;
+   if (n == 255)
+      return x;
+
+   return ((rand() & 255) < (int)n) ? x : y;
 }
 
 
