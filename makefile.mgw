@@ -140,7 +140,7 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/misc tests/win
+VPATH = src/win src/misc tests/win tools/win
 
 ifdef ALLEGRO_USE_C
 
@@ -169,12 +169,13 @@ ifdef ALLEGRO_USE_CYGWIN
   LIBRARIES += -L/lib/mingw -lmoldname -lmsvcrt
 endif
 
-PROGRAMS = dibgrab dibhello dibsound scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
+wfixicon: tools/win/wfixicon.exe
 
 
 # -------- rules for installing and removing the library files --------
@@ -331,17 +332,28 @@ $(OBJ_DIR)/%.o: %.s
 
 ifdef STATICLINK
 
+demo/demo.exe: $(OBJ_DIR)/demo.o wfixicon $(IMPLIB_NAME)
+   ifneq ($(wildcard demo/demo.dat),)
+	tools/win/wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+   else
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME) $(LIBRARIES)
+   endif
+
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+
+tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 define LINK_CONSOLE
   gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -349,17 +361,28 @@ endef
 
 else 
 
+demo/demo.exe: $(OBJ_DIR)/demo.o wfixicon $(IMPLIB_NAME)
+   ifneq ($(wildcard demo/demo.dat),)
+	tools/win/wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
+   else
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME)
+   endif
+
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
+	gcc $(LFLAGS) $(PFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -mwindows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
+
+tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME)
 
 define LINK_CONSOLE
   gcc $(LFLAGS) $(PFLAGS) -o $@ $< $(IMPLIB_NAME)
@@ -435,7 +458,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MINGW32
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c tools/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS

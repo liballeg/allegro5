@@ -101,16 +101,17 @@ endif
 
 # -------- list platform specific programs --------
 
-VPATH = tests/win
+VPATH = tests/win tools/win
 
 LIBRARIES = -lcomdlg32
 
-PROGRAMS = dibgrab dibhello dibsound scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
+wfixicon: tools/win/wfixicon.exe
 
 
 
@@ -141,6 +142,14 @@ endef
 $(OBJ_DIR)/%.o: %.c
 	$(RSXGCC) $(CFLAGS) -I. -I./include -o $@ -c $<
 
+demo/demo.exe: $(OBJ_DIR)/demo.o wfixicon $(LIB_NAME)
+   ifneq ($(wildcard demo/demo.dat),)
+	tools/win/wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	$(RSXGCC) $(LFLAGS) -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(LIB_NAME) $(LIBRARIES)
+   else
+	$(RSXGCC) $(LFLAGS) -o demo/demo.exe $(OBJ_DIR)/demo.o $(LIB_NAME) $(LIBRARIES)
+   endif
+
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
@@ -155,6 +164,9 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/scrsave.exe $(OBJ_DIR)/scrsave.o $(LIB_NAME) $(LIBRARIES)
 	rsrc $(OBJ_DIR)/scrsave.res tests/win/scrsave.exe
 	rename tests\win\scrsave.exe scrsave.scr
+
+tools/win/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
+	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 $(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
 	grc -o $(OBJ_DIR)/dibsound.res tests/win/dibsound.rc
@@ -186,7 +198,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_RSXNT
 
 depend:
-	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alleg\/\1\.o:/" _depend2.tmp > obj/rsxnt/alleg/makefile.dep

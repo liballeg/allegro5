@@ -13,7 +13,7 @@ EXE = .exe
 OBJ = .o
 HTML = html
 
-# BCC32 mimics mingw32 since it can't compile the LIBs either.
+# BCC32 can't compile the LIBs.
 
 ifneq (,$(findstring /sh.exe,$(SHELL)))
   CP := command -c copy
@@ -108,14 +108,15 @@ INCLUDE_FILES = $(addprefix include/,allegro.h winalleg.h          \
 
 # -------- list which platform specific programs --------
 #
-VPATH = tests/win
+VPATH = tests/win tools/win
 
-PROGRAMS = dibgrab dibhello dibsound scrsave
+PROGRAMS = dibgrab dibhello dibsound scrsave wfixicon
 
 dibgrab: tests/win/dibgrab.exe
 dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.exe
+wfixicon: tools/win/wfixicon.exe
 
 
 # -------- rules for installing and removing the library files --------
@@ -229,7 +230,7 @@ DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 
 depend:
 	gcc $(DEPEND_PARMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
-	gcc $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	gcc $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	sed -e 's/\\/\//g' -e 's/\/$$/\\/' -e "s/^[a-zA-Z0-9_\/]*\///" -e "s/ \.\// /g" _depend.tmp > _depend1.tmp
 	sed -e "s/asmdef\.o/asmdef\.exe/" _depend1.tmp > _depend.tmp
 ifdef UNIX_TOOLS
