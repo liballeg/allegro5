@@ -70,7 +70,7 @@ AL_CONST BE_MODE_TABLE _be_mode_table[] = {
    { 32,  1152,  900, B_32_BIT_1152x900,  B_RGB32 },
    { 32,  1280, 1024, B_32_BIT_1280x1024, B_RGB32 },
    { 32,  1600, 1200, B_32_BIT_1600x1200, B_RGB32 },
-   { -1 }
+   { -1,     0,    0,                  0,       0 }
 };
 
 sem_id _be_fullscreen_lock = -1;
