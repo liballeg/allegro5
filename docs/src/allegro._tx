@@ -2940,7 +2940,7 @@ Allegro supports several different types of bitmaps:
 <ul><li>
      The screen bitmap, which represents the hardware video memory.
      Ultimately you have to draw onto this in order for your image to be 
-     visible.
+     visible. It is destroyed by any subsequent calls to set_gfx_mode().
 <li>
      Memory bitmaps, which are located in system RAM and can be used to
      store graphics or as temporary drawing spaces for double buffered 
@@ -2957,7 +2957,8 @@ Allegro supports several different types of bitmaps:
 <li>
      Video memory bitmaps. These are created by the create_video_bitmap()
      function, and are usually implemented as sub-bitmaps of the screen 
-     object.
+     object. They must be destroyed by destroy_bitmap() before any subsequent
+     calls to set_gfx_mode().
 <li>
      System bitmaps. These are created by the create_system_bitmap()
      function, and are a sort of halfway house between memory and video 
@@ -2970,7 +2971,9 @@ Allegro supports several different types of bitmaps:
      video bitmaps, using the bank switch functions and bmp_write*() macros. 
      Not every platform implements this type of bitmap: if they aren't 
      available, create_system_bitmap() will function identically to 
-     create_bitmap().</ul>
+     create_bitmap(). They must be destroyed by destroy_bitmap() before any
+     subsequent calls to set_gfx_mode().
+</ul>
 
 @@extern BITMAP *@screen;
 @xref set_gfx_mode, is_screen_bitmap, create_video_bitmap, scroll_screen
