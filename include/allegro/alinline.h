@@ -16,10 +16,6 @@
  */
 
 
-
-#include "inline/gfxasm.inl"
-#include "inline/mathasm.inl"
-
 #include "inline/system.inl"
 
 #include "inline/gfx.inl"
@@ -39,4 +35,3 @@
 #include "inline/matrix.inl"
 
 #include "alcompat.h"
-

@@ -24,7 +24,8 @@
 #endif
 
 #include "allegro/debug.h"
-#include "gfxasm.inl"
+#include "gfx.inl"
+
 
 AL_INLINE(int, getpixel, (BITMAP *bmp, int x, int y),
 {

@@ -23,7 +23,11 @@
    extern "C" {
 #endif
 
-#include "mathasm.inl"
+
+#define ALLEGRO_IMPORT_MATH_ASM
+#include "asm.inl"
+#undef ALLEGRO_IMPORT_MATH_ASM
+
 
 /* ftofix and fixtof are used in generic C versions of fmul and fdiv */
 AL_INLINE(fixed, ftofix, (double x),

@@ -25,6 +25,12 @@
 
 #include "allegro/debug.h"
 
+
+#define ALLEGRO_IMPORT_GFX_ASM
+#include "asm.inl"
+#undef ALLEGRO_IMPORT_GFX_ASM
+
+
 #ifdef ALLEGRO_NO_ASM
 
    /* use generic C versions */
