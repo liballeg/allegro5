@@ -487,7 +487,6 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
-   ASSERT(color_depth);
 
    clear_keybuf();
 
