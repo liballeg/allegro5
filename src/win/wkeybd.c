@@ -246,16 +246,12 @@ int key_dinput_acquire(void)
  */
 void key_dinput_unacquire(void)
 {
-   char key_state[256];
    int key;
 
    if (key_dinput_device) {
-      /* release pressed keys */
-      IDirectInputDevice_GetDeviceState(key_dinput_device, 256, key_state);
-
+      /* release all keys */
       for (key=0; key<256; key++)
-         if (key_state[key] & 0x80)
-            key_dinput_handle_scancode((unsigned char)key, FALSE);
+         key_dinput_handle_scancode((unsigned char)key, FALSE);
 
       IDirectInputDevice_Unacquire(key_dinput_device);
    }

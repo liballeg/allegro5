@@ -280,7 +280,7 @@ int init_win32_joysticks()
    win32_joy_num = joyGetNumDevs();
 
    if (win32_joy_num > MAXJOYSTICKS) {
-      TRACE("More than four joysticks found");
+      _TRACE("More than four joysticks found\n");
    }
 
    /* get joystick calibration */
@@ -293,7 +293,7 @@ int init_win32_joysticks()
 	 _joysticks[n_joy].caps = caps.wCaps;
 	 _joysticks[n_joy].buttons_num = (caps.wNumButtons>MAXBUTTONS ? MAXBUTTONS : caps.wNumButtons);
 	 _joysticks[n_joy].axes_num = caps.wNumAxes;
-	 TRACE("Joystick caps: 0x%x\n", caps.wCaps);
+	 _TRACE("Joystick caps: 0x%x\n", caps.wCaps);
 
 	 for (n_axes = 0; n_axes < MAXAXES; n_axes++) {
 	    _joysticks[n_joy].min[n_axes] = 0;
