@@ -173,8 +173,9 @@ Contributors
 
    Grzegorz Adam Hankiewicz (<email>gradha@iname.com</a>).<br>
    Wrote several of the example programs, suggested the "compress" makefile 
-   target, translated the docs and system error messages into Spanish, and 
-   suggested the idea of embedding the setup utility into other programs.
+   target, translated the docs and system error messages into Spanish,
+   suggested the idea of embedding the setup utility into other programs, 
+   and wrote some documentation.
 
    Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
    Wrote several of the example programs, and made the intro animation and 

@@ -4796,6 +4796,26 @@ the value F_NOPACK_MAGIC.
    callback(). The file attribute may contain any of the FA_* flags from 
    dir.h.
 
+@@int @findfirst(char *pattern, struct ffblk *ffblk, int attrib);
+@xref findnext, findclose
+   If your platform doesn't have the find* set of functions, Allegro will
+   emulate them. This function finds the first file which matches the
+   given wildcard specification and file attributes. The information will
+   be put in the ffblk struct which you have to provide. The function
+   returns zero if a match is found, nonzero if none found. The file
+   attribute may contain any of the FA_* flags from dir.h. The ffblk
+   structure contains the variables: ff_attrib, ff_time, ff_date, ff_size
+   and ff_name.
+
+@@int @findnext(struct ffblk *ffblk);
+@xref findfirst, findclose
+   This finds the next file in a search started by findfirst. Returns zero
+   if a match is found, nonzero if none found.
+
+@@void @findclose(struct ffblk *ffblk);
+@xref findfirst, findnext
+   This closes a previously opened search with findfirst/findnext.
+
 @\int @find_allegro_resource(char *dest, *resource, *ext, *datafile
 @@                          char *objectname, *envvar, *subdir, int size);
    Searches for a support file, eg. allegro.cfg or language.dat. Passed a 
