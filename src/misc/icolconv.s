@@ -15,6 +15,8 @@
  *
  *      24-bit color support and non MMX routines by Eric Botcazou.
  *
+ *      Additional MMX routines by Robert J. Ohannessian.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -35,6 +37,93 @@
 #define LOCAL2   -8(%esp)
 #define LOCAL3   -12(%esp)
 #define LOCAL4   -16(%esp)
+
+
+
+/* void _colorconv_blit_32_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_32_to_24)
+   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
+   test %eax, %eax
+   jz _colorconv_blit_32_to_24_no_mmx
+
+   pushl %ebp
+   movl %esp, %ebp
+   pushl %ebx
+   pushl %esi
+   pushl %edi
+
+   /* init register values */
+
+   movl ARG1, %eax                    /* eax = src_rect         */
+   movl GFXRECT_WIDTH(%eax), %ecx     /* ecx = src_rect->width  */
+   movl GFXRECT_HEIGHT(%eax), %edx    /* edx = src_rect->height */
+   shll $2, %ecx                      /* ecx = SCREEN_W * 4     */
+   movl GFXRECT_DATA(%eax), %esi      /* esi = src_rect->data   */
+   movl GFXRECT_PITCH(%eax), %eax     /* eax = src_rect->pitch  */
+   subl %ecx, %eax
+
+   movl ARG2, %ebx                    /* ebx = dest_rect        */
+   shrl $2, %ecx                      /* ecx = SCREEN_W         */
+   leal (%ecx, %ecx, 2), %ebp         /* ebp = SCREEN_W * 3     */
+   movl GFXRECT_DATA(%ebx), %edi      /* edi = dest_rect->data  */
+   movl GFXRECT_PITCH(%ebx), %ebx     /* ebx = dest_rect->pitch */
+   subl %ebp, %ebx
+   shrl $2, %ecx                      /* ecx = SCREEN_W / 4     */
+   movd %ecx, %mm7
+
+   /* 32 bit to 24 bit conversion:
+    we have:
+    eax = offset from the end of a line to the beginning of the next
+    ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W / 4
+    edx = SCREEN_H
+    esi = src_rect->data
+    edi = dest_rect->data
+   */
+
+   next_line_32_to_24:
+      movd %mm7, %ecx
+
+   next_block_32_to_24:
+      movq (%esi), %mm0         /* mm0 = [.RGB1][.RGB0] */
+      movq 8(%esi), %mm1        /* mm1 = [.RGB3][.RGB2] */
+      movq %mm0, %mm2
+      movq %mm1, %mm3
+      movq %mm1, %mm4
+      psllq $48, %mm3
+      psllq $40, %mm0
+      psrlq $32, %mm2
+      psrlq $40, %mm0
+      psllq $24, %mm2
+      por %mm3, %mm0
+      por %mm2, %mm0
+      psllq $8, %mm4
+      psllq $40, %mm1
+      psrlq $32, %mm4
+      psrlq $56, %mm1
+      por %mm4, %mm1
+      movq %mm0, (%edi)
+      movd %mm1, 8(%edi)
+      addl $16, %esi
+      addl $12, %edi
+
+      decl %ecx
+      jnz next_block_32_to_24
+
+      addl %eax, %esi
+      addl %ebx, %edi
+      decl %edx
+      jnz next_line_32_to_24
+
+   emms
+   popl %edi
+   popl %esi
+   popl %ebx
+   popl %ebp
+
+   ret
+
 
 
 /* helper macro */
@@ -221,6 +310,92 @@ FUNC (_colorconv_blit_32_to_15)
       addl %edi, %ebx
       decl %ecx
       jnz next_line_32_to_15
+
+   emms
+   popl %edi
+   popl %esi
+   popl %ebx
+   popl %ebp
+
+   ret
+
+
+
+/* void _colorconv_blit_24_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_24_to_32)
+   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
+   test %eax, %eax
+   jz _colorconv_blit_24_to_32_no_mmx
+
+   pushl %ebp
+   movl %esp, %ebp
+   pushl %ebx
+   pushl %esi
+   pushl %edi
+
+   /* init register values */
+
+   movl ARG1, %eax                    /* eax = src_rect         */
+   movl GFXRECT_WIDTH(%eax), %ecx     /* ecx = src_rect->width  */
+   movl GFXRECT_HEIGHT(%eax), %edx    /* edx = src_rect->height */
+   leal (%ecx, %ecx, 2), %ebx         /* ebx = SCREEN_W * 3     */
+   movl GFXRECT_DATA(%eax), %esi      /* esi = src_rect->data   */
+   movl GFXRECT_PITCH(%eax), %eax     /* eax = src_rect->pitch  */
+   subl %ebx, %eax
+
+   movl ARG2, %ebx                    /* ebx = dest_rect        */
+   shll $2, %ecx                      /* ecx = SCREEN_W * 4     */
+   movl GFXRECT_DATA(%ebx), %edi      /* edi = dest_rect->data  */
+   movl GFXRECT_PITCH(%ebx), %ebx     /* ebx = dest_rect->pitch */
+   subl %ecx, %ebx
+   shrl $4, %ecx                      /* ecx = SCREEN_W / 4     */
+   movd %ecx, %mm7
+
+   /* 24 bit to 32 bit conversion:
+    we have:
+    eax = offset from the end of a line to the beginning of the next
+    ebx = same as eax, but for the dest bitmap
+    ecx = SCREEN_W
+    edx = SCREEN_H
+    esi = src_rect->data
+    edi = dest_rect->data
+   */
+
+   next_line_24_to_32:
+      movd %mm7, %ecx
+
+   next_block_24_to_32:
+      movq (%esi), %mm0         /* mm0 = [GB2][RGB1][RGB0] */
+      movd 8(%esi), %mm1        /* mm1 = [..0..][RGB3][R2] */
+      movq %mm0, %mm2
+      movq %mm0, %mm3
+      movq %mm1, %mm4
+      psllq $16, %mm2
+      psllq $40, %mm0
+      psrlq $40, %mm2
+      psrlq $40, %mm0           /* mm0 = [....0....][RGB0] */
+      psllq $32, %mm2           /* mm2 = [..][RGB1][..0..] */
+      psrlq $8, %mm1
+      psrlq $48, %mm3           /* mm3 = [.....0....][GB2] */
+      psllq $56, %mm4
+      psllq $32, %mm1           /* mm1 = [.RGB3][....0...] */
+      psrlq $40, %mm4           /* mm4 = [....0...][R2][0] */
+      por %mm3, %mm1
+      por %mm2, %mm0            /* mm0 = [.RGB1][.RGB0]    */
+      por %mm4, %mm1            /* mm1 = [.RGB3][.RGB2]    */
+      movq %mm0, (%edi)
+      movq %mm1, 8(%edi)
+      addl $12, %esi
+      addl $16, %edi
+
+      decl %ecx
+      jnz next_block_24_to_32
+
+      addl %eax, %esi
+      addl %ebx, %edi
+      decl %edx
+      jnz next_line_24_to_32
 
    emms
    popl %edi
@@ -616,7 +791,12 @@ FUNC (_colorconv_blit_8_to_15)
 
 /* void _colorconv_blit_24_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
+#ifdef ALLEGRO_MMX
+_align_
+_colorconv_blit_24_to_32_no_mmx:
+#else
 FUNC (_colorconv_blit_24_to_32)
+#endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_4, LOOP_RATIO_4)
 
@@ -775,7 +955,12 @@ FUNC (_colorconv_blit_8_to_32)
 
 /* void _colorconv_blit_32_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
+#ifdef ALLEGRO_MMX
+_align_
+_colorconv_blit_32_to_24_no_mmx:
+#else
 FUNC (_colorconv_blit_32_to_24)
+#endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_3, LOOP_RATIO_4)
 
