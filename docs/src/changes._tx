@@ -9,9 +9,91 @@
 @<body>
 
 @heading
-Changes from 3.11 to current
-<ul>
+Changes from 3.9.40 to 4.0.0 (Dec 2001)
+<ul><li>
+   Many minor changes.
 <li>
+   Eric Botcazou modularised the VGA/Mode-X drivers under Linux.
+<li>
+   Peter Wang fixed the segfault bug in Mode-X under Linux with threads.
+<li>
+   Peter Wang made the X11 port use SIGTERM signal instead of exit() when
+   invoking the three finger salute. This solves a problem where programs
+   with sound hang when they are killed.
+<li>
+   Eric Botcazou added os_version and os_revision support to the QNX port and
+   added a QNX specific section to the docs.
+<li>
+   Peter Wang added a deadzone for digital readings of joystick axes under
+   Linux, as suggested by George Foot and made the driver look for
+   /dev/input/js# before /dev/js#.
+<li>
+   Peter Wang renamed fixed point functions to be prefixed with "fix" instead
+   of "f", to avoid clashes with some libcs. Backwards compatibility is
+   provided using static inline functions.
+<li>
+   Peter Wang fixed two problems with emergency exits under Linux/Unix.
+<li>
+   Eric Botcazou changed the updating logic of the QNX Photon graphics
+   driver.
+<li>
+   Eric Botcazou added a doc for the wfixicon utility, with the help of
+   Laurence Withers.
+<li>
+   Angelo Mottola unicodified allegro_message on BeOS and wrote a new BeOS
+   keyboard driver (using the shared pckeys system).
+<li>
+   Eric Botcazou fixed a problem with David Capello's d_menu_proc
+   steal/return mouse focus patch.
+<li>
+   Peter Wang made passing NULL to install_allegro() as the atexit_ptr
+   parameter mean allegro_exit() won't be installed as an atexit()
+   callback, as suggested by Javier Gonzalez.
+<li>
+   Lorenzo Petrone added a gfxinfo utility.
+<li>
+   Eric Botcazou added fetch_mode_list() to the QNX Photon Direct driver.
+<li>
+   Peter Wang made X desktop_color_depth() able to return 15 bpp.
+<li>
+   Grzegorz Adam Hankiewicz updated Spanish translation strings.
+<li>
+   Peter Wang fixed a problem with X shutdown sequence.
+<li>
+   Eric Botcazou repaired the QNX build process, revamped the layout of the
+   QNX port sources and made some fixes.
+<li>
+   Peter Wang disabled the SVGAlib mode fetching code as it was causing
+   problems with other drivers.
+<li>
+   Angelo Mottola added BeOS notes to the ABI compatibility doc.
+<li>
+   Eric Botcazou fixed a bug in the Windows locking code that caused the
+   grabber to crash on switch out.
+<li>
+   Eric Botcazou fixed a bug in the handling of recursive sub-bitmaps under
+   Windows.
+<li>
+   Eric Botcazou fixed a bug preventing old style password-protected
+   packfiles from loading in the grabber.
+<li>
+   Lorenzo Petrone added two FAQ entries on DGA2 problems.
+<li>
+   Grzegorz Adam Hankiewicz revamped the structure of the docs directory.
+<li>
+   Stepan Roh updated the Czech translation.
+<li>
+   Javier Gonzalez fixed a bug in the DirectSound driver related to the loop
+   playing modes.
+<li>
+   David Capello fixed a problem with submenus which overlapped their
+   parents, where focus would pop back to the parent instead of the child.
+</ul>
+
+
+@heading
+Changes from 3.11 to 3.9.40 (Nov 2001)
+<ul><li>
    3.9.40: Eric Botcazou enabled SSE support under Linux. Also reduced the
    delay in the DOS Sidewinder init code. Made the definition of _AL_DLL
    for MinGW32 consistent with other Windows ports.

@@ -150,7 +150,7 @@ Contributors
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches. Fixed a problem with lost GUI
    mouse clicks. Made d_menu_proc steal/return focus when
-   activated/deactivated.
+   activated/deactivated and fixed a problem with submenus.
 
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
@@ -361,6 +361,9 @@ Contributors
 
    Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
    Contributed the Norwegian message translation.
+
+   Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
+   Contributed the gfxinfo utility and added two FAQ entries.
 
    Lucas Vignoli Reis (<email>lucasvr@bestway.com.br</a>).<br>
    Added the Portuguese (Brazil) message translation and keyboard mapping.
