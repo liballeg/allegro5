@@ -77,6 +77,20 @@
 
 
 ==================================
+======= Required software ========
+==================================
+
+   In order to build the Allegro library, you need to have the following
+   software installed:
+
+   GCC                       - The GNU Compiler Collection.
+   Binutils v2.10 or greater - The GNU Binary Utilities.
+   
+   Additional requirements are listed in the various readme files.
+
+
+
+==================================
 ============ Features ============
 ==================================
 
