@@ -43,7 +43,7 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-WFLAGS = -Wall -W -Werror -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
+WFLAGS = -Wall -W -Wstrict-prototypes -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy -Werror
 else
 WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 endif
