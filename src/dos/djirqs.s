@@ -87,7 +87,7 @@ found_stack_##x:                                                           ; \
    popw %fs                                                                ; \
    popw %es                                                                ; \
    popw %ds                                                                ; \
-   ljmp %cs:GLOBL(_irq_handler) + IRQ_OLDVEC + IRQ_SIZE*x                  ; \
+   ljmp *%cs:GLOBL(_irq_handler) + IRQ_OLDVEC + IRQ_SIZE*x                 ; \
 									   ; \
 get_out_##x:                                                               ; \
    popal                                  /* iret */                       ; \
