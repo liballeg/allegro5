@@ -306,7 +306,6 @@ int main(int argc, char *argv[])
 
       pack_fclose(f);
 
-#if !defined ALLEGRO_BCC32
       if (call_windres) {
          replace_extension(res_name, argv[1], "res", sizeof(res_name));
 
@@ -316,13 +315,14 @@ int main(int argc, char *argv[])
          sprintf(str, "grc -o %s %s",  res_name, rc_name);
 #elif defined ALLEGRO_MSVC
          sprintf(str, "rc -fo %s %s", res_name, rc_name);
+#elif defined ALLEGRO_BCC32
+         sprintf(str, "brc32 -r -fo %s %s", res_name, rc_name);
 #endif
 
          system(str);
          delete_file(argv[1]);
          delete_file(rc_name);
       }
-#endif
    }
 
    exit(EXIT_SUCCESS);
