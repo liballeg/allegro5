@@ -7722,7 +7722,7 @@ ensure there is room for the check.
 @heading
 DOS specifics
 
-@@Drivers: @JOY_TYPE_*/DOS
+@@Drivers @JOY_TYPE_*/DOS
 @xref install_joystick
    The DOS library supports the following type parameters for the 
    install_joystick() function:
@@ -7862,7 +7862,7 @@ DOS specifics
       Drivers for the IF-SEGA joystick interface cards by the IO-DATA 
       company (these come in PCI, PCI2, and ISA variants).
 </ul>
-@@Drivers: @GFX_*/DOS
+@@Drivers @GFX_*/DOS
 @xref set_gfx_mode
    The DOS library supports the following card parameters for the 
    set_gfx_mode() function:
@@ -8007,7 +8007,7 @@ DOS specifics
       normal VESA 640x400 mode will be chosen instead), so if you want to 
       use it you will have to explicitly pass GFX_XTENDED to set_gfx_mode().
 </ul>
-@@Drivers: @DIGI_*/DOS
+@@Drivers @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
    The DOS sound functions support the following digital soundcards:
 <textblock>
@@ -8024,7 +8024,7 @@ DOS specifics
       DIGI_SOUNDSCAPE      - Ensoniq Soundscape
       DIGI_WINSOUNDSYS     - Windows Sound System
 <endblock>
-@@Drivers: @MIDI_*/DOS
+@@Drivers @MIDI_*/DOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The DOS sound functions support the following MIDI soundcards:
 <textblock>
@@ -8123,7 +8123,7 @@ function are 8, 16, 24 and 32. This means that 15-bit and 16-bit desktops
 cannot be differentiated and are both reported as 16-bit desktops. See
 below for the consequences for windowed and overlay DirectX drivers.
 
-@@Drivers: @GFX_*/Windows
+@@Drivers @GFX_*/Windows
 @xref set_gfx_mode
    The Windows library supports the following card parameters for the 
    set_gfx_mode() function:
@@ -8217,7 +8217,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       this driver features a hardware mouse cursor emulation in order to 
       speed up basic mouse operations (like GUI operations).
 </ul>
-@@Drivers: @DIGI_*/Windows
+@@Drivers @DIGI_*/Windows
 @xref detect_digi_driver, install_sound, install_sound_input
    The Windows sound functions support the following digital soundcards:
 <textblock>
@@ -8230,7 +8230,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut
 			     device
 <endblock>
-@@Drivers: @MIDI_*/Windows
+@@Drivers @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
    The Windows sound functions support the following MIDI soundcards:
 <textblock>
@@ -8393,7 +8393,7 @@ END_OF_MAIN() right after your main() function. Pretty easy, really, and if
 you forget, you'll get a nice linker error about a missing _mangled_main 
 function to remind you :-)
 
-@@Drivers: @GFX_*/Linux
+@@Drivers @GFX_*/Linux
 @xref set_gfx_mode, GFX_*/X
    When running in Linux console mode, Allegro supports the following card 
    parameters for the set_gfx_mode() function:
@@ -8441,7 +8441,7 @@ function to remind you :-)
       supporting the same modes as in the DOS versions of these drivers. 
       Requires root permissions.
 </ul>
-@@Drivers: @GFX_*/X
+@@Drivers @GFX_*/X
 @xref set_gfx_mode, GFX_*/Linux
    When running in X mode, Allegro supports the following card parameters 
    for the set_gfx_mode() function:
@@ -8494,7 +8494,7 @@ function to remind you :-)
       The same as GFX_XDGA2, but turns off hardware acceleration support.
       This driver requires root permissions.
 </ul>
-@@Drivers: @DIGI_*/Unix
+@@Drivers @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input
    The Unix sound functions support the following digital soundcards:
 <textblock>
@@ -8504,7 +8504,7 @@ function to remind you :-)
       DIGI_ESD             - Enlightened Sound Daemon
       DIGI_ALSA            - ALSA sound driver
 <endblock>
-@@Drivers: @MIDI_*/Unix
+@@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
    The Unix sound functions support the following MIDI soundcards:
 <textblock>
@@ -8529,7 +8529,7 @@ function to remind you :-)
 @heading
 BeOS specifics
 
-@@Drivers: @GFX_*/BeOS
+@@Drivers @GFX_*/BeOS
 @xref set_gfx_mode
    BeOS Allegro supports the following card parameters for the
    set_gfx_mode() function:
@@ -8572,7 +8572,7 @@ BeOS specifics
       depths, but allows any fullscreen resolution, even low ones that are
       normally unavailable under BeOS.
 </ul>
-@@Drivers: @DIGI_*/BeOS
+@@Drivers @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following digital soundcards:
 <textblock>
@@ -8580,7 +8580,7 @@ BeOS specifics
       DIGI_NONE            - no digital sound
       DIGI_BEOS            - BeOS digital output
 <endblock>
-@@Drivers: @MIDI_*/BeOS
+@@Drivers @MIDI_*/BeOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following MIDI soundcards:
 <textblock>
@@ -8595,7 +8595,7 @@ BeOS specifics
 @heading
 QNX specifics
 
-@@Drivers: @GFX_*/QNX
+@@Drivers @GFX_*/QNX
 @xref set_gfx_mode
    QNX Allegro supports the following card parameters for the
    set_gfx_mode() function:
@@ -8640,7 +8640,7 @@ QNX specifics
       performance reasons, this driver requires the width of the screen to
       be a multiple of 4.
 </ul>
-@@Drivers: @DIGI_*/QNX
+@@Drivers @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input
    The QNX sound functions support the following digital soundcards:
 <textblock>
@@ -8648,7 +8648,7 @@ QNX specifics
       DIGI_NONE            - no digital sound
       DIGI_ALSA            - ALSA sound driver
 <endblock>
-@@Drivers: @MIDI_*/QNX
+@@Drivers @MIDI_*/QNX
 @xref detect_midi_driver, install_sound, install_sound_input
    The QNX sound functions support the following MIDI soundcards:
 <textblock>
