@@ -221,9 +221,9 @@ void draw_quad(BITMAP *b, VTX *v1, VTX *v2, VTX *v3, VTX *v4, int mode)
 
    /* four vertices */
    V3D vtx1 = { 0, 0, 0, 0,      0,      0 };
-   V3D vtx2 = { 0, 0, 0, 31<<16, 0,      0 };
-   V3D vtx3 = { 0, 0, 0, 31<<16, 31<<16, 0 };
-   V3D vtx4 = { 0, 0, 0, 0,      31<<16, 0 };
+   V3D vtx2 = { 0, 0, 0, 32<<16, 0,      0 };
+   V3D vtx3 = { 0, 0, 0, 32<<16, 32<<16, 0 };
+   V3D vtx4 = { 0, 0, 0, 0,      32<<16, 0 };
 
    vtx1.x = v1->x;   vtx1.y = v1->y;   vtx1.z = v1->z;
    vtx2.x = v2->x;   vtx2.y = v2->y;   vtx2.z = v2->z;

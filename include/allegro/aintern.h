@@ -581,10 +581,11 @@ typedef AL_METHOD(void, SCANLINE_FILLER, (unsigned long addr, int w, POLYGON_SEG
 AL_VAR(SCANLINE_FILLER, _optim_alternative_drawer);
 AL_FUNC(POLYGON_EDGE *, _add_edge, (POLYGON_EDGE *list, POLYGON_EDGE *edge, int sort_by_x));
 AL_FUNC(POLYGON_EDGE *, _remove_edge, (POLYGON_EDGE *list, POLYGON_EDGE *edge));
-AL_FUNC(void, _fill_3d_edge_structure, (POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *v2, int flags, BITMAP *bmp));
-AL_FUNC(void, _fill_3d_edge_structure_f, (POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, int flags, BITMAP *bmp));
+AL_FUNC(int, _fill_3d_edge_structure, (POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *v2, int flags, BITMAP *bmp));
+AL_FUNC(int, _fill_3d_edge_structure_f, (POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, int flags, BITMAP *bmp));
 AL_FUNC(SCANLINE_FILLER, _get_scanline_filler, (int type, int *flags, POLYGON_SEGMENT *info, BITMAP *texture, BITMAP *bmp));
-AL_FUNC(void, _clip_polygon_segment, (POLYGON_SEGMENT *info, int gap, int flags));
+AL_FUNC(void, _clip_polygon_segment, (POLYGON_SEGMENT *info, fixed gap, int flags));
+AL_FUNC(void, _clip_polygon_segment_f, (POLYGON_SEGMENT *info, int gap, int flags));
 
 
 /* polygon scanline filler functions */

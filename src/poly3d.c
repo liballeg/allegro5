@@ -16,6 +16,7 @@
  *      all drawing modes in every color depth MMX optimisations and z-buffer
  *      added by Calin Andrian. Subpixel and subtexel accuracy, triangle
  *      functions and speed enhancements added by Bertrand Coconnier.
+ *      Functions adapted to handle two coincident vertices by Ben Davis.
  *
  *      See readme.txt for copyright information.
  */
@@ -106,9 +107,10 @@ SCANLINE_FILLER _optim_alternative_drawer;
 
 /* _fill_3d_edge_structure:
  *  Polygon helper function: initialises an edge structure for the 3d 
- *  rasterising code, using fixed point vertex structures.
+ *  rasterising code, using fixed point vertex structures. Returns 1 on
+ *  success, or 0 if the edge is horizontal or clipped out of existence.
  */
-void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *v2, int flags, BITMAP *bmp)
+int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *v2, int flags, BITMAP *bmp)
 {
    int r1, r2, g1, g2, b1, b2;
    fixed h, step;
@@ -125,6 +127,9 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
    /* set up screen rasterising parameters */
    edge->top = fceil(v1->y);
    edge->bottom = fceil(v2->y) - 1;
+
+   if (edge->bottom < edge->top) return 0;
+
    h = v2->y - v1->y;
    step = (edge->top << 16) - v1->y;
 
@@ -148,10 +153,10 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
 
       if (flags & INTERP_FLOAT_UV) {
 	 /* floating point (perspective correct) texture interpolation */
-	 float fu1 = (v1->u + (1<<15))* z1;
-	 float fv1 = (v1->v + (1<<15))* z1;
-	 float fu2 = (v2->u + (1<<15))* z2;
-	 float fv2 = (v2->v + (1<<15))* z2;
+	 float fu1 = v1->u * z1;
+	 float fv1 = v1->v * z1;
+	 float fu2 = v2->u * z2;
+	 float fv2 = v2->v * z2;
 
 	 edge->dat.dfu = (fu2 - fu1) * h1;
 	 edge->dat.dfv = (fv2 - fv1) * h1;
@@ -170,7 +175,7 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
       if (edge->bottom >= bmp->cb)
 	 edge->bottom = bmp->cb - 1;
 
-      return;
+      return (edge->bottom >= edge->top);
    }
 
    if (flags & INTERP_1COL) {
@@ -211,8 +216,8 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
       /* fixed point (affine) texture interpolation */
       edge->dat.du = fdiv(v2->u - v1->u, h);
       edge->dat.dv = fdiv(v2->v - v1->v, h);
-      edge->dat.u = v1->u + fmul(step, edge->dat.du) + (1<<15);
-      edge->dat.v = v1->v + fmul(step, edge->dat.dv) + (1<<15);
+      edge->dat.u = v1->u + fmul(step, edge->dat.du);
+      edge->dat.v = v1->v + fmul(step, edge->dat.dv);
    }
 
    /* clip edge */
@@ -220,20 +225,23 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
       int gap = bmp->ct - edge->top;
       edge->top = bmp->ct;
       edge->x += gap * edge->dx;
-      _clip_polygon_segment(&(edge->dat),gap,flags);
+      _clip_polygon_segment_f(&(edge->dat), gap, flags);
    }
 
    if (edge->bottom >= bmp->cb)
       edge->bottom = bmp->cb - 1;
+
+   return (edge->bottom >= edge->top);
 }
 
 
 
 /* _fill_3d_edge_structure_f:
  *  Polygon helper function: initialises an edge structure for the 3d 
- *  rasterising code, using floating point vertex structures.
+ *  rasterising code, using floating point vertex structures. Returns 1 on
+ *  success, or 0 if the edge is horizontal or clipped out of existence.
  */
-void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, int flags, BITMAP *bmp)
+int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, int flags, BITMAP *bmp)
 {
    int r1, r2, g1, g2, b1, b2;
    fixed h, step;
@@ -252,12 +260,7 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
    edge->top = fceil(ftofix(v1->y));
    edge->bottom = fceil(ftofix(v2->y)) - 1;
 
-   /* Dirty hack to make this to work with BeOS. This is the second very
-    * strange hack on BeAllegro: see midi.c for the other one.
-    */
-#ifdef ALLEGRO_BEOS
-   { int i; for (i=1; i; i--); }
-#endif
+   if (edge->bottom < edge->top) return 0;
 
    h1 = 1.0 / (v2->y - v1->y);
    h = ftofix(v2->y - v1->y);
@@ -282,10 +285,10 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
 
       if (flags & INTERP_FLOAT_UV) {
 	 /* floating point (perspective correct) texture interpolation */
-	 float fu1 = (v1->u + 0.5) * z1 * 65536.;
-	 float fv1 = (v1->v + 0.5) * z1 * 65536.;
-	 float fu2 = (v2->u + 0.5) * z2 * 65536.;
-	 float fv2 = (v2->v + 0.5) * z2 * 65536.;
+	 float fu1 = v1->u * z1 * 65536.;
+	 float fv1 = v1->v * z1 * 65536.;
+	 float fu2 = v2->u * z2 * 65536.;
+	 float fv2 = v2->v * z2 * 65536.;
 
 	 edge->dat.dfu = (fu2 - fu1) * h1;
 	 edge->dat.dfv = (fv2 - fv1) * h1;
@@ -304,7 +307,7 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
       if (edge->bottom >= bmp->cb)
 	 edge->bottom = bmp->cb - 1;
 
-      return;
+      return (edge->bottom >= edge->top);
    }
 
    if (flags & INTERP_1COL) {
@@ -345,8 +348,8 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
       /* fixed point (affine) texture interpolation */
       edge->dat.du = ftofix((v2->u - v1->u) * h1);
       edge->dat.dv = ftofix((v2->v - v1->v) * h1);
-      edge->dat.u = ftofix(v1->u) + fmul(step, edge->dat.du) + (1<<15);
-      edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv) + (1<<15);
+      edge->dat.u = ftofix(v1->u) + fmul(step, edge->dat.du);
+      edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv);
    }
 
    /* clip edge */
@@ -354,11 +357,13 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
       int gap = bmp->ct - edge->top;
       edge->top = bmp->ct;
       edge->x += gap * edge->dx;
-      _clip_polygon_segment(&(edge->dat),gap,flags);
+      _clip_polygon_segment_f(&(edge->dat), gap, flags);
    }
 
    if (edge->bottom >= bmp->cb)
       edge->bottom = bmp->cb - 1;
+
+   return (edge->bottom >= edge->top);
 }
 
 
@@ -855,11 +860,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
 
 
 
-/* _clip_polygon_segment:
+/* _clip_polygon_segment_f:
  *  Updates interpolation state values when skipping several places, eg.
  *  clipping the first part of a scanline.
  */
-void _clip_polygon_segment(POLYGON_SEGMENT *info, int gap, int flags)
+void _clip_polygon_segment_f(POLYGON_SEGMENT *info, int gap, int flags)
 {
    if (flags & INTERP_1COL)
       info->c += info->dc * gap;
@@ -896,9 +901,18 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 {
    int x, y, w, gap;
    fixed step;
-   POLYGON_SEGMENT *s1 = &(e1->dat);
-   POLYGON_SEGMENT *s2 = &(e2->dat);
+   POLYGON_SEGMENT *s1, *s2;
    AL_CONST SCANLINE_FILLER save_drawer = drawer;
+
+   /* ensure that e1 is the left edge and e2 is the right edge */
+   if ((e2->x < e1->x) || ((e1->x == e2->x) && (e2->dx < e1->dx))) {
+      POLYGON_EDGE *et = e1;
+      e1 = e2;
+      e2 = et;
+   }
+
+   s1 = &(e1->dat);
+   s2 = &(e2->dat);
 
    if (flags & INTERP_FLAT)
       info->c = color;
@@ -987,7 +1001,7 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	       gap = bmp->cl - x;
 	       x = bmp->cl;
 	       w -= gap;
-	       _clip_polygon_segment(info, gap, flags);
+	       _clip_polygon_segment_f(info, gap, flags);
 	    }
 
 	    if (x+w > bmp->cr)
@@ -1035,19 +1049,14 @@ static void do_polygon3d(BITMAP *bmp, int top, int bottom, POLYGON_EDGE *left_ed
 
    acquire_bitmap(bmp);
 
-   if (left_edge->prev != left_edge->next) {
+   if (left_edge->prev != left_edge->next)
       if (left_edge->prev->top == top)
 	 left_edge = left_edge->prev;
-   }
-   else {
-      if ((left_edge->x + left_edge->dx) > (left_edge->next->x + left_edge->next->dx))
-	 left_edge = left_edge->prev;
-   }
 
    right_edge = left_edge->next;
 
    ytop = top;
-   while (ytop <= bottom) {
+   for (;;) {
       if (right_edge->bottom <= left_edge->bottom)
 	 ybottom = right_edge->bottom;
       else
@@ -1055,6 +1064,8 @@ static void do_polygon3d(BITMAP *bmp, int top, int bottom, POLYGON_EDGE *left_ed
 
       /* fill the scanline */
       draw_polygon_segment(bmp, ytop, ybottom, left_edge, right_edge, drawer, flags, color, info);
+
+      if (ybottom >= bottom) break;
 
       /* update edges */
       if (ybottom >= left_edge->bottom)
@@ -1088,8 +1099,6 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
    int flags;
    int top = INT_MAX;
    int bottom = INT_MIN;
-   int v1y, v2y, test_normal;
-   int cinit, cincr, cend;
    V3D *v1, *v2;
    POLYGON_EDGE *edge, *edge0, *start_edge;
    POLYGON_EDGE *list_edges = NULL;
@@ -1108,55 +1117,29 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
    _grow_scratch_mem(sizeof(POLYGON_EDGE) * vc);
    start_edge= edge0 = edge = (POLYGON_EDGE *)_scratch_mem;
 
-   /* determine whether the vertices are given in clockwise order or not */
+   /* fill the double-linked list of edges (order unimportant) */
+   v2 = vtx[vc-1];
 
-   test_normal = ftofix(fixtof(vtx[2]->y-vtx[1]->y)*fixtof(vtx[1]->x-vtx[0]->x)-fixtof(vtx[1]->y-vtx[0]->y)*fixtof(vtx[2]->x-vtx[1]->x));
-
-   if (test_normal < 0) {
-      /* vertices are given in counterclockwise order */
-      v2 = vtx[0];
-      cinit = vc - 1;
-      cincr = -1;
-      cend = -1 ;
-   }
-   else {
-      /* vertices are given in clockwise order */
-      v2 = vtx[vc-1];
-      cinit = 0;
-      cincr = 1;
-      cend = vc;
-   }
-
-   /* fill the double-linked list of edges in clockwise order */
-   for (c=cinit; c!=cend; c+=cincr) {
+   for (c=0; c<vc; c++) {
       v1 = v2;
       v2 = vtx[c];
-      v1y = fceil(v1->y);
-      v2y = fceil(v2->y);
 
-      if ((v1y != v2y) && 
-	  ((v1y >= bmp->ct) || (v2y >= bmp->ct)) &&
-	  ((v1y < bmp->cb) || (v2y < bmp->cb))) {
-
-	 _fill_3d_edge_structure(edge, v1, v2, flags, bmp);
-
-         if (edge->bottom >= edge->top) {
-	    if (edge->top < top) {
-	       top=edge->top;
-	       start_edge = edge;
-	    }
-
-	    if (edge->bottom > bottom)
-	       bottom = edge->bottom;
-
-	    if (list_edges) {
-	       list_edges->next = edge;
-	       edge->prev = list_edges;
-	    }
-
-	    list_edges = edge;
-	    edge++;
+      if (_fill_3d_edge_structure(edge, v1, v2, flags, bmp)) {
+	 if (edge->top < top) {
+            top = edge->top;
+	    start_edge = edge;
          }
+
+	 if (edge->bottom > bottom)
+            bottom = edge->bottom;
+
+         if (list_edges) {
+            list_edges->next = edge;
+	    edge->prev = list_edges;
+         }
+
+	 list_edges = edge;
+	 edge++;
       }
    }
 
@@ -1181,8 +1164,6 @@ void polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[])
    int flags;
    int top = INT_MAX;
    int bottom = INT_MIN;
-   int v1y, v2y;
-   int cinit, cincr, cend;
    V3D_f *v1, *v2;
    POLYGON_EDGE *edge, *edge0, *start_edge;
    POLYGON_EDGE *list_edges = NULL;
@@ -1201,53 +1182,29 @@ void polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[])
    _grow_scratch_mem(sizeof(POLYGON_EDGE) * vc);
    start_edge = edge0 = edge = (POLYGON_EDGE *)_scratch_mem;
 
-   /* determine whether the vertices are given in clockwise order or not */
-
-   if (polygon_z_normal_f(vtx[0], vtx[1], vtx[2]) < 0) {
-      /* vertices are given in counterclockwise order */
-      v2 = vtx[0];
-      cinit = vc - 1;
-      cincr = -1;
-      cend = -1 ;
-   }
-   else {
-      /* vertices are given in clockwise order */
-      v2 = vtx[vc-1];
-      cinit = 0;
-      cincr = 1;
-      cend = vc;
-   }
-
    /* fill the double-linked list of edges in clockwise order */
-   for (c=cinit; c!=cend; c+=cincr) {
+   v2 = vtx[vc-1];
+
+   for (c=0; c<vc; c++) {
       v1 = v2;
       v2 = vtx[c];
-      v1y = fceil(ftofix(v1->y));
-      v2y = fceil(ftofix(v2->y));
 
-      if ((v1y != v2y) && 
-	  ((v1y >= bmp->ct) || (v2y >= bmp->ct)) &&
-	  ((v1y < bmp->cb) || (v2y < bmp->cb))) {
-
-	 _fill_3d_edge_structure_f(edge, v1, v2, flags, bmp);
-
-         if (edge->bottom >= edge->top) {
-	    if (edge->top < top) {
-	       top=edge->top;
-	       start_edge = edge;
-	    }
-
-	    if (edge->bottom > bottom)
-	       bottom = edge->bottom;
-
-	    if (list_edges) {
-	       list_edges->next = edge;
-	       edge->prev = list_edges;
-	    }
-
-	    list_edges = edge;
-	    edge++;
+      if (_fill_3d_edge_structure_f(edge, v1, v2, flags, bmp)) {
+         if (edge->top < top) {
+            top = edge->top;
+	    start_edge = edge;
          }
+
+	 if (edge->bottom > bottom)
+            bottom = edge->bottom;
+
+         if (list_edges) {
+            list_edges->next = edge;
+	    edge->prev = list_edges;
+         }
+
+	 list_edges = edge;
+	 edge++;
       }
    }
 
@@ -1273,7 +1230,17 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
    int gap;
    AL_CONST int test_optim = (flags & OPT_FLOAT_UV_TO_FIX) && (info->dz == 0);
    fixed step;
-   POLYGON_SEGMENT *s1 = &(left_edge->dat);
+   POLYGON_SEGMENT *s1;
+
+   /* ensure that left_edge and right_edge are the right way round */
+   if ((right_edge->x < left_edge->x) ||
+     ((left_edge->x == right_edge->x) && (right_edge->dx < left_edge->dx))) {
+      POLYGON_EDGE *other_edge = left_edge;
+      left_edge = right_edge;
+      right_edge = other_edge;
+   }
+
+   s1 = &(left_edge->dat);
 
    if (flags & INTERP_FLAT)
       info->c = color;
@@ -1331,7 +1298,7 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 	       gap = bmp->cl - x;
 	       x = bmp->cl;
 	       w -= gap;
-	       _clip_polygon_segment(info, gap, flags);
+	       _clip_polygon_segment_f(info, gap, flags);
 	    }
 
 	    if (x+w > bmp->cr)
@@ -1466,10 +1433,11 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
 }
 
 
-/* _clip_polygon_segment_fixed:
- *  Fixed point version of _clip_polygon_segment().
+
+/* _clip_polygon_segment:
+ *  Fixed point version of _clip_polygon_segment_f().
  */
-static void _clip_polygon_segment_fixed(POLYGON_SEGMENT *info, fixed gap, int flags)
+void _clip_polygon_segment(POLYGON_SEGMENT *info, fixed gap, int flags)
 {
    if (flags & INTERP_1COL)
       info->c += fmul(info->dc, gap);
@@ -1511,15 +1479,10 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
    #endif
 
    int color = v1->c;
-   int test_normal;
-   int y1, y2, y3;
    V3D *vt1, *vt2, *vt3;
    POLYGON_EDGE edge1, edge2;
-   POLYGON_EDGE *left_edge, *right_edge;
    POLYGON_SEGMENT info;
    SCANLINE_FILLER drawer;
-
-   left_edge = right_edge = NULL;
 
    /* set up the drawing mode */
    drawer = _get_scanline_filler(type, &flags, &info, texture, bmp);
@@ -1549,32 +1512,16 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
       vt3 = vtemp;
    }
 
-   y1 = fceil(vt1->y);
-   y2 = fceil(vt2->y);
-   y3 = fceil(vt3->y);
+   /* set fpu to single-precision, truncate mode */
+   #ifdef ALLEGRO_DOS
+      if (flags & (INTERP_Z | INTERP_FLOAT_UV))
+	 old87 = _control87(PC_24 | RC_CHOP, MCW_PC | MCW_RC);
+   #endif
 
    /* do 3D triangle*/
-   if ((y1 < bmp->cb) && (y3 >= bmp->ct) && (y1 != y3)) {
-      /* set fpu to single-precision, truncate mode */
-      #ifdef ALLEGRO_DOS
-	 if (flags & (INTERP_Z | INTERP_FLOAT_UV))
-	    old87 = _control87(PC_24 | RC_CHOP, MCW_PC | MCW_RC);
-      #endif
+   if (_fill_3d_edge_structure(&edge1, vt1, vt3, flags, bmp)) {
 
       acquire_bitmap(bmp);
-
-      _fill_3d_edge_structure(&edge1, vt1, vt3, flags, bmp);
-
-      test_normal = ftofix(fixtof(vt3->y-vt2->y)*fixtof(vt2->x-vt1->x)-fixtof(vt2->y-vt1->y)*fixtof(vt3->x-vt2->x));
-
-      if (test_normal < 0) {
-	 left_edge = &edge2;
-	 right_edge = &edge1;
-      }
-      else {
-	 left_edge = &edge1;
-	 right_edge = &edge2;
-      }
 
       /* calculate deltas */
       if (drawer != _poly_scanline_dummy) {
@@ -1582,35 +1529,29 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
 	 POLYGON_SEGMENT s1 = edge1.dat;
 
 	 h = vt2->y - (edge1.top << 16);
-	 _clip_polygon_segment_fixed(&s1, h, flags);
+	 _clip_polygon_segment(&s1, h, flags);
 
 	 w = edge1.x + fmul(h, edge1.dx) - vt2->x;
 	 if (w) _triangle_deltas(bmp, w, &s1, &info, vt2, flags);
       }
 
       /* draws part between y1 and y2 */
-      if ((y1 != y2) && (y2 >= bmp->ct)) {
-	 _fill_3d_edge_structure(&edge2, vt1, vt2, flags, bmp);
-
-	 draw_triangle_part(bmp, edge1.top, edge2.bottom, left_edge, right_edge, drawer, flags, color, &info);
-      }
+      if (_fill_3d_edge_structure(&edge2, vt1, vt2, flags, bmp))
+	 draw_triangle_part(bmp, edge2.top, edge2.bottom, &edge1, &edge2, drawer, flags, color, &info);
 
       /* draws part between y2 and y3 */
-      if ((y2 != y3) && (y2 < bmp->cb)) {
-	 _fill_3d_edge_structure(&edge2, vt2, vt3, flags, bmp);
-
-	 draw_triangle_part(bmp, edge2.top, edge1.bottom, left_edge, right_edge, drawer, flags, color, &info);
-      }
+      if (_fill_3d_edge_structure(&edge2, vt2, vt3, flags, bmp))
+	 draw_triangle_part(bmp, edge2.top, edge2.bottom, &edge1, &edge2, drawer, flags, color, &info);
 
       bmp_unwrite_line(bmp);
       release_bitmap(bmp);
-
-      /* reset fpu mode */
-      #ifdef ALLEGRO_DOS
-	 if (flags & (INTERP_Z | INTERP_FLOAT_UV))
-	    _control87(old87, MCW_PC | MCW_RC);
-      #endif
    }
+
+   /* reset fpu mode */
+   #ifdef ALLEGRO_DOS
+      if (flags & (INTERP_Z | INTERP_FLOAT_UV))
+	 _control87(old87, MCW_PC | MCW_RC);
+   #endif
 }
 
 
@@ -1627,14 +1568,10 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
    #endif
 
    int color = v1->c;
-   int y1, y2, y3;
    V3D_f *vt1, *vt2, *vt3;
    POLYGON_EDGE edge1, edge2;
-   POLYGON_EDGE *left_edge, *right_edge;
    POLYGON_SEGMENT info;
    SCANLINE_FILLER drawer;
-
-   left_edge = right_edge = NULL;
 
    /* set up the drawing mode */
    drawer = _get_scanline_filler(type, &flags, &info, texture, bmp);
@@ -1664,21 +1601,16 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
       vt3 = vtemp;
    }
 
-   y1 = fceil(ftofix(vt1->y));
-   y2 = fceil(ftofix(vt2->y));
-   y3 = fceil(ftofix(vt3->y));
+   /* set fpu to single-precision, truncate mode */
+   #ifdef ALLEGRO_DOS
+      if (flags & (INTERP_Z | INTERP_FLOAT_UV))
+         old87 = _control87(PC_24 | RC_CHOP, MCW_PC | MCW_RC);
+   #endif
 
    /* do 3D triangle*/
-   if ((y1 < bmp->cb) && (y3 >= bmp->ct) && (y1 != y3)) {
-      /* set fpu to single-precision, truncate mode */
-      #ifdef ALLEGRO_DOS
-	 if (flags & (INTERP_Z | INTERP_FLOAT_UV))
-	    old87 = _control87(PC_24 | RC_CHOP, MCW_PC | MCW_RC);
-      #endif
+   if (_fill_3d_edge_structure_f(&edge1, vt1, vt3, flags, bmp)) {
 
       acquire_bitmap(bmp);
-
-      _fill_3d_edge_structure_f(&edge1, vt1, vt3, flags, bmp);
 
       /* calculate deltas */
       if (drawer != _poly_scanline_dummy) {
@@ -1686,44 +1618,29 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
 	 POLYGON_SEGMENT s1 = edge1.dat;
 
 	 h = ftofix(vt2->y) - (edge1.top << 16);
-	 _clip_polygon_segment_fixed(&s1, h, flags);
+	 _clip_polygon_segment(&s1, h, flags);
 
 	 w = edge1.x + fmul(h, edge1.dx) - ftofix(vt2->x);
 	 if (w) _triangle_deltas_f(bmp, w, &s1, &info, vt2, flags);
       }
 
-      if (polygon_z_normal_f(vt1, vt2, vt3) < 0) {
-	 left_edge = &edge2;
-	 right_edge = &edge1;
-      }
-      else {
-	 left_edge = &edge1;
-	 right_edge = &edge2;
-      }
-
       /* draws part between y1 and y2 */
-      if ((y1 != y2) && (y2 >= bmp->ct)) {
-	 _fill_3d_edge_structure_f(&edge2, vt1, vt2, flags, bmp);
-
-	 draw_triangle_part(bmp, edge1.top, edge2.bottom, left_edge, right_edge, drawer, flags, color, &info);
-      }
+      if (_fill_3d_edge_structure_f(&edge2, vt1, vt2, flags, bmp))
+	 draw_triangle_part(bmp, edge2.top, edge2.bottom, &edge1, &edge2, drawer, flags, color, &info);
 
       /* draws part between y2 and y3 */
-      if ((y2 != y3) && (y2 < bmp->cb)) {
-	 _fill_3d_edge_structure_f(&edge2, vt2, vt3, flags, bmp);
-
-	 draw_triangle_part(bmp, edge2.top, edge1.bottom, left_edge, right_edge, drawer, flags, color, &info);
-      }
+      if (_fill_3d_edge_structure_f(&edge2, vt2, vt3, flags, bmp))
+	 draw_triangle_part(bmp, edge2.top, edge2.bottom, &edge1, &edge2, drawer, flags, color, &info);
 
       bmp_unwrite_line(bmp);
       release_bitmap(bmp);
-
-      /* reset fpu mode */
-      #ifdef ALLEGRO_DOS
-	 if (flags & (INTERP_Z | INTERP_FLOAT_UV))
-	    _control87(old87, MCW_PC | MCW_RC);
-      #endif
    }
+
+   /* reset fpu mode */
+   #ifdef ALLEGRO_DOS
+      if (flags & (INTERP_Z | INTERP_FLOAT_UV))
+	 _control87(old87, MCW_PC | MCW_RC);
+   #endif
 }
 
 

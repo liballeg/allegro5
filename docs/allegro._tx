@@ -3561,13 +3561,36 @@ Polygon rendering
    mapping, and specifies the depth of the point in 3d world coordinates.
 
    The u and v coordinates are only required when doing texture mapping, and 
-   specify the position of the point in the texture bitmap, for example 0, 0 
-   maps the vertex onto the top left corner of the texture, and if the 
-   texture is sized 32x32, setting u=32 and v=16 maps the vertex to the 
-   point half way down the right edge of the texture. The u/v coordinates 
-   wrap at the edge of the texture, so with a 32x32 texture, u=v=32 is the 
-   same as u=v=0. This can be used to tile textures several times across a 
-   polygon.
+   specify a point on the texture plane to be mapped on to this vertex. The 
+   texture plane is an infinite plane with the texture bitmap tiled across 
+   it. Each vertex in the polygon has a corresponding vertex on the texture 
+   plane, and the image of the resulting polygon in the texture plane will 
+   be mapped on to the polygon on the screen.
+
+   We refer to pixels in the texture plane as texels. Each texel is a block, 
+   not just a point, and whole numbers for u and v refer to the top-left 
+   corner of a texel. This has a few implications. If you want to draw a 
+   rectangular polygon and map a texture sized 32x32 on to it, you would use 
+   the texture coordinates (0,0), (0,32), (32,32) and (32,0), assuming the 
+   vertices are specified in anticlockwise order. The texture will then be 
+   mapped perfectly on to the polygon. However, note that when we set u=32, 
+   the last column of texels seen on the screen is the one at u=31, and the 
+   same goes for v. This is because the coordinates refer to the top-left 
+   corner of the texels. In effect, texture coordinates at the right and 
+   bottom on the texture plane are exclusive.
+
+   There is another interesting point here. If you have two polygons side 
+   by side sharing two vertices (like the two parts of folded piece of 
+   cardboard), and you want to map a texture across them seamlessly, the 
+   values of u and v on the vertices at the join will be the same for both 
+   polygons. For example, if they are both rectangular, one polygon may use 
+   (0,0), (0,32), (32,32) and (32,0), and the other may use (32,0), (32,32), 
+   (64,32), (64,0). This would create a seamless join.
+
+   Of course you can specify fractional numbers for u and v to indicate a 
+   point part-way across a texel. In addition, since the texture plane is 
+   infinite, you can specify larger values than the size of the texture. 
+   This can be used to tile the texture several times across the polygon.
 
    The c value specifies the vertex color, and is interpreted differently by 
    various rendering modes.
