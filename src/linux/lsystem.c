@@ -256,7 +256,8 @@ static void sys_linux_exit (void)
 
 	/* shut down VGA helpers */
 #ifdef ALLEGRO_LINUX_VGA
-	__al_linux_shutdown_vga_helpers();
+ 	if (__al_linux_have_ioperms)
+		__al_linux_shutdown_vga_helpers();
 #endif
 
 	/* shut down the console subsystem */
