@@ -7189,22 +7189,25 @@ ensure there is room for the check.
    parameter contains the initial filename to display (this can be used to 
    set the starting directory, or to provide a default filename for a 
    save-as operation). The user selection is returned by altering the path 
-   buffer, whose length in bytes is specified by size. Note that it should 
-   have room for at least 80 characters (not bytes). The list of files is 
-   filtered according to the file extensions in ext. Passing NULL includes 
-   all files, "PCX;BMP" includes only files with .PCX or .BMP extensions. To 
-   control files by their attributes, one of the fields in the extension 
-   list can begin with a slash, followed by a set of attribute characters. 
-   Any attributes written on their own, or with a + before them, indicate to 
-   only include files which have that attribute set. Any attributes with a - 
-   before them indicate to leave out any files with that attribute. The flag 
-   characters are 'r' (read-only), 'h' (hidden), 's' (system), 'd' 
-   (directory), and 'a' (archive). For example, an extension string of 
-   "PCX;BMP;/+r-d" will display only PCX or BMP files that are read-only, 
-   but not directories. The file selector is stretched to the width and
-   height specified and to the font size. If either size argument is set to
-   zero, it is stretched to the corresponding screen dimension. Returns zero 
-   if it was closed with the Cancel button or non-zero if it was OK'd.
+   buffer, whose maximum capacity in bytes is specified by the size parameter.
+   Note that it should have room for at least 80 characters (not bytes),
+   so you should reserve 6x that amount, just to be sure. The list of files
+   is filtered according to the file extensions in the ext parameter.
+   Passing NULL includes all files; "PCX;BMP" includes only files with
+   .PCX or .BMP extensions. If you wish to control files by their attributes,
+   one of the fields in the extension list can begin with a slash, followed
+   by a set of attribute characters. Any attributes written on their own,
+   or with a + before them, indicate to include only files which have
+   that attribute set. Any attributes with a '-' before them indicate to
+   leave out any files with that attribute. The flag characters are
+   'r' (read-only), 'h' (hidden), 's' (system), 'd' (directory),
+   and 'a' (archive). For example, an extension string of "PCX;BMP;/+r-d"
+   will display only PCX or BMP files that are read-only, and no
+   directories. The file selector is stretched to the width and height
+   specified in the w and h parameters, and to the size of the standard
+   Allegro font. If either the width or height argument is set to zero, it is
+   stretched to the corresponding screen dimension. This function returns
+   zero if it was closed with the Cancel button or non-zero if it was OK'd.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color
