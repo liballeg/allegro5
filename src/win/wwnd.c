@@ -48,6 +48,8 @@ int wnd_sysmenu = FALSE;
 static int last_wnd_x = -1;
 static int last_wnd_y = -1;
 
+static int window_is_initialized = FALSE;
+
 /* graphics */
 WIN_GFX_DRIVER *win_gfx_driver;
 CRITICAL_SECTION gfx_crit_sect;
@@ -168,17 +170,19 @@ void win_set_window(HWND wnd)
 {
    struct WINDOW_MODULES wm;
 
-   if (_allegro_count > 0) {
+   if (window_is_initialized) {
       exit_window_modules(&wm);
       exit_directx_window();
    }
 
    user_wnd = wnd;
 
-   if (_allegro_count > 0) {
+   if (window_is_initialized) {
       init_directx_window();
       init_window_modules(&wm);
    }
+   
+   window_is_initialized = TRUE;
 }
 
 
@@ -737,4 +741,6 @@ void exit_directx_window(void)
    }
 
    DeleteCriticalSection(&gfx_crit_sect);
+   
+   window_is_initialized = FALSE;
 }
