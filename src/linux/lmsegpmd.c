@@ -140,6 +140,7 @@ MOUSE_DRIVER mousedrv_linux_gpmdata =
 	__al_linux_mouse_set_range,
 	__al_linux_mouse_set_speed,
 	__al_linux_mouse_get_mickeys,
-	NULL  /* analyse_data */
+	NULL,  /* analyse_data */
+	NULL
 };
 
