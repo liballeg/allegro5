@@ -10153,8 +10153,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 
    The fov parameter specifies the field of view (ie. width of the camera
    focus) in binary, 256 degrees to the circle format. For typical
-   projections, a field of view in the region 32-48 will work well. 32
-   (45°) applies no extra scaling - so something which is one unit away
+   projections, a field of view in the region 32-48 will work well. 64
+   (90°) applies no extra scaling - so something which is one unit away
    from the viewer will be directly scaled to the viewport. A bigger FOV
    moves you closer to the viewing plane, so more objects will appear. A
    smaller FOV moves you away from the viewing plane, which means you see a
