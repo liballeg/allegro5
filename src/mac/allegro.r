@@ -1,14 +1,20 @@
-/*
- MacAllegro resources this file is requiered to all 
- applications linked with allegro.x!!!
- 
- In .make file should included this lines					
-
-	gamename ÄÄ {¥MondoBuild¥} allegro.r					
-	Rez allegro.r -o {Targ} {Includes} -append			
-	
- Where gamename is the name of application				
-*/
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      MacAllegro resources this file is requiered to all
+ *      applications linked with allegro.x!!!
+ *
+ *      By Ronaldo H Yamada.
+ *
+ *      See readme.txt for copyright information.
+ */
 
 #include "SysTypes.r"
 #include "Types.r"
@@ -25,7 +31,7 @@ resource 'vers'(1){0x01, 0x00, release, 0x00,verUS,
 /*Definition of macallegro menssage box*/
 
 resource 'ALRT' (rmac_message, purgeable){	
-	{0, 0, 300, 480},rmac_message,{
+	{0, 0, 320, 480},rmac_message,{
 		OK, visible, silent,
 		OK, visible, silent,
 		OK, visible, silent,
@@ -34,11 +40,12 @@ resource 'ALRT' (rmac_message, purgeable){
 	};
 resource 'DITL' (rmac_message, purgeable) {
 	{
-		{80, 150, 100, 230},Button {enabled,"OK"},
-		{10, 60, 60, 230},StaticText {disabled,"^0"},
+		{280, 360, 300, 460},Button {enabled,"OK"},
+		{10, 60, 260, 460},StaticText {disabled,"^0"},
 		{8, 8, 40, 40},Icon {disabled,2}
 		}
 	};
+
 
 /*Error strings not used yet*/
 resource 'STR#' (rerror_str, purgeable) {

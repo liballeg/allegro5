@@ -20,12 +20,12 @@
 #ifndef MAC_ALLEGRO_H
 #define MAC_ALLEGRO_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #ifndef ALLEGRO_H
 #error Please include allegro.h before macalleg.h!
+#endif
+
+#ifdef __cplusplus
+   extern "C" {
 #endif
 
 #if (!defined SCAN_EXPORT) && (!defined SCAN_DEPEND)

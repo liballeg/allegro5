@@ -35,7 +35,6 @@ allegroscpt  = "{MPW}Startup Items:SetAllegro"
 MainInc      = "{IncludeDir}allegro.h"  "{IncludeDir}allegro/alconfig.h"  {IncludeDir}almaccfg.h "{IncludeDir}allegro/alinline.h" "{IncludeDir}allegro/almac.h"
 IntInc       = {MainInc} "{IncludeDir}allegro/aintern.h"
 
-
 LinkAppOptions = -main MacEntry {Sym¥PPC}¶
         -t 'APPL' -c '????' -mf ¶
       "{allegrolib}" ¶
@@ -132,28 +131,25 @@ AllegroObjs  = ¶
       "{ObjDir¥PPC}czscan24.c.x" ¶
       "{ObjDir¥PPC}czscan32.c.x" ¶
       "{ObjDir¥PPC}czscan8.c.x" ¶
+      "{ObjDir¥PPC}macallegro.c.x" ¶
+      "{ObjDir¥PPC}macsys.c.x" ¶
       "{ObjDir¥PPC}macfile.c.x" ¶
-      "{ObjDir¥PPC}macsnd.c.x" ¶
       "{ObjDir¥PPC}macdraw.c.x" ¶
       "{ObjDir¥PPC}macsbmp.c.x" ¶
-      "{ObjDir¥PPC}macallegro.c.x" ¶
+      "{ObjDir¥PPC}macsnd.c.x" ¶
+      "{ObjDir¥PPC}macdrv.c.x" ¶
       "{ObjDir¥PPC}BlitPixie.s.x"
 
-all ÄÄ alld docs tests examples
+all Ä alld docs tests examples
 
-alld ÄÄ check {allegrolib} {allegrorsrc} {allegroscpt} 
+alld Ä {allegrolib} {allegrorsrc} {allegroscpt} 
 
-docs ÄÄ check :docs:makedoc :docs:ahack.html :docs:allegro.html :docs:changes.html :docs:const.html :docs:faq.html :docs:help.html :docs:thanks.html
+docs Ä :docs:makedoc :docs:ahack.html :docs:allegro.html :docs:changes.html :docs:const.html :docs:faq.html :docs:help.html :docs:thanks.html
 
-tests ÄÄ check :tests:test.exe :tests:digitest.exe :tests:mathtest.exe
+tests Ä :tests:mathtest.exe :tests:digitest.exe :tests:test.exe 
 
-examples ÄÄ check :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Examples:exblend.exe" ":Examples:excamera.exe" ":Examples:excolmap.exe" ":Examples:excustom.exe" ":Examples:exdata.exe" ":Examples:exdbuf.exe" ":Examples:exfixed.exe" ":Examples:exflame.exe" ":Examples:exgui.exe" ":Examples:exhello.exe" ":Examples:exkeys.exe" ":Examples:exlights.exe" ":Examples:exmem.exe" ":Examples:exmouse.exe" ":Examples:expal.exe" ":Examples:expat.exe" ":Examples:exquat.exe" ":Examples:exrgbhsv.exe" ":Examples:exscale.exe" ":Examples:exshade.exe" ":Examples:exspline.exe" ":Examples:exsprite.exe" ":Examples:exstars.exe" ":Examples:exstream.exe" ":Examples:extimer.exe" ":Examples:extrans.exe" ":Examples:extruec.exe" ":Examples:exzbuf.exe"
+examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Examples:exblend.exe" ":Examples:excamera.exe" ":Examples:excolmap.exe" ":Examples:excustom.exe" ":Examples:exdata.exe" ":Examples:exdbuf.exe" ":Examples:exfixed.exe" ":Examples:exflame.exe" ":Examples:exgui.exe" ":Examples:exhello.exe" ":Examples:exkeys.exe" ":Examples:exlights.exe" ":Examples:exmem.exe" ":Examples:exmouse.exe" ":Examples:expal.exe" ":Examples:expat.exe" ":Examples:exquat.exe" ":Examples:exrgbhsv.exe" ":Examples:exscale.exe" ":Examples:exshade.exe" ":Examples:exspline.exe" ":Examples:exsprite.exe" ":Examples:exstars.exe" ":Examples:exstream.exe" ":Examples:extimer.exe" ":Examples:extrans.exe" ":Examples:extruec.exe" ":Examples:exzbuf.exe"
 
-check ÄÄ
-   If "{Allegro}"!="{Libraries}::Allegro:" || !`Exists "{Allegro}"`
-      Echo "### please use the readme.mpw">Dev:Err
-      Exit
-   End
 
 #examples which not work
 #ex3buf.exe    triplebuffer not avalible now
@@ -324,4 +320,5 @@ check ÄÄ
 "{ObjDir¥PPC}macsnd.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
 "{ObjDir¥PPC}macdraw.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
 "{ObjDir¥PPC}macsbmp.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}macsys.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
 "{ObjDir¥PPC}macfile.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"

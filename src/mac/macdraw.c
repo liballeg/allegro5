@@ -14,7 +14,6 @@
  *
  *      See readme.txt for copyright information.
  */
-
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "macalleg.h"
@@ -24,80 +23,97 @@
 #define TRACE_MAC_GFX 0
 /*Our main display device the display which contains the menubar on macs with more one display*/
 GDHandle MainGDevice;
-
 /*Our main Color Table for indexed devices*/
-CTabHandle MainCTable=NULL;
-
+CTabHandle MainCTable = NULL;
 /*Our current deph*/
-short DrawDepth;
-
+short dspr_depth;
 /*Vsync has ocurred*/
-volatile short _sync=0;
+volatile short _sync = 0;
+/*Vsync handler installed ?*/
+short dspr_sync_installed = 0;
+/*the control state of dspr*/
+short dspr_state = 0;
+/*Our dspr context*/
+DSpContextReference   dspr_context;
+/*??? Used for DrawSprocket e Vsync callback*/
+const char refconst[16];
 
-/*Vsync handler installed?*/
-short _syncOk=0;
+const RGBColor ForeDef={0,0,0};
+const RGBColor BackDef={0xFFFF,0xFFFF,0xFFFF};
 
-/*the control State of DrawSprocket*/
-short State=0;
-/*Our DrawSprocket context*/
-DSpContextReference   theContext;
-/*Our Buffer Underlayer Not Used Yet*/
-DSpAltBufferReference   theUnderlay;
+static char dspr_desc[256]="";
 
-Boolean  MyVBLTask(DSpContextReference inContext, void *inRefCon);
+static BITMAP *dspr_init(int w, int h, int v_w, int v_h, int color_depth);
+static void dspr_exit(struct BITMAP *b);
+static void dspr_vsync(void);
+static void dspr_set_palette(const struct RGB *p, int from, int to, int retracesync);
+static short dspr_active();
+static short dspr_pause();
+static short dspr_inactive();
+static CGrafPtr dspr_get_back();
+static CGrafPtr dspr_get_front();
+static void dspr_swap();
+static Boolean  dspr_vsync_interrupt(DSpContextReference inContext, void *inRefCon);
 
 #pragma mark GFX_DRIVER
 GFX_DRIVER gfx_drawsprocket ={
    GFX_DRAWSPROCKET,
-   "",                     //AL_CONST char *name;
-   "",                     //AL_CONST char *desc;
-   "DrawSprocket",         //AL_CONST char *ascii_name;
-   init_drawsprocket,      //AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
-   exit_drawsprocket,      //AL_METHOD(void, exit, (struct BITMAP *b));
-   NULL,                   //AL_METHOD(int, scroll, (int x, int y));
-   vsync_drawsprocket,     //AL_METHOD(void, vsync, (void));
-   set_palette_drawsprocket,//AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync));
-   NULL,                   //AL_METHOD(int, request_scroll, (int x, int y));
-   NULL,                   //AL_METHOD(int, poll_scroll, (void));
-   NULL,                   //AL_METHOD(void, enable_triple_buffer, (void));
-   NULL,                   //AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height));
-   NULL,                   //AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap));
-   NULL,                   //AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap));
-   NULL,                   //AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
-   _mac_create_system_bitmap,   //AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
-   _mac_destroy_system_bitmap,   //AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
-   NULL,                  //AL_METHOD(int, set_mouse_sprite, (AL_CONST struct BITMAP *sprite, int xfocus, int yfocus));
-   NULL,                  //AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y));
-   NULL,                  //AL_METHOD(void, hide_mouse, (void));
-   NULL,                  //AL_METHOD(void, move_mouse, (int x, int y));
-   NULL,                  //AL_METHOD(void, drawing_mode, (void));
-   NULL,                  //AL_METHOD(void, save_video_state, (void));
-   NULL,                  //AL_METHOD(void, restore_video_state, (void));
-   640, 480,               // int w, h         /* physical (not virtual!) screen size */
-   TRUE,                  // int linear      /* true if video memory is linear */
-   0,                     // long bank_size;   /* bank size, in bytes */
-   0,                     // long bank_gran;   /* bank granularity, in bytes */
-   0,                     // long vid_mem;   /* video memory size, in bytes */
-   0,                     // long vid_phys_base;/* physical address of video memory */
+   empty_string,
+   empty_string,
+   "DrawSprocket",
+   dspr_init,
+   dspr_exit,
+   NULL,
+   dspr_vsync,
+   dspr_set_palette,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   _mac_create_system_bitmap,
+   _mac_destroy_system_bitmap,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   640, 480,
+   TRUE,
+   0,
+   0,
+   0,
+   0,
 };
 
+
+
+/*
+ * init an gfx mode return an pointer to BITMAP on sucess, NULL fails
+ */
 #pragma mark gfx driver routines
-BITMAP *init_drawsprocket(int w, int h, int v_w, int v_h, int color_depth){
-   OSStatus theError;
+static BITMAP *dspr_init(int w, int h, int v_w, int v_h, int color_depth)
+{
+   OSStatus e;
    CGrafPtr cg;
    BITMAP* b;
    DSpContextAttributes Attr;
    Fixed myfreq;
+   int done;
 
-   
 #if(TRACE_MAC_GFX)
-   fprintf(stdout,"init_drawsprocket(%d, %d, %d, %d, %d)\n",w,h,v_w,v_h,color_depth);
+   fprintf(stdout,"dspr_init(%d, %d, %d, %d, %d)\n", w, h, v_w, v_h, color_depth);
    fflush(stdout);
 #endif
 
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) return (NULL);
-   State|=kRDDStarted;
-   Attr.frequency = _refresh_rate_request;
+
+   
+   Attr.frequency = Long2Fix(_refresh_rate_request);
    Attr.reserved1 = 0;
    Attr.reserved2 = 0;
    Attr.colorNeeds = kDSpColorNeeds_Require;
@@ -112,7 +128,7 @@ BITMAP *init_drawsprocket(int w, int h, int v_w, int v_h, int color_depth){
    Attr.displayWidth = w;
    Attr.displayHeight = h;
    Attr.displayBestDepth = color_depth;
-   
+
    _rgb_r_shift_15 = 10;
    _rgb_g_shift_15 = 5;
    _rgb_b_shift_15 = 0;
@@ -125,170 +141,266 @@ BITMAP *init_drawsprocket(int w, int h, int v_w, int v_h, int color_depth){
    _rgb_r_shift_32 = 16;
    _rgb_g_shift_32 = 8;
    _rgb_b_shift_32 = 0;
-   
+
    switch(color_depth){
       case 8:
-         DrawDepth=8;
+         dspr_depth = 8;
          Attr.displayDepthMask = kDSpDepthMask_8;
          break;
       case 15:
-         DrawDepth=15;
+         dspr_depth = 15;
          Attr.displayDepthMask = kDSpDepthMask_16;
          break;
       case 24:
-         DrawDepth=24;
+         dspr_depth = 24;
          Attr.displayDepthMask = kDSpDepthMask_32;
          break;
       default:
          goto Error;
-   };
+   }
    Attr.backBufferBestDepth = color_depth;
    Attr.backBufferDepthMask = Attr.displayDepthMask;
    
-   if(DSpFindBestContext(&Attr,&theContext)!=noErr)goto Error;
-   
+   e = DSpFindBestContext(&Attr, &dspr_context);
+   if(e != noErr){
+      Attr.frequency = 0;
+      e = DSpFindBestContext(&Attr, &dspr_context);
+   }
+   if(e != noErr) goto Error;/* I HATE "GOTO" */
+
    Attr.displayWidth = w;
-   Attr.displayHeight = h;   
-   
+   Attr.displayHeight = h;
    Attr.contextOptions = 0;
-   
-   if(DSpContext_Reserve(theContext, &Attr)!=noErr)goto Error;
-   State|=kRDDReserved;
 
-   active_drawsprocket();   
+   e = DSpContext_Reserve(dspr_context, &Attr);
+   if(e != noErr) goto Error;/* I HATE "GOTO" */
+   dspr_state |= kRDDReserved;
 
-   theError=DSpContext_SetVBLProc (theContext,MyVBLTask,(void *)refconst);
-   if(theError==noErr){_syncOk=1;}
-   else{_syncOk=0;};
+   dspr_active();
 
-   cg=GetFrontBuffer();
+   e = DSpContext_SetVBLProc (dspr_context, dspr_vsync_interrupt,(void *)refconst);
+   if(e == noErr){dspr_sync_installed = 1;}
+   else{dspr_sync_installed = 0;}
 
-   b=_CGrafPtr_to_system_bitmap(cg);
+   cg = dspr_get_front();
+
+   b =_CGrafPtr_to_system_bitmap(cg);
    if(b){
-
-/*DSpContext_GetMonitorFrequency  (DSpContextReference    inContext,
-                                 Fixed *                outFrequency);
-EXTERN_API_C( OSStatus )
-DSpContext_SetMaxFrameRate      (DSpContextReference    inContext,
-                                 UInt32                 inMaxFPS);
-EXTERN_API_C( OSStatus )
-DSpContext_GetMaxFrameRate      (DSpContextReference    inContext,
-                                 UInt32 *               outMaxFPS);*/
-
-      DSpContext_GetMonitorFrequency  (theContext,&myfreq);
+      DSpContext_GetMonitorFrequency  (dspr_context,&myfreq);
       _current_refresh_rate = Fix2Long(myfreq);
 
-      gfx_drawsprocket.w=w;
-      gfx_drawsprocket.h=h;
+      gfx_drawsprocket.w = w;
+      gfx_drawsprocket.h = h;
+	  
+	  usprintf(dspr_desc, get_config_text("DrawSprocket %d x %d, %dbpp, %dhz"), w, h, dspr_depth, _current_refresh_rate);
+      gfx_drawsprocket.desc = dspr_desc;
       return b;
-   };
-Error: 
+   }
+Error:
 #if(TRACE_MAC_GFX)
-   fprintf(stdout,"init_drawsprocket()failed\n");
+   fprintf(stdout,"dspr_init()failed\n");
    fflush(stdout);
 #endif
-   exit_drawsprocket(b);
+   dspr_exit(b);
    return NULL;
 }
-void exit_drawsprocket(struct BITMAP *b){
+
+
+
+/*
+ * reservated
+ */
+static void dspr_exit(struct BITMAP *b)
+{
 #pragma unused b
-   OSStatus theError;
+   OSStatus e;
 #if(TRACE_MAC_GFX)
-   fprintf(stdout,"exit_drawsprocket()\n");
+   fprintf(stdout,"dspr_exit()\n");
    fflush(stdout);
 #endif
-   if((State&kRDDStarted)!=0){
-      if((State&kRDDReserved)!=0){
-         theError=DSpContext_SetState(theContext, kDSpContextState_Inactive);
-         theError=DSpContext_Release(theContext);
-      };
-   };
-   State=0;
-   gfx_drawsprocket.w=0;
-   gfx_drawsprocket.h=0;
-   DrawDepth=0;
-};
+   if((dspr_state & kRDDReserved) != 0){
+      e = DSpContext_SetState(dspr_context, kDSpContextState_Inactive);
+      e = DSpContext_Release(dspr_context);
+   }
+   dspr_state = 0;
+   gfx_drawsprocket.w = 0;
+   gfx_drawsprocket.h = 0;
+   dspr_depth = 0;
+}
 
-void vsync_drawsprocket(void){
-   if(_syncOk){
-      _sync=0;
-      while(!_sync){};
-   };
-};
 
-void init_mypalette(){
-   MainCTable=GetCTable(8);
-   DetachResource((Handle) MainCTable);
-};
-   
-void set_palette_drawsprocket(const struct RGB *p, int from, int to, int retracesync){
-   int i;OSErr theError;
+
+/*
+ * reservated
+ */
+static void dspr_vsync(void)
+{
+   if(dspr_sync_installed){
+      _sync = 0;
+      while(!_sync){}
+   }
+}
+
+
+
+/*
+ * reservated
+ */
+static void dspr_set_palette(const struct RGB *p, int from, int to, int retracesync)
+{
+   int i;OSErr e;
 #if(TRACE_MAC_GFX)
    fprintf(stdout,"set_palette");
    fflush(stdout);
 #endif
-   if(MainCTable==NULL){
-      init_mypalette();
-   };
-   for(i=from;i<=to;i++){
+   if(MainCTable == NULL){
+      MainCTable = GetCTable(8);
+      DetachResource((Handle) MainCTable);
+   }
+   for(i = from;i<= to;i ++){
       (**MainCTable).ctTable[i].rgb.red = p[i].r*1040;
       (**MainCTable).ctTable[i].rgb.green = p[i].g*1040;
       (**MainCTable).ctTable[i].rgb.blue = p[i].b*1040;
-   };
-   if(retracesync)vsync_drawsprocket();
-   if(DrawDepth==8){
-      theError = DSpContext_SetCLUTEntries(theContext, (**MainCTable).ctTable, from, to - from);
-      if( theError ) DebugStr("\p error from CLUT ");   
-   };
-};
-short active_drawsprocket(){
-   if(!(State&kRDDActive)){
-      if(!(State&kRDDPaused))
-	      if(DSpContext_SetState(theContext , kDSpContextState_Active )!=noErr)
+   }
+   if(retracesync)dspr_vsync();
+   if(dspr_depth == 8){
+      e = DSpContext_SetCLUTEntries(dspr_context, (**MainCTable).ctTable, from, to - from);
+      if(e)
+	     DebugStr("\p error from CLUT ");
+   }
+}
+
+
+
+/*
+ * reservated
+ */
+static short dspr_active()
+{
+   if(! (dspr_state & kRDDActive)){
+      if(! (dspr_state & kRDDPaused))
+	      if(DSpContext_SetState(dspr_context , kDSpContextState_Active) != noErr)
     	     return 1;
-      State&=(~kRDDPaused);
-      State|=kRDDActive;
-   };
+      dspr_state &= (~kRDDPaused);
+      dspr_state |= kRDDActive;
+   }
    return 0;
-};
-short pause_drawsprocket(){
-   
-   if(!(State&kRDDPaused)){
-      if(DSpContext_SetState(theContext, kDSpContextState_Paused)!=noErr)return 1;//Fatal("\pPause");
-      State&=(~kRDDActive);
-      State|=kRDDPaused;
-      DrawMenuBar();
-   };
-   return 0;
-};
-short inactive_drawsprocket(){
-   
-   if(!(State&(kRDDPaused|kRDDActive))){
-      if(DSpContext_SetState(theContext, kDSpContextState_Inactive)!=noErr)return 1;//Fatal("\pInactive");
-      State&=(~kRDDPaused);
-      State&=(~kRDDActive);
-      DrawMenuBar();
-   };
-   return 0;
-};
+}
 
-CGrafPtr GetBackBuffer(){
-   CGrafPtr theBuffer;
-   DSpContext_GetBackBuffer( theContext, kDSpBufferKind_Normal, &theBuffer );
-   return theBuffer;
-};
 
-CGrafPtr GetFrontBuffer(){
+
+/*
+ * reservated
+ */
+static short dspr_pause()
+{
+   if(! (dspr_state & kRDDPaused)){
+      if(DSpContext_SetState(dspr_context, kDSpContextState_Paused) != noErr)return 1;
+      dspr_state &= (~kRDDActive);
+      dspr_state |= kRDDPaused;
+      DrawMenuBar();
+   }
+   return 0;
+}
+
+
+
+/*
+ * reservated
+ */
+static short dspr_inactive()
+{
+   if(! (dspr_state & (kRDDPaused | kRDDActive))){
+      if(DSpContext_SetState(dspr_context, kDSpContextState_Inactive) != noErr)return 1;
+      dspr_state &= (~kRDDPaused);
+      dspr_state &= (~kRDDActive);
+      DrawMenuBar();
+   }
+   return 0;
+}
+
+
+
+/*
+ * reservated
+ */
+static CGrafPtr dspr_get_back()
+{
    CGrafPtr theBuffer;
-   DSpContext_GetFrontBuffer(theContext, &theBuffer);   
+   DSpContext_GetBackBuffer(dspr_context, kDSpBufferKind_Normal, &theBuffer);
    return theBuffer;
-};
-void swap_drawsprocket(){
-   DSpContext_SwapBuffers(theContext, nil, nil);
-};
-Boolean MyVBLTask (DSpContextReference inContext,void *inRefCon){
-#pragma unused inContext,inRefCon
-   _sync=1;
+}
+
+
+
+/*
+ * reservated
+ */
+static CGrafPtr dspr_get_front()
+{
+   CGrafPtr theBuffer;
+   DSpContext_GetFrontBuffer(dspr_context, &theBuffer);
+   return theBuffer;
+}
+
+
+
+
+/*
+ * reservated
+ */
+static void dspr_swap()
+{
+   DSpContext_SwapBuffers(dspr_context, nil, nil);
+}
+
+
+
+/*
+ * our vsync interrupt handle
+ */
+static Boolean dspr_vsync_interrupt (DSpContextReference inContext, void *inRefCon)
+{
+#pragma unused inContext, inRefCon
+   _sync = 1;
    return false;
-};
+}
+
+
+
+/*
+ * drawsprocket initialization code should be called only one time
+ */
+int _dspr_sys_init()
+{
+   OSErr e;
+   MainGDevice = GetMainDevice();
+   if (MainGDevice == 0L)
+      return -1;
+   MainCTable = GetCTable(8);
+   DetachResource((Handle) MainCTable);
+   if ((Ptr) DSpStartup == (Ptr) kUnresolvedCFragSymbolAddress)
+      return -2;
+   e = DSpStartup();
+   if(e != noErr)
+      return -3;
+   dspr_state = 0;
+   HideCursor();
+   return 0;
+}
+
+
+
+
+/*
+ * drawsprocket exit code to should called only one time
+ */
+void _dspr_sys_exit()
+{
+   DSpShutdown();
+   ShowCursor();
+}
+
+
+
 

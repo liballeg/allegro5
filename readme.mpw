@@ -1,211 +1,154 @@
-#          ______   ___    ___
-#         /\  _  \ /\_ \  /\_ \
-#         \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
-#          \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
-#           \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
-#            \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
-#             \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
-#                                            /\____/
-#                                            \_/__/
-# 
-#       MPW Script and ReadMe file intented to install allegro.
-# 
-#       By Ronaldo H. Yamada
-#  
-#       See readme.txt for copyright information.
-# 
-# 
-#====================================
-#============ MPW notes =============
-#====================================
-#
-#   This port is not garanted to work on every machines
-#   I'll like know about how this port is working
-#
-#   Status: the minimum to work, this version is much newer than the Others,
-#      so can be the most buggy.
-#
-#   Many problems to be solved
-#   don't use argv or argc on main function, now this not work
-#   don't use printf, stdout, stderr, stdin function related use allegro_message
-#   allegro_message trunc the menssage to 254 chars
-#   low resolutions like 320x200 don't fill entire screen
-#   this release can run very slowly
-#
-#   in this release no suport for:
-#	   accelered hardware
-#      virtual screen sizes
-#      scrolling 
-#      midi
-#      joystick
-#      swithing
-#      windoned mode
-#      true 16 and 32 bpp depth
-#
-#
-#
-#===========================================
-#============ Required hardware ============
-#===========================================
-#
-#   - An Power Macintosh
-#
-#
-#===========================================
-#============ Required software ============
-#===========================================
-#
-#   - MPW-GM 3.4.4
-#   - Universal Headers 3.3.1
-#	- DrawSprocketSDK 1.7*
-#   - SoundManager 3.0*
-#   - MacOS 8.1*
-#
-#   I created Allegro port on theses versions, 
-#   I not determine if it can work on others, you must try, and I'll like
-#   know about this.
-#
-#   The MPW-GM can be obtained directly from Apple. <ftp://ftp.apple.com/
-#   developer/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./MPW-GM_Images/>
-#   An old version of the headers is included with MPW, but I use a new set
-#   <ftp://ftp.apple.com/developer/Development_Kits/UniversalHeaders3.3.1.img.bin>
-#   DrawSprocketSDK and SoundManager can be obtained directly from Apple
-#
-#   *the final users can need theses softwares 
-#
-#============================================
-#============ Installing Allegro ============
-#============================================
-#
-#   This is a source-only distribution, so you will have to compile Allegro 
-#   before you can use it. To do this you should:
-#
-#   Set up the current directory to main allegro dir(which contains this file).
-#   If launch MPW droping this file then, this is probably done
-#
-#   On Worksheet window type readme.mpw followed by Command-Return or Enter
-#   this set the library up ready for use.
-#   install a debugging version of the library. be patient this take many minutes
-#   If required you must quit the MPW Shell before use the library
-#
-#================================================
-#============ Custom install Allegro ============
-#================================================
-#	Option      Action
-#	all         build and install all
-#	alld        build and install library only
-#	tests       build and install tests and library
-#	examples    build and install examples and library
-#	docs        build and install documentation in html format
-#
-#	example:
-#
-#   	readme.mpw alld tests <enter>
-#
-#=======================================
-#============ Using Allegro ============
-#=======================================
-#
-#
-#   Allegro could be work like an Shared Library, so for future compatibility
-#   you must define the preprocessor should symbol ALLEGRO_STATICLINK before 
-#   including any of the Allegro headers.
-#
-#   Don't forget that you need to use the END_OF_MAIN() macro right after 
-#   your main() function. for future and plataform compatibility
-#
-#   All the Allegro functions, variables, and data structures are defined in 
-#   allegro.h.You should include this in your programs
-#
-#   <Allegro.h>
-#
-#   But allegro.h not cause poluition on main include folder, it reside in
-#   Allegro folder installed into Interfaces&Libraries folder the you must
-#   set up as include folder in compiling
-#   
-#   -i {Allegro} (or Includes = -i {Allegro} on automatic created makefiles)
-#
-#   do ensure link with the libraries:
-#
-#	"{Allegro}allegro.x"          -  allegro static library
-#	"{SharedLibraries}InterfaceLib"
-#	"{SharedLibraries}StdCLib"
-#	"{SharedLibraries}MathLib"
-#	"{SharedLibraries}DrawSprocketLib"
-#	"{PPCLibraries}StdCRuntime.o"
-#	"{PPCLibraries}PPCCRuntime.o"
-#	"{PPCLibraries}PPCToolLibs.o"
-#
-#   you always should tell about allegro entry point in linking, include this option
-#   
-#   -m MacEntry
-#
-#   otherwise you will crash, this can change in future
-#
-#   also should include the Resource file
-#
-#   "{Allegro}allegro.r"      - some resources need to allegro work
-#
-#  	Rez {Allegro}allegro.r -o {progname} -i {Allegro} -append
-#
-#   see examples in mactest folder
-#
-#
-#==========================================
-#============ Unistall Allegro ============
-#==========================================
-#
-#   delete the Allegro Folder at Interfaces&Libraries
-#   and the Script "SetAllegro" from Startup Itens Folder
-#   
-#
-#
+          ______   ___    ___
+         /\  _  \ /\_ \  /\_ \
+         \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+          \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+           \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+            \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+             \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+                                            /\____/
+                                            \_/__/
+ 
+       MPW ReadMe file
+ 
+       By Ronaldo H. Yamada
+  
+       See readme.txt for copyright information.
+ 
+ 
+====================================
+============ MPW notes =============
+====================================
+
+   This port is not garanted to work on every machines.
+   I'll like know about how this port is working.
+
+   Status: the minimum to work, this version is much newer than the Others,
+   so can be the most buggy.
+
+   Many problems to be solved.
+   don't use argv or argc on main function, now this not work.
+   don't use printf, stdout, stderr, stdin function related use allegro_message.
+   allegro_message truncates message to 254 chars.
+   low resolutions like 320x200 doesn't fill the entire screen.
+   programs run slowly.
+   missing features include: hardware accelleration, virtual screens,
+   scrolling, midi, joystick, switching, windowed modes, true 16 & 32 bpp
+   colordepths.
+   Update the docs.
 
 
+===========================================
+============ Required hardware ============
+===========================================
 
-Set savedir `Directory`
+   - An Power Macintosh
 
-Echo {0} --- preparing install 
 
-If "{0}" =~ /(Å:)¨1readme.mpw/
-	SetDirectory {¨1}
-End
+===========================================
+============ Required software ============
+===========================================
 
-If "{Allegro}"!="{Libraries}::Allegro:"
-	Set -e Allegro {Libraries}::Allegro:
-	Echo "### Allegro var not defined correctly"
-	Echo "### If required quit MPW after install"
-End
-If !`Exists "{Allegro}"`
-	NewFolder "{Allegro}"	
-End
-If !`Exists ":obj:"`
-	NewFolder ":obj:"	
-End
-If !`Exists ":obj:mpw:"`
-	NewFolder ":obj:mpw:"
-End
-If !`Exists ":obj:mpw:alld:"`
-	NewFolder ":obj:mpw:alld:"
-End
+   - MPW-GM 3.4.4
+   - Universal Headers 3.3.1
+   - DrawSprocketSDK 1.7*
+   - SoundManager 3.0*
+   - MacOS 8.1*
 
-#change creator to MPW Shell
-set f "`Files -r -f -t 'TEXT' -c 'CWIE' -o`"
-if "{f}"!=""
-	SetFile -c 'MPS ' {f}
-end
-unset f
+   I created Allegro port on theses versions, 
+   I not determine if it can work on others, you must try, and I'll like
+   know about this.
 
-If `Exists "makefile.mpw"`
-	Echo "analyzing dependencys"
-	make -f makefile.mpw {Parameters} > ":obj:mpw:alld:makefile.dep"
-	Echo "building sources"
-	Echo "this can take several minutes..."
-	":obj:mpw:alld:makefile.dep"
-Else
-	Echo "makefile.mpw not found"
-End
+   The MPW-GM can be obtained directly from Apple. <ftp://ftp.apple.com/
+   developer/Tool_Chest/Core_Mac_OS_Tools/MPW_etc./MPW-GM_Images/>
+   An old version of the headers is included with MPW, but I use a new set
+   <ftp://ftp.apple.com/developer/Development_Kits/UniversalHeaders3.3.1.img.bin>
+   DrawSprocketSDK and SoundManager can be obtained directly from Apple
 
-Echo "### Done"
+   *the final users can need theses softwares 
 
-SetDirectory "{savedir}"
+============================================
+============ Installing Allegro ============
+============================================
+
+   This is a source-only distribution, so you will have to compile Allegro 
+   before you can use it. To do this you should:
+
+   Set up the current directory to main allegro dir(which contains this file).
+   If launch MPW droping this file then, this is probably done
+
+   On Worksheet window type fixmpw.sh followed by Command-Return or Enter
+   this set the library up ready for use.
+   install a debugging version of the library. be patient this take many minutes
+   If required you must quit the MPW Shell before use the library
+
+================================================
+============ Custom install Allegro ============
+================================================
+
+	Option      Action
+	all         build and install all
+	alld        build and install library only
+	tests       build and install tests and library
+	examples    build and install examples and library
+	docs        build and install documentation in html format
+
+	example:
+
+   	fixmpw.sh alld tests <enter>
+
+=======================================
+============ Using Allegro ============
+=======================================
+
+
+   Allegro could be work like an Shared Library, so for future compatibility
+   you must define the preprocessor should symbol ALLEGRO_STATICLINK before 
+   including any of the Allegro headers.
+
+   Don't forget that you need to use the END_OF_MAIN() macro right after 
+   your main() function. for future and plataform compatibility
+
+   All the Allegro functions, variables, and data structures are defined in 
+   allegro.h.You should include this in your programs
+
+   <Allegro.h>
+
+   But allegro.h not cause poluition on main include folder, it reside in
+   Allegro folder installed into Interfaces&Libraries folder the you must
+   set up as include folder in compiling
+   
+   -i {Allegro} (or Includes = -i {Allegro} on automatic created makefiles)
+
+   do ensure link with the libraries:
+
+	"{Allegro}allegro.x"          -  allegro static library
+	"{SharedLibraries}InterfaceLib"
+	"{SharedLibraries}StdCLib"
+	"{SharedLibraries}MathLib"
+	"{SharedLibraries}DrawSprocketLib"
+	"{PPCLibraries}StdCRuntime.o"
+	"{PPCLibraries}PPCCRuntime.o"
+	"{PPCLibraries}PPCToolLibs.o"
+
+   you always should tell about allegro entry point in linking, include this option
+   
+   -m MacEntry
+
+   otherwise you will crash, this can change in future
+
+   also should include the Resource file
+
+   "{Allegro}allegro.r"      - some resources need to allegro work
+
+  	Rez {Allegro}allegro.r -o {progname} -i {Allegro} -append
+
+   see examples in mactest folder
+
+
+==========================================
+============ Unistall Allegro ============
+==========================================
+
+   delete the Allegro Folder at Interfaces&Libraries
+   and the Script "SetAllegro" from Startup Itens Folder
+   
