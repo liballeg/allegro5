@@ -756,8 +756,10 @@ mouse = x<br>
       POLL - timer polling (for use under NT)</pre>
    Linux console mouse drivers are:<pre>
       MS   - Microsoft serial mouse
+      IMS  - Microsoft serial mouse with Intellimouse extension
       LPS2 - PS2 mouse
-      GPMD - GPM repeater data</pre>
+      LIPS - PS2 mouse with Intellimouse extension
+      GPMD - GPM repeater data (Mouse Systems protocol)</pre>
 <li>
 emulate_three = x<br>
    Sets whether to emulate a third mouse button by detecting chords of the 
@@ -766,9 +768,6 @@ emulate_three = x<br>
 <li>
 mouse_device = x<br>
    Linux only: specifies the name of the mouse device file (eg. /dev/mouse).
-<li>
-intellimouse = x<br>
-   Linux only: use the Intellimouse wheel input extension.
 <li>
 [sound]<br>
    Section containing sound configuration information, using the variables:

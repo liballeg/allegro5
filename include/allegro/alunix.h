@@ -182,11 +182,17 @@ AL_VAR(KEYBOARD_DRIVER, keydrv_linux_console);
 #define MOUSEDRV_LINUX_PS2       AL_ID('L','P','S','2')
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ps2);
 
+#define MOUSEDRV_LINUX_IPS2      AL_ID('L','I','P','S')
+AL_VAR(MOUSE_DRIVER, mousedrv_linux_ips2);
+
 #define MOUSEDRV_LINUX_GPMDATA   AL_ID('G','P','M','D')
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_gpmdata);
 
 #define MOUSEDRV_LINUX_MS        AL_ID('M','S',' ',' ')
 AL_VAR(MOUSE_DRIVER, mousedrv_linux_ms);
+
+#define MOUSEDRV_LINUX_IMS       AL_ID('I','M','S',' ')
+AL_VAR(MOUSE_DRIVER, mousedrv_linux_ims);
 
 #define JOY_TYPE_LINUX_ANALOGUE  AL_ID('L','N','X','A')
 AL_VAR(JOYSTICK_DRIVER, joystick_linux_analogue);

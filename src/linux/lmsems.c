@@ -28,8 +28,8 @@
 #include "linalleg.h"
 
 
-static int intellimouse = FALSE;
-static int packet_size = 3; 
+static int intellimouse;
+static int packet_size; 
 
 
 /* processor:
@@ -49,20 +49,16 @@ static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
    info->updated = 0;
    if (buf_size < packet_size) return 0;     /* not enough data, spit it out for now */
 
-   /* initialise info; if packet is invalid, this is what's returned */
-   info->l = info->r = info->m = info->x = info->y = 0;
-   info->updated = 1;
-
    /* if packet is invalid, just eat it */
    if (!(buf[0] & 0x40)) return 1; /* invalid byte */
    if (buf[1] & 0x40) return 1;    /* first data byte is actually a header */
    if (buf[2] & 0x40) return 2;    /* second data byte is actually a header */
-
+   
    /* packet is valid, decode the data */
    info->l = !!(buf[0] & 0x20);
    info->r = !!(buf[0] & 0x10);
 
-   if (intellimouse) {                   /* Use Intellimouse extensions */
+   if (intellimouse) {
       info->m = !!(buf[3] & 0x10);
       info->z = (buf[3] & 0x0f);
       if (info->z) 
@@ -154,21 +150,11 @@ static void sync_mouse (int fd)
 static int mouse_init (void)
 {
 	char tmp[80], tmp2[80];
-	AL_CONST char *device, *ext;
+	AL_CONST char *device;
 	struct termios t;
-	int i;
 
 	/* Find the device filename */
-	device = get_config_string(NULL, uconvert_ascii("mouse_device", tmp), uconvert_ascii("/dev/mouse", tmp2));
-
-	/* See if Intellimouse extensions (middle button + wheel) are enabled */
-	ext = get_config_string(NULL, uconvert_ascii("intellimouse", tmp), NULL);
-	if ((ext) && ((i = ugetc(ext)) != 0) &&
-	    ((i == 'y') || (i == 'Y') || (i == '1'))) {
-		intellimouse = TRUE;
-		packet_size = 4;
-		mousedrv_linux_ms.name = mousedrv_linux_ms.desc = get_config_text("Linux MS Intellimouse");
-	}
+	device = get_config_string (NULL, uconvert_ascii ("mouse_device", tmp), uconvert_ascii("/dev/mouse", tmp2));
 
 	/* Open mouse device.  Devices are cool. */
 	intdrv.device = open (device, O_RDONLY | O_NONBLOCK);
@@ -190,6 +176,28 @@ static int mouse_init (void)
 	return __al_linux_mouse_init (&intdrv);
 }
 
+/* ms_mouse_init:
+ *  Initialisation for vanilla MS mouse.
+ */
+static int ms_mouse_init (void)
+{
+	intellimouse = FALSE;
+    	packet_size = 3;
+	intdrv.num_buttons = 2;
+	return mouse_init ();
+}
+
+/* msi_mouse_init:
+ *  Initialisation for MS mouse with Intellimouse extension.
+ */
+static int ims_mouse_init (void)
+{
+	intellimouse = TRUE;
+    	packet_size = 4;
+	intdrv.num_buttons = 3;
+	return mouse_init ();
+}
+
 /* mouse_exit:
  *  Chain to the framework, then uninitialise things.
  */
@@ -205,7 +213,7 @@ MOUSE_DRIVER mousedrv_linux_ms =
 	empty_string,
 	empty_string,
 	"Linux MS mouse",
-	mouse_init,
+	ms_mouse_init,
 	mouse_exit,
 	NULL, /* poll() */
 	NULL, /* timer_poll() */
@@ -216,3 +224,19 @@ MOUSE_DRIVER mousedrv_linux_ms =
 	analyse_data
 };
 
+MOUSE_DRIVER mousedrv_linux_ims =
+{
+	MOUSEDRV_LINUX_IMS,
+	empty_string,
+	empty_string,
+	"Linux MS Intellimouse",
+	ims_mouse_init,
+	mouse_exit,
+	NULL, /* poll() */
+	NULL, /* timer_poll() */
+	__al_linux_mouse_position,
+	__al_linux_mouse_set_range,
+	__al_linux_mouse_set_speed,
+	__al_linux_mouse_get_mickeys,
+	analyse_data
+};
