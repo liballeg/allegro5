@@ -545,7 +545,7 @@ FUNC(_linear_masked_blit8)
       popw  %es;
       popw  %ds;
       
-      _align_
+      _align_;
       masked8_mmx_x_loop:
 
       movq %es:(%esi), %mm1;       /* Read 8 pixels */
@@ -559,7 +559,7 @@ FUNC(_linear_masked_blit8)
       pxor %mm4, %mm6;
       addl $16, %esi;             /* Update src */
       maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
-      addl $8, %edi
+      addl $8, %edi;
       maskmovq %mm6, %mm5;
 
       addl $8, %edi;              /* Update dest */
@@ -579,7 +579,7 @@ FUNC(_linear_masked_blit8)
       incl %edi;
       orb %al, %al;               /* Compare with mask */
       jz masked8_mmx_word;
-      movb %al, -1(%edi)          /* Write the pixel */
+      movb %al, -1(%edi);         /* Write the pixel */
       
       masked8_mmx_word:
       shrl $1, %ecx;              /* 2 pixels left */
@@ -598,7 +598,7 @@ FUNC(_linear_masked_blit8)
       jz masked8_mmx_long;
       movb %ah, -1(%edi);         /* Write other pixel */
 
-      _align_
+      _align_;
       masked8_mmx_long:
       
       shrl $1, %ecx;              /* 4 pixels left */
@@ -617,7 +617,7 @@ FUNC(_linear_masked_blit8)
       maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
       addl $4, %edi;
 
-      _align_
+      _align_;
       masked8_mmx_qword:
       shrl $1, %ecx;              /* 8 pixels left */
       jnc masked8_mmx_loop_end;
@@ -630,7 +630,7 @@ FUNC(_linear_masked_blit8)
       addl $8, %esi;              /* Update src */
       maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
 
-      _align_
+      _align_;
       masked8_mmx_loop_end:
 
       pushw %ds;                  /* Swap back ES and DS */
