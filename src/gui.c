@@ -914,9 +914,9 @@ int update_dialog(DIALOG_PLAYER *player)
 	    player->click_wait = TRUE;
       }
       else
-	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
+	 player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
 
-      /* goto getout; */
+      goto getout;
    }
 
    /* deal with mouse wheel clicks */
