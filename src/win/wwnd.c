@@ -24,6 +24,13 @@
 
 #include "wddraw.h"
 
+
+#ifndef WM_APPCOMMAND
+/* from the Platform SDK July 2000 */
+#define WM_APPCOMMAND 0x0319
+#endif
+
+
 /* general */
 HWND allegro_wnd = NULL;
 int wnd_x = 0;
@@ -117,8 +124,7 @@ void wnd_set_cursor(void)
 /* directx_wnd_proc:
  *  window proc for the Allegro window class
  */
-static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
-					 WPARAM wparam, LPARAM lparam)
+static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
    PAINTSTRUCT ps;
 
@@ -192,6 +198,19 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
             win_gfx_driver->paint(&ps.rcPaint);
          EndPaint(wnd, &ps);
 	 break;
+
+      case WM_KEYDOWN:
+      case WM_KEYUP:
+      case WM_SYSKEYDOWN:
+      case WM_SYSKEYUP:
+         /* disable the message-based key handler */
+         return 0;
+
+      case WM_APPCOMMAND: /* Win2k only */
+         /*  unlike with other messages, we have to
+          *  return TRUE if we process this one
+          */
+         return TRUE;
 
       case WM_INITMENUPOPUP:
 	 wnd_sysmenu = TRUE;
@@ -339,9 +358,10 @@ static void wnd_thread_proc(HANDLE setup_event)
 
    /* setup window */
    if (!wnd_create_proc)
-        allegro_wnd = create_directx_window();
+      allegro_wnd = create_directx_window();
    else
-        allegro_wnd = wnd_create_proc(directx_wnd_proc);
+      allegro_wnd = wnd_create_proc(directx_wnd_proc);
+
    if (allegro_wnd == NULL)
       goto Error;
 
@@ -349,10 +369,8 @@ static void wnd_thread_proc(HANDLE setup_event)
    SetEvent(setup_event);
 
    /* message loop */
-   while (GetMessage(&msg, NULL, 0, 0)) {
-      TranslateMessage(&msg);
+   while (GetMessage(&msg, NULL, 0, 0))
       DispatchMessage(&msg);
-   }
 
  Error:
    win_exit_thread();
