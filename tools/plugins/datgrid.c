@@ -607,8 +607,10 @@ static int griddler(void)
    for (c=0; c<added_count; c++)
       grabber_set_selection(added_item[c]);
 
-   if (selitem) 
+   if (selitem) {
       grabber_sel_palette(grabber_palette);
+      grabber_modified(1);
+   }
    else
       alert("No grid found - nothing grabbed!", NULL, NULL, "Hmm...", NULL, 13, 0);
 
@@ -671,6 +673,8 @@ static int do_autocropper(DATAFILE *dat, int *param, int param2)
       sprintf(buf, "%d", ty);
       datedit_set_property(dat, DAT_YCRP, buf);
    }
+   
+   grabber_modified(1);
 
    return D_REDRAW;
 }

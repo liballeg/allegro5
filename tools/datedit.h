@@ -142,6 +142,7 @@ extern int (*grabber_foreach_selection)(int (*proc)(DATAFILE *, int *, int), int
 extern DATAFILE *(*grabber_single_selection)(void);
 extern void (*grabber_set_selection)(void *object);
 extern void (*grabber_busy_mouse)(int busy);
+extern void (*grabber_modified)(int yes_or_no);
 
 extern BITMAP *grabber_graphic;
 extern PALETTE grabber_palette;

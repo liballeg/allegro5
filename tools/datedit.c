@@ -43,6 +43,7 @@ int (*grabber_foreach_selection)() = NULL;
 DATAFILE *(*grabber_single_selection)() = NULL;
 void (*grabber_set_selection)() = NULL;
 void (*grabber_busy_mouse)() = NULL;
+void (*grabber_modified)() = NULL;
 
 BITMAP *grabber_graphic = NULL;
 PALETTE grabber_palette;

@@ -274,7 +274,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 
         while(cf) {
             for(i = cf->begin; i < cf->end; i++) {
-                textprintf(bmp, f, 1 + w * (max & 15), 1 + h * (max / 16), 1, "%c", i);
+                textprintf(bmp, f, 1 + w * (max & 15), 1 + h * (max / 16), -1, "%c", i);
                 max++;
             }
 
@@ -1097,6 +1097,8 @@ static int import_proc(int msg, DIALOG *d, int c)
 
 	    object_message(view_font_dlg+VIEWER, MSG_START, 0);
 	    object_message(view_font_dlg+RANGE_LIST, MSG_START, 0);
+	    
+	    grabber_modified(1);
 	 }
       }
 
@@ -1166,6 +1168,8 @@ static int delete_proc(int msg, DIALOG *d, int c)
 
       object_message(view_font_dlg+VIEWER, MSG_START, 0);
       object_message(view_font_dlg+RANGE_LIST, MSG_START, 0);
+
+      grabber_modified(1);
 
       return D_REDRAW;
    }

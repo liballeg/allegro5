@@ -58,6 +58,8 @@ static char ygrid_string[16];
 static int current_view_object = -1;
 static int current_property_object = -1;
 
+static int is_modified = 0;
+
 static int busy_mouse = FALSE;
 
 static int entered_password = FALSE;
@@ -70,6 +72,8 @@ static int prop_proc(int, DIALOG *, int);
 static int droplist_proc(int, DIALOG *, int);
 static int colorconv_proc(int, DIALOG *, int);
 static int custkey_proc(int, DIALOG *, int);
+static int edit_mod_proc(int, DIALOG *, int);
+static int droplist_mod_proc(int, DIALOG *, int);
 static char *list_getter(int, int *);
 static char *pack_getter(int, int *);
 static char *prop_getter(int, int *);
@@ -189,13 +193,13 @@ static DIALOG main_dlg[] =
    { d_clear_proc,      0,    0,    640,  480,  0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_menu_proc,       0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       menu,             NULL, NULL  },
    { d_text_proc,       20,   30,   0,    0,    0,    0,    0,       0,          0,             0,       "Editing:",       NULL, NULL  },
-   { d_edit_proc,       100,  30,   320,  8,    0,    0,    0,       0,          255,           0,       data_file,        NULL, NULL  },
+   { edit_mod_proc,     100,  30,   320,  8,    0,    0,    0,       0,          255,           0,       data_file,        NULL, NULL  },
    { d_text_proc,       20,   42,   0,    0,    0,    0,    0,       0,          0,             0,       "Header:",        NULL, NULL  },
-   { d_edit_proc,       100,  42,   320,  8,    0,    0,    0,       0,          255,           0,       header_file,      NULL, NULL  },
+   { edit_mod_proc,     100,  42,   320,  8,    0,    0,    0,       0,          255,           0,       header_file,      NULL, NULL  },
    { d_text_proc,       20,   54,   0,    0,    0,    0,    0,       0,          0,             0,       "Prefix:",        NULL, NULL  },
-   { d_edit_proc,       100,  54,   320,  8,    0,    0,    0,       0,          255,           0,       prefix_string,    NULL, NULL  },
+   { edit_mod_proc,     100,  54,   320,  8,    0,    0,    0,       0,          255,           0,       prefix_string,    NULL, NULL  },
    { d_text_proc,       20,   66,   0,    0,    0,    0,    0,       0,          0,             0,       "Password:",      NULL, NULL  },
-   { d_edit_proc,       100,  66,   320,  8,    0,    0,    0,       0,          255,           0,       password,         NULL, NULL  },
+   { edit_mod_proc,     100,  66,   320,  8,    0,    0,    0,       0,          255,           0,       password,         NULL, NULL  },
    { d_text_proc,       200,  10,   0,    0,    0,    0,    0,       0,          0,             0,       "X-grid:",        NULL, NULL  },
    { d_edit_proc,       264,  10,   40,   8,    0,    0,    0,       0,          4,             0,       xgrid_string,     NULL, NULL  },
    { d_text_proc,       315,  10,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",        NULL, NULL  },
@@ -203,7 +207,7 @@ static DIALOG main_dlg[] =
    { d_check_proc,      430,  8,    83,   13,   0,    0,    0,       0,          0,             0,       "Backups:",       NULL, NULL  },
    { colorconv_proc,    550,  8,    75,   13,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
    { colorconv_proc,    430,  24,   195,  13,   0,    0,    0,       0,          0,             1,       "Preserve transparency:", NULL, NULL},
-   { droplist_proc,     430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
+   { droplist_mod_proc, 430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
    { prop_proc,         260,  86,   365,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('s'),  0,          0,             0,       saver,            NULL, NULL  },
@@ -274,6 +278,52 @@ static DIALOG main_dlg[] =
 static int box_x = 0;
 static int box_y = 0;
 static int box_active = FALSE;
+
+
+
+/* updates the window title */
+static void update_title(void)
+{
+   char buf[128];
+   snprintf(buf, sizeof buf, "grabber - %s%s", data_file,
+	    is_modified ? " (modified)" : "");
+   set_window_title(buf);
+}
+
+
+
+/* indicates a possible modification of the currently loaded datafile */
+static void modified(int yes_or_no)
+{
+   is_modified = yes_or_no;
+   update_title();
+}
+
+
+
+/* standard edit proc, enhanced with possible modification detection */
+static int edit_mod_proc(int msg, DIALOG *d, int c)
+{
+   int ret = d_edit_proc(msg, d, c);
+   
+   if ((msg == MSG_CHAR) || (msg == MSG_UCHAR))
+      modified(1);
+
+   return ret;
+}
+
+
+
+/* droplist proc, enhanced with possible modification detection */
+static int droplist_mod_proc(int msg, DIALOG *d, int c)
+{
+   int ret = droplist_proc(msg, d, c);
+   
+   if ((msg == MSG_CHAR) || (msg == MSG_UCHAR) || (msg == MSG_CLICK))
+      modified(1);
+
+   return ret;
+}
 
 
 
@@ -1294,6 +1344,8 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
    else
       prop_dlg[PROP_DLG_TYPE].proc = d_text_proc;
 
+   modified(1);
+
    return (do_dialog(prop_dlg, (change_type ? PROP_DLG_TYPE : PROP_DLG_VALUE)) == PROP_DLG_OK);
 }
 
@@ -1618,9 +1670,13 @@ static void load(char *filename, int flush)
       free(new_datafile);
 
       datedit_sort_datafile(datafile);
+      
+      modified(1);
    }
-   else
+   else {
       datafile = new_datafile;
+      modified(0);
+   }
 
    SELECTED_ITEM = 0;
 
@@ -1722,6 +1778,8 @@ static int save(int strip)
 
       if (!datedit_save_datafile(datafile, data_file, strip, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
 	 err = TRUE;
+      else
+	 modified(0);
 
       if ((header_file[0]) && (!err)) {
 	 box_eol();
@@ -1850,6 +1908,8 @@ static int updater(void)
 
    select_property(DAT_NAME);
 
+   modified(1);
+
    return D_REDRAW;
 }
 
@@ -1893,6 +1953,8 @@ static int sel_updater(void)
 
    select_property(DAT_NAME);
 
+   modified(1);
+
    return D_REDRAW;
 }
 
@@ -1933,6 +1995,8 @@ static int force_updater(void)
    box_end(!err);
 
    select_property(DAT_NAME);
+
+   modified(1);
 
    return D_REDRAW;
 }
@@ -2057,12 +2121,25 @@ static int viewer(void)
 /* handle the quit command */
 static int quitter(void)
 {
+   int r;
+
    CHECK_MENU_HOOK("Quit", DATEDIT_MENU_FILE);
 
-   if (alert("Really want to quit?", NULL, NULL, "Yes", "Cancel", 'y', 27) == 1)
+   if (!is_modified)
       return D_CLOSE;
-   else
+   
+   r = alert3("Data may have been modified.",
+	      "Do you want to save before quitting?", NULL,
+	      "Save", "Quit", "Cancel", 's', 'q', 27);
+
+   if (r == 2)
+      return D_CLOSE;
+
+   if (r == 3)
       return D_O_K;
+
+   saver();
+   return D_CLOSE;
 }
 
 
@@ -2117,6 +2194,8 @@ static int grabber(void)
       sprintf(type, "%c%c%c%c", dat->type>>24, (dat->type>>16)&0xFF, (dat->type>>8)&0xFF, dat->type&0xFF);
 
       datedit_grabreplace(dat, name, get_datafile_property(dat, DAT_NAME), type, -1, -1, -1, -1, -1);
+
+      modified(1);
 
       if (dat->type == DAT_FILE)
 	 rebuild_list(NULL, TRUE);
@@ -2249,6 +2328,8 @@ static int deleter(void)
    }
 
    free(todel);
+
+   modified(1);
 
    return D_REDRAW;
 }
@@ -2688,6 +2769,8 @@ static int add_new(int type)
 	 datedit_sort_datafile(*df);
 	 rebuild_list(v, TRUE);
 	 select_property(DAT_NAME);
+         
+	 modified(1);
       }
    }
 
@@ -2875,6 +2958,8 @@ static int sheller(void)
    datedit_sort_properties(dat->prop);
    select_property(DAT_NAME);
 
+   modified(1);
+
    ohwellitwasaniceidea:
 
    if (delfile)
@@ -2995,6 +3080,14 @@ int datedit_ask(AL_CONST char *fmt, ...)
 
 
 
+/* close button callback */
+static void close_hook(void)
+{  
+   simulate_keypress(27 + (KEY_ESC << 8));   
+}
+
+
+
 int main(int argc, char *argv[])
 {
    int i, j;
@@ -3080,7 +3173,9 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   set_window_title("Allegro Datafile Editor");
+   update_title();
+
+   set_window_close_hook(close_hook);
 
    if (no_sound) {
       install_sound(DIGI_NONE, MIDI_NONE, NULL);
@@ -3176,6 +3271,7 @@ int main(int argc, char *argv[])
    grabber_single_selection = get_single_selection;
    grabber_set_selection = set_selection;
    grabber_busy_mouse = set_busy_mouse;
+   grabber_modified = modified;
 
    datedit_init();
 

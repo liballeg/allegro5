@@ -344,6 +344,8 @@ static int grabber(void)
    datedit_sort_properties(dat->prop);
    grabber_select_property(DAT_NAME);
 
+   grabber_modified(1);
+
    return D_REDRAW;
 }
 
@@ -395,6 +397,8 @@ static int boxgrab(void)
 
    datedit_sort_properties(dat->prop);
    grabber_select_property(DAT_NAME);
+
+   grabber_modified(1);
 
    return D_REDRAW;
 }
