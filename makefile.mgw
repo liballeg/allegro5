@@ -359,6 +359,9 @@ install: $(INSTALL_FILES)
 UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a               \
                   $(MINGDIR_U)/lib/liballd.a                \
                   $(MINGDIR_U)/lib/liballp.a                \
+                  $(MINGDIR_U)/lib/liballeg_s.a             \
+                  $(MINGDIR_U)/lib/liballd_s.a              \
+                  $(MINGDIR_U)/lib/liballp_s.a              \
                   $(MINGDIR_U)/include/allegro.h            \
                   $(MINGDIR_U)/include/winalleg.h           \
                   $(MINGDIR_U)/include/allegro/*.h          \

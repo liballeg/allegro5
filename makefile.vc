@@ -306,6 +306,9 @@ install: $(INSTALL_FILES)
 UNINSTALL_FILES = $(MSVCDIR_U)/lib/alleg.lib                \
 		  $(MSVCDIR_U)/lib/alld.lib                 \
 		  $(MSVCDIR_U)/lib/allp.lib                 \
+		  $(MSVCDIR_U)/lib/alleg_s.lib              \
+		  $(MSVCDIR_U)/lib/alld_s.lib               \
+		  $(MSVCDIR_U)/lib/allp_s.lib               \
 		  $(MSVCDIR_U)/include/allegro.h            \
 		  $(MSVCDIR_U)/include/winalleg.h           \
 		  $(MSVCDIR_U)/include/allegro/*.h          \
