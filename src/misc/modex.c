@@ -60,6 +60,7 @@ GFX_VTABLE __modex_vtable =
    _x_hline,
    _x_hline,
    _normal_line,
+   _fast_line,
    _normal_rectfill,
    NULL,
    _x_draw_sprite,
