@@ -8,8 +8,8 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Example program showing how to use Allegro as a pure
- *      sound library under Windows.
+ *      Example program showing how to use Allegro as a sound
+ *      library under Windows.
  *
  *      By Eric Botcazou.
  * 
@@ -101,6 +101,10 @@ int OpenNewSample(SAMPLE **sample, HWND hwnd)
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
    static SAMPLE *sample = NULL;
+   static int volume = 128;
+   static int pan = 128;
+   static int speed = 1000;
+   static int loop = FALSE;
    HDC hdc;
    RECT updaterect;
    PAINTSTRUCT ps;
@@ -121,11 +125,77 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
                }
 
                /* play it !! */
-               play_sample(sample, 128, 128, 1000, FALSE);
+               play_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_FILE_STOP:
+               if (sample)
+                  stop_sample(sample);
                break;
 
             case CMD_FILE_EXIT:
                PostMessage(hwnd, WM_CLOSE, 0, 0);
+               break;
+
+            case CMD_SET_VOLUME_UP:
+               volume = MIN(volume+32, 255);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_VOLUME_DOWN:
+               volume = MAX(volume-32, 0);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_VOLUME_DEFAULT:
+               volume = 128;
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_PAN_LEFT:
+               pan = MAX(pan-32, 0);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_PAN_RIGHT:
+               pan = MIN(pan+32, 255);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_PAN_CENTER:
+               pan = 128;
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_SPEED_UP:
+               speed = MIN(speed*2, 8000);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_SPEED_DOWN:
+               speed = MAX(speed/2, 125);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_SPEED_NORMAL:
+               speed = 1000;
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
+               break;
+
+            case CMD_SET_LOOP_MODE:
+               loop = !loop;
+               CheckMenuItem(GetMenu(hwnd), CMD_SET_LOOP_MODE, loop ? MF_CHECKED : MF_UNCHECKED);
+               if (sample)
+                  adjust_sample(sample, volume, pan, speed, loop);
                break;
 
             case CMD_HELP_ABOUT:
@@ -133,6 +203,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
                break;
          }
          return 0;
+
+      case WM_QUERYNEWPALETTE:
+	 InvalidateRect(hwnd, NULL, TRUE);
+	 return TRUE;
+
+      case WM_PALETTECHANGED:
+	 if ((HWND)wParam != hwnd) {
+	    hdc = GetDC(hwnd);
+	    InvalidateRect(hwnd, NULL, TRUE);
+	    ReleaseDC(hwnd, hdc);
+	 }
+	 return TRUE;
 
       case WM_PAINT:
          if (GetUpdateRect(hwnd, &updaterect, FALSE)) {
@@ -144,9 +226,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
          return 0;
 
       case WM_CLOSE:
-         /* call remove_sound() before destroying the window */
          destroy_sample(sample);
-         remove_sound();
          DestroyWindow(hwnd);
          return 0;
 
@@ -203,9 +283,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
    /* initialize the library */
    allegro_init();
+
+   /* install the digital sound module */
    install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL);
 
-   set_color_conversion(COLORCONV_NONE);
+   /* allow Allegro to keep playing samples in the background */
+   set_display_switch_mode(SWITCH_BACKGROUND);
 
    /* load some 8 bit bitmap */
    bmp = load_bitmap("..\\..\\examples\\allegro.pcx", pal);

@@ -171,9 +171,17 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          break;
 
       case WM_DESTROY:
-	 allegro_wnd = NULL;
-	 PostQuitMessage(0);
-	 break;
+         if (user_wnd_proc) {
+            /* remove the DirectX stuff */
+            remove_keyboard();
+            remove_mouse();
+            remove_sound();
+         }
+         else {
+            PostQuitMessage(0);
+         }
+         allegro_wnd = NULL;
+         break;
 
       case WM_ACTIVATE:
 	 if (LOWORD(wparam) == WA_INACTIVE)
@@ -271,7 +279,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
                               MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES)
                   ExitProcess(0);
             }
-
             return 0;
          }
          break;
