@@ -132,7 +132,7 @@
 				JAVA_COMPILER_DEBUGGING_SYMBOLS = NO;
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "-O2";
-				OTHER_LDFLAGS = "-lalleg-main";
+				OTHER_LDFLAGS = "-L/usr/local/lib -lalleg-main";
 				PREBINDING = YES;
 				PRODUCT_NAME = "«PROJECTNAME»";
 				SECTORDER_FLAGS = "";
