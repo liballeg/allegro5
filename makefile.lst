@@ -183,6 +183,8 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wgdi.c \
 	src/win/wgfxdrv.c \
 	src/win/wjoydrv.c \
+	src/win/wjoydx.c \
+	src/win/wjoyhelp.c \
 	src/win/wjoyw32.c \
 	src/win/wkeybd.c \
 	src/win/wmidi.c \

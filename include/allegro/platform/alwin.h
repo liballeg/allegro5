@@ -164,10 +164,14 @@ AL_VAR(GFX_DRIVER, gfx_gdi);
 /*******************************************/
 /************ joystick drivers *************/
 /*******************************************/
+#define JOY_TYPE_DIRECTX         AL_ID('D','X',' ',' ')
 #define JOY_TYPE_WIN32           AL_ID('W','3','2',' ')
 
+AL_VAR(JOYSTICK_DRIVER, joystick_directx);
 AL_VAR(JOYSTICK_DRIVER, joystick_win32);
+
+#define JOYSTICK_DRIVER_DIRECTX                                   \
+      { JOY_TYPE_DIRECTX,        &joystick_directx,  TRUE  },
 
 #define JOYSTICK_DRIVER_WIN32                                     \
       { JOY_TYPE_WIN32,          &joystick_win32,  TRUE  },
-

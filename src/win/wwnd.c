@@ -68,6 +68,8 @@ static UINT msg_acquire_keyboard = 0;
 static UINT msg_unacquire_keyboard = 0;
 static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
+static UINT msg_acquire_joystick = 0;
+static UINT msg_unacquire_joystick = 0;
 static UINT msg_suicide = 0;
 
 
@@ -110,6 +112,7 @@ void win_grab_input(void)
 {
    wnd_acquire_keyboard();
    wnd_acquire_mouse();
+   wnd_acquire_joystick();
 }
 
 
@@ -167,6 +170,26 @@ void wnd_unacquire_mouse(void)
 
 
 
+/* wnd_acquire_joystick:
+ *  posts msg to window to acquire the joystick device
+ */
+void wnd_acquire_joystick(void)
+{
+   PostMessage(allegro_wnd, msg_acquire_joystick, 0, 0);
+}
+
+
+
+/* wnd_unacquire_joystick:
+ *  posts msg to window to unacquire the joystick device
+ */
+void wnd_unacquire_joystick(void)
+{
+   PostMessage(allegro_wnd, msg_unacquire_joystick, 0, 0);
+}
+
+
+
 /* directx_wnd_proc:
  *  window proc for the Allegro window class
  */
@@ -188,6 +211,12 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_unacquire_mouse)
       return mouse_dinput_unacquire();
+
+   if (message == msg_acquire_joystick)
+      return joystick_dinput_acquire();
+
+   if (message == msg_unacquire_joystick)
+      return joystick_dinput_unacquire();
 
    if (message == msg_suicide) {
       DestroyWindow(wnd);
@@ -465,6 +494,8 @@ int init_directx_window(void)
    msg_unacquire_keyboard = RegisterWindowMessage("Allegro keyboard unacquire proc");
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
+   msg_acquire_joystick = RegisterWindowMessage("Allegro joystick acquire proc");
+   msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    /* prepare window for Allegro */
