@@ -608,13 +608,18 @@ int config_is_hooked(AL_CONST char *section)
 static CONFIG_ENTRY *find_config_string(CONFIG *config, AL_CONST char *section, AL_CONST char *name, CONFIG_ENTRY **prev)
 {
    CONFIG_ENTRY *p;
-   int in_section = TRUE;
+   int in_section;
 
    if (config) {
       p = config->head;
 
       if (prev)
 	 *prev = NULL;
+
+      if (section && ugetc(section))
+         in_section = FALSE;
+      else
+         in_section = TRUE;
 
       while (p) {
 	 if (p->name) {
