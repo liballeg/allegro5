@@ -1,15 +1,71 @@
+    __linear_vtable15 DATA
+    __linear_vtable16 DATA
+    __linear_vtable24 DATA
+    __linear_vtable32 DATA
+    __linear_vtable8 DATA
     _acos_tbl DATA
+    _cos_tbl DATA
+    _current_palette DATA
+    _default_ds
+    _digi_driver_list DATA
+    _getpixel
+    _getpixel15
+    _getpixel16
+    _getpixel24
+    _getpixel32
+    _gfx_driver_list DATA
+    _joystick_driver_list DATA
+    _keyboard_driver_list DATA
+    _midi_driver_list DATA
+    _mouse_driver_list DATA
+    _persp_xoffset DATA
+    _persp_xoffset_f DATA
+    _persp_xscale DATA
+    _persp_xscale_f DATA
+    _persp_yoffset DATA
+    _persp_yoffset_f DATA
+    _persp_yscale DATA
+    _persp_yscale_f DATA
+    _putpixel
+    _putpixel15
+    _putpixel16
+    _putpixel24
+    _putpixel32
+    _rgb_a_shift_32 DATA
+    _rgb_b_shift_15 DATA
+    _rgb_b_shift_16 DATA
+    _rgb_b_shift_24 DATA
+    _rgb_b_shift_32 DATA
+    _rgb_g_shift_15 DATA
+    _rgb_g_shift_16 DATA
+    _rgb_g_shift_24 DATA
+    _rgb_g_shift_32 DATA
+    _rgb_r_shift_15 DATA
+    _rgb_r_shift_16 DATA
+    _rgb_r_shift_24 DATA
+    _rgb_r_shift_32 DATA
+    _rgb_scale_5 DATA
+    _rgb_scale_6 DATA
+    _set_color
+    _sort_out_getc
+    _sort_out_putc
+    _system_driver_list DATA
+    _tan_tbl DATA
+    _timer_driver_list DATA
+    _ustrdup
+    _vtable_list DATA
     acquire_bitmap
     acquire_screen
     active_dialog DATA
     active_menu DATA
     adjust_sample
     al_assert
-    alert
-    alert3
     al_findclose
     al_findfirst
     al_findnext
+    al_trace
+    alert
+    alert3
     allegro_404_char DATA
     allegro_errno DATA
     allegro_error DATA
@@ -17,7 +73,6 @@
     allegro_id DATA
     allegro_message
     allocate_voice
-    al_trace
     append_filename
     apply_matrix
     apply_matrix_f
@@ -51,7 +106,6 @@
     close_fli
     color_map DATA
     config_is_hooked
-    _cos_tbl DATA
     cpu_capabilities DATA
     cpu_family DATA
     cpu_model DATA
@@ -72,16 +126,26 @@
     create_zbuffer
     cross_product
     cross_product_f
-    _current_palette DATA
     d_bitmap_proc
     d_box_proc
     d_button_proc
     d_check_proc
     d_clear_proc
     d_ctext_proc
-    deallocate_voice
     d_edit_proc
-    _default_ds
+    d_icon_proc
+    d_keyboard_proc
+    d_list_proc
+    d_menu_proc
+    d_radio_proc
+    d_rtext_proc
+    d_shadow_box_proc
+    d_slider_proc
+    d_text_list_proc
+    d_text_proc
+    d_textbox_proc
+    d_yield_proc
+    deallocate_voice
     default_palette DATA
     delete_file
     desktop_color_depth
@@ -98,30 +162,23 @@
     detect_digi_driver
     detect_midi_driver
     dialog_message
-    d_icon_proc
     digi_card DATA
     digi_driver DATA
-    _digi_driver_list DATA
     digi_input_card DATA
     digi_input_driver DATA
     digi_recorder DATA
-    d_keyboard_proc
-    d_list_proc
-    d_menu_proc
     do_arc
     do_circle
     do_dialog
     do_ellipse
     do_line
     do_menu
+    do_uconvert
     dot_product
     dot_product_f
-    do_uconvert
-    d_radio_proc
     draw_character
     draw_compiled_sprite
     draw_gouraud_sprite
-    drawing_mode
     draw_lit_rle_sprite
     draw_lit_sprite
     draw_rle_sprite
@@ -131,13 +188,7 @@
     draw_sprite_vh_flip
     draw_trans_rle_sprite
     draw_trans_sprite
-    d_rtext_proc
-    d_shadow_box_proc
-    d_slider_proc
-    d_textbox_proc
-    d_text_list_proc
-    d_text_proc
-    d_yield_proc
+    drawing_mode
     ellipse
     ellipsefill
     empty_string DATA
@@ -158,6 +209,9 @@
     find_allegro_resource
     find_datafile_object
     find_dialog_focus
+    fix_filename_case
+    fix_filename_path
+    fix_filename_slashes
     fixacos
     fixadd
     fixasin
@@ -166,9 +220,6 @@
     fixceil
     fixcos
     fixdiv
-    fix_filename_case
-    fix_filename_path
-    fix_filename_slashes
     fixfloor
     fixhypot
     fixmul
@@ -196,19 +247,9 @@
     ftofix
     generate_332_palette
     generate_optimized_palette
-    geta
-    geta32
-    geta_depth
     get_align_matrix
     get_align_matrix_f
     get_audio_stream_buffer
-    getb
-    getb15
-    getb16
-    getb24
-    getb32
-    getb8
-    getb_depth
     get_camera_matrix
     get_camera_matrix_f
     get_color
@@ -226,30 +267,10 @@
     get_executable_name
     get_extension
     get_filename
-    getg
-    getg15
-    getg16
-    getg24
-    getg32
-    getg8
-    getg_depth
     get_gfx_mode_list
     get_mouse_mickeys
     get_palette
     get_palette_range
-    _getpixel
-    getpixel
-    _getpixel15
-    _getpixel16
-    _getpixel24
-    _getpixel32
-    getr
-    getr15
-    getr16
-    getr24
-    getr32
-    getr8
-    getr_depth
     get_refresh_rate
     get_rle_sprite
     get_rotation_matrix
@@ -278,9 +299,33 @@
     get_z_rotate_matrix
     get_z_rotate_matrix_f
     get_z_rotate_quat
+    geta
+    geta32
+    geta_depth
+    getb
+    getb15
+    getb16
+    getb24
+    getb32
+    getb8
+    getb_depth
+    getg
+    getg15
+    getg16
+    getg24
+    getg32
+    getg8
+    getg_depth
+    getpixel
+    getr
+    getr15
+    getr16
+    getr24
+    getr32
+    getr8
+    getr_depth
     gfx_capabilities DATA
     gfx_driver DATA
-    _gfx_driver_list DATA
     gfx_mode_select
     gfx_mode_select_ex
     gui_bg_color DATA
@@ -333,24 +378,17 @@
     itofix
     joy DATA
     joystick_driver DATA
-    _joystick_driver_list DATA
     joystick_none DATA
+    key DATA
+    key_led_flag DATA
+    key_shifts DATA
     keyboard_callback DATA
     keyboard_driver DATA
-    _keyboard_driver_list DATA
     keyboard_lowlevel_callback DATA
     keyboard_needs_poll
     keyboard_ucallback DATA
-    key DATA
-    key_led_flag DATA
     keypressed
-    key_shifts DATA
     line
-    __linear_vtable15 DATA
-    __linear_vtable16 DATA
-    __linear_vtable24 DATA
-    __linear_vtable32 DATA
-    __linear_vtable8 DATA
     load_bitmap
     load_bmp
     load_datafile
@@ -388,7 +426,6 @@
     midi_card DATA
     midi_digmid DATA
     midi_driver DATA
-    _midi_driver_list DATA
     midi_input_card DATA
     midi_input_driver DATA
     midi_loop_end DATA
@@ -405,8 +442,6 @@
     mouse_b DATA
     mouse_callback DATA
     mouse_driver DATA
-    _mouse_driver_list DATA
-    mousedrv_none DATA
     mouse_needs_poll
     mouse_pos DATA
     mouse_sprite DATA
@@ -415,6 +450,7 @@
     mouse_y DATA
     mouse_y_focus DATA
     mouse_z DATA
+    mousedrv_none DATA
     need_uconvert
     next_fli_frame
     normalize_vector
@@ -435,7 +471,6 @@
     pack_feof
     pack_ferror
     pack_fgets
-    packfile_password
     pack_fopen
     pack_fopen_chunk
     pack_fputs
@@ -452,17 +487,10 @@
     pack_mputl
     pack_mputw
     pack_putc
+    packfile_password
     palette_color DATA
     persp_project
     persp_project_f
-    _persp_xoffset DATA
-    _persp_xoffset_f DATA
-    _persp_xscale DATA
-    _persp_xscale_f DATA
-    _persp_yoffset DATA
-    _persp_yoffset_f DATA
-    _persp_yscale DATA
-    _persp_yscale_f DATA
     pivot_scaled_sprite
     pivot_scaled_sprite_v_flip
     pivot_sprite
@@ -489,12 +517,7 @@
     position_mouse_z
     push_config_state
     put_backslash
-    _putpixel
     putpixel
-    _putpixel15
-    _putpixel16
-    _putpixel24
-    _putpixel32
     qscale_matrix
     qscale_matrix_f
     qtranslate_matrix
@@ -504,8 +527,8 @@
     quat_mul
     quat_slerp
     quat_to_matrix
-    readkey
     read_sound_input
+    readkey
     reallocate_voice
     rect
     rectfill
@@ -539,22 +562,7 @@
     rest_callback
     retrace_count DATA
     retrace_proc DATA
-    _rgb_a_shift_32 DATA
-    _rgb_b_shift_15 DATA
-    _rgb_b_shift_16 DATA
-    _rgb_b_shift_24 DATA
-    _rgb_b_shift_32 DATA
-    _rgb_g_shift_15 DATA
-    _rgb_g_shift_16 DATA
-    _rgb_g_shift_24 DATA
-    _rgb_g_shift_32 DATA
     rgb_map DATA
-    _rgb_r_shift_15 DATA
-    _rgb_r_shift_16 DATA
-    _rgb_r_shift_24 DATA
-    _rgb_r_shift_32 DATA
-    _rgb_scale_5 DATA
-    _rgb_scale_6 DATA
     rgb_to_hsv
     rotate_scaled_sprite
     rotate_scaled_sprite_v_flip
@@ -580,7 +588,6 @@
     set_blender_mode_ex
     set_burn_blender
     set_clip
-    _set_color
     set_color
     set_color_blender
     set_color_conversion
@@ -631,8 +638,6 @@
     simulate_keypress
     simulate_ukeypress
     solid_mode
-    _sort_out_getc
-    _sort_out_putc
     spline
     start_sound_input
     stop_audio_stream
@@ -642,9 +647,7 @@
     stretch_blit
     stretch_sprite
     system_driver DATA
-    _system_driver_list DATA
     system_none DATA
-    _tan_tbl DATA
     text_height
     text_length
     text_mode
@@ -659,7 +662,6 @@
     three_finger_flag DATA
     timer_can_simulate_retrace
     timer_driver DATA
-    _timer_driver_list DATA
     timer_is_using_retrace
     timer_simulate_retrace
     triangle
@@ -671,8 +673,8 @@
     ucwidth DATA
     ugetat
     ugetc DATA
-    ugetxc DATA
     ugetx DATA
+    ugetxc DATA
     uinsert
     uisdigit
     uisok DATA
@@ -690,7 +692,6 @@
     usprintf
     ustrchr
     ustrcmp
-    _ustrdup
     ustrerror
     ustricmp
     ustrlen
@@ -742,9 +743,9 @@
     voice_sweep_frequency
     voice_sweep_pan
     vsync
-    _vtable_list DATA
     xor_mode
     yield_timeslice
+    _WinMain
     blit_from_hdc
     blit_to_hdc
     convert_bitmap_to_hbitmap
@@ -772,7 +773,6 @@
     win_get_window
     win_gfx_driver DATA
     win_grab_input
-    _WinMain
     win_release_dc
     win_set_window
     win_set_wnd_create_proc
@@ -785,20 +785,20 @@
     _al_free
     _al_getdcwd
     _al_getdrive
-    _allegro_count DATA
     _al_linker_midi DATA
     _al_linker_mouse DATA
     _al_malloc
     _al_realloc
     _al_sane_realloc
+    _allegro_count DATA
     _blender_add15
     _blender_add16
     _blender_add24
+    _blender_alpha DATA
     _blender_alpha15
     _blender_alpha16
     _blender_alpha24
     _blender_alpha32
-    _blender_alpha DATA
     _blender_black
     _blender_burn15
     _blender_burn16
@@ -851,6 +851,10 @@
     _blit_between_formats
     _clip_polygon_segment
     _clip_polygon_segment_f
+    _color_conv DATA
+    _color_depth DATA
+    _color_find_glyph
+    _color_load_depth
     _colorconv_blit_15_to_16
     _colorconv_blit_15_to_24
     _colorconv_blit_15_to_32
@@ -872,10 +876,6 @@
     _colorconv_blit_8_to_24
     _colorconv_blit_8_to_32
     _colorconv_blit_8_to_8
-    _color_conv DATA
-    _color_depth DATA
-    _color_find_glyph
-    _color_load_depth
     _compile_sprites DATA
     _construct_datafile
     _create_driver_list
@@ -887,15 +887,15 @@
     _digi_volume DATA
     _digmid_find_patches
     _dispsw_status DATA
+    _draw_listbox
+    _draw_scrollable_frame
+    _draw_textbox
     _drawing_mode DATA
     _drawing_pattern DATA
     _drawing_x_anchor DATA
     _drawing_x_mask DATA
     _drawing_y_anchor DATA
     _drawing_y_mask DATA
-    _draw_listbox
-    _draw_scrollable_frame
-    _draw_textbox
     _driver_list_append_driver
     _driver_list_append_list
     _driver_list_prepend_driver
@@ -910,9 +910,7 @@
     _find_utype
     _fixup_loaded_bitmap
     _font_vtable_color DATA
-    font_vtable_color DATA
     _font_vtable_mono DATA
-    font_vtable_mono DATA
     _get_colorconv_blitter
     _get_colorconv_map
     _get_scanline_filler
@@ -935,8 +933,9 @@
     _handle_scrollable_scroll
     _handle_scrollable_scroll_click
     _handle_timer_tick
-    _joystick_installed DATA
     _joy_type DATA
+    _joystick_installed DATA
+    _key DATA
     _key_accent1 DATA
     _key_accent1_flag DATA
     _key_accent1_lower_table DATA
@@ -956,13 +955,12 @@
     _key_altgr_lower_table DATA
     _key_altgr_upper_table DATA
     _key_ascii_table DATA
-    _keyboard_installed DATA
     _key_capslock_table DATA
     _key_control_table DATA
-    _key DATA
-    _key_shifts DATA
     _key_shift_table DATA
+    _key_shifts DATA
     _key_standard_kb DATA
+    _keyboard_installed DATA
     _last_bank_1 DATA
     _last_bank_2 DATA
     _linear_blit16
@@ -1063,6 +1061,7 @@
     _midi_none DATA
     _midi_tick DATA
     _midi_volume DATA
+    _mix_some_samples
     _mixer_exit
     _mixer_get_frequency
     _mixer_get_pan
@@ -1087,7 +1086,6 @@
     _mixer_stop_volume_ramp
     _mixer_sweep_frequency
     _mixer_sweep_pan
-    _mix_some_samples
     _mono_find_glyph
     _mouse_b DATA
     _mouse_installed DATA
@@ -1290,3 +1288,5 @@
     _unregister_switch_bitmap
     _voice DATA
     _zbuffer DATA
+    font_vtable_color DATA
+    font_vtable_mono DATA
