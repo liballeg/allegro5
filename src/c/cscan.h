@@ -155,7 +155,8 @@ void FUNC_POLY_SCANLINE_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
-      unsigned long color = PS_BLEND(blender, GET_MEMORY_PIXEL(s), (c >> 16));
+      unsigned long color = GET_MEMORY_PIXEL(s);
+      color = PS_BLEND(blender, (c >> 16), color);
 
       PUT_PIXEL(d, color);
       u += du;
@@ -190,7 +191,7 @@ void FUNC_POLY_SCANLINE_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
       unsigned long color = GET_MEMORY_PIXEL(s);
 
       if (!IS_MASK(color)) {
-	 color = PS_BLEND(blender, color, (c >> 16));
+	 color = PS_BLEND(blender, (c >> 16), color);
 	 PUT_PIXEL(d, color);
       }
       u += du;
@@ -294,7 +295,8 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
       long u = fu / fz;
       long v = fv / fz;
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
-      unsigned long color = PS_BLEND(blender, GET_MEMORY_PIXEL(s), (c >> 16));
+      unsigned long color = GET_MEMORY_PIXEL(s);
+      color = PS_BLEND(blender, (c >> 16), color);
 
       PUT_PIXEL(d, color);
       fu += dfu;
@@ -334,7 +336,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
       unsigned long color = GET_MEMORY_PIXEL(s);
 
       if (!IS_MASK(color)) {
-	 color = PS_BLEND(blender, color, (c >> 16));
+	 color = PS_BLEND(blender, (c >> 16), color);
 	 PUT_PIXEL(d, color);
       }
       fu += dfu;

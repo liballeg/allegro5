@@ -52,7 +52,7 @@
 /* Blender for poly_scanline_*_lit.  */
 #define PS_BLENDER             COLOR_MAP*
 #define MAKE_PS_BLENDER()      color_map
-#define PS_BLEND(b,o,c)        ((b)->data[(c) & 0xFF][(o) & 0xFF])
+#define PS_BLEND(b,o,c)        ((b)->data[(o) & 0xFF][(c) & 0xFF])
 
 #define PATTERN_LINE(y)        _drawing_pattern->line[((y) - _drawing_y_anchor) & _drawing_y_mask]
 #define GET_PATTERN_PIXEL(x,y) GET_MEMORY_PIXEL(OFFSET_PIXEL_PTR(PATTERN_LINE(y), (x)))
