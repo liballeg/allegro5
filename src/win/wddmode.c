@@ -67,6 +67,18 @@ static int wnd_set_video_mode(void)
 {
    HRESULT hr;
 
+   /* remove the window controls */
+   SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
+
+   /* maximize the window and make it always-on-top */
+   SetWindowPos(allegro_wnd, HWND_TOPMOST, 0, 0, 
+                GetSystemMetrics(SM_CXSCREEN),
+                GetSystemMetrics(SM_CYSCREEN),
+                SWP_NOCOPYBITS);
+
+   /* put it in the foreground */
+   SetForegroundWindow(allegro_wnd);
+
    /* set the cooperative level to allow fullscreen access */
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
    if (FAILED(hr)) {
@@ -435,17 +447,10 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 
             /* check whether the requested mode was properly set by the driver */
             if (gfx_directx_compare_color_depth(color_depth) == 0)
-               goto ModeSet;
+               return 0;
          }
       }  /* end of 'if (pixel_realdepth[i] == color_depth)' */ 
       
    _TRACE("Unable to set any display mode.\n");
    return -1;
-
- ModeSet:
-   /* remove window controls */
-   SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
-   ShowWindow(allegro_wnd, SW_MAXIMIZE);
-
-   return 0;
 }
