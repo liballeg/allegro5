@@ -31,7 +31,10 @@
 #include <pthread.h>
 
 
-#define display_id                      kCGDirectMainDisplay
+#ifndef NSAppKitVersionNumber10_1
+#define NSAppKitVersionNumber10_1       620
+#endif
+
 
 #define OSX_GFX_NONE                    0
 #define OSX_GFX_WINDOW                  1
