@@ -39,6 +39,7 @@ int wnd_y = 0;
 int wnd_width = 0;
 int wnd_height = 0;
 int wnd_sysmenu = FALSE;
+int wnd_show_state = SW_SHOWNORMAL;
 
 static int last_wnd_x = 32;
 static int last_wnd_y = 32;
@@ -403,8 +404,9 @@ static HWND create_directx_window(void)
       return NULL;
    }
 
-   ShowWindow(wnd, SW_SHOWNORMAL);
-   SetForegroundWindow(wnd);
+   ShowWindow(wnd, wnd_show_state);
+   wnd_show_state = SW_SHOWNORMAL;
+
    UpdateWindow(wnd);
 
    return wnd;

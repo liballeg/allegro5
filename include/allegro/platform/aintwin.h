@@ -76,6 +76,7 @@ AL_VAR(int, wnd_y);
 AL_VAR(int, wnd_width);
 AL_VAR(int, wnd_height);
 AL_VAR(int, wnd_sysmenu);
+AL_VAR(int, wnd_show_state);
 
 AL_FUNCPTR(void, user_close_proc, (void));
 

@@ -516,6 +516,8 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
    argv[argc] = NULL;
 
+   wnd_show_state = nShow;
+
    /* call the application entry point */
    i = mainfunc(argc, argv);
 
