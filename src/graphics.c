@@ -572,9 +572,9 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
-      ustrzcpy(buf, sizeof(buf), allegro_error);
-
       if (system_driver->get_gfx_safe_mode) {
+	 ustrzcpy(buf, sizeof(buf), allegro_error);
+
 	 /* retrieve the safe graphics mode */
 	 system_driver->get_gfx_safe_mode(&driver, &mode);
 
@@ -592,17 +592,11 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 ASSERT(FALSE);  /* the safe graphics mode must always work */
       }
       else {
-	 /* no safe graphics mode, try normal autodetected modes */
-	 if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) == 0)
-	    return 0;
-
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
-
-	 /* finally try hard-coded autodetected modes with custom settings */
+	 /* no safe graphics mode, try hard-coded autodetected modes with custom settings */
 	 allow_config = FALSE;
 	 _safe_gfx_mode_change = 1;
 
-	 ret = set_gfx_mode(GFX_AUTODETECT, 0, 0, 0, 0);
+	 ret = set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0);
 
 	 _safe_gfx_mode_change = 0;
 	 allow_config = TRUE;
