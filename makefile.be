@@ -34,13 +34,13 @@ WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 endif
 
 ifdef TARGET_ARCH_COMPAT
-   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
+   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
 else
-   ifdef TARGET_ARCH_EXCL
-      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
-   else
-      TARGET_ARCH = -mpentium
-   endif
+   ifdef TARGET_ARCH_EXCL
+      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
+   else
+      TARGET_ARCH = -mpentium
+   endif
 endif
 
 ifndef TARGET_OPTS
