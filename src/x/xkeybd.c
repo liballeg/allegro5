@@ -134,17 +134,11 @@ static void _xwin_keydrv_handler(int pressed, int code)
  */
 static void _xwin_keydrv_focused(int focused, int state)
 {
-   int i, mask;
+   int mask;
 
    if (focused) {
       mask = KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG;
       _key_shifts = (_key_shifts & ~mask) | (state & mask);
-   }
-   else {
-      for (i=0; i<KEY_MAX; i++) {
-	 if (key[i])
-	    _handle_key_release(i);
-      }
    }
 }
 

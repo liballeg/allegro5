@@ -2018,8 +2018,15 @@ static void _xwin_private_process_event(XEvent *event)
 	 /* Losing input focus.  */
 	 if (_xwin_keyboard_focused)
 	    (*_xwin_keyboard_focused)(FALSE, 0);
-	 for (kcode = 0; kcode < 256; kcode++)
-	    _xwin_keycode_pressed[kcode] = FALSE;
+	 for (kcode = 0; kcode < 256; kcode++) {
+	    if (_xwin_keycode_pressed[kcode]) {
+	       scode = _xwin.keycode_to_scancode[kcode];
+	       if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
+		  (*_xwin_keyboard_interrupt)(0, scode);
+		  _xwin_keycode_pressed[kcode] = FALSE;
+	       }
+	    }
+	 }
 	 _switch_out();
 	 break;
       case ButtonPress:
