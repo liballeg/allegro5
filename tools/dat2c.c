@@ -342,39 +342,16 @@ static int prepare_dat2c(struct dat2c* dat2c)
         }
     }
     
-    if(dat2c->lformat == lineformat_default) {
-        switch(os_type) {
-            case OSTYPE_LINUX:
-            case OSTYPE_SUNOS:
-            case OSTYPE_FREEBSD:
-            case OSTYPE_NETBSD:
-            case OSTYPE_IRIX:
-            case OSTYPE_QNX:
-            case OSTYPE_UNIX:
-            case OSTYPE_BEOS:
-                dat2c->lformat = lineformat_unix;
-                break;
-
-            case OSTYPE_MACOS:
-            case OSTYPE_DARWIN:
-                dat2c->lformat = lineformat_mac;
-                break;
-
-            case OSTYPE_WIN3:
-            case OSTYPE_WIN95:
-            case OSTYPE_WIN98:
-            case OSTYPE_WINME:
-            case OSTYPE_WINNT:
-            case OSTYPE_WIN2000:
-            case OSTYPE_WINXP:
-            case OSTYPE_OS2:
-            case OSTYPE_WARP:
-            case OSTYPE_DOSEMU:
-            case OSTYPE_OPENDOS:
-            default:
-                dat2c->lformat = lineformat_dos;
-        }
-    }
+    if(dat2c->lformat == lineformat_default)
+#if defined ALLEGRO_UNIX
+        dat2c->lformat = lineformat_unix;
+#elif (defined ALLEGRO_WINDOWS || defined ALLEGRO_DOS)
+        dat2c->lformat = lineformat_dos;
+#elif defined ALLEGRO_MPW
+        dat2c->lformat = lineformat_mac;
+#else
+   #error platform not supported
+#endif
     
     return 0;
 }
