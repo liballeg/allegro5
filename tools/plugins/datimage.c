@@ -377,6 +377,7 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
    BITMAP *bmp = (BITMAP *)dat->dat;
    int x, y, c, r, g, b, a;
    unsigned short *p16;
+   unsigned char *p24;
    unsigned long *p32;
    int depth;
 
@@ -384,6 +385,8 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
       depth = -32;
    else
       depth = bitmap_color_depth(bmp);
+
+   *allegro_errno = 0;
 
    pack_mputw(depth, f);
    pack_mputw(bmp->w, f);
@@ -418,13 +421,17 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
       case 24:
 	 /* 24 bit truecolor */
 	 for (y=0; y<bmp->h; y++) {
+	    p24 = (unsigned char *)bmp->line[y];
+
 	    for (x=0; x<bmp->w; x++) {
-	       r = bmp->line[y][x*3+_rgb_r_shift_24/8];
-	       g = bmp->line[y][x*3+_rgb_g_shift_24/8];
-	       b = bmp->line[y][x*3+_rgb_b_shift_24/8];
+	       c = READ3BYTES(p24);
+	       r = getr24(c);
+	       g = getg24(c);
+	       b = getb24(c);
 	       pack_putc(r, f);
 	       pack_putc(g, f);
 	       pack_putc(b, f);
+	       p24 += 3;
 	    }
 	 }
 	 break;
@@ -466,8 +473,10 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
 	 break;
    }
 
-   /* TODO: return FALSE on failure */
-   return TRUE;
+   if (*allegro_errno)
+      return FALSE;
+   else
+      return TRUE;
 }
 
 
@@ -592,6 +601,8 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
       depth = -32;
    else
       depth = spr->color_depth;
+
+   *allegro_errno = 0;
 
    pack_mputw(depth, f);
    pack_mputw(spr->w, f);
@@ -722,8 +733,10 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 	 break;
    }
 
-   /* TODO: return FALSE on failure */
-   return TRUE;
+   if (*allegro_errno)
+      return FALSE;
+   else
+      return TRUE;
 }
 
 

@@ -114,6 +114,8 @@ static int save_midi(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack
    MIDI *midi = (MIDI *)dat->dat;
    int c;
 
+   *allegro_errno = 0;
+
    pack_mputw(midi->divisions, f);
 
    for (c=0; c<MIDI_TRACKS; c++) {
@@ -122,8 +124,10 @@ static int save_midi(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack
 	 pack_fwrite(midi->track[c].data, midi->track[c].len, f);
    }
 
-   /* TODO: return FALSE on failure */
-   return TRUE;
+   if (*allegro_errno)
+      return FALSE;
+   else
+      return TRUE;
 }
 
 

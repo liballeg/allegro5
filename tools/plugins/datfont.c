@@ -806,6 +806,8 @@ static int save_mono_font(FONT* f, PACKFILE* pack)
     FONT_MONO_DATA* mf = f->data;
     int i = 0;
 
+   *allegro_errno = 0;
+
     /* count number of ranges */
     while(mf) {
         i++;
@@ -828,15 +830,17 @@ static int save_mono_font(FONT* f, PACKFILE* pack)
             pack_mputw(g->w, pack);
             pack_mputw(g->h, pack);
 
-            pack_fwrite(g->dat, ((g->w + 7) / 8) * g->h, pack);
+	    pack_fwrite(g->dat, ((g->w + 7) / 8) * g->h, pack);
         }
 
         mf = mf->next;
 
     }
 
-    /* TODO: return FALSE on failure */
-    return TRUE;
+   if (*allegro_errno)
+      return FALSE;
+   else
+      return TRUE;
 }
 
 
@@ -846,6 +850,8 @@ static int save_color_font(FONT* f, PACKFILE* pack)
 {
     FONT_COLOR_DATA* cf = f->data;
     int i = 0;
+
+   *allegro_errno = 0;
 
     /* count number of ranges */
     while(cf) {
@@ -880,8 +886,10 @@ static int save_color_font(FONT* f, PACKFILE* pack)
 
     }
 
-    /* TODO: return FALSE on failure */
-    return TRUE;
+   if (*allegro_errno)
+      return FALSE;
+   else
+      return TRUE;
 }
 
 

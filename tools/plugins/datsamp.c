@@ -120,6 +120,8 @@ static int save_sample_in_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int 
 {
    SAMPLE *spl = (SAMPLE *)dat->dat;
 
+   *allegro_errno = 0;
+
    pack_mputw((spl->stereo) ? -spl->bits : spl->bits, f);
    pack_mputw(spl->freq, f);
    pack_mputl(spl->len, f);
@@ -134,8 +136,10 @@ static int save_sample_in_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int 
       }
    }
 
-   /* TODO: return FALSE on failure */
-   return TRUE;
+   if (*allegro_errno)
+      return FALSE;
+   else
+      return TRUE;
 }
 
 

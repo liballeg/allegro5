@@ -186,9 +186,8 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
 	       if (rgba)
 		  pack_getc(f);
 
-	       bmp->line[y][x*3+_rgb_r_shift_24/8] = r;
-	       bmp->line[y][x*3+_rgb_g_shift_24/8] = g;
-	       bmp->line[y][x*3+_rgb_b_shift_24/8] = b;
+	       c = makecol24(r, g, b);
+	       WRITE3BYTES(bmp->line[y] + (x * 3), c);
 	    }
 	 }
 	 break;

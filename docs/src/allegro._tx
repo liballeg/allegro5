@@ -7233,7 +7233,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 @xref pack_fopen, pack_fopen_chunk
    Puts a character in the stream f.
 @retval
-   Returns zero on success, or EOF on error.
+   Returns the character written on success, or EOF on error.
 
 @@int @pack_igetw(PACKFILE *f);
 @xref pack_getc
