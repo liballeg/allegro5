@@ -108,7 +108,7 @@ EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 ifdef HTML
 DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile
 
-DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi api))
+DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,ahack faq help allegro const abi api packfile))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 DOCS += CHANGES AUTHORS THANKS
