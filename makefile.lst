@@ -430,6 +430,10 @@ ALLEGRO_NOLIB_EXE_SOURCES = \
 	docs/makedoc.c \
 	src/i386/asmdef.c
 
+ALLEGRO_DATS = \
+	keyboard.dat \
+	language.dat
+
 CLEAN_FILES = \
 	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 docs/*.txt \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj \
@@ -445,7 +449,7 @@ CLEAN_FILES = \
 DISTCLEAN_FILES = \
 	allegro.txt help.txt docs/*.html docs/*.htm docs/*.rtf docs/makedoc \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
-	*.exe */*.exe msvcmake.bat wintests/*.scr \
+	*.exe */*.exe $(ALLEGRO_DATS) msvcmake.bat wintests/*.scr \
 	config.cache config.log stamp-h stamp-h[0-9]* suid makefile.dep \
 	config.status include/allegro/alunixac.h allegro-config
 

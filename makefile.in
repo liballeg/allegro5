@@ -147,7 +147,16 @@ obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
 
-# documentation
+# Datafiles
+DAT = tools/dat$(EXE)
+
+keyboard.dat: $(wildcard resource/keyboard/*.cfg) $(DAT)
+	$(DAT) -a -c1 keyboard.dat $(wildcard resource/keyboard/*.cfg)
+
+language.dat: $(wildcard resource/language/*.cfg) $(DAT)
+	$(DAT) -a -c1 language.dat $(wildcard resource/language/*.cfg)
+
+# Documentation
 DOCS = docs/ahack.html CHANGES docs/changes.html faq.txt docs/faq.html \
        help.txt docs/help.html AUTHORS THANKS docs/thanks.html \
        allegro.txt docs/allegro.html docs/allegro.texi docs/allegro.info \
@@ -212,11 +221,13 @@ allegro.dvi: $(srcdir)/docs/allegro.texi
 # Dependencies and rules for building libraries and simple programs.
 include makefile.dep
 
-all: lib programs docs
+all: lib programs dats docs
 
 lib: $(ALLEGRO_LIB_TARGETS)
 
 programs: $(ALLEGRO_EXE_TARGETS)
+
+dats: $(ALLEGRO_DATS)
 
 docs: $(DOCS)
 

@@ -12,12 +12,14 @@ General (Platform independant) todos:
 
 - Add caching system to speed up filename#object and load_datafile_object()
 - Even newer GFX_SAFE behaviour (return error instead of quitting)
+- New example to test P3D scene rendering
 
 Win32 todos:
 ---------------------------------------------------------------------------
 
 - Mouse pointer update ratio extremely slow when using GFX_GDI driver
 - Keyboard gets "stuck" under Windows 2000
+- Window close button
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -44,7 +46,7 @@ X11 todos:
 - num-lock state in X window may not match state on keyboard
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
-- DGA2 driver doesn't work for me [pw]
+- window close button
 
 Macintosh todos:
 ---------------------------------------------------------------------------
@@ -56,6 +58,7 @@ Macintosh todos:
   scrolling, midi, joystick, switching, windowed modes, true 16 & 32 bpp
   colordepths.
 - Update the docs.
+- Window close button?
 
 BeOS todos:
 ---------------------------------------------------------------------------
@@ -91,8 +94,7 @@ Wishlist
 - separate fullscreen option from XDFS, XDGA, etc.
 - OSS MIDI pitch bend.
 - function to get a list of supported video modes
-- hook function to handle window resizing and another one to handle
-  window closing
+- hook function to handle window resizing
 - dynamically linked wrappers for drivers under Linux
 
 ---------------------------------------------------------------------------

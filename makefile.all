@@ -20,6 +20,7 @@
 #        install:          install single library version.
 #        installall:       install all library versions.
 #        uninstall:        remove Allegro from system directories.
+#        dats:             generate datafiles from resource directory.
 #        docs:             convert documentation from ._tx sources.
 #        clean:            remove object files.
 #        distclean:        remove objects and executables.
@@ -99,6 +100,8 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
+DATS = $(ALLEGRO_DATS)
+
 ifdef HTML
 DOCS = docs/ahack.$(HTML) CHANGES docs/changes.$(HTML) \
        faq.txt docs/faq.$(HTML) help.txt docs/help.$(HTML) \
@@ -115,12 +118,12 @@ endif
 
 # -------- top level boss targets like "default" and "all" --------
 
-.PHONY: default all msg lib install installall uninstall docs \
+.PHONY: default all msg lib install installall uninstall dats docs \
 	clean distclean veryclean depend $(PROGRAMS)
 
 .PRECIOUS: $(OBJ_DIR)/%$(OBJ)
 
-default: msg lib $(PROGRAMS) docs
+default: msg lib $(PROGRAMS) dats docs
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been compiled.
 	@echo Run make install to complete the installation.
 
@@ -129,7 +132,7 @@ all:
 	$(MAKE) msg lib DEBUGMODE=1
 	$(MAKE) msg lib PROFILEMODE=1
 	@echo Compiling utilities, examples and test programs. Please wait...
-	$(MAKE) $(PROGRAMS) docs
+	$(MAKE) $(PROGRAMS) dats docs
 	@echo All $(PLATFORM) library versions have been compiled.
 	@echo Run make installall to complete the installation.
 
@@ -141,6 +144,8 @@ installall:
 
 msg:
 	@echo Compiling Allegro for $(PLATFORM), $(DESCRIPTION). Please wait...
+
+dats: $(DATS)
 
 docs: $(DOCS)
 
@@ -161,6 +166,19 @@ distclean: clean
 
 veryclean: distclean
 	-rm -fv $(VERYCLEAN_FILES)
+
+
+
+# -------- rules for generating the datafiles --------
+
+# FIXME: cross-compilation
+DAT = tools/dat$(EXE)
+
+keyboard.dat: $(wildcard resource/keyboard/*.cfg) $(DAT)
+	$(DAT) -a -c1 keyboard.dat $(wildcard resource/keyboard/*.cfg)
+
+language.dat: $(wildcard resource/language/*.cfg) $(DAT)
+	$(DAT) -a -c1 language.dat $(wildcard resource/language/*.cfg)
 
 
 
