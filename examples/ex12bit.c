@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
    screen->w /= sizeof(short);
 
    /* reset the clip window to it's new parameters */
-   set_clip(screen, 0, 0, screen->w-1, screen->h-1);
+   set_clip_rect(screen, 0, 0, screen->w-1, screen->h-1);
 
    /* then generate 4 vector balls of different colours */
    for (x=0; x<4; x++) {

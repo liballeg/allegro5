@@ -182,7 +182,6 @@ AL_INLINE(int, is_sub_bitmap, (BITMAP *bmp),
 })
 
 
-
 #ifdef ALLEGRO_MPW
 
    #define acquire_bitmap(bmp)
@@ -222,6 +221,33 @@ AL_INLINE(void, release_screen, (void),
 })
 
 #endif
+
+
+AL_INLINE(void, get_clip_rect, (BITMAP *bitmap, int *x1, int *y1, int *x2, int *y2),
+{
+   ASSERT(bitmap);
+
+   /* internal clipping is inclusive-exclusive */
+   *x1 = bitmap->cl;
+   *y1 = bitmap->ct;
+   *x2 = bitmap->cr-1;
+   *y2 = bitmap->cb-1;
+})
+
+AL_INLINE(void, set_clip_state, (BITMAP *bitmap, int state),
+{
+   ASSERT(bitmap);
+
+   bitmap->clip = state;
+})
+
+AL_INLINE(int, get_clip_state, (BITMAP *bitmap),
+{
+   ASSERT(bitmap);
+
+   return bitmap->clip;
+})
+
 
 #ifdef __cplusplus
    }

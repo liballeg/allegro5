@@ -146,7 +146,7 @@ void render(BITMAP *bmp)
 
    set_projection_viewport(x, y, w, h);
    rect(bmp, x-1, y-1, x+w, y+h, makecol(255, 0, 0));
-   set_clip(bmp, x, y, x+w-1, y+h-1);
+   set_clip_rect(bmp, x, y, x+w-1, y+h-1);
 
    /* calculate the in-front vector */
    xfront = sin(heading) * cos(pitch);
@@ -171,7 +171,7 @@ void render(BITMAP *bmp)
 	 draw_square(bmp, &camera, x, y);
 
    /* overlay some text */
-   set_clip(bmp, 0, 0, bmp->w, bmp->h);
+   set_clip_rect(bmp, 0, 0, bmp->w, bmp->h);
    textprintf_ex(bmp, font, 0,  0, makecol(0, 0, 0), -1, "Viewport width: %d (w/W changes)", viewport_w);
    textprintf_ex(bmp, font, 0,  8, makecol(0, 0, 0), -1, "Viewport height: %d (h/H changes)", viewport_h);
    textprintf_ex(bmp, font, 0, 16, makecol(0, 0, 0), -1, "Field of view: %d (f/F changes)", fov);

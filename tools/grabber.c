@@ -399,11 +399,11 @@ static void box_out(char *msg)
       if (mouse_screen)
 	 show_mouse(NULL);
 
-      set_clip(screen, BOX_L+8, BOX_T+1, BOX_R-8, BOX_B-1);
+      set_clip_rect(screen, BOX_L+8, BOX_T+1, BOX_R-8, BOX_B-1);
 
       textout_ex(screen, font, msg, BOX_L+(box_x+1)*8, BOX_T+(box_y+1)*8, gui_fg_color, gui_bg_color);
 
-      set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 
       if (mouse_screen)
 	 show_mouse(mouse_screen);

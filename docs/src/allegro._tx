@@ -398,7 +398,7 @@ available in past/future versions of Allegro.
    math routines" for the full explanation.
    
 @@typedef struct @BITMAP
-@xref create_bitmap, set_clip, bitmap_color_depth, RLE_SPRITE
+@xref create_bitmap, set_clip_rect, bitmap_color_depth, RLE_SPRITE
 @xref COMPILED_SPRITE, Direct access to video memory
 @eref Available Allegro examples
 <codeblock>
@@ -417,13 +417,13 @@ available in past/future versions of Allegro.
 <endblock>
    The clipping rectangle is inclusive on the left and top (0 allows drawing
    to position 0) but exclusive on the right and bottom (10 allows drawing
-   to position 9, but not to 10). Note this is not the same format as you
-   pass to set_clip(), which takes inclusive coordinates for all four
-   corners. All the values of this structure should be regarded as read-only,
-   with the exception of the line field, whose access is described in depth
-   in the "Direct access to video memory" section of the manual. If you want
-   to modify the clipping region, please refrain from changing this
-   structure. Use set_clip() instead.
+   to position 9, but not to 10). Note this is not the same format as that of
+   the clipping API, which takes inclusive coordinates for all four corners.
+   All the values of this structure should be regarded as read-only, with the
+   exception of the line field, whose access is described in depth in the
+   "Direct access to video memory" section of the manual. If you want to
+   modify the clipping region, please refrain from changing this structure.
+   Use set_clip_rect() instead.
 
 @@typedef struct @RLE_SPRITE
 @xref get_rle_sprite, BITMAP, COMPILED_SPRITE, RLE sprites
@@ -3738,21 +3738,53 @@ Allegro supports several different types of bitmaps:
 @eref exswitch, extruec
    Shortcut version of release_bitmap(screen);
 
-@@void @set_clip(BITMAP *bitmap, int x1, int y1, int x2, int y2);
+@@void @set_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2);
+@xref get_clip_rect, add_clip_rect, set_clip_state, get_clip_state
 @eref ex12bit, excamera
    Each bitmap has an associated clipping rectangle, which is the area of 
-   the image that it is ok to draw on. Nothing will be drawn to positions 
-   outside this space. Pass the two opposite corners of the clipping 
-   rectangle: these are inclusive, eg. set_clip(bitmap, 16, 16, 32, 32) will 
-   allow drawing to (16, 16) and (32, 32), but not to (15, 15) and (33, 33). 
-   If x1, y1, x2, and y2 are all zero, clipping will be turned off, which 
-   may slightly speed up some drawing operations (usually a negligible 
-   difference, although every little helps) but will result in your program 
-   dying a horrible death if you try to draw beyond the edges of the bitmap.
+   the image that it is ok to draw onto. Nothing will be drawn to positions
+   outside this space. This function sets the clipping rectangle for the
+   specified bitmap. Pass the coordinates of the top-left and bottom-right
+   corners of the clipping rectangle in this order; these are both inclusive,
+   i.e. set_clip_rect(bitmap, 16, 16, 32, 32) will allow drawing to (16, 16)
+   and (32, 32), but not to (15, 15) and (33, 33).
 
-   There's no get_clip like function. To obtain the clipping rectangle of an
-   existing bitmap, check the appropiate fields of the BITMAP structure
-   holding it.
+   Drawing operations will be performed (at least partially) on the bitmap as
+   long as the first coordinates of its clipping rectangle are not greater
+   than the second coordinates and its intersection with the actual image
+   is non-empty. If either condition is not fulfilled, drawing will be turned
+   off for the bitmap, e.g.
+<codeblock>
+      set_clip_rect(bmp, 0, 0, -1, -1); /* disable drawing on bmp */<endblock>
+
+   Note that passing "out-of-bitmap" coordinates is allowed, but they are
+   likely to be altered (and so the coordinates returned by get_clip_rect()
+   will be different). However, such modifications are guaranteed to preserve
+   the external effect of the clipping rectangle, that is not to modify the
+   actual area of the image that it is ok to draw onto.
+
+@@void @get_clip_rect(BITMAP *bitmap, int *x1, int *y1, int *x2, int *y2);
+@xref set_clip_rect, add_clip_rect, set_clip_state, get_clip_state
+   Returns the clipping rectangle for the specified bitmap.
+
+@@void @add_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2);
+@xref set_clip_rect, get_clip_rect, set_clip_state, get_clip_state
+   Sets the clipping rectangle of the specified bitmap as the intersection of
+   its current clipping rectangle and the rectangle described by the four
+   coordinates.
+
+@@void @set_clip_state(BITMAP *bitmap, int state)
+@xref set_clip_rect, get_clip_rect, add_clip_rect, get_clip_state
+   Turns on (if state is non-zero) or off (if state is zero) clipping for the
+   specified bitmap. Turning clipping off may slightly speed up some drawing
+   operations (usually a negligible  difference, although every little helps)
+   but will result in your program dying a horrible death if you try to draw
+   beyond the edges of the bitmap.
+
+@@int @get_clip_state(BITMAP *bitmap)
+@xref set_clip_rect, get_clip_rect, add_clip_rect, set_clip_state
+   Returns non-zero if clipping is turned on for the specified bitmap and
+   zero otherwise.
 
 
 
@@ -10526,7 +10558,7 @@ and avoid missing any important bit of information.
 @xref allegro_message, apply_matrix_f, clear_to_color, create_bitmap
 @xref desktop_palette, destroy_bitmap, font, get_vector_rotation_matrix_f
 @xref install_keyboard, key, key_shifts, makecol, persp_project_f
-@xref poll_keyboard, polygon, polygon3d_f, rect, screen, set_clip
+@xref poll_keyboard, polygon, polygon3d_f, rect, screen, set_clip_rect
 @xref set_gfx_mode, set_palette, set_projection_viewport, vsync
    This program demonstrates how to use the get_camera_matrix() function
    to view a 3d world from any position and angle.
@@ -10637,7 +10669,7 @@ and avoid missing any important bit of information.
 @xref clear_keybuf, clear_to_color, create_bitmap, create_bitmap_ex
 @xref destroy_bitmap, ellipsefill, fade_out, fixcos, fixed, fixsin
 @xref fixtoi, font, get_rotation_matrix, getpixel, install_keyboard
-@xref itofix, keypressed, line, makecol, putpixel, screen, set_clip
+@xref itofix, keypressed, line, makecol, putpixel, screen, set_clip_rect
 @xref set_color, set_gfx_mode, set_palette, text_height, text_length
    or "How to get a 12-bit mode on an 8-bit card"
    

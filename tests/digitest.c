@@ -70,9 +70,9 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	 min = MAX(d->x+MIN(i,j)-6, d->x+1);                \
 	 max = MIN(d->x+MAX(i,j)+6, d->x+d->w-2);           \
 	 oldval = newval;                                   \
-	 set_clip(screen, min, d->y+1, max, d->y+d->h-2);   \
+	 set_clip_rect(screen, min, d->y+1, max, d->y+d->h-2); \
 	 object_message(d, MSG_DRAW, 1);                    \
-	 set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);    \
+	 set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);  \
       }                                                     \
    }
 
@@ -160,7 +160,7 @@ int waveform_proc(int msg, DIALOG *d, int c)
 
 	    if (s) {
 	       if (!c)
-		  set_clip(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2);
+		  set_clip_rect(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2);
 
 	       val = SAMPLE_TO_SCREEN(s->loop_start);
 	       if ((val > 0) && (val < d->w)) {
@@ -185,7 +185,7 @@ int waveform_proc(int msg, DIALOG *d, int c)
 		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, palette_color[4]);
 
 	       if (!c)
-		  set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+		  set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 	    }
 	 }
 	 else {

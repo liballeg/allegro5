@@ -428,9 +428,9 @@ int record_proc(int msg, DIALOG *d, int c)
 /* helper for redrawing a specific part of the keyboard object */
 void redraw_keyboard(DIALOG *d, int c)
 {
-   set_clip(screen, d->x+(c-36)*12-6, d->y, d->x+(c-36)*12+18, d->y+d->h);
+   set_clip_rect(screen, d->x+(c-36)*12-6, d->y, d->x+(c-36)*12+18, d->y+d->h);
    object_message(d, MSG_DRAW, 0);
-   set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 }
 
 

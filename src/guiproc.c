@@ -159,7 +159,8 @@ int d_clear_proc(int msg, DIALOG *d, int c)
 #endif
 
    if (msg == MSG_DRAW) {
-      set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      set_clip_state(screen, TRUE);
       clear_to_color(screen, d->bg);
    }
 

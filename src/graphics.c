@@ -1408,6 +1408,53 @@ void destroy_bitmap(BITMAP *bitmap)
 
 
 
+/* set_clip_rect:
+ *  Sets the two opposite corners of the clipping rectangle to be used when
+ *  drawing to the bitmap. Nothing will be drawn to positions outside of this 
+ *  rectangle. When a new bitmap is created the clipping rectangle will be 
+ *  set to the full area of the bitmap.
+ */
+void set_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2)
+{
+   ASSERT(bitmap);
+
+   /* internal clipping is inclusive-exclusive */
+   x2++;
+   y2++;
+
+   bitmap->cl = MID(0, x1, bitmap->w-1);
+   bitmap->ct = MID(0, y1, bitmap->h-1);
+   bitmap->cr = MID(0, x2, bitmap->w);
+   bitmap->cb = MID(0, y2, bitmap->h);
+
+   if (bitmap->vtable->set_clip)
+      bitmap->vtable->set_clip(bitmap);
+}
+
+
+
+/* add_clip_rect:
+ *  Makes the new clipping rectangle the intersection between the given
+ *  rectangle and the current one.
+ */
+void add_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2)
+{
+   int cx1, cy1, cx2, cy2;
+
+   ASSERT(bitmap);
+
+   get_clip_rect(bitmap, &cx1, &cy1, &cx2, &cy2);
+
+   x1 = MAX(x1, cx1);
+   y1 = MAX(y1, cy1);
+   x2 = MIN(x2, cx2);
+   y2 = MIN(y2, cy2);
+
+   set_clip_rect(bitmap, x1, y1, x2, y2);
+}
+
+
+
 /* set_clip:
  *  Sets the two opposite corners of the clipping rectangle to be used when
  *  drawing to the bitmap. Nothing will be drawn to positions outside of this 
@@ -1424,14 +1471,8 @@ void set_clip(BITMAP *bitmap, int x1, int y1, int x2, int y2)
    ASSERT(bitmap);
 
    if ((!x1) && (!y1) && (!x2) && (!y2)) {
-      bitmap->clip = FALSE;
-      bitmap->cl = bitmap->ct = 0;
-      bitmap->cr = bitmap->w;
-      bitmap->cb = bitmap->h;
-
-      if (bitmap->vtable->set_clip)
-	 bitmap->vtable->set_clip(bitmap);
-
+      set_clip_rect(bitmap, 0, 0, bitmap->w-1, bitmap->h-1);
+      set_clip_state(bitmap, FALSE);
       return;
    }
 
@@ -1447,17 +1488,8 @@ void set_clip(BITMAP *bitmap, int x1, int y1, int x2, int y2)
       y2 = t;
    }
 
-   x2++;
-   y2++;
-
-   bitmap->clip = TRUE;
-   bitmap->cl = MID(0, x1, bitmap->w-1);
-   bitmap->ct = MID(0, y1, bitmap->h-1);
-   bitmap->cr = MID(0, x2, bitmap->w);
-   bitmap->cb = MID(0, y2, bitmap->h);
-
-   if (bitmap->vtable->set_clip)
-      bitmap->vtable->set_clip(bitmap);
+   set_clip_rect(bitmap, x1, y1, x2, y2);
+   set_clip_state(bitmap, TRUE);
 }
 
 

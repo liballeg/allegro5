@@ -293,6 +293,8 @@ Deprecated materials
 <li>
    select_pallete (select_palette).
 <li>
+   set_clip (set_clip_rect).
+<li>
    unselect_pallete (unselect_palette).
 <li>
    generate_332_pallete (generate_332_palette).

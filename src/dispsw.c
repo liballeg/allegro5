@@ -333,16 +333,17 @@ static void reconstruct_kids(BITMAP *parent, BITMAP_INFORMATION *info)
  */
 static void fudge_bitmap(BITMAP *b1, BITMAP *b2)
 {
-   set_clip(b2, 0, 0, 0, 0);
+   int s, x1, y1, x2, y2;
+
+   set_clip_state(b2, FALSE);
 
    blit(b1, b2, 0, 0, 0, 0, b1->w, b1->h);
 
-   b2->clip = b1->clip;
+   get_clip_rect(b1, &x1, &y1, &x2, &y2);
+   s = get_clip_state(b1);
 
-   b2->cl = b1->cl;
-   b2->cr = b1->cr;
-   b2->ct = b1->ct;
-   b2->cb = b1->cb;
+   set_clip_rect(b2, x1, y1, x2, y2);
+   set_clip_state(b2, s);
 }
 
 

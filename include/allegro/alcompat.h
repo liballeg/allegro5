@@ -215,6 +215,10 @@ AL_INLINE_DEPRECATED(void, set_window_close_hook, (void (*proc)(void)),
 })
 
 
+/* the weird old clipping API */
+AL_FUNC_DEPRECATED(void, set_clip, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
+
+
 #ifdef __cplusplus
    }
 #endif

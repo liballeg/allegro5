@@ -93,22 +93,18 @@ END_OF_FUNCTION(tm_tick)
 
 void show_time(long t, BITMAP *bmp, int y)
 {
-   int cf, cl, ct, cr, cb;
+   int s, x1, y1, x2, y2;
 
-   cf = bmp->clip;
-   cl = bmp->cl;
-   cr = bmp->cr;
-   ct = bmp->ct;
-   cb = bmp->cb;
+   get_clip_rect(bmp, &x1, &y1, &x2, &y2);
+   s = get_clip_state(bmp);
 
    sprintf(buf, "%ld per second", t / TIME_SPEED);
-   set_clip(bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   set_clip_rect(bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   set_clip_state(bmp, TRUE);
    textout_centre_ex(bmp, font, buf, SCREEN_W/2, y, palette_color[15], palette_color[0]);
-   bmp->clip = cf;
-   bmp->cl = cl;
-   bmp->cr = cr;
-   bmp->ct = ct;
-   bmp->cb = cb;
+
+   set_clip_rect(bmp, x1, y1, x2, y2);
+   set_clip_state(bmp, s);
 }
 
 
@@ -1946,7 +1942,7 @@ void rotate_test(void)
    fixed c = 0;
    BITMAP *b;
 
-   set_clip(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
+   set_clip_rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
    clear_to_color(screen, palette_color[0]);
    message("Bitmap rotation test");
 
@@ -1994,7 +1990,7 @@ void stretch_test(void)
    BITMAP *b;
    int c;
 
-   set_clip(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
+   set_clip_rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
 
    clear_to_color(screen, palette_color[0]);
    message("Bitmap scaling test");
@@ -2004,7 +2000,7 @@ void stretch_test(void)
    c = 1;
 
    rect(screen, SCREEN_W/2-128, SCREEN_H/2-64, SCREEN_W/2+128, SCREEN_H/2+64, palette_color[15]);
-   set_clip(screen, SCREEN_W/2-127, SCREEN_H/2-63, SCREEN_W/2+127, SCREEN_H/2+63);
+   set_clip_rect(screen, SCREEN_W/2-127, SCREEN_H/2-63, SCREEN_W/2+127, SCREEN_H/2+63);
 
    solid_mode();
    b = create_bitmap(32, 32);
@@ -2048,7 +2044,7 @@ void hscroll_test(void)
    int oy = mouse_y;
    int split = (SCREEN_H*3)/4;
 
-   set_clip(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
+   set_clip_rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
    clear_to_color(screen, palette_color[0]);
    rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1, palette_color[15]);
 
@@ -2157,7 +2153,7 @@ void test_it(char *msg, void (*func)(int, int))
    do { 
       acquire_screen();
 
-      set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
       clear_to_color(screen, palette_color[0]); 
       message(msg);
 
@@ -2165,11 +2161,12 @@ void test_it(char *msg, void (*func)(int, int))
       textout_ex(screen, font, "unclipped:", xoff+48, yoff+50, palette_color[15], palette_color[0]);
       textout_ex(screen, font, "clipped:", xoff+180, yoff+62, palette_color[15], palette_color[0]);
       rect(screen, xoff+191, yoff+83, xoff+240, yoff+114, palette_color[15]);
+      set_clip_rect(screen, xoff+192, yoff+84, xoff+239, yoff+113);
 
       drawing_mode(mode, pattern[pat], 0, 0);
-      set_clip(screen, 0, 0, 0, 0);
+      set_clip_state(screen, FALSE);
       (*func)(xoff+x+60, yoff+y+70);
-      set_clip(screen, xoff+192, yoff+84, xoff+239, yoff+113);
+      set_clip_state(screen, TRUE);
       (*func)(xoff+x+180, yoff+y+70);
       solid_mode();
 
@@ -2221,7 +2218,7 @@ void do_it(char *msg, int clip_flag, void (*func)(void))
 { 
    int x1, y1, x2, y2;
 
-   set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
    clear_to_color(screen, palette_color[0]);
    message(msg);
 
@@ -2229,21 +2226,24 @@ void do_it(char *msg, int clip_flag, void (*func)(void))
       do {
 	 x1 = (AL_RAND() & 255) + 32;
 	 x2 = (AL_RAND() & 255) + 32;
-      } while (abs(x1-x2) < 30);
+      } while (x2-x1 < 30);
       do {
 	 y1 = (AL_RAND() & 127) + 40;
 	 y2 = (AL_RAND() & 127) + 40;
-      } while (abs(y1-y2) < 20);
-      set_clip(screen, xoff+x1, yoff+y1, xoff+x2, yoff+y2);
+      } while (y2-y1 < 20);
+      set_clip_rect(screen, xoff+x1, yoff+y1, xoff+x2, yoff+y2);
    }
    else
-      set_clip(screen, 0, 0, 0, 0);
+      set_clip_state(screen, FALSE);
 
    drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
    (*func)();
 
    solid_mode();
+
+   if (!clip_flag)
+      set_clip_state(screen, TRUE);
 }
 
 
@@ -2710,7 +2710,7 @@ int blit_proc(void)
 
    scare_mouse();
    acquire_screen();
-   set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
    clear_to_color(screen, palette_color[0]);
    textout_centre_ex(screen, font, "Testing overlapping blits", SCREEN_W/2, 6, 15, palette_color[0]);
 
