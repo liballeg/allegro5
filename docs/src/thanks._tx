@@ -590,7 +590,7 @@ Contributors
    Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 
    PSX, and throttle input code.
 
-   Robert J. Ohannessian (<email>voidstar_@excite.com</a>).<br>
+   Robert J. Ohannessian (<email>voidstar@ifrance.com</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
    masked_blits with SSE instructions. Added some routines to the unified
