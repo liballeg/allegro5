@@ -360,7 +360,9 @@ static int _xwin_sysdrv_desktop_color_depth(void)
 {
    if (_xwin.window_depth <= 8)
       return 8;
-   else if (_xwin.window_depth <= 16)
+   else if (_xwin.window_depth <= 15)
+      return 15;
+   else if (_xwin.window_depth == 16)
       return 16;
    else
       return 32;
