@@ -5243,7 +5243,9 @@ Digital sample routines
    is relative rather than absolute: 1000 represents the frequency that the 
    sample was recorded at, 2000 is twice this, etc. If the loop flag is set, 
    the sample will repeat until you call stop_sample(), and can be 
-   manipulated while it is playing by calling adjust_sample().
+   manipulated while it is playing by calling adjust_sample(). Returns the
+   voice number that was allocated for the sample (a non-negative number if
+   successful).
 
 @@void @adjust_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref play_sample
