@@ -23,7 +23,6 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Add backward playing to the DirectSound driver
-- Do not export functions and variables that are not a part of the API.
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -41,7 +40,6 @@ Linux todos:
 X11 todos:
 ---------------------------------------------------------------------------
 
-- num-lock state in X window may not match state on keyboard
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
 - speed up X11 driver
@@ -100,5 +98,6 @@ Wishlist
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
 - rewrite set_gfx_mode
+- [WIN] Do not export functions and variables that are not a part of the API.
 
 ---------------------------------------------------------------------------
