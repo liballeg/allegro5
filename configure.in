@@ -145,7 +145,7 @@ fi
 
 dnl Test for modules support.
 ALLEGRO_ACTEST_MODULES
-if test -n "X$allegro_support_modules"; then
+if test -n "$allegro_support_modules"; then
   AC_DEFINE(ALLEGRO_WITH_MODULES)
 fi
 
