@@ -21,7 +21,6 @@
 
 #include "allegro.h"
 #include "allegro/aintern.h"
-#include "allegro/aintvga.h"
 
 #ifdef ALLEGRO_INTERNAL_HEADER
    #include ALLEGRO_INTERNAL_HEADER
