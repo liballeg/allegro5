@@ -150,7 +150,7 @@ DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
-DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
+DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),index $(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 DOCS += CHANGES AUTHORS THANKS readme.txt
 DOCS += docs/scite/allegro.api

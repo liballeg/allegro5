@@ -242,7 +242,7 @@ DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
-DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
+DOCS += $(addprefix docs/html/,$(addsuffix .html,index $(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
 DOCS += CHANGES AUTHORS THANKS readme.txt
