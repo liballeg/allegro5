@@ -9518,7 +9518,7 @@ debugging helper functions:
 Makefile targets
 
 There are a number of options that you can use to control exactly how 
-Allegro will be compiled. On Unix platforms you do this by passing arguments 
+Allegro will be compiled. On Unix platforms, you do this by passing arguments 
 to the configure script (run "configure --help" for a list), but on other 
 platforms you can set the following environment variables:
 <ul><li>
@@ -9570,18 +9570,18 @@ If you only want to recompile a specific test program or utility, you can
 specify it as an argument to make, eg. "make demo" or "make grabber". The 
 makefiles also provide some special pseudo-targets:
 <ul><li>
+   'info' (Unix only)<br>
+   Tells you which options this particular build of Allegro will use.
+   Especially useful to verify that the required libraries were detected
+   and you won't get a 'half-featured' Allegro.
+<li>
    'default'<br>
    The normal build process. Compiles the current library version (one of 
    optimised, debugging, or profiling, selected by the above environment 
    variables), builds the test and example programs, and converts the 
    documentation files.
 <li>
-   'info'<br>
-   Tells you which options this particular build of Allegro will use.
-   Especially useful under Unix to verify that the required libraries
-   were detected and you won't get a 'half-featured' Allegro.
-<li>
-   'all'<br>
+   'all' (non-Unix only)<br>
    Compiles all three library versions (optimised, debugging, and 
    profiling), builds the test and example programs, and converts the 
    documentation files.
@@ -9596,7 +9596,7 @@ makefiles also provide some special pseudo-targets:
    compiler lib directory, recompiling it as required, and installs the 
    Allegro headers.
 <li>
-   'installall'<br>
+   'installall' (non-Unix only)<br>
    Copies all three library versions (optimised, debugging, and profiling), 
    into your compiler lib directory, recompiling them as required, and 
    installs the Allegro headers.
@@ -9606,6 +9606,13 @@ makefiles also provide some special pseudo-targets:
 <li>
    'docs'<br>
    Converts the documentation files from the ._tx sources.
+<li>
+   'chm-docs' (Windows only)<br>
+   Creates a compiled HTML file from the previously generated html output.
+   This is not a default target, since you need Microsoft's HTML compiler
+   (<link>http://go.microsoft.com/fwlink/?LinkId=14188</a>),
+   and it has to be installed somewhere in your PATH. Also, this only works
+   if you use '@multiplefiles' (see the top of docs/src/allegro._tx).
 <li>
    'docs-dvi' (Unix only)<br>
    Creates the allegro.dvi device independent documentation file. This is
@@ -9617,13 +9624,6 @@ makefiles also provide some special pseudo-targets:
    not a default target, since you need the texi2dvi and dvips tools to
    create it. The second target compresses the generated Postscript file.
    The generated file is especially prepared to be printed on paper.
-<li>
-   'chm-docs' (Windows only)<br>
-   Creates a compiled HTML file from the previously generated html output.
-   This is not a default target, since you need Microsoft's HTML compiler
-   (<link>http://go.microsoft.com/fwlink/?LinkId=14188</a>),
-   and it has to be installed somewhere in your PATH. Also, this only works
-   if you use '@multiplefiles' (see the top of docs/src/allegro._tx).
 <li>
    'docs-devhelp' (Unix only)<br>
    Creates normal HTML documentation with an additional xml index file which
@@ -9661,15 +9661,15 @@ makefiles also provide some special pseudo-targets:
    like SED, so unless you know what you are doing and have all this stuff 
    installed, you should not use them.
 <li>
+   'compress' (DJGPP, Mingw32 and MSVC only)<br>
+   Uses the DJP or UPX executable compressors (whichever you have installed) 
+   to compress the example executables and utility programs, which can 
+   recover a significant amount of disk space.
+<li>
    'depend'<br>
    Regenerates the dependency files (obj/*/makefile.dep). You need to run 
    this after "make veryclean", or whenever you add new headers to the 
    Allegro sources.
-<li>
-   'compress' (djgpp, Mingw32 and MSVC only)<br>
-   Uses the DJP or UPX executable compressors (whichever you have installed) 
-   to compress the example executables and utility programs, which can 
-   recover a significant amount of disk space.
 </ul>
 
 

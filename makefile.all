@@ -30,12 +30,13 @@
 #        clean:             remove object files.
 #        distclean:         remove objects and executables.
 #        veryclean:         remove all generated files.
-#        depend:            regenerate the dependency files.
 #        compress:          compress the executable files (DJGPP, MinGW32, MSVC).
+#        depend:            regenerate the dependency files.
 
 
 
 # -------- read version information --------
+
 include makefile.ver
 
 
