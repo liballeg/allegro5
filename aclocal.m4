@@ -362,12 +362,20 @@ allegro_enable_alsadigi=yes)
 if test -n "$allegro_enable_alsadigi"; then
   AC_CACHE_CHECK(for supported ALSA version for digital sound,
   allegro_cv_support_alsadigi,
-  AC_TRY_RUN([#include <sys/asoundlib.h>
-    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 5; }],
-  [allegro_cv_support_alsadigi=yes allegro_cv_alsa_version=5],
-  AC_TRY_RUN([#include <sys/asoundlib.h>
-    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 9; }],
-  [allegro_cv_support_alsadigi=yes allegro_cv_alsa_version=9],
+  AC_TRY_COMPILE([#include <sys/asoundlib.h>
+                  #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 5
+                  #else
+                  #error
+                  #endif],,
+  [allegro_cv_support_alsadigi=yes
+   allegro_cv_alsa_version=5],
+  AC_TRY_COMPILE([#include <sys/asoundlib.h>
+                  #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9
+                  #else
+                  #error
+                  #endif],,
+  [allegro_cv_support_alsadigi=yes
+   allegro_cv_alsa_version=9],
   allegro_cv_support_alsadigi=no)))
   if test "X$allegro_cv_support_alsadigi" = "Xyes" && 
      test -z "$allegro_support_modules"; then
@@ -391,12 +399,20 @@ allegro_enable_alsamidi=yes)
 if test -n "$allegro_enable_alsamidi"; then
   AC_CACHE_CHECK(for supported ALSA version for MIDI,
   allegro_cv_support_alsamidi,
-  AC_TRY_RUN([#include <sys/asoundlib.h>
-    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 5; }],
-  [allegro_cv_support_alsamidi=yes allegro_cv_alsa_version=5],
-  AC_TRY_RUN([#include <sys/asoundlib.h>
-    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 9; }],
-  [allegro_cv_support_alsamidi=yes allegro_cv_alsa_version=9],
+  AC_TRY_COMPILE([#include <sys/asoundlib.h>
+                  #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 5
+                  #else
+                  #error
+                  #endif],,
+  [allegro_cv_support_alsamidi=yes
+   allegro_cv_alsa_version=5],
+  AC_TRY_COMPILE([#include <sys/asoundlib.h>
+                  #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9
+                  #else
+                  #error
+                  #endif],,
+  [allegro_cv_support_alsamidi=yes
+   allegro_cv_alsa_version=9],
   allegro_cv_support_alsamidi=no)))
   if test "X$allegro_cv_support_alsamidi" = "Xyes" &&
      test "X$allegro_cv_support_alsadigi" != "Xyes" &&
