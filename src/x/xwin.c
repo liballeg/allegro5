@@ -107,7 +107,7 @@ struct _xwin_type _xwin =
    { 0 },       /* bmap */
 
 #ifdef ALLEGRO_XWINDOWS_WITH_SHM
-   { 0 },       /* shminfo */
+   { 0, 0, 0, 0 },  /* shminfo */
 #endif
    0,           /* use_shm */
 
@@ -2178,7 +2178,7 @@ static void _xwin_private_process_event(XEvent *event)
 	 break;
       case ClientMessage:
          /* Window close request */
-         if (event->xclient.data.l[0] == wm_delete_window) {
+         if ((Atom)event->xclient.data.l[0] == wm_delete_window) {
             if (_xwin.close_button_callback)
                _xwin.close_button_callback();
          }

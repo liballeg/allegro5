@@ -76,7 +76,7 @@ static TOOL tools[] = {
    { BTN_TOOL_FINGER,   MODE_ABSOLUTE },
    { BTN_TOOL_LENS,     MODE_ABSOLUTE },
 
-   { -1 } /* No tool */
+   { -1, MODE_ABSOLUTE } /* No tool */
 };
 
 
@@ -415,7 +415,7 @@ static int processor (unsigned char *buf, int buf_size)
 {
    struct input_event *event;
 
-   if (buf_size < sizeof(struct input_event))
+   if (buf_size < (int)sizeof(struct input_event))
       return 0; /* not enough data */
 
    event = (struct input_event*)buf;
@@ -459,7 +459,7 @@ static int analyse_data (AL_CONST char *buffer, int size)
    struct input_event *event;
    struct input_event *last=(struct input_event*)(buffer+size);
 
-   if (size < sizeof(struct input_event))
+   if (size < (int)sizeof(struct input_event))
       return 0; /* not enough data */
 
    for (event=(struct input_event*)buffer; event<last; event++) {

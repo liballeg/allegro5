@@ -175,7 +175,7 @@ void FUNC_LINEAR_HLINE(BITMAP *dst, int dx1, int dy, int dx2, int color)
 	       INC_PIXEL_PTR(d);
 	    } while (--curw > 0);
 	    s = sline;
-	    curw = ((w < (int)_drawing_x_mask+1) ? w : _drawing_x_mask+1);
+	    curw = MIN(w, (int)_drawing_x_mask+1);
 	 } while (curw > 0);
       }
       else if (_drawing_mode == DRAW_MODE_SOLID_PATTERN) {
@@ -193,7 +193,7 @@ void FUNC_LINEAR_HLINE(BITMAP *dst, int dx1, int dy, int dx2, int color)
 	       INC_PIXEL_PTR(d);
 	    } while (--curw > 0);
 	    s = sline;
-	    curw = ((w < (int)_drawing_x_mask+1) ? w : _drawing_x_mask+1);
+	    curw = MIN(w, (int)_drawing_x_mask+1);
 	 } while (curw > 0);
       }
       else if (_drawing_mode == DRAW_MODE_MASKED_PATTERN) {
@@ -208,7 +208,7 @@ void FUNC_LINEAR_HLINE(BITMAP *dst, int dx1, int dy, int dx2, int color)
 	       INC_PIXEL_PTR(d);
 	    } while (--curw > 0);
 	    s = sline;
-	    curw = ((w < (int)_drawing_x_mask+1) ? w : _drawing_x_mask+1);
+	    curw = MIN(w, (int)_drawing_x_mask+1);
 	 } while (curw > 0);
       }
    }

@@ -1354,7 +1354,7 @@ static int detect_mouse(void)
    rect(popup_bitmap2, l-1, t-1, r, b+1, gui_fg_color);
    blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 
-   for (count = 0; count < sizeof(buffer); ) {
+   for (count = 0; count < (int)sizeof(buffer); ) {
       if (read(fd, buffer+count, 1) == 1) {
          vline(popup_bitmap2, l + count*w/sizeof buffer, t, b, gui_mg_color);
 	 blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
@@ -1366,10 +1366,10 @@ static int detect_mouse(void)
 
    if (count == 0)
       popup(uconvert_ascii("No data received", tmp1), NULL);
-   else if (count < sizeof(buffer))
+   else if (count < (int)sizeof(buffer))
       popup(uconvert_ascii("Insufficient data received", tmp1), NULL);
 
-   if (count < sizeof(buffer)) {
+   if (count < (int)sizeof(buffer)) {
       retval = -1;
       goto finished;
    }
