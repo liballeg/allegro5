@@ -2027,25 +2027,24 @@ FUNC (_colorconv_blit_8_to_32)
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_8_to_32_no_mmx:
-         movb (%esi), %al           /* next: al = pixel1    */ /**** to fix ****/
+         movb (%esi), %al           /* al = pixel1          */
          movl $0, %ebx
-         movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel1 */
          movb 1(%esi), %bl          /* bl = pixel2          */
-         movl %eax, (%edi)          /* write pixel1         */
-         addl $16, %edi             /* 4 pixels written     */
-         movl $0, %eax
-         movl (%ebp,%ebx,4), %ebx   /* lookup: ebx = pixel2 */
-         movb 2(%esi), %al          /* al = pixel3          */
-         movl %ebx, -12(%edi)       /* write pixel2         */
          movl $0, %ecx
-         movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel3 */
-         movb 3(%esi), %cl          /* cl = pixel4          */
-         movl %eax, -8(%edi)        /* write pixel3         */
+         movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel1 */
+         movb 2(%esi), %cl          /* cl = pixel3          */
+         movl %eax, (%edi)          /* write pixel1         */
+         movl (%ebp,%ebx,4), %ebx   /* lookup: ebx = pixel2 */
          movl $0, %eax
-         movl (%ebp,%ecx,4), %ecx   /* lookup: ecx = pixel4 */
-         /* nop */
-         movl %ecx, -4(%edi)        /* write pixel4         */
+         movl (%ebp,%ecx,4), %ecx   /* lookup: ecx = pixel3 */
+         movl %ebx, 4(%edi)         /* write pixel2         */
+         movb 3(%esi), %al          /* al = pixel4          */
+         movl %ecx, 8(%edi)         /* write pixel3         */
+         addl $16, %edi             /* 4 pixels written     */
+         movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel4 */
          addl $4, %esi              /* 4 pixels read        */
+         movl %eax, -4(%edi)        /* write pixel4         */
+         movl $0, %eax
          decl %edx
          jnz next_block_8_to_32_no_mmx
 
@@ -2218,25 +2217,27 @@ FUNC (_colorconv_blit_15_to_16)
       pushl %ecx
 
       _align_
+      /* 100% Pentium pairable loop */
+      /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_15_to_16_no_mmx:
-         movl (%esi), %eax
-         movl 4(%esi), %ecx
-         movl %eax, %ebx
-         andl $0x7fe07fe0, %eax
-         andl $0x001f001f, %ebx
-         shll $1, %eax
-         addl $8, %esi
-         orl  $0x00200020, %eax
-         orl  %ebx, %eax
-         movl %ecx, %ebx
-         andl $0x7fe07fe0, %ecx
-         andl $0x001f001f, %ebx
-         shll $1, %ecx
-         addl $8, %edi
-         orl  $0x00200020, %ecx
-         orl  %ecx, %ebx
-         movl %eax, -8(%edi)
-         movl %ebx, -4(%edi)
+         movl (%esi), %eax           /* eax = pixel2 | pixel1  */
+         addl $8, %edi               /* 4 pixels written       */
+         movl %eax, %ebx             /* ebx = pixel2 | pixel1  */
+         andl $0x7fe07fe0, %eax      /* eax = r5g5b0 | r5g5b0  */
+         shll $1, %eax               /* eax = r5g6b0 | r5g6b0  */
+         andl $0x001f001f, %ebx      /* ebx = r0g0b5 | r0g0b5  */
+         orl  %ebx, %eax             /* eax = r5g6b5 | r5g6b5  */
+         movl 4(%esi), %ecx          /* ecx = pixel4 | pixel3  */
+         movl %ecx, %ebx             /* ebx = pixel4 | pixel3  */
+         andl $0x7fe07fe0, %ecx      /* ecx = r5g5b0 | r5g5b0  */
+         shll $1, %ecx               /* ecx = r5g6b0 | r5g6b0  */
+         andl $0x001f001f, %ebx      /* ebx = r0g0b5 | r0g0b5  */
+         orl  %ebx, %ecx             /* ecx = r5g6b5 | r5g6b5  */
+         orl  $0x00200020, %eax      /* green gamma correction */
+         movl %eax, -8(%edi)         /* write pixel1..pixel2   */
+         orl  $0x00200020, %ecx      /* green gamma correction */
+         movl %ecx, -4(%edi)         /* write pixel3..pixel4   */
+         addl $8, %esi               /* 4 pixels read          */
          decl %edx
          jnz next_block_15_to_16_no_mmx
 
@@ -2644,23 +2645,25 @@ FUNC (_colorconv_blit_16_to_15)
       pushl %ecx
 
       _align_
+      /* 100% Pentium pairable loop */
+      /* 9 cycles = 8 cycles/4 pixels + 1 cycle loop */
       next_block_16_to_15_no_mmx:
-         movl (%esi), %eax
-         movl 4(%esi), %ecx
-         movl %eax, %ebx
-         andl $0xffc0ffc0, %eax
-         andl $0x001f001f, %ebx
-         shrl $1, %eax
-         addl $8, %esi
-         orl %ebx, %eax
-         movl %ecx, %ebx
-         andl $0xffc0ffc0, %ecx
-         andl $0x001f001f, %ebx
-         shrl $1, %ecx
-         addl $8, %edi
-         orl %ecx, %ebx
-         movl %eax, -8(%edi)
-         movl %ebx, -4(%edi)
+         movl (%esi), %eax         /* eax = pixel2 | pixel1 */
+         addl $8, %edi             /* 4 pixels written      */
+         movl %eax, %ebx           /* ebx = pixel2 | pixel1 */
+         andl $0xffc0ffc0, %eax    /* eax = r5g6b0 | r5g6b0 */
+         shrl $1, %eax             /* eax = r5g5b0 | r5g5b0 */
+         andl $0x001f001f, %ebx    /* ebx = r0g0b5 | r0g0b5 */
+         orl %ebx, %eax            /* eax = r5g5b5 | r5g5b5 */
+         movl 4(%esi), %ecx        /* ecx = pixel4 | pixel3 */
+         movl %ecx, %ebx           /* ebx = pixel4 | pixel3 */
+         andl $0xffc0ffc0, %ecx    /* ecx = r5g6b0 | r5g6b0 */
+         shrl $1, %ecx             /* ecx = r5g5b0 | r5g5b0 */
+         andl $0x001f001f, %ebx    /* ebx = r0g0b5 | r0g0b5 */
+         movl %eax, -8(%edi)       /* write pixel1..pixel2  */
+         orl %ebx, %ecx            /* ecx = r5g5b5 | r5g5b5 */
+         movl %ecx, -4(%edi)       /* write pixel3..pixel4  */
+         addl $8, %esi             /* 4 pixels read         */
          decl %edx
          jnz next_block_16_to_15_no_mmx
 
@@ -2799,23 +2802,22 @@ FUNC (_colorconv_blit_24_to_32)
       /* 100% Pentium pairable loop */
       /* 9 cycles = 8 cycles/4 pixels + 1 cycle loop */
       next_block_24_to_32_no_mmx:
-         movl 4(%esi), %ebx        /* next: ebx = r8g8 pixel2   */  /**** to fix ****/
-         shll $8, %ebx             /* ebx = r8g8b0 pixel2       */
+         movl 4(%esi), %ebx        /* ebx = r8g8 pixel2         */
          movl (%esi), %eax         /* eax = pixel1              */
+         shll $8, %ebx             /* ebx = r8g8b0 pixel2       */
          movl 8(%esi), %ecx        /* ecx = pixel4 | r8 pixel 3 */
          movl %eax, (%edi)         /* write pixel1              */
          movb 3(%esi), %bl         /* ebx = pixel2              */
          movl %ecx, %eax           /* eax = r8 pixel3           */
-         shll $16, %eax            /* eax = r8g0b0 pixel3       */
          movl %ebx, 4(%edi)        /* write pixel2              */
+         shll $16, %eax            /* eax = r8g0b0 pixel3       */
+         addl $16, %edi            /* 4 pixels written          */
          shrl $8, %ecx             /* ecx = pixel4              */
          movb 6(%esi), %al         /* eax = r8g0b8 pixel3       */
+         movl %ecx, -4(%edi)       /* write pixel4              */
          movb 7(%esi), %ah         /* eax = r8g8b8 pixel3       */
-         movl %ecx, 12(%edi)       /* write pixel4              */
-         /* nop */
+         movl %eax, -8(%edi)       /* write pixel3              */
          addl $12, %esi            /* 4 pixels read             */
-         movl %eax, 8(%edi)        /* write pixel3              */
-         addl $16, %edi            /* 4 pixels written          */
          decl %edx
          jnz next_block_24_to_32_no_mmx
 
@@ -2965,26 +2967,25 @@ FUNC (_colorconv_blit_32_to_24)
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_32_to_24_no_mmx:
-         movl 4(%esi), %ebx     /* next: ebx = pixel 2             */  /**** to fix ****/
-         movl %ebx, %ebp        /* ebp = pixel2                    */
+         movl 4(%esi), %ebx     /* ebx = pixel2                    */
          addl $12, %edi         /* 4 pixels written                */
-         shll $24, %ebx         /* ebx = b8 pixel2 << 24           */
+         movl %ebx, %ebp        /* ebp = pixel2                    */
          movl 12(%esi), %ecx    /* ecx = pixel4                    */
          shll $8, %ecx          /* ecx = pixel4 << 8               */
          movl (%esi), %eax      /* eax = pixel1                    */
+         shll $24, %ebx         /* ebx = b8 pixel2 << 24           */
          movb 10(%esi), %cl     /* ecx = pixel4 | r8 pixel3        */
          orl  %eax, %ebx        /* ebx = b8 pixel2 | pixel1        */
-         movl %ebx, -12(%edi)   /* write pixel1..b8 pixel2         */
          movl %ebp, %eax        /* eax = pixel2                    */
          shrl $8, %eax          /* eax = r8g8 pixel2               */
+         movl %ebx, -12(%edi)   /* write pixel1..b8 pixel2         */
          movl 8(%esi), %ebx     /* ebx = pixel 3                   */
-         shll $16, %ebx         /* ebx = g8b8 pixel3 << 16         */
          movl %ecx, -4(%edi)    /* write r8 pixel3..pixel4         */
-         orl  %ebx, %eax        /* eax = g8b8 pixel3 | r8g8 pixel2 */
-         /* nop */
-         movl %eax, -8(%edi)    /* write g8r8 pixel2..b8g8 pixel3  */
+         shll $16, %ebx         /* ebx = g8b8 pixel3 << 16         */
          addl $16, %esi         /* 4 pixels read                   */
+         orl  %ebx, %eax        /* eax = g8b8 pixel3 | r8g8 pixel2 */
          decl %edx
+         movl %eax, -8(%edi)    /* write g8r8 pixel2..b8g8 pixel3  */
          jnz next_block_32_to_24_no_mmx
 
       popl %ecx
