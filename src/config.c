@@ -1017,7 +1017,7 @@ void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST cha
 void set_config_int(AL_CONST char *section, AL_CONST char *name, int val)
 {
    char buf[32];
-   usprintf(buf, uconvert_ascii("%d", NULL), val);
+   usnprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
    set_config_string(section, name, buf);
 }
 
@@ -1031,7 +1031,7 @@ void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
    char buf[32];
 
    if (val >= 0) {
-      usprintf(buf, uconvert_ascii("%X", NULL), val);
+      usnprintf(buf, sizeof(buf), uconvert_ascii("%X", NULL), val);
       set_config_string(section, name, buf);
    }
    else
@@ -1046,7 +1046,7 @@ void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
 void set_config_float(AL_CONST char *section, AL_CONST char *name, float val)
 {
    char buf[32];
-   usprintf(buf, uconvert_ascii("%f", NULL), val);
+   usnprintf(buf, sizeof(buf), uconvert_ascii("%f", NULL), val);
    set_config_string(section, name, buf);
 }
 
@@ -1063,7 +1063,7 @@ void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
    int i;
 
    if (val < 256) {
-      usprintf(buf, uconvert_ascii("%d", NULL), val);
+      usnprintf(buf, sizeof(buf), uconvert_ascii("%d", NULL), val);
    }
    else {
       v[0] = (val>>24)&0xFF;

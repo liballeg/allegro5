@@ -600,7 +600,7 @@ static void read_key_table(unsigned short *out, unsigned short *in, char *sectio
    int i;
 
    for (i=0; i<KEY_MAX; i++) {
-      usprintf(name, fmt, i);
+      usnprintf(name, sizeof(name), fmt, i);
       out[i] = get_config_int(sec, name, in[i]);
    }
 }

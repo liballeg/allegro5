@@ -160,7 +160,7 @@ void textprintf(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST
 
    va_list ap;
    va_start(ap, format);
-   uvsprintf(buf, format, ap);
+   uvsnprintf(buf, 512, format, ap);
    va_end(ap);
 
    textout(bmp, f, buf, x, y, color);
@@ -178,7 +178,7 @@ void textprintf_centre(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, A
 
    va_list ap;
    va_start(ap, format);
-   uvsprintf(buf, format, ap);
+   uvsnprintf(buf, 512, format, ap);
    va_end(ap);
 
    textout_centre(bmp, f, buf, x, y, color);
@@ -196,7 +196,7 @@ void textprintf_right(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL
 
    va_list ap;
    va_start(ap, format);
-   uvsprintf(buf, format, ap);
+   uvsnprintf(buf, 512, format, ap);
    va_end(ap);
 
    textout_right(bmp, f, buf, x, y, color);
@@ -213,7 +213,7 @@ void textprintf_justify(BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, in
 
    va_list ap;
    va_start(ap, format);
-   uvsprintf(buf, format, ap);
+   uvsnprintf(buf, 512, format, ap);
    va_end(ap);
 
    textout_justify(bmp, f, buf, x1, x2, y, diff, color);

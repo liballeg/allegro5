@@ -328,16 +328,13 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 	 ustrncat(s, uconvert_ascii("./", NULL), size - ustrsizez(s));
 
       fix_filename_path(b, s, sizeof(b));
-      ustrncpy(s, b, size - ucwidth(0));
+      ustrncpy(s, b, size - ucwidth(0) - ucwidth(OTHER_PATH_SEPARATOR));
 
       ch = ugetat(s, -1);
       if ((ch != '/') && (ch != OTHER_PATH_SEPARATOR)) {
 	 if (file_exists(s, FA_RDONLY | FA_HIDDEN | FA_DIREC, &attr)) {
-	    if (attr & FA_DIREC) {
-               /* make sure there is enough place */
-               if (ustrsizez(s) + ucwidth(OTHER_PATH_SEPARATOR) <= size)
-	          put_backslash(s);
-            }
+	    if (attr & FA_DIREC)
+               put_backslash(s);
 	    else
 	       return D_CLOSE;
 	 }
@@ -474,7 +471,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
    fix_filename_case(s);
 
    if (fext) {
-      ustrcpy(tmp, fext);
+      ustrncpy(tmp, fext, sizeof(tmp) - ucwidth(0));
       ustrtok(tmp, ext_tokens);
       c = (ustrtok(NULL, ext_tokens) ? 1 : 0);
       if (!c) {
@@ -483,7 +480,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
       }
 
       if (c && (!(attrib & FA_DIREC))) {
-	 ustrcpy(tmp, fext);
+	 ustrncpy(tmp, fext, sizeof(tmp) - ucwidth(0));
 	 ext = get_extension(s);
 	 tok = ustrtok(tmp, ext_tokens);
 
@@ -504,7 +501,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
       c += usetc(ext_tokens+c, '/');
       usetc(ext_tokens+c, 0);
 
-      ustrcpy(tmp, fext);
+      ustrncpy(tmp, fext, sizeof(tmp) - ucwidth(0));
       tok = ustrchr(tmp, '/');
 
       if (tok)
@@ -670,7 +667,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
       /* check if we want to `cd ..' */
       if ((!ustrncmp(flist->name[d->d1], "..", 2)) && (ret == D_CLOSE)) {
 	 /* let's remember the previous directory */
-	 ustrcpy(updir, empty_string);
+	 ustrncpy(updir, empty_string, sizeof(updir) - ucwidth(0));
 	 i = ustrlen(flist->dir);
 	 count = 0;
 	 while (i>0) {
@@ -685,7 +682,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 	 /* ok, we have the dirname in updir */
       }
       else {
-	 ustrcpy(updir, empty_string);
+	 ustrncpy(updir, empty_string, sizeof(updir) - ucwidth(0));
       }
       scare_mouse();
       SEND_MESSAGE(file_selector+FS_EDIT, MSG_START, 0);
@@ -844,7 +841,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    /* for fs_dlist_proc() */
    ASSERT(size >= 4 * uwidth_max(U_CURRENT));
 
-   ustrcpy(updir, empty_string);
+   ustrncpy(updir, empty_string, sizeof(updir) - ucwidth(0));
    file_selector[FS_MESSAGE].dp = (char *)message;
    file_selector[FS_EDIT].d1 = size/uwidth_max(U_CURRENT) - 1;
    file_selector[FS_EDIT].dp = path;
@@ -855,7 +852,7 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    if (!ugetc(path)) {
       if (!getcwd(buf, sizeof(buf)))
          buf[0]=0;
-      do_uconvert(buf, U_ASCII, path, U_CURRENT, size);
+      do_uconvert(buf, U_ASCII, path, U_CURRENT, size - ucwidth(OTHER_PATH_SEPARATOR));
       fix_filename_case(path);
       fix_filename_slashes(path);
       put_backslash(path);

@@ -321,12 +321,12 @@ static int awe32_detect(int input)
       return FALSE;
 
    if (emu8k_detect()) {
-      usprintf(awe32_desc, get_config_text("SB AWE32/compatible on port 0x%04x"), _emu8k_baseport);
+      usnprintf(awe32_desc, sizeof(awe32_desc), get_config_text("SB AWE32/compatible on port 0x%04x"), _emu8k_baseport);
       midi_awe32.desc = awe32_desc;
       return TRUE;
    }
 
-   ustrcpy(allegro_error, get_config_text("AWE32 not detected"));
+   ustrncpy(allegro_error, get_config_text("AWE32 not detected"), ALLEGRO_ERROR_SIZE - ucwidth(0));
    return FALSE;
 }
 
@@ -437,7 +437,7 @@ static void translate_soundfont_into_something_useful()
 	 }
       }
       else {
-	 ustrcpy(allegro_error, get_config_text("AWE32 driver: had trouble with the embedded data"));
+	 ustrncpy(allegro_error, get_config_text("AWE32 driver: had trouble with the embedded data"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       }
    }
 }

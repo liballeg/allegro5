@@ -152,7 +152,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
        && (color_depth != 32)
 #endif
        ) {
-      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -164,7 +164,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    if (v_h < h) v_h = h;
    
    if ((v_w != w) || (v_h != h)) {
-      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -177,7 +177,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    
    mode_num = find_video_mode(w, h, color_depth);
    if (mode_num == -1) {
-      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
    PgGetVideoModeInfo(mode_num, &mode_info);
@@ -187,25 +187,25 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    settings.flags = 0;
    
    if (PgSetVideoMode(&settings)) {
-      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
    if (!(ph_direct_context = PdCreateDirectContext())) {
-      ustrcpy(allegro_error, get_config_text("Cannot create direct context"));
+      ustrncpy(allegro_error, get_config_text("Cannot create direct context"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       PgSetVideoMode(&original_settings);
       return NULL;
    }
    if (!PdDirectStart(ph_direct_context)) {
-      ustrcpy(allegro_error, get_config_text("Cannot start direct context"));
+      ustrncpy(allegro_error, get_config_text("Cannot start direct context"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
    if (!(ph_screen_context = PdCreateOffscreenContext(0, w, h, 
        Pg_OSC_MAIN_DISPLAY | Pg_OSC_MEM_PAGE_ALIGN | Pg_OSC_CRTC_SAFE))) {
-      ustrcpy(allegro_error, get_config_text("Cannot access the framebuffer"));
+      ustrncpy(allegro_error, get_config_text("Cannot access the framebuffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
    if (!(addr = PdGetOffscreenContextPtr(ph_screen_context))) {
-      ustrcpy(allegro_error, get_config_text("Cannot access the framebuffer"));
+      ustrncpy(allegro_error, get_config_text("Cannot access the framebuffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
    
@@ -220,7 +220,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    bmp = _make_bitmap(w, h, (unsigned long)addr, drv,
                       color_depth, ph_screen_context->pitch);
    if(!bmp) {
-      ustrcpy(allegro_error, get_config_text("Not enough memory"));
+      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -483,7 +483,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
        && (color_depth != 32)
 #endif
        ) {
-      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -495,7 +495,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    if (v_h < h) v_h = h;
    
    if ((v_w != w) || (v_h != h) || (w % 4)) {
-      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -509,7 +509,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 
    ph_window_context = PdCreateOffscreenContext(0, w, h, Pg_OSC_MEM_PAGE_ALIGN);
    if (!ph_window_context) {
-      ustrcpy(allegro_error, get_config_text("Cannot create offscreen context"));
+      ustrncpy(allegro_error, get_config_text("Cannot create offscreen context"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
    addr = PdGetOffscreenContextPtr(ph_window_context);
@@ -527,13 +527,13 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
       /* the color depths don't match, need color conversion */
       blitter = _get_colorconv_blitter(color_depth, desktop_depth);
       if (!blitter) {
-         ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+         ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
          return NULL;
       }
       ph_update_window = update_window;
       pseudo_screen_addr = (char *)malloc(w * h * BYTES_PER_PIXEL(color_depth));
       if (!pseudo_screen_addr) {
-         ustrcpy(allegro_error, get_config_text("Not enough memory"));
+         ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
          return NULL;
       }
       pseudo_screen_pitch = pitch = w * BYTES_PER_PIXEL(color_depth);
@@ -554,7 +554,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    ph_dirty_lines = (char *)calloc(h + 1, sizeof(char));
    
    if ((!bmp) || (!ph_dirty_lines)) {
-      ustrcpy(allegro_error, get_config_text("Not enough memory"));
+      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 

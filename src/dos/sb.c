@@ -653,7 +653,7 @@ static int sb_detect(int input)
       /* input mode only works on the top of an existing output driver */
       if (input) {
 	 if (digi_driver != digi_input_driver) {
-	    ustrcpy(allegro_error, get_config_text("SB output driver must be installed before input can be read"));
+	    ustrncpy(allegro_error, get_config_text("SB output driver must be installed before input can be read"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	    return FALSE;
 	 }
 	 return TRUE;
@@ -742,7 +742,7 @@ static int sb_detect(int input)
    /* check if the card really exists */
    _sb_read_dsp_version();
    if (sb_hw_dsp_ver < 0) {
-      ustrcpy(allegro_error, get_config_text("Sound Blaster not found"));
+      ustrncpy(allegro_error, get_config_text("Sound Blaster not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return FALSE;
    }
 
@@ -752,7 +752,7 @@ static int sb_detect(int input)
    else {
       if (sb_dsp_ver > sb_hw_dsp_ver) {
 	 sb_hw_dsp_ver = sb_dsp_ver = -1;
-	 ustrcpy(allegro_error, get_config_text("Older SB version detected"));
+	 ustrncpy(allegro_error, get_config_text("Older SB version detected"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return FALSE;
       }
    }
@@ -885,8 +885,8 @@ static int sb_detect(int input)
       }
 
       /* set up the card description */
-      usprintf(sb_desc, get_config_text("%s (%d hz) on port %X, using IRQ %d and DMA channel %d"),
-			uconvert_ascii(msg, tmp), _sound_freq, _sound_port, _sound_irq, _sound_dma);
+      usnprintf(sb_desc, sizeof(sb_desc), get_config_text("%s (%d hz) on port %X, using IRQ %d and DMA channel %d"),
+			                  uconvert_ascii(msg, tmp), _sound_freq, _sound_port, _sound_irq, _sound_dma);
 
       digi_driver->desc = sb_desc;
    }
@@ -905,7 +905,7 @@ static int sb_init(int input, int voices)
       return 0;
 
    if (sb_in_use) {
-      ustrcpy(allegro_error, get_config_text("Can't use SB MIDI interface and DSP at the same time"));
+      ustrncpy(allegro_error, get_config_text("Can't use SB MIDI interface and DSP at the same time"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return -1;
    }
 
@@ -1240,14 +1240,14 @@ static int sb_midi_detect(int input)
 static int sb_midi_init(int input, int voices)
 {
    if ((sb_in_use) && (!sb_midi_out_mode)) {
-      ustrcpy(allegro_error, get_config_text("Can't use SB MIDI interface and DSP at the same time"));
+      ustrncpy(allegro_error, get_config_text("Can't use SB MIDI interface and DSP at the same time"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return -1;
    }
 
    sb_dsp_ver = -1;
    sb_lock_mem();
 
-   usprintf(sb_midi_desc, get_config_text("Sound Blaster MIDI interface on port %X"), _sound_port);
+   usnprintf(sb_midi_desc, sizeof(sb_midi_desc), get_config_text("Sound Blaster MIDI interface on port %X"), _sound_port);
    midi_sb_out.desc = sb_midi_desc;
 
    if (input) {

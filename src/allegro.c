@@ -28,7 +28,7 @@ char allegro_id[] = "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR;
 
 
 /* error message for sound and gfx init routines */
-char allegro_error[256] = EMPTY_STRING;
+char allegro_error[ALLEGRO_ERROR_SIZE] = EMPTY_STRING;
 
 
 /* current system driver */
@@ -393,7 +393,7 @@ void allegro_message(AL_CONST char *msg, ...)
 
    va_list ap;
    va_start(ap, msg);
-   uvsprintf(buf, msg, ap);
+   uvsnprintf(buf, 4096, msg, ap);
    va_end(ap);
 
    if ((system_driver) && (system_driver->message))
@@ -497,7 +497,7 @@ void al_trace(AL_CONST char *msg, ...)
 
    va_list ap;
    va_start(ap, msg);
-   uvsprintf(buf, msg, ap);
+   uvsnprintf(buf, 512, msg, ap);
    va_end(ap);
 
    if (trace_handler) {

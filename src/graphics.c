@@ -420,7 +420,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 allow_config = TRUE;
       }
 
-      ustrcpy(allegro_error, buf);
+      ustrncpy(allegro_error, buf, ALLEGRO_ERROR_SIZE - ucwidth(0));
       _safe_gfx_mode_change = 0;
       return 0;
    }
@@ -519,22 +519,22 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
 	    case -2:
 	       /* example: gfx_card_640x480x16 = */
-	       usprintf(buf, uconvert_ascii("gfx_card_%dx%dx%d", tmp), w, h, _color_depth);
+	       usnprintf(buf, sizeof(buf), uconvert_ascii("gfx_card_%dx%dx%d", tmp), w, h, _color_depth);
 	       break;
 
 	    case -1:
 	       /* example: gfx_card_24bpp = */
-	       usprintf(buf, uconvert_ascii("gfx_card_%dbpp", tmp), _color_depth);
+	       usnprintf(buf, sizeof(buf), uconvert_ascii("gfx_card_%dbpp", tmp), _color_depth);
 	       break;
 
 	    case 0:
 	       /* example: gfx_card = */
-	       ustrcpy(buf, uconvert_ascii("gfx_card", tmp));
+	       ustrncpy(buf, uconvert_ascii("gfx_card", tmp), sizeof(buf) - ucwidth(0));
 	       break;
 
 	    default:
 	       /* example: gfx_card1 = */
-	       usprintf(buf, uconvert_ascii("gfx_card%d", tmp), n);
+	       usnprintf(buf, sizeof(buf), uconvert_ascii("gfx_card%d", tmp), n);
 	       break;
 	 }
 	 card = get_config_id(uconvert_ascii("graphics", tmp), buf, GFX_AUTODETECT);
@@ -607,7 +607,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       screen = NULL;
 
       if (!ugetc(allegro_error))
-	 ustrcpy(allegro_error, get_config_text("Unable to find a suitable graphics driver"));
+	 ustrncpy(allegro_error, get_config_text("Unable to find a suitable graphics driver"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 
       if (system_driver->display_switch_lock)
 	 system_driver->display_switch_lock(FALSE, FALSE);

@@ -89,7 +89,7 @@ SYSTEM_DRIVER system_directx =
    NULL                         /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
 };
 
-static char sys_directx_desc[64];
+static char sys_directx_desc[64] = EMPTY_STRING;
 
 
 _DRIVER_INFO _system_driver_list[] =
@@ -149,7 +149,8 @@ static int sys_directx_init(void)
 
    _dx_ver = get_dx_ver();
 
-   usprintf(sys_directx_desc, uconvert_ascii("DirectX %u.%x", tmp), _dx_ver >> 8, _dx_ver & 0xff);
+   usnprintf(sys_directx_desc, sizeof(sys_directx_desc),
+             uconvert_ascii("DirectX %u.%x", tmp), _dx_ver >> 8, _dx_ver & 0xff);
    system_directx.desc = sys_directx_desc;
 
    /* setup general critical section */

@@ -402,12 +402,12 @@ static int find_vesa_mode(int w, int h, int color_depth, int vbe_version)
    long mode_ptr;
 
    if (get_vesa_info() != 0) {
-      ustrcpy(allegro_error, get_config_text("VESA not available"));
+      ustrncpy(allegro_error, get_config_text("VESA not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
    if (vesa_info.VESAVersion < (vbe_version<<8)) {
-      usprintf(allegro_error, get_config_text("VBE %d.0 not available"), vbe_version);
+      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE %d.0 not available"), vbe_version);
       return 0;
    }
 
@@ -486,7 +486,7 @@ static int find_vesa_mode(int w, int h, int color_depth, int vbe_version)
       #endif
 
       default:
-	 ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+	 ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return 0;
    }
 
@@ -550,14 +550,14 @@ static int find_vesa_mode(int w, int h, int color_depth, int vbe_version)
    else if ((w == 1280) && (h == 1024) && (color_depth == 8))
       c = 0x107;
    else {
-      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0; 
    }
 
    if (get_mode_info(c) == 0)
       return c;
 
-   ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+   ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
    return 0;
 }
 
@@ -571,28 +571,28 @@ static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
    char tmp1[64], tmp2[64];
 
    /* VESA version number */
-   usprintf(vesa_desc, uconvert_ascii("%4.4s %d.%d (", tmp1), 
-		       uconvert_ascii(vesa_info.VESASignature, tmp2),
-		       vesa_info.VESAVersion>>8, 
-		       vesa_info.VESAVersion&0xFF);
+   usnprintf(vesa_desc, sizeof(vesa_desc), uconvert_ascii("%4.4s %d.%d (", tmp1), 
+		                           uconvert_ascii(vesa_info.VESASignature, tmp2),
+		                           vesa_info.VESAVersion>>8, 
+		                           vesa_info.VESAVersion&0xFF);
 
    /* VESA description string */
-   ustrcat(vesa_desc, uconvert_ascii(oem_string, NULL));
-   ustrcat(vesa_desc, uconvert_ascii(")", NULL));
+   ustrncat(vesa_desc, uconvert_ascii(oem_string, NULL), sizeof(vesa_desc) - ustrsizez(vesa_desc));
+   ustrncat(vesa_desc, uconvert_ascii(")", NULL), sizeof(vesa_desc) - ustrsizez(vesa_desc));
 
    /* warn about dodgy hardware */
    if (evilness_flag & 1)
-      ustrcat(vesa_desc, uconvert_ascii(", Trio64 bodge", NULL));
+      ustrncat(vesa_desc, uconvert_ascii(", Trio64 bodge", NULL), sizeof(vesa_desc) - ustrsizez(vesa_desc));
 
    if (evilness_flag & 2)
-      ustrcat(vesa_desc, uconvert_ascii(", 0x4F06 N.A.", NULL));
+      ustrncat(vesa_desc, uconvert_ascii(", 0x4F06 N.A.", NULL), sizeof(vesa_desc) - ustrsizez(vesa_desc));
 
    /* banked/linear status for VBE 3.0 */
    if (vbe_version >= 3) {
       if (linear)
-	 ustrcat(vesa_desc, uconvert_ascii(", linear", NULL));
+	 ustrncat(vesa_desc, uconvert_ascii(", linear", NULL), sizeof(vesa_desc) - ustrsizez(vesa_desc));
       else
-	 ustrcat(vesa_desc, uconvert_ascii(", banked", NULL));
+	 ustrncat(vesa_desc, uconvert_ascii(", banked", NULL), sizeof(vesa_desc) - ustrsizez(vesa_desc));
    }
 
    driver->desc = vesa_desc;
@@ -949,7 +949,7 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
 	 driver->bank_size = driver->bank_gran = 0;
       }
       else {
-	 ustrcpy(allegro_error, get_config_text("Linear framebuffer not available"));
+	 ustrncpy(allegro_error, get_config_text("Linear framebuffer not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return NULL;
       }
    }
@@ -961,13 +961,13 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
 	 driver->bank_gran = mode_info.WinGranularity * 1024;
       }
       else {
-	 ustrcpy(allegro_error, get_config_text("Banked framebuffer not available"));
+	 ustrncpy(allegro_error, get_config_text("Banked framebuffer not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return NULL;
       }
    }
 
    if (MAX(w, v_w) * MAX(h, v_h) * bpp > driver->vid_mem) {
-      ustrcpy(allegro_error, get_config_text("Insufficient video memory"));
+      ustrncpy(allegro_error, get_config_text("Insufficient video memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -1017,7 +1017,7 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
    __dpmi_int(0x10, &_dpmi_reg);
 
    if (_dpmi_reg.h.ah) {
-      ustrcpy(allegro_error, get_config_text("VESA function 0x4F02 failed"));
+      ustrncpy(allegro_error, get_config_text("VESA function 0x4F02 failed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -1046,7 +1046,7 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
 	  * work on 99% of cards, if VESA lets me down.
 	  */
 	 if ((width != 1024) && (width != 2048)) {
-	    ustrcpy(allegro_error, get_config_text("VESA function 0x4F06 failed"));
+	    ustrncpy(allegro_error, get_config_text("VESA function 0x4F06 failed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	    return NULL;
 	 }
 
@@ -1059,7 +1059,7 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
 	 __dpmi_int(0x10, &_dpmi_reg);
 
 	 if (_dpmi_reg.h.ah) {
-	    ustrcpy(allegro_error, get_config_text("VESA function 0x4F02 failed"));
+	    ustrncpy(allegro_error, get_config_text("VESA function 0x4F02 failed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	    return NULL;
 	 }
 
@@ -1079,13 +1079,13 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
    }
 
    if ((width/bpp < v_w) || (width/bpp < w) || (height < v_h) || (height < h)) {
-      ustrcpy(allegro_error, get_config_text("Virtual screen size too large"));
+      ustrncpy(allegro_error, get_config_text("Virtual screen size too large"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
    if (vbe_version >= 2) {
       if (get_pmode_functions(&w1, &w2) != 0) {
-	 ustrcpy(allegro_error, get_config_text("VESA protected mode interface not available"));
+	 ustrncpy(allegro_error, get_config_text("VESA protected mode interface not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return NULL;
       }
    }
@@ -1093,7 +1093,7 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
    if (driver->linear) {                        /* make linear bitmap? */
       b = make_linear_bitmap(driver, width/bpp, height, color_depth, width);
       if (!b) {
-	 ustrcpy(allegro_error, get_config_text("Can't make linear screen bitmap"));
+	 ustrncpy(allegro_error, get_config_text("Can't make linear screen bitmap"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return NULL;
       }
    }

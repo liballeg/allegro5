@@ -200,7 +200,7 @@ static int alsa_init(int input, int voices)
    char tmp1[80], tmp2[80];
 
    if (input) {
-      usprintf(allegro_error, get_config_text("Input is not supported"));
+      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return -1;
    }
 
@@ -224,7 +224,7 @@ static int alsa_init(int input, int voices)
    /* Open PCM device.  */
    if (snd_pcm_open(&pcm_handle, card, device, (SND_PCM_OPEN_PLAYBACK
 						| SND_PCM_OPEN_NONBLOCK)) < 0) {
-      usprintf(allegro_error, get_config_text("Can not open card/pcm device"));
+      ustrncpy(allegro_error, get_config_text("Can not open card/pcm device"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       goto error;
    }
 
@@ -249,12 +249,12 @@ static int alsa_init(int input, int voices)
 	 alsa_bits = 16;
 	 bps <<= 1;
 	 if (sizeof(short) != 2) {
-	    usprintf(allegro_error, get_config_text("Unsupported sample format"));
+	    ustrncpy(allegro_error, get_config_text("Unsupported sample format"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	    goto error;
 	 }
 	 break;
       default:
-	 usprintf(allegro_error, get_config_text("Unsupported sample format"));
+	 ustrncpy(allegro_error, get_config_text("Unsupported sample format"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 goto error;
    }
 
@@ -285,7 +285,7 @@ static int alsa_init(int input, int voices)
    params.buf.block.frags_max = numfrags;
    
    if (snd_pcm_channel_params(pcm_handle, &params) < 0) {
-      usprintf(allegro_error, get_config_text("Can not set channel parameters"));
+      ustrncpy(allegro_error, get_config_text("Can not set channel parameters"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       goto error;
    }
 
@@ -297,7 +297,7 @@ static int alsa_init(int input, int voices)
    setup.channel = SND_PCM_CHANNEL_PLAYBACK;
 
    if (snd_pcm_channel_setup(pcm_handle, &setup) < 0) {
-      usprintf(allegro_error, get_config_text("Can not get channel setup"));
+      ustrncpy(allegro_error, get_config_text("Can not get channel setup"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       goto error;
    }
 
@@ -307,7 +307,7 @@ static int alsa_init(int input, int voices)
    /* Allocate mixing buffer.  */
    alsa_bufdata = malloc(alsa_bufsize);
    if (!alsa_bufdata) {
-      usprintf(allegro_error, get_config_text("Can not allocate audio buffer"));
+      ustrncpy(allegro_error, get_config_text("Can not allocate audio buffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       goto error;
    }
 
@@ -317,7 +317,7 @@ static int alsa_init(int input, int voices)
    if (_mixer_init(alsa_bufsize / (alsa_bits / 8), alsa_rate,
 		   alsa_stereo, ((alsa_bits == 16) ? 1 : 0),
 		   &digi_alsa.voices) != 0) {
-      usprintf(allegro_error, get_config_text("Can not init software mixer"));
+      ustrncpy(allegro_error, get_config_text("Can not init software mixer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       goto error;
    }
 
@@ -328,7 +328,7 @@ static int alsa_init(int input, int voices)
    _sigalrm_digi_interrupt_handler = alsa_update;
    ENABLE();
 
-   usprintf(alsa_desc,
+   usnprintf(alsa_desc, sizeof(alsa_desc),
 	    get_config_text("Card #%d, device #%d: %d bits, %s, %d bps, %s"),
 	    card, device, alsa_bits,
 	    uconvert_ascii((alsa_signed ? "signed" : "unsigned"), tmp1),

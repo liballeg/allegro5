@@ -996,7 +996,7 @@ static int midi_init(void)
    }
 
    for (c=0; c<128; c++) {
-      usprintf(buf, uconvert_ascii("p%d", tmp), c+1);
+      usnprintf(buf, sizeof(buf), uconvert_ascii("p%d", tmp), c+1);
       argv = get_config_argv(uconvert_ascii("midimap", tmp), buf, &argc);
 
       if ((argv) && (argc == 4)) {

@@ -249,7 +249,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
       
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
    close(fbfd);
-   usprintf(allegro_error, get_config_text("Framebuffer resolution not available"));
+   ustrncpy(allegro_error, get_config_text("Framebuffer resolution not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
    return NULL;
 
    got_a_nice_mode:
@@ -259,7 +259,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    if (fbaddr == MAP_FAILED) {
       ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
       close(fbfd);
-      usprintf(allegro_error, get_config_text("Can't map framebuffer"));
+      ustrncpy(allegro_error, get_config_text("Can't map framebuffer"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -414,14 +414,14 @@ static int fb_open_device(void)
 
    /* open the framebuffer device */
    if ((fbfd = open(fname, O_RDWR)) < 0) {
-      usprintf(allegro_error, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp1));
+      usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp1));
       return 1;
    }
 
    /* read video mode information */
    if ((ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) ||
        (ioctl(fbfd, FBIOGET_VSCREENINFO, &orig_mode) != 0)) {
-      usprintf(allegro_error, get_config_text("Framebuffer ioctl() failed"));
+      ustrncpy(allegro_error, get_config_text("Framebuffer ioctl() failed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 2;
    }
 
@@ -675,7 +675,7 @@ static int read_config_file (int w, int h)
    int argc;
 
    /* Let the setup program know what config string we read for this mode */
-   usprintf(temp_timings.config_item, uconvert_ascii("fb_mode_%dx%d", tmp), w, h);
+   usnprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp), w, h);
 
    /* First try the config file */
    argv = get_config_argv (NULL, temp_timings.config_item, &argc);
@@ -876,7 +876,8 @@ static void set_default_timings (void)
    cp(xres);
    cp(yres);
    #undef cp
-   usprintf(temp_timings.config_item, uconvert_ascii("fb_mode_%dx%d", tmp), orig_mode.xres, orig_mode.yres);
+   usnprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp),
+                                                                               orig_mode.xres, orig_mode.yres);
 }
 
 

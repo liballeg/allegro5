@@ -135,7 +135,7 @@ unsigned long _set_vga_mode (int modenum)
 	MODE_REGISTERS *regs;
 
 	if (!__al_linux_have_ioperms) {
-		ustrcpy (allegro_error, get_config_text ("This driver needs root privileges"));
+		ustrncpy (allegro_error, get_config_text ("This driver needs root privileges"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 		return 0;
 	}
 
@@ -144,18 +144,18 @@ unsigned long _set_vga_mode (int modenum)
 		case 0x10: regs = &mode10h; break;
 		case 0x0D: regs = &mode0Dh; break;
 		default:
-			ustrcpy (allegro_error, get_config_text ("Required VGA mode not supported"));
+			ustrncpy (allegro_error, get_config_text ("Required VGA mode not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 			return 0;
 	}
 
 	if (__al_linux_map_memory (&vram)) {
-		ustrcpy (allegro_error, get_config_text ("Unable to map video memory"));
+		ustrncpy (allegro_error, get_config_text ("Unable to map video memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 		return 0;
 	}
 
 	__al_linux_screen_off();
 	if (__al_linux_console_graphics()) {
-		ustrcpy (allegro_error, get_config_text ("Error setting VGA video mode"));
+		ustrncpy (allegro_error, get_config_text ("Error setting VGA video mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 		__al_linux_screen_on();
 		__al_linux_unmap_memory (&vram);
 		return 0;

@@ -76,7 +76,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 
       /* if it is a .cfg, look for ~/.filerc */
       if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
-	 ustrncpy(buf, uconvert_ascii(home, tmp), sizeof(buf)-ucwidth(0));
+	 ustrncpy(buf, uconvert_ascii(home, tmp), sizeof(buf)-ucwidth(0)-ucwidth(OTHER_PATH_SEPARATOR));
 	 put_backslash(buf);
 	 ustrncat(buf, uconvert_ascii(".", tmp), sizeof(buf)-ucwidth(0));
 	 ustrncpy(tmp, resource, sizeof(tmp)-ucwidth(0));

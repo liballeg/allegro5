@@ -228,7 +228,7 @@ static void setup_driver_desc(void)
 {
    char tmp1[80], tmp2[80];
 
-   usprintf(gfx_driver_desc,
+   usnprintf(gfx_driver_desc, sizeof(gfx_driver_desc), 
        uconvert_ascii("DirectDraw, in %s, %d bpp overlay", tmp1),
            uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
                desktop_depth );

@@ -77,6 +77,8 @@ struct GFX_VTABLE;
 struct SAMPLE;
 struct MIDI;
 
+#define ALLEGRO_ERROR_SIZE 256
+
 AL_ARRAY(char, allegro_id);
 AL_ARRAY(char, allegro_error);
 

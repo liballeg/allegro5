@@ -115,7 +115,7 @@ information about how to install Allegro and link your program with it.
    Text string containing a date and version number for the library, in case 
    you want to display these somewhere.
 
-@@extern char @allegro_error[];
+@@extern char @allegro_error[ALLEGRO_ERROR_SIZE];
 @xref set_gfx_mode, install_sound
    Text string used by set_gfx_mode() and install_sound() to report error 
    messages. If they fail and you want to tell the user why, this is the 

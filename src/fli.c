@@ -969,11 +969,9 @@ int open_fli(AL_CONST char *filename)
       fli_filename = NULL;
    }
 
-   fli_filename = malloc(ustrsizez(filename));
+   fli_filename = ustrdup(filename);
    if (!fli_filename)
       return FLI_ERROR;
-
-   ustrcpy(fli_filename, filename);
 
    fli_file = pack_fopen(fli_filename, F_READ);
    if (!fli_file)

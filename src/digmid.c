@@ -444,8 +444,8 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
    for (i=0; i<256; i++)
       todo[i][0] = 0;
 
-   ustrcpy(buf, dir);
-   ustrcat(buf, file);
+   ustrncpy(buf, dir, sizeof(buf) - ucwidth(0));
+   ustrncat(buf, file, sizeof(buf) - ustrsizez(buf));
    f = pack_fopen(buf, F_READ);
    if (!f)
       return -1;
@@ -582,10 +582,10 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
       /* read from regular disk files */
       for (i=0; i<256; i++) {
 	 if (todo[i][0]) {
-	    ustrcpy(filename, dir);
-	    ustrcat(filename, uconvert_ascii(todo[i], NULL));
+	    ustrncpy(filename, dir, sizeof(filename) - ucwidth(0));
+	    ustrncat(filename, uconvert_ascii(todo[i], NULL), sizeof(filename) - ustrsizez(filename));
 	    if (ugetc(get_extension(filename)) == 0)
-	       ustrcat(filename, uconvert_ascii(".pat", NULL));
+	       ustrncat(filename, uconvert_ascii(".pat", NULL), sizeof(filename) - ustrsizez(filename));
 	    f = pack_fopen(filename, F_READ);
 	    if (f) {
 	       patch[i] = load_patch(f, (i >= 128));
@@ -919,7 +919,7 @@ static int digmid_detect(int input)
       return FALSE;
 
    if (!_digmid_find_patches(dir, file)) {
-      ustrcpy(allegro_error, get_config_text("DIGMID patch set not found"));
+      ustrncpy(allegro_error, get_config_text("DIGMID patch set not found"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return FALSE;
    }
 

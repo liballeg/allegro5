@@ -130,7 +130,7 @@ static void (*orig_draw_sprite)(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void (*orig_masked_blit)(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
 
-static char vbeaf_desc[256] = "";
+static char vbeaf_desc[256] = EMPTY_STRING;
 
 
 
@@ -703,7 +703,7 @@ static int load_vbeaf_driver(AL_CONST char *filename)
 	 return 0;
 
       if ((s.st_uid != 0) || (s.st_mode & (S_IWGRP | S_IWOTH))) {
-	 usprintf(allegro_error, get_config_text("%s must only be writeable by root"), filename);
+	 usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s must only be writeable by root"), filename);
 	 return -1;
       }
 
@@ -943,7 +943,7 @@ static int find_vbeaf_mode(int w, int h, int v_w, int v_h, int color_depth, AF_M
 	    /* make sure the mode supports scrolling */
 	    if ((v_w > w) || (v_h > h)) {
 	       if (!(mode_info->Attributes & 2)) {
-		  ustrcpy(allegro_error, get_config_text("Hardware scrolling not supported"));
+		  ustrncpy(allegro_error, get_config_text("Hardware scrolling not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 		  return 0;
 	       }
 	    }
@@ -953,7 +953,7 @@ static int find_vbeaf_mode(int w, int h, int v_w, int v_h, int color_depth, AF_M
 	     * call and use VBE 3.0 instead.
 	     */
 	    if ((!(mode_info->Attributes & 16)) && (!faf_id)) {
-	       ustrcpy(allegro_error, get_config_text("Hardware acceleration not available"));
+	       ustrncpy(allegro_error, get_config_text("Hardware acceleration not available"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	       return 0;
 	    }
 
@@ -962,7 +962,7 @@ static int find_vbeaf_mode(int w, int h, int v_w, int v_h, int color_depth, AF_M
       }
    }
 
-   ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+   ustrncpy(allegro_error, get_config_text("Resolution not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
    return 0;
 }
 
@@ -1041,7 +1041,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    p = get_config_string(uconvert_ascii("graphics", tmp1), uconvert_ascii("vbeaf_driver", tmp2), NULL);
 
    if ((p) && (ugetc(p))) {
-      ustrcpy(filename, p);
+      ustrncpy(filename, p, sizeof(filename) - ucwidth(0));
 
       if (ugetc(get_filename(filename)) == 0) {
 	 append_filename(filename, filename, uconvert_ascii("vbeaf.drv", tmp1), sizeof(filename));
@@ -1082,7 +1082,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    }
 
    /* oops, no driver */
-   ustrcpy(allegro_error, get_config_text("Can't find VBEAF.DRV"));
+   ustrncpy(allegro_error, get_config_text("Can't find VBEAF.DRV"), ALLEGRO_ERROR_SIZE - ucwidth(0));
    return NULL;
 
    /* got it! */ 
@@ -1110,14 +1110,14 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    /* check the driver ID string */
    if (strcmp(af_driver->Signature, "VBEAF.DRV") != 0) {
       vbeaf_exit(NULL);
-      ustrcpy(allegro_error, get_config_text("Bad VBE/AF driver ID string"));
+      ustrncpy(allegro_error, get_config_text("Bad VBE/AF driver ID string"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
    /* check the VBE/AF version number */
    if (af_driver->Version < 0x200) {
       vbeaf_exit(NULL);
-      ustrcpy(allegro_error, get_config_text("Obsolete VBE/AF version (need 2.0 or greater)"));
+      ustrncpy(allegro_error, get_config_text("Obsolete VBE/AF version (need 2.0 or greater)"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -1126,7 +1126,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
 
       if (!__al_linux_have_ioperms) {
 	 vbeaf_exit(NULL);
-	 ustrcpy(allegro_error, get_config_text("This driver needs root privileges"));
+	 ustrncpy(allegro_error, get_config_text("This driver needs root privileges"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return NULL;
       }
 
@@ -1147,14 +1147,14 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    /* bodge to work around bugs in the present (6.51) version of UniVBE */
    if ((v_w > w) && (!faf_id)) {
       vbeaf_exit(NULL);
-      ustrcpy(allegro_error, get_config_text("SciTech VBE/AF drivers do not support wide virtual screens"));
+      ustrncpy(allegro_error, get_config_text("SciTech VBE/AF drivers do not support wide virtual screens"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL; 
    }
 
    /* special setup for Plug and Play hardware */
    if (call_vbeaf_asm(af_driver->PlugAndPlayInit) != 0) {
       vbeaf_exit(NULL);
-      ustrcpy(allegro_error, get_config_text("VBE/AF Plug and Play initialisation failed"));
+      ustrncpy(allegro_error, get_config_text("VBE/AF Plug and Play initialisation failed"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -1163,16 +1163,16 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    if (ret != 0) {
       vbeaf_exit(NULL);
       if (ret == -2)
-	 ustrcpy(allegro_error, get_config_text("VBE/AF nearptrs not supported on this platform"));
+	 ustrncpy(allegro_error, get_config_text("VBE/AF nearptrs not supported on this platform"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       else
-	 ustrcpy(allegro_error, get_config_text("Can't map memory for VBE/AF"));
+	 ustrncpy(allegro_error, get_config_text("Can't map memory for VBE/AF"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
    /* low level driver initialisation */
    if (call_vbeaf_asm(af_driver->InitDriver) != 0) {
       vbeaf_exit(NULL);
-      ustrcpy(allegro_error, get_config_text("VBE/AF device not present"));
+      ustrncpy(allegro_error, get_config_text("VBE/AF device not present"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -1226,14 +1226,14 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    _sort_out_virtual_width(&width, &gfx_vbeaf);
 
    if (width * height > gfx_vbeaf.vid_mem) {
-      ustrcpy(allegro_error, get_config_text("Insufficient video memory"));
+      ustrncpy(allegro_error, get_config_text("Insufficient video memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       vbeaf_exit(NULL);
       return NULL;
    }
 
    /* set the mode */
    if (set_vbeaf_mode(mode, w, h, width/bpp, height, &width, &scrollable) != 0) {
-      ustrcpy(allegro_error, get_config_text("Failed to set VBE/AF mode"));
+      ustrncpy(allegro_error, get_config_text("Failed to set VBE/AF mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       vbeaf_exit(NULL);
       return NULL;
    }
@@ -1245,7 +1245,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
       height = MAX(height, (int)af_driver->OffscreenEndY+1);
 
    if ((width/bpp < v_w) || (width/bpp < w) || (height < v_h) || (height < h)) {
-      ustrcpy(allegro_error, get_config_text("Virtual screen size too large"));
+      ustrncpy(allegro_error, get_config_text("Virtual screen size too large"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       vbeaf_exit(NULL);
       return NULL;
    }
@@ -1448,30 +1448,31 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    }
 
    /* set up the VBE/AF description string */
-   ustrcpy(vbeaf_desc, uconvert_ascii(af_driver->OemVendorName, NULL));
+   ustrncpy(vbeaf_desc, uconvert_ascii(af_driver->OemVendorName, NULL), sizeof(vbeaf_desc) - ucwidth(0));
 
    if (gfx_vbeaf.linear)
-      ustrcat(vbeaf_desc, uconvert_ascii(", linear", NULL));
+      ustrncat(vbeaf_desc, uconvert_ascii(", linear", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
    else
-      ustrcat(vbeaf_desc, uconvert_ascii(", banked", NULL));
+      ustrncat(vbeaf_desc, uconvert_ascii(", banked", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
 
    if (faf_ext > 0)
-      usprintf(vbeaf_desc+ustrsize(vbeaf_desc), uconvert_ascii(", FreeBE ex%02d", NULL), faf_ext);
+      usnprintf(vbeaf_desc+ustrsize(vbeaf_desc), sizeof(vbeaf_desc) - ustrsize(vbeaf_desc),
+                                          uconvert_ascii(", FreeBE ex%02d", NULL), faf_ext);
    else if (faf_id)
-      ustrcat(vbeaf_desc, uconvert_ascii(", FreeBE noex", NULL));
+      ustrncat(vbeaf_desc, uconvert_ascii(", FreeBE noex", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
 
    if (faf_farptr)
-      ustrcat(vbeaf_desc, uconvert_ascii(", farptr", NULL));
+      ustrncat(vbeaf_desc, uconvert_ascii(", farptr", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
 
    /* is this an accelerated or dumb framebuffer mode? */
    if (mode_info.Attributes & 16) {
       gfx_vbeaf.drawing_mode = vbeaf_drawing_mode;
       vbeaf_drawing_mode();
-      ustrcat(vbeaf_desc, uconvert_ascii(", accel", NULL));
+      ustrncat(vbeaf_desc, uconvert_ascii(", accel", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
    }
    else {
       gfx_vbeaf.drawing_mode = NULL;
-      ustrcat(vbeaf_desc, uconvert_ascii(", noaccel", NULL));
+      ustrncat(vbeaf_desc, uconvert_ascii(", noaccel", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
    }
 
    gfx_vbeaf.desc = vbeaf_desc;

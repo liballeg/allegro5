@@ -74,7 +74,7 @@ static void pack_deletenode(int p, PACK_DATA *dat);
 static int pack_write(PACKFILE *file, PACK_DATA *dat, int size, unsigned char *buf, int last);
 static int pack_read(PACKFILE *file, UNPACK_DATA *dat, int s, unsigned char *buf);
 
-static char the_password[256] = "";
+static char the_password[256] = EMPTY_STRING;
 
 int _packfile_filesize = 0;
 int _packfile_datasize = 0;
@@ -220,7 +220,7 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
 
    /* if the path is relative, make it absolute */
    if ((ugetc(path) != '/') && (ugetc(path) != OTHER_PATH_SEPARATOR) && (ugetc(path) != '#')) {
-      _al_getdcwd(drive, buf2, sizeof(buf2));
+      _al_getdcwd(drive, buf2, sizeof(buf2) - ucwidth(OTHER_PATH_SEPARATOR));
       put_backslash(buf2);
 
       p = buf2;
@@ -615,15 +615,15 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
    else {
       if (ugetc(filename) == '#') {
 	 /* read object from an appended datafile */
-	 ustrcpy(fname, uconvert_ascii("#", NULL));
-	 ustrcpy(objname, filename+uwidth(filename));
+	 ustrncpy(fname, uconvert_ascii("#", NULL), sizeof(fname) - ucwidth(0));
+	 ustrncpy(objname, filename+uwidth(filename), sizeof(objname) - ucwidth(0));
       }
       else {
 	 /* read object from a regular datafile */
-	 ustrcpy(fname, filename);
+	 ustrncpy(fname, filename, sizeof(fname) - ucwidth(0));
 	 p = ustrchr(fname, '#');
 	 usetat(p, 0, 0);
-	 ustrcpy(objname, p+uwidth(p));
+	 ustrncpy(objname, p+uwidth(p), sizeof(objname) - ucwidth(0));
       }
 
       /* open the file */
@@ -1433,8 +1433,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
       #endif
 
       if (chunk) {
-	 chunk->filename = malloc(ustrsizez(name));
-	 ustrcpy(chunk->filename, name);
+         chunk->filename = ustrdup(name);
 
 	 if (pack)
 	    chunk->parent->parent = f;

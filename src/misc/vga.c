@@ -81,7 +81,7 @@ static BITMAP *vga_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* check it is a valid resolution */
    if (color_depth != 8) {
-      ustrcpy(allegro_error, get_config_text("VGA only supports 8 bit color"));
+      ustrncpy(allegro_error, get_config_text("VGA only supports 8 bit color"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 
@@ -273,7 +273,7 @@ static BITMAP *vga_init(int w, int h, int v_w, int v_h, int color_depth)
       gfx_vga.h = 80;
    }
    else {
-      ustrcpy(allegro_error, get_config_text("Not a valid VGA resolution"));
+      ustrncpy(allegro_error, get_config_text("Not a valid VGA resolution"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return NULL;
    }
 

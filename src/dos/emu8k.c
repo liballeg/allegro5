@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Low-level functions for the AWE32 driver, by George Foot.
+ *      Low-level functions for the AWE32 driver.
+ *
+ *      By George Foot.
  *
  *      Information taken primarily from "AWE32/EMU8000 Programmer's Guide"
  *      (AEPG) by Dave Rossum. The AEPG is part of the AWE32 Developers'
@@ -1087,7 +1089,7 @@ int emu8k_detect()
    char *envvar;
 
    if (!(envvar = getenv("BLASTER"))) {
-      ustrcpy(allegro_error, get_config_text("BLASTER environment variable not set"));
+      ustrncpy(allegro_error, get_config_text("BLASTER environment variable not set"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -1105,11 +1107,11 @@ int emu8k_detect()
    }
 
    if (!_emu8k_baseport) {
-      ustrcpy(allegro_error, get_config_text("BLASTER environment variable has no E section"));
+      ustrncpy(allegro_error, get_config_text("BLASTER environment variable has no E section"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
-   usprintf(allegro_error, get_config_text("AWE32 detection failed on port 0x%04x"), _emu8k_baseport);
+   usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("AWE32 detection failed on port 0x%04x"), _emu8k_baseport);
 
    if ((read_word(7, 0, 3) & 0x000f) != 0x000c)
       return 0;

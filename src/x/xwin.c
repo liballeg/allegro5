@@ -621,18 +621,18 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
 
    /* Prepare driver description.  */
    if (_xwin.matching_formats) {
-      usprintf(_xwin_driver_desc,
-	       uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
-	       _xwin.window_depth,
-	       uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp2));
+      usnprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc), 
+	        uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
+	        _xwin.window_depth,
+	        uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp2));
    }
    else {
-      usprintf(_xwin_driver_desc,
-	       uconvert_ascii("X-Windows graphics, in %s %s, %d bpp %s", tmp1),
-	       uconvert_ascii((_xwin.fast_visual_depth ? "fast" : "slow"), tmp2),
-	       uconvert_ascii((_xwin.visual_is_truecolor ? "truecolor" : "paletted"), tmp3),
-	       _xwin.window_depth,
-	       uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp4));
+      usnprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc),
+	        uconvert_ascii("X-Windows graphics, in %s %s, %d bpp %s", tmp1),
+	        uconvert_ascii((_xwin.fast_visual_depth ? "fast" : "slow"), tmp2),
+	        uconvert_ascii((_xwin.visual_is_truecolor ? "truecolor" : "paletted"), tmp3),
+	        _xwin.window_depth,
+	        uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp4));
    }
    drv->desc = _xwin_driver_desc;
 }
@@ -650,7 +650,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 #endif
 
    if (_xwin.window == None) {
-      ustrcpy(allegro_error, get_config_text("No window"));
+      ustrncpy(allegro_error, get_config_text("No window"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -662,7 +662,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)
        || (vw > 4096) || (vh > 4096)) {
-      ustrcpy(allegro_error, get_config_text("Unsupported screen size"));
+      ustrncpy(allegro_error, get_config_text("Unsupported screen size"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -686,7 +686,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
        && (depth != 32)
 #endif
        ) {
-      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -712,7 +712,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
    if (fullscreen) {
       /* Switch video mode.  */
       if (!_xvidmode_private_set_fullscreen(w, h, 0, 0)) {
-	 ustrcpy(allegro_error, get_config_text("Can not set video mode"));
+	 ustrncpy(allegro_error, get_config_text("Can not set video mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return 0;
       }
 
@@ -729,14 +729,14 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       /* Grab the keyboard and mouse.  */
       if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
 			GrabModeAsync, GrabModeAsync, CurrentTime) != GrabSuccess) {
-	 ustrcpy(allegro_error, get_config_text("Can not grab keyboard"));
+	 ustrncpy(allegro_error, get_config_text("Can not grab keyboard"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return 0;
       }
       _xwin.keyboard_grabbed = 1;
       if (XGrabPointer(_xwin.display, _xwin.window, False,
 		       PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
 		       GrabModeAsync, GrabModeAsync, _xwin.window, None, CurrentTime) != GrabSuccess) {
-	 ustrcpy(allegro_error, get_config_text("Can not grab mouse"));
+	 ustrncpy(allegro_error, get_config_text("Can not grab mouse"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return 0;
       }
       _xwin.mouse_grabbed = 1;
@@ -745,7 +745,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    /* Create XImage with the size of virtual screen.  */
    if (_xwin_private_create_ximage(vw, vh) != 0) {
-      ustrcpy(allegro_error, get_config_text("Can not create XImage"));
+      ustrncpy(allegro_error, get_config_text("Can not create XImage"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -859,7 +859,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
    /* Create line accelerators for screen data.  */
    _xwin.screen_line = malloc(_xwin.virtual_height * sizeof(unsigned char*));
    if (_xwin.screen_line == 0) {
-      ustrcpy(allegro_error, get_config_text("Not enough memory"));
+      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -873,7 +873,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
       bytes_per_screen_line = _xwin.virtual_width * BYTES_PER_PIXEL(_xwin.screen_depth);
       _xwin.screen_data = malloc(_xwin.virtual_height * bytes_per_screen_line);
       if (_xwin.screen_data == 0) {
-	 ustrcpy(allegro_error, get_config_text("Not enough memory"));
+	 ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return 0;
       }
       _xwin.screen_line[0] = _xwin.screen_data;
@@ -887,7 +887,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
    if (!_xwin.matching_formats && _xwin.fast_visual_depth) {
       _xwin.buffer_line = malloc(_xwin.virtual_height * sizeof(unsigned char*));
       if (_xwin.buffer_line == 0) {
-	 ustrcpy(allegro_error, get_config_text("Not enough memory"));
+	 ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
 	 return 0;
       }
 
@@ -901,7 +901,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
 		      (unsigned long) (_xwin.screen_line[0]), drv,
 		      _xwin.screen_depth, bytes_per_screen_line);
    if (bmp == 0) {
-      ustrcpy(allegro_error, get_config_text("Not enough memory"));
+      ustrncpy(allegro_error, get_config_text("Not enough memory"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -946,7 +946,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
 #endif
       }
 #else
-      ustrcpy(allegro_error, get_config_text("Internal error"));
+      ustrncpy(allegro_error, get_config_text("Internal error"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
 #endif
    }
@@ -2624,7 +2624,7 @@ static void _xwin_private_init_keyboard_tables(void)
    for (i = min_keycode; i <= max_keycode; i++) {
       int scancode;
 
-      usprintf(option, option_format, i);
+      usnprintf(option, sizeof(option), option_format, i);
       scancode = get_config_int(section, option, -1);
       if (scancode > 0)
 	 _xwin.keycode_to_scancode[i] = scancode;
@@ -2692,24 +2692,24 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 #endif
    
    if (_xwin.window == None) {
-      ustrcpy(allegro_error, get_config_text("No window"));
+      ustrncpy(allegro_error, get_config_text("No window"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
    /* Test that user has enough privileges.  */
    pass = getpwuid(geteuid());
    if (pass == 0) {
-      ustrcpy(allegro_error, get_config_text("Can not obtain user name"));
+      ustrncpy(allegro_error, get_config_text("Can not obtain user name"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
    if (strcmp("root", pass->pw_name) != 0) {
-      ustrcpy(allegro_error, get_config_text("This driver needs root privileges"));
+      ustrncpy(allegro_error, get_config_text("This driver needs root privileges"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
    /* Test that display is local.  */
    if (!_xwin_private_display_is_local()) {
-      ustrcpy(allegro_error, get_config_text("This driver needs local display"));
+      ustrncpy(allegro_error, get_config_text("This driver needs local display"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -2720,7 +2720,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    }
 
    if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)) {
-      ustrcpy(allegro_error, get_config_text("Unsupported screen size"));
+      ustrncpy(allegro_error, get_config_text("Unsupported screen size"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -2744,20 +2744,20 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
        && (depth != 32)
 #endif
        ) {
-      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
    /* Test for presence of DGA extension.  */
    if (!XF86DGAQueryExtension(_xwin.display, &dga_event_base, &dga_error_base)
        || !XF86DGAQueryVersion(_xwin.display, &dga_major_version, &dga_minor_version)) {
-      ustrcpy(allegro_error, get_config_text("DGA extension is not supported"));
+      ustrncpy(allegro_error, get_config_text("DGA extension is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
    /* Test DGA version */
    if (dga_major_version != 1) {
-      ustrcpy(allegro_error, get_config_text("DGA 1.0 is required"));
+      ustrncpy(allegro_error, get_config_text("DGA 1.0 is required"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -2765,25 +2765,25 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
        || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
-      ustrcpy(allegro_error, get_config_text("VidMode extension is not supported"));
+      ustrncpy(allegro_error, get_config_text("VidMode extension is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 #endif
 
    /* Query DirectVideo capabilities.  */
    if (!XF86DGAQueryDirectVideo(_xwin.display, _xwin.screen, &dga_flags)) {
-      ustrcpy(allegro_error, get_config_text("Can not query DirectVideo"));
+      ustrncpy(allegro_error, get_config_text("Can not query DirectVideo"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
    if (!(dga_flags & XF86DGADirectPresent)) {
-      ustrcpy(allegro_error, get_config_text("DirectVideo is not supported"));
+      ustrncpy(allegro_error, get_config_text("DirectVideo is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    /* Switch video mode if appropriate.  */
    if ((fullscreen) && (!_xvidmode_private_set_fullscreen(w, h, vw, vh))) {
-      ustrcpy(allegro_error, get_config_text("Can not set video mode"));
+      ustrncpy(allegro_error, get_config_text("Can not set video mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 #endif
@@ -2793,14 +2793,14 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    /* Grab keyboard and mouse.  */
    if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
 		     GrabModeAsync, GrabModeAsync, CurrentTime) != GrabSuccess) {
-      ustrcpy(allegro_error, get_config_text("Can not grab keyboard"));
+      ustrncpy(allegro_error, get_config_text("Can not grab keyboard"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
    _xwin.keyboard_grabbed = 1;
    if (XGrabPointer(_xwin.display, XDefaultRootWindow(_xwin.display), False,
 		    PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
 		    GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
-      ustrcpy(allegro_error, get_config_text("Can not grab mouse"));
+      ustrncpy(allegro_error, get_config_text("Can not grab mouse"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
    _xwin.mouse_grabbed = 1;
@@ -2809,20 +2809,20 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    /* Test that frame buffer is fast (can be accessed directly) - what a mess.  */
    _xwin.fast_visual_depth = _xdga_private_fast_visual_depth ();
    if (_xwin.fast_visual_depth == 0) {
-      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      ustrncpy(allegro_error, get_config_text("Unsupported color depth"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
    /* Get current video mode settings.  */
    if (!XF86DGAGetVideo(_xwin.display, _xwin.screen, &fb_addr, &v_w, &banksize, &memsize)) {
-      ustrcpy(allegro_error, get_config_text("Can not get video mode settings"));
+      ustrncpy(allegro_error, get_config_text("Can not get video mode settings"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    /* Get current screen size.  */
    if (!XF86VidModeGetModeLine(_xwin.display, _xwin.screen, &dotclock, &modeline)) {
-      ustrcpy(allegro_error, get_config_text("Can not get video mode settings"));
+      ustrncpy(allegro_error, get_config_text("Can not get video mode settings"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -2836,7 +2836,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    /* Test that each line is included in one bank only.  */
    if ((banksize < memsize) && ((banksize % fb_width) != 0)) {
-      ustrcpy(allegro_error, get_config_text("Unsupported memory layout"));
+      ustrncpy(allegro_error, get_config_text("Unsupported memory layout"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -2852,7 +2852,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 #endif
 
    if ((s_w < w) || (s_h < h) || ((vw - w) > (v_w - s_w)) || ((vh - h) > (v_h - s_h))) {
-      ustrcpy(allegro_error, get_config_text("Unsupported screen size"));
+      ustrncpy(allegro_error, get_config_text("Unsupported screen size"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -2894,7 +2894,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    /* Set DGA mode.  */
    if (!XF86DGADirectVideo(_xwin.display, _xwin.screen,
 			   XF86DGADirectGraphics | XF86DGADirectMouse | XF86DGADirectKeyb)) {
-      ustrcpy(allegro_error, get_config_text("Can not switch to DGA mode"));
+      ustrncpy(allegro_error, get_config_text("Can not switch to DGA mode"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
    _xwin.in_dga_mode = 1;
@@ -2910,7 +2910,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    /* Install DGA colormap.  */
    if (!XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap)) {
-      ustrcpy(allegro_error, get_config_text("Can not install colormap"));
+      ustrncpy(allegro_error, get_config_text("Can not install colormap"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 
@@ -3138,7 +3138,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
        || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
-      ustrcpy(allegro_error, get_config_text("VidMode extension is not supported"));
+      ustrncpy(allegro_error, get_config_text("VidMode extension is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return 0;
    }
 

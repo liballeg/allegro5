@@ -96,7 +96,7 @@ extern "C" int be_sound_detect(int input)
    status_t status;
    
    if (input) {
-      usprintf(allegro_error, get_config_text("Input is not supported"));
+      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return FALSE;
    }
 
@@ -126,7 +126,7 @@ extern "C" int be_sound_init(int input, int voices)
    char tmp1[80], tmp2[80];
 
    if (input) {
-      usprintf(allegro_error, get_config_text("Input is not supported"));
+      ustrncpy(allegro_error, get_config_text("Input is not supported"), ALLEGRO_ERROR_SIZE - ucwidth(0));
       return -1;
    }
 
@@ -213,7 +213,7 @@ extern "C" int be_sound_init(int input, int voices)
 
    be_sound->StartPlaying();
 
-   usprintf(be_sound_desc, get_config_text("%d bits, %s, %d bps, %s"),
+   usnprintf(be_sound_desc, sizeof(be_sound_desc), get_config_text("%d bits, %s, %d bps, %s"),
 			      _sound_bits, uconvert_ascii((char *)(be_sound_signed ? "signed" : "unsigned"), tmp1), 
 			      _sound_freq, uconvert_ascii((char *)(_sound_stereo ? "stereo" : "mono"), tmp2));
 
