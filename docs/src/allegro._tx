@@ -2479,11 +2479,6 @@ Allegro does not provide such devices.)
    incremented 70 times a second. This provides a way of controlling
    the speed of your program without installing user timer functions.
 
-   The speed of retraces varies depending on the graphics mode. In mode 13h 
-   and 200/400 line mode-X resolutions there are 70 retraces a second, and 
-   in 240/480 line modes there are 60. It can be as low as 50 (in 376x282 
-   mode) or as high as 92 (in 400x300 mode).
-
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
