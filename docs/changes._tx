@@ -10,7 +10,7 @@
 
 @heading
 Changes from 3.11 to current
-<ul><li>
+<ul>
 <li>
    3.9.40: Eric Botcazou enabled SSE support under Linux. Also reduced the
    delay in the DOS Sidewinder init code. Made the definition of _AL_DLL
@@ -19,7 +19,7 @@ Changes from 3.11 to current
    3.9.40: Henrik Stokseth improved make install to install only the needed
    headers from the include/allegro/platform directory.
 <li>
-   3.9.40: Vincent Penquerc updated 7 makefiles after his header splitting
+   3.9.40: Vincent Penquerc'h updated 7 makefiles after his header splitting
    patch.
 <li>
    3.9.40: Robert J. Ohannessian added two new entries to the GFX_VTABLE
@@ -51,24 +51,24 @@ Changes from 3.11 to current
    targets BC++ 5.5. Made pack_fdopen() an exported internal function.
    Reverted to the 3.9.38 code for 16-bit audio streaming with DirectSound.
 <li>
-   3.9.40: Vincent Penquerc contributed a rather large split-up/
+   3.9.40: Vincent Penquerc'h contributed a rather large split-up/
    reorganization of the Allegro header files. Henrik and Eric did some
    related clean-up and fixing.
 <li>
-   3.9.40: Peter Wang updated put_backslash docs.
+   3.9.40: Peter Wang updated put_backslash() docs.
 <li>
    3.9.40: Eric Botcazou modified the way DirectDraw surfaces are
    enumerated. Fixed compilation errors/warnings with BC++. Made
-   generate_optimized_palette_ex() a static function. Worked around the DOS
-   limitations for al_findfirst() and for_each_file(). Moved platform-
-   dependant stuff out of src/fsel.c.
+   generate_optimized_palette_ex() a static function. Worked around the
+   DOS limitations for al_findfirst() and for_each_file(). Moved
+   platform-dependent stuff out of src/fsel.c.
 <li>
    3.9.40: Peter Wang updated timer docs for non-DOS. Added ABI
    compatibility readme.
 <li>
    3.9.40: Javier Gonzalez removed all references to the RSXNT build.
 <li>
-   3.9.40: Vincent Penquerc made it so that users can provide their own
+   3.9.40: Vincent Penquerc'h made it so that users can provide their own
    ustrdup().
 <li>
    3.9.40: Robin Burrows fixed two glitches in the DirectDraw code.
@@ -78,7 +78,7 @@ Changes from 3.11 to current
 <li>
    3.9.40: Eric Botcazou removed old Sidewinder asm driver. Cleaned up
    buffer usage in DIGMID. Fixed unicode support in the DIGMID driver.
-   Replaced all ocurrences of SEND_MESSAGE() by object_message().
+   Replaced all occurrences of SEND_MESSAGE() by object_message().
 <li>
    3.9.40: Annie Testes caught a misordering in the X system shutdown.
 <li>
@@ -89,9 +89,10 @@ Changes from 3.11 to current
 <li>
    3.9.40: David Capello fixed a problem with lost GUI mouse clicks.
 <li>
-   3.9.40: Vincent Penquerc removed two hard-coded list sizes in grabber.
+   3.9.40: Vincent Penquerc'h removed two hard-coded list sizes in grabber.
 <li>
-   3.9.40: Peter Wang added a little clarification reg. mouse_accel_factor.
+   3.9.40: Peter Wang added a little clarification regarding
+   mouse_accel_factor.
 <li>
    3.9.40: Eric Botcazou made debugging functions revert to ASCII strings.
    Added some defines for backwards compatibility with former cpu_* flags.
@@ -99,7 +100,7 @@ Changes from 3.11 to current
 <li>
    3.9.40: Henrik Stokseth added VBE/AF fetch_mode_list().
 <li>
-   3.9.40: Robert J. Ohannessian revamped the retreival mechanism of CPU
+   3.9.40: Robert J. Ohannessian revamped the retrieval mechanism of CPU
    capabilities and added some new flags.
 <li>
    3.9.40: Eric Botcazou fixed various mouse cursor problems under Windows.
@@ -125,7 +126,7 @@ Changes from 3.11 to current
    Fixed fix.bat script under MinGW32/Win2k.
 <li>
    3.9.40: Marcel Smit corrected a bug that caused errors when drawing
-   persp. correct polys facing the screen. (dz=0)
+   perspective-correct polygons facing the screen. (dz=0)
 <li>
    3.9.40: Peter Wang made install_timer_int static. Also moved
    allegro_404_char into public API.
@@ -136,10 +137,10 @@ Changes from 3.11 to current
    fixed a color glitch in the Windows windowed driver on 8-bit desktops.
 <li>
    3.9.40: Salvador Eduardos Tropea fixed inline friend declarations with
-   bodies. (gcc 3.01 problem)
+   bodies. (gcc 3.0.x problem)
 <li>
    3.9.40: Peter Wang improved behaviour between mouse auto-opening menus
-   and navigating with keyboard. Also unspartanised the ustrtok_r docs.
+   and navigating with keyboard. Also unspartanised the ustrtok_r() docs.
 <li>
    3.9.40: Henrik Stokseth replaced the mmxtest with a more advanced
    assembler capabilities testing.
@@ -158,7 +159,7 @@ Changes from 3.11 to current
    3.9.40: Henrik Stokseth added Out of Environment space detection on the
    fix.bat script.
 <li>
-   3.9.40: Eric Botcazou fixed a non ANSI C compilant behaviour in
+   3.9.40: Eric Botcazou fixed a non ANSI C compliant behaviour in
    usprintf().
 <li>
    3.9.40: Seunghwan Ji made makedoc output correct html and rtf files for
