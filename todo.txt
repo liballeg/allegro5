@@ -31,10 +31,9 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - DirectInput 5 joystick driver
-- Investigate mouse problem with USB Wacom Tablet
-- Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Make Allegro return focus to the calling app
-- Add bidirectional playing to the DirectSound driver
+- Fix 'mouse pointer not hidden' bug (likely a race condition)
+- Investigate mouse problem with USB Wacom Tablet
 
 Linux todos:
 ---------------------------------------------------------------------------
