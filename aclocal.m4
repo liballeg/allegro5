@@ -363,7 +363,7 @@ if test -n "$allegro_enable_alsadigi"; then
   AC_CACHE_CHECK(for supported ALSA version for digital sound,
   allegro_cv_support_alsadigi,
   AC_TRY_COMPILE([#include <sys/asoundlib.h>
-                  #if SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9
+                  #if (SND_LIB_MAJOR > 0) || (SND_LIB_MAJOR == 0 && SND_LIB_MINOR == 9) 
                   #else
                   #error
                   #endif],,
