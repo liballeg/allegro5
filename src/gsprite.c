@@ -70,7 +70,7 @@ void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1
       if ((bmp->clip) && (x < bmp->cl))
 	 hc += mh * (bmp->cl - x);
 
-   #ifdef GFX_MODEX
+   #ifdef GFX_HAS_VGA
 
       /* modex version */
       if (is_planar_bitmap(bmp)) {
@@ -178,4 +178,3 @@ void _soft_draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1
 
    bmp_unwrite_line(bmp);
 }
-

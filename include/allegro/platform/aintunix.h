@@ -133,7 +133,7 @@ extern "C" {
 #endif
 
 
-#ifdef DIGI_OSS
+#ifdef ALLEGRO_WITH_OSSDIGI
    /* So the setup program can read what we detected */
    AL_VAR(int, _oss_fragsize);
    AL_VAR(int, _oss_numfrags);
@@ -184,4 +184,3 @@ extern struct bg_manager *_unix_bg_man;
 #endif
 
 #endif /* ifndef AINTUNIX_H */
-

@@ -50,7 +50,7 @@ for (; d < dend; d += (size), s = (type *)                                \
       dd += _al_stretch.i1;                                               \
 }
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 /*
  * Mode-X line stretcher.
  */
@@ -153,7 +153,7 @@ for (; d < dend; d += (size), s = (type*)                                 \
       dd += _al_stretch.i1;                                               \
 }
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 /*
  * Mode-X masked line stretcher.
  */
@@ -344,7 +344,7 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
 	    if (is_linear_bitmap(dst))
 	       stretch_line = stretch_masked_line8;
 	    else {
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 	       stretch_line = stretch_masked_linex;
 #else
 	       return;
@@ -381,7 +381,7 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
 	    if (is_linear_bitmap(dst))
 	       stretch_line = stretch_line8;
 	    else {
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 	       stretch_line = stretch_linex;
 #else
 	       return;
@@ -480,4 +480,3 @@ void stretch_sprite(BITMAP *dst, BITMAP *src, int x, int y, int w, int h)
 
    _al_stretch_blit(src, dst, 0, 0, src->w, src->h, x, y, w, h, 1);
 }
-

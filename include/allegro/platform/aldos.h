@@ -212,6 +212,9 @@ AL_FUNC(int, calibrate_joystick_hat, (int direction));
 /************ Graphics routines ************/
 /*******************************************/
 
+#define GFX_HAS_VGA
+#define GFX_HAS_VBEAF
+
 #define GFX_VGA                  AL_ID('V','G','A',' ')
 #define GFX_MODEX                AL_ID('M','O','D','X')
 #define GFX_VESA1                AL_ID('V','B','E','1')
@@ -220,7 +223,6 @@ AL_FUNC(int, calibrate_joystick_hat, (int direction));
 #define GFX_VESA3                AL_ID('V','B','E','3')
 #define GFX_VBEAF                AL_ID('V','B','A','F')
 #define GFX_XTENDED              AL_ID('X','T','N','D')
-
 
 AL_VAR(GFX_DRIVER, gfx_vga);
 AL_VAR(GFX_DRIVER, gfx_modex);
@@ -353,4 +355,3 @@ AL_FUNC(int, load_ibk, (AL_CONST char *filename, int drums));
 #ifdef __cplusplus
 }
 #endif
-

@@ -395,7 +395,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       compiler_pos = make_stretcher(0, sx, sxd, dest_width, masked, dest->vtable->color_depth);
    }
 
- #ifdef GFX_MODEX
+ #ifdef GFX_HAS_VGA
 
    else { 
       int plane, d;
@@ -428,7 +428,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
       dest_x >>= 2;
    }
 
- #endif     /* ifdef GFX_MODEX */
+ #endif     /* ifdef GFX_HAS_VGA */
 
    COMPILER_RET();
 
@@ -484,4 +484,3 @@ void stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h)
 {
    do_stretch_blit(sprite, bmp, 0, 0, sprite->w, sprite->h, x, y, w, h, 1); 
 }
-

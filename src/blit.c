@@ -311,7 +311,7 @@ static int makecol_dither_trans(BITMAP *src, BITMAP *dest, int c, int r, int g, 
 
 
 
-#if (defined ALLEGRO_COLOR8) || (defined GFX_MODEX)
+#if (defined ALLEGRO_COLOR8) || (defined GFX_HAS_VGA)
 
 /* dither_blit:
  *  Blits with Floyd-Steinberg error diffusion.
@@ -613,7 +613,7 @@ static void blit_from_32(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
  */
 static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
-   #ifdef GFX_MODEX
+   #ifdef GFX_HAS_VGA
 
    int x, y, c, r, g, b;
    int src_depth = bitmap_color_depth(src);
@@ -844,4 +844,3 @@ void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, 
 
    dest->vtable->masked_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
 }
-

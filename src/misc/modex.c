@@ -24,7 +24,7 @@
 
 #include "allegro.h"
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 
 #include "allegro/internal/aintern.h"
 #include "allegro/internal/aintvga.h"
@@ -1685,5 +1685,10 @@ void _module_init_modex(int system_driver)
 #endif
 
 
+#else      /* ifdef GFX_MODEX */
 
-#endif      /* ifdef GFX_MODEX */
+void split_modex_screen(int line)
+{
+}
+
+#endif

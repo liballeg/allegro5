@@ -261,7 +261,7 @@ AL_FUNC(unsigned long, _stub_bank_switch, (BITMAP *bmp, int line));
 AL_FUNC(void, _stub_unbank_switch, (BITMAP *bmp));
 AL_FUNC(void, _stub_bank_switch_end, (void));
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 
 AL_FUNC(unsigned long, _x_bank_switch, (BITMAP *bmp, int line));
 AL_FUNC(void, _x_unbank_switch, (BITMAP *bmp));
@@ -269,7 +269,7 @@ AL_FUNC(void, _x_bank_switch_end, (void));
 
 #endif
 
-#ifdef GFX_VBEAF
+#ifdef GFX_HAS_VBEAF
 
 AL_FUNC(void, _accel_bank_stub, (void));
 AL_FUNC(void, _accel_bank_stub_end, (void));
@@ -578,7 +578,7 @@ AL_FUNC(void, _linear_clear_to_color32, (BITMAP *bitmap, int color));
 
 #endif
 
-#ifdef GFX_MODEX
+#ifdef GFX_HAS_VGA
 
 AL_FUNC(int,  _x_getpixel, (BITMAP *bmp, int x, int y));
 AL_FUNC(void, _x_putpixel, (BITMAP *bmp, int x, int y, int color));
