@@ -48,7 +48,7 @@ Contributors
    Added the -ppassword and -nosound options to the grabber, scrolling 
    support in the image viewer, and the flipped rotated sprite routines.
 
-   Andy Goth (<email>andygoth@vetec.com</a>).<br>
+   Andy Goth (<email>unununium@openverse.com</a>).<br>
    Made the gfx_card config variable more flexible, added the 256x256 
    tweaked VGA mode, and wrote the d_text_list_proc() dialog object.
 
