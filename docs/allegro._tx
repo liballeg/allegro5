@@ -129,9 +129,10 @@ information about how to install Allegro and link your program with it.
       OSTYPE_WIN3       - Windows 3.1 or earlier
       OSTYPE_WIN95      - Windows 95
       OSTYPE_WIN98      - Windows 98
-      OSTYPE_WINME      - Windows Me
+      OSTYPE_WINME      - Windows ME
       OSTYPE_WINNT      - Windows NT
       OSTYPE_WIN2000    - Windows 2000
+      OSTYPE_WINXP      - Windows XP
       OSTYPE_OS2        - OS/2
       OSTYPE_WARP       - OS/2 Warp 3
       OSTYPE_DOSEMU     - Linux DOSEMU

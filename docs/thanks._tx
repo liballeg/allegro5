@@ -236,9 +236,9 @@ Contributors
    Wrote the original version of the LZSS compression code.
 
    Henrik Stokseth (<email>hstokset@privat.cybercity.no</a>).<br>
-   Contributed a native Mingw32 build complete with cross-compilation
-   support. He's also done various hacking and bugfixing and added some
-   code to distinguish between win95 and win98.
+   Contributed a native Mingw32 build complete with cross-compilation.
+   Improved OS detection. Added get_gfx_mode_list() and methods for querying
+   the VESA and DIRECTX drivers for a list of possible GFX modes.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
@@ -509,7 +509,7 @@ Contributors
 
    Robert Ohannessian (<email>varobert@colba.net</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
-   bad clearing of subbitmaps.
+   bad clearing of subbitmaps. Also added SSE detection.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a

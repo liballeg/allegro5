@@ -140,8 +140,12 @@ static int sys_directx_init(void)
    os_multitasking = TRUE;
 
    if (win_ver < 0x80000000) {
-      if (os_version == 5)
-         os_type = OSTYPE_WIN2000;
+      if (os_version == 5) {
+         if(os_revision == 1)
+	    os_type = OSTYPE_WINXP;
+	 else
+	    os_type = OSTYPE_WIN2000;
+      }
       else
          os_type = OSTYPE_WINNT;
    }

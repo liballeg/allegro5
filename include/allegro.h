@@ -92,6 +92,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_WINME       AL_ID('W','M','E',' ')
 #define OSTYPE_WINNT       AL_ID('W','N','T',' ')
 #define OSTYPE_WIN2000     AL_ID('W','2','K',' ')
+#define OSTYPE_WINXP       AL_ID('W','X','P',' ')
 #define OSTYPE_OS2         AL_ID('O','S','2',' ')
 #define OSTYPE_WARP        AL_ID('W','A','R','P')
 #define OSTYPE_DOSEMU      AL_ID('D','E','M','U')
