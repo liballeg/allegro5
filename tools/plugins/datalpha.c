@@ -163,7 +163,7 @@ static int export_alpha(void)
       strcpy(name, grabber_import_file);
       *get_filename(name) = 0;
 
-      if (file_select(buf, name, ext)) {
+      if (file_select_ex(buf, name, ext, 0, 0)) {
 	 fix_filename_case(name);
 	 strcpy(grabber_import_file, name);
 	 grabber_busy_mouse(TRUE);
@@ -263,7 +263,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
    strcpy(name, grabber_import_file);
    *get_filename(name) = 0;
 
-   if (file_select(buf, name, ext)) {
+   if (file_select_ex(buf, name, ext, 0, 0)) {
       fix_filename_case(name);
       strcpy(grabber_import_file, name);
       grabber_busy_mouse(TRUE);

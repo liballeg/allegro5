@@ -1013,7 +1013,7 @@ static int import_proc(int msg, DIALOG *d, int c)
       strcpy(name, grabber_import_file);
       *get_filename(name) = 0;
 
-      if (file_select("Import range (" EXT_LIST ")", name, EXT_LIST)) {
+      if (file_select_ex("Import range (" EXT_LIST ")", name, EXT_LIST, 0, 0)) {
 	 fix_filename_case(name);
 	 strcpy(grabber_import_file, name);
 

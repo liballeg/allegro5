@@ -1657,7 +1657,7 @@ static int loader()
    strcpy(buf, data_file);
    *get_filename(buf) = 0;
 
-   if (file_select("Load datafile", buf, "dat")) {
+   if (file_select_ex("Load datafile", buf, "dat", 0, 0)) {
       fix_filename_case(buf);
       load(buf, 1);
    }
@@ -1677,7 +1677,7 @@ static int merger()
    strcpy(buf, data_file);
    *get_filename(buf) = 0;
 
-   if (file_select("Merge datafile", buf, "dat")) {
+   if (file_select_ex("Merge datafile", buf, "dat", 0, 0)) {
       fix_filename_case(buf);
       load(buf, 0);
    }
@@ -1695,7 +1695,7 @@ static int save(int strip)
 
    strcpy(buf, data_file);
 
-   if (file_select("Save datafile", buf, "dat")) {
+   if (file_select_ex("Save datafile", buf, "dat", 0, 0)) {
       if ((stricmp(data_file, buf) != 0) && (exists(buf))) {
 	 sprintf(buf2, "%s already exists, overwrite?", buf);
 	 if (alert(buf2, NULL, NULL, "Yes", "Cancel", 'y', 27) != 1)
@@ -1987,7 +1987,7 @@ static int reader()
 
    format_file_select_heading(buf2, "Read bitmap file", NULL, s);
 
-   if (file_select(buf2, buf, s)) {
+   if (file_select_ex(buf2, buf, s, 0, 0)) {
       fix_filename_case(buf);
       set_mouse_sprite(my_busy_pointer);
       busy_mouse = TRUE;
@@ -2101,7 +2101,7 @@ static int grabber()
 
    format_file_select_heading(buf, "Grab", desc, ext);
 
-   if (file_select(buf, name, ext)) {
+   if (file_select_ex(buf, name, ext, 0, 0)) {
       fix_filename_case(name);
       set_mouse_sprite(my_busy_pointer);
       busy_mouse = TRUE;
@@ -2169,7 +2169,7 @@ static int exporter()
 
    format_file_select_heading(buf, "Export", desc, ext);
 
-   if (file_select(buf, name, ext)) {
+   if (file_select_ex(buf, name, ext, 0, 0)) {
       fix_filename_case(name);
       set_mouse_sprite(my_busy_pointer);
       busy_mouse = TRUE;
