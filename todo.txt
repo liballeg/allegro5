@@ -19,6 +19,7 @@ General (Platform independant) todos:
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
   [Eric or Angelo: remove this when it's done]
+- use unicode functions in setup.c
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -44,6 +45,7 @@ Linux todos:
   if I cheat and use vga_flip.  Font returns after program quits.
 - dynamically linked wrappers for drivers
 - switch to SRPMs instead of weird RPMs
+- pthread alternatives for timers and event processing (instead of SIGALRM)
 
 X11 todos:
 ---------------------------------------------------------------------------
