@@ -291,53 +291,47 @@ static int _xwin_sysdrv_set_close_button_callback(void (*proc)(void))
  */
 static void _xwin_sysdrv_message(AL_CONST char *msg)
 {
-   char buf[ALLEGRO_MESSAGE_SIZE];
+   char buf[ALLEGRO_MESSAGE_SIZE+1];
    char *msg2;
-   int fd[2];
+   size_t len;
    pid_t pid;
-   int ret, status;
-   int err;
+   int status;
 
    /* convert message to ASCII */
    msg2 = uconvert(msg, U_CURRENT, buf, U_ASCII, ALLEGRO_MESSAGE_SIZE);
 
-   /* create a pipe */
-   if (pipe(fd) != 0) {
-      fputs(msg2, stdout);
-      return;
-   }
+   /* xmessage interprets some strings beginning with '-' as command-line
+    * options. To avoid this we make sure all strings we pass to it have
+    * newlines on the end. This is also useful for the fputs() case.
+    */
+   len = strlen(msg2);
+   ASSERT(len < ALLEGRO_MESSAGE_SIZE);
+   if ((len == 0) || (msg2[len-1] != '\n'))
+      strcat(msg2, "\n");
 
    /* fork a child */
    pid = fork();
    switch (pid) {
 
       case -1: /* fork error */
-	 close(fd[0]);
-	 close(fd[1]);
 	 fputs(msg2, stdout);
 	 break;
 
       case 0: /* child process */
-	 if ((close(STDIN_FILENO) != -1)
-	     && (dup2(fd[0], STDIN_FILENO) != -1)
-	     && (close(fd[1]) != -1))
-	 {
-	    execlp("xmessage", "xmessage", "-buttons", "OK", "-default", "OK", "-center", "-file", "-", NULL);
-	 }
+	 execlp("xmessage", "xmessage", "-buttons", "OK:101", "-default", "OK", "-center", msg2, NULL);
+
 	 /* if execution reaches here, it means execlp failed */
 	 _exit(EXIT_FAILURE);
 	 break;
 
       default: /* parent process */
-	 if ((close(fd[0]) == -1)
-	     || (write(fd[1], msg2, strlen(msg2)) == -1)
-	     || (close(fd[1]) == -1)
-	     || (waitpid(pid, &status, 0) != pid)
-	     || (!WIFEXITED(status))
+	 waitpid(pid, &status, 0);
+	 if ((!WIFEXITED(status))
 	     || (WEXITSTATUS(status) != 101)) /* ok button */
 	 {
 	    fputs(msg2, stdout);
 	 }
+
 	 break;
    }
 }
