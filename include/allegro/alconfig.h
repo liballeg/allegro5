@@ -69,10 +69,25 @@
       #define INLINE          inline
    #endif
 
-   #ifndef ZERO_SIZE
-      #define ZERO_SIZE    0
+   #if __GNUC__ >= 3
+      /* SET: According to gcc volatile is ignored for a return type.
+       * I think the code should just ensure that inportb is declared as an
+       * __asm__ __volatile__ macro. If that's the case the extra volatile
+       * doesn't have any sense.
+       */
+      #define RET_VOLATILE
+   #else
+      #define RET_VOLATILE    volatile
    #endif
 
+   #ifndef ZERO_SIZE
+      #if __GNUC__ < 3
+         #define ZERO_SIZE    0
+      #else
+         #define ZERO_SIZE
+      #endif
+   #endif
+   
    #ifndef LONG_LONG
       #define LONG_LONG       long long
    #endif
@@ -111,6 +126,10 @@
 
 #ifndef INLINE
    #define INLINE
+#endif
+
+#ifndef RET_VOLATILE
+   #define RET_VOLATILE   volatile
 #endif
 
 #ifndef ZERO_SIZE

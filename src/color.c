@@ -484,7 +484,8 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
 	 } \
       }
 
-   int i, curr, r, g, b, val, r2, g2, b2, dist2;
+   int i, curr, r, g, b, val, dist2;
+   unsigned int r2, g2, b2;
    unsigned short next[32*32*32];
    unsigned char *data;
    int first = LAST;

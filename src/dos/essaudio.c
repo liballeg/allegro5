@@ -104,7 +104,7 @@ static int ess_buffer_size()
 /* is_dsp_ready_for_read:
  *  Determines if DSP is ready to be read from.
  */
-static INLINE volatile int is_dsp_ready_for_read()
+static INLINE RET_VOLATILE int is_dsp_ready_for_read()
 {
    return (inportb(0x0E + _sound_port) & 0x80);
 }
@@ -114,7 +114,7 @@ static INLINE volatile int is_dsp_ready_for_read()
 /* ess_read_dsp:
  *  Reads a byte from the DSP chip. Returns -1 if it times out.
  */
-static INLINE volatile int ess_read_dsp()
+static INLINE RET_VOLATILE int ess_read_dsp()
 {
    int x;
 
@@ -130,7 +130,7 @@ static INLINE volatile int ess_read_dsp()
 /* ess_write_dsp:
  *  Writes a byte to the DSP chip. Returns -1 if it times out.
  */
-static INLINE volatile int ess_write_dsp(unsigned char byte)
+static INLINE RET_VOLATILE int ess_write_dsp(unsigned char byte)
 {
    int x;
 

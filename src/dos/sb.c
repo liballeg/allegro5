@@ -215,7 +215,7 @@ static void sb_lock_mem(void);
 /* sb_read_dsp:
  *  Reads a byte from the SB DSP chip. Returns -1 if it times out.
  */
-static INLINE volatile int sb_read_dsp()
+static INLINE RET_VOLATILE int sb_read_dsp()
 {
    int x;
 
@@ -231,7 +231,7 @@ static INLINE volatile int sb_read_dsp()
 /* sb_write_dsp:
  *  Writes a byte to the SB DSP chip. Returns -1 if it times out.
  */
-static INLINE volatile int sb_write_dsp(unsigned char byte)
+static INLINE RET_VOLATILE int sb_write_dsp(unsigned char byte)
 {
    int x;
 
