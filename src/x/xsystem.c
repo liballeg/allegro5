@@ -213,9 +213,9 @@ static int _xwin_sysdrv_init(void)
  */
 static void _xwin_sysdrv_exit(void)
 {
-   _unix_bg_man->exit();
    _xwin_destroy_window();
    _xwin_close_display();
+   _unix_bg_man->exit();
 
    _unix_unload_modules();
    _unix_driver_lists_shutdown();
