@@ -16,6 +16,8 @@
  */
 
 
+#include <string.h>
+
 #include "allegro.h"
 
 
@@ -62,19 +64,19 @@ void _destroy_driver_list(_DRIVER_INFO *drvlist)
 
 
 
-/* _driver_list_add_driver:
- *  Adds a driver to the end of a driver list. Returns the new driver list.
+/* _driver_list_append_driver:
+ *  Adds a driver to the end of a driver list.
  */
-_DRIVER_INFO *_driver_list_add_driver(_DRIVER_INFO *drvlist, int id, void *driver, int autodetect)
+void _driver_list_append_driver(_DRIVER_INFO **drvlist, int id, void *driver, int autodetect)
 {
    _DRIVER_INFO *drv;
    int c;
     
-   ASSERT(drvlist);
+   ASSERT(*drvlist);
 
-   c = count_drivers(drvlist);
+   c = count_drivers(*drvlist);
 
-   drv = realloc(drvlist, sizeof(_DRIVER_INFO) * (c+2));
+   drv = realloc(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
    if (!drv)
       return drvlist;
 
@@ -84,23 +86,49 @@ _DRIVER_INFO *_driver_list_add_driver(_DRIVER_INFO *drvlist, int id, void *drive
    drv[c+1].id = 0;
    drv[c+1].driver = NULL;
    drv[c+1].autodetect = FALSE;
-   return drv;
+
+   *drvlist = drv;
 }
 
 
 
-/* _driver_list_add_list:
- *  Add drivers from another list, and return the new list.
+/* _driver_list_prepend_driver:
+ *  Adds a driver to the start of a driver list.
  */
-_DRIVER_INFO *_driver_list_add_list(_DRIVER_INFO *drvlist, _DRIVER_INFO *srclist)
+void _driver_list_prepend_driver(_DRIVER_INFO **drvlist, int id, void *driver, int autodetect)
 {
-   ASSERT(drvlist);
+   _DRIVER_INFO *drv;
+   int c;
+    
+   ASSERT(*drvlist);
+
+   c = count_drivers(*drvlist);
+
+   drv = realloc(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
+   if (!drv)
+      return;
+   
+   memmove(drv+1, drv, sizeof(_DRIVER_INFO) * (c+1));
+
+   drv[0].id = id;
+   drv[0].driver = driver;
+   drv[0].autodetect = autodetect;
+
+   *drvlist = drv;
+}
+
+
+
+/* _driver_list_append_list:
+ *  Add drivers from one list to another list.
+ */
+void _driver_list_append_list(_DRIVER_INFO **drvlist, _DRIVER_INFO *srclist)
+{
+   ASSERT(*drvlist);
    ASSERT(srclist);
 
    while (srclist->driver) {
-      drvlist = _driver_list_add_driver(drvlist, srclist->id, srclist->driver, srclist->autodetect);
+      _driver_list_append_driver(drvlist, srclist->id, srclist->driver, srclist->autodetect);
       srclist++;
    }
-
-   return drvlist;
 }

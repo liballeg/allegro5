@@ -1101,8 +1101,9 @@ AL_VAR(struct _AL_LINKER_MOUSE *, _al_linker_mouse);
 /* dynamic driver lists */
 AL_FUNC(_DRIVER_INFO *, _create_driver_list, ());
 AL_FUNC(void, _destroy_driver_list, (_DRIVER_INFO *drvlist));
-AL_FUNC(_DRIVER_INFO *, _driver_list_add_driver, (_DRIVER_INFO *drvlist, int id, void *driver, int autodetect));
-AL_FUNC(_DRIVER_INFO *, _driver_list_add_list, (_DRIVER_INFO *drvlist, _DRIVER_INFO *srclist));
+AL_FUNC(void, _driver_list_append_driver, (_DRIVER_INFO **drvlist, int id, void *driver, int autodetect));
+AL_FUNC(void, _driver_list_prepend_driver, (_DRIVER_INFO **drvlist, int id, void *driver, int autodetect));
+AL_FUNC(void, _driver_list_append_list, (_DRIVER_INFO **drvlist, _DRIVER_INFO *srclist));
 
 
 #ifdef __cplusplus

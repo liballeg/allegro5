@@ -229,21 +229,21 @@ _DRIVER_INFO *_get_win_digi_driver_list(void)
          driver->id = DIGI_DIRECTX(i);
          driver->ascii_name = driver_names[i];
 
-         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
+         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
       }
 
       /* Allegro mixer to DirectSound drivers */
       for (i=0; i<num_drivers; i++) {
          driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
 
-         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
+         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
       }
 
       /* Allegro mixer to WaveOut drivers */
       for (i=0; i<2; i++) {
          driver = _get_woalmix_driver(i);
 
-         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
+         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
       }
    }
 

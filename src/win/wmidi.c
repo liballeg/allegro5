@@ -94,11 +94,11 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 	 driver->mixer_volume = midi_win32_mixer_volume;
 	 driver->raw_midi = midi_win32_raw_midi;
 
-         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
+         _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
       }
 
       /* cross-platform DIGital MIDi driver */
-      driver_list = _driver_list_add_driver(driver_list, MIDI_DIGMID, &midi_digmid, TRUE);
+      _driver_list_append_driver(&driver_list, MIDI_DIGMID, &midi_digmid, TRUE);
    }
 
    return driver_list;
