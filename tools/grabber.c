@@ -1524,8 +1524,9 @@ static char *pack_getter(int index, int *list_size)
       "Compressed"
    };
 
+   ASSERT(sizeof(s) / sizeof(s[0]) == sizeof(s2) / sizeof(s2[0]));
    if (index < 0) {
-      *list_size = 3;
+      *list_size = sizeof(s) / sizeof(s[0]);
       return NULL;
    }
 
@@ -1769,7 +1770,7 @@ static char *striplist_getter(int index, int *list_size)
 
    if (index < 0) {
       if (list_size)
-	 *list_size = 3;
+	 *list_size = sizeof(str) / sizeof(str[0]);
       return NULL;
    }
 
