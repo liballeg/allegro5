@@ -22,6 +22,17 @@ void (*ptr_gfx_directx_autolock) (BITMAP* bmp) = gfx_directx_autolock;
 void (*ptr_gfx_directx_unlock) (BITMAP* bmp) = gfx_directx_unlock;
 
 
+/* gfx_directx_switch_out:
+ *  Arranges for drawing requests to pause when we are in the background.
+ */
+static void gfx_directx_switch_out(void)
+{ 
+   _exit_gfx_critical();
+   thread_switch_out();
+   _enter_gfx_critical();
+}
+
+
 
 /* gfx_switch_out:
  *  Handles switching away from the graphics subsystem.
@@ -72,9 +83,16 @@ void gfx_directx_lock(BITMAP *bmp)
    unsigned char *data;
    int y, h;
 
+   /* require exclusive ownership of the bitmap
+    *  Note1: as there is only one gfx critical section, two different threads can't be locking
+    *         bitmaps at the same time *even* if the bitmaps are distinct. Performance issue ?
+    *  Note2: locking a sub-bitmap ends up adding 2 _enter_gfx_critical() nesting levels 
+    */
+   _enter_gfx_critical();
+
    /* handle display switch */
    if (!app_foreground)
-      thread_switch_out();
+      gfx_directx_switch_out();
 
    if (bmp->id & BMP_ID_SUB) {
       /* if it's a sub-bitmap, start by locking our parent */
@@ -100,9 +118,6 @@ void gfx_directx_lock(BITMAP *bmp)
       bmp_extra->lock_nesting++;
 
       if (!(bmp->id & BMP_ID_LOCKED)) {
-         /* pause other threads */
-         _enter_gfx_critical();
-
 	 bmp->id |= BMP_ID_LOCKED;
 	 bmp_extra->flags &= ~BMP_FLAG_LOST;
 
@@ -175,6 +190,11 @@ void gfx_directx_autolock(BITMAP *bmp)
    int y, h;
 
    if (bmp->id & BMP_ID_SUB) {
+      /* we have to manually add this _enter_gfx_critical() in order to
+       * comply with gfx_directx_lock() (see note 2)
+       */
+      _enter_gfx_critical();
+
       /* if it's a sub-bitmap, start by locking our parent */
       parent = (BITMAP *)bmp->extra;
       gfx_directx_autolock(parent);
@@ -204,6 +224,7 @@ void gfx_directx_autolock(BITMAP *bmp)
 	 /* re-locking after a hwaccel, so don't change nesting state */
 	 gfx_directx_lock(bmp);
 	 bmp_extra->lock_nesting--;
+         _exit_gfx_critical();
       }
       else {
 	 /* locking for the first time */
@@ -244,11 +265,12 @@ void gfx_directx_unlock(BITMAP *bmp)
 	 }
 
 	 bmp->id &= ~BMP_ID_LOCKED;
-
-         /* release bitmap for other threads */
-         _exit_gfx_critical();
       }
    }
+
+   /* release bitmap for other threads */
+   /* Note: unlocking a sub-bitmap ends up releasing 2 _exit_gfx_critical() nesting levels */
+   _exit_gfx_critical();
 }
 
 
@@ -275,8 +297,5 @@ void gfx_directx_release_lock(BITMAP *bmp)
       }
 
       bmp->id &= ~BMP_ID_LOCKED;
-
-      /* release bitmap for other threads */
-      _exit_gfx_critical();
    }
 }

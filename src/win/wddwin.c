@@ -144,8 +144,6 @@ void update_window_hw (RECT* rect)
    }
    else
       update_rect = window_rect;
-   
-   _enter_gfx_critical();
 
    /* blit offscreen backbuffer to the window */
    hr = IDirectDrawSurface_Blt(dd_prim_surface,
@@ -155,8 +153,6 @@ void update_window_hw (RECT* rect)
 
    if (FAILED(hr))
       _TRACE("Blt failed\n");
-
-   _exit_gfx_critical();
 }
 
 
@@ -189,18 +185,16 @@ void update_window_ex (RECT* rect)
    else
       update_rect = window_rect;
 
-   _enter_gfx_critical();
-
    if (clipped_updating_mode || (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer then blit to the primary surface WITH clipping */ 
       hr = IDirectDrawSurface_Lock(preconv_offscreen_surface, rect, &dest_desc, DDLOCK_WAIT, NULL);
       if (FAILED(hr))
-         goto End;
+         return;
 
       hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
       if (FAILED(hr)) {
          IDirectDrawSurface_Unlock(preconv_offscreen_surface, NULL);
-         goto End;
+         return;
       }   
 
       src_desc.dwWidth = update_rect.right - update_rect.left;
@@ -224,12 +218,12 @@ void update_window_ex (RECT* rect)
       /* blit directly to the primary surface WITHOUT clipping */
       hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
       if (FAILED(hr))
-         goto End;
+         return;
 
       hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
       if (FAILED(hr)) {
          IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
-         goto End;
+         return;
       }
    
       src_desc.dwWidth = update_rect.right - update_rect.left;
@@ -241,9 +235,6 @@ void update_window_ex (RECT* rect)
       IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
       IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
    }
-
-  End:
-   _exit_gfx_critical();
 }
 
 
