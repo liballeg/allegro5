@@ -20,6 +20,8 @@
  *      floppy disk drive equipped systems and improved the browsing
  *      through directories.
  *
+ *	Peter Wang modified it to stretch to screen and font sizes.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -96,6 +98,7 @@ static DIALOG file_selector[] =
 
 
 
+#define FS_FRAME	0
 #define FS_MESSAGE      1
 #define FS_OK           2
 #define FS_CANCEL       3
@@ -667,6 +670,47 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 
 
 
+/* stretch_dialog:
+ *  Stretch the dialog vertically to a suitable size for the screen 
+ *  and font in use.
+ */
+static void stretch_dialog()
+{
+   DIALOG *d = file_selector;
+    
+   #ifdef HAVE_DIR_LIST
+
+      d[FS_FRAME].h   = SCREEN_H - 10;
+      d[FS_MESSAGE].h = text_height(font);
+      d[FS_EDIT].y    = d[FS_MESSAGE].y + d[FS_MESSAGE].h + 12;
+      d[FS_EDIT].h    = text_height(font);
+      d[FS_FILES].y   = d[FS_EDIT].y + d[FS_EDIT].h + 10;
+      d[FS_FILES].h   = d[FS_FRAME].h - d[FS_FILES].y - 10;
+      d[FS_CANCEL].h  = text_height(font) + 9;
+      d[FS_CANCEL].y  = d[FS_FRAME].h - d[FS_CANCEL].h - 15;
+      d[FS_OK].h      = d[FS_CANCEL].h;
+      d[FS_OK].y      = d[FS_CANCEL].y - d[FS_OK].h - 5;
+      d[FS_DISKS].y   = d[FS_FILES].y;
+      d[FS_DISKS].h   = d[FS_OK].y - d[FS_DISKS].y - 9;
+
+   #else
+
+      d[FS_FRAME].h   = SCREEN_H - 10;
+      d[FS_MESSAGE].h = text_height(font);
+      d[FS_OK].h      = text_height(font) + 9;
+      d[FS_OK].y      = d[0].h - d[FS_OK].h - 12;
+      d[FS_CANCEL].y  = d[FS_OK].y;
+      d[FS_CANCEL].h  = d[FS_OK].h;
+      d[FS_EDIT].y    = d[FS_MESSAGE].y + d[FS_MESSAGE].h + 12;
+      d[FS_EDIT].h    = text_height(font);
+      d[FS_FILES].y   = d[FS_EDIT].y + d[FS_EDIT].h + 10;
+      d[FS_FILES].h   = d[FS_OK].y - d[FS_FILES].y - 10;
+
+   #endif
+}
+
+
+
 /* file_select:
  *  Displays the Allegro file selector, with the message as caption. 
  *  Allows the user to select a file, and stores the selection in path 
@@ -702,6 +746,7 @@ int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
    do {
    } while (gui_mouse_b());
 
+   stretch_dialog(file_selector);
    centre_dialog(file_selector);
    set_dialog_color(file_selector, gui_fg_color, gui_bg_color);
    ret = popup_dialog(file_selector, FS_EDIT);
