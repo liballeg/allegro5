@@ -123,9 +123,10 @@ static int alsa_rawmidi_detect(int input)
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
 	 ret = FALSE;
       }
-      
-      snd_rawmidi_close(handle);
-      ret = TRUE;
+      else {
+	 snd_rawmidi_close(handle);
+	 ret = TRUE;
+      }
    }
 
    return ret;
