@@ -153,8 +153,8 @@ Contributors
    Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
    Fixed a bug with 16-bit samples loading, worked around a problem with DOS
    file attributes under Win2k, let the MIDI player pass controller events to
-   the raw player by default and made the MIDI player handle the 'All Sound Off'
-   controller message.
+   the raw player by default and made the MIDI player handle the
+   'All Sound Off' controller message.
 
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog
@@ -308,10 +308,10 @@ Contributors
    Wrote the original version of the LZSS compression code.
 
    Hein Zelle (<email>hein@icce.rug.nl</a>).<br>
-   Revamped the cross-compilation section of docs/build/mingw32.txt, clarified
-   a requirement when cross-compiling from Linux, reworked the paragraph on
-   the location of shared libraries under Unix in the docs and added a FAQ
-   entry on the same subject.
+   Revamped the cross-compilation section of docs/build/mingw32.txt,
+   clarified a requirement when cross-compiling from Linux, reworked the
+   paragraph on the location of shared libraries under Unix in the docs and
+   added a FAQ entry on the same subject.
 
    Henrik Schmidt (<email>hbs@ks.informatik.uni-kiel.de</a>).<br>
    Found a workaround for the switching problem under Windows, made gcc pass
@@ -665,9 +665,9 @@ Contributors
 
    Philipp Thomas (<email>pthomas@suse.de</a>).<br>
    Fixed all comparisons between signed and unsigned types, fixed compilation
-   on x86-64, fixed all function prototypes, converted the configure machinery
-   to autoconf 2.53 or later and added multi-arch support, DESTDIR suppor and
-   the German translation to the RPM spec file.
+   on x86-64, fixed all function prototypes, converted the configure
+   machinery to autoconf 2.53 or later and added multi-arch support, DESTDIR
+   support and the German translation to the RPM spec file.
 
    Przemek Podsiadly (<email>ppodsiad@elka.pw.edu.pl</a>).<br>
    Added hicolor versions of the 3d polygon code.
@@ -771,9 +771,10 @@ Contributors
    Fixed a problem with save_bitmap() rounding the image widths, optimised
    the create_light_table() function, optimised the fixed point trigonometric
    routines, provided the Swedish message translations, improved the file
-   selector sorting algorithm, optimised the spline routines, added ustrrchr(),
-   improved the usprintf() handling of floats, changed the Z-buffer API,
-   improved rotation functions and did plenty of other things too.
+   selector sorting algorithm, optimised the spline routines, added
+   ustrrchr(), improved the usprintf() handling of floats, changed the
+   Z-buffer API, improved rotation functions and did plenty of other things
+   too.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
