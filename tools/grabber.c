@@ -77,6 +77,7 @@ static char *list_getter(int, int *);
 static char *pack_getter(int, int *);
 static char *prop_getter(int, int *);
 
+static int renewer(void);
 static int loader(void);
 static int merger(void);
 static int saver(void);
@@ -114,6 +115,7 @@ static void rebuild_list(void *old, int clear);
 
 static MENU file_menu[32] =
 {
+   { "&New\t(ctrl+W)",              renewer,          NULL,       0, NULL  },
    { "&Load\t(ctrl+L)",             loader,           NULL,       0, NULL  },
    { "&Save\t(ctrl+S)",             saver,            NULL,       0, NULL  },
    { "Save S&tripped",              strip_saver,      NULL,       0, NULL  },
@@ -229,6 +231,7 @@ static DIALOG main_dlg[] =
    { d_edit_proc,       439,  16,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
    { droplist_mod_proc, 430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
    { prop_proc,         260,  86,   365,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
+   { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('w'),  0,          0,             0,       renewer,          NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('s'),  0,          0,             0,       saver,            NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('u'),  0,          0,             0,       updater,          NULL, NULL  },
@@ -275,8 +278,8 @@ static DIALOG main_dlg[] =
 #define DLG_PACKLIST          14
 #define DLG_PROP              15
 #define DLG_FIRSTWHITE        16
-#define DLG_LIST              46
-#define DLG_VIEW              47
+#define DLG_LIST              47
+#define DLG_VIEW              48
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
@@ -1820,7 +1823,7 @@ static int loader(void)
       if (is_modified) {
 	 int r = alert3("Previous data may have been modified.",
 			"Do you want to save them?", NULL,
-			"Save", "Don't save", "Cancel", 's', 'd', 27);
+			"Save", "Do not save", "Cancel", 's', 'd', 27);
 
 	 switch (r) {
 
@@ -1840,6 +1843,38 @@ static int loader(void)
       fix_filename_case(buf);
       load(buf, 1);
    }
+
+   return D_REDRAW;
+}
+
+
+
+/* handle the new file command */
+static int renewer(void)
+{
+   CHECK_MENU_HOOK("New", DATEDIT_MENU_FILE);
+
+   if (is_modified) {
+      int r = alert3("Previous data may have been modified.",
+		     "Do you want to save them?", NULL,
+		     "Save", "Do not save", "Cancel", 's', 'd', 27);
+
+      switch (r) {
+
+	 case 1:
+	    saver();
+	    break;
+
+	 case 2:
+	    break;
+
+	 case 3:
+	 default:
+	    return D_REDRAW;
+      }
+   }
+
+   load(NULL, 1);
 
    return D_REDRAW;
 }
@@ -2245,7 +2280,7 @@ static int quitter(void)
    
    r = alert3("Data may have been modified.",
 	      "Do you want to save before quitting?", NULL,
-	      "Save", "Quit", "Cancel", 's', 'q', 27);
+	      "Save", "Do not save", "Cancel", 's', 'd', 27);
 
    if (r == 2)
       return D_CLOSE;
