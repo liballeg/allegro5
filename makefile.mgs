@@ -34,6 +34,7 @@ IMPLIB_BASENAME = lib$(VERSION).a
 IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
 LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
 
+EXPDEF_NAME=lib/mingw32/allegro.def
 endif
 
 
@@ -118,7 +119,7 @@ VPATH = src/win src/i386 src/misc wintests
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
-
+# LIB2TEST = libkernel32.a libuser32.a libgdi32.a libcomdlg32.a libole32.a libdinput.a libddraw.a libdxguid.a libwinmm,a libdsound.a
 PROGRAMS = dibgrab dibhello
 
 dibgrab: wintests/dibgrab.exe
@@ -201,7 +202,8 @@ else
 
 # -------- link as a DLL --------
 define MAKE_LIB
-  dlltool --dllname $(DLL_BASENAME) --def $(EXPDEF_NAME) --output-lib $(IMPLIB_NAME)
+#  dlltool --dllname $(DLL_BASENAME) --def $(EXPDEF_NAME) --output-lib $(IMPLIB_NAME)
+  dllwrap --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
 endef
 
 endif
@@ -214,8 +216,13 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
+ifdef STATICLINK
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
+else 
+*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
+endif
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
@@ -255,7 +262,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -MM -MG -I. -I./include $(subst ;, -isystem ,$(INCLUDE))
+DEPEND_PARAMS = -D__MINGW32__ -MM -MG -I. -I./include $(subst ;, -isystem ,$(INCLUDE))
 
 depend:
 	echo "-isystem $(INCLUDE)" | sed -e "s/;$$//" -e "s/;/ -isystem /g" > _depend.arg
