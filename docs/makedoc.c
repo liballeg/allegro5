@@ -46,6 +46,9 @@
 #define END_TITLE_FLAG        0x02000000
 
 
+#define TOC_SIZE     8192
+
+
 typedef struct LINE
 {
    char *text;
@@ -745,6 +748,16 @@ int toc_size(int part)
 
 
 
+int toc_scmp(const void *e1, const void *e2)
+{
+   TOC *t1 = *((TOC **)e1);
+   TOC *t2 = *((TOC **)e2);
+
+   return mystricmp(t1->text, t2->text);
+}
+
+
+
 void output_toc(FILE *f, char *filename, int root, int body, int part)
 {
    char name[256];
@@ -795,6 +808,8 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	 toc = toc->next;
 
       if (part <= 0) {
+	 TOC *ptr[TOC_SIZE];
+	 int j, i = 0;
 	 if (root)
 	    fprintf(f, "<ul><h2>\n");
 	 else
@@ -810,12 +825,22 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	       }
 	       else {
 		  if (nested) {
+		     if (i > 1)
+			qsort(ptr, i, sizeof(TOC *), toc_scmp);
+		     for (j = 0; j < i; j++)
+			hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", ptr[j]->text, ALT_TEXT(ptr[j]));
+		  
 		     fprintf(f, "</h4></ul><p>\n");
-		     nested = 0;
+		     nested = i = 0;
 		  }
 	       }
 
-	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
+	       if (nested) {
+		  if(i < TOC_SIZE)
+		     ptr[i++] = toc;
+	       }
+	       else
+		  hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
 	    }
 
 	    toc = toc->next;
@@ -830,6 +855,8 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	    fprintf(f, "</h4></ul>\n");
       }
       else {
+	 TOC *ptr[TOC_SIZE];
+	 int j, i = 0;
 	 section_number = 0;
 	 fprintf(f, "<p>\n<ul><h4>\n");
 
@@ -839,11 +866,17 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	    toc = toc->next;
 	 }
 
-	 while ((toc) && (!toc->root)) {
+	 while ((toc) && (!toc->root) && (i < TOC_SIZE)) {
 	    if (toc->htmlable)
-	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
+	       ptr[i++] = toc;
 	    toc = toc->next;
 	 }
+
+	 if (i > 1)
+	    qsort(ptr, i, sizeof(TOC *), toc_scmp);
+
+	 for (j = 0; j < i; j++)
+	    hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", ptr[j]->text, ALT_TEXT(ptr[j]));
 
 	 fprintf(f, "</h4></ul>\n<p><br><br>\n");
       }
@@ -881,8 +914,6 @@ int scmp(const void *e1, const void *e2)
 
 void output_texinfo_toc(FILE *f, int root, int body, int part)
 {
-   #define TOC_SIZE     8192
-
    TOC *toc;
    int section_number;
    char **ptr;
