@@ -1,6 +1,6 @@
 1 VERSIONINFO 
-FILEVERSION 3, 9, 38, 0
-PRODUCTVERSION 3, 9, 38, 0
+FILEVERSION 3, 9, 39, 0
+PRODUCTVERSION 3, 9, 39, 0
 FILEOS 0x00000004L /* VOS__WINDOWS32 */
 FILETYPE 0x00000002L /* VFT_DLL */
 {
@@ -11,12 +11,12 @@ FILETYPE 0x00000002L /* VFT_DLL */
    VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
    VALUE "CompanyName", "Allegro Developers\000\000"
    VALUE "FileDescription", "Allegro\000"
-   VALUE "FileVersion", "3.9.38 (CVS)" "\000"
-   VALUE "InternalName", "ALL3938\000"
+   VALUE "FileVersion", "3.9.39 (CVS)\000"
+   VALUE "InternalName", "ALL3939\000"
    VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
-   VALUE "OriginalFilename", "ALL3938.DLL\000"
+   VALUE "OriginalFilename", "ALL3939.DLL\000"
    VALUE "ProductName", "Allegro\000"
-   VALUE "ProductVersion", "3.9.38 (CVS)" "\000"
+   VALUE "ProductVersion", "3.9.39 (CVS)\000"
   }
 
  }
