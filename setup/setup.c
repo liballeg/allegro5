@@ -599,6 +599,8 @@ static int scroller_proc(int msg, DIALOG *d, int c)
    int redraw = FALSE;
    int a, i, x;
 
+   yield_timeslice();
+   
    if (msg == MSG_IDLE) {
       while (scroller_time > 0) {
 	 scroller_pos--;
@@ -1749,6 +1751,7 @@ static DIALOG main_dlg[] =
    { d_button_proc,     30,   116,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Mouse",                      NULL,    "Configure your mouse" },
    { d_button_proc,     30,   144,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Save and Exit",              NULL,    "Exit from the program, saving the current settings into the file '" SETUP_CFG_FILE "'" },
    { d_button_proc,     166,  144,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Just Exit",                  NULL,    "Exit from the program, without saving the current settings" },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1763,6 +1766,7 @@ static DIALOG test_dlg[] =
    { d_button_proc,     120,  87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Centre",                     NULL,    digi_desc },
    { d_button_proc,     210,  87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Right",                      NULL,    digi_desc },
    { d_button_proc,     100,  124,  121,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Exit",                       NULL,    backup_str },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1775,6 +1779,7 @@ static DIALOG card_dlg[] =
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this driver" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { card_proc,         20,   36,   281,  84,   255,  16,   0,       D_EXIT,     0,             0,       card_getter,                  NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1790,6 +1795,7 @@ static DIALOG locale_dlg[] =
    { d_list_proc,       166,  50,   147,  68,   255,  16,   0,       D_EXIT,     0,             0,       language_getter,              NULL,    "Select language for system messages" },
    { d_ctext_proc,      81,   30,   0,    0,    16,   -1,   0,       0,          0,             0,       "Keyboard",                   NULL,    NULL },
    { d_ctext_proc,      239,  30,   0,    0,    16,   -1,   0,       0,          0,             0,       "Language",                   NULL,    NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1802,6 +1808,7 @@ static DIALOG joystick_dlg[] =
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this joystick type" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { d_list_proc,       60,   36,   201,  84,   255,  16,   0,       D_EXIT,     0,             0,       (void*)joystick_getter,       NULL,    "Select a type of joystick" },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1814,6 +1821,7 @@ static DIALOG mouse_dlg[] =
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { d_list_proc,       85,   36,   151,  84,   255,  16,   0,       D_EXIT,     0,             0,       (void*)mouse_getter,          NULL,    "Select a type of mouse" },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1829,6 +1837,7 @@ static DIALOG linux_mouse_dlg[] =
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
    { d_list_proc,       30,   36,   151,  84,   255,  16,   0,       D_EXIT,     0,             0,       mouse_getter,                 NULL,    "Select a type of mouse" },
    { d_button_proc,     192,  36,   125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Detect",                     NULL,    "Attempt to detect the type of your mouse" },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
