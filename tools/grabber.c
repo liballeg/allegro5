@@ -222,8 +222,8 @@ static MENU popup_menu[32] =
    { "&Export",                     exporter,         NULL,       0, NULL  },
    { "&Delete",                     deleter,          NULL,       0, NULL  },
    { "&Rename",                     renamer,          NULL,       0, NULL  },
-   { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
    { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
+   { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -762,7 +762,7 @@ static MENU *which_menu(int sel)
 	    ok = TRUE;
       }
       else if ((compare_menu_names(popup_menu[i].text, "Delete") == 0) || 
-               (compare_menu_names(popup_menu[i].text, "Convert Path") == 0)) {
+	       (compare_menu_names(popup_menu[i].text, "Convert Filename") == 0)) {
 	 for (k=1; k<data_count; k++) {
 	    if ((k == SELECTED_ITEM) || (data_sel[k])) {
 	       ok = TRUE;
@@ -2554,16 +2554,17 @@ static int deleter(void)
 static int absolute_setter(void)
 {
    int i;
-   char *orig;
+   AL_CONST char *orig;
    char absolute[FILENAME_LENGTH];
    
    for (i=1; i<data_count; i++) {
       if ((i == SELECTED_ITEM) || (data_sel[i])) {
-         orig = (char *)get_datafile_property(data[i].dat, DAT_ORIG);
-         if (is_relative_filename(orig)) {
-            make_absolute_filename(absolute, data_file, orig, FILENAME_LENGTH);
-            set_property(&(data[i]), DAT_ORIG, absolute);
-         }
+	 orig = get_datafile_property(data[i].dat, DAT_ORIG);
+	 if (orig[0] && is_relative_filename(orig)) {
+	    make_absolute_filename(absolute, data_file, orig, FILENAME_LENGTH);
+	    set_property(&(data[i]), DAT_ORIG, absolute);
+	    set_modified(TRUE);
+	 }
       }
    }
    
@@ -2576,15 +2577,16 @@ static int absolute_setter(void)
 static int relative_setter(void)
 {
    int i;
-   char *orig;
+   AL_CONST char *orig;
    char relative[FILENAME_LENGTH];
    
    for (i=1; i<data_count; i++) {
       if ((i == SELECTED_ITEM) || (data_sel[i])) {
-         orig = (char *)get_datafile_property(data[i].dat, DAT_ORIG);
-         if (!is_relative_filename(orig)) {
-            make_relative_filename(relative, data_file, orig, FILENAME_LENGTH);
-            set_property(&(data[i]), DAT_ORIG, relative);
+	 orig = get_datafile_property(data[i].dat, DAT_ORIG);
+	 if (orig[0] && !is_relative_filename(orig)) {
+	    make_relative_filename(relative, data_file, orig, FILENAME_LENGTH);
+	    set_property(&(data[i]), DAT_ORIG, relative);
+	    set_modified(TRUE);
          }
       }
    }
@@ -3658,7 +3660,7 @@ int main(int argc, char *argv[])
 	 add_to_menu(help_menu, &tmpmenu, FALSE, about, NULL, 0); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_POPUP)
-	 add_to_menu(popup_menu, &tmpmenu, FALSE, sheller, NULL, 0); 
+	 add_to_menu(popup_menu, &tmpmenu, FALSE, NULL, rel_menu, 0); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_TOP)
 	 add_to_menu(menu, &tmpmenu, FALSE, NULL, help_menu, 0); 
