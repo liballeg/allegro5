@@ -194,8 +194,9 @@ Contributors
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
    mouse clicks, made d_menu_proc() steal/return focus when activated then
-   deactivated, fixed a problem with submenus and fixed a bug with FLI
-   frames containing odd-sized chunks
+   deactivated, fixed a problem with submenus, fixed a bug with FLI frames
+   containing odd-sized chunks and made makedoc write sub-section headings
+   for .txt output.
 
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
