@@ -89,7 +89,7 @@ proc_dtou()
          rm _tmpfile
       fi
    done
-   chmod +x *.sh misc/*.sh misc/*.pl
+   chmod +x *.sh misc/*.sh tools/x11/*.sh misc/*.pl
    if [ -f configure ]; then
       chmod +x configure
    fi
