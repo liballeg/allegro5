@@ -686,11 +686,11 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
    int ret;
    ASSERT(dialog);
 
-   bmp = create_bitmap(dialog->w+1, dialog->h+1); 
+   bmp = create_bitmap(dialog->w, dialog->h); 
 
    if (bmp) {
-      scare_mouse();
-      blit(screen, bmp, dialog->x, dialog->y, 0, 0, dialog->w+1, dialog->h+1);
+      scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
+      blit(screen, bmp, dialog->x, dialog->y, 0, 0, dialog->w, dialog->h);
       unscare_mouse();
    }
    else
@@ -699,8 +699,8 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
    ret = do_dialog(dialog, focus_obj);
 
    if (bmp) {
-      scare_mouse();
-      blit(bmp, screen, 0, 0, dialog->x, dialog->y, dialog->w+1, dialog->h+1);
+      scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
+      blit(bmp, screen, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
       unscare_mouse();
       destroy_bitmap(bmp);
    }
