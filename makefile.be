@@ -17,6 +17,8 @@ HTML = html
 
 PLATFORM_DIR = obj/beos
 
+UNIX_TOOLS = 1
+
 ifdef STATICLINK
 
 # -------- link as a static library --------

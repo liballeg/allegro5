@@ -429,7 +429,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    frame_buffer_info  *fbuffer;
    accelerant_device_info info;
    char  path[MAXPATHLEN];
-   char tmp1|128], tmp2[128];
+   char tmp1[128], tmp2[128];
    char *exe;
 
    if (1
@@ -558,7 +558,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
 
    _be_gfx_set_truecolor_shifts();
    if (BScreen().GetDeviceInfo(&info) == B_OK)
-      uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("BWindowScreen object (%s)", tmp1)
+      uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("BWindowScreen object (%s)", tmp1),
                 uconvert_ascii(info.name, tmp2));
    else
       ustrzcpy(driver_desc, sizeof(driver_desc), uconvert_ascii("BWindowScreen object", tmp1));
