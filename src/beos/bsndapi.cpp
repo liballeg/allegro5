@@ -74,8 +74,11 @@ static int32 be_sound_thread(void *sound_started)
       if (be_sound->LockNextPage((void **)&p, &size) >= 0) {
 	 memcpy(p, be_sound_bufdata, size);
 	 be_sound->UnlockPage(p);
-	 if (be_sound_active)
+	 if (be_sound_active) {
+	    be_main_suspend();
 	    _mix_some_samples((unsigned long) be_sound_bufdata, 0, be_sound_signed);
+	    be_main_resume();
+	 }
       }
       release_sem(_be_sound_timer_lock);
       locker->Unlock();
@@ -123,6 +126,7 @@ extern "C" int be_sound_init(int input, int voices)
 {
    sem_id sound_started;
    gs_audio_format fmt;
+   gs_attribute attr;
    size_t samples;
    char tmp1[80], tmp2[80];
 

@@ -493,6 +493,7 @@ BeAllegroScreen::BeAllegroScreen(const char *title, uint32 space, status_t *erro
  */
 void BeAllegroScreen::ScreenConnected(bool connected)
 {
+   acquire_sem(_be_sound_timer_lock);
    if(connected) {
       change_focus(connected);      
       release_sem(_be_fullscreen_lock);
@@ -501,6 +502,7 @@ void BeAllegroScreen::ScreenConnected(bool connected)
       acquire_sem(_be_fullscreen_lock);
       change_focus(connected);
    }
+   release_sem(_be_sound_timer_lock);
 }
 
 
