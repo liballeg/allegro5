@@ -1634,7 +1634,6 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
       /* finish writing a chunk */
-
       int hndl;
 
       /* duplicate the file descriptor to create a readable pack file,
@@ -2081,6 +2080,7 @@ int _sort_out_getc(PACKFILE *f)
 	 f->flags |= PACKFILE_FLAG_EOF;
       return *(f->buf_pos++);
    }
+
    return refill_buffer(f);
 }
 
@@ -2094,7 +2094,10 @@ static int refill_buffer(PACKFILE *f)
 {
    int i, sz, done, offset;
 
-   if ((f->flags & PACKFILE_FLAG_EOF) || (f->todo <= 0)) {
+   if (f->flags & PACKFILE_FLAG_EOF)
+      return EOF;
+
+   if (f->todo <= 0) {
       f->flags |= PACKFILE_FLAG_EOF;
       return EOF;
    }
@@ -2109,7 +2112,7 @@ static int refill_buffer(PACKFILE *f)
       if (f->parent->flags & PACKFILE_FLAG_EOF)
 	 f->todo = 0;
       if (f->parent->flags & PACKFILE_FLAG_ERROR)
-	 goto err;
+	 goto Error;
    }
    else {
       f->buf_size = MIN(F_BUF_SIZE, f->todo);
@@ -2122,7 +2125,7 @@ static int refill_buffer(PACKFILE *f)
 
       while (sz+done < f->buf_size) {
 	 if ((sz < 0) && ((errno != EINTR) && (errno != EAGAIN)))
-	    goto err;
+	    goto Error;
 
 	 if (sz > 0)
 	    done += sz;
@@ -2157,7 +2160,7 @@ static int refill_buffer(PACKFILE *f)
    else
       return *(f->buf_pos++);
 
-   err:
+ Error:
    *allegro_errno = EFAULT;
    f->flags |= PACKFILE_FLAG_ERROR;
    return EOF;
@@ -2182,7 +2185,7 @@ int _sort_out_putc(int c, PACKFILE *f)
 
 
 /* flush_buffer:
- * flushes a file buffer to the disk. The file must be open in write mode.
+ *  Flushes a file buffer to the disk. The file must be open in write mode.
  */
 static int flush_buffer(PACKFILE *f, int last)
 {
@@ -2191,7 +2194,7 @@ static int flush_buffer(PACKFILE *f, int last)
    if (f->buf_size > 0) {
       if (f->flags & PACKFILE_FLAG_PACK) {
 	 if (pack_write(f->parent, (PACK_DATA *)f->pack_data, f->buf_size, f->buf, last))
-	    goto err;
+	    goto Error;
       }
       else {
 	 if ((f->passpos) && (!(f->flags & PACKFILE_FLAG_OLD_CRYPT))) {
@@ -2210,7 +2213,7 @@ static int flush_buffer(PACKFILE *f, int last)
 
 	 while (sz+done < f->buf_size) {
 	    if ((sz < 0) && ((errno != EINTR) && (errno != EAGAIN)))
-	       goto err;
+	       goto Error;
 
 	    if (sz > 0)
 	       done += sz;
@@ -2223,11 +2226,12 @@ static int flush_buffer(PACKFILE *f, int last)
       }
       f->todo += f->buf_size;
    }
+
    f->buf_pos = f->buf;
    f->buf_size = 0;
    return 0;
 
-   err:
+ Error:
    *allegro_errno = EFAULT;
    f->flags |= PACKFILE_FLAG_ERROR;
    return EOF;
