@@ -62,6 +62,7 @@ static HWND (*wnd_create_proc)(WNDPROC) = NULL;
 static int old_style = 0;
 
 /* custom window msgs */
+#define SWITCH_TIMER  1
 static UINT msg_call_proc = 0;
 static UINT msg_acquire_keyboard = 0;
 static UINT msg_unacquire_keyboard = 0;
@@ -225,8 +226,20 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_ACTIVATE:
 	 if (LOWORD(wparam) == WA_INACTIVE)
 	    sys_switch_out();
-	 else if (!(BOOL) HIWORD(wparam))
-	    PostMessage(allegro_wnd, msg_call_proc, (DWORD) sys_switch_in, 0);
+	 else if (!HIWORD(wparam)) {
+	    if (gfx_driver && !gfx_driver->windowed)
+	       SetTimer(allegro_wnd, SWITCH_TIMER, 1000, NULL);  /* 1000 ms delay */
+	    else
+	       PostMessage(allegro_wnd, msg_call_proc, (DWORD)sys_switch_in, 0);
+	 }
+	 break;
+
+      case WM_TIMER:
+	 if (wparam == SWITCH_TIMER) {
+	    KillTimer(allegro_wnd, SWITCH_TIMER);
+	    sys_switch_in();
+	    return 0;
+	 }
 	 break;
 
       case WM_ENTERSIZEMOVE:
