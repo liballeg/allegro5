@@ -3101,7 +3101,7 @@ Graphics modes
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
 @xref allegro_error, Standard config variables, GFX_*/DOS, GFX_*/Windows
 @xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX, create_video_bitmap
-@xref get_desktop_resolution
+@xref get_desktop_resolution, SCREEN_W, SCREEN_H, VIRTUAL_W, VIRTUAL_H
 @eref Available Allegro examples
    Switches into graphics mode. The card parameter should usually be 
    GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
@@ -3604,6 +3604,19 @@ Allegro supports several different types of bitmaps:
    Warning: be very careful when using this pointer at the same time as any
    bitmaps created by the create_video_bitmap() function (see the description
    of this function for more detailed information).
+
+@@#define @SCREEN_W;
+@@#define @SCREEN_H;
+@xref screen, set_gfx_mode, VIRTUAL_W, VIRTUAL_H
+@eref Available Allegro examples
+   Global defines that return the width and height of the screen, or zero if
+   the screen has not been initialised yet.
+
+@@#define @VIRTUAL_W;
+@@#define @VIRTUAL_H;
+@xref screen, set_gfx_mode, SCREEN_W, SCREEN_H
+   Global defines that return the width and height of the virtual screen, or
+   zero if the screen has not been initialised yet.
 
 @@BITMAP *@create_bitmap(int width, int height);
 @xref create_bitmap_ex, create_sub_bitmap, create_video_bitmap
