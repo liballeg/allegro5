@@ -685,7 +685,7 @@ static void _output_toc(char *filename, int root, int body, int part)
 	 fprintf(_file, "\n<ul>\n");
 
 	 while ((toc) && (section_number < part)) {
-	    if ((toc->root) && (!toc->otherfile))
+	    if ((toc->htmlable) && (toc->root) && (!toc->otherfile))
 	       section_number++;
 	    toc = toc->next;
 	 }
