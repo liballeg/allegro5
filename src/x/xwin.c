@@ -331,6 +331,18 @@ static void _xwin_hide_x_mouse(void)
    XGCValues gcvalues;
    Pixmap pixmap;
 
+   XUndefineCursor(_xwin.display, _xwin.window);
+
+   if (_xwin.cursor != None) {
+      XFreeCursor(_xwin.display, _xwin.cursor);
+      _xwin.cursor = None;
+   }
+
+   if (_xwin.xcursor_image != None) {
+      XcursorImageDestroy(_xwin.xcursor_image);
+      _xwin.xcursor_image = None;
+   }
+
    pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
    if (pixmap != None) {
       GC temp_gc;
