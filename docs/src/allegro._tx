@@ -148,12 +148,13 @@ information about how to install Allegro and link your program with it.
       OSTYPE_DOSEMU     - Linux DOSEMU
       OSTYPE_OPENDOS    - Caldera OpenDOS
       OSTYPE_LINUX      - Linux
+      OSTYPE_SUNOS      - SunOS/Solaris
       OSTYPE_FREEBSD    - FreeBSD
+      OSTYPE_DARWIN     - Darwin
+      OSTYPE_QNX        - QNX
       OSTYPE_UNIX       - Unknown Unix variant
       OSTYPE_BEOS       - BeOS
-      OSTYPE_QNX        - QNX
       OSTYPE_MACOS      - MacOS
-      OSTYPE_DARWIN     - Darwin
 <endblock>
 @@extern int @os_version;
 @@extern int @os_revision;

@@ -48,12 +48,13 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_DOSEMU      AL_ID('D','E','M','U')
 #define OSTYPE_OPENDOS     AL_ID('O','D','O','S')
 #define OSTYPE_LINUX       AL_ID('T','U','X',' ')
+#define OSTYPE_SUNOS       AL_ID('S','U','N',' ')
 #define OSTYPE_FREEBSD     AL_ID('F','B','S','D')
+#define OSTYPE_DARWIN      AL_ID('D','A','R','W')
+#define OSTYPE_QNX         AL_ID('Q','N','X',' ')
 #define OSTYPE_UNIX        AL_ID('U','N','I','X')
 #define OSTYPE_BEOS        AL_ID('B','E','O','S')
-#define OSTYPE_QNX         AL_ID('Q','N','X',' ')
 #define OSTYPE_MACOS       AL_ID('M','A','C',' ')
-#define OSTYPE_DARWIN      AL_ID('D','A','R','W')
 
 AL_VAR(int, os_type);
 AL_VAR(int, os_version);

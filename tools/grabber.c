@@ -2752,12 +2752,13 @@ static int sysinfo(void)
       case OSTYPE_DOSEMU:     s = "Linux DOSEMU";               break;
       case OSTYPE_OPENDOS:    s = "Caldera OpenDOS";            break;
       case OSTYPE_LINUX:      s = "Linux";                      break;
+      case OSTYPE_SUNOS:      s = "SunOS/Solaris";              break;
       case OSTYPE_FREEBSD:    s = "FreeBSD";                    break;
+      case OSTYPE_DARWIN:     s = "Darwin";                     break;
+      case OSTYPE_QNX:        s = "QNX";                        break;
       case OSTYPE_UNIX:       s = "Unix";                       break;
       case OSTYPE_BEOS:       s = "BeOS";                       break;
-      case OSTYPE_QNX:        s = "QNX";                        break;
       case OSTYPE_MACOS:      s = "MacOS";                      break;
-      case OSTYPE_DARWIN:     s = "Darwin";                     break;
       default:                s = "Unknown";                    break;
    }
 

@@ -169,14 +169,17 @@ void _read_os_type()
       if (!strcmp(utsn.sysname, "Linux")) {
 	 os_type = OSTYPE_LINUX;
       }
+      else if (!strcmp(utsn.sysname, "SunOS")) {
+	 os_type = OSTYPE_SUNOS;
+      }
       else if (!strcmp(utsn.sysname, "FreeBSD")) {
 	 os_type = OSTYPE_FREEBSD;
       }
-      else if (!strcmp(utsn.sysname, "QNX")) {
-	 os_type = OSTYPE_QNX;
-      }
       else if (!strcmp(utsn.sysname, "Darwin")) {
 	 os_type = OSTYPE_DARWIN;
+      }
+      else if (!strcmp(utsn.sysname, "QNX")) {
+	 os_type = OSTYPE_QNX;
       }
       else {
 	 os_type = OSTYPE_UNIX;     /* that's all we can say for now */
