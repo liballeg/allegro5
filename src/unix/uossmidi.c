@@ -17,7 +17,7 @@
 
 #include "allegro.h"
 
-#ifdef MIDI_OSS
+#ifdef ALLEGRO_WITH_OSSMIDI
 
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
