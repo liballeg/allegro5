@@ -272,13 +272,37 @@ extern "C" void be_sys_get_executable_name(char *output, int size)
 
 
 /* be_sys_find_resource:
- *  Under BeOS we look for resources in /etc; this is just a copy of a part
- *  of the Unix resource finder routine...
+ *  This is the same of the unix resource finder; it looks into the
+ *  home directory and in /etc.
  */
 int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 {
-   char buf[256], tmp[256];
-   
+   char buf[256], tmp[256], *last;
+   char *home = getenv("HOME");
+
+   if (home) {
+      /* look for ~/file */
+      append_filename(buf, uconvert_ascii(home, tmp), resource, sizeof(buf));
+      if (exists(buf)) {
+	 ustrzcpy(dest, size, buf);
+	 return 0;
+      }
+
+      /* if it is a .cfg, look for ~/.filerc */
+      if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
+	 ustrzcpy(buf, sizeof(buf) - ucwidth(OTHER_PATH_SEPARATOR), uconvert_ascii(home, tmp));
+	 put_backslash(buf);
+	 ustrzcat(buf, sizeof(buf), uconvert_ascii(".", tmp));
+	 ustrzcpy(tmp, sizeof(tmp), resource);
+	 ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
+	 ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
+	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
+	    ustrzcpy(dest, size, buf);
+	    return 0;
+	 }
+      }
+   }
+
    /* look for /etc/file */
    append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
    if (exists(buf)) {
@@ -290,7 +314,7 @@ int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
    if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
       ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
       ustrzcpy(tmp, sizeof(tmp), resource);
-      ustrzcat(buf, sizeof(buf), ustrtok(tmp, "."));
+      ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
       ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
       if (exists(buf)) {
 	 ustrzcpy(dest, size, buf);
