@@ -212,26 +212,6 @@
    #define memcmp _alemu_memcmp
 #endif
 
-#ifdef ALLEGRO_NO_FINDFIRST
-   struct ffblk
-   {
-      unsigned char ff_attrib;
-      unsigned short ff_ftime;
-      unsigned short ff_fdate;
-      unsigned long ff_fsize;
-      char ff_name[1024];
-      void *ff_info;
-   };
-
-   AL_FUNC(int, _alemu_findfirst, (AL_CONST char *pattern, struct ffblk *ffblk, int attrib));
-   AL_FUNC(int, _alemu_findnext, (struct ffblk *ffblk));
-   AL_FUNC(void, _alemu_findclose, (struct ffblk *ffblk));
-
-   #define findfirst(pattern, ffblk, attrib) _alemu_findfirst(pattern, ffblk, attrib)
-   #define findnext(ffblk) _alemu_findnext(ffblk)
-   #define findclose(ffblk) _alemu_findclose(ffblk)
-#endif
-
 
 /* if nobody put them elsewhere, video bitmaps go in regular memory */
 #ifndef _video_ds

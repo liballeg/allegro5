@@ -21,7 +21,6 @@ General (Platform independant) todos:
 - check and/or fix compilation with gcc 3.0
 - asm draw_sprite et al. don't work with sub-bitmaps
 - include dat2c once finished
-- resolve findfirst issues
 - remove joystick control from main part of setup
 - bug in menus related to auto-opening patch
 

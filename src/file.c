@@ -654,7 +654,7 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
  */
 int file_exists(AL_CONST char *filename, int attrib, int *aret)
 {
-   int a;
+   struct al_ffblk info;
    ASSERT(filename);
 
    if (ustrchr(filename, '#')) {
@@ -663,20 +663,27 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
 	 pack_fclose(f);
 	 if (aret)
 	    *aret = FA_DAT_FLAGS;
-	 return ((attrib & FA_DAT_FLAGS) == FA_DAT_FLAGS) ? -1 : 0;
+	 return ((attrib & FA_DAT_FLAGS) == FA_DAT_FLAGS) ? TRUE : FALSE;
       }
       else
-	 return 0;
+	 return FALSE;
    }
 
    if (!_al_file_isok(filename))
-      return 0;
-
-   if (!_al_file_exists(filename, attrib, &a))
       return FALSE;
 
+   if (al_findfirst(filename, &info, attrib) != 0) {
+      /* no entry is not an error for file_exists() */
+      if (*allegro_errno == ENOENT)
+         errno = *allegro_errno = 0;
+
+      return FALSE;
+   }
+
+   al_findclose(&info);
+
    if (aret)
-      *aret = a;
+      *aret = info.attrib;
 
    return TRUE;
 }
@@ -777,9 +784,8 @@ int delete_file(AL_CONST char *filename)
  */
 int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST char *filename, int attrib, int param), int param)
 {
-   char dta_name[512], buf[512];
-   void *dta;
-   int dta_attrib;
+   char buf[512];
+   struct al_ffblk info;
    int c = 0;
 
    if (ustrchr(name, '#')) {
@@ -790,22 +796,30 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
    if (!_al_file_isok(name))
       return 0;
 
-   dta = _al_findfirst(name, attrib, dta_name, &dta_attrib);
+   if (al_findfirst(name, &info, attrib) != 0) {
+      /* no entry is not an error for for_each_file() */
+      if (*allegro_errno == ENOENT)
+         errno = *allegro_errno = 0;
 
-   if (!dta)
       return 0;
+   }
 
    do {
-      replace_filename(buf, name, dta_name, sizeof(buf));
-      (*callback)(buf, dta_attrib, param);
-      if (*allegro_errno != 0)
+      replace_filename(buf, name, info.name, sizeof(buf));
+      (*callback)(buf, info.attrib, param);
+
+      if (*allegro_errno)
 	 break;
+
       c++;
-   } while (_al_findnext(dta, dta_name, &dta_attrib) == 0);
+   } while (al_findnext(&info) == 0);
 
-   _al_findclose(dta);
+   al_findclose(&info);
 
-   errno = *allegro_errno = 0;
+   /* no entry is not an error for for_each_file() */
+   if (*allegro_errno == ENOENT)
+      errno = *allegro_errno = 0;
+
    return c;
 }
 

@@ -16,6 +16,11 @@
  */
 
 
+#ifndef SCAN_DEPEND
+   #include <time.h>
+   #include <sys/stat.h>
+#endif
+
 #include "allegro.h"
 #include "allegro/aintern.h"
 
@@ -37,57 +42,20 @@ int _al_file_isok(AL_CONST char *filename)
 
 
 
-/* _al_file_exists:
- *  Checks whether the specified file exists.
- */
-int _al_file_exists(AL_CONST char *filename, int attrib, int *aret)
-{
-   struct _finddata_t info;
-   long handle;
-
-   errno = *allegro_errno = 0;
-
-   if ((handle = _findfirst(uconvert_toascii(filename, NULL), &info)) < 0) {
-      *allegro_errno = errno;
-      return FALSE;
-   }
-
-   _findclose(handle);
-
-   if (aret)
-      *aret = info.attrib;
-
-   info.attrib &= (FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_DIREC);
-
-   if ((info.attrib & attrib) != info.attrib)
-      return FALSE;
-
-   return TRUE;
-}
-
-
-
 /* _al_file_size:
  *  Measures the size of the specified file.
  */
 long _al_file_size(AL_CONST char *filename)
 {
-   struct _finddata_t info;
-   long handle;
+   struct _stat s;
+   char tmp[512];
 
-   errno = *allegro_errno = 0;
-
-   if ((handle = _findfirst(uconvert_toascii(filename, NULL), &info)) < 0) {
+   if (_stat(uconvert_toascii(filename, tmp), &s) != 0) {
       *allegro_errno = errno;
       return 0;
    }
 
-   _findclose(handle);
-
-   if (info.attrib & (FA_SYSTEM | FA_LABEL | FA_DIREC))
-      return 0;
-
-   return info.size;
+   return s.st_size;
 }
 
 
@@ -97,119 +65,127 @@ long _al_file_size(AL_CONST char *filename)
  */
 time_t _al_file_time(AL_CONST char *filename)
 {
-   struct _finddata_t info;
-   long handle;
+   struct _stat s;
+   char tmp[512];
 
-   errno = *allegro_errno = 0;
-
-   if ((handle = _findfirst(uconvert_toascii(filename, NULL), &info)) < 0) {
+   if (_stat(uconvert_toascii(filename, tmp), &s) != 0) {
       *allegro_errno = errno;
       return 0;
    }
 
-   _findclose(handle);
-
-   if (info.attrib & (FA_SYSTEM | FA_LABEL | FA_DIREC))
-      return 0;
-
-   return info.time_write;
+   return s.st_mtime;
 }
 
 
 
-/* information structure for use by the directory scanning routines */
-typedef struct FFIND_INFO {
-   struct _finddata_t info;
+/* structure for use by the directory scanning routines */
+struct FF_DATA
+{
+   struct _finddata_t data;
    long handle;
    int attrib;
-} FFIND_INFO;
+};
 
 
 
-/* _al_findfirst:
- *  Initiates a directory search.
+/* fill_ffblk:
+ *  Helper function to fill in an al_ffblk structure.
  */
-void *_al_findfirst(AL_CONST char *name, int attrib, char *nameret, int *aret)
+static void fill_ffblk(struct al_ffblk *info)
 {
-   FFIND_INFO *info;
-   int a;
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   info = malloc(sizeof(FFIND_INFO));
+   info->attrib = ff_data->data.attrib;
+   info->time = ff_data->data.time_write;
+   info->size = ff_data->data.size;
 
-   if (!info) {
-      *allegro_errno = ENOMEM;
-      return NULL;
-   }
-
-   info->attrib = attrib;
-
-   errno = *allegro_errno = 0;
-
-   if ((info->handle = _findfirst(uconvert_toascii(name, NULL), &info->info)) < 0) {
-      *allegro_errno = errno;
-      free(info);
-      return NULL;
-   }
-
-   a = info->info.attrib & (FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_DIREC);
-
-   if ((a & attrib) != a) {
-      if (_al_findnext(info, nameret, aret) != 0) {
-	 _findclose(info->handle);
-	 free(info);
-	 return NULL;
-      }
-      else
-	 return info;
-   }
-
-   do_uconvert(info->info.name, U_ASCII, nameret, U_CURRENT, -1);
-
-   if (aret)
-      *aret = info->info.attrib;
-
-   return info;
+   do_uconvert(ff_data->data.name, U_ASCII, info->name, U_CURRENT, sizeof(info->name));
 }
 
 
 
-/* _al_findnext:
- *  Retrieves the next file from a directory search.
+/* al_findfirst:
+ *  Initiates a directory search.
  */
-int _al_findnext(void *dta, char *nameret, int *aret)
+int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 {
-   FFIND_INFO *info = (FFIND_INFO *) dta;
-   int a;
+   struct FF_DATA *ff_data;
+   char tmp[512];
 
-   do {
-      if (_findnext(info->handle, &info->info) != 0) {
-	 *allegro_errno = errno;
-	 return -1;
+   /* allocate ff_data structure */
+   ff_data = malloc(sizeof(struct FF_DATA));
+
+   if (!ff_data) {
+      *allegro_errno = ENOMEM;
+      return -1;
+   }
+
+   /* attach it to the info structure */
+   info->ff_data = (void *) ff_data;
+
+   /* initialize it */
+   ff_data->attrib = attrib;
+
+   /* start the search */
+   errno = *allegro_errno = 0;
+
+   ff_data->handle = _findfirst(uconvert_toascii(pattern, tmp), &ff_data->data);
+
+   if (ff_data->handle < 0) {
+      *allegro_errno = errno;
+      free(ff_data);
+      info->ff_data = NULL;
+      return -1;
+   }
+
+   if (ff_data->data.attrib & ~ff_data->attrib) {
+      if (al_findnext(info) != 0) {
+         al_findclose(info);
+         return -1;
       }
+      else
+         return 0;
+   }
 
-      a = info->info.attrib & (FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_DIREC);
-
-   } while ((a & info->attrib) != a);
-
-   do_uconvert(info->info.name, U_ASCII, nameret, U_CURRENT, -1);
-
-   if (aret)
-      *aret = info->info.attrib;
-
+   fill_ffblk(info);
    return 0;
 }
 
 
 
-/* _al_findclose:
+/* al_findnext:
+ *  Retrieves the next file from a directory search.
+ */
+int al_findnext(struct al_ffblk *info)
+{
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+
+   do {
+      if (_findnext(ff_data->handle, &ff_data->data) != 0) {
+         *allegro_errno = errno;
+         return -1;
+      }
+
+   } while (ff_data->data.attrib & ~ff_data->attrib);
+
+   fill_ffblk(info);
+   return 0;
+}
+
+
+
+/* al_findclose:
  *  Cleans up after a directory search.
  */
-void _al_findclose(void *dta)
+void al_findclose(struct al_ffblk *info)
 {
-   FFIND_INFO *info = (FFIND_INFO *) dta;
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
 
-   _findclose(info->handle);
-   free(info);
+   if (ff_data) {
+      _findclose(ff_data->handle);
+      free(ff_data);
+      info->ff_data = NULL;
+   }
 }
 
 

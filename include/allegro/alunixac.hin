@@ -121,9 +121,6 @@
 /* Define if sched_yield is provided by some library.  */
 #undef ALLEGRO_USE_SCHED_YIELD
 
-/* Define if you have the findfirst function.  */
-#undef HAVE_FINDFIRST
-
 /* Define if you have the getpagesize function.  */
 #undef HAVE_GETPAGESIZE
 

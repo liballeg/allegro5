@@ -32,11 +32,11 @@
 #define ALLEGRO_DATE             20010913    /* yyyymmdd */
 
 #ifndef ALLEGRO_NO_STD_HEADERS
+   #include <errno.h>
+   #include <limits.h>
+   #include <stdarg.h>
    #include <stddef.h>
    #include <stdlib.h>
-   #include <stdarg.h>
-   #include <limits.h>
-   #include <errno.h>
    #include <time.h>
 #endif
 
@@ -1779,6 +1779,19 @@ AL_FUNC(time_t, file_time, (AL_CONST char *filename));
 AL_FUNC(int, delete_file, (AL_CONST char *filename));
 AL_FUNC(int, for_each_file, (AL_CONST char *name, int attrib, AL_METHOD(void, callback, (AL_CONST char *filename, int attrib, int param)), int param));
 AL_FUNC(int, find_allegro_resource, (char *dest, AL_CONST char *resource, AL_CONST char *ext, AL_CONST char *datafile, AL_CONST char *objectname, AL_CONST char *envvar, AL_CONST char *subdir, int size));
+
+struct al_ffblk        /* file info block for the al_find*() routines */
+{
+   int attrib;         /* actual attributes of the file found */
+   time_t time;        /* modification time of file */
+   long size;          /* size of file */
+   char name[512];     /* name of file */
+   void *ff_data;      /* private hook */
+};
+
+AL_FUNC(int, al_findfirst, (AL_CONST char *pattern, struct al_ffblk *info, int attrib));
+AL_FUNC(int, al_findnext, (struct al_ffblk *info));
+AL_FUNC(void, al_findclose, (struct al_ffblk *info));
 
 #ifndef EOF 
    #define EOF    (-1)

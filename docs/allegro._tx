@@ -5593,15 +5593,22 @@ always begin with the 32 bit value F_PACK_MAGIC, and autodetect files with
 the value F_NOPACK_MAGIC.
 
 The following FA_* flags are guaranteed to work: FA_RDONLY, FA_HIDDEN,
-FA_SYSTEM, FA_LABEL, FA_DIREC, FA_ARCH. Do not use any other flags under
+FA_SYSTEM, FA_LABEL, FA_DIREC, FA_ARCH. Do not use any other flags from 
 DOS/Windows or your code will not compile on another platform. Flags
 FA_SYSTEM, FA_LABEL and FA_ARCH are valuable only on DOS/Windows (entries
-with system flag, volume labels and archive flag - see dir.h for further
-information). FA_RDONLY is for directory entries with read-only flag on
-DOS-like systems or unwritable by current user on Unix-like systems.
-FA_HIDDEN is for entries with hidden flag on DOS or starting with '.' on
-Unix (dotted files - excluding '.' and '..'). FA_DIREC represents
-directories. Flags can be combined using '|' (binary OR operator).
+with system flag, volume labels and archive flag). FA_RDONLY is for 
+directory entries with read-only flag on DOS-like systems or unwritable 
+by current user on Unix-like systems. FA_HIDDEN is for entries with hidden 
+flag on DOS-like systems or starting with '.' on Unix (dotted files - 
+excluding '.' and '..'). FA_DIREC represents directories. Flags can be 
+combined using '|' (binary OR operator).
+
+When passed to the functions as the 'attrib' parameter, flags represent an 
+upper set the actual flag set of matching files must be included in. That 
+is, in order for a file to be matching, its attributes may contain any of 
+the specified flags but must not contain any of the unspecified flags. 
+Thus, if you pass 'FA_DIREC | FA_LABEL', normal directories will be 
+included but not hidden directories.
 
 @@void @get_executable_name(char *buf, int size);
    Fills buf with the full path to the current executable, writing at most 
@@ -5663,11 +5670,10 @@ directories. Flags can be combined using '|' (binary OR operator).
 
 @@int @file_exists(const char *filename, int attrib, int *aret);
 @xref exists, file_size, file_time
-   Checks whether a file matching the given name and attributes exists,
-   returning non-zero if it does. The file attribute may contain any of the
-   FA_* flags. If aret is not NULL, it will be set to the attributes of the
-   matching file. If an error occurs the system error code will be stored in
-   errno.
+   Checks whether a file matching the given name and attributes (see above) 
+   exists, returning non-zero if it does. If aret is not NULL, it will be 
+   set to the attributes of the matching file. If an error occurs the system 
+   error code will be stored in errno.
 
 @@int @exists(const char *filename);
 @xref file_exists
@@ -5693,33 +5699,45 @@ directories. Flags can be combined using '|' (binary OR operator).
 @\                  void (*callback)(const char *filename, int attrib, int param),
 @@                  int param);
    Finds all the files on the disk which match the given wildcard 
-   specification and file attributes, and executes callback() once for each. 
-   callback() will be passed three arguments, the first a string which 
-   contains the completed filename, the second being the attributes of the 
-   file, and the third an int which is simply a copy of param (you can use 
-   this for whatever you like). If an error occurs an error code will be 
-   stored in errno, and callback() can cause for_each_file() to abort by 
-   setting errno itself. Returns the number of successful calls made to 
-   callback(). The file attribute may contain any of the FA_* flags.
+   specification and file attributes (see above), and executes callback() 
+   once for each. callback() will be passed three arguments, the first a 
+   string which contains the completed filename, the second being the 
+   attributes of the file, and the third an int which is simply a copy of 
+   param (you can use this for whatever you like). If an error occurs an 
+   error code will be stored in errno, and callback() can cause 
+   for_each_file() to abort by setting errno itself. Returns the number of 
+   successful calls made to callback().
 
-@@int @findfirst(const char *pattern, struct ffblk *ffblk, int attrib);
-@xref findnext, findclose
-   If your platform doesn't have the find* set of functions, Allegro will
-   emulate them. This function finds the first file which matches the given
-   wildcard specification and file attributes. The information will be put
-   in the ffblk struct which you have to provide. The function returns zero
-   if a match is found, nonzero if none found. The file attribute may
-   contain any of the FA_* flags. The ffblk structure contains the
-   variables: ff_attrib, ff_time, ff_date, ff_size and ff_name.
+@@int @al_findfirst(const char *pattern, struct al_ffblk *info, int attrib);
+@xref al_findnext, al_findclose
+   Low-level function for searching files. This function finds the first 
+   file which matches the given wildcard specification and file attributes 
+   (see above). The information about the file (if any) will be put in the 
+   al_ffblk structure which you have to provide. The function returns zero 
+   if a match is found, nonzero if none is found or if an error occured  
+   and, in the latter case, sets errno accordingly. The al_ffblk structure 
+   looks like:
+<pre>
+  struct al_ffblk
+  {
+      int attrib;       - actual attributes of the file found
+      time_t time;      - modification time of file
+      long size;        - size of file
+      char name[512];   - name of file
+  };
+</pre>
+   There is some other stuff in the structure as well, but it is there for 
+   internal use only.
 
-@@int @findnext(struct ffblk *ffblk);
-@xref findfirst, findclose
-   This finds the next file in a search started by findfirst. Returns zero
-   if a match is found, nonzero if none found.
+@@int @al_findnext(struct al_ffblk *info);
+@xref al_findfirst, al_findclose
+   This finds the next file in a search started by al_findfirst(). Returns 
+   zero if a match is found, nonzero if none is found or if an error 
+   occured and, in the latter case, sets errno accordingly.
 
-@@void @findclose(struct ffblk *ffblk);
-@xref findfirst, findnext
-   This closes a previously opened search with findfirst/findnext.
+@@void @al_findclose(struct al_ffblk *info);
+@xref al_findfirst, al_findnext
+   This closes a previously opened search with al_findfirst().
 
 @\int @find_allegro_resource(char *dest, const char *resource, 
 @\                          const char *ext, const char *datafile, 

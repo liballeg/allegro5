@@ -17,9 +17,10 @@
 
 
 #ifndef SCAN_DEPEND
-   #include <dos.h>
-   #include <time.h>
    #include <string.h>
+   #include <time.h>
+   #include <dos.h>
+   #include <sys/stat.h>
 #endif
 
 #include "allegro.h"
@@ -56,39 +57,20 @@ int _al_file_isok(AL_CONST char *filename)
 
 
 
-/* _al_file_exists:
- *  Checks whether the specified file exists.
- */
-int _al_file_exists(AL_CONST char *filename, int attrib, int *aret)
-{
-   struct ffblk dta;
-
-   *allegro_errno = findfirst(uconvert_toascii(filename, NULL), &dta, attrib);
-
-   if (*allegro_errno)
-      return FALSE;
-
-   if (aret)
-      *aret = dta.ff_attrib;
-
-   return TRUE;
-}
-
-
-
 /* _al_file_size:
  *  Measures the size of the specified file.
  */
 long _al_file_size(AL_CONST char *filename)
 {
-   struct ffblk dta;
+   struct stat s;
+   char tmp[512];
 
-   *allegro_errno = findfirst(uconvert_toascii(filename, NULL), &dta, FA_RDONLY | FA_HIDDEN | FA_ARCH);
-
-   if (*allegro_errno)
+   if (stat(uconvert_toascii(filename, tmp), &s) != 0) {
+      *allegro_errno = errno;
       return 0;
+   }
 
-   return dta.ff_fsize;
+   return s.st_size;
 }
 
 
@@ -98,89 +80,153 @@ long _al_file_size(AL_CONST char *filename)
  */
 time_t _al_file_time(AL_CONST char *filename)
 {
-   struct ffblk dta;
-   struct tm t;
+   struct stat s;
+   char tmp[512];
 
-   *allegro_errno = findfirst(uconvert_toascii(filename, NULL), &dta, FA_RDONLY | FA_HIDDEN | FA_ARCH);
-
-   if (*allegro_errno)
+   if (stat(uconvert_toascii(filename, tmp), &s) != 0) {
+      *allegro_errno = errno;
       return 0;
+   }
 
-   memset(&t, 0, sizeof(struct tm));
-
-   t.tm_sec  = (dta.ff_ftime & 0x1F) * 2;
-   t.tm_min  = (dta.ff_ftime >> 5) & 0x3F;
-   t.tm_hour = (dta.ff_ftime >> 11) & 0x1F;
-   t.tm_mday = (dta.ff_fdate & 0x1F);
-   t.tm_mon  = ((dta.ff_fdate >> 5) & 0x0F) - 1;
-   t.tm_year = (dta.ff_fdate >> 9) + 80;
-
-   t.tm_isdst = -1;
-
-   return mktime(&t);
+   return s.st_mtime;
 }
 
 
 
-/* _al_findfirst:
+/* structure for use by the directory scanning routines */
+struct FF_DATA
+{
+   struct ffblk data;
+   int attrib;
+};
+
+
+
+/* fill_ffblk:
+ *  Helper function to fill in an al_ffblk structure.
+ */
+static void fill_ffblk(struct al_ffblk *info)
+{
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+   struct tm t;
+
+   info->attrib = ff_data->data.ff_attrib;
+
+   memset(&t, 0, sizeof(struct tm));
+   t.tm_sec  = (ff_data->data.ff_ftime & 0x1F) * 2;
+   t.tm_min  = (ff_data->data.ff_ftime >> 5) & 0x3F;
+   t.tm_hour = (ff_data->data.ff_ftime >> 11) & 0x1F;
+   t.tm_mday = (ff_data->data.ff_fdate & 0x1F);
+   t.tm_mon  = ((ff_data->data.ff_fdate >> 5) & 0x0F) - 1;
+   t.tm_year = (ff_data->data.ff_fdate >> 9) + 80;
+   t.tm_isdst = -1;
+
+   info->time = mktime(&t);
+
+   info->size = ff_data->data.ff_fsize;
+
+   do_uconvert(ff_data->data.ff_name, U_ASCII, info->name, U_CURRENT, sizeof(info->name));
+}
+
+
+
+/* al_findfirst:
  *  Initiates a directory search.
  */
-void *_al_findfirst(AL_CONST char *name, int attrib, char *nameret, int *aret)
+int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 {
-   struct ffblk *info;
+   struct FF_DATA *ff_data;
+   char tmp[512];
+   int ret;
 
-   info = malloc(sizeof(struct ffblk));
+   /* allocate ff_data structure */
+   ff_data = malloc(sizeof(struct FF_DATA));
 
-   if (!info) {
+   if (!ff_data) {
       *allegro_errno = ENOMEM;
       return NULL;
    }
 
-   *allegro_errno = findfirst(uconvert_toascii(name, NULL), info, attrib);
+   /* attach it to the info structure */
+   info->ff_data = (void *) ff_data;
 
-   if (*allegro_errno) {
-      free(info);
-      return NULL;
+   /* initialize it */
+   ff_data->attrib = attrib;
+
+   /* start the search */
+   errno = *allegro_errno = 0;
+
+   /* The return value of findfirst() and findnext() is not meaningful because the
+    * functions return an errno code under DJGPP (ENOENT or ENMFILE) whereas they
+    * return a DOS error code under Watcom (02h, 03h or 12h).
+    * However the functions of both compilers set errno accordingly.
+    */
+   ret = findfirst(uconvert_toascii(pattern, tmp), &ff_data->data, attrib);
+
+   if (ret != 0) {
+#ifdef ALLEGRO_DJGPP
+      /* the DJGPP libc may set errno to ENMFILE, we convert it to ENOENT */
+      *allegro_errno = (errno == ENMFILE ? ENOENT : errno);
+#else
+      *allegro_errno = errno;
+#endif
+      free(ff_data);
+      info->ff_data = NULL;
+      return -1;
    }
 
-   do_uconvert(info->ff_name, U_ASCII, nameret, U_CURRENT, -1);
+   if (ff_data->data.ff_attrib & ~ff_data->attrib) {
+      if (al_findnext(info) != 0) {
+         al_findclose(info);
+         return -1;
+      }
+      else
+         return 0;
+   }
 
-   if (aret)
-      *aret = info->ff_attrib;
-
-   return info;
-}
-
-
-
-/* _al_findnext:
- *  Retrives the next file from a directory search.
- */
-int _al_findnext(void *dta, char *nameret, int *aret)
-{
-   struct ffblk *info = (struct ffblk *)dta;
-
-   *allegro_errno = findnext(info);
-
-   if (*allegro_errno)
-      return -1;
-
-   do_uconvert(info->ff_name, U_ASCII, nameret, U_CURRENT, -1);
-
-   if (aret)
-      *aret = info->ff_attrib;
-
+   fill_ffblk(info);
    return 0;
 }
 
 
 
-/* _al_findclose:
+/* al_findnext:
+ *  Retrieves the next file from a directory search.
+ */
+int al_findnext(struct al_ffblk *info)
+{
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+
+   do {
+      if (findnext(&ff_data->data) != 0) {
+#ifdef ALLEGRO_DJGPP
+         /* the DJGPP libc may set errno to ENMFILE, we convert it to ENOENT */
+         *allegro_errno = (errno == ENMFILE ? ENOENT : errno);
+#else
+         *allegro_errno = errno;
+#endif
+         return -1;
+      }
+
+   } while (ff_data->data.ff_attrib & ~ff_data->attrib);
+
+   fill_ffblk(info);
+   return 0;
+}
+
+
+
+/* al_findclose:
  *  Cleans up after a directory search.
  */
-void _al_findclose(void *dta)
+void al_findclose(struct al_ffblk *info)
 {
-   free(dta);
+   struct FF_DATA *ff_data = (struct FF_DATA *) info->ff_data;
+
+   if (ff_data) {
+      free(ff_data);
+      info->ff_data = NULL;
+   }
 }
 
 
