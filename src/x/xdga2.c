@@ -35,6 +35,7 @@ static XDGADevice *dga_device = NULL;
 static char _xdga2_driver_desc[256] = EMPTY_STRING;
 static Colormap _dga_cmap = 0;
 static int dga_event_base;
+static int keyboard_got_focus = FALSE;
 
 
 static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth);
@@ -151,6 +152,23 @@ void _xdga2_handle_input(void)
 
          case KeyPress:
             XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+
+            if (keyboard_got_focus && _xwin_keyboard_focused) {
+               int state = 0;
+
+               if (key.state & Mod5Mask)
+                  state |= KB_SCROLOCK_FLAG;
+
+               if (key.state & Mod2Mask)
+                  state |= KB_NUMLOCK_FLAG;
+
+               if (key.state & LockMask)
+                  state |= KB_CAPSLOCK_FLAG;
+
+               (*_xwin_keyboard_focused)(TRUE, state);
+               keyboard_got_focus = FALSE;
+            }
+
             kcode = key.keycode;
             if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
                scode = _xwin.keycode_to_scancode[kcode];
@@ -356,8 +374,8 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
               | ButtonReleaseMask | PointerMotionMask;
    XDGASelectInput(_xwin.display, _xwin.screen, input_mask);
    if (_xwin_keyboard_focused) {
-      (*_xwin_keyboard_focused)(FALSE);
-      (*_xwin_keyboard_focused)(TRUE);
+      (*_xwin_keyboard_focused)(FALSE, 0);
+      keyboard_got_focus = TRUE;
    }
    _mouse_on = TRUE;
 
