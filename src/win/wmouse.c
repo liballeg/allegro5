@@ -432,9 +432,9 @@ int mouse_dinput_grab(void)
          _TRACE("set cooperative level failed: %s\n", dinput_err_str(hr));
          return -1;
       }
-
-      mouse_dinput_acquire();
    }
+
+   mouse_dinput_acquire();
 
    return 0;
 }
