@@ -438,6 +438,8 @@ int main()
 	 }
 	 else if (input == KEY_ESC) {
 	    /* quit the program */
+	    destroy_bitmap(euler_buffer);
+	    destroy_bitmap(quat_buffer);
 	    return 0;
 	 }
       }

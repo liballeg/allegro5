@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
    } while (!next);
 
    unload_datafile(running_data);
+   destroy_bitmap(sprite_buffer);
    destroy_bitmap(running);
    return 0;
 }
