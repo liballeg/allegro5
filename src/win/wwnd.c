@@ -344,6 +344,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          }
          break;
 
+      case WM_MENUCHAR :
+         return (MNC_CLOSE<<16)|(wparam&0xffff);
+         
       case WM_CLOSE:
          if (!user_wnd_proc) {
             if (user_close_proc)
