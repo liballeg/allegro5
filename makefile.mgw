@@ -85,14 +85,10 @@ else
   WFLAGS = -Wall -Wno-unused
 endif
 
-ifdef PGCC
-  OFLAGS = -mpentium -O6 -ffast-math
-else
 ifdef PENTIUMONLY
   OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
 else
   OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
-endif
 endif
 
 ifdef DEBUGMODE
@@ -249,6 +245,14 @@ endif
 
 # -------- finally, we get to the fun part... --------
 
+ifndef CROSSCOMPILE
+  DLLWRAP = dllwrap
+  WINDRES = windres
+else
+  DLLWRAP = i386-mingw32msvc-dllwrap
+  WINDRES = i386-mingw32msvc-windres
+endif
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -261,14 +265,6 @@ COMPILE_FLAGS = -DALLEGRO_STATICLINK
 else
 
 # -------- link as a DLL --------
-
-ifndef CROSSCOMPILE
-  DLLWRAP = dllwrap
-  WINDRES = windres
-else
-  DLLWRAP = i386-mingw32msvc-dllwrap
-  WINDRES = i386-mingw32msvc-windres
-endif
 
 ifdef FASTDLL
   define MAKE_LIB
