@@ -1447,10 +1447,11 @@ functions like the djgpp uclock() routine.
 
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
-   Adds a function to the list of user timer handlers, or if it is already 
-   installed, adjusts its speed. The speed is given in hardware clock ticks, 
-   of which there are 1193181 a second. You can convert from other time 
-   formats to hardware clock ticks with the macros:
+   Adds a function to the list of user timer handlers or, if it is already 
+   installed, retroactively adjusts its speed (i.e makes as though the speed 
+   change occured precisely at the last tick). The speed is given in hardware 
+   clock ticks, of which there are 1193181 a second. You can convert from 
+   other time formats to hardware clock ticks with the macros:
 <pre>
       SECS_TO_TIMER(secs)  - give the number of seconds between
                              each tick

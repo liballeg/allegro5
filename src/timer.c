@@ -295,7 +295,8 @@ int install_timer_int(void *proc, void *param, long speed, int param_used)
       return -1;
 
    if ((proc == _timer_queue[x].proc) || (proc == _timer_queue[x].param_proc)) { 
-      _timer_queue[x].counter = speed;
+      _timer_queue[x].counter -= _timer_queue[x].speed;
+      _timer_queue[x].counter += speed;
    }
    else {
       _timer_queue[x].counter = speed;
