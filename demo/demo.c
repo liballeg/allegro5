@@ -1590,7 +1590,8 @@ void load_credits(void)
       while ((*p2) && ((!uisspace(*p2)) || (*(p2+1) != '(')))
 	 p2++;
 
-      if (strncmp(p2, " (<email>", 9) == 0) {
+      if ( (strncmp(p2, " (<email>", 9) == 0) ||
+	   (strncmp(p2, " (email", 7) == 0) ) {
 	 *p2 = 0;
 
 	 c = malloc(sizeof(CREDIT_NAME));
