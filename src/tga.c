@@ -14,7 +14,9 @@
  *
  *      RLE support added by Michal Mertl and Salvador Eduardo Tropea.
  * 
- *	Palette reading improved by Peter Wang.
+ *      Palette reading improved by Peter Wang.
+ *
+ *      Big-endian support added by Eric Botcazou.
  *
  *      See readme.txt for copyright information.
  */
@@ -25,145 +27,217 @@
 
 
 
-/* rle_tga_read:
- *  Helper for reading 256 color RLE data from TGA files.
+/* raw_tga_read8:
+ *  Helper for reading 256-color raw data from TGA files.
  */
-static void rle_tga_read(unsigned char *b, int w, PACKFILE *f)
+static INLINE unsigned char *raw_tga_read8(unsigned char *b, int w, PACKFILE *f)
 {
-   unsigned char value;
-   int count;
-   int c = 0;
+   return b + pack_fread(b, w, f);
+}
+
+
+
+/* rle_tga_read8:
+ *  Helper for reading 256-color RLE data from TGA files.
+ */
+static void rle_tga_read8(unsigned char *b, int w, PACKFILE *f)
+{
+   int value, count, c = 0;
 
    do {
       count = pack_getc(f);
       if (count & 0x80) {
+	 /* run-length packet */
 	 count = (count & 0x7F) + 1;
 	 c += count;
 	 value = pack_getc(f);
 	 while (count--)
-	    *(b++) = value;
+	    *b++ = value;
       }
       else {
+	 /* raw packet */
 	 count++;
 	 c += count;
-	 pack_fread(b, count, f);
-	 b += count;
+	 b = raw_tga_read8(b, count, f);
       }
    } while (c < w);
+}
+
+
+
+/* single_tga_read32:
+ *  Helper for reading a single 32-bit data from TGA files.
+ */
+static INLINE int single_tga_read32(PACKFILE *f)
+{
+   RGB value;
+   int alpha;
+
+   value.b = pack_getc(f);
+   value.g = pack_getc(f);
+   value.r = pack_getc(f);
+   alpha = pack_getc(f);
+
+   return makeacol32(value.r, value.g, value.b, alpha);
+}
+
+
+
+/* raw_tga_read32:
+ *  Helper for reading 32-bit raw data from TGA files.
+ */
+static unsigned int *raw_tga_read32(unsigned int *b, int w, PACKFILE *f)
+{
+   while (w--)
+      *b++ = single_tga_read32(f);
+
+   return b;
 }
 
 
 
 /* rle_tga_read32:
- *  Helper for reading 32 bit RLE data from TGA files.
+ *  Helper for reading 32-bit RLE data from TGA files.
  */
-static void rle_tga_read32(unsigned char *b, int w, PACKFILE *f)
+static void rle_tga_read32(unsigned int *b, int w, PACKFILE *f)
 {
-   unsigned char value[4];
-   int count;
-   int c = 0;
+   int color, count, c = 0;
 
    do {
       count = pack_getc(f);
       if (count & 0x80) {
+	 /* run-length packet */
 	 count = (count & 0x7F) + 1;
 	 c += count;
-	 pack_fread(value, 4, f);
-	 while (count--) {
-	    b[_rgb_a_shift_32/8] = value[3];
-	    b[_rgb_r_shift_32/8] = value[2];
-	    b[_rgb_g_shift_32/8] = value[1];
-	    b[_rgb_b_shift_32/8] = value[0];
-	    b += 4;
-	 }
+	 color = single_tga_read32(f);
+	 while (count--)
+	    *b++ = color;
       }
       else {
+	 /* raw packet */
 	 count++;
 	 c += count;
-	 while (count--) {
-	    pack_fread(value, 4, f);
-	    b[_rgb_a_shift_32/8] = value[3];
-	    b[_rgb_r_shift_32/8] = value[2];
-	    b[_rgb_g_shift_32/8] = value[1];
-	    b[_rgb_b_shift_32/8] = value[0];
-	    b += 4;
-	 }
+	 b = raw_tga_read32(b, count, f);
       }
    } while (c < w);
+}
+
+
+/* single_tga_read24:
+ *  Helper for reading a single 24-bit data from TGA files.
+ */
+static INLINE int single_tga_read24(PACKFILE *f)
+{
+   RGB value;
+
+   value.b = pack_getc(f);
+   value.g = pack_getc(f);
+   value.r = pack_getc(f);
+
+   return makecol24(value.r, value.g, value.b);
+}
+
+
+
+/* raw_tga_read24:
+ *  Helper for reading 24-bit raw data from TGA files.
+ */
+static unsigned char *raw_tga_read24(unsigned char *b, int w, PACKFILE *f)
+{
+   int color;
+
+   while (w--) {
+      color = single_tga_read24(f);
+      WRITE3BYTES(b, color);
+      b += 3;
+   }
+
+   return b;
 }
 
 
 
 /* rle_tga_read24:
- *  Helper for reading 24 bit RLE data from TGA files.
+ *  Helper for reading 24-bit RLE data from TGA files.
  */
 static void rle_tga_read24(unsigned char *b, int w, PACKFILE *f)
 {
-   unsigned char value[4];
-   int count;
-   int c = 0;
+   int color, count, c = 0;
 
    do {
       count = pack_getc(f);
       if (count & 0x80) {
+	 /* run-length packet */
 	 count = (count & 0x7F) + 1;
 	 c += count;
-	 pack_fread(value, 3, f);
+	 color = single_tga_read24(f);
 	 while (count--) {
-	    b[_rgb_r_shift_24/8] = value[2];
-	    b[_rgb_g_shift_24/8] = value[1];
-	    b[_rgb_b_shift_24/8] = value[0];
+	    WRITE3BYTES(b, color);
 	    b += 3;
 	 }
       }
       else {
+	 /* raw packet */
 	 count++;
 	 c += count;
-	 while (count--) {
-	    pack_fread(value, 3, f);
-	    b[_rgb_r_shift_24/8] = value[2];
-	    b[_rgb_g_shift_24/8] = value[1];
-	    b[_rgb_b_shift_24/8] = value[0];
-	    b += 3;
-	 }
+	 b = raw_tga_read24(b, count, f);
       }
    } while (c < w);
 }
 
 
 
+/* single_tga_read16:
+ *  Helper for reading a single 16-bit data from TGA files.
+ */
+static INLINE int single_tga_read16(PACKFILE *f)
+{
+   int value;
+
+   value = pack_igetw(f);
+
+   return (((value >> 10) & 0x1F) << _rgb_r_shift_15) |
+	  (((value >> 5) & 0x1F) << _rgb_g_shift_15)  |
+	  ((value & 0x1F) << _rgb_b_shift_15);
+}
+
+
+
+/* raw_tga_read16:
+ *  Helper for reading 16-bit raw data from TGA files.
+ */
+static unsigned short *raw_tga_read16(unsigned short *b, int w, PACKFILE *f)
+{
+   while (w--)
+      *b++ = single_tga_read16(f);
+
+   return b;
+}
+
+
+
 /* rle_tga_read16:
- *  Helper for reading 16 bit RLE data from TGA files.
+ *  Helper for reading 16-bit RLE data from TGA files.
  */
 static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
 {
-   unsigned int value;
-   unsigned short color;
-   int count;
-   int c = 0;
+   int color, count, c = 0;
 
    do {
       count = pack_getc(f);
       if (count & 0x80) {
+	 /* run-length packet */
 	 count = (count & 0x7F) + 1;
 	 c += count;
-	 value = pack_igetw(f);
-	 color = ((((value >> 10) & 0x1F) << _rgb_r_shift_15) |
-		  (((value >> 5) & 0x1F) << _rgb_g_shift_15) |
-		  ((value & 0x1F) << _rgb_b_shift_15));
+	 color = single_tga_read16(f);
 	 while (count--)
-	    *(b++) = color;
+	    *b++ = color;
       }
       else {
+	 /* raw packet */
 	 count++;
 	 c += count;
-	 while (count--) {
-	    value = pack_igetw(f);
-	    color = ((((value >> 10) & 0x1F) << _rgb_r_shift_15) |
-		     (((value >> 5) & 0x1F) << _rgb_g_shift_15) |
-		     ((value & 0x1F) << _rgb_b_shift_15));
-	    *(b++) = color;
-	 }
+	 b = raw_tga_read16(b, count, f);
       }
    } while (c < w);
 }
@@ -171,18 +245,18 @@ static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
 
 
 /* load_tga:
- *  Loads a 256 color or 24 bit uncompressed TGA file, returning a bitmap
- *  structure and storing the palette data in the specified palette (this
- *  should be an array of at least 256 RGB structures).
+ *  Loads a TGA file, returning a bitmap structure and storing the
+ *  palette data in the specified palette (this should be an array
+ *  of at least 256 RGB structures).
  */
 BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 {
-   unsigned char image_id[256], image_palette[256][3], rgb[4];
+   unsigned char image_id[256], image_palette[256][3];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
    unsigned char bpp, descriptor_bits;
    short unsigned int first_color, palette_colors;
    short unsigned int left, top, image_width, image_height;
-   unsigned int c, i, x, y, yc;
+   unsigned int c, i, y, yc;
    unsigned short *s;
    int dest_depth;
    int compressed;
@@ -326,52 +400,29 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 	 case 1:
 	 case 3:
 	    if (compressed)
-	       rle_tga_read(bmp->line[yc], image_width, f);
+	       rle_tga_read8(bmp->line[yc], image_width, f);
 	    else
-	       pack_fread(bmp->line[yc], image_width, f);
+	       raw_tga_read8(bmp->line[yc], image_width, f);
 	    break;
 
 	 case 2:
 	    if (bpp == 32) {
-	       if (compressed) {
-		  rle_tga_read32(bmp->line[yc], image_width, f);
-	       }
-	       else {
-		  for (x=0; x<image_width; x++) {
-		     pack_fread(rgb, 4, f);
-		     bmp->line[yc][x*4+_rgb_a_shift_32/8] = rgb[3];
-		     bmp->line[yc][x*4+_rgb_r_shift_32/8] = rgb[2];
-		     bmp->line[yc][x*4+_rgb_g_shift_32/8] = rgb[1];
-		     bmp->line[yc][x*4+_rgb_b_shift_32/8] = rgb[0];
-		  }
-	       }
+	       if (compressed)
+		  rle_tga_read32((unsigned int *)bmp->line[yc], image_width, f);
+	       else
+		  raw_tga_read32((unsigned int *)bmp->line[yc], image_width, f);
 	    }
 	    else if (bpp == 24) {
-	       if (compressed) {
+	       if (compressed)
 		  rle_tga_read24(bmp->line[yc], image_width, f);
-	       }
-	       else {
-		  for (x=0; x<image_width; x++) {
-		     pack_fread(rgb, 3, f);
-		     bmp->line[yc][x*3+_rgb_r_shift_24/8] = rgb[2];
-		     bmp->line[yc][x*3+_rgb_g_shift_24/8] = rgb[1];
-		     bmp->line[yc][x*3+_rgb_b_shift_24/8] = rgb[0];
-		  }
-	       }
+	       else
+		  raw_tga_read24(bmp->line[yc], image_width, f);
 	    }
 	    else {
-	       if (compressed) {
+	       if (compressed)
 		  rle_tga_read16((unsigned short *)bmp->line[yc], image_width, f);
-	       }
-	       else {
-		  s = (unsigned short *)bmp->line[yc];
-		  for (x=0; x<image_width; x++) {
-		     c = pack_igetw(f);
-		     s[x] = ((((c >> 10) & 0x1F) << _rgb_r_shift_15) |
-			     (((c >> 5) & 0x1F) << _rgb_g_shift_15) |
-			     ((c & 0x1F) << _rgb_b_shift_15));
-		  }
-	       }
+	       else
+		  raw_tga_read16((unsigned short *)bmp->line[yc], image_width, f);
 	    }
 	    break;
       }
