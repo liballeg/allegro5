@@ -155,7 +155,7 @@ GFX_DRIVER gfx_vbeaf =
    NULL,                         /* no drawing mode hook */
    vbeaf_save,
    vbeaf_restore,
-   NULL,
+   NULL,                         /* no fetch mode hook */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 
@@ -1457,7 +1457,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
 
    if (faf_ext > 0)
       usnprintf(vbeaf_desc+ustrsize(vbeaf_desc), sizeof(vbeaf_desc) - ustrsize(vbeaf_desc),
-                                          uconvert_ascii(", FreeBE ex%02d", NULL), faf_ext);
+		uconvert_ascii(", FreeBE ex%02d", NULL), faf_ext);
    else if (faf_id)
       ustrncat(vbeaf_desc, uconvert_ascii(", FreeBE noex", NULL), sizeof(vbeaf_desc) - ustrsizez(vbeaf_desc));
 

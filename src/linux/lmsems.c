@@ -162,7 +162,7 @@ static int mouse_init (void)
 	intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
 	if (intdrv.device < 0) {
 		usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
-                                                                             udevice, ustrerror (errno));
+			   udevice, ustrerror (errno));
 		return -1;
 	}
 

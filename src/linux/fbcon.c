@@ -77,7 +77,7 @@ GFX_DRIVER gfx_fbcon =
    NULL,                         /* no drawing mode hook */
    fb_save,
    fb_restore,
-   NULL,
+   NULL,                         /* no fetch mode hook */
    0, 0,
    TRUE,
    0, 0, 0, 0, FALSE
@@ -877,7 +877,7 @@ static void set_default_timings (void)
    cp(yres);
    #undef cp
    usnprintf(temp_timings.config_item, sizeof(temp_timings.config_item), uconvert_ascii("fb_mode_%dx%d", tmp),
-                                                                               orig_mode.xres, orig_mode.yres);
+	     orig_mode.xres, orig_mode.yres);
 }
 
 

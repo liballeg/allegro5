@@ -447,7 +447,7 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
    /* make sure this is a reasonable number of voices to use */
    if ((digi_voices > DIGI_VOICES) || (midi_voices > MIDI_VOICES)) {
       usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Insufficient %s voices available"),
-                    (digi_voices > DIGI_VOICES) ? get_config_text("digital") : get_config_text("MIDI"));
+		(digi_voices > DIGI_VOICES) ? get_config_text("digital") : get_config_text("MIDI"));
       digi_driver = &digi_none; 
       midi_driver = &midi_none; 
       if (_al_linker_midi)
@@ -579,7 +579,7 @@ int install_sound_input(int digi, int midi)
 	    if (digi_input_card != DIGI_AUTODETECT) {
 	       if (!ugetc(allegro_error))
 		  usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s does not support audio input"),
-                                                                    ((DIGI_DRIVER *)digi_drivers[c].driver)->name);
+			    ((DIGI_DRIVER *)digi_drivers[c].driver)->name);
 	       break;
 	    }
 	 }
@@ -613,7 +613,7 @@ int install_sound_input(int digi, int midi)
 	    if (midi_input_card != MIDI_AUTODETECT) {
 	       if (!ugetc(allegro_error))
 		  usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s does not support MIDI input"),
-                                                                   ((MIDI_DRIVER *)midi_drivers[c].driver)->name);
+			    ((MIDI_DRIVER *)midi_drivers[c].driver)->name);
 	       break;
 	    }
 	 }

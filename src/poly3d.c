@@ -1166,7 +1166,7 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
 
    /* allocate some space for the active edge table */
    _grow_scratch_mem(sizeof(POLYGON_EDGE) * vc);
-   start_edge= edge0 = edge = (POLYGON_EDGE *)_scratch_mem;
+   start_edge = edge0 = edge = (POLYGON_EDGE *)_scratch_mem;
 
    /* fill the double-linked list of edges (order unimportant) */
    v2 = vtx[vc-1];

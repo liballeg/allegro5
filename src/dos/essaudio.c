@@ -399,7 +399,7 @@ static int ess_detect(int input)
 
    /* set up the card description */
    usnprintf(ess_desc, sizeof(ess_desc), get_config_text("ES%X (%d hz) on port %X, using IRQ %d and DMA channel %d"),
-		       ess_hw_ver, _sound_freq, _sound_port, _sound_irq, _sound_dma);
+	     ess_hw_ver, _sound_freq, _sound_port, _sound_irq, _sound_dma);
 
    digi_audiodrive.desc = ess_desc;
 

@@ -79,24 +79,21 @@ extern "C" {
    AL_FUNC(void, _xwin_handle_input, (void));
 
 
-	#define XLOCK() \
-		if (_xwin_bg_man->multi_threaded) { \
-			if (_xwin.display) { \
-				XLockDisplay (_xwin.display); \
-			} \
-		} else { \
-			_xwin.lock_count++; \
-		}
+   #define XLOCK()				\
+      if (_xwin_bg_man->multi_threaded) {	\
+	 if (_xwin.display)			\
+	    XLockDisplay(_xwin.display);	\
+      } else {					\
+	 _xwin.lock_count++;			\
+      }
 
-	#define XUNLOCK() \
-		if (_xwin_bg_man->multi_threaded) { \
-			if (_xwin.display) { \
-				XUnlockDisplay (_xwin.display); \
-			} \
-		} else { \
-			_xwin.lock_count--; \
-		}
-
+   #define XUNLOCK()				\
+      if (_xwin_bg_man->multi_threaded) {	\
+	 if (_xwin.display)			\
+	    XUnlockDisplay(_xwin.display);	\
+      } else {					\
+	 _xwin.lock_count--;			\
+      }
 #endif
 
 
@@ -121,11 +118,11 @@ typedef void (*bg_func) (int threaded);
  * functions.  `int' methods return -1 on failure, 0 on success. */
 struct bg_manager
 {
-	int multi_threaded;
-	int (*init) (void);
-	void (*exit) (void);
-	int (*register_func) (bg_func f);
-	int (*unregister_func) (bg_func f);
+   int multi_threaded;
+   int (*init) (void);
+   void (*exit) (void);
+   int (*register_func) (bg_func f);
+   int (*unregister_func) (bg_func f);
 };	
 
 extern struct bg_manager _bg_man_pthreads;

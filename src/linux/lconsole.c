@@ -88,7 +88,7 @@ int __al_linux_init_console(void)
       /* Open our current console */
       if ((__al_linux_console_fd = open("/dev/tty", O_RDWR)) < 0) {
 	 usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to open %s: %s"),
-                                              uconvert_ascii("/dev/tty", tmp), ustrerror(errno));
+		    uconvert_ascii("/dev/tty", tmp), ustrerror(errno));
 	 return 1;
       }
    } else {
@@ -118,7 +118,7 @@ int __al_linux_init_console(void)
       if ((console_fd = open ("/dev/console", O_WRONLY)) < 0) {
 	 int n;
 	 usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, uconvert_ascii("%s /dev/console: %s", tmp),
-                                             get_config_text("Unable to open"), ustrerror (errno));
+		    get_config_text("Unable to open"), ustrerror (errno));
 	 /* Try some ttys instead... */
 	 for (n = 1; n <= 24; n++) {
 	     sprintf (tty_name, "/dev/tty%d", n);

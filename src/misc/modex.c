@@ -114,7 +114,7 @@ GFX_DRIVER gfx_modex =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
-   NULL,
+   NULL,                         /* no fetch mode hook */
    0, 0,
    TRUE,
    0, 0,
@@ -148,7 +148,7 @@ GFX_DRIVER gfx_xtended =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
-   NULL,
+   NULL,                         /* no fetch mode hook */
    640, 400,
    TRUE,
    0, 0,

@@ -59,7 +59,7 @@ GFX_DRIVER gfx_directx_win =
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
-   NULL,
+   NULL,                        // AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                        // int w, h;                     /* physical (not virtual!) screen size */
    TRUE,                        // int linear;                   /* true if video memory is linear */
    0,                           // long bank_size;               /* bank size, in bytes */
@@ -314,9 +314,9 @@ static void setup_driver_desc(void)
    char tmp1[80], tmp2[80];
 
    usnprintf(gfx_driver_desc, sizeof(gfx_driver_desc),
-       uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
-           uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
-               desktop_depth );
+	     uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
+	     uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
+	     desktop_depth );
    
    gfx_directx_win.desc = gfx_driver_desc;
 }

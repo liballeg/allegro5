@@ -114,7 +114,7 @@ static int joy_init (void)
 	num_joysticks = i;
 	if (num_joysticks == 0) {
 		usnprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
-                                                    uconvert_ascii ("/dev/js0", tmp), ustrerror (errno));
+			   uconvert_ascii ("/dev/js0", tmp), ustrerror (errno));
 		return -1;
 	}
 

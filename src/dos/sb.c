@@ -886,7 +886,7 @@ static int sb_detect(int input)
 
       /* set up the card description */
       usnprintf(sb_desc, sizeof(sb_desc), get_config_text("%s (%d hz) on port %X, using IRQ %d and DMA channel %d"),
-			                  uconvert_ascii(msg, tmp), _sound_freq, _sound_port, _sound_irq, _sound_dma);
+		uconvert_ascii(msg, tmp), _sound_freq, _sound_port, _sound_irq, _sound_dma);
 
       digi_driver->desc = sb_desc;
    }

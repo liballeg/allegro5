@@ -196,13 +196,13 @@ static int open_oss_device(int input)
    int fragsize, fragbits, bits, stereo, freq;
 
    ustrncpy(_oss_driver, get_config_string(uconvert_ascii("sound", tmp1),
-					  uconvert_ascii("oss_driver", tmp2),
-					  uconvert_ascii("/dev/dsp", tmp3)), sizeof(_oss_driver) - ucwidth(0));
+					   uconvert_ascii("oss_driver", tmp2),
+					   uconvert_ascii("/dev/dsp", tmp3)), sizeof(_oss_driver) - ucwidth(0));
 
    ustrncpy(_oss_mixer_driver, get_config_string(uconvert_ascii("sound", tmp1),
-					     uconvert_ascii("oss_mixer_driver", tmp2),
-					     uconvert_ascii("/dev/mixer", tmp3)), sizeof(_oss_mixer_driver) - ucwidth(0));
-
+						 uconvert_ascii("oss_mixer_driver", tmp2),
+						 uconvert_ascii("/dev/mixer", tmp3)), sizeof(_oss_mixer_driver) - ucwidth(0));
+   
    oss_fd = open(uconvert_toascii(_oss_driver, tmp1), (input ? O_RDONLY : O_WRONLY) | O_NONBLOCK);
 
    if (oss_fd < 0) {
@@ -406,9 +406,9 @@ static int oss_init(int input, int voices)
    ENABLE();
 
    usnprintf(oss_desc, sizeof(oss_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
-		      _oss_driver, _sound_bits,
-		      uconvert_ascii((oss_signed ? "signed" : "unsigned"), tmp1), _sound_freq,
-		      uconvert_ascii((_sound_stereo ? "stereo" : "mono"), tmp2));
+	     _oss_driver, _sound_bits,
+	     uconvert_ascii((oss_signed ? "signed" : "unsigned"), tmp1), _sound_freq,
+	     uconvert_ascii((_sound_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = oss_desc;
 

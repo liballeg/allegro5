@@ -164,7 +164,7 @@ static int _al_esd_detect(int input)
    fd = esd_open_sound(uconvert_toascii(server, s));
    if (fd < 0) {
       usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: can not open"),
-                               (ugetc(server) ? server : get_config_text("No server")));
+		(ugetc(server) ? server : get_config_text("No server")));
       return FALSE;
    }
 
@@ -205,7 +205,7 @@ static int _al_esd_init(int input, int voices)
 					 uconvert_toascii(server, s), NULL);
    if (_al_esd_fd < 0) {
       usnprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s: can not open"),
-                               (ugetc(server) ? server : get_config_text("No server")));
+		(ugetc(server) ? server : get_config_text("No server")));
       return -1;
    }
 
@@ -234,9 +234,9 @@ static int _al_esd_init(int input, int voices)
    ENABLE();
 
    usnprintf(_al_esd_desc, sizeof(_al_esd_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
-			  server, _al_esd_bits,
-			  uconvert_ascii((_al_esd_signed ? "signed" : "unsigned"), tmp1), _al_esd_rate,
-			  uconvert_ascii((_al_esd_stereo ? "stereo" : "mono"), tmp2));
+	     server, _al_esd_bits,
+	     uconvert_ascii((_al_esd_signed ? "signed" : "unsigned"), tmp1), _al_esd_rate,
+	     uconvert_ascii((_al_esd_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = _al_esd_desc;
 

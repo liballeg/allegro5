@@ -153,7 +153,7 @@ GFX_DRIVER gfx_photon = {
    NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
    NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
    NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
-   NULL,
+   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
    0, 0,                         /* physical (not virtual!) screen size */
    TRUE,                         /* true if video memory is linear */
    0,                            /* bank size, in bytes */
@@ -191,7 +191,7 @@ GFX_DRIVER gfx_photon_direct = {
    NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
    NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
    NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
-   NULL,
+   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
    0, 0,                         /* physical (not virtual!) screen size */
    TRUE,                         /* true if video memory is linear */
    0,                            /* bank size, in bytes */

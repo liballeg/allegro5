@@ -212,23 +212,28 @@ struct al_exit_func {
    struct al_exit_func *next;
 };
 
-static struct al_exit_func *first_exit_func = 0;
+static struct al_exit_func *exit_func_list = NULL;
+
+
 
 /* _add_exit_func:
  *  Adds a function to the list that need to be called by allegro_exit().
  */
 void _add_exit_func(void (*func)(void))
 {
-   struct al_exit_func *n = 0;
-   for (n = first_exit_func; n != 0; n = n->next)
+   struct al_exit_func *n;
+
+   for (n = first_exit_func; n; n = n->next)
       if (n->funcptr == func)
 	 return;
+
    n = malloc(sizeof(struct al_exit_func));
    if (!n)
       return;
-   n->next = first_exit_func;
+
+   n->next = exit_func_list;
    n->funcptr = func;
-   first_exit_func = n;
+   exit_func_list = n;
 }
 
 
@@ -238,13 +243,14 @@ void _add_exit_func(void (*func)(void))
  */
 void _remove_exit_func(void (*func)(void))
 {
-   struct al_exit_func *iter = first_exit_func, *prev = 0;
+   struct al_exit_func *iter = exit_func_list, *prev = NULL;
+
    while (iter) {
       if (iter->funcptr == func) {
 	 if (prev)
 	    prev->next = iter->next;
 	 else
-	    first_exit_func = iter->next;
+	    exit_func_list = iter->next;
 	 free(iter);
 	 return;
       }

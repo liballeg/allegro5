@@ -329,11 +329,11 @@ static int alsa_init(int input, int voices)
    ENABLE();
 
    usnprintf(alsa_desc, sizeof(alsa_desc),
-	    get_config_text("Card #%d, device #%d: %d bits, %s, %d bps, %s"),
-	    card, device, alsa_bits,
-	    uconvert_ascii((alsa_signed ? "signed" : "unsigned"), tmp1),
-	    alsa_rate,
-	    uconvert_ascii((alsa_stereo ? "stereo" : "mono"), tmp2));
+	     get_config_text("Card #%d, device #%d: %d bits, %s, %d bps, %s"),
+	     card, device, alsa_bits,
+	     uconvert_ascii((alsa_signed ? "signed" : "unsigned"), tmp1),
+	     alsa_rate,
+	     uconvert_ascii((alsa_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = alsa_desc;
 
