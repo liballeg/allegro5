@@ -4320,6 +4320,8 @@ void change_mode(void)
 	       }
 	    }
 	    else {
+	       char buf[ALLEGRO_ERROR_SIZE];
+	       ustrzcpy(buf, sizeof(buf), allegro_error);
 	       set_color_depth(8);
 	       request_refresh_rate(0);
 	       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0)!=0) {
@@ -4333,7 +4335,7 @@ void change_mode(void)
 	       gui_mg_color = palette_color[8];
 	       gui_bg_color = palette_color[0];
 
-	       alert("Error setting mode:", allegro_error, NULL, "Sorry", NULL, 13, 0);
+	       alert("Error setting mode:", buf, NULL, "Sorry", NULL, 13, 0);
 	    }
 	 }
       }
