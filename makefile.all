@@ -8,14 +8,15 @@
 #        DEBUGMODE=2        selects a build intended to debug Allegro itself.
 #        PROFILEMODE=1      selects a profiling build.
 #        WARNMODE=1         selects strict compiler warnings.
-#        STATICLINK=1       use static linking (MSVC, Mingw32).
-#        TARGET_ARCH_COMPAT optimize for the given processor while preserving
-#                           backwards compatibility with older processors.
-#        TARGET_ARCH_EXCL   optimize for the given processor. this will cause
-#                           the library to *NOT* be backwards compatible.
-#        TARGET_OPTS        allows you to customize general optimalization.
-#        CROSSCOMPILE=1     build djgpp or Mingw32 versions under Linux.
-#        ALLEGRO_USE_C=1    use C drawing code instead of asm (djgpp, Mingw32).
+#        STATICLINK=1       use static linking (MinGW32, MSVC, BeOS).
+#        TARGET_ARCH_COMPAT optimize for the given processor while preserving backwards
+#                           compatibility with older processors (GCC-based platforms).
+#        TARGET_ARCH_EXCL   optimize for the given processor; this will cause the library
+#                           to *NOT* be backwards compatible (GCC-based platforms).
+#        TARGET_OPTS        allows you to customize general optimalization (GCC-based platforms).
+#        CROSSCOMPILE=1     cross-build under Linux (DJGPP, MinGW32).
+#        ALLEGRO_USE_C=1    use C drawing code instead of asm (GCC-based platforms).
+#        UNIX_TOOLS=1       use Unix-like tools instead of DOS tools.
 #
 #     Targets: 
 #        default:           build library version, docs, and programs.
@@ -29,7 +30,7 @@
 #        distclean:         remove objects and executables.
 #        veryclean:         remove all generated files.
 #        depend:            regenerate the dependency files.
-#        compress:          compress the executable files (djgpp, Mingw32, MSVC).
+#        compress:          compress the executable files (DJGPP, MinGW32, MSVC).
 
 
 
