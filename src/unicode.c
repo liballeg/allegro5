@@ -2608,10 +2608,6 @@ static int sprint_string(STRING_ARG *string_arg, SPRINT_INFO *info, AL_CONST cha
    int pos = 0, len = 0;
    int c;
 
-   /* discard empty strings */
-   if (ugetc(s) == 0)
-      return 0;
-
    string_arg->data = malloc((MAX(ustrlen(s), info->field_width) * uwidth_max(U_CURRENT)
                                                             + ucwidth(0)) * sizeof(char));
 
@@ -2854,11 +2850,11 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 
 	       default:
 		  /* weird shit... */
-		  slen = 0;
+		  slen = -1;
 		  break;
 	    }
 
-            if (slen) {
+            if (slen >= 0) {
                if (slen < info.field_width) {
                   if (info.flags & SPRINT_FLAG_LEFT_JUSTIFY) {
                      /* left align the result */
