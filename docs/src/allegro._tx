@@ -5155,7 +5155,7 @@ Sound init routines
 
 @@int @install_sound(int digi, int midi, const char *cfg_path);
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
-@xref set_volume, play_sample, voice control, play_midi, play_audio_stream
+@xref set_volume, play_sample, Voice control, play_midi, play_audio_stream
 @xref install_sound_input, allegro_error, Standard config variables
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
@@ -5189,7 +5189,7 @@ Sound init routines
 Digital sample routines
 
 @@SAMPLE *@load_sample(const char *filename);
-@xref destroy_sample, load_voc, load_wav, play_sample, voice control
+@xref destroy_sample, load_voc, load_wav, play_sample, Voice control
    Loads a sample from a file, returning a pointer to it, or NULL on error. 
    At present this function supports both mono and stereo WAV and mono VOC 
    files, in 8 or 16 bit formats.
@@ -5221,7 +5221,7 @@ Digital sample routines
    you.
 
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
-@xref install_sound, load_sample, adjust_sample, stop_sample, voice control
+@xref install_sound, load_sample, adjust_sample, stop_sample, Voice control
    Triggers a sample at the specified volume, pan position, and frequency. 
    The volume and pan range from 0 (min/left) to 255 (max/right). Frequency 
    is relative rather than absolute: 1000 represents the frequency that the 
@@ -5244,7 +5244,7 @@ Digital sample routines
    looped mode. If there are several copies of the sample playing, it will 
    stop them all.
 
-@hnode voice control
+@hnode Voice control
 @xref install_sound, allocate_voice, deallocate_voice, reallocate_voice
 @xref release_voice, voice_start, voice_set_priority, voice_check
 @xref voice_set_position, voice_set_playmode, voice_set_volume
@@ -5269,7 +5269,7 @@ sample structure:
       the sample.
 <endblock>
 @@int @allocate_voice(const SAMPLE *spl);
-@xref voice control, deallocate_voice, reallocate_voice, release_voice
+@xref Voice control, deallocate_voice, reallocate_voice, release_voice
 @xref load_sample
    Allocates a soundcard voice and prepares it for playing the specified 
    sample, setting up sensible default parameters (maximum volume, centre 
@@ -5299,7 +5299,7 @@ sample structure:
    stop playing before taking effect.
 
 @@void @voice_start(int voice);
-@xref voice control, allocate_voice, voice_stop, release_voice
+@xref Voice control, allocate_voice, voice_stop, release_voice
    Activates a voice, using whatever parameters have been set for it.
 
 @@void @voice_stop(int voice);
@@ -5308,7 +5308,7 @@ sample structure:
    later be resumed by calling voice_start().
 
 @@void @voice_set_priority(int voice, int priority);
-@xref voice control
+@xref Voice control
    Sets the priority of a voice (range 0-255). This is used to decide which 
    voices should be chopped off, if you attempt to play more than the 
    soundcard driver can handle.
@@ -5321,16 +5321,16 @@ sample structure:
    the sample has then finished playing).
 
 @@int @voice_get_position(int voice);
-@xref voice control, voice_set_position
+@xref Voice control, voice_set_position
    Returns the current position of a voice, in sample units, or -1 if it has 
    finished playing.
 
 @@void @voice_set_position(int voice, int position);
-@xref voice control, voice_get_position, voice_set_playmode
+@xref Voice control, voice_get_position, voice_set_playmode
    Sets the position of a voice, in sample units.
 
 @@void @voice_set_playmode(int voice, int playmode);
-@xref voice control
+@xref Voice control
    Adjusts the loop status of the specified voice. This can be done while 
    the voice is playing, so you can start a sample in looped mode (having 
    set the loop start and end positions to the appropriate values), and then 
@@ -5363,15 +5363,15 @@ sample structure:
       alternates between playing forwards and in reverse.
    </ul>
 @@int @voice_get_volume(int voice);
-@xref voice control, voice_set_volume
+@xref Voice control, voice_set_volume
    Returns the current volume of the voice, range 0-255.
 
 @@void @voice_set_volume(int voice, int volume);
-@xref voice control, voice_get_volume, voice_ramp_volume
+@xref Voice control, voice_get_volume, voice_ramp_volume
    Sets the volume of the voice, range 0-255.
 
 @@void @voice_ramp_volume(int voice, int time, int endvol);
-@xref voice control, voice_set_volume
+@xref Voice control, voice_set_volume
    Starts a volume ramp (crescendo or diminuendo) from the current volume to 
    the specified ending volume, lasting for time milliseconds.
 
@@ -5380,15 +5380,15 @@ sample structure:
    Interrupts a volume ramp operation.
 
 @@int @voice_get_frequency(int voice);
-@xref voice control, voice_set_frequency
+@xref Voice control, voice_set_frequency
    Returns the current pitch of the voice, in Hz.
 
 @@void @voice_set_frequency(int voice, int frequency);
-@xref voice control, voice_get_frequency, voice_sweep_frequency
+@xref Voice control, voice_get_frequency, voice_sweep_frequency
    Sets the pitch of the voice, in Hz.
 
 @@void @voice_sweep_frequency(int voice, int time, int endfreq);
-@xref voice control, voice_set_frequency
+@xref Voice control, voice_set_frequency
    Starts a frequency sweep (glissando) from the current pitch to the 
    specified ending pitch, lasting for time milliseconds.
 
@@ -5397,15 +5397,15 @@ sample structure:
    Interrupts a frequency sweep operation.
 
 @@int @voice_get_pan(int voice);
-@xref voice control, voice_set_pan
+@xref Voice control, voice_set_pan
    Returns the current pan position, from 0 (left) to 255 (right).
 
 @@void @voice_set_pan(int voice, int pan);
-@xref voice control, voice_get_pan, voice_sweep_pan
+@xref Voice control, voice_get_pan, voice_sweep_pan
    Sets the pan position, ranging from 0 (left) to 255 (right).
 
 @@void @voice_sweep_pan(int voice, int time, int endpan);
-@xref voice control, voice_set_pan
+@xref Voice control, voice_set_pan
    Starts a pan sweep (left &lt-&gt right movement) from the current position to
    the specified ending position, lasting for time milliseconds.
 
@@ -5414,15 +5414,15 @@ sample structure:
    Interrupts a pan sweep operation.
 
 @@void @voice_set_echo(int voice, int strength, int delay);
-@xref voice control
+@xref Voice control
    Sets the echo parameters for a voice (not currently implemented).
 
 @@void @voice_set_tremolo(int voice, int rate, int depth);
-@xref voice control
+@xref Voice control
    Sets the tremolo parameters for a voice (not currently implemented).
 
 @@void @voice_set_vibrato(int voice, int rate, int depth);
-@xref voice control
+@xref Voice control
    Sets the vibrato parameters for a voice (not currently implemented).
 
 
@@ -7066,7 +7066,7 @@ The behaviour of the dialog manager can be controlled by the variables:
    mouse_z, and mouse_b variables, but they could be used to offset or scale 
    the mouse position, or read input from a different source entirely.
 
-@hnode gui font
+@hnode Gui font
 You can change the global 'font' pointer to make the GUI objects use 
 something other than the standard 8x8 font. The standard dialog procedures, 
 menus, and alert boxes, will work with fonts of any size, but the 
