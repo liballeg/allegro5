@@ -190,7 +190,7 @@ docs:
 	@echo Cannot build docs when cross-compiling.
 else
 
-docs: $(DOCS)
+docs: $(DOCS) $(DOCTXTBUILDFILES)
 	@echo HTML help files have been generated.
 ifdef UNIX_TOOLS
 	@echo To generate a .CHM version, run \"make chm-docs\".
