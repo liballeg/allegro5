@@ -163,9 +163,9 @@
 
    4) Install the package from step 1. I recommend you unzip it
       to 'C:\Dev-Cpp' (the following steps assume this is what you used).
-      Do NOT install it in a directory name with spaces, plus signs, minus
-      signs, slashes, or anything else that's fancy enough to break the
-      compiler. That goes double for people installing in C:\Program Files.
+      Do NOT install it in a directory name with spaces, plus signs, slashes, 
+      or anything else that's fancy enough to break the compiler. 
+      That goes double for people installing in C:\Program Files.
 
    5) Install the package from step 2 to 'C:\Dev-Cpp'. Overwrite any existing
       files.
