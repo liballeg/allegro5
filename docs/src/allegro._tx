@@ -2602,6 +2602,18 @@ Graphics modes
    taken place. Triple buffering is only possible on certain hardware: see 
    the comments about request_scroll(). Returns zero on success.
 
+@@void @vsync();
+@xref set_palette, scroll_screen, timer_simulate_retrace
+   Waits for a vertical retrace to begin. The retrace happens when the
+   electron beam in your monitor has reached the bottom of the screen and is
+   moving back to the top ready for another scan. During this short period
+   the graphics card isn't sending any data to the monitor, so you can do
+   things to it that aren't possible at other times, such as altering the
+   palette without causing flickering (snow). Allegro will automatically
+   wait for a retrace before altering the palette or doing any hardware
+   scrolling, though, so you don't normally need to bother with this
+   function.
+
 
 
 @heading
@@ -3019,18 +3031,6 @@ You may notice that a lot of the code in Allegro spells 'palette' as
 'pallete'. This is because the headers from my old Mark Williams compiler on 
 the Atari spelt it with two l's, so that is what I'm used to. Allegro will 
 happily accept either spelling, due to some #defines in allegro/alcompat.h.
-
-@@void @vsync();
-@xref set_palette, scroll_screen, timer_simulate_retrace
-   Waits for a vertical retrace to begin. The retrace happens when the 
-   electron beam in your monitor has reached the bottom of the screen and is 
-   moving back to the top ready for another scan. During this short period 
-   the graphics card isn't sending any data to the monitor, so you can do 
-   things to it that aren't possible at other times, such as altering the 
-   palette without causing flickering (snow). Allegro will automatically 
-   wait for a retrace before altering the palette or doing any hardware 
-   scrolling, though, so you don't normally need to bother with this 
-   function.
 
 @@void @set_color(int index, const RGB *p);
 @xref set_palette, get_color, _set_color
