@@ -27,6 +27,10 @@
 #include "datedit.h"
 
 
+/* this program is not portable! */
+#ifdef ALLEGRO_I386
+
+
 #ifndef ALLEGRO_ASM_PREFIX
    #define ALLEGRO_ASM_PREFIX    ""
 #endif
@@ -622,7 +626,7 @@ int main(int argc, char *argv[])
 
    output_datafile(data, "data", TRUE);
 
-   #if (defined ALLEGRO_USE_CONSTRUCTOR) && (defined ALLEGRO_I386)
+   #ifdef ALLEGRO_USE_CONSTRUCTOR
 
       fprintf(outfile, ".text\n");
       fprintf(outfile, ".balign 4\n");
@@ -661,18 +665,36 @@ int main(int argc, char *argv[])
 	 delete_file(outfilenameheader);
    }
    else {
-      #if (defined ALLEGRO_USE_CONSTRUCTOR) && (defined ALLEGRO_I386)
+      #ifdef ALLEGRO_USE_CONSTRUCTOR
+
 	 if (truecolor) {
 	    printf("\nI noticed some truecolor images, so you must call fixup_datafile()\n");
 	    printf("before using this data! (after setting a video mode).\n");
 	 }
+
       #else
+
 	 printf("\nI don't know how to do constructor functions on this platform, so you must\n");
 	 printf("call fixup_datafile() before using this data! (after setting a video mode).\n");
+
       #endif
    }
 
    return err;
 }
+
+
+#else       /* ifdef ALLEGRO_I386 */
+
+
+int main()
+{
+   allegro_init();
+   allegro_message("Sorry, the DAT2S program only works on x86 processors\n");
+   return 1;
+}
+
+
+#endif
 
 END_OF_MAIN();
