@@ -23,6 +23,7 @@ General (Platform independant) todos:
 - check and/or fix compilation with gcc 3.0
 - asm draw_sprite et al. don't work with sub-bitmaps
 - include dat2c once finished
+- resolve findfirst issues
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -35,7 +36,6 @@ Win32 todos:
 - Investigate mouse problem with USB Wacom Tablet
 - Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Add backward playing to the DirectSound driver
-- Emulate findfirst
 - Sound code cleanup (wdsinput.c, wsndmix.c, wsndwo.c)
 - Make Allegro return focus to the calling app
 
