@@ -172,6 +172,7 @@ AL_FUNC(void, centre_dialog, (DIALOG *dialog));
 AL_FUNC(void, set_dialog_color, (DIALOG *dialog, int fg, int bg));
 AL_FUNC(int, find_dialog_focus, (DIALOG *dialog));
 AL_FUNC(int, offer_focus, (DIALOG *d, int obj, int *focus_obj, int force));
+AL_FUNC(int, object_message, (DIALOG *dialog, int msg, int c));
 AL_FUNC(int, dialog_message, (DIALOG *dialog, int msg, int c, int *obj));
 AL_FUNC(int, broadcast_dialog_message, (int msg, int c));
 AL_FUNC(int, do_dialog, (DIALOG *dialog, int focus_obj));
@@ -191,8 +192,6 @@ AL_FUNC(int, file_select_ex, (AL_CONST char *message, char *path, AL_CONST char 
 
 AL_FUNC(int, gfx_mode_select, (int *card, int *w, int *h));
 AL_FUNC(int, gfx_mode_select_ex, (int *card, int *w, int *h, int *color_depth));
-
-#include "inline/gui.inl"
 
 #ifdef __cplusplus
    }

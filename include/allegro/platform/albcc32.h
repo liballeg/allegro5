@@ -30,7 +30,6 @@
 
 #pragma warn -8004  /* unused assigned value         */
 #pragma warn -8008  /* condition always met          */
-#pragma warn -8027  /* inline functions not expanded */
 #pragma warn -8057  /* unused parameter              */
 #pragma warn -8066  /* unreachable code              */
 

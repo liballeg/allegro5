@@ -182,7 +182,6 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(srcdir)/include/allegro/inline/fix.inl \
 	$(srcdir)/include/allegro/inline/fmaths.inl \
 	$(srcdir)/include/allegro/inline/gfx.inl \
-	$(srcdir)/include/allegro/inline/gui.inl \
 	$(srcdir)/include/allegro/inline/matrix.inl \
 	$(srcdir)/include/allegro/inline/rle.inl \
 	$(srcdir)/include/allegro/inline/system.inl \

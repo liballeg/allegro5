@@ -28,8 +28,6 @@
 
 #include "inline/fmaths.inl"
 
-#include "inline/gui.inl"
-
 #include "inline/3dmaths.inl"
 
 #include "inline/matrix.inl"

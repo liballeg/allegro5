@@ -293,6 +293,34 @@ int find_dialog_focus(DIALOG *dialog)
 
 
 
+/* object_message:
+ *  Sends a message to a widget, automatically acquiring and releasing   
+ *  the screen BITMAP if sending MSG_DRAW.
+ */
+int object_message(DIALOG *dialog, int msg, int c)
+{
+   int ret;
+
+   if (msg == MSG_DRAW) {
+      if (d->flags & D_HIDDEN) return D_O_K;
+      acquire_screen();
+   }
+
+   ret = d->proc(msg, d, c);
+
+   if (msg == MSG_DRAW)
+      release_screen();
+
+   if (ret & D_REDRAWME) {
+      d->flags |= D_DIRTY;
+      ret &= ~D_REDRAWME;
+   }
+
+   return ret;
+}
+
+
+
 /* dialog_message:
  *  Sends a message to all the objects in a dialog. If any of the objects
  *  return values other than D_O_K, returns the value and sets obj to the 
