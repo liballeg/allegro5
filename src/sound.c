@@ -382,11 +382,14 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
 	    digi_driver = digi_drivers[c].driver;
 	    if (digi_driver->detect(FALSE))
 	       break;
+	    digi_driver = NULL;
 	 }
       }
 
-      if (!digi_driver)
+      if (!digi_driver) {
+	 digi_card = DIGI_NONE;
 	 digi_driver = &digi_none;
+      }
    }
 
    /* set up midi sound driver */
@@ -430,11 +433,14 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
 	    midi_driver = midi_drivers[c].driver;
 	    if (midi_driver->detect(FALSE))
 	       break;
+	    midi_driver = NULL;
 	 }
       }
 
-      if (!midi_driver)
+      if (!midi_driver) {
+	 midi_card = MIDI_NONE;
 	 midi_driver = &_midi_none;
+      }
    }
 
    /* work out how many voices to allocate for each driver */
