@@ -2356,9 +2356,11 @@ Allegro does not provide such devices.)
    Installs the Allegro timer interrupt handler. You must do this before 
    installing any user timer routines, and also before displaying a mouse 
    pointer, playing FLI animations or MIDI music, and using any of the GUI 
-   routines. Returns zero on success, or a negative number on failure (but
-   you may decide not to check the return value as this function is very
-   unlikely to fail).
+   routines.
+@retval
+   Returns zero on success, or a negative number on failure (but you may
+   decide not to check the return value as this function is very unlikely to
+   fail).
 
 @@void @remove_timer();
 @xref install_timer, allegro_exit
@@ -2373,8 +2375,10 @@ Allegro does not provide such devices.)
    milliseconds between ticks. This is the same thing as 
    install_int_ex(proc, MSEC_TO_TIMER(speed)). If you call this routine 
    without having first installed the timer module, install_timer() will be 
-   called automatically. If there is no room to add a new user timer,
-   install_int() will return a negative number, otherwise it returns zero.
+   called automatically.
+@retval
+   Returns zero on success, or a negative number if there is no room to add
+   a new user timer.
 
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
@@ -2392,13 +2396,12 @@ Allegro does not provide such devices.)
       BPS_TO_TIMER(bps)    - give the number of ticks each second
       BPM_TO_TIMER(bpm)    - give the number of ticks per minute
 <endblock>
-   If there is no room to add a new user timer, install_int_ex() will return 
-   a negative number, otherwise it returns zero. There can only be sixteen
-   timers in use at a time, and some other parts of Allegro (the GUI code, 
-   the mouse pointer display routines, rest(), the FLI player, and the MIDI 
-   player) need to install handlers of their own, so you should avoid using 
-   too many at the same time. If you call this routine without having first 
-   installed the timer module, install_timer() will be called automatically.
+   There can only be sixteen timers in use at a time, and some other parts of
+   Allegro (the GUI code, the mouse pointer display routines, rest(), the FLI
+   player, and the MIDI player) need to install handlers of their own, so you
+   should avoid using too many at the same time. If you call this routine
+   without having first installed the timer module, install_timer() will be
+   called automatically.
 
    Your function will be called by the Allegro interrupt handler and not 
    directly by the processor, so it can be a normal C function and does not 
@@ -2439,6 +2442,9 @@ Allegro does not provide such devices.)
    Obviously this can get awkward if you use complicated data structures and 
    call other functions from within your handler, so you should try to keep 
    your interrupt routines as simple as possible.
+@retval
+   Returns zero on success, or a negative number if there is no room to add
+   a new user timer.
 
 @@void @remove_int(void (*proc)());
 @xref install_int, install_int_ex, remove_param_int
@@ -2471,7 +2477,9 @@ Allegro does not provide such devices.)
    Checks whether it is possible to sync the timer module with the monitor 
    retrace, given the current platform and environment (at the moment this 
    is only possible when running in clean DOS mode in a VGA or mode-X 
-   resolution). Returns non-zero if simulation is possible.
+   resolution).
+@retval
+   Returns non-zero if simulation is possible, zero otherwise.
 
 @@void @timer_simulate_retrace(int enable);
 @xref install_timer, retrace_count, retrace_proc, request_scroll, vsync
@@ -2520,7 +2528,9 @@ Allegro does not provide such devices.)
 @@int @timer_is_using_retrace()
 @xref timer_simulate_retrace, timer_can_simulate_retrace
    Checks whether the timer module is currently synced with the monitor 
-   retrace or not. Returns non-zero if it is.
+   retrace or not.
+@retval
+   Returns non-zero if it is, zero otherwise.
 
 @@extern volatile int @retrace_count;
 @xref timer_simulate_retrace, timer_is_using_retrace, retrace_proc
