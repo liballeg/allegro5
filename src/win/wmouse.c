@@ -455,8 +455,11 @@ int mouse_dinput_grab(void)
  */
 int mouse_set_syscursor(void)
 {
-   if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed))
+   if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
       SetCursor(NULL);
+      /* Make sure the cursor is removed by the system. */
+      PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
+   }
    else
       SetCursor(LoadCursor(NULL, IDC_ARROW));
 
