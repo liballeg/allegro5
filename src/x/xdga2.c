@@ -42,7 +42,7 @@ static int dga_event_base;
 
 static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth);
 static void _xdga2_acquire(BITMAP *bmp);
-static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth);
+static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel);
 
 #ifdef ALLEGRO_NO_ASM
 unsigned long _xdga2_write_line(BITMAP *bmp, int line);
@@ -205,7 +205,7 @@ void _xdga2_handle_input(void)
 /* _xdga2_gfxdrv_init_drv:
  *  Initializes driver and creates screen bitmap.
  */
-static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth)
+static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel)
 {
    int dga_error_base, dga_major_version, dga_minor_version;
    int mode, mask, shift;
@@ -365,63 +365,67 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    drv->vid_mem = dga_device->mode.imageWidth * dga_device->mode.imageHeight
                 * BYTES_PER_PIXEL(depth);
 
-   /* Updates line switcher to accommodate framebuffer synchronization */
+   if (accel) {
+      /* Hardware acceleration has been requested */
+      
+      /* Updates line switcher to accommodate framebuffer synchronization */
 #ifdef ALLEGRO_NO_ASM
-   bmp->write_bank = _xdga2_write_line;
-   bmp->read_bank = _xdga2_write_line;
+      bmp->write_bank = _xdga2_write_line;
+      bmp->read_bank = _xdga2_write_line;
 #else
-   bmp->write_bank = _xdga2_write_line_asm;
-   bmp->read_bank = _xdga2_write_line_asm;
+      bmp->write_bank = _xdga2_write_line_asm;
+      bmp->read_bank = _xdga2_write_line_asm;
 #endif
 
-   _screen_vtable.acquire = _xdga2_acquire;
+      _screen_vtable.acquire = _xdga2_acquire;
 
-   /* Checks for hardware acceleration support */
-   if (dga_device->mode.flags & XDGASolidFillRect) {
-      /* XDGAFillRectangle is available */
-      _orig_hline = _screen_vtable.hline;
-      _orig_vline = _screen_vtable.vline;
-      _orig_rectfill = _screen_vtable.rectfill;
-      _screen_vtable.hline = _xaccel_hline;
-      _screen_vtable.vline = _xaccel_vline;
-      _screen_vtable.rectfill = _xaccel_rectfill;
-      _screen_vtable.clear_to_color = _xaccel_clear_to_color;
-      gfx_capabilities |= (GFX_HW_HLINE | GFX_HW_FILL);
-   }
-   if (dga_device->mode.flags & XDGABlitRect) {
-      /* XDGACopyArea is available */
-      _screen_vtable.blit_to_self = _xaccel_blit_to_self;
-      _screen_vtable.blit_to_self_forward = _xaccel_blit_to_self;
-      _screen_vtable.blit_to_self_backward = _xaccel_blit_to_self;
-      gfx_capabilities |= GFX_HW_VRAM_BLIT;
-   }
-   if (dga_device->mode.flags & XDGABlitTransRect) {
-      /* XDGACopyTransparentArea is available */
-      _orig_draw_sprite = _screen_vtable.draw_sprite;
-      _orig_masked_blit = _screen_vtable.masked_blit;
-      _screen_vtable.masked_blit = _xaccel_masked_blit;
-      _screen_vtable.draw_sprite = _xaccel_draw_sprite;
-      if (_screen_vtable.color_depth == 8)
-         _screen_vtable.draw_256_sprite = _xaccel_draw_sprite;
-      gfx_capabilities |= GFX_HW_VRAM_BLIT_MASKED;
+      /* Checks for hardware acceleration support */
+      if (dga_device->mode.flags & XDGASolidFillRect) {
+         /* XDGAFillRectangle is available */
+         _orig_hline = _screen_vtable.hline;
+         _orig_vline = _screen_vtable.vline;
+         _orig_rectfill = _screen_vtable.rectfill;
+         _screen_vtable.hline = _xaccel_hline;
+         _screen_vtable.vline = _xaccel_vline;
+         _screen_vtable.rectfill = _xaccel_rectfill;
+         _screen_vtable.clear_to_color = _xaccel_clear_to_color;
+         gfx_capabilities |= (GFX_HW_HLINE | GFX_HW_FILL);
+      }
+      if (dga_device->mode.flags & XDGABlitRect) {
+         /* XDGACopyArea is available */
+         _screen_vtable.blit_to_self = _xaccel_blit_to_self;
+         _screen_vtable.blit_to_self_forward = _xaccel_blit_to_self;
+         _screen_vtable.blit_to_self_backward = _xaccel_blit_to_self;
+         gfx_capabilities |= GFX_HW_VRAM_BLIT;
+      }
+      if (dga_device->mode.flags & XDGABlitTransRect) {
+         /* XDGACopyTransparentArea is available */
+         _orig_draw_sprite = _screen_vtable.draw_sprite;
+         _orig_masked_blit = _screen_vtable.masked_blit;
+         _screen_vtable.masked_blit = _xaccel_masked_blit;
+         _screen_vtable.draw_sprite = _xaccel_draw_sprite;
+         if (_screen_vtable.color_depth == 8)
+            _screen_vtable.draw_256_sprite = _xaccel_draw_sprite;
+         gfx_capabilities |= GFX_HW_VRAM_BLIT_MASKED;
+      }
+
+      RESYNC();
    }
 
    /* Sets up driver description */
    usprintf(_xdga2_driver_desc,
       uconvert_ascii("X-Windows DGA 2.0 graphics%s", tmp),
-      gfx_capabilities ? " (accelerated)" : "");
+      accel ? (gfx_capabilities ? " (accelerated)" : "") : " (software only)");
    drv->desc = _xdga2_driver_desc;
 
-   RESYNC();
-   
    return bmp;
 }
 
-BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth)
+BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel)
 {
    BITMAP *bmp;
    DISABLE();
-   bmp = _xdga2_private_gfxdrv_init_drv(drv, w, h, vw, vh, depth);
+   bmp = _xdga2_private_gfxdrv_init_drv(drv, w, h, vw, vh, depth, accel);
    ENABLE();
    if (!bmp)
       _xdga2_gfxdrv_exit(bmp);
@@ -745,8 +749,8 @@ static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
    int sx, sy, w, h;
 
    if (is_video_bitmap(sprite)) {
-      sx = sprite->x_ofs;
-      sy = sprite->y_ofs;
+      sx = 0;
+      sy = 0;
       w = sprite->w;
       h = sprite->h;
 
@@ -776,7 +780,15 @@ static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
             return;
       }
 
-      _xaccel_masked_blit(sprite, bmp, sx, sy, x, y, w, h);
+      sx += sprite->x_ofs;
+      sy += sprite->y_ofs;
+      x += bmp->x_ofs;
+      y += bmp->y_ofs;
+
+      DISABLE();
+      XDGACopyTransparentArea(_xwin.display, _xwin.screen, sx, sy, w, h, x, y, sprite->vtable->mask_color);
+      ENABLE();
+      bmp->id &= ~BMP_ID_LOCKED;
    }
    else
       _orig_draw_sprite(bmp, sprite, x, y);
@@ -789,15 +801,19 @@ static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
  */
 static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
-   source_x += source->x_ofs;
-   source_y += source->y_ofs;
-   dest_x += dest->x_ofs;
-   dest_y += dest->y_ofs;
+   if (is_video_bitmap(source)) {
+      source_x += source->x_ofs;
+      source_y += source->y_ofs;
+      dest_x += dest->x_ofs;
+      dest_y += dest->y_ofs;
 
-   DISABLE();
-   XDGACopyTransparentArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y, source->vtable->mask_color);
-   ENABLE();
-   dest->id &= ~BMP_ID_LOCKED;
+      DISABLE();
+      XDGACopyTransparentArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y, source->vtable->mask_color);
+      ENABLE();
+      dest->id &= ~BMP_ID_LOCKED;
+   }
+   else
+      _orig_masked_blit(source, dest, source_x, source_y, dest_x, dest_y, width, height);
 }
 
 

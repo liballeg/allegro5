@@ -59,7 +59,7 @@ extern "C" {
 
    /* Defined in xdga2.c.  */
    AL_FUNC(BITMAP*, _xdga2_gfxdrv_init_drv, (GFX_DRIVER *drv, int w, int h,
-                    int vw, int vh, int depth));
+                    int vw, int vh, int depth, int accel));
    AL_FUNC(void, _xdga2_gfxdrv_exit, (BITMAP *bmp));
    AL_FUNC(int, _xdga2_scroll_screen, (int x, int y));
    AL_FUNC(void, _xdga2_vsync, (void));

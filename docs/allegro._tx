@@ -6817,6 +6817,10 @@ function to remind you :-)
       Use new DGA 2.0 extension provided by XFree86 4.0.x. This will work
       in fullscreen mode, and it will support hardware acceleration if
       available. This driver requires root permissions.
+<li>
+   GFX_XDGA2_SOFT<br>
+      The same as GFX_XDGA2, but turns off hardware acceleration support.
+      This driver requires root permissions.
 </ul>
 @@Drivers: @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input
