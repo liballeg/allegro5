@@ -29,7 +29,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "djgpp"
-#define ALLEGRO_DJGPP
 #define ALLEGRO_DOS
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK

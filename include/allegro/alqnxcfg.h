@@ -43,7 +43,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "QNX"
-#define ALLEGRO_QNX
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 

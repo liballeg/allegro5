@@ -25,7 +25,6 @@
 /* Describe this platform.  */
 #define ALLEGRO_PLATFORM_STR  "Unix"
 
-#define ALLEGRO_UNIX
 #define ALLEGRO_CONSOLE_OK
 
 #define ALLEGRO_EXTRA_HEADER "allegro/alunix.h"

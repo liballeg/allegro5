@@ -20,19 +20,22 @@
 #define ASMDEFS_INC
 
 
-#if defined __MINGW32__
+#include "allegro/alplatf.h"
+
+
+#if defined ALLEGRO_MINGW32
    #include "obj/mingw32/asmdef.inc"
-#elif defined _MSC_VER
+#elif defined ALLEGRO_MSVC
    #include "obj/msvc/asmdef.inc"
-#elif defined __WATCOMC__
+#elif defined ALLEGRO_WATCOM
    #include "obj/watcom/asmdef.inc"
-#elif defined __BEOS__
+#elif defined ALLEGRO_BEOS
    #include "obj/beos/asmdef.inc"
-#elif defined __QNX__
+#elif defined ALLEGRO_QNX
    #include "obj/qnx/asmdef.inc"
-#elif defined DJGPP
+#elif defined ALLEGRO_DJGPP
    #include "obj/djgpp/asmdef.inc"
-#elif defined __unix__
+#elif defined ALLEGRO_UNIX
    #include "obj/unix/asmdef.inc"
 #else
    #error unknown platform

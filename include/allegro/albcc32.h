@@ -29,7 +29,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "BCC32"
-#define ALLEGRO_BCC32
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN

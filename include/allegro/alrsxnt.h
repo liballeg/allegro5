@@ -23,7 +23,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "RSXNT"
-#define ALLEGRO_RSXNT
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN

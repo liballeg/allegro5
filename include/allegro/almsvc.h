@@ -34,7 +34,6 @@
    #define ALLEGRO_PLATFORM_STR  "MSVC"
 #endif
 
-#define ALLEGRO_MSVC
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN

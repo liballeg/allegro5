@@ -29,7 +29,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "mpw"
-#define ALLEGRO_MPW
 #define ALLEGRO_MACOS
 #define ALLEGRO_BIG_ENDIAN
 #undef ALLEGRO_CONSOLE_OK

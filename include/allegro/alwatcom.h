@@ -40,7 +40,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "Watcom"
-#define ALLEGRO_WATCOM
 #define ALLEGRO_DOS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN

@@ -33,7 +33,6 @@
    #define ALLEGRO_PLATFORM_STR  "Mingw32"
 #endif
 
-#define ALLEGRO_MINGW32
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN

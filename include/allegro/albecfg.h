@@ -33,7 +33,6 @@
 
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "BeOS"
-#define ALLEGRO_BEOS
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 
