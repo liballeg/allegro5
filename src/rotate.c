@@ -779,79 +779,21 @@ void _rotate_scale_flip_coordinates(fixed w, fixed h,
 
 
 
-/*
- * pivot_*()
- */
-
-
-
 /* _pivot_scaled_sprite_flip:
  *  The most generic routine to which you specify the position with angles,
  *  scales, etc.
  */
-static void _pivot_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
-				      fixed x, fixed y, fixed cx, fixed cy,
-				      fixed angle, fixed scale, int v_flip)
+void _pivot_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
+			       fixed x, fixed y, fixed cx, fixed cy,
+			       fixed angle, fixed scale, int v_flip)
 {
    fixed xs[4], ys[4];
 
    _rotate_scale_flip_coordinates(sprite->w << 16, sprite->h << 16,
 				  x, y, cx, cy, angle, scale, scale,
 				  FALSE, v_flip, xs, ys);
+
    _parallelogram_map_standard(bmp, sprite, xs, ys);
-}
-
-
-
-/* pivot_scaled_sprite:
- *  Rotates and scales a sprite around the specified pivot centre point.
- */
-void pivot_scaled_sprite(BITMAP *bmp, BITMAP *sprite,
-			 int x, int y, int cx, int cy,
-			 fixed angle, fixed scale)
-{
-   _pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16,
-			     angle, scale, FALSE);
-}
-
-
-
-/* pivot_sprite:
- *  Rotates a sprite around the specified pivot centre point.
- */
-void pivot_sprite(BITMAP *bmp, BITMAP *sprite,
-		  int x, int y, int cx, int cy,
-		  fixed angle)
-{
-   _pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16,
-			     angle, 0x10000, FALSE);
-}
-
-
-
-/* pivot_scaled_sprite_v_flip:
- *  Similar to pivot_scaled_sprite(), except flips the sprite vertically
- *  first.
- */
-void pivot_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite,
-				int x, int y, int cx, int cy,
-				fixed angle, fixed scale)
-{
-   _pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16,
-			     angle, scale, TRUE);
-}
-
-
-
-/* pivot_sprite_v_flip:
- *  Similar to pivot_sprite(), except flips the sprite vertically first.
- */
-void pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite,
-			 int x, int y, int cx, int cy,
-			 fixed angle)
-{
-   _pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16,
-			     angle, 0x10000, TRUE);
 }
 
 
@@ -862,75 +804,79 @@ void pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite,
 
 
 
-/* _rotate_scaled_sprite_flip:
+/* _rotate_scaled_sprite_flip: (template)
  *  Rotates and scales a sprite, optionally flipping it about either axis.
  *  Coordinates are given in fixed point format.
  */
-static void _rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
-				       fixed x, fixed y,
-				       fixed angle, fixed scale, int v_flip)
+/* static void _rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite,
+				          fixed x, fixed y,
+				          fixed angle, fixed scale, int v_flip)
 {
    _pivot_scaled_sprite_flip(bmp, sprite,
 			     x + (sprite->w * scale) / 2,
 			     y + (sprite->h * scale) / 2,
 			     sprite->w << 15, sprite->h << 15,
 			     angle, scale, v_flip);
-}
+} */
 
 
 
-/* rotate_scaled_sprite:
+/* rotate_sprite: (inlined)
  *  Draws a sprite image onto a bitmap at the specified position, rotating
  *  it by the specified angle. The angle is a fixed point 16.16 number in
  *  the same format used by the fixed point trig routines, with 256 equal
  *  to a full circle, 64 a right angle, etc. This function can draw between
  *  any two bitmaps.
  */
-void rotate_scaled_sprite(BITMAP *bmp, BITMAP *sprite,
-			  int x, int y, fixed angle, fixed scale)
-{
-   _rotate_scaled_sprite_flip(bmp, sprite, x<<16, y<<16,
-			      angle, scale, FALSE);
-}
 
 
 
-/* rotate_sprite:
- *  Draws a sprite image onto a bitmap at the specified position, rotating
- *  it by the specified angle. The angle is a fixed point 16.16 number in
- *  the same format used by the fixed point trig routines, with 256 equal
- *  to a full circle, 64 a right angle, etc. This function can draw between
- *  any two bitmaps.
- */
-void rotate_sprite(BITMAP *bmp, BITMAP *sprite,
-		   int x, int y, fixed angle)
-{
-   _rotate_scaled_sprite_flip(bmp, sprite, x<<16, y<<16,
-			      angle, 0x10000, FALSE);
-}
-
-
-
-/* rotate_scaled_sprite_v_flip:
- *  Similar to rotate_scaled_sprite(), except flips the sprite vertically
- *  first.
- */
-void rotate_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite,
-				 int x, int y, fixed angle, fixed scale)
-{
-   _rotate_scaled_sprite_flip(bmp, sprite, x<<16, y<<16,
-			      angle, scale, TRUE);
-}
-
-
-
-/* rotate_sprite_v_flip:
+/* rotate_sprite_v_flip: (inlined)
  *  Similar to rotate_sprite(), except flips the sprite vertically first.
  */
-void rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite,
-			  int x, int y, fixed angle)
-{
-   _rotate_scaled_sprite_flip(bmp, sprite, x<<16, y<<16,
-			      angle, 0x10000, TRUE);
-}
 
+
+
+/* rotate_scaled_sprite: (inlined)
+ *  Draws a sprite image onto a bitmap at the specified position, rotating
+ *  it by the specified angle. The angle is a fixed point 16.16 number in
+ *  the same format used by the fixed point trig routines, with 256 equal
+ *  to a full circle, 64 a right angle, etc. This function can draw between
+ *  any two bitmaps.
+ */
+
+
+
+/* rotate_scaled_sprite_v_flip: (inlined)
+ *  Similar to rotate_scaled_sprite(), except flips the sprite vertically first.
+ */
+
+
+
+/*
+ * pivot_*()
+ */
+
+
+
+/* pivot_sprite: (inlined)
+ *  Rotates a sprite around the specified pivot centre point.
+ */
+
+
+
+/* pivot_sprite_v_flip: (inlined)
+ *  Similar to pivot_sprite(), except flips the sprite vertically first.
+ */
+
+
+
+/* pivot_scaled_sprite: (inlined)
+ *  Rotates and scales a sprite around the specified pivot centre point.
+ */
+
+
+
+/* pivot_scaled_sprite_v_flip: (inlined)
+ *  Similar to pivot_scaled_sprite(), except flips the sprite vertically first.
+ */

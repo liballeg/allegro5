@@ -146,6 +146,100 @@ AL_INLINE(void, draw_lit_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int
 })
 
 
+AL_INLINE(void, draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int color),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+   ASSERT(sprite->vtable->color_depth == 8);
+
+   bmp->vtable->draw_character(bmp, sprite, x, y, color);
+})
+
+
+AL_INLINE(void, rotate_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, (x<<16) + (sprite->w * 0x10000) / 2,
+			     			      (y<<16) + (sprite->h * 0x10000) / 2,
+			     			      sprite->w << 15, sprite->h << 15,
+			     			      angle, 0x10000, FALSE);
+})
+
+
+AL_INLINE(void, rotate_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, (x<<16) + (sprite->w * 0x10000) / 2,
+			     			      (y<<16) + (sprite->h * 0x10000) / 2,
+			     			      sprite->w << 15, sprite->h << 15,
+			     			      angle, 0x10000, TRUE);
+})
+
+
+AL_INLINE(void, rotate_scaled_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, (x<<16) + (sprite->w * scale) / 2,
+			     			      (y<<16) + (sprite->h * scale) / 2,
+			     			      sprite->w << 15, sprite->h << 15,
+			     			      angle, scale, FALSE);
+})
+
+
+AL_INLINE(void, rotate_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, (x<<16) + (sprite->w * scale) / 2,
+			     			      (y<<16) + (sprite->h * scale) / 2,
+			     			      sprite->w << 15, sprite->h << 15,
+			     			      angle, scale, TRUE);
+})
+
+
+AL_INLINE(void, pivot_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16, angle, 0x10000, FALSE);
+})
+
+
+AL_INLINE(void, pivot_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16, angle, 0x10000, TRUE);
+})
+
+
+AL_INLINE(void, pivot_scaled_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16, angle, scale, FALSE);
+})
+
+
+AL_INLINE(void, pivot_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale),
+{
+   ASSERT(bmp);
+   ASSERT(sprite);
+
+   bmp->vtable->pivot_scaled_sprite_flip(bmp, sprite, x<<16, y<<16, cx<<16, cy<<16, angle, scale, TRUE);
+})
+
+
 AL_INLINE(void, _putpixel, (BITMAP *bmp, int x, int y, int color),
 {
    unsigned long addr;

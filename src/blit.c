@@ -644,7 +644,7 @@ static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, i
  *  Blits an (already clipped) region between two bitmaps of different
  *  color depths, doing the appopriate format conversions.
  */
-static void blit_between_formats(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void _blit_between_formats(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
    if ((is_planar_bitmap(src)) || (is_planar_bitmap(dest))) {
       blit_to_or_from_modex(src, dest, s_x, s_y, d_x, d_y, w, h);
@@ -785,10 +785,9 @@ void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, 
 {
    BLIT_CLIP();
 
-   if (!(is_video_bitmap(dest) && is_video_bitmap(src)) && 
-       (src->vtable->color_depth != dest->vtable->color_depth)) {
+   if (src->vtable->color_depth != dest->vtable->color_depth) {
       /* need to do a color conversion */
-      blit_between_formats(src, dest, s_x, s_y, d_x, d_y, w, h);
+      dest->vtable->blit_between_formats(src, dest, s_x, s_y, d_x, d_y, w, h);
    }
    else if (is_same_bitmap(src, dest)) {
       /* special handling for overlapping regions */

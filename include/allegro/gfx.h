@@ -24,6 +24,7 @@
 #endif
 
 #include "base.h"
+#include "fixed.h"
 
 struct RLE_SPRITE;
 struct FONT_GLYPH;
@@ -169,8 +170,10 @@ int source_x, int source_y, int dest_x, int dest_y, int width, int height));
    AL_METHOD(void, blit_to_self_forward, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
    AL_METHOD(void, blit_to_self_backward, (struct BITMAP *source, struct BITMAP
 *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
+   AL_METHOD(void, blit_between_formats, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
    AL_METHOD(void, masked_blit, (struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height));
    AL_METHOD(void, clear_to_color, (struct BITMAP *bitmap, int color));
+   AL_METHOD(void, pivot_scaled_sprite_flip, (struct BITMAP *bmp, struct BITMAP *sprite, fixed x, fixed y, fixed cx, fixed cy, fixed angle, fixed scale, int v_flip));
    AL_METHOD(void, draw_sprite_end, (void));
    AL_METHOD(void, blit_end, (void));
 } GFX_VTABLE;

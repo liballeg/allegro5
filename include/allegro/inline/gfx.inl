@@ -68,17 +68,6 @@ AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 #endif      /* C vs. inline asm */
 
 
-AL_INLINE(void, draw_character, (BITMAP *bmp, BITMAP *sprite, int x, int y, int
-color),
-{
-   ASSERT(bmp);
-   ASSERT(sprite);
-   ASSERT(sprite->vtable->color_depth == 8);
-
-   bmp->vtable->draw_character(bmp, sprite, x, y, color);
-})
-
-
 AL_INLINE(void, clear_to_color, (BITMAP *bitmap, int color),
 {
    ASSERT(bitmap);

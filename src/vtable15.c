@@ -67,8 +67,10 @@ GFX_VTABLE __linear_vtable15 =
    _linear_blit16,
    _linear_blit16,
    _linear_blit_backward16,
+   _blit_between_formats,
    _linear_masked_blit16,
    _linear_clear_to_color16,
+   _pivot_scaled_sprite_flip,
    _linear_draw_sprite16_end,
    _linear_blit16_end
 };

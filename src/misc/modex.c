@@ -83,8 +83,10 @@ GFX_VTABLE __modex_vtable =
    _x_blit,
    _x_blit_forward,
    _x_blit_backward,
+   _blit_between_formats,
    _x_masked_blit,
    _x_clear_to_color,
+   _pivot_scaled_sprite_flip,
    _x_draw_sprite_end,
    _x_blit_from_memory_end
 };
