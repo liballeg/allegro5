@@ -8628,6 +8628,7 @@ makefiles also provide some special pseudo-targets:
 @htmlindex Thanks
 @htmlindex FAQ
 @htmlindex Help
+@htmlindex abi
 @htmlindex aHack
 @htmlindex const
 @headingnocontent
