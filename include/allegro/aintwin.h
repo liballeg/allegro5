@@ -34,16 +34,19 @@
 
 #include "winalleg.h"
 
-/* workaround for buggy MinGW32 headers */
-#ifdef ALLEGRO_MINGW32
-   #ifndef HMONITOR_DECLARED
-      #define HMONITOR_DECLARED
+#ifndef SCAN_DEPEND
+   /* workaround for buggy MinGW32 headers */
+   #ifdef ALLEGRO_MINGW32
+      #ifndef HMONITOR_DECLARED
+         #define HMONITOR_DECLARED
+      #endif
+      #if (defined _HRESULT_DEFINED) && (defined WINNT)
+         #undef WINNT
+      #endif
    #endif
-   #if (defined _HRESULT_DEFINED) && (defined WINNT)
-      #undef WINNT
-   #endif
-#endif
 
+   #include <objbase.h>  /* for LPGUID */
+#endif
 
 
 /*******************************************/
