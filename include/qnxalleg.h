@@ -23,8 +23,8 @@ extern "C" {
 #endif
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintqnx.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintqnx.h"
 
 #include <pthread.h>
 #include <Ph.h>

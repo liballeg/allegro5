@@ -64,7 +64,7 @@
 #include <DrawSprocket.h>
 #include <Sound.h>
 
-#include "allegro/macdef.h"
+#include "allegro/internal/platform/macdef.h"
 
 
 typedef BITMAP BITMAP;

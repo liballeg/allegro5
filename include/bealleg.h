@@ -31,7 +31,7 @@
 #endif
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 #ifdef __cplusplus
 # undef color_map
