@@ -115,7 +115,6 @@ Wishlist: (definitely post 4.0)
 - hook function to handle window resizing
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()
-- rewrite set_gfx_mode
 - more modularity under Linux
 - XVideo driver under XFree86
 - simplify linux input subsystem (it's much more complicated than necessary)

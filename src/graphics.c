@@ -429,16 +429,68 @@ static void shutdown_gfx(void)
 }
 
 
+#define GFX_DRIVER_FULLSCREEN_FLAG    0x01
+#define GFX_DRIVER_WINDOWED_FLAG      0x02
+
+
+/* gfx_driver_is_valid:
+ *  Checks that the graphics driver 'drv' fulfills the condition
+ *  expressed by the bitmask 'flags'.
+ */
+static int gfx_driver_is_valid(GFX_DRIVER *drv, int flags)
+{
+   if ((flags & GFX_DRIVER_FULLSCREEN_FLAG) && drv->windowed)
+      return FALSE;
+
+   if ((flags & GFX_DRIVER_WINDOWED_FLAG) && !drv->windowed)
+      return FALSE;
+
+   return TRUE;
+}
+
+
+
+/* get_gfx_driver_from_id:
+ *  Retrieves a pointer to the graphics driver identified by 'card' from
+ *  the list 'driver_list' or NULL if it doesn't exist.
+ */
+static GFX_DRIVER *get_gfx_driver_from_id(int card, _DRIVER_INFO *driver_list)
+{
+   int c;
+
+   for (c=0; driver_list[c].driver; c++) {
+      if (driver_list[c].id == card)
+	 return driver_list[c].driver;
+   }
+
+   return NULL;
+}
+
+
+
+/* init_gfx_driver:
+ *  Helper function for initializing a graphics driver.
+ */
+static BITMAP *init_gfx_driver(GFX_DRIVER *drv, int w, int h, int v_w, int v_h)
+{
+   drv->name = drv->desc = get_config_text(drv->ascii_name);
+
+   return drv->init(w, h, v_w, v_h, _color_depth);
+}
+
+
 
 /* get_config_gfx_driver:
- *  Helper function for set_gfx_mode: it reads the gfx_card* config variables
- *  and sets the gfx_driver variable if the config variable was found
+ *  Helper function for set_gfx_mode: it reads the gfx_card* config variables and
+ *  tries to set the graphics mode if a matching driver is found. Returns TRUE if
+ *  at least one matching driver was found, FALSE otherwise.
  */
-static int get_config_gfx_driver(char *gfx_card, int check_mode, int require_window, _DRIVER_INFO *driver_list, int card, int w, int h, int v_w, int v_h)
+static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h, int flags, _DRIVER_INFO *driver_list)
 {
-   int tried = FALSE;
    char buf[512], tmp[64];
-   int c, n;
+   GFX_DRIVER *drv;
+   int found = FALSE;
+   int card, n;
 
    /* try the drivers that are listed in the config file */
    for (n=-2; n<255; n++) {
@@ -464,39 +516,32 @@ static int get_config_gfx_driver(char *gfx_card, int check_mode, int require_win
 	    uszprintf(buf, sizeof(buf), uconvert_ascii("%s%d", tmp), gfx_card, n);
 	    break;
       }
-      card = get_config_id(uconvert_ascii("graphics", tmp), buf, GFX_AUTODETECT);
 
-      if (card != GFX_AUTODETECT) {
-	 for (c=0; driver_list[c].driver; c++) {
-	    if (driver_list[c].id == card) {
-	       gfx_driver = driver_list[c].driver;
-	       if (check_mode) {
-		  if (((require_window) && (!gfx_driver->windowed)) ||
-		      ((!require_window) && (gfx_driver->windowed))) {
-		     gfx_driver = NULL;
-		     continue;
-		  }
-	       }
+      card = get_config_id(uconvert_ascii("graphics", tmp), buf, 0);
+
+      if (card) {
+	 drv = get_gfx_driver_from_id(card, driver_list);
+
+	 if (drv && gfx_driver_is_valid(drv, flags)) {
+	    found = TRUE;
+	    screen = init_gfx_driver(drv, w, h, v_w, v_h);
+
+	    if (screen) {
+	       gfx_driver = drv;
 	       break;
 	    }
 	 }
-	 if (gfx_driver) {
-	    tried = TRUE;
-	    gfx_driver->name = gfx_driver->desc = get_config_text(gfx_driver->ascii_name);
-	    screen = gfx_driver->init(w, h, v_w, v_h, _color_depth);
-	    if (screen)
-	       break;
-	    else
-	       gfx_driver = NULL;
-	 }
       }
       else {
+	 /* Stop searching the gfx_card#n (n>0) family at the first missing member,
+	  * except gfx_card1 which could have been identified with gfx_card.
+	  */
 	 if (n > 1)
 	    break;
       }
    }
 
-   return tried;
+   return found;
 }
 
 
@@ -517,21 +562,12 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    static int allow_config = TRUE;
    extern void blit_end();
    _DRIVER_INFO *driver_list;
-   int tried = FALSE;
+   GFX_DRIVER *drv;
    char buf[ALLEGRO_ERROR_SIZE], tmp[64];
+   int flags = 0;
    int c;
-   int check_mode = FALSE, require_window = FALSE;
-
 
    _gfx_mode_set_count++;
-
-   /* check specific fullscreen/windowed mode detection */
-   if ((card == GFX_AUTODETECT_FULLSCREEN) ||
-       (card == GFX_AUTODETECT_WINDOWED)) {
-      check_mode = TRUE;
-      require_window = (card == GFX_AUTODETECT_WINDOWED ? TRUE : FALSE);
-      card = GFX_AUTODETECT;
-   }
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
@@ -571,6 +607,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       gfx_virgin = FALSE;
    }
 
+   /* lock the application in the foreground */
    if (system_driver->display_switch_lock)
       system_driver->display_switch_lock(TRUE, TRUE);
 
@@ -637,58 +674,72 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       return 0;
    }
 
+   /* now to the interesting part: let's try to find a graphics driver */
+   usetc(allegro_error, 0);
+
    /* ask the system driver for a list of graphics hardware drivers */
    if (system_driver->gfx_drivers)
       driver_list = system_driver->gfx_drivers();
    else
       driver_list = _gfx_driver_list;
 
-   usetc(allegro_error, 0);
+   /* filter specific fullscreen/windowed driver requests */
+   if (card == GFX_AUTODETECT_FULLSCREEN) {
+      flags |= GFX_DRIVER_FULLSCREEN_FLAG;
+      card = GFX_AUTODETECT;
+   }
+   else if (card == GFX_AUTODETECT_WINDOWED) {
+      flags |= GFX_DRIVER_WINDOWED_FLAG;
+      card = GFX_AUTODETECT;
+   }
 
-   /* try windowed mode drivers first if GFX_AUTODETECT_WINDOWED was selected */
-   if ((card == GFX_AUTODETECT) && (allow_config) && (require_window))
-      tried = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp), check_mode, require_window, driver_list, card, w, h, v_w, v_h);
+   if (card == GFX_AUTODETECT) {
+      /* autodetect the driver */
+      int found = FALSE;
 
-   /* check the gfx_card config variable if gfx_cardw wasn't used */
-   if ((card == GFX_AUTODETECT) && (allow_config) && (!gfx_driver))
-      tried = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp), check_mode, require_window, driver_list, card, w, h, v_w, v_h);
+      /* first try the config variables */
+      if (allow_config) {
+	 /* try the gfx_cardw variable if GFX_AUTODETECT_WINDOWED was selected */
+	 if (flags & GFX_DRIVER_WINDOWED_FLAG)
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp), w, h, v_w, v_h, flags, driver_list);
 
-   if (!tried) {
-      /* search table for the requested driver */
-      for (c=0; driver_list[c].driver; c++) {
-	 if (driver_list[c].id == card) {
-	    gfx_driver = driver_list[c].driver;
-	    break;
-	 }
+	 /* try the gfx_card variable if gfx_cardw wasn't used */
+	 if (!found)
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp), w, h, v_w, v_h, flags, driver_list);
       }
 
-      if (gfx_driver) {                            /* specific driver? */
-	 gfx_driver->name = gfx_driver->desc = get_config_text(gfx_driver->ascii_name);
-	 screen = gfx_driver->init(w, h, v_w, v_h, _color_depth);
-      }
-      else {                                      /* otherwise autodetect */
+      /* go through the list of autodetected drivers if none was previously found */
+      if (!found) {
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
-	       gfx_driver = driver_list[c].driver;
-	       if (check_mode) {
-		  if (((require_window) && (!gfx_driver->windowed)) ||
-		      ((!require_window) && (gfx_driver->windowed)))
-		  continue;
+	       drv = driver_list[c].driver;
+
+	       if (gfx_driver_is_valid(drv, flags)) {
+		  screen = init_gfx_driver(drv, w, h, v_w, v_h);
+
+		  if (screen) {
+		     gfx_driver = drv;
+		     break;
+		  }
 	       }
-	       gfx_driver->name = gfx_driver->desc = get_config_text(gfx_driver->ascii_name);
-	       screen = gfx_driver->init(w, h, v_w, v_h, _color_depth);
-	       if (screen)
-		  break;
 	    }
 	 }
       }
    }
+   else {
+      /* search the list for the requested driver */
+      drv = get_gfx_driver_from_id(card, driver_list);
 
+      if (drv) {
+	 screen = init_gfx_driver(drv, w, h, v_w, v_h);
 
-   if (!screen) {
-      gfx_driver = NULL;
-      screen = NULL;
+	 if (screen)
+	    gfx_driver = drv;
+      }
+   }
 
+   /* gracefully handle failure */
+   if (!gfx_driver) {
       if (!ugetc(allegro_error))
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to find a suitable graphics driver"));
 
@@ -698,6 +749,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       return -1;
    }
 
+   /* set the basic capabilities of the driver */
    if ((VIRTUAL_W > SCREEN_W) || (VIRTUAL_H > SCREEN_H)) {
       if (gfx_driver->scroll)
 	 gfx_capabilities |= GFX_CAN_SCROLL;
@@ -706,6 +758,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 gfx_capabilities |= GFX_CAN_TRIPLE_BUFFER;
    }
 
+   /* set up the default colors */
    for (c=0; c<256; c++)
       _palette_color8[c] = c;
 
