@@ -184,6 +184,9 @@ ifneq ($(wildcard $(DJDIR)/bin/cp.exe),)
    HAVE_CP = 1
 endif
 
+$(MSVCDIR_U)/lib:
+	md $(MSVCDIR_D)\lib
+
 ifndef STATICLINK
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
@@ -201,6 +204,9 @@ ifdef HAVE_CP
 else
 	copy lib\msvc\$(IMPLIB_BASENAME) $(MSVCDIR_D)\lib
 endif
+
+$(MSVCDIR_U)/include:
+	md $(MSVCDIR_D)\include
 
 $(MSVCDIR_U)/include/allegro.h: include/allegro.h
 ifdef HAVE_CP
