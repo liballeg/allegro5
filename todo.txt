@@ -110,7 +110,6 @@ Wishlist
 - Play with switch_in/out X events, just for the sake of it :-)
 - OSS MIDI pitch bend.
 - hook function to handle window resizing
-- usnprintf() and uvsnprintf() functions
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()

@@ -16,7 +16,9 @@
  *
  *      ustrrchr() and usprintf() improvements by Sven Sandberg.
  *
- *      Peter Cech added some non-ASCII characters to uissspace(). 
+ *      Peter Cech added some non-ASCII characters to uissspace().
+ *
+ *      usnprintf() and uvsnprintf() added by Eric Botcazou.
  *
  *      See readme.txt for copyright information.
  */
@@ -2172,6 +2174,11 @@ AL_CONST char *ustrerror(int err)
 
 
 
+/*******************************************************************/
+/***             Unicode-aware sprintf() functions               ***/
+/*******************************************************************/
+
+
 /* information about the current format conversion mode */
 typedef struct SPRINT_INFO
 {
@@ -2195,6 +2202,16 @@ typedef struct SPRINT_INFO
 
 
 
+/* decoded string argument type */
+typedef struct STRING_ARG
+{
+   char *data;
+   int size;
+   struct STRING_ARG *next;
+} STRING_ARG;
+
+
+
 /* va_int:
  *  Helper for reading an integer from the varargs list.
  */
@@ -2203,7 +2220,7 @@ typedef struct SPRINT_INFO
    #define va_int(args, flags)               \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, signed int)      \
+	 va_arg(args, signed int)            \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_LONG) ?   \
 	 va_arg(args, signed LONGLONG)       \
@@ -2219,7 +2236,7 @@ typedef struct SPRINT_INFO
    #define va_int(args, flags)               \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, signed int)      \
+	 va_arg(args, signed int)            \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_INT) ?    \
 	 va_arg(args, signed long int)       \
@@ -2239,7 +2256,7 @@ typedef struct SPRINT_INFO
    #define va_uint(args, flags)              \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, unsigned int)    \
+	 va_arg(args, unsigned int)          \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_LONG) ?   \
 	 va_arg(args, unsigned LONGLONG)     \
@@ -2255,7 +2272,7 @@ typedef struct SPRINT_INFO
    #define va_uint(args, flags)              \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, unsigned int)    \
+	 va_arg(args, unsigned int)          \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_INT) ?    \
 	 va_arg(args, unsigned long int)     \
@@ -2267,13 +2284,34 @@ typedef struct SPRINT_INFO
 
 
 
+/* sprint_char:
+ *  Helper for formatting (!) a character.
+ */
+static int sprint_char(STRING_ARG *string_arg, SPRINT_INFO *info, long val)
+{
+   int pos = 0;
+
+   /* 1 character max for... a character */
+   string_arg->data = malloc((MAX(1, info->field_width) * uwidth_max(U_CURRENT)
+                                                   + ucwidth(0)) * sizeof(char));
+
+   pos += usetc(string_arg->data, val);
+
+   string_arg->size = pos;
+   usetc(string_arg->data+pos, 0);
+
+   return 1;
+}
+
+
+
 /* sprint_i:
  *  Worker function for formatting integers.
  */
-static int sprint_i(char **buf, unsigned long val, int precision)
+static int sprint_i(STRING_ARG *string_arg, unsigned long val, int precision)
 {
-   char tmp[16];
-   int i = 0;
+   char tmp[24];  /* for 64-bit integers */
+   int i = 0, pos = string_arg->size;
    int len;
 
    do {
@@ -2282,10 +2320,13 @@ static int sprint_i(char **buf, unsigned long val, int precision)
    } while (val);
 
    for (len=i; len<precision; len++)
-      *buf += usetc(*buf, '0');
+      pos += usetc(string_arg->data+pos, '0');
 
    while (i > 0)
-      *buf += usetc(*buf, tmp[--i] + '0');
+      pos += usetc(string_arg->data+pos, tmp[--i] + '0');
+
+   string_arg->size = pos;
+   usetc(string_arg->data+pos, 0);
 
    return len;
 }
@@ -2295,16 +2336,16 @@ static int sprint_i(char **buf, unsigned long val, int precision)
 /* sprint_plus_sign:
  *  Helper to add a plus sign or space in front of a number.
  */
-static void sprint_plus_sign(char **buf, SPRINT_INFO *info, int *len)
-{
-   if (info->flags & SPRINT_FLAG_FORCE_PLUS_SIGN) {
-      *buf += usetc(*buf, '+');
-      (*len)++;
-   }
-   else if (info->flags & SPRINT_FLAG_FORCE_SPACE) {
-      *buf += usetc(*buf, ' ');
-      (*len)++;
-   }
+#define sprint_plus_sign(len)                              \
+{                                                          \
+   if (info->flags & SPRINT_FLAG_FORCE_PLUS_SIGN) {        \
+      pos += usetc(string_arg->data+pos, '+');             \
+      len++;                                               \
+   }                                                       \
+   else if (info->flags & SPRINT_FLAG_FORCE_SPACE) {       \
+      pos += usetc(string_arg->data+pos, ' ');             \
+      len++;                                               \
+   }                                                       \
 }
 
 
@@ -2312,21 +2353,27 @@ static void sprint_plus_sign(char **buf, SPRINT_INFO *info, int *len)
 /* sprint_int:
  *  Helper for formatting a signed integer.
  */
-static int sprint_int(char **buf, SPRINT_INFO *info, long val)
+static int sprint_int(STRING_ARG *string_arg, SPRINT_INFO *info, long val)
 {
-   int len = 0;
+   int pos = 0, len = 0;
+
+   /* 24 characters max for a 64-bit integer */
+   string_arg->data = malloc((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+                                                    + ucwidth(0)) * sizeof(char));
 
    if (val < 0) {
       val = -val;
-      *buf += usetc(*buf, '-');
+      pos += usetc(string_arg->data+pos, '-');
       len++;
    }
-   else 
-      sprint_plus_sign(buf, info, &len);
+   else
+      sprint_plus_sign(len);
 
    info->num_special = len;
 
-   return sprint_i(buf, val, info->precision) + len;
+   string_arg->size = pos;
+
+   return sprint_i(string_arg, val, info->precision) +  info->num_special;
 }
 
 
@@ -2334,11 +2381,19 @@ static int sprint_int(char **buf, SPRINT_INFO *info, long val)
 /* sprint_unsigned:
  *  Helper for formatting an unsigned integer.
  */
-static int sprint_unsigned(char **buf, SPRINT_INFO *info, unsigned long val)
+static int sprint_unsigned(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned long val)
 {
-   sprint_plus_sign(buf, info, &info->num_special);
+   int pos = 0;
 
-   return sprint_i(buf, val, info->precision) + info->num_special;
+   /* 24 characters max for a 64-bit integer */
+   string_arg->data = malloc((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+                                                    + ucwidth(0)) * sizeof(char));
+
+   sprint_plus_sign(info->num_special);
+
+   string_arg->size = pos;
+
+   return sprint_i(string_arg, val, info->precision) + info->num_special;
 }
 
 
@@ -2346,21 +2401,25 @@ static int sprint_unsigned(char **buf, SPRINT_INFO *info, unsigned long val)
 /* sprint_hex:
  *  Helper for formatting a hex integer.
  */
-static int sprint_hex(char **buf, SPRINT_INFO *info, int caps, unsigned long val)
+static int sprint_hex(STRING_ARG *string_arg, SPRINT_INFO *info, int caps, unsigned long val)
 {
    static char hex_digit_caps[] = "0123456789ABCDEF";
    static char hex_digit[] = "0123456789abcdef";
 
-   char tmp[16];
+   char tmp[24];  /* for 64-bit integers */
    char *table;
-   int i = 0;
+   int pos = 0, i = 0;
    int len;
 
-   sprint_plus_sign(buf, info, &info->num_special);
+   /* 24 characters max for a 64-bit integer */
+   string_arg->data = malloc((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+                                                    + ucwidth(0)) * sizeof(char));
+
+   sprint_plus_sign(info->num_special);
 
    if (info->flags & SPRINT_FLAG_ALTERNATE_CONVERSION) {
-      *buf += usetc(*buf, '0');
-      *buf += usetc(*buf, 'x');
+      pos += usetc(string_arg->data+pos, '0');
+      pos += usetc(string_arg->data+pos, 'x');
       info->num_special += 2;
    }
 
@@ -2370,7 +2429,7 @@ static int sprint_hex(char **buf, SPRINT_INFO *info, int caps, unsigned long val
    } while (val);
 
    for (len=i; len<info->precision; len++)
-      *buf += usetc(*buf, '0');
+      pos += usetc(string_arg->data+pos, '0');
 
    if (caps)
       table = hex_digit_caps;
@@ -2378,7 +2437,10 @@ static int sprint_hex(char **buf, SPRINT_INFO *info, int caps, unsigned long val
       table = hex_digit;
 
    while (i > 0)
-      *buf += usetc(*buf, table[(int)tmp[--i]]);
+      pos += usetc(string_arg->data+pos, table[(int)tmp[--i]]);
+
+   string_arg->size = pos;
+   usetc(string_arg->data+pos, 0);
 
    return len + info->num_special;
 }
@@ -2388,16 +2450,20 @@ static int sprint_hex(char **buf, SPRINT_INFO *info, int caps, unsigned long val
 /* sprint_octal:
  *  Helper for formatting an octal integer.
  */
-static int sprint_octal(char **buf, SPRINT_INFO *info, unsigned long val)
+static int sprint_octal(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned long val)
 {
-   char tmp[16];
-   int i = 0;
+   char tmp[24];  /* for 64-bit integers */
+   int pos = 0, i = 0;
    int len;
 
-   sprint_plus_sign(buf, info, &info->num_special);
+   /* 24 characters max for a 64-bit integer */
+   string_arg->data = malloc((MAX(24, info->field_width) * uwidth_max(U_CURRENT)
+                                                    + ucwidth(0)) * sizeof(char));
+
+   sprint_plus_sign(info->num_special);
 
    if (info->flags & SPRINT_FLAG_ALTERNATE_CONVERSION) {
-      *buf += usetc(*buf, '0');
+      pos += usetc(string_arg->data+pos, '0');
       info->num_special++;
    }
 
@@ -2407,10 +2473,13 @@ static int sprint_octal(char **buf, SPRINT_INFO *info, unsigned long val)
    } while (val);
 
    for (len=i; len<info->precision; len++)
-      *buf += usetc(*buf, '0');
+      pos += usetc(string_arg->data+pos, '0');
 
    while (i > 0)
-      *buf += usetc(*buf, tmp[--i] + '0');
+      pos += usetc(string_arg->data+pos, tmp[--i] + '0');
+
+   string_arg->size = pos;
+   usetc(string_arg->data+pos, 0);
 
    return len + info->num_special;
 }
@@ -2420,10 +2489,10 @@ static int sprint_octal(char **buf, SPRINT_INFO *info, unsigned long val)
 /* sprint_float:
  *  Helper for formatting a float (piggyback on the libc implementation).
  */
-static int sprint_float(char **buf, SPRINT_INFO *info, double val, int conversion)
+static int sprint_float(STRING_ARG *string_arg, SPRINT_INFO *info, double val, int conversion)
 {
    char format[256], tmp[256];
-   int len = 0;
+   int len = 0, size;
 
    format[len++] = '%';
 
@@ -2452,12 +2521,15 @@ static int sprint_float(char **buf, SPRINT_INFO *info, double val, int conversio
    format[len] = 0;
 
    len = sprintf(tmp, format, val);
+   size = len * uwidth_max(U_CURRENT) + ucwidth(0);
 
-   do_uconvert(tmp, U_ASCII, *buf, U_CURRENT, -1);
+   string_arg->data = malloc(size * sizeof(char));
 
-   *buf += ustrsize(*buf);
+   do_uconvert(tmp, U_ASCII, string_arg->data, U_CURRENT, size);
 
    info->field_width = 0;
+
+   string_arg->size = ustrsize(string_arg->data);
 
    return len;
 }
@@ -2467,51 +2539,53 @@ static int sprint_float(char **buf, SPRINT_INFO *info, double val, int conversio
 /* sprint_string:
  *  Helper for formatting a string.
  */
-static int sprint_string(char **buf, SPRINT_INFO *info, AL_CONST char *s)
+static int sprint_string(STRING_ARG *string_arg, SPRINT_INFO *info, AL_CONST char *s)
 {
-   int len = 0;
+   int pos = 0, len = 0;
    int c;
+
+   string_arg->data = malloc((MAX(ustrlen(s), info->field_width) * uwidth_max(U_CURRENT)
+                                                            + ucwidth(0)) * sizeof(char));
 
    while ((c = ugetxc(&s)) != 0) {
       if ((info->precision >= 0) && (len >= info->precision))
 	 break;
 
-      *buf += usetc(*buf, c);
+      pos += usetc(string_arg->data+pos, c);
       len++;
    }
+
+   string_arg->size = pos;
+   usetc(string_arg->data+pos, 0);
 
    return len;
 }
 
 
 
-/* uvsprintf:
- *  Unicode-aware version of the ANSI vsprintf() function.
+/* decode_format_string:
+ *  Worker function for decoding the format string (with those pretty '%' characters)
  */
-int uvsprintf(char *buf, AL_CONST char *format, va_list args)
+static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char *format, va_list args)
 {
    SPRINT_INFO info;
-   char *orig;
    int *pstr_pos;
-   int done, slen, c, i;
+   int done, slen, c, i, pos;
    int shift, shiftbytes, shiftfiller;
    int len = 0;
 
    while ((c = ugetxc(&format)) != 0) {
 
       if (c == '%') {
-	 if (ugetc(format) == '%') {
+	 if ((c = ugetc(format)) == '%') {
 	    /* percent sign escape */
 	    format += uwidth(format);
-	    buf += usetc(buf, '%');
-	    len++;
+            buf += usetc(buf, '%');
+            buf += usetc(buf, '%');
+            len++;
 	 }
 	 else {
 	    /* format specifier */
-	    orig = buf;
-
-	    c = ugetc(format);
-
 	    #define NEXT_C()                 \
 	    {                                \
 	       format += uwidth(format);     \
@@ -2635,21 +2709,20 @@ int uvsprintf(char *buf, AL_CONST char *format, va_list args)
 
 	       case 'c':
 		  /* character */
-		  buf += usetc(buf, va_arg(args, int));
-		  slen = 1;
+		  slen = sprint_char(string_arg, &info, va_arg(args, int));
 		  NEXT_C();
 		  break;
 
 	       case 'd':
 	       case 'i':
 		  /* signed integer */
-		  slen = sprint_int(&buf, &info, va_int(args, info.flags));
+		  slen = sprint_int(string_arg, &info, va_int(args, info.flags));
 		  NEXT_C();
 		  break;
 
 	       case 'D':
 		  /* signed long integer */
-		  slen = sprint_int(&buf, &info, va_int(args, info.flags | SPRINT_FLAG_LONG_INT));
+		  slen = sprint_int(string_arg, &info, va_int(args, info.flags | SPRINT_FLAG_LONG_INT));
 		  NEXT_C();
 		  break;
 
@@ -2660,9 +2733,9 @@ int uvsprintf(char *buf, AL_CONST char *format, va_list args)
 	       case 'G':
 		  /* double */
 		  if (info.flags & SPRINT_FLAG_LONG_DOUBLE)
-		     slen = sprint_float(&buf, &info, va_arg(args, long double), c);
+		     slen = sprint_float(string_arg, &info, va_arg(args, long double), c);
 		  else
-		     slen = sprint_float(&buf, &info, va_arg(args, double), c);
+		     slen = sprint_float(string_arg, &info, va_arg(args, double), c);
 		  NEXT_C();
 		  break;
 
@@ -2676,38 +2749,38 @@ int uvsprintf(char *buf, AL_CONST char *format, va_list args)
 
 	       case 'o':
 		  /* unsigned octal integer */
-		  slen = sprint_octal(&buf, &info, va_uint(args, info.flags));
+		  slen = sprint_octal(string_arg, &info, va_uint(args, info.flags));
 		  NEXT_C();
 		  break;
 
 	       case 'p':
 		  /* pointer */
-		  slen = sprint_hex(&buf, &info, FALSE, (unsigned long)(va_arg(args, void *)));
+		  slen = sprint_hex(string_arg, &info, FALSE, (unsigned long)(va_arg(args, void *)));
 		  NEXT_C();
 		  break;
 
 	       case 's':
 		  /* string */
-		  slen = sprint_string(&buf, &info, va_arg(args, char *));
+		  slen = sprint_string(string_arg, &info, va_arg(args, char *));
 		  NEXT_C();
 		  break;
 
 	       case 'u':
 		  /* unsigned integer */
-		  slen = sprint_unsigned(&buf, &info, va_uint(args, info.flags));
+		  slen = sprint_unsigned(string_arg, &info, va_uint(args, info.flags));
 		  NEXT_C();
 		  break;
 
 	       case 'U':
 		  /* unsigned long integer */
-		  slen = sprint_unsigned(&buf, &info, va_uint(args, info.flags | SPRINT_FLAG_LONG_INT));
+		  slen = sprint_unsigned(string_arg, &info, va_uint(args, info.flags | SPRINT_FLAG_LONG_INT));
 		  NEXT_C();
 		  break;
 
 	       case 'x':
 	       case 'X':
 		  /* unsigned hex integer */
-		  slen = sprint_hex(&buf, &info, (c == 'X'), va_uint(args, info.flags));
+		  slen = sprint_hex(string_arg, &info, (c == 'X'), va_uint(args, info.flags));
 		  NEXT_C();
 		  break;
 
@@ -2717,42 +2790,55 @@ int uvsprintf(char *buf, AL_CONST char *format, va_list args)
 		  break;
 	    }
 
-	    if (slen < info.field_width) {
-	       if (info.flags & SPRINT_FLAG_LEFT_JUSTIFY) {
-		  /* left align the result */
-		  while (slen < info.field_width) {
-		     buf += usetc(buf, ' ');
-		     slen++;
-		  }
-	       }
-	       else {
-		  /* right align the result */
-		  shift = info.field_width - slen;
+            if (slen) {
+               if (slen < info.field_width) {
+                  if (info.flags & SPRINT_FLAG_LEFT_JUSTIFY) {
+                     /* left align the result */
+                     pos = string_arg->size;
+                     while (slen < info.field_width) {
+                        pos += usetc(string_arg->data+pos, ' ');
+                        slen++;
+                     }
 
-		  if (shift > 0) {
-		     if (info.flags & SPRINT_FLAG_PAD_ZERO) {
-			shiftfiller = '0';
+                     string_arg->size = pos;
+                  }
+                  else {
+                     /* right align the result */
+                     shift = info.field_width - slen;
 
-			for (i=0; i<info.num_special; i++)
-			   orig += uwidth(orig);
-		     }
-		     else
-			shiftfiller = ' ';
+                     if (shift > 0) {
+                        pos = 0;
 
-		     shiftbytes = shift * ucwidth(shiftfiller);
+                        if (info.flags & SPRINT_FLAG_PAD_ZERO) {
+                           shiftfiller = '0';
 
-		     memmove(orig+shiftbytes, orig, buf-orig);
+                           for (i=0; i<info.num_special; i++)
+                              pos += uwidth(string_arg->data+pos);
+                        }
+                        else
+                           shiftfiller = ' ';
 
-		     for (i=0; i<shift; i++)
-			orig += usetc(orig, shiftfiller);
+                        shiftbytes = shift * ucwidth(shiftfiller);
+                        memmove(string_arg->data+pos+shiftbytes, string_arg->data+pos, string_arg->size-pos);
 
-		     buf += shiftbytes;
-		     slen += shift;
-		  }
-	       }
-	    }
+                        string_arg->size += shiftbytes;
+                        slen += shift;
 
-	    len += slen;
+                        for (i=0; i<shift; i++)
+                           pos += usetc(string_arg->data+pos, shiftfiller);
+                     }
+                  }
+               }
+
+               buf += usetc(buf, '%');
+               buf += usetc(buf, 's');
+               len += slen;
+
+               /* allocate next item */
+               string_arg->next = malloc(sizeof(STRING_ARG));
+               string_arg = string_arg->next;
+               string_arg->next = NULL;
+            }
 	 }
       }
       else {
@@ -2769,6 +2855,89 @@ int uvsprintf(char *buf, AL_CONST char *format, va_list args)
 
 
 
+/* uvsprintf:
+ *  Unicode-aware version of the ANSI vsprintf() function.
+ */
+int uvsprintf(char *buf, AL_CONST char *format, va_list args)
+{
+   return uvsnprintf(buf, INT_MAX, format, args);
+}
+
+
+
+/* uvsnprintf:
+ *  Unicode-aware version of the ANSI vsprintf() function. The size parameter
+ *  is in bytes, on the assumption that you want to use this function to
+ *  prevent overflowing a buffer size.
+ */
+int uvsnprintf(char *buf, int size, AL_CONST char *format, va_list args)
+{
+   char *decoded_format, *df;
+   STRING_ARG *string_arg, *iter_arg;
+   int c, len;
+
+   /* decoding can only lower the length of the format string */
+   df = decoded_format = malloc(ustrsizez(format) * sizeof(char));
+
+   /* allocate first item */
+   string_arg = malloc(sizeof(STRING_ARG));
+   string_arg->next = NULL;
+
+   /* 1st pass: decode */
+   len = decode_format_string(decoded_format, string_arg, format, args);
+
+   size -= ucwidth(0);
+   iter_arg = string_arg;
+
+   /* 2nd pass: concatenate */
+   while ((c = ugetx(&decoded_format)) != 0) {
+
+      if (c == '%') {
+	 if ((c = ugetx(&decoded_format)) == '%') {
+	    /* percent sign escape */
+            size -= ucwidth('%');
+            if (size<0)
+               break;
+	    buf += usetc(buf, '%');
+	 }
+	 else if (c == 's') {
+            /* string argument */
+            ustrncpy(buf, iter_arg->data, size);
+            buf += iter_arg->size;
+            size -= iter_arg->size;
+            if (size<0) {
+               buf += size;
+               break;
+            }
+            iter_arg = iter_arg->next;
+         }
+      }
+      else {
+	 /* normal character */
+         size -= ucwidth(c);
+         if (size<0)
+            break;
+	 buf += usetc(buf, c);
+      }
+   }
+
+   usetc(buf, 0);
+
+   /* free allocated resources */
+   while (string_arg->next) {
+      free(string_arg->data);
+      iter_arg = string_arg;
+      string_arg = string_arg->next;
+      free(iter_arg);
+   }
+   free(string_arg);
+   free(df);  /* alias for decoded_format */
+
+   return len;
+}
+
+
+
 /* usprintf:
  *  Unicode-aware version of the ANSI sprintf() function.
  */
@@ -2778,7 +2947,26 @@ int usprintf(char *buf, AL_CONST char *format, ...)
 
    va_list ap;
    va_start(ap, format);
-   ret = uvsprintf(buf, format, ap);
+   ret = uvsnprintf(buf, INT_MAX, format, ap);
+   va_end(ap);
+
+   return ret;
+}
+
+
+
+/* usnprintf:
+ *  Unicode-aware version of the ANSI sprintf() function. The size parameter
+ *  is in bytes, on the assumption that you want to use this function to
+ *  prevent overflowing a buffer size.
+ */
+int usnprintf(char *buf, int size, AL_CONST char *format, ...)
+{
+   int ret;
+
+   va_list ap;
+   va_start(ap, format);
+   ret = uvsnprintf(buf, size, format, ap);
    va_end(ap);
 
    return ret;

@@ -132,24 +132,6 @@ AL_INLINE(void, yield_timeslice, (void),
 
 
 /*******************************************/
-/************* Unicode routines ************/
-/*******************************************/
-
-
-AL_INLINE(char *, uconvert_ascii, (AL_CONST char *s, char *buf),
-{
-   return uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf));
-})
-
-
-AL_INLINE(char *, uconvert_toascii, (AL_CONST char *s, char *buf),
-{
-   return uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf));
-})
-
-
-
-/*******************************************/
 /************ Graphics routines ************/
 /*******************************************/
 
@@ -1195,12 +1177,6 @@ AL_INLINE(void, persp_project_f, (float x, float y, float z, float *xout, float 
    float z1 = 1.0f / z;
    *xout = ((x * z1) * _persp_xscale_f) + _persp_xoffset_f;
    *yout = ((y * z1) * _persp_yscale_f) + _persp_yoffset_f;
-})
-
-
-AL_INLINE(void, quat_interpolate, (AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT *out),
-{
-   quat_slerp((from), (to), (t), (out), QUAT_SHORT);
 })
 
 

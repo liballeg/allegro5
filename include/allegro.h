@@ -217,6 +217,9 @@ AL_FUNC(void, do_uconvert, (AL_CONST char *s, int type, char *buf, int newtype, 
 AL_FUNC(char *, uconvert, (AL_CONST char *s, int type, char *buf, int newtype, int size));
 AL_FUNC(int, uwidth_max, (int type));
 
+#define uconvert_ascii(s, buf)      uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf))
+#define uconvert_toascii(s, buf)    uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf))
+
 #define EMPTY_STRING    "\0\0\0"
 
 AL_ARRAY(char, empty_string);
@@ -258,8 +261,10 @@ AL_FUNC(double, uatof, (AL_CONST char *s));
 AL_FUNC(long, ustrtol, (AL_CONST char *s, char **endp, int base));
 AL_FUNC(double, ustrtod, (AL_CONST char *s, char **endp));
 AL_FUNC(AL_CONST char *, ustrerror, (int err));
-AL_FUNC(int, uvsprintf, (char *buf, AL_CONST char *format, va_list args));
 AL_PRINTFUNC(int, usprintf, (char *buf, AL_CONST char *format, ...), 2, 3);
+AL_PRINTFUNC(int, usnprintf, (char *buf, int size, AL_CONST char *format, ...), 3, 4);
+AL_FUNC(int, uvsprintf, (char *buf, AL_CONST char *format, va_list args));
+AL_FUNC(int, uvsnprintf, (char *buf, int size, AL_CONST char *format, va_list args));
 
 AL_FUNC(char *, _ustrdup, (AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t))));
 
@@ -2008,6 +2013,8 @@ AL_FUNC(void, quat_slerp, (AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT
 #define QUAT_CW      2
 #define QUAT_CCW     3
 #define QUAT_USER    4
+
+#define quat_interpolate(from, to, t, out)   quat_slerp((from), (to), (t), (out), QUAT_SHORT)
 
 
 
