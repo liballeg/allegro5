@@ -90,9 +90,7 @@ else
 # -------- optimised build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
-ifndef SYMBOLMODE
-LFLAGS += -s
-endif
+LFLAGS =
 
 endif
 endif
@@ -108,11 +106,11 @@ CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+STATIC_LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
 ifdef STATICLINK
 LIBRARIES = $(STATIC_LIBRARIES)
 else
-LIBRARIES = -framework Cocoa
+LIBRARIES = -lpthread -framework Cocoa
 endif
 
 PROGRAMS = fixbundle
@@ -249,7 +247,7 @@ UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a               \
 		  $(INSTALL_DIR)/bin/allegro-config
 
 uninstall:
-	-rm -fv $(UNINSTALL_FILES)
+	-rm -f $(UNINSTALL_FILES)
 	-rmdir $(INSTALL_DIR)/include/allegro/platform
 	-rmdir $(INSTALL_DIR)/include/allegro/inline
 	-rmdir $(INSTALL_DIR)/include/allegro/internal
