@@ -28,7 +28,7 @@
 AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nShow));
 
 
-#ifndef USE_CONSOLE
+#if (!defined USE_CONSOLE) && (!defined ALLEGRO_SRC)
 
    #define main _mangled_main
 
