@@ -200,6 +200,8 @@ HID_DEVICE *osx_hid_scan(int type, int *num_devices)
 	 }
          IOObjectRelease(hid_object_iterator);
       }
+      CFRelease(usage_ref);
+      CFRelease(usage_page_ref);
       mach_port_deallocate(mach_task_self(), master_port);
    }
    
