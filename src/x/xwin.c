@@ -2841,7 +2841,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       for (offset = 0, line = s_h - 1; line >= 0; offset += fb_width, line--) {
 	 if ((offset % banksize) == 0)
 	    XF86DGASetVidPage(_xwin.display, _xwin.screen, offset / banksize);
-	 memset(fb_addr, offset % banksize, s_w);
+	 memset(fb_addr + offset % banksize, 0, s_w);
       }
    }
 
