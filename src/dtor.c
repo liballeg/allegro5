@@ -8,11 +8,17 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *	Destructors (a list of objects to destroy when Allegro shuts down).
+ *	Destructors.
  *
  *	By Peter Wang.
  *
  *      See readme.txt for copyright information.
+ *
+ *
+ *      This file records a list of objects created by the user and/or
+ *      Allegro itself, that need to be destroyed when Allegro is shut down.
+ *      Strictly speaking, this list should not be necessary if the user is
+ *      careful to destroy all the objects he creates.
  */
 
 
@@ -38,6 +44,13 @@ static _AL_VECTOR dtors = _AL_VECTOR_INITIALIZER(DTOR);
 
 
 
+/* _al_init_destructors:
+ *
+ *  This is called from allegro_init() and nowhere else.  It adds an exit
+ *  function using _add_exit_func.  When that exit func is called, all the
+ *  registered destructors will be called in reverse order to the order in
+ *  which they were registered.
+ */
 void _al_init_destructors(void)
 {
    _al_mutex_init(&mutex);
@@ -47,6 +60,9 @@ void _al_init_destructors(void)
 
 
 
+/* shutdown_destructors:
+ *  The function that is called on exit by the _add_exit_func() mechanism.
+ */
 static void shutdown_destructors(void)
 {
    TRACE("shutdown_destructors called\n");
@@ -80,6 +96,11 @@ static void shutdown_destructors(void)
 
 
 
+/* _al_register_destructor: [thread-safe]
+ *
+ *  Register OBJECT to be destroyed by FUNC during allegro_exit().
+ *  This would be done in the object's constructor function.
+ */
 void _al_register_destructor(void *object, void (*func)(void*))
 {
    ASSERT(object);
@@ -87,6 +108,7 @@ void _al_register_destructor(void *object, void (*func)(void*))
 
    _al_mutex_lock(&mutex);
    {
+#ifdef DEBUGMODE
       /* make sure the object is not registered twice */
       {
          unsigned int i;
@@ -96,6 +118,9 @@ void _al_register_destructor(void *object, void (*func)(void*))
             ASSERT(dtor->object != object);
          }
       }
+#endif /* DEBUGMODE */
+
+      /* add the destructor to the list */
       {
          DTOR *new_dtor = _al_vector_alloc_back(&dtors);
          if (new_dtor) {
@@ -109,6 +134,11 @@ void _al_register_destructor(void *object, void (*func)(void*))
 
 
 
+/* _al_unregister_destructor: [thread-safe]
+ *
+ *  Unregister a previously registered object.  This must be called
+ *  in the normal object destroyer routine, e.g. al_uninstall_timer.
+ */
 void _al_unregister_destructor(void *object)
 {
    ASSERT(object);
