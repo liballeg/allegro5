@@ -1116,7 +1116,7 @@ static int import_proc(int msg, DIALOG *d, int c)
 static int delete_proc(int msg, DIALOG *d, int c)
 {
    int ret = d_button_proc(msg, d, c);
-   FONT *fnt, *prev;
+   FONT *fnt;
    int i;
 
    if (ret & D_CLOSE) {
