@@ -25,15 +25,19 @@
 #endif                
 
 
-static NoteAllocator note_allocator = NULL;
-static struct {
+typedef struct MIDI_VOICE
+{
    NoteChannel channel;
    int note;
    int bend;
    int inst;
    int vol;
    int pan;
-} voice[17];
+} MIDI_VOICE;
+
+
+static NoteAllocator note_allocator = NULL;
+static MIDI_VOICE voice[17];
 static char driver_desc[256];
 
 
@@ -115,8 +119,8 @@ static int osx_midi_init(int input, int voices)
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot open the NoteAllocator QuickTime component"));
       return -1; 
    }
+   memset(voice, 0, 17 * sizeof(MIDI_VOICE));
    for(i = 1; i <= 16; i++) {
-      voice[i].channel = NULL;
       voice[i].note = -1;
       voice[i].bend = -1;
       voice[i].inst = -1;
@@ -149,6 +153,9 @@ static int osx_midi_init(int input, int voices)
 static void osx_midi_exit(int input)
 {
    int i;
+   
+   if (input)
+      return;
    
    if (note_allocator) {
       for(i = 1; i <= 16; i++) {

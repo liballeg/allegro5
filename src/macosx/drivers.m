@@ -53,6 +53,7 @@ END_GFX_DRIVER_LIST
 
 
 BEGIN_DIGI_DRIVER_LIST
+{   DIGI_SOUND_MANAGER,       &digi_sound_manager,      TRUE  },
 END_DIGI_DRIVER_LIST
 
 
