@@ -8,15 +8,54 @@
 #include <time.h>
 
 #include "allegro.h"
+#include "example.h"
 
+
+
+/* we need to load example.dat to access the big font */
+DATAFILE *datafile;
 
 
 /* for the d_edit_proc() object */
-char the_string[32] = "Change Me!";
+#define LEN 32
+char the_string[(LEN + 1) * 6] = "Change Me!";
+
+
+/* since we change the font, we need to store a copy of the original one */
+FONT *original_font;
 
 
 /* the current time, for the clock object */
 struct tm the_time;
+
+
+
+/* A custom dialog procedure for the 'change font' button. This uses a
+ * simple form of inheritance: it calls d_button_proc() to do most of
+ * the work, so it behaves exactly like any other button, but when the
+ * button is clicked and d_button_proc() returns D_CLOSE, it intercepts
+ * the message and changes the font instead.
+ */
+int change_font_proc(int msg, DIALOG *d, int c)
+{
+   int ret;
+
+   /* call the parent object */
+   ret = d_button_proc(msg, d, c);
+
+   /* trap the close return value and change the font */
+   if (ret == D_CLOSE) {
+      if (font == original_font)
+	 font = datafile[BIG_FONT].dat;
+      else
+	 font = original_font;
+
+      return D_REDRAW; 
+   }
+
+   /* otherwise just return */
+   return ret;
+}
 
 
 
@@ -142,20 +181,22 @@ int clock_proc(int msg, DIALOG *d, int c)
 
 DIALOG the_dialog[] =
 {
-   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)                    (d2)  (dp)           (dp2) (dp3) */
-   { d_clear_proc,      0,    0,    0,    0,    255,  0,    0,    0,       0,                      0,    NULL,          NULL, NULL  },
-   { d_edit_proc,       32,   32,   256,  8,    255,  0,    0,    0,       sizeof(the_string)-1,   0,    the_string,    NULL, NULL  },
-   { d_check_proc,      32,   64,   89,   13,   255,  0,    't',  0,       0,                      0,    "&Toggle Me",  NULL, NULL  },
-   { clock_proc,        192,  64,   64,   64,   255,  0,    0,    0,       0,                      0,    NULL,          NULL, NULL  },
-   { d_button_proc,     120,  160,  81,   17,   255,  0,    0,    D_EXIT,  0,                      0,    "Exit",        NULL, NULL  },
-   { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,                      0,    NULL,          NULL, NULL  }
+   /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1) (d2)  (dp)           (dp2) (dp3) */
+   { d_clear_proc,      0,    0,    0,    0,    255,  0,    0,    0,       0,   0,    NULL,          NULL, NULL  },
+   { d_edit_proc,       12,   82,   256,  48,   255,  0,    0,    0,       LEN, 0,    the_string,    NULL, NULL  },
+   { d_check_proc,      12,   12,   161,  49,   255,  0,    't',  0,       0,   0,    "&Toggle Me",  NULL, NULL  },
+   { clock_proc,        242,  12,   64,   64,   255,  0,    0,    0,       0,   0,    NULL,          NULL, NULL  },
+   { change_font_proc,  12,   142,  141,  49,   255,  0,    'f',  D_EXIT,  0,   0, "Change &Font",   NULL, NULL  },
+   { d_button_proc,     162,  142,  141,  49,   255,  0,    0,    D_EXIT,  0,   0,    "Exit",        NULL, NULL  },
+   { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,   0,    NULL,          NULL, NULL  }
 };
 
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
    int item;
+   char buf[256];
 
    if (allegro_init() != 0)
       return 1;
@@ -178,10 +219,24 @@ int main(void)
       the_dialog[item].fg = makecol(0, 0, 0);
       the_dialog[item].bg = makecol(255, 255, 255);
    }
+   
+   /* load the datafile */
+   replace_filename(buf, argv[0], "example.dat", sizeof(buf));
+   datafile = load_datafile(buf);
+   if (!datafile) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Error loading %s!\n", buf);
+      return 1;
+   }
+
+   /* store a copy of the default font */
+   original_font = font;
 
    do_dialog(the_dialog, -1);
+   
+   unload_datafile (datafile);
 
    return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
