@@ -1,3 +1,6 @@
 allegro.def
 *.lib
 *.dll
+*.exp
+*.ilk
+*.pdb
