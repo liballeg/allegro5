@@ -256,6 +256,9 @@ AC_SUBST(ALLEGRO_LIB_TARGETS)
 
 dnl Test where is sched_yield (SunOS).
 ALLEGRO_ACTEST_SCHED_YIELD
+if test "X$allegro_cv_support_sched_yield" = "Xyes"; then
+   AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
+fi
 
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
