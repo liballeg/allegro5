@@ -226,37 +226,37 @@ INCDIR_D = $(subst /,\,$(INCDIR))
 ifdef UNIX_TOOLS
 
 $(INSTALLDIR_U)/$(LIBDIR_U):
-	mkdir $(INSTALLDIR_U)/$(LIBDIR_U)
+	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(LIBDIR_U)
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
 	cp $< $@
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform: $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
-	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
 	cp $< $@
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
 	cp $< $@
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro
 	cp $< $@
 
 $(INSTALLDIR_U)/$(INCDIR_U)/allegro: $(INSTALLDIR_U)/$(INCDIR_U)
-	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
+	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
 
 $(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h $(INSTALLDIR_U)/$(INCDIR_U)
 	cp $< $@
 
 $(INSTALLDIR_U)/$(INCDIR_U):
-	mkdir $(INSTALLDIR_U)/$(INCDIR_U)
+	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)
 
 else
 
