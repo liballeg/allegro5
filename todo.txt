@@ -86,7 +86,7 @@ QNX todos:
 ---------------------------------------------------------------------------
 
 - Video bitmaps and acceleration support in fullscreen mode
-- Improve events synchronization
+- Display switching in fullscreen mode
 - Fix the makefile
 - Update the docs
 
@@ -112,5 +112,6 @@ Wishlist
 - DirectMusic 6 MIDI driver
 - [WIN] Do not export functions and variables that are not a part of the API.
 - Add caching system to speed up filename#object and load_datafile_object()
+- Video overlay gfx driver under QNX
 
 ---------------------------------------------------------------------------

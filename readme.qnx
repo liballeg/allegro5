@@ -19,10 +19,9 @@
 ============ QNX notes ============
 ===================================
 
-   Status: it works, though these are still some synchronization problems
-   with the events handler. The ALSA digital sound driver needs some
-   investigations as it seems to have initialization problems: it sounds bad
-   for a while, and after some time it starts sounding nicely as it should.
+   Status: it works. The ALSA digital sound driver needs some investigations
+   as it seems to have initialization problems: it sounds bad for a while,
+   and after some time it starts sounding nicely as it should.
 
 
 
