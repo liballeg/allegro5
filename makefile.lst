@@ -43,6 +43,7 @@ ALLEGRO_SRC_FILES = \
 	src/quantize.c \
 	src/quat.c \
 	src/readbmp.c \
+	src/readsmp.c \
 	src/rle.c \
 	src/rotate.c \
 	src/scene3d.c \

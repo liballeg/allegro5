@@ -772,23 +772,6 @@ void lock_sample(SAMPLE *spl)
 
 
 
-/* load_sample:
- *  Loads a sample from disk.
- */
-SAMPLE *load_sample(AL_CONST char *filename)
-{
-   char tmp[32];
-
-   if (ustricmp(get_extension(filename), uconvert_ascii("wav", tmp)) == 0)
-      return load_wav(filename);
-   else if (ustricmp(get_extension(filename), uconvert_ascii("voc", tmp)) == 0)
-      return load_voc(filename);
-   else
-      return NULL;
-}
-
-
-
 /* load_voc:
  *  Reads a mono VOC format sample file, returning a SAMPLE structure, 
  *  or NULL on error.

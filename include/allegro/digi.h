@@ -201,6 +201,8 @@ AL_FUNCPTR(void, digi_recorder, (void));
 
 AL_FUNC(void, lock_sample, (struct SAMPLE *spl));
 
+AL_FUNC(void, register_sample_file_type, (AL_CONST char *ext, AL_METHOD(struct SAMPLE *, load, (AL_CONST char *filename)), AL_METHOD(int, save, (AL_CONST char *filename, struct SAMPLE *smp))));
+
 #ifdef __cplusplus
    }
 #endif
