@@ -11,6 +11,7 @@
  *      ALSA 0.9 sound driver.
  *
  *      By Thomas Fjellstrom.
+ *      Updated by Elias Pschernig.
  *
  *      See readme.txt for copyright information.
  */
@@ -52,8 +53,10 @@
 
 #define ALSA9_CHECK(a) do { \
    int err = (a); \
-   if (err<0) \
+   if (err<0) { \
       uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, "ALSA: %s : %s", #a, get_config_text(snd_strerror(err))); \
+      goto Error; \
+   } \
 } while(0)
 
 
@@ -68,17 +71,20 @@ static snd_mixer_elem_t *alsa_mixer_elem = NULL;
 static long alsa_mixer_elem_min, alsa_mixer_elem_max;
 static double alsa_mixer_allegro_ratio = 0.0;
 
-#define ALSA_DEFAULT_NUMFRAGS   16
-
+#define ALSA_DEFAULT_BUFFER_MS  100
+#define ALSA_DEFAULT_NUMFRAGS   5
 
 static snd_pcm_t *pcm_handle;
 static unsigned char *alsa_bufdata;
 static int alsa_bits, alsa_signed, alsa_rate, alsa_stereo;
 static int alsa_fragments;
+static int alsa_sample_size;
+
+static struct pollfd *ufds = NULL;
+static int pdc = 0;
+static int poll_next;
 
 static char alsa_desc[256] = EMPTY_STRING;
-
-
 
 static int alsa_detect(int input);
 static int alsa_init(int input, int voices);
@@ -150,7 +156,7 @@ DIGI_DRIVER digi_alsa =
  */
 static int alsa_buffer_size()
 {
-   return alsa_bufsize * alsa_fragments / (alsa_bits / 8) / (alsa_stereo ? 2 : 1);
+   return alsa_bufsize;
 }
 
 /* xrun_recovery:
@@ -164,6 +170,8 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
 	 fprintf(stderr, "Can't recovery from underrun, prepare failed: %s\n", snd_strerror(err));
       return 0;
    }
+   /* TODO: Can't wait here like that - we are inside an 'interrupt' after all. */
+#if 0
    else if (err == -ESTRPIPE) {
       while ((err = snd_pcm_resume(pcm_handle)) == -EAGAIN)
 	 sleep(1);  /* wait until the suspend flag is released */
@@ -175,34 +183,74 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
       }
       return 0;
    }
+#endif
 
    return err;
 }
 
 
 
+/* alsa_mix
+ *  Mix and send some samples to ALSA.
+ */
+static void alsa_mix(void)
+{
+   int ret, samples = alsa_bufsize;
+   unsigned char *ptr = alsa_bufdata;
+
+   while (samples > 0) {
+      ret = snd_pcm_writei(pcm_handle, ptr, samples);
+      if (ret == -EAGAIN)
+	 continue;
+
+      if (ret < 0) {
+	 TRACE("ALSA X run\n");
+	 if (xrun_recovery(pcm_handle, ret) < 0)
+	    fprintf(stderr, "Write error: %s\n", snd_strerror(ret));
+	 poll_next = 0;
+	 break;  /* skip one period */
+      }
+      if (snd_pcm_state(pcm_handle) == SND_PCM_STATE_RUNNING)
+	 poll_next = 1;
+      samples -= ret;
+      ptr += ret * alsa_sample_size;
+   }
+
+   _mix_some_samples((unsigned long)alsa_bufdata, 0, alsa_signed);
+}
+
+
+
 /* alsa_update:
- *  Updates main buffer.
+ *  Updates main buffer in case ALSA is ready.
  */
 static void alsa_update(int threaded)
 {
-   int i, ret = 0;
+   unsigned short revents;
 
-   for (i = 0; i < alsa_fragments; i++) {
-      while ((ret = snd_pcm_writei(pcm_handle, alsa_bufdata, alsa_bufsize / (alsa_bits / 8) / (alsa_stereo ? 2 : 1))) < 0) {
-	 if (ret == -EAGAIN)
-	    continue;
-
-	 if (ret < 0) {
-	    if (xrun_recovery(pcm_handle, ret) < 0)
-	       fprintf(stderr, "Write error: %s\n", snd_strerror(ret));
-	    break;  /* skip */
+   if (poll_next) {
+      poll(ufds, pdc, -1);
+      snd_pcm_poll_descriptors_revents(pcm_handle, ufds, pdc, &revents);
+      if (revents & POLLERR) {
+	 if (snd_pcm_state(pcm_handle) == SND_PCM_STATE_XRUN ||
+	    snd_pcm_state(pcm_handle) == SND_PCM_STATE_SUSPENDED) {
+	    int err = snd_pcm_state(pcm_handle) == SND_PCM_STATE_XRUN ? -EPIPE : -ESTRPIPE;
+	    if (xrun_recovery(pcm_handle, err) < 0) {
+	       fprintf(stderr, "Write error: %s\n", snd_strerror(err));
+	    }
+	    poll_next = 0;
+         }
+	 else {
+	    fprintf(stderr, "Wait for poll failed\n");
 	 }
+         return;
       }
-
-      _mix_some_samples((unsigned long)alsa_bufdata, 0, alsa_signed);
-   } 
+      if (!(revents & POLLOUT))
+	 return;
+   }
+   alsa_mix();
 }
+
 
 
 /* alsa_detect:
@@ -238,7 +286,8 @@ static int alsa_init(int input, int voices)
    int ret = 0;
    char tmp1[128], tmp2[128];
    unsigned int dir = 0;
-   int format = 0, bps = 0, fragsize = 0, numfrags = 0;
+   int format = 0, fragsize = 0, numfrags = 0; 
+   snd_pcm_sframes_t buffer_size;
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
@@ -293,11 +342,11 @@ static int alsa_init(int input, int voices)
    alsa_bits = (_sound_bits == 8) ? 8 : 16;
    alsa_stereo = (_sound_stereo) ? 1 : 0;
    alsa_rate = (_sound_freq > 0) ? _sound_freq : 44100;
-
-   format = ((alsa_bits == 16) ? SND_PCM_FORMAT_S16_NE : SND_PCM_FORMAT_U8);
-
    alsa_signed = 0;
-   bps = alsa_rate * (alsa_stereo ? 2 : 1);
+
+   format = ((alsa_bits == 16) ? SND_PCM_FORMAT_U16_NE : SND_PCM_FORMAT_U8);
+
+   /* TODO: Do we need to change the format for big endian? */
 
    switch (format) {
 
@@ -305,9 +354,7 @@ static int alsa_init(int input, int voices)
 	 alsa_bits = 8;
 	 break;
 
-      case SND_PCM_FORMAT_S16_LE:
-	 alsa_signed = 1;
-	 bps <<= 1;
+      case SND_PCM_FORMAT_U16_LE:	
 	 if (sizeof(short) != 2) {
 	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
 	    goto Error;
@@ -319,19 +366,15 @@ static int alsa_init(int input, int voices)
 	 goto Error;
    }
 
-   if (fragsize < 0) {
-      bps >>= 9;
-      if (bps < 16)
-	 bps = 16;
+   alsa_sample_size = (alsa_bits / 8) * (alsa_stereo ? 2 : 1);
 
+   if (fragsize < 0) {
+      int size = alsa_rate * ALSA_DEFAULT_BUFFER_MS / 1000 / numfrags;
       fragsize = 1;
-      while ((fragsize << 1) < bps)
+      while (fragsize < size)
 	 fragsize <<= 1;
    }
-   else {
-      fragsize = fragsize * (alsa_bits / 8) * (alsa_stereo ? 2 : 1);
-   }
-
+ 
    snd_pcm_hw_params_malloc(&hwparams);
    snd_pcm_sw_params_malloc(&swparams);
 
@@ -349,9 +392,16 @@ static int alsa_init(int input, int voices)
 
    ALSA9_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_bufsize, &dir));
    ALSA9_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_fragments, &dir));
+   ALSA9_CHECK(snd_pcm_hw_params_get_buffer_size(hwparams, &buffer_size));
+
+   ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
+   ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, buffer_size)); 
+   ALSA9_CHECK(snd_pcm_sw_params_set_avail_min(pcm_handle, swparams, fragsize));
+   ALSA9_CHECK(snd_pcm_sw_params_set_xfer_align(pcm_handle, swparams, 1));
+   ALSA9_CHECK(snd_pcm_sw_params(pcm_handle, swparams));
 
    /* Allocate mixing buffer. */
-   alsa_bufdata = malloc(alsa_bufsize);
+   alsa_bufdata = malloc(alsa_bufsize * alsa_sample_size);
    if (!alsa_bufdata) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       goto Error;
@@ -360,7 +410,7 @@ static int alsa_init(int input, int voices)
    /* Initialise mixer. */
    digi_alsa.voices = voices;
 
-   if (_mixer_init(alsa_bufsize / (alsa_bits / 8), alsa_rate,
+   if (_mixer_init(alsa_bufsize * (alsa_stereo ? 2 : 1), alsa_rate,
 		   alsa_stereo, ((alsa_bits == 16) ? 1 : 0),
 		   &digi_alsa.voices) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
@@ -368,6 +418,20 @@ static int alsa_init(int input, int voices)
    }
 
    snd_pcm_prepare(pcm_handle);
+   pdc = snd_pcm_poll_descriptors_count (pcm_handle);
+   if (pdc <= 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Invalid poll descriptors count"));
+      goto Error; 
+   }
+
+   ufds = malloc(sizeof(struct pollfd) * pdc);
+   if (ufds == NULL) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory for poll descriptors"));
+      goto Error;  
+   }
+   ALSA9_CHECK(snd_pcm_poll_descriptors(pcm_handle, ufds, pdc));
+
+   poll_next = 1;
 
    _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
 
