@@ -139,7 +139,18 @@ $(INC_DIR)/allegro:
 HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
 
 /bin/allegro-config:
-	cp misc/allegro-config.be /bin/allegro-config
+ifdef STATICLINK
+	sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
+else
+	sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
+endif
+	sed -e "s/@prefix@/\/boot\/develop/" temp > temp2
+	sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
+	sed -e "s/@LDFLAGS@ @LIBS@/$(LIBRARIES)/" temp >temp2
+	sed -e "s/include/headers/" temp2 >temp
+	sed -e "s/ -l\$${lib_type}_unsharable//" temp >temp2
+	sed -e "s/\/lib/\/lib\/x86/" temp2 >/bin/allegro-config
+	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 
 INSTALL_FILES =  $(INC_DIR)/allegro.h \
