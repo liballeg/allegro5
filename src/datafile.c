@@ -1657,7 +1657,7 @@ void fixup_datafile(DATAFILE *data)
 		     for (x=0; x<bmp->w; x++) {
 			c = p16[x];
 			r = _rgb_scale_5[c & 0x1F];
-			g = _rgb_scale_6[(c >> 5) & 0x1F];
+			g = _rgb_scale_5[(c >> 5) & 0x1F];
 			b = _rgb_scale_5[(c >> 10) & 0x1F];
 			p16[x] = makecol_depth(depth, r, g, b);
 		     }
