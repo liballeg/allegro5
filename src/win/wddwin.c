@@ -476,7 +476,7 @@ static int gfx_directx_show_video_bitmap_win(BITMAP *bmp)
    former_visible_bmp = offscreen_surface->parent_bmp;
 
    /* manually flip the offscreen surface */
-   DDRAW_SURFACE_OF(forefront_bitmap) = surf;
+   forefront_bitmap->extra = surf;
    offscreen_surface = surf;
 
    /* restore regular methods for video bitmaps */
