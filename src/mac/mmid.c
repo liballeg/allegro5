@@ -15,8 +15,8 @@
  */
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintmac.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintmac.h"
 #include <QuickTimeMusic.h>
 
 #ifndef ALLEGRO_MPW

@@ -20,7 +20,7 @@
 
 #ifdef ALLEGRO_COLOR8
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #include "cdefs8.h"
 
 #define FUNC_POLY_ZBUF_FLAT			_poly_zbuf_flat8

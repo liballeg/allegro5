@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(include/allegro.h)
 AC_CONFIG_AUX_DIR(misc)
-AC_CONFIG_HEADER(include/allegro/alunixac.h:include/allegro/alunixac.hin)
+AC_CONFIG_HEADER(include/allegro/internal/platform/alunixac.h:include/allegro/internal/platform/alunixac.hin)
 AC_PREREQ(2.12)
 AC_ARG_PROGRAM
 

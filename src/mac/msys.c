@@ -17,7 +17,7 @@
 
 #include "allegro.h"
 #include "macalleg.h"
-#include "allegro/aintmac.h"
+#include "allegro/internal/platform/aintmac.h"
 
 #define TRACE_MAC_MOUSE 0
 #define TRACE_MAC_SYSTEM 0

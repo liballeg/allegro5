@@ -17,8 +17,8 @@
 
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintvga.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintvga.h"
 
 
 

@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 #ifdef HAVE_DIRENT_H

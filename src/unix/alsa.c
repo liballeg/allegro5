@@ -20,11 +20,11 @@
 
 #if (defined DIGI_ALSA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #ifdef ALLEGRO_QNX
-#include "allegro/aintqnx.h"
+#include "allegro/internal/platform/aintqnx.h"
 #else
-#include "allegro/aintunix.h"
+#include "allegro/internal/platform/aintunix.h"
 #endif
 
 #include <sys/asoundlib.h>

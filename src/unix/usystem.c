@@ -23,7 +23,7 @@
 
 
 #include "allegro.h"
-#include "allegro/aintunix.h"
+#include "allegro/internal/platform/aintunix.h"
 
 #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
    /* ALLEGRO_USE_SCHED_YIELD is set by configure */

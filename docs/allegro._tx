@@ -1762,8 +1762,8 @@ combinations are possible seems to vary from one keyboard to another).
    Wherever possible these values will be updated asynchronously, but if 
    keyboard_needs_poll() returns TRUE, you must manually call 
    poll_keyboard() to update them with the current input state. The 
-   scancodes are defined in allegro.h as a series of KEY_* constants. For 
-   example, you could write:
+   scancodes are defined in allegro/keyboard.h as a series of KEY_* constants.
+   For example, you could write:
 <pre>
       if (key[KEY_SPACE])
 	 printf("Space is pressed\n");
@@ -2056,8 +2056,8 @@ Joystick routines
       ranging from 0 to 255. This is the case for all 1d throttle controls.
 
    Note for people who spell funny: in case you don't like having to type 
-   "analogue", there are some #define aliases in allegro.h that will allow 
-   to to write "analog" instead.
+   "analogue", there are some #define aliases in allegro/joystick.h that
+   will allow you to write "analog" instead.
 
 @@char *@calibrate_joystick_name(int n);
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
@@ -2955,7 +2955,7 @@ The type PALETTE is defined to be an array of 256 RGB structures.
 You may notice that a lot of the code in Allegro spells 'palette' as 
 'pallete'. This is because the headers from my old Mark Williams compiler on 
 the Atari spelt it with two l's, so that is what I'm used to. Allegro will 
-happily accept either spelling, due to some #defines in allegro.h.
+happily accept either spelling, due to some #defines in allegro/alcompat.h.
 
 @@void @vsync();
 @xref set_palette, scroll_screen, timer_simulate_retrace
@@ -3414,7 +3414,7 @@ bitmap.
    An alias for clear_bitmap(), provided for backwards compatibility. It is
    implemented as a static inline function. The aliasing may be switched off
    by defining the preprocessor symbol ALLEGRO_NO_CLEAR_BITMAP_ALIAS before
-   including allegro.h:
+   including Allegro headers, eg:
 <pre>
       #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
       #include &ltallegro.h&gt
@@ -3772,7 +3772,7 @@ grabber program can create fonts from sets of characters drawn in a bitmap
 file (see grabber.txt for more information), and can also import GRX or BIOS 
 format font files. The font structure contains a number of hooks that can be 
 used to extend it with your own custom drawing code: see the definition in 
-allegro.h for details.
+allegro/text.h for details.
 
 @@extern FONT *@font;
 @xref textout, textprintf
@@ -5129,7 +5129,7 @@ Digital sample routines
 @xref load_sample, destroy_sample
    Constructs a new sample structure of the specified type. The data field 
    points to a block of waveform data: see the structure definition in 
-   allegro.h for details.
+   allegro/digi.h for details.
 
 @@void @destroy_sample(SAMPLE *spl);
 @xref load_sample
@@ -7565,15 +7565,16 @@ DOS specifics
 Windows specifics
 
 A Windows program that uses the Allegro library is only required to include
-the main header file allegro.h; however, if it also needs to directly call
-Win32 API functions, it must include the Windows-specific header file
-winalleg.h after allegro.h, and before any Win32 API header file. By default
-winalleg.h includes the main Win32 C API header file windows.h. If instead
-you want to use the C++ interface to the Win32 API (a.k.a. the Microsoft
-Foundation Classes), define the preprocessor symbol ALLEGRO_AND_MFC before
-#include &ltallegro.h&gt so that afxwin.h will be included. Note that, in
-this latter case, the Allegro debugging macros ASSERT() and TRACE() are
-renamed AL_ASSERT() and AL_TRACE() respectively.
+one or more header files from the include/allegro tree, or allegro.h; however,
+if it also needs to directly call non portable Win32 API functions, it must
+include the Windows-specific header file winalleg.h after the Allegro headers,
+and before any Win32 API header file. By default winalleg.h includes the main
+Win32 C API header file windows.h. If instead you want to use the C++
+interface to the Win32 API (a.k.a. the Microsoft Foundation Classes), define
+the preprocessor symbol ALLEGRO_AND_MFC before including any Allegro header
+so that afxwin.h will be included. Note that, in this latter case, the Allegro
+debugging macros ASSERT() and TRACE() are renamed AL_ASSERT() and AL_TRACE()
+respectively.
 
 Windows GUI applications start with a WinMain() entry point, rather than the
 standard main() entry point. Allegro is configured to build GUI applications
@@ -7584,10 +7585,10 @@ winalleg.h and write a WinMain() function. Note that this magic may bring
 about conflicts with a few programs using direct calls to Win32 API
 functions; for these programs, the regular WinMain() is required and the
 magic must be disabled by defining the preprocessor symbol
-ALLEGRO_NO_MAGIC_MAIN before #include &ltallegro.h&gt.
+ALLEGRO_NO_MAGIC_MAIN before including Allegro headers.
 
 If you want to build a console application using Allegro, you have to define
-the preprocessor symbol USE_CONSOLE before #include &ltallegro.h&gt; it will
+the preprocessor symbol USE_CONSOLE before including Allegro headers; it will
 instruct the library to use console features and also to disable the special
 processing of the main() function described above.
 
@@ -7725,7 +7726,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose Win32 programs. To use these routines, 
-you must include winalleg.h after allegro.h.
+you must include winalleg.h after other Allegro headers.
 
 @@HWND @win_get_window(void);
    Retrieves a handle to the window used by Allegro. Note that Allegro
@@ -7787,7 +7788,7 @@ set_palette_to_hdc() or select_palette() functions. Warning: when the GDI
 system color palette is explicitly changed, (by another application, for 
 example) the current Allegro palette is not updated along with it!
 
-To use these routines, you must include winalleg.h after allegro.h.
+To use these routines, you must include winalleg.h after Allegro headers.
 
 @@void @set_gdi_color_format(void);
    Tells Allegro to use the GDI color layout for truecolor images. This is 
@@ -8137,9 +8138,9 @@ the differences between systems:
    Windows), or to zero if there are no explicit devices in paths (eg. Unix).
 
 <b>USE_CONSOLE</b><br>
-   If you define this prior to including allegro.h, the Windows version will 
-   be set up for building a console application rather than the normal GUI 
-   program.
+   If you define this prior to including Allegro headers, the Windows version
+   will be set up for building a console application rather than the normal
+   GUI program.
 
 <b>END_OF_MAIN()</b><br>
    Putting this after your main() function will enable Windows programs to 
@@ -8349,14 +8350,14 @@ debugging helper functions:
 @@void @ASSERT(condition);
 @xref al_assert, TRACE, register_assert_handler
    Debugging helper macro. Normally compiles away to nothing, but if you 
-   defined the preprocessor symbol DEBUGMODE before including allegro.h, it 
-   will check the supplied condition and call al_assert() if it fails.
+   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
+   it will check the supplied condition and call al_assert() if it fails.
 
 @@void @TRACE(char *msg, ...);
 @xref al_trace, ASSERT, register_trace_handler
    Debugging helper macro. Normally compiles away to nothing, but if you 
-   defined the preprocessor symbol DEBUGMODE before including allegro.h, it 
-   passes the supplied message given in ASCII format to al_trace().
+   defined the preprocessor symbol DEBUGMODE before including Allegro headers,
+   it passes the supplied message given in ASCII format to al_trace().
 
 @@void @register_assert_handler(int (*handler)(char *msg));
 @xref al_assert, ASSERT, register_trace_handler

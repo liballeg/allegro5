@@ -22,7 +22,7 @@
 
 #undef _bma_scan_gcol
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #include "cdefs32.h"
 #include "cscan.h"
 

@@ -22,9 +22,9 @@
 
 #include "allegro.h"
 #ifdef ALLEGRO_QNX
-#include "allegro/aintqnx.h"
+#include "allegro/internal/platform/aintqnx.h"
 #else
-#include "allegro/aintunix.h"
+#include "allegro/internal/platform/aintunix.h"
 #endif
 
 

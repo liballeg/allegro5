@@ -19,8 +19,8 @@
  */
 
 #include "bealleg.h"
-#include "allegro/aintern.h"
-#include "allegro/aintbeos.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintbeos.h"
 #ifndef SCAN_DEPEND
 #include <sys/utsname.h>
 #endif

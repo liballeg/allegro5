@@ -22,7 +22,7 @@
 #include <Sound.h>
 
 #include "allegro.h"
-#include "allegro/aintmac.h"
+#include "allegro/internal/platform/aintmac.h"
 
 #ifndef ALLEGRO_MPW
    #error something is wrong with the makefile
@@ -80,7 +80,7 @@ static SndDoubleBufferHeader myDblHeader;
 
 
 #include <string.h>
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 struct MIXER_VOICE;
 

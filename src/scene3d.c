@@ -22,7 +22,7 @@
 #include <limits.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 /* hash tables divide the screen height in (up to) HASH_NUM parts */
 #define HASH_NUM 256

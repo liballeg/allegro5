@@ -23,8 +23,8 @@
 #include <string.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintwin.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintwin.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile

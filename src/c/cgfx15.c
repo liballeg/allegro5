@@ -20,7 +20,7 @@
 
 #ifdef ALLEGRO_COLOR16
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #include "cdefs15.h"
 #include "cgfx.h"
 

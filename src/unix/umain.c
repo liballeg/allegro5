@@ -16,7 +16,7 @@
  */
 
 
-#include "allegro/alconfig.h"
+#include "allegro/internal/alconfig.h"
 #undef main
 
 

@@ -31,7 +31,7 @@
 #define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 

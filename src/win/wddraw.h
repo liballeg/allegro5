@@ -22,8 +22,8 @@
 #define DIRECTDRAW_VERSION 0x0300
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintwin.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <ddraw.h>

@@ -21,7 +21,7 @@
 #include <string.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 #define FLI_MAGIC1            0xAF11      /* file header magic number */

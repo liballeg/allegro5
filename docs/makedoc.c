@@ -41,8 +41,9 @@
 #define TALLBULLET_FLAG       0x00100000
 #define SHORT_TOC_FLAG        0x00200000
 #define XREF_FLAG             0x00400000
-#define START_TITLE_FLAG      0x00800000
-#define END_TITLE_FLAG        0x01000000
+#define HEADER_FLAG           0x00800000
+#define START_TITLE_FLAG      0x01000000
+#define END_TITLE_FLAG        0x02000000
 
 
 typedef struct LINE
@@ -491,6 +492,8 @@ int read_file(char *filename, char *htmlname)
 	    if (last_toc_line == line-1)
 	       last_toc_line = line;
 	 }
+         else if (strincmp(buf+1, "header ") == 0)
+            add_line(buf+8, HEADER_FLAG);
 	 else if (strincmp(buf+1, "startoutput ") == 0)
 	    add_line(buf+13, STARTOUTPUT_FLAG);
 	 else if (strincmp(buf+1, "endoutput ") == 0)
@@ -2292,6 +2295,22 @@ int write_man(char *filename)
 
 	       if (mansynopsis[0])
 		  fprintf(f, ".B %s\n\n", mansynopsis);
+
+               /* go ahead and find all the header lines */
+               l2 = line;
+               while (l2 && l2->flags & CONTINUE_FLAG) l2=l2->next;
+
+               if (l2) {
+                  l2 = l2->next;
+                  while (l2 && (l2->flags & HEADER_FLAG)) {
+                    fprintf(f, ".B %s\n", l2->text);
+                    l2 = l2->next;
+                    if (l2 && (l2->flags & HEADER_FLAG)) {
+                       fprintf(f, ".br\n");
+                    }
+                  }
+               }
+               fprintf(f, ".sp\n");
 
 	       fputs(".B ", f);
 	       mfputs(line->text, f);

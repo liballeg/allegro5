@@ -31,7 +31,7 @@
 
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')

@@ -189,14 +189,14 @@ for including a version number in things like the DLL filename.
 Header Files
 
 allegro.h lives in the include/ directory. This includes other headers which 
-live in include/allegro/. The reason for this slightly odd approach is that 
-allegro.h can include things like "allegro/alconfig.h", which will work both 
-in-situ within the build directory, and if we copy allegro.h to the system 
-include directory and the other headers into system_include/allegro/. This 
-avoids cluttering the system directories with lots of our headers, while 
-still allowing programs to just include &ltallegro.h&gt, and also makes it 
-possible for people to access internal headers with #include 
-&ltallegro/aintern.h&gt.
+live in the include/allegro/ tree. The reason for this slightly odd approach is
+that allegro.h can include things like "allegro/internal/alconfig.h", which
+will work both in-situ within the build directory, and if we copy allegro.h to
+the system include directory and the other headers into
+system_include/allegro/. This avoids cluttering the system directories with
+lots of our headers, while still allowing programs to just include
+&ltallegro.h&gt, and also makes it possible for people to access internal
+headers with #include &ltallegro/internal/aintern.h&gt.
 
 allegro.h includes alconfig.h, which checks the current platform and 
 includes a helper header for this compiler (aldjgpp.h, almsvc.h, alwatcom.h, 

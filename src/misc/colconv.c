@@ -24,7 +24,7 @@
 
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit */

@@ -18,7 +18,7 @@
 
 #include "SysTypes.r"
 #include "Types.r"
-#include "allegro/macdef.h"
+#include "allegro/internal/macdef.h"
 
 /*You Can modify this item*/
 /*Control of Version*/

@@ -17,7 +17,7 @@
 
 
 #include "allegro.h"
-#include "allegro/aintunix.h"
+#include "allegro/internal/platform/aintunix.h"
 
 
 /* list the available drivers */

@@ -20,7 +20,7 @@
 
 #ifdef ALLEGRO_COLOR24
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #include "cdefs24.h"
 #include "cspr.h"
 

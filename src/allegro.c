@@ -21,7 +21,7 @@
 #include <string.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 
@@ -415,6 +415,25 @@ void allegro_message(AL_CONST char *msg, ...)
 
    free(buf);
    free(tmp);
+}
+
+
+
+/* get_executable_name:
+ *  Finds out the name of the current executable.
+ */
+void get_executable_name(char *output, int size)
+{
+   ASSERT(system_driver);
+
+   if (system_driver->get_executable_name) {
+      system_driver->get_executable_name(output, size);
+   }
+   else {
+      output += usetc(output, '.');
+      output += usetc(output, '/');
+      usetc(output, 0);
+   }
 }
 
 

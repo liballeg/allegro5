@@ -26,7 +26,7 @@
 #include <float.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 #ifdef ALLEGRO_ASMCAPA_HEADER
    #include ALLEGRO_ASMCAPA_HEADER

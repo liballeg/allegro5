@@ -26,8 +26,8 @@
 #define DIRECTSOUND_VERSION 0x0300
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintwin.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #ifdef ALLEGRO_MINGW32

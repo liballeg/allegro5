@@ -17,8 +17,8 @@
 
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintunix.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintunix.h"
 
 /* list the available drivers */
 _DRIVER_INFO _linux_mouse_driver_list[] =

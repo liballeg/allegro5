@@ -19,7 +19,7 @@
 #include <limits.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 

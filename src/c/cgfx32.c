@@ -20,7 +20,7 @@
 
 #ifdef ALLEGRO_COLOR32
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #include "cdefs32.h"
 #include "cgfx.h"
 

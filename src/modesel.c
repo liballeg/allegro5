@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 
 static AL_CONST char *gfx_mode_getter(int index, int *list_size);

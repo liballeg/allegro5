@@ -16,7 +16,7 @@
  */
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 #ifndef ALLEGRO_BEOS
 #error something is wrong with the makefile

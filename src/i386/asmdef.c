@@ -22,10 +22,10 @@
 #include <stddef.h>
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 
 #ifdef ALLEGRO_DOS
-   #include "allegro/aintdos.h"
+   #include "allegro/internal/platform/aintdos.h"
 #endif
 
 #ifdef ALLEGRO_ASMCAPA_HEADER

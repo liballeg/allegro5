@@ -20,9 +20,9 @@
 #endif
 
 #include "allegro.h"
-#include "allegro/aintern.h"
-#include "allegro/aintunix.h"
-#include "allegro/aintvga.h"
+#include "allegro/internal/aintern.h"
+#include "allegro/internal/platform/aintunix.h"
+#include "allegro/internal/platform/aintvga.h"
 #include "linalleg.h"
 
 #include <string.h>

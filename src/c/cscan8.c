@@ -22,7 +22,7 @@
 
 #define _bma_scan_gcol
 
-#include "allegro/aintern.h"
+#include "allegro/internal/aintern.h"
 #include "cdefs8.h"
 #include "cscan.h"
 

@@ -17,7 +17,7 @@
 
 #include "allegro.h"
 #include "macalleg.h"
-#include "allegro/aintmac.h"
+#include "allegro/internal/platform/aintmac.h"
 #include <string.h>
 
 #pragma mark system bitmaps vtables
