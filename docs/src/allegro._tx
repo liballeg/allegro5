@@ -8260,7 +8260,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    the focus). It interprets user input and dispatches messages as they are 
    required, until one of the dialog procedures tells it to close the 
    dialog, at which point it returns the index of the object that caused it 
-   to exit.
+   to exit, or until ESC is pressed, at which point it returns -1.
 
 @@int @popup_dialog(DIALOG *dialog, int focus_obj);
 @xref do_dialog
