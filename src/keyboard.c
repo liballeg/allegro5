@@ -49,7 +49,6 @@ static int repeat_delay = 250;               /* auto key repeat */
 static int repeat_rate = 33;
 static int repeat_key = -1;
 static int repeat_scan = -1;
-#define IDLE_SPEED  10000		     /* 10 seconds */
 
 static int rate_changed = FALSE;
 
@@ -289,23 +288,6 @@ void set_leds(int leds)
 
 
 
-/* repeat_timer:
- *  Timer callback for doing automatic key repeats.
- */
-static void repeat_timer(void)
-{
-   if (repeat_key >= 0) {
-      if (keyboard_driver)
-         _handle_key_press(repeat_key, repeat_scan);
-
-      install_int(repeat_timer, repeat_rate);
-   }
-}
-
-END_OF_STATIC_FUNCTION(repeat_timer);
-
-
-
 /* set_keyboard_rate:
  *  Sets the keyboard repeat rate. Times are given in milliseconds.
  *  Passing zero times will disable the key repeat.
@@ -319,17 +301,22 @@ void set_keyboard_rate(int delay, int repeat)
       keyboard_driver->set_rate(delay, repeat);
       rate_changed = TRUE;
    }
-
-   if ((keyboard_driver) && (keyboard_driver->autorepeat)) {
-      if (repeat_delay)
-         install_int(repeat_timer, IDLE_SPEED);
-      else {
-         repeat_key = -1;
-         repeat_scan = -1;
-         remove_int(repeat_timer);
-      }
-   }
 }
+
+
+
+/* repeat_timer:
+ *  Timer callback for doing automatic key repeats.
+ */
+static void repeat_timer(void)
+{
+   if (keyboard_driver)
+      _handle_key_press(repeat_key, repeat_scan);
+
+   install_int(repeat_timer, repeat_rate);
+}
+
+END_OF_STATIC_FUNCTION(repeat_timer);
 
 
 
@@ -412,9 +399,10 @@ void _handle_key_press(int keycode, int scancode)
    if ((keyboard_driver->autorepeat) && (repeat_delay) && 
        (keycode >= 0) && (scancode > 0) &&
        ((keycode != repeat_key) || (scancode != repeat_scan))) {
-      install_int(repeat_timer, repeat_delay);
       repeat_key = keycode;
       repeat_scan = scancode;
+      remove_int(repeat_timer);
+      install_int(repeat_timer, repeat_delay);
    }
 }
 
@@ -429,9 +417,9 @@ void _handle_key_release(int scancode)
 {
    /* turn off autorepeat for the previous key */
    if (repeat_scan == scancode) {
+      remove_int(repeat_timer);
       repeat_key = -1;
       repeat_scan = -1;
-      install_int(repeat_timer, IDLE_SPEED);
    }
 
    if ((keyboard_driver->poll) || (!keyboard_polled)) {
@@ -599,8 +587,8 @@ int install_keyboard()
    _add_exit_func(remove_keyboard);
    _keyboard_installed = TRUE;
 
-   if ((keyboard_driver->autorepeat) && (repeat_delay))
-      install_int(repeat_timer, IDLE_SPEED);
+   if ((keyboard_driver->autorepeat) && (!_timer_installed))
+      install_timer();
 
    return 0;
 }
@@ -624,14 +612,13 @@ void remove_keyboard(void)
    }
 
    keyboard_driver->exit();
+   keyboard_driver = NULL;
 
-   if (keyboard_driver->autorepeat) {
+   if (repeat_key >= 0) {
+      remove_int(repeat_timer);
       repeat_key = -1;
       repeat_scan = -1;
-      remove_int(repeat_timer);
    }
-
-   keyboard_driver = NULL;
 
    _keyboard_installed = FALSE;
 
