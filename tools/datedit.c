@@ -1532,16 +1532,22 @@ DATAFILE *datedit_construct(int type, void *dat, long size, DATAFILE_PROPERTY **
 static DATAFILE_PROPERTY *clone_properties(DATAFILE_PROPERTY *prop)
 {
    DATAFILE_PROPERTY *clone, *iter;
-   int size = 0;
+   int size = 0, i;
 
    if (!prop)
       return NULL;
 
-   for (iter = prop; iter->type != DAT_END; iter++)
+   for (iter = prop; iter->type != DAT_END; iter++) {
       size++;
+   }
 
    clone = _al_malloc(sizeof(DATAFILE_PROPERTY)*(size+1));
-   memcpy(clone, prop, sizeof(DATAFILE_PROPERTY)*(size+1));
+
+   for (i = 0; i <= size; i++) {
+       clone[i].type = prop[i].type;
+       if (prop[i].dat)
+          clone[i].dat = ustrdup(prop[i].dat);
+   }
 
    return clone;
 }
