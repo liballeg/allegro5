@@ -216,20 +216,32 @@ struct bg_manager _bg_man_pthreads = {
 
 
 
+/* custom mutex that supports nested locking */
+struct my_mutex {
+   int lock_count;                /* level of nested locking     */
+   pthread_t owner;               /* thread which owns the mutex */
+   pthread_mutex_t actual_mutex;  /* underlying mutex object     */
+};
+
+
+
 /* _unix_create_mutex:
  *  Creates a mutex and returns a pointer to it.
  */
 void *_unix_create_mutex (void)
 {
-   pthread_mutex_t *mx;
+   struct my_mutex *mx;
 
-   mx = malloc (sizeof (pthread_mutex_t));
+   mx = malloc (sizeof (struct my_mutex));
    if (!mx) {
       *allegro_errno = ENOMEM;
       return NULL;
    }
 
-   pthread_mutex_init (mx, NULL);
+   mx->lock_count = 0;
+   mx->owner = NULL;
+
+   pthread_mutex_init (&mx->actual_mutex, NULL);
 
    return (void *) mx;
 }
@@ -241,9 +253,9 @@ void *_unix_create_mutex (void)
  */
 void _unix_destroy_mutex (void *handle)
 {
-   pthread_mutex_t *mx = (pthread_mutex_t *) handle;
+   struct my_mutex *mx = (struct my_mutex *) handle;
 
-   pthread_mutex_destroy (mx);
+   pthread_mutex_destroy (&mx->actual_mutex);
 
    free (mx);
 }
@@ -255,9 +267,14 @@ void _unix_destroy_mutex (void *handle)
  */
 void _unix_lock_mutex (void *handle)
 {
-   pthread_mutex_t *mx = (pthread_mutex_t *) handle;
+   struct my_mutex *mx = (struct my_mutex *) handle;
 
-   pthread_mutex_lock (mx);
+   if (mx->owner != pthread_self ()) {
+      pthread_mutex_lock (&mx->actual_mutex);
+      mx->owner = pthread_self ();      
+   }
+
+   mx->lock_count++;
 }
 
 
@@ -267,9 +284,14 @@ void _unix_lock_mutex (void *handle)
  */
 void _unix_unlock_mutex (void *handle)
 {
-   pthread_mutex_t *mx = (pthread_mutex_t *) handle;
+   struct my_mutex *mx = (struct my_mutex *) handle;
 
-   pthread_mutex_unlock (mx);
+   mx->lock_count--;
+
+   if (mx->lock_count == 0) {
+      mx->owner = NULL;
+      pthread_mutex_unlock (&mx->actual_mutex);
+   }
 }
 
 #endif
