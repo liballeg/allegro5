@@ -3512,7 +3512,7 @@ Allegro supports several different types of bitmaps:
 
    Warning: be very careful when using this pointer at the same time as any
    bitmaps created by the create_video_bitmap() function (see the description
-   of this function for more detailed informations).
+   of this function for more detailed information).
 
 @@BITMAP *@create_bitmap(int width, int height);
 @xref create_bitmap_ex, create_sub_bitmap, create_video_bitmap
