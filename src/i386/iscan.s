@@ -944,9 +944,9 @@ FUNC(_poly_scanline_ptex_lit8)
 
    #undef INIT
    #undef SINGLE_PIXEL
-   #undef PREPARE_FOUR_PIXELSS
+   #undef PREPARE_FOUR_PIXELS
    #undef FOUR_PIXELS
-   #undef WRITE_FOUR_PIXELSS
+   #undef WRITE_FOUR_PIXELS
 
    ret                           /* end of _poly_scanline_ptex_lit8() */
 
