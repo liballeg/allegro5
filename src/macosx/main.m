@@ -164,9 +164,6 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    int (*real_main) (int, char*[]) = (int (*) (int, char*[])) _mangled_main_address;
    
-   /* Wait for the app to become active */
-   while (![NSApp isActive]);
-   
    /* Call the user main() */
    exit(real_main(__crt0_argc, __crt0_argv));
    
