@@ -84,7 +84,7 @@ for file in .. $plugin_files; do
 	      includes="$includes \$(srcdir)/$dir/$include"
 	      newdeps="$newdeps $dir/$include"
 	    else
-	      include=`echo $include | sed 's,[-./],_,g'`
+	      include=`echo $include | sed 's,[-./:],_,g'`
 	      includes="$includes \$($include)"
 	      case "$symbols" in
 	      *$include* )
