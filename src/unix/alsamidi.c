@@ -26,12 +26,13 @@
 #include "allegro/platform/aintunix.h"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-
-#include <sys/asoundlib.h>
+#ifndef SCAN_DEPEND
+   #include <stdlib.h>
+   #include <stdio.h>
+   #include <string.h>
+   #include <errno.h>
+   #include <sys/asoundlib.h>
+#endif
 
 /* external interface to the ALSA rawmidi driver */
 static int alsa_rawmidi_detect(int input);

@@ -27,8 +27,10 @@
 #include "allegro/platform/aintunix.h"
 #endif
 
-#include <sys/asoundlib.h>
-#include <string.h>
+#ifndef SCAN_DEPEND
+   #include <string.h>
+   #include <sys/asoundlib.h>
+#endif
 
 
 #ifndef SND_PCM_SFMT_S16_NE
