@@ -2509,7 +2509,7 @@ static int sysinfo()
 
    switch (os_type) {
       case OSTYPE_UNKNOWN:    s = "DOS";                        break;
-      case OSTYPE_WIN3:       s = "Windows 3.x (using win32s)"; break;
+      case OSTYPE_WIN3:       s = "Windows 3.x";                break;
       case OSTYPE_WIN95:      s = "Windows 95";                 break;
       case OSTYPE_WIN98:      s = "Windows 98";                 break;
       case OSTYPE_WINME:      s = "Windows ME";                 break;
