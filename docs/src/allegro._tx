@@ -2742,7 +2742,7 @@ routines" for more information about this.
       install_keyboard();
       /* We are not 100% we can read the keyboard yet! */
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
-         exit(1);
+         abort_on_error("Couldn't set graphic mode!")
 
       /* Now we are guaranteed to be able to read the keyboard. */
       readkey();<endblock>
@@ -3533,7 +3533,7 @@ GFX_SAFE:<br>
 <codeblock>
       set_color_depth(32);
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-	 /* Error setting a 32 bit color resolution. /*
+	 abort_on_error("Couldn't set a 32 bit color resolution");
       }<endblock>
 
 @@int @get_color_depth(void);
@@ -3553,7 +3553,13 @@ GFX_SAFE:<br>
    what was actually selected. At the moment only the DOS VESA 3.0, X DGA 2.0
    and some Windows DirectX drivers support this function. The speed is
    specified in Hz, eg. 60, 70. To return to the normal default selection,
-   pass a rate value of zero.
+   pass a rate value of zero. Example:
+<codeblock>
+      request_refresh_rate(60);
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
+	 abort_on_error("Couldn't set graphic mode!");
+      if (get_refresh_rate() != 60)
+	 abort_on_error("Couldn't set refresh rate to 60Hz!");<endblock>
 
 @@int @get_refresh_rate(void);
 @xref request_refresh_rate
@@ -3563,8 +3569,8 @@ GFX_SAFE:<br>
 @@GFX_MODE_LIST *@get_gfx_mode_list(int card);
 @xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
    Attempts to create a list of all the supported video modes for a certain
-   graphics driver. This function returns a pointer to a list structure of 
-   the type GFX_MODE_LIST which has the following definition:
+   graphics driver, made up from the GFX_MODE_LIST structure, which has the
+   following definition:
 <codeblock>
       typedef struct GFX_MODE_LIST
       {
@@ -3572,18 +3578,20 @@ GFX_SAFE:<br>
 	 GFX_MODE *mode;
       } GFX_MODE_LIST;
 <endblock>
-   If this function returns NULL, it means the call failed. The mode entry
-   points to the actual list of video modes.
+   The mode entry  points to the actual list of video modes.
 <codeblock>
       typedef struct GFX_MODE
       {
 	 int width, height, bpp;
       } GFX_MODE;
 <endblock>
-   This list is terminated with an { 0, 0, 0 } entry.
+   This list of video modes is terminated with an { 0, 0, 0 } entry.
 
    Note that the card parameter must refer to a _real_ driver. This function
    fails if you pass GFX_SAFE, GFX_AUTODETECT, or any other "magic" driver.
+@retval
+   Returns a pointer to a list structure of the type GFX_MODE_LIST or NULL
+   if the request could not be satisfied.
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
@@ -3722,13 +3730,13 @@ GFX_SAFE:<br>
    This function can be used to detect wether or not set_gfx_mode() selected
    a windowed mode. Example:
 <codeblock>
-   set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0);
-   if (is_windowed_mode()) {
-      /* Windowed mode stuff */
-   } else {
-      /* Fullscreen mode stuff */
-   }
-<endblock>
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
+	 abort_on_error("Couldn't set graphic mode!");
+      if (is_windowed_mode()) {
+	 /* Windowed mode stuff. */
+      } else {
+	 /* Fullscreen mode stuff. */
+      }<endblock>
 @retval
    Returns true if the current graphics mode is a windowed mode, or zero if
    it is a fullscreen mode. You should not call this function if you are not
@@ -4628,7 +4636,12 @@ before including Allegro headers).
 @eref ex12bit, exrgbhsv, exscroll
    Sets the specified palette entry to the specified RGB triplet. Unlike the 
    other palette functions this doesn't do any retrace synchronisation, so 
-   you should call vsync() before it to prevent snow problems.
+   you should call vsync() before it to prevent snow problems. Example:
+<codeblock>
+      RGB rgb;
+      ...
+      vsync();
+      set_color(192, &rgb);<endblock>
 
 @@void @_set_color(int index, const RGB *p);
 @xref set_color, set_gfx_mode
@@ -4648,22 +4661,44 @@ before including Allegro headers).
 @eref Available Allegro examples
    Sets the entire palette of 256 colors. You should provide an array of 256 
    RGB structures. Unlike set_color(), there is no need to call vsync() 
-   before this function.
+   before this function. Example:
+<codeblock>
+      BITMAP *bmp;
+      PALETTE palette;
+      ...
+      bmp = load_bitmap(filename, palette);
+      if (!bmp)
+	 abort_on_error("Couldn't load bitmap!");
+      set_palette(palette);<endblock>
 
 @@void @set_palette_range(const PALETTE p, int from, int to, int vsync);
 @xref set_palette, get_palette_range
    Sets the palette entries between from and to (inclusive: pass 0 and 255 
    to set the entire palette). If vsync is set it waits for the vertical 
-   retrace, otherwise it sets the colors immediately.
+   retrace, otherwise it sets the colors immediately. Example:
+<codeblock>
+      PALETTE palette;
+      ...
+      change_first_16_colors(palette);
+      /* Change first colors waiting for vsync. */
+      set_palette_range(palette, 0, 15, 1);<endblock>
 
 @@void @get_color(int index, RGB *p);
 @xref get_palette, set_color
-   Retrieves the specified palette entry.
+   Retrieves the specified palette entry. Example:
+<codeblock>
+      RGB color;
+      ...
+      get_color(11, &color);<endblock>
 
 @@void @get_palette(PALETTE p);
 @xref get_palette_range, get_color, set_palette
    Retrieves the entire palette of 256 colors. You should provide an array 
-   of 256 RGB structures to store it in.
+   of 256 RGB structures to store it in. Example:
+<codeblock>
+      PALETTE pal;
+      ...
+      get_palette(pal);<endblock>
 
 @@void @get_palette_range(PALETTE p, int from, int to);
 @xref get_palette, set_palette_range
@@ -4688,12 +4723,20 @@ before including Allegro headers).
    routine only affects colors between from and to (inclusive: pass 0 and 
    255 to fade the entire palette).
 
+   Note that this function will block your game while the fade is in effect,
+   and it won't work right visually if you are not in an 8 bit color depth
+   resolution.
+
 @@void @fade_in_range(const PALETTE p, int speed, int from, to);
 @xref fade_in
    Gradually fades a part of the palette from a black screen to the 
    specified palette. The speed is from 1 (the slowest) up to 64 
    (instantaneous). This routine only affects colors between from and to 
    (inclusive: pass 0 and 255 to fade the entire palette).
+
+   Note that this function will block your game while the fade is in effect,
+   and it won't work right visually if you are not in an 8 bit color depth
+   resolution.
 
 @@void @fade_out_range(int speed, int from, to);
 @xref fade_out
@@ -4702,21 +4745,37 @@ before including Allegro headers).
    routine only affects colors between from and to (inclusive: pass 0 and 
    255 to fade the entire palette).
 
+   Note that this function will block your game while the fade is in effect,
+   and it won't work right visually if you are not in an 8 bit color depth
+   resolution.
+
 @@void @fade_from(const PALETTE source, const PALETTE dest, int speed);
 @xref fade_in, fade_out, fade_interpolate, fade_from_range
    Fades gradually from the source palette to the dest palette. The speed is 
    from 1 (the slowest) up to 64 (instantaneous).
+
+   Note that this function will block your game while the fade is in effect,
+   and it won't work right visually if you are not in an 8 bit color depth
+   resolution.
 
 @@void @fade_in(const PALETTE p, int speed);
 @xref fade_out, fade_from, fade_interpolate, fade_in_range
    Fades gradually from a black screen to the specified palette. The speed 
    is from 1 (the slowest) up to 64 (instantaneous).
 
+   Note that this function will block your game while the fade is in effect,
+   and it won't work right visually if you are not in an 8 bit color depth
+   resolution.
+
 @@void @fade_out(int speed);
 @xref fade_in, fade_from, fade_interpolate, fade_in_range
 @eref ex12bit
    Fades gradually from the current palette to a black screen. The speed is 
    from 1 (the slowest) up to 64 (instantaneous).
+
+   Note that this function will block your game while the fade is in effect,
+   and it won't work right visually if you are not in an 8 bit color depth
+   resolution.
 
 @@void @select_palette(const PALETTE p);
 @xref set_palette, unselect_palette
@@ -4726,7 +4785,9 @@ before including Allegro headers).
    table in the same way as the set_palette() function, so the conversion 
    will use the specified palette, but without affecting the display 
    hardware in any way. The previous palette settings are stored in an 
-   internal buffer, and can be restored by calling unselect_palette().
+   internal buffer, and can be restored by calling unselect_palette(). If
+   you call select_palette() again, however, the internal buffer will be
+   overwritten.
 
 @@void @unselect_palette();
 @xref select_palette
@@ -4737,9 +4798,9 @@ before including Allegro headers).
 @xref generate_optimized_palette, set_color_depth
 @eref excolmap, exrgbhsv, extruec, exupdate
    Constructs a fake truecolor palette, using three bits for red and green 
-   and two for the blue. The load_bitmap() function returns this if the file 
-   does not contain a palette itself (ie. you are reading a truecolor 
-   bitmap).
+   and two for the blue. The load_bitmap() function fills the palette
+   parameter with this if the file does not contain a palette itself (ie. you
+   are reading a truecolor bitmap).
 
 @\int @generate_optimized_palette(BITMAP *bmp, PALETTE pal,
 @@                               const char rsvd[256]);
@@ -4800,7 +4861,12 @@ routines!
    pixel formats. Converting to 15, 16, 24, or 32-bit formats only takes a 
    few shifts, so it is fairly efficient. Converting to an 8-bit color 
    involves searching the palette to find the closest match, which is quite 
-   slow unless you have set up an RGB mapping table (see below).
+   slow unless you have set up an RGB mapping table (see below). Example:
+<codeblock>
+      /* 16 bit color version of green. */
+      int green_color = makecol16(0, 255, 0);<endblock>
+@retval
+   Returns the requested RGB triplet in the specified color depth.
 
 @@int @makeacol32(int r, int g, int b, int a);
 @xref makeacol, set_alpha_blender, set_write_alpha_blender
@@ -4818,7 +4884,12 @@ routines!
    Converts colors from a hardware independent format (red, green, and blue 
    values ranging 0-255) to the pixel format required by the current video 
    mode, calling the preceding 8, 15, 16, 24, or 32-bit makecol functions as 
-   appropriate.
+   appropriate. Example:
+<codeblock>
+      /* Regardless of color depth, this will look green. */
+      int green_color = makecol(0, 255, 0);<endblock>
+@retval
+   Returns the requested RGB triplet in the current color depth.
 
 @@int @makecol_depth(int color_depth, int r, int g, int b);
 @xref makeacol, makecol, makecol8, makecol15_dither, rgb_map
