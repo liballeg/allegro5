@@ -78,10 +78,22 @@
 #define ALLEGRO_ASM_PREFIX    "_"
 
 
-/* life would be so easy if compilers would all use the same names! */
-#if (!defined S_IRUSR) && (!defined SCAN_DEPEND)
-   #define S_IRUSR   S_IREAD
-   #define S_IWUSR   S_IWRITE
+#ifndef SCAN_DEPEND
+   /* life would be so easy if compilers would all use the same names! */
+   /* (but what fun would that be?) */
+   #ifndef S_IRUSR
+      #define S_IRUSR   S_IREAD
+      #define S_IWUSR   S_IWRITE
+   #endif
+   /* Windows has no concept of "group" and "other" */
+   #ifndef S_IRGRP
+      #define S_IRGRP   0
+      #define S_IWGRP   0
+   #endif
+   #ifndef S_IROTH
+      #define S_IROTH   0
+      #define S_IWOTH   0
+   #endif
 #endif
 
 

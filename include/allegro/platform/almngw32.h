@@ -88,6 +88,18 @@
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"
 
+#ifndef SCAN_DEPEND
+   /* Windows has no concept of "group" and "other" */
+   #ifndef S_IRGRP
+      #define S_IRGRP   0
+      #define S_IWGRP   0
+   #endif
+   #ifndef S_IROTH
+      #define S_IROTH   0
+      #define S_IWOTH   0
+   #endif
+#endif
+
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintwin.h"
