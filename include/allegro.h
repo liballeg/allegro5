@@ -1371,6 +1371,7 @@ typedef struct V3D_f                /* a 3d point (floating point version) */
 #define POLYTYPE_ATEX_MASK_LIT      9
 #define POLYTYPE_PTEX_MASK_LIT      10
 #define POLYTYPE_MAX                11
+#define POLYTYPE_ZBUF               16
 
 
 AL_FUNC(void, polygon3d, (BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[]));
@@ -1381,6 +1382,9 @@ AL_FUNC(void, quad3d, (BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2,
 AL_FUNC(void, quad3d_f, (BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4));
 AL_FUNC(int, clip3d, (int type, fixed min_z, fixed max_z, int vc, AL_CONST V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]));
 AL_FUNC(int, clip3d_f, (int type, float min_z, float max_z, int vc, AL_CONST V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]));
+AL_FUNC(int, create_zbuffer, (BITMAP *bmp));
+AL_FUNC(void, clear_zbuffer, (float z));
+AL_FUNC(void, destroy_zbuffer, (void));
 
 
 

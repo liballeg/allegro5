@@ -150,6 +150,7 @@ offset_entry_t list[] = {
   {"POLYSEG_VMASK",   (int)offsetof(POLYGON_SEGMENT, vmask)},
   {"POLYSEG_VSHIFT",  (int)offsetof(POLYGON_SEGMENT, vshift)},
   {"POLYSEG_SEG  ",   (int)offsetof(POLYGON_SEGMENT, seg)},
+  {"POLYSEG_ZBADDR",  (int)offsetof(POLYGON_SEGMENT, zbuf_addr)},
   {"NEWLINE", 0},
   {"ERANGE",          ERANGE},
   {"NEWLINE", 0},

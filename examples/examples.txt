@@ -41,3 +41,4 @@ extrans.c  - lighting and translucency effects, by Owen Embury
 extruec.c  - truecolor pixel format conversions
 exupdate.c - supporting different screen update methods in a single program
 exxfade.c  - truecolor image loading and fades
+exzbuf.c   - Z-buffered polygons demo, by Bertrand Coconnier

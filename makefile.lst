@@ -80,7 +80,12 @@ ALLEGRO_SRC_C_FILES = \
 	src/c/cspr24.c \
 	src/c/cspr32.c \
 	src/c/cspr8.c \
-	src/c/cstretch.c
+	src/c/cstretch.c \
+	src/c/czscan15.c \
+	src/c/czscan16.c \
+	src/c/czscan24.c \
+	src/c/czscan32.c \
+	src/c/czscan8.c 
 
 ALLEGRO_SRC_I386_FILES = \
 	src/i386/iblit16.s \
@@ -102,7 +107,8 @@ ALLEGRO_SRC_I386_FILES = \
 	src/i386/ispr24.s \
 	src/i386/ispr32.s \
 	src/i386/ispr8.s \
-	src/i386/istretch.c
+	src/i386/istretch.c \
+	src/i386/izbuf.s
 
 ALLEGRO_SRC_DOS_FILES = \
 	src/dos/adlib.c \
@@ -367,7 +373,8 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/extrans.c \
 	examples/extruec.c \
 	examples/exupdate.c \
-	examples/exxfade.c
+	examples/exxfade.c \
+	examples/exzbuf.c
 
 ALLEGRO_EXAMPLE_EXES = \
 	examples/ex12bit \
@@ -412,7 +419,8 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/extrans \
 	examples/extruec \
 	examples/exupdate \
-	examples/exxfade
+	examples/exxfade \
+	examples/exzbuf
 
 ALLEGRO_NOLIB_EXE_SOURCES = \
 	docs/makedoc.c \
