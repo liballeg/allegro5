@@ -28,6 +28,7 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
+- Investigate Alt+Tab pop-up window being overdrawn in windowed mode
 - Investigate problem with keyboard in the dxwindow test
 - Modify convert_hbitmap_to_bitmap() behaviour with 8-bit DDBs
 
