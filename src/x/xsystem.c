@@ -36,6 +36,7 @@ void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 static int _xwin_sysdrv_init(void);
 static void _xwin_sysdrv_exit(void);
 static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
+static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void));
 static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
@@ -60,7 +61,7 @@ SYSTEM_DRIVER system_xwin =
    _unix_find_resource,
    _xwin_sysdrv_set_window_title,
    NULL, /* set_window_close_button */
-   NULL, /* set_window_close_hook */
+   _xwin_sysdrv_set_window_close_hook,
    NULL, /* message */
    NULL, /* assert */
    NULL, /* save_console_state */
@@ -231,6 +232,16 @@ static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
    do_uconvert(name, U_CURRENT, title, U_ASCII, sizeof(title));
 
    _xwin_set_window_title(name);
+}
+
+
+
+/* _xwin_sysdrv_set_window_close_hook:
+ *  Sets window close hook function.
+ */
+static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void))
+{
+   _xwin.window_close_hook = proc;
 }
 
 

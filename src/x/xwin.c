@@ -120,7 +120,9 @@ struct _xwin_type _xwin =
 
    XWIN_DEFAULT_WINDOW_TITLE,           /* window_title */
    XWIN_DEFAULT_APPLICATION_NAME,       /* application_name */
-   XWIN_DEFAULT_APPLICATION_CLASS       /* application_class */
+   XWIN_DEFAULT_APPLICATION_CLASS,      /* application_class */
+
+   NULL         /* window close hook */
 };
 
 int _xwin_last_line = -1;
@@ -138,6 +140,9 @@ static char _xwin_driver_desc[256] = EMPTY_STRING;
 
 /* Array of keycodes which are pressed now (used for auto-repeat).  */
 int _xwin_keycode_pressed[256];
+
+/* This is used to intercept window closing requests */
+static Atom wm_delete_window;
 
 
 
@@ -345,7 +350,7 @@ static int _xwin_private_create_window(void)
    setattr.border_pixel = XBlackPixel(_xwin.display, _xwin.screen);
    setattr.event_mask = (KeyPressMask | KeyReleaseMask 
 			 | EnterWindowMask | LeaveWindowMask
-			 | FocusChangeMask | ExposureMask
+			 | FocusChangeMask | ExposureMask | PropertyChangeMask
 			 | ButtonPressMask | ButtonReleaseMask | PointerMotionMask
 			 /*| MappingNotifyMask (SubstructureRedirectMask?)*/);
    _xwin.window = XCreateWindow(_xwin.display, XDefaultRootWindow(_xwin.display),
@@ -367,6 +372,10 @@ static int _xwin_private_create_window(void)
       _xwin.colormap = XCreateColormap(_xwin.display, _xwin.window, _xwin.visual, AllocNone);
    XSetWindowColormap(_xwin.display, _xwin.window, _xwin.colormap);
    XInstallColormap(_xwin.display, _xwin.colormap);
+
+   /* Set WM_DELETE_WINDOW atom in WM_PROTOCOLS property (to get window_delete requests).  */
+   wm_delete_window = XInternAtom (_xwin.display, "WM_DELETE_WINDOW", False);
+   XSetWMProtocols (_xwin.display, _xwin.window, &wm_delete_window, 1);
 
    /* Set default window parameters.  */
    (*_xwin_window_defaultor)();
@@ -2033,6 +2042,15 @@ static void _xwin_private_process_event(XEvent *event)
 	 if (event->xmapping.request == MappingKeyboard)
 	    _xwin_private_init_keyboard_tables();
 	 break;
+      case ClientMessage:
+         /* Window close request */
+         if (event->xclient.data.l[0] == wm_delete_window) {
+            if (_xwin.window_close_hook)
+               _xwin.window_close_hook();
+            else
+               exit(-1);
+         }
+         break;
    }
 }
 

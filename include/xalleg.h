@@ -124,6 +124,8 @@ extern struct _xwin_type
    char window_title[1024];
    char application_name[1024];
    char application_class[1024];
+
+   void (*window_close_hook)(void);
 } _xwin;
 
 
