@@ -11,12 +11,15 @@ General (Platform independant) todos:
 ---------------------------------------------------------------------------
 
 - Add caching system to speed up filename#object and load_datafile_object()
+- Even newer GFX_SAFE behaviour (return error instead of quitting)
 
 Win32 todos:
 ---------------------------------------------------------------------------
 
 - Update docs to mention cross-compilation support.
-- Update docs for Robin Burrows' sound drivers.
+- Video mode switching inefficient: "don't poll drivers for acceptable
+  modes before switching into them and deciding it can't do that so switches
+  back to Windows"
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -69,7 +72,6 @@ Supposedly fixed. (confirmation wanted)
 
 - Talk to Calin about merging latest P3D rendering stuff
 - Windows (DirectSound) sample looping isn't right
-- Check all programs/examples are converted for new GFX_SAFE behaviour
 
 Wishlist
 ---------------------------------------------------------------------------
