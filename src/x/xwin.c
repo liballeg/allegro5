@@ -707,6 +707,10 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    if (fullscreen) {
+      AL_CONST char *fc;
+      char tmp1[64], tmp2[128];
+      int i;
+
       /* Switch video mode.  */
       if (!_xvidmode_private_set_fullscreen(w, h, 0, 0)) {
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
@@ -716,10 +720,19 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       /* Hack: make the window fully visible and center cursor.  */
       XMoveWindow(_xwin.display, _xwin.window, 0, 0);
       XF86VidModeSetViewPort(_xwin.display, _xwin.screen, 0, 0);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
-      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
+
+      /* This chunk is disabled by default because of problems on KDE desktops.  */
+      fc = get_config_string(uconvert_ascii("graphics", tmp1),
+			     uconvert_ascii("force_centering", tmp2),
+			     NULL);
+
+      if ((fc) && ((i = ugetc(fc)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1'))) {
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
+	 XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
+      }
+
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
       XSync(_xwin.display, False);
 	  

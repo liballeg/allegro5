@@ -1370,6 +1370,11 @@ framebuffer = x<br>
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
 <li>
+force_centering = x<br>
+   Unix/X11 only: specifies whether to force window centering in fullscreen
+   mode when the XWFS driver is used (yes or no). Enabling this setting may
+   cause some artifacts to appear on KDE desktops.
+<li>
 disable_direct_updating = x<br>
    Windows only: specifies whether to disable direct updating when the 
    GFX_DIRECTX_WIN driver is used in color conversion mode (yes or no).
