@@ -11,7 +11,9 @@
  *      Polygon scanline filler helpers (gouraud shading, tmapping, etc).
  *
  *      By Michael Bukin.
- *	Scanline subdivision in *_PTEX functions added by Bertrand Coconnier.
+ *
+ *	Scanline subdivision in *_PTEX functions and transparency modes
+ *	added by Bertrand Coconnier.
  *
  *      See readme.txt for copyright information.
  */
@@ -415,6 +417,184 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
          u += du;
          v += dv;
 	 c += dc;
+      }
+   }
+}
+
+
+
+/* _poly_scanline_atex_trans:
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+void FUNC_POLY_SCANLINE_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+{
+   int x;
+   int vmask = info->vmask << info->vshift;
+   int vshift = 16 - info->vshift;
+   int umask = info->umask;
+   fixed u = info->u;
+   fixed v = info->v;
+   fixed du = info->du;
+   fixed dv = info->dv;
+   PS_BLENDER blender = MAKE_PS_BLENDER();
+   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
+   PIXEL_PTR d = (PIXEL_PTR) addr;
+   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
+
+   for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
+      PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
+      unsigned long color = GET_MEMORY_PIXEL(s);
+      color = PS_ALPHA_BLEND(blender, color, GET_PIXEL(r));
+
+      PUT_PIXEL(d, color);
+      u += du;
+      v += dv;
+   }
+}
+
+
+
+/* _poly_scanline_atex_mask_trans:
+ *  Fills a trans masked affine texture mapped polygon scanline.
+ */
+void FUNC_POLY_SCANLINE_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+{
+   int x;
+   int vmask = info->vmask << info->vshift;
+   int vshift = 16 - info->vshift;
+   int umask = info->umask;
+   fixed u = info->u;
+   fixed v = info->v;
+   fixed du = info->du;
+   fixed dv = info->dv;
+   PS_BLENDER blender = MAKE_PS_BLENDER();
+   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
+   PIXEL_PTR d = (PIXEL_PTR) addr;
+   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
+
+   for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
+      PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
+      unsigned long color = GET_MEMORY_PIXEL(s);
+
+      if (!IS_MASK(color)) {
+         color = PS_ALPHA_BLEND(blender, color, GET_PIXEL(r));
+         PUT_PIXEL(d, color);
+      }
+      u += du;
+      v += dv;
+   }
+}
+
+
+
+/* _poly_scanline_ptex_trans:
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+void FUNC_POLY_SCANLINE_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+{
+   int x, i, imax = 3;
+   int vmask = info->vmask << info->vshift;
+   int vshift = 16 - info->vshift;
+   int umask = info->umask;
+   double fu = info->fu;
+   double fv = info->fv;
+   double fz = info->z;
+   double dfu = info->dfu * 4;
+   double dfv = info->dfv * 4;
+   double dfz = info->dz * 4;
+   double z1 = 1. / fz;
+   PS_BLENDER blender = MAKE_PS_BLENDER();
+   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
+   PIXEL_PTR d = (PIXEL_PTR) addr;
+   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
+   long u = fu * z1;
+   long v = fv * z1;
+
+   /* update depth */
+   fz += dfz;
+   z1 = 1. / fz;
+
+   for (x = w - 1; x >= 0; x-= 4) {
+      long nextu, nextv, du, dv;
+
+      fu += dfu;
+      fv += dfv;
+      fz += dfz;
+      nextu = fu * z1;
+      nextv = fv * z1;
+      z1 = 1. / fz;
+      du = (nextu - u) >> 2;
+      dv = (nextv - v) >> 2;
+
+      /* scanline subdivision */
+      if (x < 3) 
+         imax = x;
+      for (i = imax; i >= 0; i--, INC_PIXEL_PTR(d), INC_PIXEL_PTR(r)) {
+         PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
+         unsigned long color = GET_MEMORY_PIXEL(s);
+
+         color = PS_ALPHA_BLEND(blender, color, GET_PIXEL(r));
+         PUT_PIXEL(d, color);
+         u += du;
+         v += dv;
+      }
+   }
+}
+
+
+
+/* _poly_scanline_ptex_mask_trans:
+ *  Fills a trans masked perspective correct texture mapped polygon scanline.
+ */
+void FUNC_POLY_SCANLINE_PTEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
+{
+   int x, i, imax = 3;
+   int vmask = info->vmask << info->vshift;
+   int vshift = 16 - info->vshift;
+   int umask = info->umask;
+   double fu = info->fu;
+   double fv = info->fv;
+   double fz = info->z;
+   double dfu = info->dfu * 4;
+   double dfv = info->dfv * 4;
+   double dfz = info->dz * 4;
+   double z1 = 1. / fz;
+   PS_BLENDER blender = MAKE_PS_BLENDER();
+   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
+   PIXEL_PTR d = (PIXEL_PTR) addr;
+   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
+   long u = fu * z1;
+   long v = fv * z1;
+
+   /* update depth */
+   fz += dfz;
+   z1 = 1. / fz;
+
+   for (x = w - 1; x >= 0; x-= 4) {
+      long nextu, nextv, du, dv;
+
+      fu += dfu;
+      fv += dfv;
+      fz += dfz;
+      nextu = fu * z1;
+      nextv = fv * z1;
+      z1 = 1. / fz;
+      du = (nextu - u) >> 2;
+      dv = (nextv - v) >> 2;
+
+      /* scanline subdivision */
+      if (x < 3) 
+         imax = x;
+      for (i = imax; i >= 0; i--, INC_PIXEL_PTR(d), INC_PIXEL_PTR(r)) {
+         PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
+         unsigned long color = GET_MEMORY_PIXEL(s);
+
+	 if (!IS_MASK(color)) {
+            color = PS_ALPHA_BLEND(blender, color, GET_PIXEL(r));
+            PUT_PIXEL(d, color);
+	 }
+         u += du;
+         v += dv;
       }
    }
 }

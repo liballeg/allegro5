@@ -45,58 +45,6 @@ unsigned long _mask_mmx_16[] = { 0x07E0001F, 0x00F8 };
 
 #endif
 
-/* fceil :
- * Fixed point version of ceil().
- * Note that it returns an integer result (not a fixed one)
- */
-#if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
-
-static inline int fceil(fixed x)
-{
-   int result;
-
-   asm (
-      " addl $0xFFFF, %0 ;"	/* ceil () */
-      " jns 0f ;"
-      " jo 1f ;"
-
-      "0:"
-      " sarl $16, %0 ;"		/* convert to int */
-      " jmp 2f ;"
-
-      "1:"
-      " movl %3, %0 ;"		/* on overflow, set errno */
-      " movl %2, (%0) ;"
-      " movl $0x7FFF, %0 ;"	/* and return large int */
-
-      "2:"
-
-   : "=r" (result)		/* result in a register */
-
-   : "0" (x),			/* x in the output register */
-     "i" (ERANGE),
-     "m" (allegro_errno)
-
-   : "%cc", "memory"		/* clobbers flags and errno */
-   );
-
-   return result;
-}
-
-#else
-
-static int fceil(fixed x)
-{
-   x += 0xFFFF;
-   if (x >= 0x80000000) {
-      *allegro_errno = ERANGE;
-      return 0x7FFF;
-   }
-
-   return (x >> 16);
-}
-
-#endif
 
 void _poly_scanline_dummy(unsigned long addr, int w, POLYGON_SEGMENT *info) { }
 
@@ -166,14 +114,16 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
    }
 
    if (flags & INTERP_FLAT) {
-      /* clip edge */
-      if (edge->top < bmp->ct) {
-         edge->x += (bmp->ct - edge->top) * edge->dx;
-	 edge->top = bmp->ct;
-      }
+      /* if clipping is enabled then clip edge */
+      if (bmp->clip) {
+         if (edge->top < bmp->ct) {
+            edge->x += (bmp->ct - edge->top) * edge->dx;
+	    edge->top = bmp->ct;
+         }
 
-      if (edge->bottom >= bmp->cb)
-	 edge->bottom = bmp->cb - 1;
+         if (edge->bottom >= bmp->cb)
+	    edge->bottom = bmp->cb - 1;
+      }
 
       return (edge->bottom >= edge->top);
    }
@@ -220,16 +170,18 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
       edge->dat.v = v1->v + fmul(step, edge->dat.dv);
    }
 
-   /* clip edge */
-   if (edge->top < bmp->ct) {
-      int gap = bmp->ct - edge->top;
-      edge->top = bmp->ct;
-      edge->x += gap * edge->dx;
-      _clip_polygon_segment_f(&(edge->dat), gap, flags);
-   }
+   /* if clipping is enabled then clip edge */
+   if (bmp->clip) {
+      if (edge->top < bmp->ct) {
+         int gap = bmp->ct - edge->top;
+         edge->top = bmp->ct;
+         edge->x += gap * edge->dx;
+         _clip_polygon_segment_f(&(edge->dat), gap, flags);
+      }
 
-   if (edge->bottom >= bmp->cb)
-      edge->bottom = bmp->cb - 1;
+      if (edge->bottom >= bmp->cb)
+         edge->bottom = bmp->cb - 1;
+   }
 
    return (edge->bottom >= edge->top);
 }
@@ -298,14 +250,16 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
    }
 
    if (flags & INTERP_FLAT) {
-      /* clip edge */
-      if (edge->top < bmp->ct) {
-	 edge->x += (bmp->ct - edge->top) * edge->dx;
-	 edge->top = bmp->ct;
-      }
+      /* if clipping is enabled then clip edge */
+      if (bmp->clip) {
+         if (edge->top < bmp->ct) {
+	    edge->x += (bmp->ct - edge->top) * edge->dx;
+	    edge->top = bmp->ct;
+         }
 
-      if (edge->bottom >= bmp->cb)
-	 edge->bottom = bmp->cb - 1;
+         if (edge->bottom >= bmp->cb)
+	    edge->bottom = bmp->cb - 1;
+      }
 
       return (edge->bottom >= edge->top);
    }
@@ -352,16 +306,18 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
       edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv);
    }
 
-   /* clip edge */
-   if (edge->top < bmp->ct) {
-      int gap = bmp->ct - edge->top;
-      edge->top = bmp->ct;
-      edge->x += gap * edge->dx;
-      _clip_polygon_segment_f(&(edge->dat), gap, flags);
-   }
+   /* if clipping is enabled then clip edge */
+   if (bmp->clip) {
+      if (edge->top < bmp->ct) {
+         int gap = bmp->ct - edge->top;
+         edge->top = bmp->ct;
+         edge->x += gap * edge->dx;
+         _clip_polygon_segment_f(&(edge->dat), gap, flags);
+      }
 
-   if (edge->bottom >= bmp->cb)
-      edge->bottom = bmp->cb - 1;
+      if (edge->bottom >= bmp->cb)
+         edge->bottom = bmp->cb - 1;
+   }
 
    return (edge->bottom >= edge->top);
 }
@@ -392,7 +348,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       INTERP_FIX_UV | INTERP_1COL,
       INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX,
       INTERP_FIX_UV | INTERP_1COL,
-      INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX
+      INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX,
+      INTERP_FIX_UV,
+      INTERP_Z | INTERP_FLOAT_UV | OPT_FLOAT_UV_TO_FIX,
+      INTERP_FIX_UV,
+      INTERP_Z | INTERP_FLOAT_UV | OPT_FLOAT_UV_TO_FIX
    };
 
    static int polytype_interp_tc[] = 
@@ -407,23 +367,31 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       INTERP_FIX_UV | INTERP_1COL,
       INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX,
       INTERP_FIX_UV | INTERP_1COL,
-      INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX
+      INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX,
+      INTERP_FIX_UV,
+      INTERP_Z | INTERP_FLOAT_UV | OPT_FLOAT_UV_TO_FIX,
+      INTERP_FIX_UV,
+      INTERP_Z | INTERP_FLOAT_UV | OPT_FLOAT_UV_TO_FIX
    };
 
    #ifdef ALLEGRO_COLOR8
    static POLYTYPE_INFO polytype_info8[] =
    {
-      {  _poly_scanline_dummy,          NULL },
-      {  _poly_scanline_gcol8,          NULL },
-      {  _poly_scanline_grgb8,          NULL },
-      {  _poly_scanline_atex8,          NULL },
-      {  _poly_scanline_ptex8,          _poly_scanline_atex8 },
-      {  _poly_scanline_atex_mask8,     NULL },
-      {  _poly_scanline_ptex_mask8,     _poly_scanline_atex_mask8 },
-      {  _poly_scanline_atex_lit8,      NULL },
-      {  _poly_scanline_ptex_lit8,      _poly_scanline_atex_lit8 },
-      {  _poly_scanline_atex_mask_lit8, NULL },
-      {  _poly_scanline_ptex_mask_lit8, _poly_scanline_atex_mask_lit8 }
+      {  _poly_scanline_dummy,            NULL },
+      {  _poly_scanline_gcol8,            NULL },
+      {  _poly_scanline_grgb8,            NULL },
+      {  _poly_scanline_atex8,            NULL },
+      {  _poly_scanline_ptex8,            _poly_scanline_atex8 },
+      {  _poly_scanline_atex_mask8,       NULL },
+      {  _poly_scanline_ptex_mask8,       _poly_scanline_atex_mask8 },
+      {  _poly_scanline_atex_lit8,        NULL },
+      {  _poly_scanline_ptex_lit8,        _poly_scanline_atex_lit8 },
+      {  _poly_scanline_atex_mask_lit8,   NULL },
+      {  _poly_scanline_ptex_mask_lit8,   _poly_scanline_atex_mask_lit8 },
+      {  _poly_scanline_atex_trans8,      NULL },
+      {  _poly_scanline_ptex_trans8,      _poly_scanline_atex_trans8 },
+      {  _poly_scanline_atex_mask_trans8, NULL },
+      {  _poly_scanline_ptex_mask_trans8, _poly_scanline_atex_mask_trans8 }
    };
 
    #ifdef ALLEGRO_MMX
@@ -432,6 +400,10 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  NULL,                    NULL },
       {  NULL,                    NULL },
       {  _poly_scanline_grgb8x,   NULL },
+      {  NULL,                    NULL },
+      {  NULL,                    NULL },
+      {  NULL,                    NULL },
+      {  NULL,                    NULL },
       {  NULL,                    NULL },
       {  NULL,                    NULL },
       {  NULL,                    NULL },
@@ -454,6 +426,10 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  NULL,                           NULL },
       {  NULL,                           NULL },
       {  NULL,                           NULL },
+      {  NULL,                           NULL },
+      {  NULL,                           NULL },
+      {  NULL,                           NULL },
+      {  NULL,                           NULL },
       {  NULL,                           NULL }
    };
    #endif
@@ -462,17 +438,21 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
    #ifdef ALLEGRO_COLOR16
    static POLYTYPE_INFO polytype_info15[] =
    {
-      {  _poly_scanline_dummy,           NULL },
-      {  _poly_scanline_grgb15,          NULL },
-      {  _poly_scanline_grgb15,          NULL },
-      {  _poly_scanline_atex16,          NULL },
-      {  _poly_scanline_ptex16,          _poly_scanline_atex16 },
-      {  _poly_scanline_atex_mask15,     NULL },
-      {  _poly_scanline_ptex_mask15,     _poly_scanline_atex_mask15 },
-      {  _poly_scanline_atex_lit15,      NULL },
-      {  _poly_scanline_ptex_lit15,      _poly_scanline_atex_lit15 },
-      {  _poly_scanline_atex_mask_lit15, NULL },
-      {  _poly_scanline_ptex_mask_lit15, _poly_scanline_atex_mask_lit15 }
+      {  _poly_scanline_dummy,             NULL },
+      {  _poly_scanline_grgb15,            NULL },
+      {  _poly_scanline_grgb15,            NULL },
+      {  _poly_scanline_atex16,            NULL },
+      {  _poly_scanline_ptex16,            _poly_scanline_atex16 },
+      {  _poly_scanline_atex_mask15,       NULL },
+      {  _poly_scanline_ptex_mask15,       _poly_scanline_atex_mask15 },
+      {  _poly_scanline_atex_lit15,        NULL },
+      {  _poly_scanline_ptex_lit15,        _poly_scanline_atex_lit15 },
+      {  _poly_scanline_atex_mask_lit15,   NULL },
+      {  _poly_scanline_ptex_mask_lit15,   _poly_scanline_atex_mask_lit15 },
+      {  _poly_scanline_atex_trans15,      NULL },
+      {  _poly_scanline_ptex_trans15,      _poly_scanline_atex_trans15 },
+      {  _poly_scanline_atex_mask_trans15, NULL },
+      {  _poly_scanline_ptex_mask_trans15, _poly_scanline_atex_mask_trans15 }
    };
 
    #ifdef ALLEGRO_MMX
@@ -488,7 +468,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  _poly_scanline_atex_lit15x,      NULL },
       {  _poly_scanline_ptex_lit15x,      _poly_scanline_atex_lit15x },
       {  _poly_scanline_atex_mask_lit15x, NULL },
-      {  _poly_scanline_ptex_mask_lit15x, _poly_scanline_atex_mask_lit15x }
+      {  _poly_scanline_ptex_mask_lit15x, _poly_scanline_atex_mask_lit15x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
 
    static POLYTYPE_INFO polytype_info15d[] =
@@ -503,23 +487,31 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  NULL,                            NULL },
       {  _poly_scanline_ptex_lit15d,      _poly_scanline_atex_lit15x },
       {  NULL,                            NULL },
-      {  _poly_scanline_ptex_mask_lit15d, _poly_scanline_atex_mask_lit15x }
+      {  _poly_scanline_ptex_mask_lit15d, _poly_scanline_atex_mask_lit15x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
    #endif
 
    static POLYTYPE_INFO polytype_info16[] =
    {
-      {  _poly_scanline_dummy,           NULL },
-      {  _poly_scanline_grgb16,          NULL },
-      {  _poly_scanline_grgb16,          NULL },
-      {  _poly_scanline_atex16,          NULL },
-      {  _poly_scanline_ptex16,          _poly_scanline_atex16 },
-      {  _poly_scanline_atex_mask16,     NULL },
-      {  _poly_scanline_ptex_mask16,     _poly_scanline_atex_mask16 },
-      {  _poly_scanline_atex_lit16,      NULL },
-      {  _poly_scanline_ptex_lit16,      _poly_scanline_atex_lit16 },
-      {  _poly_scanline_atex_mask_lit16, NULL },
-      {  _poly_scanline_ptex_mask_lit16, _poly_scanline_atex_mask_lit16 }
+      {  _poly_scanline_dummy,             NULL },
+      {  _poly_scanline_grgb16,            NULL },
+      {  _poly_scanline_grgb16,            NULL },
+      {  _poly_scanline_atex16,            NULL },
+      {  _poly_scanline_ptex16,            _poly_scanline_atex16 },
+      {  _poly_scanline_atex_mask16,       NULL },
+      {  _poly_scanline_ptex_mask16,       _poly_scanline_atex_mask16 },
+      {  _poly_scanline_atex_lit16,        NULL },
+      {  _poly_scanline_ptex_lit16,        _poly_scanline_atex_lit16 },
+      {  _poly_scanline_atex_mask_lit16,   NULL },
+      {  _poly_scanline_ptex_mask_lit16,   _poly_scanline_atex_mask_lit16 },
+      {  _poly_scanline_atex_trans16,      NULL },
+      {  _poly_scanline_ptex_trans16,      _poly_scanline_atex_trans16 },
+      {  _poly_scanline_atex_mask_trans16, NULL },
+      {  _poly_scanline_ptex_mask_trans16, _poly_scanline_atex_mask_trans16 }
    };
 
    #ifdef ALLEGRO_MMX
@@ -535,7 +527,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  _poly_scanline_atex_lit16x,      NULL },
       {  _poly_scanline_ptex_lit16x,      _poly_scanline_atex_lit16x },
       {  _poly_scanline_atex_mask_lit16x, NULL },
-      {  _poly_scanline_ptex_mask_lit16x, _poly_scanline_atex_mask_lit16x }
+      {  _poly_scanline_ptex_mask_lit16x, _poly_scanline_atex_mask_lit16x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
 
    static POLYTYPE_INFO polytype_info16d[] =
@@ -550,7 +546,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  NULL,                            NULL },
       {  _poly_scanline_ptex_lit16d,      _poly_scanline_atex_lit16x },
       {  NULL,                            NULL },
-      {  _poly_scanline_ptex_mask_lit16d, _poly_scanline_atex_mask_lit16x }
+      {  _poly_scanline_ptex_mask_lit16d, _poly_scanline_atex_mask_lit16x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
    #endif
    #endif
@@ -558,17 +558,21 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
    #ifdef ALLEGRO_COLOR24
    static POLYTYPE_INFO polytype_info24[] =
    {
-      {  _poly_scanline_dummy,           NULL },
-      {  _poly_scanline_grgb24,          NULL },
-      {  _poly_scanline_grgb24,          NULL },
-      {  _poly_scanline_atex24,          NULL },
-      {  _poly_scanline_ptex24,          _poly_scanline_atex24 },
-      {  _poly_scanline_atex_mask24,     NULL },
-      {  _poly_scanline_ptex_mask24,     _poly_scanline_atex_mask24 },
-      {  _poly_scanline_atex_lit24,      NULL },
-      {  _poly_scanline_ptex_lit24,      _poly_scanline_atex_lit24 },
-      {  _poly_scanline_atex_mask_lit24, NULL },
-      {  _poly_scanline_ptex_mask_lit24, _poly_scanline_atex_mask_lit24 }
+      {  _poly_scanline_dummy,             NULL },
+      {  _poly_scanline_grgb24,            NULL },
+      {  _poly_scanline_grgb24,            NULL },
+      {  _poly_scanline_atex24,            NULL },
+      {  _poly_scanline_ptex24,            _poly_scanline_atex24 },
+      {  _poly_scanline_atex_mask24,       NULL },
+      {  _poly_scanline_ptex_mask24,       _poly_scanline_atex_mask24 },
+      {  _poly_scanline_atex_lit24,        NULL },
+      {  _poly_scanline_ptex_lit24,        _poly_scanline_atex_lit24 },
+      {  _poly_scanline_atex_mask_lit24,   NULL },
+      {  _poly_scanline_ptex_mask_lit24,   _poly_scanline_atex_mask_lit24 },
+      {  _poly_scanline_atex_trans24,      NULL },
+      {  _poly_scanline_ptex_trans24,      _poly_scanline_atex_trans24 },
+      {  _poly_scanline_atex_mask_trans24, NULL },
+      {  _poly_scanline_ptex_mask_trans24, _poly_scanline_atex_mask_trans24 }
    };
 
    #ifdef ALLEGRO_MMX
@@ -584,7 +588,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  _poly_scanline_atex_lit24x,      NULL },
       {  _poly_scanline_ptex_lit24x,      _poly_scanline_atex_lit24x },
       {  _poly_scanline_atex_mask_lit24x, NULL },
-      {  _poly_scanline_ptex_mask_lit24x, _poly_scanline_atex_mask_lit24x }
+      {  _poly_scanline_ptex_mask_lit24x, _poly_scanline_atex_mask_lit24x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
 
    static POLYTYPE_INFO polytype_info24d[] =
@@ -599,7 +607,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  NULL,                            NULL },
       {  _poly_scanline_ptex_lit24d,      _poly_scanline_atex_lit24x },
       {  NULL,                            NULL },
-      {  _poly_scanline_ptex_mask_lit24d, _poly_scanline_atex_mask_lit24x }
+      {  _poly_scanline_ptex_mask_lit24d, _poly_scanline_atex_mask_lit24x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
    #endif
    #endif
@@ -607,17 +619,21 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
    #ifdef ALLEGRO_COLOR32
    static POLYTYPE_INFO polytype_info32[] =
    {
-      {  _poly_scanline_dummy,           NULL },
-      {  _poly_scanline_grgb32,          NULL },
-      {  _poly_scanline_grgb32,          NULL },
-      {  _poly_scanline_atex32,          NULL },
-      {  _poly_scanline_ptex32,          _poly_scanline_atex32 },
-      {  _poly_scanline_atex_mask32,     NULL },
-      {  _poly_scanline_ptex_mask32,     _poly_scanline_atex_mask32 },
-      {  _poly_scanline_atex_lit32,      NULL },
-      {  _poly_scanline_ptex_lit32,      _poly_scanline_atex_lit32 },
-      {  _poly_scanline_atex_mask_lit32, NULL },
-      {  _poly_scanline_ptex_mask_lit32, _poly_scanline_atex_mask_lit32 }
+      {  _poly_scanline_dummy,             NULL },
+      {  _poly_scanline_grgb32,            NULL },
+      {  _poly_scanline_grgb32,            NULL },
+      {  _poly_scanline_atex32,            NULL },
+      {  _poly_scanline_ptex32,            _poly_scanline_atex32 },
+      {  _poly_scanline_atex_mask32,       NULL },
+      {  _poly_scanline_ptex_mask32,       _poly_scanline_atex_mask32 },
+      {  _poly_scanline_atex_lit32,        NULL },
+      {  _poly_scanline_ptex_lit32,        _poly_scanline_atex_lit32 },
+      {  _poly_scanline_atex_mask_lit32,   NULL },
+      {  _poly_scanline_ptex_mask_lit32,   _poly_scanline_atex_mask_lit32 },
+      {  _poly_scanline_atex_trans32,      NULL },
+      {  _poly_scanline_ptex_trans32,      _poly_scanline_atex_trans32 },
+      {  _poly_scanline_atex_mask_trans32, NULL },
+      {  _poly_scanline_ptex_mask_trans32, _poly_scanline_atex_mask_trans32 }
    };
 
    #ifdef ALLEGRO_MMX
@@ -633,7 +649,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  _poly_scanline_atex_lit32x,      NULL },
       {  _poly_scanline_ptex_lit32x,      _poly_scanline_atex_lit32x },
       {  _poly_scanline_atex_mask_lit32x, NULL },
-      {  _poly_scanline_ptex_mask_lit32x, _poly_scanline_atex_mask_lit32x }
+      {  _poly_scanline_ptex_mask_lit32x, _poly_scanline_atex_mask_lit32x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
 
    static POLYTYPE_INFO polytype_info32d[] =
@@ -648,7 +668,11 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       {  NULL,                            NULL },
       {  _poly_scanline_ptex_lit32d,      _poly_scanline_atex_lit32x },
       {  NULL,                            NULL },
-      {  _poly_scanline_ptex_mask_lit32d, _poly_scanline_atex_mask_lit32x }
+      {  _poly_scanline_ptex_mask_lit32d, _poly_scanline_atex_mask_lit32x },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL },
+      {  NULL,                            NULL }
    };
    #endif
    #endif
@@ -656,83 +680,103 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
    #ifdef ALLEGRO_COLOR8
    static POLYTYPE_INFO polytype_info8z[] =
    {
-      {  _poly_zbuf_flat8,          NULL },
-      {  _poly_zbuf_gcol8,          NULL },
-      {  _poly_zbuf_grgb8,          NULL },
-      {  _poly_zbuf_atex8,          NULL },
-      {  _poly_zbuf_ptex8,          _poly_zbuf_atex8 },
-      {  _poly_zbuf_atex_mask8,     NULL },
-      {  _poly_zbuf_ptex_mask8,     _poly_zbuf_atex_mask8 },
-      {  _poly_zbuf_atex_lit8,      NULL },
-      {  _poly_zbuf_ptex_lit8,      _poly_zbuf_atex_lit8 },
-      {  _poly_zbuf_atex_mask_lit8, NULL },
-      {  _poly_zbuf_ptex_mask_lit8, _poly_zbuf_atex_mask_lit8 },
+      {  _poly_zbuf_flat8,            NULL },
+      {  _poly_zbuf_gcol8,            NULL },
+      {  _poly_zbuf_grgb8,            NULL },
+      {  _poly_zbuf_atex8,            NULL },
+      {  _poly_zbuf_ptex8,            _poly_zbuf_atex8 },
+      {  _poly_zbuf_atex_mask8,       NULL },
+      {  _poly_zbuf_ptex_mask8,       _poly_zbuf_atex_mask8 },
+      {  _poly_zbuf_atex_lit8,        NULL },
+      {  _poly_zbuf_ptex_lit8,        _poly_zbuf_atex_lit8 },
+      {  _poly_zbuf_atex_mask_lit8,   NULL },
+      {  _poly_zbuf_ptex_mask_lit8,   _poly_zbuf_atex_mask_lit8 },
+      {  _poly_zbuf_atex_trans8,      NULL },
+      {  _poly_zbuf_ptex_trans8,      _poly_zbuf_atex_trans8 },
+      {  _poly_zbuf_atex_mask_trans8, NULL },
+      {  _poly_zbuf_ptex_mask_trans8, _poly_zbuf_atex_mask_trans8 }
    };
    #endif
 
    #ifdef ALLEGRO_COLOR16
    static POLYTYPE_INFO polytype_info15z[] =
    {
-      {  _poly_zbuf_flat16,          NULL },
-      {  _poly_zbuf_grgb15,          NULL },
-      {  _poly_zbuf_grgb15,          NULL },
-      {  _poly_zbuf_atex16,          NULL },
-      {  _poly_zbuf_ptex16,          _poly_zbuf_atex16 },
-      {  _poly_zbuf_atex_mask15,     NULL },
-      {  _poly_zbuf_ptex_mask15,     _poly_zbuf_atex_mask15 },
-      {  _poly_zbuf_atex_lit15,      NULL },
-      {  _poly_zbuf_ptex_lit15,      _poly_zbuf_atex_lit15 },
-      {  _poly_zbuf_atex_mask_lit15, NULL },
-      {  _poly_zbuf_ptex_mask_lit15, _poly_zbuf_atex_mask_lit15 },
+      {  _poly_zbuf_flat16,            NULL },
+      {  _poly_zbuf_grgb15,            NULL },
+      {  _poly_zbuf_grgb15,            NULL },
+      {  _poly_zbuf_atex16,            NULL },
+      {  _poly_zbuf_ptex16,            _poly_zbuf_atex16 },
+      {  _poly_zbuf_atex_mask15,       NULL },
+      {  _poly_zbuf_ptex_mask15,       _poly_zbuf_atex_mask15 },
+      {  _poly_zbuf_atex_lit15,        NULL },
+      {  _poly_zbuf_ptex_lit15,        _poly_zbuf_atex_lit15 },
+      {  _poly_zbuf_atex_mask_lit15,   NULL },
+      {  _poly_zbuf_ptex_mask_lit15,   _poly_zbuf_atex_mask_lit15 },
+      {  _poly_zbuf_atex_trans15,      NULL },
+      {  _poly_zbuf_ptex_trans15,      _poly_zbuf_atex_trans15 },
+      {  _poly_zbuf_atex_mask_trans15, NULL },
+      {  _poly_zbuf_ptex_mask_trans15, _poly_zbuf_atex_mask_trans15 }
    };
 
    static POLYTYPE_INFO polytype_info16z[] =
    {
-      {  _poly_zbuf_flat16,          NULL },
-      {  _poly_zbuf_grgb16,          NULL },
-      {  _poly_zbuf_grgb16,          NULL },
-      {  _poly_zbuf_atex16,          NULL },
-      {  _poly_zbuf_ptex16,          _poly_zbuf_atex16 },
-      {  _poly_zbuf_atex_mask16,     NULL },
-      {  _poly_zbuf_ptex_mask16,     _poly_zbuf_atex_mask16 },
-      {  _poly_zbuf_atex_lit16,      NULL },
-      {  _poly_zbuf_ptex_lit16,      _poly_zbuf_atex_lit16 },
-      {  _poly_zbuf_atex_mask_lit16, NULL },
-      {  _poly_zbuf_ptex_mask_lit16, _poly_zbuf_atex_mask_lit16 },
+      {  _poly_zbuf_flat16,            NULL },
+      {  _poly_zbuf_grgb16,            NULL },
+      {  _poly_zbuf_grgb16,            NULL },
+      {  _poly_zbuf_atex16,            NULL },
+      {  _poly_zbuf_ptex16,            _poly_zbuf_atex16 },
+      {  _poly_zbuf_atex_mask16,       NULL },
+      {  _poly_zbuf_ptex_mask16,       _poly_zbuf_atex_mask16 },
+      {  _poly_zbuf_atex_lit16,        NULL },
+      {  _poly_zbuf_ptex_lit16,        _poly_zbuf_atex_lit16 },
+      {  _poly_zbuf_atex_mask_lit16,   NULL },
+      {  _poly_zbuf_ptex_mask_lit16,   _poly_zbuf_atex_mask_lit16 },
+      {  _poly_zbuf_atex_trans16,      NULL },
+      {  _poly_zbuf_ptex_trans16,      _poly_zbuf_atex_trans16 },
+      {  _poly_zbuf_atex_mask_trans16, NULL },
+      {  _poly_zbuf_ptex_mask_trans16, _poly_zbuf_atex_mask_trans16 }
    };
    #endif
 
    #ifdef ALLEGRO_COLOR24
    static POLYTYPE_INFO polytype_info24z[] =
    {
-      {  _poly_zbuf_flat24,          NULL },
-      {  _poly_zbuf_grgb24,          NULL },
-      {  _poly_zbuf_grgb24,          NULL },
-      {  _poly_zbuf_atex24,          NULL },
-      {  _poly_zbuf_ptex24,          _poly_zbuf_atex24 },
-      {  _poly_zbuf_atex_mask24,     NULL },
-      {  _poly_zbuf_ptex_mask24,     _poly_zbuf_atex_mask24 },
-      {  _poly_zbuf_atex_lit24,      NULL },
-      {  _poly_zbuf_ptex_lit24,      _poly_zbuf_atex_lit24 },
-      {  _poly_zbuf_atex_mask_lit24, NULL },
-      {  _poly_zbuf_ptex_mask_lit24, _poly_zbuf_atex_mask_lit24 },
+      {  _poly_zbuf_flat24,            NULL },
+      {  _poly_zbuf_grgb24,            NULL },
+      {  _poly_zbuf_grgb24,            NULL },
+      {  _poly_zbuf_atex24,            NULL },
+      {  _poly_zbuf_ptex24,            _poly_zbuf_atex24 },
+      {  _poly_zbuf_atex_mask24,       NULL },
+      {  _poly_zbuf_ptex_mask24,       _poly_zbuf_atex_mask24 },
+      {  _poly_zbuf_atex_lit24,        NULL },
+      {  _poly_zbuf_ptex_lit24,        _poly_zbuf_atex_lit24 },
+      {  _poly_zbuf_atex_mask_lit24,   NULL },
+      {  _poly_zbuf_ptex_mask_lit24,   _poly_zbuf_atex_mask_lit24 },
+      {  _poly_zbuf_atex_trans24,      NULL },
+      {  _poly_zbuf_ptex_trans24,      _poly_zbuf_atex_trans24 },
+      {  _poly_zbuf_atex_mask_trans24, NULL },
+      {  _poly_zbuf_ptex_mask_trans24, _poly_zbuf_atex_mask_trans24 }
    };
    #endif
 
    #ifdef ALLEGRO_COLOR32
    static POLYTYPE_INFO polytype_info32z[] =
    {
-      {  _poly_zbuf_flat32,          NULL },
-      {  _poly_zbuf_grgb32,          NULL },
-      {  _poly_zbuf_grgb32,          NULL },
-      {  _poly_zbuf_atex32,          NULL },
-      {  _poly_zbuf_ptex32,          _poly_zbuf_atex32 },
-      {  _poly_zbuf_atex_mask32,     NULL },
-      {  _poly_zbuf_ptex_mask32,     _poly_zbuf_atex_mask32 },
-      {  _poly_zbuf_atex_lit32,      NULL },
-      {  _poly_zbuf_ptex_lit32,      _poly_zbuf_atex_lit32 },
-      {  _poly_zbuf_atex_mask_lit32, NULL },
-      {  _poly_zbuf_ptex_mask_lit32, _poly_zbuf_atex_mask_lit32 },
+      {  _poly_zbuf_flat32,            NULL },
+      {  _poly_zbuf_grgb32,            NULL },
+      {  _poly_zbuf_grgb32,            NULL },
+      {  _poly_zbuf_atex32,            NULL },
+      {  _poly_zbuf_ptex32,            _poly_zbuf_atex32 },
+      {  _poly_zbuf_atex_mask32,       NULL },
+      {  _poly_zbuf_ptex_mask32,       _poly_zbuf_atex_mask32 },
+      {  _poly_zbuf_atex_lit32,        NULL },
+      {  _poly_zbuf_ptex_lit32,        _poly_zbuf_atex_lit32 },
+      {  _poly_zbuf_atex_mask_lit32,   NULL },
+      {  _poly_zbuf_ptex_mask_lit32,   _poly_zbuf_atex_mask_lit32 },
+      {  _poly_zbuf_atex_trans32,      NULL },
+      {  _poly_zbuf_ptex_trans32,      _poly_zbuf_atex_trans32 },
+      {  _poly_zbuf_atex_mask_trans32, NULL },
+      {  _poly_zbuf_ptex_mask_trans32, _poly_zbuf_atex_mask_trans32 }
    };
    #endif
 
@@ -997,7 +1041,8 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	    }
 	 }
 
-	 if ((w > 0) && (x+w > bmp->cl) && (x < bmp->cr)) {
+	 /* if clipping is enabled then clip the segment */
+	 if (bmp->clip) {
 	    if (x < bmp->cl) {
 	       gap = bmp->cl - x;
 	       x = bmp->cl;
@@ -1007,19 +1052,25 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 
 	    if (x+w > bmp->cr)
 	       w = bmp->cr - x;
+	 }
 
+	 if (w > 0) {
+	    int dx = x * BYTES_PER_PIXEL(bitmap_color_depth(bmp));
+	    
 	    if ((flags & OPT_FLOAT_UV_TO_FIX) && (info->dz == 0)) {
-	       info->u = info->fu / info->z;
-	       info->v = info->fv / info->z;
-	       info->du = info->dfu / info->z;
-	       info->dv = info->dfv / info->z;
+	       float z1 = 1. / info->z;
+	       info->u = info->fu * z1;
+	       info->v = info->fv * z1;
+	       info->du = info->dfu * z1;
+	       info->dv = info->dfv * z1;
 	       drawer = _optim_alternative_drawer;
 	    }
 
             if (flags & INTERP_ZBUF) 
-               info->zbuf_addr = bmp_write_line(_zbuffer, y) + x * 4;
+               info->zbuf_addr = bmp_write_line(_zbuffer, y) + x * sizeof(float);
 
-	    drawer(bmp_write_line(bmp, y) + x * BYTES_PER_PIXEL(bitmap_color_depth(bmp)), w, info);
+	    info->read_addr = bmp_read_line(bmp, y) + dx;
+	    drawer(bmp_write_line(bmp, y) + dx, w, info);
 	 }
       }
 
@@ -1050,9 +1101,8 @@ static void do_polygon3d(BITMAP *bmp, int top, int bottom, POLYGON_EDGE *left_ed
 
    acquire_bitmap(bmp);
 
-   if (left_edge->prev != left_edge->next)
-      if (left_edge->prev->top == top)
-	 left_edge = left_edge->prev;
+   if ((left_edge->prev != left_edge->next) && (left_edge->prev->top == top))
+      left_edge = left_edge->prev;
 
    right_edge = left_edge->next;
 
@@ -1294,7 +1344,8 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 	    }
 	 }
 
-	 if ((w > 0) && (x+w > bmp->cl) && (x < bmp->cr)) {
+	 /* if clipping is enabled then clip the segment */
+	 if (bmp->clip) {
 	    if (x < bmp->cl) {
 	       gap = bmp->cl - x;
 	       x = bmp->cl;
@@ -1304,19 +1355,25 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 
 	    if (x+w > bmp->cr)
 	       w = bmp->cr - x;
+	 }
 
+	 if (w > 0) {
+	    int dx = x * BYTES_PER_PIXEL(bitmap_color_depth(bmp));
+	    
 	    if (test_optim) {
-	       info->u = info->fu / info->z;
-	       info->v = info->fv / info->z;
-	       info->du = info->dfu / info->z;
-	       info->dv = info->dfv / info->z;
+	       float z1 = 1. / info->z;
+	       info->u = info->fu * z1;
+	       info->v = info->fv * z1;
+	       info->du = info->dfu * z1;
+	       info->dv = info->dfv * z1;
 	       drawer = _optim_alternative_drawer;
 	    }
 
             if (flags & INTERP_ZBUF) 
-               info->zbuf_addr = bmp_write_line(_zbuffer, y) + x * 4;
+               info->zbuf_addr = bmp_write_line(_zbuffer, y) + x * sizeof(float);
 
-	    drawer(bmp_write_line(bmp, y) + x * BYTES_PER_PIXEL(bitmap_color_depth(bmp)), w, info);
+	    info->read_addr = bmp_read_line(bmp, y) + dx;
+	    drawer(bmp_write_line(bmp, y) + dx, w, info);
 	 }
       }
 
@@ -1717,7 +1774,7 @@ int create_zbuffer(BITMAP *bmp)
  */
 void clear_zbuffer(float z)
 {
-   union{
+   static union{
       float zf;
       long zi;
    } _zbuf_clip;

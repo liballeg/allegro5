@@ -335,5 +335,42 @@ AL_INLINE(fixed, fdiv, (fixed x, fixed y),
 
 
 
+/* fceil :
+ * Fixed point version of ceil().
+ * Note that it returns an integer result (not a fixed one)
+ */
+AL_INLINE(int, fceil, (fixed x),
+{
+   int result;
+
+   asm (
+      " addl $0xFFFF, %0 ;"	/* ceil () */
+      " jns 0f ;"
+      " jo 1f ;"
+
+      "0:"
+      " sarl $16, %0 ;"		/* convert to int */
+      " jmp 2f ;"
+
+      "1:"
+      " movl %3, %0 ;"		/* on overflow, set errno */
+      " movl %2, (%0) ;"
+      " movl $0x7FFF, %0 ;"	/* and return large int */
+
+      "2:"
+    : "=r" (result)		/* result in a register */
+
+    : "0" (x),			/* x in the output register */
+      "i" (ERANGE),
+      "m" (allegro_errno)
+
+    : "%cc", "memory"		/* clobbers flags and errno */
+   );
+
+   return result;
+})
+
+
+
 #undef __PRECALCULATE_CONSTANTS
 

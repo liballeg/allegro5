@@ -218,5 +218,28 @@ END_OF_INLINE(fdiv);
 
 
 
+/* fceil :
+ * Fixed point version of ceil().
+ * Note that it returns an integer result (not a fixed one)
+ */
+INLINE _AL_DLL int fceil(fixed x)
+{
+   _asm {
+      mov eax, x
+      add eax, 0xFFFF
+      jns Out1
+      jo  Out2
+   Out1:
+      sar eax, 0x10
+      jmp Out3
+   Out2:
+      call _set_errno_erange
+      mov eax, 0x7FFF
+   Out3:
+   }
+}
+
+
+
 #pragma warning (default: 4035)
 

@@ -1368,9 +1368,14 @@ typedef struct V3D_f                /* a 3d point (floating point version) */
 #define POLYTYPE_PTEX_LIT           8
 #define POLYTYPE_ATEX_MASK_LIT      9
 #define POLYTYPE_PTEX_MASK_LIT      10
-#define POLYTYPE_MAX                11
+#define POLYTYPE_ATEX_TRANS         11
+#define POLYTYPE_PTEX_TRANS         12
+#define POLYTYPE_ATEX_MASK_TRANS    13
+#define POLYTYPE_PTEX_MASK_TRANS    14
+#define POLYTYPE_MAX                15
 #define POLYTYPE_ZBUF               16
 
+AL_VAR(float, scene_gap);
 
 AL_FUNC(void, polygon3d, (BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[]));
 AL_FUNC(void, polygon3d_f, (BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[]));
@@ -1383,6 +1388,10 @@ AL_FUNC(int, clip3d_f, (int type, float min_z, float max_z, int vc, AL_CONST V3D
 AL_FUNC(int, create_zbuffer, (BITMAP *bmp));
 AL_FUNC(void, clear_zbuffer, (float z));
 AL_FUNC(void, destroy_zbuffer, (void));
+AL_FUNC(int, scene_start, (BITMAP *bmp, int nedge, int npoly));
+AL_FUNC(int, scene_polygon3d, (int type, BITMAP *texture, int vx, V3D *vtx[]));
+AL_FUNC(int, scene_polygon3d_f, (int type, BITMAP *texture, int vx, V3D_f *vtx[]));
+AL_FUNC(void, scene_render, (void));
 
 
 

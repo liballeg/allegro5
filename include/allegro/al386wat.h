@@ -196,3 +196,26 @@ fixed fdiv(fixed x, fixed y);
    modify [ebx edx]              \
    value [eax];
 
+
+
+/* fceil :
+ * Fixed point version of ceil().
+ * Note that it returns an integer result (not a fixed one)
+ */
+int fceil(fixed x);
+
+#pragma aux fceil =              \
+   "  add eax, 0xFFFF "		 \
+   "  jns Out1 "		 \
+   "  jo  Out2 "		 \
+   " Out1: "			 \
+   "  sar eax, 0x10 "		 \
+   "  jmp Out3 "		 \
+   " Out2: "			 \
+   "  call _set_errno_erange "	 \
+   "  mov eax, 0x7FFF "		 \
+   " Out3: "			 \
+				 \
+   parm [eax]			 \
+   value [eax];
+}

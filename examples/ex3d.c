@@ -89,6 +89,10 @@ enum {
    ptex_lit,
    atex_mask_lit,
    ptex_mask_lit,
+   atex_trans,
+   ptex_trans,
+   atex_mask_trans,
+   ptex_mask_trans,
    last_mode
 } render_mode = wireframe;
 
@@ -106,7 +110,11 @@ int render_type[] =
    POLYTYPE_ATEX_LIT,
    POLYTYPE_PTEX_LIT,
    POLYTYPE_ATEX_MASK_LIT,
-   POLYTYPE_PTEX_MASK_LIT
+   POLYTYPE_PTEX_MASK_LIT,
+   POLYTYPE_ATEX_TRANS,
+   POLYTYPE_PTEX_TRANS,
+   POLYTYPE_ATEX_MASK_TRANS,
+   POLYTYPE_PTEX_MASK_TRANS
 };
 
 
@@ -123,7 +131,11 @@ char *mode_desc[] =
    "Lit texture map",
    "Lit persp. correct texture map",
    "Masked lit texture map",
-   "Masked lit persp. correct texture map"
+   "Masked lit persp. correct texture map",
+   "Transparent texture mapped",
+   "Transparent perspective correct texture mapped",
+   "Transparent masked texture mapped",
+   "Transparent masked persp. correct texture mapped",
 };
 
 
@@ -333,6 +345,9 @@ RGB_MAP rgb_table;
 /* lighting color mapping table */
 COLOR_MAP light_table;
 
+/* transparency color mapping table */
+COLOR_MAP trans_table;
+
 
 
 void print_progress(int pos)
@@ -404,12 +419,23 @@ int main()
    create_light_table(&light_table, pal, 0, 0, 0, print_progress);
    color_map = &light_table;
 
+   /* build a transparency table */
+   #ifdef ALLEGRO_CONSOLE_OK
+      printf("\n\n");
+      printf("Generating transparency table:\n");
+      printf("<................................................................>\r<");
+   #endif
+
+   /* textures are 25% transparent (75% opaque) */
+   create_trans_table(&trans_table, pal, 192, 192, 192, print_progress);
+
    #ifdef ALLEGRO_CONSOLE_OK
       printf("\n");
    #endif
 
    /* set up the truecolor blending functions */
-   set_trans_blender(0, 0, 0, 128);
+   /* textures are 25% transparent (75% opaque) */
+   set_trans_blender(0, 0, 0, 192);
 
    /* set the graphics mode */
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
@@ -478,8 +504,12 @@ int main()
 	    break;
 	 else {
 	    render_mode++;
-	    if (render_mode >= last_mode)
+	    if (render_mode >= last_mode) {
 	       render_mode = wireframe;
+	       color_map = &light_table;
+	    }
+	    if (render_type[render_mode] >= POLYTYPE_ATEX_TRANS)
+	       color_map = &trans_table;
 	 }
       }
    }

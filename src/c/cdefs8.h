@@ -53,6 +53,7 @@
 #define PS_BLENDER             COLOR_MAP*
 #define MAKE_PS_BLENDER()      color_map
 #define PS_BLEND(b,o,c)        ((b)->data[(o) & 0xFF][(c) & 0xFF])
+#define PS_ALPHA_BLEND(b,o,c)  ((b)->data[(o) & 0xFF][(c) & 0xFF])
 
 #define PATTERN_LINE(y)        _drawing_pattern->line[((y) - _drawing_y_anchor) & _drawing_y_mask]
 #define GET_PATTERN_PIXEL(x,y) GET_MEMORY_PIXEL(OFFSET_PIXEL_PTR(PATTERN_LINE(y), (x)))
@@ -97,6 +98,10 @@
 #define FUNC_POLY_SCANLINE_PTEX_MASK        _poly_scanline_ptex_mask8
 #define FUNC_POLY_SCANLINE_PTEX_LIT         _poly_scanline_ptex_lit8
 #define FUNC_POLY_SCANLINE_PTEX_MASK_LIT    _poly_scanline_ptex_mask_lit8
+#define FUNC_POLY_SCANLINE_ATEX_TRANS       _poly_scanline_atex_trans8
+#define FUNC_POLY_SCANLINE_ATEX_MASK_TRANS  _poly_scanline_atex_mask_trans8
+#define FUNC_POLY_SCANLINE_PTEX_TRANS       _poly_scanline_ptex_trans8
+#define FUNC_POLY_SCANLINE_PTEX_MASK_TRANS  _poly_scanline_ptex_mask_trans8
 
 #endif /* !__bma_cdefs8_h */
 

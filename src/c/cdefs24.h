@@ -62,6 +62,7 @@
 #define PS_BLENDER             BLENDER_FUNC
 #define MAKE_PS_BLENDER()      _blender_func24
 #define PS_BLEND(b,o,c)        ((*(b))((c), _blender_col_24, (o)))
+#define PS_ALPHA_BLEND(b,o,c)  ((*(b))((o), (c), _blender_alpha))
 
 #define PATTERN_LINE(y)        (PIXEL_PTR) (_drawing_pattern->line[((y) - _drawing_y_anchor) \
 								   & _drawing_y_mask])
@@ -106,6 +107,10 @@
 #define FUNC_POLY_SCANLINE_PTEX_MASK        _poly_scanline_ptex_mask24
 #define FUNC_POLY_SCANLINE_PTEX_LIT         _poly_scanline_ptex_lit24
 #define FUNC_POLY_SCANLINE_PTEX_MASK_LIT    _poly_scanline_ptex_mask_lit24
+#define FUNC_POLY_SCANLINE_ATEX_TRANS       _poly_scanline_atex_trans24
+#define FUNC_POLY_SCANLINE_ATEX_MASK_TRANS  _poly_scanline_atex_mask_trans24
+#define FUNC_POLY_SCANLINE_PTEX_TRANS       _poly_scanline_ptex_trans24
+#define FUNC_POLY_SCANLINE_PTEX_MASK_TRANS  _poly_scanline_ptex_mask_trans24
 
 #endif /* !__bma_cdefs24_h */
 

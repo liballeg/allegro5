@@ -83,6 +83,7 @@
 
 
 
+#ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_flat8(unsigned long addr, int w, POLYGON_SEGMENT *info);
  *  Fills a single-color flat polygon scanline.
  */
@@ -91,6 +92,7 @@ FUNC(_poly_zbuf_flat8)
    movb %dl, FSEG(%edi)
    END_FLAT()
    ret                           /* end of _poly_zbuf_flat8() */
+#endif
 
 
 
@@ -137,6 +139,7 @@ FUNC(_poly_zbuf_flat24)
 
 
 
+#ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_gcol8(unsigned long addr, int w, POLYGON_SEGMENT *info);
  *  Fills a single-color gouraud shaded polygon scanline.
  */
@@ -271,6 +274,7 @@ FUNC(_poly_zbuf_grgb8)
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _poly_zbuf_grgb8() */
+#endif
 
 
 
@@ -409,20 +413,21 @@ FUNC(_poly_zbuf_grgb24)
 
 
 
-#define VMASK     -8(%ebp)
-#define VSHIFT   -12(%ebp)
-#define DV       -16(%ebp)
-#define DU       -20(%ebp)
-#define ALPHA2   -22(%ebp)
-#define ALPHA    -24(%ebp)
-#define DALPHA   -28(%ebp)
-#define UMASK    -32(%ebp)
+#define VMASK      -8(%ebp)
+#define VSHIFT    -12(%ebp)
+#define DV        -16(%ebp)
+#define DU        -20(%ebp)
+#define ALPHA2    -22(%ebp)
+#define ALPHA     -24(%ebp)
+#define DALPHA    -28(%ebp)
+#define UMASK     -32(%ebp)
+#define READ_ADDR -36(%ebp)
 
 /* first part of an affine texture mapping operation */
 #define INIT_ATEX(extra...)                                           \
    pushl %ebp                                                       ; \
    movl %esp, %ebp                                                  ; \
-   subl $32, %esp                    /* local variables */          ; \
+   subl $36, %esp                    /* local variables */          ; \
    pushl %ebx                                                       ; \
    pushl %esi                                                       ; \
    pushl %edi                                                       ; \
@@ -498,6 +503,7 @@ FUNC(_poly_zbuf_grgb24)
 
 
 
+#ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_atex8(unsigned long addr, int w, POLYGON_SEGMENT *info);
  *  Fills an affine texture mapped polygon scanline.
  */
@@ -523,6 +529,7 @@ FUNC(_poly_zbuf_atex_mask8)
      incl %edi
    )
    ret                           /* end of _poly_zbuf_atex_mask8() */
+#endif
 
 
 
@@ -636,6 +643,7 @@ FUNC(_poly_zbuf_atex_mask24)
 
 
 
+#ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_atex_lit8(ulong addr, int w, POLYGON_SEGMENT *info);
  *  Fills a lit affine texture mapped polygon scanline.
  */
@@ -681,6 +689,7 @@ FUNC(_poly_zbuf_atex_mask_lit8)
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_atex_mask_lit8() */
+#endif
 
 
 
@@ -828,7 +837,7 @@ FUNC(_poly_zbuf_atex_lit32)
    pushl GLOBL(_blender_col_32)
    pushl %eax
 
-   call *GLOBL(_blender_func24)
+   call *GLOBL(_blender_func32)
    addl $12, %esp
 
    movl %eax, FSEG(%edi)         /* write the pixel */
@@ -859,7 +868,7 @@ FUNC(_poly_zbuf_atex_mask_lit32)
    pushl GLOBL(_blender_col_32)
    pushl %eax
 
-   call *GLOBL(_blender_func24)
+   call *GLOBL(_blender_func32)
    addl $12, %esp
 
    movl %eax, FSEG(%edi)         /* write the pixel */
@@ -948,6 +957,329 @@ FUNC(_poly_zbuf_atex_mask_lit24)
 
 #endif /* COLOR24 */
 
+
+
+
+#ifdef ALLEGRO_COLOR8
+/* void _poly_zbuf_atex_trans8(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_trans8)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movzbl (%esi, %eax), %eax     /* read texel */
+   shll $8, %eax
+   pushl %edi
+   movl READ_ADDR, %edi
+   movb FSEG(%edi), %al
+   popl %edi
+   movl GLOBL(color_map), %ecx
+   movb (%ecx, %eax), %al
+   movb %al, FSEG(%edi)
+   END_ATEX(
+     incl %edi
+     incl READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_trans8() */
+
+/* void _poly_zbuf_atex_mask_trans8(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_mask_trans8)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movzbl (%esi, %eax), %eax     /* read texel */
+   orl %eax, %eax
+   jz 2f
+   shll $8, %eax
+   pushl %edi
+   movl READ_ADDR, %edi
+   movb FSEG(%edi), %al
+   popl %edi
+   movl GLOBL(color_map), %ecx
+   movb (%ecx, %eax), %al
+   movb %al, FSEG(%edi)
+   END_ATEX(
+     incl %edi
+     incl READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_mask_trans8() */
+#endif
+
+
+
+#ifdef ALLEGRO_COLOR16
+/* void _poly_zbuf_atex_trans15(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_trans15)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   movw (%esi, %eax, 2), %ax    /* read texel */
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func15)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_ATEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_trans15() */
+
+/* void _poly_zbuf_atex_mask_trans15(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_mask_trans15)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movw (%esi, %eax, 2), %ax    /* read texel */
+   cmpw $MASK_COLOR_15, %ax
+   jz 2f
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func15)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_ATEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_mask_trans15() */
+
+
+
+/* void _poly_zbuf_atex_trans16(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_trans16)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   movw (%esi, %eax, 2), %ax     /* read texel */
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func16)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   popl %edx
+   END_ATEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_trans16() */
+
+/* void _poly_zbuf_atex_mask_trans16(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_mask_trans16)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movw (%esi, %eax, 2), %ax     /* read texel */
+   cmpw $MASK_COLOR_16, %ax
+   jz 2f
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func16)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   popl %edx
+   END_ATEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_mask_trans16() */
+
+#endif /* COLOR16 */
+
+
+
+#ifdef ALLEGRO_COLOR32
+/* void _poly_zbuf_atex_trans32(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_trans32)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   movl %edi, ALPHA
+   movl READ_ADDR, %edi
+   pushl FSEG(%edi)
+   movl ALPHA, %edi
+   pushl (%esi, %eax, 4)
+
+   call *GLOBL(_blender_func32)
+   addl $12, %esp
+
+   movl %eax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_ATEX(
+     addl $4, %edi
+     addl $4, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_trans32() */
+
+/* void _poly_zbuf_atex_mask_trans32(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_mask_trans32)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movl (%esi, %eax, 4), %eax    /* read texel */
+   cmpl $MASK_COLOR_32, %eax
+   jz 2f
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   movl %edi, ALPHA
+   movl READ_ADDR, %edi
+   pushl FSEG(%edi)
+   movl ALPHA, %edi
+   pushl %eax
+
+   call *GLOBL(_blender_func32)
+   addl $12, %esp
+
+   movl %eax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_ATEX(
+     addl $4, %edi
+     addl $4, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_mask_trans32() */
+
+#endif /* COLOR32 */
+
+
+
+#ifdef ALLEGRO_COLOR24
+/* void _poly_zbuf_atex_trans24(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_trans24)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   leal (%eax, %eax, 2), %ecx
+   pushl %edi
+   movl READ_ADDR, %edi
+   movb FSEG 2(%edi), %dl
+   movb 2(%esi, %ecx), %al        /* read texel */
+   shll $16, %edx
+   shll $16, %eax
+   movw FSEG(%edi), %dx
+   popl %edi
+   movw (%esi, %ecx), %ax
+   pushl %edx
+   pushl %eax
+
+   call *GLOBL(_blender_func24)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   shrl $16, %eax
+   movb %al, FSEG 2(%edi)
+   popl %edx
+   END_ATEX(
+     addl $3, %edi
+     addl $3, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_trans24() */
+
+/* void _poly_zbuf_atex_mask_trans24(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans affine texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_atex_mask_trans24)
+   INIT_ATEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   leal (%eax, %eax, 2), %ecx
+   movzbl 2(%esi, %ecx), %eax    /* read texel */
+   shll $16, %eax
+   movw (%esi, %ecx), %ax
+   cmpl $MASK_COLOR_24, %eax
+   jz 2f
+   movl %edi, ALPHA
+   movl READ_ADDR, %edi
+   movb FSEG 2(%edi), %cl
+   pushl %edx
+   movl ALPHA, %edi
+   pushl GLOBL(_blender_alpha)
+   shll $16, %ecx
+   movw FSEG(%edi), %cx
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func24)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   shrl $16, %eax
+   movb %al, FSEG 2(%edi)
+   popl %edx
+   END_ATEX(
+     addl $3, %edi
+     addl $3, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_atex_mask_trans24() */
+
+#endif /* COLOR24 */
+
+
+
 #undef VMASK
 #undef VSHIFT
 #undef UMASK
@@ -956,23 +1288,25 @@ FUNC(_poly_zbuf_atex_mask_lit24)
 #undef ALPHA
 #undef ALPHA2
 #undef DALPHA
+#undef READ_ADDR
 
 
 
-#define VMASK     -8(%ebp)
-#define VSHIFT   -12(%ebp)
-#define ALPHA    -16(%ebp)
-#define DALPHA   -20(%ebp)
-#define U1       -24(%ebp)
-#define V1       -28(%ebp)
-#define DU       -32(%ebp)
-#define DV       -36(%ebp)
-#define DZ       -40(%ebp)
-#define DU4      -44(%ebp)
-#define DV4      -48(%ebp)
-#define DZ4      -52(%ebp)
-#define UMASK    -56(%ebp)
-#define COUNT    -60(%ebp)
+#define VMASK      -8(%ebp)
+#define VSHIFT    -12(%ebp)
+#define ALPHA     -16(%ebp)
+#define DALPHA    -20(%ebp)
+#define U1        -24(%ebp)
+#define V1        -28(%ebp)
+#define DU        -32(%ebp)
+#define DV        -36(%ebp)
+#define DZ        -40(%ebp)
+#define DU4       -44(%ebp)
+#define DV4       -48(%ebp)
+#define DZ4       -52(%ebp)
+#define UMASK     -56(%ebp)
+#define COUNT     -60(%ebp)
+#define READ_ADDR -64(%ebp)
 
 /* helper for starting an fpu 1/z division */
 #define START_FP_DIV()                                                \
@@ -998,7 +1332,7 @@ FUNC(_poly_zbuf_atex_mask_lit24)
 #define INIT_PTEX(extra...)                                           \
    pushl %ebp                                                       ; \
    movl %esp, %ebp                                                  ; \
-   subl $60, %esp                /* local variables */              ; \
+   subl $64, %esp                /* local variables */              ; \
    pushl %ebx                                                       ; \
    pushl %esi                                                       ; \
    pushl %edi                                                       ; \
@@ -1133,6 +1467,7 @@ FUNC(_poly_zbuf_atex_mask_lit24)
 
 
 
+#ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_ptex8(ulong addr, int w, POLYGON_SEGMENT *info);
  *  Fills a perspective correct texture mapped polygon scanline.
  */
@@ -1158,6 +1493,7 @@ FUNC(_poly_zbuf_ptex_mask8)
      incl %edi
    )
    ret                           /* end of _poly_zbuf_ptex_mask8() */
+#endif
 
 
 
@@ -1274,6 +1610,7 @@ FUNC(_poly_zbuf_ptex_mask24)
 
 
 
+#ifdef ALLEGRO_COLOR8
 /* void _poly_zbuf_ptex_lit8(ulong addr, int w, POLYGON_SEGMENT *info);
  *  Fills a lit perspective correct texture mapped polygon scanline.
  */
@@ -1319,6 +1656,7 @@ FUNC(_poly_zbuf_ptex_mask_lit8)
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit8() */
+#endif
 
 
 
@@ -1467,7 +1805,7 @@ FUNC(_poly_zbuf_ptex_lit32)
    pushl GLOBL(_blender_col_32)
    pushl %eax
 
-   call *GLOBL(_blender_func24)
+   call *GLOBL(_blender_func32)
    addl $12, %esp
 
    movl %eax, FSEG(%edi)         /* write the pixel */
@@ -1498,7 +1836,7 @@ FUNC(_poly_zbuf_ptex_mask_lit32)
    pushl GLOBL(_blender_col_32)
    pushl %eax
 
-   call *GLOBL(_blender_func24)
+   call *GLOBL(_blender_func32)
    addl $12, %esp
 
    movl %eax, FSEG(%edi)         /* write the pixel */
@@ -1535,7 +1873,7 @@ FUNC(_poly_zbuf_ptex_lit24)
    pushl GLOBL(_blender_col_24)
    pushl %eax
 
-   call *GLOBL(_blender_func24)
+   call *GLOBL(_blender_func32)
    addl $12, %esp
 
    movw %ax, FSEG(%edi)          /* write the pixel */
@@ -1584,5 +1922,324 @@ FUNC(_poly_zbuf_ptex_mask_lit24)
      addl %eax, ALPHA
    )
    ret                           /* end of _poly_zbuf_ptex_mask_lit24() */
+
+#endif /* COLOR24 */
+
+
+
+#ifdef ALLEGRO_COLOR8
+/* void _poly_zbuf_ptex_trans8(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_trans8)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movzbl (%esi, %eax), %eax     /* read texel */
+   shll $8, %eax
+   pushl %edi
+   movl READ_ADDR, %edi
+   movb FSEG(%edi), %al
+   popl %edi
+   movl GLOBL(color_map), %ecx
+   movb (%ecx, %eax), %al
+   movb %al, FSEG(%edi)
+   END_PTEX(
+     incl %edi
+     incl READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_trans8() */
+
+/* void _poly_zbuf_ptex_mask_trans8(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_mask_trans8)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movzbl (%esi, %eax), %eax     /* read texel */
+   orl %eax, %eax
+   jz 2f
+   shll $8, %eax
+   pushl %edi
+   movl READ_ADDR, %edi
+   movb FSEG(%edi), %al
+   popl %edi
+   movl GLOBL(color_map), %ecx
+   movb (%ecx, %eax), %al
+   movb %al, FSEG(%edi)
+   END_PTEX(
+     incl %edi
+     incl READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_mask_trans8() */
+#endif
+
+
+#ifdef ALLEGRO_COLOR16
+/* void _poly_zbuf_ptex_trans15(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_trans15)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   movw (%esi, %eax, 2), %ax    /* read texel */
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func15)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_PTEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_trans15() */
+
+/* void _poly_zbuf_ptex_mask_trans15(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_mask_trans15)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movw (%esi, %eax, 2), %ax    /* read texel */
+   cmpw $MASK_COLOR_15, %ax
+   jz 2f
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func15)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_PTEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_mask_trans15() */
+
+
+
+/* void _poly_zbuf_ptex_trans16(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_trans16)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   movw (%esi, %eax, 2), %ax     /* read texel */
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func16)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   popl %edx
+   END_PTEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_trans16() */
+
+/* void _poly_zbuf_ptex_mask_trans16(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_mask_trans16)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movw (%esi, %eax, 2), %ax     /* read texel */
+   cmpw $MASK_COLOR_16, %ax
+   jz 2f
+   pushl %edi
+   movl READ_ADDR, %edi
+   movw FSEG(%edi), %cx
+   popl %edi
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func16)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   popl %edx
+   END_PTEX(
+     addl $2, %edi
+     addl $2, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_mask_trans16() */
+
+#endif /* COLOR16 */
+
+
+
+#ifdef ALLEGRO_COLOR32
+/* void _poly_zbuf_ptex_trans32(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_trans32)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   movl %edi, ALPHA
+   movl READ_ADDR, %edi
+   pushl FSEG(%edi)
+   movl ALPHA, %edi
+   pushl (%esi, %eax, 4)
+
+   call *GLOBL(_blender_func32)
+   addl $12, %esp
+
+   movl %eax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_PTEX(
+     addl $4, %edi
+     addl $4, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_trans32() */
+
+/* void _poly_zbuf_ptex_mask_trans32(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_mask_trans32)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   movl (%esi, %eax, 4), %eax    /* read texel */
+   cmpl $MASK_COLOR_32, %eax
+   jz 2f
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   movl %edi, ALPHA
+   movl READ_ADDR, %edi
+   pushl FSEG(%edi)
+   movl ALPHA, %edi
+   pushl %eax
+
+   call *GLOBL(_blender_func32)
+   addl $12, %esp
+
+   movl %eax, FSEG(%edi)         /* write the pixel */
+   popl %edx
+   END_PTEX(
+     addl $4, %edi
+     addl $4, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_mask_trans32() */
+
+#endif /* COLOR32 */
+
+
+
+#ifdef ALLEGRO_COLOR24
+/* void _poly_zbuf_ptex_trans24(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_trans24)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   leal (%eax, %eax, 2), %ecx
+   pushl %edi
+   movl READ_ADDR, %edi
+   movb FSEG 2(%edi), %dl
+   movb 2(%esi, %ecx), %al        /* read texel */
+   shll $16, %edx
+   shll $16, %eax
+   movw FSEG(%edi), %dx
+   popl %edi
+   movw (%esi, %ecx), %ax
+   pushl %edx
+   pushl %eax
+
+   call *GLOBL(_blender_func24)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   shrl $16, %eax
+   movb %al, FSEG 2(%edi)
+   popl %edx
+   END_PTEX(
+     addl $3, %edi
+     addl $3, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_trans24() */
+
+/* void _poly_zbuf_ptex_mask_trans24(ulong addr, int w, POLYGON_SEGMENT *info);
+ *  Fills a trans perspective correct texture mapped polygon scanline.
+ */
+FUNC(_poly_zbuf_ptex_mask_trans24)
+   INIT_PTEX(
+     movl POLYSEG_RADDR(%esi), %eax
+     movl %eax, READ_ADDR
+   )
+   leal (%eax, %eax, 2), %ecx
+   movzbl 2(%esi, %ecx), %eax    /* read texel */
+   shll $16, %eax
+   movw (%esi, %ecx), %ax
+   cmpl $MASK_COLOR_24, %eax
+   jz 2f
+   movl %edi, ALPHA
+   movl READ_ADDR, %edi
+   movb FSEG 2(%edi), %cl
+   pushl %edx
+   pushl GLOBL(_blender_alpha)
+   shll $16, %ecx
+   movw FSEG(%edi), %cx
+   movl ALPHA, %edi
+   pushl %ecx
+   pushl %eax
+
+   call *GLOBL(_blender_func24)
+   addl $12, %esp
+
+   movw %ax, FSEG(%edi)          /* write the pixel */
+   shrl $16, %eax
+   movb %al, FSEG 2(%edi)
+   popl %edx
+   END_PTEX(
+     addl $3, %edi
+     addl $3, READ_ADDR
+   )
+   ret                           /* end of _poly_zbuf_ptex_mask_trans24() */
 
 #endif /* COLOR24 */

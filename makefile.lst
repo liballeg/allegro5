@@ -44,6 +44,7 @@ ALLEGRO_SRC_FILES = \
 	src/readbmp.c \
 	src/rle.c \
 	src/rotate.c \
+	src/scene3d.c \
 	src/sound.c \
 	src/spline.c \
 	src/stream.c \
@@ -103,6 +104,7 @@ ALLEGRO_SRC_I386_FILES = \
 	src/i386/igfx8.s \
 	src/i386/imisc.s \
 	src/i386/iscan.s \
+	src/i386/iscanmmx.s \
 	src/i386/ispr15.s \
 	src/i386/ispr16.s \
 	src/i386/ispr24.s \

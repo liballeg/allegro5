@@ -167,6 +167,18 @@ AL_INLINE(fixed, fdiv, (fixed x, fixed y),
 })
 
 
+AL_INLINE(int, fceil, (fixed x),
+{
+   x += 0xFFFF;
+   if (x >= 0x80000000) {
+      *allegro_errno = ERANGE;
+      return 0x7FFF;
+   }
+
+   return (x >> 16);
+})
+
+
 #endif      /* C vs. inline asm */
 
 

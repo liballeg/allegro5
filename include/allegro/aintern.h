@@ -537,15 +537,19 @@ AL_FUNC(void, _do_stretch, (BITMAP *source, BITMAP *dest, void *drawer, int sx, 
 
 
 /* bitfield specifying which polygon attributes need interpolating */
-#define INTERP_FLAT           1
-#define INTERP_1COL           2
-#define INTERP_3COL           4
-#define INTERP_FIX_UV         8
-#define INTERP_Z              16
-#define INTERP_FLOAT_UV       32
-#define OPT_FLOAT_UV_TO_FIX   64
-#define COLOR_TO_RGB          128
-#define INTERP_ZBUF           256
+#define INTERP_FLAT           1      /* no interpolation */
+#define INTERP_1COL           2      /* gcol or alpha */
+#define INTERP_3COL           4      /* grgb */
+#define INTERP_FIX_UV         8      /* atex */
+#define INTERP_Z              16     /* always in scene3d */
+#define INTERP_FLOAT_UV       32     /* ptex */
+#define OPT_FLOAT_UV_TO_FIX   64     /* translate ptex to atex */
+#define COLOR_TO_RGB          128    /* grgb to gcol for truecolor */
+#define INTERP_ZBUF           256    /* z-buffered */
+#define INTERP_THRU           512    /* any kind of transparent */
+#define INTERP_NOSOLID        1024   /* non-solid modes for 8-bit flat */
+#define INTERP_BLEND          2048   /* lit for truecolor */
+#define INTERP_TRANS          4096   /* trans for truecolor */
 
 
 /* information for polygon scanline fillers */
@@ -560,7 +564,12 @@ typedef struct POLYGON_SEGMENT
    int umask, vmask, vshift;        /* texture map size information */
    int seg;                         /* destination bitmap selector */
    unsigned long zbuf_addr;	    /* Z-buffer address */
+   unsigned long read_addr;	    /* reading address for transparency modes */
 } POLYGON_SEGMENT;
+
+
+/* prototype for the scanline filler functions */
+typedef AL_METHOD(void, SCANLINE_FILLER, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 
 /* an active polygon edge */
@@ -573,15 +582,32 @@ typedef struct POLYGON_EDGE
    POLYGON_SEGMENT dat;             /* texture/gouraud information */
    struct POLYGON_EDGE *prev;       /* doubly linked list */
    struct POLYGON_EDGE *next;
+   struct POLYGON_INFO *poly;	    /* father polygon */
 } POLYGON_EDGE;
 
 
-/* Global variables for Z-Buffer */
+typedef struct POLYGON_INFO {       /* a polygon waiting rendering */
+   struct POLYGON_INFO *next, *prev;/* double linked list */
+   int inside;                      /* flag for "scanlining" */
+   int flags;                       /* INTERP_* flags */
+   int color;                       /* vtx[0]->c */
+   float a, b, c;                   /* plane's coefficients -a/d, -b/d, -c/d */
+   int dmode;                       /* drawing mode */
+   BITMAP *dpat;                    /* drawing pattern */
+   int xanchor, yanchor;            /* for dpat */
+   int alpha;                       /* blender alpha */
+   int b15, b16, b24, b32;          /* blender colors */
+   COLOR_MAP *cmap;                 /* trans color map */
+   SCANLINE_FILLER drawer;	    /* scanline drawing functions */
+   SCANLINE_FILLER alt_drawer; 
+   POLYGON_EDGE *left_edge;	    /* true edges used in interpolation */
+   POLYGON_EDGE *right_edge;
+   POLYGON_SEGMENT info;            /* base information for scanline functions */
+} POLYGON_INFO;
+
+
+/* global variable for z-buffer */
 AL_VAR(BITMAP *, _zbuffer);
-
-
-/* prototype for the scanline filler functions */
-typedef AL_METHOD(void, SCANLINE_FILLER, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 
 /* polygon helper functions */
@@ -596,6 +622,8 @@ AL_FUNC(void, _clip_polygon_segment_f, (POLYGON_SEGMENT *info, int gap, int flag
 
 
 /* polygon scanline filler functions */
+AL_FUNC(void, _poly_scanline_dummy, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+
 #ifdef ALLEGRO_COLOR8
 
 AL_FUNC(void, _poly_scanline_gcol8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -608,6 +636,10 @@ AL_FUNC(void, _poly_scanline_atex_lit8, (unsigned long addr, int w, POLYGON_SEGM
 AL_FUNC(void, _poly_scanline_ptex_lit8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_mask_lit8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_mask_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_mask_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 AL_FUNC(void, _poly_scanline_grgb8x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
@@ -622,6 +654,10 @@ AL_FUNC(void, _poly_zbuf_atex_lit8, (unsigned long addr, int w, POLYGON_SEGMENT 
 AL_FUNC(void, _poly_zbuf_ptex_lit8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_atex_mask_lit8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_ptex_mask_lit8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_mask_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_mask_trans8, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 #endif
 
@@ -634,6 +670,10 @@ AL_FUNC(void, _poly_scanline_atex_lit15, (unsigned long addr, int w, POLYGON_SEG
 AL_FUNC(void, _poly_scanline_ptex_lit15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_mask_lit15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_mask_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_mask_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 AL_FUNC(void, _poly_scanline_grgb15x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit15x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -651,6 +691,10 @@ AL_FUNC(void, _poly_zbuf_atex_lit15, (unsigned long addr, int w, POLYGON_SEGMENT
 AL_FUNC(void, _poly_zbuf_ptex_lit15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_atex_mask_lit15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_ptex_mask_lit15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_mask_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_mask_trans15, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 AL_FUNC(void, _poly_scanline_grgb16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -661,6 +705,10 @@ AL_FUNC(void, _poly_scanline_atex_lit16, (unsigned long addr, int w, POLYGON_SEG
 AL_FUNC(void, _poly_scanline_ptex_lit16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_mask_lit16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_mask_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_mask_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 AL_FUNC(void, _poly_scanline_grgb16x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit16x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -681,6 +729,10 @@ AL_FUNC(void, _poly_zbuf_atex_lit16, (unsigned long addr, int w, POLYGON_SEGMENT
 AL_FUNC(void, _poly_zbuf_ptex_lit16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_atex_mask_lit16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_ptex_mask_lit16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_mask_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_mask_trans16, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 #endif
 
@@ -695,6 +747,10 @@ AL_FUNC(void, _poly_scanline_atex_lit24, (unsigned long addr, int w, POLYGON_SEG
 AL_FUNC(void, _poly_scanline_ptex_lit24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_mask_lit24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_mask_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_mask_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 AL_FUNC(void, _poly_scanline_grgb24x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit24x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -715,6 +771,10 @@ AL_FUNC(void, _poly_zbuf_atex_lit24, (unsigned long addr, int w, POLYGON_SEGMENT
 AL_FUNC(void, _poly_zbuf_ptex_lit24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_atex_mask_lit24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_ptex_mask_lit24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_mask_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_mask_trans24, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 #endif
 
@@ -729,6 +789,10 @@ AL_FUNC(void, _poly_scanline_atex_lit32, (unsigned long addr, int w, POLYGON_SEG
 AL_FUNC(void, _poly_scanline_ptex_lit32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_mask_lit32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_ptex_mask_lit32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_atex_mask_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_scanline_ptex_mask_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 AL_FUNC(void, _poly_scanline_grgb32x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_scanline_atex_lit32x, (unsigned long addr, int w, POLYGON_SEGMENT *info));
@@ -749,6 +813,10 @@ AL_FUNC(void, _poly_zbuf_atex_lit32, (unsigned long addr, int w, POLYGON_SEGMENT
 AL_FUNC(void, _poly_zbuf_ptex_lit32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_atex_mask_lit32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 AL_FUNC(void, _poly_zbuf_ptex_mask_lit32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_atex_mask_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
+AL_FUNC(void, _poly_zbuf_ptex_mask_trans32, (unsigned long addr, int w, POLYGON_SEGMENT *info));
 
 #endif
 

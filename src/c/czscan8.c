@@ -34,6 +34,10 @@
 #define FUNC_POLY_ZBUF_PTEX_MASK		_poly_zbuf_ptex_mask8
 #define FUNC_POLY_ZBUF_PTEX_LIT			_poly_zbuf_ptex_lit8
 #define FUNC_POLY_ZBUF_PTEX_MASK_LIT		_poly_zbuf_ptex_mask_lit8
+#define FUNC_POLY_ZBUF_ATEX_TRANS		_poly_zbuf_atex_trans8
+#define FUNC_POLY_ZBUF_ATEX_MASK_TRANS		_poly_zbuf_atex_mask_trans8
+#define FUNC_POLY_ZBUF_PTEX_TRANS		_poly_zbuf_ptex_trans8
+#define FUNC_POLY_ZBUF_PTEX_MASK_TRANS		_poly_zbuf_ptex_mask_trans8
 
 #define _bma_zbuf_gcol
 

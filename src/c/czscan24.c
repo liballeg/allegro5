@@ -33,6 +33,10 @@
 #define FUNC_POLY_ZBUF_PTEX_MASK		_poly_zbuf_ptex_mask24
 #define FUNC_POLY_ZBUF_PTEX_LIT			_poly_zbuf_ptex_lit24
 #define FUNC_POLY_ZBUF_PTEX_MASK_LIT		_poly_zbuf_ptex_mask_lit24
+#define FUNC_POLY_ZBUF_ATEX_TRANS		_poly_zbuf_atex_trans24
+#define FUNC_POLY_ZBUF_ATEX_MASK_TRANS		_poly_zbuf_atex_mask_trans24
+#define FUNC_POLY_ZBUF_PTEX_TRANS		_poly_zbuf_ptex_trans24
+#define FUNC_POLY_ZBUF_PTEX_MASK_TRANS		_poly_zbuf_ptex_mask_trans24
 
 #undef _bma_zbuf_gcol
 
