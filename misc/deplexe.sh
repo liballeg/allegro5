@@ -55,7 +55,7 @@ for file in .. $*; do
 
     # Program.
     echo "$dir/$name\$(EXE): \$(OBJDIR)/$name\$(OBJ) \$(LIBALLEG)"
-    echo "	\$(LINK) -o $dir/$name\$(EXE) \$(OBJDIR)/$name\$(OBJ) \$(LINK_LIBALLEG) \$(LIBS)"
+    echo "	\$(LINK) -o $dir/$name\$(EXE) \$(OBJDIR)/$name\$(OBJ) \$(LINK_LIBALLEG)"
     echo ""
 
     # Object file.
