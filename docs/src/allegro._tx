@@ -527,7 +527,7 @@ available in past/future versions of Allegro.
    routines" for a description on how to obtain/use this structure.
 
 @@typedef struct @MENU
-@xref Gui menus
+@xref do_menu, GUI menus
 <codeblock>
    char *text;          - the text to display for the menu item
    int (*proc)();       - called when the menu item is clicked
@@ -536,14 +536,14 @@ available in past/future versions of Allegro.
    void *dp;            - pointer to any data you need
 <endblock>
    Structure used to hold an entry of a menu. Read chapter "GUI routines",
-   section "Gui menus" for a description on how to obtain/use this structure.
+   section "GUI menus" for a description on how to obtain/use this structure.
 
 @@typedef struct @DIALOG_PLAYER
-@xref init_dialog
+@xref init_dialog, update_dialog, shutdown_dialog, GUI routines
    A structure which holds GUI data used internally by Allegro. Read the
    documentation of init_dialog() for a description on how to obtain/use this
    structure.
-   
+
 @@typedef struct @FONT
 @xref font
    A structure holding an Allegro font, usually created beforehand with the
@@ -7302,7 +7302,7 @@ still drawn too large until version 4.1.0.
    The d_slider_proc object will return the value of the callback function.
 
 @@int @d_menu_proc(int msg, DIALOG *d, int c);
-@xref Gui menus, active_menu, gui_menu_draw_menu
+@xref GUI menus, active_menu, gui_menu_draw_menu
    This object is a menu bar which will drop down child menus when it is 
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
@@ -7355,7 +7355,7 @@ The behaviour of the dialog manager can be controlled by the variables:
    mouse_z, and mouse_b variables, but they could be used to offset or scale 
    the mouse position, or read input from a different source entirely.
 
-@hnode Gui font
+@hnode GUI font
 You can change the global 'font' pointer to make the GUI objects use 
 something other than the standard 8x8 font. The standard dialog procedures, 
 menus, and alert boxes, will work with fonts of any size, but the 
@@ -7476,7 +7476,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    Global pointer to the most recent activated dialog. This may be useful if 
    an object needs to iterate through a list of all its siblings.
 
-@hnode Gui menus
+@hnode GUI menus
 @xref do_menu, d_menu_proc, gui_menu_draw_menu
 Popup or pulldown menus are created as an array of MENU structures. Read
 chapter "Structures and types defined by Allegro" for an internal description
@@ -7502,7 +7502,7 @@ would be a good idea to prefix all your options with a space or two, to
 ensure there is room for the check.
 
 @@int @do_menu(MENU *menu, int x, int y)
-@xref Gui menus, d_menu_proc, active_menu, gui_menu_draw_menu
+@xref GUI menus, d_menu_proc, active_menu, gui_menu_draw_menu
    Displays and animates a popup menu at the specified screen coordinates 
    (these will be adjusted if the menu does not entirely fit on the screen). 
    Returns the index of the menu item that was selected, or -1 if the menu 
@@ -7511,7 +7511,7 @@ ensure there is room for the check.
    multi-level menus.
 
 @@extern MENU *@active_menu;
-@xref Gui menus
+@xref GUI menus
    When a menu callback procedure is triggered, this will be set to the menu 
    item that was selected, so your routine can determine where it was called 
    from.
@@ -7519,7 +7519,7 @@ ensure there is room for the check.
 @@extern void (*@gui_menu_draw_menu)(int x, int y, int w, int h);
 @\extern void (*@gui_menu_draw_menu_item)(MENU *m, int x, int y, int w,
 @@                                       int h, int bar, int sel);
-@xref Gui menus
+@xref GUI menus
    If set, these functions will be called whenever a menu needs to be
    drawn, so you can change how menus look.
 
