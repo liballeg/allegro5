@@ -157,13 +157,15 @@ endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
+CFLAGS = -DALLEGRO_LIB_BUILD
+
 
 
 ifdef DEBUGMODE
 
 # -------- debugging build --------
 
-CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
+CFLAGS += -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
 LFLAGS += -g
 
@@ -172,7 +174,7 @@ ifdef PROFILEMODE
 
 # -------- profiling build --------
 
-CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
+CFLAGS += $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
 SFLAGS = $(WFLAGS)
 LFLAGS += -pg
 
@@ -180,7 +182,7 @@ else
 
 # -------- optimised build --------
 
-CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer
+CFLAGS += $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 ifndef SYMBOLMODE
    LFLAGS += -s
