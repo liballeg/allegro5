@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
    install_timer();
 
    /* install a MIDI sound driver */
-   if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, argv[0]) != 0) {
+   if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
       allegro_message("Error initialising sound system\n%s\n", allegro_error);
       return 1;
    }
