@@ -634,6 +634,20 @@ General problems
       which uses a variety of methods to draw itself.
 
 <h4><li>
+@@   Why doesn't busy waiting on the key array work? For example,
+   "while (!key[KEY_ENTER]);" doesn't work.
+</h4>
+      If the code works without optimisations, then it could be the
+      compiler's fault. You can try beating the compiler into submission,
+      for example:
+<pre>
+      while (!key[KEY_ENTER])
+         yield_timeslice();</pre>
+
+      For this case, however, it would be better to use readkey() instead.
+      Or consider upgrading or downgrading your compiler.
+
+<h4><li>
 @@   I'm still confused. Where can I get help?
 </h4>
       See <link>http://www.talula.demon.co.uk/allegro/maillist.html</a>.
