@@ -110,6 +110,19 @@ int _packfile_type = 0;
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)
 
 
+typedef struct RESOURCE_PATH
+{
+   int priority;
+   char path[1024];
+   struct RESOURCE_PATH *next;
+} RESOURCE_PATH;
+
+static RESOURCE_PATH *resource_path_list = NULL;
+
+
+static void destroy_resource_path_list();
+
+
 
 /* fix_filename_case:
  *  Converts filename to upper case.
@@ -1187,6 +1200,89 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 
 
 
+/* set_allegro_resource_path:
+ *  Set an additional path to be searched by find_allegro_resource(). If
+ *  multiple paths are set, they will be searched from lowest to highest
+ *  priority. Call with path set to NULL to remove a path. Returns 1 on success
+ *  and 0 on failure.
+ */
+int set_allegro_resource_path(int priority, AL_CONST char *path)
+{
+   RESOURCE_PATH *node = resource_path_list;
+   RESOURCE_PATH *prior_node = NULL;
+   RESOURCE_PATH *new_node = NULL;
+   
+   while (node && node->priority > priority) {
+      prior_node = node;
+      node = node->next;
+   }
+   
+   if (path) {
+      if (node && priority == node->priority)
+	 new_node = node;
+      else {
+	 new_node = malloc(sizeof(RESOURCE_PATH));
+	 if (!new_node)
+	    return 0;
+         
+	 new_node->priority = priority;
+         
+	 if (prior_node) {
+	    prior_node->next = new_node;
+	    new_node->next = node;
+	 }
+	 else {
+	    new_node->next = resource_path_list;
+	    resource_path_list = new_node;
+	 }
+         
+	 if (!resource_path_list->next)
+	    _add_exit_func(destroy_resource_path_list);
+      }
+      
+      ustrzcpy(new_node->path,
+	       sizeof(new_node->path) - ucwidth(OTHER_PATH_SEPARATOR),
+	       path);
+      fix_filename_slashes(new_node->path);
+      put_backslash(new_node->path);
+   }
+   else {
+       if (node && node->priority == priority) {
+	  if (prior_node)
+	     prior_node->next = node->next;
+	  else
+	     resource_path_list = node->next;
+          
+	  free(node);
+          
+	  if (!resource_path_list)
+	     _remove_exit_func(destroy_resource_path_list);
+       }
+       else
+	  return 0;
+   }
+   
+   return 1;
+}
+
+
+
+static void destroy_resource_path_list()
+{
+   RESOURCE_PATH *node = resource_path_list;
+   
+   if (node)
+      _remove_exit_func(destroy_resource_path_list);
+   
+   while (node) {
+      resource_path_list = node->next;
+      free(node);
+      node = resource_path_list;
+   }
+}
+
+
+
 /* find_allegro_resource:
  *  Searches for a support file, eg. allegro.cfg or language.dat. Passed
  *  a resource string describing what you are looking for, along with
@@ -1204,6 +1300,8 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    char rname[128], path[1024], tmp[128];
    char *s;
    int i, c;
+   RESOURCE_PATH *rp_list_node = resource_path_list;
+   
    ASSERT(dest);
 
    /* if the resource is a path with no filename, look in that location */
@@ -1249,6 +1347,14 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    }
    else
       usetc(rname, 0);
+
+   /* try resource path list */
+   while (rp_list_node) {
+      if (find_resource(dest, rp_list_node->path, rname, datafile, objectname,
+			subdir, size) == 0)
+         return 0;
+      rp_list_node = rp_list_node->next;
+   }
 
    /* try looking in the same directory as the program */
    get_executable_name(path, sizeof(path));
