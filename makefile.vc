@@ -256,18 +256,22 @@ else
 	copy $(subst /,\,$< $@)
 endif
 
-HEADERS = $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/*.h))
-HEADERS += $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/internal/*.h))
-HEADERS += $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/inline/*.inl))
-HEADERS += $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/platform/*.h))
+HEADERS = $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/*.h))          \
+          $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/internal/*.h)) \
+          $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/inline/*.inl))
 
-INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)   \
-		$(MSVCDIR_U)/include/allegro.h        \
-		$(MSVCDIR_U)/include/winalleg.h       \
-		$(MSVCDIR_U)/include/allegro          \
-		$(MSVCDIR_U)/include/allegro/internal \
-		$(MSVCDIR_U)/include/allegro/inline   \
-		$(MSVCDIR_U)/include/allegro/platform \
+INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)             \
+		$(MSVCDIR_U)/include/allegro.h                  \
+		$(MSVCDIR_U)/include/allegro                    \
+		$(MSVCDIR_U)/include/allegro/internal           \
+		$(MSVCDIR_U)/include/allegro/inline             \
+		$(MSVCDIR_U)/include/allegro/platform           \
+		$(MSVCDIR_U)/include/winalleg.h                 \
+		$(MSVCDIR_U)/include/allegro/platform/aintwin.h \
+		$(MSVCDIR_U)/include/allegro/platform/al386vc.h \
+		$(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
+		$(MSVCDIR_U)/include/allegro/platform/alplatf.h \
+		$(MSVCDIR_U)/include/allegro/platform/alwin.h   \
 		$(HEADERS)
 
 ifndef STATICLINK

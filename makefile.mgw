@@ -304,18 +304,22 @@ $(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
 endif # UNIX_TOOLS
 
 
-HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
-HEADERS += $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/internal/*.h))
-HEADERS += $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/inline/*.inl))
-HEADERS += $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/platform/*.h))
+HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))          \
+          $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/internal/*.h)) \
+          $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/inline/*.inl))
 
-INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)   \
-		$(MINGDIR_U)/include/allegro.h        \
-		$(MINGDIR_U)/include/winalleg.h       \
-		$(MINGDIR_U)/include/allegro          \
-		$(MINGDIR_U)/include/allegro/internal \
-		$(MINGDIR_U)/include/allegro/inline   \
-		$(MINGDIR_U)/include/allegro/platform \
+INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)              \
+		$(MINGDIR_U)/include/allegro.h                   \
+		$(MINGDIR_U)/include/allegro                     \
+		$(MINGDIR_U)/include/allegro/internal            \
+		$(MINGDIR_U)/include/allegro/inline              \
+		$(MINGDIR_U)/include/allegro/platform            \
+		$(MINGDIR_U)/include/winalleg.h                  \
+		$(MINGDIR_U)/include/allegro/platform/aintwin.h  \
+		$(MINGDIR_U)/include/allegro/platform/al386gcc.h \
+		$(MINGDIR_U)/include/allegro/platform/almngw32.h \
+		$(MINGDIR_U)/include/allegro/platform/alplatf.h  \
+		$(MINGDIR_U)/include/allegro/platform/alwin.h    \
 		$(HEADERS)
 
 ifndef CROSSCOMPILE

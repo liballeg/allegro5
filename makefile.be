@@ -156,10 +156,9 @@ $(INC_DIR)/allegro/platform:
 $(INC_DIR)/allegro/platform/%.h: include/allegro/platform/%.h $(INC_DIR)/allegro/platform
 	cp $< $@
 
-HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
-HEADERS += $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/internal/*.h)))
-HEADERS += $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/inline/*.inl)))
-HEADERS += $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/platform/*.h)))
+HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))          \
+          $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/internal/*.h))) \
+          $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/inline/*.inl)))
 
 /bin/allegro-config:
 ifdef STATICLINK
@@ -176,13 +175,18 @@ endif
 	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 
-INSTALL_FILES = $(INC_DIR)/allegro.h        \
-		$(INC_DIR)/bealleg.h        \
-		$(INC_DIR)/allegro          \
-		$(INC_DIR)/allegro/internal \
-		$(INC_DIR)/allegro/inline   \
-		$(INC_DIR)/allegro/platform \
-		$(HEADERS)                  \
+INSTALL_FILES = $(INC_DIR)/allegro.h                   \
+		$(INC_DIR)/allegro                     \
+		$(INC_DIR)/allegro/internal            \
+		$(INC_DIR)/allegro/inline              \
+		$(INC_DIR)/allegro/platform            \
+		$(INC_DIR)/bealleg.h                   \
+		$(INC_DIR)/allegro/platform/aintbeos.h \
+		$(INC_DIR)/allegro/platform/al386gcc.h \
+		$(INC_DIR)/allegro/platform/albecfg.h  \
+		$(INC_DIR)/allegro/platform/alplatf.h  \
+		$(INC_DIR)/allegro/platform/albeos.h   \
+		$(HEADERS)                             \
 		/bin/allegro-config
 		
 ifdef STATICLINK

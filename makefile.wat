@@ -135,17 +135,21 @@ $(WATDIR_U)/h/allegro/platform:
 $(WATDIR_U)/h/allegro/platform/%.h: include/allegro/platform/%.h
 	copy $(subst /,\,$<) $(subst /,\,$@)
 
-HEADERS = $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/*.h)))
-HEADERS += $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/internal/*.h)))
-HEADERS += $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/inline/*.inl)))
-HEADERS += $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/platform/*.h)))
+HEADERS = $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/*.h)))          \
+          $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/internal/*.h))) \
+          $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/inline/*.inl)))
 
-INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib \
-		$(WATDIR_U)/h/allegro.h           \
-		$(WATDIR_U)/h/allegro             \
-		$(WATDIR_U)/h/allegro/internal    \
-		$(WATDIR_U)/h/allegro/inline      \
-		$(WATDIR_U)/h/allegro/platform    \
+INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib         \
+		$(WATDIR_U)/h/allegro.h                   \
+		$(WATDIR_U)/h/allegro                     \
+		$(WATDIR_U)/h/allegro/internal            \
+		$(WATDIR_U)/h/allegro/inline              \
+		$(WATDIR_U)/h/allegro/platform            \
+		$(WATDIR_U)/h/allegro/platform/aintdos.h  \
+		$(WATDIR_U)/h/allegro/platform/al386wat.h \
+		$(WATDIR_U)/h/allegro/platform/alwatcom.h \
+		$(WATDIR_U)/h/allegro/platform/alplatf.h  \
+		$(WATDIR_U)/h/allegro/platform/aldos.h    \
 		$(HEADERS)
 
 install: $(INSTALL_FILES)

@@ -127,23 +127,27 @@ $(INC_DIR)/allegro/platform/%.h: include/allegro/platform/%.h $(INC_DIR)/allegro
 $(INC_DIR)/allegro/platform:
 	mkdir $(INC_DIR)/allegro/platform
 
-HEADERS = $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/*.h)))
-HEADERS += $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/internal/*.h)))
-HEADERS += $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
-HEADERS += $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/platform/*.h)))
+HEADERS = $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
+          $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
+          $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
 
 /usr/bin/allegro-config:
 	cp misc/allegro-config.qnx /usr/bin/allegro-config
 	chmod a+x /usr/bin/allegro-config
 
-INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a  \
-		$(INC_DIR)/allegro.h        \
-		$(INC_DIR)/qnxalleg.h       \
-		$(INC_DIR)/allegro          \
-		$(INC_DIR)/allegro/internal \
-		$(INC_DIR)/allegro/inline   \
-		$(INC_DIR)/allegro/platform \
-		$(HEADERS)                  \
+INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a             \
+		$(INC_DIR)/allegro.h                   \
+		$(INC_DIR)/allegro                     \
+		$(INC_DIR)/allegro/internal            \
+		$(INC_DIR)/allegro/inline              \
+		$(INC_DIR)/allegro/platform            \
+		$(INC_DIR)/qnxalleg.h                  \
+		$(INC_DIR)/allegro/platform/aintqnx.h  \
+		$(INC_DIR)/allegro/platform/al386gcc.h \
+		$(INC_DIR)/allegro/platform/alqnxcfg.h \
+		$(INC_DIR)/allegro/platform/alplatf.h  \
+		$(INC_DIR)/allegro/platform/alqnx.h    \
+		$(HEADERS)                             \
 		/usr/bin/allegro-config
 
 install: $(INSTALL_FILES)

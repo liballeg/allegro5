@@ -318,18 +318,22 @@ $(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
 
 endif
 
-HEADERS = $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/*.h))
-HEADERS += $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/internal/*.h))
-HEADERS += $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/inline/*.inl))
-HEADERS += $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/platform/*.h))
+HEADERS = $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/*.h))          \
+          $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/internal/*.h)) \
+          $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/inline/*.inl))
 
-INSTALL_FILES = $(DJDIR_U)/lib/lib$(VERSION).a      \
-		$(DJDIR_U)/info/allegro.$(INFO)     \
-		$(DJDIR_U)/include/allegro.h        \
-		$(DJDIR_U)/include/allegro          \
-		$(DJDIR_U)/include/allegro/internal \
-		$(DJDIR_U)/include/allegro/inline   \
-		$(DJDIR_U)/include/allegro/platform \
+INSTALL_FILES = $(DJDIR_U)/lib/lib$(VERSION).a                 \
+		$(DJDIR_U)/info/allegro.$(INFO)                \
+		$(DJDIR_U)/include/allegro.h                   \
+		$(DJDIR_U)/include/allegro                     \
+		$(DJDIR_U)/include/allegro/internal            \
+		$(DJDIR_U)/include/allegro/inline              \
+		$(DJDIR_U)/include/allegro/platform            \
+		$(DJDIR_U)/include/allegro/platform/aintdos.h  \
+		$(DJDIR_U)/include/allegro/platform/al386gcc.h \
+		$(DJDIR_U)/include/allegro/platform/aldjgpp.h  \
+		$(DJDIR_U)/include/allegro/platform/alplatf.h  \
+		$(DJDIR_U)/include/allegro/platform/aldos.h    \
 		$(HEADERS)
 
 install: $(INSTALL_FILES)
