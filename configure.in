@@ -258,12 +258,12 @@ fi
 
 dnl Test for ALSA drivers.
 ALLEGRO_ACTEST_ALSADIGI
-if test -n "$allegro_support_alsadigi"; then
+if test "$allegro_cv_support_alsadigi" = yes; then
   AC_DEFINE(ALLEGRO_WITH_ALSADIGI)
 fi
 
 ALLEGRO_ACTEST_ALSAMIDI
-if test -n "$allegro_support_alsamidi"; then
+if test "$allegro_cv_support_alsamidi" = yes; then
   AC_DEFINE(ALLEGRO_WITH_ALSAMIDI)
 fi
 
