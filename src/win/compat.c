@@ -15,14 +15,19 @@
  */
 
 #include "allegro.h"
-#include "allegro/aintern.h"
+#include "winalleg.h"
+
+/* erro handler prototype */
 
 static void dll_error();
 
+/* error handler */
+
 static void dll_error()
 {
-   allegro_message("FATAL ERROR: You tried to use a function that has been removed from Allegro!\n");
    allegro_exit();
+   MessageBox(NULL, "This application made a call to an Allegro function that has been removed!",
+              "FATAL ERROR", MB_OK | MB_ICONERROR);
    exit(-666);
 }
 
