@@ -196,6 +196,7 @@ static void _xwin_private_redraw_window(int x, int y, int w, int h);
 static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
 static void _xwin_private_set_window_title(AL_CONST char *name);
+static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group);
 static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 static void _xwin_private_init_keyboard_tables(void);
@@ -2406,6 +2407,44 @@ void _xwin_set_window_title(AL_CONST char *name)
 {
    XLOCK();
    _xwin_private_set_window_title(name);
+   XUNLOCK();
+}
+
+
+
+/* _xwin_sysdrv_set_window_name:
+ *  Sets window name and group.
+ */
+static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group)
+{
+   XClassHint hint;
+
+   if (!name)
+      _xwin_safe_copy(_xwin.application_name, XWIN_DEFAULT_APPLICATION_NAME, sizeof(_xwin.application_name));
+   else
+      _xwin_safe_copy(_xwin.application_name, name, sizeof(_xwin.application_name));
+
+   if (!group)
+      _xwin_safe_copy(_xwin.application_class, XWIN_DEFAULT_APPLICATION_CLASS, sizeof(_xwin.application_class));
+   else
+      _xwin_safe_copy(_xwin.application_class, group, sizeof(_xwin.application_class));
+
+   if (_xwin.window != None) {
+      hint.res_name = _xwin.application_name;
+      hint.res_class = _xwin.application_class;
+      XSetClassHint(_xwin.display, _xwin.window, &hint);
+   }
+}
+
+void xwin_set_window_name(AL_CONST char *name, AL_CONST char *group)
+{
+   char tmp1[128], tmp2[128];
+
+   do_uconvert(name, U_CURRENT, tmp1, U_ASCII, sizeof(tmp1));
+   do_uconvert(group, U_CURRENT, tmp2, U_ASCII, sizeof(tmp2));
+
+   XLOCK();
+   _xwin_private_set_window_name(tmp1, tmp2);
    XUNLOCK();
 }
 

@@ -146,6 +146,8 @@ AL_FUNCPTR (void, _xwin_input_handler, (void));
 
 AL_FUNCPTR (void, _xwin_keyboard_callback, (int, int));
 
+AL_FUNC(void, xwin_set_window_name, (AL_CONST char *name, AL_CONST char *group));
+
 
 
 #ifdef __cplusplus

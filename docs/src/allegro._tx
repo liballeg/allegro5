@@ -8086,6 +8086,15 @@ function to remind you :-)
       MIDI_ALSA            - ALSA RawMIDI driver
 <endblock>
 
+@@void @xwin_set_window_name(const char *name, const char *group);
+@xref set_window_title
+   This function is only available under X. It lets you to specify the
+   window name and group (or class). They are important because they allow
+   the window manager to remember the window attributes (position, layer,
+   etc). Note that the name and the title of the window are two different
+   things: the title is what appears in the title bar of the window, but
+   usually has no other effects on the behaviour of the application.
+
 
 
 @heading
