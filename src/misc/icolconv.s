@@ -294,6 +294,67 @@ FUNC (_colorconv_blit_16_to_32)
       
    ret
 
+/* void _colorconv_blit_15_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_15_to_32)
+   movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
+   test %eax, %eax
+   jz _colorconv_blit_15_to_32_no_mmx
+
+   pushl %ebp
+   movl %esp, %ebp
+   pushl %ebx
+   pushl %esi
+   pushl %edi
+
+   INIT_CONVERSION_2 ($0x7c00, $0x03e0, $0x001f);
+
+   /* 15 bit to 32 bit conversion:
+    we have:
+    eax = src_rect->data
+    ebx = dest_rect->data
+    ecx = SCREEN_H
+    edx = SCREEN_W / 2
+    esi = offset from the end of a line to the beginning of the next
+    edi = same as esi, but for the dest bitmap
+   */
+   
+   next_line_15_to_32:
+      movl $0, %ebp      /* (better than xor ebp, ebp) */
+   
+   next_block_15_to_32:
+      movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
+      punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
+      movq %mm0, %mm1
+      movq %mm0, %mm2
+      PAND (5, 0)        /* pand %mm5, %mm0 */
+      pslld $3, %mm0
+      PAND (3, 1)        /* pand %mm3, %mm1 */
+      pslld $6, %mm1
+      por %mm1, %mm0
+      addl $4, %eax
+      PAND (4, 2)        /* pand %mm4, %mm2 */
+      pslld $9, %mm2
+      por %mm2, %mm0
+      movq %mm0, (%ebx)
+      addl $8, %ebx
+
+      incl %ebp
+      cmpl %edx, %ebp
+      jb next_block_15_to_32
+      
+      addl %esi, %eax
+      addl %edi, %ebx
+      decl %ecx
+      jnz next_line_15_to_32
+      
+   emms
+   popl %edi
+   popl %esi
+   popl %ebx
+   popl %ebp
+      
+   ret
 
 
 /* void _colorconv_blit_8_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -599,13 +660,14 @@ FUNC (_colorconv_blit_24_to_32)
 
 /* void _colorconv_blit_15_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_colorconv_blit_15_to_32)
 /* void _colorconv_blit_16_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
 _align_
+_colorconv_blit_15_to_32_no_mmx:
 _colorconv_blit_16_to_32_no_mmx:
 #else
+FUNC (_colorconv_blit_15_to_32)
 FUNC (_colorconv_blit_16_to_32)
 #endif
    CREATE_STACK_FRAME
