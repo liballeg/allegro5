@@ -519,7 +519,7 @@ static int mono_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* bm
 
     g = _mono_find_glyph(f, ch);
     if(g) {
-	bmp->vtable->draw_glyph(bmp, g, x, y, fg, bg);
+	bmp->vtable->draw_glyph(bmp, g, x, y + (f->height-g->h)/2, fg, bg);
 	w = g->w;
     }
 

@@ -526,6 +526,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exfixed.c \
 	examples/exflame.c \
 	examples/exflip.c \
+	examples/exfont.c \
 	examples/exgui.c \
 	examples/exhello.c \
 	examples/exjoy.c \
@@ -576,6 +577,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exfixed \
 	examples/exflame \
 	examples/exflip \
+	examples/exfont \
 	examples/exgui \
 	examples/exhello \
 	examples/exjoy \
