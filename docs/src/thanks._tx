@@ -196,6 +196,9 @@ Contributors
    Windows code, the installall makefile target under Windows and added 
    set_allegro_resource_path().
 
+   Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
+   Added a MIDI input driver to the Windows port.
+
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
    mouse clicks, made d_menu_proc() steal/return focus when activated then
@@ -308,6 +311,9 @@ Contributors
 
    Greg Hackmann (<email>hacker@ididitmyway.com</a>).<br>
    Contributed the Borland C++ Builder port.
+
+   Greg Lee (<email>greg@ling.lll.hawaii.edu</a>.<br>
+   Pointed out that Linux joystick driver should read all events.
 
    Grzegorz Adam Hankiewicz (<email>gradha@users.sourceforge.net</a>).<br>
    Wrote several of the example programs, suggested the "compress" makefile
@@ -489,9 +495,6 @@ Contributors
    Added the low-level hook routine to the keyboard handler and fixed a
    couple of bugs.
    
-   Greg Lee (<email>greg@ling.lll.hawaii.edu</a>.<br>
-   Pointed out that Linux joystick driver should read all events.
-
    Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
    Contributed the Norwegian message translation.
 
@@ -565,9 +568,6 @@ Contributors
 
    Martijn Van Lersel (<email>amarillion@yahoo.com</a>).<br>
    Fixed an overflow in create_light_table().
-
-   Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
-   Added a MIDI input driver to the Windows port.
 
    Martijn Versteegh (<email>m.versteegh@hccnet.nl</a>).<br>
    Added the config hook extension mechanism.
