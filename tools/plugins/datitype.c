@@ -115,7 +115,7 @@ static int changetype(void)
    ret = grabber_foreach_selection(do_changetype, &n, &p, type);
 
    if (n <= 0) {
-      alert ("Nothing to re-type!", NULL, NULL, "OK", NULL, 13, 0);
+      alert ("Nothing to change!", NULL, NULL, "OK", NULL, 13, 0);
    }
    else if (p > 0) {
       sprintf(buf, "%d non-bitmap object%s ignored", p, (p==1) ? " was" : "s were");
@@ -212,7 +212,7 @@ static int changedepth(void)
    grabber_busy_mouse(FALSE);
 
    if (n <= 0) {
-      alert ("Nothing to re-format!", NULL, NULL, "OK", NULL, 13, 0);
+      alert ("Nothing to change!", NULL, NULL, "OK", NULL, 13, 0);
    }
    else if (p > 0) {
       sprintf(buf, "%d non-bitmap object%s ignored", p, (p==1) ? " was" : "s were");
@@ -274,7 +274,7 @@ DATEDIT_MENU_INFO datitype_type_menu =
 
 static MENU change_depth_menu =
 {
-   "Change Color Depth",
+   "Change Depth",
    NULL,
    depth_menu,
    0,
