@@ -62,16 +62,18 @@ WINDIR_S = $(shell cygpath -S)
 WINDIR_U = $(subst \,/,$(WINDIR_S))
 WINDIR_D = $(subst /,\,$(WINDIR_S))
 
-else # ALLEGRO_USE_CYGWIN
+else
 
 ifeq ($(OS),Windows_NT)
-   WINSYSDIR = $(SystemRoot)
+   WINSYSDIR = $(SYSTEMROOT)
+   ifeq ($(WINSYSDIR),)
+      WINSYSDIR = $(SystemRoot)
+   endif
    WINSUBDIR = system32
 else
-   ifneq ($(windir),)
+   WINSYSDIR = $(WINDIR)
+   ifeq ($(WINSYSDIR),)
       WINSYSDIR = $(windir)
-   else
-      WINSYSDIR = $(WINDIR)
    endif
    WINSUBDIR = system
 endif

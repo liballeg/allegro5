@@ -43,7 +43,10 @@ ifeq ($(OS),Windows_NT)
    endif
    WINSUBDIR = system32
 else
-   WINSYSDIR = $(windir)
+   WINSYSDIR = $(WINDIR)
+   ifeq ($(WINSYSDIR),)
+      WINSYSDIR = $(windir)
+   endif
    WINSUBDIR = system
 endif
 
