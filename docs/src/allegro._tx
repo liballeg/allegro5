@@ -9132,6 +9132,11 @@ makefiles also provide some special pseudo-targets:
    variables), builds the test and example programs, and converts the 
    documentation files.
 <li>
+   'info'<br>
+   Tells you which options this particular build of Allegro will use.
+   Especially useful under Unix to verify that the required libraries
+   were detected and you won't get a 'half-featured' Allegro.
+<li>
    'all'<br>
    Compiles all three library versions (optimised, debugging, and 
    profiling), builds the test and example programs, and converts the 

@@ -270,6 +270,9 @@ programs: $(ALLEGRO_EXE_TARGETS)
 
 docs: $(DOCS)
 
+info:
+	@cat makefile.info
+
 docs-dvi: $(srcdir)/docs/allegro.dvi
 	@echo "Device independant documentation generated: docs/allegro.dvi"
 	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
