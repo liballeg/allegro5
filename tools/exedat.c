@@ -52,7 +52,7 @@ void usage(void)
 
 
 
-int err = 0;
+static int err = 0;
 
 char *opt_filename = NULL;
 char *opt_dataname = NULL;

@@ -98,7 +98,7 @@ static unsigned char hw_to_mycode[128] =
    /* 0x70 */  KEY_KANA,       0,              0,              KEY_ABNT_C1, 
    /* 0x74 */  0,              0,              0,              0,
    /* 0x78 */  0,              KEY_CONVERT,    0,              KEY_NOCONVERT, 
-   /* 0x7C */  0,              KEY_YEN,       0,              0
+   /* 0x7C */  0,              KEY_YEN,        0,              0
 };
 
 

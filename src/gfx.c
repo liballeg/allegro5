@@ -620,13 +620,13 @@ void do_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(BI
 	 proc(bmp, x, y, d);                                                 \
 									     \
 	 if (dd sec_cond 0) {                                                \
-	    sec_c sec_sign##= 1;                                             \
+	    sec_c = sec_c sec_sign 1;                                        \
 	    dd += i2;                                                        \
 	 }                                                                   \
 	 else                                                                \
 	    dd += i1;                                                        \
 									     \
-	 pri_c pri_sign##= 1;                                                \
+	 pri_c = pri_c pri_sign 1;                                           \
       }                                                                      \
    }
 

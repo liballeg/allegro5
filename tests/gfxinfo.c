@@ -24,12 +24,12 @@
 
 
 
-char *al_un_id(char *out, int id)
+char *al_un_id(char *out, int driver_id)
 {
-   out[0] = (id >> 24) & 0xff;
-   out[1] = (id >> 16) & 0xff;
-   out[2] = (id >> 8) & 0xff;
-   out[3] = (id) & 0xff;
+   out[0] = (driver_id >> 24) & 0xff;
+   out[1] = (driver_id >> 16) & 0xff;
+   out[2] = (driver_id >> 8) & 0xff;
+   out[3] = (driver_id) & 0xff;
    out[4] = '\0';
    return out;
 }

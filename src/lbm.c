@@ -43,7 +43,7 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
    int w, h, i, x, y, bpl, ppl, pbm_mode;
    char ch, cmp_type, bit_plane, color_depth;
    unsigned char uc, check_flags, bit_mask, *line_buf;
-   long id, len, l;
+   long data_id, len, l;
    int dest_depth = _color_load_depth(8, FALSE);
 
    if (!pal)
@@ -53,26 +53,26 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
    if (!f)
       return NULL;
 
-   id = pack_igetl(f);              /* read file header    */
-   if (id != IFF_FORM) {            /* check for 'FORM' id */
+   data_id = pack_igetl(f);         /* read file header    */
+   if (data_id != IFF_FORM) {       /* check for 'FORM' id */
       pack_fclose(f);
       return NULL;
    }
 
    pack_igetl(f);                   /* skip FORM length    */
 
-   id = pack_igetl(f);              /* read id             */
+   data_id = pack_igetl(f);         /* read id             */
 
    /* check image type ('ILBM' or 'PBM ') */
-   if ((id != IFF_ILBM) && (id != IFF_PBM)) {
+   if ((data_id != IFF_ILBM) && (data_id != IFF_PBM)) {
       pack_fclose(f);
       return NULL;
    }
 
-   pbm_mode = id == IFF_PBM;
+   pbm_mode = data_id == IFF_PBM;
 
-   id = pack_igetl(f);              /* read id               */
-   if (id != IFF_BMHD) {            /* check for header      */
+   data_id = pack_igetl(f);         /* read id               */
+   if (data_id != IFF_BMHD) {       /* check for header      */
       pack_fclose(f);
       return NULL;
    }
@@ -115,9 +115,9 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
 
    do {  /* We'll use cycle to skip possible junk      */
 	 /*  chunks: ANNO, CAMG, GRAB, DEST, TEXT etc. */
-      id = pack_igetl(f);
+      data_id = pack_igetl(f);
 
-      switch(id) {
+      switch(data_id) {
 
 	 case IFF_CMAP:
 	    memset(pal, 0, 256 * 3);

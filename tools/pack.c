@@ -24,7 +24,7 @@
 
 
 
-void usage(void)
+static void usage(void)
 {
    printf("\nFile compression utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR);
    printf("\nBy Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
@@ -34,7 +34,7 @@ void usage(void)
 
 
 
-void err(char *s1, char *s2)
+static void err(char *s1, char *s2)
 {
    printf("\nError %d", errno);
 
