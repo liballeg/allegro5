@@ -124,7 +124,7 @@
 
 	The SVGAlib driver should be fairly stable and fast now, and can use
 	most of the video modes that SVGAlib provides. It requires root
-	privileges.
+	privileges if your version of SVGAlib requires them.
 
    * Keyboard:
 	The keyboard driver uses the kernel mapping tables to map scancodes 

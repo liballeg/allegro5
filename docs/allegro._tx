@@ -7426,7 +7426,8 @@ function to remind you :-)
       Use the framebuffer device (eg. dev/fb0). This requires you to have 
       framebuffer support compiled into your kernel, and correctly 
       configured for your hardware. It is currently the only console mode 
-      driver that will work without root permissions.
+      driver that will work without root permissions, unless you are using
+      a development version of SVGAlib.
 <li>
    GFX_VBEAF<br>
       Use a VBE/AF driver (vbeaf.drv), assuming that you have installed one 
@@ -7436,8 +7437,8 @@ function to remind you :-)
       driver which supports hardware accelerated graphics.
 <li>
    GFX_SVGALIB<br>
-      Use the SVGAlib library for graphics output. This requires root 
-      permissions.
+      Use the SVGAlib library for graphics output. This requires root
+      permissions if your version of SVGAlib requires them.
 <li>
    GFX_VGA<br>
    GFX_MODEX<br>
