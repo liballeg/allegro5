@@ -6310,7 +6310,9 @@ Dialog procedures may be called with any of the messages:
 
 <b>MSG_END:</b><br>
    Sent to all objects when closing a dialog, allowing them to perform 
-   whatever cleanup operations they require.
+   whatever cleanup operations they require. The c parameter will contain
+   the index of the object that caused the dialog to shutdown, or -1 if
+   closed by another method.
 
 <b>MSG_DRAW:</b><br>
    Tells the object to draw itself onto the screen. The mouse pointer will 

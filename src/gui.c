@@ -778,11 +778,8 @@ static void check_for_redraw(DIALOG_PLAYER *player)
  */
 int update_dialog(DIALOG_PLAYER *player)
 {
-   int c, cascii, cscan, ccombo, r, ret, nowhere, z;
+   int c, cascii, cscan, ccombo, r, nowhere, z;
    int new_mouse_b;
-
-   if (player->res & D_CLOSE)
-      return FALSE;
 
    /* deal with mouse buttons presses and releases */
    new_mouse_b = gui_mouse_b();
@@ -1022,9 +1019,7 @@ int update_dialog(DIALOG_PLAYER *player)
 
    getout:
 
-   ret = (!(player->res & D_CLOSE));
-   player->res &= ~D_CLOSE;
-   return ret;
+   return (!(player->res & D_CLOSE));
 }
 
 
@@ -1039,7 +1034,9 @@ int shutdown_dialog(DIALOG_PLAYER *player)
    int obj;
 
    /* send the finish messages */
-   dialog_message(player->dialog, MSG_END, 0, &player->obj);
+   dialog_message(player->dialog, MSG_END,
+		  (player->res & D_CLOSE) ? player->obj : -1,
+		  &player->obj);
 
    /* remove the double click handler */
    gui_install_count--;
