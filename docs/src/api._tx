@@ -73,5 +73,8 @@ Changes between 4.0.x and 4.1.x series
    The preprocessor symbol USE_CONSOLE is deprecated. Define instead the
    symbol ALLEGRO_USE_CONSOLE prior to including Allegro headers in order
    to set up Allegro for building a console application.
+<li>
+   The constructors of the fix class from integer and floating point values
+   are now explicit.
 </ul>
 
