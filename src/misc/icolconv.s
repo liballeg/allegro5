@@ -15,8 +15,8 @@
  *
  *      24-bit color support and non MMX routines by Eric Botcazou.
  *
- *      Support for rectangles of any width and additional MMX routines
- *      by Robert J. Ohannessian.
+ *      Support for rectangles of any width and 8-bit destination color,
+ *      additional MMX routines by Robert J. Ohannessian.
  *
  *      See readme.txt for copyright information.
  */
@@ -2142,5 +2142,303 @@ FUNC (_colorconv_blit_24_to_15)
    CONV_TRUE_TO_15_NO_MMX(24_to_15_no_mmx, 3)
    DESTROY_STACK_FRAME
    ret
+
+
+
+#define CONV_TRUE_TO_8_NO_MMX(name, bytes_ppixel)                                 \
+   _align_                                                                      ; \
+   next_line_##name:                                                            ; \
+      movl MYLOCAL1, %edx                                                       ; \
+      pushl %ecx                                                                ; \
+                                                                                ; \
+      _align_                                                                   ; \
+      next_block_##name:                                                        ; \
+         movl $0, %ecx                                                          ; \
+         movb (%esi), %al          /* read 1 pixel */                           ; \
+         movb 1(%esi), %bl                                                      ; \
+         movb 2(%esi), %cl                                                      ; \
+         shrb $4, %al                                                           ; \
+         addl $bytes_ppixel, %esi                                               ; \
+         shll $4, %ecx                                                          ; \
+         andb $0xf0, %bl                                                        ; \
+         orb  %bl, %al             /* combine to get 4.4.4 */                   ; \
+         incl %edi                                                              ; \
+         movb %al, %cl                                                          ; \
+         movb (%ebp, %ecx), %cl    /* look it up */                             ; \
+         movb %cl, -1(%edi)        /* write 1 pixel */                          ; \
+                                                                                ; \
+         decl %edx                                                              ; \
+         jnz next_block_##name                                                  ; \
+                                                                                ; \
+      popl %ecx                                                                 ; \
+      addl MYLOCAL2, %esi                                                       ; \
+      addl MYLOCAL3, %edi                                                       ; \
+      decl %ecx                                                                 ; \
+      jnz next_line_##name
+
+
+
+/* void _colorconv_blit_32_to_8 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_32_to_8)
+   CREATE_STACK_FRAME
+   INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_1, LOOP_RATIO_1)
+   movl GLOBL(_colorconv_rgb_map), %ebp
+   CONV_TRUE_TO_8_NO_MMX(32_to_8_no_mmx, 4)
+   DESTROY_STACK_FRAME
+   ret
+
+
+
+/* void _colorconv_blit_24_to_8 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_24_to_8)
+   CREATE_STACK_FRAME
+   INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_1, LOOP_RATIO_1)
+   movl GLOBL(_colorconv_rgb_map), %ebp
+   CONV_TRUE_TO_8_NO_MMX(24_to_8_no_mmx, 3)
+   DESTROY_STACK_FRAME
+   ret
+
+
+
+/* void _colorconv_blit_16_to_8 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_16_to_8)
+   CREATE_STACK_FRAME
+   INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_1, LOOP_RATIO_1)
+   movl GLOBL(_colorconv_rgb_map), %ebp
+
+   _align_
+   next_line_16_to_8_no_mmx:
+      movl MYLOCAL1, %edx
+      shrl $1, %edx                /* work in packs of 2 pixels */
+      jz do_one_pixel_16_to_8_no_mmx
+
+      pushl %ecx
+
+      _align_
+      next_block_16_to_8_no_mmx:
+         movl (%esi), %eax         /* read 2 pixels */
+         addl $4, %esi
+         addl $2, %edi
+         movl %eax, %ebx           /* get bottom 16 bits */
+         movl %eax, %ecx
+         andl $0xf01e, %ebx
+         andl $0x0780, %ecx
+         shrb $1, %bl              /* shift to correct positions */
+         shrb $4, %bh
+         shrl $3, %ecx
+         shrl $16, %eax
+         orl %ecx, %ebx            /* combine to get a 4.4.4 number */
+         movl %eax, %ecx
+         movb (%ebp, %ebx), %bl    /* look it up */         
+         andl $0xf01e, %eax
+         andl $0x0780, %ecx
+         shrb $1, %al              /* shift to correct positions */
+         shrb $4, %ah
+         shrl $3, %ecx
+         orl %ecx, %eax            /* combine to get a 4.4.4 number */
+         movb (%ebp, %eax), %bh    /* look it up */
+         movw %bx, -2(%edi)        /* write 2 pixels */
+
+         decl %edx
+         jnz next_block_16_to_8_no_mmx
+
+      popl %ecx
+
+      do_one_pixel_16_to_8_no_mmx:
+         movl MYLOCAL1, %edx
+         shrl $1, %edx
+         jnc end_of_line_16_to_8_no_mmx
+
+         movl $0, %eax
+         movw (%esi), %ax          /* read 1 pixel */
+         addl $2, %esi
+         incl %edi
+         movl %eax, %ebx
+         andl $0xf01e, %ebx
+         andl $0x0780, %eax
+         shrb $1, %bl              /* shift to correct positions */
+         shrb $4, %bh
+         shrl $3, %eax
+         orl %eax, %ebx            /* combine to get a 4.4.4 number */
+         movb (%ebp, %ebx), %bl    /* look it up */
+         movb %bl, -1(%edi)        /* write 1 pixel */
+
+   _align_
+   end_of_line_16_to_8_no_mmx:
+      addl MYLOCAL2, %esi
+      addl MYLOCAL3, %edi
+      decl %ecx
+      jnz next_line_16_to_8_no_mmx
+
+   DESTROY_STACK_FRAME
+   ret
+
+
+
+/* void _colorconv_blit_15_to_8 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_15_to_8)
+   CREATE_STACK_FRAME
+   INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_1, LOOP_RATIO_1)
+   movl GLOBL(_colorconv_rgb_map), %ebp
+
+   _align_
+   next_line_15_to_8_no_mmx:
+      movl MYLOCAL1, %edx
+      
+      shrl $1, %edx                /* work in packs of 2 pixels */
+      jz do_one_pixel_15_to_8_no_mmx
+
+      pushl %ecx
+
+      _align_
+      next_block_15_to_8_no_mmx:
+         movl (%esi), %eax         /* read 2 pixels */
+         addl $4, %esi
+         addl $2, %edi
+         movl %eax, %ebx           /* get bottom 16 bits */
+         movl %eax, %ecx
+         andl $0x781e, %ebx
+         andl $0x03c0, %ecx
+         shrb $1, %bl              /* shift to correct positions */
+         shrb $3, %bh
+         shrl $2, %ecx
+         shrl $16, %eax
+         orl %ecx, %ebx            /* combine to get a 4.4.4 number */
+         movl %eax, %ecx
+         movb (%ebp, %ebx), %bl    /* look it up */
+         andl $0x781f, %eax
+         andl $0x03c0, %ecx         
+         shrb $1, %al              /* shift to correct positions */
+         shrb $3, %ah
+         shrl $2, %ecx
+         orl %ecx, %eax            /* combine to get a 4.4.4 number */
+         movb (%ebp, %eax), %bh    /* look it up */
+         movw %bx, -2(%edi)        /* write 2 pixels */
+
+         decl %edx
+         jnz next_block_15_to_8_no_mmx
+
+      popl %ecx
+
+      do_one_pixel_15_to_8_no_mmx:
+         movl MYLOCAL1, %edx
+         shrl $1, %edx
+         jnc end_of_line_15_to_8_no_mmx
+
+         movl $0, %eax
+         movw (%esi), %ax          /* read 1 pixel */
+         addl $2, %esi
+         incl %edi
+         movl %eax, %ebx
+         andl $0x781e, %ebx
+         andl $0x03c0, %eax
+         shrb $1, %bl              /* shift to correct positions */
+         shrb $3, %bh
+         shrl $2, %eax
+         orl %eax, %ebx            /* combine to get a 4.4.4 number */
+         movb (%ebp, %ebx), %bl    /* look it up */
+         movb %bl, -1(%edi)        /* write 1 pixel */
+
+   _align_
+   end_of_line_15_to_8_no_mmx:
+      addl MYLOCAL2, %esi
+      addl MYLOCAL3, %edi
+      decl %ecx
+      jnz next_line_15_to_8_no_mmx
+
+   DESTROY_STACK_FRAME
+   ret
+
+
+
+/* void _colorconv_blit_8_to_8 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_8_to_8)
+   CREATE_STACK_FRAME
+   INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_1, LOOP_RATIO_1)
+   movl GLOBL(_colorconv_rgb_map), %ebp
+
+   _align_
+   next_line_8_to_8_no_mmx:
+      movl MYLOCAL1, %edx      
+      shrl $2, %edx                /* work in packs of 4 pixels */
+      jz do_one_pixel_8_to_8_no_mmx
+
+      pushl %ecx
+
+      _align_
+      next_block_8_to_8_no_mmx:
+         movl (%esi), %eax         /* read 4 pixels */
+         movl $0, %ebx
+         movl $0, %ecx
+         addl $4, %esi
+         addl $4, %edi
+         movb %al, %bl             /* pick out 2x bottom 8 bits */
+         movb %ah, %cl
+         shrl $16, %eax
+         movb (%ebp, %ebx), %bl    /* lookup the new palette entries */
+         movb (%ebp, %ecx), %cl
+         shll $8, %edx
+         orl %edx, %ebx            /* combine them */
+         movl $0, %ecx
+         movb %ah, %cl             /* repeat for the top 16 bits */
+         andl $0xff, %eax
+         movb (%ebp, %ecx), %cl
+         movb (%ebp, %eax), %al
+         shll $24, %ecx
+         shll $16, %eax
+         orl %ecx, %ebx            /* put everything together */
+         orl %ebx, %eax
+         movl %eax, -4(%edi)       /* write 4 pixels */
+
+         decl %edx
+         jnz next_block_8_to_8_no_mmx
+
+      popl %ecx
+
+      do_one_pixel_8_to_8_no_mmx:
+         movl MYLOCAL1, %edx
+         andl $3, %edx
+         jz end_of_line_8_to_8_no_mmx
+         
+         shrl $1, %edx
+         jnc do_two_pixels_8_to_8_no_mmx
+
+         movl $0, %eax
+         movb (%esi), %al          /* read 1 pixel */
+         incl %edi
+         incl %esi
+         movb (%ebp, %eax), %al    /* lookup the new palette entry */
+         movb %al, -1(%edi)        /* write 1 pixels */
+
+      do_two_pixels_8_to_8_no_mmx:
+         shrl $1, %edx
+         jnc end_of_line_8_to_8_no_mmx
+         
+         movl $0, %eax
+         movl $0, %ebx
+         movb (%esi), %al          /* read 2 pixels */
+         movb 1(%esi), %bl
+         addl $2, %edi
+         addl $2, %esi
+         movb (%ebp, %eax), %al    /* lookup the new palette entry */
+         movb (%ebp, %ebx), %bl
+         movb %al, -2(%edi)        /* write 2 pixels */
+         movb %bl, -1(%edi)
+
+   _align_
+   end_of_line_8_to_8_no_mmx:
+      addl MYLOCAL2, %esi
+      addl MYLOCAL3, %edi
+      decl %ecx
+      jnz next_line_8_to_8_no_mmx
+
+   DESTROY_STACK_FRAME
+   ret
+
 
 

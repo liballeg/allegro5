@@ -15,6 +15,9 @@
  *
  *      24-bit color support and non MMX routines by Eric Botcazou. 
  *
+ *      Support for rectangles of any width and 8-bit destination color,
+ *      additional MMX routines by Robert J. Ohannessian.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -25,6 +28,7 @@
 
 int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit  */
 int *_colorconv_rgb_scale_5x35 = NULL;     /* for conversion from 15/16-bit */
+unsigned char *_colorconv_rgb_map = NULL;  /* for conversion from 8/12-bit to 8-bit */
 
 static int indexed_palette_depth;
 static int indexed_palette_size;
@@ -140,6 +144,7 @@ static void create_indexed_palette(int to_depth)
 {
    switch (to_depth) {
       case 8:
+         indexed_palette_size = 0;
          return;
 
       case 15:
@@ -169,6 +174,9 @@ void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
 {
    int n, color;
 
+   if (!indexed_palette_size)
+      return;
+
    for (n = from; n <= to; n++) {
       color = makecol_depth(indexed_palette_depth, p[n].r<<2, p[n].g<<2, p[n].b<<2);
       _colorconv_indexed_palette[n] = color;
@@ -188,6 +196,41 @@ void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
 
 
 
+/* create_rgb_map:
+ *  reserves storage for the rgb map to 8-bit
+ */
+static void create_rgb_map(int from_depth)
+{
+   int rgb_map_size = 0;
+
+   switch (from_depth) {
+      case 8:
+         rgb_map_size = 256;  /* 8-bit */
+         return;
+
+      case 15:
+      case 16:
+      case 24:
+      case 32:
+         rgb_map_size = 4096;  /* 12-bit */
+         break;
+   }
+
+   _colorconv_rgb_map = malloc(sizeof(int) * rgb_map_size);
+}
+
+
+
+/* _get_colorconv_map:
+ *  retrieves a handle to the rgb map
+ */
+unsigned char *_get_colorconv_map(void)
+{
+   return _colorconv_rgb_map;
+}
+
+
+
 /* _get_colorconv_blitter:
  *  returns the blitter function matching the specified depths
  */
@@ -200,7 +243,9 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               return NULL;
+               create_indexed_palette(8);
+               create_rgb_map(8);
+               return &_colorconv_blit_8_to_8;
 
             case 15:
                create_indexed_palette(15);
@@ -226,6 +271,9 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
+               create_rgb_map(15);
+               return &_colorconv_blit_15_to_8;
+
             case 15:
             case 16:
                return NULL;
@@ -244,6 +292,9 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
+               create_rgb_map(16);
+               return &_colorconv_blit_16_to_8;
+
             case 15:
             case 16:
                return NULL;
@@ -264,7 +315,8 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               return NULL;
+               create_rgb_map(24);
+               return &_colorconv_blit_24_to_8;
 
             case 15:
                return &_colorconv_blit_24_to_15;
@@ -286,7 +338,8 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               return NULL;
+               create_rgb_map(32);
+               return &_colorconv_blit_32_to_8;
 
             case 15:
                return &_colorconv_blit_32_to_15;
@@ -325,6 +378,12 @@ void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
    if (_colorconv_rgb_scale_5x35) {
       free (_colorconv_rgb_scale_5x35);
       _colorconv_rgb_scale_5x35 = NULL;
+   }
+
+   /* destroy the rgb map to 8-bit */
+   if (_colorconv_rgb_map) {
+      free (_colorconv_rgb_map);
+      _colorconv_rgb_map = NULL;
    }
 }
 
