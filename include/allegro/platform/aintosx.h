@@ -19,9 +19,9 @@
 #ifndef AINTOSX_H
 #define AINTOSX_H
 
-#ifdef __OBJC__
-
 #include "allegro/platform/aintunix.h"
+
+#ifdef __OBJC__
 
 #include <stdio.h>
 #include <stdlib.h>

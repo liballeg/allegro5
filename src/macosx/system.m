@@ -398,6 +398,9 @@ static int osx_sys_init(void)
    set_display_switch_mode(SWITCH_BACKGROUND);
    set_window_title([[[NSProcessInfo processInfo] processName] cString]);
    
+   /* Mark the beginning of time. */
+   _al_unix_init_time();
+
    return 0;
 }
 

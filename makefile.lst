@@ -350,10 +350,13 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/macosx/qzwindow.m \
 	src/macosx/soundman.m \
 	src/macosx/system.m \
+	src/unix/uevents.c \
 	src/unix/ufile.c \
-	src/unix/utimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
+	src/unix/utime.c \
+	src/unix/utimernu.c \
+	src/unix/uxthread.c \
 	src/misc/colconv.c
 
 ALLEGRO_MODULE_VGA_FILES = \

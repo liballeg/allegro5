@@ -46,6 +46,7 @@
 
 /* Arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/alosx.h"
+#define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintosx.h"
 
 
 #endif

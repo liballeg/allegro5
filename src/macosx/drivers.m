@@ -32,13 +32,6 @@ _DRIVER_INFO _keyboard_driver_list[] =
 };
 
 
-_DRIVER_INFO _timer_driver_list[] =
-{
-   { TIMERDRV_UNIX_PTHREADS,  &timerdrv_unix_pthreads,  TRUE  },
-   { 0,                       NULL,                     0     }
-};
-
-
 _DRIVER_INFO _mouse_driver_list[] =
 {
    { MOUSE_MACOSX,            &mouse_macosx,            TRUE  },
