@@ -94,8 +94,7 @@ AL_FUNC(int, gfx_directx_restore, (void));
 
 
 /* switch routines */
-AL_VAR(BOOL, app_foreground);
-AL_VAR(HANDLE, _foreground_event);
+AL_VAR(int, app_foreground);
 
 AL_FUNC(void, sys_directx_display_switch_init, (void));
 AL_FUNC(void, sys_directx_display_switch_exit, (void));
@@ -103,9 +102,9 @@ AL_FUNC(int, sys_directx_set_display_switch_mode, (int mode));
 
 AL_FUNC(void, sys_switch_in, (void));
 AL_FUNC(void, sys_switch_out, (void));
+AL_FUNC(void, sys_reset_switch_mode, (void));
 
-AL_FUNC(void, sys_directx_switch_out_callback, (void));
-AL_FUNC(void, sys_directx_switch_in_callback, (void));
+AL_FUNC(void, thread_switch_out, (void));
 
 
 /* main window routines */
@@ -171,7 +170,6 @@ AL_FUNC(int, joystick_dinput_unacquire, (void));
 /* thread routines */
 AL_FUNC(void, thread_init, (void));
 AL_FUNC(void, thread_exit, (void));
-AL_FUNC(void, thread_switch_out, (void));
 
 
 /* sound routines */

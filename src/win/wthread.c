@@ -83,22 +83,3 @@ void thread_exit(void)
 {
    CoUninitialize();
 }
-
-
-
-/* thread_switch_out:
- *  Handles switch out event for the calling thread.
- */
-void thread_switch_out(void)
-{ 
-   switch(get_display_switch_mode())
-   { 
-      case SWITCH_AMNESIA:
-      case SWITCH_PAUSE:
-	 WaitForSingleObject(_foreground_event, INFINITE);
-	 break;
-
-      default:
-	 break;
-   } 
-}

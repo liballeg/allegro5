@@ -22,15 +22,26 @@
 
 
 #ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
+   #error something is wrong with the makefile
 #endif
 
 
-BOOL app_foreground = TRUE;
-HANDLE _foreground_event = NULL;
+int app_foreground = TRUE;
 
-static int allegro_thread_priority = 0;
-static int switch_mode = SWITCH_PAUSE;
+static HANDLE foreground_event = NULL;
+static int allegro_thread_priority = THREAD_PRIORITY_NORMAL;
+
+
+
+/* sys_reset_switch_mode:
+ *  Resets the switch mode to its initial state.
+ */
+void sys_reset_switch_mode(void)
+{
+   app_foreground = TRUE;
+   SetEvent(foreground_event);
+   set_display_switch_mode(SWITCH_PAUSE);
+}
 
 
 
@@ -38,8 +49,8 @@ static int switch_mode = SWITCH_PAUSE;
  */
 void sys_directx_display_switch_init(void)
 {
-   _foreground_event = CreateEvent(NULL, TRUE, TRUE, NULL);
-   set_display_switch_mode(SWITCH_PAUSE);
+   foreground_event = CreateEvent(NULL, TRUE, TRUE, NULL);
+   sys_reset_switch_mode();
 }
 
 
@@ -48,7 +59,7 @@ void sys_directx_display_switch_init(void)
  */
 void sys_directx_display_switch_exit(void)
 {
-   CloseHandle(_foreground_event);
+   CloseHandle(foreground_event);
 }
 
 
@@ -57,8 +68,8 @@ void sys_directx_display_switch_exit(void)
  */
 int sys_directx_set_display_switch_mode(int mode)
 {
-   switch (mode)
-   {
+   switch (get_display_switch_mode()) {
+
       case SWITCH_BACKGROUND:
       case SWITCH_PAUSE:
          if (win_gfx_driver && !win_gfx_driver->has_backing_store)
@@ -75,15 +86,13 @@ int sys_directx_set_display_switch_mode(int mode)
 	 return -1;
    } 
 
-   switch_mode = mode;
-
    return 0;
 }
 
 
 
 /* sys_switch_in:
- *  move application in foreground mode
+ *  Puts the library in the foreground.
  */
 void sys_switch_in(void)
 {
@@ -99,15 +108,15 @@ void sys_switch_in(void)
    _switch_in();
 
    /* handle switch modes */
-   switch (get_display_switch_mode())
-   {
+   switch (get_display_switch_mode()) {
+
       case SWITCH_AMNESIA:
       case SWITCH_PAUSE:
 	 _TRACE("AMNESIA or PAUSE mode recovery\n"); 
 
 	 /* restore old priority and wake up */
 	 SetThreadPriority(allegro_thread, allegro_thread_priority);
-	 SetEvent(_foreground_event);
+	 SetEvent(foreground_event);
 	 break;
 
       default:
@@ -118,7 +127,7 @@ void sys_switch_in(void)
 
 
 /* sys_switch_out:
- *  move application in background mode
+ *  Puts the library in the background.
  */
 void sys_switch_out(void)
 {
@@ -135,17 +144,16 @@ void sys_switch_out(void)
       win_gfx_driver->switch_out();
 
    /* handle switch modes */
-   switch(get_display_switch_mode())
-   {
+   switch(get_display_switch_mode()) {
+
       case SWITCH_AMNESIA:
       case SWITCH_PAUSE:
 	 _TRACE("AMNESIA or PAUSE suspension\n");
-	 ResetEvent(_foreground_event);
+	 ResetEvent(foreground_event);
 
-	 /* for the case that the thread doesn't suspend lower its priority
-	  * do this only if a window of another process is active */ 
+	 /* if the thread doesn't stop, lower its priority only if another window is active */ 
 	 allegro_thread_priority = GetThreadPriority(allegro_thread); 
-	 if ((HINSTANCE)GetWindowLong(GetForegroundWindow(), GWL_HINSTANCE)!=allegro_inst)
+	 if ((HINSTANCE)GetWindowLong(GetForegroundWindow(), GWL_HINSTANCE) != allegro_inst)
 	    SetThreadPriority(allegro_thread, THREAD_PRIORITY_LOWEST); 
 
 	 break;
@@ -153,4 +161,23 @@ void sys_switch_out(void)
       default:
 	 break;
    }
+}
+
+
+
+/* thread_switch_out:
+ *  Handles a switch out event for the calling thread.
+ */
+void thread_switch_out(void)
+{ 
+   switch(get_display_switch_mode()) {
+
+      case SWITCH_AMNESIA:
+      case SWITCH_PAUSE:
+	 WaitForSingleObject(foreground_event, INFINITE);
+	 break;
+
+      default:
+	 break;
+   } 
 }

@@ -111,7 +111,7 @@ static void tim_win32_high_perf_thread(void *unused)
 
    while (TRUE) {
       /* wait for foreground */
-      if (WaitForSingleObject(_foreground_event, 0) == WAIT_TIMEOUT) {
+      if (!app_foreground) {
 	 thread_switch_out();
 	 QueryPerformanceCounter(&prev_tick);
       }
@@ -158,7 +158,7 @@ static void tim_win32_low_perf_thread(void *unused)
 
    while (TRUE) {
       /* wait for foreground */
-      if (WaitForSingleObject(_foreground_event, 0) == WAIT_TIMEOUT) {
+      if (!app_foreground) {
 	 thread_switch_out();
 	 prev_time = timeGetTime();
       }
