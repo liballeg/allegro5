@@ -831,6 +831,17 @@ int main(int argc, char *argv[])
 	       opt_password = argv[++c];
 	       break;
 
+	    case '-':
+	       if (stricmp(argv[c]+2, "help") == 0) {
+	          usage();
+	          return 1;
+	       }
+	       break;
+
+	    case '?':
+	       usage();
+	       return 1;
+
 	    default:
 	       printf("Unknown option '%s'\n", argv[c]);
 	       return 1;
