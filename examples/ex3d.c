@@ -9,8 +9,6 @@
  */
 
 
-#include <stdio.h>
-
 #include "allegro.h"
 
 
@@ -350,20 +348,6 @@ COLOR_MAP trans_table;
 
 
 
-void print_progress(int pos)
-{
-   #ifdef ALLEGRO_CONSOLE_OK
-
-      if ((pos & 3) == 3) {
-	 printf("*");
-	 fflush(stdout);
-      }
-
-   #endif
-}
-
-
-
 int main(void)
 {
    BITMAP *buffer;
@@ -401,37 +385,16 @@ int main(void)
       pal[c].r = pal[c].g = pal[c].b = (c-128)/2;
 
    /* build rgb_map table */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("Generating rgb_map table:\n");
-      printf("<................................................................>\r<");
-   #endif
-
-   create_rgb_table(&rgb_table, pal, print_progress);
+   create_rgb_table(&rgb_table, pal, NULL);
    rgb_map = &rgb_table;
 
    /* build a lighting table */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\n");
-      printf("Generating lighting table:\n");
-      printf("<................................................................>\r<");
-   #endif
-
-   create_light_table(&light_table, pal, 0, 0, 0, print_progress);
+   create_light_table(&light_table, pal, 0, 0, 0, NULL);
    color_map = &light_table;
 
    /* build a transparency table */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\n");
-      printf("Generating transparency table:\n");
-      printf("<................................................................>\r<");
-   #endif
-
    /* textures are 25% transparent (75% opaque) */
-   create_trans_table(&trans_table, pal, 192, 192, 192, print_progress);
-
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n");
-   #endif
+   create_trans_table(&trans_table, pal, 192, 192, 192, NULL);
 
    /* set up the truecolor blending functions */
    /* textures are 25% transparent (75% opaque) */

@@ -52,16 +52,6 @@ void usage(void)
 
 
 
-void print_progress(int pos)
-{
-   if ((pos & 3) == 3) {
-      printf("*");
-      fflush(stdout);
-   }
-}
-
-
-
 int check_color_value(char *s, int def, int min, int max, char *t)
 {
    int val;
@@ -196,9 +186,8 @@ int main(int argc, char *argv[])
 
       printf("Solidity: red=%d%%, green=%d%%, blue=%d%%\n", rval*100/255, gval*100/255, bval*100/255);
       printf("Creating translucency color map\n");
-      printf("<................................................................>\r<");
 
-      create_trans_table(&the_map, the_pal, rval, gval, bval, print_progress);
+      create_trans_table(&the_map, the_pal, rval, gval, bval, NULL);
    }
    else {
       rval = check_color_value(r, 0, 0, 63, "red");
@@ -207,12 +196,9 @@ int main(int argc, char *argv[])
 
       printf("Light color: red=%d, green=%d, blue=%d\n", rval, gval, bval);
       printf("Creating lighting color map\n");
-      printf("<................................................................>\r<");
 
-      create_light_table(&the_map, the_pal, rval, gval, bval, print_progress);
+      create_light_table(&the_map, the_pal, rval, gval, bval, NULL);
    }
-
-   printf("\n");
 
    while (i < argc)
       modifier(argv[i++]);

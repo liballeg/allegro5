@@ -6,8 +6,6 @@
  */
 
 
-#include <stdio.h>
-
 #include "allegro.h"
 
 
@@ -21,19 +19,6 @@ COLOR_MAP greyscale_table, negative_table;
 PALETTE pal;
 BITMAP *background;
 BITMAP *temp;
-
-
-
-/* progress indicator for the color table calculations */
-void callback_func(int pos)
-{
-   #ifdef ALLEGRO_CONSOLE_OK
-
-      printf(".");
-      fflush(stdout);
-
-   #endif
-}
 
 
 
@@ -117,30 +102,14 @@ int main(void)
    generate_background();
 
    /* this isn't needed, but it speeds up the color table calculations */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("Generating RGB Table (3.25 lines to go)\n");
-   #endif
-
-   create_rgb_table(&rgb_table, pal, callback_func);
+   create_rgb_table(&rgb_table, pal, NULL);
    rgb_map = &rgb_table;
 
    /* build a color lookup table for greyscale effect */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\nGenerating Greyscale Table (3.25 lines to go)\n");
-   #endif
-
-   create_color_table(&greyscale_table, pal, return_grey_color, callback_func);
+   create_color_table(&greyscale_table, pal, return_grey_color, NULL);
 
    /* build a color lookup table for negative effect */
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\nGenerating Negative Table (3.25 lines to go)\n");
-   #endif
-
-   create_color_table(&negative_table, pal, return_negative_color, callback_func);
-
-   #ifdef ALLEGRO_CONSOLE_OK
-      printf("\n\n");
-   #endif
+   create_color_table(&negative_table, pal, return_negative_color, NULL);
 
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
