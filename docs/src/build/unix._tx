@@ -1,6 +1,7 @@
 @html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
 @html_text_substitution=docs/build/linux.txt|<a href="linux.html">docs/build/linux.txt</a>
 @html_text_substitution=abi.txt|<a href="../abi.html">abi.txt</a>
+@html_text_substitution=Allegro manual|<a href="../allegro.html">Allegro manual</a>
 @external-css=../allegro.css
 @document_title=Allegro Unix-specific information
 @<pre>
@@ -96,11 +97,17 @@ Installing Allegro
    If this hasn't already been set up on your machine, you may have trouble
    with programs being unable to find the Allegro shared library. On some
    Unices (for example Linux), you can fix this by adding "<tt>/usr/local/lib</tt>" to
-   your <tt>/etc/ld.so.conf</tt> file and then running '<tt>ldconfig</tt>' as root. On others
+   your <tt>/etc/ld.so.conf</tt> file and then running `ldconfig' as root. On others
    (for example Solaris), you can hardcode the location of the library into
    the executables by passing "<tt>-R/usr/local/lib</tt>" to the compiler or linker.
    Alternatively, you can add the path to your <tt>LD_LIBRARY_PATH</tt> environment
    variable.
+
+   Note that a manual install from the source code won't install global files
+   like `allegro.cfg', `keyboard.dat' or `language.dat'. These files might be
+   necessary for Allegro programs to work correctly. Please read the chapter
+   Unix specifics in the main Allegro manual to find more info about where to
+   install these files.
 
    If you are compiling a CVS version of Allegro, you need to generate the
    configure header and script prior to doing anything else. Make sure that
