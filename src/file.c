@@ -35,6 +35,13 @@
 
 
 
+/* permissions to use when opening files */
+#ifndef ALLEGRO_MPW
+#define OPEN_PERMS   (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)
+#endif
+
+
+
 #define N            4096           /* 4k buffers for LZ compression */
 #define F            18             /* upper limit for LZ match length */
 #define THRESHOLD    2              /* LZ encode string into pos and length
@@ -1443,9 +1450,9 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 
 #ifndef ALLEGRO_MPW
    if (strpbrk(mode, "wW"))  /* write mode? */
-      fd = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+      fd = open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, OPEN_PERMS);
    else
-      fd = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
+      fd = open(uconvert_toascii(filename, tmp), O_RDONLY | O_BINARY, OPEN_PERMS);
 #else
    if (strpbrk(mode, "wW"))  /* write mode? */
       fd = _al_open(uconvert_toascii(filename, tmp), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
@@ -1544,7 +1551,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
          char *tmp_name = tmpnam(NULL);
          if (tmp_name) {
 #ifndef ALLEGRO_MPW
-            tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+            tmp_fd = open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL, OPEN_PERMS);
 #else
             tmp_fd = _al_open(tmp_name, O_RDWR | O_BINARY | O_CREAT | O_EXCL);
 #endif
