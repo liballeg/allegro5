@@ -379,19 +379,19 @@ static void show_usage(void)
            "  dat2c [options] inputfile.dat \n\n"
            "Options:\n"
            "  -o --cfile <filename>\n"
-           "    Specify output filename (default stdout)\n"
+           "    Specifies output filename (default stdout)\n"
            "  -h --hfile <filename>\n"
-           "    Specify header filename (default none)\n"
+           "    Specifies header filename (default none)\n"
            "  -p --prefix <C identifier>\n"
            "    Specifies declaration prefix (default none)\n"
            "  -C --crlf, -U --unix, -M --mac\n"
            "    Specifies line ending (default: the platform default)\n"
            "  -g --global\n"
-           "    Make each object globally visible (default don't)\n"
+           "    Makes each object globally visible (default don't)\n"
            "  -S --convert-compiled-sprites\n"
-           "    Convert COMPILED_SPRITEs to BITMAPs (default abort)\n"
+           "    Converts COMPILED_SPRITEs to BITMAPs (default abort)\n"
            "  -n --datafile-name <C identifier>\n"
-           "    Gives a name for the datafile (default 'data')\n\n");
+           "    Gives a name for the datafile (default 'data')\n");
 }
 
 
