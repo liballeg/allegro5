@@ -716,13 +716,14 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 	 return 0;
       }
 
-      /* Hack: make the window fully visible.  */
+      /* Hack: make the window fully visible and center cursor.  */
       XMoveWindow(_xwin.display, _xwin.window, 0, 0);
       XF86VidModeSetViewPort(_xwin.display, _xwin.screen, 0, 0);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
+      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w / 2, h / 2);
       XSync(_xwin.display, False);
 	  
       /* Grab the keyboard and mouse.  */
