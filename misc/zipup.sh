@@ -195,13 +195,16 @@ scan_for_empties()
 {
    if [ -f $1/tmpfile.txt ]; then rm $1/tmpfile.txt; fi
 
-   for file in $1/*; do
-      if [ -d $file ]; then
-	 scan_for_empties $file
-      elif [ $file = "$1/*" ]; then
-	 echo "This file is needed because some unzip programs skip empty directories." > $1/tmpfile.txt
-      fi
-   done
+   files=$1/*
+   if [ "$files" = "$1/CVS" -o "$files" = "$1/*" ]; then
+      echo "This file is needed because some unzip programs skip empty directories." > $1/tmpfile.txt
+   else
+      for file in $files; do
+	 if [ -d $file ]; then
+	    scan_for_empties $file
+	 fi
+      done
+   fi
 }
 
 
@@ -213,7 +216,7 @@ scan_for_empties "."
 echo "Creating $name.zip..."
 cd ..
 if [ -f $name.zip ]; then rm $name.zip; fi
-zip -9 -r $name.zip allegro
+find allegro -name CVS -prune -o -print | zip -9 $name.zip -@
 
 
 # generate the manifest file
