@@ -1341,7 +1341,7 @@ int midi_seek(int target)
       prepare_to_play(midifile);
 
    /* now sit back and let midi_player get to the position */
-   while ((midi_pos < target) && (midi_pos != -1)) {
+   while ((midi_pos < target) && (midi_pos >= 0)) {
       int mmpc = midi_pos_counter;
       int mmp = midi_pos;
 
@@ -1362,7 +1362,7 @@ int midi_seek(int target)
    midi_driver = old_driver;
    midi_seeking = 0;
 
-   if (midi_pos != -1) {
+   if (midi_pos >= 0) {
       /* refresh the driver with any changed parameters */
       if (midi_driver->raw_midi) {
 	 for (c=0; c<16; c++) {
@@ -1394,7 +1394,7 @@ int midi_seek(int target)
       return 0;
    }
 
-   if ((midi_loop) && (!midi_looping)) {  /* was file was looped? */
+   if ((midi_loop) && (!midi_looping)) {  /* was file looped? */
       prepare_to_play(old_midifile);
       install_int(midi_player, 20);
       return 2;                           /* seek past EOF => file restarted */

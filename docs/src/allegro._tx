@@ -5502,10 +5502,11 @@ MIDI music routines
    Seeks to the given midi_pos in the current MIDI file. If the target is 
    earlier in the file than the current midi_pos it seeks from the 
    beginning; otherwise it seeks from the current position. Returns zero if 
-   successful, non-zero if it hit the end of the file (1 means it stopped 
-   playing, 2 means it looped back to the start). If this function stops 
-   because it reached EOF, midi_pos will be set to the negative length of 
-   the MIDI file.
+   it could successfully seek to the requested position. Otherwise, a
+   return value of 1 means it stopped playing, and midi_pos is set to the
+   negative length of the MIDI file (so you can use this function to
+   determine the length of a MIDI file). A return value of 2 means the MIDI
+   file looped back to the start.
 
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
