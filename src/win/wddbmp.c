@@ -26,15 +26,14 @@ static LPDIRECTDRAWSURFACE2 backbuffersurf = NULL;
 static LPDIRECTDRAWSURFACE2 tripbuffersurf = NULL;
 
 
-/* sometimes we have to recycle the screen surface as a video bitmap,
+/* we may have to recycle the screen surface as a video bitmap,
  * in order to be consistent with how other platforms behave.
  */
-static int ReusedScreen = 0;
+static int reused_screen = 0;
 
 
 
-/*
- * get_surface2_int:
+/* get_surface2_int:
  *  helper function to get the DirectDrawSurface2 interface
  */
 static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
@@ -45,8 +44,8 @@ static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
    hr = IDirectDrawSurface_QueryInterface(surf, &IID_IDirectDrawSurface2, (LPVOID *)&surf2);
 
    /* There is a bug in the COM part of DirectX 3:
-    * if we release the DirectSurface interface, the actual
-    * object is also released. It is fixed in DirectX 5.
+    *  if we release the DirectSurface interface, the actual
+    *  object is also released. It is fixed in DirectX 5.
     */
    if (_dx_ver >= 0x500)
       IDirectDrawSurface_Release(surf);
@@ -59,12 +58,12 @@ static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
 
 
 
-/*
- * EnumSurfacesCallback:
- *  attached surfaces enumeration callback function
+/* EnumSurfacesCallback:
+ *  callback function to enumerate the attached surfaces
  */
-HRESULT WINAPI EnumSurfacesCallback(LPDIRECTDRAWSURFACE lpDDSurface,
-                                    LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID lpContext)
+static HRESULT CALLBACK EnumSurfacesCallback(LPDIRECTDRAWSURFACE lpDDSurface,
+                                             LPDDSURFACEDESC lpDDSurfaceDesc,
+                                             LPVOID lpContext)
 {
    if (backbuffersurf == NULL)
       backbuffersurf = get_surface2_int(lpDDSurface);
@@ -77,9 +76,10 @@ HRESULT WINAPI EnumSurfacesCallback(LPDIRECTDRAWSURFACE lpDDSurface,
 
 
 /* gfx_directx_create_surface:
+ *  creates a DirectDraw surface
  */ 
 LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pixel_format,
-                                                              int video, int primary, int overlay)
+                                                int video, int primary, int overlay)
 {
    DDSURFACEDESC surf_desc;
    LPDIRECTDRAWSURFACE _surf1;
@@ -173,6 +173,7 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
 
 
 /* gfx_directx_destroy_surf:
+ *  destroys a DirectDraw surface
  */
 void gfx_directx_destroy_surf(LPDIRECTDRAWSURFACE2 surf)
 {
@@ -190,8 +191,10 @@ void gfx_directx_destroy_surf(LPDIRECTDRAWSURFACE2 surf)
 
 
 /* _make_video_bitmap:
+ *  worker function to wrap up a DirectDraw surface in a video bitmap
  */
-BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_VTABLE *vtable, int color_depth, int bpl)
+static BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_VTABLE *vtable,
+                                  int color_depth, int bpl)
 {
    int i, size;
    BITMAP *b;
@@ -243,9 +246,9 @@ BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_VTABLE *
 
 
 /* make_directx_bitmap:
- *  connects DirectDraw surface with Allegro bitmap object
+ *  connects a DirectDraw surface with an Allegro bitmap
  */
-struct BITMAP *make_directx_bitmap(LPDIRECTDRAWSURFACE2 surf, int w, int h, int color_depth, int id)
+BITMAP *make_directx_bitmap(LPDIRECTDRAWSURFACE2 surf, int w, int h, int color_depth, int id)
 {
    struct BITMAP *bmp;
    struct BMP_EXTRA_INFO *bmp_extra;
@@ -273,11 +276,12 @@ struct BITMAP *make_directx_bitmap(LPDIRECTDRAWSURFACE2 surf, int w, int h, int 
 
 
 /* release_directx_bitmap:
- *  release DirectDraw surface and destroy surface info structure
+ *  releases a DirectDraw surface and destroys its info structure
  */
-void release_directx_bitmap(struct BITMAP *bmp)
+void release_directx_bitmap(BITMAP *bmp)
 {
    struct BMP_EXTRA_INFO *bmp_extra;
+
    if (bmp) {
       if (bmp->extra) {
          bmp_extra = BMP_EXTRA(bmp);
@@ -291,7 +295,7 @@ void release_directx_bitmap(struct BITMAP *bmp)
 
 /* gfx_directx_created_sub_bitmap:
  */
-void gfx_directx_created_sub_bitmap(struct BITMAP *bmp, struct BITMAP *parent)
+void gfx_directx_created_sub_bitmap(BITMAP *bmp, BITMAP *parent)
 {
    bmp->extra = parent;
 }
@@ -300,39 +304,39 @@ void gfx_directx_created_sub_bitmap(struct BITMAP *bmp, struct BITMAP *parent)
 
 /* gfx_directx_create_video_bitmap:
  */
-struct BITMAP *gfx_directx_create_video_bitmap(int width, int height)
+BITMAP *gfx_directx_create_video_bitmap(int width, int height)
 {
    LPDIRECTDRAWSURFACE2 surf;
 
    /* can we reuse the screen bitmap for this? */
-   if ((ReusedScreen < 3) && (screen->w == width) && (screen->h == height)) {
-      ReusedScreen ++;
+   if ((reused_screen < 3) && (screen->w == width) && (screen->h == height)) {
+      reused_screen ++;
 
-      if (ReusedScreen == 1)
+      if (reused_screen == 1)
           return screen;
-      else if (ReusedScreen == 2) {
+      else if (reused_screen == 2) {
          if (backbuffersurf)
             return make_directx_bitmap (backbuffersurf,
 			width, height, _color_depth, BMP_ID_VIDEO);
          else
-            ReusedScreen--;
+            reused_screen--;
       }
-      else if (ReusedScreen == 3) {
+      else if (reused_screen == 3) {
          if (tripbuffersurf)
             return make_directx_bitmap (tripbuffersurf,
 			width, height, _color_depth, BMP_ID_VIDEO);
          else
-            ReusedScreen--;
+            reused_screen--;
       }
    }
 
    /* assume all flip surfaces have been allocated, so free unused */
-   if (ReusedScreen < 3 && tripbuffersurf) {
+   if (reused_screen < 3 && tripbuffersurf) {
       gfx_directx_destroy_surf(tripbuffersurf);
       tripbuffersurf = NULL;
    }
 
-   if (ReusedScreen < 2 && backbuffersurf) {
+   if (reused_screen < 2 && backbuffersurf) {
       gfx_directx_destroy_surf(backbuffersurf);
       backbuffersurf = NULL;
    }
@@ -354,12 +358,12 @@ struct BITMAP *gfx_directx_create_video_bitmap(int width, int height)
 
 /* gfx_directx_destroy_video_bitmap:
  */
-void gfx_directx_destroy_video_bitmap(struct BITMAP *bitmap)
+void gfx_directx_destroy_video_bitmap(BITMAP *bitmap)
 {
    if ( (bitmap == screen) || 
         (BMP_EXTRA(bitmap)->surf == backbuffersurf) ||
 	(BMP_EXTRA(bitmap)->surf == tripbuffersurf) ) {
-      ReusedScreen --;
+      reused_screen --;
       return;
    }
 
@@ -373,9 +377,10 @@ void gfx_directx_destroy_video_bitmap(struct BITMAP *bitmap)
 
 
 
-/* gfx_directx_flip_bitmap:
+/* _flip_bitmap:
+ *  worker function to do DirectDraw page flipping 
  */
-static int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
+static int _flip_bitmap(BITMAP *bitmap, int wait)
 {
    LPDIRECTDRAWSURFACE2 visible;
    LPDIRECTDRAWSURFACE2 invisible;
@@ -430,23 +435,21 @@ static int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
  */
 int gfx_directx_show_video_bitmap(struct BITMAP *bitmap)
 {
-   return gfx_directx_flip_bitmap(bitmap, 1);
+   return _flip_bitmap(bitmap, 1);
 }
 
 
 
 /* gfx_directx_request_video_bitmap:
- *  same as show_video_bitmap, but without waiting for flip.
  */
 int gfx_directx_request_video_bitmap(struct BITMAP *bitmap)
 {
-   return gfx_directx_flip_bitmap(bitmap, 0);
+   return _flip_bitmap(bitmap, 0);
 }
 
 
 
 /* gfx_directx_poll_scroll:
- *  checks whether the last flip is finished.
  */
 int gfx_directx_poll_scroll(void)
 {
@@ -464,7 +467,7 @@ int gfx_directx_poll_scroll(void)
 
 /* gfx_directx_create_system_bitmap:
  */
-struct BITMAP *gfx_directx_create_system_bitmap(int width, int height)
+BITMAP *gfx_directx_create_system_bitmap(int width, int height)
 {
    LPDIRECTDRAWSURFACE2 surf;
 
@@ -481,10 +484,11 @@ struct BITMAP *gfx_directx_create_system_bitmap(int width, int height)
 
 /* gfx_directx_destroy_system_bitmap:
  */
-void gfx_directx_destroy_system_bitmap(struct BITMAP *bitmap)
+void gfx_directx_destroy_system_bitmap(BITMAP *bitmap)
 {
    if (BMP_EXTRA(bitmap))
       gfx_directx_destroy_surf(BMP_EXTRA(bitmap)->surf);
+
    release_directx_bitmap(bitmap);
    bitmap->id &= ~BMP_ID_SYSTEM;
    destroy_bitmap(bitmap);
@@ -493,7 +497,7 @@ void gfx_directx_destroy_system_bitmap(struct BITMAP *bitmap)
 
 
 /* win_get_dc:
- *  return HDC for video and system bitmaps
+ *  returns device context of a video or system bitmap
  */
 HDC win_get_dc(BITMAP * bmp)
 {
@@ -516,7 +520,7 @@ HDC win_get_dc(BITMAP * bmp)
 
 
 /* win_release_dc:
- *  release HDC of video or system bitmaps
+ *  releases device context of a video or system bitmap
  */
 void win_release_dc(BITMAP * bmp, HDC dc)
 {

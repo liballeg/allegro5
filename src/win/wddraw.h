@@ -112,13 +112,13 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 AL_FUNC(LPDIRECTDRAWSURFACE2, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format,
    int video, int primary, int overlay));
 AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE2 surf, int w, int h, int color_depth, int id));
+AL_FUNC(void, release_directx_bitmap, (struct BITMAP *bmp));
 
 
 /* video bitmap list */
 AL_FUNC(void, register_directx_bitmap, (BITMAP *bmp));
 AL_FUNC(void, unregister_directx_bitmap, (BITMAP *bmp));
 AL_FUNC(void, unregister_all_directx_bitmaps, (void));
-AL_FUNC(void, release_directx_bitmap, (struct BITMAP *bmp));
 
 AL_VAR(BMP_EXTRA_INFO *, directx_bmp_list);
 
