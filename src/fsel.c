@@ -665,7 +665,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
    if (((sel != d->d1) || (ret == D_CLOSE)) && (recurse_flag == 0)) {
       replace_filename(s, flist->dir, flist->name[d->d1], size);
       /* check if we want to `cd ..' */
-      if ((!ustrncmp(flist->name[d->d1], "..", 2)) && (ret == D_CLOSE)) {
+      if ((!ustrncmp(flist->name[d->d1], uconvert_ascii("..", NULL), 2)) && (ret == D_CLOSE)) {
 	 /* let's remember the previous directory */
 	 usetc(updir, 0);
 	 i = ustrlen(flist->dir);
