@@ -15,10 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef __QNX__
-#error Bad include!
-#endif
-
 
 /* System driver */
 #define SYSTEM_QNX            AL_ID('Q','S','Y','S')
