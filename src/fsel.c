@@ -431,33 +431,36 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
    }
 
    if ((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1)))) {
-      name = malloc(ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0));
+      int size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
+      name = malloc(size);
       if (!name)
 	 return -1;
 
+      ustrzcpy(name, size, s);
+      if (attrib & FA_DIREC)
+	 put_backslash(name);
+
+      /* Sort alphabetically with directories first. */
       for (c=0; c<flist->size; c++) {
 	 if (ugetat(flist->name[c], -1) == OTHER_PATH_SEPARATOR) {
 	    if (attrib & FA_DIREC)
-	       if (ustrfilecmp(s, flist->name[c]) < 0)
+	       if (ustrfilecmp(name, flist->name[c]) < 0)
 		  break;
 	 }
 	 else {
 	    if (attrib & FA_DIREC)
 	       break;
-	    if (ustrfilecmp(s, flist->name[c]) < 0)
+	    if (ustrfilecmp(name, flist->name[c]) < 0)
 	       break;
 	 }
       }
 
+      /* Shift in preparation for inserting the new entry. */
       for (c2=flist->size; c2>c; c2--)
 	 flist->name[c2] = flist->name[c2-1];
 
+      /* Insert the new entry. */
       flist->name[c] = name;
-      ustrcpy(flist->name[c], s);  /* ustrzcpy() not needed */
-
-      if (attrib & FA_DIREC)
-	 put_backslash(flist->name[c]);
-
       flist->size++;
    }
 

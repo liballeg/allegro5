@@ -919,7 +919,7 @@ char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
       }
    }
 
-   ustrcpy(buf, s);
+   ustrzcpy(buf, buf_size, s);
    pos = 0;
    ac = 0;
 
