@@ -34,19 +34,40 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
    #undef END_OF_MAIN
 
    #ifdef ALLEGRO_GCC
-      #ifdef __cplusplus
-         extern "C" int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+
+      #ifdef _WINBASE_H
+
+         /* GCC version, using __attribute__ ((stdcall)) */
+         #define END_OF_MAIN()                                                                             \
+                                                                                                           \
+            int __attribute__ ((stdcall)) WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR Cmd, int nShow)  \
+            {                                                                                              \
+               return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);                           \
+            }
+
+      #else
+
+         /* disable strict pointer typing because of the vague prototype below */
+         #define NO_STRICT
+
+         #ifdef __cplusplus
+            extern "C" int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+         #endif
+
+         /* GCC version, using __attribute__ ((stdcall)) */
+         #define END_OF_MAIN()                                                                     \
+                                                                                                   \
+            int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
+            {                                                                                      \
+               return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);                   \
+            }
+
       #endif
 
-      /* GCC version, using __attribute__ ((stdcall)) */
-      #define END_OF_MAIN()                                                                     \
-                                                                                                \
-         int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
-         {                                                                                      \
-            return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);                   \
-         }
-
    #else
+
+      /* disable strict pointer typing because of the vague prototype below */
+      #define NO_STRICT
 
       /* MSVC and BCC32 version, using __stdcall */
       #define END_OF_MAIN()                                                        \
