@@ -113,7 +113,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex, unsigned long abstime)
 
    gettimeofday(&now, NULL);
    timeout.tv_sec = now.tv_sec + (msecs / 1000);
-   timeout.tv_nsec = (now.tv_usec + (msecs % 1000)) * 1000;
+   timeout.tv_nsec = (now.tv_usec + (msecs % 1000) * 1000) * 1000;
    timeout.tv_sec += timeout.tv_nsec / 1000000000L;
    timeout.tv_nsec = timeout.tv_nsec % 1000000000L;
 
