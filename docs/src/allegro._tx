@@ -7994,18 +7994,23 @@ ensure there is room for the check.
    Passing NULL includes all files; "PCX;BMP" includes only files with
    .PCX or .BMP extensions. If you wish to control files by their attributes,
    one of the fields in the extension list can begin with a slash, followed
-   by a set of attribute characters. Any attributes written on their own,
-   or with a '+' before them, indicate to include only files which have
-   that attribute set. Any attributes with a '-' before them indicate to
-   leave out any files with that attribute. The flag characters are
-   'r' (read-only), 'h' (hidden), 's' (system), 'd' (directory),
-   and 'a' (archive). For example, an extension string of "PCX;BMP;/+r-d"
-   will display only PCX or BMP files that are read-only, and no
-   directories. The file selector is stretched to the width and height
-   specified in the w and h parameters, and to the size of the standard
-   Allegro font. If either the width or height argument is set to zero, it is
-   stretched to the corresponding screen dimension. This function returns
-   zero if it was closed with the Cancel button or non-zero if it was OK'd.
+   by a set of attribute characters. Any attribute written on its own, or
+   with a '+' before it, indicates to include only files which have that
+   attribute set. Any attribute with a '-' before it indicates to leave out
+   any files with that attribute. The flag characters are 'r' (read-only),
+   'h' (hidden), 's' (system), 'd' (directory) and 'a' (archive). For
+   example, an extension string of "PCX;BMP;/+r-h" will display only PCX or
+   BMP files that are read-only and not hidden. The directories are not
+   affected in the same way as the other files by the extension string: the
+   extensions and other attributes are never taken into account for them and
+   the 'd' character has no effect unless preceded by '-'; in other words,
+   all directories are included when '(+)d' is passed or when 'd' is not
+   mentioned in the string. The file selector is stretched to the width and
+   height specified in the w and h parameters, and to the size of the
+   standard Allegro font. If either the width or height argument is set to
+   zero, it is stretched to the corresponding screen dimension. This
+   function returns zero if it was closed with the Cancel button or non-zero
+   if it was OK'd.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color
