@@ -4627,10 +4627,13 @@ bitmap.
 @@void @draw_sprite_vh_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite, bitmap_mask_color
 @eref exsprite
-   These are like draw_sprite(), but they flip the image about the vertical, 
-   horizontal, or both, axes. This produces exact mirror images, which
-   is not the same as rotating the sprite (and it is a lot faster than the 
-   rotation routine). The sprite must be a memory bitmap.
+   These are like draw_sprite(), but they additionally flip the image
+   vertically, horizontally, or both, respectively. Flipping vertically
+   means that the y-axis is reversed, while flipping horizontally means
+   that the x-axis is reversed, between the source and the destination.
+   This produces exact mirror images, which is not the same as rotating the
+   sprite (and it is a lot faster than the rotation routine). The sprite
+   must be a memory bitmap.
 
 @@void @draw_trans_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite, draw_lit_sprite, draw_trans_rle_sprite, color_map
