@@ -62,11 +62,9 @@ Macintosh todos:
 BeOS todos:
 ---------------------------------------------------------------------------
 
-- Fix problem with 3d routines
 - Add display switching support to fullscreen driver
 - Write a safe windowed driver using BBitmap
-- Support for compiling as shared object would be nice
-- zbuffering fix under BeOS
+- investigate quad3d_f problems
 - shared library support
 - code cleanup
 
@@ -98,8 +96,11 @@ Wishlist
   should be written in such a way to support future additions without the
   need of rewritting the user setup ui.
 - Play with switch_in/out X events, just for the sake of it :-)
-- merge am's menu auto popup patch
+- merge Angelo's menu auto popup patch
 - separate fullscreen option from XDFS, XDGA, etc.
 - OSS MIDI pitch bend.
+- function to get a list of supported video modes
+- hook function to handle window resizing and another one to handle
+  window closing
 
 ---------------------------------------------------------------------------
