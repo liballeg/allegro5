@@ -5971,6 +5971,189 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 
 
 @heading
+Fonts
+
+Allegro provides routines for loading fonts from GRX format .fnt files, 8x8
+or 8x16 BIOS format .fnt files, and from bitmap images, or you can import a
+multiple-range Unicode font by writing a .txt script that specifies a number 
+of different source files for each range of characters. The script file 
+contains a number of lines in the format "filename start end", which specify 
+the source file for that range of characters, the Unicode value of the first 
+character in the range, and the end character in the range (optional, if
+left out, the entire input file will be grabbed). If the filename is replaced
+by a hyphen, more characters will be grabbed from the previous input file.
+For example, the script:
+<textblock>
+   ascii.fnt 0x20 0x7F
+   - 0xA0 0xFF
+   dingbats.fnt 0x1000
+<endblock>
+would import the first 96 characters from ascii.fnt as the range 0x20-0x7F, 
+the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire 
+contents of dingbats.fnt starting at Unicode position 0x1000.
+
+By default, Allegro can only use bitmapped (non-scalable) fonts. If you want
+to use True Type fonts, you will need to use an add-on library.
+
+@\void @register_font_file_type(const char *ext,
+@@          FONT *(*load)(const char *filename, RGB *pal, void *param));
+@xref load_font
+@shortdesc Register a new font loading function.
+   Informs the load_font() functions of a new file type, providing a routine 
+   to read fonts in this format. The function you supply must follow the 
+   following prototype:
+<codeblock>
+      FONT *load_my_font(const char *filename, RGB *pal, void *param)
+      {
+	 ...
+      }
+<endblock>
+   The pal parameter can optionally be used to return a palette for the FONT.
+   The parameter param can be anything you like: you can use this to pass
+   information to your loading routine, such as for instance the font height,
+   the character range to load or the index number of a font in a datafile.
+   If you choose to write your own font loading code, your function should be
+   prepared to deal with a value of NULL for either of these parameters.
+
+@@FONT *@load_font(const char *filename, RGB *pal, void *param);
+@xref register_font_file_type, load_bitmap, load_dat_font
+@xref load_bios_font, load_grx_font, load_grx_or_bios_font, load_bitmap_font
+@shortdesc Loads a font from a file.
+   Loads a font from a file. At present, this supports loading fonts from
+   a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
+   format that can be loaded by load_bitmap().
+   
+   If the font contains palette information, then the palette is returned in
+   the second parameter, which should be an array of 256 RGB structures 
+   (a PALETTE). The pal argument may be NULL. In this case, the palette data,
+   if present, is simply not returned.
+   
+   The third parameter can be used to pass specific information to a custom
+   loader routine. Normally, you can just leave this as NULL.
+
+   Example:
+<codeblock>
+      FONT *myfont;
+      PALETTE palette;
+      ...
+      myfont = load_bitmap("my_font.pcx", palette, NULL);
+      if (!myfont)
+	 abort_on_error("Couldn't load font!");
+      ...
+      textout_centre_ex(screen, myfont, "This is my own pretty font!",
+			SCREEN_W / 2, SCREEN_H / 2, white, black);
+      ...
+      destroy_font(bmp);<endblock>
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@load_dat_font(const char *filename, RGB *pal, void *param)
+@xref register_font_file_type, load_font
+@shortdesc Loads a FONT from an Allegro datafile.
+   Loads a FONT from an Allegro datafile. You can use the param parameter to
+   pass the sequential number of the FONT to load from the datafile (counting
+   from 0). If pal is not NULL, then the last palette entry found in the
+   datafile before the font was found is returned.
+
+   For example, suppose you have a datafile named `fonts.dat' with the
+   following contents:
+<textblock>
+      PAL   FONT_1_COLOURS
+      FONT  FONT_1_DATA
+      PAL   FONT_2_COLOURS
+      FONT  FONT_2_DATA
+      FONT  FONT_3_DATA
+<endblock>
+   Then the following code will load FONT_1_DATA as a FONT and return
+   FONT_1_COLOURS as the palette:
+<codeblock>
+      FONT *f;
+      PALETTE pal;
+      
+      f = load_dat_font("fonts.dat", pal, NULL);
+<endblock>
+   If instead you want to load the second font, FONT_2, from the datafile, you
+   would use:
+<codeblock>
+      FONT *f;
+      PALETTE pal;
+      int n;
+      
+      n = 1;      /* Zero based! */
+      f = load_dat_font("fonts.dat", pal, &n);
+<endblock>
+   If you want to load the third font, but discard the palette from FONT_2,
+   use:
+<codeblock>
+      FONT *f;
+      int n;
+      
+      n = 2;      /* Zero based! */
+      f = load_dat_font("fonts.dat", NULL, &n);<endblock>
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@load_bios_font(const char *filename, RGB *pal, void *param)
+@xref register_font_file_type, load_font
+@shortdesc Loads a 8x8 or 8x16 BIOS format font.
+   Loads a 8x8 or 8x16 BIOS format font. You shouldn't normally call this 
+   routine directly.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@load_grx_font(const char *filename, RGB *pal, void *param)
+@xref register_font_file_type, load_font
+@shortdesc Loads a GRX format font.
+   Loads a GRX format font. You shouldn't normally call this routine
+   directly.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@load_grx_or_bios_font(const char *filename, RGB *pal,void *param))
+@xref register_font_file_type, load_font
+@shortdesc Loads either a BIOS or GRX format font.
+   Loads either a BIOS or GRX format font. You shouldn't normally call this 
+   routine directly.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@load_bitmap_font(const char *filename, RGB *pal, void *param)
+@xref register_font_file_type, load_font, load_bitmap, set_color_depth
+@shortdesc Grabs a font from a bitmap file.
+   Tries to grab a font from a bitmap. The bitmap can be in any format that
+   load_bitmap understands but it must have a colour depth of 8 bits.
+
+   The size of each character is determined by the layout of the image, which
+   should be a rectangular grid containing all the ASCII characters from
+   space (32) up to the tilde (126). Use colour 0 for the transparent
+   portions of the characters and fill the spaces between each letter with
+   color 255.
+   
+   Note that in each horizontal row the colour-0 bounding boxes around the
+   characters should align and have the same height.
+   
+   Probably the easiest way to get to grips with how this works is to load up 
+   the `demo.dat' file and export the TITLE_FONT into a PCX file. Have a look
+   at the resulting picture in your paint program: that is the format a font
+   should be in.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+
+
+@heading
 Text output
 
 Allegro provides text output routines that work with both monochrome and 
