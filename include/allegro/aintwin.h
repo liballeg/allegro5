@@ -34,7 +34,9 @@
 
 #include "winalleg.h"
 
-
+#if (!defined SCAN_EXPORT) && (!defined SCAN_DEPEND)
+#include <ddraw.h>
+#endif
 
 /*******************************************/
 /***************** general *****************/
@@ -52,6 +54,36 @@ AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, handle_window_size, (int x, int y, int w, int h));
 AL_FUNC(void, restore_window_style, (void));
+
+/* Stuff moved over from wddraw.h */
+
+AL_VAR(int, wnd_windowed);
+
+#define _enter_gfx_critical() EnterCriticalSection(&gfx_crit_sect);
+#define _exit_gfx_critical() LeaveCriticalSection(&gfx_crit_sect);
+
+AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
+AL_VAR(char *, pseudo_surf_mem);
+
+typedef struct BMP_EXTRA_INFO {
+   LPDIRECTDRAWSURFACE surf;
+   struct BMP_EXTRA_INFO *next;
+   struct BMP_EXTRA_INFO *prev;
+   int flags;
+   int lock_nesting;
+} BMP_EXTRA_INFO;
+
+#define BMP_EXTRA(bmp) ((BMP_EXTRA_INFO *)(bmp->extra))
+
+#define BMP_FLAG_LOST      1
+
+AL_VAR(LPDIRECTDRAW, directdraw);
+AL_VAR(LPDIRECTDRAWSURFACE, dd_prim_surface);
+AL_VAR(LPDIRECTDRAWPALETTE, dd_palette);
+AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
+AL_VAR(DDCAPS, dd_caps);
+AL_VAR(LPDDPIXELFORMAT, dd_pixelformat);
+AL_VAR(BITMAP *, dd_frontbuffer);
 
 /* focus switch routines */
 AL_VAR(BOOL, app_foreground);

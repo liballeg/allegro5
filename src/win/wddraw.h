@@ -32,35 +32,6 @@
 #error something is wrong with the makefile
 #endif
 
-
-/* general */
-#define _enter_gfx_critical() EnterCriticalSection(&gfx_crit_sect);
-#define _exit_gfx_critical() LeaveCriticalSection(&gfx_crit_sect);
-
-AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
-AL_VAR(char *, pseudo_surf_mem);
-
-typedef struct BMP_EXTRA_INFO {
-   LPDIRECTDRAWSURFACE surf;
-   struct BMP_EXTRA_INFO *next;
-   struct BMP_EXTRA_INFO *prev;
-   int flags;
-   int lock_nesting;
-} BMP_EXTRA_INFO;
-
-#define BMP_EXTRA(bmp) ((BMP_EXTRA_INFO *)(bmp->extra))
-
-#define BMP_FLAG_LOST      1
-
-AL_VAR(LPDIRECTDRAW, directdraw);
-AL_VAR(LPDIRECTDRAWSURFACE, dd_prim_surface);
-AL_VAR(LPDIRECTDRAWPALETTE, dd_palette);
-AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
-AL_VAR(DDCAPS, dd_caps);
-AL_VAR(LPDDPIXELFORMAT, dd_pixelformat);
-AL_VAR(BITMAP *, dd_frontbuffer);
-
-
 /* vtable routines */
 AL_FUNC(void, gfx_directx_exit, (BITMAP *b));
 AL_FUNC(void, gfx_directx_sync, (void));
@@ -129,7 +100,6 @@ AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
 AL_VAR(int, wnd_width);
 AL_VAR(int, wnd_height);
-AL_VAR(int, wnd_windowed);
 AL_VAR(int, wnd_sysmenu);
 
 
