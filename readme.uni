@@ -154,13 +154,20 @@
    to link statically to them too. If you link dynamically to Allegro, your
    binary will only depend upon the Allegro version (and things like libc);
    in this case your binary is more easily portable, but it does depend
-   upon the way Allegro was configured. Hopefully this dependence will go
-   away in the future.
+   upon the way Allegro was configured.
 
    The easiest way to make your program portable is to distribute it in 
    source form. That way the users can configure Allegro for themselves, 
    and will always end up using exactly the right set of libraries for 
    their particular system.
+
+   Having said that, if you enable dynamic module support (default), then
+   you should have few (if any) problems.
+
+   Security note: Make sure that untrusted users cannot write to either of
+   the `/usr/local/lib/allegro/' or `/usr/lib/allegro/' directories.
+   Allegro looks for dynamically loaded modules in those directories, and
+   loads all of them listed in `modules.lst' at startup.
 
 
 
