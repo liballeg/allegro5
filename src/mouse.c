@@ -940,7 +940,6 @@ int install_mouse(void)
    LOCK_VARIABLE(mouse_x_focus);
    LOCK_VARIABLE(mouse_y_focus);
    LOCK_VARIABLE(mouse_sprite);
-   LOCK_VARIABLE(mouse_pointer_data);
    LOCK_VARIABLE(_mouse_pointer);
    LOCK_VARIABLE(_mouse_screen);
    LOCK_VARIABLE(mx);
