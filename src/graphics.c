@@ -166,33 +166,31 @@ int get_refresh_rate(void)
  */
 int get_gfx_mode_list(int card)
 {
-   GFX_DRIVER   *temp_gfx_driver;
-   _DRIVER_INFO *driver_list, *driver_list_entry;
+   _DRIVER_INFO *list, *entry;
+   GFX_DRIVER *drv;
+
+   /* GFX_AUTODETECT isn't a driver! */
+   if (card == GFX_AUTODETECT)
+      return -1;
 
    /* ask the system driver for a list of graphics hardware drivers */
    if (system_driver->gfx_drivers)
-      driver_list = system_driver->gfx_drivers();
+      list = system_driver->gfx_drivers();
    else
-      driver_list = _gfx_driver_list;
+      list = _gfx_driver_list;
 
-   /* GFX_AUTODETECT isn't a driver! */
-   if (card == GFX_AUTODETECT) return -1;
-
-   /* check if the graphics hardware driver exists and select it.   */
-   for (driver_list_entry = driver_list;; driver_list_entry++) {
-      temp_gfx_driver = driver_list_entry->driver;
-      if (temp_gfx_driver == NULL) return -1;
-      if (card == driver_list_entry->id) break;
+   /* find the graphics driver, and if it can fetch mode lists, do so */
+   for (entry = list; entry->driver; entry++) {
+      if (entry->id == card) {
+	 drv = entry->driver;
+	 if (!drv->fetch_mode_list)
+	    break;
+	 drv->fetch_mode_list();
+	 return 0;
+      }
    }
-
-   /* check if the gfx driver has support for fetching a mode list,
-      if it has then fetch the list                                 */
-   if (temp_gfx_driver->fetch_mode_list)
-      temp_gfx_driver->fetch_mode_list();
-   else
-      return -1;
-
-   return 0;
+   
+   return -1;
 }
 
 
@@ -203,15 +201,13 @@ int get_gfx_mode_list(int card)
  */
 int destroy_gfx_mode_list(void)
 {
-  if (gfx_mode_list) {
-    free(gfx_mode_list);
-    gfx_mode_list = NULL;
-  }
-  else {
-    return -1;
-  }
+   if (gfx_mode_list) {
+      free(gfx_mode_list);
+      gfx_mode_list = NULL;
+      return 0;
+   }
 
-  return 0;
+   return -1;
 }
 
 
