@@ -3018,7 +3018,7 @@ routines" for more information about this.
       set_leds(-1);
 <endblock>
    Note that the led behaviour cannot be guaranteed on some platforms, some
-   lets might not react, or none at all. Therefore you shouldn't rely only on
+   leds might not react, or none at all. Therefore you shouldn't rely only on
    them to communicate information to the user, just in case it doesn't get
    through.
 
