@@ -22,6 +22,7 @@
 #ifdef HAVE_LIBPTHREAD
 
 #include <pthread.h>
+#include <signal.h>
 #include <sys/time.h>
 #include <limits.h>
 
@@ -37,12 +38,21 @@ static pthread_mutex_t cli_mutex;
 static pthread_cond_t cli_cond;
 static int cli_count;
 
+static void block_all_signals(void)
+{
+	sigset_t mask;
+	sigfillset(&mask);
+	pthread_sigmask(SIG_BLOCK, &mask, NULL);
+}
+
 static void *bg_man_pthreads_threadfunc (void *arg)
 {
 	struct timeval old_time, new_time;
 	struct timeval delay;
 	unsigned long interval, i;
 	int n;
+
+	block_all_signals();
 
 	gettimeofday (&old_time, 0);
 

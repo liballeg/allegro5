@@ -79,22 +79,24 @@ extern "C" {
    AL_FUNC(void, _xwin_handle_input, (void));
 
 
-   #define XLOCK()				\
-      if (_unix_bg_man->multi_threaded) {	\
-	 if (_xwin.display)			\
-	    XLockDisplay(_xwin.display);	\
-      } else {					\
-	 _xwin.lock_count++;			\
-      }
+   #define XLOCK()                              \
+      do {                                      \
+         if (_unix_bg_man->multi_threaded) {    \
+            if (_xwin.display)                  \
+               XLockDisplay(_xwin.display);     \
+         }                                      \
+         _xwin.lock_count++;                    \
+      } while (0)
 
-   #define XUNLOCK()				\
-      if (_unix_bg_man->multi_threaded) {	\
-	 if (_xwin.display) {			\
-	    XUnlockDisplay(_xwin.display);	\
-	 }					\
-      } else {					\
-	 _xwin.lock_count--;			\
-      }
+   #define XUNLOCK()                            \
+      do {                                      \
+         if (_unix_bg_man->multi_threaded) {    \
+            if (_xwin.display)                  \
+               XUnlockDisplay(_xwin.display);   \
+         }                                      \
+         _xwin.lock_count--;                    \
+      } while (0)
+
 #endif
 
 

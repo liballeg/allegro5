@@ -114,7 +114,7 @@ static RETSIGTYPE (*old_sig_quit)(int num);
  */
 static RETSIGTYPE _xwin_signal_handler(int num)
 {
-   if (_unix_bg_man->interrupts_disabled()) {
+   if (_unix_bg_man->interrupts_disabled() || _xwin.lock_count) {
       /* Can not shutdown X-Windows, restore old signal handlers and slam the door.  */
       signal(SIGABRT, old_sig_abrt);
       signal(SIGFPE,  old_sig_fpe);

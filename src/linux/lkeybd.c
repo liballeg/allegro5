@@ -81,6 +81,7 @@ static STD_DRIVER std_keyboard =
 
 static int startup_kbmode;
 static int resume_count;
+static int main_pid;
 
 
 #define KB_MODIFIERS    (KB_SHIFT_FLAG | KB_CTRL_FLAG | KB_ALT_FLAG | KB_LWIN_FLAG | KB_RWIN_FLAG | KB_MENU_FLAG)
@@ -274,7 +275,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                     (three_finger_flag) &&
                     (_key_shifts & KB_CTRL_FLAG) && 
                     (_key_shifts & KB_ALT_FLAG))
-                        raise(SIGTERM);
+                        kill(main_pid, SIGTERM);
 
                 _handle_key_press (ascii, mycode);
         }
@@ -386,6 +387,9 @@ static int linux_key_init (void)
 
         /* Keyboard is disabled */
         resume_count = 0;
+
+        /* Get the pid, which we use for the three finger salute */
+        main_pid = getpid();
 
         /* Register our driver (enables it too) */
         __al_linux_add_standard_driver (&std_keyboard);

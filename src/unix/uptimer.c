@@ -24,6 +24,7 @@
 #ifdef HAVE_LIBPTHREAD
 
 #include <pthread.h>
+#include <signal.h>
 #include <unistd.h>
 #include <sys/time.h>
 
@@ -58,6 +59,15 @@ static int thread_alive;
 
 
 
+static void block_all_signals(void)
+{
+   sigset_t mask;
+   sigfillset(&mask);
+   pthread_sigmask(SIG_BLOCK, &mask, NULL);
+}
+
+
+
 /* ptimer_thread_func:
  *  The timer thread.
  */
@@ -67,6 +77,8 @@ static void *ptimer_thread_func(void *unused)
    struct timeval new_time;
    struct timeval delay;
    long interval = 0x8000;
+
+   block_all_signals();
 
    gettimeofday(&old_time, 0);
 
