@@ -22,6 +22,16 @@
 #include "xwin.h"
 
 
+/* TRUE if the requested mouse range extends beyond the regular
+ * (0, 0, SCREEN_W-1, SCREEN_H-1) range. This is aimed at detecting
+ * whether the user mouse coordinates are relative to the 'screen'
+ * bitmap (semantics associated with scrolling) or to the video page
+ * currently being displayed (semantics associated with page flipping).
+ * We cannot differentiate them properly because both use the same
+ * scroll_screen() method.
+ */
+int _xwin_mouse_extended_range = FALSE;
+
 static int mouse_minx = 0;
 static int mouse_miny = 0;
 static int mouse_maxx = 319;
@@ -157,6 +167,11 @@ static void _xwin_mousedrv_set_range(int x1, int y1, int x2, int y2)
    mouse_miny = y1;
    mouse_maxx = x2;
    mouse_maxy = y2;
+
+   if ((mouse_maxx >= SCREEN_W) || (mouse_maxy >= SCREEN_H))
+      _xwin_mouse_extended_range = TRUE;
+   else
+      _xwin_mouse_extended_range = FALSE;
 
    XLOCK();
 
