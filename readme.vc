@@ -58,8 +58,11 @@
    This is a source-only distribution, so you will have to compile Allegro 
    before you can use it. To do this you should:
 
-   Set up your environment so that MSVC can be used from the commandline. 
-   You probably have a vcvars32.bat file that will do this for you.
+   Set up your environment so that MSVC can be used from the commandline.
+   You probably have a vcvars32.bat file that will do this for you. (Under
+   Windows NT and Windows 2000, you will have to run this file every time
+   you open a DOS box, or configure the environment variables in Control
+   Panel/System/Environment.)
 
    Type "cd allegro", followed by "fixmsvc.bat", followed by "make". Then go 
    do something interesting while everything compiles. When it finishes 
