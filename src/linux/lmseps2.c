@@ -164,7 +164,7 @@ static void wakeup_im (int fd)
  */
 static int mouse_init (void)
 {
-	char tmp1[80], tmp2[80], tmp3[80];
+	char tmp1[128], tmp2[128], tmp3[128];
 	AL_CONST char *udevice;
 
 	/* Find the device filename */

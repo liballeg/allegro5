@@ -86,7 +86,7 @@ GFX_DRIVER gfx_fbcon =
 };
 
 
-static char fb_desc[128] = EMPTY_STRING;     /* description string */
+static char fb_desc[256] = EMPTY_STRING;     /* description string */
 
 static struct fb_fix_screeninfo fix_info;    /* read-only video mode info */
 static struct fb_var_screeninfo orig_mode;   /* original video mode info */
@@ -396,7 +396,7 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 static int fb_open_device(void)
 {
-   char fname[256], tmp1[256], tmp2[256];
+   char fname[1024], tmp1[256], tmp2[256];
    AL_CONST char *p;
 
    /* find the device filename */

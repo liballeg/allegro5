@@ -266,9 +266,9 @@ static void sys_linux_exit (void)
  */
 static void sys_linux_message (AL_CONST char *msg)
 {
-   char *tmp = malloc(4096);
+   char *tmp = malloc(ALLEGRO_MESSAGE_SIZE);
    int ret;
-   msg = uconvert(msg, U_CURRENT, tmp, U_ASCII, 4096);
+   msg = uconvert(msg, U_CURRENT, tmp, U_ASCII, ALLEGRO_MESSAGE_SIZE);
 
    do {
       ret = write(STDERR_FILENO, msg, strlen(msg));

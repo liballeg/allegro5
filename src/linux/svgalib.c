@@ -321,7 +321,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
    int vid_mem, width, height;
    vga_modeinfo *info;
    BITMAP *bmp;
-   char tmp[64];
+   char tmp[128];
 
    /* Try get a linear frame buffer.  */
 

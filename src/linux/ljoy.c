@@ -44,7 +44,7 @@ static JOYSTICK_AXIS_INFO *axis[MAX_JOYSTICKS][TOTAL_JOYSTICK_AXES];
 static int joy_init (void)
 {
 	JOYSTICK_INFO *j;
-	char tmp[80], tmp1[80], tmp2[80];
+	char tmp[128], tmp1[128], tmp2[128];
 	int version;
 	char num_axes, num_buttons;
 	int throttle;

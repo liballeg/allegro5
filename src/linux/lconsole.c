@@ -74,7 +74,7 @@ static int get_tty (int fd)
  */
 int __al_linux_init_console(void)
 {
-   char tmp[160];
+   char tmp[256];
 
    /* Find our tty's VT number */
    __al_linux_vt = get_tty(STDIN_FILENO);

@@ -149,7 +149,7 @@ static void sync_mouse (int fd)
  */
 static int mouse_init (void)
 {
-	char tmp1[80], tmp2[80], tmp3[80];
+	char tmp1[128], tmp2[128], tmp3[128];
 	AL_CONST char *udevice;
 	struct termios t;
 
