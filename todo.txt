@@ -70,10 +70,6 @@ Unix todos:
 MacOS X todos
 ---------------------------------------------------------------------------
 
-- fix weird kCGErrorIllegalArgument error report when closing fullscreen mode
-- find solution to occasional CloseComponent memory leak reports (fixed? I
-  haven't seen it in a while, maybe it was related to other now fixed memory
-  leaks)
 - PPC CPU detection routines would be nice
 - asm routines (altivec?) to speed things up
 
