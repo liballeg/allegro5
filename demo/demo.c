@@ -656,9 +656,9 @@ void draw_screen(void)
 
    /* draw the score and fps information */
    if (fps)
-      sprintf(score_buf, "Lives: %d - Score: %ld - (%s, %ld fps)", ship_count, (long)score, animation_type_str, (long)fps);
+      sprintf(score_buf, "Lives: %d - Score: %d - (%s, %d fps)", ship_count, score, animation_type_str, fps);
    else
-      sprintf(score_buf, "Lives: %d - Score: %ld", ship_count, (long)score);
+      sprintf(score_buf, "Lives: %d - Score: %d", ship_count, score);
 
    textout_ex(bmp, font, score_buf, 0, 0, 7, 0);
 
@@ -929,6 +929,7 @@ void play_game(void)
    b2 = create_bitmap(160, 160);
    clear_bitmap(b);
    textout_centre_ex(b, data[END_FONT].dat, "GAME OVER", 80, 50, 2, 0);
+   sprintf(score_buf, "Score: %d", score);
    textout_centre_ex(b, data[END_FONT].dat, score_buf, 80, 82, 2, 0);
    clear_keybuf();
    scroll_count = -160;
