@@ -2154,8 +2154,9 @@ Mouse routines
 @retval
    Returns -1 on failure, zero if the mouse handler is already installed (in
    which case this function does nothing) and the number of buttons on the
-   mouse if a mouse handler was correctly initialised (ie. this is the first
-   time a handler is installed or you have removed the previous one).
+   mouse if the mouse handler has successfully been installed (ie. this is
+   the first time a handler is installed or you have removed the previous
+   one).
 
    Note that the number of mouse buttons returned by this function is more
    an indication than a physical reality. With most devices there is no way
