@@ -31,7 +31,7 @@ if !(test -e "$file"); then
    exit 1
 fi
 
-if !(convert "$file" "/tmp/allegico_xpm.xpm"); then
+if !(convert -transparent "magenta" "$file" "/tmp/allegico_xpm.xpm"); then
    echo "Conversion failed"
    exit 1
 fi
@@ -49,4 +49,4 @@ echo "    allegro_icon = allegico_xpm;" >> $outfile
 echo "}" >> $outfile
 echo "#endif" >> $outfile
 
-rm /tmp/allegico_xpm.xpm
+#rm /tmp/allegico_xpm.xpm
