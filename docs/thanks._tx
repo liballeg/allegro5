@@ -60,6 +60,7 @@ Contributors
 
    Annie Testes (email unknown).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
+   Fixed several glitches in the unicode support.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -179,7 +180,10 @@ Contributors
    DirectX windowed driver and Windows graphics subsystem, added the
    file_select_ex() function, rewrote the fixdll script, added an unicode
    example, fixed lots of bugs and did truckloads more work on the Windows
-   port.
+   port. Added flush_config_file() function and hfill() method to the
+   GFX_VTABLE structure. Added support for 8bit desktops tp the windows
+   windowed driver. Added translation to allegro.spec file. Added a unified
+   al_find*() interface.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -214,6 +218,7 @@ Contributors
    Did a great deal of work on the Linux console version. Also wrote the 
    AWE32 driver, added the MIDI pause/seek functions, and provided the basis 
    of the SoundFont reader used in the pat2dat utility.
+   Have released some WIPs.
 
    Gorka Olaizola (<email>olsago@jet.es</a>).<br>
    Added the Redhat RPM .spec file.
@@ -227,7 +232,12 @@ Contributors
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
    texi2dvi output, improved the makedoc utility, added reload_config_texts()
-   and did plenty of other things too.
+   and did plenty of other things too. Added translation to the allegro.spec
+   file.
+
+   Grzegorz Godlewski.<br>
+   Contributed a Polish localization patch and added support for lower and
+   upper altgr tables.
 
    Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
    Wrote several of the example programs, and made the intro animation and 
@@ -249,6 +259,7 @@ Contributors
    get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
    VESA and DIRECTX drivers for a list of possible GFX modes. Rewrote the
    mode-selector to use get_gfx_mode_list(). Rewrote/updated some scripts.
+   Have released some Allegro WIPs.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
@@ -278,7 +289,9 @@ Contributors
    Corrected mouse movement speed, made allegro_message() use title from
    set_window_title(), added close button hook support and improved
    switching in Windows, fixed bad clearing of subbitmaps, and made bug
-   reports and suggestions for improvement.
+   reports and suggestions for improvement. Contributed bidirectional
+   looping and backward playing support for the directsound driver.
+   
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -291,7 +304,8 @@ Contributors
    the find_datafile_object() function.
 
    Johan Peitz (<email>d98peitz@dtek.chalmers.se</a>).<br>
-   Fixed and enhanced the Win32 joystick driver.
+   Fixed and enhanced the Win32 joystick driver. Contributed and 'Alex the 
+   Allegator' icon.
 
    Johan Venter (<email>leonjventer@bigpond.com</a>).<br>
    Fixed some problems with the RSXNT and Mingw32 makefiles.
@@ -458,7 +472,7 @@ Contributors
    Provided the floating point apply_matrix_f() function.
 
    Paul Hampson (<email>Paul.Hampson@Pobox.Com</a>).<br>
-   Fixed some problems with the SNES gamepad driver.
+   Improved and fixed some problems in the SNES gamepad driver.
 
    Paul Pinault (<email>diskaleg@infonie.fr</a>).<br>
    Translated the system error messages into French.
@@ -499,8 +513,10 @@ Contributors
    sound driver, added OSS MIDI and sample input support, added banked mode
    support to the SVGAlib driver, wrote the X DGA mode switching code,
    improved the Linux joystick driver, added an ustrtok_r() function, added
-   fetch_mode_list() support on the svgalib driver, added pthread timer and
-   did loads of other things too.
+   fetch_mode_list() support on the svgalib, X11 fullscreen, DGA2 and DGA
+   driver, added pthread timer and did loads of other things too.
+   Have released some WIPs. Contributed a rewrite of the allegro.spec file.
+   (based on one from Osvaldo Santana Neto)
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
@@ -528,7 +544,8 @@ Contributors
    masked_blits with SSE instructions.
    Added the following to the unified color convertor: color-copy routines,
    support for 15bit<->16bit conversion, 8bit color, rectangles with any width
-   and added two new MMX routines.
+   and added two new MMX routines. Added help options to dat utility.
+   Contributed some updates on readme.mgw.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -551,7 +568,7 @@ Contributors
    keyboard LED support, capslock and numlock, and alt+numpad input), 
    contributed the 320x100 VGA graphics mode, added support for proper 16 
    bit sample mixing, and made numerous other useful suggestions, 
-   contributions and bugfixes.
+   contributions and bugfixes. Fixed compilation on GCC 3.x.
 
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.

@@ -60,6 +60,9 @@
     active_menu DATA
     adjust_sample
     al_assert
+    al_findclose
+    al_findfirst
+    al_findnext
     al_trace
     alert
     alert3
@@ -233,6 +236,7 @@
     fli_palette DATA
     fli_timer DATA
     floodfill
+    flush_config_file
     fmul
     font DATA
     for_each_file
@@ -324,7 +328,6 @@
     getr_depth
     gfx_capabilities DATA
     gfx_driver DATA
-    gfx_mode_list DATA
     gfx_mode_select
     gfx_mode_select_ex
     gui_bg_color DATA
@@ -777,13 +780,9 @@
     win_set_wnd_create_proc
     _add_edge
     _add_exit_func
-    _al_file_exists
     _al_file_isok
     _al_file_size
     _al_file_time
-    _al_findclose
-    _al_findfirst
-    _al_findnext
     _al_free
     _al_getdcwd
     _al_getdrive
@@ -791,6 +790,7 @@
     _al_linker_mouse DATA
     _al_malloc
     _al_realloc
+    _al_sane_realloc
     _allegro_count DATA
     _blender_add15
     _blender_add16
@@ -915,7 +915,6 @@
     _get_scanline_filler
     _get_vtable
     _gfx_bank DATA
-    _gfx_mode_list_malloced DATA
     _gfx_mode_set_count DATA
     _got_prev_current_palette DATA
     _grow_scratch_mem
@@ -952,7 +951,8 @@
     _key_accent4_flag DATA
     _key_accent4_lower_table DATA
     _key_accent4_upper_table DATA
-    _key_altgr_table DATA
+    _key_altgr_lower_table DATA
+    _key_altgr_upper_table DATA
     _key_ascii_table DATA
     _key_capslock_table DATA
     _key_control_table DATA
