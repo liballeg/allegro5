@@ -4245,7 +4245,7 @@ chapter) structures rather than regular bitmaps.
 RLE sprites store the image in a simple run-length encoded format, where 
 repeated zero pixels are replaced by a single length count, and strings of 
 non-zero pixels are preceded by a counter giving the length of the solid 
-run. RLE sprites are usually much smaller then normal bitmaps, both because 
+run. RLE sprites are usually much smaller than normal bitmaps, both because
 of the run length compression, and because they avoid most of the overhead 
 of the bitmap structure. They are often also faster than normal bitmaps, 
 because rather than having to compare every single pixel with zero to 
