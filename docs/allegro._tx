@@ -6594,6 +6594,10 @@ DOS specifics
       The Microsoft Sidewinder digital pad (supports up to four controllers, 
       each with ten buttons and a digital direction control).
 <li>
+   JOY_TYPE_SIDEWINDER_AG<br>
+      An alternative driver to JOY_TYPE_SIDEWINDER.
+      Try this if your Sidewinder isn't recognized with JOY_TYPE_SIDEWINDER.
+<li>
    JOY_TYPE_GAMEPAD_PRO<br>
       The Gravis GamePad Pro (supports up to two controllers, each with ten 
       buttons and a digital direction control).
