@@ -59,9 +59,7 @@ static void be_sound_handler(void *cookie, void *buffer, size_t size, const medi
    locker->Lock();
    acquire_sem(_be_sound_stream_lock);
    if (be_sound_active) {
-      be_main_suspend();
       _mix_some_samples((unsigned long)buffer, 0, be_sound_signed);
-      be_main_resume();
    }
    else {
       memset(buffer, 0, size);
