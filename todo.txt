@@ -1,4 +1,105 @@
-mouse doesn't move fast enough when using hires modes in Windows
-add caching system to speed up filename#object and load_datafile_object()
-talk to Calin about merging latest P3D rendering stuff
-windows (DirectSound) sample looping isn't right
+---------------------------------------------------------------------------
+This is the public TODO list for the Allegro Game/Multimedia Library.
+---------------------------------------------------------------------------
+
+Updates or comments can be sent to the TODO list maintainter Peter Wang
+<tjaden@alphalink.com.au> or to the Allegro developer's mailinglist
+<conductors@canvaslink.com>, preferrably with the text [TODO] in the subject.
+
+
+General (Platform independant) todos:
+---------------------------------------------------------------------------
+
+- Add caching system to speed up filename#object and load_datafile_object()
+- Add a general windowed gfx updater with color conversion, to be used by
+  specific ports
+- Convert more programs/examples to the new GFX_SAFE behaviour
+- Clean up some bad formatting stuff introduced by the Mac port.
+
+Win32 todos:
+---------------------------------------------------------------------------
+
+- Mouse doesn't move fast enough when using hires modes in Windows
+- Fix pageflipping problem with overlay driver
+- Win32 port doesn't build when ALLEGRO_MMX is not defined.
+- Update docs to mention cross-compilation support.
+
+Linux todos:
+---------------------------------------------------------------------------
+
+- Enable autodetection for SVGAlib driver.
+- Fix strange fb_init bug when user request a non-existant resolution in
+  his /etc/fb.modes file. Oh well, this doesn't seem to be so important,
+  since it's pretty inexpensive to write a correct fb.modes file and quite
+  rare to request exotic resolutions, but should be dealt with at least
+  before 4.0.
+- Rewrite GGI driver
+- Linux keyboard set_rate 
+- Find out more about sched_yield
+- svgalib leaves crap on screen at exit
+  maybe svgalib problem
+  work around it if necessary (it's really annoying)
+- vt switching in BACKAMNESIA mode only causes font weirdity in text
+  mode on a Voodoo Banshee (using SVGAlib VESA and BANSHEE drivers), even
+  if I cheat and use vga_flip.  Font returns after program quits.
+
+X11 todos:
+---------------------------------------------------------------------------
+
+- num-lock state in X window may not match state on keyboard
+
+Macintosh todos:
+---------------------------------------------------------------------------
+
+- allegro_message truncates message to 254 chars.
+- low resolutions like 320x200 doesn't fill the entire screen.
+- some speed-ups would be nice.
+- missing features include: hardware accelleration, virtual screens,
+  scrolling, midi, joystick, switching, windowed modes, true 16 & 32 bpp
+  colordepths.
+- Update the docs.
+
+BeOS todos:
+---------------------------------------------------------------------------
+
+- Fix problem with 3d routines
+- Add display switching support to fullscreen driver
+- Write a safe windowed driver using BBitmap
+- Support for compiling as shared object would be nice
+- zbuffering fix under BeOS
+- shared library support
+- code cleanup
+
+Supposedly fixed. (confirmation wanted)
+---------------------------------------------------------------------------
+
+- Talk to Calin about merging latest P3D rendering stuff
+- Windows (DirectSound) sample looping isn't right
+
+Wishlist
+---------------------------------------------------------------------------
+
+- Unified color conversion routines for all windowed gfx drivers (now
+  that we have a Mac port, it's a total of 4 possible windowed drivers,
+  and the need of an unified set of window updating routines is stronger)
+- More hardware accelerated functions? Trans/lit sprites come to
+  mind.
+- framebuffer hardware accel via XFB library/driver
+- Better documentation for the unicode routines: saying that ustrcpy,
+  ustrcmp, etc, work like the libc routines isn't very beautiful, and
+  doesn't allow me to press Ctrl+F1 in my editor and get a help on the
+  function :) Therefore, documentation text for each function.
+- Better get_config_text support, with multiple fallback configuration
+  files (you can have lot's of the under linux), which is not supported at
+  the moment (IIRC two at most).
+- Split setup in two: user program and configuration library. This would
+  allow easier merge process of configuration program into real user
+  programs, as well as modifying the interface and "look'n'feel". The lib
+  should be written in such a way to support future additions without the
+  need of rewritting the user setup ui.
+- Play with switch_in/out X events, just for the sake of it :-)
+- merge am's menu auto popup patch
+- separate fullscreen option from XDFS, XDGA, etc.
+- OSS MIDI pitch bend.
+
+---------------------------------------------------------------------------
