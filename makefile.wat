@@ -71,7 +71,7 @@ ifdef DEBUGMODE
 
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -bt=dos4g -5s -s -d2
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) -Wall
-LFLAGS = "option quiet" "option stack=128k" "system dos4g" "debug all"
+LFLAGS = 'option quiet' 'option stack=128k' 'system dos4g' 'debug all'
 
 else
 ifdef PROFILEMODE
@@ -79,14 +79,14 @@ ifdef PROFILEMODE
 # -------- profiling build --------
 CFLAGS = $(WFLAGS) -bt=dos4g -5s -ox -et
 SFLAGS = -Wall
-LFLAGS = "option quiet" "option stack=128k" "system dos4g"
+LFLAGS = 'option quiet' 'option stack=128k' 'system dos4g'
 
 else
 
 # -------- optimised build --------
 CFLAGS = $(WFLAGS) -bt=dos4g -5s -ox
 SFLAGS = -Wall
-LFLAGS = "option quiet" "option stack=128k" "system dos4g"
+LFLAGS = 'option quiet' 'option stack=128k' 'system dos4g'
 
 endif
 endif
@@ -165,7 +165,11 @@ UNINSTALL_FILES = $(WATDIR_U)/lib386/alleg.lib       \
 		  $(WATDIR_U)/h/allegro/platform/*.h
 
 uninstall:
-	-rm -fv $(UNINSTALL_FILES)
+   define RM_FILES
+      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
 	-rd $(WATDIR_D)\h\allegro\platform
 	-rd $(WATDIR_D)\h\allegro\inline
 	-rd $(WATDIR_D)\h\allegro\internal
@@ -209,7 +213,7 @@ $(OBJ_DIR)/iscanmmx.obj: iscanmmx.s $(RUNNER)
 endif
 
 */%.exe: $(OBJ_DIR)/%.obj $(LIB_NAME) $(RUNNER)
-	$(RUNNER) wlink \\ @ $(LFLAGS) "name $@" "file $<" "library $(LIB_NAME)"
+	$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' 'file $<' 'library $(LIB_NAME)'
 
 obj/watcom/asmdef.inc: obj/watcom/asmdef.exe
 	obj/watcom/asmdef.exe obj/watcom/asmdef.inc
@@ -221,7 +225,7 @@ obj/watcom/runner.exe: src/misc/runner.c
 	gcc -O -Wall -Werror -o obj/watcom/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
-   $(RUNNER) wlink \\ @ $(LFLAGS) "name $@" "$(addprefix file ,$^)"
+   $(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' '$(addprefix file ,$^)'
 endef
 
 PLUGIN_LIB = lib/watcom/$(VERY_SHORT_VERSION)dat.lib
@@ -238,7 +242,7 @@ $(RUNNER) wlib \\ @ -q -b -n $(PLUGIN_LIB) $(addprefix +,$(PLUGIN_OBJS))
 endef
 
 define LINK_WITH_PLUGINS
-$(RUNNER) wlink \\ @ $(LFLAGS) "name $@" "file $<" $(strip "library $(PLUGIN_LIB)" $(addprefix @,$(PLUGIN_SCRIPTS)) "library $(LIB_NAME)")
+$(RUNNER) wlink \\ @ $(LFLAGS) 'name $@' 'file $<' $(strip 'library $(PLUGIN_LIB)' $(addprefix @,$(PLUGIN_SCRIPTS)) 'library $(LIB_NAME)')
 endef
 
 
