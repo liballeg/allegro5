@@ -222,6 +222,12 @@ static int _xwin_sysdrv_init(void)
  */
 static void _xwin_sysdrv_exit(void)
 {
+   /* This stops the X event handler running in the background, which
+    * seems a nice thing to do before closing the connection to the X
+    * display... (remove this and you get SIGABRTs during XCloseDisplay).
+    */
+   _unix_bg_man->unregister_func(_xwin_bg_handler);
+
    _xwin_close_display();
    _unix_bg_man->exit();
 
