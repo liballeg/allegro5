@@ -492,13 +492,9 @@ static void alsa_exit(int input)
  */
 static int alsa_mixer_volume(int volume)
 {
-   unsigned long left_vol = 0, right_vol = 0;
-
    if (alsa_mixer && alsa_mixer_elem) {
-      snd_mixer_selem_get_playback_volume(alsa_mixer_elem, 0, &left_vol);
-      snd_mixer_selem_get_playback_volume(alsa_mixer_elem, 1, &right_vol);
-      snd_mixer_selem_set_playback_volume(alsa_mixer_elem, 0, (int)floor(left_vol + 0.5) * alsa_mixer_allegro_ratio);
-      snd_mixer_selem_set_playback_volume(alsa_mixer_elem, 1, (int)floor(right_vol + 0.5) * alsa_mixer_allegro_ratio);
+      snd_mixer_selem_set_playback_volume(alsa_mixer_elem, 0, volume * alsa_mixer_allegro_ratio);
+      snd_mixer_selem_set_playback_volume(alsa_mixer_elem, 1, volume * alsa_mixer_allegro_ratio);
    }
    return 0;
 }
