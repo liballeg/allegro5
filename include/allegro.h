@@ -26,10 +26,10 @@
 
 #define ALLEGRO_VERSION          3
 #define ALLEGRO_SUB_VERSION      9
-#define ALLEGRO_WIP_VERSION      35
-#define ALLEGRO_VERSION_STR      "3.9.35 (CVS)"
+#define ALLEGRO_WIP_VERSION      36
+#define ALLEGRO_VERSION_STR      "3.9.36 (CVS)"
 #define ALLEGRO_DATE_STR         "2001"
-#define ALLEGRO_DATE             20010124    /* yyyymmdd */
+#define ALLEGRO_DATE             20010401    /* yyyymmdd */
 
 #ifndef ALLEGRO_NO_STD_HEADERS
    #include <stddef.h>
