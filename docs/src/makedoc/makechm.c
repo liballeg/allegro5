@@ -18,6 +18,7 @@
  *      the source of _tx files.
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -35,11 +36,42 @@ extern const char *html_extension;
 
 
 
+/* get_stripped_filename:
+ *  Copies filename without path and extension to buf.
+ */
+static void get_stripped_filename(char *buf, char *filename, int size)
+{
+   int i = 0;
+   char *p;
+
+   for (p = get_filename(filename); (*p && (*p != '.')); p++) {
+      buf[i++] = *p;
+      if (i >= size-1) {
+	 fprintf(stderr, "buffer overflow");
+	 exit(1);
+      }
+   }
+   buf[i] = 0;
+}
+
+
+
 /* _get_section_name:
  */
-static char *_get_section_name(char *buf, int section_number)
+static char *_get_section_name(char *buf, const char *path, int section_number)
 {
-   sprintf(buf, "alleg%03d.%s", section_number, html_extension);
+   int len;
+   char *filename;
+
+   filename = get_filename((char *)path);
+
+   strncpy(buf, filename, 5);
+
+   len = strlen(filename);
+   if (len > 5)
+      len = 5;
+
+   sprintf(buf+len, "%03d.%s", section_number, html_extension);
    return buf;
 }
 
@@ -97,7 +129,7 @@ static int _write_toc(const char *filename, int is_index)
 	    }
 	    else {
 	       section_number++;
-	       _get_section_name(name, section_number);
+	       _get_section_name(name, filename, section_number);
 	    }
 
 	    fprintf(file, "<li>");
@@ -115,7 +147,7 @@ static int _write_toc(const char *filename, int is_index)
 		  fprintf(file, "<ul>\n");
 	    }
 
-	    _get_section_name(name, section_number);
+	    _get_section_name(name, filename, section_number);
 	    strcat(name, "#");
 	    strcat(name, toc->text);
 
@@ -159,18 +191,25 @@ static int _write_hhp(const char *filename)
    FILE *file = fopen(filename, "w");
    TOC *toc;
    int section_number = -1;
+   char stripped_filename[256];
+   char title[256];
 
    if (!file)
       return 1;
 
+   get_stripped_filename(stripped_filename, (char *)filename,
+                         sizeof(stripped_filename));
+   strcpy(title, stripped_filename);
+   title[0] = toupper(((unsigned char *)title)[0]);
+
    fprintf(file, "[OPTIONS]\n");
-   fprintf(file, "Compiled file=allegro.chm\n");
-   fprintf(file, "Contents file=allegro.hhc\n");
-   fprintf(file, "Default topic=allegro.%s\n", html_extension);
+   fprintf(file, "Compiled file=%s.chm\n", stripped_filename);
+   fprintf(file, "Contents file=%s.hhc\n", stripped_filename);
+   fprintf(file, "Default topic=%s.%s\n", stripped_filename, html_extension);
    fprintf(file, "Full-text search=Yes\n");
-   fprintf(file, "Index file=allegro.hhk\n");
-   fprintf(file, "Language=0x409 Englisch (USA)\n");
-   fprintf(file, "Title=Allegro\n");
+   fprintf(file, "Index file=%s.hhk\n", stripped_filename);
+   fprintf(file, "Language=0x409 English (USA)\n");
+   fprintf(file, "Title=%s\n", title);
    fprintf(file, "\n");
    fprintf(file, "[FILES]\n");
 
@@ -187,7 +226,7 @@ static int _write_hhp(const char *filename)
 	 }
 	 else {
 	    section_number++;
-	    _get_section_name(name, section_number);
+	    _get_section_name(name, filename, section_number);
 	 }
 	 mystrlwr(name);
 
@@ -200,12 +239,39 @@ static int _write_hhp(const char *filename)
 
 
 
+/* _replace_extension:
+ *  Replaces extension in path with different one.
+ */
+static void _replace_extension(char *dest, char *path, char *ext, int size)
+{
+   char *ext_p;
+   int pos;
+
+   ext_p = strrchr(path, '.');
+   if (ext_p == NULL)
+      ext_p = path;
+   else
+      ext_p++;
+   pos = ext_p - path;
+
+   if (pos+strlen(ext)+1 > size) {
+      fprintf(stderr, "Buffer overfull");
+      exit(1);
+   }
+
+   memcpy(dest, path, pos);
+   strcpy(dest+pos, ext);
+}
+
+
+
 /* write_chm:
  */
 int write_chm(char *filename)
 {
    FILE *file;
    int found_signature = 0;
+   char buf[1024];
    
    if (!strcmp(extension(filename), "htm"))
       html_extension = "html";
@@ -236,12 +302,15 @@ int write_chm(char *filename)
       return 1;
    }
 
-   printf("writing 'docs/html/allegro.hhp'\n");
-   _write_hhp("docs/html/allegro.hhp");
-   printf("writing 'docs/html/allegro.hhc'\n");
-   _write_toc("docs/html/allegro.hhc", 0);
-   printf("writing 'docs/html/allegro.hhk'\n");
-   _write_toc("docs/html/allegro.hhk", 1);
+   _replace_extension(buf, filename, "hhp", sizeof(buf));
+   printf("writing '%s'\n", buf);
+   _write_hhp(buf);
+   _replace_extension(buf, filename, "hhc", sizeof(buf));
+   printf("writing '%s'\n", buf);
+   _write_toc(buf, 0);
+   _replace_extension(buf, filename, "hhk", sizeof(buf));
+   printf("writing '%s'\n", buf);
+   _write_toc(buf, 1);
 
    return 0;
 }
