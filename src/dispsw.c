@@ -59,10 +59,17 @@ int set_display_switch_mode(int mode)
 {
    int retval;
 
-   if ((!system_driver) || (!system_driver->set_display_switch_mode))
+   if ((!system_driver))
       return -1;
 
-   retval = system_driver->set_display_switch_mode (mode);
+   if (!system_driver->set_display_switch_mode) {
+      if (mode == SWITCH_NONE)
+         return 0;
+      else
+         return -1;
+   }
+
+   retval = system_driver->set_display_switch_mode(mode);
 
    if (!retval)
       switch_mode = mode;
