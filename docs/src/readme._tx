@@ -287,10 +287,10 @@ Contact info
       behaviour of actual ones, and posting code with the implementation if
       it's possible to do so.
 </ul>
-   To subscribe to one of the three first lists, simply go to it's web page
-   and use the online forms to subscribe yourself. You can remove yourself
-   from a list going to the same page above, which can be used to remind you
-   your password too, in case you forgot it.
+   To subscribe to one of the three lists, simply go to it's web page and use
+   the online forms to subscribe yourself. You can remove yourself from a
+   list going to the same page above, which can be used to remind you of your
+   password too, in case you have forgotten it.
 
    To send a message to one of the lists, write to
    alleg-main@lists.sourceforge.net, alleg-developers@lists.sourceforge.net,
@@ -303,8 +303,8 @@ Contact info
    for information about the style of code we use, and how to create your
    patches.
 
-   If you want to search through the mailing list archives of any of those
-   mailing lists, you will have to check the available options at
+   If you want to search through the archives of any of those mailing lists,
+   you will have to check the available options at
    <link>http://alleg.sourceforge.net/maillist.html</a>.
 
    Please don't send messages in HTML format. The increased size places an
@@ -316,10 +316,10 @@ Contact info
 
    Please don't send large binary attachments to any of the lists, they will
    be rejected by the size limit filter, which is set to 100KB for the
-   developers mailing list, and 40KB for the other. Upload your files to a
+   developers mailing list, and 40KB for the others. Upload your files to a
    website and then post the URL, or if you can't do that, post an
-   annoucement asking people to write to you privately, and then send the
-   file by individual email to whoever responds.
+   announcement asking people to write to you privately, and then send the
+   file by individual email to whoever responded.
    
    Please use English in your messages. You could eventually post messages in
    whatever language you prefer, but that would terribly limit the chances of
