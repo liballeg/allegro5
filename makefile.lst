@@ -341,7 +341,6 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/macosx/system.m \
 	src/unix/ufile.c \
 	src/unix/uptimer.c \
-	src/unix/usystem.c \
 	src/unix/uthreads.c \
 	src/misc/ccolconv.c \
 	src/misc/colconv.c
