@@ -237,7 +237,7 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
 {
    int r1, r2, g1, g2, b1, b2;
    fixed h, step;
-   float h_f, h1;
+   float /*h_f,*/ h1;
 
    /* swap vertices if they are the wrong way up */
    if (v2->y < v1->y) {
@@ -912,7 +912,7 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
  */
 static void do_polygon3d(BITMAP *bmp, int top, int bottom, POLYGON_EDGE *left_edge, SCANLINE_FILLER drawer, int flags, int color, POLYGON_SEGMENT *info)
 {
-   int x, w, ytop, ybottom;
+   int /*x, w,*/ ytop, ybottom;
    #ifdef ALLEGRO_DOS
       int old87 = 0;
    #endif
