@@ -65,7 +65,7 @@ int write_texinfo(char *filename)
    int toc_waiting = 0;
    int continue_def = 0;
    int title_pass = 0;
-   int i;
+   int i = 0;
    FILE *f;
 
    printf("writing %s\n", filename);
@@ -79,7 +79,7 @@ int write_texinfo(char *filename)
     * generation of @xref texinfo commands, due to textinfo's restriction
     * that nodes can't contain spaces, and hence remain as a single word.
     */
-   i = 0; chapter_nodes[0] = 0;
+   chapter_nodes[0] = 0;
    while (line) {
       if (line->flags & TEXINFO_FLAG) {
 	 p = line->text;
@@ -564,7 +564,7 @@ char **build_types_lookup_table(char **found_table)
 {
    LINE *line = head;
    int i = 0;
-   char **table = 0;
+   char **table;
 
    table = m_xmalloc(sizeof(char*));
    table[0] = 0;

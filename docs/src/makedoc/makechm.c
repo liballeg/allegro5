@@ -67,7 +67,7 @@ static int _write_toc(const char *filename, int is_index)
    FILE *file = fopen(filename, "wt");
    TOC *toc;
    int btoc_prev[TOC_SIZE];
-   int section_number = -1, prev = 0, num_btoc = 0, buffering = 0;
+   int section_number = -1, prev = 0, num_btoc = 0;
    
    if (!file)
       return 1;
@@ -115,8 +115,6 @@ static int _write_toc(const char *filename, int is_index)
 	    }
 
 	    prev = PREV_ROOT;
-	    if(!is_index)
-	       buffering = 1;
 
 	    _write_object(file, ALT_TEXT(toc), mystrlwr(name));
 	 }

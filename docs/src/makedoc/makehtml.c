@@ -713,7 +713,7 @@ static void _add_post_process_xref(const char *token)
  */
 static char *_get_clean_xref_token(const char *text)
 {
-   char *buf = 0, *t;
+   char *buf, *t;
    const char *pname, *pcross;
 
    pname = strstr(text, "<a name=\"");
@@ -725,6 +725,7 @@ static char *_get_clean_xref_token(const char *text)
 	 pname = 0;
    }
 
+   buf = 0;
    if (pname) {
       buf = m_strdup(pname + 9);
       t = strchr(buf, '"');
@@ -1015,7 +1016,7 @@ static int _detect_non_paragraph_sections(const char *text)
 static char *_mark_up_auto_types(char *line, char **auto_types)
 {
    int length;
-   char *p = line;
+   char *p;
    assert(line);
    assert(auto_types);
 

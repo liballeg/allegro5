@@ -248,9 +248,8 @@ void *m_xrealloc(void *ptr, size_t new_size)
 void m_abort(int code)
 {
    switch(code) {
-      case 1:	printf("Aborting due to insuficcient memory\n"); break;
-      default:	printf("An undefined error caused abnormal termination\n");
-		code = -1;
+      case 1:  printf("Aborting due to insuficcient memory\n"); break;
+      default: printf("An undefined error caused abnormal termination\n");
    }
    abort();
 }
