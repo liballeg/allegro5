@@ -34,14 +34,28 @@
 #endif
 
 
+/* wrapper for DirectDraw surfaces */
+typedef struct DDRAW_SURFACE {
+   LPDIRECTDRAWSURFACE2 id;
+   int flags;
+   int lock_nesting;
+   struct DDRAW_SURFACE *next;
+   struct DDRAW_SURFACE *prev;
+} DDRAW_SURFACE;
+
+#define DDRAW_SURFACE_OF(bmp) ((DDRAW_SURFACE *)(bmp->extra))
+#define DDRAW_SURFACE_LOST 1
+
+
 /* DirectDraw globals (from wddraw.c) */
 AL_VAR(LPDIRECTDRAW2, directdraw);
-AL_VAR(LPDIRECTDRAWSURFACE2, dd_prim_surface);
-AL_VAR(LPDIRECTDRAWCLIPPER, dd_clipper);
-AL_VAR(LPDIRECTDRAWPALETTE, dd_palette);
-AL_VAR(DDCAPS, dd_caps);
-AL_VAR(LPDDPIXELFORMAT, dd_pixelformat);
-AL_VAR(BITMAP *, dd_frontbuffer);
+AL_VAR(LPDIRECTDRAWCLIPPER, ddclipper);
+AL_VAR(LPDIRECTDRAWPALETTE, ddpalette);
+AL_VAR(LPDDPIXELFORMAT, ddpixel_format);
+AL_VAR(DDCAPS, ddcaps);
+
+AL_VAR(DDRAW_SURFACE *, primary_surface);
+AL_VAR(BITMAP *, forefront_bitmap);
 AL_VAR(char *, pseudo_surf_mem);
 
 
@@ -58,7 +72,6 @@ AL_FUNC(int, gfx_directx_show_video_bitmap, (BITMAP *bmp));
 AL_FUNC(int, gfx_directx_request_video_bitmap, (BITMAP *bmp));
 AL_FUNC(BITMAP *, gfx_directx_create_system_bitmap, (int width, int height));
 AL_FUNC(void, gfx_directx_destroy_system_bitmap, (BITMAP *bmp));
-AL_FUNC(void, gfx_directx_destroy_surf, (LPDIRECTDRAWSURFACE2 surf));
 AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
 
 
@@ -66,7 +79,7 @@ AL_FUNC(GFX_MODE_LIST *, gfx_directx_fetch_mode_list, (void));
 AL_FUNC(int, init_directx, (void));
 AL_FUNC(int, create_primary, (void));
 AL_FUNC(int, create_clipper, (HWND hwnd));
-AL_FUNC(int, create_palette, (LPDIRECTDRAWSURFACE2 surf));
+AL_FUNC(int, create_palette, (DDRAW_SURFACE *surf));
 AL_FUNC(int, setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
 AL_FUNC(int, finalize_directx_init, (void));
 AL_FUNC(int, exit_directx, (void));
@@ -83,21 +96,8 @@ AL_VAR(RGB_MAP, desktop_rgb_map);
 
 AL_FUNC(void, build_desktop_rgb_map, (void));
 AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
-AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE2 surf, int color_depth));
+AL_FUNC(int, gfx_directx_update_color_format, (DDRAW_SURFACE *surf, int color_depth));
 AL_FUNC(int, set_video_mode, (int w, int h, int v_w, int v_h, int color_depth));
-
-
-/* bitmap definitions */
-typedef struct BMP_EXTRA_INFO {
-   LPDIRECTDRAWSURFACE2 surf;
-   struct BMP_EXTRA_INFO *next;
-   struct BMP_EXTRA_INFO *prev;
-   int flags;
-   int lock_nesting;
-} BMP_EXTRA_INFO;
-
-#define BMP_EXTRA(bmp) ((BMP_EXTRA_INFO *)(bmp->extra))
-#define BMP_FLAG_LOST  1
 
 
 /* bitmap locking (from wddlock.c and asmlock.s) */
@@ -115,22 +115,21 @@ AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 
 
 /* bitmap creation (from wddbmp.c) */
-#define SURF_PRIMARY  1
-#define SURF_OVERLAY  2
-#define SURF_VIDEO    3
-#define SURF_SYSTEM   4
+#define DDRAW_SURFACE_PRIMARY  1
+#define DDRAW_SURFACE_OVERLAY  2
+#define DDRAW_SURFACE_VIDEO    3
+#define DDRAW_SURFACE_SYSTEM   4
 
-AL_FUNC(LPDIRECTDRAWSURFACE2, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format, int type));
-AL_FUNC(BITMAP *, make_directx_bitmap, (LPDIRECTDRAWSURFACE2 surf, int w, int h, int id));
-AL_FUNC(void, destroy_directx_bitmap, (BITMAP *bmp));
+AL_FUNC(DDRAW_SURFACE *, gfx_directx_create_surface, (int w, int h, LPDDPIXELFORMAT pixel_format, int type));
+AL_FUNC(void, gfx_directx_destroy_surface, (DDRAW_SURFACE *surf));
+AL_FUNC(BITMAP *, make_bitmap_from_surface, (DDRAW_SURFACE *surf, int w, int h, int id));
 
 
 /* video bitmap list (from wddbmpl.c) */
-AL_VAR(BMP_EXTRA_INFO *, directx_bmp_list);
-
-AL_FUNC(void, register_directx_bitmap, (BITMAP *bmp));
-AL_FUNC(void, unregister_directx_bitmap, (BITMAP *bmp));
-AL_FUNC(void, unregister_all_directx_bitmaps, (void));
+AL_FUNC(void, register_ddraw_surface, (DDRAW_SURFACE *surf));
+AL_FUNC(void, unregister_ddraw_surface, (DDRAW_SURFACE *surf));
+AL_FUNC(void, unregister_all_ddraw_surfaces, (void));
+AL_FUNC(int, restore_all_ddraw_surfaces, (void));
 
 
 #endif

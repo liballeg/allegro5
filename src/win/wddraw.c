@@ -21,12 +21,13 @@
 
 /* DirectDraw globals */
 LPDIRECTDRAW2 directdraw = NULL;
-LPDIRECTDRAWSURFACE2 dd_prim_surface = NULL;
-LPDIRECTDRAWCLIPPER dd_clipper = NULL;
-LPDIRECTDRAWPALETTE dd_palette = NULL;
-LPDDPIXELFORMAT dd_pixelformat = NULL;
-DDCAPS dd_caps;
-struct BITMAP *dd_frontbuffer = NULL;
+LPDIRECTDRAWCLIPPER ddclipper = NULL;
+LPDIRECTDRAWPALETTE ddpalette = NULL;
+LPDDPIXELFORMAT ddpixel_format = NULL;
+DDCAPS ddcaps;
+
+DDRAW_SURFACE *primary_surface = NULL;
+BITMAP *forefront_bitmap = NULL;
 char *pseudo_surf_mem;
 
 /* DirectDraw internals */
@@ -39,27 +40,27 @@ static PALETTEENTRY palette_entry[256];
  */
 int init_directx(void)
 {
-   LPDIRECTDRAW _directdraw1 = NULL;
+   LPDIRECTDRAW directdraw1 = NULL;
    HRESULT hr;
 
    /* first we have to setup the DirectDraw2 interface */
-   hr = DirectDrawCreate(NULL, &_directdraw1, NULL);
+   hr = DirectDrawCreate(NULL, &directdraw1, NULL);
    if (FAILED(hr))
       return -1;
 
-   hr = IDirectDraw_SetCooperativeLevel(_directdraw1, allegro_wnd, DDSCL_NORMAL);
+   hr = IDirectDraw_SetCooperativeLevel(directdraw1, allegro_wnd, DDSCL_NORMAL);
    if (FAILED(hr))
       return -1;
 
-   hr = IDirectDraw_QueryInterface(_directdraw1, &IID_IDirectDraw2, (LPVOID *)&directdraw);
+   hr = IDirectDraw_QueryInterface(directdraw1, &IID_IDirectDraw2, (LPVOID *)&directdraw);
    if (FAILED(hr))
       return -1;
 
-   IDirectDraw_Release(_directdraw1);
+   IDirectDraw_Release(directdraw1);
 
    /* get capabilities */
-   dd_caps.dwSize = sizeof(dd_caps);
-   hr = IDirectDraw2_GetCaps(directdraw, &dd_caps, NULL);
+   ddcaps.dwSize = sizeof(ddcaps);
+   hr = IDirectDraw2_GetCaps(directdraw, &ddcaps, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't get driver caps\n");
       return -1;
@@ -76,8 +77,8 @@ int init_directx(void)
 int create_primary(void)
 {
    /* create primary surface */
-   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, SURF_PRIMARY);
-   if (!dd_prim_surface) {
+   primary_surface = gfx_directx_create_surface(0, 0, NULL, DDRAW_SURFACE_PRIMARY);
+   if (!primary_surface) {
       _TRACE("Can't create primary surface.\n");
       return -1;
    }
@@ -94,13 +95,13 @@ int create_clipper(HWND hwnd)
 {
    HRESULT hr;
 
-   hr = IDirectDraw2_CreateClipper(directdraw, 0, &dd_clipper, NULL);
+   hr = IDirectDraw2_CreateClipper(directdraw, 0, &ddclipper, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't create clipper (%x)\n", hr);
       return -1;
    }
 
-   hr = IDirectDrawClipper_SetHWnd(dd_clipper, 0, hwnd);
+   hr = IDirectDrawClipper_SetHWnd(ddclipper, 0, hwnd);
    if (FAILED(hr)) {
       _TRACE("Can't set clipper window (%x)\n", hr);
       return -1;
@@ -114,7 +115,7 @@ int create_clipper(HWND hwnd)
 /* create_palette:
  *  Low-level DirectDraw palette creation routine.
  */
-int create_palette(LPDIRECTDRAWSURFACE2 surf)
+int create_palette(DDRAW_SURFACE *surf)
 {
    HRESULT hr;
    int n;
@@ -124,11 +125,11 @@ int create_palette(LPDIRECTDRAWSURFACE2 surf)
       palette_entry[n].peFlags = PC_NOCOLLAPSE | PC_RESERVED;
    }
 
-   hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, palette_entry, &dd_palette, NULL);
+   hr = IDirectDraw2_CreatePalette(directdraw, DDPCAPS_8BIT | DDPCAPS_ALLOW256, palette_entry, &ddpalette, NULL);
    if (FAILED(hr))
       return -1;
 
-   IDirectDrawSurface2_SetPalette(surf, dd_palette);
+   IDirectDrawSurface2_SetPalette(surf->id, ddpalette);
 
    return 0;
 }
@@ -234,11 +235,11 @@ struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h,
 
    /* set color format */
    if (color_depth == 8) {
-      if (create_palette(dd_prim_surface) != 0)
+      if (create_palette(primary_surface) != 0)
 	 goto Error;
    }
    else {
-      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
+      if (gfx_directx_update_color_format(primary_surface, color_depth) != 0)
          goto Error;
    }
 
@@ -246,10 +247,10 @@ struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h,
    if (setup_driver(drv, w, h, color_depth) != 0)
       goto Error;
 
-   /* create front buffer */
-   dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, BMP_ID_VIDEO);
+   /* create forefront bitmap */
+   forefront_bitmap = make_bitmap_from_surface(primary_surface, w, h, BMP_ID_VIDEO);
 
-   return dd_frontbuffer;
+   return forefront_bitmap;
 
  Error:
    gfx_directx_exit(NULL);
@@ -277,7 +278,7 @@ void gfx_directx_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync
       gfx_directx_sync();
 
    /* set the convert palette */
-   IDirectDrawPalette_SetEntries(dd_palette, 0, from, to - from + 1, &palette_entry[from]);
+   IDirectDrawPalette_SetEntries(ddpalette, 0, from, to - from + 1, &palette_entry[from]);
 }
 
 
@@ -307,31 +308,25 @@ void gfx_directx_exit(struct BITMAP *bmp)
    win_gfx_driver = NULL;
 
    /* destroy primary surface */
-   if (dd_prim_surface) {
-      gfx_directx_destroy_surf(dd_prim_surface);
-      dd_prim_surface = NULL;
-      dd_frontbuffer = NULL;
-   }
-
-   /* unregister bitmap */
-   if (bmp) {
-      unregister_directx_bitmap(bmp);
-      free(bmp->extra);
+   if (primary_surface) {
+      gfx_directx_destroy_surface(primary_surface);
+      primary_surface = NULL;
+      forefront_bitmap = NULL;
    }
 
    /* normally this list must be empty */
-   unregister_all_directx_bitmaps();
+   unregister_all_ddraw_surfaces();
 
    /* destroy clipper */
-   if (dd_clipper) {
-      IDirectDrawClipper_Release(dd_clipper);
-      dd_clipper = NULL;
+   if (ddclipper) {
+      IDirectDrawClipper_Release(ddclipper);
+      ddclipper = NULL;
    }
 
    /* destroy palette */
-   if (dd_palette) {
-      IDirectDrawPalette_Release(dd_palette);
-      dd_palette = NULL;
+   if (ddpalette) {
+      IDirectDrawPalette_Release(ddpalette);
+      ddpalette = NULL;
    }
 
    /* free pseudo memory */

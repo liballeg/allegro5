@@ -239,11 +239,6 @@ static void finalize_fullscreen_init(void)
  */
 static void switch_in_fullscreen(void)
 {
-   /* restore all DirectDraw surfaces */
-   _enter_gfx_critical();
-
-   gfx_directx_restore();
-
-   _exit_gfx_critical();
+   restore_all_ddraw_surfaces();
 }
 

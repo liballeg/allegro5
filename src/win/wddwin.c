@@ -30,7 +30,7 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 static BITMAP *gfx_directx_create_video_bitmap_win(int width, int height);
 static void gfx_directx_destroy_video_bitmap_win(BITMAP *bmp);
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bmp);
-static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth);
+static BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth);
 static void gfx_directx_win_exit(struct BITMAP *bmp);
 
 
@@ -93,18 +93,18 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
 
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
-static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
+static DDRAW_SURFACE *offscreen_surface = NULL;
 /* If the allegro color depth is not the same as the desktop color depth,
  * we need a pre-converted offscreen surface that will be blitted to the window
  * when in background, in order to ensure a proper clipping.
  */ 
-static LPDIRECTDRAWSURFACE2 preconv_offscreen_surface = NULL;
+static DDRAW_SURFACE *preconv_offscreen_surface = NULL;
 static RECT working_area;
 static COLORCONV_BLITTER_FUNC *colorconv_blit = NULL;
 static int direct_updating_mode_enabled; /* configuration flag */
 static int direct_updating_mode_on; /* live flag */
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
-static int reused_frontbuffer;
+static BITMAP *forefront_bitmap_p = NULL;
 
 
 
@@ -127,19 +127,8 @@ static void get_working_area(RECT *working_area)
  */
 static void switch_in_win(void)
 {
+   restore_all_ddraw_surfaces();
    get_working_area(&working_area);
-
-   /* restore all DirectDraw surfaces */
-   _enter_gfx_critical();
-
-   IDirectDrawSurface2_Restore(dd_prim_surface);
-
-   if (preconv_offscreen_surface)
-      IDirectDrawSurface2_Restore(preconv_offscreen_surface);
-
-   gfx_directx_restore();
-
-   _exit_gfx_critical();
 }
 
 
@@ -205,7 +194,7 @@ static void paint_win(RECT *rect)
    /* we may have lost the DirectDraw surfaces
     * (e.g after the monitor has gone to low power)
     */
-   if (IDirectDrawSurface2_IsLost(dd_prim_surface))
+   if (IDirectDrawSurface2_IsLost(primary_surface->id))
       switch_in_win();
 
    /* clip the rectangle */
@@ -226,7 +215,7 @@ static void update_matching_window(RECT* rect)
 
    _enter_gfx_critical();
 
-   if (!dd_frontbuffer) {
+   if (!forefront_bitmap) {
       _exit_gfx_critical();
       return;
    }
@@ -244,7 +233,8 @@ static void update_matching_window(RECT* rect)
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
  
    /* blit offscreen backbuffer to the window */
-   IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect, offscreen_surface, rect, 0, NULL);
+   IDirectDrawSurface2_Blt(primary_surface->id, &dest_rect,
+                           offscreen_surface->id, rect, 0, NULL);
 
    _exit_gfx_critical();
 }
@@ -274,7 +264,7 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
                           LPDIRECTDRAWSURFACE2 src_surf, RECT *src_rect)
 {
    DDSURFACEDESC src_desc, dest_desc;
-   struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
+   GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
    HRESULT hr;
 
    src_desc.dwSize = sizeof(src_desc);
@@ -322,7 +312,7 @@ static void update_colorconv_window(RECT* rect)
 
    _enter_gfx_critical();
 
-   if (!dd_frontbuffer) {
+   if (!forefront_bitmap) {
       _exit_gfx_critical();
       return;
    }
@@ -352,20 +342,21 @@ static void update_colorconv_window(RECT* rect)
    if (!direct_updating_mode_on || is_not_contained(&dest_rect, &working_area) ||
                                        (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer */
-      if (ddsurf_blit_ex(preconv_offscreen_surface, &src_rect,
-                         offscreen_surface, &src_rect) != 0) {
+      if (ddsurf_blit_ex(preconv_offscreen_surface->id, &src_rect,
+                         offscreen_surface->id, &src_rect) != 0) {
          _exit_gfx_critical();
          return;
       }
  
       /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
-      IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
-                              preconv_offscreen_surface, &src_rect,
+      IDirectDrawSurface2_Blt(primary_surface->id, &dest_rect,
+                              preconv_offscreen_surface->id, &src_rect,
                               0, NULL);
    }
    else {
       /* blit directly to the primary surface WITHOUT clipping */
-      ddsurf_blit_ex(dd_prim_surface, &dest_rect, offscreen_surface, &src_rect);
+      ddsurf_blit_ex(primary_surface->id, &dest_rect,
+                     offscreen_surface->id, &src_rect);
    }
 
    _exit_gfx_critical();
@@ -377,33 +368,39 @@ static void update_colorconv_window(RECT* rect)
  */
 static BITMAP *gfx_directx_create_video_bitmap_win(int width, int height)
 {
-   LPDIRECTDRAWSURFACE2 surf;
+   DDRAW_SURFACE *surf;
    BITMAP *bmp;
 
    /* try to detect page flipping and triple buffering patterns */
-   if ((width == dd_frontbuffer->w) && (height == dd_frontbuffer->h) && (!reused_frontbuffer)) {
-      /* recycle the frontbuffer as a video bitmap */
-      reused_frontbuffer = TRUE;
-      return dd_frontbuffer;
+   if ((width == forefront_bitmap->w) && (height == forefront_bitmap->h) && (!forefront_bitmap_p)) {
+      /* recycle the forefront bitmap as a video bitmap */
+      bmp = make_bitmap_from_surface(offscreen_surface, width, height, BMP_ID_VIDEO);
+      if (bmp) {
+         bmp->vtable = &_special_vtable;
+         bmp->write_bank = gfx_directx_write_bank_win;
+         forefront_bitmap_p = bmp;
+         return bmp;
+      }
+      return NULL;
    }
 
    /* create the DirectDraw surface */
    if (colorconv_blit) {
-      surf = gfx_directx_create_surface(width, height, dd_pixelformat, SURF_SYSTEM);
+      surf = gfx_directx_create_surface(width, height, ddpixel_format, DDRAW_SURFACE_SYSTEM);
    }
    else {
-      surf = gfx_directx_create_surface(width, height, NULL, SURF_VIDEO);
+      surf = gfx_directx_create_surface(width, height, NULL, DDRAW_SURFACE_VIDEO);
       if (!surf)
-         surf = gfx_directx_create_surface(width, height, NULL, SURF_SYSTEM);
+         surf = gfx_directx_create_surface(width, height, NULL, DDRAW_SURFACE_SYSTEM);
    }
 
    if (!surf)
       return NULL;
 
    /* create the bitmap that wraps up the surface */
-   bmp = make_directx_bitmap(surf, width, height, BMP_ID_VIDEO);
+   bmp = make_bitmap_from_surface(surf, width, height, BMP_ID_VIDEO);
    if (!bmp) {
-      gfx_directx_destroy_surf(surf);
+      gfx_directx_destroy_surface(surf);
       return NULL;
    }
 
@@ -416,21 +413,18 @@ static BITMAP *gfx_directx_create_video_bitmap_win(int width, int height)
  */
 static void gfx_directx_destroy_video_bitmap_win(BITMAP *bmp)
 {
-   if ((bmp == screen) || (bmp == dd_frontbuffer)) {
-      /* makes sure that screen == dd_frontbuffer */
-      gfx_directx_show_video_bitmap_win(screen);
-   }
+   DDRAW_SURFACE *surf = DDRAW_SURFACE_OF(bmp);
 
-   if (bmp == dd_frontbuffer) {
-      reused_frontbuffer = FALSE;
-      return;  /* don't destroy the frontbuffer! */
+   if (surf == offscreen_surface) {
+      forefront_bitmap_p = NULL;
+      free(bmp);
+      return;  /* don't destroy the surface! */
    }
 
    /* destroy the surface */
-   gfx_directx_destroy_surf(BMP_EXTRA(bmp)->surf);
+   gfx_directx_destroy_surface(surf);
 
-   /* destroy the wrapper */
-   destroy_directx_bitmap(bmp);
+   free(bmp);
 }
 
 
@@ -438,28 +432,26 @@ static void gfx_directx_destroy_video_bitmap_win(BITMAP *bmp)
 /* gfx_directx_show_video_bitmap_win:
  *  Makes the specified video bitmap visible.
  */
-static int gfx_directx_show_video_bitmap_win(struct BITMAP *bmp)
+static int gfx_directx_show_video_bitmap_win(BITMAP *bmp)
 {
-   LPDIRECTDRAWSURFACE2 surf;
-
-   if (bmp == dd_frontbuffer)
-      return 0;
+   DDRAW_SURFACE *surf = DDRAW_SURFACE_OF(bmp);
 
    /* manually flip the offscreen surface */
-   offscreen_surface = BMP_EXTRA(bmp)->surf;
+   DDRAW_SURFACE_OF(forefront_bitmap) = surf;
+   offscreen_surface = surf;
 
    /* restore regular methods for video bitmaps */
-   dd_frontbuffer->vtable->release = gfx_directx_unlock;
-   dd_frontbuffer->vtable->unwrite_bank = gfx_directx_unwrite_bank;
-   dd_frontbuffer->write_bank = gfx_directx_write_bank;
-
-   /* keep track of the forefront bitmap */
-   dd_frontbuffer = bmp;
+   forefront_bitmap_p->vtable->release = gfx_directx_unlock;
+   forefront_bitmap_p->vtable->unwrite_bank = gfx_directx_unwrite_bank;
+   forefront_bitmap_p->write_bank = gfx_directx_write_bank;
 
    /* set special methods for the forefront bitmap */
-   dd_frontbuffer->vtable->release = gfx_directx_unlock_win;
-   dd_frontbuffer->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
-   dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
+   bmp->vtable->release = gfx_directx_unlock_win;
+   bmp->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
+   bmp->write_bank = gfx_directx_write_bank_win;
+
+   /* keep track of the forefront bitmap */
+   forefront_bitmap_p = bmp;
 
    /* display the new contents */
    update_window(NULL);
@@ -567,13 +559,13 @@ static int create_offscreen(int w, int h, int color_depth)
 {
    if (colorconv_blit) {
       /* create pre-converted offscreen surface in video memory */
-      preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_VIDEO);
+      preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_VIDEO);
 
       if (!preconv_offscreen_surface) {
          _TRACE("Can't create preconverted offscreen surface in video memory.\n");
 
          /* create pre-converted offscreen surface in plain memory */
-         preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_SYSTEM);
+         preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_SYSTEM);
 
          if (!preconv_offscreen_surface) {
             _TRACE("Can't create preconverted offscreen surface.\n");
@@ -581,17 +573,17 @@ static int create_offscreen(int w, int h, int color_depth)
          }
       }
 
-      offscreen_surface = gfx_directx_create_surface(w, h, dd_pixelformat, SURF_SYSTEM);
+      offscreen_surface = gfx_directx_create_surface(w, h, ddpixel_format, DDRAW_SURFACE_SYSTEM);
    }
    else {
       /* create offscreen surface in video memory */
-      offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_VIDEO);
-      
+      offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_VIDEO);
+
       if (!offscreen_surface) {
          _TRACE("Can't create offscreen surface in video memory.\n");
 
          /* create offscreen surface in plain memory */
-         offscreen_surface = gfx_directx_create_surface(w, h, NULL, SURF_SYSTEM);
+         offscreen_surface = gfx_directx_create_surface(w, h, NULL, DDRAW_SURFACE_SYSTEM);
       }
    }
 
@@ -672,7 +664,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if (create_clipper(allegro_wnd) != 0)
       goto Error;
 
-   hr = IDirectDrawSurface_SetClipper(dd_prim_surface, dd_clipper);
+   hr = IDirectDrawSurface_SetClipper(primary_surface->id, ddclipper);
    if (FAILED(hr))
       goto Error;
 
@@ -706,7 +698,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
          gfx_directx_win.set_palette = gfx_directx_set_palette_win;
 
          /* init the core library color conversion functions */ 
-         if (gfx_directx_update_color_format(dd_prim_surface, desktop_depth) != 0)
+         if (gfx_directx_update_color_format(primary_surface, desktop_depth) != 0)
             goto Error;
       }
       else {
@@ -720,15 +712,14 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if (setup_driver(&gfx_directx_win, w, h, color_depth) != 0)
       goto Error;
 
-   dd_frontbuffer = make_directx_bitmap(offscreen_surface, w, h, BMP_ID_VIDEO);
-   reused_frontbuffer = FALSE;
+   forefront_bitmap = make_bitmap_from_surface(offscreen_surface, w, h, BMP_ID_VIDEO);
 
    enable_acceleration(&gfx_directx_win);
-   memcpy (&_special_vtable, &_screen_vtable, sizeof (GFX_VTABLE));
+   memcpy(&_special_vtable, &_screen_vtable, sizeof (GFX_VTABLE));
    _special_vtable.release = gfx_directx_unlock_win;
    _special_vtable.unwrite_bank = gfx_directx_unwrite_bank_win;
-   dd_frontbuffer->vtable = &_special_vtable;
-   dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
+   forefront_bitmap->vtable = &_special_vtable;
+   forefront_bitmap->write_bank = gfx_directx_write_bank_win;
 
    /* the last flag serves as end of loop delimiter */
    wd_dirty_lines = calloc(h+1, sizeof(char));
@@ -745,7 +736,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
    _exit_critical();
 
-   return dd_frontbuffer;
+   return forefront_bitmap;
 
  Error:
    _exit_critical();
@@ -781,14 +772,15 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
 
    /* destroy the offscreen backbuffer */
    if (offscreen_surface) {
-      gfx_directx_destroy_surf(offscreen_surface);
+      gfx_directx_destroy_surface(offscreen_surface);
       offscreen_surface = NULL;
-      dd_frontbuffer = NULL;
+      forefront_bitmap = NULL;
+      forefront_bitmap_p = NULL;
    }
 
    /* destroy the pre-converted offscreen buffer */
    if (preconv_offscreen_surface) {
-      gfx_directx_destroy_surf(preconv_offscreen_surface);
+      gfx_directx_destroy_surface(preconv_offscreen_surface);
       preconv_offscreen_surface = NULL;
    }
 
@@ -796,12 +788,6 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
    if (colorconv_blit) {
       _release_colorconv_blitter(colorconv_blit);
       colorconv_blit = NULL;
-   }
-
-   /* unregister bitmap */
-   if (bmp) {
-      unregister_directx_bitmap(bmp);
-      free(bmp->extra);
    }
    
    gfx_directx_exit(NULL);

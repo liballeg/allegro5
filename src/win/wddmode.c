@@ -191,7 +191,7 @@ int gfx_directx_compare_color_depth(int color_depth)
                       get_color_bits(surf_desc.ddpfPixelFormat.dwBBitMask);
 
    if (color_depth == desktop_depth) {
-      dd_pixelformat = NULL;
+      ddpixel_format = NULL;
       return 0;
    }
    else {
@@ -201,7 +201,7 @@ int gfx_directx_compare_color_depth(int color_depth)
             ((surf_desc.ddpfPixelFormat.dwRBitMask & pixel_format[i].dwRBitMask) ||
                 (surf_desc.ddpfPixelFormat.dwBBitMask & pixel_format[i].dwBBitMask) ||
                    (desktop_depth == 8) || (color_depth == 8))) {
-                      dd_pixelformat = &pixel_format[i];
+                      ddpixel_format = &pixel_format[i];
                       break;
          }
       }
@@ -213,9 +213,9 @@ int gfx_directx_compare_color_depth(int color_depth)
 
 
 /* gfx_directx_update_color_format:
- *  Sets the _rgb variables for correct color format.
+ *  Sets the _rgb* variables for correct color format.
  */
-int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
+int gfx_directx_update_color_format(DDRAW_SURFACE *surf, int color_depth)
 {
    DDPIXELFORMAT pixel_format;
    HRESULT hr;
@@ -223,7 +223,7 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
 
    /* get pixel format */
    pixel_format.dwSize = sizeof(DDPIXELFORMAT);
-   hr = IDirectDrawSurface2_GetPixelFormat(surf, &pixel_format);
+   hr = IDirectDrawSurface2_GetPixelFormat(surf->id, &pixel_format);
    if (FAILED(hr)) {
       _TRACE("Can't get color format.\n");
       return -1;

@@ -39,43 +39,15 @@ static void gfx_directx_switch_out(void)
 
 
 
-/* gfx_directx_restore:
- *  Restores all the video and system bitmaps.
- */
-int gfx_directx_restore(void)
-{
-   BMP_EXTRA_INFO *item = directx_bmp_list;
-   HRESULT hr;
-
-   _enter_gfx_critical();
-
-   while (item) {
-      hr = IDirectDrawSurface2_Restore(item->surf);
-      if (FAILED(hr)) {
-         _exit_gfx_critical();
-         return -1;
-      }
-
-      item = item->next;
-   }
-
-   _exit_gfx_critical();
-
-   return 0;
-}
-
-
-
 /* gfx_directx_lock:
  *  Locks the surface and prepares the lines array of the bitmap.
  */
 void gfx_directx_lock(BITMAP *bmp)
 {
-   LPDIRECTDRAWSURFACE2 surf;
-   BMP_EXTRA_INFO *bmp_extra;
+   DDRAW_SURFACE *surf;
    BITMAP *parent;
    HRESULT hr;
-   DDSURFACEDESC surf_desc;
+   DDSURFACEDESC ddsurf_desc;
    int pitch;
    unsigned char *data;
    int y;
@@ -108,32 +80,30 @@ void gfx_directx_lock(BITMAP *bmp)
          gfx_directx_switch_out();
 
       /* this is a real bitmap, so can be locked directly */
-      bmp_extra = BMP_EXTRA(bmp);
-      bmp_extra->lock_nesting++;
+      surf = DDRAW_SURFACE_OF(bmp);
+      surf->lock_nesting++;
 
       if (!(bmp->id & BMP_ID_LOCKED)) {
+         /* try to lock surface */
 	 bmp->id |= BMP_ID_LOCKED;
-	 bmp_extra->flags &= ~BMP_FLAG_LOST;
+	 surf->flags &= ~DDRAW_SURFACE_LOST;
 
-	 /* try to lock surface */
-	 surf = bmp_extra->surf;
+	 ddsurf_desc.dwSize = sizeof(DDSURFACEDESC);
+	 ddsurf_desc.dwFlags = 0;
 
-	 surf_desc.dwSize = sizeof(surf_desc);
-	 surf_desc.dwFlags = 0;
-
-	 hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
-                                       DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
+	 hr = IDirectDrawSurface2_Lock(surf->id, NULL, &ddsurf_desc,
+                                    DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
 
 	 /* If the surface has been lost, try to restore all surfaces
 	  * and, on success, try again to lock the surface.
 	  */
 	 if (hr == DDERR_SURFACELOST) {
-	    if (gfx_directx_restore() == 0) {
-	       surf_desc.dwSize = sizeof(surf_desc);
-	       surf_desc.dwFlags = 0;
+	    if (restore_all_ddraw_surfaces() == 0) {
+	       ddsurf_desc.dwSize = sizeof(DDSURFACEDESC);
+	       ddsurf_desc.dwFlags = 0;
 
-	       hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
-                                             DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
+	       hr = IDirectDrawSurface2_Lock(surf->id, NULL, &ddsurf_desc,
+                                          DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
 	    }
 	 }
 
@@ -141,13 +111,13 @@ void gfx_directx_lock(BITMAP *bmp)
 	    _TRACE("Can't lock surface (%x)\n", hr);
 
 	    /* lock failed, use pseudo surface memory */
-	    bmp_extra->flags |= BMP_FLAG_LOST;
+	    surf->flags |= DDRAW_SURFACE_LOST;
 	    data = pseudo_surf_mem;
 	    pitch = 0;
 	 } 
 	 else {
-	    data = surf_desc.lpSurface;
-	    pitch = surf_desc.lPitch;
+	    data = ddsurf_desc.lpSurface;
+	    pitch = ddsurf_desc.lPitch;
 	 }
 
 	 /* prepare line array */
@@ -170,7 +140,7 @@ void gfx_directx_lock(BITMAP *bmp)
  */
 void gfx_directx_autolock(BITMAP *bmp)
 {
-   BMP_EXTRA_INFO *bmp_extra;
+   DDRAW_SURFACE *surf;
    BITMAP *parent;
    int pitch;
    unsigned char *data;
@@ -201,13 +171,13 @@ void gfx_directx_autolock(BITMAP *bmp)
    }
    else {
       /* this is a real bitmap, so can be locked directly */
-      bmp_extra = BMP_EXTRA(bmp);
+      surf = DDRAW_SURFACE_OF(bmp);
 
-      if (bmp_extra->lock_nesting) {
+      if (surf->lock_nesting) {
 	 /* re-locking after a hwaccel, so don't change nesting state */
 	 gfx_directx_lock(bmp);
-	 bmp_extra->lock_nesting--;
-         _exit_gfx_critical();
+	 surf->lock_nesting--;
+	 _exit_gfx_critical();
       }
       else {
 	 /* locking for the first time */
@@ -224,7 +194,7 @@ void gfx_directx_autolock(BITMAP *bmp)
  */
 void gfx_directx_unlock(BITMAP *bmp)
 {
-   BMP_EXTRA_INFO *bmp_extra;
+   DDRAW_SURFACE *surf;
    BITMAP *parent;
    HRESULT hr;
 
@@ -237,22 +207,22 @@ void gfx_directx_unlock(BITMAP *bmp)
    }
    else {
       /* regular bitmaps can be unlocked directly */
-      bmp_extra = BMP_EXTRA(bmp);
+      surf = DDRAW_SURFACE_OF(bmp);
 
-      if (bmp_extra->lock_nesting > 0) {
-	 bmp_extra->lock_nesting--;
+      if (surf->lock_nesting > 0) {
+	 surf->lock_nesting--;
 
-         if ((!bmp_extra->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
-            if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
+         if ((!surf->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
+            if (!(surf->flags & DDRAW_SURFACE_LOST)) {
 	       /* only unlock if it doesn't use pseudo video memory */
-	       hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	       hr = IDirectDrawSurface2_Unlock(surf->id, NULL);
 
 	       /* If the surface has been lost, try to restore all surfaces
 	        * and, on success, try again to unlock the surface.
 	        */
 	       if (hr == DDERR_SURFACELOST) {
-	          if (gfx_directx_restore() == 0)
-	             hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	          if (restore_all_ddraw_surfaces() == 0)
+	             hr = IDirectDrawSurface2_Unlock(surf->id, NULL);
 	       }
 
 	       if (FAILED(hr))
@@ -275,7 +245,7 @@ void gfx_directx_unlock(BITMAP *bmp)
  */
 void gfx_directx_release_lock(BITMAP *bmp)
 {
-   BMP_EXTRA_INFO *bmp_extra;
+   DDRAW_SURFACE *surf;
    HRESULT hr;
 
    /* handle display switch */
@@ -289,18 +259,18 @@ void gfx_directx_release_lock(BITMAP *bmp)
    }
 
    if (bmp->id & BMP_ID_LOCKED) {
-      bmp_extra = (BMP_EXTRA_INFO *)bmp->extra;
+      surf = DDRAW_SURFACE_OF(bmp);
 
-      if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
+      if (!(surf->flags & DDRAW_SURFACE_LOST)) {
 	 /* only unlock if it doesn't use pseudo video memory */
-	 hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	 hr = IDirectDrawSurface2_Unlock(surf->id, NULL);
 
 	 /* If the surface has been lost, try to restore all surfaces
 	  * and, on success, try again to unlock the surface.
 	  */
 	 if (hr == DDERR_SURFACELOST) {
-	    if (gfx_directx_restore() == 0)
-	       hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	    if (restore_all_ddraw_surfaces() == 0)
+	       hr = IDirectDrawSurface2_Unlock(surf->id, NULL);
 	 }
 
 	 if (FAILED(hr))

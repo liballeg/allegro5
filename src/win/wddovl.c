@@ -84,7 +84,7 @@ static WIN_GFX_DRIVER win_gfx_driver_overlay =
 
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
-static LPDIRECTDRAWSURFACE2 overlay_surface = NULL;
+static DDRAW_SURFACE *overlay_surface = NULL;
 static BOOL overlay_visible = FALSE;
 static HBRUSH original_brush, overlay_brush;
 
@@ -95,16 +95,8 @@ static HBRUSH original_brush, overlay_brush;
  */
 static void switch_in_overlay(void)
 {
-   /* restore all DirectDraw surfaces */
-   _enter_gfx_critical();
-
-   IDirectDrawSurface2_Restore(dd_prim_surface);
-
-   gfx_directx_restore();
-
+   restore_all_ddraw_surfaces();
    show_overlay();
-
-   _exit_gfx_critical();
 }
 
 
@@ -118,13 +110,13 @@ static int update_overlay(int x, int y, int w, int h)
    RECT dest_rect = {x, y, x + w, y + h};
 
    /* show the overlay surface */
-   hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
-                                          dd_prim_surface, &dest_rect,
+   hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
+                                          primary_surface->id, &dest_rect,
                                           DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't display overlay (%x)\n", hr);
-      IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
-	                                dd_prim_surface, NULL,
+      IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
+                                        primary_surface->id, NULL,
                                         DDOVER_HIDE, NULL);
       return -1;
    }
@@ -156,7 +148,7 @@ static void move_overlay(int x, int y, int w, int h)
    int xmod;
 
    /* handle hardware limitations */
-   if ((dd_caps.dwCaps & DDCAPS_ALIGNBOUNDARYDEST) && (xmod = x%dd_caps.dwAlignBoundaryDest)) {
+   if ((ddcaps.dwCaps & DDCAPS_ALIGNBOUNDARYDEST) && (xmod = x%ddcaps.dwAlignBoundaryDest)) {
       GetWindowRect(allegro_wnd, &window_rect);
       SetWindowPos(allegro_wnd, 0, window_rect.left + xmod, window_rect.top,
                    0, 0, SWP_NOZORDER | SWP_NOSIZE);
@@ -175,8 +167,8 @@ static void hide_overlay(void)
    if (overlay_visible) {
       overlay_visible = FALSE;
 
-      IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
-	                                dd_prim_surface, NULL,
+      IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
+                                        primary_surface->id, NULL,
                                         DDOVER_HIDE, NULL);
    }
 }
@@ -191,7 +183,7 @@ static void paint_overlay(RECT *rect)
    /* we may have lost the DirectDraw surfaces
     * (e.g after the monitor has gone to low power)
     */
-   if (IDirectDrawSurface2_IsLost(dd_prim_surface))
+   if (IDirectDrawSurface2_IsLost(primary_surface->id))
       switch_in_overlay();
 }
 
@@ -270,7 +262,7 @@ static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
  */
 static int create_overlay(int w, int h, int color_depth)
 {
-   overlay_surface = gfx_directx_create_surface(w, h, dd_pixelformat, SURF_OVERLAY);
+   overlay_surface = gfx_directx_create_surface(w, h, ddpixel_format, DDRAW_SURFACE_OVERLAY);
    
    if (!overlay_surface) {
       _TRACE("Can't create overlay surface.\n");
@@ -301,7 +293,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    /* init DirectX */
    if (init_directx() != 0)
       goto Error;
-   if ((dd_caps.dwCaps & DDCAPS_OVERLAY) == 0) {
+   if ((ddcaps.dwCaps & DDCAPS_OVERLAY) == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Overlays not supported"));
       goto Error;
    }
@@ -336,23 +328,23 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
     * can vary depending on the pixel formats of the overlay and primary surface", so
     * we handle them after creating the surfaces
     */
-   dd_caps.dwSize = sizeof(dd_caps);
-   hr = IDirectDraw2_GetCaps(directdraw, &dd_caps, NULL);
+   ddcaps.dwSize = sizeof(ddcaps);
+   hr = IDirectDraw2_GetCaps(directdraw, &ddcaps, NULL);
    if (FAILED(hr)) {
       _TRACE("Can't get driver caps\n");
       goto Error;
    }
 
-   if (dd_caps.dwCaps & DDCAPS_ALIGNSIZESRC) {
-      if (w%dd_caps.dwAlignSizeSrc) {
-         _TRACE("Alignment requirement not met: source size %d\n", dd_caps.dwAlignSizeSrc);
+   if (ddcaps.dwCaps & DDCAPS_ALIGNSIZESRC) {
+      if (w%ddcaps.dwAlignSizeSrc) {
+         _TRACE("Alignment requirement not met: source size %d\n", ddcaps.dwAlignSizeSrc);
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
    } 
-   else if (dd_caps.dwCaps & DDCAPS_ALIGNSIZEDEST) {
-      if (w%dd_caps.dwAlignSizeDest) {
-         _TRACE("Alignment requirement not met: dest size %d\n", dd_caps.dwAlignSizeDest);
+   else if (ddcaps.dwCaps & DDCAPS_ALIGNSIZEDEST) {
+      if (w%ddcaps.dwAlignSizeDest) {
+         _TRACE("Alignment requirement not met: dest size %d\n", ddcaps.dwAlignSizeDest);
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
@@ -374,13 +366,13 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (setup_driver(&gfx_directx_ovl, w, h, color_depth) != 0)
       goto Error;
 
-   dd_frontbuffer = make_directx_bitmap(overlay_surface, w, h, BMP_ID_VIDEO);
+   forefront_bitmap = make_bitmap_from_surface(overlay_surface, w, h, BMP_ID_VIDEO);
 
    /* display the overlay surface */
-   key.dwColorSpaceLowValue = dd_frontbuffer->vtable->mask_color;
-   key.dwColorSpaceHighValue = dd_frontbuffer->vtable->mask_color;
+   key.dwColorSpaceLowValue = forefront_bitmap->vtable->mask_color;
+   key.dwColorSpaceHighValue = forefront_bitmap->vtable->mask_color;
 
-   hr = IDirectDrawSurface2_SetColorKey(dd_prim_surface, DDCKEY_DESTOVERLAY, &key);
+   hr = IDirectDrawSurface2_SetColorKey(primary_surface->id, DDCKEY_DESTOVERLAY, &key);
    if (FAILED(hr)) {
       _TRACE("Can't set overlay dest color key\n");
       goto Error;
@@ -405,7 +397,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    _exit_critical();
 
-   return dd_frontbuffer;
+   return forefront_bitmap;
 
  Error:
    _exit_critical();
@@ -438,15 +430,9 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
       hide_overlay();
       SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) original_brush);
       DeleteObject(overlay_brush);
-      gfx_directx_destroy_surf(overlay_surface);
+      gfx_directx_destroy_surface(overlay_surface);
       overlay_surface = NULL;
-      dd_frontbuffer = NULL;
-   }
-
-   /* unregister bitmap */
-   if (bmp) {
-      unregister_directx_bitmap(bmp);
-      free(bmp->extra);
+      forefront_bitmap = NULL;
    }
 
    gfx_directx_exit(NULL);

@@ -21,61 +21,62 @@
 #include "wddraw.h"
 
 
-static LPDIRECTDRAWSURFACE2 backbuffer_surf = NULL;
-static LPDIRECTDRAWSURFACE2 tripbuffer_surf = NULL;
+static DDRAW_SURFACE *back_buffer = NULL;
+static DDRAW_SURFACE *triple_buffer = NULL;
 static int flipping_pages = 0;
 
 
 /* gfx_directx_create_surface:
  *  Creates a DirectDraw surface.
  */ 
-LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pixel_format, int type)
+DDRAW_SURFACE *gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pixel_format, int type)
 {
-   DDSURFACEDESC surf_desc;
-   LPDIRECTDRAWSURFACE surf1;
-   LPDIRECTDRAWSURFACE2 surf2;
+   DDSURFACEDESC ddsurf_desc;
+   LPDIRECTDRAWSURFACE ddsurf1;
+   LPDIRECTDRAWSURFACE2 ddsurf2;
    DDSCAPS ddscaps;
    HRESULT hr;
+   DDRAW_SURFACE *surf;
 
    /* describe surface characteristics */
-   memset(&surf_desc, 0, sizeof(DDSURFACEDESC));
-   surf_desc.dwSize = sizeof(surf_desc);
-   surf_desc.dwFlags = DDSD_CAPS;
+   memset(&ddsurf_desc, 0, sizeof(DDSURFACEDESC));
+   ddsurf_desc.dwSize = sizeof(DDSURFACEDESC);
+   ddsurf_desc.dwFlags = DDSD_CAPS;
 
    switch (type) {
 
-      case SURF_PRIMARY:
-         surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+      case DDRAW_SURFACE_PRIMARY:
+         ddsurf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
          break;
 
-      case SURF_OVERLAY:
-         surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OVERLAY;
-         surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
-         surf_desc.dwHeight = h;
-         surf_desc.dwWidth = w;
+      case DDRAW_SURFACE_OVERLAY:
+         ddsurf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OVERLAY;
+         ddsurf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
+         ddsurf_desc.dwHeight = h;
+         ddsurf_desc.dwWidth = w;
 
          if (pixel_format) {    /* use pixel format */
-            surf_desc.dwFlags |= DDSD_PIXELFORMAT;
-            surf_desc.ddpfPixelFormat = *pixel_format;
+            ddsurf_desc.dwFlags |= DDSD_PIXELFORMAT;
+            ddsurf_desc.ddpfPixelFormat = *pixel_format;
          }
          break;
 
-      case SURF_VIDEO:
-         surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OFFSCREENPLAIN;
-         surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
-         surf_desc.dwHeight = h;
-         surf_desc.dwWidth = w;
+      case DDRAW_SURFACE_VIDEO:
+         ddsurf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY | DDSCAPS_OFFSCREENPLAIN;
+         ddsurf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
+         ddsurf_desc.dwHeight = h;
+         ddsurf_desc.dwWidth = w;
          break;
 
-      case SURF_SYSTEM:
-         surf_desc.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
-         surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
-         surf_desc.dwHeight = h;
-         surf_desc.dwWidth = w;
+      case DDRAW_SURFACE_SYSTEM:
+         ddsurf_desc.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
+         ddsurf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
+         ddsurf_desc.dwHeight = h;
+         ddsurf_desc.dwWidth = w;
 
          if (pixel_format) {    /* use pixel format */
-            surf_desc.dwFlags |= DDSD_PIXELFORMAT;
-            surf_desc.ddpfPixelFormat = *pixel_format;
+            ddsurf_desc.dwFlags |= DDSD_PIXELFORMAT;
+            ddsurf_desc.ddpfPixelFormat = *pixel_format;
          }
          break;
 
@@ -85,7 +86,7 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
    }
 
    /* create the surface with this properties */
-   hr = IDirectDraw2_CreateSurface(directdraw, &surf_desc, &surf1, NULL);
+   hr = IDirectDraw2_CreateSurface(directdraw, &ddsurf_desc, &ddsurf1, NULL);
 
    if (FAILED(hr)) {
       _TRACE("Unable to create the surface\n");
@@ -93,120 +94,86 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
    }
 
    /*  retrieve the DirectDrawSurface2 interface */
-   hr = IDirectDrawSurface_QueryInterface(surf1, &IID_IDirectDrawSurface2, (LPVOID *)&surf2);
+   hr = IDirectDrawSurface_QueryInterface(ddsurf1, &IID_IDirectDrawSurface2, (LPVOID *)&ddsurf2);
 
    /* there is a bug in the COM part of DirectX 3:
     *  If we release the DirectSurface interface, the actual
     *  object is also released. It is fixed in DirectX 5.
     */
    if (_dx_ver >= 0x500)
-      IDirectDrawSurface_Release(surf1);
+      IDirectDrawSurface_Release(ddsurf1);
 
    if (FAILED(hr)) {
       _TRACE("Unable to retrieve the DirectDrawSurface2 interface\n");
       return NULL;
    }
 
-   return surf2;
+   /* setup surface info structure to store additional information */
+   surf = malloc(sizeof(DDRAW_SURFACE));
+   if (!surf) {
+      IDirectDrawSurface2_Release(ddsurf2);
+      return NULL;
+   }
+
+   surf->id = ddsurf2;
+   surf->next = NULL;
+   surf->prev = NULL;
+   surf->flags = 0;
+   surf->lock_nesting = 0;
+
+   register_ddraw_surface(surf);
+
+   return surf;
 }
 
 
 
-/* gfx_directx_destroy_surf:
+/* gfx_directx_destroy_surface:
  *  Destroys a DirectDraw surface.
  */
-void gfx_directx_destroy_surf(LPDIRECTDRAWSURFACE2 surf)
+void gfx_directx_destroy_surface(DDRAW_SURFACE *surf)
 {
-   if (surf)
-      IDirectDrawSurface2_Release(surf);
+   IDirectDrawSurface2_Release(surf->id);
+   unregister_ddraw_surface(surf);
+   free(surf);
 }
 
 
 
-/* make_video_bitmap:
- *  Helper function for wrapping up video memory in a video bitmap.
- */
-static BITMAP *make_video_bitmap(int w, int h, unsigned long addr, struct GFX_VTABLE *vtable, int bpl)
-{
-   int i, size;
-   BITMAP *b;
-
-   if (!vtable)
-      return NULL;
-
-   size = sizeof(BITMAP) + sizeof(char *) * h;
-
-   b = (BITMAP *) malloc(size);
-   if (!b)
-      return NULL;
-
-   b->w = b->cr = w;
-   b->h = b->cb = h;
-   b->clip = TRUE;
-   b->cl = b->ct = 0;
-   b->vtable = vtable;
-   b->write_bank = b->read_bank = _stub_bank_switch;
-   b->dat = NULL;
-   b->id = BMP_ID_VIDEO;
-   b->extra = NULL;
-   b->x_ofs = 0;
-   b->y_ofs = 0;
-   b->seg = _video_ds();
-
-   b->line[0] = (char *)addr;
-
-   for (i = 1; i < h; i++)
-      b->line[i] = b->line[i - 1] + bpl;
-
-   return b;
-}
-
-
-
-/* make_directx_bitmap:
+/* make_bitmap_from_surface:
  *  Connects a DirectDraw surface with an Allegro bitmap.
  */
-BITMAP *make_directx_bitmap(LPDIRECTDRAWSURFACE2 surf, int w, int h, int id)
+BITMAP *make_bitmap_from_surface(DDRAW_SURFACE *surf, int w, int h, int id)
 {
-   struct BITMAP *bmp;
+   BITMAP *bmp;
+   int i;
 
-   /* create Allegro bitmap */
-   bmp = make_video_bitmap(w, h, (unsigned long)pseudo_surf_mem, &_screen_vtable, 0);
+   bmp = (BITMAP *) malloc(sizeof(BITMAP) + sizeof(char *) * h);
    if (!bmp)
       return NULL;
 
-   bmp->id = id;
+   bmp->w =w;
+   bmp->cr = w;
+   bmp->h = h;
+   bmp->cb = h;
+   bmp->clip = TRUE;
+   bmp->cl = 0;
+   bmp->ct = 0;
+   bmp->vtable = &_screen_vtable;
    bmp->write_bank = gfx_directx_write_bank;
    bmp->read_bank = gfx_directx_write_bank;
+   bmp->dat = NULL;
+   bmp->id = id;
+   bmp->extra = NULL;
+   bmp->x_ofs = 0;
+   bmp->y_ofs = 0;
+   bmp->seg = _video_ds();
+   for (i = 0; i < h; i++)
+      bmp->line[i] = pseudo_surf_mem;
 
-   /* setup surface info structure to store additional information */
-   bmp->extra = malloc(sizeof(struct BMP_EXTRA_INFO));
-   if (!bmp->extra)
-      return NULL;
-
-   BMP_EXTRA(bmp)->surf = surf;
-   BMP_EXTRA(bmp)->next = NULL;
-   BMP_EXTRA(bmp)->prev = NULL;
-   BMP_EXTRA(bmp)->flags = 0;
-   BMP_EXTRA(bmp)->lock_nesting = 0;
-
-   register_directx_bitmap(bmp);
+   DDRAW_SURFACE_OF(bmp) = surf;
 
    return bmp;
-}
-
-
-
-/* destroy_directx_bitmap:
- *  Destroys a video or system bitmap.
- */
-void destroy_directx_bitmap(BITMAP *bmp)
-{
-   if (bmp) {
-      unregister_directx_bitmap(bmp);
-      free(bmp->extra);
-      free(bmp);
-   }
 }
 
 
@@ -224,73 +191,77 @@ void gfx_directx_created_sub_bitmap(BITMAP *bmp, BITMAP *parent)
  */
 BITMAP *gfx_directx_create_video_bitmap(int width, int height)
 {
-   LPDIRECTDRAWSURFACE2 surf;
-   struct BITMAP *bmp;
+   DDRAW_SURFACE *surf;
+   BITMAP *bmp;
    HRESULT hr;
 
    /* try to detect page flipping and triple buffering patterns */
-   if ((width == dd_frontbuffer->w) && (height == dd_frontbuffer->h)) {
+   if ((width == forefront_bitmap->w) && (height == forefront_bitmap->h)) {
 
       switch (flipping_pages) {
 
          case 0:
-            /* recycle the frontbuffer as a video bitmap */
-            flipping_pages++;
-            return dd_frontbuffer;
+            /* recycle the forefront bitmap as a video bitmap */
+            bmp = make_bitmap_from_surface(DDRAW_SURFACE_OF(forefront_bitmap), width, height, BMP_ID_VIDEO);
+            if (bmp) {
+               flipping_pages++;
+               return bmp;
+            }
+            return NULL;
 
          case 1:
-            /* create a backbuffer and attach it to the frontbuffer */
-            backbuffer_surf = gfx_directx_create_surface(width, height, NULL, SURF_VIDEO);
-            if (backbuffer_surf) {
-               hr = IDirectDrawSurface2_AddAttachedSurface(BMP_EXTRA(dd_frontbuffer)->surf, backbuffer_surf);
+            /* create a back_buffer and attach it to the frontbuffer */
+            back_buffer = gfx_directx_create_surface(width, height, NULL, DDRAW_SURFACE_VIDEO);
+            if (back_buffer) {
+               hr = IDirectDrawSurface2_AddAttachedSurface(DDRAW_SURFACE_OF(forefront_bitmap)->id, back_buffer->id);
                if (hr == DD_OK) {
-                  bmp = make_directx_bitmap(backbuffer_surf, width, height, BMP_ID_VIDEO);
+                  bmp = make_bitmap_from_surface(back_buffer, width, height, BMP_ID_VIDEO);
                   if (bmp) {
                      flipping_pages++;
                      return bmp;
                   }
 
-                  IDirectDrawSurface2_DeleteAttachedSurface(BMP_EXTRA(dd_frontbuffer)->surf, 0, backbuffer_surf);
+                  IDirectDrawSurface2_DeleteAttachedSurface(DDRAW_SURFACE_OF(forefront_bitmap)->id, 0, back_buffer->id);
                }
 
-               gfx_directx_destroy_surf(backbuffer_surf);
+               gfx_directx_destroy_surface(back_buffer);
             }
             return NULL;
 
         case 2:
-            /* create a third buffer and attach it to the backbuffer */
-            tripbuffer_surf = gfx_directx_create_surface(width, height, NULL, SURF_VIDEO);
-            if (tripbuffer_surf) {
-               hr = IDirectDrawSurface2_AddAttachedSurface(backbuffer_surf, tripbuffer_surf);
+            /* create a third buffer and attach it to the back_buffer */
+            triple_buffer = gfx_directx_create_surface(width, height, NULL, DDRAW_SURFACE_VIDEO);
+            if (triple_buffer) {
+               hr = IDirectDrawSurface2_AddAttachedSurface(back_buffer->id, triple_buffer->id);
                if (hr == DD_OK) {
-                  bmp = make_directx_bitmap(tripbuffer_surf, width, height, BMP_ID_VIDEO);
+                  bmp = make_bitmap_from_surface(triple_buffer, width, height, BMP_ID_VIDEO);
                   if (bmp) {
                      flipping_pages++;
                      return bmp;
                   }
 
-                  IDirectDrawSurface2_DeleteAttachedSurface(backbuffer_surf, 0, tripbuffer_surf);
+                  IDirectDrawSurface2_DeleteAttachedSurface(back_buffer->id, 0, triple_buffer->id);
                }
 
-               gfx_directx_destroy_surf(tripbuffer_surf);
+               gfx_directx_destroy_surface(triple_buffer);
             }
             return NULL;
       }
    }
 
    /* create the DirectDraw surface */
-   if (dd_pixelformat)
-      surf = gfx_directx_create_surface(width, height, dd_pixelformat, SURF_SYSTEM);
+   if (ddpixel_format)
+      surf = gfx_directx_create_surface(width, height, ddpixel_format, DDRAW_SURFACE_SYSTEM);
    else
-      surf = gfx_directx_create_surface(width, height, NULL, SURF_VIDEO);
+      surf = gfx_directx_create_surface(width, height, NULL, DDRAW_SURFACE_VIDEO);
 
    if (!surf)
       return NULL;
 
    /* create the bitmap that wraps up the surface */
-   bmp = make_directx_bitmap(surf, width, height, BMP_ID_VIDEO);
+   bmp = make_bitmap_from_surface(surf, width, height, BMP_ID_VIDEO);
    if (!bmp) {
-      gfx_directx_destroy_surf(surf);
+      gfx_directx_destroy_surface(surf);
       return NULL;
    }
 
@@ -303,43 +274,42 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
  */
 void gfx_directx_destroy_video_bitmap(BITMAP *bmp)
 {
-   if ((bmp == screen) || (bmp == dd_frontbuffer)) {
-      /* makes sure that screen == dd_frontbuffer */
-      gfx_directx_show_video_bitmap(screen);
-   }
+   DDRAW_SURFACE *surf = DDRAW_SURFACE_OF(bmp);
 
-   if (BMP_EXTRA(bmp)->surf == tripbuffer_surf) {
-      if (backbuffer_surf)
-         IDirectDrawSurface2_DeleteAttachedSurface(backbuffer_surf, 0, tripbuffer_surf);
-      tripbuffer_surf = NULL;
+   if (surf == triple_buffer) {
+      if (back_buffer)
+         IDirectDrawSurface2_DeleteAttachedSurface(back_buffer->id, 0, triple_buffer->id);
+      triple_buffer = NULL;
       flipping_pages--;
    }
-   else if (BMP_EXTRA(bmp)->surf == backbuffer_surf) {
-      IDirectDrawSurface2_DeleteAttachedSurface(BMP_EXTRA(dd_frontbuffer)->surf, 0, backbuffer_surf);
-      backbuffer_surf = NULL;
+   else if (surf == back_buffer) {
+      IDirectDrawSurface2_DeleteAttachedSurface(DDRAW_SURFACE_OF(forefront_bitmap)->id, 0, back_buffer->id);
+      back_buffer = NULL;
       flipping_pages--;
    }
-   else if (bmp == dd_frontbuffer) {
+   else if (surf == DDRAW_SURFACE_OF(forefront_bitmap)) {
       flipping_pages--;
-      return;  /* don't destroy the frontbuffer! */
+      free(bmp);
+      return;  /* don't destroy the surface! */
    }
 
    /* destroy the surface */
-   gfx_directx_destroy_surf(BMP_EXTRA(bmp)->surf);
+   gfx_directx_destroy_surface(surf);
 
-   /* destroy the wrapper */
-   destroy_directx_bitmap(bmp);
+   free(bmp);
 }
 
 
 
-/* flip_directx_bitmap:
+/* flip_with_forefront:
  *  Worker function for DirectDraw page flipping.
  */
-static int flip_directx_bitmap(BITMAP *bmp, int wait)
+static int flip_with_forefront(DDRAW_SURFACE *surf, int wait)
 {
-   LPDIRECTDRAWSURFACE2 surf;
+   LPDIRECTDRAWSURFACE2 ddsurf;
    HRESULT hr;
+
+   ASSERT((surf == back_buffer) || (surf == triple_buffer));
 
    /* flip only in the foreground */
    if (!app_foreground) {
@@ -347,21 +317,16 @@ static int flip_directx_bitmap(BITMAP *bmp, int wait)
       return 0;
    }
 
-   if (bmp == dd_frontbuffer)
-      return 0;
-
-   /* retrieve the underlying DirectDraw surface */
-   surf = BMP_EXTRA(bmp)->surf;
-
-   ASSERT((surf == backbuffer_surf) || (surf == tripbuffer_surf));
+   /* retrieve the actual DirectDraw surface */
+   ddsurf = surf->id;
 
    /* flip the contents of the surfaces */
-   hr = IDirectDrawSurface2_Flip(BMP_EXTRA(dd_frontbuffer)->surf, surf, wait ? DDFLIP_WAIT : 0);
+   hr = IDirectDrawSurface2_Flip(DDRAW_SURFACE_OF(forefront_bitmap)->id, ddsurf, wait ? DDFLIP_WAIT : 0);
 
    /* if the surface has been lost, try to restore all surfaces */
    if (hr == DDERR_SURFACELOST) {
-      if (gfx_directx_restore() == 0)
-         hr = IDirectDrawSurface2_Flip(BMP_EXTRA(dd_frontbuffer)->surf, surf, wait ? DDFLIP_WAIT : 0);
+      if (restore_all_ddraw_surfaces() == 0)
+         hr = IDirectDrawSurface2_Flip(DDRAW_SURFACE_OF(forefront_bitmap)->id, ddsurf, wait ? DDFLIP_WAIT : 0);
    }
 
    if (FAILED(hr)) {
@@ -369,20 +334,12 @@ static int flip_directx_bitmap(BITMAP *bmp, int wait)
       return -1;
    }
 
-   /* link newly forefront bitmap to the frontbuffer surface:
-    * The contents of 'bmp' formerly pointed to by 'surf' are now pointed to
-    * by 'frontbuffer_surf', so we need to link 'bmp' to 'frontbuffer_surf'.
-    */
-   BMP_EXTRA(bmp)->surf = BMP_EXTRA(dd_frontbuffer)->surf;
-
-   /* link formerly forefront bitmap to the newly hidden surface:
-    *  Since this bitmap may be a copy of 'screen', this latter bitmap
-    *  is not guaranteed to point to the visible contents any longer.
-    */
-   BMP_EXTRA(dd_frontbuffer)->surf = surf;
+   /* flip the actual surfaces to keep track of the contents */
+   surf->id = DDRAW_SURFACE_OF(forefront_bitmap)->id;
+   DDRAW_SURFACE_OF(forefront_bitmap)->id = ddsurf;
 
    /* keep track of the forefront bitmap */
-   dd_frontbuffer = bmp;
+   DDRAW_SURFACE_OF(forefront_bitmap) = surf;
 
    return 0;
 }
@@ -393,7 +350,7 @@ static int flip_directx_bitmap(BITMAP *bmp, int wait)
  */
 int gfx_directx_show_video_bitmap(BITMAP *bmp)
 {
-   return flip_directx_bitmap(bmp, TRUE);
+   return flip_with_forefront(DDRAW_SURFACE_OF(bmp), TRUE);
 }
 
 
@@ -402,7 +359,7 @@ int gfx_directx_show_video_bitmap(BITMAP *bmp)
  */
 int gfx_directx_request_video_bitmap(BITMAP *bmp)
 {
-   return flip_directx_bitmap(bmp, FALSE);
+   return flip_with_forefront(DDRAW_SURFACE_OF(bmp), FALSE);
 }
 
 
@@ -415,12 +372,12 @@ int gfx_directx_poll_scroll(void)
 
    ASSERT(flipping_pages == 3);
 
-   hr = IDirectDrawSurface2_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
+   hr = IDirectDrawSurface2_GetFlipStatus(DDRAW_SURFACE_OF(forefront_bitmap)->id, DDGFS_ISFLIPDONE);
 
    /* if the surface has been lost, try to restore all surfaces */
    if (hr == DDERR_SURFACELOST) {
-      if (gfx_directx_restore() == 0)
-         hr = IDirectDrawSurface2_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
+      if (restore_all_ddraw_surfaces() == 0)
+         hr = IDirectDrawSurface2_GetFlipStatus(DDRAW_SURFACE_OF(forefront_bitmap)->id, DDGFS_ISFLIPDONE);
    }
 
    if (FAILED(hr))
@@ -435,18 +392,18 @@ int gfx_directx_poll_scroll(void)
  */
 BITMAP *gfx_directx_create_system_bitmap(int width, int height)
 {
-   LPDIRECTDRAWSURFACE2 surf;
+   DDRAW_SURFACE *surf;
    BITMAP *bmp;
 
    /* create the DirectDraw surface */
-   surf = gfx_directx_create_surface(width, height, dd_pixelformat, SURF_SYSTEM);
+   surf = gfx_directx_create_surface(width, height, ddpixel_format, DDRAW_SURFACE_SYSTEM);
    if (!surf)
       return NULL;
 
    /* create the bitmap that wraps up the surface */
-   bmp = make_directx_bitmap(surf, width, height, BMP_ID_SYSTEM);
+   bmp = make_bitmap_from_surface(surf, width, height, BMP_ID_SYSTEM);
    if (!bmp) {
-      gfx_directx_destroy_surf(surf);
+      gfx_directx_destroy_surface(surf);
       return NULL;
    }
 
@@ -460,10 +417,9 @@ BITMAP *gfx_directx_create_system_bitmap(int width, int height)
 void gfx_directx_destroy_system_bitmap(BITMAP *bmp)
 {
    /* destroy the surface */
-   gfx_directx_destroy_surf(BMP_EXTRA(bmp)->surf);
+   gfx_directx_destroy_surface(DDRAW_SURFACE_OF(bmp));
 
-   /* destroy the wrapper */
-   destroy_directx_bitmap(bmp);
+   free(bmp);
 }
 
 
@@ -473,21 +429,21 @@ void gfx_directx_destroy_system_bitmap(BITMAP *bmp)
  */
 HDC win_get_dc(BITMAP *bmp)
 {
-   LPDIRECTDRAWSURFACE2 surf;
+   LPDIRECTDRAWSURFACE2 ddsurf;
    HDC dc;
    HRESULT hr;
 
    if (bmp) {
       if (bmp->id & (BMP_ID_SYSTEM | BMP_ID_VIDEO)) {
-         surf = BMP_EXTRA(bmp)->surf;
-         hr = IDirectDrawSurface2_GetDC(surf, &dc);
+         ddsurf = DDRAW_SURFACE_OF(bmp)->id;
+         hr = IDirectDrawSurface2_GetDC(ddsurf, &dc);
 
          /* If the surface has been lost, try to restore all surfaces
           * and, on success, try again to get the DC.
           */
          if (hr == DDERR_SURFACELOST) {
-            if (gfx_directx_restore() == 0)
-               hr = IDirectDrawSurface2_GetDC(surf, &dc);
+            if (restore_all_ddraw_surfaces() == 0)
+               hr = IDirectDrawSurface2_GetDC(ddsurf, &dc);
          }
 
          if (hr == DD_OK)
@@ -505,20 +461,20 @@ HDC win_get_dc(BITMAP *bmp)
  */
 void win_release_dc(BITMAP *bmp, HDC dc)
 {
-   LPDIRECTDRAWSURFACE2 surf;
+   LPDIRECTDRAWSURFACE2 ddsurf;
    HRESULT hr;
 
    if (bmp) {
       if (bmp->id & (BMP_ID_SYSTEM | BMP_ID_VIDEO)) {
-         surf = BMP_EXTRA(bmp)->surf;
-         hr = IDirectDrawSurface2_ReleaseDC(surf, dc);
+         ddsurf = DDRAW_SURFACE_OF(bmp)->id;
+         hr = IDirectDrawSurface2_ReleaseDC(ddsurf, dc);
 
          /* If the surface has been lost, try to restore all surfaces
           * and, on success, try again to release the DC.
           */
          if (hr == DDERR_SURFACELOST) {
-            if (gfx_directx_restore() == 0)
-               hr = IDirectDrawSurface2_ReleaseDC(surf, dc);
+            if (restore_all_ddraw_surfaces() == 0)
+               hr = IDirectDrawSurface2_ReleaseDC(ddsurf, dc);
          }
       }
    }

@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      DirectDraw video bitmap list.
+ *      DirectDraw surface list management.
  *
  *      By Stefan Schimanski.
  *
@@ -19,91 +19,76 @@
 #include "wddraw.h"
 
 
+/* double linked list */
+static DDRAW_SURFACE *ddraw_surface_list = NULL;
 
-BMP_EXTRA_INFO *directx_bmp_list = NULL;
 
 
-
-/* register_directx_bitmap:
- *  add surface to the linked list
+/* register_ddraw_surface:
+ *  Adds a surface to the linked list.
  */
-void register_directx_bitmap(struct BITMAP *bmp)
+void register_ddraw_surface(DDRAW_SURFACE *surf)
 {
-   BMP_EXTRA_INFO *item;
+   _enter_gfx_critical();
 
-   if (bmp) {
-      _enter_critical();
+   surf->next = ddraw_surface_list;
+   surf->prev = NULL;
 
-      /* create item */
-      item = BMP_EXTRA(bmp);
-      if (item) {
-	 /* add to list */
-	 item->next = directx_bmp_list;
-	 item->prev = NULL;
-	 if (directx_bmp_list)
-	    directx_bmp_list->prev = item;
-	 directx_bmp_list = item;
-      }
+   if (ddraw_surface_list)
+      ddraw_surface_list->prev = surf;
 
-      _exit_critical();
-   }
+   ddraw_surface_list = surf;
+
+   _exit_gfx_critical();
 }
 
 
 
-/* unregister_directx_bitmap:
- *  remove surface from linked list
+/* unregister_ddraw_surface:
+ *  Removes a surface from the linked list.
  */
-void unregister_directx_bitmap(struct BITMAP *bmp)
+void unregister_ddraw_surface(DDRAW_SURFACE *surf)
 {
-   BMP_EXTRA_INFO *item;
-   BMP_EXTRA_INFO *searched;
+   DDRAW_SURFACE *item;
 
-   if (bmp) {
-      /* find item */
-      _enter_critical();
+   _enter_gfx_critical();
 
-      item = directx_bmp_list;
-      searched = BMP_EXTRA(bmp);
-      if (searched) {
-	 while (item) {
-	    if (item == searched) {
-	       /* surface found, unlink now */
-	       if (item->next)
-		  item->next->prev = item->prev;
-	       if (item->prev)
-		  item->prev->next = item->next;
-	       if (directx_bmp_list == item)
-		  directx_bmp_list = item->next;
+   item = ddraw_surface_list;
 
-	       item->next = NULL;
-	       item->prev = NULL;
+   while (item) {
+      if (item == surf) {
+         /* surface found, unlink now */
+         if (item->next)
+            item->next->prev = item->prev;
+         if (item->prev)
+            item->prev->next = item->next;
+         if (ddraw_surface_list == item)
+            ddraw_surface_list = item->next;
 
-	       _exit_critical();
-	       return;
-	    }
-
-	    item = item->next;
-	 }
+         item->next = NULL;
+         item->prev = NULL;
+         break;
       }
 
-      _exit_critical();
+      item = item->next;
    }
+
+   _exit_gfx_critical();
 }
 
 
 
-/* unregister_all_directx_bitmaps:
- *  remove all surfaces from linked list
+/* unregister_all_ddraw_surfaces:
+ *  Removes all surfaces from the linked list.
  */
-void unregister_all_directx_bitmaps(void)
+void unregister_all_ddraw_surfaces(void)
 {
-   BMP_EXTRA_INFO *item;
-   BMP_EXTRA_INFO *next_item;
+   DDRAW_SURFACE *item, *next_item;
 
-   _enter_critical();
+   _enter_gfx_critical();
 
-   next_item = directx_bmp_list;
+   next_item = ddraw_surface_list;
+
    while (next_item) {
       item = next_item;
       next_item = next_item->next;
@@ -111,7 +96,35 @@ void unregister_all_directx_bitmaps(void)
       item->prev = NULL;
    }
 
-   directx_bmp_list = NULL;
+   ddraw_surface_list = NULL;
 
-   _exit_critical();
+   _exit_gfx_critical();
+}
+
+
+
+/* restore_all_ddraw_surfaces:
+ *  Restores all the surfaces. Returns 0 on success or -1 on failure,
+ *  in which case restoring is stopped at the first failure.
+ */
+int restore_all_ddraw_surfaces(void)
+{
+   DDRAW_SURFACE *item = ddraw_surface_list;
+   HRESULT hr;
+
+   _enter_gfx_critical();
+
+   while (item) {
+      hr = IDirectDrawSurface2_Restore(item->id);
+      if (FAILED(hr)) {
+         _exit_gfx_critical();
+         return -1;
+      }
+
+      item = item->next;
+   }
+
+   _exit_gfx_critical();
+
+   return 0;
 }
