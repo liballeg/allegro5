@@ -46,6 +46,7 @@
 #include "maketexi.h"
 #include "makechm.h"
 #include "makedevh.h"
+#include "makesci.h"
 
 /* external globals */
 
@@ -77,7 +78,7 @@ static char *_mangle_email(const char *email, int len);
 
 
 /* main:
- * Binary entry point
+ * Binary entry point.
  */
 int main(int argc, char *argv[])
 {
@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
    char manname[256] = "";
    char chmname[256] = "";
    char devhelpname[256] = "";
+   char scitename[256] = "";
    char *texinfo_extension = "txi";
    int err = 0;
    int partial = 0;
@@ -103,7 +105,10 @@ int main(int argc, char *argv[])
       }   
       else if ((mystricmp(argv[i], "-devhelp") == 0) && (i<argc-1)) {
 	 strcpy(devhelpname, argv[++i]);	 
-      }  
+      }
+      else if ((mystricmp(argv[i], "-scite") == 0) && (i<argc-1)) {
+	 strcpy(scitename, argv[++i]);
+      }
       else if ((mystricmp(argv[i], "-html") == 0) && (i<argc-1)) {
 	 strcpy(htmlname, argv[++i]);
 	 html_extension = "html";
@@ -157,11 +162,12 @@ int main(int argc, char *argv[])
       printf("\t-man filename.3\n");
       printf("\t-chm filename.htm[l]\n");
       printf("\t-devhelp filename.htm[l]\n");
+      printf("\t-scite filename.api\n");
       return 1;
    }
 
    if ((!txtname[0]) && (!htmlname[0]) && (!texinfoname[0]) && (!rtfname[0]) &&
-      (!manname[0]) && (!chmname[0]) && (!devhelpname[0])) {
+      (!manname[0]) && (!chmname[0]) && (!devhelpname[0]) && (!scitename[0])) {
       strcpy(txtname, filename);
       strcpy(get_extension(txtname), "txt");
 
@@ -235,7 +241,15 @@ int main(int argc, char *argv[])
 	 err = 1;
 	 goto getout;
       }
-   }      
+   }
+
+   if (scitename[0]) {
+      if (write_scite(scitename, filename) != 0) {
+	 fprintf(stderr, "Error writing DevHelp output file\n");
+	 err = 1;
+	 goto getout;
+      }
+   }
 
    getout:
 

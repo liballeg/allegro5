@@ -244,6 +244,7 @@ DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
 DOCS += CHANGES AUTHORS THANKS readme.txt
+DOCS += docs/scite/allegro.api
 
 DEVHELPDOCS  = $(addprefix docs/devhelp/,$(addsuffix .html,$(DOCBASEFILES)))
 DEVHELPDOCS += $(addprefix docs/devhelp/build/,$(addsuffix .html,$(DOCBUILDFILES)))
@@ -296,6 +297,9 @@ $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 
 $(filter %.html,$(DEVHELPDOCS)): docs/devhelp/%.html: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -odevhelp -html $@ $<
+
+$(filter %.api,$(DOCS)): docs/scite/%.api: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -scite $@ $<
 
 docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<

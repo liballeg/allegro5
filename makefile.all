@@ -132,6 +132,7 @@ DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 DOCS += CHANGES AUTHORS THANKS readme.txt
+DOCS += docs/scite/allegro.api
 CHMDOCS  = $(addprefix docs/chm/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
 CHMDOCS += $(addprefix docs/chm/build/,$(addsuffix .$(HTML),$(DOCBUILDFILES)))
 
@@ -395,6 +396,9 @@ $(filter %.$(HTML),$(DOCS)): docs/html/%.$(HTML): docs/src/%._tx $(MAKEDOC)
 
 $(filter %.$(HTML),$(CHMDOCS)): docs/chm/%.$(HTML): docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ochm -$(HTML) $@ $<
+
+$(filter %.api,$(DOCS)): docs/scite/%.api: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -scite $@ $<
 
 AUTHORS: docs/src/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii $@ $<
