@@ -1046,8 +1046,6 @@ typedef struct          /* a virtual (as seen by the user) soundcard voice */
    int priority;        /* how important are we? */
 } VOICE;
 
-AL_ARRAY(VOICE, _voice);
-
 
 typedef struct          /* a physical (as used by hardware) soundcard voice */
 {
