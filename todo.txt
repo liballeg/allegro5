@@ -63,7 +63,7 @@ Unix todos:
 ---------------------------------------------------------------------------
 
 - tidy up the configure machinery
-- fix endianness problems under Solaris
+- fix endianness problems on Sparc
 
 Macintosh todos:
 ---------------------------------------------------------------------------
