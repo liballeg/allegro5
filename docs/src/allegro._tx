@@ -2620,7 +2620,7 @@ Graphics modes
       Pauses the program whenever it is in the background. Execution will be 
       resumed as soon as the user switches back to it. This is the default 
       in most fullscreen multitasking environments, for example the Linux 
-      console.
+      console, but not under Windows.
 <li>
    SWITCH_AMNESIA<br>
       Like SWITCH_PAUSE, but this mode doesn't bother to remember the 
