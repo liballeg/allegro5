@@ -5976,24 +5976,10 @@ Fonts
 Allegro provides routines for loading fonts from GRX format .fnt files, 8x8
 or 8x16 BIOS format .fnt files, and from bitmap images, or you can import a
 multiple-range Unicode font by writing a .txt script that specifies a number 
-of different source files for each range of characters. The script file 
-contains a number of lines in the format "filename start end", which specify 
-the source file for that range of characters, the Unicode value of the first 
-character in the range, and the end character in the range (optional, if
-left out, the entire input file will be grabbed). If the filename is replaced
-by a hyphen, more characters will be grabbed from the previous input file.
-For example, the script:
-<textblock>
-   ascii.fnt 0x20 0x7F
-   - 0xA0 0xFF
-   dingbats.fnt 0x1000
-<endblock>
-would import the first 96 characters from ascii.fnt as the range 0x20-0x7F, 
-the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire 
-contents of dingbats.fnt starting at Unicode position 0x1000.
+of different source files for each range of characters.
 
 By default, Allegro can only use bitmapped (non-scalable) fonts. If you want
-to use True Type fonts, you will need to use an add-on library.
+to use TrueType fonts, you will need to use an add-on library.
 
 @\void @register_font_file_type(const char *ext,
 @@          FONT *(*load)(const char *filename, RGB *pal, void *param));
@@ -6017,7 +6003,7 @@ to use True Type fonts, you will need to use an add-on library.
 
 @@FONT *@load_font(const char *filename, RGB *pal, void *param);
 @xref register_font_file_type, load_bitmap, load_dat_font
-@xref load_bios_font, load_grx_font, load_grx_or_bios_font, load_bitmap_font
+@xref load_bios_font, load_grx_font, load_grx_or_bios_font, load_bitmap_font, load_txt_font
 @shortdesc Loads a font from a file.
    Loads a font from a file. At present, this supports loading fonts from
    a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
@@ -6049,28 +6035,182 @@ to use True Type fonts, you will need to use an add-on library.
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
 
+@@int @is_color_font(FONT *f)
+@xref is_mono_font
+@shortdesc Returns TRUE if a font is a color font.
+   This function returns TRUE if the font is an Allegro color font (as opposed
+   to a monochrome font).
+@retval
+   Returns TRUE if the font is a color font, FALSE if it is not.
+
+@@int @is_mono_font(FONT *f)
+@xref is_color_font
+@shortdesc Returns TRUE if a font is a monochrome font.
+   This function returns TRUE if the font is an Allegro monochrome font (as
+   opposed to a color font).
+@retval
+   Returns TRUE if the font is a monochrome font, FALSE if it is not.
+
+@@FONT *@is_compatible_font(FONT *f1, FONT *f2)
+@xref merge_fonts, is_color_font, is_mono_font
+@shortdesc Check if two fonts are of the same type.
+   This function compares the two fonts. If it returns TRUE, then you should
+   normally be able to merge the two fonts. If it returns FALSE, this is less
+   certain.
+@retval
+   Returns TRUE if the two fonts are of the same general type (both are color
+   fonts or both are monochrome fonts, for instance).
+
+@@int @get_font_ranges(FONT *f)
+@xref get_font_range_begin, get_font_range_end
+@shortdesc Returns the number of character ranges in a font.
+   This function returns the number of character ranges in a font. You should
+   query each of these ranges with get_font_range_begin() and
+   get_font_range_end() to find out what characters are availabel in the font.
+   Example:
+<codeblock>
+      FONT *f;
+      int range;
+      int n;
+      ...
+      
+      range = get_font_ranges(f);
+      printf("The font has %d character ranges:\n", range);
+      for (n=0; n<range; n++)
+         printf("Range %d from 0x%03x - 0x%03x\n",
+               get_font_range_begin(f, n), get_font_range_end(f, n));
+      <endblock>
+@retval
+   Returns the number of continuous character ranges in a font, or -1 if that
+   information is not available.
+
+@@int @get_font_range_begin(FONT *f, int range)
+@xref get_font_ranges, get_font_range_end
+@shortdesc Returns the start of a character range in a font.
+   This function returns the start of the character range for the font f, or
+   -1 if that information is not available for the selected font. You can pass
+   -1 for the range parameter if you want to know the start of the whole font
+   range, or a number from 0 to (but not including) get_font_ranges(f) to get
+   the start of a specific character range in the font. Example:
+<codeblock>
+      printf("The font has a character range of %d - %d\n",
+             get_font_range_begin(font, -1), get_font_range_end(font, -1));
+      <endblock>
+@retval
+   Returns the first character in the font range, or -1 if that information
+   is not available.
+
+@@int @get_font_range_end(FONT *f, int range)
+@xref get_font_ranges, get_font_range_begin
+@shortdesc Returns the last character of a character range in a font.
+   This function returns the last character of the character range for the
+   font f. You can pass -1 for the range parameter if you want to know the
+   start of the whole font range, or a number from 0 to (but not including)
+   get_font_ranges(f) to get the start of a specific character range in the
+   font. You should check the start and end of all font ranges to see if a
+   specific character is actually available in the font. Not all characters in 
+   the range returned by get_font_range_begin(f, -1) and 
+   get_font_range_end(f, -1) need to be available! Example:
+<codeblock>
+      printf("The font has a character range of %d - %d\n",
+             get_font_range_begin(font, -1), get_font_range_end(font, -1));
+      <endblock>
+@retval
+   Returns the last character in the font range, or -1 if that information is
+   not available.
+
+@@FONT *@extract_font_range(FONT *f, int begin, int end)
+@xref get_font_range_begin, get_font_range_end, merge_fonts
+@shortdesc Extracts a range pf characters from a font.
+   This function extracts a character range from a font and returns a new font
+   that contains only the range of characters selected by this function. You
+   can pass -1 for either the lower or upper bound if you want to select all
+   characters from the start or the end of the font.
+   Example:
+<codeblock>
+      FONT *myfont;
+      FONT *capitals;
+      FONT *fontcopy;
+      ...
+      /* Create a font of only capital letters */
+      capitals = extract_font_range(myfont, 'A', 'Z');
+
+      /* Create a copy of the font */
+      fontopy = extract_font_range(myfont, -1, -1);
+      <endblock>
+@retval
+   Returns a pointer to the new font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@merge_fonts(FONT *f1, FONT *f2)
+@xref extract_font_range, is_color_font, is_mono_font
+@shortdesc Merges two fonts into one font.
+   This function merges the character ranges from two fonts and returns a new
+   font containing all characters in the old fonts. In general, you cannot
+   merge fonts of different types (eg, TrueType fonts and bitmapped fonts),
+   but as a special case, this function can promote a monochrome bitmapped font
+   to a color font and merge those.
+   Example:
+<codeblock>
+      FONT *myfont;
+      FONT *myfancy_font;
+      FONT *lower_range;
+      FONT *upper_range;
+      FONT *capitals;
+      FONT *combined_font;
+      FONT *tempfont;
+      ...
+      /* Create a font that contains the capatials from  */
+      /* the fancy font but other characters from myfont */
+      lower_range = extarct_font_range(myfont, -1, 'A'-1);
+      upper_range = extarct_font_range(myfont, 'Z'+1, -1);
+      capitals = extract_font_range(myfancy_font, 'A', 'Z');
+
+      tempfont = merge_fonts(lower_range, capitals);
+      combined_font = merge_fonts(tempfont, upper_range);
+
+      /* Clean up temporary fonts */
+      destroy_font(lower_range);
+      destroy_font(upper_range);
+      destroy_font(capitals);
+      destroy_font(combined_font);<endblock>
+@retval
+   Returns a pointer to the new font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
 @@FONT *@load_dat_font(const char *filename, RGB *pal, void *param)
 @xref register_font_file_type, load_font
 @shortdesc Loads a FONT from an Allegro datafile.
-   Loads a FONT from an Allegro datafile. You can use the param parameter to
-   pass the sequential number of the FONT to load from the datafile (counting
-   from 0). If pal is not NULL, then the last palette entry found in the
-   datafile before the font was found is returned.
+   Loads a FONT from an Allegro datafile. You can set param parameter to
+   point to an array that holds two strings that identify the font and the 
+   palette in the datafile by name.
+   The first string in this list is the name of the font. You can pass NULL
+   here to just load the first font found in the datafile. The second string
+   can be used to specify the name of the palette associated with the font.
+   This is only returned if the pal parameter is not NULL. If you pass NULL
+   for the name of the palette, the last palette found before the font was
+   found is returned.
+   You can also pass NULL for param, which is treated as if you had passed NULL
+   for both strings seperately. In this case, the function will simply load the
+   first font it finds from the datafile and the palette that precedes it.
 
    For example, suppose you have a datafile named `fonts.dat' with the
    following contents:
 <textblock>
-      PAL   FONT_1_COLOURS
       FONT  FONT_1_DATA
-      PAL   FONT_2_COLOURS
       FONT  FONT_2_DATA
       FONT  FONT_3_DATA
+      PAL   FONT_1_PALETTE
+      PAL   FONT_2_PALETTE
 <endblock>
    Then the following code will load FONT_1_DATA as a FONT and return
-   FONT_1_COLOURS as the palette:
+   FONT_1_PALETTE as the palette:
 <codeblock>
       FONT *f;
       PALETTE pal;
+      char *names[] = { "FONT_1_DATA", "FONT_1_PALETTE" }
       
       f = load_dat_font("fonts.dat", pal, NULL);
 <endblock>
@@ -6079,18 +6219,15 @@ to use True Type fonts, you will need to use an add-on library.
 <codeblock>
       FONT *f;
       PALETTE pal;
-      int n;
+      char *names[] = { "FONT_2_DATA", "FONT_2_PALETTE" }
       
-      n = 1;      /* Zero based! */
-      f = load_dat_font("fonts.dat", pal, &n);
+      f = load_dat_font("fonts.dat", pal, NULL);
 <endblock>
-   If you want to load the third font, but discard the palette from FONT_2,
-   use:
+   If you want to load the third font, but not bother with a palette, use:
 <codeblock>
       FONT *f;
-      int n;
+      char *names[] = { "FONT_3_DATA", NULL }
       
-      n = 2;      /* Zero based! */
       f = load_dat_font("fonts.dat", NULL, &n);<endblock>
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
@@ -6131,21 +6268,45 @@ to use True Type fonts, you will need to use an add-on library.
 @xref register_font_file_type, load_font, load_bitmap, set_color_depth
 @shortdesc Grabs a font from a bitmap file.
    Tries to grab a font from a bitmap. The bitmap can be in any format that
-   load_bitmap understands but it must have a colour depth of 8 bits.
+   load_bitmap understands but it must have a color depth of 8 bits.
 
    The size of each character is determined by the layout of the image, which
    should be a rectangular grid containing all the ASCII characters from
-   space (32) up to the tilde (126). Use colour 0 for the transparent
+   space (32) up to the tilde (126). Use color 0 for the transparent
    portions of the characters and fill the spaces between each letter with
    color 255.
    
-   Note that in each horizontal row the colour-0 bounding boxes around the
+   Note that in each horizontal row the color-0 bounding boxes around the
    characters should align and have the same height.
    
    Probably the easiest way to get to grips with how this works is to load up 
    the `demo.dat' file and export the TITLE_FONT into a PCX file. Have a look
    at the resulting picture in your paint program: that is the format a font
    should be in.
+@retval
+   Returns a pointer to the font or NULL on error. Remember that you are
+   responsible for destroying the font when you are finished with it to
+   avoid memory leaks.
+
+@@FONT *@load_txt_font(const char *filename, RGB *pal, void *param)
+@xref register_font_file_type, load_font
+@shortdesc Loads a font script.
+   This function can be used to load scripted fonts. The script file
+   contains a number of lines in the format "filename start end", which specify
+   the source file for that range of characters, the Unicode value of the first
+   character in the range, and the end character in the range (optional, if
+   left out, the entire input file will be grabbed). If the filename is
+   replaced by a hyphen, more characters will be grabbed from the previous
+   input file.
+   For example, the script:
+   <textblock>
+      ascii.fnt 0x20 0x7F
+      - 0xA0 0xFF
+      dingbats.fnt 0x1000
+   <endblock>
+   would import the first 96 characters from ascii.fnt as the range 0x20-0x7F,
+   the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire
+   contents of dingbats.fnt starting at Unicode position 0x1000.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
