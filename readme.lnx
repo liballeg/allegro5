@@ -118,13 +118,17 @@
 	`vbeaf.drv' -- or put it anywhere you like, specifying the location 
 	in the config file as for the DOS version.
 
-	For security reasons, the VBE/AF driver binary must be owned by root 
+	For security reasons, the VBE/AF driver binary must be owned by root
 	and only writable by root. You really don't want to load and execute 
 	user-specified binary code in a privileged program.
 
-	GGI and SVGAlib drivers are also available, but somewhat newer than 
-	the above, and not yet so stable. Give them a whirl and see how 
-	you get on.
+	The SVGAlib driver should be fairly stable and fast now, and can use
+	most of the video modes that SVGAlib provides. It requires root
+	privileges.
+
+	A GGI driver is available, but it doesn't work, so don't try it
+	unless you are planning to debug it. A rewrite is planned, but it
+	has been planned for a long time.
 
    * Keyboard:
 	The keyboard driver uses the kernel mapping tables to map scancodes 
