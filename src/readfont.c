@@ -121,7 +121,7 @@ static void register_font_file_type_exit(void)
 /* _register_font_file_type_init:
  *  Register built-in font file types.
  */
-static void _register_font_file_type_init(void)
+void _register_font_file_type_init(void)
 {
    char buf[32];
 
@@ -143,7 +143,7 @@ static void _register_font_file_type_init(void)
     *  in a program, thus saving a little space in statically linked 
     *  programs.
     */
-   static void font_filetype_constructor(void)
+   void font_filetype_constructor(void)
    {
       _register_font_file_type_init();
    }

@@ -1151,6 +1151,9 @@ AL_FUNC(void, _register_bitmap_file_type_init, (void));
 /* for readsmp.c */
 AL_FUNC(void, _register_sample_file_type_init, (void));
 
+/* for readfont.c */
+AL_FUNC(void, _register_font_file_type_init, (void));
+
 
 /* for module linking system; see comment in allegro.c */
 struct _AL_LINKER_MIDI
