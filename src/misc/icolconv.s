@@ -3087,34 +3087,33 @@ FUNC (_colorcopy)
    movl GFXRECT_WIDTH(%eax), %eax
    mull %ebx
 
-   movl %eax, %edx                  /* edx = src_rect->width * bpp    */
+   movl %eax, %ecx                  /* ecx = src_rect->width * bpp    */
    movl ARG1, %eax
-   movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx = src_rect->height         */
+   movl GFXRECT_HEIGHT(%eax), %edx  /* edx = src_rect->height         */
    movl GFXRECT_DATA(%eax), %esi    /* esi = src_rect->data           */
    movl GFXRECT_PITCH(%eax), %eax   /* eax = src_rect->pitch          */
-   subl %edx, %eax                  /* eax = (src_rect->pitch) - edx  */
+   subl %ecx, %eax                  /* eax = (src_rect->pitch) - ecx  */
 
    movl ARG2, %ebx                  /* ebx = dest_rect                */
    movl GFXRECT_DATA(%ebx), %edi    /* edi = dest_rect->data          */
    movl GFXRECT_PITCH(%ebx), %ebx   /* ebx = dest_rect->pitch         */
-   subl %edx, %ebx                  /* ebx = (dest_rect->pitch) - edx */
+   subl %ecx, %ebx                  /* ebx = (dest_rect->pitch) - ecx */
 
-   pushl %edx
+   movl %ecx, %ebp                  /* save for later */
 
 #ifdef ALLEGRO_MMX
-   movl GLOBL(cpu_capabilities), %edx     /* if MMX is enabled (or not disabled :) */
-   andl $CPU_MMX, %edx
+   movl GLOBL(cpu_capabilities), %ecx     /* if MMX is enabled (or not disabled :) */
+   andl $CPU_MMX, %ecx
    jz next_line_no_mmx
 
-   popl %edx
-   movd %edx, %mm7                  /* save for later */
-   shrl $5, %edx                    /* we work with 32 pixels at a time */
-   movd %edx, %mm6
+   movl %ebp, %ecx
+   shrl $5, %ecx                    /* we work with 32 pixels at a time */
+   movd %ecx, %mm6
 
    _align_
    next_line:
-      movd %mm6, %edx
-      orl %edx, %edx
+      movd %mm6, %ecx
+      orl %ecx, %ecx
       jz do_one_byte
 
       _align_
@@ -3129,21 +3128,21 @@ FUNC (_colorcopy)
          addl $32, %edi
          movq %mm2, -16(%edi)
          movq %mm3, -8(%edi)
-         decl %edx
+         decl %ecx
          jnz next_block
 
       do_one_byte:
-         movd %mm7, %edx
-         andl $31, %edx
+         movl %ebp, %ecx
+         andl $31, %ecx
          jz end_of_line
 
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_two_bytes
 
          movsb      
 
       do_two_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_four_bytes
 
          movsb
@@ -3151,14 +3150,14 @@ FUNC (_colorcopy)
 
       _align_
       do_four_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_eight_bytes
 
          movsl
 
       _align_
       do_eight_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_sixteen_bytes
 
          movq (%esi), %mm0
@@ -3168,7 +3167,7 @@ FUNC (_colorcopy)
 
       _align_
       do_sixteen_bytes:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc end_of_line
 
          movq (%esi), %mm0
@@ -3182,7 +3181,7 @@ FUNC (_colorcopy)
    end_of_line:
       addl %eax, %esi
       addl %ebx, %edi
-      decl %ecx
+      decl %edx
       jnz next_line
 
    emms
@@ -3191,27 +3190,25 @@ FUNC (_colorcopy)
 
    _align_
    next_line_no_mmx:
-      popl %edx
-      pushl %edx
-      shrl $2, %edx
-      orl %edx, %edx
+      movl %ebp, %ecx
+      shrl $2, %ecx
+      orl %ecx, %ecx
       jz do_one_byte_no_mmx
 
       rep; movsl
 
       do_one_byte_no_mmx:
-         popl %edx
-         pushl %edx
-         andl $3, %edx
+         movl %ebp, %ecx
+         andl $3, %ecx
          jz end_of_line_no_mmx
 
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc do_two_bytes_no_mmx
 
          movsb
 
       do_two_bytes_no_mmx:
-         shrl $1, %edx
+         shrl $1, %ecx
          jnc end_of_line_no_mmx
 
          movsb
@@ -3221,10 +3218,8 @@ FUNC (_colorcopy)
    end_of_line_no_mmx:
       addl %eax, %esi
       addl %ebx, %edi
-      decl %ecx
+      decl %edx
       jnz next_line_no_mmx
-
-      popl %edx
 
 end_of_function:
    popl %edi
