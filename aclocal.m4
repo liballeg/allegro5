@@ -505,22 +505,6 @@ fi
 AC_MSG_RESULT($allegro_support_constructor)])
 
 dnl
-dnl Test for buggy IRIX linker.
-dnl
-dnl Variables:
-dnl  allegro_cv_prog_ld_s
-dnl
-AC_DEFUN(ALLEGRO_ACTEST_PROG_LD_S,
-[AC_MSG_CHECKING(whether linker works with -s option)
-allegro_save_LDFLAGS=$LDFLAGS
-LDFLAGS="-s $LDFLAGS"
-AC_CACHE_VAL(allegro_cv_prog_ld_s, [
-AC_TRY_LINK(,{},allegro_cv_prog_ld_s=yes, allegro_cv_prog_ld_s=no)])
-LDFLAGS=$allegro_save_LDFLAGS
-AC_MSG_RESULT($allegro_cv_prog_ld_s)
-])
-
-dnl
 dnl Test for buggy gcc version.
 dnl
 dnl Variables:

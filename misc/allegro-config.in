@@ -19,7 +19,7 @@ include_prefix=@INCLUDE_PREFIX@
 static_libs=@LINK_WITH_STATIC_LIBS@
 lib_type=@LIB_TO_LINK@
 
-allegro_ldflags=`echo "@LDFLAGS@" | sed -e "s/ -s\b//"`
+allegro_ldflags="@LDFLAGS@"
 allegro_libs="@LIBS@"
 allegro_cflags=""
 allegro_cppflags=""
