@@ -31,15 +31,6 @@
  *      TODO: LED handling should be done at new-API level, not at
  *      compatibility module level.
  *
- *      TODO: having one-shot (or general n-shot) timers would be a
- *      boon for the autorepeat implementation.
- *
- *      TODO: decide whether to rely on the new API's repeat events or
- *      to synthesize them ourselves.  Synthesizing is wasteful, but
- *      allows us to support set_keyboard_rate() exactly.  The new API
- *      probably won't have an analougous function, so you only get
- *      whatever repeat rate the OS gives you.
- *
  *      TODO: proper locking.
  */
 
@@ -79,12 +70,7 @@ void (*keyboard_lowlevel_callback)(int scancode) = NULL;
 static int (*keypressed_hook)(void) = NULL;  /* hook functions */
 static int (*readkey_hook)(void) = NULL;
 
-static int repeat_delay = 250;               /* auto key repeat */
-static int repeat_rate = 33;
-static int repeat_key = -1;
-static int repeat_scan = -1;
-
-static int rate_changed = FALSE;
+static bool allow_repeats = true;
 
 
 #define KEY_BUFFER_SIZE    64                /* character ring buffer */
@@ -103,7 +89,6 @@ static volatile KEY_BUFFER _key_buffer;
 
 static _AL_THREAD thread;
 static AL_EVENT_QUEUE *event_queue;
-static AL_TIMER *repeat_timer;
 
 /* At the moment the key_buffers_lock is still not done properly, it's
  * just needed to use key_buffers_cond.  And the flawed KEY_BUFFER.lock
@@ -331,31 +316,16 @@ void set_leds(int leds)
 
 
 /* set_keyboard_rate:
- *  Sets the keyboard repeat rate. Times are given in milliseconds.
- *  Passing zero times will disable the key repeat.
+ *  Old behaviour:
+ *  "Sets the keyboard repeat rate. Times are given in milliseconds.
+ *  Passing zero times will disable the key repeat."
+ *
+ *  New behaviour: It no longer changes the repeat rate. However, you
+ *  can still disable key repeats by passing zero for both arguments.
  */
 void set_keyboard_rate(int delay, int repeat)
 {
-   repeat_delay = delay;
-   repeat_rate = repeat;
-
-   /* XXX: "Passing zero times will disable the key repeat." */
-
-   al_timer_set_speed(repeat_timer, delay);
-   rate_changed = TRUE;
-}
-
-
-
-/* repeat_timer:
- *  Timer callback for doing automatic key repeats.
- */
-static void repeat_timer_callback(void)
-{
-   if (keyboard_driver)
-      handle_key_press(repeat_key, repeat_scan);
-
-   al_timer_set_speed(repeat_timer, repeat_rate);
+   allow_repeats = (delay || repeat);
 }
 
 
@@ -452,9 +422,6 @@ static void handle_key_press(int keycode, int scancode)
    if (!keyboard_polled) {
       /* process immediately */
       if (scancode >= 0) {
-	 if ((!repeat_delay) && (key[scancode]))
-	    return;
-
 	 key[scancode] = -1;
 
 	 if (keyboard_lowlevel_callback)
@@ -469,25 +436,11 @@ static void handle_key_press(int keycode, int scancode)
    else {
       /* deal with this during the next poll_keyboard() */
       if (scancode >= 0) {
-	 if ((!repeat_delay) && (_key[scancode]))
-	    return;
-
 	 _key[scancode] = -1;
       }
 
       if (keycode >= 0)
 	 add_key(&_key_buffer, keycode, scancode);
-   }
-
-   /* autorepeat? */
-   if ((repeat_delay) && 
-       (keycode >= 0) && (scancode > 0) && (scancode != KEY_PAUSE) &&
-       ((keycode != repeat_key) || (scancode != repeat_scan))) {
-      repeat_key = keycode;
-      repeat_scan = scancode;
-      al_stop_timer(repeat_timer);
-      al_timer_set_speed(repeat_timer, repeat_delay);
-      al_start_timer(repeat_timer);
    }
 }
 
@@ -498,13 +451,6 @@ static void handle_key_press(int keycode, int scancode)
  */
 static void handle_key_release(int scancode)
 {
-   /* turn off autorepeat for the previous key */
-   if (repeat_scan == scancode) {
-      al_stop_timer(repeat_timer);
-      repeat_key = -1;
-      repeat_scan = -1;
-   }
-
    if (!keyboard_polled) {
       /* process immediately */
       key[scancode] = 0;
@@ -540,6 +486,11 @@ static void thread_func(_AL_THREAD *self, void *unused)
 
       switch (event.type) {
 
+         case AL_EVENT_KEY_REPEAT:
+            if (!allow_repeats)
+               break;
+            /* FALL THROUGH */
+
          case AL_EVENT_KEY_DOWN: {
             change__key_shifts(event.keyboard.keycode, true);
             if (event.keyboard.keycode >= AL_KEY_MODIFIERS) {
@@ -559,14 +510,6 @@ static void thread_func(_AL_THREAD *self, void *unused)
          case AL_EVENT_KEY_UP:
             change__key_shifts(event.keyboard.keycode, false);
             handle_key_release(event.keyboard.keycode);
-            _al_cond_signal(&key_buffers_cond);
-            break;
-
-         case AL_EVENT_KEY_REPEAT:
-            break;
-
-         case AL_EVENT_TIMER:
-            repeat_timer_callback();
             _al_cond_signal(&key_buffers_cond);
             break;
 
@@ -680,18 +623,15 @@ int install_keyboard()
    clear_key();
 
    if (!al_install_keyboard())
-      goto Error;
+      return -1;
 
    event_queue = al_create_event_queue();
-   if (!event_queue)
-      goto Error;
-
-   repeat_timer = al_install_timer(repeat_delay);
-   if (!repeat_timer)
-      goto Error;
+   if (!event_queue) {
+      al_uninstall_keyboard();
+      return -1;
+   }
 
    al_register_event_source(event_queue, (AL_EVENT_SOURCE *)al_get_keyboard());
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)repeat_timer);
 
    _al_mutex_init(&key_buffers_lock);
    _al_cond_init(&key_buffers_cond);
@@ -708,22 +648,6 @@ int install_keyboard()
    _al_thread_create(&thread, thread_func, NULL);
 
    return 0;
-
-Error:
-
-   if (event_queue) {
-      al_destroy_event_queue(event_queue);
-      event_queue = NULL;
-   }
-
-   if (repeat_timer) {
-      al_uninstall_timer(repeat_timer);
-      repeat_timer = NULL;
-   }
-
-   al_uninstall_keyboard();
-
-   return -1;
 }
 
 
@@ -739,11 +663,6 @@ void remove_keyboard(void)
 
    set_leds(-1);
 
-   if (rate_changed) {
-      set_keyboard_rate(250, 33);
-      rate_changed = FALSE;
-   }
-
    _al_thread_join(&thread);
 
    _al_mutex_destroy(&key_buffers_lock);
@@ -751,16 +670,12 @@ void remove_keyboard(void)
 
    al_uninstall_keyboard();
 
-   al_uninstall_timer(repeat_timer);
-   repeat_timer = NULL;
-
    al_destroy_event_queue(event_queue);
    event_queue = NULL;
 
    keyboard_driver = NULL;
 
-   repeat_key = -1;
-   repeat_scan = -1;
+   allow_repeats = true;
 
    _keyboard_installed = FALSE;
 
