@@ -28,8 +28,9 @@
  *                                                                      *
  *----------------------------------------------------------------------*/
 
+
 /* al_event_source_mask:
- *
+ *  Return the event mask of an event source.
  */
 unsigned long al_event_source_mask(AL_EVENT_SOURCE *source)
 {
@@ -41,7 +42,7 @@ unsigned long al_event_source_mask(AL_EVENT_SOURCE *source)
 
 
 /* al_event_source_set_mask:
- *
+ *  Change the event mask of an event source.
  */
 void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
 {
@@ -59,6 +60,11 @@ void al_event_source_set_mask(AL_EVENT_SOURCE *source, unsigned long mask)
  *----------------------------------------------------------------------*/
 
 
+/* _al_event_source_init:
+ *
+ *  Initialise an event source structure.  EVENT_SIZE is the size of
+ *  the events that this event source generates.
+ */
 void _al_event_source_init(AL_EVENT_SOURCE *this, size_t event_size)
 {
    this->event_size = event_size;
@@ -69,6 +75,13 @@ void _al_event_source_init(AL_EVENT_SOURCE *this, size_t event_size)
 }
 
 
+
+/* _al_event_source_free:
+ *
+ *  Free the resources using by an event source structure.  It
+ *  automatically unregisters the event source from all the event
+ *  queues it is currently registered with.
+ */
 void _al_event_source_free(AL_EVENT_SOURCE *this)
 {
    /* Unregister from all queues. */
@@ -94,18 +107,30 @@ void _al_event_source_free(AL_EVENT_SOURCE *this)
 }
 
 
+
+/* _al_event_source_lock:
+ *  Lock the event source.  See below for when you should call this function.
+ */
 void _al_event_source_lock(AL_EVENT_SOURCE *this)
 {
    _al_mutex_lock(&this->mutex);
 }
 
 
+
+/* _al_event_source_unlock:
+ *  Unlock the event source.
+ */
 void _al_event_source_unlock(AL_EVENT_SOURCE *this)
 {
    _al_mutex_unlock(&this->mutex);
 }
 
 
+
+/* make_new_event:
+ *  Helper to allocate event structures for the event source.
+ */
 static AL_EVENT *make_new_event(AL_EVENT_SOURCE *this)
 {
    AL_EVENT *ret;
@@ -126,6 +151,14 @@ static AL_EVENT *make_new_event(AL_EVENT_SOURCE *this)
 }
 
 
+
+/* _al_event_source_on_registration_to_queue:
+ *
+ *  This function is called by al_register_event_source() when an
+ *  event source is registered to an event queue.  This gives the
+ *  event source a chance to remember which queues it is registered
+ *  to.
+ */
 void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE *this, AL_EVENT_QUEUE *queue)
 {
    _al_event_source_lock(this);
@@ -138,6 +171,12 @@ void _al_event_source_on_registration_to_queue(AL_EVENT_SOURCE *this, AL_EVENT_Q
 }
 
 
+
+/* _al_event_source_on_unregistration_from_queue:
+ *
+ *  This function is called by al_unregister_event_source() when an
+ *  event source is unregistered from a queue.
+ */
 void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVENT_QUEUE *queue)
 {
    _al_event_source_lock(this);
@@ -148,12 +187,34 @@ void _al_event_source_on_unregistration_from_queue(AL_EVENT_SOURCE *this, AL_EVE
 }
 
 
+
+/* _al_event_source_needs_to_generate_event: [background threads]
+ *
+ *  This function is called by modules that implement event sources
+ *  when some interesting thing happens.  They call this to check if
+ *  they should bother generating an event of the given type, i.e. if
+ *  the given event source is actually registered with one or more
+ *  event queues, and if the event type is not masked out.  This is an
+ *  optimisation to avoid allocating an filling in unwanted event
+ *  structures.
+ *
+ *  The event source must be LOCKED before calling this function.
+ */
 bool _al_event_source_needs_to_generate_event(AL_EVENT_SOURCE *this, unsigned long event_type)
 {
    return !_al_vector_is_empty(&this->queues) && (this->event_mask & event_type);
 }
 
 
+
+/* _al_event_source_get_unused_event: [background threads]
+ *
+ *  Once it is determined that an event source needs to generate an
+ *  event, this function is called.  It returns an allocated event
+ *  structure that can be filled in.
+ *
+ *  The event source must be LOCKED before calling this function.
+ */
 AL_EVENT *_al_event_source_get_unused_event(AL_EVENT_SOURCE *this)
 {
    AL_EVENT *event;
@@ -173,6 +234,16 @@ AL_EVENT *_al_event_source_get_unused_event(AL_EVENT_SOURCE *this)
 }
 
 
+
+/* _al_event_source_emit_event: [background threads]
+ *
+ *  After an event structure has been filled in, it is time for the
+ *  event source to tell the event queues it knows of about the new
+ *  event.  Afterwards, the caller of this function should not touch
+ *  the EVENT any more.
+ *
+ *  The event source must be LOCKED before calling this function.
+ */
 void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
 {
    event->any.source = this;
@@ -213,6 +284,15 @@ void _al_event_source_emit_event(AL_EVENT_SOURCE *this, AL_EVENT *event)
 }
 
 
+
+/* _al_release_event:
+ *
+ *  This function is called by event queue implementations when they
+ *  no longer need a reference to the given event structure.  It
+ *  decrements the refcount of the event by one.  Once the refcount
+ *  reaches zero, the event structure is put on a 'free list', where
+ *  it can be reused for later events.
+ */
 void _al_release_event(AL_EVENT *event)
 {
    ASSERT(event);
