@@ -5661,20 +5661,25 @@ doing something clever like generating the waveform on the fly.
 
 @@AUDIOSTREAM *@play_audio_stream(int len, bits, stereo, freq, vol, pan);
 @xref install_sound, get_audio_stream_buffer, stop_audio_stream
-   This function creates a new audio stream and starts it playing. The 
-   length is the size of each transfer buffer (in samples), which should 
-   normally (but doesn't have to) be a power of two somewhere around 1k in
-   size. Larger buffers are more efficient and require fewer updates, but
-   result in more latency between you providing the data and it actually
-   being played. The bits parameter must be 8 or 16, freq is the sample
-   rate of the data in Hertz. The vol and pan values use the same 0-255
-   ranges as the regular sample playing functions. The stereo parameter
-   should be set to 1 for stereo streams, or 0 otherwise. If you want to
-   adjust the pitch, volume, or panning of a stream once it is playing,
-   you can use the regular voice_*() functions with stream-&gtvoice as a
-   parameter. The sample data is always in unsigned format, with stereo
-   waveforms consisting of alternating left/right samples, left sample
-   first.
+   This function creates a new audio stream and starts playing it. The 
+   length is the size of each transfer buffer in sample frames (not bytes), 
+   where a sample frame is a single sample value for mono data or a pair of 
+   interleaved sample values (left first) for stereo data. The length should 
+   normally be (but doesn't have to be) a power of 2 somewhere around 1k in 
+   size. Larger buffers are more efficient and require fewer updates, but 
+   result in more latency between you providing the data and it actually 
+   being played. The bits parameter must be 8 or 16. freq is the sample rate 
+   of the data in Hertz. The vol and pan values use the same 0-255 ranges as 
+   the regular sample playing functions. The stereo parameter should be set 
+   to 1 for stereo streams, or 0 otherwise. If you want to adjust the pitch, 
+   volume, or panning of a stream once it is playing, you can use the regular
+   voice_*() functions with stream-&gtvoice as a parameter. The sample data 
+   are always in unsigned format.
+
+   The formula to get the size of the buffers in bytes could be:
+<pre>
+   bytes = len * (bits / 8) * (stereo ? 2 : 1)
+</pre>
 
 @@void @stop_audio_stream(AUDIOSTREAM *stream);
 @xref play_audio_stream
