@@ -268,4 +268,5 @@ extern "C" int be_joy_poll(void)
          buttons >>= 1;
       }
    }
+   return 0;
 }
