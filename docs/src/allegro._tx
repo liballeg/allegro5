@@ -5189,16 +5189,18 @@ Digital sample routines
 
 @@SAMPLE *@load_sample(const char *filename);
 @xref destroy_sample, load_voc, load_wav, play_sample, Voice control
+@xref register_sample_file_type
    Loads a sample from a file, returning a pointer to it, or NULL on error. 
    At present this function supports both mono and stereo WAV and mono VOC 
-   files, in 8 or 16 bit formats.
+   files, in 8 or 16 bit formats, as well as formats handled by functions
+   registered using register_sample_file_type.
 
 @@SAMPLE *@load_wav(const char *filename);
-@xref load_sample
+@xref load_sample, register_sample_file_type
    Loads a sample from a RIFF WAV file.
 
 @@SAMPLE *@load_voc(const char *filename);
-@xref load_sample
+@xref load_sample, register_sample_file_type
    Loads a sample from a Creative Labs VOC file.
 
 @@SAMPLE *@create_sample(int bits, int stereo, int freq, int len);
@@ -5218,6 +5220,17 @@ Digital sample routines
    Under DOS, locks all the memory used by a sample. You don't normally need 
    to call this function because load_sample() and create_sample() do it for
    you.
+
+@\void @register_sample_file_type(const char *ext,
+@\                          SAMPLE *(*load)(const char *filename),
+@@                          int (*save)(const char *filename, SAMPLE *smp));
+@header allegro/digi.h
+@xref load_sample
+   Informs the load_sample() function of a new sample file type,
+   providing routines to read and write samples in this format (either
+   function may be NULL). Note that since save_sample does not exist,
+   supplying the save parameter is not very useful, but still is
+   included in case such a routine is added in the future.
 
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, Voice control
