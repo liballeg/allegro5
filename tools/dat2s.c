@@ -38,12 +38,15 @@
 
 static int err = 0;
 static int truecolor = FALSE;
+static int convert_compiled_sprites = FALSE;
 
 static char prefix[80] = "";
 
 static char *infilename = NULL;
 static char *outfilename = NULL;
 static char *outfilenameheader = NULL;
+static char *dataname = NULL;
+static char default_dataname[]="data";
 static char *password = NULL;
 
 static DATAFILE *data = NULL;
@@ -71,7 +74,9 @@ static void usage(void)
    printf("Options:\n");
    printf("\t'-o outputfile.s' sets the output file (default stdout)\n");
    printf("\t'-h outputfile.h' sets the output header file (default none)\n");
-   printf("\t'-p prefix' sets the object name prefix string\n");
+   printf("\t'-p prefix' sets the object name prefix string (default none)\n");
+   printf("\t'-S' converts COMPILED_SPRITEs to BITMAPs (default abort)\n");
+   printf("\t'-n name' gives a name for the datafile (default 'data')\n");
    printf("\t'-007 password' sets the datafile password\n");
 }
 
@@ -333,51 +338,6 @@ static void output_rle_sprite(RLE_SPRITE *sprite, char *name)
 
 
 
-#ifndef ALLEGRO_USE_C
-
-static void output_compiled_sprite(COMPILED_SPRITE *sprite, char *name)
-{
-   char buf[160];
-   int c;
-
-   if (sprite->color_depth != 8) {
-      fprintf(stderr, "Error: truecolor compiled sprites not supported (%s)\n", name);
-      err = 1;
-      return;
-   }
-
-   for (c=0; c<4; c++) {
-      if (sprite->proc[c].draw) {
-	 sprintf(buf, "%s_plane_%d", name, c);
-	 output_data(sprite->proc[c].draw, sprite->proc[c].len, buf, "compiled sprite code", FALSE);
-      }
-   } 
-
-   fprintf(outfile, "# compiled sprite\n.globl " ALLEGRO_ASM_PREFIX "%s%s\n", prefix, name);
-   fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s:\n", prefix, name);
-   fprintf(outfile, "\t.short %-15d# planar\n", sprite->planar);
-   fprintf(outfile, "\t.short %-15d# color depth\n", sprite->color_depth);
-   fprintf(outfile, "\t.short %-15d# w\n", sprite->w);
-   fprintf(outfile, "\t.short %-15d# h\n", sprite->h);
-
-   for (c=0; c<4; c++) {
-      if (sprite->proc[c].draw) {
-	 fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_plane_%d\n", prefix, name, c);
-	 fprintf(outfile, "\t.long %-16d# len\n", sprite->proc[c].len);
-      }
-      else {
-	 fprintf(outfile, "\t.long 0\n");
-	 fprintf(outfile, "\t.long %-16d# len\n", 0);
-      }
-   }
-
-   fprintf(outfile, "\n");
-}
-
-#endif      /* ifndef ALLEGRO_USE_C */
-
-
-
 static void get_object_name(char *buf, char *name, DATAFILE *dat, int root)
 {
    if (!root) {
@@ -484,14 +444,15 @@ static void output_object(DATAFILE *object, char *name)
 
       case DAT_C_SPRITE:
       case DAT_XC_SPRITE:
-	 if (outfileheader)
-	    fprintf(outfileheader, "extern COMPILED_SPRITE %s%s;\n", prefix, name);
-
-	 #ifdef ALLEGRO_USE_C
-	    output_rle_sprite((RLE_SPRITE *)object->dat, name);
-	 #else
-	    output_compiled_sprite((COMPILED_SPRITE *)object->dat, name);
-	 #endif
+	 if (convert_compiled_sprites) {
+	    object->type = DAT_BITMAP;
+	    output_object(object, name);
+	 }
+	 else {
+	    fprintf(stderr, "Error: encountered a compiled sprite (%s). Please\n"
+	                    "see documentation for more information.\n", name);
+	    err = 1;
+	 }
 	 break;
 
       case DAT_FILE:
@@ -556,12 +517,26 @@ int main(int argc, char *argv[])
 	 }
 	 strcpy(prefix, argv[++c]);
       }
+      else if (stricmp(argv[c], "-n") == 0) {
+	 if ((dataname) || (c >= argc-1)) {
+	    usage();
+	    return 1;
+	 }
+	 dataname = argv[++c];
+      }
       else if (stricmp(argv[c], "-007") == 0) {
 	 if ((password) || (c >= argc-1)) {
 	    usage();
 	    return 1;
 	 }
 	 password = argv[++c];
+      }
+      else if (stricmp(argv[c], "-S") == 0) {
+	 if (convert_compiled_sprites) {
+	    usage();
+	    return 1;
+	 }
+	 convert_compiled_sprites = TRUE;
       }
       else {
 	 if ((argv[c][0] == '-') || (infilename)) {
@@ -580,9 +555,12 @@ int main(int argc, char *argv[])
    if ((prefix[0]) && (prefix[strlen(prefix)-1] != '_'))
       strcat(prefix, "_");
 
+   if (!dataname)
+      dataname = default_dataname;
+
    set_color_conversion(COLORCONV_NONE);
 
-   data = datedit_load_datafile(infilename, TRUE, password);
+   data = datedit_load_datafile(infilename, FALSE, password);
    if (!data) {
       fprintf(stderr, "Error reading %s\n", infilename);
       err = 1; 
@@ -621,7 +599,7 @@ int main(int argc, char *argv[])
    if (outfilename)
       printf("Converting %s to %s...\n", infilename, outfilename);
 
-   output_datafile(data, "data", TRUE);
+   output_datafile(data, dataname, TRUE);
 
    #ifdef ALLEGRO_USE_CONSTRUCTOR
 
@@ -630,7 +608,7 @@ int main(int argc, char *argv[])
       fprintf(outfile, ALLEGRO_ASM_PREFIX "_construct_me:\n");
       fprintf(outfile, "\tpushl %%ebp\n");
       fprintf(outfile, "\tmovl %%esp, %%ebp\n");
-      fprintf(outfile, "\tpushl $" ALLEGRO_ASM_PREFIX "%sdata\n", prefix);
+      fprintf(outfile, "\tpushl $" ALLEGRO_ASM_PREFIX "%s%s\n", prefix, dataname);
       fprintf(outfile, "\tcall " ALLEGRO_ASM_PREFIX "_construct_datafile\n");
       fprintf(outfile, "\taddl $4, %%esp\n");
       fprintf(outfile, "\tleave\n");
