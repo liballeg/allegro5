@@ -456,9 +456,9 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
 BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int accel)
 {
    BITMAP *bmp;
-   DISABLE();
+   XLOCK();
    bmp = _xdga2_private_gfxdrv_init_drv(drv, w, h, vw, vh, depth, accel);
-   ENABLE();
+   XUNLOCK();
    if (!bmp)
       _xdga2_gfxdrv_exit(bmp);
    return bmp;
@@ -471,7 +471,7 @@ BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, in
  */
 void _xdga2_gfxdrv_exit(BITMAP *bmp)
 {
-   DISABLE();
+   XLOCK();
    
    if (_xwin.in_dga_mode) {
       XDGACloseFramebuffer(_xwin.display, _xwin.screen);
@@ -489,7 +489,7 @@ void _xdga2_gfxdrv_exit(BITMAP *bmp)
 
    }
    
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -501,9 +501,9 @@ int _xdga2_poll_scroll(void)
 {
    int result;
 
-   DISABLE();
+   XLOCK();
    result = XDGAGetViewportStatus(_xwin.display, _xwin.screen);
-   ENABLE();
+   XUNLOCK();
    return result;
 }
 
@@ -514,7 +514,7 @@ int _xdga2_poll_scroll(void)
  */
 int _xdga2_request_scroll(int x, int y)
 {
-   DISABLE();
+   XLOCK();
    
    if (x < 0) x = 0;
    else if (x > dga_device->mode.maxViewportX)
@@ -525,7 +525,7 @@ int _xdga2_request_scroll(int x, int y)
 
    XDGASetViewport(_xwin.display, _xwin.screen, x, y, XDGAFlipRetrace);
 
-   ENABLE();
+   XUNLOCK();
    
    return 0;
 }
@@ -537,9 +537,9 @@ int _xdga2_request_scroll(int x, int y)
  */
 int _xdga2_request_video_bitmap(BITMAP *bmp)
 {
-   DISABLE();
+   XLOCK();
    XDGASetViewport(_xwin.display, _xwin.screen, bmp->x_ofs, bmp->y_ofs, XDGAFlipRetrace);
-   ENABLE();
+   XUNLOCK();
    return 0;
 }
 
@@ -550,7 +550,7 @@ int _xdga2_request_video_bitmap(BITMAP *bmp)
  */
 int _xdga2_scroll_screen(int x, int y)
 {
-   DISABLE();
+   XLOCK();
    
    if (x < 0) x = 0;
    else if (x > dga_device->mode.maxViewportX)
@@ -562,7 +562,7 @@ int _xdga2_scroll_screen(int x, int y)
    while (XDGAGetViewportStatus(_xwin.display, _xwin.screen));
    XDGASetViewport(_xwin.display, _xwin.screen, x, y, XDGAFlipRetrace);
 
-   ENABLE();
+   XUNLOCK();
    
    return 0;
 }
@@ -577,7 +577,7 @@ void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
    int i;
    static XColor color[256];
 
-   DISABLE();
+   XLOCK();
    
    if (vsync) {
       XSync(_xwin.display, False);
@@ -595,7 +595,7 @@ void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
       XSync(_xwin.display, False);
    }
 
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -605,9 +605,9 @@ void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
  */
 static void _xdga2_acquire(BITMAP *bmp)
 {
-   DISABLE();
+   XLOCK();
    RESYNC();
-   ENABLE();
+   XUNLOCK();
    bmp->id |= BMP_ID_LOCKED;
 }
 
@@ -619,9 +619,9 @@ static void _xdga2_acquire(BITMAP *bmp)
 unsigned long _xdga2_write_line(BITMAP *bmp, int line)
 {
    if (!(bmp->id & BMP_ID_LOCKED)) {
-      DISABLE();
+      XLOCK();
       RESYNC();
-      ENABLE();
+      XUNLOCK();
       bmp->id |= BMP_ID_LOCKED;
    }
    return (unsigned long)(bmp->line[line]);
@@ -665,9 +665,9 @@ static void _xaccel_hline(BITMAP *bmp, int x1, int y, int x2, int color)
    y += bmp->y_ofs;
    x2 += bmp->x_ofs;
 
-   DISABLE();
+   XLOCK();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y, (x2 - x1) + 1, 1, color);
-   ENABLE();
+   XUNLOCK();
    bmp->id &= ~BMP_ID_LOCKED;
 }
 
@@ -709,9 +709,9 @@ static void _xaccel_vline(BITMAP *bmp, int x, int y1, int y2, int color)
    y1 += bmp->y_ofs;
    y2 += bmp->y_ofs;
 
-   DISABLE();
+   XLOCK();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x, y1, 1, (y2 - y1) + 1, color);
-   ENABLE();
+   XUNLOCK();
    bmp->id &= ~BMP_ID_LOCKED;
 }
 
@@ -766,9 +766,9 @@ static void _xaccel_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int co
    x2 += bmp->x_ofs;
    y2 += bmp->y_ofs;
 
-   DISABLE();
+   XLOCK();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, (x2 - x1) + 1, (y2 - y1) + 1, color);
-   ENABLE();
+   XUNLOCK();
    bmp->id &= ~BMP_ID_LOCKED;
 }
 
@@ -786,9 +786,9 @@ static void _xaccel_clear_to_color(BITMAP *bmp, int color)
    x2 = bmp->cr + bmp->x_ofs;
    y2 = bmp->cb + bmp->y_ofs;
    
-   DISABLE();
+   XLOCK();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, x2 - x1, y2 - y1, color);
-   ENABLE();
+   XUNLOCK();
    bmp->id &= ~BMP_ID_LOCKED;
 }
 
@@ -804,9 +804,9 @@ static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int
    dest_x += dest->x_ofs;
    dest_y += dest->y_ofs;
 
-   DISABLE();
+   XLOCK();
    XDGACopyArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y);
-   ENABLE();
+   XUNLOCK();
    dest->id &= ~BMP_ID_LOCKED;
 }
 
@@ -856,9 +856,9 @@ static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
       x += bmp->x_ofs;
       y += bmp->y_ofs;
 
-      DISABLE();
+      XLOCK();
       XDGACopyTransparentArea(_xwin.display, _xwin.screen, sx, sy, w, h, x, y, sprite->vtable->mask_color);
-      ENABLE();
+      XUNLOCK();
       bmp->id &= ~BMP_ID_LOCKED;
    }
    else
@@ -878,9 +878,9 @@ static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int 
       dest_x += dest->x_ofs;
       dest_y += dest->y_ofs;
 
-      DISABLE();
+      XLOCK();
       XDGACopyTransparentArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y, source->vtable->mask_color);
-      ENABLE();
+      XUNLOCK();
       dest->id &= ~BMP_ID_LOCKED;
    }
    else

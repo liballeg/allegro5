@@ -145,12 +145,12 @@ static int _xwin_keydrv_init(void)
    _xwin_init_keyboard_tables();
    _xwin_keydrv_set_leds(_key_shifts);
 
-   DISABLE();
+   XLOCK();
 
    _xwin_keyboard_interrupt = _xwin_keydrv_handler;
    _xwin_keyboard_focused = _xwin_keydrv_focused;
 
-   ENABLE();
+   XUNLOCK();
 
    return 0;
 }
@@ -162,11 +162,11 @@ static int _xwin_keydrv_init(void)
  */
 static void _xwin_keydrv_exit(void)
 {
-   DISABLE();
+   XLOCK();
 
    _xwin_keyboard_interrupt = 0;
    _xwin_keyboard_focused = 0;
 
-   ENABLE();
+   XUNLOCK();
 }
 

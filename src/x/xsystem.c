@@ -49,6 +49,9 @@ static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void);
 
 
+struct bg_manager *_xwin_bg_man;
+
+
 /* the main system driver for running under X-Windows */
 SYSTEM_DRIVER system_xwin =
 {
@@ -142,10 +145,16 @@ static void _xwin_interrupts_handler(unsigned long interval)
 {
    if (_unix_timer_interrupt)
       (*_unix_timer_interrupt)(interval);
-
-   _xwin_handle_input();
 }
 
+
+/* _xwin_bg_handler:
+ *  Really used for synchronous stuff
+ */
+static void _xwin_bg_handler (int threaded)
+{
+   _xwin_handle_input();
+}
 
 
 /* _xwin_sysdrv_init:
@@ -169,13 +178,31 @@ static int _xwin_sysdrv_init(void)
    old_sig_quit = signal(SIGQUIT, _xwin_signal_handler);
 #endif
 
+#ifdef HAVE_LIBPTHREAD
+   _xwin_bg_man = &_bg_man_pthreads;
+#else
+   _xwin_bg_man = &_bg_man_sigalrm;
+#endif
+
+   /* Initialise sigalrm before bg_man, in case bg_man depends on sigalrm */
+   if (_sigalrm_init(_xwin_interrupts_handler)
+        || _xwin_bg_man->init()) {
+      _xwin_sysdrv_exit();
+      return -1;
+   }
+   /* If multithreaded bg_man, need to init X's lock/unlock facility. 
+    * Note that no X calls must be made before this point! */
+   if (_xwin_bg_man->multi_threaded) XInitThreads();
+
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
 
+   /* Open the display, create a window, and background-process 
+    * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
-       || _sigalrm_init(_xwin_interrupts_handler)) {
-      _xwin_sysdrv_exit();
-      return -1;
+       || _xwin_bg_man->register_func (_xwin_bg_handler)) {
+	 _xwin_sysdrv_exit();
+	 return -1;
    }
 
    set_display_switch_mode(SWITCH_BACKGROUND);
@@ -190,10 +217,9 @@ static int _xwin_sysdrv_init(void)
  */
 static void _xwin_sysdrv_exit(void)
 {
+   _xwin_bg_man->exit();
    _sigalrm_exit();
-
    _xwin_destroy_window();
-
    _xwin_close_display();
 
    signal(SIGABRT, old_sig_abrt);

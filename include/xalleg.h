@@ -58,6 +58,7 @@
 extern struct _xwin_type
 {
    Display *display;
+   volatile int lock_count;
    int screen;
    Window window;
    GC gc;

@@ -269,7 +269,8 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/usnddrv.c \
 	src/unix/usystem.c \
 	src/unix/utimer.c \
-	src/misc/ufile.c
+	src/misc/ufile.c \
+	src/unix/uthreads.c
 
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \

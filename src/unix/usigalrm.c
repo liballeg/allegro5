@@ -274,3 +274,76 @@ void _sigalrm_exit(void)
    _sigalrm_already_installed = FALSE;
 }
 
+
+/*============================================================
+ * SIGALRM bg_manager
+ *-----------------------------------------------------------*/
+
+static void (*bg_man_sigalrm_handler_chain) (unsigned long);
+static int bg_man_sigalrm_installed;
+
+#define MAX_FUNCS 16
+static bg_func funcs[MAX_FUNCS];
+static int max_func; /* highest+1 used entry */
+
+static void bg_man_sigalrm_handler (unsigned long interval)
+{
+	int i;
+	bg_man_sigalrm_handler_chain (interval);
+	for (i = 0; i < max_func; i++)
+		if (funcs[i]) funcs[i](0);
+}
+
+static int bg_man_sigalrm_init (void)
+{
+	if (!_sigalrm_already_installed) return -1; // must install sigalrm first
+	if (bg_man_sigalrm_installed++) return 0;
+	bg_man_sigalrm_handler_chain = _sigalrm_interrupt_handler;
+	_sigalrm_interrupt_handler = bg_man_sigalrm_handler;
+	return 0;
+}
+
+static void bg_man_sigalrm_exit (void)
+{
+	if (!bg_man_sigalrm_installed) return;
+	if (--bg_man_sigalrm_installed) return;
+	_sigalrm_interrupt_handler = bg_man_sigalrm_handler_chain;
+}
+
+static int bg_man_sigalrm_register_func (bg_func f)
+{
+	int i;
+	for (i = 0; funcs[i] && i < MAX_FUNCS; i++);
+	if (i == MAX_FUNCS) return -1;
+
+	funcs[i] = f;
+
+	if (i == max_func) max_func++;
+
+	return 0;
+}
+
+static int bg_man_sigalrm_unregister_func (bg_func f)
+{
+	int i;
+	for (i = 0; funcs[i] != f && i < max_func; i++);
+	if (i == max_func) return -1;
+
+	funcs[i] = NULL;
+
+	if (i+1 == max_func)
+		do {
+			max_func--;
+		} while (!funcs[max_func] && max_func > 0);
+
+	return 0;
+}
+
+struct bg_manager _bg_man_sigalrm = {
+	0,
+	bg_man_sigalrm_init,
+	bg_man_sigalrm_exit,
+	bg_man_sigalrm_register_func,
+	bg_man_sigalrm_unregister_func
+};
+

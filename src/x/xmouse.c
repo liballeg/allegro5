@@ -104,11 +104,11 @@ static int _xwin_mousedrv_init(void)
    num_buttons = _xwin_get_pointer_mapping(map, sizeof(map));
    num_buttons = MID(2, num_buttons, 3);
 
-   DISABLE();
+   XLOCK();
 
    _xwin_mouse_interrupt = _xwin_mousedrv_handler;
 
-   ENABLE();
+   XUNLOCK();
 
    return num_buttons;
 }
@@ -120,11 +120,11 @@ static int _xwin_mousedrv_init(void)
  */
 static void _xwin_mousedrv_exit(void)
 {
-   DISABLE();
+   XLOCK();
 
    _xwin_mouse_interrupt = 0;
 
-   ENABLE();
+   XUNLOCK();
 }
 
 
@@ -134,14 +134,14 @@ static void _xwin_mousedrv_exit(void)
  */
 static void _xwin_mousedrv_position(int x, int y)
 {
-   DISABLE();
+   XLOCK();
 
    _mouse_x = x;
    _mouse_y = y;
 
    mymickey_x = mymickey_y = 0;
 
-   ENABLE();
+   XUNLOCK();
 
    _xwin_set_warped_mouse_mode(FALSE);
 }
@@ -158,12 +158,12 @@ static void _xwin_mousedrv_set_range(int x1, int y1, int x2, int y2)
    mouse_maxx = x2;
    mouse_maxy = y2;
 
-   DISABLE();
+   XLOCK();
 
    _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
    _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
 
-   ENABLE();
+   XUNLOCK();
 }
 
 
