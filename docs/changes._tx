@@ -29,22 +29,24 @@ Changes from 3.11 to current
    entries in the NULL section were hiding duplicate entries in other
    sections.
 <li>
+   3.9.37: Eric Botcazou made the setup program use Unicode functions.
+<li>
    3.9.37: Henrik Stokseth unified the fix* scripts, and gave them new
    options.
 <li>
    3.9.37: Peter Wang added support for dynamically loaded modules under
-   Unix.  The SVGAlib, ALSA digital, ALSA MIDI, ESD and DGA2 drivers will
-   be built as modules when possible.  This removes external dependencies
+   Unix. The SVGAlib, ALSA digital, ALSA MIDI, ESD and DGA2 drivers will
+   be built as modules when possible. This removes external dependencies
    on the main library and improves binary transportability under Linux.
 <li>
-   3.9.37: Eric Botcazou changed made many changes and bug fixes to the
-   Unicode string functions, and their use in the library.  The old
-   functions now behave exactly like the libc equivalents, while the new
-   functions (the 'z' functions) behave more sanely.  This change affects
-   most code which uses the Unicode functions.
+   3.9.37: Eric Botcazou made many changes and bug fixes to the Unicode
+   string functions, and their use in the library.  The old functions now
+   behave exactly like the libc equivalents, while the new functions (the
+   'z' functions) behave more sanely. This change affects most code which
+   uses the Unicode functions.
 <li>
    3.9.37: Bertrand Coconnier changed the recently merged scene rendering
-   API, fixed a bug, and provided a new example program.  The API change
+   API, fixed a bug, and provided a new example program. The API change
    will affect all code which uses the scene functions.
 <li>
    3.9.37: Laurence Withers wrapped registration of the bitmap file types
