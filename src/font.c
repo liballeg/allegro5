@@ -1304,8 +1304,8 @@ int is_mono_font(FONT *f)
  */
 int is_compatible_font(FONT *f1, FONT *f2)
 {
-   ASSERT(f);
-   
+   ASSERT(f1);
+   ASSERT(f2);
    return f1->vtable == f2->vtable;
 }
 
