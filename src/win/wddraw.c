@@ -22,6 +22,8 @@
 /* directx vars */
 LPDIRECTDRAW directdraw = NULL;
 LPDIRECTDRAWSURFACE dd_prim_surface = NULL;
+LPDIRECTDRAWSURFACE dd_back_surface = NULL;
+LPDIRECTDRAWSURFACE dd_trip_surface = NULL;
 LPDIRECTDRAWPALETTE dd_palette = NULL;
 LPDIRECTDRAWCLIPPER dd_clipper = NULL;
 DDCAPS dd_caps;
@@ -39,9 +41,9 @@ void gfx_directx_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync
 
    /* convert into Windows format */
    for (n = from; n <= to; n++) {
-      _palette[n].peRed = p[n].r << 2;
-      _palette[n].peGreen = p[n].g << 2;
-      _palette[n].peBlue = p[n].b << 2;
+      _palette[n].peRed = (p[n].r << 2) | ((p[n].r & 0x30) >> 4);
+      _palette[n].peGreen = (p[n].g << 2) | ((p[n].g & 0x30) >> 4);
+      _palette[n].peBlue = (p[n].b << 2) | ((p[n].b & 0x30) >> 4);
    }
 
    /* wait for vertical retrace */
@@ -123,6 +125,8 @@ int create_primary(int w, int h, int color_depth)
       _TRACE("Can't create primary surface.\n");
       return -1;
    }
+   dd_back_surface = gfx_directx_create_surface(w, h, color_depth, 1, 2, 0);
+   dd_trip_surface = gfx_directx_create_surface(w, h, color_depth, 1, 3, 0);
 
    return 0;
 }
@@ -236,6 +240,8 @@ void gfx_directx_exit(struct BITMAP *b)
    if (dd_prim_surface) {
       IDirectDrawSurface_Release(dd_prim_surface);
       dd_prim_surface = NULL;
+      dd_back_surface = NULL;
+      dd_trip_surface = NULL;
    }
 
    /* unlink surface from bitmap */

@@ -18,6 +18,9 @@
 #include "wddraw.h"
 
 
+static LPDIRECTDRAWSURFACE primbuffersurf = NULL;
+static LPDIRECTDRAWSURFACE backbuffersurf = NULL;
+static LPDIRECTDRAWSURFACE tripbuffersurf = NULL;
 
 static int OverlayMatch[] = { 8, 15, 16, 24, 24, 32, 32, 0 };
 
@@ -42,9 +45,16 @@ DDPIXELFORMAT OverlayFormat[] = {
 /* sometimes we have to recycle the screen surface as a video bitmap,
  * in order to be consistent with how other platforms behave.
  */
-static int ReusedScreen = FALSE;
+static int ReusedScreen = 0;
 
 
+HRESULT WINAPI EnumSurfacesCallback (LPDIRECTDRAWSURFACE lpDDSurface,
+	LPDDSURFACEDESC lpDDSurfaceDesc,LPVOID lpContext)
+{
+	if (backbuffersurf == NULL) backbuffersurf = lpDDSurface;
+	if (tripbuffersurf == NULL) tripbuffersurf = lpDDSurface;
+	return DDENUMRET_OK;
+}
 
 /* gfx_directx_create_surface: 
  */ 
@@ -53,20 +63,28 @@ LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
 {
    DDSURFACEDESC surf_desc;
    LPDIRECTDRAWSURFACE surf;
+   DDSCAPS ddscaps;
    HRESULT hr;
    unsigned int format=0;
 
 loop:
    /* describe surface characteristics */
+	memset (&surf_desc, 0, sizeof(DDSURFACEDESC));
    surf_desc.dwSize = sizeof(surf_desc);
    surf_desc.dwFlags = DDSD_CAPS;
    surf_desc.ddsCaps.dwCaps = 0;
+
+   if (primary == 2) return backbuffersurf;
+   if (primary == 3) return tripbuffersurf;
 
    if (video || primary) {
       surf_desc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
 
       if (primary) {
          surf_desc.ddsCaps.dwCaps |= DDSCAPS_PRIMARYSURFACE;
+	   surf_desc.dwFlags = DDSD_BACKBUFFERCOUNT;
+	   surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+	   surf_desc.dwBackBufferCount = 2;
       }
       else if (overlay) {
          surf_desc.ddsCaps.dwCaps |= DDSCAPS_OVERLAY;
@@ -107,9 +125,34 @@ loop:
    if (FAILED(hr)) {
       if (video && !primary && overlay && OverlayMatch[++format] == color_depth)
          goto loop;
-      else
-         return NULL;
+      else {
+		if (primary) {
+			surf_desc.dwBackBufferCount = 1;
+			hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
+			if (FAILED(hr)) {
+				surf_desc.dwBackBufferCount = 0;
+				surf_desc.dwFlags &= ~DDSD_BACKBUFFERCOUNT;
+				hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
+				if (FAILED(hr)) return NULL;
+			}
+			primbuffersurf = surf;
+			return surf;
+		}
+		return NULL;
+	}
    }
+
+   /* get attached backbuffers */
+	if (surf_desc.dwBackBufferCount == 2) {
+		IDirectDrawSurface_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
+		primbuffersurf = surf;
+	} else {
+	if (surf_desc.dwBackBufferCount == 1) {
+		memset (&ddscaps, 0, sizeof(DDSCAPS));
+		ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
+		hr = IDirectDrawSurface_GetAttachedSurface(surf, &ddscaps, &backbuffersurf);
+		primbuffersurf = surf;
+	} }
 
    return surf;
 }
@@ -243,10 +286,30 @@ struct BITMAP *gfx_directx_create_video_bitmap(int width, int height)
    LPDIRECTDRAWSURFACE surf;
 
    /* can we reuse the screen bitmap for this? */
-   if ((!ReusedScreen) && (screen->w == width) && (screen->h == height)) {
-      ReusedScreen = TRUE;
-      return screen;
+   if ((ReusedScreen < 3) && (screen->w == width) && (screen->h == height)) {
+      ReusedScreen ++;
+      if (ReusedScreen == 1) return screen;
+      if (ReusedScreen == 2) {
+		if (backbuffersurf == NULL) return NULL;
+		return make_directx_bitmap (backbuffersurf,
+			width, height, _color_depth, BMP_ID_VIDEO);
+	}
+      if (ReusedScreen == 3) {
+		if (tripbuffersurf == NULL) return NULL;
+		return make_directx_bitmap (tripbuffersurf,
+			width, height, _color_depth, BMP_ID_VIDEO);
+	}
    }
+
+	/* assume all flip surfaces have been allocated, so free unused */
+	if (ReusedScreen < 3 && tripbuffersurf != NULL) {
+		IDirectDrawSurface_Release (tripbuffersurf);
+		tripbuffersurf = NULL;
+	}
+	if (ReusedScreen < 2 && backbuffersurf != NULL) {
+		IDirectDrawSurface_Release (backbuffersurf);
+		backbuffersurf = NULL;
+	}
 
    /* create DirectDraw surface */
    surf = gfx_directx_create_surface(width, height, _color_depth, 1, 0, 0);
@@ -263,9 +326,10 @@ struct BITMAP *gfx_directx_create_video_bitmap(int width, int height)
  */
 void gfx_directx_destroy_video_bitmap(struct BITMAP *bitmap)
 {
-   if (bitmap == screen) {
-      ReusedScreen = FALSE;
-      return;
+   if (bitmap == screen || BMP_EXTRA(bitmap)->surf == backbuffersurf ||
+	BMP_EXTRA(bitmap)->surf == tripbuffersurf) {
+	      ReusedScreen --;
+	      return;
    }
 
    if (bitmap == dd_frontbuffer)
@@ -290,6 +354,19 @@ static __inline int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
    invisible = BMP_EXTRA(bitmap)->surf;
    visible = BMP_EXTRA(dd_frontbuffer)->surf;
 
+	/* try to flip already attached surfaces */
+   if (backbuffersurf != NULL &&
+	(invisible == primbuffersurf || invisible == backbuffersurf
+	|| invisible == tripbuffersurf)) {
+		hr = IDirectDrawSurface_Flip(primbuffersurf, invisible, 0);
+		if (FAILED(hr)) IDirectDrawSurface_Flip(primbuffersurf, invisible, DDFLIP_WAIT);
+      BMP_EXTRA(bitmap)->surf = visible;
+      BMP_EXTRA(dd_frontbuffer)->surf = invisible;
+      dd_frontbuffer = bitmap;
+	return 0;
+   }
+
+	/* original flipping system */
    if (visible != invisible) {
       /* link invisible surface to primary surface */
       hr = IDirectDrawSurface_AddAttachedSurface(visible, invisible);
