@@ -453,6 +453,13 @@ static void _xwin_private_destroy_window(void)
       _xwin.cursor = None;
    }
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   if (_xwin.xcursor_image != None) {
+      XcursorImageDestroy(_xwin.xcursor_image);
+      _xwin.xcursor_image = None;
+   }
+#endif
+
    _xwin.visual = 0;
 
    if (_xwin.gc != None) {
