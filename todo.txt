@@ -81,13 +81,9 @@ Macintosh todos:
 BeOS todos:
 ---------------------------------------------------------------------------
 
-- Make the windowed driver to use the unified color conversion routines
-  (this requires those routines to support *all* possible color combinations,
-  and also to support span widths not multiple of 8)
 - Write a safe windowed driver using BBitmap
-- shared library support, possibly convert building system to autoconf
-- code cleanup
-- check timer speed is correct (MIDI playback esp.)
+- Keyboard driver rewrite
+- Fix allegro-config script for shared library support
 
 QNX todos:
 ---------------------------------------------------------------------------
