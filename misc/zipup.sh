@@ -254,4 +254,6 @@ fi
 
 
 echo "Done!"
+echo "Please note that your files are now in DOS format, so you might want"
+echo "to run \"fix.sh unix\" now."
 
