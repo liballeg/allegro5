@@ -26,12 +26,12 @@
    #include "obj/msvc/asmdef.inc"
 #elif defined __WATCOMC__
    #include "obj/watcom/asmdef.inc"
-#elif defined __unix__
-   #include "obj/unix/asmdef.inc"
 #elif defined __BEOS__
    #include "obj/beos/asmdef.inc"
 #elif defined DJGPP
    #include "obj/djgpp/asmdef.inc"
+#elif defined __unix__
+   #include "obj/unix/asmdef.inc"
 #else
    #error unknown platform
 #endif
