@@ -622,16 +622,24 @@ extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
 {
    int i, num_modes;
    
-   if (gfx_mode_list)
-      free(gfx_mode_list);
-   
+   destroy_gfx_mode_list();
+      
    for (num_modes=0; _be_mode_table[num_modes].d > 0; num_modes++);
    gfx_mode_list = (GFX_MODE_LIST *)malloc(sizeof(GFX_MODE_LIST) * num_modes);
+   if (!gfx_mode_list) return -1;
+  
    for (i=0; i<num_modes; i++) {
       gfx_mode_list[i].width = _be_mode_table[i].w;
       gfx_mode_list[i].height = _be_mode_table[i].h;
       gfx_mode_list[i].bpp = _be_mode_table[i].d;
    }
+
+   gfx_mode_list[num_modes].width = 0;
+   gfx_mode_list[num_modes].height = 0;
+   gfx_mode_list[num_modes].bpp = 0;
+
+   gfx_mode_list_malloced = TRUE;
+   
    return 0;
 }
 
