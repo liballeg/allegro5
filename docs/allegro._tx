@@ -1473,11 +1473,20 @@ Mouse routines
 @heading
 Timer routines
 
-Allegro can set up several virtual timer functions, all going at different 
-speeds, and will constantly reprogram the clock to make sure they are all 
-called at the correct times. Because they alter the low level timer chip 
-settings, these routines should not be used together with other DOS timer 
+Allegro can set up several virtual timer functions, all going at different
+speeds.
+
+Under DOS it will constantly reprogram the clock to make sure they are all
+called at the correct times. Because they alter the low level timer chip
+settings, these routines should not be used together with other DOS timer
 functions like the djgpp uclock() routine.
+
+Under other platforms, they are usually implemented using threads, which run
+parallel to the main thread. Therefore timer callbacks on such platforms
+will not block the main thread when called, so you may need to use
+appropriate synchronisation devices (eg. mutexes, semaphores, etc.) when
+accessing data that is shared by a callback and the main thread. (Currently
+Allegro does not provide such devices.)
 
 @@int @install_timer();
 @xref remove_timer, install_int
@@ -1490,9 +1499,9 @@ functions like the djgpp uclock() routine.
 
 @@void @remove_timer();
 @xref install_timer, allegro_exit
-   Removes the Allegro timer handler and passes control of the clock back to 
-   the operating system. You don't normally need to bother calling this, 
-   because allegro_exit() will do it for you.
+   Removes the Allegro timer handler (and, under DOS, passes control of the
+   clock back to the operating system). You don't normally need to bother
+   calling this, because allegro_exit() will do it for you.
 
 @@int @install_int(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int_ex, install_param_int
