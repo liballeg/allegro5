@@ -70,20 +70,19 @@ GFX_DRIVER gfx_directx_win =
 
 
 static void switch_in_win(void);
-static void switch_out_win(void);
-static void handle_window_enter_move_win(void);
+static void handle_window_enter_sysmode_win(void);
+static void handle_window_exit_sysmode_win(void);
 static void handle_window_move_win(int, int, int, int);
 
 
 static struct WIN_GFX_DRIVER win_gfx_driver_windowed =
 {
    switch_in_win,
-   switch_out_win,
-   handle_window_enter_move_win,
+   NULL,                        // AL_METHOD(void, switch_out, (void));
+   handle_window_enter_sysmode_win,
+   handle_window_exit_sysmode_win,
    handle_window_move_win,
    NULL,                        // AL_METHOD(void, iconify, (void));
-   handle_window_enter_move_win,
-   handle_window_move_win,
    NULL,                        // AL_METHOD(void, paint, (RECT *));
 };
 
@@ -103,11 +102,10 @@ static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
 
-/* handle_window_enter_move_win
- *  makes the driver switch to the clipped updating mode,
- *  if window is moved and color conversion is in use,  
+/* handle_window_enter_sysmode_win
+ *  makes the driver switch into clipped updating mode 
  */
-static void handle_window_enter_move_win(void)
+static void handle_window_enter_sysmode_win(void)
 {
    if (!same_color_depth && !clipped_updating_mode) {
       clipped_updating_mode = TRUE;
@@ -117,30 +115,39 @@ static void handle_window_enter_move_win(void)
 
 
 
+/* handle_window_exit_sysmode_win
+ *  makes the driver switch back into direct updating mode
+ */
+static void handle_window_exit_sysmode_win(void)
+{
+   if (!same_color_depth && clipped_updating_mode) {
+      clipped_updating_mode = FALSE;
+      _TRACE("clipped updating mode off\n");
+   }
+
+   update_window(NULL);
+}
+
+
+
 /* handle_window_move_win:
- *  updates window if window has been moved or resized
+ *  makes sure alignment is kept after window has been moved
  */
 static void handle_window_move_win(int x, int y, int w, int h)
-{     
-   /* force alignment to speed up color conversion */
+{
    if (!same_color_depth) {
       int xmod;
 
       if ( (((desktop_depth == 15) || (desktop_depth == 16)) && (xmod=x%2)) ||
                                      ((desktop_depth == 24) && (xmod=x%4))  ) {
+         /* enforce alignment to speed up color conversion */
          RECT window_rect;
          GetWindowRect(allegro_wnd, &window_rect);
          SetWindowPos(allegro_wnd, 0, window_rect.left + xmod,
-                      window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
-      }
-
-      if (clipped_updating_mode) {
-         clipped_updating_mode = FALSE;
-         _TRACE("clipped updating mode off\n");
+                      window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+         _TRACE("window shifted by %d pixel(s) to the right to enforce alignment\n", xmod); 
       }
    }
-
-   update_window(NULL);
 }
 
 
@@ -378,22 +385,12 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 
 
 
-/* switch_out_win:
- *  handle window switched out
- */
-static void switch_out_win(void)
-{
-}
-
-
-
 /* switch_in_win:
  *  handle window switched in
  */
 static void switch_in_win(void)
 {
    get_working_area(&working_area);
-   handle_window_move_win(wnd_x, wnd_y, wnd_width, wnd_height);
 }
 
 
@@ -662,8 +659,9 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    dd_frontbuffer->vtable = &_special_vtable;
    dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
 
-   /* the last flag serves as end of loop delimiter */ 
+   /* the last flag serves as end of loop delimiter */
    wd_dirty_lines = calloc(h+1, sizeof(char));
+   wd_dirty_lines[h] = 0;
 
    /* set default switching policy */
    wnd_windowed = TRUE;

@@ -70,11 +70,10 @@ static struct WIN_GFX_DRIVER win_gfx_driver_overlay =
 {
    switch_in_ovl,
    switch_out_ovl,
-   NULL,                        // AL_METHOD(void, enter_size_move, (void));   
+   NULL,                        // AL_METHOD(void, enter_sysmode, (void));
+   NULL,                        // AL_METHOD(void, exit_sysmode, (void));
    handle_window_move_ovl,
    hide_overlay,
-   NULL,                        // AL_METHOD(void, init_menu_popup, (void));
-   NULL,                        // AL_METHOD(void, menu_select, (void));
    NULL,                        // AL_METHOD(void, paint, (RECT *));
 };
 

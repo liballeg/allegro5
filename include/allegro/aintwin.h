@@ -74,11 +74,10 @@ AL_VAR(int, wnd_paint_back);
 struct WIN_GFX_DRIVER {
    void (*switch_in)(void);
    void (*switch_out)(void);
-   void (*enter_size_move)(void);
+   void (*enter_sysmode)(void);
+   void (*exit_sysmode)(void);
    void (*move)(int x, int y, int w, int h);
    void (*iconify)(void);
-   void (*init_menu_popup)(void);
-   void (*menu_select)(int x, int y, int w, int h);
    void (*paint)(RECT *rect);
 };   
 

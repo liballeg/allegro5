@@ -151,8 +151,13 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	 break;
 
       case WM_ENTERSIZEMOVE:
-         if (win_gfx_driver && win_gfx_driver->enter_size_move)
-            win_gfx_driver->enter_size_move();
+         if (win_gfx_driver && win_gfx_driver->enter_sysmode)
+            win_gfx_driver->enter_sysmode();
+         break;
+
+      case WM_EXITSIZEMOVE:
+         if (win_gfx_driver && win_gfx_driver->exit_sysmode)
+            win_gfx_driver->exit_sysmode();
          break;
 
       case WM_MOVE:
@@ -189,16 +194,16 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
       case WM_INITMENUPOPUP:
 	 wnd_sysmenu = TRUE;
 	 mouse_sysmenu_changed();
-         if (win_gfx_driver && win_gfx_driver->init_menu_popup)
-            win_gfx_driver->init_menu_popup();
+         if (win_gfx_driver && win_gfx_driver->enter_sysmode)
+            win_gfx_driver->enter_sysmode();
 	 break;
 
       case WM_MENUSELECT:
 	 if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
 	    wnd_sysmenu = FALSE;
 	    mouse_sysmenu_changed();
-            if (win_gfx_driver && win_gfx_driver->menu_select)
-               win_gfx_driver->menu_select(wnd_x, wnd_y, wnd_width, wnd_height);
+            if (win_gfx_driver && win_gfx_driver->exit_sysmode)
+               win_gfx_driver->exit_sysmode();
 	 }
 	 break;
 

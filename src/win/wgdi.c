@@ -73,6 +73,8 @@ GFX_DRIVER gfx_gdi =
 };
 
 
+static void gdi_enter_sysmode(void);
+static void gdi_exit_sysmode(void);
 static void gdi_update_window(RECT *rect);
 
 
@@ -80,11 +82,10 @@ static struct WIN_GFX_DRIVER win_gfx_driver_gdi =
 {
    NULL,                        // AL_METHOD(void, switch_in, (void));
    NULL,                        // AL_METHOD(void, switch_out, (void));
-   NULL,                        // AL_METHOD(void, enter_size_move, (void));   
+   gdi_enter_sysmode,
+   gdi_exit_sysmode,
    NULL,                        // AL_METHOD(void, move, (int x, int y, int w, int h));
    NULL,                        // AL_METHOD(void, iconify, (void));
-   NULL,                        // AL_METHOD(void, init_menu_popup, (void));
-   NULL,                        // AL_METHOD(void, menu_select, (void));
    gdi_update_window
 };
 
@@ -99,6 +100,8 @@ static HANDLE vsync_event;
 #define RENDER_DELAY (1000/50)
 
 /* hardware mouse cursor emulation */
+static int mouse_on = FALSE;
+static int mouse_was_on = FALSE;
 static BITMAP *mouse_sprite = NULL;
 static BITMAP *mouse_frontbuffer = NULL;
 static BITMAP *mouse_backbuffer = NULL;
@@ -137,15 +140,11 @@ static int gfx_gdi_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocu
 
 
 /* update_mouse_pointer:
- *  worker function that updates the mouse cursor
+ *  worker function that updates the mouse pointer
  */
 static void update_mouse_pointer(int x, int y, int retrace)
 {
    HDC hdc;
-
-   /* to prevent the mouse thread and the rendering proc
-      from concurrently drawing onto the device context */
-   _enter_gfx_critical();
 
    /* put the screen contents located at the new position into the frontbuffer */
    blit(gdi_screen, mouse_frontbuffer, x, y, 0, 0,
@@ -174,8 +173,6 @@ static void update_mouse_pointer(int x, int y, int retrace)
    blit(gdi_screen, mouse_backbuffer, x, y, 0, 0,
         mouse_backbuffer->w, mouse_backbuffer->h);
 
-   _exit_gfx_critical();
-
    /* save the new position */
    mouse_xpos = x;
    mouse_ypos = y;
@@ -190,6 +187,8 @@ static int gfx_gdi_show_mouse(struct BITMAP *bmp, int x, int y)
    /* handle only the screen */
    if (bmp != gdi_screen)
       return -1;
+
+   mouse_on = TRUE;
 
    x -= mouse_xfocus;
    y -= mouse_yfocus;
@@ -207,9 +206,8 @@ static void gfx_gdi_hide_mouse(void)
 {
    HDC hdc;
 
-   /* to prevent the mouse thread and the rendering proc
-      from concurrently drawing onto the device context */
-   _enter_gfx_critical();
+   if (!mouse_on)
+      return; 
 
    hdc = GetDC(allegro_wnd);
 
@@ -222,7 +220,7 @@ static void gfx_gdi_hide_mouse(void)
 
    ReleaseDC(allegro_wnd, hdc);
 
-   _exit_gfx_critical();
+   mouse_on = FALSE;
 }
 
  
@@ -231,6 +229,9 @@ static void gfx_gdi_hide_mouse(void)
  */
 static void gfx_gdi_move_mouse(int x, int y)
 {
+   if (!mouse_on)
+      return;
+
    x -= mouse_xfocus;
    y -= mouse_yfocus;
 
@@ -247,7 +248,7 @@ static void gfx_gdi_move_mouse(int x, int y)
  */
 static void CALLBACK render_proc(HWND hwnd, UINT msg, UINT id_event, DWORD time)
 {
-   int top_line = 0, bottom_line = gfx_gdi.h-1;
+   int top_line, bottom_line;
    HDC hdc = NULL;
 
    /* to prevent reentrant calls */
@@ -273,12 +274,16 @@ static void CALLBACK render_proc(HWND hwnd, UINT msg, UINT id_event, DWORD time)
     */
 
    /* find the first dirty line */
-   while ((top_line < gfx_gdi.h) && !gdi_dirty_lines[top_line])
+   top_line = 0;
+
+   while (!gdi_dirty_lines[top_line])
       top_line++;
 
    if (top_line < gfx_gdi.h) {
       /* find the last dirty line */
-      while ((bottom_line > top_line) && !gdi_dirty_lines[bottom_line])
+      bottom_line = gfx_gdi.h-1;
+
+      while (!gdi_dirty_lines[bottom_line])
          bottom_line--;
 
       hdc = GetDC(allegro_wnd);
@@ -289,13 +294,14 @@ static void CALLBACK render_proc(HWND hwnd, UINT msg, UINT id_event, DWORD time)
       blit_to_hdc(gdi_screen, hdc, 0, top_line, 0, top_line,
                   gfx_gdi.w, bottom_line - top_line + 1);
 
-      /* update mouse backbuffer if needed */
-      if (mouse_backbuffer) {
-         if (((mouse_ypos >= top_line) && (mouse_ypos <= bottom_line))  ||
-             ((mouse_ypos+mouse_sprite->h > top_line) &&
-              (mouse_ypos+mouse_sprite->h <= bottom_line+1)))
+      /* update mouse pointer if needed */
+      if (mouse_on) {
+         if ((mouse_ypos+mouse_sprite->h > top_line) && (mouse_ypos <= bottom_line)) {
             blit(gdi_screen, mouse_backbuffer, mouse_xpos, mouse_ypos, 0, 0,
                  mouse_backbuffer->w, mouse_backbuffer->h);
+
+            update_mouse_pointer(mouse_xpos, mouse_ypos, TRUE);
+         }
       }
       
       /* clean up the dirty lines */
@@ -311,6 +317,33 @@ static void CALLBACK render_proc(HWND hwnd, UINT msg, UINT id_event, DWORD time)
    PulseEvent(vsync_event);
 
    render_semaphore = FALSE;
+}
+
+
+
+/* gdi_enter_sysmode:
+ */
+static void gdi_enter_sysmode(void)
+{
+   /* hide the mouse pointer */
+   if (mouse_on) {
+      mouse_was_on = TRUE;
+      gfx_gdi_hide_mouse();
+      _TRACE("mouse pointer off\n");
+   }
+}
+
+
+
+/* gdi_exit_sysmode:
+ */
+static void gdi_exit_sysmode(void)
+{
+   if (mouse_was_on) {
+      mouse_on = TRUE;
+      mouse_was_on = FALSE;
+      _TRACE("mouse pointer on\n");
+   }
 }
 
 
@@ -420,8 +453,9 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    MoveWindow(allegro_wnd, win_size.left, win_size.top, 
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
-   /* create the dirty lines array */ 
-   gdi_dirty_lines = calloc(h, sizeof(char));
+   /* the last flag serves as end of loop delimiter */
+   gdi_dirty_lines = calloc(h+1, sizeof(char));
+   gdi_dirty_lines[h] = 1;
 
    /* set the default switching policy */
    wnd_windowed = TRUE;
