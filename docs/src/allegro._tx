@@ -28,8 +28,9 @@
 @# This should remain commented at the moment (dvi output) @$@finalout
 @$
 @$@ifinfo
+@$@dircategory Libraries
 @$@direntry
-@$* Allegro: (allegro). The Allegro game programming library.
+@$* Allegro: (allegro).			The Allegro game programming library.
 @$@end direntry
 @$This is the Info version of the Allegro manual
 @$
