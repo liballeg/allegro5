@@ -139,11 +139,12 @@ Contributors
    Charles Bilyue (<email>Esaelon@aol.com</a>).<br>
    Optimized the i386 blitters.
 
-   Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
-   Fixed a bug with 16-bit samples loading.
-
    Chris Graham.<br>
    Suggested to add a new flag for Windows NTFS compressed files.
+
+   Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
+   Fixed a bug with 16-bit samples loading and worked around a problem with
+   DOS file attributes under Win2k.
 
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog
@@ -472,6 +473,9 @@ Contributors
    Mathieu Lafon (<email>mlafon@ifhamy.insa-lyon.fr</a>).<br>
    Added the French keyboard mapping, support for the Pause/PrtScr keys and
    changed the key[] table to a normal/extended bitfield.
+
+   Matt Witherspoon (<email>spoon@vt.edu</a>).<br>
+   Fixed a bug in the scroll() method of the Linux SVGAlib driver.
 
    Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
    Added support for 4-button joysticks.

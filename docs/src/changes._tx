@@ -30,8 +30,8 @@ Changes from 4.1.8 to 4.1.9 (Jan 2003)
 <li>
    Eric Botcazou reverted the latest patch applied to the joystick code.
 <li>
-   Eric Botcazou made the scroll() method of the Linux SVGAlib driver wait
-   for a retrace.
+   Matt Witherspoon and Eric Botcazou fixed a bug in the scroll() method of
+   the Linux SVGAlib driver so as to make it wait for the vertical retrace.
 <li>
    Eric Botcazou added a stop/resume option to the exstream.c example.
 <li>
@@ -48,8 +48,8 @@ Changes from 4.1.8 to 4.1.9 (Jan 2003)
    Eric Botcazou made it so that the window is centered at startup under
    Windows.
 <li>
-   Eric Botcazou worked around a problem with DOS file attributes under Win2k
-   with the help of Chris Jones.
+   Chris Jones and Eric Botcazou worked around a problem with DOS file
+   attributes under Win2k.
 <li>
    Eric Botcazou made the filetest work better with the keyboard.
 <li>
