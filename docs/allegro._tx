@@ -2120,10 +2120,9 @@ Graphics modes
    Returns: 0 on success, and -1 if the function is not supported, or if the
    call failed.
 
-@@int @destroy_gfx_mode_list(void);
+@@void @destroy_gfx_mode_list(void);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
    Removes the mode list created by get_gfx_mode_list() from memory.
-   Returns 0 on success and -1 if the mode list does not exist.
 
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities

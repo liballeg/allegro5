@@ -188,7 +188,8 @@ int get_gfx_mode_list(int card)
 	 drv = entry->driver;
 	 if (!drv->fetch_mode_list)
 	    break;
-	 drv->fetch_mode_list();
+	 if (drv->fetch_mode_list() < 0)
+	    return -1;
 	 return 0;
       }
    }
@@ -200,17 +201,13 @@ int get_gfx_mode_list(int card)
 
 /* destroy_gfx_mode_list:
  *  Removes the mode list created by get_gfx_mode_list() from memory.
- *  Returns 0 on success and -1 if the mode list does not exist.
  */
-int destroy_gfx_mode_list(void)
+void destroy_gfx_mode_list(void)
 {
    if (gfx_mode_list) {
       free(gfx_mode_list);
       gfx_mode_list = NULL;
-      return 0;
    }
-
-   return -1;
 }
 
 

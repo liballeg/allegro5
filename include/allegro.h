@@ -1068,7 +1068,7 @@ typedef struct GFX_MODE_LIST {
 AL_VAR(GFX_MODE_LIST *, gfx_mode_list);
 
 AL_FUNC(int, get_gfx_mode_list, (int card));
-AL_FUNC(int, destroy_gfx_mode_list, (void));
+AL_FUNC(void, destroy_gfx_mode_list, (void));
 AL_FUNC(void, set_color_depth, (int depth));
 AL_FUNC(void, set_color_conversion, (int mode));
 AL_FUNC(void, request_refresh_rate, (int rate));
