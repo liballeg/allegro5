@@ -74,7 +74,7 @@ AL_FUNC(void, unload_datafile_object, (DATAFILE *dat));
 
 AL_FUNC(DATAFILE *, find_datafile_object, (AL_CONST DATAFILE *dat, AL_CONST char *objectname));
 AL_FUNC(AL_CONST char *, get_datafile_property, (AL_CONST DATAFILE *dat, int type));
-AL_FUNC(void, register_datafile_object, (int id, AL_METHOD(void *, load, (struct PACKFILE *f, long size)), AL_METHOD(void, destroy, (void *data))));
+AL_FUNC(void, register_datafile_object, (int id_, AL_METHOD(void *, load, (struct PACKFILE *f, long size)), AL_METHOD(void, destroy, (void *data))));
 
 AL_FUNC(void, fixup_datafile, (DATAFILE *data));
 
