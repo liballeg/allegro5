@@ -239,7 +239,7 @@ static void handle_key_press(XKeyEvent *ke, bool state_field_reliable)
    AL_EVENT *event;
    unsigned int type;
 
-   if ((ke->keycode < 0) || (ke->keycode >= XKEYCODE_TO_MYCODE_SIZE))
+   if (ke->keycode >= XKEYCODE_TO_MYCODE_SIZE)
       return;
 
    mycode = xkeycode_to_mycode[ke->keycode];
@@ -305,7 +305,7 @@ static void handle_key_release(XKeyEvent *ke, bool state_field_reliable)
    int mycode;
    AL_EVENT *event;
    
-   if ((ke->keycode < 0) || (ke->keycode >= XKEYCODE_TO_MYCODE_SIZE))
+   if (ke->keycode >= XKEYCODE_TO_MYCODE_SIZE)
       return;
 
    mycode = xkeycode_to_mycode[ke->keycode];
