@@ -36,8 +36,8 @@ Changes from 3.11 to current
    3.9.38: Eric Botcazou made a valid display switch mode of SWITCH_NONE
    under DOS.
 <li>
-   3.9.38: Angelo Mottola made Beos port use new unified color conversion
-   routines.
+   3.9.38: Angelo Mottola made the BeOS port use the new unified color
+   conversion routines.
 <li>
    3.9.38: Peter Wang added check to see if display is local under X11.
 <li>
@@ -61,7 +61,7 @@ Changes from 3.11 to current
    3.9.38: Angelo Mottola added fetch_mode_list() support to the BeOS
    fullscreen driver.
 <li>
-   3.9.38: Eric Botcazou changed the accelleration scheme for the mouse under
+   3.9.38: Eric Botcazou changed the acceleration scheme for the mouse under
    Windows.
 <li>
    3.9.38: Peter Wang added fetch_mode_list() support to the svgalib driver.
@@ -125,7 +125,7 @@ Changes from 3.11 to current
 <li>
    3.9.38: Owen Rudge contributed a mkdata.bat script.
 <li>
-   3.9.38: Grzegorz Adam HankieWicz added reload_config_texts().
+   3.9.38: Grzegorz Adam Hankiewicz added reload_config_texts().
 <li>
    3.9.38: Eric Botcazou added an enhanced building mechanism for DLL
    export definition files.
