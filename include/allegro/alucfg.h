@@ -36,6 +36,9 @@
 # define O_TEXT    0
 #endif
 
+#ifdef __sgi__
+# define fhypot sgi_fhypot
+#endif
 #include <math.h>
 #ifdef __sgi__
 /* SGI defines these macros in <math.h>.  */
@@ -49,6 +52,7 @@
 # undef fsqrt
 # undef fhypot
 #endif
+#undef ALLEGRO_INCLUDE_MATH_H
 
 /* These defines will be provided by configure script.  */
 #undef ALLEGRO_COLOR8

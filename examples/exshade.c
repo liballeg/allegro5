@@ -5,7 +5,7 @@
  */
 
 
-#include <math.h>
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 

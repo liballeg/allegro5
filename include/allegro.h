@@ -40,7 +40,9 @@
 
 #include "allegro/alconfig.h"
 
-
+#ifdef ALLEGRO_INCLUDE_MATH_H
+   #include <math.h>
+#endif
 
 /*******************************************/
 /************ Some global stuff ************/

@@ -485,7 +485,8 @@ Contributors
    Stepan Roh (<email>sroh7497@ss1000.ms.mff.cuni.cz</a>).<br>
    Added a Czech keyboard mapping and system message translation, the Latin 
    Extended-A characters in the default font, and the codepage support in 
-   the textconv utility, and fixed some problems with the ESD sound driver.
+   the textconv utility, fixed some problems with the ESD sound driver, and 
+   helped make Allegro build better on some Unix platforms.
 
    Sven Sandberg (<email>ssven@geocities.com</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 

@@ -18,7 +18,8 @@
 
 #include <string.h>
 #include <limits.h>
-#include <math.h>
+
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 #include "allegro/aintern.h"

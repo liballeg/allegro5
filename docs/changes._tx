@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Stephan Roh made patches to allow compilation on IRIX.
+<li>
    3.9.33: John Harger made a change to improve the stability of AllegroGL
    in Windows.
 <li>
