@@ -39,12 +39,15 @@
  */
 RLE_SPRITE *get_rle_sprite(BITMAP *bitmap)
 {
-   int depth = bitmap_color_depth(bitmap);
+   int depth;
    RLE_SPRITE *s;
    int x, y;
    int run;
    int pix;
    int c;
+   ASSERT(bitmap);
+   
+   depth = bitmap_color_depth(bitmap);
 
    #define WRITE_TO_SPRITE8(x) {                                             \
       _grow_scratch_mem(c+1);                                                \

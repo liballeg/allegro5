@@ -43,6 +43,7 @@ void register_sample_file_type(AL_CONST char *ext, SAMPLE *(*load)(AL_CONST char
 {
    char tmp[32], *aext;
    SAMPLE_TYPE_INFO *iter = sample_type_list;
+   ASSERT(ext);
 
    aext = uconvert_toascii(ext, tmp);
    if (strlen(aext) == 0) return;
@@ -71,6 +72,7 @@ SAMPLE *load_sample(AL_CONST char *filename)
 {
    char tmp[32], *aext;
    SAMPLE_TYPE_INFO *iter;
+   ASSERT(filename);
 
    aext = uconvert_toascii(get_extension(filename), tmp);
    
@@ -94,6 +96,8 @@ int save_sample(AL_CONST char *filename, SAMPLE *smp)
 {
    char tmp[32], *aext;
    SAMPLE_TYPE_INFO *iter;
+   ASSERT(filename);
+   ASSERT(smp);
 
    aext = uconvert_toascii(get_extension(filename), tmp);
 

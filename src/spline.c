@@ -116,7 +116,7 @@ void calc_spline(AL_CONST int points[8], int npts, int *out_x, int *out_y)
  *  Draws a bezier spline onto the specified bitmap in the specified color.
  */
 void spline(BITMAP *bmp, AL_CONST int points[8], int color)
-{
+{   
    #define MAX_POINTS   64
 
    int xpts[MAX_POINTS], ypts[MAX_POINTS];
@@ -125,6 +125,7 @@ void spline(BITMAP *bmp, AL_CONST int points[8], int color)
    int c;
    int old_drawing_mode, old_drawing_x_anchor, old_drawing_y_anchor;
    BITMAP *old_drawing_pattern;
+   ASSERT(bmp);
 
    /* Calculate the number of points to draw. We want to draw as few as
       possible without loosing image quality. This algorithm is rather

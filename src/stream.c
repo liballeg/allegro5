@@ -95,6 +95,8 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
  */
 void stop_audio_stream(AUDIOSTREAM *stream)
 {
+   ASSERT(stream);
+   
    if ((stream->locked) && (digi_driver->unlock_voice))
       digi_driver->unlock_voice(stream->voice);
 
@@ -121,7 +123,7 @@ void *get_audio_stream_buffer(AUDIOSTREAM *stream)
 {
    int pos;
    char *data = NULL;
-
+   ASSERT(stream);
 
    if (stream->bufnum == stream->active * stream->bufcount) {
       /* waiting for the sample to switch halves */
@@ -166,6 +168,8 @@ void *get_audio_stream_buffer(AUDIOSTREAM *stream)
  */
 void free_audio_stream_buffer(AUDIOSTREAM *stream)
 {
+   ASSERT(stream);
+   
    /* flip buffers */
    stream->bufnum++;
 

@@ -574,6 +574,7 @@ void register_uformat(int type, int (*ugetc)(AL_CONST char *s), int (*ugetx)(cha
  */
 void set_ucodepage(AL_CONST unsigned short *table, AL_CONST unsigned short *extras)
 {
+   ASSERT(table);
    codepage_table = table;
    codepage_extras = extras;
 }
@@ -588,7 +589,8 @@ void set_ucodepage(AL_CONST unsigned short *table, AL_CONST unsigned short *extr
 int need_uconvert(AL_CONST char *s, int type, int newtype)
 {
    int c;
-
+   ASSERT(s);
+   
    if (type == U_CURRENT)
       type = utype;
 
@@ -620,6 +622,7 @@ int uconvert_size(AL_CONST char *s, int type, int newtype)
    UTYPE_INFO *info, *outfo;
    int size = 0;
    int c;
+   ASSERT(s);
 
    info = _find_utype(type);
    if (!info)
@@ -647,6 +650,8 @@ void do_uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
    UTYPE_INFO *info, *outfo;
    int pos = 0;
    int c;
+   ASSERT(s);
+   ASSERT(buf);
 
    info = _find_utype(type);
    if (!info)
@@ -686,6 +691,8 @@ void do_uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
 char *uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
 {
    static char static_buf[512];
+   ASSERT(s);
+   ASSERT(size >= 0);
 
    if (!need_uconvert(s, type, newtype))
       return (char *)s;
@@ -711,6 +718,7 @@ int uoffset(AL_CONST char *s, int index)
 {
    AL_CONST char *orig = s;
    AL_CONST char *last;
+   ASSERT(s);
 
    if (index < 0)
       index += ustrlen(s);
@@ -733,6 +741,7 @@ int uoffset(AL_CONST char *s, int index)
  */
 int ugetat(AL_CONST char *s, int index)
 {
+   ASSERT(s);
    return ugetc(s + uoffset(s, index));
 }
 
@@ -746,6 +755,7 @@ int ugetat(AL_CONST char *s, int index)
 int usetat(char *s, int index, int c)
 {
    int oldw, neww;
+   ASSERT(s);
 
    s += uoffset(s, index);
 
@@ -769,6 +779,7 @@ int usetat(char *s, int index, int c)
 int uinsert(char *s, int index, int c)
 {
    int w = ucwidth(c);
+   ASSERT(s);
 
    s += uoffset(s, index);
    memmove(s+w, s, ustrsizez(s));
@@ -786,6 +797,7 @@ int uinsert(char *s, int index, int c)
 int uremove(char *s, int index)
 {
    int w;
+   ASSERT(s);
 
    s += uoffset(s, index);
    w = uwidth(s);
@@ -1710,9 +1722,11 @@ int uisdigit(int c)
  */
 char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
 {
-   char *s = malloc_func(ustrsizez(src));
+   char *s;
+   ASSERT(src);
+   ASSERT(malloc_func);
 
-   if (s)
+   if ((s = malloc_func(ustrsizez(src))))
       ustrcpy(s, src);  /* ustrzcpy() not needed */
 
    return s;
@@ -1728,6 +1742,7 @@ int ustrsize(AL_CONST char *s)
 {
    AL_CONST char *orig = s;
    AL_CONST char *last;
+   ASSERT(s);
 
    do {
       last = s;
@@ -1745,6 +1760,7 @@ int ustrsize(AL_CONST char *s)
 int ustrsizez(AL_CONST char *s)
 {
    AL_CONST char *orig = s;
+   ASSERT(s);
 
    do {
    } while (ugetxc(&s) != 0);
@@ -1764,6 +1780,9 @@ char *ustrzcpy(char *dest, int size, AL_CONST char *src)
 {
    int pos = 0;
    int c;
+   ASSERT(dest);
+   ASSERT(src);
+   ASSERT(size >= 0);
 
    size -= ucwidth(0);
 
@@ -1790,9 +1809,13 @@ char *ustrzcpy(char *dest, int size, AL_CONST char *src)
  */
 char *ustrzcat(char *dest, int size, AL_CONST char *src)
 {
-   int pos = ustrsize(dest);
+   int pos;
    int c;
+   ASSERT(dest);
+   ASSERT(src);
+   ASSERT(size >= 0);
 
+   pos = ustrsize(dest);
    size -= pos + ucwidth(0);
 
    while ((c = ugetxc(&src)) != 0) {
@@ -1816,6 +1839,7 @@ char *ustrzcat(char *dest, int size, AL_CONST char *src)
 int ustrlen(AL_CONST char *s)
 {
    int c = 0;
+   ASSERT(s);
 
    while (ugetxc(&s))
       c++;
@@ -1831,6 +1855,8 @@ int ustrlen(AL_CONST char *s)
 int ustrcmp(AL_CONST char *s1, AL_CONST char *s2)
 {
    int c1, c2;
+   ASSERT(s1);
+   ASSERT(s2);
 
    for (;;) {
       c1 = ugetxc(&s1);
@@ -1857,6 +1883,10 @@ char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
    int pos = 0, len = 0;
    int ansi_oddness = FALSE;
    int c;
+   ASSERT(dest);
+   ASSERT(src);
+   ASSERT(size >= 0);
+   ASSERT(n >= 0);
 
    /* detect raw ustrncpy() call */
    if (size == INT_MAX)
@@ -1901,9 +1931,14 @@ char *ustrzncpy(char *dest, int size, AL_CONST char *src, int n)
  */
 char *ustrzncat(char *dest, int size, AL_CONST char *src, int n)
 {
-   int pos = ustrsize(dest), len = 0;
+   int pos, len = 0;
    int c;
+   ASSERT(dest);
+   ASSERT(src);
+   ASSERT(size >= 0);
+   ASSERT(n >= 0);
 
+   pos = ustrsize(dest);
    size -= pos + ucwidth(0);
 
    while (((c = ugetxc(&src)) != 0) && (len < n)) {
@@ -1928,6 +1963,8 @@ char *ustrzncat(char *dest, int size, AL_CONST char *src, int n)
 int ustrncmp(AL_CONST char *s1, AL_CONST char *s2, int n)
 {
    int c1, c2;
+   ASSERT(s1);
+   ASSERT(s2);
 
    if (n <= 0)
       return 0;
@@ -1952,6 +1989,8 @@ int ustrncmp(AL_CONST char *s1, AL_CONST char *s2, int n)
 int ustricmp(AL_CONST char *s1, AL_CONST char *s2)
 {
    int c1, c2;
+   ASSERT(s1);
+   ASSERT(s2);
 
    for (;;) {
       c1 = utolower(ugetxc(&s1));
@@ -1973,6 +2012,8 @@ int ustricmp(AL_CONST char *s1, AL_CONST char *s2)
 int ustrnicmp(AL_CONST char *s1, AL_CONST char *s2, int n)
 {
    int c1, c2;
+   ASSERT(s1);
+   ASSERT(s2);
 
    if (n <= 0)
       return 0;
@@ -1998,6 +2039,7 @@ char *ustrlwr(char *s)
 {
    int pos = 0;
    int c, lc;
+   ASSERT(s);
 
    while ((c = ugetc(s+pos)) != 0) {
       lc = utolower(c);
@@ -2020,6 +2062,7 @@ char *ustrupr(char *s)
 {
    int pos = 0;
    int c, uc;
+   ASSERT(s);
 
    while ((c = ugetc(s+pos)) != 0) {
       uc = utoupper(c);
@@ -2041,6 +2084,7 @@ char *ustrupr(char *s)
 char *ustrchr(AL_CONST char *s, int c)
 {
    int d;
+   ASSERT(s);
 
    while ((d = ugetc(s)) != 0) {
       if (c == d)
@@ -2064,6 +2108,7 @@ char *ustrrchr(AL_CONST char *s, int c)
 {
    AL_CONST char *last_match = NULL;
    int c1, pos = 0;
+   ASSERT(s);
 
    for (c1=ugetc(s); c1; c1=ugetc(s+pos)) {
       if (c1 == c)
@@ -2082,8 +2127,11 @@ char *ustrrchr(AL_CONST char *s, int c)
  */
 char *ustrstr(AL_CONST char *s1, AL_CONST char *s2)
 {
-   int len = ustrlen(s2);
+   int len;
+   ASSERT(s1);
+   ASSERT(s2);
 
+   len = ustrlen(s2);
    while (ugetc(s1)) {
       if (ustrncmp(s1, s2, len) == 0)
 	 return (char *)s1;
@@ -2103,6 +2151,8 @@ char *ustrpbrk(AL_CONST char *s, AL_CONST char *set)
 {
    AL_CONST char *setp;
    int c, d;
+   ASSERT(s);
+   ASSERT(set);
 
    while ((c = ugetc(s)) != 0) {
       setp = set;
@@ -2126,6 +2176,7 @@ char *ustrpbrk(AL_CONST char *s, AL_CONST char *set)
 char *ustrtok(char *s, AL_CONST char *set)
 {
    static char *last = NULL;
+   ASSERT(s);
 
    return ustrtok_r(s, set, &last);
 }
@@ -2140,6 +2191,8 @@ char *ustrtok_r(char *s, AL_CONST char *set, char **last)
    char *prev_str, *tok;
    AL_CONST char *setp;
    int c, sc;
+   ASSERT(s);
+   ASSERT(last);
 
    if (!s) {
       s = *last;
@@ -2200,6 +2253,7 @@ char *ustrtok_r(char *s, AL_CONST char *set, char **last)
 double uatof(AL_CONST char *s)
 {
    char tmp[64];
+   ASSERT(s);
    return atof(uconvert_toascii(s, tmp));
 }
 
@@ -2215,6 +2269,7 @@ long ustrtol(AL_CONST char *s, char **endp, int base)
    char *myendp;
    long ret;
    char *t;
+   ASSERT(s);
 
    t = uconvert_toascii(s, tmp);
 
@@ -2238,6 +2293,7 @@ double ustrtod(AL_CONST char *s, char **endp)
    char *myendp;
    double ret;
    char *t;
+   ASSERT(s);
 
    t = uconvert_toascii(s, tmp);
 
@@ -2967,6 +3023,9 @@ int uvszprintf(char *buf, int size, AL_CONST char *format, va_list args)
    char *decoded_format, *df;
    STRING_ARG *string_args, *iter_arg;
    int c, len;
+   ASSERT(buf);
+   ASSERT(size >= 0);
+   ASSERT(format);
 
    /* decoding can only lower the length of the format string */
    df = decoded_format = malloc(ustrsizez(format) * sizeof(char));
@@ -3036,8 +3095,10 @@ int uvszprintf(char *buf, int size, AL_CONST char *format, va_list args)
 int usprintf(char *buf, AL_CONST char *format, ...)
 {
    int ret;
-
    va_list ap;
+   ASSERT(buf);
+   ASSERT(format);
+
    va_start(ap, format);
    ret = uvszprintf(buf, INT_MAX, format, ap);
    va_end(ap);
@@ -3054,8 +3115,11 @@ int usprintf(char *buf, AL_CONST char *format, ...)
 int uszprintf(char *buf, int size, AL_CONST char *format, ...)
 {
    int ret;
-
    va_list ap;
+   ASSERT(buf);
+   ASSERT(size >= 0);
+   ASSERT(format);
+
    va_start(ap, format);
    ret = uvszprintf(buf, size, format, ap);
    va_end(ap);

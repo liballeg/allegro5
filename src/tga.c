@@ -189,6 +189,7 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
    PACKFILE *f;
    BITMAP *bmp;
    PALETTE tmppal;
+   ASSERT(filename);
 
    if (!pal)
       pal = tmppal;
@@ -398,6 +399,8 @@ int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    int depth;
    PACKFILE *f;
    PALETTE tmppal;
+   ASSERT(filename);
+   ASSERT(bmp);
 
    if (!pal) {
       get_palette(tmppal);

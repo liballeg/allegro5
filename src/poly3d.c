@@ -1092,6 +1092,7 @@ static void do_polygon3d(BITMAP *bmp, int top, int bottom, POLYGON_EDGE *left_ed
       int old87 = 0;
    #endif
    POLYGON_EDGE *right_edge;
+   ASSERT(bmp);
 
    /* set fpu to single-precision, truncate mode */
    #ifdef ALLEGRO_DOS
@@ -1155,6 +1156,7 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
    POLYGON_EDGE *list_edges = NULL;
    POLYGON_SEGMENT info;
    SCANLINE_FILLER drawer;
+   ASSERT(bmp);
 
    if (vc < 3)
       return;

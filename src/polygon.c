@@ -122,6 +122,7 @@ void polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
    POLYGON_EDGE *edge, *next_edge;
    POLYGON_EDGE *active_edges = NULL;
    POLYGON_EDGE *inactive_edges = NULL;
+   ASSERT(bmp);
 
    /* allocate some space and fill the edge table */
    _grow_scratch_mem(sizeof(POLYGON_EDGE) * vertices);
@@ -212,6 +213,7 @@ void polygon(BITMAP *bmp, int vertices, AL_CONST int *points, int color)
  */
 void triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color)
 {
+   ASSERT(bmp);
    if (bmp->vtable->triangle)
       if (bmp->vtable->triangle(bmp, x1, y1, x2, y2, x3, y3, color))
 	 return;

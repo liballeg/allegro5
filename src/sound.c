@@ -766,6 +766,7 @@ void set_volume(int digi_volume, int midi_volume)
  */
 void lock_sample(SAMPLE *spl)
 {
+   ASSERT(spl);
    LOCK_DATA(spl, sizeof(SAMPLE));
    LOCK_DATA(spl->data, spl->len * ((spl->bits==8) ? 1 : sizeof(short)) * ((spl->stereo) ? 2 : 1));
 }
@@ -786,6 +787,7 @@ SAMPLE *load_voc(AL_CONST char *filename)
    int len;
    int x, ver;
    signed short s;
+   ASSERT(filename);
 
    f = pack_fopen(filename, F_READ);
    if (!f) 
@@ -888,6 +890,7 @@ SAMPLE *load_wav(AL_CONST char *filename)
    int channels = 1;
    signed short s;
    SAMPLE *spl = NULL;
+   ASSERT(filename);
 
    f = pack_fopen(filename, F_READ);
    if (!f)
@@ -1030,6 +1033,7 @@ void destroy_sample(SAMPLE *spl)
  */
 static INLINE int absolute_freq(int freq, AL_CONST SAMPLE *spl)
 {
+   ASSERT(spl);
    if (freq == 1000)
       return spl->freq;
    else
@@ -1050,8 +1054,10 @@ static INLINE int absolute_freq(int freq, AL_CONST SAMPLE *spl)
  */
 int play_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
 {
-   int voice = allocate_voice(spl);
+   int voice;
+   ASSERT(spl);
 
+   voice = allocate_voice(spl);
    if (voice >= 0) {
       voice_set_volume(voice, vol);
       voice_set_pan(voice, pan);
@@ -1080,6 +1086,7 @@ END_OF_FUNCTION(play_sample);
 void adjust_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
 {
    int c;
+   ASSERT(spl);
 
    for (c=0; c<VIRTUAL_VOICES; c++) { 
       if (_voice[c].sample == spl) {
@@ -1104,6 +1111,7 @@ END_OF_FUNCTION(adjust_sample);
 void stop_sample(AL_CONST SAMPLE *spl)
 {
    int c;
+   ASSERT(spl);
 
    for (c=0; c<VIRTUAL_VOICES; c++)
       if (_voice[c].sample == spl)
@@ -1232,8 +1240,11 @@ static INLINE int allocate_virtual_voice()
  */
 int allocate_voice(AL_CONST SAMPLE *spl)
 {
-   int phys = allocate_physical_voice(spl->priority);
-   int virt = allocate_virtual_voice();
+   int phys, virt;
+   ASSERT(spl);
+   
+   phys = allocate_physical_voice(spl->priority);
+   virt = allocate_virtual_voice();
 
    if (virt >= 0) {
       _voice[virt].sample = spl;
@@ -1288,6 +1299,7 @@ END_OF_FUNCTION(deallocate_voice);
 void reallocate_voice(int voice, AL_CONST SAMPLE *spl)
 {
    int phys = _voice[voice].num;
+   ASSERT(spl);
 
    if (phys >= 0) {
       digi_driver->stop_voice(phys);

@@ -57,6 +57,9 @@ int text_mode(int mode)
  */
 void textout(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(str);
    f->vtable->render(f, str, color, _textmode, bmp, x, y);
 }
 
@@ -69,6 +72,9 @@ void textout(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, in
 void textout_centre(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
    int len;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(str);
 
    len = text_length(f, str);
    textout(bmp, f, str, x - len/2, y, color);
@@ -83,6 +89,9 @@ void textout_centre(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, in
 void textout_right(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
    int len;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(str);
 
    len = text_length(f, str);
    textout(bmp, f, str, x - len, y, color);
@@ -102,6 +111,9 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
    char *strbuf, *strlast;
    int i, minlen, last, space;
    float fleft, finc;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(str);
 
    i = usetc(toks, ' ');
    i += usetc(toks+i, '\t');
@@ -157,8 +169,11 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
 void textprintf(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...)
 {
    char buf[512];
-
    va_list ap;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(format);
+
    va_start(ap, format);
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
@@ -175,8 +190,11 @@ void textprintf(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST
 void textprintf_centre(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...)
 {
    char buf[512];
-
    va_list ap;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(format);
+
    va_start(ap, format);
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
@@ -193,8 +211,11 @@ void textprintf_centre(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, A
 void textprintf_right(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...)
 {
    char buf[512];
-
    va_list ap;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(format);
+
    va_start(ap, format);
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
@@ -210,8 +231,11 @@ void textprintf_right(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL
 void textprintf_justify(BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...)
 {
    char buf[512];
-
    va_list ap;
+   ASSERT(bmp);
+   ASSERT(f);
+   ASSERT(format);
+
    va_start(ap, format);
    uvszprintf(buf, sizeof(buf), format, ap);
    va_end(ap);
@@ -226,6 +250,8 @@ void textprintf_justify(BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, in
  */
 int text_length(AL_CONST FONT *f, AL_CONST char *str)
 {
+   ASSERT(f);
+   ASSERT(str);
    return f->vtable->text_length(f, str);
 }
 
@@ -236,6 +262,7 @@ int text_length(AL_CONST FONT *f, AL_CONST char *str)
  */
 int text_height(AL_CONST FONT *f)
 {
+   ASSERT(f);
    return f->vtable->font_height(f);
 }
 
