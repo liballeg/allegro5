@@ -49,9 +49,9 @@ else
 
 # -------- link as a shared library --------
 LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
+LIB_MAIN_NAME = lib/macosx/lib$(VERSION)-main.a
 
-DYLINK_FLAGS = -flat_namespace -Wl,-U,__mangled_main_address
-DYLINK_FLAGS += -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version)
+DYLINK_FLAGS = -prebind -seg1addr 0x30000000 -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version)
 
 INSTALL_NAME = -install_name lib$(VERSION)-$(shared_version).dylib
 INSTALL_NAME_EMBED = -install_name "`echo "@executable_path/../Frameworks/$(FRAMEWORK_NAME).framework/Versions/$(shared_version)/$(FRAMEWORK_NAME)" | sed 's!//*!/!g'`"
@@ -120,15 +120,18 @@ CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifndef SYMBOLMODE
-LFLAGS = -s
+LFLAGS = -s -prebind
 else
-LFLAGS = 
+LFLAGS = -prebind
 endif
 
 endif
 endif
 
 CFLAGS += -fno-common -pipe
+ifndef STATICLINK
+CFLAGS += -dynamic
+endif
 
 
 # -------- list platform specific objects and programs --------
@@ -136,9 +139,13 @@ CFLAGS += -fno-common -pipe
 VPATH = src/macosx src/unix src/misc src/c tools/macosx
 CFLAGS += -DALLEGRO_USE_C
 
+ifdef STATICLINK
+ALLEGRO_SRC_MACOSX_FILES += src/macosx/main.m
+endif
+
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework AudioToolbox -framework QuickTime
+STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework QuickTime
 ifdef STATICLINK
 LIBRARIES = $(STATIC_LIBRARIES)
 else
@@ -163,12 +170,21 @@ ifdef STATICLINK
 
 $(INSTALLDIR)/lib/lib$(VERSION).a: $(LIB_NAME)
 	cp $(LIB_NAME) $(INSTALLDIR)/lib
+	ranlib $(INSTALLDIR)/lib/lib$(VERSION).a
 
 else
 
+$(INSTALLDIR)/lib/lib$(VERSION)-main.a: $(LIB_MAIN_NAME)
+	cp $(LIB_MAIN_NAME) $(INSTALLDIR)/lib
+	ranlib $(INSTALLDIR)/lib/lib$(VERSION)-main.a
 $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
 	cp $(LIB_NAME) $(INSTALLDIR)/lib
-
+	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_major_minor).dylib
+	(cd $(INSTALLDIR)/lib; ln -s lib$(VERSION)-$(shared_version).dylib lib$(VERSION)-$(shared_major_minor).dylib)
+	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-4.dylib
+	(cd $(INSTALLDIR)/lib; ln -s lib$(VERSION)-$(shared_version).dylib lib$(VERSION)-4.dylib)
+	rm -f $(INSTALLDIR)/lib/lib$(VERSION).dylib
+	(cd $(INSTALLDIR)/lib; ln -s lib$(VERSION)-$(shared_version).dylib lib$(VERSION).dylib)
 endif
 
 
@@ -183,7 +199,7 @@ endif
 	@sed -e "s/@LDFLAGS@//" temp > temp2
 	@sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
 	@sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
-	@sed -e "s/-l\$${lib_type}_unsharable/$(LIBRARIES)/" temp2 >$(INSTALLDIR)/bin/allegro-config
+	@sed -e "s/-l\$${lib_type}_unsharable/-l\$${lib_type}-main $(LIBRARIES)/" temp2 >$(INSTALLDIR)/bin/allegro-config
 	@rm -f temp temp2
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
 	@echo allegro-config script created in $(INSTALLDIR)/bin
@@ -199,6 +215,7 @@ ifdef STATICLINK
    INSTALL_FILES = $(INSTALLDIR)/lib/lib$(VERSION).a 
 else
    INSTALL_FILES = $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib
+   INSTALL_FILES += $(INSTALLDIR)/lib/lib$(VERSION)-main.a
 endif
 
 INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config
@@ -207,7 +224,7 @@ install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 	@echo Run make install-man if you wish to install the man pages.
 	@echo Run make install-framework if you wish to install the library as a framework.
-	@echo Run make install-template if you wish to install the Project Builder application template.
+	@echo Run make install-template if you wish to install the application template.
 
 UNINSTALL_FILES = $(INSTALLDIR)/lib/liballeg.a                       \
                   $(INSTALLDIR)/lib/liballd.a                        \
@@ -215,10 +232,16 @@ UNINSTALL_FILES = $(INSTALLDIR)/lib/liballeg.a                       \
                   $(INSTALLDIR)/lib/liballeg-$(shared_version).dylib \
                   $(INSTALLDIR)/lib/liballd-$(shared_version).dylib  \
                   $(INSTALLDIR)/lib/liballp-$(shared_version).dylib  \
+                  $(INSTALLDIR)/lib/liballeg-main.a                  \
+                  $(INSTALLDIR)/lib/liballd-main.a                   \
+                  $(INSTALLDIR)/lib/liballp-main.a                   \
                   $(HEADERS)                                         \
                   $(INSTALLDIR)/bin/allegro-config
 
 uninstall: generic-uninstall
+	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_major_minor).dylib
+	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-4.dylib
+	rm -f $(INSTALLDIR)/lib/lib$(VERSION).dylib
 	-rm -fr $(FRAMEWORK)
 	-rm -fr $(TEMPLATE)
 	-sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(MAN_DIR)/man3/\1.3,p" docs/src/allegro._tx \
@@ -229,7 +252,9 @@ uninstall: generic-uninstall
 	  | xargs -n 1 rm -f
 	@echo All gone!	
 
-install-framework: $(LIB_NAME)
+install-framework: $(FRAMEWORK)
+
+$(FRAMEWORK): $(LIB_NAME)
 ifdef STATICKLINK
 	@echo You need to compile Allegro as a dynamic library to install the framework.
 else
@@ -256,14 +281,16 @@ endif
 	@echo $(FRAMEWORK)
 endif
 
-install-template: install-framework
+install-template: $(TEMPLATE)
+
+$(TEMPLATE): $(FRAMEWORK)
 	@rm -fr $(TEMPLATE)
 	@mkdir -p $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/template.c $(TEMPLATE)/main.c
 	@cp misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj
-	@echo Allegro application template for Project Builder installed in:
+	@echo Allegro application template for Project Builder (XCode) installed in:
 	@echo $(TEMPLATE)
 
 
@@ -294,7 +321,6 @@ ifdef STATICLINK
 # -------- link as a static library --------
 define MAKE_LIB
 ar rs $(LIB_NAME) $(OBJECTS)
-ranlib $(LIB_NAME)
 endef
 
 else
@@ -307,6 +333,12 @@ endef
 
 endif # STATICLINK
 
+$(LIB_MAIN_NAME): obj/macosx/$(VERSION)/main.o
+ifndef STATICLINK
+	ar rs $(LIB_MAIN_NAME) obj/macosx/$(VERSION)/main.o
+endif
+
+
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
@@ -318,8 +350,8 @@ $(OBJ_DIR)/%.o: %.cpp
 $(OBJ_DIR)/%.o: %.m
 	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
-*/%: $(OBJ_DIR)/%.o $(LIB_NAME)
-	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+*/%: $(OBJ_DIR)/%.o $(LIB_NAME) $(LIB_MAIN_NAME)
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES)
 
 define LINK_WITHOUT_LIB
    $(CC) $(LFLAGS) -o $@ $^
@@ -339,15 +371,15 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix `cat < ,$(addsuffix `,$(PLUGIN_SCRIPTS))) $(LIB_NAME) $(LIBRARIES))
+   $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix `cat < ,$(addsuffix `,$(PLUGIN_SCRIPTS))) $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES))
 endef
 
 
-tools/macosx/%: $(OBJ_DIR)/%.o $(LIB_NAME)
+tools/macosx/%: $(OBJ_DIR)/%.o $(LIB_NAME) $(LIB_MAIN_NAME)
 ifdef STATICLINK
 	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 else
-	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES) -framework Carbon
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIB_MAIN_NAME) $(LIBRARIES) -framework Carbon
 endif
 
 

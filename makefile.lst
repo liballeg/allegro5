@@ -336,7 +336,6 @@ ALLEGRO_SRC_MACOSX_FILES = \
 	src/macosx/hidjoy.m \
 	src/macosx/hidman.m \
 	src/macosx/keybd.m \
-	src/macosx/main.m \
 	src/macosx/qtmidi.m \
 	src/macosx/quartz.m \
 	src/macosx/qzfull.m \
