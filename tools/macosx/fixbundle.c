@@ -157,13 +157,13 @@ static int scale_icon(ICON_DATA *icon)
             for (n = -1; n < 3; n++) {
                r2 = cubic_bspline(b - (float)n);
 	       color = ((unsigned int *)(icon->workspace->line[i_y + m + 2]))[i_x + n + 2];
-	       red += ((float)getb32(color) * r1 * r2);
+	       red += ((float)getr32(color) * r1 * r2);
 	       green += ((float)getg32(color) * r1 * r2);
-	       blue += ((float)getr32(color) * r1 * r2);
+	       blue += ((float)getb32(color) * r1 * r2);
 	       alpha += ((float)geta32(color) * r1 * r2);
             }
          }
-	 color = makeacol32((int)floor(red), (int)floor(green), (int)floor(blue), 255 - (int)floor(alpha));
+	 color = makeacol32((int)floor(red), (int)floor(green), (int)floor(blue), (int)floor(alpha));
          ((unsigned int *)(icon->scaled->line[y]))[x] = color;
       }
    }
@@ -358,7 +358,13 @@ int main(int argc, char *argv[])
    unsigned char *data;
    
    install_allegro(SYSTEM_NONE, &errno, &atexit);
+   set_color_depth(32);
    set_color_conversion(COLORCONV_TOTAL | COLORCONV_KEEP_TRANS);
+   
+   _rgb_a_shift_32 = 24;
+   _rgb_r_shift_32 = 16; 
+   _rgb_g_shift_32 = 8; 
+   _rgb_b_shift_32 = 0;
    
    if (argc < 2)
       usage();
