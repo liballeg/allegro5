@@ -194,6 +194,8 @@ static int joystick_dinput_poll(void)
 	 /* buttons */
 	 for (n_but = 0; n_but < dinput_joystick[n_joy].num_buttons; n_but++)
 	    dinput_joystick[n_joy].button[n_but] = ((js.rgbButtons[n_but] & 0x80) != 0);
+
+	 win_update_joystick_status(n_joy, (WINDOWS_JOYSTICK_INFO *)&dinput_joystick[n_joy]);
       }
       else {
          if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
@@ -204,18 +206,7 @@ static int joystick_dinput_poll(void)
          else {
             _TRACE("unexpected error while polling the joystick\n");
          }
-
-         for(n_axis = 0; n_axis < dinput_joystick[n_joy].num_axes; n_axis++) 
-            dinput_joystick[n_joy].axis[n_axis] = 0;
-
-         if (dinput_joystick[n_joy].caps & JOYCAPS_HASPOV)
-            dinput_joystick[n_joy].hat = 0;
-
-	 for (n_but = 0; n_but < dinput_joystick[n_joy].num_buttons; n_but++)
-	    dinput_joystick[n_joy].button[n_but] = FALSE;
       }
-
-      win_update_joystick_status(n_joy, (WINDOWS_JOYSTICK_INFO *)&dinput_joystick[n_joy]);
    }
 
    return 0;
