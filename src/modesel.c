@@ -210,11 +210,11 @@ static int bpp_index_for_mode(int depth, int driver, int mode)
       if (driver_list[driver].mode_list[mode].has_bpp[i]) {
          index++;
          if (bpp_value_list[i] == depth)
-            break;
+            return index;
       }
    }
 
-   return index;
+   return -1;
 }
 
 
