@@ -28,8 +28,10 @@ typedef struct FLOODED_LINE      /* store segments which have been flooded */
    short flags;                  /* status of the segment */
    short lpos, rpos;             /* left and right ends of segment */
    short y;                      /* y coordinate of the segment */
-   short next;                   /* linked list if several per line */
+   int next;                     /* linked list if several per line */
 } FLOODED_LINE;
+
+/* Note: a 'short' is not sufficient for 'next' above in some corner cases. */
 
 
 static int flood_count;          /* number of flooded segments */
