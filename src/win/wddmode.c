@@ -279,14 +279,11 @@ static HRESULT CALLBACK check_mode_availability(LPDDSURFACEDESC lpDDSurfaceDesc,
 
 
 /* EnumModesCallback:
- *  Callback function for graphics mode enumeration.
+ *  Callback function for enumerating the graphics modes.
  */ 
 static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID gfx_mode_list_ptr)
 {
-   GFX_MODE_LIST *gfx_mode_list;
-   int real_bpp;
-
-   gfx_mode_list = (GFX_MODE_LIST *) gfx_mode_list_ptr;
+   GFX_MODE_LIST *gfx_mode_list = (GFX_MODE_LIST *)gfx_mode_list_ptr;
 
    /* build gfx mode-list */
    gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
@@ -299,12 +296,10 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
 
    /* check if 16 bpp mode is 16 bpp or 15 bpp */
    if (gfx_mode_list->mode[gfx_mode_list->num_modes].bpp == 16) {
-      real_bpp = get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
-                 get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
-                 get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
-
-      if (real_bpp == 15)
-         gfx_mode_list->mode[gfx_mode_list->num_modes].bpp = real_bpp;
+      gfx_mode_list->mode[gfx_mode_list->num_modes].bpp = 
+         get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
+         get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
+         get_color_bits(lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
    }
 
    gfx_mode_list->num_modes++;
@@ -321,8 +316,8 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
 GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
 {
    GFX_MODE_LIST *gfx_mode_list;
-   HRESULT hr;
    int enum_flags, dx_was_off;
+   HRESULT hr;
 
    /* enumerate VGA Mode 13h under DirectX 5 or greater */
    if (_dx_ver >= 0x500)
@@ -334,27 +329,26 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
       init_directx();
       dx_was_off = TRUE;
    }
-   else 
+   else {
       dx_was_off = FALSE;
+   }
 
    /* start enumeration */
    gfx_mode_list = malloc(sizeof(GFX_MODE_LIST));
-   if (!gfx_mode_list) return NULL;
+   if (!gfx_mode_list)
+      goto Error;
 
    gfx_mode_list->num_modes = 0;
    gfx_mode_list->mode = NULL;
 
    hr = IDirectDraw2_EnumDisplayModes(directdraw, enum_flags, NULL, gfx_mode_list, EnumModesCallback);
-
-   if (FAILED(hr)) {
-      if (dx_was_off)
-         exit_directx();
-
-      return NULL;
-   }
+   if (FAILED(hr))
+      goto Error;
 
    /* terminate mode list */
    gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
+   if (!gfx_mode_list->mode)
+      goto Error;
 
    gfx_mode_list->mode[gfx_mode_list->num_modes].width  = 0;
    gfx_mode_list->mode[gfx_mode_list->num_modes].height = 0;
@@ -364,6 +358,12 @@ GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
       exit_directx();
 
    return gfx_mode_list;
+
+ Error:
+   if (dx_was_off)
+      exit_directx();
+
+   return NULL;
 }
 
 
