@@ -5875,15 +5875,14 @@ directories, but not hidden files and directories. Similarly, if you pass
    if there are any strings like "I'm the password for the datafile", it
    would be fairly easy to get access to your data :-)
 
-   Note #1: when reading a packfile (or a sub-chunk of a packfile), you must
-   make sure you set the right password (including none) before opening it;
-   you can change the password to whatever you want afterwards without
-   affecting the read operation. On the contrary, when writing a packfile
-   (or a sub-chunk of a packfile), you must make sure that the password that
-   was active at the time the packfile (or the sub-chunk respectively) was
-   opened is still active before closing the packfile (or the sub-chunk
-   respectively). This is guaranteed to be true if you didn't call the
-   packfile_password() routine in the meantime.
+   Note #1: when writing a packfile, you can change the password to whatever
+   you want after opening the file, without affecting the write operation.
+   On the contrary, when writing a sub-chunk of a packfile, you must make
+   sure that the password that was active at the time the sub-chunk was
+   opened is still active before closing the sub-chunk. This is guaranteed
+   to be true if you didn't call the packfile_password() routine in the
+   meantime. Read operations, either on packfiles or sub-chunks, have no
+   such restriction.
 
    Note #2: as explained above, the password is used for all read/write
    operations on files, including for several functions of the library that
