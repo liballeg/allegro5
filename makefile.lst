@@ -526,7 +526,7 @@ OBJ_CLEAN_FILES = \
 OTHER_CLEAN_FILES = \
 	docs/texi/*.texi docs/texi/*.txi docs/*.tex docs/info/*.info \
 	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
-	docs/html/*.htm* docs/chm/*.chm docs/chm/*.hh* \
+	docs/html/*.htm* docs/html/*.css docs/chm/*.chm docs/chm/*.hh* \
 	docs/rtf/*.rtf docs/devhelp/*.html docs/devhelp/*.devhelp \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
 	obj/*/*.res obj/*/asmdef obj/*/*.inc src/i386/asmdef \
