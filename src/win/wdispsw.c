@@ -99,26 +99,28 @@ void sys_switch_in(void)
    int mode;
 
    _TRACE("switch in\n");
+
    app_foreground = TRUE;
 
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
+   key_dinput_acquire();
+   mouse_dinput_acquire();
+   joystick_dinput_acquire();
 
    if (win_gfx_driver && win_gfx_driver->switch_in)
       win_gfx_driver->switch_in();
-
-   _switch_in();
 
    /* handle switch modes */
    mode = get_display_switch_mode();
 
    if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
-      _TRACE("AMNESIA or PAUSE mode recovery\n"); 
+      _TRACE("AMNESIA or PAUSE mode recovery\n");
+      SetEvent(foreground_event);
 
       /* restore old priority and wake up */
       SetThreadPriority(allegro_thread, allegro_thread_priority);
-      SetEvent(foreground_event);
    }
+
+   _switch_in();
 }
 
 
@@ -134,10 +136,10 @@ void sys_switch_out(void)
 
    app_foreground = FALSE;
 
-   _switch_out();
-
-   mouse_dinput_unacquire();
    key_dinput_unacquire();
+   mouse_dinput_unacquire();
+   joystick_dinput_unacquire();
+
    midi_switch_out();
 
    if (win_gfx_driver && win_gfx_driver->switch_out)
@@ -155,6 +157,8 @@ void sys_switch_out(void)
       if ((HINSTANCE)GetWindowLong(GetForegroundWindow(), GWL_HINSTANCE) != allegro_inst)
 	 SetThreadPriority(allegro_thread, THREAD_PRIORITY_LOWEST); 
    }
+
+   _switch_out();
 }
 
 
