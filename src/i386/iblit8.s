@@ -521,6 +521,132 @@ FUNC(_linear_masked_blit8)
    movw %ds, %bx 
    cld 
 
+#ifdef ALLEGRO_MMX  /* Use MMX if the compiler supports it */
+      
+   movl GLOBL(cpu_sse), %ecx     /* if SSE is enabled (or not disabled :) */
+   orl %ecx, %ecx
+   jz masked8_no_mmx
+
+
+   movl B_WIDTH, %ecx
+   shrl $4, %ecx                 /* Are there more than 16 pixels? Otherwise, use non-MMX code */
+   jz masked8_no_mmx
+
+   pxor %mm0, %mm0
+   
+   pcmpeqd %mm4, %mm4            /* Create inverter mask */
+  
+   BLIT_LOOP(masked8_mmx_loop, 1,
+      movd %ecx, %mm2;            /* Save line length (%mm2) */
+      shrl $4, %ecx;
+
+      pushw %es;  /* Swap ES and DS */
+      pushw %ds;
+      popw  %es;
+      popw  %ds;
+      
+      _align_
+      masked8_mmx_x_loop:
+
+      movq %es:(%esi), %mm1;       /* Read 8 pixels */
+      movq %mm0, %mm3;
+      movq %es:8(%esi), %mm5;      /* Read 8 more pixels */
+      movq %mm0, %mm6;
+            
+      pcmpeqb %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */
+      pcmpeqb %mm5, %mm6;
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
+      pxor %mm4, %mm6;
+      addl $16, %esi;             /* Update src */
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
+      addl $8, %edi
+      maskmovq %mm6, %mm5;
+
+      addl $8, %edi;              /* Update dest */
+      
+      decl %ecx;                  /* Any pixel packs left for this line? */
+      jnz masked8_mmx_x_loop;
+
+   
+      movd %mm2, %ecx;            /* Restore pixel count */
+      andl $15, %ecx;
+      jz masked8_mmx_loop_end;    /* Nothing else to do? */
+      shrl $1, %ecx;              /* 1 pixels left */
+      jnc masked8_mmx_word;
+            
+      movb %es:(%esi), %al;       /* Read 1 pixel */
+      incl %esi;
+      incl %edi;
+      orb %al, %al;               /* Compare with mask */
+      jz masked8_mmx_word;
+      movb %al, -1(%edi)          /* Write the pixel */
+      
+      masked8_mmx_word:
+      shrl $1, %ecx;              /* 2 pixels left */
+      jnc masked8_mmx_long;
+      
+      movb %es:(%esi), %al;       /* Read 2 pixels */
+      movb %es:1(%esi), %ah;
+      addl $2, %esi;
+      addl $2, %edi;
+      orb %al, %al;
+      jz masked8_mmx_word_2;
+      movb %al, -2(%edi);         /* Write pixel */
+      
+      masked8_mmx_word_2:
+      orb %ah, %ah;
+      jz masked8_mmx_long;
+      movb %ah, -1(%edi);         /* Write other pixel */
+
+      _align_
+      masked8_mmx_long:
+      
+      shrl $1, %ecx;              /* 4 pixels left */
+      jnc masked8_mmx_qword;
+      
+      movl %es:(%esi), %eax;      /* Read 4 pixels */
+      addl $4, %esi;
+      movd %eax, %mm1;
+      movl $-1, %eax;
+      movq %mm0, %mm3;
+      movd %eax, %mm5;            /* Build XOR flag */
+            
+      pcmpeqb %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */
+      pxor %mm5, %mm3;            /* Turn 1->0 and 0->1 */
+      pand %mm5, %mm3;            /* Make sure only the bottom 32 bits are used */
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
+      addl $4, %edi;
+
+      _align_
+      masked8_mmx_qword:
+      shrl $1, %ecx;              /* 8 pixels left */
+      jnc masked8_mmx_loop_end;
+      
+      movq %es:(%esi), %mm1;      /* Read 8 more pixels */
+      movq %mm0, %mm3;
+            
+      pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3) */
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
+      addl $8, %esi;              /* Update src */
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
+
+      _align_
+      masked8_mmx_loop_end:
+
+      pushw %ds;                  /* Swap back ES and DS */
+      popw  %es;
+    )
+   
+   emms
+   
+   jmp masked8_end;
+   
+#endif
+   
+	_align_
+	masked8_no_mmx:
+
+
    BLIT_LOOP(masked16, 1,
 
       test $1, %ecx ;            /* 16 bit aligned->use new code */
@@ -629,6 +755,8 @@ FUNC(_linear_masked_blit8)
       jg masked16_blit_x_loop ;
    masked16_blit_end:
    )
+
+masked8_end:
 
    popw %es
 

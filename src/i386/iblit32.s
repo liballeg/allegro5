@@ -190,7 +190,7 @@ FUNC(_linear_blit32_end)
 
 /* void _linear_masked_blit32(BITMAP *source, *dest, int source_x, source_y, 
  *                            int dest_x, dest_y, int width, height);
- *  Masked (skipping zero pixels) blitting routine for linear bitmaps.
+ *  Masked (skipping pink pixels) blitting routine for linear bitmaps.
  */
 FUNC(_linear_masked_blit32)
    pushl %ebp
@@ -204,6 +204,102 @@ FUNC(_linear_masked_blit32)
    movw BMP_SEG(%edx), %es 
    movw %ds, %bx 
    cld 
+
+#ifdef ALLEGRO_MMX  /* Use MMX if the compiler supports it */
+      
+   movl GLOBL(cpu_sse), %ecx      /* if SSE is enabled (or not disabled :) */
+   orl %ecx, %ecx
+   jz masked32_no_mmx
+
+
+   movl B_WIDTH, %ecx
+   shrl $2, %ecx                   /* Are there more than 4 pixels? Otherwise, use non-MMX code */
+   jz masked32_no_mmx
+   
+   movl $MASK_COLOR_32, %eax
+   movd %eax, %mm0                /* Create mask (%mm0) */
+   movd %eax, %mm1
+   psllq $32, %mm0
+   por  %mm1, %mm0
+   
+   pcmpeqd %mm4, %mm4             /* Create inverter mask */
+  
+   BLIT_LOOP(masked32_mmx_loop, 4,
+      movd %ecx, %mm2;            /* Save line length (%mm2) */
+      shrl $2, %ecx;
+      
+      pushw %es;  /* Swap ES and DS */
+      pushw %ds;
+      popw  %es;
+      popw  %ds;
+      
+      _align_
+      masked32_mmx_x_loop:
+
+      movq %es:(%esi), %mm1;      /* Read 4 pixels */
+      movq %mm0, %mm3;
+      movq %es:8(%esi), %mm5;     /* Read 4 more pixels */
+      movq %mm0, %mm6;
+            
+      pcmpeqd %mm1, %mm3;         /* Compare with mask (%mm3/%mm6) */
+      pcmpeqd %mm5, %mm6;
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
+      pxor %mm4, %mm6;
+      addl $16, %esi;             /* Update src */
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
+      addl $8, %edi
+      maskmovq %mm6, %mm5;
+
+      addl $8, %edi;              /* Update dest */
+      
+      decl %ecx;                  /* Any pixel packs left for this line? */
+      jnz masked32_mmx_x_loop;
+
+   
+      movd %mm2, %ecx;            /* Restore pixel count */
+      movd %mm0, %edx;
+      andl $3, %ecx;
+      jz masked32_mmx_loop_end;   /* Nothing else to do? */
+      shrl $1, %ecx;              /* 1 pixels left */
+      jnc masked32_mmx_qword;
+            
+      movl %es:(%esi), %eax;      /* Read 1 pixel */
+      addl $4, %esi;
+      addl $4, %edi;
+      cmpl %eax, %edx;            /* Compare with mask */
+      je masked32_mmx_qword;
+      movl %eax, -4(%edi)         /* Write the pixel */
+      
+      _align_
+      masked32_mmx_qword:
+      
+      shrl $1, %ecx;              /* 2 pixels left */
+      jnc masked32_mmx_loop_end;
+            
+      movq %es:(%esi), %mm1;      /* Read 2 more pixels */
+      movq %mm0, %mm3;
+            
+      pcmpeqd %mm1, %mm3;         /* Compare with mask (%mm3, %mm6) */
+      pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
+      addl $8, %esi;              /* Update src */
+      maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
+
+      _align_
+      masked32_mmx_loop_end:
+
+      pushw %ds;                  /* Swap back ES and DS */
+      popw  %es;
+    )
+   
+   emms
+   
+   jmp masked32_end;
+   
+#endif
+   
+	_align_
+	masked32_no_mmx:
+
 
    _align_
    BLIT_LOOP(masked, 4,
@@ -230,6 +326,8 @@ FUNC(_linear_masked_blit32)
 
    masked_blit_x_loop_done:
    )
+
+   masked32_end:
 
    popw %es
 
