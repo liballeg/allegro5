@@ -6940,7 +6940,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    shutdown_dialog(). With these functions, you could implement your own 
    version of do_dialog() with the lines:
 <pre>
-      void *player = init_dialog(dialog, focus_obj);
+      DIALOG_PLAYER *player = init_dialog(dialog, focus_obj);
 
       while (update_dialog(player))
 	 ;
