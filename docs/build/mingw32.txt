@@ -86,7 +86,7 @@
 =============================================
 
    For the MingW32 part, you will need to obtain the following 
-   distributions from the internet. Please don't unzip/install until step 4.
+   distributions from the internet. Please don't unzip/install until step 3.
 
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
       You should download the complete package instead the many small ones
@@ -109,7 +109,7 @@
       Lib subdirectories doesn't exist, then unzip the file to
       'c:\mingw32\i386-mingw32msvc' instead.
 
-   6) You now need to add 'c:\mingw32\bin' to the *beginning* of your PATH.
+   5) You now need to add 'c:\mingw32\bin' to the *beginning* of your PATH.
 
       If you use Windows 9x you can add the line
       'path c:\mingw32\bin;%PATH%' to the end of your 'c:\autoexec.bat'
@@ -121,10 +121,10 @@
       and finally the 'Environment' button. Select the PATH= entry, and add
       'c:\mingw32\bin' to it.
 
-   7) Likewise add the line 'set MINGDIR=c:\mingw32' to your
+   6) Likewise add the line 'set MINGDIR=c:\mingw32' to your
       'c:\autoexec.bat'.
 
-   8) Now reboot!
+   7) Now reboot!
 
    Test the installation by typing the following on the command line:
    'gcc -v'. The answer should be similar to:
