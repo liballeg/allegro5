@@ -187,7 +187,7 @@ static void tim_win32_high_perf_thread(void *unused)
    QueryPerformanceCounter(&prev_tick);
 
    while (TRUE) {
-      if (WaitForSingleObject(_foreground_event, 0) == WAIT_TIMEOUT) {
+      if (!app_foreground) {
 	 /* restart counter if the thread was blocked */
 	 if (thread_switch_out())
 	    QueryPerformanceCounter(&prev_tick);
@@ -229,7 +229,7 @@ static void tim_win32_low_perf_thread(void *unused)
    prev_time = timeGetTime();
 
    while (TRUE) {
-      if (WaitForSingleObject(_foreground_event, 0) == WAIT_TIMEOUT) {
+      if (!app_foreground) {
 	 /* restart time if the thread was blocked */
 	 if (thread_switch_out())
 	    prev_time = timeGetTime();
