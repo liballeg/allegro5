@@ -81,9 +81,8 @@ loop:
       surf_desc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
 
       if (primary) {
-         surf_desc.ddsCaps.dwCaps |= DDSCAPS_PRIMARYSURFACE;
-	   surf_desc.dwFlags = DDSD_BACKBUFFERCOUNT;
-	   surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+	 surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
+	 surf_desc.ddsCaps.dwCaps |= DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
 	   surf_desc.dwBackBufferCount = 2;
       }
       else if (overlay) {
@@ -132,6 +131,7 @@ loop:
 			if (FAILED(hr)) {
 				surf_desc.dwBackBufferCount = 0;
 				surf_desc.dwFlags &= ~DDSD_BACKBUFFERCOUNT;
+                                surf_desc.ddsCaps.dwCaps &= ~(DDSCAPS_FLIP | DDSCAPS_COMPLEX);
 				hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
 				if (FAILED(hr)) return NULL;
 			}
