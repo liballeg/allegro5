@@ -1540,8 +1540,6 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
    int ret = -1;
    ASSERT(menu);
 
-   scare_mouse();
-
    fill_menu_info(&m, menu, parent, bar, x, y, minw, minh);
 
    if (repos) {
@@ -1549,11 +1547,13 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
       m.y = MID(0, m.y, SCREEN_H-m.h-1);
    }
 
+   scare_mouse_area(m.x, m.y, m.w, m.h);
+   
    /* save screen under the menu */
-   m.saved = create_bitmap(m.w+1, m.h+1); 
+   m.saved = create_bitmap(m.w, m.h); 
 
    if (m.saved)
-      blit(screen, m.saved, m.x, m.y, 0, 0, m.w+1, m.h+1);
+      blit(screen, m.saved, m.x, m.y, 0, 0, m.w, m.h);
    else
       *allegro_errno = ENOMEM;
 
@@ -1702,7 +1702,7 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
       if ((redraw) || (m.sel != old_sel)) {           /* selection changed? */
          gui_timer = 0;
 
-	 scare_mouse();
+	 scare_mouse_area(m.x, m.y, m.w, m.h);
 	 acquire_screen();
 
 	 if (redraw) {
@@ -1810,8 +1810,8 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
 
    /* restore screen */
    if (m.saved) {
-      scare_mouse();
-      blit(m.saved, screen, 0, 0, m.x, m.y, m.w+1, m.h+1);
+      scare_mouse_area(m.x, m.y, m.w, m.h);
+      blit(m.saved, screen, 0, 0, m.x, m.y, m.w, m.h);
       unscare_mouse();
       destroy_bitmap(m.saved);
    }
