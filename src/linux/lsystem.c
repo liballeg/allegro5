@@ -242,7 +242,8 @@ static void sys_linux_exit (void)
 #endif
 
 	/* shut down VGA helpers */
-	__al_linux_shutdown_vga_helpers();
+	if (__al_linux_have_ioperms)
+		__al_linux_shutdown_vga_helpers();
 
 	/* shut down the console subsystem */
 	__al_linux_done_console();
