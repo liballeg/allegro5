@@ -33,22 +33,7 @@ else
 WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 endif
 
-ifdef TARGET_ARCH_COMPAT
-   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
-else
-   ifdef TARGET_ARCH_EXCL
-      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
-   else
-      TARGET_ARCH = -mpentium
-   endif
-endif
-
-ifndef TARGET_OPTS
-   TARGET_OPTS = -O6 -funroll-loops -ffast-math
-endif
-
-OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
-
+OFLAGS = -mpentium -O6 -ffast-math
 
 ifdef DEBUGMODE
 
@@ -57,7 +42,7 @@ ifdef DEBUGMODE
 # -------- debugging build --------
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-LFLAGS = -lbe -lgame -ldevice -lmidi -g
+LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia -g
 
 
 else
@@ -66,7 +51,7 @@ ifdef PROFILEMODE
 # -------- profiling build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -pg
 SFLAGS = $(WFLAGS)
-LFLAGS = -lbe -lgame -ldevice -lmidi -pg
+LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia -pg
 
 else
 
@@ -75,9 +60,9 @@ CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifdef SYMBOLMODE
-LFLAGS = -lbe -lgame -ldevice -lmidi -s
+LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia -s
 else
-LFLAGS = -lbe -lgame -ldevice -lmidi
+LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia
 endif
 
 endif

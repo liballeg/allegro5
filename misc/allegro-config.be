@@ -17,7 +17,7 @@ exec_prefix_set=no
 
 lib_type=alleg
 
-allegro_libs="-lbe -lgame -ldevice -lmidi"
+allegro_libs="-lbe -lgame -ldevice -lmidi -lmedia"
 allegro_cflags=""
 
 usage()

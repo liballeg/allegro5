@@ -10,7 +10,8 @@
  *
  *      BeOS sound driver implementation.
  *
- *      By Peter Wang.   
+ *      Originally by Peter Wang, rewritten to use the BSoundPlayer
+ *      class by Angelo Mottola.
  *
  *      See readme.txt for copyright information.
  */
@@ -24,7 +25,7 @@
 #endif
 
 #ifndef SCAN_DEPEND
-#include <game/GameSoundDefs.h>
+#include <media/SoundPlayer.h>
 #endif
 
 
@@ -35,57 +36,33 @@
 #endif
 
 
-#define BE_SOUND_THREAD_PERIOD	    16666   /* 1/60 second */
-#define BE_SOUND_THREAD_NAME	    "sound thread"
-#define BE_SOUND_THREAD_PRIORITY    90
+static bool be_sound_active = false;
 
-
-
-static volatile int be_sound_thread_running = FALSE;
-static thread_id be_sound_thread_id = -1;
-
-static BLocker *locker;
-static BPushGameSound *be_sound;
+static BLocker *locker = NULL;
+static BSoundPlayer *be_sound = NULL;
 
 static int be_sound_bufsize;
-static unsigned char *be_sound_bufdata;
 static int be_sound_signed;
 
 static char be_sound_desc[320] = EMPTY_STRING;
 
-static bool be_sound_active;
 
 
-
-/* be_sound_thread:
+/* be_sound_handler:
  *  Update data.
  */
-static int32 be_sound_thread(void *sound_started)
+static void be_sound_handler(void *cookie, void *buffer, size_t size, const media_raw_audio_format &format)
 {
-   char *p;
-   size_t size;
-   
-   release_sem(*(sem_id *)sound_started);
-
-   while (be_sound_thread_running) {
-      
-      locker->Lock();
-      acquire_sem(_be_sound_timer_lock);
-      if (be_sound->LockNextPage((void **)&p, &size) >= 0) {
-	 memcpy(p, be_sound_bufdata, size);
-	 be_sound->UnlockPage(p);
-	 if (be_sound_active) {
-	    be_main_suspend();
-	    _mix_some_samples((unsigned long) be_sound_bufdata, 0, be_sound_signed);
-	    be_main_resume();
-	 }
-      }
-      release_sem(_be_sound_timer_lock);
-      locker->Unlock();
-      snooze(BE_SOUND_THREAD_PERIOD);
+   locker->Lock();
+   acquire_sem(_be_sound_timer_lock);
+   if (be_sound_active) {
+      _mix_some_samples((unsigned long)buffer, 0, be_sound_signed);
    }
-
-   return 0;
+   else {
+      memset(buffer, 0, size);
+   }
+   release_sem(_be_sound_timer_lock);
+   locker->Unlock();
 }
       
 
@@ -95,8 +72,8 @@ static int32 be_sound_thread(void *sound_started)
  */
 extern "C" int be_sound_detect(int input)
 {   
-   BPushGameSound *sound;
-   gs_audio_format format;
+   BSoundPlayer *sound;
+   media_raw_audio_format format;
    status_t status;
    
    if (input) {
@@ -106,11 +83,11 @@ extern "C" int be_sound_detect(int input)
 
    format.frame_rate = 11025;
    format.channel_count = 1;
-   format.format = gs_audio_format::B_GS_U8;
+   format.format = media_raw_audio_format::B_AUDIO_UCHAR;
    format.byte_order = BE_SOUND_ENDIAN;
    format.buffer_size = 0;
       
-   sound = new BPushGameSound(128, &format);
+   sound = new BSoundPlayer(&format);
    status = sound->InitCheck();
    delete sound;
    
@@ -124,10 +101,7 @@ extern "C" int be_sound_detect(int input)
  */
 extern "C" int be_sound_init(int input, int voices)
 {
-   sem_id sound_started;
-   gs_audio_format fmt;
-   gs_attribute attr;
-   size_t samples;
+   media_raw_audio_format format;
    char tmp1[80], tmp2[80];
 
    if (input) {
@@ -136,32 +110,29 @@ extern "C" int be_sound_init(int input, int voices)
    }
 
    /* create BPushGameSound instance */
-   fmt.frame_rate    = (_sound_freq > 0) ? _sound_freq : 44100;
-   fmt.channel_count = (_sound_stereo) ? 2 : 1; 
-   fmt.format	     = (_sound_bits == 8) ? (gs_audio_format::B_GS_U8) : (gs_audio_format::B_GS_S16);
-   fmt.byte_order    = BE_SOUND_ENDIAN;  
-   fmt.buffer_size   = 512;
+   format.frame_rate    = (_sound_freq > 0) ? _sound_freq : 44100;
+   format.channel_count = (_sound_stereo) ? 2 : 1;
+   format.format	    = (_sound_bits == 8) ? (media_raw_audio_format::B_AUDIO_UCHAR) : (media_raw_audio_format::B_AUDIO_SHORT);
+   format.byte_order    = BE_SOUND_ENDIAN;
+   format.buffer_size   = 0;
 
-   /* this might need to be user configurable */
-   samples = (int)fmt.frame_rate * 512 / 11025;
-   
-   be_sound = new BPushGameSound(samples, &fmt);
+   be_sound = new BSoundPlayer(&format, "Sound player", be_sound_handler);
    
    if (be_sound->InitCheck() != B_OK) {
       goto cleanup;
    }
 
    /* read the sound format back */
-   fmt = be_sound->Format();
+   format = be_sound->Format();
 
-   switch (fmt.format) {
+   switch (format.format) {
        
-      case gs_audio_format::B_GS_U8:
+      case media_raw_audio_format::B_AUDIO_UCHAR:
 	 _sound_bits = 8;
 	 be_sound_signed = FALSE;
 	 break;
 	 
-      case gs_audio_format::B_GS_S16:
+      case media_raw_audio_format::B_AUDIO_SHORT:
 	 _sound_bits = 16;
 	 be_sound_signed = TRUE;
 	 break;
@@ -170,18 +141,11 @@ extern "C" int be_sound_init(int input, int voices)
 	 goto cleanup;
    }
       
-   _sound_stereo = (fmt.channel_count == 2) ? 1 : 0;
-   _sound_freq = (int)fmt.frame_rate;
+   _sound_stereo = (format.channel_count == 2) ? 1 : 0;
+   _sound_freq = (int)format.frame_rate;
 
-   /* allocate mixing buffer */
-   be_sound_bufsize = samples * (_sound_stereo ? 2 : 1) * (_sound_bits / 8);
-   be_sound_bufdata = (unsigned char *)malloc(be_sound_bufsize);
-
-   if (!be_sound_bufdata) {
-      goto cleanup;
-   }
-   
    /* start internal mixer */
+   be_sound_bufsize = format.buffer_size;
    digi_beos.voices = voices;
    
    if (_mixer_init(be_sound_bufsize / (_sound_bits / 8), _sound_freq,
@@ -190,33 +154,14 @@ extern "C" int be_sound_init(int input, int voices)
       goto cleanup;
    }
 
-   _mix_some_samples((unsigned long) be_sound_bufdata, 0, be_sound_signed);
-
-   /* start audio thread */
-   sound_started = create_sem(0, "starting sound thread...");
-
-   if (sound_started < B_NO_ERROR) {
-      goto cleanup;
-   }
-   
+   /* start audio output */
    locker = new BLocker();
    if (!locker)
       goto cleanup;
    be_sound_active = true;
 
-   be_sound_thread_id = spawn_thread(be_sound_thread, BE_SOUND_THREAD_NAME,
-  				     BE_SOUND_THREAD_PRIORITY, &sound_started);
-
-   if (be_sound_thread_id < 0) {
-      goto cleanup;
-   }
-
-   be_sound_thread_running = TRUE;
-   resume_thread(be_sound_thread_id);
-   acquire_sem(sound_started);
-   delete_sem(sound_started);
-
-   be_sound->StartPlaying();
+   be_sound->Start();
+   be_sound->SetHasData(true);
 
    uszprintf(be_sound_desc, sizeof(be_sound_desc), get_config_text("%d bits, %s, %d bps, %s"),
 	     _sound_bits, uconvert_ascii((char *)(be_sound_signed ? "signed" : "unsigned"), tmp1), 
@@ -227,10 +172,6 @@ extern "C" int be_sound_init(int input, int voices)
    return 0;
 
    cleanup: {
-      if (sound_started > 0) {
-	 delete_sem(sound_started);
-      }
-
       be_sound_exit(input);
       return -1;
    }
@@ -247,21 +188,13 @@ extern "C" void be_sound_exit(int input)
       return;
    }
 
-   if (be_sound_thread_id > 0) {
-      be_sound_thread_running = FALSE;
-      wait_for_thread(be_sound_thread_id, &ignore_result);
-      be_sound_thread_id = -1;
-   }
-
-   if (be_sound_bufdata) {
-      free(be_sound_bufdata);
-      be_sound_bufdata = NULL;
-   }
+   be_sound->Stop();
    
    _mixer_exit();
    
    delete be_sound;
    delete locker;
+   be_sound = NULL;
    locker = NULL;
 }
 
@@ -285,32 +218,33 @@ extern "C" int be_sound_mixer_volume(int volume)
    if (!be_sound)
       return -1;
    
-   return (be_sound->SetGain((float)volume / 255.0) == B_OK);
+   be_sound->SetVolume((float)volume / 255.0);
+
+   return 0;
 }
 
 
 
 /* be_sound_suspend:
- *  Pauses the sound thread.
+ *  Pauses the sound output.
  */
 extern "C" void be_sound_suspend(void)
 {
-   if (!be_sound_thread_running)
+   if (!be_sound)
       return;
    locker->Lock();
    be_sound_active = false;
-   memset(be_sound_bufdata, 0, be_sound_bufsize);
    locker->Unlock();
 }
 
 
 
 /* be_sound_resume:
- *  Resumes the sound thread.
+ *  Resumes the sound output.
  */
 extern "C" void be_sound_resume(void)
 {
-   if (!be_sound_thread_running)
+   if (!be_sound)
       return;
    locker->Lock();
    be_sound_active = true;
