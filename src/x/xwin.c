@@ -1103,8 +1103,10 @@ static int _xwin_private_create_ximage(int w, int h)
 		  _xwin.shminfo.readOnly = True;
 
 		  /* Attach shared memory to the X-server address space.  */
-		  if (XShmAttach(_xwin.display, &_xwin.shminfo))
+		  if (XShmAttach(_xwin.display, &_xwin.shminfo)) {
+		     XSync(_xwin.display, False);
 		     break;
+		   }
 
 		  shmdt(_xwin.shminfo.shmaddr);
 	       }

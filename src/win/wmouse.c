@@ -125,10 +125,16 @@ static int mymickey_oy = 0;
                                                     \
    if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||  \
        (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
-      _mouse_on = FALSE;                            \
+      if (_mouse_on) {                              \
+         _mouse_on = FALSE;                         \
+         wnd_set_syscursor(TRUE);                   \
+      }                                             \
    }                                                \
    else {                                           \
-      _mouse_on = TRUE;                             \
+      if (!_mouse_on) {                             \
+         _mouse_on = TRUE;                          \
+         wnd_set_syscursor(FALSE);                  \
+      }                                             \
       _mouse_x = p.x;                               \
       _mouse_y = p.y;                               \
    }                                                \
@@ -182,7 +188,6 @@ static char* dinput_err_str(long err)
  */
 int mouse_dinput_acquire(void)
 {
-   POINT p;
    HRESULT hr;
 
    if (mouse_dinput_device) {
@@ -195,20 +200,14 @@ int mouse_dinput_acquire(void)
 	 return -1;
       }
 
-      /* modify the cursor only if the mouse is installed in windowed mode */
-      if (gfx_driver && gfx_driver->windowed)
-         READ_CURSOR_POS(p);
-   }
-   else {
-      if (gfx_driver && gfx_driver->windowed)
-         _mouse_on = FALSE;
+      /* the cursor may not be in the client area so we don't set _mouse_on */
+      if (_mouse_on)
+         mouse_set_syscursor(FALSE);
    }
 
-   /* always hide the cursor in fullscreen mode */
+   /* always hide the system cursor in fullscreen mode */
    if (gfx_driver && !gfx_driver->windowed)
-      _mouse_on = TRUE;
-
-   mouse_set_syscursor();
+      mouse_set_syscursor(FALSE);
 
    return 0;
 }
@@ -224,11 +223,12 @@ int mouse_dinput_unacquire(void)
       IDirectInputDevice_Unacquire(mouse_dinput_device);
 
       _mouse_b = 0;
+      _mouse_on = FALSE;
    }
 
-   _mouse_on = FALSE;
-
-   mouse_set_syscursor();
+   /* restore the system cursor except in fullscreen mode */
+   if (!gfx_driver || gfx_driver->windowed)
+      mouse_set_syscursor(TRUE);
 
    return 0;
 }
@@ -238,21 +238,20 @@ int mouse_dinput_unacquire(void)
 /* mouse_set_syscursor:
  *  Changes the state of the system mouse cursor (called by the window thread).
  */
-int mouse_set_syscursor(void)
+int mouse_set_syscursor(int state)
 {
-   static int mouse_was_on = FALSE;
+   static int count = 0;  /* initial state of the internal ShowCursor() counter */
 
-   if (_mouse_on) {
-      if (!mouse_was_on)
-         SetCursor(NULL);
+   if (state == TRUE) {
+      if (count < 0)
+         count = ShowCursor(TRUE);
    }
    else {
-      if (mouse_was_on)
-         SetCursor(LoadCursor(NULL, IDC_ARROW));
+      if (count >= 0)
+         count = ShowCursor(FALSE);
    }
-
-   mouse_was_on = _mouse_on;
-   return TRUE;
+ 
+   return 0;
 }
 
 
@@ -260,18 +259,20 @@ int mouse_set_syscursor(void)
 /* mouse_set_sysmenu:
  *  Changes the state of the mouse when going to/from sysmenu mode (called by the window thread).
  */
-int mouse_set_sysmenu(void)
+int mouse_set_sysmenu(int state)
 {
    POINT p;
 
    if (mouse_dinput_device) {
-      if (wnd_sysmenu)
-         _mouse_on = FALSE;
-      else
+      if (state == TRUE) {
+         if (_mouse_on) {
+            _mouse_on = FALSE;
+            mouse_set_syscursor(TRUE);
+         }
+      }
+      else {
          READ_CURSOR_POS(p);
-
-      /* needed when the sysmenu is pulled down by ALT+Space */
-      mouse_set_syscursor();
+      }
 
       _handle_mouse_input();
    }
@@ -385,6 +386,7 @@ static int mouse_dinput_init(void)
 
    /* Acquire the device */
    _mouse_on = TRUE;
+   wnd_set_syscursor(FALSE);
    wnd_acquire_mouse();
 
    return 0;
@@ -537,7 +539,10 @@ static void mouse_directx_poll(void)
 	       CLEAR_MICKEYS();
 	    }
 
-            _mouse_on = TRUE;
+            if (!_mouse_on) {
+               _mouse_on = TRUE;
+               wnd_set_syscursor(FALSE);
+            }
 
 	    _handle_mouse_input();
 	 }
@@ -567,7 +572,7 @@ static void mouse_directx_thread(HANDLE setup_event)
       return;
    }
 
-   /* now the thread it running successfully, let's acknowledge */
+   /* now the thread is running successfully, let's acknowledge */
    SetEvent(setup_event);
 
    /* setup event array */

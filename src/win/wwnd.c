@@ -68,6 +68,7 @@ static UINT msg_acquire_keyboard = 0;
 static UINT msg_unacquire_keyboard = 0;
 static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
+static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
 
@@ -167,6 +168,16 @@ void wnd_unacquire_mouse(void)
 
 
 
+/* wnd_set_syscursor:
+ *  posts msg to window to set the system mouse cursor
+ */
+void wnd_set_syscursor(int state)
+{
+   PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
+}
+
+
+
 /* directx_wnd_proc:
  *  window proc for the Allegro window class
  */
@@ -189,6 +200,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
    if (message == msg_unacquire_mouse)
       return mouse_dinput_unacquire();
 
+   if (message == msg_set_syscursor)
+      return mouse_set_syscursor(wparam);
+
    if (message == msg_suicide) {
       DestroyWindow(wnd);
       return 0;
@@ -203,10 +217,19 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_DESTROY:
          if (user_wnd_proc) {
-            /* remove the DirectX stuff */
+            /* We need to remove here the modules that depend upon the main window:
+             *  - all the DirectX stuff (keyboard, mouse, sound),
+             *  - timers.
+             */
             remove_keyboard();
             remove_mouse();
             remove_sound();
+
+            /* The system just sent a WA_INACTIVE message, so we need to wake up the
+             * timer thread, supposing we are in SWITCH_PAUSE or SWITCH_AMNESIA mode.
+             */
+            SetEvent(_foreground_event);
+            remove_timer();
          }
          else {
             PostQuitMessage(0);
@@ -297,14 +320,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             return TRUE;
          break;
 
-      case WM_SETCURSOR:
-         if (!user_wnd_proc || _mouse_installed)
-            return mouse_set_syscursor();
-         break;
-
       case WM_INITMENUPOPUP:
          wnd_sysmenu = TRUE;
-         mouse_set_sysmenu();
+         mouse_set_sysmenu(TRUE);
 
          if (win_gfx_driver && win_gfx_driver->enter_sysmode)
             win_gfx_driver->enter_sysmode();
@@ -313,7 +331,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_MENUSELECT:
          if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
             wnd_sysmenu = FALSE;
-            mouse_set_sysmenu();
+            mouse_set_sysmenu(FALSE);
 
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
@@ -465,6 +483,7 @@ int init_directx_window(void)
    msg_unacquire_keyboard = RegisterWindowMessage("Allegro keyboard unacquire proc");
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
+   msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    /* prepare window for Allegro */

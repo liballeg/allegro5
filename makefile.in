@@ -332,9 +332,13 @@ install-lib: lib
 			echo "Warning: shared library destination $(libdir) is not in ldd search path." ; \
 			echo "Unless you add it to /etc/ld.so.conf, you must set LD_LIBRARY_PATH to include"; \
 			echo "$(libdir) each time you want to run an Allegro program." ; \
-			$(LDCONFIG) -n $(libdir) ; \
 		) ; \
 	fi
+	@for l in alleg alld allp; do \
+	  if test -f $(libdir)/lib$${l}-$(shared_version).so -a \! -L $(libdir)/lib$${l}.so.${shared_major_minor}; then \
+	    (cd $(libdir); ln -s lib$${l}-$(shared_version).so lib$${l}.so.${shared_major_minor}); \
+	  fi; \
+	done
 
 install-headers:
 	$(mkinstalldirs) $(includedir)/allegro
@@ -423,8 +427,8 @@ uninstall-shared:
 	@echo "Uninstalling shared libraries..."
 	@for l in alleg alld allp; do \
 	  rm -f $(libdir)/lib$${l}-${shared_version}.so; \
+	  rm -f $(libdir)/lib$${l}.so.${shared_major_minor}; \
 	done
-	$(LDCONFIG) -n $(libdir)    # remove symlinks
 	-$(LDCONFIG) $(libdir)       # update cache (only works if we're root)
 
 uninstall-modules:

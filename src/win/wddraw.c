@@ -73,10 +73,10 @@ int init_directx(void)
 /* create_primary:
  *  Low-level DirectDraw screen creation routine.
  */
-int create_primary(void)
+int create_primary(int flip)
 {
    /* create primary surface */
-   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, SURF_PRIMARY);
+   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, flip ? SURF_PRIMARY_COMPLEX : SURF_PRIMARY_SINGLE);
    if (!dd_prim_surface) {
       _TRACE("Can't create primary surface.\n");
       return -1;
@@ -212,7 +212,7 @@ int exit_directx(void)
 
 /* gfx_directx_init:
  */
-struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth)
+struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int flip, int w, int h, int v_w, int v_h, int color_depth)
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
@@ -233,7 +233,7 @@ struct BITMAP *gfx_directx_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h,
       goto Error;
 
    /* create screen */
-   if (create_primary() != 0)
+   if (create_primary(flip) != 0)
       goto Error;
 
    /* set color format */

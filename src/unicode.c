@@ -2277,10 +2277,21 @@ typedef struct STRING_ARG
 
 
 
+/* LONGEST:
+ *  64-bit integers on platforms that support it, 32-bit otherwise.
+ */
+#ifdef LONG_LONG
+   #define LONGEST LONG_LONG
+#else
+   #define LONGEST long
+#endif
+
+
+
 /* va_int:
  *  Helper for reading an integer from the varargs list.
  */
-#ifdef LONGLONG
+#ifdef LONG_LONG
 
    #define va_int(args, flags)               \
    (                                         \
@@ -2288,7 +2299,7 @@ typedef struct STRING_ARG
 	 va_arg(args, signed int)            \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_LONG) ?   \
-	 va_arg(args, signed LONGLONG)       \
+	 va_arg(args, signed LONG_LONG)      \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_INT) ?    \
 	 va_arg(args, signed long int)       \
@@ -2316,7 +2327,7 @@ typedef struct STRING_ARG
 /* va_uint:
  *  Helper for reading an unsigned integer from the varargs list.
  */
-#ifdef LONGLONG
+#ifdef LONG_LONG
 
    #define va_uint(args, flags)              \
    (                                         \
@@ -2324,7 +2335,7 @@ typedef struct STRING_ARG
 	 va_arg(args, unsigned int)          \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_LONG) ?   \
-	 va_arg(args, unsigned LONGLONG)     \
+	 va_arg(args, unsigned LONG_LONG)    \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_INT) ?    \
 	 va_arg(args, unsigned long int)     \
@@ -2373,7 +2384,7 @@ static int sprint_char(STRING_ARG *string_arg, SPRINT_INFO *info, long val)
 /* sprint_i:
  *  Worker function for formatting integers.
  */
-static int sprint_i(STRING_ARG *string_arg, unsigned long val, int precision)
+static int sprint_i(STRING_ARG *string_arg, unsigned LONGEST val, int precision)
 {
    char tmp[24];  /* for 64-bit integers */
    int i = 0, pos = string_arg->size;
@@ -2418,7 +2429,7 @@ static int sprint_i(STRING_ARG *string_arg, unsigned long val, int precision)
 /* sprint_int:
  *  Helper for formatting a signed integer.
  */
-static int sprint_int(STRING_ARG *string_arg, SPRINT_INFO *info, long val)
+static int sprint_int(STRING_ARG *string_arg, SPRINT_INFO *info, LONGEST val)
 {
    int pos = 0, len = 0;
 
@@ -2446,7 +2457,7 @@ static int sprint_int(STRING_ARG *string_arg, SPRINT_INFO *info, long val)
 /* sprint_unsigned:
  *  Helper for formatting an unsigned integer.
  */
-static int sprint_unsigned(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned long val)
+static int sprint_unsigned(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned LONGEST val)
 {
    int pos = 0;
 
@@ -2466,7 +2477,7 @@ static int sprint_unsigned(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned l
 /* sprint_hex:
  *  Helper for formatting a hex integer.
  */
-static int sprint_hex(STRING_ARG *string_arg, SPRINT_INFO *info, int caps, unsigned long val)
+static int sprint_hex(STRING_ARG *string_arg, SPRINT_INFO *info, int caps, unsigned LONGEST val)
 {
    static char hex_digit_caps[] = "0123456789ABCDEF";
    static char hex_digit[] = "0123456789abcdef";
@@ -2515,7 +2526,7 @@ static int sprint_hex(STRING_ARG *string_arg, SPRINT_INFO *info, int caps, unsig
 /* sprint_octal:
  *  Helper for formatting an octal integer.
  */
-static int sprint_octal(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned long val)
+static int sprint_octal(STRING_ARG *string_arg, SPRINT_INFO *info, unsigned LONGEST val)
 {
    char tmp[24];  /* for 64-bit integers */
    int pos = 0, i = 0;
