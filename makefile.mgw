@@ -389,7 +389,9 @@ endif # STATICLINK
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -D__MINGW32__ -MM -MG -I. -I./include -DSCAN_DEPEND
+GCC2MINGW = -D__MINGW32__ -UDJGPP -U__unix__
+
+DEPEND_PARAMS = $(GCC2MINGW) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c wintests/*.c > _depend.tmp
