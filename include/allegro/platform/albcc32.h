@@ -39,17 +39,19 @@
 #endif
 
 
+/* describe how function prototypes look to BCC32 */
+#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
+   #define _AL_DLL
+#else
+   #define _AL_DLL   __declspec(dllimport)
+#endif
+
 #define AL_VAR(type, name)             extern _AL_DLL type name
 #define AL_ARRAY(type, name)           extern _AL_DLL type name[]
 #define AL_FUNC(type, name, args)      _AL_DLL type __cdecl name args
 #define AL_METHOD(type, name, args)    type (__cdecl *name) args
 #define AL_FUNCPTR(type, name, args)   extern _AL_DLL type (__cdecl *name) args
 
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
-   #define _AL_DLL
-#else
-   #define _AL_DLL   __declspec(dllimport)
-#endif
 
 #define END_OF_INLINE(name)
 #define AL_INLINE(type, name, args, code)    extern __inline type __cdecl name args code END_OF_INLINE(name)
@@ -57,6 +59,8 @@
 #define INLINE       __inline
 
 #define LONG_LONG    __int64
+
+#define AL_CONST     const
 
 /* windows specific defines */
 #ifdef NONAMELESSUNION

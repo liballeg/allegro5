@@ -3,7 +3,7 @@
 #  Shell script to scan the header files and build the DLL export definition files for the Windows port.
 #
 #  It uses misc/scanexp.c as a support for the preprocessing stage and can run in two modes:
-#    - without option: generates the export definition files for MSVC and MingGW32
+#    - without option: generates the export definition files for MSVC, MingW32 and BCC32
 #    - with '--update-symbol-list': generates the reference symbol list misc/dllsyms.lst
 #
 #  If the reference symbol list misc/dllsyms.lst already exists, the script runs in an incremental way:
@@ -113,6 +113,9 @@ else
 
    echo " lib/mingw32/allegro.def"
    cp _all.def lib/mingw32/allegro.def
+
+   echo " lib/bcc32/allegro.def"
+   sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 \2/" _all.def > lib/bcc32/allegro.def
 
 fi
 

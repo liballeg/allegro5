@@ -40,6 +40,9 @@ copy _all.def lib\msvc\allegro.def > nul
 echo  lib\mingw32\allegro.def
 copy _all.def lib\mingw32\allegro.def > nul
 
+echo  lib\bcc32\allegro.def
+sed -e "s/^    \([a-zA-Z0-9_]*\) \([@0-9]*\)\([ A-Z]*\)/    _\1 \2/" _all.def > lib\bcc32\allegro.def
+
 del _*def*.tmp
 del _all.def
 

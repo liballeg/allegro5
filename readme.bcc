@@ -9,7 +9,7 @@
 				       \_/__/
 
 
-	  Borland C++Builder-specific information.
+	  Borland C++ Builder-specific information.
 
 	 See readme.txt for a more general overview.
 
@@ -19,43 +19,30 @@
 =========== BCC32 notes ============
 ====================================
 
-   Status: it works.  It currently doesn't compile the Allegro library
-   source, but it does let you import pre-compiled .DLLs and use those
-   to compile your own Allegro-based programs.  Thanks to Inprise for
-   creating an IMPLIB program that works without those annoying .DEF
-   files!  Boos to Microsoft for making compilers that generate .DLLs
-   that don't work with IMPLIB.  :(
-
+   Status: it works.  It currently doesn't build the Allegro library
+   from the sources, but it does let you compile your own Allegro-based
+   programs and run them with the Allegro DLLs.  Thanks to Inprise for
+   creating the very useful IMPLIB program. 
 
 
 ===========================================
 ============ Required software ============
 ===========================================
 
-   - Allegro DLL, produced by MSVC.
-   - Borland C++Builder.
+   - Borland C++ Builder (or Borland C++ command line tools)
    - GNU make (mak*b.zip).
-   - Microsoft Library Manager (lib.exe).
-   - Optional: sed (sed*b.zip).  Used by "make depend".
-   - Optional: prebuilt LIBs, produced by C++Builder.
-     With this, Microsoft Library Manager is unnecessary.
+   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll".
+   - Optional: sort (txt*b.zip). Used by "fixdll". Use Unix sort, not DOS!
 
-   This is known to work in version 4.0, and it may work on older versions.
-   (In theory, any version of BCB with COFF2OMF should work.)
+   In order to run your programs, you need to obtain the Allegro DLLs and
+   install them in the Windows system directory.
 
-   You will need to somehow get a hold of lib.exe from a Microsoft compiler
-   and put in it in a directory in your system PATH.  I (nor anyone else on
-   the Allegro team) cannot legally send you this, so don't ask!  Or, you
-   could get a premade copy of the C++Builder LIBs.  I will try to make these
-   available on the Internet (look on the Allegro WIP distribution site for
-   more information) but again please do not ask the Allegro team about it.
+   This is known to work with the Borland C++ 5.5 command line compiler.
 
-   Because of MSVC-specific code, the Allegro library does not currently
-   compile under Borland C++Builder.  (This may change when the promised
-   gcc port is completed; BCC32 prefers GNU code to Microsoft code.)
    You need to use GNU make, since Borland make is really ugly about its
-   makefiles.  You can grab it from either the Mingw32 or DJGPP
-   distributions; more info on this in available in the Mingw32 and DJGPP
+   makefiles.  You can grab it from either the MinGW32 or DJGPP
+   distributions; more info on this in available in the MinGW32 and DJGPP
    READMEs.
 
 
@@ -80,8 +67,7 @@
 
    If your copy of Allegro doesn't include the linker .def file (unlikely, 
    unless you have run "make veryclean" at some point), you can regenerate 
-   them by running "fixdll.bat".  No, you can't.  That's broken right now.
-   You don't need it anyway, though.  :)
+   them by running "fixdll.bat".
 
 
 
@@ -97,6 +83,8 @@
    alld.lib       - debugging DLL import library
    allp.lib       - profiling DLL import library
 
-   You will need to distribute the appropriate DLL along with your program:
-   these can be found in the allegro/lib/msvc/ directory.
+   Don't forget that you need to use the END_OF_MAIN() macro right after 
+   your main() function!
+
+   You will need to distribute the appropriate DLL along with your program.
 
