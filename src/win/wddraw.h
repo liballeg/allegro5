@@ -65,6 +65,7 @@ AL_FUNC(int, enable_acceleration, (GFX_DRIVER * drv));
 /* video mode setting */
 AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
 AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE2 surf, int color_depth));
+AL_FUNC(int, gfx_directx_fetch_mode_list, (void));
 
 AL_VAR(int, desktop_depth);
 AL_VAR(BOOL, same_color_depth);

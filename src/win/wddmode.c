@@ -14,6 +14,8 @@
  *
  *      Unified setup code and refresh rate support by Eric Botcazou.
  *
+ *      Graphics mode list fetching code by Henrik Stokseth.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -24,6 +26,12 @@
 int desktop_depth;
 BOOL same_color_depth;
 
+
+typedef struct MODE_INFO {
+  int mode_supported;
+  int modes;
+  GFX_MODE_LIST *gfx;
+} MODE_INFO;
 
 static int pixel_realdepth[] = {8, 15, 15, 16, 16, 24, 24, 32, 32, 0};
 
@@ -225,10 +233,98 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
 /* EnumModesCallback:
  *  callback for graphics mode enumeration
  */ 
-static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID mode_supported_addr)
+static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID mode_info_addr)
 {
-   *(int *)mode_supported_addr = TRUE;
+   MODE_INFO *mode_info = (MODE_INFO *) mode_info_addr;
+   int real_bpp;
+
+   if (mode_info->gfx) {
+      mode_info->gfx[mode_info->modes].width = lpDDSurfaceDesc->dwWidth;
+      mode_info->gfx[mode_info->modes].height = lpDDSurfaceDesc->dwHeight;
+      mode_info->gfx[mode_info->modes].bpp = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
+
+      /* check if 16 bpp mode is 16 bpp or 15 bpp*/
+      if (mode_info->gfx[mode_info->modes].bpp == 16) {
+         real_bpp = _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
+                    _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
+                    _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
+         if (real_bpp == 15)
+            mode_info->gfx[mode_info->modes].bpp = real_bpp;
+      }
+   }
+
+   mode_info->mode_supported = TRUE;
+   mode_info->modes++;
+
    return DDENUMRET_OK;
+}
+
+
+
+/* gfx_directx_fetch_mode_list:
+ *  creates a list of available video modes,
+ *  returns 0 on success and -1 on failure.
+ */
+int gfx_directx_fetch_mode_list(void)
+{
+   MODE_INFO mode_info;
+   HRESULT hr;
+   int flags, modes, gfx_off;
+
+   /* enumerate VGA Mode 13h under DirectX 5 or greater */
+   if (_dx_ver >= 0x500)
+      flags = DDEDM_STANDARDVGAMODES;
+   else
+      flags = 0;
+
+   if (!directdraw) {
+      init_directx();
+      gfx_off = TRUE;
+   }
+   else
+      gfx_off = FALSE;
+
+   /* count modes */
+   mode_info.gfx = NULL;
+   mode_info.modes = 0;
+
+   hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, NULL, &mode_info, EnumModesCallback);
+   if (FAILED(hr))
+      goto Error;
+
+   modes = mode_info.modes;
+
+   /* allocate mode list */
+   if (gfx_mode_list)
+      free(gfx_mode_list);
+
+   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (modes + 1));
+   if (!gfx_mode_list)
+      goto Error;
+
+   /* fill in mode list */
+   mode_info.gfx = gfx_mode_list;
+   mode_info.modes = 0;
+
+   hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, NULL, &mode_info, EnumModesCallback);
+   if (FAILED(hr))
+      goto Error;
+
+   /* terminate mode list */
+   mode_info.gfx[modes].width = 0;
+   mode_info.gfx[modes].height = 0;
+   mode_info.gfx[modes].bpp = 0;
+
+   if (gfx_off)
+      gfx_directx_exit(dd_frontbuffer);
+
+   return 0;
+
+ Error:
+   if (gfx_off)
+      gfx_directx_exit(dd_frontbuffer);
+
+   return -1;
 }
 
 
@@ -238,8 +334,9 @@ static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID 
  */
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
+   MODE_INFO mode_info;
    DDSURFACEDESC surf_desc;
-   int flags, mode_supported, i;
+   int flags, i;
    HRESULT hr;
 
    surf_desc.dwSize   = sizeof(DDSURFACEDESC);
@@ -247,7 +344,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
    surf_desc.dwHeight = h;
    surf_desc.dwWidth  = w;
 
-   /* enumerate the VGA Mode 13h under DirectX 5 or greater */
+   /* enumerate VGA Mode 13h under DirectX 5 or greater */
    if (_dx_ver >= 0x500)
       flags = DDEDM_STANDARDVGAMODES;
    else
@@ -256,7 +353,8 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
    for (i=0 ; pixel_realdepth[i] ; i++)
       if (pixel_realdepth[i] == color_depth) {
          surf_desc.ddpfPixelFormat = pixel_format[i];
-         mode_supported = FALSE;
+         mode_info.mode_supported = FALSE;
+         mode_info.gfx = NULL;
 
          /* check whether the requested mode is supported */
          if (_refresh_rate_request) {
@@ -264,22 +362,22 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
             surf_desc.dwFlags |= DDSD_REFRESHRATE;
             surf_desc.dwRefreshRate = _refresh_rate_request;
             hr = IDirectDraw2_EnumDisplayModes(directdraw, flags | DDEDM_REFRESHRATES, &surf_desc,
-                                               &mode_supported, EnumModesCallback);
+                                               &mode_info, EnumModesCallback);
             if (FAILED(hr))
                break;
          }
 
-         if (!mode_supported) {
+         if (!mode_info.mode_supported) {
             _TRACE("no refresh rate requested\n");
             surf_desc.dwFlags &= ~DDSD_REFRESHRATE;
             surf_desc.dwRefreshRate = 0;
             hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, &surf_desc,
-                                               &mode_supported, EnumModesCallback);
+                                               &mode_info, EnumModesCallback);
             if (FAILED(hr))
                break;
          }
 
-         if (mode_supported) {
+         if (mode_info.mode_supported) {
             _wnd_width        = surf_desc.dwWidth;
             _wnd_height       = surf_desc.dwHeight;
             _wnd_depth        = pixel_format[i].dwRGBBitCount; /* not color_depth */

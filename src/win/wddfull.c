@@ -38,7 +38,7 @@ GFX_DRIVER gfx_directx_accel =
    gfx_directx_sync,
    gfx_directx_set_palette,
    NULL,                         // AL_METHOD(int, request_scroll, (int x, int y));
-   NULL,                         // gfx_directx_poll_scroll,
+   NULL,                         // AL_METHOD(int, poll_scroll, (void));
    NULL,                         // AL_METHOD(void, enable_triple_buffer, (void));
    gfx_directx_create_video_bitmap,
    gfx_directx_destroy_video_bitmap,
@@ -53,14 +53,14 @@ GFX_DRIVER gfx_directx_accel =
    NULL,                         // AL_METHOD(void, drawing_mode, (void));
    NULL,                         // AL_METHOD(void, save_video_state, (void*));
    NULL,                         // AL_METHOD(void, restore_video_state, (void*));
-   NULL,                         // AL_METHOD(int, fetch_mode_list, (void));
-   0, 0,                         // int w, h;                     /* physical (not virtual!) screen size */
-   TRUE,                         // int linear;                   /* true if video memory is linear */
-   0,                            // long bank_size;               /* bank size, in bytes */
-   0,                            // long bank_gran;               /* bank granularity, in bytes */
-   0,                            // long vid_mem;                 /* video memory size, in bytes */
-   0,                            // long vid_phys_base;           /* physical address of video memory */
-   FALSE                         // int windowed;                 /* true if driver runs windowed */
+   gfx_directx_fetch_mode_list,
+   0, 0,                         // physical (not virtual!) screen size
+   TRUE,                         // true if video memory is linear
+   0,                            // bank size, in bytes
+   0,                            // bank granularity, in bytes
+   0,                            // video memory size, in bytes
+   0,                            // physical address of video memory
+   FALSE                         // true if driver runs windowed
 };
 
 
@@ -76,7 +76,7 @@ GFX_DRIVER gfx_directx_soft =
    gfx_directx_sync,
    gfx_directx_set_palette,
    NULL,                        // AL_METHOD(int, request_scroll, (int x, int y));
-   NULL,                        // gfx_directx_poll_scroll,
+   NULL,                        // AL_METHOD(int, poll_scroll, (void));
    NULL,                        // AL_METHOD(void, enable_triple_buffer, (void));
    gfx_directx_create_video_bitmap,
    gfx_directx_destroy_video_bitmap,
@@ -91,14 +91,14 @@ GFX_DRIVER gfx_directx_soft =
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
-   NULL,                        // AL_METHOD(int, fetch_mode_list, (void));
-   0, 0,                        // int w, h;                     /* physical (not virtual!) screen size */
-   TRUE,                        // int linear;                   /* true if video memory is linear */
-   0,                           // long bank_size;               /* bank size, in bytes */
-   0,                           // long bank_gran;               /* bank granularity, in bytes */
-   0,                           // long vid_mem;                 /* video memory size, in bytes */
-   0,                           // long vid_phys_base;           /* physical address of video memory */
-   FALSE                        // int windowed;                 /* true if driver runs windowed */
+   gfx_directx_fetch_mode_list,
+   0, 0,                        // physical (not virtual!) screen size
+   TRUE,                        // true if video memory is linear
+   0,                           // bank size, in bytes
+   0,                           // bank granularity, in bytes
+   0,                           // video memory size, in bytes
+   0,                           // physical address of video memory
+   FALSE                        // true if driver runs windowed
 };
 
 
@@ -114,7 +114,7 @@ GFX_DRIVER gfx_directx_safe =
    gfx_directx_sync,
    gfx_directx_set_palette,
    NULL,                        // AL_METHOD(int, request_scroll, (int x, int y));
-   NULL,
+   NULL,                        // AL_METHOD(int, poll_scroll, (void));
    NULL,                        // AL_METHOD(void, enable_triple_buffer, (void));
    NULL, NULL, NULL, NULL, NULL, NULL,
    NULL,                        // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
@@ -124,14 +124,14 @@ GFX_DRIVER gfx_directx_safe =
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
-   NULL,                        // AL_METHOD(int, fetch_mode_list, (void));
-   0, 0,                        // int w, h;                     /* physical (not virtual!) screen size */
-   TRUE,                        // int linear;                   /* true if video memory is linear */
-   0,                           // long bank_size;               /* bank size, in bytes */
-   0,                           // long bank_gran;               /* bank granularity, in bytes */
-   0,                           // long vid_mem;                 /* video memory size, in bytes */
-   0,                           // long vid_phys_base;           /* physical address of video memory */
-   FALSE                        // int windowed;                 /* true if driver runs windowed */
+   gfx_directx_fetch_mode_list,
+   0, 0,                        // physical (not virtual!) screen size
+   TRUE,                        // true if video memory is linear
+   0,                           // bank size, in bytes
+   0,                           // bank granularity, in bytes
+   0,                           // video memory size, in bytes
+   0,                           // physical address of video memory
+   FALSE                        // true if driver runs windowed
 };
 
 
