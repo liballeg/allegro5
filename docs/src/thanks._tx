@@ -38,7 +38,7 @@ Contributors
    Wrote the Ensoniq Soundscape driver and fixed division bugs in the fix
    class.
 
-   Andrei Ellman (<email>ae-a@wackonet.fsnet.co.uk</a>).<br>
+   Andrei Ellman (<email>ae-a-alleg@wacko.wackonet.net</a>).<br>
    Contributed the polygon_z_normal() function, suggested some additions to
    the docs, updated the Cygwin section in docs/build/mingw32.txt, got
    Allegro for MSVC to build with Cygwin, improved the performance of the
