@@ -305,6 +305,7 @@
     get_font_range_end
     get_font_ranges
     get_gfx_mode_list
+    get_midi_length
     get_mixer_bits
     get_mixer_buffer_length
     get_mixer_channels
@@ -372,6 +373,7 @@
     gfx_mode_select
     gfx_mode_select_ex
     gfx_mode_select_filter
+    grab_font_from_bitmap
     gui_bg_color DATA
     gui_button_proc DATA
     gui_ctext_proc DATA
@@ -510,6 +512,7 @@
     midi_resume
     midi_seek
     midi_sysex_callback DATA
+    midi_time DATA
     mouse_b DATA
     mouse_callback DATA
     mouse_driver DATA
@@ -723,6 +726,7 @@
     set_write_alpha_blender
     set_zbuffer
     show_mouse
+    show_os_cursor
     show_video_bitmap
     shutdown_dialog
     shutdown_menu
@@ -763,6 +767,7 @@
     timer_driver DATA
     timer_is_using_retrace
     timer_simulate_retrace
+    transpose_font
     triangle
     triangle3d
     triangle3d_f
@@ -862,15 +867,11 @@
     gfx_gdi DATA
     joystick_directx DATA
     joystick_win32 DATA
-    keyboard_directx DATA
-    mouse_directx DATA
     set_gdi_color_format
     set_palette_to_hdc
     stretch_blit_from_hdc
     stretch_blit_to_hdc
     system_directx DATA
-    timer_win32_high_perf DATA
-    timer_win32_low_perf DATA
     win_get_dc
     win_get_window
     win_gfx_driver DATA
@@ -987,7 +988,6 @@
     _create_driver_list
     _current_palette_changed DATA
     _datafile_type DATA
-    _default_font DATA
     _destroy_driver_list
     _digi_volume DATA
     _digmid_find_patches
@@ -1401,7 +1401,6 @@
     _timer_use_retrace DATA
     _unload_datafile_object
     _unregister_switch_bitmap
-    _voice DATA
     _vsync_speed DATA
     _wait_for_vsync DATA
     _zbuffer DATA
