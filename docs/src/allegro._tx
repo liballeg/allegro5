@@ -1075,6 +1075,13 @@ framebuffer = x<br>
    Linux only: specifies what device file to use for the fbcon driver. If 
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
+<li>
+disable_direct_updating = x<br>
+   Windows only: specifies whether to disable direct updating when the 
+   GFX_DIRECTX_WIN driver is used in color conversion mode (yes or no).
+   Direct updating can cause artifacts to be left on the screen when the 
+   window is moved or minimized; disabling it results in a significant
+   performance loss.
 </ul><li>
 [mouse]<br>
    Section containing mouse configuration information, using the variables:

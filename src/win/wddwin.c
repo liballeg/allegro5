@@ -101,7 +101,8 @@ static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
 static LPDIRECTDRAWSURFACE2 preconv_offscreen_surface = NULL;
 static RECT working_area;
 static COLORCONV_BLITTER_FUNC *colorconv_blit = NULL;
-static int direct_updating_mode;
+static int direct_updating_mode_enabled; /* configuration flag */
+static int direct_updating_mode_on; /* live flag */
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
@@ -147,9 +148,11 @@ static void switch_in_win(void)
  */
 static void handle_window_enter_sysmode_win(void)
 {
-   if (colorconv_blit && direct_updating_mode) {
-      direct_updating_mode = FALSE;
-      _TRACE("direct updating mode off\n");
+   if (direct_updating_mode_enabled && colorconv_blit) {
+      if (direct_updating_mode_on) {
+         direct_updating_mode_on = FALSE;
+         _TRACE("direct updating mode off\n");
+      }
    }
 }
 
@@ -160,9 +163,11 @@ static void handle_window_enter_sysmode_win(void)
  */
 static void handle_window_exit_sysmode_win(void)
 {
-   if (colorconv_blit && !direct_updating_mode) {
-      direct_updating_mode = TRUE;
-      _TRACE("direct updating mode on\n");
+   if (direct_updating_mode_enabled && colorconv_blit) {
+      if (!direct_updating_mode_on) {
+         direct_updating_mode_on = TRUE;
+         _TRACE("direct updating mode on\n");
+      }
    }
 }
 
@@ -340,7 +345,7 @@ static void update_colorconv_window(RECT* rect)
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
 
-   if (!direct_updating_mode || is_not_contained(&dest_rect, &working_area) ||
+   if (!direct_updating_mode_on || is_not_contained(&dest_rect, &working_area) ||
                                        (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer */
       if (ddsurf_blit_ex(preconv_offscreen_surface, &src_rect,
@@ -455,7 +460,7 @@ static int verify_color_depth (int color_depth)
          return -1;
 
       update_window = update_colorconv_window;
-      direct_updating_mode = TRUE;
+      direct_updating_mode_on = direct_updating_mode_enabled;
    }
 
    return 0;
@@ -531,6 +536,8 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 {
    RECT win_size;
    unsigned char *cmap;
+   char tmp1[64], tmp2[128];
+   AL_CONST char *ddu;
    HRESULT hr;
    int i;
 
@@ -665,6 +672,16 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
    /* grab input devices */
    win_grab_input();
+
+   /* read direct updating configuration variable */
+   ddu = get_config_string(uconvert_ascii("graphics", tmp1),
+                           uconvert_ascii("disable_direct_updating", tmp2),
+                           NULL);
+
+   if ((ddu) && ((i = ugetc(ddu)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1')))
+      direct_updating_mode_enabled = FALSE;
+   else
+      direct_updating_mode_enabled = TRUE;
 
    _exit_critical();
 
