@@ -8,14 +8,13 @@
 #                                            /\____/
 #                                            \_/__/
 # 
-#       MPW make intented to build allegro.
+#       MPW makefile.
 # 
-#       By Ronaldo H. Yamada
+#       By Ronaldo Hideki Yamada.
 #  
 #       See readme.txt for copyright information.
 # 
-# 
-#       Use the file readme.mpw!!
+#       See the file readme.mpw.
 
 MAKEFILE     = all.make
 ¥MondoBuild¥ = # makefile.mpw  # Make blank to avoid rebuilds when makefile is modified
@@ -23,15 +22,15 @@ ObjDir¥PPC   = :obj:mpw:alld:
 SourceDir    = :src:
 SourceMac    = :src:mac:
 SourceC      = :src:c:
+SourcePPC    = :src:ppc:
 IncludeDir   = {Allegro}
-
 Includes     = -i {IncludeDir}
-Sym¥PPC      = -sym on         # symbolic on for debug no opt
-PPCCOptions  = {Includes} {Sym¥PPC} -w 2 -w 35 -w 29 -typecheck relaxed
+Sym¥PPC      = #-sym on         # symbolic on for debug
+PPCCOptions  = -opt local -inline 5 {Includes} {Sym¥PPC} -w 2 -w 35 -w 29 -typecheck relaxed
 
 allegrolib   = "{Allegro}allegro.x"
+datlib       = "{ObjDir¥PPC}:datlib.x"
 allegrorsrc  = "{Allegro}allegro.r"
-allegroscpt  = "{MPW}Startup Items:SetAllegro"
 MainInc      = "{IncludeDir}allegro.h"  "{IncludeDir}allegro/alconfig.h"  {IncludeDir}almaccfg.h "{IncludeDir}allegro/alinline.h" "{IncludeDir}allegro/almac.h"
 IntInc       = {MainInc} "{IncludeDir}allegro/aintern.h"
 
@@ -42,6 +41,16 @@ LinkAppOptions = -main MacEntry {Sym¥PPC}¶
       "{SharedLibraries}StdCLib" ¶
       "{SharedLibraries}MathLib" ¶
       "{SharedLibraries}DrawSprocketLib" ¶
+      "{PPCLibraries}StdCRuntime.o" ¶
+      "{PPCLibraries}PPCCRuntime.o" ¶
+      "{PPCLibraries}PPCToolLibs.o"
+
+LinkConsoleOptions = -t 'MPST' -c 'MPS ' ¶
+      "{Allegro}allegro.x" ¶
+      "{datlib}" ¶
+      "{SharedLibraries}InterfaceLib" ¶
+      "{SharedLibraries}StdCLib" ¶
+      "{SharedLibraries}MathLib" ¶
       "{PPCLibraries}StdCRuntime.o" ¶
       "{PPCLibraries}PPCCRuntime.o" ¶
       "{PPCLibraries}PPCToolLibs.o"
@@ -131,25 +140,55 @@ AllegroObjs  = ¶
       "{ObjDir¥PPC}czscan24.c.x" ¶
       "{ObjDir¥PPC}czscan32.c.x" ¶
       "{ObjDir¥PPC}czscan8.c.x" ¶
-      "{ObjDir¥PPC}macallegro.c.x" ¶
-      "{ObjDir¥PPC}macsys.c.x" ¶
-      "{ObjDir¥PPC}macfile.c.x" ¶
-      "{ObjDir¥PPC}macdraw.c.x" ¶
-      "{ObjDir¥PPC}macsbmp.c.x" ¶
-      "{ObjDir¥PPC}macsnd.c.x" ¶
-      "{ObjDir¥PPC}macdrv.c.x" ¶
-      "{ObjDir¥PPC}BlitPixie.s.x"
+      "{ObjDir¥PPC}msys.c.x" ¶
+      "{ObjDir¥PPC}mfile.c.x" ¶
+      "{ObjDir¥PPC}mdraw.c.x" ¶
+      "{ObjDir¥PPC}msbmp.c.x" ¶
+      "{ObjDir¥PPC}msnd.c.x" ¶
+      "{ObjDir¥PPC}mkey.c.x" ¶
+      "{ObjDir¥PPC}madb.c.x" ¶
+      "{ObjDir¥PPC}mdrv.c.x" ¶
+      "{ObjDir¥PPC}mlock.c.x" ¶
+      "{ObjDir¥PPC}ppcgfx.s.x" 
+      
+incs =  ¶
+ :tools:plugins:datalpha.inc ¶
+ :tools:plugins:datfli.inc ¶
+ :tools:plugins:datfont.inc ¶
+ :tools:plugins:datgrab.inc ¶
+ :tools:plugins:datgrid.inc ¶
+ :tools:plugins:datimage.inc ¶
+ :tools:plugins:datitype.inc ¶
+ :tools:plugins:datmidi.inc ¶
+ :tools:plugins:datpal.inc ¶
+ :tools:plugins:datsamp.inc ¶
+ :tools:plugins:datworms.inc
 
-all Ä alld docs tests examples
+plugins = ¶
+ "{ObjDir¥PPC}datedit.c.x" ¶
+ "{ObjDir¥PPC}datalpha.c.x" ¶
+ "{ObjDir¥PPC}datfli.c.x" ¶
+ "{ObjDir¥PPC}datfont.c.x" ¶
+ "{ObjDir¥PPC}datgrab.c.x" ¶
+ "{ObjDir¥PPC}datgrid.c.x" ¶
+ "{ObjDir¥PPC}datimage.c.x" ¶
+ "{ObjDir¥PPC}datitype.c.x" ¶
+ "{ObjDir¥PPC}datmidi.c.x" ¶
+ "{ObjDir¥PPC}datpal.c.x" ¶
+ "{ObjDir¥PPC}datsamp.c.x" ¶
+ "{ObjDir¥PPC}datworms.c.x"
 
-alld Ä {allegrolib} {allegrorsrc} {allegroscpt} 
+all Ä alld docs tests tools examples
+
+alld Ä {allegrolib} {allegrorsrc} 
 
 docs Ä :docs:makedoc :docs:ahack.html :docs:allegro.html :docs:changes.html :docs:const.html :docs:faq.html :docs:help.html :docs:thanks.html
 
-tests Ä :tests:mathtest.exe :tests:digitest.exe :tests:test.exe 
+tests Ä :tests:mathtest.exe :tests:digitest.exe :tests:test.exe :tests:miditest.exe
 
-examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Examples:exblend.exe" ":Examples:excamera.exe" ":Examples:excolmap.exe" ":Examples:excustom.exe" ":Examples:exdata.exe" ":Examples:exdbuf.exe" ":Examples:exfixed.exe" ":Examples:exflame.exe" ":Examples:exgui.exe" ":Examples:exhello.exe" ":Examples:exkeys.exe" ":Examples:exlights.exe" ":Examples:exmem.exe" ":Examples:exmouse.exe" ":Examples:expal.exe" ":Examples:expat.exe" ":Examples:exquat.exe" ":Examples:exrgbhsv.exe" ":Examples:exscale.exe" ":Examples:exshade.exe" ":Examples:exspline.exe" ":Examples:exsprite.exe" ":Examples:exstars.exe" ":Examples:exstream.exe" ":Examples:extimer.exe" ":Examples:extrans.exe" ":Examples:extruec.exe" ":Examples:exzbuf.exe"
+examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Examples:exblend.exe" ":Examples:excamera.exe" ":Examples:excolmap.exe" ":Examples:excustom.exe" ":Examples:exdata.exe" ":Examples:exdbuf.exe" ":Examples:exexedat.exe" ":Examples:exfixed.exe" ":Examples:exflame.exe" ":Examples:exgui.exe" ":Examples:exhello.exe" ":Examples:exkeys.exe" ":Examples:exlights.exe" ":Examples:exmem.exe" ":Examples:exmouse.exe" ":Examples:expal.exe" ":Examples:expat.exe" ":Examples:exquat.exe" ":Examples:exrgbhsv.exe" ":Examples:exscale.exe" ":Examples:exshade.exe" ":Examples:exspline.exe" ":Examples:exsprite.exe" ":Examples:exstars.exe" ":Examples:exstream.exe" ":Examples:extimer.exe" ":Examples:extrans.exe" ":Examples:extruec.exe" ":Examples:exzbuf.exe"
 
+tools Ä :tools:grabber :tools:colormap :tools:dat :tools:exedat :tools:pack :tools:pat2dat :tools:rgbmap :tools:textconv
 
 #examples which not work
 #ex3buf.exe    triplebuffer not avalible now
@@ -167,7 +206,6 @@ examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Ex
 #exupdate.exe  param
 #exxfade.exe   param
 
-
 {allegrolib} ÄÄ {¥MondoBuild¥} {AllegroObjs}
    PPCLink -xm l -o {Targ} {Sym¥PPC} -mf -t 'XCOF' -c 'MPS ' {AllegroObjs} 
 
@@ -180,10 +218,51 @@ examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Ex
       "{PPCLibraries}PPCCRuntime.o" ¶
       "{PPCLibraries}PPCToolLibs.o"
 
+{datlib} Ä {plugins}
+   PPCLink -xm l -o {Targ} {Sym¥PPC} -mf -t 'XCOF' -c 'MPS ' {plugins}
+
+:tools:grabber Ä {ObjDir¥PPC}grabber.c.x {datlib}
+   Echo creating grabber
+   PPCLink -o {Targ} {ObjDir¥PPC}grabber.c.x {datlib} {LinkAppOptions}
+   Rez {allegrorsrc} -o {Targ} {Includes} -append
+
+:tools:textconv Ä {ObjDir¥PPC}textconv.c.x {allegrolib}
+   Echo creating textconv
+   PPCLink -o {Targ} {ObjDir¥PPC}textconv.c.x {LinkConsoleOptions}
+
+:tools:rgbmap Ä {ObjDir¥PPC}rgbmap.c.x {allegrolib}
+   Echo creating rgbmap
+   PPCLink -o {Targ} {ObjDir¥PPC}rgbmap.c.x {LinkConsoleOptions}
+
+:tools:pat2dat Ä {ObjDir¥PPC}pat2dat.c.x {allegrolib} {datlib}
+   Echo creating pat2dat
+   PPCLink -o {Targ} {ObjDir¥PPC}pat2dat.c.x {LinkConsoleOptions}
+
+:tools:pack Ä {ObjDir¥PPC}pack.c.x {allegrolib} {datlib}
+   Echo creating pack
+   PPCLink -o {Targ} {ObjDir¥PPC}pack.c.x {LinkConsoleOptions}
+
+:tools:exedat Ä {ObjDir¥PPC}exedat.c.x {allegrolib} {datlib}
+   Echo creating exedat
+   PPCLink -o {Targ} {ObjDir¥PPC}exedat.c.x {LinkConsoleOptions}
+
+:tools:dat Ä {ObjDir¥PPC}dat.c.x {allegrolib} {datlib}
+   Echo creating dat
+   PPCLink -o {Targ} {ObjDir¥PPC}dat.c.x {LinkConsoleOptions}
+
+:tools:colormap Ä {ObjDir¥PPC}colormap.c.x {allegrolib} {datlib}
+   Echo creating colormap
+   PPCLink -o {Targ} {ObjDir¥PPC}colormap.c.x {LinkConsoleOptions}
+
 
 ### directory rules
 
-{ObjDir¥PPC} Ä {SourceDir} {SourceMac} {SourceC} 
+{ObjDir¥PPC} Ä {SourceDir} {SourceMac} {SourceC} {SourcePPC} :examples: :tools: :tools:plugins: :demo: :tests:
+:demo: Ä {ObjDir¥PPC}
+:examples: Ä {ObjDir¥PPC}
+:tools: Ä {ObjDir¥PPC}
+:tools:plugins: Ä {ObjDir¥PPC}
+:tests: Ä {ObjDir¥PPC}
 
 ### sufix rules
 
@@ -238,18 +317,17 @@ examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Ex
 "{IncludeDir}allegro/macdef.h" Ä ":include:allegro:macdef.h"
    Duplicate ":include:allegro:macdef.h"   "{IncludeDir}allegro/macdef.h" -y
 
+:obj:mpw:plugins.h Ä {incs}
+   catenate {incs} > {Targ}
+
 {allegrorsrc} Ä ":src:mac:allegro.r"
    Duplicate -y ":src:mac:allegro.r" {Targ}
-
-{allegroscpt} Ä ":src:mac:SetAllegro"
-   Echo "### Please quit MPW after install"
-   Duplicate -y ":src:mac:SetAllegro" {Targ}
 
 "{ObjDir¥PPC}makedoc.c.x" Ä {¥MondoBuild¥} :docs:makedoc.c
    {PPCC} :docs:makedoc.c -o {Targ} {PPCCOptions}
 
 #additional dependencys
-
+"{ObjDir¥PPC}datedit.c.x" Ä :obj:mpw:plugins.h
 "{ObjDir¥PPC}allegro.c.x" Ä {IntInc}
 "{ObjDir¥PPC}blit.c.x" Ä {IntInc}
 "{ObjDir¥PPC}bmp.c.x" Ä {IntInc}
@@ -316,9 +394,11 @@ examples Ä :Examples:ex12bit.exe :Examples:ex3d.exe ":Examples:exalpha.exe" ":Ex
 "{ObjDir¥PPC}czscan24.c.x" Ä {IntInc} {SourceC}cdefs24.h {SourceC}czscan.h
 "{ObjDir¥PPC}czscan32.c.x" Ä {IntInc} {SourceC}cdefs32.h {SourceC}czscan.h
 "{ObjDir¥PPC}czscan8.c.x" Ä {IntInc} {SourceC}cdefs8.h {SourceC}czscan.h
-"{ObjDir¥PPC}macallegro.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
-"{ObjDir¥PPC}macsnd.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
-"{ObjDir¥PPC}macdraw.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
-"{ObjDir¥PPC}macsbmp.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
-"{ObjDir¥PPC}macsys.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
-"{ObjDir¥PPC}macfile.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}msnd.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}mdraw.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}msbmp.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}msys.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}mkey.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}madb.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}mlock.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"
+"{ObjDir¥PPC}mfile.c.x" Ä {IntInc} {IncludeDir}macalleg.h "{IncludeDir}allegro/aintmac.h" "{IncludeDir}allegro/macdef.h"

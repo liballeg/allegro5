@@ -28,6 +28,7 @@
 #endif
 
 #include "macalleg.h"
+#include "allegro/aintern.h"
 
 #ifdef __cplusplus
    extern "C" {
@@ -75,15 +76,6 @@ extern int _tm_sys_init();
 extern void _tm_sys_exit();
 
 /*macfile.c*/
-extern void _al_findclose(void *dta);
-extern int _al_findnext(void *pdta, char *nameret, int *aret);
-extern void *_al_findfirst(const char *pattern, int attrib, char *nameret, int *aret);
-extern int _al_file_isok(const char *filename);
-extern int _al_file_exists(const char *filename, int attrib, int *aret);
-extern long _al_file_size(const char *filename);
-extern long _al_file_time(const char *filename);
-extern int _al_getdrive(void);
-extern void _al_getdcwd(int drive, char *buf, int size);
 extern int _al_open(const char *filename, int mode);
 extern void getcwd(char *p, int size);
 extern long GetLogicalDrives();

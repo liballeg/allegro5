@@ -8,27 +8,34 @@
 #                                            /\____/
 #                                            \_/__/
 # 
-#       MPW Script install allegro
+#       MPW Script install allegro.
 # 
-#       By Ronaldo H. Yamada
+#       By Ronaldo Hideki Yamada.
 #  
 #       See readme.txt for copyright information.
-#       See readme.mpw for information about use of this file
+#
+#       See readme.mpw for information about use of this file.
 #
 
 Set savedir `Directory`
-
-Echo {0} --- preparing install 
 
 If "{0}" =~ /(Å:)¨1readme.mpw/
 	SetDirectory {¨1}
 End
 
 If "{Allegro}"!="{Libraries}::Allegro:"
-	Set -e Allegro {Libraries}::Allegro:
 	Echo "### Allegro var not defined correctly"
 	Echo "### If required quit MPW after install"
+	Set -e Allegro {Libraries}::Allegro:
 End
+
+If !`Exists "{MPW}Startup Items:setalleg.sh"`
+   Echo "### Please quit MPW after install"
+   Echo 'Set -e Allegro {Libraries}::Allegro:' > "{MPW}Startup Items:setalleg.sh"
+End
+
+Duplicate -y ":tools:datedit.h" ":tools:plugins:../datedit.h"
+
 If !`Exists "{Allegro}"`
 	NewFolder "{Allegro}"	
 End
@@ -50,8 +57,9 @@ end
 unset f
 
 If `Exists "makefile.mpw"`
+    Duplicate -y makefile.mpw makefile
 	Echo "analyzing dependencys"
-	make -f makefile.mpw {Parameters} > ":obj:mpw:alld:makefile.dep"
+	make {Parameters} > ":obj:mpw:alld:makefile.dep"
 	Echo "building sources"
 	Echo "this can take several minutes..."
 	":obj:mpw:alld:makefile.dep"

@@ -78,6 +78,8 @@ typedef struct{
 	int		cachealigned;
 	Ptr		data;
 	}mac_bitmap;
+
+#define MEMORY_ALIGN 4
 #define GETMACBITMAP(bmp)((mac_bitmap*)(bmp->extra))
 
 #pragma options align=mac68k
@@ -114,6 +116,9 @@ AL_VAR(QDGlobals , qd);
 AL_VAR(GFX_VTABLE,__mac_sys_vtable8);
 AL_VAR(GFX_VTABLE,__mac_sys_vtable15);
 AL_VAR(GFX_VTABLE,__mac_sys_vtable24);
+
+extern void _mac_lock(void *address, unsigned long size);
+extern void _mac_unlock(void *address, unsigned long size);
 
 #ifdef __cplusplus
    }
