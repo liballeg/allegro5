@@ -1,8 +1,4 @@
-@<html>
-@<head>
-@<title>Packfile format</title>
-@</head>
-@<body>
+@document_title=Packfile format
 <center><h1><b>
 Packfile format information.
 </b></h1></center>
@@ -70,10 +66,10 @@ Format and decompression algorithm
    order bits, thus making a 12-bit unsigned number (0-4095). The length is
    the lower 4 bits of the second byte, plus 2.
    In less hand-wavy C syntax:
-<pre>
+<codeblock>
       index  = byte1 | ((byte2 & 0xF0) << 4);
       length = (byte2 & 0x0F) + 2;
-</pre>
+<endblock>
    Then, "length" number of bytes from the ring buffer, starting at "index",
    are to be sent to the output. In addition, all these bytes must be put
    onto the ring buffer, and the ring buffer incremented accordingly.
@@ -87,7 +83,7 @@ Format and decompression algorithm
 Summary
 
    In brief, compressed packfiles take the form:
-<pre>
+<textblock>
       signature -- 4 bytes
 
       flags     -- 1 byte
@@ -98,6 +94,4 @@ Summary
       flags
        ...
       (repeat flags and tokens 1-8 until EOF)
-</pre>
-@</body>
-@</html>
+<endblock>
