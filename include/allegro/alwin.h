@@ -139,8 +139,8 @@ AL_VAR(GFX_DRIVER, gfx_gdi);
    {  GFX_DIRECTX_ACCEL,   &gfx_directx_accel,     TRUE  },             \
    {  GFX_DIRECTX_SOFT,    &gfx_directx_soft,      TRUE  },             \
    {  GFX_DIRECTX_SAFE,    &gfx_directx_safe,      TRUE  },             \
-   {  GFX_DIRECTX_OVL,     &gfx_directx_ovl,       TRUE  },             \
    {  GFX_DIRECTX_WIN,     &gfx_directx_win,       TRUE  },             \
+   {  GFX_DIRECTX_OVL,     &gfx_directx_ovl,       TRUE  },             \
    {  GFX_GDI,             &gfx_gdi,               FALSE },
 
 #define GFX_SAFE_ID              GFX_DIRECTX_SAFE
