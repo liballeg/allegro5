@@ -9,9 +9,11 @@
 				       \_/__/
 
 
-		 Mingw32-specific information.
+   Notes on building the MingW32 version of Allegro.
 
-	 See readme.txt for a more general overview.
+   Written by: Henrik Stokseth.
+
+   See readme.txt for a more general overview.
 
 
 
@@ -19,19 +21,11 @@
 ============ Mingw32 notes ============
 =======================================
 
-   This isn't a full Mingw32 port of Allegro, because it uses a DLL library 
-   that is compiled with MSVC. You can't compile Allegro itself with 
-   Mingw32, but as long as you have the MSVC DLL, you can use Mingw32 to 
-   build all the examples and test programs, and to write Allegro programs 
-   of your own. See readme.vc for general information about the status of 
-   the Windows library.
-
-   At some point in the future, this will become a full gcc port with a 
-   natively compiled DLL, but that version isn't entirely working yet. You 
-   can try out a statically linked version of the native Mingw32 DLL by 
-   having a look in readme.mgs and following the instructions given there, 
-   but that version is currently in need of developers rather more than 
-   users :-)
+   This is a full MingW32 port of Allegro. This build doesn't rely
+   on the DLL files produced by MSVC but can make them itself.
+   I'm proud to say Allegro can now make Win32 programs entirely using
+   free professional tools. On that note I'd like to thank Peter for
+   making this a reality and for finishing off what I started. Enjoy!
 
 
 
@@ -39,33 +33,36 @@
 ============ Required software ============
 ===========================================
 
-   - Allegro DLL, produced by MSVC.
-   - Minimalist GNU Win32 (Mingw32) compiler (see below).
-   - Optional: rm   (fil*b.zip). Used by the clean and uninstall targets.
-   - Optional: sed  (sed*b.zip). Used by "make depend" and "fixdll".
-   - Optional: sort (txt*b.zip). Used by "fixdll". Use Unix sort, not DOS!
+   For the MingW32 part, you will need to obtain the following 
+   distributions from the internet:
 
-   At the moment the only way to get an Allegro DLL is by using MSVC to
-   compile it yourself. Eventually we are planning to distribute precompiled
-   versions of this, but that doesn't make sense while the code is changing
-   so rapidly. The DLL should be in your allegro/lib/msvc/ directory.
+   1) The MingW32 compiler, documentation and utilities from
+      http://www.mingw.org
+      At the time of this writing (Aug. 2000) gcc-2.95.2 is out and one
+      should get gcc-2.95.2-msvcrt.exe and mingw32-docs-html.exe.
 
-   For the Mingw32 part, you will need to obtain the following distributions
-   from the internet:
+   2) Get the latest runtime and patch the compiler with it.
+      This is because gcc 2.95.2 had a problem with making DLLs.
+      ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/runtime/
 
-   1) The Mingw32 compiler, documentation and utilities from
-      http://www.xraylith.wisc.edu/~khan/software/gnu-win32/
-      At the time of this writing (Nov. 1999) gcc-2.95.2 is out and one
-      should get gcc-2.95.2-crtdll.exe and mingw32-docs-html.exe.
+   3) Get the DirectX 7 libraries for mingw32. Download them from
+      http://sites.netscape.net/zaqhaq/directx.htm
 
-   2) Create a directory for mingw32, e.g. c:\mingw32. Unpack the gcc 
-      distribution into c:\mingw32 preserving the directory structure and 
-      case of filenames.
+   4) Get the DirectX 7 header files from Microsoft. You can find a minimal
+      DirectX 7 SDK on the Allegro webpage.
+      http://sunsite.auc.dk/allegro/wipdll/dx70_min.zip
 
-   3) Make the following additions / changes to autoexec.bat
-      PATH=%PATH%;c:\mingw32\bin
+   5) Create a directory for mingw32, for example c:\mingw32, and install
+      all the packages to this directory. The Microsoft DirectX libraries
+      should be installed to c:\mingw32\i386-mingw32\lib and the headers to 
+      c:\mingw32\i586-mingw32\include.
 
-   On Windows 9x reboot your computer.
+   6) Add this directory (c:\mingw32\bin) to your path in AUTOEXEC.BAT.
+      Also add this line to your AUTOEXEC.BAT:
+      SET MINGDIR=c:\mingw32
+
+
+   Now reboot your computer to activate the changes.
    Test the installation by typing: gcc -v.
    The answer should be simmilar to
    Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32\2.95.2\specs
@@ -77,32 +74,29 @@
 ============ Installing Allegro ============
 ============================================
 
-   Type "cd allegro", followed by "fixming.bat", followed by 
-   "make MINGDIR=<your mingw32 directory>". Here is an example:
+   Step-by-step instructions on how to build the MingW32 version of Allegro.
 
-      make MINGDIR=c:/mingw32
+   First configure Allegro by entering the following on the commandline:
 
-   Then go do something interesting while everything compiles. When it 
-   finishes compiling, type "make MINGDIR=<your mingw32 directory> install" 
-   to set the library up ready for use.
+   cd c:\allegro
+   fixming
 
-   If you also want to install a debugging version of the library (highly 
-   recommended), now type "make MINGDIR=<your mingw32 directory> install 
-   DEBUGMODE=1". Case is important, so it must be DEBUGMODE, not debugmode!
+   The dynamically linked version of Allegro gets built by default but if
+   you want to build the statically linked version of Allegro write the
+   following on the command line:
 
-   If you also want to install a profiling version of the library, now type 
-   "make MINGDIR=<your mingww32 directory> install PROFILEMODE=1".
+   SET STATICLINK=1
 
-   If your copy of Allegro doesn't include the makefile.dep dependency files 
-   (unlikely, unless you have run "make veryclean" at some point), you can 
-   regenerate them by running "make depend".
+   In the same manner we can also enter one of the following lines to
+   build either the debug or the profiling version of the library:
 
-   If your copy of Allegro doesn't include the linker .def file (unlikely, 
-   unless you have run "make veryclean" at some point), you can regenerate 
-   it by running "fixdll.bat".
+   SET DEBUGMODE=1
+   SET PROFILEMODE=1
 
-   NOTE: It is EXTREMELY important that you specify your mingw32 path when 
-   making all three versions of the library.
+   Then we can start to actually make and install the Allegro library.
+
+   make
+   make install
 
 
 
@@ -110,14 +104,11 @@
 ============ Using Allegro ============
 =======================================
 
-   All the Allegro functions, variables, and data structures are defined in 
-   allegro.h. You should include this in your programs, and link with either 
-   the optimised library liballeg.a, the debugging library liballd.a, or the 
-   profiling library liballp.a.
+   All the Allegro functions, variables, and data structures are defined 
+   in allegro.h. You should include this in your programs, and link with 
+   either the optimised library liballeg.a, the debugging library 
+   liballd.a, or the profiling library liballp.a.
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
-   your main() function!
-
-   You will need to distribute the appropriate DLL along with your program: 
-   these can be found in the allegro/lib/msvc/ directory.
+   your main() function. Happy coding!
 

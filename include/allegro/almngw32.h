@@ -49,10 +49,14 @@
 
 
 /* describe how function prototypes look to MINGW32 */
-#if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
+#if (defined ALLEGRO_STATICLINK) 
    #define _AL_DLL
 #else
-   #define _AL_DLL   __declspec(dllimport)
+	#if (defined ALLEGRO_SRC)
+	   #define _AL_DLL   __declspec(dllexport)
+	#else
+   	  #define _AL_DLL   __declspec(dllimport)
+	#endif
 #endif
 
 #define AL_VAR(type, name)                   extern _AL_DLL type name
@@ -63,8 +67,31 @@
 
 
 /* windows specific defines */
-#define NONAMELESSUNION
 
+#if (defined ALLEGRO_SRC)
+/* pathches to handle DX7 headers on a win9x system */
+
+/* should WINNT be defined on win9x systems? */
+#ifdef WINNT
+	#undef WINNT
+#endif
+
+/* defined in windef.h */
+#ifndef HMONITOR_DECLARED
+        #define HMONITOR_DECLARED
+#endif
+
+/* already defined... */
+#ifndef _LPCWAVEFORMATEX_DEFINED
+	#define _LPCWAVEFORMATEX_DEFINED
+#endif
+
+#endif /* ALLEGRO_SRC */
+
+/* another instance of missing constants in the mingw32 headers */
+#ifndef ENUM_CURRENT_SETTINGS
+	#define ENUM_CURRENT_SETTINGS       ((DWORD)-1)
+#endif
 
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"

@@ -79,11 +79,11 @@ AL_FUNC(void, _load_config_text, (void));
 
 
 /* wrappers for implementing disk I/O on different platforms */
-AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
-AL_FUNC(int, _al_file_exists, (AL_CONST char *filename, int attrib, int *aret));
-AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
-AL_FUNC(long, _al_file_time, (AL_CONST char *filename));
-AL_FUNC(void *, _al_findfirst, (AL_CONST char *name, int attrib, char *nameret, int *aret));
+AL_FUNC(int, _al_file_isok, (char *filename));
+AL_FUNC(int, _al_file_exists, (char *filename, int attrib, int *aret));
+AL_FUNC(long, _al_file_size, (char *filename));
+AL_FUNC(long, _al_file_time, (char *filename));
+AL_FUNC(void *, _al_findfirst, (char *name, int attrib, char *nameret, int *aret));
 AL_FUNC(int, _al_findnext, (void *dta, char *nameret, int *aret));
 AL_FUNC(void, _al_findclose, (void *dta));
 AL_FUNC(int, _al_getdrive, (void));

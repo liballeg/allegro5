@@ -34,8 +34,7 @@ FUNC (gfx_directx_write_bank)
       /* lock the surface */
       pushal
       pushl %edx
-      movl GLOBL(ptr_gfx_directx_autolock), %ecx
-      call %ecx
+      call *GLOBL(ptr_gfx_directx_autolock) 
       popl %edx
       popal
 
@@ -60,8 +59,7 @@ FUNC (gfx_directx_unwrite_bank)
       /* unlock surface */
       pushal
       pushl %edx
-      movl GLOBL(ptr_gfx_directx_unlock), %ecx
-      call %ecx
+      call *GLOBL(ptr_gfx_directx_unlock) 
       popl %edx
       popal
 
@@ -90,8 +88,7 @@ FUNC (gfx_directx_write_bank_win)
 
       /* lock the surface */
       pushl %edx
-      movl GLOBL(ptr_gfx_directx_autolock), %ecx
-      call %ecx
+      call *GLOBL(ptr_gfx_directx_autolock) 
       popl %edx
 
    Locked_win:
@@ -121,8 +118,7 @@ FUNC (gfx_directx_unwrite_bank_win)
       /* unlock surface */
       pushal
       pushl %edx
-      movl GLOBL(ptr_gfx_directx_unlock), %ecx
-      call %ecx
+      call *GLOBL(ptr_gfx_directx_unlock) 
       popl %edx
       
       /* clear the autolock flag */
@@ -135,7 +131,6 @@ FUNC (gfx_directx_unwrite_bank_win)
       movl %ecx, RECT_RIGHT
       movl GLOBL(dirty_lines), %ebx    /* ebx = dirty_lines */
       movl BMP_H(%eax), %edi           /* edi = pseudo_screen->h */
-      movl GLOBL(update_window), %esi  /* esi = update_window */
       
       _align_
    next_line:     /* update dirty lines */
@@ -148,7 +143,7 @@ FUNC (gfx_directx_unwrite_bank_win)
       movl %eax, RECT_BOTTOM
       leal RECT_LEFT, %eax
       pushl %eax
-      call %esi                /* update_window(&rect) */
+      call *GLOBL(update_window) 
       addl $4, %esp
       movl $0, (%ebx,%edi,4)   /* dirty_lines[edi] = 0 */
    test_end:   

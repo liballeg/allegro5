@@ -197,7 +197,7 @@ static void sys_directx_get_executable_name(char *output, int size)
    int i = 0;
    int q;
 
-   while ((cmd[i]) && (isspace(cmd[i])))
+   while ((cmd[i]) && (uisspace(cmd[i])))
       i++;
 
    if ((cmd[i] == '\'') || (cmd[i] == '"'))
@@ -207,7 +207,7 @@ static void sys_directx_get_executable_name(char *output, int size)
 
    size -= ucwidth(0);
 
-   while ((cmd[i]) && ((q) ? (cmd[i] != q) : (!isspace(cmd[i])))) {
+   while ((cmd[i]) && ((q) ? (cmd[i] != q) : (!uisspace(cmd[i])))) {
       size -= ucwidth(cmd[i]);
       if (size < 0)
 	 break;
@@ -354,7 +354,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
    /* parse commandline into argc/argv format */
    while (argbuf[i]) {
-      while ((argbuf[i]) && (isspace(argbuf[i])))
+      while ((argbuf[i]) && (uisspace(argbuf[i])))
 	 i++;
 
       if (argbuf[i]) {
@@ -368,7 +368,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
 	 argv[argc++] = &argbuf[i];
 
-	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!isspace(argbuf[i]))))
+	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
 	    i++;
 
 	 if (argbuf[i]) {

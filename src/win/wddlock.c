@@ -80,7 +80,7 @@ void gfx_directx_lock(BITMAP *bmp)
    HRESULT hr;
    DDSURFACEDESC surf_desc;
    int pitch;
-   char *data;
+   unsigned char *data;
    int y, h;
 
    /* pause other threads */
@@ -182,7 +182,7 @@ void gfx_directx_autolock(BITMAP *bmp)
    BMP_EXTRA_INFO *bmp_extra;
    BITMAP *parent;
    int pitch;
-   char *data;
+   unsigned char *data;
    int y, h;
 
    if (bmp->id & BMP_ID_SUB) {

@@ -79,7 +79,7 @@ void win_set_wnd_create_proc(HWND proc)
 /* wnd_call_proc:
  *  lets call a procedure from the window thread
  */
-int wnd_call_proc(void (*proc) (void))
+int wnd_call_proc(int (*proc) (void))
 {
    if (proc)
       return SendMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);

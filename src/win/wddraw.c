@@ -182,7 +182,7 @@ int setup_driver(GFX_DRIVER * drv, int w, int h, int color_depth)
 int finalize_directx_init(void)
 {
    HRESULT hr;
-   int freq;
+   long int freq;
 
    /* set correct sync timer speed */
    hr = IDirectDraw_GetMonitorFrequency(directdraw, &freq);
@@ -199,7 +199,7 @@ int finalize_directx_init(void)
 /* gfx_directx_wnd_exit:
  *  restore old mode from window thread
  */
-static int gfx_directx_wnd_exit(void)
+int gfx_directx_wnd_exit(void)
 {
    if (directdraw) {
       /* set cooperative level back to normal */

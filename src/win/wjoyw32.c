@@ -165,7 +165,7 @@ void poll_win32_joysticks()
  */
 static int joy_poll()
 {
-   int n_joy, n_stick, win32_axis, n_axes, n_but, p, range, h, v, num_sticks;
+   int n_joy, n_stick=0, win32_axis, n_axes, n_but, p, range, h, v, num_sticks;
 
    poll_win32_joysticks();
 

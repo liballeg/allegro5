@@ -76,24 +76,25 @@ static int pixel_match[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
 
 DDPIXELFORMAT pixel_format[] = {
    /* 8-bit */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, 8, 0, 0, 0, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0}},
    /* 16-bit RGB 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x7C00, 0x03e0, 0x001F, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x7C00}, {0x03e0}, {0x001F}, {0}},
    /* 16-bit BGR 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x001F, 0x03e0, 0x7C00, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x03e0}, {0x7C00}, {0}},
    /* 16-bit RGB 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0xF800, 0x07e0, 0x001F, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0xF800}, {0x07e0}, {0x001F}, {0}},
    /* 16-bit BGR 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x001F, 0x07e0, 0xF800, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x07e0}, {0xF800}, {0}},
    /* 24-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 24, 0xFF0000, 0x00FF00, 0x0000FF, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 24-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}},
    /* 32-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 32-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 32, 0x0000FF, 0x00FF00, 0xFF0000, 0}
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}	} 
 };
+
 
 LPDDPIXELFORMAT dd_pixelformat = NULL;  /* pixel format used */
 
