@@ -120,7 +120,7 @@ typedef struct RESOURCE_PATH
 static RESOURCE_PATH *resource_path_list = NULL;
 
 
-static void destroy_resource_path_list();
+static void destroy_resource_path_list(void);
 
 
 

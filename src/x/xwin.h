@@ -31,6 +31,7 @@ AL_VAR(int, _xwin_in_gfx_call);
 AL_VAR(void *, allegro_icon);
 
 
+AL_FUNC(void, _xwin_set_warped_mouse_mode, (int permanent));
 AL_FUNC(int, _xwin_open_display, (char *name));
 AL_FUNC(void, _xwin_close_display, (void));
 AL_FUNC(int, _xwin_create_window, (void));

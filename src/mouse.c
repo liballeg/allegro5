@@ -36,7 +36,7 @@ MOUSE_DRIVER mousedrv_none =
    "No mouse",
    nomouse_init,
    nomouse_exit,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
