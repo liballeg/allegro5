@@ -44,6 +44,7 @@
 
 typedef HRESULT(WINAPI *DIRECTDRAWCREATE) (GUID *, LPDIRECTDRAW *, IUnknown *);
 typedef HRESULT(WINAPI *DIRECTINPUTCREATE) (HINSTANCE, DWORD, LPDIRECTINPUT *, IUnknown *);
+typedef HRESULT(WINAPI *DSETUPCREATE)(DWORD*,DWORD*);
 
 
 
@@ -63,13 +64,18 @@ int get_dx_ver(void)
    HRESULT hr;
    HINSTANCE ddraw_hinst = NULL;
    HINSTANCE dinput_hinst = NULL;
+   HINSTANCE dsetup_hinst = NULL;
    LPDIRECTDRAW directdraw = NULL;
    LPDIRECTDRAW2 directdraw2 = NULL;
    DIRECTDRAWCREATE DirectDrawCreate = NULL;
    DIRECTINPUTCREATE DirectInputCreate = NULL;
+   DSETUPCREATE DSetupCreate = NULL;
    OSVERSIONINFO os_version;
    LPDIRECTDRAWSURFACE ddraw_surf = NULL;
    LPDIRECTDRAWSURFACE3 ddraw_surf3 = NULL;
+   DWORD dsetup_revision;
+   DWORD dsetup_version;
+   INT dsetup_result;
 
 #if DIRECTX_SDK_VERSION >= 0x600
    LPDIRECTDRAWSURFACE4 ddraw_surf4 = NULL;
@@ -96,6 +102,70 @@ int get_dx_ver(void)
       if (os_version.dwMajorVersion < 4) {
          /* No DX on NT 3.51 or earlier */
          return dx_version;
+      }
+
+      /* First check for DX 8 and 9 */
+      dsetup_hinst = LoadLibrary( "DSETUP.DLL" );
+      if ( dsetup_hinst ) {
+         DSetupCreate = (DSETUPCREATE)GetProcAddress(dsetup_hinst, "DirectXSetupGetVersion");
+         if ( DSetupCreate ) {
+            dsetup_result = DSetupCreate( &dsetup_version, &dsetup_revision );	// returns 0 on failure
+            if ( dsetup_result ) {
+               switch (dsetup_version) {
+                  case 0x00040005:
+                     dx_version = 0x500;
+                     break;
+                  case 0x00040006:
+                     dx_version = 0x600;
+                     break;
+                  case 0x00040007:
+                     dx_version = 0x700;
+                     break;
+                  case 0x00040008:              /* v8.x */
+                     dx_version = 0x800;
+                     switch (dsetup_revision) {
+                        case 0x0001032A:
+                        case 0x00010371:
+                           dx_version = 0x810; /* 8.1 */
+                           dx_version = 0x810; /* 8.1 */
+                           break;
+                        case 0x00010385:
+                           dx_version = 0x81a; /* 8.1a or b (stupid MS...) */
+                           break;
+                        case 0x00020386:
+                           dx_version = 0x820; /* 8.2 */
+                           break;
+                        default:
+                           dx_version = 0x800; /* 8.0 */
+                     } /* switch (dsetup_revision) */
+                  }
+                  case 0x00040009 == dsetup_version ) {
+                     switch (dsetup_revision) {
+                        case 0x00000384:
+                           dx_version = 0x900; /* 9.0 */
+                           break;
+                        case 0x00000385:
+                           dx_version = 0x90a; /* 9.0a */
+                           break;
+                        case 0x00000386:
+                           dx_version = 0x90b; /* 9.0b */
+                           break;
+                        case 0x00000387:
+                           dx_version = 0x90b; /* 9.0(b or c) */
+                           break;
+                        case 0x00000388:
+                           dx_version = 0x90c; /* 9.0c */
+                           break;
+                        default:
+                           dx_version = 0x900;
+                     } /* switch (dsetup_revision) */
+                  }
+               } /* switch (dsetup_version) */
+            }
+         }
+         FreeLibrary( dsetup_hinst );
+         if ( dx_version )
+            return dx_version;
       }
 
       if (os_version.dwMajorVersion == 4) {
