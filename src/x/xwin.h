@@ -51,6 +51,13 @@ AL_FUNC(void, _xwin_change_keyboard_control, (int led, int on));
 AL_FUNC(int, _xwin_get_pointer_mapping, (unsigned char map[], int nmap));
 AL_FUNC(void, _xwin_init_keyboard_tables, (void));
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+AL_FUNC(int, _xwin_set_mouse_sprite, (struct BITMAP *sprite, int x, int y));
+AL_FUNC(int, _xwin_show_mouse, (struct BITMAP *bmp, int x, int y));
+AL_FUNC(void, _xwin_hide_mouse, (void));
+AL_FUNC(void, _xwin_move_mouse, (int x, int y));
+#endif
+
 AL_FUNC(BITMAP*, _xdga_create_screen, (GFX_DRIVER *drv, int w, int h,
 				       int vw, int vh, int depth, int fullscreen));
 AL_FUNC(void, _xdga_destroy_screen, (void));

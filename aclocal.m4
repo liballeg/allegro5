@@ -257,6 +257,19 @@ if test -z "$no_x"; then
     AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XPM,1,[Define if xpm bitmap support is available.])
     ])
    )
+   
+  dnl Test for Xcursor library.
+  AC_CHECK_LIB(Xcursor, XcursorImageCreate,
+    AC_TRY_COMPILE([#include <X11/Xlib.h>
+                    #include <X11/Xcursor/Xcursor.h>], 
+                   [XcursorImage *xcursor_image;
+                    XcursorImageLoadCursor(0, xcursor_image);
+                    XcursorSupportsARGB(0);
+                   ],
+      [LIBS="-lXcursor $LIBS"
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
+      ])
+   )
 
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then

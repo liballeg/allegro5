@@ -39,7 +39,14 @@ static GFX_DRIVER gfx_xwin =
    NULL, NULL, NULL,
    NULL, NULL, NULL, NULL,
    NULL, NULL,
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   _xwin_set_mouse_sprite,
+   _xwin_show_mouse,
+   _xwin_hide_mouse,
+   _xwin_move_mouse,
+#else
    NULL, NULL, NULL, NULL,
+#endif
    _xwin_drawing_mode,
    NULL, NULL,
    NULL,
@@ -71,7 +78,14 @@ static GFX_DRIVER gfx_xwin_fullscreen =
    NULL, NULL, NULL,
    NULL, NULL, NULL, NULL,
    NULL, NULL,
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   _xwin_set_mouse_sprite,
+   _xwin_show_mouse,
+   _xwin_hide_mouse,
+   _xwin_move_mouse,
+#else
    NULL, NULL, NULL, NULL,
+#endif
    _xwin_drawing_mode,
    NULL, NULL,
    _xwin_fetch_mode_list,

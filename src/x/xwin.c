@@ -48,6 +48,10 @@
 #include <X11/extensions/xf86dga.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+#include <X11/Xcursor/Xcursor.h>
+#endif
+
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XPM
 #include <X11/xpm.h>
@@ -70,8 +74,13 @@ struct _xwin_type _xwin =
    0,           /* visual */
    None,        /* colormap */
    0,           /* ximage */
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   None,        /* ARGB cursor image */
+   XcursorFalse,/* Are ARGB cursors supported? */
+#endif
    None,        /* cursor */
    XC_heart,    /* cursor_shape */
+   1,           /* hw_cursor_ok */
 
    0,           /* bank_switch */
    0,           /* screen_to_buffer */
@@ -351,6 +360,42 @@ void _xwin_close_display(void)
 
 
 
+/* _xwin_hide_x_mouse:
+ * Create invisible X cursor
+ */
+static void _xwin_hide_x_mouse(void)
+{
+   unsigned long gcmask;
+   XGCValues gcvalues;
+   Pixmap pixmap;
+   
+   pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
+   if (pixmap != None) {
+      GC temp_gc;
+      XColor color;
+
+      gcmask = GCFunction | GCForeground | GCBackground;
+      gcvalues.function = GXcopy;
+      gcvalues.foreground = 0;
+      gcvalues.background = 0;
+      temp_gc = XCreateGC(_xwin.display, pixmap, gcmask, &gcvalues);
+      XDrawPoint(_xwin.display, pixmap, temp_gc, 0, 0);
+      XFreeGC(_xwin.display, temp_gc);
+      color.pixel = 0;
+      color.red = color.green = color.blue = 0;
+      color.flags = DoRed | DoGreen | DoBlue;
+      _xwin.cursor = XCreatePixmapCursor(_xwin.display, pixmap, pixmap, &color, &color, 0, 0);
+      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+      XFreePixmap(_xwin.display, pixmap);
+   }
+   else {
+      _xwin.cursor = XCreateFontCursor(_xwin.display, _xwin.cursor_shape);
+      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+   }
+}
+
+
+
 /* _xwin_create_window:
  *  Wrapper for XCreateWindow.
  */
@@ -360,7 +405,6 @@ static int _xwin_private_create_window(void)
    XGCValues gcvalues;
    XSetWindowAttributes setattr;
    XWindowAttributes getattr;
-   Pixmap pixmap;
 
    if (_xwin.display == 0)
       return -1;
@@ -412,30 +456,16 @@ static int _xwin_private_create_window(void)
    _xwin.gc = XCreateGC(_xwin.display, _xwin.window, gcmask, &gcvalues);
 
    /* Create invisible X cursor.  */
-   pixmap = XCreatePixmap(_xwin.display, _xwin.window, 1, 1, 1);
-   if (pixmap != None) {
-      GC temp_gc;
-      XColor color;
-
-      gcmask = GCFunction | GCForeground | GCBackground;
-      gcvalues.function = GXcopy;
-      gcvalues.foreground = 0;
-      gcvalues.background = 0;
-      temp_gc = XCreateGC(_xwin.display, pixmap, gcmask, &gcvalues);
-      XDrawPoint(_xwin.display, pixmap, temp_gc, 0, 0);
-      XFreeGC(_xwin.display, temp_gc);
-      color.pixel = 0;
-      color.red = color.green = color.blue = 0;
-      color.flags = DoRed | DoGreen | DoBlue;
-      _xwin.cursor = XCreatePixmapCursor(_xwin.display, pixmap, pixmap, &color, &color, 0, 0);
-      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
-      XFreePixmap(_xwin.display, pixmap);
-   }
-   else {
-      _xwin.cursor = XCreateFontCursor(_xwin.display, _xwin.cursor_shape);
-      XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
-   }
-
+   _xwin_hide_x_mouse();
+   
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   /* Detect if ARGB cursors are supported */
+   _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
+   _xwin.hw_cursor_ok = 1;
+#else
+   _xwin.hw_cursor_ok = 0;
+#endif
+   
    return 0;
 }
 
@@ -1582,6 +1612,147 @@ static int _xwin_private_fast_visual_depth(void)
 
 
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+
+/* _xwin_set_mouse_sprite:
+ *  Set custom X cursor (if supported)
+ */
+int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
+{
+#define GET_PIXEL_DATA(depth, getpix)                                \
+               case depth:                                           \
+                  c = 0;                                             \
+                  for(iy=0; iy<mouse_sprite->h; iy++) {              \
+                     for(ix=0; ix<mouse_sprite->w;  ix++) {          \
+                        col = getpix(mouse_sprite, ix, iy);          \
+                        if (col == (MASK_COLOR_ ## depth)) {         \
+                           r = g = b = a = 0;                        \
+                        }                                            \
+                        else {                                       \
+                           r = getr ## depth(col);                   \
+                           g = getg ## depth(col);                   \
+                           b = getb ## depth(col);                   \
+                           a = 255;                                  \
+                        }                                            \
+                        _xwin.xcursor_image->pixels[c++] =           \
+                                    (a<<24)|(r<<16)|(g<<8)|(b);      \
+                     }                                               \
+                  }
+
+   if (!_xwin.support_argb_cursor) {
+      return -1;
+   }
+   
+   if (_xwin.xcursor_image != None) {
+      XLOCK();
+      XcursorImageDestroy(_xwin.xcursor_image);
+      XUNLOCK();
+      _xwin.xcursor_image = None;
+   }
+   
+   if (sprite) {
+      int ix, iy;
+      int r = 0, g = 0, b = 0, a = 0, c, col;
+
+      _xwin.xcursor_image = XcursorImageCreate(sprite->w, sprite->h);
+      if (_xwin.xcursor_image == None) {
+         return -1;
+      }
+      
+      
+      switch(bitmap_color_depth(mouse_sprite)) {
+         GET_PIXEL_DATA(8, _getpixel)
+            break;
+                  
+         GET_PIXEL_DATA(15, _getpixel15)
+            break;
+
+         GET_PIXEL_DATA(16, _getpixel16)
+            break;
+
+         GET_PIXEL_DATA(24, _getpixel24)
+            break;
+
+         GET_PIXEL_DATA(32, _getpixel32)
+            break;
+      } /* End switch */
+      
+      _xwin.xcursor_image->xhot = mouse_x_focus;
+      _xwin.xcursor_image->yhot = mouse_y_focus;
+      
+      return 0;
+   }
+   
+#undef GET_PIXEL_DATA
+
+   return -1;  
+}
+
+
+
+/* _xwin_show_mouse:
+ *  Show the custom X cursor (if supported)
+ */
+int _xwin_show_mouse(struct BITMAP *bmp, int x, int y)
+{
+   /* Only draw on screen */
+   if (!is_same_bitmap(bmp, screen))
+      return -1;
+      
+   if (!_xwin.support_argb_cursor) {
+      return -1;
+   }
+
+   if (_xwin.xcursor_image == None) {
+      return -1;
+   }
+
+   /* Hardware cursor is disabled (mickey mode) */   
+   if (!_xwin.hw_cursor_ok) {
+      return -1;
+   }
+
+   XLOCK();
+   if (_xwin.cursor != None) {
+      XUndefineCursor(_xwin.display, _xwin.window);
+      XFreeCursor(_xwin.display, _xwin.cursor);
+   }   
+
+   _xwin.cursor = XcursorImageLoadCursor(_xwin.display, _xwin.xcursor_image);
+   XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+
+   XUNLOCK();   
+   return 0;
+}
+
+
+
+/* _xwin_hide_mouse:
+ *  Hide the custom X cursor (if supported)
+ */
+void _xwin_hide_mouse(void)
+{
+   if (_xwin.support_argb_cursor) {
+      XLOCK();
+      _xwin_hide_x_mouse();
+      XUNLOCK();
+   }
+   return;
+}
+
+
+
+/* _xwin_move_mouse:
+ *  Move the custom X cursor. This is actually done automatically.
+ */
+void _xwin_move_mouse(int x, int y)
+{
+}
+
+#endif   /* ALLEGRO_XWINDOWS_WITH_XCURSOR */
+
+
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 
 /* _xdga_fast_visual_depth:
@@ -2385,6 +2556,14 @@ void _xwin_private_handle_input(void)
 		      0, 0, _xwin.window_width, _xwin.window_height,
 		      _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		      _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+         /* Re-enable hardware cursor */
+         _xwin.hw_cursor_ok = 1;
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+         if (_xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
+            show_mouse(_mouse_screen);
+         }
+#endif
+         
       }
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    }
@@ -2460,6 +2639,14 @@ void _xwin_handle_input(void)
 static void _xwin_private_set_warped_mouse_mode(int permanent)
 {
    _xwin.mouse_warped = ((permanent) ? 1 : (MOUSE_WARP_DELAY*7/8));
+   
+   /* Disable hardware cursor in warp mode */
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   if (_xwin.hw_cursor_ok && permanent && _xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
+      show_mouse(_mouse_screen);
+   }
+#endif
+   _xwin.hw_cursor_ok = !permanent;
 }
 
 void _xwin_set_warped_mouse_mode(int permanent)

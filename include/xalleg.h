@@ -49,6 +49,11 @@
 #include <X11/extensions/xf86dga.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+#include <X11/Xcursor/Xcursor.h>
+#endif
+
+
 
 #ifdef __cplusplus
    extern "C" {
@@ -65,8 +70,13 @@ extern struct _xwin_type
    Visual *visual;
    Colormap colormap;
    XImage *ximage;
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   XcursorImage *xcursor_image;
+   XcursorBool support_argb_cursor;
+#endif
    Cursor cursor;
    int cursor_shape;
+   int hw_cursor_ok;
 
    void (*bank_switch)(int line);
    void (*screen_to_buffer)(int sx, int sy, int sw, int sh);
