@@ -95,8 +95,9 @@ Contributors
    Added set_volume_per_voice(), made silent voices continue playing,
    fixed other minor bugs in the mixer, fixed a bug in create_rgb_table(),
    adapted polygon functions to handle two coincident vertices, added the
-   set_window_close_button() and set_window_close_hook() framework and
-   added support for timers with parameters under Windows.
+   set_window_close_button() and set_window_close_hook() framework, added
+   support for timers with parameters under Windows and corrected several
+   compilation warnings.
 
    Benjamin Joel Stover (<email>stovertech@intellisys.net</a>).<br>
    Wrote the initial version of the fullscreen X-Windows graphics driver.
@@ -407,8 +408,8 @@ Contributors
    Contributed the Norwegian message translation.
 
    Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
-   Contributed the SGI Audio Library sound driver and spotted a BSDism that
-   IRIX doesn't like at all.
+   Contributed the SGI Audio Library sound driver, spotted a BSDism that
+   IRIX doesn't like at all and added IRIX detection.
    
    Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
    Contributed the gfxinfo utility, added two FAQ entries, added a
@@ -721,6 +722,9 @@ Contributors
    Theuzifan Sumachingun (<email>uzi@simauria.upv.es</a>).<br>
    Improved the cpu detection for Cyrix chips and made the file selector
    only list valid drive letters.
+
+   Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
+   Added NetBSD detection.
 
    Thomas Wolf (<email>two@chello.at</a>).<br>
    Corrected some errors in the German keyboard mapping and added the

@@ -7,6 +7,31 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.7 to 4.1.8 (Dec 2002)
+<ul><li>
+   Eric Botcazou fixed a bug with nested datafiles in the dat/grabber code
+   spotted by Thomas Klausner.
+<li>
+   Eric Botcazou clarified the wording about ABI/API compatibility.
+<li>
+   Thomas Klausner added NetBSD detection.
+<li>
+   Ben Davis constified the parameter of set_window_title.
+<li>
+   Lisa Parratt added IRIX detection.
+<li>
+   Robert J. Ohannessian clarified the docs for play_audio_stream.
+<li>
+   Sven Sandberg fixed the makedoc linking problem with Watcom spotted by
+   Glenn Jarvis.
+<li>
+   Ben Davis fixed a compilation warning for set_window_close_button.
+<li>
+   Eric Botcazou fixed a buffer overflow in the Windows debug version
+   spotted by aj.
+</ul>
+
+@heading
 Changes from 4.1.6 to 4.1.7 (Dec 2002)
 <ul><li>
    Eric Botcazou made the joystick initialization routine correctly handle
@@ -25,7 +50,7 @@ Changes from 4.1.6 to 4.1.7 (Dec 2002)
 <li>
    Stepan Roh fixed a glitch with autoconf 2.53 on Unix.
 <li>
-   Eric Botcazou fixed the compilation bug with MingGW.
+   Eric Botcazou fixed the compilation bug with MinGW.
 </ul>
 
 @heading
