@@ -166,11 +166,11 @@ struct DIRECTSOUND_VOICE {
    int loop_offset;
    int loop_len;
    int looping;
-   void *lock_buf_a, *lock_buf_b;
-   long lock_size_a, lock_size_b;
-   int lock_bytes;
+   void *lock_buf_a;
+   long lock_size_a;
    LPDIRECTSOUNDBUFFER ds_buffer;
    LPDIRECTSOUNDBUFFER ds_loop_buffer;
+   LPDIRECTSOUNDBUFFER ds_locked_buffer;
 };
 
 static struct DIRECTSOUND_VOICE *ds_voices;
@@ -464,6 +464,7 @@ static int digi_directsound_init(int input, int voices)
    for (v = 0; v < digi_driver->voices; v++) {
       ds_voices[v].ds_buffer = NULL;
       ds_voices[v].ds_loop_buffer = NULL;
+      ds_voices[v].ds_locked_buffer = NULL;
    }
 
    /* setup volume lookup table */
@@ -579,7 +580,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
 
       case SWITCH_BACKAMNESIA:
       case SWITCH_BACKGROUND:
-         dsbdesc.dwFlags |= DSBCAPS_STICKYFOCUS;
+         dsbdesc.dwFlags |= DSBCAPS_GLOBALFOCUS;
          break;
    }
 
@@ -619,13 +620,13 @@ static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, 
    offset = offset * (bits / 8) * (stereo ? 2 : 1);
 
    /* lock the buffer portion */
-   hr = IDirectSoundBuffer_Lock(snd_buf, offset, size, &buf_a, &size_a, &buf_b, &size_b, 0);
+   hr = IDirectSoundBuffer_Lock(snd_buf, offset, size, &buf_a, &size_a, NULL, NULL, 0);
 
    /* if buffer lost, restore and retry lock */
    if (hr == DSERR_BUFFERLOST) {
       IDirectSoundBuffer_Restore(snd_buf);
 
-      hr = IDirectSoundBuffer_Lock(snd_buf, offset, size, &buf_a, &size_a, &buf_b, &size_b, 0);
+      hr = IDirectSoundBuffer_Lock(snd_buf, offset, size, &buf_a, &size_a, NULL, NULL, 0);
       if (FAILED(hr)) {
          _TRACE("fill_dsound_buffer() failed (%s).\n", ds_err(hr));
          return -1;
@@ -688,7 +689,7 @@ static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, 
    }
 
    /* unlock the buffer */
-   IDirectSoundBuffer_Unlock(snd_buf, buf_a, size_a, buf_b, size_b);
+   IDirectSoundBuffer_Unlock(snd_buf, buf_a, size_a, NULL, 0);
 
    return 0;
 }
@@ -712,6 +713,9 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE *sample)
    ds_voices[voice].loop_offset = sample->loop_start;
    ds_voices[voice].loop_len = sample->loop_end - sample->loop_start;
    ds_voices[voice].looping = FALSE;
+   ds_voices[voice].lock_buf_a = NULL;
+   ds_voices[voice].lock_size_a = 0;
+   ds_voices[voice].ds_locked_buffer = NULL;
    ds_voices[voice].ds_loop_buffer = NULL;
    ds_voices[voice].ds_buffer = create_dsound_buffer(ds_voices[voice].len,
                                                      ds_voices[voice].freq,
@@ -737,6 +741,9 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE *sample)
  */
 static void digi_directsound_release_voice(int voice)
 {
+   /* just in case */
+   digi_directsound_unlock_voice(voice);
+
    if (ds_voices[voice].ds_buffer) {
       IDirectSoundBuffer_Release(ds_voices[voice].ds_buffer);
       ds_voices[voice].ds_buffer = NULL;
@@ -802,6 +809,8 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
 
       if (!loop && ds_voices[voice].ds_loop_buffer) {
          /* we don't need a loop buffer anymore, destroy it */
+         if (ds_voices[voice].ds_locked_buffer == ds_voices[voice].ds_loop_buffer)
+            digi_directsound_unlock_voice(voice);
          IDirectSoundBuffer_Release(ds_voices[voice].ds_loop_buffer);
          ds_voices[voice].ds_loop_buffer = NULL;
       }
@@ -817,6 +826,8 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
       }
       else if (update_bidir) {
          /* we need to resize the loop buffer */
+         if (ds_voices[voice].ds_locked_buffer == ds_voices[voice].ds_loop_buffer)
+            digi_directsound_unlock_voice(voice);
          IDirectSoundBuffer_Release(ds_voices[voice].ds_loop_buffer);
          ds_voices[voice].ds_loop_buffer = create_dsound_buffer(ds_voices[voice].loop_len * (bidir ? 2 : 1),
                                                                 ds_voices[voice].freq,
@@ -892,9 +903,12 @@ static void digi_directsound_loop_voice(int voice, int playmode)
 static void *digi_directsound_lock_voice(int voice, int start, int end)
 {
    LPDIRECTSOUNDBUFFER ds_locked_buffer;
-   long size_a, size_b;
-   void *buf_a, *buf_b;
+   long size_a;
+   void *buf_a;
    HRESULT hr;
+
+   /* just in case */
+   digi_directsound_unlock_voice(voice);
 
    if (ds_voices[voice].looping && ds_voices[voice].ds_loop_buffer)
       ds_locked_buffer = ds_voices[voice].ds_loop_buffer;
@@ -904,24 +918,22 @@ static void *digi_directsound_lock_voice(int voice, int start, int end)
    start = start * ds_voices[voice].bytes_per_sample;
    end = end * ds_voices[voice].bytes_per_sample;
 
-   hr = IDirectSoundBuffer_Lock(ds_locked_buffer,
-                                start, end - start, &buf_a, &size_a, &buf_b, &size_b, 0);
+   hr = IDirectSoundBuffer_Lock(ds_locked_buffer, start, end - start, &buf_a, &size_a, NULL, NULL, 0);
 
-   if (FAILED(hr)) {
-      _TRACE("digi_directsound_lock_voice() failed (%s).\n", ds_err(hr));
-      return NULL;
+   /* if buffer lost, restore and retry lock */
+   if (hr == DSERR_BUFFERLOST) {
+      IDirectSoundBuffer_Restore(ds_locked_buffer);
+
+      hr = IDirectSoundBuffer_Lock(ds_locked_buffer, start, end - start, &buf_a, &size_a, NULL, NULL, 0);
+      if (FAILED(hr)) {
+         _TRACE("digi_directsound_lock_voice() failed (%s).\n", ds_err(hr));
+         return NULL;
+      }
    }
 
+   ds_voices[voice].ds_locked_buffer = ds_locked_buffer;
    ds_voices[voice].lock_buf_a = buf_a;
    ds_voices[voice].lock_size_a = size_a;
-   ds_voices[voice].lock_buf_b = buf_b;
-   ds_voices[voice].lock_size_b = size_b;
-   ds_voices[voice].lock_bytes = end - start;
-
-   if (buf_b != NULL) {
-      digi_directsound_unlock_voice(voice);
-      return NULL;
-   }
 
    return buf_a;
 }
@@ -932,33 +944,33 @@ static void *digi_directsound_lock_voice(int voice, int start, int end)
  */
 static void digi_directsound_unlock_voice(int voice)
 {
-   LPDIRECTSOUNDBUFFER ds_locked_buffer;
    HRESULT hr;
+   int lock_bytes;
 
-   if (ds_voices[voice].ds_buffer && ds_voices[voice].lock_buf_a) {
-      if (ds_voices[voice].looping && ds_voices[voice].ds_loop_buffer)
-         ds_locked_buffer = ds_voices[voice].ds_loop_buffer;
-      else
-         ds_locked_buffer = ds_voices[voice].ds_buffer;
+   if (ds_voices[voice].ds_locked_buffer && ds_voices[voice].lock_buf_a) {
 
       if (ds_voices[voice].bits == 16) {
          unsigned short *p = (unsigned short *)ds_voices[voice].lock_buf_a;
 
-         ds_voices[voice].lock_bytes >>= 1;
+         lock_bytes = ds_voices[voice].lock_size_a >> 1;
 
-         while (ds_voices[voice].lock_bytes--)
+         while (lock_bytes--)
             *p++ ^= 0x8000;
       }
 
-      hr = IDirectSoundBuffer_Unlock(ds_locked_buffer,
+      hr = IDirectSoundBuffer_Unlock(ds_voices[voice].ds_locked_buffer,
                                      ds_voices[voice].lock_buf_a,
                                      ds_voices[voice].lock_size_a,
-                                     ds_voices[voice].lock_buf_b,
-                                     ds_voices[voice].lock_size_b);
+                                     NULL,
+                                     0);
 
       if (FAILED(hr)) {
          _TRACE("digi_directsound_unlock_voice() failed (%s).\n", ds_err(hr));
       }
+
+      ds_voices[voice].ds_locked_buffer = NULL;
+      ds_voices[voice].lock_buf_a = NULL;
+      ds_voices[voice].lock_size_a = 0;
    }
 }
 
