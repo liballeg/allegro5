@@ -216,9 +216,9 @@ endif
 
 CHANGES: docs/txt/changes.txt
 ifdef UNIX_TOOLS
-	cp CHANGES docs/txt/changes.txt
+	cp docs/txt/changes.txt CHANGES
 else
-	copy CHANGES docs\txt\changes.txt
+	copy docs\txt\changes.txt CHANGES
 endif
 
 endif
