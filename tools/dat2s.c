@@ -665,7 +665,7 @@ int main(int argc, char *argv[])
 int main(void)
 {
    allegro_init();
-   allegro_message("Sorry, the DAT2S program only works on x86 processors\n");
+   allegro_message("Sorry, the DAT2S program only works on x86 processors.\n");
    return 1;
 }
 
