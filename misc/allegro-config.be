@@ -9,7 +9,7 @@
 #
 #  This is heavily based on the Unix version of this script.
 
-version=3.9.34
+version=3.9.35
 
 prefix=/boot/develop
 exec_prefix=$prefix

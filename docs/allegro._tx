@@ -11,7 +11,7 @@
 @h=<html><head><title>#</title><body>
 @f=<p><hr><p><a href="allegro.html">Back to Contents</a><p>
 @rtfh=Allegro - a game programming library
-@manh="version 3.9.34 (CVS)" "Allegro" "Allegro manual"
+@manh="version 3.9.35 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @$\input texinfo
 @$@setfilename allegro.inf
@@ -46,12 +46,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.34 (CVS)
+				       \_/__/     Version 3.9.35 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Aug 26, 2000.
+	     By Shawn Hargreaves, Jan 24, 2001.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
