@@ -157,7 +157,10 @@ void draw_pointless_graphics()
       zi = ti + ci;
    }
 
-   c = sqrt(zi*zi + zr*zr) * 256;
+   if ((zi != zi) || (zr != zr))
+      c = 0;
+   else
+      c = sqrt(zi*zi + zr*zr) * 256;
 
    if (c > 255)
       c = 255;
