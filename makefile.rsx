@@ -129,7 +129,7 @@ uninstall:
 
 compress: $(PROGRAMS)
 ifdef UPX_BIN
-	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/*/all*.dll
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/rsxnt/all*.dll
 else
 	@echo No executable compressor specified! You must set the environment variable
 	@echo UPX_BIN to point to upx.exe.
