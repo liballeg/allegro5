@@ -77,9 +77,13 @@ Supported platforms
    MacOS/MPW         - see docs/build/macos.txt
    Darwin/MacOS X    - see docs/build/darwin.txt
 <endblock>
-   General API information can be found in the main manual (usually referred
-   as docs/txt/allegro.txt or simply allegro.txt through this document), which
-   is also available in HTML, TexInfo, and RTF format in the docs directory.
+   General API information can be found in the main manual, usually referred
+   to as docs/txt/allegro.txt or simply allegro.txt throughout this document
+   and which is also available in HTML, TexInfo, and RTF format in the docs
+   directory.
+
+   Information about changes in the API and deprecated features can be found
+   in docs/txt/api.txt (also available in HTML, TexInfo, and RTF format).
 
 
 
@@ -287,20 +291,24 @@ Contact info
    [Alleg5] - Allegro 5 - <link>http://lists.sourceforge.net/mailman/listinfo/alleg-bigfive</a>.<p>
 
       Just as described in the future (<link>http://alleg.sourceforge.net/future.html</a>)
-      section, the next big verision of Allegro will feature at least a
+      section, the next big version of Allegro will feature at least a
       complete API rewrite to fix all the quirks it has now. This list is for
       discussing the future API, proposing new functions or modifying the
       behaviour of actual ones, and posting code with the implementation if
       it's possible to do so.
 </ul>
-   To subscribe to one of the lists, write to listserv@canvaslink.com with 
-   the text "subscribe {list} myname" in the body of your message, where 
-   {list} is one of allegro, agp, alcomp, or conductors.
+   To subscribe to one of the four first lists, simply write to the address
+   listserv@canvaslink.com with the text "subscribe {list} myname" in the
+   body of your message, where {list} is one of allegro, agp, alcomp, or
+   conductors.
 
    To remove yourself from a list, write to listserv@canvaslink.com with the 
    text "unsubscribe {list}" in the body of your message, where {list} is 
    one of allegro, agp, alcomp, or conductors.
 
+   The fifth list (Allegro 5) is hosted on SourceForge and instructions on
+   how to subscribe/unsubscribe can be found at the Web address listed above.
+   
    Note that the address for subscribing and unsubscribing is NOT the same 
    as the regular address for posting messages! Please remember to send your 
    administration requests to the listserv, rather than to the list itself.
