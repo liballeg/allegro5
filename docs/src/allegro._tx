@@ -10864,7 +10864,11 @@ and avoid missing any important bit of information.
 @@Example @exfixed
 @xref END_OF_MAIN, allegro_init, allegro_message, fixdiv, fixed, fixmul
 @xref fixsqrt, fixtof, ftofix, itofix
-   This program demonstrates how to use fixed point numbers.
+   This program demonstrates how to use fixed point numbers, which
+   are signed 32-bit integers storing the integer part in the
+   upper 16 bits and the decimal part in the 16 lower bits. This
+   example also uses the unusual approach of communicating with
+   the user exclusively via the allegro_message() function.
 
 @@Example @exmouse
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
@@ -10876,7 +10880,15 @@ and avoid missing any important bit of information.
 @xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
 @xref set_mouse_sprite, set_mouse_sprite_focus, set_palette, show_mouse
 @xref vsync
-   This program demonstrates how to get mouse input.
+   This program demonstrates how to get mouse input. The
+   first part of the test retrieves the raw mouse input data
+   and displays it on the screen without using any mouse
+   cursor. When you press a key the standard arrow-like mouse
+   cursor appears.  You are not restricted to this shape,
+   and a second keypress modifies the cursor to be several
+   concentric colored circles. They are not joined together,
+   so you can still see bits of what's behind when you move the
+   cursor over the printed text message.
 
 @@Example @extimer
 @xref END_OF_FUNCTION, END_OF_MAIN, LOCK_VARIABLE, SCREEN_W
@@ -10885,8 +10897,12 @@ and avoid missing any important bit of information.
 @xref install_keyboard, install_timer, key, keypressed, makecol, readkey
 @xref rest, screen, set_gfx_mode, set_palette
    This program demonstrates how to use the timer routines.
-   These can be a bit of a pain, because you have to be sure you lock
-   all the memory that is used inside your interrupt handlers.
+   These can be a bit of a pain, because you have to be sure
+   you lock all the memory that is used inside your interrupt
+   handlers.  The first part of the example shows a basic use of
+   timing using the blocking function rest(). The second part
+   shows how to use three timers with different frequencies in
+   a non blocking way.
 
 @@Example @exkeys
 @xref END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen, allegro_error
@@ -10894,7 +10910,13 @@ and avoid missing any important bit of information.
 @xref desktop_palette, font, install_keyboard, key, key_shifts, makecol
 @xref readkey, rectfill, release_screen, screen, set_gfx_mode
 @xref set_palette, ureadkey, usprintf
-   This program demonstrates how to access the keyboard.
+   This program demonstrates how to access the keyboard. The
+   first part shows the basic use of readkey(). The second part
+   shows how to extract the ASCII value. Next come the scancodes.
+   The fourth test detects modifier keys like alt or shift. The
+   fifth test requires some focus to be passed. The final step
+   shows how to use the global key array to read simultaneous
+   keypresses.
 
 @@Example @exjoy
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
@@ -10915,7 +10937,13 @@ and avoid missing any important bit of information.
 @xref desktop_palette, destroy_sample, font, install_keyboard
 @xref install_sound, install_timer, key, load_sample, makecol
 @xref play_sample, poll_keyboard, rest, screen, set_gfx_mode, set_palette
-   This program demonstrates how to play samples.
+   This program demonstrates how to play samples. You have to
+   use this example from the commandline to specify as first
+   parameter a WAV or VOC sound file to play. If the file is
+   loaded successfully, the sound will be played in an infinite
+   loop. While it is being played, you can use the left and right
+   arrow keys to modify the panning of the sound. You can also
+   use the up and down arrow keys to modify the pitch.
 
 @@Example @exmidi
 @xref END_OF_MAIN, MIDI, SCREEN_H, SCREEN_W, allegro_error, allegro_init
@@ -10936,7 +10964,10 @@ and avoid missing any important bit of information.
 @xref makecol, position_dialog, screen, set_dialog_color, set_gfx_mode
 @xref set_palette, unload_datafile, ustrtok, ustrzcat, ustrzcpy
 @xref uszprintf
-   This program demonstrates how to use the GUI routines.
+   This program demonstrates how to use the GUI routines. From
+   the simple dialog controls that display a text or a bitmap to
+   more complex multiple choice selection lists, Allegro provides
+   a framework which can be customised to suit your needs.
 
 @@Example @excustom
 @xref BITMAP, DATAFILE, DIALOG, END_OF_MAIN, FONT, allegro_error
@@ -10947,7 +10978,11 @@ and avoid missing any important bit of information.
 @xref install_mouse, install_timer, itofix, key, line, load_datafile
 @xref makecol, object_message, screen, set_gfx_mode, set_palette
 @xref unload_datafile
-   This program demonstrates how to write your own GUI objects.
+   A follow up of the exgui.c example showing how to customise the
+   default Allegro framework. In this case a dialog procedure
+   animates a graphical clock without disrupting other GUI
+   dialogs.  A more simple option shows how to dynamically change
+   the font used by all GUI elements.
 
 @@Example @exunicod
 @xref BITMAP, DATAFILE, END_OF_MAIN, FONT, SCREEN_H, SCREEN_W
@@ -10958,23 +10993,24 @@ and avoid missing any important bit of information.
 @xref text_length, uconvert_ascii, unload_datafile, ustrcat, ustrcpy
 @xref ustrsize, ustrsizez
    This program demonstrates the use of the 16-bit Unicode text
-   encoding format with Allegro.
-
-@@Example @exconfig
-@xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, allegro_init
-@xref allegro_message, clear_bitmap, font, get_config_argv
-@xref get_config_int, install_keyboard, line, load_bitmap, makecol
-@xref pop_config_state, push_config_state, readkey, screen
-@xref set_color_depth, set_config_file, set_gfx_mode, set_palette
-@xref ustrdup, ustricmp
-   This is a very simple program showing how to use the allegro config (ini file)
-   routines.
+   encoding format with Allegro. The example displays a message
+   translated to different languages scrolling on the screen
+   using an external font containing the required characters to
+   display those messages.
+   
+   Note how the Allegro unicode string functions resemble the
+   functions you can find in the standard C library, only these
+   handle Unicode on all platforms.
 
 @@Example @exbitmap
 @xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
 @xref allegro_init, allegro_message, destroy_bitmap, install_keyboard
 @xref load_bitmap, readkey, screen, set_gfx_mode, set_palette
-   This program demonstrates how to load and display a bitmap file.
+   This program demonstrates how to load and display a bitmap
+   file.  You have to use this example from the commandline to
+   specify as first parameter a graphic file in one of Allegro's
+   supported formats.  If the file is loaded successfully,
+   it will be displayed until you press a key.
 
 @@Example @exscale
 @xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
@@ -10983,6 +11019,22 @@ and avoid missing any important bit of information.
    This example demonstrates how to use pcx files, palettes and stretch
    blits. It loads a pcx file, sets its palette and does some random
    stretch_blits. Don't worry - it's VERY slowed down using vsync().
+
+@@Example @exconfig
+@xref BITMAP, END_OF_MAIN, RGB, SCREEN_H, SCREEN_W, allegro_init
+@xref allegro_message, clear_bitmap, font, get_config_argv
+@xref get_config_int, install_keyboard, line, load_bitmap, makecol
+@xref pop_config_state, push_config_state, readkey, screen
+@xref set_color_depth, set_config_file, set_gfx_mode, set_palette
+@xref ustrdup, ustricmp
+   This is a very simple program showing how to use the allegro
+   config (ini file) routines. A first look at the example
+   shows nothing more than a static graphic and the wait for
+   a keypress. However, the way this graphic is displayed is
+   configured through a custom exconfig.ini file which is loaded
+   manually. From this file the example obtains parameters like
+   fullscreen/windowed mode, a specific graphic resolution to set
+   up, which graphic to show, how to blit it on the screen, etc.
 
 @@Example @exdata
 @xref DATAFILE, END_OF_MAIN, allegro_error, allegro_init, allegro_message
