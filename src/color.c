@@ -413,36 +413,53 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
  */
 void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
 {
-   float min, max, delta, rc, gc, bc;
+   int delta;
 
-   rc = (float)r / 255.0f;
-   gc = (float)g / 255.0f;
-   bc = (float)b / 255.0f;
-   max = MAX(rc, MAX(gc, bc));
-   min = MIN(rc, MIN(gc, bc));
-   delta = max - min;
-   *v = max;
-
-   if (max != 0.0f)
-      *s = delta / max;
-   else
-      *s = 0.0f;
-
-   if (*s == 0.0f) {
-      *h = 0.0f; 
+   if (r > g) {
+      if (b > r) {
+	 /* b>r>g */
+	 delta = b-g;
+	 *h = 240.0f + ((r-g) * 60) / (float)delta;
+	 *s = (float)delta / (float)b;
+	 *v = (float)b * (1.0f/255.0f);
+      }
+      else {
+	 /* r>g and r>b */
+	 delta = r - MIN(g, b);
+	 *h = ((g-b) * 60) / (float)delta;
+	 if (*h < 0.0f)
+	    *h += 360.0f;
+	 *s = (float)delta / (float)r;
+	 *v = (float)r * (1.0f/255.0f);
+      }
    }
    else {
-      if (rc == max)
-	 *h = (gc - bc) / delta;
-      else if (gc == max)
-	 *h = 2.0f + (bc - rc) / delta;
-      else if (bc == max)
-	 *h = 4.0f + (rc - gc) / delta;
-
-      *h *= 60.0f;
-      if (*h < 0.0f)
-	 *h += 360.0f;
-    }
+      if (b > g) {
+	 /* b>g>=r */
+	 delta = b-r;
+	 *h = 240.0f + ((r-g) * 60) / (float)delta;
+	 *s = (float)delta / (float)b;
+	 *v = (float)b * (1.0f/255.0f);
+      }
+      else {
+	 /* g>=b and g>=r */
+	 delta = g - MIN(r, b);
+	 if (delta == 0) {
+	    *h = 0.0f;
+	    if (g == 0)
+	       *s = *v = 0.0f;
+	    else {
+	       *s = (float)delta / (float)g;
+	       *v = (float)g * (1.0f/255.0f);
+	    }
+	 }
+	 else {
+	    *h = 120.0f + ((b-r) * 60) / (float)delta;
+	    *s = (float)delta / (float)g;
+	    *v = (float)g * (1.0f/255.0f);
+	 }
+      }
+   }
 }
 
 
