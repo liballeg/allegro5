@@ -85,7 +85,7 @@ LFLAGS = -pg
 else
 
 # -------- optimised build --------
-CFLAGS = $(WFLAGS) $(OFLAGS)
+CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifdef SYMBOLMODE

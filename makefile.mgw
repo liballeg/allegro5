@@ -156,7 +156,7 @@ else
 
 # -------- optimised build --------
 
-CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fno-strength-reduce
+CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer -fno-strength-reduce
 SFLAGS = $(WFLAGS)
 ifndef SYMBOLMODE
    LFLAGS += -s
