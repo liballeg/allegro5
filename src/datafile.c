@@ -1182,11 +1182,11 @@ static int load_object(DATAFILE *obj, PACKFILE *f, int type)
 
 
 
-/* load_property:
+/* _load_property:
  *  Helper to load a property from a datafile and store it in 'prop'.
  *  Returns 0 on success and -1 on failure.
  */
-static int load_property(DATAFILE_PROPERTY *prop, PACKFILE *f)
+int _load_property(DATAFILE_PROPERTY *prop, PACKFILE *f)
 {
    int type, size;
    char *p;
@@ -1225,11 +1225,11 @@ static int load_property(DATAFILE_PROPERTY *prop, PACKFILE *f)
 
 
 
-/* add_property:
+/* _add_property:
  *  Helper to add a new property to a property list. Returns 0 on
  *  success or -1 on failure.
  */
-static int add_property(DATAFILE_PROPERTY **list, DATAFILE_PROPERTY *prop)
+int _add_property(DATAFILE_PROPERTY **list, DATAFILE_PROPERTY *prop)
 {
    DATAFILE_PROPERTY *iter;
    int length = 0;
@@ -1265,10 +1265,10 @@ static int add_property(DATAFILE_PROPERTY **list, DATAFILE_PROPERTY *prop)
 
 
 
-/* destroy_property_list:
+/* _destroy_property_list:
  *  Helper to destroy a property list.
  */
-static void destroy_property_list(DATAFILE_PROPERTY *list)
+void _destroy_property_list(DATAFILE_PROPERTY *list)
 {
    int c;
 
@@ -1307,7 +1307,7 @@ static void *load_file_object(PACKFILE *f, long size)
       type = pack_mgetl(f);
 
       if (type == DAT_PROPERTY) {
-	 if ((load_property(&prop, f) != 0) || (add_property(&list, &prop) != 0)) {
+	 if ((_load_property(&prop, f) != 0) || (_add_property(&list, &prop) != 0)) {
 	    failed = TRUE;
 	    break;
 	 }
@@ -1335,7 +1335,7 @@ static void *load_file_object(PACKFILE *f, long size)
 
    /* destroy the property list if not assigned to an object */
    if (list)
-      destroy_property_list(list);
+      _destroy_property_list(list);
 
    /* gracefully handle failure */
    if (failed) {
@@ -1465,7 +1465,7 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
       type = pack_mgetl(f);
 
       if (type == DAT_PROPERTY) {
-	 if ((load_property(&prop, f) != 0) || (add_property(&list, &prop) != 0))
+	 if ((_load_property(&prop, f) != 0) || (_add_property(&list, &prop) != 0))
 	    break;
 
 	 if ((prop.type == DAT_NAME) && (ustricmp(prop.dat, child) == 0))
@@ -1499,7 +1499,7 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
 
 	    /* destroy the property list */
 	    if (list) {
-	       destroy_property_list(list);
+	       _destroy_property_list(list);
 	       list = NULL;
 	    }
 
@@ -1510,7 +1510,7 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
 
    /* destroy the property list if not assigned to an object */
    if (list)
-      destroy_property_list(list);
+      _destroy_property_list(list);
 
    pack_fclose(f);
    return dat;
@@ -1527,7 +1527,7 @@ void _unload_datafile_object(DATAFILE *dat)
 
    /* destroy the property list */
    if (dat->prop)
-      destroy_property_list(dat->prop);
+      _destroy_property_list(dat->prop);
 
    /* look for a destructor function */
    for (i=0; i<MAX_DATAFILE_TYPES; i++) {
