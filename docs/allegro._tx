@@ -4141,7 +4141,7 @@ have to clear the z-buffer at the start of the frame. Example:
    routine affect the choice of low-level asm routine that will be used by
    render_scene() for this polygon.
 
-   Returns zero on success, or a positive number if it won't be rendered for
+   Returns zero on success, or a negative number if it won't be rendered for
    lack of a rendering routine.
 
 @@void @render_scene();

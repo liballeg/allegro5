@@ -398,8 +398,8 @@ static void init_poly(int type, POLYGON_INFO *poly)
  *  handled by this code.
  *  Note that the texture is stored as a pointer only, and you should keep
  *  the actual bitmap until render_scene(), where it is used.
- *  Returns zero on success, positive if it won't be rendered for lack of
- *  rendering routine.
+ *  Returns zero on success, or a negative number if the polygon won't be
+ *  rendered for lack of rendering routine.
  */
 int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
 {
@@ -418,7 +418,7 @@ int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
    poly->drawer = _get_scanline_filler(type, &poly->flags, &poly->info,
                                       texture, scene_bmp);
    if (!poly->drawer)
-      return 1;
+      return -1;
 
    init_poly(type, poly);
    poly->color = vtx[0]->c;
@@ -463,7 +463,7 @@ int scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[])
    poly->drawer = _get_scanline_filler(type, &poly->flags, &poly->info,
                                       texture, scene_bmp);
    if (!poly->drawer)
-      return 1;
+      return -1;
 
    init_poly(type, poly);
    poly->color = vtx[0]->c;
