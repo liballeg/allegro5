@@ -9606,7 +9606,7 @@ makefiles also provide some special pseudo-targets:
    'chm-docs' (Windows only)<br>
    Creates a compiled HTML file from the previously generated html output.
    This is not a default target, since you need Microsoft's HTML compiler
-   (<link>http://download.microsoft.com/download/msdnlib/Install/1.32/W9X2KMeXP/EN-US/htmlhelp.exe</a>),
+   (<link>http://go.microsoft.com/fwlink/?LinkId=14188</a>),
    and it has to be installed somewhere in your PATH. Also, this only works
    if you use '@multiplefiles' (see the top of docs/src/allegro._tx).
 <li>
