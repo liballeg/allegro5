@@ -47,7 +47,7 @@ static int mymickey_y = 0;
 static int mymickey_ox = 0; 
 static int mymickey_oy = 0;
 
-#ifdef DJGPP
+#ifdef ALLEGRO_DJGPP
    static _go32_dpmi_seginfo mouse_seginfo;
 #endif
 
@@ -530,7 +530,7 @@ static void int33_exit()
    r.x.dx = 16;
    __dpmi_int(0x33, &r);
 
-   #ifdef DJGPP
+   #ifdef ALLEGRO_DJGPP
       _go32_dpmi_free_real_mode_callback(&mouse_seginfo);
    #endif
 }
