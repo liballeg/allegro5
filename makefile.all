@@ -90,6 +90,11 @@ I386_OBJECTS = $(basename $(notdir $(ALLEGRO_SRC_I386_FILES)))
 
 include $(MAKEFILE_INC)
 
+# rm doesn't support -v on Darwin
+ifndef RM_OPTS
+RM_OPTS = -fv
+endif
+
 
 
 # -------- list what objects and programs we need to build --------
@@ -192,8 +197,8 @@ $(LIB_NAME): $(OBJECTS) $(RUNNER)
 
 clean:
 ifdef UNIX_TOOLS
-	-rm -fv $(OBJ_CLEAN_FILES)
-	-rm -fv $(OTHER_CLEAN_FILES)
+	-rm $(RM_OPTS) $(OBJ_CLEAN_FILES)
+	-rm $(RM_OPTS) $(OTHER_CLEAN_FILES)
 else
    define RM_CLEAN
       $(foreach file, $(wildcard $(OBJ_CLEAN_FILES)), -del $(subst /,\,$(file))
@@ -206,7 +211,7 @@ endif
 
 distclean: clean
 ifdef UNIX_TOOLS
-	-rm -fv $(DISTCLEAN_FILES)
+	-rm $(RM_OPTS) $(DISTCLEAN_FILES)
 else
    define RM_DISTCLEAN
       $(foreach file, $(wildcard $(DISTCLEAN_FILES)), -del $(subst /,\,$(file))
@@ -217,7 +222,7 @@ endif
 
 veryclean: distclean
 ifdef UNIX_TOOLS
-	-rm -fv $(VERYCLEAN_FILES)
+	-rm $(RM_OPTS) $(VERYCLEAN_FILES)
 else
    define RM_VERYCLEAN
       $(foreach file, $(wildcard $(VERYCLEAN_FILES)), -del $(subst /,\,$(file))

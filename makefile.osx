@@ -21,6 +21,8 @@ PLATFORM_DIR = obj/macosx
 
 UNIX_TOOLS = 1
 
+RM_OPTS = -f
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
@@ -132,6 +134,8 @@ TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
 TEMPLATE_NAME = Allegro\ Application
 TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
 
+MAN_DIR = /usr/local/man
+
 
 create_install_dirs:
 ifeq ($(wildcard $(INSTALL_DIR)/lib),)
@@ -229,6 +233,7 @@ endif
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+	@echo Run make install-man if you wish to install the man pages.
 	@echo Run make install-framework if you wish to install the library as a framework.
 	@echo Run make install-template if you wish to install the Project Builder application template.
 
@@ -254,6 +259,8 @@ uninstall:
 	-rmdir $(INSTALL_DIR)/include/allegro
 	-rm -fr $(FRAMEWORK)
 	-rm -fr $(TEMPLATE)
+	-sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(MAN_DIR)/man3/\1.3,p" docs/src/allegro._tx \
+	  | xargs -n 1 rm -f
 	@echo All gone!	
 
 install-framework: $(LIB_NAME)
@@ -288,6 +295,17 @@ install-template: install-framework
 	@cp misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj
 	@echo Allegro application template for Project Builder installed in:
 	@echo $(TEMPLATE)
+
+
+docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -man docs/man/dummyname.3 $<
+
+install-man: docs docs/man/install_allegro.3
+	@mkdir -p $(MAN_DIR)/man3
+	@for file in docs/man/*.3; do \
+	  echo Installing $$file to $(MAN_DIR)/man3; \
+	  cp $$file $(MAN_DIR)/man3/; \
+	done
 
 
 
