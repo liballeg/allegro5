@@ -4,7 +4,7 @@
 #
 # This is a helper script for using a cross compiler to build and install
 # the Allegro library. It is currently set up to use the Mingw32
-# cross-compiler out of the box but you can edit XC_PATH and INSTALL base
+# cross-compiler out of the box but you can edit XC_PATH and INSTALL_BASE
 # to use it with for example a djgpp cross-compiler.
 
 # 1. Put here the path on which the cross compiler and other tools
