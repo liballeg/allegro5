@@ -895,7 +895,7 @@ static int color_render_char(AL_CONST FONT* f, int ch, int fg, int bg, BITMAP* b
 
     g = _color_find_glyph(f, ch);
     if(g) {
-        if (bitmap_color_depth(bmp) == 8) {
+        if (bitmap_color_depth(g) == 8) {
 	    if(fg < 0) {
 	        bmp->vtable->draw_256_sprite(bmp, g, x, y + (h-g->h)/2);
 	    }
