@@ -187,7 +187,7 @@ rm -rf %{buildroot}
 
 %files tools
 %defattr(-,root,root)
-%doc tools/grabber.txt
+%doc docs/txt/grabber.txt
 %doc tools/plugins/plugins.txt
 %{_bindir}/colormap
 %{_bindir}/dat
