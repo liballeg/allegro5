@@ -36,8 +36,8 @@ AL_VAR(SYSTEM_DRIVER, system_qnx);
 
 
 /* Timer driver */
-#define TIMER_QNX             AL_ID('Q','T','I','M')
-AL_VAR(TIMER_DRIVER, timer_qnx);
+#define TIMERDRV_UNIX_PTHREADS	AL_ID('P','T','H','R')
+AL_VAR(TIMER_DRIVER, timerdrv_unix_pthreads);
 
 
 /* Keyboard driver */

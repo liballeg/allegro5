@@ -77,25 +77,6 @@ static void block_all_signals(void)
 
 
 
-/* privileges_hack_for_linux:
- *  One of the jobs of the timer thread is to update the mouse pointer
- *  on screen.  When using the Mode-X driver under Linux console, this
- *  involves selecting different planes (in modexgfx.s), which requires
- *  special priviledges.  This function gets those priviledges.
- */
-static void privileges_hack_for_linux(void)
-{
-#ifdef ALLEGRO_LINUX
-   if ((system_driver == &system_linux) && (__al_linux_have_ioperms)) {
-      seteuid(0);
-      iopl(3);
-      seteuid(getuid());
-   }
-#endif
-}
-
-
-
 /* ptimer_thread_func:
  *  The timer thread.
  */
@@ -108,7 +89,35 @@ static void *ptimer_thread_func(void *unused)
 
    block_all_signals();
 
-   privileges_hack_for_linux();
+#ifdef ALLEGRO_LINUX
+   /* privileges hack for Linux:
+    *  One of the jobs of the timer thread is to update the mouse pointer
+    *  on screen.  When using the Mode-X driver under Linux console, this
+    *  involves selecting different planes (in modexgfx.s), which requires
+    *  special priviledges.
+    */
+   if ((system_driver == &system_linux) && (__al_linux_have_ioperms)) {
+      seteuid(0);
+      iopl(3);
+      seteuid(getuid());
+   }
+#endif
+
+#ifdef ALLEGRO_QNX
+   /* thread priority setting for QNX:
+    *  The timer thread is set to the highest relative priority.
+    *  (see the comment in src/qnx/qsystem.c about the scheduling policy)
+    */
+   {
+      struct sched_param sparam;
+      int spolicy;
+   
+      if (pthread_getschedparam(pthread_self(), &spolicy, &sparam) == EOK) {
+         sparam.sched_priority += 2;
+         pthread_setschedparam(pthread_self(), spolicy, &sparam);
+      }
+   }
+#endif
 
    gettimeofday(&old_time, 0);
 

@@ -34,8 +34,8 @@ _DRIVER_INFO _keyboard_driver_list[] =
 
 _DRIVER_INFO _timer_driver_list[] =
 {
-   { TIMER_QNX,         &timer_qnx,         TRUE  },
-   { 0,                 NULL,               0     }
+   { TIMERDRV_UNIX_PTHREADS, &timerdrv_unix_pthreads, TRUE  },
+   { 0,                      NULL,                    0     }
 };
 
 

@@ -301,12 +301,12 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qphoton.c \
 	src/qnx/qswitch.s \
 	src/qnx/qsystem.c \
-	src/qnx/qtimer.c \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
 	src/unix/udjgpp.c \
 	src/unix/ufile.c \
 	src/unix/umain.c \
+	src/unix/uptimer.c \
 	src/unix/usystem.c \
 	src/unix/uthreads.c \
 	src/misc/colconv.c \
