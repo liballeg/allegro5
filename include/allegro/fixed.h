@@ -23,7 +23,10 @@
    extern "C" {
 #endif
 
+#include "base.h"
+
 typedef long fixed;
+
 AL_VAR(AL_CONST fixed, fixtorad_r);
 AL_VAR(AL_CONST fixed, radtofix_r);
 
