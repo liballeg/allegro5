@@ -144,12 +144,15 @@ static int tim_win32_handle_timer_tick(int interval)
 
    /* process the user callbacks */
    for (i = 0; i < MAX_TIMERS; i++) {
-      if ((_timer_queue[i].proc) && (_timer_queue[i].speed > 0)) {
+      if (((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) && (_timer_queue[i].speed > 0)) {
 	 _timer_queue[i].counter -= d;
 
-	 while ((_timer_queue[i].counter <= 0) && (_timer_queue[i].proc) && (_timer_queue[i].speed > 0)) {
+	 while ((_timer_queue[i].counter <= 0) && ((_timer_queue[i].proc) || (_timer_queue[i].param_proc)) && (_timer_queue[i].speed > 0)) {
 	    _timer_queue[i].counter += _timer_queue[i].speed;
-	    _timer_queue[i].proc();
+	    if (_timer_queue[i].param_proc)
+	       _timer_queue[i].param_proc(_timer_queue[i].param);
+	    else
+	       _timer_queue[i].proc();
 	 }
 
 	 if ((_timer_queue[i].counter > 0) && (_timer_queue[i].counter < new_delay))
