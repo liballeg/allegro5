@@ -134,7 +134,7 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/i386 src/misc wintests
+VPATH = src/win src/i386 src/misc tests/win
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 		  $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
@@ -144,9 +144,9 @@ LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 
 PROGRAMS = dibgrab dibhello scrsave
 
-dibgrab: wintests/dibgrab.exe
-dibhello: wintests/dibhello.exe
-scrsave: wintests/scrsave.scr
+dibgrab: tests/win/dibgrab.exe
+dibhello: tests/win/dibhello.exe
+scrsave: tests/win/scrsave.scr
 
 
 
@@ -293,11 +293,11 @@ $(OBJ_DIR)/%.obj: %.s
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
-wintests/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:wintests/scrsave.scr $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/scrsave.scr $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
-$(OBJ_DIR)/scrsave.res: wintests/scrsave.rc
-	rc -fo$(OBJ_DIR)/scrsave.res wintests/scrsave.rc
+$(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
+	rc -fo$(OBJ_DIR)/scrsave.res tests/win/scrsave.rc
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME) $(RUNNER)
 
@@ -352,7 +352,7 @@ endef
 DEPEND_PARAMS = $(GCC2MSVC) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c wintests/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg\/\1\.obj:/" _depend2.tmp > obj/msvc/alleg/makefile.dep

@@ -95,15 +95,15 @@ endif
 
 # -------- list platform specific programs --------
 
-VPATH = wintests
+VPATH = tests/win
 
 LIBRARIES = -lcomdlg32
 
 PROGRAMS = dibgrab dibhello scrsave
 
-dibgrab: wintests/dibgrab.exe
-dibhello: wintests/dibhello.exe
-scrsave: wintests/scrsave.scr
+dibgrab: tests/win/dibgrab.exe
+dibhello: tests/win/dibhello.exe
+scrsave: tests/win/scrsave.scr
 
 
 
@@ -137,13 +137,13 @@ $(OBJ_DIR)/%.o: %.c
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
-wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
-	$(RSXGCC) $(LFLAGS) -o wintests/scrsave.exe $(OBJ_DIR)/scrsave.o $(LIB_NAME) $(LIBRARIES)
-	rsrc $(OBJ_DIR)/scrsave.res wintests/scrsave.exe
-	rename wintests\scrsave.exe scrsave.scr
+tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
+	$(RSXGCC) $(LFLAGS) -o tests/win/scrsave.exe $(OBJ_DIR)/scrsave.o $(LIB_NAME) $(LIBRARIES)
+	rsrc $(OBJ_DIR)/scrsave.res tests/win/scrsave.exe
+	rename tests\win\scrsave.exe scrsave.scr
 
-$(OBJ_DIR)/scrsave.res: wintests/scrsave.rc
-	grc -o $(OBJ_DIR)/scrsave.res wintests/scrsave.rc
+$(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
+	grc -o $(OBJ_DIR)/scrsave.res tests/win/scrsave.rc
 
 PLUGIN_LIB = lib/rsxnt/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/rsxnt/plugins.h
@@ -171,7 +171,7 @@ GCC2RSXNT = -D__RSXNT__ -UDJGPP -U__unix__
 DEPEND_PARAMS = $(GCC2RSXNT) -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
-	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c wintests/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alleg\/\1\.o:/" _depend2.tmp > obj/rsxnt/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alld\/\1\.o:/" _depend2.tmp > obj/rsxnt/alld/makefile.dep

@@ -142,7 +142,7 @@
 
   	Rez {Allegro}allegro.r -o {progname} -i {Allegro} -append
 
-   see examples in mactest folder
+   see examples in tests:mac folder
 
 
 ==========================================
