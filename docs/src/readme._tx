@@ -17,6 +17,8 @@
 @html_text_substitution=docs/build/qnx.txt|<a href="build/qnx.html">docs/build/qnx.txt</a>
 @html_text_substitution=docs/build/unix.txt|<a href="build/unix.html">docs/build/unix.txt</a>
 @html_text_substitution=docs/build/watcom.txt|<a href="build/watcom.html">docs/build/watcom.txt</a>
+@html_text_substitution=docs/txt/help.txt|<a href="help.html">docs/txt/help.txt</a>
+@html_text_substitution=docs/txt/ahack.txt|<a href="ahack.html">docs/txt/ahack.txt</a>
 @external-css=allegro.css
 @document_title=A general introduction to Allegro
 @<pre>
@@ -301,12 +303,10 @@ Contact info
    [Alleg5] - Allegro 5 -
    <link>http://lists.sourceforge.net/mailman/listinfo/alleg-bigfive</a>.<p>
 
-      Just as described in the future (<link>http://alleg.sourceforge.net/future.html</a>)
-      section, the next big version of Allegro will feature at least a
-      complete API rewrite to fix all the quirks it has now. This list is for
-      discussing the future API, proposing new functions or modifying the
-      behaviour of actual ones, and posting code with the implementation if
-      it's possible to do so.
+      This list was once available for discussing the next major version of
+      Allegro, when it was too noisy to do so on [AD]. This is no longer the
+      case so the list has been shut down. However, its archives are still
+      valuable.
 </ul>
    To subscribe to one of the three lists, simply go to it's web page and use
    the online forms to subscribe yourself. You can remove yourself from a
@@ -314,8 +314,8 @@ Contact info
    password too, in case you have forgotten it.
 
    To send a message to one of the lists, write to
-   alleg-main@lists.sourceforge.net, alleg-developers@lists.sourceforge.net,
-   or alleg-bigfive@lists.sourceforge.net. You don't need to be subscribed to
+   <email>alleg-main@lists.sourceforge.net</a> or
+   <email>alleg-developers@lists.sourceforge.net</a>. You don't need to be subscribed to
    these mailing lists before you can post there, but it is a good idea to
    subscribe in order to see the replies.
 
