@@ -1,5 +1,4 @@
 mouse doesn't move fast enough when using hires modes in Windows
 add caching system to speed up filename#object and load_datafile_object()
 talk to Calin about merging latest P3D rendering stuff
-a native Mingw32 build would be nice
 windows (DirectSound) sample looping isn't right
