@@ -475,6 +475,9 @@ static BITMAP *init_gfx_driver(GFX_DRIVER *drv, int w, int h, int v_w, int v_h)
 {
    drv->name = drv->desc = get_config_text(drv->ascii_name);
 
+   /* set gfx_driver so that it is visible when initializing the driver */
+   gfx_driver = drv;
+
    return drv->init(w, h, v_w, v_h, _color_depth);
 }
 
@@ -526,10 +529,8 @@ static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h,
 	    found = TRUE;
 	    screen = init_gfx_driver(drv, w, h, v_w, v_h);
 
-	    if (screen) {
-	       gfx_driver = drv;
+	    if (screen)
 	       break;
-	    }
 	 }
       }
       else {
@@ -734,10 +735,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	       if (gfx_driver_is_valid(drv, flags)) {
 		  screen = init_gfx_driver(drv, w, h, v_w, v_h);
 
-		  if (screen) {
-		     gfx_driver = drv;
+		  if (screen)
 		     break;
-		  }
 	       }
 	    }
 	 }
@@ -747,16 +746,14 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       /* search the list for the requested driver */
       drv = get_gfx_driver_from_id(card, driver_list);
 
-      if (drv) {
+      if (drv)
 	 screen = init_gfx_driver(drv, w, h, v_w, v_h);
-
-	 if (screen)
-	    gfx_driver = drv;
-      }
    }
 
    /* gracefully handle failure */
-   if (!gfx_driver) {
+   if (!screen) {
+      gfx_driver = NULL;  /* set by init_gfx_driver() */
+
       if (!ugetc(allegro_error))
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unable to find a suitable graphics driver"));
 
