@@ -511,11 +511,11 @@ void show_mouse(BITMAP *bmp)
 
       release_bitmap(_mouse_screen);
 
-      install_int(mouse_move, 20);
+      install_int(mouse_move, 10);
    }
    else {
       if (mouse_driver->timer_poll) 
-	 install_int(mouse_move, 20);
+	 install_int(mouse_move, 10);
    }
 }
 
@@ -915,7 +915,7 @@ int install_mouse(void)
    _add_exit_func(remove_mouse);
 
    if (mouse_driver->timer_poll)
-      install_int(mouse_move, 20);
+      install_int(mouse_move, 10);
 
    return num_buttons;
 }
