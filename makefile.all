@@ -200,8 +200,8 @@ $(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
 $(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -rtf $@ $<
 
-$(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
-	$(MAKEDOC) -html $@ $<
+$(filter %.$(HTML),$(DOCS)): docs/html/%.$(HTML): docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -$(HTML) $@ $<
 
 AUTHORS: docs/src/thanks._tx
 	$(MAKEDOC) -part -ascii AUTHORS $<
