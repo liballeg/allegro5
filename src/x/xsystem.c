@@ -83,6 +83,17 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_get_desktop_resolution,
    _xwin_sysdrv_get_gfx_safe_mode,
    _unix_yield_timeslice,
+#ifdef HAVE_LIBPTHREAD
+   _unix_create_mutex,
+   _unix_destroy_mutex,
+   _unix_lock_mutex,
+   _unix_unlock_mutex,
+#else
+   NULL, /* create_mutex */
+   NULL, /* destroy_mutex */
+   NULL, /* lock_mutex */
+   NULL, /* unlock_mutex */
+#endif
    _xwin_sysdrv_gfx_drivers,
    _xwin_sysdrv_digi_drivers,
    _xwin_sysdrv_midi_drivers,

@@ -89,6 +89,17 @@ SYSTEM_DRIVER system_linux =
    NULL, /* get_desktop_resolution */
    NULL, /* get_gfx_safe_mode */
    _unix_yield_timeslice,
+#ifdef HAVE_LIBPTHREAD
+   _unix_create_mutex,
+   _unix_destroy_mutex,
+   _unix_lock_mutex,
+   _unix_unlock_mutex,
+#else
+   NULL, /* create_mutex */
+   NULL, /* destroy_mutex */
+   NULL, /* lock_mutex */
+   NULL, /* unlock_mutex */
+#endif
    get_gfx_driver_list,
    get_digi_driver_list,
    get_midi_driver_list,

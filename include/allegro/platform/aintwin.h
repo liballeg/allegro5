@@ -165,6 +165,13 @@ AL_FUNC(void, thread_init, (void));
 AL_FUNC(void, thread_exit, (void));
 
 
+/* synchronization routines */
+AL_FUNC(void *, sys_directx_create_mutex, (void));
+AL_FUNC(void, sys_directx_destroy_mutex, (void *handle));
+AL_FUNC(void, sys_directx_lock_mutex, (void *handle));
+AL_FUNC(void, sys_directx_unlock_mutex, (void *handle));
+
+
 /* sound routines */
 AL_FUNC(_DRIVER_INFO *, _get_win_digi_driver_list, (void));
 AL_FUNC(void, _free_win_digi_driver_list, (void));

@@ -122,6 +122,10 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(int, get_desktop_resolution, (int *width, int *height));
    AL_METHOD(void, get_gfx_safe_mode, (int *driver, struct GFX_MODE *mode));
    AL_METHOD(void, yield_timeslice, (void));
+   AL_METHOD(void *, create_mutex, (void));
+   AL_METHOD(void, destroy_mutex, (void *handle));
+   AL_METHOD(void, lock_mutex, (void *handle));
+   AL_METHOD(void, unlock_mutex, (void *handle));
    AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));
    AL_METHOD(_DRIVER_INFO *, midi_drivers, (void));

@@ -22,7 +22,13 @@
 extern "C" {
 #endif
 
-#ifndef HAVE_LIBPTHREAD
+#ifdef HAVE_LIBPTHREAD
+   /* Synchronization routines using POSIX threads */
+   AL_FUNC(void *, _unix_create_mutex, (void));
+   AL_FUNC(void, _unix_destroy_mutex, (void *handle));
+   AL_FUNC(void, _unix_lock_mutex, (void *handle));
+   AL_FUNC(void, _unix_unlock_mutex, (void *handle));
+#else
    /* Asynchronous event processing with SIGALRM */
    AL_FUNC(void, _sigalrm_request_abort, (void));
    AL_FUNCPTR(void, _sigalrm_timer_interrupt_handler, (unsigned long interval));

@@ -12,6 +12,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Synchronization added by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -40,7 +42,11 @@ int _timer_use_retrace = FALSE;           /* are we synced to the retrace? */
 
 volatile int _retrace_hpp_value = -1;     /* to set during next retrace */
 
+#ifdef ALLEGRO_MULTITHREADED
+static void *timer_mutex = NULL;          /* global timer mutex */
+#else
 static int timer_semaphore = FALSE;       /* reentrant interrupt? */
+#endif
 
 static volatile long timer_delay = 0;     /* lost interrupt rollover */
 
@@ -57,11 +63,16 @@ long _handle_timer_tick(int interval)
 
    timer_delay += interval;
 
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->lock_mutex(timer_mutex);
+#else
    /* reentrant interrupt? */
    if (timer_semaphore)
       return 0x2000;
 
    timer_semaphore = TRUE;
+#endif
+
    d = timer_delay;
 
    /* deal with retrace synchronisation */
@@ -100,7 +111,12 @@ long _handle_timer_tick(int interval)
    }
 
    timer_delay -= d;
+
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->unlock_mutex(timer_mutex);
+#else
    timer_semaphore = FALSE;
+#endif
 
 #ifdef ALLEGRO_WINDOWS
    /* fudge factor to prevent interrupts from coming too close to each other */
@@ -302,6 +318,10 @@ static int install_timer_int(void *proc, void *param, long speed, int param_used
    if (x < 0)
       return -1;
 
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->lock_mutex(timer_mutex);
+#endif
+
    if ((proc == _timer_queue[x].proc) || (proc == _timer_queue[x].param_proc)) { 
       _timer_queue[x].counter -= _timer_queue[x].speed;
       _timer_queue[x].counter += speed;
@@ -317,6 +337,10 @@ static int install_timer_int(void *proc, void *param, long speed, int param_used
    }
 
    _timer_queue[x].speed = speed;
+
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->unlock_mutex(timer_mutex);
+#endif
 
    return 0;
 }
@@ -404,10 +428,18 @@ static void remove_timer_int(void *proc, void *param, int param_used)
    if (x < 0)
       return;
 
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->lock_mutex(timer_mutex);
+#endif
+
    _timer_queue[x].param_proc = NULL;
    _timer_queue[x].param = NULL;
    _timer_queue[x].speed = 0;
    _timer_queue[x].counter = 0;
+
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->unlock_mutex(timer_mutex);
+#endif
 }
 
 END_OF_FUNCTION(remove_timer_int);
@@ -438,6 +470,24 @@ END_OF_FUNCTION(remove_param_int);
 
 
 
+/* clear_timer_queue:
+ *  Clears the timer queue.
+ */
+static void clear_timer_queue(void)
+{
+   int i;
+
+   for (i=0; i<MAX_TIMERS; i++) {
+      _timer_queue[i].proc = NULL;
+      _timer_queue[i].param_proc = NULL;
+      _timer_queue[i].param = NULL;
+      _timer_queue[i].speed = 0;
+      _timer_queue[i].counter = 0;
+   }
+}
+
+
+
 /* install_timer:
  *  Installs the timer interrupt handler. You must do this before installing
  *  any user timer routines. You must set up the timer before trying to 
@@ -451,13 +501,7 @@ int install_timer()
    if (timer_driver)
       return 0;
 
-   for (i=0; i<MAX_TIMERS; i++) {
-      _timer_queue[i].proc = NULL;
-      _timer_queue[i].param_proc = NULL;
-      _timer_queue[i].param = NULL;
-      _timer_queue[i].speed = 0;
-      _timer_queue[i].counter = 0;
-   }
+   clear_timer_queue();
 
    retrace_proc = NULL;
    vsync_counter = BPS_TO_TIMER(70);
@@ -494,6 +538,12 @@ int install_timer()
    else
       driver_list = _timer_driver_list;
 
+#ifdef ALLEGRO_MULTITHREADED
+   timer_mutex = system_driver->create_mutex();
+   if (!timer_mutex)
+      return -1;
+#endif
+
    for (i=0; driver_list[i].driver; i++) {
       timer_driver = driver_list[i].driver;
       timer_driver->name = timer_driver->desc = get_config_text(timer_driver->ascii_name);
@@ -502,6 +552,10 @@ int install_timer()
    }
 
    if (!driver_list[i].driver) {
+#ifdef ALLEGRO_MULTITHREADED
+      system_driver->destroy_mutex(timer_mutex);
+      timer_mutex = NULL;
+#endif
       timer_driver = NULL;
       return -1;
    }
@@ -528,8 +582,15 @@ void remove_timer(void)
    timer_driver->exit();
    timer_driver = NULL;
 
+#ifdef ALLEGRO_MULTITHREADED
+   system_driver->destroy_mutex(timer_mutex);
+   timer_mutex = NULL;
+#endif
+
+   /* make sure subsequent remove_int() calls don't crash */
+   clear_timer_queue();
+
    _remove_exit_func(remove_timer);
    _timer_installed = FALSE;
 }
-
 

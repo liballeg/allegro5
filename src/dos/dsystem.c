@@ -138,6 +138,10 @@ SYSTEM_DRIVER system_dos =
    NULL, /* get_desktop_resolution */
    sys_dos_get_gfx_safe_mode,
    sys_dos_yield_timeslice,
+   NULL, /* create_mutex */
+   NULL, /* destroy_mutex */
+   NULL, /* lock_mutex */
+   NULL, /* unlock_mutex */
    NULL, /* gfx_drivers */
    NULL, /* digi_drivers */
    NULL, /* midi_drivers */

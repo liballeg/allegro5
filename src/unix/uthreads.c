@@ -214,5 +214,63 @@ struct bg_manager _bg_man_pthreads = {
 	bg_man_pthreads_interrupts_disabled
 };
 
+
+
+/* _unix_create_mutex:
+ *  Creates a mutex and returns a pointer to it.
+ */
+void *_unix_create_mutex (void)
+{
+   pthread_mutex_t *mx;
+
+   mx = malloc (sizeof (pthread_mutex_t));
+   if (!mx) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   pthread_mutex_init (mx, NULL);
+
+   return (void *) mx;
+}
+
+
+
+/* _unix_destroy_mutex:
+ *  Destroys a mutex.
+ */
+void _unix_destroy_mutex (void *handle)
+{
+   pthread_mutex_t *mx = (pthread_mutex_t *) handle;
+
+   pthread_mutex_destroy (mx);
+
+   free (mx);
+}
+
+
+
+/* _unix_lock_mutex:
+ *  Locks a mutex.
+ */
+void _unix_lock_mutex (void *handle)
+{
+   pthread_mutex_t *mx = (pthread_mutex_t *) handle;
+
+   pthread_mutex_lock (mx);
+}
+
+
+
+/* _unix_unlock_mutex:
+ *  Unlocks a mutex.
+ */
+void _unix_unlock_mutex (void *handle)
+{
+   pthread_mutex_t *mx = (pthread_mutex_t *) handle;
+
+   pthread_mutex_unlock (mx);
+}
+
 #endif
 
