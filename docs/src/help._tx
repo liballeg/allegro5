@@ -177,7 +177,7 @@ Part 3 - when your program crashes
    Note that the crash happened deep inside an Allegro function, which is
    also revealed by the traceback. However, the binary was linked against a
    static debug version of Allegro, we wouldn't have had so much luck with
-   a non debug or dynamicall linked version.
+   a non debug or dynamically linked version.
 
    Since gdb is an interactive debugger, you could also select a frame and
    check out the values of the variables, to see better who is the culprit:
