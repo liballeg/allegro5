@@ -2,3 +2,14 @@ allegro.dvi
 allegro.ps*
 makedoc
 *.pdb
+allegro.aux
+allegro.cp
+allegro.fn
+allegro.fns
+allegro.ky
+allegro.log
+allegro.pdf
+allegro.pg
+allegro.toc
+allegro.tp
+allegro.vr
