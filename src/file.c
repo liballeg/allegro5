@@ -2106,7 +2106,7 @@ static void pack_ungetc(int ch, PACKFILE *f)
  */
 char *pack_fgets(char *p, int max, PACKFILE *f)
 {
-   char *pmax;
+   char *pmax, *orig_p = p;
    int c;
    ASSERT(f);
 
@@ -2151,7 +2151,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
    if (c == '\0' || *allegro_errno)
       return NULL;
 
-   return p;
+   return orig_p; /* p has changed */
 }
 
 
