@@ -2,6 +2,7 @@
 @# This is the source for the Allegro Hacker's Guide, in a weird custom
 @# format. Read makedoc.c for a description of what is going on...
 @#
+@external-css=allegro.css
 @document_title=Allegro Hacker's Guide
 <center><h1><b>
 The Allegro Hacker's Guide

@@ -1,3 +1,4 @@
+@external-css=allegro.css
 @document_title=Allegro `const'-correctness
 <center><h1><b>
 Allegro `const'-correctness

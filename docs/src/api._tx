@@ -1,3 +1,4 @@
+@external-css=allegro.css
 @document_title=API compatibility information
 @<pre>
 @!indent

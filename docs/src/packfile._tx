@@ -1,3 +1,4 @@
+@external-css=allegro.css
 @document_title=Packfile format
 <center><h1><b>
 Packfile format information.
