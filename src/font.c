@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      The default 8x8 font. This must only be included once, from text.c.
+ *      The default 8x8 font, and mono and color font vtables.
  *
  *      Contains characters:
  *
@@ -18,6 +18,10 @@
  *
  *      See readme.txt for copyright information.
  */
+
+
+#include "allegro.h"
+#include "allegro/aintern.h"
 
 
 
@@ -122,7 +126,7 @@ static FONT_GLYPH f_0x7F = { 8, 8, { 0x00, 0x10, 0x38, 0x6C, 0xC6, 0xC6, 0xFE, 0
 
 
 /* list of ASCII characters */
-static void *ascii_data[] =
+static FONT_GLYPH* ascii_data[] =
 {
    &f_0x20, &f_0x21, &f_0x22, &f_0x23, &f_0x24, &f_0x25, &f_0x26, &f_0x27, 
    &f_0x28, &f_0x29, &f_0x2A, &f_0x2B, &f_0x2C, &f_0x2D, &f_0x2E, &f_0x2F,
@@ -240,7 +244,7 @@ static FONT_GLYPH f_0xFF = { 8, 8, { 0x00, 0xCC, 0x00, 0xCC, 0xCC, 0x7C, 0x0C, 0
 
 
 /* list of Latin-1 characters */
-static void *latin1_data[] =
+static FONT_GLYPH* latin1_data[] =
 {
 	    &f_0xA1, &f_0xA2, &f_0xA3, &f_0xA4, &f_0xA5, &f_0xA6, &f_0xA7, 
    &f_0xA8, &f_0xA9, &f_0xAA, &f_0xAB, &f_0xAC, &f_0xAD, &f_0xAE, &f_0xAF,
@@ -391,7 +395,7 @@ static FONT_GLYPH f_0x17F = { 8, 8, { 0x38, 0x6C, 0x64, 0xE0, 0x60, 0x60, 0xE0, 
 
 
 /* list of Extended-A characters */
-static void *extended_a_data[] =
+static FONT_GLYPH* extended_a_data[] =
 {
    &f_0x100, &f_0x101, &f_0x102, &f_0x103, &f_0x104, &f_0x105, &f_0x106, &f_0x107, 
    &f_0x108, &f_0x109, &f_0x10A, &f_0x10B, &f_0x10C, &f_0x10D, &f_0x10E, &f_0x10F,
@@ -413,47 +417,266 @@ static void *extended_a_data[] =
 
 
 
-/* linked list of character ranges */
-static FONT extended_a_font = 
+/* allegro_404_char:
+ *  This is what we render missing glyphs as.
+ */
+int allegro_404_char = '^';
+
+
+
+/* mono_findglyph:
+ *  Helper for mono vtable, below.
+ */
+static FONT_GLYPH* mono_findglyph(AL_CONST FONT* f, int ch)
 {
-   TRUE,                /* mono */
-   0x100,               /* start character */
-   0x17F,               /* end character */
-   extended_a_data,     /* glyph table */
-   NULL,                /* next range pointer */
-   NULL,                /* render hook */
-   NULL,                /* width hook */
-   NULL,                /* height hook */
-   NULL                 /* destroy hook */
-};
+    FONT_MONO_DATA* mf = (FONT_MONO_DATA*)(f->data);
+
+    while(mf) {
+        if(ch >= mf->begin && ch < mf->end) return mf->glyphs[ch - mf->begin];
+        mf = mf->next;
+    }
+
+    /* if we don't find the character, then search for the missing
+       glyph, but don't get stuck in a loop. */
+    if(ch != allegro_404_char) return mono_findglyph(f, allegro_404_char);
+    return 0;
+}
 
 
 
-static FONT latin1_font = 
+/* mono_length:
+ *  (mono vtable entry)
+ *  Returns the length, in pixels, of a string as rendered in a
+ *  monochrome font.
+ */
+static int mono_length(AL_CONST FONT* f, AL_CONST char* text)
 {
-   TRUE,                /* mono */
-   0xA1,                /* start character */
-   0xFF,                /* end character */
-   latin1_data,         /* glyph table */
-   &extended_a_font,    /* next range pointer */
-   NULL,                /* render hook */
-   NULL,                /* width hook */
-   NULL,                /* height hook */
-   NULL                 /* destroy hook */
+    int ch = 0, w = 0;
+    AL_CONST char* p = text;
+
+    while( (ch = ugetxc(&p)) ) {
+        FONT_GLYPH* g = mono_findglyph(f, ch);
+        if(g) w += g->w;
+    }
+
+    return w;
+}
+
+
+
+/* mono_render:
+ *  (mono vtable entry)
+ *  Renders a string, in a monochrome font, onto a bitmap at a given
+ *  location and in given colors.
+ */
+static void mono_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, BITMAP* bmp, int x, int y)
+{
+    int ch = 0;
+    AL_CONST char* p = text;
+    FONT_GLYPH* g = 0;
+
+    int old_textmode = _textmode;
+    _textmode = bg;
+
+    acquire_bitmap(bmp);
+
+    while( (ch = ugetxc(&p)) ) {
+        g = mono_findglyph(f, ch);
+        if(g) {
+            bmp->vtable->draw_glyph(bmp, g, x, y, fg);
+            x += g->w;
+        }
+    }
+
+    release_bitmap(bmp);
+    _textmode = old_textmode;
+}
+
+
+
+/* mono_destroy:
+ *  (mono vtable entry)
+ *  Destroys a monochrome font.
+ */
+static void mono_destroy(FONT* f)
+{
+    FONT_MONO_DATA* mf = 0;
+
+    if(!f) return;
+
+    mf = (FONT_MONO_DATA*)(f->data);
+    while(mf) {
+        FONT_MONO_DATA* next = mf->next;
+        int i = 0;
+
+        for(i = mf->begin; i < mf->end; i++) free(mf->glyphs[i - mf->begin]);
+
+        free(mf->glyphs);
+        free(mf);
+        mf = next;
+    }
+
+    free(f);
+}
+
+
+
+/* color_findglyph:
+ *  Helper for color vtable entries, below.
+ */
+static BITMAP* color_findglyph(AL_CONST FONT* f, int ch)
+{
+    FONT_COLOR_DATA* cf = (FONT_COLOR_DATA*)(f->data);
+
+    while(cf) {
+        if(ch >= cf->begin && ch < cf->end) return cf->bitmaps[ch - cf->begin];
+        cf = cf->next;
+    }
+
+    /* if we don't find the character, then search for the missing
+       glyph, but don't get stuck in a loop. */
+    if(ch != allegro_404_char) return color_findglyph(f, allegro_404_char);
+    return 0;
+}
+
+
+
+/* color_length:
+ *  (color vtable entry)
+ *  Returns the length of a string, in pixels, as it would be rendered
+ *  in this font.
+ */
+static int color_length(AL_CONST FONT* f, AL_CONST char* text)
+{
+    AL_CONST char* p = text;
+    int ch = 0, w = 0;
+
+    while( (ch = ugetxc(&p)) ) {
+        BITMAP* g = color_findglyph(f, ch);
+        if(g) w += g->w;
+    }
+
+    return w;
+}
+
+
+
+/* color_render:
+ *  (color vtable entry)
+ *  Renders a color font onto a bitmap, at the specified location, using
+ *  the specified colors. If fg == -1, render as color, else render as
+ *  mono; if bg == -1, render as transparent, else render as opaque.
+ */
+static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, BITMAP* bmp, int x, int y)
+{
+    AL_CONST char* p = text;
+    int ch = 0;
+
+    int old_textmode = _textmode;
+    _textmode = bg;
+
+    acquire_bitmap(bmp);
+
+    while( (ch = ugetxc(&p)) ) {
+        BITMAP* g = color_findglyph(f, ch);
+        if(g) {
+            if(fg < 0) {
+                if(bg < 0) {
+                    bmp->vtable->draw_256_sprite(bmp, g, x, y);
+                } else {
+                    blit(g, bmp, 0, 0, x, y, g->w, g->h);
+                }
+            } else {
+                bmp->vtable->draw_character(bmp, g, x, y, fg);
+            }
+
+            x += g->w;
+        }
+    }
+
+    release_bitmap(bmp);
+    _textmode = old_textmode;
+}
+
+
+
+/* color_destroy:
+ *  (color vtable entry)
+ *  Destroys a color font.
+ */
+static void color_destroy(FONT* f)
+{
+    FONT_COLOR_DATA* cf = (FONT_COLOR_DATA*)(f->data);
+
+    if(!f) return;
+
+    while(cf) {
+        FONT_COLOR_DATA* next = cf->next;
+        int i = 0;
+
+        for(i = cf->begin; i < cf->end; i++) destroy_bitmap(cf->bitmaps[i - cf->begin]);
+
+        free(cf->bitmaps);
+        free(cf);
+
+        cf = next;
+    }
+
+    free(f);
+}
+
+
+
+/********
+ * vtable declarations
+ ********/
+
+static FONT_VTABLE _font_vtable_mono = {
+    mono_length,
+    mono_render,
+    mono_destroy
 };
 
+FONT_VTABLE* font_vtable_mono = &_font_vtable_mono;
 
-
-FONT _default_font = 
-{ 
-   TRUE,                /* mono */
-   0x20,                /* start character */
-   0x7F,                /* end character */
-   ascii_data,          /* glyph table */
-   &latin1_font,        /* next range pointer */
-   NULL,                /* render hook */
-   NULL,                /* width hook */
-   NULL,                /* height hook */
-   NULL                 /* destroy hook */
+static FONT_VTABLE _font_vtable_color = {
+    color_length,
+    color_render,
+    color_destroy
 };
+
+FONT_VTABLE* font_vtable_color = &_font_vtable_color;
+
+
+
+/********
+ * Declaration of `_default_font' and `font'
+ ********/
+
+static FONT_MONO_DATA extended_a_monofont = {
+    0x100, 0x180,               /* begin, end characters */
+    extended_a_data,            /* the data set */
+    0                           /* next */
+};
+
+static FONT_MONO_DATA latin1_monofont = {
+    0x0A1, 0x100,               /* begin, end characters */
+    latin1_data,                /* the data set */
+    &extended_a_monofont        /* next */
+};
+
+static FONT_MONO_DATA ascii_monofont = {
+    0x20, 0x80,                 /* begin, end characters */
+    ascii_data,                 /* the data set */
+    &latin1_monofont            /* next */
+};
+
+FONT _default_font = {
+    &ascii_monofont,            /* first lot of data */
+    8,                          /* height */
+    &_font_vtable_mono          /* vtable */
+};
+
+FONT* font = &_default_font;
+
 
