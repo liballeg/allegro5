@@ -520,8 +520,8 @@ Contributors
    Contributed the Norwegian message translation.
 
    Lennart Steinke (<email>lst@steinke.net</a>).<br>
-   Added the exconfig example and contributed keyboard layout detection code 
-   for Windows.
+   Added the exconfig example, contributed keyboard layout detection code 
+   for Windows and suggested the true colour font rendering.
 
    Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
    Contributed the SGI Audio Library sound driver, spotted a BSDism that
