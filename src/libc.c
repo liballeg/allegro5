@@ -153,7 +153,7 @@ void _al_srand(int seed)
 /* _al_rand:
  *  Simple rand() replacement with guaranteed randomness in the lower 16 bits.
  */
-int _al_rand()
+int _al_rand(void)
 {
    _al_rand_seed = (_al_rand_seed + 1) * 1103515245 + 12345;
    return ((_al_rand_seed >> 16) & _AL_RAND_MAX);
