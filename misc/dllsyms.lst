@@ -636,6 +636,8 @@
     set_uformat
     set_volume
     set_volume_per_voice
+    set_window_close_button
+    set_window_close_hook
     set_window_title
     set_write_alpha_blender
     set_zbuffer
