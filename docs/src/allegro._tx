@@ -2884,9 +2884,11 @@ Graphics modes
    Attempts to page flip the hardware screen to display the specified video 
    bitmap object, which must be the same size as the physical screen, and 
    should have been obtained by calling the create_video_bitmap() function. 
-   Returns zero on success. This function will wait for a vertical retrace 
-   if the graphics card requires it, so you don't need to call vsync() 
-   yourself.
+   Returns zero on success and non-zero on failure.
+   
+   Allegro will handle any necessary vertical retrace synchronisation when 
+   page flipping, so you don't need to call vsync() before it. This means
+   that show_video_bitmap() has the same time delay effects as vsync().
 
 @@int @request_video_bitmap(BITMAP *bitmap);
 @xref poll_scroll, request_scroll, gfx_capabilities, timer_simulate_retrace
