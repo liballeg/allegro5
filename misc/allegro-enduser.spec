@@ -2,7 +2,7 @@ Summary:        A game programming library (end user distribution)
 Summary(es):    Una libreria de programacion de juegos.
 Summary(fr):    Une librairie de programmation de jeux.
 Name:           allegro-enduser
-Version:        3.9.36
+Version:        3.9.37
 Release:        1
 Copyright:      Gift Ware
 Packager:       George Foot <george.foot@merton.oxford.ac.uk>
@@ -19,7 +19,7 @@ Buildroot:      %{_tmppath}/allegro-buildroot
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.36 (CVS)
+				       \_/__/     Version 3.9.37 (CVS)
 
 Allegro is a cross-platform library intended for use in computer games
 and other types of multimedia programming. It was initially conceived
@@ -36,7 +36,7 @@ compiler, where it grew to maturity.
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.36 (CVS)
+				       \_/__/     Version 3.9.37 (CVS)
 
 Allegro es una librería multi-plataforma creada para ser usada en la
 programación de juegos u otro tipo de programación multimedia.
@@ -54,7 +54,7 @@ madurez.
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.36 (CVS)
+				       \_/__/     Version 3.9.37 (CVS)
 
 Allegro est une librairie multi-plateforme destinée à être utilisée dans
 les jeux vidéo ou d'autres types de programmation multimédia. Elle fut

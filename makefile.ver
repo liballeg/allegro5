@@ -1,7 +1,7 @@
 
 # DLL filename number for Windows
-LIBRARY_VERSION = 3936
+LIBRARY_VERSION = 3937
 
 # Shared library versions for Unix
-shared_version = 3.9.36
-shared_major = 13
+shared_version = 3.9.37
+shared_major = 15
