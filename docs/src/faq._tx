@@ -109,6 +109,14 @@ DJGPP problems
       above 16384).
 
 <h4><li>
+@@   When I run make, it says "conflicting types for va_list".
+</h4>
+      As the error message suggests, there is a conflict between newer
+      versions of gcc and older versions of the libc. You should read the 
+      readme.DJGPP file contained in the gcc*b.zip archive (a fix is 
+      appended to the end of the file).
+
+<h4><li>
 @@   When I try to compile a program using Allegro, I get lots of errors like:<br>
    C:\TEMP\ccdaaaaa(.text+0x9):x.c: undefined reference to `allegro_init'<br>
    C:\TEMP\ccdaaaaa(.text+0xe):x.c: undefined reference to `install_keyboard'
