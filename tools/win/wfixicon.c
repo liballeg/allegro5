@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Allegro bitmap -> Windows .ico converter.
+ *      Allegro bitmap -> Windows icon converter.
  *
  *      By Elias Pschernig.
  * 
@@ -16,11 +16,11 @@
  */
 
 
+#define USE_CONSOLE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define USE_CONSOLE
 
 #include "allegro.h"
 
@@ -34,7 +34,7 @@
  *  Other color depths are saved as 24-bit.
  */
 int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
-{      
+{
    PACKFILE *f;
    int depth, bpp, bw, bitsw;
    int size, offset, n, i;
@@ -52,14 +52,14 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
    pack_iputw(0, f);    /* reserved            */
    pack_iputw(1, f);    /* resource type: ICON */
    pack_iputw(num, f);  /* number of icons     */
-               
+
    for(n = 0; n < num; n++) {
       depth = bitmap_color_depth(bmp[n]);
       bpp = (depth == 8) ? 8 : 24;  
       bw = (((bmp[n]->w * bpp / 8) + 3) / 4) * 4;
       bitsw = ((((bmp[n]->w + 7) / 8) + 3) / 4) * 4;
       size = bmp[n]->h * (bw + bitsw) + 40;
-      
+
       if (bpp == 8)
          size += 256 * 4;
 
@@ -72,17 +72,17 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
       pack_iputw(bpp, f);       /* bits per pixel              */
       pack_iputl(size, f);      /* size in bytes of image data */
       pack_iputl(offset, f);    /* file offset to image data   */
-            
-      offset += size;            
+
+      offset += size;
    }
-         
-   for(n = 0; n < num; n++) {    
+
+   for(n = 0; n < num; n++) {
       depth = bitmap_color_depth(bmp[n]);
-      bpp = (depth == 8) ? 8 : 24;   
+      bpp = (depth == 8) ? 8 : 24;
       bw = (((bmp[n]->w * bpp / 8) + 3) / 4) * 4;
       bitsw = ((((bmp[n]->w + 7) / 8) + 3) / 4) * 4;
       size = bmp[n]->h * (bw + bitsw) + 40;
-      
+
       if (bpp == 8)
          size += 256 * 4;
 
@@ -102,7 +102,7 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
       /* PALETTE */
       if (bpp == 8) {
          pack_iputl(0, f);  /* color 0 is black, so the XOR mask works */
-         
+
          for (i = 1; i<256; i++) {
             if (pal[n]) {
                pack_putc(_rgb_scale_6[pal[n][i].b], f);
@@ -115,7 +115,7 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
             }
          }
       }
-          
+
       /* XOR MASK */
       for (y = bmp[n]->h - 1; y >= 0; y--) {
          for (x = 0; x < bmp[n]->w; x++) {
@@ -158,11 +158,11 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
             pack_putc(0, f);
             x++;
          }
-      }                     
+      }
    }
-   
+
    pack_fclose(f);
-      
+
    return errno;
 }
 
@@ -170,13 +170,16 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
 
 void usage(void)
 {
-   printf("\nWindows .ico converter for Allegro " ALLEGRO_VERSION_STR "\n");
+   printf("\nWindows icon converter for Allegro " ALLEGRO_VERSION_STR "\n");
    printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
-   printf("Usage: wfixicon icon [-r[o]] bitmap [bitmap...] [-d datafile bitmap [bitmap...]\n"
-          " [palette] [bitmap...]]\n");
+   printf("Usage: wfixicon icon [-r[o]] bitmap [bitmap...]\n");
+   printf(" or\n");
+   printf("       wfixicon icon [-r[o]] -d datafile object [palette] [object...]\n");
+   printf(" where object is either a bitmap or a RLE sprite.\n");
    printf("Options:\n");
-   printf("   -r   output .rc file\n");
-   printf("   -ro  call the resource compiler on the .rc file\n");
+   printf("   -d datafile   use datafile as the source for objects and palettes\n");
+   printf("   -r            output .rc file for the icon\n");
+   printf("   -ro           call the resource compiler on the .rc file\n");
    exit(EXIT_FAILURE);
 }
 
@@ -184,23 +187,23 @@ void usage(void)
 
 int main(int argc, char *argv[])
 {
-   int icon_num = 0;
+   char dat_name[128], rc_name[128], res_name[128], str[256];
+   int icon_num = 0, pal_start = 0;
    int create_rc = FALSE, call_windres = FALSE;
-   int i, j, arg, pal_start = 0;
+   int i, j, arg;
    BITMAP *bmp[ICON_MAX];
    PALETTE pal[ICON_MAX];
    RLE_SPRITE *sprite;
-   char dat_name[128], rc_name[128], res_name[128], str[256];
    DATAFILE *dat;
    PACKFILE *f;
-   
+
    install_allegro(SYSTEM_NONE, &errno, atexit);
    set_color_conversion(COLORCONV_NONE);
 
    if (argc < 3)
       usage();
 
-   dat_name[0] = 0;
+   dat_name[0] = '\0';
 
    for (arg = 2; arg < argc; arg++) {
 
@@ -209,7 +212,6 @@ int main(int argc, char *argv[])
          switch(argv[arg][1]) {
 
             case 'd':  /* datafile argument */
-          
                if (argc < arg+2)
                   usage();
 
@@ -275,7 +277,7 @@ int main(int argc, char *argv[])
                exit(EXIT_FAILURE);
             }
 
-            icon_num++;                        
+            icon_num++;
          }
 
          if (icon_num == ICON_MAX)
@@ -291,19 +293,20 @@ int main(int argc, char *argv[])
       printf("Error writing %s.\n", argv[1]);
       exit(EXIT_FAILURE);
    }
-                     
+
    /* output a .rc file along with the ico, to be processed by the resource compiler */
    if (create_rc) {
       replace_extension(rc_name, argv[1], "rc", sizeof(rc_name));
-         
+
       f = pack_fopen(rc_name, F_WRITE);
 
       strcpy(str, "allegro_icon ICON ");
       strcat(str, argv[1]);
       pack_fwrite(str, strlen(str), f);
 
-      pack_fclose(f);         
-         
+      pack_fclose(f);
+
+#if !defined ALLEGRO_BCC32
       if (call_windres) {
          replace_extension(res_name, argv[1], "res", sizeof(res_name));
 
@@ -319,7 +322,8 @@ int main(int argc, char *argv[])
          delete_file(argv[1]);
          delete_file(rc_name);
       }
+#endif
    }
-   
+
    exit(EXIT_SUCCESS);
 }
