@@ -40,6 +40,7 @@ int gui_font_baseline = 0;
 /* pointer to the currently active dialog and menu objects */
 static DIALOG_PLAYER *active_dialog_player = NULL;
 static MENU_PLAYER *active_menu_player = NULL;
+static int active_menu_player_zombie = FALSE;
 DIALOG *active_dialog = NULL;
 MENU *active_menu = NULL;
 
@@ -897,15 +898,26 @@ int update_dialog(DIALOG_PLAYER *player)
    
    /* redirect to update_menu() whenever a menu is activated */
    if (active_menu_player) {
-      if (update_menu(active_menu_player))
-	 return TRUE;
+      if (!active_menu_player_zombie) {
+	 if (update_menu(active_menu_player))
+	    return TRUE;
+      }
 
-      for (c=0; player->dialog[c].proc; c++)
-	 if (&player->dialog[c] == active_menu_player->dialog)
-	    break;
-	 
-      MESSAGE(c, MSG_LOSTMOUSE, 0);
-      goto getout;
+      /* make sure all buttons are released before folding the menu */
+      if (gui_mouse_b()) {
+	 active_menu_player_zombie = TRUE;
+	 return TRUE;
+      }
+      else {
+	 active_menu_player_zombie = FALSE;
+
+	 for (c=0; player->dialog[c].proc; c++)
+	    if (&player->dialog[c] == active_menu_player->dialog)
+	       break;
+
+	 MESSAGE(c, MSG_LOSTMOUSE, 0);
+	 goto getout;
+      }
    }
        
    if (player->res & D_CLOSE)
@@ -2065,10 +2077,6 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	    mp = active_menu_player;
 	    active_menu_player = NULL;
 	    shutdown_tree_menu(mp, &x);
-
-	    do {
-	    } while (gui_mouse_b());
-	 
 	    ret |= x;
 
 	    /* put the mouse */
