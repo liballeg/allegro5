@@ -67,8 +67,8 @@ GFX_DRIVER gfx_directx_win =
 };
 
 
-static void switch_in_win();
-static void switch_out_win();
+static void switch_in_win(void);
+static void switch_out_win(void);
 static void handle_window_enter_move_win(void);
 static void handle_window_move_win(int, int, int, int);
 
@@ -132,8 +132,10 @@ static void handle_window_move_win(int x, int y, int w, int h)
                       window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
       }
 
-      clipped_updating_mode = FALSE;
-      _TRACE("clipped updating mode off\n");
+      if (clipped_updating_mode) {
+         clipped_updating_mode = FALSE;
+         _TRACE("clipped updating mode off\n");
+      }
    }
 
    update_window(NULL);

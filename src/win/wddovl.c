@@ -60,10 +60,10 @@ GFX_DRIVER gfx_directx_ovl =
 };
 
 
-static void switch_in_ovl();
-static void switch_out_ovl();
+static void switch_in_ovl(void);
+static void switch_out_ovl(void);
 static void handle_window_move_ovl(int, int, int, int);
-static void hide_overlay();
+static void hide_overlay(void);
 
 
 static struct WIN_GFX_DRIVER win_gfx_driver_overlay =
