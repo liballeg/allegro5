@@ -59,8 +59,12 @@ unsigned long al_current_time(void)
  */
 void al_rest(long msecs)
 {
+#ifdef ALLEGRO_MACOSX
+   usleep(msecs * 1000);
+#else
    struct timeval timeout;
    timeout.tv_sec = 0;
    timeout.tv_usec = msecs * 1000;
    select(0, NULL, NULL, NULL, &timeout);
+#endif
 }
