@@ -125,7 +125,7 @@ static int bg_man_pthreads_register_func (bg_func f)
 	int i, ret = 0;
 	bg_man_pthreads_disable_interrupts ();
 
-	for (i = 0; funcs[i] && i < MAX_FUNCS; i++);
+	for (i = 0; i < MAX_FUNCS && funcs[i]; i++);
 	if (i == MAX_FUNCS)
 		ret = -1;
     	else {
