@@ -79,6 +79,7 @@ static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
 static UINT msg_acquire_joystick = 0;
 static UINT msg_unacquire_joystick = 0;
+static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
 
@@ -195,6 +196,16 @@ void wnd_acquire_joystick(void)
 void wnd_unacquire_joystick(void)
 {
    PostMessage(allegro_wnd, msg_unacquire_joystick, 0, 0);
+}
+
+
+
+/* wnd_set_syscursor:
+ *  Posts msg to window to set the system mouse cursor.
+ */
+void wnd_set_syscursor(int state)
+{
+   PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
 }
 
 
@@ -331,6 +342,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_unacquire_joystick)
       return joystick_dinput_unacquire();
+
+   if (message == msg_set_syscursor)
+      return mouse_set_syscursor(wparam);
 
    if (message == msg_suicide) {
       DestroyWindow(wnd);
@@ -679,6 +693,7 @@ int init_directx_window(void)
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
    msg_acquire_joystick = RegisterWindowMessage("Allegro joystick acquire proc");
    msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
+   msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    /* event #0 is reserved */

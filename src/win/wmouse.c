@@ -137,13 +137,13 @@ static int mymickey_oy = 0;
        (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
       if (_mouse_on) {                              \
          _mouse_on = FALSE;                         \
-         mouse_set_syscursor(TRUE);                 \
+         wnd_set_syscursor(TRUE);                   \
       }                                             \
    }                                                \
    else {                                           \
       if (!_mouse_on) {                             \
          _mouse_on = TRUE;                          \
-         mouse_set_syscursor(FALSE);                \
+         wnd_set_syscursor(FALSE);                  \
       }                                             \
       _mouse_x = p.x;                               \
       _mouse_y = p.y;                               \
@@ -193,7 +193,7 @@ static char* dinput_err_str(long err)
 
 
 
-/* mouse_dinput_handle_event:
+/* mouse_dinput_handle_event: [input thread]
  *  Handles a single event.
  */
 static void mouse_dinput_handle_event(int ofs, int data)
@@ -262,7 +262,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
 
 
 
-/* mouse_dinput_handle:
+/* mouse_dinput_handle: [input thread]
  *  Handles queued mouse input.
  */
 static void mouse_dinput_handle(void)
@@ -339,7 +339,7 @@ static void mouse_dinput_handle(void)
 
          if (!_mouse_on) {
             _mouse_on = TRUE;
-            mouse_set_syscursor(FALSE);
+            wnd_set_syscursor(FALSE);
          }
 
          _handle_mouse_input();
@@ -349,8 +349,8 @@ static void mouse_dinput_handle(void)
 
 
 
-/* mouse_dinput_acquire:
- *  Acquires the mouse device (called by the window thread).
+/* mouse_dinput_acquire: [window thread]
+ *  Acquires the mouse device.
  */
 int mouse_dinput_acquire(void)
 {
@@ -380,8 +380,8 @@ int mouse_dinput_acquire(void)
 
 
 
-/* mouse_dinput_unacquire:
- *  Unacquires the mouse device (called by the window thread).
+/* mouse_dinput_unacquire: [window thread]
+ *  Unacquires the mouse device.
  */
 int mouse_dinput_unacquire(void)
 {
@@ -401,8 +401,8 @@ int mouse_dinput_unacquire(void)
 
 
 
-/* mouse_set_syscursor:
- *  Changes the state of the system mouse cursor (called by the window thread).
+/* mouse_set_syscursor: [window thread]
+ *  Changes the state of the system mouse cursor.
  */
 int mouse_set_syscursor(int state)
 {
@@ -422,8 +422,8 @@ int mouse_set_syscursor(int state)
 
 
 
-/* mouse_set_sysmenu:
- *  Changes the state of the mouse when going to/from sysmenu mode (called by the window thread).
+/* mouse_set_sysmenu: [window thread]
+ *  Changes the state of the mouse when going to/from sysmenu mode.
  */
 int mouse_set_sysmenu(int state)
 {
@@ -448,7 +448,7 @@ int mouse_set_sysmenu(int state)
 
 
 
-/* mouse_dinput_exit:
+/* mouse_dinput_exit: [primary thread]
  *  Shuts down the DirectInput mouse device.
  */
 static int mouse_dinput_exit(void)
@@ -458,7 +458,7 @@ static int mouse_dinput_exit(void)
       wnd_unregister_event(mouse_input_event);
 
       /* unacquire device */
-      mouse_dinput_unacquire();
+      wnd_unacquire_mouse();
 
       /* now it can be released */
       IDirectInputDevice_Release(mouse_dinput_device);
@@ -482,7 +482,7 @@ static int mouse_dinput_exit(void)
 
 
 
-/* mouse_enum_callback:
+/* mouse_enum_callback: [primary thread]
  *  Helper function for finding out how many buttons we have.
  */
 static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
@@ -497,7 +497,7 @@ static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOI
 
 
 
-/* mouse_dinput_init:
+/* mouse_dinput_init: [primary thread]
  *  Sets up the DirectInput mouse device.
  */
 static int mouse_dinput_init(void)
@@ -562,8 +562,8 @@ static int mouse_dinput_init(void)
 
    /* Acquire the device */
    _mouse_on = TRUE;
-   mouse_set_syscursor(FALSE);
-   mouse_dinput_acquire();
+   wnd_set_syscursor(FALSE);
+   wnd_acquire_mouse();
 
    return 0;
 
@@ -574,7 +574,7 @@ static int mouse_dinput_init(void)
 
 
 
-/* mouse_directx_init:
+/* mouse_directx_init: [primary thread]
  */
 static int mouse_directx_init(void)
 {
@@ -586,8 +586,7 @@ static int mouse_directx_init(void)
                                      uconvert_ascii("mouse_accel_factor", tmp2),
                                      MAF_DEFAULT);
 
-   /* mouse input is handled by the window thread */
-   if (wnd_call_proc(mouse_dinput_init) != 0) {
+   if (mouse_dinput_init() != 0) {
       /* something has gone wrong */
       _TRACE("mouse handler init failed\n");
       return -1;
@@ -600,20 +599,20 @@ static int mouse_directx_init(void)
 
 
 
-/* mouse_directx_exit:
+/* mouse_directx_exit: [primary thread]
  */
 static void mouse_directx_exit(void)
 {
    if (mouse_dinput_device) {
       /* command mouse handler shutdown */
       _TRACE("mouse handler exits\n");
-      wnd_call_proc(mouse_dinput_exit);
+      mouse_dinput_exit();
    }
 }
 
 
 
-/* mouse_directx_position:
+/* mouse_directx_position: [primary thread]
  */
 static void mouse_directx_position(int x, int y)
 {
@@ -640,7 +639,7 @@ static void mouse_directx_position(int x, int y)
 
 
 
-/* mouse_directx_set_range:
+/* mouse_directx_set_range: [primary thread]
  */
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
 {
@@ -667,7 +666,7 @@ static void mouse_directx_set_range(int x1, int y1, int x2, int y2)
 
 
 
-/* mouse_directx_set_speed:
+/* mouse_directx_set_speed: [primary thread]
  */
 static void mouse_directx_set_speed(int xspeed, int yspeed)
 {
@@ -686,7 +685,7 @@ static void mouse_directx_set_speed(int xspeed, int yspeed)
 
 
 
-/* mouse_directx_get_mickeys:
+/* mouse_directx_get_mickeys: [primary thread]
  */
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
 {

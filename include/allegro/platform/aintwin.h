@@ -115,6 +115,7 @@ AL_FUNC(void, wnd_acquire_mouse, (void));
 AL_FUNC(void, wnd_unacquire_mouse, (void));
 AL_FUNC(void, wnd_acquire_joystick, (void));
 AL_FUNC(void, wnd_unacquire_joystick, (void));
+AL_FUNC(void, wnd_set_syscursor, (int state));
 AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
 AL_FUNC(int, wnd_register_event, (HANDLE event_id, void (*event_handler)(void)));
 AL_FUNC(void, wnd_unregister_event, (HANDLE event_id));

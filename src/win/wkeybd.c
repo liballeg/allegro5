@@ -110,7 +110,7 @@ static char* dinput_err_str(long err)
 
 
 
-/* key_dinput_handle_scancode:
+/* key_dinput_handle_scancode: [input thread]
  *  Handles a single scancode.
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
@@ -149,7 +149,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 
 
 
-/* key_dinput_handle:
+/* key_dinput_handle: [input thread]
  *  Handles queued keyboard input.
  */
 static void key_dinput_handle(void)
@@ -191,7 +191,7 @@ static void key_dinput_handle(void)
 
 
 
-/* key_dinput_acquire:
+/* key_dinput_acquire: [window thread]
  *  Acquires the keyboard device. This must be called after a
  *  window switch for example if the device is in foreground
  *  cooperative level.
@@ -238,7 +238,7 @@ int key_dinput_acquire(void)
 
 
 
-/* key_dinput_unacquire:
+/* key_dinput_unacquire: [window thread]
  *  Unacquires the keyboard device.
  */
 int key_dinput_unacquire(void)
@@ -261,7 +261,7 @@ int key_dinput_unacquire(void)
 
 
 
-/* key_dinput_exit:
+/* key_dinput_exit: [primary thread]
  *  Shuts down the DirectInput keyboard device.
  */
 static int key_dinput_exit(void)
@@ -271,7 +271,7 @@ static int key_dinput_exit(void)
       wnd_unregister_event(key_input_event);
 
       /* unacquire device */
-      key_dinput_unacquire();
+      wnd_unacquire_keyboard();
 
       /* now it can be released */
       IDirectInputDevice_Release(key_dinput_device);
@@ -295,7 +295,7 @@ static int key_dinput_exit(void)
 
 
 
-/* key_dinput_init:
+/* key_dinput_init: [primary thread]
  *  Sets up the DirectInput keyboard device.
  */
 static int key_dinput_init(void)
@@ -351,7 +351,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Acquire the device */
-   key_dinput_acquire();
+   wnd_acquire_keyboard();
 
    return 0;
 
@@ -362,7 +362,7 @@ static int key_dinput_init(void)
 
 
 
-/* key_directx_init:
+/* key_directx_init: [primary thread]
  */
 static int key_directx_init(void)
 {
@@ -375,7 +375,7 @@ static int key_directx_init(void)
    /* keyboard input is handled by the window thread */
    key_input_processed_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
-   if (wnd_call_proc(key_dinput_init) != 0) {
+   if (key_dinput_init() != 0) {
       /* something has gone wrong */
       _TRACE("keyboard handler init failed\n");
       CloseHandle(key_input_processed_event);
@@ -389,14 +389,14 @@ static int key_directx_init(void)
 
 
 
-/* key_directx_exit:
+/* key_directx_exit: [primary thread]
  */
 static void key_directx_exit(void)
 {
    if (key_dinput_device) {
       /* command keyboard handler shutdown */
       _TRACE("keyboard handler exits\n");
-      wnd_call_proc(key_dinput_exit);
+      key_dinput_exit();
 
       /* now we can free all resources */
       CloseHandle(key_input_processed_event);
@@ -405,7 +405,7 @@ static void key_directx_exit(void)
 
 
 
-/* key_directx_wait_for_input:
+/* key_directx_wait_for_input: [primary thread]
  */
 static void key_directx_wait_for_input(void)
 {
@@ -414,9 +414,10 @@ static void key_directx_wait_for_input(void)
 
 
 
-/* static void key_directx_stop_wait:
+/* static void key_directx_stop_wait: [primary thread]
  */
 static void key_directx_stop_wait(void)
 {
    SetEvent(key_input_processed_event);
 }
+
