@@ -12,6 +12,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Elias Pschernig made load_datafile_object() handle properties.
+ *
  *      See readme.txt for copyright information.
  */
 
