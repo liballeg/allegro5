@@ -401,28 +401,14 @@ static void update_silent_mixer(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
 {
    len >>= UPDATE_FREQ_SHIFT;
 
-   if ((voice->dvol) || (voice->dpan)) {
-      /* update volume ramp */
-      if (voice->dvol) {
-	 voice->vol += voice->dvol * len;
-         if (((voice->dvol > 0) && (voice->vol >= voice->target_vol)) ||
-	     ((voice->dvol < 0) && (voice->vol <= voice->target_vol))) {
-	    voice->vol = voice->target_vol;
-	    voice->dvol = 0;
-         }
-      }
-
+   if (voice->dpan) {
       /* update pan sweep */
-      if (voice->dpan) {
-	 voice->pan += voice->dpan * len;
-	 if (((voice->dpan > 0) && (voice->pan >= voice->target_pan)) ||
-	     ((voice->dpan < 0) && (voice->pan <= voice->target_pan))) {
-	    voice->pan = voice->target_pan;
-	    voice->dpan = 0;
-         }
+      voice->pan += voice->dpan * len;
+      if (((voice->dpan > 0) && (voice->pan >= voice->target_pan)) ||
+	  ((voice->dpan < 0) && (voice->pan <= voice->target_pan))) {
+	 voice->pan = voice->target_pan;
+	 voice->dpan = 0;
       }
-
-      update_mixer_volume(spl, voice);
    }
 
    /* update frequency sweep */
