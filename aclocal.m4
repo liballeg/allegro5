@@ -49,6 +49,7 @@ dnl  allegro_cv_support_mmx=(yes|no).
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_MMX,
 [AC_REQUIRE([ALLEGRO_ACTEST_SUPPORT_ASM])
+AC_BEFORE([$0], [ALLEGRO_ACTEST_SUPPORT_SSE])
 AC_ARG_ENABLE(mmx,
 [  --enable-mmx[=x]        enable the use of MMX instructions [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_mmx=yes,
