@@ -41,6 +41,7 @@
 #undef BITMAP
 #undef RGB
 
+#include "allegro/compat.h"
 
 typedef struct WIN_GFX_DRIVER {
    int has_backing_store;
