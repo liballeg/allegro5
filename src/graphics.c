@@ -298,6 +298,16 @@ void set_color_depth(int depth)
 
 
 
+/* get_color_depth:
+ *  Returns the current color depth.
+ */
+int get_color_depth(void)
+{
+   return _color_depth;
+}
+
+
+
 /* set_color_conversion:
  *  Sets a bit mask specifying which types of color format conversions are
  *  valid when loading data from disk.

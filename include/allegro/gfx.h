@@ -343,6 +343,7 @@ AL_VAR(BITMAP *, screen);
 AL_FUNC(GFX_MODE_LIST *, get_gfx_mode_list, (int card));
 AL_FUNC(void, destroy_gfx_mode_list, (GFX_MODE_LIST *gfx_mode_list));
 AL_FUNC(void, set_color_depth, (int depth));
+AL_FUNC(int, get_color_depth, (void));
 AL_FUNC(void, set_color_conversion, (int mode));
 AL_FUNC(int, get_color_conversion, (void));
 AL_FUNC(void, request_refresh_rate, (int rate));

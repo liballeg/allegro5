@@ -2511,10 +2511,14 @@ Joystick routines
 Graphics modes
 
 @@void @set_color_depth(int depth);
-@xref set_gfx_mode, set_color_conversion, makecol, getr
+@xref get_color_depth, set_gfx_mode, set_color_conversion, makecol, getr
    Sets the pixel format to be used by subsequent calls to set_gfx_mode() 
    and create_bitmap(). Valid depths are 8 (the default), 15, 16, 24, and 32 
    bits.
+
+@@int @get_color_depth(void);
+@xref set_color_depth
+   Returns the current pixel format.
 
 @@void @request_refresh_rate(int rate);
 @xref set_gfx_mode, get_refresh_rate
