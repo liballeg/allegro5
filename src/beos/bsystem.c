@@ -64,3 +64,15 @@ SYSTEM_DRIVER system_beos = {
    NULL,                        // AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void));
    NULL                         // AL_METHOD(_DRIVER_INFO *, timer_drivers, (void));
 };
+
+
+/* auxilliary system driver */
+SYSTEM_DRIVER_AUX beos_system_driver_aux = {
+   be_sys_create_mutex,
+   be_sys_destroy_mutex,
+   be_sys_lock_mutex,
+   be_sys_unlock_mutex
+};
+
+SYSTEM_DRIVER_AUX *_al_system_driver_aux = &beos_system_driver_aux;
+

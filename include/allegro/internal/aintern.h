@@ -1150,6 +1150,25 @@ AL_FUNC(void, _driver_list_append_list, (_DRIVER_INFO **drvlist, _DRIVER_INFO *s
 AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));
 
 
+/* the following symbols were not in the 4.0.0 release so don't export them */
+#ifndef SCAN_EXPORT
+
+/* auxilliary system driver: it is intended to contain new methods
+ * that have been added to the main SYSTEM_DRIVER in the 4.1.x series
+ * and need to be backported to the 4.0.x series.
+ */
+typedef struct SYSTEM_DRIVER_AUX {
+   AL_METHOD(void *, create_mutex, (void));
+   AL_METHOD(void, destroy_mutex, (void *handle));
+   AL_METHOD(void, lock_mutex, (void *handle));
+   AL_METHOD(void, unlock_mutex, (void *handle));
+} SYSTEM_DRIVER_AUX;
+
+AL_VAR(SYSTEM_DRIVER_AUX *, _al_system_driver_aux);
+
+#endif
+
+
 #ifdef __cplusplus
    }
 #endif

@@ -57,6 +57,26 @@ _DRIVER_INFO _system_driver_list[] =
 
 
 
+/* auxilliary system driver */
+#ifdef HAVE_LIBPTHREAD
+
+SYSTEM_DRIVER_AUX unix_system_driver_aux = {
+   _unix_create_mutex,
+   _unix_destroy_mutex,
+   _unix_lock_mutex,
+   _unix_unlock_mutex
+};
+
+SYSTEM_DRIVER_AUX *_al_system_driver_aux = &unix_system_driver_aux;
+
+#else
+
+SYSTEM_DRIVER_AUX *_al_system_driver_aux = NULL;
+
+#endif
+
+
+
 /* background function manager */
 struct bg_manager *_unix_bg_man;
 

@@ -100,6 +100,17 @@ _DRIVER_INFO _system_driver_list[] =
 };
 
 
+/* auxilliary system driver */
+SYSTEM_DRIVER_AUX win_system_driver_aux = {
+   sys_directx_create_mutex,
+   sys_directx_destroy_mutex,
+   sys_directx_lock_mutex,
+   sys_directx_unlock_mutex
+};
+
+SYSTEM_DRIVER_AUX *_al_system_driver_aux = &win_system_driver_aux;
+
+
 /* general vars */
 HINSTANCE allegro_inst = NULL;
 HANDLE allegro_thread = NULL;

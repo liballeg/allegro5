@@ -150,6 +150,12 @@ AL_FUNC(void, wnd_set_syscursor, (int state));
 AL_FUNC(void, win_init_thread, (void));
 AL_FUNC(void, win_exit_thread, (void));
 
+/* synchronization routines */
+AL_FUNC(void *, sys_directx_create_mutex, (void));
+AL_FUNC(void, sys_directx_destroy_mutex, (void *handle));
+AL_FUNC(void, sys_directx_lock_mutex, (void *handle));
+AL_FUNC(void, sys_directx_unlock_mutex, (void *handle));
+
 
 
 /******************************************/

@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Synchronization functions added by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -81,3 +83,64 @@ void win_exit_thread(void)
 {
    CoUninitialize();
 }
+
+
+
+/* sys_directx_create_mutex:
+ *  Creates a mutex and returns a pointer to it.
+ *  Uses Critical Sections because Allegro mutexes are
+ *  inner-process synchronization objects only.
+ */
+void *sys_directx_create_mutex(void)
+{
+   CRITICAL_SECTION *cs;
+
+   cs = malloc(sizeof(CRITICAL_SECTION));
+   if (!cs) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   InitializeCriticalSection(cs);
+
+   return (void *)cs;
+}
+
+
+
+/* sys_directx_destroy_mutex:
+ *  Destroys a mutex.
+ */
+void sys_directx_destroy_mutex(void *handle)
+{
+   CRITICAL_SECTION *cs = (CRITICAL_SECTION *)handle;
+
+   DeleteCriticalSection(cs);
+
+   free(cs);
+}
+
+
+
+/* sys_directx_lock_mutex:
+ *  Locks a mutex.
+ */
+void sys_directx_lock_mutex(void *handle)
+{
+   CRITICAL_SECTION *cs = (CRITICAL_SECTION *)handle;
+
+   EnterCriticalSection(cs);
+}
+
+
+
+/* sys_directx_unlock_mutex:
+ *  Unlocks a mutex.
+ */
+void sys_directx_unlock_mutex(void *handle)
+{
+   CRITICAL_SECTION *cs = (CRITICAL_SECTION *)handle;
+
+   LeaveCriticalSection(cs);
+}
+
