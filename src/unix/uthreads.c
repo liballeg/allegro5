@@ -38,6 +38,7 @@ static bg_func funcs[MAX_FUNCS];
 static int max_func; /* highest+1 used entry */
 
 static pthread_t thread = 0;
+static int thread_alive = FALSE;
 static pthread_mutex_t cli_mutex;
 static pthread_cond_t cli_cond;
 static int cli_count;
@@ -75,7 +76,7 @@ static void *bg_man_pthreads_threadfunc(void *arg)
    interval = 0;
    gettimeofday(&old_time, 0);
 
-   while (1) {
+   while (thread_alive) {
       gettimeofday(&new_time, 0);
       /* add the new time difference to the remainder of the old difference */
       interval += ((new_time.tv_sec - old_time.tv_sec) * 1000000L +
@@ -107,7 +108,6 @@ static void *bg_man_pthreads_threadfunc(void *arg)
       delay.tv_sec = 0;
       delay.tv_usec = 1000;
       select(0, NULL, NULL, NULL, &delay);
-      pthread_testcancel();
    }
 
    return NULL;
@@ -123,6 +123,7 @@ static int bg_man_pthreads_init(void)
    int i;
 
    ASSERT(thread == 0);
+   ASSERT(!thread_alive);
 
    for (i = 0; i < MAX_FUNCS; i++)
       funcs[i] = NULL;
@@ -133,7 +134,9 @@ static int bg_man_pthreads_init(void)
    pthread_mutex_init(&cli_mutex, NULL);
    pthread_cond_init(&cli_cond, NULL);
 
+   thread_alive = TRUE;
    if (pthread_create(&thread, NULL, bg_man_pthreads_threadfunc, NULL)) {
+      thread_alive = FALSE;
       pthread_mutex_destroy(&cli_mutex);
       pthread_cond_destroy(&cli_cond);
       thread = 0;
@@ -150,8 +153,10 @@ static int bg_man_pthreads_init(void)
  */
 static void bg_man_pthreads_exit(void)
 {
+   ASSERT(!!thread == !!thread_alive);
+
    if (thread) {
-      pthread_cancel(thread);
+      thread_alive = FALSE;
       pthread_join(thread, NULL);
       pthread_mutex_destroy(&cli_mutex);
       pthread_cond_destroy(&cli_cond);
