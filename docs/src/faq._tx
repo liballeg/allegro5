@@ -744,6 +744,25 @@ General problems
       Or consider upgrading or downgrading your compiler.
 
 <h4><li>
+@@   I get lots of errors when I try to compile my C++ Allegro program.
+</h4>
+      You are probably declaring the use of a namespace before including
+      Allegro headers. For example:
+<pre>
+      #include &ltiostream&gt
+      using namespace std;
+
+      #include &ltallegro.h&gt</pre>
+
+      Move the `using' declaration after the `include' directives referring
+      to Allegro headers:
+<pre>
+      #include &ltiostream&gt
+      #include &ltallegro.h&gt
+
+      using namespace std;</pre>
+
+<h4><li>
 @@   I'm still confused. Where can I get help?
 </h4>
       See <link>http://alleg.sourceforge.net/maillist.html</a>.
