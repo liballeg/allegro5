@@ -580,19 +580,23 @@ table to the set_ucodepage() function.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcpy
-   This function copies up to n bytes from src into dest. The n parameter
-   is given in bytes rather than characters on the assumption that you will
-   be using this function to prevent overflowing the size of a memory
-   buffer. The return value is the value of dest.
+   This function is like `ustrcpy' except that not more than n bytes from 
+   src are copied into dest. The n parameter is given in bytes rather than 
+   characters on the assumption that you will be using this function to 
+   prevent overflowing the size of a memory buffer. A single null character 
+   is always appended to dest, so that the total amount of bytes actually 
+   written at the end of dest can reach `n + ucwidth(0)' bytes. The return 
+   value is the value of dest.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcat, ucwidth
-   This function is like `strcat' except that not more than n bytes from src
+   This function is like `ustrcat' except that not more than n bytes from src
    are appended to the end of dest. The n parameter is given in bytes
    rather than characters on the assumption that you will be using this
    function to prevent overflowing the size of a memory buffer. A single
    null character is always appended to dest, so that the total amount of 
    bytes actually written at the end of dest can reach `n + ucwidth(0)' bytes.
+   The return value is the value of dest.
    
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp

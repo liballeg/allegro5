@@ -1830,14 +1830,22 @@ int ustrcmp(AL_CONST char *s1, AL_CONST char *s2)
  *  Unicode-aware version of the ANSI strncpy() function. The n parameter
  *  is in bytes, on the assumption that you want to use this function to
  *  prevent overflowing a buffer size.
+ *  But unlike the ANSI version, it doesn't append null characters as 
+ *  padding until n bytes have been written and it always appends its
+ *  own terminating null character.
  */
 char *ustrncpy(char *dest, AL_CONST char *src, int n)
 {
    int pos = 0;
    int c;
 
-   while (((c = ugetxc(&src)) != 0) && (pos < n))
+   while ((c = ugetxc(&src)) != 0) {
+      n -= ucwidth(c);
+      if (n<0)
+         break;
+
       pos += usetc(dest+pos, c);
+   }
 
    usetc(dest+pos, 0);
 
@@ -1857,8 +1865,13 @@ char *ustrncat(char *dest, AL_CONST char *src, int n)
    int pos = 0;
    int c;
 
-   while (((c = ugetxc(&src)) != 0) && (pos < n))
+   while ((c = ugetxc(&src)) != 0) {
+      n -= ucwidth(c);
+      if (n<0)
+         break;
+
       pos += usetc(d+pos, c);
+   }
 
    usetc(d+pos, 0);
 
