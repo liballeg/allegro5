@@ -1834,7 +1834,7 @@ void fixup_datafile(DATAFILE *data)
 
 
 /* initialise_bitmap:
- *  Helper used by the output from dat2s, for fixing up parts
+ *  Helper used by the output from dat2s/c, for fixing up parts
  *  of a BITMAP structure that can't be statically initialised.
  */
 static void initialise_bitmap(BITMAP *bmp)
@@ -1857,7 +1857,7 @@ static void initialise_bitmap(BITMAP *bmp)
 
 
 /* initialise_datafile:
- *  Helper used by the output from dat2s, for fixing up parts
+ *  Helper used by the output from dat2s/c, for fixing up parts
  *  of the data that can't be statically initialised.
  */
 static void initialise_datafile(DATAFILE *data)
@@ -1918,7 +1918,7 @@ static void initialise_datafile(DATAFILE *data)
 
 
 /* _construct_datafile:
- *  Constructor called by the output from dat2s.
+ *  Constructor called by the output from dat2s/c.
  */
 void _construct_datafile(DATAFILE *data)
 {
