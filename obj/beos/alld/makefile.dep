@@ -1,0 +1,697 @@
+obj/beos/alld/allegro.o: src/allegro.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/blit.o: src/blit.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/bmp.o: src/bmp.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/clip3d.o: src/clip3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/clip3df.o: src/clip3df.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/colblend.o: src/colblend.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/color.o: src/color.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/config.o: src/config.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/datafile.o: src/datafile.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/dataregi.o: src/dataregi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/digmid.o: src/digmid.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/dispsw.o: src/dispsw.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/dither.o: src/dither.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/file.o: src/file.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/fli.o: src/fli.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/flood.o: src/flood.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/fsel.o: src/fsel.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/gfx.o: src/gfx.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/glyph.o: src/glyph.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/graphics.o: src/graphics.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/gsprite.o: src/gsprite.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/gui.o: src/gui.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/guiproc.o: src/guiproc.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/inline.o: src/inline.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h
+obj/beos/alld/joystick.o: src/joystick.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/keyboard.o: src/keyboard.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/lbm.o: src/lbm.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/libc.o: src/libc.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/math.o: src/math.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/math3d.o: src/math3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/midi.o: src/midi.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/mixer.o: src/mixer.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/modesel.o: src/modesel.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/mouse.o: src/mouse.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/pcx.o: src/pcx.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/poly3d.o: src/poly3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h obj/beos/mmx.h
+obj/beos/alld/polygon.o: src/polygon.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/quantize.o: src/quantize.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/quat.o: src/quat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/readbmp.o: src/readbmp.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/rle.o: src/rle.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/rotate.o: src/rotate.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/sound.o: src/sound.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/spline.o: src/spline.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/stream.o: src/stream.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/text.o: src/text.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h src/font.h
+obj/beos/alld/tga.o: src/tga.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/timer.o: src/timer.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/unicode.o: src/unicode.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/vtable.o: src/vtable.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/vtable15.o: src/vtable15.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/vtable16.o: src/vtable16.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/vtable24.o: src/vtable24.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/vtable32.o: src/vtable32.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/vtable8.o: src/vtable8.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/bgfx.o: src/beos/bgfx.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h
+obj/beos/alld/bgfxdrv.o: src/beos/bgfxdrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bjoy.o: src/beos/bjoy.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/bjoydrv.o: src/beos/bjoydrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bkey.o: src/beos/bkey.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h
+obj/beos/alld/bkeydrv.o: src/beos/bkeydrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bmidi.o: src/beos/bmidi.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/bmididrv.o: src/beos/bmididrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bmousdrv.o: src/beos/bmousdrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bmouse.o: src/beos/bmouse.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h include/bealleg.h
+obj/beos/alld/bsnd.o: src/beos/bsnd.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h
+obj/beos/alld/bsnddrv.o: src/beos/bsnddrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bsysdrv.o: src/beos/bsysdrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bsystem.o: src/beos/bsystem.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h include/bealleg.h
+obj/beos/alld/bthread.o: src/beos/bthread.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/btimedrv.o: src/beos/btimedrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/btimer.o: src/beos/btimer.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h include/bealleg.h
+obj/beos/alld/bwindow.o: src/beos/bwindow.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/bclasses.o: src/beos/bclasses.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/bgfxapi.o: src/beos/bgfxapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/bkeyapi.o: src/beos/bkeyapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/bmousapi.o: src/beos/bmousapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/bsndapi.o: src/beos/bsndapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/bsysapi.o: src/beos/bsysapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/btimeapi.o: src/beos/btimeapi.cpp include/bealleg.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h
+obj/beos/alld/asmdef.o: src/i386/asmdef.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h obj/beos/mmx.h
+obj/beos/alld/icpu.o: src/i386/icpu.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/icsprite.o: src/i386/icsprite.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h src/i386/opcodes.h
+obj/beos/alld/istretch.o: src/i386/istretch.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h src/i386/opcodes.h
+obj/beos/alld/modex.o: src/misc/modex.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintvga.h \
+ include/allegro/aintbeos.h include/bealleg.h
+obj/beos/alld/pckeys.o: src/misc/pckeys.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/runner.o: src/misc/runner.c
+obj/beos/alld/ufile.o: src/misc/ufile.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/vbeaf.o: src/misc/vbeaf.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/vbeafex.o: src/misc/vbeafex.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintbeos.h include/bealleg.h
+obj/beos/alld/vga.o: src/misc/vga.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintvga.h \
+ include/allegro/aintbeos.h include/bealleg.h
+obj/beos/alld/vgaregs.o: src/misc/vgaregs.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ include/allegro/aintvga.h
+obj/beos/alld/demo.o: demo/demo.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h demo/demo.h
+obj/beos/alld/ex12bit.o: examples/ex12bit.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/ex3buf.o: examples/ex3buf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/ex3d.o: examples/ex3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/exaccel.o: examples/exaccel.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exalpha.o: examples/exalpha.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exbitmap.o: examples/exbitmap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exblend.o: examples/exblend.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/excamera.o: examples/excamera.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/excolmap.o: examples/excolmap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/excustom.o: examples/excustom.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exdata.o: examples/exdata.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h examples/example.h
+obj/beos/alld/exdbuf.o: examples/exdbuf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exdodgy.o: examples/exdodgy.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exexedat.o: examples/exexedat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h examples/example.h
+obj/beos/alld/exfixed.o: examples/exfixed.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exflame.o: examples/exflame.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exflip.o: examples/exflip.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exgui.o: examples/exgui.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ examples/example.h
+obj/beos/alld/exhello.o: examples/exhello.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exjoy.o: examples/exjoy.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/exkeys.o: examples/exkeys.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exlights.o: examples/exlights.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exmem.o: examples/exmem.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/exmidi.o: examples/exmidi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exmouse.o: examples/exmouse.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/expal.o: examples/expal.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/expat.o: examples/expat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/exquat.o: examples/exquat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exrgbhsv.o: examples/exrgbhsv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exsample.o: examples/exsample.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exscale.o: examples/exscale.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exscroll.o: examples/exscroll.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exshade.o: examples/exshade.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exspline.o: examples/exspline.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exsprite.o: examples/exsprite.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h examples/running.h
+obj/beos/alld/exstars.o: examples/exstars.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exstream.o: examples/exstream.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exswitch.o: examples/exswitch.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/extimer.o: examples/extimer.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/extrans.o: examples/extrans.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/extruec.o: examples/extruec.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exupdate.o: examples/exupdate.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/exxfade.o: examples/exxfade.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/keyconf.o: setup/keyconf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/setup.o: setup/setup.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h include/allegro/aintbeos.h \
+ include/bealleg.h setup/setup.h
+obj/beos/alld/afinfo.o: tests/afinfo.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/akaitest.o: tests/akaitest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/digitest.o: tests/digitest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/mathtest.o: tests/mathtest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/miditest.o: tests/miditest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/play.o: tests/play.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/playfli.o: tests/playfli.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/test.o: tests/test.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/vesainfo.o: tests/vesainfo.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/colormap.o: tools/colormap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h
+obj/beos/alld/dat.o: tools/dat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h tools/datedit.h
+obj/beos/alld/dat2s.o: tools/dat2s.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h tools/datedit.h
+obj/beos/alld/datedit.o: tools/datedit.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h tools/datedit.h \
+ obj/beos/plugins.h
+obj/beos/alld/exedat.o: tools/exedat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h \
+ include/allegro/aintern.h
+obj/beos/alld/grabber.o: tools/grabber.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h tools/datedit.h
+obj/beos/alld/pack.o: tools/pack.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/pat2dat.o: tools/pat2dat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h tools/datedit.h
+obj/beos/alld/rgbmap.o: tools/rgbmap.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/albecfg.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/albeos.h
+obj/beos/alld/textconv.o: tools/textconv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h
+obj/beos/alld/datalpha.o: tools/plugins/datalpha.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/beos/alld/datfli.o: tools/plugins/datfli.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/beos/alld/datfont.o: tools/plugins/datfont.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/beos/alld/datgrab.o: tools/plugins/datgrab.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h tools/plugins/../datedit.h
+obj/beos/alld/datgrid.o: tools/plugins/datgrid.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h tools/plugins/../datedit.h
+obj/beos/alld/datimage.o: tools/plugins/datimage.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h tools/plugins/../datedit.h
+obj/beos/alld/datitype.o: tools/plugins/datitype.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h tools/plugins/../datedit.h
+obj/beos/alld/datmidi.o: tools/plugins/datmidi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/beos/alld/datpal.o: tools/plugins/datpal.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/beos/alld/datsamp.o: tools/plugins/datsamp.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h tools/plugins/../datedit.h
+obj/beos/alld/datworms.o: tools/plugins/datworms.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/albecfg.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/albeos.h tools/plugins/../datedit.h
+obj/beos/alld/iblit16.o: src/i386/iblit16.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/blit.inc
+obj/beos/alld/iblit24.o: src/i386/iblit24.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/blit.inc
+obj/beos/alld/iblit32.o: src/i386/iblit32.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/blit.inc
+obj/beos/alld/iblit8.o: src/i386/iblit8.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/blit.inc
+obj/beos/alld/icpus.o: src/i386/icpus.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/igfx15.o: src/i386/igfx15.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/igfx16.o: src/i386/igfx16.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/igfx24.o: src/i386/igfx24.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/igfx32.o: src/i386/igfx32.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/igfx8.o: src/i386/igfx8.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/imisc.o: src/i386/imisc.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/iscan.o: src/i386/iscan.s src/i386/asmdefs.inc obj/beos/asmdef.inc
+obj/beos/alld/ispr15.o: src/i386/ispr15.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/sprite.inc
+obj/beos/alld/ispr16.o: src/i386/ispr16.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/sprite.inc
+obj/beos/alld/ispr24.o: src/i386/ispr24.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/sprite.inc
+obj/beos/alld/ispr32.o: src/i386/ispr32.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/sprite.inc
+obj/beos/alld/ispr8.o: src/i386/ispr8.s src/i386/asmdefs.inc obj/beos/asmdef.inc \
+ src/i386/sprite.inc
+obj/beos/alld/modexgfx.o: src/misc/modexgfx.s src/misc/../i386/asmdefs.inc \
+ obj/beos/asmdef.inc
+obj/beos/alld/vbeafs.o: src/misc/vbeafs.s src/misc/../i386/asmdefs.inc \
+ obj/beos/asmdef.inc

@@ -1,0 +1,333 @@
+obj/rsxnt/alld/demo.o: demo/demo.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h demo/demo.h
+obj/rsxnt/alld/ex12bit.o: examples/ex12bit.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/ex3buf.o: examples/ex3buf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/ex3d.o: examples/ex3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/exaccel.o: examples/exaccel.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exalpha.o: examples/exalpha.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exbitmap.o: examples/exbitmap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exblend.o: examples/exblend.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/excamera.o: examples/excamera.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/excolmap.o: examples/excolmap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/excustom.o: examples/excustom.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exdata.o: examples/exdata.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h examples/example.h
+obj/rsxnt/alld/exdbuf.o: examples/exdbuf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exdodgy.o: examples/exdodgy.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exexedat.o: examples/exexedat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h examples/example.h
+obj/rsxnt/alld/exfixed.o: examples/exfixed.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exflame.o: examples/exflame.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exflip.o: examples/exflip.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exgui.o: examples/exgui.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h examples/example.h
+obj/rsxnt/alld/exhello.o: examples/exhello.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exjoy.o: examples/exjoy.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/exkeys.o: examples/exkeys.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exlights.o: examples/exlights.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exmem.o: examples/exmem.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/exmidi.o: examples/exmidi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exmouse.o: examples/exmouse.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/expal.o: examples/expal.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/expat.o: examples/expat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/exquat.o: examples/exquat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exrgbhsv.o: examples/exrgbhsv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exsample.o: examples/exsample.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exscale.o: examples/exscale.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exscroll.o: examples/exscroll.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exshade.o: examples/exshade.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exspline.o: examples/exspline.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exsprite.o: examples/exsprite.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h examples/running.h
+obj/rsxnt/alld/exstars.o: examples/exstars.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exstream.o: examples/exstream.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exswitch.o: examples/exswitch.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/extimer.o: examples/extimer.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/extrans.o: examples/extrans.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/extruec.o: examples/extruec.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exupdate.o: examples/exupdate.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/exxfade.o: examples/exxfade.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/keyconf.o: setup/keyconf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/rsxnt/alld/setup.o: setup/setup.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h setup/setup.h
+obj/rsxnt/alld/afinfo.o: tests/afinfo.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/akaitest.o: tests/akaitest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/digitest.o: tests/digitest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/mathtest.o: tests/mathtest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/miditest.o: tests/miditest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/play.o: tests/play.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/playfli.o: tests/playfli.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/test.o: tests/test.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/vesainfo.o: tests/vesainfo.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/colormap.o: tools/colormap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h
+obj/rsxnt/alld/dat.o: tools/dat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h tools/datedit.h
+obj/rsxnt/alld/dat2s.o: tools/dat2s.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h tools/datedit.h
+obj/rsxnt/alld/datedit.o: tools/datedit.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/datedit.h obj/rsxnt/plugins.h
+obj/rsxnt/alld/exedat.o: tools/exedat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/rsxnt/alld/grabber.o: tools/grabber.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/datedit.h
+obj/rsxnt/alld/pack.o: tools/pack.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/pat2dat.o: tools/pat2dat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/datedit.h
+obj/rsxnt/alld/rgbmap.o: tools/rgbmap.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/alrsxnt.h include/allegro/rsxdll.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h
+obj/rsxnt/alld/textconv.o: tools/textconv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/rsxnt/alld/datalpha.o: tools/plugins/datalpha.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/plugins/../datedit.h
+obj/rsxnt/alld/datfli.o: tools/plugins/datfli.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/plugins/../datedit.h
+obj/rsxnt/alld/datfont.o: tools/plugins/datfont.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/plugins/../datedit.h
+obj/rsxnt/alld/datgrab.o: tools/plugins/datgrab.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ tools/plugins/../datedit.h
+obj/rsxnt/alld/datgrid.o: tools/plugins/datgrid.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ tools/plugins/../datedit.h
+obj/rsxnt/alld/datimage.o: tools/plugins/datimage.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ tools/plugins/../datedit.h
+obj/rsxnt/alld/datitype.o: tools/plugins/datitype.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ tools/plugins/../datedit.h
+obj/rsxnt/alld/datmidi.o: tools/plugins/datmidi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/plugins/../datedit.h
+obj/rsxnt/alld/datpal.o: tools/plugins/datpal.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/plugins/../datedit.h
+obj/rsxnt/alld/datsamp.o: tools/plugins/datsamp.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ tools/plugins/../datedit.h
+obj/rsxnt/alld/datworms.o: tools/plugins/datworms.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ tools/plugins/../datedit.h
+obj/rsxnt/alld/dibgrab.o: wintests/dibgrab.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h include/winalleg.h
+obj/rsxnt/alld/dibhello.o: wintests/dibhello.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h include/winalleg.h
+obj/rsxnt/alld/scrsave.o: wintests/scrsave.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/alrsxnt.h \
+ include/allegro/rsxdll.h include/allegro/alinline.h \
+ include/allegro/al386gcc.h include/allegro/alwin.h include/winalleg.h
