@@ -123,9 +123,9 @@ the DAT_ID() macro. Allegro defines the standard properties:
       For autocropped bitmap objects, the amount of cropping at the top of 
       the image.
 
-The properties "HNAM", "HPRE", "XGRD", "YGRD", "BACK", "DITH" and "PACK", are 
-also used internally by the grabber, but you can use whatever other ID's you 
-like to store custom information about your objects.
+You can use whatever other ID's you like to store custom information about 
+your objects (the grabber internally use some other properties stored in a 
+hidden DAT_INFO object, so they won't conflict with yours).
 
 
 
