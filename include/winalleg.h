@@ -86,16 +86,15 @@ typedef struct WIN_GFX_DRIVER {
 
 AL_VAR(WIN_GFX_DRIVER *, win_gfx_driver);
 
+
+/* external window support */
+AL_FUNC(HWND, win_get_window, (void));
+AL_FUNC(void, win_set_window, (HWND wnd));
+AL_FUNC(void, win_set_wnd_create_proc, (AL_METHOD(HWND, proc, (WNDPROC))));
 AL_FUNC(void, win_grab_input, (void));
 
 
-/* external window support */
-AL_FUNC(void, win_set_window, (HWND wnd));
-AL_FUNC(HWND, win_get_window, (void));
-AL_FUNC(void, win_set_wnd_create_proc, (AL_METHOD(HWND, proc, (WNDPROC))));
-
-
-/* DC routines */
+/* DirectDraw to GDI routines */
 AL_FUNC(HDC, win_get_dc, (BITMAP *bmp));
 AL_FUNC(void, win_release_dc, (BITMAP *bmp, HDC dc));
 

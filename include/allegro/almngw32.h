@@ -39,6 +39,7 @@
 
 #ifdef USE_CONSOLE
    #define ALLEGRO_CONSOLE_OK
+   #define ALLEGRO_NO_MAGIC_MAIN
 #endif
 
 
