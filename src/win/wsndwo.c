@@ -18,8 +18,6 @@
  */
 
 
-#define DIRECTSOUND_VERSION 0x0300
-
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
@@ -184,8 +182,8 @@ DIGI_DRIVER *driver;
 
 	driver->id = DIGI_WAVOUTID(num);
 
-	if (num == 0) driver->ascii_name = "WaveOut 44.100khz 16bit stereo";
-	else driver->ascii_name = "WaveOut 22.050khz 8bit mono";
+	if (num == 0) driver->ascii_name = "WaveOut 44100hz 16bit stereo";
+	else driver->ascii_name = "WaveOut 22050hz 8bit mono";
 
 	return driver;
 }

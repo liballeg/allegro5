@@ -163,8 +163,8 @@ AL_FUNC(void, win_exit_thread, (void));
 /******************************************/
 /************* sound routines *************/
 /******************************************/
-AL_FUNC(_DRIVER_INFO *, _get_digi_driver_list, (void));
-AL_FUNC(_DRIVER_INFO *, _get_midi_driver_list, (void));
+AL_FUNC(_DRIVER_INFO *, _get_win_digi_driver_list, (void));
+AL_FUNC(_DRIVER_INFO *, _get_win_midi_driver_list, (void));
 
 AL_FUNC(DIGI_DRIVER *, _get_dsalmix_driver, (char *name, LPGUID guid, int num));
 AL_FUNC(DIGI_DRIVER *, _get_woalmix_driver, (int num));

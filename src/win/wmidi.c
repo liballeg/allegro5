@@ -53,12 +53,12 @@ static _DRIVER_INFO *driver_list = NULL;
 
 
 
-/* _get_midi_driver_list:
+/* _get_win_midi_driver_list:
  *  System driver hook for listing the available MIDI drivers. This generates
  *  the device list at runtime, to match whatever Windows devices are 
  *  available.
  */
-_DRIVER_INFO *_get_midi_driver_list()
+_DRIVER_INFO *_get_win_midi_driver_list(void)
 {
    MIDI_DRIVER *driver;
    MIDIOUTCAPS caps;
@@ -67,11 +67,13 @@ _DRIVER_INFO *_get_midi_driver_list()
    if (!driver_list) {
       num_drivers = midiOutGetNumDevs();
 
-      if (num_drivers)  /* include the MIDI mapper, which is -1 */
+      /* include the MIDI mapper (id == -1) */
+      if (num_drivers)
 	 num_drivers++;
 
-      driver_list = malloc(sizeof(_DRIVER_INFO) * (num_drivers+2));
+      driver_list = _create_driver_list();
 
+      /* MidiOut drivers */
       for (i=0; i<num_drivers; i++) {
          driver = malloc(sizeof(MIDI_DRIVER));
          memcpy(driver, &_midi_none, sizeof(MIDI_DRIVER));
@@ -83,9 +85,8 @@ _DRIVER_INFO *_get_midi_driver_list()
 
          midiOutGetDevCaps(i-1, &caps, sizeof(caps));
 
-	 driver->name = driver->desc = empty_string;
 	 driver->ascii_name = malloc(strlen(caps.szPname)+1);
-	 strcpy((char*) driver->ascii_name, caps.szPname);
+	 strcpy((char *)driver->ascii_name, caps.szPname);
 
 	 driver->detect = midi_win32_detect;
 	 driver->init = midi_win32_init;
@@ -93,18 +94,14 @@ _DRIVER_INFO *_get_midi_driver_list()
 	 driver->mixer_volume = midi_win32_mixer_volume;
 	 driver->raw_midi = midi_win32_raw_midi;
 
-	 driver_list[i].id = driver->id;
-	 driver_list[i].driver = driver;
-	 driver_list[i].autodetect = TRUE;
+         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
       }
 
-      driver_list[i].id = MIDI_DIGMID;
-      driver_list[i].driver = &midi_digmid;
-      driver_list[i].autodetect = TRUE;
+      /* cross-platform DIGital MIDi driver */
+      driver_list = _driver_list_add_driver(driver_list, MIDI_DIGMID, &midi_digmid, TRUE);
 
-      driver_list[i+1].id = 0;
-      driver_list[i+1].driver = NULL;
-      driver_list[i+1].autodetect = FALSE;
+      /* sentinel driver */
+      driver_list = _driver_list_add_driver(driver_list, 0, NULL, FALSE);
    }
 
    return driver_list;

@@ -206,63 +206,48 @@ static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPC
 
 
 
-/* _get_digi_driver_list:
+/* _get_win_digi_driver_list:
  *  System driver hook for listing the available sound drivers. This 
  *  generates the device list at runtime, to match whatever DirectSound
  *  devices are available.
  */
-_DRIVER_INFO *_get_digi_driver_list()
+_DRIVER_INFO *_get_win_digi_driver_list(void)
 {
    DIGI_DRIVER *driver;
    int i;
 
    if (!driver_list) {
+      /* enumerate the DirectSound drivers */
       DirectSoundEnumerate(DSEnumCallback, NULL);
 
-      /* This function has to allocate drivers for wdsndmix.c as well
-       * and also, wsndwo.c ASSUMES 2 DRIVERS
-       */
-      driver_list = malloc(sizeof(_DRIVER_INFO) * ((num_drivers*2)+3));
+      driver_list = _create_driver_list();
 
-      /* wdsound.c drivers */
+      /* pure DirectSound drivers */
       for (i=0; i<num_drivers; i++) {
          driver = malloc(sizeof(DIGI_DRIVER));
          memcpy(driver, &digi_directx, sizeof(DIGI_DRIVER));
-
          driver->id = DIGI_DIRECTX(i);
-
          driver->ascii_name = driver_names[i];
 
-         driver_list[i].id = driver->id;
-         driver_list[i].driver = driver;
-         driver_list[i].autodetect = TRUE;
+         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
       }
- 
-      /* wdsndmix.c drivers */
+
+      /* Allegro mixer to DirectSound drivers */
       for (i=0; i<num_drivers; i++) {
          driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
 
-         driver_list[i+num_drivers].id = driver->id;
-         driver_list[i+num_drivers].driver = driver;
-         driver_list[i+num_drivers].autodetect = TRUE;
+         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
       }
 
-      /* wsndwo.c drivers */
-      driver = _get_woalmix_driver(0);
-      driver_list[i+num_drivers].id = driver->id;
-      driver_list[i+num_drivers].driver = driver;
-      driver_list[i+num_drivers].autodetect = TRUE;
-      i++;
+      /* Allegro mixer to WaveOut drivers */
+      for (i=0; i<2; i++) {
+         driver = _get_woalmix_driver(i);
 
-      driver = _get_woalmix_driver(1);
-      driver_list[i+num_drivers].id = driver->id;
-      driver_list[i+num_drivers].driver = driver;
-      driver_list[i+num_drivers].autodetect = TRUE;
-      i++;
- 
-      driver_list[i+num_drivers].id = 0;
-      driver_list[i+num_drivers].driver = NULL;
-      driver_list[i+num_drivers].autodetect = FALSE;
+         driver_list = _driver_list_add_driver(driver_list, driver->id, driver, TRUE);
+      }
+
+      /* sentinel driver */
+      driver_list = _driver_list_add_driver(driver_list, 0, NULL, FALSE);
    }
 
    return driver_list;

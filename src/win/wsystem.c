@@ -81,8 +81,8 @@ SYSTEM_DRIVER system_directx =
    sys_directx_get_desktop_resolution,
    sys_directx_yield_timeslice,
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
-   _get_digi_driver_list,       /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
-   _get_midi_driver_list,       /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
+   _get_win_digi_driver_list,   /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
+   _get_win_midi_driver_list,   /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
