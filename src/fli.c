@@ -783,6 +783,9 @@ static void read_frame(void)
       sz = chunk.size - sizeof_FLI_CHUNK;
       frame_size -= chunk.size;
 
+      if (c == frame_header.chunks-1)
+	 sz += frame_size;
+
       switch (chunk.type) {
 
 	 case 4: 
