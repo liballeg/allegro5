@@ -55,10 +55,14 @@ void (*user_close_proc)(void) = NULL;
 
 /* window thread internals */
 #define ALLEGRO_WND_CLASS "AllegroWindow"
+#define MAX_EVENT 4
 static HWND user_wnd = NULL;
 static WNDPROC user_wnd_proc = NULL;
 static HANDLE wnd_thread = NULL;
 static HWND (*wnd_create_proc)(WNDPROC) = NULL;
+static int wnd_events = 0;
+static HANDLE wnd_event_id[MAX_EVENT];
+static void (*wnd_event_handler[MAX_EVENT])(void);
 static int old_style = 0;
 
 /* custom window msgs */
@@ -70,7 +74,6 @@ static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
 static UINT msg_acquire_joystick = 0;
 static UINT msg_unacquire_joystick = 0;
-static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
 
@@ -191,12 +194,53 @@ void wnd_unacquire_joystick(void)
 
 
 
-/* wnd_set_syscursor:
- *  posts msg to window to set the system mouse cursor
+/* wnd_register_event:
+ *  Adds an event to the window thread event queue.
  */
-void wnd_set_syscursor(int state)
+int wnd_register_event(HANDLE event_id, void (*event_handler)(void))
 {
-   PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
+   if (wnd_events == MAX_EVENT)
+      return -1;
+
+   /* effectively add */
+   wnd_event_id[wnd_events] = event_id;
+   wnd_event_handler[wnd_events] = event_handler;
+
+   /* adjust the size of the queue */
+   wnd_events++;
+
+   _TRACE("1 event registered (total = %d)\n", wnd_events);
+   return 0;
+}
+
+
+
+/* wnd_unregister_event:
+ *  Removes an event from the windo thread event queue.
+ */
+void wnd_unregister_event(HANDLE event_id)
+{
+   int i, base;
+
+   /* look for the requested event */
+   for (i=0; i<wnd_events; i++)
+      if (wnd_event_id[i] == event_id) {
+         base = i;
+         goto Found;
+      }
+
+   return;
+
+ Found:
+   /* shift the queue to the left if needed */
+   for (i=base; i<wnd_events-1; i++) {
+      wnd_event_id[i] = wnd_event_id[i+1];
+      wnd_event_handler[i] = wnd_event_handler[i+1];
+   }
+
+   /* adjust the size of the queue */
+   wnd_events--;
+   _TRACE("1 event unregistered (total = %d)\n", wnd_events);
 }
 
 
@@ -228,9 +272,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_unacquire_joystick)
       return joystick_dinput_unacquire();
-
-   if (message == msg_set_syscursor)
-      return mouse_set_syscursor(wparam);
 
    if (message == msg_suicide) {
       DestroyWindow(wnd);
@@ -457,6 +498,7 @@ static HWND create_directx_window(void)
  */
 static void wnd_thread_proc(HANDLE setup_event)
 {
+   int result;
    MSG msg;
 
    win_init_thread();
@@ -468,16 +510,31 @@ static void wnd_thread_proc(HANDLE setup_event)
    else
       allegro_wnd = wnd_create_proc(directx_wnd_proc);
 
-   if (allegro_wnd == NULL)
+   if (!allegro_wnd)
       goto End;
 
    /* now the thread it running successfully, let's acknowledge */
    SetEvent(setup_event);
 
    /* message loop */
-   while (GetMessage(&msg, NULL, 0, 0)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
+   while (TRUE) {
+      result = MsgWaitForMultipleObjects(wnd_events, wnd_event_id, FALSE, INFINITE, QS_ALLINPUT);
+      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + wnd_events)) {
+         /* one of the registered events is in signaled state */
+         (*wnd_event_handler[result - WAIT_OBJECT_0])();
+      }
+      else if (result == WAIT_OBJECT_0 + wnd_events) {
+         /* messages are waiting in the queue */
+         while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+            if (GetMessage(&msg, NULL, 0, 0)) {
+               TranslateMessage(&msg);
+               DispatchMessage(&msg);
+            }
+            else {
+               goto End;
+            }
+         }
+      }
    }
 
  End:
@@ -505,7 +562,6 @@ int init_directx_window(void)
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
    msg_acquire_joystick = RegisterWindowMessage("Allegro joystick acquire proc");
    msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
-   msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    /* prepare window for Allegro */
@@ -530,6 +586,7 @@ int init_directx_window(void)
       switch (result) {
 	 case WAIT_OBJECT_0:    /* window was created successfully */
 	    wnd_thread = events[1];
+	    SetThreadPriority(wnd_thread, THREAD_PRIORITY_ABOVE_NORMAL);
 	    break;
 
 	 default:               /* thread failed to create window */

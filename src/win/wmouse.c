@@ -68,8 +68,6 @@ MOUSE_DRIVER mouse_directx =
 
 
 #define DINPUT_BUFFERSIZE 256
-static HANDLE mouse_thread = NULL;
-static HANDLE mouse_thread_stop_event = NULL;
 static HANDLE mouse_input_event = NULL;
 static LPDIRECTINPUT mouse_dinput = NULL;
 static LPDIRECTINPUTDEVICE mouse_dinput_device = NULL;
@@ -127,13 +125,13 @@ static int mymickey_oy = 0;
        (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
       if (_mouse_on) {                              \
          _mouse_on = FALSE;                         \
-         wnd_set_syscursor(TRUE);                   \
+         mouse_set_syscursor(TRUE);                 \
       }                                             \
    }                                                \
    else {                                           \
       if (!_mouse_on) {                             \
          _mouse_on = TRUE;                          \
-         wnd_set_syscursor(FALSE);                  \
+         mouse_set_syscursor(FALSE);                \
       }                                             \
       _mouse_x = p.x;                               \
       _mouse_y = p.y;                               \
@@ -283,12 +281,16 @@ int mouse_set_sysmenu(int state)
 /* mouse_dinput_exit:
  *  Shuts down the DirectInput mouse device.
  */
-static void mouse_dinput_exit(void)
+static int mouse_dinput_exit(void)
 {
-   /* release mouse device */
    if (mouse_dinput_device) {
-      wnd_call_proc(mouse_dinput_unacquire);  /* blocking call */
+      /* unregister event handler first */
+      wnd_unregister_event(mouse_input_event);
 
+      /* unacquire device */
+      mouse_dinput_unacquire();
+
+      /* now it can be released */
       IDirectInputDevice_Release(mouse_dinput_device);
       mouse_dinput_device = NULL;
    }
@@ -304,6 +306,8 @@ static void mouse_dinput_exit(void)
       CloseHandle(mouse_input_event);
       mouse_input_event = NULL;
    }
+
+   return 0;
 }
 
 
@@ -382,10 +386,14 @@ static int mouse_dinput_init(void)
    if (FAILED(hr))
       goto Error;
 
+   /* Register event handler */
+   if (wnd_register_event(mouse_input_event, mouse_directx_poll) != 0)
+      goto Error;
+
    /* Acquire the device */
    _mouse_on = TRUE;
-   wnd_set_syscursor(FALSE);
-   wnd_acquire_mouse();
+   mouse_set_syscursor(FALSE);
+   mouse_dinput_acquire();
 
    return 0;
 
@@ -539,7 +547,7 @@ static void mouse_directx_poll(void)
 
             if (!_mouse_on) {
                _mouse_on = TRUE;
-               wnd_set_syscursor(FALSE);
+               mouse_set_syscursor(FALSE);
             }
 
 	    _handle_mouse_input();
@@ -552,58 +560,10 @@ static void mouse_directx_poll(void)
 
 
 
-/* mouse_directx_thread:
- *  Mouse thread loop function.
- */
-static void mouse_directx_thread(HANDLE setup_event)
-{
-   HANDLE events[2];
-   DWORD result;
-
-   win_init_thread();
-   _TRACE("mouse thread starts\n");
-
-   /* setup DirectInput */
-   if (mouse_dinput_init()) {
-      _TRACE("mouse thread exits\n");
-      win_exit_thread();
-      return;
-   }
-
-   /* now the thread is running successfully, let's acknowledge */
-   SetEvent(setup_event);
-
-   /* setup event array */
-   events[0] = mouse_thread_stop_event;
-   events[1] = mouse_input_event;
-
-   /* input loop */
-   while (TRUE) {
-      result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
-
-      switch (result) {
-
-	 case WAIT_OBJECT_0 + 0:        /* thread should stop */
-	    mouse_dinput_exit();
-            _TRACE("mouse thread exits\n");
-            win_exit_thread();
-	    return;
-
-	 case WAIT_OBJECT_0 + 1:        /* mouse input is queued */ 
-	    mouse_directx_poll(); 
-	    break;
-      }
-   }
-}
-
-
-
 /* mouse_directx_init:
  */
 static int mouse_directx_init(void)
 {
-   HANDLE events[2];
-   DWORD result;
    int factor, t1, t2;
    char tmp1[64], tmp2[128];
 
@@ -612,23 +572,16 @@ static int mouse_directx_init(void)
                                      uconvert_ascii("mouse_accel_factor", tmp2),
                                      MAF_DEFAULT);
 
-   /* mouse input is handled by a additional thread */
-   mouse_thread_stop_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-   events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
-   events[1] = (HANDLE) _beginthread(mouse_directx_thread, 0, events[0]);
-
-   /* wait until thread quits or acknowledge that it is up */
-   result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
-   CloseHandle(events[0]);
-
-   if (result == WAIT_OBJECT_0) {       /* the thread has started successfully */
-      mouse_thread = events[1];
-      SetThreadPriority(mouse_thread, THREAD_PRIORITY_ABOVE_NORMAL);
-      return dinput_buttons;
-   }
-   else {                       /* something has gone wrong */
+   /* mouse input is handled by the window thread */
+   if (wnd_call_proc(mouse_dinput_init) != 0) {
+      /* something has gone wrong */
+      _TRACE("mouse handler init failed\n");
       return -1;
    }
+
+   /* the mouse handler has successfully set up */
+   _TRACE("mouse handler starts\n");
+   return dinput_buttons;
 }
 
 
@@ -637,16 +590,10 @@ static int mouse_directx_init(void)
  */
 static void mouse_directx_exit(void)
 {
-   if (mouse_thread) {
-      /* set stop event to stop the input thread */
-      SetEvent(mouse_thread_stop_event);
-
-      /* wait for thread shutdown */
-      WaitForSingleObject(mouse_thread, INFINITE);
-
-      /* now we can free all resource */
-      CloseHandle(mouse_thread_stop_event);
-      mouse_thread = NULL;
+   if (mouse_dinput_device) {
+      /* command mouse handler shutdown */
+      _TRACE("mouse handler exits\n");
+      wnd_call_proc(mouse_dinput_exit);
    }
 }
 

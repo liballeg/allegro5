@@ -63,8 +63,6 @@ KEYBOARD_DRIVER keyboard_directx =
 
 
 #define DINPUT_BUFFERSIZE 256
-static HANDLE key_thread = NULL;
-static HANDLE key_thread_stop_event = NULL;
 static HANDLE key_input_event = NULL;
 static HANDLE key_input_processed_event = NULL;
 static LPDIRECTINPUT key_dinput = NULL;
@@ -196,6 +194,8 @@ static void key_dinput_handle(void)
 	 break;
       }
    }
+
+   SetEvent(key_input_processed_event);
 }
 
 
@@ -273,11 +273,13 @@ int key_dinput_unacquire(void)
 /* key_dinput_exit:
  *  releases DirectInput keyboard device
  */
-static void key_dinput_exit(void)
+static int key_dinput_exit(void)
 {
-   /* release keyboard device */
    if (key_dinput_device) {
-      /* unacquire device first */
+      /* unregister event handler first */
+      wnd_unregister_event(key_input_event);
+
+      /* unacquire device */
       key_dinput_unacquire();
 
       /* now it can be released */
@@ -296,6 +298,8 @@ static void key_dinput_exit(void)
       CloseHandle(key_input_event);
       key_input_event = NULL;
    }
+
+   return 0;
 }
 
 
@@ -351,9 +355,12 @@ static int key_dinput_init(void)
    if (FAILED(hr))
       goto Error;
 
-   /* Acquire the created device */
-   if (gfx_driver)
-      wnd_acquire_keyboard();   
+   /* Register event handler */
+   if (wnd_register_event(key_input_event, key_dinput_handle) != 0)
+      goto Error;
+
+   /* Acquire the device */
+   key_dinput_acquire();
 
    return 0;
 
@@ -364,83 +371,29 @@ static int key_dinput_init(void)
 
 
 
-/* key_directx_thread:
- */
-static void key_directx_thread(HANDLE setup_event)
-{
-   HANDLE events[2];
-   DWORD result;
-
-   win_init_thread();
-   _TRACE("keyboard thread starts\n");
-
-   /* setup DirectInput */
-   if (key_dinput_init()) {
-      _TRACE("keyboard thread exits\n");
-      win_exit_thread();
-      return;
-   }
-
-   /* now the thread it running successfully, let's acknowledge */
-   SetEvent(setup_event);
-
-   /* setup event array */
-   events[0] = key_thread_stop_event;
-   events[1] = key_input_event;
-
-   /* input loop */
-   while (TRUE) {
-      result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
-
-      switch (result) {
-
-	 case WAIT_OBJECT_0 + 0:        /* thread should stop */
-	    key_dinput_exit();
-            _TRACE("keyboard thread exits\n");
-            win_exit_thread();
-	    return;
-
-	 case WAIT_OBJECT_0 + 1:        /* keyboard input is queued */
-	    key_dinput_handle();
-	    SetEvent(key_input_processed_event);
-	    break;
-      }
-   }
-}
-
-
-
 /* key_directx_init:
  */
 static int key_directx_init(void)
 {
-   HANDLE events[2];
-   DWORD result;
-
    /* Because DirectInput uses the same scancodes as the pc keyboard
     * controller, the DirectX keyboard driver passes them into the
     * pckeys translation routines.
     */
    _pckeys_init();
 
-   /* Keyboard input is handled by a additional thread */
-   key_thread_stop_event = CreateEvent(NULL, FALSE, FALSE, NULL);
+   /* keyboard input is handled by the window thread */
    key_input_processed_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-   events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
-   events[1] = (HANDLE) _beginthread(key_directx_thread, 0, events[0]);
 
-   /* Wait until thread quits or acknowledge that it is up */
-   result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
-   CloseHandle(events[0]);
-
-   if (result == WAIT_OBJECT_0) {       /* the thread has started successfully */
-      key_thread = events[1];
-      SetThreadPriority(key_thread, THREAD_PRIORITY_ABOVE_NORMAL);
-      return 0;
-   }
-   else {                       /* something has gone wrong */
+   if (wnd_call_proc(key_dinput_init) != 0) {
+      /* something has gone wrong */
+      _TRACE("keyboard handler init failed\n");
+      CloseHandle(key_input_processed_event);
       return -1;
    }
+
+   /* the keyboard handler has successfully set up */
+   _TRACE("keyboard handler starts\n");
+   return 0;
 }
 
 
@@ -449,17 +402,13 @@ static int key_directx_init(void)
  */
 static void key_directx_exit(void)
 {
-   if (key_thread) {
-      /* set stop event to stop the input thread */
-      SetEvent(key_thread_stop_event);
+   if (key_dinput_device) {
+      /* command keyboard handler shutdown */
+      _TRACE("keyboard handler exits\n");
+      wnd_call_proc(key_dinput_exit);
 
-      /* wait for thread shutdown */
-      WaitForSingleObject(key_thread, INFINITE);
-
-      /* now we can free all resource */
-      CloseHandle(key_thread_stop_event);
+      /* now we can free all resources */
       CloseHandle(key_input_processed_event);
-      key_thread = NULL;
    }
 }
 

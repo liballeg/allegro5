@@ -63,7 +63,6 @@ AL_VAR(int, _dx_ver);
 
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));
-AL_FUNC(int, wnd_call_proc, (AL_METHOD(int, proc, (void))));
 AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
@@ -118,6 +117,15 @@ AL_FUNC(void, sys_directx_switch_in_callback, (void));
 
 
 /*******************************************/
+/************** main window routines *******/
+/*******************************************/
+AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
+AL_FUNC(int, wnd_register_event, (HANDLE event_id, void (*event_handler)(void)));
+AL_FUNC(void, wnd_unregister_event, (HANDLE event_id));
+
+
+
+/*******************************************/
 /************** keyboard routines **********/
 /*******************************************/
 AL_FUNC(int, key_dinput_acquire, (void));
@@ -136,7 +144,6 @@ AL_FUNC(int, mouse_set_syscursor, (int state));
 AL_FUNC(int, mouse_set_sysmenu, (int state));
 AL_FUNC(void, wnd_acquire_mouse, (void));
 AL_FUNC(void, wnd_unacquire_mouse, (void));
-AL_FUNC(void, wnd_set_syscursor, (int state));
 
 
 
