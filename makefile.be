@@ -234,11 +234,15 @@ include makefile.tst
 
 # -------- finally, we get to the fun part... --------
 
+ifdef PROFILEMODE
+OTHER_OBJECTS = /boot/develop/lib/x86/i386-mcount.o
+endif
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+ar rs $(LIB_NAME) $(OBJECTS) $(OTHER_OBJECTS)
 endef
 
 else
@@ -246,7 +250,7 @@ else
 # -------- link as a shared library --------
 
 define MAKE_LIB
-gcc -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LIBRARIES)
+gcc -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(OTHER_OBJECTS) $(LIBRARIES)
 endef
 
 endif # STATICLINK
@@ -267,7 +271,7 @@ $(OBJ_DIR)/%.o: %.s
 
 # link without Allegro, because we have no shared library yet
 docs/makedoc: $(OBJ_DIR)/makedoc$(OBJ)
-	gcc -o $@ $<
+	gcc -o $@ $< $(OTHER_OBJECTS)
 
 obj/beos/asmdef.inc: obj/beos/asmdef
 	obj/beos/asmdef obj/beos/asmdef.inc
