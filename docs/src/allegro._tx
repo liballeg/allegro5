@@ -1234,7 +1234,7 @@ alsa_rawmidi_device = x<br>
    Unix only: ALSA rawmidi device to use for output.
 <li>
 be_midi_quality = x<br>
-   BeOS only: system MIDI synthentetizer instruments quality. 0 uses low
+   BeOS only: system MIDI synthesizer instruments quality. 0 uses low
    quality 8-bit 11 kHz samples, 1 uses 16-bit 22 kHz samples.
 <li>
 be_midi_freq = x<br>
@@ -1619,7 +1619,7 @@ Allegro does not provide such devices.)
 @xref timer_can_simulate_retrace, timer_is_using_retrace
 @xref enable_triple_buffer
    The DOS timer handler can be used to simulate vertical retrace 
-   interrupts. An retrace interrupt can be extremely useful for implementing 
+   interrupts. A retrace interrupt can be extremely useful for implementing 
    smooth animation, but unfortunately the VGA hardware doesn't support it. 
    The EGA did, and some SVGA chipsets do, but not enough, and not in a 
    sufficiently standardised way, for it to be useful. Allegro works around 
@@ -6864,8 +6864,8 @@ changes are the following:
    and d_rtext_proc() right aligns it. Any '&' characters in the string will 
    be replaced with lines underneath the following character, for displaying 
    keyboard shortcuts (as in MS Windows). To display a single ampersand, put 
-   "&&". To use draw the text in something other than the default font, set 
-   the dp2 field to point to your custom font data.
+   "&&". To draw the text in something other than the default font, set the 
+   dp2 field to point to your custom font data.
 
 @@int @d_button_proc(int msg, DIALOG *d, int c);
    A button object (the dp field points to the text string). This object can 
