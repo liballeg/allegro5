@@ -6515,11 +6515,11 @@ integer' is not.
    Returns the smallest integer not less than x. That is, it rounds towards
    positive infinity.
 
-@@fixed @ftofix(float x);
+@@fixed @ftofix(double x);
 @xref fixtof, itofix, fixtoi
    Converts a floating point value to fixed point.
 
-@@float @fixtof(fixed x);
+@@double @fixtof(fixed x);
 @xref ftofix, itofix, fixtoi
    Converts fixed point to floating point.
 
