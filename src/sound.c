@@ -786,7 +786,7 @@ SAMPLE *load_voc(AL_CONST char *filename)
    SAMPLE *spl = NULL;
    int len;
    int x, ver;
-   signed short s;
+   int s;
    ASSERT(filename);
 
    f = pack_fopen(filename, F_READ);
@@ -864,7 +864,7 @@ SAMPLE *load_voc(AL_CONST char *filename)
 		  spl = NULL;
 		  break;
 	       }
-	       ((signed short *)spl->data)[x] = s^0x8000;
+	       ((signed short *)spl->data)[x] = (signed short)s^0x8000;
 	    }
 	 }
       }
@@ -890,7 +890,7 @@ SAMPLE *load_wav(AL_CONST char *filename)
    int freq = 22050;
    int bits = 8;
    int channels = 1;
-   signed short s;
+   int s;
    SAMPLE *spl = NULL;
    ASSERT(filename);
 
@@ -953,7 +953,7 @@ SAMPLE *load_wav(AL_CONST char *filename)
 		     spl = NULL;
 		     break;
 		  }
-		  ((signed short *)spl->data)[i] = s^0x8000;
+		  ((signed short *)spl->data)[i] = (signed short)s^0x8000;
 	       }
 	    }
 
