@@ -35,23 +35,27 @@ proc_fix()
 
 proc_filelist()
 {
-   AL_FILELIST_DOS_OK=`find . -type f "(" \
+   # common files.
+   AL_FILELIST=`find . -type f "(" \
       -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.def" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
-      -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
+      -name "*.m4" -o -name "*.mft" -o -name "*.s" -o -name "*.rc" -o \
       -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
       -name "makefile*" -o -name "readme.*" -o \
       -name "CHANGES" -o -name "AUTHORS" -o -name "THANKS" \
    ")"`
 
-   AL_FILELIST="$AL_FILELIST_DOS_OK `find . -type f -name '*.sh'`"
+   # touch unix shell scripts?
+   if [ "$1" != "omit_sh" ]; then
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh'`"
+   fi
 }
 
 proc_utod()
 {
    echo "Converting files from Unix to DOS/Win32..."
-   proc_filelist
-   for file in $AL_FILELIST_DOS_OK; do
+   proc_filelist "omit_sh"
+   for file in $AL_FILELIST; do
       echo "$file"
       cp $file _tmpfile
       perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" _tmpfile
@@ -77,7 +81,7 @@ proc_dtou()
 proc_utom()
 {
    echo "Converting files from Unix to Macintosh..."
-   proc_filelist
+   proc_filelist "omit_sh"
    for file in $AL_FILELIST; do
       echo "$file"
       mv $file _tmpfile
@@ -100,7 +104,7 @@ proc_mtou()
    done
 }
 
-# take action!
+# prepare allegro for the given platform.
 
 case "$1" in
    "bcc32"   ) proc_fix "Windows (BCC32)"   "makefile.bcc" "ALLEGRO_BCC32";;
@@ -117,7 +121,7 @@ case "$1" in
    *         ) proc_help;;
 esac
 
-# someone ordered a text conversion?
+# convert all text-file line endings.
 
 if [ "$AL_NOCONV" != "1" ]; then
    case "$2" in
