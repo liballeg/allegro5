@@ -624,7 +624,7 @@ static void fb_restore_cmap (void)
 
 
 
-struct timings {
+static struct timings {
    char config_item[1024];
    int pixclock;
    int left_margin;
@@ -651,7 +651,7 @@ static int tweak_timings (int w, int h);
  *  Returns a pointer to a struct as above containing timings for the given
  *  resolution, or NULL on error.
  */
-struct timings *_fb_get_timings (int w, int h)
+static struct timings *_fb_get_timings (int w, int h)
 {
    /* First try the config file */
    if (read_config_file (w, h)) return &temp_timings;
@@ -922,14 +922,14 @@ static int update_timings(struct fb_var_screeninfo *mode)
 /* I'm not sure whether these work or not -- my Matrox seems capable
  * of setting whatever you ask it to. */
 
-int _fb_get_pixclock(void)
+static int _fb_get_pixclock(void)
 {
    struct fb_var_screeninfo mode;
    if (ioctl (fbfd, FBIOGET_VSCREENINFO, &mode)) return -1;
    return mode.pixclock;
 }
 
-void _fb_set_pixclock(int new_val)
+static void _fb_set_pixclock(int new_val)
 {
    struct fb_var_screeninfo mode;
    if (ioctl (fbfd, FBIOGET_VSCREENINFO, &mode)) return;
