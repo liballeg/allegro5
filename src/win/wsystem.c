@@ -362,12 +362,15 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    cmdline = GetCommandLine();
    i = strlen(cmdline) + 1;
    argbuf = malloc(i);
-   memcpy(argbuf, cmdline);
+   memcpy(argbuf, cmdline, i);
 
    argc = 0;
    argc_max = 64;
    argv = malloc(sizeof(char *) * argc_max);
-   if (!argv) return 1;
+   if (!argv) {
+      free(argbuf);
+      return 1;
+   }
    i = 0;
 
    /* parse commandline into argc/argv format */
