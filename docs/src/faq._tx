@@ -557,7 +557,7 @@ General problems
 	 speed_counter++;
       }
 
-      END_OF_FUNCTION(increment_speed_counter);
+      END_OF_FUNCTION(increment_speed_counter)
 
       void play_the_game()
       {

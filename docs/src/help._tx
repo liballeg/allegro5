@@ -196,7 +196,7 @@ Part 3 - when your program crashes
       9          ustrcpy(p1, p2);
       10         return 0;
       11      }
-      12      END_OF_MAIN();
+      12      END_OF_MAIN()
       (gdb) print p1
       $1 = 0x0
       (gdb) print p2
