@@ -1009,16 +1009,10 @@ alsa_fragsize = x<br>
    Unix only: size of each ALSA fragment, in samples.
 <li>
 alsa_rawmidi_card = x<br>
-   Unix only: for ALSA MIDI driver.
+   Unix only: ALSA card to use for midi output.
 <li>
 alsa_rawmidi_device = x<br>.
-   Unix only: for ALSA MIDI driver.
-<li>
-alsa_input_card = x<br>
-   Unix only: for ALSA MIDI driver.
-<li>
-alsa_rawmidi_input_device = x<br>
-   Unix only: for ALSA MIDI driver.
+   Unix only: ALSA rawmidi device to use for output.
 <li>
 be_midi_quality = x<br>
    BeOS only: system MIDI synthentetizer instruments quality. 0 uses low
@@ -7196,6 +7190,7 @@ function to remind you :-)
       MIDI_NONE            - no MIDI sound
       MIDI_OSS             - Open Sound System
       MIDI_DIGMID          - sample-based software wavetable player
+      MIDI_ALSA            - ALSA RawMIDI driver
 </pre>
 
 
@@ -7750,3 +7745,4 @@ Index
 
 @html
 @text
+

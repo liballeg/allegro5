@@ -72,8 +72,9 @@ static int alsa_rawmidi_detect(int input)
 	snd_rawmidi_t *handle = NULL;
 
 	if(input) {
+		/* Input not supported.
 		card = get_config_int(uconvert_ascii("sound", tmp1),
-				uconvert_ascii("alsa_input_card", tmp2),
+				uconvert_ascii("alsa_rawmidi_input_card", tmp2),
 				snd_defaults_rawmidi_card());
 
 		device = get_config_int(uconvert_ascii("sound", tmp1),
@@ -87,8 +88,8 @@ static int alsa_rawmidi_detect(int input)
 		}
 
 		snd_rawmidi_close(handle);
-		
-		ret = TRUE;
+		*/
+		ret = FALSE;
 
 	}
 	else {
@@ -127,9 +128,9 @@ static int alsa_rawmidi_init(int input, int voices)
 	snd_rawmidi_info_t info;
 
 	if(input) {
-	
+		/* Input not supported
 		card = get_config_int(uconvert_ascii("sound", tmp1),
-				uconvert_ascii("alsa_input_card", tmp2),
+				uconvert_ascii("alsa_rawmidi_input_card", tmp2),
 				snd_defaults_rawmidi_card());
 
 		device = get_config_int(uconvert_ascii("sound", tmp1),
@@ -141,8 +142,8 @@ static int alsa_rawmidi_init(int input, int voices)
 			ustrcpy(allegro_error, get_config_text(temp));
 			ret = -1;
 		}
-
-		ret = 0;
+		*/
+		ret = -1;
 
 	}
 	else {
@@ -207,7 +208,7 @@ END_OF_STATIC_FUNCTION(alsa_rawmidi_output);
 
 /* alsa_rawmidi_input:
  *		Reads MIDI data.
- */
+ * not supported...
 static INLINE int alsa_rawmidi_input(void)
 {
 	char data = 0;
@@ -217,5 +218,6 @@ static INLINE int alsa_rawmidi_input(void)
 	else
 		return 0;
 }
-
+*/
 #endif /* MIDI_ALSA */
+
