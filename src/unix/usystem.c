@@ -68,7 +68,7 @@ struct bg_manager *_unix_bg_man;
  */
 int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
-   char buf[256], tmp[256];
+   char buf[256], tmp[256], *last;
    char *home = getenv("HOME");
 
    if (home) {
@@ -85,7 +85,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 	 put_backslash(buf);
 	 ustrzcat(buf, sizeof(buf), uconvert_ascii(".", tmp));
 	 ustrzcpy(tmp, sizeof(tmp), resource);
-	 ustrzcat(buf, sizeof(buf), ustrtok(tmp, "."));
+	 ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
 	 ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
 	 if (file_exists(buf, FA_ARCH | FA_RDONLY | FA_HIDDEN, NULL)) {
 	    ustrzcpy(dest, size, buf);
@@ -105,7 +105,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
    if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
       ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
       ustrzcpy(tmp, sizeof(tmp), resource);
-      ustrzcat(buf, sizeof(buf), ustrtok(tmp, "."));
+      ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
       ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
       if (exists(buf)) {
 	 ustrzcpy(dest, size, buf);

@@ -269,6 +269,7 @@ AL_FUNC(char *, ustrrchr, (AL_CONST char *s, int c));
 AL_FUNC(char *, ustrstr, (AL_CONST char *s1, AL_CONST char *s2));
 AL_FUNC(char *, ustrpbrk, (AL_CONST char *s, AL_CONST char *set));
 AL_FUNC(char *, ustrtok, (char *s, AL_CONST char *set));
+AL_FUNC(char *, ustrtok_r, (char *s, AL_CONST char *set, char **last));
 AL_FUNC(double, uatof, (AL_CONST char *s));
 AL_FUNC(long, ustrtol, (AL_CONST char *s, char **endp, int base));
 AL_FUNC(double, ustrtod, (AL_CONST char *s, char **endp));

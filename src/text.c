@@ -99,7 +99,7 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
 {
    char toks[32];
    char *tok[MAX_TOKEN];
-   char *strbuf;
+   char *strbuf, *strlast;
    int i, minlen, last, space;
    float fleft, finc;
 
@@ -119,13 +119,13 @@ void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, 
 
    minlen = 0;
    last = 0;
-   tok[last] = ustrtok(strbuf, toks);
+   tok[last] = ustrtok_r(strbuf, toks, &strlast);
 
    while (tok[last]) {
       minlen += text_length(f, tok[last]);
       if (++last == MAX_TOKEN)
          break;
-      tok[last] = ustrtok(NULL, toks);
+      tok[last] = ustrtok_r(NULL, toks, &strlast);
    }
 
    /* amount of room for space between words */

@@ -450,7 +450,7 @@ static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
 static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 {
    char ext_tokens[32];
-   char *s, *ext, *tok, *name;
+   char *s, *ext, *tok, *name, *last;
    char tmp[512], tmp2[32];
    int c, c2, i, k, sign;
 
@@ -472,8 +472,8 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 
    if (fext) {
       ustrzcpy(tmp, sizeof(tmp), fext);
-      ustrtok(tmp, ext_tokens);
-      c = (ustrtok(NULL, ext_tokens) ? 1 : 0);
+      ustrtok_r(tmp, ext_tokens, &last);
+      c = (ustrtok_r(NULL, ext_tokens, &last) ? 1 : 0);
       if (!c) {
 	 if (!ustrchr(fext, '/'))
 	    c = 1;
@@ -482,13 +482,13 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
       if (c && (!(attrib & FA_DIREC))) {
 	 ustrzcpy(tmp, sizeof(tmp), fext);
 	 ext = get_extension(s);
-	 tok = ustrtok(tmp, ext_tokens);
+	 tok = ustrtok_r(tmp, ext_tokens, &last);
 
 	 while (tok) {
 	    if (ustricmp(ext, tok) == 0)
 	       break;
 
-	    tok = ustrtok(NULL, ext_tokens);
+	    tok = ustrtok_r(NULL, ext_tokens, &last);
 	 }
 
 	 if (!tok)
@@ -505,7 +505,7 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
       tok = ustrchr(tmp, '/');
 
       if (tok)
-	 tok = ustrtok(tok, ext_tokens);
+	 tok = ustrtok_r(tok, ext_tokens, &last);
 
       if (tok) {
 	 sign = 1;

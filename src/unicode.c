@@ -2102,12 +2102,23 @@ char *ustrpbrk(AL_CONST char *s, AL_CONST char *set)
 char *ustrtok(char *s, AL_CONST char *set)
 {
    static char *last = NULL;
+
+   return ustrtok_r(s, set, &last);
+}
+
+
+
+/* ustrtok_r:
+ *  Unicode-aware version of the strtok_r() function.
+ */
+char *ustrtok_r(char *s, AL_CONST char *set, char **last)
+{
    char *prev_str, *tok;
    AL_CONST char *setp;
    int c, sc;
 
    if (!s) {
-      s = last;
+      s = *last;
 
       if (!s)
 	 return NULL;
@@ -2126,7 +2137,7 @@ char *ustrtok(char *s, AL_CONST char *set)
    }
 
    if (!c) {
-      last = NULL;
+      *last = NULL;
       return NULL;
    }
 
@@ -2142,12 +2153,12 @@ char *ustrtok(char *s, AL_CONST char *set)
 	 sc = ugetxc(&setp);
 	 if (sc == c) {
 	    if (!c) {
-	       last = NULL;
+	       *last = NULL;
 	       return tok;
 	    }
 	    else {
 	       s += usetat(prev_str, 0, 0);
-	       last = s;
+	       *last = s;
 	       return tok;
 	    }
 	 }

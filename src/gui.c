@@ -1157,6 +1157,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
    int fg, bg;
    int x, y, w;
    char *buf, *tok;
+   char *last;
    int my;
    int rtm;
 
@@ -1194,11 +1195,11 @@ static void draw_menu_item(MENU_INFO *m, int c)
 
    if (ugetc(m->menu[c].text)) {
       buf = ustrdup(m->menu[c].text);
-      tok = ustrtok(buf, uconvert_ascii("\t", NULL));
+      tok = ustrtok_r(buf, uconvert_ascii("\t", NULL), &last);
 
       gui_textout(screen, tok, x+8, y+1, fg, FALSE);
 
-      tok = ustrtok(NULL, empty_string);
+      tok = ustrtok_r(NULL, empty_string, &last);
       if (tok)
  	 gui_textout(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, FALSE);
 
@@ -1296,7 +1297,7 @@ static int mouse_in_parent_menu(MENU_INFO *m)
  */
 static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar, int x, int y, int minw, int minh)
 {
-   char *buf, *tok;
+   char *buf, *tok, *last;
    int extra = 0;
    int c;
    int child = FALSE;
@@ -1319,7 +1320,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
 
       if (ugetc(m->menu[m->size].text)) {
          buf = ustrdup(m->menu[m->size].text);
-         tok = ustrtok(buf, uconvert_ascii("\t", NULL));
+         tok = ustrtok_r(buf, uconvert_ascii("\t", NULL), &last);
          c = gui_strlen(tok);
       }
       else {
@@ -1336,7 +1337,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
       }
 
       if (buf) {
-	 tok = ustrtok(NULL, empty_string);
+	 tok = ustrtok_r(NULL, empty_string, &last);
 	 if (tok) {
 	    c = gui_strlen(tok);
 	    extra = MAX(extra, c);

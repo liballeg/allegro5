@@ -251,6 +251,7 @@ extern "C" void be_sys_get_executable_name(char *output, int size)
 int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256];
+   char *last;
    
    /* look for /etc/file */
    append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
@@ -263,7 +264,7 @@ int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
    if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
       ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
       ustrzcpy(tmp, sizeof(tmp), resource);
-      ustrzcat(buf, sizeof(buf), ustrtok(tmp, "."));
+      ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
       ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
       if (exists(buf)) {
 	 ustrzcpy(dest, size, buf);

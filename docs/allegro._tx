@@ -690,7 +690,7 @@ table to the set_ucodepage() function.
    set. Returns a pointer to the first match, or NULL if none are found.
 
 @@char *@ustrtok(char *s, const char *set);
-@xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk
+@xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk, ustrtok_r
    This function retrieves tokens from s which are delimited by characters
    from set. To initiate the search, pass the string to be searched as s.
    For the remaining tokens, pass NULL instead. Returns a pointer to the
@@ -698,6 +698,10 @@ table to the set_ucodepage() function.
    string it is parsing, you should always copy the string to a temporary
    buffer before parsing it. Also, this function is not reentrant (ie. you
    cannot parse two strings at the same time).
+
+@@char *@ustrtok_r(char *s, const char *set, char **last);
+@xref ustrtok
+   Reentrant version of ustrtok.
 
 @@double @uatof(const char *s);
 @xref uconvert, ustrtol, ustrtod
