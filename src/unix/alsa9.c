@@ -11,7 +11,8 @@
  *      ALSA 0.9 sound driver.
  *
  *      By Thomas Fjellstrom.
- *      Updated by Elias Pschernig.
+ *
+ *      Extensively modified by Elias Pschernig.
  *
  *      See readme.txt for copyright information.
  */
