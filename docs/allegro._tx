@@ -3765,6 +3765,12 @@ allegro.h for details.
    Latin-1 (U+A1 to U+FF), and Latin Extended-A (U+0100 to U+017F) character 
    ranges.
 
+@@extern int @allegro_404_char;
+@xref font
+    When Allegro cannot find a glyph it needs in a font, it will instead
+    output the character given in allegro_404_char. By default, this is
+    set to the caret symbol, '^'.
+
 @@int @text_mode(int mode);
 @xref textout, textprintf
    Sets the mode in which text will be drawn. Returns previous mode.
