@@ -232,11 +232,11 @@ docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<
 
 AUTHORS: docs/src/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii $@ $<
+	$(MAKEDOC) -part -ascii $@ $<
 	cp AUTHORS docs/txt/authors.txt 
 
 THANKS: docs/src/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii $@ $<
+	$(MAKEDOC) -part -ascii $@ $<
 	cp THANKS docs/txt/thanks.txt
 
 CHANGES: docs/src/changes._tx $(MAKEDOC)
@@ -245,7 +245,7 @@ CHANGES: docs/src/changes._tx $(MAKEDOC)
 
 readme.txt: docs/src/readme._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
-	cp $@ docs/txt/readme.txt
+	cp readme.txt docs/txt/readme.txt
 
 docs/allegro.dvi: docs/texi/allegro.texi
 	cd docs && texi2dvi -c texi/allegro.texi && cd ..

@@ -241,7 +241,7 @@ $(filter %.$(HTML),$(CHMDOCS)): docs/chm/%.$(HTML): docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ochm -$(HTML) $@ $<
 
 AUTHORS: docs/src/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii AUTHORS $<
+	$(MAKEDOC) -part -ascii $@ $<
 ifdef UNIX_TOOLS
 	cp AUTHORS docs/txt/authors.txt
 else
