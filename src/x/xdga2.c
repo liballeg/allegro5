@@ -26,7 +26,8 @@
 #include <X11/extensions/xf86dga.h>
 
 
-
+#define RESYNC()                                                           \
+XDGASync(_xwin.display, _xwin.screen);
 #define GET_SHIFT(col_mask)                                                \
 for (mask = (col_mask), shift = 0; (mask & 1) == 0; mask >>= 1, shift++);
 
@@ -42,6 +43,13 @@ static int dga_event_base;
 static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth);
 static void _xdga2_acquire(BITMAP *bmp);
 static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth);
+
+#ifdef ALLEGRO_NO_ASM
+unsigned long _xdga2_write_line(BITMAP *bmp, int line);
+#else
+unsigned long _xdga2_write_line_asm(BITMAP *bmp, int line);
+#endif
+
 
 static void (*_orig_hline) (BITMAP *bmp, int x1, int y, int x2, int color);
 static void (*_orig_vline) (BITMAP *bmp, int x, int y1, int y2, int color);
@@ -356,8 +364,15 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    drv->h = bmp->cb = h;
    drv->vid_mem = dga_device->mode.imageWidth * dga_device->mode.imageHeight
                 * BYTES_PER_PIXEL(depth);
-   drv->bank_size = drv->vid_mem;
-   drv->bank_gran = drv->vid_mem;
+
+   /* Updates line switcher to accommodate framebuffer synchronization */
+#ifdef ALLEGRO_NO_ASM
+   bmp->write_bank = _xdga2_write_line;
+   bmp->read_bank = _xdga2_write_line;
+#else
+   bmp->write_bank = _xdga2_write_line_asm;
+   bmp->read_bank = _xdga2_write_line_asm;
+#endif
 
    _screen_vtable.acquire = _xdga2_acquire;
 
@@ -397,8 +412,8 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
       gfx_capabilities ? " (accelerated)" : "");
    drv->desc = _xdga2_driver_desc;
 
-   XDGASync(_xwin.display, _xwin.screen);
-
+   RESYNC();
+   
    return bmp;
 }
 
@@ -489,8 +504,9 @@ void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 
    DISABLE();
    
-   if (vsync)
+   if (vsync) {
       XSync(_xwin.display, False);
+   }
 
    if (dga_device->mode.depth == 8) {
       for (i = from; i <= to; i++) {
@@ -512,11 +528,28 @@ void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 /* _xdga2_acquire:
  *  Video bitmap acquire function; synchronizes with framebuffer.
  */
-void _xdga2_acquire(BITMAP *bmp)
+static void _xdga2_acquire(BITMAP *bmp)
 {
    DISABLE();
-   XDGASync(_xwin.display, _xwin.screen);
+   RESYNC();
    ENABLE();
+   bmp->id |= BMP_ID_LOCKED;
+}
+
+
+
+/* _xdga2_write_line:
+ *  Returns new line and synchronizes framebuffer if needed.
+ */
+unsigned long _xdga2_write_line(BITMAP *bmp, int line)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      DISABLE();
+      RESYNC();
+      ENABLE();
+      bmp->id |= BMP_ID_LOCKED;
+   }
+   return (unsigned long)(bmp->line[line]);
 }
 
 
@@ -560,6 +593,7 @@ static void _xaccel_hline(BITMAP *bmp, int x1, int y, int x2, int color)
    DISABLE();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y, (x2 - x1) + 1, 1, color);
    ENABLE();
+   bmp->id &= ~BMP_ID_LOCKED;
 }
 
 
@@ -603,6 +637,7 @@ static void _xaccel_vline(BITMAP *bmp, int x, int y1, int y2, int color)
    DISABLE();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x, y1, 1, (y2 - y1) + 1, color);
    ENABLE();
+   bmp->id &= ~BMP_ID_LOCKED;
 }
 
 
@@ -613,7 +648,7 @@ static void _xaccel_vline(BITMAP *bmp, int x, int y1, int y2, int color)
 static void _xaccel_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
    int tmp;
-   
+
    if (_drawing_mode != DRAW_MODE_SOLID) {
       _orig_rectfill(bmp, x1, y1, x2, y2, color);
       return;
@@ -659,6 +694,7 @@ static void _xaccel_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int co
    DISABLE();
    XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, (x2 - x1) + 1, (y2 - y1) + 1, color);
    ENABLE();
+   bmp->id &= ~BMP_ID_LOCKED;
 }
 
 
@@ -676,8 +712,9 @@ static void _xaccel_clear_to_color(BITMAP *bmp, int color)
    y2 = bmp->cb + bmp->y_ofs;
    
    DISABLE();
-   XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, (x2 - x1) + 1, (y2 - y1) + 1, color);
+   XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, x2 - x1, y2 - y1, color);
    ENABLE();
+   bmp->id &= ~BMP_ID_LOCKED;
 }
 
 
@@ -695,6 +732,7 @@ static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int
    DISABLE();
    XDGACopyArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y);
    ENABLE();
+   dest->id &= ~BMP_ID_LOCKED;
 }
 
 
@@ -759,6 +797,7 @@ static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int 
    DISABLE();
    XDGACopyTransparentArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y, source->vtable->mask_color);
    ENABLE();
+   dest->id &= ~BMP_ID_LOCKED;
 }
 
 

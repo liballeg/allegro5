@@ -15,6 +15,8 @@
  *
  *      By Michael Bukin.
  *
+ *      DGA 2.0 support added by Angelo Mottola.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -56,6 +58,21 @@ FUNC(_xdga_switch_bank_asm)
 	pushl %eax
 	pushl %edx
 	call GLOBL(_xdga_switch_bank)
+	popl %edx
+	popl %ecx
+	popl %ecx
+	ret
+
+#endif
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+
+FUNC (_xdga2_write_line_asm)
+
+	pushl %ecx
+	pushl %eax
+	pushl %edx
+	call GLOBL(_xdga2_write_line)
 	popl %edx
 	popl %ecx
 	popl %ecx
