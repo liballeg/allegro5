@@ -16,7 +16,7 @@
  */
 
 
-#include "qnxalleg.h"
+#include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintqnx.h"
 

@@ -46,8 +46,8 @@
       chmod +x fix.sh
       ./fix.sh qnx
 
-   Now you may want to generate the dependencies; this step is optional if you
-   are using an official WIP release, but it is required if you got a CVS
+   Now you may want to generate the dependencies; this step is optional if
+   you are using an official release, but it is required if you got a CVS
    snapshot of the library.
 
       make depend
@@ -61,7 +61,7 @@
       su -c "make install"
 
    Installing the library will copy the header files to /usr/include, the
-   library file to /x86/lib and the allegro-config script into /usr/bin.
+   library file to /usr/lib and the allegro-config script into /usr/bin.
    
    
 

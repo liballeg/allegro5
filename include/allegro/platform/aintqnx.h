@@ -19,17 +19,42 @@
 #ifndef AINTQNX_H
 #define AINTQNX_H
 
-#include "qnxalleg.h"
 #include "allegro/platform/aintunix.h"
+
+#ifndef SCAN_DEPEND
+   #include <pthread.h>
+   #include <Ph.h>
+   #include <Pt.h>
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
+#define PH_GFX_NONE       0
+#define PH_GFX_WINDOW     1
+#define PH_GFX_DIRECT     2
+#define PH_GFX_OVERLAY    3
+
+/* from qphoton.c */
+AL_VAR(int, ph_gfx_mode);
+AL_FUNCPTR(void, ph_update_window, (PhRect_t* rect));
+AL_VAR(PdOffscreenContext_t, *ph_window_context);
+AL_ARRAY(PgColor_t, ph_palette);
+
+/* from qsystem.c */
+AL_VAR(PtWidget_t, *ph_window);
+AL_VAR(pthread_mutex_t, qnx_events_mutex);
+AL_VAR(pthread_mutex_t, *qnx_gfx_mutex);
+
+/* from qkeydrv.c */
 AL_FUNC(void, qnx_keyboard_handler, (int, int));
 AL_FUNC(void, qnx_keyboard_focused, (int, int));
 
+/* from qmouse.c */
+AL_VAR(int, qnx_mouse_warped);
 AL_FUNC(void, qnx_mouse_handler, (int, int, int, int));
 
 

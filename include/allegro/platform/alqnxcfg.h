@@ -16,11 +16,14 @@
  */
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <math.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <fcntl.h>
+   #include <unistd.h>
+   #include <math.h>
+#endif
+
 #undef ALLEGRO_INCLUDE_MATH_H
 
 

@@ -18,7 +18,7 @@
  */
 
 
-#include "qnxalleg.h"
+#include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintqnx.h"
 
@@ -26,12 +26,14 @@
 #error something is wrong with the makefile
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <sched.h>
+#ifndef SCAN_DEPEND
+   #include <stdio.h>
+   #include <stdlib.h>
+   #include <signal.h>
+   #include <sys/time.h>
+   #include <unistd.h>
+   #include <sched.h>
+#endif
 
 
 static int qnx_sys_init(void);
@@ -90,12 +92,14 @@ SYSTEM_DRIVER system_qnx =
 };
 
 
-/* Global variables */
+/* global variables */
 PtWidget_t *ph_window = NULL;
-PhEvent_t *ph_event = NULL;
 pthread_mutex_t qnx_events_mutex;
 pthread_mutex_t *qnx_gfx_mutex;
 
+#define EVENT_SIZE  (sizeof(PhEvent_t) + 1000)
+
+static PhEvent_t *ph_event = NULL;
 static void (*window_close_hook)(void) = NULL;
 static pthread_mutex_t gfx_mutex;
 static pthread_t qnx_events_thread;
@@ -105,12 +109,14 @@ static int switch_mode = SWITCH_BACKGROUND;
 #define WINDOW_TITLE_SIZE  256
 static char window_title[WINDOW_TITLE_SIZE];
 
-#define MAX_SWITCH_CALLBACKS 8
+#define MAX_SWITCH_CALLBACKS  8
 static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = 
    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) =
    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
+
+typedef void RETSIGTYPE;
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
 static RETSIGTYPE (*old_sig_fpe)(int num);
@@ -641,4 +647,14 @@ static int qnx_sys_get_desktop_resolution(int *width, int *height)
 static void qnx_sys_yield_timeslice(void)
 {
    usleep(10000);
+}
+
+
+
+/* qnx_get_window:
+ *  Returns a handle to the window.
+ */
+PtWidget_t *qnx_get_window(void)
+{
+   return ph_window;
 }

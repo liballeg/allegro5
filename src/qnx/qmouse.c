@@ -52,6 +52,7 @@ MOUSE_DRIVER mouse_qnx =
 };
 
 
+/* global variable */
 int qnx_mouse_warped = FALSE;
 
 static int mouse_minx = 0;

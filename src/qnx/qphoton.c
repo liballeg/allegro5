@@ -16,7 +16,7 @@
  */
 
 
-#include "qnxalleg.h"
+#include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintqnx.h"
 
@@ -109,15 +109,19 @@ GFX_DRIVER gfx_photon_direct =
 };
 
 
-PdDirectContext_t *ph_direct_context = NULL;
-PdOffscreenContext_t *ph_screen_context = NULL;
-PdOffscreenContext_t *ph_window_context = NULL;
+/* global variables */
 int ph_gfx_mode = PH_GFX_NONE;
-char *ph_dirty_lines = NULL;
 void (*ph_update_window)(PhRect_t* rect) = NULL;
-int ph_window_w = 0, ph_window_h = 0;
+PdOffscreenContext_t *ph_window_context = NULL;
 PgColor_t ph_palette[256];
 
+/* exported only for qswitch.s */
+char *ph_dirty_lines = NULL;
+int ph_window_w = 0;
+int ph_window_h = 0;
+
+static PdDirectContext_t *ph_direct_context = NULL;
+static PdOffscreenContext_t *ph_screen_context = NULL;
 
 static char driver_desc[256];
 static PgDisplaySettings_t original_settings;
@@ -131,6 +135,7 @@ static int desktop_depth;
 
 
 #ifdef ALLEGRO_NO_ASM
+
 static inline void update_dirty_lines();
 static unsigned long phd_write_line(BITMAP *bmp, int line);
 static void phd_unwrite_line(BITMAP *bmp);
@@ -140,7 +145,9 @@ static unsigned long ph_write_line(BITMAP *bmp, int line);
 static void ph_unwrite_line(BITMAP *bmp);
 static void ph_acquire(BITMAP *bmp);
 static void ph_release(BITMAP *bmp);
+
 #else
+
 unsigned long phd_write_line_asm(BITMAP *bmp, int line);
 void phd_unwrite_line_asm(BITMAP *bmp);
 void phd_acquire_asm(BITMAP *bmp);
@@ -149,6 +156,7 @@ unsigned long ph_write_line_asm(BITMAP *bmp, int line);
 void ph_unwrite_line_asm(BITMAP *bmp);
 void ph_acquire_asm(BITMAP *bmp);
 void ph_release_asm(BITMAP *bmp);
+
 #endif
 
 

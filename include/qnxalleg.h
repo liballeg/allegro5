@@ -10,52 +10,29 @@
  *
  *      Header file for the QNX Allegro library port.
  *
- *      You dont need this file; it is used internally to prototype some library
- *      functions, macros and similar stuff.
+ *      This doesn't need to be included; it prototypes functions you
+ *      can use to control the library more closely.
  */
 
 
 #ifndef QNX_ALLEGRO_H
 #define QNX_ALLEGRO_H
 
+#ifndef ALLEGRO_H
+#error Please include allegro.h before qnxalleg.h!
+#endif
+
+#ifndef SCAN_DEPEND
+   #include <Pt.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "allegro.h"
-#include "allegro/internal/aintern.h"
-#include "allegro/platform/aintqnx.h"
 
-#include <pthread.h>
-#include <Ph.h>
-#include <Pt.h>
+AL_FUNC(PtWidget_t *, qnx_get_window, (void));
 
-#define EVENT_SIZE        sizeof(PhEvent_t) + 1000
-
-#define PH_GFX_NONE       0
-#define PH_GFX_WINDOW     1
-#define PH_GFX_DIRECT     2
-#define PH_GFX_OVERLAY    3
-
-
-/* Globals */
-
-AL_VAR(PtWidget_t, *ph_window);
-AL_VAR(int, ph_gfx_mode);
-AL_VAR(PdDirectContext_t, *ph_direct_context);
-AL_VAR(PdOffscreenContext_t, *ph_screen_context);
-AL_VAR(PdOffscreenContext_t, *ph_window_context);
-AL_VAR(pthread_mutex_t, qnx_events_mutex);
-AL_VAR(pthread_mutex_t, *qnx_gfx_mutex);
-AL_VAR(int, qnx_mouse_warped);
-AL_VAR(char, *ph_dirty_lines);
-AL_VAR(void, (*ph_update_window)(PhRect_t* rect));
-AL_VAR(int, ph_window_w);
-AL_VAR(int, ph_window_h);
-AL_ARRAY(PgColor_t, ph_palette);
-
-
-typedef void RETSIGTYPE;
 
 #ifdef __cplusplus
 }
