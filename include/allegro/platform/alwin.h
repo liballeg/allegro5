@@ -35,7 +35,7 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 
    #ifdef ALLEGRO_GCC
       #ifdef __cplusplus
-         extern "C" __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
+         extern "C" int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
       #endif
 
       /* GCC version, using __attribute__ ((stdcall)) */
