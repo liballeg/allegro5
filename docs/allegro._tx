@@ -1121,20 +1121,20 @@ flip_pan = x<br>
    stereo image the wrong way round.
 <li>
 sound_freq = x<br>
-   DOS and Unix: sets the sample frequency. With the SB driver, possible 
-   rates are 11906 (any), 16129 (any), 22727 (SB 2.0 and above), and 45454 
-   (only on SB 2.0 or SB16, not the stereo SB Pro driver). On the ESS 
-   Audiodrive, possible rates are 11363, 17046, 22729, or 44194. On the 
+   DOS, Unix and BeOS: sets the sample frequency. With the SB driver, 
+   possible rates are 11906 (any), 16129 (any), 22727 (SB 2.0 and above), 
+   and 45454 (only on SB 2.0 or SB16, not the stereo SB Pro driver). On the 
+   ESS Audiodrive, possible rates are 11363, 17046, 22729, or 44194. On the 
    Ensoniq Soundscape, possible rates are 11025, 16000, 22050, or 48000. On 
    the Windows Sound System, possible rates are 11025, 22050, 44100, or 
    48000. Don't worry if you set some other number by mistake: Allegro will 
    automatically round it to the closest supported frequency.
 <li>
 sound_bits = x<br>
-   Unix only: sets the preferred number of bits (8 or 16).
+   Unix and BeOS: sets the preferred number of bits (8 or 16).
 <li>
 sound_stereo = x<br>
-   Unix only: select mono or stereo output (0 or 1).
+   Unix and BeOS: selects mono or stereo output (0 or 1).
 <li>
 sound_port = x<br>
    DOS only: sets the soundcard port address (this is usually 220).
