@@ -503,9 +503,9 @@ if test "X$allegro_make_depend" = "Xyes"; then
   if ${MAKE-make} -v -f /dev/null 2>/dev/null | grep -i "gnu" >/dev/null; then
     ${MAKE-make} depend
   else
-    AC_MSG_WARN([Non-GNU make detected, trying `gmake' to build dependencies.])
+    AC_MSG_WARN([Non-GNU make detected, trying gmake to build dependencies.])
     gmake depend
     AC_MSG_WARN([You need to use GNU make to build Allegro.])
-    AC_MSG_WARN([This might be called `gmake' on your system.])
+    AC_MSG_WARN([This might be called gmake on your system.])
   fi
 fi

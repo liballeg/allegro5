@@ -349,7 +349,7 @@ install-lib: lib
 	@echo Installing allegro-config to $(bindir)
 	@$(INSTALL_PROGRAM) allegro-config $(bindir)
 	@if test -n "$(LIBDIR)/liball*-$(shared_version).so"; then \
-		(echo $(libdir) | grep /etc/ld.so.conf >/dev/null || \
+		(cat /etc/ld.so.conf | grep $(libdir) >/dev/null || \
 		 test $(libdir) = /lib || test $(libdir) = /usr/lib) \
 		&& ($(LDCONFIG) $(libdir) || true) || (\
 			echo "" ; \
