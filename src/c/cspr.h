@@ -144,7 +144,7 @@ void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 	 unsigned char *s = src->line[sybeg + y] + sxbeg;
 	 PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
 
-	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
+	 for (x = w - 1; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
 	    unsigned long c = *s;
 	    if (c != 0) {
 	       c = table[c];
@@ -160,7 +160,7 @@ void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 	 unsigned char *s = src->line[sybeg + y] + sxbeg;
 	 PIXEL_PTR d = OFFSET_PIXEL_PTR(dst->line[dybeg + y], dxbeg);
 
-	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
+	 for (x = w - 1; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
 	    unsigned long c = *s;
 	    if (c != 0) {
 	       c = table[c];
