@@ -173,20 +173,49 @@ bool al_event_queue_is_empty(AL_EVENT_QUEUE *queue)
 
 
 
-/* really_get_next_event: [primary thread]
- *  Helper function.  The event queue must be locked before entering
+/* get_next_event_if_any: [primary thread]
+ *  Helper function.  It returns a pointer to the next event in the
+ *  queue, or NULL.  Optionally the event is removed from the queue.
+ *  However, the event is _not released_ (which is the caller's
+ *  responsibility).  The event queue must be locked before entering
  *  this function.
  */
-static AL_EVENT* really_get_next_event(AL_EVENT_QUEUE *queue)
+static AL_EVENT *get_next_event_if_any(AL_EVENT_QUEUE *queue, bool delete)
 {
    if (_al_vector_is_empty(&queue->events))
       return NULL;
    else {
-      AL_EVENT **slot  = _al_vector_ref_front(&queue->events);
-      AL_EVENT  *event = *slot;
-      _al_vector_delete_at(&queue->events, 0); /* inefficient */
+      AL_EVENT **slot = _al_vector_ref_front(&queue->events);
+      AL_EVENT *event = *slot;
+      if (delete)
+         _al_vector_delete_at(&queue->events, 0); /* inefficient */
       return event;
    }
+}
+
+
+
+/* get_peek_or_drop_next_event: [primary thread]
+ *  Helper function to do the work for al_get_next_event,
+ *  al_peek_next_event and al_drop_next_event which are all very
+ *  similar.
+ */
+static bool get_peek_or_drop_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *do_copy, bool do_release)
+{
+   AL_EVENT *next_event;
+
+   _al_mutex_lock(&queue->mutex);
+   next_event = get_next_event_if_any(queue, do_release);
+   _al_mutex_unlock(&queue->mutex);
+
+   if (!next_event)
+      return false;
+
+   if (do_copy)
+      _al_copy_event(do_copy, next_event);
+   if (do_release)
+      _al_release_event(next_event);
+   return true;
 }
 
 
@@ -201,23 +230,8 @@ bool al_get_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 {
    ASSERT(queue);
    ASSERT(ret_event);
-   {
-      AL_EVENT *event;
 
-      _al_mutex_lock(&queue->mutex);
-      {
-         event = really_get_next_event(queue);
-      }
-      _al_mutex_unlock(&queue->mutex);
-
-      if (event) {
-         _al_copy_event(ret_event, event);
-         _al_release_event(event);
-         return true;
-      }
-      else
-         return false;
-   }
+   return get_peek_or_drop_next_event(queue, ret_event, true);
 }
 
 
@@ -233,26 +247,8 @@ bool al_peek_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 {
    ASSERT(queue);
    ASSERT(ret_event);
-   {
-      AL_EVENT *event = NULL;
 
-      _al_mutex_lock(&queue->mutex);
-      {
-         if (_al_vector_is_nonempty(&queue->events)) {
-            AL_EVENT **slot = _al_vector_ref_front(&queue->events);
-            event = *slot;
-         }
-      }
-      _al_mutex_unlock(&queue->mutex);
-
-      if (event) {
-         _al_copy_event(ret_event, event);
-         /* Don't release the event, since we are only peeking.  */
-         return true;
-      }
-      else
-         return false;
-   }
+   return get_peek_or_drop_next_event(queue, ret_event, false);
 }
 
 
@@ -265,15 +261,7 @@ void al_drop_next_event(AL_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
-   _al_mutex_lock(&queue->mutex);
-   {
-      if (_al_vector_is_nonempty(&queue->events)) {
-         AL_EVENT **slot  = _al_vector_ref_front(&queue->events);
-         _al_release_event(*slot);
-         _al_vector_delete_at(&queue->events, 0); /* inefficient */
-      }
-   }
-   _al_mutex_unlock(&queue->mutex);
+   get_peek_or_drop_next_event(queue, NULL, true);
 }
 
 
@@ -290,8 +278,13 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
       while (_al_vector_is_nonempty(&queue->events)) {
          unsigned int i = _al_vector_size(&queue->events) - 1;
          AL_EVENT **slot = _al_vector_ref(&queue->events, i);
-         _al_release_event(*slot);
+         AL_EVENT *event = *slot;
          _al_vector_delete_at(&queue->events, i);
+
+         /* must release while queue is unlocked */
+         _al_mutex_unlock(&queue->mutex);
+         _al_release_event(event);
+         _al_mutex_lock(&queue->mutex);
       }
    }
    _al_mutex_unlock(&queue->mutex);
@@ -305,11 +298,20 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
  */
 static void wait_on_queue_forever(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 {
-   while (_al_vector_is_empty(&queue->events))
-      _al_cond_wait(&queue->cond, &queue->mutex);
+   AL_EVENT *next_event = NULL;
+
+   _al_mutex_lock(&queue->mutex);
+   {
+      while (_al_vector_is_empty(&queue->events))
+         _al_cond_wait(&queue->cond, &queue->mutex);
+
+      if (ret_event)
+         next_event = get_next_event_if_any(queue, true);
+   }
+   _al_mutex_unlock(&queue->mutex);
 
    if (ret_event) {
-      AL_EVENT *next_event = really_get_next_event(queue);
+      /* must release while queue is unlocked */
       ASSERT(next_event);
       _al_copy_event(ret_event, next_event);
       _al_release_event(next_event);
@@ -325,20 +327,32 @@ static void wait_on_queue_forever(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 static bool wait_on_queue_timed(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
 {
    unsigned long timeout = al_current_time() + msecs;
+   bool timed_out = false;
+   AL_EVENT *next_event = NULL;
 
-   /* Is the queue is non-empty?  If not, block on a condition
-    * variable, which will be signaled when an event is placed into
-    * the queue.
-    */
-   while (_al_vector_is_empty(&queue->events)) {
-      int result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
-      if (result == -1) /* timed out */
-         return false;
+   _al_mutex_lock(&queue->mutex);
+   {
+      int result = 0;
+
+      /* Is the queue is non-empty?  If not, block on a condition
+       * variable, which will be signaled when an event is placed into
+       * the queue.
+       */
+      while (_al_vector_is_empty(&queue->events) && (result != -1))
+         result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
+
+      if (result == -1)
+         timed_out = true;
+      else if (ret_event)
+         next_event = get_next_event_if_any(queue, true);
    }
+   _al_mutex_unlock(&queue->mutex);
 
-   /* Copy and remove the event if desired. */
+   if (timed_out)
+      return false;
+
    if (ret_event) {
-      AL_EVENT *next_event = really_get_next_event(queue);
+      /* must release with the queue unlocked */
       ASSERT(next_event);
       _al_copy_event(ret_event, next_event);
       _al_release_event(next_event);
@@ -365,18 +379,11 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
    ASSERT(msecs >= 0);
 
    if (msecs == 0) {
-      _al_mutex_lock(&queue->mutex);
       wait_on_queue_forever(queue, ret_event);
-      _al_mutex_unlock(&queue->mutex);
       return true;
    }
-   else {
-      bool status;
-      _al_mutex_lock(&queue->mutex);
-      status = wait_on_queue_timed(queue, ret_event, msecs);
-      _al_mutex_unlock(&queue->mutex);
-      return status;
-   }
+   else
+      return wait_on_queue_timed(queue, ret_event, msecs);
 }
 
 
@@ -430,14 +437,7 @@ bool al_wait_for_specific_event(AL_EVENT_QUEUE *queue,
 
       while (true) {
          remaining = end - al_current_time();
-         if (remaining <= 0LL)
-            return false;
-
-         /* Don't bother trying to wait a second time unless we missed
-          * the mark by a large enough amount.  The 1ms below is
-          * pretty arbitrary.
-          */
-         if (remaining < 1)
+         if (remaining <= 0)
             return false;
 
          if (!al_wait_for_event(queue, ret_event, remaining))
