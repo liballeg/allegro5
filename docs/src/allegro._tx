@@ -178,10 +178,10 @@ information about how to install Allegro and link your program with it.
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
    set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
-   a text mode console (DOS, Unix and BeOS) it will print the string to the 
-   console, attempting to work around codepage differences by reducing any 
-   accented characters to 7 bit ASCII approximations, or under Windows it 
-   will bring up a GUI message box.
+   a text console (DOS and Unix) it will print the string to that console,
+   attempting to work around codepage differences by reducing any accented
+   characters to 7 bit ASCII approximations, and on platforms featuring a
+   windowing system it will bring up a GUI message box.
 
 @@void @set_window_title(const char *name);
 @xref set_close_button_callback
