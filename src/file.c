@@ -1319,21 +1319,36 @@ PACKFILE *_pack_fdopen(int fd, AL_CONST char *mode)
 	     ((header == encrypt_id(F_PACK_MAGIC, FALSE)) ||
 	      (header == encrypt_id(F_NOPACK_MAGIC, FALSE)))) {
 
-	    /* backward compatibility mode */
+	    /* duplicate the file descriptor */
+	    int fd2 = dup(fd);
+
+	    if (fd2<0) {
+	       pack_fclose(f->parent);
+	       free_packfile(f);
+	       *allegro_errno = errno;
+	       return NULL;
+            }
+
+	    /* close the parent file (logically, not physically) */
 	    pack_fclose(f->parent);
 
+	    /* backward compatibility mode */
 	    if (!clone_password(f)) {
 	       free_packfile(f);
 	       return NULL;
 	    }
 
-	    if ((f->parent = _pack_fdopen(fd, F_READ)) == NULL) {
+	    f->flags |= PACKFILE_FLAG_OLD_CRYPT;
+
+	    /* re-open the parent file */
+	    lseek(fd2, 0, SEEK_SET);
+
+	    if ((f->parent = _pack_fdopen(fd2, F_READ)) == NULL) {
 	       free_packfile(f);
 	       return NULL;
 	    }
 
 	    f->parent->flags |= PACKFILE_FLAG_OLD_CRYPT;
-	    f->flags |= PACKFILE_FLAG_OLD_CRYPT;
 
 	    pack_mgetl(f->parent);
 
