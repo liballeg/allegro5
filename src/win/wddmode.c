@@ -50,7 +50,7 @@ static DDPIXELFORMAT pixel_format[] = {
 
 
 /* window thread callback parameters */
-static int _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate;
+static int _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate, _wnd_flags;
 
 
 
@@ -65,15 +65,16 @@ static int wnd_set_video_mode(void)
    /* set the cooperative level to allow fullscreen access */
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
    if (FAILED(hr)) {
-      _TRACE("SetCooperative level = %s (%x), hwnd = %x\n", win_err_str(hr), hr, allegro_wnd);
+      _TRACE("SetCooperativeLevel() failed (%x)\n", hr);
       goto Error;
    }
 
    /* switch to fullscreen mode */
-   hr = IDirectDraw2_SetDisplayMode(directdraw, _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate, 0);
+   hr = IDirectDraw2_SetDisplayMode(directdraw, _wnd_width, _wnd_height, _wnd_depth,
+                                                _wnd_refresh_rate, _wnd_flags);
    if (FAILED(hr)) {
-      _TRACE("SetDisplayMode(%u, %u, %u, %u) = %s (%x)\n", _wnd_width, _wnd_height, _wnd_depth,
-                                                           _wnd_refresh_rate, win_err_str(hr), hr);
+      _TRACE("SetDisplayMode(%u, %u, %u, %u, %u) failed (%x)\n", _wnd_width, _wnd_height, _wnd_depth,
+                                                                 _wnd_refresh_rate, _wnd_flags, hr);
       goto Error;
    }
 
@@ -240,10 +241,9 @@ void get_working_area(RECT *working_area)
  * EnumModesCallback
  *  callback for graphic modes enumeration
  */ 
-static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID addr)
+static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID mode_supported_addr)
 {
-   int *mode_supported = (int *) addr;
-   *mode_supported = TRUE;
+   *(int *)mode_supported_addr = TRUE;
    return DDENUMRET_OK;
 }
 
@@ -255,13 +255,19 @@ static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID 
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
    DDSURFACEDESC surf_desc;
-   int mode_supported, i;
+   int flags, mode_supported, i;
    HRESULT hr;
 
    surf_desc.dwSize   = sizeof(DDSURFACEDESC);
    surf_desc.dwFlags  = DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
    surf_desc.dwHeight = h;
    surf_desc.dwWidth  = w;
+
+   /* enumerate the VGA Mode 13h under DirectX 5 or greater */
+   if (_dx_ver >= 0x500)
+      flags = DDEDM_STANDARDVGAMODES;
+   else
+      flags = 0;
 
    for (i=0 ; pixel_realdepth[i] ; i++)
       if (pixel_realdepth[i] == color_depth) {
@@ -273,7 +279,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
             _TRACE("refresh rate requested: %d Hz\n", _refresh_rate_request);
             surf_desc.dwFlags |= DDSD_REFRESHRATE;
             surf_desc.dwRefreshRate = _refresh_rate_request;
-            hr = IDirectDraw2_EnumDisplayModes(directdraw, DDEDM_REFRESHRATES, &surf_desc,
+            hr = IDirectDraw2_EnumDisplayModes(directdraw, flags | DDEDM_REFRESHRATES, &surf_desc,
                                                &mode_supported, EnumModesCallback);
             if (FAILED(hr))
                break;
@@ -283,7 +289,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
             _TRACE("no refresh rate requested\n");
             surf_desc.dwFlags &= ~DDSD_REFRESHRATE;
             surf_desc.dwRefreshRate = 0;
-            hr = IDirectDraw2_EnumDisplayModes(directdraw, 0, &surf_desc,
+            hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, &surf_desc,
                                                &mode_supported, EnumModesCallback);
             if (FAILED(hr))
                break;
@@ -294,6 +300,12 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
             _wnd_height       = surf_desc.dwHeight;
             _wnd_depth        = pixel_format[i].dwRGBBitCount; /* not color_depth */
             _wnd_refresh_rate = surf_desc.dwRefreshRate;
+
+            if ((_wnd_width == 320) && (_wnd_height == 200) && (_wnd_depth == 8) &&
+                                                               (flags & DDEDM_STANDARDVGAMODES))
+               _wnd_flags = DDSDM_STANDARDVGAMODE;
+            else
+               _wnd_flags = 0;
 
             /* let the window thread do the hard work */ 
             _TRACE("setting display mode(%u, %u, %u, %u)\n", w, h, color_depth, _wnd_refresh_rate);
