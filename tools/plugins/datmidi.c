@@ -107,7 +107,7 @@ static void *grab_midi(AL_CONST char *filename, long *size, int x, int y, int w,
 
 
 /* saves a MIDI object in the datafile format */
-static void save_midi(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static int save_midi(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    MIDI *midi = (MIDI *)dat->dat;
    int c;
@@ -119,6 +119,9 @@ static void save_midi(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pac
       if (midi->track[c].len > 0)
 	 pack_fwrite(midi->track[c].data, midi->track[c].len, f);
    }
+
+   /* TODO: return -1 on failure */
+   return 0;
 }
 
 

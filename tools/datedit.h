@@ -51,7 +51,7 @@ typedef struct DATEDIT_OBJECT_INFO
    char *desc;
    void (*get_desc)(AL_CONST DATAFILE *dat, char *s);
    void *(*makenew)(long *size);
-   void (*save)(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f);
+   int (*save)(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f);
    void (*plot)(AL_CONST DATAFILE *dat, int x, int y);
    int (*dclick)(DATAFILE *dat);
    void (*dat2s)(DATAFILE *dat, AL_CONST char *name, FILE *file, FILE *header);

@@ -127,13 +127,18 @@ void datedit_init(void)
 static int export_binary(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    PACKFILE *f = pack_fopen(filename, F_WRITE);
+   int ret = 0;
 
    if (f) {
-      pack_fwrite(dat->dat, dat->size, f);
+      if (pack_fwrite(dat->dat, dat->size, f) < dat->size)
+	 ret = -1;
+
       pack_fclose(f);
    }
+   else
+      ret = -1;
 
-   return (errno == 0);
+   return ret;
 }
 
 
@@ -156,13 +161,13 @@ static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int 
       return NULL; 
    }
 
-   pack_fread(mem, sz, f);
-   pack_fclose(f);
-
-   if (errno) {
+   if (pack_fread(mem, sz, f) < sz) {
+      pack_fclose(f);
       free(mem);
       return NULL;
    }
+
+   pack_fclose(f);
 
    *size = sz;
    return mem;
@@ -171,9 +176,12 @@ static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int 
 
 
 /* save raw binary data */
-static void save_binary(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static int save_binary(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
-   pack_fwrite(dat->dat, dat->size, f);
+   if (pack_fwrite(dat->dat, dat->size, f) < dat->size)
+      return -1;
+
+   return 0;
 }
 
 
@@ -368,11 +376,11 @@ static int percent(int a, int b)
 
 
 /* saves an object */
-static void save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, PACKFILE *f)
+static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, PACKFILE *f)
 {
-   int i;
+   int i, ret;
    DATAFILE_PROPERTY *prop;
-   void (*save)(DATAFILE *, AL_CONST int *, int, int, int, int, int, int, PACKFILE *);
+   int (*save)(DATAFILE *, AL_CONST int *, int, int, int, int, int, int, PACKFILE *);
 
    prop = dat->prop;
    datedit_sort_properties(prop);
@@ -382,13 +390,12 @@ static void save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int p
 	 pack_mputl(DAT_PROPERTY, f);
 	 pack_mputl(prop->type, f);
 	 pack_mputl(strlen(prop->dat), f);
-	 pack_fwrite(prop->dat, strlen(prop->dat), f);
+	 if (pack_fwrite(prop->dat, strlen(prop->dat), f) < strlen(prop->dat))
+	    return -1;
 	 file_datasize += 12 + strlen(prop->dat);
       }
 
       prop++;
-      if (errno)
-	 return;
    }
 
    if (verbose)
@@ -414,13 +421,13 @@ static void save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int p
       if (verbose)
 	 datedit_endmsg("");
 
-      save((DATAFILE *)dat->dat, fixed_prop, pack, pack_kids, strip, sort, verbose, FALSE, f);
+      ret = save((DATAFILE *)dat->dat, fixed_prop, pack, pack_kids, strip, sort, verbose, FALSE, f);
 
       if (verbose)
 	 datedit_startmsg("End of %-21s", get_datafile_property(dat, DAT_NAME));
    }
    else
-      save(dat, fixed_prop, (pack || pack_kids), FALSE, strip, sort, verbose, FALSE, f);
+      ret = save(dat, fixed_prop, (pack || pack_kids), FALSE, strip, sort, verbose, FALSE, f);
 
    pack_fclose_chunk(f);
 
@@ -438,12 +445,14 @@ static void save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int p
       file_datasize += 4;
    else
       file_datasize += _packfile_datasize;
+
+   return ret;
 }
 
 
 
 /* saves a datafile */
-static void save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static int save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    int c, size;
 
@@ -457,11 +466,11 @@ static void save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int
    pack_mputl(extra ? size+1 : size, f);
 
    for (c=0; c<size; c++) {
-      save_object(dat+c, fixed_prop, pack, pack_kids, strip, sort, verbose, f);
-
-      if (errno)
-	 return;
+      if (save_object(dat+c, fixed_prop, pack, pack_kids, strip, sort, verbose, f) != 0)
+	 return -1;
    }
+
+   return 0;
 }
 
 
@@ -1062,6 +1071,7 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
    char backup_name[256];
    int pack, strip, sort;
    PACKFILE *f;
+   int ret;
 
    packfile_password(password);
 
@@ -1084,17 +1094,19 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
       pack_mputl(DAT_MAGIC, f);
       file_datasize = 12;
 
-      save_datafile(dat, fixed_prop, (pack >= 2), (pack >= 1), strip, sort, options->verbose, (strip <= 0), f);
+      ret = save_datafile(dat, fixed_prop, (pack >= 2), (pack >= 1), strip, sort, options->verbose, (strip <= 0), f);
 
       if (strip <= 0) {
 	 datedit_set_property(&datedit_info, DAT_NAME, "GrabberInfo");
-	 save_object(&datedit_info, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, f);
+	 ret |= save_object(&datedit_info, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, f);
       }
 
       pack_fclose(f); 
    }
+   else
+      ret = -1;
 
-   if (errno) {
+   if (ret != 0) {
       delete_file(pretty_name);
       datedit_error("Error writing %s", pretty_name);
       packfile_password(NULL);
@@ -1473,7 +1485,6 @@ DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, i
       datedit_set_property(&dat, DAT_NAME, name);
       datedit_set_property(&dat, DAT_ORIG, filename);
       datedit_set_property(&dat, DAT_DATE, datedit_ftime2asc(file_time(filename)));
-      errno = 0;
    }
    else {
       datedit_error("Error reading %s as type %c%c%c%c", filename, 

@@ -798,7 +798,7 @@ static void *grab_font(AL_CONST char *filename, long *size, int x, int y, int w,
 
 
 /* helper for save_font, below */
-static void save_mono_font(FONT* f, PACKFILE* pack)
+static int save_mono_font(FONT* f, PACKFILE* pack)
 {
     FONT_MONO_DATA* mf = f->data;
     int i = 0;
@@ -831,12 +831,15 @@ static void save_mono_font(FONT* f, PACKFILE* pack)
         mf = mf->next;
 
     }
+
+    /* TODO: return -1 on failure */
+    return 0;
 }
 
 
 
 /* helper for save_font, below */
-static void save_color_font(FONT* f, PACKFILE* pack)
+static int save_color_font(FONT* f, PACKFILE* pack)
 {
     FONT_COLOR_DATA* cf = f->data;
     int i = 0;
@@ -873,21 +876,24 @@ static void save_color_font(FONT* f, PACKFILE* pack)
         cf = cf->next;
 
     }
+
+    /* TODO: return -1 on failure */
+    return 0;
 }
 
 
 
 /* saves a font into a datafile */
-static void save_font(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static int save_font(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
     FONT* font = dat->dat;
 
     pack_mputw(0, f);
 
     if (font->vtable == font_vtable_mono)
-       save_mono_font(font, f);
+       return save_mono_font(font, f);
     else
-       save_color_font(font, f);
+       return save_color_font(font, f);
 }
 
 
