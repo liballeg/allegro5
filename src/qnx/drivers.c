@@ -58,7 +58,7 @@ SYSTEM_DRIVER system_qnx =
    NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
    qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
    qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
-   _unix_yield_timeslice,           /* AL_METHOD(void, yield_timeslice, (void)); */
+   qnx_sys_yield_timeslice,         /* AL_METHOD(void, yield_timeslice, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */

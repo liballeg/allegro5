@@ -269,6 +269,7 @@ static void qnx_private_phd_exit()
    if (ph_direct_context) {
       PdReleaseDirectContext(ph_direct_context);
       ph_direct_context = NULL;
+      PgFlush();
       PgSetVideoMode(&original_settings);
    }
    dim.w = 1;

@@ -587,6 +587,16 @@ int qnx_sys_get_desktop_resolution(int *width, int *height)
 
 
 
+/* qnx_sys_yield_timeslice:
+ *  Gives some CPU time to other apps to play nice with multitasking.
+ */
+void qnx_sys_yield_timeslice(void)
+{
+   usleep(10000);
+}
+
+
+
 _DRIVER_INFO *qnx_sys_timer_drivers(void)
 {
    return qnx_timer_driver_list;
