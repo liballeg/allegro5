@@ -3256,13 +3256,13 @@ allegro.h for details.
    Latin-1 (U+A1 to U+FF), and Latin Extended-A (U+0100 to U+017F) character 
    ranges.
 
-@@void @text_mode(int mode);
+@@int @text_mode(int mode);
 @xref textout, textprintf
-   Sets the mode in which text will be drawn. If mode is zero or positive, 
-   text output will be opaque and the background of the characters will be 
-   set to color #mode. If mode is negative, text will be drawn transparently 
-   (ie. the background of the characters will not be altered). The default 
-   is a mode of zero.
+   Sets the mode in which text will be drawn. Returns previous mode.
+   If mode is zero or positive, text output will be opaque and the 
+   background of the characters will be set to color #mode. If mode is 
+   negative, text will be drawn transparently (ie. the background of the 
+   characters will not be altered). The default is a mode of zero.
 
 @@void @textout(BITMAP *bmp, FONT *f, char *s, int x, y, int color);
 @xref font, text_mode, textout_centre, textout_right, textout_justify

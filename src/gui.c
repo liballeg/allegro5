@@ -1138,8 +1138,6 @@ static void draw_menu_item(MENU_INFO *m, int c)
    int my;
    int rtm;
 
-   rtm=_textmode;
-
    if (m->menu[c].flags & D_DISABLED) {
       if (c == m->sel) {
 	 fg = gui_mg_color;
@@ -1164,7 +1162,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
    get_menu_pos(m, c, &x, &y, &w);
 
    rectfill(screen, x, y, x+w-1, y+text_height(font)+3, bg);
-   text_mode(bg);
+   rtm = text_mode(bg);
 
    if (ugetc(m->menu[c].text)) {
       i = 0;
@@ -1205,7 +1203,8 @@ static void draw_menu_item(MENU_INFO *m, int c)
       line(screen, x+1, y+text_height(font)/2+1, x+3, y+text_height(font)+1, fg);
       line(screen, x+3, y+text_height(font)+1, x+6, y+2, fg);
    }
-   _textmode=rtm;
+
+   text_mode(rtm);
 }
 
 
