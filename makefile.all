@@ -163,7 +163,8 @@ $(LIB_NAME): $(OBJECTS) $(RUNNER)
 # -------- rules for deleting the generated files --------
 
 clean:
-	-rm -fv $(CLEAN_FILES)
+	-rm -fv $(OBJ_CLEAN_FILES)
+	-rm -fv $(OTHER_CLEAN_FILES)
 
 distclean: clean
 	-rm -fv $(DISTCLEAN_FILES)

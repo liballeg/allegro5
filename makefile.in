@@ -274,7 +274,8 @@ suid: $(ALLEGRO_EXE_TARGETS)
 	touch suid
 
 clean:
-	rm -f $(CLEAN_FILES)
+	rm -f $(OBJ_CLEAN_FILES)
+	rm -f $(OTHER_CLEAN_FILES)
 
 distclean: clean
 	rm -f $(DISTCLEAN_FILES)
