@@ -91,10 +91,12 @@
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
       You should download the complete package instead the many small ones
       unless you want to move files manually. :-) At the time of writing
-      (September, 2001) 'Mingw-1.0.1-20010726.tar.gz' is the newest.
+      (November, 2001) version 1.1 is the newest. A direct link is here:
+      'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
 
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html'.
+      from 'http://alleg.sourceforge.net/wip.html'. Please don't confuse it
+      with dx70_min.zip.
 
    3) Install the MingW32 distribution from step 1. I recommend you unzip it
       to 'c:\mingw32' (the following steps assume this is what you used).
@@ -127,6 +129,9 @@
    Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32msvc\2.95.3\specs
    gcc version 2.95.3 20010726 (release)
 
+   (If you don't know how, you can click on Start -> Run then type "command".
+   Under Windows 2000 and XP, you should type "cmd" instead.)
+
 
 
 =============================================
@@ -142,14 +147,16 @@
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
       You should download the complete package instead the many small ones
       unless you want to move files manually. :-) At the time of writing
-      (September, 2001) 'Mingw-1.0.1-20010726.tar.gz' is the newest.
+      (November, 2001) version 1.1 is the newest. A direct link is here:
+      'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
 
    2) Download the Dev-C++ 4 IDE (without Mingw compiler and libraries) from
       'http://www.bloodshed.net/dev/download.html'.
       Once again, make sure you do not install it until you get to step 4.
 
    3) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html'.
+      from 'http://alleg.sourceforge.net/wip.html'. Please don't confuse it
+      with dx70_min.zip.
 
 
    Installation process:
@@ -189,6 +196,9 @@
    
    Using builtin specs.
    gcc version 2.95.2 19991024 (release)
+
+   (click on Start -> Run then type "command" or "cmd" to get a command
+   prompt.)
 
 
    10) Now scroll down a bit for instructions on how to install Allegro
@@ -267,6 +277,8 @@
    This assumes you have unzipped allegro to c:\allegro
 
    First configure Allegro by entering the following on the commandline:
+   (click on Start -> Run then type "command" or "cmd" to get a command
+   prompt)
 
    cd c:\allegro
    fix.bat mingw32
@@ -277,8 +289,9 @@
 
    SET STATICLINK=1
 
-   In the same manner we can also enter one of the following lines to
-   build either the debug or the profiling version of the library:
+   If you want to build either the debug or the profiling version of
+   the library enter one of the following. Skip them to build the
+   release (default) version.
 
    SET DEBUGMODE=1
    SET PROFILEMODE=1
@@ -344,7 +357,7 @@
    wish. Here's a small program you can type to see if everything
    worked until now:
 
-      #include "allegro.h"
+      #include <allegro.h>
 
       int main() {
          allegro_init();
@@ -353,13 +366,11 @@
       }
       END_OF_MAIN();
 
-   You now need to tell Dev-C++ that you'd like to make a program
-   that uses Allegro. For that, go in the Project Options screen
-   (Project/Project Options menu), then click on "Load Object Files".
-   You need to select the file called liballeg.a (of liballd.a for
-   the debug mode); the file should be in C:\Dev-Cpp\lib. Notice
-   it's a .a file, and not a .o file, so you'll need to get the file
-   dialog to show all files.
+   You now need to tell Dev-C++ that you'd like to make a program that
+   uses Allegro. For that, go in the Project Options screen
+   (Project/Project Options menu), then enter -lalleg (or -lalld for
+   the debug mode) in the box under 'Further object file or linker
+   options'.
 
    Compile your project! Simply click on the green check mark on
    your Dev-C++ toolbar. Correct any syntax errors in your code,
