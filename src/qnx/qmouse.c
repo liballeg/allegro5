@@ -41,7 +41,7 @@ static int mymickey_y = 0;
 void qnx_mouse_handler(int x, int y, int z, int buttons)
 {
    _mouse_b = buttons;
-
+   
    mymickey_x += x;
    mymickey_y += y;
 
@@ -116,12 +116,12 @@ void qnx_mouse_set_range(int x1, int y1, int x2, int y2)
    mouse_maxx = x2;
    mouse_maxy = y2;
 
-   DISABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
 
    _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
    _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
 
-   ENABLE();
+   pthread_mutex_unlock(&qnx_events_mutex);
 }
 
 
@@ -131,7 +131,6 @@ void qnx_mouse_set_range(int x1, int y1, int x2, int y2)
  */
 void qnx_mouse_set_speed(int xspeed, int yspeed)
 {
-   /* Use xset utility with "m" option.  */
 }
 
 
@@ -149,7 +148,5 @@ void qnx_mouse_get_mickeys(int *mickeyx, int *mickeyy)
 
    *mickeyx = temp_x;
    *mickeyy = temp_y;
-
-//   _xwin_set_warped_mouse_mode(TRUE);
 }
 

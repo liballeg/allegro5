@@ -112,26 +112,8 @@ static RETSIGTYPE qnx_signal_handler(int num)
  */
 static void qnx_interrupts_handler(unsigned long interval)
 {
-   PhCursorInfo_t cursor_info;
-   int ig, dx, dy, buttons = 0;
-
    if (_unix_timer_interrupt)
       (*_unix_timer_interrupt)(interval);
-
-   /* Special mouse handling for direct mode */
-   DISABLE();
-   if ((_mouse_installed) && (ph_screen_context)) {
-      ig = PhInputGroup(NULL);
-      PhQueryCursor(ig, &cursor_info);
-      dx = cursor_info.pos.x - (SCREEN_W / 2);
-      dy = cursor_info.pos.y - (SCREEN_H / 2);
-      buttons = (cursor_info.button_state & Ph_BUTTON_SELECT ? 0x1 : 0) |
-                (cursor_info.button_state & Ph_BUTTON_MENU ? 0x2 : 0) |
-                (cursor_info.button_state & Ph_BUTTON_ADJUST ? 0x4 : 0);
-      qnx_mouse_handler(dx, dy, 0, buttons);
-      PhMoveCursorAbs(ig, SCREEN_W / 2, SCREEN_H / 2);
-   }
-   ENABLE();
 }
 
 
@@ -150,12 +132,31 @@ static void *qnx_events_handler(void *data)
    const char *close_buttons[] = { "&Yes", "&No" };
    
    while(!qnx_system_done) {
+
+      usleep(10000);
       
       pthread_mutex_lock(&qnx_events_mutex);
+      
+      if (!ph_gfx_initialized) {
+         pthread_mutex_unlock(&qnx_events_mutex);
+         continue;
+      }
+
+      /* Special mouse handling while in fullscreen mode */
+      if ((_mouse_installed) && (ph_screen_context)) {
+         ig = PhInputGroup(NULL);
+         PhQueryCursor(ig, &cursor_info);
+         dx = cursor_info.pos.x - (SCREEN_W / 2);
+         dy = cursor_info.pos.y - (SCREEN_H / 2);
+         buttons = (cursor_info.button_state & Ph_BUTTON_SELECT ? 0x1 : 0) |
+                   (cursor_info.button_state & Ph_BUTTON_MENU ? 0x2 : 0) |
+                   (cursor_info.button_state & Ph_BUTTON_ADJUST ? 0x4 : 0);
+         qnx_mouse_handler(dx, dy, 0, buttons);
+         PhMoveCursorAbs(ig, SCREEN_W / 2, SCREEN_H / 2);
+      }
 
       /* Checks if there is a pending event */
-      if ((!ph_gfx_initialized) ||
-          (PhEventPeek(ph_event, EVENT_SIZE) != Ph_EVENT_MSG)) {
+      if (PhEventPeek(ph_event, EVENT_SIZE) != Ph_EVENT_MSG) {
          pthread_mutex_unlock(&qnx_events_mutex);
          continue;
       }
@@ -254,7 +255,7 @@ static void *qnx_events_handler(void *data)
                            if (switch_out_cb[i])
                               switch_out_cb[i]();
                         }
-                        PgSetPalette(NULL, 0, 0, -1, 0, 0);
+                        PgSetPalette(ph_palette, 0, 0, -1, 0, 0);
                         PgFlush();
                      }
                      if (ph_window_context)
@@ -413,7 +414,11 @@ void qnx_sys_message(AL_CONST char *msg)
    const char *button[] = { "&Ok" };
 
    fprintf(stderr, "%s", msg);
-   PtAlert(NULL, NULL, "Title", NULL, msg, NULL, 1, button, NULL, 1, 1, Pt_MODAL);
+   DISABLE();
+   pthread_mutex_lock(&qnx_events_mutex);
+   PtAlert(ph_window, NULL, window_title, NULL, msg, NULL, 1, button, NULL, 1, 1, Pt_MODAL);
+   pthread_mutex_unlock(&qnx_events_mutex);
+   ENABLE();
 }
 
 

@@ -359,7 +359,7 @@ void qnx_ph_vsync(void)
 void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesync)
 {
    int i;
-   
+
    for (i=from; i<=to; i++) {
       ph_palette[i] = (p[i].r << 18) | (p[i].g << 10) | (p[i].b << 2);
    }
@@ -372,8 +372,8 @@ void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesyn
    }
    if (desktop_depth == 8) {
       PgSetPalette(ph_palette, 0, from, to - from + 1, Pg_PALSET_HARDLOCKED, 0);
-      PgFlush();
    }
+   PgFlush();
 }
 
 
@@ -573,7 +573,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
  */
 static void qnx_private_ph_exit()
 {
-   PgSetPalette(NULL, 0, 0, -1, 0, 0);
+   PgSetPalette(ph_palette, 0, 0, -1, 0, 0);
    PgFlush();
    ph_gfx_initialized = FALSE;
    if (ph_window_context)
