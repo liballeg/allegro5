@@ -93,7 +93,7 @@ static int show_overlay(int x, int y, int w, int h)
 
    _TRACE("show_overlay(%d, %d, %d, %d)\n", x, y, w, h);
 
-   overlay_visible = FALSE;
+   overlay_visible = TRUE;
 
    /* dest color keying */
    key.dwColorSpaceLowValue = 0; /* (wnd_back_color & 0xffff); */
@@ -111,11 +111,13 @@ static int show_overlay(int x, int y, int w, int h)
 					 dd_prim_surface, &dest_rect,
 				     DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
+      IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
+	 dd_prim_surface, NULL, DDOVER_HIDE, NULL);
+
       _TRACE("Can't display overlay (%x)\n", hr);
+      /* but we keep overlay_visible as TRUE to allow future updates */
       return -1;
    }
-
-   overlay_visible = TRUE;
 
    return 0;
 }
