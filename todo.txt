@@ -17,7 +17,7 @@ General (Platform independant) todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Keyboard gets "stuck" under Windows 2000
+- Update 'DirectSound sample looping isn't right' bug status
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -65,11 +65,6 @@ BeOS todos:
 - Write a safe windowed driver using BBitmap
 - shared library support
 - code cleanup
-
-Supposedly fixed. (confirmation wanted)
----------------------------------------------------------------------------
-
-- Windows (DirectSound) sample looping isn't right
 
 Wishlist
 ---------------------------------------------------------------------------

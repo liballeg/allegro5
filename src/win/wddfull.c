@@ -137,6 +137,8 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
       return NULL;
 
+   wnd_windowed = FALSE;
+
    _enter_critical();
 
    if (init_directx() != 0)
@@ -159,7 +161,7 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO);
    enable_acceleration(&gfx_directx_accel);
-   wnd_windowed = FALSE;
+
    set_display_switch_mode(SWITCH_AMNESIA);
 
    _exit_critical();
@@ -180,6 +182,8 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
       return NULL;
+
+   wnd_windowed = FALSE;
 
    _enter_critical();
 
@@ -202,7 +206,7 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
    if (setup_driver(&gfx_directx_soft, w, h, color_depth) != 0)
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
-   wnd_windowed = FALSE;
+
    set_display_switch_mode(SWITCH_AMNESIA);
 
    _exit_critical();
@@ -223,6 +227,8 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
       return NULL;
+
+   wnd_windowed = FALSE;
 
    _enter_critical();
 
@@ -245,7 +251,7 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
    if (setup_driver(&gfx_directx_safe, w, h, color_depth) != 0)
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
-   wnd_windowed = FALSE;
+
    set_display_switch_mode(SWITCH_AMNESIA);
 
    _exit_critical();

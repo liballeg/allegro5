@@ -41,23 +41,25 @@ int wnd_windowed = TRUE;
 int wnd_sysmenu = FALSE;
 int wnd_paint_back = FALSE;
 
+/* graphics */
 struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
-
-void (*user_close_proc)(void) = NULL;
-
 CRITICAL_SECTION gfx_crit_sect;
 int gfx_crit_sect_nesting = 0;
 
+/* close button user hook */
+void (*user_close_proc)(void) = NULL;
+
+/* window thread internals */
 #define ALLEGRO_WND_CLASS "AllegroWindow"
 static HWND user_wnd = NULL;
 static WNDPROC user_wnd_proc = NULL;
 static HANDLE wnd_thread = NULL;
 static HWND (*wnd_create_proc)(WNDPROC) = NULL;
-
 static int old_style = 0;
 
 /* custom window msgs */
 static UINT msg_call_proc = 0;
+static UINT msg_acquire_keyboard = 0;
 static UINT msg_acquire_mouse = 0;
 static UINT msg_set_cursor = 0;
 
@@ -101,6 +103,16 @@ int wnd_call_proc(int (*proc) (void))
 
 
 
+/* wnd_acquire_keyboard:
+ *  post msg to window to acquire the keyboard device
+ */
+void wnd_acquire_keyboard(void)
+{
+   PostMessage(allegro_wnd, msg_acquire_keyboard, 0, 0);
+}
+
+
+
 /* wnd_acquire_mouse:
  *  post msg to window to acquire the mouse device
  */
@@ -130,6 +142,9 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_call_proc)
       return ((int (*)(void))wparam) ();
+
+   if (message == msg_acquire_keyboard)
+      return key_dinput_acquire();
 
    if (message == msg_acquire_mouse)
       return mouse_dinput_acquire();
@@ -203,12 +218,14 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_KEYUP:
       case WM_SYSKEYDOWN:
       case WM_SYSKEYUP:
-         /* disable the message-based key handler */
+         /* disable the default message-based key handler
+          * needed to prevent conflicts under Win2k
+          */
          return 0;
 
       case WM_APPCOMMAND: /* Win2k only */
-         /*  unlike with other messages, we have to
-          *  return TRUE if we process this one
+         /* unlike with other messages, we have to
+          * return TRUE if we process this one
           */
          return TRUE;
 
@@ -340,6 +357,7 @@ static HWND create_directx_window(void)
    }
 
    ShowWindow(wnd, SW_SHOWNORMAL);
+   SetForegroundWindow(wnd); 
    UpdateWindow(wnd);
 
    return wnd;
@@ -355,6 +373,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    MSG msg;
 
    win_init_thread();
+   _TRACE("window thread starts\n");   
 
    /* setup window */
    if (!wnd_create_proc)
@@ -363,19 +382,20 @@ static void wnd_thread_proc(HANDLE setup_event)
       allegro_wnd = wnd_create_proc(directx_wnd_proc);
 
    if (allegro_wnd == NULL)
-      goto Error;
+      goto End;
 
    /* now the thread it running successfully, let's acknowledge */
    SetEvent(setup_event);
 
    /* message loop */
-   while (GetMessage(&msg, NULL, 0, 0))
+   while (GetMessage(&msg, NULL, 0, 0)) {
+      TranslateMessage(&msg);
       DispatchMessage(&msg);
+   }
 
- Error:
-   win_exit_thread();
-
+ End:
    _TRACE("window thread exits\n");
+   win_exit_thread();
 }
 
 
@@ -392,6 +412,7 @@ int init_directx_window(void)
 
    /* setup globals */
    msg_call_proc = RegisterWindowMessage("Allegro call proc");
+   msg_acquire_keyboard = RegisterWindowMessage("Allegro keyboard acquire proc");
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_set_cursor = RegisterWindowMessage("Allegro mouse cursor proc");
 

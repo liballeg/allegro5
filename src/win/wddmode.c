@@ -74,6 +74,7 @@ static int wnd_set_video_mode(void)
       goto Error;
    }
 
+   wnd_acquire_keyboard();
    wnd_acquire_mouse();
 
    return 0;

@@ -112,6 +112,47 @@ static int mouse_wason = FALSE;
 
 
 
+/* dinput_err_str:
+ *  returns a DirectInput error string
+ */
+#ifdef DEBUGMODE
+static char* dinput_err_str(long err)
+{
+   static char err_str[64];
+
+   switch (err) {
+
+      case DIERR_NOTACQUIRED:
+         strcpy(err_str, "the device is not acquired");
+         break;
+
+      case DIERR_INPUTLOST:
+         strcpy(err_str, "access to the device was not granted");
+         break;
+
+      case DIERR_INVALIDPARAM:
+         strcpy(err_str, "the device does not have a selected data format");
+         break;
+
+#ifdef DIERR_OTHERAPPHASPRIO
+      /* this is not a legacy DirectX 3 error code */
+      case DIERR_OTHERAPPHASPRIO:
+         strcpy(err_str, "can't acquire the device in background");
+         break;
+#endif
+
+      default:
+         strcpy(err_str, "unknown error");
+   }
+
+   return err_str;
+}
+#else
+#define dinput_err_str(hr) "\0"
+#endif
+
+
+
 /* mouse_dinput_acquire:
  *  acquires mouse device.
  */
@@ -125,7 +166,7 @@ int mouse_dinput_acquire(void)
       hr = IDirectInputDevice_Acquire(mouse_dinput_device);
 
       if (FAILED(hr)) {
-	 _TRACE("acquire mouse failed = %s (%x)\n", win_err_str(hr), hr);
+	 _TRACE("acquire mouse failed: %s\n", dinput_err_str(hr));
 	 return -1;
       }
 
@@ -140,8 +181,11 @@ int mouse_dinput_acquire(void)
 
       return 0;
    }
-   else
+   else {
+      mouse_set_cursor();
+
       return -1;
+   }
 }
 
 
@@ -215,8 +259,6 @@ void mouse_sysmenu_changed()
  */
 static void mouse_dinput_exit(void)
 {
-   _TRACE("mouse_dinput_exit\n");
-
    /* release mouse device */
    if (mouse_dinput_device) {
       /* unacquire device first */
@@ -276,8 +318,6 @@ static int mouse_dinput_init(void)
    // the data
       DINPUT_BUFFERSIZE,        // dwData
    };
-
-   _TRACE("mouse_dinput_init\n");
 
    /* Get DirectInput interface */
    hr = DirectInputCreate(allegro_inst, DIRECTINPUT_VERSION, &mouse_dinput, NULL);
@@ -339,13 +379,7 @@ static void mouse_directx_poll(void)
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
    int ofs, data;
 
-   if (!app_foreground)
-   {
-      thread_switch_out();
-      return;
-   }
-
-   while (1) {
+   while (TRUE) {
       /* the whole buffer is free */
       waiting_messages = DINPUT_BUFFERSIZE;
 
@@ -356,10 +390,10 @@ static void mouse_directx_poll(void)
 					    &waiting_messages,
 					    0);
 
-      /* was device lost */
-      if (hr == DIERR_INPUTLOST) {
-	 /* reaqcuire device, if this fails, stop polling */
-	 _TRACE("mouse device was lost\n");
+      /* was device lost ? */
+      if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+	 /* reacquire device and stop polling */
+	 _TRACE("mouse device not acquired or lost\n");
 	 wnd_acquire_mouse();
 	 break;
       }
@@ -504,9 +538,15 @@ static void mouse_directx_thread(HANDLE setup_event)
    HANDLE events[2];
    DWORD result;
 
+   win_init_thread();
+   _TRACE("mouse thread starts\n");
+
    /* setup DirectInput */
-   if (mouse_dinput_init())
+   if (mouse_dinput_init()) {
+      _TRACE("mouse thread exits\n");
+      win_exit_thread();
       return;
+   }
 
    /* now the thread it running successfully, let's acknowledge */
    SetEvent(setup_event);
@@ -516,14 +556,15 @@ static void mouse_directx_thread(HANDLE setup_event)
    events[1] = mouse_input_event;
 
    /* input loop */
-   while (1) {
+   while (TRUE) {
       result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
 
       switch (result) {
 
 	 case WAIT_OBJECT_0 + 0:        /* thread should stop */
-	    _TRACE("mouse thread exits\n");
 	    mouse_dinput_exit();
+            _TRACE("mouse thread exits\n");
+            win_exit_thread();
 	    return;
 
 	 case WAIT_OBJECT_0 + 1:        /* mouse input is queued */ 

@@ -30,8 +30,15 @@
 
 _DRIVER_INFO _timer_driver_list[] =
 {
-   {TIMER_WIN32_MT, &timer_win32_mt, TRUE},
+   /* The multi-threaded driver causes the keyboard to freeze under Win2k
+    * when multiple keys are pressed. The fix would be to modify the handling
+    * of the keyboard autorepeat in src/keyboard.c, so that it uses a static
+    * timer instead of a dynamic one which is re-installed each time a new
+    * key is struck.
+    * For the time being, we simply use the single-threaded driver.
+    */
    {TIMER_WIN32_ST, &timer_win32_st, TRUE},
+   {TIMER_WIN32_MT, &timer_win32_mt, TRUE},
    {0, NULL, 0}
 };
 
@@ -172,7 +179,7 @@ void mt_timer_thread(WIN32_TIMER_INT * This)
 
    This->threadid = GetCurrentThreadId();
 
-   while (1) {
+   while (TRUE) {
       if (!app_foreground)
 	 thread_switch_out();
 
@@ -230,7 +237,7 @@ void mt_timer_thread_counter(WIN32_TIMER_INT * This)
 
    This->threadid = GetCurrentThreadId();
 
-   while (1) {
+   while (TRUE) {
       /* wait until foreground */
       if (WaitForSingleObject(_foreground_event, 0) == WAIT_TIMEOUT) {
 	 thread_switch_out();
@@ -575,7 +582,7 @@ void st_timer_thread(void *nil)
    DWORD result;
    unsigned long delay = 0x8000;
 
-   while (1) {
+   while (TRUE) {
       if (!app_foreground)
 	 thread_switch_out();
 
@@ -604,7 +611,7 @@ void st_timer_thread_counter(WIN32_TIMER_INT * This)
    /* get initial counter */
    QueryPerformanceCounter(&prev_tick);
 
-   while (1) {
+   while (TRUE) {
       /* wait for foreground */
       if (WaitForSingleObject(_foreground_event, 0) == WAIT_TIMEOUT) {
 	 thread_switch_out();
@@ -663,7 +670,7 @@ static int tim_win32_st_init(void)
 
 
 
-/* tim_win32_mt_exit:
+/* tim_win32_st_exit:
  */
 static void tim_win32_st_exit(void)
 {
@@ -705,22 +712,3 @@ static void win32_rest(long time, AL_METHOD(void, callback, (void)))
       Sleep(ms);
    }
 }
-
-
-
-/* timer_switch_out:
- */
-void timer_switch_out(void)
-{
-   switch (get_display_switch_mode())
-   {
-   case SWITCH_AMNESIA:
-   case SWITCH_NONE:
-      /* todo */
-      break;
-
-   default:
-      break;
-   }
-}
-

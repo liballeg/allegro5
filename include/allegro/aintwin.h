@@ -131,10 +131,18 @@ AL_FUNC(void, sys_switch_in, (void));
 AL_FUNC(void, sys_switch_out, (void));
 AL_FUNC(void, thread_switch_out, (void));
 AL_FUNC(void, midi_switch_out, (void));
-AL_FUNC(void, timer_switch_out, (void));
 
 AL_FUNC(void, sys_directx_switch_out_callback, (void));
 AL_FUNC(void, sys_directx_switch_in_callback, (void));
+
+
+
+/*******************************************/
+/************** keyboard routines **********/
+/*******************************************/
+AL_FUNC(int, key_dinput_acquire, (void));
+AL_FUNC(void, key_dinput_unacquire, (void));
+AL_FUNC(void, wnd_acquire_keyboard, (void));
 
 
 

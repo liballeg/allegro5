@@ -70,20 +70,150 @@ static LPDIRECTINPUTDEVICE key_dinput_device = NULL;
 
 
 
+/* dinput_err_str:
+ *  returns a DirectInput error string
+ */
+#ifdef DEBUGMODE
+static char* dinput_err_str(long err)
+{
+   static char err_str[64];
+
+   switch (err) {
+
+      case DIERR_NOTACQUIRED:
+         strcpy(err_str, "the device is not acquired");
+         break;
+
+      case DIERR_INPUTLOST:
+         strcpy(err_str, "access to the device was lost");
+         break;
+
+      case DIERR_INVALIDPARAM:
+         strcpy(err_str, "the device does not have a selected data format");
+         break;
+
+#ifdef DIERR_OTHERAPPHASPRIO
+      /* this is not a legacy DirectX 3 error code */
+      case DIERR_OTHERAPPHASPRIO:
+         strcpy(err_str, "can't acquire the device in background");
+         break;
+#endif
+
+      default:
+         strcpy(err_str, "unknown error");
+   }
+
+   return err_str;
+}
+#else
+#define dinput_err_str(hr) "\0"
+#endif
+
+
+
+/* key_dinput_handle_scancode:
+ *  handles single scancode
+ */
+static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
+{
+   /* three-finger salute for killing the program */
+   if ((((scancode & 0x7f) == 0x4F) || ((scancode & 0x7f) == 0x53)) &&
+       (three_finger_flag) && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG)) {
+      _TRACE("Terminating application\n");
+      ExitProcess(0);
+   }
+
+   /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc, alt+F4) */
+   if ((pressed) && 
+       ((((scancode & 0x7f) == 0x0F) && (_key_shifts & KB_ALT_FLAG)) ||
+       (((scancode & 0x7f) == 0x01) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) ||
+       (((scancode & 0x7f) == 0x39) && (_key_shifts & KB_ALT_FLAG)) ||
+       (((scancode & 0x7f) == 0x3E) && (_key_shifts & KB_ALT_FLAG))))
+      return;
+
+   /* if not foreground, filter out press codes and handle only release codes */
+   if (pressed == 0 || (app_foreground && !wnd_sysmenu)) {
+      if (scancode > 0x7F) {
+	 _handle_pckey(0xE0);
+      }
+
+      _handle_pckey((scancode & 0x7F) | (pressed ? 0 : 0x80));
+   }
+}
+
+
+
+/* key_dinput_handle:
+ *  handles queued keyboard input
+ */
+static void key_dinput_handle(void)
+{
+   long int waiting_scancodes;
+   HRESULT hr;
+   int current;
+   static DIDEVICEOBJECTDATA scancode_buffer[DINPUT_BUFFERSIZE];
+
+   while (TRUE) {
+      /* the whole buffer is free */
+      waiting_scancodes = DINPUT_BUFFERSIZE;
+
+      /* fill the buffer */
+      hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
+					    sizeof(DIDEVICEOBJECTDATA),
+					    scancode_buffer,
+					    &waiting_scancodes,
+					    0);
+
+      /* was device lost ? */
+      if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+	 /* reacquire device and stop polling */
+         _TRACE("keyboard device not acquired or lost\n");
+	 wnd_acquire_keyboard();
+         break;
+      }
+      else if (FAILED(hr)) {
+	 /* any other error will also stop polling */
+	 _TRACE("unexpected error while filling keyboard scancode buffer\n");
+	 break;
+      }
+      else {
+	 /* normally only this case should happen */
+	 for (current = 0; current < waiting_scancodes; current++) {
+	    key_dinput_handle_scancode(
+			 (unsigned char)(scancode_buffer[current].dwOfs),
+		         (scancode_buffer[current].dwData & 0x80) == 0x80);
+	 }
+
+	 break;
+      }
+   }
+}
+
+
+
 /* key_dinput_acquire:
  *  acquires keyboard device. This must be called after a
  *  window switch for example if the device is in foreground
  *  cooperative level.
  */
-static int key_dinput_acquire(void)
+int key_dinput_acquire(void)
 {
    HRESULT hr;
 
-   hr = IDirectInputDevice_Acquire(key_dinput_device);
-   if (FAILED(hr))
-      return -1;
+   if (key_dinput_device) {
+      hr = IDirectInputDevice_Acquire(key_dinput_device);
 
-   return 0;
+      if (FAILED(hr)) {
+         _TRACE("acquire keyboard failed: %s\n", dinput_err_str(hr));
+         return -1;
+      }
+
+      SetEvent(key_input_event);
+
+      return 0;
+   }
+   else
+      return -1;
 }
 
 
@@ -91,9 +221,21 @@ static int key_dinput_acquire(void)
 /* key_dinput_unacquire:
  *  unacquires keyboard device.
  */
-static void key_dinput_unacquire(void)
+void key_dinput_unacquire(void)
 {
-   IDirectInputDevice_Unacquire(key_dinput_device);
+   char key_state[256];
+   int key;
+
+   if (key_dinput_device) {
+      /* release pressed keys */
+      IDirectInputDevice_GetDeviceState(key_dinput_device, 256, key_state);
+
+      for (key=0; key<256; key++)
+         if (key_state[key] & 0x80)
+            key_dinput_handle_scancode(key, FALSE);
+
+      IDirectInputDevice_Unacquire(key_dinput_device);
+   }
 }
 
 
@@ -169,7 +311,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Set cooperative level */
-   hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, allegro_wnd, DISCL_BACKGROUND | DISCL_NONEXCLUSIVE);
+   hr = IDirectInputDevice_SetCooperativeLevel(key_dinput_device, allegro_wnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
    if (FAILED(hr))
       goto Error;
 
@@ -180,8 +322,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Acquire the created device */
-   if (key_dinput_acquire() != 0)
-      goto Error;
+   wnd_acquire_keyboard();   
 
    /* Initialize keyboard state */
    SetEvent(key_input_event);
@@ -195,90 +336,6 @@ static int key_dinput_init(void)
 
 
 
-/* key_dinput_handle_scancode:
- *  handles single scancode
- */
-void key_dinput_handle_scancode(unsigned char scancode, int pressed)
-{
-   /* three-finger salute for killing the program */
-   if ((((scancode & 0x7f) == 0x4F) || ((scancode & 0x7f) == 0x53)) &&
-       (three_finger_flag) && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG)) {
-      _TRACE("Terminating application\n");
-      ExitProcess(0);
-   }
-
-   /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc, alt+F4) */
-   if ((pressed) && 
-       ((((scancode & 0x7f) == 0x0F) && (_key_shifts & KB_ALT_FLAG)) ||
-       (((scancode & 0x7f) == 0x01) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) ||
-       (((scancode & 0x7f) == 0x39) && (_key_shifts & KB_ALT_FLAG)) ||
-       (((scancode & 0x7f) == 0x3E) && (_key_shifts & KB_ALT_FLAG))))
-      return;
-
-   /* if not foreground, filter out press codes and handle only release codes */
-   if (pressed == 0 || (app_foreground && !wnd_sysmenu)) {
-      if (scancode > 0x7F) {
-	 _handle_pckey(0xE0);
-      }
-
-      _handle_pckey((scancode & 0x7F) | (pressed ? 0 : 0x80));
-   }
-}
-
-
-
-/* key_dinput_handle:
- *  handles queued keyboard input
- */
-static void key_dinput_handle(void)
-{
-   long int waiting_scancodes;
-   HRESULT hr;
-   int result;
-   int current;
-   static DIDEVICEOBJECTDATA scancode_buffer[DINPUT_BUFFERSIZE];
-
-   while (1) {
-      /* the whole buffer is free */
-      waiting_scancodes = DINPUT_BUFFERSIZE;
-
-      /* fill the buffer */
-      hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
-					    sizeof(DIDEVICEOBJECTDATA),
-					    scancode_buffer,
-					    &waiting_scancodes,
-					    0);
-
-      /* was device lost */
-      if (hr == DIERR_INPUTLOST) {
-	 /* reaqcuire device, if this fail, stop polling */
-	 result = key_dinput_acquire();
-	 _TRACE("keyboard device was lost\n");
-	 ASSERT(result == 0);
-	 if (result != 0)
-	    break;
-      }
-      else if (FAILED(hr)) {
-	 /* any other error will also stop polling */
-	 _TRACE("unexpected error while filling keyboard scancode buffer\n");
-	 ASSERT(hr == DI_OK);
-	 break;
-      }
-      else {
-	 /* normally only this case should happen */
-	 for (current = 0; current < waiting_scancodes; current++) {
-	    key_dinput_handle_scancode(
-			 (unsigned char)(scancode_buffer[current].dwOfs),
-		       (scancode_buffer[current].dwData & 0x80) == 0x80);
-	 }
-
-	 break;
-      }
-   }
-}
-
-
-
 /* key_directx_thread:
  */
 static void key_directx_thread(HANDLE setup_event)
@@ -286,9 +343,15 @@ static void key_directx_thread(HANDLE setup_event)
    HANDLE events[2];
    DWORD result;
 
+   win_init_thread();
+   _TRACE("keyboard thread starts\n");
+
    /* setup DirectInput */
-   if (key_dinput_init())
+   if (key_dinput_init()) {
+      _TRACE("keyboard thread exits\n");
+      win_exit_thread();
       return;
+   }
 
    /* now the thread it running successfully, let's acknowledge */
    SetEvent(setup_event);
@@ -298,12 +361,15 @@ static void key_directx_thread(HANDLE setup_event)
    events[1] = key_input_event;
 
    /* input loop */
-   while (1) {
+   while (TRUE) {
       result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
+
       switch (result) {
+
 	 case WAIT_OBJECT_0 + 0:        /* thread should stop */
-	    _TRACE("keyboard thread exits\n");
 	    key_dinput_exit();
+            _TRACE("keyboard thread exits\n");
+            win_exit_thread();
 	    return;
 
 	 case WAIT_OBJECT_0 + 1:        /* keyboard input is queued */

@@ -97,7 +97,7 @@ static UINT render_timer = 0;
 static int render_semaphore = FALSE;
 static PALETTE palette;
 static HANDLE vsync_event;
-#define RENDER_DELAY (1000/50)
+#define RENDER_DELAY (1000/70)
 
 /* hardware mouse cursor emulation */
 static int mouse_on = FALSE;

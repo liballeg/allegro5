@@ -138,12 +138,13 @@ void sys_directx_remove_display_switch_callback(void (*cb)(void))
  */
 void sys_switch_in(void)
 {
-   _TRACE("sys_switch_in\n");
+   _TRACE("switch in\n");
    app_foreground = TRUE;
 
    if (win_gfx_driver && win_gfx_driver->switch_in)
       win_gfx_driver->switch_in();
 
+   wnd_acquire_keyboard();
    wnd_acquire_mouse(); 
    sys_directx_switch_in_callback();
 
@@ -171,14 +172,14 @@ void sys_switch_in(void)
  */
 void sys_switch_out(void)
 {
-   _TRACE("sys_switch_out\n");
+   _TRACE("switch out\n");
 
    app_foreground = FALSE;
 
    sys_directx_switch_out_callback();
    mouse_dinput_unacquire();
+   key_dinput_unacquire();
    midi_switch_out();
-   timer_switch_out();
 
    if (win_gfx_driver && win_gfx_driver->switch_out)
       win_gfx_driver->switch_out();
