@@ -7,6 +7,43 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.5 to 4.1.6 (Nov 2002)
+<ul><li>
+   Grzegorz Adam Hankiewicz added informations on the FLI format provided
+   by Kronoman X to the FAQ.
+<li>
+   Eric Botcazou revived the two former set_window_close_* functions as
+   deprecated functions.
+<li>
+   Elias Pschernig contributed an improved xkeymap utility, based on the
+   original code by Michael Bukin.
+<li>
+   Eric Botcazou added synchronization to the timer code on multi-threaded
+   platforms (except BeOS for the time being).
+<li>
+   Eric Botcazou made the new 'save' method of plugins use the same return
+   value convention as the 'export' method (see tools/plugins/plugins.txt).
+<li>
+   Eric Botcazou added the support for plugin scripts to the MinGW port
+<li>
+   Peter Wang changed the default sound mixing quality to 2 (highest).
+<li>
+   Matthew Leverton added the detection of left-hand mouse configuration
+   under Windows.
+<li>
+   Oscar Giner fixed a bug with binary data exporting in the grabber,
+   introduced in the 4.1.4 release.
+<li>
+   Eric Botcazou fixed a crash when Alt+Tabbing under WinXP.
+<li>
+   Eric Botcazou reverted his patch changing the behaviour at startup
+   under Windows.
+<li>
+   Grzegorz Adam Hankiewicz added infrastructure for properly documenting
+   the return value of the API calls.
+</ul>
+
+@heading
 Changes from 4.1.4 to 4.1.5 (Nov 2002)
 <ul><li>
    Grzegorz Adam Hankiewicz updated the docs about mailing lists/contacts.

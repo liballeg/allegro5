@@ -478,8 +478,9 @@ Contributors
    Fixed a bug with mouse mickeys in windowed mode under Windows, fixed a
    problem with al_find*() and NTFS partitions under Windows, added missing
    header files to be installed by the Windows binary distribution, made the
-   DOS/Windows makefiles use 'copy /B' instead of 'copy' and pointed out a
-   C99 idiom in the dat2c utility that Borland C++ doesn't like.
+   DOS/Windows makefiles use 'copy /B' instead of 'copy', pointed out a C99
+   idiom in the dat2c utility that Borland C++ doesn't like and added the
+   detection of left-hand mouse configuration under Windows.
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
@@ -530,7 +531,8 @@ Contributors
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
 
    Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
-   Added the Catalan translation and corrected the Spanish translation.
+   Added the Catalan translation, corrected the Spanish translation and fixed
+   a bug with binary data exporting in the grabber.
 
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.
