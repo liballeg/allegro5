@@ -1,7 +1,7 @@
 # RPM spec file for Allegro.
 
 Summary: A game programming library.
-Summary(es): Una libreria de programacion de juegos.
+Summary(es): Una librería de programación de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
@@ -49,7 +49,7 @@ Computerspielen und anderen Formen von Multimediaprogrammierung.
 
 %package devel
 Summary: A game programming library.
-Summary(es): Una libreria de programacion de juegos.
+Summary(es): Una librería de programación de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
