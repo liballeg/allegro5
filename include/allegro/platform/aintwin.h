@@ -49,9 +49,7 @@
 #endif
 
 
-/*******************************************/
-/***************** general *****************/
-/*******************************************/
+/* generals */
 AL_VAR(HINSTANCE, allegro_inst);
 AL_VAR(HANDLE, allegro_thread);
 AL_VAR(CRITICAL_SECTION, allegro_critical_section);
@@ -59,7 +57,6 @@ AL_VAR(int, _dx_ver);
 
 #define _enter_critical()  EnterCriticalSection(&allegro_critical_section)
 #define _exit_critical()   LeaveCriticalSection(&allegro_critical_section)
-
 
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));
@@ -95,7 +92,7 @@ AL_VAR(int, gfx_crit_sect_nesting);
 AL_FUNC(void, gfx_directx_restore, (void));
 
 
-/* focus switch routines */
+/* switch routines */
 AL_VAR(BOOL, app_foreground);
 AL_VAR(HANDLE, _foreground_event);
 
@@ -106,49 +103,37 @@ AL_FUNC(int, sys_directx_set_display_switch_callback, (int dir, AL_METHOD(void, 
 AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
 
 AL_FUNC(void, sys_switch_in, (void));
-
 AL_FUNC(void, sys_switch_out, (void));
-AL_FUNC(void, midi_switch_out, (void));
 
 AL_FUNC(void, sys_directx_switch_out_callback, (void));
 AL_FUNC(void, sys_directx_switch_in_callback, (void));
 
 
-
-/*******************************************/
-/************** main window routines *******/
-/*******************************************/
+/* main window routines */
+AL_FUNC(void, wnd_acquire_keyboard, (void));
+AL_FUNC(void, wnd_unacquire_keyboard, (void));
+AL_FUNC(void, wnd_acquire_mouse, (void));
+AL_FUNC(void, wnd_unacquire_mouse, (void));
+AL_FUNC(void, wnd_acquire_joystick, (void));
+AL_FUNC(void, wnd_unacquire_joystick, (void));
 AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
 AL_FUNC(int, wnd_register_event, (HANDLE event_id, void (*event_handler)(void)));
 AL_FUNC(void, wnd_unregister_event, (HANDLE event_id));
 
 
-
-/*******************************************/
-/************** keyboard routines **********/
-/*******************************************/
+/* keyboard routines */
 AL_FUNC(int, key_dinput_acquire, (void));
 AL_FUNC(int, key_dinput_unacquire, (void));
-AL_FUNC(void, wnd_acquire_keyboard, (void));
-AL_FUNC(void, wnd_unacquire_keyboard, (void));
 
 
-
-/*******************************************/
-/************** mouse routines *************/
-/*******************************************/
+/* mouse routines */
 AL_FUNC(int, mouse_dinput_acquire, (void));
 AL_FUNC(int, mouse_dinput_unacquire, (void));
 AL_FUNC(int, mouse_set_syscursor, (int state));
 AL_FUNC(int, mouse_set_sysmenu, (int state));
-AL_FUNC(void, wnd_acquire_mouse, (void));
-AL_FUNC(void, wnd_unacquire_mouse, (void));
 
 
-
-/*******************************************/
-/************** joystick routines **********/
-/*******************************************/
+/* joystick routines */
 #define WINDOWS_MAX_AXES   6
 
 #define WINDOWS_JOYSTICK_INFO_MEMBERS        \
@@ -162,11 +147,9 @@ AL_FUNC(void, wnd_unacquire_mouse, (void));
    int button[MAX_JOYSTICK_BUTTONS];         \
    char *button_name[MAX_JOYSTICK_BUTTONS];
 
-
 typedef struct WINDOWS_JOYSTICK_INFO {
    WINDOWS_JOYSTICK_INFO_MEMBERS
 } WINDOWS_JOYSTICK_INFO;
-
 
 AL_FUNC(int, win_add_joystick, (WINDOWS_JOYSTICK_INFO *win_joy));
 AL_FUNC(void, win_remove_all_joysticks, (void));
@@ -174,28 +157,17 @@ AL_FUNC(int, win_update_joystick_status, (int n, WINDOWS_JOYSTICK_INFO *win_joy)
 
 AL_FUNC(int, joystick_dinput_acquire, (void));
 AL_FUNC(int, joystick_dinput_unacquire, (void));
-AL_FUNC(void, wnd_acquire_joystick, (void));
-AL_FUNC(void, wnd_unacquire_joystick, (void));
 
 
-
-/*******************************************/
-/************* thread routines *************/
-/*******************************************/
+/* thread routines */
 AL_FUNC(void, thread_init, (void));
 AL_FUNC(void, thread_exit, (void));
 AL_FUNC(void, thread_switch_out, (void));
 
 
-
-/******************************************/
-/************* sound routines *************/
-/******************************************/
+/* sound routines */
 AL_FUNC(_DRIVER_INFO *, _get_win_digi_driver_list, (void));
-AL_FUNC(_DRIVER_INFO *, _get_win_midi_driver_list, (void));
-
 AL_FUNC(void, _free_win_digi_driver_list, (void));
-AL_FUNC(void, _free_win_midi_driver_list, (void));
 
 AL_FUNC(DIGI_DRIVER *, _get_dsalmix_driver, (char *name, LPGUID guid, int num));
 AL_FUNC(DIGI_DRIVER *, _get_woalmix_driver, (int num));
@@ -211,10 +183,14 @@ AL_FUNC(void, digi_directsound_rec_stop, (void));
 AL_FUNC(int, digi_directsound_rec_read, (void *buf));
 
 
+/* midi routines */
+AL_FUNC(_DRIVER_INFO *, _get_win_midi_driver_list, (void));
+AL_FUNC(void, _free_win_midi_driver_list, (void));
 
-/*******************************************/
-/************* error handling **************/
-/*******************************************/
+AL_FUNC(void, midi_switch_out, (void));
+
+
+/* error handling */
 AL_FUNC(char* , win_err_str, (long err));
 AL_FUNC(void, thread_safe_trace, (char *msg, ...));
 
@@ -225,10 +201,9 @@ AL_FUNC(void, thread_safe_trace, (char *msg, ...));
 #endif
 
 
-
 #ifdef __cplusplus
    }
 #endif
 
-#endif          /* ifndef AINTWIN_H */
+#endif          /* !defined AINTWIN_H */
 
