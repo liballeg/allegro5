@@ -607,7 +607,7 @@ Contributors
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
 
-   Sven Sandberg (<email>ssven@geocities.com</a>).<br>
+   Sven Sandberg (<email>svsa1977@student.uu.se</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 
    the create_light_table() function, optimised the fixed point trig 
    routines, provided the Swedish message translations, improved the file 
