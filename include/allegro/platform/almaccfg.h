@@ -33,7 +33,7 @@
 #undef ALLEGRO_CONSOLE_OK
 
 #define INLINE
-#define ZERO_SIZE								64
+#define ZERO_SIZE_ARRAY(type, name)             type name[64]
 #define AL_CONST								const
 #define AL_VAR(type, name)                      extern type name
 #define AL_ARRAY(type, name)                    extern type name[]

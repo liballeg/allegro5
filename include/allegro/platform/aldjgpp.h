@@ -75,7 +75,7 @@ void _unlock_dpmi_data(void *addr, int size);
 #define bmp_read24(addr)            (_farnspeekl(addr) & 0xFFFFFF)
 
 #ifndef AL_INLINE
-extern inline  /* special bodge because AL_INLINE isn't defined yet */
+extern __inline__  /* special bodge because AL_INLINE isn't defined yet */
 #endif
 void bmp_write24(unsigned long addr, int c)
 {

@@ -58,13 +58,13 @@
    #define ALLEGRO_GCC
 
    #ifndef AL_INLINE
-      #define AL_INLINE(type, name, args, code)    extern inline type name args code
+      #define AL_INLINE(type, name, args, code)    extern __inline__ type name args code
    #endif
 
    #define AL_PRINTFUNC(type, name, args, a, b)    AL_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
 
    #ifndef INLINE
-      #define INLINE          inline
+      #define INLINE          __inline__
    #endif
 
    #if __GNUC__ >= 3
@@ -78,11 +78,11 @@
       #define RET_VOLATILE    volatile
    #endif
 
-   #ifndef ZERO_SIZE
+   #ifndef ZERO_SIZE_ARRAY
       #if __GNUC__ < 3
-         #define ZERO_SIZE    0
+         #define ZERO_SIZE_ARRAY(type, name)  __extension__ type name[0]
       #else
-         #define ZERO_SIZE
+         #define ZERO_SIZE_ARRAY(type, name)  type name[] /* ISO C99 flexible array members */
       #endif
    #endif
    
@@ -121,8 +121,8 @@
    #define RET_VOLATILE   volatile
 #endif
 
-#ifndef ZERO_SIZE
-   #define ZERO_SIZE
+#ifndef ZERO_SIZE_ARRAY
+   #define ZERO_SIZE_ARRAY(type, name)             type name[]
 #endif
 
 #ifndef AL_CONST

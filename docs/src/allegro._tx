@@ -8276,11 +8276,10 @@ the differences between systems:
    Use this in place of the regular "inline" function modifier keyword, and 
    your code will work correctly on any of the supported compilers.
 
-<b>ZERO_SIZE</b><br>
-   Use this to declare zero sized arrays, eg. the "char *line[ZERO_SIZE]" in 
-   the BITMAP structure. Some compilers want an actual zero there, while 
-   others want nothing between the [], so this macro enables the same code 
-   to work either way.
+<b>ZERO_SIZE_ARRAY(type, name)</b><br>
+   Use this to declare zero-sized arrays in terminal position inside 
+   structures, e.g. in the BITMAP structure. These arrays are effectively 
+   equivalent to the flexible array members of ISO C99.
 
 <b>LONG_LONG</b><br>
    Defined to whatever represents a 64 bit "long long" integer for the 

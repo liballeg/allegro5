@@ -254,10 +254,11 @@ C sources.
 
 The symbol ALLEGRO_SRC is defined while compiling library source files. If 
 you want to inline a function in one of your sources, use the INLINE macro. 
-To declare a zero-sized array in a structure, use int x[ZERO_SIZE]. To use 
-64 bit integers, declare a LONG_LONG variable (this won't be defined on all 
-platforms). To do things with filenames, check the macros ALLEGRO_LFN, 
-OTHER_PATH_SEPARATOR, and DEVICE_SEPARATOR. See the headers for details.
+To declare a zero-sized array in terminal position inside a structure, use 
+the ZERO_SIZE_ARRAY(type, name) macro. To use 64 bit integers, declare a 
+LONG_LONG variable (this won't be defined on all platforms). To do things 
+with filenames, check the macros ALLEGRO_LFN, OTHER_PATH_SEPARATOR, and 
+DEVICE_SEPARATOR. See the headers for details.
 
 
 

@@ -87,7 +87,7 @@ void tm_tick(void)
    }
 }
 
-END_OF_FUNCTION(tm_tick);
+END_OF_FUNCTION(tm_tick)
 
 
 
@@ -1810,7 +1810,7 @@ void int1(void)
       int_c1 = 0;
 }
 
-END_OF_FUNCTION(int1);
+END_OF_FUNCTION(int1)
 
 
 
@@ -1820,7 +1820,7 @@ void int2(void)
       int_c2 = 0;
 }
 
-END_OF_FUNCTION(int2);
+END_OF_FUNCTION(int2)
 
 
 
@@ -1830,7 +1830,7 @@ void int3(void)
       int_c3 = 0;
 }
 
-END_OF_FUNCTION(int3);
+END_OF_FUNCTION(int3)
 
 
 
@@ -1882,7 +1882,7 @@ void fade(void)
       fade_color = 0;
 }
 
-END_OF_FUNCTION(fade);
+END_OF_FUNCTION(fade)
 
 
 
@@ -4502,7 +4502,7 @@ DIALOG refresh_dlg[] =
    { d_ctext_proc,      114,  8,   1,    1,    0,    0,    0,    0,       0,    0,    "Refresh Rate", NULL, NULL  },
    { d_button_proc,     132,  40,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    "OK",           NULL, NULL  },
    { d_button_proc,     132,  64,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    "Cancel",       NULL, NULL  },
-   { d_list_proc,       16,   28,  101,  68,   0,    0,    0,    D_EXIT,  0,    0,    refresh_getter, NULL, NULL  },
+   { d_list_proc,       16,   28,  101,  68,   0,    0,    0,    D_EXIT,  0,    0,    (void *)refresh_getter, NULL, NULL  },
    { d_yield_proc,      0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
    { NULL,              0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  }
 };
@@ -4673,4 +4673,4 @@ int main(void)
    return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
