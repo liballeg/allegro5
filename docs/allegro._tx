@@ -149,7 +149,7 @@ information about how to install Allegro and link your program with it.
    The major and minor version of the Operating System currently running.
    Set by allegro_init(). If Allegro for some reason was not able to
    retrieve the version of the Operating System, os_version and
-   os_revision will be set to zero. For example: Under Win98 SE (v4.10.2222)
+   os_revision will be set to -1. For example: Under Win98 SE (v4.10.2222)
    os_version will be set to 4 and os_revision to 10.
 
 @@extern int @os_multitasking;
