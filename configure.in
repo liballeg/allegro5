@@ -409,12 +409,12 @@ if test -n "$allegro_support_modules"; then
   fi
 
   dnl ALSA DIGI.
-  if test "X$allegro_support_alsadigi" = "Xyes"; then
+  if test "X$allegro_cv_support_alsadigi" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsadigi-\$(shared_version).so"
   fi
 
   dnl ALSA MIDI.
-  if test "X$allegro_support_alsamidi" = "Xyes"; then
+  if test "X$allegro_cv_support_alsamidi" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsamidi-\$(shared_version).so"
   fi
 
