@@ -46,6 +46,7 @@ static int osx_sys_get_desktop_resolution(int *width, int *height);
 /* Global variables */
 int    __crt0_argc;
 char **__crt0_argv;
+NSBundle *osx_bundle = NULL;
 pthread_mutex_t osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSWindow *osx_window = NULL;
@@ -62,7 +63,6 @@ static RETSIGTYPE (*old_sig_term)(int num);
 static RETSIGTYPE (*old_sig_int)(int num);
 static RETSIGTYPE (*old_sig_quit)(int num);
 
-static NSBundle *app_bundle = NULL;
 static unsigned char *cursor_data = NULL;
 static NSBitmapImageRep *cursor_rep = NULL;
 static NSImage *cursor_image = NULL;
@@ -326,27 +326,6 @@ void osx_event_handler()
  */
 static int osx_sys_init(void)
 {
-   FSRef processRef;
-   FSCatalogInfo processInfo;
-   ProcessSerialNumber psn = {0, kCurrentProcess};
-   char path[1024], *p;
-   int i;
-   
-   /* This comes from the ADC tips & tricks section: how to detect if the app
-    * lives inside a bundle
-    */
-   GetProcessBundleLocation (&psn, &processRef);
-   FSGetCatalogInfo (&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
-   if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) {
-      strncpy(path, __crt0_argv[0], sizeof(path));
-      for (i = 0; i < 4; i++) {
-         for (p = path + strlen(path); (p >= path) && (*p != '/'); p--);
-         *p = '\0';
-      }
-      chdir(path);
-      app_bundle = [NSBundle mainBundle];
-   }
-   
    /* Install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, osx_signal_handler);
    old_sig_fpe  = signal(SIGFPE,  osx_signal_handler);
@@ -404,13 +383,10 @@ static void osx_sys_exit(void)
       [cursor_rep release];
    if (cursor_data)
       free(cursor_data);
-   if (app_bundle)
-      [app_bundle release];
    osx_cursor = NULL;
    cursor_image = NULL;
    cursor_rep = NULL;
    cursor_data = NULL;
-   app_bundle = NULL;
 }
 
 
@@ -421,8 +397,8 @@ static void osx_sys_exit(void)
  */
 static void osx_sys_get_executable_name(char *output, int size)
 {
-   if (app_bundle)
-      do_uconvert([[app_bundle bundlePath] cString], U_ASCII, output, U_CURRENT, size);
+   if (osx_bundle)
+      do_uconvert([[osx_bundle bundlePath] cString], U_ASCII, output, U_CURRENT, size);
    else
       do_uconvert(__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
 }
@@ -438,8 +414,8 @@ static int osx_sys_find_resource(char *dest, AL_CONST char *resource, int size)
    const char *path;
    char buf[256], tmp[256];
    
-   if (app_bundle) {
-      path = [[app_bundle resourcePath] cString];
+   if (osx_bundle) {
+      path = [[osx_bundle resourcePath] cString];
       append_filename(buf, uconvert_ascii(path, tmp), resource, sizeof(buf));
       if (exists(buf)) {
          ustrzcpy(dest, size, buf);

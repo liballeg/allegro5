@@ -33,6 +33,9 @@ int    __crt0_argc;
 char **__crt0_argv;
 extern void *_mangled_main_address;
 
+static int al_argc;
+static char **al_argv;
+static char *arg0;
 
 
 /* These are used to warn the dock about the application */
@@ -70,6 +73,11 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification
 {
    NSAutoreleasePool *pool = NULL;
+   FSRef processRef;
+   FSCatalogInfo processInfo;
+   ProcessSerialNumber psn = {0, kCurrentProcess};
+   char path[1024], *p;
+   int i;
    
    _unix_bg_man = &_bg_man_pthreads;
    if (_unix_bg_man->init())
@@ -78,6 +86,28 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    pthread_mutex_init(&osx_event_mutex, NULL);
    
    pool = [[NSAutoreleasePool alloc] init];
+   
+   /* This comes from the ADC tips & tricks section: how to detect if the app
+    * lives inside a bundle
+    */
+   GetProcessBundleLocation (&psn, &processRef);
+   FSGetCatalogInfo (&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
+   if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) {
+      strncpy(path, __crt0_argv[0], sizeof(path));
+      for (i = 0; i < 4; i++) {
+         for (p = path + strlen(path); (p >= path) && (*p != '/'); p--);
+         *p = '\0';
+      }
+      chdir(path);
+      osx_bundle = [NSBundle mainBundle];
+      arg0 = strdup([[osx_bundle bundlePath] cString]);
+      al_argv = &arg0;
+      al_argc = 1;
+   }
+   else {
+      al_argc = __crt0_argc;
+      al_argv = __crt0_argv;
+   }
    
    [NSThread detachNewThreadSelector: @selector(app_main:)
       toTarget: [AllegroAppDelegate class]
@@ -115,7 +145,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    while (![NSApp isActive]);
    
    /* Call the user main() */
-   exit(real_main(__crt0_argc, __crt0_argv));
+   exit(real_main(al_argc, al_argv));
    
    [pool release];
 }

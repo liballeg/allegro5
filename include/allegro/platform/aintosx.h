@@ -82,6 +82,7 @@ void osx_keyboard_focused(int focused, int state);
 void osx_mouse_handler(int dx, int dy, int dz, int buttons);
 
 
+AL_VAR(NSBundle *, osx_bundle);
 AL_VAR(pthread_mutex_t, osx_event_mutex);
 AL_VAR(pthread_mutex_t, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
