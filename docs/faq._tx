@@ -236,7 +236,7 @@ DOS problems
 Windows problems
 
 <ul><h4><li>
-@@   I get lots of compile errors about things like "DDSCAPS_VIDEOMEMORY"!
+@@   I get lots of compile errors about things like "LPDIRECTDRAWSURFACE2"!
 </h4>
       You need to tell your compiler how to find the DirectX include files
       and libraries: put the DirectX SDK /include and /lib directories in the
@@ -244,6 +244,12 @@ Windows problems
       configuration stuff, you can simply copy the files from the DirectX SDK
       /include and /lib directories to the corresponding ones for your
       compiler.
+
+<h4><li>
+@@   I get lots of compile errors about things like "DDEDM_STANDARDVGAMODES"!
+</h4>
+      You need to upgrade to a more recent version of the DirectX SDK, at 
+      least version 5, which you can get from the Microsoft Developer site.
 
 <h4><li>
 @@   I get errors about a missing WinMain() or main() function!
