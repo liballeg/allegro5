@@ -80,7 +80,7 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 # -------- rules for installing and removing the library files --------
 
 INC_DIR = /usr/include
-LIB_DIR = /x86/lib
+LIB_DIR = /usr/lib
 
 $(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
 	cp $(LIB_NAME) $(LIB_DIR)
@@ -94,7 +94,7 @@ $(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
 $(INC_DIR)/allegro:
 	mkdir $(INC_DIR)/allegro
 
-HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
+HEADERS = $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/*.h)))
 
 /usr/bin/allegro-config:
 	cp misc/allegro-config.qnx /usr/bin/allegro-config

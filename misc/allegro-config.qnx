@@ -119,6 +119,6 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-   libdirs=-L${exec_prefix}/x86/lib
+   libdirs=-L${exec_prefix}/usr/lib
    echo $libdirs -l${lib_type} $allegro_libs
 fi
