@@ -35,7 +35,7 @@ Changes from 3.11 to current
    3.9.36: Peter Wang updated the SVGAlib driver for version 2.
 <li>
    3.9.36: Peter Wang added a fullscreen version of the X-Windows graphics
-   driver. The original was by Benjamin Stover.
+   driver. The original was by Benjamin Joel Stover.
 <li>
    3.9.36: Peter Wang made grabber use file_select_ex(). This is just here
    so you don't get a shock :-)

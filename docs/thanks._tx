@@ -90,6 +90,9 @@ Contributors
    Adapted polygon functions to handle two coincident vertices. Added the 
    set_window_close_button() and set_window_close_hook() framework.
 
+   Benjamin Joel Stover (<email>stovertech@intellisys.net</a>).<br>
+   Wrote the initial version of the fullscreen X-Windows graphics driver.
+
    Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
    Modified routines in poly3d.c for subpixel and subtexel accuracy.
    Speed enhancements in polygon functions. Fixed blending in C version of 
