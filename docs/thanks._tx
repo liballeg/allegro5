@@ -49,7 +49,8 @@ Contributors
    tweaked VGA mode, and wrote the d_text_list_proc() dialog object.
 
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
-   Added BeOS joystick driver and wrote DGA2 driver.
+   Added the BeOS joystick driver, MIDI driver, windowed graphics driver,
+   mouse wheel support and wrote the DGA2 driver for X.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -80,7 +81,7 @@ Contributors
    Modified routines in poly3d.c for subpixel and subtexel accuracy.
    Speed enhancements in polygon functions.  Fixed blending in C version of 
    atex_lit scanline functions, added scanline subdivisions in C scanline 
-   functions.
+   functions and Z-buffer polygon functions.
 
    Burton Radons (<email>loth@gec.net</a>).<br>
    Optimised the truecolor pixel blending function, converted the blenders 
@@ -142,9 +143,10 @@ Contributors
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
-   Eric Botcazou (<email>botcazou@club-internet.fr</a>).<br>
-   Made the DGA driver work better in 8bpp and 32bpp modes, fixed some bugs
-   in Windows code, and improved the directx windowed driver.
+   Eric Botcazou (<email>botcazou@multimania.com</a>).<br>
+   Made the DGA driver work better in 8bpp and 32bpp modes, fixed some
+   bugs in Windows code, improved the directx windowed driver and added
+   the file_select_ex() function.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -187,7 +189,7 @@ Contributors
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
-   texi2dvi output.
+   texi2dvi output, and did plenty of other things too.
 
    Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
    Wrote several of the example programs, and made the intro animation and 
@@ -281,7 +283,8 @@ Contributors
    Wrote the load_voc() function.
 
    Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
-   Added destroy hook to font structure.
+   Added destroy hook to font structure, worked on const-correctness
+   throughout the library and implemented the new FONT structure.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
@@ -435,7 +438,7 @@ Contributors
    Peter Puck (<email>zaqhaq@netscape.net</a>).<br>
    Helped with the Mingw32 native build.
 
-   Peter Wang (<email>tjaden@alphalink.com.au</a>).<br>
+   Peter Wang (<email>tjaden@psynet.net</a>).<br>
    Contributed to the Linux GGI driver, added the mouse_z wheel input 
    support to the Linux code, fixed problems with the ESD sound driver, 
    wrote the ALSA sound driver, wrote the BeOS sound driver, added OSS MIDI 
@@ -657,6 +660,10 @@ Thanks!
    Robert Schmidt (<email>robert@stud.unit.no</a>).<br>
    The register values for the 400x* mode-X resolutions came from his TWEAK 
    program.
+
+   Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
+   Added a Windows sound driver using the Allegro mixer and another using
+   waveOut.
 
    Tom Grandgent (<email>tgrand@canvaslink.com</a>).<br>
    Organised and hosted the Allegro mailing list. Hurrah!

@@ -10,10 +10,133 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Grzegorz Adam Hankiewicz changed and documented new GFX_SAFE
+   behaviour (that color depth is undefined), updated the fbcon driver to
+   take advantage of this and updated example programs.
+<li>
+   3.9.34: Peter Pavlovic fixed a bug caused by file selector stretching.
+<li>
+   3.9.34: Bertrand Coconnier fixed bugs related to poly3d(); removed FLAT
+   functions (no longer needed); removed GCOL functions for non-8bpp color
+   depths (GRGB used instead); and made clip3d() and clip3d_f() functions
+   compliant with Z-buffered polygons.
+<li>
+   3.9.34: Stepan Roh added C version of masked_stretch_blit().
+<li>
+   3.9.34: Angelo Mottola did more work on BeOS: hardware acceleration
+   (rect, hline, vline, clear_to_color, blit); mouse fix in windowed mode;
+   desktop_color_depth(); yield_timeslice();
+<li>
+   3.9.34: Peter Wang retroactively updated CHANGES and AUTHORS from
+   late 3.9.33 to present using CVS logs and email archives, and
+   possibly messed up.
+<li>
+   3.9.34: Angelo Mottola added a BeOS windowed driver (originally by
+   Peter Wang), a BeOS MIDI driver, mouse wheel support under BeOS and
+   made many bug fixes and changes to other BeOS code and documentation.
+<li>
+   3.9.34: Laurence Withers fixed dat2s output of fonts for new font
+   subsystem.
+<li>
+   3.9.34: Peter Wang made the SVGAlib driver more robust.
+<li>
+   3.9.34: Peter Wang changed the way Intellimouse protocols are selected
+   under Linux console.
+<li>
+   3.9.34: Eric Botcazou added file_select_ex and reverted file_select to
+   old behaviour.
+<li>
+   3.9.34: Laurence Withers added ugetcx() function.
+<li>
+   3.9.34: Laurence Withers designed and implemented a new FONT structure,
+   which should provide many advantages over the old one.
+<li>
+   3.9.34: Eric Botcazou made more fixes to Windows code.
+<li>
+   3.9.34: Bertrand Coconnier added a z-buffer rendering mode for 3D
+   polygons (derived from Calin Andrian's P3D library) and an example
+   program for it.
+<li>
+   3.9.34: Michael Bukin added customization for keycode to scancode
+   mapping in X.
+<li>
+   3.9.34: Peter Wang added mouse wheel support to d_textbox_proc and
+   d_slider_proc, and made file selector dialog stretch.
+<li>
+   3.9.34: Tom Fjellstrom added an ALSA MIDI driver.
+<li>
+   3.9.34: Eric Botcazou made some changes to the Windows windowed driver.
+<li>
    3.9.34: Grzegorz Adam Hankiewicz updated the documentation and the
    makedoc program to produce better .texi output. The new version works
    very well with the texi2dvi program, which produces fine ready to print
    device independent output. Also documented the new unix makefile targets.
+<li>
+   3.9.34: George Foot added --env option to allegro-config script.
+<li>
+   3.9.34: Benjamin Stover made some vararg fixes in unicode.c and added a
+   workaround for missing defines in fbcon.c.
+<li>
+   3.9.34: Robin Burrows added a Windows waveOut sound driver.
+<li>
+   3.9.34: Eric Botcazou changed desktop_color_depth() for Windows.
+<li>
+   3.9.34: Angelo Mottola added line switching and refresh rate support to
+   DGA2 driver.
+<li>
+   3.9.34: Bertrand Coconnier added scanline subdivisions and fixed 3D
+   polygon drawing.
+<li>
+   3.9.34: Angelo Mottola added BeOS joystick driver.
+<li>
+   3.9.34: Angelo Mottola added DGA2 driver.
+<li>
+   3.9.34: Robin Burrows added Windows sound driver using Allegro mixer.
+<li>
+   3.9.34: Stepan Roh added workaround for fceil defined in Irix headers.
+<li>
+   3.9.34: Michael Bukin change DGA screen clearing.
+<li>
+   3.9.34: Tomohiko Sugiura added more aggressive sidewinder driver.
+<li>
+   3.9.34: Tomohiko Sugiura added three Japanese keys.
+<li>
+   3.9.34: Stepan Roh made C functions const-correct.
+<li>
+   3.9.34: Bertrand Coconnier fixed blending in atex_lit scanline
+   functions.
+<li>
+   3.9.34: Michael Bukin modified text_mode to return previous mode.
+<li>
+   3.9.34: Peter Pavlovic fixed scrollbar display in grabber and improved
+   scrolling in GUI objects.
+<li>
+   3.9.34: anarko made GUI objects restore textmode.
+<li>
+   3.9.34: Laurence Withers added font destroy hook.
+<li>
+   3.9.34: Vincent Penquerc'h modified the mouse button press/release events
+   so they have higher priority than double-click events.
+<li>
+   3.9.34: Eric Botcazou improved colormap handling in XDGA.
+<li>
+   3.9.33: Henrik Stokseth updated the mingw32 makefile, the documentation
+   and sent in some other related fixes and updates. You will never again
+   need MSVC to compile the Allegro DLLs. ;o)
+<li>
+   3.9.33: Peter Puck contributed some updates to Allegro's win32 code
+   which got the native mingw32 build fully working.
+<li>
+   3.9.33: Michael Bukin changed the auto-repeat handling in X,
+   sched_yield handling for Unix, fixed _add_exit_func, and added list of
+   active dialogs to the GUI.
+<li>
+   3.9.33: Vincent Penquerc'h sped up the C versions of the RLE sprite
+   drawing routines by quite a bit.
+<li>
+   3.9.33: Peter Wang improved TGA palette loading.
+<li>
+   3.9.33: Laurence Withers made more functions const-correct.
 <li>
    3.9.33: Isaac Cruz moved Windows bitmap locking to a separate .S file,
    changed the update logic for the windowed driver, and added an accelerated
