@@ -98,6 +98,7 @@ static int renamer(void);
 static int hooker(void);
 static int backup_toggler(void);
 static int dither_toggler(void);
+static int index_toggler(void);
 static int sort_toggler(void);
 static int trans_toggler(void);
 static int property_delete(void);
@@ -156,6 +157,7 @@ static MENU opt_menu[32] =
 {
    { "&Backup Datafiles",           backup_toggler,   NULL,       0, NULL  },
    { "&Dither Images",              dither_toggler,   NULL,       0, NULL  },
+   { "&Index Objects",              index_toggler,    NULL,       0, NULL  },
    { "&Sort Objects",               sort_toggler,     NULL,       0, NULL  },
    { "Preserve &Transparency",      trans_toggler,    NULL,       0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -163,8 +165,9 @@ static MENU opt_menu[32] =
 
 #define MENU_BACKUP           0
 #define MENU_DITHER           1
-#define MENU_SORT             2
-#define MENU_TRANS            3
+#define MENU_INDEX            2
+#define MENU_SORT             3
+#define MENU_TRANS            4
 
 
 
@@ -967,6 +970,27 @@ static void update_colorconv(int flags, int what)
 
 
 
+/* helper for toggling index mode on and off */
+static void update_index(int flags)
+{
+   static int current = -1;
+   int wanted;
+   
+   if (flags & D_SELECTED)
+      wanted = 1;
+   else
+      wanted = 0;
+
+   if (wanted != current) {
+      current = wanted;
+
+      rebuild_list(datafile->dat, TRUE);
+      object_message(main_dlg+DLG_LIST, MSG_DRAW, 0);
+   } 
+}
+
+
+
 /* helper for toggling sort mode on and off */
 static void update_sort(int flags)
 {
@@ -1530,17 +1554,35 @@ static void add_to_list(DATAFILE *dat, DATAFILE **parent, int i, char *name, int
 /* recursive helper used by rebuild list() */
 static void add_datafile_to_list(DATAFILE **dat, char *prefix, int clear)
 {
-   int i;
    char tmp[80];
    DATAFILE *d;
+   int digits = 1, i;
+
+   if (opt_menu[MENU_INDEX].flags & D_SELECTED) {
+      i = 0;
+
+      while ((*dat)[i].type != DAT_END)
+	 i++;
+
+      while (i/=10)
+	 digits++;
+   }
 
    for (i=0; (*dat)[i].type != DAT_END; i++) {
       d = (*dat)+i;
 
-      sprintf(tmp, "%c%c%c%c %s%c ", (d->type >> 24) & 0xFF,
-	      (d->type >> 16) & 0xFF, (d->type >> 8) & 0xFF,
-	      (d->type & 0xFF), prefix, 
-	      (d->type == DAT_FILE) ? '+' : '-');
+      if (opt_menu[MENU_INDEX].flags & D_SELECTED) {
+	 sprintf(tmp, "[%*d] %c%c%c%c %s%c ", digits, i, (d->type >> 24) & 0xFF,
+		 (d->type >> 16) & 0xFF, (d->type >> 8) & 0xFF,
+		 (d->type & 0xFF), prefix, 
+		 (d->type == DAT_FILE) ? '+' : '-');
+      }
+      else {
+	 sprintf(tmp, "%c%c%c%c %s%c ", (d->type >> 24) & 0xFF,
+		 (d->type >> 16) & 0xFF, (d->type >> 8) & 0xFF,
+		 (d->type & 0xFF), prefix, 
+		 (d->type == DAT_FILE) ? '+' : '-');
+      }
 
       strncat(tmp, get_datafile_property(d, DAT_NAME), 32);
 
@@ -2409,6 +2451,16 @@ static int dither_toggler(void)
 {
    opt_menu[MENU_DITHER].flags ^= D_SELECTED;
    update_colorconv(opt_menu[MENU_SORT].flags, 0);
+   return D_O_K;
+}
+
+
+
+/* handle the index option */
+static int index_toggler(void)
+{
+   opt_menu[MENU_INDEX].flags ^= D_SELECTED;
+   update_index(opt_menu[MENU_INDEX].flags);
    return D_O_K;
 }
 
@@ -3453,6 +3505,11 @@ int main(int argc, char *argv[])
       else
          opt_menu[MENU_DITHER].flags &= ~D_SELECTED;
 
+      if (strpbrk(get_config_string("grabber", "index", ""), "yY1"))
+         opt_menu[MENU_INDEX].flags |= D_SELECTED;
+      else
+         opt_menu[MENU_INDEX].flags &= ~D_SELECTED;
+
       if (strpbrk(get_config_string("grabber", "sort", ""), "yY1"))
          opt_menu[MENU_SORT].flags |= D_SELECTED;
       else
@@ -3490,6 +3547,11 @@ int main(int argc, char *argv[])
       set_config_string("grabber", "dither", "y");
    else
       set_config_string("grabber", "dither", "n");
+
+   if (opt_menu[MENU_INDEX].flags & D_SELECTED)
+      set_config_string("grabber", "index", "y");
+   else
+      set_config_string("grabber", "index", "n");
 
    if (opt_menu[MENU_SORT].flags & D_SELECTED)
       set_config_string("grabber", "sort", "y");
