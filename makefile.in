@@ -57,8 +57,8 @@ CONFIG_H_IN = include/allegro/platform/alunixac.hin
 CONFIGURE = configure
 CONFIGURE_IN = configure.in
 
-INCLUDES =
-DEFS = @DEFS@ -Iinclude -Iinclude/allegro -I$(srcdir)/include -I$(srcdir)/include/allegro -I.
+INCLUDES = -I. -Iinclude -Iinclude/allegro -I$(srcdir)/include -I$(srcdir)/include/allegro
+DEFS = @DEFS@
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 PROG_LDFLAGS = @PROG_LDFLAGS@
@@ -197,8 +197,21 @@ allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
 	$(srcdir)/include/allegro/internal/aintvga.h
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 
+ifdef CROSSCOMPILE
+
+$(OBJDIR)/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
+	$(CC) $(INCLUDES) `echo $(CFLAGS) | sed -e "s/.*\(-DALLEGRO_USE_C\).*/\1/"` -S -o $(OBJDIR)/asmdef.s src/i386/asmdef.c
+
+$(obj_unix_asmdef_inc): $(OBJDIR)/asmdef.s
+	@if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi
+	misc/asmdef.sh $(OBJDIR)/asmdef.s $(obj_unix_asmdef_inc)
+
+else
+
 $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
+
+endif
 
 
 
@@ -270,7 +283,15 @@ docs/allegro.ps: docs/allegro.dvi
 
 -include makefile.dep
 
+ifdef CROSSCOMPILE
+
+full-build: lib modules programs
+
+else
+
 full-build: lib modules programs docs
+
+endif
 
 lib: $(ALLEGRO_LIB_TARGETS)
 

@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
    }
 
    fprintf(f, "/* Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " */\n");
-   fprintf(f, "/* automatically generated structure offsets for use by asm code */\n\n");
+   fprintf(f, "/* automatically generated structure offsets */\n\n");
 
 
    p = list;
