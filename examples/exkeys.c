@@ -201,7 +201,7 @@ int main(void)
       if (key[KEY_9]) buf[9] = '9'; else buf[9] = ' ';
       buf[10] = 0;
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255), buf);
-   } while (!key[KEY_ESC]);
+   } while (!keypressed() || (readkey() >> 8) != KEY_ESC);
 
    clear_keybuf();
    return 0;
