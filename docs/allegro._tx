@@ -5788,6 +5788,49 @@ itself, but handles the click message in a different way, or an object which
 calls d_button_proc for everything except drawing itself, so it would behave 
 like a normal button but could look completely different.
 
+Since the release of Allegro version 3.9.33 (CVS), some GUI objects and 
+menus are being drawn differently unlike in previous Allegro versions. The 
+changes are the following:
+<ul><li>
+   Shadows under d_shadow_box_proc and d_button_proc are always black.
+<li>
+   The most important (and immediately visible) change is, that some objects 
+   are being drawn smaller. The difference is exactly one pixel in both 
+   height and width, when comparing to previous versions. The reason is, 
+   that in previous versions these objects were too large on the screen - 
+   their size was d->w+1 and d->h+1 pixels (and not d->w and d->h, as it 
+   should be). This change affects the following objects :
+<pre>
+          d_box_proc,
+          d_shadow_box_proc,
+          d_button_proc,
+          d_check_proc,
+          d_radio_proc,
+          d_list_proc,
+          d_text_list_proc and
+          d_textbox_proc.
+</pre>
+   When you want to convert old dialogs to look equally when compiling with 
+   the new Allegro version, just increase the size of the mentioned objects 
+   by one pixel in both width and height fields. 
+<li>
+   When you use an object which is derived from d_textbox_proc, and you are 
+   calling d_textbox_proc when drawing your object, you should temporarily 
+   alter the object's proc to d_textbox_proc and after the drawing back to 
+   whatever it was before. The reason is, that checking mouseclicks on the 
+   scrollbar is slightly different for the textbox than for the list boxes,
+   so there is a check for the proc field - and in case of derived objects 
+   the proc field wouldn't be d_textbox_proc - so the click would be 
+   evaluated incorrectly.
+<li>
+   When a GUI menu item (not in a bar menu) has a child menu, there is a 
+   small arrow next to the child menu name, pointing to the right - so the 
+   user can immediately see that this menu item has a child menu - and 
+   there is no need to use such menu item names as for example "New...", 
+   to show that it has a child menu. The submenu will be drawn to the right 
+   of the parent menu, trying not to overlap it.
+</ul><br>
+
 @@int @d_clear_proc(int msg, DIALOG *d, int c);
    This just clears the screen when it is drawn. Useful as the first object 
    in a dialog.
