@@ -209,20 +209,22 @@ int key_dinput_acquire(void)
    char key_state[256];
 
    if (key_dinput_device) {
+      int mask = KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG;
+      int state = 0;
+
       /* Read the current keyboard state */
       GetKeyboardState(key_state);
 
-      if (( (key_state[VK_NUMLOCK] & 1) && !(_key_shifts & KB_NUMLOCK_FLAG)) ||
-          (!(key_state[VK_NUMLOCK] & 1) &&  (_key_shifts & KB_NUMLOCK_FLAG))) {
-         _handle_pckey(DIK_NUMLOCK);
-         _handle_pckey(DIK_NUMLOCK | 0x80);
-      }
+      if (key_state[VK_SCROLL] & 1)
+         state |= KB_SCROLOCK_FLAG;
 
-      if (( (key_state[VK_CAPITAL] & 1) && !(_key_shifts & KB_CAPSLOCK_FLAG)) ||
-          (!(key_state[VK_CAPITAL] & 1) &&  (_key_shifts & KB_CAPSLOCK_FLAG))) {
-         _handle_pckey(DIK_CAPITAL);
-         _handle_pckey(DIK_CAPITAL | 0x80);
-      }
+      if (key_state[VK_NUMLOCK] & 1)
+         state |= KB_NUMLOCK_FLAG;
+
+      if (key_state[VK_CAPITAL] & 1)
+         state |= KB_CAPSLOCK_FLAG;
+
+      _key_shifts = (_key_shifts & ~mask) | (state & mask);
  
       hr = IDirectInputDevice_Acquire(key_dinput_device);
 
@@ -251,7 +253,8 @@ void key_dinput_unacquire(void)
    if (key_dinput_device) {
       /* release all keys */
       for (key=0; key<256; key++)
-         key_dinput_handle_scancode((unsigned char)key, FALSE);
+         if ((key != 0x61) && (key != 0xE1))  /* PAUSE */
+            key_dinput_handle_scancode((unsigned char)key, FALSE);
 
       IDirectInputDevice_Unacquire(key_dinput_device);
    }
