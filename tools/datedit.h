@@ -34,6 +34,8 @@
 #define DAT_DITH  DAT_ID('D','I','T','H')
 #define DAT_XGRD  DAT_ID('X','G','R','D')
 #define DAT_YGRD  DAT_ID('Y','G','R','D')
+#define DAT_XCRP  DAT_ID('X','C','R','P')
+#define DAT_YCRP  DAT_ID('Y','C','R','P')
 
 
 

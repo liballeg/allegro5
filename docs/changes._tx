@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Vincent Penquerc'h added the XCRP and YCRP properties to bitmap 
+   objects in datafiles.
+<li>
    3.9.33: Vincent Penquerc'h made the GUI system not send MSG_DRAW to
    hidden objects.
 <li>

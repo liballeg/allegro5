@@ -336,7 +336,9 @@ static int should_save_prop(int type, int strip)
 	      (type != DAT_XPOS) && 
 	      (type != DAT_YPOS) &&
 	      (type != DAT_XSIZ) && 
-	      (type != DAT_YSIZ));
+	      (type != DAT_YSIZ) &&
+              (type != DAT_XCRP) &&
+              (type != DAT_YCRP));
    }
 }
 
