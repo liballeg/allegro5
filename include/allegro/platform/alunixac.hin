@@ -120,6 +120,9 @@
 /* Define if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
+/* Define if you have the <linux/awe_voice.h> header file. */
+#undef HAVE_LINUX_AWE_VOICE_H
+
 /* Define if you have the <linux/joystick.h> header file. */
 #undef HAVE_LINUX_JOYSTICK_H
 
