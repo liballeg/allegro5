@@ -119,7 +119,7 @@ static int init_window_modules(struct WINDOW_MODULES *wm)
 static void exit_window_modules(struct WINDOW_MODULES *wm)
 {
    if (wm)
-      memset(wm, 0, sizeof(wm));
+      memset(wm, 0, sizeof(*wm));
 
    if (_keyboard_installed) {
      if (wm)
