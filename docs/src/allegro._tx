@@ -2043,6 +2043,14 @@ alsa_rawmidi_device = x<br>
    Unix only: device for the ALSA 0.5 midi driver or device name for
    the ALSA 0.9 midi driver (see alsa_device for the format).
 <li>
+jack_client_name = x<br>
+   Sets the name with which Allegro should identify itself to the Jack
+   audio server.
+<li>
+jack_buffer_size = x<br>
+   Forces a buffer size for the transfer buffer from Allegro's mixer
+   to Jack.
+<li>
 be_midi_quality = x<br>
    BeOS only: system MIDI synthesizer instruments quality. 0 uses low
    quality 8-bit 11 kHz samples, 1 uses 16-bit 22 kHz samples.
@@ -9417,7 +9425,8 @@ function to remind you :-)
       DIGI_OSS             - Open Sound System
       DIGI_ESD             - Enlightened Sound Daemon
       DIGI_ARTS            - aRts (Analog Real-Time Synthesizer)
-      DIGI_ALSA            - ALSA sound driver<endblock>
+      DIGI_ALSA            - ALSA sound driver
+	  DIGI_JACK            - JACK sound driver<endblock>
 
 @@Drivers @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
