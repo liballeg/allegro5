@@ -23,6 +23,7 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
 static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int color_depth);
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth);
 static void finalize_fullscreen_init(void);
+static void switch_in_fullscreen(void);
 
 
 GFX_DRIVER gfx_directx_accel =
@@ -137,7 +138,7 @@ GFX_DRIVER gfx_directx_safe =
 static WIN_GFX_DRIVER win_gfx_fullscreen =
 {
    FALSE,                       // true if driver has backing store
-   gfx_directx_restore,
+   switch_in_fullscreen,
    NULL,                        // AL_METHOD(void, switch_out, (void));
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
    NULL,                        // AL_METHOD(void, exit_sysmode, (void));
@@ -229,5 +230,20 @@ static void finalize_fullscreen_init(void)
 
    /* grab input devices */
    win_grab_input();
+}
+
+
+
+/* switch_in_fullscreen:
+ *  Handles screen switched in.
+ */
+static void switch_in_fullscreen(void)
+{
+   /* restore all DirectDraw surfaces */
+   _enter_gfx_critical();
+
+   gfx_directx_restore();
+
+   _exit_gfx_critical();
 }
 
