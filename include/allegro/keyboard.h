@@ -94,7 +94,7 @@ enum {
    __allegro_KB_ACCENT1_FLAG  = 0x1000,
    __allegro_KB_ACCENT2_FLAG  = 0x2000,
    __allegro_KB_ACCENT3_FLAG  = 0x4000,
-   __allegro_KB_ACCENT4_FLAG  = 0x8000,
+   __allegro_KB_ACCENT4_FLAG  = 0x8000
 };
 
 enum {
