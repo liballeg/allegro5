@@ -245,7 +245,7 @@ static INLINE void copy_color(RGB *rgb, int color)
  *  filled with 'different colors', maxswaps gives upper boundary for
  *  number of swaps and mindiff chooses when to stop replacing values
  */
-int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST signed char *rsvdcols, int bitsperrgb, int fraction, int maxswaps, int mindiff)
+static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST signed char *rsvdcols, int bitsperrgb, int fraction, int maxswaps, int mindiff)
 {
    int i, j, x, y, imgdepth, numcols, palsize, rsvdcnt=0, rsvduse=0;
    unsigned int prec_mask, prec_mask2, bitmask15, bitmask16, bitmask24;
