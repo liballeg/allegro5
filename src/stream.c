@@ -48,7 +48,7 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
    stream->len = len;
    stream->bufcount = bufcount;
    stream->bufnum = 0;
-   stream->active = 0;
+   stream->active = -1; /* means we haven't passed any data yet */
    stream->locked = NULL;
 
    /* create the underlying sample */
@@ -123,7 +123,13 @@ void *get_audio_stream_buffer(AUDIOSTREAM *stream)
    int pos;
    char *data = NULL;
 
-   if (stream->bufnum == stream->active * stream->bufcount) {
+   /* if active is -1, it means we haven't passed the first data yet */
+   if (stream->active == -1) {
+      /* set voice pos to 0 */
+      voice_set_position(stream->voice, 0);
+      stream->active = 1;
+   }
+   else if (stream->bufnum == stream->active * stream->bufcount) {
       /* waiting for the sample to switch halves */
       pos = voice_get_position(stream->voice);
 
