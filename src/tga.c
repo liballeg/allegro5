@@ -223,9 +223,9 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 
 	 case 24:
 	 case 32:
-	    pal[i].b = pack_getc(f);
-	    pal[i].g = pack_getc(f);
-	    pal[i].r = pack_getc(f);
+	    image_palette[i][0] = pack_getc(f);
+	    image_palette[i][1] = pack_getc(f);
+	    image_palette[i][2] = pack_getc(f);
 	    if (palette_entry_size == 32)
 	       pack_getc(f);
 	    break;
