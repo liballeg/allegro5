@@ -17,9 +17,6 @@ the oversight!
 @heading
 Contributors
 
-   A.Cottrell (<email>andrewc@dbworld.net.au</a>).<br>
-   Changed the grabber to use a more robust (locale-independent) date format.
-
    Adrian Oboroc (<email>doba@corefx.com</a>).<br>
    Wrote the LBM loader.
 
@@ -36,6 +33,9 @@ Contributors
 
    Andrei Ellman (<email>ae-a@wackonet.fsnet.co.uk</a>).<br>
    Contributed the polygon_z_normal() function.
+
+   Andrew Cottrell (<email>andrewc@dbworld.net.au</a>).<br>
+   Changed the grabber to use a more robust (locale-independent) date format.
 
    Andrew Ellem (<email>krand@ican.net</a>).<br>
    Wrote the original version of the digital audio streaming code.
