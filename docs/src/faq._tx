@@ -284,12 +284,31 @@ Windows problems
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
       file (eg. "shell=c:\command.com /e:8192").
+
 <li><font size="+1">
 @@   I get an error about a "missing separator" when I run make!
 </font>
       Make sure that you don't have a semi-colon appended to your MSVCDIR 
       variable if you are using MSVC, to your MINGDIR variable if you are 
       using Mingw32 or to your BCC32DIR variable if you are using BCC.
+
+<li><font size="+1">
+@\   In windowed mode artifacts are left on the desktop when the window
+@@   is moved or when another window is placed on top of it.
+</font>
+      Disable direct updating for the DirectX windowed driver by using the
+      dedicated configuration variable. See the 'Configuration routines'
+      section in the docs and the allegro.cfg template file for more
+      detailed informations.
+
+<li><font size="+1">
+@\   In windowed mode the screen stays black unless the window is placed
+@@   under another window on the desktop.
+</font>
+      Disable direct updating for the DirectX windowed driver by using the
+      dedicated configuration variable. See the 'Configuration routines'
+      section in the docs and the allegro.cfg template file for more
+      detailed informations.
 </ul>
 
 
