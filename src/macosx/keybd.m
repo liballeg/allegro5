@@ -66,7 +66,7 @@ static const int mac_to_scancode[128] = {
 /* 0x28 */ KEY_K,          KEY_SEMICOLON,  KEY_BACKSLASH,  KEY_COMMA,
 /* 0x2c */ KEY_SLASH,      KEY_N,          KEY_M,          KEY_STOP,
 /* 0x30 */ KEY_TAB,        KEY_SPACE,      KEY_BACKQUOTE,  KEY_BACKSPACE,
-/* 0x34 */ KEY_ENTER,      KEY_ESC,        0,              KEY_APPLE,
+/* 0x34 */ KEY_ENTER,      KEY_ESC,        0,              KEY_COMMAND,
 /* 0x38 */ KEY_LSHIFT,     KEY_CAPSLOCK,   KEY_ALT,        KEY_LEFT,
 /* 0x3c */ KEY_RIGHT,      KEY_DOWN,       KEY_UP,         0,
 /* 0x40 */ 0,              KEY_STOP,       0,              KEY_ASTERISK,
@@ -150,7 +150,7 @@ void osx_keyboard_modifiers(unsigned int mods)
                                          { NSShiftKeyMask,      KB_SHIFT_FLAG,    KEY_LSHIFT   },
 		       	                 { NSControlKeyMask,    KB_CTRL_FLAG,     KEY_LCONTROL },
 			                 { NSAlternateKeyMask,  KB_ALT_FLAG,      KEY_ALT      },
-			                 { NSCommandKeyMask,    KB_MENU_FLAG,     KEY_APPLE    } };
+			                 { NSCommandKeyMask,    KB_COMMAND_FLAG,  KEY_COMMAND  } };
    int i, changed;
    
    for (i = 0; i < 5; i++) {

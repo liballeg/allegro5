@@ -810,6 +810,9 @@ int tester()
       if (key_shifts & KB_MENU_FLAG)
 	 strcat(buf, "menu ");
 
+      if (key_shifts & KB_COMMAND_FLAG)
+	 strcat(buf, "command ");
+
       if (key_shifts & KB_SCROLOCK_FLAG)
 	 strcat(buf, "scrolock ");
 

@@ -504,8 +504,6 @@ static void osx_sys_set_window_title(AL_CONST char *title)
 
    NSString *ns_title = [NSString stringWithUTF8String: tmp];
    
-   /* Fix: set menu items to reflect new app title */
-   
    if (osx_window)
       [osx_window setTitle: ns_title];
 }

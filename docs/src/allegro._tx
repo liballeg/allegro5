@@ -2231,7 +2231,7 @@ combinations are possible seems to vary from one keyboard to another).
       KEY_LWIN, KEY_RWIN, KEY_MENU,
       KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
 
-      KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_APPLE
+      KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_COMMAND
 <endblock>   
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
@@ -2248,6 +2248,7 @@ combinations are possible seems to vary from one keyboard to another).
       KB_LWIN_FLAG
       KB_RWIN_FLAG
       KB_MENU_FLAG
+      KB_COMMAND_FLAG
       KB_SCROLOCK_FLAG
       KB_NUMLOCK_FLAG
       KB_CAPSLOCK_FLAG

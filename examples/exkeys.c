@@ -43,8 +43,8 @@ char *key_names[] =
    "KEY_LSHIFT",     "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",
    "KEY_ALT",        "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",
    "KEY_MENU",       "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",
-   "KEY_EQUALS_PAD", "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_APPLE",
-   "KEY_MAX"
+   "KEY_EQUALS_PAD", "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_COMMAND",
+   "(none)",         "KEY_MAX"
 };
 
 
@@ -141,12 +141,13 @@ int main(void)
       k = ureadkey(NULL);
       acquire_screen();
       buf[0] = 0;
-      if (key_shifts & KB_SHIFT_FLAG) strcat(buf, "shift ");
-      if (key_shifts & KB_CTRL_FLAG)  strcat(buf, "ctrl ");
-      if (key_shifts & KB_ALT_FLAG)   strcat(buf, "alt ");
-      if (key_shifts & KB_LWIN_FLAG)  strcat(buf, "lwin ");
-      if (key_shifts & KB_RWIN_FLAG)  strcat(buf, "rwin ");
-      if (key_shifts & KB_MENU_FLAG)  strcat(buf, "menu ");
+      if (key_shifts & KB_SHIFT_FLAG)   strcat(buf, "shift ");
+      if (key_shifts & KB_CTRL_FLAG)    strcat(buf, "ctrl ");
+      if (key_shifts & KB_ALT_FLAG)     strcat(buf, "alt ");
+      if (key_shifts & KB_LWIN_FLAG)    strcat(buf, "lwin ");
+      if (key_shifts & KB_RWIN_FLAG)    strcat(buf, "rwin ");
+      if (key_shifts & KB_MENU_FLAG)    strcat(buf, "menu ");
+      if (key_shifts & KB_COMMAND_FLAG) strcat(buf, "command ");
       usprintf(buf+strlen(buf), "'%c' [0x%02x]", k ? k : ' ', k);
       if (key_shifts & KB_CAPSLOCK_FLAG) strcat(buf, " caps");
       if (key_shifts & KB_NUMLOCK_FLAG)  strcat(buf, " num");

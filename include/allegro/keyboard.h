@@ -82,6 +82,7 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KB_LWIN_FLAG          0x0008
 #define KB_RWIN_FLAG          0x0010
 #define KB_MENU_FLAG          0x0020
+#define KB_COMMAND_FLAG       0x0040
 #define KB_SCROLOCK_FLAG      0x0100
 #define KB_NUMLOCK_FLAG       0x0200
 #define KB_CAPSLOCK_FLAG      0x0400
@@ -212,7 +213,7 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KEY_EQUALS_PAD        115
 #define KEY_BACKQUOTE         116
 #define KEY_SEMICOLON         117
-#define KEY_APPLE             118
+#define KEY_COMMAND           118
 
 #define KEY_MAX               120
 
