@@ -21,8 +21,11 @@
  */
  
  
-#include "allegro/platform/alunixac.h"
 #include "../i386/asmdefs.inc"
+
+#ifdef ALLEGRO_UNIX
+   #include "allegro/platform/alunixac.h"
+#endif
 
 .text
 
