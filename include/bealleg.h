@@ -35,6 +35,7 @@
 #ifdef __cplusplus
 # undef color_map
 # undef drawing_mode
+# undef clear
 # undef MIN
 # undef MAX
 # undef TRACE
