@@ -243,7 +243,7 @@ void gfx_directx_exit(struct BITMAP *b)
    set_sync_timer_freq(70);
 
    if (b)
-      clear(b);
+      clear_bitmap(b);
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;

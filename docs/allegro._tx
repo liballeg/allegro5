@@ -2321,7 +2321,7 @@ Graphics modes
 
    <b>GFX_HW_FILL:</b><br>
       Indicates that the opaque version of the rectfill() function, the 
-      clear() routine, and clear_to_color(), are implemented using a 
+      clear_bitmap() routine, and clear_to_color(), are implemented using a
       hardware accelerator.
 
    <b>GFX_HW_FILL_XOR:</b><br>
@@ -2514,7 +2514,7 @@ For example, to draw a pixel onto the screen you would write:
 Or to implement a double-buffered system:
 <pre>
    BITMAP *bmp = create_bitmap(320, 200);    // make a bitmap in system RAM
-   clear(bmp);                               // zero the memory bitmap
+   clear_bitmap(bmp);                        // zero the memory bitmap
    putpixel(bmp, x, y, color);               // draw onto the memory bitmap
    blit(bmp, screen, 0, 0, 0, 0, 320, 200);  // copy it to the screen
 </pre>
@@ -3271,7 +3271,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Draws an outline rectangle with the two points as its opposite corners.
 
 @@void @rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-@xref rect, clear, drawing_mode
+@xref rect, clear_bitmap, drawing_mode
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
 
@@ -3359,12 +3359,22 @@ Blitting and sprites
 All these routines are affected by the clipping rectangle of the destination 
 bitmap.
 
-@@void @clear(BITMAP *bitmap);
-@xref clear_to_color
+@@void @clear_bitmap(BITMAP *bitmap);
+@xref clear_to_color, clear
    Clears the bitmap to color 0.
 
+@@void @clear(BITMAP *bitmap);
+@xref clear_bitmap
+   An alias for clear_bitmap(), provided for backwards compatibility.
+   It is a macro, and may be switched off by defining the preprocessor
+   symbol ALLEGRO_NO_CLEAR_BITMAP_ALIAS before including allegro.h.
+<pre>
+      #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
+      #include &ltallegro.h&gt
+</pre>
+
 @@void @clear_to_color(BITMAP *bitmap, int color);
-@xref clear
+@xref clear_bitmap
    Clears the bitmap to the specified color.
 
 @\void @blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,

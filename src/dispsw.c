@@ -378,7 +378,7 @@ static void restore_bitmap_state(BITMAP_INFORMATION *info)
       info->other = NULL;
    }
    else
-      clear(info->bmp);
+      clear_bitmap(info->bmp);
 }
 
 

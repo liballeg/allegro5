@@ -524,7 +524,7 @@ static FONT *read_font_prop(PACKFILE *pack, int maxchars)
 	 return NULL;
       }
       
-      clear(bits[i]);
+      clear_bitmap(bits[i]);
       i++;
    }
    

@@ -1337,6 +1337,10 @@ AL_INLINE(int, object_message, (DIALOG *d, int msg, int c),
 /****************************************************/
 
 
+#ifndef ALLEGRO_NO_CLEAR_BITMAP_ALIAS
+   #define clear(bmp)	(clear_bitmap(bmp))
+#endif
+
 #define KB_NORMAL       1
 #define KB_EXTENDED     2
 

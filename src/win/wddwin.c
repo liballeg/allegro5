@@ -605,7 +605,7 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    _enter_gfx_critical();
 
    if (b)
-      clear (b);
+      clear_bitmap(b);
 
    /* disconnect from the system driver */
    win_gfx_driver = NULL;

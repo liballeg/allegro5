@@ -516,7 +516,7 @@ static void gfx_gdi_exit(struct BITMAP *b)
    _enter_gfx_critical();
 
    if (b)
-      clear(b);
+      clear_bitmap(b);
 
    /* stop timer */
    KillTimer(allegro_wnd, render_timer);

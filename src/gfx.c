@@ -150,10 +150,10 @@ void solid_mode()
 
 
 
-/* clear:
+/* clear_bitmap:
  *  Clears the bitmap to color 0.
  */
-void clear(BITMAP *bitmap)
+void clear_bitmap(BITMAP *bitmap)
 {
    clear_to_color(bitmap, 0);
 }

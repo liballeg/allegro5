@@ -1282,7 +1282,7 @@ AL_FUNC(void, rotate_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, 
 AL_FUNC(void, pivot_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle));
 AL_FUNC(void, pivot_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale));
 AL_FUNC(void, draw_gouraud_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
-AL_FUNC(void, clear, (BITMAP *bitmap));
+AL_FUNC(void, clear_bitmap, (BITMAP *bitmap));
 
 
 typedef struct RLE_SPRITE           /* a RLE compressed sprite */

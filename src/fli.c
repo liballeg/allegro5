@@ -531,7 +531,7 @@ static void do_fli_lc(unsigned char *p, int sz)
  */
 static void do_fli_black()
 {
-   clear(fli_bitmap);
+   clear_bitmap(fli_bitmap);
 
    fli_bmp_dirty_from = 0;
    fli_bmp_dirty_to = fli_bitmap->h-1;
@@ -715,7 +715,7 @@ static void read_frame()
 
    /* clear the first frame (we need it for looping, because we don't support ring frame) */
    if (fli_frame == 0) {
-      clear(fli_bitmap);
+      clear_bitmap(fli_bitmap);
       fli_bmp_dirty_from = 0;
       fli_bmp_dirty_to = fli_bitmap->h-1;
    }

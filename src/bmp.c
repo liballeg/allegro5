@@ -527,7 +527,7 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
-   clear(bmp);
+   clear_bitmap(bmp);
 
    switch (infoheader.biCompression) {
 

@@ -659,7 +659,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       gui_bg_color = makecol(255, 255, 255);
    }
 
-   clear(screen);
+   clear_bitmap(screen);
 
    if (_al_linker_mouse)
       _al_linker_mouse->set_mouse_etc();
