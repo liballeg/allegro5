@@ -60,12 +60,16 @@ echo "Patching makefile.ver..."
 cp makefile.ver fixver.tmp
 sed -f fixver.sed fixver.tmp > makefile.ver
 
-# patch allegro-config.in
+# patch allegro-config.in and allegro-config.be
 echo "s/version=.*/version=$1.$2.$3/" >> fixver.sed
 
 echo "Patching misc/allegro-config.in..."
 cp misc/allegro-config.in fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config.in
+
+echo "Patching misc/allegro-config.be..."
+cp misc/allegro-config.be fixver.tmp
+sed -f fixver.sed fixver.tmp > misc/allegro-config.be
 
 # patch the spec files
 echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
