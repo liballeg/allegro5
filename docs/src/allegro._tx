@@ -8762,7 +8762,7 @@ debugging helper functions:
 Makefile targets
 
 There are a number of options that you can use to control exactly how 
-Allegro will be compiled. On Unix platforms you do this by passing arguments 
+Allegro will be compiled. On Unix platforms, you do this by passing arguments 
 to the configure script (run "configure --help" for a list), but on other 
 platforms you can set the following environment variables:
 <ul><li>
@@ -8820,7 +8820,7 @@ makefiles also provide some special pseudo-targets:
    variables), builds the test and example programs, and converts the 
    documentation files.
 <li>
-   'all'<br>
+   'all' (non-Unix only)<br>
    Compiles all three library versions (optimised, debugging, and 
    profiling), builds the test and example programs, and converts the 
    documentation files.
@@ -8835,7 +8835,7 @@ makefiles also provide some special pseudo-targets:
    compiler lib directory, recompiling it as required, and installs the 
    Allegro headers.
 <li>
-   'installall'<br>
+   'installall' (non-Unix only)<br>
    Copies all three library versions (optimised, debugging, and profiling), 
    into your compiler lib directory, recompiling them as required, and 
    installs the Allegro headers.
@@ -8886,15 +8886,15 @@ makefiles also provide some special pseudo-targets:
    like SED, so unless you know what you are doing and have all this stuff 
    installed, you should not use them.
 <li>
-   'depend'<br>
-   Regenerates the dependency files (obj/*/makefile.dep). You need to run 
-   this after "make veryclean", or whenever you add new headers to the 
-   Allegro sources.
-<li>
    'compress' (djgpp, Mingw32 and MSVC only)<br>
    Uses the DJP or UPX executable compressors (whichever you have installed) 
    to compress the example executables and utility programs, which can 
    recover a significant amount of disk space.
+<li>
+   'depend'<br>
+   Regenerates the dependency files (obj/*/makefile.dep). You need to run 
+   this after "make veryclean", or whenever you add new headers to the 
+   Allegro sources.
 </ul>
 
 

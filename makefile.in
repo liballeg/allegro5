@@ -3,7 +3,7 @@
 #  by the configure script, to produce the real makefile the does the work.
 
 INSTALL_TARGETS = full-install
-DEFAULT_TARGETS = all
+DEFAULT_TARGETS = full-build
 
 srcdir = @srcdir@
 builddir = .
@@ -112,7 +112,10 @@ $(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(ACLOCAL_M4) $(srcdir)/acconfig
 
 @SET_MAKE@
 
-# List of sources for libraries and programs.
+
+
+# -------- list of sources for libraries and programs --------
+
 include $(srcdir)/makefile.lst
 
 ALLEGRO_EMPTY_LIST =
@@ -197,7 +200,9 @@ obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
 
-# Documentation.
+
+
+# -------- documentation --------
 
 DOCBASEFILES = ahack changes faq help thanks allegro const abi
 
@@ -208,6 +213,20 @@ DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
 DOCS += CHANGES AUTHORS THANKS
 
 MAKEDOC = docs/makedoc$(EXE)
+
+docs: $(DOCS)
+
+docs-dvi: $(srcdir)/docs/allegro.dvi
+	@echo "Device independant documentation generated: docs/allegro.dvi"
+	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
+
+docs-ps: $(srcdir)/docs/allegro.ps
+	@echo "Postscript documentation generated: docs/allegro.ps"
+	@echo "You can compress it with gzip or running make docs-gzipped-ps"
+
+docs-gzipped-ps: $(srcdir)/docs/allegro.ps
+	gzip -9 docs/allegro.ps
+	@echo "Compressed postscript documentation generated: docs/allegro.ps.gz"
 
 $(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
@@ -245,10 +264,13 @@ docs/allegro.dvi: docs/texi/allegro.texi
 docs/allegro.ps: docs/allegro.dvi
 	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
 
-# Dependencies and rules for building libraries and simple programs.
+
+
+# -------- dependencies and rules for building libraries and simple programs --------
+
 -include makefile.dep
 
-all: lib modules programs docs
+full-build: lib modules programs docs
 
 lib: $(ALLEGRO_LIB_TARGETS)
 
@@ -256,24 +278,44 @@ modules: $(ALLEGRO_MODULE_TARGETS)
 
 programs: $(ALLEGRO_EXE_TARGETS)
 
-docs: $(DOCS)
-
-docs-dvi: $(srcdir)/docs/allegro.dvi
-	@echo "Device independant documentation generated: docs/allegro.dvi"
-	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
-
-docs-ps: $(srcdir)/docs/allegro.ps
-	@echo "Postscript documentation generated: docs/allegro.ps"
-	@echo "You can compress it with gzip or running make docs-gzipped-ps"
-
-docs-gzipped-ps: $(srcdir)/docs/allegro.ps
-	gzip -9 docs/allegro.ps
-	@echo "Compressed postscript documentation generated: docs/allegro.ps.gz"
-
 suid: $(ALLEGRO_EXE_TARGETS)
 	chown root.allegro $?
 	chmod 4750 $?
 	touch suid
+
+
+
+# -------- shortcuts for building various programs --------
+
+demo: demo/demo$(EXE)
+makedoc: docs/makedoc$(EXE)
+keyconf: setup/keyconf$(EXE)
+setup: setup/setup$(EXE)
+afinfo: tests/afinfo$(EXE)
+akaitest: tests/akaitest$(EXE)
+digitest: tests/digitest$(EXE)
+filetest: tests/filetest$(EXE)
+gfxinfo: tests/gfxinfo$(EXE)
+mathtest: tests/mathtest$(EXE)
+miditest: tests/miditest$(EXE)
+play: tests/play$(EXE)
+playfli: tests/playfli$(EXE)
+test: tests/test$(EXE)
+vesainfo: tests/vesainfo$(EXE)
+colormap: tools/colormap$(EXE)
+dat: tools/dat$(EXE)
+dat2s: tools/dat2s$(EXE)
+exedat: tools/exedat$(EXE)
+grabber: tools/grabber$(EXE)
+pack: tools/pack$(EXE)
+pat2dat: tools/pat2dat$(EXE)
+rgbmap: tools/rgbmap$(EXE)
+textconv: tools/textconv$(EXE)
+examples: $(EXAMPLE_FILES)
+
+
+
+# -------- rules for deleting the generated files --------
 
 clean:
 
@@ -312,6 +354,10 @@ veryclean: distclean
 maintainer-clean: veryclean
 	rm -f configure
 	rm -rf autom4te-*
+
+
+
+# -------- rules for installing the files --------
 
 install: $(INSTALL_TARGETS)
 
@@ -435,6 +481,10 @@ install-gzipped-man: docs
 	  gzip -9 -f $(DESTDIR)$(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
 	done
 
+
+
+# -------- rules for uninstalling the files --------
+
 uninstall: uninstall-lib uninstall-modules uninstall-headers uninstall-programs uninstall-info uninstall-man
 	@echo
 	@echo "All gone. Don't you feel sad now?"
@@ -498,6 +548,10 @@ uninstall-man:
 	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3.gz,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
 
+
+
+# -------- generate automatic dependencies --------
+
 depend:
 	rm -f makefile.dep
 	@echo "# Automatically generated." >makefile.dep
@@ -522,7 +576,7 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depnexe.sh $(ALLEGRO_NOLIB_EXE_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
-.PHONY: default all lib programs docs docs-dvi docs-ps docs-gzipped-ps \
+.PHONY: default full-build lib programs docs docs-dvi docs-ps docs-gzipped-ps \
 clean distclean veryclean maintainer-clean \
 install full-install mini-install \
 install-lib install-headers install-programs install-info \
