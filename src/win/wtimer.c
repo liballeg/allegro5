@@ -332,8 +332,9 @@ static void win32_rest(long time, AL_METHOD(void, callback, (void)))
    unsigned long ms = time;
 
    if (callback) {
-      start = GetTickCount();
-      while (GetTickCount() - start < ms) ;
+      start = timeGetTime();
+      while (timeGetTime() - start < ms)
+         (*callback)();
    }
    else {
       Sleep(ms);
