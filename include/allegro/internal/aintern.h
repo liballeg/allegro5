@@ -1204,7 +1204,7 @@ AL_FUNC(void, _al_unregister_destructor, (void *object));
 
 /* events */
 union AL_EVENT;
-AL_FUNC(void, _al_copy_event, (union AL_EVENT *dest, const union AL_EVENT *src));
+AL_FUNC(void, _al_copy_event, (union AL_EVENT *dest, AL_CONST union AL_EVENT *src));
 
 /* vectors */
 typedef struct _AL_VECTOR

@@ -189,7 +189,6 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wsndwo.c \
 	src/win/wdxver.c \
 	src/win/wdispsw.c \
-	src/win/wevents.c \
 	src/win/wfile.c \
 	src/win/wgdi.c \
 	src/win/wgfxdrv.c \
@@ -283,7 +282,6 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/udrvlist.c \
 	src/unix/udummy.c \
 	src/unix/uesd.c \
-	src/unix/uevents.c \
 	src/unix/ufdwatch.c \
 	src/unix/ufile.c \
 	src/unix/ugfxdrv.c \
