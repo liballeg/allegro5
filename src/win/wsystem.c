@@ -17,6 +17,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -350,15 +351,23 @@ static int sys_directx_trace_handler(AL_CONST char *msg)
 int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 {
    int (*mainfunc) (int argc, char *argv[]) = (int (*)(int, char *[]))_main;
-   char argbuf[256];
-   char *argv[64];
+   char *argbuf;
+   char *cmdline;
+   char **argv;
    int argc;
+   int argc_max;
    int i, q;
 
    /* can't use parameter because it doesn't include the executable name */
-   strcpy(argbuf, GetCommandLine());
+   cmdline = GetCommandLine();
+   i = strlen(cmdline) + 1;
+   argbuf = malloc(i);
+   memcpy(argbuf, cmdline);
 
    argc = 0;
+   argc_max = 64;
+   argv = malloc(sizeof(char *) * argc_max);
+   if (!argv) return -1;
    i = 0;
 
    /* parse commandline into argc/argv format */
@@ -377,6 +386,15 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
 	 argv[argc++] = &argbuf[i];
 
+         if (argc >= argc_max) {
+            argc_max += 64;
+            argv = realloc(sizeof(char *) * argc_max);
+            if (!argv) {
+               free(argbuf);
+               return -1;
+            }
+         }
+
 	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
 	    i++;
 
@@ -390,7 +408,12 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
    argv[argc] = NULL;
 
    /* call the application entry point */
-   return mainfunc(argc, argv);
+   i = mainfunc(argc, argv);
+
+   free(argv);
+   free(argbuf);
+
+   return i;
 }
 
 
