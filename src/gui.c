@@ -716,21 +716,26 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
  */
 DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 {
-   DIALOG_PLAYER *player = malloc(sizeof(DIALOG_PLAYER));
-   struct al_active_player *n = 0;
+   DIALOG_PLAYER *player;
+   struct al_active_player *n;
    char tmp1[64], tmp2[64];
    int c;
    ASSERT(dialog);
 
-   if (!player)
+   player = malloc(sizeof(DIALOG_PLAYER));
+   if (!player) {
+      *allegro_errno = ENOMEM;
       return NULL;
+   }
 
    /* append player to the list */
    n = malloc(sizeof(struct al_active_player));
    if (!n) {
+      *allegro_errno = ENOMEM;
       free (player);
       return NULL;
    }
+
    n->next = NULL;
    n->player = player;
 
