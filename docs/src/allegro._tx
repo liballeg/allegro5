@@ -7832,7 +7832,9 @@ you must include winalleg.h after other Allegro headers.
    window; in particular, you are responsible for processing the events as
    usual (Allegro will automatically monitor a few of them, but will not
    filter out any of them). You can then use every component of the library
-   (graphics, mouse, keyboard, sound, timers and so on).
+   (graphics, mouse, keyboard, sound, timers and so on), bearing in mind
+   that some Allegro functions are blocking (e.g readkey() if the key buffer
+   is empty) and thus must be carefully manipulated by the window thread.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
    Registers an user-defined procedure to be used by Allegro for creating
