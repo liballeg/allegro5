@@ -169,7 +169,6 @@ struct DIRECTSOUND_VOICE {
    void *lock_buf_a, *lock_buf_b;
    long lock_size_a, lock_size_b;
    int lock_bytes;
-   void *lock_buffer;
    LPDIRECTSOUNDBUFFER ds_buffer;
    LPDIRECTSOUNDBUFFER ds_loop_buffer;
 };
@@ -913,13 +912,7 @@ static void *digi_directsound_lock_voice(int voice, int start, int end)
       return NULL;
    }
 
-   /* DirectSound doesn't allow reading from a buffer */
-   if (ds_voices[voice].bits == 16) {
-      ds_voices[voice].lock_buffer = malloc(ds_voices[voice].lock_bytes);
-      return ds_voices[voice].lock_buffer;
-   }
-   else
-      return buf_a;
+   return buf_a;
 }
 
 
@@ -938,15 +931,12 @@ static void digi_directsound_unlock_voice(int voice)
          ds_locked_buffer = ds_voices[voice].ds_buffer;
 
       if (ds_voices[voice].bits == 16) {
-         unsigned short *read_p =  (unsigned short *)ds_voices[voice].lock_buffer;
-         unsigned short *write_p = (unsigned short *)ds_voices[voice].lock_buf_a;
+         unsigned short *p = (unsigned short *)ds_voices[voice].lock_buf_a;
 
          ds_voices[voice].lock_bytes >>= 1;
 
          while (ds_voices[voice].lock_bytes--)
-            *write_p++ = *read_p++ ^ 0x8000;
-
-         free(ds_voices[voice].lock_buffer);
+            *p++ ^= 0x8000;
       }
 
       hr = IDirectSoundBuffer_Unlock(ds_locked_buffer,
