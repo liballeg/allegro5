@@ -10,7 +10,6 @@ Updates or comments can be sent to the TODO list maintainer Peter Wang
 General (Platform independant) todos:
 ---------------------------------------------------------------------------
 
-- rewrite set_gfx_mode, or at least have dynamic driver lists
 - find solution or API to timer/multithread problem
 - don't use BITMAPs for zbuffers
 - Unified color conversion routines for all windowed gfx drivers (now
@@ -34,16 +33,8 @@ Win32 todos:
 Linux todos:
 ---------------------------------------------------------------------------
 
-- Enable autodetection for SVGAlib driver.
 - keyboard set_rate
 - Find out more about sched_yield
-- svgalib leaves crap on screen at exit
-  maybe svgalib problem
-  work around it if necessary (it's really annoying)
-- vt switching in BACKAMNESIA mode only causes font weirdity in text
-  mode on a Voodoo Banshee (using SVGAlib VESA and BANSHEE drivers), even
-  if I cheat and use vga_flip.  Font returns after program quits.
-- dynamically linked wrappers for drivers
 - switch to SRPMs instead of weird RPMs
 - pthread alternatives for timers and event processing (instead of SIGALRM)
 
@@ -55,7 +46,6 @@ X11 todos:
 - speed up X11 driver
 - key[] should not be internationalised (e.g. KEY_S should always be set
   for the key two to the right of CapsLock)
-- video mode switching crashes some X servers (mine)
 
 Unix todos:
 ---------------------------------------------------------------------------
@@ -113,5 +103,6 @@ Wishlist
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()
 - Video overlay gfx driver under QNX
+- rewrite set_gfx_mode
 
 ---------------------------------------------------------------------------
