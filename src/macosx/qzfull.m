@@ -33,10 +33,12 @@ static int osx_qz_show_video_bitmap(BITMAP *);
 static GFX_MODE_LIST *osx_qz_fetch_mode_list(void);
 
 
+CGDirectPaletteRef osx_palette = NULL;
+int osx_palette_dirty = FALSE;
+
 static int lock_nesting = 0;
 static char driver_desc[256];
 static CFDictionaryRef old_mode = NULL;
-static CGDirectPaletteRef palette = NULL;
 static CGrafPtr screen_port = NULL;
 
 
@@ -155,7 +157,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    _set_current_refresh_rate(refresh_rate);
    
    if (CGDisplayCanSetPalette(kCGDirectMainDisplay))
-      palette = CGPaletteCreateDefaultColorPalette();
+      osx_palette = CGPaletteCreateDefaultColorPalette();
    
    bmp = _make_bitmap(w, h, (unsigned long)CGDisplayBaseAddress(kCGDirectMainDisplay),
                       &gfx_quartz_full, color_depth, CGDisplayBytesPerRow(kCGDirectMainDisplay));
@@ -225,9 +227,9 @@ static void osx_qz_full_exit(BITMAP *bmp)
       free(bmp->extra);
    }
    
-   if (palette) {
-      CGPaletteRelease(palette);
-      palette = NULL;
+   if (osx_palette) {
+      CGPaletteRelease(osx_palette);
+      osx_palette = NULL;
    }
    
    if (old_mode) {
@@ -274,16 +276,17 @@ static void osx_qz_full_set_palette(AL_CONST struct RGB *p, int from, int to, in
    if (!CGDisplayCanSetPalette(kCGDirectMainDisplay))
       return;
    
-   if (vsync)
-      osx_qz_full_vsync();
+   pthread_mutex_lock(&osx_event_mutex);
    
    for (i = from; i <= to; i++) {
       color.red = ((float)p[i].r / 63.0);
       color.green = ((float)p[i].g / 63.0);
       color.blue = ((float)p[i].b / 63.0);
-      CGPaletteSetColorAtIndex(palette, color, i);
+      CGPaletteSetColorAtIndex(osx_palette, color, i);
    }
-   CGDisplaySetPalette(kCGDirectMainDisplay, palette);
+   osx_palette_dirty = TRUE;
+   
+   pthread_mutex_unlock(&osx_event_mutex);
 }
 
 

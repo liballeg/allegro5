@@ -122,6 +122,12 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       osx_event_handler();
       if (osx_gfx_mode == OSX_GFX_WINDOW)
          osx_update_dirty_lines();
+      else if (osx_gfx_mode == OSX_GFX_FULL) {
+         if ((osx_palette) && (osx_palette_dirty)) {
+            CGDisplaySetPalette(kCGDirectMainDisplay, osx_palette);
+	    osx_palette_dirty = FALSE;
+	 }
+      }
       pthread_mutex_unlock(&osx_event_mutex);
       usleep(1000000 / refresh_rate);
    }
