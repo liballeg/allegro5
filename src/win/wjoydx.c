@@ -263,7 +263,6 @@ static BOOL CALLBACK object_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVO
       else {
          joy->hat_name = ustrdup(uconvert_ascii(lpddoi->tszName, tmp));
          joy->caps |= JOYCAPS_HASPOV;
-         joy->num_axes += 2;
       }
    }
    else if (memcmp(&lpddoi->guidType, &GUID_Button, sizeof(GUID)) == 0) {
