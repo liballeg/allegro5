@@ -163,9 +163,6 @@ int _xwin_missed_input;
 
 static char _xwin_driver_desc[256] = EMPTY_STRING;
 
-/* Array of keycodes which are pressed now (used for auto-repeat).  */
-int _xwin_keycode_pressed[256];
-
 /* This is used to intercept window closing requests.  */
 static Atom wm_delete_window;
 

@@ -29,8 +29,6 @@
 #define RESYNC()     XDGASync(_xwin.display, _xwin.screen);
 
 
-extern int _xwin_keycode_pressed[];
-
 static XDGADevice *dga_device = NULL;
 static char _xdga2_driver_desc[256] = EMPTY_STRING;
 static Colormap _dga_cmap = 0;
