@@ -2,9 +2,9 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program demonstrates how to use hardware scrolling and split
- *    screens in mode-X. The split screen part isn't portable to non-DOS
- *    platforms, but the scrolling should work on anything that supports
- *    large virtual screens.
+ *    screens in mode-X. The split screen part only works on DOS and Linux
+ *    console platforms, but the scrolling should work on anything that
+ *    supports large virtual screens.
  */
 
 
