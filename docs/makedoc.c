@@ -1549,7 +1549,6 @@ int write_rtf(char *filename)
    char *p, *last = 0;
    FILE *f;
    int preformat = 0;
-   int title = 0;
    int prevhead = 0;
    int prevdef = 0;
    int multidef = 0;
@@ -1765,13 +1764,11 @@ int write_rtf(char *filename)
 	    else if (strincmp(p, "<title>") == 0) {
 	       /* start document title */
 	       fputs("{\\info{\\title ", f);
-	       title = 1;
 	       p += 7;
 	    }
 	    else if (strincmp(p, "</title>") == 0) {
 	       /* end document title */
 	       fputs("}{\\author Allegro makedoc utility}}\n", f);
-	       title = 0;
 	       p += 8;
 	    }
 	    else if (strincmp(p, "<hr>") == 0) {
