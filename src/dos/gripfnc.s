@@ -19,7 +19,7 @@
 #include "../i386/asmdefs.inc"
 
 
-#define GRIP_CALL             lcall GLOBL(GRIP_Thunk) + 8
+#define GRIP_CALL             lcall *GLOBL(GRIP_Thunk) + 8
 
 
 .extern _GRIP_Thunk
