@@ -123,6 +123,12 @@ if test "$allegro_cv_support_mmx" = yes; then
   AC_DEFINE(ALLEGRO_MMX)
 fi
 
+dnl Test for SSE support.
+ALLEGRO_ACTEST_SUPPORT_SSE
+if test "$allegro_cv_support_sse" = yes; then
+  AC_DEFINE(ALLEGRO_SSE)
+fi
+
 dnl Test for underscore prepended by compiler.
 ALLEGRO_ACTEST_ASM_PREFIX
 if test "$allegro_cv_asm_prefix" != ""; then

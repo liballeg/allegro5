@@ -79,6 +79,43 @@ fi
 AC_MSG_RESULT($allegro_cv_support_mmx)])
 
 dnl
+dnl Test if SSE instructions are supported by assembler.
+dnl
+dnl Variables:
+dnl  allegro_enable_sse=(yes|),
+dnl  allegro_cv_support_sse=(yes|no).
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_SSE,
+[AC_REQUIRE([ALLEGRO_ACTEST_SUPPORT_MMX])
+AC_ARG_ENABLE(sse,
+[  --enable-sse[=x]        enable the use of SSE instructions [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_sse=yes,
+allegro_enable_sse=yes)
+AC_MSG_CHECKING(for SSE support)
+AC_CACHE_VAL(allegro_cv_support_sse,
+[if test "$allegro_cv_support_mmx" != no -a "$allegro_enable_sse" = yes; then
+  AC_TRY_COMPILE([], [asm (".globl _dummy_function\n"
+  "_dummy_function:\n"
+  "     pushl %%ebp\n"
+  "     movl %%esp, %%ebp\n"
+  "     movq -8(%%ebp), %%mm0\n"
+  "     movd %%edi, %%mm1\n"
+  "     punpckldq %%mm1, %%mm1\n"
+  "     psrld $ 10, %%mm3\n"
+  "     maskmovq %%mm3, %%mm1\n"
+  "     paddd %%mm1, %%mm0\n"
+  "     emms\n"
+  "     popl %%ebp\n"
+  "     ret" : : )],
+  allegro_cv_support_sse=yes,
+  allegro_cv_support_sse=no)
+else
+  allegro_cv_support_sse=no
+fi
+])
+AC_MSG_RESULT($allegro_cv_support_sse)])
+
+dnl
 dnl Test for prefix prepended by compiler to global symbols.
 dnl
 dnl Variables:

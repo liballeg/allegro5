@@ -53,6 +53,9 @@
 /* Define if assembler supports MMX.  */
 #define ALLEGRO_MMX 1
 
+/* Define if assembler supports SSE. */
+#define ALLEGRO_SSE 1
+
 /* Define for Unix platforms, to use C convention for bank switching.  */
 /* #undef ALLEGRO_NO_ASM */
 
@@ -72,7 +75,7 @@
 #define ALLEGRO_LINUX_SVGALIB 1
 
 /* Define if SVGAlib driver can check vga_version */
-/* #undef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION */
+#define ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION 1
 
 /* Define if target machine is little endian.  */
 #define ALLEGRO_LITTLE_ENDIAN 1
@@ -96,7 +99,7 @@
 #define ALLEGRO_XWINDOWS_WITH_XF86DGA 1
 
 /* Define if DGA version 2.0 or newer is supported */
-/* #undef ALLEGRO_XWINDOWS_WITH_XF86DGA2 */
+#define ALLEGRO_XWINDOWS_WITH_XF86DGA2 1
 
 /* Define if OSS DIGI driver is supported.  */
 #define ALLEGRO_WITH_OSSDIGI 1
@@ -105,10 +108,10 @@
 #define ALLEGRO_WITH_OSSMIDI 1
 
 /* Define if ALSA DIGI driver is supported.  */
-/* #undef ALLEGRO_WITH_ALSADIGI */
+#define ALLEGRO_WITH_ALSADIGI 1
 
 /* Define if ALSA MIDI driver is supported.  */
-/* #undef ALLEGRO_WITH_ALSAMIDI */
+#define ALLEGRO_WITH_ALSAMIDI 1
 
 /* Define if ESD DIGI driver is supported.  */
 #define ALLEGRO_WITH_ESDDIGI 1
