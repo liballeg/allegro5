@@ -180,6 +180,11 @@ static PARAMETER parameters[] =
    { "alsa_pcmdevice",     param_int,     "",      "",         NULL,             "Dev:",     NULL,       NULL,    "ALSA PCM device number" },
    { "alsa_numfrags",      param_int,     "",      "2",        NULL,             "NumFr:",   NULL,       NULL,    "Number of fragments (use 2, other values make little difference)" },
  #endif
+ 
+  #ifdef MIDI_ALSA
+   { "alsa_rawmidi_card",   param_int,     "",      "",         NULL,             "Card:",    NULL,       NULL,    "ALSA RawMIDI card number" },
+   { "alsa_rawmidi_device", param_int,     "",      "",         NULL,             "Dev:",     NULL,       NULL,    "ALSA RawMIDI device number" },
+ #endif
 
  #ifdef MIDI_DIGMID
    { "patches",            param_file,    "",      "",         NULL,             "Patches:", "CFG;DAT",  NULL,    "MIDI patch set (GUS format default.cfg or Allegro format patches.dat)" },
@@ -362,6 +367,7 @@ static void find_sound_drivers()
 	    }
 
 	 #endif
+	 
       }
 
       info++;
@@ -475,6 +481,18 @@ static void find_sound_drivers()
 	       static char *param[] = { "21", "oss_midi_driver", "midi_volume", NULL };
 	       midi_cards[c].param = param;
 	       midi_cards[c].desc = "Open Sound System";
+	       break;
+	    }
+
+	 #endif
+
+	 #ifdef MIDI_ALSA
+
+	    case MIDI_ALSA:
+	    {
+	       static char *param[] = { "22", "alsa_rawmidi_card", "alsa_rawmidi_device", "", "midi_volume", NULL };
+	       midi_cards[c].param = param;
+	       midi_cards[c].desc = "ALSA RawMIDI";
 	       break;
 	    }
 
