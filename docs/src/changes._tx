@@ -38,7 +38,7 @@ Changes from 4.1.17 to 4.1.18 (Januari 2005)
 <li>
    Daniel Schlyder fixed some problems with the font loading code.
 <li>
-   AJ added 64 bit, SSE2 and SSE3 detection code.
+   AJ added IA64, SSE3 and AMD64 detection code.
 <li>
    Daniel Schlyder fixed some warnings with MinGW gcc 3.4.2
 <li>
