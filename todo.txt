@@ -17,7 +17,6 @@ General (Platform independent) todos:
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
 - make the 'save' method of plugins return FALSE on failure
-- add a C++ test (enabled by a configure-like check)
 - revamp the clipping API
 - add an asm sincos() internal routine
 
