@@ -6024,6 +6024,13 @@ directories, but not hidden files and directories. Similarly, if you pass
    from the current text encoding. Newlines (\n) are written as \r\n on
    DOS/Windows. If you do not want either of these things to happen,
    use pack_fwrite() and/or pack_putc() instead.
+<li>
+   pack_feof() returns nonzero as soon as you reach the end of the file. It 
+   does not wait for you to attempt to read beyond the end of the file,
+   contrary to the ISO C feof() function. The only way to know whether you
+   have read beyond the end of the file is to check the return value of the
+   read operation you use (and be wary of pack_*getl() as EOF is also a valid
+   return value with these functions).
 </ul>
 @@PACKFILE *@pack_fopen_chunk(PACKFILE *f, int pack);
 @xref pack_fclose_chunk, pack_fopen
