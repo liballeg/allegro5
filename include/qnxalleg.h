@@ -34,12 +34,18 @@ extern "C" {
 
 
 /* Globals */
-PtWidget_t            *ph_window;
-int                    ph_gfx_initialized;
-PdOffscreenContext_t  *ph_screen_context;
-PdOffscreenContext_t  *ph_window_context;
-pthread_mutex_t        qnx_events_mutex;
-int                    qnx_mouse_warped;
+
+AL_VAR(PtWidget_t, *ph_window);
+AL_VAR(int, ph_gfx_initialized);
+AL_VAR(PdOffscreenContext_t, *ph_screen_context);
+AL_VAR(PdOffscreenContext_t, *ph_window_context);
+AL_VAR(pthread_mutex_t, qnx_events_mutex);
+AL_VAR(int, qnx_mouse_warped);
+AL_VAR(char, *ph_dirty_lines);
+AL_VAR(void, (*ph_update_window)(PhRect_t* rect));
+AL_VAR(int, ph_window_w);
+AL_VAR(int, ph_window_h);
+AL_ARRAY(PgColor_t, ph_palette);
 
 
 typedef void RETSIGTYPE;

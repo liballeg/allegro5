@@ -33,6 +33,10 @@ AL_FUNC(void, qnx_sys_message, (AL_CONST char *));
 AL_FUNC(void, qnx_sys_set_window_title, (AL_CONST char *));
 AL_FUNC(int, qnx_sys_set_window_close_button, (int));
 AL_FUNC(void, qnx_sys_set_window_close_hook, (AL_METHOD(void, proc, (void))));
+AL_FUNC(int, qnx_sys_set_display_switch_mode, (int mode));
+AL_FUNC(int, qnx_sys_set_display_switch_cb, (int dir, AL_METHOD(void, cb, (void))));
+AL_FUNC(void, qnx_sys_remove_display_switch_cb, (AL_METHOD(void, cb, (void))));
+
 AL_FUNC(int, qnx_sys_desktop_color_depth, (void));
 AL_FUNC(int, qnx_sys_get_desktop_resolution, (int *width, int *height));
 AL_FUNC(_DRIVER_INFO *, qnx_sys_timer_drivers, (void));

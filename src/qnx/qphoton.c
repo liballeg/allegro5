@@ -24,23 +24,49 @@
 #endif
 
 
-PdOffscreenContext_t        *ph_screen_context = NULL;
-PdOffscreenContext_t        *ph_window_context = NULL;
-int                          ph_gfx_initialized = FALSE;
+PdOffscreenContext_t           *ph_screen_context = NULL;
+PdOffscreenContext_t           *ph_window_context = NULL;
+int                             ph_gfx_initialized = FALSE;
+char                           *ph_dirty_lines = NULL;
+void                          (*ph_update_window)(PhRect_t* rect) = NULL;
+int                             ph_window_w = 0, ph_window_h = 0;
+PgColor_t                       ph_palette[256];
 
-static PdDirectContext_t    *direct_context = NULL;
-static PgColor_t             ph_palette[256];
-static int                   ph_last_line = -1;
-static char                  driver_desc[128];
-static PgDisplaySettings_t   original_settings;
+
+static PdDirectContext_t       *direct_context = NULL;
+static char                     driver_desc[128];
+static PgDisplaySettings_t      original_settings;
+static COLORCONV_BLITTER_FUNC  *blitter = NULL;
+static char                    *pseudo_screen_addr = NULL;
+static int                      pseudo_screen_pitch;
+static int                      pseudo_screen_depth;
+static char                    *window_addr = NULL;
+static int                      window_pitch;
+static int                      desktop_depth;
 
 
 static int find_video_mode(int w, int h, int depth);
 static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth, int accel);
 
-unsigned long ph_write_line(BITMAP *bmp, int line);
-#ifndef ALLEGRO_NO_ASM
+#ifdef ALLEGRO_NO_ASM
+static inline void update_dirty_lines();
+static unsigned long phd_write_line(BITMAP *bmp, int line);
+static void phd_unwrite_line(BITMAP *bmp);
+static void phd_acquire(BITMAP *bmp);
+static void phd_release(BITMAP *bmp);
+static unsigned long ph_write_line(BITMAP *bmp, int line);
+static void ph_unwrite_line(BITMAP *bmp);
+static void ph_acquire(BITMAP *bmp);
+static void ph_release(BITMAP *bmp);
+#else
+unsigned long phd_write_line_asm(BITMAP *bmp, int line);
+void phd_unwrite_line_asm(BITMAP *bmp);
+void phd_acquire_asm(BITMAP *bmp);
+void phd_release_asm(BITMAP *bmp);
 unsigned long ph_write_line_asm(BITMAP *bmp, int line);
+void ph_unwrite_line_asm(BITMAP *bmp);
+void ph_acquire_asm(BITMAP *bmp);
+void ph_release_asm(BITMAP *bmp);
 #endif
 
 
@@ -140,7 +166,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
       return NULL;
    }
-
+   
    PgGetVideoMode(&original_settings);
    
    mode_num = find_video_mode(w, h, color_depth);
@@ -192,15 +218,28 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       return NULL;
    }
 
+#ifdef ALLEGRO_NO_ASM
+   bmp->write_bank = phd_write_line;
+   bmp->read_bank = phd_write_line;
+   _screen_vtable.acquire = phd_acquire;
+   _screen_vtable.release = phd_release;
+#else
+   bmp->write_bank = phd_write_line_asm;
+   bmp->read_bank = phd_write_line_asm;
+   _screen_vtable.acquire = phd_acquire_asm;
+   _screen_vtable.release = phd_release_asm;
+#endif
+
    drv->w = bmp->cr = w;
    drv->h = bmp->cb = h;
+   desktop_depth = color_depth;
 
    setup_direct_shifts();
    sprintf(driver_desc, "Photon direct mode (%s)", caps.chip_name);
    drv->desc = driver_desc;
 
    _mouse_on = TRUE;
-   
+
    PgFlush();
    PgWaitHWIdle();
 
@@ -261,12 +300,54 @@ void qnx_phd_exit(struct BITMAP *bmp)
 
 
 
+#ifdef ALLEGRO_NO_ASM
+
+
+/* phd_write_line:
+ *  Line switcher for Photon direct mode.
+ */
+static unsigned long phd_write_line(BITMAP *bmp, int line)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      bmp->id |= BMP_ID_LOCKED;
+      PgWaitHWIdle();
+   }
+   return (unsigned long)(bmp->line[line]);
+}
+
+
+
+/* phd_acquire:
+ *  Bitmap locking for direct mode.
+ */
+static void phd_acquire(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      bmp->id |= BMP_ID_LOCKED;
+      PgWaitHWIdle();
+   }
+}
+
+
+
+/* phd_release:
+ *  Bitmap unlocking for direct mode.
+ */
+static void phd_release(BITMAP *bmp)
+{
+   bmp->id &= ~BMP_ID_LOCKED;
+}
+
+
+#endif
+
+
+
 /* qnx_ph_vsync:
  *  Waits for vertical retrace.
  */
 void qnx_ph_vsync(void)
 {
-   PgWaitHWIdle();
    PgWaitVSync();
 }
 
@@ -285,52 +366,71 @@ void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesyn
    if (retracesync) {
       PgWaitVSync();
    }
-   PgSetPalette(ph_palette, 0, from, to - from + 1, (ph_window_context ? Pg_PALSET_SOFT : Pg_PALSET_HARDLOCKED), 0);
-   PgFlush();
+   if ((desktop_depth != 8) && (ph_window_context)) {
+      _set_colorconv_palette(p, from, to);
+      ph_update_window(NULL);
+   }
+   if (desktop_depth == 8) {
+      PgSetPalette(ph_palette, 0, from, to - from + 1, Pg_PALSET_HARDLOCKED, 0);
+      PgFlush();
+   }
 }
 
 
 
-static inline void ph_update_screen(int line)
-{
-   PhRect_t rect;
-
-   rect.ul.x = 0;
-   rect.ul.y = line;
-   rect.lr.x = ph_window_context->dim.w;
-   rect.lr.y = line + 1;
-   PgContextBlit(ph_window_context, &rect, NULL, &rect);
-}
-
-
-
-unsigned long ph_write_line(struct BITMAP *bmp, int line)
-{
-   int new_line = line + bmp->y_ofs;
-   
-   if ((new_line != ph_last_line) && (ph_last_line >= 0))
-      ph_update_screen(ph_last_line);
-   ph_last_line = new_line;
-   return (unsigned long)(bmp->line[line]);
-}
-
-
-
-/* ph_unwrite_line:
- *  Update last selected line.
+/* update_window_hw:
+ *  Window updater for matching color depths.
  */
-static void ph_unwrite_line(struct BITMAP *bmp)
+static void update_window_hw(PhRect_t *rect)
 {
-   if (ph_last_line >= 0)
-      ph_update_screen(ph_last_line);
-   ph_last_line = -1;
+   PhRect_t temp;
+   
+   if (!rect) {
+      temp.ul.x = 0;
+      temp.ul.y = 0;
+      temp.lr.x = ph_window_w;
+      temp.lr.y = ph_window_h;
+      rect = &temp;
+   }
+   PgContextBlit(ph_window_context, rect, NULL, rect);
 }
 
 
 
-static void ph_release(struct BITMAP *bmp)
+/* update_window:
+ *  Window updater for non matching color depths, performing color conversion.
+ */
+static void update_window(PhRect_t *rect)
 {
-   PgFlush();
+   struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
+   PhRect_t temp;
+   
+   if (!rect) {
+      temp.ul.x = 0;
+      temp.ul.y = 0;
+      temp.lr.x = ph_window_w;
+      temp.lr.y = ph_window_h;
+      rect = &temp;
+   }
+
+   /* fill in source graphics rectangle description */
+   src_gfx_rect.width  = rect->lr.x - rect->ul.x;
+   src_gfx_rect.height = rect->lr.y - rect->ul.y;
+   src_gfx_rect.pitch  = pseudo_screen_pitch;
+   src_gfx_rect.data   = pseudo_screen_addr +
+                         (rect->ul.y * pseudo_screen_pitch) +
+                         (rect->ul.x * BYTES_PER_PIXEL(pseudo_screen_depth));
+
+   /* fill in destination graphics rectangle description */
+   dest_gfx_rect.pitch = window_pitch;
+   dest_gfx_rect.data  = window_addr +
+                         (rect->ul.y * window_pitch) +
+                         (rect->ul.x * BYTES_PER_PIXEL(desktop_depth));
+   
+   /* function doing the hard work */
+   blitter(&src_gfx_rect, &dest_gfx_rect);
+
+   PgContextBlit(ph_window_context, rect, NULL, rect);
 }
 
 
@@ -341,10 +441,13 @@ static void ph_release(struct BITMAP *bmp)
 static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp = NULL;
+   PgHWCaps_t caps;
+   PgDisplaySettings_t settings;
+   PgVideoModeInfo_t mode_info;
    PtArg_t arg;
    PhDim_t dim;
-   int type = 0;
    char *addr;
+   int pitch;
 
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -372,13 +475,16 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    if (v_w < w) v_w = w;
    if (v_h < h) v_h = h;
    
-   if ((v_w != w) || (v_h != h)) {
+   if ((v_w != w) || (v_h != h) || (w % 4)) {
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
       return NULL;
    }
 
-   dim.w = w;
-   dim.h = h;
+   PgGetVideoMode(&settings);
+   PgGetVideoModeInfo(settings.mode, &mode_info);
+
+   dim.w = ph_window_w = w;
+   dim.h = ph_window_h = h;
    PtSetArg(&arg, Pt_ARG_DIM, &dim, 0);
    PtSetResources(ph_window, 1, &arg);
 
@@ -388,47 +494,70 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
       return NULL;
    }
    addr = PdGetOffscreenContextPtr(ph_window_context);
-/*
-   switch (color_depth) {
-      case 8: type = Pg_IMAGE_PALETTE_BYTE; break;
-      case 15: type = Pg_IMAGE_DIRECT_555; break;
-      case 16: type = Pg_IMAGE_DIRECT_565; break;
-      case 24: type = Pg_IMAGE_DIRECT_888; break;
-      case 32: type = Pg_IMAGE_DIRECT_8888; break;
+
+   pseudo_screen_depth = color_depth;
+   desktop_depth = mode_info.bits_per_pixel;
+
+   if (color_depth == desktop_depth) {
+      /* the color depths match */
+      ph_update_window = update_window_hw;
+      pseudo_screen_addr = NULL;
+      pitch = ph_window_context->pitch;
    }
-   if (ph_window_context->format != type) {
-      ustrcpy(allegro_error, get_config_text("bad color depth matching"));
-      return NULL;
+   else {
+      /* the color depths don't match, need color conversion */
+      blitter = _get_colorconv_blitter(color_depth, desktop_depth);
+      if (!blitter) {
+         ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+         return NULL;
+      }
+      ph_update_window = update_window;
+      pseudo_screen_addr = (char *)malloc(w * h * BYTES_PER_PIXEL(color_depth));
+      if (!pseudo_screen_addr) {
+         ustrcpy(allegro_error, get_config_text("Not enough memory"));
+         return NULL;
+      }
+      pseudo_screen_pitch = pitch = w * BYTES_PER_PIXEL(color_depth);
+      window_pitch = ph_window_context->pitch;
+      window_addr = addr;
+      addr = pseudo_screen_addr;
    }
-*/
 
    drv->linear = TRUE;
-   drv->vid_mem = ph_window_context->shared_size;
+   if (PgGetGraphicsHWCaps(&caps)) {
+      drv->vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
+   }
+   else {
+      drv->vid_mem = caps.total_video_ram;
+   }
 
-   bmp = _make_bitmap(w, h, (unsigned long)addr, drv, 
-                      color_depth, ph_window_context->pitch);
-   if(!bmp) {
+   bmp = _make_bitmap(w, h, (unsigned long)addr, drv, color_depth, pitch);
+   ph_dirty_lines = (char *)calloc(h + 1, sizeof(char));
+   
+   if ((!bmp) || (!ph_dirty_lines)) {
       ustrcpy(allegro_error, get_config_text("Not enough memory"));
       return NULL;
    }
 
+   ph_dirty_lines[h] = 0;
    drv->w = bmp->cr = w;
    drv->h = bmp->cb = h;
 
 #ifdef ALLEGRO_NO_ASM
    bmp->write_bank = ph_write_line;
-   bmp->read_bank = ph_write_line;
+   _screen_vtable.unwrite_bank = ph_unwrite_line;
+   _screen_vtable.acquire = ph_acquire;
+   _screen_vtable.release = ph_release;
 #else
    bmp->write_bank = ph_write_line_asm;
-   bmp->read_bank = ph_write_line_asm;
+   _screen_vtable.unwrite_bank = ph_unwrite_line_asm;
+   _screen_vtable.acquire = ph_acquire_asm;
+   _screen_vtable.release = ph_release_asm;
 #endif
 
-   _screen_vtable.release = ph_release;
-   _screen_vtable.unwrite_bank = ph_unwrite_line;
-   ph_last_line = -1;
-
    setup_direct_shifts();
-   sprintf(driver_desc, "Photon windowed");
+   sprintf(driver_desc, "Photon windowed, %d bpp %s", color_depth,
+      (color_depth == desktop_depth) ? "in matching" : "in fast emulation");
    drv->desc = driver_desc;
 
    PgFlush();
@@ -444,10 +573,19 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
  */
 static void qnx_private_ph_exit()
 {
+   PgSetPalette(NULL, 0, 0, -1, 0, 0);
+   PgFlush();
    ph_gfx_initialized = FALSE;
    if (ph_window_context)
       PhDCRelease(ph_window_context);
    ph_window_context = NULL;
+   if (pseudo_screen_addr)
+      free(pseudo_screen_addr);
+   pseudo_screen_addr = NULL;
+   if (ph_dirty_lines)
+      free(ph_dirty_lines);
+   ph_dirty_lines = NULL;
+   blitter = NULL;
 }
 
 
@@ -481,3 +619,91 @@ void qnx_ph_exit(struct BITMAP *b)
    qnx_private_ph_exit();
    pthread_mutex_unlock(&qnx_events_mutex);
 }
+
+
+
+#ifdef ALLEGRO_NO_ASM
+
+
+/* update_dirty_lines:
+ *  Dirty line updater routine.
+ */
+static inline void update_dirty_lines()
+{
+   PhRect_t rect;
+   int i = 0;
+
+   rect.ul.x = 0;
+   rect.lr.x = ph_window_w;
+   do {
+      if (ph_dirty_lines[i]) {
+         rect.ul.y = i;
+         while (ph_dirty_lines[i]) {
+            ph_dirty_lines[i] = 0;
+            i++;
+         }
+         rect.lr.y = i;
+         ph_update_window(&rect);
+      }      
+      i++;
+   } while (i < ph_window_h);
+   
+   PgFlush();
+}
+
+
+
+/* ph_write_line:
+ *  Line switcher for Photon windowed mode.
+ */
+static unsigned long ph_write_line(BITMAP *bmp, int line)
+{
+   ph_dirty_lines[line + bmp->y_ofs] = 1;
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
+      PgWaitHWIdle();
+   }
+   return (unsigned long)(bmp->line[line]);
+}
+
+
+
+/* ph_unwrite_line:
+ *  Line updater for Photon windowed mode.
+ */
+static void ph_unwrite_line(BITMAP *bmp)
+{
+   if (bmp->id & BMP_ID_AUTOLOCK) {
+      bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
+      update_dirty_lines();
+   }
+}
+
+
+
+/* ph_acquire:
+ *  Bitmap locking for windowed mode.
+ */
+static void ph_acquire(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      bmp->id |= BMP_ID_LOCKED;
+      PgWaitHWIdle();
+   }
+}
+
+
+
+/* ph_release:
+ *  Bitmap unlocking for windowed mode.
+ */
+static void ph_release(BITMAP *bmp)
+{
+   if (bmp->id & BMP_ID_LOCKED) {
+      bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
+      update_dirty_lines();
+   }
+}
+
+
+#endif

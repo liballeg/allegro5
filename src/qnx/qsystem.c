@@ -34,15 +34,25 @@
 #include <sched.h>
 
 
+#define MAX_SWITCH_CALLBACKS		8
+
+
 /* Global variables */
-PtWidget_t       *ph_window = NULL;
-PhEvent_t        *ph_event = NULL;
+PtWidget_t                *ph_window = NULL;
+PhEvent_t                 *ph_event = NULL;
+pthread_mutex_t            qnx_events_mutex;
 
 
-static void       (*window_close_hook)(void) = NULL;
-static pthread_t  qnx_events_thread;
-static int        qnx_system_done;
-static char       window_title[256];
+static void              (*window_close_hook)(void) = NULL;
+static pthread_t           qnx_events_thread;
+static int                 qnx_system_done;
+static char                window_title[256];
+static int                 switch_mode = SWITCH_BACKGROUND;
+
+static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = 
+   { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) =
+   { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 
 /* Timer driver */
@@ -135,7 +145,7 @@ static void *qnx_events_handler(void *data)
    PhKeyEvent_t *key_event;
    PhPointerEvent_t *mouse_event;
    PhCursorInfo_t cursor_info;
-   int old_x = 0, old_y = 0, ig, dx, dy, buttons = 0, res;
+   int old_x = 0, old_y = 0, ig, dx, dy, buttons = 0, res, i;
    short mx, my;
    const char *close_buttons[] = { "&Yes", "&No" };
    
@@ -193,9 +203,8 @@ static void *qnx_events_handler(void *data)
 
          /* Expose event */
          case Ph_EV_EXPOSE:
-         
-            /* TODO: redraw view */
-         
+            if (ph_window_context)
+               ph_update_window(NULL);
             break;
       
          /* Mouse enters/leaves window boundaries */
@@ -228,14 +237,28 @@ static void *qnx_events_handler(void *data)
                         window_close_hook();
                      }
                      else {
-                        DISABLE();
-                        res = PtAlert(NULL, NULL, window_title, NULL,
-                           ALLEGRO_WINDOW_CLOSE_MESSAGE,
-                           NULL, 2, close_buttons, NULL, 1, 2, Pt_MODAL);
-                        ENABLE();
-                        if (res == 1)
-                           PtExit(EXIT_SUCCESS);
+                        PtExit(EXIT_SUCCESS);
                      }
+                     break;
+                  case Ph_WM_FOCUS:
+                     if (window_event->event_state == Ph_WM_EVSTATE_FOCUS) {
+                        PgSetPalette(ph_palette, 0, 0, 256, Pg_PALSET_HARDLOCKED, 0);
+                        PgFlush();
+                        for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+                           if (switch_in_cb[i])
+                              switch_in_cb[i]();
+                        }
+                     }
+                     else {
+                        for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+                           if (switch_out_cb[i])
+                              switch_out_cb[i]();
+                        }
+                        PgSetPalette(NULL, 0, 0, -1, 0, 0);
+                        PgFlush();
+                     }
+                     if (ph_window_context)
+                        ph_update_window(NULL);
                      break;
                }
             }
@@ -276,8 +299,8 @@ int qnx_sys_init(void)
    PtSetArg(&arg[0], Pt_ARG_DIM, &dim, 0);
    PtSetArg(&arg[1], Pt_ARG_WINDOW_TITLE, window_title, 0);
    PtSetArg(&arg[2], Pt_ARG_WINDOW_MANAGED_FLAGS, Pt_FALSE, Ph_WM_CLOSE);
-   PtSetArg(&arg[3], Pt_ARG_WINDOW_NOTIFY_FLAGS, Pt_TRUE, Ph_WM_CLOSE);
-   PtSetArg(&arg[4], Pt_ARG_WINDOW_RENDER_FLAGS, Pt_FALSE, Ph_WM_RENDER_MAX);
+   PtSetArg(&arg[3], Pt_ARG_WINDOW_NOTIFY_FLAGS, Pt_TRUE, Ph_WM_CLOSE | Ph_WM_FOCUS);
+   PtSetArg(&arg[4], Pt_ARG_WINDOW_RENDER_FLAGS, Pt_FALSE, Ph_WM_RENDER_MAX | Ph_WM_RENDER_RESIZE);
 
    ph_event = (PhEvent_t *)malloc(EVENT_SIZE);
    if (!(ph_window = PtAppInit(NULL, NULL, NULL, 5, arg))) {
@@ -391,6 +414,75 @@ void qnx_sys_message(AL_CONST char *msg)
 
    fprintf(stderr, "%s", msg);
    PtAlert(NULL, NULL, "Title", NULL, msg, NULL, 1, button, NULL, 1, 1, Pt_MODAL);
+}
+
+
+
+/* qnx_sys_set_display_switch_mode:
+ *  Sets current display switching behaviour.
+ */
+int qnx_sys_set_display_switch_mode (int mode)
+{
+   if (mode != SWITCH_BACKGROUND)
+      return -1;   
+   switch_mode = mode;
+   return 0;
+}
+
+
+
+/* qnx_sys_set_display_switch_cb:
+ *  Adds a callback function to the queue of functions to be called on display
+ *  switching.
+ */
+int qnx_sys_set_display_switch_cb(int dir, void (*cb)(void))
+{
+   int i;
+   
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (dir == SWITCH_IN) {
+         if (switch_in_cb[i] == cb)
+            return 0;
+      }
+      else {
+         if (switch_out_cb[i] == cb)
+            return 0;
+      }
+   }
+
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (dir == SWITCH_IN) {
+         if (!switch_in_cb[i]) {
+            switch_in_cb[i] = cb;
+            return 0;
+         }
+      }
+      else {
+         if (!switch_out_cb[i]) {
+            switch_out_cb[i] = cb;
+            return 0;
+         }
+      }
+   }
+   return -1;
+}
+
+
+
+/* qnx_sys_remove_display_switch_cb:
+ *  Removes specified callback function from the queue of functions to be
+ *  called on display switching.
+ */
+void qnx_sys_remove_display_switch_cb(void (*cb)(void))
+{
+   int i;
+
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (switch_in_cb[i] == cb)
+         switch_in_cb[i] = NULL;
+      if (switch_out_cb[i] == cb)
+         switch_out_cb[i] = NULL;
+   }
 }
 
 

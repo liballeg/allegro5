@@ -52,9 +52,9 @@ SYSTEM_DRIVER system_qnx =
    NULL,                            /* AL_METHOD(void, read_hardware_palette, (void)); */
    NULL,                            /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
    NULL,                            /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
-   NULL,                            /* AL_METHOD(int, set_display_switch_mode, (int mode)); */
-   NULL,                            /* AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void)))); */
-   NULL,                            /* AL_METHOD(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void)))); */
+   qnx_sys_set_display_switch_mode, /* AL_METHOD(int, set_display_switch_mode, (int mode)); */
+   qnx_sys_set_display_switch_cb,   /* AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void)))); */
+   qnx_sys_remove_display_switch_cb,/* AL_METHOD(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void)))); */
    NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
    qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
    qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */

@@ -81,11 +81,8 @@ BeOS todos:
 QNX todos:
 ---------------------------------------------------------------------------
 
-- Make windowed gfx driver to support color conversion
-- set_window_title(), window close hook
 - Video bitmaps and acceleration support in fullscreen mode
-- Terminal switching
-- Improve stability
+- Improve events synchronization
 - Fix the makefile
 - Update the docs
 
