@@ -5,8 +5,9 @@
 #  To path MSVC so it can be used from the commandline, run the
 #  vcvars32.bat file which can be found in your MSVC bin directory.
 #
-#  This build uses djgpp for building the assembler sources and calculating
-#  source dependencies, so you'll need to have that installed as well.
+#  This platform uses GCC for building the assembler sources and calculating
+#  source dependencies, so you'll need to have that installed in the form of
+#  DJGPP, MinGW or Cygwin.
 #
 #  The "depend" target uses sed.
 #
@@ -23,6 +24,15 @@ OBJ = .obj
 HTML = html
 
 PLATFORM_DIR = obj/msvc
+
+ifdef ALLEGRO_USE_CYGWIN
+   UNIX_TOOLS = 1
+   GCCFLAGS = -mno-cygwin
+endif
+
+ifneq (,$(findstring /sh.exe,$(SHELL)))
+   UNIX_TOOLS = 1
+endif
 
 
 
@@ -436,7 +446,7 @@ obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/
 	$(RUNNER) cl @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
-	gcc -O -Wall -Werror -o obj/msvc/runner.exe src/misc/runner.c
+	gcc -O -Wall -Werror $(GCCFLAGS) -o obj/msvc/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
    $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $^
