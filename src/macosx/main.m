@@ -29,8 +29,8 @@
 
 
 /* For compatibility with the unix code */
-int    __crt0_argc;
-char **__crt0_argv;
+extern int    __crt0_argc;
+extern char **__crt0_argv;
 extern void *_mangled_main_address;
 
 static char *arg0;
@@ -51,18 +51,6 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 
 @implementation AllegroAppDelegate
-
-/* applicationShouldTerminate:
- *  Called when the user asks for app termination.
- */
-- (NSApplicationTerminateReply)applicationShouldTerminate: (NSApplication *)sender
-{
-   if (osx_window_close_hook)
-      osx_window_close_hook();
-   return NSTerminateCancel;
-}
-
-
 
 /* applicationDidFinishLaunching:
  *  Called when the app is ready to run. This runs the system events pump and

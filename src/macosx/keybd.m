@@ -31,26 +31,6 @@ static int osx_keyboard_init(void);
 static void osx_keyboard_exit(void);
 
 
-/* pointers to the layout mapping; this is a hack as the layout is system
- * defined under OSX Allegro.
- */
-static short empty_table[KEY_MAX];
-unsigned short *_key_ascii_table         = empty_table;
-unsigned short *_key_capslock_table      = empty_table;
-unsigned short *_key_shift_table         = empty_table;
-unsigned short *_key_control_table       = empty_table;
-unsigned short *_key_altgr_lower_table   = empty_table;
-unsigned short *_key_altgr_upper_table   = empty_table;
-unsigned short *_key_accent1_lower_table = empty_table;
-unsigned short *_key_accent1_upper_table = empty_table;
-unsigned short *_key_accent2_lower_table = empty_table;
-unsigned short *_key_accent2_upper_table = empty_table;
-unsigned short *_key_accent3_lower_table = empty_table;
-unsigned short *_key_accent3_upper_table = empty_table;
-unsigned short *_key_accent4_lower_table = empty_table;
-unsigned short *_key_accent4_upper_table = empty_table;
-
-
 /* Mac keycode to Allegro scancode conversion table */
 static const int mac_to_scancode[128] = {
 /* 0x00 */ KEY_A,          KEY_S,          KEY_D,          KEY_F,

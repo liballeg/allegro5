@@ -30,7 +30,7 @@ else
 
 # -------- link as a shared library --------
 LIB_NAME = lib/macosx/lib$(VERSION)-$(shared_version).dylib
-DYLINK_FLAGS = -single_module -flat_namespace -Wl,-U,__mangled_main_address
+DYLINK_FLAGS = -flat_namespace -Wl,-U,__mangled_main_address
 DYLINK_FLAGS += -install_name lib$(VERSION)-$(shared_version).dylib
 DYLINK_FLAGS += -dylib_compatibility_version=4.0.0 -dylib_current_version=$(shared_version)
 
@@ -97,7 +97,7 @@ endif
 endif
 endif
 
-CFLAGS += -pipe
+CFLAGS += -fno-common -pipe
 
 
 

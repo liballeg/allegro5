@@ -52,7 +52,6 @@
 
 
 @interface AllegroAppDelegate : NSObject
-- (NSApplicationTerminateReply)applicationShouldTerminate: (NSApplication *)sender;
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification;
 - (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification;
 + (void)app_main: (id)arg;
@@ -138,7 +137,6 @@ AL_VAR(int, osx_gfx_mode);
 AL_VAR(NSCursor *, osx_cursor);
 AL_VAR(AllegroWindow *, osx_window);
 AL_ARRAY(char, osx_window_title);
-AL_METHOD(void, osx_window_close_hook, (void));
 AL_VAR(CGDirectPaletteRef, osx_palette);
 AL_VAR(int, osx_palette_dirty);
 AL_VAR(int, osx_mouse_warped);
@@ -146,6 +144,7 @@ AL_VAR(int, osx_skip_mouse_move);
 AL_VAR(int, osx_emulate_mouse_buttons);
 AL_VAR(NSTrackingRectTag, osx_mouse_tracking_rect);
 AL_VAR(NoteAllocator, osx_note_allocator);
+extern AL_METHOD(void, osx_window_close_hook, (void));
 
 
 #endif
