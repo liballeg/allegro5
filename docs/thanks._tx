@@ -235,10 +235,12 @@ Contributors
    Haruhiko Okumura, 12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, JP.<br>
    Wrote the original version of the LZSS compression code.
 
-   Henrik Stokseth (<email>hstokset@privat.cybercity.no</a>).<br>
-   Contributed a native Mingw32 build complete with cross-compilation.
-   Improved OS detection. Added get_gfx_mode_list() and methods for querying
-   the VESA and DIRECTX drivers for a list of possible GFX modes.
+   Henrik Stokseth (<email>hstokset@tiscali.no</a>).<br>
+   Contributed a native Mingw32 build which can also be built with a
+   cross-compiler and the Cygwin compiler. Improved OS detection. Added
+   get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
+   VESA and DIRECTX drivers for a list of possible GFX modes. Rewrote the
+   mode-selector to use get_gfx_mode_list().
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 

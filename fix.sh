@@ -75,7 +75,7 @@ proc_dtou()
       touch -r _tmpfile $file
       rm _tmpfile
    done
-   chmod +x configure *.sh misc/*.sh misc/*.pl
+   chmod -f +x configure *.sh misc/*.sh misc/*.pl
 }
 
 proc_utom()
