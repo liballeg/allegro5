@@ -224,7 +224,7 @@ unsigned long _blender_dissolve24(unsigned long x, unsigned long y, unsigned lon
    if (n == 255)
       return x;
 
-   return ((rand() & 255) < (int)n) ? x : y;
+   return ((_al_rand() & 255) < (int)n) ? x : y;
 }
 
 
@@ -511,7 +511,7 @@ unsigned long _blender_dissolve16(unsigned long x, unsigned long y, unsigned lon
    if (n == 255)
       return x;
 
-   return ((rand() & 255) < (int)n) ? x : y;
+   return ((_al_rand() & 255) < (int)n) ? x : y;
 }
 
 
@@ -791,7 +791,7 @@ unsigned long _blender_dissolve15(unsigned long x, unsigned long y, unsigned lon
    if (n == 255)
       return x;
 
-   return ((rand() & 255) < (int)n) ? x : y;
+   return ((_al_rand() & 255) < (int)n) ? x : y;
 }
 
 

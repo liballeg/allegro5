@@ -14,11 +14,17 @@
  *
  *      Henrik Stokseth added _al_sane_realloc() function.
  *
+ *      _al_srand() and _al_rand() functions based on code by Paul Pridham.
+ *
  *      See readme.txt for copyright information.
  */
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
+
+
+static int _al_rand_seed = 0;
 
 
 
@@ -130,4 +136,25 @@ void *_al_sane_realloc(void *ptr, size_t size)
    }
    
    return tmp_ptr;
+}
+
+
+
+/* _al_srand:
+ *  Seed initialization routine for rand() replacement.
+ */
+void _al_srand(int seed)
+{
+   _al_rand_seed = seed;
+}
+
+
+
+/* _al_rand:
+ *  Simple rand() replacement with guaranteed randomness in the lower 16 bits.
+ */
+int _al_rand()
+{
+   _al_rand_seed = (_al_rand_seed + 1) * 1103515245 + 12345;
+   return ((_al_rand_seed >> 16) & _AL_RAND_MAX);
 }
