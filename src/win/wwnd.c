@@ -78,49 +78,6 @@ static UINT msg_suicide = 0;
 
 
 
-/* win_set_window:
- *  Selects an user-defined window for Allegro.
- */
-void win_set_window(HWND wnd)
-{
-   /* TODO: add code to remove old window */
-   user_wnd = wnd;
-}
-
-
-
-/* win_get_window:
- *  Returns the Allegro window handle.
- */
-HWND win_get_window(void)
-{
-   return (user_wnd ? user_wnd : allegro_wnd);
-}
-
-
-
-/* win_set_wnd_create_proc:
- *  Sets a custom window creation proc.
- */
-void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
-{
-   wnd_create_proc = proc;
-}
-
-
-
-/* win_grab_input:
- *  Grabs the input devices.
- */
-void win_grab_input(void)
-{
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
-   wnd_acquire_joystick();
-}
-
-
-
 /* wnd_call_proc:
  *  Lets call a procedure from the window thread.
  */
@@ -403,60 +360,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
 
 
-/* save_window_pos:
- *  Stores the position of the current window, before closing it, so it can be
- *  used as the initial position for the next window.
- */
-void save_window_pos(void)
-{
-   last_wnd_x = wnd_x;
-   last_wnd_y = wnd_y;
-}
-
-
-
-/* adjust_window:
- *  Moves and resizes the window if we have full control over it.
- */
-int adjust_window(int w, int h)
-{
-   RECT win_size = {last_wnd_x, last_wnd_y, last_wnd_x+w, last_wnd_y+h };
-
-   if (!user_wnd) {
-      /* retrieve the size of the decorated window */
-      AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
-   
-      /* display the window */
-      MoveWindow(allegro_wnd, win_size.left, win_size.top,
-                 win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
-
-      /* check that the actual window size is the one requested */
-      GetClientRect(allegro_wnd, &win_size);
-      if (((win_size.right - win_size.left) != w) || ((win_size.bottom - win_size.top) != h))
-         return -1;
-
-      wnd_x = last_wnd_x;
-      wnd_y = last_wnd_y;
-      wnd_width = w;
-      wnd_height = h;
-   }
-
-   return 0;
-}
-
-
-
-/* restore_window_style:
- *  Restores the previous style of the window.
- */
-void restore_window_style(void)
-{
-   SetWindowLong(allegro_wnd, GWL_STYLE, old_style);
-   SetWindowPos(allegro_wnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-}
-
-
-
 /* create_directx_window:
  *  Creates the Allegro window.
  */
@@ -669,4 +572,101 @@ void exit_directx_window(void)
    DeleteCriticalSection(&gfx_crit_sect);
 
    input_exit();
+}
+
+
+
+/* restore_window_style:
+ *  Restores the previous style of the window.
+ */
+void restore_window_style(void)
+{
+   SetWindowLong(allegro_wnd, GWL_STYLE, old_style);
+   SetWindowPos(allegro_wnd, 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+}
+
+
+
+/* adjust_window:
+ *  Moves and resizes the window if we have full control over it.
+ */
+int adjust_window(int w, int h)
+{
+   RECT win_size = {last_wnd_x, last_wnd_y, last_wnd_x+w, last_wnd_y+h };
+
+   if (!user_wnd) {
+      /* retrieve the size of the decorated window */
+      AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
+   
+      /* display the window */
+      MoveWindow(allegro_wnd, win_size.left, win_size.top,
+                 win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+
+      /* check that the actual window size is the one requested */
+      GetClientRect(allegro_wnd, &win_size);
+      if (((win_size.right - win_size.left) != w) || ((win_size.bottom - win_size.top) != h))
+         return -1;
+
+      wnd_x = last_wnd_x;
+      wnd_y = last_wnd_y;
+      wnd_width = w;
+      wnd_height = h;
+   }
+
+   return 0;
+}
+
+
+
+/* save_window_pos:
+ *  Stores the position of the current window, before closing it, so it can be
+ *  used as the initial position for the next window.
+ */
+void save_window_pos(void)
+{
+   last_wnd_x = wnd_x;
+   last_wnd_y = wnd_y;
+}
+
+
+
+/* win_set_window:
+ *  Selects an user-defined window for Allegro.
+ */
+void win_set_window(HWND wnd)
+{
+   /* TODO: add code to remove old window */
+   user_wnd = wnd;
+}
+
+
+
+/* win_get_window:
+ *  Returns the Allegro window handle.
+ */
+HWND win_get_window(void)
+{
+   return (user_wnd ? user_wnd : allegro_wnd);
+}
+
+
+
+/* win_set_wnd_create_proc:
+ *  Sets a custom window creation proc.
+ */
+void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
+{
+   wnd_create_proc = proc;
+}
+
+
+
+/* win_grab_input:
+ *  Grabs the input devices.
+ */
+void win_grab_input(void)
+{
+   wnd_acquire_keyboard();
+   wnd_acquire_mouse();
+   wnd_acquire_joystick();
 }
