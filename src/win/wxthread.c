@@ -74,8 +74,13 @@ void _al_mutex_init(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
 
-   InitializeCriticalSection(&mutex->cs);
-   mutex->inited = true;
+   if (!mutex->cs)
+      mutex->cs = malloc(sizeof *mutex->cs);
+   ASSERT(mutex->cs);
+   if (mutex->cs)
+      InitializeCriticalSection(mutex->cs);
+   else
+      abort();
 }
 
 
@@ -89,10 +94,11 @@ void _al_mutex_init_recursive(_AL_MUTEX *mutex)
 void _al_mutex_destroy(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
-   ASSERT(mutex->inited);
+   ASSERT(mutex->cs);
 
-   DeleteCriticalSection(&mutex->cs);
-   mutex->inited = false;
+   DeleteCriticalSection(mutex->cs);
+   free(mutex->cs);
+   mutex->cs = NULL;
 }
 
 
@@ -299,7 +305,7 @@ int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mtxExternal, unsigned long abs
    ASSERT(cond);
    ASSERT(mtxExternal);
    {
-      DWORD reltime = abstime - al_current_time();
+      int reltime = abstime - al_current_time();
 
       if (reltime < 0)
          return -1;

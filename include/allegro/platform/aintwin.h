@@ -222,21 +222,20 @@ AL_INLINE(bool, _al_thread_should_stop, (_AL_THREAD *t),
 
 struct _AL_MUTEX
 {
-   bool inited;
-   CRITICAL_SECTION cs;
+   PCRITICAL_SECTION cs;
 };
 
-#define _AL_MUTEX_UNINITED	{ false, }
+#define _AL_MUTEX_UNINITED	{ NULL }
 
 AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
 {
-   if (m->inited)
-      EnterCriticalSection(&m->cs);
+   if (m->cs)
+      EnterCriticalSection(m->cs);
 })
 AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
 {
-   if (m->inited)
-      LeaveCriticalSection(&m->cs);
+   if (m->cs)
+      LeaveCriticalSection(m->cs);
 })
 
 struct _AL_COND

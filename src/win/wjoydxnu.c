@@ -925,7 +925,7 @@ static void update_joystick(AL_JOYSTICK_DIRECTX *joy)
 
    _al_event_source_lock(&joy->parent.es);
    {
-      int i;
+      unsigned int i;
 
       for (i = 0; i < num_items; i++) {
          const DIDEVICEOBJECTDATA *item = &buffer[i];
@@ -989,8 +989,9 @@ static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis
  *  Helper function to handle a state change in a POV device.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD value)
+static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD _value)
 {
+   int value = _value;
    float old_p0, old_p1;
    float p0, p1;
 
