@@ -89,7 +89,7 @@ struct WIN32_JOYSTICK {
    int axes_num;
    int min[WIN32_MAX_AXES];
    int max[WIN32_MAX_AXES];
-   int axe[WIN32_MAX_AXES];
+   int axis[WIN32_MAX_AXES];
    int has_hat;
    int hat;
    int buttons_num;
@@ -103,10 +103,11 @@ static int win32_joy_attached = 0;
 
 static char name_x[] = "X";
 static char name_y[] = "Y";
-static char name_z[] = "Z";
 static char name_stick[] = "stick";
-static char name_hat[] = "hat";
 static char name_throttle[] = "throttle";
+static char name_rudder[] = "rudder";
+static char name_slider[] = "slider";
+static char name_hat[] = "hat";
 static char *name_b[MAX_JOYSTICK_BUTTONS] = {
    "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
    "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16"
@@ -132,27 +133,27 @@ static void poll_win32_joysticks(void)
 	 win32_joy_attached++;
 
 	 /* axes */
-	 win32_joystick[n_joy].axe[0] = js.dwXpos;
-	 win32_joystick[n_joy].axe[1] = js.dwYpos;
+	 win32_joystick[n_joy].axis[0] = js.dwXpos;
+	 win32_joystick[n_joy].axis[1] = js.dwYpos;
 	 n_axis = 2;
 
 	 if (win32_joystick[n_joy].caps & JOYCAPS_HASZ) {
-            win32_joystick[n_joy].axe[n_axis] = js.dwZpos;
+            win32_joystick[n_joy].axis[n_axis] = js.dwZpos;
             n_axis++;
          }
 
 	 if (win32_joystick[n_joy].caps & JOYCAPS_HASR) {
-            win32_joystick[n_joy].axe[n_axis] = js.dwRpos;
+            win32_joystick[n_joy].axis[n_axis] = js.dwRpos;
             n_axis++;
          }
 
 	 if (win32_joystick[n_joy].caps & JOYCAPS_HASU) {
-            win32_joystick[n_joy].axe[n_axis] = js.dwUpos;
+            win32_joystick[n_joy].axis[n_axis] = js.dwUpos;
             n_axis++;
          }
 
 	 if (win32_joystick[n_joy].caps & JOYCAPS_HASV) {
-            win32_joystick[n_joy].axe[n_axis] = js.dwVpos;
+            win32_joystick[n_joy].axis[n_axis] = js.dwVpos;
             n_axis++;
          }
 
@@ -205,7 +206,7 @@ static void poll_win32_joysticks(void)
       }
       else {
          for(n_axis = 0; n_axis<win32_joystick[n_joy].axes_num; n_axis++) 
-            win32_joystick[n_joy].axe[n_axis] = 0;
+            win32_joystick[n_joy].axis[n_axis] = 0;
 
          if (win32_joystick[n_joy].has_hat)
             win32_joystick[n_joy].hat = 0;
@@ -224,7 +225,7 @@ static void poll_win32_joysticks(void)
 static int joy_poll(void)
 {
    int win32_axis, num_sticks;
-   int n_joy, n_stick, n_axe, n_but, p, range;
+   int n_joy, n_stick, n_axis, n_but, p, range;
 
    /* update the Win32 joysticks status */
    poll_win32_joysticks();
@@ -243,9 +244,9 @@ static int joy_poll(void)
 	    num_sticks = joy[n_joy].num_sticks;
 
 	 for (n_stick = 0; n_stick < num_sticks; n_stick++) {
-	    for (n_axe = 0; n_axe < joy[n_joy].stick[n_stick].num_axis; n_axe++) {
+	    for (n_axis = 0; n_axis < joy[n_joy].stick[n_stick].num_axis; n_axis++) {
 	       /* map Windows axis range to 0-256 Allegro range */
-	       p = win32_joystick[n_joy].axe[win32_axis] - win32_joystick[n_joy].min[win32_axis];
+	       p = win32_joystick[n_joy].axis[win32_axis] - win32_joystick[n_joy].min[win32_axis];
 	       range = win32_joystick[n_joy].max[win32_axis] - win32_joystick[n_joy].min[win32_axis];
 	       if (range > 0)
 		  p = p * 256 / range;
@@ -255,22 +256,22 @@ static int joy_poll(void)
 	       /* set pos of analog stick */
 	       if (joy[n_joy].stick[n_stick].flags & JOYFLAG_ANALOGUE) {
 		  if (joy[n_joy].stick[n_stick].flags & JOYFLAG_SIGNED)
-		     joy[n_joy].stick[n_stick].axis[n_axe].pos = p - 128;
+		     joy[n_joy].stick[n_stick].axis[n_axis].pos = p - 128;
 		  else
-		     joy[n_joy].stick[n_stick].axis[n_axe].pos = p;
+		     joy[n_joy].stick[n_stick].axis[n_axis].pos = p;
 	       }
 
 	       /* set pos of digital stick */
 	       if (joy[n_joy].stick[n_stick].flags & JOYFLAG_DIGITAL) {
 		  if (p < 64)
-		     joy[n_joy].stick[n_stick].axis[n_axe].d1 = TRUE;
+		     joy[n_joy].stick[n_stick].axis[n_axis].d1 = TRUE;
 		  else
-		     joy[n_joy].stick[n_stick].axis[n_axe].d1 = FALSE;
+		     joy[n_joy].stick[n_stick].axis[n_axis].d1 = FALSE;
 
 		  if (p > 192)
-		     joy[n_joy].stick[n_stick].axis[n_axe].d2 = TRUE;
+		     joy[n_joy].stick[n_stick].axis[n_axis].d2 = TRUE;
 		  else
-		     joy[n_joy].stick[n_stick].axis[n_axe].d2 = FALSE;
+		     joy[n_joy].stick[n_stick].axis[n_axis].d2 = FALSE;
 	       }
 
 	       win32_axis++;
@@ -329,7 +330,7 @@ static int joy_poll(void)
 static int init_win32_joysticks(void)
 {
    JOYCAPS caps;
-   int n_joyat, n_joy, n_axe;
+   int n_joyat, n_joy, n_axis;
 
    win32_joy_num = joyGetNumDevs();
 
@@ -353,30 +354,30 @@ static int init_win32_joysticks(void)
 	 win32_joystick[n_joy].max[0] = caps.wXmax;
 	 win32_joystick[n_joy].min[1] = caps.wYmin;
 	 win32_joystick[n_joy].max[1] = caps.wYmax;
-	 n_axe = 2;
+	 n_axis = 2;
 
 	 if (caps.wCaps & JOYCAPS_HASZ)	{
-	    win32_joystick[n_joy].min[n_axe] = caps.wZmin;
-	    win32_joystick[n_joy].max[n_axe] = caps.wZmax;
-	    n_axe++;
+	    win32_joystick[n_joy].min[n_axis] = caps.wZmin;
+	    win32_joystick[n_joy].max[n_axis] = caps.wZmax;
+	    n_axis++;
 	 }
 
 	 if (caps.wCaps & JOYCAPS_HASR)	{
-	    win32_joystick[n_joy].min[n_axe] = caps.wRmin;
-	    win32_joystick[n_joy].max[n_axe] = caps.wRmax;
-	    n_axe++;
+	    win32_joystick[n_joy].min[n_axis] = caps.wRmin;
+	    win32_joystick[n_joy].max[n_axis] = caps.wRmax;
+	    n_axis++;
 	 }
 
 	 if (caps.wCaps & JOYCAPS_HASU)	{
-	    win32_joystick[n_joy].min[n_axe] = caps.wUmin;
-	    win32_joystick[n_joy].max[n_axe] = caps.wUmax;
-	    n_axe++;
+	    win32_joystick[n_joy].min[n_axis] = caps.wUmin;
+	    win32_joystick[n_joy].max[n_axis] = caps.wUmax;
+	    n_axis++;
 	 }
 
 	 if (caps.wCaps & JOYCAPS_HASV)	{
-	    win32_joystick[n_joy].min[n_axe] = caps.wVmin;
-	    win32_joystick[n_joy].max[n_axe] = caps.wVmax;
-	    n_axe++;
+	    win32_joystick[n_joy].min[n_axis] = caps.wVmin;
+	    win32_joystick[n_joy].max[n_axis] = caps.wVmax;
+	    n_axis++;
 	 }
 
 	 if (caps.wCaps & JOYCAPS_HASPOV)
@@ -403,7 +404,7 @@ static int init_win32_joysticks(void)
  */
 static int joy_init(void)
 {
-   int n_stick, n_joy, n_axe, n_but;
+   int n_stick, n_joy, n_axis, n_but;
 
    if (init_win32_joysticks() != 0)
       return -1;
@@ -418,7 +419,7 @@ static int joy_init(void)
       n_stick = 0;
 
       if (win32_joystick[n_joy].axes_num > 0) {
-	 n_axe = 0;
+	 n_axis = 0;
 
          /* main analogue stick */
 	 if (win32_joystick[n_joy].axes_num > 1) {
@@ -429,25 +430,35 @@ static int joy_init(void)
 
 	    if (win32_joystick[n_joy].caps & JOYCAPS_HASZ) {
 	       joy[n_joy].stick[n_stick].num_axis = 3;
-	       joy[n_joy].stick[n_stick].axis[2].name = name_z;
-	       n_axe += 3;
+	       joy[n_joy].stick[n_stick].axis[2].name = name_throttle;
+	       n_axis += 3;
 	    }
             else {
 	       joy[n_joy].stick[n_stick].num_axis = 2;
-	       n_axe += 2;
+	       n_axis += 2;
 	    }
 
 	    n_stick++;
 	 }
 
-         /* other 1-axis sticks */
-	 while (n_axe < win32_joystick[n_joy].axes_num) {
+         /* first 1-axis stick: rudder */
+	 if (win32_joystick[n_joy].caps & JOYCAPS_HASR) {
 	    joy[n_joy].stick[n_stick].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
 	    joy[n_joy].stick[n_stick].num_axis = 1;
 	    joy[n_joy].stick[n_stick].axis[0].name = "";
-	    joy[n_joy].stick[n_stick].name = name_throttle;
+	    joy[n_joy].stick[n_stick].name = name_rudder;
 	    n_stick++;
-	    n_axe++;
+	    n_axis++;
+	 }
+
+         /* other 1-axis sticks */
+	 while (n_axis < win32_joystick[n_joy].axes_num) {
+	    joy[n_joy].stick[n_stick].flags = JOYFLAG_DIGITAL | JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
+	    joy[n_joy].stick[n_stick].num_axis = 1;
+	    joy[n_joy].stick[n_stick].axis[0].name = "";
+	    joy[n_joy].stick[n_stick].name = name_slider;
+	    n_stick++;
+	    n_axis++;
 	 }
 
          /* hat */
