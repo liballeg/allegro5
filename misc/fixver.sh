@@ -76,6 +76,7 @@ cp misc/allegro-config.qnx fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config.qnx
 
 # patch modules.in
+echo "Patching misc/modules.in.."
 cp misc/modules.in fixver.tmp
 sed -e "s/[0-9][0-9.]*[0-9]/$verstr/g" fixver.tmp > misc/modules.in
 
