@@ -298,6 +298,12 @@ fi
 AC_SUBST(ALLEGRO_MAYBE_XWINDOWS_FILES)
 AC_SUBST(ALLEGRO_XWINDOWS_LIBDIR)
 
+dnl Enable pthreads
+AC_ARG_ENABLE(pthreads,
+[  --enable-pthreads[=x]   enable use of pthreads [default=yes]],
+test "X$enableval" != "Xno" && allegro_support_pthreads=yes,
+allegro_support_pthreads=yes)
+
 dnl Enable Linux console support
 AC_ARG_ENABLE(linux,
 [  --enable-linux[=x]      enable Linux console support [default=yes]],
@@ -398,7 +404,9 @@ esac
 AC_SUBST(ALLEGRO_MAYBE_LINUX_FILES)
 
 dnl Test for pthreads.
-AC_CHECK_HEADER(pthread.h, AC_CHECK_LIB(pthread, pthread_create))
+if test -n "$allegro_support_pthreads"; then
+  AC_CHECK_HEADER(pthread.h, AC_CHECK_LIB(pthread, pthread_create))
+fi
 
 dnl Modules.
 if test -n "$allegro_support_modules"; then
