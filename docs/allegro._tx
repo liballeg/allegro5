@@ -783,11 +783,11 @@ with the standard variables that are used by Allegro (see below).
 @@                               const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
 @xref get_config_hex, get_config_int, get_config_id
-   Retrieves a string variable from the current config file. If the named 
-   variable cannot be found, the value of def is returned. The section name 
-   may be set to NULL to read variables from the root of the file, or used 
-   to control which set of parameters (eg. sound or joystick) you are 
-   interested in reading.
+   Retrieves a string variable from the current config file. If the named
+   variable cannot be found, or its entry in the config file is empty, the
+   value of def is returned. The section name may be set to NULL to read
+   variables from the root of the file, or used to control which set of
+   parameters (eg. sound or joystick) you are interested in reading.
 
 @@int @get_config_int(const char *section, const char *name, int def);
 @xref set_config_file, set_config_int, get_config_string, get_config_argv
