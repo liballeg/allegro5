@@ -91,11 +91,11 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 /*******************************************/
 /************** timer drivers **************/
 /*******************************************/
-#define TIMER_WIN32_ST           AL_ID('W','3','2','S')
-#define TIMER_WIN32_MT           AL_ID('W','3','2','M')
+#define TIMER_WIN32_HIGH_PERF    AL_ID('W','3','2','H')
+#define TIMER_WIN32_LOW_PERF     AL_ID('W','3','2','L')
 
-AL_VAR(TIMER_DRIVER, timer_win32_st);
-AL_VAR(TIMER_DRIVER, timer_win32_mt);
+AL_VAR(TIMER_DRIVER, timer_win32_high_perf);
+AL_VAR(TIMER_DRIVER, timer_win32_low_perf);
 
 
 

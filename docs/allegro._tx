@@ -979,11 +979,6 @@ menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in milliseconds 
    (default is 300). Specifying -1 will disable the auto-opening feature.
 <li>
-disable_mt_timer = x<br>
-   Windows only: sets whether to disable the multi-threaded timer driver (yes 
-   or no). The multi-threaded driver can cause problems with the MSVC debugger.
-   Defaults to no.
-<li>
 dga_mouse = x<br>
    X only: disable to work around a bug in some X servers' DGA modes, 
    concerning the mouse.  Default is on; enable the workaround by setting the
