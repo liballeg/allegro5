@@ -749,6 +749,10 @@ Note that compiled datafiles appended to dynamically linked Allegro programs
 don't work under Windows in this release (they will fail to link). This
 problem has been corrected in the 4.1.1 WIP and later releases.
 
+Note that you must always call fixup_datafile() on platforms other than DOS
+and Windows in this release. This problem has been corrected in the 4.1.13 WIP
+and later releases.
+
 
 
 ================================
