@@ -303,7 +303,7 @@ information about how to install Allegro and link your program with it.
    variables you provided for `width' and `height' are undefined.
 
 @@void @yield_timeslice();
-@xref vsync
+@xref vsync, d_yield_proc
    To "play nice" with other processes you can call this function. On systems
    that support it, it will give up the rest of the current scheduler
    timeslice and offer it to some other process. Your CPU consumption rate
@@ -8276,14 +8276,14 @@ still drawn too large until version 4.1.0.
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
 @eref exgui
    An invisible helper object that yields timeslices for the scheduler (if
-   the system supports it) when the gui has nothing to do but waiting for
+   the system supports it) when the GUI has nothing to do but waiting for
    user actions. You should put one instance of this object in each dialog 
    array because it may be needed on systems with an unusual scheduling 
    algorithm (for instance QNX) in order to make the GUI fully responsive.
 
-@!texinfo
-The behaviour of the dialog manager can be controlled by the variables:
-@texinfo
+@hnode GUI variables
+The behaviour of the dialog manager can be controlled by the following
+global variables.
 
 @@extern int @gui_mouse_focus;
    If set, the input focus follows the mouse pointer around the dialog, 
@@ -8466,7 +8466,7 @@ would be a good idea to prefix all your options with a space or two, to
 ensure there is room for the check.
 
 @@int @do_menu(MENU *menu, int x, int y);
-@xref GUI menus, d_menu_proc, active_menu, gui_menu_draw_menu
+@xref GUI menus, d_menu_proc, active_menu, gui_menu_draw_menu, update_menu
    Displays and animates a popup menu at the specified screen coordinates 
    (these will be adjusted if the menu does not entirely fit on the screen). 
    Returns the index of the menu item that was selected, or -1 if the menu 
@@ -8491,7 +8491,7 @@ ensure there is room for the check.
       return shutdown_menu(player);<endblock>
 
 @@int @update_menu(MENU_PLAYER *player);
-@xref init_menu, shutdown_menu
+@xref init_menu, shutdown_menu, do_menu
    Updates the status of a menu object returned by init_menu(). Returns TRUE
    if the menu is still active, or FALSE if it has terminated. Upon a return
    value of FALSE, it is up to you to call shutdown_menu() or to continue

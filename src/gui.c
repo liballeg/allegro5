@@ -770,8 +770,13 @@ int do_dialog(DIALOG *dialog, int focus_obj)
 
    player = init_dialog(dialog, focus_obj);
 
-   while (update_dialog(player))
-      ;
+   while (update_dialog(player)) {
+      /* If a menu is active, we yield here, since the dialog
+       * engine is shut down so no user code can be running.
+       */
+      if (active_menu_player)
+         yield_timeslice();
+   }
 
    if (_gfx_mode_set_count == screen_count)
       show_mouse(mouse_screen);
