@@ -225,7 +225,7 @@ endef
 
 GCC2BCC = -D__BORLANDC__ -U__GNUC__ -UDJGPP -U__unix__
 
-ifdef CROSS_COMPILE
+ifdef CROSSCOMPILE
   DEPEND_PARMS = $(GCC2BCC) -MM -MG -I. -I./include -DSCAN_DEPEND
 else
   DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND
@@ -236,7 +236,7 @@ depend:
 	gcc $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	sed -e 's/\\/\//g' -e 's/\/$$/\\/' -e "s/^[a-zA-Z0-9_\/]*\///" -e "s/ \.\// /g" _depend.tmp > _depend1.tmp
 	sed -e "s/asmdef\.o/asmdef\.exe/" _depend1.tmp > _depend.tmp
-ifdef CROSS_COMPILE
+ifdef CROSSCOMPILE
 	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/bcc32\/alleg\/\1/" _depend.tmp > $(OBJ_BASE)/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/bcc32\/alld\/\1/" _depend.tmp > $(OBJ_BASE)/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/bcc32\/allp\/\1/" _depend.tmp > $(OBJ_BASE)/allp/makefile.dep

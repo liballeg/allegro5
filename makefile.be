@@ -194,7 +194,7 @@ endef
 
 GCC2BEOS = -D__BEOS__ -UDJGPP -U__unix__
 
-ifdef CROSS_COMPILE
+ifdef CROSSCOMPILE
   DEPEND_PARAMS = $(GCC2BEOS) -MM -MG -I. -I./include -DSCAN_DEPEND
 else
   DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND

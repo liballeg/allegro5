@@ -202,7 +202,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-ifdef CROSS_COMPILE
+ifdef CROSSCOMPILE
   DEPEND_PARAMS = $(GCC2WATCOM) -MM -MG -I. -I./include -DSCAN_DEPEND
 else
   DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
@@ -212,7 +212,7 @@ depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
-ifdef CROSS_COMPILE
+ifdef CROSSCOMPILE
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/watcom\/alleg\/\1\.obj:/" _depend2.tmp > obj/watcom/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/watcom\/alld\/\1\.obj:/" _depend2.tmp > obj/watcom/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/watcom\/allp\/\1\.obj:/" _depend2.tmp > obj/watcom/allp/makefile.dep
