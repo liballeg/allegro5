@@ -181,7 +181,7 @@ int os_multitasking = FALSE;
 
 
 /* processor information */
-char cpu_vendor[32] = EMPTY_STRING;
+char cpu_vendor[_AL_CPU_VENDOR_SIZE] = EMPTY_STRING;
 int cpu_family = 0;
 int cpu_model = 0;
 int cpu_capabilities = 0;

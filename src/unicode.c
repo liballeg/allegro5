@@ -661,10 +661,8 @@ void do_uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
    if (!outfo)
       return;
 
-   if (size < 0)
-      size = INT_MAX;
-
    size -= outfo->u_cwidth(0);
+   ASSERT(size >= 0);
 
    while ((c = info->u_getx((char**)&s)) != 0) {
       if (!outfo->u_isok(c))

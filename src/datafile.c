@@ -1208,13 +1208,14 @@ static int load_property(DATAFILE_PROPERTY *prop, PACKFILE *f)
 
    /* convert to current encoding format if needed */
    if (need_uconvert(prop->dat, U_UTF8, U_CURRENT)) {
-      p = malloc(uconvert_size(prop->dat, U_UTF8, U_CURRENT));
+      int length = uconvert_size(prop->dat, U_UTF8, U_CURRENT);
+      p = malloc(length);
       if (!p) {
 	 *allegro_errno = ENOMEM;
 	 return -1;
       }
 
-      do_uconvert(prop->dat, U_UTF8, p, U_CURRENT, -1);
+      do_uconvert(prop->dat, U_UTF8, p, U_CURRENT, length);
       free(prop->dat);
       prop->dat = p;
    }

@@ -463,7 +463,7 @@ static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST 
 	       tmp2 = malloc(length);
 
 	       if (tmp2)
-		  do_uconvert(tmp, U_UTF8, tmp2, U_CURRENT, -1);
+		  do_uconvert(tmp, U_UTF8, tmp2, U_CURRENT, length);
 
 	       length -= ucwidth(0);
 	    }

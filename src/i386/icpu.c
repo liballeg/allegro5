@@ -19,6 +19,7 @@
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 
 
@@ -105,7 +106,8 @@ void check_cpu()
       vendor_temp[1] = reg[3];
       vendor_temp[2] = reg[2];
       vendor_temp[3] = 0;
-      do_uconvert((char *)vendor_temp, U_ASCII, cpu_vendor, U_CURRENT, -1);
+      do_uconvert((char *)vendor_temp, U_ASCII, cpu_vendor, U_CURRENT,
+		  _AL_CPU_VENDOR_SIZE);
 
       if (cpuid_levels > 0) {
 	 reg[0] = reg[1] = reg[2] = reg[3] = 0;
@@ -143,7 +145,8 @@ void check_cpu()
       }
       else {
 	 if (_i_is_cyrix()) {
-	    do_uconvert("CyrixInstead", U_ASCII, cpu_vendor, U_CURRENT, -1);
+	    do_uconvert("CyrixInstead", U_ASCII, cpu_vendor, U_CURRENT,
+			_AL_CPU_VENDOR_SIZE);
 	    cyrix_type();
 	 }
 	 else {

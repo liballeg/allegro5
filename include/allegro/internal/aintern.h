@@ -28,6 +28,10 @@
 #endif
 
 
+/* length in bytes of the cpu_vendor string */
+#define _AL_CPU_VENDOR_SIZE 32
+
+
 /* flag for how many times we have been initialised */
 AL_VAR(int, _allegro_count);
 
