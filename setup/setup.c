@@ -422,6 +422,15 @@ static void find_sound_drivers()
 	    break;
 	 }
        #endif
+       
+       #ifdef DIGI_BEOS
+	 case DIGI_BEOS:
+	 {
+	    static char *param[] = {"flip_pan", "sound_bits", "sound_stereo", "sound_freq", "digi_volume", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("BeOS Sound");
+	 }
+       #endif
 
       }
 
@@ -540,7 +549,7 @@ static void find_sound_drivers()
        #ifdef MIDI_BEOS
 	 case MIDI_BEOS:
 	 {
-	    static char *param[] = {"02", "be_midi_quality", "be_midi_freq", "be_midi_interpolation", "be_midi_reverb", NULL};
+	    static char *param[] = {"be_midi_quality", "be_midi_interpolation", "be_midi_reverb", "be_midi_freq", "midi_volume", NULL};
 	    midi_cards[c].param = uconvert_static_string_array(param);
 	    midi_cards[c].desc = uconvert_static_string("BeOS MIDI");
 	    break;
