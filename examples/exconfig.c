@@ -117,6 +117,8 @@ int main(void)
    set_color_depth(bpp);
    if (set_gfx_mode(windowed, w, h, 0, 0) != 0) {
       allegro_message("Unable to set mode %ix%i with %ibpp\n", w, h, bpp);
+      free(filename);
+      free(title);
       exit(-1);           
    }         
 
