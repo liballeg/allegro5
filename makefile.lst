@@ -529,7 +529,7 @@ OTHER_CLEAN_FILES = \
 	docs/html/*.htm* docs/chm/*.chm docs/chm/*.hh* \
 	docs/rtf/*.rtf docs/devhelp/*.html docs/devhelp/*.devhelp \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
-	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \
+	obj/*/*.res obj/*/asmdef obj/*/*.inc src/i386/asmdef \
 	lib/*/*.a lib/unix/*.so* lib/unix/sta* \
 	lib/*/*.lib lib/*/*.exp lib/*/*.dll \
 	lib/*/*.pdb lib/*/*.ilk lib/*/*.map *.pdb */*.pdb \
@@ -547,4 +547,4 @@ DISTCLEAN_FILES = \
 
 VERYCLEAN_FILES = \
 	authors AUTHORS changes CHANGES thanks THANKS \
-	obj/*/*.inc obj/*/*/*.dep lib/*/*.def
+	obj/*/*/*.dep lib/*/*.def
