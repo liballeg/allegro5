@@ -192,6 +192,11 @@
    @contents
       Generates an index for the info and html outputs.
 
+   @shortcontents
+      Similiar to @contents, but is always present in html files, even with
+      formats like devhelp or chm which normally put the results of
+      @contents into their navigation pane instead of the actual html.
+
    @htmlindex xxx
       Used in the main index HTML file of the document, creates a link to an
       external file, xxx being the name without extension. Please try to
