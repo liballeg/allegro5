@@ -1318,34 +1318,95 @@ static void mouse_proc(int type)
 #ifdef ALLEGRO_LINUX
 static void get_mouse_drivers(_DRIVER_INFO **list, int *list_size);
 
+/* Number of devices tested. */
+#define NUM_FD 4
+
+/* Some devices can't be read one byte at a time. */
+#define PACKET_SIZE 16
+
+
+
+static void reset_for_select(int *fd, fd_set *readfds, struct timeval *timeout)
+{
+   int n;
+
+   FD_ZERO(readfds);
+
+   for (n=0; n<NUM_FD; n++) {
+      if (fd[n] != -1)
+         FD_SET(fd[n], readfds);
+   }
+
+   if (timeout) {
+     timeout->tv_sec = 0;
+     timeout->tv_usec = 0;
+   }
+}
+
+
+
 static int detect_mouse(void)
 {
-   int fd;
-   int i;
+   int fd[NUM_FD];
+   char *devices[NUM_FD] = {"/dev/mouse", "dev/input/mice", "/dev/input/mouse", "/dev/input/mouse0"};
+   fd_set readfds;
+   struct timeval timeout;
+   int n, i;
    int w,l,r,t,b;
    int retval = -1;
-   char buffer[256];
+   char buffer_array[NUM_FD][16*PACKET_SIZE];
+   int buffer_size = sizeof(buffer_array[0]);
+   char *buffer;
    char tmp1[256], tmp2[256], tmp3[64], tmp4[64];
    AL_CONST char *drv_name;
+   int count_array[NUM_FD] = {0, 0, 0, 0};
    int count;
    _DRIVER_INFO *list;
    int list_size;
 
    remove_mouse();
 
-   fd = open("/dev/mouse", O_RDONLY | O_NONBLOCK);
-   if (fd == -1) {
-      alert(uconvert_ascii("Error opening /dev/mouse:", tmp1), ustrerror(errno), NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
-      retval = -1;
-      goto finished;
+   /* We try to open several devices because we don't know yet which one
+    * is the mouse.  If at least one was opened, we continue detection.
+    */
+   retval = -1;
+   for (n=0; n<NUM_FD; n++) {
+      fd[n] = open(devices[n], O_RDONLY | O_NONBLOCK);
+      if (fd[n] != -1)
+         retval = 0;
    }
 
-   while (read(fd, buffer, 1) == 1)
-      ;
+   if (retval == -1) {
+      alert(uconvert_ascii("Couldn't open any device file:", tmp1), ustrerror(errno), NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
+      goto End;
+   }
+
+   /* Flush the files. */
+   while (TRUE) {
+      reset_for_select(fd, &readfds, &timeout);
+      retval = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);  /* zero timeout */
+
+      if ((retval == -1) && (errno != EINTR)) {
+	 alert(uconvert_ascii("Couldn't flush device files:", tmp1), ustrerror(errno), NULL, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
+	 goto End;
+      }
+
+      if (retval == 0)
+	 break;
+
+      if (retval > 0) {
+	 for (n=0; n<NUM_FD; n++) {
+	    if ((fd[n] != -1) && FD_ISSET(fd[n], &readfds)) {
+	       while (read(fd[n], buffer_array[n], PACKET_SIZE) > 0)
+		  ;
+	    }
+	 }
+      }
+   }
 
    popup(uconvert_ascii("Move your mouse around", tmp1), uconvert_ascii("Press any key to cancel", tmp2));
 
-   w = sizeof(buffer);
+   w = buffer_size;
    l = (SCREEN_W - w)/2;
    r = l + w;
    t = SCREEN_H/2 + 64;
@@ -1354,28 +1415,55 @@ static int detect_mouse(void)
    rect(popup_bitmap2, l-1, t-1, r, b+1, gui_fg_color);
    blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 
-   for (count = 0; count < (int)sizeof(buffer); ) {
-      if (read(fd, buffer+count, 1) == 1) {
-         vline(popup_bitmap2, l + count*w/sizeof buffer, t, b, gui_mg_color);
-	 blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-	 count++;
+   /* Read the data produced by the user moving the mouse.
+    * In most case data will be read from only one file.
+    */
+   for (count = 0; count < buffer_size; ) {
+      reset_for_select(fd, &readfds, NULL);
+
+      if (select(FD_SETSIZE, &readfds, NULL, NULL, &timeout) > 0) {
+	 for (n=0; n<NUM_FD; n++) {
+	    if ((fd[n] != -1) && FD_ISSET(fd[n], &readfds)) {
+	       unsigned int size = MIN(PACKET_SIZE, buffer_size - count_array[n]);
+	       count_array[n] += read(fd[n], buffer_array[n]+count_array[n], size);
+
+	       if (count_array[n] > count) {
+		  for ( ; count != count_array[n]; count++) {
+		     vline(popup_bitmap2, l + count*w/buffer_size, t, b, gui_mg_color);
+		     blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+		  }
+	       }
+	    }
+	 }
       }
+
       if (keypressed() && readkey())
-            break;
+	 break;
    }
 
-   if (count == 0)
-      popup(uconvert_ascii("No data received", tmp1), NULL);
-   else if (count < (int)sizeof(buffer))
-      popup(uconvert_ascii("Insufficient data received", tmp1), NULL);
+   /* Catch problems with data reading. */
+   if (count < buffer_size) {
+      if (count == 0)
+	 popup(uconvert_ascii("No data received", tmp1), NULL);
+      else
+	 popup(uconvert_ascii("Insufficient data received", tmp1), NULL);   
 
-   if (count < (int)sizeof(buffer)) {
       retval = -1;
-      goto finished;
+      goto End;
    }
+
+   /* The buffer with the most data is very likely the mouse device. */
+   buffer = NULL;
+   for (n=0; n<NUM_FD; n++) {
+      if (count_array[n] == count)
+         buffer = buffer_array[n];
+   }
+
+   ASSERT(buffer);
 
    popup(uconvert_ascii("Analysing data...", tmp1), NULL);
 
+   /* Ask the drivers if they understand the mouse. */
    get_mouse_drivers(&list, &list_size);
    for (i = 0; i < list_size; i++) {
       MOUSE_DRIVER *drv = list[i].driver;
@@ -1396,7 +1484,12 @@ static int detect_mouse(void)
       retval = -1;
    }
 
-   finished:
+ End:
+   for (n=0; n<NUM_FD; n++) {
+      if (fd[n] != -1)
+         close(fd[n]);
+   }
+
    end_popup();
    install_mouse();
    return retval;
