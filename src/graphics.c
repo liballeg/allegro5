@@ -916,16 +916,9 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
    BITMAP *bitmap;
    int i;
 
+   ASSERT(parent);
+   ASSERT((x >= 0) && (y >= 0) && (x < parent->w) && (y < parent->h));
    ASSERT((width > 0) && (height > 0));
-
-   if (!parent) 
-      return NULL;
-
-   if (x < 0) 
-      x = 0; 
-
-   if (y < 0) 
-      y = 0;
 
    if (x+width > parent->w) 
       width = parent->w-x;
