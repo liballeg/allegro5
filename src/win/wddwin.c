@@ -191,7 +191,7 @@ static void update_window_hw(RECT* rect)
 /* get_working_area:
  *  retrieve the rectangle of the working area
  */
-void get_working_area(RECT *working_area)
+static void get_working_area(RECT *working_area)
 {
    SystemParametersInfo(SPI_GETWORKAREA, 0, working_area, 0);
    working_area->left   += 3;  /* for the taskbar */
