@@ -18,11 +18,18 @@
 #include "wddraw.h"
 
 /* functions in update.s */
-extern void _update_32_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
-extern void _update_32_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_24_to_32  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_16_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_8_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_32_to_24  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_16_to_24  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void  _update_8_to_24  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_32_to_16  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_24_to_16  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_8_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_32_to_15  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_24_to_15  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void  _update_8_to_15  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 
 
 static struct BITMAP *gfx_directx_create_video_bitmap_win(int width, int height);
@@ -100,11 +107,18 @@ LPDDPIXELFORMAT dd_pixelformat = NULL;  /* pixel format used */
 
 /* offscreen surface that will be blitted to the window:*/
 LPDIRECTDRAWSURFACE dd_offscreen = NULL;
+/* if the allegro color depth is not the same as the desktop color depth,
+ * we need a pre-converted offscreen surface that will be blitted to the window
+ * when in background, in order to ensure a proper clipping
+ */ 
+static LPDIRECTDRAWSURFACE dd_preconverted_offscreen = NULL;
 BITMAP* pseudo_screen = NULL;  /* for page-flipping */
 BOOL app_active = TRUE;
 RECT window_rect;
 BOOL same_color_depth;
+static int allegro_palette_size;
 int* allegro_palette = NULL;
+int* rgb_scale_5335 = NULL;
 void (*update_window) (RECT* rect);
 void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 int* dirty_lines; /* used in WRITE_BANK */
@@ -123,6 +137,18 @@ void handle_window_size_win(void)
    GetClientRect(allegro_wnd, &window_rect);
    ClientToScreen(allegro_wnd, (LPPOINT)&window_rect);
    ClientToScreen(allegro_wnd, (LPPOINT)&window_rect + 1);
+      
+   /* force alignment to speed up color conversion */
+   if (!same_color_depth) {
+      int lmod;
+
+      if ( (((desktop_depth == 15) || (desktop_depth == 16)) && (lmod=window_rect.left%2)) ||
+                                      ((desktop_depth == 24) && (lmod=window_rect.left%4))  ) {
+         RECT dwin_rect;
+         GetWindowRect(allegro_wnd, &dwin_rect);
+         SetWindowPos(allegro_wnd, 0, dwin_rect.left + lmod, dwin_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
+      }   
+   }
 }
 
 
@@ -134,8 +160,6 @@ void update_window_hw (RECT* rect)
    RECT update_rect;
    HRESULT hr;
    
-   if (!app_active) return;
-
    if (rect) {
       update_rect.left = window_rect.left + rect->left;
       update_rect.top = window_rect.top + rect->top;
@@ -162,7 +186,6 @@ void update_window_ex (RECT* rect)
    HRESULT hr;
    RECT update_rect;
 
-   if (!app_active) return;
    src_desc.dwSize = sizeof(src_desc);
    src_desc.dwFlags = 0;
    dest_desc.dwSize = sizeof(dest_desc);
@@ -179,6 +202,9 @@ void update_window_ex (RECT* rect)
    else
       update_rect = window_rect;
    
+   /* app_foreground doesn't seem to be as rapidly updated as we need so go with GetForegroundWindow() */ 
+   if (GetForegroundWindow() == allegro_wnd) {
+      /* blit directly to the primary surface WITHOUT clipping */
    hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
    if (FAILED(hr)) {
       return;
@@ -198,6 +224,88 @@ void update_window_ex (RECT* rect)
 
    IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
    IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
+   }
+   else {
+      /* first blit to the pre-converted offscreen buffer then blit to the primary surface WITH clipping */ 
+      hr = IDirectDrawSurface_Lock(dd_preconverted_offscreen, rect, &dest_desc, DDLOCK_WAIT, NULL);
+      if (FAILED(hr)) {
+         return;
+      }
+
+      hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
+      if (FAILED(hr)) {
+         IDirectDrawSurface_Unlock(dd_preconverted_offscreen, NULL);
+         return;
+      }
+
+      src_desc.dwWidth = update_rect.right - update_rect.left;
+      src_desc.dwHeight = update_rect.bottom - update_rect.top;
+   
+      /* function doing the hard work */
+      _update (&src_desc, &dest_desc);
+
+      IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
+      IDirectDrawSurface_Unlock(dd_preconverted_offscreen, NULL);
+
+      /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
+      hr = IDirectDrawSurface_Blt(dd_prim_surface,
+        		       &update_rect,
+			       dd_preconverted_offscreen,
+			       rect, 0, NULL);
+   }
+}
+
+
+/* build_rgb_scale_5335_table
+ *  create pre-calculated tables for 16-bit to truecolor conversion
+ */
+static void build_rgb_scale_5335_table(void)
+{
+   int i, color, red, green, blue;
+
+   if (desktop_depth == 24)
+      /* 6 contiguous 256-entry tables (6k) */
+      rgb_scale_5335 = malloc(sizeof(int)*1536);
+   else  /* 32-bit */
+      /* 2 contiguous 256-entry tables (2k) */
+      rgb_scale_5335 = malloc(sizeof(int)*512);
+    
+   /* 1st table: r5g3 to r8g8b0 */ 
+   for (i=0; i<256; i++) {
+      red = _rgb_scale_5[i>>3];
+      green=(i&7)<<5;
+
+      if (green >= 68)
+           green++;
+
+       if (green >= 160)
+           green++;
+
+      color = (red<<16) | (green<<8);
+      rgb_scale_5335[i] = color;
+
+      if (desktop_depth == 24) {
+         rgb_scale_5335[ 512+i] = (color>>8)+((color&0xff)<<24);
+         rgb_scale_5335[1024+i] = (color>>16)+((color&0xffff)<<16);
+      }
+   }        
+
+   /* 2nd table: g3b5 to r0g8b8 */
+   for (i=0; i<256; i++) {
+      blue = _rgb_scale_5[i&0x1f];
+      green=(i>>5)<<2;
+
+      if (green == 0x1c)
+          green++;
+
+      color = (green<<8) | blue;
+      rgb_scale_5335[256+i] = color;
+
+      if (desktop_depth == 24) {
+         rgb_scale_5335[ 512+256+i] = (color>>8)+((color&0xff)<<24);
+         rgb_scale_5335[1024+256+i] = (color>>16)+((color&0xffff)<<16);
+      }
+   }     
 }
 
 
@@ -251,22 +359,48 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
    switch (desktop_depth) {
    
       case 15:
-         for (n = from; n <= to; n++)
-            allegro_palette[n] = ( ((p[n].r>>1) << desk_r) |
+         for (n = from; n <= to; n++) {
+            int color = ( ((p[n].r>>1) << desk_r) |
                                    ((p[n].g>>1) << desk_g) |
                                    ((p[n].b>>1) << desk_b) );
+
+            allegro_palette[n] = color;
+            allegro_palette[PAL_SIZE+n] = color<<16;
+         } 
             break;
+
       case 16:
-         for (n = from; n <= to; n++)
-            allegro_palette[n] = ( ((p[n].r>>1) << desk_r) |
+         for (n = from; n <= to; n++) {
+            int color = ( ((p[n].r>>1) << desk_r) |
                                    ( p[n].g     << desk_g) |
                                    ((p[n].b>>1) << desk_b) );
+
+            /* 2 pre-calculated shifts tables (2k) */ 
+            allegro_palette[n] = color;
+            allegro_palette[PAL_SIZE+n] = color<<16;
+         }   
+         break;
+
+      case 24:
+         for (n = from; n <= to; n++) {
+            int color = ( ((p[n].r<<2) << desk_r) |
+                          ((p[n].g<<2) << desk_g) |
+                          ((p[n].b<<2) << desk_b) );
+
+            /* 4 pre-calculated shifts tables (4k) */
+            allegro_palette[n] = color;
+            allegro_palette[PAL_SIZE+n] = (color>>8)+((color&0xff)<<24);
+            allegro_palette[PAL_SIZE*2+n] = (color>>16)+((color&0xffff)<<16);
+            allegro_palette[PAL_SIZE*3+n] = color<<8;
+         }
             break;
+
       case 32:
          for (n = from; n <= to; n++)
             allegro_palette[n] = ( ((p[n].r<<2) << desk_r) |
                                    ((p[n].g<<2) << desk_g) |
                                    ((p[n].b<<2) << desk_b) );
+         break;
    }
    update_window(NULL);
 }
@@ -369,8 +503,13 @@ static int verify_color_depth (int color_depth)
 	    _update = _update_32_to_15;
 	    same_color_depth = FALSE;
 	 }
+     else if (color_depth == 24) {
+	    _update = _update_24_to_15;
+	    same_color_depth = FALSE;
+	 }
 	 else if (color_depth == 8) {
-	    _update = _update_8_to_16;
+	    allegro_palette_size = PAL_SIZE*2;
+	    _update = _update_8_to_15;
 	    same_color_depth = FALSE;
 	 }
          else return -1;
@@ -384,7 +523,12 @@ static int verify_color_depth (int color_depth)
 	    _update = _update_32_to_16;
 	    same_color_depth = FALSE;
 	 }
+	 else if (color_depth == 24) {
+	    _update = _update_24_to_16;
+	    same_color_depth = FALSE;
+	 }
 	 else if (color_depth == 8) {
+	    allegro_palette_size = PAL_SIZE*2; 
 	    _update = _update_8_to_16;
 	    same_color_depth = FALSE;
 	 }
@@ -395,6 +539,20 @@ static int verify_color_depth (int color_depth)
       	 if (color_depth == 24) {
 	    same_color_depth = TRUE;
 	 }
+         else if (color_depth == 32) {
+	    _update = _update_32_to_24;
+	    same_color_depth = FALSE;
+	 }
+	 else if (color_depth == 16) {
+            build_rgb_scale_5335_table();
+	    _update = _update_16_to_24;
+	    same_color_depth = FALSE;
+	 }
+         else if (color_depth == 8) {
+            allegro_palette_size = PAL_SIZE*4;
+	    _update = _update_8_to_24;
+	    same_color_depth = FALSE;
+	 }
 	 else return -1;
 	 break;
 
@@ -402,20 +560,27 @@ static int verify_color_depth (int color_depth)
 	 if (color_depth == 32) {
 	    same_color_depth = TRUE;
 	 }
+         else if (color_depth == 24) {
+	    _update = _update_24_to_32;
+	    same_color_depth = FALSE;
+	 }
 	 else if (color_depth == 16) {
+            build_rgb_scale_5335_table();
 	    _update = _update_16_to_32;
 	    same_color_depth = FALSE;
 	 }
 	 else if (color_depth == 8) {
+            allegro_palette_size = PAL_SIZE;
 	    _update = _update_8_to_32;
 	    same_color_depth = FALSE;
 	 }
          else return -1;
    }
+
    if (same_color_depth)
       update_window = update_window_hw;
-   else if (cpu_mmx) update_window = update_window_ex;
-   else return -1;       // TODO: hacer una version en C
+   else
+      update_window = update_window_ex;
  
    return 0; 
 }
@@ -487,6 +652,10 @@ static void create_offscreen(int w, int h, int color_depth)
       else gfx_directx_update_color_format(color_depth);
    } 
    else {
+      /* create pre-converted offscreen buffer */
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
+      hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &dd_preconverted_offscreen, NULL); 
+
       /* get pixel format of primary surface */
       temp_pixel_format.dwSize = sizeof(DDPIXELFORMAT);
       IDirectDrawSurface_GetPixelFormat (dd_prim_surface, &temp_pixel_format);
@@ -579,13 +748,18 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    wnd_height = h;
    window_rect = win_size;
    wnd_windowed = TRUE;
+
+   /* set default switching policy */
+   if (same_color_depth)
    set_display_switch_mode(SWITCH_BACKGROUND);
+   else
+      /* color conversion adds a significant overhead, so we have to pause
+         in order to let the other apps live */  
+      set_display_switch_mode(SWITCH_PAUSE);
 
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    MoveWindow(allegro_wnd, win_size.left, win_size.top,
    win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
-   if (!same_color_depth)
-      SetWindowPos(allegro_wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
    /* create primary surface */
    if (create_primary(w, h, color_depth) != 0)
@@ -609,7 +783,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 	    goto Error;
       }
       else {
-         allegro_palette = malloc (sizeof(int) * PAL_SIZE);
+         allegro_palette = malloc (sizeof(int) * allegro_palette_size);
          gfx_directx_win.set_palette = gfx_directx_set_palette_win;
       }
    }
@@ -672,10 +846,21 @@ static void gfx_directx_win_exit(struct BITMAP *b)
       dd_offscreen = NULL;
    }
 
+   /* destroy the pre-converted offscreen buffer */
+   if (dd_preconverted_offscreen) {
+      IDirectDrawSurface_Release(dd_preconverted_offscreen);
+      dd_preconverted_offscreen = NULL;
+   }
+
    /* destroy the palette */
    if (allegro_palette) {
       free (allegro_palette);
       allegro_palette = NULL;
+   }
+
+   if (rgb_scale_5335) {
+      free (rgb_scale_5335);
+      rgb_scale_5335 = NULL;
    }
 
    /* unlink surface from bitmap */

@@ -110,8 +110,10 @@ AL_FUNC(void, wddwin_switch_out, (void));
 AL_FUNC(void, wddwin_switch_in, (void));
 
 AL_VAR(LPDIRECTDRAWSURFACE, dd_offscreen);
+AL_VAR(BOOL, same_color_depth);
 AL_VAR(BITMAP*, pseudo_screen);
 AL_VAR(int*, allegro_palette);
+AL_VAR(int*, rgb_scale_5335);
 AL_VAR(int*, dirty_lines);
 
 

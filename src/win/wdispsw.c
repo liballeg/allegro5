@@ -64,8 +64,14 @@ int sys_directx_set_display_switch_mode(int mode)
    switch (mode)
    {
       case SWITCH_PAUSE:
-      case SWITCH_BACKGROUND:
 	 if (!wnd_windowed)
+	    return -1;
+	 break;
+
+      case SWITCH_BACKGROUND:
+         /* color conversion adds a significant overhead, so we have to pause
+            in order to let the other apps live */
+	 if (!wnd_windowed || !same_color_depth)
 	    return -1;
 	 break;
 

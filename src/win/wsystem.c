@@ -312,9 +312,9 @@ static int sys_directx_desktop_color_depth(void)
    HDC dc;
    int depth;
 
-   dc = GetWindowDC(allegro_wnd);
+   dc = GetDC(NULL);
    depth = GetDeviceCaps(dc, BITSPIXEL);
-   ReleaseDC(allegro_wnd, dc);
+   ReleaseDC(NULL, dc);
 
    return depth;
 }

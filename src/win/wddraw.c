@@ -272,7 +272,10 @@ void gfx_directx_exit(struct BITMAP *b)
    /* before restoring video mode, hide window */
    wnd_paint_back = FALSE;
    restore_window_style();
-   SetWindowPos(allegro_wnd, HWND_TOPMOST,
+      /* HWND_TOPMOST isn't a good idea because it's a darned sticky flag 
+         which prevents the windowed driver from behaving nicely after a
+         first driver shutdown (e.g in test.exe) */
+   SetWindowPos(allegro_wnd, HWND_TOP,
 		-100, -100, 0, 0, SWP_SHOWWINDOW);
 
    if (directdraw) {
