@@ -3338,7 +3338,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref vline, line, drawing_mode
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
 
-@@void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, void (*proc)());
+@\void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, 
+@@             void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_arc, line
    Calculates all the points along a line from point (x1, y1) to (x2, y2), 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3368,7 +3369,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
 
-@@void @do_circle(BITMAP *bmp, int x, int y, int radius, int d, void (*proc)());
+@\void @do_circle(BITMAP *bmp, int x, int y, int radius, int d,
+@@               void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_ellipse, do_arc, do_line, circle, circlefill
    Calculates all the points in a circle around point (x, y) with radius r, 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3383,7 +3385,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref ellipsefill, circle, do_circle, drawing_mode
    Draws a filled circle with the specified centre and radius.
 
-@@void @do_ellipse(BITMAP *bmp, int x, y, int rx, ry, int d, void (*proc)());
+@\void @do_ellipse(BITMAP *bmp, int x, int y, int rx, ry, int d,
+@@                void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_arc, do_line, ellipse, ellipsefill
    Calculates all the points in an ellipse around point (x, y) with radius 
    rx and ry, calling the supplied function for each one. This will be 
@@ -3398,7 +3401,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref circlefill, ellipse, do_ellipse, drawing_mode
    Draws a filled ellipse with the specified centre and radius.
 
-@@void @do_arc(BITMAP *bmp, int x, y, fixed a1, a2, int r, d, void (*proc)());
+@\void @do_arc(BITMAP *bmp, int x, int y, fixed a1, fixed a2, int r, int d,
+@@            void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_line, arc
    Calculates all the points in a circular arc around point (x, y) with 
    radius r, calling the supplied function for each one. This will be passed 
@@ -5773,7 +5777,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    error code will be stored in errno.
 
 @@int @exists(const char *filename);
-@xref file_exists
+@xref file_exists, file_size, file_time
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
