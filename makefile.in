@@ -448,7 +448,7 @@ full-install: install-headers install-programs install-lib
 	@echo "and/or make install-gzipped-info.  Or install-bzipped-man,"
 	@echo "install-bzipped-info to use bzip2 instead of gzip."
 
-install-lib: lib
+install-lib: lib modules
 	$(mkinstalldirs) $(DESTDIR)$(libdir)
 	@for l in alleg alld allp; do \
 	  if test -f $(LIBDIR)/lib$${l}.a; then \
