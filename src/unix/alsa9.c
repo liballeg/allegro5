@@ -62,6 +62,7 @@
 
 
 static char const *alsa_device = "default";
+static char const *alsa_mixer_device = "default";
 static snd_pcm_hw_params_t *hwparams = NULL;
 static snd_pcm_sw_params_t *swparams = NULL;
 static snd_pcm_channel_area_t *areas = NULL;
@@ -299,6 +300,10 @@ static int alsa_init(int input, int voices)
 				   uconvert_ascii("alsa_device", tmp2),
 				   alsa_device);
 
+   alsa_mixer_device = get_config_string(uconvert_ascii("sound", tmp1),
+				   uconvert_ascii("alsa_mixer_device", tmp2),
+				   alsa_mixer_device);
+
    fragsize = get_config_int(uconvert_ascii("sound", tmp1),
 			     uconvert_ascii("alsa_fragsize", tmp2), -1);
 
@@ -315,7 +320,7 @@ static int alsa_init(int input, int voices)
    snd_mixer_open(&alsa_mixer, 0);
 
    if (alsa_mixer
-       && snd_mixer_attach(alsa_mixer, alsa_device) >= 0
+       && snd_mixer_attach(alsa_mixer, alsa_mixer_device) >= 0
        && snd_mixer_selem_register (alsa_mixer, NULL, NULL) >= 0
        && snd_mixer_load(alsa_mixer) >= 0) {
       const char *alsa_mixer_elem_name = get_config_string(uconvert_ascii("sound", tmp1),

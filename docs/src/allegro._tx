@@ -2030,6 +2030,10 @@ alsa_device = x<br>
    Unix only: device name for the ALSA 0.9 sound driver. The format is
    <driver>[:<card>,<device>], for example: `hw:0,1'.
 <li>
+alsa_mixer_device = x<br>
+   Unix only: mixer device name for the ALSA 0.9 sound driver. The
+   default is "default".
+<li>
 alsa_mixer_elem = x<br>
    Unix only: mixer element name for the ALSA 0.9 driver. The default
    is PCM.
