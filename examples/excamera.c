@@ -29,7 +29,7 @@
 int viewport_w = 320;
 int viewport_h = 240;
 int fov = 48;
-float aspect = 1;
+float aspect = 1.33f;
 float xpos = 0;
 float ypos = -2;
 float zpos = -4;
@@ -205,6 +205,8 @@ void render(BITMAP *bmp)
 /* deal with user input */
 void process_input(void)
 {
+   double frac, iptr;
+
    poll_keyboard();
 
    if (key[KEY_W]) {
@@ -241,13 +243,21 @@ void process_input(void)
    }
 
    if (key[KEY_A]) {
+      frac = modf(aspect*10.0, &iptr);
+
       if (key_shifts & KB_SHIFT_FLAG) {
-	 aspect += 0.05;
+	 if ((frac>0.59) && (frac<0.61))
+	    aspect += 0.04f;
+	 else
+	    aspect += 0.03f;
 	 if (aspect > 2)
 	    aspect = 2;
       }
       else {
-	 aspect -= 0.05;
+	 if ((frac>0.99) || (frac<0.01))
+	    aspect -= 0.04f;
+	 else
+	    aspect -= 0.03f;
 	 if (aspect < .1)
 	    aspect = .1;
       }

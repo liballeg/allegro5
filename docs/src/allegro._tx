@@ -6453,7 +6453,8 @@ typedef struct MATRIX_f          - floating point matrix structure
    format. For typical projections, a field of view in the region 32-48 will 
    work well. Finally, the aspect ratio is used to scale the Y dimensions of 
    the image relative to the X axis, so you can use it to adjust the 
-   proportions of the output image (set it to 1 for no scaling).
+   proportions of the output image (set it to 1 for no scaling). Note that
+   versions prior to 4.1.0 multiplied this aspect ratio by 4/3.
 
 @\void @get_camera_matrix_f(MATRIX_f *m, float x, y, z, xfront, yfront, zfront,
 @@                         float xup, yup, zup, fov, aspect);

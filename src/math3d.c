@@ -597,7 +597,7 @@ void get_camera_matrix_f(MATRIX_f *m, float x, float y, float z, float xfront, f
 
    /* construct a scaling matrix to deal with aspect ratio and FOV */
    width = floattan(64.0 - fov/2);
-   get_scaling_matrix_f(&scale, width, -aspect*width*4/3, -1.0);
+   get_scaling_matrix_f(&scale, width, -aspect*width, -1.0);
 
    /* combine the camera and scaling matrices */
    matrix_mul_f(&camera, &scale, m);
