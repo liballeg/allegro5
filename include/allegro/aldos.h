@@ -29,9 +29,6 @@
 
 AL_VAR(SYSTEM_DRIVER, system_dos);
 
-AL_VAR(int, windows_version);
-AL_VAR(int, windows_sub_version);
-
 AL_VAR(int, i_love_bill);
 
 
