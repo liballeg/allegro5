@@ -653,6 +653,7 @@ static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char 
 int file_exists(AL_CONST char *filename, int attrib, int *aret)
 {
    int a;
+   ASSERT(filename);
 
    if (ustrchr(filename, '#')) {
       PACKFILE *f = pack_fopen_special_file(filename, F_READ);
@@ -685,6 +686,7 @@ int file_exists(AL_CONST char *filename, int attrib, int *aret)
  */
 int exists(AL_CONST char *filename)
 {
+   ASSERT(filename);
    return file_exists(filename, FA_ARCH | FA_RDONLY, NULL);
 }
 
