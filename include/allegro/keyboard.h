@@ -194,26 +194,25 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KEY_CIRCUMFLEX        100
 #define KEY_COLON2            101
 #define KEY_KANJI             102
+#define KEY_EQUALS_PAD        103  /* MacOS X */
+#define KEY_BACKQUOTE         104  /* MacOS X */
+#define KEY_SEMICOLON         105  /* MacOS X */
+#define KEY_COMMAND           106  /* MacOS X */
 
-#define KEY_MODIFIERS         103
+#define KEY_MODIFIERS         107
 
-#define KEY_LSHIFT            103
-#define KEY_RSHIFT            104
-#define KEY_LCONTROL          105
-#define KEY_RCONTROL          106
-#define KEY_ALT               107
-#define KEY_ALTGR             108
-#define KEY_LWIN              109
-#define KEY_RWIN              110
-#define KEY_MENU              111
-#define KEY_SCRLOCK           112
-#define KEY_NUMLOCK           113
-#define KEY_CAPSLOCK          114
-
-#define KEY_EQUALS_PAD        115
-#define KEY_BACKQUOTE         116
-#define KEY_SEMICOLON         117
-#define KEY_COMMAND           118
+#define KEY_LSHIFT            107
+#define KEY_RSHIFT            108
+#define KEY_LCONTROL          109
+#define KEY_RCONTROL          110
+#define KEY_ALT               111
+#define KEY_ALTGR             112
+#define KEY_LWIN              113
+#define KEY_RWIN              114
+#define KEY_MENU              115
+#define KEY_SCRLOCK           116
+#define KEY_NUMLOCK           117
+#define KEY_CAPSLOCK          118
 
 #define KEY_MAX               119
 
