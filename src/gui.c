@@ -878,8 +878,6 @@ int update_dialog(DIALOG_PLAYER *player)
    
    /* redirect to update_menu() whenever a menu is activated */
    if (active_menu_player) {
-      yield_timeslice();
-
       if (update_menu(active_menu_player))
 	 return TRUE;
 
