@@ -54,13 +54,13 @@ X11 todos:
   time, include bukinm's xkeymap program.
 - play nice with WindowMaker (there's no appicon, for one)
 - ufixicon (generate src file that when linked, automatically sets icon)
-- problem with mouse and keyboard events 
-- scrolling in tests/test is broken
+- problem with mouse and keyboard events [fixed?]
 
 Unix todos:
 ---------------------------------------------------------------------------
 
 - "still PIC-related problems with X lib, waiting for XFree people"
+- threads don't get killed properly, eg. by salute or SIGINT
 
 Macintosh todos:
 ---------------------------------------------------------------------------
