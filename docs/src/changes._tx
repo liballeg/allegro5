@@ -8,6 +8,185 @@
 @</head>
 @<body>
 
+
+@heading
+Changes from 4.0.2 to 4.0.3 (Dec 2002)
+<ul><li>
+   Many minor changes and clarifications in the docs.
+<li>
+   Grzegorz Adam Hankiewicz improved the internationalization of the close
+   button message.
+<li>
+   Thomas Klausner added NetBSD detection.
+<li>
+   Ben Davis constified the parameter of set_window_title().
+<li>
+   Lisa Parratt added IRIX detection.
+<li>
+   Robert J. Ohannessian clarified the docs for play_audio_stream().
+<li>
+   Eric Botcazou fixed a buffer overflow in the Windows debug version
+   spotted by aj.
+<li>
+   Eric Botcazou made the joystick initialization routine correctly handle
+   zero as the joytype.
+<li>
+   Eric Botcazou fixed the compile-time check for the MMX asm support.
+<li>
+   Eric Botcazou fixed the non-MMX asm color copy routine.
+<li>
+   Grzegorz Adam Hankiewicz added informations on the FLI format provided
+   by Kronoman X to the FAQ.
+<li>
+   Eric Botcazou added the support for plugin scripts to the MinGW port.
+<li>
+   Matthew Leverton added the detection of left-hand mouse configuration
+   under Windows.
+<li>
+   Eric Botcazou fixed a crash when Alt+Tabbing under WinXP.
+<li>
+   Grzegorz Adam Hankiewicz updated the docs about mailing lists/contacts.
+<li>
+   Grzegorz Adam Hankiewicz added instructions on how to create and submit
+   patches to the Allegro developers.
+<li>
+   Lisa Parratt spotted a BSDism that IRIX doesn't like at all.
+<li>
+   Eric Botcazou fixed a bug in scare_mouse_area().
+<li>
+   Elias Pschernig added the Euro character to the default font and to the
+   German and French keyboard configuration files.
+<li>
+   Eric Botcazou prevented set_gfx_mode() from resetting the layout of all
+   color depths.
+<li>
+   Oscar Ginet added the Catalan translation.
+<li>
+   Oscar Ginet corrected the Spanish translation.
+<li>
+   Eric Botcazou prevented the linker from choking on Solaris because of a
+   static library with no symbols.
+<li>
+   Eric Botcazou removed joystick control from main part of the setup program.
+<li>
+   Eric Botcazou documented the workaround needed for C++ programs compiled
+   with Borland C++ (in docs/build/bcc32.txt).
+<li>
+   Eric Botcazou unified the magic main for the 3 Windows compilers and fixed
+   the WinMain() linkage for Borland C++.
+<li>
+   Henrik Schmidt made gcc pass '-h' instead of '-soname' to the linker and
+   replaced '-L' by '-h' in shell comparisons so as not to break on Solaris.
+<li>
+   Javier Gonzalez and Eric Botcazou fixed the infamous blank screen problem
+   under Win2k/WinXP.
+<li>
+   Evert Glebbeek added configure options for x86 processor optimizations
+   on Unix systems.
+<li>
+   Benny Colyn added the Dutch translation.
+<li>
+   Evert Glebbeek added the detection of SunOS/Solaris.
+<li>
+   Javier Gonzalez fixed a graphics bug with always-on-top applications.
+<li>
+   Igor Gnip added the detection of MSYS via the SHELL variable to the
+   MingW32 port.
+<li>
+   Eric Botcazou fixed a bug than had prevented ALT+F4 from being properly
+   handled under Windows and cleaned up the low-level scancode handler.
+<li>
+   Eric Botcazou updated the description of the layout of header files in
+   the aHack file.
+<li>
+   Grzegorz Adam Hankiewicz corrected the docs about 'ulimit' in the Help
+   file.
+<li>
+   Peter Wang made fix.sh and zipup.sh not destroy timestamps when just
+   changing EOL markers.
+<li>
+   Peter Wang fixed a misuse of the -I option with gcc 3.0 and later.
+<li>
+   Robert J. Ohannessian added more caveats to docs/build/mingw32.txt.
+<li>
+   Eric Botcazou modified the querying of DirectSound devices under Windows.
+<li>
+   Evert Glebbeek added a '-fullscreen' switch to the grabber, Laurence
+   Withers a '-windowed' switch.
+<li>
+   Daniel Schlydler fixed problems with get_executable_name() under Windows.
+<li>
+   Eric Botcazou added a FAQ entry on the C++ headers problem with gcc 3.x
+   and Mingw32, summarizing findings by Robert J. Ohannessian.
+<li>
+   Grzegorz Adam Hankiewicz fixed a crash in the exmouse example when no
+   mouse is present.
+<li>
+   Angelo Mottola made the exunicod example welcome Italian programmers too.
+<li>
+   Eric Botcazou fixed a conflict between Allegro headers and standard C++
+   headers of gcc 3.x under Mingw32.
+<li>
+   Matthew Leverton made the DOS/Windows makefiles use 'copy /B' instead
+   of 'copy' for file concatenation.
+<li>
+   Roberto Alfonso added an srand() call in the demo game.
+<li>
+   Elias Pschernig removed (seemingly) arbitrary window size checks in the
+   Unix X11 driver.
+<li>
+   Javier Gonzaled fixed a bug with volume and pan not properly set in
+   loop mode by the DirectSound driver.
+<li>
+   Eric Botcazou fixed the documented prototype of fixtof() and ftofix().
+<li>
+   Eric Botcazou fixed a bug that causes timers to restart permanently when
+   Allegro is switched out under Windows.
+<li>
+   Eric Botcazou fixed a bug with graphics mode switching using a
+   ALT+key combination under Windows.
+<li>
+   Eric Botcazou improved win_set_window() so that it can be called
+   after the library has been initialized.
+<li>
+   Elias Pschernig fixed a bug in midi_seek().
+<li>
+   Grzegorz Adam Hankiewicz added a linux specific debug help section.
+<li>
+   Jan Bruun Andersen fixed a compilation problem with Cygwin.
+<li>
+   Ben Davis and Robert J. Ohannessian put in (void *) casts for the
+   LOCK_* macros on DJGPP and Mac.
+<li>
+   Nicholas Davies made the fix class not trigger warnings with gcc -Weffc++.
+<li>
+   Angelo Mottola fixed a keyboard focus problem under BeOS.
+<li>
+   Peter Wang fixed the detection of ESD on Unix systems.
+<li>
+   Peter Wang made files be opened with as permissive as possible
+   permissions on Unix systems.
+<li>
+   Peter Wang did some housekeeping work throughout the code and the
+   documentation.
+<li>
+   Peter Wang added support for the environment variable ALLEGRO_MODULES
+   under Unix.
+<li>
+   Sven Sandberg fixed various problems in the makefiles.
+<li>
+   Henrik Stokseth made the zipwin.sh script for packaging the Windows
+   binary distribution work with Cygwin.
+<li>
+   Peter Wang and Eric Botcazou made it so that Allegro C programs can
+   compile with gcc -ansi -pedantic.
+<li>
+   Eric Botcazou fixed the 'configure --disable-constructor' problem.
+<li>
+   Igor Gnip removed the requirements for fileutils on DOS/Windows platforms.
+</ul>
+
+
 @heading
 Changes from 4.0.1 to 4.0.2 (Jun 2002)
 <ul><li>
@@ -69,6 +248,7 @@ Changes from 4.0.1 to 4.0.2 (Jun 2002)
    Matthew Leverton and Eric Botcazou fixed a bug with mouse mickeys in
    windowed mode under Windows.
 </ul>
+
 
 @heading
 Changes from 4.0.0 to 4.0.1 (Mar 2002)
