@@ -62,7 +62,9 @@ static char _filename[1024];
 static char *_xref[256], *_eref[256];
 static int _xrefs, _erefs;
 static int _empty_count;
-static const char *_css_data = "\
+
+/* MSVC doesn't like long strings. */
+static const char *_css_data1 = "\
 A.xref:link {\n\
 \tcolor:           blue;\n\
 \ttext-decoration: none;\n\
@@ -118,6 +120,9 @@ A.autotype:hover {\n\
 \ttext-decoration: underline;\n\
 \tbackground:      transparent;\n\
 }\n\
+";
+
+static const char *_css_data2 = "\
 A.autotype:active {\n\
 \tcolor:           red;\n\
 \ttext-decoration: none;\n\
@@ -521,8 +526,9 @@ static void _write_css_file(char *html_path, char *css_filename)
       free(full_path);
       return;
    }
-   
-   fprintf(file, "%s", _css_data);
+
+   fputs(_css_data1, file);
+   fputs(_css_data2, file);
    fclose(file);
    free(full_path);
    
@@ -813,8 +819,9 @@ static void _output_html_header(char *section)
 	 }
 	 else {
 	    fputs("<style type=\"text/css\" title=\"Default\"><!--\n", _file);
-	    fprintf(_file, "%s\n", _css_data);
-	    fputs("\n--></style>\n", _file);
+	    fputs(_css_data1, _file);
+	    fputs(_css_data2, _file);
+	    fputs("\n\n--></style>\n", _file);
 	 }
       }
 
