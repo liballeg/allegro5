@@ -97,8 +97,8 @@
    Windows graphics drivers using DirectX in fullscreen and windowed modes, 
    plus routines for drawing onto GDI device contexts.
 
-   Unix graphics drivers for X, DGA, fbcon, GGI, SVGAlib, VBE/AF, mode-X, 
-   and standard VGA.
+   Unix graphics drivers for X, DGA, fbcon, SVGAlib, VBE/AF, mode-X, and
+   standard VGA.
 
    Hardware scrolling and triple buffering (where available), mode-X split 
    screens, and palette manipulation.

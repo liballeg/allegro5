@@ -126,10 +126,6 @@
 	most of the video modes that SVGAlib provides. It requires root
 	privileges.
 
-	A GGI driver is available, but it doesn't work, so don't try it
-	unless you are planning to debug it. A rewrite is planned, but it
-	has been planned for a long time.
-
    * Keyboard:
 	The keyboard driver uses the kernel mapping tables to map scancodes 
 	to character codes and key functions, so your keyboard mapping 

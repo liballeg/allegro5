@@ -313,12 +313,6 @@ AC_ARG_ENABLE(vbeaf,
 test "X$enableval" != "Xno" && allegro_enable_vbeaf=yes,
 allegro_enable_vbeaf=yes)
 
-dnl Enable Linux console GGI driver
-AC_ARG_ENABLE(ggi,
-[  --enable-ggi[=x]        enable GGI graphics driver [default=yes]],
-test "X$enableval" != "Xno" && allegro_enable_ggi=yes,
-allegro_enable_ggi=yes)
-
 dnl Enable Linux console SVGAlib driver
 AC_ARG_ENABLE(svgalib,
 [  --enable-svgalib[=x]    enable SVGAlib graphics driver [default=yes]],
@@ -365,15 +359,6 @@ case "$allegro_system" in
 
     if test "$allegro_enable_vbeaf" = yes; then
       AC_DEFINE(ALLEGRO_LINUX_VBEAF)
-    fi
-
-    if test "$allegro_enable_ggi" = yes; then
-      AC_CHECK_HEADER(ggi/ggi.h,
-	AC_CHECK_LIB(ggi, ggiInit,
-	  AC_DEFINE(ALLEGRO_LINUX_GGI)
-	  LIBS="-lggi $LIBS"
-	)
-      )
     fi
 
     if test "$allegro_enable_svgalib" = yes; then

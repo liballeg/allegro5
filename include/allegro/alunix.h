@@ -166,11 +166,6 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
    AL_VAR(GFX_DRIVER, gfx_vbeaf);
 #endif
 
-#ifdef ALLEGRO_LINUX_GGI
-   #define GFX_GGI                  AL_ID('G','G','I',' ')
-   AL_VAR(GFX_DRIVER, gfx_ggi);
-#endif
-
 #ifdef ALLEGRO_LINUX_SVGALIB
    #define GFX_SVGALIB              AL_ID('S','V','G','A')
    AL_VAR(GFX_DRIVER, gfx_svgalib);

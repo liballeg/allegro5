@@ -226,8 +226,6 @@ ALLEGRO_SRC_BEOS_FILES = \
 
 ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/fbcon.c \
-	src/linux/ggi.c \
-	src/linux/ggis.s \
 	src/linux/lasyncio.c \
 	src/linux/lconsole.c \
 	src/linux/lgfxdrv.c \

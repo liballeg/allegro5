@@ -7428,10 +7428,6 @@ function to remind you :-)
       VBE/AF requires root permissions, but is currently the only Linux 
       driver which supports hardware accelerated graphics.
 <li>
-   GFX_GGI<br>
-      Use the GGI libraries for graphics output. This usually requires root 
-      permissions.
-<li>
    GFX_SVGALIB<br>
       Use the SVGAlib library for graphics output. This requires root 
       permissions.

@@ -30,7 +30,6 @@ Linux todos:
 ---------------------------------------------------------------------------
 
 - Enable autodetection for SVGAlib driver.
-- Rewrite GGI driver or remove it
 - keyboard set_rate
 - Find out more about sched_yield
 - svgalib leaves crap on screen at exit

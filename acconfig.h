@@ -31,9 +31,6 @@
 /* Define to enable Linux console VBE/AF driver */
 #undef ALLEGRO_LINUX_VBEAF
 
-/* Define to enable Linux console GGI driver */
-#undef ALLEGRO_LINUX_GGI
-
 /* Define to enable Linux console SVGAlib driver */
 #undef ALLEGRO_LINUX_SVGALIB
 

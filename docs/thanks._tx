@@ -460,12 +460,11 @@ Contributors
    Helped with the Mingw32 native build.
 
    Peter Wang (<email>tjaden@psynet.net</a>).<br>
-   Contributed to the Linux GGI driver, added the mouse_z wheel input 
-   support to the Linux code, fixed problems with the ESD sound driver, 
-   wrote the ALSA sound driver, wrote the BeOS sound driver, added OSS MIDI 
-   and sample input support, added banked mode support to the SVGAlib driver, 
-   wrote the X DGA mode switching code, and improved the Linux joystick driver,
-   and did loads of other things too.
+   Added the mouse_z wheel input support to the Linux code, fixed problems
+   with the ESD sound driver, wrote the ALSA sound driver, wrote the BeOS
+   sound driver, added OSS MIDI and sample input support, added banked mode
+   support to the SVGAlib driver, wrote the X DGA mode switching code,
+   improved the Linux joystick driver, and did loads of other things too.
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
