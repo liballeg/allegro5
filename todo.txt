@@ -11,9 +11,6 @@ General (Platform independant) todos:
 ---------------------------------------------------------------------------
 
 - Add caching system to speed up filename#object and load_datafile_object()
-- Add a general windowed gfx updater with color conversion, to be used by
-  specific ports
-- Convert more programs/examples to the new GFX_SAFE behaviour
 
 Win32 todos:
 ---------------------------------------------------------------------------
@@ -63,7 +60,6 @@ BeOS todos:
 
 - Add display switching support to fullscreen driver
 - Write a safe windowed driver using BBitmap
-- investigate quad3d_f problems
 - shared library support
 - code cleanup
 
@@ -72,6 +68,7 @@ Supposedly fixed. (confirmation wanted)
 
 - Talk to Calin about merging latest P3D rendering stuff
 - Windows (DirectSound) sample looping isn't right
+- Check all programs/examples are converted for new GFX_SAFE behaviour
 
 Wishlist
 ---------------------------------------------------------------------------
