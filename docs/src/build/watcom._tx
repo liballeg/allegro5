@@ -1,0 +1,97 @@
+@html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
+@html_text_substitution=docs/build/djgpp.txt|<a href="djgpp.html">docs/build/djgpp.txt</a>
+@external-css=../allegro.css
+@document_title=Allegro Watcom-specific information
+@<pre>
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		Watcom-specific information.
+
+	 See readme.txt for a more general overview.
+@</pre>
+
+
+
+@heading
+Watcom notes
+
+   Status: complete and fully functional, but not so widely used and tested 
+   as the djgpp code. This version is heavily based on the djgpp version, 
+   basically just emulating whatever parts of the djgpp libc aren't provided 
+   by Watcom. See <tt>docs/build/djgpp.txt</tt> for information about the available
+   hardware drivers: the djgpp and Watcom versions are 100% identical in this
+   respect.
+
+   This library works with version 10.6 and the various 11.0 versions of the
+   Watcom C compiler, as well as with Open Watcom 1.0 or later.
+
+
+
+@heading
+Required software
+
+   <ul><li>Watcom C version 10.6 or 11.0x, or Open Watcom 1.0 or later.
+   <li>djgpp compiler (<tt>djdev*.zip</tt>, <tt>gcc*b.zip</tt>, and <tt>bnu*b.zip</tt>).
+   <li>GNU make (<tt>mak*b.zip</tt>).
+   <li>GNU sed (<tt>sed*b.zip</tt>):
+      Required for 10.6: Used to build asm sources.
+      Optional for other versions: Used by "<tt>make depend</tt>".
+   </ul>
+   Except for the Watcom compiler itself, all of the above packages can be 
+   downloaded from your nearest SimTel mirror site, in the 
+   <tt>/pub/simtelnet/gnu/djgpp/</tt> directory, or you can use the zip picker on
+   <link>http://www.delorie.com/djgpp/</a>. See the djgpp <tt>readme.1st</tt> file for
+   information about how to install djgpp.
+
+
+
+@heading
+Installing Allegro
+
+   This is a source-only distribution, so you will have to compile Allegro 
+   before you can use it. To do this you should:
+
+   Type "<tt>cd allegro</tt>", followed by "<tt>fix.bat watcom</tt>", followed by "<tt>make</tt>". Then
+   go do something interesting while everything compiles. When it finishes 
+   compiling, type "<tt>make install</tt>" to set the library up ready for use.
+
+   The makefile will try to guess whether you are using Watcom 10.6 or 11.0 
+   by checking for the presence of <tt>wdisasm.exe</tt>. If it gets this wrong, you
+   may need to override it by passing <tt>WATCOM_VERSION=10.6</tt> or
+   <tt>WATCOM_VERSION=11</tt> as arguments to make, or setting the <tt>WATCOM_VERSION</tt>
+   environment variable.
+
+   If you also want to install a debugging version of the library (highly 
+   recommended), now type "<tt>make install DEBUGMODE=1</tt>". Case is important, so
+   it must be <tt>DEBUGMODE</tt>, not debugmode!
+
+   If you also want to install a profiling version of the library, now type 
+   "<tt>make install PROFILEMODE=1</tt>".
+
+   If your copy of Allegro doesn't include the <tt>makefile.dep</tt> dependency files
+   (unlikely, unless you have run "<tt>make veryclean</tt>" at some point), you can
+   regenerate them by running "<tt>make depend</tt>".
+
+
+
+@heading
+Using Allegro
+
+   All the Allegro functions, variables, and data structures are defined in 
+   <tt>allegro.h</tt>. You should include this in your programs, and link with either
+   the optimised library <tt>alleg.lib</tt>, the debugging library <tt>alld.lib</tt>, or the
+   profiling library <tt>allp.lib</tt>. Programs that use Allegro must be compiled to
+   use the stack based calling convention (wcl386 option '<tt>-5s</tt>'), and with
+   stack overflow checks disabled (wcl386 option '<tt>-s</tt>'). You will also have
+   to increase the stack size from the miserly Watcom default, using a 
+   wcl386 option like '<tt>-k128k</tt>', or a linker command like '<tt>option stack=128k</tt>'.
+

@@ -124,12 +124,16 @@ EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
 DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile readme
+DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
+DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
+DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 DOCS += CHANGES AUTHORS THANKS readme.txt
-CHMDOCS = $(addprefix docs/chm/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
+CHMDOCS  = $(addprefix docs/chm/,$(addsuffix .$(HTML),$(DOCBASEFILES)))
+CHMDOCS += $(addprefix docs/chm/build/,$(addsuffix .$(HTML),$(DOCBUILDFILES)))
 
 endif
 
@@ -259,6 +263,9 @@ docs/chm/allegro.chm: $(filter %.$(HTML),$(CHMDOCS)) docs/src/allegro._tx $(OBJE
 	-hhc docs/chm/allegro.hhp
 
 $(filter %.txt,$(filter-out readme.txt, $(DOCS))): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii $@ $<
+
+$(DOCTXTBUILDFILES): docs/build/%.txt: docs/src/build/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
 
 $(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)

@@ -1,3 +1,8 @@
+@html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
+@html_text_substitution=docs/txt/faq.txt|<a href="../faq.html">docs/txt/faq.txt</a>
+@external-css=../allegro.css
+@document_title=Allegro DJGPP-specific information
+@<pre>
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
     \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -12,12 +17,12 @@
 		DJGPP-specific information.
 
 	 See readme.txt for a more general overview.
+@</pre>
 
 
 
-=====================================
-============ djgpp notes ============
-=====================================
+@heading
+djgpp notes
 
    Status: complete. This is the original Allegro version, and has had 
    plenty of time to become nice and stable. However, under Windows NT,
@@ -27,48 +32,45 @@
 
 
 
-===========================================
-============ Required software ============
-===========================================
+@heading
+Required software
 
-   - DJGPP 2.01 or later (djdev*.zip).
-   - GCC compiler 2.91.x or later (gcc*b.zip).
-     Note: gcc 3.0.x (0 <= x <= 1) doesn't properly compile Allegro.
-   - Binutils 2.9.x or later (bnu*b.zip).
-   - GNU make (mak*b.zip).
-   - Texinfo (txi*b.zip).
-   - Optional: sed (sed*b.zip). Used by "make depend".
-
+   <ul><li>DJGPP 2.01 or later (<tt>djdev*.zip</tt>).
+   <li>GCC compiler 2.91.x or later (<tt>gcc*b.zip</tt>).
+      Note: gcc 3.0.x (0 &lt;= x &lt;= 1) doesn't properly compile Allegro.
+   <li>Binutils 2.9.x or later (<tt>bnu*b.zip</tt>).
+   <li>GNU make (<tt>mak*b.zip</tt>).
+   <li>Texinfo (<tt>txi*b.zip</tt>).
+   <li>Optional: sed (<tt>sed*b.zip</tt>). Used by "<tt>make depend</tt>".
+</ul>
    All of the above can be downloaded from your nearest SimTel mirror site, 
-   in the /pub/simtelnet/gnu/djgpp/ directory, or you can use the zip picker 
-   on http://www.delorie.com/djgpp/. Please make sure that you have 
-   installed djgpp according to the instructions in readme.1st, and that you 
+   in the <tt>/pub/simtelnet/gnu/djgpp/</tt> directory, or you can use the zip picker
+   on <link>http://www.delorie.com/djgpp/</a>. Please make sure that you have
+   installed djgpp according to the instructions in <tt>readme.1st</tt>, and that you
    aren't mixing it with any files from different compilers (eg. the Borland 
    version of make).
    
 
 
-===========================================
-============ Allegro CVS Notes ============
-===========================================
+@heading
+Allegro CVS Notes
 
    If you are using a CVS version of Allegro, then you will need to do some
    extra things to ensure that your copy of Allegro will compile correctly.
    These are covered in detail below, but briefly:
-
-   1. You must run the `fix' script (either the batch file, under
+<blockquote>
+   1. You must run the `<tt>fix</tt>' script (either the batch file, under
       command.com, or the .sh file under bash). You must supply the
-      argument `djgpp'.
+      argument `<tt>djgpp</tt>'.
 
-   2. You must regenerate the dependency files: a simple `make depend'
+   2. You must regenerate the dependency files: a simple `<tt>make depend</tt>'
       will do this. However, please note that you must have sed installed
       to do this.
+</blockquote>
 
 
-
-============================================
-============ Installing Allegro ============
-============================================
+@heading
+Installing Allegro
 
    This is a source-only distribution, so you will have to compile Allegro 
    before you can use it. To do this you should:
@@ -76,125 +78,121 @@
    Go to wherever you want to put your copy of Allegro (your main djgpp 
    directory would be fine, but you can put it somewhere else if you 
    prefer), and unzip everything. Allegro contains several subdirectories, 
-   so you must specify the -d flag if you are using pkunzip.
+   so you must specify the <tt>-d</tt> flag if you are using pkunzip.
 
    If you are running under Linux, and want to cross-compile the djgpp 
-   version of Allegro, set the environment variable "CROSSCOMPILE=1", set 
-   DJDIR to the directory where your djgpp cross-compiler is installed, 
-   set PATH to access to the cross-compiler, and set NATIVEPATH to a path 
+   version of Allegro, set the environment variable "<tt>CROSSCOMPILE=1</tt>", set 
+   <tt>DJDIR</tt> to the directory where your djgpp cross-compiler is installed,
+   set <tt>PATH</tt> to access to the cross-compiler, and set <tt>NATIVEPATH</tt> to a path
    that will use your native version of gcc instead (_not_ the djgpp 
    cross-compiler!) so that this can be invoked when converting the 
-   documentation. You might like to edit and use `xmake.sh'; there are
+   documentation. You might like to edit and use `<tt>xmake.sh</tt>'; there are
    further instructions in comments in the file. You must also run
-   'fix.sh djgpp' as detailed above - it is required to properly configure
+   '<tt>fix.sh djgpp</tt>' as detailed above - it is required to properly configure
    Allegro for building with djgpp.
 
-   Type "cd allegro", followed by "make". Then go do something interesting 
-   while everything compiles. When it finishes compiling, type "make 
-   install" to set the library up ready for use. If you have any trouble 
-   with the build, look at docs/txt/faq.txt for the solutions to some of the
+   Type "<tt>cd allegro</tt>", followed by "<tt>make</tt>". Then go do something interesting 
+   while everything compiles. When it finishes compiling, type "<tt>make 
+   install</tt>" to set the library up ready for use. If you have any trouble 
+   with the build, look at <tt>docs/txt/faq.txt</tt> for the solutions to some of the
    more common problems.
 
    If you also want to install a debugging version of the library (highly 
-   recommended), now type "make install DEBUGMODE=1". Case is important, so 
-   it must be DEBUGMODE, not debugmode!
+   recommended), now type "<tt>make install DEBUGMODE=1</tt>". Case is important, so 
+   it must be <tt>DEBUGMODE</tt>, not <tt>debugmode</tt>!
 
    If you also want to install a profiling version of the library, now type 
-   "make install PROFILEMODE=1".
+   "<tt>make install PROFILEMODE=1</tt>".
 
    If you want to read the Allegro documentation with the Rhide online help 
-   system, go to the "Help / Syntax help / Files to search" menu, and add 
-   "allegro" after the existing "libc" entry (separated by a space).
+   system, go to the "<tt>Help / Syntax help / Files to search</tt>" menu, and add 
+   "<tt>allegro</tt>" after the existing "<tt>libc</tt>" entry (separated by a space).
 
    If you want to create the HTML documentation as one large allegro.html 
-   file rather than splitting it into sections, edit docs/allegro._tx, 
+   file rather than splitting it into sections, edit <tt>docs/allegro._tx</tt>,
    remove the @multiplefiles statement from line 8, and run make again.
 
    Once the build is finished you can recover some disk space by running 
-   "make compress" (which uses the DJP or UPX programs to compress the 
-   executable files), and/or "make clean" (to get rid of all the temporary 
+   "<tt>make compress</tt>" (which uses the DJP or UPX programs to compress the 
+   executable files), and/or "<tt>make clean</tt>" (to get rid of all the temporary 
    files and HTML format documentation).
 
    If your copy of Allegro is set up for use with some different compiler 
    (if you downloaded a tar.gz archive or a CVS version), you will have to 
-   run 'fix.bat djgpp' before compiling it. If you are using bash you can run
-   'fix.sh djgpp' instead.
+   run '<tt>fix.bat djgpp</tt>' before compiling it. If you are using bash you can run
+   '<tt>fix.sh djgpp</tt>' instead.
 
    If your copy of Allegro doesn't include the makefile.dep dependency files 
-   (if you have run "make veryclean" or you have the CVS version), you can 
-   regenerate them by running "make depend".
+   (if you have run "<tt>make veryclean</tt>" or you have the CVS version), you can 
+   regenerate them by running "<tt>make depend</tt>".
 
-   If `make' tells you that you need to download a new package, or if you
-   need the `sed' package to generate dependencies, you can find these at
-     ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/
+   If `<tt>make</tt>' tells you that you need to download a new package, or if you
+   need the `<tt>sed</tt>' package to generate dependencies, you can find these at
+   <link>ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/</a>.
  
    A list of all the available options:
-    CROSSCOMPILE
-                Set this if you are crosscompiling; it implies
-                UNIX_TOOLS.
+<blockquote><dl>
+      <dt><tt>CROSSCOMPILE</tt></dt><dd>
+	 Set this if you are crosscompiling; it implies <tt>UNIX_TOOLS</tt>.</dd>
 
-    WARNMODE
-                Set this if you want Allegro to display and stop on
-                nearly all warnings issued by the compiler. Allegro
-                should compile fine with this set.
+      <dt><tt>WARNMODE</tt></dt><dd>
+	 Set this if you want Allegro to display and stop on nearly all
+	 warnings issued by the compiler. Allegro should compile fine with
+	 this set.</dd>
 
-    TARGET_ARCH_COMPAT
-      or
-    TARGET_ARCH_EXCL
-                These affect the level of processor dependant optimisation
-                that Allegro uses. You can set either of these to the
-                processor type you want to optimize for. The difference
-                between these two is that TARGET_ARCH_COMPAT optimise for
-                the given processor so that the code will still run on older
-                processors, while TARGET_ARCH_EXCL will generate code that
-                will run exclusively on the given processor and of course
-                newer ones. Example: set TARGET_ARCH_COMPAT=i686
+      <dt><tt>TARGET_ARCH_COMPAT</tt>
+	 or
+      <tt>TARGET_ARCH_EXCL</tt></dt><dd>
+	 These affect the level of processor dependant optimisation that
+	 Allegro uses. You can set either of these to the processor type you
+	 want to optimize for. The difference between these two is that
+	 <tt>TARGET_ARCH_COMPAT</tt> optimise for the given processor so that the code
+	 will still run on older processors, while <tt>TARGET_ARCH_EXCL</tt> will
+	 generate code that will run exclusively on the given processor and of
+	 course newer ones. Example: set <tt>TARGET_ARCH_COMPAT=i686</tt></dd>
 
-    TARGET_OPTS
-                Affects the general optimisations that Allegro uses.
+      <dt><tt>TARGET_OPTS</tt></dt><dd>
+	 Affects the general optimisations that Allegro uses.</dd>
 
-    UNIX_TOOLS
-                If your system does not have the usual DOS tools
-                available (`md', `rd', `copy', etc., and commands which
-                understand the \ character), then set this to 1 to use
-                the unix equivalents. This is set implicitly when you
-                set CROSSCOMPILE, and is also set automatically when you
-                are running under bash.
-
-    To activate any of these, type (for example) "make WARNMODE=1".
+      <dt><tt>UNIX_TOOLS</tt></dt><dd>
+	 If your system does not have the usual DOS tools available (`<tt>md</tt>',
+	 `<tt>rd</tt>', `<tt>copy</tt>', etc., and commands which understand the <tt>\</tt> character),
+	 then set this to 1 to use the Unix equivalents. This is set
+	 implicitly when you set <tt>CROSSCOMPILE</tt>, and is also set automatically
+	 when you are running under bash.</dd>
+</dl></blockquote>
+   To activate any of these, type (for example) "<tt>make WARNMODE=1</tt>".
 
 
 
-=======================================
-============ Using Allegro ============
-=======================================
+@heading
+Using Allegro
 
    All the Allegro functions, variables, and data structures are defined in 
-   allegro.h. You should include this in your programs, and link with either 
-   the optimised library liballeg.a, the debugging library liballd.a, or the 
-   profiling library liballp.a. To do this you should:
+   <tt>allegro.h</tt>. You should include this in your programs, and link with either
+   the optimised library <tt>liballeg.a</tt>, the debugging library <tt>liballd.a</tt>, or the
+   profiling library <tt>liballp.a</tt>. To do this you should:
 
    Put the following line at the beginning of all C or C++ files that use 
    Allegro:
-
-      #include <allegro.h>
-
+<codeblock>
+      #include &ltallegro.h&gt
+<endblock>
    If you compile from the command line or with a makefile, add either 
-   '-lalleg' (for the optimised version), '-lalld' (debugging version), or 
-   '-lallp' (profiling version) to the end of the gcc command, eg:
-
+   '<tt>-lalleg</tt>' (for the optimised version), '<tt>-lalld</tt>' (debugging version), or
+   '<tt>-lallp</tt>' (profiling version) to the end of the gcc command, eg:
+<textblock>
       gcc foo.c -o foo.exe -lalleg
-
+<endblock>
    If you are using Rhide, go to the Options/Libraries menu, type either 
-   'alleg' (for the optimised version), 'alld' (debugging version), or 
-   'allp' (profiling version) into the first empty space, and make sure the 
+   '<tt>alleg</tt>' (for the optimised version), '<tt>alld</tt>' (debugging version), or
+   '<tt>allp</tt>' (profiling version) into the first empty space, and make sure the
    box next to it is checked.
 
 
 
-============================================
-============ Supported hardware ============
-============================================
+@heading
+Supported hardware
 
    The bare minimum you need to use Allegro is a 386 with a VGA graphics 
    card, but a 486 is strongly recommended. To get into SVGA modes you will 
@@ -203,10 +201,10 @@
 
    Ideally you should use VBE/AF, because it allows Allegro to use hardware 
    acceleration functions to speed up the drawing. The FreeBE/AF project 
-   (http://www.talula.demon.co.uk/freebe/) provides a number of free VBE/AF 
+   (<link>http://www.talula.demon.co.uk/freebe/</a>) provides a number of free VBE/AF
    drivers (volunteers to write more are always welcome!), and accelerated 
    drivers for a large number of cards are available commercially as part of 
-   the SciTech Display Doctor package (http://www.scitechsoft.com/).
+   the SciTech Display Doctor package (<link>http://www.scitechsoft.com/</a>).
 
    If you have a VBE 2.0 or VBE 3.0 driver you are probably fine just using 
    that, although unlike VBE/AF it won't provide any hardware acceleration. 
@@ -242,7 +240,7 @@
    Audio recording is supported for all SB cards, but only in unidirectional 
    mode, ie. you cannot simultaneously record and playback samples. MIDI 
    input is provided by the MPU-401 and SB MIDI drivers, but there are some 
-   restrictions on this. The SB MIDI interface cannot be used at the same 
+   restrictions on this. The SB MIDI interface cannot be used at the same
    time as the digital sound system, and the MPU will only work when there 
    is an IRQ free for it to use (this will be true if you have an SB16 or 
    greater, or if no SB-type digital driver is installed, or if your MIDI 
@@ -250,9 +248,8 @@
 
 
 
-================================================
-============ Notes for the musician ============
-================================================
+@heading
+Notes for the musician
 
    The OPL2 synth chip can provide either nine voice polyphony or six voices 
    plus five drum channels. How to make music sound good on the OPL2 is left 

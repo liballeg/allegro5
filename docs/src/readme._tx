@@ -6,6 +6,17 @@
 @html_text_substitution= allegro.txt| <a href="allegro.html">allegro.txt</a>
 @html_text_substitution=docs/txt/api.txt|<a href="api.html">docs/txt/api.txt</a>
 @html_text_substitution=AUTHORS|<a href="thanks.html">AUTHORS</a>
+@html_text_substitution=docs/build/bcc32.txt|<a href="build/bcc32.html">docs/build/bcc32.txt</a>
+@html_text_substitution=docs/build/beos.txt|<a href="build/beos.html">docs/build/beos.txt</a>
+@html_text_substitution=docs/build/darwin.txt|<a href="build/darwin.html">docs/build/darwin.txt</a>
+@html_text_substitution=docs/build/djgpp.txt|<a href="build/djgpp.html">docs/build/djgpp.txt</a>
+@html_text_substitution=docs/build/linux.txt|<a href="build/linux.html">docs/build/linux.txt</a>
+@html_text_substitution=docs/build/macosx.txt|<a href="build/macosx.html">docs/build/macosx.txt</a>
+@html_text_substitution=docs/build/mingw32.txt|<a href="build/mingw32.html">docs/build/mingw32.txt</a>
+@html_text_substitution=docs/build/msvc.txt|<a href="build/msvc.html">docs/build/msvc.txt</a>
+@html_text_substitution=docs/build/qnx.txt|<a href="build/qnx.html">docs/build/qnx.txt</a>
+@html_text_substitution=docs/build/unix.txt|<a href="build/unix.html">docs/build/unix.txt</a>
+@html_text_substitution=docs/build/watcom.txt|<a href="build/watcom.html">docs/build/watcom.txt</a>
 @external-css=allegro.css
 @document_title=A general introduction to Allegro
 @<pre>

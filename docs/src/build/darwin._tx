@@ -1,3 +1,8 @@
+@html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
+@html_text_substitution=docs/build/unix.txt|<a href="unix.html">docs/build/unix.txt</a>
+@external-css=../allegro.css
+@document_title=Notes on building the Darwin/MacOS X version of Allegro
+@<pre>
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
     \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -15,12 +20,12 @@
    See docs/build/unix.txt for general Unix information.
 
    See readme.txt for a more general overview.
+@</pre>
 
 
 
-=================================
-========== Darwin Notes =========
-=================================
+@heading
+Darwin Notes
 
    This file explains how to build the X Window port of Allegro on a Darwin
    system.
@@ -31,16 +36,15 @@
    This library cannot yet be compiled as a shared library, only static.
 
 
-=================================
-======= Required software =======
-=================================
+@heading
+Required software
 
    If you are running MacOS X, you must download the developer tools. This
    requires free registration with Apple. You can register and download the
    tools at:
-
-      http://connect.apple.com
-
+<blockquote>
+      <link>http://connect.apple.com</a>
+</blockquote>
    Recently, GCC 3.1 has been released which supports the Mach-O binary
    format, and you may be able to use it directly (if you compile it
    yourself or find a binary distribution.)
@@ -48,35 +52,34 @@
    You will also need X Window. You can use either the Darwin/MacOS X port
    of XFree86 from the XonX project or Xtools, a proprietary version. The
    XonX project is located at:
+<blockquote>
+      <link>http://sourceforge.net/projects/xonx</a>
+</blockquote>
 
-      http://sourceforge.net/projects/xonx
 
-
-
-=================================
-====== Installing Allegro =======
-=================================
+@heading
+Installing Allegro
 
    First, decompress the .tar or .zip file into some directory. Next, open
    up a terminal (in MacOS X, this can be found in Applications/Utilities).
    From here, enter the directory into which Allegro has been decompressed.
 
    If you are using the .zip file, type the following:
-
+<textblock>
       chmod +x fix.sh
       ./fix.sh unix
-
+<endblock>
    From here on everything is a pretty standard Unix-style install process. 
    First you configure it with at least the following options:
-
+<textblock>
       ./configure --enable-static --disable-shared --disable-pthreads
-
+<endblock>
    It should automatically build dependencies.
 
    Then you build it:
-
+<textblock>
       make
-
+<endblock>
    If you are using an older version of Apple's tools, you will probably see
    lots of preprocessing errors. Just ignore them (they are due to Apple's
    modifications to GCC and do not affect the resulting object code).
@@ -90,27 +93,26 @@
    I strongly urge you to set your root password in the same menu.
 
    Now, type the following in the terminal:
-
+<textblock>
       su -c "make install"
-
+<endblock>
    To install the man pages, type:
-
+<textblock>
       su -c "make install-man"
+<endblock>
+   If prompted for a password, type in your root password.
 
-   (If prompted for a password, type in your root password.)
 
 
-
-=================================
-========= Using Allegro =========
-=================================
+@heading
+Using Allegro
 
    When compiling a program using Allegro, you will have to link to the
    following libraries:
-
+<textblock>
       -lalleg -lX11 -lXext
-
+<endblock>
    If you are using the XFree86 port, you will also have to add:
-
+<textblock>
       -lXxf86vm
-
+<endblock>

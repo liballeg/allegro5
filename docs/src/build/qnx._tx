@@ -1,3 +1,7 @@
+@html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
+@external-css=../allegro.css
+@document_title=Allegro QNX-specific information
+@<pre>
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
     \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -12,12 +16,12 @@
 		 QNX-specific information.
 
 	 See readme.txt for a more general overview.
+@</pre>
 
 
 
-===================================
-============ QNX notes ============
-===================================
+@heading
+QNX notes
 
    Status: it works. Only annoying bug left seems to be the display switching
    in fullscreen mode; just don't try to change workspace while in fullscreen
@@ -26,9 +30,8 @@
 
 
 
-===========================================
-============ Required software ============
-===========================================
+@heading
+Required software
 
    The library works with QNX 6.0 RTP. You need the development tools
    installed on your system; if you don't have them, you can get them from the
@@ -36,68 +39,65 @@
 
 
 
-============================================
-============ Installing Allegro ============
-============================================
+@heading
+Installing Allegro
 
    As Allegro is a multiplatform library, you first need to set it up for use
    on QNX RTP, by running:
-
+<textblock>
       chmod +x fix.sh
       ./fix.sh qnx
-
+<endblock>
    Now you may want to generate the dependencies; this step is optional if
    you are using an official release, but it is required if you got a CVS
    snapshot of the library.
-
+<textblock>
       make depend
-
+<endblock>
    Then you need to build Allegro:
-
+<textblock>
       make
-
+<endblock>
    And finally install it (you need to be root for this):
-
+<textblock>
       su -c "make install"
-
-   Installing the library will copy the header files to /usr/include, the
-   library file to /usr/lib and the allegro-config script into /usr/bin.
+<endblock>
+   Installing the library will copy the header files to <tt>/usr/include</tt>, the
+   library file to <tt>/usr/lib</tt> and the <tt>allegro-config</tt> script into <tt>/usr/bin</tt>.
    
    
 
-=======================================
-============ Using Allegro ============
-=======================================
+@heading
+Using Allegro
 
    Linking with Allegro requires you to link also other libraries to your
    executables. To avoid you having to work out the right linker commands for
-   yourself, the installation creates a script, allegro-config, that will 
+   yourself, the installation creates a script, <tt>allegro-config</tt>, that will
    print out a suitable commandline. You can use this inside a backtick 
    command substitution, for example:
-
+<textblock>
       gcc myfile.c -o myprogram `allegro-config --libs`
-
+<endblock>
    Or if you want to build a debug version of your program, assuming that 
    you have installed the debug version of Allegro:
-
+<textblock>
       gcc myfile.c -o myprogram `allegro-config --libs debug`
-
+<endblock>
    Unix newbies, take note that these are ` backticks, not normal ' quotes!
 
    There are also switches for printing out the Allegro version number and
-   overriding the install paths. Run allegro-config without any arguments
+   overriding the install paths. Run <tt>allegro-config</tt> without any arguments
    for a full list of options.
 
-   Don't forget that you need to use the END_OF_MAIN() macro right after 
-   your main() function!
+   Don't forget that you need to use the <code>END_OF_MAIN()</code> macro right after
+   your <code>main()</code> function!
 
 
 
-=====================================
-============ Final notes ============
-=====================================
+@heading
+Final notes
 
    Allegro for QNX requires you to be running the Photon MicroGUI environment;
    if Photon cannot be found, the library will fail to initialize. If this
-   happens, you're probably in a text console; just run "ph" to start Photon.
-   
+   happens, you're probably in a text console; just run "<tt>ph</tt>" to start Photon.
+

@@ -220,18 +220,22 @@ $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 # -------- documentation --------
 
 DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile readme
+DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
+DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
 DOCS  = $(addprefix docs/txt/,$(addsuffix .txt,$(filter-out changes thanks readme, $(DOCBASEFILES))))
 DOCS += $(addprefix docs/rtf/,$(addsuffix .rtf,$(DOCBASEFILES)))
 DOCS += $(addprefix docs/html/,$(addsuffix .html,$(DOCBASEFILES)))
+DOCS += $(addprefix docs/html/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 DOCS += docs/texi/allegro.texi docs/info/allegro.info docs/man/install_allegro.3
 DOCS += CHANGES AUTHORS THANKS readme.txt
 
-DEVHELPDOCS = $(addprefix docs/devhelp/,$(addsuffix .html,$(DOCBASEFILES)))
+DEVHELPDOCS  = $(addprefix docs/devhelp/,$(addsuffix .html,$(DOCBASEFILES)))
+DEVHELPDOCS += $(addprefix docs/devhelp/build/,$(addsuffix .html,$(DOCBUILDFILES)))
 
 MAKEDOC = docs/makedoc$(EXE)
 
-docs: $(DOCS)
+docs: $(DOCS) $(DOCTXTBUILDFILES)
 
 docs-dvi: $(srcdir)/docs/allegro.dvi
 	@echo "Device independant documentation generated: docs/allegro.dvi"
@@ -258,6 +262,9 @@ docs-devhelp: docs/devhelp/allegro.devhelp
 	@echo "To use, please install the above file."
 
 $(filter %.txt,$(filter-out readme.txt, $(DOCS))): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii $@ $<
+
+$(DOCTXTBUILDFILES): docs/build/%.txt: docs/src/build/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<
 
 $(filter %.rtf,$(DOCS)): docs/rtf/%.rtf: docs/src/%._tx $(MAKEDOC)
