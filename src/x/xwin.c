@@ -2767,6 +2767,9 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       }
    }
 
+   vw = v_w - s_w + w;
+   vh = v_h - s_h + h;
+
    _xwin.screen_width = w;
    _xwin.screen_height = h;
    _xwin.screen_depth = depth;
@@ -2813,18 +2816,17 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    }
 
    /* Create the colormaps for swapping in 8-bit mode */
-   if (_xwin.fast_visual_depth == 8)
-   {
+   if (_xwin.fast_visual_depth == 8) {
       const int cmap_size = 256;
       XColor color[cmap_size];
       int i;
-    
+
       _xdga_colormap[0] = _xwin.colormap;  
       _xdga_colormap[1] = XCreateColormap(_xwin.display, _xwin.window, _xwin.visual, AllocAll);
 
       for (i = 0; i < cmap_size; i++)
          color[i].pixel = i;
-	  
+
       XQueryColors(_xwin.display, _xdga_colormap[0], color, cmap_size);
       XStoreColors(_xwin.display, _xdga_colormap[1], color, cmap_size);
 
@@ -2834,18 +2836,12 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    /* Clear video memory */
    if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
-      int bank, banks = memsize / banksize;
-
-      /* Clear full banks.  */
-      for (bank = 0; bank < banks; bank++) {
-	 XF86DGASetVidPage(_xwin.display, _xwin.screen, bank);
-	 memset(fb_addr, 0, banksize);
-      }
-
-      /* Clear last bank.  */
-      if ((memsize % banksize) != 0) {
-	 XF86DGASetVidPage(_xwin.display, _xwin.screen, bank);
-	 memset(fb_addr, 0, memsize % banksize);
+      int line, offset;
+      /* Clear all visible lines.  */
+      for (offset = 0, line = s_h - 1; line >= 0; offset += fb_width, line--) {
+	 if ((offset % banksize) == 0)
+	    XF86DGASetVidPage(_xwin.display, _xwin.screen, offset / banksize);
+	 memset(fb_addr, offset % banksize, s_w);
       }
    }
 
