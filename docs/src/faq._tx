@@ -56,8 +56,8 @@ Trivial problems
 @heading
 The giftware licence
 
-   The Allegro licence is absolutely clear unless you are a a lawyer.
-   However it's written quite informal so this mini-FAQ tries to clarify
+   The Allegro licence is absolutely clear unless you are a lawyer.
+   However, it's written quite informally so this mini-FAQ tries to clarify
    some things.
 
 <div class="faq-shift-to-right">
@@ -76,7 +76,7 @@ The giftware licence
 
 @@   Is Allegro open source (OSI) compatible?
       See the previous question. Since Allegro is compatible with about any
-      license, it also is OSI compatible. It clearly is compatible to all the
+      license, it also is OSI compatible. It clearly is compatible with all the
       points in the OSD (open source definition). You can search the OSI
       mailing list for "Allegro" to see that OSI shares this view. (OSI
       officials still were reluctant to consider it for approval though and
