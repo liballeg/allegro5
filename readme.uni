@@ -51,10 +51,11 @@
       sh fixunix.sh
 
    From here on everything is a pretty standard Unix-style install process. 
-   First you configure it and build the dependencies:
+   First you configure it:
 
       ./configure
-      make depend
+
+   It should automatically build dependencies.
 
    Then you build it:
 
