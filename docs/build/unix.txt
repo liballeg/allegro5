@@ -145,10 +145,6 @@
 ============ Shared library compatibility ============
 ======================================================
 
-   Because of the way Allegro is structured, it is unlikely that there will 
-   be much compatibility of libraries between WIP versions. Each WIP will 
-   probably be a new major version of the library.
-
    Allegro can interface with a lot of other libraries -- in particular, 
    various X libraries and SVGAlib. If you link statically to Allegro,
    your program will depend upon all these other libraries so you may want
@@ -169,6 +165,8 @@
    the `/usr/local/lib/allegro/' or `/usr/lib/allegro/' directories.
    Allegro looks for dynamically loaded modules in those directories, and
    loads all of them listed in `modules.lst' at startup.
+
+   See also the ABI compatibility document for more information.
 
 
 
