@@ -312,7 +312,10 @@ AL_VAR(int, _color_conv);
 AL_FUNC(BITMAP *, _fixup_loaded_bitmap, (BITMAP *bmp, PALETTE pal, int bpp));
 
 
-/* console switching support */
+/* display switching support */
+AL_FUNC(void, _switch_in, (void));
+AL_FUNC(void, _switch_out, (void));
+
 AL_FUNC(void, _register_switch_bitmap, (BITMAP *bmp, BITMAP *parent));
 AL_FUNC(void, _unregister_switch_bitmap, (BITMAP *bmp));
 AL_FUNC(void, _save_switch_state, (int switch_mode));
@@ -1131,11 +1134,6 @@ AL_FUNC(void, _destroy_driver_list, (_DRIVER_INFO *drvlist));
 AL_FUNC(void, _driver_list_append_driver, (_DRIVER_INFO **drvlist, int id, void *driver, int autodetect));
 AL_FUNC(void, _driver_list_prepend_driver, (_DRIVER_INFO **drvlist, int id, void *driver, int autodetect));
 AL_FUNC(void, _driver_list_append_list, (_DRIVER_INFO **drvlist, _DRIVER_INFO *srclist));
-
-
-/* display switch support routines */
-AL_FUNC(void, _switch_in, (void));
-AL_FUNC(void, _switch_out, (void));
 
 
 AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));
