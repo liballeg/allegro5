@@ -136,10 +136,10 @@ echo "Converting documentation..."
 tr -d \\\r < docs/makedoc.c > _tmpdoc.c
 gcc _tmpdoc.c -o _makedoc.exe
 
-./_makedoc.exe -ascii CHANGES docs/changes._tx
-./_makedoc.exe -part -ascii AUTHORS docs/thanks._tx
-./_makedoc.exe -part -ascii THANKS docs/thanks._tx
-./_makedoc.exe -ascii faq.txt docs/faq._tx
+./_makedoc.exe -ascii CHANGES docs/src/changes._tx
+./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
+./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx
+./_makedoc.exe -ascii faq.txt docs/src/faq._tx
 
 rm _tmpdoc.c _makedoc.exe
 
