@@ -61,9 +61,7 @@
 #include "allegro/3d.h"
 #include "allegro/3dmaths.h"
 
-#ifndef ALLEGRO_LIB_BUILD
-   #include "allegro/alcompat.h"
-#endif
+#include "allegro/alcompat.h"
 
 
 #ifdef ALLEGRO_EXTRA_HEADER
