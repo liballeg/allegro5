@@ -200,9 +200,16 @@ COMPILE_FLAGS = -DALLEGRO_STATICLINK
 else
 
 # -------- link as a DLL --------
+ifdef FASTDLL
+define MAKE_LIB
+  gcc $(LFLAGS) -shared -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
+  dlltool --dllname $(DLL_NAME) --output-lib $(IMPLIB_NAME) --def $(EXPDEF_NAME)
+endef
+else
 define MAKE_LIB
   dllwrap --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
 endef
+endif
 
 endif
 

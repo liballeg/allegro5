@@ -146,7 +146,8 @@ obj/msvc/alld/quat.obj: src/quat.c include/allegro.h include/allegro/alconfig.h 
  include/allegro/al386vc.h include/allegro/alwin.h
 obj/msvc/alld/readbmp.obj: src/readbmp.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
- include/allegro/al386vc.h include/allegro/alwin.h
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
 obj/msvc/alld/rle.obj: src/rle.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h \
@@ -713,3 +714,5 @@ obj/msvc/alld/ispr32.obj: src/i386/ispr32.s src/i386/asmdefs.inc obj/msvc/asmdef
  src/i386/sprite.inc
 obj/msvc/alld/ispr8.obj: src/i386/ispr8.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
  src/i386/sprite.inc
+obj/msvc/alld/asmlock.obj: src/win/asmlock.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alld/update.obj: src/win/update.s src/i386/asmdefs.inc obj/msvc/asmdef.inc

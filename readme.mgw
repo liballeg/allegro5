@@ -27,6 +27,9 @@
    free professional tools. On that note I'd like to thank Peter for
    making this a reality and for finishing off what I started. Enjoy!
 
+   The screensaver example is built but you must copy scrsave.scr to your
+   windows directory if you want to test it.
+
 
 
 ===========================================
@@ -41,8 +44,7 @@
       At the time of this writing (Aug. 2000) gcc-2.95.2 is out and one
       should get gcc-2.95.2-msvcrt.exe and mingw32-docs-html.exe.
 
-   2) Get the latest runtime and patch the compiler with it.
-      This is because gcc 2.95.2 had a problem with making DLLs.
+   2) Get the latest runtime and update at least the headers.
       ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/mingw32/runtime/
 
    3) Get the DirectX 7 libraries for mingw32. Download them from
@@ -54,8 +56,8 @@
 
    5) Create a directory for mingw32, for example c:\mingw32, and install
       all the packages to this directory. The Microsoft DirectX libraries
-      should be installed to c:\mingw32\i386-mingw32\lib and the headers to 
-      c:\mingw32\i586-mingw32\include.
+      should be installed to c:\mingw32\i386-mingw32msvc\lib and the headers to 
+      c:\mingw32\i386-mingw32msvc\include.
 
    6) Add this directory (c:\mingw32\bin) to your path in AUTOEXEC.BAT.
       Also add this line to your AUTOEXEC.BAT:
@@ -65,7 +67,7 @@
    Now reboot your computer to activate the changes.
    Test the installation by typing: gcc -v.
    The answer should be simmilar to
-   Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32\2.95.2\specs
+   Reading specs from C:\MINGW32\BIN\..\lib\gcc-lib\i386-mingw32msvc\2.95.2\specs
    gcc version 2.95.2 19991024 (release)
 
 
@@ -93,6 +95,11 @@
    SET DEBUGMODE=1
    SET PROFILEMODE=1
 
+   Note: If you have a more recent version of mingw32 than gcc 2.95.2
+   you can define FASTDLL to speed up DLL building and save some space.
+   
+   SET FASTDLL=1
+
    Then we can start to actually make and install the Allegro library.
 
    make
@@ -107,8 +114,9 @@
    All the Allegro functions, variables, and data structures are defined 
    in allegro.h. You should include this in your programs, and link with 
    either the optimised library liballeg.a, the debugging library 
-   liballd.a, or the profiling library liballp.a.
+   liballd.a, or the profiling library liballp.a. You should copy
+   the Allegro DLLs to your Windows directory and also include them in
+   software you release to the public.
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function. Happy coding!
-
