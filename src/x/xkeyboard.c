@@ -785,7 +785,7 @@ static KEYBOARD_DRIVER keyboard_x =
    "X11 keyboard",
    "X11 keyboard",
    "X11 keyboard",
-   TRUE,
+   FALSE,
    x_keyboard_init,
    x_keyboard_exit,
    NULL,   // AL_METHOD(void, poll, (void));
@@ -800,6 +800,6 @@ static KEYBOARD_DRIVER keyboard_x =
 /* list the available drivers */
 _DRIVER_INFO _xwin_keyboard_driver_list[] =
 {
-   {  KEYBOARD_XWINDOWS, &keyboard_x,    FALSE },
+   {  KEYBOARD_XWINDOWS, &keyboard_x,    TRUE  },
    {  0,                 NULL,           0     }
 };
