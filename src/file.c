@@ -100,15 +100,17 @@ char *fix_filename_case(char *filename)
 
 
 /* fix_filename_slashes:
- *  Converts '/' to system specific path separator.
+ *  Converts '/' or '\' to system specific path separator.
  */
 char *fix_filename_slashes(char *filename)
 {
-   int pos;
+   int pos, c;
 
-   for (pos=0; ugetc(filename+pos); pos+=uwidth(filename+pos))
-      if (ugetc(filename+pos) == '/')
+   for (pos=0; ugetc(filename+pos); pos+=uwidth(filename+pos)) {
+      c = ugetc(filename+pos);
+      if ((c == '/') || (c == '\\'))
 	 usetat(filename+pos, 0, OTHER_PATH_SEPARATOR);
+   }
 
    return filename;
 }
