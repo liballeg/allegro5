@@ -1,0 +1,299 @@
+@external-css=allegro.css
+@document_title=grabber
+
+<center><h1><b>
+The grabber
+</b></h1></center>
+<hr>
+
+@!text
+@heading
+Contents
+@shortcontents
+@text
+
+@heading
+Commandline options
+
+The grabber accepts a few different commandline options:
+
+   '-bpp'
+      Sets the color depth, eg. -8, -16, -32.
+
+   '-WxH'
+      Sets the screen resolution, eg. -320x200, -1024x768
+      
+   '-windowed'
+      Forces the grabber to start up in a window.
+
+   '-fullscreen'
+      Forces the grabber to start up in fullscreen mode.
+
+   '-nosound'
+      Disables audio output.
+
+   '-pkey'
+      Use 'key' as the datafile password.
+
+   'filename.dat'
+      Loads the named datafile.
+
+@heading
+Using the grabber
+
+Various options can be set using the buttons and text fields at the top of 
+the screen. You can edit the name of the datafile, the name of the header 
+file for exporting object indexes (leave this blank if you don't want to 
+output a header), and the prefix string for the header file definitions. You 
+can change the grid settings for grabbing bitmaps, and alter the compression 
+mode (see below). You can enable or disable backups: if this box is checked, 
+the old version will be renamed to a .bak extension when datafiles are saved.
+You can also turn dithering on (this can improve the image quality when you 
+reduce graphics from 15, 16, 24 or 32-bit color to 8-bit color and from 24 or 
+32-bit color to 15 or 16-bit color) and enable transparency preserving (this 
+will ensure that the masked areas in bitmaps stay exactly the same through 
+color conversion).
+
+The contents of the datafile are listed in the box at the bottom left of the 
+screen, and can be selected with the mouse or arrow keys. Multiple objects 
+can be selected by holding down the shift or control keys while you click 
+on the list or move the cursor. The selected object can be edited with 
+commands from the Object menu, or using the shortcut menu produced by 
+pressing Esc or right-clicking on an object. Double-clicking on an object 
+performs a function which varies depending on the type of the object. 
+Bitmaps are displayed full-screen (use the plus and minus keys to zoom in 
+and out), samples and MIDI files are played, palettes are selected (meaning 
+that they will be used when displaying and exporting bitmaps), and fonts can 
+be edited by adding and removing specific character ranges.
+
+
+
+@heading
+Modifying objects
+
+New objects can be created using the menus or by pressing Insert while the 
+item list has the input focus. To make nested datafiles, create a FILE 
+object (New/Datafile), and select it before inserting other objects.
+
+To insert information into a datafile you must first create an object of the 
+appropriate type, and then select the grab command (keyboard shortcut 
+ctrl+G). For most objects this will bring up a file selector for you to 
+select the file to read, but for graphic objects (bitmaps, RLE sprites, 
+compiled sprites, and palettes) it will grab from the current contents of 
+the image buffer, so you must previously have read a picture into this 
+buffer with the File/Read Bitmap command (keyboard shortcut ctrl+G). You can 
+use the mouse or arrow keys to select which portion of the image to grab. 
+With the mouse, select the top left corner, click and hold the left mouse 
+button, and move to the bottom right corner before releasing the button. 
+Press the right mouse button to cancel. With the keyboard, use the arrow 
+keys to select the top left corner, press Space or Enter, adjust the size 
+with the arrow keys, and press Space or Enter again. By default the position 
+will snap to a 16x16 grid, which can be adjusted by changing the values in 
+the X-grid and Y-grid fields. Alternatively you can use the Box Grab 
+command, in which case you should draw a bounding box in color #255 around 
+your sprites, and can then just click once inside a box to grab the contents.
+
+Note that palette data is not stored along with bitmap and sprite objects. 
+To store the entire contents of a PCX or BMP file, you will need to create 
+both bitmap and palette objects, and grab data into both of them. When you 
+reload the datafile the bitmap will probably be displayed with the wrong 
+palette. This can be corrected by double-clicking on the palette object, 
+which will select its contents as the current palette, meaning that it will 
+be used when displaying and exporting bitmaps.
+
+The properties of the selected object are listed in the box to the right of 
+the item list. These can be edited by double-clicking on one of the 
+properties, and deleted by selecting one and pressing Del. You can insert 
+new properties by pressing Insert while the property list has the input 
+focus, or using the Object/Set Property command. Object names are stored as 
+NAME properties, so the rename command is simply a shortcut for editing this 
+property.
+
+
+
+@heading
+Bitmap grabbing
+
+To simplify the process of grabbing several related images from a single 
+bitmap (for example a set of frames which form an animation), you can use 
+the File/Grab from Grid command. Like the normal bitmap grab command, this 
+uses data from the image buffer, so you must read in a bitmap before you use 
+it. You will then be able to adjust the grabbing parameters, enter a name 
+for the new objects, and choose the type of object to create (bitmap, RLE 
+sprite, or compiled sprite). Because several objects may be created, their 
+names will be formed by adding a number to the end of the name you supply, 
+for example if you enter "a_picture", the grabber will create the objects 
+"a_picture000", "a_picture001", etc. There are two grabbing modes: using 
+cutouts of color 255, and using a regular grid. The regular grid option 
+simply divides the bitmap up into a set of equally sized tiles, using the 
+specified grid size, and grabs each of these as a separate object. If you 
+set the Skip Empties flag, the grabber will ignore tiles that don't contain 
+any data (ie. those that are a single solid color). The color 255 option is 
+more flexible. It expects the bitmap to contain information describing the 
+position and size of each tile, in the form of a bounding box drawn in color 
+255. The most reliable way to do this is to fill all the image except the 
+parts you want with color 255, but the grabber should be able to understand 
+more complicated layouts, even if you simply draw color 255 lines along the 
+top and left edges of the area you want to be grabbed. For truecolor images 
+where color 255 is not particularly meaningful, use a cyan bounding box 
+(maximum blue and green, zero red), with a single yellow (maximum red and 
+green, zero blue) pixel in the top left corner of the box.
+
+
+
+@heading
+Configuration
+
+By default, the grabber will run in a 640x480 resolution, using the highest 
+color depth possible on your graphics card. If you want to override this, 
+you can specify an alternative color depth or resolution on the commandline, 
+eg. "grabber -8" for a 256 color mode, "grabber -16" for 16 bit hicolor 
+graphics, "grabber -320x200" to use VGA mode 13h, or "grabber 1024x768". 
+Warning: editing datafiles that contain truecolor graphics is very slow in 
+256 color video modes, and the grabber is not really usable in resolutions 
+lower than 640x400.
+
+You can configure the grabber to use external tools for editing data, by 
+setting some variables in the [grabber] section of the allegro.cfg file. 
+These are in the form "type=command", where the type is a four letter object 
+ID, and the command is whatever program you want to be invoked to edit this 
+kind of data. For these variables to be seen, the allegro.cfg file must 
+either be in the same directory as the grabber executable, or in the 
+directory pointed to by your ALLEGRO environment variable. To invoke this 
+feature, select the Shell Edit command or press ctrl+Z. The grabber will try 
+to invoke the tool on the original version of the file if it knows where you 
+grabbed the data from in the first place, or otherwise it will write the 
+object out into a temporary file prior to editing.
+
+
+
+@heading
+Saving datafiles
+
+Datafiles can be saved using any of three compression types, selected from 
+the list at the top right of the grabber screen, or with the '-c0', '-c1', 
+and '-c2' options to dat. With type 0, the data is not compressed at all. 
+Type 1 compresses each object individually, while type 2 uses global 
+compression over the entire file. As a rule, global compression will give 
+better results than per-object compression, but it should not be used if you 
+intend to dynamically load specific objects with the load_datafile_object() 
+function or "filename.dat#objectname" packfile syntax.
+
+There are also three strip modes for saving datafiles, selected with the 
+File/Save Stripped command in the grabber, or using the '-s0', '-s1', and 
+'-s2' options to dat. With zero stripping, all object properties are written 
+to the datafile, which is normally what you will want. With strip mode 1, 
+properties specific to the grabber (the ones describing the origins and 
+dates of each object) are removed, which will marginally reduce the file 
+size, but will prevent the update command from working. For the smallest 
+possible file sizes, strip mode 2 removes all properties, including object 
+names and any custom properties you have added. This level of stripping 
+should obviously be used with extreme caution, although in some cases it may 
+be possible to recover the object names even after they have been stripped 
+out of the datafile. If the grabber and dat utilities cannot find any name 
+properties in a datafile, they will look for a header (.h) file with the 
+same name, and attempt to parse this to recover the names. This is far from 
+foolproof, and will not work for nested datafiles, but in some situations 
+it allows the names to be read back from the index definition header. In 
+addition to those three strip modes, you can define properties to be kept, 
+whatever the strip mode. For example, if you want to strip all properties 
+but the NAME, this command will do the job:
+
+<textblock>
+   dat -s2 -s-NAME file.dat
+<endblock>
+
+The objects of the datafile can be sorted alphabetically by name. This is 
+selected by the Sort checkbox in the grabber, or by using the '-n0' and 
+'-n1' options to dat. With zero sorting, objects are listed in the order
+they were added to the datafile. With sort level 1, they are listed in 
+alphabetical order according to their NAME property, including inside
+nested datafiles.
+
+
+
+@heading
+Updating datafiles
+
+Both the grabber and the dat utility have an update command, which scans 
+through the datafile checking if any objects have changed, and replacing 
+those which are out of date. This depends on the origin and date properties 
+which were set when the data was grabbed in the first place, so it won't 
+work if these properties have been stripped out of the file. This command 
+can be very useful if you build a datafile containing hundreds of objects 
+grabbed from external bitmaps, and later go back and change some of these 
+bitmaps. Rather than having to figure out which objects are out of date and 
+then manually re-grab all the affected data, the update command will 
+automatically refresh the modified objects.
+
+
+
+@heading
+Fonts
+
+Fonts can be read from GRX format .fnt files, 8x8 or 8x16 BIOS format .fnt 
+files, and from bitmap images, or you can import a multiple-range Unicode 
+font by writing a .txt script that specifies a number of different source 
+files for each range of characters. The script file contains a number of 
+lines in the format "filename start end", which specify the source file for 
+that range of characters, the Unicode value of the first character in the 
+range, and the end character in the range (optional, if left out, the entire 
+input file will be grabbed). If the filename is replaced by a hyphen, more 
+characters will be grabbed from the previous input file. For example, the 
+script:
+
+<textblock>
+   ascii.fnt 0x20 0x7F
+   - 0xA0 0xFF
+   dingbats.fnt 0x1000
+<endblock>
+
+would import the first 96 characters from ascii.fnt as the range 0x20-0x7F, 
+the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire 
+contents of dingbats.fnt starting at Unicode position 0x1000.
+
+When reading a font from a bitmap file, the size of each character is 
+determined by the layout of the image, which should be a rectangular grid 
+containing all the ASCII characters from space (32) up to the tilde (126), 
+unless you are using the script mechanism described above, in which case the 
+range(s) should match the one(s) specified in the .txt file. The spaces 
+between each letter should be filled with color 255. If each character is 
+sized exactly 8x8 or 8x16 the grabber will create a fixed size font, 
+otherwise it will make a proportional font. Probably the easiest way 
+to get to grips with how this works is to load up the demo.dat file and 
+export the TITLE_FONT into a PCX file. Have a look at the resulting picture 
+in your paint program: that is the format a font should be in...
+
+
+
+@heading
+Alpha channel
+
+Bitmap and RLE sprites can store an alpha channel along with the color 
+information, as long as they are in a 32 bit format. Alpha data can be read 
+directly from 32 bit TGA files, or you can use the alpha channel commands 
+(in the Object menu, or the right mouse button popup menu) to import a 
+greyscale alpha image over the top of an existing object. This menu also 
+contains options for viewing the alpha channel of the selected object, 
+exporting the alpha data to a greyscale image file, and deleting the alpha 
+data to leave only pure color information. You can also use the File menu to 
+import an alpha channel over the top of a bitmap that you have loaded with 
+the Read Bitmap command, after which the alpha information will be included 
+when you next perform a Grab or Grab From Grid operation.
+
+
+
+@heading
+Datafile passwords
+
+Datafiles can be encrypted with a password, by typing it into the 
+"Password:" field in the grabber, or using the '-007 password' option to the 
+dat utility. Passwords may be up to 256 characters in length, and are case 
+sensitive. Encrypted files _cannot_ be read without the password, so please 
+don't forget it and then come crying to me for help :-) To read an encrypted 
+file into your program, call the packfile_password() function before 
+load_datafile(). It is also a good idea to call packfile_password(NULL) 
+afterwards, to set everything back to normal.
+
+
+
