@@ -145,11 +145,16 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
       goto Error;
    if (finalize_directx_init() != 0)
       goto Error;
-   if (create_primary(w, h, color_depth) != 0)
+   if (create_primary() != 0)
       goto Error;
-   if (color_depth == 8)
+   if (color_depth == 8) {
       if (create_palette(dd_prim_surface) != 0)
 	 goto Error;
+   }
+   else {
+      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
+         goto Error;
+   }
    if (setup_driver(&gfx_directx_accel, w, h, color_depth) != 0)
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO);
@@ -184,11 +189,16 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
       goto Error;
    if (finalize_directx_init() != 0)
       goto Error;
-   if (create_primary(w, h, color_depth) != 0)
+   if (create_primary() != 0)
       goto Error;
-   if (color_depth == 8)
+   if (color_depth == 8) {
       if (create_palette(dd_prim_surface) != 0)
 	 goto Error;
+   }
+   else {
+      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
+         goto Error;
+   }
    if (setup_driver(&gfx_directx_soft, w, h, color_depth) != 0)
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
@@ -222,11 +232,16 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
       goto Error;
    if (finalize_directx_init() != 0)
       goto Error;
-   if (create_primary(w, h, color_depth) != 0)
+   if (create_primary() != 0)
       goto Error;
-   if (color_depth == 8)
+   if (color_depth == 8) {
       if (create_palette(dd_prim_surface) != 0)
 	 goto Error;
+   }
+   else {
+      if (gfx_directx_update_color_format(dd_prim_surface, color_depth) != 0)
+         goto Error;
+   }
    if (setup_driver(&gfx_directx_safe, w, h, color_depth) != 0)
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 

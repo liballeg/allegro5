@@ -18,11 +18,36 @@
 #include "wddraw.h"
 
 
+int desktop_depth;
+BOOL same_color_depth;
+
+
+static int pixel_realdepth[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
+
+static DDPIXELFORMAT pixel_format[] = {
+   /* 8-bit */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0}},
+   /* 16-bit RGB 5:5:5 */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x7C00}, {0x03e0}, {0x001F}, {0}},
+   /* 16-bit BGR 5:5:5 */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x03e0}, {0x7C00}, {0}},
+   /* 16-bit RGB 5:6:5 */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0xF800}, {0x07e0}, {0x001F}, {0}},
+   /* 16-bit BGR 5:6:5 */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x07e0}, {0xF800}, {0}},
+   /* 24-bit RGB */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
+   /* 24-bit BGR */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}},
+   /* 32-bit RGB */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
+   /* 32-bit BGR */
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}	} 
+};
+
 
 /* window thread callback parameters */
-int _wnd_width = 0;
-int _wnd_height = 0;
-int _wnd_depth = 0;
+static int _wnd_width, _wnd_height, _wnd_depth;
 
 
 
@@ -91,94 +116,125 @@ static int _get_color_bits(int mask)
 
 
 
-/* gfx_directx_update_color_format:
- *  set the _rgb variables for correct color format
- */
-int gfx_directx_update_color_format(int color_depth)
+/* gfx_directx_compare_color_depth:
+ *  compares the requested color depth with the desktop depth and find the best
+ *   pixel format for color conversion if they don't match
+ *  return value: 0 if the depths match, -1 if they don't
+ */ 
+int gfx_directx_compare_color_depth(int color_depth)
 {
    DDSURFACEDESC surf_desc;
    HRESULT hr;
-   int shift_r, shift_g, shift_b;
-   int true_depth;
+   int i;
 
-   if (color_depth > 8) {
-      /* Get current video mode */
-      surf_desc.dwSize = sizeof(surf_desc);
-      hr = IDirectDraw_GetDisplayMode(directdraw, &surf_desc);
-      if (FAILED(hr)) {
-	 _TRACE("Can't get color format.\n");
-	 return 0;
-      }
-
-      /* pass color format */
-      shift_r = _get_color_shift(surf_desc.ddpfPixelFormat.dwRBitMask);
-      shift_g = _get_color_shift(surf_desc.ddpfPixelFormat.dwGBitMask);
-      shift_b = _get_color_shift(surf_desc.ddpfPixelFormat.dwBBitMask);
-      true_depth = _get_color_bits(surf_desc.ddpfPixelFormat.dwRBitMask) +
-	  _get_color_bits(surf_desc.ddpfPixelFormat.dwGBitMask) +
-	  _get_color_bits(surf_desc.ddpfPixelFormat.dwBBitMask);
-
-      /* set correct shift values */
-      switch (color_depth) {
-	 case 15:
-	    _rgb_r_shift_15 = shift_r;
-	    _rgb_g_shift_15 = shift_g;
-	    _rgb_b_shift_15 = shift_b;
-	    break;
-
-	 case 16:
-	    _rgb_r_shift_16 = shift_r;
-	    _rgb_g_shift_16 = shift_g;
-	    _rgb_b_shift_16 = shift_b;
-	    break;
-
-	 case 24:
-	    _rgb_r_shift_24 = shift_r;
-	    _rgb_g_shift_24 = shift_g;
-	    _rgb_b_shift_24 = shift_b;
-	    break;
-
-	 case 32:
-	    _rgb_r_shift_32 = shift_r;
-	    _rgb_g_shift_32 = shift_g;
-	    _rgb_b_shift_32 = shift_b;
-	    break;
-      }
-
-      return true_depth;
+   /* get current video mode */
+   surf_desc.dwSize = sizeof(surf_desc);
+   hr = IDirectDraw_GetDisplayMode(directdraw, &surf_desc);
+   if (FAILED(hr)) {
+      _TRACE("Can't get color format.\n");
+      return -1;
    }
 
-   return 8;
+   /* get the *real* color depth of the desktop */
+   desktop_depth = surf_desc.ddpfPixelFormat.dwRGBBitCount;
+   if (desktop_depth == 16) /* sure? */
+      desktop_depth = _get_color_bits (surf_desc.ddpfPixelFormat.dwRBitMask) +
+                      _get_color_bits (surf_desc.ddpfPixelFormat.dwGBitMask) +
+                      _get_color_bits (surf_desc.ddpfPixelFormat.dwBBitMask);
+
+   if (color_depth == desktop_depth) {
+      dd_pixelformat = NULL;
+      same_color_depth = TRUE;
+      return 0;
+   }
+   else {
+      /* test for the same depth and RGB order */
+      for (i=0 ; pixel_realdepth[i] ; i++)
+         if ((pixel_realdepth[i] == color_depth) &&
+            ((surf_desc.ddpfPixelFormat.dwRBitMask & pixel_format[i].dwRBitMask) ||
+                (surf_desc.ddpfPixelFormat.dwBBitMask & pixel_format[i].dwBBitMask) ||
+                   (color_depth == 8))) {
+                      dd_pixelformat = &pixel_format[i];
+                      break;
+         }
+
+      same_color_depth = FALSE;
+      return -1;
+   }
+}
+
+
+
+/* gfx_directx_update_color_format:
+ *  set the _rgb variables for correct color format
+ */
+int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE surf, int color_depth)
+{
+   DDPIXELFORMAT pixel_format;
+   HRESULT hr;
+   int shift_r, shift_g, shift_b;
+
+   /* get pixel format */
+   pixel_format.dwSize = sizeof(DDPIXELFORMAT);
+   hr = IDirectDrawSurface_GetPixelFormat(surf, &pixel_format);
+   if (FAILED(hr)) {
+      _TRACE("Can't get color format.\n");
+      return -1;
+   }
+
+   /* pass color format */
+   shift_r = _get_color_shift(pixel_format.dwRBitMask);
+   shift_g = _get_color_shift(pixel_format.dwGBitMask);
+   shift_b = _get_color_shift(pixel_format.dwBBitMask);
+
+   /* set correct shift values */
+   switch (color_depth) {
+      case 15:
+         _rgb_r_shift_15 = shift_r;
+         _rgb_g_shift_15 = shift_g;
+         _rgb_b_shift_15 = shift_b;
+         break;
+
+      case 16:
+         _rgb_r_shift_16 = shift_r;
+         _rgb_g_shift_16 = shift_g;
+         _rgb_b_shift_16 = shift_b;
+         break;
+
+      case 24:
+         _rgb_r_shift_24 = shift_r;
+         _rgb_g_shift_24 = shift_g;
+         _rgb_b_shift_24 = shift_b;
+         break;
+
+      case 32:
+         _rgb_r_shift_32 = shift_r;
+         _rgb_g_shift_32 = shift_g;
+         _rgb_b_shift_32 = shift_b;
+         break;
+   }
+
+   return 0;
 }
 
 
 
 /* try_video_mode:
- *  sets the passed video mode and returns the real color depth. 
+ *  sets the passed video mode. 
  *  drv_depth means the color depth that is passed to the driver.
  *  all_depth is the allegro color depth.
  */
 static int try_video_mode(int w, int h, int drv_depth, int all_depth)
 {
-   int true_depth;
    _wnd_width = w;
    _wnd_height = h;
    _wnd_depth = drv_depth;
 
    _TRACE("Setting display mode(%u, %u, %u)\n", w, h, drv_depth);
    if (wnd_call_proc(wnd_set_video_mode) != 0)
-      return 0;
+      return -1;
 
-   if (all_depth != 8) {
-      /* for high and true color modes check color format */
-      true_depth = gfx_directx_update_color_format(all_depth);
-      if (true_depth == 0)
-	 return -1;
-
-      return true_depth;
-   }
-   else
-      return 8;
+   return gfx_directx_compare_color_depth(all_depth);
 }
 
 
@@ -187,35 +243,35 @@ static int try_video_mode(int w, int h, int drv_depth, int all_depth)
  */
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
-   int real_depth;
+   int ret;
 
    /* let the window thread do the hard work */
-   real_depth = try_video_mode(w, h, color_depth, color_depth);
+   ret = try_video_mode(w, h, color_depth, color_depth);
 
    /* check whether the requested mode was set by driver */
-   if (real_depth != color_depth) {
+   if (ret != 0) {
       if (color_depth == 15 || color_depth == 16) {
-	 _TRACE("Wrong color depth set by DirectDraw (passed: %u, set: %u)\n", color_depth, real_depth);
+	 _TRACE("Wrong color depth set by DirectDraw (passed: %u, set: %u)\n", color_depth, desktop_depth);
 
 	 /* Some graphic drivers set a 15 bit mode, although 16 bit was passed. If 
 	  * this is the case we have to try out the other high color mode.
 	  */
 	 if (color_depth == 15) {
 	    _TRACE("Trying to set 16 bit mode instead.\n");
-	    real_depth = try_video_mode(w, h, 16, color_depth);
+	    ret = try_video_mode(w, h, 16, color_depth);
 	 }
 	 else {
 	    _TRACE("Trying to set 15 bit mode instead.\n");
-	    real_depth = try_video_mode(w, h, 15, color_depth);
+	    ret = try_video_mode(w, h, 15, color_depth);
 	 }
 
-	 if (real_depth != color_depth) {
-	    _TRACE("Wrong color depth set by DirectDraw (passed: %u, set: %u)\n", color_depth, real_depth);
+	 if (ret != 0) {
+	    _TRACE("Wrong color depth set by DirectDraw (passed: %u, set: %u)\n", color_depth, desktop_depth);
 	    _TRACE("Unable to set correct color depth.\n");
 	    return -1;
 	 }
       }
-      else if (real_depth == 0) {
+      else {
 	 _TRACE("Unable to set correct color depth.\n");
 	 return -1;
       }

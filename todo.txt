@@ -15,7 +15,6 @@ General (Platform independant) todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- DirectDraw code cleanup
 - Update docs to mention cross-compilation support.
 - Update docs for Robin Burrows' sound drivers.
 

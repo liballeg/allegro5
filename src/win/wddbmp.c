@@ -43,7 +43,7 @@ HRESULT WINAPI EnumSurfacesCallback (LPDIRECTDRAWSURFACE lpDDSurface,
 
 /* gfx_directx_create_surface: 
  */ 
-LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
+LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pixel_format,
    int video, int primary, int overlay)
 {
    DDSURFACEDESC surf_desc;
@@ -71,9 +71,9 @@ LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
          surf_desc.dwHeight = h;
          surf_desc.dwWidth = w;
 
-         if (dd_pixelformat) {    /* use pixel format */
+         if (pixel_format) {    /* use pixel format */
             surf_desc.dwFlags |= DDSD_PIXELFORMAT;
-            surf_desc.ddpfPixelFormat = *dd_pixelformat;
+            surf_desc.ddpfPixelFormat = *pixel_format;
          }
       }
       else {
@@ -88,9 +88,9 @@ LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
       surf_desc.dwHeight = h;
       surf_desc.dwWidth = w;
 
-      if (dd_pixelformat) {    /* use pixel format */
+      if (pixel_format) {    /* use pixel format */
          surf_desc.dwFlags |= DDSD_PIXELFORMAT;
-         surf_desc.ddpfPixelFormat = *dd_pixelformat;
+         surf_desc.ddpfPixelFormat = *pixel_format;
       }
    }
 
@@ -302,7 +302,10 @@ struct BITMAP *gfx_directx_create_video_bitmap(int width, int height)
    }
 
    /* create DirectDraw surface */
-   surf = gfx_directx_create_surface(width, height, _color_depth, 1, 0, 0);
+   if (dd_pixelformat)
+      surf = gfx_directx_create_surface(width, height, dd_pixelformat, 0, 0, 0);
+   else
+      surf = gfx_directx_create_surface(width, height, NULL, 1, 0, 0);
 
    if (surf == NULL)
       return NULL;
@@ -448,7 +451,7 @@ struct BITMAP *gfx_directx_create_system_bitmap(int width, int height)
    LPDIRECTDRAWSURFACE surf;
 
    /* create DirectDraw surface */
-   surf = gfx_directx_create_surface(width, height, _color_depth, 0, 0, 0);
+   surf = gfx_directx_create_surface(width, height, dd_pixelformat, 0, 0, 0);
    if (surf == NULL)
       return NULL;
 
