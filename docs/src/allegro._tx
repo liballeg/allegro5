@@ -5976,16 +5976,29 @@ directories, but not hidden files and directories. Similarly, if you pass
 @!rtf
 
 @rtf
-   These work like the equivalent stdio functions, except that pack_fread() 
-   and pack_fwrite() take a single size parameter instead of that silly size 
-   and num_elements system, seeking only supports forward movement relative 
-   to the current position, and the pack_fgets() function does not include a 
-   trailing carriage return in the returned string. The pack_i* and pack_m* 
-   routines read and write 16 and 32 bit values using the Intel and Motorola 
-   byte ordering systems (endianness) respectively. Note that seeking is 
-   very slow when reading compressed files, and so should be avoided unless 
-   you are sure that the file is not compressed.
-
+   These work like the equivalent stdio functions. There are some
+   differences, however:
+<ul><li>
+   Seeking only supports forward movement relative to the current position.
+   Note that seeking is very slow when reading compressed files, and so
+   should be avoided unless you are sure that the file is not compressed.
+<li>
+   The pack_i* and pack_m* routines read and write 16 and 32 bit values using
+   the Intel and Motorola byte ordering systems (endianness) respectively.
+   Intel is least significant byte first (little-endian); Motorola is most
+   significant byte first (big-endian).
+<li>
+   pack_fread() and pack_fwrite() take a single size parameter instead of
+   that silly size and num_elements system.
+<li>
+   The pack_fgets() function does not include a trailing carriage return in
+   the returned string.
+<li>
+   pack_fputs() always writes in the UTF-8 text encoding format, converting
+   from the current text encoding. Newlines (\n) are written as \r\n on
+   DOS/Windows. If you do not want either of these things to happen,
+   use pack_fwrite() and/or pack_putc() instead.
+</ul>
 @@PACKFILE *@pack_fopen_chunk(PACKFILE *f, int pack);
 @xref pack_fclose_chunk, pack_fopen
    Opens a sub-chunk of a file. Chunks are primarily intended for use by the 
