@@ -247,6 +247,9 @@ Contributors
    options for x86 processor optimisations on Unix systems, added the support
    for relative filenames and did plenty of other things too.
 
+   EvilTypeGuy (<email>eviltypeguy@icculus.org</a>).<br>
+   Cleaned up and fixed the RPM spec file for RedHat 9.
+
    Fabian Nunez (<email>faybs@iafrica.com</a>).<br>
    Added support for the CH Flightstick Pro and Logitech Wingman Extreme
    joysticks, 3-button mice, and the extended keys on a Microsoft keyboard.
@@ -364,7 +367,7 @@ Contributors
    switching in Windows, fixed bad clearing of subbitmaps, made bug
    reports and suggestions for improvement, contributed bidirectional
    looping support, backward playing support and bugfixes for the
-   DirectSound driver, and did plenty of other things too.
+   DirectSound driver and did plenty of other things too.
 
    Jeremiah Blanchard (<email>squirminworm@yahoo.com</a>).<br>
    Contributed modifications in order for Allegro to build on Darwin/MacOS X
@@ -583,10 +586,13 @@ Contributors
    Olly Betts (<email>olly@muscat.co.uk</a>).<br>
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
 
+   Omar Cornut (<email>cornut@noos.fr</a>).<br>
+   Spotted an asm locking bug under Windows.
+
    Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
    Added the Catalan translation, corrected the Spanish translation, fixed a
-   bug with binary data exporting in the grabber, fixed a conflict between
-   the magic main and the MFC, and spotted an asm locking bug under Windows.
+   bug with binary data exporting in the grabber and fixed a conflict between
+   the magic main and the MFC.
 
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.
