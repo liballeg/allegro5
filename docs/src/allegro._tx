@@ -1957,7 +1957,15 @@ esd_server = x<br>
 <li>
 alsa_card = x<br>
 alsa_pcmdevice = x<br>
-   Unix only: card number and PCM device for the ALSA sound driver.
+   Unix only: card number and PCM device for the ALSA 0.5 sound driver.
+<li>
+alsa_device = x<br>
+   Unix only: device name for the ALSA 0.9 sound driver. The format is
+   <driver>[:<card>,<device>], for example: hw:0,1.
+<li>
+alsa_mixer_elem = x<br>
+   Unix only: mixer element name for the ALSA 0.9 driver. The default
+   is PCM.
 <li>
 alsa_numfrags = x<br>
    Unix only: number of ALSA driver fragments (buffers).
@@ -1966,8 +1974,11 @@ alsa_fragsize = x<br>
    Unix only: size of each ALSA fragment, in samples.
 <li>
 alsa_rawmidi_card = x<br>
+   Unix only: card number and device for the ALSA 0.5 midi driver.
+<li>
 alsa_rawmidi_device = x<br>
-   Unix only: card number and device for the ALSA midi driver.
+   Unix only: device for the ALSA 0.5 midi driver or device name for
+   the ALSA 0.9 midi driver (see alsa_device for the format).
 <li>
 be_midi_quality = x<br>
    BeOS only: system MIDI synthesizer instruments quality. 0 uses low

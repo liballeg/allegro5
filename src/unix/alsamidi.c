@@ -32,7 +32,14 @@
    #include <stdio.h>
    #include <string.h>
    #include <errno.h>
-   #include <sys/asoundlib.h>
+
+   #if ALLEGRO_ALSA_VERSION == 9
+      #define ALSA_PCM_NEW_HW_PARAMS_API 1
+      #include <alsa/asoundlib.h>
+   #else  /* ALLEGRO_ALSA_VERSION == 5 */
+      #include <sys/asoundlib.h>
+   #endif
+
 #endif
 
 
@@ -80,8 +87,12 @@ MIDI_DRIVER midi_alsa =
  */
 static int alsa_rawmidi_detect(int input)
 {
+#if ALLEGRO_ALSA_VERSION == 9
+   const char *device = NULL;
+#else  /* ALLEGRO_ALSA_VERSION == 5 */
    int card = -1;
    int device = -1;
+#endif
    int ret = FALSE, err;
    char tmp1[128], tmp2[128], temp[256];
    snd_rawmidi_t *handle = NULL;
@@ -90,6 +101,13 @@ static int alsa_rawmidi_detect(int input)
       ret = FALSE;
    }
    else {
+#if ALLEGRO_ALSA_VERSION == 9
+      device = get_config_string(uconvert_ascii("sound", tmp1),
+				 uconvert_ascii("alsa_rawmidi_device", tmp2),
+				 "default");
+
+      err = snd_rawmidi_open(NULL, &handle, device, 0);
+#else  /* ALLEGRO_ALSA_VERSION == 5 */
       card = get_config_int(uconvert_ascii("sound", tmp1),
 			    uconvert_ascii("alsa_rawmidi_card", tmp2),
 			    snd_defaults_rawmidi_card());
@@ -98,7 +116,9 @@ static int alsa_rawmidi_detect(int input)
 			      uconvert_ascii("alsa_rawmidi_device", tmp2),
 			      snd_defaults_rawmidi_device());
 
-      if ((err = snd_rawmidi_open(&handle, card, device, SND_RAWMIDI_OPEN_OUTPUT_APPEND)) < 0) {
+      err = snd_rawmidi_open(&handle, card, device, SND_RAWMIDI_OPEN_OUTPUT_APPEND);
+#endif
+      if (err) {
 	 snprintf(temp, sizeof(temp), "Could not open card/rawmidi device: %s", snd_strerror(err));
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
 	 ret = FALSE;
@@ -118,16 +138,28 @@ static int alsa_rawmidi_detect(int input)
  */
 static int alsa_rawmidi_init(int input, int voices)
 {
-   int card = -1;
-   int device = -1;
    int ret = -1, err;
    char tmp1[128], tmp2[128], temp[256];
+#if ALLEGRO_ALSA_VERSION == 9
+   snd_rawmidi_info_t *info;
+   const char *device = NULL;
+#else  /* ALLEGRO_ALSA_VERSION == 5 */
    snd_rawmidi_info_t info;
+   int card = -1;
+   int device = -1;
+#endif
 
    if (input) {
       ret = -1;
    }
    else {
+#if ALLEGRO_ALSA_VERSION == 9
+      device = get_config_string(uconvert_ascii("sound", tmp1),
+				 uconvert_ascii("alsa_rawmidi_device", tmp2),
+				 0);
+
+      err = snd_rawmidi_open(NULL, &rawmidi_handle, device, 0);
+#else  /* ALLEGRO_ALSA_VERSION == 5 */
       card = get_config_int(uconvert_ascii("sound", tmp1),
 			    uconvert_ascii("alsa_rawmidi_card", tmp2),
 			    snd_defaults_rawmidi_card());
@@ -136,7 +168,9 @@ static int alsa_rawmidi_init(int input, int voices)
 			     uconvert_ascii("alsa_rawmidi_device", tmp2),
 			     snd_defaults_rawmidi_device());
 
-      if ((err = snd_rawmidi_open(&rawmidi_handle, card, device, SND_RAWMIDI_OPEN_OUTPUT_APPEND)) < 0) {
+      err = snd_rawmidi_open(&rawmidi_handle, card, device, SND_RAWMIDI_OPEN_OUTPUT_APPEND);
+#endif
+      if (err) {
 	 snprintf(temp, sizeof(temp), "Could not open card/rawmidi device: %s", snd_strerror(err));
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
 	 ret = -1;
@@ -146,9 +180,16 @@ static int alsa_rawmidi_init(int input, int voices)
    }
 
    if (rawmidi_handle) {
+#if ALLEGRO_ALSA_VERSION == 9
+      snd_rawmidi_nonblock(rawmidi_handle, 0);
+      snd_rawmidi_info_malloc(&info);
+      snd_rawmidi_info(rawmidi_handle, info);
+      strcpy(alsa_rawmidi_desc, snd_rawmidi_info_get_name(info));
+#else  /* ALLEGRO_ALSA_VERSION == 5 */
       snd_rawmidi_block_mode(rawmidi_handle, 1);
       snd_rawmidi_info(rawmidi_handle, &info);
       strcpy(alsa_rawmidi_desc, info.name);
+#endif
       midi_alsa.desc = alsa_rawmidi_desc;
    }
 
@@ -163,7 +204,11 @@ static int alsa_rawmidi_init(int input, int voices)
 static void alsa_rawmidi_exit(int input)
 {
    if (rawmidi_handle) {
+#if ALLEGRO_ALSA_VERSION == 9
+      snd_rawmidi_drain(rawmidi_handle);
+#else  /* ALLEGRO_ALSA_VERSION == 5 */
       snd_rawmidi_output_drain(rawmidi_handle);
+#endif
       snd_rawmidi_close(rawmidi_handle);
    }
 
@@ -177,7 +222,14 @@ static void alsa_rawmidi_exit(int input)
  */
 static void alsa_rawmidi_output(int data)
 {
-   snd_rawmidi_write(rawmidi_handle, &data, sizeof(char));
+   int err;
+   char temp[256];
+
+   err = snd_rawmidi_write(rawmidi_handle, &data, sizeof(char));
+   if (err) {
+      snprintf(temp, sizeof(temp), "Could not write to rawmidi port: %s", snd_strerror(err));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text(temp));
+   }
 }
 
 

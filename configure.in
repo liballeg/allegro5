@@ -322,6 +322,11 @@ dnl Test for ALSA drivers.
 ALLEGRO_ACTEST_ALSADIGI
 if test "$allegro_cv_support_alsadigi" = yes; then
   AC_DEFINE(ALLEGRO_WITH_ALSADIGI,1,[Define if ALSA DIGI driver is supported.])
+  if test "$allegro_cv_alsa_version" = 9; then
+    AC_DEFINE(ALLEGRO_ALSA_VERSION,9,[Define to the installed ALSA version.])
+  else
+    AC_DEFINE(ALLEGRO_ALSA_VERSION,5,[Define to the installed ALSA version.])
+  fi
   _enabled_modules="alsadigi $_enabled_modules"
 else
   _disabled_modules="alsadigi $_disabled_modules"
@@ -330,6 +335,11 @@ fi
 ALLEGRO_ACTEST_ALSAMIDI
 if test "$allegro_cv_support_alsamidi" = yes; then
   AC_DEFINE(ALLEGRO_WITH_ALSAMIDI,1,[Define if ALSA MIDI driver is supported.])
+  if test "$allegro_cv_alsa_version" = 9; then
+    AC_DEFINE(ALLEGRO_ALSA_VERSION,9,[Define to the installed ALSA version.])
+  else
+    AC_DEFINE(ALLEGRO_ALSA_VERSION,5,[Define to the installed ALSA version.])
+  fi
   _enabled_modules="alsamidi $_enabled_modules"
 else
   _disabled_modules="alsamidi $_disabled_modules"

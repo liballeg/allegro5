@@ -349,11 +349,12 @@ dnl
 dnl Test for ALSA DIGI driver.
 dnl
 dnl Variables:
-dnl  allegro_enable_alsadigi=(yes|)
 dnl  allegro_cv_support_alsadigi=(yes|)
+dnl  allegro_cv_alsa_version=(5|9)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_ALSADIGI,
-[AC_ARG_ENABLE(alsadigi,
+[AC_BEFORE([$0], [ALLEGRO_ACTEST_ALSAMIDI])
+AC_ARG_ENABLE(alsadigi,
 [  --enable-alsadigi[=x]   enable building ALSA DIGI driver [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_alsadigi=yes,
 allegro_enable_alsadigi=yes)
@@ -363,9 +364,11 @@ if test -n "$allegro_enable_alsadigi"; then
   allegro_cv_support_alsadigi,
   AC_TRY_RUN([#include <sys/asoundlib.h>
     int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 5; }],
-  allegro_cv_support_alsadigi=yes,
-  allegro_cv_support_alsadigi=no,
-  allegro_cv_support_alsadigi=no))
+  [allegro_cv_support_alsadigi=yes allegro_cv_alsa_version=5],
+  AC_TRY_RUN([#include <sys/asoundlib.h>
+    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 9; }],
+  [allegro_cv_support_alsadigi=yes allegro_cv_alsa_version=9],
+  allegro_cv_support_alsadigi=no)))
   if test "X$allegro_cv_support_alsadigi" = "Xyes" && 
      test -z "$allegro_support_modules"; then
     LIBS="-lasound $LIBS"
@@ -376,8 +379,8 @@ dnl
 dnl Test for ALSA MIDI driver.
 dnl
 dnl Variables:
-dnl  allegro_enable_alsamidi=(yes|)
 dnl  allegro_support_alsamidi=(yes|)
+dnl  allegro_cv_alsa_version=(5|9)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_ALSAMIDI,
 [AC_ARG_ENABLE(alsamidi,
@@ -390,10 +393,13 @@ if test -n "$allegro_enable_alsamidi"; then
   allegro_cv_support_alsamidi,
   AC_TRY_RUN([#include <sys/asoundlib.h>
     int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 5; }],
-  allegro_cv_support_alsamidi=yes,
-  allegro_cv_support_alsamidi=no,
-  allegro_cv_support_alsamidi=no))
+  [allegro_cv_support_alsamidi=yes allegro_cv_alsa_version=5],
+  AC_TRY_RUN([#include <sys/asoundlib.h>
+    int main (void) { return SND_LIB_MAJOR != 0 || SND_LIB_MINOR != 9; }],
+  [allegro_cv_support_alsamidi=yes allegro_cv_alsa_version=9],
+  allegro_cv_support_alsamidi=no)))
   if test "X$allegro_cv_support_alsamidi" = "Xyes" &&
+     test "X$allegro_cv_support_alsadigi" != "Xyes" &&
      test -z "$allegro_support_modules"; then
     LIBS="-lasound $LIBS"
   fi
