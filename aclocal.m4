@@ -532,6 +532,43 @@ if test -n "$allegro_enable_sgialdigi"; then
 fi])
 
 dnl
+dnl Test for JACK driver.
+dnl
+dnl Variables:
+dnl  allegro_enable_sgialdigi=(yes|)
+dnl  allegro_cv_support_jackdigi=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_JACK,
+[AC_ARG_ENABLE(jackdigi,
+[  --enable-jackdigi[=x]    enable building JACK DIGI driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_jackdigi=yes,
+allegro_enable_jackdigi=yes)
+
+if test -n "$allegro_enable_jackdigi"; then
+  AC_PATH_PROG(PKG_CONFIG, pkg-config)
+  if test -n "$PKG_CONFIG"; then
+    ALLEGRO_OLD_LIBS="$LIBS"
+    ALLEGRO_OLD_CFLAGS="$CFLAGS"
+    LIBS="`$PKG_CONFIG --libs jack` $LIBS"
+    CFLAGS="`$PKG_CONFIG --cflags jack` $CFLAGS"
+    AC_MSG_CHECKING(for jack_client_new)
+    AC_TRY_LINK([#include <jack/jack.h>],
+      [jack_client_new(0);],
+      [allegro_cv_support_jackdigi=yes
+       if test -n "$allegro_support_modules"; then
+         LIBS="$ALLEGRO_OLD_LIBS"
+       fi],
+      [CFLAGS="$ALLEGRO_OLD_CFLAGS"
+       LIBS="$ALLEGRO_OLD_LIBS"])
+    if test -n "$allegro_cv_support_jackdigi"; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
+    fi
+  fi
+fi])
+
+dnl
 dnl Test that MAP_FAILED is defined in system headers.
 dnl
 dnl Variables:

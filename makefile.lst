@@ -273,6 +273,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/alsamidi.c \
 	src/unix/arts.c \
 	src/unix/sgial.c \
+	src/unix/jack.c \
 	src/unix/udjgpp.c \
 	src/unix/udrvlist.c \
 	src/unix/udummy.c \
@@ -383,6 +384,9 @@ ALLEGRO_MODULE_ARTS_FILES = \
 
 ALLEGRO_MODULE_SGIAL_FILES = \
 	src/unix/sgial.c
+
+ALLEGRO_MODULE_JACK_FILES = \
+	src/unix/jack.c
 
 ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/makedoc.c \

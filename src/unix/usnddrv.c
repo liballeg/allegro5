@@ -21,6 +21,9 @@
 
 
 BEGIN_DIGI_DRIVER_LIST
+#if (defined DIGI_JACK) && (!defined ALLEGRO_WITH_MODULES)
+   DIGI_DRIVER_JACK
+#endif
 #if (defined DIGI_SGIAL) && (!defined ALLEGRO_WITH_MODULES)
    DIGI_DRIVER_SGIAL
 #endif

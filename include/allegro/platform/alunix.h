@@ -157,6 +157,21 @@ AL_VAR(MIDI_DRIVER, midi_alsa);
 
 #endif /* ALLEGRO_WITH_ALSAMIDI */
 
+	  
+#ifdef ALLEGRO_WITH_JACKDIGI
+
+#define DIGI_JACK             AL_ID('J','A','C','K')
+
+#ifndef ALLEGRO_WITH_MODULES
+
+AL_VAR(DIGI_DRIVER, digi_jack);
+
+#define DIGI_DRIVER_JACK                                         \
+      {  DIGI_JACK,       &digi_jack,           TRUE  },
+
+#endif
+      
+#endif /* ALLEGRO_WITH_JACKDIGI */
 
 
 /************************************/
