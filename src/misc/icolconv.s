@@ -1457,7 +1457,6 @@ FUNC (_colorconv_blit_32_to_24)
          movb %al, %cl                                                          ; \
          movb (%ebp, %ecx), %cl    /* look it up */                             ; \
          movb %cl, -1(%edi)        /* write 1 pixel */                          ; \
-                                                                                ; \
          decl %edx                                                              ; \
          jnz next_block_##name                                                  ; \
                                                                                 ; \
@@ -1726,7 +1725,6 @@ FUNC (_colorconv_blit_8_to_8)
          shll $16, %eax
          orl %ebx, %eax            /* put everything together */
          movl %eax, -4(%edi)       /* write 4 pixels */
-
          decl %edx
          jnz next_block_8_to_8_no_mmx
 
@@ -2148,7 +2146,6 @@ FUNC (_colorconv_blit_15_to_8)
          orl %ecx, %eax            /* combine to get a 4.4.4 number */
          movb (%ebp, %eax), %bh    /* look it up */
          movw %bx, -2(%edi)        /* write 2 pixels */
-
          decl %edx
          jnz next_block_15_to_8_no_mmx
 
@@ -2576,7 +2573,6 @@ FUNC (_colorconv_blit_16_to_8)
          orl %ecx, %eax            /* combine to get a 4.4.4 number */
          movb (%ebp, %eax), %bh    /* look it up */
          movw %bx, -2(%edi)        /* write 2 pixels */
-
          decl %edx
          jnz next_block_16_to_8_no_mmx
 
