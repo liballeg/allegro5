@@ -181,7 +181,9 @@ if test -n "$allegro_enable_modules"; then
       LDFLAGS="$allegro_save_LDFLAGS"])
     if test $allegro_cv_support_export_dynamic = yes; then
       allegro_support_modules=yes
-      LIBS="-ldl $LIBS"
+      dnl Use libdl if found, else assume dl* functions in libc.
+      AC_CHECK_LIB(dl, dlopen,
+        [LIBS="-ldl $LIBS"])
       LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
     fi])
 fi
