@@ -1543,10 +1543,13 @@ with the standard variables that are used by Allegro (see below).
    in bytes. Example:
 <codeblock>
       /* Force German as system language, Spanish keyboard map. */
-      const char *override_data = "[system]
-	 language=DE
-	 keyboard=ES";
+      const char *override_data = "[system]\n"
+	 "language=DE\n"
+	 "keyboard=ES";
       override_config_data(override_data, ustrsize(override_data));<endblock>
+
+   Note that this function and the previous one are mutually exclusive, i.e.
+   calling one will cancel the effects of the other.
 
 @@void @push_config_state();
 @xref pop_config_state, set_config_file, save_joystick_data
