@@ -3943,7 +3943,7 @@ Notes on scene rendering:
    All polygons passed to scene_polygon3d() have to be
    persp_project()'ed.
 <li>
-    After scene_render() the mode is reset to SOLID.
+   After scene_render() the mode is reset to SOLID.
 </ul>
 Using a lot of *MASK* polygons drastically reduces performance, because
 when a MASKed polygon is the first in line of sight, the polygons
@@ -3969,81 +3969,80 @@ have to clear the z-buffer at the start of the frame. Example:
 @@int @scene_start(BITMAP *bmp, int nedge, int npoly);
 @xref scene_polygon3d, scene_render, create_zbuffer, clear_zbuffer
 @xref destroy_zbuffer, scene_gap
-  Initializes a scene.
+   Initializes a scene.
 
-  The bitmap bmp is the bitmap you will eventually render on.
-  nedge and npoly are your estimates of how many edges and how many
-  polygons you will render (you cannot get over the limit specified
-  here). If you use same values in succesive calls, the space will be
-  reused (no new malloc()). If you call with nedge=0 or npoly=0, the
-  allocated space is freed.
+   The bitmap bmp is the bitmap you will eventually render on. nedge and
+   npoly are your estimates of how many edges and how many polygons you will
+   render (you cannot get over the limit specified here). If you use same
+   values in succesive calls, the space will be reused (no new malloc()). If
+   you call with nedge=0 or npoly=0, the allocated space is freed.
 
-  The memory allocated is a little less than 150 * (nedge + npoly) bytes.
-  Returns zero on success, or a negative number if allocations fail.
+   The memory allocated is a little less than 150 * (nedge + npoly) bytes.
+   Returns zero on success, or a negative number if allocations fail.
 
 @@int @scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@int @scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[]);
 @xref scene_start, scene_render, polygon3d
-  Puts a polygon in the rendering list. Nothing is really rendered at
-  this moment. Should be called between scene_start() and scene_render().
+   Puts a polygon in the rendering list. Nothing is really rendered at this
+   moment. Should be called between scene_start() and scene_render().
 
-  Arguments are the same as for polygon3d(), except the bitmap is missing.
-  The one passed to scene_start() will be used.
+   Arguments are the same as for polygon3d(), except the bitmap is missing.
+   The one passed to scene_start() will be used.
 
-  Unlike polygon3d(), the polygon may be concave or self-intersecting.
-  Shapes that penetrate one another may look OK, but they are not
-  really handled by this code.
+   Unlike polygon3d(), the polygon may be concave or self-intersecting.
+   Shapes that penetrate one another may look OK, but they are not really
+   handled by this code.
 
-  Note that the texture is stored as a pointer only, and you should
-  keep the actual bitmap until scene_render(), where it is used.
+   Note that the texture is stored as a pointer only, and you should keep
+   the actual bitmap until scene_render(), where it is used.
 
-  Since the FLAT style is implemented with the low-level hline() funtion,
-  the FLAT style is subject to DRAW_MODEs. All these modes are valid.
-  Along with the polygon, this mode will be stored for the rendering moment,
-  and also all the other related variables (color_map pointer, pattern
-  pointer, anchor, blender values).
+   Since the FLAT style is implemented with the low-level hline() funtion,
+   the FLAT style is subject to DRAW_MODEs. All these modes are valid. Along
+   with the polygon, this mode will be stored for the rendering moment, and
+   also all the other related variables (color_map pointer, pattern pointer,
+   anchor, blender values).
 
-  The settings of cpu_mmx and cpu_3dnow global variables on entry in this
-  routine affect the choice of low-level asm routine that will be used by
-  scene_render() for this polygon.
+   The settings of cpu_mmx and cpu_3dnow global variables on entry in this
+   routine affect the choice of low-level asm routine that will be used by
+   scene_render() for this polygon.
 
-  Returns zero on success, a negative number if there is no space in the
-  edge or polygon tables, or a positive number if it won't be rendered for
-  lack of a rendering routine.
+   Returns zero on success, a negative number if there is no space in the
+   edge or polygon tables, or a positive number if it won't be rendered for
+   lack of a rendering routine.
 
 @@void @scene_render();
 @xref scene_start, scene_polygon3d, scene_gap
-  Renders all the specified scene_polygon3d()'s on the bitmap passed
-  to scene_start(). Rendering is done one scanline at a time, with
-  no pixel being processed more than once.
+   Renders all the specified scene_polygon3d()'s on the bitmap passed to
+   scene_start(). Rendering is done one scanline at a time, with no pixel
+   being processed more than once.
 
-  Note that between scene_start() and scene_render() you shouldn't
-  change the clip rectangle of the destination bitmap. For speed
-  reasons, you should set the clip rectangle to the minimum.
+   Note that between scene_start() and scene_render() you shouldn't change
+   the clip rectangle of the destination bitmap. For speed reasons, you
+   should set the clip rectangle to the minimum.
 
-  Note also that all the textures passed to scene_polygon3d() are
-  stored as pointers only and actually used in scene_render().
+   Note also that all the textures passed to scene_polygon3d() are stored as
+   pointers only and actually used in scene_render().
 
 @@extern float @scene_gap;
 @xref scene_start, scene_polygon3d, scene_render
-  This number (default value = 100.0) controls the behaviour of the
-  z-sorting algorithm. When an edge is very close to another's polygon
-  plane, there is an interval of uncertainty in which you cannot tell
-  which object is visible (which z is smaller). This is due to
-  cumulative numerical errors for edges that have undergone a lot of
-  transformations and interpolations.
+   This number (default value = 100.0) controls the behaviour of the
+   z-sorting algorithm. When an edge is very close to another's polygon
+   plane, there is an interval of uncertainty in which you cannot tell which
+   object is visible (which z is smaller). This is due to cumulative
+   numerical errors for edges that have undergone a lot of transformations
+   and interpolations.
 
-  The default value means that if the 1/z values (in projected space)
-  differ by only 1/100 (one percent), they are considered to be equal
-  and the x-slopes of the planes are used to find out which plane is
-  getting closer when we move to the right.
+   The default value means that if the 1/z values (in projected space)
+   differ by only 1/100 (one percent), they are considered to be equal and
+   the x-slopes of the planes are used to find out which plane is getting
+   closer when we move to the right.
 
-  Larger values means narrower margins, and increasing the chance of
-  missing true adjacent edges/planes. Smaller values means larger
-  margins, and increasing the chance of mistaking close polygons for
-  adjacent ones. The value of 100 is close to the optimum. However,
-  the optimum shifts slightly with resolution, and may be
-  application-dependent. It's here for you to fine-tune.
+   Larger values means narrower margins, and increasing the chance of
+   missing true adjacent edges/planes. Smaller values means larger margins,
+   and increasing the chance of mistaking close polygons for adjacent ones.
+   The value of 100 is close to the optimum. However, the optimum shifts
+   slightly with resolution, and may be application-dependent. It's here for
+   you to fine-tune.
 
 
 
