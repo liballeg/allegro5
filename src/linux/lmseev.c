@@ -344,7 +344,9 @@ static void process_key(AL_CONST struct input_event *event)
             get_axis_value(intdrv.device, &x_axis, ABS_X);
             get_axis_value(intdrv.device, &y_axis, ABS_Y);
             get_axis_value(intdrv.device, &z_axis, ABS_Z);
+#ifdef ABS_WHEEL  /* absent in 2.2.x */
             get_axis_value(intdrv.device, &z_axis, ABS_WHEEL);
+#endif
          }
          else {
             current_tool = no_tool;
@@ -371,7 +373,9 @@ static void process_rel(AL_CONST struct input_event *event)
             y_axis.out_abs = rel_event(&y_axis, event->value);
             break;
 
+#ifdef REL_WHEEL  /* absent in 2.2.x */
          case REL_WHEEL:
+#endif
          case REL_Z:
             z_axis.out_abs = rel_event(&z_axis, event->value);
             break;
@@ -397,7 +401,9 @@ static void process_abs(AL_CONST struct input_event *event)
             y_axis.out_abs = abs_event(&y_axis, current_tool->mode, event->value);
             break;
 
+#ifdef ABS_WHEEL  /* absent in 2.2.x */
          case ABS_WHEEL:
+#endif
          case ABS_Z:
             z_axis.out_abs = abs_event(&z_axis, current_tool->mode, event->value);
             break;
@@ -482,16 +488,20 @@ static int analyse_data (AL_CONST char *buffer, int size)
            return 0;
          break;
 
+#ifdef EV_MSC  /* absent in 2.2.x */
        case EV_MSC:
          if (event->code>=MSC_MAX)
            return 0;
          break;
+#endif
 
        /* Mouse doesn't handle events of these types */
        case EV_LED:
        case EV_SND:
        case EV_REP:
+#ifdef EV_FF  /* absent in 2.2.x */
        case EV_FF:
+#endif
          return 0;
      }
    }
