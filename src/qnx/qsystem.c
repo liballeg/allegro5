@@ -433,8 +433,7 @@ static int qnx_sys_init(void)
       pthread_setschedparam(qnx_events_thread, spolicy, &sparam);
    }
 
-   os_type = OSTYPE_QNX;
-   os_multitasking = TRUE;
+   _read_os_type();
 
    set_display_switch_mode(SWITCH_BACKGROUND);
 

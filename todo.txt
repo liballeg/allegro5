@@ -87,7 +87,7 @@ BeOS todos:
 QNX todos:
 ---------------------------------------------------------------------------
 
-- implement os_version & os_revision.
+- Investigate synchronization problems
 - Video bitmaps and acceleration support in fullscreen mode
 - Display switching in fullscreen mode
 - Use standard Unix build system (autoconf, etc.) if possible

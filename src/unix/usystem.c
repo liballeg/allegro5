@@ -143,7 +143,7 @@ void _read_os_type()
 
       struct utsname utsn;
       char *tmpstr, *tmpstr2;
-      int pos;
+      size_t pos;
       
       uname(&utsn);
 
@@ -155,7 +155,8 @@ void _read_os_type()
       for (pos = 0; pos <= strlen(utsn.release); pos++) {
          if (tmpstr[pos] == '.') {
 	    tmpstr[pos] = '\0';
-	    if (!tmpstr2) tmpstr2 = &tmpstr[pos] + 1;
+	    if (!tmpstr2)
+	       tmpstr2 = tmpstr + pos + 1;
 	 }
       }
 
@@ -170,6 +171,9 @@ void _read_os_type()
       }
       else if (!strcmp(utsn.sysname, "FreeBSD")) {
 	 os_type = OSTYPE_FREEBSD;
+      }
+      else if (!strcmp(utsn.sysname, "QNX")) {
+	 os_type = OSTYPE_QNX;
       }
       else {
 	 os_type = OSTYPE_UNIX;     /* that's all we can say for now */
