@@ -220,7 +220,7 @@ else
   allegro_shared_libraries=yes
 fi
 if test -n "$allegro_support_modules"; then
-  LDFLAGS="-rdynamic $LDFLAGS"
+  LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
 fi
 AC_SUBST(LIBALLEG)
 AC_SUBST(LINK_LIBALLEG)

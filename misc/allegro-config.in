@@ -18,7 +18,8 @@ exec_prefix_set=no
 static_libs=@LINK_WITH_STATIC_LIBS@
 lib_type=@LIB_TO_LINK@
 
-allegro_libs=`echo "@LDFLAGS@ @LIBS@" | sed -e "s/ -s //"`
+allegro_ldflags=`echo "@LDFLAGS@" | sed -e "s/ -s //"`
+allegro_libs="@LIBS@"
 allegro_cflags=""
 
 usage()
@@ -139,9 +140,9 @@ fi
 if test "$echo_libs" = "yes"; then
    libdirs=-L${exec_prefix}/lib
    if test "$static_libs" = "yes"; then
-      echo $libdirs -l${lib_type} $allegro_libs
+      echo $libdirs $allegro_ldflags -l${lib_type} $allegro_libs
    else
-      echo $libdirs -l${lib_type}-${version} -l${lib_type}_unsharable #$allegro_libs
+      echo $libdirs $allegro_ldflags -l${lib_type}-${version} -l${lib_type}_unsharable
    fi
 fi
 
