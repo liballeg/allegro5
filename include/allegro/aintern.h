@@ -1075,7 +1075,7 @@ AL_FUNC(void, _construct_datafile, (DATAFILE *data));
 
 
 /* for readbmp.c */
-AL_FUNC(void, register_bitmap_file_type_init, (void));
+AL_FUNC(void, _register_bitmap_file_type_init, (void));
 
 
 /* for module linking system; see comment in allegro.c */

@@ -273,6 +273,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
       _initialize_datafile_types();
       _midi_constructor();
       _mouse_constructor();
+      _register_bitmap_file_type_init();
    #endif
 
    if (errno_ptr)
@@ -352,9 +353,6 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
       else
 	 atexit(allegro_exit);
    }
-
-   /* register the standard bitmap file types */
-   register_bitmap_file_type_init();
 
    _allegro_count++;
 
