@@ -202,7 +202,8 @@ Contributors
    Contributed several enhancements to the grabber. Fixed a bug in
    midi_seek(). Added support to use the saved window position for initial
    window placing under Windows. Optimized the load_bitmap() function family
-   when no palette is specified and documented the feature.
+   when no palette is specified and documented the feature. Revamped the
+   cross-compilation section of docs/build/mingw32.txt.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -280,6 +281,9 @@ Contributors
 
    Haruhiko Okumura, 12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, JP.<br>
    Wrote the original version of the LZSS compression code.
+
+   Hein Zelle (<email>hein at icce dot rug dot nl</a>).<br>
+   Revamped the cross-compilation section of docs/build/mingw32.txt.
 
    Henrik Schmidt (<email>hbs at ks dot informatik dot uni-kiel dot de</a>).<br>
    Found a workaround for the switching problem under Windows, made gcc pass
@@ -405,6 +409,9 @@ Contributors
    Lucas Vignoli Reis (<email>lucasvr@bestway.com.br</a>).<br>
    Added the Portuguese (Brazil) message translation and keyboard mapping.
 
+   Magnus Henoch (<email>mange at freemail dot hu</a>).<br>
+   Made the gfx mode selector keep the current selection as much as possible.
+   
    Maiolino Carmelo (<email>cmaiolino@ctonline.it</a>).<br>
    Added the Italian keyboard mapping table.
 
@@ -418,9 +425,10 @@ Contributors
    of the joystick code that didn't come from Jonathan, and to locate a 
    stupid mistake in my VESA linear framebuffer code.
 
-   Marcel Smit.<br>
+   Marcel Smit (<email>marcel dot athlon at hccnet dot nl</a>).<br>
    Corrected a bug that caused errors when drawing persp. correct polys
-   facing the screen.
+   facing the screen. Made the show_video_bitmap() method of the Windows
+   windowed driver wait for a vsync.
 
    Marco Campinoti (<email>marco@etruscan.li.it</a>).<br>
    Added 15 and 24 bit support to the native Tseng ET4000 driver (now 
@@ -587,6 +595,13 @@ Contributors
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
+
+   Philipp Thomas (<email>pthomas at suse dot de</a>).<br>
+   Fixed all comparisons between signed and unsigned types, thus allowing to
+   build with -W -Wno-unused on Unix systems, fixed the compilation on
+   x86-64, fixed all function prototypes, thus allowing to build with
+   -Wstrict-prototypes on Unix systems, and added the German translation to
+   the RPM spec file.
 
    Przemek Podsiadly (<email>ppodsiad@elka.pw.edu.pl</a>).<br>
    Added hicolor versions of the 3d polygon code.

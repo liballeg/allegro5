@@ -10,9 +10,73 @@
 
 
 @heading
-Changes from 4.0.2 to 4.0.3 (Jan 2003)
+Changes from 4.0.2 to 4.0.3 (Feb 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
+<li>
+   Hein Zelle and Elias Pschernig revamped the cross-compilation section of
+   docs/build/mingw32.txt.
+<li>
+   Marcel Smit and Eric Botcazou made the show_video_bitmap() method of the
+   Windows windowed driver wait for a vsync.
+<li>
+   Eric Botcazou made the test program really time the fixed math functions.
+<li>
+   Eric Botcazou clarified the limitations of Allegro's interrupts regarding
+   the FPU state under DOS.
+<li>
+   Peter Wang fixed a bug in stretch_blit() where the first column or row can
+   get an extra pixel, reported by David Gowers and AJ.
+<li>
+   Eric Botcazou made the linux mouse detection code really empty the buffer
+   before proceeding in the setup program.
+<li>
+   Eric Botcazou made the Watcom port compile in warnmode with Open Watcom.
+<li>
+   Magnus Henoch made the gfx mode selector keep the current selection as
+   much as possible.
+<li>
+   Henrik Stokseth merged the standard and extended gfx mode selectors.
+<li>
+   Eric Botcazou added -Wstrict-prototypes to the build warnmode under DOS,
+   Windows and BeOS.
+<li>
+   Philipp Thomas added the German translation to the RPM spec file.
+<li>
+   Philipp Thomas fixed all function prototypes, thus allowing to build with
+   -Wstrict-prototypes on Unix systems.
+<li>
+   Philipp Thomas fixed the compilation on x86-64.
+<li>
+   Philipp Thomas fixed all comparisons between signed and unsigned types,
+   thus allowing to build with -W -Wno-unused on Unix systems.
+<li>
+   Eric Botcazou reworked the truecolor subsection of the 'Transparency and
+   patterned drawing' section.
+<li>
+   Eric Botcazou clarified the return value on failure of file_time(),
+   following AJ's suggestion.
+<li>
+   Eric Botcazou fixed the build in strictwarn mode on Unix systems.
+<li>
+   Peter Wang added an aRts driver to the Unix port.
+<li>
+   Eric Botcazou fixed a mouse bug when the screen is scrolled with the X11
+   fullscreen driver.
+<li>
+   Eric Botcazou fixed a bug with resolution and color depth not being taken
+   into account by gfx_mode_select_ex().
+<li>
+   Eric Botcazou defined ALLEGRO_LIB_BUILD for debug and profile releases as
+   well on Unix systems.
+<li>
+   Eric Botcazou forced the exstream example to abort if no real sound driver
+   is found.
+<li>
+   Eric Botcazou clarified the limitations of the stretching functions.
+<li>
+   Eric Botcazou re-enabled the autodetection of joysticks in the setup
+   program.
 <li>
    Annie Testes fixed some device name strings in the setup program.
 <li>
