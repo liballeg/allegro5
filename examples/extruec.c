@@ -2,7 +2,10 @@
  *    Example program for the Allegro library, by Shawn Hargreaves.
  *
  *    This program shows how to specify colors in the various different
- *    truecolor pixel formats.
+ *    truecolor pixel formats. The example shows the same screen (a few
+ *    text lines and three coloured gradients) in all the color depth
+ *    modes supported by your video card. The more color depth you have,
+ *    the less banding you will see in the gradients.
  */
 
 
@@ -32,7 +35,8 @@ void test(int colordepth)
 
    clear_to_color(screen, makecol(0, 0, 0));
 
-   textprintf_ex(screen, font, 0, 0, makecol(255, 255, 255), -1, "%d bit color...", colordepth);
+   textprintf_ex(screen, font, 0, 0, makecol(255, 255, 255), -1,
+		 "%d bit color...", colordepth);
 
    /* use the makecol() function to specify RGB values... */
    textout_ex(screen, font, "Red",     32, 80,  makecol(255, 0,   0  ), -1);
@@ -50,7 +54,8 @@ void test(int colordepth)
       vline(screen, 192+x, 304, 368, makecol(0, 0, x));
    }
 
-   textout_centre_ex(screen, font, "<press a key>", SCREEN_W/2, SCREEN_H-16, makecol(255, 255, 255), -1);
+   textout_centre_ex(screen, font, "<press a key>", SCREEN_W/2, SCREEN_H-16,
+		     makecol(255, 255, 255), -1);
 
    release_screen();
 

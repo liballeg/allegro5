@@ -1,26 +1,31 @@
 /*
  *    Example program for the Allegro library, by Grzegorz Ludorowski.
  *
- *    This example demonstrates how to use datafiles, various sprite drawing
- *    routines and flicker-free animation.
+ *    This example demonstrates how to use datafiles, various sprite
+ *    drawing routines and flicker-free animation.
  *
- *    A short explanation for beginners.
- *    Why did I do animate () routine in that way?
- *    As you probably know, VIDEO RAM is much slower than "normal" RAM, so
- *    it's advisable to reduce VRAM blits to a minimum.
- *    So, drawing sprite on the screen (I mean in VRAM) and then clearing
- *    a background for him is not very fast. I've used a different method
- *    which is much faster, but require a bit more memory.
- *    I clear a buffer (it's a normal BITMAP), then I draw sprite to it, and
- *    after all I blit only one time this buffer to the screen. So, I'm using
- *    a single VRAM blit instead of blitting/clearing background and drawing
- *    a sprite on it. It's a good method even when I have to restore.
- *    background And of course, it completely remove flickering effect.
- *    When one uses a big (ie. 800x600 background) and draws something on
- *    it, it's wise to use a copy of background somewhere in memory and
- *    restore background using this "virtual background". When blitting from
- *    VRAM in SVGA modes, it's probably, that drawing routines have to switch
- *    banks on video card. I think, I don't have to remind how slow is it.
+ *    Why is the animate() routine coded in that way?  As you
+ *    probably know, VIDEO RAM is much slower than "normal"
+ *    RAM, so it's advisable to reduce VRAM blits to a minimum.
+ *    Drawing sprite on the screen (meaning in VRAM) and then
+ *    clearing a background for it is not very fast. This example
+ *    uses a different method which is much faster, but require a
+ *    bit more memory.
+ *
+ *    First the buffer is cleared (it's a normal BITMAP), then the
+ *    sprite is drawn on it, and when the drawing is finished this
+ *    buffer is copied directly to the screen. So the end result is
+ *    that there is a single VRAM blit instead of blitting/clearing
+ *    the background and drawing a sprite on it.  It's a good method
+ *    even when you have to restore the background. And of course,
+ *    it completely removes any flickering effect.
+ *
+ *    When one uses a big (ie. 800x600 background) and draws
+ *    something on it, it's wise to use a copy of background
+ *    somewhere in memory and restore background using this
+ *    "virtual background". When blitting from VRAM in SVGA modes,
+ *    it's probably, that drawing routines have to switch banks on
+ *    video card. I think, I don't have to remind how slow is it.
  */
 
 
@@ -83,7 +88,8 @@ int main(int argc, char *argv[])
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
@@ -92,7 +98,8 @@ int main(int argc, char *argv[])
    set_color_conversion(COLORCONV_NONE);
 
    /* loads datafile and sets user palette saved in datafile */
-   replace_filename(datafile_name, argv[0], "running.dat", sizeof(datafile_name));
+   replace_filename(datafile_name, argv[0], "running.dat",
+		    sizeof(datafile_name));
    running_data = load_datafile(datafile_name);
    if (!running_data) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
@@ -114,8 +121,10 @@ int main(int argc, char *argv[])
    running = create_bitmap(82, 82);
 
    /* write current sprite drawing method */
-   textout_ex(screen, font, "Press a key for next part...", 40, 10, palette_color[1], -1);
-   textout_ex(screen, font, "Using draw_sprite", 1, 190, palette_color[15], -1);
+   textout_ex(screen, font, "Press a key for next part...",
+	      40, 10, palette_color[1], -1);
+   textout_ex(screen, font, "Using draw_sprite",
+	      1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -125,7 +134,8 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Using draw_sprite_h_flip", 1, 190, palette_color[15], -1);
+   textout_ex(screen, font, "Using draw_sprite_h_flip",
+	      1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -135,7 +145,8 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Using draw_sprite_v_flip", 1, 190, palette_color[15], -1);
+   textout_ex(screen, font, "Using draw_sprite_v_flip",
+	      1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -145,7 +156,8 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Using draw_sprite_vh_flip", 1, 190, palette_color[15], -1);
+   textout_ex(screen, font, "Using draw_sprite_vh_flip",
+	      1, 190, palette_color[15], -1);
 
    do {
       blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
@@ -155,7 +167,8 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Now with rotating - rotate_sprite", 1, 190, palette_color[15], -1);
+   textout_ex(screen, font, "Now with rotating - rotate_sprite",
+	      1, 190, palette_color[15], -1);
 
    do {
       /* The last argument to rotate_sprite() is a fixed point type,
@@ -169,7 +182,8 @@ int main(int argc, char *argv[])
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Now using rotate_sprite_v_flip", 1, 190, palette_color[15], -1);
+   textout_ex(screen, font, "Now using rotate_sprite_v_flip", 1, 190,
+	      palette_color[15], -1);
 
    do {
       /* The last argument to rotate_sprite_v_flip() is a fixed point type,

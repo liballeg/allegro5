@@ -1,8 +1,18 @@
 /*
  *    Example program for the Allegro library, by Owen Embury.
  *
- *    This program demonstrates how to use the lighting and translucency 
- *    functions.
+ *    This program demonstrates how to use the lighting and
+ *    translucency functions. The first part of the example will
+ *    show a dark screen iluminated by a spotlight you can move
+ *    with your mouse. After a keypress the example shows the full
+ *    bitmap and the spotlight changes to be a reduced version of
+ *    the background with 50% of translucency.
+ *
+ *    The translucency effect is easy to do in all color depths.
+ *    However, the lighting effect has to be performed in a different
+ *    way depending on whether the screen is in 8bit mode or another
+ *    color depth. This is because additive drawing mode uses a
+ *    different set of routines for truecolor modes.
  */
 
 
@@ -43,7 +53,8 @@ int main(int argc, char *argv[])
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }
