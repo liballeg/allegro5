@@ -33,7 +33,7 @@ fi
 
 
 # convert Allegro to MSVC format
-./fix.sh msvc
+./fix.sh msvc --utod
 
 
 # delete all generated files
