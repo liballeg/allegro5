@@ -165,14 +165,41 @@
 
    Allegro ships with a little tool, named fixbundle, which allows to build
    an application bundle out of an executable.
+   The utility works from the command line and it accepts a variety of
+   options to customize your bundle; the easiest way to use it is:
 
-[ToDo: add fixbundle description]
+      fixbundle executable_name
+
+   This will create an application bundle named "executable_name.app" that
+   contains your program executable and will appear in the finder with the
+   default application icon. A more complex usage example follows:
+
+      fixbundle executable_name -m -o bundle_name -v "1.2" icon.bmp
+
+   This creates a bundle named "bundle_name.app". The executable will be
+   moved instead of copied into the bundle; the application will be marked
+   as version "1.2" and icon.bmp will be converted to an icon for the
+   bundle. You can specify more options and up to 4 differently sized
+   icons (16x16, 32x32, 48x48 and 128x128) to be read from any Allegro
+   supported image files or from datafile objects. Run fixbundle without
+   arguments for a list of known options.
+   Bundles created by fixbundle have this default layout:
+
+      bundle.app --- Contents --+--- MacOS --- executable
+                                |
+                                +--- Resources --+--- (bundle.icns)
+                                |                |
+                                |                +--- (executable/...)
+                                |
+                                +--- Info.plist
+                                |
+                                +--- PkgInfo
 
    If you are using Project Builder to compile your programs, there is no
    need to use fixbundle, as the IDE will do the work of generating an
    application bundle for you.
 
-   When an Allegro application starts, it automatically detects if the
+   When an Allegro program starts, it automatically detects if the
    executable lives inside a bundle or not. The working directory is
    always set up to be the directory where the standalone executable
    or application bundle is located, but there is an exception: if the
@@ -218,12 +245,12 @@
 
    * Mouse:
         Allegro will automatically detect the number of buttons of your
-        mouse at driver initialization. If less than 3 buttons are found,
-        the library will activate an emulation mode that mimics the way
-        MacOS X itself deals with 1-button mice: depending on which key
-        is pressed when the button is clicked, Allegro will report a
-        different mouse button click. (Control + button) emulates a
-        right click and (Option + button) emulates a middle click.
+        mouse at driver initialization. If the 1-button Apple mouse is
+        found, the library will activate an emulation mode that mimics the
+        way MacOS X itself deals with 1-button mice: depending on which
+        key is pressed when the button is clicked, Allegro will report a
+        different mouse button click. (Control + button) emulates a right
+        click and (Option + button) emulates a middle click.
 
 
 
