@@ -52,10 +52,10 @@ void redraw(DIALOG *d)
 {
    show_mouse(NULL);
 
-   SEND_MESSAGE(calculator+CALC_STR, MSG_DRAW, 0);
+   object_message(calculator+CALC_STR, MSG_DRAW, 0);
 
    if (d)
-      SEND_MESSAGE(d, MSG_DRAW, 0);
+      object_message(d, MSG_DRAW, 0);
 
    show_mouse(screen);
 }

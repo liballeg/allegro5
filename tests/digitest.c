@@ -72,7 +72,7 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	 oldval = newval;                                   \
 	 show_mouse(NULL);                                  \
 	 set_clip(screen, min, d->y+1, max, d->y+d->h-2);   \
-	 SEND_MESSAGE(d, MSG_DRAW, 1);                      \
+	 object_message(d, MSG_DRAW, 1);                    \
 	 set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);    \
 	 show_mouse(screen);                                \
       }                                                     \
@@ -340,7 +340,7 @@ int playmode_proc(int msg, DIALOG *d, int c)
 
    if (ret & D_CLOSE) {
       ret &= ~D_CLOSE;
-      SEND_MESSAGE(thedialog+WAVEFORM, MSG_KEY, 0);
+      object_message(thedialog+WAVEFORM, MSG_KEY, 0);
    }
 
    return ret;
@@ -356,7 +356,7 @@ int load_proc(int msg, DIALOG *d, int c)
       ret &= ~D_CLOSE;
 
       if (file_select_ex("Load sample (voc;wav)", samplename, "VOC;WAV", sizeof(samplename), 0, 0)) {
-	 SEND_MESSAGE(thedialog+WAVEFORM, MSG_START, 0);
+	 object_message(thedialog+WAVEFORM, MSG_START, 0);
       }
 
       ret |= D_REDRAW;

@@ -275,7 +275,7 @@ int main()
       return 1;
    }
 
-   set_pallete(desktop_pallete);
+   set_palette(desktop_palette);
 
    /* setup the viewport for rendering into the back-buffers */
    set_projection_viewport(0, 0, 320, 240);

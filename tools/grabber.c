@@ -886,7 +886,7 @@ static int view_proc(int msg, DIALOG *d, int c)
    if (msg == MSG_IDLE) {
       if (current_view_object != SELECTED_ITEM) {
 	 show_mouse(NULL);
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 show_mouse(screen);
       }
    }
@@ -1019,10 +1019,10 @@ static int list_proc(int msg, DIALOG *d, int c)
 
    if ((msg == MSG_DRAW) && (!keypressed())) {
       if (current_view_object != d->d1)
-	 SEND_MESSAGE(main_dlg+DLG_VIEW, MSG_DRAW, 0);
+	 object_message(main_dlg+DLG_VIEW, MSG_DRAW, 0);
 
       if (current_property_object != d->d1)
-	 SEND_MESSAGE(main_dlg+DLG_PROP, MSG_DRAW, 0);
+	 object_message(main_dlg+DLG_PROP, MSG_DRAW, 0);
    }
 
    if (ret & D_CLOSE) {
@@ -1085,7 +1085,7 @@ static int prop_proc(int msg, DIALOG *d, int c)
       case MSG_IDLE:
 	 if (current_property_object != SELECTED_ITEM) {
 	    show_mouse(NULL);
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    show_mouse(screen);
 	 }
 	 break;
@@ -1182,7 +1182,7 @@ static void select_property(int type)
       }
    }
 
-   SEND_MESSAGE(main_dlg+DLG_PROP, MSG_START, 0);
+   object_message(main_dlg+DLG_PROP, MSG_START, 0);
 }
 
 
@@ -1487,7 +1487,7 @@ static void rebuild_list(void *old, int clear)
       }
    }
 
-   SEND_MESSAGE(main_dlg+DLG_LIST, MSG_START, 0);
+   object_message(main_dlg+DLG_LIST, MSG_START, 0);
 }
 
 
@@ -2368,7 +2368,7 @@ static int d_helptext_proc(int msg, DIALOG *d, int c)
       d->d2 = 0;
 
       show_mouse(NULL);
-      SEND_MESSAGE(d, MSG_DRAW, c);
+      object_message(d, MSG_DRAW, c);
       show_mouse(screen);
 
       return D_O_K;

@@ -400,7 +400,7 @@ static int gg_text_proc(int msg, DIALOG *d, int c)
 	    d->flags |= D_DISABLED;
 
 	 show_mouse(NULL);
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 show_mouse(screen);
       }
 
@@ -426,7 +426,7 @@ static int gg_edit_proc(int msg, DIALOG *d, int c)
 	    d->flags |= D_DISABLED;
 
 	 show_mouse(NULL);
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 show_mouse(screen);
       }
 

@@ -96,8 +96,8 @@ static int fa_button_proc(int msg, DIALOG *d, int c)
          global_attr &= ~(d->d2);
 
       scare_mouse();
-      SEND_MESSAGE(fa_viewer+FA_FILES, MSG_START, 0);
-      SEND_MESSAGE(fa_viewer+FA_FILES, MSG_DRAW, 0);
+      object_message(fa_viewer+FA_FILES, MSG_START, 0);
+      object_message(fa_viewer+FA_FILES, MSG_DRAW, 0);
       unscare_mouse();
 
       return ret;
@@ -146,7 +146,7 @@ static int fa_filename_proc(int msg, DIALOG *d, int c)
       }
 
       scare_mouse();
-      SEND_MESSAGE(fa_viewer+FA_FILES, MSG_START, 0);
+      object_message(fa_viewer+FA_FILES, MSG_START, 0);
       /* did we `cd ..' ? */
       if (ustrlen(updir)) {
 	 /* now we have to find a directory name equal to updir */
@@ -171,9 +171,9 @@ static int fa_filename_proc(int msg, DIALOG *d, int c)
          }
       }
       /* and continue... */
-      SEND_MESSAGE(fa_viewer+FA_FILES, MSG_DRAW, 0);
-      SEND_MESSAGE(d, MSG_START, 0);
-      SEND_MESSAGE(d, MSG_DRAW, 0);
+      object_message(fa_viewer+FA_FILES, MSG_DRAW, 0);
+      object_message(d, MSG_START, 0);
+      object_message(d, MSG_DRAW, 0);
       unscare_mouse();
 
       return D_O_K;
@@ -483,12 +483,12 @@ static int fa_flist_proc(int msg, DIALOG *d, int c)
 	 usetc(updir, 0);
       }
       scare_mouse();
-      SEND_MESSAGE(fa_viewer+FA_TEXT, MSG_START, 0);
-      SEND_MESSAGE(fa_viewer+FA_TEXT, MSG_DRAW, 0);
+      object_message(fa_viewer+FA_TEXT, MSG_START, 0);
+      object_message(fa_viewer+FA_TEXT, MSG_DRAW, 0);
       unscare_mouse();
 
       if (ret == D_CLOSE)
-	 return SEND_MESSAGE(fa_viewer+FA_TEXT, MSG_KEY, 0);
+	 return object_message(fa_viewer+FA_TEXT, MSG_KEY, 0);
    }
 
    return ret;

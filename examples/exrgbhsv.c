@@ -100,7 +100,7 @@ int my_slider_proc(int msg, DIALOG *d, int c)
 	 if (d->d2 != *color) {
 	    d->d2 = *color;
 	    show_mouse(NULL);
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    show_mouse(screen);
 	 }
 	 break;

@@ -103,7 +103,7 @@ int clock_proc(int msg, DIALOG *d, int c)
 	     * turns it off whenever it sends us a draw message, but we
 	     * are sending the message ourselves here so we are responsible 
 	     * for making sure the mouse is off first. Also note the use of
-	     * the SEND_MESSAGE macro rather than a simple recursive call
+	     * the object_message function rather than a simple recursive call
 	     * to clock_proc(). This vectors the call through the function
 	     * pointer in the dialog object, which allows other object
 	     * procedures to hook it, for example a different type of clock
@@ -111,7 +111,7 @@ int clock_proc(int msg, DIALOG *d, int c)
 	     * on to this procedure.
 	     */
 	    show_mouse(NULL);
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    show_mouse(screen);
 	 }
 	 break;

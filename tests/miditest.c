@@ -282,7 +282,7 @@ int instlist_proc(int msg, DIALOG *d, int c)
 
    if (ret & D_CLOSE) {
       ret &= ~D_CLOSE;
-      SEND_MESSAGE(thedialog+PIANO, MSG_KEY, 0);
+      object_message(thedialog+PIANO, MSG_KEY, 0);
    }
 
    return ret;
@@ -341,7 +341,7 @@ int piano_proc(int msg, DIALOG *d, int c)
 
 	 show_mouse(NULL);
 	 set_clip(screen, d->x+d->d1*12-6, d->y, d->x+d->d1*12+18, d->y+d->h);
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 	 show_mouse(screen);
 
@@ -379,7 +379,7 @@ int piano_proc(int msg, DIALOG *d, int c)
 	    show_mouse(NULL);
 	    set_clip(screen, d->x+d->d1*12-6, d->y, d->x+d->d1*12+18, d->y+d->h);
 	    d->d1 = -1;
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 	    show_mouse(screen);
 	 }

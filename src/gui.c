@@ -1816,7 +1816,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	 for (i=0; active_dialog[i].proc; i++)
 	    if (active_dialog[i].flags & D_GOTMOUSE) {
 	       active_dialog[i].flags &= ~D_GOTMOUSE;
-	       SEND_MESSAGE(active_dialog+i, MSG_LOSTMOUSE, 0);
+	       object_message(active_dialog+i, MSG_LOSTMOUSE, 0);
 	       break;
 	    }
 
@@ -1830,7 +1830,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	 i = find_mouse_object(active_dialog);
 	 if ((i >= 0) && (&active_dialog[i] != d)) {
 	    active_dialog[i].flags |= D_GOTMOUSE;
-	    SEND_MESSAGE(active_dialog+i, MSG_GOTMOUSE, 0);
+	    object_message(active_dialog+i, MSG_GOTMOUSE, 0);
 	 }
 	 break;
    }

@@ -1095,8 +1095,8 @@ static int import_proc(int msg, DIALOG *d, int c)
             
 	    view_font_dlg[RANGE_LIST].d1 = i;
 
-	    SEND_MESSAGE(view_font_dlg+VIEWER, MSG_START, 0);
-	    SEND_MESSAGE(view_font_dlg+RANGE_LIST, MSG_START, 0);
+	    object_message(view_font_dlg+VIEWER, MSG_START, 0);
+	    object_message(view_font_dlg+RANGE_LIST, MSG_START, 0);
 	 }
       }
 
@@ -1164,8 +1164,8 @@ static int delete_proc(int msg, DIALOG *d, int c)
 
         }
 
-      SEND_MESSAGE(view_font_dlg+VIEWER, MSG_START, 0);
-      SEND_MESSAGE(view_font_dlg+RANGE_LIST, MSG_START, 0);
+      object_message(view_font_dlg+VIEWER, MSG_START, 0);
+      object_message(view_font_dlg+RANGE_LIST, MSG_START, 0);
 
       return D_REDRAW;
    }
@@ -1336,7 +1336,7 @@ static int font_view_proc(int msg, DIALOG *d, int c)
 	       if (d->d1 > 0)
 		  d->d1 = 0;
 
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	    }
 	 }
 
@@ -1350,7 +1350,7 @@ static int font_view_proc(int msg, DIALOG *d, int c)
 	 if(d->fg != view_font_dlg[RANGE_LIST].d1) {
 	    d->fg = view_font_dlg[RANGE_LIST].d1;
 	    d->d1 = 0;
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	 }
    }
 
