@@ -1,0 +1,357 @@
+@#
+@# This is the source for the Allegro Hacker's Guide, in a weird custom
+@# format. Read makedoc.c for a description of what is going on...
+@#
+@<html>
+@<head>
+@<title>Allegro Hacker's Guide</title>
+@<body>
+<center><h1><b>
+The Allegro Hacker's Guide
+</b></h1></center>
+<hr>
+<i>
+This is a guide to some of the internal workings of Allegro, for people who 
+are interested in hacking on it. This document is far from complete, and may 
+not always be 100% accurate. Remember that when in doubt, the sources are 
+always the definitive reference. Suggestions for what to include in this 
+document will be very welcome: there is far too much code for me to go over 
+it all in any kind of detail, so I want to concentrate on the things that 
+people find most confusing...
+</i>
+
+
+@!text
+@heading
+Contents
+
+@shortcontents
+
+
+@text
+
+@heading
+Coding Style
+
+I'm not going to be a fascist about this, but it does make life easier if 
+all the code uses a consistent layout. If you are going to write and 
+maintain more than one complete source file of your own, I think you are 
+entitled to do that however you like, but for smaller contributions, I will 
+probably reformat your code to fit in with my existing style. It will 
+obviously save me time if you write it this way in the first place, hence 
+this description:
+
+Basic Allegro style: K&R, with 3 space indentation. On disk, though, tab 
+stops are 8 spaces, so if for example a line was indented by 12 spaces, this 
+would be saved out as either 12 space characters or 1 tab and 4 spaces, not 
+as 4 tabs. If your editor can't handle the difference between 3 char 
+internal and 8 char external tab stops, either get a better editor or use 
+indent to clean up after yourself. The indent.pro file included with the 
+Allegro distribution comes close to getting this layout right, but doesn't 
+quite manage it, so some things still need to be cleaned up by hand.
+
+Preprocessor defines and structure names are UPPER_CASE. Function and 
+variable names are lower_case. MixedCaseNames are evil and should not be 
+used. That silly m_pHungarian notation is _really_ evil and should not even 
+be thought about.
+
+All symbols should be declared as static unless that is absolutely not 
+possible, in which case they should be prefixed with an underscore.
+
+Functions look like this:
+<pre>
+/* foobar:
+ *  Description of what it does.
+ */
+void foobar(int foo, int bar)
+{
+   /* do some stuff */
+}
+</pre>
+Three blank lines between functions.
+
+Conditionals look like:
+<pre>
+   if (foo) {
+      /* stuff */
+   }
+   else {
+      /* stuff */
+   }
+</pre>
+The only time when something comes on the same line after a closing brace is 
+at the end of a do/while loop, eg:
+<pre>
+   do {
+      /* stuff */
+   } while (foo);
+</pre>
+Case statements look like this:
+<pre>
+   switch (foo) {
+
+      case bar:
+	 /* stuff */
+	 break;
+
+      default:
+	 /* stuff */
+	 break;
+   }
+</pre>
+Examples of where to put spaces:
+<pre>
+   char *p;
+   if (condition) { }
+   for (x=0; x&lt10; x++) { }
+   function(foo, bar);
+   (BITMAP *)data[id].dat;
+</pre>
+All sources should begin with the standard header:
+<pre>
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Brief description of what this file does.
+ *
+ *      By Author.
+ *
+ *      Cool stuff added by Someone Else.
+ *
+ *      Stupid bug fixed by a Third Person.
+ *
+ *      See readme.txt for copyright information.
+ */
+</pre>
+Author credits should be added in chronological order, and email addresses 
+should not be included: those can be found in the main credits file, and if 
+they only exist in one place, it is easier to update them when people change 
+address.
+
+People only need to be listed in the source file header if they've made a 
+significant contribution to it (one-line fixes don't count), but no matter 
+how small their addition, they must be added to the docs/thanks._tx file. 
+This is sorted alphabetically by name. If they are already in it, update the 
+text to describe the new addition, otherwise make a new entry for the new 
+contributor. Also, anything more than very tiny modifications should be 
+added to the docs/changes._tx file, which grows from the top in reverse 
+chronological order. This file should briefly describe both the nature of 
+the modification and who did it.
+
+
+
+@heading
+Build Process
+
+This is very different depending on whether you are using autoconf or a 
+fixed makefile. For most platforms, though, the fixup script (eg. 
+fixdjgpp.bat), will create a small makefile, which defines MAKEFILE_INC to 
+the make of another file (eg. makefile.dj), and then includes makefile.all. 
+This contains a lot of generic rules, and includes the file named in 
+MAKEFILE_INC to provide additional platform-specific information. The actual 
+source files are listed in makefile.lst.
+
+There are three library targets: alleg (release), alld (debugging), and allp 
+(profiling). Objects go in obj/compiler/version/, where version is one of 
+alleg, alld, or allp. Libraries go in lib/compiler/. A few generated things 
+(asmdefs.inc, mmxtest.s, etc), go in the root of obj/compiler/. Dependencies 
+are generated by "make depend", and go in obj/compiler/version/makefile.dep, 
+which is included by makefile.all.
+
+When you run "make clean", this only deletes harmless generated files like 
+the objects. "make distclean" strips you right back to the original 
+distribution, including getting rid of the test executables and the library 
+itself. For the ultimate in personal hygene, run "make veryclean", which 
+will wipe absolutely all generated files. After doing this, you will have to 
+run "make depend" before you can build the library, and also "fixdll.bat" if 
+you are working on a Windows platform.
+
+To pass long commandlines to the MSVC and Watcom linkers, the program 
+runner.exe is compiled using gcc, so make can pass it a decent number of 
+arguments. This just saves the parameters into a temporary file, and then 
+invokes the real command using that as an argument file.
+
+All the makefiles currently use gcc for dependency generation, because this 
+is easier than trying to get MSVC or Watcom to output the right info.
+
+The symbol LIBRARY_VERSION, defined at the top of the makefile.ver, is used 
+for including a version number in things like the DLL filename.
+
+
+
+@heading
+Header Files
+
+allegro.h lives in the include/ directory. This includes other headers which 
+live in include/allegro/. The reason for this slightly odd approach is that 
+allegro.h can include things like "allegro/alconfig.h", which will work both 
+in-situ within the build directory, and if we copy allegro.h to the system 
+include directory and the other headers into system_include/allegro/. This 
+avoids cluttering the system directories with lots of our headers, while 
+still allowing programs to just include &ltallegro.h&gt, and also makes it 
+possible for people to access internal headers with #include 
+&ltallegro/aintern.h&gt.
+
+allegro.h includes alconfig.h, which checks the current platform and 
+includes a helper header for this compiler (aldjgpp.h, almsvc.h, alwatcom.h, 
+etc). That helper header defines a bunch of macros describing the system, 
+emulates whatever things are needed to make the code compile properly, and 
+optionally defines ALLEGRO_EXTRA_HEADER and ALLEGRO_INTERNAL_HEADER if it is 
+going to need any other platform-specific includes.
+
+After including the platform header, the rest of alconfig.h defines a lot of 
+generic helper macros to their default values, but only if the platform 
+header hasn't already overridden these to something specific.
+
+allegro.h contains structure definitions and function prototypes. At the end 
+of the file, it includes alinline.h, which defines all the inline routines 
+and vtable wrappers, along with C versions of the fixed point math routines 
+if no inline asm is available. If inline asm is supported, it includes one 
+of al386gcc.h, al386vc.h, or al386wat.h.
+
+If ALLEGRO_EXTRA_HEADER is defined, allegro.h includes this at the very end. 
+This is used to include one of the files aldos.h, alwin.h, etc, which define 
+platform-specific things like ID values for the hardware drivers. Unlike the 
+platform files included from the top of allegro.h, these are specific per-OS 
+rather than per-compiler, so the same alwin.h can be used by both MSVC and 
+RSXNT. They describe library functions that relate to this platform, while 
+the earlier header described the basic language syntax.
+
+aintern.h is like the internal.h in earlier Allegro versions, defining 
+routines that are shared between multiple sources, but that we don't 
+generally want user programs to see. For platform-specific internal 
+definitions, we have aintdos.h, aintwin.h, etc. These headers are not 
+included directly by allegro.h, but can still be included by the more brave 
+or foolish type of user program :-)
+
+On platforms which have specific, non-portable API routines of their own, 
+these should go in a special header in the root of the include directory, 
+eg. winalleg.h. This can be included by user programs that want to access 
+these routines, while making it very clear to them that by including this 
+header, they are writing non-portable code.
+
+
+
+@heading
+Definitions
+
+All header function prototypes should use the macro AL_FUNC(). Inline 
+routines use the macro AL_INLINE(). Global variables use AL_VAR() or 
+AL_ARRAY(). Global pointers to functions use AL_FUNCPTR(). Pointers to 
+functions which are passed as parameters to other routines or stored in a 
+structure typedef use AL_METHOD(). This may seem like something of an 
+overkill, but it gives us a lot of flexibility to add DLL import/export 
+specifiers, calling convention markers like __cdecl, and even to mangle 
+symbol names on some compilers. If you forget to use these macros, your code 
+won't work on some platforms.
+
+This only applies to header files, though: you can write normal code in the 
+C sources.
+
+The symbol ALLEGRO_SRC is defined while compiling library source files. If 
+you want to inline a function in one of your sources, use the INLINE macro. 
+To declare a zero-sized array in a structure, use int x[ZERO_SIZE]. To use 
+64 bit integers, declare a LONG_LONG variable (this won't be defined on all 
+platforms). To do things with filenames, check the macros ALLEGRO_LFN, 
+OTHER_PATH_SEPARATOR, and DEVICE_SEPARATOR. See the headers for details.
+
+
+
+@heading
+Unicode Support
+
+Do not assume that strings are ASCII. They aren't. If you assume they are, 
+your code might work for a while as long as people are only using it with 
+UTF-8 data, but it will die horribly as soon as someone tries to run it with 
+16 bit Unicode strings, or Chinese GB-code, or some strange MIME format, 
+etc. Whenever you see a char * being passed around, you must be aware that 
+this will actually contain text in whatever format is currently selected, so 
+you have to be damn careful when manipulating strings. Don't ever forget and 
+call a regular libc routine on them!
+
+Use the Unicode functions for all your text manipulation: see the docs for 
+details. When allocating a scratch string on the stack, assume that each 
+character will occupy at most four bytes: this will give you more than 
+enough space for any of the current encoding schemes.
+
+If you want to specify a constant string, use the function 
+uconvert_ascii("my string", buf) to obtain a copy of "my string" in the 
+current encoding format. If buf is NULL, this will use an internal static 
+buffer, but the converted string will be overwritten by the next call to any 
+format conversion routines, so you shouldn't pass it down into other library 
+functions. Normally you should provide the conversion space yourself, 
+allocating buf as a temporary object on the stack.
+
+To convert the other way (eg. before passing an Allegro string to an OS 
+routine that expects ASCII data), call uconvert_toascii(mystring, buf).
+
+For any messages that may be seen by the user, you can call 
+get_config_text("my ascii string") instead of uconvert_ascii(). This will 
+return a pointer to persistent memory (so it is ok to keep the string around 
+indefinitely), after converting into the current text encoding format. This 
+function is cool because it saves you having to bother allocating space for 
+the converted data, and because it allows the string to be replaced by the 
+translations in language.dat. You should be sure to always pass a constant 
+string to get_config_text(), rather than any generated text or data from 
+other string variables: this is so that the findtext.sh script can easily 
+locate all the strings that need to be translated.
+
+Hardware drivers should initialise their name and desc fields to the global 
+empty_string, and store an ASCII driver name in their ascii_name field. The 
+framework code will automatically translate and convert this value, storing 
+the result in both the name and desc fields. For most drivers this will be 
+enough, but if you want to provide a more detailed description, it is up to 
+your driver to set this up from their init routine, and take care of all the 
+required conversions.
+
+
+
+@heading
+Asm Routines
+
+Structure offsets are defined in asmdef.inc, which is generated by asmdef.c. 
+This allows the asm code to use human readable names for the structure 
+members, and to automatically adjust whenever new fields are added, so it 
+will always exactly match the layout of the C structures.
+
+Asm code should use the macro FUNC(name) to declare the start of a routine, 
+and GLOBL(name) whenever it wants to refer to an external symbol (eg. a C 
+variable or function). This is to handle name mangling in a portable way 
+(COFF requires an underscore prefix, ELF does not).
+
+You can modify %ds and %es from asm, as long as you put them back. If USE_FS 
+and FSEG are defined, you can also change %fs, otherwise this is not 
+required and you can safely use nearptr access for everything.
+
+Don't assume that the MMX opcodes will be supported: not every assembler 
+version knows about these. Check the ALLEGRO_MMX macro, and be sure to give 
+up gracefully if these instructions are not available.
+
+
+
+@heading
+Other Stuff
+
+Any portable routines that run inside a timer handler or input callback must 
+be sure to lock all the code and data that they touch. This is done by 
+placing an END_OF_FUNCTION(x) or END_OF_STATIC_FUNCTION(x) after each 
+function definition (this is not required if you declare the function as 
+INLINE, though), and then calling LOCK_FUNCTION() somewhere in your init 
+code. Use LOCK_VARIABLE() to lock global variables, and LOCK_DATA() to lock 
+allocated memory.
+
+Any modules that have cleanup code should register their exit function by 
+calling _add_exit_func(). This will ensure that they are closed down 
+gracefully no matter whether the user calls allegro_exit(), falls off the 
+bottom of main(), or the program dies suddenly due to a runtime error. You 
+must call _remove_exit_func() from inside your shutdown routine, or you will 
+find yourself stuck in an endless loop.
+
+

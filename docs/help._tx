@@ -1,0 +1,330 @@
+@#
+@# This is the source for the how-to-get-help file, in a weird custom format.
+@# Read makedoc.c for a description of what is going on...
+@#
+@<html>
+@<head>
+@<title>What to do when your Allegro program doesn't work</title>
+@<body>
+@!html
+@!rtf
+	       ____      _   _   _               _   _      _
+	      / ___| ___| |_| |_(_)_ __   __ _  | | | | ___| |_ __
+	     | |  _ / _ \ __| __| | '_ \ / _` | | |_| |/ _ \ | '_ \
+	     | |_| |  __/ |_| |_| | | | | (_| | |  _  |  __/ | |_) |
+	      \____|\___|\__|\__|_|_| |_|\__, | |_| |_|\___|_| .__/
+					 |___/               |_|
+
+
+
+@html
+@rtf
+@!text
+<center><h1><b>
+What to do when your Allegro program doesn't work
+</i></b></h1></center>
+<hr>
+@heading
+Contents
+
+@shortcontents
+
+
+
+@text
+@heading
+Introduction
+
+   When things go wrong, it often seems like a good idea to ask other people 
+   for help. Fortunately for people in this situation, there are many people 
+   (both Allegro developers and users) who are happy to spend their time 
+   answering support questions of this type, but there are various things 
+   you can do to make this process work more efficiently. This document 
+   describes some steps to take whenever you have a problem with an Allegro 
+   program, suggesting ways that you can try to solve it yourself, and also 
+   giving some tips about when/how to ask for help. Following these 
+   guidelines will make life easier both for the helper (because all the 
+   relevant information will be presented to them in a concise and useful 
+   way), and for the helpee (because they are more likely to get a prompt 
+   and accurate reply).
+
+
+
+@heading
+Part 1 - who is the culprit?
+
+   Is the problem a bug in Allegro, or in your code? To find out, try 
+   running the Allegro test programs, in particular the test.exe (for 
+   graphics related problems), the play.exe (for soundcard troubles), and 
+   the entire contents of the examples directory (for anything that is going 
+   wrong). If you can't reproduce the problem with any of these, it is 
+   probably your fault, in which case you should skip to part 3 below. 
+
+   If the problem is related to DOS graphics modes, you should start by 
+   getting a copy of Display Doctor from <link>http://www.scitechsoft.com/</a>. 
+   If this fixes the trouble, it almost certainly means that your original 
+   VESA driver was broken in some way. I'm not interested in hearing reports 
+   about problems of this type: there is nothing I can do to fix them, so 
+   I'm afraid your only option is to get a better VESA driver, either by 
+   hassling the manufacturer to fix their bugs, buying Display Doctor, or 
+   writing a FreeBE/AF driver for your card (see 
+   <link>http://www.talula.demon.co.uk/freebe/</a>).
+
+
+
+@heading
+Part 2 - when Allegro is at fault
+
+   If you still think the problem lies with Allegro, post a system report 
+   containing a description of the problem, what platform and library 
+   version you are using, your hardware specs, and a list of exactly which 
+   programs you were able to reproduce the problem with (it is important to 
+   know not only what programs had trouble, but also which ones worked 
+   correctly, if any).
+
+   If the problem is related to DOS graphics modes, you should also post the 
+   output from running the afinfo and vesainfo programs (the short version 
+   is enough unless you are explicitly asked to add the -v switch: all that 
+   extra data isn't usually needed). Try running the test.exe program with 
+   various Allegro drivers (any native drivers that you think might work 
+   with your card, VESA 2.0, and the VESA 1.x driver), and in various video 
+   modes, and report exactly what modes and color depths cause problems. If 
+   you are able to use any SVGA resolutions at all, run test.exe with the 
+   Autodetect option and report the entire text that it displays in the 
+   middle of the screen.
+
+   If the problem is related to the DOS sound system, try using the setup 
+   program to manually configure your card. You may need to manually enter 
+   the hardware parameters, and if it is an SB clone card, try selecting 
+   some earlier breed of SB card than whatever it is autodetecting (SB Pro, 
+   SB 2.0, or SB 1.0). If you are still unable to get anything working, your 
+   post should include the name and descriptions of whatever digital and 
+   MIDI sound drivers are being autodetected (this information is displayed 
+   by the play.exe program).
+
+
+
+@heading
+Part 3 - when your program crashes
+
+   When a djgpp program crashes, you will usually get a stack traceback 
+   looking something like:
+<pre>
+      Exiting due to signal SIGSEGV
+      General Protection Fault at eip=00001eca
+      [snip]
+
+      Call frame traceback EIPs:
+	0x00001eca
+	0x00001590
+	0x00001aea
+</pre>
+   This information tells you exactly where the crash occurred. To make 
+   sense of it, you should compile your program with debugging information 
+   (using the -g switch), and then run "symify program.exe" while this 
+   traceback is displayed onscreen. That will change the traceback to 
+   something along the lines of:
+<pre>
+      Call frame traceback EIPs:
+	0x00001eca   _strcpy+14
+	0x00001590   _main+56, line 7 of t.c
+	0x00001aea   ___crt1_startup+138
+</pre>
+   In this case, you can see that the crash occurred in the strcpy() 
+   function, which was called at line 7 of the main() function in the t.c 
+   source file. Now you just have to go to that line, have a look at 
+   whatever you are doing there, and change it to be correct :-)
+
+   Note: if the crash happens deep inside an Allegro function, this 
+   traceback may not be so useful. When this happens you can recompile 
+   Allegro with debugging information (see the readme file), and then 
+   link your program with the debugging library version.
+
+   Note 2: even when this crash traceback points to one of the Allegro 
+   functions, that does not necessarily mean the Allegro routine is at 
+   fault. Anything will crash if you pass it invalid parameters, so unless 
+   you can duplicate the problem in one of the Allegro example programs, you 
+   should start out by assuming that it is a case of operator error and 
+   double-check exactly what you are passing to the Allegro function.
+
+
+
+@heading
+Part 4 - things people don't do (but should)
+
+   One of the most common errors made by programmers is to neglect to check 
+   the return value from a function that may fail. Such an error will often 
+   lead to unexpected and downright unusual errors, making for a debugging 
+   nightmare. There are many functions in and out of Allegro that may or may 
+   not work depending on varying circumstances. They are, however, nice 
+   enough to let you know whether or not they were successful through 
+   documented return values.
+
+   Whenever you call a function that might fail (most importantly 
+   set_gfx_mode(), install_sound(), and anything that loads data from the 
+   disk), it is _essential_ that you check the return code from this, and 
+   respond accordingly.
+
+   Another commonly forgotten but important tool is to use whatever option 
+   enables strict warnings for your compiler (gcc uses -Wall), when 
+   compiling your code. Any warnings reported by this option will almost 
+   certainly represent errors in your program, and should be fixed before 
+   doing anything else. When using gcc, a useful trick is to compile with 
+   the -O setting as well, because this causes gcc to examine the program's 
+   actions in more detail, enabling more useful warnings. You should 
+   normally disable optimisation while debugging, though. Although it gives 
+   better compile time warnings, it is likely to upset any debugging tools 
+   that you later try to use.
+
+
+
+@heading
+Part 5 - asking for help
+
+   Ok, so you've tried everything described above, and your program still 
+   doesn't work. You have no idea what to do next, so it is time to cast 
+   yourself unto the mercies of the net, in hopes of finding some kind of 
+   wise man, seer, or oracle that holds an answer for your question...
+
+   The best place to ask is the Allegro mailing list: see readme.txt for 
+   details. Please remember that this is an Allegro-specific list, though. 
+   Problems relating to the C language or djgpp compiler belong in other 
+   forums (comp.lang.c and comp.os.msdos.djgpp respectively).
+
+   Both the Allegro and djgpp mailing lists are archived, and can be 
+   searched via their respective homepages. It is very likely that you will 
+   be able to find a solution to your problem by looking through the answers 
+   to past questions, which will save you needing to post a query at all.
+
+   In accordance with proper netiquette, it is assumed that when you post to 
+   any forum on the Internet you have at least consulted the relevant 
+   documentation first, if not read it in its entirety. If the problem you 
+   are having is worth asking hundreds of people the answer for, then it is 
+   certainly worth taking a few minutes to try to solve the problem 
+   yourself. Allegro is extensively and painstakingly documented and it is 
+   considered a prerequisite to posting that you have not only read the 
+   text, but examined the example programs as well.
+
+
+
+@heading
+Part 6 - learn from my mistakes
+
+   What not to do, Part One:
+<pre>
+      "My program crashes. Please tell me why."
+</pre>
+   Yes, people really do sometimes send me questions like this :-) Despite 
+   years of practice I am still totally unable to read minds, so this is a 
+   very pointless thing to ask. In order to get help with a problem you must 
+   describe it in enough detail that other people will be able to understand 
+   and reproduce it: this usually means posting some of your source code.
+
+
+   What not to do, Part Two:
+<pre>
+      "I've got a problem with my program. I'm attaching a 500k zip file 
+      containing ten thousand lines of source code and all the graphics and 
+      sound data: can you please debug it and tell me what the trouble is?"
+</pre>
+   After wasting the time and phone bills to download such a huge file, it 
+   is unlikely that anyone will even _want_ to help you, let alone invest 
+   the amount of time it would take to read and understand such a huge mess 
+   of information. You must try to isolate a smaller chunk of code that 
+   demonstrates the trouble: the smaller you can make it, the more chance 
+   that someone will be able to help you with it. Remember that you are 
+   asking other people to do you a favour, so it is your responsibility to 
+   make this process as easy for them as you possibly can.
+
+
+
+@heading
+Part 7 - wording your plea
+
+   The most important thing is to include code that can be compiled and 
+   tested by the person reading your message. Don't just post your entire 
+   program: try to extract a small section that includes the specific lines 
+   causing your problem, or reproduces the trouble in a simpler way (you 
+   will often find that you can locate the error yourself in the process of 
+   making this simpler version, so it is a good exercise in itself). This 
+   code should be a small but complete program that can actually be compiled 
+   and run, because it is very hard to debug incomplete code fragments.
+
+   It is best to include the code directly in the text of your email 
+   message, because it is easier for people to read this than if they have 
+   to extract it from an attachment.
+
+   Ideally your example should avoid using any external graphics and data 
+   files. It is ok to include a small (max 2k) zip containing such 
+   information, or failing that a description of what other files it needs 
+   (eg. "put a 32x32 .pcx file called 'tile.pcx' into the same directory as 
+   the program). If there is no way that you can simplify things this far, 
+   you should upload the program and data to a website and then just post 
+   that URL in your message.
+
+   You should say what gcc command line you used to build the program, and 
+   this should include the -Wall switch.
+
+   Describe what you intended this program to do (it may not be instantly 
+   obvious to other people), and also what it really does when you run it. 
+   There is usually no need to post the actual crash traceback (other people 
+   can duplicate this for themselves as long as they are able to compile and 
+   run your code), but you should say whether you do get such a traceback, 
+   or a lockup, or just incorrect results (and if so, in exactly what way 
+   they differ from what you were expecting). It is useful to mark your 
+   source with a comment to show what line the crash traceback points to.
+
+   Any other information that you can include may also be useful. Most 
+   importantly a brief machine description, information about any relevant 
+   drivers, and your Allegro version (please don't just say "WIP", but give 
+   the exact date if you are using anything other than an official numbered 
+   release), 
+
+
+
+@heading
+Part 8 - a model of perfection
+
+   For reference, here is an example of what I would consider to be an ideal 
+   problem report:
+
+<pre>
+   I'm having some trouble using the hicolor video modes in my program, 
+   although they work fine with the Allegro tests. I'm using Allegro 3.0 
+   with djgpp 2.02 (gcc version 2.8.1) on a p166, running under win95 and 
+   using the builtin VESA 2.0 driver, which the vesainfo program describes 
+   as "Matrox Graphics Inc.".
+
+   This program is supposed to select a 640x480 16 bit resolution, draw a 
+   blue rectangle near the top left corner of the screen, and then wait for 
+   a keypress before quitting, but I just get a General Protection Fault 
+   when I run it.
+
+   I compile it using "gcc -Wall t.c -o t.exe -lalleg", and don't get any 
+   warnings.
+
+
+   --- cut here, t.c ---
+
+   #include &ltstdio.h&gt
+   #include &ltallegro.h&gt
+
+   void main()
+   {
+      BITMAP *bmp = screen;
+
+      install_keyboard();
+
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	 printf("Error setting video mode\n");
+	 return;
+      }
+
+      set_color_depth(16);
+
+      /* crashes during this rectangle call! */
+      rectfill(bmp, 32, 32, 64, 64, 0x001F);
+
+      readkey();
+   }
+</pre>

@@ -1,0 +1,113 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		 MSVC-specific information.
+
+	 See readme.txt for a more general overview.
+
+
+
+====================================
+============ MSVC notes ============
+====================================
+
+   Status: complete, and most things seem to be working as intended, but 
+   this version is much newer than the DOS code, so your mileage may vary.
+
+
+
+===========================================
+============ Required software ============
+===========================================
+
+   - Microsoft Visual C++.
+   - Recent set of DirectX and other Windows SDK headers.
+   - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
+   - GNU make (mak*b.zip).
+   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll".
+   - Optional: sort (txt*b.zip). Used by "fixdll". Use Unix sort, not DOS!
+
+   Allegro should work ok with MSVC versions 4, 5 and 6.
+
+   The DirectX SDK can be obtained directly from Microsoft. An old version 
+   of the headers is included with MSVC, but Allegro requires more recent 
+   files. You should either copy the current headers into your MSVC include 
+   and lib directories, or alter your INCLUDE and LIB environment variables 
+   to put the DirectX SDK files in front of the standard MSVC locations.
+
+   The djgpp compiler and associated tools can be downloaded from your 
+   nearest SimTel mirror site, in the /pub/simtelnet/gnu/djgpp/ directory, 
+   or you can use the zip picker on http://www.delorie.com/djgpp/. See the 
+   djgpp readme.1st file for information about how to install djgpp.
+
+
+
+============================================
+============ Installing Allegro ============
+============================================
+
+   This is a source-only distribution, so you will have to compile Allegro 
+   before you can use it. To do this you should:
+
+   Set up your environment so that MSVC can be used from the commandline. 
+   You probably have a vcvars32.bat file that will do this for you.
+
+   Type "cd allegro", followed by "fixmsvc.bat", followed by "make". Then go 
+   do something interesting while everything compiles. When it finishes 
+   compiling, type "make install" to set the library up ready for use.
+
+   If you also want to install a debugging version of the library (highly 
+   recommended), now type "make install DEBUGMODE=1". Case is important, so 
+   it must be DEBUGMODE, not debugmode!
+
+   If you also want to install a profiling version of the library, now type 
+   "make install PROFILEMODE=1".
+
+   If you want statically linked libraries as well as the default DLL, set 
+   the environment variable "STATICLINK=1", and repeat the "make install", 
+   "make install DEBUGMODE=1", and "make install PROFILEMODE=1".
+
+   If your copy of Allegro doesn't include the makefile.dep dependency files 
+   (unlikely, unless you have run "make veryclean" at some point), you can 
+   regenerate them by running "make depend".
+
+   If your copy of Allegro doesn't include the linker .def file (unlikely, 
+   unless you have run "make veryclean" at some point), you can regenerate 
+   them by running "fixdll.bat".
+
+
+
+=======================================
+============ Using Allegro ============
+=======================================
+
+   All the Allegro functions, variables, and data structures are defined in 
+   allegro.h. You should include this in your programs, and link with one of 
+   the libraries:
+
+   alleg.lib      - optimised DLL import library
+   alld.lib       - debugging DLL import library
+   allp.lib       - profiling DLL import library
+   alleg_s.lib    - statically linked optimised library
+   alld_s.lib     - statically linked debugging library
+   allp_s.lib     - statically linked profiling library
+
+   When using a statically linked library, you must define the preprocessor 
+   symbol ALLEGRO_STATICLINK before including any of the Allegro headers.
+
+   Don't forget that you need to use the END_OF_MAIN() macro right after 
+   your main() function!
+
+   If you use one of the DLL versions, you will obviously need to distribute 
+   the appropriate DLL along with your program: these can be found in the 
+   allegro/lib/msvc/ directory.
+

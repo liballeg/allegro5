@@ -1,0 +1,35 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Dummy CPU detection routines.
+ *
+ *      By Michael Bukin.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+
+#include "allegro.h"
+
+
+
+/* check_cpu:
+ *  This is the function to call to set the globals.
+ */
+void check_cpu(void)
+{
+   cpu_family = 0;
+   cpu_model = 0;
+   cpu_fpu = FALSE;
+   cpu_mmx = FALSE;
+   cpu_3dnow = FALSE;
+   cpu_cpuid = FALSE;
+}
+

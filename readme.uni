@@ -1,0 +1,188 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		 Unix-specific information.
+
+	 See readme.txt for a more general overview.
+
+      Also see readme.lnx for Linux-specific information.
+
+
+
+====================================
+============ Unix notes ============
+====================================
+
+   On Linux you have two different system drivers -- one for running using 
+   X, and one for running without X. This file describes the X version, 
+   which should in theory be totally portable to any Unix variant. For 
+   information about the Linux-specific console routines, see readme.lnx.
+
+
+
+===========================================
+============ Required software ============
+===========================================
+
+   Since you are using a Real Operating System, the chances are that you 
+   already have all the necessary development tools, at least for compiling 
+   and installing the library. However, you may also need autoconf if you 
+   make any changes that require you to regenerate the configure script.
+
+
+
+============================================
+============ Installing Allegro ============
+============================================
+
+   If you downloaded Allegro as a Unix format .tar archive, it will already 
+   be set up ready to go. If you downloaded a DOS or Windows format .zip 
+   version, though, you will need to convert it into Unix format before you 
+   can begin, by running:
+
+      sh fixunix.sh
+
+   From here on everything is a pretty standard Unix-style install process. 
+   First you configure it:
+
+      ./configure
+
+   Then you build it:
+
+      make
+
+   And finally you install it:
+
+      su -c "make install"
+
+   You may also wish to install the man pages:
+
+      su -c "make install-man"
+
+   And perhaps the info docs as well:
+
+      su -c "make install-info"
+
+   The configure script has many options for changing the install paths, 
+   deciding which parts of the library to include or leave out, and 
+   specifying whether to build release libs, debug libs, etc. Run 
+   ./configure --help for a list of switches. Especially useful options are:
+
+      --enable-static      - builds a statically linked library
+      --disable-shared     - disables the default shared libraries
+      --enable-dbglib      - builds a debug version of the library
+      --enable-dbgprog     - links test programs with the debug library
+
+   These switches work in combination, for example if you pass 
+   --enable-static but not --disable-shared, you will get both shared and 
+   statically linked versions of Allegro.
+
+   By default, Allegro will probably install into the /usr/local 
+   filesystem. If this hasn't already been set up on your machine, you may 
+   have trouble with programs being unable to find the Allegro shared 
+   library. You can fix this by adding "/usr/local/lib" to your 
+   /etc/ld.so.conf file, and then running ldconfig.
+
+
+
+=======================================
+============ Using Allegro ============
+=======================================
+
+   The options for linking with Allegro are quite complicated, since 
+   depending on how it was configured, it may need to pull in other 
+   libraries (X, GGI, SVGAlib), as well as just Allegro itself. To avoid you 
+   having to work out the right linker commands for yourself, the 
+   installation creates a script, allegro-config, that will print out a 
+   suitable commandline. You can use this inside a backtick command 
+   substitution, for example:
+
+      gcc myfile.c -o myprogram `allegro-config --libs`
+
+   Or if you want to build a debug version of your program, assuming that 
+   you have installed the debug version of Allegro:
+
+      gcc myfile.c -o myprogram `allegro-config --libs debug`
+
+   Unix newbies, take note that these are ` backticks, not normal ' quotes!
+
+   There are also switches for printing out the Allegro version number, 
+   overriding the install paths, and selecting between shared and static 
+   libraries, in case you installed both. Run allegro-config without any 
+   arguments for a full list of options.
+
+   Don't forget that you need to use the END_OF_MAIN() macro right after 
+   your main() function!
+
+
+
+======================================================
+============ Shared library compatibility ============
+======================================================
+
+   Because of the way Allegro is structured, it is unlikely that there will 
+   be much compatibility of libraries between WIP versions. Each WIP will 
+   probably be a new major version of the library.
+
+   Allegro can interface with a lot of other libraries -- in particular, 
+   various X libraries, GGI and SVGAlib. Whether you use Allegro itself as a 
+   shared library or static, these other libraries are usually linked 
+   shared. This means that your program won't even load on a user's machine 
+   unless he/she has all these libraries installed!
+
+   This makes it difficult to distribute precompiled versions of your 
+   Allegro programs, since you don't know what other libraries will be 
+   available on the target machine, and hence cannot know which options to 
+   include when configuring Allegro. If you want to distribute in binary 
+   form, one option would be to include several versions of the shared 
+   libraries, covering all the possibilities -- GGI only, SVGAlib only, both 
+   GGI and SVGAlib but not X, etc. The user installs whichever one matches 
+   their system, and doesn't need redundant shared libraries that'll never 
+   get used. There are a lot of possible combinations, though. 
+   Alternatively, you could configure Allegro using all possible external 
+   libraries, which will require your users to install all of these before 
+   they can run your program. That is simple for you, but not so much fun 
+   for them! Or the easiest option is, of course, to distribute your 
+   programs in source form. That way the user can configure Allegro for 
+   themselves, and will always end up using exactly the right set of 
+   libraries for their particular system.
+
+
+
+==========================================
+============ Notes on drivers ============
+==========================================
+
+   * System:
+	On initialisation, Allegro will try to connect to an X server. If it 
+	can't find one, it will give up and try to use some different system 
+	driver instead (such as the Linux console). This means that to run 
+	it in X mode, you must either launch your programs from inside an X 
+	session, or have set the DISPLAY environment variable to indicate 
+	what server you would like to use.
+
+   * Graphics:
+	There are two different X graphics drivers: GFX_XWINDOWS uses only 
+	standard X calls, while GFX_XDGA uses the XFree86 DGA extension, 
+	which allows it to write directly to the screen surface. DGA is 
+	normally much faster than the standard X mode, but does not produce 
+	such well behaved windowed programs, and will not work remotely.
+
+	If your program requests a different color depth to the current X 
+	display, Allegro will emulate the depth you asked for, so that your 
+	program will still work, albeit more slowly than if the color depths 
+	were identical. To find out whether this emulation is taking place, 
+	look at the gfx_driver->desc field (which is displayed in the middle 
+	of the screen by the tests/test program). If this says "matching", 
+	the color formats are identical, so no conversions are required. If 
+	it says "fast", some simple conversions are taking place, but 
+	nothing too painful. If it says "slow", you are in trouble :-)
+

@@ -1,0 +1,222 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		DJGPP-specific information.
+
+	 See readme.txt for a more general overview.
+
+
+
+=====================================
+============ djgpp notes ============
+=====================================
+
+   Status: complete. This is the original Allegro version, and has had 
+   plenty of time to become nice and stable.
+
+
+
+===========================================
+============ Required software ============
+===========================================
+
+   - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
+   - GNU make (mak*b.zip).
+   - Texinfo (txi*b.zip).
+   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+   - Optional: sed (sed*b.zip). Used by "make depend".
+
+   All of the above can be downloaded from your nearest SimTel mirror site, 
+   in the /pub/simtelnet/gnu/djgpp/ directory, or you can use the zip picker 
+   on http://www.delorie.com/djgpp/. Please make sure that you have 
+   installed djgpp according to the instructions in readme.1st, and that you 
+   aren't mixing it with any files from different compilers (eg. the Borland 
+   version of make).
+
+
+
+============================================
+============ Installing Allegro ============
+============================================
+
+   This is a source-only distribution, so you will have to compile Allegro 
+   before you can use it. To do this you should:
+
+   Go to wherever you want to put your copy of Allegro (your main djgpp 
+   directory would be fine, but you can put it somewhere else if you 
+   prefer), and unzip everything. Allegro contains several subdirectories, 
+   so you must specify the -d flag if you are using pkunzip.
+
+   If you are using PGCC, set the environment variable "PGCC=1".
+
+   If you are running under Linux, and want to cross-compile the djgpp 
+   version of Allegro, set the environment variable "CROSSCOMPILE=1", set 
+   DJDIR to the directory where your djgpp cross-compiler is installed, 
+   set PATH to access to the cross-compiler, and set NATIVEPATH to a path 
+   that will use your native version of gcc instead (_not_ the djgpp 
+   cross-compiler!) so that this can be invoked when converting the 
+   documentation.
+
+   Type "cd allegro", followed by "make". Then go do something interesting 
+   while everything compiles. When it finishes compiling, type "make 
+   install" to set the library up ready for use. If you have any trouble 
+   with the build, look at faq.txt for the solutions to some of the more 
+   common problems.
+
+   If you also want to install a debugging version of the library (highly 
+   recommended), now type "make install DEBUGMODE=1". Case is important, so 
+   it must be DEBUGMODE, not debugmode!
+
+   If you also want to install a profiling version of the library, now type 
+   "make install PROFILEMODE=1".
+
+   If you want to read the Allegro documentation with the Rhide online help 
+   system, go to the "Help / Syntax help / Files to search" menu, and add 
+   "allegro" after the existing "libc" entry (separated by a space).
+
+   If you want to create the HTML documentation as one large allegro.html 
+   file rather than splitting it into sections, edit docs/allegro._tx, 
+   remove the @multiplefiles statement from line 8, and run make again.
+
+   Once the build is finished you can recover some disk space by running 
+   "make compress" (which uses the DJP or UPX programs to compress the 
+   executable files), and/or "make clean" (to get rid of all the temporary 
+   files and HTML format documentation).
+
+   If your copy of Allegro is set up for use with some different compiler 
+   (unlikely, if you downloaded the djgpp distribution), you will have to 
+   run fixdjgpp.bat before compiling it.
+
+   If your copy of Allegro doesn't include the makefile.dep dependency files 
+   (unlikely, unless you have run "make veryclean" at some point), you can 
+   regenerate them by running "make depend".
+
+
+
+=======================================
+============ Using Allegro ============
+=======================================
+
+   All the Allegro functions, variables, and data structures are defined in 
+   allegro.h. You should include this in your programs, and link with either 
+   the optimised library liballeg.a, the debugging library liballd.a, or the 
+   profiling library liballp.a. To do this you should:
+
+   Put the following line at the beginning of all C or C++ files that use 
+   Allegro:
+
+      #include <allegro.h>
+
+   If you compile from the command line or with a makefile, add either 
+   '-lalleg' (for the optimised version), '-lalld' (debugging version), or 
+   '-lallp' (profiling version) to the end of the gcc command, eg:
+
+      gcc foo.c -o foo.exe -lalleg
+
+   If you are using Rhide, go to the Options/Libraries menu, type either 
+   'alleg' (for the optimised version), 'alld' (debugging version), or 
+   'allp' (profiling version) into the first empty space, and make sure the 
+   box next to it is checked.
+
+
+
+============================================
+============ Supported hardware ============
+============================================
+
+   The bare minimum you need to use Allegro is a 386 with a VGA graphics 
+   card, but a 486 is strongly recommended. To get into SVGA modes you will 
+   need a compatible SVGA card, which means something that has a working 
+   VESA or VBE/AF driver.
+
+   Ideally you should use VBE/AF, because it allows Allegro to use hardware 
+   acceleration functions to speed up the drawing. The FreeBE/AF project 
+   (http://www.talula.demon.co.uk/freebe/) provides a number of free VBE/AF 
+   drivers (volunteers to write more are always welcome!), and accelerated 
+   drivers for a large number of cards are available commercially as part of 
+   the SciTech Display Doctor package (http://www.scitechsoft.com/).
+
+   If you have a VBE 2.0 or VBE 3.0 driver you are probably fine just using 
+   that, although unlike VBE/AF it won't provide any hardware acceleration. 
+   If you have an older VESA BIOS implementation (eg. VESA 1.2), beware. For 
+   one thing, everything will be much slower if Allegro can't use the sexy 
+   VBE 2.0 features. For another, I could go on all day telling horror 
+   stories about the buggy and generally just pathetic VESA implementations 
+   that I've come across. If you are having trouble with the SVGA modes, try 
+   getting a copy of the SciTech Display Doctor and see if that clears 
+   things up (it probably will: SciTech usually get these things right).
+
+   Note that the native SVGA chipset drivers from Allegro 3.0 and earlier 
+   have been removed. These are still available as an optional add-on 
+   package from the same sites as Allegro, but are not needed any more 
+   because you can get the same code in a more flexible format as part of 
+   the FreeBE/AF project.
+
+   On the sound front, Allegro supports sample playback on the SB (mono), 
+   the SB Pro (stereo), the SB16, the ESS AudioDrive, the Ensoniq 
+   Soundscape, and the Windows Sound System. It has MIDI drivers for the 
+   OPL2 FM synth (Adlib and SB cards), the OPL3 (Adlib Gold, SB Pro-II and 
+   above), the pair of OPL2 chips found in the SB Pro-I, the AWE32 EMU8000 
+   chip, the raw SB MIDI output, and the MPU-401 interface, plus it can 
+   emulate a wavetable MIDI synth in software, running on top of any of the 
+   supported digital soundcards. The Creative Labs SB PCI-64 and PCI-128 
+   cards are actually based on the Ensoniq chipset, so they can be used with 
+   the Soundscape and MPU-401 drivers. You'll have to manually select the 
+   MPU, though, because it won't be autodetected. Actually, quite a lot of 
+   wavetable boards emulate the MPU, so give this a try and see if it works 
+   on your card. If you feel like coming up with drivers for any other 
+   hardware, they would be much appreciated.
+
+   Audio recording is supported for all SB cards, but only in unidirectional 
+   mode, ie. you cannot simultaneously record and playback samples. MIDI 
+   input is provided by the MPU-401 and SB MIDI drivers, but there are some 
+   restrictions on this. The SB MIDI interface cannot be used at the same 
+   time as the digital sound system, and the MPU will only work when there 
+   is an IRQ free for it to use (this will be true if you have an SB16 or 
+   greater, or if no SB-type digital driver is installed, or if your MIDI 
+   interface uses a different IRQ to the SB).
+
+
+
+================================================
+============ Notes for the musician ============
+================================================
+
+   The OPL2 synth chip can provide either nine voice polyphony or six voices 
+   plus five drum channels. How to make music sound good on the OPL2 is left 
+   as an exercise for the reader :-) On an SB Pro or above you will have 
+   eighteen voices, or fifteen plus drums. Allegro decides whether to use 
+   drum mode individually for each MIDI file you play, based on whether it 
+   contains any drum sounds or not. If you have an orchestral piece with 
+   just the odd cymbal crash, you might be better removing the drums 
+   altogether as that will let Allegro use the non-drum mode and give you an 
+   extra three notes polyphony.
+
+   When Allegro is playing a MIDI file in looped mode, it jumps back to the 
+   start of the file when it reaches the end of the piece. To control the 
+   exact loop point, you may need to insert a dummy marker event such as a 
+   controller message on an unused channel.
+
+   All the OPL chips have very limited stereo capabilities. On an OPL2, 
+   everything is of course played in mono. On the SB Pro-I, sounds can only 
+   be panned hard left or right. With the OPL3 chip in the SB Pro-II and 
+   above, they can be panned left, right, or centre. I could use two voices 
+   per note to provide more flexible panning, but that would reduce the 
+   available polyphony and I don't want to do that. So don't try to move 
+   sounds around the stereo image with streams of pan controller messages, 
+   because they will jerk horribly. It is also worth thinking out the 
+   panning of each channel so that the music will sound ok on both SB Pro-I 
+   and OPL3 cards. If you want a sound panned left or right, use a pan value 
+   less than 48 or greater than 80. If you want it centred, use a pan value 
+   between 48 and 80, but put it slightly to one side of the exactly central 
+   64 to control which speaker will be used if the central panning isn't 
+   possible.
+

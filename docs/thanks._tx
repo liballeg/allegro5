@@ -1,0 +1,625 @@
+@#
+@# This is the source for the Allegro thanks list, in a weird custom format.
+@# Read makedoc.c for a description of what is going on...
+@#
+@<html>
+@<head>
+@<title>Allegro Contributors</title>
+@<body>
+@<center><h1><b><i>The Hall of Fame</i></b></h1></center><hr>
+@startoutput AUTHORS
+<i>
+I hope I've remembered everyone who ought to be mentioned here. If your 
+name should be included, my apologies, and please tell me so I can correct 
+the oversight!
+</i>
+
+
+@heading
+Contributors
+
+   A.Cottrell (<email>andrewc@dbworld.net.au</a>).<br>
+   Changed the grabber to use a more robust (locale-independent) date format.
+
+   Adrian Oboroc (<email>doba@corefx.com</a>).<br>
+   Wrote the LBM loader.
+
+   Alex Demko (<email>alex_demko@mbnet.mb.ca</a>).<br>
+   Suggested lots of improvements to the datafile system, and provided code 
+   for handling the 8x16 BIOS font format.
+
+   Alessandro Monopoli (<email>almonopo@tin.it</a>).<br>
+   Added the Italian translation of the system messages.
+
+   Andreas Kluge (<email>bitland@aol.com</a>).<br>
+   Wrote the Ensoniq Soundscape driver.
+
+   Andrei 'old-boy' Ellman (<email>ellman@xs4all.nl</a>).<br>
+   Contributed the polygon_z_normal() function.
+
+   Andrew Ellem (<email>krand@ican.net</a>).<br>
+   Wrote the original version of the digital audio streaming code.
+
+   Andrew Geers (<email>andy@geerswj.clara.net</a>).<br>
+   Added the -ppassword and -nosound options to the grabber, and scrolling 
+   support in the image viewer.
+
+   Andy Goth (<email>andygoth@vetec.com</a>).<br>
+   Made the gfx_card config variable more flexible, added the 256x256 
+   tweaked VGA mode, and wrote the d_text_list_proc() dialog object.
+
+   Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
+   Added the Swiss keyboard mapping.
+
+   Anton Ragnarsson (<email>anton.ragnarsson@swipnet.se</a>).<br>
+   Contributed the Swedish keyboard mapping table.
+
+   Antti Haapala (<email>ztane@lyseo.edu.ouka.fi</a>).<br>
+   Fixed the setup program to display the right frequency list for each type 
+   of soundcard, and contributed the Finnish translation of the system 
+   messages.
+
+   Antti Koskipaa (<email>antti.koskipaa@nic.fi</a>).<br>
+   Wrote the DOS driver for WSS (Windows Sound System) cards.
+
+   Arne Steinarson (<email>arst@ludd.luth.se</a>).<br>
+   The fixed point square root routine came from his fix-float library.
+
+   Ben Chauveau (<email>bendomc@worldnet.fr</a>).<br>
+   Added support for Tseng ET6000 cards (now available as part of the 
+   FreeBE/AF project).
+
+   Ben Darnell (<email>bdarnell@vnet.net</a>).<br>
+   Put together the 2.11 release of Allegro while I was away from the net, 
+   and wrote the original version of the Allegro FAQ.
+
+   Burton Radons (<email>loth@gec.net</a>).<br>
+   Optimised the truecolor pixel blending function, converted the blenders 
+   to the new single-handler format, and added the range of 
+   Photoshop-compatible blender functions.
+
+   Calin Andrian (<email>calin@ibd.dbio.ro</a>).<br>
+   Wrote the truecolor, MMX, 3DNow!, and masked lit mode polygon rendering 
+   routines, and the clip3d_f() function.
+
+   Calvin French (<email>frenchc@home.com</a>).<br>
+   Added the -w (always update) switch to dat.exe.
+
+   Carsten Schmidt (email unknown).<br>
+   Wrote the the initial version of the Linux GGI driver.
+
+   Carsten Sorensen (<email>csorensen@ea.com</a>).<br>
+   Wrote the the ESS AudioDrive soundcard driver.
+
+   Cloud Wu (<email>cloudwu@263.net</a>).<br>
+   Optimised the truecolor pixel blending functions.
+
+   Chris La Mantia (<email>chrislm@earthlink.net</a>).<br>
+   Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog 
+   objects, added the D_DISABLED flag, improved the GUI handling of 
+   different font heights, and added the right aligned text functions.
+
+   Chris Robinson (<email>crobin_99@yahoo.com</a>).<br>
+   Wrote the fixed point clip3d() function.
+
+   David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
+   Optimised the fsqrt() routine, and added fhypot().
+
+   Dave Thomson (<email>gameskitchen@geocities.com</a>).<br>
+   Added the RGB &lt-&gt HSV conversion routines, the autocrop function to 
+   the grabber, and wrote the 3d starfield example program (ex26.exe).
+
+   David Calvin (<email>calvid@rpi.edu</a>).<br>
+   Wrote the original version of the sound setup utility.
+
+   Dmitriy Kazimirow (<email>mariann@mail.ru</a>).<br>
+   Provided the Russian keyboard mapping and message translation files.
+
+   Dominique Biesmans (<email>Dominique.Biesmans@ping.be</a>).<br>
+   Wrote the mode-X version of draw_sprite() and the mode-X <-> linear 
+   blitting functions.
+
+   Doug Eleveld (<email>D.J.Eleveld@anest.azg.nl</a>).<br>
+   Wrote the d_textbox_proc() dialog object and the new grabber help system.
+
+   Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
+   Provided scancode mapping tables for the AZERTY keyboard layout.
+
+   Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
+   Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
+   helped with the Swedish message translation.
+
+   Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
+   Optimised the linear -&gt mode-X blitting function.
+
+   Fabian Nunez (<email>faybs@iafrica.com</a>).<br>
+   Added support for the CH Flightstick Pro and Logitech Wingman Extreme 
+   joysticks, 3-button mice, and the extended keys on a Microsoft keyboard.
+
+   Fabrizio Gennari (<email>faybs@iafrica.com</a>).<br>
+   Contributed the DB9 and TurboGraFXoystick drivers.
+
+   Francois Charton (<email>deef@pobox.oleane.com</a>).<br>
+   Wrote the Paradise graphics driver (now available as part of the 
+   FreeBE/AF project), improved the VGA palette setting code, and helped 
+   with the TexInfo conversion of the docs.
+
+   Frodo Baggins (<email>l41273@alfa.ist.utl.pt</a>).<br>
+   Made the Portuguese keyboard mapping.
+
+   Garret Thomson (<email>gart@terraport.net</a>).<br>
+   Wrote the music used in the demo game.
+
+   George Foot (<email>george.foot@merton.ox.ac.uk</a>).<br>
+   Did a great deal of work on the Linux console version. Also wrote the 
+   AWE32 driver, added the MIDI pause/seek functions, and provided the basis 
+   of the SoundFont reader used in the pat2dat utility.
+
+   Gorka Olaizola (<email>olsago@jet.es</a>).<br>
+   Added the Redhat RPM .spec file.
+
+   Greg Hackmann (<email>hacker@ididitmyway.com</a>).<br>
+   Contributed the Borland C++ Builder port.
+
+   Grzegorz Adam Hankiewicz (<email>gradha@iname.com</a>).<br>
+   Wrote several of the example programs, suggested the "compress" makefile 
+   target, translated the docs and system error messages into Spanish, and 
+   suggested the idea of embedding the setup utility into other programs.
+
+   Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
+   Wrote several of the example programs, and made the intro animation and 
+   graphics for the demo game.
+
+   Guilherme Silveira (<email>thedarkage@geocities.com</a>).<br>
+   Modified the file selector to only list valid drive letters.
+
+   Gunter Ladwig (<email>gladwig@iname.com</a>).<br>
+   Wrote the OS/2 detection routines and added the three-button mouse 
+   emulation.
+
+   Haruhiko Okumura, 12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, JP.<br>
+   Wrote the original version of the LZSS compression code.
+
+   Henrik Stokseth (<email>hstokset@hotmail.com</a>).<br>
+   Added code to distinguish between win95 and win98, and worked on the 
+   Mingw32 native build version.
+
+   Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
+   Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
+   surfaces, and added the GFX_DIRECTX_WIN driver.
+
+   Ivan Baldo (<email>lubaldo@adinet.com.uy</a>).<br>
+   Wrote the 15/16 bit dithering code and optimised the sprite rotation 
+   routines.
+
+   James Arthur (<email>jaa@arfa.clara.net</a>).<br>
+   Documented the Photoshop-style truecolor blender routines.
+
+   James Hyman (<email>frooge@mindless.com</a>).<br>
+   Added support for quoted strings in the get_config_argv() function, and 
+   the dithering code for paletted images.
+
+   Jan Hubicka (<email>hubicka@horac.ta.jcu.cz</a>).<br>
+   Vastly improved the speed of the create_rgb_table() function.
+
+   Jason Wilkins (<email>fenix@io.com</a>).<br>
+   Wrote the quaternion math routines, and contributed the BeOS port.
+
+   Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
+   Removed floating point calculations from the AWE32 MIDI driver.
+
+   Joaquin Hierro Diaz (<email>Joaquin.Hierro.Diaz@fresno.csic.es</a>).<br>
+   Made the mapping table for Spanish keyboards.
+
+   Joerg Rueppel (<email>sharky-x@gmx.net</a>).<br>
+   Added more flexible wildcard matching for object names in dat.exe, and 
+   the find_datafile_object() function.
+
+   Johan Venter (<email>leonjventer@bigpond.com</a>).<br>
+   Fixed some problems with the RSXNT and Mingw32 makefiles.
+
+   Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
+   Added the save_bmp() function, and support for the OS/2 BMP format.
+
+   Jonathan Tarbox (<email>jonattar@rocketmail.com</a>).<br>
+   Wrote the mode-X setup code, the FLI/FLC player, and contributed parts of 
+   the joystick handler.
+
+   Jorrit Rouwe (<email>j.rouwe@cpedu.rug.nl</a>).<br>
+   Provided a new and much cooler set of FM instrument definitions for the 
+   Adlib MIDI driver.
+
+   Jose Antonio Luque (<email>skylord@LatinMail.com</a>).<br>
+   Improved the Windows joystick driver, and optimised the 16 bit blit() and 
+   masked_blit() functions.
+
+   Joshua Heyer (<email>joshua_heyer@yahoo.com</a>).<br>
+   Wrote the original version of the OSS sound driver.
+
+   Keith Gerdes (<email>kwg@softhome.net</a>).<br>
+   Fixed the DirectDraw overlay mode driver.
+
+   Kerry High (<email>khigh01@umr.edu</a>).<br>
+   Contributed the SNES joypad driver.
+
+   Kester Maddock (<email>dmaddock@xtra.co.nz</a>).<br>
+   Wrote the Wingman Warrior joystick driver.
+
+   Knut Pape (<email>Knut_Pape@t-online.de</a>).<br>
+   Improved the Mingw32 readme file.
+
+   Krzysztof Krzyzaniak (<email>eloy@arrakis.cs.put.poznan.pl</a>).<br>
+   Wrote the load_voc() function.
+
+   Lee Killough (email unknown).<br>
+   Added the low-level hook routine to the keyboard handler, and fixed a 
+   couple of bugs.
+
+   Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
+   Contributed the Norwegian message translation.
+
+   Lucas Vignoli Reis (<email>lucasvr@bestway.com.br</a>).<br>
+   Added the Portuguese (Brazil) message translation and keyboard mapping.
+
+   Maiolino Carmelo (<email>cmaiolino@ctonline.it</a>).<br>
+   Added the Italian keyboard mapping table.
+
+   Manni Heumann (<email>manfred.heumann@uni-bielefeld.de</a>).<br>
+   Fixed some problems with the German keyboard mapping table.
+
+   Marcel de Kogel (<email>m.dekogel@student.utwente.nl</a>).<br>
+   Not content with fixing my broken MPU-401 driver, Marcel went on to 
+   provide a set of vastly improved drum sounds for the OPL driver, to help 
+   me sort out some problems with reentrant interrupts, to supply the half 
+   of the joystick code that didn't come from Jonathan, and to locate a 
+   stupid mistake in my VESA linear framebuffer code.
+
+   Marco Campinoti (<email>marco@etruscan.li.it</a>).<br>
+   Added 15 and 24 bit support to the native Tseng ET4000 driver (now 
+   available as part of the FreeBE/AF project).
+
+   Marco Marmulla (<email>Viper005@usa.net</a>).<br>
+   Added 16 bit support to the load_voc() routine.
+
+   Marian Dvorsky (<email>mdvorsky@dodo.sk</a>).<br>
+   Wrote the Windows GDI interface routines.
+
+   Marius Fodor (<email>iceman@teleport.com</a>).<br>
+   Added support for the Sidewinder and Gravis GamePad Pro.
+
+   Marek Habersack (<email>grendel@ananke.amu.edu.pl</a>).<br>
+   Did the original Linux console port (brave man: this was the first ever 
+   work done on porting Allegro away from DOS), which is the basis of the 
+   code we are still using today. Added support for the more recent Trident 
+   chipsets (now available as part of the FreeBE/AF project).
+
+   Mark Wodrich (<email>mwodric@eleceng.uct.ac.za</a>).<br>
+   The brain behind sub-bitmaps, flicker-free mouse pointers, and the 
+   ability to import GRX .FNT files into the grabber.
+
+   Markus F.X.J. Oberhumer (<email>markus.oberhumer@jk.uni-linz.ac.at</a>).<br>
+   Fixed the Video-7 scrolling function (now available as part of the 
+   FreeBE/AF project), optimised the color mapping routines, and made many 
+   useful suggestions like the addition of a vid_phys_base field to the 
+   graphics driver structure.
+
+   Martijn Versteegh (<email>VERSTEEGH@KVI.nl</a>).<br>
+   Added the config hook extension mechanism.
+
+   Mathieu Lafon (<email>mlafon@ifhamy.insa-lyon.fr</a>).<br>
+   Added the French keyboard mapping, support for the Pause/PrtScr keys, and 
+   changed the key[] table to a normal/extended bitfield.
+
+   Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
+   Added support for 4-button joysticks.
+
+   Michael Bevin (<email>michael.bevin@stonebow.otago.ac.nz</a>).<br>
+   Optimised the create_trans_table() function.
+
+   Michael Bukin (<email>M.A.Bukin@inp.nsk.su</a>).<br>
+   Ported the whole thing to Unix/X, and contributed a _lot_ of patches to 
+   improve the portability, robustness, and performance of pretty much the 
+   entire library.
+
+   Michael Rickmann (<email>mrickma@gwdg.de</a>).<br>
+   Ported the Windows code to Mingw32.
+
+   Michael Tanczos (<email>webmaster@logic-gate.com</a>).<br>
+   Fixed some bugs in the FLIC player.
+
+   Michal Mertl (<email>mime@eunet.cz</a>).<br>
+   Wrote all the 24 bit graphics code, the optimised palette generation 
+   function, and a fair amount of the other truecolor stuff too (bitmap 
+   scaling, image loading, etc).
+
+   Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
+   Improved the fire routine in examples/ex11.c (my original version didn't 
+   really look very much like flames :-) and gave me some extremely useful 
+   ideas about how to implement translucency.
+
+   Neil Townsend (<email>neil@robots.ox.ac.uk</a>).<br>
+   Improved the accuracy of the timer routines, and added the callback 
+   parameters.
+
+   Ole Laursen (<email>98zOLaw@aalborghus.dk</a>).<br>
+   Contributed the Danish keyboard mapping table and system message 
+   translation, and made the Unicode utolower() and utoupper() functions 
+   understand the entire 16 bit character set.
+
+   Olly Betts (<email>olly@muscat.co.uk</a>).<br>
+   Modified the djgpp makefile to support cross-compiling on a Linux machine.
+
+   Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
+   Wrote part of the translucency/lighting code.
+
+   Ove Kaaven (<email>ovek@arcticnet.no</a>).<br>
+   Fixed a bug in the ATI mach64 driver (now available as part of the 
+   FreeBE/AF project), added native truecolor and linear framebuffer support 
+   to the ATI driver, contributed the Norwegian keyboard mapping, and added 
+   MIDI and sample input features to the MPU and SB drivers respectively.
+
+   Patrick Hogan (<email>patter@iname.com</a>).<br>
+   Wrote the draw_gouraud_sprite() function, and made Windows audiostreams 
+   work properly.
+
+   Paul Bartrum (<email>bartrum@xtra.co.nz</a>).<br>
+   Contributed the ellipse drawing functions.
+
+   Paul Furber (<email>paul@sprintlink.co.za</a>).<br>
+   Provided the floating point apply_matrix_f() function.
+
+   Paul Hampson (<email>Paul.Hampson@Pobox.Com</a>).<br>
+   Fixed some problems with the SNES gamepad driver.
+
+   Paul Pinault (<email>diskaleg@infonie.fr</a>).<br>
+   Translated the system error messages into French.
+
+   Pavlos Touboulidis (<email>gtoub@otenet.gr</a>).<br>
+   Made file_select() able to include or exclude files based on their 
+   attributes.
+
+   Pedro Cardoso (<email>pcardoso@viriato.ipv.pt</a>).<br>
+   Contributed the tweaked 80x80 VGA mode.
+
+   Peter Cech (<email>7cech@nw.fmph.uniba.sk</a>).<br>
+   Added grabber support for the 8x8 BIOS font format, and support for 
+   hot-swapping between a custom keyboard layout and the standard US 
+   mapping. Optimised the alpha sprite blending routines.
+
+   Peter Monks (<email>pmonks@iname.com</a>).<br>
+   Wrote the Video-7 graphics driver (now available as part of the FreeBE/AF 
+   project), and showed me how to set up the unchained 640x400 mode.
+
+   Peter Palotas (<email>blizzar@hem1.passagen.se</a>).<br>
+   Added the keyboard callback routine.
+
+   Peter Pavlovic (<email>pavlovic@redbull.dcs.fmph.uniba.sk</a>).<br>
+   Added the Slovak keyboard mapping and message translation, stopped the 
+   DOS file selector from listing virtual drives, and improved the support 
+   for accented character maps in the keyboard driver.
+
+   Peter Wang (<email>tjaden@alphalink.com.au</a>).<br>
+   Contributed to the Linux GGI driver, added the mouse_z wheel input 
+   support to the Linux code, fixed problems with the ESD sound driver, 
+   wrote the ALSA sound driver, added OSS MIDI and sample input support, 
+   added banked mode support to the SVGAlib driver, wrote the X DGA mode 
+   switching code, and improved the Linux joystick driver.
+
+   Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
+   Wrote the CPU type detection code.
+
+   Przemek Podsiadly (<email>ppodsiad@elka.pw.edu.pl</a>).<br>
+   Added hicolor versions of the 3d polygon code.
+
+   Revin Guillen (<email>revin@phylo.com</a>).<br>
+   Added the position_dialog() function.
+
+   Richard Davies (<email>richard@debaser.force9.co.uk</a>).<br>
+   Added support for PSX and N64 joypads.
+
+   Richard Mitton (<email>100740.1271@compuserve.com</a>).<br>
+   Added support for 6-button joysticks, and wrote the 12-bit color example 
+   program (ex35).
+
+   Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
+   Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 
+   PSX, and throttle input code.
+
+   Robert Ohannessian (<email>varobert@colba.net</a>).<br>
+   Added MMX optimisation for the 8 and 16 bit clear() functions.
+
+   Romano Signorelli (<email>romanos@bigfoot.com</a>).<br>
+   Added an arc plotting routine.
+
+   S.Sakamaki (<email>emt@geocities.co.jp</a>).<br>
+   Added the VESA 3.0 refresh rate control code.
+
+   S.Suzuki (<email>s-suz@sunfield.ne.jp</a>).<br>
+   Wrote the IF-SEGA /PCI, /PCI2, and /ISA joystick interface drivers.
+
+   Salvador Eduardo Tropea (<email>salvador@inti.edu.ar</a>).<br>
+   Improved the keyboard routines (better handling of extended scancodes, 
+   keyboard LED support, capslock and numlock, and alt+numpad input), 
+   contributed the 320x100 VGA graphics mode, added support for proper 16 
+   bit sample mixing, and made numerous other useful suggestions, 
+   contributions and bugfixes.
+
+   Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
+   Made the Finnish keyboard mapping.
+
+   Scott Harrison (<email>scotth@calderauk.com</a>).<br>
+   Added the OpenDOS detection code.
+
+   Sean Gugler (<email>sean@epal.com</a>).<br>
+   Added the set_leds() function.
+
+   Seymour Shlien (<email>seymour@dgbt.doc.ca</a>).<br>
+   Contributed the Windows BMP file reader, bezier spline drawer, and 
+   justified text plotting function.
+
+   Shawn Hargreaves (<email>shawn@talula.demon.co.uk</a>).<br>
+   Progenitor. Wrote everything that wasn't written by somebody else.
+
+   Stefan Eilert (<email>seilert@rz.Uni-Osnabrueck.DE</a>).<br>
+   Added support for a second joystick.
+
+   Stefan Schimanski (<email>1Stein@gmx.de</a>).<br>
+   Wrote the Windows version pretty much single-handedly.
+
+   Stefan T. Boettner (<email>virtual.man@t-online.de</a>).<br>
+   Wrote the Linux SVGAlib driver.
+
+   Stepan Roh (<email>sroh7497@ss1000.ms.mff.cuni.cz</a>).<br>
+   Added a Czech keyboard mapping and system message translation, the Latin 
+   Extended-A characters in the default font, and the codepage support in 
+   the textconv utility, and fixed some problems with the ESD sound driver.
+
+   Sven Sandberg (<email>ssven@geocities.com</a>).<br>
+   Fixed a problem with save_bitmap() rounding the image widths, optimised 
+   the create_light_table() function, optimised the fixed point trig 
+   routines, provided the Swedish message translations, improved the file 
+   selector sorting algorithm, optimised the spline routines, added the 
+   ustrrchr() function, and improved the usprintf() handling of floats.
+
+   TBD/FeR (<email>tbd@usa.net</a>).<br>
+   Added the 320x600 and 360x600 resolutions to the mode-X driver.
+
+   Teijo Hakala (<email>teijo.hakala@imnetti.fi</a>).<br>
+   Added wheel support to the Windows mouse driver.
+
+   Tero Parvinen (<email>Tero.Parvinen@hut.fi</a>).<br>
+   Designed most of the new sound API.
+
+   Theuzifan Sumachingun (<email>uzi@simauria.upv.es</a>).<br>
+   Improved the cpu detection for Cyrix chips and made the file selector 
+   only list valid drive letters.
+
+   Thomas Wolf (<email>two@chello.at</a>).<br>
+   Corrected some errors in the German keyboard mapping, and added the 
+   German translation of the system messages.
+
+   Tim Bird (<email>tbird@caldera.com</a>).<br>
+   Worked on the Linux console port.
+
+   Tim Gunn (<email>timgunn@eastwind.com.au</a>).<br>
+   Wrote the TGA reading/writing routines.
+
+   Timothy Terriberry (<email>sundance@sprintmail.com</a>).<br>
+   Fixed several bugs in the RGB &lt-&gt HSV conversion routines.
+
+   Tom Breton (<email>tob@world.std.com</a>).<br>
+   Added the functionality selection #ifndefs to allegro.h.
+
+   Tom Novelli (<email>tnovelli@cyber3.servtech.com</a>).<br>
+   Wrote the original version of the digital MIDI driver.
+
+   Tomohiko Sugiura (<email>tmsugi@d4.dion.ne.jp</a>).<br>
+   Added the KEY_YEN and KEY_YEN2 keys to the input handler, and organised 
+   getting the IF-SEGA joystick drivers by S.Suzuki merged into my codebase.
+
+   Vincent Penquerc'h (<email>vpenquerch@cr2a-di.fr</a>).<br>
+   Added the D_DIRTY flag to the GUI system, optimised the 256 to truecolor 
+   blitting code to avoid repeated conversions of the palette table, added 
+   scare_mouse_area(), added the yield_timeslice() function, added the 
+   update selection function to the grabber, and made various other bugfixes 
+   and improvements.
+
+   VolkerOth (<email>VolkerOth@aol.com</a>).<br>
+   Integrated the concepts of scrolling and edit_proc objects.
+
+@endoutput AUTHORS
+
+@startoutput THANKS
+
+@heading
+Thanks!
+
+   First, a big thank you to all the people who help me test and debug this 
+   code. It sometimes gets frustrating to receive hundreds of messages 
+   saying "it doesn't work!", but they are useful all the same...
+
+   Andre Baresel (<email>baresel@informatik.hu-berlin.de</a>),
+   and Craig Jackson (<email>Craig.Jackson@launchpad.unc.edu</a>),
+   provided a tremendous amount of information about SB hardware.
+
+   Benji York (<email>Benji@cookeville.com</a>).<br>
+   Provided hardware information for the Gravis GamePad Pro.
+
+   Charles Mac Donald (<email>cgfm2@hooked.net</a>).<br>
+   Showed me how to set some cool tweaked VGA and mode-X resolutions.
+
+   Charles Sandmann (<email>sandmann@clio.rice.edu</a>),
+   DJ Delorie (<email>dj@delorie.com</a>),
+   Eli Zaretskii (<email>eliz@is.elta.co.il</a>),
+   and everyone else who has contributed to djgpp. I love it.
+
+   C. Schwerdtfeger (<email>schwerdt@physics.ubc.ca</a>),
+   for his help (and enourmous patience!) in getting the SB Pro-I MIDI 
+   driver to work.
+
+   Finn Thoegersen, Nordbanevej 3 C, DK-7800 Skive, Denmark.<br>
+   Most of my SVGA hardware information came from his VGADOC package.
+
+   Eric Jorgensen (<email>smeagol@rt66.com</a>).<br>
+   Varmint's Audio Tools (VAT) gave me many useful ideas about how to play 
+   MIDI files.
+
+   Jamie O'Connell (<email>JamieOConnell@msn.com</a>).<br>
+   Several of the new Adlib drum patches, and the specifications for the 
+   .IBK file format, came from his SBTimbre package.
+
+   Jean-Paul Mikkers (<email>mikmak@stack.urc.tue.nl</a>).<br>
+   MikMod was the source of a lot of information about programming the SB, 
+   and also gave me the idea of dynamically reprogramming the PIT to get a 
+   really high resolution timer.
+
+   Joel H. Hunter (<email>jhunter@kendaco.telebyte.com</a>).<br>
+   His SB library for djgpp is excellent, and helped me a lot.
+
+   John Pollard (<email>74723.1626@compuserve.com</a>).<br>
+   The FM instrument definitions are based on his MID-KIT library.
+
+   Kendall Bennett and all the other cool people at SciTech Software.<br>
+   These guys gave the world UniVBE, the VBE/AF API, and a lot of free 
+   information and example code. Plus they very kindly sent me a copy of the 
+   VBE/AF spec when I wanted one.
+
+   Kris Heidenstrom (<email>kheidens@actrix.gen.nz</a>).<br>
+   His PC timing FAQ was a big help.
+
+   Mark Feldman.<br>
+   It goes without saying that the PCGPE was an invaluable resource.
+
+   Michael Abrash.<br>
+   You just gotta love that man...
+
+   Paul Fenwick (<email>bg914@freenet.carleton.ca</a>).<br>
+   Various bits of the mode-X code (notably the split screen stuff) came 
+   from his XLIBDJ library.
+
+   powerjaw (<email>powerjaw@dnai.com</a>).<br>
+   Sent me a Sidewinder gamepad so I could fix some problems with the driver 
+   for it. What a cool thing to do...
+
+   Robert Grubbs (<email>rwgrubbs@vt.edu</a>).<br>
+   Provided hardware information for the Sidewinder joypad.
+
+   Robert Schmidt (<email>robert@stud.unit.no</a>).<br>
+   The register values for the 400x* mode-X resolutions came from his TWEAK 
+   program.
+
+   Tom Grandgent (<email>tgrand@canvaslink.com</a>).<br>
+   Organised and hosted the Allegro mailing list. Hurrah!
+
+   Vladimir Arnost (<email>xarnos00@dcse.fee.vutbr.cz</a>).<br>
+   Provided hardware specs for the OPL3 chip.
+
+   Frank Zappa, Mike Keneally, Pink Floyd, the Doors, Tori Amos, and all the 
+   other great musicians who provide me with things to listen to while I am 
+   programming.
+
+   My parents, John and Nancy.<br>
+   I would never have made it through all those late night coding sessions 
+   without the cafetiere they gave me last Christmas :-)
+
+@endoutput THANKS

@@ -1,0 +1,43 @@
+ex12bit.c  - fake 12-bit truecolor on an 8 bit card, by Richard Mitton
+ex3buf.c   - mode-X triple buffering and retrace interrupt simulation
+ex3d.c     - 3d 'bouncy cubes' demo
+exaccel.c  - using offscreen video memory to store source graphics for VBE/AF
+exalpha.c  - 32 bit RGBA sprites
+exbitmap.c - loading and displaying PCX and BMP files
+exblend.c  - truecolor translucency
+excamera.c - viewing a 3d world from an arbitrary camera position
+excolmap.c - color mapping table effects, by Grzegorz Hankiewicz
+excustom.c - creating custom GUI objects
+exdata.c   - accessing the contents of datafiles
+exdbuf.c   - double buffering in VGA mode 13h
+exdodgy.c  - a cool trick you can do with the MIDI player
+exexedat.c - appending datafiles onto your executable, by Grzegorz Hankiewicz
+exfixed.c  - using fixed point maths
+exflame.c  - how to write directly to video memory
+exflip.c   - double buffering and page flipping in mode-X
+exgui.c    - using the GUI routines
+exhello.c  - simple "hello world" program
+exjoy.c    - joystick input, by Grzegorz Hankiewicz
+exkeys.c   - getting input from the keyboard
+exlights.c - one way to do colored lighting effects in a hicolor video mode
+exmem.c    - drawing onto memory bitmaps and then blitting them to the screen
+exmidi.c   - playing MIDI music
+exmouse.c  - getting input from the mouse
+expal.c    - palette effects and color cycling
+expat.c    - using patterned drawing modes and sub-bitmaps
+exquat.c   - quaternion rotations, by Jason Wilkins
+exrgbhsv.c - RGB <-> HSV colorspace conversions
+exsample.c - playing digital samples
+exscale.c  - loading PCX files and bitmap stretching, by Grzegorz Ludorowski
+exscroll.c - mode-X hardware scrolling and split screens
+exshade.c  - gouraud shaded sprites, by Patrick Hogan
+exspline.c - constructing smooth movement paths from spline curves
+exsprite.c - datafiles and sprite animation, by Grzegorz Ludorowski
+exstars.c  - 3d starfield and lightsourced spaceship, by Dave Thomson
+exstream.c - playing audio streams
+exswitch.c - controlling the console switch mode
+extimer.c  - using the timer (delays and interrupts)
+extrans.c  - lighting and translucency effects, by Owen Embury
+extruec.c  - truecolor pixel format conversions
+exupdate.c - supporting different screen update methods in a single program
+exxfade.c  - truecolor image loading and fades

@@ -1,0 +1,217 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Linux console internal mouse driver for Microsoft mouse.
+ *
+ *      By George Foot.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/time.h>
+#include <termios.h>
+
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintunix.h"
+#include "linalleg.h"
+
+
+static int intellimouse = FALSE;
+static int packet_size = 3; 
+
+
+/* processor:
+ *  Processes the first packet in the buffer, if any, returning the number
+ *  of bytes eaten.
+ *
+ *  Microsoft protocol has only seven data bits.  The top bit is set in 
+ *  the first byte of the packet, clear in the other two.  The next two 
+ *  bits in the header are the button state.  The next two are the top 
+ *  bits of the Y offset (second data byte), and the last two are the 
+ *  top bits of the X offset (first data byte).
+ */
+static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
+{
+   /* if we don't have enough input, we don't want the caller to process
+    * the `info' struct */
+   info->updated = 0;
+   if (buf_size < packet_size) return 0;     /* not enough data, spit it out for now */
+
+   /* initialise info; if packet is invalid, this is what's returned */
+   info->l = info->r = info->m = info->x = info->y = 0;
+   info->updated = 1;
+
+   /* if packet is invalid, just eat it */
+   if (!(buf[0] & 0x40)) return 1; /* invalid byte */
+   if (buf[1] & 0x40) return 1;    /* first data byte is actually a header */
+   if (buf[2] & 0x40) return 2;    /* second data byte is actually a header */
+
+   /* packet is valid, decode the data */
+   info->l = !!(buf[0] & 0x20);
+   info->r = !!(buf[0] & 0x10);
+
+   if (intellimouse) {                   /* Use Intellimouse extensions */
+      info->m = !!(buf[3] & 0x10);
+      info->z = (buf[3] & 0x0f);
+      if (info->z) 
+	 info->z = (info->z-7) >> 3;
+   }
+   else {
+      info->m = 0;
+      info->z = 0;
+   }
+
+   info->x =  (signed char) (((buf[0] & 0x03) << 6) | (buf[1] & 0x3F));
+   info->y = -(signed char) (((buf[0] & 0x0C) << 4) | (buf[2] & 0x3F));
+
+   info->updated = 1;
+   return packet_size; /* yum */
+}
+
+/* analyse_data:
+ *  Analyses the given data, returning 0 if it is unparsable, nonzero
+ *  if there's a reasonable chance that this driver can work with that
+ *  data.
+ */
+static int analyse_data (const char *buffer, int size)
+{
+	int pos = 0;
+	int packets = 0, errors = 0;
+
+	int step = 0;
+
+	for (pos = 0; pos < size; pos++)
+		switch (step) {
+			case 3:
+				packets++;
+				step = 0;
+			case 0:
+				if (!(buffer[pos] & 0x40)) {
+					errors++;
+				} else {
+					step++;
+				}
+				break;
+
+			case 1:
+			case 2:
+				if (buffer[pos] & 0x40) {
+					errors++;
+					step = 0;
+					pos--;
+				} else {
+					step++;
+				}
+				break;
+		}
+
+	return (errors <= 5) || (errors < size / 20);    /* 5% error allowance */
+}
+
+
+static INTERNAL_MOUSE_DRIVER intdrv = {
+   -1,
+   processor,
+   2
+};
+
+/* sync_mouse:
+ *  To find the start of a packet, we just read all the data that's 
+ *  waiting.  This isn't a particularly good way, obviously. :)
+ */
+static void sync_mouse (int fd)
+{
+	fd_set set;
+	int result;
+	struct timeval tv;
+	char bitbucket;
+
+	do {
+		FD_ZERO (&set);
+		FD_SET (fd, &set);
+		tv.tv_sec = tv.tv_usec = 0;
+		result = select (FD_SETSIZE, &set, NULL, NULL, &tv);
+		if (result > 0) read (fd, &bitbucket, 1);
+	} while (result > 0);
+}
+
+/* mouse_init:
+ *  Here we open the mouse device, initialise anything that needs it, 
+ *  and chain to the framework init routine.
+ */
+static int mouse_init (void)
+{
+	char tmp[80], tmp2[80], *device, *ext;
+	struct termios t;
+	int i;
+
+	/* Find the device filename */
+	device = get_config_string(NULL, uconvert_ascii("mouse_device", tmp), uconvert_ascii("/dev/mouse", tmp2));
+
+	/* See if Intellimouse extensions (middle button + wheel) are enabled */
+	ext = get_config_string(NULL, uconvert_ascii("intellimouse", tmp), NULL);
+	if ((ext) && ((i = ugetc(ext)) != 0) &&
+	    ((i == 'y') || (i == 'Y') || (i == '1'))) {
+		intellimouse = TRUE;
+		packet_size = 4;
+		mousedrv_linux_ms.name = mousedrv_linux_ms.desc = get_config_text("Linux MS Intellimouse");
+	}
+
+	/* Open mouse device.  Devices are cool. */
+	intdrv.device = open (device, O_RDONLY | O_NONBLOCK);
+	if (intdrv.device < 0) {
+		usprintf (allegro_error, get_config_text ("Unable to open %s: %s"), uconvert_ascii ("/dev/mouse", tmp), ustrerror (errno));
+		return -1;
+	}
+
+	/* Set parameters */
+	tcgetattr (intdrv.device, &t);
+	t.c_iflag = IGNBRK | IGNPAR;
+	t.c_oflag = t.c_lflag = t.c_line = 0;
+	t.c_cflag = CS7 | CREAD | CLOCAL | HUPCL | B1200;
+	tcsetattr (intdrv.device, TCSAFLUSH, &t);
+
+	/* Discard any garbage, so the next thing we read is a packet header */
+	sync_mouse (intdrv.device);
+
+	return __al_linux_mouse_init (&intdrv);
+}
+
+/* mouse_exit:
+ *  Chain to the framework, then uninitialise things.
+ */
+static void mouse_exit (void)
+{
+	__al_linux_mouse_exit();
+	close (intdrv.device);
+}
+
+MOUSE_DRIVER mousedrv_linux_ms =
+{
+	MOUSEDRV_LINUX_MS,
+	empty_string,
+	empty_string,
+	"Linux MS mouse",
+	mouse_init,
+	mouse_exit,
+	NULL, /* poll() */
+	NULL, /* timer_poll() */
+	__al_linux_mouse_position,
+	__al_linux_mouse_set_range,
+	__al_linux_mouse_set_speed,
+	__al_linux_mouse_get_mickeys,
+	analyse_data
+};
+

@@ -1,0 +1,182 @@
+
+		     _____ ______ _______ _    _ _____
+		    / ____|  ____|__   __| |  | |  __ \
+		   | (___ | |__     | |  | |  | | |__) |
+		    \___ \|  __|    | |  | |  | |  ___/
+		    ____) | |____   | |  | |__| | |
+		   |_____/|______|  |_|   \____/|_|
+
+
+			   by Shawn Hargreaves
+
+
+
+
+Introduction
+------------
+
+This program is a simple interface for setting up a hardware configuration 
+file for use with Allegro (usually called allegro.cfg). It will allow you to 
+autodetect your soundcard or set it up manually, to select a keyboard 
+layout, to choose which language Allegro should use for things like driver 
+error messages, and to calibrate your joystick. It also provides a test 
+system to make sure the settings you have chosen are working properly.
+
+
+
+Files
+-----
+
+setup.c        -  source code
+setup.exe      -  main program file
+setup.dat      -  datafile containing test sounds and graphics
+setup.txt      -  you're reading it now
+allegro.cfg    -  created by setup.exe to save settings
+
+
+
+Installation
+------------
+
+If you are a user of an Allegro based program, installation is simple. Copy 
+setup.exe into the directory of the program you are using and you're all 
+set. The configuration file will always be saved into the current directory, 
+so it is essential that you run it from the same directory as your program!
+
+If you are a developer of an Allegro based program, you may distribute 
+copies of this utility along with your code, and modify it in any way that 
+strikes your fancy (see below). Depending on the platform, you may or may 
+not need to include a copy of setup.dat along with setup.exe: the djgpp 
+version links the datafile directly into the executable, but other versions 
+may not do this. Try it and see.
+
+
+
+Usage
+-----
+
+The simplest case of usage is this:
+
+   *  run setup.exe
+   *  click on autodetect
+   *  test to make sure the settings work
+   *  optionally choose a keyboard layout and language
+   *  optionally calibrate your joystick
+   *  save and exit
+
+If there are any problems, use the "Digital Driver" and "MIDI Driver" menus 
+to manually set your soundcard parameters. Whenever you highlight an option, 
+a help message explaining what it does will scroll across the bottom of your 
+screen.
+
+
+
+Customisation
+-------------
+
+If you want to distribute setup with your own programs, you are very welcome 
+to alter it to suit your own requirements. There are several particularly 
+easy things you can do:
+
+   *  Change the SETUP_TITLE define at the top of setup.c, and make it use 
+      the name of your own program.
+
+   *  Change the SETUP_CFG_FILE define at the top of setup.c, to alter what 
+      file the settings are written into. If you use anything other than 
+      allegro.cfg, you will need to call set_config_file() at the start of 
+      your program to tell it where the data can be found.
+
+   *  Change the test sample and MIDI file in setup.dat.
+
+   *  Change the screen resolution, by altering the SETUP_SCREEN_W and 
+      SETUP_SCREEN_H defines at the top of setup.c.
+
+   *  Change the background bitmap and palette in setup.dat. You can use any 
+      256 color image, but there are a few rules that it has to obey. There 
+      must be blank (color zero) borders of at least 16 pixels along the top 
+      and bottom of the image. Color zero in your palette must be black, and 
+      color 255 should be some other color (eg. a pale grey) that will be 
+      suitable for button borders and text. The colors from 1 to 15 should 
+      be a gradient for use by the multicolored text, and colors 16 to 31 
+      should be a gradient from black to white.
+
+      If you have an image using some other arbitrary palette, the easiest 
+      way to make it conform to these rules is to start with the palette 
+      being used by your file, and rearrange it so that the first 32 colors 
+      and color #255 contain the values needed by setup, moving the other 
+      colors used by your bitmap into the middle of the palette (it doesn't 
+      matter if a few colors go missing during this process, as long as 
+      there are other similar ones still in the palette). Import this 
+      palette into the grabber, and then grab your image (which is still 
+      using its original palette) on top of the current background bitmap. 
+      Right click on it, and select "Color Depth / 32 bit truecolor". Double 
+      click on your new palette to select it, and then right click on the 
+      bitmap again and select "Color Depth / 256 color palette" to reduce it 
+      back down to an eight bit image. It will now be using the correct 
+      palette!
+
+   *  Change the font in setup.dat. This should be sized 8x16, and each 
+      character should contain a color gradient from 1 (top) to 15 (bottom).
+
+   *  Embed the entire setup utility into your program, so that it can be 
+      accessed by one of your menu options. As well as giving a more 
+      professional looking product, this can give a dramatic reduction in 
+      the total size of your distribution, since you will then only need one 
+      copy of the Allegro library code, rather than one for the main program 
+      and one for the setup utility.
+
+      To embed the program, you should include setup.c into your main 
+      sources, and define some special symbols before you do this (you could 
+      either compile it separately using the -D compiler switch, or #define 
+      the symbols and then #include the file directly into your main 
+      sources). Most importantly, you must define the symbol SETUP_EMBEDDED. 
+      You can also define SETUP_TITLE, SETUP_CFG_FILE, SETUP_KEYBOARD_FILE, 
+      SETUP_LANGUAGE_FILE, and SETUP_DATA_FILE, but these are optional: see 
+      the top of setup.c for details. By default the program will try to 
+      read the test sounds and graphics from SETUP_DATA_FILE (which defaults 
+      to setup.dat), but if you define SETUP_USE_DAT2S, it will instead use 
+      the global setup_data[], which can be produced by the dat2s utility.
+
+      When you want to activate the embedded setup utility, you should call 
+      setup_main(), before which you must have initialised Allegro, 
+      installed the mouse, keyboard, and timer modules (but not sound!) and 
+      set a 256 color graphics mode.
+
+      Here is an example of a very simple embedded setup system, which 
+      activates the setup program if you pass it a -setup command switch:
+
+      --- cut here, myprog.c ---
+
+      #include <string.h>
+      #include <allegro.h>
+
+      #define SETUP_EMBEDDED
+      #define SETUP_TITLE        "My program"
+      #define SETUP_CFG_FILE     "mystuff.cfg"
+
+      #include "setup.c"
+
+      int main(int argc, char *argv[])
+      {
+	 int i;
+
+	 allegro_init();
+	 install_keyboard();
+	 install_timer();
+	 install_mouse();
+	 set_gfx_mode(GFX_SAFE, 640, 480, 0, 0);
+
+	 for (i=1; i<argc; i++) {
+	    if (stricmp(argv[i], "-setup") == 0)
+	       return setup_main();
+	 }
+
+	 alert("The real program goes here", 
+	       "(use -setup switch to configure)", 
+	       NULL, "OK", NULL, 13, 0);
+
+	 return 0;
+      }
+
+      END_OF_MAIN();
+

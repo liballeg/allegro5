@@ -1,0 +1,411 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(include/allegro.h)
+AC_CONFIG_AUX_DIR(misc)
+AC_CONFIG_HEADER(include/allegro/alunixac.h:include/allegro/alunixac.hin)
+AC_PREREQ(2.12)
+AC_ARG_PROGRAM
+
+dnl Enable 8-bpp color depth (default).
+AC_ARG_ENABLE(color8,
+[  --enable-color8[=x]     enable support for 8-bpp modes [default=yes]],
+test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR8),
+AC_DEFINE(ALLEGRO_COLOR8))
+
+dnl Enable 16-bpp color depth (default).
+AC_ARG_ENABLE(color16,
+[  --enable-color16[=x]    enable support for 16-bpp modes [default=yes]],
+test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR16),
+AC_DEFINE(ALLEGRO_COLOR16))
+
+dnl Enable 24-bpp color depth (default).
+AC_ARG_ENABLE(color24,
+[  --enable-color24[=x]    enable support for 24-bpp modes [default=yes]],
+test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR24),
+AC_DEFINE(ALLEGRO_COLOR24))
+
+dnl Enable 32-bpp color depth (default).
+AC_ARG_ENABLE(color32,
+[  --enable-color32[=x]    enable support for 32-bpp modes [default=yes]],
+test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR32),
+AC_DEFINE(ALLEGRO_COLOR32))
+
+dnl Enable static library.
+AC_ARG_ENABLE(static,
+[  --enable-static[=x]     build static libraries [default=no]],
+test "X$enableval" != "Xno" && allegro_static_libraries=yes)
+
+dnl Enable shared library.
+AC_ARG_ENABLE(shared,
+[  --enable-shared[=x]     build shared libraries [default=yes]],
+test "X$enableval" != "Xno" && allegro_shared_libraries=yes,
+allegro_shared_libraries=yes)
+
+dnl Enable building normal library (default).
+AC_ARG_ENABLE(stdlib,
+[  --enable-stdlib[=x]     enable building normal library [default=yes]],
+test "X$enableval" != "Xno" && allegro_build_normal_library=yes,
+allegro_build_normal_library=yes)
+
+dnl Enable building debugging library.
+AC_ARG_ENABLE(dbglib,
+[  --enable-dbglib[=x]     enable building debugging library [default=no]],
+test "X$enableval" != "Xno" && allegro_build_debugging_library=yes)
+
+dnl Enable building profiling library.
+AC_ARG_ENABLE(proflib,
+[  --enable-proflib[=x]    enable building profiling library [default=no]],
+test "X$enableval" != "Xno" && allegro_build_profiling_library=yes)
+
+dnl Enable building debugging programs.
+AC_ARG_ENABLE(dbgprog,
+[  --enable-dbgprog[=x]    enable building debugging programs [default=no]],
+test "X$enableval" != "Xno" && allegro_build_debugging_programs=yes)
+
+dnl Enable building profiling programs.
+AC_ARG_ENABLE(profprog,
+[  --enable-profprog[=x]   enable building profiling programs [default=no]],
+test "X$enableval" != "Xno" && allegro_build_profiling_programs=yes)
+
+dnl Link programs with static library rather than shared (if available)
+AC_ARG_ENABLE(staticprog,
+[  --enable-staticprog[=x] link programs with static library [default=no]],
+test "X$enableval" != "Xno" && allegro_build_static_programs=yes)
+
+dnl Sanity check on shared/static options
+if test "X$allegro_static_libraries" != "Xyes"; then
+  if test "X$allegro_shared_libraries" != "Xyes"; then
+    AC_MSG_WARN([static and shared libraries all disabled, assuming shared])
+    allegro_shared_libraries=yes
+  fi
+elif test "X$allegro_shared_libraries" != "Xyes"; then
+  allegro_build_static_programs=yes
+fi
+
+dnl How strict should we be about compiler warnings
+AC_ARG_ENABLE(strictwarn,
+[  --enable-strictwarn[=x] produce strict compiler warnings [default=no]],
+test "X$enableval" != "Xno" && allegro_strict_warnings=yes)
+
+dnl Check for tools.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+AC_PROG_LN_S
+
+dnl LDCONFIG is used for installing shared libraries, in Linux/ELF at least
+AC_PATH_PROGS(LDCONFIG, ldconfig, [echo ought to run ldconfig], $PATH:/sbin:/usr/sbin)
+
+dnl INSTALL_INFO is needed for installing the info pages
+AC_PATH_PROGS(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
+
+dnl Test for asm support.
+ALLEGRO_ACTEST_SUPPORT_ASM
+if test "$allegro_cv_support_asm" = i386; then
+  ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
+else
+  ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_C_FILES
+  AC_DEFINE(ALLEGRO_NO_ASM)
+fi
+AC_SUBST(ALLEGRO_MAYBE_ASM_FILES)
+
+dnl Test for MMX support.
+ALLEGRO_ACTEST_SUPPORT_MMX
+if test "$allegro_cv_support_mmx" = yes; then
+  AC_DEFINE(ALLEGRO_MMX)
+fi
+
+dnl Test for underscore prepended by compiler.
+ALLEGRO_ACTEST_ASM_PREFIX
+if test "$allegro_cv_asm_prefix" != ""; then
+  AC_DEFINE_UNQUOTED(ALLEGRO_ASM_PREFIX, "$allegro_cv_asm_prefix")
+fi
+
+dnl Test target machine endianess.
+AC_C_BIGENDIAN
+if test "$ac_cv_c_bigendian" = yes; then
+  AC_DEFINE(ALLEGRO_BIG_ENDIAN)
+else
+  AC_DEFINE(ALLEGRO_LITTLE_ENDIAN)
+fi
+
+dnl Test for constructor attribute support.
+ALLEGRO_ACTEST_CONSTRUCTOR
+if test "X$allegro_support_constructor" = "Xyes"; then
+  AC_DEFINE(ALLEGRO_USE_CONSTRUCTOR)
+fi
+
+dnl How to compile C and asm files.
+if test -n "GCC"; then
+  if test "X$allegro_strict_warnings" = "Xyes"; then
+    WFLAGS="-Wall -Werror"
+  else
+    WFLAGS="-Wall"
+  fi
+  CFLAGS="-O3 -ffast-math -fomit-frame-pointer $WFLAGS"
+  ALLEGRO_DEBUG_CFLAGS="-O2 -g $WFLAGS -DDEBUGMODE"
+  ALLEGRO_PROFILE_CFLAGS="-O3 -pg -ffast-math $WFLAGS"
+  if test "$allegro_cv_support_asm" != i386; then
+    CFLAGS="$CFLAGS -DALLEGRO_USE_C"
+    ALLEGRO_DEBUG_CFLAGS="$ALLEGRO_DEBUG_CFLAGS -DALLEGRO_USE_C"
+    ALLEGRO_PROFILE_CFLAGS="$ALLEGRO_PROFILE_CFLAGS -DALLEGRO_USE_C"
+  fi
+  ALLEGRO_SFLAGS="-x assembler-with-cpp"
+  ALLEGRO_SHAREDLIB_CFLAGS="-fPIC -DALLEGRO_SHARED"
+else
+  CFLAGS="$CFLAGS"
+  ALLEGRO_DEBUG_CFLAGS="$CFLAGS"
+  ALLEGRO_PROFILE_CFLAGS="$CFLAGS"
+  ALLEGRO_SFLAGS=
+  ALLEGRO_SHAREDLIB_CFLAGS=
+fi
+
+AC_SUBST(CFLAGS)
+AC_SUBST(ALLEGRO_DEBUG_CFLAGS)
+AC_SUBST(ALLEGRO_PROFILE_CFLAGS)
+AC_SUBST(ALLEGRO_SFLAGS)
+AC_SUBST(ALLEGRO_SHAREDLIB_CFLAGS)
+
+dnl Which version of library to link with (shared/debugging/profiling/normal)?
+if test "X$allegro_build_debugging_programs" = "Xyes"; then
+  COMPILE_PROGRAM=COMPILE_DEBUG
+  COMPILE_S_PROGRAM=COMPILE_S_DEBUG
+  LIB_TO_LINK=alld
+  PLUGIN_LIB=lib/unix/libaddat.a
+  allegro_build_debugging_library=yes
+elif test "X$allegro_build_profiling_programs" = "Xyes"; then
+  COMPILE_PROGRAM=COMPILE_PROFILE
+  COMPILE_S_PROGRAM=COMPILE_S_PROFILE
+  LIB_TO_LINK=allp
+  PLUGIN_LIB=lib/unix/libapdat.a
+  allegro_build_profiling_library=yes
+else
+  COMPILE_PROGRAM=COMPILE_NORMAL
+  COMPILE_S_PROGRAM=COMPILE_S_NORMAL
+  LDFLAGS="-s $LDFLAGS"
+  LIB_TO_LINK=alleg
+  PLUGIN_LIB=lib/unix/libaldat.a
+  allegro_build_normal_library=yes
+fi
+if test "X$allegro_build_static_programs" = "Xyes"; then
+  LIBALLEG=lib/unix/lib$LIB_TO_LINK.a
+  LINK_LIBALLEG="$LIBALLEG"
+  LINK_WITH_STATIC_LIBS=yes
+  allegro_static_libraries=yes
+else
+  LIBALLEG="lib/unix/lib${LIB_TO_LINK}-\$(shared_version).so lib/unix/lib${LIB_TO_LINK}_unsharable.a"
+  LINK_LIBALLEG="-Llib/unix -l${LIB_TO_LINK}-\$(shared_version) -l${LIB_TO_LINK}_unsharable"
+  LINK_WITH_STATIC_LIBS=no
+  allegro_shared_libraries=yes
+fi
+AC_SUBST(LIBALLEG)
+AC_SUBST(LINK_LIBALLEG)
+AC_SUBST(PLUGIN_LIB)
+AC_SUBST(COMPILE_PROGRAM)
+AC_SUBST(COMPILE_S_PROGRAM)
+AC_SUBST(LIB_TO_LINK)
+AC_SUBST(LINK_WITH_STATIC_LIBS)
+
+dnl Which libraries to build (static, shared, normal, debugging, profiling)?
+ALLEGRO_LIB_TARGETS=
+if test "X$allegro_static_libraries" = "Xyes"; then
+  if test "X$allegro_build_normal_library" = "Xyes"; then
+    ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballeg.a"
+  fi
+  if test "X$allegro_build_debugging_library" = "Xyes"; then
+    ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballd.a"
+  fi
+  if test "X$allegro_build_profiling_library" = "Xyes"; then
+    ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballp.a"
+  fi
+fi
+if test "X$allegro_shared_libraries" = "Xyes"; then
+  if test "X$allegro_build_normal_library" = "Xyes"; then
+    ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballeg-\$(shared_version).so lib/unix/liballeg_unsharable.a"
+  fi
+  if test "X$allegro_build_debugging_library" = "Xyes"; then
+    ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballd-\$(shared_version).so lib/unix/liballd_unsharable.a"
+  fi
+  if test "X$allegro_build_profiling_library" = "Xyes"; then
+    ALLEGRO_LIB_TARGETS="$ALLEGRO_LIB_TARGETS lib/unix/liballp-\$(shared_version).so lib/unix/liballp_unsharable.a"
+  fi
+fi
+AC_SUBST(ALLEGRO_LIB_TARGETS)
+
+dnl Test for OSS drivers.
+ALLEGRO_ACTEST_OSSDIGI
+if test -n "$allegro_support_ossdigi"; then
+  AC_DEFINE(ALLEGRO_WITH_OSSDIGI)
+fi
+
+dnl Test for ALSA drivers.
+ALLEGRO_ACTEST_ALSADIGI
+if test -n "$allegro_support_alsadigi"; then
+  AC_DEFINE(ALLEGRO_WITH_ALSADIGI)
+fi
+
+dnl Test for ESD drivers.
+ALLEGRO_ACTEST_ESDDIGI
+if test -n "$allegro_support_esddigi"; then
+  AC_DEFINE(ALLEGRO_WITH_ESDDIGI)
+fi
+
+dnl Test for OSS MIDI drivers.
+ALLEGRO_ACTEST_OSSMIDI
+if test -n "$allegro_support_ossmidi"; then
+  AC_DEFINE(ALLEGRO_WITH_OSSMIDI)
+fi
+
+dnl Test for X-Windows support.
+ALLEGRO_ACTEST_SUPPORT_XWINDOWS
+if test "$allegro_support_xwindows" = yes; then
+  ALLEGRO_MAYBE_XWINDOWS_FILES=ALLEGRO_SRC_X_FILES
+else
+  ALLEGRO_MAYBE_XWINDOWS_FILES=ALLEGRO_EMPTY_LIST
+fi
+AC_SUBST(ALLEGRO_MAYBE_XWINDOWS_FILES)
+AC_SUBST(ALLEGRO_XWINDOWS_LIBDIR)
+
+dnl Enable Linux console support
+AC_ARG_ENABLE(linux,
+[  --enable-linux[=x]      enable Linux console support [default=yes]],
+test "X$enableval" != "Xno" && allegro_support_linux=yes,
+allegro_support_linux=yes)
+
+dnl Enable Linux console VGA driver
+AC_ARG_ENABLE(vga,
+[  --enable-vga[=x]        enable VGA graphics driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_vga=yes,
+allegro_enable_vga=yes)
+
+dnl Enable Linux console fbcon driver
+AC_ARG_ENABLE(fbcon,
+[  --enable-fbcon[=x]      enable fbcon graphics driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_fbcon=yes,
+allegro_enable_fbcon=yes)
+
+dnl Enable Linux console VBE/AF driver
+AC_ARG_ENABLE(vbeaf,
+[  --enable-vbeaf[=x]      enable VBE/AF graphics driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_vbeaf=yes,
+allegro_enable_vbeaf=yes)
+
+dnl Enable Linux console GGI driver
+AC_ARG_ENABLE(ggi,
+[  --enable-ggi[=x]        enable GGI graphics driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_ggi=yes,
+allegro_enable_ggi=yes)
+
+dnl Enable Linux console SVGAlib driver
+AC_ARG_ENABLE(svgalib,
+[  --enable-svgalib[=x]    enable SVGAlib graphics driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_svgalib=yes,
+allegro_enable_svgalib=yes)
+
+dnl Test that MAP_FAILED defined in system headers.
+AC_MSG_CHECKING(for MAP_FAILED)
+AC_CACHE_VAL(allegro_cv_have_map_failed,
+[AC_TRY_COMPILE([#include <unistd.h>
+#include <sys/mman.h>],
+[int test_mmap_failed (void *addr) { return (addr == MAP_FAILED); }],
+allegro_cv_have_map_failed=yes,
+allegro_cv_have_map_failed=no)])
+AC_MSG_RESULT($allegro_cv_have_map_failed)
+if test "$allegro_cv_have_map_failed" = no; then
+  AC_DEFINE(MAP_FAILED, [(void *)-1])
+fi
+
+dnl Some miscellaneous defines.
+ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_EMPTY_LIST
+
+allegro_system=`uname -s | tr A-Z a-z`
+case "$allegro_system" in
+
+*linux*)
+  if test "$allegro_support_linux" = yes; then
+    AC_DEFINE(ALLEGRO_LINUX)
+    ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_SRC_LINUX_FILES
+
+    AC_CHECK_HEADERS(sys/io.h linux/joystick.h)
+
+    if test "$allegro_enable_vga" = yes; then
+      AC_DEFINE(ALLEGRO_LINUX_VGA)
+    fi
+
+    if test "$allegro_enable_fbcon" = yes; then
+      AC_CHECK_HEADER(linux/fb.h,
+	AC_TRY_COMPILE([#include <linux/fb.h>], [int x = FB_SYNC_ON_GREEN;],
+	  AC_DEFINE(ALLEGRO_LINUX_FBCON)
+	)
+      )
+    fi
+
+    if test "$allegro_enable_vbeaf" = yes; then
+      AC_DEFINE(ALLEGRO_LINUX_VBEAF)
+    fi
+
+    if test "$allegro_enable_ggi" = yes; then
+      AC_CHECK_HEADER(ggi/ggi.h,
+	AC_CHECK_LIB(ggi, ggiInit,
+	  AC_DEFINE(ALLEGRO_LINUX_GGI)
+	  LIBS="-lggi $LIBS"
+	)
+      )
+    fi
+
+    if test "$allegro_enable_svgalib" = yes; then
+      AC_CHECK_HEADER(vga.h,
+	AC_CHECK_LIB(vga, vga_init,
+	  AC_DEFINE(ALLEGRO_LINUX_SVGALIB)
+	  LIBS="-lvga $LIBS"
+	)
+      )
+    fi
+  fi
+  ;;
+
+esac
+
+AC_SUBST(ALLEGRO_MAYBE_LINUX_FILES)
+
+dnl Additional libraries.
+LIBS="-lm $LIBS"
+AC_SUBST(LIBS)
+
+dnl Headers, features, functions and macros.
+AC_HEADER_STDC
+AC_HEADER_DIRENT
+AC_HEADER_TIME
+AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h sys/utsname.h)
+
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
+AC_STRUCT_TM
+
+AC_FUNC_MEMCMP
+AC_FUNC_MMAP
+AC_TYPE_SIGNAL
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS(findfirst memcmp stricmp strlwr strupr)
+
+dnl Prepare initial dependencies file (if missing).
+if test -f "$srcdir/makefile.dep"; then
+  if test `cd "$srcdir" ; pwd` != `cd . ; pwd`; then
+    cp "$srcdir/makefile.dep" makefile.dep
+  fi
+elif test ! -f makefile.dep; then
+  echo '# Execute "make depend".' >makefile.dep
+fi
+AC_MSG_WARN([execute \"make depend\" first])
+
+dnl Wait for a moment, to ensure the makefile gets a nice late
+dnl timestamp, otherwise `makefile.dep' looks too new.
+echo 'Having a snooze...'
+sleep 1
+
+dnl Prepare makefile.
+AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
+  [test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])

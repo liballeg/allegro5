@@ -1,0 +1,382 @@
+#
+#  Rules for building the Allegro library on Unix. This file is processed
+#  by the configure script, to produce the real makefile the does the work.
+
+INSTALL_TARGETS = full-install
+DEFAULT_TARGETS = all
+
+srcdir = @srcdir@
+builddir = .
+
+include $(srcdir)/makefile.ver
+
+SHELL = /bin/sh
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+includedir = @includedir@
+infodir = @infodir@
+mandir = @mandir@
+libdir = @libdir@
+
+EXE =
+OBJ = .o
+OBJDIR = obj/unix
+LIBDIR = lib/unix
+INFO_DIR = $(infodir)/dir
+
+ACLOCAL = aclocal
+ACLOCAL_M4 = $(srcdir)/aclocal.m4
+AUTOCONF = autoconf
+AUTOHEADER = autoheader
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_INFO = @INSTALL_INFO@
+
+transform = @program_transform_name@
+
+CC = @CC@
+CPP = @CPP@
+MAKEINFO = makeinfo --no-split
+RANLIB = @RANLIB@
+AR = ar
+LIBS = @LIBS@
+
+LDCONFIG = @LDCONFIG@
+
+mkinstalldirs = $(SHELL) $(srcdir)/misc/mkdirs.sh
+
+CONFIG_H = include/allegro/alunixac.h
+CONFIG_H_IN = include/allegro/alunixac.hin
+CONFIGURE = configure
+CONFIGURE_IN = configure.in
+
+INCLUDES =
+DEFS = @DEFS@ -Iinclude -Iinclude/allegro -I$(srcdir)/include -I$(srcdir)/include/allegro -I.
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+LINK = $(CC) $(LDFLAGS)
+
+CFLAGS = @CFLAGS@
+ALLEGRO_DEBUG_CFLAGS = @ALLEGRO_DEBUG_CFLAGS@
+ALLEGRO_PROFILE_CFLAGS = @ALLEGRO_PROFILE_CFLAGS@
+ALLEGRO_SHAREDLIB_CFLAGS = @ALLEGRO_SHAREDLIB_CFLAGS@
+COMPILE_NORMAL = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)
+COMPILE_DEBUG = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(ALLEGRO_DEBUG_CFLAGS)
+COMPILE_PROFILE = $(CC) $(DEFS) $(INCLUDES) $(CPPFLAGS) $(ALLEGRO_PROFILE_CFLAGS)
+
+ALLEGRO_SFLAGS = @ALLEGRO_SFLAGS@
+COMPILE_S_NORMAL = $(COMPILE_NORMAL) $(ALLEGRO_SFLAGS)
+COMPILE_S_DEBUG = $(COMPILE_DEBUG) $(ALLEGRO_SFLAGS)
+COMPILE_S_PROFILE = $(COMPILE_PROFILE) $(ALLEGRO_SFLAGS)
+
+COMPILE_PROGRAM = $(@COMPILE_PROGRAM@)
+COMPILE_S_PROGRAM = $(@COMPILE_S_PROGRAM@)
+
+LIBALLEG = @LIBALLEG@
+LINK_LIBALLEG = @LINK_LIBALLEG@
+ALLEGRO_LIB_TARGETS = @ALLEGRO_LIB_TARGETS@
+
+PLUGIN_LIB = @PLUGIN_LIB@
+obj_unix_plugins_h = $(OBJDIR)/plugins.h
+
+default: $(DEFAULT_TARGETS)
+
+.SUFFIXES:
+makefile: $(srcdir)/makefile.in config.status
+	CONFIG_FILES=$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+config.status: $(srcdir)/$(CONFIGURE)
+	$(SHELL) ./config.status --recheck
+$(srcdir)/$(CONFIGURE): $(srcdir)/$(CONFIGURE_IN) $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+	cd $(srcdir) && $(AUTOCONF) $(CONFIGURE_IN) >$(CONFIGURE)
+
+$(CONFIG_H): stamp-h
+stamp-h: $(srcdir)/$(CONFIG_H_IN) config.status
+	CONFIG_FILES= CONFIG_HEADERS="$(CONFIG_H):$(CONFIG_H_IN)" \
+	  $(SHELL) ./config.status
+	@echo timestamp > stamp-h
+$(srcdir)/$(CONFIG_H_IN): $(srcdir)/stamp-h.in
+$(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(ACLOCAL_M4) $(srcdir)/acconfig.h
+	cd $(srcdir) && $(AUTOHEADER) $(CONFIGURE_IN) >$(CONFIG_H_IN)
+	@echo timestamp > $(srcdir)/stamp-h.in
+
+@SET_MAKE@
+
+# List of sources for libraries and programs.
+include $(srcdir)/makefile.lst
+
+ALLEGRO_EMPTY_LIST =
+
+ALLEGRO_LIBRARY_SOURCES = \
+	$(ALLEGRO_SRC_FILES) \
+	$(ALLEGRO_SRC_UNIX_FILES) \
+	$(@ALLEGRO_MAYBE_ASM_FILES@) \
+	$(@ALLEGRO_MAYBE_XWINDOWS_FILES@) \
+	$(@ALLEGRO_MAYBE_LINUX_FILES@)
+
+ALLEGRO_EXE_TARGETS = \
+	$(ALLEGRO_LIB_EXES) \
+	$(ALLEGRO_DATAFILE_EXES) \
+	$(ALLEGRO_EXAMPLE_EXES)
+
+# Header files (look in makefile.dep for "Headers referred by symbols").
+ALLEGRO_EXTRA_HEADER = $(srcdir)/include/allegro/alunix.h
+ALLEGRO_INTERNAL_HEADER = $(srcdir)/include/allegro/aintunix.h
+ALLEGRO_MMX_HEADER =
+allegro_alconfig_h = $(srcdir)/include/allegro/alconfig.h \
+	$(srcdir)/include/allegro/alucfg.h \
+	$(CONFIG_H)
+allegro_alinline_h = $(srcdir)/include/allegro/alinline.h \
+	$(srcdir)/include/allegro/al386gcc.h \
+	$(srcdir)/include/allegro/al386vc.h \
+	$(srcdir)/include/allegro/al386wat.h
+allegro_h = $(srcdir)/include/allegro.h \
+	$(allegro_alconfig_h) \
+	$(allegro_alinline_h) \
+	$(ALLEGRO_EXTRA_HEADER)
+allegro_aintern_h = $(srcdir)/include/allegro/aintern.h
+allegro_aintdos_h = $(srcdir)/include/allegro/aintdos.h \
+	$(srcdir)/include/allegro/aintvga.h
+obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
+
+$(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
+	src/i386/asmdef$(EXE) $(obj_unix_asmdef_inc)
+
+# documentation
+DOCS = docs/ahack.html CHANGES docs/changes.html faq.txt docs/faq.html \
+       help.txt docs/help.html AUTHORS THANKS docs/thanks.html \
+       allegro.txt docs/allegro.html docs/allegro.texi docs/allegro.info \
+       docs/install_allegro.3
+
+MAKEDOC = docs/makedoc$(EXE)
+
+allegro.txt: $(srcdir)/docs/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii allegro.txt $(srcdir)/docs/allegro._tx
+
+docs/allegro.html: $(srcdir)/docs/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/allegro.html $(srcdir)/docs/allegro._tx
+
+docs/allegro.info: docs/allegro.texi
+	$(MAKEINFO) -o docs/allegro.info docs/allegro.texi
+
+docs/allegro.texi: $(srcdir)/docs/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -texi docs/allegro.texi $(srcdir)/docs/allegro._tx
+
+docs/install_allegro.3: $(srcdir)/docs/allegro._tx $(MAKEDOC)
+	$(MAKEDOC) -man docs/dummyname.3 $(srcdir)/docs/allegro._tx
+
+docs/ahack.html: $(srcdir)/docs/ahack._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/ahack.html $(srcdir)/docs/ahack._tx
+
+faq.txt: $(srcdir)/docs/faq._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii faq.txt $(srcdir)/docs/faq._tx
+
+docs/faq.html: $(srcdir)/docs/faq._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/faq.html $(srcdir)/docs/faq._tx
+
+help.txt: $(srcdir)/docs/help._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii help.txt $(srcdir)/docs/help._tx
+
+docs/help.html: $(srcdir)/docs/help._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/help.html $(srcdir)/docs/help._tx
+
+docs/changes.html: $(srcdir)/docs/changes._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/changes.html $(srcdir)/docs/changes._tx
+
+CHANGES: $(srcdir)/docs/changes._tx $(MAKEDOC)
+	$(MAKEDOC) -ascii CHANGES $(srcdir)/docs/changes._tx
+
+docs/thanks.html: $(srcdir)/docs/thanks._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/thanks.html $(srcdir)/docs/thanks._tx
+
+AUTHORS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
+	$(MAKEDOC) -part -ascii AUTHORS $(srcdir)/docs/thanks._tx
+
+THANKS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
+	$(MAKEDOC) -part -ascii THANKS $(srcdir)/docs/thanks._tx
+
+# Dependencies and rules for building libraries and simple programs.
+include makefile.dep
+
+all: lib programs docs
+
+lib: $(ALLEGRO_LIB_TARGETS)
+
+programs: $(ALLEGRO_EXE_TARGETS)
+
+docs: $(DOCS)
+
+suid: $(ALLEGRO_EXE_TARGETS)
+	chown root.allegro $?
+	chmod 4750 $?
+	touch suid
+
+clean:
+	rm -f $(CLEAN_FILES)
+
+distclean: clean
+	rm -f $(DISTCLEAN_FILES)
+
+veryclean: distclean
+	rm -f $(VERYCLEAN_FILES) makefile
+
+maintainer-clean: veryclean
+	rm -f configure
+
+install: $(INSTALL_TARGETS)
+
+mini-install: install-lib install-headers
+	@echo "Your end-user version of Allegro is now installed"
+
+full-install: install-lib install-headers install-programs
+	@echo "Run make install-man if you wish to install the man pages"
+	@echo "Run make install-info if you wish to install the info documentation"
+	@echo "Alternatively you may run make install-gzipped-info to conserve space" 
+
+install-lib: lib
+	$(mkinstalldirs) $(libdir)
+	@for l in alleg alld allp; do \
+	  if test -f $(LIBDIR)/lib$${l}.a; then \
+	    echo Installing $(LIBDIR)/lib$${l}.a to $(libdir); \
+	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}.a $(libdir)/; \
+	  fi; \
+	done
+	@for l in alleg alld allp; do \
+	  if test -f $(LIBDIR)/lib$${l}-$(shared_version).so; then \
+	    echo Installing $(LIBDIR)/lib$${l}-$(shared_version).so to $(libdir); \
+	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}-$(shared_version).so $(libdir)/; \
+	    $(INSTALL_DATA) $(LIBDIR)/lib$${l}_unsharable.a $(libdir)/; \
+	  fi; \
+	done
+	@echo Installing allegro-config to $(bindir)
+	@$(INSTALL_PROGRAM) allegro-config $(bindir)
+	$(LDCONFIG) $(libdir)
+
+install-headers:
+	$(mkinstalldirs) $(includedir)/allegro
+	$(INSTALL_DATA) $(srcdir)/include/allegro.h $(includedir)/
+	$(INSTALL_DATA) $(srcdir)/include/xalleg.h $(includedir)/
+	$(INSTALL_DATA) $(srcdir)/include/linalleg.h $(includedir)/
+	$(INSTALL_DATA) $(CONFIG_H) $(includedir)/allegro/
+	@for file in $(srcdir)/include/allegro/*.h; do \
+	  echo Installing $$file to $(includedir)/allegro; \
+	  $(INSTALL_DATA) $$file $(includedir)/allegro/; \
+	done
+
+install-programs: programs
+	$(mkinstalldirs) $(bindir)
+	@for prog in $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES); do \
+	  if test "X`echo $$prog | sed -e s,tools/.\*,,`" = X; then \
+	    echo Installing $$prog to $(bindir); \
+	    $(INSTALL_PROGRAM) $$prog $(bindir); \
+	  fi; \
+	done
+
+install-info:
+	@echo Installing Allegro info documentation...
+	@$(INSTALL_DATA) docs/allegro.info $(infodir)
+	@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
+	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
+	    $(INSTALL_INFO) --section Development -- $(infodir)/allegro.info; \
+	  else \
+	    $(INSTALL_INFO) $(infodir)/allegro.info $(INFO_DIR); \
+	  fi; \
+	else \
+	  true; \
+	fi
+
+install-gzipped-info: install-info
+	@echo Compressing documentation...
+	@gzip -9 -f $(infodir)/allegro.info
+
+install-man:
+	$(mkinstalldirs) $(mandir)/man3
+	@for file in $(srcdir)/docs/*.3; do \
+	  echo Installing $$file to $(mandir)/man3; \
+	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
+	done
+
+uninstall: uninstall-lib uninstall-headers uninstall-programs uninstall-info uninstall-man
+	@echo "All gone. Don't you feel sad now?"
+
+uninstall-lib:
+	@echo "Uninstalling libraries..."
+	@for l in alleg alld allp; do \
+	  rm -f $(libdir)/lib$${l}-$(shared_version).so; \
+	  rm -f $(libdir)/lib$${l}_unsharable.a; \
+	  rm -f $(libdir)/lib$${l}.a; \
+	done
+	rm -f $(bindir)/allegro-config
+	$(LDCONFIG) $(libdir)
+
+uninstall-headers:
+	rm -f $(includedir)/allegro.h
+	rm -f $(includedir)/xalleg.h
+	rm -f $(includedir)/linalleg.h
+	rm -rf $(includedir)/allegro
+
+uninstall-programs:
+	@for prog in $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES); do \
+	  if test "X`echo $$prog | sed -e s,tools/.\*,,`" = X; then \
+	    p=`echo $$prog | sed -e s,tools/,,`; \
+	    echo rm -f $(bindir)/$$p; \
+	    rm -f $(bindir)/$$p; \
+	  fi; \
+	done
+
+uninstall-info:
+	@if test -f $(infodir)/allegro.info.gz; then \
+	  echo Decompressing documentation...; \
+	  gunzip $(infodir)/allegro.info.gz; \
+	fi;
+	@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
+	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
+	    $(INSTALL_INFO) --remove $(infodir)/allegro.info; \
+	  else \
+	    $(INSTALL_INFO) --remove $(infodir)/allegro.info $(INFO_DIR); \
+	  fi; \
+	else \
+	  true; \
+	fi
+	rm -f $(infodir)/allegro.info
+
+uninstall-man:
+	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3,p" $(srcdir)/docs/allegro._tx \
+	  | xargs -n 1 rm -f
+
+makefile.dep: makefile $(srcdir)/makefile.lst $(srcdir)/misc/deplib.sh \
+		$(srcdir)/misc/deplexe.sh $(srcdir)/misc/depnexe.sh \
+		$(srcdir)/misc/depdexe.sh $(srcdir)/misc/depdlib.sh
+	rm -f makefile.dep
+	@echo "# Automatically generated." >makefile.dep
+	@echo "Generating dependencies for libraries"
+	$(SHELL) -c 'cd $(srcdir) && misc/deplib.sh $(ALLEGRO_LIBRARY_SOURCES)' >>makefile.dep
+	@echo "Generating dependencies for simple programs"
+	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep
+	@echo "Generating dependencies for datafile plugins"
+	$(SHELL) -c 'cd $(srcdir) && misc/depdlib.sh tools/datedit.c' >>makefile.dep
+	@echo "Generating dependencies for datafile programs"
+	$(SHELL) -c 'cd $(srcdir) && misc/depdexe.sh $(ALLEGRO_DATAFILE_EXE_SOURCES)' >>makefile.dep
+	@echo "Generating dependencies for programs without libraries"
+	$(SHELL) -c 'cd $(srcdir) && misc/depnexe.sh $(ALLEGRO_NOLIB_EXE_SOURCES)' >>makefile.dep
+	@echo "Dependency generation completed!"
+
+# Can be done with stamp file.
+depend: makefile.dep
+
+.PHONY: default all lib programs docs \
+clean distclean veryclean maintainer-clean \
+install full-install mini-install \
+install-lib install-headers install-programs install-info \
+install-gzipped-info install-man depend \
+uninstall uninstall-lib uninstall-headers uninstall-programs \
+uninstall-info uninstall-man
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

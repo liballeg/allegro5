@@ -1,0 +1,92 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+	  Borland C++Builder-specific information.
+
+	 See readme.txt for a more general overview.
+
+
+
+====================================
+=========== BCC32 notes ============
+====================================
+
+   Status: it works.  It currently doesn't compile the Allegro library
+   source, but it does let you import pre-compiled .DLLs and use those
+   to compile your own Allegro-based programs.  Thanks to Inprise for
+   creating an IMPLIB program that works without those annoying .DEF
+   files!
+
+
+
+===========================================
+============ Required software ============
+===========================================
+
+   - Allegro DLL, produced by MSVC.
+   - Borland C++Builder.
+   - GNU make (mak*b.zip).
+   - Optional: sed (sed*b.zip).  Used by "make depend".
+
+   This is known to work in version 4.0, and it may work on older versions.
+   (In theory, any version of BCB with an IMPLIB that supports the -a
+   parameter should work.)
+
+   Because of MSVC-specific code, the Allegro library does not currently
+   compile under Borland C++Builder.  (This may change when the promised
+   gcc port is completed; BCC32 prefers GNU code to Microsoft code.)
+   You need to use GNU make, since Borland make is really ugly about its
+   makefiles.  You can grab it from either the Mingw32 or DJGPP
+   distributions; more info on this in available in the Mingw32 and DJGPP
+   READMEs.
+
+
+============================================
+============ Installing Allegro ============
+============================================
+
+   Type "cd allegro" and then "fixbcc32.bat".  Then, run "make".  Find
+   something fun to do while it's compiling.  It will eventually
+   finish; then just type "make install" to set the library up for use.
+
+   If you also want to install a debugging version of the library (highly 
+   recommended), type "make install DEBUGMODE=1".  Case is important, so 
+   it must be DEBUGMODE, not debugmode!
+
+   If you also want to install a profiling version of the library, now type 
+   "make install PROFILEMODE=1".
+
+   If your copy of Allegro doesn't include the makefile.dep dependency files 
+   (unlikely, unless you have run "make veryclean" at some point), you can 
+   regenerate them by running "make depend".
+
+   If your copy of Allegro doesn't include the linker .def file (unlikely, 
+   unless you have run "make veryclean" at some point), you can regenerate 
+   them by running "fixdll.bat".  No, you can't.  That's broken right now.
+   You don't need it anyway, though.  :)
+
+
+
+=======================================
+============ Using Allegro ============
+=======================================
+
+   All the Allegro functions, variables, and data structures are defined in 
+   allegro.h. You should include this in your programs, and link with one of 
+   the libraries:
+
+   alleg.lib      - optimised DLL import library
+   alld.lib       - debugging DLL import library
+   allp.lib       - profiling DLL import library
+
+   You will need to distribute the appropriate DLL along with your program:
+   these can be found in the allegro/lib/msvc/ directory.
+

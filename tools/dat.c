@@ -1,0 +1,975 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Datafile archiving utility for the Allegro library.
+ *
+ *      By Shawn Hargreaves.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+
+#define USE_CONSOLE
+
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+#include "allegro.h"
+#include "datedit.h"
+
+#if ((defined ALLEGRO_DOS) || (defined ALLEGRO_MSVC)) && (!defined SCAN_DEPEND)
+   #define HAVE_CONIO_H
+   #include <conio.h>
+#endif
+
+
+
+static DATAFILE *datafile = NULL;
+
+static int err = 0;
+static int changed = 0;
+
+static int opt_command = 0;
+static int opt_compression = -1;
+static int opt_strip = -1;
+static int opt_verbose = FALSE;
+static int opt_keepnames = FALSE;
+static int opt_colordepth = -1;
+static int opt_gridx = -1;
+static int opt_gridy = -1;
+static int opt_gridw = -1;
+static int opt_gridh = -1;
+static char *opt_datafile = NULL;
+static char *opt_outputname = NULL;
+static char *opt_headername = NULL;
+static char *opt_dependencyfile = NULL;
+static char *opt_objecttype = NULL;
+static char *opt_prefixstring = NULL;
+static char *opt_password = NULL;
+static char *opt_palette = NULL;
+
+#define MAX_FILES    256
+
+static char *opt_proplist[MAX_FILES];
+static int opt_numprops = 0;
+
+static char *opt_namelist[MAX_FILES];
+static int opt_usedname[MAX_FILES];
+static int opt_numnames = 0;
+
+
+
+/* display help on the command syntax */
+static void usage()
+{
+   printf("\nDatafile archiving utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n");
+   printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
+   printf("Usage: dat [options] filename.dat [names]\n\n");
+   printf("Options:\n");
+   printf("\t'-a' adds the named files to the datafile\n");
+   printf("\t'-bpp colordepth' grabs bitmaps in the specified format\n");
+   printf("\t'-c0' no compression\n");
+   printf("\t'-c1' compress objects individually\n");
+   printf("\t'-c2' global compression on the entire datafile\n");
+   printf("\t'-d' deletes the named objects from the datafile\n");
+   printf("\t'-dither' dithers when reducing color depths\n");
+   printf("\t'-e' extracts the named objects from the datafile\n");
+   printf("\t'-g x y w h' grabs bitmap data from a specific grid location\n");
+   printf("\t'-h outputfile.h' sets the output header file\n");
+   printf("\t'-k' keeps the original file names when grabbing objects\n");
+   printf("\t'-l' lists the contents of the datafile\n");
+   printf("\t'-m dependencyfile' outputs makefile dependencies\n");
+   printf("\t'-o output' sets the output file or directory when extracting data\n");
+   printf("\t'-p prefixstring' sets the prefix for the output header file\n");
+   printf("\t'-pal objectname' specifies which palette to use\n");
+   printf("\t'-s0' no strip: save everything\n");
+   printf("\t'-s1' strip grabber specific information from the file\n");
+   printf("\t'-s2' strip all object properties and names from the file\n");
+   printf("\t'-t type' sets the object type when adding files\n");
+   printf("\t'-u' updates the contents of the datafile\n");
+   printf("\t'-v' selects verbose mode\n");
+   printf("\t'-w' always updates the entire contents of the datafile\n");
+   printf("\t'-007 password' sets the file encryption key\n");
+   printf("\t'PROP=value' sets object properties\n");
+}
+
+
+
+/* callback for outputting messages */
+void datedit_msg(char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s\n", buf);
+}
+
+
+
+/* callback for starting a 2-part message output */
+void datedit_startmsg(char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s", buf);
+   fflush(stdout);
+}
+
+
+
+/* callback for ending a 2-part message output */
+void datedit_endmsg(char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s\n", buf);
+}
+
+
+
+/* callback for printing errors */
+void datedit_error(char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   fprintf(stderr, "%s\n", buf);
+
+   err = 1;
+}
+
+
+
+/* callback for asking questions */
+int datedit_ask(char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+   int c;
+
+   static int all = FALSE;
+
+   if (all)
+      return 'y';
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s? (y/n/a/q) ", buf);
+   fflush(stdout);
+
+   for (;;) {
+      #ifdef HAVE_CONIO_H
+
+	 /* raw keyboard input for platforms that have conio functions */
+	 c = getch();
+	 if ((c == 0) || (c == 0xE0))
+	    getch();
+
+      #else
+
+	 /* stdio version for other systems */
+	 fflush(stdin);
+	 c = getchar();
+
+      #endif
+
+      switch (c) {
+
+	 case 'y':
+	 case 'Y':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    return 'y';
+
+	 case 'n':
+	 case 'N':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    return 'n';
+
+	 case 'a':
+	 case 'A':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    all = TRUE;
+	    return 'y';
+
+	 case 'q':
+	 case 'Q':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    return 27;
+
+	 case 27:
+	    #ifdef HAVE_CONIO_H
+	       printf("\n");
+	    #endif
+	    return 27;
+      }
+   }
+}
+
+
+
+/* checks if a string is one of the names specified on the command line */
+static int is_name(char *name)
+{
+   char str1[256], str2[256];
+   int i, e;
+
+   for (i=0; i<opt_numnames; i++) {
+      if ((stricmp(name, opt_namelist[i]) == 0) ||
+	  (strcmp(opt_namelist[i], "*") == 0)) {
+	 opt_usedname[i] = TRUE;
+	 return TRUE;
+      }
+      else {
+	 for (e=0; e<(int)strlen(opt_namelist[i]); e++) {
+	    if (opt_namelist[i][e] == '*') {
+	       strncpy(str1, opt_namelist[i], e);
+	       str1[e] = 0;
+	       strncpy(str2, name, e);
+	       str2[e] = 0;
+	       if (strcmp(str1, str2) == 0) {
+		  opt_usedname[i] = TRUE;
+		  return TRUE;
+	       }
+	    }
+	 }
+      }
+   }
+
+   return FALSE;
+}
+
+
+
+/* does a view operation */
+static void do_view(DATAFILE *dat, char *parentname)
+{
+   int i, j;
+   char *name;
+   DATAFILE_PROPERTY *prop;
+   char tmp[256];
+
+   for (i=0; dat[i].type != DAT_END; i++) {
+      name = get_datafile_property(dat+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if ((opt_numnames <= 0) || (is_name(tmp))) {
+	 if (opt_verbose)
+	    printf("\n");
+
+	 printf("- %c%c%c%c - %s%-*s - %s\n", 
+		  (dat[i].type>>24)&0xFF, (dat[i].type>>16)&0xFF,
+		  (dat[i].type>>8)&0xFF, dat[i].type&0xFF,
+		  parentname, 28-(int)strlen(parentname), name, 
+		  datedit_desc(dat+i));
+
+	 if (opt_verbose) {
+	    prop = dat[i].prop;
+	    if (prop) {
+	       for (j=0; prop[j].type != DAT_END; j++) {
+		  printf("  . %c%c%c%c '%s'\n", 
+			   (prop[j].type>>24)&0xFF, (prop[j].type>>16)&0xFF,
+			   (prop[j].type>>8)&0xFF, prop[j].type&0xFF,
+			   prop[j].dat);
+	       }
+	    }
+	 }
+      }
+
+      if (dat[i].type == DAT_FILE) {
+	 strcat(tmp, "/");
+	 do_view((DATAFILE *)dat[i].dat, tmp);
+      }
+   }
+}
+
+
+
+/* does an export operation */
+static void do_export(DATAFILE *dat, char *parentname)
+{
+   int i;
+   char *name;
+   char tmp[256];
+
+   for (i=0; dat[i].type != DAT_END; i++) {
+      name = get_datafile_property(dat+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if (is_name(tmp)) {
+	 if (!datedit_export(dat+i, opt_outputname)) {
+	    err = 1;
+	    return;
+	 }
+      }
+      else {
+	 if (dat[i].type == DAT_FILE) {
+	    strcat(tmp, "/");
+	    do_export((DATAFILE *)dat[i].dat, tmp);
+	    if (err)
+	       return;
+	 }
+      }
+   }
+}
+
+
+
+/* deletes objects from the datafile */
+static void do_delete(DATAFILE **dat, char *parentname)
+{
+   int i;
+   char *name;
+   char tmp[256];
+
+   for (i=0; (*dat)[i].type != DAT_END; i++) {
+      name = get_datafile_property((*dat)+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if (is_name(tmp)) {
+	 printf("Deleting %s\n", tmp);
+	 *dat = datedit_delete(*dat, i);
+	 changed = TRUE;
+	 i--;
+      }
+      else {
+	 if ((*dat)[i].type == DAT_FILE) {
+	    strcat(tmp, "/");
+	    do_delete((DATAFILE **)(&((*dat)[i].dat)), tmp);
+	 }
+      }
+   }
+}
+
+
+
+/* adds a file to the archive */
+static void do_add_file(char *filename, int attrib, int param)
+{
+   char fname[256];
+   char name[256];
+   int c;
+   DATAFILE *d;
+
+   strcpy(fname, filename);
+   fix_filename_case(fname);
+
+   strcpy(name, get_filename(fname));
+
+   if (!opt_keepnames) {
+      strupr(name);
+
+      for (c=0; name[c]; c++)
+	 if (name[c] == '.')
+	    name[c] = '_';
+   }
+
+   for (c=0; datafile[c].type != DAT_END; c++) {
+      if (stricmp(name, get_datafile_property(datafile+c, DAT_NAME)) == 0) {
+	 printf("Replacing %s -> %s\n", fname, name);
+	 if (!datedit_grabreplace(datafile+c, fname, name, opt_objecttype, opt_colordepth, opt_gridx, opt_gridy, opt_gridw, opt_gridh))
+	    errno = err = 1;
+	 else
+	    changed = TRUE;
+	 return;
+      }
+   }
+
+   printf("Inserting %s -> %s\n", fname, name);
+   d = datedit_grabnew(datafile, fname, name, opt_objecttype, opt_colordepth, opt_gridx, opt_gridy, opt_gridw, opt_gridh);
+   if (!d)
+      errno = err = 1;
+   else {
+      datafile = d;
+      changed = TRUE;
+   }
+}
+
+
+
+/* does an update operation */
+static void do_update(DATAFILE *dat, char *parentname)
+{
+   int i;
+   char *name;
+   char tmp[256];
+
+   for (i=0; dat[i].type != DAT_END; i++) {
+      name = get_datafile_property(dat+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if (dat[i].type == DAT_FILE) {
+	 strcat(tmp, "/");
+	 do_update((DATAFILE *)dat[i].dat, tmp);
+	 if (err)
+	    return;
+      }
+      else if ((opt_numnames <= 0) || (is_name(tmp))) {
+	 if (!datedit_update(dat+i, opt_verbose, &changed)) {
+	    err = 1;
+	    return;
+	 }
+      }
+   }
+}
+
+
+
+/* does a forced update operation */
+static void do_force_update(DATAFILE *dat, char *parentname)
+{
+   int i;
+   char *name;
+   char tmp[256];
+
+   for (i=0; dat[i].type != DAT_END; i++) {
+      name = get_datafile_property(dat+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if (dat[i].type == DAT_FILE) {
+	 strcat(tmp, "/");
+	 do_force_update((DATAFILE *)dat[i].dat, tmp);
+	 if (err)
+	    return;
+      }
+      else if ((opt_numnames <= 0) || (is_name(tmp))) {
+	 if (!datedit_force_update(dat+i, opt_verbose, &changed)) {
+	    err = 1;
+	    return;
+	 }
+      }
+   }
+}
+
+
+
+/* changes object properties */
+static void do_set_props(DATAFILE *dat, char *parentname)
+{
+   int i, j;
+   char *name;
+   char tmp[256];
+   char propname[256], *propvalue;
+   int type;
+
+   for (i=0; dat[i].type != DAT_END; i++) {
+      name = get_datafile_property(dat+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if (is_name(tmp)) {
+	 for (j=0; j<opt_numprops; j++) {
+	    strcpy(propname, opt_proplist[j]);
+	    propvalue = strchr(propname, '=');
+	    if (propvalue) {
+	       *propvalue = 0;
+	       propvalue++;
+	    }
+	    else
+	       propvalue = "";
+
+	    type = datedit_clean_typename(propname);
+
+	    if (opt_verbose) {
+	       if (*propvalue) {
+		  printf("%s: setting property %c%c%c%c = '%s'\n", 
+			 tmp, type>>24, (type>>16)&0xFF, 
+			 (type>>8)&0xFF, type&0xFF, propvalue);
+	       }
+	       else {
+		  printf("%s: clearing property %c%c%c%c\n", 
+			 tmp, type>>24, (type>>16)&0xFF, 
+			 (type>>8)&0xFF, type&0xFF);
+	       }
+	    } 
+
+	    datedit_set_property(dat+i, type, propvalue);
+	    changed = TRUE;
+	 }
+      }
+
+      if (dat[i].type == DAT_FILE) {
+	 strcat(tmp, "/");
+	 do_set_props((DATAFILE *)dat[i].dat, tmp);
+      }
+   }
+}
+
+
+
+/* selects a specific palette */
+static void do_setpal(DATAFILE **dat, char *parentname)
+{
+   int i;
+   char *name;
+   char tmp[256];
+
+   for (i=0; (*dat)[i].type != DAT_END; i++) {
+      name = get_datafile_property((*dat)+i, DAT_NAME);
+      strcpy(tmp, parentname);
+      strcat(tmp, name);
+
+      if (stricmp(tmp, opt_palette) == 0) {
+	 if ((*dat)[i].type != DAT_PALETTE) {
+	    printf("Error: %s is not a palette object\n", tmp);
+	    err = 1;
+	    return;
+	 }
+	 printf("Using palette %s\n", tmp);
+	 memcpy(datedit_current_palette, (*dat)[i].dat, sizeof(PALETTE));
+	 select_palette(datedit_current_palette);
+	 return;
+      }
+      else {
+	 if ((*dat)[i].type == DAT_FILE) {
+	    strcat(tmp, "/");
+	    do_setpal((DATAFILE **)(&((*dat)[i].dat)), tmp);
+	 }
+      }
+   }
+
+   printf("Error: %s not found\n", opt_palette);
+   err = 1;
+}
+
+
+
+/* recursive helper for writing out datafile dependencies */
+static void save_dependencies(DATAFILE *dat, FILE *f, int *depth)
+{
+   char *orig;
+   int c, i;
+   int hasspace;
+
+   for (c=0; dat[c].type != DAT_END; c++) {
+      orig = get_datafile_property(dat+c, DAT_ORIG);
+
+      if ((orig) && (orig[0])) {
+	 if (*depth + strlen(orig) > 56) {
+	    fprintf(f, " \\\n\t\t");
+	    *depth = 0;
+	 }
+	 else {
+	    fprintf(f, " ");
+	    (*depth)++;
+	 }
+
+	 if (strchr(orig, ' ')) {
+	    hasspace = TRUE;
+	    fputc('"', f);
+	    (*depth) += 2;
+	 }
+	 else
+	    hasspace = FALSE;
+
+	 for (i=0; orig[i]; i++) {
+	    if (orig[i] == '\\')
+	       fputc('/', f);
+	    else
+	       fputc(orig[i], f);
+	    (*depth)++;
+	 }
+
+	 if (hasspace)
+	    fputc('"', f);
+      }
+
+      if (dat[c].type == DAT_FILE)
+	 save_dependencies((DATAFILE *)dat[c].dat, f, depth);
+   }
+}
+
+
+
+/* writes out a makefile dependency rule */
+static int do_save_dependencies(DATAFILE *dat, char *srcname, char *depname)
+{
+   char *pretty_name;
+   char tm[80];
+   time_t now;
+   FILE *f;
+   int c;
+
+   pretty_name = datedit_pretty_name(srcname, "dat", FALSE);
+   datedit_msg("Writing makefile dependencies into %s", depname);
+
+   f = fopen(depname, "w");
+   if (f) {
+      time(&now);
+      strcpy(tm, asctime(localtime(&now)));
+      for (c=0; tm[c]; c++)
+	 if ((tm[c] == '\r') || (tm[c] == '\n'))
+	    tm[c] = 0;
+
+      fprintf(f, "# Allegro datafile make dependencies, produced by dat v" ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n");
+      fprintf(f, "# Datafile: %s\n", pretty_name);
+      fprintf(f, "# Date: %s\n", tm);
+      fprintf(f, "# Do not hand edit!\n\n");
+
+      if (opt_headername)
+	 fprintf(f, "%s %s :", pretty_name, opt_headername);
+      else
+	 fprintf(f, "%s :", pretty_name);
+
+      c = 0xFF;
+      save_dependencies(dat, f, &c);
+
+      fprintf(f, " \\\n\n\tdat -u %s", pretty_name);
+
+      if (opt_headername)
+	 fprintf(f, " -h %s", opt_headername);
+
+      if (opt_password)
+	 fprintf(f, " -007 %s", opt_password);
+
+      fprintf(f, "\n");
+      fclose(f);
+   }
+   else {
+      datedit_error("Error writing %s", depname);
+      return FALSE;
+   }
+
+   return TRUE;
+}
+
+
+
+int main(int argc, char *argv[])
+{
+   int c;
+
+   install_allegro(SYSTEM_NONE, &errno, atexit);
+   set_color_conversion(COLORCONV_NONE);
+   datedit_init();
+
+   for (c=0; c<PAL_SIZE; c++)
+      datedit_current_palette[c] = desktop_palette[c];
+
+   for (c=1; c<argc; c++) {
+      if (argv[c][0] == '-') {
+
+	 switch (utolower(argv[c][1])) {
+
+	    case 'd':
+	       if (stricmp(argv[c]+2, "ither") == 0) {
+		  set_color_conversion(COLORCONV_DITHER);
+		  break;
+	       }
+	       /* fall through */
+
+	    case 'a':
+	    case 'e':
+	    case 'l':
+	    case 'u':
+	    case 'w':
+	    case 'x':
+	       if (opt_command) {
+		  usage();
+		  return 1;
+	       }
+	       opt_command = utolower(argv[c][1]);
+	       break;
+
+	    case 'b':
+	       if ((opt_colordepth > 0) || (c >= argc-1)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_colordepth = atoi(argv[++c]);
+	       if ((opt_colordepth != 8) && (opt_colordepth != 15) &&
+		   (opt_colordepth != 16) && (opt_colordepth != 24) &&
+		   (opt_colordepth != 32)) {
+		  usage();
+		  return 1;
+	       }
+	       break;
+
+	    case 'c':
+	       if ((opt_compression >= 0) || 
+		   (argv[c][2] < '0') || (argv[c][2] > '2')) {
+		  usage();
+		  return 1;
+	       }
+	       opt_compression = argv[c][2] - '0'; 
+	       break;
+
+	    case 'g':
+	       if ((opt_gridx > 0) || (c >= argc-4)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_gridx = atoi(argv[++c]);
+	       opt_gridy = atoi(argv[++c]);
+	       opt_gridw = atoi(argv[++c]);
+	       opt_gridh = atoi(argv[++c]);
+	       if ((opt_gridx <= 0) || (opt_gridy <= 0) ||
+		   (opt_gridw <= 0) || (opt_gridh <= 0)) {
+		  usage();
+		  return 1;
+	       }
+	       break;
+
+	    case 'h':
+	       if ((opt_headername) || (c >= argc-1)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_headername = argv[++c];
+	       break;
+
+	    case 'k':
+	       opt_keepnames = TRUE;
+	       break;
+
+	    case 'm':
+	       if ((opt_dependencyfile) || (c >= argc-1)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_dependencyfile = argv[++c];
+	       break;
+
+	    case 'o':
+	       if ((opt_outputname) || (c >= argc-1)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_outputname = argv[++c];
+	       break;
+
+	    case 'p':
+	       if ((utolower(argv[c][2]) == 'a') && 
+		   (utolower(argv[c][3]) == 'l') &&
+		   (argv[c][4] == 0)) {
+		  if ((opt_palette) || (c >= argc-1)) {
+		     usage();
+		     return 1;
+		  }
+		  opt_palette = argv[++c];
+	       }
+	       else {
+		  if ((opt_prefixstring) || (c >= argc-1)) {
+		     usage();
+		     return 1;
+		  }
+		  opt_prefixstring = argv[++c];
+	       }
+	       break;
+
+	    case 's':
+	       if ((opt_strip >= 0) || 
+		   (argv[c][2] < '0') || (argv[c][2] > '2')) {
+		  usage();
+		  return 1;
+	       }
+	       opt_strip = argv[c][2] - '0'; 
+	       break;
+
+	    case 't':
+	       if ((opt_objecttype) || (c >= argc-1)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_objecttype = argv[++c];
+	       break;
+
+	    case 'v':
+	       opt_verbose = TRUE;
+	       break;
+
+	    case '0':
+	       if ((opt_password) || (c >= argc-1)) {
+		  usage();
+		  return 1;
+	       }
+	       opt_password = argv[++c];
+	       break;
+
+	    default:
+	       printf("Unknown option '%s'\n", argv[c]);
+	       return 1;
+	 }
+      }
+      else {
+	 if (strchr(argv[c], '=')) {
+	    if (opt_numprops < MAX_FILES)
+	       opt_proplist[opt_numprops++] = argv[c];
+	 }
+	 else {
+	    if (!opt_datafile)
+	       opt_datafile = argv[c];
+	    else {
+	       if (opt_numnames < MAX_FILES) {
+		  opt_namelist[opt_numnames] = argv[c];
+		  opt_usedname[opt_numnames] = FALSE;
+		  opt_numnames++;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if ((!opt_datafile) || 
+       ((!opt_command) && 
+	(opt_compression < 0) && 
+	(opt_strip < 0) && 
+	(!opt_numprops) &&
+	(!opt_headername) &&
+	(!opt_dependencyfile))) {
+      usage();
+      return 1;
+   }
+
+   datafile = datedit_load_datafile(opt_datafile, FALSE, opt_password);
+
+   if (datafile) {
+
+      if (opt_palette)
+	 do_setpal(&datafile, "");
+
+      if (!err) {
+	 switch (opt_command) {
+
+	    case 'a':
+	       if (!opt_numnames) {
+		  printf("No files specified for addition\n");
+		  err = 1;
+	       }
+	       else {
+		  for (c=0; c<opt_numnames; c++) {
+		     if (for_each_file(opt_namelist[c], FA_ARCH | FA_RDONLY, do_add_file, 0) <= 0) {
+			if (errno)
+			   fprintf(stderr, "Error: %s not found\n", opt_namelist[c]);
+			err = 1;
+			break;
+		     }
+		     else
+			opt_usedname[c] = TRUE;
+		  }
+	       }
+	       break;
+
+	    case 'd':
+	       if (!opt_numnames) {
+		  printf("No objects specified for deletion\n");
+		  err = 1;
+	       }
+	       else
+		  do_delete(&datafile, "");
+	       break;
+
+	    case 'e':
+	    case 'x':
+	       if (!opt_numnames) {
+		  printf("No objects specified: use '*' to extract everything\n");
+		  err = 1;
+	       }
+	       else
+		  do_export(datafile, "");
+	       break;
+
+	    case 'l':
+	       do_view(datafile, "");
+	       break;
+
+	    case 'u':
+	       do_update(datafile, "");
+	       break;
+
+	    case 'w':
+	       do_force_update(datafile, "");
+	       break;
+	 }
+      }
+
+      if (!err) {
+	 if (opt_command) {
+	    for (c=0; c<opt_numnames; c++) {
+	       if (!opt_usedname[c]) {
+		  fprintf(stderr, "Error: %s not found\n", opt_namelist[c]);
+		  err = 1;
+	       }
+	    }
+	 }
+
+	 if (opt_numprops > 0) {
+	    if (!opt_numnames) {
+	       printf("No objects specified for setting properties\n");
+	       err = 1;
+	    }
+	    else {
+	       for (c=0; c<opt_numnames; c++)
+		  opt_usedname[c] = FALSE;
+
+	       do_set_props(datafile, "");
+
+	       for (c=0; c<opt_numnames; c++) {
+		  if (!opt_usedname[c]) {
+		     fprintf(stderr, "Error: %s not found\n", opt_namelist[c]);
+		     err = 1;
+		  }
+	       }
+	    }
+	 }
+      }
+
+      if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0)))
+	 if (!datedit_save_datafile(datafile, opt_datafile, opt_strip, opt_compression, opt_verbose, TRUE, FALSE, opt_password))
+	    err = 1;
+
+      if ((!err) && (opt_headername))
+	 if (!datedit_save_header(datafile, opt_datafile, opt_headername, "dat", opt_prefixstring, opt_verbose))
+	    err = 1;
+
+      if ((!err) && (opt_dependencyfile))
+	 if (!do_save_dependencies(datafile, opt_datafile, opt_dependencyfile))
+	    err = 1;
+
+      unload_datafile(datafile);
+   }
+
+   return err;
+}
+
+END_OF_MAIN();

@@ -1,0 +1,939 @@
+
+   __  ___ ___ ___ ___ _ _   ___ ___
+   | \ |_|  |  |_| |__ | |   |__ [_
+   |_/ | |  |  | | |   | |__ |__ __]
+
+
+	  by Shawn Hargreaves
+
+
+
+An Allegro datafile is a bit like a zip file in that it consists of lots of 
+different pieces of data stuck together one after another, and optionally 
+compressed. This means that your game doesn't have to clutter up the disk 
+with hundreds of tiny files, and it makes programming easier because you can 
+load everything with a single function call at program startup. Another 
+benefit is that the LZSS file compression algorithm works much better with 
+one large file than with many small ones.
+
+Datafiles have the extension .dat, and can be created and edited with the 
+graphical grabber program or the command line dat utility. They can be 
+stored as separate files and loaded into memory by the load_datafile() 
+function, or you can use dat2s to convert them into asm code which can then 
+be linked directly into your executable.
+
+Each datafile contains a number of objects, of varying types. Object types 
+are represented by 32 bit integer ID's, which are interpreted as four 
+character ASCII strings. These ID's can be constructed with the DAT_ID() 
+macro, for example a DATA object is represented by DAT_ID('D','A','T','A'), 
+or you can use the predefined DAT_* constants for the standard data types:
+
+   DAT_FILE - "FILE"
+      A datafile, which contains a list of other objects. Datafile objects 
+      can be nested inside other datafiles, allowing you to create 
+      hierarchical structures of any depth.
+
+   DAT_DATA - "DATA"
+      A block of binary data. Allegro treats all unknown types as binary 
+      data objects, so you don't need to use this ID: you can create custom 
+      object formats using whatever ID's you like.
+
+   DAT_FONT - "FONT"
+      A font.
+
+   DAT_SAMPLE - "SAMP"
+      A digital sound sample.
+
+   DAT_MIDI - "MIDI"
+      A MIDI file.
+
+   DAT_PATCH - "PAT "
+      A Gravis patch (MIDI instrument).
+
+   DAT_FLI - "FLIC"
+      An FLI or FLC animation.
+
+   DAT_BITMAP - "BMP "
+      A bitmap.
+
+   DAT_RLE_SPRITE - "RLE "
+      A run length encoded sprite.
+
+   DAT_C_SPRITE - "CMP "
+      A compiled sprite.
+
+   DAT_XC_SPRITE - "XCMP"
+      A mode-X compiled sprite.
+
+   DAT_PALETTE - "PAL "
+      A 256 color palette.
+
+   DAT_PROPERTY - "prop"
+      An object property (see below). You will never directly encounter this 
+      object type, but you should be aware that it is treated specially by 
+      the datafile code.
+
+   DAT_INFO - "info"
+      The grabber utility uses this object to store information about the 
+      datafile. Like property objects, you ought never to encounter it, but 
+      you should avoid using the ID for any custom object formats you create.
+
+   DAT_END - -1
+      Special marker used to indicate the end of a datafile.
+
+Each object can have any number of properties attached to it. These are 
+ASCII strings describing attributes of the object, such as its name and 
+where it came from. Like the objects themselves, properties are identified 
+by 32 bit integer ID's which are constructed from four character strings by 
+the DAT_ID() macro. Allegro defines the standard properties:
+
+   "NAME"
+      The name of the object.
+
+   "ORIG"
+      The object's origin, ie. the name of the file from which it was 
+      grabbed.
+
+   "DATE"
+      A timestamp, used by the update command in the grabber and dat 
+      utilities. This is the modification time of the file from which the 
+      object was grabbed, in "m-dd-yyyy, hh:mm" format.
+
+   "XPOS"
+      For bitmap objects which were grabbed from part of a larger image, the 
+      x position of the origin within the parent bitmap.
+
+   "YPOS"
+      For bitmap objects which were grabbed from part of a larger image, the 
+      y position of the origin within the parent bitmap.
+
+   "XSIZ"
+      For bitmap objects which were grabbed from part of a larger image, the 
+      width of the selected region.
+
+   "YSIZ"
+      For bitmap objects which were grabbed from part of a larger image, the 
+      height of the selected region.
+
+The properties "PACK", "HNAM", "HPRE", "BACK", "XGRD", and "YGRD" are also 
+used internally by the grabber, but you can use whatever other ID's you like 
+to store custom information about your objects.
+
+
+
+===================================
+======== Using the Grabber ========
+===================================
+
+
+The grabber accepts a few different commandline options:
+
+   '-bpp'
+      Sets the color depth, eg. -8, -16, -32.
+
+   '-WxH'
+      Sets the screen resolution, eg. -320x200, -1024x768
+
+   '-nosound'
+      Disables audio output.
+
+   '-pkey'
+      Use 'key' as the datafile password.
+
+   'filename.dat'
+      Loads the named datafile.
+
+Various options can be set using the buttons and text fields at the top of 
+the screen. You can edit the name of the datafile, the name of the header 
+file for exporting object indexes (leave this blank if you don't want to 
+output a header), and the prefix string for the header file definitions. You 
+can change the grid settings for grabbing bitmaps, and alter the compression 
+mode (see below). You can also enable or disable backups: if this box is 
+checked, the old version will be renamed to a .bak extension when datafiles 
+are saved, and turn dithering on or off (this can improve the image quality 
+when you reduce graphics from 24 or 32 bits to 15 or 16 bit color).
+
+The contents of the datafile are listed in the box at the bottom left of the 
+screen, and can be selected with the mouse or arrow keys. Multiple objects 
+can be selected by holding down the shift or control keys while you click 
+on the list or move the cursor. The selected object can be edited with 
+commands from the Object menu, or using the shortcut menu produced by 
+pressing Esc or right-clicking on an object. Double-clicking on an object 
+performs a function which varies depending on the type of the object. 
+Bitmaps are displayed full-screen (use the plus and minus keys to zoom in 
+and out), samples and MIDI files are played, palettes are selected (meaning 
+that they will be used when displaying and exporting bitmaps), and fonts can 
+be edited by adding and removing specific character ranges.
+
+New objects can be created using the menus or by pressing Insert while the 
+item list has the input focus. To make nested datafiles, create a FILE 
+object (New/Datafile), and select it before inserting other objects.
+
+To insert information into a datafile you must first create an object of the 
+appropriate type, and then select the grab command (keyboard shortcut 
+ctrl+G). For most objects this will bring up a file selector for you to 
+select the file to read, but for graphic objects (bitmaps, RLE sprites, 
+compiled sprites, and palettes) it will grab from the current contents of 
+the image buffer, so you must previously have read a picture into this 
+buffer with the File/Read Bitmap command (keyboard shortcut ctrl+G). You can 
+use the mouse or arrow keys to select which portion of the image to grab. 
+With the mouse, select the top left corner, click and hold the left mouse 
+button, and move to the bottom right corner before releasing the button. 
+Press the right mouse button to cancel. With the keyboard, use the arrow 
+keys to select the top left corner, press Space or Enter, adjust the size 
+with the arrow keys, and press Space or Enter again. By default the position 
+will snap to a 16x16 grid, which can be adjusted by changing the values in 
+the X-grid and Y-grid fields. Alternatively you can use the Box Grab 
+command, in which case you should draw a bounding box in color #255 around 
+your sprites, and can then just click once inside a box to grab the contents.
+
+Note that palette data is not stored along with bitmap and sprite objects. 
+To store the entire contents of a PCX or BMP file, you will need to create 
+both bitmap and palette objects, and grab data into both of them. When you 
+reload the datafile the bitmap will probably be displayed with the wrong 
+palette. This can be corrected by double-clicking on the palette object, 
+which will select its contents as the current palette, meaning that it will 
+be used when displaying and exporting bitmaps.
+
+The properties of the selected object are listed in the box to the right of 
+the item list. These can be edited by double-clicking on one of the 
+properties, and deleted by selecting one and pressing Del. You can insert 
+new properties by pressing Insert while the property list has the input 
+focus, or using the Object/Set Property command. Object names are stored as 
+NAME properties, so the rename command is simply a shortcut for editing this 
+property.
+
+To simplify the process of grabbing several related images from a single 
+bitmap (for example a set of frames which form an animation), you can use 
+the File/Grab from Grid command. Like the normal bitmap grab command, this 
+uses data from the image buffer, so you must read in a bitmap before you use 
+it. You will then be able to adjust the grabbing parameters, enter a name 
+for the new objects, and choose the type of object to create (bitmap, RLE 
+sprite, or compiled sprite). Because several objects may be created, their 
+names will be formed by adding a number to the end of the name you supply, 
+for example if you enter "a_picture", the grabber will create the objects 
+"a_picture000", "a_picture001", etc. There are two grabbing modes: using 
+cutouts of color 255, and using a regular grid. The regular grid option 
+simply divides the bitmap up into a set of equally sized tiles, using the 
+specified grid size, and grabs each of these as a separate object. If you 
+set the Skip Empties flag, the grabber will ignore tiles that don't contain 
+any data (ie. those that are a single solid color). The color 255 option is 
+more flexible. It expects the bitmap to contain information describing the 
+position and size of each tile, in the form of a bounding box drawn in color 
+255. The most reliable way to do this is to fill all the image except the 
+parts you want with color 255, but the grabber should be able to understand 
+more complicated layouts, even if you simply draw color 255 lines along the 
+top and left edges of the area you want to be grabbed. For truecolor images 
+where color 255 is not particularly meaningful, use a cyan bounding box 
+(maximum blue and green, zero red), with a single yellow (maximum red and 
+green, zero blue) pixel in the top left corner of the box.
+
+By default, the grabber will run in a 640x480 resolution, using the highest 
+color depth possible on your graphics card. If you want to override this, 
+you can specify an alternative color depth or resolution on the commandline, 
+eg. "grabber -8" for a 256 color mode, "grabber -16" for 16 bit hicolor 
+graphics, "grabber -320x200" to use VGA mode 13h, or "grabber 1024x768". 
+Warning: editing datafiles that contain truecolor graphics is very slow in 
+256 color video modes, and the grabber is not really usable in resolutions 
+lower than 640x400.
+
+You can configure the grabber to use external tools for editing data, by 
+setting some variables in the [grabber] section of the allegro.cfg file. 
+These are in the form "type=command", where the type is a four letter object 
+ID, and the command is whatever program you want to be invoked to edit this 
+kind of data. For these variables to be seen, the allegro.cfg file must 
+either be in the same directory as the grabber executable, or in the 
+directory pointed to by your ALLEGRO environment variable. To invoke this 
+feature, select the Shell Edit command or press ctrl+Z. The grabber will try 
+to invoke the tool on the original version of the file if it knows where you 
+grabbed the data from in the first place, or otherwise it will write the 
+object out into a temporary file prior to editing.
+
+
+
+==================================
+======== The DAT archiver ========
+==================================
+
+
+As an alternative to the graphical grabber program, you can use the command 
+line dat utility. This accepts the following options:
+
+   '-a <files>'
+      Adds the named files to the datafile, for example:
+
+	 dat myfile.dat -a title.pcx scream.wav
+
+      If the objects are already present in the datafile, their current 
+      contents will be replaced. Names for the new objects will be generated 
+      from the input filenames, and the object type will be detected from 
+      the file extensions. In some cases this is ambiguous, for example a 
+      PCX file can be read as a bitmap, RLE sprite, compiled sprite, or font 
+      object, so you may need to explicitly specify the object type with the 
+      '-t' flag. For example, to insert alien.pcx as an RLE sprite, use the 
+      command:
+
+	 dat myfile.dat -a alien.pcx -t RLE
+
+   '-bpp colordepth'
+      Specifies which color format bitmap data should be grabbed in (valid 
+      depths are 8, 15, 16, 24, and 32 bits per pixel).
+
+   '-c0' - no compression
+   '-c1' - compress objects individually
+   '-c2' - global compression on the entire datafile
+      Sets the compression mode (see below). These can be used on their own 
+      to convert a datafile from one format to another, or in combination 
+      with any other options.
+
+   '-d <objects>'
+      Deletes the named objects from the datafile.
+
+   '-dither'
+      Dithers graphics when reducing from truecolor to hicolor formats.
+
+   '-e <objects>'
+      Extracts the named objects from the datafile. To extract everything, 
+      use the wildcard * as the object name. To set the output filename or 
+      directory, use the '-o filename' option. For example, to extract an 
+      object called TITLE_SCREEN to the file title.pcx, use the command:
+
+	 dat myfile.dat -e title_screen -o title.pcx
+
+      To extract the entire contents of the datafile to the directory 
+      c:\output, use:
+
+	 dat myfile.dat -e * -o c:\output\
+
+   '-h outputfile.h'
+      Sets the output header file, for exporting object index definitions. 
+      This may be used on its own to produce a header file from an existing 
+      datafile, or in combination with any other commands. You can also use 
+      the '-p prefixstring' option to set a prefix string for the object 
+      definitions.
+
+   '-k'
+      Keep original names while grabbing objects. Without this switch, a 
+      file called image.pcx will be imported as an object called IMAGE_PCX, 
+      to ensure that all the object names are valid symbols for the output 
+      header defines.
+
+   '-l'
+      Lists the contents of the datafile. This can be combined with the '-v' 
+      option to list object properties along with the names, and you can 
+      specify particular objects to produce a partial listing.
+
+   '-m dependencyfile'
+      Writes a set of makefile dependencies into the specified file, which 
+      can be used to automatically update the file whenever any of the 
+      source data changes.
+
+   '-s0' - no strip: save everything
+   '-s1' - strip grabber specific information from the file
+   '-s2' - strip all object properties and names from the file
+      Sets the strip mode (see below). These can be used on their own to 
+      strip properties from the datafile, or in combination with any other 
+      options.
+
+   '-u'
+      Updates the contents of the datafile. See below.
+
+   '-v'
+      Selects verbose mode. This can be used in combination with any other 
+      options to produce more detailed output.
+
+   '<objects> PROP=value'
+      Sets properties for the specified objects. This works like environment 
+      variables, in that setting a property to an empty string removes it. 
+      Because object names are stored as NAME properties, you can use this 
+      command to rename objects. For example, to rename MY_OBJECT to 
+      WHAT_A_SILLY_NAME, use the command:
+
+	 dat myfile.dat my_object NAME=what_a_silly_name
+
+      You can use the wildcard * to apply the property to everything in the 
+      file, so to remove the ORIG property from the entire datafile, you 
+      could execute:
+
+	 dat myfile.dat * ORIG=
+
+You can create hierarchical nested datafiles by inserting one datafile into 
+another with the '-a' command. Objects in the nested datafile can then be 
+referred to by as "parentname/objectname". For example if the datafile 
+myfile.dat contains a nested datafile called nestedfile, which contains a 
+bitmap called thepicture, you could export the bitmap with the command:
+
+   dat myfile.dat -e nestedfile/thepicture -o output.pcx
+
+
+
+==================================
+======== Misc Information ========
+==================================
+
+
+Datafiles can be saved using any of three compression types, selected from 
+the list at the top right of the grabber screen, or with the '-c0', '-c1', 
+and '-c2' options to dat. With type 0, the data is not compressed at all. 
+Type 1 compresses each object individually, while type 2 uses global 
+compression over the entire file. As a rule, global compression will give 
+better results than per-object compression, but it should not be used if you 
+intend to dynamically load specific objects with the load_datafile_object() 
+function or "filename.dat#objectname" packfile syntax.
+
+There are also three strip modes for saving datafiles, selected with the 
+File/Save Stripped command in the grabber, or using the '-s0', '-s1', and 
+'-s2' options to dat. With zero stripping, all object properties are written 
+to the datafile, which is normally what you will want. With strip mode 1, 
+properties specific to the grabber (the ones describing the origins and 
+dates of each object) are removed, which will marginally reduce the file 
+size, but will prevent the update command from working. For the smallest 
+possible file sizes, strip mode 2 removes all properties, including object 
+names and any custom properties you have added. This level of stripping 
+should obviously be used with extreme caution, although in some cases it may 
+be possible to recover the object names even after they have been stripped 
+out of the datafile. If the grabber and dat utilities cannot find any name 
+properties in a datafile, they will look for a header (.h) file with the 
+same name, and attempt to parse this to recover the names. This is far from 
+foolproof, and will not work for nested datafiles, but in some situations it 
+allows the names to be read back from the index definition header.
+
+Both the grabber and the dat utility have an update command, which scans 
+through the datafile checking if any objects have changed, and replacing 
+those which are out of date. This depends on the origin and date properties 
+which were set when the data was grabbed in the first place, so it won't 
+work if these properties have been stripped out of the file. This command 
+can be very useful if you build a datafile containing hundreds of objects 
+grabbed from external bitmaps, and later go back and change some of these 
+bitmaps. Rather than having to figure out which objects are out of date and 
+then manually re-grab all the affected data, the update command will 
+automatically refresh the modified objects.
+
+Fonts can be read from GRX format .fnt files, 8x8 or 8x16 BIOS format .fnt 
+files, and from bitmap images, or you can import a multiple-range Unicode 
+font by writing a .txt script that specifies a number of different source 
+files for each range of characters. The script file contains a number of 
+lines in the format "filename start end", which specify the source file for 
+that range of characters, the Unicode value of the first character in the 
+range, and the end character in the range (optional, if left out, the entire 
+input file will be grabbed). If the filename is replaced by a hyphen, more 
+characters will be grabbed from the previous input file. For example, the 
+script:
+
+   ascii.fnt 0x20 0x7F
+   - 0xA0 0xFF
+   dingbats.fnt 0x1000
+
+would import the first 96 characters from ascii.fnt as the range 0x20-0x7F, 
+the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire 
+contents of dingbats.fnt starting at Unicode position 0x1000.
+
+When reading a font from a bitmap file the size of each character is 
+determined by the layout of the image, which should be a rectangular grid 
+containing all the ASCII characters from space (32) up to the tilde (126). 
+The spaces between each letter should be filled with color 255. If each 
+character is sized exactly 8x8 or 8x16 the grabber will create a fixed size 
+font, otherwise it will make a proportional font. Probably the easiest way 
+to get to grips with how this works is to load up the demo.dat file and 
+export the TITLE_FONT into a PCX file. Have a look at the resulting picture 
+in your paint program: that is the format a font should be in...
+
+Bitmap and RLE sprites can store an alpha channel along with the color 
+information, as long as they are in a 32 bit format. Alpha data can be read 
+directly from 32 bit TGA files, or you can use the alpha channel commands 
+(in the Object menu, or the right mouse button popup menu) to import a 
+greyscale alpha image over the top of an existing object. This menu also 
+contains options for viewing the alpha channel of the selected object, 
+exporting the alpha data to a greyscale image file, and deleting the alpha 
+data to leave only pure color information. You can also use the File menu to 
+import an alpha channel over the top of a bitmap that you have loaded with 
+the Read Bitmap command, after which the alpha information will be included 
+when you next perform a Grab or Grab From Grid operation.
+
+Datafiles can be encrypted with a password, by typing it into the 
+"Password:" field in the grabber, or using the '-007 password' option to the 
+dat utility. Passwords may be up to 256 characters in length, and are case 
+sensitive. Encrypted files _cannot_ be read without the password, so please 
+don't forget it and then come crying to me for help :-) To read an encrypted 
+file into your program, call the packfile_password() function before 
+load_datafile(). It is also a good idea to call packfile_password(NULL) 
+afterwards, to set everything back to normal.
+
+
+
+=====================================
+======== Accessing Datafiles ========
+=====================================
+
+
+In order to access the contents of a datafile, you will need to know where 
+each object is located. The easiest way to do this is by integer index, 
+using an automatically generated header file. With the grabber, type a name 
+into the "Header:" field, and the object indexes will be written to this 
+file whenever the datafile is saved. With the dat utility, use the '-h' 
+option, eg. "dat filename.dat -h filename.h". The header will define C 
+preprocessor symbols for each object in the datafile, for example:
+
+   #define SOME_DATA                        0        /* DATA */
+   #define SOME_MORE_DATA                   1        /* DATA */
+
+To prevent name conflicts, you can specify a prefix string for these 
+definitions by typing it into the "Prefix:" field in the grabber or using 
+the '-p' option to dat.
+
+To load a datafile into memory, call the function:
+
+   DATAFILE *load_datafile(char *filename);
+
+This will load the entire file, returning a pointer to it, or NULL on error. 
+When the data is no longer required, the entire thing can be destroyed by 
+calling:
+
+   void unload_datafile(DATAFILE *dat);
+
+When you load a datafile, you will obtain a pointer to an array of DATAFILE 
+structures:
+
+   typedef struct DATAFILE
+   {
+      void *dat;                    - pointer to the actual data
+      int type;                     - object type ID
+      long size;                    - size of the data, in bytes
+      DATAFILE_PROPERTY *prop;      - list of object properties
+   } DATAFILE;
+
+The only really important piece of information here is the dat field, which 
+points to the contents of the object. What type of data this is will depend 
+on the type of object: for bitmaps it will be an Allegro BITMAP structure, 
+for RLE sprites an RLE_SPRITE, for fonts a FONT structure, etc. If you are 
+programming in C you can pass this pointer directly to the relevant Allegro 
+library functions, but if you are using C++ you will need to cast it to the 
+appropriate type to prevent the compiler giving a warning.
+
+For example, if you have a datafile called myfile.dat, which contains a 
+bitmap called COOL_PICTURE, and you have used it to produce a header called 
+myfile.h, you could display the bitmap with the code:
+
+   #include "myfile.h"
+
+   void show_the_bitmap()
+   {
+      DATAFILE *dat;
+      BITMAP *bmp;
+
+      dat = load_datafile("myfile.dat");
+      if (!dat) {
+	 /* report an error! */
+	 return;
+      }
+
+      bmp = (BITMAP *)dat[COOL_PICTURE].dat;
+      blit(bmp, screen, 0, 0, 0, 0, bmp->w, bmp->h);
+      unload_datafile(dat);
+   }
+
+If a datafile contains nested child datafiles, the header will prefix the 
+names of objects in the sub-files with the name of their parent datafile. It 
+will also define a count of the number of objects in the child file, which 
+may be useful if for example the child datafile contains several bitmaps 
+which form a 'run' animation, and you want your code to automatically 
+adjust to the number of frames in the datafile. 
+
+For example, the datafile:
+
+   "FILE" - NESTED_FILE
+	    |- "BMP" - A_BITMAP
+	    |- "FONT" - A_FONT
+   "DATA" - SOME_DATA
+   "DATA" - SOME_MORE_DATA
+
+produces the header:
+
+   #define NESTED_FILE                      0        /* FILE */
+
+   #define NESTED_FILE_A_BITMAP             0        /* BMP  */
+   #define NESTED_FILE_A_FONT               1        /* FONT */
+   #define NESTED_FILE_COUNT                2
+
+   #define SOME_DATA                        1        /* DATA */
+   #define SOME_MORE_DATA                   2        /* DATA */
+
+The main datafile contains three objects (NESTED_FILE, SOME_DATA, and 
+SOME_MORE_DATA) with consecutive indexes, while the child datafile contains 
+the two objects A_BITMAP and A_FONT. To access these objects you need to 
+reference both the parent and child datafiles, eg:
+
+   DATAFILE *dat = load_datafile("whatever.dat");
+   DATAFILE *nested = (DATAFILE *)dat[NESTED_FILE].dat;
+   FONT *thefont = (FONT *)nested[NESTED_FILE_A_FONT].dat;
+
+If you need to access object property strings from within your program, you 
+can use the function:
+
+   char *get_datafile_property(DATAFILE *dat, int type);
+
+This will return a pointer to the property string if it can be found, and an 
+empty string (not null!) if it does not exist. One possible use of this 
+function is to locate objects by name, rather than using the indexes from a 
+header file. The datafile array is ended by an object of type DAT_END, so to 
+search the datafile dat for the object "my_object" you could use the code:
+
+   for (i=0; dat[i].type != DAT_END; i++) {
+      if (stricmp(get_datafile_property(dat+i, DAT_ID('N','A','M','E')),
+		  "my_object") == 0) {
+	 /* found the object at index i */
+      }
+   }
+   /* not found... */
+
+If you prefer to access objects by name rather than index number, you can 
+use the function:
+
+   DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname);
+
+This will search an already loaded datafile for an object with the specified 
+name, returning a pointer to it, or NULL if the object cannot be found. It 
+understands '/' and '#' separators for nested datafile paths.
+
+It is also possible to selectively load individual objects from a datafile, 
+with the function:
+
+   DATAFILE *load_datafile_object(char *filename, char *objectname);
+
+This searches the datafile for an object with the specified name, so 
+obviously it won't work if you strip the name properties out of the file. 
+Because this function needs to seek through the data, it will be extremely 
+slow if you have saved the file with global compression. If you are planning 
+to load objects individually, you should save the file uncompressed or with 
+individual compression per-object. Because the returned datafile points to a 
+single object rather than an array of objects, you should access it with the 
+syntax datafile->dat, rather than datafile[index].dat, and when you are done 
+you should free the object with the function:
+
+   void unload_datafile_object(DATAFILE *dat);
+
+Alternatively, the packfile functions can open and read directly from the 
+contents of a datafile object. You do this by calling pack_fopen() with a 
+fake filename in the form "filename.dat#object_name". The contents of the 
+object can then be read in an identical way to a normal disk file, so any of 
+the file access functions in Allegro (eg. load_pcx() and set_config_file()) 
+can be used to read from datafile objects. Note that you can't write to 
+datafiles in this way: the fake file is read only. Also, you should save the 
+file uncompressed or with per-object compression if you are planning on 
+using this feature. Finally, be aware that the special Allegro object types 
+aren't the same format as the files you import the data from, so if for 
+example you want to use load_pcx to read an image from a datafile, you 
+should import it as a binary data chunk rather than as a BITMAP object.
+
+If you have appended a datafile to the end of your executable with the 
+exedat utility, use load_datafile("#") to read the entire thing into memory, 
+load_datafile_object("#", "object_name") to load a specific object, and 
+pack_fopen("#object_name", F_READ) to read one of the objects directly with 
+your own code.
+
+By default, all graphic objects loaded from a datafile will be converted 
+into the current color depth. This conversion may be both lossy and very 
+slow, particularly when reducing from truecolor to 256 color formats, so you 
+may wish to disable it by calling set_color_conversion(COLORCONV_NONE) or 
+set_color_conversion(COLORCONV_PARTIAL) before your call to load_datafile().
+
+
+
+=====================================
+======== Compiling Datafiles ========
+=====================================
+
+
+The utility dat2s can be used to convert a datafile into an asm (.s) source 
+file, which can then be assembled and linked into your program. This avoids 
+the need for a separate datafile to accompany your program, and means the 
+data will automatically be loaded into memory at startup. You should be 
+aware, though, that large datafiles can take a long time to compile, and 
+that it is not possible to compress data which is compiled in this way.
+
+The simplest way to invoke dat2s is with the command:
+
+   dat2s filename.dat -o output.s
+
+The resulting asm file can then be assembled with the command:
+
+   gcc -c output.s
+
+This will produce an object module called output.o, which can be linked into 
+your program, for example:
+
+   gcc myprog.c -o myprog.exe output.o -lalleg
+
+Your program can then access the contents of the datafile as simple global 
+variables. Definitions for these variables can be obtained by telling dat2s 
+to output a header file as well as the asm file, with the '-h' option. You 
+can also use '-p' to set a prefix string for all the object names. For 
+example, when applied to the datafile:
+
+   "BMP"  - A_BITMAP
+   "BMP"  - ANOTHER_BITMAP
+   "SAMP" - EXPLODE
+   "PAL"  - SOME_COLORS
+   "FONT" - THE_FONT
+
+the command:
+
+   dat2s filename.dat -o output.s -h output.h -p item
+
+produces the header:
+
+   extern BITMAP item_a_bitmap;
+   extern BITMAP item_another_bitmap;
+   extern SAMPLE item_explode;
+   extern PALETTE item_some_colors;
+   extern FONT item_the_font;
+   extern DATAFILE item_data[];
+
+You can refer to these objects directly, for example:
+
+   blit(&item_a_bitmap, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+
+Alternatively, you can use the datafile array for compatibility with code 
+that was originally written for separately loaded datafiles, with the 
+standard syntax item_data[index].dat.
+
+
+
+================================
+======== Custom Objects ========
+================================
+
+
+Some of the objects in a datafile, for example palettes and FLI animations, 
+are simply treated as blocks of binary data, but others are loaded into 
+special formats such as bitmap structures or compiled sprites. It is 
+possible to extend the datafile system to support your own custom object 
+types, eg. map objects for a tile based engine, or level data for a platform 
+game. Obviously the grabber has no way of understanding this data, but it 
+will allow you to import binary data from external files, so you can grab 
+information produced by your own utilities. If you are happy with the data 
+being loaded as a simple binary block, that is all you need to do, but if 
+you need to load it into a specific structure, read on...
+
+Your custom objects must be given a unique type ID, which is formed from 
+four ASCII characters (by convention all uppercase A-Z). If you don't use 
+all four characters, the string should be padded with spaces (ASCII 32). You 
+should use this ID when creating the objects in the grabber (select 
+New/Other and type in the ID string), and in your code you should define an 
+identifier for the type, eg:
+
+   #define DAT_MAPDATA  DAT_ID('M','A','P','D')
+
+You then need to write functions for loading and destroying objects of this 
+type, in the form:
+
+   void *load_mapdata(PACKFILE *f, long size)
+   {
+      /* Allegro will call this function whenever an object of your custom 
+       * type needs to be loaded from a datafile. It will be passed a 
+       * pointer to the file from which the data is to be read, and the size 
+       * of the object in bytes. It should return a pointer to the loaded 
+       * data, which will be stored in the dat field of the datafile object 
+       * structure, or NULL if an error occurs. The file will have been 
+       * opened as a sub-chunk of the main datafile, so it is safe to read 
+       * past the end of the object (if you attempt this, Allegro will 
+       * return EOF), and it is also safe to return before reading all the 
+       * data in the chunk (if you do this, Allegro will skip any unused 
+       * bytes before starting to read the next object). You should _not_ 
+       * close the file when you are done: this will be handled by the 
+       * calling function. To clarify how all this works, here's an example 
+       * implementation of a null-terminated string object:
+       */
+
+      #define MAX_LEN  256
+
+      char buf[MAX_LEN];
+      char *p;
+      int c;
+
+      for (c=0; (c<MAX_LEN-1) && (!pack_feof(f)); c++)
+	 buf[c] = pack_getc(f);
+
+      buf[c] = 0;
+
+      p = malloc(c+1);
+      strcpy(p, buf);
+
+      return p;
+   }
+
+   void destroy_mapdata(void *data)
+   {
+      /* Allegro will call this function whenever an object of your custom 
+       * type needs to be destroyed. It will be passed a pointer to the 
+       * object (as returned by the load function), and should free whatever 
+       * memory the object is using. For example, the simple string object 
+       * returned by the above loader could be destroyed with the code:
+       */
+
+      if (data)
+	 free(data);
+   }
+
+Finally, before you load your datafile you must tell Allegro about the 
+custom format, by calling:
+
+   register_datafile_object(DAT_MAPDATA, load_mapdata, destroy_mapdata);
+
+It is also possible to integrate support for custom object types directly 
+into the grabber and dat utilities, by copying some special files into the 
+tools/plugins directory. This can be used to add whole new object types and 
+menu commands, or to provide additional import/export routines for the 
+existing formats. See tools/plugins/plugins.txt for an overview of how to 
+write your own grabber plugins.
+
+
+
+=================================
+======== The File Format ========
+=================================
+
+
+In case anyone wants to do some serious hackery, and for my own future 
+reference, here are some details of the innards of the datafile format.
+
+Note that this is different to the datafile format used by Allegro versions 
+2.1 and earlier. Allegro can still load files from the old format, but it 
+was much less flexible and didn't support nice things like object 
+properties, so you should load any old files into the grabber and save them 
+out again to convert to the new format.
+
+Nb. if all you want to do is write a utility that manipulates datafiles in 
+some way, the easiest approach is probably to use the helper functions in 
+datedit.c, which are currently shared by the dat, dat2s, and grabber 
+programs. These functions handle loading, saving, inserting and deleting 
+objects, and modifying the contents of datafiles in various ways, but life 
+is too short for me to bother documenting them all here. Look at the 
+source...
+
+Anyway. All numbers are stored in big-endian (Motorola) format. All text is 
+stored in UTF-8 encoding. A datafile begins with one of the 32 bit values 
+F_PACK_MAGIC or F_NOPACK_MAGIC, which are defined in allegro.h. If it starts 
+with F_PACK_MAGIC the rest of the file is compressed with the LZSS 
+algorithm, otherwise it is uncompressed. This magic number and optional 
+decompression can be handled automatically by using the packfile functions 
+and opening the file in F_READ_PACKED mode. After this comes the 32 bit 
+value DAT_MAGIC, followed by the number of objects in the root datafile (not 
+including objects nested inside child datafiles), followed by each of those 
+objects in turn.
+
+Each object is in the format:
+
+   OBJECT =
+      var    - <property list>      - any properties relating to the object
+      32 bit - <type ID>            - object type ID
+      32 bit - <compressed size>    - size of the raw data in the file
+      32 bit - <uncompressed size>  - see below
+      var    - <data>               - the contents of the object
+
+The property list can contain zero or more object properties, in the form:
+
+   PROPERTY =
+      32 bit - <magic>              - "prop"
+      32 bit - <type ID>            - property type ID
+      32 bit - <size>               - size of the property string, in bytes
+      var    - <data>               - property string, _not_ null-terminated
+
+If the uncompressed size field in an object is positive, the contents of the 
+object are not compressed (ie. the raw and compressed sizes should be the 
+same). If the uncompressed size is negative, the object is LZSS compressed, 
+and will expand into -<uncompressed size> bytes of data. The easiest way to 
+handle this is to use the pack_fopen_chunk() function to read both the raw 
+and compressed sizes and the contents of the object.
+
+The contents of an object vary depending on the type. Allegro defines the 
+standard types:
+
+   DAT_FILE =
+      32 bit - <object count>       - number of objects in the sub-file
+      var    - <object list>        - objects in the same format as above
+
+   DAT_FONT =
+      16 bit - <font size>          - 8, 16, -1, or 0
+
+      if font size == 8 {           - obsolete as of version 3.9.x!
+	 unsigned char[95][8]       - 8x8 bit-packed font data
+      }
+
+      if font size == 16 {          - obsolete as of version 3.9.x!
+	 unsigned char[95][16]      - 8x16 bit-packed font data
+      }
+
+      if font size == -1 {          - obsolete as of version 3.9.x!
+	 95x {
+	    16 bit - <width>        - character width
+	    16 bit - <height>       - character height
+	    var    - <data>         - character data (8 bit pixels)
+	 }
+      }
+
+      if font size == 0 {           - new format introduced in version 3.9.x
+	 16 bit - <ranges>          - number of character ranges
+	 for each range {
+	    8 bit  - <mono>         - 1 or 8 bit format flag
+	    32 bit - <start>        - first character in range
+	    32 bit - <end>          - last character in range (inclusive)
+	    for each character {
+	       16 bit - <width>     - character width
+	       16 bit - <height>    - character height
+	       var    - <data>      - character data
+	    }
+	 } 
+      }
+
+   DAT_SAMP =
+      16 bit - <bits>               - sample bits (negative for stereo)
+      16 bit - <freq>               - sample frequency
+      32 bit - <length>             - sample length
+      var    - <data>               - sample data
+
+   DAT_MIDI =
+      16 bit - <divisions>          - MIDI beat divisions
+      32x {
+	 32 bit - <length>          - track length, in bytes
+	 var    - <data>            - MIDI track data
+      }
+
+   DAT_FLI =
+      var - <data>                  - FLI or FLC animation, standard format
+
+   DAT_BITMAP =
+   DAT_C_SPRITE =
+   DAT_XC_SPRITE =
+      16 bit - <bits>               - bitmap color depth
+      16 bit - <width>              - bitmap width
+      16 bit - <height>             - bitmap height
+      var    - <data>               - bitmap data
+
+      Valid color depths are 8, 15, 16, 24, 32, and -32. Both 15 and 16 bit 
+      images are stored in 5.6.5 RGB format, and 24 and 32 bit images as 
+      8.8.8 RGB. The special -32 flag indicates that the data is in true 32 
+      bit RGBA format.
+
+   DAT_RLE_SPRITE =
+      16 bit - <bits>               - sprite color depth
+      16 bit - <width>              - sprite width
+      16 bit - <height>             - sprite height
+      32 bit - <size>               - data size, in bytes
+      var    - <data>               - RLE compressed sprite data
+
+      Valid color depths are 8, 15, 16, 24, 32. and -32. Both 15 and 16 bit 
+      images are stored in 5.6.5 RGB format with 16 bit skip counts and EOL 
+      markers, and 24 and 32 bit images as 8.8.8 RGB. with 32 bit skip 
+      counts and markers. The special -32 flag indicates that the data is in 
+      true 32 bit RGBA format.
+
+   DAT_PALETTE =
+      256 x {
+	 8 bit - <red>              - red component, 0-63
+	 8 bit - <green>            - green component, 0-63
+	 8 bit - <blue>             - blue component, 0-63
+	 8 bit - <pad>              - alignment padding
+      }
+
+I think that covers everything.

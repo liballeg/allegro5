@@ -1,0 +1,75 @@
+/*
+ *    Example program for the Allegro library, by Grzegorz Adam Hankiewicz.
+ *
+ *    This program demonstrates how to access the contents of an Allegro
+ *    datafile (created by the grabber utility) linked to the exe by the
+ *    exedat tool. It is based on the exdata example.
+ *
+ *    You may ask: how do you compile, append and exec your program?
+ *
+ *    Answer: like this...
+ *
+ *    1) Compile your program like normal. Use the magic filenames with '#'
+ *       to load your data where needed.
+ *
+ *    2) Once you compressed your program, run "exedat foo.exe data.dat"
+ *
+ *    3) Finally run your program.
+ */
+
+
+#include "allegro.h"
+
+
+/* the grabber produces this header, which contains defines for the names
+ * of all the objects in the datafile (BIG_FONT, SILLY_BITMAP, etc).
+ * We still need to keep this, since we want to know the names of the objects.
+ */
+#include "example.h"
+
+
+
+int main(int argc, char *argv[])
+{
+   DATAFILE *datafile;
+
+   allegro_init();
+   install_keyboard(); 
+   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+
+   /* load the datafile into memory */
+   datafile = load_datafile("#");
+   if (!datafile) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Unable to load the appended datafile!\n\n"
+		      "This program reads graphics from the end of the executable file.\n"
+		      "Before running it, you must append this data with the exedat utility.\n\n"
+		      "Example command line:\n\n"
+		  #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
+		      "\texedat exexedat.exe example.dat\n\n"
+		  #else
+		      "\texedat exexedat example.dat\n\n"
+		  #endif
+		      "To compress the appended data, pass the -c switch to exedat.\n");
+      return 1;
+   }
+
+   /* select the palette which was loaded from the datafile */
+   set_palette(datafile[THE_PALETTE].dat);
+
+   /* display the bitmap from the datafile */
+   textout(screen, font, "This is the bitmap:", 32, 16, 255);
+   blit(datafile[SILLY_BITMAP].dat, screen, 0, 0, 64, 32, 64, 64);
+
+   /* and use the font from the datafile */
+   textout(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128, 96);
+
+   readkey();
+
+   /* unload the datafile when we are finished with it */
+   unload_datafile(datafile);
+
+   return 0;
+}
+
+END_OF_MAIN();

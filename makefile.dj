@@ -1,0 +1,422 @@
+#
+#  Rules for building the Allegro library with djgpp. This file is included
+#  by the primary makefile, and should not be used directly.
+#
+#  The "depend" target uses sed.
+#
+#  See makefile.all for a list of the available targets.
+
+
+
+# -------- define some variables that the primary makefile will use --------
+
+PLATFORM = djgpp
+OBJ_DIR = obj/djgpp/$(VERSION)
+LIB_NAME = lib/djgpp/lib$(VERSION).a
+EXE = .exe
+OBJ = .o
+
+
+
+# -------- autodetect whether to use LFN --------
+
+ifdef CROSSCOMPILE
+HTML = html
+INFO = info
+TEXI = texi
+else
+ifeq ($(LFN),y)
+HTML = html
+INFO = info
+TEXI = texi
+else
+HTML = htm
+INFO = inf
+TEXI = txi
+endif
+endif
+
+
+
+# -------- run some sanity checks on the djgpp installation --------
+
+.PHONY: baddjgpp baddjdev badgcc badbnu badmake badtxi badpath badalleg
+
+
+
+# -------- check that the DJGPP environment variable is set --------
+
+ifndef DJDIR
+baddjgpp:
+	@echo Your DJDIR environment variable is not set correctly! It should
+	@echo point to the djgpp.env file: see the djgpp readme.1st for details.
+endif
+
+DJDIR_U = $(subst \,/,$(DJDIR))
+DJDIR_D = $(subst /,\,$(DJDIR))
+
+
+
+ifndef CROSSCOMPILE
+
+
+# -------- check that the djdev package is installed --------
+
+ifeq ($(wildcard $(DJDIR_U)/bin/djasm.exe),)
+baddjdev:
+	@echo Missing djgpp package! You need to install djdev202.zip (or whatever the
+	@echo latest version is). Download this from wherever you got djgpp, and unzip
+	@echo it into the root of your djgpp directory.
+endif
+
+
+
+# -------- check that the gcc package is installed --------
+
+ifeq ($(wildcard $(DJDIR_U)/bin/gcc.exe),)
+badgcc:
+	@echo Missing djgpp package! You need to install gcc281b.zip (or whatever the
+	@echo latest version is). Download this from wherever you got djgpp, and unzip
+	@echo it into the root of your djgpp directory.
+endif
+
+
+
+# -------- check that the binutils package is installed --------
+
+ifeq ($(wildcard $(DJDIR_U)/bin/ld.exe),)
+badbnu:
+	@echo Missing djgpp package! You need to install bnu281b.zip (or whatever the
+	@echo latest version is). Download this from wherever you got djgpp, and unzip
+	@echo it into the root of your djgpp directory.
+endif
+
+
+
+# -------- check that the make package is installed --------
+
+ifeq ($(wildcard $(DJDIR_U)/bin/make.exe),)
+badmake:
+	@echo Missing djgpp package! You need to install mak377b.zip (or whatever the
+	@echo latest version is). Download this from wherever you got djgpp, and unzip
+	@echo it into the root of your djgpp directory.
+endif
+
+
+
+# -------- check that the texinfo package is installed --------
+
+ifeq ($(wildcard $(DJDIR_U)/bin/makeinfo.exe),)
+badtxi:
+	@echo Missing djgpp package! You need to install txi312b.zip (or whatever the
+	@echo latest version is). Download this from wherever you got djgpp, and unzip
+	@echo it into the root of your djgpp directory. If you do not need the Info
+	@echo documentation, run make all to ignore this error.
+endif
+
+
+
+# -------- check that djgpp/bin is pathed --------
+
+ifeq ($(wildcard $(addsuffix /djasm.exe,$(subst ;, ,$(PATH)))),)
+badpath:
+	@echo Your PATH is not set correctly! This must include the
+	@echo djgpp bin directory: see the djgpp readme.1st for details.
+endif
+
+
+
+# -------- check that Allegro has a good directory structure --------
+
+ifeq ($(wildcard src/allegro.c),)
+badalleg:
+	@echo Bad Allegro installation! You did not preserve the directory structure
+	@echo while unzipping it: did you remember to use the -d flag with pkunzip?
+endif
+
+
+endif
+
+
+
+# -------- give a sensible default target for make without any args --------
+
+.PHONY: _default
+
+_default: default
+
+
+
+# -------- decide what compiler options to use --------
+
+ifdef WARNMODE
+WFLAGS = -Wall -W -Werror -Wno-unused
+else
+WFLAGS = -Wall -Wno-unused
+endif
+
+ifdef PGCC
+OFLAGS = -mpentium -O6 -ffast-math
+else
+OFLAGS = -m486 -O3 -ffast-math
+endif
+
+ifdef DEBUGMODE
+
+# -------- debugging build --------
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g
+SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
+LFLAGS = -g
+
+else
+ifdef PROFILEMODE
+
+# -------- profiling build --------
+CFLAGS = $(WFLAGS) $(OFLAGS) -pg
+SFLAGS = $(WFLAGS)
+LFLAGS = -pg
+
+else
+
+# -------- optimised build --------
+CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
+SFLAGS = $(WFLAGS)
+
+ifndef SYMBOLMODE
+LFLAGS = -s
+endif
+
+endif
+endif
+
+
+
+# -------- list which platform specific objects to include --------
+
+VPATH = src/dos src/misc 
+
+ifdef ALLEGRO_USE_C
+
+# build a C-only version
+VPATH += src/c
+MY_OBJECTS = $(C_OBJECTS) cmiscs
+CFLAGS += -DALLEGRO_USE_C
+
+else
+
+# build the normal asm version
+VPATH += src/i386
+MY_OBJECTS = $(I386_OBJECTS)
+
+endif
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) \
+	      $(basename $(notdir $(ALLEGRO_SRC_DOS_FILES))) \
+	      djirq djirqs
+
+
+
+# -------- rules for installing and removing the library files --------
+
+ifdef CROSSCOMPILE
+
+$(DJDIR_U)/lib/lib$(VERSION).a: $(LIB_NAME)
+	cp lib/djgpp/lib$(VERSION).a $(DJDIR_U)/lib
+
+$(DJDIR_U)/include/allegro.h: include/allegro.h
+	cp include/allegro.h $(DJDIR_U)/include
+
+$(DJDIR_U)/include/allegro:
+	mkdir $(DJDIR_U)/include/allegro
+
+$(DJDIR_U)/include/allegro/%.h: include/allegro/%.h
+	cp $< $@
+
+$(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
+	-cp docs/allegro.$(INFO) $(DJDIR_U)/info
+	-install-info $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
+
+else
+
+$(DJDIR_U)/lib/lib$(VERSION).a: $(LIB_NAME)
+	copy lib\djgpp\lib$(VERSION).a $(DJDIR_D)\lib
+
+$(DJDIR_U)/include/allegro.h: include/allegro.h
+	copy include\allegro.h $(DJDIR_D)\include
+
+$(DJDIR_U)/include/allegro:
+	md $(DJDIR_D)\include\allegro
+
+$(DJDIR_U)/include/allegro/%.h: include/allegro/%.h
+	copy $(subst /,\,$< $@)
+
+$(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
+	-copy docs\allegro.$(INFO) $(DJDIR_D)\info
+	-install-info $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
+
+endif
+
+HEADERS = $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/*.h))
+
+INSTALL_FILES = $(DJDIR_U)/lib/lib$(VERSION).a \
+		$(DJDIR_U)/info/allegro.$(INFO) \
+		$(DJDIR_U)/include/allegro.h \
+		$(DJDIR_U)/include/allegro $(HEADERS)
+
+install: $(INSTALL_FILES)
+	@echo The $(DESCRIPTION) djgpp library has been installed.
+
+UNINSTALL_FILES = $(DJDIR_U)/lib/liballeg.a \
+		  $(DJDIR_U)/lib/liballd.a \
+		  $(DJDIR_U)/lib/liballp.a \
+		  $(DJDIR_U)/include/allegro.h \
+		  $(DJDIR_U)/include/allegro/*.h \
+		  $(DJDIR_U)/info/allegro.$(INFO)
+
+uninstall:
+	-install-info --delete $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
+	-rm -fv $(UNINSTALL_FILES)
+ifdef CROSSCOMPILE
+	-rmdir $(DJDIR_U)/include/allegro
+else
+	-rd $(DJDIR_D)\include\allegro
+endif
+	@echo All gone!
+
+
+
+# -------- autodetect whether the assembler supports MMX instructions --------
+
+.PHONY: mmxtest
+
+mmxtest:
+ifdef CROSSCOMPILE
+	echo // no MMX > obj/djgpp/mmx.h
+	echo .text > obj/djgpp/mmxtest.s
+	echo emms >> obj/djgpp/mmxtest.s
+	gcc -c obj/djgpp/mmxtest.s -o obj/djgpp/mmxtest.o
+	echo '#define ALLEGRO_MMX' > obj/djgpp/mmx.h
+else
+	echo // no MMX > obj\djgpp\mmx.h
+	echo .text > obj\djgpp\mmxtest.s
+	echo emms >> obj\djgpp\mmxtest.s
+	gcc -c obj/djgpp/mmxtest.s -o obj/djgpp/mmxtest.o
+	echo #define ALLEGRO_MMX > obj\djgpp\mmx.h
+endif
+
+obj/djgpp/mmx.h:
+	@echo Testing for MMX assembler support...
+	-$(MAKE) mmxtest
+
+
+
+# -------- helper function for compressing the executables --------
+
+ifneq ($(wildcard $(DJDIR_U)/bin/upx.exe),)
+DJP = $(DJDIR_U)/bin/upx.exe
+else
+ifneq ($(wildcard $(DJDIR_U)/bin/djp.exe),)
+DJP = $(DJDIR_U)/bin/djp.exe -s
+endif
+endif
+
+.PHONY: compress
+
+compress: $(PROGRAMS)
+    ifdef DJP
+	$(DJP) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe
+    else
+	@echo No executable compressor found! This target requires either the
+	@echo DJP or UPX utilities to be installed in your djgpp bin directory.
+    endif
+
+
+
+# -------- finally, we get to the fun part... --------
+
+define MAKE_LIB
+ar rs $(LIB_NAME) $(OBJECTS)
+endef
+
+COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
+
+$(OBJ_DIR)/%.o: %.c
+	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+
+$(OBJ_DIR)/%.o: %.s
+	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
+
+*/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
+	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
+
+ifndef CROSSCOMPILE
+
+obj/djgpp/asmdef.inc: obj/djgpp/asmdef.exe
+	obj/djgpp/asmdef.exe obj/djgpp/asmdef.inc
+
+obj/djgpp/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/mmx.h
+	gcc -O $(WFLAGS) -I. -I./include -o obj/djgpp/asmdef.exe src/i386/asmdef.c
+
+obj/djgpp/setupdat.s: setup/setup.dat tools/dat2s.exe
+	tools/dat2s.exe -p setup -o obj/djgpp/setupdat.s setup/setup.dat
+
+obj/djgpp/setupdat.o: obj/djgpp/setupdat.s
+	gcc -o obj/djgpp/setupdat.o -c obj/djgpp/setupdat.s
+
+setup/setup.exe: $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
+	gcc $(LFLAGS) -o setup/setup.exe $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
+
+else
+
+obj/djgpp/asmdef.inc:
+	touch -c obj/djgpp/asmdef.inc
+
+setup/setup.exe:
+	# do nothing
+
+endif
+
+PLUGIN_LIB = lib/djgpp/lib$(VERY_SHORT_VERSION)dat.a
+PLUGINS_H = obj/djgpp/plugins.h
+PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
+PLUGIN_SCR = scr
+
+ifdef CROSSCOMPILE
+
+define GENERATE_PLUGINS_H
+cat tools/plugins/*.inc > obj/djgpp/plugins.h
+endef
+
+else
+
+define GENERATE_PLUGINS_H
+copy tools\plugins\*.inc obj\djgpp\plugins.h
+endef
+
+endif
+
+define MAKE_PLUGIN_LIB
+ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+endef
+
+define LINK_WITH_PLUGINS
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
+endef
+
+
+
+# -------- generate automatic dependencies --------
+
+GCC2DJGPP = -DDJGPP -U__unix__
+
+DEPEND_PARAMS = $(GCC2DJGPP) -MM -MG -I. -I./include -DSCAN_DEPEND
+
+depend:
+	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/djgpp\/alleg\/\1/" _depend2.tmp > obj/djgpp/alleg/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/djgpp\/alld\/\1/" _depend2.tmp > obj/djgpp/alld/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/djgpp\/allp\/\1/" _depend2.tmp > obj/djgpp/allp/makefile.dep
+	rm _depend.tmp _depend2.tmp
+

@@ -1,0 +1,143 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Linux console internal mouse driver for `gpmdata' repeater.
+ *
+ *      By George Foot.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/time.h>
+
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintunix.h"
+#include "linalleg.h"
+
+
+#define ASCII_NAME "GPM repeater"
+#define DEVICE_FILENAME "/dev/gpmdata"
+
+
+/* processor:
+ *  Processes the first packet in the buffer, if any, returning the number
+ *  of bytes eaten.
+ * 
+ *  The GPM repeater uses Mouse Systems protocol.  Packets contain five
+ *  bytes.  The low bits of the first byte represent the button state.
+ *  The following bytes represent motion left, up, right and down 
+ *  respectively.  I think.
+ * 
+ *  We recognise the start of a packet by looking for a byte with the top
+ *  bit set and the next four bits not set -- while this can occur in the 
+ *  data bytes, it's pretty unlikely.
+ */
+static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
+{
+   info->updated = 0;
+   if (buf_size < 5) return 0;  /* not enough data, spit it out for now */
+
+   /* if the packet is invalid, return no motion and no buttons pressed */
+   info->r = info->m = info->l = info->x = info->y = 0;
+   info->updated = 1;
+   if ((buf[0] & 0xf8) != 0x80) return 1; /* invalid byte, eat it */
+
+   /* packet is valid, process the data */
+   info->r = !(buf[0] & 1);
+   info->m = !(buf[0] & 2);
+   info->l = !(buf[0] & 4);
+   info->x = (signed char)buf[1] + (signed char)buf[3];
+   info->y = (signed char)buf[2] + (signed char)buf[4];
+   info->z = 0;
+   info->updated = 1;
+   return 5; /* yum */
+}
+
+static INTERNAL_MOUSE_DRIVER intdrv = {
+   -1,
+   processor,
+   3
+};
+
+/* sync_mouse:
+ *  To find the start of a packet, we just read all the data that's 
+ *  waiting.  This isn't a particularly good way, obviously. :)
+ */
+static void sync_mouse (int fd)
+{
+	fd_set set;
+	int result;
+	struct timeval tv;
+	char bitbucket;
+
+	do {
+		FD_ZERO (&set);
+		FD_SET (fd, &set);
+		tv.tv_sec = tv.tv_usec = 0;
+		result = select (FD_SETSIZE, &set, NULL, NULL, &tv);
+		if (result > 0) read (fd, &bitbucket, 1);
+	} while (result > 0);
+}
+
+/* mouse_init:
+ *  Here we open the mouse device, initialise anything that needs it, 
+ *  and chain to the framework init routine.
+ */
+static int mouse_init (void)
+{
+	char tmp[80], tmp2[80], *device;
+
+	/* Find the device filename */
+	device = get_config_string(NULL, uconvert_ascii("mouse_device", tmp), uconvert_ascii(DEVICE_FILENAME, tmp2));
+
+	/* Open mouse device.  Devices are cool. */
+	intdrv.device = open (device, O_RDONLY | O_NONBLOCK);
+	if (intdrv.device < 0) {
+		usprintf (allegro_error, get_config_text ("Unable to open %s: %s"), uconvert_ascii (DEVICE_FILENAME, tmp), ustrerror (errno));
+		return -1;
+	}
+
+	/* Discard any garbage, so the next thing we read is a packet header */
+	sync_mouse (intdrv.device);
+
+	return __al_linux_mouse_init (&intdrv);
+}
+
+/* mouse_exit:
+ *  Chain to the framework, then uninitialise things.
+ */
+static void mouse_exit (void)
+{
+	__al_linux_mouse_exit();
+	close (intdrv.device);
+}
+
+MOUSE_DRIVER mousedrv_linux_gpmdata =
+{
+	MOUSEDRV_LINUX_GPMDATA,
+	empty_string,
+	empty_string,
+	ASCII_NAME,
+	mouse_init,
+	mouse_exit,
+	NULL, /* poll() */
+	NULL, /* timer_poll() */
+	__al_linux_mouse_position,
+	__al_linux_mouse_set_range,
+	__al_linux_mouse_set_speed,
+	__al_linux_mouse_get_mickeys,
+	NULL  /* analyse_data */
+};
+

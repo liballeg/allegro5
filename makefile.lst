@@ -1,0 +1,436 @@
+# a big bad list of all the library source files
+
+ALLEGRO_SRC_FILES = \
+	src/allegro.c \
+	src/blit.c \
+	src/bmp.c \
+	src/clip3d.c \
+	src/clip3df.c \
+	src/colblend.c \
+	src/color.c \
+	src/config.c \
+	src/datafile.c \
+	src/dataregi.c \
+	src/digmid.c \
+	src/dither.c \
+	src/dispsw.c \
+	src/file.c \
+	src/fli.c \
+	src/flood.c \
+	src/fsel.c \
+	src/gfx.c \
+	src/glyph.c \
+	src/graphics.c \
+	src/gsprite.c \
+	src/gui.c \
+	src/guiproc.c \
+	src/inline.c \
+	src/joystick.c \
+	src/keyboard.c \
+	src/lbm.c \
+	src/libc.c \
+	src/math.c \
+	src/math3d.c \
+	src/midi.c \
+	src/mixer.c \
+	src/modesel.c \
+	src/mouse.c \
+	src/pcx.c \
+	src/poly3d.c \
+	src/polygon.c \
+	src/quantize.c \
+	src/quat.c \
+	src/readbmp.c \
+	src/rle.c \
+	src/rotate.c \
+	src/sound.c \
+	src/spline.c \
+	src/stream.c \
+	src/text.c \
+	src/tga.c \
+	src/timer.c \
+	src/unicode.c \
+	src/vtable.c \
+	src/vtable15.c \
+	src/vtable16.c \
+	src/vtable24.c \
+	src/vtable32.c \
+	src/vtable8.c
+
+ALLEGRO_SRC_C_FILES = \
+	src/c/cblit16.c \
+	src/c/cblit24.c \
+	src/c/cblit32.c \
+	src/c/cblit8.c \
+	src/c/ccpu.c \
+	src/c/ccsprite.c \
+	src/c/cgfx15.c \
+	src/c/cgfx16.c \
+	src/c/cgfx24.c \
+	src/c/cgfx32.c \
+	src/c/cgfx8.c \
+	src/c/cmisc.c \
+	src/c/cscan15.c \
+	src/c/cscan16.c \
+	src/c/cscan24.c \
+	src/c/cscan32.c \
+	src/c/cscan8.c \
+	src/c/cspr15.c \
+	src/c/cspr16.c \
+	src/c/cspr24.c \
+	src/c/cspr32.c \
+	src/c/cspr8.c \
+	src/c/cstretch.c
+
+ALLEGRO_SRC_I386_FILES = \
+	src/i386/iblit16.s \
+	src/i386/iblit24.s \
+	src/i386/iblit32.s \
+	src/i386/iblit8.s \
+	src/i386/icpu.c \
+	src/i386/icpus.s \
+	src/i386/icsprite.c \
+	src/i386/igfx15.s \
+	src/i386/igfx16.s \
+	src/i386/igfx24.s \
+	src/i386/igfx32.s \
+	src/i386/igfx8.s \
+	src/i386/imisc.s \
+	src/i386/iscan.s \
+	src/i386/ispr15.s \
+	src/i386/ispr16.s \
+	src/i386/ispr24.s \
+	src/i386/ispr32.s \
+	src/i386/ispr8.s \
+	src/i386/istretch.c
+
+ALLEGRO_SRC_DOS_FILES = \
+	src/dos/adlib.c \
+	src/dos/awedata.c \
+	src/dos/dfile.c \
+	src/dos/dgfxdrv.c \
+	src/dos/djoydrv.c \
+	src/dos/dkeybd.c \
+	src/dos/dma.c \
+	src/dos/dmouse.c \
+	src/dos/dpmi.c \
+	src/dos/dsnddrv.c \
+	src/dos/dsystem.c \
+	src/dos/dtimer.c \
+	src/dos/emu8k.c \
+	src/dos/emu8kmid.c \
+	src/dos/essaudio.c \
+	src/dos/gpro.c \
+	src/dos/grip.c \
+	src/dos/gripjoy.c \
+	src/dos/gripfnc.s \
+	src/dos/ifsega.c \
+	src/dos/ifsega2f.c \
+	src/dos/ifsega2p.c \
+	src/dos/joystd.c \
+	src/dos/mpu.c \
+	src/dos/multijoy.c \
+	src/dos/n64pad.c \
+	src/dos/pic.c \
+	src/dos/psxpad.c \
+	src/dos/sb.c \
+	src/dos/sidewind.s \
+	src/dos/sndscape.c \
+	src/dos/snespad.c \
+	src/dos/sw.c \
+	src/dos/vesa.c \
+	src/dos/vesas.s \
+	src/dos/wss.c \
+	src/dos/ww.c \
+	src/misc/modex.c \
+	src/misc/modexgfx.s \
+	src/misc/pckeys.c \
+	src/misc/vbeaf.c \
+	src/misc/vbeafs.s \
+	src/misc/vbeafex.c \
+	src/misc/vga.c \
+	src/misc/vgaregs.c
+
+ALLEGRO_SRC_WIN_FILES = \
+	src/win/gdi.c \
+	src/win/wddaccel.c \
+	src/win/wddbmp.c \
+	src/win/wddbmpl.c \
+	src/win/wddraw.c \
+	src/win/wddfull.c \
+	src/win/wddlock.c \
+	src/win/wddmode.c \
+	src/win/wddovl.c \
+	src/win/wddwin.c \
+	src/win/update.s \
+	src/win/wdsound.c \
+	src/win/wdxver.c \
+	src/win/wdispsw.c \
+	src/win/wfile.c \
+	src/win/wgdi.c \
+	src/win/wgfxdrv.c \
+	src/win/wjoydrv.c \
+	src/win/wjoyw32.c \
+	src/win/wkeybd.c \
+	src/win/wmidi.c \
+	src/win/wmouse.c \
+	src/win/wsnddrv.c \
+	src/win/wsystem.c \
+	src/win/wthread.c \
+	src/win/wtimer.c \
+	src/win/wwnd.c \
+	src/misc/pckeys.c
+
+ALLEGRO_SRC_BEOS_FILES = \
+	src/beos/bclasses.cpp \
+	src/beos/bgfx.c \
+	src/beos/bgfxapi.cpp \
+	src/beos/bgfxdrv.c \
+	src/beos/bjoy.c \
+	src/beos/bjoydrv.c \
+	src/beos/bkey.c \
+	src/beos/bkeyapi.cpp \
+	src/beos/bkeydrv.c \
+	src/beos/bmidi.c \
+	src/beos/bmididrv.c \
+	src/beos/bmousapi.cpp \
+	src/beos/bmousdrv.c \
+	src/beos/bmouse.c \
+	src/beos/bsnd.c \
+	src/beos/bsnddrv.c \
+	src/beos/bswitch.s \
+	src/beos/bsysapi.cpp \
+	src/beos/bsysdrv.c \
+	src/beos/bsystem.c \
+	src/beos/bthread.c \
+	src/beos/btimeapi.cpp \
+	src/beos/btimedrv.c \
+	src/beos/btimer.c \
+	src/beos/bwindow.c \
+	src/misc/ufile.c
+
+ALLEGRO_SRC_LINUX_FILES = \
+	src/linux/fbcon.c \
+	src/linux/ggi.c \
+	src/linux/ggis.s \
+	src/linux/lasyncio.c \
+	src/linux/lconsole.c \
+	src/linux/lgfxdrv.c \
+	src/linux/ljoy.c \
+	src/linux/lkeybd.c \
+	src/linux/lmemory.c \
+	src/linux/lmouse.c \
+	src/linux/lmsedrv.c \
+	src/linux/lmsegpmd.c \
+	src/linux/lmsems.c \
+	src/linux/lmseps2.c \
+	src/linux/lstddrv.c \
+	src/linux/lsystem.c \
+	src/linux/ltimer.c \
+	src/linux/lvga.c \
+	src/linux/lvgahelp.c \
+	src/linux/svgalib.c \
+	src/linux/svgalibs.s \
+	src/linux/vtswitch.c \
+	src/misc/vbeaf.c \
+	src/misc/vbeafs.s \
+	src/misc/vgaregs.c \
+	src/misc/vga.c \
+	src/misc/modex.c \
+	src/misc/modexgfx.s
+
+ALLEGRO_SRC_UNIX_FILES = \
+	src/unix/ualsa.c \
+	src/unix/udjgpp.c \
+	src/unix/uesd.c \
+	src/unix/ugfxdrv.c \
+	src/unix/ujoydrv.c \
+	src/unix/ukeybd.c \
+	src/unix/umain.c \
+	src/unix/umouse.c \
+	src/unix/uoss.c \
+	src/unix/uossmidi.c \
+	src/unix/usigalrm.c \
+	src/unix/usnddrv.c \
+	src/unix/usystem.c \
+	src/unix/utimer.c \
+	src/misc/ufile.c
+
+ALLEGRO_SRC_X_FILES = \
+	src/x/xgfxdrv.c \
+	src/x/xkeybd.c \
+	src/x/xmouse.c \
+	src/x/xsystem.c \
+	src/x/xtimer.c \
+	src/x/xvtable.c \
+	src/x/xwin.c \
+	src/x/xwins.s \
+	src/misc/pckeys.c
+
+ALLEGRO_LIB_EXE_SOURCES = \
+	demo/demo.c \
+	setup/keyconf.c \
+	setup/setup.c \
+	tests/afinfo.c \
+	tests/akaitest.c \
+	tests/digitest.c \
+	tests/mathtest.c \
+	tests/miditest.c \
+	tests/play.c \
+	tests/playfli.c \
+	tests/test.c \
+	tests/vesainfo.c \
+	tools/colormap.c \
+	tools/exedat.c \
+	tools/pack.c \
+	tools/rgbmap.c \
+	tools/textconv.c
+
+ALLEGRO_LIB_EXES = \
+	demo/demo \
+	setup/keyconf \
+	setup/setup \
+	tests/afinfo \
+	tests/akaitest \
+	tests/digitest \
+	tests/mathtest \
+	tests/miditest \
+	tests/play \
+	tests/playfli \
+	tests/test \
+	tests/vesainfo \
+	tools/colormap \
+	tools/exedat \
+	tools/pack \
+	tools/rgbmap \
+	tools/textconv
+
+ALLEGRO_DATAFILE_EXE_SOURCES = \
+	tools/dat.c \
+	tools/dat2s.c \
+	tools/grabber.c \
+	tools/pat2dat.c
+
+ALLEGRO_DATAFILE_EXES = \
+	tools/dat \
+	tools/dat2s \
+	tools/grabber \
+	tools/pat2dat
+
+ALLEGRO_EXAMPLE_FILES = \
+	examples/ex12bit.c \
+	examples/ex3buf.c \
+	examples/ex3d.c \
+	examples/exaccel.c \
+	examples/exalpha.c \
+	examples/exbitmap.c \
+	examples/exblend.c \
+	examples/excamera.c \
+	examples/excolmap.c \
+	examples/excustom.c \
+	examples/exdata.c \
+	examples/exdbuf.c \
+	examples/exdodgy.c \
+	examples/exexedat.c \
+	examples/exfixed.c \
+	examples/exflame.c \
+	examples/exflip.c \
+	examples/exgui.c \
+	examples/exhello.c \
+	examples/exjoy.c \
+	examples/exkeys.c \
+	examples/exlights.c \
+	examples/exmem.c \
+	examples/exmidi.c \
+	examples/exmouse.c \
+	examples/expal.c \
+	examples/expat.c \
+	examples/exquat.c \
+	examples/exrgbhsv.c \
+	examples/exsample.c \
+	examples/exscale.c \
+	examples/exscroll.c \
+	examples/exshade.c \
+	examples/exspline.c \
+	examples/exsprite.c \
+	examples/exstars.c \
+	examples/exstream.c \
+	examples/exswitch.c \
+	examples/extimer.c \
+	examples/extrans.c \
+	examples/extruec.c \
+	examples/exupdate.c \
+	examples/exxfade.c
+
+ALLEGRO_EXAMPLE_EXES = \
+	examples/ex12bit \
+	examples/ex3buf \
+	examples/ex3d \
+	examples/exaccel \
+	examples/exalpha \
+	examples/exbitmap \
+	examples/exblend \
+	examples/excamera \
+	examples/excolmap \
+	examples/excustom \
+	examples/exdata \
+	examples/exdbuf \
+	examples/exdodgy \
+	examples/exexedat \
+	examples/exfixed \
+	examples/exflame \
+	examples/exflip \
+	examples/exgui \
+	examples/exhello \
+	examples/exjoy \
+	examples/exkeys \
+	examples/exlights \
+	examples/exmem \
+	examples/exmidi \
+	examples/exmouse \
+	examples/expal \
+	examples/expat \
+	examples/exquat \
+	examples/exrgbhsv \
+	examples/exsample \
+	examples/exscale \
+	examples/exscroll \
+	examples/exshade \
+	examples/exspline \
+	examples/exsprite \
+	examples/exstars \
+	examples/exstream \
+	examples/exswitch \
+	examples/extimer \
+	examples/extrans \
+	examples/extruec \
+	examples/exupdate \
+	examples/exxfade
+
+ALLEGRO_NOLIB_EXE_SOURCES = \
+	docs/makedoc.c \
+	src/i386/asmdef.c
+
+CLEAN_FILES = \
+	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 \
+	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj \
+	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
+	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \
+	lib/*/*.a lib/unix/*.so* lib/unix/sta* \
+	lib/*/*.lib lib/*/*.exp lib/*/*.dll \
+	lib/*/*.pdb lib/*/*.ilk lib/*/*.map *.pdb */*.pdb \
+	*/*.ilk */*.map */*.sym gmon.out */gmon.out */*.prf \
+	allegro.log */allegro.log */*/allegro.log \
+	log */log */*/log core */core */*/core
+
+DISTCLEAN_FILES = \
+	allegro.txt help.txt docs/*.html docs/*.htm docs/*.rtf docs/makedoc \
+	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
+	*.exe */*.exe msvcmake.bat wintests/*.scr \
+	config.cache config.log stamp-h stamp-h[0-9]* suid makefile.dep \
+	config.status include/allegro/alunixac.h allegro-config
+
+VERYCLEAN_FILES = \
+	authors AUTHORS changes CHANGES thanks THANKS faq.txt \
+	obj/*/*.inc obj/*/*/*.dep lib/*/*.def \
+	include/allegro/rsxdll.h

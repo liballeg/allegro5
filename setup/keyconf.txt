@@ -1,0 +1,93 @@
+
+     _  _ ____ _   _ ___  ____ ____ ____ ___     ____ ____ ___ _  _ ___
+     |_/  |___  \_/  |__] |  | |__| |__/ |  \    [__  |___  |  |  | |__]
+     | \_ |___   |   |__] |__| |  | |  \ |__/    ___] |___  |  |__| |
+
+
+			   by Shawn Hargreaves
+
+
+
+The Allegro keyboard module contains a default set of mapping tables for the 
+US keyboard layout. Other keyboard types are supported by loading an 
+alternate set of mappings from an external configuration file (either a 
+separate file or a member object in keyboard.dat), which is specified by 
+setting the "keyboard=" parameter in allegro.cfg. The end user should simply 
+be able to place a copy of keyboard.dat into the same directory as their 
+program, and then select whichever of the preset layouts they would like to 
+use. If there is no mapping table for your keyboard type, though, you will 
+have to use this program to create one. Having done so, please send me a 
+copy so I can include it in future versions of Allegro!
+
+When you load the keyconf utility, the standard US mappings will be 
+selected. If you want to start from one of the other layouts, use the 
+grabber to export the mapping you want from keyboard.dat into a .cfg file, 
+and then load this file into keyconf.
+
+There are several mapping tables, listing what Unicode characters correspond 
+to each hardware scancode for various states of the ctrl/shift/alt keys. 
+Select each table in turn from the Edit menu, double-click on the key that 
+you want to alter, and then select the Unicode character that it should be 
+mapped onto. The top half of the character selection screen lists characters 
+from the current page (low byte of the 16 bit Unicode value), while the 
+bottom half allows you to switch to a different page (high byte of the 16 
+bit Unicode value). If you map a key to 0xFFFF, the current shift state will 
+be used in place of any fixed character code, which is useful for things 
+like the arrows and function keys. Press ESC to quit back to the previous 
+screen without altering the character.
+
+The different mapping tables are:
+
+Normal
+   The regular set of ASCII characters for use when no modifier keys are 
+   pressed. This table must be set correctly!
+
+Capslock
+   Uppercase ASCII characters for use when the capslock function is engaged. 
+   This table must be set correctly!
+
+Shifted
+   Uppercase ASCII characters and alternate versions of the numeric and 
+   punctuation keys, for use when the shift key is held down. This table 
+   must be set correctly!
+
+Control
+   Control codes, for use when the control key is held down. This should 
+   contain the numeric indexes of the ASCII keys, eg. A=1, B=2, C=3, etc. 
+   You will not normally need to edit this table, unless some of the 
+   alphabetic characters have been mapped onto different keys.
+
+Alt-GR
+   Alternate ASCII codes for use when the Alt-GR key is held down. Any keys 
+   that don't behave specially in this context should be mapped to zero.
+
+Accent*
+   Lists of accented ASCII characters. There are four accent escape keys, 
+   which can be selected from the Misc menu (set them to zero if your layout 
+   has no accent keys). Each of the accent keys has an activator flags,
+   which determines, what additional key must be pressed with the accent
+   key to enable the accent. The activator key value can be 0, which means,
+   that no other key has to be pressed; it can be 1 for SHIFT, 2 for CONTROL
+   or 3 for ALT. The difference from the previous version of Allegro is, 
+   that you can use one key for two accents or for one accent and a normal
+   ASCII (UNICODE) character, or one key for all four accents, or whatever
+   you want. This gives a total of four different accents, which are applied
+   on top of whatever character is pressed immediately after the accent. These 
+   eight tables list the mapping codes for all accent keys in normal
+   (lowercase letter typed after the accent) and caps (uppercase letter typed
+   after the accent) forms. Any characters that don't support the accent
+   should be mapped onto zero.
+
+When everything is working properly, save your new layout into a .cfg file. 
+To use the new mapping, set the "keyboard=" parameter in allegro.cfg to the 
+name of this .cfg file (just the basename is enough, without the .cfg 
+extension). You can also use the grabber to add your new layout to the 
+keyboard.dat file, after which you will be able to delete the original file 
+(Allegro will automatically look in keyboard.dat if it doesn't find the 
+mapping in a separate file). Then fire up your favourite email program, and 
+send me a copy of the new layout...
+
+If you create a keyconf.dat file containing an object named BASE_FONT, the 
+keyconf program will use that instead of the default font. This can be 
+useful when making a key mapping for character sets that aren't included in 
+the default font.
