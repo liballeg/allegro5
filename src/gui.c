@@ -361,6 +361,7 @@ int object_message(DIALOG *dialog, int msg, int c)
 int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 {
    int count, res, r, force, try;
+   DIALOG *menu_dialog = NULL;
    ASSERT(dialog);
 
    if (msg == MSG_DRAW)
@@ -376,14 +377,16 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
     * first to send the message to the d_menu_proc object and, if the menu
     * is then not active anymore, send it to the other objects as well.
     */
-   if (active_menu_player)
+   if (active_menu_player) {
       try = 2;
+      menu_dialog = active_menu_player->dialog;
+   }
    else
       try = 1;
 
    for (; try > 0; try--) {
       for (count=0; dialog[count].proc; count++) {
-         if ((try == 2) && (&dialog[count] != active_menu_player->dialog))
+         if ((try == 2) && (&dialog[count] != menu_dialog))
 	    continue;
 
 	 if ((force) || (!(dialog[count].flags & D_HIDDEN))) {
