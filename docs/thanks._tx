@@ -149,7 +149,7 @@ Contributors
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
-   Eric Botcazou (<email>botcazou@multimania.com</a>).<br>
+   Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, fixed some
    bugs in Windows code, improved the directx windowed driver and added
    the file_select_ex() function.
