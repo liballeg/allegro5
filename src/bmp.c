@@ -18,6 +18,8 @@
  */
 
 
+#include <string.h>
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
@@ -274,6 +276,56 @@ static void read_24bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
 
 
 
+/* read_bitfields_image:
+ *  For reading the bitfield compressed BMP image format.
+ */
+static void read_bitfields_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *infoheader)
+{
+   int k, i;
+   int bpp;
+   int bytes_per_pixel;
+   int red, grn, blu;
+   unsigned long buffer;
+
+   bpp = bitmap_color_depth(bmp);
+   bytes_per_pixel = BYTES_PER_PIXEL(bpp);
+
+   for (i=0; i<(int)infoheader->biHeight; i++) {
+      for (k=0; k<(int)infoheader->biWidth; k++) {
+
+	 pack_fread(&buffer, bytes_per_pixel, f);
+
+	 if (bpp == 15) {
+	    red = (buffer >> 10) & 0x1f;
+	    grn = (buffer >> 5) & 0x1f;
+	    blu = (buffer) & 0x1f;
+	    buffer = (red << _rgb_r_shift_15) |
+		     (grn << _rgb_g_shift_15) |
+		     (blu << _rgb_b_shift_15);
+	 }
+	 else if (bpp == 16) {
+	    red = (buffer >> 11) & 0x1f;
+	    grn = (buffer >> 5) & 0x3f;
+	    blu = (buffer) & 0x1f;
+	    buffer = (red << _rgb_r_shift_16) |
+		     (grn << _rgb_g_shift_16) |
+		     (blu << _rgb_b_shift_16);
+	 }
+	 else {
+	    red = (buffer >> 16) & 0xff;
+	    grn = (buffer >> 8) & 0xff;
+	    blu = (buffer) & 0xff;
+	    buffer = (red << _rgb_r_shift_32) |
+		     (grn << _rgb_g_shift_32) |
+		     (blu << _rgb_b_shift_32);
+	 }
+
+	 memcpy(&bmp->line[(infoheader->biHeight - i) - 1][k * bytes_per_pixel], &buffer, bytes_per_pixel);
+      }
+   }
+}
+
+
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
@@ -499,7 +551,9 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
       }
       /* compute number of colors recorded */
       ncol = (fileheader.bfOffBits - 54) / 4;
-      read_bmicolors(ncol, pal, f, 1);
+
+      if (infoheader.biCompression != BI_BITFIELDS)
+	 read_bmicolors(ncol, pal, f, 1);
    }
    else if (biSize == OS2INFOHEADERSIZE) {
       if (read_os2_bminfoheader(f, &infoheader) != 0) {
@@ -508,7 +562,9 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
       }
       /* compute number of colors recorded */
       ncol = (fileheader.bfOffBits - 26) / 3;
-      read_bmicolors(ncol, pal, f, 0);
+
+      if (infoheader.biCompression != BI_BITFIELDS)
+	 read_bmicolors(ncol, pal, f, 0);
    }
    else {
       pack_fclose(f);
@@ -517,8 +573,29 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 
    if (infoheader.biBitCount == 24)
       bpp = 24;
+   else if (infoheader.biBitCount == 16)
+      bpp = 16;
    else
       bpp = 8;
+
+   if (infoheader.biCompression == BI_BITFIELDS) {
+      unsigned long redMask = pack_igetl(f);
+      unsigned long grnMask = pack_igetl(f);
+      unsigned long bluMask = pack_igetl(f);
+
+      if ((bluMask == 0x001f) && (redMask == 0x7C00))
+	 bpp = 15;
+      else if ((bluMask == 0x001f) && (redMask == 0xF800))
+	 bpp = 16;
+      else if ((bluMask == 0x0000FF) && (redMask == 0xFF0000))
+	 bpp = 32;
+      else {
+	 /* Unrecognised bit masks/depth, refuse to load. */
+	 pack_fclose(f);
+	 return NULL;
+      }
+   }
+
 
    dest_depth = _color_load_depth(bpp, FALSE);
 
@@ -542,6 +619,10 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 
       case BI_RLE4:
 	 read_RLE4_compressed_image(f, bmp, &infoheader);
+	 break;
+
+      case BI_BITFIELDS:
+	 read_bitfields_image(f, bmp, &infoheader);
 	 break;
 
       default:
