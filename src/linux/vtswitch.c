@@ -163,7 +163,7 @@ static void come_back()
 {
 	int i;
 
-//	_sigalrm_disable_interrupts();
+	_unix_bg_man->disable_interrupts();
 
 	if (gfx_driver && gfx_driver->restore_video_state)
 		gfx_driver->restore_video_state();
