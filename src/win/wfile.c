@@ -105,6 +105,10 @@ static void fill_ffblk(struct al_ffblk *info)
 
 
 
+/* Windows specific flag: NTFS compressed files */
+#define FA_COMPRESSED  0x800
+
+
 /* al_findfirst:
  *  Initiates a directory search.
  */
@@ -125,7 +129,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    info->ff_data = (void *) ff_data;
 
    /* initialize it */
-   ff_data->attrib = attrib;
+   ff_data->attrib = attrib | FA_COMPRESSED;
 
    /* start the search */
    errno = *allegro_errno = 0;
