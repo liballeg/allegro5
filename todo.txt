@@ -13,6 +13,8 @@ General (Platform independant) todos:
 - Add caching system to speed up filename#object and load_datafile_object()
 - New example to test P3D scene rendering
 - merge Angelo's menu auto popup patch
+- rewrite set_gfx_mode, or at least have dynamic driver lists
+- find solution or API to timer/multithread problem
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -36,6 +38,8 @@ Linux todos:
 - vt switching in BACKAMNESIA mode only causes font weirdity in text
   mode on a Voodoo Banshee (using SVGAlib VESA and BANSHEE drivers), even
   if I cheat and use vga_flip.  Font returns after program quits.
+- dynamically linked wrappers for drivers
+- switch to SRPMs instead of weird RPMs
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -92,7 +96,7 @@ Wishlist
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
 - More hardware accelerated functions? Trans/lit sprites come to mind.
-- framebuffer hardware accel via XFB library/driver
+- framebuffer hardware accel via XFB or DirectFB (?) library/driver
 - Better get_config_text support, with multiple fallback configuration
   files (you can have lot's of them under linux), which is not supported at
   the moment (IIRC two at most).
@@ -105,11 +109,9 @@ Wishlist
 - OSS MIDI pitch bend.
 - function to get a list of supported video modes
 - hook function to handle window resizing
-- dynamically linked wrappers for drivers under Linux
 - uvsnprintf
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
-- rewrite set_gfx_mode
 - [WIN] Do not export functions and variables that are not a part of the API.
 
 ---------------------------------------------------------------------------
