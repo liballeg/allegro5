@@ -428,7 +428,7 @@ static int alsa_init(int input, int voices)
    }
    ALSA9_CHECK(snd_pcm_poll_descriptors(pcm_handle, ufds, pdc));
 
-   poll_next = 1;
+   poll_next = 0;
 
    _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
 
