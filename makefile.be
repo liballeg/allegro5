@@ -122,7 +122,7 @@ $(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
 	
 else	
 		
-$(SHARED_LIB_DIR)/lib$(VERSION).so: $(LIB_NAME)
+$(SHARED_LIB_DIR)/lib$(VERSION)-$(shared_version).so: $(LIB_NAME)
 	cp $< $@	
 	
 endif
@@ -151,14 +151,16 @@ INSTALL_FILES =  $(INC_DIR)/allegro.h \
 ifdef STATICLINK
 	INSTALL_FILES += $(LIB_DIR)/lib$(VERSION).a 
 else
-	INSTALL_FILES += $(SHARED_LIB_DIR)/lib$(VERSION).so
+	INSTALL_FILES += $(SHARED_LIB_DIR)/lib$(VERSION)-$(shared_version).so
 endif		
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) BeOS library has been installed.
 
 UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.a \
-		$(SHARED_LIB_DIR)/liballeg.so $(SHARED_LIB_DIR)/liballd.so $(SHARED_LIB_DIR)/liballp.so \
+		$(SHARED_LIB_DIR)/liballeg-$(shared_version).so \
+		$(SHARED_LIB_DIR)/liballd-$(shared_version).so \
+		$(SHARED_LIB_DIR)/liballp-$(shared_version).so \
 		$(INC_DIR)/allegro.h $(INC_DIR)/bealleg.h $(INC_DIR)/allegro/*.h
 
 uninstall:
