@@ -13,7 +13,8 @@
        By Ronaldo H. Yamada
   
        See readme.txt for copyright information.
- 
+
+       
  
 ====================================
 ============ MPW notes =============
@@ -27,11 +28,13 @@
    missing or otherwise not working very well.
 
 
+
 ===========================================
 ============ Required hardware ============
 ===========================================
 
    - An Power Macintosh
+
 
 
 ===========================================
@@ -56,6 +59,8 @@
 
    *the final users can need theses softwares 
 
+
+
 ============================================
 ============ Installing Allegro ============
 ============================================
@@ -70,6 +75,8 @@
    this set the library up ready for use.
    install a debugging version of the library. be patient this take many minutes
    If required you must quit the MPW Shell before use the library
+
+
 
 ================================================
 ============ Custom install Allegro ============
@@ -135,10 +142,11 @@
    see examples in tests:mac folder
 
 
+
 ==========================================
 ============ Unistall Allegro ============
 ==========================================
 
-   delete the Allegro Folder at Interfaces&Libraries
-   and the Script "SetAllegro" from Startup Itens Folder
+   Delete the Allegro Folder at Interfaces&Libraries
+   and the Script "SetAllegro" from Startup Items Folder.
    

@@ -89,6 +89,8 @@
    If you have compiled a static version of the library, it will be copied to
    /boot/develop/lib/x86.
      
+
+
 =======================================
 ============ Using Allegro ============
 =======================================

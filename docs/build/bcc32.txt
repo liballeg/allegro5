@@ -25,6 +25,7 @@
    creating the very useful IMPLIB program. 
 
 
+
 ===========================================
 ============ Required software ============
 ===========================================
@@ -42,8 +43,9 @@
 
    You need to use GNU make, since Borland make is really ugly about its
    makefiles.  You can grab it from either the MinGW32 or DJGPP
-   distributions; more info on this in available in the MinGW32 and DJGPP
-   READMEs.
+   distributions; more info on this in available in the following files:
+   docs/build/mingw32.txt and docs/build/djgpp.txt.
+
 
 
 ============================================
