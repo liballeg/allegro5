@@ -197,7 +197,7 @@ clearMMXseg_do_alignment:
 
    addl $8, %edi                 /* we set %edi to the next aligned memory address */
 
-   addl %ecx, %eax               /* and adjust %ecx to reflect the change */
+   addl %eax, %ecx               /* and adjust %ecx to reflect the change */
 
 clearMMXseg_aligned:
    movl %ecx, %eax               /* save for later */
