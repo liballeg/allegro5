@@ -29,13 +29,23 @@
 #if (!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)
 
 FUNC (_xdga2_write_line_asm)
+
+	/* check whether is locked already */
+	testl $BMP_ID_LOCKED, BMP_ID(%edx)
+	jnz Locked
+
 	pushl %ecx
 	pushl %eax
 	pushl %edx
-	call GLOBL(_xdga2_write_line)
+	call GLOBL(_xdga2_lock)
 	popl %edx
+	popl %eax
 	popl %ecx
-	popl %ecx
+
+   Locked:
+	/* get pointer to the video memory */
+	movl BMP_LINE(%edx,%eax,4), %eax
+
 	ret
 
 #endif

@@ -785,10 +785,10 @@ static void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int v
 
 
 
-/* _xdga2_acquire:
- *  Video bitmap acquire function; synchronizes with framebuffer.
+/* _xdga2_lock:
+ *  Synchronizes with framebuffer.
  */
-static void _xdga2_acquire(BITMAP *bmp)
+void _xdga2_lock(BITMAP *bmp)
 {
    XLOCK();
    RESYNC();
@@ -798,20 +798,30 @@ static void _xdga2_acquire(BITMAP *bmp)
 
 
 
+/* _xdga2_acquire:
+ *  Video bitmap acquire function; synchronizes with framebuffer if needed.
+ */
+static void _xdga2_acquire(BITMAP *bmp)
+{
+   if (!(bmp->id & BMP_ID_LOCKED))
+      _xdga2_lock(bmp);
+}
+
+
+#ifdef ALLEGRO_NO_ASM
+
 /* _xdga2_write_line:
  *  Returns new line and synchronizes framebuffer if needed.
  */
 unsigned long _xdga2_write_line(BITMAP *bmp, int line)
 {
-   if (!(bmp->id & BMP_ID_LOCKED)) {
-      XLOCK();
-      RESYNC();
-      XUNLOCK();
-      bmp->id |= BMP_ID_LOCKED;
-   }
+   if (!(bmp->id & BMP_ID_LOCKED))
+      _xdga2_lock(bmp);
+
    return (unsigned long)(bmp->line[line]);
 }
 
+#endif
 
 
 /* _xaccel_hline:
