@@ -281,23 +281,6 @@ void set_leds(int leds)
 
 
 
-/* set_keyboard_rate:
- *  Sets the keyboard repeat rate. Times are given in milliseconds.
- *  Passing zero times will disable the key repeat.
- */
-void set_keyboard_rate(int delay, int repeat)
-{
-   repeat_delay = delay;
-   repeat_rate = repeat;
-
-   if ((repeat_delay) && (keyboard_driver) && (keyboard_driver->set_rate)) {
-      keyboard_driver->set_rate(delay, repeat);
-      rate_changed = TRUE;
-   }
-}
-
-
-
 /* repeat_timer:
  *  Timer callback for doing automatic key repeats.
  */
@@ -312,6 +295,33 @@ static void repeat_timer(void)
 }
 
 END_OF_STATIC_FUNCTION(repeat_timer);
+
+
+
+/* set_keyboard_rate:
+ *  Sets the keyboard repeat rate. Times are given in milliseconds.
+ *  Passing zero times will disable the key repeat.
+ */
+void set_keyboard_rate(int delay, int repeat)
+{
+   repeat_delay = delay;
+   repeat_rate = repeat;
+
+   if ((repeat_delay) && (keyboard_driver) && (keyboard_driver->set_rate)) {
+      keyboard_driver->set_rate(delay, repeat);
+      rate_changed = TRUE;
+   }
+
+   if ((keyboard_driver) && (keyboard_driver->autorepeat)) {
+      if (repeat_delay)
+         install_int(repeat_timer, IDLE_SPEED);
+      else {
+         repeat_key = -1;
+         repeat_scan = -1;
+         remove_int(repeat_timer);
+      }
+   }
+}
 
 
 
@@ -579,12 +589,8 @@ int install_keyboard()
    _add_exit_func(remove_keyboard);
    _keyboard_installed = TRUE;
 
-   if (keyboard_driver->autorepeat) {
-      if (!_timer_installed)
-         install_timer();
-
+   if ((keyboard_driver->autorepeat) && (repeat_delay))
       install_int(repeat_timer, IDLE_SPEED);
-   }
 
    return 0;
 }
