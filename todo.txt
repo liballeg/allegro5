@@ -95,7 +95,6 @@ Wishlist
 - hook function to handle window resizing
 - dynamically linked wrappers for drivers under Linux
 - uvsnprintf
-- function to get the desktop resolution in windowed environments
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
 - rewrite set_gfx_mode

@@ -336,7 +336,7 @@ static HWND create_directx_window(void)
    do_uconvert(get_filename(fname), U_CURRENT, wnd_title, U_ASCII, sizeof(wnd_title));
 
    /* create the window now */
-   wnd = CreateWindowEx(0, ALLEGRO_WND_CLASS, wnd_title,
+   wnd = CreateWindowEx(WS_EX_APPWINDOW, ALLEGRO_WND_CLASS, wnd_title,
                         WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,
                         -100, -100, 0, 0,
                         NULL, NULL, allegro_inst, NULL);

@@ -248,6 +248,17 @@ AL_INLINE(int, desktop_color_depth, (void),
 })
 
 
+AL_INLINE(int, get_desktop_resolution, (int *width, int *height),
+{
+   ASSERT(system_driver);
+
+   if (system_driver->get_desktop_resolution)
+      return system_driver->get_desktop_resolution(width, height);
+   else
+      return 0;
+})
+
+
 AL_INLINE(void, yield_timeslice, (void),
 {
    ASSERT(system_driver);

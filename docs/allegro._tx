@@ -216,6 +216,14 @@ information about how to install Allegro and link your program with it.
    is likely to run faster if it uses this same depth). On platforms where 
    this information is not available or does not apply, returns zero.
 
+@@int @get_desktop_resolution(int *width, int *height);
+   On platforms that can run Allegro programs in a window on an existing 
+   desktop, retrieves the currently selected desktop resolution and returns
+   a positive number (you may want to call this function before creating a
+   large window because, with some windowed drivers, such a window cannot be
+   created if it is larger than the desktop). On platforms where this
+   information is not available or does not apply, returns zero.
+
 @@void @yield_timeslice();
    On systems that support this, gives up the rest of the current scheduler 
    timeslice. Also known as the "play nice with multitasking" option.

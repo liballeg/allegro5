@@ -348,6 +348,18 @@ extern "C" int be_sys_desktop_color_depth(void)
 
 
 
+extern "C" int be_sys_get_desktop_resolution(int *width, int *height)
+{
+   BScreen screen(be_allegro_screen);
+
+   *width  = screen.Frame().IntegerWidth() + 1;
+   *height = screen.Frame().IntegerHeight() + 1;
+
+   return 1;
+}
+
+
+
 extern "C" void be_sys_yield_timeslice(void)
 {
    snooze(YIELD_TIME);

@@ -50,6 +50,7 @@ int be_sys_set_window_close_button(int enable);
 void be_sys_set_window_close_hook(void (*proc)(void));
 void be_sys_message(AL_CONST char *msg);
 int be_sys_desktop_color_depth(void);
+int be_sys_get_desktop_resolution(int *width, int *height);
 void be_sys_yield_timeslice(void);
 int be_sys_set_display_switch_mode(int mode);
 int be_sys_set_display_switch_cb(int dir, void (*cb)(void));

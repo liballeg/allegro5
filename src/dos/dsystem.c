@@ -126,7 +126,7 @@ SYSTEM_DRIVER system_dos =
    NULL, NULL, NULL, NULL, NULL,
    sys_dos_read_palette,
    sys_dos_set_palette,
-   NULL, NULL, NULL, NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    sys_dos_yield_timeslice,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };

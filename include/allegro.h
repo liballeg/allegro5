@@ -181,6 +181,7 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
    AL_METHOD(void, display_switch_lock, (int lock, int foreground));
    AL_METHOD(int, desktop_color_depth, (void));
+   AL_METHOD(int, get_desktop_resolution, (int *width, int *height));
    AL_METHOD(void, yield_timeslice, (void));
    AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));

@@ -600,7 +600,7 @@ SYSTEM_DRIVER system_none =
    sys_none_init,
    sys_none_exit,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    sys_no_driver, sys_no_driver, sys_no_driver, sys_no_driver,
    sys_no_driver, sys_no_driver, sys_no_driver
 };

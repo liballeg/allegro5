@@ -39,6 +39,7 @@ static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
 static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void));
 static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
+static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void);
@@ -79,6 +80,7 @@ SYSTEM_DRIVER system_xwin =
    NULL, /* remove_display_switch_callback */
    NULL, /* display_switch_lock */
    _xwin_sysdrv_desktop_color_depth,
+   _xwin_sysdrv_get_desktop_resolution,
    _unix_yield_timeslice,
    _xwin_sysdrv_gfx_drivers,
    NULL, /* digi_driver_list */
@@ -335,4 +337,16 @@ static int _xwin_sysdrv_desktop_color_depth(void)
       return 32;
 }
 
+
+
+/* _xwin_sysdrv_get_desktop_resolution:
+ *  Returns the current desktop resolution.
+ */
+static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height)
+{
+   *width = DisplayWidth(_xwin.display, _xwin.screen);
+   *height = DisplayHeight(_xwin.display, _xwin.screen);
+
+   return 1;
+}
 

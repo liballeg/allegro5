@@ -535,8 +535,8 @@ static void gfx_gdi_exit(struct BITMAP *b)
    /* before restoring video mode, hide window */
    wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
+   SetWindowPos(allegro_wnd, HWND_TOP, -100, -100, 0, 0, SWP_NOCOPYBITS);
    restore_window_style();
-   SetWindowPos(allegro_wnd, HWND_TOP, -100, -100, 0, 0, SWP_SHOWWINDOW);
 
    _exit_critical();
 }

@@ -41,6 +41,7 @@ static void sys_directx_assert(AL_CONST char *msg);
 static void sys_directx_save_console_state(void);
 static void sys_directx_restore_console_state(void);
 static int sys_directx_desktop_color_depth(void);
+static int sys_directx_get_desktop_resolution(int *width, int *height);
 static void sys_directx_yield_timeslice(void);
 static int sys_directx_trace_handler(AL_CONST char *msg);
 
@@ -76,6 +77,7 @@ SYSTEM_DRIVER system_directx =
    sys_directx_remove_display_switch_callback,
    NULL,                        /* AL_METHOD(void, display_switch_lock, (int lock)); */
    sys_directx_desktop_color_depth,
+   sys_directx_get_desktop_resolution,
    sys_directx_yield_timeslice,
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    _get_digi_driver_list,       /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
@@ -367,6 +369,38 @@ static int sys_directx_desktop_color_depth(void)
    ReleaseDC(NULL, dc);
 
    return depth;
+}
+
+
+
+/* sys_directx_get_desktop_resolution:
+ *  returns the current desktop resolution
+ */
+static int sys_directx_get_desktop_resolution(int *width, int *height)
+{
+   /* same thing for the desktop resolution:
+    *
+    *   DEVMODE display_mode;
+    *
+    *   display_mode.dmSize = sizeof(DEVMODE);
+    *   display_mode.dmDriverExtra = 0;
+    *   if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &display_mode) == 0)
+    *      return 0;
+    *
+    *   *width  = display_mode.dmPelsWidth;
+    *   *height = display_mode.dmPelsHeight;
+    *
+    *   return 1;
+    */
+
+   HDC dc;
+
+   dc = GetDC(NULL);
+   *width  = GetDeviceCaps(dc, HORZRES);
+   *height = GetDeviceCaps(dc, VERTRES);
+   ReleaseDC(NULL, dc);
+
+   return 1;
 }
 
 
