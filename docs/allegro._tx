@@ -6839,6 +6839,9 @@ correctly.
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based)
+      DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with
+                             Allegro mixing
+      DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
 </pre>
 @@Drivers: @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
