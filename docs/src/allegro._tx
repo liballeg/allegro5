@@ -82,6 +82,8 @@ Contents
 
 @text
 @externalfile readme A general introduction to Allegro
+@chapter
+API
 @heading
 Using Allegro
 
@@ -8693,6 +8695,8 @@ ensure there is room for the check.
 
 @!man
 
+@chapter
+Platform specifics
 @heading
 DOS specifics
 
@@ -9940,6 +9944,8 @@ insulate you from some of the differences between systems:
 
 
 
+@chapter
+Miscellaneous
 @headingnocontent
 Reducing your executable size
 
@@ -11180,6 +11186,7 @@ and avoid missing any important bit of information.
 @externalfile ahack The Allegro hacker's guide
 @externalfile const Allegro `const'-correctness
 @externalfile packfile Packfile format information
+@endchapter
 @headingnocontent
 Conclusion
 

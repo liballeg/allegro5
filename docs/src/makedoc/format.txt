@@ -172,6 +172,16 @@
       Similar to @heading but doesn't create another file. xxx represents
       the title of the new subsection.
 
+   @chapter
+      Like @heading, but one level above. It allows to partition the
+      documentation into multiple parts, each containing multiple @heading
+      sections. Currently, only the devhelp output format makes use of
+      this.
+
+   @endchapter
+      Ends the last chapter started by @chapter. Otherwise, a chapter ends
+      at the next @chapter command or at the end of the file.
+
    @tallbullets
       Uses tall bullets in the output formats that support them.
 

@@ -478,7 +478,7 @@ static void _output_texinfo_toc(FILE *f, int root, int body, int part)
 	 section_number = 0;
 
 	 while ((toc) && (section_number < part)) {
-	    if ((toc->root) && (!toc->otherfile))
+	    if ((toc->root) && (!toc->otherfile) && (toc->texinfoable))
 	       section_number++;
 	    toc = toc->next;
 	 }

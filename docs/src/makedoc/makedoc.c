@@ -364,6 +364,11 @@ static int _read_file(char *filename)
 	    flags |= (HEADING_FLAG | NOCONTENT_FLAG);
 	 else if (mystricmp(buf+1, "heading") == 0)
 	    flags |= HEADING_FLAG;
+	 else if (mystricmp(buf+1, "chapter") == 0)
+	    flags |= CHAPTER_FLAG;
+	 else if (mystricmp(buf+1, "endchapter") == 0) {
+	    _add_toc_line(buf, NULL, 3, line, 0, 0, 0);
+	 }
 	 else if (mystricmp(buf+1, "retval") == 0) {
 	    _add_line("", flags | RETURN_VALUE_FLAG);
 	    flags &= ~(HEADING_FLAG | NOCONTENT_FLAG | NONODE_FLAG);
@@ -515,10 +520,14 @@ static int _read_file(char *filename)
       }
       else {
 	 /* some actual text */
+	 if (flags & CHAPTER_FLAG)
+	    _add_toc_line(buf, NULL, 2, line, 0, 0, 0);
+
 	 if (flags & HEADING_FLAG)
 	    _add_toc(buf, 1, line, !(flags & NONODE_FLAG), (flags & HTML_FLAG));
 
-	 _add_line(buf, flags);
+	 if (!(flags & CHAPTER_FLAG))
+	    _add_line(buf, flags);
 
 	 if (_warn_on_long_lines) {
 	    int len = strlen (buf);
@@ -527,7 +536,7 @@ static int _read_file(char *filename)
 		      line, len - 77, buf + 77);
 	 }
 
-	 flags &= ~(HEADING_FLAG | NOCONTENT_FLAG | NONODE_FLAG);
+	 flags &= ~(CHAPTER_FLAG | HEADING_FLAG | NOCONTENT_FLAG | NONODE_FLAG);
       }
    }
 
@@ -599,12 +608,12 @@ static void _add_line(char *buf, int flags)
 
 /* _add_toc_line:
  * Adds a line to the table of contents. buf is the filename to be linked,
- * alt can be NULL, and in such case buf will be used to represent the link:
- * if alt is not NULL, it will be the link's name. root is a boolean,
- * indicates that the line should be added to the toc's root index. num
- * is the line number. texinfoable, htmlable and otherfile are boolean
- * values which say if this line should appear in the toc of those file
- * formats.
+ * alt can be NULL, and in such case buf will be used to represent the
+ * link: if alt is not NULL, it will be the link's name. root indicates how
+ * the line should be added to the TOC index - 0 is a normal entry, 1 adds
+ * it to the root index, 2 as a chapter start, 3 as chapter end. num is the
+ * line number. texinfoable, htmlable and otherfile are boolean values
+ * which say if this line should appear in the toc of those file formats.
  */
 static void _add_toc_line(const char *buf, const char *alt, int root, int num, int texinfoable, int htmlable, int otherfile)
 {
@@ -674,7 +683,7 @@ static void _add_toc(char *buf, int root, int num, int texinfoable, int htmlable
    int got;
 
    if (root) {
-      _add_toc_line(buf, NULL, 1, num, texinfoable, htmlable, 0);
+      _add_toc_line(buf, NULL, root, num, texinfoable, htmlable, 0);
       strcpy(b, buf);
       sprintf(buf, "<a name=\"%s\">%s</a>", b, b);
    }
