@@ -549,7 +549,7 @@ Contributors
    made the show_video_bitmap() method of the Windows windowed driver wait
    for a vsync.
 
-   Marcio Fialho (<email>maaf1980@yahoo.com.br</a>).<br>
+   Márcio Fialho (<email>maaf1980@yahoo.com.br</a>).<br>
    Fixed several issues with the DJGPP port and the VBE/AF driver and fixed
    some bugs related to author credits.
 
