@@ -86,6 +86,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth);
 static void vbeaf_exit(BITMAP *b);
 static void vbeaf_save(void);
 static void vbeaf_restore(void);
+static GFX_MODE_LIST *vbeaf_fetch_mode_list(void);
 static void vbeaf_vsync(void);
 static int vbeaf_scroll(int x, int y);
 static void vbeaf_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
@@ -96,6 +97,8 @@ static int vbeaf_show_mouse(BITMAP *bmp, int x, int y);
 static void vbeaf_hide_mouse(void);
 static void vbeaf_move_mouse(int x, int y);
 static void vbeaf_drawing_mode(void);
+static int vbeaf_locate_driver(void);
+static int vbeaf_lowlevel_init(void);
 
 
 /* accelerated drawing functions */
@@ -155,7 +158,7 @@ GFX_DRIVER gfx_vbeaf =
    NULL,                         /* no drawing mode hook */
    vbeaf_save,
    vbeaf_restore,
-   NULL,                         /* no fetch mode hook */
+   vbeaf_fetch_mode_list,        /* fetch mode hook */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
 
@@ -1007,11 +1010,10 @@ static int set_vbeaf_mode(int mode, int w, int h, int v_w, int v_h, int *width, 
 
 
 
-/* vbeaf_init:
- *  Tries to enter the specified graphics mode, and makes a screen bitmap
- *  for it.
+/* vbeaf_locate_driver:
+ *  locates and loads a VBE/AF driver.
  */
-static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
+static int vbeaf_locate_driver(void)
 {
    static char *possible_filenames[] =
    {
@@ -1026,16 +1028,9 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
       NULL
    };
 
-   BITMAP *b;
-   AF_MODE_INFO mode_info;
    char filename[256], tmp1[512], tmp2[128];
-   int bpp = BYTES_PER_PIXEL(color_depth);
-   int bytes_per_scanline, width, height;
-   int scrollable, mode, attrib;
-   int vseg, ret, i;
-   int rs, gs, bs;
-   void *vaddr;
    AL_CONST char *p;
+   int ret, i, attrib;
 
    /* look for driver in the config file location */
    p = get_config_string(uconvert_ascii("graphics", tmp1), uconvert_ascii("vbeaf_driver", tmp2), NULL);
@@ -1083,12 +1078,108 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* oops, no driver */
    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't find VBEAF.DRV"));
-   return NULL;
+   ret = FALSE;
 
    /* got it! */ 
    found_it:
 
-   if (ret < 0)
+   return ret;
+}
+
+
+
+/*  vbeaf_lowlevel_init:
+ *   loads the VBE/AF driver and initializes it.
+ */
+static int vbeaf_lowlevel_init(void)
+{
+   int ret;
+
+   /* check the driver ID string */
+   if (strcmp(af_driver->Signature, "VBEAF.DRV") != 0) {
+      vbeaf_exit(NULL);
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Bad VBE/AF driver ID string"));
+      return FALSE;
+   }
+
+   /* check the VBE/AF version number */
+   if (af_driver->Version < 0x200) {
+      vbeaf_exit(NULL);
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Obsolete VBE/AF version (need 2.0 or greater)"));
+      return FALSE;
+   }
+
+   /* to run on Linux, we need to be God */
+   #ifdef ALLEGRO_LINUX
+
+      if (!__al_linux_have_ioperms) {
+	 vbeaf_exit(NULL);
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs root privileges"));
+	 return FALSE;
+      }
+
+      _vbeaf_selector = _default_ds();
+
+   #endif
+
+   /* detect and initialise the FreeBE/AF extensions */
+   if (strstr(af_driver->OemVendorName, "FreeBE")) {
+      faf_id = TRUE;
+      initialise_freebeaf_extensions();
+   }
+   else {
+      faf_id = FALSE;
+      faf_ext = 0;
+   }
+
+   /* special setup for Plug and Play hardware */
+   if (call_vbeaf_asm(af_driver->PlugAndPlayInit) != 0) {
+      vbeaf_exit(NULL);
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE/AF Plug and Play initialisation failed"));
+      return FALSE;
+   }
+
+   /* deal with all that DPMI memory mapping crap */
+   ret = initialise_vbeaf_driver();
+   if (ret != 0) {
+      vbeaf_exit(NULL);
+      if (ret == -2)
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE/AF nearptrs not supported on this platform"));
+      else
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't map memory for VBE/AF"));
+      return FALSE;
+   }
+
+   /* low level driver initialisation */
+   if (call_vbeaf_asm(af_driver->InitDriver) != 0) {
+      vbeaf_exit(NULL);
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE/AF device not present"));
+      return FALSE;
+   }
+
+   return TRUE;
+}
+
+
+
+/* vbeaf_init:
+ *  Tries to enter the specified graphics mode, and makes a screen bitmap
+ *  for it.
+ */
+static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
+{
+   BITMAP *b;
+   AF_MODE_INFO mode_info;
+   int bpp = BYTES_PER_PIXEL(color_depth);
+   int bytes_per_scanline, width, height;
+   int scrollable, mode;
+   int vseg, ret;
+   int rs, gs, bs;
+   char tmp1[512];
+   void *vaddr;
+
+   /* locate and load VBE/AF driver from disk */
+   if (!vbeaf_locate_driver())
       return NULL;
 
    LOCK_VARIABLE(af_driver);
@@ -1107,72 +1198,14 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    LOCK_FUNCTION(vbeaf_draw_sprite);
    LOCK_FUNCTION(vbeaf_blit_from_memory);
 
-   /* check the driver ID string */
-   if (strcmp(af_driver->Signature, "VBEAF.DRV") != 0) {
-      vbeaf_exit(NULL);
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Bad VBE/AF driver ID string"));
+   /* init the currently loaded VBE/AF driver */
+   if (!vbeaf_lowlevel_init())
       return NULL;
-   }
-
-   /* check the VBE/AF version number */
-   if (af_driver->Version < 0x200) {
-      vbeaf_exit(NULL);
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Obsolete VBE/AF version (need 2.0 or greater)"));
-      return NULL;
-   }
-
-   /* to run on Linux, we need to be God */
-   #ifdef ALLEGRO_LINUX
-
-      if (!__al_linux_have_ioperms) {
-	 vbeaf_exit(NULL);
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs root privileges"));
-	 return NULL;
-      }
-
-      _vbeaf_selector = _default_ds();
-
-   #endif
-
-   /* detect and initialise the FreeBE/AF extensions */
-   if (strstr(af_driver->OemVendorName, "FreeBE")) {
-      faf_id = TRUE;
-      initialise_freebeaf_extensions();
-   }
-   else {
-      faf_id = FALSE;
-      faf_ext = 0;
-   }
 
    /* bodge to work around bugs in the present (6.51) version of UniVBE */
    if ((v_w > w) && (!faf_id)) {
       vbeaf_exit(NULL);
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("SciTech VBE/AF drivers do not support wide virtual screens"));
-      return NULL;
-   }
-
-   /* special setup for Plug and Play hardware */
-   if (call_vbeaf_asm(af_driver->PlugAndPlayInit) != 0) {
-      vbeaf_exit(NULL);
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE/AF Plug and Play initialisation failed"));
-      return NULL;
-   }
-
-   /* deal with all that DPMI memory mapping crap */
-   ret = initialise_vbeaf_driver();
-   if (ret != 0) {
-      vbeaf_exit(NULL);
-      if (ret == -2)
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE/AF nearptrs not supported on this platform"));
-      else
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can't map memory for VBE/AF"));
-      return NULL;
-   }
-
-   /* low level driver initialisation */
-   if (call_vbeaf_asm(af_driver->InitDriver) != 0) {
-      vbeaf_exit(NULL);
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VBE/AF device not present"));
       return NULL;
    }
 
@@ -1588,6 +1621,64 @@ static void vbeaf_restore()
    vbeaf_scroll(vbeaf_xscroll, vbeaf_yscroll);
 
    in_af_mode = TRUE;
+}
+
+
+
+/* vbeaf_fetch_mode_list:
+ *  Attempts to create a list of valid video modes for the VBE/AF driver.
+ *  Returns the mode list on success or NULL on failure.
+ */
+static GFX_MODE_LIST *vbeaf_fetch_mode_list()
+{
+   GFX_MODE_LIST *gfx_mode_list;
+   AF_MODE_INFO *mode_info;
+   unsigned short *mode;
+   int vbeaf_was_off;
+
+   mode_info = NULL;
+
+   /* make sure VBE/AF interface is enabled! */
+   if (!af_driver) {
+      if (!vbeaf_locate_driver()) return NULL;
+      if (!vbeaf_lowlevel_init()) return NULL;
+      vbeaf_was_off = TRUE;
+   }
+   else
+      vbeaf_was_off = FALSE;
+
+   /* start building mode-list */
+   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!gfx_mode_list) return NULL;
+   gfx_mode_list->mode = NULL;
+   gfx_mode_list->num_modes = 0;
+
+   /* create mode list */
+   for (mode = af_driver->AvailableModes; *mode != 0xFFFF; mode++) {
+      gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
+      if (!gfx_mode_list->mode) return NULL;
+      if (af_driver->GetVideoModeInfo(af_driver, *mode, mode_info) != 0) return NULL;
+      
+      gfx_mode_list->mode[gfx_mode_list->num_modes].width  = mode_info->XResolution;
+      gfx_mode_list->mode[gfx_mode_list->num_modes].height = mode_info->YResolution;
+      gfx_mode_list->mode[gfx_mode_list->num_modes].bpp    = mode_info->BitsPerPixel;
+      
+      gfx_mode_list->num_modes++;
+   }
+
+   /* terminate mode list */
+   gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
+   if (!gfx_mode_list->mode) return NULL;
+
+   gfx_mode_list->mode[gfx_mode_list->num_modes].width  = 0;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].height = 0;
+   gfx_mode_list->mode[gfx_mode_list->num_modes].bpp    = 0;
+   
+   /* shut down VBE/AF interface if it wasn't previously loaded */
+   if (vbeaf_was_off)
+      vbeaf_exit(NULL);
+
+   return gfx_mode_list;
 }
 
 
