@@ -3664,6 +3664,23 @@ GFX_SAFE:<br>
    Returns the current display switching mode, in the same format passed to 
    set_display_switch_mode().
 
+@@int @is_windowed_mode(void);
+@xref set_gfx_mode
+   This function can be used to detect wether or not set_gfx_mode() selected
+   a windowed mode. Example:
+<codeblock>
+   set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0);
+   if (is_windowed_mode()) {
+      /* Windowed mode stuff */
+   } else {
+      /* Fullscreen mode stuff */
+   }
+<endblock>
+@retval
+   Returns true if the current graphics mode is a windowed mode, or zero if
+   it is a fullscreen mode. You should not call this function if you are not
+   in graphics mode.
+
 @@extern int @gfx_capabilities;
 @xref screen, create_video_bitmap, scroll_screen, request_scroll, show_mouse
 @xref enable_triple_buffer
