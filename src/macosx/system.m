@@ -561,7 +561,7 @@ static void osx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
  */
 static void osx_sys_yield_timeslice(void)
 {
-   usleep(30000);
+   usleep(0);
 }
 
 

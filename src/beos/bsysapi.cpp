@@ -36,8 +36,6 @@
 
 #define EXE_NAME_UNKNOWN "./UNKNOWN"
 
-#define YIELD_TIME			30000
-
 
 
 status_t ignore_result = 0;
@@ -428,7 +426,7 @@ extern "C" void be_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
 
 extern "C" void be_sys_yield_timeslice(void)
 {
-   snooze(YIELD_TIME);
+   snooze(0);
 }
 
 

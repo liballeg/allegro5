@@ -563,7 +563,7 @@ static void qnx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
  */
 static void qnx_sys_yield_timeslice(void)
 {
-   usleep(10000);
+   usleep(0);
 }
 
 
