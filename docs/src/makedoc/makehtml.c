@@ -1046,7 +1046,7 @@ static POST *_search_post_section_with_token(const char *token)
 	    const char *desc = strchr(_post[f]->token[g], ',');
 	    if (desc && (desc - _post[f]->token[g] - 1) == len)
 	       return _post[f];
-	    else if (!desc && strlen(_post[f]->token[g] + 1) == len)
+	    else if (!desc && strlen(_post[f]->token[g] + 1) == (size_t)len)
 	       return _post[f];
 	 }
       }
