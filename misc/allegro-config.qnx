@@ -9,7 +9,7 @@
 #
 #  Derived from BeOS and Unix versions of the same script.
 
-version=3.9.40
+version=3.9.41
 
 prefix=
 exec_prefix=$prefix
