@@ -255,6 +255,15 @@ void __al_linux_mouse_set_speed (int xspeed, int yspeed);
 void __al_linux_mouse_get_mickeys (int *mickeyx, int *mickeyy);
 
 
+/* VGA register access helpers */
+/* This is conditional because configure may have disabled VGA support */
+#ifdef ALLEGRO_LINUX_VGA
+   #include "allegro/internal/aintern.h"
+   #include "allegro/internal/aintvga.h"
+#endif
+
+
+
 #ifdef __cplusplus
 }
 #endif
