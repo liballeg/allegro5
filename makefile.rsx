@@ -52,7 +52,11 @@ endif
 ifdef PGCC
 OFLAGS = -mpentium -O6 -ffast-math
 else
-OFLAGS = -m486 -O3 -ffast-math
+ifdef PENTIUMONLY
+OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
+else
+OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
+endif
 endif
 
 ifdef DEBUGMODE
