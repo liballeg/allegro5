@@ -440,6 +440,7 @@ static int gfx_directx_show_video_bitmap_win(BITMAP *bmp)
    DDRAW_SURFACE *surf;
    BITMAP *former_visible_bmp;
 
+   /* guard against show_video_bitmap(screen); */
    surf = DDRAW_SURFACE_OF(bmp);
    if (surf == offscreen_surface)
       return 0;

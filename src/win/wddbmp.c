@@ -579,6 +579,10 @@ static int flip_with_forefront_bitmap(BITMAP *bmp, int wait)
  */
 int gfx_directx_show_video_bitmap(BITMAP *bmp)
 {
+   /* guard against show_video_bitmap(screen); */
+   if (bmp == forefront_bitmap)
+      return 0;
+
    return flip_with_forefront_bitmap(bmp, TRUE);
 }
 
@@ -588,6 +592,10 @@ int gfx_directx_show_video_bitmap(BITMAP *bmp)
  */
 int gfx_directx_request_video_bitmap(BITMAP *bmp)
 {
+   /* guard against request_video_bitmap(screen); */
+   if (bmp == forefront_bitmap)
+      return 0;
+
    return flip_with_forefront_bitmap(bmp, FALSE);
 }
 
