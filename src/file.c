@@ -1997,15 +1997,15 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
 
    *allegro_errno = 0;
 
-   if (pack_feof(f)) {
+   pmax = p+max - ucwidth(0);
+
+   if ((c = pack_getc(f)) == EOF) {
       if (ucwidth(0) <= max)
          usetc(p,0);
       return NULL;
    }
 
-   pmax = p+max - ucwidth(0);
-
-   while ((c = pack_getc(f)) != EOF) {
+   do {
 
       if (c == '\r' || c == '\n') {
 	 /* Technically we should check there's space in the buffer, and if so,
@@ -2028,6 +2028,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
       /* write the character */
       p += usetc(p, c);
    }
+   while ((c = pack_getc(f)) != EOF);
 
    /* terminate the string */
    usetc(p, 0);
