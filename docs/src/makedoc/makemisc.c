@@ -212,6 +212,48 @@ int scmp(const void *e1, const void *e2)
 
 
 
+/* get_clean_ref_token:
+ * Given a text, extracts the clean ref token, which either has to be
+ * surrounded by "ss#..", inside a <a name=".." tag, or without any
+ * html characters around. Otherwise returns an empty string. The
+ * returned string has to be freed always.
+ */
+char *get_clean_ref_token(const char *text)
+{
+   char *buf, *t;
+   const char *pname, *pcross;
+
+   pname = strstr(text, "<a name=\"");
+   pcross = strstr(text, "ss#");
+   if (pname && pcross) { /* Take the first one */
+      if (pname < pcross)
+	 pcross = 0;
+      else
+	 pname = 0;
+   }
+
+   if (pname) {
+      buf = m_strdup(pname + 9);
+      t = strchr(buf, '"');
+      *t = 0;
+   }
+   else if (pcross) {
+      buf = m_strdup(pcross + 3);
+      t = strchr(buf, '"');
+      *t = 0;
+   }
+   else if (!strchr(text, '<') && !strchr(text, '>'))
+      buf = m_strdup(text);
+   else { /* this is mainly for debugging */
+      printf("'%s' was rejected as clean ref token\n", text);
+      buf = m_strdup("");
+   }
+   assert(buf);
+   return buf;
+}
+
+
+
 /* m_xmalloc:
  * Returns the requested chunk of memory. If there's not enough
  * memory, the program will abort.
@@ -375,4 +417,7 @@ char *m_replace_filename(const char *path, const char *filename)
       return temp;
    }
 }
+
+
+
 

@@ -12,6 +12,7 @@ int is_empty(char *s);
 char *get_extension(const char *filename);
 char *get_filename(const char *path);
 int scmp(const void *e1, const void *e2);
+char *get_clean_ref_token(const char *text);
 
 /* Safe memory functions */
 

@@ -1,4 +1,4 @@
-/*         ______   ___    ___ 
+/*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \ 
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
@@ -52,14 +52,15 @@ const char *html_extension = "html";
 char *html_document_title;
 char *html_footer;
 char *html_see_also_text;
+char *html_examples_using_this_text;
 char *html_css_filename;
 char *html_return_value_text;
 
 static POST **_post;
 static FILE *_file;
 static char _filename[1024];
-static char *_xref[256];
-static int _xrefs;
+static char *_xref[256], *_eref[256];
+static int _xrefs, _erefs;
 static int _empty_count;
 static const char *_css_data = "\
 A.xref:link {\n\
@@ -78,6 +79,26 @@ A.xref:hover {\n\
 \tbackground:      rgb(220, 220, 220);\n\
 }\n\
 A.xref:active {\n\
+\tcolor:           red;\n\
+\ttext-decoration: none;\n\
+\tbackground:      rgb(255, 204, 50);\n\
+}\n\
+A.eref:link {\n\
+\tcolor:           blue;\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.eref:visited {\n\
+\tcolor:           blue;\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.eref:hover {\n\
+\tcolor:           blue;\n\
+\ttext-decoration: underline;\n\
+\tbackground:      rgb(255, 165, 214);\n\
+}\n\
+A.eref:active {\n\
 \tcolor:           red;\n\
 \ttext-decoration: none;\n\
 \tbackground:      rgb(255, 204, 50);\n\
@@ -108,6 +129,13 @@ blockquote.xref {\n\
 \tborder:          thin solid rgb(220, 220, 220);\n\
 \tcolor:           black;\n\
 \tbackground:      rgb(240, 240, 240);\n\
+}\n\
+blockquote.eref {\n\
+\tfont-family:     helvetica, verdana, serif;\n\
+\tfont-size:       smaller;\n\
+\tborder:          thin solid rgb(255, 165, 214);\n\
+\tcolor:           black;\n\
+\tbackground:      rgb(255, 201, 230);\n\
 }\n\
 blockquote.code {\n\
 \tborder:          thin solid rgb(255, 234, 190);\n\
@@ -144,8 +172,8 @@ div.faq-shift-to-right {\n\
 
 /* Internal functions */
 
-static void _write_html_xref_list(char **xref, int *xrefs);
-static void _write_html_xref(char *xref);
+static void _write_html_ref_list(char **ref, int *refs, const char *type);
+static void _write_html_ref(char *ref, const char *type);
 static void _output_html_footer(char *main_filename);
 static void _output_toc(char *filename, int root, int body, int part);
 static void _hfprintf(char *format, ...);
@@ -155,13 +183,12 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
 static void _output_custom_markers(LINE *line);
 static void _output_buffered_text(void);
 static void _output_html_header(char *section);
-static void _add_post_process_xref(const char *token);
-static void _post_process_pending_xrefs(void);
+static void _add_post_process_ref(const char *token);
+static void _post_process_pending_refs(void);
 static POST *_search_post_section(const char *filename);
 static POST *_search_post_section_with_token(const char *token);
 static POST *_create_post_section(const char *filename);
 static void _destroy_post_page(POST *p);
-static char *_get_clean_xref_token(const char *text);
 static void _post_process_filename(char *filename);
 static int _verify_correct_input(void);
 static void _close_html_file(FILE *file);
@@ -189,6 +216,8 @@ int write_html(char *filename)
    /* English default text initialization */
    if (!html_see_also_text)
       html_see_also_text = m_strdup("See also:");
+   if (!html_examples_using_this_text)
+      html_examples_using_this_text = m_strdup("Examples using this:");
    if (!html_return_value_text)
       html_return_value_text = m_strdup("Return value:");
    
@@ -210,14 +239,16 @@ int write_html(char *filename)
 
    while (line) {
       if (line->flags & HTML_FLAG) {
-	 if (line->flags & (HEADING_FLAG | NODE_FLAG | DEFINITION_FLAG))
-	    _write_html_xref_list(_xref, &_xrefs);
+	 if (line->flags & (HEADING_FLAG | NODE_FLAG | DEFINITION_FLAG)) {
+	    _write_html_ref_list(_xref, &_xrefs, "xref");
+	    _write_html_ref_list(_eref, &_erefs, "eref");
+	 }
 
 	 if (line->flags & HEADING_FLAG) {
 	    _output_buffered_text();
 	    if (_output_section_heading(line, filename, section_number))
 	       return 1;
-	    _add_post_process_xref(line->text);
+	    _add_post_process_ref(line->text);
 	    section_number++;
 	 }
 	 else if (line->flags & RETURN_VALUE_FLAG) {
@@ -231,7 +262,7 @@ int write_html(char *filename)
 	    /* output a node marker, which will be followed by a chunk of text inside a chapter */
 	    fprintf(_file, "<br><center><h2><a name=\"%s\">%s</a></h2></center><p>\n",
 	       line->text, line->text);
-	    _add_post_process_xref(line->text);
+	    _add_post_process_ref(line->text);
 	 }
 	 else if (line->flags & DEFINITION_FLAG) {
 	    static int prev_continued = 0;
@@ -239,7 +270,7 @@ int write_html(char *filename)
 	    if (_empty_count && !block_empty_lines) _empty_count++;
 	    _output_buffered_text();
 	    /* output a function definition */
-	    _add_post_process_xref(temp);
+	    _add_post_process_ref(temp);
 	    temp = _mark_up_auto_types(temp, auto_types);
 	    
 	    if (!prev_continued) {
@@ -305,7 +336,8 @@ int write_html(char *filename)
 	 }
       }
       else if (line->flags & TOC_FLAG) {
-	 _write_html_xref_list(_xref, &_xrefs);
+	 _write_html_ref_list(_xref, &_xrefs, "xref");
+	 _write_html_ref_list(_eref, &_erefs, "eref");
 	 if (flags & MULTIFILE_FLAG) {
 	    _output_buffered_text();
 	    _output_toc(filename, 1, 0, -1);
@@ -319,8 +351,12 @@ int write_html(char *filename)
 	    _output_toc(filename, 1, 1, -1);
 	 }
       }
-      else if (line->flags & XREF_FLAG)
-	 _xref[_xrefs++] = line->text; /* buffer cross reference */
+      else if (line->flags & XREF_FLAG) {
+	 if (line->flags & EREF_FLAG)
+	    _eref[_erefs++] = line->text; /* buffer example reference */
+	 else
+	    _xref[_xrefs++] = line->text; /* buffer cross reference */
+      }
 
       /* Keep track of continuous definitions */	 
       last_line_was_a_definition = (line->flags & DEFINITION_FLAG);
@@ -333,8 +369,9 @@ int write_html(char *filename)
 
    _close_html_file(_file);
    
-   _post_process_pending_xrefs();
+   _post_process_pending_refs();
    free(html_see_also_text);
+   free(html_examples_using_this_text);
    free(html_return_value_text);
    destroy_types_lookup_table(auto_types, 0);
 
@@ -394,34 +431,40 @@ static void _output_custom_markers(LINE *line)
 
 
 
-/* _write_html_xref_list:
+/* _write_html_ref_list:
  * Recieves an array of pointers and a pointer to the variable holding
  * the number of buffered text lines. Returns if there are none waiting
  * to be printed, otherwise sorts the list and writes a block of cross
- * references.
+ * references. Type should be the string "xref" or "eref".
  */
-static void _write_html_xref_list(char **xref, int *xrefs)
+static void _write_html_ref_list(char **ref, int *refs, const char *type)
 {
    int i;
    assert(html_see_also_text);
+   assert(html_examples_using_this_text);
+   assert(type);
+   assert(*type);
 
-   if (!(*xrefs))
+   if (!(*refs))
       return;
 
    fputs("\n<blockquote", _file);
    if (!(html_flags & HTML_IGNORE_CSS))
-      fputs(" class=\"xref\"><em><b>", _file);
+      fprintf(_file, " class=\"%s\"><em><b>", type);
    else
       fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>", _file);
-      
-   fputs(html_see_also_text, _file);
+
+   if (*type == 'e')
+      fputs(html_examples_using_this_text, _file);
+   else
+      fputs(html_see_also_text, _file);
    fputs("</b></em>\n", _file);
    
-   for (i=0; i<(*xrefs); i++) {
+   for (i=0; i<(*refs); i++) {
       if (i) _hfprintf(",\n");
-      _write_html_xref(xref[i]);
+      _write_html_ref(ref[i], type);
    }
-   *xrefs = 0;
+   *refs = 0;
    _hfprintf(".%s</blockquote>\n",
       (html_flags & HTML_IGNORE_CSS) ? "</font>" : "");
    _empty_count = 0;
@@ -429,14 +472,15 @@ static void _write_html_xref_list(char **xref, int *xrefs)
 
 
 
-/* _write_html_xref:
- * Writes a single cross reference splitting xref if needed
+/* _write_html_ref:
+ * Writes a single cross reference splitting ref if needed.
+ * Type should be the string "xref" or "eref".
  */
-static void _write_html_xref(char *xref)
+static void _write_html_ref(char *ref, const char *type)
 {
    char *tok, first = 1;
 
-   tok = strtok(xref, ",;");
+   tok = strtok(ref, ",;");
 
    while (tok) {
       while ((*tok) && (myisspace(*tok)))
@@ -445,7 +489,7 @@ static void _write_html_xref(char *xref)
       first = 0;
       _hfprintf("<a ");
       if (!(html_flags & HTML_IGNORE_CSS))
-	 _hfprintf("class=\"xref\" ");
+	 _hfprintf("class=\"%s\" ", type);
 
       if (flags & MULTIFILE_FLAG)
 	 _hfprintf("href=\"post_process#%s\">%s</a>", tok, tok);
@@ -800,12 +844,12 @@ static void _output_buffered_text(void)
 
 
 
-/* _post_process_pending_xrefs:
+/* _post_process_pending_refs:
  * Reopens all the created files and scans for post process tags, which
  * will be replaced with correct filenames according to the post process
  * info in memory.
  */
-static void _post_process_pending_xrefs(void)
+static void _post_process_pending_refs(void)
 {
    int f;
    if (!_post) return ;
@@ -822,15 +866,15 @@ static void _post_process_pending_xrefs(void)
 
 
 
-/* _add_post_process_xref:
+/* _add_post_process_ref:
  * Adds a token to a buffer with the current filename for a post process.
  */
-static void _add_post_process_xref(const char *token)
+static void _add_post_process_ref(const char *token)
 {
    char *clean_token;
    POST *p;
 
-   clean_token = _get_clean_xref_token(token);
+   clean_token = get_clean_ref_token(token);
    if (!clean_token[0]) {
       free(clean_token);
       return ;
@@ -842,48 +886,6 @@ static void _add_post_process_xref(const char *token)
 
    p->token = m_xrealloc(p->token, sizeof(char*) * (1 + p->num));
    p->token[p->num++] = clean_token;
-}
-
-
-
-/* _get_clean_xref_token:
- * Given a text, extracts the clean xref token, which either has to be
- * surrounded by "ss#..", inside a <a name=".." tag, or without any
- * html characters around. Otherwise returns an empty string. The
- * returned string has to be freed always.
- */
-static char *_get_clean_xref_token(const char *text)
-{
-   char *buf, *t;
-   const char *pname, *pcross;
-
-   pname = strstr(text, "<a name=\"");
-   pcross = strstr(text, "ss#");
-   if (pname && pcross) { /* Take the first one */
-      if (pname < pcross)
-	 pcross = 0;
-      else
-	 pname = 0;
-   }
-
-   if (pname) {
-      buf = m_strdup(pname + 9);
-      t = strchr(buf, '"');
-      *t = 0;
-   }
-   else if (pcross) {
-      buf = m_strdup(pcross + 3);
-      t = strchr(buf, '"');
-      *t = 0;
-   }
-   else if (!strchr(text, '<') && !strchr(text, '>'))
-      buf = m_strdup(text);
-   else { /* this is mainly for debugging */
-      printf("'%s' was rejected as clean xref token\n", text);
-      buf = m_strdup("");
-   }
-   assert(buf);
-   return buf;
 }
 
 
@@ -994,10 +996,10 @@ static void _post_process_filename(char *filename)
 
    while ((line = m_fgets(f1))) {
       while ((p = strstr(line, "\"post_process#"))) {
-	 char *clean_token = _get_clean_xref_token(p + 2);
+	 char *clean_token = get_clean_ref_token(p + 2);
 	 POST *page = _search_post_section_with_token(clean_token);
 	 if (!page) {
-	    printf("Didn't find xref for %s", line);
+	    printf("Didn't find ref for %s", line);
 	    memmove(p, p + 14, strlen(p + 14) + 1);
 	 }
 	 else {
@@ -1047,7 +1049,7 @@ static int _verify_correct_input(void)
    int ret = 0;
    
    if (html_flags & HTML_OLD_H_TAG_FLAG) {
-      printf("The tag '@h=<html><head><title>#</title></head><body>' and it's variant ");
+      printf("The tag '@h=<html><head><title>#</title></head><body>' and its variant ");
       printf("is obsolete.\nPlease use '@document_title blah blah blah' instead.\n");
       printf("Otherwise the output won't be valid HTML code and won't use CSS.\n");
       printf("And make sure you aren't using any <head>,<title> or <body> tags!.\n");

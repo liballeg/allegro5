@@ -32,6 +32,7 @@
 #define STRUCT_FLAG           0x04000000
 #define MANGLE_EMAILS         0x08000000
 #define RETURN_VALUE_FLAG     0x10000000
+#define EREF_FLAG             0x20000000
 
 #define TOC_SIZE     8192
 

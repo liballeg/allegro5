@@ -38,7 +38,9 @@ static int _no_strip;
 static int _strip_indent = -1;
 
 
-static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes);
+static char **_build_multi_identifier_nodes_table(void);
+static void _destroy_multi_identifier_nodes_table(char **table);
+static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes, char **secondary_nodes);
 static int _valid_texinfo_node(char *s, char **next, char **prev);
 static void _output_texinfo_toc(FILE *f, int root, int body, int part);
 static char *_node_name(int i);
@@ -58,7 +60,7 @@ int write_texinfo(char *filename)
    LINE *line = head, *title_line = 0;
    char *p, *str, *next, *prev;
    char *xref[256], *chapter_nodes[256], **auto_types;
-   char *found_auto_types;
+   char *found_auto_types, **multi_identifier_nodes;
    int xrefs = 0;
    int in_item = 0;
    int section_number = 0;
@@ -91,6 +93,14 @@ int write_texinfo(char *filename)
       }
       line = line->next;
    }
+
+   /* Now scan all the definitions and see where are more than one
+    * definition per texi node, building a lookup table for the
+    * identifiers which don't have their own node so we can reference them
+    * correctly from other nodes.
+    */
+
+   multi_identifier_nodes = _build_multi_identifier_nodes_table();
 
    /* Build up a table with Allegro's structures' names (spelling?) */
    auto_types = build_types_lookup_table(&found_auto_types);
@@ -128,7 +138,7 @@ int write_texinfo(char *filename)
 		  if (xrefs > 0) {
 		     fputs("See also:@*\n", f);
 		     for (i=0; i<xrefs; i++)
-			_write_textinfo_xref(f, xref[i], chapter_nodes);
+			_write_textinfo_xref(f, xref[i], chapter_nodes, multi_identifier_nodes);
 		     xrefs = 0;
 		  }
 		  _write_auto_types_xrefs(f, auto_types, found_auto_types);
@@ -193,7 +203,7 @@ int write_texinfo(char *filename)
 	       if (xrefs > 0) {
 		  fputs("See also:@*\n", f);
 		  for (i=0; i<xrefs; i++)
-		     _write_textinfo_xref(f, xref[i], chapter_nodes);
+		     _write_textinfo_xref(f, xref[i], chapter_nodes, multi_identifier_nodes);
 		  xrefs = 0;
 	       }
 	       _write_auto_types_xrefs(f, auto_types, found_auto_types);
@@ -275,7 +285,7 @@ int write_texinfo(char *filename)
 	    if (xrefs > 0) {
 	       fputs("See also:@*\n", f);
 	       for (i=0; i<xrefs; i++)
-		  _write_textinfo_xref(f, xref[i], chapter_nodes);
+		  _write_textinfo_xref(f, xref[i], chapter_nodes, multi_identifier_nodes);
 	       xrefs = 0;
 	    }
 	    _write_auto_types_xrefs(f, auto_types, found_auto_types);
@@ -317,6 +327,7 @@ int write_texinfo(char *filename)
    }
 
    fclose(f);
+   _destroy_multi_identifier_nodes_table(multi_identifier_nodes);
    destroy_types_lookup_table(auto_types, found_auto_types);
    return 0;
 }
@@ -329,9 +340,12 @@ int write_texinfo(char *filename)
  * Before a reference is written, it's compared against the table of
  * chapter nodes. If it's there, a special more complete xref command is
  * written, since nodes are internally a single word, but to the user they
- * look like normal complete sentences.
+ * look like normal complete sentences. If the word is not there, it's
+ * compared this time agains the secondary_nodes table. If the reference
+ * is in this pair table (see _build_multi_identifier_nodes_table), a
+ * special xref will be written to access the primary node correctly.
  */
-static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes)
+static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes, char **secondary_nodes)
 {
    char *tok;
    assert(f);
@@ -351,8 +365,18 @@ static void _write_textinfo_xref(FILE *f, char *xref, char **chapter_nodes)
       }
       if(*p)
 	 fprintf(f, "@xref{%s, %s}.@*\n", _first_word(tok), strip_html(*p));
-      else
-	 fprintf(f, "@xref{%s}.@*\n", tok);
+      else {
+	 p = secondary_nodes;
+	 while (*p) {
+	    if (!strcmp(tok, *p))
+	       break;
+	    p += 2;
+	 }
+	 if (*p)
+	    fprintf(f, "@xref{%s, %s}.@*\n", *(p + 1), tok);
+	 else
+	    fprintf(f, "@xref{%s}.@*\n", tok);
+      }
       tok = strtok(NULL, ",;");
    }
 }
@@ -585,6 +609,70 @@ char **build_types_lookup_table(char **found_table)
    if (found_table)
       *found_table = memset(m_xmalloc(i + 1), 0, i + 1);
    return table;
+}
+
+
+
+/* _build_multi_identifier_nodes_table:
+ * Automatic function which will scan the document from the beginning in
+ * search of nodes which feature multiple identifiers. Since only the first
+ * identifier of the texinfo node is indexed, all the others have to be
+ * noted down. In the case of referencing them, a special xref has to be
+ * written, which points to the secondary identifier through the first one.
+ * Last lines of _write_texinfo_xref show how this is done. This function
+ * returns a table with pairs of strings in the form (secondary, primary),
+ * where secondary is the secondary identifier name, and primary is the
+ * texinfo indexed identifier. The table has to be freed some time later
+ * along with it's data. It's null terminated.
+ */
+static char **_build_multi_identifier_nodes_table(void)
+{
+   LINE *line = head;
+   int i = 0;
+   static char *first_identifier = 0;
+   char **table;
+
+   table = m_xmalloc(sizeof(char*)*2);
+   table[0] = 0;
+   table[1] = 0;
+
+   /* Scan document in memory finding definition lines creating multi
+    * identifier nodes
+    */
+   while (line) {
+      if ((line->flags & DEFINITION_FLAG)) {
+	 char *first_identifier = get_clean_ref_token(line->text);
+	 line = line->next;
+	 while (line->flags & DEFINITION_FLAG) {
+	    if (strstr(line->text, "<a name")) {
+	       table = m_xrealloc(table, sizeof(char*) * (i+4));
+	       table[i++] = get_clean_ref_token(line->text);
+	       table[i++] = m_strdup(first_identifier);
+	       table[i] = table[i+1] = 0;
+	    }
+	    line = line->next;
+	 }
+	 free(first_identifier);
+      }
+      line = line->next;
+   }
+
+   return table;
+}
+
+
+
+/* _destroy_multi_identifier_nodes_table:
+ * Given a null terminated table, frees it's string data and later the
+ * table itself.
+ */
+static void _destroy_multi_identifier_nodes_table(char **table)
+{
+   int f;
+   assert(table);
+   for (f = 0; table[f]; f++)
+      free(table[f]);
+   free(table);
 }
 
 

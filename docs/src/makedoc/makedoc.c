@@ -379,6 +379,11 @@ static int _read_file(char *filename)
 	    if (_last_toc_line == line-1)
 	       _last_toc_line = line;
 	 }
+	 else if (strincmp(buf+1, "eref ") == 0) {
+	    _add_line(buf+6, XREF_FLAG | EREF_FLAG);
+	    if (_last_toc_line == line-1)
+	       _last_toc_line = line;
+	 }
 	 else if (strincmp(buf+1, "header ") == 0)
 	    _add_line(buf+8, HEADER_FLAG);
 	 else if (strincmp(buf+1, "startoutput ") == 0)
@@ -404,6 +409,11 @@ static int _read_file(char *filename)
 	 else if (strincmp(buf+1, "document_title=") == 0) {
 	    html_document_title = m_strdup(buf+16);
 	    html_flags |= HTML_DOCUMENT_TITLE_FLAG;
+	 }
+	 else if (strincmp(buf+1, "html_examples_using_this_text=") == 0) {
+	    if (html_examples_using_this_text)
+	       free(html_examples_using_this_text);
+	    html_examples_using_this_text = m_strdup(buf+20);
 	 }
 	 else if (strincmp(buf+1, "html_see_also_text=") == 0) {
 	    if (html_see_also_text)
