@@ -11,6 +11,7 @@
 # for the target will be found with standard names.
 
 XC_PATH=/usr/local/cross-tools/i386-mingw32msvc/bin:/usr/local/cross-tools/bin
+XPREFIX=i386-mingw32msvc-
 
 # 2. Put here the path for where things are to be installed.
 # You should have created the lib, info and include directories
@@ -26,7 +27,7 @@ DJDIR=$INSTALL_BASE
 NATIVEPATH=$PATH
 PATH=$XC_PATH:$NATIVEPATH
 
-export CROSSCOMPILE MINGDIR DJDIR NATIVEPATH PATH
+export CROSSCOMPILE MINGDIR DJDIR NATIVEPATH PATH XPREFIX
 
 # Then run make and pass through all command line parameters to it.
 

@@ -164,6 +164,12 @@ installall:
 msg:
 	@echo Compiling Allegro for $(PLATFORM), $(DESCRIPTION). Please wait...
 
+ifdef CROSSCOMPILE
+
+docs:
+	@echo Cannot build docs when cross-compiling.
+else
+
 docs: $(DOCS)
 	@echo HTML help files have been generated.
 ifdef UNIX_TOOLS
@@ -171,6 +177,8 @@ ifdef UNIX_TOOLS
 else
 	@echo To generate a .CHM version, run "make chm-docs".
 endif
+
+endif # CROSSCOMPILE
 
 lib: $(LIB_NAME)
 
@@ -221,21 +229,10 @@ endif
 
 # -------- rules for converting the documentation --------
 
-ifndef CROSSCOMPILE
-
 MAKEDOC = docs/makedoc$(EXE)
 
 docs/makedoc$(EXE): $(OBJECTS_DOC)
 	$(LINK_WITHOUT_LIB)
-
-else
-
-MAKEDOC = docs/makedoc
-
-docs/makedoc: $(OBJECTS_DOC)
-	PATH=$(NATIVEPATH) gcc -o $@ $^
-
-endif
 
 ifdef HTML
 
