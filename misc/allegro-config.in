@@ -31,7 +31,7 @@ Usage: allegro-config [OPTIONS] [LIBRARIES]
 Options:
 	--prefix[=DIR]
 	--exec-prefix[=DIR]
-	--version
+	--version[=VERSION]
 	--cflags
 	--libs
 	--static
@@ -76,6 +76,10 @@ while test $# -gt 0; do
 
       --exec-prefix)
 	 echo_exec_prefix=yes
+      ;;
+
+      --version=*)
+	 version=$optarg
       ;;
 
       --version)
@@ -147,11 +151,11 @@ if test "$echo_libs" = "yes"; then
 fi
 
 if test "$echo_env" = "yes"; then
-	echo "export PATH=\$PATH:$prefix/bin"
-	echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$prefix/lib"
-	echo "export LIBRARY_PATH=\$LIBRARY_PATH:$prefix/lib"
-	echo "export C_INCLUDE_PATH=\$C_INCLUDE_PATH:$prefix/include"
-	echo "export CPLUS_INCLUDE_PATH=\$CPLUS_INCLUDE_PATH:$prefix/include"
-	echo "export OBJC_INCLUDE_PATH=\$OBJC_INCLUDE_PATH:$prefix/include"
+   echo "export PATH=\$PATH:$prefix/bin"
+   echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$prefix/lib"
+   echo "export LIBRARY_PATH=\$LIBRARY_PATH:$prefix/lib"
+   echo "export C_INCLUDE_PATH=\$C_INCLUDE_PATH:$prefix/include"
+   echo "export CPLUS_INCLUDE_PATH=\$CPLUS_INCLUDE_PATH:$prefix/include"
+   echo "export OBJC_INCLUDE_PATH=\$OBJC_INCLUDE_PATH:$prefix/include"
 fi
 
