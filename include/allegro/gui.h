@@ -88,6 +88,7 @@ typedef struct DIALOG_PLAYER
 #define D_REDRAWME      4        /* request to redraw this object */
 #define D_WANTFOCUS     8        /* this object wants the input focus */
 #define D_USED_CHAR     16       /* object has used the keypress */
+#define D_REDRAW_ALL    32       /* request to redraw all active dialogs */
 
 
 /* messages for the dialog procedures */

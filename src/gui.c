@@ -48,6 +48,7 @@ struct al_active_player {
 };
 
 static struct al_active_player *first_active_player = 0;
+static struct al_active_player *current_active_player = 0;
 
 
 
@@ -174,7 +175,7 @@ END_OF_STATIC_FUNCTION(dclick_check);
 static void gui_switch_callback(void)
 {
    if (active_player)
-      active_player->res |= D_REDRAW;
+      active_player->res |= D_REDRAW_ALL;
 }
 
 
@@ -321,7 +322,8 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 
 	 if (r != D_O_K) {
 	    res |= r;
-	    *obj = count;
+	    if (obj)
+	       *obj = count;
 	 }
 
 	 if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
@@ -680,15 +682,22 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    if (!player)
       return NULL;
 
-   /* add player to the list */
+   /* append player to the list */
    n = malloc(sizeof(struct al_active_player));
    if (!n) {
       free (player);
       return NULL;
    }
-   n->next = first_active_player;
+   n->next = NULL;
    n->player = player;
-   first_active_player = n;
+
+   if (!current_active_player) {
+      current_active_player = first_active_player = n;
+   }
+   else {
+      current_active_player->next = n;
+      current_active_player = n;
+   }
 
    player->res = D_REDRAW;
    player->joy_on = TRUE;
@@ -776,7 +785,17 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
  */
 static void check_for_redraw(DIALOG_PLAYER *player)
 {
+   struct al_active_player *iter;
    int c, r;
+
+   /* need to redraw all active dialogs? */
+   if (player->res & D_REDRAW_ALL) {
+      for (iter = first_active_player; iter != current_active_player; iter = iter->next)
+	 dialog_message(iter->player->dialog, MSG_DRAW, 0, NULL);
+
+      player->res &= ~D_REDRAW_ALL;
+      player->res |= D_REDRAW;
+   }
 
    /* need to draw it? */
    if (player->res & D_REDRAW) {
@@ -1088,13 +1107,17 @@ int shutdown_dialog(DIALOG_PLAYER *player)
 	    prev->next = iter->next;
 	 else
 	    first_active_player = iter->next;
+
+	 if (iter == current_active_player)
+	    current_active_player = prev;
+
 	 free (iter);
 	 break;
       }
    }
 
-   if (first_active_player)
-      active_player = first_active_player->player;
+   if (current_active_player)
+      active_player = current_active_player->player;
    else
       active_player = NULL;
 
