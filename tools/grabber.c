@@ -1812,6 +1812,7 @@ static int merger(void)
 /* do the actual work of saving a file */
 static int save(int strip)
 {
+   DATEDIT_SAVE_DATAFILE_OPTIONS options;
    char buf[FILENAME_LENGTH], buf2[256];
    int err = FALSE;
 
@@ -1834,7 +1835,14 @@ static int save(int strip)
 
       update_info();
 
-      if (!datedit_save_datafile(datafile, data_file, NULL, strip, -1, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
+      options.pack = -1;
+      options.strip = strip;
+      options.sort = -1;
+      options.verbose = TRUE;
+      options.write_msg = FALSE;
+      options.backup = (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED);
+
+      if (!datedit_save_datafile(datafile, data_file, NULL, &options, password))
 	 err = TRUE;
       else
 	 set_modified(FALSE);

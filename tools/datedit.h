@@ -124,8 +124,21 @@ int datedit_numprop(AL_CONST DATAFILE *dat, int type);
 AL_CONST char *datedit_grab_ext(int type);
 AL_CONST char *datedit_export_ext(int type);
 
+
+
+typedef struct DATEDIT_SAVE_DATAFILE_OPTIONS {
+   int pack;
+   int strip;
+   int sort;
+   int verbose;
+   int write_msg;
+   int backup;
+} DATEDIT_SAVE_DATAFILE_OPTIONS;
+
+
+
 DATAFILE *datedit_load_datafile(AL_CONST char *name, int compile_sprites, AL_CONST char *password);
-int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixed_prop, int strip, int pack, int sort, int verbose, int write_msg, int backup, AL_CONST char *password);
+int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixed_prop, AL_CONST DATEDIT_SAVE_DATAFILE_OPTIONS *options, AL_CONST char *password);
 int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *headername, AL_CONST char *progname, AL_CONST char *prefix, int verbose);
 
 void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *ext, char *buf);

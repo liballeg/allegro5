@@ -1016,9 +1016,19 @@ int main(int argc, char *argv[])
 	 }
       }
 
-      if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0) || (opt_sort >= 0)))
-	 if (!datedit_save_datafile(datafile, opt_datafilename, opt_fixed_prop, opt_strip, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
+      if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0) || (opt_sort >= 0))) {
+	 DATEDIT_SAVE_DATAFILE_OPTIONS options;
+
+	 options.pack = opt_compression;
+	 options.strip = opt_strip;
+	 options.sort = opt_sort;
+	 options.verbose = opt_verbose;
+	 options.write_msg = TRUE;
+	 options.backup = FALSE;
+
+	 if (!datedit_save_datafile(datafile, opt_datafilename, opt_fixed_prop, &options, opt_password))
 	    err = 1;
+      }
 
       if ((!err) && (opt_headername))
 	 if (!datedit_save_header(datafile, opt_datafilename, opt_headername, "dat", opt_prefixstring, opt_verbose))

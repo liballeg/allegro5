@@ -181,7 +181,14 @@ static void save_binary(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int p
 /* export a child datafile */
 static int export_datafile(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
-   return datedit_save_datafile((DATAFILE *)dat->dat, filename, NULL, -1, -1, -1, FALSE, FALSE, FALSE, NULL);
+   DATEDIT_SAVE_DATAFILE_OPTIONS options = {-1,    /* pack      */
+					    -1,    /* strip     */
+					    -1,    /* sort      */
+					    FALSE, /* verbose   */
+					    FALSE, /* write_msg */
+					    FALSE  /* backup    */ };
+
+   return datedit_save_datafile((DATAFILE *)dat->dat, filename, NULL, &options, NULL);
 }
 
 
@@ -1049,22 +1056,23 @@ int datedit_sorttype(int sort)
 
 
 /* saves a datafile */
-int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixed_prop, int strip, int pack, int sort, int verbose, int write_msg, int backup, AL_CONST char *password)
+int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixed_prop, AL_CONST DATEDIT_SAVE_DATAFILE_OPTIONS *options, AL_CONST char *password)
 {
    char *pretty_name;
    char backup_name[256];
+   int pack, strip, sort;
    PACKFILE *f;
 
    packfile_password(password);
 
-   strip = datedit_striptype(strip);
-   pack = datedit_packtype(pack);
-   sort = datedit_sorttype(sort);
+   pack = datedit_packtype(options->pack);
+   strip = datedit_striptype(options->strip);
+   sort = datedit_sorttype(options->sort);
 
    strcpy(backup_name, datedit_pretty_name(name, "bak", TRUE));
    pretty_name = datedit_pretty_name(name, "dat", FALSE);
 
-   if (write_msg)
+   if (options->write_msg)
       datedit_msg("Writing %s", pretty_name);
 
    delete_file(backup_name);
@@ -1076,7 +1084,7 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
       pack_mputl(DAT_MAGIC, f);
       file_datasize = 12;
 
-      save_datafile(dat, fixed_prop, (pack >= 2), (pack >= 1), strip, sort, verbose, (strip <= 0), f);
+      save_datafile(dat, fixed_prop, (pack >= 2), (pack >= 1), strip, sort, options->verbose, (strip <= 0), f);
 
       if (strip <= 0) {
 	 datedit_set_property(&datedit_info, DAT_NAME, "GrabberInfo");
@@ -1093,10 +1101,10 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
       return FALSE;
    }
    else {
-      if (!backup)
+      if (!options->backup)
 	 delete_file(backup_name);
 
-      if (verbose) {
+      if (options->verbose) {
 	 int file_filesize = file_size(pretty_name);
 	 datedit_msg("%-28s%7d bytes into %-7d (%d%%)", "- GLOBAL COMPRESSION -",
 		     file_datasize, file_filesize, percent(file_datasize, file_filesize));
