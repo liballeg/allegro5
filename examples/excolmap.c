@@ -222,6 +222,9 @@ int main()
       blit(temp, screen, 0, 0, 0, 0, 320, 200);
    }
 
+   destroy_bitmap(background);
+   destroy_bitmap(temp);
+
    return 0;
 }
 
