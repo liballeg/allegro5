@@ -572,6 +572,7 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    int filler;
    int c, i, j;
    ASSERT(filename);
+   ASSERT(bmp);
 
    depth = bitmap_color_depth(bmp);
    bpp = (depth == 8) ? 8 : 24;

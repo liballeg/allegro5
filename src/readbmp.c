@@ -97,7 +97,6 @@ int save_bitmap(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    BITMAP_TYPE_INFO *iter;
    ASSERT(filename);
    ASSERT(bmp);
-   ASSERT(pal);
 
    aext = uconvert_toascii(get_extension(filename), tmp);
 

@@ -176,7 +176,7 @@ int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    char runchar;
    char ch;
    ASSERT(filename);
-   ASSERT(pal);
+   ASSERT(bmp);
 
    if (!pal) {
       get_palette(tmppal);
