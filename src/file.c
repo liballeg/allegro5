@@ -1823,6 +1823,7 @@ int pack_fseek(PACKFILE *f, int offset)
 {
    int i;
    ASSERT(f);
+   ASSERT(offset >= 0);
 
    if (f->flags & PACKFILE_FLAG_WRITE)
       return -1;
