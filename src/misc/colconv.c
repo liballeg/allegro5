@@ -396,6 +396,7 @@ void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
    if (_colorconv_indexed_palette) {
       free(_colorconv_indexed_palette);
       _colorconv_indexed_palette = NULL;
+      indexed_palette_size = 0;
    }
 
    /* destroy the shift table */
