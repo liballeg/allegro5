@@ -1,7 +1,8 @@
 @html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
 @html_text_substitution=docs/build/unix.txt|<a href="unix.html">docs/build/unix.txt</a>
+@html_text_substitution=docs/build/macosx.txt|<a href="macosx.html">docs/build/macosx.txt</a>
 @external-css=../allegro.css
-@document_title=Notes on building the Darwin/MacOS X version of Allegro
+@document_title=Notes on building the Darwin/X11 version of Allegro
 @<pre>
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
@@ -13,7 +14,7 @@
 				       /\____/
 				       \_/__/
 
-   Notes on building the Darwin/MacOS X version of Allegro.
+   Notes on building the Darwin/X11 version of Allegro.
 
    Written by Jeremiah Blanchard.
 
@@ -29,6 +30,9 @@ Darwin Notes
 
    This file explains how to build the X Window port of Allegro on a Darwin
    system.
+
+   <b>If you are running MacOS X, you are strongly encouraged to use the MacOS
+   X native port; read <tt>docs/build/macosx.txt</tt> for more info.</b>
 
    It is important to note that there is no sound because the sound drivers
    have not yet been ported.
