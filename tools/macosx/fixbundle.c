@@ -482,6 +482,11 @@ int main(int argc, char *argv[])
 	 result = -1;
 	 goto exit_error_bundle;
       }
+      if (!exists("/Library/Frameworks/Allegro.framework/Resources/Embeddable")) {
+         fprintf(stderr, "Cannot embed system wide Allegro framework; install embeddable version first!\n");
+	 result = -1;
+	 goto exit_error_bundle;
+      }
       sprintf(buffer, "/Developer/Tools/pbxcp -exclude .DS_Store -exclude CVS -resolve-src-symlinks /Library/Frameworks/Allegro.framework %s", bundle_contents_frameworks_dir);
       if ((mkdir(bundle_contents_frameworks_dir, 0777) && (errno != EEXIST)) ||
 	  (system(buffer))) {
