@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Ben Davis fixed a bug in create_rgb_table().
+<li>
    3.9.34: Angelo Mottola added display switching routines for BeOS and
    fixed some bugs.
 <li>
