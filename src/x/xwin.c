@@ -1907,10 +1907,10 @@ static void _xwin_private_process_event(XEvent *event)
 	 break;
       case FocusOut:
 	 /* Losing input focus.  */
-	 for (kcode = 0; kcode < 256; kcode++)
-	    _xwin_keycode_pressed[kcode] = FALSE;
 	 if (_xwin_keyboard_focused)
 	    (*_xwin_keyboard_focused)(FALSE);
+	 for (kcode = 0; kcode < 256; kcode++)
+	    _xwin_keycode_pressed[kcode] = FALSE;
 	 break;
       case ButtonPress:
 	 /* Mouse button pressed.  */

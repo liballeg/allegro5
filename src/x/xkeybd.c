@@ -125,7 +125,7 @@ static void _xwin_keydrv_focused(int focused)
       _key_shifts &= (KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG);
 
       for (i=0; i<KEY_MAX; i++) {
-	 if (_key[i])
+	 if (key[i])
 	    _handle_key_release(i);
       }
    }
