@@ -56,9 +56,11 @@ typedef struct MODE_LIST {
    char bpp[5];
 } MODE_LIST;
 
+#define DRVNAME_SIZE  128
+
 typedef struct DRIVER_LIST {
    int       id;
-   char      *name;
+   char      name[DRVNAME_SIZE];
    void      *fetch_mode_list_ptr;
    MODE_LIST *mode_list;
    int       mode_count;
@@ -106,7 +108,7 @@ static MODE_LIST default_mode_list[] =
 static DRIVER_LIST *driver_list;
 static int driver_count;
 
-static char mode_string[20];
+static char mode_string[64];
 static DIALOG *what_dialog;
 
 
@@ -144,8 +146,7 @@ static DIALOG gfx_mode_ex_dialog[] =
 
 
 
-/* d_listchange_proc
- *
+/* d_listchange_proc:
  *  Stores the current driver in d1 and graphics mode in d2;
  *  if a new driver is selected in the listbox, it changes the
  *  w/h and cdepth listboxes so that they redraw and they
@@ -154,35 +155,47 @@ static DIALOG gfx_mode_ex_dialog[] =
  */
 int d_listchange_proc(int msg, DIALOG* d, int c)
 {
-    if(msg != MSG_IDLE) return D_O_K;
+   if (msg != MSG_IDLE)
+      return D_O_K;
 
-    if(what_dialog[GFX_DRIVERLIST].d1 != d->d1) {
-       d->d1 = what_dialog[GFX_DRIVERLIST].d1;
-       d->d2 = what_dialog[GFX_MODELIST].d1;
-       what_dialog[GFX_MODELIST].d1 = 0;
-       what_dialog[GFX_MODELIST].d2 = 0;
-       what_dialog[GFX_MODELIST].proc(MSG_DRAW, what_dialog + GFX_MODELIST, 0);
-       if (what_dialog == gfx_mode_ex_dialog) {
-          what_dialog[GFX_DEPTHLIST].d1 = 0;
-          what_dialog[GFX_DEPTHLIST].proc(MSG_DRAW, what_dialog + GFX_DEPTHLIST, 0);
-       }
-    }
+   if (what_dialog[GFX_DRIVERLIST].d1 != d->d1) {
+      d->d1 = what_dialog[GFX_DRIVERLIST].d1;
+      d->d2 = what_dialog[GFX_MODELIST].d1;
+      what_dialog[GFX_MODELIST].d1 = 0;
+      what_dialog[GFX_MODELIST].d2 = 0;
 
-    if(what_dialog[GFX_MODELIST].d1 != d->d2) {
-       d->d2 = what_dialog[GFX_MODELIST].d1;
-       if (what_dialog == gfx_mode_ex_dialog) {
-          what_dialog[GFX_DEPTHLIST].d1 = 0;
-          what_dialog[GFX_DEPTHLIST].proc(MSG_DRAW, what_dialog + GFX_DEPTHLIST, 0);
-       }
-    }
+      scare_mouse();
+      object_message(&what_dialog[GFX_MODELIST], MSG_DRAW, 0);
+      unscare_mouse();
 
-    return D_O_K;
+      if (what_dialog == gfx_mode_ex_dialog) {
+         what_dialog[GFX_DEPTHLIST].d1 = 0;
+
+         scare_mouse();
+         object_message(&what_dialog[GFX_DEPTHLIST], MSG_DRAW, 0);
+         unscare_mouse();
+      }
+   }
+
+   if (what_dialog[GFX_MODELIST].d1 != d->d2) {
+      d->d2 = what_dialog[GFX_MODELIST].d1;
+
+      if (what_dialog == gfx_mode_ex_dialog) {
+         what_dialog[GFX_DEPTHLIST].d1 = 0;
+
+         scare_mouse();
+         object_message(&what_dialog[GFX_DEPTHLIST], MSG_DRAW, 0);
+         unscare_mouse();
+      }
+   }
+
+   return D_O_K;
 }
 
 
 
 /* create_mode_list:
- *  Create a mode list table. Returns: 0 on success and -1 on failure.
+ *  Creates a mode list table. Returns 0 on success and -1 on failure.
  */
 static int create_mode_list(DRIVER_LIST *driver_list_entry)
 {
@@ -275,9 +288,9 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
 
 
 /* create_driver_list:
- *  Fills the list of video cards with info about the available drivers. Returns: -1 on failure;
+ *  Fills the list of video cards with info about the available drivers. Returns -1 on failure.
  */
-static int create_driver_list()
+static int create_driver_list(void)
 {
    _DRIVER_INFO *driver_info;
    GFX_DRIVER   *gfx_driver;
@@ -292,17 +305,17 @@ static int create_driver_list()
    if (!driver_list) return -1;
 
    driver_list[0].id   = GFX_AUTODETECT;
-   driver_list[0].name = "Autodetect";
+   ustrzcpy(driver_list[0].name, DRVNAME_SIZE, get_config_text("Autodetect"));
    driver_list[0].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[0]);
 
    driver_list[1].id   = GFX_AUTODETECT_FULLSCREEN;
-   driver_list[1].name = "Autodetect fullscreen";
+   ustrzcpy(driver_list[1].name, DRVNAME_SIZE, get_config_text("Auto fullscreen"));
    driver_list[1].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[1]);
 
    driver_list[2].id   = GFX_AUTODETECT_WINDOWED;
-   driver_list[2].name = "Autodetect windowed";
+   ustrzcpy(driver_list[2].name, DRVNAME_SIZE, get_config_text("Auto windowed"));
    driver_list[2].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[2]);
 
@@ -313,8 +326,7 @@ static int create_driver_list()
       if (!driver_list) return -1;
       driver_list[driver_count+3].id = driver_info[driver_count].id;
       gfx_driver = driver_info[driver_count].driver;
-      driver_list[driver_count+3].name = (char *) gfx_driver->ascii_name;
-
+      do_uconvert(gfx_driver->ascii_name, U_ASCII, driver_list[driver_count+3].name, U_CURRENT, DRVNAME_SIZE);
       driver_list[driver_count+3].fetch_mode_list_ptr = gfx_driver->fetch_mode_list;
 
       used_prefetched = FALSE;
@@ -346,9 +358,9 @@ static int create_driver_list()
 
 
 /* destroy_driver_list:
- *  Free allocated memory used by driver lists and mode lists.
+ *  Frees allocated memory used by driver lists and mode lists.
  */
-static void destroy_driver_list()
+static void destroy_driver_list(void)
 {
    int driver;
 
@@ -383,6 +395,7 @@ static AL_CONST char *gfx_card_getter(int index, int *list_size)
 static AL_CONST char *gfx_mode_getter(int index, int *list_size)
 {
    int entry;
+   char tmp[32];
 
    entry = what_dialog[GFX_DRIVERLIST].d1;
 
@@ -393,7 +406,9 @@ static AL_CONST char *gfx_mode_getter(int index, int *list_size)
       }
    }
 
-   sprintf(mode_string, "%ix%i", driver_list[entry].mode_list[index].w, driver_list[entry].mode_list[index].h);
+   uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("%ix%i", tmp),
+             driver_list[entry].mode_list[index].w, driver_list[entry].mode_list[index].h);
+
    return mode_string;
 }
 
@@ -406,6 +421,7 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 {
    MODE_LIST *mode;
    int bpp_count, card_entry, mode_entry, bpp_entry;
+   char tmp[128];
 
    card_entry = what_dialog[GFX_DRIVERLIST].d1;
    mode_entry = what_dialog[GFX_MODELIST].d1;
@@ -432,15 +448,14 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
    }
 
    switch (bpp_entry) {
-      case BPP_08: sprintf(mode_string, " 8 bpp (256 color)"); break;
-      case BPP_15: sprintf(mode_string, "15 bpp (32K color)"); break;
-      case BPP_16: sprintf(mode_string, "16 bpp (64K color)"); break;
-      case BPP_24: sprintf(mode_string, "24 bpp (16M color)"); break;
-      case BPP_32: sprintf(mode_string, "32 bpp (16M color)"); break;
+      case BPP_08: do_uconvert(" 8 bpp (256 color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
+      case BPP_15: do_uconvert("15 bpp (32K color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
+      case BPP_16: do_uconvert("16 bpp (64K color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
+      case BPP_24: do_uconvert("24 bpp (16M color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
+      case BPP_32: do_uconvert("32 bpp (16M color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
    }
 
    return mode_string;
-   
 }
 
 
