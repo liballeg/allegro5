@@ -1632,18 +1632,18 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
             break;
          }
 
-         if ((m.sel >= 0) && (m.menu[m.sel].child)) {
+         if ((mouse_sel >= 0) && (m.menu[mouse_sel].child)) {
             if (m.bar) {
                /* top level menu auto-opening if back from child */
                if (back_from_child) {
                   gui_timer = 0;
-                  ret = m.sel;
+                  ret = mouse_sel;
                }
             }
             else {
                /* sub menu auto-opening if enough time has passed */
                if (gui_timer > gui_menu_opening_delay)
-                  ret = m.sel;
+                  ret = mouse_sel;
             }
          }
       }
