@@ -98,6 +98,8 @@ information about how to install Allegro and link your program with it.
    atexit_ptr parameters should point to the errno variable and atexit 
    function from your libc: these are required because when Allegro is 
    linked as a DLL, it doesn't have direct access to your local libc data.
+   Currently this function always returns zero. If no system driver can be
+   used, the program will abort.
 
 @@int @allegro_init();
 @xref install_allegro, allegro_exit
@@ -742,10 +744,11 @@ table to the set_ucodepage() function.
 
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
-   This function writes formatted data into the output buffer, whose length in 
-   bytes is specified by size and which is guaranteed to be NULL-terminated.
-   Returns the number of characters that would have been written without eventual
-   truncation (like with usprintf), not including the terminating NULL character.
+   This function writes formatted data into the output buffer, whose length
+   in bytes is specified by size and which is guaranteed to be NULL
+   terminated. Returns the number of characters that would have been written
+   without eventual truncation (like with usprintf), not including the
+   terminating NULL character.
    
 @@int @uvsprintf(char *buf, const char *format, va_list args);
 @xref uconvert, usprintf, uvszprintf
@@ -1319,7 +1322,8 @@ Mouse routines
    after the first time that you call this function Allegro will switch into 
    polling mode, so from that point onwards you will have to call this 
    routine in order to get any mouse input at all, regardless of whether the 
-   current driver actually needs to be polled or not.
+   current driver actually needs to be polled or not. Returns zero on
+   success, or a negative number on failure (ie. no mouse driver installed).
 
 @@int @mouse_needs_poll();
 @xref poll_mouse, install_mouse, mouse_x
@@ -1472,7 +1476,9 @@ functions like the djgpp uclock() routine.
    Installs the Allegro timer interrupt handler. You must do this before 
    installing any user timer routines, and also before displaying a mouse 
    pointer, playing FLI animations or MIDI music, and using any of the GUI 
-   routines.
+   routines. Returns zero on success, or a negative number on failure (but
+   you may decide not to check the return value as this function is very
+   unlikely to fail).
 
 @@void @remove_timer();
 @xref install_timer, allegro_exit
@@ -1486,7 +1492,8 @@ functions like the djgpp uclock() routine.
    milliseconds between ticks. This is the same thing as 
    install_int_ex(proc, MSEC_TO_TIMER(speed)). If you call this routine 
    without having first installed the timer module, install_timer() will be 
-   called automatically.
+   called automatically. If there is no room to add a new user timer,
+   install_int() will return a negative number, otherwise it returns zero.
 
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
@@ -1579,9 +1586,9 @@ functions like the djgpp uclock() routine.
 @@int @timer_can_simulate_retrace()
 @xref timer_simulate_retrace, timer_is_using_retrace
    Checks whether it is possible to sync the timer module with the monitor 
-   retrace, giving the current platform and environment (at the moment this 
+   retrace, given the current platform and environment (at the moment this 
    is only possible when running in clean DOS mode in a VGA or mode-X 
-   resolution).
+   resolution). Returns non-zero if simulation is possible.
 
 @@void @timer_simulate_retrace(int enable);
 @xref install_timer, retrace_count, retrace_proc, request_scroll, vsync
@@ -1629,7 +1636,7 @@ functions like the djgpp uclock() routine.
 @@int @timer_is_using_retrace()
 @xref timer_simulate_retrace, timer_can_simulate_retrace
    Checks whether the timer module is currently synced with the monitor 
-   retrace or not.
+   retrace or not. Returns non-zero if it is.
 
 @@extern volatile int @retrace_count;
 @xref timer_simulate_retrace, timer_is_using_retrace, retrace_proc
@@ -1691,7 +1698,9 @@ combinations are possible seems to vary from one keyboard to another).
    Installs the Allegro keyboard interrupt handler. You must call this 
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
-   library functions to access the keyboard.
+   library functions to access the keyboard. Returns zero on success, or a
+   negative number on failure (but you may decide not to check the return
+   value as this function is very unlikely to fail).
 
 @@void @remove_keyboard();
 @xref install_keyboard, allegro_exit
@@ -1722,7 +1731,9 @@ combinations are possible seems to vary from one keyboard to another).
    regardless of whether the current driver actually needs to be polled or 
    not. The keypressed(), readkey(), and ureadkey() functions call 
    poll_keyboard() automatically, so you only need to use this function when 
-   accessing the key[] array and key_shifts variable.
+   accessing the key[] array and key_shifts variable. Returns zero on
+   success, or a negative number on failure (ie. no keyboard driver
+   installed).
 
 @@int @keyboard_needs_poll();
 @xref poll_keyboard, install_keyboard, key
@@ -1912,7 +1923,9 @@ Joystick routines
 @@int @poll_joystick();
 @xref install_joystick, joy, num_joysticks
    The joystick is not interrupt driven, so you need to call this function 
-   every now and again to update the global position values.
+   every now and again to update the global position values. Returns zero
+   on success or a negative number on failure (usually because no joystick
+   driver was installed).
 
 @@extern int @num_joysticks;
 @xref install_joystick, joy
@@ -2439,7 +2452,7 @@ Graphics modes
    set, you can attempt to enable it by calling this function. In particular 
    if you are running in mode-X in a clean DOS environment, this routine 
    will enable the timer retrace simulator, which will activate the triple 
-   buffering functions.
+   buffering functions. Returns zero if triple buffering is enabled.
 
 @@int @scroll_screen(int x, int y);
 @xref set_gfx_mode, show_video_bitmap, request_scroll, request_video_bitmap
