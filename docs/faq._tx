@@ -262,7 +262,7 @@ Windows problems
       normal main() function into a Windows-style WinMain() entrypoint.
 
 <h4><li>
-@@   I get an "out of environment space" error when I run vcvars32.bat!
+@@   I get an "out of environment space" error when I run fix.bat or vcvars32.bat!
 </h4>
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 

@@ -33,7 +33,7 @@ fi
 
 
 # convert Allegro to MSVC format
-./fixmsvc.bat
+./fix.sh msvc
 
 
 # delete all generated files
@@ -42,7 +42,7 @@ make.exe -s veryclean
 
 
 # generate DLL linkage files
-./fixdll.bat
+./fixdll.sh
 
 
 # generate dependencies

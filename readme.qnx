@@ -43,7 +43,8 @@
    As Allegro is a multiplatform library, you first need to set it up for use
    on QNX RTP, by running:
 
-      sh fixqnx.sh
+      chmod +x fix.sh
+      ./fix.sh qnx
 
    Now you may want to generate the dependencies; this step is optional if you
    are using an official WIP release, but it is required if you got a CVS

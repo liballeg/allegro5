@@ -57,8 +57,8 @@
    This is a source-only distribution, so you will have to compile Allegro 
    before you can use it. To do this you should:
 
-   Type "cd allegro", followed by "fixwat.bat", followed by "make". Then go 
-   do something interesting while everything compiles. When it finishes 
+   Type "cd allegro", followed by "fix.bat watcom", followed by "make". Then
+   go do something interesting while everything compiles. When it finishes 
    compiling, type "make install" to set the library up ready for use.
 
    The makefile will try to guess whether you are using Watcom 10.6 or 11.0 

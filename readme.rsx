@@ -57,8 +57,8 @@
 ============ Installing Allegro ============
 ============================================
 
-   Type "cd allegro", followed by "fixrsxnt.bat", followed by "make". Then go 
-   do something interesting while everything compiles. When it finishes 
+   Type "cd allegro", followed by "fix.bat rsxnt", followed by "make". Then
+   go do something interesting while everything compiles. When it finishes 
    compiling, type "make install" to set the library up ready for use.
 
    If you also want to install a debugging version of the library (highly 

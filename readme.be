@@ -43,7 +43,7 @@
    want, and cd into that directory with a Terminal. Due to the multi-platform
    nature of Allegro, you need to run:
 
-      fixbe.sh
+      fix.sh beos
 
    This will set the library ready to be compiled on the Be platform.
    Now you must build it:

@@ -48,7 +48,8 @@
    version, though, you will need to convert it into Unix format before you 
    can begin, by running:
 
-      sh fixunix.sh
+      chmod +x fix.sh
+      ./fix.sh unix
 
    From here on everything is a pretty standard Unix-style install process. 
    First you configure it:

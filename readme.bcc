@@ -63,7 +63,7 @@
 ============ Installing Allegro ============
 ============================================
 
-   Type "cd allegro" and then "fixbcc32.bat".  Then, run "make".  Find
+   Type "cd allegro" and then "fix.bat bcc32".  Then, run "make".  Find
    something fun to do while it's compiling.  It will eventually
    finish; then just type "make install" to set the library up for use.
 

@@ -65,39 +65,8 @@ utod()
 }
 
 
-# helper for turning DOS format batch files into something that Bash can run
-run_batch_file()
-{
-   echo "Running $1..."
-
-   # export utod() code into the generated script
-   sed -n -e "/^utod()$/,/^}$/p" $0 > _tmpbat2
-
-   # DOS to Unix line endings
-   tr -d \\\r < $1 > _tmpbat1
-
-   # batch to shell syntax
-   sed -e "/^@echo/d" \
-       -e "/^rem/d" \
-       -e "/^if \[%1\] == \[--quick\] goto done/d" \
-       -e "/^:done/d" \
-       -e "s/^echo \([^>]*\)\(.*\)/echo \"\1\"\2/; s/ \">/\" >/" \
-       -e "s/^del/rm/; s/ > nul//" \
-       -e "s/^copy \([a-zA-Z0-9_.]*\) + \([a-zA-Z0-9_.]*\) + \([a-zA-Z0-9_.]*\) \([a-zA-Z0-9_.]*\)/cat \1 \2 \3 > \4/; s/ > nul//" \
-       -e "s/^copy/cp/; s/ > nul//" \
-       -e "s/^\([^\"]*\)\\\\/\1\//g; s/^\([^\"]*\)\\\\/\1\//g; s/^\([^\"]*\)\\\\/\1\//g" \
-       -e "s/\\\\\([^\"]*\)$/\/\1/g; s/\\\\\([^\"]*\)$/\/\1/g; s/\\\\\([^\"]*\)$/\/\1/g" \
-       -e "s/\\\\/\\\\\\\\/g" \
-       _tmpbat1 >> _tmpbat2
-
-   sh _tmpbat2
-
-   rm _tmpbat1 _tmpbat2
-}
-
-
 # generate the DLL linkage files for Windows compilers
-run_batch_file fixdll.bat
+./fixdll.sh
 
 utod lib/msvc/allegro.def
 utod lib/mingw32/allegro.def
@@ -108,10 +77,7 @@ export UNIX_TOOLS=1
 # generate dependencies for MSVC
 echo "Generating MSVC dependencies..."
 
-echo "MAKEFILE_INC = makefile.vc" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_MSVC" > include/allegro/alplatf.h
+./fix.sh msvc --quick
 
 make depend
 
@@ -121,10 +87,7 @@ utod obj/msvc/*/makefile.dep
 # generate dependencies for Watcom
 echo "Generating Watcom dependencies..."
 
-echo "MAKEFILE_INC = makefile.wat" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_WATCOM" > include/allegro/alplatf.h
+./fix.sh watcom --quick
 
 make depend
 
@@ -134,10 +97,7 @@ utod obj/watcom/*/makefile.dep
 # generate dependencies for RSXNT
 echo "Generating RSXNT dependencies..."
 
-echo "MAKEFILE_INC = makefile.rsx" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_RSXNT" > include/allegro/alplatf.h
+./fix.sh rsxnt --quick
 
 make depend
 
@@ -147,10 +107,7 @@ utod obj/rsxnt/*/makefile.dep
 # generate dependencies for Mingw32
 echo "Generating Mingw32 dependencies..."
 
-echo "MAKEFILE_INC = makefile.mgw" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_MINGW32" > include/allegro/alplatf.h
+./fix.sh mingw32 --quick
 
 make depend
 
@@ -160,10 +117,7 @@ utod obj/mingw32/*/makefile.dep
 # generate dependencies for Borland
 echo "Generating Borland dependencies..."
 
-echo "MAKEFILE_INC = makefile.bcc" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_BCC32" > include/allegro/alplatf.h
+./fix.sh bcc32 --quick
 
 make depend
 
@@ -173,10 +127,7 @@ utod obj/bcc32/*/makefile.dep
 # generate dependencies for BeOS
 echo "Generating BeOS dependencies..."
 
-echo "MAKEFILE_INC = makefile.be" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_BEOS" > include/allegro/alplatf.h
+./fix.sh beos --quick
 
 make depend
 
@@ -186,16 +137,11 @@ utod obj/beos/*/makefile.dep
 # generate dependencies for djgpp
 echo "Generating djgpp dependencies..."
 
-echo "MAKEFILE_INC = makefile.dj" > makefile
-echo "include makefile.all" >> makefile
-
-echo "#define ALLEGRO_DJGPP" > include/allegro/alplatf.h
+./fix.sh djgpp --quick
 
 make depend
 
 utod obj/djgpp/*/makefile.dep
-
-rm include/allegro/alplatf.h
 
 unset UNIX_TOOLS
 
@@ -220,7 +166,7 @@ misc/mkdata.sh
 
 
 # convert files to djgpp format for distribution
-run_batch_file fixdjgpp.bat
+./fix.sh djgpp --utod
 
 utod makefile
 

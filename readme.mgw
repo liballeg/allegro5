@@ -187,7 +187,7 @@
       Then move the contents of C:\Temp\lib to C:\cygwin\lib\w32api, and
       the contents of C:\Temp\include to c:\cygwin\usr\include\w32api.
 
-   4) Then run './fixming.sh'. This will take a while...
+   4) Then run './fix.sh mingw32'. This will take a while...
 
    Test the installation by typing: gcc -v.
    The answer should be similar to
@@ -211,7 +211,7 @@
       and unzip it to /usr/local/cross-tools/i386-mingw32msvc/
       Make sure you convert all text files to unix style or cpp will croak.
 
-   3) Then run './fixming.sh'. You are now finished with all the preparations.
+   3) Then run './fix.sh mingw32 --dtou'. You are now finished with all the preparations.
    
    4) You can now run './xmake.sh' to build the Allegro library and 
       then run './xmake.sh install' as root to install Allegro.
@@ -230,7 +230,7 @@
    First configure Allegro by entering the following on the commandline:
 
    cd c:\allegro
-   fixming
+   fix.bat mingw32
 
    To build allegro with the default settings (recommended):
 

@@ -97,8 +97,8 @@
 
    If your copy of Allegro is set up for use with some different compiler 
    (if you downloaded a tar.gz archive or a CVS version), you will have to 
-   run fixdjgpp.bat before compiling it. If you are using bash you can run
-   fixdjgpp.sh instead. See below for why you might want to do this.
+   run 'fix.bat djgpp' before compiling it. If you are using bash you can run
+   'fix.sh djgpp' instead. See below for why you might want to do this.
 
    If your copy of Allegro doesn't include the makefile.dep dependency files 
    (if you have run "make veryclean" or you have the CVS version), you can 
@@ -138,7 +138,7 @@
 
     UNIX_FILES
                 (This only applies if you use it when running the
-                fixdjgpp.sh script).
+                fix.sh script).
 
                 If you set this, then the `utod' utility won't be run on
                 the Allegro files before compilation. DJGPP and all
@@ -149,8 +149,8 @@
                 both DJGPP and UNIX.
 
    To activate any of these, type "make WARNMODE=1" on the command line.
-   Alternatively, if you use the fixdjgpp.sh script, you can pass these
-   on the command line (eg. "WARNMODE=1;UNIX_TOOLS=1;./fixdjgpp.sh").
+   Alternatively, if you use the fix.sh script, you can pass these
+   on the command line (eg. "WARNMODE=1;UNIX_TOOLS=1;./fix.sh djgpp").
 
 
 
