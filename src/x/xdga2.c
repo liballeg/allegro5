@@ -1,0 +1,766 @@
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      DGA 2.0 graphics driver.
+ *
+ *      By Angelo Mottola.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintunix.h"
+#include "xwin.h"
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+
+#include <X11/Xlib.h>
+#include <X11/extensions/xf86dga.h>
+
+
+
+#define GET_SHIFT(col_mask)                                                \
+for (mask = (col_mask), shift = 0; (mask & 1) == 0; mask >>= 1, shift++);
+
+
+extern int _xwin_keycode_pressed[];
+
+static XDGADevice *dga_device = NULL;
+static char _xdga2_driver_desc[256] = EMPTY_STRING;
+static Colormap _dga_cmap = 0;
+static int dga_event_base;
+
+
+static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth);
+static void _xdga2_acquire(BITMAP *bmp);
+static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth);
+
+static void (*_orig_hline) (BITMAP *bmp, int x1, int y, int x2, int color);
+static void (*_orig_vline) (BITMAP *bmp, int x, int y1, int y2, int color);
+static void (*_orig_rectfill) (BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+static void (*_orig_draw_sprite) (BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y);
+static void (*_orig_masked_blit) (AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+
+static void _xaccel_hline(BITMAP *bmp, int x1, int y, int x2, int color);
+static void _xaccel_vline(BITMAP *bmp, int x, int y1, int y2, int color);
+static void _xaccel_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+static void _xaccel_clear_to_color(BITMAP *bmp, int color);
+static void _xaccel_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void _xaccel_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y);
+static void _xaccel_masked_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+
+
+
+/* _xdga2_find_mode:
+ *  Returns id number of specified video mode if available, 0 otherwise.
+ */
+static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
+{
+   XDGAMode *mode;
+   int num_modes;
+   int bpp, i, found;
+
+   mode = XDGAQueryModes(_xwin.display, _xwin.screen, &num_modes);
+
+   for (i=0; i<num_modes; i++) {
+      bpp = mode[i].depth;
+      if (bpp == 24) bpp = mode[i].bitsPerPixel;
+      
+      if ((mode[i].viewportWidth == w) &&
+          (mode[i].viewportHeight == h) &&
+          (mode[i].imageWidth >= vw) &&
+          (mode[i].imageHeight >= vh) &&
+          (bpp == depth)) break;
+   }
+
+   if (i == num_modes) {
+      XFree(mode);
+      return 0;
+   }
+   
+   found = mode[i].num;
+   XFree(mode);
+   return found;
+}
+
+
+
+/* _xdga2_handle_input:
+ *  Handles DGA events pending from queue.
+ */
+void _xdga2_handle_input(void)
+{
+   int i, events;
+   static XDGAEvent event[5];
+   XDGAEvent *cur_event;
+   XKeyEvent key;
+   int kcode, scode, dx, dy, dz = 0;
+   static int mouse_buttons = 0;
+
+   if (_xwin.display == 0)
+      return;
+
+   XSync(_xwin.display, False);
+
+   /* How much events are available in the queue.  */
+   events = XEventsQueued(_xwin.display, QueuedAlready);
+   if (events <= 0)
+      return;
+
+   /* Limit amount of events we read at once.  */
+   if (events > 5)
+      events = 5;
+
+   /* Read pending events.  */
+   for (i = 0; i < events; i++)
+      XNextEvent(_xwin.display, (XEvent *)&event[i]);
+
+   /* Process all events.  */
+   for (i = 0; i < events; i++) {
+      cur_event = &event[i];
+      switch (cur_event->type - dga_event_base) {
+
+         case KeyPress:
+            XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+            kcode = key.keycode;
+            if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
+               scode = _xwin.keycode_to_scancode[kcode];
+               if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
+                  _xwin_keycode_pressed[kcode] = TRUE;
+                  (*_xwin_keyboard_interrupt)(1, scode);
+               }
+            }
+            break;
+
+         case KeyRelease:
+            XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+            kcode = key.keycode;
+            if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
+               scode = _xwin.keycode_to_scancode[kcode];
+               if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
+                  (*_xwin_keyboard_interrupt)(0, scode);
+                  _xwin_keycode_pressed[kcode] = FALSE;
+               }
+            }
+            break;
+
+         case ButtonPress:
+            if (cur_event->xbutton.button == Button1)
+               mouse_buttons |= 1;
+            else if (cur_event->xbutton.button == Button3)
+               mouse_buttons |= 2;
+            else if (cur_event->xbutton.button == Button2)
+               mouse_buttons |= 4;
+            else if (cur_event->xbutton.button == Button4)
+               dz = 1;
+            else if (cur_event->xbutton.button == Button5)
+               dz = -1;
+            if (_xwin_mouse_interrupt)
+               (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
+            break;
+
+         case ButtonRelease:
+            if (cur_event->xbutton.button == Button1)
+               mouse_buttons &= ~1;
+            else if (cur_event->xbutton.button == Button3)
+               mouse_buttons &= ~2;
+            else if (cur_event->xbutton.button == Button2)
+               mouse_buttons &= ~4;
+            if (_xwin_mouse_interrupt)
+               (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+            break;
+
+         case MotionNotify:
+            dx = event->xmotion.dx;
+            dy = event->xmotion.dy;
+            if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
+               (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+            }
+            break;
+
+         default:
+            break;
+      }
+   }
+}
+
+
+
+/* _xdga2_gfxdrv_init_drv:
+ *  Initializes driver and creates screen bitmap.
+ */
+static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth)
+{
+   int dga_error_base, dga_major_version, dga_minor_version;
+   int mode, mask, shift;
+   long input_mask;
+   char tmp[80];
+   BITMAP *bmp;
+
+   /* This is just to test if the system driver has been installed properly */
+   if (_xwin.window == None)
+      return NULL;
+
+   /* Choose convenient size.  */
+   if ((w == 0) && (h == 0)) {
+      w = 640;
+      h = 480;
+   }
+
+   if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)) {
+      ustrcpy(allegro_error, get_config_text("Unsupported screen size"));
+      return NULL;
+   }
+
+   if (vw < w)
+      vw = w;
+   if (vh < h)
+      vh = h;
+
+   if (1
+#ifdef ALLEGRO_COLOR8
+       && (depth != 8)
+#endif
+#ifdef ALLEGRO_COLOR16
+       && (depth != 15)
+       && (depth != 16)
+#endif
+#ifdef ALLEGRO_COLOR24
+       && (depth != 24)
+#endif
+#ifdef ALLEGRO_COLOR32
+       && (depth != 32)
+#endif
+       ) {
+      ustrcpy(allegro_error, get_config_text("Unsupported color depth"));
+      return NULL;
+   }
+
+   /* Checks presence of DGA extension */
+   if (!XDGAQueryExtension(_xwin.display, &dga_event_base, &dga_error_base) ||
+       !XDGAQueryVersion(_xwin.display, &dga_major_version, &dga_minor_version)) {
+      ustrcpy(allegro_error, get_config_text("DGA extension is not supported"));
+      return NULL;
+   }
+
+   /* Works only with DGA 2.0 or newer */
+   if (dga_major_version < 2) {
+      ustrcpy(allegro_error, get_config_text("DGA 2.0 or newer is required"));
+      return NULL;
+   }
+
+   /* Attempts to access the framebuffer */
+   if (!XDGAOpenFramebuffer(_xwin.display, _xwin.screen)) {
+      ustrcpy(allegro_error, get_config_text("Can not open framebuffer"));
+      return NULL;
+   }
+
+   /* Finds suitable video mode number */
+   mode = _xdga2_find_mode(w, h, vw, vh, depth);
+   if (!mode) {
+      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      return NULL;
+   }
+
+   /* Sets DGA video mode */
+   dga_device = XDGASetMode(_xwin.display, _xwin.screen, mode);
+   if (dga_device == NULL) {
+      ustrcpy(allegro_error, get_config_text("Can not switch to DGA mode"));
+      return NULL;
+   }
+   _xwin.in_dga_mode = 2;
+   set_display_switch_mode(SWITCH_NONE);
+
+   /* Installs DGA color map */
+   if (_dga_cmap) {
+      XFreeColormap(_xwin.display, _dga_cmap);
+      _dga_cmap = 0;
+   }
+   if ((dga_device->mode.visualClass == PseudoColor)
+       || (dga_device->mode.visualClass == GrayScale)
+       || (dga_device->mode.visualClass == DirectColor))
+      _dga_cmap = XDGACreateColormap(_xwin.display, _xwin.screen, dga_device, AllocAll);
+   else
+      _dga_cmap = XDGACreateColormap(_xwin.display, _xwin.screen, dga_device, AllocNone);
+   XDGAInstallColormap(_xwin.display, _xwin.screen, _dga_cmap);
+
+   /* Sets up direct color shifts */
+   switch (depth) {
+
+      case 15:
+         GET_SHIFT(dga_device->mode.redMask);
+         _rgb_r_shift_15 = shift;
+         GET_SHIFT(dga_device->mode.greenMask);
+         _rgb_g_shift_15 = shift;
+         GET_SHIFT(dga_device->mode.blueMask);
+         _rgb_b_shift_15 = shift;
+         break;
+
+      case 16:
+         GET_SHIFT(dga_device->mode.redMask);
+         _rgb_r_shift_16 = shift;
+         GET_SHIFT(dga_device->mode.greenMask);
+         _rgb_g_shift_16 = shift;
+         GET_SHIFT(dga_device->mode.blueMask);
+         _rgb_b_shift_16 = shift;
+         break;
+
+      case 24:
+         GET_SHIFT(dga_device->mode.redMask);
+         _rgb_r_shift_24 = shift;
+         GET_SHIFT(dga_device->mode.greenMask);
+         _rgb_g_shift_24 = shift;
+         GET_SHIFT(dga_device->mode.blueMask);
+         _rgb_b_shift_24 = shift;
+         break;
+
+      case 32:
+         GET_SHIFT(dga_device->mode.redMask);
+         _rgb_r_shift_32 = shift;
+         GET_SHIFT(dga_device->mode.greenMask);
+         _rgb_g_shift_32 = shift;
+         GET_SHIFT(dga_device->mode.blueMask);
+         _rgb_b_shift_32 = shift;
+         break;
+   }
+
+   /* Enables input */
+   XSync(_xwin.display, True);
+   input_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask
+              | ButtonReleaseMask | PointerMotionMask;
+   XDGASelectInput(_xwin.display, _xwin.screen, input_mask);
+   if (_xwin_keyboard_focused) {
+      (*_xwin_keyboard_focused)(FALSE);
+      (*_xwin_keyboard_focused)(TRUE);
+   }
+   _mouse_on = TRUE;
+
+   /* Creates screen bitmap */
+   drv->linear = TRUE;
+   bmp = _make_bitmap(dga_device->mode.imageWidth, dga_device->mode.imageHeight,
+         (unsigned long)dga_device->data, drv, depth,
+         dga_device->mode.bytesPerScanline);
+   if (!bmp) {
+      ustrcpy(allegro_error, get_config_text("Not enough memory"));
+      return NULL;
+   }
+   drv->w = bmp->cr = w;
+   drv->h = bmp->cb = h;
+   drv->vid_mem = dga_device->mode.imageWidth * dga_device->mode.imageHeight
+                * BYTES_PER_PIXEL(depth);
+   drv->bank_size = drv->vid_mem;
+   drv->bank_gran = drv->vid_mem;
+
+   _screen_vtable.acquire = _xdga2_acquire;
+
+   /* Checks for hardware acceleration support */
+   if (dga_device->mode.flags & XDGASolidFillRect) {
+      /* XDGAFillRectangle is available */
+      _orig_hline = _screen_vtable.hline;
+      _orig_vline = _screen_vtable.vline;
+      _orig_rectfill = _screen_vtable.rectfill;
+      _screen_vtable.hline = _xaccel_hline;
+      _screen_vtable.vline = _xaccel_vline;
+      _screen_vtable.rectfill = _xaccel_rectfill;
+      _screen_vtable.clear_to_color = _xaccel_clear_to_color;
+      gfx_capabilities |= (GFX_HW_HLINE | GFX_HW_FILL);
+   }
+   if (dga_device->mode.flags & XDGABlitRect) {
+      /* XDGACopyArea is available */
+      _screen_vtable.blit_to_self = _xaccel_blit_to_self;
+      _screen_vtable.blit_to_self_forward = _xaccel_blit_to_self;
+      _screen_vtable.blit_to_self_backward = _xaccel_blit_to_self;
+      gfx_capabilities |= GFX_HW_VRAM_BLIT;
+   }
+   if (dga_device->mode.flags & XDGABlitTransRect) {
+      /* XDGACopyTransparentArea is available */
+      _orig_draw_sprite = _screen_vtable.draw_sprite;
+      _orig_masked_blit = _screen_vtable.masked_blit;
+      _screen_vtable.masked_blit = _xaccel_masked_blit;
+      _screen_vtable.draw_sprite = _xaccel_draw_sprite;
+      if (_screen_vtable.color_depth == 8)
+         _screen_vtable.draw_256_sprite = _xaccel_draw_sprite;
+      gfx_capabilities |= GFX_HW_VRAM_BLIT_MASKED;
+   }
+
+   /* Sets up driver description */
+   usprintf(_xdga2_driver_desc,
+      uconvert_ascii("X-Windows DGA 2.0 graphics%s", tmp),
+      gfx_capabilities ? " (accelerated)" : "");
+   drv->desc = _xdga2_driver_desc;
+
+   XDGASync(_xwin.display, _xwin.screen);
+
+   return bmp;
+}
+
+BITMAP *_xdga2_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth)
+{
+   BITMAP *bmp;
+   DISABLE();
+   bmp = _xdga2_private_gfxdrv_init_drv(drv, w, h, vw, vh, depth);
+   ENABLE();
+   if (!bmp)
+      _xdga2_gfxdrv_exit(bmp);
+   return bmp;
+}
+
+
+
+/* _xdga2_gfxdrv_exit:
+ *  Shuts down gfx driver.
+ */
+void _xdga2_gfxdrv_exit(BITMAP *bmp)
+{
+   DISABLE();
+   
+   if (_xwin.in_dga_mode) {
+      XDGACloseFramebuffer(_xwin.display, _xwin.screen);
+      XDGASetMode(_xwin.display, _xwin.screen, 0);
+      _xwin.in_dga_mode = 0;
+
+      if (_dga_cmap) {
+         XFreeColormap(_xwin.display, _dga_cmap);
+         _dga_cmap = 0;
+      }
+
+      XInstallColormap(_xwin.display, _xwin.colormap);
+
+      set_display_switch_mode(SWITCH_BACKGROUND);
+
+   }
+
+   ENABLE();
+}
+
+
+
+/* _xdga2_scroll_screen:
+ *  Scrolls DGA viewport.
+ */
+int _xdga2_scroll_screen(int x, int y)
+{
+   DISABLE();
+   
+   if (x < 0) x = 0;
+   else if (x > dga_device->mode.maxViewportX)
+      x = dga_device->mode.maxViewportX;
+   if (y < 0) y = 0;
+   else if (y > dga_device->mode.maxViewportY)
+      y = dga_device->mode.maxViewportY;
+
+   while (XDGAGetViewportStatus(_xwin.display, _xwin.screen));
+   XDGASetViewport(_xwin.display, _xwin.screen, x, y, XDGAFlipRetrace);
+
+   ENABLE();
+   
+   return 0;
+}
+
+
+
+/* _xdga2_vsync:
+ *  Waits for vertical retrace.
+ */
+void _xdga2_vsync(void)
+{
+   DISABLE();
+   XSync(_xwin.display, False);
+   ENABLE();
+}
+
+
+
+/* _xdga2_set_palette_range:
+ *  Sets palette entries.
+ */
+void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
+{
+   int i;
+   static XColor color[256];
+
+   DISABLE();
+   
+   if (vsync)
+      XSync(_xwin.display, False);
+
+   if (dga_device->mode.depth == 8) {
+      for (i = from; i <= to; i++) {
+         color[i].flags = DoRed | DoGreen | DoBlue;
+         color[i].pixel = i;
+         color[i].red = ((p[i].r & 0x3F) * 65535L) / 0x3F;
+         color[i].green = ((p[i].g & 0x3F) * 65535L) / 0x3F;
+         color[i].blue = ((p[i].b & 0x3F) * 65535L) / 0x3F;
+      }
+      XStoreColors(_xwin.display, _dga_cmap, color + from, to - from + 1);
+      XSync(_xwin.display, False);
+   }
+
+   ENABLE();
+}
+
+
+
+/* _xdga2_acquire:
+ *  Video bitmap acquire function; synchronizes with framebuffer.
+ */
+void _xdga2_acquire(BITMAP *bmp)
+{
+   DISABLE();
+   XDGASync(_xwin.display, _xwin.screen);
+   ENABLE();
+}
+
+
+
+/* _xaccel_hline:
+ *  Accelerated hline.
+ */
+static void _xaccel_hline(BITMAP *bmp, int x1, int y, int x2, int color)
+{
+   int tmp;
+   
+   if (_drawing_mode != DRAW_MODE_SOLID) {
+      _orig_hline(bmp, x1, y, x2, color);
+      return;
+   }
+
+   if (x1 > x2) {
+      tmp = x1;
+      x1 = x2;
+      x2 = tmp;
+   }
+
+   if (bmp->clip) {
+      if ((y < bmp->ct) || (y >= bmp->cb))
+         return;
+
+      if (x1 < bmp->cl)
+         x1 = bmp->cl;
+
+      if (x2 >= bmp->cr)
+         x2 = bmp->cr-1;
+
+      if (x2 < x1)
+         return;
+   }
+
+   x1 += bmp->x_ofs;
+   y += bmp->y_ofs;
+   x2 += bmp->x_ofs;
+
+   DISABLE();
+   XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y, (x2 - x1) + 1, 1, color);
+   ENABLE();
+}
+
+
+
+/* _xaccel_vline:
+ *  Accelerated vline.
+ */
+static void _xaccel_vline(BITMAP *bmp, int x, int y1, int y2, int color)
+{
+   int tmp;
+   
+   if (_drawing_mode != DRAW_MODE_SOLID) {
+      _orig_vline(bmp, x, y1, y2, color);
+      return;
+   }
+
+   if (y1 > y2) {
+      tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+   }
+
+   if (bmp->clip) {
+      if ((x < bmp->cl) || (x >= bmp->cr))
+         return;
+
+      if (y1 < bmp->ct)
+         y1 = bmp->ct;
+
+      if (y2 >= bmp->cb)
+         y2 = bmp->cb-1;
+
+      if (y2 < y1)
+         return;
+   }
+
+   x += bmp->x_ofs;
+   y1 += bmp->y_ofs;
+   y2 += bmp->y_ofs;
+
+   DISABLE();
+   XDGAFillRectangle(_xwin.display, _xwin.screen, x, y1, 1, (y2 - y1) + 1, color);
+   ENABLE();
+}
+
+
+
+/* _xaccel_rectfill:
+ *  Accelerated rectfill.
+ */
+static void _xaccel_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+{
+   int tmp;
+   
+   if (_drawing_mode != DRAW_MODE_SOLID) {
+      _orig_rectfill(bmp, x1, y1, x2, y2, color);
+      return;
+   }
+
+   if (x2 < x1) {
+      tmp = x1;
+      x1 = x2;
+      x2 = tmp;
+   }
+
+   if (y2 < y1) {
+      tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+   }
+
+   if (bmp->clip) {
+      if (x1 < bmp->cl)
+         x1 = bmp->cl;
+
+      if (x2 >= bmp->cr)
+         x2 = bmp->cr-1;
+
+      if (x2 < x1)
+         return;
+
+      if (y1 < bmp->ct)
+         y1 = bmp->ct;
+
+      if (y2 >= bmp->cb)
+         y2 = bmp->cb-1;
+
+      if (y2 < y1)
+         return;
+   }
+
+   x1 += bmp->x_ofs;
+   y1 += bmp->y_ofs;
+   x2 += bmp->x_ofs;
+   y2 += bmp->y_ofs;
+
+   DISABLE();
+   XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, (x2 - x1) + 1, (y2 - y1) + 1, color);
+   ENABLE();
+}
+
+
+
+/* _xaccel_clear_to_color:
+ *  Accelerated clear_to_color.
+ */
+static void _xaccel_clear_to_color(BITMAP *bmp, int color)
+{
+   int x1, y1, x2, y2;
+
+   x1 = bmp->cl + bmp->x_ofs;
+   y1 = bmp->ct + bmp->y_ofs;
+   x2 = bmp->cr + bmp->x_ofs;
+   y2 = bmp->cb + bmp->y_ofs;
+   
+   DISABLE();
+   XDGAFillRectangle(_xwin.display, _xwin.screen, x1, y1, (x2 - x1) + 1, (y2 - y1) + 1, color);
+   ENABLE();
+}
+
+
+
+/* _xaccel_blit_to_self:
+ *  Accelerated vram -> vram blit.
+ */
+static void _xaccel_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+{
+   source_x += source->x_ofs;
+   source_y += source->y_ofs;
+   dest_x += dest->x_ofs;
+   dest_y += dest->y_ofs;
+
+   DISABLE();
+   XDGACopyArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y);
+   ENABLE();
+}
+
+
+
+/* _xaccel_draw_sprite:
+ *  Accelerated draw_sprite.
+ */
+static void _xaccel_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+{
+   int sx, sy, w, h;
+
+   if (is_video_bitmap(sprite)) {
+      sx = sprite->x_ofs;
+      sy = sprite->y_ofs;
+      w = sprite->w;
+      h = sprite->h;
+
+      if (bmp->clip) {
+         if (x < bmp->cl) {
+            sx += bmp->cl - x;
+            w -= bmp->cl - x;
+            x = bmp->cl;
+         }
+
+         if (y < bmp->ct) {
+            sy += bmp->ct - y;
+            h -= bmp->ct - y;
+            y = bmp->ct;
+         }
+
+         if (x + w > bmp->cr)
+            w = bmp->cr - x;
+
+         if (w <= 0)
+            return;
+
+         if (y + h > bmp->cb)
+            h = bmp->cb - y;
+
+         if (h <= 0)
+            return;
+      }
+
+      _xaccel_masked_blit(sprite, bmp, sx, sy, x, y, w, h);
+   }
+   else
+      _orig_draw_sprite(bmp, sprite, x, y);
+}
+
+
+
+/* _xaccel_masked_blit:
+ *  Accelerated masked_blit.
+ */
+static void _xaccel_masked_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+{
+   source_x += source->x_ofs;
+   source_y += source->y_ofs;
+   dest_x += dest->x_ofs;
+   dest_y += dest->y_ofs;
+
+   DISABLE();
+   XDGACopyTransparentArea(_xwin.display, _xwin.screen, source_x, source_y, width, height, dest_x, dest_y, source->vtable->mask_color);
+   ENABLE();
+}
+
+
+
+#endif
