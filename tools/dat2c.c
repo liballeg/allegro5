@@ -135,9 +135,9 @@ struct dat2c_converter {
 static int invalid_macro_name(const char* n)
 {
     const char* m = 0;
-    if(*n != '_' && !isalpha(*n)) return 1;
+    if(*n != '_' && !isalpha((int)*n)) return 1;
     for(m = n + 1; *m; m++)
-        if(*m != '_' && !isalnum(*m)) return 1;
+        if(*m != '_' && !isalnum((int)*m)) return 1;
     return 0;
 }
 
@@ -848,9 +848,9 @@ static const char* get_c_identifier(const char* prefix, DATAFILE* obj)
     if(prop_name && strlen(prop_name)) {
         int i;
         for(i = 1; prop_name[i]; i++) {
-            if(!isalnum(prop_name[i]) && prop_name[i] != '_') break;
+            if(!isalnum((int)prop_name[i]) && prop_name[i] != '_') break;
         }
-        if((*prop_name == '_' || isalpha(*prop_name)) && 
+        if((*prop_name == '_' || isalpha((int)*prop_name)) && 
             !prop_name[i])
         {
             return new_cident(prefix, prop_name, obj);
