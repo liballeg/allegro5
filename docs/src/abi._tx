@@ -94,7 +94,10 @@ Linux notes
 @heading
 BeOS notes
 
-   To do.
+   Most of the things discussed in the Windows notes apply here. In
+   particular, you're encouraged to use a non-WIP, non-CVS unmodified
+   official version of the library, in which case your program should
+   run without problems on foreign machines.
 
 
 
