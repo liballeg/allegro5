@@ -58,7 +58,7 @@ FILETYPE VFT_DLL
          VALUE "FileDescription", "Allegro\000"
          VALUE "FileVersion", "$verstr\000"
          VALUE "InternalName", "ALLEG$1$2\000"
-         VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
+         VALUE "LegalCopyright", "Copyright © 1994-$year Allegro Developers\000\000"
          VALUE "OriginalFilename", "ALLEG$1$2.DLL\000"
          VALUE "ProductName", "Allegro\000"
          VALUE "ProductVersion", "$verstr\000"
