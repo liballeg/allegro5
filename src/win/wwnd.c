@@ -59,8 +59,10 @@ void (*user_close_proc)(void) = NULL;
 static HWND user_wnd = NULL;
 static WNDPROC user_wnd_proc = NULL;
 static HANDLE wnd_thread = NULL;
+static HANDLE wnd_thread_input = NULL;
+static int thread_input_suicide = FALSE;
 static HWND (*wnd_create_proc)(WNDPROC) = NULL;
-static int wnd_events = 0;
+static int wnd_events;
 static HANDLE wnd_event_id[MAX_EVENT];
 static void (*wnd_event_handler[MAX_EVENT])(void);
 static int old_style = 0;
@@ -194,6 +196,32 @@ void wnd_unacquire_joystick(void)
 
 
 
+/* wnd_thread_input_proc:
+ *  Thread function that handles the input.
+ */
+static void wnd_thread_input_proc(LPVOID unused)
+{
+   int result;
+
+   /* event loop */
+   while (TRUE) {
+      result = WaitForMultipleObjects(wnd_events, wnd_event_id, FALSE, INFINITE);
+      if (result == WAIT_OBJECT_0) {
+         /* we were instructed to unblock, make sure we can block again */
+         _enter_critical();
+         _exit_critical();
+         if (thread_input_suicide)
+            return;
+      }
+      else if ((result > WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + wnd_events)) {
+         /* one of the registered events is in signaled state */
+         (*wnd_event_handler[result - WAIT_OBJECT_0])();
+      }
+   }
+}
+
+
+
 /* wnd_register_event:
  *  Adds an event to the window thread event queue.
  */
@@ -202,6 +230,12 @@ int wnd_register_event(HANDLE event_id, void (*event_handler)(void))
    if (wnd_events == MAX_EVENT)
       return -1;
 
+   _enter_critical();
+
+   /* unblock the window thread if any */
+   if (wnd_thread || wnd_thread_input)
+      SetEvent(wnd_event_id[0]);
+
    /* effectively add */
    wnd_event_id[wnd_events] = event_id;
    wnd_event_handler[wnd_events] = event_handler;
@@ -209,7 +243,15 @@ int wnd_register_event(HANDLE event_id, void (*event_handler)(void))
    /* adjust the size of the queue */
    wnd_events++;
 
-   _TRACE("1 event registered (total = %d)\n", wnd_events);
+   /* create window thread for input if none */
+   if (!wnd_thread && !wnd_thread_input) {
+      wnd_thread_input = (HANDLE) _beginthread(wnd_thread_input_proc, 0, NULL);
+      thread_input_suicide = FALSE;
+   }
+
+   _exit_critical();
+
+   _TRACE("1 event registered (total = %d)\n", wnd_events-1);
    return 0;
 }
 
@@ -232,6 +274,11 @@ void wnd_unregister_event(HANDLE event_id)
    return;
 
  Found:
+   _enter_critical();
+
+   /* unblock the window thread */
+   SetEvent(wnd_event_id[0]);
+
    /* shift the queue to the left if needed */
    for (i=base; i<wnd_events-1; i++) {
       wnd_event_id[i] = wnd_event_id[i+1];
@@ -240,7 +287,16 @@ void wnd_unregister_event(HANDLE event_id)
 
    /* adjust the size of the queue */
    wnd_events--;
-   _TRACE("1 event unregistered (total = %d)\n", wnd_events);
+
+   /* kill window thread for input if no more event */
+   if ((wnd_events == 1) && (wnd_thread_input)) {
+      thread_input_suicide = TRUE;
+      wnd_thread_input = NULL;
+   }
+
+   _exit_critical();
+
+   _TRACE("1 event unregistered (total = %d)\n", wnd_events-1);
 }
 
 
@@ -559,7 +615,12 @@ static void wnd_thread_proc(HANDLE setup_event)
    /* message loop */
    while (TRUE) {
       result = MsgWaitForMultipleObjects(wnd_events, wnd_event_id, FALSE, INFINITE, QS_ALLINPUT);
-      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + wnd_events)) {
+      if (result == WAIT_OBJECT_0) {
+         /* we were instructed to unblock, make sure we can block again */
+         _enter_critical();
+         _exit_critical();
+      }
+      else if ((result > WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + wnd_events)) {
          /* one of the registered events is in signaled state */
          (*wnd_event_handler[result - WAIT_OBJECT_0])();
       }
@@ -604,6 +665,11 @@ int init_directx_window(void)
    msg_acquire_joystick = RegisterWindowMessage("Allegro joystick acquire proc");
    msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
+
+   /* event #0 is reserved */
+   wnd_event_id[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
+   wnd_event_handler[0] = NULL;
+   wnd_events = 1;
 
    if (user_wnd) {
       /* hook the user window */
@@ -677,4 +743,6 @@ void exit_directx_window(void)
    }
 
    DeleteCriticalSection(&gfx_crit_sect);
+
+   CloseHandle(wnd_event_id[0]);
 }
