@@ -28,10 +28,12 @@
 ============ Required software ============
 ===========================================
 
-   - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
+   - DJGPP 2.03 or later (djdev*.zip).
+   - GCC compiler 2.91.x or later (gcc*b.zip).
+     Note: gcc 3.0.x (0 <= x <= 2) doesn't properly compile Allegro.
+   - Binutils 2.9.x or later (bnu*b.zip).
    - GNU make (mak*b.zip).
    - Texinfo (txi*b.zip).
-   - Binutils 2.9.x or later (bnu*b.zip).
    - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
    - Optional: sed (sed*b.zip). Used by "make depend".
 
