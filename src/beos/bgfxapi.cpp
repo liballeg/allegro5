@@ -34,10 +34,30 @@
 #define BE_DRAWING_THREAD_PRIORITY  B_REAL_TIME_DISPLAY_PRIORITY
 
 
+#define SUSPEND_ALL_THREADS()		\
+{									\
+   be_key_suspend();				\
+   be_sound_suspend();				\
+   be_time_suspend();				\
+   be_sys_suspend();				\
+   be_main_suspend();				\
+}
+
+#define RESUME_ALL_THREADS()		\
+{									\
+   be_key_resume();					\
+   be_sound_resume();				\
+   be_time_resume();				\
+   be_sys_resume();					\
+   be_main_resume();				\
+}
+
+
+
 typedef void (*BLITTER_FUNCTION)(void **src, void **dest, 
    int sx, int sy, int sw, int sh);
 
-const BE_MODE_TABLE be_mode_table[] = {
+AL_CONST BE_MODE_TABLE _be_mode_table[] = {
    { 8,    640,  400, B_8_BIT_640x400    },
    { 8,    640,  480, B_8_BIT_640x480    },
    { 8,    800,  600, B_8_BIT_800x600    },
@@ -66,28 +86,33 @@ const BE_MODE_TABLE be_mode_table[] = {
    { -1 }
 };
 
+sem_id _be_fullscreen_lock = -1;
+sem_id _be_window_lock = -1;
+
+volatile int _be_lock_count  = 0;
+int *_be_dirty_lines = NULL;
+int _be_mouse_z = 0;
+
+BeAllegroWindow	    *_be_allegro_window	    = NULL;
+BeAllegroView	    *_be_allegro_view	    = NULL;
+BeAllegroScreen	    *_be_allegro_screen	    = NULL; 
+
+void (*_be_window_close_hook)() = NULL;
+
 static volatile bool be_gfx_initialized;
 
-sem_id be_fullscreen_lock = -1;
-sem_id be_window_lock = -1;
-static int32  lock_count  = 0;
-
-int *be_dirty_lines = NULL;
-int be_mouse_z = 0;
-
+static char driver_desc[256] = EMPTY_STRING;
 static int refresh_rate = 70;
 
-BeAllegroWindow	    *be_allegro_window	    = NULL;
-BeAllegroView	    *be_allegro_view	    = NULL;
-BeAllegroScreen	    *be_allegro_screen	    = NULL; 
-
-void (*be_window_close_hook)() = NULL;
+static thread_id palette_thread_id = -1;
+static sem_id palette_sem = -1;
+static rgb_color palette_colors[256];
 
 static uint32 cmap[0x1000];
 static uint32 rmap[256];
 static uint32 gmap[256];
 static uint32 bmap[256];
- 
+
 static int rsize, gsize, bsize;
 static int rshift, gshift, bshift;
 
@@ -379,54 +404,47 @@ static void _be_gfx_create_mapping_tables(int depth)
 
 static inline void change_focus(bool active)
 {
-/*   if (focus_count < 0) {
-      focus_count = 0;
-   }
-*/
+   int i;
+   
+   if (_be_focus_count < 0)
+      _be_focus_count = 0;
+      
    if (active) {
-//      focus_count++;
-      focus_count = 1;
+      _be_focus_count++;
       if (be_gfx_initialized) {
          switch (_be_switch_mode) {
             case SWITCH_AMNESIA:
             case SWITCH_BACKAMNESIA:
-               if (be_allegro_window->drawing_thread_id > 0) {
-                  resume_thread(be_allegro_window->drawing_thread_id);
+               if ((_be_allegro_window) &&
+                   (_be_allegro_window->drawing_thread_id > 0)) {
+                  resume_thread(_be_allegro_window->drawing_thread_id);
                }
                if (_be_switch_mode == SWITCH_BACKAMNESIA)
                   break;
             case SWITCH_PAUSE:
-               be_key_resume();
-               be_sound_resume();
-               be_time_resume();
-               be_sys_resume();
-               be_main_resume();
+               RESUME_ALL_THREADS();
                break;
          }
+         be_display_switch_callback(SWITCH_IN);
       }
-      be_display_switch_callback(SWITCH_IN);
    }
    else {
-//      focus_count--;
-      focus_count = 0;
-      be_display_switch_callback(SWITCH_OUT);
+      _be_focus_count--;
       if (be_gfx_initialized) {
+         be_display_switch_callback(SWITCH_OUT);
          switch (_be_switch_mode) {
             case SWITCH_AMNESIA:
             case SWITCH_BACKAMNESIA:
-               if (be_allegro_window->drawing_thread_id > 0) {
-                  suspend_thread(be_allegro_window->drawing_thread_id);
+               if ((_be_allegro_window) &&
+                   (_be_allegro_window->drawing_thread_id > 0)) {
+                  suspend_thread(_be_allegro_window->drawing_thread_id);
                }
                if (_be_switch_mode == SWITCH_BACKAMNESIA)
                   break;
             case SWITCH_PAUSE:
-               if (be_midisynth)
-                  be_midisynth->AllNotesOff(false);
-               be_key_suspend();
-               be_sound_suspend();
-               be_time_suspend();
-               be_sys_suspend();
-               be_main_suspend();
+               if (_be_midisynth)
+                  _be_midisynth->AllNotesOff(false);
+               SUSPEND_ALL_THREADS();
                break;
          }
       }
@@ -437,15 +455,24 @@ static inline void change_focus(bool active)
 
 static inline bool handle_window_close(const char *title)
 {
-   if (be_window_close_hook != NULL) {
-      be_window_close_hook();
+   int result;
+   
+   if (_be_window_close_hook != NULL) {
+      _be_window_close_hook();
    }
    else {
       BAlert *close_alert = new BAlert(title,
          uconvert_toascii(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), NULL),
-         "Yes", "No", NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
+         uconvert_toascii(get_config_text("Yes"), NULL),
+         uconvert_toascii(get_config_text("No"), NULL), 
+         NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
       close_alert->SetShortcut(1, B_ESCAPE);
-      if (close_alert->Go() == 0)
+      if (_be_midisynth)
+         _be_midisynth->AllNotesOff(false);
+      SUSPEND_ALL_THREADS();
+      result = close_alert->Go();
+      RESUME_ALL_THREADS();
+      if (result == 0)
          be_terminate(0, false);
    }
    return false;
@@ -468,10 +495,10 @@ void BeAllegroScreen::ScreenConnected(bool connected)
 {
    if(connected) {
       change_focus(connected);      
-      release_sem(be_fullscreen_lock);
+      release_sem(_be_fullscreen_lock);
    }
    else {
-      acquire_sem(be_fullscreen_lock);
+      acquire_sem(_be_fullscreen_lock);
       change_focus(connected);
    }
 }
@@ -482,7 +509,7 @@ void BeAllegroScreen::ScreenConnected(bool connected)
  */
 bool BeAllegroScreen::QuitRequested(void)
 {
-   return handle_window_close(be_allegro_screen->Title());
+   return handle_window_close(_be_allegro_screen->Title());
 }
 
 
@@ -498,7 +525,7 @@ void BeAllegroScreen::MessageReceived(BMessage *message)
       case B_MOUSE_WHEEL_CHANGED:
          float dy; 
          message->FindFloat("be:wheel_delta_y", &dy);
-         be_mouse_z += ((int)dy > 0 ? -1 : 1);
+         _be_mouse_z += ((int)dy > 0 ? -1 : 1);
          break;
 
       default:
@@ -512,15 +539,11 @@ void BeAllegroScreen::MessageReceived(BMessage *message)
 static inline uint32 find_gfx_mode(int w, int h, int d)
 {
    int index = 0;
-   while (be_mode_table[index].d > 0) {
-      if(be_mode_table[index].w == w) {
-         if(be_mode_table[index].h == h) {
-            if(be_mode_table[index].d == d) {
-               return be_mode_table[index].mode;
-            }
-         }
-      }
-
+   while (_be_mode_table[index].d > 0) {
+      if ((_be_mode_table[index].w == w) &&
+          (_be_mode_table[index].h == h) &&
+          (_be_mode_table[index].d == d))
+         return _be_mode_table[index].mode;
       index++;
    }
 
@@ -550,7 +573,7 @@ static inline bool be_sort_out_virtual_resolution(int w, int h, int *v_w, int *v
 	  */
 	 try_v_h = MIN(try_v_h, 32767);
 
-	 if (be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
+	 if (_be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
 	    *v_w = try_v_w;
 	    *v_h = try_v_h;
 	    return true;
@@ -559,7 +582,7 @@ static inline bool be_sort_out_virtual_resolution(int w, int h, int *v_w, int *v
       try_v_h = h;
    }
 
-   if (be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
+   if (_be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
       *v_w = try_v_w;
       *v_h = try_v_h;
       return true;
@@ -567,6 +590,25 @@ static inline bool be_sort_out_virtual_resolution(int w, int h, int *v_w, int *v
    else {
       return false;
    }
+}
+
+
+
+/* palette_updater_thread:
+ *  This small thread is used to update the palette in fullscreen mode. It may seem
+ *  unnecessary as a direct call to SetColorList would do it, but calling directly
+ *  this function from the main thread has proven to be a major bottleneck, so
+ *  calling it from a separated thread is a good thing.
+ */
+static int32 palette_updater_thread(void *data) 
+{
+   BeAllegroScreen *s = (BeAllegroScreen *)data;
+   
+   while (be_gfx_initialized) {
+      acquire_sem(palette_sem);
+      s->SetColorList(palette_colors, 0, 255);
+   }
+   return B_OK;
 }
 
 
@@ -610,45 +652,50 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
       goto cleanup;
    }
 
-   be_fullscreen_lock = create_sem(0, "screen lock");
+   _be_fullscreen_lock = create_sem(0, "screen lock");
 
-   if (be_fullscreen_lock < 0) {
+   if (_be_fullscreen_lock < 0) {
       goto cleanup;
    }
-
-   lock_count = 0;
+   
+   _be_lock_count = 0;
 
    _be_sys_get_executable_name(path, sizeof(path));
    path[sizeof(path)-1] = '\0';
    exe = get_filename(path);
 
-   be_sys_set_display_switch_mode(SWITCH_NONE);
+   be_sys_set_display_switch_mode(SWITCH_AMNESIA);
    
-   be_allegro_screen = new BeAllegroScreen(exe, mode, &error, false);
+   _be_allegro_screen = new BeAllegroScreen(exe, mode, &error, false);
 
    if(error != B_OK) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto cleanup;
    }
 
-   be_mouse_view = new BView(be_allegro_screen->Bounds(),
+   _be_mouse_view = new BView(_be_allegro_screen->Bounds(),
      "allegro mouse view", B_FOLLOW_ALL_SIDES, 0);
-   be_allegro_screen->Lock();
-   be_allegro_screen->AddChild(be_mouse_view);
-   be_allegro_screen->Unlock();
+   _be_allegro_screen->Lock();
+   _be_allegro_screen->AddChild(_be_mouse_view);
+   _be_allegro_screen->Unlock();
 
-   be_mouse_window = be_allegro_screen;
-   be_mouse_window_mode = false;
+   _be_mouse_window = _be_allegro_screen;
+   _be_mouse_window_mode = false;
 
-   release_sem(be_mouse_view_attached);
+   release_sem(_be_mouse_view_attached);
 
+   palette_sem = create_sem(0, "palette sem");
+   if (palette_sem < 0) {
+      goto cleanup;
+   }
+      
    be_gfx_initialized = false;
-   be_allegro_screen->Show();
-   acquire_sem(be_fullscreen_lock);
+   _be_allegro_screen->Show();
+   acquire_sem(_be_fullscreen_lock);
 
-   gfx_card = be_allegro_screen->CardInfo();
+   gfx_card = _be_allegro_screen->CardInfo();
 
-   if (be_allegro_screen->CanControlFrameBuffer()) {
+   if (_be_allegro_screen->CanControlFrameBuffer()) {
       if (!be_sort_out_virtual_resolution(w, h, &v_w, &v_h, color_depth)) {
          ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto cleanup;
@@ -659,57 +706,55 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
 	 goto cleanup;
    }
 
-   fbuffer  = be_allegro_screen->FrameBufferInfo();
+   fbuffer = _be_allegro_screen->FrameBufferInfo();
 
    drv->w       = w;
    drv->h       = h;
    drv->linear  = TRUE;
    drv->vid_mem = v_w * v_h * BYTES_PER_PIXEL(color_depth);
-
+   
    bmp = _make_bitmap(fbuffer->width, fbuffer->height,
             (unsigned long)gfx_card->frame_buffer, drv,
             color_depth, fbuffer->bytes_per_row);
 
-   if(bmp == NULL) {
+   if (!bmp) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       goto cleanup;
    }
 
-   be_sync_func = NULL;
+   _be_sync_func = NULL;
    if (accel) {
       be_gfx_fullscreen_accelerate(color_depth);
    }
 
 #ifdef ALLEGRO_NO_ASM
    if (gfx_capabilities) {
-      bmp->write_bank = be_gfx_fullscreen_accel_read_write_bank;
-      bmp->read_bank  = be_gfx_fullscreen_accel_read_write_bank;
-   }
-   else {
       bmp->write_bank = be_gfx_fullscreen_read_write_bank;
       bmp->read_bank  = be_gfx_fullscreen_read_write_bank;
+      _screen_vtable.unwrite_bank = be_gfx_fullscreen_unwrite_bank;
    }
-   _screen_vtable.unwrite_bank = be_gfx_fullscreen_unwrite_bank;
 #else
    if (gfx_capabilities) {
-      bmp->write_bank = _be_gfx_fullscreen_accel_read_write_bank_asm;
-      bmp->read_bank  = _be_gfx_fullscreen_accel_read_write_bank_asm;
-   }
-   else {
       bmp->write_bank = _be_gfx_fullscreen_read_write_bank_asm;
       bmp->read_bank  = _be_gfx_fullscreen_read_write_bank_asm;
+      _screen_vtable.unwrite_bank = _be_gfx_fullscreen_unwrite_bank_asm;
    }
-   _screen_vtable.unwrite_bank = _be_gfx_fullscreen_unwrite_bank_asm;
 #endif
 
    _screen_vtable.acquire      = be_gfx_fullscreen_acquire;
    _screen_vtable.release      = be_gfx_fullscreen_release;
 
    _be_gfx_set_truecolor_shifts();
+   uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object");
+   drv->desc = driver_desc;
    
    be_gfx_initialized = true;
-   
-   release_sem(be_fullscreen_lock);
+
+   palette_thread_id = spawn_thread(palette_updater_thread, "palette updater", 
+				    B_DISPLAY_PRIORITY, (void *)_be_allegro_screen);
+   resume_thread(palette_thread_id);
+
+   release_sem(_be_fullscreen_lock);
 
    return bmp;
 
@@ -737,55 +782,51 @@ extern "C" struct BITMAP *be_gfx_fullscreen_safe_init(int w, int h, int v_w, int
 
 extern "C" void be_gfx_fullscreen_exit(struct BITMAP *bmp)
 {
+   status_t ret_value;
    (void)bmp;
 
-   if (be_fullscreen_lock > 0) {
-      release_sem(be_fullscreen_lock);
+   if (_be_fullscreen_lock > 0) {
+      delete_sem(_be_fullscreen_lock);
+      _be_fullscreen_lock = -1;
    }
-
-   if (be_allegro_screen != NULL) {
-      if (be_mouse_view_attached < 1) {
-	 acquire_sem(be_mouse_view_attached);
+   be_gfx_initialized = false;
+   
+   if (palette_thread_id >= 0) {
+      release_sem(palette_sem);
+      wait_for_thread(palette_thread_id, &ret_value);
+      palette_thread_id = -1;
+   }
+   if (palette_sem >= 0) {
+      delete_sem(palette_sem);
+      palette_sem = -1;
+   }
+   
+   if (_be_allegro_screen != NULL) {
+      if (_be_mouse_view_attached < 1) {
+	 acquire_sem(_be_mouse_view_attached);
       }
 
-      be_allegro_screen->Lock();
-      be_allegro_screen->Quit();
+      _be_allegro_screen->Lock();
+      _be_allegro_screen->Quit();
 
-      be_allegro_screen = NULL;
+      _be_allegro_screen = NULL;
    }
 
-   if (be_fullscreen_lock > 0) {
-      delete_sem(be_fullscreen_lock);
-      be_fullscreen_lock = -1;
-   }
+   _be_mouse_window   = NULL;
+   _be_mouse_view     = NULL;
 
-   be_mouse_window   = NULL;
-   be_mouse_view     = NULL;
-
-   be_gfx_initialized = false;
-   lock_count = 0;
+   _be_focus_count = 0;
+   _be_lock_count = 0;
 }
 
 
 
 #ifdef ALLEGRO_NO_ASM
 
-extern "C" unsigned long be_gfx_fullscreen_accel_read_write_bank(BITMAP *bmp, int line)
-{
-   if (!(bmp->id & BMP_ID_LOCKED)) {
-      be_sync_func();
-      acquire_sem(be_fullscreen_lock);
-      bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
-   }
-   return (unsigned long)(bmp->line[line]);
-}
-
-
-
 extern "C" unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line)
 {
    if (!(bmp->id & BMP_ID_LOCKED)) {
-      acquire_sem(be_fullscreen_lock);
+      _be_sync_func();
       bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
    }
    return (unsigned long)(bmp->line[line]);
@@ -797,7 +838,6 @@ extern "C" void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp)
 {
    if (bmp->id & BMP_AUTOLOCK) {
       bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
-      release_sem(be_fullscreen_lock);
    }
 }
 
@@ -807,24 +847,24 @@ extern "C" void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp)
 
 extern "C" void be_gfx_fullscreen_acquire(struct BITMAP *bmp)
 {
-   if (lock_count == 0) {
-      acquire_sem(be_fullscreen_lock);
+   if (_be_lock_count == 0) {
+      acquire_sem(_be_fullscreen_lock);
       bmp->id |= BMP_ID_LOCKED;
    }
-   if (be_sync_func)
-      be_sync_func();
-   lock_count++;
+   if (_be_sync_func)
+      _be_sync_func();
+   _be_lock_count++;
 }
 
 
 
 extern "C" void be_gfx_fullscreen_release(struct BITMAP *bmp)
 {
-   lock_count--;
+   _be_lock_count--;
 
-   if (lock_count == 0) {
+   if (_be_lock_count == 0) {
       bmp->id &= ~BMP_ID_LOCKED;
-      release_sem(be_fullscreen_lock);
+      release_sem(_be_fullscreen_lock);
    }
 }
 
@@ -832,22 +872,17 @@ extern "C" void be_gfx_fullscreen_release(struct BITMAP *bmp)
 
 extern "C" void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
-   rgb_color colors[256];
-
-   (void)vsync;
+   if (vsync)
+      be_gfx_fullscreen_vsync();
 
    for(int index = from; index <= to; index++) {
-      colors[index].red   = _rgb_scale_6[p[index].r];
-      colors[index].green = _rgb_scale_6[p[index].g];
-      colors[index].blue  = _rgb_scale_6[p[index].b];
-      colors[index].alpha = 255;
+      palette_colors[index].red   = _rgb_scale_6[p[index].r];
+      palette_colors[index].green = _rgb_scale_6[p[index].g];
+      palette_colors[index].blue  = _rgb_scale_6[p[index].b];
+      palette_colors[index].alpha = 255;
    }
-
-   acquire_screen();
-
-   be_allegro_screen->SetColorList(colors, from, to);
-
-   release_screen();
+   /* Update palette! */
+   release_sem(palette_sem);
 }
 
 
@@ -858,7 +893,7 @@ extern "C" int be_gfx_fullscreen_scroll(int x, int y)
 
    acquire_screen();
    
-   if (be_allegro_screen->MoveDisplayArea(x, y) != B_ERROR) {
+   if (_be_allegro_screen->MoveDisplayArea(x, y) != B_ERROR) {
       rv = 0;
    }
    else {
@@ -876,7 +911,7 @@ extern "C" int be_gfx_fullscreen_scroll(int x, int y)
 
 extern "C" void be_gfx_fullscreen_vsync(void)
 {
-   if(BScreen(be_allegro_screen).WaitForRetrace() != B_OK) {
+   if(BScreen(_be_allegro_screen).WaitForRetrace() != B_OK) {
       if (_timer_installed) {
          int start_count;
 
@@ -908,11 +943,11 @@ static int32 _be_gfx_window_drawing_thread(void *data)
          int32 height, i;
          uint32 j;
 
-         acquire_sem(be_window_lock);
+         acquire_sem(_be_window_lock);
          w->locker->Lock();
          height = w->window.bottom - w->window.top + 1;
          for (i=0; i<height; i++) {
-            if (be_dirty_lines[i]) {
+            if (_be_dirty_lines[i]) {
                rect = w->rects;
                for (j=0; j<w->num_rects; j++, rect++)
                   if ((i >= rect->top - w->window.top) &&
@@ -921,7 +956,7 @@ static int32 _be_gfx_window_drawing_thread(void *data)
                         (rect->left - w->window.left), i,
                         (rect->right - rect->left + 1), 1);
                   }
-               be_dirty_lines[i] = 0;
+               _be_dirty_lines[i] = 0;
             }
          }
          w->locker->Unlock();
@@ -939,14 +974,20 @@ static int32 _be_gfx_window_drawing_thread(void *data)
 
 extern "C" void be_gfx_windowed_unwrite_bank(BITMAP *bmp)
 {
-   release_sem(be_window_lock);
+   if (bmp->id & BMP_ID_AUTOLOCK) {
+      bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
+      release_sem(_be_window_lock);
+   }
 }
 
 
 
 extern "C" unsigned long be_gfx_windowed_read_write_bank(BITMAP *bmp, int line)
 {
-   be_dirty_lines[bmp->y_ofs + line] = 1;
+   if (!bmp->id & BMP_ID_LOCKED) {
+      bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
+   }
+   _be_dirty_lines[bmp->y_ofs + line] = 1;
    return (unsigned long)(bmp->line[line]);
 }
 
@@ -964,10 +1005,10 @@ BeAllegroWindow::BeAllegroWindow(BRect frame, const char *title,
    BRect rect = Bounds();
    uint32 bytes_per_pixel, i;
 
-   be_allegro_view = new BeAllegroView(rect, "Allegro", B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
+   _be_allegro_view = new BeAllegroView(rect, "Allegro", B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
    rgb_color color = {0, 0, 0, 0};
-   be_allegro_view->SetViewColor(color);
-   AddChild(be_allegro_view);
+   _be_allegro_view->SetViewColor(color);
+   AddChild(_be_allegro_view);
    
    bytes_per_pixel = (color_depth + 7) / 8;
    
@@ -992,9 +1033,9 @@ BeAllegroWindow::BeAllegroWindow(BRect frame, const char *title,
    locker    = new BLocker();
    blitter   = NULL;
    
-   be_dirty_lines = (int *)malloc(v_h * sizeof(int));
+   _be_dirty_lines = (int *)malloc(v_h * sizeof(int));
    
-   be_window_lock = create_sem(0, "window lock");
+   _be_window_lock = create_sem(0, "window lock");
       
    drawing_thread_id = spawn_thread(_be_gfx_window_drawing_thread, BE_DRAWING_THREAD_NAME, 
 				    BE_DRAWING_THREAD_PRIORITY, (void *)this);
@@ -1011,7 +1052,7 @@ BeAllegroWindow::~BeAllegroWindow()
    int32 result;
 
    dying = true;
-   release_sem(be_window_lock);
+   release_sem(_be_window_lock);
    locker->Unlock();
    Sync();
    wait_for_thread(drawing_thread_id, &result);
@@ -1019,9 +1060,10 @@ BeAllegroWindow::~BeAllegroWindow()
    Hide();
 
    delete locker;
-   delete_sem(be_window_lock);
+   delete_sem(_be_window_lock);
    blitter = NULL;
    connected = false;
+   _be_focus_count = 0;
 
    if (rects) {
       free(rects);
@@ -1031,9 +1073,9 @@ BeAllegroWindow::~BeAllegroWindow()
       free(display_line);
       display_line = NULL;
    }
-   if (be_dirty_lines) {   
-      free(be_dirty_lines);
-      be_dirty_lines = NULL;
+   if (_be_dirty_lines) {
+      free(_be_dirty_lines);
+      _be_dirty_lines = NULL;
    }
    if (screen_line) {
       free(screen_line);
@@ -1058,7 +1100,7 @@ void BeAllegroWindow::MessageReceived(BMessage *message)
       case B_MOUSE_WHEEL_CHANGED:
          float dy; 
          message->FindFloat("be:wheel_delta_y", &dy);
-         be_mouse_z += ((int)dy > 0 ? -1 : 1);
+         _be_mouse_z += ((int)dy > 0 ? -1 : 1);
          break;
 
       default:
@@ -1120,7 +1162,7 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 
 	    // FIXME move this somewhere else
 	    if (display_depth == 8) {
-	       BScreen screen(be_allegro_window);
+	       BScreen screen(_be_allegro_window);
 	       int r, g, b;
       
 	       /* Adjust cmap to system-wide palette. */
@@ -1156,10 +1198,11 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	 for (i = 0; i < screen_height; i++) {
 	    display_line[i] = (uint8 *)info->bits + ((i + window.top) * stride) 
 	       + (window.left * ((display_depth + 7) / 8));
-	    be_dirty_lines[i] = 1;
+	    _be_dirty_lines[i] = 1;
 	 }
 
 	 connected = true;
+     be_gfx_initialized = true;
 	 break;
       }
 
@@ -1169,8 +1212,11 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
    
    if (screen_depth == 8)
       be_gfx_windowed_set_palette(_current_palette, 0, 255, 0);
-   else
-      release_sem(be_window_lock);
+
+   uszprintf(driver_desc, sizeof(driver_desc), get_config_text("BDirectWindow, %d bit in %s"),
+      screen_depth, (screen_depth == display_depth ? "matching" : "fast emulation"));
+
+   release_sem(_be_window_lock);
 
    locker->Unlock();
 }
@@ -1191,7 +1237,7 @@ void BeAllegroWindow::WindowActivated(bool active)
  */
 bool BeAllegroWindow::QuitRequested(void)
 {
-    return handle_window_close(be_allegro_window->Title());
+    return handle_window_close(_be_allegro_window->Title());
 }
 
 
@@ -1238,31 +1284,31 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
 
    be_sys_set_display_switch_mode(SWITCH_PAUSE);
 
-   be_allegro_window = new BeAllegroWindow(BRect(0, 0, w-1, h-1), exe,
+   _be_allegro_window = new BeAllegroWindow(BRect(0, 0, w-1, h-1), exe,
 			      B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
 			      B_NOT_RESIZABLE | B_NOT_ZOOMABLE,
 			      B_CURRENT_WORKSPACE, v_w, v_h, color_depth);
 
-   if (!be_allegro_window->SupportsWindowMode()) {
+   if (!_be_allegro_window->SupportsWindowMode()) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Windowed mode not supported"));
       goto cleanup;
    }
 
-   be_mouse_view = new BView(be_allegro_window->Bounds(),
+   _be_mouse_view = new BView(_be_allegro_window->Bounds(),
 			     "allegro mouse view", B_FOLLOW_ALL_SIDES, 0);
-   be_allegro_window->Lock();
-   be_allegro_window->AddChild(be_mouse_view);
-   be_allegro_window->Unlock();
+   _be_allegro_window->Lock();
+   _be_allegro_window->AddChild(_be_mouse_view);
+   _be_allegro_window->Unlock();
 
-   be_mouse_window = be_allegro_window;
-   be_mouse_window_mode = true;
+   _be_mouse_window = _be_allegro_window;
+   _be_mouse_window_mode = true;
 
-   release_sem(be_mouse_view_attached);
+   release_sem(_be_mouse_view_attached);
 
    be_gfx_initialized = false;
    
-   be_allegro_window->MoveTo(6, 25);
-   be_allegro_window->Show();
+   _be_allegro_window->MoveTo(6, 25);
+   _be_allegro_window->Show();
 
    bpp = (color_depth + 7) / 8;
 
@@ -1271,7 +1317,7 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
    drv->linear	= TRUE;
    drv->vid_mem	= bpp * v_w * v_h;
    
-   bmp = _make_bitmap(v_w, v_h, (unsigned long)be_allegro_window->screen_data, drv, 
+   bmp = _make_bitmap(v_w, v_h, (unsigned long)_be_allegro_window->screen_data, drv, 
 		      color_depth, v_w * bpp);
   
    if (!bmp) {
@@ -1288,13 +1334,19 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
    bmp->write_bank = _be_gfx_windowed_read_write_bank_asm;
    _screen_vtable.unwrite_bank = _be_gfx_windowed_unwrite_bank_asm;
 #endif
+
    _screen_vtable.acquire = be_gfx_windowed_acquire;
    _screen_vtable.release = be_gfx_windowed_release;
 
    _be_gfx_set_truecolor_shifts();
 
-   be_gfx_initialized = true;
+   while (!be_gfx_initialized);
 
+   uszprintf(driver_desc, sizeof(driver_desc), get_config_text("BDirectWindow object, %d bit in %s"),
+      _be_allegro_window->screen_depth,
+      (_be_allegro_window->screen_depth == _be_allegro_window->display_depth ? "matching" : "fast emulation"));
+   drv->desc = driver_desc;
+   
    return bmp;
 
    cleanup: {
@@ -1318,18 +1370,18 @@ extern "C" void be_gfx_windowed_exit(struct BITMAP *bmp)
 
    be_gfx_initialized = false;
 
-   if (be_allegro_window) {
-      if (be_mouse_view_attached < 1) {
-	 acquire_sem(be_mouse_view_attached);
+   if (_be_allegro_window) {
+      if (_be_mouse_view_attached < 1) {
+	 acquire_sem(_be_mouse_view_attached);
       }
 
-      be_allegro_window->Lock();
-      be_allegro_window->Quit();
+      _be_allegro_window->Lock();
+      _be_allegro_window->Quit();
 
-      be_allegro_window = NULL;
+      _be_allegro_window = NULL;
    }
-   be_mouse_window   = NULL;	    
-   be_mouse_view     = NULL;
+   _be_mouse_window   = NULL;	    
+   _be_mouse_view     = NULL;
 }
 
 
@@ -1337,7 +1389,7 @@ extern "C" void be_gfx_windowed_exit(struct BITMAP *bmp)
 extern "C" void be_gfx_windowed_acquire(struct BITMAP *bmp)
 {
    if (!(bmp->id & BMP_ID_LOCKED)) {
-      be_allegro_window->locker->Lock();
+      _be_allegro_window->locker->Lock();
       bmp->id |= BMP_ID_LOCKED;
    }
 }
@@ -1348,16 +1400,16 @@ extern "C" void be_gfx_windowed_release(struct BITMAP *bmp)
 {
    if (bmp->id & BMP_ID_LOCKED) {
       bmp->id &= ~BMP_ID_LOCKED;
-      be_allegro_window->locker->Unlock();
+      _be_allegro_window->locker->Unlock();
+      release_sem(_be_window_lock);
    }
-   release_sem(be_window_lock);
 }
 
 
 
 extern "C" void be_gfx_windowed_vsync(void)
 {
-   if (BScreen(be_allegro_window).WaitForRetrace() != B_OK) {
+   if (BScreen(_be_allegro_window).WaitForRetrace() != B_OK) {
       if (_timer_installed) {
          int start_count;
 
@@ -1392,7 +1444,7 @@ static void _be_gfx_set_truecolor_colors(AL_CONST PALETTE p, int from, int to)
 
 static void _be_gfx_set_palette8_colors(AL_CONST PALETTE p, int from, int to)
 {
-   BScreen screen(be_allegro_window);
+   BScreen screen(_be_allegro_window);
    int i;
    
    for (i = from; i <= to; i++) {
@@ -1423,18 +1475,22 @@ extern "C" void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, in
       be_gfx_windowed_vsync();
    }
    
-   if (be_allegro_window->display_depth > 8) {
+   _be_allegro_window->locker->Lock();
+
+   if (_be_allegro_window->display_depth > 8) {
       _be_gfx_set_truecolor_colors(p, from, to);
    }
    else {
-      if (be_allegro_window->screen_depth == 8) {
+      if (_be_allegro_window->screen_depth == 8) {
 	 _be_gfx_set_palette8_colors(p, from, to);
       }
       else {
 	 _be_gfx_set_palette_colors(p, from, to);
       }
    }
-   for (i=0; i<be_allegro_window->screen_height; i++)
-      be_dirty_lines[i] = 1;
-   release_sem(be_window_lock);
+   for (i=0; i<_be_allegro_window->screen_height; i++)
+      _be_dirty_lines[i] = 1;
+   release_sem(_be_window_lock);
+
+   _be_allegro_window->locker->Unlock();
 }

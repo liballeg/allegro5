@@ -41,8 +41,8 @@ extern "C" int be_sys_set_display_switch_mode(int mode)
 {
    int i;
    
-   /* Fullscreen only supports SWITCH_NONE */
-   if ((!be_allegro_window) && (mode != SWITCH_NONE))
+   /* Fullscreen only supports SWITCH_AMNESIA */
+   if ((_be_allegro_screen) && (mode != SWITCH_AMNESIA))
          return -1;
 
    _be_switch_mode = mode;

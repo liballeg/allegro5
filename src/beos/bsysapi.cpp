@@ -21,6 +21,9 @@
 #include "bealleg.h"
 #include "allegro/aintern.h"
 #include "allegro/aintbeos.h"
+#ifndef SCAN_DEPEND
+#include <sys/utsname.h>
+#endif
 
 #ifndef ALLEGRO_BEOS
 #error something is wrong with the makefile
@@ -37,9 +40,11 @@
 
 status_t ignore_result = 0;
 
-volatile int32 focus_count = 0;
+volatile int _be_focus_count = 0;
 
-BeAllegroApp *be_allegro_app = NULL;
+BeAllegroApp *_be_allegro_app = NULL;
+
+sem_id _be_sound_timer_lock = -1;
 
 static thread_id system_thread_id = -1;
 static thread_id main_thread_id = -1;
@@ -103,7 +108,7 @@ static int32 system_thread(void *data)
 {
    (void)data;
 
-   if (be_allegro_app == NULL) {
+   if (_be_allegro_app == NULL) {
       char sig[MAXPATHLEN] = "application/x-vnd.Allegro-";
       char exe[MAXPATHLEN];
 
@@ -112,7 +117,7 @@ static int32 system_thread(void *data)
       strncat(sig, get_filename(exe), sizeof(sig));
       sig[sizeof(sig)-1] = '\0';
 
-      be_allegro_app = new BeAllegroApp(sig);
+      _be_allegro_app = new BeAllegroApp(sig);
 
       using_custom_allegro_app = false;
    }
@@ -120,7 +125,7 @@ static int32 system_thread(void *data)
       using_custom_allegro_app = true;
    }
 
-   be_allegro_app->Run();
+   _be_allegro_app->Run();
 
    AL_TRACE("system thread exited\n");
 
@@ -135,6 +140,7 @@ extern "C" int be_sys_init(void)
 {
    int32       cookie;
    thread_info info;
+   struct utsname os_name;
 
    cookie = 0;
 
@@ -145,11 +151,16 @@ extern "C" int be_sys_init(void)
       goto cleanup;
    }
 
-   be_mouse_view_attached = create_sem(0, "waiting for mouse view attach...");
+   _be_mouse_view_attached = create_sem(0, "waiting for mouse view attach...");
 
-   if (be_mouse_view_attached < 0) {
+   if (_be_mouse_view_attached < 0) {
       goto cleanup;
-   }  
+   }
+   
+   _be_sound_timer_lock = create_sem(1, "sound/timer mutex lock");
+   if (_be_sound_timer_lock < 0) {
+      goto cleanup;
+   }
 
    system_started = create_sem(0, "starting system driver...");
 
@@ -168,8 +179,11 @@ extern "C" int be_sys_init(void)
    acquire_sem(system_started);
    delete_sem(system_started);
 
+   uname(&os_name);
    os_type = OSTYPE_BEOS;
    os_multitasking = TRUE;
+   os_version = atoi(strtok(os_name.release, "."));
+   os_revision = atoi(strtok(NULL, "."));
    
    return 0;
 
@@ -193,25 +207,30 @@ extern "C" void be_sys_exit(void)
       delete_sem(system_started);
       system_started = -1;
    }
+   
+   if (_be_sound_timer_lock) {
+      delete_sem(_be_sound_timer_lock);
+      _be_sound_timer_lock = -1;
+   }
 
    if (system_thread_id > 0) {
-      ASSERT(be_allegro_app != NULL);
-      be_allegro_app->Lock();
-      be_allegro_app->Quit();
-      be_allegro_app->Unlock();
+      ASSERT(_be_allegro_app != NULL);
+      _be_allegro_app->Lock();
+      _be_allegro_app->Quit();
+      _be_allegro_app->Unlock();
 
       wait_for_thread(system_thread_id, &ignore_result);
       system_thread_id = -1;
    }
 
-   if (be_mouse_view_attached > 0) {
-      delete_sem(be_mouse_view_attached);
-      be_mouse_view_attached = -1;
+   if (_be_mouse_view_attached > 0) {
+      delete_sem(_be_mouse_view_attached);
+      _be_mouse_view_attached = -1;
    }
 
    if (!using_custom_allegro_app) {
-      delete be_allegro_app;
-      be_allegro_app = NULL;
+      delete _be_allegro_app;
+      _be_allegro_app = NULL;
    }
 }
 
@@ -274,11 +293,11 @@ extern "C" void be_sys_set_window_title(AL_CONST char *name)
    char uname[256];
 
    do_uconvert(name, U_CURRENT, uname, U_UTF8, sizeof(uname));
-   if (be_allegro_window != NULL) {
-      be_allegro_window->SetTitle(uname);
+   if (_be_allegro_window != NULL) {
+      _be_allegro_window->SetTitle(uname);
    }
-   else if (be_allegro_screen != NULL) {
-      be_allegro_screen->SetTitle(uname);
+   else if (_be_allegro_screen != NULL) {
+      _be_allegro_screen->SetTitle(uname);
    }
 }
 
@@ -286,17 +305,17 @@ extern "C" void be_sys_set_window_title(AL_CONST char *name)
 
 extern "C" int be_sys_set_window_close_button(int enable)
 {
-   if (be_allegro_window != NULL) {
+   if (_be_allegro_window != NULL) {
       if (enable)
-         be_allegro_window->SetFlags(be_allegro_window->Flags() & ~B_NOT_CLOSABLE);
+         _be_allegro_window->SetFlags(_be_allegro_window->Flags() & ~B_NOT_CLOSABLE);
       else
-         be_allegro_window->SetFlags(be_allegro_window->Flags() | B_NOT_CLOSABLE);
+         _be_allegro_window->SetFlags(_be_allegro_window->Flags() | B_NOT_CLOSABLE);
    }
-   else if (be_allegro_screen != NULL) {
+   else if (_be_allegro_screen != NULL) {
       if (enable)
-         be_allegro_screen->SetFlags(be_allegro_screen->Flags() & ~B_NOT_CLOSABLE);
+         _be_allegro_screen->SetFlags(_be_allegro_screen->Flags() & ~B_NOT_CLOSABLE);
       else
-         be_allegro_screen->SetFlags(be_allegro_screen->Flags() | B_NOT_CLOSABLE);
+         _be_allegro_screen->SetFlags(_be_allegro_screen->Flags() | B_NOT_CLOSABLE);
    }
    return 0;
 }
@@ -305,7 +324,7 @@ extern "C" int be_sys_set_window_close_button(int enable)
 
 extern "C" void be_sys_set_window_close_hook(void (*proc)(void))
 {
-   be_window_close_hook = proc;
+   _be_window_close_hook = proc;
 }
 
 
@@ -318,11 +337,14 @@ extern "C" void be_sys_message(AL_CONST char *msg)
    get_executable_name(filename, sizeof(filename));
    title = get_filename(filename);
 
-   fprintf(stderr, "%s: %s", title, msg);
+   fprintf(stderr, "%s", msg);
 
-   BAlert *alert = new BAlert(title, msg, "Okay");
+   BAlert *alert = new BAlert(title, msg,
+      uconvert_toascii(get_config_text("Ok"), NULL));
    alert->SetShortcut(0, B_ESCAPE);
+   be_app->ShowCursor();
    alert->Go();
+   be_app->HideCursor();
 }
 
 
@@ -331,7 +353,7 @@ extern "C" int be_sys_desktop_color_depth(void)
 {
    display_mode current_mode;
    
-   BScreen(be_allegro_screen).GetMode(&current_mode);
+   BScreen(_be_allegro_screen).GetMode(&current_mode);
    switch(current_mode.space) {
       case B_CMAP8:  
          return 8;  
@@ -351,7 +373,7 @@ extern "C" int be_sys_desktop_color_depth(void)
 
 extern "C" int be_sys_get_desktop_resolution(int *width, int *height)
 {
-   BScreen screen(be_allegro_screen);
+   BScreen screen(_be_allegro_screen);
 
    *width  = screen.Frame().IntegerWidth() + 1;
    *height = screen.Frame().IntegerHeight() + 1;

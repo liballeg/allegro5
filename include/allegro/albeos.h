@@ -65,7 +65,7 @@ AL_VAR(MIDI_DRIVER, midi_beos);
 
 #define DIGI_DRIVER_BEOS                                                \
    {  DIGI_BEOS,       &digi_beos,      TRUE  },
-
+   
 #define MIDI_DRIVER_BEOS                                                \
    {  MIDI_BEOS,       &midi_beos,      TRUE  },
 

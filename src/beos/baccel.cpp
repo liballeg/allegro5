@@ -27,10 +27,10 @@
 
 
 /* our hooks table */
-HOOKS be_hooks;
+HOOKS _be_hooks;
 
 /* the sync function pointer */
-int32 (*be_sync_func)();
+int32 (*_be_sync_func)() = NULL;
 
 
 
@@ -72,9 +72,14 @@ static void be_gfx_accel_hline_##bpp(BITMAP *bmp, int x1, int y, int x2, int col
    y += bmp->y_ofs;															\
    x2 += bmp->x_ofs;														\
 																			\
-   be_hooks.draw_rect_##bpp(x1, y, x2, y, color);								\
+   if (_be_lock_count)														\
+      _be_hooks.draw_rect_##bpp(x1, y, x2, y, color);						\
+   else {																	\
+      acquire_sem(_be_fullscreen_lock);										\
+      _be_hooks.draw_rect_##bpp(x1, y, x2, y, color);						\
+      release_sem(_be_fullscreen_lock);										\
+   }																		\
    bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);							\
-   release_sem(be_fullscreen_lock);											\
 }
 
 
@@ -110,12 +115,16 @@ static void be_gfx_accel_vline_##bpp(BITMAP *bmp, int x, int y1, int y2, int col
    x += bmp->x_ofs;															\
    y1 += bmp->y_ofs;														\
    y2 += bmp->y_ofs;														\
-   																			\
-   be_hooks.draw_rect_##bpp(x, y1, x, y2, color);								\
+																			\
+   if (_be_lock_count)														\
+      _be_hooks.draw_rect_##bpp(x, y1, x, y2, color);						\
+   else {																	\
+      acquire_sem(_be_fullscreen_lock);										\
+      _be_hooks.draw_rect_##bpp(x, y1, x, y2, color);						\
+      release_sem(_be_fullscreen_lock);										\
+   }																		\
    bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);							\
-   release_sem(be_fullscreen_lock);											\
 }
-
 
 
 #define MAKE_RECTFILL(bpp)													\
@@ -162,12 +171,16 @@ static void be_gfx_accel_rectfill_##bpp(BITMAP *bmp, int x1, int y1, int x2, int
    y1 += bmp->y_ofs;														\
    x2 += bmp->x_ofs;														\
    y2 += bmp->y_ofs;														\
-   																			\
-   be_hooks.draw_rect_##bpp(x1, y1, x2, y2, color);							\
+																			\
+   if (_be_lock_count)														\
+      _be_hooks.draw_rect_##bpp(x1, y1, x2, y2, color);						\
+   else {																	\
+      acquire_sem(_be_fullscreen_lock);										\
+      _be_hooks.draw_rect_##bpp(x1, y1, x2, y2, color);						\
+      release_sem(_be_fullscreen_lock);										\
+   }																		\
    bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);							\
-   release_sem(be_fullscreen_lock);											\
-}   
-
+}
 
 
 #define MAKE_CLEAR_TO_COLOR(bpp)											\
@@ -180,11 +193,15 @@ static void be_gfx_accel_clear_to_color_##bpp(BITMAP *bmp, int color)		\
    x2 = bmp->cr + bmp->x_ofs - 1;											\
    y2 = bmp->cb + bmp->y_ofs - 1;											\
 																			\
-   be_hooks.draw_rect_##bpp(x1, y1, x2, y2, color);							\
+   if (_be_lock_count)														\
+      _be_hooks.draw_rect_##bpp(x1, y1, x2, y2, color);						\
+   else {																	\
+      acquire_sem(_be_fullscreen_lock);										\
+      _be_hooks.draw_rect_##bpp(x1, y1, x2, y2, color);						\
+      release_sem(_be_fullscreen_lock);										\
+   }																		\
    bmp->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);							\
-   release_sem(be_fullscreen_lock);											\
 }
-
 
 
 MAKE_HLINE(8);
@@ -215,9 +232,14 @@ static void be_gfx_accel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x
    dest_x += dest->x_ofs;
    dest_y += dest->y_ofs;
 
-   be_hooks.blit(source_x, source_y, dest_x, dest_y, width - 1, height - 1);
+   if (_be_lock_count)
+      _be_hooks.blit(source_x, source_y, dest_x, dest_y, width - 1, height - 1);
+   else {
+      acquire_sem(_be_fullscreen_lock);
+      _be_hooks.blit(source_x, source_y, dest_x, dest_y, width - 1, height - 1);
+      release_sem(_be_fullscreen_lock);
+   }
    dest->id &= ~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
-   release_sem(be_fullscreen_lock);
 }
 
 
@@ -228,32 +250,37 @@ static void be_gfx_accel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x
  */
 extern "C" void be_gfx_fullscreen_accelerate(int depth)
 {
-   be_hooks.draw_line_8   = (LINE8_HOOK)  be_allegro_screen->CardHookAt(LINE8_HOOK_NUM);
-   be_hooks.draw_line_16  = (LINE16_HOOK) be_allegro_screen->CardHookAt(LINE16_HOOK_NUM);
-   be_hooks.draw_line_32  = (LINE32_HOOK) be_allegro_screen->CardHookAt(LINE32_HOOK_NUM);
-   be_hooks.draw_array_8  = (ARRAY8_HOOK) be_allegro_screen->CardHookAt(ARRAY8_HOOK_NUM);
-   be_hooks.draw_array_32 = (ARRAY32_HOOK)be_allegro_screen->CardHookAt(ARRAY32_HOOK_NUM);
-   be_hooks.draw_rect_8   = (RECT8_HOOK)  be_allegro_screen->CardHookAt(RECT8_HOOK_NUM);
-   be_hooks.draw_rect_16  = (RECT16_HOOK) be_allegro_screen->CardHookAt(RECT16_HOOK_NUM);
-   be_hooks.draw_rect_32  = (RECT32_HOOK) be_allegro_screen->CardHookAt(RECT32_HOOK_NUM);
-   be_hooks.invert_rect   = (INVERT_HOOK) be_allegro_screen->CardHookAt(INVERT_HOOK_NUM);
-   be_hooks.blit          = (BLIT_HOOK)   be_allegro_screen->CardHookAt(BLIT_HOOK_NUM);
-   be_hooks.sync          = (SYNC_HOOK)   be_allegro_screen->CardHookAt(SYNC_HOOK_NUM);
+   _be_hooks.draw_line_8   = (LINE8_HOOK)  _be_allegro_screen->CardHookAt(LINE8_HOOK_NUM);
+   _be_hooks.draw_line_16  = (LINE16_HOOK) _be_allegro_screen->CardHookAt(LINE16_HOOK_NUM);
+   _be_hooks.draw_line_32  = (LINE32_HOOK) _be_allegro_screen->CardHookAt(LINE32_HOOK_NUM);
+   _be_hooks.draw_array_8  = (ARRAY8_HOOK) _be_allegro_screen->CardHookAt(ARRAY8_HOOK_NUM);
+   _be_hooks.draw_array_32 = (ARRAY32_HOOK)_be_allegro_screen->CardHookAt(ARRAY32_HOOK_NUM);
+   _be_hooks.draw_rect_8   = (RECT8_HOOK)  _be_allegro_screen->CardHookAt(RECT8_HOOK_NUM);
+   _be_hooks.draw_rect_16  = (RECT16_HOOK) _be_allegro_screen->CardHookAt(RECT16_HOOK_NUM);
+   _be_hooks.draw_rect_32  = (RECT32_HOOK) _be_allegro_screen->CardHookAt(RECT32_HOOK_NUM);
+   _be_hooks.invert_rect   = (INVERT_HOOK) _be_allegro_screen->CardHookAt(INVERT_HOOK_NUM);
+   _be_hooks.blit          = (BLIT_HOOK)   _be_allegro_screen->CardHookAt(BLIT_HOOK_NUM);
+   _be_hooks.sync          = (SYNC_HOOK)   _be_allegro_screen->CardHookAt(SYNC_HOOK_NUM);
 
+   gfx_capabilities = 0;
+
+   if (!_be_hooks.sync)
+      return;
+   
    _orig_hline = _screen_vtable.hline;
    _orig_vline = _screen_vtable.vline;
    _orig_rectfill = _screen_vtable.rectfill;
    
    switch (depth) {
       case 8:
-         if ((be_hooks.draw_line_8) || (be_hooks.draw_rect_8)) {
+         if ((_be_hooks.draw_line_8) || (_be_hooks.draw_rect_8)) {
             _screen_vtable.hline = be_gfx_accel_hline_8;
             _screen_vtable.vline = be_gfx_accel_vline_8;
          }
-         if (be_hooks.draw_line_8) {
+         if (_be_hooks.draw_line_8) {
             gfx_capabilities |= GFX_HW_LINE;
          }
-         if (be_hooks.draw_rect_8) {
+         if (_be_hooks.draw_rect_8) {
             _screen_vtable.rectfill = be_gfx_accel_rectfill_8;
             _screen_vtable.clear_to_color = be_gfx_accel_clear_to_color_8;
             gfx_capabilities |= GFX_HW_FILL;
@@ -262,14 +289,14 @@ extern "C" void be_gfx_fullscreen_accelerate(int depth)
 
       case 15:
       case 16:
-         if ((be_hooks.draw_line_16) || (be_hooks.draw_rect_16)) {
+         if ((_be_hooks.draw_line_16) || (_be_hooks.draw_rect_16)) {
             _screen_vtable.hline = be_gfx_accel_hline_16;
             _screen_vtable.vline = be_gfx_accel_vline_16;
          }
-         if (be_hooks.draw_line_16) {
+         if (_be_hooks.draw_line_16) {
             gfx_capabilities |= GFX_HW_LINE;
          }
-         if (be_hooks.draw_rect_16) {
+         if (_be_hooks.draw_rect_16) {
             _screen_vtable.rectfill = be_gfx_accel_rectfill_16;
             _screen_vtable.clear_to_color = be_gfx_accel_clear_to_color_16;
             gfx_capabilities |= GFX_HW_FILL;
@@ -277,28 +304,28 @@ extern "C" void be_gfx_fullscreen_accelerate(int depth)
          break;
 
       case 32:
-         if ((be_hooks.draw_line_32) || (be_hooks.draw_rect_32)) {
+         if ((_be_hooks.draw_line_32) || (_be_hooks.draw_rect_32)) {
             _screen_vtable.hline = be_gfx_accel_hline_32;
             _screen_vtable.vline = be_gfx_accel_vline_32;
          }
-         if (be_hooks.draw_line_32) {
+         if (_be_hooks.draw_line_32) {
             gfx_capabilities |= GFX_HW_LINE;
          }
-         if (be_hooks.draw_rect_32) {
+         if (_be_hooks.draw_rect_32) {
             _screen_vtable.rectfill = be_gfx_accel_rectfill_32;
             _screen_vtable.clear_to_color = be_gfx_accel_clear_to_color_32;
             gfx_capabilities |= GFX_HW_FILL;
          }
          break;
    }
-   if (be_hooks.invert_rect)
+   if (_be_hooks.invert_rect)
       gfx_capabilities |= GFX_HW_FILL_XOR;
-   if (be_hooks.blit) {
+   if (_be_hooks.blit) {
       _screen_vtable.blit_to_self = be_gfx_accel_blit_to_self;
       _screen_vtable.blit_to_self_forward = be_gfx_accel_blit_to_self;
       _screen_vtable.blit_to_self_backward = be_gfx_accel_blit_to_self;
       gfx_capabilities |= GFX_HW_VRAM_BLIT;
    }
-   be_sync_func = be_hooks.sync;
+   _be_sync_func = _be_hooks.sync;
 }
 

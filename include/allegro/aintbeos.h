@@ -67,13 +67,11 @@ int  be_gfx_fullscreen_scroll(int x, int y);
 void be_gfx_fullscreen_vsync(void);
 void be_gfx_fullscreen_accelerate(int color_depth);
 #ifdef ALLEGRO_NO_ASM
-unsigned long be_gfx_fullscreen_accel_read_write_bank(BITMAP *bmp, int line);
-void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp);
 unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line);
+void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp);
 #else
-unsigned long _be_gfx_fullscreen_accel_read_write_bank_asm(BITMAP *bmp, int line);
-void _be_gfx_fullscreen_unwrite_bank_asm(BITMAP *bmp);
 unsigned long _be_gfx_fullscreen_read_write_bank_asm(BITMAP *bmp, int line);
+void _be_gfx_fullscreen_unwrite_bank_asm(BITMAP *bmp);
 #endif
 
 struct BITMAP *be_gfx_windowed_init(int w, int h, int v_w, int v_h, int color_depth);

@@ -24,7 +24,7 @@
 #endif                
 
 
-BMidiSynth *be_midisynth = NULL;
+BMidiSynth *_be_midisynth = NULL;
 static char be_midi_driver_desc[256] = EMPTY_STRING;
 static int cur_patch[17];
 static int cur_note[17];
@@ -65,8 +65,8 @@ extern "C" int be_midi_init(int input, int voices)
       return -1;
    }
          
-   be_midisynth = new BMidiSynth();
-   if (!be_midisynth) {
+   _be_midisynth = new BMidiSynth();
+   if (!_be_midisynth) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return -1;
    }
@@ -79,17 +79,17 @@ extern "C" int be_midi_init(int input, int voices)
       sm = B_LITTLE_SYNTH;
    if ((be_synth->LoadSynthData(sm) != B_OK) ||
        (!be_synth->IsLoaded())) {
-      delete be_midisynth;
-      be_midisynth = NULL;
+      delete _be_midisynth;
+      _be_midisynth = NULL;
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not load MIDI instruments data file"));
       return -1;
    }
    
    /* Sets up synthetizer and loads instruments */
-   be_midisynth->EnableInput(true, true);
+   _be_midisynth->EnableInput(true, true);
    
    /* Prevents other apps from changing instruments on the fly */
-   be_midisynth->FlushInstrumentCache(true);
+   _be_midisynth->FlushInstrumentCache(true);
    
    /* Reverberation is cool */
    reverb = MID(0, get_config_int(sound, uconvert_ascii("be_midi_reverb", tmp), 0), 5);
@@ -135,10 +135,10 @@ extern "C" int be_midi_init(int input, int voices)
  */
 extern "C" void be_midi_exit(int input)
 {
-   if (be_midisynth) {
-      be_midisynth->AllNotesOff(false);
-      delete be_midisynth;
-      be_midisynth = NULL;
+   if (_be_midisynth) {
+      _be_midisynth->AllNotesOff(false);
+      delete _be_midisynth;
+      _be_midisynth = NULL;
    }
 }
 
@@ -149,7 +149,7 @@ extern "C" void be_midi_exit(int input)
  */
 extern "C" int be_midi_mixer_volume(int volume)
 {
-   be_midisynth->SetVolume((double)volume / 255.0);
+   _be_midisynth->SetVolume((double)volume / 255.0);
    return 0;
 }
 
@@ -175,7 +175,7 @@ extern "C" void be_midi_key_on(int inst, int note, int bend, int vol, int pan)
       cur_note[10] = inst - 128;
       cur_vol[10] = vol;
       be_midi_set_pan(voice, pan);
-      be_midisynth->NoteOn(10, inst - 128, vol, B_NOW);
+      _be_midisynth->NoteOn(10, inst - 128, vol, B_NOW);
    }
    else {
       /* normal instrument */
@@ -183,7 +183,7 @@ extern "C" void be_midi_key_on(int inst, int note, int bend, int vol, int pan)
       if (voice < 0)
          return;
       if (inst != cur_patch[voice]) {
-         be_midisynth->ProgramChange(voice, inst);
+         _be_midisynth->ProgramChange(voice, inst);
          cur_patch[voice] = inst;
       }
  
@@ -191,7 +191,7 @@ extern "C" void be_midi_key_on(int inst, int note, int bend, int vol, int pan)
       cur_vol[voice] = vol;
       be_midi_set_pitch(voice, note, bend);
       be_midi_set_pan(voice, pan);
-      be_midisynth->NoteOn(voice, note, vol, B_NOW);
+      _be_midisynth->NoteOn(voice, note, vol, B_NOW);
    }
 }
 
@@ -202,7 +202,7 @@ extern "C" void be_midi_key_on(int inst, int note, int bend, int vol, int pan)
  */
 extern "C" void be_midi_key_off(int voice)
 {
-   be_midisynth->NoteOff(voice, cur_note[voice], cur_vol[voice], B_NOW);
+   _be_midisynth->NoteOff(voice, cur_note[voice], cur_vol[voice], B_NOW);
 }
 
 
@@ -213,7 +213,7 @@ extern "C" void be_midi_key_off(int voice)
 extern "C" void be_midi_set_volume(int voice, int vol)
 {
    /* This seems to work */
-   be_midisynth->ChannelPressure(voice, vol, B_NOW);
+   _be_midisynth->ChannelPressure(voice, vol, B_NOW);
 }
 
 
@@ -224,7 +224,7 @@ extern "C" void be_midi_set_volume(int voice, int vol)
 extern "C" void be_midi_set_pitch(int voice, int note, int bend)
 {
    /* ?? Is this correct? */
-   be_midisynth->PitchBend(voice, bend & 0x7F, bend >> 7, B_NOW);
+   _be_midisynth->PitchBend(voice, bend & 0x7F, bend >> 7, B_NOW);
 }
 
 
@@ -234,5 +234,5 @@ extern "C" void be_midi_set_pitch(int voice, int note, int bend)
  */
 extern "C" void be_midi_set_pan(int voice, int pan)
 {
-   be_midisynth->ControlChange(voice, B_PAN, pan);
+   _be_midisynth->ControlChange(voice, B_PAN, pan);
 }

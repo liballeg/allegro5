@@ -31,7 +31,7 @@
 
 #define KEY_THREAD_PERIOD   33333             // microseconds, 1/30th of a second
 #define KEY_THREAD_NAME     "keyboard driver"
-#define KEY_THREAD_PRIORITY 100               // real-time
+#define KEY_THREAD_PRIORITY 60               // above average
 
 #define COMBI_OPTION_CAPS_SHIFT (B_OPTION_KEY | B_CAPS_LOCK | B_SHIFT_KEY)
 #define COMBI_OPTION_CAPS       (B_OPTION_KEY | B_CAPS_LOCK)
@@ -513,7 +513,7 @@ static int32 keyboard_thread(void *keyboard_started)
 
                scancode = be_to_allegro[be_key];
 
-               if (new_key_pressed && (focus_count > 0)) {
+               if (new_key_pressed && (_be_focus_count > 0)) {
                   uint32 keycode[2];
                   int    shift_flag;
 

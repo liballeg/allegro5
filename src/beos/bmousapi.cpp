@@ -28,7 +28,7 @@
 #endif                
 
 #define MOUSE_THREAD_NAME     "mouse driver"
-#define MOUSE_THREAD_PRIORITY 100
+#define MOUSE_THREAD_PRIORITY 60
 #define MOUSE_THREAD_PERIOD   20000 // microseconds, 1/50th of a second
 
 #define CLAMP(low, var, high) (((var) < (low))?(low):(((var) > (high))?(high):(var)))
@@ -38,14 +38,13 @@
 static thread_id     mouse_thread_id      = -1;
 static volatile bool mouse_thread_running = false;
 
-sem_id   be_mouse_view_attached = -1;
-BWindow *be_mouse_window        = NULL;
-BView   *be_mouse_view          = NULL;
-bool	 be_mouse_window_mode   = false;
+sem_id   _be_mouse_view_attached = -1;
+BWindow *_be_mouse_window        = NULL;
+BView   *_be_mouse_view          = NULL;
+bool	 _be_mouse_window_mode   = false;
 
 static int be_mouse_x  = 0;
 static int be_mouse_y  = 0;
-extern int be_mouse_z;
 static int be_mouse_b  = 0;
 
 static int be_mickey_x = 0;
@@ -64,25 +63,25 @@ int32 mouse_thread(void *mouse_started)
    BPoint cursor(0, 0);
    uint32 buttons;
 
-   if (!be_mouse_window_mode) {
+   if (!_be_mouse_window_mode) {
       set_mouse_position(320, 240);
    }
 
    release_sem(*(sem_id *)mouse_started);
 
    for (;;) {
-      acquire_sem(be_mouse_view_attached);
+      acquire_sem(_be_mouse_view_attached);
 
       if (mouse_thread_running == false) {
-         release_sem(be_mouse_view_attached);
+         release_sem(_be_mouse_view_attached);
          AL_TRACE("mouse thread exited\n");
 
          return 0;
       }
 
-      if ((focus_count > 0) && be_mouse_window->Lock()) {
-         be_mouse_view->GetMouse(&cursor, &buttons);
-	 if (!be_mouse_window_mode) {
+      if ((_be_focus_count > 0) && _be_mouse_window->Lock()) {
+         _be_mouse_view->GetMouse(&cursor, &buttons);
+	 if (!_be_mouse_window_mode) {
 	    int dx = (int)cursor.x - 320;
 	    int dy = (int)cursor.y - 240;
 
@@ -96,7 +95,7 @@ int32 mouse_thread(void *mouse_started)
 	    }
 	 }
 	 else {
-	    BRect bounds = be_mouse_window->Bounds();
+	    BRect bounds = _be_mouse_window->Bounds();
 	    
 	    if (bounds.Contains(cursor)) {
 	       int old_x = be_mouse_x;
@@ -123,7 +122,7 @@ int32 mouse_thread(void *mouse_started)
 	    }
 	 }
 
-	 be_mouse_window->Unlock();
+	 _be_mouse_window->Unlock();
 	    
 	 be_mouse_x = CLAMP(limit_left, be_mouse_x, limit_right);
 	 be_mouse_y = CLAMP(limit_up,   be_mouse_y, limit_down);
@@ -135,12 +134,12 @@ int32 mouse_thread(void *mouse_started)
 
 	 _mouse_x = be_mouse_x;
 	 _mouse_y = be_mouse_y;
-	 _mouse_z = be_mouse_z;
+	 _mouse_z = _be_mouse_z;
 	 _mouse_b = be_mouse_b;
 	 _handle_mouse_input();
       }
 
-      release_sem(be_mouse_view_attached);
+      release_sem(_be_mouse_view_attached);
 
       snooze(MOUSE_THREAD_PERIOD);
    }
@@ -216,9 +215,9 @@ extern "C" void be_mouse_exit(void)
    mouse_thread_running = false;
 
    if (mouse_thread_id > 0) {
-      release_sem(be_mouse_view_attached);
+      release_sem(_be_mouse_view_attached);
       wait_for_thread(mouse_thread_id, &ignore_result);
-      acquire_sem(be_mouse_view_attached);
+      acquire_sem(_be_mouse_view_attached);
       mouse_thread_id = -1;
    }
 }

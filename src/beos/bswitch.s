@@ -24,6 +24,7 @@
 
 .text
 
+
 /* _be_gfx_fullscreen_read_write_bank_asm:
  *   eax = line number
  *   edx = bitmap
@@ -32,44 +33,14 @@ FUNC(_be_gfx_fullscreen_read_write_bank_asm)
    testl $BMP_ID_LOCKED, BMP_ID(%edx)
    jnz be_gfx_fullscreen_already_acquired
 
-   pushl %eax
-   pushl %ecx
-   pushl %edx
-   pushl GLOBL(be_fullscreen_lock)
-   call GLOBL(acquire_sem)
-   addl $4, %esp
-   popl %edx
-   popl %ecx
-   popl %eax 
-
-   orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   orl $BMP_ID_LOCKED, BMP_ID(%edx)
-
-be_gfx_fullscreen_already_acquired:
-   movl BMP_LINE(%edx, %eax, 4), %eax
-   ret
-
-
-
-/* _be_gfx_fullscreen_accel_read_write_bank_asm:
- *   eax = line number
- *   edx = bitmap
- */
-FUNC(_be_gfx_fullscreen_accel_read_write_bank_asm)
-   testl $BMP_ID_LOCKED, BMP_ID(%edx)
-   jnz be_gfx_fullscreen_accel_already_acquired
-
    pushal
-   call *GLOBL(be_sync_func)
-   pushl GLOBL(be_fullscreen_lock)
-   call GLOBL(acquire_sem)
-   addl $4, %esp
+   call *GLOBL(_be_sync_func)
    popal
 
    orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
    orl $BMP_ID_LOCKED, BMP_ID(%edx)
 
-be_gfx_fullscreen_accel_already_acquired:
+be_gfx_fullscreen_already_acquired:
    movl BMP_LINE(%edx, %eax, 4), %eax
    ret
 
@@ -85,17 +56,31 @@ FUNC(_be_gfx_fullscreen_unwrite_bank_asm)
    andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
    andl $~BMP_ID_LOCKED, BMP_ID(%edx)
 
-   pushl %eax
-   pushl %ecx
-   pushl %edx
-   pushl GLOBL(be_fullscreen_lock)
-   call GLOBL(release_sem)
-   addl $4, %esp
-   popl %edx
-   popl %ecx
-   popl %eax
-
 be_gfx_fullscreen_no_release:
+   ret
+
+
+
+/* _be_gfx_windowed_read_write_bank_asm:
+ *   eax = line number
+ *   edx = bitmap
+ */
+FUNC(_be_gfx_windowed_read_write_bank_asm)
+   testl $BMP_ID_LOCKED, BMP_ID(%edx)
+   jnz be_gfx_windowed_already_acquired
+   
+   orl $BMP_ID_LOCKED, BMP_ID(%edx)
+   orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
+   
+be_gfx_windowed_already_acquired:
+   pushl %ecx
+   pushl %eax
+   movl GLOBL(_be_dirty_lines), %ecx
+   addl BMP_YOFFSET(%edx), %eax
+   movl $1, (%ecx, %eax, 4)
+   popl %eax
+   popl %ecx
+   movl BMP_LINE(%edx, %eax, 4), %eax
    ret
 
 
@@ -104,30 +89,19 @@ be_gfx_fullscreen_no_release:
  *   edx = bitmap
  */
 FUNC(_be_gfx_windowed_unwrite_bank_asm)
+   testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
+   jz be_gfx_windowed_no_release
+   
    pushl %eax
    pushl %ecx
    pushl %edx
-   pushl GLOBL(be_window_lock)
+   pushl GLOBL(_be_window_lock)
    call GLOBL(release_sem)
    addl $4, %esp
    popl %edx
    popl %ecx
    popl %eax
+
+be_gfx_windowed_no_release:
    ret 
-
-
-/* _be_gfx_windowed_read_write_bank_asm:
- *   eax = line number
- *   edx = bitmap
- */
-FUNC(_be_gfx_windowed_read_write_bank_asm)
-   pushl %ecx
-   pushl %eax
-   movl GLOBL(be_dirty_lines), %ecx
-   addl BMP_YOFFSET(%edx), %eax
-   movl $1, (%ecx, %eax, 4)
-   popl %eax
-   popl %ecx
-   movl BMP_LINE(%edx, %eax, 4), %eax
-   ret
 

@@ -35,9 +35,9 @@
 #endif
 
 
-#define BE_SOUND_THREAD_PERIOD	    33333   /* 1/30 second */
+#define BE_SOUND_THREAD_PERIOD	    16666   /* 1/60 second */
 #define BE_SOUND_THREAD_NAME	    "sound thread"
-#define BE_SOUND_THREAD_PRIORITY    80
+#define BE_SOUND_THREAD_PRIORITY    90
 
 
 
@@ -68,16 +68,17 @@ static int32 be_sound_thread(void *sound_started)
    release_sem(*(sem_id *)sound_started);
 
    while (be_sound_thread_running) {
-
-      locker->Lock();      
+      
+      locker->Lock();
+      acquire_sem(_be_sound_timer_lock);
       if (be_sound->LockNextPage((void **)&p, &size) >= 0) {
 	 memcpy(p, be_sound_bufdata, size);
 	 be_sound->UnlockPage(p);
 	 if (be_sound_active)
 	    _mix_some_samples((unsigned long) be_sound_bufdata, 0, be_sound_signed);
       }
+      release_sem(_be_sound_timer_lock);
       locker->Unlock();
-      
       snooze(BE_SOUND_THREAD_PERIOD);
    }
 
@@ -105,7 +106,7 @@ extern "C" int be_sound_detect(int input)
    format.format = gs_audio_format::B_GS_U8;
    format.byte_order = BE_SOUND_ENDIAN;
    format.buffer_size = 0;
-   
+      
    sound = new BPushGameSound(128, &format);
    status = sound->InitCheck();
    delete sound;
@@ -122,6 +123,7 @@ extern "C" int be_sound_init(int input, int voices)
 {
    sem_id sound_started;
    gs_audio_format fmt;
+   gs_attribute attr;
    size_t samples;
    char tmp1[80], tmp2[80];
 
@@ -135,7 +137,7 @@ extern "C" int be_sound_init(int input, int voices)
    fmt.channel_count = (_sound_stereo) ? 2 : 1; 
    fmt.format	     = (_sound_bits == 8) ? (gs_audio_format::B_GS_U8) : (gs_audio_format::B_GS_S16);
    fmt.byte_order    = BE_SOUND_ENDIAN;  
-   fmt.buffer_size   = 256;
+   fmt.buffer_size   = 512;
 
    /* this might need to be user configurable */
    samples = (int)fmt.frame_rate * 512 / 11025;
@@ -175,7 +177,7 @@ extern "C" int be_sound_init(int input, int voices)
    if (!be_sound_bufdata) {
       goto cleanup;
    }
-
+   
    /* start internal mixer */
    digi_beos.voices = voices;
    

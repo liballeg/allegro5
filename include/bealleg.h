@@ -202,23 +202,30 @@ class BeAllegroApp
 
 
 
-extern BeAllegroApp    *be_allegro_app;
-extern BeAllegroWindow *be_allegro_window;
-extern BeAllegroView   *be_allegro_view; 
-extern BeAllegroScreen *be_allegro_screen;
-extern BMidiSynth      *be_midisynth;
+AL_VAR(BeAllegroApp, *_be_allegro_app);
+AL_VAR(BeAllegroWindow, *_be_allegro_window);
+AL_VAR(BeAllegroView, *_be_allegro_view);
+AL_VAR(BeAllegroScreen, *_be_allegro_screen);
+AL_VAR(BMidiSynth, *_be_midisynth);
 
-extern sem_id   be_fullscreen_lock;
-extern sem_id   be_mouse_view_attached;
-extern BWindow *be_mouse_window;
-extern BView   *be_mouse_view; 
-extern bool     be_mouse_window_mode;
-extern HOOKS    be_hooks;
-extern const BE_MODE_TABLE be_mode_table[];
-extern int32  (*be_sync_func)();
-extern int      _be_switch_mode;
-extern void   (*be_window_close_hook)();
+AL_VAR(sem_id, _be_sound_timer_lock);
+AL_VAR(sem_id, _be_fullscreen_lock);
+AL_VAR(sem_id, _be_mouse_view_attached);
+AL_VAR(BWindow, *_be_mouse_window);
+AL_VAR(BView, *_be_mouse_view);
+AL_VAR(int, _be_mouse_z);
+AL_VAR(bool, _be_mouse_window_mode);
+AL_VAR(HOOKS, _be_hooks);
+AL_VAR(int, _be_switch_mode);
+AL_VAR(volatile int, _be_lock_count);
+AL_VAR(volatile int, _be_focus_count);
+AL_VAR(int, *_be_dirty_lines);
 
+AL_ARRAY(AL_CONST BE_MODE_TABLE, _be_mode_table);
+
+
+extern int32 (*_be_sync_func)();
+extern void (*_be_window_close_hook)();
 
 void be_terminate(thread_id caller, bool exit_caller);
 
