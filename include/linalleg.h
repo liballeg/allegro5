@@ -28,9 +28,6 @@
 
 #ifndef ALLEGRO_H
 #error Please include allegro.h before linalleg.h!
-/* [gf] Hmm, is there a reason why we can't just #include "allegro.h" 
- * here?  I just copied this from winalleg.h...
- */
 #endif
 
 
