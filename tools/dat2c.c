@@ -145,7 +145,7 @@ static int invalid_macro_name(const char* n)
  *  Reads options on the commandline, filling out `dat2c' appropriately.
  *  Returns 0 on success.
  */
-static inline int is_arg(const char* arg, const char* t1, const char* t2)
+static INLINE int is_arg(const char* arg, const char* t1, const char* t2)
 {
     return !(strcmp(arg, t1) && strcmp(arg, t2));
 }
@@ -511,7 +511,7 @@ void free_dat2c(struct dat2c* dat2c)
  *
  *  Both $string c$ and $data$ enclose their data in double quotes.
  */
-static inline void _cwrite_esc_char(FILE* fp, int ch)
+static INLINE void _cwrite_esc_char(FILE* fp, int ch)
 {
     putc('\\', fp);
     switch(ch) {
@@ -553,7 +553,7 @@ static inline void _cwrite_esc_char(FILE* fp, int ch)
     }
 }
 
-inline void _cwrite_esc(FILE* fp, const unsigned char* data, int amt)
+static INLINE void _cwrite_esc(FILE* fp, const unsigned char* data, int amt)
 {
     const unsigned char* rd = 0;
     int was_num_escape = 0, was_trigraph_char = 0;
@@ -609,7 +609,7 @@ inline void _cwrite_esc(FILE* fp, const unsigned char* data, int amt)
 
 enum dat2c_file { C, H };
 
-inline void cwrite(struct dat2c* dat2c, enum dat2c_file x, 
+static INLINE void cwrite(struct dat2c* dat2c, enum dat2c_file x, 
     const char* fmt, ...)
 {
     FILE* fp = 0;
