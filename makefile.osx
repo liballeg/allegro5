@@ -50,9 +50,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double -fno-strict-aliasing
+   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-long-double
 else
-   WFLAGS = -Wall -Wno-unused -Wno-long-double -fno-strict-aliasing
+   WFLAGS = -Wall -Wno-unused -Wno-long-double
 endif
 
 ifdef TARGET_ARCH_COMPAT
@@ -123,8 +123,10 @@ INSTALL_DIR = /usr/local
 
 FRAMEWORK_DIR = /Library/Frameworks
 FRAMEWORK_NAME = Allegro
-
 FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
+TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
+TEMPLATE_NAME = Allegro\ Application
+TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
 
 ifdef STATICLINK
 
@@ -168,18 +170,19 @@ $(INSTALL_DIR)/include/allegro/platform:
 
 $(INSTALL_DIR)/bin/allegro-config:
 ifdef STATICLINK
-	sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
+	@sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
 else
-	sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
+	@sed -e "s/@LINK_WITH_STATIC_LIBS@/no/" misc/allegro-config.in >temp
 endif
-	sed -e "s/@prefix@/\/usr\/local/" temp > temp2
-	sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
-	sed -e "s/@LDFLAGS@//" temp > temp2
-	sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
-	sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
-	sed -e "s/-l\$${lib_type}_unsharable/$(LIBRARIES)/" temp2 >$(INSTALL_DIR)/bin/allegro-config
-	rm -f temp temp2
-	chmod a+x $(INSTALL_DIR)/bin/allegro-config
+	@sed -e "s/@prefix@/\/usr\/local/" temp > temp2
+	@sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
+	@sed -e "s/@LDFLAGS@//" temp > temp2
+	@sed -e "s/@LIBS@/$(STATIC_LIBRARIES)/" temp2 > temp
+	@sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
+	@sed -e "s/-l\$${lib_type}_unsharable/$(LIBRARIES)/" temp2 >$(INSTALL_DIR)/bin/allegro-config
+	@rm -f temp temp2
+	@chmod a+x $(INSTALL_DIR)/bin/allegro-config
+	@echo allegro-config script created in $(INSTALL_DIR)/bin
 
 HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
@@ -206,6 +209,8 @@ endif
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+	@echo Run make install-framework if you wish to install the library as a framework.
+	@echo Run make install-template if you wish to install the Project Builder application template.
 
 UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a               \
 		  $(INSTALL_DIR)/lib/liballd.a                \
@@ -228,9 +233,10 @@ uninstall:
 	-rmdir $(INSTALL_DIR)/include/allegro/internal
 	-rmdir $(INSTALL_DIR)/include/allegro
 	-rm -fr $(FRAMEWORK)
+	-rm -fr $(TEMPLATE)
 	@echo All gone!	
 
-install_framework: $(LIB_NAME)
+install-framework: $(LIB_NAME)
 ifdef STATICKLINK
 	@echo You need to compile Allegro as a dynamic library to install the framework.
 else
@@ -253,6 +259,16 @@ else
 	@echo Allegro has been successfully installed as a framework in:
 	@echo $(FRAMEWORK)
 endif
+
+install-template: install-framework
+	@rm -fr $(TEMPLATE)
+	@mkdir -p $(TEMPLATE)/AllegroApp.pbproj
+	@cp misc/template.m $(TEMPLATE)/main.m
+	@cp misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
+	@cp misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj
+	@cp misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj
+	@echo Allegro application template for Project Builder installed in:
+	@echo $(TEMPLATE)
 
 
 
