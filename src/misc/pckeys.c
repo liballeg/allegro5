@@ -95,10 +95,10 @@ static unsigned char hw_to_mycode[128] =
    /* 0x64 */  0,              0,              0,              0,
    /* 0x68 */  0,              0,              0,              0, 
    /* 0x6C */  0,              0,              0,              0,
-   /* 0x70 */  KEY_KANA,       0,              0,              KEY_YEN, 
+   /* 0x70 */  KEY_KANA,       0,              0,              KEY_ABNT_C1, 
    /* 0x74 */  0,              0,              0,              0,
-   /* 0x78 */  0,              KEY_HENKAN,     0,              KEY_MUHENKAN, 
-   /* 0x7C */  0,              KEY_YEN2,       0,              0
+   /* 0x78 */  0,              KEY_CONVERT,    0,              KEY_NOCONVERT, 
+   /* 0x7C */  0,              KEY_YEN,       0,              0
 };
 
 
@@ -110,8 +110,8 @@ static unsigned char hw_to_mycode_ex[128] =
    /* 0x04 */  KEY_3,          KEY_4,          KEY_5,          KEY_6,
    /* 0x08 */  KEY_7,          KEY_8,          KEY_9,          KEY_0,
    /* 0x0C */  KEY_MINUS,      KEY_EQUALS,     KEY_BACKSPACE,  KEY_TAB,
-   /* 0x10 */  KEY_Q,          KEY_W,          KEY_E,          KEY_R,
-   /* 0x14 */  KEY_T,          KEY_Y,          KEY_U,          KEY_I,
+   /* 0x10 */  KEY_CIRCUMFLEX, KEY_AT,         KEY_COLON2,     KEY_R,
+   /* 0x14 */  KEY_KANJI,      KEY_Y,          KEY_U,          KEY_I,
    /* 0x18 */  KEY_O,          KEY_P,          KEY_OPENBRACE,  KEY_CLOSEBRACE,
    /* 0x1C */  KEY_ENTER_PAD,  KEY_RCONTROL,   KEY_A,          KEY_S,
    /* 0x20 */  KEY_D,          KEY_F,          KEY_G,          KEY_H,
