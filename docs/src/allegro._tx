@@ -4668,6 +4668,7 @@ will not be known, so the file may be converted wrongly.
 @xref generate_optimized_palette, generate_332_palette
 @eref exaccel, exalpha, exbitmap, exblend, exconfig, exlights, exshade
 @eref extrans, exxfade
+@shortdesc Loads any supported bitmap from a file.
    Loads a bitmap from a file. The palette data will be stored in the second
    parameter, which should be an array of 256 RGB structures. At present this
    function supports BMP, LBM, PCX, and TGA files, determining the type from
@@ -4701,24 +4702,29 @@ will not be known, so the file may be converted wrongly.
 
 @@BITMAP *@load_bmp(const char *filename, RGB *pal);
 @xref load_bitmap
+@shortdesc Loads a BMP bitmap from a file.
    Loads a 256-color or 24-bit truecolor Windows or OS/2 BMP file.
 
 @@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
+@shortdesc Loads an LBM bitmap from a file.
    Loads a 256-color IFF ILBM/PBM file.
 
 @@BITMAP *@load_pcx(const char *filename, RGB *pal);
 @xref load_bitmap
 @eref exscale
+@shortdesc Loads a PCX bitmap from a file.
    Loads a 256-color or 24-bit truecolor PCX file.
 
 @@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
+@shortdesc Loads a TGA bitmap from a file.
    Loads a 256-color, 15-bit hicolor, 24-bit truecolor, or 32-bit 
    truecolor+alpha TGA file.
 
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
+@shortdesc Saves a bitmap into any supported file format.
    Writes a bitmap into a file, using the specified palette, which should be 
    an array of 256 RGB structures. The output format is determined from the
    filename extension: at present this function supports BMP, PCX and TGA
@@ -4743,14 +4749,17 @@ will not be known, so the file may be converted wrongly.
       
 @@int @save_bmp(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
+@shortdesc Saves a bitmap into a BMP file.
    Writes a bitmap into a 256-color or 24-bit truecolor BMP file.
 
 @@int @save_pcx(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
+@shortdesc Saves a bitmap into a PCX file.
    Writes a bitmap into a 256-color or 24-bit truecolor PCX file.
 
 @@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
+@shortdesc Saves a bitmap into a TGA file.
    Writes a bitmap into a 256-color, 15-bit hicolor, 24-bit truecolor, or
    32-bit truecolor+alpha TGA file.
 
@@ -4758,6 +4767,7 @@ will not be known, so the file may be converted wrongly.
 @\          BITMAP *(*load)(const char *filename, RGB *pal),
 @@          int (*save)(const char *filename, BITMAP *bmp, const RGB *pal));
 @xref load_bitmap, save_bitmap
+@shortdesc Registers custom bitmap loading/saving functions.
    Informs the load_bitmap() and save_bitmap() functions of a new file type, 
    providing routines to read and write images in this format (either 
    function may be NULL). The functions you supply must follow the same
@@ -4779,6 +4789,7 @@ will not be known, so the file may be converted wrongly.
 @xref set_color_depth, load_bitmap, load_datafile, fixup_datafile
 @xref makecol15_dither, get_color_conversion
 @eref exalpha, exblend, exdata, exexedat, exlights, exsprite, exxfade
+@shortdesc Tells Allegro how to convert images during loading time.
    Specifies how to convert images between the various color depths when 
    reading graphics from external bitmap files or datafiles. The mode is a 
    bitmask specifying which types of conversion are allowed. If the 
@@ -4852,6 +4863,7 @@ will not be known, so the file may be converted wrongly.
 
 @@int @get_color_conversion();
 @xref set_color_conversion
+@shortdesc Returns the current color conversion mode.
    Returns the current color conversion mode.
 
 
@@ -4896,6 +4908,7 @@ before including Allegro headers).
 @@void @set_color(int index, const RGB *p);
 @xref set_palette, get_color, _set_color
 @eref ex12bit, exrgbhsv, exscroll
+@shortdesc Sets the specified palette entry to the specified RGB triplet.
    Sets the specified palette entry to the specified RGB triplet. Unlike the 
    other palette functions this doesn't do any retrace synchronisation, so 
    you should call vsync() before it to prevent snow problems. Example:
@@ -4908,6 +4921,7 @@ before including Allegro headers).
 @@void @_set_color(int index, const RGB *p);
 @xref set_color, set_gfx_mode
 @eref ex3buf
+@shortdesc Inline version of set_color().
    This is an inline version of set_color(), intended for use in the
    vertical retrace simulator callback function (retrace_proc, which is now
    deprecated).
@@ -4921,6 +4935,7 @@ before including Allegro headers).
 @xref set_gfx_mode, set_palette_range, set_color, get_palette
 @xref select_palette, palette_color
 @eref Available Allegro examples
+@shortdesc Sets the entire palette of 256 colors.
    Sets the entire palette of 256 colors. You should provide an array of 256 
    RGB structures. Unlike set_color(), there is no need to call vsync() 
    before this function. Example:
@@ -4935,6 +4950,7 @@ before including Allegro headers).
 
 @@void @set_palette_range(const PALETTE p, int from, int to, int vsync);
 @xref set_palette, get_palette_range
+@shortdesc Sets a specific range of the palette.
    Sets the palette entries between from and to (inclusive: pass 0 and 255 
    to set the entire palette). If vsync is set it waits for the vertical 
    retrace, otherwise it sets the colors immediately. Example:
@@ -4947,6 +4963,7 @@ before including Allegro headers).
 
 @@void @get_color(int index, RGB *p);
 @xref get_palette, set_color
+@shortdesc Retrieves the specified palette entry.
    Retrieves the specified palette entry. Example:
 <codeblock>
       RGB color;
@@ -4955,6 +4972,7 @@ before including Allegro headers).
 
 @@void @get_palette(PALETTE p);
 @xref get_palette_range, get_color, set_palette
+@shortdesc Retrieves the entire palette of 256 colors.
    Retrieves the entire palette of 256 colors. You should provide an array 
    of 256 RGB structures to store it in. Example:
 <codeblock>
@@ -4964,12 +4982,14 @@ before including Allegro headers).
 
 @@void @get_palette_range(PALETTE p, int from, int to);
 @xref get_palette, set_palette_range
+@shortdesc Retrieves a specific palette range.
    Retrieves the palette entries between from and to (inclusive: pass 0 and 
    255 to get the entire palette).
 
 @\void @fade_interpolate(const PALETTE source, const PALETTE dest,
 @@                      PALETTE output, int pos, int from, to);
 @xref fade_in, fade_out, fade_from
+@shortdesc Calculates a new palette interpolated between two others.
    Calculates a temporary palette part way between source and dest, 
    returning it in the output parameter. The position between the two 
    extremes is specified by the pos value: 0 returns an exact copy of 
@@ -4980,6 +5000,7 @@ before including Allegro headers).
 @\void @fade_from_range(const PALETTE source, const PALETTE dest,
 @@                     int speed, int from, to);
 @xref fade_from
+@shortdesc Gradually fades a part of the palette between two others.
    Gradually fades a part of the palette from the source palette to the dest 
    palette. The speed is from 1 (the slowest) up to 64 (instantaneous). This 
    routine only affects colors between from and to (inclusive: pass 0 and 
@@ -4991,6 +5012,7 @@ before including Allegro headers).
 
 @@void @fade_in_range(const PALETTE p, int speed, int from, to);
 @xref fade_in
+@shortdesc Gradually fades a part of the palette from black.
    Gradually fades a part of the palette from a black screen to the 
    specified palette. The speed is from 1 (the slowest) up to 64 
    (instantaneous). This routine only affects colors between from and to 
@@ -5002,6 +5024,7 @@ before including Allegro headers).
 
 @@void @fade_out_range(int speed, int from, to);
 @xref fade_out
+@shortdesc Gradually fades a part of the palette to black.
    Gradually fades a part of the palette from the current palette to a black 
    screen. The speed is from 1 (the slowest) up to 64 (instantaneous). This 
    routine only affects colors between from and to (inclusive: pass 0 and 
@@ -5013,6 +5036,7 @@ before including Allegro headers).
 
 @@void @fade_from(const PALETTE source, const PALETTE dest, int speed);
 @xref fade_in, fade_out, fade_interpolate, fade_from_range
+@shortdesc Gradually fades the palette between two others.
    Fades gradually from the source palette to the dest palette. The speed is 
    from 1 (the slowest) up to 64 (instantaneous).
 
@@ -5022,6 +5046,7 @@ before including Allegro headers).
 
 @@void @fade_in(const PALETTE p, int speed);
 @xref fade_out, fade_from, fade_interpolate, fade_in_range
+@shortdesc Gradually fades the palette from black.
    Fades gradually from a black screen to the specified palette. The speed 
    is from 1 (the slowest) up to 64 (instantaneous).
 
@@ -5032,6 +5057,7 @@ before including Allegro headers).
 @@void @fade_out(int speed);
 @xref fade_in, fade_from, fade_interpolate, fade_in_range
 @eref ex12bit
+@shortdesc Gradually fades the palette to black.
    Fades gradually from the current palette to a black screen. The speed is 
    from 1 (the slowest) up to 64 (instantaneous).
 
@@ -5042,6 +5068,7 @@ before including Allegro headers).
 @@void @select_palette(const PALETTE p);
 @xref set_palette, unselect_palette
 @eref exlights
+@shortdesc Sets the internal palette for color conversion.
    Ugly hack for use in various dodgy situations where you need to convert 
    between paletted and truecolor image formats. Sets the internal palette 
    table in the same way as the set_palette() function, so the conversion 
@@ -5053,12 +5080,14 @@ before including Allegro headers).
 
 @@void @unselect_palette();
 @xref select_palette
+@shortdesc Restores the palette before last call to select_palette().
    Restores the palette tables that were in use before the last call to 
    select_palette().
 
 @@void @generate_332_palette(PALETTE pal);
 @xref generate_optimized_palette, set_color_depth
 @eref excolmap, exrgbhsv, extruec, exupdate
+@shortdesc Constructs a fake truecolor palette.
    Constructs a fake truecolor palette, using three bits for red and green 
    and two for the blue. The load_bitmap() function fills the palette
    parameter with this if the file does not contain a palette itself (ie. you
@@ -5067,6 +5096,7 @@ before including Allegro headers).
 @\int @generate_optimized_palette(BITMAP *bmp, PALETTE pal,
 @@                               const char rsvd[256]);
 @xref generate_332_palette, set_color_depth
+@shortdesc Generates an optimized palette for a bitmap.
    Generates a 256-color palette suitable for making a reduced color version 
    of the specified truecolor image. The rsvd parameter points to a table 
    indicating which colors it is allowed to modify: zero for free colors
@@ -5078,17 +5108,20 @@ before including Allegro headers).
 @@extern PALETTE @default_palette;
 @xref black_palette, desktop_palette
 @eref exjoy
+@shortdesc The default IBM BIOS palette.
    The default IBM BIOS palette. This will be automatically selected 
    whenever you set a new graphics mode.
 
 @@extern PALETTE @black_palette;
 @xref default_palette, desktop_palette
 @eref expal
+@shortdesc A palette containing solid black colors.
    A palette containing solid black colors, used by the fade routines.
 
 @@extern PALETTE @desktop_palette;
 @xref default_palette, black_palette
 @eref Available Allegro examples
+@shortdesc The palette used by the Atari ST low resolution desktop.
    The palette used by the Atari ST low resolution desktop. I'm not quite 
    sure why this is still here, except that the grabber and test programs 
    use it. It is probably the only Atari legacy code left in Allegro, and it 
@@ -5118,6 +5151,7 @@ routines!
 @xref makeacol32, makecol, makecol_depth, makecol15_dither, rgb_map
 @xref bestfit_color, set_color_depth
 @eref exrgbhsv
+@shortdesc Converts an RGB value into a display dependent pixel format.
    These functions convert colors from a hardware independent form (red, 
    green, and blue values ranging 0-255) into various display dependent 
    pixel formats. Converting to 15, 16, 24, or 32-bit formats only takes a 
@@ -5132,6 +5166,7 @@ routines!
 
 @@int @makeacol32(int r, int g, int b, int a);
 @xref makeacol, set_alpha_blender, set_write_alpha_blender
+@shortdesc Converts an RGBA color into a 32-bit display pixel format.
    Converts an RGBA color into a 32-bit display pixel format, which includes 
    an alpha (transparency) value. There are no versions of this routine for 
    other color depths, because only the 32-bit format has enough room to 
@@ -5143,6 +5178,7 @@ routines!
 @xref makeacol, makecol8, makecol_depth, makecol15_dither, rgb_map
 @xref set_color_depth
 @eref Available Allegro examples
+@shortdesc Converts an RGB value into the current pixel format.
    Converts colors from a hardware independent format (red, green, and blue 
    values ranging 0-255) to the pixel format required by the current video 
    mode, calling the preceding 8, 15, 16, 24, or 32-bit makecol functions as 
@@ -5156,6 +5192,7 @@ routines!
 @@int @makecol_depth(int color_depth, int r, int g, int b);
 @xref makeacol, makecol, makecol8, makecol15_dither, rgb_map
 @xref set_color_depth
+@shortdesc Converts an RGB value into the specified pixel format.
    Converts colors from a hardware independent format (red, green, and blue 
    values ranging 0-255) to the pixel format required by the specified color 
    depth.
@@ -5163,6 +5200,7 @@ routines!
 @@int @makeacol(int r, int g, int b, int a);
 @@int @makeacol_depth(int color_depth, int r, int g, int b, int a);
 @xref makecol, makecol_depth, set_alpha_blender, set_write_alpha_blender
+@shortdesc Converts RGBA colors into display dependent pixel formats.
    Convert RGBA colors into display dependent pixel formats. In anything 
    less than a 32-bit mode, these are the same as calling makecol() or 
    makecol_depth(), but by using these routines it is possible to create 
@@ -5175,6 +5213,7 @@ routines!
 @@int @makecol15_dither(int r, int g, int b, int x, int y);
 @@int @makecol16_dither(int r, int g, int b, int x, int y);
 @xref makecol, makecol8, set_color_conversion
+@shortdesc Calculates a dithered 15 or 16-bit RGB value.
    Given both a color value and a pixel coordinate, calculate a dithered 15 
    or 16-bit RGB value. This can produce better results when reducing images 
    from truecolor to hicolor. In addition to calling these functions 
@@ -5198,11 +5237,13 @@ routines!
 @@int @getg32(int c);
 @@int @getb32(int c);
 @xref geta32, getr, getr_depth, makecol, set_color_depth
+@shortdesc Extract a color component from the specified pixel format.
    Given a color in a display dependent format, these functions extract one 
    of the red, green, or blue components (ranging 0-255).
 
 @@int @geta32(int c);
 @xref getr8
+@shortdesc Extract the alpha component form a 32-bit pixel format color.
    Given a color in a 32-bit pixel format, this function extracts the alpha 
    component (ranging 0-255).
 
@@ -5212,6 +5253,7 @@ routines!
 @@int @geta(int c);
 @xref getr8, getr_depth, makecol, set_color_depth
 @eref exalpha
+@shortdesc Extract a color component from the current pixel format.
    Given a color in the format being used by the current video mode, these 
    functions extract one of the red, green, blue, or alpha components 
    (ranging 0-255), calling the preceding 8, 15, 16, 24, or 32-bit get 
@@ -5224,6 +5266,7 @@ routines!
 @@int @geta_depth(int color_depth, int c);
 @xref getr, getr8, geta32, makecol, set_color_depth
 @eref exlights
+@shortdesc Extract a color component from a color in a specified pixel format.
    Given a color in the format being used by the specified color depth, 
    these functions extract one of the red, green, blue, or alpha components 
    (ranging 0-255). The alpha part is only meaningful for 32-bit pixels.
@@ -5231,6 +5274,7 @@ routines!
 @@extern int @palette_color[256];
 @xref set_palette, makecol, set_color_depth
 @eref Available Allegro examples
+@shortdesc Maps palette indexes into the current pixel format colors.
    Table mapping palette index colors (0-255) into whatever pixel format is 
    being used by the current display mode. In a 256-color mode this just 
    maps onto the array index. In truecolor modes it looks up the specified 
@@ -5243,6 +5287,7 @@ routines!
 @@#define @MASK_COLOR_24 (8.8.8 pink)
 @@#define @MASK_COLOR_32 (8.8.8 pink)
 @xref bitmap_mask_color, makecol, draw_sprite, masked_blit
+@shortdesc Constant representing the mask value in sprites.
    Constants representing the colors used to mask transparent sprite pixels 
    for each color depth. In 256-color resolutions this is zero, and in 
    truecolor modes it is bright pink (maximum red and blue, zero green).
@@ -5258,6 +5303,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @putpixel(BITMAP *bmp, int x, int y, int color);
 @xref getpixel, _putpixel, drawing_mode
 @eref ex12bit, exalpha, exflame, exjoy, exstars, exswitch
+@shortdesc Writes a pixel into a bitmap.
    Writes a pixel to the specified position in the bitmap, using the current 
    drawing mode and the bitmap's clipping rectangle. Example: 
 <codeblock>
@@ -5269,6 +5315,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @_putpixel24(BITMAP *bmp, int x, int y, int color);
 @@void @_putpixel32(BITMAP *bmp, int x, int y, int color);
 @xref putpixel
+@shortdesc Faster specific version of putpixel().
    Like the regular putpixel(), but much faster because they are implemented 
    as an inline assembler functions for specific color depths. These won't 
    work in mode-X graphics modes, don't perform any clipping (they will 
@@ -5278,6 +5325,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@int @getpixel(BITMAP *bmp, int x, int y);
 @xref putpixel, _getpixel, is_inside_bitmap
 @eref ex12bit, exalpha, exflame, exlights
+@shortdesc Reads a pixel from a bitmap.
    Reads a pixel from point (x, y) in the bitmap. Returns -1 if the point
    lies outside the bitmap (ignoring the clipping rectangle).
 
@@ -5292,6 +5340,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@int @_getpixel24(BITMAP *bmp, int x, int y);
 @@int @_getpixel32(BITMAP *bmp, int x, int y);
 @xref getpixel
+@shortdesc Faster specific version of getpixel().
    Faster inline versions of getpixel() for specific color depths. These 
    won't work in mode-X, and don't do any clipping, so you must make sure 
    the point lies inside the bitmap.
@@ -5299,15 +5348,18 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @vline(BITMAP *bmp, int x, int y1, int y2, int color);
 @xref hline, line, drawing_mode
 @eref exrgbhsv, exscroll, extruec
+@shortdesc Draws a vertical line onto the bitmap.
    Draws a vertical line onto the bitmap, from point (x, y1) to (x, y2).
 
 @@void @hline(BITMAP *bmp, int x1, int y, int x2, int color);
 @xref vline, line, drawing_mode
+@shortdesc Draws a horizontal line onto the bitmap.
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
 
 @\void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, 
 @@             void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_arc, line
+@shortdesc Calculates all the points along a line.
    Calculates all the points along a line from point (x1, y1) to (x2, y2), 
    calling the supplied function for each one. This will be passed a copy of 
    the bmp parameter, the x and y position, and a copy of the d parameter, 
@@ -5324,22 +5376,26 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref fastline, hline, vline, do_line, drawing_mode
 @eref Available Allegro examples
+@shortdesc Draws a line onto the bitmap.
    Draws a line onto the bitmap, from point (x1, y1) to (x2, y2).
 
 @@void @fastline(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref line, hline, vline, do_line, drawing_mode
 @eref Available Allegro examples
+@shortdesc Faster version of line().
    Faster version of the previous function. Note that pixel correctness is
    not guaranteed for this function.
 
 @@void @triangle(BITMAP *bmp, int x1, y1, x2, y2, x3, y3, int color);
 @xref polygon, triangle3d, drawing_mode
 @eref ex3buf, exstars, exupdate
+@shortdesc Draws a filled triangle.
    Draws a filled triangle between the three points.
 
 @@void @polygon(BITMAP *bmp, int vertices, const int *points, int color);
 @xref triangle, polygon3d, drawing_mode
 @eref excamera
+@shortdesc Draws a filled polygon.
    Draws a filled polygon with an arbitrary number of corners. Pass the 
    number of vertices and an array containing a series of x, y points (a 
    total of vertices*2 values). Example:
@@ -5353,18 +5409,21 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rectfill, drawing_mode
 @eref ex3d, excamera
+@shortdesc Draws an outline rectangle.
    Draws an outline rectangle with the two points as its opposite corners.
 
 @@void @rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 @xref rect, clear_bitmap, drawing_mode
 @eref exalpha, excolmap, exkeys, expat, exscroll, exsprite, exstars
 @eref exswitch, extrans
+@shortdesc Draws a solid filled rectangle.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
 
 @\void @do_circle(BITMAP *bmp, int x, int y, int radius, int d,
 @@               void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_ellipse, do_arc, do_line, circle, circlefill
+@shortdesc Calculates all the points in a circle.
    Calculates all the points in a circle around point (x, y) with radius r, 
    calling the supplied function for each one. This will be passed a copy of 
    the bmp parameter, the x and y position, and a copy of the d parameter, 
@@ -5382,17 +5441,20 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @circle(BITMAP *bmp, int x, int y, int radius, int color);
 @xref ellipse, arc, circlefill, do_circle, drawing_mode
 @eref ex12bit, exblend, excustom, exjoy, exmem, exmouse, exquat
+@shortdesc Draws a circle.
    Draws a circle with the specified centre and radius.
 
 @@void @circlefill(BITMAP *bmp, int x, int y, int radius, int color);
 @xref ellipsefill, circle, do_circle, drawing_mode
 @eref excolmap, excustom, exdbuf, exflip, exlights, expal, exspline
 @eref extrans
+@shortdesc Draws a filled circle.
    Draws a filled circle with the specified centre and radius.
 
 @\void @do_ellipse(BITMAP *bmp, int x, int y, int rx, ry, int d,
 @@                void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_arc, do_line, ellipse, ellipsefill
+@shortdesc Calculates all the points in an ellipse.
    Calculates all the points in an ellipse around point (x, y) with radius 
    rx and ry, calling the supplied function for each one. This will be 
    passed a copy of the bmp parameter, the x and y position, and a copy of 
@@ -5409,16 +5471,19 @@ drawing mode and the clipping rectangle of the destination bitmap.
 
 @@void @ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color);
 @xref circle, arc, ellipsefill, do_ellipse, drawing_mode
+@shortdesc Draws an ellipse.
    Draws an ellipse with the specified centre and radius.
 
 @@void @ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color);
 @xref circlefill, ellipse, do_ellipse, drawing_mode
 @eref ex12bit
+@shortdesc Draws a filled ellipse.
    Draws a filled ellipse with the specified centre and radius.
 
 @\void @do_arc(BITMAP *bmp, int x, int y, fixed a1, fixed a2, int r, int d,
 @@            void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_line, arc
+@shortdesc Calculates all the points in a circular arc.
    Calculates all the points in a circular arc around point (x, y) with 
    radius r, calling the supplied function for each one. This will be passed 
    a copy of the bmp parameter, the x and y position, and a copy of the d
@@ -5439,6 +5504,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 
 @@void @arc(BITMAP *bmp, int x, y, fixed ang1, ang2, int r, int color);
 @xref circle, ellipse, drawing_mode
+@shortdesc Draws a circular arc.
    Draws a circular arc with centre x, y and radius r, in an anticlockwise 
    direction starting from the angle a1 and ending when it reaches a2. These 
    values are specified in 16.16 fixed point format, with 256 equal to a 
@@ -5452,6 +5518,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @calc_spline(const int points[8], int npts, int *x, int *y);
 @xref spline
 @eref exspline
+@shortdesc Calculates a series of values along a bezier spline.
    Calculates a series of npts values along a bezier spline, storing them in 
    the output x and y arrays. The bezier curve is specified by the four x/y 
    control points in the points array: points[0] and points[1] contain the 
@@ -5469,12 +5536,14 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @spline(BITMAP *bmp, const int points[8], int color);
 @xref calc_spline, drawing_mode
 @eref exspline
+@shortdesc Draws a bezier spline using four control points.
    Draws a bezier spline using the four control points specified in the 
    points array. Read the description of calc_spline() for information on
    how to build the points array.
 
 @@void @floodfill(BITMAP *bmp, int x, int y, int color);
 @xref drawing_mode
+@shortdesc Floodfills an enclosed area.
    Floodfills an enclosed area, starting at point (x, y), with the specified 
    color.
 
@@ -5489,16 +5558,19 @@ bitmap.
 @@void @clear_bitmap(BITMAP *bitmap);
 @xref clear_to_color
 @eref Available Allegro examples
+@shortdesc Clears the bitmap to color 0.
    Clears the bitmap to color 0.
 
 @@void @clear_to_color(BITMAP *bitmap, int color);
 @xref clear_bitmap
 @eref Available Allegro examples
+@shortdesc Clears the bitmap to the specified color.
    Clears the bitmap to the specified color.
 
 @\void @blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@          int dest_x, int dest_y, int width, int height);
 @xref masked_blit, stretch_blit, draw_sprite, gfx_capabilities, set_color_conversion
+@shortdesc Copies a rectangular area from one bitmap to another.
    Copies a rectangular area of the source bitmap to the destination bitmap. 
    The source_x and source_y parameters are the top left corner of the area 
    to copy from the source bitmap, and dest_x and dest_y are the 
@@ -5542,6 +5614,7 @@ bitmap.
 @\                  int source_x, source_y, source_width, source_height,
 @@                  int dest_x, dest_y, dest_width, dest_height);
 @xref blit, masked_stretch_blit, stretch_sprite
+@shortdesc Scales a rectangular area from one bitmap to another.
    Like blit(), except it can scale images (so the source and destination 
    rectangles don't need to be the same size) and requires the source and 
    destination bitmaps to be of the same color depth. This routine doesn't 
@@ -5554,6 +5627,7 @@ bitmap.
 @\void @masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@                 int dest_x, int dest_y, int width, int height);
 @xref blit, masked_stretch_blit, draw_sprite, bitmap_mask_color
+@shortdesc Copies a rectangle skipping pixels with the mask color.
    Like blit(), but skips transparent pixels, which are marked by a zero in 
    256-color modes or bright pink for truecolor data (maximum red and blue, 
    zero green), and requires the source and destination bitmaps to be of 
@@ -5573,6 +5647,7 @@ bitmap.
 @\                         int source_x, source_y, source_w, source_h,
 @@                         int dest_x, dest_y, dest_w, dest_h);
 @xref blit, masked_blit, stretch_blit, stretch_sprite
+@shortdesc Scales a rectangular area skipping pixels with the mask color.
    Like masked_blit(), except it can scale images (so the source and 
    destination rectangles don't need to be the same size). This routine 
    doesn't do as much safety checking as the regular masked_blit(): in 
@@ -5585,6 +5660,7 @@ bitmap.
 @xref draw_rle_sprite, draw_compiled_sprite, masked_blit, blit
 @xref bitmap_mask_color
 @eref exsprite
+@shortdesc Draws a copy of the sprite onto the destination bitmap.
    Draws a copy of the sprite bitmap onto the destination bitmap at the 
    specified position. This is almost the same as blit(sprite, bmp, 0, 0, x, 
    y, sprite-&gtw, sprite-&gth), but it uses a masked drawing mode where 
@@ -5611,6 +5687,7 @@ bitmap.
 
 @@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
 @xref draw_sprite, stretch_blit, bitmap_mask_color
+@shortdesc Stretches a sprite to the destination bitmap.
    Like draw_sprite(), except it can stretch the sprite image to the 
    specified width and height and requires the sprite image and destination 
    bitmap to be of the same color depth. Moreover, the sprite image must 
@@ -5621,6 +5698,7 @@ bitmap.
 @@void @draw_sprite_vh_flip(BITMAP *bmp, BITMAP *sprite, int x, int y);
 @xref draw_sprite, bitmap_mask_color
 @eref exsprite
+@shortdesc Draws the sprite transformed to the destination bitmap.
    These are like draw_sprite(), but they additionally flip the image
    vertically, horizontally, or both, respectively. Flipping vertically
    means that the y-axis is reversed, while flipping horizontally means
@@ -5634,6 +5712,7 @@ bitmap.
 @xref set_trans_blender, set_alpha_blender, set_write_alpha_blender
 @xref bitmap_mask_color
 @eref exalpha, exblend, exlights, extrans, exxfade
+@shortdesc Draws a sprite blending it with the destination.
    Uses the global color_map table or truecolor blender functions to overlay 
    the sprite on top of the existing image. This must only be used after you 
    have set up the color mapping table (for 256-color modes) or blender 
@@ -5653,6 +5732,7 @@ bitmap.
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
 @xref draw_lit_rle_sprite, color_map, set_trans_blender, bitmap_mask_color
 @eref exblend
+@shortdesc Draws a sprite tinted with a specific color.
    In 256-color modes, uses the global color_map table to tint the sprite
    image to the specified color or to light it to the level specified by
    'color', depending on the function which was used to build the table
@@ -5669,6 +5749,7 @@ bitmap.
 @@                         int c1, int c2, int c3, int c4);
 @xref draw_sprite, draw_lit_sprite, color_map, set_trans_blender
 @xref bitmap_mask_color
+@shortdesc Draws a sprite with gouraud shading.
    More sophisticated version of draw_lit_sprite(): the 'color' parameter is
    not constant across the sprite image anymore but interpolated between the
    four specified corner colors, which have the same actual meaning as it.
@@ -5676,6 +5757,7 @@ bitmap.
 @\void @draw_character_ex(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                       color, bg);
 @xref draw_sprite, bitmap_mask_color
+@shortdesc Draws non transparent pixels of the sprite with a color.
    Draws a copy of the sprite bitmap onto the destination bitmap at the 
    specified position, drawing transparent pixels in the background color
    (or skipping them if the background color is -1) and setting all other
@@ -5691,6 +5773,7 @@ bitmap.
 @xref pivot_scaled_sprite, pivot_scaled_sprite_v_flip,
 @xref itofix, Fixed point trig
 @eref exsprite
+@shortdesc Rotates a sprite.
    Draws the sprite image onto the bitmap. It is placed with its top left
    corner at the specified position, then rotated by the specified angle
    around its centre. The angle is a fixed point 16.16 number in the same
@@ -5705,6 +5788,7 @@ bitmap.
 @xref rotate_sprite, rotate_scaled_sprite_v_flip
 @xref pivot_sprite_v_flip, pivot_scaled_sprite_v_flip
 @eref exsprite
+@shortdesc Rotates and flips a sprite.
    Like rotate_sprite, but flips the image vertically before rotating it. To
    flip horizontally, use this routine but add itofix(128) to the angle. To
    flip in both directions, use rotate_sprite() and add itofix(128) to its
@@ -5714,24 +5798,28 @@ bitmap.
 @@                          fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite_v_flip
 @xref pivot_scaled_sprite, pivot_scaled_sprite_v_flip
+@shortdesc Rotates and stretches a sprite.
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
 
 @\void @rotate_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                                 fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
+@shortdesc Rotates, stretches and flips a sprite.
    Draws the sprite, similar to rotate_scaled_sprite() except that it flips
    the sprite vertically first.
 
 @\void @pivot_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                  int cx, int cy, fixed angle);
 @xref rotate_sprite, pivot_scaled_sprite, pivot_sprite_v_flip
+@shortdesc Rotates a sprite around a specified point.
    Like rotate_sprite(), but aligns the point in the sprite given by (cx, cy)
    to (x, y) in the bitmap, then rotates around this point.
 
 @\void @pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int cx, int cy, fixed angle);
 @xref rotate_sprite, rotate_sprite_v_flip, pivot_sprite
+@shortdesc Rotates and flips a sprite around a specified point.
    Like rotate_sprite_v_flip(), but aligns the point in the sprite given by
    (cx, cy) to (x, y) in the bitmap, then rotates around this point.
 
@@ -5739,6 +5827,7 @@ bitmap.
 @@                         int cx, int cy, fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite
 @xref pivot_sprite, pivot_scaled_sprite_v_flip
+@shortdesc Rotates and stretches a sprite around a specified point.
    Like rotate_scaled_sprite(), but aligns the point in the sprite given by
    (cx, cy) to (x, y) in the bitmap, then rotates and scales around this
    point.
@@ -5747,6 +5836,7 @@ bitmap.
 @@                                int cx, int cy, fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite_v_flip, rotate_sprite_v_flip
 @xref pivot_sprite, pivot_scaled_sprite
+@shortdesc Rotates, stretches and flips a sprite around a specified point.
    Like rotate_scaled_sprite_v_flip(), but aligns the point in the sprite
    given by (cx, cy) to (x, y) in the bitmap, then rotates and scales around
    this point.
@@ -5786,11 +5876,13 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 
 @@RLE_SPRITE *@get_rle_sprite(BITMAP *bitmap);
 @xref draw_rle_sprite, destroy_rle_sprite
+@shortdesc Creates an RLE sprite using a bitmap as source.
    Creates an RLE sprite based on the specified bitmap (which must be a 
    memory bitmap).
 
 @@void @destroy_rle_sprite(RLE_SPRITE *sprite);
 @xref get_rle_sprite
+@shortdesc Destroys an RLE sprite.
    Destroys an RLE sprite structure previously returned by get_rle_sprite().
    Use this once you are done with an RLE sprite to avoid memory leaks in
    your program.
@@ -5799,12 +5891,14 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @@                     int x, int y);
 @xref get_rle_sprite, draw_sprite, draw_compiled_sprite
 @xref draw_trans_rle_sprite, draw_lit_rle_sprite, bitmap_mask_color
+@shortdesc Draws an RLE sprite.
    Draws an RLE sprite onto a bitmap at the specified position.
 
 @\void @draw_trans_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                           int x, int y);
 @xref draw_rle_sprite, draw_lit_rle_sprite, draw_trans_sprite, color_map
 @xref set_trans_blender, set_alpha_blender, bitmap_mask_color
+@shortdesc Draws a translucent RLE sprite.
    Translucent version of draw_rle_sprite(). See the description of 
    draw_trans_sprite(). This must only be used after you have set up the 
    color mapping table (for 256-color modes) or blender functions (for 
@@ -5817,6 +5911,7 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @@                         int x, y, color);
 @xref draw_rle_sprite, draw_trans_rle_sprite, draw_lit_sprite, color_map
 @xref set_trans_blender, bitmap_mask_color
+@shortdesc Draws a tinted RLE sprite.
    Tinted version of draw_rle_sprite(). See the description of
    draw_lit_sprite(). This must only be used after you have set up the color 
    mapping table (for 256-color modes) or blender functions (for truecolor 
@@ -5844,6 +5939,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 
 @@COMPILED_SPRITE *@get_compiled_sprite(BITMAP *bitmap, int planar);
 @xref draw_compiled_sprite, destroy_compiled_sprite
+@shortdesc Creates a compiled sprite using a bitmap as source.
    Creates a compiled sprite based on the specified bitmap (which must be a 
    memory bitmap). Compiled sprites are device-dependent, so you have to 
    specify whether to compile it into a linear or planar format. Pass FALSE
@@ -5853,6 +5949,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 
 @@void @destroy_compiled_sprite(COMPILED_SPRITE *sprite);
 @xref get_compiled_sprite
+@shortdesc Destroys a compiled sprite.
    Destroys a compiled sprite structure previously returned by 
    get_compiled_sprite(). Use this once you are done with a compiled sprite
    to avoid memory leaks in your program.
@@ -5860,6 +5957,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 @\void @draw_compiled_sprite(BITMAP *bmp, const COMPILED_SPRITE *sprite,
 @@                          int x, int y);
 @xref get_compiled_sprite, draw_sprite, draw_rle_sprite, bitmap_mask_color
+@shortdesc Draws a compiled sprite.
    Draws a compiled sprite onto a bitmap at the specified position. The 
    sprite must have been compiled for the correct type of bitmap (linear or 
    planar). This function does not support clipping.
@@ -5886,6 +5984,7 @@ allegro/text.h for details.
 @@extern FONT *@font;
 @xref textout_ex, textprintf_ex
 @eref Available Allegro examples
+@shortdesc A simple 8x8 fixed size font.
    A simple 8x8 fixed size font (the mode 13h BIOS default). If you want to 
    alter the font used by the GUI routines, change this to point to one of 
    your own fonts. This font contains the standard ASCII (U+20 to U+7F), 
@@ -5894,6 +5993,7 @@ allegro/text.h for details.
 
 @@extern int @allegro_404_char;
 @xref font
+@shortdesc Character used when Allegro cannot find a glyph.
     When Allegro cannot find a glyph it needs in a font, it will instead
     output the character given in allegro_404_char. By default, this is
     set to the caret symbol, '^'.
@@ -5901,15 +6001,18 @@ allegro/text.h for details.
 @@int @text_length(const FONT *f, const char *str);
 @xref text_height
 @eref ex12bit, expat, exunicod
+@shortdesc Returns the length of a string in pixels.
    Returns the length (in pixels) of a string in the specified font.
 
 @@int @text_height(const FONT *f)
 @xref text_length
 @eref ex12bit, expat, exunicod
+@shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font.
 
 @@void @destroy_font(FONT *f);
 @xref load_datafile_object
+@shortdesc Frees the memory being used by a font structure.
    Frees the memory being used by a font structure. Don't use this on the
    default global Allegro font or any text routines using it could crash. You
    should use this only on fonts you have loaded manually from a datafile
@@ -5920,6 +6023,7 @@ allegro/text.h for details.
 @@                int x, y, color, bg);
 @xref font, textout_centre_ex, textout_right_ex, textout_justify_ex
 @xref textprintf_ex, text_height, text_length
+@shortdesc Writes a string on a bitmap.
    Writes the string s onto the bitmap at position x, y, using the specified
    font, foreground color and background color. If the background color is
    -1, then the text is written transparently. If the foreground color is -1
@@ -5930,18 +6034,21 @@ allegro/text.h for details.
 @\void @textout_centre_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                       int x, y, color, bg);
 @xref textout_ex, textprintf_centre_ex
+@shortdesc Writes a centered string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the centre rather
    than the left edge of the string.
 
 @\void @textout_right_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                      int x, y, color, bg);
 @xref textout_ex, textprintf_right_ex
+@shortdesc Writes a right aligned string on a bitmap.
    Like textout_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string.
 
 @\void @textout_justify_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                        int x1, x2, y, diff, color, bg);
 @xref textout_ex, textprintf_justify_ex
+@shortdesc Draws justified text within a region.
    Draws justified text within the region x1-x2. If the amount of spare
    space is greater than the diff value, it will give up and draw regular
    left justified text instead.
@@ -5950,6 +6057,7 @@ allegro/text.h for details.
 @@                    const char *fmt, ...);
 @xref font, textout_ex, textprintf_centre_ex, textprintf_right_ex
 @xref textprintf_justify_ex, text_height, text_length, uszprintf
+@shortdesc Formatted output of a string.
    Formatted text output, using a printf() style format string. Due to an
    intenal limitation, this function can't be used for extremely long texts.
    If you happen to reach this limit, you can work around it by using
@@ -5958,6 +6066,7 @@ allegro/text.h for details.
 @\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, y, color,
 @@                          bg, const char *fmt, ...);
 @xref textprintf_ex, textout_centre_ex
+@shortdesc Formatted centered output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the centre rather
    than the left edge of the string. This function shares the text length
    limitation of textprintf_ex.
@@ -5965,6 +6074,7 @@ allegro/text.h for details.
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
 @xref textprintf_ex, textout_right_ex
+@shortdesc Formatted right aligned output of a string.
    Like textprintf_ex(), but interprets the x coordinate as the right rather
    than the left edge of the string. This function shares the text length
    limitation of textprintf_ex.
@@ -5972,6 +6082,7 @@ allegro/text.h for details.
 @\void @textprintf_justify_ex(BITMAP *bmp, const FONT *f, int x1, x2, y,
 @@                           diff, color, bg, const char *fmt, ...);
 @xref textprintf_ex, textout_justify_ex
+@shortdesc Formatted justified output of a string.
    Like textout_justify_ex(), but using a printf() style format string. This
    function shares the text length limitation of textprintf_ex.
 
@@ -5984,6 +6095,7 @@ Polygon rendering
 @@void @polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[]);
 @xref triangle3d, quad3d, polygon, clip3d, cpu_capabilities
 @eref excamera
+@shortdesc Draws a 3d polygon onto the specified bitmap.
    Draw 3d polygons onto the specified bitmap, using the specified rendering 
    mode. Unlike the regular polygon() function, these routines don't support 
    concave or self-intersecting shapes, and they can't draw onto mode-X 
@@ -6145,6 +6257,7 @@ Polygon rendering
 @@void @triangle3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3);
 @@void @triangle3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3);
 @xref polygon3d, quad3d, triangle
+@shortdesc Draws a 3d triangle onto the specified bitmap.
    Draw 3d triangles, using either fixed or floating point vertex structures.
    Unlike quad3d[_f], triangle3d[_f] functions are not wrappers of
    polygon3d[_f]. The triangle3d[_f] functions use their own routines taking
@@ -6156,6 +6269,7 @@ Polygon rendering
 @@void @quad3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3, *v4);
 @xref polygon3d, triangle3d
 @eref ex3d
+@shortdesc Draws a 3d quad onto the specified bitmap.
    Draw 3d quads, using either fixed or floating point vertex structures. 
    These are equivalent to calling
       polygon3d(bmp, type, tex, 4, v[]);
@@ -6165,6 +6279,7 @@ Polygon rendering
 @\int @clip3d_f(int type, float min_z, float max_z, int vc,
 @@             const V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
 @xref polygon3d, clip3d
+@shortdesc Clips the polygon given in vtx using floating point math,
    Clips the polygon given in vtx. The number of vertices is vc, the result 
    goes in vout, and vtmp and out are needed for internal purposes. The 
    pointers in vtx, vout and vtmp must point to valid V3D_f structures. 
@@ -6182,6 +6297,7 @@ Polygon rendering
 @\int @clip3d(int type, fixed min_z, fixed max_z, int vc,
 @@           const V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]);
 @xref polygon3d, clip3d_f
+@shortdesc Clips the polygon given in vtx using fixed point math.
    Fixed point version of clip3d_f(). This function should be used with 
    caution, due to the limited precision of fixed point arithmetic and high 
    chance of rounding errors: the floating point code is better for most 
@@ -6231,12 +6347,14 @@ All the Z-buffered routines are much slower than their normal counterparts
 @@ZBUFFER *@create_zbuffer(BITMAP *bmp);
 @xref create_sub_zbuffer, set_zbuffer, clear_zbuffer, destroy_zbuffer
 @eref exzbuf
+@shortdesc Creates a Z-buffer for a bitmap.
    Creates a Z-buffer using the size of the BITMAP you are planning to draw
    on. Several Z-buffers can be defined but only one can be used at the same
    time, so you must call set_zbuffer() to make this Z-buffer active.
 
 @@ZBUFFER *@create_sub_zbuffer(ZBUFFER *parent, int x, int y, int width, int height);
 @xref create_zbuffer, create_sub_bitmap, destroy_zbuffer
+@shortdesc Creates a sub-z-buffer.
    Creates a sub-z-buffer, ie. a z-buffer sharing drawing memory with a
    pre-existing z-buffer, but possibly with a different size. The same rules
    as for sub-bitmaps apply: the sub-z-buffer width and height can extend
@@ -6256,12 +6374,14 @@ All the Z-buffered routines are much slower than their normal counterparts
 @@void @set_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, clear_zbuffer, destroy_zbuffer
 @eref exzbuf
+@shortdesc Makes the given Z-buffer the active one.
    Makes the given Z-buffer be the active one. This should have been
    previously created with create_zbuffer().
 
 @@void @clear_zbuffer(ZBUFFER *zbuf, float z);
 @xref create_zbuffer, set_zbuffer, destroy_zbuffer
 @eref exzbuf
+@shortdesc Writes a depth value into the given Z-buffer.
    Writes z into the given Z-buffer (0 means far away). This function should
    be used to initialize the Z-buffer before each frame. Actually, low-level
    routines compare depth of the current pixel with 1/z: for example, if you
@@ -6271,6 +6391,7 @@ All the Z-buffered routines are much slower than their normal counterparts
 @@void @destroy_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, set_zbuffer, clear_zbuffer
 @eref exzbuf
+@shortdesc Destroys a Z-buffer.
    Destroys the Z-buffer when you are finished with it. Use this to avoid
    memory leaks in your program.
 
@@ -6355,6 +6476,7 @@ have to clear the z-buffer at the start of the frame. Example:
 @xref scene_polygon3d, render_scene, clear_scene, destroy_scene, scene_gap
 @xref create_zbuffer
 @eref exscn3d
+@shortdesc Allocates memory for a 3d scene.
    Allocates memory for a scene, nedge and npoly are your estimates of how
    many edges and how many polygons you will render (you cannot get over the
    limit specified here). If you use same values in succesive calls, the
@@ -6366,12 +6488,14 @@ have to clear the z-buffer at the start of the frame. Example:
 @@void @clear_scene(BITMAP *bmp);
 @xref create_scene, scene_polygon3d, render_scene, destroy_scene, scene_gap
 @eref exscn3d
+@shortdesc Initializes a scene.
    Initializes a scene. The bitmap is the bitmap you will eventually render
    on.
 
 @@void @destroy_scene();
 @xref create_scene, scene_polygon3d, clear_scene, render_scene, scene_gap
 @eref exscn3d
+@shortdesc Deallocates the memory used by a scene.
    Deallocate memory previously allocated by create_scene. Use this to avoid
    memory leaks in your program.
 
@@ -6380,6 +6504,7 @@ have to clear the z-buffer at the start of the frame. Example:
 @xref create_scene, clear_scene, render_scene, destroy_scene, polygon3d
 @xref cpu_capabilities
 @eref exscn3d
+@shortdesc Puts a polygon in the scene rendering list.
    Puts a polygon in the rendering list. Nothing is really rendered at this
    moment. Should be called between clear_scene() and render_scene().
 
@@ -6409,6 +6534,7 @@ have to clear the z-buffer at the start of the frame. Example:
 @@void @render_scene();
 @xref create_scene, clear_scene, destroy_scene, scene_gap, scene_polygon3d
 @eref exscn3d
+@shortdesc Renders all the queued scene polygons.
    Renders all the specified scene_polygon3d()'s on the bitmap passed to
    clear_scene(). Rendering is done one scanline at a time, with no pixel
    being processed more than once.
@@ -6422,6 +6548,7 @@ have to clear the z-buffer at the start of the frame. Example:
 
 @@extern float @scene_gap;
 @xref create_scene, clear_scene, destroy_scene, render_scene, scene_polygon3d
+@shortdesc Number controlling the scene z-sorting algorithm behaviour.
    This number (default value = 100.0) controls the behaviour of the
    z-sorting algorithm. When an edge is very close to another's polygon
    plane, there is an interval of uncertainty in which you cannot tell which
@@ -6449,6 +6576,7 @@ Transparency and patterned drawing
 @@void @drawing_mode(int mode, BITMAP *pattern, int x_anchor, int y_anchor);
 @xref xor_mode, solid_mode, color_map, set_trans_blender
 @eref exalpha, excolmap, exjoy, expat, extrans
+@shortdesc Sets the graphics drawing mode.
    Sets the graphics drawing mode. This only affects the geometric routines 
    like putpixel, lines, rectangles, circles, polygons, floodfill, etc, not 
    the text output, blitting, or sprite drawing functions. The mode should 
@@ -6512,6 +6640,7 @@ Transparency and patterned drawing
 @@void @xor_mode(int on);
 @xref drawing_mode
 @eref exspline, exupdate
+@shortdesc Shortcut for toggling xor drawing mode on and off.
    This is a shortcut for toggling xor drawing mode on and off. Calling 
    xor_mode(TRUE) is equivalent to drawing_mode (DRAW_MODE_XOR, NULL, 0, 0);
    Calling xor_mode(FALSE) is equivalent to
@@ -6520,6 +6649,7 @@ Transparency and patterned drawing
 @@void @solid_mode();
 @xref drawing_mode
 @eref exalpha, expat
+@shortdesc Shortcut for selecting solid drawing mode.
    This is a shortcut for selecting solid drawing mode. It is equivalent to 
    calling drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
@@ -6543,6 +6673,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref create_blender_table, set_trans_blender, draw_trans_sprite
 @xref draw_lit_sprite, draw_gouraud_sprite, drawing_mode
 @eref ex3d, excolmap, exlights, exshade, extrans
+@shortdesc Global pointer to the color mapping table.
    Global pointer to the color mapping table. You must allocate your own
    COLOR_MAP either statically or dynamically and set color_map to it 
    before using any translucent or lit drawing functions in a 256-color 
@@ -6553,6 +6684,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref color_map, create_light_table, create_color_table
 @xref create_blender_table, draw_trans_sprite, draw_lit_sprite
 @xref draw_gouraud_sprite
+@shortdesc Fills a color mapping table for translucency effects.
    Fills the specified color mapping table with lookup data for doing 
    translucency effects with the specified palette. When combining the 
    colors c1 and c2 with this table, the result will be a color somewhere 
@@ -6569,6 +6701,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref color_map, create_trans_table, create_color_table
 @xref create_blender_table, draw_trans_sprite, draw_lit_sprite
 @xref draw_gouraud_sprite
+@shortdesc Fills a color mapping table for lighting effects.
    Fills the specified color mapping table with lookup data for doing 
    lighting effects with the specified palette. When combining the colors c1 
    and c2 with this table, c1 is treated as a light level from 0-255. At 
@@ -6584,6 +6717,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @@                        void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_blender_table
 @xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
+@shortdesc Fills a color mapping table for customised effects.
    Fills the specified color mapping table with lookup data for doing 
    customised effects with the specified palette, calling the blend function 
    to determine the results of each color combination. Your blend routine 
@@ -6600,6 +6734,7 @@ defined by Allegro" for an internal description of the COLOR_MAP structure.
 @xref color_map, create_light_table, create_trans_table, create_color_table
 @xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
 @xref set_trans_blender, set_blender_mode
+@shortdesc Emulates truecolor blender effects in palettised modes.
    Fills the specified color mapping table with lookup data for doing a 
    paletted equivalent of whatever truecolor blender mode is currently 
    selected. After calling set_trans_blender(), set_blender_mode(), or any 
@@ -6648,6 +6783,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @xref set_hue_blender, set_invert_blender, set_luminance_blender
 @xref set_multiply_blender, set_saturation_blender, set_screen_blender
 @eref ex3d, exblend, exshade, extrans, exxfade
+@shortdesc Enables a truecolor blender.
    Enables a linear interpolator blender mode for combining translucent 
    or lit truecolor pixels.
 
@@ -6655,6 +6791,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @xref set_trans_blender, draw_trans_sprite, draw_trans_rle_sprite,
 @xref set_write_alpha_blender
 @eref exalpha, extrans
+@shortdesc Enables a special alpha-channel blending mode.
    Enables the special alpha-channel blending mode, which is used for 
    drawing 32-bit RGBA sprites. After calling this function, you can use 
    draw_trans_sprite() or draw_trans_rle_sprite() to draw a 32-bit source 
@@ -6668,6 +6805,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @@void @set_write_alpha_blender();
 @xref set_alpha_blender, draw_trans_sprite, drawing_mode
 @eref exalpha, extrans
+@shortdesc Enables the special alpha-channel editing mode.
    Enables the special alpha-channel editing mode, which is used for drawing 
    alpha channels over the top of an existing 32-bit RGB sprite, to turn it 
    into an RGBA format image. After calling this function, you can set the 
@@ -6679,29 +6817,34 @@ between the 24 and 32-bit code since the bit packing is the same).
 
 @@void @set_add_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables an additive blender mode.
    Enables an additive blender mode for combining translucent or lit 
    truecolor pixels.
 
 @@void @set_burn_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a burn blender mode.
    Enables a burn blender mode for combining translucent or lit truecolor 
    pixels. Here the lightness values of the colours of the source image 
    reduce the lightness of the destination image, darkening the image.
 
 @@void @set_color_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a color blender mode.
    Enables a color blender mode for combining translucent or lit truecolor 
    pixels. Applies only the hue and saturation of the source image to the 
    destination image. The luminance of the destination image is not affected.
 
 @@void @set_difference_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a difference blender mode.
    Enables a difference blender mode for combining translucent or lit 
    truecolor pixels. This makes an image which has colours calculated by the 
    difference between the source and destination colours.
 
 @@void @set_dissolve_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a dissolve blender mode.
    Enables a dissolve blender mode for combining translucent or lit 
    truecolor pixels. Randomly replaces the colours of some pixels in the 
    destination image with those of the source image. The number of pixels 
@@ -6710,23 +6853,27 @@ between the 24 and 32-bit code since the bit packing is the same).
 
 @@void @set_dodge_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a dodge blender mode.
    Enables a dodge blender mode for combining translucent or lit truecolor 
    pixels. The lightness of colours in the source lighten the colours of the 
    destination. White has the most effect; black has none.
 
 @@void @set_hue_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a hue blender mode.
    Enables a hue blender mode for combining translucent or lit truecolor 
    pixels. This applies the hue of the source to the destination.
 
 @@void @set_invert_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables an invert blender mode.
    Enables an invert blender mode for combining translucent or lit truecolor 
    pixels. Blends the inverse (or negative) colour of the source with the 
    destination.
 
 @@void @set_luminance_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a luminance blender mode.
    Enables a luminance blender mode for combining translucent or lit 
    truecolor pixels. Applies the luminance of the source to the destination.
    The colour of the destination is not affected.
@@ -6734,6 +6881,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @@void @set_multiply_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
 @eref exalpha
+@shortdesc Enables a multiply blender mode.
    Enables a multiply blender mode for combining translucent or lit 
    truecolor pixels. Combines the source and destination images, multiplying 
    the colours to produce a darker colour. If a colour is multiplied by 
@@ -6742,12 +6890,14 @@ between the 24 and 32-bit code since the bit packing is the same).
 
 @@void @set_saturation_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a saturation blender mode.
    Enables a saturation blender mode for combining translucent or lit 
    truecolor pixels. Applies the saturation of the source to the destination 
    image.
 
 @@void @set_screen_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
+@shortdesc Enables a screen blender mode.
    Enables a screen blender mode for combining translucent or lit truecolor 
    pixels. This blender mode lightens the colour of the destination image by 
    multiplying the inverse of the source and destination colours. Sort of 
@@ -6756,6 +6906,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @@void @set_blender_mode(BLENDER_FUNC b15, b16, b24, int r, g, b, a);
 @xref set_blender_mode_ex, set_trans_blender, color_map, draw_trans_sprite
 @xref draw_lit_sprite, drawing_mode
+@shortdesc Specifies a custom set of truecolor blender routines.
    Specifies a custom set of truecolor blender routines, which can be used 
    to implement whatever special interpolation modes you need. This function 
    shares a single blender between the 24 and 32-bit modes.
@@ -6763,6 +6914,7 @@ between the 24 and 32-bit code since the bit packing is the same).
 @\void @set_blender_mode_ex(BLENDER_FUNC b15, b16, b24, b32, b15x, b16x, b24x,
 @@                         int r, g, b, a);
 @xref set_blender_mode, set_alpha_blender
+@shortdesc An even more complex version of set_blender_mode().
    Like set_blender_mode(), but allows you to specify a more complete set of 
    blender routines. The b15, b16, b24, and b32 routines are used when 
    drawing pixels onto destinations of the same format, while b15x, b16x, 
@@ -6803,6 +6955,7 @@ the conversion).
 
 @@int @bestfit_color(const PALETTE pal, int r, int g, int b);
 @xref makecol8
+@shortdesc Finds a palette color fitting the requested RGB values.
    Searches the specified palette for the closest match to the requested 
    color, which are specified in the VGA hardware 0-63 format. Normally you 
    should call makecol8() instead, but this lower level function may be 
@@ -6812,6 +6965,7 @@ the conversion).
 @@extern RGB_MAP *@rgb_map;
 @xref create_rgb_table, makecol8
 @eref ex3d, excolmap, exrgbhsv, exshade, extrans
+@shortdesc Look up table to speed up reducing RGB values to palette colors.
    To speed up reducing RGB values to 8-bit paletted colors, Allegro uses a 
    32k lookup table (5 bits for each color component). You must set up this 
    table before using the gouraud shading routines, and if present the table 
@@ -6827,6 +6981,7 @@ the conversion).
 @\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
 @@                      void (*callback)(int pos));
 @xref rgb_map
+@shortdesc Generates an RGB mapping table with lookup data for a palette.
    Fills the specified RGB mapping table with lookup data for the specified 
    palette. If the callback function is not NULL, it will be called 256 
    times during the calculation, allowing you to display a progress 
@@ -6835,6 +6990,7 @@ the conversion).
 @@void @hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b);
 @@void @rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v);
 @eref exlights, exrgbhsv
+@shortdesc Converts color values between the HSV and RGB colorspaces.
    Convert color values between the HSV and RGB colorspaces. The RGB values 
    range from 0 to 255, hue is from 0 to 360, and saturation and value are 
    from 0 to 1.
@@ -7028,12 +7184,14 @@ these with the lower level functions described below.
 
 @@int @play_fli(const char *filename, BITMAP *bmp, int loop, int (*callback)());
 @xref play_memory_fli, install_timer, fli_frame
+@shortdesc Plays a FLI or FLC animation from disk.
    Plays an Autodesk Animator FLI or FLC animation file, reading the data 
    from disk as it is required.
 
 @\int @play_memory_fli(const void *fli_data, BITMAP *bmp, int loop,
 @@                    int (*callback)());
 @xref play_fli, install_timer, fli_frame
+@shortdesc Plays a FLI or FLC animation from memory.
    Plays an Autodesk Animator FLI or FLC animation, reading the data from a 
    copy of the file which is held in memory. You can obtain the fli_data 
    pointer by mallocing a block of memory and reading an FLI file into it, 
@@ -7046,6 +7204,7 @@ these with the lower level functions described below.
 @@int @open_fli(const char *filename);
 @@int @open_memory_fli(const void *fli_data);
 @xref close_fli, next_fli_frame
+@shortdesc Makes a FLI file open and ready for playing.
    Open FLI files ready for playing, reading the data from disk or memory 
    respectively. Return FLI_OK on success. Information about the current FLI 
    is held in global variables, so you can only have one animation open at a 
@@ -7053,10 +7212,12 @@ these with the lower level functions described below.
 
 @@void @close_fli();
 @xref open_fli
+@shortdesc Closes a FLI file previously opened.
    Closes an FLI file when you have finished reading from it.
 
 @@int @next_fli_frame(int loop);
 @xref open_fli, fli_bitmap, fli_palette, fli_timer, fli_frame
+@shortdesc Reads the next frame of the current animation file.
    Reads the next frame of the current animation file. If loop is set the 
    player will cycle when it reaches the end of the file, otherwise it will 
    return FLI_EOF. Returns FLI_OK on success, FLI_ERROR or FLI_NOT_OPEN on 
@@ -7065,15 +7226,18 @@ these with the lower level functions described below.
 
 @@extern BITMAP *@fli_bitmap;
 @xref next_fli_frame, fli_bmp_dirty_from, fli_palette
+@shortdesc Contains the current frame of the animation.
    Contains the current frame of the FLI/FLC animation.
 
 @@extern PALETTE @fli_palette;
 @xref next_fli_frame, fli_pal_dirty_from, fli_bitmap
+@shortdesc Contains the current palette of the animation.
    Contains the current FLI palette.
 
 @@extern int @fli_bmp_dirty_from;
 @@extern int @fli_bmp_dirty_to;
 @xref fli_bitmap, reset_fli_variables
+@shortdesc Indicate which parts of the image have changed.
    These variables are set by next_fli_frame() to indicate which part of the 
    fli_bitmap has changed since the last call to reset_fli_variables(). If 
    fli_bmp_dirty_from is greater than fli_bmp_dirty_to, the bitmap has not 
@@ -7084,6 +7248,7 @@ these with the lower level functions described below.
 @@extern int @fli_pal_dirty_from;
 @@extern int @fli_pal_dirty_to;
 @xref fli_palette, reset_fli_variables
+@shortdesc Indicate which parts of the palette have changed.
    These variables are set by next_fli_frame() to indicate which part of the 
    fli_palette has changed since the last call to reset_fli_variables(). If 
    fli_pal_dirty_from is greater than fli_pal_dirty_to, the palette has not 
@@ -7093,12 +7258,14 @@ these with the lower level functions described below.
 
 @@void @reset_fli_variables();
 @xref fli_bmp_dirty_from, fli_pal_dirty_from
+@shortdesc Resets the bitmap and palette dirty global variables.
    Once you have done whatever you are going to do with the fli_bitmap and 
    fli_palette, call this function to reset the fli_bmp_dirty_* and 
    fli_pal_dirty_* variables.
 
 @@extern int @fli_frame;
 @xref play_fli, play_memory_fli, next_fli_frame
+@shortdesc Stores the current frame number of the animation.
    Global variable containing the current frame number in the FLI file. This 
    is useful for synchronising other events with the animation, for instance 
    you could check it in a play_fli() callback function and use it to 
@@ -7106,6 +7273,7 @@ these with the lower level functions described below.
 
 @@extern volatile int @fli_timer;
 @xref install_timer, next_fli_frame
+@shortdesc Global variable for timing FLI playback.
    Global variable for timing FLI playback. When you open an FLI file, a 
    timer interrupt is installed which increments this variable every time a 
    new frame should be displayed. Calling next_fli_frame() decrements it, so 
@@ -7121,6 +7289,7 @@ Sound init routines
 @xref install_sound, reserve_voices
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref DIGI_*/MacOSX
+@shortdesc Detects whether the specified digital sound device is available.
    Detects whether the specified digital sound device is available. Returns 
    the maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. This function must be called _before_ 
@@ -7130,6 +7299,7 @@ Sound init routines
 @xref install_sound, reserve_voices
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
+@shortdesc Detects whether the specified MIDI sound device is available.
    Detects whether the specified MIDI sound device is available. Returns the 
    maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. There are two special-case return values that 
@@ -7142,6 +7312,7 @@ Sound init routines
 @@void @reserve_voices(int digi_voices, int midi_voices);
 @xref set_volume_per_voice, install_sound, detect_digi_driver, detect_midi_driver
 @xref get_mixer_voices
+@shortdesc Reserve a number of voices for the digital and MIDI drivers.
    Call this function to specify the number of voices that are to be used by
    the digital and MIDI sound drivers respectively. This must be done
    _before_ calling install_sound(). If you reserve too many voices,
@@ -7156,6 +7327,7 @@ Sound init routines
 
 @@void @set_volume_per_voice(int scale);
 @xref reserve_voices, set_volume, install_sound, detect_digi_driver, detect_midi_driver
+@shortdesc Sets the volume of a voice.
    By default, Allegro will play a centered sample at half volume on both
    the left and right channel. A sample panned to the far right or left
    will be played at maximum volume on that channel only. This is done so
@@ -7222,6 +7394,7 @@ Sound init routines
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
 @eref exdodgy, exmidi, exsample, exstream
+@shortdesc Initialises the sound module.
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
    and MIDI_AUTODETECT as the driver parameters to this function, in which 
    case Allegro will read hardware settings from the current configuration 
@@ -7236,11 +7409,13 @@ Sound init routines
 @@void @remove_sound();
 @xref install_sound, allegro_exit
 @eref exdodgy
+@shortdesc Cleans up after you are finished with the sound routines.
    Cleans up after you are finished with the sound routines. You don't 
    normally need to call this, because allegro_exit() will do it for you.
 
 @@void @set_volume(int digi_volume, int midi_volume);
 @xref install_sound, set_hardware_volume
+@shortdesc Alters the global sound output volume.
    Alters the global sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
    value to leave one of the settings unchanged. This routine will not alter
@@ -7248,6 +7423,7 @@ Sound init routines
 
 @@void @set_hardware_volume(int digi_volume, int midi_volume);
 @xref install_sound, set_volume
+@shortdesc Alters the hardware sound output volume.
    Alters the hardware sound output volume. Specify volumes for both digital 
    samples and MIDI playback, as integers from 0 to 255, or pass a negative 
    value to leave one of the settings unchanged. This routine will use the
@@ -7263,34 +7439,41 @@ Mixer routines
 @@void @set_mixer_quality(int quality);
 @xref get_mixer_quality
 @xref Standard config variables
+@shortdesc Sets the resampling quality of the mixer.
    Sets the resampling quality of the mixer. Valid values are the same as
    the 'quality' config variable, please look there for details.
 
 @@int @get_mixer_quality(void);
 @xref set_mixer_quality
 @xref Standard config variables
+@shortdesc Returns the current mixing quality.
    Returns the current mixing quality, as specified by the 'quality' config
    variable, or a previous call to set_mixer_quality.
 
 @@int @get_mixer_frequency(void);
 @xref Standard config variables
+@shortdesc Returns the mixer frequency, in Hz.
    Returns the mixer frequency, in Hz.
 
 @@int @get_mixer_bits(void);
 @xref Standard config variables
+@shortdesc Returns the mixer bitdepth (8 or 16).
    Returns the mixer bitdepth (8 or 16).
 
 @@int @get_mixer_channels(void);
 @xref Standard config variables
+@shortdesc Returns the number of output channels.
    Returns the number of output channels. 2 for stereo, 1 for mono, 0 if
    the mixer isn't active.
 
 @@int @get_mixer_voices(void);
 @xref reserve_voices
+@shortdesc Returns the number of voices allocated to the mixer.
    Returns the number of voices allocated to the mixer.
 
 @@int @get_mixer_buffer_length(void);
 @xref Standard config variables
+@shortdesc Returns the number of samples per channel in the mixer buffer.
    Returns the number of samples per channel in the mixer buffer.
 
 
@@ -7302,6 +7485,7 @@ Digital sample routines
 @xref destroy_sample, load_voc, load_wav, play_sample, save_sample
 @xref register_sample_file_type, Voice control
 @eref exsample
+@shortdesc Loads a sample from a file.
    Loads a sample from a file, returning a pointer to it, or NULL on error. 
    At present this function supports both mono and stereo WAV and mono VOC 
    files, in 8 or 16-bit formats, as well as formats handled by functions
@@ -7309,14 +7493,17 @@ Digital sample routines
 
 @@SAMPLE *@load_wav(const char *filename);
 @xref load_sample, register_sample_file_type
+@shortdesc Loads a sample from a RIFF WAV file.
    Loads a sample from a RIFF WAV file.
 
 @@SAMPLE *@load_voc(const char *filename);
 @xref load_sample, register_sample_file_type
+@shortdesc Loads a sample from a Creative Labs VOC file.
    Loads a sample from a Creative Labs VOC file.
 
 @@int @save_sample(const char *filename, SAMPLE *spl);
 @xref load_sample, register_sample_file_type
+@shortdesc Writes a sample into a file.
    Writes a sample into a file, returning non-zero on error. The output
    format is determined from the filename extension. At present Allegro does
    not natively support the writing of any sample formats, so you must 
@@ -7324,6 +7511,7 @@ Digital sample routines
 
 @@SAMPLE *@create_sample(int bits, int stereo, int freq, int len);
 @xref load_sample, destroy_sample
+@shortdesc Constructs a new sample structure of the specified type.
    Constructs a new sample structure of the specified type. The data field 
    points to a block of waveform data: see the structure definition in 
    allegro/digi.h for details.
@@ -7331,6 +7519,7 @@ Digital sample routines
 @@void @destroy_sample(SAMPLE *spl);
 @xref load_sample
 @eref exsample
+@shortdesc Destroys a sample structure when you are done with it.
    Destroys a sample structure when you are done with it. It is safe to call 
    this even when the sample might be playing, because it checks and will 
    kill it off if it is active. Use this to avoid memory leaks in your
@@ -7338,6 +7527,7 @@ Digital sample routines
 
 @@void @lock_sample(SAMPLE *spl);
 @xref load_sample, create_sample
+@shortdesc Locks all the memory used by a sample.
    Under DOS, locks all the memory used by a sample. You don't normally need 
    to call this function because load_sample() and create_sample() do it for
    you.
@@ -7346,6 +7536,7 @@ Digital sample routines
 @\                          SAMPLE *(*load)(const char *filename),
 @@                          int (*save)(const char *filename, SAMPLE *spl));
 @xref load_sample, save_sample
+@shortdesc Registers custom loading/saving sample routines.
    Informs the load_sample() function of a new sample file type,
    providing routines to read and write samples in this format (either
    function may be NULL).
@@ -7353,6 +7544,7 @@ Digital sample routines
 @@int @play_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref install_sound, load_sample, adjust_sample, stop_sample, Voice control
 @eref exsample
+@shortdesc Plays a sample.
    Triggers a sample at the specified volume, pan position, and frequency. 
    The volume and pan range from 0 (min/left) to 255 (max/right). Frequency 
    is relative rather than absolute: 1000 represents the frequency that the 
@@ -7365,6 +7557,7 @@ Digital sample routines
 @@void @adjust_sample(const SAMPLE *spl, int vol, int pan, int freq, int loop);
 @xref play_sample
 @eref exsample
+@shortdesc Alters the parameters of a sample while it is playing.
    Alters the parameters of a sample while it is playing (useful for 
    manipulating looped sounds). You can alter the volume, pan, and 
    frequency, and can also clear the loop flag, which will stop the sample 
@@ -7374,6 +7567,7 @@ Digital sample routines
 
 @@void @stop_sample(const SAMPLE *spl);
 @xref play_sample
+@shortdesc Kills off a sample.
    Kills off a sample, which is required if you have set a sample going in 
    looped mode. If there are several copies of the sample playing, it will 
    stop them all.
@@ -7405,6 +7599,7 @@ sample structure:
 @@int @allocate_voice(const SAMPLE *spl);
 @xref Voice control, deallocate_voice, reallocate_voice, release_voice
 @xref load_sample
+@shortdesc Allocates a soundcard voice for a sample.
    Allocates a soundcard voice and prepares it for playing the specified 
    sample, setting up sensible default parameters (maximum volume, centre 
    pan, no change of pitch, no looping). When you are finished with the 
@@ -7413,11 +7608,13 @@ sample structure:
 
 @@void @deallocate_voice(int voice);
 @xref allocate_voice, voice_stop
+@shortdesc Frees a soundcard voice.
    Frees a soundcard voice, stopping it from playing and releasing whatever 
    resources it is using.
 
 @@void @reallocate_voice(int voice, const SAMPLE *spl);
 @xref allocate_voice, deallocate_voice, load_sample
+@shortdesc Switches the sample of an already-allocated voice.
    Switches an already-allocated voice to use a different sample. Calling 
    reallocate_voice(voice, sample) is equivalent to:
 <codeblock>
@@ -7426,6 +7623,7 @@ sample structure:
 
 @@void @release_voice(int voice);
 @xref allocate_voice, deallocate_voice
+@shortdesc Releases a soundcard voice.
    Releases a soundcard voice, indicating that you are no longer interested 
    in manipulating it. The sound will continue to play, and any resources 
    that it is using will automatically be freed when it finishes. This is 
@@ -7435,22 +7633,26 @@ sample structure:
 @@void @voice_start(int voice);
 @xref Voice control, allocate_voice, voice_stop, release_voice
 @eref exstream
+@shortdesc Activates a voice.
    Activates a voice, using whatever parameters have been set for it.
 
 @@void @voice_stop(int voice);
 @xref voice_start, deallocate_voice, release_voice
 @eref exstream
+@shortdesc Stops a voice.
    Stops a voice, storing the current position and state so that it may 
    later be resumed by calling voice_start().
 
 @@void @voice_set_priority(int voice, int priority);
 @xref Voice control
+@shortdesc Sets the priority of a voice.
    Sets the priority of a voice (range 0-255). This is used to decide which 
    voices should be chopped off, if you attempt to play more than the 
    soundcard driver can handle.
 
 @@SAMPLE *@voice_check(int voice);
 @xref allocate_voice, voice_start, voice_get_position
+@shortdesc Checks whether a voice is currently allocated.
    Checks whether a voice is currently allocated. It returns a copy of the 
    sample that the voice is using, or NULL if the voice is inactive (ie. it 
    has been deallocated, or the release_voice() function has been called and 
@@ -7458,15 +7660,18 @@ sample structure:
 
 @@int @voice_get_position(int voice);
 @xref Voice control, voice_set_position
+@shortdesc Returns the current position of a voice.
    Returns the current position of a voice, in sample units, or -1 if it has 
    finished playing.
 
 @@void @voice_set_position(int voice, int position);
 @xref Voice control, voice_get_position, voice_set_playmode
+@shortdesc Sets the position of a voice.
    Sets the position of a voice, in sample units.
 
 @@void @voice_set_playmode(int voice, int playmode);
 @xref Voice control
+@shortdesc Adjusts the loop status of the specified voice.
    Adjusts the loop status of the specified voice. This can be done while 
    the voice is playing, so you can start a sample in looped mode (having 
    set the loop start and end positions to the appropriate values), and then 
@@ -7500,65 +7705,80 @@ sample structure:
    </ul>
 @@int @voice_get_volume(int voice);
 @xref Voice control, voice_set_volume
+@shortdesc Returns the current volume of the voice.
    Returns the current volume of the voice, range 0-255.
 
 @@void @voice_set_volume(int voice, int volume);
 @xref Voice control, voice_get_volume, voice_ramp_volume
+@shortdesc Sets the volume of the voice.
    Sets the volume of the voice, range 0-255.
 
 @@void @voice_ramp_volume(int voice, int time, int endvol);
 @xref Voice control, voice_set_volume
+@shortdesc Starts a volume ramp for a voice.
    Starts a volume ramp (crescendo or diminuendo) from the current volume to 
    the specified ending volume, lasting for time milliseconds.
 
 @@void @voice_stop_volumeramp(int voice);
 @xref voice_ramp_volume
+@shortdesc Interrupts a volume ramp operation.
    Interrupts a volume ramp operation.
 
 @@int @voice_get_frequency(int voice);
 @xref Voice control, voice_set_frequency
+@shortdesc Returns the current pitch of the voice.
    Returns the current pitch of the voice, in Hz.
 
 @@void @voice_set_frequency(int voice, int frequency);
 @xref Voice control, voice_get_frequency, voice_sweep_frequency
+@shortdesc Sets the pitch of the voice.
    Sets the pitch of the voice, in Hz.
 
 @@void @voice_sweep_frequency(int voice, int time, int endfreq);
 @xref Voice control, voice_set_frequency
+@shortdesc Starts a frequency sweep for a voice.
    Starts a frequency sweep (glissando) from the current pitch to the 
    specified ending pitch, lasting for time milliseconds.
 
 @@void @voice_stop_frequency_sweep(int voice);
 @xref voice_sweep_frequency
+@shortdesc Interrupts a frequency sweep operation.
    Interrupts a frequency sweep operation.
 
 @@int @voice_get_pan(int voice);
 @xref Voice control, voice_set_pan
+@shortdesc Returns the current pan position.
    Returns the current pan position, from 0 (left) to 255 (right).
 
 @@void @voice_set_pan(int voice, int pan);
 @xref Voice control, voice_get_pan, voice_sweep_pan
+@shortdesc Sets the pan position.
    Sets the pan position, ranging from 0 (left) to 255 (right).
 
 @@void @voice_sweep_pan(int voice, int time, int endpan);
 @xref Voice control, voice_set_pan
+@shortdesc Starts a pan sweep for a voice.
    Starts a pan sweep (left &lt-&gt right movement) from the current position to
    the specified ending position, lasting for time milliseconds.
 
 @@void @voice_stop_pan_sweep(int voice);
 @xref voice_sweep_pan
+@shortdesc Interrupts a pan sweep operation.
    Interrupts a pan sweep operation.
 
 @@void @voice_set_echo(int voice, int strength, int delay);
 @xref Voice control
+@shortdesc Sets the echo parameters for a voice.
    Sets the echo parameters for a voice (not currently implemented).
 
 @@void @voice_set_tremolo(int voice, int rate, int depth);
 @xref Voice control
+@shortdesc Sets the tremolo parameters for a voice.
    Sets the tremolo parameters for a voice (not currently implemented).
 
 @@void @voice_set_vibrato(int voice, int rate, int depth);
 @xref Voice control
+@shortdesc Sets the vibrato parameters for a voice.
    Sets the vibrato parameters for a voice (not currently implemented).
 
 
@@ -7569,12 +7789,14 @@ Music routines (MIDI)
 @@MIDI *@load_midi(const char *filename);
 @xref destroy_midi, play_midi
 @eref exdodgy, exmidi
+@shortdesc Loads a MIDI file.
    Loads a MIDI file (handles both format 0 and format 1), returning a 
    pointer to a MIDI structure, or NULL on error.
 
 @@void @destroy_midi(MIDI *midi);
 @xref load_midi
 @eref exdodgy, exmidi
+@shortdesc Destroys a MIDI structure when you are done with it.
    Destroys a MIDI structure when you are done with it. It is safe to call 
    this even when the MIDI file might be playing, because it checks and will 
    kill it off if it is active. Use this to avoid memory leaks in your
@@ -7582,6 +7804,7 @@ Music routines (MIDI)
 
 @@void @lock_midi(MIDI *midi);
 @xref load_midi
+@shortdesc Locks all the memory used by a MIDI file.
    Under DOS, locks all the memory used by a MIDI file. You don't normally 
    need to call this function because load_midi() does it for you.
 
@@ -7589,6 +7812,7 @@ Music routines (MIDI)
 @xref install_sound, load_midi, play_looped_midi, stop_midi, midi_pause
 @xref midi_seek, midi_pos, midi_msg_callback
 @eref exdodgy, exmidi
+@shortdesc Starts playing the specified MIDI file.
    Starts playing the specified MIDI file, first stopping whatever music was 
    previously playing. If the loop flag is set, the data will be repeated 
    until replaced with something else, otherwise it will stop at the end of 
@@ -7600,6 +7824,7 @@ Music routines (MIDI)
 
 @@int @play_looped_midi(MIDI *midi, int loop_start, int loop_end);
 @xref play_midi, midi_loop_start
+@shortdesc Starts playing a MIDI file with a user-defined loop position.
    Starts playing a MIDI file with a user-defined loop position. When the 
    player reaches the loop end position or the end of the file (loop_end may 
    be -1 to only loop at EOF), it will wind back to the loop start point. 
@@ -7608,19 +7833,23 @@ Music routines (MIDI)
 
 @@void @stop_midi();
 @xref play_midi, midi_pause
+@shortdesc Stops whatever music is currently playing.
    Stops whatever music is currently playing. This is the same thing as 
    calling play_midi(NULL, FALSE).
 
 @@void @midi_pause();
 @xref play_midi, stop_midi, midi_resume, midi_seek
+@shortdesc Pauses the MIDI player.
    Pauses the MIDI player.
 
 @@void @midi_resume();
 @xref midi_pause
+@shortdesc Resumes playback of a paused MIDI file.
    Resumes playback of a paused MIDI file.
 
 @@int @midi_seek(int target);
 @xref play_midi, midi_pos
+@shortdesc Seeks to the given midi_pos in the current MIDI file.
    Seeks to the given midi_pos in the current MIDI file. If the target is 
    earlier in the file than the current midi_pos it seeks from the 
    beginning; otherwise it seeks from the current position. Returns zero if 
@@ -7632,12 +7861,14 @@ Music routines (MIDI)
 
 @@void @midi_out(unsigned char *data, int length);
 @xref install_sound, load_midi_patches, midi_recorder
+@shortdesc Streams a block of MIDI commands into the player.
    Streams a block of MIDI commands into the player in realtime, allowing 
    you to trigger notes, jingles, etc, over the top of whatever MIDI file is 
    currently playing.
 
 @@int @load_midi_patches();
 @xref install_sound, midi_out
+@shortdesc Forces the MIDI driver to load a set of patches.
    Forces the MIDI driver to load the entire set of patches ready for use. 
    You will not normally need to call this, because Allegro automatically 
    loads whatever data is required for the current MIDI file, but you must 
@@ -7646,6 +7877,7 @@ Music routines (MIDI)
 
 @@extern volatile long @midi_pos;
 @xref play_midi, midi_msg_callback
+@shortdesc Stores the current position in the MIDI file.
    Stores the current position (beat number) in the MIDI file, or contains 
    a negative number if no music is currently playing. Useful for 
    synchronising animations with the music, and for checking whether a MIDI 
@@ -7654,6 +7886,7 @@ Music routines (MIDI)
 @@extern long @midi_loop_start;
 @@extern long @midi_loop_end;
 @xref play_looped_midi
+@shortdesc Loop start and end points, set by play_looped_midi().
    The loop start and end points, set by the play_looped_midi() function. 
    These may safely be altered while the music is playing, but you should be 
    sure they are always set to sensible values (start &lt end). If you are 
@@ -7666,6 +7899,7 @@ Music routines (MIDI)
 @@extern void (*@midi_meta_callback)(int type, const unsigned char *data, int length);
 @@extern void (*@midi_sysex_callback)(const unsigned char *data, int length);
 @xref play_midi
+@shortdesc Hook functions allowing you to intercept MIDI player events.
    Hook functions allowing you to intercept MIDI player events. If set to 
    anything other than NULL, these routines will be called for each MIDI 
    message, meta-event, and system exclusive data block respectively. They 
@@ -7676,6 +7910,7 @@ Music routines (MIDI)
 
 @@int @load_ibk(char *filename, int drums);
 @xref install_sound
+@shortdesc Reads in a .IBK patch definition file for the Adlib driver.
    Reads in a .IBK patch definition file for use by the Adlib driver. If 
    drums is set, it will load it as a percussion patch set, otherwise it 
    will use it as a replacement set of General MIDI instruments. You may 
@@ -7697,6 +7932,7 @@ doing something clever like generating the waveform on the fly.
 @@AUDIOSTREAM *@play_audio_stream(int len, bits, stereo, freq, vol, pan);
 @xref install_sound, get_audio_stream_buffer, stop_audio_stream
 @eref exstream
+@shortdesc Creates a new audio stream and starts playing it.
    This function creates a new audio stream and starts playing it. The 
    length is the size of each transfer buffer in sample frames (not bytes), 
    where a sample frame is a single sample value for mono data or a pair of 
@@ -7720,11 +7956,13 @@ doing something clever like generating the waveform on the fly.
 @@void @stop_audio_stream(AUDIOSTREAM *stream);
 @xref play_audio_stream
 @eref exstream
+@shortdesc Destroys an audio stream when it is no longer required.
    Destroys an audio stream when it is no longer required.
 
 @@void *@get_audio_stream_buffer(AUDIOSTREAM *stream);
 @xref play_audio_stream, free_audio_stream_buffer
 @eref exstream
+@shortdesc Tells you if you need to fill the audiostream or not.
    You must call this function at regular intervals while an audio stream is 
    playing, to provide the next buffer of sample data (the smaller the 
    stream buffer size, the more often it must be called). If it returns 
@@ -7740,6 +7978,7 @@ doing something clever like generating the waveform on the fly.
 @@void @free_audio_stream_buffer(AUDIOSTREAM *stream);
 @xref get_audio_stream_buffer
 @eref exstream
+@shortdesc Tells the audio stream player new data can be played.
    Call this function after get_audio_stream_buffer() returns a non-NULL 
    address, to indicate that you have loaded a new block of samples to that 
    location and the data is now ready to be played.
@@ -7756,6 +7995,7 @@ Recording routines
 @xref DIGI_*/MacOSX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
 @xref MIDI_*/MacOSX
+@shortdesc Initialises the sound recorder module.
    Initialises the sound recorder module, returning zero on success. You 
    must install the normal sound playback system before calling this 
    routine. The two card parameters should use the same constants as 
@@ -7764,6 +8004,7 @@ Recording routines
 
 @@void @remove_sound_input();
 @xref install_sound_input, remove_sound, allegro_exit
+@shortdesc Cleans up after you are finished with the sound input routines.
    Cleans up after you are finished with the sound input routines. You don't 
    normally need to call this, because remove_sound() and/or allegro_exit() 
    will do it for you.
@@ -7771,6 +8012,7 @@ Recording routines
 @@int @get_sound_input_cap_bits();
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_rate
 @xref get_sound_input_cap_stereo
+@shortdesc Checks which audio input sample formats are supported.
    Checks which sample formats are supported by the current audio input 
    driver, returning one of the bitfield values:
 <textblock>
@@ -7782,18 +8024,21 @@ Recording routines
 @@int @get_sound_input_cap_stereo();
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_bits
 @xref get_sound_input_cap_rate
+@shortdesc Tells if the input driver is capable of stereo recording.
    Checks whether the current audio input driver is capable of stereo 
    recording.
 
 @@int @get_sound_input_cap_rate(int bits, int stereo);
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_bits
 @xref get_sound_input_cap_stereo
+@shortdesc Returns the maximum sample frequency for recording.
    Returns the maximum possible sample frequency for recording in the 
    specified format, or zero if these settings are not supported.
 
 @@int @get_sound_input_cap_parm(int rate, int bits, int stereo);
 @xref start_sound_input, get_sound_input_cap_bits, get_sound_input_cap_rate
 @xref get_sound_input_cap_stereo
+@shortdesc Detects if the specified recording parameters are supported.
    Checks whether the specified recording frequency, number of bits, and 
    mono/stereo mode are supported by the current audio driver, returning one 
    of the values:
@@ -7807,6 +8052,7 @@ Recording routines
 
 @@int @set_sound_input_source(int source);
 @xref start_sound_input
+@shortdesc Selects the audio input source.
    Selects the audio input source, returning zero on success or -1 if the 
    hardware does not provide an input select register. The parameter should 
    be one of the values:
@@ -7820,17 +8066,20 @@ Recording routines
 @xref digi_recorder, set_sound_input_source, get_sound_input_cap_parm
 @xref get_sound_input_cap_bits, get_sound_input_cap_rate
 @xref get_sound_input_cap_stereo
+@shortdesc Starts recording in the specified format.
    Starts recording in the specified format, suspending audio playback as 
    necessary (this will always happen with the current drivers). Returns the 
    buffer size in bytes if successful, or zero on error.
 
 @@void @stop_sound_input();
 @xref start_sound_input
+@shortdesc Stops audio recording.
    Stops audio recording, switching the card back into the normal playback 
    mode.
 
 @@int @read_sound_input(void *buffer);
 @xref start_sound_input
+@shortdesc Retrieves the last recorded audio buffer.
    Retrieves the most recently recorded audio buffer into the specified 
    location, returning non-zero if a buffer has been copied or zero if no 
    new data is yet available. The buffer size can be obtained by checking 
@@ -7846,6 +8095,7 @@ Recording routines
 
 @@extern void (*@digi_recorder)();
 @xref install_sound_input, start_sound_input
+@shortdesc Hook notifying you when a new sample buffer becomes available.
    If set, this function is called by the input driver whenever a new sample 
    buffer becomes available, at which point you can use read_sound_input() 
    to copy the data into a more permanent location. It runs in an interrupt
@@ -7855,6 +8105,7 @@ Recording routines
 
 @@extern void (*@midi_recorder)(unsigned char data);
 @xref install_sound_input, midi_out
+@shortdesc Hook notifying you when new MIDI data becomes available.
    If set, this function is called by the MIDI input driver whenever a new 
    byte of MIDI data becomes available. It runs in an interrupt context, so 
    it must execute very quickly and all the code/data must be locked. This
@@ -7894,6 +8145,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 'FA_ARCH' then both archived and non-archived files will be included.
 
 @@void @get_executable_name(char *buf, int size);
+@shortdesc Obtains the full path to the current executable.
    Fills buf with the full path to the current executable, writing at most 
    size bytes.  This generally comes from argv[0] but on Unix systems we
    try to get the information from the /proc filesystem first, searching the
@@ -7903,40 +8155,47 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@char *@fix_filename_case(char *path);
 @xref fix_filename_slashes, canonicalize_filename
+@shortdesc Converts a filename to a standardised case.
    Converts a filename to a standardised case. On DOS platforms, they will 
    be entirely uppercase. Returns a copy of the path parameter.
 
 @@char *@fix_filename_slashes(char *path);
 @xref fix_filename_case, canonicalize_filename
+@shortdesc Converts all the directory separators to a standard character.
    Converts all the directory separators in a filename to a standard 
    character. On DOS platforms, this is a backslash. Returns a copy of the 
    path parameter.
 
 @@char *@canonicalize_filename(char *dest, const char *filename, int size);
 @xref fix_filename_case, fix_filename_slashes
+@shortdesc Converts any filename into its canonical form.
    Converts any filename into its canonical form, i.e. the minimal absolute
    filename describing the same file, storing at most size bytes into the
    dest buffer. Returns a copy of the dest parameter.
 
 @@char *@make_absolute_filename(char *dest, const char *path, const char *filename, int size);
 @xref make_relative_filename, is_relative_filename
+@shortdesc Makes an absolute filename from a path and relative filename.
    Makes an absolute filename from an absolute path and a relative filename,
    storing at most size bytes into the dest buffer. Returns a copy of the
    dest parameter.
 
 @@char *@make_relative_filename(char *dest, const char *path, const char *filename, int size);
 @xref make_absolute_filename, is_relative_filename
+@shortdesc Tries to make a relative filename from absolute path and filename.
    Attempts to make a relative filename from an absolute path and an absolute
    filename, storing at most size bytes into the dest buffer. Returns a copy
    of the dest parameter if it succeeds or NULL if it fails.
 
 @@int @is_relative_filename(const char *filename);
 @xref make_absolute_filename, make_relative_filename
+@shortdesc Returns TRUE if the filename is relative.
    Returns TRUE if the filename is relative or FALSE if it is absolute.
 
 @\char *@replace_filename(char *dest, const char *path, 
 @@                       const char *filename, int size);
 @xref get_filename, replace_extension, append_filename
+@shortdesc Replaces path+filename with a new filename tail.
    Replaces the specified path+filename with a new filename tail, storing 
    at most size bytes into the dest buffer. Returns a copy of the dest 
    parameter.
@@ -7944,6 +8203,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 @\char *@replace_extension(char *dest, const char *filename, 
 @@                        const char *ext, int size);
 @xref get_extension, replace_filename
+@shortdesc Replaces filename+extension with a new extension tail.
    Replaces the specified filename+extension with a new extension tail, 
    storing at most size bytes into the dest buffer. Returns a copy of the 
    dest parameter.
@@ -7951,23 +8211,27 @@ directories, but not hidden files and directories. Similarly, if you pass
 @\char *@append_filename(char *dest, const char *path, 
 @@                      const char *filename, int size);
 @xref replace_filename
+@shortdesc Concatenates a filename to a path.
    Concatenates the specified filename onto the end of the specified path, 
    storing at most size bytes into the dest buffer. Returns a copy of the 
    dest parameter.
 
 @@char *@get_filename(const char *path);
 @xref get_extension, put_backslash, replace_filename
+@shortdesc Returns a pointer to the filename portion of a path.
    When passed a completely specified file path, this returns a pointer to 
    the filename portion. Both '\' and '/' are recognized as directory 
    separators.
 
 @@char *@get_extension(const char *filename);
 @xref get_filename, put_backslash, replace_extension
+@shortdesc Returns a pointer to the extension of a filename.
    When passed a complete filename (with or without path information) this 
    returns a pointer to the file extension.
 
 @@void @put_backslash(char *filename);
 @xref get_extension, get_filename
+@shortdesc Puts a path separator at the end of a path.
    If the last character of the filename is not a '\', '/', '#' or a device
    separator (ie. ':' under DOS), this routine will concatenate either a '\'
    or '/' on to it (depending on the platform). Note: ignore the function
@@ -7975,6 +8239,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @file_exists(const char *filename, int attrib, int *aret);
 @xref exists, file_size, file_time
+@shortdesc Tells if a file exists.
    Checks whether a file matching the given name and attributes (see above) 
    exists, returning non-zero if it does. If aret is not NULL, it will be 
    set to the attributes of the matching file. If an error occurs the system 
@@ -7982,28 +8247,33 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @exists(const char *filename);
 @xref file_exists, file_size, file_time
+@shortdesc Shortcut version of file_exists() for normal files.
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
 
 @@long @file_size(const char *filename);
 @xref file_exists, file_time
+@shortdesc Returns the size of a file in bytes.
    Returns the size of a file, in bytes. If the file does not exist or an 
    error occurs, it will return zero and store the system error code in 
    errno.
 
 @@time_t @file_time(const char *filename);
 @xref file_exists, file_size
+@shortdesc Returns the modification time of a file.
    Returns the modification time (number of seconds since 00:00:00 GMT 
    1/1/1970) of a file. If the file does not exist or an error occurs, it 
    will return zero and store the system error code in errno.
 
 @@int @delete_file(const char *filename);
+@shortdesc Removes a file from the disk.
    Removes a file from the disk.
 
 @\int @for_each_file_ex(const char *name, int in_attrib, int out_attrib,
 @\                     int (*callback)(const char *filename, int attrib,
 @@                     void *param), void *param);
+@shortdesc Executes callback() for each file matching a wildcard.
    Finds all the files on disk which match the given wildcard specification
    and file attributes, and executes callback() once for each. in_attrib is 
    a bitmask specifying the attributes the files must carry, out_attrib is a 
@@ -8021,6 +8291,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @al_findfirst(const char *pattern, struct al_ffblk *info, int attrib);
 @xref al_findnext, al_findclose
+@shortdesc Low-level function for searching files.
    Low-level function for searching files. This function finds the first 
    file which matches the given wildcard specification and file attributes 
    (see above). The information about the file (if any) will be put in the 
@@ -8044,12 +8315,14 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @al_findnext(struct al_ffblk *info);
 @xref al_findfirst, al_findclose
+@shortdesc Finds the next file in a search started by al_findfirst().
    This finds the next file in a search started by al_findfirst(). Returns 
    zero if a match is found, nonzero if none is found or if an error 
    occured and, in the latter case, sets errno accordingly.
 
 @@void @al_findclose(struct al_ffblk *info);
 @xref al_findfirst, al_findnext
+@shortdesc Closes a previously opened search with al_findfirst().
    This closes a previously opened search with al_findfirst(). You need to
    call this on all successfully opened searches to avoid memory leaks in
    your program.
@@ -8059,6 +8332,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 @\                          const char *objectname, const char *envvar, 
 @@                          const char *subdir, int size);
 @xref set_allegro_resource_path
+@shortdesc Searches for a support file in many places.
    Searches for a support file, eg. allegro.cfg or language.dat. Passed a 
    resource string describing what you are looking for, along with extra 
    optional information such as the default extension, what datafile to look 
@@ -8074,6 +8348,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @set_allegro_resource_path(int priority, const char *path);
 @xref find_allegro_resource
+@shortdesc Sets a specific resource search path.
    Sometimes Allegro doesn't look in enough places to find a resource. For
    those special cases, you can call this function before loading your
    resource with additional paths to search for. You set up the priorities,
@@ -8096,6 +8371,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@void @packfile_password(const char *password);
 @xref pack_fopen, load_datafile
+@shortdesc Sets the global I/O encryption password.
    Sets the encryption password to be used for all read/write operations
    on files opened in future using Allegro's packfile functions (whether
    they are compressed or not), including all the save, load and config
@@ -8128,6 +8404,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
 @xref pack_fclose, pack_fopen_chunk, packfile_password, pack_fread, pack_getc
 @xref file_select_ex
+@shortdesc Opens a file according to mode.
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
       'r' - open file for reading.
@@ -8183,6 +8460,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_fclose(PACKFILE *f);
 @xref pack_fopen, packfile_password
+@shortdesc Closes a stream previously opened with pack_fopen().
    Closes the stream f previously opened with pack_fopen(). After you have
    closed the stream, performing operations on it will yield errors in your
    application (e.g. crash it) or even block your OS.
@@ -8193,6 +8471,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_fseek(PACKFILE *f, int offset);
 @xref pack_fopen, pack_fopen_chunk
+@shortdesc Seeks inside a stream.
    Moves the position indicator of the stream f. Unlike the standard fseek()
    function, this only supports forward movements relative to the current
    position and in read-only streams, so don't use negative offsets.
@@ -8205,6 +8484,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_feof(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_ferror
+@shortdesc Returns nonzero as soon as you reach the end of the file.
    pack_feof() returns nonzero as soon as you reach the end of the file. It 
    does not wait for you to attempt to read beyond the end of the file,
    contrary to the ISO C feof() function. The only way to know whether you
@@ -8214,6 +8494,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_ferror(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
+@shortdesc Tells if an error occurred during an operation on the stream.
 @retval
    Returns nonzero if the error indicator for the stream is set, indicating
    that an error has occurred during a previous operation on the stream.
@@ -8226,57 +8507,68 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_getc(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
+@shortdesc Returns the next character from a stream.
    Returns the next character from the stream f, or EOF if the end of the
    file has been reached.
 
 @@int @pack_putc(int c, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
+@shortdesc Puts a character in the stream.
    Puts a character in the stream f.
 @retval
    Returns the character written on success, or EOF on error.
 
 @@int @pack_igetw(PACKFILE *f);
 @xref pack_getc
+@shortdesc Like pack_getc(), but using 16-bit Intel byte ordering words.
    Like pack_getc, but reads a 16-bit word from a file, using Intel byte
    ordering (least significant byte first, a.k.a. little-endian).
 
 @@int @pack_iputw(int c, PACKFILE *f);
 @xref pack_putc
+@shortdesc Like pack_putc(), but using 16-bit Intel byte ordering words.
    Like pack_putc, but writes a 16-bit word to a file, using Intel byte
    ordering (least significant byte first, a.k.a. little-endian).
 
 @@long @pack_igetl(PACKFILE *f);
 @xref pack_getc
+@shortdesc Like pack_getc(), but using 32-bit Intel byte ordering words.
    Like pack_getc, but reads a 32-bit long from a file, using Intel byte
    ordering (least significant byte first, a.k.a. little-endian).
 
 @@long @pack_iputl(long c, PACKFILE *f);
 @xref pack_putc
+@shortdesc Like pack_putc(), but using 32-bit Intel byte ordering words.
    Like pack_putc, but writes a 32-bit long to a file, using Intel byte
    ordering (least significant byte first, a.k.a. little-endian).
 
 @@int @pack_mgetw(PACKFILE *f);
 @xref pack_getc
+@shortdesc Like pack_getc(), but using 16-bit Motorola byte ordering words.
    Like pack_getc, but reads a 16-bit word from a file, using Motorola byte
    ordering (most significant byte first, a.k.a. big-endian).
 
 @@int @pack_mputw(int c, PACKFILE *f);
 @xref pack_putc
+@shortdesc Like pack_putc(), but using 16-bit Motorola byte ordering words.
    Like pack_putc, but writes a 16-bit word to a file, using Motorola byte
    ordering (most significant byte first, a.k.a. big-endian).
 
 @@long @pack_mgetl(PACKFILE *f);
 @xref pack_getc
+@shortdesc Like pack_getc(), but using 32-bit Motorola byte ordering words.
    Like pack_getc, but reads a 32-bit long from a file, using Motorola byte
    ordering (most significant byte first, a.k.a. big-endian).
 
 @@long @pack_mputl(long c, PACKFILE *f);
 @xref pack_putc
+@shortdesc Like pack_putc(), but using 32-bit Motorola byte ordering words.
    Like pack_putc, but writes a 32-bit long to a file, using Motorola byte
    ordering (most significant byte first, a.k.a. big-endian).
 
 @@long @pack_fread(void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
+@shortdesc Reads n bytes from the stream.
    Reads n bytes from the stream f, storing them at the memory location
    pointed to by p.
 @retval
@@ -8285,6 +8577,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@long @pack_fwrite(const void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
+@shortdesc Writes n bytes to the stream.
    Writes n bytes to the stream f from memory location pointed to by p.
 @retval
    Returns the number of bytes written, which will be less than n if an
@@ -8292,6 +8585,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
+@shortdesc Reads a line from the stream.
    Reads a line from the stream f, storing it at location pointed to by p.
    Stops when a linefeed is encountered, or 'max' bytes have been read. The
    end of line is handled by detecting the right combination of characters
@@ -8307,6 +8601,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_fputs(const char *p, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fwrite, pack_putc
+@shortdesc Writes a string to the stream.
    Writes a string to the stream f. The input string is converted from the
    current text encoding format to UTF-8 before writing. Newline characters
    are written as \r\n on DOS and Windows platforms. If you don't want this
@@ -8316,6 +8611,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@PACKFILE *@pack_fopen_chunk(PACKFILE *f, int pack);
 @xref pack_fclose_chunk, pack_fopen
+@shortdesc Opens a sub-chunk of a file.
    Opens a sub-chunk of a file. Chunks are primarily intended for use by the 
    datafile code, but they may also be useful for your own file routines. A 
    chunk provides a logical view of part of a file, which can be compressed 
@@ -8358,6 +8654,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@PACKFILE *@pack_fclose_chunk(PACKFILE *f);
 @xref pack_fopen_chunk
+@shortdesc Closes a previously opened sub-chunk.
    Closes a sub-chunk of a file, previously obtained by calling 
    pack_fopen_chunk().
 
