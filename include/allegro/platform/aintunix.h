@@ -22,12 +22,6 @@
 extern "C" {
 #endif
 
-#ifndef HAVE_LIBPTHREAD
-   /* Asynchronous event processing with SIGALRM */
-   AL_FUNC(void, _sigalrm_request_abort, (void));
-   AL_FUNCPTR(void, _sigalrm_timer_interrupt_handler, (unsigned long interval));
-#endif
-
    /* Macros to enable and disable interrupts */
    #define DISABLE() _unix_bg_man->disable_interrupts()
    #define ENABLE()  _unix_bg_man->enable_interrupts()
@@ -82,31 +76,6 @@ extern "C" {
    AL_FUNC(void, _xwin_handle_input, (void));
    AL_FUNC(void, _xwin_private_handle_input, (void));
 
-#ifndef ALLEGRO_MULTITHREADED
-
-   AL_VAR(int, _xwin_missed_input);
-
-   #define XLOCK()                              \
-      do {                                      \
-         _xwin.lock_count++;                    \
-      } while (0)
-
-   #define XUNLOCK()                            \
-      do {                                      \
-         if (_xwin.lock_count == 1) {           \
-            while(_xwin_missed_input) {         \
-               if (_xwin_input_handler)         \
-                  _xwin_input_handler();        \
-               else                             \
-                  _xwin_private_handle_input(); \
-               --_xwin_missed_input;            \
-            }                                   \
-         }                                      \
-         _xwin.lock_count--;                    \
-      } while (0)
-
-#else
-
    #define XLOCK()                              \
       do {                                      \
          if (_xwin.display)                     \
@@ -120,8 +89,6 @@ extern "C" {
             XUnlockDisplay(_xwin.display);      \
          _xwin.lock_count--;                    \
       } while (0)
-
-#endif
 
 #endif
 
@@ -167,7 +134,6 @@ struct bg_manager
 };	
 
 extern struct bg_manager _bg_man_pthreads;
-extern struct bg_manager _bg_man_sigalrm;
 
 extern struct bg_manager *_unix_bg_man;
 
@@ -185,7 +151,6 @@ extern struct bg_manager *_unix_bg_man;
  *----------------------------------------------------------------------*/
 
 /* TODO: integrate this above */
-/* TODO: remove SIGALRM stuff */
 /* TODO: replace bg_man */
 
 #include <pthread.h>

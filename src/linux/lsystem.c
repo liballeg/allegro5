@@ -121,11 +121,7 @@ static RETSIGTYPE signal_handler (int num)
  */
 static int __al_linux_bgman_init (void)
 {
-#ifdef HAVE_LIBPTHREAD
 	_unix_bg_man = &_bg_man_pthreads;
-#else
-	_unix_bg_man = &_bg_man_sigalrm;
-#endif
 	if (_unix_bg_man->init() || _unix_bg_man->register_func (__al_linux_update_standard_drivers))
 		return -1;
 	return 0;

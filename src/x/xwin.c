@@ -150,10 +150,6 @@ int _xwin_in_gfx_call = 0;
 static COLORCONV_BLITTER_FUNC *blitter_func = NULL;
 static int use_bgr_palette_hack = FALSE; /* use BGR hack for color conversion palette? */
 
-#ifndef ALLEGRO_MULTITHREADED
-int _xwin_missed_input;
-#endif
-
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 int _xdga_last_line = -1;
 static int _xdga_installed_colormap; 
@@ -2435,13 +2431,6 @@ void _xwin_private_handle_input(void)
 
 void _xwin_handle_input(void)
 {
-#ifndef ALLEGRO_MULTITHREADED
-   if (_xwin.lock_count) {
-      ++_xwin_missed_input;
-      return;
-   }
-#endif
-
    XLOCK();
 
    if (_xwin_input_handler)

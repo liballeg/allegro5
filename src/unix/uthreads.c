@@ -21,8 +21,6 @@
 #include "allegro.h"
 #include "allegro/platform/aintunix.h"
 
-#ifdef HAVE_LIBPTHREAD
-
 #include <pthread.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -290,8 +288,3 @@ struct bg_manager _bg_man_pthreads = {
 };
 
 #endif
-
-
-
-#endif
-

@@ -474,13 +474,6 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    static int virgin = 1;
    
-#ifndef HAVE_LIBPTHREAD
-   /* SVGAlib and the SIGALRM code don't like each other, so only support
-    * pthreads event processing.  */
-   if (_unix_bg_man == &_bg_man_sigalrm)
-      return NULL;
-#endif
-
    if ((!svga_version2()) && (!__al_linux_have_ioperms)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs root privileges"));
       return NULL;
