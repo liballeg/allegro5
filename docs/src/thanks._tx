@@ -17,6 +17,9 @@ the oversight!
 @heading
 Contributors
 
+   Acho A. Tang (<email>acho@telus.net</a>).<br>
+   Added a Sidewinder Precision Pro joystick driver to the DOS port.
+   
    Adrian Oboroc (<email>doba@corefx.com</a>).<br>
    Wrote the LBM loader.
 
@@ -32,7 +35,11 @@ Contributors
    class.
 
    Andrei Ellman (<email>ae-a@wackonet.fsnet.co.uk</a>).<br>
-   Contributed the polygon_z_normal() function.
+   Contributed the polygon_z_normal() function, suggested some additions to
+   the docs, updated the Cygwin section in docs/build/mingw32.txt, got
+   Allegro for MSVC to build with Cygwin, improved the performance of the
+   hsv_to_rgb() function, corrected a rounding issue in hsv_to_rgb() and
+   improved the exrgbhsv example.
 
    Andrew Cottrell (<email>andrewc@dbworld.net.au</a>).<br>
    Changed the grabber to use a more robust (locale-independent) date format.
@@ -54,15 +61,15 @@ Contributors
    DGA2 driver and close button support for X, contributed the bfixicon
    utility, added triple buffering support, a BWindow-based windowed driver
    and a fullscreen overlay driver to the BeOS port and reorganized its gfx
-   subsystem. And, oh, contributed the QNX port too.
+   subsystem. And, oh, contributed the QNX and MacOS X ports too.
 
    Annie Testes (<email>annie@kezako.net</a>).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE, fixed
    several glitches in the unicode support, added a pack_fdopen() function,
-   caught a misordering in the X system shutdown, found ASCII strings that
-   needed to be converted, fixed some device name strings, lifted several
-   hardcoded length limitations in the configuration routines and added a
-   mouse driver based on the event interface (EVDEV) to the Linux port.
+   caught a misordering in the X system shutdown, fixed some device name
+   strings, lifted several hardcoded length limitations in the configuration
+   routines, added a mouse driver based on the event interface (EVDEV) to the
+   Linux port, fixed numerous bugs and did plenty of other things too.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -137,14 +144,17 @@ Contributors
    Optimised the truecolor pixel blending functions.
 
    Charles Bilyue (<email>Esaelon@aol.com</a>).<br>
-   Optimized the i386 blitters.
+   Optimized the i386 blitters and suggested to not force yielding timeslice
+   with non-blocking menus.
 
-   Chris Graham.<br>
+   Chris Graham (<email>chris_graham@postmark.net</a>).<br>
    Suggested to add a new flag for Windows NTFS compressed files.
 
    Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
-   Fixed a bug with 16-bit samples loading and worked around a problem with
-   DOS file attributes under Win2k.
+   Fixed a bug with 16-bit samples loading, worked around a problem with DOS
+   file attributes under Win2k, let the MIDI player pass controller events to
+   the raw player by default and made the MIDI player handle the 'All Sound Off'
+   controller message.
 
    Chris La Mantia (<email>celamantia@home.com</a>).<br>
    Wrote the d_radio_proc(), d_icon_proc(), and d_slider_proc() dialog
@@ -154,6 +164,11 @@ Contributors
    Chris Robinson (<email>crobin_99@yahoo.com</a>).<br>
    Wrote the fixed point clip3d() function.
 
+   Christer Sandberg (<email>christer.sandberg@mdh.se</a>).<br>
+   Made dat2c work better with ISO C90 compilers, made dat2c correctly detect
+   the native line ending, fixed a problem with the include guard generated
+   by dat2c and fixed a bug in the 24-bit graphics code of fixup_datafile().
+   
    Christian Schueler (<email>cschueler@gmx.de</a>).<br>
    Changed the optimisation settings for better performance.
 
@@ -215,7 +230,7 @@ Contributors
    revamped the Unicode API and added uszprintf(), added file_select_ex(),
    the unified al_find*() interface, an Unicode example, a new filetest,
    rewrote the fixdll script, revamped the Borland C++ build process, fixed
-   lots of bugs and did truckloads more work on the Windows port too.
+   lots of bugs and did plenty of other things too.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions and
@@ -227,9 +242,10 @@ Contributors
    Evert Glebbeek (<email>eglebbk@dds.nl</a>).<br>
    Put set_gfx_mode on a diet, added a config entry for specifying the card
    to be used for GFX_AUTODETECT_WINDOWED, added a '-fullscreen' switch to
-   the grabber, cleaned up the grabber/plugins code, added an option menu
-   to the grabber, added the detection of SunOS/Solaris and added configure
-   options for x86 processor optimisations on Unix systems.
+   the grabber, cleaned up the grabber/plugins code, added various commands
+   to the grabber, added the detection of SunOS/Solaris, added configure
+   options for x86 processor optimisations on Unix systems, added the support
+   for relative filenames and did plenty of other things too.
 
    Fabian Nunez (<email>faybs@iafrica.com</a>).<br>
    Added support for the CH Flightstick Pro and Logitech Wingman Extreme
@@ -288,6 +304,12 @@ Contributors
    Haruhiko Okumura, 12-2-404 Green Heights, 580 Nagasawa, Yokosuka 239, JP.<br>
    Wrote the original version of the LZSS compression code.
 
+   Hein Zelle (<email>hein@icce.rug.nl</a>).<br>
+   Revamped the cross-compilation section of docs/build/mingw32.txt, clarified
+   a requirement when cross-compiling from Linux, reworked the paragraph on
+   the location of shared libraries under Unix in the docs and added a FAQ
+   entry on the same subject.
+
    Henrik Schmidt (<email>hbs@ks.informatik.uni-kiel.de</a>).<br>
    Found a workaround for the switching problem under Windows, made gcc pass
    '-h' instead of '-soname' to the linker and replaced '-L' by '-h' in shell
@@ -298,8 +320,8 @@ Contributors
    cross-compiler and the Cygwin compiler, much improved OS detection, added
    get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
    VESA, VBE/AF and DirectX drivers for a list of possible GFX modes,
-   rewrote the mode-selector to use get_gfx_mode_list(), rewrote/updated
-   some scripts and reworked the build system many times.
+   rewrote the mode-selector to use get_gfx_mode_list(), reworked the build
+   system many times and did plenty of other things too.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -323,6 +345,10 @@ Contributors
    Added support for quoted strings in the get_config_argv() function and
    the dithering code for paletted images.
 
+   James Ponder (<email>james@squish.net</a>).<br>
+   Suggested to remove the DJGPP makefile from the Unix tar archive and
+   clarified a requirement when cross-compiling from Linux.
+   
    Jan Bruun Andersen (<email>jba-dk@users.sourceforge.net</a>).<br>
    Fixed a compilation problem with Cygwin.
 
@@ -347,6 +373,9 @@ Contributors
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
 
+   Jim Grainger (<email>Grainger_Jim/world_europe_samuro_WYN-CTV@samsung.co.kr</a>).<br>
+   Spotted a broken link in the docs and updated it.
+
    Joaquin Hierro Diaz (<email>Joaquin.Hierro.Diaz@fresno.csic.es</a>).<br>
    Made the mapping table for Spanish keyboards.
 
@@ -360,6 +389,9 @@ Contributors
 
    Johan Venter (<email>leonjventer@bigpond.com</a>).<br>
    Fixed some problems with the RSXNT and Mingw32 makefiles.
+
+   John Holden (<email>johnh@psych.usyd.edu.au</a>).<br>
+   Fixed a bug in load_wav().
 
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
@@ -378,6 +410,9 @@ Contributors
 
    Joshua Heyer (<email>joshua_heyer@yahoo.com</a>).<br>
    Wrote the original version of the OSS sound driver.
+
+   Julien Cugniere (<email>jcugniere@free.fr</a>).<br>
+   Improved the support for non-blocking menus.
 
    Keith Gerdes (<email>kwg@softhome.net</a>).<br>
    Fixed the DirectDraw overlay mode driver.
@@ -409,6 +444,9 @@ Contributors
    Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
    Contributed the Norwegian message translation.
 
+   Lennart Steinke (<email>lst@steinke.net</a>).<br>
+   Added the exconfig example.
+
    Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
    Contributed the SGI Audio Library sound driver, spotted a BSDism that
    IRIX doesn't like at all and added IRIX detection.
@@ -421,6 +459,10 @@ Contributors
    Lucas Vignoli Reis (<email>lucasvr@bestway.com.br</a>).<br>
    Added the Portuguese (Brazil) message translation and keyboard mapping.
 
+   Magnus Henoch (<email>mange@freemail.hu</a>).<br>
+   Made the gfx mode selector keep the current selection as much as possible
+   and fixed a problem when compiling without 8bpp support.
+   
    Maiolino Carmelo (<email>cmaiolino@ctonline.it</a>).<br>
    Added the Italian keyboard mapping table.
 
@@ -434,9 +476,11 @@ Contributors
    of the joystick code that didn't come from Jonathan and to locate a
    stupid mistake in my VESA linear framebuffer code.
 
-   Marcel Smit.<br>
+   Marcel Smit (<email>marcel.athlon@hccnet.nl</a>).<br>
    Corrected a bug that caused errors when drawing persp. correct polygons
-   facing the screen and corrected an error in the packfile format write-up.
+   facing the screen, corrected an error in the packfile format write-up and
+   made the show_video_bitmap() method of the Windows windowed driver wait
+   for a vsync.
 
    Marco Campinoti (<email>marco@etruscan.li.it</a>).<br>
    Added 15 and 24 bit support to the native Tseng ET4000 driver (now
@@ -467,6 +511,9 @@ Contributors
    useful suggestions like the addition of a vid_phys_base field to the
    graphics driver structure.
 
+   Martijn Van Lersel (<email>amarillion@yahoo.com</a>).<br>
+   Fixed an overflow in create_light_table().
+
    Martijn Versteegh (<email>m.versteegh@hccnet.nl</a>).<br>
    Added the config hook extension mechanism.
 
@@ -484,9 +531,9 @@ Contributors
    Fixed a bug with mouse mickeys in windowed mode under Windows, fixed a
    problem with al_find*() and NTFS partitions under Windows, added missing
    header files to be installed by the Windows binary distribution, made the
-   DOS/Windows makefiles use 'copy /B' instead of 'copy', pointed out a C99
-   idiom in the dat2c utility that Borland C++ doesn't like and added the
-   detection of left-hand mouse configuration under Windows.
+   DOS/Windows makefiles use 'copy /B' instead of 'copy', added the detection
+   of left-hand mouse configuration under Windows and fixed a bug with
+   pack_fgets().
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
@@ -537,8 +584,9 @@ Contributors
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
 
    Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
-   Added the Catalan translation, corrected the Spanish translation and fixed
-   a bug with binary data exporting in the grabber.
+   Added the Catalan translation, corrected the Spanish translation, fixed a
+   bug with binary data exporting in the grabber, fixed a conflict between
+   the magic main and the MFC, and spotted an asm locking bug under Windows.
 
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.
@@ -609,6 +657,12 @@ Contributors
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
 
+   Philipp Thomas (<email>pthomas@suse.de</a>).<br>
+   Fixed all comparisons between signed and unsigned types, fixed compilation
+   on x86-64, fixed all function prototypes, converted the configure machinery
+   to autoconf 2.53 or later and added multi-arch support, DESTDIR suppor and
+   the German translation to the RPM spec file.
+
    Przemek Podsiadly (<email>ppodsiad@elka.pw.edu.pl</a>).<br>
    Added hicolor versions of the 3d polygon code.
 
@@ -677,7 +731,7 @@ Contributors
    Sean Gugler (<email>sean@epal.com</a>).<br>
    Added the set_leds() function.
 
-   Seunghwan Ji.<br>
+   Seunghwan Ji (email unknown).<br>
    Made makedoc output correct html and rtf files for Korean.
 
    Seymour Shlien (<email>seymour@dgbt.doc.ca</a>).<br>
@@ -709,11 +763,11 @@ Contributors
 
    Sven Sandberg (<email>svens@it.uu.se</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised
-   the create_light_table() function, optimised the fixed point trig
+   the create_light_table() function, optimised the fixed point trigonometric
    routines, provided the Swedish message translations, improved the file
-   selector sorting algorithm, optimised the spline routines, added the
-   ustrrchr() function, improved the usprintf() handling of floats, changed
-   the Z-buffer API, improved rotation functions and provided other bugfixes.
+   selector sorting algorithm, optimised the spline routines, added ustrrchr(),
+   improved the usprintf() handling of floats, changed the Z-buffer API,
+   improved rotation functions and did plenty of other things too.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
@@ -762,14 +816,16 @@ Contributors
    joystick drivers by S.Suzuki merged into my codebase and added a more
    aggressive Sidewinder joystick driver.
 
+   Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
+   Fixed a problem with make install libdir= and modules on Unix systems.
+
    Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
    system, optimised the 256 to truecolor blitting code to avoid repeated
    conversions of the palette table, added scare_mouse_area(), added the
    yield_timeslice() function, added the update selection function to the
    grabber, added the XCRP and YCRP properties to datafiles in general,
-   added sample loader/saver registration and a save_sample() function,
-   responsible for the big header split up and did loads other stuff too.
+   implemented the big header split and did plenty of other things too.
 
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.

@@ -7,6 +7,335 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.9 to 4.1.10 (Jun 2003)
+<ul><li>
+   Many minor changes and clarifications in the docs.
+<li>
+   Hein Zelle reworked the paragraph on the location of shared libraries
+   under Unix in the docs and added a FAQ entry on the same subject.
+<li>
+   Martijn Van Lersel fixed an overflow in create_light_table().
+<li>
+   Chris Jones and Eric Botcazou made the MIDI player handle the 'All Sound Off'
+   controller message.
+<li>
+   Angelo Mottola made the MacOS X port play nice with 10.1.x.
+<li>
+   Eric Botcazou made the menus not block on exit when mouse buttons are
+   still being held down.
+<li>
+   Grzegorz Adam Hankiewicz improved the description of set_gfx_mode about
+   virtual screen sizes and hardware scrolling by suggestion of Lothar May.
+<li>
+   Chris Jones let the MIDI player pass controller events to the raw player
+   by default.
+<li>
+   Angelo Mottola added the platform-dependent AL_RAND() macro.
+<li>
+   Angelo Mottola added a HID joystick driver to the MacOS X port.
+<li>
+   Henrik Stokseth spotted non-standard constructs in the Windows port.
+<li>
+   Henrik Stokseth spotted unused variables throughout the library.
+<li>
+   Jim Grainger spotted a broken link in the docs and updated it.
+<li>
+   Javier Gonzalez fixed some problems in the DirectSound streaming.
+<li>
+   Andrei Ellman improved the exrgbhsv example.
+<li>
+   Andrei Ellman corrected a rounding issue in hsv_to_rgb().
+<li>
+   Angelo Mottola added _al_rand() and replaced rand() with it throughout
+   the library.
+<li>
+   Elias Pschernig moved the big font example from exgui to excustom and
+   fixed d_edit_box string length.
+<li>
+   Angelo Mottola added the 'fixbundle' utility to the MacOS X port.
+<li>
+   Eric Botcazou added the possibility to fold/unfold nested datafiles in
+   the grabber.
+<li>
+   Angelo Mottola fixed a couple of color conversion bugs.
+<li>
+   Elias Pschernig replaced exgui with a more thorough version.
+<li>
+   Vincent Penquerc'h added support for debugging with Fortify under Unix.
+<li>
+   Vincent Penquerc'h added the 'Replace' option to the grabber.
+<li>
+   Vincent Penquerc'h added the 'Force Update Selection' command to the
+   grabber and refactored a fair amount of duplicated code.
+<li>
+   Eric Botcazou made exunicod endian-safe.
+<li>
+   Eric Botcazou fixed the behaviour of the C version of draw_trans_sprite()
+   with 32-bit RGBA sprites.
+<li>
+   Angelo Mottola fixed the behaviour of the C version of draw_trans_sprite()
+   in 8bpp mode.
+<li>
+   Angelo Mottola added system bitmaps support to the MacOS X port.
+<li>
+   Eric Botcazou enabled full support of relative filenames in the dat/grabber
+   utilities.
+<li>
+   Angelo Mottola made exlights endian-safe.
+<li>
+   Christer Sandberg fixed a bug in the 24-bit graphics code of fixup_datafile().
+<li>
+   Angelo Mottola added hw-accelerated VRAM->VRAM blit support under MacOS X.
+<li>
+   Angelo Mottola added an install-template makefile target to install an
+   Allegro application Project Builder template under MacOS X.
+<li>
+   Angelo Mottola added a digital sound driver to the MacOS X port.
+<li>
+   John Holden fixed a bug in load_wav().
+<li>
+   Angelo Mottola added a MIDI driver to the MacOS X port.
+<li>
+   Angelo Mottola added proper mouse buttons detection via HID Manager and
+   buttons emulation if needed under MacOS X.
+<li>
+   Eric Botcazou added canonicalize_filename() and deprecated fix_filename_path().
+<li>
+   Evert Glebbeek added the support for relative filenames to the grabber.
+<li>
+   Eric Botcazou made it possible to pass CC on the command line to make
+   on non-Unix systems.
+<li>
+   Angelo Mottola added support for bundled applications under MacOS X.
+<li>
+   Javier Gonzalez devised a simpler fix for the WinXP black screen bug.
+<li>
+   Javier Gonzalez prevented some artifacts from being left on the screen
+   when moving fast the window under Windows.
+<li>
+   Angelo Mottola contributed the MacOS X port.
+<li>
+   Angelo Mottola fixed various things in preparation for the MacOS X port.
+<li>
+   Eric Botcazou uncoupled link options for libraries and programs.
+<li>
+   Evert Glebbeek added the support for relative filenames by means of three
+   new API functions.
+<li>
+   Elias Pschernig made the allegro.devhelp work with devhelp 0.6.0.
+<li>
+   Eric Botcazou made file_select_ex() honor the '(+)d' attribute character
+   in the extension string.
+<li>
+   Eric Botcazou removed the remaining occurences of ustrcpy() from the
+   library code.
+<li>
+   Christer Sandberg fixed a problem with the include guard generated
+   by dat2c.
+<li>
+   Eric Botcazou removed the remaining calls to deprecated functions from
+   the distribution.
+<li>
+   Eric Botcazou optimized the handling of the extension string in the
+   file selector.
+<li>
+   Eric Botcazou implemented the AL_*_DEPRECATED macros and enabled them
+   for GCC 3.1 or later.
+<li>
+   Sven Sandberg improved the performance of the rgb_to_hsv() function.
+<li>
+   Christer Sandberg and Eric Botcazou made dat2c correctly detect the
+   native line ending.
+<li>
+   Christer Sandberg and Eric Botcazou made dat2c work better with ISO C90
+   compilers.
+<li>
+   Henrik Stokseth updated the installation and configuration instructions
+   of both MinGW and Dev-C++ and documented the support of MSYS.
+<li>
+   Andrei Ellman improved the performance of the hsv_to_rgb() function.
+<li>
+   Peter Wang made the makefile not pass the -s switch to ld on Unix for
+   non-optimized builds.
+<li>
+   Evert Glebbeek added the 'New' command to the grabber.
+<li>
+   Eric Botcazou made the grabber save previous modified data when loading
+   new data.
+<li>
+   Eric Botcazou unified and fixed the support for ALLEGRO_USE_C on all
+   GCC-based ports.
+<li>
+   Eric Botcazou unified the autodetection and handling of Unix-like tools
+   on non-Unix systems.
+<li>
+   Andrei Ellman got Allegro for MSVC to build with Cygwin.
+<li>
+   Elias Pschernig made the programs be linked with -pg in profile mode
+   under Unix.
+<li>
+   Andrei Ellman updated the Cygwin section in docs/build/mingw32.txt.
+<li>
+   Magnus Henoch fixed a problem when compiling without 8bpp support.
+<li>
+   James Ponder and Hein Zelle clarified a requirement when cross-compiling
+   from Linux.
+<li>
+   James Ponder suggested to remove the DJGPP makefile from the Unix tar
+   archive.
+<li>
+   Grzegorz Adam Hankiewicz improved the docs on allegro_exit().
+<li>
+   Grzegorz Adam Hankiewicz documented the bunch of packfile functions.
+<li>
+   Eric Botcazou fixed the profile build on BeOS.
+<li>
+   Eric Botcazou updated the FAQ about DJGPP's va_list problem (thanks
+   to aj for spotting this).
+<li>
+   Andrei Ellman suggested some additions to the docs.
+<li>
+   Grzegorz Adam Hankiewicz added a chapter on available examples to the
+   docs, the ability to cross-reference them and display the references
+   with a specific layout in the HTML docs, and a Python script to automate
+   the updating process when new examples are added.
+<li>
+   Eric Botcazou fixed an asm locking bug under Windows spotted by
+   Omar Cornut.
+<li>
+   EvilTypeGuy cleaned up and fixed the RPM spec file for RedHat 9.
+<li>
+   Ville Skyttä fixed a problem with make install libdir= and modules on
+   Unix systems.
+<li>
+   Peter Wang added a hack to not unload the SVGAlib module if SVGAlib
+   installs an atexit() handler.
+<li>
+   Elias Pschernig updated xf2pcx and integrated it in the build process
+   under Unix/X11.
+<li>
+   Grzegorz Adam Hankiewicz added support for dumping the configure settings
+   under Unix.
+<li>
+   Javier Gonzalez added get_color_depth() to the API.
+<li>
+   Julien Cugniere and Eric Botcazou improved the support for non-blocking
+   menus.
+<li>
+   Grzegorz Adam Hankiewicz corrected several nits in the documentation.
+<li>
+   Grzegorz Adam Hankiewicz documented the END_OF_MAIN macro.
+<li>
+   Javier Gonzalez added get_color_conversion() to the API.
+<li>
+   Lennart Steinke added the exconfig example.
+<li>
+   Eric Botcazou added big-endian support to the BMP, PCX and TGA loaders
+   as well as to the X11 driver.
+<li>
+   Eric Botcazou fixed the 'uninstall' target and a problem with
+   Mingw32's make for the Watcom port.
+<li>
+   Charles Bilyue suggested to not force yielding timeslice with non-blocking
+   menus.
+<li>
+   Annie Testes fixed a bug with asynchronous I/O mode restoring under Linux.
+<li>
+   Annie Testes made the screen be cleared before setting the default
+   palette when calling set_gfx_mode().
+<li>
+   Annie Testes fixed a bug with patterned drawing in the C version.
+<li>
+   Vincent Penquerc'h spotted an off-by-one problem when building the list
+   of color depths in the gfx mode selector.
+<li>
+   Peter Wang made the Intellimouse PS/2 driver work for USB mice in Linux.
+<li>
+   Elias Pschernig integrated xkeymap in the build process under Unix/X11.
+<li>
+   Oscar Giner fixed a conflict between the magic main and the MFC.
+<li>
+   Matthew Leverton fixed a bug with pack_fgets().
+<li>
+   Eric Botcazou fixed broken and missing dependencies for make -j2 builds.
+<li>
+   Hein Zelle revamped the cross-compilation section of docs/build/mingw32.txt.
+<li>
+   Marcel Smit and Eric Botcazou made the show_video_bitmap() method of the
+   Windows windowed driver wait for a vsync.
+<li>
+   Eric Botcazou made the test program really time the fixed math functions.
+<li>
+   Eric Botcazou clarified the limitations of Allegro's interrupts regarding
+   the FPU state under DOS.
+<li>
+   Peter Wang fixed a bug in stretch_blit() where the first column or row can
+   get an extra pixel, reported by David Gowers and AJ.
+<li>
+   Eric Botcazou made the linux mouse detection code really empty the buffer
+   before proceeding in the setup program.
+<li>
+   Eric Botcazou made the Watcom port compile in warnmode with Open Watcom.
+<li>
+   Elias Pschernig fixed the build with the Unix->MinGW cross-compiler.
+<li>
+   Magnus Henoch made the gfx mode selector keep the current selection as
+   much as possible.
+<li>
+   Eric Botcazou fixed the mouse not being scared over alert boxes.
+<li>
+   Eric Botcazou added -Wstrict-prototypes to the build warnmode under DOS,
+   Windows and BeOS.
+<li>
+   Annie Testes updated the mouse autodetection code under Linux to take
+   into account her EVDEV driver.
+<li>
+   Philipp Thomas added multi-arch support, DESTDIR support and the German
+   translation to the RPM spec file.
+<li>
+   Philipp Thomas converted the configure machinery to autoconf 2.53 or later.
+<li>
+   Philipp Thomas fixed all function prototypes, thus allowing to build with
+   -Wstrict-prototypes on Unix systems.
+<li>
+   Philipp Thomas fixed the compilation on x86-64.
+<li>
+   Philipp Thomas fixed all comparisons between signed and unsigned types,
+   thus allowing to build with -W -Wno-unused on Unix systems.
+<li>
+   Eric Botcazou reworked the truecolor subsection of the 'Transparency and
+   patterned drawing' section.
+<li>
+   Eric Botcazou clarified the return value on failure of file_time(),
+   following AJ's suggestion.
+<li>
+   Eric Botcazou fixed the build in strictwarn mode on Unix systems.
+<li>
+   Eric Botcazou fixed a mouse bug when the screen is scrolled with the X11
+   fullscreen driver.
+<li>
+   Eric Botcazou fixed a bug with resolution and color depth not being taken
+   into account by gfx_mode_select_ex().
+<li>
+   Vincent Penquerc'h fixed the compilation breakage on Linux kernels 2.2.x.
+<li>
+   Eric Botcazou defined ALLEGRO_LIB_BUILD for debug and profile releases as
+   well on Unix systems.
+<li>
+   Eric Botcazou forced the exstream example to abort if no real sound driver
+   is found.
+<li>
+   Eric Botcazou clarified the limitations of the stretching functions.
+<li>
+   Acho A. Tang added a Sidewinder Precision Pro joystick driver to the
+   DOS port.
+<li>
+   Eric Botcazou re-enabled the autodetection of joysticks in the setup
+   program.
+</ul>
+
+
+@heading
 Changes from 4.1.8 to 4.1.9 (Jan 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
