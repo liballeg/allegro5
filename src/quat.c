@@ -22,8 +22,7 @@
 
 
 
-#define floatcos(x)   ((float)(cos((x) * AL_PI / 128.0)))
-#define floatsin(x)   ((float)(sin((x) * AL_PI / 128.0)))
+#define FLOATSINCOS(x, s, c)  _AL_SINCOS((x) * AL_PI / 128.0, s ,c)
 
 
 #define EPSILON (0.001)
@@ -95,8 +94,7 @@ void get_x_rotate_quat(QUAT *q, float r)
 {
    ASSERT(q);
 
-   q->w = floatcos(r / 2);
-   q->x = floatsin(r / 2);
+   FLOATSINCOS(r/2, q->x, q->w);
    q->y = 0;
    q->z = 0;
 }
@@ -112,9 +110,8 @@ void get_y_rotate_quat(QUAT *q, float r)
 {
    ASSERT(q);
 
-   q->w = floatcos(r / 2);
+   FLOATSINCOS(r/2, q->y, q->w);
    q->x = 0;
-   q->y = floatsin(r / 2);
    q->z = 0;
 }
 
@@ -129,10 +126,9 @@ void get_z_rotate_quat(QUAT *q, float r)
 {
    ASSERT(q);
 
-   q->w = floatcos(r / 2);
+   FLOATSINCOS(r/2, q->z, q->w);
    q->x = 0;
    q->y = 0;
-   q->z = floatsin(r / 2);
 }
 
 
@@ -154,12 +150,9 @@ void get_rotation_quat(QUAT *q, float x, float y, float z)
 
    ASSERT(q);
 
-   sx = floatsin(x / 2);
-   sy = floatsin(y / 2);
-   sz = floatsin(z / 2);
-   cx = floatcos(x / 2);
-   cy = floatcos(y / 2);
-   cz = floatcos(z / 2);
+   FLOATSINCOS(x/2, sx, cx);
+   FLOATSINCOS(y/2, sy, cy);
+   FLOATSINCOS(z/2, sz, cz);
 
    sysz = sy * sz;
    cycz = cy * cz;
@@ -196,8 +189,7 @@ void get_vector_rotation_quat(QUAT *q, float x, float y, float z, float a)
    y /= l;
    z /= l;
 
-   q->w = floatcos(a / 2);
-   s    = floatsin(a / 2);
+   FLOATSINCOS(a/2, s, q->w);
    q->x = s * x;
    q->y = s * y;
    q->z = s * z;

@@ -22,9 +22,8 @@
 
 
 
-#define floatcos(x)     cos((x) * AL_PI / 128.0)
-#define floatsin(x)     sin((x) * AL_PI / 128.0)
-#define floattan(x)     tan((x) * AL_PI / 128.0)
+#define FLOATSINCOS(x, s, c)  _AL_SINCOS((x) * AL_PI / 128.0, s ,c)
+#define floattan(x)           tan((x) * AL_PI / 128.0)
 
 
 
@@ -147,10 +146,10 @@ void get_x_rotate_matrix(MATRIX *m, fixed r)
  */
 void get_x_rotate_matrix_f(MATRIX_f *m, float r)
 {
-   float c = floatcos(r);
-   float s = floatsin(r);
+   float c, s;
    ASSERT(m);
 
+   FLOATSINCOS(r, s, c);
    *m = identity_matrix_f;
 
    m->v[1][1] = c;
@@ -189,10 +188,10 @@ void get_y_rotate_matrix(MATRIX *m, fixed r)
  */
 void get_y_rotate_matrix_f(MATRIX_f *m, float r)
 {
-   float c = floatcos(r);
-   float s = floatsin(r);
+   float c, s;
    ASSERT(m);
 
+   FLOATSINCOS(r, s, c);
    *m = identity_matrix_f;
 
    m->v[0][0] = c;
@@ -231,10 +230,10 @@ void get_z_rotate_matrix(MATRIX *m, fixed r)
  */
 void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 {
-   float c = floatcos(r);
-   float s = floatsin(r);
+   float c, s;
    ASSERT(m);
 
+   FLOATSINCOS(r, s, c);
    *m = identity_matrix_f;
 
    m->v[0][0] = c;
@@ -263,17 +262,17 @@ void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 
 
 #define MAKE_ROTATION_f(x, y, z)                \
-   float sin_x = floatsin(x);                   \
-   float cos_x = floatcos(x);                   \
+   float sin_x, cos_x;				\
+   float sin_y, cos_y;				\
+   float sin_z, cos_z;				\
+   float sinx_siny, cosx_siny;			\
 						\
-   float sin_y = floatsin(y);                   \
-   float cos_y = floatcos(y);                   \
+   FLOATSINCOS(x, sin_x, cos_x);		\
+   FLOATSINCOS(y, sin_y, cos_y);		\
+   FLOATSINCOS(z, sin_z, cos_z);		\
 						\
-   float sin_z = floatsin(z);                   \
-   float cos_z = floatcos(z);                   \
-						\
-   float sinx_siny = sin_x * sin_y;             \
-   float cosx_siny = cos_x * sin_y;
+   sinx_siny = sin_x * sin_y;			\
+   cosx_siny = cos_x * sin_y;
 
 
 
@@ -446,11 +445,11 @@ void get_vector_rotation_matrix(MATRIX *m, fixed x, fixed y, fixed z, fixed a)
  */
 void get_vector_rotation_matrix_f(MATRIX_f *m, float x, float y, float z, float a)
 {
-   float c = floatcos(a);
-   float s = floatsin(a);
-   float cc = 1 - c;
+   float c, s, cc;
    ASSERT(m);
 
+   FLOATSINCOS(a, s, c);
+   cc = 1 - c;
    normalize_vector_f(&x, &y, &z);
 
    m->v[0][0] = (cc * x * x) + c;
