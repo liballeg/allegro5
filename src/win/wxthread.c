@@ -79,6 +79,13 @@ void _al_mutex_init(_AL_MUTEX *mutex)
 }
 
 
+void _al_mutex_init_recursive(_AL_MUTEX *mutex)
+{
+   /* These are the same on Windows. */
+   _al_mutex_init(mutex);
+}
+
+
 void _al_mutex_destroy(_AL_MUTEX *mutex)
 {
    ASSERT(mutex);
