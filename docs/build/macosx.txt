@@ -174,13 +174,56 @@
 
    When an Allegro application starts, it automatically detects if the
    executable lives inside a bundle or not. The working directory is
-   always set up to be the directory where the executable/bundle is
-   located, but there is an exception: if the application has a bundle
-   and Allegro finds a directory under the bundle Contents/Resources
-   path with the same name of the executable, that directory is set to
-   be the working one. This allows to easily package all the application
-   data inside the bundle, and still have a working program without the
-   need to tell your code about the changed location of your files.
+   always set up to be the directory where the standalone executable
+   or application bundle is located, but there is an exception: if the
+   application is a bundle and Allegro finds a directory under the bundle
+   Contents/Resources path with the same name of the executable (note that
+   here we mean the real executable name, not the bundle name), that
+   directory is set to be the working one. This allows to easily package
+   all the application data inside the bundle, and still have a working
+   program without the need to tell your code about the changed location
+   of your files.
+
+
+
+==========================================
+============ Notes on drivers ============
+==========================================
+
+   This section contains MacOS X-specific notes on the drivers available.
+
+   * System:
+        When the system driver is about to be initialized, we already
+        have a working NSApplication object connected to the Window Server.
+        At driver startup, the working directory is changed if inside a
+        bundle with a proper data directory under the Contents/Resources
+        path (see above).
+        
+        Display switching is possible, but only the SWITCH_BACKGROUND
+        mode is supported, so your application will have to deal with it.
+
+   * Graphics:
+        The MacOS X windowed graphics mode uses a Cocoa window with a
+        Quartz QuickDraw view as its content view. All combinations of
+        window/desktop color depths are supported; if needed, color
+        conversion will automatically be done transparently to the user.
+
+        Fullscreen mode uses the Core Graphics DirectDisplay API; only
+        8, 15 and 32 bit color depths are supported.
+
+   * Keyboard:
+        MacOS X Allegro uses the current system keyboard mapping table
+        to map scancodes to characters: the keyboard user settings in
+        allegro.cfg have no effect.
+
+   * Mouse:
+        Allegro will automatically detect the number of buttons of your
+        mouse at driver initialization. If less than 3 buttons are found,
+        the library will activate an emulation mode that mimics the way
+        MacOS X itself deals with 1-button mice: depending on which key
+        is pressed when the button is clicked, Allegro will report a
+        different mouse button click. (Control + button) emulates a
+        right click and (Option + button) emulates a middle click.
 
 
 
