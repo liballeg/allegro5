@@ -216,11 +216,9 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bsysapi.cpp \
 	src/beos/bsysdrv.c \
 	src/beos/bsystem.c \
-	src/beos/bthread.c \
 	src/beos/btimeapi.cpp \
 	src/beos/btimedrv.c \
 	src/beos/btimer.c \
-	src/beos/bwindow.c \
 	src/misc/ufile.c
 
 ALLEGRO_SRC_LINUX_FILES = \
