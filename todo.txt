@@ -91,10 +91,9 @@ BeOS todos:
 QNX todos:
 ---------------------------------------------------------------------------
 
-- Investigate synchronization problems
 - Video bitmaps and acceleration support in fullscreen mode
 - Display switching in fullscreen mode
-- Use standard Unix build system (autoconf, etc.) if possible
+- Overlay gfx driver
 
 Wishlist:
 ---------------------------------------------------------------------------
@@ -121,7 +120,6 @@ Wishlist: (definitely post 4.0)
 - hook function to handle window resizing
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()
-- Video overlay gfx driver under QNX
 - rewrite set_gfx_mode
 - more modularity under Linux
 - XVideo driver under XFree86

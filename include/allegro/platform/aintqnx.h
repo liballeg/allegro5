@@ -46,8 +46,8 @@ AL_ARRAY(PgColor_t, ph_palette);
 
 /* from qsystem.c */
 AL_VAR(PtWidget_t, *ph_window);
-AL_VAR(pthread_mutex_t, qnx_events_mutex);
-AL_VAR(pthread_mutex_t, *qnx_gfx_mutex);
+AL_VAR(pthread_mutex_t, qnx_event_mutex);
+AL_VAR(pthread_mutex_t, qnx_gfx_mutex);
 
 /* from qkeydrv.c */
 AL_FUNC(void, qnx_keyboard_handler, (int, int));

@@ -116,7 +116,7 @@ static void qnx_mouse_position(int x, int y)
 {
    short mx = 0, my = 0;
 
-   pthread_mutex_lock(&qnx_events_mutex);
+   pthread_mutex_lock(&qnx_event_mutex);
    
    _mouse_x = x;
    _mouse_y = y;
@@ -131,7 +131,7 @@ static void qnx_mouse_position(int x, int y)
 
    qnx_mouse_warped = TRUE;
    
-   pthread_mutex_unlock(&qnx_events_mutex);
+   pthread_mutex_unlock(&qnx_event_mutex);
 }
 
 
@@ -146,12 +146,12 @@ static void qnx_mouse_set_range(int x1, int y1, int x2, int y2)
    mouse_maxx = x2;
    mouse_maxy = y2;
 
-   pthread_mutex_lock(&qnx_events_mutex);
+   pthread_mutex_lock(&qnx_event_mutex);
 
    _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
    _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
 
-   pthread_mutex_unlock(&qnx_events_mutex);
+   pthread_mutex_unlock(&qnx_event_mutex);
 }
 
 

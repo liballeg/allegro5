@@ -34,8 +34,8 @@ _DRIVER_INFO _keyboard_driver_list[] =
 
 _DRIVER_INFO _timer_driver_list[] =
 {
-   { TIMERDRV_UNIX_PTHREADS, &timerdrv_unix_pthreads, TRUE  },
-   { 0,                      NULL,            	      0     }
+   { TIMER_QNX,         &timer_qnx,         TRUE  },
+   { 0,                 NULL,               0     }
 };
 
 
@@ -52,8 +52,9 @@ BEGIN_GFX_DRIVER_LIST
 END_GFX_DRIVER_LIST
 
 
-BEGIN_JOYSTICK_DRIVER_LIST
-END_JOYSTICK_DRIVER_LIST
+BEGIN_DIGI_DRIVER_LIST
+   { DIGI_ALSA,         &digi_alsa,         TRUE  },
+END_DIGI_DRIVER_LIST
 
 
 BEGIN_MIDI_DRIVER_LIST
@@ -62,6 +63,5 @@ BEGIN_MIDI_DRIVER_LIST
 END_MIDI_DRIVER_LIST
 
 
-BEGIN_DIGI_DRIVER_LIST
-   { DIGI_ALSA,         &digi_alsa,         TRUE  },
-END_DIGI_DRIVER_LIST
+BEGIN_JOYSTICK_DRIVER_LIST
+END_JOYSTICK_DRIVER_LIST

@@ -35,6 +35,11 @@ extern char **__crt0_argv;
 AL_VAR(SYSTEM_DRIVER, system_qnx);
 
 
+/* Timer driver */
+#define TIMER_QNX             AL_ID('Q','T','I','M')
+AL_VAR(TIMER_DRIVER, timer_qnx);
+
+
 /* Keyboard driver */
 #define KEYBOARD_QNX          AL_ID('Q','K','E','Y')
 AL_VAR(KEYBOARD_DRIVER, keyboard_qnx);
@@ -45,6 +50,18 @@ AL_VAR(KEYBOARD_DRIVER, keyboard_qnx);
 AL_VAR(MOUSE_DRIVER, mouse_qnx);
 
 
+/* Graphics drivers */
+#define GFX_PHOTON            AL_ID('Q','P','H',' ')
+#define GFX_PHOTON_DIRECT     AL_ID('Q','P','H','D')
+AL_VAR(GFX_DRIVER, gfx_photon);
+AL_VAR(GFX_DRIVER, gfx_photon_direct);
+
+#define GFX_SAFE_ID           GFX_PHOTON
+#define GFX_SAFE_DEPTH        8
+#define GFX_SAFE_W            320
+#define GFX_SAFE_H            200
+
+
 /* Sound driver */
 #define DIGI_ALSA             AL_ID('A','L','S','A')
 AL_VAR(DIGI_DRIVER, digi_alsa);
@@ -53,22 +70,3 @@ AL_VAR(DIGI_DRIVER, digi_alsa);
 /* MIDI driver */
 #define MIDI_ALSA             AL_ID('A','M','I','D')
 AL_VAR(MIDI_DRIVER, midi_alsa);
-
-
-/* Timer driver */
-#define TIMERDRV_UNIX_PTHREADS	AL_ID('P','T','H','D')
-AL_VAR(TIMER_DRIVER, timerdrv_unix_pthreads);
-
-
-/* Graphics drivers */
-#define GFX_PHOTON            AL_ID('Q','P','H',' ')
-#define GFX_PHOTON_DIRECT     AL_ID('Q','P','H','D')
-AL_VAR(GFX_DRIVER, gfx_photon);
-AL_VAR(GFX_DRIVER, gfx_photon_direct);
-
-
-
-#define GFX_SAFE_ID           GFX_PHOTON
-#define GFX_SAFE_DEPTH        8
-#define GFX_SAFE_W            320
-#define GFX_SAFE_H            200

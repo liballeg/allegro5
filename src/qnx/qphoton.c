@@ -435,13 +435,13 @@ static struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_dep
 {
    BITMAP *bmp;
    
-   pthread_mutex_lock(&qnx_events_mutex);
+   pthread_mutex_lock(&qnx_event_mutex);
    bmp = qnx_private_phd_init(&gfx_photon_direct, w, h, v_w, v_h, color_depth, TRUE);
    ph_gfx_mode = PH_GFX_DIRECT;
    if (!bmp)
       qnx_private_phd_exit();
 
-   pthread_mutex_unlock(&qnx_events_mutex);
+   pthread_mutex_unlock(&qnx_event_mutex);
 
    return bmp;
 }
@@ -453,9 +453,9 @@ static struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_dep
  */
 static void qnx_phd_exit(struct BITMAP *bmp)
 {
-   pthread_mutex_lock(&qnx_events_mutex);
+   pthread_mutex_lock(&qnx_event_mutex);
    qnx_private_phd_exit();
-   pthread_mutex_unlock(&qnx_events_mutex);
+   pthread_mutex_unlock(&qnx_event_mutex);
 }
 
 
@@ -530,7 +530,8 @@ static void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int ret
    if (ph_gfx_mode == PH_GFX_WINDOW) {
       if (desktop_depth != 8) {
          _set_colorconv_palette(p, from, to);
-         ph_update_window(NULL);
+         for (i=0; i<gfx_photon.h; i++)
+            ph_dirty_lines[i] = 1;
       }
       mode |= Pg_PALSET_FORCE_EXPOSE;
    }
@@ -556,9 +557,9 @@ static void update_window_hw(PhRect_t *rect)
       temp.lr.y = gfx_photon.h;
       rect = &temp;
    }
-   pthread_mutex_lock(qnx_gfx_mutex);
+   pthread_mutex_lock(&qnx_gfx_mutex);
    PgContextBlit(ph_window_context, rect, NULL, rect);
-   pthread_mutex_unlock(qnx_gfx_mutex);
+   pthread_mutex_unlock(&qnx_gfx_mutex);
 }
 
 
@@ -596,9 +597,9 @@ static void update_window(PhRect_t *rect)
    /* function doing the hard work */
    blitter(&src_gfx_rect, &dest_gfx_rect);
 
-   pthread_mutex_lock(qnx_gfx_mutex);
+   pthread_mutex_lock(&qnx_gfx_mutex);
    PgContextBlit(ph_window_context, rect, NULL, rect);
-   pthread_mutex_unlock(qnx_gfx_mutex);
+   pthread_mutex_unlock(&qnx_gfx_mutex);
 }
 
 
@@ -778,13 +779,13 @@ static struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_dept
 {
    BITMAP *bmp;
    
-   pthread_mutex_lock(&qnx_events_mutex);
+   pthread_mutex_lock(&qnx_event_mutex);
    bmp = qnx_private_ph_init(&gfx_photon, w, h, v_w, v_h, color_depth);
    ph_gfx_mode = PH_GFX_WINDOW;
    if (!bmp)
       qnx_private_ph_exit();
       
-   pthread_mutex_unlock(&qnx_events_mutex);
+   pthread_mutex_unlock(&qnx_event_mutex);
 
    return bmp;
 }
@@ -796,9 +797,9 @@ static struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_dept
  */
 static void qnx_ph_exit(struct BITMAP *b)
 {
-   pthread_mutex_lock(&qnx_events_mutex);
+   pthread_mutex_lock(&qnx_event_mutex);
    qnx_private_ph_exit();
-   pthread_mutex_unlock(&qnx_events_mutex);
+   pthread_mutex_unlock(&qnx_event_mutex);
 }
 
 
@@ -809,10 +810,12 @@ static void qnx_ph_exit(struct BITMAP *b)
 static void update_dirty_lines(void)
 {
    PhRect_t rect;
-   
+
    /* to prevent the drawing threads and the rendering proc
       from concurrently accessing the dirty lines array */
    pthread_mutex_lock(&ph_screen_lock);
+
+   PgWaitHWIdle();
    
    /* pseudo dirty rectangles mechanism:
     *  at most only one PgFlush() call is performed for each frame.
@@ -835,8 +838,6 @@ static void update_dirty_lines(void)
          rect.lr.y--;
 
       ph_update_window(&rect);
-   
-      PgFlush();
       
       /* clean up the dirty lines */
       while (rect.ul.y < rect.lr.y)
@@ -844,6 +845,8 @@ static void update_dirty_lines(void)
    }
    
    pthread_mutex_unlock(&ph_screen_lock);
+   
+   PgFlush();
 }
 
 
@@ -854,7 +857,7 @@ static void update_dirty_lines(void)
 static void ph_acquire(struct BITMAP *bmp)
 {
    PgWaitHWIdle();
-   
+
    /* to prevent the drawing threads and the rendering proc
       from concurrently accessing the dirty lines array */
    pthread_mutex_lock(&ph_screen_lock);
@@ -870,7 +873,7 @@ static void ph_acquire(struct BITMAP *bmp)
  */
 static void ph_release(struct BITMAP *bmp)
 {
-   if (lock_nesting > 0) {
+   if (lock_nesting > 0) {   
       lock_nesting--;
 
       if (!lock_nesting)
