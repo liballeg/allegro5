@@ -88,7 +88,7 @@ typedef struct AL_JOYSTICK_EVENT
 typedef struct AL_KEYBOARD_EVENT
 {
    _AL_EVENT_HEADER(struct AL_KEYBOARD);
-   struct AL_DISPLAY *display;
+   struct AL_DISPLAY *__display__dont_use_yet__;
    int keycode;                 /* the physical key pressed */
    unsigned int unmodchar;      /* what unicode character the key
                                  * pressed would generate if no

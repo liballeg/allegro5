@@ -70,15 +70,6 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 
 
 /*******************************************/
-/************ keyboard drivers *************/
-/*******************************************/
-#define KEYBOARD_DIRECTX         AL_ID('D','X',' ',' ')
-
-AL_VAR(KEYBOARD_DRIVER, keyboard_directx);
-
-
-
-/*******************************************/
 /************* mouse drivers ***************/
 /*******************************************/
 #define MOUSE_DIRECTX            AL_ID('D','X',' ',' ')

@@ -121,12 +121,14 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
    if (wm)
       memset(wm, 0, sizeof(wm));
 
+#if 0 /* XXX */
    if (_keyboard_installed) {
      if (wm)
          wm->keyboard = TRUE;
 
       remove_keyboard();
    }
+#endif
 
    if (_mouse_installed) {
       if (wm)
@@ -303,7 +305,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          /* Disable the default message-based key handler
           * in order to prevent conflicts on NT kernels.
           */
-         if (!user_wnd_proc || _keyboard_installed)
+	 if (!user_wnd_proc /*|| _keyboard_installed*/ ) /* XXX */
             return 0;
          break;
 

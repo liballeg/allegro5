@@ -93,7 +93,6 @@ extern struct _xwin_type
    int virtual_height;
 
    int mouse_warped;
-   int keycode_to_scancode[256];
 
    int matching_formats;
    int fast_visual_depth;
@@ -149,8 +148,6 @@ AL_FUNCPTR (int, _xwin_window_creator, (void));
 AL_FUNCPTR (void, _xwin_window_defaultor, (void));
 AL_FUNCPTR (void, _xwin_window_redrawer, (int, int, int, int));
 AL_FUNCPTR (void, _xwin_input_handler, (void));
-
-AL_FUNCPTR (void, _xwin_keyboard_callback, (int, int));
 
 AL_FUNC(void, xwin_set_window_name, (AL_CONST char *name, AL_CONST char *group));
 

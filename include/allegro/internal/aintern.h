@@ -129,6 +129,8 @@ AL_VAR(BITMAP *, _mouse_pointer);
 
 
 /* various bits of timer stuff */
+#ifndef ALLEGRO_NO_COMPATIBILITY
+
 #define MAX_TIMERS      16
 
 AL_VAR(int, _timer_installed);
@@ -141,17 +143,21 @@ AL_VAR(long, _vsync_speed);
 #ifdef ALLEGRO_LINUX
 AL_FUNC(void, _al_suspend_old_timer_emulation, (void));
 AL_FUNC(void, _al_resume_old_timer_emulation, (void));
-#endif
+#endif /* ALLEGRO_LINUX */
+#endif /* !ALLEGRO_NO_COMPATIBILITY */
 
 /* various bits of keyboard stuff */
-AL_FUNC(void, _handle_key_press, (int keycode, int scancode));
-AL_FUNC(void, _handle_key_release, (int scancode));
+#ifndef ALLEGRO_NO_COMPATIBILITY
 
 AL_VAR(int, _keyboard_installed);
 
 AL_ARRAY(volatile char, _key);
 AL_VAR(volatile int, _key_shifts);
 
+#endif /* !ALLEGRO_NO_COMPATIBILITY */
+
+/* pckeys.c is broken and unused in new keyboard drivers (so far) */
+#if 0
 AL_FUNC(void, _pckeys_init, (void));
 AL_FUNC(void, _handle_pckey, (int code));
 AL_FUNC(int,  _pckey_scancode_to_ascii, (int scancode));
@@ -181,6 +187,7 @@ AL_VAR(int, _key_accent3_flag);
 AL_VAR(int, _key_accent4_flag);
 
 AL_VAR(int, _key_standard_kb);
+#endif /* 0 */
 
 
 /* some GUI innards that other people need to use */

@@ -28,8 +28,9 @@
 
 
 
-void (*_xwin_keyboard_interrupt)(int pressed, int code) = 0;
-void (*_xwin_keyboard_focused)(int focused, int state) = 0;
+void (*_al_xwin_key_press_handler)(XKeyEvent *ke, bool) = 0;
+void (*_al_xwin_key_release_handler)(XKeyEvent *ke, bool) = 0;
+void (*_al_xwin_focus_change_handler)(bool focused) = 0;
 void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 
 
@@ -295,7 +296,7 @@ static _DRIVER_INFO *_xwin_sysdrv_midi_drivers(void)
  */
 static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void)
 {
-   return _xwin_keyboard_driver_list;
+   return _al_xwin_keyboard_driver_list;
 }
 
 

@@ -26,6 +26,8 @@
 #include <X11/extensions/xf86dga.h>
 
 
+#define MAX_EVENTS   5
+
 #define RESYNC()     XDGASync(_xwin.display, _xwin.screen);
 
 
@@ -35,7 +37,6 @@ static XDGADevice *dga_device = NULL;
 static char _xdga2_driver_desc[256] = EMPTY_STRING;
 static Colormap _dga_cmap = 0;
 static int dga_event_base;
-static int keyboard_got_focus = FALSE;
 
 
 static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth);
@@ -252,17 +253,81 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
 
 
 
-/* _xdga2_handle_input:
+/* _xdga_process_event: [bgman thread]
+ *  Process (usually) one event. To handle key repeats sometimes two
+ *  events are processed. Returns the number of events processed.
+ */
+static int _xdga_process_event(XDGAEvent *cur_event, XDGAEvent *next_event)
+{
+   static int mouse_buttons = 0;
+   int dx, dy, dz = 0;
+   XKeyEvent key;
+
+   switch (cur_event->type - dga_event_base) {
+
+      case KeyPress:
+	 if (_al_xwin_key_press_handler != 0) {
+	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+	    (*_al_xwin_key_press_handler)(&key, false);
+	 }
+	 return 1;
+
+      case KeyRelease:
+	 if (_al_xwin_key_release_handler != 0) {
+	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+	    (*_al_xwin_key_release_handler)(&key, false);
+	 }
+	 return 1;
+
+      case ButtonPress:
+	 if (cur_event->xbutton.button == Button1)
+	    mouse_buttons |= 1;
+	 else if (cur_event->xbutton.button == Button3)
+	    mouse_buttons |= 2;
+	 else if (cur_event->xbutton.button == Button2)
+	    mouse_buttons |= 4;
+	 else if (cur_event->xbutton.button == Button4)
+	    dz = 1;
+	 else if (cur_event->xbutton.button == Button5)
+	    dz = -1;
+	 if (_xwin_mouse_interrupt)
+	    (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
+	 return 1;
+
+      case ButtonRelease:
+	 if (cur_event->xbutton.button == Button1)
+	    mouse_buttons &= ~1;
+	 else if (cur_event->xbutton.button == Button3)
+	    mouse_buttons &= ~2;
+	 else if (cur_event->xbutton.button == Button2)
+	    mouse_buttons &= ~4;
+	 if (_xwin_mouse_interrupt)
+	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
+	 return 1;
+
+      case MotionNotify:
+	 dx = cur_event->xmotion.dx;
+	 dy = cur_event->xmotion.dy;
+	 if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt)
+	    (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
+	 return 1;
+
+      default:
+	 /* Unknown event, just discard it. */
+	 return 1;
+   }
+}
+
+
+
+/* _xdga2_handle_input: [bgman thread]
  *  Handles DGA events pending from queue.
+ *  This overrides the standard X event queue handler.
  */
 static void _xdga2_handle_input(void)
 {
-   int i, events;
-   static XDGAEvent event[5];
-   XDGAEvent *cur_event;
-   XKeyEvent key;
-   int kcode, scode, dx, dy, dz = 0;
-   static int mouse_buttons = 0;
+   int i, events, events_queued;
+   static XDGAEvent event[MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
 
    if (_xwin.display == 0)
       return;
@@ -270,101 +335,33 @@ static void _xdga2_handle_input(void)
    XSync(_xwin.display, False);
 
    /* How much events are available in the queue.  */
-   events = XEventsQueued(_xwin.display, QueuedAlready);
+   events = events_queued = XEventsQueued(_xwin.display, QueuedAlready);
    if (events <= 0)
       return;
 
    /* Limit amount of events we read at once.  */
-   if (events > 5)
-      events = 5;
+   if (events > MAX_EVENTS)
+      events = MAX_EVENTS;
 
    /* Read pending events.  */
    for (i = 0; i < events; i++)
       XNextEvent(_xwin.display, (XEvent *)&event[i]);
 
+   /* Can't have a KeyRelease as last event, since it might be only half
+    * of a key repeat pair.
+    */
+   if (events_queued > events && event[i-1].type == dga_event_base+KeyRelease) {
+      XNextEvent(_xwin.display, (XEvent *)&event[i]);
+      events++;
+   }
+
    /* Process all events.  */
-   for (i = 0; i < events; i++) {
-      cur_event = &event[i];
-      switch (cur_event->type - dga_event_base) {
-
-         case KeyPress:
-            XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
-
-            if (keyboard_got_focus && _xwin_keyboard_focused) {
-               int state = 0;
-
-               if (key.state & Mod5Mask)
-                  state |= KB_SCROLOCK_FLAG;
-
-               if (key.state & Mod2Mask)
-                  state |= KB_NUMLOCK_FLAG;
-
-               if (key.state & LockMask)
-                  state |= KB_CAPSLOCK_FLAG;
-
-               (*_xwin_keyboard_focused)(TRUE, state);
-               keyboard_got_focus = FALSE;
-            }
-
-            kcode = key.keycode;
-            if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
-               scode = _xwin.keycode_to_scancode[kcode];
-               if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-                  _xwin_keycode_pressed[kcode] = TRUE;
-                  (*_xwin_keyboard_interrupt)(1, scode);
-               }
-            }
-            break;
-
-         case KeyRelease:
-            XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
-            kcode = key.keycode;
-            if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
-               scode = _xwin.keycode_to_scancode[kcode];
-               if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-                  (*_xwin_keyboard_interrupt)(0, scode);
-                  _xwin_keycode_pressed[kcode] = FALSE;
-               }
-            }
-            break;
-
-         case ButtonPress:
-            if (cur_event->xbutton.button == Button1)
-               mouse_buttons |= 1;
-            else if (cur_event->xbutton.button == Button3)
-               mouse_buttons |= 2;
-            else if (cur_event->xbutton.button == Button2)
-               mouse_buttons |= 4;
-            else if (cur_event->xbutton.button == Button4)
-               dz = 1;
-            else if (cur_event->xbutton.button == Button5)
-               dz = -1;
-            if (_xwin_mouse_interrupt)
-               (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
-            break;
-
-         case ButtonRelease:
-            if (cur_event->xbutton.button == Button1)
-               mouse_buttons &= ~1;
-            else if (cur_event->xbutton.button == Button3)
-               mouse_buttons &= ~2;
-            else if (cur_event->xbutton.button == Button2)
-               mouse_buttons &= ~4;
-            if (_xwin_mouse_interrupt)
-               (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
-            break;
-
-         case MotionNotify:
-            dx = event->xmotion.dx;
-            dy = event->xmotion.dy;
-            if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
-               (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
-            }
-            break;
-
-         default:
-            break;
-      }
+   i = 0;
+   while (i < events) {
+      if (i == events-1)
+	 i += _xdga_process_event(&event[i], NULL);
+      else
+	 i += _xdga_process_event(&event[i], &event[i+1]);
    }
 }
 
@@ -535,10 +532,8 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    input_mask = KeyPressMask | KeyReleaseMask | ButtonPressMask
               | ButtonReleaseMask | PointerMotionMask;
    XDGASelectInput(_xwin.display, _xwin.screen, input_mask);
-   if (_xwin_keyboard_focused) {
-      (*_xwin_keyboard_focused)(FALSE, 0);
-      keyboard_got_focus = TRUE;
-   }
+   if (_al_xwin_focus_change_handler)
+      (*_al_xwin_focus_change_handler)(true);
    _mouse_on = TRUE;
 
    /* Creates screen bitmap */

@@ -18,6 +18,11 @@
 #ifndef AINTUNIX_H
 #define AINTUNIX_H
 
+/* Need right now for XKeyEvent --pw */
+#ifdef ALLEGRO_WITH_XWINDOWS
+#include <X11/Xlib.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -64,13 +69,13 @@ extern "C" {
 
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-   AL_FUNCPTR(void, _xwin_keyboard_interrupt, (int pressed, int code));
-   AL_FUNCPTR(void, _xwin_keyboard_focused, (int focused, int state));
+   AL_FUNCPTR(void, _al_xwin_key_press_handler, (XKeyEvent *ke, bool state_field_reliable));
+   AL_FUNCPTR(void, _al_xwin_key_release_handler, (XKeyEvent *ke, bool state_field_reliable));
+   AL_FUNCPTR(void, _al_xwin_focus_change_handler, (bool focused));
    AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
-   AL_FUNCPTR(void, _xwin_timer_interrupt, (unsigned long interval));
 
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
-   AL_ARRAY(_DRIVER_INFO, _xwin_keyboard_driver_list);
+   AL_ARRAY(_DRIVER_INFO, _al_xwin_keyboard_driver_list);
    AL_ARRAY(_DRIVER_INFO, _xwin_mouse_driver_list);
 
    AL_FUNC(void, _xwin_handle_input, (void));

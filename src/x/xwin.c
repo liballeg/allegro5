@@ -29,7 +29,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
-#include <X11/keysym.h>
 
 #ifdef ALLEGRO_XWINDOWS_WITH_SHM
 #include <sys/ipc.h>
@@ -97,7 +96,6 @@ struct _xwin_type _xwin =
    200,         /* virtual_height */
 
    0,           /* mouse_warped */
-   { 0 },       /* keycode_to_scancode */
 
    0,           /* matching formats */
    0,           /* fast_visual_depth */
@@ -155,17 +153,10 @@ int _xwin_in_gfx_call = 0;
 static COLORCONV_BLITTER_FUNC *blitter_func = NULL;
 static int use_bgr_palette_hack = FALSE; /* use BGR hack for color conversion palette? */
 
-#ifndef ALLEGRO_MULTITHREADED
-int _xwin_missed_input;
-#endif
-
 #define MAX_EVENTS   5
 #define MOUSE_WARP_DELAY   200
 
 static char _xwin_driver_desc[256] = EMPTY_STRING;
-
-/* Array of keycodes which are pressed now (used for auto-repeat).  */
-int _xwin_keycode_pressed[256];
 
 /* This is used to intercept window closing requests.  */
 static Atom wm_delete_window;
@@ -202,7 +193,7 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
 static void _xwin_private_resize_window(int w, int h);
-static void _xwin_private_process_event(XEvent *event);
+static int _xwin_private_process_event(XEvent *event, XEvent *next_event);
 static void _xwin_private_set_warped_mouse_mode(int permanent);
 static void _xwin_private_redraw_window(int x, int y, int w, int h);
 static int _xwin_private_scroll_screen(int x, int y);
@@ -211,7 +202,6 @@ static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group);
 static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
-static void _xwin_private_init_keyboard_tables(void);
 
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
 
@@ -311,19 +301,11 @@ void _xwin_close_display(void)
 {
    Display *dpy;
 
-   if (!_unix_bg_man->multi_threaded) {
-      XLOCK();
-   }
-
    if (_xwin.display != 0) {
       _xwin_destroy_window();
       dpy = _xwin.display;
       _xwin.display = 0;
       XCloseDisplay(dpy);
-   }
-
-   if (!_unix_bg_man->multi_threaded) {
-      XUNLOCK();
    }
 }
 
@@ -2189,82 +2171,56 @@ static void _xwin_private_resize_window(int w, int h)
 
 
 
-/* _xwin_process_event:
- *  Process one event.
+/* _xwin_process_event: [bgman thread]
+ *  Process (usually) one event. To handle key repeats sometimes two
+ *  events are processed. Returns the number of events processed.
  */
-static void _xwin_private_process_event(XEvent *event)
+static int _xwin_private_process_event(XEvent *event, XEvent *next_event)
 {
-   int kcode, scode, dx, dy, dz = 0;
+   int dx, dy, dz = 0;
    static int mouse_buttons = 0;
    static int mouse_savedx = 0;
    static int mouse_savedy = 0;
    static int mouse_warp_now = 0;
    static int mouse_was_warped = 0;
-   static int keyboard_got_focus = FALSE;
 
    switch (event->type) {
       case KeyPress:
-         if (keyboard_got_focus && _xwin_keyboard_focused) {
-            int state = 0;
-
-            if (event->xkey.state & Mod5Mask)
-               state |= KB_SCROLOCK_FLAG;
-
-            if (event->xkey.state & Mod2Mask)
-               state |= KB_NUMLOCK_FLAG;
-
-            if (event->xkey.state & LockMask)
-               state |= KB_CAPSLOCK_FLAG;
-
-            (*_xwin_keyboard_focused)(TRUE, state);
-            keyboard_got_focus = FALSE;
-         } 
-
 	 /* Key pressed.  */
-	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
-	    if (_xwin_keyboard_callback)
-	       (*_xwin_keyboard_callback)(1, kcode);
-	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-	       _xwin_keycode_pressed[kcode] = TRUE;
-	       (*_xwin_keyboard_interrupt)(1, scode);
-	    }
-	 }
-	 break;
+	 if (_al_xwin_key_press_handler != 0)
+	    (*_al_xwin_key_press_handler)(&event->xkey, true);
+	 return 1;
       case KeyRelease:
-	 /* Key release.  */
-	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
-	    if (_xwin_keyboard_callback)
-	       (*_xwin_keyboard_callback)(0, kcode);
-	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-	       (*_xwin_keyboard_interrupt)(0, scode);
-	       _xwin_keycode_pressed[kcode] = FALSE;
-	    }
+	 /* Hack: if a KeyRelease is sent at the same time as a
+	  * KeyPress following it with the same keycode, we assume
+	  * that the intended effect was an autorepeat.
+	  */
+	 if ((next_event) &&
+	     (next_event->type == KeyPress) &&
+	     (event->xkey.keycode == next_event->xkey.keycode) &&
+	     (event->xkey.time == next_event->xkey.time))
+	 {
+	    /* Key repeat. */
+	    if (_al_xwin_key_press_handler != 0)
+	       (*_al_xwin_key_press_handler)(&event->xkey, true);
+	    return 2;
 	 }
-	 break;
+	 /* Key release.  */
+	 if (_al_xwin_key_release_handler != 0)
+	    (*_al_xwin_key_release_handler)(&event->xkey, true);
+	 return 1;
       case FocusIn:
 	 /* Gaining input focus.  */
-	 keyboard_got_focus = TRUE;
+	 if (_al_xwin_focus_change_handler)
+	    (*_al_xwin_focus_change_handler)(true);
 	 _switch_in();
-	 break;
+	 return 1;
       case FocusOut:
 	 /* Losing input focus.  */
-	 if (_xwin_keyboard_focused)
-	    (*_xwin_keyboard_focused)(FALSE, 0);
-	 for (kcode = 0; kcode < 256; kcode++) {
-	    if (_xwin_keycode_pressed[kcode]) {
-	       scode = _xwin.keycode_to_scancode[kcode];
-	       if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-		  (*_xwin_keyboard_interrupt)(0, scode);
-		  _xwin_keycode_pressed[kcode] = FALSE;
-	       }
-	    }
-	 }
+	 if (_al_xwin_focus_change_handler)
+	    (*_al_xwin_focus_change_handler)(false);
 	 _switch_out();
-	 break;
+	 return 1;
       case ButtonPress:
 	 /* Mouse button pressed.  */
 	 if (event->xbutton.button == Button1)
@@ -2279,7 +2235,7 @@ static void _xwin_private_process_event(XEvent *event)
 	    dz = -1;
 	 if (_xwin_mouse_interrupt)
 	    (*_xwin_mouse_interrupt)(0, 0, dz, mouse_buttons);
-	 break;
+	 return 1;
       case ButtonRelease:
 	 /* Mouse button released.  */
 	 if (event->xbutton.button == Button1)
@@ -2290,14 +2246,14 @@ static void _xwin_private_process_event(XEvent *event)
 	    mouse_buttons &= ~4;
 	 if (_xwin_mouse_interrupt)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
-	 break;
+	 return 1;
       case MotionNotify:
 	 /* Mouse moved.  */
 	 dx = event->xmotion.x - mouse_savedx;
 	 dy = event->xmotion.y - mouse_savedy;
 	 /* Discard some events after warp.  */
 	 if (mouse_was_warped && ((dx != 0) || (dy != 0)) && (mouse_was_warped++ < 16))
-	    break;
+	    return 1;
 	 mouse_savedx = event->xmotion.x;
 	 mouse_savedy = event->xmotion.y;
 	 mouse_was_warped = 0;
@@ -2319,7 +2275,7 @@ static void _xwin_private_process_event(XEvent *event)
 	    /* Move Allegro cursor.  */
 	    (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
 	 }
-	 break;
+	 return 1;
       case EnterNotify:
 	 /* Mouse entered window.  */
 	 _mouse_on = TRUE;
@@ -2335,35 +2291,40 @@ static void _xwin_private_process_event(XEvent *event)
 	 }
 	 else if (_xwin_mouse_interrupt)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
-	 break;
+	 return 1;
       case LeaveNotify:
 	 _mouse_on = FALSE;
 	 if (_xwin_mouse_interrupt)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
-	 break;
+	 return 1;
       case Expose:
 	 /* Request to redraw part of the window.  */
 	 (*_xwin_window_redrawer)(event->xexpose.x, event->xexpose.y,
 				     event->xexpose.width, event->xexpose.height);
-	 break;
+	 return 1;
       case MappingNotify:
 	 /* Keyboard mapping changed.  */
+#if 0 /* TODO */
 	 if (event->xmapping.request == MappingKeyboard)
 	    _xwin_private_init_keyboard_tables();
-	 break;
+#endif
+	 return 1;
       case ClientMessage:
          /* Window close request */
          if ((Atom)event->xclient.data.l[0] == wm_delete_window) {
             if (_xwin.close_button_callback)
                _xwin.close_button_callback();
          }
-         break;
+         return 1;
+      default:
+	 /* Unknown event, just discard it. */
+	 return 1;
    }
 }
 
 
 
-/* _xwin_handle_input:
+/* _xwin_handle_input: [bgman thread]
  *  Handle events from the queue.
  */
 void _xwin_private_handle_input(void)
@@ -2409,29 +2370,20 @@ void _xwin_private_handle_input(void)
       XNextEvent(_xwin.display, &event[i]);
 
    /* Can't have a KeyRelease as last event, since it might be only half
-    * of a key repeat pair. Also see comment below.
+    * of a key repeat pair.
     */
-   if (events_queued > events && event[i - 1].type == KeyRelease) {
+   if (events_queued > events && event[i-1].type == KeyRelease) {
       XNextEvent(_xwin.display, &event[i]);
       events++;
    }
 
    /* Process all events.  */
-   for (i = 0; i < events; i++) {
-
-      /* Hack to make Allegro's key[] array work despite of key repeat.
-       * If a KeyRelease is sent at the same time as a KeyPress following
-       * it with the same keycode, we ignore the release event.
-       */
-      if (event[i].type == KeyRelease && (i + 1) < events) {
-	 if (event[i + 1].type == KeyPress) {
-	    if (event[i].xkey.keycode == event[i + 1].xkey.keycode &&
-	       event[i].xkey.time == event[i + 1].xkey.time)
-	       continue;
-	 }
-      }
-
-      _xwin_private_process_event(&event[i]);
+   i = 0;
+   while (i < events) {
+      if (i == events-1)
+	 i += _xwin_private_process_event(&event[i], NULL);
+      else
+	 i += _xwin_private_process_event(&event[i], &event[i+1]);
    }
 }
 
@@ -2715,214 +2667,6 @@ int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
 
 
 
-/* Mappings between KeySym and Allegro scancodes.  */
-static struct
-{
-   KeySym keysym;
-   int scancode;
-} _xwin_keysym_to_scancode[] =
-{
-   { XK_Escape, 0x01 },
-
-   { XK_F1, 0x3B },
-   { XK_F2, 0x3C },
-   { XK_F3, 0x3D },
-   { XK_F4, 0x3E },
-   { XK_F5, 0x3F },
-   { XK_F6, 0x40 },
-   { XK_F7, 0x41 },
-   { XK_F8, 0x42 },
-   { XK_F9, 0x43 },
-   { XK_F10, 0x44 },
-   { XK_F11, 0x57 },
-   { XK_F12, 0x58 },
-
-   { XK_Print, 0x54 | 0x80 },
-   { XK_Scroll_Lock, 0x46 },
-   { XK_Pause, 0x00 | 0x100 },
-
-   { XK_grave, 0x29 },
-   { XK_quoteleft, 0x29 },
-   { XK_asciitilde, 0x29 },
-   { XK_1, 0x02 },
-   { XK_2, 0x03 },
-   { XK_3, 0x04 },
-   { XK_4, 0x05 },
-   { XK_5, 0x06 },
-   { XK_6, 0x07 },
-   { XK_7, 0x08 },
-   { XK_8, 0x09 },
-   { XK_9, 0x0A },
-   { XK_0, 0x0B },
-   { XK_minus, 0x0C },
-   { XK_equal, 0x0D },
-   { XK_backslash, 0x2B },
-   { XK_BackSpace, 0x0E },
-
-   { XK_Tab, 0x0F },
-   { XK_q, 0x10 },
-   { XK_w, 0x11 },
-   { XK_e, 0x12 },
-   { XK_r, 0x13 },
-   { XK_t, 0x14 },
-   { XK_y, 0x15 },
-   { XK_u, 0x16 },
-   { XK_i, 0x17 },
-   { XK_o, 0x18 },
-   { XK_p, 0x19 },
-   { XK_bracketleft, 0x1A },
-   { XK_bracketright, 0x1B },
-   { XK_Return, 0x1C },
-
-   { XK_Caps_Lock, 0x3A },
-   { XK_a, 0x1E },
-   { XK_s, 0x1F },
-   { XK_d, 0x20 },
-   { XK_f, 0x21 },
-   { XK_g, 0x22 },
-   { XK_h, 0x23 },
-   { XK_j, 0x24 },
-   { XK_k, 0x25 },
-   { XK_l, 0x26 },
-   { XK_semicolon, 0x27 },
-   { XK_apostrophe, 0x28 },
-
-   { XK_Shift_L, 0x2A },
-   { XK_z, 0x2C },
-   { XK_x, 0x2D },
-   { XK_c, 0x2E },
-   { XK_v, 0x2F },
-   { XK_b, 0x30 },
-   { XK_n, 0x31 },
-   { XK_m, 0x32 },
-   { XK_comma, 0x33 },
-   { XK_period, 0x34 },
-   { XK_slash, 0x35 },
-   { XK_Shift_R, 0x36 },
-
-   { XK_Control_L, 0x1D },
-   { XK_Meta_L, 0x5B | 0x80 },
-   { XK_Alt_L, 0x38 },
-   { XK_space, 0x39 },
-   { XK_Alt_R, 0x38 | 0x80 },
-   { XK_Meta_R, 0x5C | 0x80 },
-   { XK_Menu, 0x5D | 0x80 },
-   { XK_Control_R, 0x1D | 0x80 },
-
-   { XK_Insert, 0x52 | 0x80 },
-   { XK_Home, 0x47 | 0x80 },
-   { XK_Prior, 0x49 | 0x80 },
-   { XK_Delete, 0x53 | 0x80 },
-   { XK_End, 0x4F | 0x80 },
-   { XK_Next, 0x51 | 0x80 },
-
-   { XK_Up, 0x48 | 0x80 },
-   { XK_Left, 0x4B | 0x80 },
-   { XK_Down, 0x50 | 0x80 },
-   { XK_Right, 0x4D | 0x80 },
-
-   { XK_Num_Lock, 0x45 },
-   { XK_KP_Divide, 0x35 | 0x80 },
-   { XK_KP_Multiply, 0x37 },
-   { XK_KP_Subtract, 0x4A | 0x80 },
-   { XK_KP_Home, 0x47 },
-   { XK_KP_Up, 0x48 },
-   { XK_KP_Prior, 0x49 },
-   { XK_KP_Add, 0x4E },
-   { XK_KP_Left, 0x4B },
-   { XK_KP_Begin, 0x4C },
-   { XK_KP_Right, 0x4D },
-   { XK_KP_End, 0x4F },
-   { XK_KP_Down, 0x50 },
-   { XK_KP_Next, 0x51 },
-   { XK_KP_Enter, 0x1C | 0x80 },
-   { XK_KP_Insert, 0x52 },
-   { XK_KP_Delete, 0x53 },
-
-   /* Some X servers return different keycodes depending
-      upon whether NumLock is turned on. */
-   { XK_KP_1, 0x4F },
-   { XK_KP_2, 0x50 },
-   { XK_KP_3, 0x51 },
-   { XK_KP_4, 0x4B },
-   { XK_KP_5, 0x4C },
-   { XK_KP_6, 0x4D },
-   { XK_KP_7, 0x47 },
-   { XK_KP_8, 0x48 },
-   { XK_KP_9, 0x49 },
-   { XK_KP_0, 0x52 },
-   { XK_KP_Decimal, 0x53 },
-
-   { NoSymbol, 0 },
-};
-
-
-
-/* _xwin_init_keyboard_tables:
- *  Initialize mapping between X-Windows keycodes and Allegro scancodes.
- */
-static void _xwin_private_init_keyboard_tables(void)
-{
-   int i, j;
-   int min_keycode;
-   int max_keycode;
-   KeySym keysym;
-   char *section, *option_format;
-   char option[128], tmp1[128], tmp2[128];
-
-   if (_xwin.display == 0)
-      return;
-
-   for (i = 0; i < 256; i++) {
-      /* Clear mappings.  */
-      _xwin.keycode_to_scancode[i] = -1;
-      /* Clear pressed key flags.  */
-      _xwin_keycode_pressed[i] = FALSE;
-   }
-
-   /* Get the number of keycodes.  */
-   XDisplayKeycodes(_xwin.display, &min_keycode, &max_keycode);
-   if (min_keycode < 0)
-      min_keycode = 0;
-   if (max_keycode > 255)
-      max_keycode = 255;
-
-   /* Setup initial X keycode to Allegro scancode mappings.  */
-   for (i = min_keycode; i <= max_keycode; i++) {
-      keysym = XKeycodeToKeysym(_xwin.display, i, 0);
-      if (keysym != NoSymbol) {
-	 for (j = 0; _xwin_keysym_to_scancode[j].keysym != NoSymbol; j++) {
-	    if (_xwin_keysym_to_scancode[j].keysym == keysym) {
-	       _xwin.keycode_to_scancode[i] = _xwin_keysym_to_scancode[j].scancode;
-	       break;
-	    }
-	 }
-      }
-   }
-
-   /* Override with user's own mappings.  */
-   section = uconvert_ascii("xkeymap", tmp1);
-   option_format = uconvert_ascii("keycode%d", tmp2);
-
-   for (i = min_keycode; i <= max_keycode; i++) {
-      int scancode;
-
-      uszprintf(option, sizeof(option), option_format, i);
-      scancode = get_config_int(section, option, -1);
-      if (scancode > 0)
-	 _xwin.keycode_to_scancode[i] = scancode;
-   }
-}
-
-void _xwin_init_keyboard_tables(void)
-{
-   XLOCK();
-   _xwin_private_init_keyboard_tables();
-   XUNLOCK();
-}
-
-
-
 /* _xwin_write_line:
  *  Update last selected line and select new line.
  */
@@ -3158,5 +2902,3 @@ int (*_xwin_window_creator)(void) = &_xwin_private_create_window;
 void (*_xwin_window_defaultor)(void) = &_xwin_private_set_window_defaults;
 void (*_xwin_window_redrawer)(int, int, int, int) = &_xwin_private_redraw_window;
 void (*_xwin_input_handler)(void) = 0;
-
-void (*_xwin_keyboard_callback)(int, int) = 0;

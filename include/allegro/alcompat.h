@@ -380,6 +380,191 @@ AL_FUNC(AL_CONST char *, calibrate_joystick_name, (int n));
 AL_FUNC(int, calibrate_joystick, (int n));
 
 
+/* the old keyboard API */
+typedef struct KEYBOARD_DRIVER
+{
+   int  id;
+   AL_CONST char *name;
+   AL_CONST char *desc;
+   AL_CONST char *ascii_name;
+} KEYBOARD_DRIVER;
+
+
+AL_VAR(KEYBOARD_DRIVER *, keyboard_driver);
+
+AL_FUNC(int, install_keyboard, (void));
+AL_FUNC(void, remove_keyboard, (void));
+
+AL_FUNC(int, poll_keyboard, (void));
+AL_FUNC(int, keyboard_needs_poll, (void));
+
+AL_FUNCPTR(int, keyboard_callback, (int key));
+AL_FUNCPTR(int, keyboard_ucallback, (int key, int *scancode));
+AL_FUNCPTR(void, keyboard_lowlevel_callback, (int scancode));
+
+AL_FUNC(void, install_keyboard_hooks, (AL_METHOD(int, keypressed, (void)), AL_METHOD(int, readkey, (void))));
+
+AL_ARRAY(volatile char, key);
+AL_VAR(volatile int, key_shifts);
+
+#define three_finger_flag  _al_three_finger_flag
+#define key_led_flag	   _al_key_led_flag
+
+AL_FUNC(int, keypressed, (void));
+AL_FUNC(int, readkey, (void));
+AL_FUNC(int, ureadkey, (int *scancode));
+AL_FUNC(void, simulate_keypress, (int keycode));
+AL_FUNC(void, simulate_ukeypress, (int keycode, int scancode));
+AL_FUNC(void, clear_keybuf, (void));
+AL_FUNC(void, set_leds, (int leds));
+AL_FUNC(void, set_keyboard_rate, (int delay, int repeat));
+AL_FUNC(int, scancode_to_ascii, (int scancode));
+
+#ifndef ALLEGRO_NO_KEY_DEFINES
+
+#define KB_SHIFT_FLAG         AL_KEYMOD_SHIFT
+#define KB_CTRL_FLAG          AL_KEYMOD_CTRL
+#define KB_ALT_FLAG           (AL_KEYMOD_ALT | AL_KEYMOD_ALTGR)
+#define KB_LWIN_FLAG          AL_KEYMOD_LWIN
+#define KB_RWIN_FLAG          AL_KEYMOD_RWIN
+#define KB_MENU_FLAG          AL_KEYMOD_MENU
+#define KB_COMMAND_FLAG       AL_KEYMOD_COMMAND
+#define KB_SCROLOCK_FLAG      AL_KEYMOD_SCROLLLOCK
+#define KB_NUMLOCK_FLAG       AL_KEYMOD_NUMLOCK
+#define KB_CAPSLOCK_FLAG      AL_KEYMOD_CAPSLOCK
+#define KB_INALTSEQ_FLAG      AL_KEYMOD_IN_ALT_SEQ
+#define KB_ACCENT1_FLAG       AL_KEYMOD_ACCENT1
+#define KB_ACCENT2_FLAG       AL_KEYMOD_ACCENT2
+#define KB_ACCENT3_FLAG       AL_KEYMOD_ACCENT3
+#define KB_ACCENT4_FLAG       AL_KEYMOD_ACCENT4
+
+#define KEY_A                 AL_KEY_A
+#define KEY_B                 AL_KEY_B
+#define KEY_C                 AL_KEY_C
+#define KEY_D                 AL_KEY_D
+#define KEY_E                 AL_KEY_E
+#define KEY_F                 AL_KEY_F
+#define KEY_G                 AL_KEY_G
+#define KEY_H                 AL_KEY_H
+#define KEY_I                 AL_KEY_I
+#define KEY_J                 AL_KEY_J
+#define KEY_K                 AL_KEY_K
+#define KEY_L                 AL_KEY_L
+#define KEY_M                 AL_KEY_M
+#define KEY_N                 AL_KEY_N
+#define KEY_O                 AL_KEY_O
+#define KEY_P                 AL_KEY_P
+#define KEY_Q                 AL_KEY_Q
+#define KEY_R                 AL_KEY_R
+#define KEY_S                 AL_KEY_S
+#define KEY_T                 AL_KEY_T
+#define KEY_U                 AL_KEY_U
+#define KEY_V                 AL_KEY_V
+#define KEY_W                 AL_KEY_W
+#define KEY_X                 AL_KEY_X
+#define KEY_Y                 AL_KEY_Y
+#define KEY_Z                 AL_KEY_Z
+#define KEY_0                 AL_KEY_0
+#define KEY_1                 AL_KEY_1
+#define KEY_2                 AL_KEY_2
+#define KEY_3                 AL_KEY_3
+#define KEY_4                 AL_KEY_4
+#define KEY_5                 AL_KEY_5
+#define KEY_6                 AL_KEY_6
+#define KEY_7                 AL_KEY_7
+#define KEY_8                 AL_KEY_8
+#define KEY_9                 AL_KEY_9
+#define KEY_0_PAD             AL_KEY_PAD_0
+#define KEY_1_PAD             AL_KEY_PAD_1
+#define KEY_2_PAD             AL_KEY_PAD_2
+#define KEY_3_PAD             AL_KEY_PAD_3
+#define KEY_4_PAD             AL_KEY_PAD_4
+#define KEY_5_PAD             AL_KEY_PAD_5
+#define KEY_6_PAD             AL_KEY_PAD_6
+#define KEY_7_PAD             AL_KEY_PAD_7
+#define KEY_8_PAD             AL_KEY_PAD_8
+#define KEY_9_PAD             AL_KEY_PAD_9
+#define KEY_F1                AL_KEY_F1
+#define KEY_F2                AL_KEY_F2
+#define KEY_F3                AL_KEY_F3
+#define KEY_F4                AL_KEY_F4
+#define KEY_F5                AL_KEY_F5
+#define KEY_F6                AL_KEY_F6
+#define KEY_F7                AL_KEY_F7
+#define KEY_F8                AL_KEY_F8
+#define KEY_F9                AL_KEY_F9
+#define KEY_F10               AL_KEY_F10
+#define KEY_F11               AL_KEY_F11
+#define KEY_F12               AL_KEY_F12
+#define KEY_ESC               AL_KEY_ESCAPE
+#define KEY_TILDE             AL_KEY_TILDE
+#define KEY_MINUS             AL_KEY_MINUS
+#define KEY_EQUALS            AL_KEY_EQUALS
+#define KEY_BACKSPACE         AL_KEY_BACKSPACE
+#define KEY_TAB               AL_KEY_TAB
+#define KEY_OPENBRACE         AL_KEY_OPENBRACE
+#define KEY_CLOSEBRACE        AL_KEY_CLOSEBRACE
+#define KEY_ENTER             AL_KEY_ENTER
+#define KEY_COLON             AL_KEY_SEMICOLON
+#define KEY_QUOTE             AL_KEY_QUOTE
+#define KEY_BACKSLASH         AL_KEY_BACKSLASH
+#define KEY_BACKSLASH2        AL_KEY_BACKSLASH2
+#define KEY_COMMA             AL_KEY_COMMA
+#define KEY_STOP              AL_KEY_FULLSTOP
+#define KEY_SLASH             AL_KEY_SLASH
+#define KEY_SPACE             AL_KEY_SPACE
+#define KEY_INSERT            AL_KEY_INSERT
+#define KEY_DEL               AL_KEY_DELETE
+#define KEY_HOME              AL_KEY_HOME
+#define KEY_END               AL_KEY_END
+#define KEY_PGUP              AL_KEY_PGUP
+#define KEY_PGDN              AL_KEY_PGDN
+#define KEY_LEFT              AL_KEY_LEFT
+#define KEY_RIGHT             AL_KEY_RIGHT
+#define KEY_UP                AL_KEY_UP
+#define KEY_DOWN              AL_KEY_DOWN
+#define KEY_SLASH_PAD         AL_KEY_PAD_SLASH
+#define KEY_ASTERISK          AL_KEY_PAD_ASTERISK
+#define KEY_MINUS_PAD         AL_KEY_PAD_MINUS
+#define KEY_PLUS_PAD          AL_KEY_PAD_PLUS
+#define KEY_DEL_PAD           AL_KEY_PAD_DELETE
+#define KEY_ENTER_PAD         AL_KEY_PAD_ENTER
+#define KEY_PRTSCR            AL_KEY_PRINTSCREEN
+#define KEY_PAUSE             AL_KEY_PAUSE
+#define KEY_ABNT_C1           AL_KEY_ABNT_C1
+#define KEY_YEN               AL_KEY_YEN
+#define KEY_KANA              AL_KEY_KANA
+#define KEY_CONVERT           AL_KEY_CONVERT
+#define KEY_NOCONVERT         AL_KEY_NOCONVERT
+#define KEY_AT                AL_KEY_AT
+#define KEY_CIRCUMFLEX        AL_KEY_CIRCUMFLEX
+#define KEY_COLON2            AL_KEY_COLON2
+#define KEY_KANJI             AL_KEY_KANJI
+#define KEY_EQUALS_PAD        AL_KEY_EQUALS_PAD
+#define KEY_BACKQUOTE         AL_KEY_BACKQUOTE
+#define KEY_SEMICOLON         AL_KEY_SEMICOLON2
+#define KEY_COMMAND           AL_KEY_COMMAND
+
+#define KEY_MODIFIERS         AL_KEY_MODIFIERS
+
+#define KEY_LSHIFT            AL_KEY_LSHIFT
+#define KEY_RSHIFT            AL_KEY_RSHIFT
+#define KEY_LCONTROL          AL_KEY_LCTRL
+#define KEY_RCONTROL          AL_KEY_RCTRL
+#define KEY_ALT               AL_KEY_ALT
+#define KEY_ALTGR             AL_KEY_ALTGR
+#define KEY_LWIN              AL_KEY_LWIN
+#define KEY_RWIN              AL_KEY_RWIN
+#define KEY_MENU              AL_KEY_MENU
+#define KEY_SCRLOCK           AL_KEY_SCROLLLOCK
+#define KEY_NUMLOCK           AL_KEY_NUMLOCK
+#define KEY_CAPSLOCK          AL_KEY_CAPSLOCK
+
+#define KEY_MAX               AL_KEY_MAX
+
+#endif /* ALLEGRO_NO_KEY_DEFINES */
+
+
 #ifdef __cplusplus
    }
 #endif

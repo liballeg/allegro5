@@ -31,7 +31,7 @@ ALLEGRO_SRC_FILES = \
 	src/guiproc.c \
 	src/inline.c \
 	src/joynu.c \
-	src/keyboard.c \
+	src/keybdnu.c \
 	src/lbm.c \
 	src/libc.c \
 	src/math.c \
@@ -63,6 +63,7 @@ ALLEGRO_SRC_FILES = \
 	src/vtable32.c \
 	src/vtable8.c \
 	src/compat/cojoy.c \
+	src/compat/cokeybd.c \
 	src/compat/cotimer.c \
 	src/misc/vector.c
 
@@ -195,7 +196,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/winput.c \
 	src/win/wjoydrv.c \
 	src/win/wjoydxnu.c \
-	src/win/wkeybd.c \
+	src/win/wkeybdnu.c \
 	src/win/wmidi.c \
 	src/win/wmouse.c \
 	src/win/wsnddrv.c \
@@ -205,8 +206,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wtimernu.c \
 	src/win/wwnd.c \
 	src/win/wxthread.c \
-	src/misc/colconv.c \
-	src/misc/pckeys.c
+	src/misc/colconv.c
 
 ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/baccel.cpp \
@@ -249,7 +249,7 @@ ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/lconsole.c \
 	src/linux/lgfxdrv.c \
 	src/linux/ljoynu.c \
-	src/linux/lkeybd.c \
+	src/linux/lkeybdnu.c \
 	src/linux/lmemory.c \
 	src/linux/lmouse.c \
 	src/linux/lmsedrv.c \
@@ -301,7 +301,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \
-	src/x/xkeybd.c \
+	src/x/xkeybdnu.c \
 	src/x/xmouse.c \
 	src/x/xsystem.c \
 	src/x/xvtable.c \
@@ -309,8 +309,7 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xdga2.c \
 	src/x/xdga2s.s \
 	src/x/xwins.s \
-	src/misc/colconv.c \
-	src/misc/pckeys.c
+	src/misc/colconv.c
 	
 ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qdrivers.c \
@@ -406,8 +405,6 @@ ALLEGRO_MAKEDOC_SOURCES = \
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \
-	setup/keyconf.c \
-	setup/setup.c \
 	tests/afinfo.c \
 	tests/akaitest.c \
 	tests/digitest.c \
@@ -430,13 +427,10 @@ ALLEGRO_LIB_CPP_EXE_SOURCES = \
 	tests/cpptest.cpp
 
 ALLEGRO_LIB_X_EXE_SOURCES = \
-	tools/x11/xkeymap.c \
 	tools/x11/xf2pcx.c
 
 ALLEGRO_LIB_EXES = \
 	demo/demo \
-	setup/keyconf \
-	setup/setup \
 	tests/afinfo \
 	tests/akaitest \
 	tests/digitest \
@@ -459,7 +453,6 @@ ALLEGRO_LIB_CPP_EXES = \
 	tests/cpptest
 
 ALLEGRO_LIB_X_EXES = \
-	tools/x11/xkeymap \
 	tools/x11/xf2pcx
 
 ALLEGRO_DATAFILE_EXE_SOURCES = \
