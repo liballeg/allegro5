@@ -61,14 +61,14 @@
       #ifdef __cplusplus
          #define AL_INLINE(type, name, args, code)    static inline type name args code
       #else
-         #define AL_INLINE(type, name, args, code)    extern inline type name args code
+         #define AL_INLINE(type, name, args, code)    extern __inline__ type name args code
       #endif
    #endif
 
    #define AL_PRINTFUNC(type, name, args, a, b)    AL_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
 
    #ifndef INLINE
-      #define INLINE          inline
+      #define INLINE          __inline__
    #endif
 
    #if __GNUC__ >= 3
@@ -82,11 +82,11 @@
       #define RET_VOLATILE    volatile
    #endif
 
-   #ifndef ZERO_SIZE
+   #ifndef ZERO_SIZE_ARRAY
       #if __GNUC__ < 3
-         #define ZERO_SIZE    0
+         #define ZERO_SIZE_ARRAY(type, name)  __extension__ type name[0]
       #else
-         #define ZERO_SIZE
+         #define ZERO_SIZE_ARRAY(type, name)  type name[] /* ISO C99 flexible array members */
       #endif
    #endif
    
@@ -112,15 +112,6 @@
 #endif
 
 
-
-/* if we are using gcc, then constructors are supported */
-#ifdef __GNUC__
-   #undef CONSTRUCTOR_FUNCTION
-   #undef DESTRUCTOR_FUNCTION
-   #define CONSTRUCTOR_FUNCTION(func)              func __attribute__ ((constructor))
-   #define DESTRUCTOR_FUNCTION(func)               func __attribute__ ((destructor))
-#endif
-
 /* the rest of this file fills in some default definitions of language
  * features and helper functions, which are conditionalised so they will
  * only be included if none of the above headers defined custom versions.
@@ -134,8 +125,8 @@
    #define RET_VOLATILE   volatile
 #endif
 
-#ifndef ZERO_SIZE
-   #define ZERO_SIZE
+#ifndef ZERO_SIZE_ARRAY
+   #define ZERO_SIZE_ARRAY(type, name)             type name[]
 #endif
 
 #ifndef AL_CONST

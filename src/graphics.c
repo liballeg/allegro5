@@ -577,6 +577,12 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       gfx_capabilities = 0;
    }
 
+   /* We probably don't want to do this because it makes
+    * Allegro "forget" the color layout of previously set
+    * graphics modes. But it should be retained if bitmaps
+    * created in those modes are to be used in the new mode.
+    */
+#if 0
    /* restore default truecolor pixel format */
    _rgb_r_shift_15 = 0; 
    _rgb_g_shift_15 = 5;
@@ -591,6 +597,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    _rgb_g_shift_32 = 8;
    _rgb_b_shift_32 = 16;
    _rgb_a_shift_32 = 24;
+#endif
 
    gfx_capabilities = 0;
 

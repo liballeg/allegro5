@@ -70,8 +70,10 @@
    QNX               - see docs/build/qnx.txt
    MacOS/MPW         - see docs/build/macos.txt
 
-   General API information can be found in docs/txt/allegro.txt, which is
-   also available in HTML, TexInfo, and RTF format in the docs directory.
+   General API information can be found in the main manual, usually referred
+   to as docs/txt/allegro.txt or simply allegro.txt throughout this document
+   and which is also available in HTML, TexInfo, and RTF format in the docs
+   directory.
 
 
 
@@ -237,7 +239,7 @@
    The latest version of Allegro can always be found on the Allegro 
    homepage, http://alleg.sourceforge.net/.
 
-   There are three mailing lists for Allegro-related discussion, each with a 
+   There are four mailing lists for Allegro-related discussion, each with a
    slightly different purpose.
 
    [AL] - Allegro - allegro@canvaslink.com.
@@ -257,6 +259,14 @@
       talk about algorithms for scrolling a tile map, that would be 
       off-topic in the main Allegro list, but appropriate to discuss here.
 
+   [AC] - Allegro Competitions - alcomp@canvaslink.com.
+
+      This list is usually the way to announce, discuss and inform about any
+      competitions made with Allegro, like the Allegro Game Competition or
+      the Allegro Speedhack, Sizehack and Demohack. This list can also be
+      used by anybody willing to organise events related to Allegro, like
+      discussions or conferences in the IRC #allegro channel.
+
    [AD] - Allegro Developers - conductors@canvaslink.com.
 
       This list is for the people currently working on Allegro, who use it to
@@ -273,41 +283,69 @@
       code patches. This list is for working rather than talking, though, so 
       please don't do anything that might get in our way.
 
-   To subscribe to one of the lists, write to listserv@canvaslink.com with 
-   the text "subscribe {list} myname" in the body of your message, where 
-   {list} is one of allegro, agp, or conductors.
+   [Alleg5] - Allegro 5 - http://lists.sourceforge.net/mailman/listinfo/alleg-bigfive.
+ 
+      Just as described in the future (http://alleg.sourceforge.net/future.html)
+      section, the next big version of Allegro will feature at least a
+      complete API rewrite to fix all the quirks it has now. This list is for
+      discussing the future API, proposing new functions or modifying the
+      behaviour of actual ones, and posting code with the implementation if
+      it's possible to do so.
+
+   To subscribe to one of the four first lists, simply write to the address
+   listserv@canvaslink.com with the text "subscribe {list} myname" in the
+   body of your message, where {list} is one of allegro, agp, alcomp, or
+   conductors.
 
    To remove yourself from a list, write to listserv@canvaslink.com with the 
    text "unsubscribe {list}" in the body of your message, where {list} is 
-   one of allegro, agp, or conductors.
+   one of allegro, agp, alcomp, or conductors.
 
    Note that the address for subscribing and unsubscribing is NOT the same 
    as the regular address for posting messages! Please remember to send your 
    administration requests to the listserv, rather than to the list itself.
 
+   The fifth list (Allegro 5) is hosted on SourceForge and instructions on
+   how to subscribe/unsubscribe can be found at the Web address listed above.
+
    To send a message to one of the lists, write to allegro@canvaslink.com, 
-   agp@canvaslink.com, or conductors@canvaslink.com. You don't need to be 
-   subscribed to these lists before you can post to them, but it is a good 
-   idea to subscribe in order to see the replies. It is ok to post code 
-   contributions to the developers list without being subscribed, though, as 
-   long as you mention this in your mail so we will know to reply by private 
-   email. Before posting tech-support questions to the Allegro list, please 
-   take a moment to read the guidelines in docs/txt/help.txt.
+   agp@canvaslink.com, alcomp@canvaslink.com, conductors@canvaslink.com, or
+   alleg-bigfive@lists.sourceforge.net. You need to be subscribed to the
+   canvaslink lists before you can post to them. You don't need to be
+   subscribed to the alleg-bigfive list before you can post there, but it is
+   a good idea to subscribe in order to see the replies.
 
-   You can search through the mailing list archives using the engine on 
-   http://www.canvaslink.com/allegro/search.htm.
+   Before posting tech-support questions to the Allegro list, please take a
+   moment to read the guidelines in docs/txt/help.txt. See docs/txt/ahack.txt
+   for information about the style of code we use, and how to create your
+   patches.
 
-   Note: please don't send messages in HTML format. The increased size 
-   places an unnecessary load on the server, and many subscribers have a 
-   hard time reading these posts.
+   You can search through the mailing list archives of the main mailing list
+   using the engine on http://www.canvaslink.com/allegro/search.htm. For the
+   other mailing list, you will have to check the available options at
+   http://alleg.sourceforge.net/maillist.html .
 
-   Note: please do not crosspost between these lists. Choose the most 
-   appropriate one for your message, and then send it only to that list.
+   Please don't send messages in HTML format. The increased size places an
+   unnecessary load on the server, and many subscribers have a hard time
+   reading these posts.
 
-   Note: please don't send large binary attachments to any of the lists. 
-   Upload your files to a website and then post the URL, or if you can't do 
-   that, post an annoucement asking people to write to you privately, and 
-   then send the file by individual email to whoever responds.
+   Please do not crosspost between these lists. Choose the most appropriate
+   one for your message, and then send it only to that list.
+
+   Please don't send large binary attachments to any of the lists. Upload
+   your files to a website and then post the URL, or if you can't do that,
+   post an annoucement asking people to write to you privately, and then send
+   the file by individual email to whoever responds.
+
+   Please use English in your messages. You could eventually post messages in
+   whatever language you prefer, but that would terribly limit the chances of
+   getting a useful answer.
+   
+   Remember that the RFC 1855: netiquette guidelines
+   (http://www.rfc-editor.org/rfc/rfc1855.txt) describes other general
+   guidelines you should follow as a correct internet user (in mailing lists
+   and other places as well), and provides more verbose descriptions and
+   explanations about why you should follow the above guidelines.
 
    My personal address is shawn@talula.demon.co.uk, but please try to avoid 
    mailing me personally about anything other than personal issues. Use the 

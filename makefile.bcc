@@ -63,7 +63,18 @@ ifdef BCC32DIR
    BCC32DIR_D = $(subst /,\,$(BCC32DIR))
 else
 badbcc32:
-	@echo You need to set BCC32DIR to the directory where Borland C++ Builder is located.
+	@echo Your BCC32DIR environment variable is not set!
+	@echo See the docs/build/bcc32.txt file!
+endif
+
+NULLSTRING :=
+SPACE := $(NULLSTRING) # special magic to get an isolated space character
+
+ifneq ($(findstring $(SPACE),$(BCC32DIR)),)
+badspaces:
+	@echo There are spaces in your BCC32DIR environment variable:
+	@echo please change it to the 8.3 short filename version,
+	@echo or move your compiler to a different directory.
 endif
 
 
@@ -81,7 +92,7 @@ _default: default
 ifdef WARNMODE
     WFLAGS = -w
 else
-    WFLAGS =
+    WFLAGS = -w-8060
 endif
 
 OFLAGS = -O2 -OS
@@ -128,8 +139,6 @@ dibhello: tests/win/dibhello.exe
 dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
-
-DISTCLEAN_FILES += $(addprefix tests/win/, dibgrab.exe dibhello.exe dibsound.exe scrsave.scr) tools/win/wfixicon.exe
 
 
 
@@ -271,6 +280,20 @@ endif
 
 
 
+# -------- helper function for compressing the executables --------
+
+.PHONY: compress
+
+compress:
+ifdef UPX_BIN
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
+else
+	@echo No executable compressor specified! You must set the environment variable
+	@echo UPX_BIN to point to upx.exe.
+endif
+
+
+
 # -------- link as a DLL (sort of ;-) --------
 
 ifdef UNIX_TOOLS
@@ -295,11 +318,11 @@ COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 $(OBJ_DIR)/%.obj: %.c
 	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
 
-$(OBJ_DIR)/%.res: %.rc
+obj/bcc32/%.res: %.rc
 	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<)
 
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	@echo $(subst /,\\,$(OBJ_DIR)/dibsound.res) > res.rsp
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj obj/bcc32/dibsound.res $(IMPLIB_NAME)
+	@echo obj\\bcc32\\dibsound.res > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/dibsound.obj),tests\win\dibsound.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 ifdef UNIX_TOOLS
 	@rm res.rsp
@@ -323,8 +346,8 @@ ifdef DELETE_TDS_FILES
    endif
 endif
 
-tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
-	@echo $(subst /,\\,$(OBJ_DIR)/scrsave.res) > res.rsp
+tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj obj/bcc32/scrsave.res $(IMPLIB_NAME)
+	@echo obj\\bcc32\\scrsave.res > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/scrsave.obj),tests\win\scrsave.scr,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 ifdef UNIX_TOOLS
 	@rm res.rsp
@@ -382,7 +405,7 @@ endif
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
 PLUGINS_H = obj/bcc32/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
-PLUGIN_SCR = scx
+PLUGIN_SCR = scv
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
@@ -390,7 +413,7 @@ ifdef UNIX_TOOLS
    endef
 else
    define GENERATE_PLUGINS_H
-      copy tools\plugins\*.inc obj\bcc32\plugins.h
+      copy /B tools\plugins\*.inc obj\bcc32\plugins.h
    endef
 endif
 
@@ -479,17 +502,17 @@ DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 depend:
 	gcc $(DEPEND_PARMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
 	gcc $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
-	sed -e 's/\\/\//g' -e 's/\/$$/\\/' -e "s/^[a-zA-Z0-9_\/]*\///" -e "s/ \.\// /g" _depend.tmp > _depend1.tmp
-	sed -e "s/asmdef\.o/asmdef\.exe/" _depend1.tmp > _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/asmdef\.o/asmdef\.exe/" _depend2.tmp > _depend.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alleg\/\1\.obj:/" _depend.tmp > obj/bcc32/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alld\/\1\.obj:/" _depend.tmp > obj/bcc32/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/allp\/\1\.obj:/" _depend.tmp > obj/bcc32/allp/makefile.dep
-	rm _depend.tmp _depend1.tmp
+	rm _depend.tmp _depend2.tmp
 else
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alleg\/\1\.obj:/" _depend.tmp > obj\bcc32\alleg\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/alld\/\1\.obj:/" _depend.tmp > obj\bcc32\alld\makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/bcc32\/allp\/\1\.obj:/" _depend.tmp > obj\bcc32\allp\makefile.dep
 	del _depend.tmp
-	del _depend1.tmp
+	del _depend2.tmp
 endif

@@ -55,7 +55,7 @@ void animate(void)
    /* clears sprite buffer with color 0 */
    clear_bitmap(sprite_buffer);
 
-   /* if SPACE key pressed set a next flag */
+   /* if key pressed set a next flag */
    if (keypressed())
       next = TRUE;
    else

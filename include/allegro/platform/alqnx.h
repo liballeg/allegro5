@@ -21,6 +21,7 @@ extern int    __crt0_argc;
 extern char **__crt0_argv;
 
 #ifndef USE_CONSOLE
+   #define ALLEGRO_MAGIC_MAIN
    #define main _mangled_main
    #undef END_OF_MAIN
    #define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;

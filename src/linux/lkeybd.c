@@ -153,7 +153,8 @@ static char pad_asciis_no_numlock[NUM_PAD_KEYS] = {
 static void process_keyboard_data (unsigned char *buf, size_t bytes_read) 
 {
         unsigned int ch;
-        unsigned int code, mycode, press, ascii;
+        unsigned int code, mycode, press;
+        int ascii;
         int map;
         struct kbentry kbe;
 

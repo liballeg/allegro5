@@ -4,7 +4,7 @@
  */
 
 
-#include <conio.h>
+#include <stdio.h>
 #include <ctype.h>
 
 
@@ -13,26 +13,26 @@ int main(int argc, char *argv[])
 {
    int i;
 
-   cputs("\r\n");
+   puts("\n");
 
    for (i=1; i<argc; i++) {
       if (i > 1)
-	 putch(' ');
+	 putc(' ', stdout);
 
-      cputs(argv[i]);
+      puts(argv[i]);
    }
 
-   cputs("? [y/n] ");
+   puts("? [y/n] ");
 
    for (;;) {
-      i = getch();
+      i = getc(stdin);
 
       if ((tolower(i) == 'y') || (tolower(i) == 'n')) {
-	 putch(i);
-	 cputs("\r\n\n");
+	 putc(i, stdout);
+	 puts("\n\n");
 	 return (tolower(i) == 'y') ? 0 : 1;
       }
       else
-	 putch(7);
+	 putc(7, stdout);
    }
 }

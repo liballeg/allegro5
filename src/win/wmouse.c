@@ -68,7 +68,7 @@ MOUSE_DRIVER mouse_directx =
 
 
 #define DINPUT_BUFFERSIZE 256
-static HANDLE mouse_thread = NULL;
+HANDLE mouse_thread = NULL;
 static HANDLE mouse_thread_stop_event = NULL;
 static HANDLE mouse_input_event = NULL;
 static LPDIRECTINPUT mouse_dinput = NULL;
@@ -76,6 +76,8 @@ static LPDIRECTINPUTDEVICE mouse_dinput_device = NULL;
 
 static int dinput_buttons = 0;
 static int dinput_wheel = FALSE;
+
+static int mouse_swap_button = FALSE;     /* TRUE means buttons 1 and 2 are swapped */
 
 static int dinput_x = 0;              /* tracked dinput positon */
 static int dinput_y = 0;
@@ -376,6 +378,9 @@ static int mouse_dinput_init(void)
    if (FAILED(hr))
       goto Error;
 
+   /* Check to see if the buttons are swapped (left-hand) */
+   mouse_swap_button = GetSystemMetrics(SM_SWAPBUTTON);   
+
    /* Set data format */
    hr = IDirectInputDevice_SetDataFormat(mouse_dinput_device, &c_dfDIMouse);
    if (FAILED(hr))
@@ -487,19 +492,19 @@ static void mouse_directx_poll(void)
 	       case DIMOFS_BUTTON0:
 		  if (data & 0x80) {
 		     if (_mouse_on)
-			_mouse_b |= 1;
+			_mouse_b |= (mouse_swap_button ? 2 : 1);
 		  }
 		  else
-		     _mouse_b &= ~1;
+		     _mouse_b &= ~(mouse_swap_button ? 2 : 1);
 		  break;
 
 	       case DIMOFS_BUTTON1:
 		  if (data & 0x80) {
 		     if (_mouse_on)
-			_mouse_b |= 2;
+			_mouse_b |= (mouse_swap_button ? 1 : 2);
 		  }
 		  else
-		     _mouse_b &= ~2;
+		     _mouse_b &= ~(mouse_swap_button ? 1 : 2);
 		  break;
 
 	       case DIMOFS_BUTTON2:

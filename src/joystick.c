@@ -123,6 +123,7 @@ static void update_calib(int n)
 int install_joystick(int type)
 {
    _DRIVER_INFO *driver_list;
+   char tmp1[64], tmp2[64];
    int c;
 
    if (_joystick_installed)
@@ -132,6 +133,8 @@ int install_joystick(int type)
 
    usetc(allegro_error, 0);
 
+   _joy_type = type;
+
    if (system_driver->joystick_drivers)
       driver_list = system_driver->joystick_drivers();
    else
@@ -139,19 +142,27 @@ int install_joystick(int type)
 
    /* search table for a specific driver */
    for (c=0; driver_list[c].driver; c++) { 
-      if (driver_list[c].id == type) {
+      if (driver_list[c].id == _joy_type) {
 	 joystick_driver = driver_list[c].driver;
 	 joystick_driver->name = joystick_driver->desc = get_config_text(joystick_driver->ascii_name);
-	 _joy_type = type;
 	 if (joystick_driver->init() != 0) {
 	    if (!ugetc(allegro_error))
 	       uszprintf(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("%s not found"), joystick_driver->name);
-	    joystick_driver = NULL; 
+	    joystick_driver = &joystick_none;
 	    _joy_type = JOY_TYPE_NONE;
 	    return -1;
 	 }
 	 break;
       }
+   }
+
+   /* read config information */
+   if (_joy_type == JOY_TYPE_AUTODETECT)
+       _joy_type = get_config_id(uconvert_ascii("joystick", tmp1), uconvert_ascii("joytype", tmp2), JOY_TYPE_AUTODETECT);
+
+   if (_joy_type == JOY_TYPE_NONE) {
+      joystick_driver = &joystick_none;
+      _joy_type = JOY_TYPE_NONE;
    }
 
    /* autodetect driver */
@@ -170,11 +181,13 @@ int install_joystick(int type)
 	       break;
 	 }
       }
-   }
-
-   if (!driver_list[c].driver) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("No joysticks found"));
-      return -1;
+      
+      if (!driver_list[c].driver) {
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("No joysticks found"));
+	 joystick_driver = &joystick_none;
+	 _joy_type = JOY_TYPE_NONE;
+	 return -1;
+      }
    }
 
    for (c=0; c<num_joysticks; c++)
@@ -272,6 +285,7 @@ int load_joystick_data(AL_CONST char *filename)
    _joy_type = get_config_id(uconvert_ascii("joystick", tmp1), uconvert_ascii("joytype", tmp2), -1);
 
    if (_joy_type < 0) {
+      joystick_driver = &joystick_none;
       _joy_type = JOY_TYPE_NONE;
       ret = -1;
    }

@@ -239,7 +239,7 @@ DOS problems
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
-      file (eg. "shell=c:\command.com /e:8192").
+      file (eg. "shell=c:\command.com /e:8192 /p").
 </ul>
 
 
@@ -248,6 +248,22 @@ DOS problems
 Windows problems
 
 <ul><h4><li>
+@@   I get an "out of environment space" error when I run fix.bat or 
+   vcvars32.bat!
+</h4>
+      Well duh, you need to increase the size of your environment then :-) 
+      You can do this by changing the settings for your DOS box (click the 
+      system menu and select "properties"), or at startup in your config.sys 
+      file (eg. "shell=c:\command.com /e:8192 /p").
+
+<h4><li>
+@@   I get an error about a "missing separator" when I run make!
+</h4>
+      Make sure that you don't have a semi-colon appended to your MSVCDIR 
+      variable if you are using MSVC, to your MINGDIR variable if you are 
+      using Mingw32 or to your BCC32DIR variable if you are using BCC.
+
+<h4><li>
 @@   I get lots of compile errors about things like "LPDIRECTDRAWSURFACE2"!
 </h4>
       You need to tell your compiler how to find the DirectX include files
@@ -264,7 +280,13 @@ Windows problems
       least version 5, which you can get from the Microsoft Developer site.
 
 <h4><li>
-@@   I get errors about a missing WinMain() or main() function!
+@@   When I run make, it says "windres: no resources".
+</h4>
+      If Norton Antivirus is installed on your computer, try to disable
+      the "Auto-Protect" feature. Otherwise, try something else ;-)
+
+<h4><li>
+@@   I get an error about a missing WinMain() or main() function!
 </h4>
       You need to write END_OF_MAIN() just after your main() function. 
       Allegro uses this, along with some preprocessor magic, to turn a 
@@ -275,24 +297,38 @@ Windows problems
 </h4>
       Make sure you're building a Windows GUI Application, and not a Windows
       Console Application. This is a setting when you create the project in
-      MSVC. This is specified by the '-tW' flag for the Borland C++ command
-      line compiler. Either that, or #define USE_CONSOLE at the top if you
-      really need the console for your program.
+      MSVC or Borland C++ Builder. This is specified by the '-tW' flag for
+      the Borland C++ command line compiler. Either that, or define the
+      preprocessor symbol ALLEGRO_USE_CONSOLE prior to including Allegro
+      headers if you really need the console for your program.
+
+<li><h4>
+@@   I get lots of compile errors about conflicting types for "struct BITMAP"!
+</h4>
+      If your program directly includes Win32 API header files, see the
+      "Windows specifics" section of the documentation. If your program only
+      includes header files of the C++ standard library, you're very likely
+      trying to compile it with gcc 3.x for Mingw32; if so, define the
+      symbol __GTHREAD_HIDE_WIN32API on the compiler command line:
+         g++ -D__GTHREAD_HIDE_WIN32API program.cpp -lalleg
+
+<li><h4>
+@@   In windowed mode artifacts are left on the desktop when the window
+   is moved or when another window is placed on top of it.
+</h4>
+      Disable direct updating for the DirectX windowed driver by using the
+      dedicated configuration variable. See the 'Configuration routines'
+      section in the docs and the allegro.cfg template file for more
+      detailed informations.
 
 <h4><li>
-@@   I get an "out of environment space" error when I run fix.bat or 
-   vcvars32.bat!
+@@   In windowed mode the screen stays black unless the window is placed
+   under another window on the desktop.
 </h4>
-      Well duh, you need to increase the size of your environment then :-) 
-      You can do this by changing the settings for your DOS box (click the 
-      system menu and select "properties"), or at startup in your config.sys 
-      file (eg. "shell=c:\command.com /e:8192").
-<h4><li>
-@@   I get an error about a "missing separator" when I run make!
-</h4>
-      Make sure that you don't have a semi-colon appended to your MSVCDIR 
-      variable if you are using MSVC, to your MINGDIR variable if you are 
-      using Mingw32 or to your BCC32DIR variable if you are using BCC.
+      Disable direct updating for the DirectX windowed driver by using the
+      dedicated configuration variable. See the 'Configuration routines'
+      section in the docs and the allegro.cfg template file for more
+      detailed informations.
 </ul>
 
 
@@ -451,7 +487,12 @@ General problems
 @@   How can I generate FLI or FLC format animations?
 </h4>
       See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
-      for some utilities, for example DTA and Smacker.
+      for some utilities, for example DTA and Smacker. Also, you can use ASE
+      (Allegro Sprite Editor, <link>http://ase.sourceforge.net/</a>), which allows
+      drawing/editing each frame of the animation and save it as a FLI. Or
+      you can use The GIMP (<link>http://www.gimp.org/</a>) along with it's GFli
+      plugin, using layers as frames, and saving your work as "file.fli".
+      The GIMP allows you to edit existent FLI files too.
 
 <h4><li>
 @@   How can I make parts of my sprite transparent in truecolor modes?
@@ -479,7 +520,7 @@ General problems
       will rotate the graphic by 45 degrees.
 
 <h4><li>
-@@   I can't get the d_icon_proc() GUI object to work!
+@@   I can't get the d_bitmap_proc() or d_icon_proc() GUI object to work!
 </h4>
       You are probably trying to initialise the dialog structure with a 
       pointer to your bitmap, right? That won't work because the dialog is 

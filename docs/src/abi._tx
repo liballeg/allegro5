@@ -74,7 +74,7 @@ Linux notes
    colour depths and X11 support enabled, amongst other things. If in
    doubt, leave it at the default setting.
 
-   When you are ready to distribute your binary, run "ldd <mybinary>".
+   When you are ready to distribute your binary, run "ldd &ltmybinary&gt".
    It should say something like:
 
       liballeg.so.4.0 => /usr/local/lib/liballeg.so.4.0 (0xdeadbeaf)

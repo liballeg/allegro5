@@ -149,11 +149,6 @@ fi
 AC_MSG_RESULT(\"$allegro_cv_asm_prefix\")])
 
 dnl
-dnl Turn off Pentium optimizations by default.
-dnl
-allegro_pentium_optimizations=no
-
-dnl
 dnl Test for modules support (dlopen interface and -export-dynamic linker flag).
 dnl
 dnl Variables:
@@ -207,7 +202,7 @@ AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_XWINDOWS,
 test "X$enableval" != "Xno" && allegro_enable_xwin_shm=yes,
 allegro_enable_xwin_shm=yes)
 AC_ARG_ENABLE(xwin-vidmode,
-[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Extension [default=yes]],
+[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Ext. [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86vidmode=yes,
 allegro_enable_xwin_xf86vidmode=yes)
 AC_ARG_ENABLE(xwin-dga,
@@ -380,10 +375,23 @@ allegro_enable_esddigi=yes)
 if test -n "$allegro_enable_esddigi"; then
   AC_PATH_PROG(ESD_CONFIG, esd-config)
   if test -n "$ESD_CONFIG"; then
-    allegro_support_esddigi=yes
+    ALLEGRO_OLD_LIBS="$LIBS"
+    ALLEGRO_OLD_CFLAGS="$CFLAGS"
+    LIBS="`$ESD_CONFIG --libs` $LIBS"
     CFLAGS="`$ESD_CONFIG --cflags` $CFLAGS"
-    if test -z "$allegro_support_modules"; then
-      LIBS="`$ESD_CONFIG --libs` $LIBS"
+    AC_MSG_CHECKING(for esd_open_sound)
+    AC_TRY_LINK([#include <esd.h>],
+      [esd_open_sound(0);],
+      [allegro_support_esddigi=yes
+       if test -n "$allegro_support_modules"; then
+         LIBS="$ALLEGRO_OLD_LIBS"
+       fi],
+      [CFLAGS="$ALLEGRO_OLD_CFLAGS"
+       LIBS="$ALLEGRO_OLD_LIBS"])
+    if test -n "$allegro_support_esddigi"; then
+      AC_MSG_RESULT(yes)
+    else
+      AC_MSG_RESULT(no)
     fi
   fi
 fi])

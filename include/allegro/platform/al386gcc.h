@@ -29,7 +29,7 @@ AL_INLINE(int, _default_ds, (void),
 {
    short result;
 
-   asm (
+   __asm__ (
       "  movw %%ds, %0 "
 
    : "=r" (result)
@@ -47,7 +47,7 @@ AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
 {
    unsigned long result;
 
-   asm volatile (
+   __asm__ volatile (
       "  call *%3 "
 
    : "=a" (result)                     /* result in eax */
@@ -69,7 +69,7 @@ AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
 {
    unsigned long result;
 
-   asm volatile (
+   __asm__ volatile (
       "  call *%3 "
 
    : "=a" (result)                     /* result in eax */
@@ -89,7 +89,7 @@ AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
  */
 AL_INLINE(void, bmp_unwrite_line, (BITMAP *bmp),
 {
-   asm volatile (
+   __asm__ volatile (
       "  call *%1 "
    :
    : "d" (bmp),                        /* bitmap in edx */
@@ -136,7 +136,7 @@ AL_INLINE(fixed, fixadd, (fixed x, fixed y),
 
    __PRECALCULATE_CONSTANTS(x + (double)y)
    {
-      asm (
+      __asm__ (
 	 "  addl %2, %0 ; "               /* do the addition */
 	 "  jno 0f ; "                    /* check for overflow */
 
@@ -174,7 +174,7 @@ AL_INLINE(fixed, fixsub, (fixed x, fixed y),
 
    __PRECALCULATE_CONSTANTS(x - (double)y)
    {
-      asm (
+      __asm__ (
 	 "  subl %2, %0 ; "               /* do the subtraction */
 	 "  jno 0f ; "                    /* check for overflow */
 
@@ -213,7 +213,7 @@ AL_INLINE(fixed, fixmul, (fixed x, fixed y),
 
    __PRECALCULATE_CONSTANTS(x / 65536.0 * y)
    {
-      asm (
+      __asm__ (
 	 "  movl %2, %%eax ; "
 	 "  imull %3 ; "                  /* do the multiply */
 	 "  shrdl $16, %%edx, %%eax ; "
@@ -266,7 +266,7 @@ AL_INLINE(fixed, fixdiv, (fixed x, fixed y),
 
    __PRECALCULATE_CONSTANTS(x * 65536.0 / y)
    {
-      asm (
+      __asm__ (
 	 "  testl %%eax, %%eax ; "        /* test sign of x */
 	 "  js 3f ; "
 
@@ -346,7 +346,7 @@ AL_INLINE(int, fixfloor, (fixed x),
 {
    int result;
 
-   asm (
+   __asm__ (
       " sarl $16, %0 "		/* convert to int */
 
     : "=r" (result)		/* result in a register */
@@ -367,7 +367,7 @@ AL_INLINE(int, fixceil, (fixed x),
 {
    int result;
 
-   asm (
+   __asm__ (
       " addl $0xFFFF, %0 ;"	/* ceil () */
       " jns 0f ;"
       " jo 1f ;"

@@ -56,7 +56,7 @@ RESULT	EQU	r3
 ;   int x_ofs;                    /* horizontal offset (for sub-bitmaps) */
 ;   int y_ofs;                    /* vertical offset (for sub-bitmaps) */
 ;   int seg;                      /* bitmap segment */
-;   unsigned char *line[ZERO_SIZE];
+;   ZERO_SIZE_ARRAY(unsigned char *,line);
 ;} BITMAP;
 
 BITMAP     record 

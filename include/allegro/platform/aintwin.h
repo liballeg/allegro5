@@ -109,7 +109,7 @@ AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (
 AL_FUNC(void, sys_switch_in, (void));
 
 AL_FUNC(void, sys_switch_out, (void));
-AL_FUNC(void, thread_switch_out, (void));
+AL_FUNC(int, thread_switch_out, (void));
 AL_FUNC(void, midi_switch_out, (void));
 
 AL_FUNC(void, sys_directx_switch_out_callback, (void));
@@ -120,6 +120,7 @@ AL_FUNC(void, sys_directx_switch_in_callback, (void));
 /*******************************************/
 /************** keyboard routines **********/
 /*******************************************/
+AL_VAR(HANDLE, key_thread);
 AL_FUNC(int, key_dinput_acquire, (void));
 AL_FUNC(int, key_dinput_unacquire, (void));
 AL_FUNC(void, wnd_acquire_keyboard, (void));
@@ -130,6 +131,7 @@ AL_FUNC(void, wnd_unacquire_keyboard, (void));
 /*******************************************/
 /************** mouse routines *************/
 /*******************************************/
+AL_VAR(HANDLE, mouse_thread);
 AL_FUNC(int, mouse_dinput_acquire, (void));
 AL_FUNC(int, mouse_dinput_unacquire, (void));
 AL_FUNC(int, mouse_set_syscursor, (int state));

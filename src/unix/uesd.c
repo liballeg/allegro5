@@ -148,7 +148,7 @@ static int _al_esd_detect(int input)
    }
 
    /* We don't want esdlib to spawn ESD while we are detecting it.  */
-   setenv("ESD_NO_SPAWN", "1", 0);
+   putenv("ESD_NO_SPAWN=1");
 
    /* Get ESD server name.  */
    server = get_config_string(uconvert_ascii("sound", tmp1),

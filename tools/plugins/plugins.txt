@@ -61,7 +61,7 @@ The Basics
    the datafile programs. This script has a different extension for each 
    supported platform, so that your plugin can use different linker options 
    depending on the compiler. The djgpp version uses .scr scripts, Watcom 
-   uses .scw, MSVC uses .scv and Unix uses .scu.
+   uses .scw, MSVC/BCC use .scv, MinGW uses .scm and Unix uses .scu.
 
    There are no restrictions on what names you can give these files other 
    than the required extensions, but to minimise the danger of namespace 

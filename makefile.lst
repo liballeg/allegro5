@@ -263,6 +263,7 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/alsamidi.c \
 	src/unix/udjgpp.c \
 	src/unix/udrvlist.c \
+	src/unix/udummy.c \
 	src/unix/uesd.c \
 	src/unix/ufile.c \
 	src/unix/ugfxdrv.c \
@@ -497,10 +498,8 @@ OBJ_CLEAN_FILES = \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj
 
 OTHER_CLEAN_FILES = \
-	docs/texi/*.texi docs/texi/*.txi docs/*.tex docs/info/*.info \
-	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
-	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \
+	obj/*/*.res obj/*/asmdef obj/*/*.inc src/i386/asmdef \
 	lib/*/*.a lib/unix/*.so* lib/unix/sta* \
 	lib/*/*.lib lib/*/*.exp lib/*/*.dll \
 	lib/*/*.pdb lib/*/*.ilk lib/*/*.map *.pdb */*.pdb \
@@ -509,13 +508,16 @@ OTHER_CLEAN_FILES = \
 	log */log */*/log core */core */*/core
 
 DISTCLEAN_FILES = \
-	docs/html/*.html docs/html/*.htm docs/rtf/*.rtf docs/makedoc \
-	docs/allegro.dvi docs/allegro.ps* \
+	docs/texi/*.texi docs/texi/*.txi docs/*.tex docs/info/*.info \
+	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
+	docs/html/*.html docs/html/*.htm docs/html/*.css docs/chm/*.chm docs/chm/*.hh* \
+	docs/rtf/*.rtf docs/devhelp/*.html docs/devhelp/*.devhelp \
+	docs/makedoc docs/allegro.dvi docs/allegro.ps* \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
-	*.exe */*.exe msvcmake.bat tests/win/*.scr \
+	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log stamp-h stamp-h[0-9]* suid makefile.dep \
 	config.status include/allegro/alunixac.h allegro-config
 
 VERYCLEAN_FILES = \
 	authors AUTHORS changes CHANGES thanks THANKS \
-	obj/*/*.inc obj/*/*/*.dep lib/*/*.def
+	obj/*/*/*.dep lib/*/*.def

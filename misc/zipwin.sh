@@ -1,9 +1,12 @@
 #! /bin/sh
 #
 #  Shell script to create a Windows binary distribution. This will
-#  compile the DLL files using MSVC, generate the batch file and associated
-#  helpers needed for end users to build the example programs, and finally
-#  zip up the results.
+#  compile the DLL files using MSVC or Cygwin, generate the batch file and
+#  associated helpers needed for end users to build the example programs,
+#  and finally zip up the results.
+#
+#  Note! If you use Cygwin to generate the DLLs make sure you have set up
+#  your MINGDIR and ALLEGRO_USE_CYGWIN environment variables correctly.
 #
 #  It should be run from the root of the Allegro directory, eg.
 #  bash misc/zipwin.sh, so that it can find misc/vcvars.c and misc/askq.c.
@@ -11,17 +14,24 @@
 
 # check we have a filename, and strip off the path and extension from it
 if [ $# -ne 1 ]; then
-   echo "Usage: zipwin archive_name" 1>&2
+   echo "Usage: zipwin <archive_name>" 1>&2
    exit 1
 fi
 
 name=$(echo "$1" | sed -e 's/.*[\\\/]//; s/\.zip//')
 
 
-# check that MSVC is available
-if [ "$MSVCDIR" = "" ]; then
-   echo "You need to set up MSVC (run vcvars32.bat) before running this script" 1>&2
-   exit 1
+# check that MSVC or Cygwin is available
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   if [ "$MINGDIR" = "" ]; then
+      echo "You need to set up Cygwin before running this script" 1>&2
+      exit 1
+   fi
+else
+   if [ "$MSVCDIR" = "" ]; then
+      echo "You need to set up MSVC (run vcvars32.bat) before running this script" 1>&2
+      exit 1
+   fi
 fi
 
 
@@ -32,8 +42,12 @@ if [ ! -f include/allegro.h ]; then
 fi
 
 
-# convert Allegro to MSVC format
-./fix.sh msvc --utod
+# convert Allegro to MSVC or Cygwin format
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   ./fix.sh mingw32 --dtou
+else
+   ./fix.sh msvc --utod
+fi
 
 
 # delete all generated files
@@ -46,7 +60,7 @@ misc/fixdll.sh
 
 
 # generate dependencies
-echo "Generating MSVC dependencies..."
+echo "Generating dependencies..."
 make.exe depend
 
 
@@ -62,14 +76,22 @@ ver=`sed -n -e "s/LIBRARY_VERSION = \(.*\)/\1/p" makefile.ver`
 
 # compile vcvars
 echo "Compiling vcvars.exe..."
-cl -nologo misc/vcvars.c advapi32.lib
-rm vcvars.obj
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   gcc -Wl,--subsystem,console -o vcvars.exe misc/vcvars.c -ladvapi32
+else
+   cl -nologo misc/vcvars.c advapi32.lib
+   rm vcvars.obj
+fi
 
 
 # compile askq
 echo "Compiling askq.exe..."
-cl -nologo misc/askq.c
-rm askq.obj
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   gcc -Wl,--subsystem,console -o askq.exe misc/askq.c
+else
+   cl -nologo misc/askq.c
+   rm askq.obj
+fi
 
 
 # generate the setup code for msvcmake.bat (this bit checks for vcvars32,
@@ -120,6 +142,18 @@ echo Compiling test and example programs
 END_OF_BATCH
 
 
+# If running Cygwin, we need to do some trickery
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   ./fix.sh msvc --utod
+   export MSVCDIR="MSVCDIR"
+   make.exe depend UNIX_TOOLS=1
+
+   echo "Fooling the MSVC makefile ..."
+   cp lib/mingw32/*.dll lib/msvc/
+   make.exe -t lib
+fi
+
+
 # SED script for converting make -n output into a funky batch file
 cat > _fix1.sed << END_OF_SED
 
@@ -133,7 +167,7 @@ s/obj\/msvc\/runner.exe //
 s/\\//\\\\/g
 
 # make sure were are using command.com copy, rather than cp
-s/^.*cat tools.*msvc.plugins.h/copy tools\\\\plugins\\\\*.inc obj\\\\msvc\\\\plugins.h/
+s/^.*cat tools.*msvc.plugins.h/copy \/B tools\\\\plugins\\\\*.inc obj\\\\msvc\\\\plugins.h/
 
 # add blank lines, to make the batch output more readable
 s/^\([^@]*\)$/\\
@@ -174,6 +208,9 @@ make.exe -n | \
 
 rm _fix1.sed _fix2.sed
 
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   unset MSVCDIR
+fi
 
 # finish writing msvcmake.bat (this bit asks whether to install the headers,
 # libs, and DLL files)
@@ -309,6 +346,12 @@ END_OF_README
 echo "Creating $name.zip..."
 cd ..
 if [ -f $name.zip ]; then rm $name.zip; fi
+
+if [ "$ALLEGRO_USE_CYGWIN" = "1" ]; then
+   unix2dos allegro/$name.txt
+   unix2dos allegro/msvcmake.bat
+fi
+
 zip -9 $name.zip allegro/$name.txt allegro/msvcmake.bat allegro/vcvars.exe allegro/askq.exe allegro/lib/msvc/*.dll
 
 

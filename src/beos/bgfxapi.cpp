@@ -80,7 +80,7 @@ AL_CONST BE_MODE_TABLE _be_mode_table[] = {
    { 32,  1152,  900, B_32_BIT_1152x900,  B_RGB32 },
    { 32,  1280, 1024, B_32_BIT_1280x1024, B_RGB32 },
    { 32,  1600, 1200, B_32_BIT_1600x1200, B_RGB32 },
-   { -1 }
+   { -1,     0,    0,                  0,       0 }
 };
 
 sem_id _be_fullscreen_lock = -1;
@@ -190,17 +190,18 @@ static inline void change_focus(bool active)
 
 static inline bool handle_window_close(const char *title)
 {
+   char tmp1[1024], tmp2[16], tmp3[16];
    int result;
-   char tmp1[512], tmp2[32], tmp3[32];
    
    if (_be_window_close_hook != NULL) {
       _be_window_close_hook();
    }
    else {
+      /* display the default close box */
       BAlert *close_alert = new BAlert(title,
-         uconvert_toascii(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), tmp1),
-         uconvert_toascii(get_config_text("Yes"), tmp2),
-         uconvert_toascii(get_config_text("No"), tmp3), 
+         uconvert(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), U_CURRENT, tmp1, U_UTF8, sizeof(tmp1)),
+         uconvert(get_config_text("Yes"), U_CURRENT, tmp2, U_UTF8, sizeof(tmp2)),
+         uconvert(get_config_text("No"), U_CURRENT, tmp3, U_UTF8, sizeof(tmp3)),
          NULL, B_WIDTH_AS_USUAL, B_WARNING_ALERT);
       close_alert->SetShortcut(1, B_ESCAPE);
       if (_be_midisynth)
@@ -211,6 +212,7 @@ static inline bool handle_window_close(const char *title)
       if (result == 0)
          be_terminate(0, false);
    }
+
    return false;
 }
 

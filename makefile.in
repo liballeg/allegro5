@@ -360,7 +360,7 @@ install-lib: lib
 		) ; \
 	fi
 	@for l in alleg alld allp; do \
-	  if test -f $(DESTDIR)$(libdir)/lib$${l}-$(shared_version).so -a \! -L $(DESTDIR)$(libdir)/lib$${l}.so.${shared_major_minor}; then \
+	  if test -f $(DESTDIR)$(libdir)/lib$${l}-$(shared_version).so -a \! -h $(DESTDIR)$(libdir)/lib$${l}.so.${shared_major_minor}; then \
 	    (cd $(DESTDIR)$(libdir); ln -s lib$${l}-$(shared_version).so lib$${l}.so.${shared_major_minor}); \
 	  fi; \
 	done

@@ -48,7 +48,6 @@ void callback_func(int pos)
  * to the function.
  * Since we want a greyscale effect with no matter what A (or 'x') color, we
  * ignore it and use y to look at the palette.
- * The x=x line is there to avoid compiler warnings.
  * NOTE:
  * When you return the rgb value, you don't need to search the palette for
  * the nearest color, Allegro does this automatically.
@@ -131,7 +130,7 @@ int main(void)
 
    create_color_table(&greyscale_table, pal, return_grey_color, callback_func);
 
-   /* build a color lookup table for greyscale effect */
+   /* build a color lookup table for negative effect */
    #ifdef ALLEGRO_CONSOLE_OK
       printf("\n\nGenerating Negative Table (3.25 lines to go)\n");
    #endif
@@ -149,7 +148,7 @@ int main(void)
    }
    set_palette(pal);
 
-   /* look, we have set the drawing mode to TRANS. This makes all the drawing
+   /* we have set the drawing mode to TRANS. This makes all the drawing
     * functions use the general color_map table, which is _NOT_ translucent,
     * since we are using a custom color_map table.
     */

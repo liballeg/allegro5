@@ -311,7 +311,7 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
 
 /* gfx_directx_fetch_mode_list:
  *  Creates a list of available video modes.
- *  Returns number of video modes on success and -1 on failure.
+ *  Returns the list on success, NULL on failure.
  */
 GFX_MODE_LIST *gfx_directx_fetch_mode_list(void)
 {

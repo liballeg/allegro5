@@ -272,7 +272,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    char tmp1[64], tmp2[64];
    int i;
 
-   #ifndef CONSTRUCTOR_FUNCTION
+   #ifndef ALLEGRO_USE_CONSTRUCTOR
       /* call constructor functions manually */
       extern void _initialize_datafile_types();
       extern void _midi_constructor();
@@ -282,10 +282,6 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
       _midi_constructor();
       _mouse_constructor();
       _register_bitmap_file_type_init();
-   #else
-      #ifndef DESTRUCTOR_FUNCTION
-         _register_bitmap_file_type_init();
-      #endif
    #endif
 
    if (errno_ptr)
@@ -472,7 +468,7 @@ void al_assert(AL_CONST char *file, int line)
    if (asserted)
       return;
 
-   /* todo: use snprintf() */
+   /* todo, some day: use snprintf (C99) */
    sprintf(buf, "Assert failed at line %d of %s", line, file);
 
    if (assert_handler) {
@@ -525,7 +521,7 @@ void al_trace(AL_CONST char *msg, ...)
    char buf[512];
    char *s;
 
-   /* todo: use vsnprintf() */
+   /* todo, some day: use vsnprintf (C99) */
    va_list ap;
    va_start(ap, msg);
    vsprintf(buf, msg, ap);

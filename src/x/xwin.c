@@ -662,12 +662,6 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       h = 200;
    }
 
-   if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)
-       || (vw > 4096) || (vh > 4096)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported screen size"));
-      return 0;
-   }
-
    if (vw < w)
       vw = w;
    if (vh < h)
@@ -2724,11 +2718,6 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    if ((w == 0) && (h == 0)) {
       w = 320;
       h = 200;
-   }
-
-   if ((w < 80) || (h < 80) || (w > 4096) || (h > 4096)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported screen size"));
-      return 0;
    }
 
    if (vw < w)

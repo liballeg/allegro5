@@ -19,6 +19,10 @@
 #ifndef DATEDIT_H
 #define DATEDIT_H
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 
 #define DAT_INFO  DAT_ID('i','n','f','o')
 #define DAT_ORIG  DAT_ID('O','R','I','G')
@@ -151,5 +155,9 @@ extern char grabber_import_file[];
 extern char grabber_graphic_origin[];
 extern char grabber_graphic_date[];
 
+
+#ifdef __cplusplus
+   }
+#endif
 
 #endif

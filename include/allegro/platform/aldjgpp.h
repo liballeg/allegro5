@@ -30,9 +30,11 @@
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "djgpp"
 #define ALLEGRO_DOS
+#define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_VRAM_SINGLE_SURFACE
+#define ALLEGRO_USE_CONSTRUCTOR
 
 
 /* memory locking macros */
@@ -40,11 +42,11 @@ void _unlock_dpmi_data(void *addr, int size);
 
 #define END_OF_FUNCTION(x)          void x##_end(void) { }
 #define END_OF_STATIC_FUNCTION(x)   static void x##_end(void) { }
-#define LOCK_DATA(d, s)             _go32_dpmi_lock_data(d, s)
-#define LOCK_CODE(c, s)             _go32_dpmi_lock_code(c, s)
-#define UNLOCK_DATA(d,s)            _unlock_dpmi_data(d, s)
+#define LOCK_DATA(d, s)             _go32_dpmi_lock_data((void *)d, s)
+#define LOCK_CODE(c, s)             _go32_dpmi_lock_code((void *)c, s)
+#define UNLOCK_DATA(d,s)            _unlock_dpmi_data((void *)d, s)
 #define LOCK_VARIABLE(x)            LOCK_DATA((void *)&x, sizeof(x))
-#define LOCK_FUNCTION(x)            LOCK_CODE(x, (long)x##_end - (long)x)
+#define LOCK_FUNCTION(x)            LOCK_CODE((void *)x, (long)x##_end - (long)x)
 
 
 /* long filename status */
@@ -74,7 +76,7 @@ void _unlock_dpmi_data(void *addr, int size);
 #define bmp_read24(addr)            (_farnspeekl(addr) & 0xFFFFFF)
 
 #ifndef AL_INLINE
-extern inline  /* special bodge because AL_INLINE isn't defined yet */
+extern __inline__  /* special bodge because AL_INLINE isn't defined yet */
 #endif
 void bmp_write24(unsigned long addr, int c)
 {

@@ -351,13 +351,18 @@ UNINSTALL_FILES = $(DJDIR_U)/lib/liballeg.a               \
 
 uninstall:
 	-install-info --delete $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
-	-rm -fv $(UNINSTALL_FILES)
 ifdef UNIX_TOOLS
+	-rm -fv $(UNINSTALL_FILES)
 	-rmdir $(DJDIR_U)/include/allegro/platform
 	-rmdir $(DJDIR_U)/include/allegro/inline
 	-rmdir $(DJDIR_U)/include/allegro/internal
 	-rmdir $(DJDIR_U)/include/allegro
 else
+   define RM_FILES
+      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
 	-rd $(DJDIR_D)\include\allegro\platform
 	-rd $(DJDIR_D)\include\allegro\inline
 	-rd $(DJDIR_D)\include\allegro\internal
@@ -456,7 +461,7 @@ endef
 else
 
 define GENERATE_PLUGINS_H
-   copy tools\plugins\*.inc obj\djgpp\plugins.h
+   copy /B tools\plugins\*.inc obj\djgpp\plugins.h
 endef
 
 endif

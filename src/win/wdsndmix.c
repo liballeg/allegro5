@@ -263,7 +263,7 @@ static void digi_dsoundmix_mixer_callback(void)
 #ifdef DEBUGMODE
 static char *ds_err(long err)
 {
-   static char err_str[32];
+   static char err_str[64];
 
    switch (err) {
 

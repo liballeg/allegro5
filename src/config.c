@@ -18,6 +18,8 @@
  */
 
 
+#include <string.h>
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
@@ -250,7 +252,7 @@ static void init_config(int loaddata)
  */
 static int get_line(AL_CONST char *data, int length, char *name, int name_size, char *val, int val_size)
 {
-   char buf[256], buf2[256];
+   char buf[512], buf2[512];
    int inpos, outpos, i, j;
    int c, c2, w0;
 
@@ -1159,17 +1161,23 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
 
    init_config(TRUE);
 
-   s = umsg;
-   pos = 0;
-
-   while ((c = ugetxc(&s)) != 0) {
-      if ((uisspace(c)) || (c == '=') || (c == '#'))
-	 pos += usetc(name+pos, '_');
-      else
-	 pos += usetc(name+pos, c);
+   /* kludge to make it easier to translate the message */
+   if (strcmp(msg, ALLEGRO_WINDOW_CLOSE_MESSAGE) == 0) {
+      do_uconvert("allegro_window_close_message", U_ASCII, name, U_CURRENT, sizeof(name));
    }
+   else {
+      s = umsg;
+      pos = 0;
 
-   usetc(name+pos, 0);
+      while ((c = ugetxc(&s)) != 0) {
+	 if ((uisspace(c)) || (c == '=') || (c == '#'))
+	    pos += usetc(name+pos, '_');
+	 else
+	    pos += usetc(name+pos, c);
+      }
+
+      usetc(name+pos, 0);
+   }
 
    /* check for hooked sections */
    hook = config_hook;

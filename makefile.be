@@ -88,7 +88,7 @@ else
 CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
-ifdef SYMBOLMODE
+ifndef SYMBOLMODE
 LFLAGS = -s
 else
 LFLAGS = 

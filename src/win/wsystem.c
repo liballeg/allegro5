@@ -71,7 +71,7 @@ SYSTEM_DRIVER system_directx =
    NULL,                        /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp)); */
    NULL,                        /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
    NULL,                        /* AL_METHOD(void, read_hardware_palette, (void)); */
-   NULL,                        /* AL_METHOD(void, set_palette_range, (struct RGB *p, int from, int to, int vsync)); */
+   NULL,                        /* AL_METHOD(void, set_palette_range, (PALETTE p, int from, int to, int vsync)); */
    NULL,                        /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
    sys_directx_set_display_switch_mode,
    sys_directx_set_display_switch_callback,
@@ -220,30 +220,14 @@ static void sys_directx_exit(void)
  */
 static void sys_directx_get_executable_name(char *output, int size)
 {
-   unsigned char *cmd = GetCommandLine();
-   int pos = 0;
-   int i = 0;
-   int q;
+   char *temp = malloc(size);
 
-   while ((cmd[i]) && (uisspace(cmd[i])))
-      i++;
-
-   if ((cmd[i] == '\'') || (cmd[i] == '"'))
-      q = cmd[i++];
+   if (GetModuleFileName(allegro_inst, temp, size))
+      do_uconvert(temp, U_ASCII, output, U_CURRENT, size);
    else
-      q = 0;
+      usetc(output, 0);
 
-   size -= ucwidth(0);
-
-   while ((cmd[i]) && ((q) ? (cmd[i] != q) : (!uisspace(cmd[i])))) {
-      size -= ucwidth(cmd[i]);
-      if (size < 0)
-	 break;
-
-      pos += usetc(output + pos, cmd[i++]);
-   }
-
-   usetc(output + pos, 0);
+   free(temp);
 }
 
 
@@ -553,7 +537,7 @@ void thread_safe_trace(char *msg,...)
    char buf[256];
    va_list ap;
 
-   /* todo: use vsnprintf() */
+   /* todo, some day: use vsnprintf (C99) */
    va_start(ap, msg);
    vsprintf(buf, msg, ap);
    va_end(ap);

@@ -31,7 +31,7 @@ typedef struct RLE_SPRITE           /* a RLE compressed sprite */
    int w, h;                        /* width and height in pixels */
    int color_depth;                 /* color depth of the image */
    int size;                        /* size of sprite data in bytes */
-   signed char dat[ZERO_SIZE];
+   ZERO_SIZE_ARRAY(signed char, dat);
 } RLE_SPRITE;
 
 

@@ -25,13 +25,14 @@
    creating the very useful IMPLIB program. 
 
 
+
 ===========================================
 ============ Required software ============
 ===========================================
 
    - Borland C++Builder (or Borland C++ command line tools)
+   - Recent set of DirectX and other Windows SDK headers.
    - GNU make 3.77 or higher.
-   - Optional: rm (GNU fileutils). Used by the clean targets.
    - Optional: GNU sed. Used by "make depend" and "fixdll.bat".
    - Optional: GNU sort (not DOS sort). Used by "fixdll.bat".
 
@@ -39,16 +40,22 @@
    install them in the Windows system directory.
 
    This is known to work with the Borland C++ 5.5 command line compiler.
+   Earlier versions may cause problems (for example v5.02).
 
    You need to use GNU make, since Borland make is really ugly about its
-   makefiles.  You can grab it from either the MinGW32 or DJGPP
-   distributions; more info on this in available in the MinGW32 and DJGPP
-   READMEs.
+   makefiles. You can grab it from either the MinGW32 or DJGPP
+   distributions; more info on this in available in the following files:
+   docs/build/mingw32.txt and docs/build/djgpp.txt.
+
 
 
 ============================================
 ============ Installing Allegro ============
 ============================================
+
+   Set up your environment so that Borland C++ can be used from the
+   commandline. Then set the variable BCC32DIR to the directory where
+   Borland C++ is located, for example 'set BCC32DIR=c:\bcc32'.
 
    Type "cd allegro" and then "fix.bat bcc32".  Then, run "make".  Find
    something fun to do while it's compiling.  It will eventually
@@ -67,7 +74,7 @@
 
    If your copy of Allegro doesn't include the linker .def file (unlikely, 
    unless you have run "make veryclean" at some point), you can regenerate 
-   them by running "fixdll.bat".
+   it by running "misc\fixdll.bat".
 
 
 
@@ -85,6 +92,16 @@
 
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function!
+
+   Note: including any Allegro headers in a C++ program currently prevents
+   Borland C++ from compiling it. The workaround is to include the following
+   6 standard C headers prior to including any Allegro headers:
+      #include <errno.h>
+      #include <limits.h>
+      #include <stdarg.h>
+      #include <stddef.h>
+      #include <stdlib.h>
+      #include <time.h>
 
    You will need to distribute the appropriate DLL along with your program.
 

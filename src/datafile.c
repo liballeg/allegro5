@@ -2072,7 +2072,7 @@ void _construct_datafile(DATAFILE *data)
 /* _initialize_datafile_types:
  *  Register my loader functions with the code in dataregi.c.
  */
-#ifdef CONSTRUCTOR_FUNCTION
+#ifdef ALLEGRO_USE_CONSTRUCTOR
    CONSTRUCTOR_FUNCTION(void _initialize_datafile_types());
 #endif
 

@@ -300,8 +300,7 @@ int main(int argc, char *argv[])
 
       f = pack_fopen(rc_name, F_WRITE);
 
-      strcpy(str, "allegro_icon ICON ");
-      strcat(str, argv[1]);
+      sprintf(str, "allegro_icon ICON %s\n", argv[1]);
       pack_fwrite(str, strlen(str), f);
 
       pack_fclose(f);

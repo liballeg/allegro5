@@ -31,9 +31,8 @@
    - Recent set of DirectX and other Windows SDK headers.
    - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
    - GNU make (mak*b.zip).
-   - Optional: rm (fil*b.zip). Used by the clean targets.
-   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll".
-   - Optional: sort (txt*b.zip). Used by "fixdll". Use Unix sort, not DOS!
+   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll.bat".
+   - Optional: sort (txt*b.zip). Used by "fixdll.bat". GNU sort, not DOS!
 
    Allegro should work ok with MSVC versions 4, 5 and 6.
 
@@ -84,7 +83,7 @@
 
    If your copy of Allegro doesn't include the linker .def file (unlikely, 
    unless you have run "make veryclean" at some point), you can regenerate 
-   them by running "fixdll.bat".
+   it by running "misc\fixdll.bat".
 
    Once the build is finished you can recover some disk space by running
    "make compress", which uses the UPX program to compress the executable

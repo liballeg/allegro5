@@ -71,25 +71,121 @@ static UINT msg_unacquire_mouse = 0;
 static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
+/* window modules management */
+struct WINDOW_MODULES {
+   int keyboard;
+   int mouse;
+   int sound;
+   int digi_card;
+   int midi_card;
+   int sound_input;
+   int digi_input_card;
+   int midi_input_card;
+};
+
+
+
+/* init_window_modules:
+ *  Initialises the modules that are specified by the WM argument.
+ */
+static int init_window_modules(struct WINDOW_MODULES *wm)
+{
+   if (wm->keyboard)
+      install_keyboard();
+
+   if (wm->mouse)
+      install_mouse();
+
+   if (wm->sound)
+      install_sound(wm->digi_card, wm->midi_card, NULL);
+
+   if (wm->sound_input)
+      install_sound_input(wm->digi_input_card, wm->midi_input_card);
+
+   return 0;
+}
+
+
+
+/* exit_window_modules:
+ *  Removes the modules that depend upon the main window:
+ *   - keyboard (DirectInput),
+ *   - mouse (DirectInput),
+ *   - sound (DirectSound),
+ *   - sound input (DirectSoundCapture).
+ *  If WM is not NULL, record which modules are really removed.
+ */
+static void exit_window_modules(struct WINDOW_MODULES *wm)
+{
+   if (wm)
+      memset(wm, 0, sizeof(wm));
+
+   if (_keyboard_installed) {
+     if (wm)
+         wm->keyboard = TRUE;
+
+      remove_keyboard();
+   }
+
+   if (_mouse_installed) {
+      if (wm)
+         wm->mouse = TRUE;
+
+      remove_mouse();
+   }
+
+   if (_sound_installed) {
+      if (wm) {
+         wm->sound = TRUE;
+         wm->digi_card = digi_card;
+         wm->midi_card = midi_card;
+      }
+
+      remove_sound();
+   }
+
+   if (_sound_input_installed) {
+      if (wm) {
+         wm->sound_input = TRUE;
+         wm->digi_input_card = digi_input_card;
+         wm->midi_input_card = midi_input_card;
+      }
+
+      remove_sound_input();
+   }
+}
+
 
 
 /* win_set_window:
- *  selects a user defined window for Allegro
+ *  Selects an user-defined window for Allegro 
+ *  or the built-in window if NULL is passed.
  */
 void win_set_window(HWND wnd)
 {
-   /* todo: add code to remove old window */
+   struct WINDOW_MODULES wm;
+
+   if (_allegro_count > 0) {
+      exit_window_modules(&wm);
+      exit_directx_window();
+   }
+
    user_wnd = wnd;
+
+   if (_allegro_count > 0) {
+      init_directx_window();
+      init_window_modules(&wm);
+   }
 }
 
 
 
 /* win_get_window:
- *  returns the allegro window handle
+ *  Returns the Allegro window handle.
  */
 HWND win_get_window(void)
 {
-   return (user_wnd ? user_wnd : allegro_wnd);
+   return allegro_wnd;
 }
 
 
@@ -217,19 +313,13 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_DESTROY:
          if (user_wnd_proc) {
-            /* We need to remove here the modules that depend upon the main window:
-             *  - all the DirectX stuff (keyboard, mouse, sound),
-             *  - timers.
-             */
-            remove_keyboard();
-            remove_mouse();
-            remove_sound();
+            exit_window_modules(NULL);
 
-            /* The system just sent a WA_INACTIVE message, so we need to wake up the
-             * timer thread, supposing we are in SWITCH_PAUSE or SWITCH_AMNESIA mode.
+            /* The system may have sent a WA_INACTIVE message, so we need
+             * to wake up the timer thread, supposing we are in SWITCH_PAUSE
+             * or SWITCH_AMNESIA mode.
              */
             SetEvent(_foreground_event);
-            remove_timer();
          }
          else {
             PostQuitMessage(0);
@@ -292,10 +382,19 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          wnd_height = HIWORD(lparam);
          break;
 
+      case WM_ERASEBKGND:
+         /* Disable the default background eraser in order
+          * to prevent conflicts under Win2k/WinXP.
+          */
+         if (!user_wnd_proc || win_gfx_driver)
+            return 1;
+         break;
+
       case WM_PAINT:
-         if (win_gfx_driver && win_gfx_driver->paint) {
+         if (!user_wnd_proc || win_gfx_driver) {
             BeginPaint(wnd, &ps);
-            win_gfx_driver->paint(&ps.rcPaint);
+            if (win_gfx_driver && win_gfx_driver->paint)
+               win_gfx_driver->paint(&ps.rcPaint);
             EndPaint(wnd, &ps);
             return 0;
          }
@@ -335,11 +434,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
-
-            /* needed to get rid of the lost mouse pointer
-             * because the system doesn't send any WM_PAINT message.
-             */
-            InvalidateRect(allegro_wnd, NULL, TRUE);
          }
          break;
 
@@ -349,9 +443,19 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
                (*user_close_proc)();
             }
             else {
-               /* default window close message */
-               if (MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE, wnd_title,
-                              MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES) {
+               /* display the default close box */
+               char tmp[1024], title[WND_TITLE_SIZE*2];
+               char *mesg;
+
+               mesg = uconvert(get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE), U_CURRENT, tmp, U_UNICODE, sizeof(tmp));
+               do_uconvert(wnd_title, U_ASCII, title, U_UNICODE, sizeof(title));
+
+               if (MessageBoxW(wnd, (unsigned short *)mesg, (unsigned short *)title,
+                               MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES) {
+                  if (mouse_thread)
+                     TerminateThread(mouse_thread, 0);
+                  if (key_thread)
+                     TerminateThread(key_thread, 0);
                   TerminateThread(allegro_thread, 0);
                   SetEvent(_foreground_event);  /* see comment in WM_DESTROY case */
                   remove_timer();
@@ -392,7 +496,7 @@ static HWND create_directx_window(void)
    WNDCLASS wnd_class;
 
    /* setup the window class */
-   wnd_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+   wnd_class.style = CS_HREDRAW | CS_VREDRAW;
    wnd_class.lpfnWndProc = directx_wnd_proc;
    wnd_class.cbClsExtra = 0;
    wnd_class.cbWndExtra = 0;
@@ -401,7 +505,7 @@ static HWND create_directx_window(void)
    if (!wnd_class.hIcon)
       wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
    wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
-   wnd_class.hbrBackground = CreateSolidBrush(0);
+   wnd_class.hbrBackground = GetStockObject(BLACK_BRUSH);
    wnd_class.lpszMenuName = NULL;
    wnd_class.lpszClassName = ALLEGRO_WND_CLASS;
 

@@ -59,7 +59,7 @@ The wfixicon utility accepts the following options:
       Allegro Windows executable, with the same effects as described above.
 
 
-An example of use is provided in the Allegro distribution: once you have
-compiled and properly installed the library, type 'make fixdemo' from the
-main directory.
-
+An example of use is provided in the Allegro distribution: the demo program
+gets a nice little icon (or an ugly one, it's up to you...) extracted from
+its datafile (with the Borland C++ compiler you need to type 'make fixdemo'
+from the main directory once you have properly installed the library).

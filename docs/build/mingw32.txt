@@ -38,7 +38,8 @@
    will work. This is because GNU make will automatically use sh.exe instead
    of command.com if it finds it somewhere in the path.
 
-   'make depend' and 'fixdll.bat' requires that you have GNU sed installed.
+   "make depend" and "fixdll.bat" requires that you have GNU sed installed.
+   "fixdll.bat" requires that you have GNU sort (not DOS !) installed.
    The clean targets require that you have GNU fileutils installed.
    You can download some extra utilities for MingW32 from:
       http://sourceforge.net/projects/gnuwin32/
@@ -150,8 +151,8 @@
       (November, 2001) version 1.1 is the newest. A direct link is here:
       'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
 
-   2) Download the Dev-C++ 4 IDE (without Mingw compiler and libraries) from
-      'http://www.bloodshed.net/dev/download.html'.
+   2) Download the Dev-C++ 4 IDE (without MingW32 compiler and libraries)
+      from 'http://www.bloodshed.net/dev/download.html'.
       Once again, make sure you do not install it until you get to step 4.
 
    3) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
@@ -163,9 +164,9 @@
 
    4) Install the package from step 1. I recommend you unzip it
       to 'C:\Dev-Cpp' (the following steps assume this is what you used).
-      Do NOT install it in a directory name with spaces, plus signs, minus
-      signs, slashes, or anything else that's fancy enough to break the
-      compiler. That goes double for people installing in C:\Program Files.
+      Do NOT install it in a directory name with spaces, plus signs, slashes, 
+      or anything else that's fancy enough to break the compiler. 
+      That goes double for people installing in C:\Program Files.
 
    5) Install the package from step 2 to 'C:\Dev-Cpp'. Overwrite any existing
       files.
@@ -205,6 +206,7 @@
 
    10) Now scroll down a bit for instructions on how to install Allegro
        and an example program.
+
 
 
 ============================================
@@ -309,6 +311,14 @@
 
    make
 
+   If your copy of Allegro does not include the linker .def file (unlikely,
+   unless you have run "make veryclean" at some point, or are using the CVS
+   version of Allegro), you can regenerate it by running "misc\fixdll.bat".
+   You will need to have GNU sed and sort installed for this operation to
+   work. The version of sed that is linked from the MingW32 site does not
+   work properly; it has issues with end-of-line characters. You should get
+   sed and sort from the link at the top of this document.
+
    Once the build is finished you can recover some disk space by running
    "make compress", which uses the UPX program to compress the executable
    files and the optimized dll. Before running "make compress", you must set
@@ -322,7 +332,7 @@
 
    make install
   
-   You have now installed mingW32 and allegro! See the rest of the
+   You have now installed MingW32 and allegro! See the rest of the
    documentation and examples to learn more about it.
 
 

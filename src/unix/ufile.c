@@ -264,7 +264,7 @@ static int ff_match(AL_CONST char *s1, AL_CONST char *s2)
 static int ff_get_attrib(AL_CONST char *name, struct stat *s)
 {
    int attrib = 0;
-   int euid = geteuid();
+   uid_t euid = geteuid();
 
    if (euid != 0) {
       if (s->st_uid == euid) {

@@ -58,7 +58,7 @@ Contributors
    fetch_mode_list() to the BeOS and DGA2 fullscreen drivers.  And, oh,
    contributed the QNX port too.
 
-   Annie Testes (email unknown).<br>
+   Annie Testes (<email>annie at kezako dot net</a>).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
    Fixed several glitches in the unicode support. Added a pack_fdopen()
    function. Caught a misordering in the X system shutdown. Found ASCII
@@ -205,7 +205,7 @@ Contributors
    Ettore Perazzoli (<email>ettore@comm2000.it</a>).<br>
    Optimised the linear -&gt mode-X blitting function.
 
-   Evert Glebbeek (<email>eglebbk@phys.uva.nl</a>).<br>
+   Evert Glebbeek (<email>eglebbk@dds.nl</a>).<br>
    Put set_gfx_mode on a diet and added a config entry for specifying the
    card to be used for GFX_AUTODETECT_WINDOWED.
 
@@ -224,7 +224,7 @@ Contributors
    Frodo Baggins (<email>l41273@alfa.ist.utl.pt</a>).<br>
    Made the Portuguese keyboard mapping.
 
-   Garret Thomson (<email>gart@terraport.net</a>).<br>
+   Garret Thomson (<email>g@sirsonic.com</a>).<br>
    Wrote the music used in the demo game.
 
    George Foot (<email>gfoot@users.sourceforge.net</a>).<br>
@@ -568,7 +568,7 @@ Contributors
    Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 
    PSX, and throttle input code.
 
-   Robert J. Ohannessian (<email>voidstar_@excite.com</a>).<br>
+   Robert J. Ohannessian (<email>voidstar@ifrance.com</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
    masked_blits with SSE instructions. Added some routines to the unified
@@ -640,7 +640,7 @@ Contributors
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
 
-   Sven Sandberg (<email>svsa1977@student.uu.se</a>).<br>
+   Sven Sandberg (<email>svens@it.uu.se</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 
    the create_light_table() function, optimised the fixed point trig 
    routines, provided the Swedish message translations, improved the file 
@@ -692,7 +692,7 @@ Contributors
    joystick drivers by S.Suzuki merged into my codebase. Added more
    aggressive Sidewinder joystick driver.
 
-   Vincent Penquerc'h (<email>lyrian@kezako.net</a>).<br>
+   Vincent Penquerc'h (<email>lyrian at kezako dot net</a>).<br>
    Added the D_DIRTY flag and mouse button press/release events to the GUI
    system, optimised the 256 to truecolor blitting code to avoid repeated 
    conversions of the palette table, added scare_mouse_area(), added the 

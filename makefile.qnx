@@ -34,9 +34,9 @@ _default: default
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
+   WFLAGS = -Wall -W -Werror -Wno-unused
 else
-   WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
+   WFLAGS = -Wall -Wno-unused
 endif
 
 ifdef TARGET_ARCH_COMPAT
@@ -73,7 +73,7 @@ LFLAGS = -pg
 else
 
 # -------- optimised build --------
-CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer -fno-strength-reduce
+CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 ifndef SYMBOLMODE
    LFLAGS += -s
@@ -221,15 +221,6 @@ obj/qnx/asmdef.inc: obj/qnx/asmdef
 
 obj/qnx/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/qnx/asmcapa.h
 	gcc -O $(WFLAGS) -I. -I./include -o obj/qnx/asmdef src/i386/asmdef.c
-
-obj/qnx/setupdat.s: setup/setup.dat tools/dat2s
-	tools/dat2s -o obj/qnx/setupdat.s setup/setup.dat
-
-obj/qnx/setupdat.o: obj/qnx/setupdat.s
-	gcc -o obj/qnx/setupdat.o -c obj/qnx/setupdat.s
-
-setup/setup: $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME)
-	gcc $(LFLAGS) -o setup/setup $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME) $(LIBRARIES)
 
 PLUGIN_LIB = lib/qnx/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/qnx/plugins.h

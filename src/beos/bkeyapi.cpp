@@ -201,6 +201,10 @@ static int32 keyboard_thread(void *keyboard_started)
    while(keyboard_thread_running) {
       int i;
 
+      snooze(KEY_THREAD_PERIOD);
+      if (!_be_focus_count)
+         continue;
+      
       get_key_info(&key_info_new);
 
       if (three_finger_flag &&
@@ -250,8 +254,6 @@ static int32 keyboard_thread(void *keyboard_started)
       }
 
       key_info_old = key_info_new;
-
-      snooze(KEY_THREAD_PERIOD);
    }
 
  AL_TRACE("keyboard thread exited\n");

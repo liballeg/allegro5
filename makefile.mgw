@@ -11,6 +11,7 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MinGW32
+RUNNER = obj/mingw32/runner.exe
 EXE = .exe
 OBJ = .o
 HTML = html
@@ -23,6 +24,10 @@ endif
 
 ifdef ALLEGRO_USE_CYGWIN
    UNIX_TOOLS = 1
+endif
+
+ifneq (,$(findstring /sh.exe,$(SHELL)))
+  UNIX_TOOLS = 1
 endif
 
 
@@ -95,9 +100,20 @@ ifdef MINGDIR
    MINGDIR_D = $(subst /,\,$(MINGDIR))
 else
 badming:
-	@echo Please specify your MinGW32 directory via MINGDIR=
+	@echo Your MINGDIR environment variable is not set!
 	@echo See the docs/build/mingw32.txt file!
 endif
+
+NULLSTRING :=
+SPACE := $(NULLSTRING) # special magic to get an isolated space character
+
+ifneq ($(findstring $(SPACE),$(MINGDIR)),)
+badspaces:
+	@echo There are spaces in your MINGDIR environment variable:
+	@echo please change it to the 8.3 short filename version,
+	@echo or move your compiler to a different directory.
+endif
+
 
 
 # -------- give a sensible default target for make without any args --------
@@ -209,8 +225,6 @@ dibsound: tests/win/dibsound.exe
 scrsave: tests/win/scrsave.scr
 wfixicon: tools/win/wfixicon.exe
 
-DISTCLEAN_FILES += $(addprefix tests/win/, dibgrab.exe dibhello.exe dibsound.exe scrsave.scr) tools/win/wfixicon.exe
-
 
 
 # -------- rules for installing and removing the library files --------
@@ -237,7 +251,7 @@ $(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	cp include/winalleg.h $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	mkdir $(MINGDIR_U)/include/allegro 
+	mkdir $(MINGDIR_U)/include/allegro
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	cp $< $@
@@ -255,7 +269,7 @@ $(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
 	cp $< $@
 
 $(MINGDIR_U)/include/allegro/platform:
-	mkdir -p $(MINGDIR_U)/include/allegro/platform
+	mkdir $(MINGDIR_U)/include/allegro/platform
 
 $(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
 	cp $< $@
@@ -282,7 +296,8 @@ $(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	copy include\winalleg.h $(MINGDIR_D)\include
 
 $(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	md $(MINGDIR_D)\include\allegro 
+	-md $(MINGDIR_D)\include\allegro
+# workaround for a weird make problem
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
@@ -374,7 +389,7 @@ endif
 
 .PHONY: compress
 
-compress: $(PROGRAMS)
+compress:
 ifdef UPX_BIN
 	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
 else
@@ -431,20 +446,44 @@ $(OBJ_DIR)/%.o: %.s
 $(OBJ_DIR)/%.o: %.rc
 	$(WINDRES) --include-dir include -O coff -o $@ -i $<
 
-$(OBJ_DIR)/%.res: %.rc
+obj/mingw32/%.res: %.rc
 	$(WINDRES) -O coff -o $@ -i $<
 
-tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
-tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+ifndef CROSSCOMPILE
+
+obj/mingw32/demo.res: demo/demo.dat tools/win/wfixicon.exe
+ifdef STATICLINK
+	tools/win/wfixicon.exe obj/mingw32/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+else
+   ifdef UNIX_TOOLS
+	cp tools/win/wfixicon.exe lib/mingw32/wfixicon.exe
+   else
+	copy tools\win\wfixicon.exe lib\mingw32\wfixicon.exe
+   endif
+	lib/mingw32/wfixicon.exe obj/mingw32/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+   ifdef UNIX_TOOLS
+	rm lib/mingw32/wfixicon.exe
+   else
+	del lib\mingw32\wfixicon.exe
+   endif
+endif
+
+demo/demo.exe: $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+
+endif
 
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -472,12 +511,15 @@ obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
 obj/mingw32/asmdef.exe: src/i386/asmdef.c
 	gcc -O $(WFLAGS) $(PFLAGS) -I. -I./include -o obj/mingw32/asmdef.exe src/i386/asmdef.c
 
+obj/mingw32/runner.exe: src/misc/runnergw.c
+	gcc -O -Wall -Werror -o obj/mingw32/runner.exe src/misc/runnergw.c
+
 endif # CROSSCOMPILE
 
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
-PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB)
+PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(RUNNER)
 PLUGINS_H = obj/mingw32/plugins.h
-PLUGIN_SCR = scv
+PLUGIN_SCR = scm
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
@@ -485,7 +527,7 @@ ifdef UNIX_TOOLS
    endef
 else
    define GENERATE_PLUGINS_H
-      copy tools\plugins\*.inc obj\mingw32\plugins.h
+      copy /B tools\plugins\*.inc obj\mingw32\plugins.h
    endef
 endif
 
@@ -494,24 +536,12 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   gcc $(LFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-   gcc $(LFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
-
-
-
-# -------- demo program iconification --------
-
-.PHONY: fixdemo
-
-$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-
-fixdemo: $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 
 
