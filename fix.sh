@@ -49,6 +49,11 @@ proc_filelist()
    if [ "$1" != "omit_sh" ]; then
       AL_FILELIST="$AL_FILELIST `find . -type f -name '*.sh'`"
    fi
+
+   # touch DOS batch files?
+   if [ "$1" != "omit_bat" ]; then
+      AL_FILELIST="$AL_FILELIST `find . -type f -name '*.bat'`"
+   fi
 }
 
 proc_utod()
@@ -67,7 +72,7 @@ proc_utod()
 proc_dtou()
 {
    echo "Converting files from DOS/Win32 to Unix..."
-   proc_filelist
+   proc_filelist "omit_bat"
    for file in $AL_FILELIST; do
       echo "$file"
       mv $file _tmpfile

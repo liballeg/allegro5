@@ -1234,7 +1234,7 @@ alsa_rawmidi_device = x<br>
    Unix only: ALSA rawmidi device to use for output.
 <li>
 be_midi_quality = x<br>
-   BeOS only: system MIDI synthentetizer instruments quality. 0 uses low
+   BeOS only: system MIDI synthesizer instruments quality. 0 uses low
    quality 8-bit 11 kHz samples, 1 uses 16-bit 22 kHz samples.
 <li>
 be_midi_freq = x<br>
@@ -1619,7 +1619,7 @@ Allegro does not provide such devices.)
 @xref timer_can_simulate_retrace, timer_is_using_retrace
 @xref enable_triple_buffer
    The DOS timer handler can be used to simulate vertical retrace 
-   interrupts. An retrace interrupt can be extremely useful for implementing 
+   interrupts. A retrace interrupt can be extremely useful for implementing 
    smooth animation, but unfortunately the VGA hardware doesn't support it. 
    The EGA did, and some SVGA chipsets do, but not enough, and not in a 
    sufficiently standardised way, for it to be useful. Allegro works around 
@@ -3338,7 +3338,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref vline, line, drawing_mode
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
 
-@@void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, void (*proc)());
+@\void @do_line(BITMAP *bmp, int x1, y1, x2, y2, int d, 
+@@             void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_arc, line
    Calculates all the points along a line from point (x1, y1) to (x2, y2), 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3368,7 +3369,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Draws a solid, filled rectangle with the two points as its opposite 
    corners.
 
-@@void @do_circle(BITMAP *bmp, int x, int y, int radius, int d, void (*proc)());
+@\void @do_circle(BITMAP *bmp, int x, int y, int radius, int d,
+@@               void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_ellipse, do_arc, do_line, circle, circlefill
    Calculates all the points in a circle around point (x, y) with radius r, 
    calling the supplied function for each one. This will be passed a copy of 
@@ -3383,7 +3385,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref ellipsefill, circle, do_circle, drawing_mode
    Draws a filled circle with the specified centre and radius.
 
-@@void @do_ellipse(BITMAP *bmp, int x, y, int rx, ry, int d, void (*proc)());
+@\void @do_ellipse(BITMAP *bmp, int x, int y, int rx, ry, int d,
+@@                void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_arc, do_line, ellipse, ellipsefill
    Calculates all the points in an ellipse around point (x, y) with radius 
    rx and ry, calling the supplied function for each one. This will be 
@@ -3398,7 +3401,8 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref circlefill, ellipse, do_ellipse, drawing_mode
    Draws a filled ellipse with the specified centre and radius.
 
-@@void @do_arc(BITMAP *bmp, int x, y, fixed a1, a2, int r, d, void (*proc)());
+@\void @do_arc(BITMAP *bmp, int x, int y, fixed a1, fixed a2, int r, int d,
+@@            void (*proc)(BITMAP *bmp, int x, int y, int d));
 @xref do_circle, do_ellipse, do_line, arc
    Calculates all the points in a circular arc around point (x, y) with 
    radius r, calling the supplied function for each one. This will be passed 
@@ -5773,7 +5777,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    error code will be stored in errno.
 
 @@int @exists(const char *filename);
-@xref file_exists
+@xref file_exists, file_size, file_time
    Shortcut version of file_exists(), which checks for normal files, which 
    may have the archive or read-only bits set, but are not hidden, 
    directories, system files, etc.
@@ -5853,14 +5857,15 @@ directories, but not hidden files and directories. Similarly, if you pass
 @xref pack_fopen, load_datafile
    Sets the encryption password to be used for all read/write operations
    on files opened in future using Allegro's packfile functions (whether
-   they are compressed or not). Files written with an encryption password
-   cannot be read unless the same password is selected, so be careful: if
-   you forget the key, I can't make your data come back again! Pass NULL
-   or an empty string to return to the normal, non-encrypted mode. If you
-   are using this function to prevent people getting access to your
-   datafiles, be careful not to store an obvious copy of the password in
-   your executable: if there are any strings like "I'm the password for
-   the datafile", it would be fairly easy to get access to your data :-)
+   they are compressed or not), including all the save, load and config
+   routines. Files written with an encryption password cannot be read
+   unless the same password is selected, so be careful: if you forget the
+   key, I can't make your data come back again! Pass NULL or an empty
+   string to return to the normal, non-encrypted mode. If you are using
+   this function to prevent people getting access to your datafiles, be
+   careful not to store an obvious copy of the password in your executable:
+   if there are any strings like "I'm the password for the datafile", it
+   would be fairly easy to get access to your data :-)
 
    Important: as soon as you have opened a file using an encryption
    password, call packfile_password(NULL) again. Better still, don't touch
@@ -6861,8 +6866,8 @@ changes are the following:
    and d_rtext_proc() right aligns it. Any '&' characters in the string will 
    be replaced with lines underneath the following character, for displaying 
    keyboard shortcuts (as in MS Windows). To display a single ampersand, put 
-   "&&". To use draw the text in something other than the default font, set 
-   the dp2 field to point to your custom font data.
+   "&&". To draw the text in something other than the default font, set the 
+   dp2 field to point to your custom font data.
 
 @@int @d_button_proc(int msg, DIALOG *d, int c);
    A button object (the dp field points to the text string). This object can 
@@ -6968,7 +6973,8 @@ changes are the following:
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
    in particular the color is taken from the gui_*_color variables, and the 
-   width and height are calculated automatically. The dp field points to an 
+   width and height are calculated automatically (the w and h fields from 
+   the DIALOG are only used as a minimum size.) The dp field points to an 
    array of menu structures: see do_menu() for more information. The top 
    level menu will be displayed as a horizontal bar, but when child menus 
    drop down from it they will be in the normal vertical format used by 
