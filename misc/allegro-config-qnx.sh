@@ -30,7 +30,7 @@ Usage: allegro-config [OPTIONS] [LIBRARIES]
 Options:
         --prefix[=DIR]
         --exec-prefix[=DIR]
-        --version
+        --version[=VERSION]
         --cflags
         --cppflags
         --libs
@@ -73,6 +73,10 @@ while test $# -gt 0; do
 
       --exec-prefix)
          echo_exec_prefix=yes
+      ;;
+
+      --version=*)
+	 version=$optarg
       ;;
 
       --version)
