@@ -426,7 +426,7 @@ void qnx_sys_set_window_title(AL_CONST char *name)
 {
    PtArg_t arg;
 
-   strncpy(window_title, name, 255);
+   strncpy(window_title, name, sizeof(window_title) - 1);
    PtSetArg(&arg, Pt_ARG_WINDOW_TITLE, window_title, 0);
    PtSetResources(ph_window, 1, &arg);
 }

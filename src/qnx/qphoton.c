@@ -34,7 +34,7 @@ int                             ph_window_w = 0, ph_window_h = 0;
 PgColor_t                       ph_palette[256];
 
 
-static char                     driver_desc[128];
+static char                     driver_desc[256];
 static PgDisplaySettings_t      original_settings;
 static COLORCONV_BLITTER_FUNC  *blitter = NULL;
 static char                    *pseudo_screen_addr = NULL;
