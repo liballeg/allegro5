@@ -54,8 +54,14 @@ offset_entry_t list[] = {
 #ifdef ALLEGRO_LINUX
   {"##ALLEGRO_LINUX", 0},
 #endif
+#ifdef ALLEGRO_LINUX_VGA
+  {"##ALLEGRO_LINUX_VGA", 0},
+#endif
 #ifdef ALLEGRO_LINUX_VBEAF
   {"##ALLEGRO_LINUX_VBEAF", 0},
+#endif
+#ifdef ALLEGRO_WITH_MODULES
+  {"##ALLEGRO_WITH_MODULES", 0},
 #endif
 #ifdef ALLEGRO_COLOR8
   {"##ALLEGRO_COLOR8", 0},

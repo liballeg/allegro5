@@ -31,7 +31,7 @@
 #endif
 
 #ifdef GFX_MODEX
-#if (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
+#if (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 
@@ -1632,7 +1632,7 @@ void split_modex_screen(int line)
 
 
 
-#endif      /* (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ... */
+#endif      /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ... */
 
 
 #if (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_WITH_MODULES)

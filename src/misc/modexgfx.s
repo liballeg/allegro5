@@ -21,16 +21,13 @@
  */
  
  
-#include "../i386/asmdefs.inc"
+#include "src/i386/asmdefs.inc"
 
-#ifdef ALLEGRO_UNIX
-   #include "allegro/platform/alunixac.h"
-#endif
 
 .text
 
 
-#if (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
+#if (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 /* _x_bank_switch:
@@ -1679,4 +1676,4 @@ FUNC(_x_draw_sprite_end)
    ret
 
 
-#endif        /* (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ... */
+#endif        /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ... */

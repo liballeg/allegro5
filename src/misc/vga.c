@@ -31,7 +31,7 @@
 #endif
 
 #ifdef GFX_VGA
-#if (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
+#if (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 
@@ -377,5 +377,5 @@ void _module_init(int system_driver)
 
 
 
-#endif      /* (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ...) */
+#endif      /* (!defined ALLEGRO_LINUX) || ((defined ALLEGRO_LINUX_VGA) && ...) */
 #endif      /* ifdef GFX_VGA */
