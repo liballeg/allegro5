@@ -226,15 +226,15 @@ $(filter %.html,$(DOCS)): docs/html/%.html: docs/src/%._tx $(MAKEDOC)
 docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<
 
-AUTHORS: docs/src/thanks._tx
+AUTHORS: docs/src/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii AUTHORS $<
 	cp AUTHORS docs/txt/authors.txt 
 
-THANKS: docs/src/thanks._tx
+THANKS: docs/src/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii THANKS $<
 	cp THANKS docs/txt/thanks.txt
 
-CHANGES: docs/src/changes._tx
+CHANGES: docs/src/changes._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii CHANGES $<
 	cp CHANGES docs/txt/changes.txt
 
