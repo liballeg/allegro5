@@ -326,14 +326,17 @@ int _xwin_open_display(char *name)
  */
 void _xwin_close_display(void)
 {
+   Display *dpy;
+
    if (!_unix_bg_man->multi_threaded) {
       XLOCK();
    }
 
    if (_xwin.display != 0) {
       _xwin_destroy_window();
-      XCloseDisplay(_xwin.display);
+      dpy = _xwin.display;
       _xwin.display = 0;
+      XCloseDisplay(dpy);
    }
 
    if (!_unix_bg_man->multi_threaded) {
