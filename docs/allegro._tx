@@ -1710,9 +1710,10 @@ Graphics modes
    all, and even when they can, not all rates will be possible on all 
    hardware, so the actual settings may differ from what you requested. 
    After you call set_gfx_mode(), you can use get_refresh_rate() to find out 
-   what was actually selected. At the moment only the DOS VESA 3.0 driver 
-   supports this function. The speed is specified in Hz, eg. 60, 70. To 
-   return to the normal default selection, pass a rate value of zero.
+   what was actually selected. At the moment only the DOS VESA 3.0 and X
+   DGA 2.0 drivers supports this function. The speed is specified in Hz,
+   eg. 60, 70. To return to the normal default selection, pass a rate value
+   of zero.
 
 @@int @get_refresh_rate(void);
 @xref request_refresh_rate
