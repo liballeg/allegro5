@@ -2232,7 +2232,7 @@ static void _xwin_private_resize_window(int w, int h)
  */
 static void _xwin_private_process_event(XEvent *event)
 {
-   int kcode, scode, dx, dy, dz = 0;
+   int dx, dy, dz = 0;
    static int mouse_buttons = 0;
    static int mouse_savedx = 0;
    static int mouse_savedy = 0;

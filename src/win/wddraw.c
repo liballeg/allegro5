@@ -371,12 +371,10 @@ static HBITMAP xor_mask = NULL;
  */
 int gfx_directx_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
 {
-   HBITMAP hbmpcursor;
    int mask_color;
-   int x, y, col, n;
+   int x, y;
    int sys_sm_cx, sys_sm_cy;
    HDC h_dc;
-   HDC h_main_dc;
    HDC h_and_dc;
    HDC h_xor_dc;
    ICONINFO iconinfo;

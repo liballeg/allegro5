@@ -795,7 +795,6 @@ void _colorconv_blit_24_to_32(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
    int src_feed;
    int dest_feed;
    int y, x;
-   unsigned int src_data;
    unsigned int temp;
    
    width = src_rect->width;
@@ -854,7 +853,6 @@ void _colorconv_blit_32_to_24(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RE
    int src_feed;
    int dest_feed;
    int y, x;
-   unsigned int src_data;
    unsigned int temp;
    
    width = src_rect->width;
@@ -896,8 +894,6 @@ static void colorcopy(struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest
    int src_feed;
    int dest_feed;
    int y, x;
-   unsigned int src_data;
-   unsigned int temp;
    
    width = src_rect->width * bpp;
    src_feed = src_rect->pitch - width;

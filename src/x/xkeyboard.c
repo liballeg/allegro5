@@ -662,7 +662,6 @@ static int x_keyboard_init(void)
 #ifdef ALLEGRO_USE_XIM
    XIMStyles *xim_styles;
    XIMStyle xim_style = 0;
-   char *modifiers;
    char *imvalret;
    int i;
 #endif

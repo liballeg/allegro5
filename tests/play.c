@@ -361,8 +361,6 @@ int main(int argc, char *argv[])
 
    } while ((k & 0xFF) != 27);
 
-   get_out:
-
    for (i=0; i<item_count; i++) {
       if (!item[i])
 	 continue;

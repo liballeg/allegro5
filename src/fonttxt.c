@@ -27,10 +27,9 @@
 FONT *load_txt_font(AL_CONST char *filename, RGB *pal, void *param)
 {
    char buf[1024], *font_str, *start_str = 0, *end_str = 0;
-   FONT *f, *f1, *f2, *f3, *f4;
+   FONT *f, *f2, *f3, *f4;
    PACKFILE *pack;
    int begin, end;
-   int cf;
 
    pack = pack_fopen(filename, F_READ);
    if (!pack) 

@@ -600,6 +600,8 @@ BITMAP *load_bmp_pf(PACKFILE *f, RGB *pal)
       unsigned long grnMask = pack_igetl(f);
       unsigned long bluMask = pack_igetl(f);
 
+      (void)grnMask;
+
       if ((bluMask == 0x001f) && (redMask == 0x7C00))
 	 bpp = 15;
       else if ((bluMask == 0x001f) && (redMask == 0xF800))

@@ -351,8 +351,6 @@ int _pckey_scancode_to_ascii(int scancode)
  */
 AL_CONST char *_pckey_scancode_to_name(int scancode)
 {
-   int val;
-
    if ((scancode < 0) || (scancode >= KEY_MAX))
       return NULL;
 

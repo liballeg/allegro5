@@ -311,7 +311,6 @@ static int _write_hhp(const char *filename)
  */
 int write_chm(char *filename)
 {
-   FILE *file; 
    char *temp;
 
    if (!strcmp(get_extension(filename), "htm"))

@@ -572,7 +572,6 @@ static DATAFILE *grab_rle_sprite(int type, AL_CONST char *filename, DATAFILE_PRO
 {
    DATAFILE *dat;
    BITMAP *bmp;
-   RLE_SPRITE *spr;
 
    dat = grab_bitmap(type, filename, prop, depth);
    if (!dat)

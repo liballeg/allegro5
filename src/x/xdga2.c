@@ -275,7 +275,7 @@ static void _xdga2_handle_input(void)
    static XDGAEvent event[DGA_MAX_EVENTS + 1];
    XDGAEvent *cur_event;
    XKeyEvent key;
-   int kcode, scode, dx, dy, dz = 0;
+   int dx, dy, dz = 0;
    static int mouse_buttons = 0;
 
    if (_xwin.display == 0)

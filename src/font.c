@@ -1138,7 +1138,6 @@ static FONT_COLOR_DATA *color_copy_glyph_range(FONT_COLOR_DATA *cf, int begin, i
 
    gl = newcf->bitmaps = _al_malloc(num * sizeof *gl);
    for (c=0; c<num; c++) {
-      int sz;
       g = cf->bitmaps[begin - cf->begin + c];
       gl[c] = create_bitmap_ex(8, g->w, g->h);
       blit(g, gl[c], 0, 0, 0, 0, g->w, g->h);
