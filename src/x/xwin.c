@@ -762,8 +762,15 @@ BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
    BITMAP *bmp;
    XLOCK();
    bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
-   if (bmp == 0)
+   if (bmp == 0) {
       _xwin_private_destroy_screen();
+      /* Work around a weird bug with some window managers (KWin, Window Maker).  */
+      if (fullscreen) {
+	 bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
+	 if (bmp == 0)
+	    _xwin_private_destroy_screen();
+      }
+   }
    XUNLOCK();
    return bmp;
 }
