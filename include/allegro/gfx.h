@@ -38,6 +38,23 @@ struct RGB;
 #define GFX_SAFE                       AL_ID('S','A','F','E')
 
 
+/* Blender mode defines, for the gfx_driver->set_blender_mode() function */
+#define blender_mode_none            0
+#define blender_mode_trans           1
+#define blender_mode_add             2
+#define blender_mode_burn            3
+#define blender_mode_color           4
+#define blender_mode_difference      5
+#define blender_mode_dissolve        6
+#define blender_mode_dodge           7
+#define blender_mode_hue             8
+#define blender_mode_invert          9
+#define blender_mode_luminance      10
+#define blender_mode_multiply       11
+#define blender_mode_saturation     12
+#define blender_mode_screen         13
+#define blender_mode_alpha          14
+
 typedef struct GFX_MODE
 {
    int width, height, bpp;
