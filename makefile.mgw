@@ -227,17 +227,17 @@ endif # STATICLINK
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
 
-$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include/allegro
+$(MINGDIR_U)/include:
+	mkdir $(MINGDIR_U)/include
+
+$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include
 	cp include/allegro.h $(MINGDIR_U)/include
 
-$(MINGDIR_U)/include/winalleg.h: include/winalleg.h
+$(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	cp include/winalleg.h $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
 	mkdir $(MINGDIR_U)/include/allegro 
-
-$(MINGDIR_U)/include:
-	mkdir $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	cp $< $@
@@ -272,16 +272,16 @@ endif # STATICLINK
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	copy lib\mingw32\$(IMPLIB_BASENAME) $(MINGDIR_D)\lib
 
-$(MINGDIR_U)/include/allegro.h: include/allegro.h
-	copy include\allegro.h $(MINGDIR_D)\include
-
-$(MINGDIR_U)/include/winalleg.h: include/winalleg.h
-	copy include\winalleg.h $(MINGDIR_D)\include
-
 $(MINGDIR_U)/include:
 	md $(MINGDIR_D)\include
 
-$(MINGDIR_U)/include/allegro : $(MINGDIR_U)/include
+$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include
+	copy include\allegro.h $(MINGDIR_D)\include
+
+$(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
+	copy include\winalleg.h $(MINGDIR_D)\include
+
+$(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
 	md $(MINGDIR_D)\include\allegro 
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
@@ -314,11 +314,11 @@ HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))          \
 
 INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)              \
 		$(MINGDIR_U)/include/allegro.h                   \
+		$(MINGDIR_U)/include/winalleg.h                  \
 		$(MINGDIR_U)/include/allegro                     \
 		$(MINGDIR_U)/include/allegro/internal            \
 		$(MINGDIR_U)/include/allegro/inline              \
 		$(MINGDIR_U)/include/allegro/platform            \
-		$(MINGDIR_U)/include/winalleg.h                  \
 		$(MINGDIR_U)/include/allegro/platform/aintwin.h  \
 		$(MINGDIR_U)/include/allegro/platform/al386gcc.h \
 		$(MINGDIR_U)/include/allegro/platform/almngw32.h \
