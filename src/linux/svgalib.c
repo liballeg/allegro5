@@ -42,7 +42,7 @@ static void svga_vsync(void);
 static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync);
 static void svga_save(void);
 static void svga_restore(void);
-static GFX_MODE_LIST *svga_fetch_mode_list(void);
+/* static GFX_MODE_LIST *svga_fetch_mode_list(void); */
 
 #ifndef ALLEGRO_NO_ASM
 unsigned long _svgalib_read_line_asm(BITMAP *bmp, int line);
