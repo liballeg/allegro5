@@ -256,8 +256,8 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
    ASSERT(dst);
 
    /* vtable hook */   
-   if (source->vtable->do_stretch_blit) {
-      source->vtable->do_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, masked);
+   if (src->vtable->do_stretch_blit) {
+      src->vtable->do_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, masked);
       return;
    }
 
