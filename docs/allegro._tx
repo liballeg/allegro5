@@ -3574,7 +3574,7 @@ rotate them, or stretch them. In fact the only thing you can do with them is
 to blast them onto a bitmap with the draw_rle_sprite() function, which is 
 equivalent to using draw_sprite() with a regular bitmap. You can convert 
 bitmaps into RLE sprites at runtime, or you can create RLE sprite structures 
-directly in grabber datafiles.
+in grabber datafiles by making a new object of type 'RLE sprite'.
 
 @@RLE_SPRITE *@get_rle_sprite(BITMAP *bitmap);
 @xref draw_rle_sprite, destroy_rle_sprite
@@ -3627,8 +3627,7 @@ restricted than with RLE sprites, because they don't support clipping. If
 you try to draw one off the edge of a bitmap, you will corrupt memory and 
 probably crash the system. You can convert bitmaps into compiled sprites at 
 runtime, or you can create compiled sprite structures in grabber datafiles 
-by making a bitmap object and checking the 'Linear Compiled' or 'Mode-X 
-Compiled' buttons. 
+by making a new object of type 'Compiled sprite' or 'Compiled x-sprite'.
 
 @@COMPILED_SPRITE *@get_compiled_sprite(BITMAP *bitmap, int planar);
 @xref draw_compiled_sprite, destroy_compiled_sprite
