@@ -29,6 +29,7 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Find a solution to the C-to-asm calling problem with BC++
+- Fix the bug in the emergency exit mechanism when called from the DLL
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
 - Investigate mouse problem with USB Wacom Tablet (bug #226445)
 
