@@ -4,7 +4,7 @@ Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Name: allegro
-Version: 3.9.39
+Version: 3.9.40
 Release: 1
 License: Gift Ware
 Packager: Allegro development team <conductors@canvaslink.com>
