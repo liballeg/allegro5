@@ -79,6 +79,7 @@ static void _post_process_filename(char *filename);
 static int _verify_correct_input(void);
 static void _close_html_file(FILE *file);
 static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
+static int _detect_non_paragraph_sections(const char *text);
 
 
 
@@ -88,7 +89,7 @@ static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
  */
 int write_html(char *filename)
 {
-   int block_empty_lines = 0, section_number = 0;
+   int block_empty_lines = 0, section_number = 0, ret;
    LINE *line = head;
 
    if (_verify_correct_input())
@@ -156,12 +157,11 @@ int write_html(char *filename)
 	 }
 
 	 /* mutex to control extra line output in preformated sections */
-	 if (strstr(line->text, "<pre>") || strstr(line->text, "<ul>")) {
-	    block_empty_lines++;
-	    _empty_count = 0;
-	 }
-	 else if (strstr(line->text, "</pre>") || strstr(line->text, "</ul>")) {
-	    block_empty_lines--;
+	 ret = _detect_non_paragraph_sections(line->text);
+	 if (ret) {
+	    if(!block_empty_lines)
+	       _empty_count = 0;
+	    block_empty_lines += ret;
 	 }
       }
       else if (line->flags & TOC_FLAG) {
@@ -923,4 +923,43 @@ static void _output_sorted_nested_toc(TOC **list, unsigned int num_items)
    
    fprintf(_file, "</ul>\n");
 }
+
+
+
+/* _detect_non_paragraph_sections:
+ * Used on a line of text, detects if the line contains tags after which the
+ * paragraph tag <p> can't exist because it would break html validity.
+ * The return value is a bit special: it
+ * will be zero if no tags where found. For each opening tag the function
+ * will add one to the return value. Equally, each closing tag will substract
+ * one from the return value. Examples:
+ *     <pre>..</pre>...<pre>      will return 1
+ *     <pre>..<pre>...<pre>       will return 3 (note that HTML isn't valid)
+ *     ..</pre>..                 will return -1
+ */
+static int _detect_non_paragraph_sections(const char *text)
+{
+   static const char *tags[] = {"pre>", "ul>", "h1>", "h2>", "h3>", "h4>", "h5>", "h6>",
+      "i>", "strong>", "em>", "b>", 0};
+   const char *p = text;
+   int f, ret = 0;
+   assert(text);
+
+   while ((p = strchr(p, '<'))) {
+      p++;
+      if (*p == '/')
+	 p++;
+
+      for (f = 0; tags[f]; f++) {
+	 if (strncmp(p, tags[f], strlen(tags[f])) == 0) {
+	    if (*(p-1) == '/')
+	       ret--;
+	    else
+	       ret++;
+	 }
+      }
+   }
+   return ret;
+}
+         
 
