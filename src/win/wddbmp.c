@@ -398,27 +398,13 @@ static int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
        (tripbuffersurf && (invisible == tripbuffersurf))) {
       /* visible is always equal to primbuffersurf */
       hr = IDirectDrawSurface2_Flip(visible, invisible, wait?DDFLIP_WAIT:0);
-      if (FAILED(hr)) {
-         hr = IDirectDrawSurface2_Restore(visible);
-         if (FAILED(hr))
-            return -1;
-
-         hr = IDirectDrawSurface2_Flip(visible, invisible, wait?DDFLIP_WAIT:0);
-      }
    }
    else {
       /* link invisible surface to primary surface */
       hr = IDirectDrawSurface2_AddAttachedSurface(visible, invisible);
       if (FAILED(hr)) {
-         hr = IDirectDrawSurface2_Restore(visible);
-         if (FAILED(hr))
-            return -1;
-
-         hr = IDirectDrawSurface2_AddAttachedSurface(visible, invisible);
-         if (FAILED(hr)) {
-            _TRACE("Can't attach surface (%x)\n", hr);
-            return -1;
-         }
+         _TRACE("Can't attach surface (%x)\n", hr);
+         return -1;
       }
 
       /* flip to invisible surface */

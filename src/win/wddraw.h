@@ -81,6 +81,7 @@ AL_FUNC(void, gfx_directx_write_bank, (void));
 AL_FUNC(void, gfx_directx_unwrite_bank, (void));
 AL_FUNC(void, gfx_directx_write_bank_win, (void));
 AL_FUNC(void, gfx_directx_unwrite_bank_win, (void));
+AL_FUNC(void, gfx_directx_restore, (void));
 AL_FUNCPTR(void, ptr_gfx_directx_autolock, (BITMAP* bmp));
 AL_FUNCPTR(void, ptr_gfx_directx_unlock, (BITMAP* bmp));
 

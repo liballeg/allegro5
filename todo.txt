@@ -32,7 +32,6 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - DirectInput 5 joystick driver
-- Fix 'screen not redrawn after switching' bug (likely a race condition)
 - Investigate mouse problem with USB Wacom Tablet
 - Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Add backward playing to the DirectSound driver

@@ -19,23 +19,22 @@
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
+#include "wddraw.h"
+
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
 #endif
 
 
-
 BOOL app_foreground = TRUE;
 HANDLE _foreground_event = NULL;
-static int _allegro_thread_priority = 0;
-
-static int _switch_mode = SWITCH_PAUSE;
 
 #define MAX_SWITCH_CALLBACKS  8
-
-static void (*_switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-static void (*_switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static int allegro_thread_priority = 0;
+static int switch_mode = SWITCH_PAUSE;
+static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 
 
@@ -82,11 +81,11 @@ int sys_directx_set_display_switch_mode(int mode)
 	 return -1;
    } 
 
-   _switch_mode = mode;
+   switch_mode = mode;
 
    /* Clear callbacks and return success */
    for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
-      _switch_in_cb[i] = _switch_out_cb[i] = NULL;
+      switch_in_cb[i] = switch_out_cb[i] = NULL;
 
    return 0;
 }
@@ -101,14 +100,14 @@ int sys_directx_set_display_switch_callback(int dir, void (*cb)(void))
 
    for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
       if (dir == SWITCH_IN) {
-	 if (!_switch_in_cb[i]) {
-	    _switch_in_cb[i] = cb;
+	 if (!switch_in_cb[i]) {
+	    switch_in_cb[i] = cb;
 	    return 0;
 	 }
       }
       else {
-	 if (!_switch_out_cb[i]) {
-	    _switch_out_cb[i] = cb;
+	 if (!switch_out_cb[i]) {
+	    switch_out_cb[i] = cb;
 	    return 0;
 	 }
       }
@@ -126,11 +125,11 @@ void sys_directx_remove_display_switch_callback(void (*cb)(void))
    int i;
 
    for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (_switch_in_cb[i] == cb)
-	 _switch_in_cb[i] = NULL;
+      if (switch_in_cb[i] == cb)
+	 switch_in_cb[i] = NULL;
 
-      if (_switch_out_cb[i] == cb)
-	 _switch_out_cb[i] = NULL;
+      if (switch_out_cb[i] == cb)
+	 switch_out_cb[i] = NULL;
    }
 }
 
@@ -148,7 +147,8 @@ void sys_switch_in(void)
       win_gfx_driver->switch_in();
 
    wnd_acquire_keyboard();
-   wnd_acquire_mouse(); 
+   wnd_acquire_mouse();
+   gfx_directx_restore();
    sys_directx_switch_in_callback();
 
    /* handle switch modes */
@@ -159,7 +159,7 @@ void sys_switch_in(void)
 	 _TRACE("AMNESIA or PAUSE mode recovery\n"); 
 
 	 /* restore old priority and wake up */
-	 SetThreadPriority(allegro_thread, _allegro_thread_priority);
+	 SetThreadPriority(allegro_thread, allegro_thread_priority);
 	 SetEvent(_foreground_event);
 	 break;
 
@@ -197,7 +197,7 @@ void sys_switch_out(void)
 
 	 /* for the case that the thread doesn't suspend lower its priority
 	  * do this only if a window of another process is active */ 
-	 _allegro_thread_priority = GetThreadPriority(allegro_thread); 
+	 allegro_thread_priority = GetThreadPriority(allegro_thread); 
 	 if ((HINSTANCE)GetWindowLong(GetForegroundWindow(), GWL_HINSTANCE)!=allegro_inst)
 	    SetThreadPriority(allegro_thread, THREAD_PRIORITY_LOWEST); 
 
@@ -237,8 +237,8 @@ void sys_directx_switch_out_callback(void)
    int i;
 
    for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (_switch_out_cb[i])
-	 _switch_out_cb[i]();
+      if (switch_out_cb[i])
+	 switch_out_cb[i]();
    }
 }
 
@@ -251,8 +251,8 @@ void sys_directx_switch_in_callback(void)
    int i;
 
    for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (_switch_in_cb[i])
-	 _switch_in_cb[i]();
+      if (switch_in_cb[i])
+	 switch_in_cb[i]();
    }
 }
 

@@ -39,6 +39,25 @@ static void gfx_directx_switch_out(void)
 
 
 
+/* gfx_directx_restore:
+ *  Restores all the video and system bitmaps.
+ */
+void gfx_directx_restore(void)
+{
+   BMP_EXTRA_INFO *item = directx_bmp_list;
+
+   _enter_gfx_critical();
+
+   while (item) {
+      IDirectDrawSurface2_Restore(item->surf);
+      item = item->next;
+   }
+
+   _exit_gfx_critical();
+}
+
+
+
 /* gfx_directx_lock:
  *  Locks the surface and prepares the lines array of the bitmap.
  */
@@ -46,13 +65,12 @@ void gfx_directx_lock(BITMAP *bmp)
 {
    LPDIRECTDRAWSURFACE2 surf;
    BMP_EXTRA_INFO *bmp_extra;
-   BMP_EXTRA_INFO *item;
    BITMAP *parent;
    HRESULT hr;
    DDSURFACEDESC surf_desc;
    int pitch;
    unsigned char *data;
-   int y, h;
+   int y;
 
    if (bmp->id & BMP_ID_SUB) {
       /* if it's a sub-bitmap, start by locking our parent */
@@ -63,10 +81,9 @@ void gfx_directx_lock(BITMAP *bmp)
       /* update the line array if our parent has moved */
       pitch = (long)parent->line[1] - (long)parent->line[0];
       data = parent->line[0] + pitch * bmp->y_ofs + bmp->x_ofs * ((_color_depth+7) >> 3);
-      h = bmp->h;
 
       if (data != bmp->line[0]) {
-	 for (y = 0; y < h; y++) {
+	 for (y = 0; y < bmp->h; y++) {
 	    bmp->line[y] = data;
 	    data += pitch;
 	 }
@@ -94,37 +111,14 @@ void gfx_directx_lock(BITMAP *bmp)
 	 surf_desc.dwSize = sizeof(surf_desc);
 	 surf_desc.dwFlags = 0;
 
-         hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
+	 hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
                                        DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
 
 	 if (FAILED(hr)) {
-	    /* lost bitmap, try to restore all surfaces */
-	    item = directx_bmp_list;
-	    while (item) {
-	       /* if restoration fails, stop restoring */
-	       hr = IDirectDrawSurface2_Restore(item->surf);
-               if (FAILED(hr))
-		  break;
-	       item = item->next;
-	    }
-
-	    /* try again to lock */
-	    surf_desc.dwSize = sizeof(surf_desc);
-	    surf_desc.dwFlags = 0;
-
-            hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
-                                          DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
-
-	    if (FAILED(hr)) {
-	       /* lock failed, use pseudo surface memory */
-	       bmp_extra->flags |= BMP_FLAG_LOST;
-	       data = pseudo_surf_mem;
-	       pitch = 0;
-	    } 
-	    else {
-	       data = surf_desc.lpSurface;
-	       pitch = surf_desc.lPitch;
-	    }
+	    /* lock failed, use pseudo surface memory */
+	    bmp_extra->flags |= BMP_FLAG_LOST;
+	    data = pseudo_surf_mem;
+	    pitch = 0;
 	 } 
 	 else {
 	    data = surf_desc.lpSurface;
@@ -132,14 +126,12 @@ void gfx_directx_lock(BITMAP *bmp)
 	 }
 
 	 /* prepare line array */
-	 h = bmp->h;
-
 	 if (data != bmp->line[0]) {
-	    for (y = 0; y < h; y++) {
+	    for (y = 0; y < bmp->h; y++) {
 	       bmp->line[y] = data;
 	       data += pitch;
 	    }
-	 }
+         }
       }
    }
 }
