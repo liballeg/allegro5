@@ -108,12 +108,25 @@ static int mymickey_oy = 0;
 #define COORD_TO_MICKEY_X(n)        ((n) * mouse_sx)
 #define COORD_TO_MICKEY_Y(n)        ((n) * mouse_sy)
 
-#define CLEAR_MICKEYS()             \
-{                                   \
-   dinput_x = 0;                    \
-   dinput_y = 0;                    \
-   mymickey_ox = 0;                 \
-   mymickey_oy = 0;                 \
+#define CLEAR_MICKEYS()                       \
+{                                             \
+   if (gfx_driver && gfx_driver->windowed) {  \
+      POINT p;                                \
+                                              \
+      GetCursorPos(&p);                       \
+                                              \
+      p.x -= wnd_x;                           \
+      p.y -= wnd_y;                           \
+                                              \
+      mymickey_ox = p.x;                      \
+      mymickey_oy = p.y;                      \
+   }                                          \
+   else {                                     \
+      dinput_x = 0;                           \
+      dinput_y = 0;                           \
+      mymickey_ox = 0;                        \
+      mymickey_oy = 0;                        \
+   }                                          \
 }
 
 #define READ_CURSOR_POS(p)                          \
@@ -666,12 +679,12 @@ static void mouse_directx_position(int x, int y)
    mouse_mx = COORD_TO_MICKEY_X(x);
    mouse_my = COORD_TO_MICKEY_Y(y);
 
+   if (gfx_driver && gfx_driver->windowed)
+      SetCursorPos(x+wnd_x, y+wnd_y);
+
    CLEAR_MICKEYS();
 
    mymickey_x = mymickey_y = 0;
-
-   if (gfx_driver && gfx_driver->windowed)
-      SetCursorPos(x+wnd_x, y+wnd_y);
 
    /* force mouse update */
    SetEvent(mouse_input_event);
