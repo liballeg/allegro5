@@ -117,6 +117,7 @@ dnl
 dnl Variables:
 dnl  allegro_enable_xwin_shm=(yes|)
 dnl  allegro_enable_xwin_xf86dga=(yes|)
+dnl  allegro_enable_xwin_xf86dga2=(yes|)
 dnl  allegro_support_xwindows=(yes|)
 dnl
 dnl CPPFLAGS, LDFLAGS and LIBS can be modified.
@@ -130,6 +131,10 @@ AC_ARG_ENABLE(xwin-dga,
 [  --enable-xwin-dga[=x]   enable the use of XF86DGA Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga=yes,
 allegro_enable_xwin_xf86dga=yes)
+AC_ARG_ENABLE(xwin-dga2,
+[  --enable-xwin-dga2[=x]   enable the use of DGA 2.0 Extension [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga2=yes,
+allegro_enable_xwin_xf86dga2=yes)
 
 dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 AC_PATH_X
@@ -160,6 +165,14 @@ if test -z "$no_x"; then
 	[LIBS="-lXxf86dga -lXxf86vm $LIBS"
 	AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA)])])
   fi
+
+  dnl Test for DGA 2.0 extension.
+  if test -n "$allegro_enable_xwin_xf86dga2"; then
+    AC_CHECK_LIB(Xxf86dga, XDGAQueryExtension,
+      [LIBS="-lXxf86dga $LIBS"
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2)])
+  fi
+
 fi
 ])
 

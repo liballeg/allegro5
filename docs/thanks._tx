@@ -49,7 +49,7 @@ Contributors
    tweaked VGA mode, and wrote the d_text_list_proc() dialog object.
 
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
-   Wrote DGA2 driver.
+   Added BeOS joystick driver and wrote DGA2 driver.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.

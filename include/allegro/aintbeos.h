@@ -69,6 +69,10 @@ void be_mouse_set_range(int x1, int y1, int x2, int y2);
 void be_mouse_set_speed(int xspeed, int yspeed);
 void be_mouse_get_mickeys(int *mickeyx, int *mickeyy);
 
+int be_joy_init(void);
+void be_joy_exit(void);
+int be_joy_poll(void);
+
 int be_sound_detect(int input);
 int be_sound_init(int input, int voices);
 void be_sound_exit(int input);

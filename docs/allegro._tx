@@ -924,6 +924,11 @@ p&ltn&gt = bank0 bank1 prog pitch<br>
 [joystick]<br>
    Section containing a set of variables used by the save_joystick_data() 
    and load_joystick_data() functions.
+<ul><li>
+joystick_device = x<br>
+   BeOS only: specifies the name of the joystick device to be used. First
+   device found is used by default.
+</ul><li>
 </ul>
 
 
@@ -6799,14 +6804,20 @@ function to remind you :-)
       and can operate remotely. It does not require root permissions.
 <li>
    GFX_XDGA<br>
-      Use the XFree86 DGA extension to write directly to the screen surface. 
-      DGA is normally much faster than the standard X mode, but does not 
-      produce such well behaved windowed programs, and will not work 
+      Use the XFree86 DGA 1.0 extension to write directly to the screen
+      surface. DGA is normally much faster than the standard X mode, but does
+      not produce such well behaved windowed programs, and will not work
       remotely. This driver requires root permissions.
 <li>
    GFX_XDFS<br>
       Like GFX_XDGA, but also changes the screen resolution so that it will 
       run fullscreen. This driver requires root permissions.
+</ul>
+<li>
+   GFX_XDGA2<br>
+      Use new DGA 2.0 extension provided by XFree86 4.0.x. This will work
+      in fullscreen mode, and it will support hardware acceleration if
+      available. This driver requires root permissions.
 </ul>
 @@Drivers: @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input

@@ -39,7 +39,7 @@ AL_VAR(MOUSE_DRIVER, mouse_beos);
 
 /* joystick driver */
 #define JOYSTICK_BEOS         AL_ID('B','J','O','Y')
-//AL_VAR(JOYSTICK_DRIVER, joystick_beos);
+AL_VAR(JOYSTICK_DRIVER, joystick_beos);
 
 /* graphics drivers */
 #define GFX_BEOS                 AL_ID('B','F','S','S')
@@ -75,7 +75,7 @@ AL_VAR(DIGI_DRIVER, digi_beos);
    /* {  MIDI_BEOS,       &midi_beos,      TRUE  }, */
 
 #define JOYSTICK_DRIVER_BEOS                                            \
-   /* {  JOYSTICK_BEOS,   &joystick_beos,  TRUE  }, */
+   {  JOYSTICK_BEOS,   &joystick_beos,  TRUE  },
 
 #define GFX_SAFE_ID	GFX_BEOS
 #define GFX_SAFE_DEPTH	8

@@ -93,6 +93,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_OPENDOS     AL_ID('O','D','O','S')
 #define OSTYPE_LINUX       AL_ID('T','U','X',' ')
 #define OSTYPE_UNIX        AL_ID('U','N','I','X')
+#define OSTYPE_BEOS        AL_ID('B','E','O','S')
 
 AL_VAR(int, os_type);
 

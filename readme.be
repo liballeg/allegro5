@@ -19,9 +19,9 @@
 ============ BeOS notes ============
 ====================================
 
-   Status: It compiles for Intel R4,
-	the keyboard and system drivers
-	are almost 100 percent.
+   Status: It compiles for Intel R4 & R5. Port is almost complete, but it
+   needs beta testing; still missing a windowed graphics driver and a midi
+   driver.
 
 
 
@@ -29,7 +29,10 @@
 ============ Required software ============
 ===========================================
 
-  BeOS Intel R4 comes with everything you need.
+   BeOS Intel R4 and R5 Pro Edition come with everything you need. If you
+   have BeOS Intel R5 Personal Edition, you require the development tools;
+   these can be found on the Be homepage at http://www.be.com.
+
 
 
 ============================================
@@ -37,7 +40,6 @@
 ============================================
 
    Todo.
-
 
 
 =======================================

@@ -163,6 +163,8 @@ extern "C" int be_sys_init(void)
    acquire_sem(system_started);
    delete_sem(system_started);
 
+   os_type = OSTYPE_BEOS;
+   
    return 0;
 
    cleanup: {

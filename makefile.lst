@@ -190,6 +190,7 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bgfxdrv.c \
 	src/beos/bjoy.c \
 	src/beos/bjoydrv.c \
+	src/beos/bjoyapi.cpp \
 	src/beos/bkey.c \
 	src/beos/bkeyapi.cpp \
 	src/beos/bkeydrv.c \

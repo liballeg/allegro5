@@ -610,7 +610,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
       usprintf(_xwin_driver_desc,
 	       uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
 	       _xwin.window_depth,
-	       uconvert_ascii((dga ? "DGA mode" : "window"), tmp2));
+	       uconvert_ascii((dga ? "DGA 1.0 mode" : "window"), tmp2));
    }
    else {
       usprintf(_xwin_driver_desc,
@@ -618,7 +618,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
 	       uconvert_ascii((_xwin.fast_visual_depth ? "fast" : "slow"), tmp2),
 	       uconvert_ascii((_xwin.visual_is_truecolor ? "truecolor" : "paletted"), tmp3),
 	       _xwin.window_depth,
-	       uconvert_ascii((dga ? "DGA mode" : "window"), tmp4));
+	       uconvert_ascii((dga ? "DGA 1.0 mode" : "window"), tmp4));
    }
    drv->desc = _xwin_driver_desc;
 }
@@ -2674,9 +2674,9 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
-   /* Works only with DGA 1.x or older.  */
-   if (dga_major_version > 1) {
-      ustrcpy(allegro_error, get_config_text("DGA 1.x or older is required"));
+   /* Test DGA version */
+   if (dga_major_version != 1) {
+      ustrcpy(allegro_error, get_config_text("DGA 1.0 is required"));
       return 0;
    }
 

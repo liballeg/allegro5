@@ -8,19 +8,33 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Stuff for BeOS.
+ *      Joystick driver for BeOS.
  *
- *      By Jason Wilkins.
+ *      By Angelo Mottola.
  *
  *      See readme.txt for copyright information.
  */
 
 #include "allegro.h"
 #include "allegro/aintern.h"
+#include "allegro/aintbeos.h"
 
 #ifndef ALLEGRO_BEOS
 #error something is wrong with the makefile
-#endif                
+#endif
 
-//JOYSTICK_DRIVER joystick_beos;
+JOYSTICK_DRIVER joystick_beos =
+{
+   JOYSTICK_BEOS,        // int  id; 
+   empty_string,         // AL_CONST char *name; 
+   empty_string,         // AL_CONST char *desc; 
+   "BeOS joystick",      // AL_CONST char *ascii_name;
+   be_joy_init,          // AL_METHOD(int, init, (void));
+   be_joy_exit,          // AL_METHOD(void, exit, (void));
+   be_joy_poll,          // AL_METHOD(int, poll, (void));
+   NULL,                 // AL_METHOD(int, save_data, (void));
+   NULL,                 // AL_METHOD(int, load_data, (void));
+   NULL,                 // AL_METHOD(AL_CONST char *, calibrate_name, (int n));
+   NULL                  // AL_METHOD(int, calibrate, (int n));
+};
 

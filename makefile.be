@@ -42,7 +42,7 @@ ifdef DEBUGMODE
 # -------- debugging build --------
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-LFLAGS = -lbe -lgame -g
+LFLAGS = -lbe -lgame -ldevice -g
 
 
 else
@@ -51,7 +51,7 @@ ifdef PROFILEMODE
 # -------- profiling build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -pg
 SFLAGS = $(WFLAGS)
-LFLAGS = -lbe -lgame -pg
+LFLAGS = -lbe -lgame -ldevice -pg
 
 else
 
@@ -60,9 +60,9 @@ CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifdef SYMBOLMODE
-LFLAGS = -lbe -lgame -s
+LFLAGS = -lbe -lgame -ldevice -s
 else
-LFLAGS = -lbe -lgame
+LFLAGS = -lbe -lgame -ldevice
 endif
 
 endif
