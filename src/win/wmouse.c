@@ -160,7 +160,7 @@ static char* dinput_err_str(long err)
 
 
 /* mouse_dinput_acquire:
- *  acquires the mouse device
+ *  Acquires the mouse device (called by the window thread).
  */
 int mouse_dinput_acquire(void)
 {
@@ -176,87 +176,101 @@ int mouse_dinput_acquire(void)
 	 return -1;
       }
 
-      /* initialize mouse state */
-      SetEvent(mouse_input_event);
-
-      return 0;
+      /* the cursor may not be in the client area so we don't set _mouse_on */
+      if (_mouse_on)
+         mouse_set_syscursor(FALSE);
    }
-   else {
-      mouse_set_cursor();
 
-      return -1;
-   }
+   if (gfx_driver && !gfx_driver->windowed)
+      mouse_set_syscursor(FALSE);
+
+   return 0;
 }
 
 
 
 /* mouse_dinput_unacquire:
- *  unacquires the mouse device
+ *  Unacquires the mouse device (called by the window thread).
  */
 int mouse_dinput_unacquire(void)
 {
    if (mouse_dinput_device) {
       IDirectInputDevice_Unacquire(mouse_dinput_device);
 
-      if (_mouse_on) {
-         _mouse_on = FALSE;
-         mouse_set_cursor();
-      }
-
       _mouse_b = 0;
-
-      return 0;
+      _mouse_on = FALSE;
    }
-   else
-      return -1;
+
+   mouse_set_syscursor(TRUE);
+
+   return 0;
 }
 
 
 
-/* mouse_set_cursor:
- *  selects whatever cursor we should display
+/* mouse_set_syscursor:
+ *  Changes the state of the system mouse cursor (called by the window thread).
  */
-int mouse_set_cursor(void)
+int mouse_set_syscursor(int state)
 {
-   if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed))
-      SetCursor(NULL);
-   else
-      SetCursor(LoadCursor(NULL, IDC_ARROW));
+   static int count = 0;  /* initial state of the ShowCursor() counter */
 
-   return TRUE;
+   if (state == TRUE) {
+      if (count < 0)
+         count = ShowCursor(TRUE);
+   }
+   else {
+      if (count >= 0)
+         count = ShowCursor(FALSE);
+   }
+
+   return 0;
 }
 
 
 
-/* mouse_sysmenu_changed:
- *  alters the windowed mouse state when going to/from sysmenu mode
+/* mouse_set_sysmenu:
+ *  Changes the state of the mouse when going to/from sysmenu mode (called by the window thread).
  */
-void mouse_sysmenu_changed(void)
+int mouse_set_sysmenu(int state)
 {
    POINT p;
 
-   if (wnd_sysmenu) {
-      _mouse_on = FALSE;
-   }
-   else {
-      GetCursorPos(&p);
-
-      p.x -= wnd_x;
-      p.y -= wnd_y;
-
-      if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
-	  (p.y < mouse_miny) || (p.y > mouse_maxy)) {
-	 _mouse_on = FALSE;
+   if (mouse_dinput_device) {
+      if (state == TRUE) {
+         if (_mouse_on) {
+            _mouse_on = FALSE;
+            mouse_set_syscursor(TRUE);
+         }
       }
       else {
-	 _mouse_x = p.x;
-	 _mouse_y = p.y;
-	 _mouse_on = TRUE;
-      }
-   } 
+         GetCursorPos(&p);
 
-   mouse_set_cursor();
-   _handle_mouse_input();
+         p.x -= wnd_x;
+         p.y -= wnd_y;
+
+         if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
+             (p.y < mouse_miny) || (p.y > mouse_maxy)) {
+            if (_mouse_on) {
+               _mouse_on = FALSE;
+               mouse_set_syscursor(TRUE);
+            }
+         }
+         else {
+            _mouse_x = p.x;
+            _mouse_y = p.y;
+
+            if (!_mouse_on) {
+               _mouse_on = TRUE;
+               mouse_set_syscursor(FALSE);
+            }
+         }
+      } 
+
+      _handle_mouse_input();
+   }
+
+   return 0;
 }
 
 
@@ -268,10 +282,8 @@ static void mouse_dinput_exit(void)
 {
    /* release mouse device */
    if (mouse_dinput_device) {
-      /* unacquire device first */
-      mouse_dinput_unacquire();
+      wnd_call_proc(mouse_dinput_unacquire);  /* blocking call */
 
-      /* now it can be released */
       IDirectInputDevice_Release(mouse_dinput_device);
       mouse_dinput_device = NULL;
    }
@@ -365,17 +377,9 @@ static int mouse_dinput_init(void)
    if (FAILED(hr))
       goto Error;
 
-   /* Set the initial state */
-   _mouse_on = FALSE;
-
-   /* Acquire the created device */
-   if (gfx_driver) {
-      wnd_acquire_mouse();
-
-      /* Make sure that the pointer is inside the window quickly enough */
-      if (gfx_driver->windowed)
-         SetCursorPos(wnd_x+8, wnd_y+8);
-   }
+   /* Acquire the device */
+   _mouse_on = TRUE;
+   wnd_acquire_mouse();
 
    return 0;
 
@@ -508,7 +512,7 @@ static void mouse_directx_poll(void)
 		   (p.y < mouse_miny) || (p.y > mouse_maxy)) {
 		  if (_mouse_on) {
 		     _mouse_on = FALSE;
-		     wnd_set_cursor();
+		     wnd_set_syscursor(TRUE);
 		  }
 	       }
 	       else {
@@ -517,7 +521,7 @@ static void mouse_directx_poll(void)
 
 		  if (!_mouse_on) {
 		     _mouse_on = TRUE;
-		     wnd_set_cursor();
+		     wnd_set_syscursor(FALSE);
 		  }
 	       }
 
@@ -549,7 +553,7 @@ static void mouse_directx_poll(void)
 
 	    if (!_mouse_on) {
 	       _mouse_on = TRUE;
-	       wnd_set_cursor();
+	       wnd_set_syscursor(FALSE);
 	    }
 
 	    _handle_mouse_input();
@@ -680,6 +684,9 @@ static void mouse_directx_position(int x, int y)
 
    if (gfx_driver && gfx_driver->windowed)
       SetCursorPos(x+wnd_x, y+wnd_y);
+
+   /* force mouse update */
+   SetEvent(mouse_input_event);
 
    _exit_critical();
 }

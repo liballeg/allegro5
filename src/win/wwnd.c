@@ -67,7 +67,7 @@ static UINT msg_acquire_keyboard = 0;
 static UINT msg_unacquire_keyboard = 0;
 static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
-static UINT msg_set_cursor = 0;
+static UINT msg_set_syscursor = 0;
 
 
 
@@ -166,12 +166,12 @@ void wnd_unacquire_mouse(void)
 
 
 
-/* wnd_set_cursor:
- *  posts msg to window to set the mouse cursor
+/* wnd_set_syscursor:
+ *  posts msg to window to set the system mouse cursor
  */
-void wnd_set_cursor(void)
+void wnd_set_syscursor(int state)
 {
-   PostMessage(allegro_wnd, msg_set_cursor, 0, 0);
+   PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
 }
 
 
@@ -198,8 +198,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
    if (message == msg_unacquire_mouse)
       return mouse_dinput_unacquire();
 
-   if (message == msg_set_cursor)
-      return mouse_set_cursor();
+   if (message == msg_set_syscursor)
+      return mouse_set_syscursor(wparam);
 
    switch (message) {
 
@@ -207,11 +207,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          if (!user_wnd_proc)
             allegro_wnd = wnd;
 	 break;
-
-      case WM_SETCURSOR:
-         if (!user_wnd_proc || _mouse_installed)
-            return mouse_set_cursor();
-         break;
 
       case WM_DESTROY:
          if (user_wnd_proc) {
@@ -223,6 +218,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          else {
             PostQuitMessage(0);
          }
+
          allegro_wnd = NULL;
          break;
 
@@ -292,7 +288,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_INITMENUPOPUP:
 	 wnd_sysmenu = TRUE;
-	 mouse_sysmenu_changed();
+	 mouse_set_sysmenu(TRUE);
+
          if (win_gfx_driver && win_gfx_driver->enter_sysmode)
             win_gfx_driver->enter_sysmode();
 	 break;
@@ -300,7 +297,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_MENUSELECT:
 	 if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
 	    wnd_sysmenu = FALSE;
-	    mouse_sysmenu_changed();
+	    mouse_set_sysmenu(FALSE);
+
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
 	 }
@@ -446,7 +444,7 @@ int init_directx_window(void)
    msg_unacquire_keyboard = RegisterWindowMessage("Allegro keyboard unacquire proc");
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
-   msg_set_cursor = RegisterWindowMessage("Allegro mouse cursor proc");
+   msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
 
    /* prepare window for Allegro */
    if (user_wnd) {

@@ -32,7 +32,6 @@ Win32 todos:
 
 - DirectInput 5 joystick driver
 - Make Allegro return focus to the calling app
-- Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Investigate mouse problem with USB Wacom Tablet
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
 
