@@ -17,10 +17,11 @@
 int main()
 {
    AUDIOSTREAM *stream;
+   unsigned char *p;
    int updates = 0;
    int pitch = 0;
    int val = 0;
-   int i;
+   int i,c ;
 
    if (allegro_init() != 0)
       return 1;
@@ -53,12 +54,30 @@ int main()
       return 1;
    }
 
-   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0), makecol(255, 255, 255), "Audio stream is now playing...");
-   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3+24, makecol(0, 0, 0), makecol(255, 255, 255), "Driver: %s", digi_driver->name);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3-24, makecol(0, 0, 0), makecol(255, 255, 255), "Audio stream is now playing...");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0), makecol(255, 255, 255), "Driver: %s", digi_driver->name);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/3+24, makecol(0, 0, 0), makecol(255, 255, 255), "Press [space] to stop/resume");
 
-   while (!keypressed()) {
+   while (TRUE) {
+      if (keypressed()) {
+	 c = readkey();
+	 if ((c >> 8) == KEY_SPACE) {
+	    voice_stop(stream->voice);
+	    while (TRUE) {
+	       c = readkey();
+	       if ((c >> 8) == KEY_ESC)
+		  goto End;
+	       else if ((c >> 8) == KEY_SPACE)
+		  break;
+	    }
+	    voice_start(stream->voice);
+	 }
+	 else if ((c >> 8) == KEY_ESC)
+	    break;
+      }
+	       
       /* does the stream need any more data yet? */
-      unsigned char *p = get_audio_stream_buffer(stream);
+      p = get_audio_stream_buffer(stream);
 
       if (p) {
 	 /* if so, generate a bit more of our waveform... */
@@ -81,6 +100,7 @@ int main()
       }
    }
 
+ End:
    stop_audio_stream(stream);
 
    return 0;
