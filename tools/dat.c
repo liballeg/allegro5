@@ -25,7 +25,7 @@
 #include "allegro.h"
 #include "datedit.h"
 
-#if ((defined ALLEGRO_DOS) || (defined ALLEGRO_MSVC)) && (!defined SCAN_DEPEND)
+#if ((defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)) && (!defined SCAN_DEPEND)
    #define HAVE_CONIO_H
    #include <conio.h>
 #endif
