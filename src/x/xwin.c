@@ -1683,7 +1683,7 @@ void _xwin_hide_mouse(void)
 
 
 /* _xwin_move_mouse:
- *  Move the custom X cursor. This is actually done automatically.
+ *  Get mouse move notification. Not that we need it...
  */
 void _xwin_move_mouse(int x, int y)
 {
