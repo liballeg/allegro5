@@ -92,7 +92,6 @@
     check_cpu
     circle
     circlefill
-    clear
     clear_keybuf
     clear_scene
     clear_to_color
@@ -1285,3 +1284,10 @@
     load_xcompiled_sprite_object
     unload_midi
     unload_sample
+    _gfx_mode_list_malloced DATA
+    _parallelogram_map
+    _parallelogram_map_standard
+    _rotate_scale_flip_coordinates
+    clear_bitmap
+    cpu_sse DATA
+    reload_config_texts
