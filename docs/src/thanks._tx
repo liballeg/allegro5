@@ -37,7 +37,7 @@ Contributors
    Wrote the Ensoniq Soundscape driver and fixed division bugs in the fix
    class.
 
-   Andrei 'old-boy' Ellman (<email>ellman@xs4all.nl</a>).<br>
+   Andrei Ellman (<email>ae-a@wackonet.fsnet.co.uk</a>).<br>
    Contributed the polygon_z_normal() function.
 
    Andrew Ellem (<email>krand@ican.net</a>).<br>
