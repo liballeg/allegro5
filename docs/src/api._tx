@@ -67,8 +67,8 @@ Changes between 4.0.x and 4.1.x series
    ASSERTed in the debug version, but unchecked in the release version.
 <li>
    install_allegro() and allegro_init() now return an error code if unable to
-   initialise a system driver. Previously they would abort the program in
-   such cases. Consequently you should check their return values.
+   initialise a system driver. Previously they would have aborted the program
+   in such cases. Consequently you should check their return values.
 <li>
    The preprocessor symbol USE_CONSOLE is deprecated. Define instead the
    symbol ALLEGRO_USE_CONSOLE prior to including Allegro headers in order
