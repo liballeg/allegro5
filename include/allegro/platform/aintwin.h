@@ -99,8 +99,7 @@ AL_FUNC(void, gfx_directx_restore, (void));
 
 
 /* focus switch routines */
-AL_VAR(BOOL, app_foreground);
-AL_VAR(HANDLE, _foreground_event);
+AL_VAR(int, app_foreground);
 
 AL_FUNC(void, sys_directx_display_switch_init, (void));
 AL_FUNC(void, sys_directx_display_switch_exit, (void));
@@ -109,8 +108,9 @@ AL_FUNC(int, sys_directx_set_display_switch_callback, (int dir, AL_METHOD(void, 
 AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
 
 AL_FUNC(void, sys_switch_in, (void));
-
 AL_FUNC(void, sys_switch_out, (void));
+AL_FUNC(void, sys_reset_switch_mode, (void));
+
 AL_FUNC(int, thread_switch_out, (void));
 AL_FUNC(void, midi_switch_out, (void));
 

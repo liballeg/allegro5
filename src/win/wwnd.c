@@ -317,12 +317,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_DESTROY:
          if (user_wnd_proc) {
             exit_window_modules(NULL);
-
-            /* The system may have sent a WA_INACTIVE message, so we need
-             * to wake up the timer thread, supposing we are in SWITCH_PAUSE
-             * or SWITCH_AMNESIA mode.
-             */
-            SetEvent(_foreground_event);
+            sys_reset_switch_mode();
          }
          else {
             PostQuitMessage(0);
@@ -452,7 +447,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
                   if (key_thread)
                      TerminateThread(key_thread, 0);
                   TerminateThread(allegro_thread, 0);
-                  SetEvent(_foreground_event);  /* see comment in WM_DESTROY case */
+                  sys_reset_switch_mode();
                   remove_timer();
                   DestroyWindow(wnd);
                }

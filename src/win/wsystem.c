@@ -353,6 +353,9 @@ static void sys_directx_restore_console_state(void)
    wnd_unacquire_keyboard();
    wnd_unacquire_mouse();
 
+   /* reset switch mode */
+   sys_reset_switch_mode();
+
    /* re-size and hide window */
    SetWindowPos(allegro_wnd, HWND_TOP, wnd_rect.left, wnd_rect.top,
 		wnd_rect.right - wnd_rect.left, wnd_rect.bottom - wnd_rect.top,

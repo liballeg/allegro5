@@ -26,14 +26,34 @@
 #endif
 
 
-BOOL app_foreground = TRUE;
-HANDLE _foreground_event = NULL;
+int app_foreground = TRUE;
+
+static HANDLE foreground_event = NULL;
+static int allegro_thread_priority = THREAD_PRIORITY_NORMAL;
 
 #define MAX_SWITCH_CALLBACKS  8
-static int allegro_thread_priority = 0;
 static int switch_mode = SWITCH_PAUSE;
 static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+
+
+
+/* sys_reset_switch_mode:
+ *  Resets the switch mode to its default state.
+ */
+void sys_reset_switch_mode(void)
+{
+   /* The default state must be SWITCH_BACKGROUND so that the
+      threads don't get blocked when the focus moves forth and
+      back during window creation and destruction.  This seems
+      to be particularly relevant to WinXP.  */
+   set_display_switch_mode(SWITCH_BACKGROUND);
+
+   app_foreground = TRUE;
+   
+   /* This has a nice side-effect: releasing the blocked threads. */
+   SetEvent(foreground_event);
+}
 
 
 
@@ -41,8 +61,8 @@ static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, N
  */
 void sys_directx_display_switch_init(void)
 {
-   _foreground_event = CreateEvent(NULL, TRUE, TRUE, NULL);
-   set_display_switch_mode(SWITCH_PAUSE);
+   foreground_event = CreateEvent(NULL, TRUE, TRUE, NULL);
+   sys_reset_switch_mode();
 }
 
 
@@ -51,7 +71,7 @@ void sys_directx_display_switch_init(void)
  */
 void sys_directx_display_switch_exit(void)
 {
-   CloseHandle(_foreground_event);
+   CloseHandle(foreground_event);
 }
 
 
@@ -159,7 +179,7 @@ void sys_switch_in(void)
 
 	 /* restore old priority and wake up */
 	 SetThreadPriority(allegro_thread, allegro_thread_priority);
-	 SetEvent(_foreground_event);
+	 SetEvent(foreground_event);
 	 break;
 
       default:
@@ -192,7 +212,7 @@ void sys_switch_out(void)
       case SWITCH_AMNESIA:
       case SWITCH_PAUSE:
 	 _TRACE("AMNESIA or PAUSE suspension\n");
-	 ResetEvent(_foreground_event);
+	 ResetEvent(foreground_event);
 
 	 /* for the case that the thread doesn't suspend lower its priority
 	  * do this only if a window of another process is active */ 
@@ -218,7 +238,7 @@ int thread_switch_out(void)
    int mode = get_display_switch_mode();
 
    if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
-      WaitForSingleObject(_foreground_event, INFINITE);
+      WaitForSingleObject(foreground_event, INFINITE);
       return TRUE;
    }
 
