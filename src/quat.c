@@ -263,7 +263,7 @@ void matrix_to_quat(AL_CONST MATRIX_f *m, QUAT *q)
    float trace = m->v[0][0] + m->v[1][1] + m->v[2][2] + 1.0f;
 
    if (trace > EPSILON) {
-      float s = 0.5f / sqrtf(trace);
+      float s = 0.5f / (float)sqrt(trace);
       q->w = 0.25f / s;
       q->x = (m->v[2][1] - m->v[1][2]) * s;
       q->y = (m->v[0][2] - m->v[2][0]) * s;
@@ -271,21 +271,21 @@ void matrix_to_quat(AL_CONST MATRIX_f *m, QUAT *q)
    }
    else {
       if (m->v[0][0] > m->v[1][1] && m->v[0][0] > m->v[2][2]) {
-         float s = 2.0f * sqrtf(1.0f + m->v[0][0] - m->v[1][1] - m->v[2][2]);
+         float s = 2.0f * (float)sqrt(1.0f + m->v[0][0] - m->v[1][1] - m->v[2][2]);
          q->x = 0.25f * s;
          q->y = (m->v[0][1] + m->v[1][0]) / s;
          q->z = (m->v[0][2] + m->v[2][0]) / s;
          q->w = (m->v[1][2] - m->v[2][1]) / s;
       }
       else if (m->v[1][1] > m->v[2][2]) {
-         float s = 2.0f * sqrtf(1.0f + m->v[1][1] - m->v[0][0] - m->v[2][2]);
+         float s = 2.0f * (float)sqrt(1.0f + m->v[1][1] - m->v[0][0] - m->v[2][2]);
          q->x = (m->v[0][1] + m->v[1][0]) / s;
          q->y = 0.25f * s;
          q->z = (m->v[1][2] + m->v[2][1]) / s;
          q->w = (m->v[0][2] - m->v[2][0]) / s;
       }
       else {
-         float s = 2.0f * sqrtf(1.0f + m->v[2][2] - m->v[0][0] - m->v[1][1]);
+         float s = 2.0f * (float)sqrt(1.0f + m->v[2][2] - m->v[0][0] - m->v[1][1]);
          q->x = (m->v[0][2] + m->v[2][0]) / s;
          q->y = (m->v[1][2] + m->v[2][1]) / s;
          q->z = 0.25f * s;
