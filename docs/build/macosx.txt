@@ -33,7 +33,7 @@
    To build Allegro under MacOS X, you need:
 
    - MacOS X 10.x (tested only under 10.2 though)
-   - Recent Apple Developer Tools
+   - Apple Developer Tools (December 2002 or newer edition)
 
    If you don't have the Developer Tools installed, you can grab them at:
 
