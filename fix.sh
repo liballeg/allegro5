@@ -105,19 +105,21 @@ proc_fix()
 
 proc_filelist()
 {
-   AL_FILELIST=`find . -type f "(" \
+   AL_FILELIST_DOS_OK=`find . -type f "(" \
       -name "*.c" -o -name "*.cfg" -o -name "*.cpp" -o -name "*.dep" -o \
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
-      -name "*.m4" -o -name "*.mft" -o -name "*.s" -o -name "*.sh" -o \
+      -name "*.m4" -o -name "*.mft" -o -name "*.s" -o \
       -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
       -name "makefile.*" -o -name "readme.*" \
       ")"`
+
+   AL_FILELIST="$AL_FILELIST_DOS_OK `find . -type f -name '*.sh'`"
 }
 
 proc_utod()
 {
    proc_filelist
-   for file in $AL_FILELIST; do
+   for file in $AL_FILELIST_DOS_OK; do
       echo "$file"
       perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" $file
    done
