@@ -627,7 +627,7 @@ static int grip_link()
 
       s = getenv("GRIP");
       if (s) {
-	 do_uconvert(s, U_ASCII, name, U_CURRENT, sizeof(name) - ucwdith(OTHER_PATH_SEPARATOR));
+	 do_uconvert(s, U_ASCII, name, U_CURRENT, sizeof(name) - ucwidth(OTHER_PATH_SEPARATOR));
 	 put_backslash(name);
 	 ustrncat(name, uconvert_ascii("grip.gll", NULL), sizeof(name) - ustrsizez(name));
       }

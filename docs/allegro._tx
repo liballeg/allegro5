@@ -3281,7 +3281,7 @@ Blitting and sprites
 All these routines are affected by the clipping rectangle of the destination 
 bitmap.
 
-@@void @clear(bitmap);
+@@void @clear(BITMAP *bitmap);
 @xref clear_to_color
    Clears the bitmap to color 0.
 
