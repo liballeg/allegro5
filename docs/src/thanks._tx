@@ -59,8 +59,9 @@ Contributors
    Annie Testes (<email>annie@kezako.net</a>).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE, fixed
    several glitches in the unicode support, added a pack_fdopen() function,
-   caught a misordering in the X system shutdown and found ASCII strings
-   that needed to be converted.
+   caught a misordering in the X system shutdown, found ASCII strings that
+   needed to be converted and lifted several hardcoded length limitations
+   in the configuration routines.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -136,6 +137,9 @@ Contributors
    Charles Bilyue (<email>Esaelon@aol.com</a>).<br>
    Optimized the i386 blitters.
 
+   Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
+   Fixed a bug with 16-bit samples loading.
+
    Chris Graham.<br>
    Suggested to add a new flag for Windows NTFS compressed files.
 
@@ -155,7 +159,8 @@ Contributors
    exlights.
 
    Daniel Schlydler (<email>daniel@dascdev.net</a>).<br>
-   Fixed problems with get_executable_name() under Windows.
+   Fixed problems with get_executable_name() under Windows and a problem
+   with set_window_title() under BeOS.
 
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
@@ -198,8 +203,8 @@ Contributors
    contributed several enhancements to the grabber, fixed menu dimensions in
    the GUI engine, fixed the get_camera_matrix*() functions, added support
    for the CHM and Devhelp documentation formats, fixed a bug in midi_seek(),
-   made load_datafile_object() load the properties attached to the object and
-   did plenty of other things too.
+   made load_datafile_object() load the object properties, made the GUI code
+   scare the mouse more intelligently and did plenty of other things too.
 
    Eric Botcazou (<email>ebotcazou@libertysurf.fr</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -401,6 +406,10 @@ Contributors
    Lennart Rolland (<email>chimeni@hotmail.com</a>).<br>
    Contributed the Norwegian message translation.
 
+   Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
+   Contributed the SGI Audio Library sound driver and spotted a BSDism that
+   IRIX doesn't like at all.
+   
    Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
    Contributed the gfxinfo utility, added two FAQ entries, added a
    xwin_set_window_name() function to the X11 port, added support for
@@ -519,6 +528,9 @@ Contributors
 
    Olly Betts (<email>olly@muscat.co.uk</a>).<br>
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
+
+   Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
+   Added the Catalan translation and corrected the Spanish translation.
 
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.

@@ -7,6 +7,73 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.4 to 4.1.5 (Nov 2002)
+<ul><li>
+   Grzegorz Adam Hankiewicz updated the docs about mailing lists/contacts.
+<li>
+   Grzegorz Adam Hankiewicz added instructions on how to create and submit
+   patches to the Allegro developers.
+<li>
+   Eric Botcazou implemented the support for non-blocking menus.
+<li>
+   Lisa Parratt spotted a BSDism that IRIX doesn't like at all.
+<li>
+   Daniel Schlyder fixed a problem with set_window_title() under BeOS.
+<li>
+   Lisa Parratt contributed the SGI Audio Library sound driver.
+<li>
+   Eric Botcazou completely revamped the close button support.
+<li>
+   Eric Botcazou simplified fullscreen mode initialization under Windows.
+<li>
+   Elias Pschernig and Eric Botcazou made the GUI code scare the mouse, when
+   drawing, only if it is necessary to do so, thus reducing cursor flicker.
+<li>
+   Eric Botcazou fixed a bug in scare_mouse_area().
+<li>
+   Elias Pschernig optimized the load_bitmap() function family when no
+   palette is specified and documented the feature.
+<li>
+   Grzegorz Adam Hankiewicz aliased the stylesheet to the default CSS style,
+   allowing The Big Lizard(tm) and other web browsers to disable CSS.
+<li>
+   Eric Botcazou fixed an ill-behaviour at startup under Windows.
+<li>
+   Elias Pschernig added the Euro character to the default font and to the
+   German and French keyboard configuration files.
+<li>
+   Eric Botcazou made _ustrdup() set *allegro_errno to ENOMEM on failures.
+<li>
+   Annie Testes lifted several hardcoded length limitations in the
+   configuration routines.
+<li>
+   Eric Botcazou prevented set_gfx_mode() from resetting the layout of all
+   color depths.
+<li>
+   Eric Botcazou moved #include directives out of the range of extern "C"
+   directives (fixing the C++ compilation bug with Borland C++).
+<li>
+   Vincent Penquerc'h added the ALLEGRO_NO_COMPATIBILITY symbol and moved
+   all the deprecated stuff from allegro._tx to api._tx .
+<li>
+   Grzegorz Adam Hankiewicz reformatted monospaced text blocks to fit page
+   in Postscript output.
+<li>
+   Oscar Giner added the Catalan translation.
+<li>
+   Oscar Giner corrected the Spanish translation.
+<li>
+   Grzegorz Adam Hankiewicz added a new command to the doc processor for
+   email mangling: me@serv.com -> me at serv dot com. It is applied to all
+   documentation output formats.
+<li>
+   Grzegorz Adam Hankiewicz made all source files use the external CSS.
+<li>
+   Chris Jones fixed a bug with 16-bit samples loading introduced in the
+   previous release.
+</ul>
+
+@heading
 Changes from 4.1.3 to 4.1.4 (Oct 2002)
 <ul><li>
    Eric Botcazou prevented the linker from choking on Solaris because of a
