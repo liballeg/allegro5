@@ -93,6 +93,7 @@ information about how to install Allegro and link your program with it.
 
 @@int @install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)());
 @xref allegro_init, allegro_exit, set_uformat, set_config_file
+@shortdesc Initialise the Allegro library.
    Initialises the Allegro library. You must call either this or 
    allegro_init() before doing anything other than using the Unicode 
    routines. If you want to use a text mode other than UTF-8, you can set
@@ -123,12 +124,14 @@ information about how to install Allegro and link your program with it.
 @@int @allegro_init();
 @xref install_allegro, allegro_exit
 @eref Available Allegro examples
+@shortdesc Macro to initialise the Allegro library.
    Macro which initialises the Allegro library. This is the same thing as
    calling install_allegro(SYSTEM_AUTODETECT, &errno, atexit).
 
 @@void @allegro_exit();
 @xref install_allegro, allegro_init, destroy_bitmap
 @eref ex3d, exscn3d, exswitch, exxfade, exzbuf
+@shortdesc Closes down the Allegro system.
    Closes down the Allegro system. This includes returning the system to
    text mode and removing whatever mouse, keyboard, and timer routines have
    been installed. You don't normally need to bother making an explicit call
@@ -145,6 +148,7 @@ information about how to install Allegro and link your program with it.
 @xref Windows specifics, Unix specifics, MacOS X specifics
 @xref Differences between platforms
 @eref Available Allegro examples
+@shortdesc Macro to put after your main() function.
    In order to maintain cross-platform compatibility, you have to put this
    macro at the very end of your main function. This macro uses some `magic'
    to mangle your main procedure on platforms that need it like Windows,
@@ -161,38 +165,46 @@ information about how to install Allegro and link your program with it.
       END_OF_MAIN()<endblock>
 
 @@extern char @allegro_id[];
+@shortdesc String containing date and version number of Allegro.
    Text string containing a date and version number for the library, in case 
    you want to display these somewhere.
 
 @@extern char @allegro_error[ALLEGRO_ERROR_SIZE];
 @xref set_gfx_mode, install_sound
 @eref Available Allegro examples
+@shortdesc Stores the last Allegro error message.
    Text string used by set_gfx_mode() and install_sound() to report error 
    messages. If they fail and you want to tell the user why, this is the 
    place to look for a description of the problem.
 
 @@#define @ALLEGRO_VERSION
+@shortdesc Defined to the major version of Allegro.
    Defined to the major version of Allegro. From a version number like
    4.1.16, this would be defined to the integer 4.
    
 @@#define @ALLEGRO_SUB_VERSION
+@shortdesc Defined to the middle version of Allegro.
    Defined to the middle version of Allegro. From a version number like
    4.1.16, this would be defined to the integer 1.
    
 @@#define @ALLEGRO_WIP_VERSION
+@shortdesc Defined to the minor version of Allegro.
    Defined to the minor version of Allegro. From a version number like
    4.1.16, this would be defined to the integer 16.
    
 @@#define @ALLEGRO_VERSION_STR
+@shortdesc Defined to a string with the full Allegro version number.
    Defined to a text string containing all version numbers and maybe some
    additional text. This could be `4.1.16 (CVS)' for an Allegro version
    obtained straight from the CVS repository.
    
 @@#define @ALLEGRO_DATE_STR
+@shortdesc Defined to a string with the year Allegro was released.
    Defined to a text string containing the year this version of Allegro was
    released, like `2004'.
    
 @@#define @ALLEGRO_DATE
+@shortdesc Defined to a number with the release date of Allegro.
    Defined to an integer containing the release date of Allegro in the packed
    format `yyyymmdd'. Example:
 <codeblock>
@@ -205,6 +217,7 @@ information about how to install Allegro and link your program with it.
 
 @@extern int @os_type;
 @xref allegro_init, os_version, os_multitasking
+@shortdesc Stores the detected type of the OS.
    Set by allegro_init() to one of the values:
 <textblock>
       OSTYPE_UNKNOWN    - unknown, or regular MSDOS
@@ -234,6 +247,7 @@ information about how to install Allegro and link your program with it.
 @@extern int @os_version;
 @@extern int @os_revision;
 @xref os_type, os_multitasking
+@shortdesc Version of the OS currently running.
    The major and minor version of the Operating System currently running.
    Set by allegro_init(). If Allegro for some reason was not able to
    retrieve the version of the Operating System, os_version and
@@ -243,12 +257,14 @@ information about how to install Allegro and link your program with it.
 @@extern int @os_multitasking;
 @xref os_type, os_version
 @eref exdodgy
+@shortdesc Indicates if the OS is multitasking.
    Set by allegro_init() to either TRUE or FALSE depending on whether your
    Operating System is multitasking or not.
 
 @@void @allegro_message(const char *text_format, ...);
 @xref allegro_init, install_allegro, set_uformat
 @eref Available Allegro examples
+@shortdesc Used mainly to show error messages to users.
    Outputs a message, using a printf() format string. Usually you want to
    use this to report messages to the user in an OS independant way when some
    Allegro subsystem cannot be initialised. But you must not use this function
@@ -274,12 +290,14 @@ information about how to install Allegro and link your program with it.
 @@void @set_window_title(const char *name);
 @xref set_close_button_callback, set_uformat
 @eref exunicod
+@shortdesc Sets the window title of the Allegro program.
    On platforms that are capable of it, this routine alters the window title 
    for your Allegro program. Note that Allegro cannot set the window title 
    when running in a DOS box under Windows.
 
 @@int @set_close_button_callback(void (*proc)(void));
 @xref set_window_title
+@shortdesc Handles the user clicking on the close button of the window.
    On platforms that have a close button, this routine installs a callback 
    function to handle the close event. In other words, when the user clicks 
    the close button on your program's window or any equivalent device, the
@@ -305,6 +323,7 @@ information about how to install Allegro and link your program with it.
 
 @@int @desktop_color_depth();
 @xref get_desktop_resolution, set_color_depth, set_gfx_mode
+@shortdesc Finds out the desktop color depth.
    Finds out the currently selected desktop color depth. You can use this
    information to make your program use the same color depth as the desktop,
    which will likely make it run faster because the graphic driver won't be
@@ -326,6 +345,7 @@ information about how to install Allegro and link your program with it.
 
 @@int @get_desktop_resolution(int *width, int *height);
 @xref desktop_color_depth, set_gfx_mode
+@shortdesc Finds out the desktop resolution.
    Finds out the currently selected desktop resolution. You can use this
    information to avoid creating windows bigger than the current resolution.
    This is especially important for some windowed drivers which are unable
@@ -351,23 +371,27 @@ information about how to install Allegro and link your program with it.
 
 @@void @check_cpu();
 @xref cpu_vendor, cpu_family, cpu_model, cpu_capabilities, allegro_init
+@shortdesc Detects the CPU type.
    Detects the CPU type, setting the following global variables. You don't 
    normally need to call this, because allegro_init() will do it for you.
 
 @@extern char @cpu_vendor[];
 @xref check_cpu, cpu_family, cpu_model, cpu_capabilities, allegro_init
+@shortdesc Contains the CPU vendor name.
    Contains the CPU vendor name, if known (empty string on non-Intel 
    platforms). You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
 @@extern int @cpu_family;
 @xref check_cpu, cpu_vendor, cpu_model, cpu_capabilities, allegro_init
+@shortdesc Contains the Intel CPU type.
    Contains the Intel CPU type, where applicable: 3=386, 4=486, 5=Pentium, 
    6=PPro, etc. You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
 @@extern int @cpu_model;
 @xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities, allegro_init
+@shortdesc Contains the Intel CPU submodel.
    Contains the Intel CPU submodel, where applicable. On a 486 
    (cpu_family=4), zero or one indicates a DX chip, 2 an SX, 3 a 487 (SX) or 
    486 DX, 4 an SL, 5 an SX2, 7 a DX2 write-back enhanced, 8 a DX4 or DX4 
@@ -381,6 +405,7 @@ information about how to install Allegro and link your program with it.
 @@extern int @cpu_capabilities;
 @xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities,
 @xref allegro_init
+@shortdesc Contains the capability flags of the CPU.
    Contains CPU flags indicating what features are available on the current 
    CPU. The flags can be any combination of these:
 <textblock>
@@ -428,6 +453,7 @@ available in past/future versions of Allegro.
 @xref Fixed point math routines
 @eref ex12bit, ex3buf, ex3d, excustom, exfixed, exspline, exsprite
 @eref exstars, exupdate
+@shortdesc Fixed point integer to replace floats.
    This is a fixed point integer which can replace float with similar results
    and is faster than float on low end machines. Read chapter "Fixed point
    math routines" for the full explanation.
@@ -436,6 +462,7 @@ available in past/future versions of Allegro.
 @xref create_bitmap, set_clip_rect, bitmap_color_depth, RLE_SPRITE
 @xref COMPILED_SPRITE, Direct access to video memory
 @eref Available Allegro examples
+@shortdesc Stores the contents of a bitmap.
 <codeblock>
    int w, h;               - size of the bitmap in pixels
    int clip;               - non-zero if clipping is turned on
@@ -462,6 +489,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @RLE_SPRITE
 @xref get_rle_sprite, BITMAP, COMPILED_SPRITE, RLE sprites
+@shortdesc Stores the contents of an RLE sprite.
 <codeblock>
    int w, h;           - width and height in pixels
    int color_depth;    - color depth of the image
@@ -474,6 +502,7 @@ available in past/future versions of Allegro.
    
 @@typedef struct @COMPILED_SPRITE
 @xref get_compiled_sprite, BITMAP, RLE_SPRITE, Compiled sprites
+@shortdesc Stores the contents of a compiled sprite.
 <codeblock>
    short planar;        - set if it's a planar (mode-X) sprite
    short color_depth;   - color depth of the image
@@ -486,6 +515,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @JOYSTICK_INFO
 @xref joy, Joystick routines
+@shortdesc Stores information about joysticks.
 <codeblock>
    int flags;                       - status flags for this
 				      joystick
@@ -499,6 +529,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @JOYSTICK_BUTTON_INFO
 @xref joy, Joystick routines
+@shortdesc Stores joystick button information.
 <codeblock>
    int b;                           - boolean on/off flag
    char *name;                      - description of this
@@ -509,6 +540,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @JOYSTICK_STICK_INFO
 @xref joy, Joystick routines
+@shortdesc Stores joystick stick information.
 <codeblock>
    int flags;                       - status flags for this
 				      input
@@ -523,6 +555,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @JOYSTIC_AXIS_INFO
 @xref joy, Joystick routines
+@shortdesc Stores joystick axis information.
 <codeblock>
    int pos;                         - analogue axis position
    int d1, d2;                      - digital axis position
@@ -533,6 +566,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @GFX_MODE_LIST
 @xref GFX_MODE, get_gfx_mode_list
+@shortdesc Stores an array of GFX_MODE structures.
 <codeblock>
    int num_modes;
    GFX_MODE *mode;
@@ -542,6 +576,7 @@ available in past/future versions of Allegro.
 
 @@typedef struct @GFX_MODE
 @xref GFX_MODE_LIST, get_gfx_mode_list
+@shortdesc Stores video mode information.
 <codeblock>
    int width, height, bpp;
 <endblock>
@@ -550,12 +585,14 @@ available in past/future versions of Allegro.
 @@typedef RGB @PALETTE[PAL_SIZE]
 @xref RGB, Palette routines
 @eref Available Allegro examples
+@shortdesc Stores palette information.
    Allegro palettes are arrays of PAL_SIZE RGB entries.
 
 @@typedef struct @RGB
 @xref Palette routines, PALETTE
 @eref ex12bit, ex3d, excolmap, exconfig, expal, exrgbhsv, exscroll
 @eref exshade, extrans, extruec
+@shortdesc Single palette entry.
 <codeblock>
    unsigned char r, g, b;
 <endblock>
@@ -566,6 +603,7 @@ available in past/future versions of Allegro.
 @@typedef struct @V3D
 @xref V3D_f, polygon3d, Fixed point trig
 @eref ex3d
+@shortdesc Fixed point vertex structure used by 3d functions.
 <codeblock>
    fixed x, y, z;       - position
    fixed u, v;          - texture map coordinates
@@ -578,6 +616,7 @@ available in past/future versions of Allegro.
 @@typedef struct @V3D_f
 @xref V3D, polygon3d, Fixed point trig
 @eref excamera, exscn3d, exzbuf
+@shortdesc Floating point vertex structure used by 3d functions.
 <codeblock>
    float x, y, z;       - position
    float u, v;          - texture map coordinates
@@ -588,6 +627,7 @@ available in past/future versions of Allegro.
 @@typedef struct @COLOR_MAP
 @xref 256-color transparency, color_map
 @eref ex3d, excolmap, exlights, exshade, extrans
+@shortdesc Stores a color map to accelerate drawing.
 <codeblock>
    unsigned char data[PAL_SIZE][PAL_SIZE];
 <endblock>
@@ -597,6 +637,7 @@ available in past/future versions of Allegro.
 @@typedef struct @RGB_MAP
 @xref Converting between color formats, create_rgb_table
 @eref ex3d, excolmap, exrgbhsv, exshade, extrans
+@shortdesc Stores an rgb map to accelerate conversions.
 <codeblock>
    unsigned char data[32][32][32];
 <endblock>
@@ -605,6 +646,7 @@ available in past/future versions of Allegro.
 
 @@struct @al_ffblk
 @xref al_findfirst
+@shortdesc Cross platform structure storing file information.
 <codeblock>
    int attrib;       - actual attributes of the file found
    time_t time;      - modification time of file
@@ -617,6 +659,7 @@ available in past/future versions of Allegro.
 @@typedef struct @DATAFILE
 @xref load_datafile, Using datafiles
 @eref excustom, exdata, exexedat, exgui, exsprite, exunicod
+@shortdesc Stores an Allegro datafile in memory.
 <codeblock>
    void *dat;     - pointer to the actual data
    int type;      - type of the data
@@ -629,6 +672,7 @@ available in past/future versions of Allegro.
 @@typedef struct @MATRIX
 @xref MATRIX_f, 3D math routines
 @eref ex12bit, ex3d, exstars
+@shortdesc Fixed point matrix structure.
 <codeblock>
    fixed v[3][3];           - 3x3 scaling and rotation component
    fixed t[3];              - x/y/z translation component
@@ -639,6 +683,7 @@ available in past/future versions of Allegro.
 @@typedef struct @MATRIX_f
 @xref MATRIX, 3D math routines
 @eref excamera, exquat, exscn3d, exzbuf
+@shortdesc Floating point matrix structure.
 <codeblock>
    float v[3][3];           - 3x3 scaling and rotation component
    float t[3];              - x/y/z translation component
@@ -649,6 +694,7 @@ available in past/future versions of Allegro.
 @@typedef struct @QUAT
 @xref Quaternion math routines
 @eref exquat
+@shortdesc Stores quaternion information.
 <codeblock>
    float w, x, y, z;
 <endblock>
@@ -658,6 +704,7 @@ available in past/future versions of Allegro.
 @@typedef struct @DIALOG
 @xref do_dialog, GUI routines
 @eref excustom, exgui, exrgbhsv
+@shortdesc Stores a GUI description.
 <codeblock>
    int (*proc)(int, DIALOG *, int); - dialog procedure
 				      (message handler)
@@ -674,6 +721,7 @@ available in past/future versions of Allegro.
 @@typedef struct @MENU
 @xref do_menu, GUI menus
 @eref exgui
+@shortdesc Stores the entries of a menu.
 <codeblock>
    char *text;          - the text to display for the menu item
    int (*proc)(void);   - called when the menu item is clicked
@@ -686,12 +734,14 @@ available in past/future versions of Allegro.
 
 @@typedef struct @DIALOG_PLAYER
 @xref init_dialog, update_dialog, shutdown_dialog, GUI routines
+@shortdesc Stores GUI data internally used by Allegro.
    A structure which holds GUI data used internally by Allegro. Read the
    documentation of init_dialog() for a description on how to obtain/use this
    structure.
 
 @@typedef struct @MENU_PLAYER
 @xref init_menu, update_menu, shutdown_menu, GUI menus
+@shortdesc Stores GUI data internally used by Allegro.
    A structure which holds GUI data used internally by Allegro. Read the
    documentation of init_menu() for a description on how to obtain/use this
    structure.
@@ -699,12 +749,14 @@ available in past/future versions of Allegro.
 @@typedef struct @FONT
 @xref font
 @eref excustom, exunicod
+@shortdesc Stores an Allegro font.
    A structure holding an Allegro font, usually created beforehand with the
    grabber tool or Allegro's default font.
 
 @@typedef struct BITMAP @ZBUFFER
 @xref Zbuffered rendering, BITMAP
 @eref exzbuf
+@shortdesc Stores 3d zbuffer information.
    Structure used by Allegro's 3d zbuffered rendering functions. You are not
    supposed to mix ZBUFFER with BITMAP even though it is currently possible
    to do so. This is just an internal representation, and it may change in
@@ -713,6 +765,7 @@ available in past/future versions of Allegro.
 @@typedef struct @SAMPLE
 @xref load_sample, Digital sample routines
 @eref exsample
+@shortdesc Stores sound data.
 <codeblock>
    int bits;                   - 8 or 16
    int stereo;                 - sample type flag
@@ -728,17 +781,20 @@ available in past/future versions of Allegro.
 @@typedef struct @MIDI
 @xref load_midi, Music routines (MIDI)
 @eref exdodgy, exmidi
+@shortdesc Stores MIDI data.
    A structure holding MIDI data. Read chapter "Music routines (MIDI)" for a
    description on how to obtain/use this structure.
 
 @@typedef struct @AUDIOSTREAM
 @xref play_audio_stream, Audio stream routines
 @eref exstream
+@shortdesc Stores an audiostream.
    A structure holding an audiostream. Read chapter "Audio stream routines"
    for a description on how to obtain/use this structure.
 
 @@typedef struct @PACKFILE
 @xref File and compression routines, pack_fopen, pack_fopen_chunk
+@shortdesc Packfile structure, similar to a stdio.h FILE structure.
 <codeblock>
    int hndl;                   - System file handle
    int flags;                  - PACKFILE_FLAG_* constants
@@ -804,6 +860,7 @@ is best to set it with set_uformat() just before you call these.
 @xref ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth, uisok, uoffset
 @xref ugetat, usetat, uinsert, uremove, allegro_init
 @eref exunicod
+@shortdesc Set the global current text encoding format.
    Sets the current text encoding format. This will affect all parts of 
    Allegro, wherever you see a function that returns a char *, or takes a 
    char * as a parameter. `type' should be one of these values:
@@ -823,6 +880,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @get_uformat(void);
 @xref set_uformat
+@shortdesc Finds out what text encoding format is currently selected.
    Finds out what text encoding format is currently selected. This function
    is probably useful only if you are writing an Allegro addon dealing with
    text strings and you use a different codepath for each possible format.
@@ -849,6 +907,7 @@ is best to set it with set_uformat() just before you call these.
 @\                      int (*u_cwidth)(int c),
 @@                      int (*u_isok)(int c));
 @xref set_uformat, uconvert, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+@shortdesc Installs handler functions for a new text encoding format.
    Installs a set of custom handler functions for a new text encoding 
    format. The `type' is the ID code for your new format, which should be a
    4-character string as produced by the AL_ID() macro, and which can later 
@@ -859,6 +918,7 @@ is best to set it with set_uformat() just before you call these.
 @\void @set_ucodepage(const unsigned short *table,
 @@                   const unsigned short *extras);
 @xref set_uformat
+@shortdesc Sets 8-bit to Unicode conversion tables.
    When you select the U_ASCII_CP encoding mode, a set of tables are used to 
    convert between 8-bit characters and their Unicode equivalents. You can 
    use this function to specify a custom set of mapping tables, which allows 
@@ -874,6 +934,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @need_uconvert(const char *s, int type, int newtype);
 @xref set_uformat, get_uformat, do_uconvert, uconvert
+@shortdesc Tells if a string requires encoding conversion.
    Given a pointer to a string (`s'), a description of the type of the string
    (`type'), and the type that you would like this string to be converted into
    (`newtype'), this function tells you whether any conversion is required. No
@@ -891,6 +952,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uconvert_size(const char *s, int type, int newtype);
 @xref need_uconvert, do_uconvert
+@shortdesc Number of bytes needed to store a string after conversion.
    Finds out how many bytes are required to store the specified string `s'
    after a conversion from `type' to `newtype', including the mandatory zero
    terminator of the string. You can use U_CURRENT for either `type' or
@@ -906,6 +968,7 @@ is best to set it with set_uformat() just before you call these.
 @\void @do_uconvert(const char *s, int type,
 @@                 char *buf, int newtype, int size);
 @xref uconvert
+@shortdesc Converts a string to another encoding format.
    Converts the specified string `s' from `type' to `newtype', storing at most
    `size' bytes into the output `buf'. The type parameters can use the value
    U_CURRENT as a shortcut to represent the currently selected encoding 
@@ -924,6 +987,7 @@ is best to set it with set_uformat() just before you call these.
 @@               char *buf, int newtype, int size);
 @xref set_uformat, need_uconvert, uconvert, uconvert_ascii, uconvert_toascii
 @xref do_uconvert
+@shortdesc Hih level string encoding conversion wrapper.
    Higher level function running on top of do_uconvert(). This function 
    converts the specified string `s' from `type' to `newtype', storing at most
    `size' bytes into the output `buf' (including the terminating null
@@ -950,15 +1014,18 @@ is best to set it with set_uformat() just before you call these.
 @@char *@uconvert_ascii(const char *s, char buf[]);
 @xref uconvert
 @eref exunicod
+@shortdesc Converts string from ASCII into the current format.
    Helper macro for converting strings from ASCII into the current encoding 
    format. Expands to uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf)).
 
 @@char *@uconvert_toascii(const char *s, char buf[]);
 @xref uconvert
+@shortdesc Converts strings from the current format into ASCII.
    Helper macro for converting strings from the current encoding format into 
    ASCII. Expands to uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf)).
 
 @@extern char @empty_string[];
+@shortdesc Universal string NULL terminator.
    You can't just rely on "" to be a valid empty string in any encoding 
    format. This global buffer contains a number of consecutive zeros, so it 
    will be a valid empty string no matter whether the program is running in 
@@ -966,6 +1033,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ugetc(const char *s);
 @xref ugetx, usetc, uwidth, ucwidth, uisok
+@shortdesc Low level helper function for reading Unicode text data.
    Low level helper function for reading Unicode text data. Example:
 <codeblock>
       int first_unicode_letter = ugetc(text_string);<endblock>
@@ -975,6 +1043,7 @@ is best to set it with set_uformat() just before you call these.
 @@int @ugetx(char **s);
 @@int @ugetxc(const char **s);
 @xref ugetc, usetc, uwidth, ucwidth, uisok
+@shortdesc Low level helper function for reading Unicode text data.
    Low level helper function for reading Unicode text data. ugetxc is provided
    for working with pointer-to-pointer-to-const char data. Example:
 <codeblock>
@@ -989,6 +1058,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @usetc(char *s, int c);
 @xref ugetc, ugetx, uwidth, ucwidth, uisok
+@shortdesc Low level helper function for writing Unicode text data.
    Low level helper function for writing Unicode text data. Writes the
    character `c' to the address pointed to by `s'.
 @retval
@@ -997,6 +1067,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uwidth(const char *s);
 @xref uwidth_max, ugetc, ugetx, usetc, ucwidth, uisok
+@shortdesc Low level helper function for writing Unicode text data.
    Low level helper function for testing Unicode text data.
 @retval
    Returns the number of bytes occupied by the first character of the
@@ -1004,6 +1075,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ucwidth(int c);
 @xref uwidth_max, ugetc, ugetx, usetc, uwidth, uisok
+@shortdesc Low level helper function for testing Unicode text data.
    Low level helper function for testing Unicode text data.
 @retval
    Returns the number of bytes that would be occupied by the specified
@@ -1011,6 +1083,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uisok(int c);
 @xref ugetc, ugetx, usetc, uwidth, ucwidth
+@shortdesc Low level helper function for testing Unicode text data.
    Low level helper function for testing Unicode text data. Finds out if the
    character value `c' can be encoded correctly in the current format, which
    can be useful if you are converting from Unicode to ASCII or another
@@ -1020,6 +1093,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uoffset(const char *s, int index);
 @xref ugetat, usetat, uinsert, uremove
+@shortdesc Finds the offset of a character in a string.
    Finds out the offset (in bytes from the start of the string) of the
    character at the specified `index' in the string `s'. A zero `index'
    parameter will return the first character of the string. If `index' is
@@ -1032,6 +1106,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ugetat(const char *s, int index);
 @xref uoffset, usetat, uinsert, uremove
+@shortdesc Finds out the value of a character in a string.
    Finds out the character value at the specified `index' in the string. A
    zero `index' parameter will return the first character of the string. If
    `index' is negative, it counts backward from the end of the string, so an
@@ -1043,6 +1118,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @usetat(char *s, int index, int c);
 @xref uoffset, ugetat, uinsert, uremove
+@shortdesc Replaces a character in a string.
    Replaces the character at the specified index in the string with value `c',
    handling any adjustments for variable width data (ie. if `c' encodes to a
    different width than the previous value at that location). If `index' is
@@ -1056,6 +1132,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uinsert(char *s, int index, int c);
 @xref uoffset, ugetat, usetat, uremove
+@shortdesc Inserts a character in a string.
    Inserts the character `c' at the specified `index' in the string, sliding
    the rest of the data along to make room. If `index' is negative, it counts
    backward from the end of the string. Example:
@@ -1067,6 +1144,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uremove(char *s, int index);
 @xref uoffset, ugetat, usetat, uinsert
+@shortdesc Removes a character from a string.
    Removes the character at the specified `index' within the string, sliding
    the rest of the data back to fill the gap. If `index' is negative, it
    counts backward from the end of the string. Example:
@@ -1081,17 +1159,20 @@ is best to set it with set_uformat() just before you call these.
 @@int @ustrsize(const char *s);
 @xref ustrsizez, empty_string
 @eref exunicod
+@shortdesc Size of the string in bytes without null terminator.
    Returns the size of the specified string in bytes, not including the 
    trailing null character.
 
 @@int @ustrsizez(const char *s);
 @xref ustrsize, empty_string
 @eref exunicod
+@shortdesc Size of the string in bytes including null terminator.
    Returns the size of the specified string in bytes, including the trailing 
    null character.
 
 @@int @uwidth_max(int type);
 @xref uwidth, ucwidth
+@shortdesc Number of bytes a character can occupy.
    Low level helper function for working with Unicode text data. Returns the 
    largest number of bytes that one character can occupy in the given 
    encoding format. Pass U_CURRENT to represent the current format. Example:
@@ -1100,14 +1181,17 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @utolower(int c);
 @xref utoupper, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+@shortdesc Converts a letter to lower case.
    This function returns `c', converting it to lower case if it is upper case.
 
 @@int @utoupper(int c);
 @xref utolower, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+@shortdesc Converts a letter to upper case.
    This function returns `c', converting it to upper case if it is lower case.
 
 @@int @uisspace(int c);
 @xref uisdigit, ugetc, usetc, uwidth, ucwidth, uisok
+@shortdesc Tells if a character is whitespace.
    Returns nonzero if `c' is whitespace, that is, carriage return, newline,
    form feed, tab, vertical tab, or space. Example:
 <codeblock>
@@ -1118,6 +1202,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uisdigit(int c);
 @xref uisspace, ugetc, usetc, uwidth, ucwidth, uisok
+@shortdesc Tells if a character is a digit.
    Returns nonzero if `c' is a digit.
 <codeblock>
       for (counter = 0; counter &lt ustrlen(text_string); counter++) {
@@ -1128,6 +1213,7 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrdup(const char *src)
 @xref _ustrdup, uconvert, ustrsize, ustrsizez
 @eref exconfig
+@shortdesc Duplicates a string.
    This functions copies the null-terminated string `src' into a newly
    allocated area of memory, effectively duplicating it. Example:
 <codeblock>
@@ -1142,12 +1228,14 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@_ustrdup(const char *src, void* (*malloc_func) (size_t))
 @xref ustrdup, uconvert, ustrsize, ustrsizez
+@shortdesc Duplicates a string with a custom memory allocator.
    Does the same as ustrdup(), but allows the user to specify a custom memory
    allocator function.
 
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrzcpy, ustrncpy
 @eref exdodgy, exunicod
+@shortdesc Copies a string into another one.
    This function copies `src' (including the terminating null character into
    `dest'. You should try to avoid this function because it is very easy to
    overflow the destination buffer. Use ustrzcpy instead.
@@ -1157,6 +1245,7 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrzcpy(char *dest, int size, const char *src);
 @xref uconvert, ustrcpy, ustrzncpy
 @eref ex3buf, exgui
+@shortdesc Copies a string into another one, specifying size.
    This function copies `src' (including the terminating NULL character into
    `dest', whose length in bytes is specified by `size' and which is
    guaranteed to be null-terminated even if `src' is bigger than `size'.
@@ -1172,6 +1261,7 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrcat(char *dest, const char *src);
 @xref uconvert, ustrzcat, ustrncat
 @eref exdodgy, exunicod
+@shortdesc Concatenates a string to another one.
    This function concatenates `src' to the end of `dest`'. You should try to
    avoid this function because it is very easy to overflow the destination
    buffer, use ustrzcat instead.
@@ -1181,6 +1271,7 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrzcat(char *dest, int size, const char *src);
 @xref uconvert, ustrcat, ustrzncat
 @eref exgui
+@shortdesc Concatenates a string to another one, specifying size.
    This function concatenates `src' to the end of `dest', whose length in
    bytes is specified by `size' and which is guaranteed to be null-terminated
    even when `src' is bigger than `size'.
@@ -1195,11 +1286,13 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ustrlen(const char *s);
 @xref uconvert, ustrsize, ustrsizez
+@shortdesc Tells the number of characters in a string.
    This function returns the number of characters in `s'. Note that this
    doesn't have to equal the string's size in bytes.
 
 @@int @ustrcmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrncmp, ustricmp, ustrnicmp
+@shortdesc Compares two strings.
    This function compares `s1' and `s2'.
 @retval
    Returns zero if the strings are equal, a positive number if `s1' comes
@@ -1207,6 +1300,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
 @xref uconvert, ustrcpy, ustrzncpy
+@shortdesc Copies a string into another one, specifying size.
    This function is like ustrcpy() except that no more than `n' characters
    from `src' are copied into `dest'. If `src' is shorter than `n' characters,
    null characters are appended to `dest' as padding until `n' characters have
@@ -1219,6 +1313,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzncpy(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcpy, ustrncpy
+@shortdesc Copies a string into another one, specifying size.
    This function is like ustrzcpy() except that no more than `n' characters
    from `src' are copied into `dest'. If `src' is shorter than `n' characters,
    null characters are appended to `dest' as padding until `n' characters have
@@ -1234,6 +1329,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
 @xref uconvert, ustrcat, ustrzncat
+@shortdesc Concatenates a string to another one, specifying size.
    This function is like ustrcat() except that no more than `n' characters
    from `src' are appended to the end of `dest'. If the terminating null
    character in `src' is reached before `n' characters have been written, the
@@ -1247,6 +1343,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzncat(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcat, ustrncat
+@shortdesc Concatenates a string to another one, specifying size.
    This function is like ustrzcat() except that no more than `n' characters
    from `src' are appended to the end of `dest'. If the terminating null
    character in `src' is reached before `n' characters have been written, the
@@ -1257,6 +1354,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp, ustrnicmp
+@shortdesc Compares up to n letters of two strings.
    This function compares up to `n' characters of `s1' and `s2'. Example:
 <codeblock>
       if (ustrncmp(prefix, long_string, ustrlen(prefix)) == 0) {
@@ -1269,6 +1367,7 @@ is best to set it with set_uformat() just before you call these.
 @@int @ustricmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrnicmp, ustrcmp, ustrncmp
 @eref exconfig
+@shortdesc Compares two strings ignoring case.
    This function compares `s1' and `s2', ignoring case. Example:
 <codeblock>
       if (ustricmp(string, user_input) == 0) {
@@ -1280,6 +1379,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ustrnicmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustricmp, ustrcmp, ustrncmp
+@shortdesc Compares up to n letters of two strings ignoring case.
    This function compares up to `n' characters of `s1' and `s2', ignoring
    case. Example:
 <codeblock>
@@ -1292,6 +1392,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrlwr(char *s);
 @xref uconvert, utolower, ustrupr
+@shortdesc Replaces all letters with lower case.
    This function replaces all upper case letters in `s' with lower case
    letters. Example:
 <codeblock>
@@ -1302,6 +1403,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrupr(char *s);
 @xref uconvert, utolower, ustrlwr
+@shortdesc Replaces all letters with upper case.
    This function replaces all lower case letters in `s' with upper case
    letters. Example:
 <codeblock>
@@ -1312,6 +1414,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrchr(const char *s, int c);
 @xref uconvert, ustrrchr, ustrstr, ustrpbrk, ustrtok
+@shortdesc Finds the first occurrence of a character in a string.
    Finds the first occurrence of the character `c' in the string `s'. Example:
 <codeblock>
       char *p = ustrchr("one,two,three,four", ',');<endblock>
@@ -1322,6 +1425,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrrchr(const char *s, int c);
 @xref uconvert, ustrchr, ustrstr, ustrpbrk, ustrtok
+@shortdesc Finds the last occurence of a character in a string.
    Finds the last occurrence of the character `c' in the string `s'. Example:
 <codeblock>
       char *p = ustrrchr("one,two,three,four", ',');<endblock>
@@ -1331,6 +1435,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrstr(const char *s1, const char *s2);
 @xref uconvert, ustrchr, ustrrchr, ustrpbrk, ustrtok
+@shortdesc Finds the first occurence of a string in another one.
    This function finds the first occurence of string `s2' in string `s1'.
    Example:
 <codeblock>
@@ -1340,6 +1445,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrpbrk(const char *s, const char *set);
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrtok
+@shortdesc Finds the first character that matches any in a set.
    This function finds the first character in `s' that matches any character
    in `set'. Example:
 <codeblock>
@@ -1351,6 +1457,7 @@ is best to set it with set_uformat() just before you call these.
 @xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk, ustrtok_r
 @xref allegro_message, ustrncpy
 @eref exgui
+@shortdesc Retrieves tokens from a string.
    This function retrieves tokens from `s' which are delimited by characters
    from `set'. To initiate the search, pass the string to be searched as `s'.
    For the remaining tokens, pass NULL instead. Warning: Since ustrtok alters
@@ -1372,6 +1479,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrtok_r(char *s, const char *set, char **last);
 @xref ustrtok
+@shortdesc Reentrant function to retrieve tokens from a string.
    Reentrant version of ustrtok. The `last' parameter is used to keep track
    of where the parsing is up to and must be a pointer to a char * variable
    allocated by the user that remains the same while parsing the same
@@ -1392,6 +1500,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@double @uatof(const char *s);
 @xref uconvert, ustrtol, ustrtod
+@shortdesc Converts a string into a double.
    Convert as much of the string as possible to an equivalent double
    precision real number. This function is almost like `ustrtod(s, NULL)'.
 @retval
@@ -1400,6 +1509,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@long @ustrtol(const char *s, char **endp, int base);
 @xref uconvert, ustrtod, uatof
+@shortdesc Converts a string into an integer.
    This function converts the initial part of `s' to a signed integer, setting
    `*endp' to point to the first unused character, if `endp' is not a NULL
    pointer. The `base' argument indicates what base the digits (or letters)
@@ -1416,6 +1526,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@double @ustrtod(const char *s, char **endp);
 @xref uconvert, ustrtol, uatof
+@shortdesc Converts a string into a floating point number.
    This function converts as many characters of `s' that look like a floating
    point number into one, and sets `*endp' to point to the first unused
    character, if `endp' is not a NULL pointer. Example:
@@ -1428,6 +1539,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@const char *@ustrerror(int err);
 @xref uconvert, allegro_error
+@shortdesc Returns a string describing errno.
    This function returns a string that describes the error code `err', which
    normally comes from the variable `errno'. Example:
 <codeblock>
@@ -1442,6 +1554,7 @@ is best to set it with set_uformat() just before you call these.
 @@int @usprintf(char *buf, const char *format, ...);
 @xref uconvert, uszprintf, uvsprintf
 @eref exkeys
+@shortdesc Writes formatted data into a buffer.
    This function writes formatted data into the output buffer. A NULL
    character is written to mark the end of the string. You should try to avoid
    this function because it is very easy to overflow the destination buffer.
@@ -1453,6 +1566,7 @@ is best to set it with set_uformat() just before you call these.
 @@int @uszprintf(char *buf, int size, const char *format, ...);
 @xref uconvert, usprintf, uvszprintf
 @eref exgui
+@shortdesc Writes formatted data into a buffer, specifying size.
    This function writes formatted data into the output buffer, whose length
    in bytes is specified by `size' and which is guaranteed to be NULL
    terminated. Example:
@@ -1468,6 +1582,7 @@ is best to set it with set_uformat() just before you call these.
    
 @@int @uvsprintf(char *buf, const char *format, va_list args);
 @xref uconvert, usprintf, uvszprintf
+@shortdesc Writes formatted data into a buffer, using variable arguments.
    This is like usprintf(), but you pass the variable argument list directly,
    instead of the arguments themselves. You can use this function to implement
    printf like functions, also called variadic functions. You should try to
@@ -1479,6 +1594,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uvszprintf(char *buf, int size, const char *format, va_list args);
 @xref uconvert, uszprintf, uvsprintf
+@shortdesc Writes formatted data into a buffer, using size and variable arguments.
    This is like uszprintf(), but you pass the variable argument list
    directly, instead of the arguments themselves. Example:
 <codeblock>
@@ -1548,6 +1664,7 @@ your game.
 @xref set_config_data, override_config_file, push_config_state, set_uformat
 @xref Standard config variables, set_config_string, get_config_string
 @eref exconfig
+@shortdesc Sets the configuration file.
    Sets the configuration file to be used by all subsequent config 
    functions. If you don't call this function, Allegro will use the default 
    `allegro.cfg' file, looking first in the same directory as your program
@@ -1564,6 +1681,7 @@ your game.
 @@void @set_config_data(const char *data, int length);
 @xref set_config_file, override_config_data, push_config_state
 @xref Standard config variables, set_config_string, get_config_string
+@shortdesc Sets a block of configuration data.
    Specifies a block of data to be used by all subsequent config functions, 
    which you have already loaded from disk (eg. as part of some more 
    complicated format of your own, or in a grabber datafile). This routine 
@@ -1572,6 +1690,7 @@ your game.
 
 @@void @override_config_file(const char *filename);
 @xref override_config_data, set_config_file
+@shortdesc Specifies a file containing config overrides.
    Specifies a file containing config overrides. These settings will be used 
    in addition to the parameters in the main config file, and where a 
    variable is present in both files this version will take priority. This 
@@ -1614,6 +1733,7 @@ your game.
 
 @@void @override_config_data(const char *data, int length);
 @xref override_config_file, set_config_data
+@shortdesc Specifies a block of data containing config overrides.
    Version of override_config_file() which uses a block of data that has 
    already been read into memory. The length of the block has to be specified
    in bytes. Example:
@@ -1630,6 +1750,7 @@ your game.
 @@void @push_config_state();
 @xref pop_config_state, set_config_file, save_joystick_data
 @eref exconfig
+@shortdesc Pushes the current configuration state.
    Pushes the current configuration state (filename, variable values, etc). 
    onto an internal stack, allowing you to select some other config source 
    and later restore the current settings by calling pop_config_state(). 
@@ -1641,16 +1762,19 @@ your game.
 @@void @pop_config_state();
 @xref push_config_state
 @eref exconfig
+@shortdesc Pops a previously pushed configuration state.
    Pops a configuration state previously stored by push_config_state(), 
    replacing the current config source with it.
 
 @@void @flush_config_file();
 @xref set_config_file, override_config_file, push_config_state
+@shortdesc Flushes the current config file to disk.
    Writes the current config file to disk if the contents have changed 
    since it was loaded or since the latest call to the function.
 
 @@void @reload_config_texts(const char *new_language);
 @xref get_config_text, get_config_string, Standard config variables
+@shortdesc Reloads translated strings returned by get_config_text().
    Reloads the translated strings returned by get_config_text(). This is
    useful to switch to another language in your program at runtime. If you
    want to modify the `[system]' language configuration variable yourself, or
@@ -1670,6 +1794,7 @@ your game.
 @\       const char *(*stringgetter)(const char *name, const char *def),
 @@       void (*stringsetter)(const char *name, const char *value));
 @xref config_is_hooked
+@shortdesc Hooks a configuration file section with custom handlers.
    Takes control of the specified config file section, so that your hook 
    functions will be used to manipulate it instead of the normal disk file 
    access. If both the getter and setter functions are NULL, a currently 
@@ -1704,6 +1829,7 @@ your game.
 
 @@int @config_is_hooked(const char *section);
 @xref hook_config_section
+@shortdesc Tells if a config section has custom hooks.
    Returns TRUE if the specified config section has been hooked. Example:
 <codeblock>
       if (config_is_hooked("high_scores")) {
@@ -1714,6 +1840,7 @@ your game.
 @@                              const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
 @xref get_config_hex, get_config_int, get_config_id
+@shortdesc Retrieves a string from the configuration file.
    Retrieves a string variable from the current config file. The section name
    may be set to NULL to read variables from the root of the file, or used to
    control which set of parameters (eg. sound or joystick) you are interested
@@ -1730,24 +1857,28 @@ your game.
 @xref set_config_file, set_config_int, get_config_string, get_config_argv
 @xref get_config_float, get_config_hex, get_config_id
 @eref exconfig
+@shortdesc Retrieves an integer from the configuration file.
    Reads an integer variable from the current config file. See the comments 
    about get_config_string().
 
 @@int @get_config_hex(const char *section, const char *name, int def);
 @xref set_config_file, set_config_hex, get_config_string, get_config_argv
 @xref get_config_float, get_config_int, get_config_id
+@shortdesc Retrieves a hexadecimal value from the configuration file.
    Reads an integer variable from the current config file, in hexadecimal 
    format. See the comments about get_config_string().
 
 @@float @get_config_float(const char *section, const char *name, float def);
 @xref set_config_file, set_config_float, get_config_string, get_config_argv
 @xref get_config_hex, get_config_int, get_config_id
+@shortdesc Retrieves a float from the configuration file.
    Reads a floating point variable from the current config file. See the 
    comments about get_config_string().
 
 @@int @get_config_id(const char *section, const char *name, int def);
 @xref set_config_file, set_config_id, get_config_string, get_config_argv
 @xref get_config_float, get_config_hex, get_config_int
+@shortdesc Retrieves a driver ID from a configuration file.
    Reads a 4-letter driver ID variable from the current config file. See the 
    comments about get_config_string().
 
@@ -1755,6 +1886,7 @@ your game.
 @xref set_config_file, get_config_string, get_config_float, get_config_hex
 @xref get_config_int, get_config_id
 @eref exconfig
+@shortdesc Reads a token list from the configuration file.
    Reads a token list (words separated by spaces) from the current config
    file. The token list is stored in a temporary buffer that will be clobbered
    by the next call to get_config_argv(), so the data should not be expected
@@ -1766,6 +1898,7 @@ your game.
 
 @@const char *@get_config_text(const char *msg);
 @xref get_config_string, reload_config_texts, Standard config variables
+@shortdesc Returns a string translated to the current language.
    This function is primarily intended for use by internal library code, but 
    it may perhaps be helpful to application programmers as well. It uses the 
    `language.dat' or `XXtext.cfg' files (where XX is a language code) to look 
@@ -1788,6 +1921,7 @@ your game.
 @@                       const char *val);
 @xref set_config_file, get_config_string, set_config_float, set_config_hex
 @xref set_config_int, set_config_id
+@shortdesc Writes a string in the configuration file.
    Writes a string variable to the current config file, replacing any 
    existing value it may have, or removes the variable if `val' is NULL. The
    section name may be set to NULL to write the variable to the root of the 
@@ -1806,24 +1940,28 @@ your game.
 @@void @set_config_int(const char *section, const char *name, int val);
 @xref set_config_file, get_config_int, set_config_string, set_config_float
 @xref set_config_hex, set_config_id
+@shortdesc Writes an integer in the configuration file.
    Writes an integer variable to the current config file. See the comments 
    about set_config_string().
 
 @@void @set_config_hex(const char *section, const char *name, int val);
 @xref set_config_file, get_config_hex, set_config_string, set_config_float
 @xref set_config_int, set_config_id
+@shortdesc Writes a hexadecimal integer in the configuration file.
    Writes an integer variable to the current config file, in hexadecimal 
    format. See the comments about set_config_string().
 
 @@void @set_config_float(const char *section, const char *name, float val);
 @xref set_config_file, get_config_float, set_config_string, set_config_hex
 @xref set_config_int, set_config_id
+@shortdesc Writes a float in the configuration file.
    Writes a floating point variable to the current config file. See the 
    comments about set_config_string().
 
 @@void @set_config_id(const char *section, const char *name, int val);
 @xref set_config_file, get_config_id, set_config_string, set_config_float
 @xref set_config_hex, set_config_int
+@shortdesc Writes a driver ID in the configuration file.
    Writes a 4-letter driver ID variable to the current config file. See the 
    comments about set_config_string().
 
@@ -2251,6 +2389,7 @@ information for more details.
 @xref position_mouse, set_mouse_range, set_mouse_speed
 @xref Standard config variables
 @eref Available Allegro examples
+@shortdesc Installs the Allegro mouse handler.
    Installs the Allegro mouse handler. You must do this before using any 
    other mouse functions. 
 @retval
@@ -2270,12 +2409,14 @@ information for more details.
 
 @@void @remove_mouse();
 @xref install_mouse, allegro_exit
+@shortdesc Removes the mouse handler.
    Removes the mouse handler. You don't normally need to bother calling 
    this, because allegro_exit() will do it for you.
 
 @@int @poll_mouse();
 @xref mouse_needs_poll, install_mouse, mouse_x
 @eref exlights, exmouse, exshade, exspline, extrans
+@shortdesc Polls the mouse.
    Wherever possible, Allegro will read the mouse input asynchronously (ie. 
    from inside an interrupt handler), but on some platforms that may not be 
    possible, in which case you must call this routine at regular intervals 
@@ -2291,10 +2432,12 @@ information for more details.
 
 @@int @mouse_needs_poll();
 @xref poll_mouse, install_mouse, mouse_x
+@shortdesc Tells if the mouse driver requires polling.
    Returns TRUE if the current mouse driver is operating in polling mode.
 
 @@void @enable_hardware_cursor(void);
 @xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys, gfx_capabilities, disable_hardware_cursor
+@shortdesc Enables the OS hardware cursor.
    After calling this function, Allegro will let the operating system draw the
    mouse cursor instead of doing it itself. This is not possible with all
    graphics drivers though: you'll need to check the gfx_capabilities flags
@@ -2305,6 +2448,7 @@ information for more details.
 
 @@void @disable_hardware_cursor(void);
 @xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys, gfx_capabilities, enable_hardware_cursor
+@shortdesc Disables the OS hardware cursor.
    After calling this function, Allegro will be responsible for drawing the
    mouse cursor rather than the operating system. On some platforms calling
    enable_hardware_cursor() makes the return values of get_mouse_mickeys()
@@ -2313,6 +2457,7 @@ information for more details.
 
 @@void @select_mouse_cursor(int cursor);
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor
+@shortdesc Tells Allegro to select software or hardware cursor drawing.
    With this function, you can instruct Allegro to use the native system 
    cursors rather than Allegro's custom cursor. You will need to enable this
    functionality by calling enable_hardware_cursor(). Allegro will substitute
@@ -2365,6 +2510,7 @@ information for more details.
 @@extern volatile int @mouse_pos;
 @xref install_mouse, poll_mouse, mouse_needs_poll
 @eref exalpha, exlights, exmouse, exshade, exspline, extrans
+@shortdesc Global variable with the mouse position/button state.
    Global variables containing the current mouse position and button state. 
    Wherever possible these values will be updated asynchronously, but if 
    mouse_needs_poll() returns TRUE, you must manually call poll_mouse() to 
@@ -2401,6 +2547,7 @@ information for more details.
 @@extern int @mouse_x_focus;
 @@extern int @mouse_y_focus;
 @xref set_mouse_sprite, set_mouse_sprite_focus
+@shortdesc Global variable with the mouse sprite and focus point.
    Global variables containing the current mouse sprite and the focus
    point.  These are read-only, and only to be modified using the
    set_mouse_sprite() and set_mouse_sprite_focus() functions.
@@ -2409,6 +2556,7 @@ information for more details.
 @xref install_mouse, install_timer, set_mouse_sprite, scare_mouse
 @xref freeze_mouse_flag
 @eref exmouse, expal, exshade, exspline
+@shortdesc Tells Allegro to display a mouse pointer on the screen.
    Tells Allegro to display a mouse pointer on the screen. This will only 
    work if the timer module has been installed. The mouse pointer will be 
    drawn onto the specified bitmap, which should normally be `screen' (see 
@@ -2425,6 +2573,7 @@ information for more details.
 
 @@void @scare_mouse();
 @xref unscare_mouse, scare_mouse_area, show_mouse
+@shortdesc Helper for hiding the mouse pointer before drawing.
    Helper for hiding the mouse pointer prior to a drawing operation. This 
    will temporarily get rid of the pointer, but only if that is really 
    required (ie. the mouse is visible, and is displayed on the physical 
@@ -2434,17 +2583,20 @@ information for more details.
 
 @@void @scare_mouse_area(int x, int y, int w, int h);
 @xref unscare_mouse, scare_mouse, show_mouse
+@shortdesc Helper for hiding the mouse cursor before drawing in an area.
    Like scare_mouse(), but will only hide the cursor if it is inside the 
    specified rectangle. Otherwise the cursor will simply be frozen in place 
    until you call unscare_mouse(), so it cannot interfere with your drawing.
 
 @@void @unscare_mouse();
 @xref scare_mouse, scare_mouse_area
+@shortdesc Undoes the effect of scare_mouse() or scare_mouse_area().
    Undoes the effect of a previous call to scare_mouse() or 
    scare_mouse_area(), restoring the original pointer state.
 
 @@extern volatile int @freeze_mouse_flag;
 @xref show_mouse
+@shortdesc Flag to avoid redrawing the mouse pointer.
    If this flag is set, the mouse pointer won't be redrawn when the mouse 
    moves. This can avoid the need to hide the pointer every time you draw to 
    the screen, as long as you make sure your drawing doesn't overlap with 
@@ -2452,27 +2604,32 @@ information for more details.
 
 @@void @position_mouse(int x, int y);
 @xref install_mouse, position_mouse_z, set_mouse_range, set_mouse_speed
+@shortdesc Moves the mouse to the specified screen position.
    Moves the mouse to the specified screen position. It is safe to call even 
    when a mouse pointer is being displayed.
 
 @@void @position_mouse_z(int z);
 @xref install_mouse, position_mouse
+@shortdesc Sets the mouse wheel position global variable.
    Sets the mouse wheel position variable to the specified value.
 
 @@void @set_mouse_range(int x1, int y1, int x2, int y2);
 @xref install_mouse, set_mouse_speed, position_mouse
+@shortdesc Sets the area of the screen restricting mouse movement.
    Sets the area of the screen within which the mouse can move. Pass the top 
    left corner and the bottom right corner (inclusive). If you don't call 
    this function the range defaults to (0, 0, SCREEN_W-1, SCREEN_H-1).
 
 @@void @set_mouse_speed(int xspeed, int yspeed);
 @xref install_mouse, set_mouse_range, position_mouse
+@shortdesc Sets the mouse speed.
    Sets the mouse speed. Larger values of xspeed and yspeed represent slower 
    mouse movement: the default for both is 2.
 
 @@void @set_mouse_sprite(BITMAP *sprite);
 @xref install_mouse, show_mouse, set_mouse_sprite_focus
 @eref exmouse
+@shortdesc Sets the mouse sprite.
    You don't like my mouse pointer? No problem. Use this function to supply 
    an alternative of your own. If you change the pointer and then want to 
    get my lovely arrow back again, call set_mouse_sprite(NULL).
@@ -2484,6 +2641,7 @@ information for more details.
 @@void @set_mouse_sprite_focus(int x, int y);
 @xref set_mouse_sprite
 @eref exmouse
+@shortdesc Sets the mouse sprite focus.
    The mouse focus is the bit of the pointer that represents the actual 
    mouse position, ie. the (mouse_x, mouse_y) position. By default this is 
    the top left corner of the arrow, but if you are using a different mouse 
@@ -2492,6 +2650,7 @@ information for more details.
 @@void @get_mouse_mickeys(int *mickeyx, int *mickeyy);
 @xref install_mouse
 @eref exmouse
+@shortdesc How far the mouse has moved since the last call to this function.
    Measures how far the mouse has moved since the last call to this 
    function. The mouse will continue to generate movement mickeys even when 
    it reaches the edge of the screen, so this form of input can be useful 
@@ -2499,6 +2658,7 @@ information for more details.
 
 @@extern void (*@mouse_callback)(int flags);
 @xref install_mouse
+@shortdesc User specified mouse callback.
    Called by the interrupt handler whenever the mouse moves or one of the 
    buttons changes state. This function must be in locked memory, and must 
    execute _very_ quickly! It is passed the event flags that triggered the 
@@ -2533,6 +2693,7 @@ Allegro does not provide such devices.)
 @@int @install_timer();
 @xref remove_timer, install_int
 @eref Available Allegro examples
+@shortdesc Installs the Allegro timer interrupt handler.
    Installs the Allegro timer interrupt handler. You must do this before 
    installing any user timer routines, and also before displaying a mouse 
    pointer, playing FLI animations or MIDI music, and using any of the GUI 
@@ -2544,6 +2705,7 @@ Allegro does not provide such devices.)
 
 @@void @remove_timer();
 @xref install_timer, allegro_exit
+@shortdesc Removes the Allegro time handler.
    Removes the Allegro timer handler (and, under DOS, passes control of the
    clock back to the operating system). You don't normally need to bother
    calling this, because allegro_exit() will do it for you.
@@ -2551,6 +2713,7 @@ Allegro does not provide such devices.)
 @@int @install_int(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int_ex, install_param_int
 @eref exscn3d, exswitch, extimer, exzbuf
+@shortdesc Installs a user timer handler.
    Installs a user timer handler, with the speed given as the number of 
    milliseconds between ticks. This is the same thing as 
    install_int_ex(proc, MSEC_TO_TIMER(speed)). If you call this routine 
@@ -2564,6 +2727,7 @@ Allegro does not provide such devices.)
 @@int @install_int_ex(void (*proc)(), int speed);
 @xref install_timer, remove_int, install_int, install_param_int_ex
 @eref excamera, extimer, exupdate
+@shortdesc Adds or modifies a timer.
    Adds a function to the list of user timer handlers or, if it is already 
    installed, retroactively adjusts its speed (i.e makes as though the speed
    change occured precisely at the last tick). The speed is given in hardware
@@ -2630,6 +2794,7 @@ Allegro does not provide such devices.)
 @@Macro @LOCK_VARIABLE(variable_name);
 @xref install_int, install_int_ex
 @eref exscn3d, exswitch, extimer, exupdate, exzbuf
+@shortdesc Locks the memory of a variable used by a timer.
    Due to interrupts/threading, you are required to lock all the memory used
    by your timer routines. See the description of install_int_ex() for a
    more detailed explanation and usage example.
@@ -2637,29 +2802,34 @@ Allegro does not provide such devices.)
 @@Macro @END_OF_FUNCTION(function_name);
 @xref install_int, install_int_ex
 @eref exscn3d, exswitch, extimer, exupdate, exzbuf
+@shortdesc Locks the code used by a timer.
    Due to interrupts/threading, you are required to lock all the code used
    by your timer routines. See the description of install_int_ex() for a
    more detailed explanation and usage example.
    
 @@void @remove_int(void (*proc)());
 @xref install_int, install_int_ex, remove_param_int
+@shortdesc Removes a timers.
    Removes a function from the list of user interrupt routines. At program 
    termination, allegro_exit() does this automatically.
 
 @@int @install_param_int(void (*proc)(void *), void *param, int speed);
 @xref install_timer, remove_param_int, install_param_int_ex, install_int
+@shortdesc Installs a timer routine with a customizable parameter.
    Like install_int(), but the callback routine will be passed a copy of the 
    specified void pointer parameter. To disable the handler, use 
    remove_param_int() instead of remove_int().
 
 @@int @install_param_int_ex(void (*proc)(void *), void *param, int speed);
 @xref install_timer, remove_param_int, install_param_int, install_int_ex
+@shortdesc Adds or modifies a timer with a customizable parameter.
    Like install_int_ex(), but the callback routine will be passed a copy of 
    the specified void pointer parameter. To disable the handler, use 
    remove_param_int() instead of remove_int().
 
 @@void @remove_param_int(void (*proc)(void *), void *param);
 @xref install_param_int, install_param_int_ex, remove_int
+@shortdesc Removes a timer with a customizable parameter.
    Like remove_int(), but for use with timer callbacks that have parameter 
    values. If there is more than one copy of the same callback active at a 
    time, it identifies which one to remove by checking the parameter value 
@@ -2668,6 +2838,7 @@ Allegro does not provide such devices.)
 
 @@extern volatile int @retrace_count;
 @eref ex3d, exblend, exdbuf, exflip, exlights
+@shortdesc Retrace count simulator.
    If the retrace simulator is installed, this count is incremented on each
    vertical retrace; otherwise, if the refresh rate is known, the count is
    incremented at the same rate (ignoring retraces); otherwise, it is
@@ -2678,6 +2849,7 @@ Allegro does not provide such devices.)
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
 @eref exquat, exsample, extimer, exunicod
+@shortdesc Waits a specified number of milliseconds.
    This function waits for the specified number of milliseconds.
 
    Passing 0 as parameter will not wait, but just yield. This can be useful
@@ -2726,6 +2898,7 @@ routines" for more information about this.
 @xref three_finger_flag, key_led_flag, set_leds, set_keyboard_rate
 @xref set_gfx_mode, Standard config variables
 @eref Available Allegro examples
+@shortdesc Installs the Allegro keyboard interrupt handler.
    Installs the Allegro keyboard interrupt handler. You must call this 
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
@@ -2753,6 +2926,7 @@ routines" for more information about this.
 
 @@void @remove_keyboard();
 @xref install_keyboard, allegro_exit, set_config_string
+@shortdesc Removes the Allegro keyboard handler.
    Removes the keyboard handler, returning control to the operating system. 
    You don't normally need to bother calling this, because allegro_exit() 
    will do it for you. However, you might want to call this during runtime if
@@ -2768,6 +2942,7 @@ routines" for more information about this.
 
 @@void @install_keyboard_hooks(int (*keypressed)(), int (*readkey)());
 @xref install_keyboard, keypressed, readkey
+@shortdesc Installs custom keyboard hooks.
    You should only use this function if you *aren't* using the rest of the 
    keyboard handler. It should be called in the place of install_keyboard(), 
    and lets you provide callback routines to detect and read keypresses, 
@@ -2779,6 +2954,7 @@ routines" for more information about this.
 @@int @poll_keyboard();
 @xref keyboard_needs_poll, install_keyboard, key, key_shifts
 @eref excamera, exsample, exstars
+@shortdesc Polls the keyboard.
    Wherever possible, Allegro will read the keyboard input asynchronously 
    (ie. from inside an interrupt handler), but on some platforms that may 
    not be possible, in which case you must call this routine at regular 
@@ -2800,11 +2976,13 @@ routines" for more information about this.
 
 @@int @keyboard_needs_poll();
 @xref poll_keyboard, install_keyboard, key
+@shortdesc Tells if the keyboard needs polling.
    Returns TRUE if the current keyboard driver is operating in polling mode.
 
 @@extern volatile char @key[KEY_MAX];
 @xref install_keyboard, poll_keyboard, key_shifts
 @eref Available Allegro examples
+@shortdesc Array of flags indicating key state.
    Array of flags indicating the state of each key, ordered by scancode. 
    Wherever possible these values will be updated asynchronously, but if 
    keyboard_needs_poll() returns TRUE, you must manually call 
@@ -2853,6 +3031,7 @@ routines" for more information about this.
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
 @eref excamera, exkeys
+@shortdesc Bitmask containing the current state of modifier keys.
    Bitmask containing the current state of shift/ctrl/alt, the special 
    Windows keys, and the accent escape characters. Wherever possible this 
    value will be updated asynchronously, but if keyboard_needs_poll() 
@@ -2889,6 +3068,7 @@ routines" for more information about this.
 @xref install_keyboard, readkey, ureadkey, clear_keybuf
 @xref simulate_keypress, simulate_ukeypress
 @eref Available Allegro examples
+@shortdesc Tells if there are keypresses waiting in the input buffer.
    Returns TRUE if there are keypresses waiting in the input buffer. You can
    use this to see if the next call to readkey() is going to block or to 
    simply wait for the user to press a key while you still update the screen
@@ -2902,6 +3082,7 @@ routines" for more information about this.
 @@int @readkey();
 @xref install_keyboard, ureadkey, keypressed, clear_keybuf, simulate_keypress
 @eref Available Allegro examples
+@shortdesc Returns the next character from the keyboard buffer.
    Returns the next character from the keyboard buffer, in ASCII format. If 
    the buffer is empty, it waits until a key is pressed. You can see if there
    are queued keypresses with keypressed().
@@ -2935,6 +3116,7 @@ routines" for more information about this.
 @@int @ureadkey(int *scancode);
 @xref install_keyboard, readkey, keypressed, clear_keybuf, simulate_ukeypress
 @eref exkeys
+@shortdesc Returns the next unicode character from the keyboard buffer.
    Returns the next character from the keyboard buffer, in Unicode format. 
    If the buffer is empty, it waits until a key is pressed. You can see if
    there are queued keypresses with keypressed(). The return value contains
@@ -2960,6 +3142,7 @@ routines" for more information about this.
 
 @@int @scancode_to_ascii(int scancode);
 @xref scancode_to_name
+@shortdesc Converts a scancode to an ASCII character.
    Converts the given scancode to an ASCII character for that key (mangling
    Unicode values), returning the unshifted uncapslocked result of pressing
    the key, or zero if the key isn't a character-generating key or the lookup
@@ -2977,18 +3160,18 @@ routines" for more information about this.
 
 @@const char *@scancode_to_name(int scancode);
 @xref scancode_to_ascii
+@shortdesc Converts a scancode to a key name.
    This function returns a string pointer containing the name of they key with
    the given scancode. This is useful if you e.g. let the user choose a key for
    some action, and want to display something more meaningful than just the
-   scancode.
-
-   Example
+   scancode. Example:
 <codeblock>
-    char const *keyname = scancode_to_name(scancode);
-    allegro_message("You pressed the %s key.", keyname);<endblock>
+      char const *keyname = scancode_to_name(scancode);
+      allegro_message("You pressed the %s key.", keyname);<endblock>
 
 @@void @simulate_keypress(int key);
 @xref install_keyboard, simulate_ukeypress, keypressed, readkey
+@shortdesc Stuffs a key into the keyboard buffer.
    Stuffs a key into the keyboard buffer, just as if the user had pressed 
    it. The parameter is in the same format returned by readkey(). Example:
 <codeblock>
@@ -2998,6 +3181,7 @@ routines" for more information about this.
 
 @@void @simulate_ukeypress(int key, int scancode);
 @xref install_keyboard, simulate_keypress, keypressed, ureadkey
+@shortdesc Stuffs an unicode key into the keyboard buffer.
    Stuffs a key into the keyboard buffer, just as if the user had pressed 
    it. The parameter is in the same format returned by ureadkey(). Example:
 <codeblock>
@@ -3009,6 +3193,7 @@ routines" for more information about this.
 @@extern int (*@keyboard_callback)(int key);
 @xref install_keyboard, readkey, ureadkey, keyboard_ucallback
 @xref keyboard_lowlevel_callback
+@shortdesc User specified keyboard callback handler.
    If set, this function is called by the keyboard handler in response to 
    every keypress. It is passed a copy of the value that is about to be 
    added into the input buffer, and can either return this value unchanged, 
@@ -3036,6 +3221,7 @@ routines" for more information about this.
 @@extern int (*@keyboard_ucallback)(int key, int *scancode);
 @xref install_keyboard, readkey, ureadkey, keyboard_callback
 @xref keyboard_lowlevel_callback
+@shortdesc User specified unicode keyboard callback handler.
    Unicode-aware version of keyboard_callback(). If set, this function is 
    called by the keyboard handler in response to every keypress. It is 
    passed the character value and scancode that are about to be added into 
@@ -3065,6 +3251,7 @@ routines" for more information about this.
 
 @@extern void (*@keyboard_lowlevel_callback)(int scancode);
 @xref install_keyboard, keyboard_callback, keyboard_ucallback
+@shortdesc User specified low level keyboard event handler.
    If set, this function is called by the keyboard handler in response to 
    every keyboard event, both presses (including keyboard repeat rate) and
    releases. It will be passed a raw keyboard scancode byte (scancodes are
@@ -3109,6 +3296,7 @@ routines" for more information about this.
          
 @@void @set_leds(int leds);
 @xref install_keyboard, key_led_flag
+@shortdesc Sets the state of the keyboard LED indicators.
    Overrides the state of the keyboard LED indicators. The parameter is a 
    bitmask containing any of the values KB_SCROLOCK_FLAG, KB_NUMLOCK_FLAG, 
    and KB_CAPSLOCK_FLAG, or -1 to restore the default behavior. Example:
@@ -3129,18 +3317,21 @@ routines" for more information about this.
 
 @@void @set_keyboard_rate(int delay, int repeat);
 @xref install_keyboard, readkey, ureadkey
+@shortdesc Sets the keyboard repeat rate.
    Sets the keyboard repeat rate. Times are given in milliseconds. Passing 
    zero times will disable the key repeat.
 
 @@void @clear_keybuf();
 @xref install_keyboard, keypressed, readkey, ureadkey
 @eref Available Allegro examples
+@shortdesc Clears the keyboard buffer.
    Empties the keyboard buffer. Usually you want to use this in your program
    before reading keys to avoid previously buffered keys to be returned by
    calls to readkey() or ureadkey().
 
 @@extern int @three_finger_flag;
 @xref install_keyboard
+@shortdesc Flag to desactivate the emergency exit key combination.
    The DJGPP keyboard handler provides an 'emergency exit' sequence which
    you can use to kill off your program. If you are running under DOS this 
    is the three finger salute, ctrl+alt+del. Most multitasking OS's will 
@@ -3151,6 +3342,7 @@ routines" for more information about this.
 
 @@extern int @key_led_flag;
 @xref install_keyboard, set_leds
+@shortdesc Flag to prevent the keyboard LEDs from being updated.
    By default, the capslock, numlock, and scroll-lock keys toggle the 
    keyboard LED indicators when they are pressed. If you are using these 
    keys for input in your game (eg. capslock to fire) this may not be 
@@ -3174,6 +3366,7 @@ incorrect data.
 @xref calibrate_joystick_name, poll_joystick, Standard config variables
 @xref JOY_TYPE_*/DOS
 @eref exjoy
+@shortdesc Initialises the joystick.
    Initialises the joystick, and calibrates the centre position value. The 
    type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
    specific documentation for a list of the available drivers. You must call 
@@ -3189,12 +3382,14 @@ incorrect data.
 
 @@void @remove_joystick();
 @xref install_joystick, allegro_exit
+@shortdesc Removes the joystick handler.
    Removes the joystick handler. You don't normally need to bother calling 
    this, because allegro_exit() will do it for you.
 
 @@int @poll_joystick();
 @xref install_joystick, joy, num_joysticks
 @eref exjoy
+@shortdesc Polls the joystick.
    The joystick is not interrupt driven, so you need to call this function 
    every now and again to update the global position values.
 @retval
@@ -3204,6 +3399,7 @@ incorrect data.
 @@extern int @num_joysticks;
 @xref install_joystick, joy
 @eref exjoy
+@shortdesc Global variable saying how many joysticks there are.
    Global variable containing the number of active joystick devices. The 
    current drivers support a maximum of four controllers.
 
@@ -3211,6 +3407,7 @@ incorrect data.
 @xref install_joystick, poll_joystick, num_joysticks, calibrate_joystick
 @xref calibrate_joystick_name
 @eref exjoy
+@shortdesc Global array of joystick state information.
    Global array of joystick state information, which is updated by the 
    poll_joystick() function. Only the first num_joysticks elements will 
    contain meaningful information. The JOYSTICK_INFO structure is defined as:
@@ -3321,6 +3518,7 @@ incorrect data.
 @@const char *@calibrate_joystick_name(int n);
 @xref install_joystick, calibrate_joystick, joy, num_joysticks
 @eref exjoy
+@shortdesc Returns the next calibration text string.
    As parameter pass the number of joystick you want to calibrate.
 @retval
    Returns a text description for the next type of calibration that will be
@@ -3330,6 +3528,7 @@ incorrect data.
 @@int @calibrate_joystick(int n);
 @xref install_joystick, calibrate_joystick_name, joy, num_joysticks
 @eref exjoy
+@shortdesc Calibrates the specified joystick.
    Most joysticks need to be calibrated before they can provide full 
    analogue input. This function performs the next operation in the 
    calibration series for the specified stick, assuming that the joystick 
@@ -3357,6 +3556,7 @@ incorrect data.
    
 @@int @save_joystick_data(const char *filename);
 @xref load_joystick_data, set_config_file
+@shortdesc Saves joystick calibration data.
    After all the headache of calibrating the joystick, you may not want to 
    make your poor users repeat the process every time they run your program. 
    Call this function to save the joystick calibration data into the 
@@ -3368,6 +3568,7 @@ incorrect data.
 
 @@int @load_joystick_data(const char *filename);
 @xref install_joystick, save_joystick_data, set_config_file
+@shortdesc Loads joystick calibration data.
    Restores calibration data previously stored by save_joystick_data() or 
    the setup utility. This sets up all aspects of the joystick code: you 
    don't even need to call install_joystick() if you are using this 
@@ -3379,6 +3580,7 @@ incorrect data.
 
 @@int @initialise_joystick();
 @xref install_joystick
+@shortdesc Deprecated version of install_joystick().
    Deprecated. Use install_joystick() instead.
 
 
@@ -3527,6 +3729,7 @@ GFX_SAFE:<br>
 @xref get_color_depth, set_gfx_mode, set_color_conversion, makecol, getr
 @xref desktop_color_depth
 @eref Available Allegro examples
+@shortdesc Sets the global pixel color depth.
    Sets the pixel format to be used by subsequent calls to set_gfx_mode() 
    and create_bitmap(). Valid depths are 8 (the default), 15, 16, 24, and 32 
    bits. Example:
@@ -3539,12 +3742,14 @@ GFX_SAFE:<br>
 @@int @get_color_depth(void);
 @xref set_color_depth
 @eref exrgbhsv
+@shortdesc Returns the current pixel color depth.
    Returns the current pixel format. This can be very useful to know in order
    to write generic functions which select a different code path internally
    depending on the color depth being used.
 
 @@void @request_refresh_rate(int rate);
 @xref set_gfx_mode, get_refresh_rate
+@shortdesc Requests a specific refresh rate during graphic mode switch.
    Requests that the next call to set_gfx_mode() try to use the specified 
    refresh rate, if possible. Not all drivers are able to control this at 
    all, and even when they can, not all rates will be possible on all 
@@ -3563,11 +3768,13 @@ GFX_SAFE:<br>
 
 @@int @get_refresh_rate(void);
 @xref request_refresh_rate
+@shortdesc Returns the current refresh rate.
    Returns the current refresh rate, if known (not all drivers are able to 
    report this information). Returns zero if the actual rate is unknown.
 
 @@GFX_MODE_LIST *@get_gfx_mode_list(int card);
 @xref destroy_gfx_mode_list, set_gfx_mode, set_color_depth
+@shortdesc Obtains a list of available video modes.
    Attempts to create a list of all the supported video modes for a certain
    graphics driver, made up from the GFX_MODE_LIST structure, which has the
    following definition:
@@ -3595,6 +3802,7 @@ GFX_SAFE:<br>
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
+@shortdesc Frees the list created by get_gfx_mode_list().
    Removes the mode list created by get_gfx_mode_list() from memory. Use this
    once you are done with the generated mode list to avoid memory leaks in
    your program.
@@ -3605,6 +3813,7 @@ GFX_SAFE:<br>
 @xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX, create_video_bitmap
 @xref get_desktop_resolution, SCREEN_W, SCREEN_H, VIRTUAL_W, VIRTUAL_H
 @eref Available Allegro examples
+@shortdesc Sets a graphic video mode.
    Switches into graphics mode. The card parameter should usually be one of
    the Allegro magic drivers (read introduction of chapter "Graphics modes")
    or see the platform specific documentation for a list of the available
@@ -3648,6 +3857,7 @@ GFX_SAFE:<br>
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
 @eref exswitch
+@shortdesc Tells Allegro how the program handles background switching.
    Sets how the program should handle being switched into the background, 
    if the user tabs away from it. Not all of the possible modes will be
    supported by every graphics driver on every platform. The available modes
@@ -3700,6 +3910,7 @@ GFX_SAFE:<br>
 @@int @set_display_switch_callback(int dir, void (*cb)());
 @xref remove_display_switch_callback, set_display_switch_mode
 @eref exswitch
+@shortdesc Installs a switching notification callback.
    Installs a notification callback for the switching mode that was 
    previously selected by calling set_display_switch_mode(). The direction 
    parameter can either be SWITCH_IN or SWITCH_OUT, depending whether you 
@@ -3714,6 +3925,7 @@ GFX_SAFE:<br>
 
 @@void @remove_display_switch_callback(void (*cb)());
 @xref set_display_switch_callback
+@shortdesc Removes a switching notification callback.
    Removes a notification callback that was previously installed by calling 
    set_display_switch_callback(). All the callbacks will automatically be 
    removed when you call set_display_switch_mode(). You can safely call this
@@ -3722,11 +3934,13 @@ GFX_SAFE:<br>
 @@int @get_display_switch_mode();
 @xref set_display_switch_mode
 @eref exswitch
+@shortdesc Returns the current display switching mode.
    Returns the current display switching mode, in the same format passed to 
    set_display_switch_mode().
 
 @@int @is_windowed_mode(void);
 @xref set_gfx_mode
+@shortdesc Tells if you are running in windowed mode.
    This function can be used to detect wether or not set_gfx_mode() selected
    a windowed mode. Example:
 <codeblock>
@@ -3746,6 +3960,7 @@ GFX_SAFE:<br>
 @xref screen, create_video_bitmap, scroll_screen, request_scroll, show_mouse
 @xref enable_triple_buffer
 @eref ex3buf, exaccel, exupdate
+@shortdesc Bitfield describing video hardware capabilities.
    Bitfield describing the capabilities of the current graphics driver and 
    video hardware. This may contain combination any of the flags:
 
@@ -3899,6 +4114,7 @@ GFX_SAFE:<br>
 @@int @enable_triple_buffer();
 @xref gfx_capabilities, request_scroll, request_video_bitmap
 @eref ex3buf, exupdate
+@shortdesc Enables triple buffering.
    If the GFX_CAN_TRIPLE_BUFFER bit of the gfx_capabilities field is not 
    set, you can attempt to enable it by calling this function. In particular 
    if you are running in mode-X in a clean DOS environment, this routine 
@@ -3910,6 +4126,7 @@ GFX_SAFE:<br>
 @@int @scroll_screen(int x, int y);
 @xref set_gfx_mode, show_video_bitmap, request_scroll, request_video_bitmap
 @eref exscroll
+@shortdesc Requests a hardware scroll request.
    Attempts to scroll the hardware screen to display a different part of the 
    virtual screen (initially it will be positioned at 0, 0, which is the top 
    left corner). You can use this to move the screen display around in a
@@ -3936,6 +4153,7 @@ GFX_SAFE:<br>
 @@int @request_scroll(int x, int y);
 @xref poll_scroll, request_video_bitmap, gfx_capabilities
 @xref scroll_screen
+@shortdesc Queues a hardware scroll request with triple buffering.
    This function is used for triple buffering. It requests a hardware scroll 
    to the specified position, but returns immediately rather than waiting 
    for a retrace. The scroll will then take place during the next vertical 
@@ -3955,6 +4173,7 @@ GFX_SAFE:<br>
 @@int @poll_scroll();
 @xref request_scroll, request_video_bitmap
 @eref ex3buf, exupdate
+@shortdesc Checks the status of a scroll request with triple buffering.
    This function is used for triple buffering. It checks the status of a 
    hardware scroll previously initiated by the request_scroll() routine.
 @retval
@@ -3964,6 +4183,7 @@ GFX_SAFE:<br>
 @@int @show_video_bitmap(BITMAP *bitmap);
 @xref scroll_screen, create_video_bitmap
 @eref exaccel, exflip, exupdate
+@shortdesc Flips the hardware screen to use the specified page.
    Attempts to page flip the hardware screen to display the specified video 
    bitmap object, which must be the same size as the physical screen, and 
    should have been obtained by calling the create_video_bitmap() function. 
@@ -3978,6 +4198,7 @@ GFX_SAFE:<br>
 @xref poll_scroll, request_scroll, gfx_capabilities
 @xref create_video_bitmap, scroll_screen
 @eref ex3buf, exupdate
+@shortdesc Triple buffering page flip request.
    This function is used for triple buffering. It requests a page flip to 
    display the specified video bitmap object, but returns immediately rather 
    than waiting for a retrace. The flip will then take place during the next 
@@ -3991,6 +4212,7 @@ GFX_SAFE:<br>
 @@void @vsync();
 @xref set_palette, scroll_screen
 @eref Available Allegro examples
+@shortdesc Waits for a vertical retrace to begin.
    Waits for a vertical retrace to begin. The retrace happens when the
    electron beam in your monitor has reached the bottom of the screen and is
    moving back to the top ready for another scan. During this short period
@@ -4064,6 +4286,7 @@ Allegro supports several different types of bitmaps:
 @@extern BITMAP *@screen;
 @xref set_gfx_mode, is_screen_bitmap, create_video_bitmap, scroll_screen
 @eref Available Allegro examples
+@shortdesc Global pointer to the screen hardware video memory.
    Global pointer to a bitmap, sized VIRTUAL_W x VIRTUAL_H. This is created 
    by set_gfx_mode(), and represents the hardware video memory. Only a part 
    of this bitmap will actually be visible, sized SCREEN_W x SCREEN_H. 
@@ -4098,6 +4321,7 @@ Allegro supports several different types of bitmaps:
 @@#define @SCREEN_H;
 @xref screen, set_gfx_mode, VIRTUAL_W, VIRTUAL_H
 @eref Available Allegro examples
+@shortdesc Global define to obtain the size of the screen.
    Global defines that return the width and height of the screen, or zero if
    the screen has not been initialised yet. Example:
 <codeblock>
@@ -4110,6 +4334,7 @@ Allegro supports several different types of bitmaps:
 @@#define @VIRTUAL_W;
 @@#define @VIRTUAL_H;
 @xref screen, set_gfx_mode, SCREEN_W, SCREEN_H
+@shortdesc Global define to obtain the virtual size of the screen.
    Global defines that return the width and height of the virtual screen, or
    zero if the screen has not been initialised yet. Example:
 <codeblock>
@@ -4123,6 +4348,7 @@ Allegro supports several different types of bitmaps:
 @xref create_bitmap_ex, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, set_color_depth, is_memory_bitmap
 @eref Available Allegro examples
+@shortdesc Creates a memory bitmap.
    Creates a memory bitmap sized width by height. The bitmap will have
    clipping turned on, and the clipping rectangle set to the full size of the
    bitmap. The image memory will not be cleared, so it will probably contain
@@ -4147,6 +4373,7 @@ Allegro supports several different types of bitmaps:
 @xref create_bitmap, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, is_memory_bitmap
 @eref ex12bit, exlights, exrgbhsv, extrans
+@shortdesc Creates a memory bitmap specifying color depth.
    Creates a bitmap in a specific color depth (8, 15, 16, 24 or 32 bits per 
    pixel). Example:
 <codeblock>
@@ -4166,6 +4393,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_sub_bitmap(BITMAP *parent, int x, y, width, height);
 @xref create_bitmap, create_bitmap_ex, destroy_bitmap, is_sub_bitmap
 @eref expat, exscroll, exswitch
+@shortdesc Creates a memory sub bitmap.
    Creates a sub-bitmap, ie. a bitmap sharing drawing memory with a 
    pre-existing bitmap, but possibly with a different size and clipping 
    settings. When creating a sub-bitmap of the mode-X screen, the x position 
@@ -4183,6 +4411,7 @@ Allegro supports several different types of bitmaps:
 @xref create_sub_bitmap, destroy_bitmap, screen, show_video_bitmap
 @xref gfx_capabilities, is_video_bitmap
 @eref ex3buf, exaccel, exflip, exupdate
+@shortdesc Creates a video memory bitmap.
    Allocates a video memory bitmap of the specified size. This can be used
    to allocate offscreen video memory for storing source graphics ready for
    a hardware accelerated blitting operation, or to create multiple video
@@ -4203,6 +4432,7 @@ Allegro supports several different types of bitmaps:
 @xref create_bitmap, create_bitmap_ex, create_video_bitmap
 @xref create_sub_bitmap, destroy_bitmap, is_system_bitmap
 @eref exunicod, exupdate
+@shortdesc Creates a system memory bitmap.
    Allocates a system memory bitmap of the specified size. Read the
    introduction of this chapter for a comparison with other types of bitmaps
    and other specific details.
@@ -4213,12 +4443,14 @@ Allegro supports several different types of bitmaps:
 @@void @destroy_bitmap(BITMAP *bitmap);
 @xref create_bitmap, load_bitmap
 @eref Available Allegro examples
+@shortdesc Destroys any type of created bitmap.
    Destroys a memory bitmap, sub-bitmap, video memory bitmap, or system 
    bitmap when you are finished with it. If you pass a NULL pointer this
    function won't do anything. See above for the restrictions as to when you
    are allowed to destroy the various types of bitmaps.
 
 @@void @lock_bitmap(BITMAP *bitmap);
+@shortdesc Locks the memory used by a bitmap.
    Under DOS, locks all the memory used by a bitmap. You don't normally need
    to call this function unless you are doing very weird things in your
    program.
@@ -4226,6 +4458,7 @@ Allegro supports several different types of bitmaps:
 @@int @bitmap_color_depth(BITMAP *bmp);
 @xref set_color_depth, bitmap_mask_color
 @eref ex3d, exlights, exscn3d, exswitch, extrans, exupdate, exzbuf
+@shortdesc Returns the color depth of the specified bitmap.
    Returns the color depth of the specified bitmap (8, 15, 16, 24, or 32).
    Example:
 <codeblock>
@@ -4241,6 +4474,7 @@ Allegro supports several different types of bitmaps:
 @@int @bitmap_mask_color(BITMAP *bmp);
 @xref MASK_COLOR_8, set_color_depth, bitmap_color_depth
 @eref ex3d, exmouse, expat
+@shortdesc Returns the mask color of the specified bitmap.
    Returns the mask color for the specified bitmap (the value which is 
    skipped when drawing sprites). For 256-color bitmaps this is zero, and 
    for truecolor bitmaps it is bright pink (maximum red and blue, zero
@@ -4256,16 +4490,19 @@ Allegro supports several different types of bitmaps:
 
 @@int @is_same_bitmap(BITMAP *bmp1, BITMAP *bmp2);
 @xref create_sub_bitmap
+@shortdesc Tells if two bitmaps describe the same drawing surface.
    Returns TRUE if the two bitmaps describe the same drawing surface, ie. 
    the pointers are equal, one is a sub-bitmap of the other, or they are 
    both sub-bitmaps of a common parent.
 
 @@int @is_planar_bitmap(BITMAP *bmp);
 @xref is_linear_bitmap, is_memory_bitmap
+@shortdesc Tells if a bitmap is a planar screen bitmap.
    Returns TRUE if bmp is a planar (mode-X or Xtended mode) screen bitmap.
 
 @@int @is_linear_bitmap(BITMAP *bmp);
 @xref is_planar_bitmap, is_memory_bitmap
+@shortdesc Tells if a bitmap is linear.
    Returns TRUE if bmp is a linear bitmap, i.e. a bitmap that can be accessed
    linearly within each scanline (for example a memory bitmap, the DOS VGA
    or SVGA screen, Windows bitmaps, etc). Linear bitmaps can be used with the
@@ -4276,6 +4513,7 @@ Allegro supports several different types of bitmaps:
 
 @@int @is_memory_bitmap(BITMAP *bmp);
 @xref is_linear_bitmap, is_planar_bitmap
+@shortdesc Tells if a bitmap is a memory bitmap.
    Returns TRUE if bmp is a memory bitmap, ie. it was created by calling 
    create_bitmap() or loaded from a grabber datafile or image file. Memory 
    bitmaps can be accessed directly via the line pointers in the bitmap 
@@ -4283,24 +4521,29 @@ Allegro supports several different types of bitmaps:
 
 @@int @is_screen_bitmap(BITMAP *bmp);
 @xref screen, create_sub_bitmap
+@shortdesc Tells if a bitmap is the screen bitmap or sub bitmap.
    Returns TRUE if bmp is the screen bitmap, or a sub-bitmap of the screen.
 
 @@int @is_video_bitmap(BITMAP *bmp);
 @xref screen, create_video_bitmap, create_sub_bitmap
+@shortdesc Tells if a bitmap is a screen bitmap, video memory or sub bitmap.
    Returns TRUE if bmp is the screen bitmap, a video memory bitmap, or a 
    sub-bitmap of either.
 
 @@int @is_system_bitmap(BITMAP *bmp);
 @xref create_system_bitmap, create_sub_bitmap
+@shortdesc Tells if a bitmap is a system bitmap or sub bitmap.
    Returns TRUE if bmp is a system bitmap object, or a sub-bitmap of one.
 
 @@int @is_sub_bitmap(BITMAP *bmp);
 @xref create_sub_bitmap
+@shortdesc Tells if a bitmap is a sub bitmap.
    Returns TRUE if bmp is a sub-bitmap.
 
 @@void @acquire_bitmap(BITMAP *bmp);
 @xref release_bitmap, acquire_screen, release_screen
 @eref ex3buf, exaccel, expat, exquat, exscroll, exswitch, exupdate
+@shortdesc Locks the bitmap before drawing onto it.
    Locks the specified video memory bitmap prior to drawing onto it. This 
    does not apply to memory bitmaps, and only affects some platforms 
    (Windows needs it, DOS does not). These calls are not strictly required, 
@@ -4318,6 +4561,7 @@ Allegro supports several different types of bitmaps:
 @@void @release_bitmap(BITMAP *bmp);
 @xref acquire_bitmap, acquire_screen, release_screen
 @eref ex3buf, exaccel, expat, exquat, exscroll, exswitch, exupdate
+@shortdesc Releases a previously locked bitmap.
    Releases a bitmap that was previously locked by calling acquire_bitmap(). 
    If the bitmap was locked multiple times, you must release it the same 
    number of times before it will truly be unlocked.
@@ -4326,17 +4570,20 @@ Allegro supports several different types of bitmaps:
 @xref acquire_bitmap, release_bitmap, release_screen
 @eref exdbuf, exflame, exhello, exkeys, exmem, exmouse, expal, exspline
 @eref exswitch, extruec
+@shortdesc Shortcut of acquire_bitmap(screen);
    Shortcut version of acquire_bitmap(screen);
 
 @@void @release_screen();
 @xref acquire_bitmap, release_bitmap, acquire_screen
 @eref exdbuf, exflame, exhello, exkeys, exmem, exmouse, expal, exspline
 @eref exswitch, extruec
+@shortdesc Shortcut of release_bitmap(screen);
    Shortcut version of release_bitmap(screen);
 
 @@void @set_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2);
 @xref get_clip_rect, add_clip_rect, set_clip_state, get_clip_state
 @eref ex12bit, excamera
+@shortdesc Sets the clipping rectangle of a bitmap.
    Each bitmap has an associated clipping rectangle, which is the area of 
    the image that it is ok to draw onto. Nothing will be drawn to positions
    outside this space. This function sets the clipping rectangle for the
@@ -4361,16 +4608,19 @@ Allegro supports several different types of bitmaps:
 
 @@void @get_clip_rect(BITMAP *bitmap, int *x1, int *y1, int *x2, int *y2);
 @xref set_clip_rect, add_clip_rect, set_clip_state, get_clip_state
+@shortdesc Returns the clipping rectangle of a bitmap.
    Returns the clipping rectangle for the specified bitmap.
 
 @@void @add_clip_rect(BITMAP *bitmap, int x1, int y1, int x2, int y2);
 @xref set_clip_rect, get_clip_rect, set_clip_state, get_clip_state
+@shortdesc Expands a bitmap's clipping rectangle with a new area.
    Sets the clipping rectangle of the specified bitmap as the intersection of
    its current clipping rectangle and the rectangle described by the four
    coordinates.
 
 @@void @set_clip_state(BITMAP *bitmap, int state)
 @xref set_clip_rect, get_clip_rect, add_clip_rect, get_clip_state
+@shortdesc Turns on or off the clipping of a bitmap.
    Turns on (if state is non-zero) or off (if state is zero) clipping for the
    specified bitmap. Turning clipping off may slightly speed up some drawing
    operations (usually a negligible  difference, although every little helps)
@@ -4379,11 +4629,13 @@ Allegro supports several different types of bitmaps:
 
 @@int @get_clip_state(BITMAP *bitmap)
 @xref set_clip_rect, get_clip_rect, add_clip_rect, set_clip_state
+@shortdesc Tells if clipping is on for a bitmap.
    Returns non-zero if clipping is turned on for the specified bitmap and
    zero otherwise.
 
 @@int @is_inside_bitmap(BITMAP *bmp, int x, int y, int clip);
 @xref set_clip_rect, set_clip_state, getpixel
+@shortdesc Tells if a point is inside a bitmap.
    Returns non-zero if point (x, y) lies inside the bitmap. If `clip' is
    non-zero, the function compares the coordinates with the clipping
    rectangle, that is it returns non-zero if the point lies inside the
