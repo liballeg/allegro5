@@ -108,11 +108,11 @@ CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-STATIC_LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
 ifdef STATICLINK
 LIBRARIES = $(STATIC_LIBRARIES)
 else
-LIBRARIES = -lpthread -framework Cocoa
+LIBRARIES = -framework Cocoa
 endif
 
 PROGRAMS = fixbundle
@@ -260,6 +260,10 @@ uninstall:
 	-rm -fr $(FRAMEWORK)
 	-rm -fr $(TEMPLATE)
 	-sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(MAN_DIR)/man3/\1.3,p" docs/src/allegro._tx \
+	  | xargs -n 1 rm -f
+	-sed -n -e "s,^@@Example.*@\(ex.*\),$(MAN_DIR)/man3/\1.3,p" docs/src/allegro._tx \
+	  | xargs -n 1 rm -f
+	-sed -n -e "s,^@@\(struct\|typedef\).*@\([a-zA-Z0-9_]*\),$(MAN_DIR)/man3/\2.3,p" docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
 	@echo All gone!	
 
