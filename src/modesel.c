@@ -481,50 +481,6 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 
 
 
-/* gfx_mode_select:
- *  Displays the Allegro graphics mode selection dialog, which allows the
- *  user to select a screen mode and graphics card. Stores the selection
- *  in the three variables, and returns zero if it was closed with the 
- *  Cancel button, or non-zero if it was OK'd.
- */
-int gfx_mode_select(int *card, int *w, int *h)
-{
-   int what_driver, what_mode, ret;
-
-   clear_keybuf();
-
-   while (gui_mouse_b());
-
-   what_dialog = gfx_mode_dialog;
-
-   gfx_mode_dialog[GFX_TITLE].dp = (void*)get_config_text("Graphics Mode");
-   gfx_mode_dialog[GFX_OK].dp = (void*)get_config_text("OK");
-   gfx_mode_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
-
-   create_driver_list();
-
-   centre_dialog(gfx_mode_dialog);
-   set_dialog_color(gfx_mode_dialog, gui_fg_color, gui_bg_color);
-   ret = popup_dialog(gfx_mode_dialog, GFX_DRIVERLIST);
-
-   what_driver = gfx_mode_dialog[GFX_DRIVERLIST].d1;
-   what_mode = gfx_mode_dialog[GFX_MODELIST].d1;
-
-   *card = driver_list[what_driver].id;
-
-   *w = driver_list[what_driver].mode_list[what_mode].w;
-   *h = driver_list[what_driver].mode_list[what_mode].h;
-
-   destroy_driver_list();
-
-   if (ret == GFX_CANCEL)
-      return FALSE;
-   else 
-      return TRUE;
-}
-
-
-
 /* gfx_mode_select_ex:
  *  Extended version of the graphics mode selection dialog, which allows the 
  *  user to select the color depth as well as the resolution and hardware 
@@ -533,79 +489,88 @@ int gfx_mode_select(int *card, int *w, int *h)
  */
 int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 {
-   int i, j, ret, what_driver, what_mode, what_bpp;
+   int i, j, ret, what_driver, what_mode, what_bpp, extd;
 
    clear_keybuf();
 
+   extd = color_depth ? TRUE : FALSE;
+
    while (gui_mouse_b());
 
-   what_dialog = gfx_mode_ex_dialog;
+   what_dialog = extd ? gfx_mode_ex_dialog : gfx_mode_dialog;
+
+   what_dialog[GFX_TITLE].dp = (void*)get_config_text("Graphics Mode");
+   what_dialog[GFX_OK].dp = (void*)get_config_text("OK");
+   what_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
 
    create_driver_list();
 
-   gfx_mode_ex_dialog[GFX_DRIVERLIST].d1 = 0;
+   if (extd) {
+      what_dialog[GFX_DRIVERLIST].d1 = 0;
 
-   for (i=0; i<driver_count; i++) {
-      if (driver_list[i].id == *card) {
-         gfx_mode_ex_dialog[GFX_DRIVERLIST].d1 = i;
-         break;
+      for (i=0; i<driver_count; i++) {
+         if (driver_list[i].id == *card) {
+            what_dialog[GFX_DRIVERLIST].d1 = i;
+            break;
+         }
       }
-   }
 
-   what_driver = i;
-   if (what_driver == driver_count) what_driver = GFX_AUTODETECT;
+      what_driver = i;
+      if (what_driver == driver_count) what_driver = GFX_AUTODETECT;
 
-   for (i=0; driver_list[what_driver].mode_list[i].w; i++) {
-      if ((driver_list[what_driver].mode_list[i].w == *w) && (driver_list[what_driver].mode_list[i].h == *h)) {
-         gfx_mode_ex_dialog[GFX_MODELIST].d1 = i;
-         break; 
+      for (i=0; driver_list[what_driver].mode_list[i].w; i++) {
+         if ((driver_list[what_driver].mode_list[i].w == *w) && (driver_list[what_driver].mode_list[i].h == *h)) {
+            what_dialog[GFX_MODELIST].d1 = i;
+            break; 
+         }
       }
-   }
 
-   what_mode = i;
-   what_bpp = -1;
+      what_mode = i;
+      what_bpp = -1;
 
-   for (i=0; i < BPP_TOTAL; i++) {
-      if (driver_list[what_driver].mode_list[what_mode].bpp[i]) {
-         what_bpp++;
-         switch (*color_depth) {
-            case  8: if (i == BPP_08) gfx_mode_ex_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-            case 15: if (i == BPP_15) gfx_mode_ex_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-            case 16: if (i == BPP_16) gfx_mode_ex_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-            case 24: if (i == BPP_24) gfx_mode_ex_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-            case 32: if (i == BPP_32) gfx_mode_ex_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
+      for (i=0; i < BPP_TOTAL; i++) {
+         if (driver_list[what_driver].mode_list[what_mode].bpp[i]) {
+            what_bpp++;
+            switch (*color_depth) {
+               case  8: if (i == BPP_08) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
+               case 15: if (i == BPP_15) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
+               case 16: if (i == BPP_16) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
+               case 24: if (i == BPP_24) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
+               case 32: if (i == BPP_32) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
+            }
          }
       }
    }
 
-   gfx_mode_ex_dialog[GFX_TITLE].dp = (void*)get_config_text("Graphics Mode");
-   gfx_mode_ex_dialog[GFX_OK].dp = (void*)get_config_text("OK");
-   gfx_mode_ex_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
+   centre_dialog(what_dialog);
+   set_dialog_color(what_dialog, gui_fg_color, gui_bg_color);
+   ret = popup_dialog(what_dialog, GFX_DRIVERLIST);
 
-   centre_dialog(gfx_mode_ex_dialog);
-   set_dialog_color(gfx_mode_ex_dialog, gui_fg_color, gui_bg_color);
+   what_driver = what_dialog[GFX_DRIVERLIST].d1;
+   what_mode = what_dialog[GFX_MODELIST].d1;
 
-   ret = popup_dialog(gfx_mode_ex_dialog, GFX_DRIVERLIST);
-
-   what_driver = gfx_mode_ex_dialog[GFX_DRIVERLIST].d1;
-   what_mode = gfx_mode_ex_dialog[GFX_MODELIST].d1;
-   what_bpp = gfx_mode_ex_dialog[GFX_DEPTHLIST].d1;
+   if (extd)
+      what_bpp = what_dialog[GFX_DEPTHLIST].d1;
+   else
+      what_bpp = 0;
 
    *card = driver_list[what_driver].id;
 
    *w = driver_list[what_driver].mode_list[what_mode].w;
    *h = driver_list[what_driver].mode_list[what_mode].h;
 
-   j = -1;
-   for (i=0; i < BPP_TOTAL; i++) {
-      if (driver_list[what_driver].mode_list[what_mode].bpp[i]) {
-         j++;
-         if (j == what_bpp) switch (i) {
-            case BPP_08: *color_depth = 8;  break;
-            case BPP_15: *color_depth = 15; break;
-            case BPP_16: *color_depth = 16; break;
-            case BPP_24: *color_depth = 24; break;
-            case BPP_32: *color_depth = 32; break;
+   if (extd) {
+      j = -1;
+      for (i=0; i < BPP_TOTAL; i++) {
+         if (driver_list[what_driver].mode_list[what_mode].bpp[i]) {
+            j++;
+            if (j == what_bpp) switch (i) {
+               case BPP_08: *color_depth = 8;  break;
+               case BPP_15: *color_depth = 15; break;
+               case BPP_16: *color_depth = 16; break;
+               case BPP_24: *color_depth = 24; break;
+               case BPP_32: *color_depth = 32; break;
+            }
          }
       }
    }
@@ -618,3 +583,12 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
       return TRUE;
 }
 
+/* gfx_mode_select:
+ *  Displays the Allegro graphics mode selection dialog, which allows the
+ *  user to select a screen mode and graphics card. Stores the selection
+ *  in the three variables, and returns zero if it was closed with the 
+ *  Cancel button, or non-zero if it was OK'd.
+ */
+int gfx_mode_select(int *card, int *w, int *h) {
+   return gfx_mode_select_ex(card, w, h, NULL);
+}
