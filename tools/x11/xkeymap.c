@@ -218,15 +218,15 @@ static int d_my_list_proc(int msg, DIALOG *d, int c)
 }
 
 static DIALOG keymap_dialog[] = {
-   /* 0 */{d_clear_proc,    0,   0, 250, 230, 0,   0,   0, 0,      0, 0, 0},
-   /* 1 */{d_ctext_proc,  125,  10,   0,  16, 0, 255,   0, 0,      0, 0, "Select Keycode:"},
-   /* 2 */{d_my_list_proc, 10,  32, 230,  92, 0, 255,   0, D_EXIT, 0, 0, (void *)keycode_getter},
-   /* 3 */{d_ctext_proc,  125, 142,   0,  16, 0, 255,   0, 0,      0, 0, unicode_description},
-   /* 4 */{d_button_proc,  10, 164, 230,  16, 0, 255,   0, D_EXIT, 0, 0, "Define &X Key !"},
-   /* 5 */{d_button_proc,  10, 186, 110,  16, 0, 255,  27, D_EXIT, 0, 0, "&Cancel"},
-   /* 6 */{d_button_proc, 130, 186, 110,  16 , 0, 255,  0, D_EXIT, 0, 0, "&Done"},
-   /* 7 */{d_ctext_proc,  125, 208, 0,  16, 0, 255,   0, 0,      0, 0, ""},
-   /* 8 */{NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+   /* 0 */{d_clear_proc,    0,   0, 250, 230, 0,   0,   0, 0,      0, 0, 0, NULL, NULL},
+   /* 1 */{d_ctext_proc,  125,  10,   0,  16, 0, 255,   0, 0,      0, 0, "Select Keycode:", NULL, NULL},
+   /* 2 */{d_my_list_proc, 10,  32, 230,  92, 0, 255,   0, D_EXIT, 0, 0, (void *)keycode_getter, NULL, NULL},
+   /* 3 */{d_ctext_proc,  125, 142,   0,  16, 0, 255,   0, 0,      0, 0, unicode_description, NULL, NULL},
+   /* 4 */{d_button_proc,  10, 164, 230,  16, 0, 255,   0, D_EXIT, 0, 0, "Define &X Key !", NULL, NULL},
+   /* 5 */{d_button_proc,  10, 186, 110,  16, 0, 255,  27, D_EXIT, 0, 0, "&Cancel", NULL, NULL},
+   /* 6 */{d_button_proc, 130, 186, 110,  16 , 0, 255,  0, D_EXIT, 0, 0, "&Done", NULL, NULL},
+   /* 7 */{d_ctext_proc,  125, 208, 0,    16, 0, 255,   0, 0,      0, 0, "", NULL, NULL},
+   /* 8 */{NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL},
 };
 
 /* handle the setup command */
@@ -387,7 +387,7 @@ void load_table(unsigned short *table, char *section)
 }
 
 /* handle the load command */
-int static load_keyconfig(void)
+static int load_keyconfig(void)
 {
    char buf[FILENAME_LENGTH] = "";
 
@@ -437,14 +437,14 @@ int static load_keyconfig(void)
 }
 
 static DIALOG main_dialog[] = {
-   /* 0 */{d_clear_proc,   0,   0, 250, 102, 0,   0,   0, 0,      0, 0, 0},
-   /* 1 */{d_ctext_proc, 120,  10,   0,  16, 0, 255, 'c', 0,      0, 0, current_mapping_string},
-   /* 2 */{d_button_proc, 10,  32, 230,  16, 0, 255,   0, D_EXIT, 0, 0, "&Change Allegro key mappings"},
-   /* 3 */{d_button_proc, 10,  54, 230,  16, 0, 255, 'm', D_EXIT, 0, 0, "Setup X key &mappings"},
-   /* 4 */{d_button_proc, 10,  76, 230,  16, 0, 255, 't', D_EXIT, 0, 0, "&Test X key mappings"},
-   /* 5 */{d_button_proc, 10,  98, 230,  16, 0, 255, 's', D_EXIT, 0, 0, "&Save and exit"},
-   /* 6 */{d_button_proc, 10, 120, 230,  16, 0, 255,  27, D_EXIT, 0, 0, "E&xit"},
-   /* 7 */{NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+   /* 0 */{d_clear_proc,   0,   0, 250, 102, 0,   0,   0, 0,      0, 0, 0, NULL, NULL},
+   /* 1 */{d_ctext_proc, 120,  10,   0,  16, 0, 255, 'c', 0,      0, 0, current_mapping_string, NULL, NULL},
+   /* 2 */{d_button_proc, 10,  32, 230,  16, 0, 255,   0, D_EXIT, 0, 0, "&Change Allegro key mappings", NULL, NULL},
+   /* 3 */{d_button_proc, 10,  54, 230,  16, 0, 255, 'm', D_EXIT, 0, 0, "Setup X key &mappings", NULL, NULL},
+   /* 4 */{d_button_proc, 10,  76, 230,  16, 0, 255, 't', D_EXIT, 0, 0, "&Test X key mappings", NULL, NULL},
+   /* 5 */{d_button_proc, 10,  98, 230,  16, 0, 255, 's', D_EXIT, 0, 0, "&Save and exit", NULL, NULL},
+   /* 6 */{d_button_proc, 10, 120, 230,  16, 0, 255,  27, D_EXIT, 0, 0, "E&xit", NULL, NULL},
+   /* 7 */{NULL, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, NULL},
 };
 
 static void show_main_dialog(void)
