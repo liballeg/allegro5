@@ -79,7 +79,8 @@ Contributors
    Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
    Modified routines in poly3d.c for subpixel and subtexel accuracy.
    Speed enhancements in polygon functions.  Fixed blending in C version of 
-   atex_lit scanline functions.
+   atex_lit scanline functions, added scanline subdivisions in C scanline 
+   functions.
 
    Burton Radons (<email>loth@gec.net</a>).<br>
    Optimised the truecolor pixel blending function, converted the blenders 
