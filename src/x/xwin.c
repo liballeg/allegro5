@@ -205,7 +205,6 @@ static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int t
 static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
-static void _xwin_private_vsync(void);
 static void _xwin_private_resize_window(int w, int h);
 static void _xwin_private_process_event(XEvent *event);
 static void _xwin_private_set_warped_mouse_mode(int permanent);
@@ -1993,7 +1992,7 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
    /* Wait for VBI.  */
    if (vsync)
-      _xwin_private_vsync();
+      _xwin_vsync();
 
    if (_xwin.set_colors != 0) {
       if (blitter_func) {
@@ -2096,21 +2095,8 @@ void _xwin_flush_buffers(void)
 /* _xwin_vsync:
  *  Emulation of vsync.
  */
-static void _xwin_private_vsync(void)
-{
-#if 0
-   _xwin_private_flush_buffers();
-#endif
-}
-
 void _xwin_vsync(void)
 {
-#if 0
-   XLOCK();
-   _xwin_private_vsync();
-   XUNLOCK();
-#endif
-
    if (_timer_installed) {
       int prev = retrace_count;
 
