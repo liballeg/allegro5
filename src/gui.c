@@ -1779,7 +1779,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 { 
    MENU_INFO m;
    int ret = D_O_K;
-   int x;
+   int x, i;
 
    switch (msg) {
 
@@ -1805,10 +1805,25 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 
       case MSG_GOTMOUSE:
       case MSG_CLICK:
+	 /* steal the focus */
+	 i = find_dialog_focus(active_dialog);
+	 if (i >= 0) {
+	    active_dialog[i].flags &= ~D_GOTMOUSE;
+	    SEND_MESSAGE(active_dialog+i, MSG_LOSTMOUSE, 0);
+	 }
+
+	 /* run the menu */
 	 _do_menu(d->dp, NULL, TRUE, d->x-1, d->y-1, FALSE, &x, d->w+2, d->h+2);
 	 ret |= x;
 	 do {
 	 } while (gui_mouse_b());
+
+	 /* put the focus */
+	 i = find_mouse_object(active_dialog);
+	 if (i >= 0) {
+	    active_dialog[i].flags |= D_GOTMOUSE;
+	    SEND_MESSAGE(active_dialog+i, MSG_GOTMOUSE, 0);
+	 }
 	 break;
    }
 
