@@ -1,0 +1,26 @@
+          ______   ___    ___
+         /\  _  \ /\_ \  /\_ \
+         \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+          \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+           \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+            \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+             \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+                                            /\____/
+                                            \_/__/
+ 
+       README for allegro community.
+ 
+       By Ronaldo H. Yamada
+  
+       See readme.txt for copyright information.
+ 
+ 
+Macallegro (C)2000 Ronaldo H.Yamada
+
+The files install.mac and allegro.make must be at main allegro dir
+others files in the repective folders
+
+The instructions about install are in install.mac
+
+The instructions about use <todo> 
+The mactests folder are incomplete now

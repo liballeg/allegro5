@@ -1,0 +1,2 @@
+#This MPW Script should put at Startup Items in MPW Folder else run install.mac 
+Set -e Allegro {Libraries}::Allegro:
