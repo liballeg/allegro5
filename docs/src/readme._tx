@@ -306,37 +306,51 @@ Contact info
    text "unsubscribe {list}" in the body of your message, where {list} is 
    one of allegro, agp, alcomp, or conductors.
 
-   The fifth list (Allegro 5) is hosted on SourceForge and instructions on
-   how to subscribe/unsubscribe can be found at the Web address listed above.
-   
    Note that the address for subscribing and unsubscribing is NOT the same 
    as the regular address for posting messages! Please remember to send your 
    administration requests to the listserv, rather than to the list itself.
 
+   The fifth list (Allegro 5) is hosted on SourceForge and instructions on
+   how to subscribe/unsubscribe can be found at the Web address listed above.
+   
    To send a message to one of the lists, write to allegro@canvaslink.com, 
-   agp@canvaslink.com, alcomp@canvaslink.com, or conductors@canvaslink.com.
-   You don't need to be subscribed to these lists before you can post to
-   them, but it is a good idea to subscribe in order to see the replies. It
-   is ok to post code contributions to the developers list without being
-   subscribed, though, as long as you mention this in your mail so we will
-   know to reply by private email. Before posting tech-support questions to
-   the Allegro list, please take a moment to read the guidelines in
-   docs/txt/help.txt.
+   agp@canvaslink.com, alcomp@canvaslink.com, conductors@canvaslink.com, or
+   alleg-bigfive@lists.sourceforge.net. You don't need to be subscribed to
+   these lists before you can post to them, but it is a good idea to
+   subscribe in order to see the replies. It is ok to post code contributions
+   to the developers list without being subscribed, though, as long as you
+   mention this in your mail so we will know to reply by private email.
+   Before posting tech-support questions to the Allegro list, please take a
+   moment to read the guidelines in docs/txt/help.txt. See docs/txt/ahack.txt
+   for information about the style of code we use, and how to create your
+   patches.
 
-   You can search through the mailing list archives using the engine on 
-   <link>http://www.canvaslink.com/allegro/search.htm</a>.
+   You can search through the mailing list archives of the main mailing list
+   using the engine on <link>http://www.canvaslink.com/allegro/search.htm</a>.
+   For the other mailing list, you will have to check the available options
+   at <link>http://alleg.sourceforge.net/maillist.html</a>.
 
-   Note: please don't send messages in HTML format. The increased size 
-   places an unnecessary load on the server, and many subscribers have a 
-   hard time reading these posts.
+   Please don't send messages in HTML format. The increased size places an
+   unnecessary load on the server, and many subscribers have a hard time
+   reading these posts.
 
-   Note: please do not crosspost between these lists. Choose the most 
-   appropriate one for your message, and then send it only to that list.
+   Please do not crosspost between these lists. Choose the most appropriate
+   one for your message, and then send it only to that list.
 
-   Note: please don't send large binary attachments to any of the lists. 
-   Upload your files to a website and then post the URL, or if you can't do 
-   that, post an annoucement asking people to write to you privately, and 
-   then send the file by individual email to whoever responds.
+   Please don't send large binary attachments to any of the lists. Upload
+   your files to a website and then post the URL, or if you can't do that,
+   post an annoucement asking people to write to you privately, and then send
+   the file by individual email to whoever responds.
+   
+   Please use English in your messages. You could eventually post messages in
+   whatever language you prefer, but that would terribly limit the chances of
+   getting a useful answer.
+   
+   Remember that the RFC 1855: netiquette guidelines
+   (<link>http://www.rfc-editor.org/rfc/rfc1855.txt</a>) describes other general
+   guidelines you should follow as a correct internet user (in mailing lists
+   and other places as well), and provides more verbose descriptions and
+   explanations about why you should follow the above guidelines.
 
    My personal address is shawn@talula.demon.co.uk, but please try to avoid 
    mailing me personally about anything other than personal issues. Use the 
