@@ -88,6 +88,10 @@ DJGPP problems
 @@   When I run make, it says "makefile has modification time in the future".
 </font>
       Are you sure that your system time and date are set correctly?
+      Alternatively you may have downloaded a fresh file made by someone in a
+      more eastern timezone. In the latter case you can either wait a few
+      hours, temporarily set your clock forward, or use a utility such as
+      "touch" to change the timestamp of the files.
 
 <li><font size="+1">
 @@   When I run make, it says "virtual memory exhausted".
