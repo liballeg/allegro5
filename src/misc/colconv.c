@@ -144,9 +144,6 @@ static void build_rgb_scale_5335_table(int to_depth)
 static void create_indexed_palette(int to_depth)
 {
    switch (to_depth) {
-      case 8:
-         indexed_palette_size = 0;
-         return;
 
       case 15:
       case 16:
@@ -248,7 +245,6 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               create_indexed_palette(8);
                create_rgb_map(8);
                return &_colorconv_blit_8_to_8;
 
