@@ -674,6 +674,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 {
    DIALOG_PLAYER *player = malloc(sizeof(DIALOG_PLAYER));
    struct al_active_player *n = 0;
+   char tmp1[64], tmp2[64];
    int c;
 
    if (!player)
@@ -720,10 +721,10 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
       install_int(dclick_check, 20);
 
       if (get_display_switch_mode() == SWITCH_AMNESIA)
-	 set_display_switch_callback(SWITCH_IN, gui_switch_callback);
+         set_display_switch_callback(SWITCH_IN, gui_switch_callback);
 
       /* gets menu auto-opening delay (in milliseconds) from config file */
-      gui_menu_opening_delay = get_config_int(NULL, "menu_opening_delay", 300);
+      gui_menu_opening_delay = get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("menu_opening_delay", tmp2), 300);
       if (gui_menu_opening_delay >= 0) {
          /* adjust for actual timer speed */
          gui_menu_opening_delay /= 20;
