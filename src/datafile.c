@@ -96,7 +96,7 @@ static void *read_block(PACKFILE *f, int size, int alloc_size)
 static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
 {
    int x, y, w, h, c, r, g, b, a;
-   int destbits, dither8, prev_drawmode, rgba;
+   int destbits, rgba;
    unsigned short *p16;
    unsigned long *p32;
    BITMAP *bmp;
@@ -113,24 +113,14 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
    else
       destbits = 8;
 
-   if ((destbits == 8) && (bits > 8) && (_color_conv & COLORCONV_DITHER_PAL)) {
-      destbits = bits;
-      dither8 = TRUE;
-   }
-   else
-      dither8 = FALSE;
-
    w = pack_mgetw(f);
    h = pack_mgetw(f);
 
-   bmp = create_bitmap_ex(destbits, w, h);
+   bmp = create_bitmap_ex(bits, w, h);
    if (!bmp) {
       *allegro_errno = ENOMEM;
       return NULL;
    }
-
-   prev_drawmode = _drawing_mode;
-   _drawing_mode = DRAW_MODE_SOLID;
 
    switch (bits) {
 
@@ -139,281 +129,91 @@ static BITMAP *read_bitmap(PACKFILE *f, int bits, int allowconv)
 	 load_st_data(bmp->dat, w*h/2, f);
 	 break;
 
-
       case 8:
 	 /* 256 color bitmap */
-	 if (destbits == 8) {
-	    pack_fread(bmp->dat, w*h, f);
-	 }
-	 else {
-	    /* expand 256 colors into truecolor */
-	    for (y=0; y<h; y++) {
-	       for (x=0; x<w; x++) {
-		  c = pack_getc(f);
-		  r = getr8(c);
-		  g = getg8(c);
-		  b = getb8(c);
-		  c = makecol_depth(destbits, r, g, b);
-		  putpixel(bmp, x, y, c);
-	       }
+	 pack_fread(bmp->dat, w*h, f);
+
+	 break;
+
+      case 15:
+	 /* 15bit hicolor */
+	 for (y=0; y<h; y++) {
+	    p16 = (unsigned short *)bmp->line[y];
+
+	    for (x=0; x<w; x++) {
+	       c = pack_igetw(f);
+	       r = _rgb_scale_5[(c >> 11) & 0x1F]; /* stored as 16 bit */
+	       g = _rgb_scale_6[(c >> 5) & 0x3F];
+	       b = _rgb_scale_5[c & 0x1F];
+	       p16[x] = makecol15(r, g, b);
 	    }
 	 }
 	 break;
 
-
-      case 15:
       case 16:
-	 /* hicolor */
-	 switch (destbits) {
+	 /* 16bit hicolor */
+	 for (y=0; y<h; y++) {
+	    p16 = (unsigned short *)bmp->line[y];
 
-	 #ifdef ALLEGRO_COLOR8
-
-	    case 8:
-	       /* reduce hicolor to 256 colors */
-	       for (y=0; y<h; y++) {
-		  for (x=0; x<w; x++) {
-		     c = pack_igetw(f);
-		     r = _rgb_scale_5[(c >> 11) & 0x1F];
-		     g = _rgb_scale_6[(c >> 5) & 0x3F];
-		     b = _rgb_scale_5[c & 0x1F];
-		     bmp->line[y][x] = makecol8(r, g, b);
-		  }
-	       }
-	       break;
-
-	 #endif
-
-	 #ifdef ALLEGRO_COLOR16
-
-	    case 15:
-	       /* load hicolor to a 15 bit hicolor bitmap */
-	       for (y=0; y<h; y++) {
-		  p16 = (unsigned short *)bmp->line[y];
-
-		  for (x=0; x<w; x++) {
-		     c = pack_igetw(f);
-		     r = _rgb_scale_5[(c >> 11) & 0x1F];
-		     g = _rgb_scale_6[(c >> 5) & 0x3F];
-		     b = _rgb_scale_5[c & 0x1F];
-		     p16[x] = makecol15(r, g, b);
-		  }
-	       }
-	       break;
-
-	    case 16:
-	       /* load hicolor to a 16 bit hicolor bitmap */
-	       for (y=0; y<h; y++) {
-		  p16 = (unsigned short *)bmp->line[y];
-
-		  for (x=0; x<w; x++) {
-		     c = pack_igetw(f);
-		     r = _rgb_scale_5[(c >> 11) & 0x1F];
-		     g = _rgb_scale_6[(c >> 5) & 0x3F];
-		     b = _rgb_scale_5[c & 0x1F];
-		     p16[x] = makecol16(r, g, b);
-		  }
-	       }
-	       break;
-
-	 #endif
-
-	 #ifdef ALLEGRO_COLOR24
-
-	    case 24:
-	       /* load hicolor to a 24 bit truecolor bitmap */
-	       for (y=0; y<h; y++) {
-		  for (x=0; x<w; x++) {
-		     c = pack_igetw(f);
-		     r = _rgb_scale_5[(c >> 11) & 0x1F];
-		     g = _rgb_scale_6[(c >> 5) & 0x3F];
-		     b = _rgb_scale_5[c & 0x1F];
-		     bmp->line[y][x*3+_rgb_r_shift_24/8] = r;
-		     bmp->line[y][x*3+_rgb_g_shift_24/8] = g;
-		     bmp->line[y][x*3+_rgb_b_shift_24/8] = b;
-		  }
-	       }
-	       break;
-
-	 #endif
-
-	 #ifdef ALLEGRO_COLOR32
-
-	    case 32:
-	       /* load hicolor to a 32 bit truecolor bitmap */
-	       for (y=0; y<h; y++) {
-		  p32 = (unsigned long *)bmp->line[y];
-
-		  for (x=0; x<w; x++) {
-		     c = pack_igetw(f);
-		     r = _rgb_scale_5[(c >> 11) & 0x1F];
-		     g = _rgb_scale_6[(c >> 5) & 0x3F];
-		     b = _rgb_scale_5[c & 0x1F];
-		     p32[x] = makecol32(r, g, b);
-		  }
-	       }
-	       break;
-
-	 #endif
-
+	    for (x=0; x<w; x++) {
+	       c = pack_igetw(f);
+	       r = _rgb_scale_5[(c >> 11) & 0x1F];
+	       g = _rgb_scale_6[(c >> 5) & 0x3F];
+	       b = _rgb_scale_5[c & 0x1F];
+	       p16[x] = makecol16(r, g, b);
+	    }
 	 }
 	 break;
-
 
       case 24:
-      case 32:
-	 /* truecolor */
-	 switch (destbits) {
+	 /* 24bit truecolor */
+	 for (y=0; y<h; y++) {
+	    for (x=0; x<w; x++) {
+	       r = pack_getc(f);
+	       g = pack_getc(f);
+	       b = pack_getc(f);
 
-	 #ifdef ALLEGRO_COLOR8
+	       if (rgba)
+		  pack_getc(f);
 
-	    case 8:
-	       /* reduce truecolor to 256 colors */
-	       for (y=0; y<h; y++) {
-		  for (x=0; x<w; x++) {
-		     r = pack_getc(f);
-		     g = pack_getc(f);
-		     b = pack_getc(f);
-		     if (rgba)
-			pack_getc(f);
-		     bmp->line[y][x] = makecol8(r, g, b);
-		  }
-	       }
-	       break;
-
-	 #endif
-
-	 #ifdef ALLEGRO_COLOR16
-
-	    case 15:
-	       /* load truecolor to a 15 bit hicolor bitmap */
-	       for (y=0; y<h; y++) {
-		  p16 = (unsigned short *)bmp->line[y];
-
-		  if (_color_conv & COLORCONV_DITHER_HI) {
-		     for (x=0; x<w; x++) {
-			r = pack_getc(f);
-			g = pack_getc(f);
-			b = pack_getc(f);
-
-			if (rgba)
-			   pack_getc(f);
-
-			p16[x] = makecol15_dither(r, g, b, x, y);
-		     }
-		  }
-		  else {
-		     for (x=0; x<w; x++) {
-			r = pack_getc(f);
-			g = pack_getc(f);
-			b = pack_getc(f);
-
-			if (rgba)
-			   pack_getc(f);
-
-			p16[x] = makecol15(r, g, b);
-		     }
-		  }
-	       }
-	       break;
-
-	    case 16:
-	       /* load truecolor to a 16 bit hicolor bitmap */
-	       for (y=0; y<h; y++) {
-		  p16 = (unsigned short *)bmp->line[y];
-
-		  if (_color_conv & COLORCONV_DITHER_HI) {
-		     for (x=0; x<w; x++) {
-			r = pack_getc(f);
-			g = pack_getc(f);
-			b = pack_getc(f);
-
-			if (rgba)
-			   pack_getc(f);
-
-			p16[x] = makecol16_dither(r, g, b, x, y);
-		     }
-		  }
-		  else {
-		     for (x=0; x<w; x++) {
-			r = pack_getc(f);
-			g = pack_getc(f);
-			b = pack_getc(f);
-
-			if (rgba)
-			   pack_getc(f);
-
-			p16[x] = makecol16(r, g, b);
-		     }
-		  }
-	       }
-	       break;
-
-	 #endif
-
-	 #ifdef ALLEGRO_COLOR24
-
-	    case 24:
-	       /* load truecolor to a 24 bit truecolor bitmap */
-	       for (y=0; y<h; y++) {
-		  for (x=0; x<w; x++) {
-		     r = pack_getc(f);
-		     g = pack_getc(f);
-		     b = pack_getc(f);
-
-		     if (rgba)
-			pack_getc(f);
-
-		     bmp->line[y][x*3+_rgb_r_shift_24/8] = r;
-		     bmp->line[y][x*3+_rgb_g_shift_24/8] = g;
-		     bmp->line[y][x*3+_rgb_b_shift_24/8] = b;
-		  }
-	       }
-	       break;
-
-	 #endif
-
-	 #ifdef ALLEGRO_COLOR32
-
-	    case 32:
-	       /* load truecolor to a 32 bit truecolor bitmap */
-	       for (y=0; y<h; y++) {
-		  p32 = (unsigned long *)bmp->line[y];
-
-		  for (x=0; x<w; x++) {
-		     r = pack_getc(f);
-		     g = pack_getc(f);
-		     b = pack_getc(f);
-
-		     if (rgba)
-			a = pack_getc(f);
-		     else
-			a = 0;
-
-		     p32[x] = makeacol32(r, g, b, a);
-		  }
-	       }
-	       break;
-
-	 #endif
-
+	       bmp->line[y][x*3+_rgb_r_shift_24/8] = r;
+	       bmp->line[y][x*3+_rgb_g_shift_24/8] = g;
+	       bmp->line[y][x*3+_rgb_b_shift_24/8] = b;
+	    }
 	 }
 	 break;
+
+      case 32:
+	 /* 32bit rgba */
+	 for (y=0; y<h; y++) {
+	    p32 = (unsigned long *)bmp->line[y];
+
+	    for (x=0; x<w; x++) {
+	       r = pack_getc(f);
+	       g = pack_getc(f);
+	       b = pack_getc(f);
+
+	       if (rgba)
+		  a = pack_getc(f);
+	       else
+		  a = 0;
+
+	       p32[x] = makeacol32(r, g, b, a);
+	    }
+	 }
+	 break;
+
    }
 
-   _drawing_mode = prev_drawmode;
-
-   /* postprocess for paletted dithering */
-   if (dither8) {
-      BITMAP *tmp = create_bitmap_ex(8, bmp->w, bmp->h);
-      if (!tmp) {
-	 destroy_bitmap(bmp);
+   if (bits != destbits) {
+      BITMAP *tmp = bmp;
+      bmp = create_bitmap_ex(destbits, w, h);
+      if (!bmp) {
 	 *allegro_errno = ENOMEM;
 	 return NULL;
       }
-
-      blit(bmp, tmp, 0, 0, 0, 0, bmp->w, bmp->h);
-      destroy_bitmap(bmp);
-      bmp = tmp;
+      blit(tmp, bmp, 0, 0, 0, 0, bmp->w, bmp->h);
+      destroy_bitmap(tmp);
    }
 
    return bmp;
@@ -1781,6 +1581,8 @@ void fixup_datafile(DATAFILE *data)
 			r = _rgb_scale_5[c & 0x1F];
 			g = _rgb_scale_6[(c >> 5) & 0x3F];
 			b = _rgb_scale_5[(c >> 11) & 0x1F];
+			if (_color_conv & COLORCONV_KEEP_TRANS && depth == 15 &&
+			   c == 0xf83f) g = 8; /* don't end up as mask color */
 			p16[x] = makecol_depth(depth, r, g, b);
 		     }
 		  }
