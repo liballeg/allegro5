@@ -193,7 +193,7 @@ endif
 
 # -------- list platform specific objects and programs --------
 
-VPATH = src/win src/misc tests/win tools/win
+VPATH = src/win src/misc src/compat tests/win tools/win
 
 ifdef ALLEGRO_USE_C
 
@@ -510,7 +510,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MINGW32
 
 depend:
-	$(CC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/compat/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
 	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	$(CC) $(DEPEND_PARAMS) -x c tests/*.cpp >> _depend.tmp
