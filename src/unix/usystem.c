@@ -31,6 +31,8 @@
     * _POSIX_PRIORITY_SCHEDULING in unistd.h
     */
    #include <sched.h>
+#else
+   #include <sys/time.h>
 #endif
 
 #ifdef HAVE_SYS_UTSNAME_H
