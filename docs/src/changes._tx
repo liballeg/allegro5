@@ -60,9 +60,9 @@ Changes from 4.0.2 to 4.0.3 (Dec 2002)
    Eric Botcazou prevented set_gfx_mode() from resetting the layout of all
    color depths.
 <li>
-   Oscar Ginet added the Catalan translation.
+   Oscar Giner added the Catalan translation.
 <li>
-   Oscar Ginet corrected the Spanish translation.
+   Oscar Giner corrected the Spanish translation.
 <li>
    Eric Botcazou prevented the linker from choking on Solaris because of a
    static library with no symbols.
