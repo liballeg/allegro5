@@ -223,13 +223,10 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
       case WM_SETCURSOR:
          mouse_set_syscursor();
-         return TRUE;
+         return 1;  /* not TRUE */
 
       case WM_ACTIVATEAPP:
-         /* We can't compare 'wparam' against TRUE because of a conflict
-          * between Allegro's and Win32's definitions of TRUE.
-          */
-         if (wparam) { 
+         if ((BOOL)wparam) {  /* not TRUE */
             if (gfx_driver && !gfx_driver->windowed) {
                /* 1.2s delay to let Windows complete the switch in fullscreen mode */
                SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);
