@@ -219,6 +219,7 @@ END_JOYSTICK_DRIVER_LIST
 
 BEGIN_MIDI_DRIVER_LIST
    { MIDI_ALSA,         &midi_alsa,         TRUE  },
+   { MIDI_DIGMID,       &midi_digmid,       TRUE  },
 END_MIDI_DRIVER_LIST
 
 
