@@ -12,9 +12,9 @@
 if [ $# -lt 3 -o $# -gt 4 ]; then
    if [ $# -eq 1 -a $1 == "datestamp" ]; then
       ver=`grep "version=[0-9]" misc/allegro-config.in`
-      major_num=`echo $ver | sed -e "s/version=\([0-9]\).*/\1/" -`
-      sub_num=`echo $ver | sed -e "s/version=[0-9].\([0-9]\).*/\1/" -`
-      wip_num=`echo $ver | sed -e "s/version=[0-9].[0-9].\([0-9]\).*/\1/" -`
+      major_num=`echo $ver | sed -e "s/version=\([0-9]\).*/\1/"`
+      sub_num=`echo $ver | sed -e "s/version=[0-9]\.\([0-9]\).*/\1/"`
+      wip_num=`echo $ver | sed -e "s/version=[0-9]\.[0-9]\.\([0-9]\+\).*/\1/"`
       $0 $major_num $sub_num $wip_num `date '+%Y%m%d'`
       exit 0
    else
