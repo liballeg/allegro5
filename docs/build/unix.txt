@@ -35,7 +35,7 @@
 
    Since you are using a Real Operating System, the chances are that you 
    already have all the necessary development tools, at least for compiling 
-   and installing the library. However, you may also need autoconf if you 
+   and installing the library. However, you may also need GNU autoconf if you 
    make any changes that require you to regenerate the configure script.
 
 
@@ -90,15 +90,19 @@
    --enable-static but not --disable-shared, you will get both shared and 
    statically linked versions of Allegro.
 
-   By default, Allegro will probably install into the /usr/local 
-   filesystem. If this hasn't already been set up on your machine, you may 
-   have trouble with programs being unable to find the Allegro shared 
-   library. You can fix this by adding "/usr/local/lib" to your 
-   /etc/ld.so.conf file, and then running ldconfig.
+   By default, Allegro will probably install into the /usr/local filesystem.
+   If this hasn't already been set up on your machine, you may have trouble
+   with programs being unable to find the Allegro shared library. On some
+   Unices (for example Linux), you can fix this by adding "/usr/local/lib" to
+   your /etc/ld.so.conf file and then running 'ldconfig' as root. On others
+   (for example Solaris), you can hardcode the location of the library into
+   the executables by passing "-R/usr/local/lib" to the compiler or linker.
+   Alternatively, you can add the path to your LD_LIBRARY_PATH environment
+   variable.
 
    If you are compiling a CVS version of Allegro, you need to generate the
    configure header and script prior to doing anything else. Make sure that
-   autoconf 2.53 or newer is installed on your system and type:
+   GNU autoconf 2.53 or newer is installed on your system and type:
 
       autoheader   
       autoconf
