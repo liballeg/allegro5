@@ -351,3 +351,13 @@ Contact info
    guidelines you should follow as a correct internet user (in mailing lists
    and other places as well), and provides more verbose descriptions and
    explanations about why you should follow the above guidelines.
+
+   One of the important guidelines you should be aware of is how to quote
+   correctly the message you are replying to. The previous RFC doesn't really
+   explain how to do it, so you might want to read the document "How do I
+   quote correctly in Usenet?" at
+   <link>http://www.netmeister.org/news/learn2quote.html</a>. Quoting correctly is
+   easier to say than to do, especially for users of Microsoft Outlook. If
+   you are such a user, you can help yourself using the Outlook-QuoteFix
+   extension written by Dominik Jain, which you can find at
+   <link>http://home.in.tum.de/~jain/software/outlook-quotefix/</a>.
