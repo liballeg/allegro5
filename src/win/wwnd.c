@@ -396,11 +396,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
-
-            /* needed to get rid of the lost mouse pointer
-             * because the system doesn't send any WM_PAINT message.
-             */
-            InvalidateRect(allegro_wnd, NULL, TRUE);
          }
          break;
 
