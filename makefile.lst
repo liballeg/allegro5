@@ -495,15 +495,14 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exzbuf
 
 ALLEGRO_NOLIB_EXE_SOURCES = \
-	docs/makedoc.c \
-	src/i386/asmdef.c
+	docs/makedoc.c
 
 OBJ_CLEAN_FILES = \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj
 
 OTHER_CLEAN_FILES = \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
-	obj/*/*.res obj/*/asmdef obj/*/*.inc src/i386/asmdef \
+	obj/*/*.res obj/*/asmdef obj/*/*.inc \
 	lib/*/*.a lib/unix/*.so* lib/unix/sta* \
 	lib/*/*.lib lib/*/*.exp lib/*/*.dll \
 	lib/*/*.pdb lib/*/*.ilk lib/*/*.map *.pdb */*.pdb \
