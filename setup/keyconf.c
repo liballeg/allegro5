@@ -53,6 +53,7 @@ char *scancode_name[] =
    "KEY_PRTSCR",     "KEY_PAUSE",      "KEY_ABNT_C1",    "KEY_YEN",
    "KEY_KANA",       "KEY_CONVERT",    "KEY_NOCONVERT",  "KEY_AT",
    "KEY_CIRCUMFLEX", "KEY_COLON2",     "KEY_KANJI",
+   "KEY_EQUALS_PAD", "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_COMMAND",
    "KEY_LSHIFT",     "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",
    "KEY_ALT",        "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",
    "KEY_MENU",       "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",
