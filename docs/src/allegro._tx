@@ -695,7 +695,7 @@ available in past/future versions of Allegro.
 @@typedef struct @PACKFILE
 @xref File and compression routines, pack_fopen, pack_fopen_chunk
 <codeblock>
-   int hndl;                   - DOS file handle
+   int hndl;                   - System file handle
    int flags;                  - PACKFILE_FLAG_* constants
    char *filename;             - name of the file
 <endblock>
