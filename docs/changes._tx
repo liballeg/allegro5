@@ -11,6 +11,162 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.40: Julien Cugniere spotted a misplaced semi-colon.
+<li>
+   3.9.40: Peter Wang did a minor reordering in text.h.
+<li>
+   3.9.40: Eric Botcazou enabled SSE support under Linux. Also reduced the
+   delay in the DOS Sidewinder init code. Made the definition of _AL_DLL
+   for MinGW32 consistent with other Windows ports.
+<li>
+   3.9.40: Henrik Stokseth improved make install to install only the needed
+   headers from the include/allegro/platform directory.
+<li>
+   3.9.40: Vincent Penquerc updated 7 makefiles after his header splitting
+   patch.
+<li>
+   3.9.40: Robert J. Ohannessian added two new entries to the GFX_VTABLE
+   structure.
+<li>
+   3.9.40: Eric Botcazou replaced sprintf() by snprintf() in the Linux/Unix
+   code. Increased the delay in the Windows switch handling code.
+   Unicodified the GFX mode selector and fixed some glitches. Added a new
+   test dubbed filetest. Fixed more unicode string problems. Unified the
+   handling of system directory variables in the Windows makefiles. Made
+   two strings translatable in the GFX mode selector.
+<li>
+   3.9.40: Ben Davis added support for param'd timers under Windows.
+<li>
+   3.9.40: Eric Botcazou fixed the bug in the asm sprite functions when
+   used with sub-bitmaps. Fixed a problem of the new header layout for
+   platforms not supporting asm.
+<li>
+   3.9.40: George Foot and Eric Botcazou fixed the C fceil() function and
+   added the ffloor() function.
+<li>
+   3.9.40: Chris Graham suggested to add a new flag for Windows NTFS
+   compressed files.
+<li>
+   3.9.40: Henrik Schmidt and I found a workaround for the switching
+   problem under Windows.
+<li>
+   3.9.40: Eric Botcazou revamped the Borland C++ build process. Now it
+   targets BC++ 5.5. Made pack_fdopen() an exported internal function.
+   Reverted to the 3.9.38 code for 16-bit audio streaming with DirectSound.
+<li>
+   3.9.40: Vincent Penquerc contributed a rather large split-up/
+   reorganization of the Allegro header files. Henrik and Eric did some
+   related clean-up and fixing.
+<li>
+   3.9.40: Peter Wang updated put_backslash docs.
+<li>
+   3.9.40: Eric Botcazou modified the way DirectDraw surfaces are
+   enumerated. Fixed compilation errors/warnings with BC++. Made
+   generate_optimized_palette_ex() a static function. Worked around the DOS
+   limitations for al_findfirst() and for_each_file(). Moved platform-
+   dependant stuff out of src/fsel.c.
+<li>
+   3.9.40: Peter Wang updated timer docs for non-DOS. Added ABI
+   compatibility readme. Removed yield_timeslice from XUNLOCK.
+<li>
+   3.9.40: Javier Gonzalez removed all references to the RSXNT build.
+<li>
+   3.9.40: Vincent Penquerc made it so that users can provide their own
+   ustrdup().
+<li>
+   3.9.40: Robin Burrows fixed two glitches in the DirectDraw code.
+<li>
+   3.9.40: Peter Wang fixed a problem where XUnlockDisplay was called after
+   XCloseDisplay.
+<li>
+   3.9.40: Eric Botcazou removed old Sidewinder asm driver. Cleaned up
+   buffer usage in DIGMID. Fixed unicode support in the DIGMID driver.
+   Replaced all ocurrences of SEND_MESSAGE() by object_message().
+<li>
+   3.9.40: Annie Testes caught a misordering in the X system shutdown.
+<li>
+   3.9.40: Eric Botcazou increased the size of filename buffers to 1024
+   bytes.
+<li>
+   3.9.40: Sven Sandberg improved fix.bat script.
+<li>
+   3.9.40: David Capello fixed a problem with lost GUI mouse clicks.
+<li>
+   3.9.40: Vincent Penquerc removed two hard-coded list sizes in grabber.
+<li>
+   3.9.40: Peter Wang added a little clarification reg. mouse_accel_factor.
+<li>
+   3.9.40: Eric Botcazou made debugging functions revert to ASCII strings.
+   Added some defines for backwards compatibility with former cpu_* flags.
+   Fixed a compilation problem under DJGPP.
+<li>
+   3.9.40: Henrik Stokseth added VBE/AF fetch_mode_list().
+<li>
+   3.9.40: Robert J. Ohannessian revamped the retreival mechanism of CPU
+   capabilities and added some new flags.
+<li>
+   3.9.40: Eric Botcazou fixed various mouse cursor problems under Windows.
+   Updated docs about the DIGI_DIRECTX drivers.
+<li>
+   3.9.40: Javier Gonzalez fixed audio streams in Windows.
+<li>
+   3.9.40: Peter Wang improved the XDGA2 driver by removing unneccessary
+   scrolling, which also resulted in speed-ups due to less
+   locking/unlocking. Added yield after releasing X lock which appears
+   to improve event handling. Also static'd a bunch of datafile loader
+   routines and underscored datafile_type.
+<li>
+   3.9.40: Eric Botcazou and Javier Gonzalez added some documentation on
+   static linking with MSVC/MinGW32.
+<li>
+   3.9.40: Peter Wang fixed sonames for debug and profile libs. Also added
+   a 'configure' check that ld supports -export-modules before enabling
+   modules.
+<li>
+   3.9.40: Annie Testes found ASCII strings that needed to be converted.
+   Also added a pack_fdopen() function.
+<li>
+   3.9.40: Robert J. Ohannessian clarified some Dev-C++ instructions.
+   Fixed fix.bat script under MinGW32/Win2k.
+<li>
+   3.9.40: Marcel Smit corrected a bug that caused errors when drawing
+   persp. correct polys facing the screen. (dz=0)
+<li>
+   3.9.40: Peter Wang made install_timer_int static. Also moved
+   allegro_404_char into public API.
+<li>
+   3.9.40: Laurence Withers added docs for allegro_404_char.
+<li>
+   3.9.40: Eric Botcazou fixed a little glitch with menu auto-opening. Also
+   fixed a color glitch in the Windows windowed driver on 8-bit desktops.
+<li>
+   3.9.40: Salvador Eduardos Tropea fixed inline friend declarations with
+   bodies. (gcc 3.01 problem)
+<li>
+   3.9.40: Peter Wang improved behaviour between mouse auto-opening menus
+   and navigating with keyboard. Also unspartanised the ustrtok_r docs.
+<li>
+   3.9.40: Henrik Stokseth replaced the mmxtest with a more advanced
+   assembler capabilities testing.
+<li>
+   3.9.40: Eric Botcazou eliminated use of static buffers by uconvert() in
+   several places. Also re-enabled full pairing on Pentium for five color
+   conversion routines. Applied xor vs. mov instruction-length optimization
+   to the  non-MMX code. Applied %ecx vs. %edx instruction-length
+   optimization to the non-MMX code. Updated the mouse_accel_factor docs.
+<li>
+   3.9.40: David A. Capello made d_menu_proc steal/return focus when
+   activated/deactivated.
+<li>
+   3.9.40: Henrik Stokseth added Out of Environment space detection on the
+   fix.bat script.
+<li>
+   3.9.40: Eric Botcazou fixed a non ANSI C compilant behaviour in
+   usprintf().
+<li>
+   3.9.40: Seunghwan Ji made makedoc output correct html and rtf files for
+   Korean.
+<li>
    3.9.39: Robert J. Ohannessian added -? and --help options to dat.
 <li>
    3.9.39: Sven Sandberg and Grzegorz Adam Hankiewicz fixed some errors in
