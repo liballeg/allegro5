@@ -396,7 +396,8 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	tools/textconv.c
 
 ALLEGRO_LIB_X_EXE_SOURCES = \
-	tools/x11/xkeymap.c
+	tools/x11/xkeymap.c \
+	tools/x11/xf2pcx.c
 
 ALLEGRO_LIB_EXES = \
 	demo/demo \
@@ -421,7 +422,8 @@ ALLEGRO_LIB_EXES = \
 	tools/textconv
 	
 ALLEGRO_LIB_X_EXES = \
-	tools/x11/xkeymap
+	tools/x11/xkeymap \
+	tools/x11/xf2pcx
 
 ALLEGRO_DATAFILE_EXE_SOURCES = \
 	tools/dat.c \
