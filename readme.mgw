@@ -87,6 +87,9 @@
       reboot, if you want to add it now, type:
 
       path c:\mingw32\bin;%PATH%
+      
+      If you have DJGPP installed, please make sure djgpp\bin is NOT in
+      your PATH. This is known to cause build problems.
 
 
    Test the installation by typing: gcc -v.
