@@ -26,7 +26,6 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
-- Fix mouse cursor in fullscreen mode after win_set_window()
 - Fix ill-behaviour at startup (SetForeground)
 - Investigate plugins script support
 - Investigate problem with keyboard in the dxwindow test

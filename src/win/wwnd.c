@@ -62,7 +62,6 @@ static int old_style = 0;
 /* custom window msgs */
 #define SWITCH_TIMER  1
 static UINT msg_call_proc = 0;
-static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
 /* window modules management */
@@ -188,16 +187,6 @@ void wnd_schedule_proc(int (*proc) (void))
 
 
 
-/* wnd_set_syscursor:
- *  Posts msg to window to set the system mouse cursor.
- */
-void wnd_set_syscursor(int state)
-{
-   PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
-}
-
-
-
 /* directx_wnd_proc:
  *  Window procedure for the Allegro window class.
  */
@@ -207,9 +196,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_call_proc)
       return ((int (*)(void))wparam) ();
-
-   if (message == msg_set_syscursor)
-      return mouse_set_syscursor(wparam);
 
    if (message == msg_suicide) {
       DestroyWindow(wnd);
@@ -234,6 +220,10 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
          allegro_wnd = NULL;
          break;
+
+      case WM_SETCURSOR:
+         mouse_set_syscursor();
+         return TRUE;
 
       case WM_ACTIVATEAPP:
          /* We can't compare 'wparam' against TRUE because of a conflict
@@ -476,7 +466,6 @@ int init_directx_window(void)
 
    /* setup globals */
    msg_call_proc = RegisterWindowMessage("Allegro call proc");
-   msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    if (user_wnd) {

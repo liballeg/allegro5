@@ -137,13 +137,13 @@ static int mymickey_oy = 0;
        (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
       if (_mouse_on) {                              \
          _mouse_on = FALSE;                         \
-         wnd_set_syscursor(TRUE);                   \
+         wnd_call_proc(mouse_set_syscursor);        \
       }                                             \
    }                                                \
    else {                                           \
       if (!_mouse_on) {                             \
          _mouse_on = TRUE;                          \
-         wnd_set_syscursor(FALSE);                  \
+         wnd_call_proc(mouse_set_syscursor);        \
       }                                             \
       _mouse_x = p.x;                               \
       _mouse_y = p.y;                               \
@@ -343,7 +343,7 @@ static void mouse_dinput_handle(void)
 
          if (!_mouse_on) {
             _mouse_on = TRUE;
-            wnd_set_syscursor(FALSE);
+            wnd_call_proc(mouse_set_syscursor);
          }
 
          _handle_mouse_input();
@@ -370,16 +370,15 @@ int mouse_dinput_acquire(void)
 	 return -1;
       }
 
-      /* the cursor may not be in the client area so we don't set _mouse_on */
-      if (_mouse_on)
-         mouse_set_syscursor(FALSE);
+      /* The cursor may not be in the client area
+       * so we don't set _mouse_on here.
+       */
+
+      return 0;
    }
-
-   /* always hide the system cursor in fullscreen mode */
-   if (gfx_driver && !gfx_driver->windowed)
-      mouse_set_syscursor(FALSE);
-
-   return 0;
+   else {
+      return -1;
+   }
 }
 
 
@@ -394,13 +393,12 @@ int mouse_dinput_unacquire(void)
 
       _mouse_b = 0;
       _mouse_on = FALSE;
+
+      return 0;
    }
-
-   /* restore the system cursor except in fullscreen mode */
-   if (!gfx_driver || gfx_driver->windowed)
-      mouse_set_syscursor(TRUE);
-
-   return 0;
+   else {
+      return -1;
+   }
 }
 
 
@@ -432,31 +430,34 @@ int mouse_dinput_grab(void)
          _TRACE("set cooperative level failed: %s\n", dinput_err_str(hr));
          return -1;
       }
+
+      mouse_dinput_acquire();
+
+      /* update the system cursor */
+      mouse_set_syscursor();
+
+      return 0;
    }
+   else {
+      /* update the system cursor */
+      mouse_set_syscursor();
 
-   mouse_dinput_acquire();
-
-   return 0;
+      return -1;
+   }
 }
 
 
 
 /* mouse_set_syscursor: [window thread]
- *  Changes the state of the system mouse cursor.
+ *  Selects whatever system cursor we should display.
  */
-int mouse_set_syscursor(int state)
+int mouse_set_syscursor(void)
 {
-   static int count = 0;  /* initial state of the internal ShowCursor() counter */
+   if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed))
+      SetCursor(NULL);
+   else
+      SetCursor(LoadCursor(NULL, IDC_ARROW));
 
-   if (state == TRUE) {
-      if (count < 0)
-         count = ShowCursor(TRUE);
-   }
-   else {
-      if (count >= 0)
-         count = ShowCursor(FALSE);
-   }
- 
    return 0;
 }
 
@@ -473,7 +474,7 @@ int mouse_set_sysmenu(int state)
       if (state == TRUE) {
          if (_mouse_on) {
             _mouse_on = FALSE;
-            mouse_set_syscursor(TRUE);
+            mouse_set_syscursor();
          }
       }
       else {
@@ -516,6 +517,9 @@ static int mouse_dinput_exit(void)
       CloseHandle(mouse_input_event);
       mouse_input_event = NULL;
    }
+
+   /* update the system cursor */
+   wnd_call_proc(mouse_set_syscursor);
 
    return 0;
 }
@@ -596,9 +600,8 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Grab the device */
-   wnd_call_proc(mouse_dinput_grab);
-   wnd_set_syscursor(FALSE);
    _mouse_on = TRUE;
+   wnd_call_proc(mouse_dinput_grab);
 
    return 0;
 
