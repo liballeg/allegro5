@@ -29,9 +29,9 @@
 
    BeOS Intel R4 and R5 Pro Edition come with everything you need. If you
    have BeOS Intel R5 Personal Edition, you require the development tools;
-   these can be found on the Be homepage at http://www.be.com.
-   You also need updated binutils, which can be found at bebits.com. It
-   might not be a bad idea to update gcc as well, but is not required.
+   these can be found on the Be homepage at http://www.be.com. You also need
+   updated binutils, which can be found at http://bebits.com. It might not
+   be a bad idea to update gcc as well, but is not required.
 
 
 
@@ -39,10 +39,10 @@
 ============ Installing Allegro ============
 ============================================
 
-   Allegro comes as a source distribuition; this means you'll have to
-   compile it to get it to work. Unzip the library archive wherever you
-   want, and cd into that directory with a Terminal. Due to the multi-platform
-   nature of Allegro, you need to run:
+   Allegro comes as a source distribuition: you'll have to compile it to get
+   it to work. Unzip the library archive wherever you want, and cd into that
+   directory with a Terminal. Due to the multi-platform nature of Allegro,
+   you need to run:
 
       fix.sh beos
 
@@ -57,8 +57,8 @@
 
    With this last command the Allegro library will be installed into
    /boot/home/config/lib (the default location for BeOS shared libraries),
-   while the headers will go into /boot/develop/headers (the default locations
-   where Be looks for them).
+   while the headers will go into /boot/develop/headers (the default
+   locations where Be looks for them).
    
    You have now installed Allegro! See the rest of the documentation and
    examples to learn more about it. A simple example of a command line to
@@ -96,28 +96,29 @@
 =======================================
    
    Linking Allegro to a program also requires you to link several other BeOS
-   libraries and set the correct library search pathes. To simplify the linking
-   process, the installation sets up a script, allegro-config, that will print
-   out a suitable commandline. You can use this inside backtick command
-   substitution, for example:
+   libraries and set the correct library search pathes. To simplify the
+   linking process, the installation sets up a script, allegro-config, that
+   will print out a suitable commandline. You can use this inside backtick
+   command substitution, for example:
 
       gcc myfile.c -o myprogram `allegro-config --static`
 
    This will enable you to link against the static library.
    
    The `allegro-config --shared` option mentioned above will output all the
-   options and libraries needed to link dynamically against the shared version
-   of the Allegro library. If you use --libs instead of --shared or --static,
-   the script will generate the linking arguments according to the latest
-   installed library version. You can also run these allegro-config commands
-   on the commandline to see what exactly they do.
+   options and libraries needed to link dynamically against the shared
+   version of the Allegro library. If you use --libs instead of --shared or
+   --static, the script will generate the linking arguments according to the
+   latest installed library version. You can also run these allegro-config
+   commands on the commandline to see what exactly they do.
 
    If you want to build a debug version of your program, assuming that 
    you have installed the debug version of Allegro, use:
 
       gcc myfile.c -o myprogram `allegro-config --libs debug`
 
-   Terminal newbies, take note that these are ` backticks, not normal ' quotes!
+   Terminal newbies, take note that these are ` backticks, not normal '
+   quotes!
 
    There are also other switches for printing out the Allegro version number,
    or to override the install paths. Run allegro-config without any
