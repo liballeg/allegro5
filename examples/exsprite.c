@@ -26,19 +26,37 @@
  *    "virtual background". When blitting from VRAM in SVGA modes,
  *    it's probably, that drawing routines have to switch banks on
  *    video card. I think, I don't have to remind how slow is it.
+ *
+ *    Note that on modern systems, the above isn't true anymore, and
+ *    you usually get the best performance by caching all your
+ *    animations in video ram and doing only VRAM->VRAM blits, so
+ *    there is no more RAM->VRAM transfer at all anymore. And usually,
+ *    such transfers can run in parallel on the graphics card's
+ *    processor as well, costing virtually no main cpu time at all.
+ *    See the exaccel example for an example of this.
  */
 
-
-#include "allegro.h"
+#include <math.h>
+#include <allegro.h>
 #include "running.h"
 
 
+
+#define FRAMES_PER_SECOND 30
+
+/* set up a timer for animation */
+volatile int ticks = 0;
+void ticker(void)
+{
+    ticks++;
+}
+END_OF_FUNCTION(ticker)
 
 /* pointer to data file */
 DATAFILE *running_data;
 
 /* current sprite frame number */
-int frame_number = 0;
+int frame, frame_number = 0;
 
 /* pointer to a sprite buffer, where sprite will be drawn */
 BITMAP *sprite_buffer;
@@ -50,12 +68,24 @@ int next;
 
 void animate(void)
 {
-   /* waits for vertical retrace interrupt */
-   vsync();
-   vsync();
+   /* Wait for animation timer. */
+   while (frame > ticks) {
+       /* Avoid a spinlock. */
+       rest(1);
+   }
+   /* Ideally, instead of using a timer, we would set the monitor refresh rate
+    * to a multiple of the animation speed, and synchronize with the vertical
+    * blank interrupt (vsync) - to get a completely smooth animation. But this
+    * doesn't work on all setups (e.g. in X11 windowed modes), so should only
+    * be used after performing some tests first or letting the user enable it.
+    * Too much for this simple example
+    */
+
+   frame++;
 
    /* blits sprite buffer to screen */
-   blit(sprite_buffer, screen, 0, 0, 120, 80, 82, 82);
+   blit(sprite_buffer, screen, 0, 0, (SCREEN_W - sprite_buffer->w) / 2,
+	(SCREEN_H - sprite_buffer->h) / 2, sprite_buffer->w, sprite_buffer->h);
 
    /* clears sprite buffer with color 0 */
    clear_bitmap(sprite_buffer);
@@ -65,6 +95,9 @@ void animate(void)
       next = TRUE;
    else
       next = FALSE;
+
+   if (frame_number == 0)
+      play_sample(running_data[SOUND_01].dat, 128, 128, 1000, FALSE);
 
    /* increase frame number, or if it's equal 9 (last frame) set it to 0 */
    if (frame_number == 9)
@@ -77,15 +110,22 @@ void animate(void)
 
 int main(int argc, char *argv[])
 {
-   BITMAP *running;
    char datafile_name[256];
    int angle = 0;
+   int x, y;
+   int text_y;
+   int color;
 
    if (allegro_init() != 0)
       return 1;
    install_keyboard();
+   install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL);
+   install_timer();
+   LOCK_FUNCTION(ticker);
+   LOCK_VARIABLE(ticks);
+   install_int_ex(ticker, BPS_TO_TIMER(30));
 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	 allegro_message("Unable to set any graphic mode\n%s\n",
@@ -93,9 +133,6 @@ int main(int argc, char *argv[])
 	 return 1;
       }
    }
-
-   /* we still don't have a palette, don't let Allegro twist colors */
-   set_color_conversion(COLORCONV_NONE);
 
    /* loads datafile and sets user palette saved in datafile */
    replace_filename(datafile_name, argv[0], "running.dat",
@@ -110,94 +147,97 @@ int main(int argc, char *argv[])
    /* select the palette which was loaded from the datafile */
    set_palette(running_data[PALETTE_001].dat);
 
-   /* aha, set a palette and let Allegro convert colors when blitting */
-   set_color_conversion(COLORCONV_TOTAL);
-   
-   /* create and clear a bitmap for sprite buffering */
-   sprite_buffer = create_bitmap(82, 82);
+   /* create and clear a bitmap for sprite buffering, big
+    * enough to hold the diagonal(sqrt(2)) when rotating */
+   sprite_buffer = create_bitmap(82 * sqrt(2) + 2, 82 * sqrt(2) + 2);
    clear_bitmap(sprite_buffer);
 
-   /* create another bitmap for color conversion from the datafile */
-   running = create_bitmap(82, 82);
+   x = (sprite_buffer->w - 82) / 2;
+   y = (sprite_buffer->h - 82) / 2;
+   color = makecol(0, 80, 0);
+   text_y = SCREEN_H - 10 - text_height(font);
+
+   frame = ticks;
 
    /* write current sprite drawing method */
-   textout_ex(screen, font, "Press a key for next part...",
-	      40, 10, palette_color[1], -1);
-   textout_ex(screen, font, "Using draw_sprite",
-	      1, 190, palette_color[15], -1);
+   textout_centre_ex(screen, font, "Press a key for next part...",
+	      SCREEN_W / 2, 10, palette_color[1], -1);
+   textout_centre_ex(screen, font, "Using draw_sprite",
+		     SCREEN_W / 2, text_y, palette_color[15], -1);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
-      draw_sprite(sprite_buffer, running, 0, 0);
+      hline(sprite_buffer, 0, y + 82, sprite_buffer->w - 1, color);
+      draw_sprite(sprite_buffer, running_data[frame_number].dat, x, y);
       animate();
    } while (!next);
 
    clear_keybuf();
-   rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Using draw_sprite_h_flip",
-	      1, 190, palette_color[15], -1);
+   rectfill(screen, 0, text_y, SCREEN_W, SCREEN_H, 0);
+   textout_centre_ex(screen, font, "Using draw_sprite_h_flip",
+		     SCREEN_W / 2, text_y, palette_color[15], -1);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
-      draw_sprite_h_flip(sprite_buffer, running, 0, 0);
+      hline(sprite_buffer, 0, y + 82, sprite_buffer->w - 1, color);
+      draw_sprite_h_flip(sprite_buffer, running_data[frame_number].dat, x, y);
       animate();
    } while (!next);
 
    clear_keybuf();
-   rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Using draw_sprite_v_flip",
-	      1, 190, palette_color[15], -1);
+   rectfill(screen, 0, text_y, SCREEN_W, SCREEN_H, 0);
+   textout_centre_ex(screen, font, "Using draw_sprite_v_flip",
+		     SCREEN_W / 2, text_y, palette_color[15], -1);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
-      draw_sprite_v_flip(sprite_buffer, running, 0, 0);
+      hline(sprite_buffer, 0, y - 1, sprite_buffer->w - 1, color);
+      draw_sprite_v_flip(sprite_buffer, running_data[frame_number].dat, x, y);
       animate();
    } while (!next);
 
    clear_keybuf();
-   rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Using draw_sprite_vh_flip",
-	      1, 190, palette_color[15], -1);
+   rectfill(screen, 0, text_y, SCREEN_W, SCREEN_H, 0);
+   textout_centre_ex(screen, font, "Using draw_sprite_vh_flip",
+		     SCREEN_W / 2, text_y, palette_color[15], -1);
 
    do {
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
-      draw_sprite_vh_flip(sprite_buffer, running, 0, 0);
+      hline(sprite_buffer, 0, y - 1, sprite_buffer->w - 1, color);
+      draw_sprite_vh_flip(sprite_buffer, running_data[frame_number].dat, x, y);
       animate();
    } while (!next);
 
    clear_keybuf();
-   rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Now with rotating - rotate_sprite",
-	      1, 190, palette_color[15], -1);
+   rectfill(screen, 0, text_y, SCREEN_W, SCREEN_H, 0);
+   textout_centre_ex(screen, font, "Now with rotating - pivot_sprite",
+		     SCREEN_W / 2, text_y, palette_color[15], -1);
 
    do {
-      /* The last argument to rotate_sprite() is a fixed point type,
+      /* The last argument to pivot_sprite() is a fixed point type,
        * so I had to use itofix() routine (integer to fixed).
        */
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
-      rotate_sprite(sprite_buffer, running, 0, 0, itofix(angle));
+      circle(sprite_buffer, x + 41, y + 41, 47, color);
+      pivot_sprite(sprite_buffer, running_data[frame_number].dat, sprite_buffer->w / 2,
+	 sprite_buffer->h / 2, 41, 41, itofix(angle));
       animate();
-      angle += 4;
+      angle -= 4;
    } while (!next);
 
    clear_keybuf();
-   rectfill(screen, 0, 190, 320, 200, 0);
-   textout_ex(screen, font, "Now using rotate_sprite_v_flip", 1, 190,
-	      palette_color[15], -1);
+   rectfill(screen, 0, text_y, SCREEN_W, SCREEN_H, 0);
+   textout_centre_ex(screen, font, "Now using pivot_sprite_v_flip",
+		     SCREEN_W / 2, text_y, palette_color[15], -1);
 
    do {
-      /* The last argument to rotate_sprite_v_flip() is a fixed point type,
+      /* The last argument to pivot_sprite_v_flip() is a fixed point type,
        * so I had to use itofix() routine (integer to fixed).
        */
-      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 82, 82);
-      rotate_sprite_v_flip(sprite_buffer, running, 0, 0, itofix(angle));
+      circle(sprite_buffer, x + 41, y + 41, 47, color);
+      pivot_sprite_v_flip(sprite_buffer, running_data[frame_number].dat,
+	 sprite_buffer->w / 2, sprite_buffer->h / 2, 41, 41, itofix(angle));
       animate();
       angle += 4;
    } while (!next);
 
    unload_datafile(running_data);
    destroy_bitmap(sprite_buffer);
-   destroy_bitmap(running);
    return 0;
 }
 
