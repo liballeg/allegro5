@@ -7,7 +7,7 @@ Updates or comments can be sent to the TODO list maintainer Peter Wang
 <conductors@canvaslink.com>, preferrably with the text [TODO] in the subject.
 
 
-General (Platform independant) todos:
+General (Platform independent) todos:
 ---------------------------------------------------------------------------
 
 - find solution or API to timer/multithread problem
@@ -23,7 +23,7 @@ General (Platform independant) todos:
 DOS todos:
 ---------------------------------------------------------------------------
 
-- Write an unified Sidewinder driver
+- Write a unified Sidewinder driver
 
 Win32 todos:
 ---------------------------------------------------------------------------
@@ -98,10 +98,6 @@ Wishlist:
 - OSS MIDI pitch bend is wrong
 - size_t where appropriate (get more opinions first)
 - keyboard set_rate
-
-Wishlist: (definitely post 4.0)
----------------------------------------------------------------------------
-
 - More hardware accelerated functions? Trans/lit sprites come to mind.
 - framebuffer hardware accel via XFB or DirectFB (?) library/driver
 - implementation of request_refresh_rate for fbdev, since apparently you can
