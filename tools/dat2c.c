@@ -690,13 +690,13 @@ static INLINE void cwrite(struct dat2c* dat2c, enum dat2c_file x,
                 /* Allegro DAT_ID() */
                 
                 int id = va_arg(va, int);
-                int c[4] = {
-                    (id >> 24) & 255,
-                    (id >> 16) & 255,
-                    (id >> 8) & 255,
-                    id & 255
-                };
+                int c[4];
                 int i = 0;
+                
+                c[0] = (id >> 24) & 255;
+                c[1] = (id >> 16) & 255;
+                c[2] = (id >> 8) & 255;
+                c[3] = id & 255;
                 
                 fputs("DAT_ID('", fp);
                 for(i = 0; i < 4; i++) {
