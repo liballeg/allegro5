@@ -18,9 +18,9 @@ Changes from 3.11 to current
 <li>
    3.9.34: Peter Pavlovic fixed a bug caused by file selector stretching.
 <li>
-   3.9.34: Bertrand Coconnier fixed bugs related to poly3d(); removed FLAT
-   functions (no longer needed); removed GCOL functions for non-8bpp color
-   depths (GRGB used instead); and made clip3d() and clip3d_f() functions
+   3.9.34: Bertrand Coconnier fixed bugs related to poly3d(); removed
+   never-called C versions of scanline functions for POLYTYPE_FLAT and
+   non-8bpp POLYTYPE_GCOL; and made clip3d() and clip3d_f() functions
    compliant with Z-buffered polygons.
 <li>
    3.9.34: Stepan Roh added C version of masked_stretch_blit().
