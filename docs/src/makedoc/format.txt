@@ -61,6 +61,12 @@
       implementation quality varies from a browser to another, you can use
       this to avoid having unreadable documentation. Or just get a better
       browser...
+   
+   @external-css=filename.css
+      Use this switch to tell makedoc to output a default CSS file for
+      the HTML documentation. The specified file will be overwritten.
+      If @ignore_css is used, this option is ignored. If this option
+      is not set, then CSS will be be inlined in the HTML file.
 
    @locale=xxx
       An obsolete command. It was used by several output formats to set
