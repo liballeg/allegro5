@@ -11,9 +11,6 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
-   3.9.40: Julien Cugniere spotted a misplaced semi-colon.
-<li>
-   3.9.40: Peter Wang did a minor reordering in text.h.
 <li>
    3.9.40: Eric Botcazou enabled SSE support under Linux. Also reduced the
    delay in the DOS Sidewinder init code. Made the definition of _AL_DLL
@@ -35,7 +32,7 @@ Changes from 3.11 to current
    handling of system directory variables in the Windows makefiles. Made
    two strings translatable in the GFX mode selector.
 <li>
-   3.9.40: Ben Davis added support for param'd timers under Windows.
+   3.9.40: Ben Davis added support for timers with parameters under Windows.
 <li>
    3.9.40: Eric Botcazou fixed the bug in the asm sprite functions when
    used with sub-bitmaps. Fixed a problem of the new header layout for
@@ -47,8 +44,8 @@ Changes from 3.11 to current
    3.9.40: Chris Graham suggested to add a new flag for Windows NTFS
    compressed files.
 <li>
-   3.9.40: Henrik Schmidt and I found a workaround for the switching
-   problem under Windows.
+   3.9.40: Henrik Schmidt and Eric Botcazou found a workaround for the
+   switching problem under Windows.
 <li>
    3.9.40: Eric Botcazou revamped the Borland C++ build process. Now it
    targets BC++ 5.5. Made pack_fdopen() an exported internal function.
@@ -67,7 +64,7 @@ Changes from 3.11 to current
    dependant stuff out of src/fsel.c.
 <li>
    3.9.40: Peter Wang updated timer docs for non-DOS. Added ABI
-   compatibility readme. Removed yield_timeslice from XUNLOCK.
+   compatibility readme.
 <li>
    3.9.40: Javier Gonzalez removed all references to the RSXNT build.
 <li>
@@ -112,9 +109,7 @@ Changes from 3.11 to current
 <li>
    3.9.40: Peter Wang improved the XDGA2 driver by removing unneccessary
    scrolling, which also resulted in speed-ups due to less
-   locking/unlocking. Added yield after releasing X lock which appears
-   to improve event handling. Also static'd a bunch of datafile loader
-   routines and underscored datafile_type.
+   locking/unlocking. The original fix was by Michael Bukin.
 <li>
    3.9.40: Eric Botcazou and Javier Gonzalez added some documentation on
    static linking with MSVC/MinGW32.
@@ -149,11 +144,13 @@ Changes from 3.11 to current
    3.9.40: Henrik Stokseth replaced the mmxtest with a more advanced
    assembler capabilities testing.
 <li>
-   3.9.40: Eric Botcazou eliminated use of static buffers by uconvert() in
-   several places. Also re-enabled full pairing on Pentium for five color
+   3.9.40: Eric Botcazou re-enabled full pairing on Pentium for five color
    conversion routines. Applied xor vs. mov instruction-length optimization
    to the  non-MMX code. Applied %ecx vs. %edx instruction-length
    optimization to the non-MMX code. Updated the mouse_accel_factor docs.
+<li>
+   3.9.40: Peter Wang eliminated use of static buffers by uconvert() in
+   several places.
 <li>
    3.9.40: David A. Capello made d_menu_proc steal/return focus when
    activated/deactivated.
