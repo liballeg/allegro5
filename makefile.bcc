@@ -217,6 +217,13 @@ INSTALL_FILES = $(BCC32DIR_U)/lib/$(IMPLIB_BASENAME)              \
 		$(HEADERS)
 
 install: $(INSTALL_FILES)
+ifneq ($(wildcard lib/msvc/$(DLL_BASENAME)),)
+ifdef HAVE_CP
+	$(DJDIR)/bin/cp lib/msvc/$(DLL_BASENAME) $(WINDIR_U)
+else
+	copy lib\msvc\$(DLL_BASENAME) $(WINDIR_D)
+endif
+endif
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
 UNINSTALL_FILES = $(BCC32DIR_U)/lib/alleg.lib                \
@@ -246,8 +253,8 @@ uninstall:
 
 define MAKE_LIB
    echo LIBRARY     $(DLL_BASENAME) > _allegro.def
-   copy _allegro.def + $(subst /,\,$(EXPDEF_NAME)) _allegro.def > null
-   implib $(subst /,\,$(IMPLIB_NAME)) _allegro.def > null
+   copy _allegro.def + $(subst /,\,$(EXPDEF_NAME)) _allegro.def > nul
+   implib $(subst /,\,$(IMPLIB_NAME)) _allegro.def > nul
    del _allegro.def
 endef
 
@@ -257,31 +264,37 @@ $(OBJ_DIR)/%.obj: %.c
 	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
 
 $(OBJ_DIR)/%.res: %.rc
-	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<) > null
+	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<) > nul
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+	@del $(subst .exe,.tds,$(subst /,\,$@))
 
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+	@del $(subst .exe,.tds,$(subst /,\,$@))
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/dibsound.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/dibsound.obj),tests\win\dibsound.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 	@del res.rsp
+	@del tests\win\dibsound.tds
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/scrsave.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/scrsave.obj),tests\win\scrsave.scr,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 	@del res.rsp
+	@del tests\win\scrsave.tds
 
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+	@del $(subst .exe,.tds,$(subst /,\,$@))
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
 define LINK_CONSOLE
    ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
+   @del $(subst .exe,.tds,$(subst /,\,$@))
 endef
 
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
@@ -304,16 +317,18 @@ endef
 endif
 
 define MAKE_PLUGIN_LIB
-   $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile)) > null
+   $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile)) > nul
    )
 endef
 
 define LINK_WITH_PLUGINS
    ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
+   @del $(subst .exe,.tds,$(subst /,\,$@))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
    ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
+   @del $(subst .exe,.tds,$(subst /,\,$@))
 endef
 
 
@@ -329,6 +344,7 @@ fixdemo: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/demo.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/demo.obj),demo\demo.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
 	@del res.rsp
+	@del demo\demo.tds
 
 
 
