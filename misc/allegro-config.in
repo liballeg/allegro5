@@ -9,7 +9,7 @@
 #
 #  This is heavily based on a similar script from GTK.
 
-version=4.1.18
+version=4.1.19
 
 prefix=@prefix@
 exec_prefix=$prefix

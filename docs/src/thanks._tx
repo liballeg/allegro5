@@ -629,7 +629,8 @@ Contributors
    Michal Molhanec (<email>molhanec@seznam.cz</a>).<br>
    Simplified the build instructions for Dev-C++, replaced all occurences
    of MingW32 by MinGW in the docs, added an faq section about the giftware
-   license and fixed problems with long filenames when building for MSVC.
+   license, fixed problems with long filenames when building for MSVC and
+   corrected a problem with the Watcom port.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
