@@ -291,11 +291,12 @@ Windows problems
 
       Make sure you're building a Windows GUI Application, and not a Windows
       Console Application. This is a setting when you create the project in
-      MSVC or Borland C++ Builder. This is specified by the <tt>-tW</tt> flag for the
-      Borland C++ command line compiler, or <tt>-subsystem:console</tt> for the MSVC
-      linker. Either that, or define the preprocessor symbol
-      <tt>ALLEGRO_USE_CONSOLE</tt> prior to including Allegro headers if you really
-      need the console for your program.
+      MSVC, Dev-C++ or Borland C++ Builder. Alternatively, this is specified
+      on the command line by the <tt>-subsystem:windows</tt> option for the MSVC
+      linker, by the <tt>-Wl,--subsystem,windows</tt> option for the MinGW compiler
+      or the <tt>-tW</tt> option for the Borland C++ compiler. Either that, or define
+      the preprocessor symbol <tt>ALLEGRO_USE_CONSOLE</tt> prior to including Allegro
+      headers if you really need the console for your program.
 
 
 @@   I get lots of compile errors about conflicting types for "struct BITMAP"!
