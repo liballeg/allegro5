@@ -379,6 +379,28 @@ else
    LINK_CONSOLE = $(DO_LINK_CONSOLE)
 endif
 
+define DO_LINK_WITHOUT_LIB
+   $(foreach objfile, $^, echo $(subst /,\\,$(objfile)) + >> obj.rsp
+   )
+   ilink32 $(LFLAGS) -ap -Tpe c0x32 @obj.rsp,$(subst /,\,$@),,$(LIBRARIES)
+   del obj.rsp
+endef
+ifdef DELETE_TDS_FILES
+   ifdef UNIX_TOOLS
+      define LINK_WITHOUT_LIB
+         $(DO_LINK_WITHOUT_LIB)
+         @rm $(subst .exe,.tds,$@)
+      endef
+   else
+      define LINK_WITHOUT_LIB
+         $(DO_LINK_WITHOUT_LIB)
+         @del $(subst .exe,.tds,$(subst /,\,$@))
+      endef
+   endif
+else
+   LINK_WITHOUT_LIB = $(DO_LINK_WITHOUT_LIB)
+endif
+
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
 PLUGINS_H = obj/bcc32/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
@@ -477,7 +499,7 @@ endif
 DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 
 depend:
-	gcc $(DEPEND_PARMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
+	gcc $(DEPEND_PARMS) demo/*.c docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
 	gcc $(DEPEND_PARMS) tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	sed -e 's/\\/\//g' -e 's/\/$$/\\/' -e "s/^[a-zA-Z0-9_\/]*\///" -e "s/ \.\// /g" _depend.tmp > _depend1.tmp
 	sed -e "s/asmdef\.o/asmdef\.exe/" _depend1.tmp > _depend.tmp
