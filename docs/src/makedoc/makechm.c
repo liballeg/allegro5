@@ -323,7 +323,7 @@ static void _replace_extension(char *dest, char *path, char *ext, int size)
       ext_p++;
    pos = ext_p - path;
 
-   if (pos+strlen(ext)+1 > size) {
+   if (pos+(signed)strlen(ext)+1 > size) {
       fprintf(stderr, "Buffer overfull");
       exit(1);
    }
