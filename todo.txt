@@ -39,9 +39,8 @@ Win32 todos:
 Linux todos:
 ---------------------------------------------------------------------------
 
-- keyboard set_rate
-- Find out more about sched_yield
 - fix fb 24-bit scrolling (allegro presuming padding?)
+- memory leaks in ljoy.c (search for malloc)
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -99,6 +98,7 @@ Wishlist:
 - OSS MIDI pitch bend is wrong
 - size_t where appropriate (get more opinions first)
 - make allegro not use uconvert static buffer; reserve for user
+- keyboard set_rate
 
 Wishlist: (definitely post 4.0)
 ---------------------------------------------------------------------------
