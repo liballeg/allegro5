@@ -29,12 +29,22 @@
 
    - Microsoft Visual C++.
    - Recent set of DirectX and other Windows SDK headers.
-   - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
-   - GNU make (mak*b.zip).
-   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll.bat".
-   - Optional: sort (txt*b.zip). Used by "fixdll.bat". GNU sort, not DOS!
+   - A GNU environment to run GNU tools with, such as DJGPP, MinGW or Cygwin.
+     Depending on which one you choose, you will need the following packages:
+     - DJGPP: compiler (djdev*.zip, gcc*b.zip, bnu*b.zip).
+              GNU make (mak*b.zip).
+              Optional: GNU sed (sed*b.zip). Used by "make depend" and "fixdll.bat".
+              Optional: GNU sort (txt*b.zip). Used by "fixdll.bat".
+     - MinGW: compiler (mingw-runtime, gcc, binutils).
+              GNU make.
+              Optional: GNU sed. Used by "make depend" and "fixdll.bat".
+              Optional: GNU sort (textutils). Used by "fixdll.bat".
+     - Cygwin: compiler (cygwin, gcc, binutils)
+               GNU make.
+               Optional: GNU sed. Used by "make depend" and "fixdll.sh"
+               Optional: GNU sort (textutils). Used by "fixdll.sh".
 
-   Allegro should work ok with MSVC versions 4, 5 and 6.
+   Allegro should work ok with MSVC versions 4, 5, 6 and 7.
 
    The DirectX SDK can be obtained directly from Microsoft. An old version 
    of the headers is included with MSVC, but Allegro requires more recent 
@@ -42,10 +52,21 @@
    and lib directories, or alter your INCLUDE and LIB environment variables 
    to put the DirectX SDK files in front of the standard MSVC locations.
 
-   The djgpp compiler and associated tools can be downloaded from your 
-   nearest SimTel mirror site, in the /pub/simtelnet/gnu/djgpp/ directory, 
-   or you can use the zip picker on http://www.delorie.com/djgpp/. See the 
-   djgpp readme.1st file for information about how to install djgpp.
+   If you choose to use DJGPP as your GNU environment, the DJGPP compiler and
+   associated tools can be downloaded from your nearest SimTel mirror site,
+   in the /pub/simtelnet/gnu/djgpp/ directory, or you can use the zip picker
+   on http://www.delorie.com/djgpp/. See the djgpp readme.1st file for
+   informations about how to install DJGPP.
+
+   If you choose MinGW, download the MinGW compiler and associated tools from
+   'http://www.mingw.org' or 'http://sourceforge.net/projects/mingw/'. You
+   can download the complete distribution instead of the individual packages
+   if you don't want to install each package manually.
+
+   If you choose Cygwin, get setup.exe from 'http://sources.redhat.com/cygwin/'.
+   Start the Cygwin setup program and download the required packages. Then
+   install the packages (run setup.exe once more). When setup asks you which
+   line endings you want, select unix-style instead of DOS.
 
 
 
@@ -57,14 +78,26 @@
    before you can use it. To do this you should:
 
    Set up your environment so that MSVC can be used from the commandline.
-   You probably have a vcvars32.bat file that will do this for you. (Under
-   Windows NT and Windows 2000, you will have to run this file every time
-   you open a DOS box, or configure the environment variables in Control
-   Panel/System/Environment.)
+   You probably have a vcvars32.bat file that will do this for you (usually
+   located in the VC98\BIN folder where you have MSVC installed, for example
+   C:\Program Files\Microsoft Visual Studio\). Under either Windows NT or
+   Windows 2000, you will have to run this file every time you open a DOS box
+   or configure the environment variables in Control Panel/System/Environment.
 
-   Type "cd allegro", followed by "fix.bat msvc", followed by "make". Then
-   go do something interesting while everything compiles. When it finishes 
-   compiling, type "make install" to set the library up ready for use.
+   If you are using Cygwin as the GNU environment, start the Cygwin bash shell
+   from the command prompt (if you used the command prompt to run vcvars32.bat
+   then you must start Cygwin in the same command-prompt window you used to
+   run vcvars32.bat unless you configured the environment variables in Control
+   Panel/System/Environment). This is usually done via "C:\cygwin\cygwin.bat".
+
+   Go to the directory where you have installed Allegro by using 'cd'.
+
+   If you are using Cygwin, type "./fix.sh msvc --utod". Otherwise (i.e if
+   you are using DJGPP or MinGW), type "fix.bat msvc". 
+
+   Type "make". Then go do something interesting while everything compiles.
+   When it finishes compiling, type "make install" to set the library up
+   ready for use.
 
    If you also want to install a debugging version of the library (highly 
    recommended), now type "make install DEBUGMODE=1". Case is important, so 
@@ -73,9 +106,8 @@
    If you also want to install a profiling version of the library, now type 
    "make install PROFILEMODE=1".
 
-   If you want statically linked libraries as well as the default DLL, set 
-   the environment variable "STATICLINK=1", and repeat the "make install", 
-   "make install DEBUGMODE=1", and "make install PROFILEMODE=1".
+   If you want statically linked libraries as well as the default DLLs, pass
+   additionally "STATICLINK=1" to the make commands above.
 
    If your copy of Allegro doesn't include the makefile.dep dependency files 
    (unlikely, unless you have run "make veryclean" at some point), you can 
@@ -93,7 +125,7 @@
    dll to be copied to the windows directory. To recover even more disk
    space, you can run "make clean" to get rid of all the temporary files and
    HTML format documentation.
- 
+
 
 
 =======================================
