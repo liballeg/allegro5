@@ -98,10 +98,11 @@ FONT *load_grx_or_bios_font(AL_CONST char *filename, RGB *pal, void *param)
 {
    PACKFILE *f;
    FONT *font = NULL;
+   char tmp[16];
    int id;
    ASSERT(filename);
 
-   if (stricmp(get_extension(filename), "fnt") == 0) {
+   if (ustricmp(get_extension(filename), uconvert_ascii("fnt", tmp)) == 0) {
       f = pack_fopen(filename, F_READ);
       if (!f)
 	 return NULL;

@@ -23,7 +23,6 @@
 
 
 
-static void _register_font_file_type_init(void);
 typedef struct FONT_TYPE_INFO
 {
    char *ext;
