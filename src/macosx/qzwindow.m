@@ -72,10 +72,10 @@ GFX_DRIVER gfx_quartz_window =
    NULL,                         /* AL_METHOD(int, request_video_bitmap, (BITMAP *bitmap)); */
    NULL,                         /* AL_METHOD(BITMAP *, create_system_bitmap, (int width, int height)); */
    NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (BITMAP *sprite, int xfocus, int yfocus)); */
-   NULL,                         /* AL_METHOD(int, show_mouse, (BITMAP *bmp, int x, int y)); */
-   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
-   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
+   osx_mouse_set_sprite,         /* AL_METHOD(int, set_mouse_sprite, (BITMAP *sprite, int xfocus, int yfocus)); */
+   osx_mouse_show,               /* AL_METHOD(int, show_mouse, (BITMAP *bmp, int x, int y)); */
+   osx_mouse_hide,               /* AL_METHOD(void, hide_mouse, (void)); */
+   osx_mouse_move,               /* AL_METHOD(void, move_mouse, (int x, int y)); */
    NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
    NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
    NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
@@ -520,6 +520,8 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    osx_gfx_mode = OSX_GFX_WINDOW;
    osx_skip_mouse_move = TRUE;
    osx_window_first_expose = TRUE;
+   
+   gfx_capabilities = GFX_HW_CURSOR;
    
    return pseudo_screen;
 }

@@ -504,7 +504,7 @@ void show_mouse(BITMAP *bmp)
 	 hw_cursor_dirty = FALSE;
       }
 
-      if ((got_hw_cursor) && (bmp->vtable == &_screen_vtable))
+      if ((got_hw_cursor) && (is_same_bitmap(bmp, screen)))
 	 if (gfx_driver->show_mouse(bmp, mx=mouse_x, my=mouse_y) == 0)
 	    gfx_capabilities |= GFX_HW_CURSOR;
 

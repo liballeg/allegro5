@@ -44,6 +44,7 @@ char **__crt0_argv;
 NSBundle *osx_bundle = NULL;
 pthread_mutex_t osx_event_mutex;
 NSCursor *osx_cursor = NULL;
+NSCursor *osx_blank_cursor = NULL;
 AllegroWindow *osx_window = NULL;
 char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
@@ -63,8 +64,6 @@ static RETSIGTYPE (*old_sig_quit)(int num);
 static unsigned char *cursor_data = NULL;
 static NSBitmapImageRep *cursor_rep = NULL;
 static NSImage *cursor_image = NULL;
-static int old_x, old_y;
-static int buttons = 0;
 static int skip_events_processing = FALSE;
 
 
@@ -143,7 +142,9 @@ void osx_event_handler()
    NSPoint point;
    NSRect frame, view;
    CGMouseDelta fdx, fdy;
-   int x, y, dx = 0, dy = 0, dz = 0;
+   int dx = 0, dy = 0, dz = 0;
+   static int buttons = 0;
+   int old_buttons = buttons;
    
    while (1) {
       event = [NSApp nextEventMatchingMask: NSAnyEventMask
@@ -190,8 +191,8 @@ void osx_event_handler()
 	       /* App is regaining focus */
 	       if (_mouse_installed) {
 	          if ((osx_window) && (NSPointInRect(point, view))) {
-                     _mouse_x = old_x = point.x;
-	             _mouse_y = old_y = frame.size.height - point.y;
+                     _mouse_x = point.x;
+	             _mouse_y = frame.size.height - point.y;
 		     _mouse_b = 0;
 	             _handle_mouse_input();
                      _mouse_on = TRUE;
@@ -233,8 +234,6 @@ void osx_event_handler()
 	       buttons &= ~(([event type] == NSRightMouseUp) ? 0x2 : 0);
 	       buttons &= ~(([event type] == NSOtherMouseUp) ? 0x4 : 0);
 	    }
-	    if (_mouse_installed)
-	       osx_mouse_handler(0, 0, 0, buttons);
 	    [NSApp sendEvent: event];
 	    break;
 	    
@@ -242,18 +241,8 @@ void osx_event_handler()
          case NSRightMouseDragged:
          case NSOtherMouseDragged:
          case NSMouseMoved:
-	    if (osx_window) {
-               if (NSPointInRect(point, view)) {
-	          x = point.x;
-	          y = (frame.size.height - point.y);
-	          dx += x - old_x;
-	          dy += y - old_y;
-	          old_x = x;
-	          old_y = y;
-	       }
-	    }
-	    else
-	       CGGetLastMouseDelta(&dx, &dy);
+	    dx += [event deltaX];
+	    dy += [event deltaY];
 	    [NSApp sendEvent: event];
 	    break;
             
@@ -264,15 +253,15 @@ void osx_event_handler()
 	 case NSMouseEntered:
 	    if (([event trackingNumber] == osx_mouse_tracking_rect) && ([NSApp isActive])) {
 	       if (_mouse_installed) {
-                  _mouse_x = old_x = point.x;
-	          _mouse_y = old_y = frame.size.height - point.y;
+                  _mouse_x = point.x;
+	          _mouse_y = frame.size.height - point.y;
 		  _mouse_b = 0;
-	          _handle_mouse_input();
                   _mouse_on = TRUE;
+	          _handle_mouse_input();
+		  osx_mouse_warped = TRUE;
 	       }
 	    }
-	    else
-	       [NSApp sendEvent: event];
+	    [NSApp sendEvent: event];
 	    break;
             
 	 case NSMouseExited:
@@ -282,8 +271,7 @@ void osx_event_handler()
                   _handle_mouse_input();
 	       }
 	    }
-	    else
-	       [NSApp sendEvent: event];
+            [NSApp sendEvent: event];
 	    break;
             
 	 case NSAppKitDefined:
@@ -327,22 +315,8 @@ void osx_event_handler()
 	    break;
       }
    }
-   if ((_mouse_installed) && (osx_gfx_mode != OSX_GFX_NONE) && (!skip_events_processing)) {
-      if (osx_mouse_warped) {
-         old_x = _mouse_x;
-         old_y = _mouse_y;
-         dx = dy = 0;
-         osx_mouse_warped = FALSE;
-      }
-      else {
-	 if (dx || dy || dz) {
-            if (osx_skip_mouse_move)
-	       osx_skip_mouse_move = FALSE;
-	    else
-               osx_mouse_handler(dx, dy, dz, buttons);
-	 }
-      }
-   }
+   if (dx || dy || dz || (old_buttons ^ buttons))
+      osx_mouse_handler(dx, dy, dz, buttons);
    [pool release];
 }
 
@@ -395,8 +369,9 @@ static int osx_sys_init(void)
       bitsPerPixel: 32];
    cursor_image = [[NSImage alloc] initWithSize: NSMakeSize(16, 16)];
    [cursor_image addRepresentation: cursor_rep];
-   osx_cursor = [[NSCursor alloc] initWithImage: cursor_image
+   osx_blank_cursor = [[NSCursor alloc] initWithImage: cursor_image
       hotSpot: NSMakePoint(0, 0)];
+   osx_cursor = osx_blank_cursor;
    
    osx_gfx_mode = OSX_GFX_NONE;
    
@@ -421,8 +396,8 @@ static void osx_sys_exit(void)
    signal(SIGINT,  old_sig_int);
    signal(SIGQUIT, old_sig_quit);
    
-   if (osx_cursor)
-      [osx_cursor release];
+   if (osx_blank_cursor)
+      [osx_blank_cursor release];
    if (cursor_image)
       [cursor_image release];
    if (cursor_rep)

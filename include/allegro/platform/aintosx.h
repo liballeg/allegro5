@@ -34,6 +34,9 @@
 #ifndef NSAppKitVersionNumber10_1
 #define NSAppKitVersionNumber10_1       620
 #endif
+#ifndef NSAppKitVersionNumber10_2
+#define NSAppKitVersionNumber10_2       663
+#endif
 
 
 #define OSX_GFX_NONE                    0
@@ -138,6 +141,10 @@ void osx_keyboard_modifiers(unsigned int new_mods);
 void osx_keyboard_focused(int focused, int state);
 
 void osx_mouse_handler(int dx, int dy, int dz, int buttons);
+int osx_mouse_set_sprite(BITMAP *sprite, int x, int y);
+int osx_mouse_show(BITMAP *bmp, int x, int y);
+void osx_mouse_hide(void);
+void osx_mouse_move(int x, int y);
 
 HID_DEVICE *osx_hid_scan(int type, int *num_devices);
 void osx_hid_free(HID_DEVICE *devices, int num_devices);
@@ -148,6 +155,7 @@ AL_VAR(pthread_mutex_t, osx_event_mutex);
 AL_VAR(pthread_mutex_t, osx_window_mutex);
 AL_VAR(int, osx_gfx_mode);
 AL_VAR(int, osx_screen_used);
+AL_VAR(NSCursor *, osx_blank_cursor);
 AL_VAR(NSCursor *, osx_cursor);
 AL_VAR(AllegroWindow *, osx_window);
 AL_ARRAY(char, osx_window_title);
