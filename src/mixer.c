@@ -177,9 +177,7 @@ END_OF_FUNCTION(get_mixer_voices);
  */
 int get_mixer_buffer_length(void)
 {
-   if(mix_channels)
-      return mix_size / mix_channels;
-   return 0;
+   return mix_size;
 }
 
 END_OF_FUNCTION(get_mixer_buffer_length);
@@ -237,7 +235,7 @@ void set_volume_per_voice(int scale)
 #endif
    voice_volume_scale = scale;
 
-   for(i = 0;i < MIXER_MAX_SFX;++i)
+   for(i = 0;i < mix_voices;++i)
       update_mixer_volume(mixer_voice+i, _phys_voice+i);
 #ifdef ALLEGRO_MULTITHREADED
    if(mixer_mutex)
@@ -270,10 +268,10 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    if(mix_voices > MIXER_MAX_SFX)
       *voices = mix_voices = MIXER_MAX_SFX;
 
-   mix_size = bufsize;
    mix_freq = freq;
    mix_channels = (stereo ? 2 : 1);
    mix_bits = (is16bit ? 16 : 8);
+   mix_size = bufsize / mix_channels;
 
    for (i=0; i<MIXER_MAX_SFX; i++) {
       mixer_voice[i].playing = FALSE;
@@ -281,11 +279,16 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    }
 
    /* temporary buffer for sample mixing */
-   mix_buffer = malloc(mix_size * sizeof(*mix_buffer));
-   if (!mix_buffer)
+   mix_buffer = malloc(mix_size*mix_channels * sizeof(*mix_buffer));
+   if (!mix_buffer) {
+      mix_size = 0;
+      mix_freq = 0;
+      mix_channels = 0;
+      mix_bits = 0;
       return -1;
+   }
 
-   LOCK_DATA(mix_buffer, mix_size * sizeof(*mix_buffer));
+   LOCK_DATA(mix_buffer, mix_size*mix_channels * sizeof(*mix_buffer));
 
    /* 16 bit output isn't required for the high quality mixers */
    if ((!_sound_hq) || (mix_channels == 1)) {
@@ -297,6 +300,10 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
       if (!mix_vol_table) {
          free(mix_buffer);
          mix_buffer = NULL;
+         mix_size = 0;
+         mix_freq = 0;
+         mix_channels = 0;
+         mix_bits = 0;
          return -1;
       }
 
@@ -319,6 +326,10 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
       mix_vol_table = NULL;
       free(mix_buffer);
       mix_buffer = NULL;
+      mix_size = 0;
+      mix_freq = 0;
+      mix_channels = 0;
+      mix_bits = 0;
       return -1;
    }
 #endif
@@ -564,7 +575,6 @@ END_OF_STATIC_FUNCTION(update_silent_mixer);
  */
 static void mix_silent_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, int len)
 {
-   len /= mix_channels;
    if ((voice->playmode & PLAYMODE_LOOP) &&
        (spl->loop_start < spl->loop_end)) {
 
@@ -638,8 +648,8 @@ END_OF_STATIC_FUNCTION(mix_silent_samples);
  */
 static void mix_mono_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
-   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + (spl->lvol>>1));
+   signed int *rvol = (int *)(mix_vol_table + (spl->rvol>>1));
 
    #define MIX()                                                             \
       *(buf)   += lvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];               \
@@ -660,8 +670,8 @@ END_OF_STATIC_FUNCTION(mix_mono_8x1_samples);
  */
 static void mix_mono_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
-   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + (spl->lvol>>1));
+   signed int *rvol = (int *)(mix_vol_table + (spl->rvol>>1));
 
    #define MIX()                                                             \
       *(buf)   += lvol[spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2  ]];         \
@@ -682,8 +692,8 @@ END_OF_STATIC_FUNCTION(mix_mono_8x2_samples);
  */
 static void mix_mono_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
-   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + (spl->lvol>>1));
+   signed int *rvol = (int *)(mix_vol_table + (spl->rvol>>1));
 
    #define MIX()                                                             \
       *(buf)   += lvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];         \
@@ -704,8 +714,8 @@ END_OF_STATIC_FUNCTION(mix_mono_16x1_samples);
  */
 static void mix_mono_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int *buf, int len)
 {
-   signed int *lvol = (int *)(mix_vol_table + spl->lvol);
-   signed int *rvol = (int *)(mix_vol_table + spl->rvol);
+   signed int *lvol = (int *)(mix_vol_table + (spl->lvol>>1));
+   signed int *rvol = (int *)(mix_vol_table + (spl->rvol>>1));
 
    #define MIX()                                                             \
       *(buf)   += lvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2  ])>>8];   \
@@ -729,8 +739,6 @@ static void mix_stereo_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed i
    signed int *lvol = (int *)(mix_vol_table + spl->lvol);
    signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
-   len >>= 1;
-
    #define MIX()                                                             \
       *(buf++) += lvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];               \
       *(buf++) += rvol[spl->data.u8[spl->pos>>MIX_FIX_SHIFT]];
@@ -752,8 +760,6 @@ static void mix_stereo_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed i
 {
    signed int *lvol = (int *)(mix_vol_table + spl->lvol);
    signed int *rvol = (int *)(mix_vol_table + spl->rvol);
-
-   len >>= 1;
 
    #define MIX()                                                             \
       *(buf++) += lvol[spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2  ]];         \
@@ -777,8 +783,6 @@ static void mix_stereo_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed 
    signed int *lvol = (int *)(mix_vol_table + spl->lvol);
    signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
-   len >>= 1;
-
    #define MIX()                                                             \
       *(buf++) += lvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];         \
       *(buf++) += rvol[(spl->data.u16[spl->pos>>MIX_FIX_SHIFT])>>8];
@@ -801,8 +805,6 @@ static void mix_stereo_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed 
    signed int *lvol = (int *)(mix_vol_table + spl->lvol);
    signed int *rvol = (int *)(mix_vol_table + spl->rvol);
 
-   len >>= 1;
-
    #define MIX()                                                             \
       *(buf++) += lvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2  ])>>8];   \
       *(buf++) += rvol[(spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2+1])>>8];
@@ -823,8 +825,6 @@ static void mix_hq1_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int 
 {
    int lvol = spl->lvol;
    int rvol = spl->rvol;
-
-   len >>= 1;
 
    #define MIX()                                                             \
       *(buf++) += (spl->data.u8[spl->pos>>MIX_FIX_SHIFT]-0x80) * lvol;       \
@@ -849,8 +849,6 @@ static void mix_hq1_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int 
    int lvol = spl->lvol;
    int rvol = spl->rvol;
 
-   len >>= 1;
-
    #define MIX()                                                             \
       *(buf++) += (spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2  ]-0x80) * lvol; \
       *(buf++) += (spl->data.u8[(spl->pos>>MIX_FIX_SHIFT)*2+1]-0x80) * rvol;
@@ -874,8 +872,6 @@ static void mix_hq1_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int
    int lvol = spl->lvol;
    int rvol = spl->rvol;
 
-   len >>= 1;
-
    #define MIX()                                                             \
       *(buf++) += ((spl->data.u16[spl->pos>>MIX_FIX_SHIFT]-0x8000)*lvol)>>8; \
       *(buf++) += ((spl->data.u16[spl->pos>>MIX_FIX_SHIFT]-0x8000)*rvol)>>8;
@@ -898,8 +894,6 @@ static void mix_hq1_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int
 {
    int lvol = spl->lvol;
    int rvol = spl->rvol;
-
-   len >>= 1;
 
    #define MIX()                                                                 \
       *(buf++) += ((spl->data.u16[(spl->pos>>MIX_FIX_SHIFT)*2  ]-0x8000)*lvol)>>8;\
@@ -926,8 +920,6 @@ static void mix_hq2_8x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int 
    int lvol = spl->lvol;
    int rvol = spl->rvol;
    int v, v1, v2;
-
-   len >>= 1;
 
    #define MIX()                                                             \
       v = spl->pos>>MIX_FIX_SHIFT;                                           \
@@ -970,8 +962,6 @@ static void mix_hq2_8x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int 
    int lvol = spl->lvol;
    int rvol = spl->rvol;
    int v, va, v1a, v2a, vb, v1b, v2b;
-
-   len >>= 1;
 
    #define MIX()                                                             \
       v = (spl->pos>>MIX_FIX_SHIFT) << 1; /* x2 for stereo */                \
@@ -1021,8 +1011,6 @@ static void mix_hq2_16x1_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int
    int rvol = spl->rvol;
    int v, v1, v2;
 
-   len >>= 1;
-
    #define MIX()                                                             \
       v = spl->pos>>MIX_FIX_SHIFT;                                           \
                                                                              \
@@ -1064,8 +1052,6 @@ static void mix_hq2_16x2_samples(MIXER_VOICE *spl, PHYS_VOICE *voice, signed int
    int lvol = spl->lvol;
    int rvol = spl->rvol;
    int v, va, v1a, v2a, vb, v1b, v2b;
-
-   len >>= 1;
 
    #define MIX()                                                             \
       v = (spl->pos>>MIX_FIX_SHIFT) << 1; /* x2 for stereo */                \
@@ -1118,7 +1104,7 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    int i;
 
    /* clear mixing buffer */
-   memset(p, 0, mix_size * sizeof(*p));
+   memset(p, 0, mix_size*mix_channels * sizeof(*p));
 
 #ifdef ALLEGRO_MULTITHREADED
    system_driver->lock_mutex(mixer_mutex);
@@ -1210,14 +1196,14 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    /* transfer to the audio driver's buffer */
    if (mix_bits == 16) {
       if (issigned) {
-         for (i=0; i<mix_size; i++) {
+         for (i=mix_size*mix_channels; i>0; i--) {
             _farnspokew(buf, (clamp_val((*p)+0x800000, MAX_24) >> 8) ^ 0x8000);
             buf += 2;
             p++;
          }
       }
       else {
-         for (i=0; i<mix_size; i++) {
+         for (i=mix_size*mix_channels; i>0; i--) {
             _farnspokew(buf, clamp_val((*p)+0x800000, MAX_24) >> 8);
             buf += 2;
             p++;
@@ -1226,14 +1212,14 @@ void _mix_some_samples(unsigned long buf, unsigned short seg, int issigned)
    }
    else {
       if(issigned) {
-         for (i=0; i<mix_size; i++) {
+         for (i=mix_size*mix_channels; i>0; i--) {
             _farnspokeb(buf, (clamp_val((*p)+0x800000, MAX_24) >> 16) ^ 0x80);
             buf++;
             p++;
          }
       }
       else {
-         for (i=0; i<mix_size; i++) {
+         for (i=mix_size*mix_channels; i>0; i--) {
             _farnspokeb(buf, clamp_val((*p)+0x800000, MAX_24) >> 16);
             buf++;
             p++;
@@ -1350,7 +1336,8 @@ END_OF_FUNCTION(_mixer_get_position);
  */
 void _mixer_set_position(int voice, int position)
 {
-   ASSERT (position >= 0);
+   if (position < 0)
+      position = 0;
 
    mixer_voice[voice].pos = (position << MIX_FIX_SHIFT);
    if (mixer_voice[voice].pos >= mixer_voice[voice].len)
