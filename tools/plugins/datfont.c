@@ -502,16 +502,16 @@ static int import_bitmap_font_color(BITMAP** bits, int num)
 
 
 
-/* import_bitmap_font_ismono:
+/* bitmap_font_ismono:
  *  Helper for import_bitmap_font, below.
  */
-static int import_bitmap_font_ismono()
+static int bitmap_font_ismono(BITMAP *bmp)
 {
     int x, y, col = -1, pixel;
 
-    for(y = 0; y < import_bmp->h; y++) {
-        for(x = 0; x < import_bmp->w; x++) {
-            pixel = getpixel(import_bmp, x, y);
+    for(y = 0; y < bmp->h; y++) {
+        for(x = 0; x < bmp->w; x++) {
+            pixel = getpixel(bmp, x, y);
             if(pixel == 0 || pixel == 255) continue;
             if(col > 0 && pixel != col) return 0;
             col = pixel;
@@ -579,10 +579,10 @@ static void upgrade_to_color(FONT* f)
 
 
 
-/* import_bitmap_font_count:
+/* bitmap_font_count:
  *  Helper for `import_bitmap_font', below.
  */
-static int import_bitmap_font_count(BITMAP* bmp)
+static int bitmap_font_count(BITMAP* bmp)
 {
     int x = 0, y = 0, w = 0, h = 0;
     int num = 0;
@@ -605,7 +605,6 @@ static FONT* import_bitmap_font(AL_CONST char* fname, int begin, int end, int cl
 {
     /* NB: `end' is -1 if we want every glyph */
     FONT* f = 0;
-    int col = 0;
 
     if(fname) {
         PALETTE junk;
@@ -625,12 +624,10 @@ static FONT* import_bitmap_font(AL_CONST char* fname, int begin, int end, int cl
         return 0;
     }
 
-    col = import_bitmap_font_ismono(); /* 0 if color, else non-zero */
-
     f = _al_malloc(sizeof(FONT));
-    if(end == -1) end = import_bitmap_font_count(import_bmp) + begin;
+    if(end == -1) end = bitmap_font_count(import_bmp) + begin;
 
-    if(col) {
+    if (bitmap_font_ismono(import_bmp)) {
 
         FONT_MONO_DATA* mf = _al_malloc(sizeof(FONT_MONO_DATA));
 
@@ -702,9 +699,9 @@ static FONT* import_scripted_font(AL_CONST char* filename)
     if(!pack) return 0;
 
     f = _al_malloc(sizeof(FONT));
+    f->data = NULL;
     f->height = 0;
-    f->vtable = 0;
-    f->data = 0;
+    f->vtable = NULL;
 
     while(pack_fgets(buf, sizeof(buf)-1, pack)) {
         bmp_str = strtok(buf, " \t");
@@ -714,7 +711,7 @@ static FONT* import_scripted_font(AL_CONST char* filename)
         if(!bmp_str || !start_str || !end_str) {
             datedit_error("Bad font description (expecting 'file.pcx start end')");
 
-            destroy_font(f);
+            _al_free(f);
             pack_fclose(pack);
 
             return 0;
@@ -728,7 +725,7 @@ static FONT* import_scripted_font(AL_CONST char* filename)
         if(begin <= 0 || (end > 0 && end < begin)) {
             datedit_error("Bad font description (expecting 'file.pcx start end'); start > 0, end > start");
 
-            destroy_font(f);
+            _al_free(f);
             pack_fclose(pack);
 
             return 0;
@@ -739,7 +736,7 @@ static FONT* import_scripted_font(AL_CONST char* filename)
             if(bmp_str) datedit_error("Unable to read font images from %s", bmp_str);
             else datedit_error("Unable to read continuation font images");
 
-            destroy_font(f);
+            _al_free(f);
             pack_fclose(pack);
 
             return 0;
