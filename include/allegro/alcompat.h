@@ -74,8 +74,6 @@
 #define KB_EXTENDED     2
 
 #define SEND_MESSAGE        object_message
-#define OLD_FILESEL_WIDTH   -1
-#define OLD_FILESEL_HEIGHT  -1
 
 #define cpu_fpu         (cpu_capabilities & CPU_FPU)
 #define cpu_mmx         (cpu_capabilities & CPU_MMX)
