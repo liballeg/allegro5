@@ -619,6 +619,12 @@ AL_FUNC(void, _do_stretch, (BITMAP *source, BITMAP *dest, void *drawer, int sx, 
 #endif
 
 
+/* lower level functions for rotation */
+AL_FUNC(void, _parallelogram_map, (BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4], void (*draw_scanline)(BITMAP *bmp, BITMAP *spr, fixed l_bmp_x, int bmp_y, fixed r_bmp_x, fixed l_spr_x, fixed l_spr_y, fixed spr_dx, fixed spr_dy), int sub_pixel_accuracy));
+AL_FUNC(void, _parallelogram_map_standard, (BITMAP *bmp, BITMAP *sprite, fixed xs[4], fixed ys[4]));
+AL_FUNC(void, _rotate_scale_flip_coordinates, (fixed w, fixed h, fixed x, fixed y, fixed cx, fixed cy, fixed angle, fixed scale_x, fixed scale_y, int h_flip, int v_flip, fixed xs[4], fixed ys[4]));
+
+
 /* number of fractional bits used by the polygon rasteriser */
 #define POLYGON_FIX_SHIFT     18
 
