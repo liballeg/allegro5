@@ -160,7 +160,6 @@ static void qnx_event_handler(int threaded)
    static PhKeyEvent_t *key_event;
    static PhPointerEvent_t *mouse_event;
    static PhCursorInfo_t cursor_info;
-   static char *close_buttons[2];
    static int old_x = 0, old_y = 0, ig, dx, dy, buttons = 0, res, i;
    static short mx, my;
       
