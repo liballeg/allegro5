@@ -21,7 +21,7 @@
  * Note that this file requires at least the SDK version 5 to compile,
  * so that DIRECTX_SDK_VERSION must be >= 0x500.
  */
-#define DIRECTX_SDK_VERSION 0x700
+#define DIRECTX_SDK_VERSION 0x500
 
 
 #include "allegro.h"
