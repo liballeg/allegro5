@@ -124,6 +124,8 @@
 #define JOY_HAT_RIGHT         3
 #define JOY_HAT_UP            4
 
+AL_FUNC(int, initialise_joystick, (void));
+
 
 /* in case you want to spell 'palette' as 'pallete' */
 #define PALLETE                        PALETTE

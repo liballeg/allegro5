@@ -128,8 +128,6 @@ AL_ARRAY(_DRIVER_INFO, _joystick_driver_list);
 AL_FUNC(int, install_joystick, (int type));
 AL_FUNC(void, remove_joystick, (void));
 
-AL_FUNC(int, initialise_joystick, (void));
-
 AL_FUNC(int, poll_joystick, (void));
 
 AL_FUNC(int, save_joystick_data, (AL_CONST char *filename));

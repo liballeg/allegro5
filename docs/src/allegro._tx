@@ -3362,7 +3362,9 @@ The type PALETTE is defined to be an array of 256 RGB structures.
 You may notice that a lot of the code in Allegro spells 'palette' as 
 'pallete'. This is because the headers from my old Mark Williams compiler on 
 the Atari spelt it with two l's, so that is what I'm used to. Allegro will 
-happily accept either spelling, due to some #defines in allegro/alcompat.h.
+happily accept either spelling, due to some #defines in allegro/alcompat.h
+(which can be turned off by defining the ALLEGRO_NO_COMPATIBILITY symbol
+before including Allegro headers).
 
 @@void @set_color(int index, const RGB *p);
 @xref set_palette, get_color, _set_color
@@ -3805,19 +3807,9 @@ All these routines are affected by the clipping rectangle of the destination
 bitmap.
 
 @@void @clear_bitmap(BITMAP *bitmap);
-@xref clear_to_color, clear
+@xref clear_to_color
    Clears the bitmap to color 0.
 
-@@void @clear(BITMAP *bitmap);
-@xref clear_bitmap
-   An alias for clear_bitmap(), provided for backwards compatibility. It is
-   implemented as a static inline function. The aliasing may be switched off
-   by defining the preprocessor symbol ALLEGRO_NO_CLEAR_BITMAP_ALIAS before
-   including Allegro headers, eg:
-<codeblock>
-      #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
-      #include &ltallegro.h&gt
-<endblock>
 @@void @clear_to_color(BITMAP *bitmap, int color);
 @xref clear_bitmap
    Clears the bitmap to the specified color.
@@ -3980,11 +3972,6 @@ bitmap.
    in 256 color modes or bright pink for truecolor data (maximum red and
    blue, zero green). The sprite must be an 8 bit image, even if the
    destination is a truecolor bitmap.
-
-@@void @draw_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
-@xref draw_sprite, bitmap_mask_color, text_mode, draw_character_ex
-   Deprecated. Use draw_character_ex() instead, passing the mode you would
-   have passed to text_mode() as the 'bg' parameter.
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
@@ -4261,67 +4248,6 @@ allegro/text.h for details.
 @@                           diff, color, bg, const char *fmt, ...);
 @xref textprintf_ex, textout_justify_ex
    Like textout_justify_ex(), but using a printf() style format string.
-
-@@int @text_mode(int mode);
-@xref textout, textprintf
-   Deprecated: if you use the new textout_ex() family, you no longer have
-   to set the text mode.
-
-   Sets the mode in which text will be drawn. Returns previous mode.
-   If mode is zero or positive, text output will be opaque and the 
-   background of the characters will be set to color 'mode'. If mode is 
-   negative, text will be drawn transparently (ie. the background of the 
-   characters will not be altered). The default is a mode of zero.
-
-@\void @textout(BITMAP *bmp, const FONT *f, const char *s,
-@@             int x, y, color);
-@xref font, text_mode, textout_centre, textout_right, textout_justify
-@xref textprintf, text_height, text_length, textout_ex
-   Deprecated. Use textout_ex() instead, passing the mode you would have
-   passed to text_mode() as the 'bg' parameter.
-
-@\void @textout_centre(BITMAP *bmp, const FONT *f, const char *s,
-@@                    int x, y, color);
-@xref textout, textprintf_centre, text_mode, textout_centre_ex
-   Deprecated. Use textout_centre_ex() instead, passing the mode you would
-   have passed to text_mode() as the 'bg' parameter.
-
-@\void @textout_right(BITMAP *bmp, const FONT *f, const char *s,
-@@                   int x, y, color);
-@xref textout, textprintf_right, text_mode, textout_right_ex
-   Deprecated. Use textout_right_ex() instead, passing the mode you would
-   have passed to text_mode() as the 'bg' parameter.
-
-@\void @textout_justify(BITMAP *bmp, const FONT *f, const char *s,
-@@                     int x1, x2, y, diff, color);
-@xref textout, textprintf_justify, text_mode, textout_justify_ex
-   Deprecated. Use textout_justify_ex() instead, passing the mode you would
-   have passed to text_mode() as the 'bg' parameter.
-
-@\void @textprintf(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                const char *fmt, ...);
-@xref font, text_mode, textprintf_centre, text_mode, textprintf_right
-@xref textprintf_justify, textout, text_height, text_length, textprintf_ex
-   Deprecated. Use textprintf_ex() instead, passing the mode you would have
-   passed to text_mode() as the 'bg' parameter.
-
-@\void @textprintf_centre(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                       const char *fmt, ...);
-@xref textprintf, textout_centre, text_mode, textprintf_centre_ex
-   Deprecated. Use textprintf_centre_ex() instead, passing the mode you
-   would have passed to text_mode() as the 'bg' parameter.
-
-@\void @textprintf_right(BITMAP *bmp, const FONT *f, int x, y, color,
-@@                      const char *fmt, ...);
-@xref textprintf, textout_right, text_mode, textprintf_right_ex
-   Deprecated. Use textprintf_right_ex() instead, passing the mode you would
-   have passed to text_mode() as the 'bg' parameter.
-
-@\void @textprintf_justify(BITMAP *bmp, const FONT *f, int x1, x2, y,
-@@                        diff, color, const char *fmt, ...);
-@xref textprintf, textout_justify, text_mode, textprintf_justify_ex
-   Deprecated. Use textprintf_justify_ex() instead, passing the mode you
-   would have passed to text_mode() as the 'bg' parameter.
 
 
 
@@ -6723,16 +6649,6 @@ is an object of class fix, calling fixsqrt(x) will return the wrong result.
 You should use the overloaded sqrt(x) or x.sqrt() instead.
 
 
-@hnode Fixed point aliases
-The fixed point functions used to be named with an "f" prefix instead of
-"fix", eg. fixsqrt() used to be fsqrt(), but were renamed due to conflicts
-with some libc implementations. This should not affect most existing code as
-there are backwards compatibility aliases. These aliases are static inline
-functions which map the old names to the new names, eg. fsqrt() calls
-fixsqrt(). You can disable the aliases by defining the preprocessor macro
-ALLEGRO_NO_FIX_ALIASES before including allegro.h.
-
-
 
 @heading
 3D math routines
@@ -7477,11 +7393,6 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    screen, interpreting the '&' character as an underbar for displaying 
    keyboard shortcuts. Returns the width of the output string in pixels.
 
-@@int @gui_textout(BITMAP *bmp, const char *s, int x, y, color, centre);
-@xref gui_strlen, text_mode, gui_textout_ex
-   Deprecated. Use gui_textout_ex() instead, passing the mode you would have
-   passed to text_mode() as the 'bg' parameter.
-
 @@int @gui_strlen(const char *s);
 @xref gui_textout_ex
    Helper function for use by the GUI routines. Returns the length of a 
@@ -7684,12 +7595,6 @@ ensure there is room for the check.
    Allegro font. If either the width or height argument is set to zero, it is
    stretched to the corresponding screen dimension. This function returns
    zero if it was closed with the Cancel button or non-zero if it was OK'd.
-
-@@int @file_select(const char *message, char *path, const char *ext);
-@xref file_select_ex, gui_fg_color
-   Deprecated. Use file_select_ex() instead, passing the two constants
-   OLD_FILESEL_WIDTH and OLD_FILESEL_HEIGHT if you want the file selector
-   to be displayed with the dimensions of the old file selector.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color
@@ -8775,6 +8680,35 @@ following macros:
    If you define this prior to including Allegro headers, Allegro will be 
    set up for building a console application rather than the default GUI 
    program on some platforms (especially Windows).
+
+<b>ALLEGRO_NO_STD_HEADER</b><br>
+   If you define this prior to including Allegro headers, Allegro will not
+   automatically include some standard headers (eg &ltstddef.h&gt) its own
+   headers depend upon.
+
+<b>ALLEGRO_NO_KEY_DEFINES</b><br>
+   If you define this prior to including Allegro headers, Allegro will omit
+   the definition of the KEY_* constants, which may clash with other headers.
+
+<b>ALLEGRO_NO_FIX_ALIASES</b><br>
+   The fixed point functions used to be named with an "f" prefix instead of
+   "fix", eg. fixsqrt() used to be fsqrt(), but were renamed due to conflicts
+   with some libc implementations. So backwards compatibility aliases are
+   provided as static inline functions which map the old names to the new
+   names, eg. fsqrt() calls fixsqrt(). If you define this symbol prior to
+   including Allegro headers, the aliases will be turned off.
+
+<b>ALLEGRO_NO_CLEAR_BITMAP_ALIAS</b><br>
+   If you define this prior to including Allegro headers, Allegro will not
+   define the clear() backwards compatibility alias to clear_bitmap().
+
+<b>ALLEGRO_NO_COMPATIBILITY</b><br>
+   If you define this prior to including Allegro headers, Allegro will not
+   include the backward compatibility layer. It is undefined by default so
+   old programs can still be compiled with the minimum amount of issues,
+   but you should define this symbol if you intend to maintain your code
+   up to date with the latest versions of Allegro. It automatically turns
+   off all backwards compatibility aliases.
 
 Allegro also defines a number of standard macros that can be used to 
 insulate you from some of the differences between systems:

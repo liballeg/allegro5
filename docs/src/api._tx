@@ -90,3 +90,187 @@ Changes between 4.0.x and 4.1.x series
    the properties attached to the object. This has been fixed.
 </ul>
 
+@heading
+Deprecated materials
+
+   The following items have been deprecated and the main documentation was
+   purged of any references to them. If you are still using any of those, now
+   might be a good time to get rid of them (within parentheses is the symbol
+   most likely to be a replacement for the obsolete one, if any). However
+   they are still supported for the sake of backwards compatibility, unless
+   you define the symbol ALLEGRO_NO_COMPATIBILITY prior to including Allegro
+   headers.
+
+<ul><li>
+   clear (clear_bitmap).
+<li>
+   cpu_fpu (cpu_capabilities, in combination with CPU_FPU).
+<li>
+   cpu_mmx (cpu_capabilities, in combination with CPU_MMX).
+<li>
+   cpu_3dnow (cpu_capabilities, in combination with CPU_3DNOW).
+<li>
+   cpu_cpuid (cpu_capabilities, in combination with CPU_ID).
+<li>
+   draw_character (draw_character_ex, passing the mode you would have passed
+   to text_mode() as the 'bg' parameter).
+<li>
+   fadd (fixadd).
+<li>
+   fsub (fixsub).
+<li>
+   fmul (fixmul).
+<li>
+   fdiv (fixdiv).
+<li>
+   fceil (fixceil).
+<li>
+   ffloor (fixfloor).
+<li>
+   fcos (fixcos).
+<li>
+   fsin (fixsin).
+<li>
+   ftan (fixtan).
+<li>
+   facos (fixacos).
+<li>
+   fasin (fixasin).
+<li>
+   fatan (fixatan).
+<li>
+   fatan2 (fixatan2).
+<li>
+   fsqrt (fixsqrt).
+<li>
+   fhypot (fixhypot).
+<li>
+   file_select (file_select_ex, passing the two constants OLD_FILESEL_WIDTH
+   and OLD_FILESEL_HEIGHT if you want the file selector to be displayed with
+   the dimensions of the old file selector).
+<li>
+   gui_textout (gui_textout_ex, passing the mode you would have passed to
+   text_mode() as the 'bg' parameter).
+<li>
+   initialise_joystick (install_joystick).
+<li>
+   joy_x (joy).
+<li>
+   joy_y (joy).
+<li>
+   joy_left (joy).
+<li>
+   joy_right (joy).
+<li>
+   joy_up (joy).
+<li>
+   joy_down (joy).
+<li>
+   joy_b1 (joy).
+<li>
+   joy_b2 (joy).
+<li>
+   joy_b3 (joy).
+<li>
+   joy_b4 (joy).
+<li>
+   joy_b5 (joy).
+<li>
+   joy_b6 (joy).
+<li>
+   joy_b7 (joy).
+<li>
+   joy_b8 (joy).
+<li>
+   joy2_x (joy).
+<li>
+   joy2_y (joy).
+<li>
+   joy2_left (joy).
+<li>
+   joy2_right (joy).
+<li>
+   joy2_up (joy).
+<li>
+   joy2_down (joy).
+<li>
+   joy2_b1 (joy).
+<li>
+   joy2_b2 (joy).
+<li>
+   joy_throttle (joy).
+<li>
+   joy_hat (joy).
+<li>
+   JOY_HAT_CENTER.
+<li>
+   JOY_HAT_CENTRE.
+<li>
+   JOY_HAT_LEFT.
+<li>
+   JOY_HAT_RIGHT.
+<li>
+   JOY_HAT_DOWN.
+<li>
+   JOY_HAT_UP.
+<li>
+   KB_EXTENDED.
+<li>
+   KB_NORMAL.
+<li>
+   SEND_MESSAGE (object_message).
+<li>
+   text_mode.
+<li>
+   textout (textout_ex, passing the mode you would have passed to text_mode()
+   as the 'bg' parameter).
+<li>
+   textout_centre (textout_centre_ex, passing the mode you would have passed
+   to text_mode() as the 'bg' parameter).
+<li>
+   textout_right (textout_right_ex, passing the mode you would have passed to
+   text_mode() as the 'bg' parameter).
+<li>
+   textout_justify (textout_justify_ex, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter).
+<li>
+   textprintf (textprintf_ex, passing the mode you would have passed to
+   text_mode() as the 'bg' parameter).
+<li>
+   textprintf_centre (textprintf_centre_ex, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter).
+<li>
+   textprintf_right (textprintf_right_ex, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter).
+<li>
+   textprintf_justify (textprintf_justify_ex, passing the mode you would have
+   passed to text_mode() as the 'bg' parameter).
+<li>
+   PALLETE (PALETTE).
+<li>
+   DAT_PALLETE (DAT_PALETTE).
+<li>
+   black_pallete (black_palette).
+<li>
+   desktop_pallete (desktop_palette)
+<li>
+   get_pallete (get_palette).
+<li>
+   set_pallete (set_palette).
+<li>
+   get_pallete_range (get_palette_range)
+<li>
+   set_pallete_range (set_palette_range).
+<li>
+   fli_pallete (fli_palette).
+<li>
+   pallete_color (palette_color).
+<li>
+   select_pallete (select_palette).
+<li>
+   unselect_pallete (unselect_palette).
+<li>
+   generate_332_pallete (generate_332_palette).
+<li>
+   generate_optimized_pallete (generate_optimized_palette).
+</ul>

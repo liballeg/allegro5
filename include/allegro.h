@@ -63,7 +63,10 @@
 #include "allegro/3d.h"
 #include "allegro/3dmaths.h"
 
-#include "allegro/alcompat.h"
+
+#ifndef ALLEGRO_NO_COMPATIBILITY
+   #include "allegro/alcompat.h"
+#endif
 
 
 #ifdef ALLEGRO_EXTRA_HEADER
