@@ -160,19 +160,33 @@ int get_refresh_rate(void)
 
 
 /* sort_gfx_mode_list:
- *  callback for quick-sorting a mode-list.
+ *  Callback for quick-sorting a mode-list.
  */
-static int sort_gfx_mode_list(GFX_MODE *entry_1, GFX_MODE *entry_2)
+static int sort_gfx_mode_list(GFX_MODE *entry1, GFX_MODE *entry2)
 {
-   if (entry_1->width > entry_2->width) return +1;
-   else if (entry_1->width < entry_2->width) return -1;
+   if (entry1->width > entry2->width) {
+      return +1;
+   }
+   else if (entry1->width < entry2->width) {
+      return -1;
+   }
    else {
-      if (entry_1->height > entry_2->height) return +1;
-      else if (entry_1->height < entry_2->height) return -1;
+      if (entry1->height > entry2->height) {
+         return +1;
+      }
+      else if (entry1->height < entry2->height) {
+         return -1;
+      }
       else {
-         if (entry_1->bpp > entry_2->bpp) return +1;
-         else if (entry_1->bpp < entry_2->bpp) return -1;
-         else return 0;
+         if (entry1->bpp > entry2->bpp) {
+            return +1;
+         }
+         else if (entry1->bpp < entry2->bpp) {
+            return -1;
+         }
+         else {
+            return 0;
+         }
       }
    }
 }
@@ -186,11 +200,8 @@ static int sort_gfx_mode_list(GFX_MODE *entry_1, GFX_MODE *entry_2)
 GFX_MODE_LIST *get_gfx_mode_list(int card)
 {
    _DRIVER_INFO *list_entry;
-   GFX_DRIVER *drv;
-   GFX_MODE_LIST *gfx_mode_list;
-
-   drv = NULL;
-   gfx_mode_list = NULL;
+   GFX_DRIVER *drv = NULL;
+   GFX_MODE_LIST *gfx_mode_list = NULL;
    
    /* ask the system driver for a list of graphics hardware drivers */
    if (system_driver->gfx_drivers)
@@ -202,18 +213,25 @@ GFX_MODE_LIST *get_gfx_mode_list(int card)
    while (list_entry->driver) {
       if (list_entry->id == card) {
          drv = list_entry->driver;
-         if (!drv->fetch_mode_list) return NULL;
+         if (!drv->fetch_mode_list)
+            return NULL;
+
          gfx_mode_list = drv->fetch_mode_list();
-         if (!gfx_mode_list) return NULL;
+         if (!gfx_mode_list)
+            return NULL;
+
          break;
       }
+
       list_entry++;
    }
 
-   if(!drv) return NULL;
+   if (!drv)
+      return NULL;
 
    /* sort the list and finish */
-   qsort(gfx_mode_list->mode, gfx_mode_list->num_modes, sizeof(GFX_MODE), (int (*) (AL_CONST void *, AL_CONST void *))sort_gfx_mode_list);
+   qsort(gfx_mode_list->mode, gfx_mode_list->num_modes, sizeof(GFX_MODE),
+         (int (*) (AL_CONST void *, AL_CONST void *))sort_gfx_mode_list);
 
    return gfx_mode_list;
 }
@@ -226,7 +244,9 @@ GFX_MODE_LIST *get_gfx_mode_list(int card)
 void destroy_gfx_mode_list(GFX_MODE_LIST *gfx_mode_list)
 {
    if (gfx_mode_list) {
-      if (gfx_mode_list->mode) free(gfx_mode_list->mode);
+      if (gfx_mode_list->mode)
+         free(gfx_mode_list->mode);
+
       free(gfx_mode_list);
    }
 }
