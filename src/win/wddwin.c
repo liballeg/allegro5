@@ -622,6 +622,10 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       goto Error;
    }
 
+   /* acquire input devices */
+   wnd_acquire_keyboard();
+   wnd_acquire_mouse();
+
    /* get the working area */
    get_working_area(&working_area);
 

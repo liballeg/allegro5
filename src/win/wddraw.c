@@ -275,7 +275,7 @@ void gfx_directx_exit(struct BITMAP *b)
    /* before restoring video mode, hide window */
    wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
-   SetWindowPos(allegro_wnd, HWND_TOP, -100, -100, 0, 0, SWP_NOCOPYBITS);
+   system_driver->restore_console_state();
    restore_window_style();
 
    if (directdraw) {

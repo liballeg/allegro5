@@ -335,10 +335,10 @@ static void sys_directx_save_console_state(void)
  */
 static void sys_directx_restore_console_state(void)
 {
-   SetWindowPos(allegro_wnd, HWND_TOP,
-		wnd_rect.left, wnd_rect.top,
+   SetWindowPos(allegro_wnd, HWND_TOP, wnd_rect.left, wnd_rect.top,
 		wnd_rect.right - wnd_rect.left, wnd_rect.bottom - wnd_rect.top,
-		SWP_SHOWWINDOW);
+		SWP_NOCOPYBITS);
+   ShowWindow(allegro_wnd, SW_SHOW);
 }
 
 

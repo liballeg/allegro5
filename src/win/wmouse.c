@@ -359,6 +359,10 @@ static int mouse_dinput_init(void)
    /* Acquire the created device */
    wnd_acquire_mouse();
 
+   /* Make sure that the pointer is inside the window quickly enough */
+   if (win_gfx_driver && wnd_windowed)
+      SetCursorPos(wnd_x+8, wnd_y+8);
+
    return 0;
 
  Error:
