@@ -258,13 +258,25 @@ ifeq ($(WATCOM_VERSION),11)
 
 # -------- Watcom 11.0 supports COFF --------
 $(OBJ_DIR)/%.obj: %.s
-	$(GCC) $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.obj -c $<
+	$(RUNNER) wcc386 \\ $< -p -I. -I./include -fo=$(OBJ_DIR)/$*.S
+	as -o $@ $(OBJ_DIR)/$*.S
+ifdef UNIX_TOOLS
+	rm $(OBJ_DIR)/$*.S
+else
+	del $(subst /,\,$(OBJ_DIR)/$*.S)
+endif
 
 else
 
 # -------- black magic to build asm sources with Watcom 10.6 --------
 $(OBJ_DIR)/%.obj: %.s $(RUNNER)
-	$(GCC) $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.o -c $<
+	$(RUNNER) wcc386 \\ $< -p -I. -I./include -fo=$(OBJ_DIR)/$*.S
+	as -o $(OBJ_DIR)/$*.o $(OBJ_DIR)/$*.S
+ifdef UNIX_TOOLS
+	rm $(OBJ_DIR)/$*.S
+else
+	del $(subst /,\,$(OBJ_DIR)/$*.S)
+endif
 	$(RUNNER) wdisasm \\ -a $(OBJ_DIR)/$*.o -l=$(OBJ_DIR)/$*.lst
 	sed -e "s/\.text/_TEXT/; s/\.data/_DATA/; s/\.bss/_BSS/; s/\.386/\.586/; s/lar *ecx,cx/lar ecx,ecx/; s/ORG     [0-9]*H/ORG     00000000H/" $(OBJ_DIR)/$*.lst > $(OBJ_DIR)/$*.asm
 	$(RUNNER) wasm \\ $(WFLAGS) -zq -fr=nul -fp3 -fo=$@ $(OBJ_DIR)/$*.asm
