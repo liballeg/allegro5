@@ -413,6 +413,16 @@ static void find_sound_drivers(void)
 	 }
        #endif
 
+       #ifdef DIGI_ARTS
+	 case DIGI_ARTS:
+	 {
+	    static char *param[] = {"flip_pan", "sound_bits", "sound_stereo", "sound_freq", "digi_volume", NULL};
+	    digi_cards[c].param = uconvert_static_string_array(param);
+	    digi_cards[c].desc = uconvert_static_string("aRts");
+	    break;
+	 }
+       #endif
+
        #ifdef DIGI_ALSA
 	 case DIGI_ALSA:
 	 {
