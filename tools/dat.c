@@ -25,6 +25,12 @@
 #include "allegro.h"
 #include "datedit.h"
 
+#if ((defined ALLEGRO_DOS) || (defined ALLEGRO_MSVC)) && (!defined SCAN_DEPEND)
+   #define HAVE_CONIO_H
+   #include <conio.h>
+#endif
+
+
 
 static DATAFILE *datafile = NULL;
 
@@ -101,6 +107,146 @@ static void usage(void)
    printf("\t'-w' always updates the entire contents of the datafile\n");
    printf("\t'-007 password' sets the file encryption key\n");
    printf("\t'PROP=value' sets object properties\n");
+}
+
+
+
+/* callback for outputting messages */
+void datedit_msg(AL_CONST char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s\n", buf);
+}
+
+
+
+/* callback for starting a 2-part message output */
+void datedit_startmsg(AL_CONST char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s", buf);
+   fflush(stdout);
+}
+
+
+
+/* callback for ending a 2-part message output */
+void datedit_endmsg(AL_CONST char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s\n", buf);
+}
+
+
+
+/* callback for printing errors */
+void datedit_error(AL_CONST char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   fprintf(stderr, "%s\n", buf);
+
+   err = 1;
+}
+
+
+
+/* callback for asking questions */
+int datedit_ask(AL_CONST char *fmt, ...)
+{
+   va_list args;
+   char buf[1024];
+   int c;
+
+   static int all = FALSE;
+
+   if (all)
+      return 'y';
+
+   va_start(args, fmt);
+   vsprintf(buf, fmt, args);
+   va_end(args);
+
+   printf("%s? (y/n/a/q) ", buf);
+   fflush(stdout);
+
+   for (;;) {
+      #ifdef HAVE_CONIO_H
+
+	 /* raw keyboard input for platforms that have conio functions */
+	 c = getch();
+	 if ((c == 0) || (c == 0xE0))
+	    getch();
+
+      #else
+
+	 /* stdio version for other systems */
+	 fflush(stdin);
+	 c = getchar();
+
+      #endif
+
+      switch (c) {
+
+	 case 'y':
+	 case 'Y':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    return 'y';
+
+	 case 'n':
+	 case 'N':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    return 'n';
+
+	 case 'a':
+	 case 'A':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    all = TRUE;
+	    return 'y';
+
+	 case 'q':
+	 case 'Q':
+	    #ifdef HAVE_CONIO_H
+	       printf("%c\n", c);
+	    #endif
+	    return 27;
+
+	 case 27:
+	    #ifdef HAVE_CONIO_H
+	       printf("\n");
+	    #endif
+	    return 27;
+      }
+   }
 }
 
 
@@ -529,7 +675,6 @@ static int do_save_dependencies(DATAFILE *dat, char *srcname, char *depname)
    }
    else {
       datedit_error("Error writing %s", depname);
-      err = 1;
       return FALSE;
    }
 
