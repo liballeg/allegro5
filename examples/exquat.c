@@ -1,8 +1,6 @@
 /*
  *    Example program for the Allegro library, by Jason Wilkins.
  *
- *    A Comparison Between Euler Angles and Quaternions.
- *
  *    Euler angles are convenient for storing and creating 3D orientations.
  *    However, this program demonstrates that they are not good when
  *    interpolating between two different orientations. The problem is

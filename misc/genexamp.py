@@ -16,11 +16,11 @@ ok. Usage example:
    ...review...
    python misc/genexamp.py | patch -p0
 
-In order to work, this script requires Python (tested with 1.5.2
-and 2.2.2) and the diff binary in your path. Written by Grzegorz
-Adam Hankiewicz, gradha@users.sourceforge.net. Notify me of any
-broken behaviour, like uncaught exceptions. This script falls under
-Allegro's giftware license.
+In order to work, this script requires Python (tested with 2.3.3) and
+the diff binary in your path. Written by Grzegorz Adam Hankiewicz,
+gradha@users.sourceforge.net. Notify me of any broken behaviour,
+like uncaught exceptions. This script falls under Allegro's giftware
+license.
 """
 import glob
 import os
@@ -54,6 +54,8 @@ examples_order = ["exhello", "exmem", "expal", "expat", "exflame",
    "exstars", "exscn3d", "exzbuf", "exscroll", "ex3buf", "ex12bit",
    "exaccel", "exspline", "exupdate", "exswitch", "exdodgy", "exstream"]
 
+# Holds examples' short descriptions. Loaded from disk at runtime.
+short_descriptions = {}
 
 
 def detect_all_available_examples(path):
@@ -74,7 +76,30 @@ def detect_all_available_examples(path):
       examples_order.extend(examples)
       
 
+
+def load_example_short_descriptions(path):
+   """func(path_to_directory)
+
+   Loads the file examples.txt from the specified directory and
+   extracts the short example descriptions which are in "exblah -
+   text" format. The short descriptions are stored in the global
+   dictionary short_descriptions.
+   """
+   file_input = file(os.path.join(path, "examples.txt"), "rt")
+   try:
+      regex = re.compile(r"(ex\w+)[.]c\s+-\s(.*)")
+      line = file_input.readline()
+      while line:
+         m = regex.match(line)
+         if m:
+            short_descriptions[m.group(1)] = m.group(2)
+            
+         line = file_input.readline()
+   finally:
+      file_input.close()
+
    
+
 def retrieve_documentation_identifiers(file_name):
    """func(path_to_documentation._tx) -> {documentation_identifiers}
 
@@ -216,10 +241,13 @@ def build_example_output(example_name, comment_lines, xref_list):
 
    @@Example @example_name
    @@xrefs
+   @shortdesc
       comment
    """
    lines = ["@@Example @%s\n" % example_name]
    lines.extend(build_xref_block(xref_list))
+   if short_descriptions.has_key(example_name):
+      lines.append("@shortdesc %s\n" % short_descriptions[example_name])
    lines.extend(map(lambda x: "   %s\n" % x, comment_lines))
    lines.append("\n")
    return lines
@@ -372,6 +400,7 @@ def replace_example_references(documentation, ids_to_examples):
 
 def main(path_to_documentation, path_to_example_dir, incremental):        
    detect_all_available_examples(path_to_example_dir)
+   load_example_short_descriptions(path_to_example_dir)
    chapter, ids_to_examples = generate_example_chapter(path_to_documentation,
       map(lambda x: os.path.join(path_to_example_dir, "%s.c" % x),
       examples_order), incremental)
