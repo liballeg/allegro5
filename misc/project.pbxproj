@@ -127,7 +127,7 @@
 			buildSettings = {
 				DEBUGGING_SYMBOLS = NO;
 				FRAMEWORK_SEARCH_PATHS = "";
-				HEADER_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "\"$(LOCAL_LIBRARY_DIR)/Frameworks/Allegro.framework/Versions/Current/Headers\"";
 				INSTALL_PATH = "$(HOME)/Applications";
 				JAVA_COMPILER_DEBUGGING_SYMBOLS = NO;
 				LIBRARY_SEARCH_PATHS = "";
