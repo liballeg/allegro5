@@ -226,6 +226,10 @@ if test -z "$no_x"; then
   AC_CHECK_LIB(Xext, XMissingExtension,
     [LIBS="-lXext $LIBS"])
 
+  dnl Test for Xpm library.
+  AC_CHECK_LIB(Xpm, XMissingExtension,
+    [LIBS="-lXpm $LIBS"])
+
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
     AC_CHECK_LIB(Xext, XShmQueryExtension,
