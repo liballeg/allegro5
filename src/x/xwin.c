@@ -123,6 +123,7 @@ struct _xwin_type _xwin =
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    0,           /* modesinfo */
    0,           /* num_modes */
+   0,           /* mode_switched */
    0,           /* override_redirected */
 #endif
 
@@ -3155,6 +3156,8 @@ static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
 
 	 /* Lock mode switching.  */
 	 XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, True);
+
+	 _xwin.mode_switched = 1;
 	 return 1;
       }
    }
@@ -3172,11 +3175,15 @@ static void _xvidmode_private_unset_fullscreen(void)
    int i;
 
    if (_xwin.num_modes > 0) {
-      /* Unlock mode switching.  */
-      XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, False);
+      if (_xwin.mode_switched) {
+	 /* Unlock mode switching.  */
+	 XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, False);
 
-      /* Restore the original video mode.  */
-      XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, _xwin.modesinfo[0]);
+	 /* Restore the original video mode.  */
+	 XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, _xwin.modesinfo[0]);
+
+	 _xwin.mode_switched = 0;
+      }
 
       /* Free modelines.  */
       for (i = 0; i < _xwin.num_modes; i++)

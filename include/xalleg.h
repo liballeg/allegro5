@@ -126,6 +126,7 @@ extern struct _xwin_type
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    XF86VidModeModeInfo **modesinfo;
    int num_modes;
+   int mode_switched;
    int override_redirected;
 #endif
 
