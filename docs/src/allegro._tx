@@ -12,6 +12,7 @@
 @#ignore_css
 @#
 @html_text_substitution=readme.txt|<a href="readme.html">readme.txt</a>
+@html_text_substitution=grabber.txt|<a href="grabber.html">grabber.txt</a>
 @html_text_substitution=AUTHORS|<a href="thanks.html">AUTHORS</a>
 @external-css=allegro.css
 @document_title=Allegro Manual
@@ -7764,6 +7765,7 @@ directly from a specific datafile object.
 @xref set_color_conversion, fixup_datafile, packfile_password
 @xref find_datafile_object, register_datafile_object
 @eref excustom, exdata, exexedat, exgui, exsprite, exunicod
+@xref Using datafiles
    Loads a datafile into memory, and returns a pointer to it, or NULL on 
    error. If the datafile has been encrypted, you must first use the 
    packfile_password() function to set the appropriate key. See grabber.txt 
@@ -7788,9 +7790,10 @@ directly from a specific datafile object.
 @@                               const char *objectname);
 @xref unload_datafile_object, load_datafile, set_color_conversion
 @xref find_datafile_object, register_datafile_object
+@xref Using datafiles
    Loads a specific object from a datafile. This won't work if you strip the 
    object names from the file, and it will be very slow if you save the file 
-   with global compression. See grabber.txt for more information.
+   with global compression.
 
 @@void @unload_datafile_object(DATAFILE *dat);
 @xref load_datafile_object
@@ -7804,14 +7807,17 @@ directly from a specific datafile object.
    It understands '/' and '#' separators for nested datafile paths.
 
 @@const char *@get_datafile_property(const DATAFILE *dat, int type);
-   Returns the specified property string for the object, or an empty string 
-   if the property isn't present. See grabber.txt for more information.
+@xref Using datafiles, DAT_ID
+   Returns the specified property string for the object, or an empty string
+   if the property isn't present. The type parameter must be a value
+   created with the DAT_ID macro.
 
 @\void @register_datafile_object(int id, void *(*load)(PACKFILE *f, long size),
 @@                              void (*destroy)(void *data));
-@xref load_datafile, load_datafile_object
+@xref load_datafile, load_datafile_object, DAT_ID
+@xref Custom datafile objects
    Used to add custom object types, specifying functions to load and destroy 
-   objects of this type. See grabber.txt for more information.
+   objects of this type.
 
 @@void @fixup_datafile(DATAFILE *data);
 @xref set_gfx_mode, set_color_conversion, Differences between platforms
@@ -7827,58 +7833,326 @@ directly from a specific datafile object.
    hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32-bit truecolor
    for RLE sprites).
 
+@@Macro @DAT_ID(a, b, c, d);
+@xref register_datafile_object, get_datafile_property
+@xref Custom datafile objects, Using datafiles
+   Every object or property in a datafile is identified by a 4 letter ID,
+   which can be created with this macro. For example, to access the NAME
+   property of a datafile object, you could use:
+
+<codeblock>
+      get_datafile_property(datob, DAT_ID('N','A','M','E'));
+<endblock>
+
+
+
 @hnode Using datafiles
+
+In order to access the contents of a datafile, you will need to know where
+each object is located. The easiest way to do this is by integer index,
+using an automatically generated header file. With the grabber, type a name
+into the "Header:" field, and the object indexes will be written to this
+file whenever the datafile is saved. With the dat utility, use the '-h'
+option, eg. "dat filename.dat -h filename.h". The header will define C
+preprocessor symbols for each object in the datafile, for example:
+
+<codeblock>
+   #define SOME_DATA                        0        /* DATA */
+   #define SOME_MORE_DATA                   1        /* DATA */
+<endblock>
+
+To prevent name conflicts, you can specify a prefix string for these 
+definitions by typing it into the "Prefix:" field in the grabber or using 
+the '-p' option to dat.
+
+To load a datafile into memory, call the function:
+
+<codeblock>
+   DATAFILE *load_datafile(char *filename);
+<endblock>
+
+This will load the entire file, returning a pointer to it, or NULL on error. 
+When the data is no longer required, the entire thing can be destroyed by 
+calling:
+
+<codeblock>
+   void unload_datafile(DATAFILE *dat);
+<endblock>
+
 When you load a datafile, you will obtain a pointer to an array of DATAFILE 
 structures:
+
 <codeblock>
    typedef struct DATAFILE
    {
-      void *dat;     - pointer to the actual data
-      int type;      - type of the data
-      long size;     - size of the data in bytes
-      void *prop;    - list of object properties
+      void *dat;                    - pointer to the actual data
+      int type;                     - object type ID
+      long size;                    - size of the data, in bytes
+      DATAFILE_PROPERTY *prop;      - list of object properties
    } DATAFILE;
 <endblock>
-The type field will be one of the values:
-<textblock>
-   DAT_FILE       - dat points to a nested datafile
-   DAT_DATA       - dat points to a block of binary data
-   DAT_FONT       - dat points to a font object
-   DAT_SAMPLE     - dat points to a sample structure
-   DAT_MIDI       - dat points to a MIDI file
-   DAT_PATCH      - dat points to a GUS patch file
-   DAT_FLI        - dat points to an FLI/FLC animation
-   DAT_BITMAP     - dat points to a BITMAP structure
-   DAT_RLE_SPRITE - dat points to a RLE_SPRITE structure
-   DAT_C_SPRITE   - dat points to a linear compiled sprite
-   DAT_XC_SPRITE  - dat points to a mode-X compiled sprite
-   DAT_PALETTE    - dat points to an array of 256 RGB structures
-   DAT_END        - special flag to mark the end of the data list
-<endblock>
-The grabber program can also produce a header file defining the index of 
-each object within the file as a series of #defined constants, using the 
-names you gave the objects in the grabber. So, for example, if you have made 
-a datafile called foo.dat which contains a bitmap called THE_IMAGE, you 
-could display it with the code fragment:
-<codeblock>
-   #include "foo.h"
 
-   DATAFILE *data = load_datafile("foo.dat");
-   draw_sprite(screen, data[THE_IMAGE].dat, x, y);
-<endblock>
-If you are programming in C++ you will get an error because the dat field is 
-a void pointer and draw_sprite() expects a BITMAP pointer. You can get 
-around this with a cast, eg:
+The only really important piece of information here is the dat field, which 
+points to the contents of the object. What type of data this is will depend 
+on the type of object: for bitmaps it will be an Allegro BITMAP structure, 
+for RLE sprites an RLE_SPRITE, for fonts a FONT structure, etc. If you are 
+programming in C you can pass this pointer directly to the relevant Allegro 
+library functions, but if you are using C++ you will need to cast it to the 
+appropriate type to prevent the compiler giving a warning.
+
+For example, if you have a datafile called myfile.dat, which contains a 
+bitmap called COOL_PICTURE, and you have used it to produce a header called 
+myfile.h, you could display the bitmap with the code:
+
 <codeblock>
-   draw_sprite(screen, (BITMAP *)data[THE_IMAGE].dat, x, y);
+   #include "myfile.h"
+
+   void show_the_bitmap()
+   {
+      DATAFILE *dat;
+      BITMAP *bmp;
+
+      dat = load_datafile("myfile.dat");
+      if (!dat) {
+	 /* report an error! */
+	 return;
+      }
+
+      bmp = (BITMAP *)dat[COOL_PICTURE].dat;
+      blit(bmp, screen, 0, 0, 0, 0, bmp-&gtw, bmp-&gth);
+      unload_datafile(dat);
+   }
 <endblock>
-When you load a single datafile object, you will obtain a pointer to a 
-single DATAFILE structure. This means that you don't access it any more like 
-an array, and it doesn't have any DAT_END object. Example:
+
+If a datafile contains nested child datafiles, the header will prefix the 
+names of objects in the sub-files with the name of their parent datafile. It 
+will also define a count of the number of objects in the child file, which 
+may be useful if for example the child datafile contains several bitmaps 
+which form a 'run' animation, and you want your code to automatically 
+adjust to the number of frames in the datafile. 
+
+For example, the datafile:
+
+<textblock>
+   "FILE" - NESTED_FILE
+	    |- "BMP" - A_BITMAP
+	    |- "FONT" - A_FONT
+   "DATA" - SOME_DATA
+   "DATA" - SOME_MORE_DATA
+<endblock>
+
+produces the header:
+
+<codeblock>
+   #define NESTED_FILE                      0        /* FILE */
+
+   #define NESTED_FILE_A_BITMAP             0        /* BMP  */
+   #define NESTED_FILE_A_FONT               1        /* FONT */
+   #define NESTED_FILE_COUNT                2
+
+   #define SOME_DATA                        1        /* DATA */
+   #define SOME_MORE_DATA                   2        /* DATA */
+<endblock>
+
+The main datafile contains three objects (NESTED_FILE, SOME_DATA, and 
+SOME_MORE_DATA) with consecutive indexes, while the child datafile contains 
+the two objects A_BITMAP and A_FONT. To access these objects you need to 
+reference both the parent and child datafiles, eg:
+
+<codeblock>
+   DATAFILE *dat = load_datafile("whatever.dat");
+   DATAFILE *nested = (DATAFILE *)dat[NESTED_FILE].dat;
+   FONT *thefont = (FONT *)nested[NESTED_FILE_A_FONT].dat;
+<endblock>
+
+If you need to access object property strings from within your program, you 
+can use the function:
+
+<codeblock>
+   char *get_datafile_property(DATAFILE *dat, int type);
+<endblock>
+
+This will return a pointer to the property string if it can be found, and an 
+empty string (not null!) if it does not exist. One possible use of this 
+function is to locate objects by name, rather than using the indexes from a 
+header file. The datafile array is ended by an object of type DAT_END, so to 
+search the datafile dat for the object "my_object" you could use the code:
+
+<codeblock>
+   for (i=0; dat[i].type != DAT_END; i++) {
+      if (stricmp(get_datafile_property(dat+i, DAT_ID('N','A','M','E')),
+	 "my_object") == 0) {
+	 /* found the object at index i */
+      }
+   }
+   /* not found... */
+<endblock>
+
+If you prefer to access objects by name rather than index number, you can 
+use the function:
+
+<codeblock>
+   DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname);
+<endblock>
+
+This will search an already loaded datafile for an object with the specified 
+name, returning a pointer to it, or NULL if the object cannot be found. It 
+understands '/' and '#' separators for nested datafile paths.
+
+It is also possible to selectively load individual objects from a datafile, 
+with the function:
+
+<codeblock>
+   DATAFILE *load_datafile_object(char *filename, char *objectname);
+<endblock>
+
+This searches the datafile for an object with the specified name, so 
+obviously it won't work if you strip the name properties out of the file. 
+Because this function needs to seek through the data, it will be extremely 
+slow if you have saved the file with global compression. If you are planning 
+to load objects individually, you should save the file uncompressed or with 
+individual compression per-object. Because the returned datafile points to a 
+single object rather than an array of objects, you should access it with the 
+syntax datafile->dat, rather than datafile[index].dat, and when you are done 
+you should free the object with the function:
+
+<codeblock>
+   void unload_datafile_object(DATAFILE *dat);
+<endblock>
+
+Example:
 <codeblock>
    music_object = load_datafile_object("datafile.dat", "MUSIC");
    play_midi(music_object-&gtdat);
+   ...
+   unload_datafile_object(music_object);
 <endblock>
+
+Alternatively, the packfile functions can open and read directly from the 
+contents of a datafile object. You do this by calling pack_fopen() with a 
+fake filename in the form "filename.dat#object_name". The contents of the 
+object can then be read in an identical way to a normal disk file, so any of 
+the file access functions in Allegro (eg. load_pcx() and set_config_file()) 
+can be used to read from datafile objects. Note that you can't write to 
+datafiles in this way: the fake file is read only. Also, you should save the 
+file uncompressed or with per-object compression if you are planning on 
+using this feature. Finally, be aware that the special Allegro object types 
+aren't the same format as the files you import the data from, so if for 
+example you want to use load_pcx to read an image from a datafile, you 
+should import it as a binary data chunk rather than as a BITMAP object.
+
+If you have appended a datafile to the end of your executable with the 
+exedat utility, use load_datafile("#") to read the entire thing into memory, 
+load_datafile_object("#", "object_name") to load a specific object, and 
+pack_fopen("#object_name", F_READ) to read one of the objects directly with 
+your own code.
+
+By default, all graphic objects loaded from a datafile will be converted 
+into the current color depth. This conversion may be both lossy and very 
+slow, particularly when reducing from truecolor to 256 color formats, so you 
+may wish to disable it by calling set_color_conversion(COLORCONV_NONE) or 
+set_color_conversion(COLORCONV_PARTIAL) before your call to load_datafile().
+
+
+
+@hnode Custom datafile objects
+
+Some of the objects in a datafile, for example palettes and FLI animations, 
+are simply treated as blocks of binary data, but others are loaded into 
+special formats such as bitmap structures or compiled sprites. It is 
+possible to extend the datafile system to support your own custom object 
+types, eg. map objects for a tile based engine, or level data for a platform 
+game. Obviously the grabber has no way of understanding this data, but it 
+will allow you to import binary data from external files, so you can grab 
+information produced by your own utilities. If you are happy with the data 
+being loaded as a simple binary block, that is all you need to do, but if 
+you need to load it into a specific structure, read on...
+
+Your custom objects must be given a unique type ID, which is formed from 
+four ASCII characters (by convention all uppercase A-Z). If you don't use 
+all four characters, the string should be padded with spaces (ASCII 32). You 
+should use this ID when creating the objects in the grabber (select 
+New/Other and type in the ID string), and in your code you should define an 
+identifier for the type, eg:
+
+<codeblock>
+   #define DAT_MAPDATA  DAT_ID('M','A','P','D')
+<endblock>
+
+You then need to write functions for loading and destroying objects of this 
+type, in the form:
+
+<codeblock>
+   void *load_mapdata(PACKFILE *f, long size)
+   {
+      /* Allegro will call this function whenever an object of your custom 
+       * type needs to be loaded from a datafile. It will be passed a 
+       * pointer to the file from which the data is to be read, and the size 
+       * of the object in bytes. It should return a pointer to the loaded 
+       * data, which will be stored in the dat field of the datafile object 
+       * structure, or NULL if an error occurs. The file will have been 
+       * opened as a sub-chunk of the main datafile, so it is safe to read 
+       * past the end of the object (if you attempt this, Allegro will 
+       * return EOF), and it is also safe to return before reading all the 
+       * data in the chunk (if you do this, Allegro will skip any unused 
+       * bytes before starting to read the next object). You should _not_ 
+       * close the file when you are done: this will be handled by the 
+       * calling function. To clarify how all this works, here's an example 
+       * implementation of a null-terminated string object:
+       */
+
+      #define MAX_LEN  256
+
+      char buf[MAX_LEN];
+      char *p;
+      int i, c;
+
+      for (i=0; i&lt;MAX_LEN-1; i++) {
+	 if ((c = pack_getc(f)) == EOF)
+	    break;
+
+	 buf[i] = c;
+      }
+
+      buf[i] = 0;
+
+      p = malloc(i+1);
+      strcpy(p, buf);
+
+      return p;
+   }
+
+   void destroy_mapdata(void *data)
+   {
+      /* Allegro will call this function whenever an object of your custom 
+       * type needs to be destroyed. It will be passed a pointer to the 
+       * object (as returned by the load function), and should free whatever 
+       * memory the object is using. For example, the simple string object 
+       * returned by the above loader could be destroyed with the code:
+       */
+
+      if (data)
+	 free(data);
+   }
+<endblock>
+
+Finally, before you load your datafile you must tell Allegro about the 
+custom format, by calling:
+
+<codeblock>
+   register_datafile_object(DAT_MAPDATA, load_mapdata, destroy_mapdata);
+<endblock>
+
+It is also possible to integrate support for custom object types directly 
+into the grabber and dat utilities, by copying some special files into the 
+tools/plugins directory. This can be used to add whole new object types and 
+menu commands, or to provide additional import/export routines for the 
+existing formats. See tools/plugins/plugins.txt for an overview of how to 
+write your own grabber plugins.
+
+
+
+
 
 
 @heading
