@@ -2459,7 +2459,7 @@ information for more details.
    reliable results again.
 
 @@void @select_mouse_cursor(int cursor);
-@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor
+@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor, set_mouse_cursor_bitmap
 @shortdesc Tells Allegro to select software or hardware cursor drawing.
    With this function, you can instruct Allegro to use the native system 
    cursors rather than Allegro's custom cursor. You will need to enable this
@@ -2505,6 +2505,13 @@ information for more details.
    /* Set normal arrow pointer */
    select_mouse_cursor(MOUSE_CURSOR_ARROW);
 <endblock>
+
+@@void @set_mouse_cursor_bitmap(int cursor, BITMAP *bmp);
+@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor
+@shortdesc Changes the image Allegro uses for mouse cursors.
+   This function changes the cursor image Allegro uses if select_mouse_cursor()
+   is called but no native OS cursor can be used, for instance because you
+   did not call enable_hardware_cursor().
 
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
