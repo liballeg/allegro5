@@ -73,7 +73,7 @@ static LPDIRECTDRAWSURFACE offscreen_surface = NULL;
  * when in background, in order to ensure a proper clipping
  */ 
 static LPDIRECTDRAWSURFACE preconv_offscreen_surface = NULL;
-static RECT window_rect;
+static RECT working_area;
 static void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 static int clipped_updating_mode;
 static int allegro_palette_size;
@@ -96,31 +96,28 @@ void handle_window_moving_win(void)
 
 
 /* handle_window_size_win:
- *  updates window_rect if window has been moved or resized
+ *  updates window if window has been moved or resized
  */
-void handle_window_size_win(void)
-{
-   /* update window_rect */
-   GetClientRect(allegro_wnd, &window_rect);
-   ClientToScreen(allegro_wnd, (LPPOINT)&window_rect);
-   ClientToScreen(allegro_wnd, (LPPOINT)&window_rect + 1);
-      
+void handle_window_size_win(int x, int y, int w, int h)
+{     
    /* force alignment to speed up color conversion */
    if (!same_color_depth) {
-      int lmod;
+      int xmod;
 
-      if ( (((desktop_depth == 15) || (desktop_depth == 16)) && (lmod=window_rect.left%2)) ||
-                                      ((desktop_depth == 24) && (lmod=window_rect.left%4))  ) {
-         RECT dwin_rect;
-         GetWindowRect(allegro_wnd, &dwin_rect);
-         SetWindowPos(allegro_wnd, 0, dwin_rect.left + lmod, dwin_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
-      }   
+      if ( (((desktop_depth == 15) || (desktop_depth == 16)) && (xmod=x%2)) ||
+                                     ((desktop_depth == 24) && (xmod=x%4))  ) {
+         RECT window_rect;
+         GetWindowRect(allegro_wnd, &window_rect);
+         SetWindowPos(allegro_wnd, 0, window_rect.left + xmod,
+                      window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
+      }
 
       clipped_updating_mode = FALSE;
       _TRACE("clipped updating mode off\n");
-      if (update_window)
-         update_window(NULL);
    }
+
+   if (update_window)
+      update_window(NULL);
 }
 
 
@@ -130,29 +127,83 @@ void handle_window_size_win(void)
  */
 void update_window_hw (RECT* rect)
 {
-   RECT update_rect;
-   HRESULT hr;
+   RECT dest_rect;
    
    if (!pseudo_screen)
       return;
 
    if (rect) {
-      update_rect.left = window_rect.left + rect->left;
-      update_rect.top = window_rect.top + rect->top;
-      update_rect.right = window_rect.left + rect->right;
-      update_rect.bottom = window_rect.top + rect->bottom;
+      dest_rect = *rect;
    }
-   else
-      update_rect = window_rect;
+   else {
+      dest_rect.left   = 0;
+      dest_rect.right  = wnd_width;
+      dest_rect.top    = 0;
+      dest_rect.bottom = wnd_height;
+   }
 
+   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
+   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
+ 
    /* blit offscreen backbuffer to the window */
-   hr = IDirectDrawSurface_Blt(dd_prim_surface,
-        		       &update_rect,
-			       BMP_EXTRA(pseudo_screen)->surf,
-			       rect, 0, NULL);
+   IDirectDrawSurface_Blt(dd_prim_surface, &dest_rect,
+                          BMP_EXTRA(pseudo_screen)->surf, rect,
+                          0, NULL);
+}
 
+
+
+/* is_not_contained
+ *  helper to find the relative position of two rectangles
+ */ 
+static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
+{
+   if ( (rect1->left   < rect2->left)   ||
+        (rect1->top    < rect2->top)    ||
+        (rect1->right  > rect2->right)  ||
+        (rect1->bottom > rect2->bottom) )
+      return 1;
+   else
+      return 0;
+}
+
+
+
+/*
+ * ddsurf_blit_ex
+ *  extended blit function performing color conversion
+ */
+static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE dest_surf, RECT *dest_rect,
+                          LPDIRECTDRAWSURFACE src_surf, RECT *src_rect )
+{
+   DDSURFACEDESC src_desc, dest_desc;
+   HRESULT hr;
+
+   src_desc.dwSize = sizeof(src_desc);
+   src_desc.dwFlags = 0;
+   dest_desc.dwSize = sizeof(dest_desc);
+   dest_desc.dwFlags = 0;
+
+   hr = IDirectDrawSurface_Lock(dest_surf, dest_rect, &dest_desc, DDLOCK_WAIT, NULL);
    if (FAILED(hr))
-      _TRACE("Blt failed\n");
+      return -1;
+
+   hr = IDirectDrawSurface_Lock(src_surf, src_rect, &src_desc, DDLOCK_WAIT, NULL);
+   if (FAILED(hr)) {
+      IDirectDrawSurface_Unlock(dest_surf, NULL);
+      return -1;
+   }
+   
+   src_desc.dwWidth  = src_rect->right  - src_rect->left;
+   src_desc.dwHeight = src_rect->bottom - src_rect->top;
+
+   /* function doing the hard work */
+   _update(&src_desc, &dest_desc);
+
+   IDirectDrawSurface_Unlock(src_surf, NULL);
+   IDirectDrawSurface_Unlock(dest_surf, NULL);
+
+   return 0;
 }
 
 
@@ -162,78 +213,45 @@ void update_window_hw (RECT* rect)
  */
 void update_window_ex (RECT* rect)
 {
-   DDSURFACEDESC src_desc, dest_desc;
-   HRESULT hr;
-   RECT update_rect;
+   RECT src_rect, dest_rect;
 
    if (!pseudo_screen)
       return;
 
-   src_desc.dwSize = sizeof(src_desc);
-   src_desc.dwFlags = 0;
-   dest_desc.dwSize = sizeof(dest_desc);
-   dest_desc.dwFlags = 0;
-
    if (rect) {
-      rect->left &= 0xfffffffc;  /* align it */
-      rect->right = (rect->right+3) & 0xfffffffc;
-      update_rect.left = window_rect.left + rect->left;
-      update_rect.top = window_rect.top + rect->top;
-      update_rect.right = window_rect.left + rect->right;
-      update_rect.bottom = window_rect.top + rect->bottom;
+      /* align the rectangle */
+      src_rect.left   = rect->left & 0xfffffffc;
+      src_rect.right  = (rect->right+3) & 0xfffffffc;
+      src_rect.top    = rect->top;
+      src_rect.bottom = rect->bottom;
    }
-   else
-      update_rect = window_rect;
+   else {
+      src_rect.left   = 0;
+      src_rect.right  = wnd_width;
+      src_rect.top    = 0;
+      src_rect.bottom = wnd_height;
+   }
 
-   if (clipped_updating_mode || (GetForegroundWindow() != allegro_wnd)) {
-      /* first blit to the pre-converted offscreen buffer then blit to the primary surface WITH clipping */ 
-      hr = IDirectDrawSurface_Lock(preconv_offscreen_surface, rect, &dest_desc, DDLOCK_WAIT, NULL);
-      if (FAILED(hr))
+   dest_rect = src_rect; 
+   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
+   ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect + 1);
+
+   if (clipped_updating_mode || is_not_contained(&dest_rect, &working_area) ||
+                                       (GetForegroundWindow() != allegro_wnd)) {
+      /* first blit to the pre-converted offscreen buffer */
+      if (ddsurf_blit_ex(preconv_offscreen_surface, &src_rect,
+                         BMP_EXTRA(pseudo_screen)->surf, &src_rect) != 0)
          return;
-
-      hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
-      if (FAILED(hr)) {
-         IDirectDrawSurface_Unlock(preconv_offscreen_surface, NULL);
-         return;
-      }   
-
-      src_desc.dwWidth = update_rect.right - update_rect.left;
-      src_desc.dwHeight = update_rect.bottom - update_rect.top;
-
-      /* function doing the hard work */
-      _update (&src_desc, &dest_desc);
-
-      IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
-      IDirectDrawSurface_Unlock(preconv_offscreen_surface, NULL);
-
+ 
       /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
-      hr = IDirectDrawSurface_Blt(dd_prim_surface,
-        		          &update_rect,
-			          preconv_offscreen_surface,
-			          rect, 0, NULL);
-      if (FAILED(hr))
-         _TRACE("Blt failed\n");
+      IDirectDrawSurface_Blt(dd_prim_surface, &dest_rect,
+                             preconv_offscreen_surface, &src_rect,
+                             0, NULL);
    }
    else {
       /* blit directly to the primary surface WITHOUT clipping */
-      hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
-      if (FAILED(hr))
-         return;
-
-      hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
-      if (FAILED(hr)) {
-         IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
-         return;
-      }
-   
-      src_desc.dwWidth = update_rect.right - update_rect.left;
-      src_desc.dwHeight = update_rect.bottom - update_rect.top;
-
-      /* function doing the hard work */
-      _update (&src_desc, &dest_desc);
-
-      IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
-      IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
+      ddsurf_blit_ex(dd_prim_surface, &dest_rect,
+                     BMP_EXTRA(pseudo_screen)->surf, &src_rect);
    }
 }
 
@@ -352,7 +370,8 @@ void wddwin_switch_out(void)
  */
 void wddwin_switch_in(void)
 {
-   handle_window_size_win();
+   get_working_area(&working_area);
+   handle_window_size_win(wnd_x, wnd_y, wnd_width, wnd_height);
 }
 
 
@@ -572,6 +591,9 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       _TRACE("window size not supported.\n");
       goto Error;
    }
+
+   /* get the working area */
+   get_working_area(&working_area);
 
    /* create primary surface */
    if (create_primary() != 0)

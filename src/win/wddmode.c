@@ -219,6 +219,25 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE surf, int color_depth)
 
 
 
+/*
+ * get_working_area
+ *  retrieve the rectangle of the working area
+ */
+void get_working_area(RECT *working_area)
+{
+   SystemParametersInfo(SPI_GETWORKAREA, 0, working_area, 0);
+   working_area->left   += 3;  /* for the taskbar */
+   working_area->top    += 3;
+   working_area->right  -= 3;
+   working_area->bottom -= 3;
+}
+
+
+
+/*
+ * EnumModesCallback
+ *  callback for graphic modes enumeration
+ */ 
 static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc,
                                                                LPVOID addr)
 {

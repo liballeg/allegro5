@@ -155,11 +155,15 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
       case WM_MOVE:
 	 if (GetActiveWindow() == allegro_wnd) {
 	    if (!IsIconic(allegro_wnd)) {
-	       wnd_x = (int) LOWORD(lparam);
-	       wnd_y = (int) HIWORD(lparam);
-	       handle_window_size(wnd_x, wnd_y, wnd_width, wnd_height);
-	       if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
-		  handle_window_size_win();
+	       wnd_x = (short) LOWORD(lparam);
+	       wnd_y = (short) HIWORD(lparam);
+
+               if (gfx_driver) {
+                  if (gfx_driver->id == GFX_DIRECTX_OVL)
+	             handle_window_size_ovl(wnd_x, wnd_y, wnd_width, wnd_height);
+	          else if (gfx_driver->id == GFX_DIRECTX_WIN)
+		     handle_window_size_win(wnd_x, wnd_y, wnd_width, wnd_height);
+               }
 	    }
 	    else if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_OVL))
 	       hide_overlay();
@@ -193,12 +197,16 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
       case WM_INITMENUPOPUP:
 	 wnd_sysmenu = TRUE;
 	 mouse_sysmenu_changed();
+         if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
+            handle_window_moving_win();
 	 break;
 
       case WM_MENUSELECT:
 	 if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
 	    wnd_sysmenu = FALSE;
 	    mouse_sysmenu_changed();
+            if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
+               handle_window_size_win(wnd_x, wnd_y, wnd_width, wnd_height);
 	 }
 	 break;
 

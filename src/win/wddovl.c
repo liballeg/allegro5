@@ -61,7 +61,25 @@ GFX_DRIVER gfx_directx_ovl =
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE overlay_surface = NULL;
+static RECT working_area;
 static BOOL overlay_visible = FALSE;
+
+
+
+/* is_not_contained
+ *  helper to find the relative position of two rectangles
+ */ 
+static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
+{
+   if ( (rect1->left   < rect2->left)   ||
+        (rect1->top    < rect2->top)    ||
+        (rect1->right  > rect2->right)  ||
+        (rect1->bottom > rect2->bottom) )
+      return 1;
+   else
+      return 0;
+}
+
 
 
 /* show_overlay:
@@ -88,12 +106,17 @@ static int show_overlay(int x, int y, int w, int h)
 
    /* update overlay */
    _TRACE("Updating overlay (key=0x%x)\n", wnd_back_color);
-   hr = IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
-					 dd_prim_surface, &dest_rect,
-				     DDOVER_SHOW | DDOVER_KEYDEST, NULL);
+
+   if (is_not_contained(&dest_rect, &working_area))
+      hr = DDERR_INVALIDRECT;
+   else
+      hr = IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
+                                            dd_prim_surface, &dest_rect,
+                                            DDOVER_SHOW | DDOVER_KEYDEST, NULL);
    if (FAILED(hr)) {
       IDirectDrawSurface_UpdateOverlay(overlay_surface, NULL,
-	 dd_prim_surface, NULL, DDOVER_HIDE, NULL);
+	                               dd_prim_surface, NULL,
+                                       DDOVER_HIDE, NULL);
 
       _TRACE("Can't display overlay (%x)\n", hr);
       /* but we keep overlay_visible as TRUE to allow future updates */
@@ -124,14 +147,12 @@ void hide_overlay(void)
  */
 static int update_overlay()
 {
-   RECT pos;
+   RECT window_rect = {0, 0, wnd_width, wnd_height};
 
-   GetClientRect(allegro_wnd, &pos);
-   ClientToScreen(allegro_wnd, (LPPOINT)&pos);
-   ClientToScreen(allegro_wnd, (LPPOINT)&pos + 1);
+   ClientToScreen(allegro_wnd, (LPPOINT)&window_rect);
 
-   return show_overlay(pos.left, pos.top,
-		       pos.right - pos.left, pos.bottom - pos.top);
+   return show_overlay(window_rect.left, window_rect.top,
+                       wnd_width, wnd_height);
 }
 
 
@@ -175,6 +196,7 @@ static int verify_color_depth (int color_depth)
 }
 
 
+
 /* setup_driver_desc:
  *  Sets up the driver description string.
  */
@@ -191,20 +213,21 @@ static void setup_driver_desc(void)
 }
 
 
-/* handle_window_size:
- *  updates overlay if window is moved or resized
+
+/* handle_window_size_ovl:
+ *  updates overlay if window has been moved or resized
  */
-void handle_window_size(int x, int y, int w, int h)
+void handle_window_size_ovl(int x, int y, int w, int h)
 {
-   int lmod;
+   int xmod;
 
    /* handle hardware limitations */
    if ((dd_caps.dwCaps & DDCAPS_ALIGNBOUNDARYDEST) &&
-       (lmod = x%dd_caps.dwAlignBoundaryDest)) {
-      RECT dwin_rect;
-      GetWindowRect(allegro_wnd, &dwin_rect);
-      SetWindowPos(allegro_wnd, 0, dwin_rect.left + lmod, dwin_rect.top,
-         0, 0, SWP_NOZORDER | SWP_NOSIZE);
+               (xmod = x%dd_caps.dwAlignBoundaryDest)) {
+      RECT window_rect;
+      GetWindowRect(allegro_wnd, &window_rect);
+      SetWindowPos(allegro_wnd, 0, window_rect.left + xmod,
+                   window_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
    }
    else if (overlay_visible)
       show_overlay(x, y, w, h);
@@ -228,9 +251,12 @@ void wddovl_switch_out(void)
  */
 void wddovl_switch_in(void)
 {
+   get_working_area(&working_area);
+
    if (overlay_surface)
       show_overlay(wnd_x, wnd_y, wnd_width, wnd_height);
 }
+
 
 
 static int gfx_directx_show_video_bitmap_ovl(struct BITMAP *bitmap)
@@ -242,6 +268,7 @@ static int gfx_directx_show_video_bitmap_ovl(struct BITMAP *bitmap)
       return 0;
    } 
 }
+
 
 
 static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
@@ -269,6 +296,7 @@ static int create_overlay(int w, int h, int color_depth)
 
    return 0;
 }
+
 
 
 /* gfx_directx_ovl:
@@ -320,6 +348,9 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       _TRACE("window size not supported.\n");
       goto Error;
    }
+
+   /* get the working area */
+   get_working_area(&working_area);
 
    /* create surfaces */
    if (create_primary() != 0)
@@ -394,6 +425,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    return NULL;
 }
+
 
 
 /* gfx_directx_exit:

@@ -52,7 +52,6 @@ AL_FUNC(void, exit_directx_window, (void));
 AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
 AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
-AL_FUNC(void, handle_window_size, (int x, int y, int w, int h));
 AL_FUNC(void, restore_window_style, (void));
 
 /* Stuff moved over from wddraw.h */
