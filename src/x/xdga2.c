@@ -351,6 +351,25 @@ static void _xdga2_handle_input(void)
 
 
 
+/* _xdga2_display_is_local:
+ *  Tests that display connection is local.
+ *  (Note: this is duplicated in xwin.c).
+ */
+static int _xdga2_private_display_is_local(void)
+{
+   char *name;
+
+   if (_xwin.display == 0)
+      return 0;
+
+   /* Get display name and test for local display.  */
+   name = XDisplayName(0);
+
+   return (((name == 0) || (name[0] == ':') || (strncmp(name, "unix:", 5) == 0)) ? 1 : 0);
+}
+
+
+
 /* _xdga2_gfxdrv_init_drv:
  *  Initializes driver and creates screen bitmap.
  */
@@ -365,6 +384,12 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    /* This is just to test if the system driver has been installed properly */
    if (_xwin.window == None)
       return NULL;
+
+   /* Test that display is local.  */
+   if (!_xdga2_private_display_is_local()) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs local display"));
+      return NULL;
+   }
 
    /* Choose convenient size.  */
    if ((w == 0) && (h == 0)) {

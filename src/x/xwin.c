@@ -1048,6 +1048,7 @@ static void _xwin_private_create_mapping(unsigned long *map, int ssize, int dsiz
 
 /* _xwin_display_is_local:
  *  Tests that display connection is local.
+ *  (Note: this is duplicated in xdga2.c).
  */
 static int _xwin_private_display_is_local(void)
 {
@@ -3133,6 +3134,12 @@ static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
    XF86VidModeModeInfo *mode;
    int i;
 
+   /* Test that display is local.  */
+   if (!_xwin_private_display_is_local()) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VidMode extension requires local display"));
+      return 0;
+   }
+   
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
        || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
