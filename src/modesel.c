@@ -36,17 +36,13 @@ static int change_proc(int msg, DIALOG *d, int c);
 
 #define ALL_BPP(w, h) { w, h, { TRUE, TRUE, TRUE, TRUE, TRUE }}
 
-#define BPP_08    0
-#define BPP_15    1
-#define BPP_16    2
-#define BPP_24    3
-#define BPP_32    4
-#define BPP_TOTAL 5
+#define N_COLOR_DEPTH  5
 
+static int bpp_value_list[N_COLOR_DEPTH] = {8, 15, 16, 24, 32};
 
 typedef struct MODE_LIST {
    int  w, h;
-   char bpp[5];
+   char has_bpp[N_COLOR_DEPTH];
 } MODE_LIST;
 
 #define DRVNAME_SIZE  128
@@ -148,39 +144,143 @@ static DIALOG gfx_mode_ex_dialog[] =
 
 
 
+/* bpp_value:
+ *  Returns the bpp value of the color depth pointed to by INDEX.
+ */
+static INLINE int bpp_value(int index)
+{
+   ASSERT(index < N_COLOR_DEPTH);
+
+   return bpp_value_list[index];
+}
+
+
+
+/* bpp_value_for_mode:
+ *  Returns the bpp value of the color depth pointed to by INDEX
+ *  for the specified MODE of the specified DRIVER or -1 if INDEX
+ *  is out of bound.
+ */
+static int bpp_value_for_mode(int index, int driver, int mode)
+{
+   int i, j = -1;
+
+   ASSERT(index < N_COLOR_DEPTH);
+
+   for (i=0; i < N_COLOR_DEPTH; i++) {
+      if (driver_list[driver].mode_list[mode].has_bpp[i]) {
+         if (++j == index)
+            return bpp_value(i);
+      }
+   }
+
+   return -1;
+}
+
+
+
+/* bpp_index:
+ *  Returns the bpp index of the color depth given by DEPTH.
+ */
+static int bpp_index(int depth)
+{
+   int i;
+
+   for (i=0; i < N_COLOR_DEPTH; i++) {
+      if (bpp_value_list[i] == depth)
+         return i;
+   }
+
+   ASSERT(FALSE);
+   return -1;
+}
+
+
+
+/* bpp_index_for_mode:
+ *  Returns the bpp index of the color depth given by DEPTH for
+ *  the specified MODE of the specified DRIVER or -1 if DEPTH
+ *  is not supported.
+ */
+static int bpp_index_for_mode(int depth, int driver, int mode)
+{
+   int i, index = -1;
+
+   for (i=0; i < N_COLOR_DEPTH; i++) {
+      if (driver_list[driver].mode_list[mode].has_bpp[i]) {
+         index++;
+         if (bpp_value_list[i] == depth)
+            break;
+      }
+   }
+
+   return index;
+}
+
+
+
 /* change_proc:
- *  Stores the current driver in d1 and graphics mode in d2;
- *  if a new driver is selected in the listbox, it changes the
- *  w/h and cdepth listboxes so that they redraw and they
- *  lose their selections. likewise if a new w/h is selected the
- *  cdepth listbox is updated.
+ *  Stores the current driver in d1 and graphics mode in d2; if a new
+ *  driver is selected in the listbox, it updates the resolution and 
+ *  color depth listboxes so that they redraw; if a new resolution is
+ *  selected in the listbox, it updates the color depth listbox. The
+ *  current selection is kept across the changes as much as possible.
  */
 static int change_proc(int msg, DIALOG *d, int c)
 {
+   int width = driver_list[d->d1].mode_list[d->d2].w;
+   int height = driver_list[d->d1].mode_list[d->d2].h;
+   int depth = bpp_value_for_mode(what_dialog[GFX_DEPTHLIST].d1, d->d1, d->d2);
+   int i;
+
    ASSERT(d);
-   
+
    if (msg != MSG_IDLE)
       return D_O_K;
 
    if (what_dialog[GFX_DRIVERLIST].d1 != d->d1) {
+      /* record the new setting */
       d->d1 = what_dialog[GFX_DRIVERLIST].d1;
-      d->d2 = what_dialog[GFX_MODELIST].d1;
-      what_dialog[GFX_MODELIST].d1 = 0;
-      what_dialog[GFX_MODELIST].d2 = 0;
 
+      /* try to preserve the resolution */      
+      what_dialog[GFX_MODELIST].d1 = 0;
+
+      for (i = 0; i < driver_list[d->d1].mode_count; i++) {
+         if (driver_list[d->d1].mode_list[i].w == width &&
+             driver_list[d->d1].mode_list[i].h == height) {
+           what_dialog[GFX_MODELIST].d1 = i;
+           break;
+         }
+      }
+
+      what_dialog[GFX_MODELIST].d2 = 0;
       object_message(&what_dialog[GFX_MODELIST], MSG_DRAW, 0);
 
+      /* record the new setting */
+      d->d2 = what_dialog[GFX_MODELIST].d1;
+
       if (what_dialog == gfx_mode_ex_dialog) {
-         what_dialog[GFX_DEPTHLIST].d1 = 0;
+         /* try to preserve the color depth */
+         what_dialog[GFX_DEPTHLIST].d1 = bpp_index_for_mode(depth, d->d1, d->d2);
+         if (what_dialog[GFX_DEPTHLIST].d1 < 0)
+            what_dialog[GFX_DEPTHLIST].d1 = 0;
+
+         what_dialog[GFX_DEPTHLIST].d2 = 0;
          object_message(&what_dialog[GFX_DEPTHLIST], MSG_DRAW, 0);
       }
    }
 
    if (what_dialog[GFX_MODELIST].d1 != d->d2) {
+      /* record the new setting */
       d->d2 = what_dialog[GFX_MODELIST].d1;
 
       if (what_dialog == gfx_mode_ex_dialog) {
-         what_dialog[GFX_DEPTHLIST].d1 = 0;
+         /* try to preserve the color depth */
+         what_dialog[GFX_DEPTHLIST].d1 = bpp_index_for_mode(depth, d->d1, d->d2);
+         if (what_dialog[GFX_DEPTHLIST].d1 < 0)
+            what_dialog[GFX_DEPTHLIST].d1 = 0;
+
+         what_dialog[GFX_DEPTHLIST].d2 = 0;
          object_message(&what_dialog[GFX_DEPTHLIST], MSG_DRAW, 0);
       }
    }
@@ -226,13 +326,7 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
             if ((gfx_mode_entry->width == temp_mode_list[mode].w) &&
                 (gfx_mode_entry->height == temp_mode_list[mode].h)) {
                res_exist = TRUE;
-               switch(gfx_mode_entry->bpp) {
-                  case 8 : temp_mode_list[mode].bpp[BPP_08] = TRUE; break;
-                  case 15: temp_mode_list[mode].bpp[BPP_15] = TRUE; break;
-                  case 16: temp_mode_list[mode].bpp[BPP_16] = TRUE; break;
-                  case 24: temp_mode_list[mode].bpp[BPP_24] = TRUE; break;
-                  case 32: temp_mode_list[mode].bpp[BPP_32] = TRUE; break;
-               }
+               temp_mode_list[mode].has_bpp[bpp_index(gfx_mode_entry->bpp)] = TRUE;
                break;
             }
          }
@@ -250,19 +344,9 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
 
             temp_mode_list[mode].w = gfx_mode_entry->width;
             temp_mode_list[mode].h = gfx_mode_entry->height;
-            temp_mode_list[mode].bpp[BPP_08] = FALSE;
-            temp_mode_list[mode].bpp[BPP_15] = FALSE;
-            temp_mode_list[mode].bpp[BPP_16] = FALSE;
-            temp_mode_list[mode].bpp[BPP_24] = FALSE;
-            temp_mode_list[mode].bpp[BPP_32] = FALSE;
 
-            switch(gfx_mode_entry->bpp) {
-               case 8 : temp_mode_list[mode].bpp[BPP_08] = TRUE; break;
-               case 15: temp_mode_list[mode].bpp[BPP_15] = TRUE; break;
-               case 16: temp_mode_list[mode].bpp[BPP_16] = TRUE; break;
-               case 24: temp_mode_list[mode].bpp[BPP_24] = TRUE; break;
-               case 32: temp_mode_list[mode].bpp[BPP_32] = TRUE; break;
-            }
+            memset(temp_mode_list[mode].has_bpp, 0, N_COLOR_DEPTH);
+            temp_mode_list[mode].has_bpp[bpp_index(gfx_mode_entry->bpp)] = TRUE;
          }
       }
 
@@ -298,8 +382,8 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
 static int create_driver_list(void)
 {
    _DRIVER_INFO *driver_info;
-   GFX_DRIVER   *gfx_driver;
-   int          driver_count2, used_prefetched;
+   GFX_DRIVER *gfx_driver;
+   int driver_count2, used_prefetched;
 
    if (system_driver->gfx_drivers)
       driver_info = system_driver->gfx_drivers();
@@ -370,6 +454,7 @@ static void destroy_driver_list(void)
       if (driver_list[driver].fetch_mode_list_ptr)
          free(driver_list[driver].mode_list);
    }
+
    free(driver_list);
 }
 
@@ -403,7 +488,7 @@ static AL_CONST char *gfx_mode_getter(int index, int *list_size)
 
    if (index < 0) {
       if (list_size) {
-	   *list_size = driver_list[entry].mode_count;
+         *list_size = driver_list[entry].mode_count;
          return NULL;
       }
    }
@@ -421,6 +506,7 @@ static AL_CONST char *gfx_mode_getter(int index, int *list_size)
  */
 static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 {
+   static char *bpp_string_list[N_COLOR_DEPTH] = {"256", "32K", "64K", "16M", "16M"};
    MODE_LIST *mode;
    int bpp_count, card_entry, mode_entry, bpp_entry;
    char tmp[128];
@@ -432,11 +518,10 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
    if (index < 0) {
       if (list_size) {
          bpp_count = 0;
-         if(mode->bpp[BPP_08]) bpp_count++;
-         if(mode->bpp[BPP_15]) bpp_count++;
-         if(mode->bpp[BPP_16]) bpp_count++;
-         if(mode->bpp[BPP_24]) bpp_count++;
-         if(mode->bpp[BPP_32]) bpp_count++;
+         for (bpp_entry = 0; bpp_entry < N_COLOR_DEPTH; bpp_entry++) {
+            if (mode->has_bpp[bpp_entry])
+               bpp_count++;
+         }
          *list_size = bpp_count;
          return NULL;
       }
@@ -446,32 +531,18 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
    bpp_count = 0;
    while (bpp_count < index) {
       bpp_entry++;
-      if (mode->bpp[bpp_entry]) bpp_count++;
+      if (mode->has_bpp[bpp_entry])
+         bpp_count++;
    }
 
-   switch (bpp_entry) {
-
-      case BPP_08:
-         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii(" 8 %s (256 %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
-         break;
-
-      case BPP_15:
-         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("15 %s (32K %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
-         break;
-
-      case BPP_16:
-         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("16 %s (64K %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
-         break;
-
-      case BPP_24:
-         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("24 %s (16M %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
-         break;
-
-      case BPP_32:
-         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("32 %s (16M %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
-         break;
-   }
-
+   uszprintf(mode_string,
+             sizeof(mode_string),
+             uconvert_ascii("%2d %s (%s %s)", tmp),
+             bpp_value(bpp_entry),
+             get_config_text("bpp"),
+             bpp_string_list[bpp_entry],
+             get_config_text("colors"));
+ 
    return mode_string;
 }
 
@@ -485,7 +556,7 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
  */
 int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 {
-   int i, j, ret, what_driver, what_mode, what_bpp, extd;
+   int i, ret, what_driver, what_mode, what_bpp, extd;
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
@@ -526,7 +597,8 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
       what_dialog[GFX_MODELIST].d1 = 0;
 
       for (i=0; driver_list[what_driver].mode_list[i].w; i++) {
-         if ((driver_list[what_driver].mode_list[i].w == *w) && (driver_list[what_driver].mode_list[i].h == *h)) {
+         if ((driver_list[what_driver].mode_list[i].w == *w)
+              && (driver_list[what_driver].mode_list[i].h == *h)) {
             what_dialog[GFX_MODELIST].d1 = i;
             break; 
          }
@@ -536,21 +608,11 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
       what_dialog[GFX_CHANGEPROC].d2 = what_dialog[GFX_MODELIST].d1;  /* not d2 */
 
       /* thirdly the color depth */
-      what_dialog[GFX_DEPTHLIST].d1 = 0;
-      what_bpp = -1;
+      what_bpp = bpp_index_for_mode(*color_depth, what_driver, what_mode);
+      if (what_bpp < 0)
+         what_bpp = 0;
 
-      for (i=0; i < BPP_TOTAL; i++) {
-         if (driver_list[what_driver].mode_list[what_mode].bpp[i]) {
-            what_bpp++;
-            switch (i) {
-               case BPP_08: if (*color_depth == 8)  what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-               case BPP_15: if (*color_depth == 15) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-               case BPP_16: if (*color_depth == 16) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-               case BPP_24: if (*color_depth == 24) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-               case BPP_32: if (*color_depth == 32) what_dialog[GFX_DEPTHLIST].d1 = what_bpp; break;
-            }
-         }
-      }
+      what_dialog[GFX_DEPTHLIST].d1 = what_bpp;
    }
 
    centre_dialog(what_dialog);
@@ -570,21 +632,8 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
    *w = driver_list[what_driver].mode_list[what_mode].w;
    *h = driver_list[what_driver].mode_list[what_mode].h;
 
-   if (extd) {
-      j = -1;
-      for (i=0; i < BPP_TOTAL; i++) {
-         if (driver_list[what_driver].mode_list[what_mode].bpp[i]) {
-            j++;
-            if (j == what_bpp) switch (i) {
-               case BPP_08: *color_depth = 8;  break;
-               case BPP_15: *color_depth = 15; break;
-               case BPP_16: *color_depth = 16; break;
-               case BPP_24: *color_depth = 24; break;
-               case BPP_32: *color_depth = 32; break;
-            }
-         }
-      }
-   }
+   if (extd)
+      *color_depth = bpp_value_for_mode(what_bpp, what_driver, what_mode);
 
    destroy_driver_list();
 
@@ -593,6 +642,8 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
    else 
       return TRUE;
 }
+
+
 
 /* gfx_mode_select:
  *  Displays the Allegro graphics mode selection dialog, which allows the
