@@ -84,9 +84,9 @@ sed -f fixver.sed fixver.tmp > readme.txt
 # patch allegro._tx
 echo "s/@manh=\"version [^\"]*\"/@manh=\"version $verstr\"/" >> fixver.sed
 
-echo "Patching docs/allegro._tx..."
-cp docs/allegro._tx fixver.tmp
-sed -f fixver.sed fixver.tmp > docs/allegro._tx
+echo "Patching docs/src/allegro._tx..."
+cp docs/src/allegro._tx fixver.tmp
+sed -f fixver.sed fixver.tmp > docs/src/allegro._tx
 
 # patch makefile.ver
 echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2$3/" > fixver.sed
