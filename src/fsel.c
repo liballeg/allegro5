@@ -20,7 +20,8 @@
  *      floppy disk drive equipped systems and improved the browsing
  *      through directories.
  *
- *	Peter Wang modified it to stretch to screen and font sizes.
+ *      Peter Wang and Eric Botcazou modified it to stretch to screen and
+ *      font sizes.
  *
  *      See readme.txt for copyright information.
  */
@@ -110,6 +111,7 @@ static DIALOG file_selector[] =
 #ifdef HAVE_DIR_LIST       /* not all platforms need a directory list */
 
 #define FS_DISKS        6
+#define FS_YIELD        7
 
 
 
@@ -285,6 +287,10 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
 }
 
 
+
+#else
+
+#define FS_YIELD        6
 
 #endif      /* HAVE_DIR_LIST */
 
@@ -671,40 +677,109 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 
 
 /* stretch_dialog:
- *  Stretch the dialog vertically to a suitable size for the screen 
- *  and font in use.
+ *  Stretch the dialog horizontally and vertically to the specified
+ *   size and the font in use.
+ *   (all the magic numbers come from the "historical" file selector)
  */
-static void stretch_dialog()
+static void stretch_dialog(DIALOG *d, int width, int height)
 {
-   DIALOG *d = file_selector;
+   int font_w, font_h, hpad, vpad;
     
    #ifdef HAVE_DIR_LIST
 
-      d[FS_FRAME].h   = SCREEN_H - 10;
-      d[FS_MESSAGE].h = text_height(font);
-      d[FS_EDIT].y    = d[FS_MESSAGE].y + d[FS_MESSAGE].h + 12;
-      d[FS_EDIT].h    = text_height(font);
-      d[FS_FILES].y   = d[FS_EDIT].y + d[FS_EDIT].h + 10;
-      d[FS_FILES].h   = d[FS_FRAME].h - d[FS_FILES].y - 10;
-      d[FS_CANCEL].h  = text_height(font) + 9;
-      d[FS_CANCEL].y  = d[FS_FRAME].h - d[FS_CANCEL].h - 15;
+      /* horizontal settings */
+      font_w = text_length(font, "a");
+
+      if (width == 0)
+          width = 0.95*SCREEN_W + 1;
+
+      hpad = 0.05*width + 1;
+    
+      d[FS_FRAME].w   = width;
+      d[FS_FRAME].x   = 0;
+      d[FS_MESSAGE].w = 1;
+      d[FS_MESSAGE].x = width/2;
+      d[FS_EDIT].w    = d[FS_FRAME].w - 2*hpad - 1;
+      d[FS_EDIT].x    = hpad;
+      d[FS_CANCEL].w  = 10*font_w + 1;
+      d[FS_CANCEL].x  = d[FS_FRAME].w - hpad - d[FS_CANCEL].w; 
+      d[FS_OK].w      = d[FS_CANCEL].w;
+      d[FS_OK].x      = d[FS_CANCEL].x;
+      d[FS_DISKS].w   = d[FS_OK].w;
+      d[FS_DISKS].x   = d[FS_OK].x;
+      d[FS_FILES].x   = hpad;
+      d[FS_FILES].w   = d[FS_CANCEL].x - d[FS_FILES].x - hpad + 1;
+      d[FS_YIELD].x   = 0;
+
+      /* vertical settings */     
+      font_h = text_height(font);
+
+      if (height == 0)
+          height = 0.80*SCREEN_H + 1;
+
+      vpad = 0.05*height;
+
+      d[FS_FRAME].h   = height;
+      d[FS_FRAME].y   = 0;
+      d[FS_MESSAGE].h = font_h;
+      d[FS_MESSAGE].y = vpad;
+      d[FS_EDIT].h    = font_h;
+      d[FS_EDIT].y    = 2*vpad + d[FS_MESSAGE].h + 4;
+      d[FS_CANCEL].h  = font_h + 9;
+      d[FS_CANCEL].y  = d[FS_FRAME].h - 2*vpad - d[FS_CANCEL].h + 1;
       d[FS_OK].h      = d[FS_CANCEL].h;
-      d[FS_OK].y      = d[FS_CANCEL].y - d[FS_OK].h - 5;
-      d[FS_DISKS].y   = d[FS_FILES].y;
-      d[FS_DISKS].h   = d[FS_OK].y - d[FS_DISKS].y - 9;
+      d[FS_OK].y      = d[FS_CANCEL].y - vpad/2 - d[FS_OK].h - 1; 
+      d[FS_DISKS].y   = d[FS_EDIT].y + d[FS_EDIT].h + vpad + 2;
+      d[FS_DISKS].h   = d[FS_OK].y - d[FS_DISKS].y - vpad - 1;    
+      d[FS_FILES].y   = d[FS_DISKS].y;
+      d[FS_FILES].h   = d[FS_FRAME].h - d[FS_FILES].y - 2*vpad + 1;
+      d[FS_YIELD].y   = 0;
 
    #else
 
-      d[FS_FRAME].h   = SCREEN_H - 10;
-      d[FS_MESSAGE].h = text_height(font);
-      d[FS_OK].h      = text_height(font) + 9;
-      d[FS_OK].y      = d[0].h - d[FS_OK].h - 12;
-      d[FS_CANCEL].y  = d[FS_OK].y;
+      /* horizontal settings */
+      font_w = text_length(font, "a");
+
+      if (width == 0)
+          width = 0.95*SCREEN_W + 1;
+
+      hpad = 0.05*width + 1;
+    
+      d[FS_FRAME].w   = width;
+      d[FS_FRAME].x   = 0;
+      d[FS_MESSAGE].w = 1;
+      d[FS_MESSAGE].x = width/2;
+      d[FS_EDIT].w    = d[FS_FRAME].w - 2*hpad - 1;
+      d[FS_EDIT].x    = hpad;
+      d[FS_FILES].w   = d[FS_FRAME].w - 2*hpad;
+      d[FS_FILES].x   = hpad;
+      d[FS_OK].w      = 10*font_w + 1;
+      d[FS_OK].x      = (d[FS_FRAME].w - 2*d[FS_OK].w - hpad + 1)/2; 
+      d[FS_CANCEL].w  = d[FS_OK].w;
+      d[FS_CANCEL].x  = d[FS_FRAME].w - d[FS_OK].x - d[FS_CANCEL].w;
+      d[FS_YIELD].x   = 0;
+      
+      /* vertical settings */     
+      font_h = text_height(font);
+
+      if (height == 0)
+          height = 0.95*SCREEN_H - 1;
+
+      vpad = 0.04*height + 1;
+
+      d[FS_FRAME].h   = height;
+      d[FS_FRAME].y   = 0;
+      d[FS_MESSAGE].h = font_h;
+      d[FS_MESSAGE].y = vpad;
+      d[FS_EDIT].h    = font_h;
+      d[FS_EDIT].y    = 2*vpad + d[FS_MESSAGE].h + 4;
+      d[FS_OK].h      = font_h + 9;
+      d[FS_OK].y      = d[FS_FRAME].h - 1.5*vpad - d[FS_OK].h;
       d[FS_CANCEL].h  = d[FS_OK].h;
-      d[FS_EDIT].y    = d[FS_MESSAGE].y + d[FS_MESSAGE].h + 12;
-      d[FS_EDIT].h    = text_height(font);
-      d[FS_FILES].y   = d[FS_EDIT].y + d[FS_EDIT].h + 10;
-      d[FS_FILES].h   = d[FS_OK].y - d[FS_FILES].y - 10;
+      d[FS_CANCEL].y  = d[FS_OK].y;
+      d[FS_FILES].y   = d[FS_EDIT].y + d[FS_EDIT].h + vpad + 2;
+      d[FS_FILES].h   = d[FS_OK].y - d[FS_FILES].y - vpad - 6;
+      d[FS_YIELD].y   = 0;
 
    #endif
 }
@@ -721,6 +796,20 @@ static void stretch_dialog()
  *  non-zero if it was OK'd.
  */
 int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
+{
+   #ifdef HAVE_DIR_LIST
+
+      return file_select_ex(message, path, ext, 305, 161);
+
+   #else
+      
+      return file_select_ex(message, path, ext, 305, 189);
+
+   #endif      
+}
+
+
+int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int width, int height)
 {
    char buf[512];
    int ret;
@@ -746,7 +835,7 @@ int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
    do {
    } while (gui_mouse_b());
 
-   stretch_dialog(file_selector);
+   stretch_dialog(file_selector, width, height);
    centre_dialog(file_selector);
    set_dialog_color(file_selector, gui_fg_color, gui_bg_color);
    ret = popup_dialog(file_selector, FS_EDIT);
