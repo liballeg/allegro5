@@ -241,6 +241,10 @@ static void load_header(DATAFILE *dat, AL_CONST char *filename)
 
       pack_fclose(f);
    }
+   else {
+      /* don't let the error propagate */
+      errno = 0;
+   }
 }
 
 
