@@ -401,12 +401,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          }
          break;
 
-      case WM_SYSCOMMAND:
-         /* disable screensaver and power down */
-         if (((wparam&0xFFF0)==SC_SCREENSAVE) || ((wparam&0xFFF0)==SC_MONITORPOWER))
-            return 0;
-         break;
-
       case WM_CLOSE:
          if (!user_wnd_proc) {
             if (user_close_proc) {
