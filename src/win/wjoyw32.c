@@ -57,8 +57,8 @@ JOYSTICK_DRIVER joystick_win32 =
 
 
 /* win32 joystick state */
-#define MAXJOYSTICKS 2
-#define MAXBUTTONS 8
+#define MAXJOYSTICKS 4
+#define MAXBUTTONS 10
 #define MAXAXES 3
 
 struct WIN32_JOYSTICK {
@@ -276,8 +276,7 @@ int init_win32_joysticks()
    win32_joy_num = joyGetNumDevs();
 
    if (win32_joy_num > MAXJOYSTICKS) {
-//      win32_joy_num = MAXJOYSTICKS;
-      TRACE("More than two joysticks found");
+      TRACE("More than four joysticks found");
    }
 
    /* get joystick calibration */
@@ -362,7 +361,7 @@ static int joy_init()
    static char name_hat[] = "hat";
    static char name_throttle[] = "throttle";
    static char *name_b[] =
-   {"B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"};
+   {"B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10"};
    int n_but;
    int n_stick, n_joy, n_axes;
 
@@ -433,11 +432,9 @@ static int joy_init()
       }
 
       /* fill in the button names */
-      for (n_but = 0; n_but < joy[0].num_buttons; n_but++)
-	 joy[0].button[n_but].name = name_b[n_but];
+      for (n_but = 0; n_but < joy[n_joy].num_buttons; n_but++)
+	 joy[n_joy].button[n_but].name = name_b[n_but];
 
-      for (n_but = 0; n_but < joy[1].num_buttons; n_but++)
-	 joy[1].button[n_but].name = name_b[n_but];
    }
 
    return 0;
