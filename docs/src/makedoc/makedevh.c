@@ -246,6 +246,8 @@ int write_devhelp(const char *filename)
    section_number = -1;
    for (; toc; toc = toc->next) {
       char name[256];
+      if (!toc->htmlable)
+         continue;
       if (toc->root) {
          if (!toc->otherfile) {
 	    section_number++;
