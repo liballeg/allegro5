@@ -9732,7 +9732,7 @@ MacOS X specifics
 
 The following functions provide a platform specific interface to seamlessly
 integrate Allegro into general purpose MacOS X programs. To use these routines, 
-you must include qnxalleg.h after other Allegro headers.
+you must include osxalleg.h after other Allegro headers.
 
 @@void @set_application_quit_callback(void (*proc)(void));
 @xref set_close_button_callback
