@@ -502,7 +502,7 @@ static int obj_list_cmp(AL_CONST void *e1, AL_CONST void *e2)
  */
 static int cmp_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
-   int ret = (int)d2 - (int)d1;
+   int ret = (int)((AL_CONST unsigned long)d2 - (AL_CONST unsigned long)d1);
 
    if (ret < 0)
       ret += 0x10000;
@@ -517,7 +517,7 @@ static int cmp_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
  */
 static int cmp_shift_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
-   int ret = (int)d1 - (int)d2;
+   int ret = (int)((AL_CONST unsigned long)d1 - (AL_CONST unsigned long)d2);
 
    if (ret < 0)
       ret += 0x10000;

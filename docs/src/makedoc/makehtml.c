@@ -535,7 +535,7 @@ static void _output_toc(char *filename, int root, int body, int part)
 	    else {
 	       strcpy(name, filename);
 	       s = get_extension(name)-1;
-	       if ((int)s - (int)get_filename(name) > 5)
+	       if (s - get_filename(name) > 5)
 		  s = get_filename(name)+5;
 	       sprintf(s, "%03d.%s", section_number, html_extension);
 	       _hfprintf("<li><a href=\"%s\">%s</a>\n", get_filename(name), ALT_TEXT(toc));
@@ -703,7 +703,7 @@ static int _output_section_heading(LINE *line, char *filename, int section_numbe
       _close_html_file(_file);
       strcpy(buf, filename);
       s = get_extension(buf)-1;
-      if ((int)s - (int)get_filename(buf) > 5)
+      if (s - get_filename(buf) > 5)
 	 s = get_filename(buf)+5;
       sprintf(s, "%03d.%s", section_number-1, html_extension);
       printf("writing %s\n", buf);

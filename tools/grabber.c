@@ -2936,7 +2936,7 @@ static int add_new(int type)
 /* handle the new object command */
 static int new_object(void)
 {
-   return add_new((int)active_menu->dp);
+   return add_new((int)((unsigned long)active_menu->dp));
 }
 
 
@@ -3438,7 +3438,7 @@ int main(int argc, char *argv[])
 	 tmpmenu.proc = new_object;
 	 tmpmenu.child = NULL;
 	 tmpmenu.flags = 0;
-	 tmpmenu.dp = (void *)datedit_object_info[i]->type;
+	 tmpmenu.dp = (void *)(unsigned long)datedit_object_info[i]->type;
 
 	 add_to_menu(new_menu, &tmpmenu, TRUE, NULL, NULL, 0);
       }

@@ -1974,7 +1974,7 @@ static void initialise_bitmap(BITMAP *bmp)
    int i;
 
    for (i=0; _vtable_list[i].vtable; i++) {
-      if (_vtable_list[i].color_depth == (int) bmp->vtable) {
+      if (_vtable_list[i].color_depth == (int)(unsigned long)bmp->vtable) {
 	 bmp->vtable = _vtable_list[i].vtable;
 	 bmp->write_bank = _stub_bank_switch;
 	 bmp->read_bank = _stub_bank_switch;
@@ -2013,7 +2013,7 @@ static void initialise_datafile(DATAFILE *data)
 
 	 case DAT_FONT:
 	    f = data[c].dat;
-	    color_flag = (int)f->vtable;
+	    color_flag = (int)(unsigned long)f->vtable;
 	    if (color_flag == 1) {
 	       FONT_COLOR_DATA *cf = (FONT_COLOR_DATA *)f->data;
 	       while (cf) {
