@@ -1,0 +1,88 @@
+Wrapping up Allegro How-TO. Based on the 4.0.3 release.
+----------------------------------------------------------------------
+
+The following steps must be done under Linux. Make sure you have the
+necessary software installed.
+
+1. Update your local CVS copy:
+
+   cvs -z3 update -r allegro_4_0_branch -Pd
+
+   Look over file tree and remove any temporary files.
+
+2. Create ChangeLog:
+
+   cvs2cl.pl -F allegro_4_0_branch -l '-d">2002-03-17"'
+
+   where 2002-03-17 is the date of the latest release.
+
+   Use the generated ChangeLog file to update the docs/changes._tx
+   and docs/thanks._tx files. Remove the ChangeLog file after use or
+   move it to some other place.
+
+3. Commit docs/changes._tx and docs/thanks._tx to the CVS repository.
+
+4. Update the DLL symbol definitions:
+
+   *only* for WIP releases: rm misc/dllsyms.lst
+   chmod +x misc/fixdll.sh [problem in the CVS repository]
+   misc/fixdll.sh --update-symbol-list
+
+5. Commit misc/dllsyms.lst to the CVS repository.
+
+6. Tag CVS repository: 'cvs tag v4-0-3'
+
+7. Set the locale to en_US or en_UK:
+
+   export LC_ALL=en_US
+
+8. Fix version number: 'misc/fixver.sh 4 0 3'
+
+9. Make sure demo.dat is present in the 'demo' sub-directory.
+
+10. Make sure the working directory is called 'allegro'.
+
+11. Make sure the installed version of GNU autoconf is the right one.
+
+12. Make .zip distro. Have the previous archive in parent directory.
+
+    misc/zipup.sh all403.zip all402.zip
+
+13. Make Unix distros. In the parent directory:
+   
+    allegro/misc/mkunixdists.sh all403.zip
+   
+14. Check that the RPM file can be installed and compiled without problems.
+    Also check if the patch applies ok. (all403_diff.zip)
+
+15. Use misc/zipwin.sh to make Windows binary distro. This script must
+    be run under djgpp Bash having MSVC installed.
+    If you do not have these installed, create a new windows binary
+    distro based on the old one, update all text files and scripts and
+    update the dlls with some you make with mingw32 using the newly
+    created .zip distro. (all403.zip)
+
+16. Upload all packages to Sourceforge using the FRS (File Release
+    System). Use CHANGES as the basis for the release notes.
+
+17. Announce the new release to the Allegro mailinglist:
+    <alleg-main@lists.sourceforge.net>, make sure you add URLs to both the
+    Allegro homepage and the Allegro sourceforge download page.
+    Also include the release notes and anything else you wish to add.
+
+18. Convert local files back to Unix format, bump version number,
+    and commit changed files.
+    
+    ./fix.sh unix
+    misc/fixver.sh 4 0 4 CVS
+    cvs -z3 commit -m "Bumped version to 4.0.4 (CVS)"
+
+19. Webmasters watch the mailing lists for annoucements and then update
+    the web pages accordingly. If you are interested in this process
+    yourself, you are free to do it following the instructions at:
+
+    http://alleg.sourceforge.net/docs/webmaster_instructions.html
+
+----------------------------------------------------------------------
+By: Henrik Stokseth, October, 2001.  E-mail:hstokset@tiscali.no
+Modified by: Eric Botcazou, April 2003.  E-mail:ebotcazou@libertysurf.fr
