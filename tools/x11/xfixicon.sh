@@ -38,9 +38,7 @@ fi
 
 echo "#include <allegro.h>" > $outfile
 cat /tmp/allegico_xpm.xpm | sed -e 's,static char,static const char,' >> $outfile
-echo "#ifdef ALLEGRO_GCC" >> $outfile
-echo "void *allegro_icon = allegico_xpm;" >> $outfile
-echo "#elif defined ALLEGRO_USE_CONSTRUCTOR" >> $outfile
+echo "#if defined ALLEGRO_WITH_XWINDOWS && defined ALLEGRO_USE_CONSTRUCTOR" >> $outfile
 echo "extern void *allegro_icon;" >>  $outfile
 echo "CONSTRUCTOR_FUNCTION(static void _set_allegro_icon(void));" >> $outfile
 echo "static void _set_allegro_icon(void)" >> $outfile

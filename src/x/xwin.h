@@ -27,12 +27,9 @@ AL_VAR(int, _xwin_mouse_extended_range);
 AL_VAR(int, _xwin_last_line);
 AL_VAR(int, _xwin_in_gfx_call);
 
-/* Weak symbol declaration for the allegro_icon - only supported in gcc */
-#ifdef ALLEGRO_GCC
-AL_VAR(void *, allegro_icon __attribute__((weak)));
-#else
+/* The allegro X11 icon */
 AL_VAR(void *, allegro_icon);
-#endif
+
 
 AL_FUNC(int, _xwin_open_display, (char *name));
 AL_FUNC(void, _xwin_close_display, (void));
