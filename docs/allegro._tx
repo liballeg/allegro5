@@ -4031,7 +4031,7 @@ Allegro provides two simple approaches to remove hidden surfaces:
    the previous scanline - it won't change much). The BIG advantage is that
    you write each pixel only once. If you have a lot of overlapping
    polygons you can get incredible speeds compared to any of the previous
-   algorithms. This algorithm is covered by the scene_* routines.
+   algorithms. This algorithm is covered by the *_scene routines.
 </ul>
 
 The scene rendering has approximately the following steps:
@@ -4039,7 +4039,7 @@ The scene rendering has approximately the following steps:
    Initialize the scene (set the clip area, clear the bitmap, blit a
    background, etc.)
 <li>
-   Call scene_start().
+   Call clear_scene().
 <li>
    Transform all your points to camera space.
 <li>
@@ -4051,7 +4051,7 @@ The scene rendering has approximately the following steps:
    This doesn't do any actual drawing, only initializes tables.
 <li>
    Render all the polygons defined previously to the bitmap with
-   scene_render().
+   render_scene().
 <li>
    Overlay some non-3D graphics.
 <li>
@@ -4086,7 +4086,7 @@ polygons may be safely rendered by the normal scanline sorting algo.
 Same as before: just OR the POLYTYPE with POLYTYPE_ZBUF. Also, you
 have to clear the z-buffer at the start of the frame. Example:
 <pre>
-   scene_start(screen, 4000, 1000);
+   clear_scene(buffer);
    if (some_polys_are_zbuf) clear_zbuffer(0.);
    while (polygons) {
       ...
@@ -4096,35 +4096,40 @@ have to clear the z-buffer at the start of the frame. Example:
    scene_render();
 </pre>
 
-@@int @scene_start(BITMAP *bmp, int nedge, int npoly);
-@xref scene_polygon3d, scene_render, create_zbuffer, clear_zbuffer
-@xref destroy_zbuffer, scene_gap
-   Initializes a scene.
-
-   The bitmap bmp is the bitmap you will eventually render on. nedge and
-   npoly are your estimates of how many edges and how many polygons you will
-   render (you cannot get over the limit specified here). If you use same
-   values in succesive calls, the space will be reused (no new malloc()). If
-   you call with nedge=0 or npoly=0, the allocated space is freed.
+@@int @create_scene(int nedge, int npoly);
+@xref scene_polygon3d, render_scene, clear_scene, destroy_scene, scene_gap
+@xref create_zbuffer
+   Allocates memory for a scene, nedge and npoly are your estimates of how many
+   edges and how many polygons you will render (you cannot get over the limit
+   specified here). If you use same values in succesive calls, the space will
+   be reused (no new malloc()).
 
    The memory allocated is a little less than 150 * (nedge + npoly) bytes.
    Returns zero on success, or a negative number if allocations fail.
 
+@@void @clear_scene(BITMAP *bmp);
+@xref create_scene, scene_polygon3d, render_scene, destroy_scene, scene_gap
+   Initializes a scene. The bitmap is the bitmap you will eventually render on.
+
+@@void @destroy_scene();
+@xref create_scene, scene_polygon3d, clear_scene, render_scene, scene_gap
+   Deallocate memory previously allocated by create_scene.
+
 @@int @scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@int @scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[]);
-@xref scene_start, scene_render, polygon3d
+@xref create_scene, clear_scene, render_scene, destroy_scene, polygon3d
    Puts a polygon in the rendering list. Nothing is really rendered at this
-   moment. Should be called between scene_start() and scene_render().
+   moment. Should be called between clear_scene() and render_scene().
 
    Arguments are the same as for polygon3d(), except the bitmap is missing.
-   The one passed to scene_start() will be used.
+   The one passed to clear_scene() will be used.
 
    Unlike polygon3d(), the polygon may be concave or self-intersecting.
    Shapes that penetrate one another may look OK, but they are not really
    handled by this code.
 
    Note that the texture is stored as a pointer only, and you should keep
-   the actual bitmap until scene_render(), where it is used.
+   the actual bitmap around until render_scene(), where it is used.
 
    Since the FLAT style is implemented with the low-level hline() funtion,
    the FLAT style is subject to DRAW_MODEs. All these modes are valid. Along
@@ -4134,27 +4139,26 @@ have to clear the z-buffer at the start of the frame. Example:
 
    The settings of cpu_mmx and cpu_3dnow global variables on entry in this
    routine affect the choice of low-level asm routine that will be used by
-   scene_render() for this polygon.
+   render_scene() for this polygon.
 
-   Returns zero on success, a negative number if there is no space in the
-   edge or polygon tables, or a positive number if it won't be rendered for
+   Returns zero on success, or a positive number if it won't be rendered for
    lack of a rendering routine.
 
-@@void @scene_render();
-@xref scene_start, scene_polygon3d, scene_gap
+@@void @render_scene();
+@xref create_scene, clear_scene, destroy_scene, scene_gap, scene_polygon3d
    Renders all the specified scene_polygon3d()'s on the bitmap passed to
-   scene_start(). Rendering is done one scanline at a time, with no pixel
+   clear_scene(). Rendering is done one scanline at a time, with no pixel
    being processed more than once.
 
-   Note that between scene_start() and scene_render() you shouldn't change
+   Note that between clear_scene() and render_scene() you shouldn't change
    the clip rectangle of the destination bitmap. For speed reasons, you
    should set the clip rectangle to the minimum.
 
    Note also that all the textures passed to scene_polygon3d() are stored as
-   pointers only and actually used in scene_render().
+   pointers only and actually used in render_scene().
 
 @@extern float @scene_gap;
-@xref scene_start, scene_polygon3d, scene_render
+@xref create_scene, clear_scene, destroy_scene, render_scene, scene_polygon3d
    This number (default value = 100.0) controls the behaviour of the
    z-sorting algorithm. When an edge is very close to another's polygon
    plane, there is an interval of uncertainty in which you cannot tell which
@@ -4171,8 +4175,8 @@ have to clear the z-buffer at the start of the frame. Example:
    missing true adjacent edges/planes. Smaller values means larger margins,
    and increasing the chance of mistaking close polygons for adjacent ones.
    The value of 100 is close to the optimum. However, the optimum shifts
-   slightly with resolution, and may be application-dependent. It's here for
-   you to fine-tune.
+   slightly with resolution, and may be application-dependent. It is here 
+   for you to fine-tune.
 
 
 

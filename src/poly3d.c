@@ -131,7 +131,7 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
       edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc) + (1<<15);
+      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
    }
 
    if (flags & INTERP_3COL) {
@@ -157,9 +157,9 @@ int _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D *
       edge->dat.dr = fdiv(itofix(r2 - r1), h);
       edge->dat.dg = fdiv(itofix(g2 - g1), h);
       edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr) + (1<<15);
-      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg) + (1<<15);
-      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db) + (1<<15);
+      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
+      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
+      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
    }
 
    if (flags & INTERP_FIX_UV) {
@@ -267,7 +267,7 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
       edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc) + (1<<15);
+      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
    }
 
    if (flags & INTERP_3COL) {
@@ -293,9 +293,9 @@ int _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST V
       edge->dat.dr = fdiv(itofix(r2 - r1), h);
       edge->dat.dg = fdiv(itofix(g2 - g1), h);
       edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr) + (1<<15);
-      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg) + (1<<15);
-      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db) + (1<<15);
+      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
+      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
+      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
    }
 
    if (flags & INTERP_FIX_UV) {
@@ -1384,9 +1384,9 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 
 
 
-/* _triangle_deltas
- * Triangle3d helper function to calculate the deltas. (For triangles,
- * deltas are constant over the whole triangle).
+/* _triangle_deltas:
+ *  Triangle3d helper function to calculate the deltas. (For triangles,
+ *  deltas are constant over the whole triangle).
  */
 static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_SEGMENT *info, AL_CONST V3D *v, int flags)
 {
@@ -1438,8 +1438,8 @@ static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_
 }
 
 
-/* _triangle_deltas_f
- * Floating point version of _triangle_deltas().
+/* _triangle_deltas_f:
+ *  Floating point version of _triangle_deltas().
  */
 static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_SEGMENT *info, AL_CONST V3D_f *v, int flags)
 {

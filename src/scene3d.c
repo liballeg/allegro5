@@ -12,17 +12,25 @@
  *
  *      By Calin Andrian.
  * 
- *	Merged into Allegro by Bertrand Coconnier.
+ *	Merging into Allegro and API changes by Bertrand Coconnier.
  *
  *      See readme.txt for copyright information.
  */
 
 
 #include <float.h>
+#include <limits.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
 
+/* hash tables divide the screen height in (up to) HASH_NUM parts */
+#define HASH_NUM 256
+/* each part is made of 2^HASH_SHIFT lines */
+#define HASH_SHIFT 3
+/* Consequently, scanline sorting algorithm can handle up to 
+   HASH_NUM * 2^HASH_SHIFT lines 
+ */
 
 static POLYGON_EDGE *scene_edge = NULL, *scene_inact;
 static POLYGON_INFO *scene_poly = NULL;
@@ -31,43 +39,31 @@ static int scene_npoly = 0, scene_maxpoly = 0;
 static BITMAP *scene_bmp;
 static COLOR_MAP *scene_cmap;
 static int scene_alpha;
-static int last_x, scene_y, scene_addr;
+static int last_x, scene_y;
+static unsigned long scene_addr;
 static float last_z;
+static POLYGON_EDGE **hash = NULL;
 
 float scene_gap = 100.0;
 
 
 
-/* scene_start:
- * Initializes a scene. The bitmap is the bitmap you will eventually render
- * on.
- * nedge and npoly are your estimate of how many edges and how many
- * polygons you will render (you cannot get over the limit specified here).
- * If you use same values in succesive calls, the space will be reused.
- * If you call with nedge=0 or npoly=0, the space is freed.
- * Returns negative numbers if allocations fail, zero on success.
+/* create_scene:
+ *  Allocate memory for a scene, nedge and npoly are your estimate of how
+ *  many edges and how many polygons you will render (you cannot get over
+ *  the limit specified here).
+ *  If you use same values in succesive calls, the space will be reused.
+ *  Returns negative numbers if allocations fail, zero on success.
  */
-int scene_start(BITMAP *bmp, int nedge, int npoly)
+int create_scene(int nedge, int npoly)
 {
-   if (nedge == 0 || npoly == 0) {
-      scene_maxedge = scene_maxpoly = 0;
-      if (scene_nedge) {
-         free(scene_edge);
-         scene_edge = NULL;
-      }
-      if (scene_npoly) {
-         free(scene_poly);
-         scene_poly = NULL;
-      }
-      return 0;
-   }
-
    if (nedge != scene_maxedge) {        /* don't realloc, we don't need */
       scene_maxedge = 0;                /* the old data */
       if (scene_edge) free(scene_edge);
       scene_edge = malloc(nedge * sizeof(POLYGON_EDGE));
       if (!scene_edge) return -1;
    }
+
    if (npoly != scene_maxpoly) {
       scene_maxpoly = 0;
       if (scene_poly) free(scene_poly);
@@ -78,36 +74,133 @@ int scene_start(BITMAP *bmp, int nedge, int npoly)
          return -2;
       }
    }
-   scene_inact = NULL;
-   scene_bmp = bmp;
+
+   if (!hash) {
+      hash = malloc(HASH_NUM * sizeof(POLYGON_EDGE*));
+      if (!hash) {
+         free(scene_edge);
+	 free(scene_poly);
+         return -3;
+      }
+   }
+
    scene_maxedge = nedge;
    scene_maxpoly = npoly;
-   scene_nedge = scene_npoly = 0;
    return 0;
 }
 
 
 
-/* scene_end :
- * This function is a wrapper of scene_start(NULL, 0, 0). Created to be
- * compliant with Allegro API
+/* clear_scene:
+ *  Initializes a scene. The bitmap is the bitmap you will eventually render
+ *  on.
  */
-int scene_end(void)
+void clear_scene(BITMAP* bmp)
 {
-   return scene_start(NULL, 0, 0);
+   int i;
+
+   ASSERT(hash);
+
+   scene_inact = NULL;
+   scene_bmp = bmp;
+   scene_nedge = scene_npoly = 0;
+
+   for (i=0; i<HASH_NUM; i++)
+      hash[i] = NULL;
+}
+
+
+
+/* destroy_scene:
+ *  Deallocate memory previously allocated by create_scene.
+ */
+void destroy_scene(void)
+{
+   if (scene_edge) {
+      free(scene_edge);
+      scene_edge = NULL;
+   }
+
+   if (scene_poly) {
+      free(scene_poly);
+      scene_poly = NULL;
+   }
+
+   if (hash) {
+      free(hash);
+      hash = NULL;
+   }
+
+   scene_maxedge = scene_maxpoly = 0;
+}
+
+
+
+/* _add_edge_hash:
+ *  Adds an edge structure to a linked list, returning the new head pointer.
+ *  This function uses hash tables when sort_by_x == FALSE to speed up edge
+ *  sorting.
+ */
+static POLYGON_EDGE *_add_edge_hash(POLYGON_EDGE *list, POLYGON_EDGE *edge, int sort_by_x)
+{
+   POLYGON_EDGE *pos = list;
+   POLYGON_EDGE *prev = NULL;
+
+   if (sort_by_x) {
+      while ((pos) && (pos->x < edge->x)) {
+	 prev = pos;
+	 pos = pos->next;
+      }
+   }
+   else {
+      int i;
+      int empty = 1, first = 1;
+   
+      i = edge->top >> HASH_SHIFT;
+      
+      ASSERT(i < HASH_NUM);
+
+      if (hash[i]) {
+         pos = hash[i];
+         prev = pos->prev;
+         empty = 0;
+      }
+   
+      while ((pos) && (pos->top < edge->top)) {
+         prev = pos;
+         pos = pos->next;
+         first = 0;
+      }
+      
+      if (first || empty)
+         hash[i] = edge;
+   }
+   
+   edge->next = pos;
+   edge->prev = prev;
+   
+   if (pos)
+      pos->prev = edge;
+      
+   if (prev) {
+      prev->next = edge;
+      return list;
+   }
+   else
+      return edge;
 }
 
 
 
 /* poly_plane:
- * Computes the plane's equation coefficients A, B, C, D, in the original
- * space (before projection) for perspective projection:
- *   Axz + Byz + Cz + D = 0
- * This routine changed by Bertrand Coconnier in order to handle coincident
- * vertices in the polygon (According to Ben Davis' hack in poly3d.c). 
- * Now the function computes the polygon area in planes xy, yz, and xz in
- * order to obtain the polygon normal. Plane's equation coefficients are
- * then computed.
+ *  Computes the plane's equation coefficients A, B, C, D, in the original
+ *  space (before projection) for perspective projection:
+ *    Axz + Byz + Cz + D = 0
+ *  This routine changed by Bertrand Coconnier in order to handle coincident
+ *  vertices in the polygon (According to Ben Davis' hack in poly3d.c). 
+ *  Now the function computes the polygon area in planes xy, yz, and xz in
+ *  order to obtain the polygon normal. Plane equation coefficients are
+ *  then computed.
  */
 static void poly_plane(V3D *vtx[], POLYGON_INFO *poly, int vc)
 {
@@ -117,11 +210,11 @@ static void poly_plane(V3D *vtx[], POLYGON_INFO *poly, int vc)
     * the original space, so we have to "un-persp-project" vertices.
     */
    float z0 = fixtof(vtx[0]->z);
-   float x0 = fixtof(vtx[0]->x) * z0;
-   float y0 = fixtof(vtx[0]->y) * z0;
+   float x0 = fixtof(vtx[0]->x) * z0; /* "un-persp-projection" */
+   float y0 = fixtof(vtx[0]->y) * z0; /* "un-persp-projection" */
    float z = fixtof(vtx[vc-1]->z);
-   float x = fixtof(vtx[vc-1]->x) * z;
-   float y = fixtof(vtx[vc-1]->y) * z;
+   float x = fixtof(vtx[vc-1]->x) * z; /* "un-persp-projection" */
+   float y = fixtof(vtx[vc-1]->y) * z; /* "un-persp-projection" */
    
    poly->a = (z0 + z) * (y - y0); /* area in plane yz */
    poly->b = (x0 + x) * (z - z0); /* area in plane zx */
@@ -156,15 +249,14 @@ static void poly_plane(V3D *vtx[], POLYGON_INFO *poly, int vc)
 
 
 /* poly_plane_f:
- * Floating point version of poly_plane.
+ *  Floating point version of poly_plane.
+ *  See poly_plane comments.
  */
 static void poly_plane_f(V3D_f *vtx[], POLYGON_INFO *poly, int vc)
 {
    int i;
    float d;
-   /* Vertices are persp-projected. Plane equation must be computed in
-    * the original space, so we have to "un-persp-project" vertices.
-    */
+
    float z0 = vtx[0]->z;
    float x0 = vtx[0]->x * z0;
    float y0 = vtx[0]->y * z0;
@@ -172,27 +264,24 @@ static void poly_plane_f(V3D_f *vtx[], POLYGON_INFO *poly, int vc)
    float x = vtx[vc-1]->x * z;
    float y = vtx[vc-1]->y * z;
    
-   poly->a = (z0 + z) * (y - y0); /* area in plane yz */
-   poly->b = (x0 + x) * (z - z0); /* area in plane zx */
-   poly->c = (y0 + y) * (x - x0); /* area in plane xy */
+   poly->a = (z0 + z) * (y - y0);
+   poly->b = (x0 + x) * (z - z0);
+   poly->c = (y0 + y) * (x - x0);
    
    for(i=1; i<vc; i++) {
       z = vtx[i]->z;
       x = vtx[i]->x * z;
       y = vtx[i]->y * z;
-      poly->a += (z0 + z) * (y0 - y); /* area in plane yz */
-      poly->b += (x0 + x) * (z0 - z); /* area in plane zx */
-      poly->c += (y0 + y) * (x0 - x); /* area in plane xy */
+      poly->a += (z0 + z) * (y0 - y);
+      poly->b += (x0 + x) * (z0 - z);
+      poly->c += (y0 + y) * (x0 - x);
       x0 = x;
       y0 = y;
       z0 = z;
    }
 
-   /* dot product of the plane normal (poly->a, poly->b, poly->c) with
-    * the vector (x, y, z)
-    */
    d = poly->a * x + poly->b * y + poly->c * z;
-   /* prepare A, B, C for extracting 1/z */
+
    if ((d < 1e-10) && (d > -1e-10)) {
       if (d >= 0)
          d = 1e-10;
@@ -204,26 +293,19 @@ static void poly_plane_f(V3D_f *vtx[], POLYGON_INFO *poly, int vc)
 
 
 
-/* plane_z:
- * Returns 1/z of the plane in the point x, y.
- */
-static float plane_z(int x, int y, POLYGON_INFO *poly)
-{
-   return poly->a * x + poly->b * y + poly->c;
-}
-
-
 /* far_z:
- * Compares z values of the plane to which 'edge' belongs and the plane
- * of 'poly', in point x, y.
- * Returns true if 'edge' is farther than 'poly'.
+ *  Compares z values of the plane to which 'edge' belongs and the plane
+ *  of 'poly', in point x, y.
+ *  Returns true if 'edge' is farther than 'poly'.
  */
-static int far_z(int x, int y, POLYGON_EDGE *edge, POLYGON_INFO *poly)
+static int far_z(int y, POLYGON_EDGE *edge, POLYGON_INFO *poly)
 {
    float z1, z2, zd;
 
    z1 = edge->dat.z;
-   z2 = plane_z(x, y, poly);
+
+   /* z2 = 1/z of the plane in the point x, y */
+   z2 = poly->a * fixtof(edge->x) + poly->b * y + poly->c;
    zd = (z2 - z1) * scene_gap;
    if (zd > z1)
       return 1;
@@ -236,7 +318,7 @@ static int far_z(int x, int y, POLYGON_EDGE *edge, POLYGON_INFO *poly)
 
 
 /* init_poly:
- * Initializes different elements in the poly structure.
+ *  Initializes different elements in the poly structure.
  */
 static void init_poly(int type, POLYGON_INFO *poly)
 {
@@ -309,16 +391,15 @@ static void init_poly(int type, POLYGON_INFO *poly)
 
 
 /* scene_polygon3d:
- * Put a polygon in the rendering list. Nothing is really rendered at this
- * moment. Should be called between scene_start() and scene_render().
- * Unlike polygon3d(), the polygon may be concave or self-intersecting.
- * Shapes that penetrate one another may look OK, but they are not really
- * handled by this code.
- * Note that the texture is stored as a pointer only, and you should keep
- * the actual bitmap until scene_render(), where it is used.
- * Returns zero on success, negative numbers if there is no space in the
- * edge or polygon tables, positive if it won't be rendered for lack of
- * rendering routine.
+ *  Put a polygon in the rendering list. Nothing is really rendered at this
+ *  moment. Should be called between clear_scene() and render_scene().
+ *  Unlike polygon3d(), the polygon may be concave or self-intersecting.
+ *  Shapes that penetrate one another may look OK, but they are not really
+ *  handled by this code.
+ *  Note that the texture is stored as a pointer only, and you should keep
+ *  the actual bitmap until render_scene(), where it is used.
+ *  Returns zero on success, positive if it won't be rendered for lack of
+ *  rendering routine.
  */
 int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
 {
@@ -327,10 +408,8 @@ int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
    POLYGON_EDGE *edge;
    POLYGON_INFO *poly;
 
-   if (scene_nedge + vc > scene_maxedge)
-      return -1;
-   if (scene_npoly >= scene_maxpoly)
-      return -2;
+   ASSERT(scene_nedge + vc <= scene_maxedge);
+   ASSERT(scene_npoly < scene_maxpoly);
 
    edge = &scene_edge[scene_nedge];
    poly = &scene_poly[scene_npoly];
@@ -354,7 +433,7 @@ int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
 
       if (_fill_3d_edge_structure(edge, v1, v2, poly->flags, scene_bmp)) {
          edge->poly = poly;
-	 scene_inact = _add_edge(scene_inact, edge, FALSE);
+	 scene_inact = _add_edge_hash(scene_inact, edge, FALSE);
 	 edge++;
          scene_nedge++;
       }
@@ -365,7 +444,7 @@ int scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[])
 
 
 /* scene_polygon3d_f:
- * Floating point version of scene_polygon3d.
+ *  Floating point version of scene_polygon3d.
  */
 int scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[])
 {
@@ -374,10 +453,8 @@ int scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[])
    POLYGON_EDGE *edge;
    POLYGON_INFO *poly;
 
-   if (scene_nedge + vc > scene_maxedge)
-      return -1;
-   if (scene_npoly >= scene_maxpoly)
-      return -2;
+   ASSERT(scene_nedge + vc <= scene_maxedge);
+   ASSERT(scene_npoly < scene_maxpoly);
 
    edge = &scene_edge[scene_nedge];
    poly = &scene_poly[scene_npoly];
@@ -401,7 +478,7 @@ int scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[])
 
       if (_fill_3d_edge_structure_f(edge, v1, v2, poly->flags, scene_bmp)) {
          edge->poly = poly;
-	 scene_inact = _add_edge(scene_inact, edge, FALSE);
+	 scene_inact = _add_edge_hash(scene_inact, edge, FALSE);
 	 edge++;
          scene_nedge++;
       }
@@ -412,8 +489,8 @@ int scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[])
 
 
 /* scene_segment:
- * Draws a piece of the scanline, corresponding to a polygon. The start and
- * end values for x are taken from e01 and e02, the polygon style from poly.
+ *  Draws a piece of the scanline, corresponding to a polygon. The start and
+ *  end values for x are taken from e01 and e02, the polygon style from poly.
  */
 static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
                           POLYGON_INFO *poly)
@@ -532,16 +609,18 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
    }
 
    if (drawer == _poly_scanline_dummy) {
-      if (flags & INTERP_NOSOLID)
+      if (flags & INTERP_NOSOLID) {
          drawing_mode(poly->dmode, poly->dpat, poly->xanchor, poly->yanchor);
-      hline(scene_bmp, x, scene_y, x+w-1, poly->color);
-      if (flags & INTERP_NOSOLID) 
+	 hline(scene_bmp, x, scene_y, x+w-1, poly->color);
          solid_mode();
+      }
+      else
+	 hline(scene_bmp, x, scene_y, x+w-1, poly->color);
    } 
    else {
       int dx = x * BYTES_PER_PIXEL(bitmap_color_depth(scene_bmp));
       if (flags & INTERP_ZBUF)
-         info->zbuf_addr = bmp_write_line(_zbuffer, scene_y) + x * 4;
+         info->zbuf_addr = bmp_write_line(_zbuffer, scene_y) + x * sizeof(float);
 
       info->read_addr = bmp_read_line(scene_bmp, scene_y) + dx;
       drawer(scene_addr + dx, w, info);
@@ -551,10 +630,10 @@ static void scene_segment(POLYGON_EDGE *e01, POLYGON_EDGE *e02,
 
 
 /* scene_trans_seg:
- * Checks whether p0 is visible either directly or through transparent
- * polygons on top of it. If it's visible, draws all the visible stack
- * with x values from e1 and e2. At entry, p is the top polygon.
- * Returns nonzero if something was drawn.
+ *  Checks whether p0 is visible either directly or through transparent
+ *  polygons on top of it. If it's visible, draws all the visible stack
+ *  with x values from e1 and e2. At entry, p is the top polygon.
+ *  Returns nonzero if something was drawn.
  */
 static int scene_trans_seg(POLYGON_EDGE *e1, POLYGON_EDGE *e2,
                            POLYGON_INFO *p0, POLYGON_INFO *p)
@@ -580,15 +659,15 @@ static int scene_trans_seg(POLYGON_EDGE *e1, POLYGON_EDGE *e2,
 
 
 
-/* scene_render:
- * Renders all the specified scene_polygon3d()'s on the bitmap passed to
- * scene_start(). Rendering is done one scanline at a time, with no pixel
- * being processed more than once. Note that between scene_start() and
- * scene_render() you shouldn't change the clip rectangle of the destination
- * bitmap. Also, all the textures passed to scene_polygon3d() are stored
- * as pointers only and actually used in scene_render().
+/* render_scene:
+ *  Renders all the specified scene_polygon3d()'s on the bitmap passed to
+ *  clear_scene(). Rendering is done one scanline at a time, with no pixel
+ *  being processed more than once. Note that between clear_scene() and
+ *  render_scene() you shouldn't change the clip rectangle of the destination
+ *  bitmap. Also, all the textures passed to scene_polygon3d() are stored
+ *  as pointers only and actually used in render_scene().
  */
-void scene_render(void)
+void render_scene(void)
 {
    int p;
    #ifdef ALLEGRO_DOS
@@ -598,6 +677,9 @@ void scene_render(void)
    POLYGON_EDGE *active_edges = NULL, *last_edge = NULL;
    POLYGON_INFO *active_poly = NULL;
 
+   ASSERT(scene_maxedge > 0);
+   ASSERT(scene_maxpoly > 0);
+   
    scene_cmap = color_map;
    scene_alpha = _blender_alpha;
    solid_mode();
@@ -622,7 +704,7 @@ void scene_render(void)
       while ((edge) && (edge->top == scene_y)) {
 	 POLYGON_EDGE *next_edge = edge->next;
 	 scene_inact = _remove_edge(scene_inact, edge);
-	 active_edges = _add_edge(active_edges, edge, TRUE);
+	 active_edges = _add_edge_hash(active_edges, edge, TRUE);
 	 edge = next_edge;
       }
 
@@ -630,7 +712,7 @@ void scene_render(void)
       if (!active_edges) continue;
 
       /* fill the scanline */
-      last_x = -10000;
+      last_x = INT_MIN;
       last_z = 0.0;
       for (edge=active_edges; edge; edge=edge->next) {
          int x = fceil(edge->x);
@@ -643,10 +725,10 @@ void scene_render(void)
             POLYGON_INFO *prev = NULL;
 
             poly->left_edge = edge;
-            poly->right_edge = NULL;
-
+	    poly->right_edge = NULL;
+	    
             /* find its place in the list */
-            while (pos && far_z(x, scene_y, edge, pos)) {
+            while (pos && far_z(scene_y, edge, pos)) {
                prev = pos;
                pos = pos->next;
             }
@@ -690,6 +772,7 @@ void scene_render(void)
       /* update edges, remove dead ones, re-sort */
       edge = last_edge;
       active_edges = NULL;
+
       while (edge) {
 	 POLYGON_EDGE *prev_edge = edge->prev;
 	 if (scene_y < edge->bottom) {
@@ -720,7 +803,7 @@ void scene_render(void)
 	       }
 	    }
 
-            active_edges = _add_edge(active_edges, edge, TRUE);
+            active_edges = _add_edge_hash(active_edges, edge, TRUE);
 	 }
 	 edge = prev_edge;
       }
@@ -741,4 +824,3 @@ void scene_render(void)
    scene_nedge = scene_maxedge;
    scene_npoly = scene_maxpoly;
 }
-

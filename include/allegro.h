@@ -1396,10 +1396,12 @@ AL_FUNC(void, set_zbuffer, (ZBUFFER *zbuf));
 AL_FUNC(void, clear_zbuffer, (ZBUFFER *zbuf, float z));
 AL_FUNC(void, destroy_zbuffer, (ZBUFFER *zbuf));
 
-AL_FUNC(int, scene_start, (BITMAP *bmp, int nedge, int npoly));
+AL_FUNC(int, create_scene, (int nedge, int npoly));
+AL_FUNC(void, clear_scene, (BITMAP* bmp));
+AL_FUNC(void, destroy_scene, (void));
 AL_FUNC(int, scene_polygon3d, (int type, BITMAP *texture, int vx, V3D *vtx[]));
 AL_FUNC(int, scene_polygon3d_f, (int type, BITMAP *texture, int vx, V3D_f *vtx[]));
-AL_FUNC(void, scene_render, (void));
+AL_FUNC(void, render_scene, (void));
 
 
 
