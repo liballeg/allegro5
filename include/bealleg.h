@@ -209,7 +209,6 @@ AL_VAR(BeAllegroView, *_be_allegro_view);
 AL_VAR(BeAllegroScreen, *_be_allegro_screen);
 AL_VAR(BMidiSynth, *_be_midisynth);
 
-AL_VAR(sem_id, _be_sound_timer_lock);
 AL_VAR(sem_id, _be_fullscreen_lock);
 AL_VAR(sem_id, _be_mouse_view_attached);
 AL_VAR(BWindow, *_be_mouse_window);

@@ -42,6 +42,8 @@ static bool be_sound_stream_locked = false;
 static BLocker *locker = NULL;
 static BSoundPlayer *be_sound = NULL;
 
+static sem_id be_sound_stream_lock = -1;
+
 static int be_sound_bufsize;
 static int be_sound_signed;
 
@@ -55,14 +57,14 @@ static char be_sound_desc[320] = EMPTY_STRING;
 static void be_sound_handler(void *cookie, void *buffer, size_t size, const media_raw_audio_format &format)
 {
    locker->Lock();
-   acquire_sem(_be_sound_timer_lock);
+   acquire_sem(be_sound_stream_lock);
    if (be_sound_active) {
       _mix_some_samples((unsigned long)buffer, 0, be_sound_signed);
    }
    else {
       memset(buffer, 0, size);
    }
-   release_sem(_be_sound_timer_lock);
+   release_sem(be_sound_stream_lock);
    locker->Unlock();
 }
       
@@ -160,6 +162,10 @@ extern "C" int be_sound_init(int input, int voices)
    if (!locker)
       goto cleanup;
    be_sound_active = true;
+   
+   be_sound_stream_lock = create_sem(1, "audiostream lock");
+   if (be_sound_stream_lock == -1)
+      goto cleanup;
 
    be_sound->Start();
    be_sound->SetHasData(true);
@@ -195,6 +201,12 @@ extern "C" void be_sound_exit(int input)
    
    delete be_sound;
    delete locker;
+   
+   if (be_sound_stream_lock != -1) {
+      delete_sem(be_sound_stream_lock);
+      be_sound_stream_lock = -1;
+   }
+   
    be_sound = NULL;
    locker = NULL;
 }
@@ -208,7 +220,7 @@ extern "C" void *be_sound_lock_voice(int voice, int start, int end)
 {
    if (!be_sound_stream_locked) {
       be_sound_stream_locked = true;
-      acquire_sem(_be_sound_timer_lock);
+      acquire_sem(be_sound_stream_lock);
    }
    return NULL;
 }
@@ -222,7 +234,7 @@ void be_sound_unlock_voice(int voice)
 {
    if (be_sound_stream_locked) {
       be_sound_stream_locked = false;
-      release_sem(_be_sound_timer_lock);
+      release_sem(be_sound_stream_lock);
    }
 }
 

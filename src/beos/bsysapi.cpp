@@ -44,8 +44,6 @@ volatile int _be_focus_count = 0;
 
 BeAllegroApp *_be_allegro_app = NULL;
 
-sem_id _be_sound_timer_lock = -1;
-
 static thread_id system_thread_id = -1;
 static thread_id main_thread_id = -1;
 static sem_id system_started = -1;
@@ -157,11 +155,6 @@ extern "C" int be_sys_init(void)
       goto cleanup;
    }
    
-   _be_sound_timer_lock = create_sem(1, "sound/timer mutex lock");
-   if (_be_sound_timer_lock < 0) {
-      goto cleanup;
-   }
-
    system_started = create_sem(0, "starting system driver...");
 
    if(system_started < 0) {
@@ -208,11 +201,6 @@ extern "C" void be_sys_exit(void)
       system_started = -1;
    }
    
-   if (_be_sound_timer_lock) {
-      delete_sem(_be_sound_timer_lock);
-      _be_sound_timer_lock = -1;
-   }
-
    if (system_thread_id > 0) {
       ASSERT(_be_allegro_app != NULL);
       _be_allegro_app->Lock();

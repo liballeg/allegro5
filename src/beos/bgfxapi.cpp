@@ -493,7 +493,6 @@ BeAllegroScreen::BeAllegroScreen(const char *title, uint32 space, status_t *erro
  */
 void BeAllegroScreen::ScreenConnected(bool connected)
 {
-   acquire_sem(_be_sound_timer_lock);
    if(connected) {
       change_focus(connected);      
       release_sem(_be_fullscreen_lock);
@@ -502,7 +501,6 @@ void BeAllegroScreen::ScreenConnected(bool connected)
       acquire_sem(_be_fullscreen_lock);
       change_focus(connected);
    }
-   release_sem(_be_sound_timer_lock);
 }
 
 
@@ -1144,7 +1142,6 @@ BeAllegroWindow::BeAllegroWindow(BRect frame, const char *title,
    blitter   = NULL;
    
    _be_dirty_lines = (int *)malloc(v_h * sizeof(int));
-   memset(_be_dirty_lines, 0, v_h * sizeof(int));
    
    _be_window_lock = create_sem(0, "window lock");
       
@@ -1451,6 +1448,8 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
 
    _be_gfx_set_truecolor_shifts();
 
+   /* Give time to connect the screen and do the first update */
+   snooze(50000);
    while (!be_gfx_initialized);
 
    uszprintf(driver_desc, sizeof(driver_desc), get_config_text("BDirectWindow object, %d bit in %s"),
