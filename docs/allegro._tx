@@ -2086,10 +2086,11 @@ Graphics modes
 
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
-   Sets how the program should handle being switched into the background, if 
-   the user tabs away from it. Not all of the possible modes will be 
-   supported on every platform: if you request a setting that isn't 
-   currently possible, this routine will return -1. The available modes are:
+   Sets how the program should handle being switched into the background, 
+   if the user tabs away from it. Not all of the possible modes will be 
+   supported by every graphics driver on every platform: you must call this 
+   routine after initializing the graphics driver and if you request a mode 
+   that isn't currently possible, it will return -1. The available modes are:
 <ul><li>
    SWITCH_NONE<br>
       Disables switching. This is the default in single-tasking systems like 
@@ -2108,23 +2109,29 @@ Graphics modes
       contents of video memory, so the screen, and any video bitmaps that 
       you have created, will be erased after the user switches away and then 
       back to your program. This is not a terribly useful mode to have, but 
-      it is the default in Windows because DirectDraw is too dumb to 
-      implement anything better.
+      it is the default for the fullscreen drivers under Windows because 
+      DirectDraw is too dumb to implement anything better.
 <li>
    SWITCH_BACKGROUND<br>
       The program will carry on running in the background, with the screen 
-      bitmap temporarily being pointed at a memory buffer. You must take 
-      special care when using this mode, because bad things will happen if 
-      the screen bitmap gets changed around when your program isn't 
-      expecting it. When you enable this mode, you must always call 
-      acquire_screen() before the start of any drawing code, and not release 
-      it until you are completely finished: the automatic locking mechanism 
-      is not good enough to work in background mode.
+      bitmap temporarily being pointed at a memory buffer for the fullscreen 
+      drivers. You must take special care when using this mode, because bad 
+      things will happen if the screen bitmap gets changed around when your 
+      program isn't expecting it (see below).
 <li>
    SWITCH_BACKAMNESIA<br>
-      The program will carry on running in the background, without 
-      remembering the contents of video memory.
+      Like SWITCH_BACKGROUND, but this mode doesn't bother to remember the 
+      contents of video memory (see SWITCH_AMNESIA). It is again the only 
+      mode supported by the fullscreen drivers under Windows that lets the 
+      program keep running in the background.
 </ul>
+   Note that you should be very careful when you are using graphics routines 
+   in the switching context: you must always call acquire_screen() before the 
+   start of any drawing code onto the screen and not release it until you are 
+   completely finished, because the automatic locking mechanism may not be
+   good enough to work when the program runs in the background or has just
+   been raised in the foreground.
+
 @@int @set_display_switch_callback(int dir, void (*cb)());
 @xref remove_display_switch_callback, set_display_switch_mode
    Installs a notification callback for the switching mode that was 
@@ -2750,7 +2757,8 @@ will not be known, so the file may be converted wrongly.
    will ensure that the masked areas in the bitmap before and after the 
    conversion stay exactly the same, by mapping transparent colors to each 
    other and adjusting colors which would be converted to the transparent 
-   color otherwise.
+   color otherwise. It affects every blit() operation between distinct pixel 
+   formats and every automatic conversion.
 
 
 
