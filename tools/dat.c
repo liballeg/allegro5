@@ -98,6 +98,7 @@ static void usage(void)
    printf("\t'-u' updates the contents of the datafile\n");
    printf("\t'-v' selects verbose mode\n");
    printf("\t'-w' always updates the entire contents of the datafile\n");
+   printf("\t'-x' alias for -e\n");
    printf("\t'-007 password' sets the file encryption key\n");
    printf("\t'PROP=value' sets object properties\n");
 }
