@@ -93,8 +93,8 @@ static int mouse_sy = 2;
 #define MAF_DEFAULT 1                 /* mouse acceleration parameters */
 static int mouse_accel_fact = MAF_DEFAULT;
 static int mouse_accel_mult = MAF_DEFAULT;
-static int mouse_accel_thr1 = 50;     /* 50 = 5^2 *2 */
-static int mouse_accel_thr2 = 512;    /* 512 = 16^2 *2 */
+static int mouse_accel_thr1 = 5 * 5;
+static int mouse_accel_thr2 = 16 * 16;
 
 static int mouse_minx = 0;            /* mouse range */
 static int mouse_miny = 0;
@@ -211,12 +211,15 @@ static void mouse_dinput_handle_event(int ofs, int data)
 {
    static int last_mickeyx = 0;
    static int last_mickeyy = 0;
+   static int last_was_x = 0;
    int mag;
-   
+
    switch (ofs) {
 
       case DIMOFS_X:
          if (!gfx_driver || !gfx_driver->windowed) {
+            if (last_was_x)
+               last_mickeyy = 0;
             if (mouse_accel_mult) {
                mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
                if (mag >= mouse_accel_thr2)
@@ -227,11 +230,14 @@ static void mouse_dinput_handle_event(int ofs, int data)
 
             dinput_x += data;
             last_mickeyx = data;
+            last_was_x = 1;
          }
          break;
 
       case DIMOFS_Y:
          if (!gfx_driver || !gfx_driver->windowed) {
+            if (!last_was_x)
+               last_mickeyx = 0;
             if (mouse_accel_mult) {
                mag = last_mickeyx*last_mickeyx + last_mickeyy*last_mickeyy;
                if (mag >= mouse_accel_thr2)
@@ -242,6 +248,7 @@ static void mouse_dinput_handle_event(int ofs, int data)
 
             dinput_y += data;
             last_mickeyy = data;
+            last_was_x = 0;
          }
          break;
 
