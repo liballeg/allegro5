@@ -1,6 +1,6 @@
-/*         ______   ___    ___ 
- *        /\  _  \ /\_ \  /\_ \ 
- *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+/*         ______   ___    ___
+ *        /\  _  \ /\_ \  /\_ \
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___
  *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
  *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
  *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
@@ -148,7 +148,7 @@ static int gui_install_time = 0;
 static void dclick_check(void)
 {
    gui_timer++;
-   
+
    if (dclick_status==DCLICK_START) {              /* first click... */
       if (!gui_mouse_b()) {
 	 dclick_status = DCLICK_RELEASE;           /* aah! released first */
@@ -199,10 +199,10 @@ void position_dialog(DIALOG *dialog, int x, int y)
 
    /* locate the upper-left corner */
    for (c=0; dialog[c].proc; c++) {
-      if (dialog[c].x < min_x) 
+      if (dialog[c].x < min_x)
 	 min_x = dialog[c].x;
 
-      if (dialog[c].y < min_y) 
+      if (dialog[c].y < min_y)
 	 min_y = dialog[c].y;
    }
 
@@ -234,7 +234,7 @@ void centre_dialog(DIALOG *dialog)
 
    /* find the extents of the dialog (done in many loops due to a bug
     * in MSVC that prevents the more sensible version from working)
-    */ 
+    */
    for (c=0; dialog[c].proc; c++) {
       if (dialog[c].x < min_x)
 	 min_x = dialog[c].x;
@@ -352,7 +352,7 @@ int object_message(DIALOG *dialog, int msg, int c)
 
 /* dialog_message:
  *  Sends a message to all the objects in a dialog. If any of the objects
- *  return values other than D_O_K, returns the value and sets obj to the 
+ *  return values other than D_O_K, returns the value and sets obj to the
  *  object which produced it.
  */
 int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
@@ -435,13 +435,20 @@ static int find_mouse_object(DIALOG *d)
 {
    int mouse_object = -1;
    int c;
+   int res;
    ASSERT(d);
 
-   for (c=0; d[c].proc; c++)
+   for (c=0; d[c].proc; c++) {
       if ((gui_mouse_x() >= d[c].x) && (gui_mouse_y() >= d[c].y) &&
-	  (gui_mouse_x() < d[c].x + d[c].w) && (gui_mouse_y() < d[c].y + d[c].h) &&
-	  (!(d[c].flags & (D_HIDDEN | D_DISABLED))))
-	 mouse_object = c;
+         (gui_mouse_x() < d[c].x + d[c].w) && (gui_mouse_y() < d[c].y + d[c].h) &&
+         (!(d[c].flags & (D_HIDDEN | D_DISABLED)))) {
+         /* check if this object wants the mouse */
+         res = object_message(d+c, MSG_WANTMOUSE, 0);
+         if (!(res & D_DONTWANTMOUSE)) {
+            mouse_object = c;
+         }
+      }
+   }
 
    return mouse_object;
 }
@@ -457,7 +464,7 @@ int offer_focus(DIALOG *dialog, int obj, int *focus_obj, int force)
    ASSERT(dialog);
    ASSERT(focus_obj);
 
-   if ((obj == *focus_obj) || 
+   if ((obj == *focus_obj) ||
        ((obj >= 0) && (dialog[obj].flags & (D_HIDDEN | D_DISABLED))))
       return D_O_K;
 
@@ -678,7 +685,7 @@ static int cmp_up(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int bias;
 
-   /* Wrap around if d2 is not fully contained in the half-plan 
+   /* Wrap around if d2 is not fully contained in the half-plan
       delimited by d1's top edge and not containing it. */
    if (d2->y + d2->h > d1->y)
       bias = -SCREEN_H;
@@ -702,7 +709,7 @@ static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
    int fobj, c;
    int res = D_O_K;
 
-   /* choose a comparison function */ 
+   /* choose a comparison function */
    switch (scan) {
       case KEY_TAB:   cmp = (ascii == '\t') ? cmp_tab : cmp_shift_tab; break;
       case KEY_RIGHT: cmp = cmp_right; break;
@@ -736,7 +743,7 @@ static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
       res |= offer_focus(d, obj[c].index, focus_obj, FALSE);
       if (fobj != *focus_obj)
 	 break;
-   } 
+   }
 
    return res;
 }
@@ -755,7 +762,7 @@ static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
 
 /* do_dialog:
  *  The basic dialog manager. The list of dialog objects should be
- *  terminated by one with a null dialog procedure. Returns the index of 
+ *  terminated by one with a null dialog procedure. Returns the index of
  *  the object which caused it to exit.
  */
 int do_dialog(DIALOG *dialog, int focus_obj)
@@ -798,7 +805,7 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
    int ret;
    ASSERT(dialog);
 
-   bmp = create_bitmap(dialog->w, dialog->h); 
+   bmp = create_bitmap(dialog->w, dialog->h);
 
    if (bmp) {
       scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
@@ -905,7 +912,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
          /* no auto opening */
          gui_menu_opening_delay = -1;
       }
-      
+
       gui_install_count = 1;
       gui_install_time = _allegro_count;
    }
@@ -985,7 +992,7 @@ int update_dialog(DIALOG_PLAYER *player)
    int c, cascii, cscan, ccombo, r, ret, nowhere, z;
    int new_mouse_b;
    ASSERT(player);
-   
+
    /* redirect to update_menu() whenever a menu is activated */
    if (active_menu_player) {
       if (!active_menu_player_zombie) {
@@ -1009,7 +1016,7 @@ int update_dialog(DIALOG_PLAYER *player)
 	 goto getout;
       }
    }
-       
+
    if (player->res & D_CLOSE)
       return FALSE;
 
@@ -1056,7 +1063,7 @@ int update_dialog(DIALOG_PLAYER *player)
 
    /* are we dealing with a mouse click? */
    if (player->click_wait) {
-      if ((ABS(player->mouse_ox-gui_mouse_x()) > 8) || 
+      if ((ABS(player->mouse_ox-gui_mouse_x()) > 8) ||
 	  (ABS(player->mouse_oy-gui_mouse_y()) > 8))
 	 dclick_status = DCLICK_NOT;
 
@@ -1071,7 +1078,7 @@ int update_dialog(DIALOG_PLAYER *player)
 
       /* double click! */
       if ((dclick_status==DCLICK_AGAIN) &&
-	  (gui_mouse_x() >= player->dialog[player->mouse_obj].x) && 
+	  (gui_mouse_x() >= player->dialog[player->mouse_obj].x) &&
 	  (gui_mouse_y() >= player->dialog[player->mouse_obj].y) &&
 	  (gui_mouse_x() <= player->dialog[player->mouse_obj].x + player->dialog[player->mouse_obj].w) &&
 	  (gui_mouse_y() <= player->dialog[player->mouse_obj].y + player->dialog[player->mouse_obj].h)) {
@@ -1100,7 +1107,7 @@ int update_dialog(DIALOG_PLAYER *player)
 	 player->dialog[c].flags |= D_GOTMOUSE;
 	 MESSAGE(c, MSG_GOTMOUSE, 0);
       }
-      player->mouse_obj = c; 
+      player->mouse_obj = c;
 
       /* move the input focus as well? */
       if ((gui_mouse_focus) && (player->mouse_obj != player->focus_obj))
@@ -1153,7 +1160,7 @@ int update_dialog(DIALOG_PLAYER *player)
    poll_joystick();
 
    if (player->joy_on) {
-      if ((!joy[0].stick[0].axis[0].d1) && (!joy[0].stick[0].axis[0].d2) && 
+      if ((!joy[0].stick[0].axis[0].d1) && (!joy[0].stick[0].axis[0].d2) &&
 	  (!joy[0].stick[0].axis[1].d1) && (!joy[0].stick[0].axis[1].d2) &&
 	  (!joy[0].button[0].b) && (!joy[0].button[1].b)) {
 	 player->joy_on = FALSE;
@@ -1211,9 +1218,9 @@ int update_dialog(DIALOG_PLAYER *player)
 
       /* keyboard shortcut? */
       for (c=0; player->dialog[c].proc; c++) {
-	 if ((((cascii > 0) && (cascii <= 255) && 
+	 if ((((cascii > 0) && (cascii <= 255) &&
 	       (utolower(player->dialog[c].key) == utolower((cascii)))) ||
-	      ((!cascii) && (player->dialog[c].key == (cscan<<8)))) && 
+	      ((!cascii) && (player->dialog[c].key == (cscan<<8)))) &&
 	     (!(player->dialog[c].flags & (D_HIDDEN | D_DISABLED)))) {
 	    MESSAGE(c, MSG_KEY, ccombo);
 	    goto getout;
@@ -1230,7 +1237,7 @@ int update_dialog(DIALOG_PLAYER *player)
       }
 
       /* pass <CR> or <SPACE> to selected object */
-      if (((cascii == '\r') || (cascii == '\n') || (cascii == ' ')) && 
+      if (((cascii == '\r') || (cascii == '\n') || (cascii == ' ')) &&
 	  (player->focus_obj >= 0)) {
 	 MESSAGE(player->focus_obj, MSG_KEY, ccombo);
 	 goto getout;
@@ -1414,7 +1421,7 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
       else {
 	 fg = gui_mg_color;
 	 bg = gui_bg_color;
-      } 
+      }
    }
    else {
       if (c == m->sel) {
@@ -1424,7 +1431,7 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
       else {
 	 fg = gui_fg_color;
 	 bg = gui_bg_color;
-      } 
+      }
    }
 
    rectfill(screen, x, y, x+w-1, y+text_height(font)+3, bg);
@@ -1521,7 +1528,7 @@ static INLINE int mouse_in_single_menu(MENU_PLAYER *m)
  *  Recursively checks if the mouse is inside a menu (or any of its parents)
  *  and simultaneously not on the selected item of the menu.
  */
-static int mouse_in_parent_menu(MENU_PLAYER *m) 
+static int mouse_in_parent_menu(MENU_PLAYER *m)
 {
    int c;
 
@@ -1630,8 +1637,8 @@ int menu_alt_key(int k, MENU *m)
 {
    static unsigned char alt_table[] =
    {
-      KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, 
-      KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, 
+      KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
+      KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R,
       KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z
    };
 
@@ -1724,7 +1731,7 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
    scare_mouse_area(player->x, player->y, player->w, player->h);
 
    /* save screen under the menu */
-   player->saved = create_bitmap(player->w, player->h); 
+   player->saved = create_bitmap(player->w, player->h);
 
    if (player->saved)
       blit(screen, player->saved, player->x, player->y, 0, 0, player->w, player->h);
@@ -1757,7 +1764,7 @@ static MENU_PLAYER *init_single_menu(MENU *menu, MENU_PLAYER *parent, DIALOG *di
 /* init_menu:
  *  Sets up a menu, returning a menu player object that can be used
  *  with the update_menu() and shutdown_menu() functions.
- */ 
+ */
 MENU_PLAYER *init_menu(MENU *menu, int x, int y)
 {
    return init_single_menu(menu, NULL, NULL, FALSE, x, y, TRUE, 0, 0);
@@ -1992,16 +1999,16 @@ int update_menu(MENU_PLAYER *player)
 	 player->child = init_single_menu(player->menu[player->ret].child, player, NULL, FALSE, child_x, child_y, TRUE, 0, 0);
 	 return TRUE;  /* continue */
       }
-      
+
       while (player->parent) {  /* parent menu? */
 	 player = player->parent;
 	 shutdown_single_menu(player->child, NULL);
 	 player->child = NULL;
       }
-      
+
       return FALSE;  /* item selected */
    }
-   
+
    if (player->ret < -1) {  /* dismiss menu ? */
       if (player->parent) {
 	 child_ret = player->ret;  /* needed below */
@@ -2018,17 +2025,17 @@ int update_menu(MENU_PLAYER *player)
 	    player->timestamp = gui_timer;
 	    player->back_from_child = TRUE;
 	 }
-	 
+
 	 return TRUE;  /* return to parent */
       }
-      
+
       return FALSE;  /* menu dismissed */
    }
-   
+
    /* special kludge for menu bar */
    if ((player->bar) && (!gui_mouse_b()) && (!keypressed()) && (!mouse_in_single_menu(player)))
       return FALSE;
-   
+
    return TRUE;
 }
 
@@ -2071,9 +2078,9 @@ static int shutdown_single_menu(MENU_PLAYER *player, int *dret)
    }
 
    ret = player->ret;
-   
+
    free(player);
-   
+
    return ret;
 }
 
@@ -2110,7 +2117,7 @@ int shutdown_menu(MENU_PLAYER *player)
 
 
 /* d_menu_proc:
- *  Dialog procedure for adding drop down menus to a GUI dialog. This 
+ *  Dialog procedure for adding drop down menus to a GUI dialog. This
  *  displays the top level menu items as a horizontal bar (eg. across the
  *  top of the screen), and pops up child menus when they are clicked.
  *  When it executes one of the menu callback routines, it passes the
@@ -2210,9 +2217,9 @@ static DIALOG alert_dialog[] =
 
 /* alert3:
  *  Displays a simple alert box, containing three lines of text (s1-s3),
- *  and with either one, two, or three buttons. The text for these buttons 
+ *  and with either one, two, or three buttons. The text for these buttons
  *  is passed in b1, b2, and b3 (NULL for buttons which are not used), and
- *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on 
+ *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on
  *  which button was selected.
  */
 int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, AL_CONST char *b3, int c1, int c2, int c3)
@@ -2244,7 +2251,7 @@ int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST cha
    avg_w = text_length(font, tmp);
    avg_h = text_height(font);
 
-   alert_dialog[A_S1].dp = alert_dialog[A_S2].dp = alert_dialog[A_S3].dp = 
+   alert_dialog[A_S1].dp = alert_dialog[A_S2].dp = alert_dialog[A_S3].dp =
    alert_dialog[A_B1].dp = alert_dialog[A_B2].dp = empty_string;
 
    if (s1) {
@@ -2277,12 +2284,12 @@ int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST cha
    maxlen += avg_w*4;
    alert_dialog[0].w = maxlen;
    alert_dialog[A_S1].w = alert_dialog[A_S2].w = alert_dialog[A_S3].w = maxlen - avg_w*2;
-   alert_dialog[A_S1].x = alert_dialog[A_S2].x = alert_dialog[A_S3].x = 
+   alert_dialog[A_S1].x = alert_dialog[A_S2].x = alert_dialog[A_S3].x =
 						alert_dialog[0].x + avg_w;
 
    alert_dialog[A_B1].w = alert_dialog[A_B2].w = alert_dialog[A_B3].w = len1;
 
-   alert_dialog[A_B1].x = alert_dialog[A_B2].x = alert_dialog[A_B3].x = 
+   alert_dialog[A_B1].x = alert_dialog[A_B2].x = alert_dialog[A_B3].x =
 				       alert_dialog[0].x + maxlen/2 - len1/2;
 
    if (buttons == 3) {

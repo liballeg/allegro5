@@ -115,6 +115,7 @@ typedef struct MENU_PLAYER
 #define D_WANTFOCUS     8        /* this object wants the input focus */
 #define D_USED_CHAR     16       /* object has used the keypress */
 #define D_REDRAW_ALL    32       /* request to redraw all active dialogs */
+#define D_DONTWANTMOUSE 64       /* this object does not want mouse focus */
 
 
 /* messages for the dialog procedures */
@@ -141,7 +142,8 @@ typedef struct MENU_PLAYER
 #define MSG_MRELEASE    21       /* mouse middle button released */
 #define MSG_RPRESS      22       /* mouse right button pressed */
 #define MSG_RRELEASE    23       /* mouse right button released */
-#define MSG_USER        24       /* from here on are free... */
+#define MSG_WANTMOUSE   24       /* does object want the mouse? */
+#define MSG_USER        25       /* from here on are free... */
 
 
 /* some dialog procedures */
