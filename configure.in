@@ -109,9 +109,8 @@ fi
 
 dnl How strict should we be about compiler warnings
 AC_ARG_ENABLE(strictwarn,
-[  --enable-strictwarn[=x] produce strict compiler warnings [default=yes]],
-test "X$enableval" != "Xno" && allegro_strict_warnings=yes,
-allegro_strict_warnings=yes,)
+[  --enable-strictwarn[=x] produce strict compiler warnings [default=no]],
+test "X$enableval" != "Xno" && allegro_strict_warnings=yes)
 
 if test "X$allegro_strict_warnings" = "Xyes"; then
    _warnmode="Building Allegro with strict warnings."
