@@ -231,7 +231,7 @@ Contributors
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
-   Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
+   Elias Pschernig (<email>elias@users.sf.net</a>).<br>
    Added a COLORCONV_KEEP_TRANS mode, contributed the wfixicon utility,
    contributed several enhancements to the grabber, fixed menu dimensions in
    the GUI engine, fixed the get_camera_matrix*() functions, added support
