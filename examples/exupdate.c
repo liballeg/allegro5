@@ -143,11 +143,7 @@ int main(int argc, char *argv[])
    PALETTE pal;
    BITMAP *bmp[3];
    int card = GFX_AUTODETECT;
-   int w = 640;
-   int h = 480;
-   int bpp = 8;
-   int page;
-   int i;
+   int w, h, bpp, page, i;
 
    allegro_init();
 
@@ -194,6 +190,9 @@ int main(int argc, char *argv[])
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
    set_palette(desktop_palette);
 
+   w = SCREEN_W;
+   h = SCREEN_H;
+   bpp = bitmap_color_depth(screen);
    if (!gfx_mode_select_ex(&card, &w, &h, &bpp))
       return 0;
 

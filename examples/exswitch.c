@@ -181,10 +181,7 @@ int main()
    int finished = FALSE;
    int last_counter = 0;
    int c = GFX_AUTODETECT;
-   int w = 640;
-   int h = 480;
-   int bpp = 8;
-   int i;
+   int w, h, bpp, i;
 
    allegro_init();
    install_keyboard();
@@ -194,6 +191,9 @@ int main()
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
    set_palette(desktop_palette);
 
+   w = SCREEN_W;
+   h = SCREEN_H;
+   bpp = bitmap_color_depth(screen);
    if (!gfx_mode_select_ex(&c, &w, &h, &bpp)) {
       allegro_exit();
       return 1;
