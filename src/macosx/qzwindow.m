@@ -368,7 +368,7 @@ int osx_setup_colorconv_blitter()
    
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
-   desktop_depth = (desktop_depth == 32) ? 32 : 15;
+   desktop_depth = (desktop_depth == 16) ? 15 : desktop_depth;
    
    pthread_mutex_lock(&osx_window_mutex);
    if (colorconv_blitter)
