@@ -36,6 +36,7 @@ extern void *_mangled_main_address;
 static int al_argc;
 static char **al_argv;
 static char *arg0;
+static int refresh_rate = 70;
 
 
 /* These are used to warn the dock about the application */
@@ -65,7 +66,6 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 
 
-
 /* applicationDidFinishLaunching:
  *  Called when the app is ready to run. This runs the system events pump and
  *  updates the app window if it exists.
@@ -76,6 +76,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    FSRef processRef;
    FSCatalogInfo processInfo;
    ProcessSerialNumber psn = { 0, kCurrentProcess };
+   CFDictionaryRef mode;
    char path[1024], *p;
    int i;
    
@@ -112,7 +113,13 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    /* QuickTime Note Allocator seems not to like being initialized from a
     * secondary thread, so we open it here.
     */
-   osx_note_allocator = OpenDefaultComponent(kNoteAllocatorComponentType, 0);
+   if (EnterMovies() == noErr)
+      osx_note_allocator = OpenDefaultComponent(kNoteAllocatorComponentType, 0);
+   
+   mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
+   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
+   if (refresh_rate <= 0)
+      refresh_rate = 70;
    
    [NSThread detachNewThreadSelector: @selector(app_main:)
       toTarget: [AllegroAppDelegate class]
@@ -128,12 +135,33 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
          osx_update_dirty_lines();
       pthread_mutex_unlock(&osx_event_mutex);
       _unix_bg_man->enable_interrupts();
-      usleep(1000000 / 70);
+      usleep(1000000 / refresh_rate);
    }
    
    [pool release];
    pthread_mutex_destroy(&osx_event_mutex);
    _unix_bg_man->exit();
+}
+
+
+
+/* applicationDidChangeScreenParameters:
+ *  Invoked when the screen did change resolution/color depth.
+ */
+- (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification
+{
+   CFDictionaryRef mode;
+   
+   if ((osx_window) && (osx_gfx_mode == OSX_GFX_WINDOW)) {
+      osx_setup_colorconv_blitter();
+      [osx_window display];
+   }
+   pthread_mutex_lock(&osx_event_mutex);
+   mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
+   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
+   if (refresh_rate <= 0)
+      refresh_rate = 70;
+   pthread_mutex_unlock(&osx_event_mutex);
 }
 
 

@@ -35,6 +35,7 @@ static pthread_cond_t vsync_cond;
 static int lock_nesting = 0;
 static AllegroWindowDelegate *window_delegate = NULL;
 static char driver_desc[256];
+static int requested_color_depth;
 static COLORCONV_BLITTER_FUNC *colorconv_blitter = NULL;
 static RgnHandle update_region = NULL;
 static RgnHandle temp_region = NULL;
@@ -120,7 +121,7 @@ static void set_window_alpha()
 {
    if (desktop_depth == 32)
       set_window_alpha();
-   [super display];
+//   [super display];
 }
 
 - (void)miniaturize: (id)sender
@@ -308,11 +309,41 @@ void osx_update_dirty_lines(void)
 
 
 
+/* osx_setup_colorconv_blitter:
+ *  Sets up the window color conversion blitter function depending on the
+ *  Allegro requested color depth and the current desktop color depth.
+ */
+int osx_setup_colorconv_blitter()
+{
+   CFDictionaryRef mode;
+   int i;
+   
+   mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
+   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
+   desktop_depth = (desktop_depth == 32) ? 32 : 15;
+   
+   pthread_mutex_lock(&osx_window_mutex);
+   if (colorconv_blitter)
+      _release_colorconv_blitter(colorconv_blitter);
+   colorconv_blitter = _get_colorconv_blitter(requested_color_depth, desktop_depth);
+   /* We also need to update the color conversion palette to reflect the change */
+   if (colorconv_blitter)
+      _set_colorconv_palette(_current_palette, 0, 255);
+   /* Mark all the window as dirty */
+   for (i = 0; i < gfx_quartz_window.h; i++)
+      dirty_lines[i] = 1;
+   pthread_mutex_unlock(&osx_window_mutex);
+   
+   return (colorconv_blitter ? 0 : -1);
+}
+      
+
+
 static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int color_depth)
 {
+   CFDictionaryRef mode;
    NSRect frame, rect = NSMakeRect(0, 0, w, h);
    CGPoint point;
-   CFDictionaryRef mode;
    int refresh_rate;
    char tmp1[128], tmp2[128];
    
@@ -375,19 +406,22 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    set_window_title(osx_window_title);
    [osx_window makeKeyAndOrderFront: nil];
    
+   /* the last flag serves as an end of loop delimiter */
+   dirty_lines = calloc(h + 1, sizeof(char));
+   dirty_lines[h] = 1;
+   
+   requested_color_depth = color_depth;
+   if (osx_setup_colorconv_blitter()) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
+      return NULL;
+   }
+   
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayBitsPerPixel), kCFNumberSInt32Type, &desktop_depth);
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
    _set_current_refresh_rate(refresh_rate);
-   desktop_depth = (desktop_depth == 32) ? 32 : 15;
    
-   colorconv_blitter = _get_colorconv_blitter(color_depth, desktop_depth);
-   if (!colorconv_blitter) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
-      return NULL;
-   }
-      
-   pseudo_screen_addr = malloc(w * h * BYTES_PER_PIXEL(color_depth));
+   pseudo_screen_addr = calloc(1, w * h * BYTES_PER_PIXEL(color_depth));
    if (!pseudo_screen_addr) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
@@ -401,10 +435,6 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
-   
-   /* the last flag serves as an end of loop delimiter */
-   dirty_lines = calloc(h + 1, sizeof(char));
-   dirty_lines[h] = 1;
    
    setup_direct_shifts();
    
@@ -535,30 +565,3 @@ static void osx_qz_window_set_palette(AL_CONST struct RGB *p, int from, int to, 
    
    pthread_mutex_unlock(&osx_window_mutex);
 }
-
-
-
-
-/*
-{
-   int i;
-   CGDeviceColor color;
-   
-   if (vsync)
-      osx_qz_vsync();
-   
-   if (osx_gfx_mode == OSX_GFX_WINDOW) {
-   
-   }
-   else {
-      for (i = from; i <= to; i++) {
-         color.red = ((float)p[i].r / 255.0);
-         color.green = ((float)p[i].g / 255.0);
-         color.blue = ((float)p[i].b / 255.0);
-         CGPaletteSetColorAtIndex(osx_palette, color, i);
-      }
-      CGDisplaySetPalette(kCGDirectMainDisplay, osx_palette);
-   }
-}
-*/
-

@@ -132,6 +132,18 @@ TEMPLATE_NAME = Allegro\ Application
 TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
 
 
+create_install_dirs:
+ifeq ($(wildcard $(INSTALL_DIR)/lib),)
+	mkdir -p $(INSTALL_DIR)/lib
+endif
+ifeq ($(wildcard $(INSTALL_DIR)/include),)
+	mkdir -p $(INSTALL_DIR)/include
+endif
+ifeq ($(wildcard $(INSTALL_DIR)/bin),)
+	mkdir -p $(INSTALL_DIR)/bin
+endif
+
+
 ifdef STATICLINK
 
 $(INSTALL_DIR)/lib/lib$(VERSION).a: $(LIB_NAME)
@@ -192,7 +204,8 @@ HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard inclu
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
           $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
 
-INSTALL_FILES = $(INSTALL_DIR)/include/allegro.h                   \
+INSTALL_FILES = create_install_dirs                                \
+		$(INSTALL_DIR)/include/allegro.h                   \
 		$(INSTALL_DIR)/include/allegro                     \
 		$(INSTALL_DIR)/include/allegro/internal            \
 		$(INSTALL_DIR)/include/allegro/inline              \
@@ -210,6 +223,8 @@ ifdef STATICLINK
 else
 	INSTALL_FILES += $(INSTALL_DIR)/lib/lib$(VERSION)-$(shared_version).dylib
 endif
+
+
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.

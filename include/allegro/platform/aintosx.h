@@ -33,6 +33,7 @@
 @interface AllegroAppDelegate : NSObject
 - (NSApplicationTerminateReply)applicationShouldTerminate: (NSApplication *)sender;
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification;
+- (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification;
 + (void)app_main: (id)arg;
 @end
 
@@ -72,6 +73,7 @@ void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
 BITMAP *osx_qz_create_video_bitmap(int width, int height);
 BITMAP *osx_qz_create_system_bitmap(int width, int height);
 void osx_qz_destroy_video_bitmap(BITMAP *bmp);
+int osx_setup_colorconv_blitter(void);
 void osx_update_dirty_lines(void);
 
 unsigned long osx_qz_write_line(BITMAP *bmp, int line);
