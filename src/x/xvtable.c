@@ -140,8 +140,8 @@ void _xwin_lock(BITMAP *bmp)
 #else
    if (_xwin.screen_lock_count == 0) {
 #endif
-      _xwin.locked_thread = pthread_self();
       XLOCK();
+      _xwin.locked_thread = pthread_self();
    }
    _xwin.screen_lock_count++;
 }
