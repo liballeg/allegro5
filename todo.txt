@@ -36,7 +36,6 @@ Linux todos:
 - vt switching in BACKAMNESIA mode only causes font weirdity in text
   mode on a Voodoo Banshee (using SVGAlib VESA and BANSHEE drivers), even
   if I cheat and use vga_flip.  Font returns after program quits.
-- prepare for SVGAlib 2.0
 
 X11 todos:
 ---------------------------------------------------------------------------
