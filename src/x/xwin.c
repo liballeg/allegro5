@@ -2306,15 +2306,6 @@ void _xwin_redraw_window(int x, int y, int w, int h)
  */
 static int _xwin_private_scroll_screen(int x, int y)
 {
-   if (x < 0)
-      x = 0;
-   else if (x >= (_xwin.virtual_width - _xwin.screen_width))
-      x = _xwin.virtual_width - _xwin.screen_width;
-   if (y < 0)
-      y = 0;
-   else if (y >= (_xwin.virtual_height - _xwin.screen_height))
-      y = _xwin.virtual_height - _xwin.screen_height;
-
    _xwin.scroll_x = x;
    _xwin.scroll_y = y;
    (*_xwin_window_redrawer)(0, 0, _xwin.screen_width, _xwin.screen_height);
@@ -2326,6 +2317,18 @@ static int _xwin_private_scroll_screen(int x, int y)
 int _xwin_scroll_screen(int x, int y)
 {
    int result;
+
+   if (x < 0)
+      x = 0;
+   else if (x >= (_xwin.virtual_width - _xwin.screen_width))
+      x = _xwin.virtual_width - _xwin.screen_width;
+   if (y < 0)
+      y = 0;
+   else if (y >= (_xwin.virtual_height - _xwin.screen_height))
+      y = _xwin.virtual_height - _xwin.screen_height;
+   if ((_xwin.scroll_x == x) && (_xwin.scroll_y == y))
+      return 0;
+
    XLOCK();
    result = _xwin_private_scroll_screen(x, y);
    XUNLOCK();
@@ -3091,15 +3094,6 @@ void _xdga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
  */
 static int _xdga_private_scroll_screen(int x, int y)
 {
-   if (x < 0)
-      x = 0;
-   else if (x >= (_xwin.virtual_width - _xwin.screen_width))
-      x = _xwin.virtual_width - _xwin.screen_width;
-   if (y < 0)
-      y = 0;
-   else if (y >= (_xwin.virtual_height - _xwin.screen_height))
-      y = _xwin.virtual_height - _xwin.screen_height;
-
    _xwin.scroll_x = x;
    _xwin.scroll_y = y;
    XF86DGASetViewPort (_xwin.display, _xwin.screen, x, y);
@@ -3111,6 +3105,18 @@ static int _xdga_private_scroll_screen(int x, int y)
 int _xdga_scroll_screen(int x, int y)
 {
    int result;
+
+   if (x < 0)
+      x = 0;
+   else if (x >= (_xwin.virtual_width - _xwin.screen_width))
+      x = _xwin.virtual_width - _xwin.screen_width;
+   if (y < 0)
+      y = 0;
+   else if (y >= (_xwin.virtual_height - _xwin.screen_height))
+      y = _xwin.virtual_height - _xwin.screen_height;
+   if ((_xwin.scroll_x == x) && (_xwin.scroll_y == y))
+      return 0;
+
    XLOCK();
    result = _xdga_private_scroll_screen(x, y);
    XUNLOCK();

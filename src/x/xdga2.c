@@ -735,14 +735,19 @@ static int _xdga2_request_video_bitmap(BITMAP *bmp)
  */
 static int _xdga2_scroll_screen(int x, int y)
 {
-   XLOCK();
-   
    if (x < 0) x = 0;
    else if (x > dga_device->mode.maxViewportX)
       x = dga_device->mode.maxViewportX;
    if (y < 0) y = 0;
    else if (y > dga_device->mode.maxViewportY)
       y = dga_device->mode.maxViewportY;
+   if ((_xwin.scroll_x == x) && (_xwin.scroll_y == y))
+      return 0;
+
+   XLOCK();
+
+   _xwin.scroll_x = x;
+   _xwin.scroll_y = y;
 
    while (XDGAGetViewportStatus(_xwin.display, _xwin.screen));
    XDGASetViewport(_xwin.display, _xwin.screen, x, y, XDGAFlipRetrace);
