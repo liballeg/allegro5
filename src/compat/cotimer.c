@@ -26,7 +26,7 @@
 
 
 
-#define TIMER_TO_MSEC(x)  ((long)((x) / 1193.181))
+#define TIMER_TO_MSEC(x)  ((long)((x) / 1000))
 
 /* list of active timer handlers */
 typedef struct TIMER_QUEUE

@@ -229,8 +229,15 @@ AL_INLINE_DEPRECATED(void, yield_timeslice, (void),
 })
 
 
-/* the old timer API */
-#define TIMERS_PER_SECOND     1193181L
+/* the old timer API
+ *
+ * Note: TIMERS_PER_SECOND was changed to a nicer value (was 1193181L).
+ * The old timer API is emulated using the new timer API, which works with
+ * milliseconds.  With the previous value of TIMERS_PER_SECOND, the two-step
+ * conversion to "timers" then to milliseconds would introduce rounding
+ * errors, e.g. causing the three extimer counters to go badly out of sync.
+ */
+#define TIMERS_PER_SECOND     1000000L
 #define SECS_TO_TIMER(x)      ((long)(x) * TIMERS_PER_SECOND)
 #define MSEC_TO_TIMER(x)      ((long)(x) * (TIMERS_PER_SECOND / 1000))
 #define BPS_TO_TIMER(x)       (TIMERS_PER_SECOND / (long)(x))
