@@ -211,6 +211,125 @@ endif
 
 
 
+# -------- rules for installing and removing the generic library files --------
+
+INSTALLDIR_U = $(subst \,/,$(INSTALLDIR))
+INSTALLDIR_D = $(subst /,\,$(INSTALLDIR))
+
+LIBDIR_U = $(subst \,/,$(LIBDIR))
+LIBDIR_D = $(subst /,\,$(LIBDIR))
+
+INCDIR_U = $(subst \,/,$(INCDIR))
+INCDIR_D = $(subst /,\,$(INCDIR))
+
+
+ifdef UNIX_TOOLS
+
+$(INSTALLDIR_U)/$(LIBDIR_U):
+	mkdir $(INSTALLDIR_U)/$(LIBDIR_U)
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+	cp $< $@
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform: $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
+	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+	cp $< $@
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+	cp $< $@
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	cp $< $@
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro: $(INSTALLDIR_U)/$(INCDIR_U)
+	mkdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
+
+$(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h $(INSTALLDIR_U)/$(INCDIR_U)
+	cp $< $@
+
+$(INSTALLDIR_U)/$(INCDIR_U):
+	mkdir $(INSTALLDIR_U)/$(INCDIR_U)
+
+else
+
+$(INSTALLDIR_U)/$(LIBDIR_U):
+	md $(INSTALLDIR_D)\$(LIBDIR_D)
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+	copy $(subst /,\,$< $@)
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	md $(INSTALLDIR_D)\$(INCDIR_D)\allegro\platform
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+	copy $(subst /,\,$< $@)
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	md $(INSTALLDIR_D)\$(INCDIR_D)\allegro\internal
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+	copy $(subst /,\,$< $@)
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	md $(INSTALLDIR_D)\$(INCDIR_D)\allegro\inline
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+	copy $(subst /,\,$< $@)
+
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro: $(INSTALLDIR_U)/$(INCDIR_U)
+	-md $(INSTALLDIR_D)\$(INCDIR_D)\allegro 
+# workaround for a weird make problem
+
+$(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h $(INSTALLDIR_U)/$(INCDIR_U)
+	copy $(subst /,\,$< $@)
+
+$(INSTALLDIR_U)/$(INCDIR_U):
+	md $(INSTALLDIR_D)\$(INCDIR_D)
+
+endif
+
+
+INSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h                                                                         \
+                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/,$(notdir $(wildcard include/allegro/*.h)))                   \
+                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/,$(notdir $(wildcard include/allegro/internal/*.h))) \
+                 $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/,$(notdir $(wildcard include/allegro/inline/*.inl)))
+
+generic-install: $(INSTALL_FILES)
+
+UNINSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h            \
+		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/*.h          \
+		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/*.h \
+		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/*.inl
+
+generic-uninstall:
+ifdef UNIX_TOOLS
+	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+	-rmdir $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+else
+   define RM_FILES
+      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
+	-rd $(INSTALLDIR_D)\$(INCDIR_D)\allegro\platform
+	-rd $(INSTALLDIR_D)\$(INCDIR_D)\allegro\inline
+	-rd $(INSTALLDIR_D)\$(INCDIR_D)\allegro\internal
+	-rd $(INSTALLDIR_D)\$(INCDIR_D)\allegro
+endif
+
+
+
 # -------- rules for converting the documentation --------
 
 ifndef CROSSCOMPILE

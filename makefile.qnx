@@ -116,82 +116,40 @@ LIBRARIES = -lm -lph -lasound
 
 # -------- rules for installing and removing the library files --------
 
-INSTALL_DIR = /usr
+INSTALLDIR = /usr
+LIBDIR = lib
+INCDIR = include
 
 $(INSTALL_DIR)/lib/lib$(VERSION).a: $(LIB_NAME)
 	cp $(LIB_NAME) $(INSTALL_DIR)/lib
-
-$(INSTALL_DIR)/include/%: include/%
-	cp $< $@
-
-$(INSTALL_DIR)/include/allegro/%.h: include/allegro/%.h $(INSTALL_DIR)/include/allegro
-	cp $< $@
-
-$(INSTALL_DIR)/include/allegro:
-	mkdir $(INSTALL_DIR)/include/allegro
-
-$(INSTALL_DIR)/include/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALL_DIR)/include/allegro/internal
-	cp $< $@
-
-$(INSTALL_DIR)/include/allegro/internal:
-	mkdir $(INSTALL_DIR)/include/allegro/internal
-
-$(INSTALL_DIR)/include/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALL_DIR)/include/allegro/inline
-	cp $< $@
-
-$(INSTALL_DIR)/include/allegro/inline:
-	mkdir $(INSTALL_DIR)/include/allegro/inline
-
-$(INSTALL_DIR)/include/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALL_DIR)/include/allegro/platform
-	cp $< $@
-
-$(INSTALL_DIR)/include/allegro/platform:
-	mkdir $(INSTALL_DIR)/include/allegro/platform
 
 $(INSTALL_DIR)/bin/allegro-config:
 	cp misc/allegro-config-qnx.sh $(INSTALL_DIR)/bin/allegro-config
 	chmod +x $(INSTALL_DIR)/bin/allegro-config
 
-HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
-          $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
-          $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
 
-INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a                 \
-		$(INSTALL_DIR)/include/allegro.h                   \
-		$(INSTALL_DIR)/include/allegro                     \
-		$(INSTALL_DIR)/include/allegro/internal            \
-		$(INSTALL_DIR)/include/allegro/inline              \
-		$(INSTALL_DIR)/include/allegro/platform            \
-		$(INSTALL_DIR)/include/qnxalleg.h                  \
-		$(INSTALL_DIR)/include/allegro/platform/aintqnx.h  \
-		$(INSTALL_DIR)/include/allegro/platform/al386gcc.h \
-		$(INSTALL_DIR)/include/allegro/platform/alqnxcfg.h \
-		$(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
-		$(INSTALL_DIR)/include/allegro/platform/alqnx.h    \
-		$(HEADERS)                                         \
-		$(INSTALL_DIR)/bin/allegro-config
+HEADERS = $(INSTALL_DIR)/include/qnxalleg.h                  \
+          $(INSTALL_DIR)/include/allegro/platform/aintqnx.h  \
+          $(INSTALL_DIR)/include/allegro/platform/al386gcc.h \
+          $(INSTALL_DIR)/include/allegro/platform/alqnxcfg.h \
+          $(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
+          $(INSTALL_DIR)/include/allegro/platform/alqnx.h
 
-install: $(INSTALL_FILES)
+INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a \
+                $(HEADERS)                         \
+                $(INSTALL_DIR)/bin/allegro-config
+
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a               \
-		  $(INSTALL_DIR)/lib/liballd.a                \
-		  $(INSTALL_DIR)/lib/liballp.a                \
-		  $(INSTALL_DIR)/include/allegro.h            \
-		  $(INSTALL_DIR)/include/qnxalleg.h           \
-		  $(INSTALL_DIR)/include/allegro/*.h          \
-		  $(INSTALL_DIR)/include/allegro/internal/*.h \
-		  $(INSTALL_DIR)/include/allegro/inline/*.inl \
-		  $(INSTALL_DIR)/include/allegro/platform/*.h \
-		  $(INSTALL_DIR)/bin/allegro-config
+UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a     \
+                  $(INSTALL_DIR)/lib/liballd.a      \
+                  $(INSTALL_DIR)/lib/liballp.a      \
+                  $(HEADERS)                        \
+                  $(INSTALL_DIR)/bin/allegro-config
 
-uninstall:
-	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(INSTALL_DIR)/include/allegro/platform
-	-rmdir $(INSTALL_DIR)/include/allegro/inline
-	-rmdir $(INSTALL_DIR)/include/allegro/internal
-	-rmdir $(INSTALL_DIR)/include/allegro
-	@echo All gone!	
+uninstall: generic-uninstall
+	@echo All gone!
 
 
 # test assembler capabilities.

@@ -110,121 +110,43 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 
 # -------- rules for installing and removing the library files --------
 
+INSTALLDIR = $(WATDIR_U)
+LIBDIR = lib386
+INCDIR = h
+
+
 ifdef UNIX_TOOLS
 
 $(WATDIR_U)/lib386/$(VERSION).lib: $(LIB_NAME)
 	cp lib/watcom/$(VERSION).lib $(WATDIR_U)/lib386
-
-$(WATDIR_U)/h/allegro.h: include/allegro.h
-	cp include/allegro.h $(WATDIR_U)/h
-
-$(WATDIR_U)/h/allegro:
-	mkdir $(WATDIR_U)/h/allegro
-
-$(WATDIR_U)/h/allegro/%.h: include/allegro/%.h
-	cp $< $@
-
-$(WATDIR_U)/h/allegro/internal:
-	mkdir $(WATDIR_U)/h/allegro/internal
-
-$(WATDIR_U)/h/allegro/internal/%.h: include/allegro/internal/%.h
-	cp $< $@
-
-$(WATDIR_U)/h/allegro/inline:
-	mkdir $(WATDIR_U)/h/allegro/inline
-
-$(WATDIR_U)/h/allegro/inline/%.inl: include/allegro/inline/%.inl
-	cp $< $@
-
-$(WATDIR_U)/h/allegro/platform:
-	mkdir $(WATDIR_U)/h/allegro/platform
-
-$(WATDIR_U)/h/allegro/platform/%.h: include/allegro/platform/%.h
-	cp $< $@
 
 else
 
 $(WATDIR_U)/lib386/$(VERSION).lib: $(LIB_NAME)
 	copy lib\watcom\$(VERSION).lib $(WATDIR_D)\lib386
 
-$(WATDIR_U)/h/allegro.h: include/allegro.h
-	copy include\allegro.h $(WATDIR_D)\h
-
-$(WATDIR_U)/h/allegro:
-	md $(WATDIR_D)\h\allegro
-
-$(WATDIR_U)/h/allegro/%.h: include/allegro/%.h
-	copy $(subst /,\,$<) $(subst /,\,$@)
-
-$(WATDIR_U)/h/allegro/internal:
-	md $(WATDIR_D)\h\allegro\internal
-
-$(WATDIR_U)/h/allegro/internal/%.h: include/allegro/internal/%.h
-	copy $(subst /,\,$<) $(subst /,\,$@)
-
-$(WATDIR_U)/h/allegro/inline:
-	md $(WATDIR_D)\h\allegro\inline
-
-$(WATDIR_U)/h/allegro/inline/%.inl: include/allegro/inline/%.inl
-	copy $(subst /,\,$<) $(subst /,\,$@)
-
-$(WATDIR_U)/h/allegro/platform:
-	md $(WATDIR_D)\h\allegro\platform
-
-$(WATDIR_U)/h/allegro/platform/%.h: include/allegro/platform/%.h
-	copy $(subst /,\,$<) $(subst /,\,$@)
-
 endif # UNIX_TOOLS
 
 
-HEADERS = $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/*.h)))          \
-          $(addprefix $(WATDIR_U)/h/allegro/internal/,$(notdir $(wildcard include/allegro/internal/*.h))) \
-          $(addprefix $(WATDIR_U)/h/allegro/inline/,$(notdir $(wildcard include/allegro/inline/*.inl)))
+HEADERS = $(WATDIR_U)/h/allegro/platform/aintdos.h  \
+          $(WATDIR_U)/h/allegro/platform/al386wat.h \
+          $(WATDIR_U)/h/allegro/platform/alwatcom.h \
+          $(WATDIR_U)/h/allegro/platform/alplatf.h  \
+          $(WATDIR_U)/h/allegro/platform/aldos.h
 
-INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib         \
-		$(WATDIR_U)/h/allegro.h                   \
-		$(WATDIR_U)/h/allegro                     \
-		$(WATDIR_U)/h/allegro/internal            \
-		$(WATDIR_U)/h/allegro/inline              \
-		$(WATDIR_U)/h/allegro/platform            \
-		$(WATDIR_U)/h/allegro/platform/aintdos.h  \
-		$(WATDIR_U)/h/allegro/platform/al386wat.h \
-		$(WATDIR_U)/h/allegro/platform/alwatcom.h \
-		$(WATDIR_U)/h/allegro/platform/alplatf.h  \
-		$(WATDIR_U)/h/allegro/platform/aldos.h    \
-		$(HEADERS)
+INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib \
+                $(HEADERS)               
 
-install: $(INSTALL_FILES)
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(WATDIR_U)/lib386/alleg.lib       \
-		  $(WATDIR_U)/lib386/alld.lib        \
-		  $(WATDIR_U)/lib386/allp.lib        \
-		  $(WATDIR_U)/h/allegro.h            \
-		  $(WATDIR_U)/h/allegro/*.h          \
-		  $(WATDIR_U)/h/allegro/internal/*.h \
-		  $(WATDIR_U)/h/allegro/inline/*.inl \
-		  $(WATDIR_U)/h/allegro/platform/*.h
+UNINSTALL_FILES = $(WATDIR_U)/lib386/alleg.lib \
+                  $(WATDIR_U)/lib386/alld.lib  \
+                  $(WATDIR_U)/lib386/allp.lib  \
+                  $(HEADERS)
 
-uninstall:
-ifdef UNIX_TOOLS
-	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(WATDIR_U)/include/allegro/platform
-	-rmdir $(WATDIR_U)/include/allegro/inline
-	-rmdir $(WATDIR_U)/include/allegro/internal
-	-rmdir $(WATDIR_U)/include/allegro
-else
-   define RM_FILES
-      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
-      )
-   endef
-	-$(RM_FILES)
-	-rd $(WATDIR_D)\h\allegro\platform
-	-rd $(WATDIR_D)\h\allegro\inline
-	-rd $(WATDIR_D)\h\allegro\internal
-	-rd $(WATDIR_D)\h\allegro
+uninstall: generic-uninstall
 	@echo All gone!
-endif
 
 
 
