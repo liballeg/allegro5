@@ -37,7 +37,7 @@ static void bg_man_pthreads_disable_interrupts(void);
 static bg_func funcs[MAX_FUNCS];
 static int max_func; /* highest+1 used entry */
 
-static pthread_t thread;
+static pthread_t thread = 0;
 static pthread_mutex_t cli_mutex;
 static pthread_cond_t cli_cond;
 static int cli_count;
@@ -122,6 +122,8 @@ static int bg_man_pthreads_init(void)
 {
    int i;
 
+   ASSERT(thread == 0);
+
    for (i = 0; i < MAX_FUNCS; i++)
       funcs[i] = NULL;
 
@@ -134,6 +136,7 @@ static int bg_man_pthreads_init(void)
    if (pthread_create(&thread, NULL, bg_man_pthreads_threadfunc, NULL)) {
       pthread_mutex_destroy(&cli_mutex);
       pthread_cond_destroy(&cli_cond);
+      thread = 0;
       return -1;
    }
 
@@ -147,10 +150,13 @@ static int bg_man_pthreads_init(void)
  */
 static void bg_man_pthreads_exit(void)
 {
-   pthread_cancel(thread);
-   pthread_join(thread, NULL);
-   pthread_mutex_destroy(&cli_mutex);
-   pthread_cond_destroy(&cli_cond);
+   if (thread) {
+      pthread_cancel(thread);
+      pthread_join(thread, NULL);
+      pthread_mutex_destroy(&cli_mutex);
+      pthread_cond_destroy(&cli_cond);
+      thread = 0;
+   }
 }
 
 
