@@ -30,11 +30,11 @@ extern "C" {
 AL_FUNC(int, qnx_sys_init, (void));
 AL_FUNC(void, qnx_sys_exit, (void));
 AL_FUNC(void, qnx_sys_message, (AL_CONST char *));
-AL_FUNC(void, qnx_sys_get_executable_name, (char *, int));
 AL_FUNC(void, qnx_sys_set_window_title, (AL_CONST char *));
 AL_FUNC(int, qnx_sys_set_window_close_button, (int));
 AL_FUNC(void, qnx_sys_set_window_close_hook, (AL_METHOD(void, proc, (void))));
-AL_FUNC(void, qnx_sys_yield_timeslice, (void));
+AL_FUNC(int, qnx_sys_desktop_color_depth, (void));
+AL_FUNC(int, qnx_sys_get_desktop_resolution, (int *width, int *height));
 AL_FUNC(_DRIVER_INFO *, qnx_sys_timer_drivers, (void));
 
 AL_FUNC(int, qnx_keyboard_init, (void));
@@ -63,7 +63,7 @@ AL_FUNC(void, qnx_ph_set_palette, (AL_CONST struct RGB *, int, int, int));
  * exists in the Photon library... So until QNX fixes the missing declaration,
  * we will declare it here.
  */
-void PgWaitHWIdle(void);
+int PgWaitHWIdle(void);
 
 
 #ifdef __cplusplus

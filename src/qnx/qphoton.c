@@ -28,11 +28,11 @@ PdOffscreenContext_t        *ph_screen_context = NULL;
 PdOffscreenContext_t        *ph_window_context = NULL;
 int                          ph_gfx_initialized = FALSE;
 
-static PgDisplaySettings_t   original_settings;
 static PdDirectContext_t    *direct_context = NULL;
 static PgColor_t             ph_palette[256];
 static int                   ph_last_line = -1;
 static char                  driver_desc[128];
+static PgDisplaySettings_t   original_settings;
 
 
 static int find_video_mode(int w, int h, int depth);
@@ -140,9 +140,9 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
       return NULL;
    }
-   
-   PgGetVideoMode(&original_settings);
 
+   PgGetVideoMode(&original_settings);
+   
    mode_num = find_video_mode(w, h, color_depth);
    if (mode_num == -1) {
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
@@ -280,17 +280,13 @@ void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesyn
    int i;
    
    for (i=from; i<=to; i++) {
-      ph_palette[i] = (_rgb_scale_6[p[i].r] << 16) |
-                      (_rgb_scale_6[p[i].g] << 8) |
-                      _rgb_scale_6[p[i].b];
+      ph_palette[i] = (p[i].r << 18) | (p[i].g << 10) | (p[i].b << 2);
    }
-   pthread_mutex_lock(&qnx_events_mutex);
    if (retracesync) {
       PgWaitVSync();
    }
    PgSetPalette(ph_palette, 0, from, to - from + 1, (ph_window_context ? Pg_PALSET_SOFT : Pg_PALSET_HARDLOCKED), 0);
    PgFlush();
-   pthread_mutex_unlock(&qnx_events_mutex);
 }
 
 
@@ -484,5 +480,4 @@ void qnx_ph_exit(struct BITMAP *b)
    pthread_mutex_lock(&qnx_events_mutex);
    qnx_private_ph_exit();
    pthread_mutex_unlock(&qnx_events_mutex);
-//   DISABLE();
 }

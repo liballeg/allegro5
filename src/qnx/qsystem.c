@@ -59,9 +59,6 @@ static RETSIGTYPE (*old_sig_ill)(int num);
 static RETSIGTYPE (*old_sig_segv)(int num);
 static RETSIGTYPE (*old_sig_term)(int num);
 static RETSIGTYPE (*old_sig_int)(int num);
-#ifdef SIGKILL
-static RETSIGTYPE (*old_sig_kill)(int num);
-#endif
 #ifdef SIGQUIT
 static RETSIGTYPE (*old_sig_quit)(int num);
 #endif
@@ -85,9 +82,6 @@ static RETSIGTYPE qnx_signal_handler(int num)
       signal(SIGSEGV, old_sig_segv);
       signal(SIGTERM, old_sig_term);
       signal(SIGINT,  old_sig_int);
-#ifdef SIGKILL
-      signal(SIGKILL, old_sig_kill);
-#endif
 #ifdef SIGQUIT
       signal(SIGQUIT, old_sig_quit);
 #endif
@@ -146,7 +140,7 @@ static void *qnx_events_handler(void *data)
    const char *close_buttons[] = { "&Yes", "&No" };
    
    while(!qnx_system_done) {
-   
+      
       pthread_mutex_lock(&qnx_events_mutex);
 
       /* Checks if there is a pending event */
@@ -263,7 +257,6 @@ int qnx_sys_init(void)
    PhRegion_t region;
    PtArg_t arg[6];
    PhDim_t dim;
-
    
    /* install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, qnx_signal_handler);
@@ -273,17 +266,13 @@ int qnx_sys_init(void)
    old_sig_term = signal(SIGTERM, qnx_signal_handler);
    old_sig_int  = signal(SIGINT,  qnx_signal_handler);
 
-#ifdef SIGKILL
-   old_sig_kill = signal(SIGKILL, qnx_signal_handler);
-#endif
-
 #ifdef SIGQUIT
    old_sig_quit = signal(SIGQUIT, qnx_signal_handler);
 #endif
 
    dim.w = 320;
    dim.h = 200;
-   qnx_sys_get_executable_name(window_title, 256);
+   _unix_get_executable_name(window_title, 256);
    PtSetArg(&arg[0], Pt_ARG_DIM, &dim, 0);
    PtSetArg(&arg[1], Pt_ARG_WINDOW_TITLE, window_title, 0);
    PtSetArg(&arg[2], Pt_ARG_WINDOW_MANAGED_FLAGS, Pt_FALSE, Ph_WM_CLOSE);
@@ -305,7 +294,7 @@ int qnx_sys_init(void)
    region.events_sense = Ph_EV_WM | Ph_EV_KEY | Ph_EV_PTR_ALL | Ph_EV_EXPOSE | Ph_EV_BOUNDARY;
    region.rid = PtWidgetRid(ph_window);
    PhRegionChange(Ph_REGION_CURSOR | Ph_REGION_EV_SENSE, 0, &region, NULL, NULL);
-   
+
    if (_sigalrm_init(qnx_interrupts_handler)) {
       qnx_sys_exit();
       return -1;
@@ -340,10 +329,6 @@ void qnx_sys_exit(void)
    signal(SIGSEGV, old_sig_segv);
    signal(SIGTERM, old_sig_term);
    signal(SIGINT,  old_sig_int);
-
-#ifdef SIGKILL
-   signal(SIGKILL, old_sig_kill);
-#endif
 
 #ifdef SIGQUIT
    signal(SIGQUIT, old_sig_quit);
@@ -405,63 +390,41 @@ void qnx_sys_message(AL_CONST char *msg)
    const char *button[] = { "&Ok" };
 
    fprintf(stderr, "%s", msg);
-//   pthread_mutex_lock(&qnx_events_mutex);
    PtAlert(NULL, NULL, "Title", NULL, msg, NULL, 1, button, NULL, 1, 1, Pt_MODAL);
-//   pthread_mutex_unlock(&qnx_events_mutex);
 }
 
 
 
-/* qnx_sys_get_executable_name:
- *  Return full path to the current executable.
+/* qnx_sys_desktop_color_depth:
+ *  Returns the current desktop color depth.
  */
-void qnx_sys_get_executable_name(char *output, int size)
+int qnx_sys_desktop_color_depth(void)
 {
-   char *path;
-
-   /* If argv[0] has no explicit path, but we do have $PATH, search there */
-   if (!strchr (__crt0_argv[0], '/') && (path = getenv("PATH"))) {
-      char *start = path, *end = path, *buffer = NULL, *temp;
-      struct stat finfo;
-
-      while (*end) {
-	 end = strchr (start, ':');
-	 if (!end) end = strchr (start, '\0');
-
-	 /* Resize `buffer' for path component, slash, argv[0] and a '\0' */
-	 temp = realloc (buffer, end - start + 1 + strlen (__crt0_argv[0]) + 1);
-	 if (temp) {
-	    buffer = temp;
-
-	    strncpy (buffer, start, end - start);
-	    *(buffer + (end - start)) = '/';
-	    strcpy (buffer + (end - start) + 1, __crt0_argv[0]);
-
-	    if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
-	       do_uconvert (buffer, U_ASCII, output, U_CURRENT, size);
-	       free (buffer);
-	       return;
-	    }
-	 } /* else... ignore the failure; `buffer' is still valid anyway. */
-
-	 start = end + 1;
-      }
-      /* Path search failed */
-      free (buffer);
-   }
-
-   /* If argv[0] had a slash, or the path search failed, just return argv[0] */
-   do_uconvert (__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
+   PgDisplaySettings_t settings;
+   PgVideoModeInfo_t mode_info;
+   
+   PgGetVideoMode(&settings);
+   PgGetVideoModeInfo(settings.mode, &mode_info);
+   
+   return (mode_info.bits_per_pixel);
 }
 
 
 
-/* qnx_sys_yield_timeslice:
- *  Gives CPU power for other tasks.
+/* qnx_sys_get_desktop_resolution:
+ *  Returns the current desktop resolution.
  */
-void qnx_sys_yield_timeslice(void)
+int qnx_sys_get_desktop_resolution(int *width, int *height)
 {
-   sched_yield();
+   PgDisplaySettings_t settings;
+   PgVideoModeInfo_t mode_info;
+   
+   PgGetVideoMode(&settings);
+   PgGetVideoModeInfo(settings.mode, &mode_info);
+
+   *width = mode_info.width;
+   *height = mode_info.height;
+   return 0;
 }
 
 
@@ -470,4 +433,3 @@ _DRIVER_INFO *qnx_sys_timer_drivers(void)
 {
    return qnx_timer_driver_list;
 }
-

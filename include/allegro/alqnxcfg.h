@@ -46,6 +46,7 @@
 #define ALLEGRO_QNX
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
+#define ALLEGRO_USE_SCHED_YIELD
 
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/alqnx.h"

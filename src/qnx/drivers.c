@@ -35,8 +35,8 @@ SYSTEM_DRIVER system_qnx =
    "QNX Realtime Platform",
    qnx_sys_init,                    /* AL_METHOD(int, init, (void)); */
    qnx_sys_exit,                    /* AL_METHOD(void, exit, (void)); */
-   qnx_sys_get_executable_name,     /* AL_METHOD(void, get_executable_name, (char *output, int size)); */
-   NULL,                            /* AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size)); */
+   _unix_get_executable_name,       /* AL_METHOD(void, get_executable_name, (char *output, int size)); */
+   _unix_find_resource,             /* AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size)); */
    qnx_sys_set_window_title,        /* AL_METHOD(void, set_window_title, (AL_CONST char *name)); */
    qnx_sys_set_window_close_button, /* AL_METHOD(int, set_window_close_button, (int enable)); */
    qnx_sys_set_window_close_hook,   /* AL_METHOD(void, set_window_close_hook, (AL_METHOD(void, proc, (void)))); */
@@ -56,9 +56,9 @@ SYSTEM_DRIVER system_qnx =
    NULL,                            /* AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void)))); */
    NULL,                            /* AL_METHOD(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void)))); */
    NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
-   NULL,                            /* AL_METHOD(int, desktop_color_depth, (void)); */
-   NULL,                            /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
-   qnx_sys_yield_timeslice,         /* AL_METHOD(void, yield_timeslice, (void)); */
+   qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
+   qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
+   _unix_yield_timeslice,           /* AL_METHOD(void, yield_timeslice, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
@@ -66,15 +66,6 @@ SYSTEM_DRIVER system_qnx =
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
    qnx_sys_timer_drivers            /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
-};
-
-
-
-_DRIVER_INFO _system_driver_list[] =
-{
-   { SYSTEM_QNX,        &system_qnx,        TRUE  },
-   { SYSTEM_NONE,       &system_none,       FALSE },
-   { 0,                 NULL,               0     }
 };
 
 

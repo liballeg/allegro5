@@ -49,7 +49,6 @@ extern "C" {
    AL_FUNCPTR(void, _unix_timer_interrupt, (unsigned long interval));
 
 
-#ifndef ALLEGRO_QNX
    /* Helper for locating config files */
    AL_FUNC(int, _unix_find_resource, (char *dest, AL_CONST char *resource, int size));
 
@@ -64,7 +63,7 @@ extern "C" {
 
    /* Helper for yield CPU */
    AL_FUNC(void, _unix_yield_timeslice, (void));
-#endif
+
 
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_FUNCPTR(void, _xwin_keyboard_interrupt, (int pressed, int code));
