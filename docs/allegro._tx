@@ -255,20 +255,22 @@ information about how to install Allegro and link your program with it.
    timeslice. Also known as the "play nice with multitasking" option.
 
 @@void @check_cpu();
-@xref cpu_family, cpu_model, cpu_capabilities
-@xref cpu_vendor
+@xref cpu_vendor, cpu_family, cpu_model, cpu_capabilities
    Detects the CPU type, setting the following global variables. You don't 
    normally need to call this, because allegro_init() will do it for you.
 
 @@extern char @cpu_vendor[];
+@xref check_cpu, cpu_family, cpu_model, cpu_capabilities
    Contains the CPU vendor name, if known (empty string on non-Intel 
    platforms).
 
 @@extern int @cpu_family;
+@xref check_cpu, cpu_vendor, cpu_model, cpu_capabilities
    Contains the Intel CPU type, where applicable: 3=386, 4=486, 5=Pentium, 
    6=PPro, etc.
 
 @@extern int @cpu_model;
+@xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities
    Contains the Intel CPU submodel, where applicable. On a 486 
    (cpu_family=4), zero or one indicates a DX chip, 2 an SX, 3 a 487 (SX) or 
    486 DX, 4 an SL, 5 an SX2, 7 a DX2 write-back enhanced, 8 a DX4 or DX4 
@@ -278,6 +280,7 @@ information about how to install Allegro and link your program with it.
    IntelDX4, 14 is a Cyrix, and 15 is unknown.
 
 @@extern int @cpu_capabilities;
+@xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities
    Contains CPU flags indicating what features are available on the current 
    CPU. The flags can be any combination of these:
 
@@ -3853,7 +3856,7 @@ Polygon rendering
 
 @@void @polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@void @polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[]);
-@xref triangle3d, quad3d, polygon, clip3d, cpu_mmx, cpu_3dnow
+@xref triangle3d, quad3d, polygon, clip3d, cpu_capabilities
    Draw 3d polygons onto the specified bitmap, using the specified rendering 
    mode. Unlike the regular polygon() function, these routines don't support 
    concave or self-intersecting shapes, and they can't draw onto mode-X 
@@ -4000,10 +4003,10 @@ Polygon rendering
       Like POLYTYPE_ATEX_TRANS and POLYTYPE_PTEX_TRANS, but zero texture map 
       pixels are skipped.
 
-   If the cpu_mmx global variable is set, the GRGB and truecolor *LIT 
-   routines will be optimised using MMX instructions. If the cpu_3dnow 
-   global variable is set, the truecolor PTEX*LIT routines will take 
-   advantage of the 3DNow! CPU extensions.
+   If the CPU_MMX flag of the cpu_capabilities global variable is set, the 
+   GRGB and truecolor *LIT routines will be optimised using MMX 
+   instructions. If the CPU_3DNOW flag is set, the truecolor PTEX*LIT 
+   routines will take advantage of the 3DNow! CPU extensions.
 
    Using MMX for *LIT routines has a side effect: normally (without MMX), 
    these routines use the blender functions used also for other lighting 
@@ -4240,6 +4243,7 @@ have to clear the z-buffer at the start of the frame. Example:
 @@int @scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@int @scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[]);
 @xref create_scene, clear_scene, render_scene, destroy_scene, polygon3d
+@xref cpu_capabilities
    Puts a polygon in the rendering list. Nothing is really rendered at this
    moment. Should be called between clear_scene() and render_scene().
 
@@ -4259,9 +4263,9 @@ have to clear the z-buffer at the start of the frame. Example:
    also all the other related variables (color_map pointer, pattern pointer,
    anchor, blender values).
 
-   The settings of cpu_mmx and cpu_3dnow global variables on entry in this
-   routine affect the choice of low-level asm routine that will be used by
-   render_scene() for this polygon.
+   The settings of the CPU_MMX and CPU_3DNOW flags of the cpu_capabilities 
+   global variable on entry in this routine affect the choice of low-level 
+   asm routine that will be used by render_scene() for this polygon.
 
    Returns zero on success, or a negative number if it won't be rendered for
    lack of a rendering routine.
