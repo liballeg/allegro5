@@ -1,1 +1,5 @@
 asmcapa.h
+asmdef.s
+cpp-tested
+cpp-yes
+*.res
