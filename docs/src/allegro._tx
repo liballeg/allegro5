@@ -304,11 +304,10 @@ information about how to install Allegro and link your program with it.
 
 @@void @yield_timeslice();
 @xref vsync, d_yield_proc
-   To "play nice" with other processes you can call this function. On systems
-   that support it, it will give up the rest of the current scheduler
-   timeslice and offer it to some other process. Your CPU consumption rate
-   will drop *only* if there is another process ready to use the freed
-   timeslice.
+   Gives up some CPU time. This can be useful in order to "play nice"
+   with other processes, or simply to make the CPU usage drop. This will
+   look better to users, and also does things like saving battery power
+   and making fans less noisy.
 
    Note that calling this inside your active game loop is a very bad idea,
    you never know when the OS will give you the CPU back, so you could end up
@@ -8274,6 +8273,7 @@ still drawn too large until version 4.1.0.
    should return D_O_K, D_REDRAW, or D_CLOSE.
 
 @@int @d_yield_proc(int msg, DIALOG *d, int c);
+@xref yield_timeslice
 @eref exgui
    An invisible helper object that yields timeslices for the scheduler (if
    the system supports it) when the GUI has nothing to do but waiting for

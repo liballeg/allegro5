@@ -25,15 +25,7 @@
 #include "allegro.h"
 #include "allegro/platform/aintunix.h"
 
-#if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
-   /* ALLEGRO_USE_SCHED_YIELD is set by configure */
-   /* Manpages say systems providing sched_yield() define
-    * _POSIX_PRIORITY_SCHEDULING in unistd.h
-    */
-   #include <sched.h>
-#else
-   #include <sys/time.h>
-#endif
+#include <sys/time.h>
 
 #ifdef HAVE_SYS_UTSNAME_H
    #include <sys/utsname.h>
@@ -213,18 +205,10 @@ void _read_os_type()
  */
 void _unix_yield_timeslice(void)
 {
-   #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
-
-      sched_yield();
-
-   #else
-
-      struct timeval timeout;
-      timeout.tv_sec = 0;
-      timeout.tv_usec = 1;
-      select(0, NULL, NULL, NULL, &timeout);
-
-   #endif
+  struct timeval timeout;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 1;
+  select(0, NULL, NULL, NULL, &timeout);
 }
 
 

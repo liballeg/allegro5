@@ -427,7 +427,7 @@ static void sys_directx_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
  */
 static void sys_directx_yield_timeslice(void)
 {
-   Sleep(0);
+   Sleep(1);
 }
 
 

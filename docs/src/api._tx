@@ -108,6 +108,10 @@ Changes between 4.0.x and 4.2.x series
 <li>
    set_volume() doesn't use the hardware mixer anymore to alter the global
    volume. Use set_hardware_volume() instead to get the old behaviour.
+<li>
+   yield_timeslice() doesn't just yield anymore, but actually takes CPU
+   time away from the program, in order to enable Allegro programs to
+   use less than 100% of the available processor time.
 </ul>
 
 @heading

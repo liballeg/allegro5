@@ -546,20 +546,6 @@ LIBS="-lpthread $LIBS"
 allegro_cv_support_pthreads=yes))])
 
 dnl
-dnl Test where is sched_yield (SunOS).
-dnl
-dnl Variables:
-dnl  allegro_cv_support_sched_yield=(yes|)
-dnl
-dnl LIBS can be modified.
-dnl
-AC_DEFUN(ALLEGRO_ACTEST_SCHED_YIELD,
-[AC_CHECK_LIB(c, sched_yield,
-allegro_cv_support_sched_yield=yes,
-AC_SEARCH_LIBS(sched_yield, posix4 rt,
-allegro_cv_support_sched_yield=yes))])
-
-dnl
 dnl Test for constructor attribute support.
 dnl
 dnl Variables:
