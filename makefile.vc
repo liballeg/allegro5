@@ -305,14 +305,6 @@ $(OBJ_DIR)/%.obj: %.s
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
-demo/demo.exe: $(OBJ_DIR)/demo.obj tools/win/wfixicon.exe $(IMPLIB_NAME) $(RUNNER)
-ifneq ($(wildcard demo/demo.dat),)
-	$(RUNNER) tools\win\wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
-else
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(IMPLIB_NAME) $(LIBRARIES)
-endif
-
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:tests/win/dibsound.exe $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 

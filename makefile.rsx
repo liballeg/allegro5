@@ -145,14 +145,6 @@ $(OBJ_DIR)/%.o: %.c
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
-demo/demo.exe: $(OBJ_DIR)/demo.o tools/win/wfixicon.exe $(LIB_NAME)
-ifneq ($(wildcard demo/demo.dat),)
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-	$(RSXGCC) $(LFLAGS) -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(LIB_NAME) $(LIBRARIES)
-else
-	$(RSXGCC) $(LFLAGS) -o demo/demo.exe $(OBJ_DIR)/demo.o $(LIB_NAME) $(LIBRARIES)
-endif
-
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o $(OBJ_DIR)/dibsound.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o $(LIB_NAME) $(LIBRARIES)
 	rsrc $(OBJ_DIR)/dibsound.res tests/win/dibsound.exe
