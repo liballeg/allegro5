@@ -22,6 +22,7 @@ fi
 
 echo "Checking version number"
 	version=$(sed -n -e 's/shared_version = //p' $1/makefile.ver)
+	major_minor_version=$(sed -n -e 's/shared_major_minor = //p' $1/makefile.ver)
 
 libname=$1/lib/macosx/liballeg-${version}.dylib
 
@@ -158,7 +159,20 @@ mkdir -p /usr/local/lib
 if [ -f /usr/local/lib/liballeg-${version}.dylib ]; then
 	rm -f /usr/local/lib/liballeg-${version}.dylib
 fi
+if [ -f /usr/local/lib/liballeg-${major_minor_version}.dylib ]; then
+	rm -f /usr/local/lib/liballeg-${major_minor_version}.dylib
+fi
+if [ -f /usr/local/lib/liballeg-4.dylib ]; then
+	rm -f /usr/local/lib/liballeg-4.dylib
+fi
+if [ -f /usr/local/lib/liballeg.dylib ]; then
+	rm -f /usr/local/lib/liballeg.dylib
+fi
 ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg-${version}.dylib
+ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg-${major_minor_version}.dylib
+ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg-4.dylib
+ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg.dylib
+
 EOF
 sudo chmod a+x $postflight
 
