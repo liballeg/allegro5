@@ -201,7 +201,11 @@ int main(int argc, char *argv[])
 
    set_color_depth(bpp);
 
+#ifdef ALLEGRO_VRAM_SINGLE_SURFACE
+   if (set_gfx_mode(card, w, h, w, num_pages*h) != 0) {
+#else
    if (set_gfx_mode(card, w, h, 0, 0) != 0) {
+#endif
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting graphics mode\n%s\n", allegro_error);
       return 1;
