@@ -70,6 +70,7 @@ SCANLINE_DRAWER_GENERIC(generic_convert,
 					       getg_depth(spr_depth, c),
 					       getb_depth(spr_depth, c))))
 SCANLINE_DRAWER_GENERIC(generic,
+               ;
 			,
 			putpixel(bmp, l_bmp_x, bmp_y_i, c))
 
@@ -586,10 +587,10 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 		       l_spr_x_rounded, l_spr_y_rounded,
 		       spr_dx, spr_dy);
 
-	 /* I'm not going to apoligize for this label and its gotos: to get
-	    rid of it would just make the code look worse. */
-	 skip_draw:
       }
+      /* I'm not going to apoligize for this label and its gotos: to get
+         rid of it would just make the code look worse. */
+      skip_draw:
 
       /* Jump to next scanline. */
       bmp_y_i++;

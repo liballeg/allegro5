@@ -149,8 +149,7 @@ endif
 
 VPATH = src/win src/i386 src/misc tests/win
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
-		  $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) dllver $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
@@ -319,6 +318,9 @@ $(OBJ_DIR)/dibsound.res: tests/win/dibsound.rc
 
 $(OBJ_DIR)/scrsave.res: tests/win/scrsave.rc
 	rc -fo$(OBJ_DIR)/scrsave.res tests/win/scrsave.rc
+
+$(OBJ_DIR)/dllver.obj: src/win/dllver.rc
+	rc -i"include" -fo$(OBJ_DIR)/dllver.obj src/win/dllver.rc
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME) $(RUNNER)
 
