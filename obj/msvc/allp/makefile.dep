@@ -557,6 +557,7 @@ obj/msvc/allp/exxfade.obj: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almsvc.h \
  include/allegro/alinline.h include/allegro/al386vc.h \
  include/allegro/alwin.h
+obj/msvc/allp/exzbuf.obj: examples/exzbuf.c
 obj/msvc/allp/keyconf.obj: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almsvc.h \
  include/allegro/alinline.h include/allegro/al386vc.h \
@@ -724,5 +725,6 @@ obj/msvc/allp/ispr32.obj: src/i386/ispr32.s src/i386/asmdefs.inc obj/msvc/asmdef
  src/i386/sprite.inc
 obj/msvc/allp/ispr8.obj: src/i386/ispr8.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
  src/i386/sprite.inc
+obj/msvc/allp/izbuf.obj: src/i386/izbuf.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
 obj/msvc/allp/asmlock.obj: src/win/asmlock.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
 obj/msvc/allp/update.obj: src/win/update.s src/i386/asmdefs.inc obj/msvc/asmdef.inc

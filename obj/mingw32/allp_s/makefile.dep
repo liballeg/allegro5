@@ -60,7 +60,7 @@ obj/mingw32/allp_s/flood.o: src/flood.c include/allegro.h include/allegro/alconf
  include/allegro/aintern.h
 obj/mingw32/allp_s/fsel.o: src/fsel.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
- include/allegro/al386gcc.h include/allegro/alwin.h
+ include/allegro/al386gcc.h include/allegro/alwin.h include/winalleg.h
 obj/mingw32/allp_s/gfx.o: src/gfx.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h \
@@ -146,7 +146,8 @@ obj/mingw32/allp_s/quat.o: src/quat.c include/allegro.h include/allegro/alconfig
  include/allegro/al386gcc.h include/allegro/alwin.h
 obj/mingw32/allp_s/readbmp.o: src/readbmp.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
- include/allegro/al386gcc.h include/allegro/alwin.h
+ include/allegro/al386gcc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
 obj/mingw32/allp_s/rle.o: src/rle.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almngw32.h include/allegro/alinline.h \
  include/allegro/al386gcc.h include/allegro/alwin.h \
@@ -259,6 +260,11 @@ obj/mingw32/allp_s/wdispsw.o: src/win/wdispsw.c src/win/wddraw.h include/allegro
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h include/allegro/aintern.h \
  include/allegro/aintwin.h include/winalleg.h
+obj/mingw32/allp_s/wdsndmix.o: src/win/wdsndmix.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almngw32.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
 obj/mingw32/allp_s/wdsound.o: src/win/wdsound.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -310,11 +316,16 @@ obj/mingw32/allp_s/wsnddrv.o: src/win/wsnddrv.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h
-obj/mingw32/allp_s/wsystem.o: src/win/wsystem.c include/allegro.h \
+obj/mingw32/allp_s/wsndwo.o: src/win/wsndwo.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h include/allegro/aintern.h \
  include/allegro/aintwin.h include/winalleg.h
+obj/mingw32/allp_s/wsystem.o: src/win/wsystem.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almngw32.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h src/win/wddraw.h
 obj/mingw32/allp_s/wthread.o: src/win/wthread.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -546,6 +557,7 @@ obj/mingw32/allp_s/exxfade.o: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h
+obj/mingw32/allp_s/exzbuf.o: examples/exzbuf.c
 obj/mingw32/allp_s/keyconf.o: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -717,3 +729,7 @@ obj/mingw32/allp_s/ispr32.o: src/i386/ispr32.s src/i386/asmdefs.inc \
  obj/mingw32/asmdef.inc src/i386/sprite.inc
 obj/mingw32/allp_s/ispr8.o: src/i386/ispr8.s src/i386/asmdefs.inc obj/mingw32/asmdef.inc \
  src/i386/sprite.inc
+obj/mingw32/allp_s/izbuf.o: src/i386/izbuf.s src/i386/asmdefs.inc obj/mingw32/asmdef.inc
+obj/mingw32/allp_s/asmlock.o: src/win/asmlock.s src/i386/asmdefs.inc \
+ obj/mingw32/asmdef.inc
+obj/mingw32/allp_s/update.o: src/win/update.s src/i386/asmdefs.inc obj/mingw32/asmdef.inc

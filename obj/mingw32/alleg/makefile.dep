@@ -557,6 +557,7 @@ obj/mingw32/alleg/exxfade.o: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h
+obj/mingw32/alleg/exzbuf.o: examples/exzbuf.c
 obj/mingw32/alleg/keyconf.o: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -728,6 +729,7 @@ obj/mingw32/alleg/ispr32.o: src/i386/ispr32.s src/i386/asmdefs.inc \
  obj/mingw32/asmdef.inc src/i386/sprite.inc
 obj/mingw32/alleg/ispr8.o: src/i386/ispr8.s src/i386/asmdefs.inc obj/mingw32/asmdef.inc \
  src/i386/sprite.inc
+obj/mingw32/alleg/izbuf.o: src/i386/izbuf.s src/i386/asmdefs.inc obj/mingw32/asmdef.inc
 obj/mingw32/alleg/asmlock.o: src/win/asmlock.s src/i386/asmdefs.inc \
  obj/mingw32/asmdef.inc
 obj/mingw32/alleg/update.o: src/win/update.s src/i386/asmdefs.inc obj/mingw32/asmdef.inc

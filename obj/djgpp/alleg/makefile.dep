@@ -589,6 +589,7 @@ obj/djgpp/alleg/exxfade.o: examples/exxfade.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/aldjgpp.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/aldos.h
+obj/djgpp/alleg/exzbuf.o: examples/exzbuf.c
 obj/djgpp/alleg/keyconf.o: setup/keyconf.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/aldjgpp.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -746,6 +747,7 @@ obj/djgpp/alleg/ispr32.o: src/i386/ispr32.s src/i386/asmdefs.inc obj/djgpp/asmde
  src/i386/sprite.inc
 obj/djgpp/alleg/ispr8.o: src/i386/ispr8.s src/i386/asmdefs.inc obj/djgpp/asmdef.inc \
  src/i386/sprite.inc
+obj/djgpp/alleg/izbuf.o: src/i386/izbuf.s src/i386/asmdefs.inc obj/djgpp/asmdef.inc
 obj/djgpp/alleg/djirqs.o: src/dos/djirqs.s src/dos/../i386/asmdefs.inc \
  obj/djgpp/asmdef.inc
 obj/djgpp/alleg/gripfnc.o: src/dos/gripfnc.s src/dos/../i386/asmdefs.inc \
