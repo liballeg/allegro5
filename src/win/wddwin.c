@@ -83,7 +83,7 @@ static WIN_GFX_DRIVER win_gfx_driver_windowed =
    NULL,                        // AL_METHOD(void, switch_out, (void));
    handle_window_enter_sysmode_win,
    handle_window_exit_sysmode_win,
-   handle_window_move_win,
+   NULL,   // handle_window_move_win causes a crash on fast machines
    NULL,                        // AL_METHOD(void, iconify, (void));
    NULL,                        // AL_METHOD(void, paint, (RECT *));
 };
