@@ -25,7 +25,9 @@
 
 /* include platform-specific stuff */
 #ifndef SCAN_EXPORT
-   #include "allegro/alplatf.h"
+   #ifndef SCAN_DEPEND
+      #include "allegro/alplatf.h"
+   #endif
 
    #if defined ALLEGRO_DJGPP
       #include "aldjgpp.h"

@@ -20,7 +20,9 @@
 #define ASMDEFS_INC
 
 
-#include "allegro/alplatf.h"
+#ifndef SCAN_DEPEND
+   #include "allegro/alplatf.h"
+#endif
 
 
 #if defined ALLEGRO_MINGW32

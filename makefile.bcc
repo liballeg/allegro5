@@ -225,7 +225,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32
 
 depend:
 	gcc $(DEPEND_PARMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp

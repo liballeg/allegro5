@@ -192,7 +192,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp

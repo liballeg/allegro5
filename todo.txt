@@ -67,6 +67,7 @@ Macintosh todos:
 - Update the docs.
 - Window close button?
 - fix script must write #define ALLEGRO_MPW into include/allegro/alplatf.h
+  and define the symbol ALLEGRO_MPW during make depend.
 
 BeOS todos:
 ---------------------------------------------------------------------------

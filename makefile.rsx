@@ -177,7 +177,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_RSXNT
 
 depend:
 	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp

@@ -426,7 +426,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_DJGPP
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/c/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
