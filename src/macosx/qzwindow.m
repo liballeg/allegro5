@@ -435,6 +435,7 @@ static BITMAP *private_osx_qz_window_init(int w, int h, int v_w, int v_h, int co
    
    osx_keyboard_focused(FALSE, 0);
    osx_gfx_mode = OSX_GFX_WINDOW;
+   osx_skip_mouse_move = TRUE;
    
    return pseudo_screen;
 }

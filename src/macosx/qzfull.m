@@ -183,6 +183,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    
    osx_keyboard_focused(FALSE, 0);
    osx_gfx_mode = OSX_GFX_FULL;
+   osx_skip_mouse_move = TRUE;
    
    return bmp;
 }

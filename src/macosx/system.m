@@ -330,8 +330,14 @@ void osx_event_handler()
          dx = dy = 0;
          osx_mouse_warped = FALSE;
       }
-      else if (dx || dy || dz)
-         osx_mouse_handler(dx, dy, dz, buttons);
+      else {
+	 if (dx || dy || dz) {
+            if (osx_skip_mouse_move)
+	       osx_skip_mouse_move = FALSE;
+	    else
+               osx_mouse_handler(dx, dy, dz, buttons);
+	 }
+      }
    }
 }
 

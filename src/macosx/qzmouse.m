@@ -52,6 +52,7 @@ MOUSE_DRIVER mouse_macosx =
 
 /* global variable */
 int osx_mouse_warped = FALSE;
+int osx_skip_mouse_move = FALSE;
 NSTrackingRectTag osx_mouse_tracking_rect = -1;
 
 
@@ -202,6 +203,7 @@ static void osx_mouse_position(int x, int y)
 {
    CGPoint point;
    NSRect frame;
+   int screen_height;
    
    pthread_mutex_lock(&osx_event_mutex);
    
@@ -209,9 +211,10 @@ static void osx_mouse_position(int x, int y)
    _mouse_y = point.y = y;
    
    if (osx_gfx_mode == OSX_GFX_WINDOW) {
+      CFNumberGetValue(CFDictionaryGetValue(CGDisplayCurrentMode(kCGDirectMainDisplay), kCGDisplayHeight), kCFNumberSInt32Type, &screen_height);
       frame = [osx_window frame];
       point.x += frame.origin.x;
-      point.y += frame.origin.y - frame.size.height;
+      point.y += (screen_height - (frame.origin.y + gfx_quartz_window.h));
    }
    
    CGDisplayMoveCursorToPoint(kCGDirectMainDisplay, point);
