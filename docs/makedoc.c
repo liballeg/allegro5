@@ -122,7 +122,7 @@ int myisalnum(int c)
    return (((c >= '0') && (c <= '9')) ||
 	   ((c >= 'A') && (c <= 'Z')) ||
 	   ((c >= 'a') && (c <= 'z')) ||
-	   (c >= 0x80));
+	   (c >= 0x80) || (c < 0));
 }
 
 
@@ -158,6 +158,8 @@ void set_locale(char *l)
    strcpy(locale, l);
 
    if (mystricmp(l, "china") == 0)
+      dos_codepage = 0;
+   else if (mystricmp(l, "korea") == 0)
       dos_codepage = 0;
 }
 
@@ -1628,6 +1630,11 @@ int write_rtf(char *filename)
       fputs("{\\fonttbl{\\f0\\froman\\fcharset134\\fprq2 _GB2312;}\n", f);
       fputs("{\\f1\\fmodern\\fcharset134\\fprq1 ;}\n", f);
       fputs("{\\f2\\froman\\fcharset134\\fprq2 ;}}\n", f);
+   }
+   else if (mystricmp(locale, "korea") == 0) {
+      fputs("{\\fonttbl{\\f0\\froman\\fcharset129\\fprq2 ±¼¸²;}\n", f);
+      fputs("{\\f1\\fmodern\\fcharset129\\fprq1 ;}\n", f);
+      fputs("{\\f2\\froman\\fcharset129\\fprq2 ;}}\n", f);
    }
    else {
       fputs("{\\fonttbl{\\f0\\froman\\fcharset0\\fprq2 Times New Roman;}\n", f);
