@@ -158,16 +158,35 @@ static int in_to_rel(AL_CONST AXIS *axis, int v)
 
 
 
+/* set_value:
+ *  updates fields in an axis, depending on the mouse position on the screen
+ */
+static void set_value(AXIS *axis, int out_abs)
+{
+   if (current_tool->mode == MODE_ABSOLUTE) {
+      axis->in_abs = screen_to_in(axis, out_abs);
+   }
+   else {
+      axis->in_abs += (axis->out_abs-out_abs) * axis->speed;
+   }
+   axis->out_abs = out_abs;
+   axis->mickeys = 0;
+}
+
+
+
 /* rel_event:
  *  returns the new screen position, given the input relative one.
  *  The tool mode is always relative
  */
-int rel_event(AXIS *axis, int v)
+static int rel_event(AXIS *axis, int v)
 {
    /* When input only send relative events, the mode is always relative */
    int rel = in_to_rel(axis, v);
+   int ret = axis->out_abs + rel;
    axis->mickeys += rel;
-   return axis->out_abs + rel;
+   axis->in_abs += v;
+   return ret;
 }
 
 
@@ -176,7 +195,7 @@ int rel_event(AXIS *axis, int v)
  *  returns the new screen position, given the input absolute one,
  *  and depending on the tool mode
  */
-int abs_event(AXIS *axis, MODE mode, int v)
+static int abs_event(AXIS *axis, MODE mode, int v)
 {
    if (mode == MODE_ABSOLUTE) {
       axis->mickeys = 0; /* No mickeys in absolute mode */
@@ -184,11 +203,7 @@ int abs_event(AXIS *axis, MODE mode, int v)
       return in_to_screen(axis, v);
    }
    else {
-      int rel = in_to_rel(axis, v-axis->in_abs);
-      int ret = axis->out_abs + rel;
-      axis->mickeys += rel;
-      axis->in_abs = v;
-      return ret;
+      return rel_event(axis, v-axis->in_abs);
    }
 }
 
@@ -209,9 +224,9 @@ static void get_axis_value(int fd, AXIS *axis, int type)
 
 
 /* The three axis: horizontal, vertical and wheel */
-AXIS x_axis;
-AXIS y_axis;
-AXIS z_axis;
+static AXIS x_axis;
+static AXIS y_axis;
+static AXIS z_axis;
 
 
 /*
@@ -581,14 +596,10 @@ static void mouse_exit (void)
  */
 static void mouse_position(int x, int y)
 {
-   x_axis.out_abs = x;
-   y_axis.out_abs = y;
-   x_axis.in_abs = screen_to_in(&x_axis, x);
-   y_axis.in_abs = screen_to_in(&y_axis, y);
-   x_axis.mickeys = 0;
-   y_axis.mickeys = 0;
-
    DISABLE();
+
+   set_value(&x_axis, x);
+   set_value(&y_axis, y);
 
    _mouse_x = x;
    _mouse_y = y;
@@ -631,10 +642,8 @@ static void mouse_set_speed(int speedx, int speedy)
    x_axis.speed = MAX(1, (scale * MAX(1, speedx))/2);
    y_axis.speed = MAX(1, (scale * MAX(1, speedy))/2);
 
-   if (current_tool->mode == MODE_RELATIVE) {
-     x_axis.in_abs = screen_to_in(&x_axis, _mouse_x);
-     y_axis.in_abs = screen_to_in(&y_axis, _mouse_y);
-   }
+   set_value(&x_axis, _mouse_x);
+   set_value(&y_axis, _mouse_y);
 
    ENABLE();
 }
