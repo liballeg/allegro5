@@ -3933,19 +3933,25 @@ bitmap.
 @@void @draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
 @xref draw_lit_rle_sprite, color_map, set_trans_blender, bitmap_mask_color
-   Tints the sprite image to the specified color or light level, using the 
-   global color_map table, and draws the resulting image to the destination 
-   bitmap. This must only be used after you have set up the color mapping 
-   table (for 256 color modes) or blender functions (for truecolor modes).
+   In 256 color modes, use the global color_map table to tint the sprite
+   image to the specified color or to light it to the level specified by
+   'color', depending on the function which was used to build the table
+   (create_trans_table or create_light_table), and draws the resulting image
+   to the destination bitmap. In truecolor modes, use the blender functions
+   to light the sprite image using the alpha level specified by 'color' (the
+   alpha level which was passed to the blender functions is ignored) and
+   draws the resulting image to the destination bitmap. The 'color' parameter
+   must be in the range [0-255] whatever its actual meaning is. This must
+   only be used after you have set up the color mapping table (for 256 color
+   modes) or blender functions (for truecolor modes).
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                         int c1, int c2, int c3, int c4);
 @xref draw_sprite, draw_lit_sprite, color_map, set_trans_blender
 @xref bitmap_mask_color
-   Tints the sprite to the specified color or light level, interpolating the 
-   four corner colors across the surface of the image. This must only be 
-   used after you have set up the color mapping table (for 256 color modes) 
-   or blender functions (for truecolor modes).
+   More sophisticated version of draw_lit_sprite(): the 'color' parameter is
+   not constant across the sprite image anymore but interpolated between the
+   four specified corner colors, which have the same actual meaning as it.
 
 @\void @draw_character_ex(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                       color, bg);
