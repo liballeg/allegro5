@@ -49,4 +49,4 @@ echo "    allegro_icon = allegico_xpm;" >> $outfile
 echo "}" >> $outfile
 echo "#endif" >> $outfile
 
-#rm /tmp/allegico_xpm.xpm
+rm /tmp/allegico_xpm.xpm
