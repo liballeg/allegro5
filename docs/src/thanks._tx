@@ -78,6 +78,9 @@ Contributors
    Arne Steinarson (<email>arst@ludd.luth.se</a>).<br>
    The fixed point square root routine came from his fix-float library.
 
+   Attila Szilagyi (<email>attilabox@hotmail.com</a>).<br>
+   Fixed SVGAlib horizontal scrolling.
+
    Ben Chauveau (<email>bendomc@worldnet.fr</a>).<br>
    Added support for Tseng ET6000 cards (now available as part of the 
    FreeBE/AF project).
@@ -179,6 +182,7 @@ Contributors
 
    Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
    Added a COLORCONV_KEEP_TRANS mode. Contributed the wfixicon utility.
+   Contributed several enhancements to the grabber. 
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -295,7 +299,8 @@ Contributors
    set_window_title(), added close button hook support and improved
    switching in Windows, fixed bad clearing of subbitmaps, and made bug
    reports and suggestions for improvement. Contributed bidirectional
-   looping and backward playing support for the DirectSound driver.
+   looping and backward playing support for the DirectSound driver. Fixed
+   a latency problem with audiostreams.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -541,6 +546,9 @@ Contributors
    Richard Mitton (<email>100740.1271@compuserve.com</a>).<br>
    Added support for 6-button joysticks, and wrote the 12-bit color example 
    program (ex12bit.c).
+
+   Richard Reeve (<email>r.e.reeve@stir.ac.uk</a>).<br>
+   Fixed a silly mistake with gcc 3.0.x detection.
 
    Robert J. Ragno (<email>rjr@mit.edu</a>).<br>
    Wrote the Gravis GrIP driver, and made some improvements to the Wingman, 

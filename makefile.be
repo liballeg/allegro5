@@ -100,7 +100,7 @@ endif
 
 # -------- list which platform specific objects to include --------
 
-VPATH = src/beos src/i386 src/misc tools/beos
+VPATH = src/beos src/i386 src/misc src/unix tools/beos
 
 LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
 
@@ -311,7 +311,7 @@ fixdemo: demo/demo demo/demo.dat tools/beos/bfixicon
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c src/unix/*.c demo/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c >> _depend.tmp
 	gcc $(DEPEND_PARAMS) tools/beos/*.cpp tools/plugins/*.c >> _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
@@ -320,4 +320,3 @@ depend:
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alld\/\1/" _depend2.tmp > obj/beos/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/allp\/\1/" _depend2.tmp > obj/beos/allp/makefile.dep
 	rm _depend.tmp _depend2.tmp
-

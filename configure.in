@@ -382,6 +382,7 @@ case "$allegro_system" in
     AC_CHECK_HEADERS(sys/io.h linux/joystick.h)
 
     if test "$allegro_enable_vga" = yes; then
+      allegro_support_vga=yes
       AC_DEFINE(ALLEGRO_LINUX_VGA)
     fi
 
@@ -408,7 +409,7 @@ case "$allegro_system" in
 	  fi
           AC_MSG_CHECKING(for vga_version in vga.h)
           AC_CACHE_VAL(allegro_cv_have_vga_version,
-          [AC_TRY_COMPILE([#include <vga.h>], [int x = vga_version;],
+          [AC_TRY_COMPILE([#include <vga.h>], [int x = vga_version; x++;],
             allegro_cv_have_vga_version=yes,
             allegro_cv_have_vga_version=no)])
           AC_MSG_RESULT($allegro_cv_have_vga_version)
@@ -434,7 +435,7 @@ dnl Modules.
 if test -n "$allegro_support_modules"; then
 
   dnl VGA/ModeX.
-  if test "X$allegro_enable_vga" = "Xyes"; then
+  if test "X$allegro_support_vga" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-vga.so"
   fi
 

@@ -7825,9 +7825,10 @@ you must include winalleg.h after other Allegro headers.
    installing the autodetected system driver (SYSTEM_AUTODETECT). It lets
    you attach Allegro to any already existing window and prevents the
    library from creating its own, thus leaving you total control over the
-   window (in particular, you are responsible for processing the events).
-   You can then use every component of the library (mouse, keyboard,
-   sound, timers and so on) except the graphics subsystem.
+   window; in particular, you are responsible for processing the events as
+   usual (Allegro will automatically monitor a few of them, but will not
+   filter out any of them). You can then use every component of the library 
+   (mouse, keyboard, sound, timers and so on) except the graphics subsystem.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
    Registers an user-defined procedure to be used by Allegro for creating
