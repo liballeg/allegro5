@@ -33,8 +33,10 @@
 #include <linux/joystick.h>
 
 
+#define TOTAL_JOYSTICK_AXES	(MAX_JOYSTICK_STICKS * MAX_JOYSTICK_AXIS)
+
 static int joy_fd[MAX_JOYSTICKS];
-static JOYSTICK_AXIS_INFO *axis[MAX_JOYSTICKS][8];
+static JOYSTICK_AXIS_INFO *axis[MAX_JOYSTICKS][TOTAL_JOYSTICK_AXES];
 
 
 static int joy_init (void)
@@ -58,8 +60,8 @@ static int joy_init (void)
 		ioctl (joy_fd[i], JSIOCGAXES, &num_axes);
 		ioctl (joy_fd[i], JSIOCGBUTTONS, &num_buttons);
 
-		if (num_axes > 8) num_axes = 8;
-		if (num_buttons > 8) num_buttons = 8;
+		if (num_axes > TOTAL_JOYSTICK_AXES) num_axes = TOTAL_JOYSTICK_AXES;
+		if (num_buttons > MAX_JOYSTICK_BUTTONS) num_buttons = MAX_JOYSTICK_BUTTONS;
 
 		/* User is allow to override our simple assumption of which
 		 * axis number (kernel) the throttle is located at. */
@@ -148,10 +150,10 @@ static int joy_poll (void)
 		if (ready <= 0) continue;
 		read (joy_fd[i], &e, sizeof e);
 		if (e.type & JS_EVENT_BUTTON) {
-			if (e.number < 8)
+			if (e.number < MAX_JOYSTICK_BUTTONS)
 				joy[i].button[e.number].b = e.value;
 		} else if (e.type & JS_EVENT_AXIS) {
-			if (e.number < 8) 
+			if (e.number < TOTAL_JOYSTICK_AXES)
 				set_axis (axis[i][e.number], e.value);
 		}
 	}
