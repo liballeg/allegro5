@@ -144,7 +144,7 @@ Part 3 - when your program crashes
    should start out by assuming that it is a case of operator error and 
    double-check exactly what you are passing to the Allegro function.
 
-@hnode Crashes under Linux/Unix
+@hnode crashes under Linux/Unix
    When your Allegro compiled Linux/Unix program crashes, you will usually
    get a not very meaningful message along with a core dump:
 <textblock>
