@@ -195,15 +195,6 @@ static BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_V
    if (!b)
       return NULL;
 
-   _gfx_bank = realloc(_gfx_bank, h * sizeof(int));
-   if (!_gfx_bank) {
-      free(b);
-      return NULL;
-   }
-
-   LOCK_DATA(b, size);
-   LOCK_DATA(_gfx_bank, h * sizeof(int));
-
    b->w = b->cr = w;
    b->h = b->cb = h;
    b->clip = TRUE;
@@ -217,15 +208,10 @@ static BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_V
    b->y_ofs = 0;
    b->seg = _video_ds();
 
-   _last_bank_1 = _last_bank_2 = -1;
-
    b->line[0] = (char *)addr;
-   _gfx_bank[0] = 0;
 
-   for (i = 1; i < h; i++) {
+   for (i = 1; i < h; i++)
       b->line[i] = b->line[i - 1] + bpl;
-      _gfx_bank[i] = 0;
-   }
 
    return b;
 }
