@@ -14,6 +14,9 @@
  *
  *      Mucked about with until it works better by Paul Hampson.
  *
+ *      Lower CPU usage by Paul Hampson, based on the Linux implementation
+ *      by Vojtech Pavlik.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -29,11 +32,12 @@
 #define LPT1_BASE 0x378
 #define LPT2_BASE 0x278
 #define LPT3_BASE 0x3bc
-#define SNES_POWER 248
-#define SNES_CLOCK 1
-#define SNES_LATCH 2
-
-
+#define SNES_POWER  248
+#define SNES_CLOCK    1
+#define SNES_LATCH    2
+#define SNES_BUTTONS 12  /* actually 16, but the last 4 aren't
+                          * connected in a real SNESpad
+                          */
 
 /* driver functions */
 static int sp_init(void);
@@ -90,12 +94,12 @@ JOYSTICK_DRIVER joystick_sp3 =
 /* sp_init:
  *  Initialises the driver.
  */
-static int sp_init()
+static int sp_init(void)
 {
    int i;
 
    /* can't autodetect this... */
-   num_joysticks = 4;
+   num_joysticks = 5;
 
    for (i=0; i<num_joysticks; i++) {
       joy[i].flags = JOYFLAG_DIGITAL;
@@ -127,7 +131,7 @@ static int sp_init()
 /* sp_exit:
  *  Shuts down the driver.
  */
-static void sp_exit()
+static void sp_exit(void)
 {
 }
 
@@ -138,56 +142,43 @@ static void sp_exit()
  */
 static int sp_poll(int base)
 {
-   int i, b, snes_in;
+   static const int snes_in[] = {0x40, 0x20, 0x10, 0x08, 0x80};
+   int buttondata[SNES_BUTTONS];
+   int i, b;
+
+   /* read bits from all the SNESpads in parallel */
+   for (i = 0; i < SNES_BUTTONS; i++) {
+      outportb(base, SNES_POWER);
+
+      if (i == 0)
+         outportb(base, SNES_POWER + SNES_LATCH + SNES_CLOCK);
+      else
+         outportb(base, SNES_POWER + SNES_CLOCK);
+
+      outportb(base, SNES_POWER);
+
+      /* last LPT line (0x80) is inverted compared to the others */
+      buttondata[i] = (inportb(base + 1) ^ 0x80);
+   }
+
+   outportb(base, 0);
 
    for (i=0; i<num_joysticks; i++) {
-      /* which pad? */
-      snes_in = (1 << (6 - i));
 
       /* get b button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_LATCH + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[0].b = ((inportb(base + 1) & snes_in) == 0);
-
+      joy[i].button[0].b = ((buttondata[0] & snes_in[i]) == 0);
       /* get y button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[1].b = ((inportb(base + 1) & snes_in) == 0);
-
+      joy[i].button[1].b = ((buttondata[1] & snes_in[i]) == 0);
       /* get select button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[4].b = ((inportb(base + 1) & snes_in) == 0);
-
+      joy[i].button[4].b = ((buttondata[2] & snes_in[i]) == 0);
       /* get start button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[5].b = ((inportb(base + 1) & snes_in) == 0);
+      joy[i].button[5].b = ((buttondata[3] & snes_in[i]) == 0);
 
       /* now, do the direction */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].stick[0].axis[1].d1 = ((inportb(base + 1) & snes_in) == 0);
-
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].stick[0].axis[1].d2 = ((inportb(base + 1) & snes_in) == 0);
-
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].stick[0].axis[0].d1 = ((inportb(base + 1) & snes_in) == 0);
-
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].stick[0].axis[0].d2 = ((inportb(base + 1) & snes_in) == 0);
+      joy[i].stick[0].axis[1].d1 = ((buttondata[4] & snes_in[i]) == 0);
+      joy[i].stick[0].axis[1].d2 = ((buttondata[5] & snes_in[i]) == 0);
+      joy[i].stick[0].axis[0].d1 = ((buttondata[6] & snes_in[i]) == 0);
+      joy[i].stick[0].axis[0].d2 = ((buttondata[7] & snes_in[i]) == 0);
 
       for (b=0; b<2; b++) {
 	 if (joy[i].stick[0].axis[b].d1)
@@ -199,30 +190,14 @@ static int sp_poll(int base)
       }
 
       /* get a button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[2].b = ((inportb(base + 1) & snes_in) == 0);
-
+      joy[i].button[2].b = ((buttondata[8] & snes_in[i]) == 0);
       /* get x button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[3].b = ((inportb(base + 1) & snes_in) == 0);
-
+      joy[i].button[3].b = ((buttondata[9] & snes_in[i]) == 0);
       /* get l button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[6].b = ((inportb(base + 1) & snes_in) == 0);
-
+      joy[i].button[6].b = ((buttondata[10] & snes_in[i]) == 0);
       /* get r button */
-      outportb(base, SNES_POWER);
-      outportb(base, SNES_POWER + SNES_CLOCK);
-      outportb(base, SNES_POWER);
-      joy[i].button[7].b = ((inportb(base + 1) & snes_in) == 0);
+      joy[i].button[7].b = ((buttondata[11] & snes_in[i]) == 0);
 
-      outportb(base, 0);
    }
 
    return 0;
@@ -233,7 +208,7 @@ static int sp_poll(int base)
 /* sp1_poll:
  *  LPT1 - Updates the joystick status variables.
  */
-static int sp1_poll()
+static int sp1_poll(void)
 {
    return sp_poll(LPT1_BASE);
 }
@@ -243,7 +218,7 @@ static int sp1_poll()
 /* sp2_poll:
  *  LPT2 - Updates the joystick status variables.
  */
-static int sp2_poll()
+static int sp2_poll(void)
 {
    return sp_poll(LPT2_BASE);
 }
@@ -253,7 +228,7 @@ static int sp2_poll()
 /* sp3_poll:
  *  LPT3 - Updates the joystick status variables.
  */
-static int sp3_poll()
+static int sp3_poll(void)
 {
    return sp_poll(LPT3_BASE);
 }
