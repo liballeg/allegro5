@@ -37,9 +37,6 @@ static int command, data_pos, data_buffer[2];
 static char driver_desc[256];
 
 
-NoteAllocator osx_note_allocator = NULL;
-
-
 MIDI_DRIVER midi_core_audio =
 {
    MIDI_CORE_AUDIO,         /* driver ID code */
@@ -83,9 +80,21 @@ static int ca_detect(int input)
 
 static int ca_init(int input, int voices)
 {
-   char tmp[128];
+   char tmp[128], tmp1[128], tmp2[128];
+   char *sound = uconvert_ascii("sound", tmp);
    ComponentDescription desc;
    AUNode synth_node, output_node;
+   UInt32 quality, reverb_type;
+   int reverb;
+   struct {
+      UInt32 type;
+      char *name;
+   } reverb_info[6] = { { kReverbRoomType_SmallRoom, "small room" },
+                        { kReverbRoomType_MediumRoom, "medium room" },
+		        { kReverbRoomType_LargeRoom, "large room" },
+		        { kReverbRoomType_MediumHall, "medium hall" },
+		        { kReverbRoomType_LargeHall, "large hall" },
+		        { kReverbRoomType_Plate, "plate" } };
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
@@ -119,9 +128,18 @@ static int ca_init(int input, int voices)
 
    AUGraphGetNodeInfo(graph, synth_node, NULL, NULL, NULL, &synth_unit);
 
+   quality = MID(0, get_config_int(sound, uconvert_ascii("ca_midi_quality", tmp), 127), 127);
+   AudioUnitSetProperty(synth_unit, kAudioUnitProperty_RenderQuality, kAudioUnitScope_Output, 0, &quality, sizeof(quality));
+   
+   reverb = MID(0, get_config_int(sound, uconvert_ascii("ca_midi_reverb", tmp), 0), 5);
+   reverb_type = reverb_info[reverb].type;
+   AudioUnitSetProperty(synth_unit, kAudioUnitProperty_ReverbRoomType, kAudioUnitScope_Output, 0, &reverb_type, sizeof(reverb_type));
+
    AUGraphStart(graph);
    
-   uszprintf(driver_desc, sizeof(driver_desc),  uconvert_ascii("CoreAudio MIDI software synthesizer", tmp));
+   uszprintf(driver_desc, sizeof(driver_desc),  uconvert_ascii("DLSMusicDevice unit, %s quality, %s reverb", tmp),
+      (quality < 32 ? uconvert_ascii("low", tmp1) : (quality >= 96 ? uconvert_ascii("high", tmp1) : uconvert_ascii("medium", tmp1))),
+      uconvert_ascii(reverb_info[reverb].name, tmp2));
    midi_core_audio.desc = driver_desc;
 
    command = -1;

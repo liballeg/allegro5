@@ -245,6 +245,11 @@ static PARAMETER parameters[] =
    { "be_midi_interpolation",param_int,   "",      "0",        NULL,             "Intrp:",   NULL,       NULL,    "BeOS MIDI sample interpolation method (0 = none, 1 = fast linear, 2 = linear)" },
    { "be_midi_reverb",     param_int,     "",      "0",        NULL,             "Revrb:",   NULL,       NULL,    "BeOS MIDI reverberation intensity (0 to 5)" },
  #endif
+ 
+ #ifdef MIDI_CORE_AUDIO
+   { "ca_midi_quality",    param_int,     "",      "127",      NULL,             "Qual:",    NULL,       NULL,    "CoreAudio MIDI synthetizer render quality (0 = low, 127 = high)" },
+   { "ca_midi_reverb",     param_int,     "",      "0",        NULL,             "Revrb:",   NULL,       NULL,    "CoreAudio MIDI reverberation intensity (0 to 5)" },
+ #endif
 
  #ifdef MIDI_DIGMID
    { "patches",            param_file,    "",      "",         NULL,             "Patches:", "CFG;DAT",  NULL,    "MIDI patch set (GUS format default.cfg or Allegro format patches.dat)" },
@@ -565,6 +570,16 @@ static void find_sound_drivers(void)
 	    static char *param[] = {"be_midi_quality", "be_midi_interpolation", "be_midi_reverb", "be_midi_freq", "midi_volume", NULL};
 	    midi_cards[c].param = uconvert_static_string_array(param);
 	    midi_cards[c].desc = uconvert_static_string("BeOS MIDI");
+	    break;
+	 }
+       #endif
+
+       #ifdef MIDI_CORE_AUDIO
+	 case MIDI_CORE_AUDIO:
+	 {
+	    static char *param[] = {"22", "ca_midi_quality", "ca_midi_reverb", "", "midi_volume", NULL};
+	    midi_cards[c].param = uconvert_static_string_array(param);
+	    midi_cards[c].desc = uconvert_static_string("CoreAudio MIDI synthesizer");
 	    break;
 	 }
        #endif

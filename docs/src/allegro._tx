@@ -2001,6 +2001,14 @@ be_midi_reverb = x<br>
    BeOS only: reverberation intensity, from 0 to 5. 0 disables it, 5 is the
    strongest one.
 <li>
+ca_midi_quality = x<br>
+   MacOS X only: CoreAudio MIDI synthesizer rendering quality, from 0 to 127.
+   Higher qualities sound better but increase the CPU work load.
+<li>
+ca_midi_reverb = x<br>
+   MacOS X only: CoreAudio MIDI synthesizer reverberation intensity, from 0
+   to 5. 0 equals to a small room (low reverb), 5 to a plate (high reverb).
+<li>
 patches = x<br>
    Specifies where to find the sample set for the DIGMID driver. This can 
    either be a Gravis style directory containing a collection of .pat files 
