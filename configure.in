@@ -90,6 +90,7 @@ test "X$enableval" != "Xno" && allegro_strict_warnings=yes)
 dnl Check for tools.
 AC_PROG_CC
 AC_PROG_CPP
+ALLEGRO_ACTEST_PROG_LD_S
 AC_PROG_RANLIB
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
@@ -184,7 +185,9 @@ elif test "X$allegro_build_profiling_programs" = "Xyes"; then
 else
   COMPILE_PROGRAM=COMPILE_NORMAL
   COMPILE_S_PROGRAM=COMPILE_S_NORMAL
-  LDFLAGS="-s $LDFLAGS"
+  if test "X$allegro_cv_prog_ld_s" = "Xyes"; then
+    LDFLAGS="-s $LDFLAGS"
+  fi
   LIB_TO_LINK=alleg
   PLUGIN_LIB=lib/unix/libaldat.a
   allegro_build_normal_library=yes
