@@ -69,6 +69,7 @@ static UINT msg_unacquire_keyboard = 0;
 static UINT msg_acquire_mouse = 0;
 static UINT msg_unacquire_mouse = 0;
 static UINT msg_set_syscursor = 0;
+static UINT msg_suicide = 0;
 
 
 
@@ -201,6 +202,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_set_syscursor)
       return mouse_set_syscursor(wparam);
+
+   if (message == msg_suicide) {
+      DestroyWindow(wnd);
+      return 0;
+   }
 
    switch (message) {
 
@@ -458,6 +464,7 @@ int init_directx_window(void)
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
    msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
    msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
+   msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
    /* prepare window for Allegro */
    if (user_wnd) {
@@ -512,12 +519,10 @@ void exit_directx_window(void)
       user_wnd_proc = NULL;
    }
    else {
-      /* destroy the window: since we cannot use DestroyWindow()
-       * because we are on a different thread, we "emulate" it
-       * by sending the msgs it sends
+      /* destroy the window: we cannot directly use DestroyWindow()
+       * because we are not running in the same thread as that of the window.
        */
-      PostMessage(allegro_wnd, WM_DESTROY, 0, 0);
-      PostMessage(allegro_wnd, WM_NCDESTROY, 0, 0);
+      PostMessage(allegro_wnd, msg_suicide, 0, 0);
 
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
