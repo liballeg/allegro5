@@ -69,7 +69,7 @@ static int joy_init (void)
 		if (num_axes > TOTAL_JOYSTICK_AXES) num_axes = TOTAL_JOYSTICK_AXES;
 		if (num_buttons > MAX_JOYSTICK_BUTTONS) num_buttons = MAX_JOYSTICK_BUTTONS;
 
-		/* User is allow to override our simple assumption of which
+		/* User is allowed to override our simple assumption of which
 		 * axis number (kernel) the throttle is located at. */
 		uszprintf(tmp, sizeof(tmp), uconvert_ascii("throttle_axis_%d", tmp1), i);
 		throttle = get_config_int(uconvert_ascii("joystick", tmp1), tmp, -1);
@@ -91,7 +91,7 @@ static int joy_init (void)
 				j->stick[s].flags = JOYFLAG_ANALOGUE | JOYFLAG_UNSIGNED;
 				j->stick[s].num_axis = 1;
 				j->stick[s].axis[0].name = get_config_text("Throttle");
-				j->stick[s].name = j->stick[s].axis[0].name;
+				j->stick[s].name = ustrdup (j->stick[s].axis[0].name);
 				axis[i][a++] = &j->stick[s].axis[0];
 			}
 			else {
@@ -129,9 +129,14 @@ static int joy_init (void)
 
 static void joy_exit (void)
 {
-	int i;
-	for (i = 0; i < num_joysticks; i++) 
+	int i, j;
+	for (i = 0; i < num_joysticks; i++) {
 		close (joy_fd[i]);
+		for (j = 0; j < joy[i].num_sticks; j++)
+			free ((void *)joy[i].stick[j].name);
+		for (j = 0; j < joy[i].num_buttons; j++)
+			free ((void *)joy[i].button[j].name);
+	}
 }
 
 
