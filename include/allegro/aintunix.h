@@ -32,6 +32,10 @@ extern "C" {
    AL_FUNC(void, _sigalrm_pause, (void));
    AL_FUNC(void, _sigalrm_unpause, (void));
 
+   /* These should only be used externally in critical cases.  */
+   AL_FUNC(void, _sigalrm_start_timer, (void));
+   AL_FUNC(void, _sigalrm_stop_timer, (void));
+
    /* Interrupt handlers.  */
    AL_FUNCPTR(void, _sigalrm_digi_interrupt_handler, (unsigned long interval));
    AL_FUNCPTR(void, _sigalrm_midi_interrupt_handler, (unsigned long interval));

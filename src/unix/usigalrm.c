@@ -156,7 +156,7 @@ void _sigalrm_unpause(void)
 /* _sigalrm_start_timer:
  *  Starts timer in one-shot mode.
  */
-static void _sigalrm_start_timer(void)
+void _sigalrm_start_timer(void)
 {
    struct itimerval timer;
 
@@ -174,7 +174,7 @@ static void _sigalrm_start_timer(void)
 /* _sigalrm_stop_timer:
  *  Stops timer.
  */
-static void _sigalrm_stop_timer(void)
+void _sigalrm_stop_timer(void)
 {
    struct itimerval timer;
 
