@@ -38,7 +38,7 @@ fi
 # Error reporter
 
 error() {
-	echo "Error occured, aborting" ; exit 1
+	echo "Error occured, aborting" ; rm -rf $dir ; exit 1
 }
 
 
