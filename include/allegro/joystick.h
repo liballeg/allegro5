@@ -32,7 +32,7 @@
 #define MAX_JOYSTICKS            8
 #define MAX_JOYSTICK_AXIS        3
 #define MAX_JOYSTICK_STICKS      5
-#define MAX_JOYSTICK_BUTTONS     16
+#define MAX_JOYSTICK_BUTTONS     32
 
 
 /* information about a single joystick axis */
