@@ -24,7 +24,7 @@
 /* helper macro for drawing glyphs in each color depth */
 #define DRAW_GLYPH(bits, size)                                               \
 {                                                                            \
-   unsigned char *data = glyph->dat;                                         \
+   AL_CONST unsigned char *data = glyph->dat;                                \
    unsigned long addr;                                                       \
    int w = glyph->w;                                                         \
    int h = glyph->h;                                                         \
