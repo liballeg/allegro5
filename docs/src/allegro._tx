@@ -91,7 +91,7 @@ See readme.txt for a general introduction, copyright details, and
 information about how to install Allegro and link your program with it.
 
 @@int @install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)());
-@xref allegro_init, allegro_exit, set_uformat, set_config_file.
+@xref allegro_init, allegro_exit, set_uformat, set_config_file
    Initialises the Allegro library. You must call either this or 
    allegro_init() before doing anything other than using the Unicode 
    routines. If you want to use a text mode other than UTF-8, you can set
@@ -2569,7 +2569,7 @@ routines" for more information about this.
    fail).
 
 @@void @remove_keyboard();
-@xref install_keyboard, allegro_exit, set_config_string.
+@xref install_keyboard, allegro_exit, set_config_string
    Removes the keyboard handler, returning control to the operating system. 
    You don't normally need to bother calling this, because allegro_exit() 
    will do it for you. However, you might want to call this during runtime if
