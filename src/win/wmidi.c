@@ -98,9 +98,7 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
       }
 
       /* cross-platform DIGital MIDi driver */
-      driver = malloc(sizeof(MIDI_DRIVER));
-      memcpy(driver, &midi_digmid, sizeof(MIDI_DRIVER));
-      driver_list = _driver_list_add_driver(driver_list, MIDI_DIGMID, driver, TRUE);
+      driver_list = _driver_list_add_driver(driver_list, MIDI_DIGMID, &midi_digmid, TRUE);
    }
 
    return driver_list;
@@ -117,7 +115,8 @@ void _free_win_midi_driver_list(void)
 
    if (driver_list) {
       while (driver_list[i].driver) {
-         free(driver_list[i].driver);
+         if (driver_list[i].id != MIDI_DIGMID)
+            free(driver_list[i].driver);
          i++;
       }
 
