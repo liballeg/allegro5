@@ -505,7 +505,8 @@ Contributors
    Added a Czech keyboard mapping and system message translation, the Latin 
    Extended-A characters in the default font, and the codepage support in 
    the textconv utility, fixed some problems with the ESD sound driver, and 
-   helped make Allegro build better on some Unix platforms.
+   helped make Allegro build better on some Unix platforms.  Fixed const 
+   related problems in C versions of ASM routines.
 
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
