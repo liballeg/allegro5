@@ -136,11 +136,17 @@ else
    WFLAGS = -W1
 endif
 
+ifdef STATICRUNTIME
+   RUNTIME_FLAGS = -MT
+else
+   RUNTIME_FLAGS = -MD
+endif
+
 ifdef DEBUGMODE
 
 # -------- debugging build --------
 
-CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -Gd -Zi -MDd
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -Gd -Zi $(RUNTIME_FLAGS)d
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) -Wall
 LFLAGS = -debug -debugtype:cv
 
@@ -149,7 +155,7 @@ ifdef PROFILEMODE
 
 # -------- profiling build --------
 
-CFLAGS = $(WFLAGS) -Gd -Ox -GB -MD
+CFLAGS = $(WFLAGS) -Gd -Ox -GB $(RUNTIME_FLAGS)
 SFLAGS = -Wall
 LFLAGS = -profile
 
@@ -157,7 +163,7 @@ else
 
 # -------- optimised build --------
 
-CFLAGS = $(WFLAGS) -Gd -Ox -GB -MD
+CFLAGS = $(WFLAGS) -Gd -Ox -GB $(RUNTIME_FLAGS)
 SFLAGS = -Wall
 LFLAGS = -release
 
