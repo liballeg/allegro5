@@ -184,7 +184,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	 }
 	 else if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN)) {
 	    BeginPaint(wnd, &ps);
-	    update_window(&(ps.rcPaint));
+            if (update_window)
+	       update_window(&(ps.rcPaint));
 	    EndPaint(wnd, &ps);
 	 }
 	 break;
