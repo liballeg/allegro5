@@ -29,11 +29,7 @@
 #        distclean:         remove objects and executables.
 #        veryclean:         remove all generated files.
 #        depend:            regenerate the dependency files.
-#        compress:          compress the executable files (djgpp only).
-#
-#  The "clean", "distclean", "veryclean", and "uninstall" targets require
-#  a Unix-style rm command to be installed, eg. from the djgpp fileutils
-#  package.
+#        compress:          compress the executable files (djgpp, Mingw32, MSVC).
 
 
 
@@ -168,14 +164,40 @@ $(LIB_NAME): $(OBJECTS) $(RUNNER)
 # -------- rules for deleting the generated files --------
 
 clean:
+ifdef UNIX_TOOLS
 	-rm -fv $(OBJ_CLEAN_FILES)
 	-rm -fv $(OTHER_CLEAN_FILES)
+else
+   define RM_CLEAN
+      $(foreach file, $(wildcard $(OBJ_CLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+      $(foreach file, $(wildcard $(OTHER_CLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_CLEAN)
+endif
 
 distclean: clean
+ifdef UNIX_TOOLS
 	-rm -fv $(DISTCLEAN_FILES)
+else
+   define RM_DISTCLEAN
+      $(foreach file, $(wildcard $(DISTCLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_DISTCLEAN)
+endif
 
 veryclean: distclean
+ifdef UNIX_TOOLS
 	-rm -fv $(VERYCLEAN_FILES)
+else
+   define RM_VERYCLEAN
+      $(foreach file, $(wildcard $(VERYCLEAN_FILES)), -del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_VERYCLEAN)
+endif
 
 
 

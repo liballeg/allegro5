@@ -8591,8 +8591,6 @@ makefiles also provide some special pseudo-targets:
 <li>
    'uninstall'<br>
    Removes the Allegro library and headers from your compiler directories. 
-   This requires a Unix-style 'rm' utility to be available, eg. from the GNU 
-   fileutils package.
 <li>
    'docs'<br>
    Converts the documentation files from the ._tx sources.
@@ -8628,9 +8626,7 @@ makefiles also provide some special pseudo-targets:
    Removes generated object and library files, either to recover disk space 
    or to force a complete rebuild the next time you run make. This target is 
    designed so that if you run a "make install" followed by "make clean", 
-   you will still have a functional version of Allegro. This requires a 
-   Unix-style 'rm' utility to be available, eg. from the GNU fileutils 
-   package.
+   you will still have a functional version of Allegro.
 <li>
    'distclean'<br>
    Like "make clean", but more so. This removes all the executable files and 

@@ -40,8 +40,7 @@
    - Watcom C, version 10.6 or 11.0
    - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
    - GNU make (mak*b.zip).
-   - sed (sed*b.zip).
-   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+   - Optional: sed (sed*b.zip). Used by "make depend".
 
    Except for the Watcom compiler itself, all of the above packages can be 
    downloaded from your nearest SimTel mirror site, in the 
