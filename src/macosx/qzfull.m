@@ -176,7 +176,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    gfx_quartz_full.h = h;
    gfx_quartz_full.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
    
-   
    _screen_vtable.created_sub_bitmap = osx_qz_created_sub_bitmap;
    if (color_depth != 8) {
       _screen_vtable.blit_to_self = osx_qz_blit_to_self;

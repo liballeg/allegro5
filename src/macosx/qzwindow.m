@@ -105,7 +105,6 @@ static void prepare_window_for_animation(int refresh_view)
    unsigned int *addr;
    int pitch, y, x;
    
-   pthread_mutex_lock(&osx_event_mutex);
    pthread_mutex_lock(&osx_window_mutex);
    while (![qd_view lockFocusIfCanDraw]);
    while (!QDDone([qd_view qdPort]));
@@ -130,7 +129,6 @@ static void prepare_window_for_animation(int refresh_view)
    UnlockPortBits([qd_view qdPort]);
    [qd_view unlockFocus];
    pthread_mutex_unlock(&osx_window_mutex);
-   pthread_mutex_unlock(&osx_event_mutex);
 }
 
 
