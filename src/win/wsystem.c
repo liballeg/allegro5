@@ -133,19 +133,20 @@ static int sys_directx_init(void)
                    0, FALSE, DUPLICATE_SAME_ACCESS);
 
    /* get versions */
-   _dx_ver = get_dx_ver();
    win_ver = GetVersion();
    if (win_ver < 0x80000000) {
       os_type = OSTYPE_WINNT;
    }
    else if ((win_ver & 0xFF) == 4) {
       if ((win_ver & 0xFF00) < 40)
-	 os_type = OSTYPE_WIN95;
+         os_type = OSTYPE_WIN95;
       else
-	 os_type = OSTYPE_WIN98;
+         os_type = OSTYPE_WIN98;
    }
    else
       os_type = OSTYPE_WIN3;
+
+   _dx_ver = get_dx_ver();
 
    usprintf(sys_directx_desc, uconvert_ascii("DirectX %u.%x", tmp), _dx_ver >> 8, _dx_ver & 0xff);
    system_directx.desc = sys_directx_desc;
