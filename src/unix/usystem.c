@@ -24,6 +24,7 @@
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 
 #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
