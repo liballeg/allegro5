@@ -1704,7 +1704,7 @@ Mouse routines
    unscare_mouse().
 
 @@void @scare_mouse_area(int x, int y, int w, int h);
-@xref unscare_mouse, scare_mouse_area, show_mouse
+@xref unscare_mouse, scare_mouse, show_mouse
    Like scare_mouse(), but will only hide the cursor if it is inside the 
    specified rectangle. Otherwise the cursor will simply be frozen in place 
    until you call unscare_mouse(), so it cannot interfere with your drawing.
@@ -8999,6 +8999,13 @@ makefiles also provide some special pseudo-targets:
    (<link>http://msdn.microsoft.com/library/en-us/htmlhelp/html/htmlhelp.exe</a>),
    and it has to be installed somewhere in your PATH. Also, this only works
    if you use '@multiplefiles' (see the top of docs/src/allegro._tx).
+<li>
+   'docs-devhelp' (Unix only)<br>
+   Creates normal HTML documentation with an additional xml index file which
+   can be used by tools like Devhelp (<link>http://www.devhelp.net/</a>) to
+   show context sensitive help within any editor using Devhelp. The Allegro
+   'book' will be created in docs/devhelp/allegro.devhelp, you have to
+   install it manually.
 <li>
    'install-man' or 'install-gzipped-man' (Unix only)<br>
    This generates Unix man pages for each Allegro function or variable and
