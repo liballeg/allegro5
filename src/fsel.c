@@ -827,13 +827,3 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    return TRUE; 
 }
 
-
-
-/* file_select:
- *  The good old file selector.
- */
-int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
-{
-   return file_select_ex(message, path, ext, 1024, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
-}
-

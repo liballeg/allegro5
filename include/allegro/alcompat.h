@@ -137,6 +137,16 @@
 #define generate_optimised_pallete     generate_optimised_palette
 
 
+/* the good old file selector */
+#define OLD_FILESEL_WIDTH   -1
+#define OLD_FILESEL_HEIGHT  -1
+
+AL_INLINE(int, file_select, (AL_CONST char *message, char *path, AL_CONST char *ext),
+{
+   return file_select_ex(message, path, ext, 1024, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
+})
+
+
 #ifdef __cplusplus
    }
 #endif
