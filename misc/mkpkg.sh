@@ -80,7 +80,6 @@ echo "Creating package"
 
 packagefile=${basename}.pkg
 if [ -d $packagefile ]; then rm -fr $packagefile; fi
-find dstroot -name .DS_Store -delete
 mkdir -p -m 0755 ${packagefile}/Contents/Resources
 
 echo pmkrpkg1 > ${packagefile}/Contents/PkgInfo
