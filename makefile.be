@@ -25,7 +25,7 @@ else
 
 # -------- link as a DLL --------
 OBJ_DIR = obj/beos/$(VERSION)
-LIB_NAME = lib/beos/lib$(VERSION).so
+LIB_NAME = lib/beos/lib$(VERSION)-$(shared_version).so
 
 endif # STATICLINK
 
@@ -96,12 +96,16 @@ endif
 
 # -------- list which platform specific objects to include --------
 
-VPATH = src/beos src/i386 src/misc
+VPATH = src/beos src/i386 src/misc tools/beos
 
 LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 	      $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
+
+PROGRAMS = bfixicon
+
+bfixicon: tools/beos/bfixicon
 
 
 # -------- rules for installing and removing the library files --------
@@ -194,7 +198,7 @@ else
 # -------- link as a shared library --------
 
 define MAKE_LIB
-  $(CC) -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LIBRARIES)
+gcc -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LIBRARIES)
 endef
 
 endif # STATICLINK
@@ -240,6 +244,9 @@ define LINK_WITH_PLUGINS
 gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
 endef
 
+tools/beos/%: $(OBJ_DIR)/%.o $(LIB_NAME)
+	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+
 
 
 # -------- generate automatic dependencies --------
@@ -247,7 +254,7 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BEOS
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/beos/*.cpp tools/plugins/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/beos\/alleg\/\1/" _depend2.tmp > obj/beos/alleg/makefile.dep
