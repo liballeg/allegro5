@@ -405,7 +405,7 @@ static int alsa_mixer_volume(int volume)
  */
 void _module_init(int system_driver)
 {
-   _unix_register_digi_driver(DIGI_ALSADIGI, &digi_alsadigi, TRUE);
+   _unix_register_digi_driver(DIGI_ALSADIGI, &digi_alsadigi, TRUE, TRUE);
 }
 
 #endif

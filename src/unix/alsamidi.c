@@ -231,7 +231,7 @@ static INLINE int alsa_rawmidi_input(void)
  */
 void _module_init(int system_driver)
 {
-   _unix_register_midi_driver(DIGI_ALSAMIDI, &midi_alsamidi, TRUE);
+   _unix_register_midi_driver(DIGI_ALSAMIDI, &midi_alsamidi, TRUE, TRUE);
 }
 
 #endif /* ALLEGRO_MODULE */

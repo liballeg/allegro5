@@ -46,13 +46,9 @@ static void sys_linux_exit(void);
 static void sys_linux_message (AL_CONST char *msg);
 
 
-/* dynamic driver lists */
-static _DRIVER_INFO *dynamic_gfx_driver_list = NULL;
-
-
 /* driver list getters */
 #define make_getter(x,y) static _DRIVER_INFO *get_##y##_driver_list (void) { return x##_##y##_driver_list; }
-	make_getter (dynamic, gfx)
+	make_getter (_unix, gfx)
 	make_getter (_unix, digi)
 	make_getter (_unix, midi)
 	make_getter (_linux, keyboard)
@@ -157,16 +153,6 @@ void __al_linux_async_exit (void)
 
 
 
-/* __al_linux_register_gfx_driver:
- *  Used by modules to register graphics drivers.
- */
-void __al_linux_register_gfx_driver (int id, GFX_DRIVER *driver, int autodetect)
-{
-	dynamic_gfx_driver_list = _driver_list_add_driver (dynamic_gfx_driver_list, id, driver, autodetect);
-}
-
-
-
 /* sys_linux_init:
  *  Top level system driver wakeup call.
  */
@@ -187,10 +173,9 @@ static int sys_linux_init (void)
 	seteuid (getuid());
 
 	/* Initialise dynamic driver lists */
-	dynamic_gfx_driver_list = _create_driver_list();
-	if (dynamic_gfx_driver_list)
-		dynamic_gfx_driver_list = _driver_list_add_list(dynamic_gfx_driver_list, _linux_gfx_driver_list);
 	_unix_driver_lists_init();
+	if (_unix_gfx_driver_list)
+		_driver_list_append_list(&_unix_gfx_driver_list, _linux_gfx_driver_list);
 
 	/* Load dynamic modules */
 	_unix_load_modules(SYSTEM_LINUX);
@@ -262,10 +247,6 @@ static void sys_linux_exit (void)
 
 	/* free dynamic driver lists */
 	_unix_driver_lists_shutdown();
-	if (dynamic_gfx_driver_list) {
-		_destroy_driver_list(dynamic_gfx_driver_list);
-		dynamic_gfx_driver_list = NULL;
-	}
 
 	__al_linux_shutdown_memory();
 	iopl (0);

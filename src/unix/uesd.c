@@ -285,7 +285,7 @@ static int _al_esd_mixer_volume(int volume)
  */
 void _module_init(int system_driver)
 {
-   _unix_register_digi_driver(DIGI_ESD, &digi_esd, TRUE);
+   _unix_register_digi_driver(DIGI_ESD, &digi_esd, TRUE, TRUE);
 }
 
 #endif

@@ -544,7 +544,7 @@ static void svga_restore()
 void _module_init(int system_driver)
 {
    if (system_driver == SYSTEM_LINUX)
-      __al_linux_register_gfx_driver(GFX_SVGALIB, &gfx_svgalib, TRUE);
+      _unix_register_gfx_driver(GFX_SVGALIB, &gfx_svgalib, TRUE, FALSE);
 }
 
 #endif      /* ifdef ALLEGRO_MODULE */
