@@ -300,14 +300,23 @@ static void sys_directx_restore_console_state(void)
  */
 static int sys_directx_desktop_color_depth(void)
 {
-   DEVMODE display_mode;
+/*   DEVMODE display_mode;
 
    display_mode.dmSize = sizeof(DEVMODE);
    display_mode.dmDriverExtra = 0;
    if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &display_mode) == 0)
       return (0);
 
-   return (display_mode.dmBitsPerPel);
+   return (display_mode.dmBitsPerPel);*/
+
+   HDC dc;
+   int depth;
+
+   dc = GetWindowDC(allegro_wnd);
+   depth = GetDeviceCaps(dc, BITSPIXEL);
+   ReleaseDC(allegro_wnd, dc);
+
+   return depth;
 }
 
 
