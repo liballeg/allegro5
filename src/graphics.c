@@ -200,6 +200,8 @@ int get_gfx_mode_list(int card)
       list = _gfx_driver_list;
 
    /* find the graphics driver, and if it can fetch mode lists, do so */
+   drv = NULL;
+   
    for (entry = list; entry->driver; entry++) {
       if (entry->id == card) {
          drv = entry->driver;
@@ -210,7 +212,9 @@ int get_gfx_mode_list(int card)
          break;
       }
    }
-   
+
+   if(!drv) return -2;
+
    /* sort the list and finish */
    for (entries=0; gfx_mode_list[entries].width; entries++);
    qsort(gfx_mode_list, entries, sizeof(GFX_MODE_LIST), (void *) sort_gfx_mode_list);
