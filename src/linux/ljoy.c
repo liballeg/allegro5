@@ -51,10 +51,14 @@ static int joy_init (void)
 	int i, s, a, b;
 
 	for (i = 0; i < MAX_JOYSTICKS; i++) {
-		snprintf (tmp, sizeof(tmp), "/dev/js%d", i);
+		snprintf (tmp, sizeof(tmp), "/dev/input/js%d", i);
 		joy_fd[i] = open (tmp, O_RDONLY);
-		if (joy_fd[i] == -1) 
-			break;
+		if (joy_fd[i] == -1) {
+			snprintf (tmp, sizeof(tmp), "/dev/js%d", i);
+			joy_fd[i] = open (tmp, O_RDONLY);
+			if (joy_fd[i] == -1) 
+				break;
+		}
 
 		ioctl (joy_fd[i], JSIOCGVERSION, &version);
 		/* TODO: Check version? */
