@@ -7695,7 +7695,7 @@ DOS specifics
       The Sony Dual Shock or Namco Jogcon will reset themselves (to digital 
       mode) after not being polled for 5 seconds. This is normal, the same 
       thing happens on a Playstation, it's designed to stop any vibration in 
-      case the host machine crashes. other mode switching controllers may 
+      case the host machine crashes. Other mode switching controllers may 
       have similar quirks. However, if this happens to a Jogcon controller 
       the mode button is disabled. To reenable the mode button on the Jogcon 
       you need to hold down the Start and Select buttons at the same time.
@@ -8301,7 +8301,7 @@ function to remind you :-)
       set_gfx_mode() documentation for details.
 <li>
    GFX_FBCON<br>
-      Use the framebuffer device (eg. dev/fb0). This requires you to have 
+      Use the framebuffer device (eg. /dev/fb0). This requires you to have 
       framebuffer support compiled into your kernel, and correctly 
       configured for your hardware. It is currently the only console mode 
       driver that will work without root permissions, unless you are using
