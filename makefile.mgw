@@ -11,6 +11,7 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MinGW32
+CC = gcc
 EXE = .exe
 OBJ = .o
 HTML = html
@@ -444,10 +445,10 @@ endif # STATICLINK
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
-	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.s
-	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
+	$(CC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.rc
 	$(WINDRES) --include-dir include -O coff -o $@ -i $<
@@ -456,27 +457,27 @@ obj/mingw32/%.res: %.rc
 	$(WINDRES) -O coff -o $@ -i $<
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/dxwindow.exe: $(OBJ_DIR)/dxwindow.o obj/mingw32/dxwindow.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dxwindow.exe $(OBJ_DIR)/dxwindow.o obj/mingw32/dxwindow.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dxwindow.exe $(OBJ_DIR)/dxwindow.o obj/mingw32/dxwindow.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 ifdef CROSSCOMPILE
 
 demo/demo.exe: $(OBJ_DIR)/demo.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 setup/setup.exe: $(OBJ_DIR)/setup.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 else
 
@@ -498,7 +499,7 @@ else
 endif
 
 demo/demo.exe: $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 obj/mingw32/setupdat.s: setup/setup.dat tools/dat2s.exe
 ifdef STATICLINK
@@ -518,29 +519,29 @@ else
 endif
 
 obj/mingw32/setupdat.o: obj/mingw32/setupdat.s
-	gcc -o obj/mingw32/setupdat.o -c obj/mingw32/setupdat.s
+	$(CC) -o obj/mingw32/setupdat.o -c obj/mingw32/setupdat.s
 
 $(OBJ_DIR)/setup.o: setup/setup.c
-	gcc $(COMPILE_FLAGS) -DSETUP_USE_COMPILED_DATAFILES -I. -I./include -o $(OBJ_DIR)/setup.o -c setup/setup.c
+	$(CC) $(COMPILE_FLAGS) -DSETUP_USE_COMPILED_DATAFILES -I. -I./include -o $(OBJ_DIR)/setup.o -c setup/setup.c
 
 setup/setup.exe: $(OBJ_DIR)/setup.o obj/mingw32/setupdat.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o setup/setup.exe $(OBJ_DIR)/setup.o obj/mingw32/setupdat.o $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o setup/setup.exe $(OBJ_DIR)/setup.o obj/mingw32/setupdat.o $(IMPLIB_NAME) $(LIBRARIES)
 
 endif # CROSSCOMPILE
 
 examples/%.exe setup/%.exe tests/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
 define LINK_CONSOLE
-   gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+   $(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 endef
 
 ifdef CROSSCOMPILE
 
 obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/asmcapa.h
-	gcc $(WFLAGS) -I. -I./include -S -o obj/mingw32/asmdef.s src/i386/asmdef.c
+	$(CC) $(WFLAGS) -I. -I./include -S -o obj/mingw32/asmdef.s src/i386/asmdef.c
 
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.s
 	if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi
@@ -552,15 +553,15 @@ obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
 	obj/mingw32/asmdef.exe obj/mingw32/asmdef.inc
 
 obj/mingw32/asmdef.exe: src/i386/asmdef.c
-	gcc -O $(WFLAGS) $(PFLAGS) -I. -I./include -o obj/mingw32/asmdef.exe src/i386/asmdef.c
+	$(CC) -O $(WFLAGS) $(PFLAGS) -I. -I./include -o obj/mingw32/asmdef.exe src/i386/asmdef.c
 
 obj/mingw32/runner.exe: src/misc/runnergw.c
-	gcc -O -Wall -Werror -o obj/mingw32/runner.exe src/misc/runnergw.c
+	$(CC) -O -Wall -Werror -o obj/mingw32/runner.exe src/misc/runnergw.c
 
 endif # CROSSCOMPILE
 
 define LINK_WITHOUT_LIB
-   gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $^
+   $(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $^
 endef
 
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
@@ -583,11 +584,11 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   $(PLUGIN_RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(PLUGIN_RUNNER) $(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-   $(PLUGIN_RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(PLUGIN_RUNNER) $(CC) $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 
@@ -597,10 +598,10 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MINGW32
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
-	gcc $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
-	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg/makefile.dep

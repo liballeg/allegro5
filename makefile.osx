@@ -11,6 +11,7 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MacOS X
+CC = gcc
 OBJ_DIR = obj/macosx/$(VERSION)
 LIB_NAME = lib/macosx/lib$(VERSION).a
 EXE = 
@@ -182,16 +183,16 @@ endef
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.o: %.c
-	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 $(OBJ_DIR)/%.o: %.m
-	gcc $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
+	$(CC) $(COMPILE_FLAGS) -I. -I./include -o $@ -c $<
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
-	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+	$(CC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 define LINK_WITHOUT_LIB
-   gcc $(LFLAGS) -o $@ $^
+   $(CC) $(LFLAGS) -o $@ $^
 endef
 
 PLUGIN_LIB = lib/macosx/lib$(VERY_SHORT_VERSION)dat.a
@@ -208,7 +209,7 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
+   $(CC) $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
 endef
 
 
@@ -218,8 +219,8 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MACOSX
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/macosx/*.m src/unix/*.c src/misc/*.c demo/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
+	$(CC) $(DEPEND_PARAMS) src/*.c src/macosx/*.m src/unix/*.c src/misc/*.c demo/*.c > _depend.tmp
+	$(CC) $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alleg\/\1/" _depend2.tmp > obj/macosx/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/macosx\/alld\/\1/" _depend2.tmp > obj/macosx/alld/makefile.dep
