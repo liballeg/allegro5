@@ -102,6 +102,11 @@ echo "Patching docs/src/allegro._tx..."
 cp docs/src/allegro._tx fixver.tmp
 sed -f fixver.sed fixver.tmp > docs/src/allegro._tx
 
+# patch the OSX package readme
+echo "Patching misc/pkgreadme._tx..."
+cp misc/pkgreadme._tx fixver.tmp
+sed -f fixver.sed fixver.tmp > misc/pkgreadme._tx
+
 # patch makefile.ver
 echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2/" > fixver.sed
 echo "s/shared_version = .*/shared_version = $1.$2.$3/" >> fixver.sed
@@ -126,11 +131,6 @@ sed -f fixver.sed fixver.tmp > misc/allegro-config-qnx.sh
 echo "Patching misc/allegro.spec..."
 cp misc/allegro.spec fixver.tmp
 sed -e "s/^Version: .*/Version: $1.$2.$3/" fixver.tmp > misc/allegro.spec
-
-# patch the OSX package readme
-echo "Patching misc/pkgreadme._tx..."
-cp misc/pkgreadme._tx fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/pkgreadme._tx
 
 # clean up after ourselves
 rm fixver.sed fixver.tmp

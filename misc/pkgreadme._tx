@@ -2,7 +2,7 @@
 @# This is the source for the Allegro MacOS X package readme.
 @# Read makedoc.c for a description of what is going on...
 @#
-@document_title=A general introduction to Allegro
+@document_title=Allegro MacOS X enduser ReadMe
 @<pre>
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
@@ -12,12 +12,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.1.11 (CVS)
+				       \_/__/     Version 4.1.13 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Jun 24, 2003.
+	     By Shawn Hargreaves, Nov 10, 2003.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -30,7 +30,7 @@
     that this code may have on you, your computer, your sanity, your dog, 
     and anything else that you can think of. Use it at your own risk."
 </i></blockquote>
-
+<p>
 
 
 @heading
@@ -39,18 +39,17 @@ Introduction
    This is the end-user version of the Allegro game programming library:
    if you want to run third-party Allegro applications, this package holds
    everything you need.
-   It contains a framework and also a Project Builder application template, 
-   for your development needs. It does not hold the library sources, tools 
-   and examples, nor any documentation. If you plan on using Allegro to 
-   code your programs, you can already do it with the contents of this 
-   package, but you are really encouraged to download and use the full 
+   It contains just the system wide library framework (to be installed in
+   /Library/Frameworks). It does not hold the library sources, tools and
+   examples, nor any documentation. If you plan on using Allegro to code
+   your programs, you are really encouraged to download and use the full
    library at the official Allegro website:
 <p>
    <link>http://alleg.sourceforge.net</a>
 <p>
    On the site you'll also find the documentation and links to a lot of
    Allegro-related resources.
-
+<p>
 
 
 @heading

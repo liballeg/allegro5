@@ -2,7 +2,8 @@
 #
 #	Shell script to create a MacOS X package of the library.
 #	The package will hold an end-user version of Allegro,
-#	installing just the framework and Project Builder template.
+#	installing just the system wide library framework.
+#	The created package is compatible with MacOS X 10.2 and newer.
 #
 #	Thanks to macosxhints.com for the hint!
 #
@@ -34,93 +35,143 @@ if [ -d dstroot ]; then
 	sudo rm -fr dstroot
 fi
 
+basename=allegro-enduser-${version}
+
+
+###########################
+# Prepare package structure
+###########################
 
 echo "Setting up package structure"
 
-
-#############################################
-# Prepare structure for the Allegro framework
-#############################################
-
 framework=dstroot/Library/Frameworks/Allegro.framework
 mkdir -p $framework
-mkdir -p ${framework}/Versions/${version}/Headers
 mkdir -p ${framework}/Versions/${version}/Resources
 cp $libname ${framework}/Versions/${version}/allegro
-cp $1/include/allegro.h ${framework}/Versions/${version}/Headers
-cp $1/include/osxalleg.h ${framework}/Versions/${version}/Headers
-cp -r $1/include/allegro ${framework}/Versions/${version}/Headers
 (cd $framework && {
 	(cd Versions; ln -s $version Current)
-	ln -s Versions/Current/Headers Headers
 	ln -s Versions/Current/Resources Resources
 	ln -s Versions/Current/allegro allegro
 })
-sed -e "s/@NAME@/allegro/" $1/misc/Info.plist >temp
-sed -e "s/@VERSION@/${version}/" temp >${framework}/Resources/Info.plist
-rm -f temp
 
-
-########################################################
-# Prepare structure for the Allegro application template
-########################################################
-
-template="dstroot/Developer/ProjectBuilder Extras/Project Templates/Application/Allegro Application"
-mkdir -p "$template"
-mkdir -p "${template}/AllegroApp.pbproj"
-cp $1/misc/template.c "${template}/main.c"
-cp $1/misc/TemplateInfo.plist "${template}/AllegroApp.pbproj"
-cp $1/misc/project.pbxproj "${template}/AllegroApp.pbproj"
-cp $1/misc/project.pbxuser "${template}/AllegroApp.pbproj"
-
-
-##########################
-# Create package info file
-##########################
-
-infofile=allegro-enduser-${version}.info
-echo "Title Allegro" > $infofile
-echo "Version $version" >> $infofile
-echo "Description A multiplatform game programming library" >> $infofile
-echo "DefaultLocation /" >> $infofile
-echo "DeleteWarning" >> $infofile
-echo "NeedsAuthorization YES" >> $infofile
-echo "Required NO" >> $infofile
-echo "Relocatable NO" >> $infofile
-echo "RequiresReboot NO" >> $infofile
-echo "UseUserMask YES" >> $infofile
-echo "OverwritePermissions NO" >> $infofile
-echo "InstallFat NO" >> $infofile
-echo "RootVolumeOnly YES" >> $infofile
-echo "Application NO" >> $infofile
-echo "InstallOnly NO" >> $infofile
-echo "DisableStop NO" >> $infofile
-echo "LongFilenames YES" >> $infofile
+infofile=${framework}/Resources/Info.plist
+cat > $infofile << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>CFBundleIdentifier</key>
+        <string>com.allegro.lib</string>
+        <key>CFBundleName</key>
+        <string>allegro</string>
+        <key>CFBundleShortVersionString</key>
+        <string>Allegro ${version}</string>
+</dict>
+</plist>
+EOF
 
 
 ##################
 # Make the package
 ##################
 
-packagefile=allegro-enduser-${version}.pkg
+echo "Creating package"
+
+packagefile=${basename}.pkg
 if [ -d $packagefile ]; then sudo rm -fr $packagefile; fi
 find dstroot -name .DS_Store -delete
-sudo chown -R root:staff dstroot
-package dstroot $infofile -d . -ignoreDSStore
-rm -f $infofile 1
-gcc3 -o _makedoc $1/docs/src/makedoc/*.c
+mkdir -p -m 0755 ${packagefile}/Contents/Resources
+
+echo pmkrpkg1 > ${packagefile}/Contents/PkgInfo
+
+infofile=${packagefile}/Contents/Info.plist
+cat > $infofile << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleGetInfoString</key>
+	<string>Allegro $version (EndUser)</string>
+	<key>CFBundleName</key>
+	<string>Allegro $version (EndUser)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>${version}</string>
+	<key>IFMajorVersion</key>
+	<integer>0</integer>
+	<key>IFMinorVersion</key>
+	<integer>0</integer>
+	<key>IFPkgFlagAllowBackRev</key>
+	<false/>
+	<key>IFPkgFlagAuthorizationAction</key>
+	<string>RootAuthorization</string>
+	<key>IFPkgFlagDefaultLocation</key>
+	<string>/</string>
+	<key>IFPkgFlagInstallFat</key>
+	<false/>
+	<key>IFPkgFlagIsRequired</key>
+	<false/>
+	<key>IFPkgFlagRelocatable</key>
+	<false/>
+	<key>IFPkgFlagRestartAction</key>
+	<string>NoRestart</string>
+	<key>IFPkgFlagRootVolumeOnly</key>
+	<true/>
+	<key>IFPkgFlagUpdateInstalledLanguages</key>
+	<false/>
+	<key>IFPkgFormatVersion</key>
+	<real>0.10000000149011612</real>
+</dict>
+</plist>
+EOF
+
+descfile=${packagefile}/Contents/Resources/Description.plist
+cat > $descfile << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IFPkgDescriptionDeleteWarning</key>
+	<string></string>
+	<key>IFPkgDescriptionDescription</key>
+	<string>Allegro $version end user package</string>
+	<key>IFPkgDescriptionTitle</key>
+	<string>Allegro $version (EndUser)</string>
+	<key>IFPkgDescriptionVersion</key>
+	<string>${version}</string>
+</dict>
+</plist>
+EOF
+
+gcc -o _makedoc $1/docs/src/makedoc/*.c
 ./_makedoc -rtf ${packagefile}/Contents/Resources/ReadMe.rtf $1/misc/pkgreadme._tx
 
-echo "Writing post installation script"
+bomfile=${packagefile}/Contents/Archive.bom
+mkbom dstroot $bomfile
+
+paxfile=${packagefile}/Contents/Archive.pax.gz
+(cd dstroot && pax -x cpio -w -z . > ../${paxfile})
+
 postflight=${packagefile}/Contents/Resources/postflight
-sudo echo "#!/bin/sh" > $postflight
-sudo echo "mkdir -p /usr/local/lib" >> $postflight
-sudo echo "if [ -f /usr/local/lib/liballeg-${version}.dylib ]; then" >> $postflight
-sudo echo "   rm -f /usr/local/lib/liballeg-${version}.dylib" >> $postflight
-sudo echo "fi" >> $postflight
-sudo echo "ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg-${version}.dylib" >> $postflight
+cat > $postflight << EOF
+#!/bin/sh
+mkdir -p /usr/local/lib
+if [ -f /usr/local/lib/liballeg-${version}.dylib ]; then
+	rm -f /usr/local/lib/liballeg-${version}.dylib
+fi
+ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg-${version}.dylib
+EOF
 sudo chmod a+x $postflight
-sudo chown -R root:staff ${packagefile}/Contents/Resources
+
+sizesfile=${packagefile}/Contents/Resources/Archive.sizes
+numfiles=`lsbom -s $bomfile | wc -l`
+size=`du -k dstroot | tail -n 1 | awk '{ print $1;}'`
+zippedsize=`du -k ${packagefile} | tail -n 1 | awk '{ print $1;}'`
+bomsize=`ls -l $bomfile | awk '{ print $5;}'`
+infosize=`ls -l $infofile | awk '{ print $5;}'`
+((size += (bomsize + infosize)))
+echo NumFiles $numfiles > $sizesfile
+echo InstalledSize $size >> $sizesfile
+echo CompressedSize $zippedsize >> $sizesfile
 
 
 ######################
@@ -147,6 +198,7 @@ cp -r $packagefile $mountpoint
 
 hdiutil eject $drive
 hdiutil convert -format UDCO $tempimage -o $diskimage
+echo "Compressing image"
 gzip -f -9 $diskimage
 sudo rm -fr $tempimage ${packagefile} dstroot _makedoc
 

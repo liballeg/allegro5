@@ -132,8 +132,8 @@
 				JAVA_COMPILER_DEBUGGING_SYMBOLS = NO;
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "-O2";
-				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
+				OTHER_LDFLAGS = "-lalleg-main";
+				PREBINDING = YES;
 				PRODUCT_NAME = "«PROJECTNAME»";
 				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
