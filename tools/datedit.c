@@ -196,7 +196,8 @@ static int export_datafile(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 					    -1,    /* sort      */
 					    FALSE, /* verbose   */
 					    FALSE, /* write_msg */
-					    FALSE  /* backup    */ };
+					    FALSE, /* backup    */
+					    FALSE  /* rel. path */ };
 
    return datedit_save_datafile((DATAFILE *)dat->dat, filename, NULL, &options, NULL);
 }

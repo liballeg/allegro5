@@ -42,6 +42,7 @@
 #define DAT_YGRD  DAT_ID('Y','G','R','D')
 #define DAT_XCRP  DAT_ID('X','C','R','P')
 #define DAT_YCRP  DAT_ID('Y','C','R','P')
+#define DAT_RELP  DAT_ID('R','E','L','P')
 
 
 
@@ -133,6 +134,7 @@ typedef struct DATEDIT_SAVE_DATAFILE_OPTIONS {
    int verbose;
    int write_msg;
    int backup;
+   int relative_path;
 } DATEDIT_SAVE_DATAFILE_OPTIONS;
 
 
