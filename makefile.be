@@ -181,7 +181,7 @@ uninstall:
 	@echo All gone!	
 
 
- # -------- autodetect whether the assembler supports MMX instructions --------
+# -------- autodetect whether the assembler supports MMX instructions --------
 
 .PHONY: mmxtest
 
@@ -189,7 +189,7 @@ mmxtest:
 	echo "// no MMX" > obj/beos/mmx.h
 	echo .text > obj/beos/mmxtest.s
 	echo emms >> obj/beos/mmxtest.s
-        echo maskmovq %mm3, %mm1 >> obj/beos/mmxtest.s
+	echo maskmovq %mm3, %mm1 >> obj/beos/mmxtest.s
 	gcc -c obj/beos/mmxtest.s -o obj/beos/mmxtest.o
 	echo "#define ALLEGRO_MMX" > obj/beos/mmx.h
 

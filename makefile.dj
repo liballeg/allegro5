@@ -333,14 +333,14 @@ ifdef UNIX_TOOLS
 	echo // no MMX > obj/djgpp/mmx.h
 	echo .text > obj/djgpp/mmxtest.s
 	echo emms >> obj/djgpp/mmxtest.s
-        echo maskmovq %mm3, %mm1 >> obj/djgpp/mmxtest.s
+	echo maskmovq %mm3, %mm1 >> obj/djgpp/mmxtest.s
 	gcc -c obj/djgpp/mmxtest.s -o obj/djgpp/mmxtest.o
 	echo '#define ALLEGRO_MMX' > obj/djgpp/mmx.h
 else
 	echo // no MMX > obj\djgpp\mmx.h
 	echo .text > obj\djgpp\mmxtest.s
 	echo emms >> obj\djgpp\mmxtest.s
-        echo maskmovq %mm3, %mm1 >> obj\djgpp\mmxtest.s
+	echo maskmovq %mm3, %mm1 >> obj\djgpp\mmxtest.s
 	gcc -c obj/djgpp/mmxtest.s -o obj/djgpp/mmxtest.o
 	echo #define ALLEGRO_MMX > obj\djgpp\mmx.h
 endif
