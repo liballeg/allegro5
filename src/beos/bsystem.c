@@ -54,10 +54,10 @@ SYSTEM_DRIVER system_beos = {
    be_sys_get_desktop_resolution,
    be_sys_get_gfx_safe_mode,
    be_sys_yield_timeslice,
-   NULL,  // AL_METHOD(void *, create_mutex, (void));
-   NULL,  // AL_METHOD(void, destroy_mutex, (void *handle));
-   NULL,  // AL_METHOD(void, lock_mutex, (void *handle));
-   NULL,  // AL_METHOD(void, unlock_mutex, (void *handle));
+   be_sys_create_mutex,
+   be_sys_destroy_mutex,
+   be_sys_lock_mutex,
+   be_sys_unlock_mutex,
    NULL,  // AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    NULL,  // AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));
    NULL,  // AL_METHOD(_DRIVER_INFO *, midi_drivers, (void));

@@ -15,6 +15,8 @@
  *      desktop_color_depth() and yield_timeslice() support added by
  *      Angelo Mottola.
  *
+ *      Synchronization functions added by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -427,6 +429,90 @@ extern "C" void be_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
 extern "C" void be_sys_yield_timeslice(void)
 {
    snooze(YIELD_TIME);
+}
+
+
+
+/* custom mutex that supports nested locking */
+struct my_mutex {
+   int lock_count;                /* level of nested locking     */
+   thread_id owner;               /* thread which owns the mutex */
+   sem_id actual_mutex;           /* underlying mutex object     */
+};
+
+
+
+/* be_sys_create_mutex:
+ *  Creates a mutex and returns a pointer to it.
+ */
+extern "C" void *be_sys_create_mutex(void)
+{
+   struct my_mutex *mx;
+
+   mx = (struct my_mutex *)malloc(sizeof(struct my_mutex));
+   if (!mx) {
+      *allegro_errno = ENOMEM;
+      return NULL;
+   }
+
+   mx->lock_count = 0;
+   mx->owner = (thread_id) 0;
+
+   mx->actual_mutex = create_sem(1, "internal mutex");
+   if (mx->actual_mutex < 0) {
+      free(mx);
+      return NULL;
+   }
+
+   return (void *)mx;
+}
+
+
+
+/* be_sys_destroy_mutex:
+ *  Destroys a mutex.
+ */
+extern "C" void be_sys_destroy_mutex(void *handle)
+{
+   struct my_mutex *mx = (struct my_mutex *)handle;
+
+   delete_sem(mx->actual_mutex);
+
+   free(mx);
+}
+
+
+
+/* be_sys_lock_mutex:
+ *  Locks a mutex.
+ */
+extern "C" void be_sys_lock_mutex(void *handle)
+{
+   struct my_mutex *mx = (struct my_mutex *)handle;
+
+   if (mx->owner != find_thread(NULL)) {
+      acquire_sem(mx->actual_mutex);
+      mx->owner = find_thread(NULL);      
+   }
+
+   mx->lock_count++;
+}
+
+
+
+/* be_sys_unlock_mutex:
+ *  Unlocks a mutex.
+ */
+extern "C" void be_sys_unlock_mutex(void *handle)
+{
+   struct my_mutex *mx = (struct my_mutex *)handle;
+
+   mx->lock_count--;
+
+   if (mx->lock_count == 0) {
+      mx->owner = (thread_id) 0;
+      release_sem(mx->actual_mutex);
+   }
 }
 
 

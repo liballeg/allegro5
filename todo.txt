@@ -84,7 +84,6 @@ Macintosh todos:
 BeOS todos:
 ---------------------------------------------------------------------------
 
-- Add internal support for mutexes
 - Launching programs from the Be menu still doesn't work (Tracker works though)
 
 QNX todos:
