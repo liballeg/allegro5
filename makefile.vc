@@ -5,6 +5,12 @@
 #  To path MSVC so it can be used from the commandline, run the
 #  vcvars32.bat file which can be found in your MSVC bin directory.
 #
+#  To use MSVC7 specific options, the variable COMPILER_MSVC7 must be set. The
+#  fix.bat script should do this automatically if run as `fix msvc7'
+#
+#  To use the Intel commandline compiler instead of the MSVC compiler,
+#  COMPILER_ICL must be set. Again, `fix icl' should take care of this.
+#
 #  This platform uses GCC for building the assembler sources and calculating
 #  source dependencies, so you'll need to have that installed in the form of
 #  DJGPP, MinGW or Cygwin.
@@ -122,7 +128,11 @@ endif
 
 # -------- Work out the absolute pathnames for some MSVC tools to avoid confusion --------
 
-MSVC_CL = $(MSVCDIR_U)/bin/cl
+ifdef COMPILER_ICL
+   MSVC_CL = icl
+else
+   MSVC_CL = $(MSVCDIR_U)/bin/cl
+endif
 MSVC_LINK = $(MSVCDIR_U)/bin/link
 MSVC_LIB = $(MSVCDIR_U)/bin/lib
 MSVC_RC = rc
@@ -172,10 +182,20 @@ else
 
 # -------- optimised build --------
 
-CFLAGS = $(WFLAGS) -Gd -O2 -GB $(RUNTIME_FLAGS)
+CFLAGS = $(WFLAGS) -Gd $(RUNTIME_FLAGS)
 SFLAGS = -Wall
 LFLAGS = -release
 LIBPARMS = 
+
+ifdef COMPILER_ICL
+   CFLAGS += -Os -G7 -QaxPN
+else
+   ifdef TARGET_ARCH_EXCL
+      CFLAGS += -O2 -G$(TARGET_ARCH_EXCL)
+   else
+      CFLAGS += -O2 -GB
+   endif
+endif
 
 ifdef COMPILER_MSVC7
    CFLAGS += -GL

@@ -133,9 +133,9 @@ Installing Allegro
    using MinGW and want the <tt>fix.bat</tt> to solve problems with long paths,
    type "<tt>fix.bat msvc --msvcpaths</tt>".
    
-   If you are using MSVC 7 or higher you can specify "msvc7" instead of "msvc"
-   which will enable better optimalization. However it can make the compilation
-   slower especially for the statically linked version.
+   If you are using MSVC 7 you can specify "msvc7" instead of "msvc" to enable
+   better optimizations. Likewise, you can specify "icl" to use the Intel
+   commandline compiler.
 
    If you are compiling from CVS, before continuing you must run both
    "<tt>make depend</tt>" and "<tt>misc/fixdll.sh</tt>" as explained below, or the build will

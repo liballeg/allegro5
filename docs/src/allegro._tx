@@ -13101,6 +13101,18 @@ platforms you can set the following environment variables:
    Instructs the build process to use Unix-like tools instead of DOS tools.
    Note that you usually don't need to set it because the build proces will
    try to autodetect this configuration.
+<li>
+   COMPILER_MSVC7=1 (MSVC only)<br>
+   Enables special optimizations for MSVC 7 (the default is MSVC 6). You don't
+   normally need to set this flag since <i>fix.bat msvc7</i> should do the same
+   thing and is the prefered way of doing this.
+<li>
+   COMPILER_ICL=1 (MSVC only)<br>
+   Instructs the build process to use the Intel commandline compiler icl rather
+   than Microsoft's commandline compiler cl. You don't normally need to pass 
+   this flag since <i>fix.bat icl</i> should do the same thing and is the 
+   prefered way of doing this. Do not try COMPILER_MSVC7=1 and COMPILER_ICL=1
+   at the same time.
 </ul>
 If you only want to recompile a specific test program or utility, you can 
 specify it as an argument to make, eg. "make demo" or "make grabber". The 
