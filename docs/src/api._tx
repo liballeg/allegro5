@@ -109,6 +109,11 @@ Changes between 4.0.x and 4.2.x series
    set_volume() doesn't use the hardware mixer anymore to alter the global
    volume. Use set_hardware_volume() instead to get the old behaviour.
 <li>
+   The default sound volume of Allegro was raised, since there no longer is
+   the risk of wrapping with the new mixer. To restore the volume level to
+   that of previous versions, look at the set_volume_per_voice function.
+   Programs already using set_volume_per_voice are not affected.
+<li>
    yield_timeslice() doesn't just yield anymore, but actually takes CPU
    time away from the program, in order to enable Allegro programs to
    use less than 100% of the available processor time.
