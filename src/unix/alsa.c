@@ -307,7 +307,7 @@ static int alsa_init(int input, int voices)
    /* Allocate mixing buffer.  */
    alsa_bufdata = malloc(alsa_bufsize);
    if (!alsa_bufdata) {
-      ustrzcpy(allegro_error, gALLEGRO_ERROR_SIZE, et_config_text("Can not allocate audio buffer"));
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       goto error;
    }
 
