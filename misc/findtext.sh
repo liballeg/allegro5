@@ -27,9 +27,15 @@ grep get_config_text src/*.c src/*/*.c | \
 
 if [ $# -gt 0 ]; then
    echo "Comparing entext.cfg with $1..."
-   sed -e "s/=.*//" -e "s/ //" entext.cfg $1 | \
-      sort | \
-      uniq -u
+   en=`mktemp findtext.XXXXXX`
+   nat=`mktemp findtext.XXXXXX`
+   sed -e "s/=.*//" -e "s/ //" entext.cfg | sort > $en
+   sed -e "s/=.*//" -e "s/ //" $1 | sort > $nat
+   echo "-------- Missing Translations --------"
+   comm -2 -3 $en $nat
+   echo "-------- Possibly Unused Translations --------"
+   comm -1 -3 $en $nat
+   rm $en $nat
 else
    echo "Translation strings written into entext.cfg"
 fi
