@@ -32,9 +32,9 @@
 
    - Borland C++Builder (or Borland C++ command line tools)
    - Recent set of DirectX and other Windows SDK headers.
-   - GNU make (mak*b.zip).
-   - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll.bat".
-   - Optional: sort (txt*b.zip). Used by "fixdll.bat". GNU sort, not DOS!
+   - GNU make 3.77 or higher.
+   - Optional: GNU sed. Used by "make depend" and "fixdll.bat".
+   - Optional: GNU sort (not DOS sort). Used by "fixdll.bat".
 
    In order to run your programs, you need to obtain the Allegro DLLs and
    install them in the Windows system directory.
