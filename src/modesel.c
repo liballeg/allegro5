@@ -205,10 +205,12 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
    int mode, res_exist;
 
    /* autodetect drivers? */
-   if ((driver_list_entry->id == GFX_AUTODETECT) || (driver_list_entry->id == GFX_AUTODETECT_WINDOWED) ||
-       (driver_list_entry->id == GFX_AUTODETECT_FULLSCREEN) || (driver_list_entry->id == GFX_SAFE)) {
-      driver_list_entry->mode_list = default_mode_list;
+   if ((driver_list_entry->id == GFX_AUTODETECT) ||
+       (driver_list_entry->id == GFX_AUTODETECT_WINDOWED) ||
+       (driver_list_entry->id == GFX_AUTODETECT_FULLSCREEN)) {
       driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
+      driver_list_entry->mode_list = default_mode_list;
+      driver_list_entry->fetch_mode_list_ptr = NULL;
       return 0;
    }
 
@@ -243,7 +245,11 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
          if (!res_exist) {
             driver_list_entry->mode_count++;
             temp_mode_list = _al_sane_realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count));
-            if (!temp_mode_list) return -1;
+            if (!temp_mode_list) {
+               destroy_gfx_mode_list(gfx_mode_list);
+               return -1;
+            }
+
             mode = driver_list_entry->mode_count - 1;
 
             temp_mode_list[mode].w = gfx_mode_entry->width;
@@ -266,21 +272,24 @@ static int create_mode_list(DRIVER_LIST *driver_list_entry)
 
       /* terminate mode list */
       temp_mode_list = _al_sane_realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count + 1));
-      if (!temp_mode_list) return -1;
+      if (!temp_mode_list) {
+         destroy_gfx_mode_list(gfx_mode_list);
+         return -1;
+      }
+
       temp_mode_list[driver_list_entry->mode_count].w = 0;
       temp_mode_list[driver_list_entry->mode_count].h = 0;
 
       driver_list_entry->mode_list = temp_mode_list;
-   }
 
-   /* driver doesn't support fetch_mode_list() or the call failed? */
+      destroy_gfx_mode_list(gfx_mode_list);
+   }
    else {
+      /* driver doesn't support fetch_mode_list() or the call failed */
       driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
       driver_list_entry->mode_list = default_mode_list;
       driver_list_entry->fetch_mode_list_ptr = NULL;
    }
-
-   destroy_gfx_mode_list(gfx_mode_list);
 
    return 0;
 }
@@ -304,19 +313,16 @@ static int create_driver_list(void)
    driver_list = malloc(sizeof(DRIVER_LIST) * 3);
    if (!driver_list) return -1;
 
-   driver_list[0].id   = GFX_AUTODETECT;
+   driver_list[0].id = GFX_AUTODETECT;
    ustrzcpy(driver_list[0].name, DRVNAME_SIZE, get_config_text("Autodetect"));
-   driver_list[0].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[0]);
 
-   driver_list[1].id   = GFX_AUTODETECT_FULLSCREEN;
+   driver_list[1].id = GFX_AUTODETECT_FULLSCREEN;
    ustrzcpy(driver_list[1].name, DRVNAME_SIZE, get_config_text("Auto fullscreen"));
-   driver_list[1].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[1]);
 
-   driver_list[2].id   = GFX_AUTODETECT_WINDOWED;
+   driver_list[2].id = GFX_AUTODETECT_WINDOWED;
    ustrzcpy(driver_list[2].name, DRVNAME_SIZE, get_config_text("Auto windowed"));
-   driver_list[2].fetch_mode_list_ptr = NULL;
    create_mode_list(&driver_list[2]);
 
    driver_count = 0;
