@@ -123,6 +123,10 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_
 
 LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
 
+ifdef STATICLINK
+   LFLAGS += $(LIBRARIES)
+endif
+
 PROGRAMS = bfixicon
 
 bfixicon: tools/beos/bfixicon
@@ -139,7 +143,6 @@ SHARED_LIB_DIR = /boot/home/config/lib
 
 ifdef STATICLINK
 
-LFLAGS += $(LIBRARIES)
 $(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
 	cp $< $@
 	
