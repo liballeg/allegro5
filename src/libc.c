@@ -114,7 +114,6 @@ int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
 void *_al_sane_realloc(void *ptr, size_t size)
 {
    void *tmp_ptr;
-   ASSERT(size >= 0);
 
    tmp_ptr = NULL;
 
