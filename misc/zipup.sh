@@ -175,7 +175,7 @@ scan_for_empties "."
 echo "Creating $name.zip..."
 cd ..
 if [ -f $name.zip ]; then rm $name.zip; fi
-find allegro -iname CVS -prune -o -iname .cvsignore -prune -o -print | zip -9 $name.zip -@
+find allegro -iname "CVS" -prune -o -iname ".*" -prune -o -iname "*.rej" -prune -o -iname "*.orig" -prune -o -print | zip -9 $name.zip -@
 
 
 # generate the manifest file
