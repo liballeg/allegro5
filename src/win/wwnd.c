@@ -198,10 +198,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 
       case WM_CLOSE:
 	 if (!allow_wm_close) {
-	    if (wnd_windowed) {
-	       /* turn close messages into Esc keypress */
-	       _handle_key_press(27, KEY_ESC);
-	       _handle_key_release(KEY_ESC);
+            if (wnd_windowed) { /* is this line required? */
+               /* dialog code to be inserted here */
 	    }
 	    return 0;
 	 }
