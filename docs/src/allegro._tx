@@ -4761,6 +4761,9 @@ bitmap.
    circle, 64 a right angle, etc. All rotation functions can draw between any
    two bitmaps, even screen bitmaps or bitmaps of different color depth.
 
+   Positive increments of the angle will make the sprite rotate clockwise
+   on the screen, as demonstrated by the Allegro example.
+
 @@void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref rotate_sprite, rotate_scaled_sprite_v_flip
 @xref pivot_sprite_v_flip, pivot_scaled_sprite_v_flip
