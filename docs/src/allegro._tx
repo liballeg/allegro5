@@ -8435,26 +8435,25 @@ BeOS specifics
       don't really care what resolution. See the set_gfx_mode() 
       documentation for details.
 <li>
-   GFX_BEOS_FULLSCREEN<br>
+   GFX_BWINDOWSCREEN_ACCEL<br>
       Fullscreen exclusive mode. Supports only resolutions higher or equal
       to 640x480, and uses hardware acceleration if available.
 <li>
-   GFX_BEOS_FULLSCREEN_SAFE<br>
-      Works the same as GFX_FULLSCREEN, but disables acceleration.
+   GFX_BWINDOWSCREEN<br>
+      Works the same as GFX_BWINDOWSCREEN_ACCEL, but disables acceleration.
 <li>
-   GFX_BEOS_OVERLAY<br>
-      Fullscreen mode using BWindow with a BBitmap overlay. This mode
-      isn't supported by all graphics cards, only supports 15, 16 and 32 bit
-      color depths, but allows any fullscreen resolution, even low ones
-      that are normally unavailable under BeOS.
-<li>
-   GFX_BEOS_WINDOWED<br>
+   GFX_BDIRECTWINDOW<br>
       Fast windowed mode using the BDirectWindow class. Not all graphics
       cards support this.
 <li>
-   GFX_BEOS_WINDOWED_SAFE<br>
-      Safe windowed mode using the normal BWindow class. Slow but
-      always works.
+   GFX_BWINDOW<br>
+      Normal windowed mode using the BWindow class. Slow but always works.
+<li>
+   GFX_BWINDOW_OVERLAY<br>
+      Fullscreen mode using BWindow with a BBitmap overlay. This mode isn't
+      supported by all graphics cards, only supports 15, 16 and 32 bit color
+      depths, but allows any fullscreen resolution, even low ones that are
+      normally unavailable under BeOS.
 </ul>
 @@Drivers: @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input

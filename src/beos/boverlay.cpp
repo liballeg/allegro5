@@ -25,6 +25,7 @@
 
 
 static char driver_desc[256] = EMPTY_STRING;
+static display_mode old_display_mode;
 
 
 
@@ -38,7 +39,6 @@ BeAllegroOverlay::BeAllegroOverlay(BRect frame, const char *title,
    : BWindow(frame, title, look, feel, flags, workspaces)
 {
    BRect rect = Bounds();
-   uint32 i;
    color_space space = B_NO_COLOR_SPACE;
 
    _be_allegro_view = new BeAllegroView(rect, "Allegro",
@@ -113,7 +113,7 @@ void BeAllegroOverlay::WindowActivated(bool active)
  */
 bool BeAllegroOverlay::QuitRequested(void)
 {
-    return _be_handle_window_close(_be_allegro_window->Title());
+    return _be_handle_window_close(Title());
 }
 
 
@@ -152,6 +152,7 @@ extern "C" struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, in
    BRect src, dest;
    char path[MAXPATHLEN];
    char *exe;
+   int i;
    
    if (1
 #ifdef ALLEGRO_COLOR16
@@ -181,7 +182,20 @@ extern "C" struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, in
    exe = get_filename(path);
 
    set_display_switch_mode(SWITCH_PAUSE);
-
+   
+   BScreen().GetMode(&old_display_mode);
+   for (i=0; _be_mode_table[i].d > 0; i++) {
+      if ((_be_mode_table[i].d == color_depth) &&
+          (_be_mode_table[i].w >= w) &&
+          (_be_mode_table[i].h >= h))
+         break;
+   }
+   if ((_be_mode_table[i].d <= 0) ||
+       (set_screen_space(0, _be_mode_table[i].mode, false) != B_OK)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
+      goto cleanup;
+   }
+   
    src = BRect(0, 0, w - 1, h - 1);
    dest = BScreen().Frame();
    
@@ -274,5 +288,7 @@ extern "C" void be_gfx_overlay_exit(struct BITMAP *bmp)
    }
    _be_mouse_window   = NULL;	    
    _be_mouse_view     = NULL;
+   
+   BScreen().SetMode(&old_display_mode);
 }
 

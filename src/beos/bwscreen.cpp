@@ -63,7 +63,7 @@ void BeAllegroScreen::ScreenConnected(bool connected)
  */
 bool BeAllegroScreen::QuitRequested(void)
 {
-   return _be_handle_window_close(_be_allegro_screen->Title());
+   return _be_handle_window_close(Title());
 }
 
 

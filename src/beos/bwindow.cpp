@@ -267,7 +267,7 @@ void BeAllegroWindow::WindowActivated(bool active)
  */
 bool BeAllegroWindow::QuitRequested(void)
 {
-    return _be_handle_window_close(_be_allegro_window->Title());
+    return _be_handle_window_close(Title());
 }
 
 

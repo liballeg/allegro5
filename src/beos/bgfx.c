@@ -26,7 +26,7 @@
 
 
 GFX_DRIVER gfx_beos_bwindowscreen_accel = {
-   GFX_BEOS_FULLSCREEN,               // int id;
+   GFX_BWINDOWSCREEN_ACCEL,           // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
    "BWindowScreen accel",             // char *ascii_name;
@@ -64,7 +64,7 @@ GFX_DRIVER gfx_beos_bwindowscreen_accel = {
 
 
 GFX_DRIVER gfx_beos_bwindowscreen = {
-   GFX_BEOS_FULLSCREEN_SAFE,          // int id;
+   GFX_BWINDOWSCREEN,                 // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
    "BWindowScreen",                   // char *ascii_name;
@@ -102,7 +102,7 @@ GFX_DRIVER gfx_beos_bwindowscreen = {
 
 
 GFX_DRIVER gfx_beos_bdirectwindow = {
-   GFX_BEOS_WINDOWED,                 // int id;
+   GFX_BDIRECTWINDOW,                 // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
    "BDirectWindow",                   // char *ascii_name;
@@ -140,7 +140,7 @@ GFX_DRIVER gfx_beos_bdirectwindow = {
 
 
 GFX_DRIVER gfx_beos_bwindow = {
-   GFX_BEOS_WINDOWED_SAFE,            // int id;
+   GFX_BWINDOW,                       // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
    "BWindow",                         // char *ascii_name;
@@ -178,7 +178,7 @@ GFX_DRIVER gfx_beos_bwindow = {
 
 
 GFX_DRIVER gfx_beos_overlay = {
-   GFX_BEOS_OVERLAY,                  // int id;
+   GFX_BWINDOW_OVERLAY,               // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
    "BWindow (overlay)",               // char *ascii_name;
