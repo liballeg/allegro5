@@ -4131,7 +4131,7 @@ MENU mode_menu[] =
 MENU mmx_menu[] =
 {
    { "&Autodetect",              mmx_auto_proc,    NULL,    D_SELECTED,    NULL  },
-   { "&Disable 3DNow",           mmx_3doff_proc,   NULL,    0,             NULL  },
+   { "&Disable 3DNow!",          mmx_3doff_proc,   NULL,    0,             NULL  },
    { "&Disable MMX",             mmx_off_proc,     NULL,    0,             NULL  },
    { "&Disable SSE",             sse_off_proc,     NULL,    0,             NULL  },
    { NULL,                       NULL,             NULL,    0,             NULL  }
