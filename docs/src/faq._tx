@@ -293,6 +293,12 @@ Windows problems
       using Mingw32 or to your BCC32DIR variable if you are using BCC.
 
 <li><font size="+1">
+@@   When I run make, it says "windres: no resources".
+</font>
+      If Norton Antivirus is installed on your computer, try to disable
+      the "Auto-Protect" feature. Otherwise, try something else ;-)
+
+<li><font size="+1">
 @\   In windowed mode artifacts are left on the desktop when the window
 @@   is moved or when another window is placed on top of it.
 </font>
