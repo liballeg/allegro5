@@ -184,7 +184,8 @@ struct _AL_MUTEX
     pthread_mutex_t mutex;
 };
 
-#define _AL_MUTEX_UNINITED	{ false, }
+#define _AL_MUTEX_UNINITED	{ false, PTHREAD_MUTEX_INITIALIZER }
+				/* makes no sense, but shuts gcc up */
 
 AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
 AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));

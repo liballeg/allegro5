@@ -153,7 +153,7 @@ int al_num_joysticks(void)
 static AL_JOYSTICK *find_opened_joystick_by_num(int num)
 {
    AL_JOYSTICK **slot;
-   int i;
+   unsigned int i;
 
    for (i = 0; i < _al_vector_size(&opened_joysticks); i++) {
       slot = _al_vector_ref(&opened_joysticks, i);
