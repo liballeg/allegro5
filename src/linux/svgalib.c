@@ -85,7 +85,6 @@ static char svga_desc[256] = EMPTY_STRING;
 static int svga_mode;
 
 static unsigned int bytes_per_line;
-static unsigned int pixels_per_line;
 static unsigned int display_start_mask;
 
 static unsigned char *screen_buffer;
@@ -336,7 +335,9 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       }
 
       if ((v_w != 0) && (w != v_w)) {
-	 if ((v_w % 8) || (v_w < w)) {
+	 if ((v_w < w) ||
+	     ((v_w * info->bytesperpixel) %
+	      ((info->flags & EXT_INFO_AVAILABLE) ? info->linewidth_unit : 8))) {
 	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Invalid virtual resolution requested"));
 	    return NULL;
 	 }
@@ -358,7 +359,6 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       gfx_svgalib.desc = svga_desc;
 
       /* For hardware scrolling.  */
-      pixels_per_line = width;
       display_start_mask = info->startaddressrange;
 
       /* Set truecolor format.  */
@@ -505,7 +505,7 @@ static void svga_exit(BITMAP *b)
  */
 static int svga_scroll(int x, int y)
 {
-   vga_setdisplaystart((x + y * pixels_per_line) /* & display_start_mask */);
+   vga_setdisplaystart((x + y * bytes_per_line) /* & display_start_mask */);
    /* The bitmask seems to mess things up on my machine, even though
     * the documentation says it should be there. -- PW  */
    return 0;
