@@ -496,7 +496,7 @@ static void prettify_section_name(AL_CONST char *in, char *out, int out_size)
 {
    int p;
 
-   if (in) {
+   if ((in) && (ustrlen(in))) {
       if (ugetc(in) != '[') {
 	 p = usetc(out, '[');
 	 usetc(out+p, 0);
