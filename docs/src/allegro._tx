@@ -8995,6 +8995,8 @@ DOS specifics
       MIDI_DIGMID          - sample-based software wavetable player
       MIDI_AWE32           - AWE32 (EMU8000 chip)<endblock>
 
+@hnode DOS integration routines
+
 @@void @split_modex_screen(int line);
 @xref set_gfx_mode, scroll_screen
 @eref exscroll
@@ -9195,6 +9197,8 @@ below for the consequences for windowed and overlay DirectX drivers.
       MIDI_WIN32MAPPER     - use win32 MIDI mapper
       MIDI_WIN32(n)        - use win32 device #n (zero-based)
       MIDI_DIGMID          - sample-based software wavetable player<endblock>
+
+@hnode Windows integration routines
 
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose Win32 programs. To use these routines, 
@@ -9512,6 +9516,8 @@ command. You could add another grep to filter only lines with text like
       MIDI_DIGMID          - sample-based software wavetable player
       MIDI_ALSA            - ALSA RawMIDI driver<endblock>
 
+@hnode Unix integration routines
+
 @@void @xwin_set_window_name(const char *name, const char *group);
 @xref set_window_title
    This function is only available under X. It lets you to specify the
@@ -9653,6 +9659,9 @@ QNX specifics
       MIDI_ALSA            - ALSA RawMIDI driver
       MIDI_DIGMID          - sample-based software wavetable player
 <endblock>
+
+@hnode QNX integration routines
+
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose QNX programs. To use these routines, 
 you must include qnxalleg.h after other Allegro headers.
@@ -9718,6 +9727,28 @@ MacOS X specifics
       MIDI_QUICKTIME       - QuickTime Music Note Allocator MIDI output
       MIDI_DIGMID          - sample-based software wavetable player
 <endblock>
+
+@hnode MacOS X integration routines
+
+The following functions provide a platform specific interface to seamlessly
+integrate Allegro into general purpose MacOS X programs. To use these routines, 
+you must include qnxalleg.h after other Allegro headers.
+
+@@void @set_application_quit_callback(void (*proc)(void));
+@xref set_close_button_callback
+   Sets a callback to be called if the user hits Command-Q or selects "Quit"
+   from the application menu. The default behaviour if this is not set is the
+   same as with the usual Allegro three fingers salute (Ctrl-Alt-End): the
+   program is terminated instantly with a SIGTERM signal, so there is no way
+   for your program to clean up things before exiting, which may also lead to
+   a crash on application quit.
+   
+   If a callback is set, this overrides the default behaviour and the supplied
+   routine will be called instead. The callback is run in a separated thread,
+   so as with set_close_button_callback() you are not supposed to put shutdown
+   code there; just set a flag and check if it is set in the main program
+   loop, acting accordingly.
+
 
 
 @headingnocontent
