@@ -20,7 +20,10 @@
 =====================================
 
    Status: complete. This is the original Allegro version, and has had 
-   plenty of time to become nice and stable.
+   plenty of time to become nice and stable. However, under Windows NT,
+   2000, or XP you will very likely experience problems and should consider
+   using the native Windows version of Allegro instead, less likely to give
+   you problems under such environments.
 
 
 
