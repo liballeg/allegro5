@@ -15,7 +15,7 @@ else
 endif
 
 mmxtest:
-	gcc -DASMCAPA_MMX_TEST -assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
+	gcc -DASMCAPA_MMX_TEST -x assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
 ifdef UNIX_TOOLS
 	echo "#define ALLEGRO_MMX" >> $(ASMCAPA_DIR_U)/asmcapa.h
 else
@@ -23,7 +23,7 @@ else
 endif
 
 ssetest:
-	gcc -DASMCAPA_SSE_TEST -assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
+	gcc -DASMCAPA_SSE_TEST -x assembler-with-cpp -c src/misc/asmcapa.s -o $(ASMCAPA_DIR_U)/asmcapa$(OBJ)
 ifdef UNIX_TOOLS
 	echo "#define ALLEGRO_SSE" >> $(ASMCAPA_DIR_U)/asmcapa.h
 else
