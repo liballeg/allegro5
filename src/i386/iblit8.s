@@ -627,7 +627,6 @@ FUNC(_linear_masked_blit8)
             
       pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3) */
       pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
-      addl $8, %esi;              /* Update src */
       maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
 
       _align_;

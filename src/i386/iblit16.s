@@ -623,7 +623,7 @@ FUNC(_linear_masked_blit16)
       addl $2, %edi;
       cmpw %ax, %dx;              /* Compare with mask */
       je masked16_mmx_long;
-      movw %ax, (%edi);           /* Write the pixel */
+      movw %ax, -2(%edi);         /* Write the pixel */
       
       masked16_mmx_long:
       
@@ -654,7 +654,6 @@ FUNC(_linear_masked_blit16)
             
       pcmpeqw %mm1, %mm3;         /* Compare with mask (%mm3, %mm6) */
       pxor %mm4, %mm3;            /* Turn 1->0 and 0->1 */
-      addl $8, %esi;              /* Update src */
       maskmovq %mm3, %mm1;        /* Write if not equal to mask. Note: maskmovq is an SSE instruction! */
 
       _align_;
