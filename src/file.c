@@ -1323,7 +1323,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 	 }
 
 #ifndef ALLEGRO_MPW
-	 	f->hndl = open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+	 	f->hndl = open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
 #else
 	 	f->hndl = _al_open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY );
 #endif
