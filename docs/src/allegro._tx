@@ -1676,10 +1676,12 @@ Allegro does not provide such devices.)
 
 @@extern volatile int @retrace_count;
 @xref timer_simulate_retrace, timer_is_using_retrace, retrace_proc
-   If the retrace simulator is installed, this is incremented on each 
-   vertical retrace, otherwise it is incremented 70 times a second (ignoring 
-   retraces). This provides a useful way of controlling the speed of your 
-   program without the hassle of installing user timer functions.
+   If the retrace simulator is installed, this count is incremented on each
+   vertical retrace; otherwise, if the refresh rate is known, the count is
+   incremented at the same rate (ignoring retraces); otherwise, it is
+   incremented 70 times a second. This provides a useful way of controlling
+   the speed of your program without the hassle of installing user timer
+   functions.
 
    The speed of retraces varies depending on the graphics mode. In mode 13h 
    and 200/400 line mode-X resolutions there are 70 retraces a second, and 
@@ -1690,12 +1692,13 @@ Allegro does not provide such devices.)
 @xref timer_simulate_retrace, timer_is_using_retrace, retrace_count
 @xref _set_color
    If the retrace simulator is installed, this function is called during 
-   every vertical retrace, otherwise it is called 70 times a second 
-   (ignoring retraces). Set it to NULL to disable the callback. The function 
-   must obey the same rules as regular timer handlers (ie. it must be 
-   locked, and mustn't call OS or libc functions) but even more so: it must 
-   execute _very_ quickly, or it will mess up the timer synchronisation. The 
-   only use I can see for this function is for doing palette manipulations, 
+   every vertical retrace; otherwise, if the refresh rate is known, the 
+   function is called at the same rate (ignoring retraces); otherwise it is 
+   called 70 times a second. Set it to NULL to disable the callback. The 
+   function must obey the same rules as regular timer handlers (ie. it must 
+   be locked, and mustn't call OS or libc functions) but even more so: it 
+   must execute very quickly, or it will mess up the timer synchronisation. 
+   The only use I can see for this function is for palette manipulations, 
    because triple buffering can be done with the request_scroll() function, 
    and the retrace_count variable can be used for timing your code. If you 
    want to alter the palette in the retrace_proc you should use the inline 

@@ -32,6 +32,8 @@ TIMER_QUEUE _timer_queue[MAX_TIMERS];     /* list of active callbacks */
 volatile int retrace_count = 0;           /* used for retrace syncing */
 void (*retrace_proc)(void) = NULL;
 
+long _vsync_speed = BPS_TO_TIMER(70);     /* retrace speed */
+
 static long vsync_counter;                /* retrace position counter */
 
 int _timer_use_retrace = FALSE;           /* are we synced to the retrace? */
@@ -66,7 +68,7 @@ long _handle_timer_tick(int interval)
    vsync_counter -= d; 
 
    while (vsync_counter <= 0) {
-      vsync_counter += BPS_TO_TIMER(70);
+      vsync_counter += _vsync_speed;
       retrace_count++;
       if (retrace_proc)
 	 retrace_proc();

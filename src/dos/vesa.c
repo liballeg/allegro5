@@ -1004,7 +1004,7 @@ static BITMAP *vesa_init(GFX_DRIVER *driver, int linear, int vbe_version, int w,
       if (vclk != 0) {
 	 f0 = (double)vclk / (crtc.HorizontalTotal * crtc.VerticalTotal);
 
-	 _current_refresh_rate = (int)(f0 + 0.5);
+	 _set_current_refresh_rate((int)(f0 + 0.5));
 
 	 crtc.PixelClock  = vclk;
 	 crtc.RefreshRate = _refresh_rate_request * 100;

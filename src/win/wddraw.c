@@ -178,11 +178,11 @@ int finalize_directx_init(void)
 
    if ((FAILED(hr)) || (freq < 40) || (freq > 200)) {
       set_sync_timer_freq(70);
-      _current_refresh_rate = 0;
+      _set_current_refresh_rate(0);
    }
    else {
       set_sync_timer_freq(freq);
-      _current_refresh_rate = freq;
+      _set_current_refresh_rate(freq);
    }
 
    return 0;

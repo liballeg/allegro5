@@ -47,5 +47,10 @@ Changes between 4.0.x and 4.1.x series
    draw the border outside of this dimension (1 pixel overdraw with other GUI
    elements), and also add an additional 'shadow' to the right and the bottom
    (2 pixels overdraw with other GUI elements).
+<li>
+   The 'retrace_count' variable and the 'retrace_proc' callback function 
+   take into account the refresh rate (if it is known) when the retrace
+   simulator is not installed. This was not the case before, except under
+   Windows.
 </ul>
 

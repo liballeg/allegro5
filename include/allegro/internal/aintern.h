@@ -132,6 +132,8 @@ AL_VAR(int, _timer_installed);
 AL_VAR(int, _timer_use_retrace);
 AL_VAR(volatile int, _retrace_hpp_value);
 
+AL_VAR(long, _vsync_speed);
+
 
 /* various bits of keyboard stuff */
 AL_FUNC(void, _handle_key_press, (int keycode, int scancode));
@@ -280,7 +282,7 @@ AL_VAR(GFX_VTABLE, _screen_vtable);
 AL_VAR(int, _gfx_mode_set_count);
 
 AL_VAR(int, _refresh_rate_request);
-AL_VAR(int, _current_refresh_rate);
+AL_FUNC(void, _set_current_refresh_rate, (int rate));
 
 AL_VAR(int, _sub_bitmap_id_count);
 

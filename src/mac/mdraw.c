@@ -187,7 +187,7 @@ static BITMAP *dspr_init(int w, int h, int v_w, int v_h, int color_depth)
    b =_CGrafPtr_to_system_bitmap(cg);
    if(b){
       DSpContext_GetMonitorFrequency  (dspr_context,&myfreq);
-      _current_refresh_rate = Fix2Long(myfreq);
+      _set_current_refresh_rate(Fix2Long(myfreq));
 
       gfx_drawsprocket.w = w;
       gfx_drawsprocket.h = h;

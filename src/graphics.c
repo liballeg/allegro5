@@ -40,7 +40,7 @@ COLOR_MAP *color_map = NULL;           /* translucency/lighting table */
 int _color_depth = 8;                  /* how many bits per pixel? */
 
 int _refresh_rate_request = 0;         /* requested refresh rate */
-int _current_refresh_rate = 0;         /* refresh rate set by the driver */
+static int current_refresh_rate = 0;   /* refresh rate set by the driver */
 
 int _color_conv = COLORCONV_TOTAL;     /* which formats to auto convert? */
 
@@ -144,7 +144,7 @@ void lock_bitmap(BITMAP *bmp)
  */
 void request_refresh_rate(int rate)
 {
-    _refresh_rate_request = rate;
+   _refresh_rate_request = rate;
 }
 
 
@@ -154,7 +154,25 @@ void request_refresh_rate(int rate)
  */
 int get_refresh_rate(void)
 {
-    return _current_refresh_rate;
+   return current_refresh_rate;
+}
+
+
+
+/* _set_current_refresh_rate:
+ *  Sets the current refresh rate.
+ *  (This function must be called by the gfx drivers)
+ */
+void _set_current_refresh_rate(int rate)
+{
+   /* sanity check to discard bogus values */
+   if ((rate<40) || (rate>200))
+      rate = 0;
+
+   current_refresh_rate = rate;
+
+   /* adjust retrace speed */
+   _vsync_speed = rate ? BPS_TO_TIMER(rate) : BPS_TO_TIMER(70);
 }
 
 
@@ -594,7 +612,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    gfx_capabilities = 0;
 
-   _current_refresh_rate = 0;
+   _set_current_refresh_rate(0);
 
    /* return to text mode? */
    if (card == GFX_TEXT) {

@@ -478,7 +478,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
       return NULL;
    }
    _xwin.in_dga_mode = 2;
-   _current_refresh_rate = dga_device->mode.verticalRefresh;
+   _set_current_refresh_rate(dga_device->mode.verticalRefresh);
    set_display_switch_mode(SWITCH_NONE);
 
    /* Installs DGA color map */

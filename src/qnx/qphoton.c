@@ -337,7 +337,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
    }
    
    PgGetVideoMode(&settings);
-   _current_refresh_rate = settings.refresh;
+   _set_current_refresh_rate(settings.refresh);
    
    if (!(ph_direct_context = PdCreateDirectContext())) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot create direct context"));
