@@ -2513,7 +2513,6 @@ Graphics modes
    Attempts to create a list of all the supported video modes for a certain
    graphics driver. This function returns a pointer to a list structure of 
    the type GFX_MODE_LIST which has the following definition:
-   type GFX_MODE_LIST which has the following definition:
 <codeblock>
       typedef struct GFX_MODE_LIST {
 	 int num_modes;
