@@ -59,6 +59,7 @@
     acquire_screen
     active_dialog DATA
     active_menu DATA
+    add_clip_rect
     adjust_sample
     al_assert
     al_findclose
@@ -204,6 +205,7 @@
     fade_interpolate
     fade_out
     fade_out_range
+    fastline
     file_exists
     file_select
     file_select_ex
@@ -256,6 +258,8 @@
     get_audio_stream_buffer
     get_camera_matrix
     get_camera_matrix_f
+    get_clip_rect
+    get_clip_state
     get_color
     get_color_conversion
     get_color_depth
@@ -376,6 +380,7 @@
     install_sound
     install_sound_input
     install_timer
+    is_inside_bitmap
     is_linear_bitmap
     is_memory_bitmap
     is_planar_bitmap
@@ -603,6 +608,8 @@
     set_blender_mode_ex
     set_burn_blender
     set_clip
+    set_clip_rect
+    set_clip_state
     set_close_button_callback
     set_color
     set_color_blender
@@ -622,6 +629,7 @@
     set_dissolve_blender
     set_dodge_blender
     set_gfx_mode
+    set_hardware_volume
     set_hue_blender
     set_invert_blender
     set_keyboard_rate
@@ -821,6 +829,7 @@
     _al_sane_realloc
     _al_srand
     _allegro_count DATA
+    _allegro_in_exit DATA
     _blender_add15
     _blender_add16
     _blender_add24
@@ -934,6 +943,7 @@
     _dummy_noop1
     _dummy_noop2
     _dummy_noop3
+    _fast_line
     _fill_3d_edge_structure
     _fill_3d_edge_structure_f
     _find_utype
@@ -1294,6 +1304,7 @@
     _scratch_mem_size DATA
     _screen_split_position DATA
     _screen_vtable DATA
+    _screensaver_policy DATA
     _set_colorconv_palette
     _set_current_refresh_rate
     _sort_out_virtual_width
