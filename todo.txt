@@ -98,6 +98,8 @@ Wishlist: (definitely post 4.0)
 
 - More hardware accelerated functions? Trans/lit sprites come to mind.
 - framebuffer hardware accel via XFB or DirectFB (?) library/driver
+- implementation of request_refresh_rate for fbdev, since apparently you can
+  set video modes with a great detail (scanlines, memory, etc).
 - Better get_config_text support, with multiple fallback configuration
   files (you can have lot's of them under linux), which is not supported at
   the moment (IIRC two at most).
