@@ -122,8 +122,10 @@ static int changetype(void)
       alert(buf, NULL, NULL, "OK", NULL, 13, 0);
    }
 
-   if (n > p)
+   if (n > p) {
+      grabber_modified(TRUE);
       grabber_rebuild_list(NULL, FALSE);
+   }
 
    return ret;
 }
@@ -216,6 +218,9 @@ static int changedepth(void)
       sprintf(buf, "%d non-bitmap object%s ignored", p, (p==1) ? " was" : "s were");
       alert(buf, NULL, NULL, "OK", NULL, 13, 0);
    }
+
+   if (n > p)
+      grabber_modified(TRUE);
 
    return ret;
 }
