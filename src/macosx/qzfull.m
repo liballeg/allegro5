@@ -36,6 +36,7 @@ static int lock_nesting = 0;
 static char driver_desc[256];
 static CFDictionaryRef old_mode = NULL;
 static CGDirectPaletteRef palette = NULL;
+static CGrafPtr screen_port = NULL;
 
 
 GFX_DRIVER gfx_quartz_full =
@@ -81,9 +82,10 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 {
    BITMAP *bmp;
    CFDictionaryRef mode = NULL;
+   CGDisplayFadeReservationToken token;
    boolean_t match = FALSE;
    int bpp, refresh_rate;
-   char tmp1[128], tmp2[128];
+   char tmp1[128];
    
    if (1
 #ifdef ALLEGRO_COLOR8
@@ -119,17 +121,31 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 	 (double)_refresh_rate_request, &match);
    if (!match)
       mode = CGDisplayBestModeForParameters(kCGDirectMainDisplay, bpp, w, h, &match);
+   if (!match)
+      mode = CGDisplayBestModeForParametersAndRefreshRateWithProperty(kCGDirectMainDisplay,
+         bpp, w, h, (_refresh_rate_request > 0) ? (double)_refresh_rate_request : 60.0,
+	 kCGDisplayModeIsStretched, &match);
    if (!match) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       return NULL;
    }
    
    old_mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-   
    CGDisplayHideCursor(kCGDirectMainDisplay);
-   CGDisplayCapture(kCGDirectMainDisplay);
-   CGDisplaySwitchToMode(kCGDirectMainDisplay, mode);
+   if (CGAcquireDisplayFadeReservation(kCGMaxDisplayReservationInterval, &token) == kCGErrorSuccess) {
+      CGDisplayFade(token, 0.5, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, true);
+      CGReleaseDisplayFadeReservation(token);
+   }
+   if (CGDisplayCapture(kCGDirectMainDisplay) != kCGErrorSuccess) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot capture main display"));
+      return NULL;
+   }
+   if (CGDisplaySwitchToMode(kCGDirectMainDisplay, mode) != kCGErrorSuccess) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot switch main display mode"));
+      return NULL;
+   }
    HideMenuBar();
+   CGDisplayRestoreColorSyncSettings();
    
    CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
    _set_current_refresh_rate(refresh_rate);
@@ -139,17 +155,19 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    
    bmp = _make_bitmap(w, h, (unsigned long)CGDisplayBaseAddress(kCGDirectMainDisplay),
                       &gfx_quartz_full, color_depth, CGDisplayBytesPerRow(kCGDirectMainDisplay));
-   if (!bmp) {
+   if (bmp)
+      bmp->extra = calloc(1, sizeof(struct BMP_EXTRA_INFO));
+   if ((!bmp) || (!bmp->extra)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
       return NULL;
    }
    
-   bmp->extra = malloc(sizeof(struct BMP_EXTRA_INFO));
-   BMP_EXTRA(bmp)->port = CreateNewPortForCGDisplayID((UInt32)kCGDirectMainDisplay);
-   if (!BMP_EXTRA(bmp)->port) {
+   screen_port = CreateNewPortForCGDisplayID((UInt32)kCGDirectMainDisplay);
+   if (!screen_port) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot create DirectDisplay port"));
       return NULL;
    }
+   BMP_EXTRA(bmp)->port = screen_port;
    
    setup_direct_shifts();
    
@@ -158,13 +176,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    gfx_quartz_full.vid_mem = w * h * BYTES_PER_PIXEL(color_depth);
    
    _screen_vtable.created_sub_bitmap = osx_qz_created_sub_bitmap;
-/*
-   _screen_vtable.acquire = osx_qz_acquire;
-   _screen_vtable.release = osx_qz_release;
-   _screen_vtable.unwrite_bank = osx_qz_unwrite_line;
-   bmp->read_bank = osx_qz_write_line;
-   bmp->write_bank = osx_qz_write_line;
-*/
    
    uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Core Graphics DirectDisplay access, %d bpp", tmp1),
              color_depth);
@@ -191,6 +202,8 @@ static BITMAP *osx_qz_full_init(int w, int h, int v_w, int v_h, int color_depth)
 
 static void osx_qz_full_exit(BITMAP *bmp)
 {
+   CGDisplayFadeReservationToken token = -1;
+   
    _unix_bg_man->disable_interrupts();
    pthread_mutex_lock(&osx_event_mutex);
    
@@ -206,10 +219,17 @@ static void osx_qz_full_exit(BITMAP *bmp)
    }
    
    if (old_mode) {
-      ShowMenuBar();
+      if (CGAcquireDisplayFadeReservation(kCGMaxDisplayReservationInterval, &token) == kCGErrorSuccess)
+         CGDisplayFade(token, 0.0, kCGDisplayBlendNormal, kCGDisplayBlendSolidColor, 0.0, 0.0, 0.0, true);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
       CGDisplayShowCursor(kCGDirectMainDisplay);
+      ShowMenuBar();
+      if (token >= 0) {
+         CGDisplayFade(token, 0.5, kCGDisplayBlendSolidColor, kCGDisplayBlendNormal, 0.0, 0.0, 0.0, true);
+         CGReleaseDisplayFadeReservation(token);
+      }
+      CGDisplayRestoreColorSyncSettings();
       old_mode = NULL;
    }
    
@@ -269,15 +289,15 @@ static int osx_qz_show_video_bitmap(BITMAP *bmp)
       return -1;
    
    SetRect(&rect, 0, 0, bmp->w - 1, bmp->h - 1);
-   while (!QDDone(BMP_EXTRA(screen)->port));
+   while (!QDDone(screen_port));
    while (!QDDone(BMP_EXTRA(bmp)->port));
-   LockPortBits(BMP_EXTRA(screen)->port);
+   LockPortBits(screen_port);
    LockPortBits(BMP_EXTRA(bmp)->port);
    osx_qz_full_vsync();
    CopyBits(GetPortBitMapForCopyBits(BMP_EXTRA(bmp)->port),
-            GetPortBitMapForCopyBits(BMP_EXTRA(screen)->port),
+            GetPortBitMapForCopyBits(screen_port),
 	    &rect, &rect, srcCopy, NULL);
-   UnlockPortBits(BMP_EXTRA(screen)->port);
+   UnlockPortBits(screen_port);
    UnlockPortBits(BMP_EXTRA(bmp)->port);
    
    return 0;

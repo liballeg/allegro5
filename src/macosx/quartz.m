@@ -25,6 +25,7 @@
 #endif
 
 
+
 /* setup_direct_shifts
  *  Setups direct color shifts.
  */

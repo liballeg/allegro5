@@ -150,7 +150,7 @@ void osx_event_handler()
       if (event == nil)
          break;
       
-      if (skip_events_processing) {
+      if ((skip_events_processing) || (osx_gfx_mode == OSX_GFX_NONE)) {
          [NSApp sendEvent: event];
 	 continue;
       }

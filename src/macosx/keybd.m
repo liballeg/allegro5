@@ -94,11 +94,19 @@ KEYBOARD_DRIVER keyboard_macosx =
  */
 void osx_keyboard_handler(int pressed, NSEvent *event)
 {
-   const char *characters = [[event characters] lossyCString];
+   const char character = [[event charactersIgnoringModifiers] lossyCString][0];
    int scancode = mac_to_scancode[[event keyCode]];
+   int modifiers = [event modifierFlags];
    
    if (pressed) {
-      _handle_key_press(characters[0], scancode);
+      if (modifiers & NSAlternateKeyMask)
+         _handle_key_press(0, scancode);
+      else {
+         if ((modifiers & NSControlKeyMask) && (isalpha(character)))
+            _handle_key_press(tolower(character) - 'a' + 1, scancode);
+	 else
+            _handle_key_press(character, scancode);
+      }
       if ((three_finger_flag) && (scancode == KEY_END) &&
           (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
 	 pthread_mutex_unlock(&osx_event_mutex);
@@ -128,7 +136,7 @@ void osx_keyboard_modifiers(unsigned int mods)
       if (changed) {
          if (mods & mod_info[i][0]) {
 	    _key_shifts |= mod_info[i][1];
-            _handle_key_press(0, mod_info[i][2]);
+            _handle_key_press(-1, mod_info[i][2]);
 	    if (i == 0)
 	       /* Caps lock requires special handling */
 	       _handle_key_release(mod_info[0][2]);
@@ -136,7 +144,7 @@ void osx_keyboard_modifiers(unsigned int mods)
 	 else {
 	    _key_shifts &= ~mod_info[i][1];
 	    if (i == 0)
-	       _handle_key_press(0, mod_info[0][2]);
+	       _handle_key_press(-1, mod_info[0][2]);
 	    _handle_key_release(mod_info[i][2]);
 	 }
       }
