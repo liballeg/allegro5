@@ -517,7 +517,7 @@ dnl
 dnl Test for buggy IRIX linker.
 dnl
 dnl Variables:
-dnl  allegro_cv_prog_ld_s
+dnl  allegro_cv_prog_ld_s=(yes|no)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_PROG_LD_S,
 [AC_MSG_CHECKING(whether linker works with -s option)
@@ -533,7 +533,7 @@ dnl
 dnl Test for buggy gcc version.
 dnl
 dnl Variables:
-dnl  allegro_cv_support_fomit_frame_pointer
+dnl  allegro_cv_support_fomit_frame_pointer=(yes|no)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
 [AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
@@ -550,7 +550,7 @@ dnl
 dnl Test for include path conflict with gcc 3.1 or later.
 dnl
 dnl Variables:
-dnl  allegro_cv_support_include_prefix
+dnl  allegro_cv_support_include_prefix=(yes|no)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX,
 [AC_MSG_CHECKING(whether an include prefix is needed)
@@ -570,7 +570,7 @@ dnl
 dnl Test whether the assembler can read from a pipe.
 dnl
 dnl Variables:
-dnl  allegro_cv_can_use_pipe
+dnl  allegro_cv_can_use_pipe=(yes|no)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_GCC_PIPE,
 [AC_MSG_CHECKING(whether the assembler can read from a pipe)
