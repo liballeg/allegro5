@@ -19,6 +19,8 @@
  *      Magnus Henoch modified it to keep the current selection
  *      across the changes as much as possible.
  *
+ *      gfx_mode_select_filter() added by Vincent Penquerc'h.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -95,6 +97,8 @@ static MODE_LIST default_mode_list[] =
    ALL_BPP(0,    0   )
 };
 
+
+typedef int (*FILTER_FUNCTION)(int, int, int, int);
 
 
 static DRIVER_LIST *driver_list;
@@ -293,96 +297,140 @@ static int change_proc(int msg, DIALOG *d, int c)
 
 
 
-/* create_mode_list:
- *  Creates a mode list table. Returns 0 on success and -1 on failure.
+/* add_mode:
+ *  Helper function for adding a mode to a mode list.
+ *  Returns 0 on success and -1 on failure.
  */
-static int create_mode_list(DRIVER_LIST *driver_list_entry)
+static int add_mode(MODE_LIST **list, int *size, int w, int h, int bpp)
 {
-   MODE_LIST *temp_mode_list;
-   GFX_MODE_LIST *gfx_mode_list;
-   GFX_MODE *gfx_mode_entry;
-   int mode, res_exist;
+   int mode, n;
 
-   /* autodetect drivers? */
-   if ((driver_list_entry->id == GFX_AUTODETECT) ||
-       (driver_list_entry->id == GFX_AUTODETECT_WINDOWED) ||
-       (driver_list_entry->id == GFX_AUTODETECT_FULLSCREEN)) {
-      driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
-      driver_list_entry->mode_list = default_mode_list;
-      driver_list_entry->fetch_mode_list_ptr = NULL;
-      return 0;
-   }
-
-   gfx_mode_list = get_gfx_mode_list(driver_list_entry->id);
-
-   /* driver supports fetch_mode_list? */
-   if (gfx_mode_list) {
-      temp_mode_list = NULL;
-      driver_list_entry->mode_count = 0;
-
-      /* build mode list */
-      for (gfx_mode_entry = gfx_mode_list->mode; gfx_mode_entry->width; gfx_mode_entry++) {
-         res_exist = FALSE;
-
-         /* resolution already there? */
-         for(mode = 0; mode < driver_list_entry->mode_count; mode++) {
-            if ((gfx_mode_entry->width == temp_mode_list[mode].w) &&
-                (gfx_mode_entry->height == temp_mode_list[mode].h)) {
-               res_exist = TRUE;
-               temp_mode_list[mode].has_bpp[bpp_index(gfx_mode_entry->bpp)] = TRUE;
-               break;
-            }
-         }
-
-         /* add resolution. */
-         if (!res_exist) {
-            driver_list_entry->mode_count++;
-            temp_mode_list = _al_sane_realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count));
-            if (!temp_mode_list) {
-               destroy_gfx_mode_list(gfx_mode_list);
-               return -1;
-            }
-
-            mode = driver_list_entry->mode_count - 1;
-
-            temp_mode_list[mode].w = gfx_mode_entry->width;
-            temp_mode_list[mode].h = gfx_mode_entry->height;
-
-            memset(temp_mode_list[mode].has_bpp, 0, N_COLOR_DEPTH);
-            temp_mode_list[mode].has_bpp[bpp_index(gfx_mode_entry->bpp)] = TRUE;
-         }
+   /* Resolution already there? */
+   for (mode = 0; mode < *size; mode++) {
+      if ((w == (*list)[mode].w) && (h == (*list)[mode].h)) {
+	 (*list)[mode].has_bpp[bpp_index(bpp)] = TRUE;
+	 return 0;
       }
-
-      /* terminate mode list */
-      temp_mode_list = _al_sane_realloc(temp_mode_list, sizeof(MODE_LIST) * (driver_list_entry->mode_count + 1));
-      if (!temp_mode_list) {
-         destroy_gfx_mode_list(gfx_mode_list);
-         return -1;
-      }
-
-      temp_mode_list[driver_list_entry->mode_count].w = 0;
-      temp_mode_list[driver_list_entry->mode_count].h = 0;
-
-      driver_list_entry->mode_list = temp_mode_list;
-
-      destroy_gfx_mode_list(gfx_mode_list);
    }
-   else {
-      /* driver doesn't support fetch_mode_list() or the call failed */
-      driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
-      driver_list_entry->mode_list = default_mode_list;
-      driver_list_entry->fetch_mode_list_ptr = NULL;
-   }
+
+   /* Add new resolution. */
+   *list = _al_sane_realloc(*list, sizeof(MODE_LIST) * ++(*size));
+   if (!list)
+      return -1;
+
+   mode = *size - 1;
+   (*list)[mode].w = w;
+   (*list)[mode].h = h;
+   for (n = 0; n < N_COLOR_DEPTH; n++)
+      (*list)[mode].has_bpp[n] = (bpp == bpp_value(n));
 
    return 0;
 }
 
 
 
-/* create_driver_list:
- *  Fills the list of video cards with info about the available drivers. Returns -1 on failure.
+/* terminate_list:
+ *  Helper function for terminating a mode list.
  */
-static int create_driver_list(void)
+static int terminate_list(MODE_LIST **list, int size)
+{
+   *list = _al_sane_realloc(*list, sizeof(MODE_LIST) * (size + 1));
+   if (!list)
+      return -1;
+
+   /* Add terminating marker. */
+   (*list)[size].w = 0;
+   (*list)[size].h = 0;
+
+   return 0;
+}
+
+
+
+/* create_mode_list:
+ *  Creates a mode list table.
+ *  Returns 0 on success and -1 on failure.
+ */
+static int create_mode_list(DRIVER_LIST *driver_list_entry, FILTER_FUNCTION filter)
+{
+   MODE_LIST *temp_mode_list = NULL;
+   GFX_MODE_LIST *gfx_mode_list;
+   GFX_MODE *gfx_mode_entry;
+   int mode, n, w, h, bpp;
+   int is_autodetected = ((driver_list_entry->id == GFX_AUTODETECT)
+			  || (driver_list_entry->id == GFX_AUTODETECT_WINDOWED)
+			  || (driver_list_entry->id == GFX_AUTODETECT_FULLSCREEN));
+
+   /* Start with zero modes. */
+   driver_list_entry->mode_count = 0;
+
+   /* We use the default mode list in two cases:
+    *  - the driver is GFX_AUTODETECT*,
+    *  - the driver doesn't support get_gfx_mode_list().
+    */
+   if (is_autodetected || !(gfx_mode_list = get_gfx_mode_list(driver_list_entry->id))) {
+      /* Simply return the default mode list if we can. */
+      if (!filter) {
+	 driver_list_entry->mode_count = sizeof(default_mode_list) / sizeof(MODE_LIST) - 1;
+	 driver_list_entry->mode_list = default_mode_list;
+	 driver_list_entry->fetch_mode_list_ptr = NULL;  /* static */
+	 return 0;
+      }
+
+      /* Build mode list from the default list. */
+      for (mode = 0; default_mode_list[mode].w; mode++) {
+	 w = default_mode_list[mode].w;
+	 h = default_mode_list[mode].h;
+
+	 for (n = 0; n < N_COLOR_DEPTH; n++) {
+	    bpp = bpp_value(n);
+
+	    if (filter(driver_list_entry->id, w, h, bpp) == 0) {
+	        if (add_mode(&temp_mode_list, &driver_list_entry->mode_count, w, h, bpp) != 0)
+		  return -1;
+	    }
+	 }
+      }
+
+      if (terminate_list(&temp_mode_list, driver_list_entry->mode_count) != 0)
+	 return -1;
+
+      driver_list_entry->mode_list = temp_mode_list;
+      driver_list_entry->fetch_mode_list_ptr = (void *)1L;  /* private dynamic */
+      return 0;
+   }
+
+   /* Build mode list from the fetched list. */
+   for (gfx_mode_entry = gfx_mode_list->mode; gfx_mode_entry->width; gfx_mode_entry++) {
+      w = gfx_mode_entry->width;
+      h = gfx_mode_entry->height;
+      bpp = gfx_mode_entry->bpp;
+
+      if (!filter || filter(driver_list_entry->id, w, h, bpp) == 0) {
+	 if (add_mode(&temp_mode_list, &driver_list_entry->mode_count, w, h, bpp) != 0) {
+	    destroy_gfx_mode_list(gfx_mode_list);
+	    return -1;
+	 }
+      } 
+   }
+
+   if (terminate_list(&temp_mode_list, driver_list_entry->mode_count) != 0) {
+      destroy_gfx_mode_list(gfx_mode_list);
+      return -1;
+   }
+
+   driver_list_entry->mode_list = temp_mode_list;
+   destroy_gfx_mode_list(gfx_mode_list);
+   return 0;
+}
+
+
+
+/* create_driver_list:
+ *  Fills the list of video cards with info about the available drivers.
+ *  Returns -1 on failure.
+ */
+static int create_driver_list(FILTER_FUNCTION filter)
 {
    _DRIVER_INFO *driver_info;
    GFX_DRIVER *gfx_driver;
@@ -398,15 +446,15 @@ static int create_driver_list(void)
 
    driver_list[0].id = GFX_AUTODETECT;
    ustrzcpy(driver_list[0].name, DRVNAME_SIZE, get_config_text("Autodetect"));
-   create_mode_list(&driver_list[0]);
+   create_mode_list(&driver_list[0], filter);
 
    driver_list[1].id = GFX_AUTODETECT_FULLSCREEN;
    ustrzcpy(driver_list[1].name, DRVNAME_SIZE, get_config_text("Auto fullscreen"));
-   create_mode_list(&driver_list[1]);
+   create_mode_list(&driver_list[1], filter);
 
    driver_list[2].id = GFX_AUTODETECT_WINDOWED;
    ustrzcpy(driver_list[2].name, DRVNAME_SIZE, get_config_text("Auto windowed"));
-   create_mode_list(&driver_list[2]);
+   create_mode_list(&driver_list[2], filter);
 
    driver_count = 0;
 
@@ -433,7 +481,7 @@ static int create_driver_list(void)
       }
       /* didn't find an already fetched mode-list */
       if (!used_prefetched) {
-         create_mode_list(&driver_list[driver_count+3]);
+         create_mode_list(&driver_list[driver_count+3], filter);
       }
 
       driver_count++;
@@ -552,13 +600,15 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 
 
 
-/* gfx_mode_select_ex:
+/* gfx_mode_select_filter:
  *  Extended version of the graphics mode selection dialog, which allows the 
  *  user to select the color depth as well as the resolution and hardware 
  *  driver. This version of the function reads the initial values from the 
  *  parameters when it activates, so you can specify the default values.
+ *  An optional filter can be passed to check whether a particular entry
+ *  should be displayed or not.
  */
-int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
+int gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth, FILTER_FUNCTION filter)
 {
    int i, ret, what_driver, what_mode, what_bpp, extd;
    ASSERT(card);
@@ -577,7 +627,7 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
    what_dialog[GFX_OK].dp = (void*)get_config_text("OK");
    what_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
 
-   create_driver_list();
+   create_driver_list(filter);
 
    /* We try to use the values passed through the argument pointers
     * as initial settings for the dialog boxes, but only if we have
@@ -649,6 +699,23 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 
 
 
+/* gfx_mode_select_ex:
+ *  Extended version of the graphics mode selection dialog, which allows the 
+ *  user to select the color depth as well as the resolution and hardware 
+ *  driver. This version of the function reads the initial values from the 
+ *  parameters when it activates, so you can specify the default values.
+ */
+int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
+{
+   ASSERT(card);
+   ASSERT(w);
+   ASSERT(h);
+   ASSERT(color_depth);
+   return gfx_mode_select_filter(card, w, h, color_depth, NULL);
+}
+
+
+
 /* gfx_mode_select:
  *  Displays the Allegro graphics mode selection dialog, which allows the
  *  user to select a screen mode and graphics card. Stores the selection
@@ -660,5 +727,5 @@ int gfx_mode_select(int *card, int *w, int *h)
    ASSERT(card);
    ASSERT(w);
    ASSERT(h);
-   return gfx_mode_select_ex(card, w, h, NULL);
+   return gfx_mode_select_filter(card, w, h, NULL, NULL);
 }

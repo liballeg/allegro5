@@ -8422,18 +8422,30 @@ ensure there is room for the check.
    was closed with the Cancel button or non-zero if it was OK'd.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
-@xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color
+@xref gfx_mode_select_ex, gfx_mode_select_filter, set_gfx_mode, gui_fg_color
    Displays the Allegro graphics mode selection dialog, which allows the 
    user to select a screen mode and graphics card. Stores the selection in 
    the three variables, and returns zero if it was closed with the Cancel 
    button or non-zero if it was OK'd.
 
 @@int @gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth);
-@xref gfx_mode_select, set_color_depth, set_gfx_mode, gui_fg_color
+@xref gfx_mode_select, gfx_mode_select_filter, set_color_depth, set_gfx_mode
+@xref gui_fg_color
 @eref ex3d, exscn3d, exswitch, exupdate, exzbuf
    Extended version of the graphics mode selection dialog, which allows the 
    user to select the color depth as well as the resolution and hardware 
    driver. This version of the function reads the initial values from the 
+   parameters when it activates, so you can specify the default values.
+
+@\int @gfx_mode_select_filter(int *card, int *w, int *h, int *color_depth,
+@@                            int (*filter)(int, int, int, int));
+@xref gfx_mode_select, gfx_mode_select_ex, set_color_depth, set_gfx_mode, gui_fg_color
+   Even more extended version of the graphics mode selection dialog, which
+   allows the programmer to customize the contents of the dialog and the user
+   to select the color depth as well as the resolution and hardware driver.
+   `filter' will be passed (card, w, h, color_depth) quadruplets and must
+   return 0 to let the specified quadruplet be added to the list of displayed
+   modes. This version of the function reads the initial values from the
    parameters when it activates, so you can specify the default values.
 
 @@extern int (*@gui_shadow_box_proc)(int msg, struct DIALOG *d, int c);

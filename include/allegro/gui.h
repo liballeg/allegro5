@@ -216,6 +216,7 @@ AL_FUNC(int, file_select_ex, (AL_CONST char *message, char *path, AL_CONST char 
 
 AL_FUNC(int, gfx_mode_select, (int *card, int *w, int *h));
 AL_FUNC(int, gfx_mode_select_ex, (int *card, int *w, int *h, int *color_depth));
+AL_FUNC(int, gfx_mode_select_filter, (int *card, int *w, int *h, int *color_depth, int (*filter)(int, int, int, int)));
 
 #ifdef __cplusplus
    }
