@@ -260,7 +260,7 @@ void _remove_exit_func(void (*func)(void))
  */
 int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
 {
-   RGB black_rgb = {0, 0, 0};
+   RGB black_rgb = {0, 0, 0, 0};
    char tmp1[64], tmp2[64];
    int i;
 

@@ -849,7 +849,7 @@ int tester()
 int main()
 {
    static char config_override[] = "keyboard = \n";
-   RGB black_rgb = {0, 0, 0};
+   RGB black_rgb = {0, 0, 0, 0};
    DATAFILE *font_data;
    int c;
 
