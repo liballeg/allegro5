@@ -1094,6 +1094,7 @@ void _load_config_text()
    name = get_config_string(NULL, uconvert_ascii("language", tmp1), NULL);
 
    if ((name) && (ugetc(name))) {
+      ustrlwr (name);
       if ((ustrlen(name)<4) || (ustricmp(name+uoffset(name, -4), uconvert_ascii("text", tmp1)) != 0))
 	 ext = uconvert_ascii("text.cfg", tmp1);
       else
