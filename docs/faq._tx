@@ -335,6 +335,12 @@ General problems
       that comes with the WIP to be sure).
 
 <h4><li>
+@@   When I run the demo game, it says it can't find demo.dat.
+</h4>
+      That file is distributed separately in the WIP versions.  It is here:
+      <link>http://alleg.sourceforge.net/allegro/alldata.zip</a>.
+
+<h4><li>
 @@   How can I display several different images at the same time?
    When I show the second one it messes up the palette for the first.
 </h4>
