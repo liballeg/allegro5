@@ -51,12 +51,12 @@ Contributors
    tweaked VGA mode, and wrote the d_text_list_proc() dialog object.
 
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
-   Added the BeOS joystick, MIDI and windowed graphics drivers, added
-   mouse wheel, display switching and close button support for BeOS, and
-   wrote the DGA2 driver and close button support for X. And, oh,
-   contributed the QNX port too. Contributed a bfixicon utility. Added triple
-   buffering support to the BeOS port and added fetch_mode_list() on the BeOS
-   and DGA2 fullscreen drivers.
+   Added the BeOS joystick, MIDI and windowed graphics drivers, added mouse
+   wheel, display switching and close button support for BeOS, and wrote the
+   DGA2 driver and close button support for X. Contributed a bfixicon
+   utility. Added triple buffering support to the BeOS port and added
+   fetch_mode_list() to the BeOS and DGA2 fullscreen drivers.  And, oh,
+   contributed the QNX port too.
 
    Annie Testes (email unknown).<br>
    Added font_height, render_char, char_length hooks to FONT_VTABLE.
@@ -94,7 +94,7 @@ Contributors
    fixed other minor bugs in the mixer. Fixed a bug in create_rgb_table(). 
    Adapted polygon functions to handle two coincident vertices. Added the 
    set_window_close_button() and set_window_close_hook() framework.
-   Added support for param'd windows timers.
+   Added support for timers with parameters under Windows.
 
    Benjamin Joel Stover (<email>stovertech@intellisys.net</a>).<br>
    Wrote the initial version of the fullscreen X-Windows graphics driver.
@@ -185,38 +185,11 @@ Contributors
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
-   DirectX windowed driver and Windows graphics subsystem, added the
-   file_select_ex() function, rewrote the fixdll script, added an unicode
-   example, fixed lots of bugs and did truckloads more work on the Windows
-   port. Added flush_config_file() function and hfill() method to the
-   GFX_VTABLE structure. Added support for 8bit desktops to the windows
-   windowed driver. Added translation to allegro.spec file. Added a unified
-   al_find*() interface. Did a speed-up to the sidewinder init code. Added
-   a new filetest. Made debugging functions revert to ASCII strings. Added
-   some docs on static linking with MSVC and MinGW32. Enabled SSE support
-   under Linux. Unicodified the GFX mode selector. Unified the handling of
-   system directory variables in the Windows makefiles. Revamped the
-   Borland C++ building process. Made the definition of _AL_DLL for MinGW32
-   consistent with other Windows ports. Replaced sprintf() by snprintf() in
-   the Linux/Unix code. Increased the delay in the Windows switch handling
-   code. Fixed unicodestring problems. Made two string translatable in the
-   GFX mode selector. Fixed a bug in the asm sprite functions when used
-   with sub-bitmaps. Fixed a problem in the new header layout for platforms
-   not supporting asm. Fixed the C fceil() function and added the ffloor()
-   function. Modified the way DirectDraw surfaces are enumerated. Work
-   around the DOS limitations for al_findfirst() and for_each_file().
-   Cleaned up buffer usage in DIGMID. Fixed unicode support in the DIGMID
-   driver. Increased the filename buffers to 1024 bytes. Added some defines
-   for backwards compatibility with former cpu_* flags. Fixed a compilation
-   problem under DJGPP. Fixed various cursor problems under Windows.
-   Updated docs about audio streams in Windows. Fixed a little glitch with
-   menu auto-opening. Also fixed a color glitch in the Windows driver on
-   8-bit desktops. Eliminated use of static buffers by uconvert in several
-   places. Re-enabled full pairing on Pentium.for five color conversion
-   routines. Applied xor vs. mov instruction-length optimization
-   to the  non-MMX code. Applied %ecx vs. %edx instruction-length
-   optimization to the non-MMX code. Updated the mouse_accel_factor docs.
-   Fixed a non ANSI compliant behaviour in usprintf().
+   DirectX windowed driver and Windows graphics subsystem, partially
+   revamped the Unicode API and added uszprintf(), added file_select_ex(),
+   the unified al_find*() interface, an Unicode example, a new filetest,
+   rewrote the fixdll script, revamped the Borland C++ build process, fixed
+   lots of bugs and did truckloads more work on the Windows port too.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -250,9 +223,8 @@ Contributors
    George Foot (<email>gfoot@users.sourceforge.net</a>).<br>
    Did a great deal of work on the Linux console version. Also wrote the 
    AWE32 driver, added the MIDI pause/seek functions, and provided the basis 
-   of the SoundFont reader used in the pat2dat utility.
-   Have released some WIPs. Fixed the C fceil() function and added the
-   ffloor() function.
+   of the SoundFont reader used in the pat2dat utility. Fixed the C fceil()
+   function and added the ffloor() function.
 
    Gorka Olaizola (<email>olsago@jet.es</a>).<br>
    Added the Redhat RPM .spec file.
@@ -266,8 +238,7 @@ Contributors
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
    texi2dvi output, improved the makedoc utility, added reload_config_texts()
-   and did plenty of other things too. Added translation to the allegro.spec
-   file.
+   and did plenty of other things too.
 
    Grzegorz Godlewski.<br>
    Contributed a Polish localization patch and added support for lower and
@@ -296,9 +267,7 @@ Contributors
    get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
    VESA, VBE/AF and DIRECTX drivers for a list of possible GFX modes.
    Rewrote the mode-selector to use get_gfx_mode_list(). Rewrote/updated
-   some scripts. Have released some Allegro WIPs. Improved make install.
-   Replaced the mmxtest with a more advanced assembler capabilities testing.
-   Added 'Out of Environment Space' check to the fix.bat script.
+   some scripts and reworked the build system many times.
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
@@ -329,9 +298,7 @@ Contributors
    set_window_title(), added close button hook support and improved
    switching in Windows, fixed bad clearing of subbitmaps, and made bug
    reports and suggestions for improvement. Contributed bidirectional
-   looping and backward playing support for the directsound driver. Added
-   some docs on static linking with MSVC and MinGW32. Fixed audio streams
-   in Windows.
+   looping and backward playing support for the DirectSound driver.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -344,7 +311,7 @@ Contributors
    the find_datafile_object() function.
 
    Johan Peitz (<email>d98peitz@dtek.chalmers.se</a>).<br>
-   Fixed and enhanced the Win32 joystick driver. Contributed and 'Alex the 
+   Fixed and enhanced the Win32 joystick driver. Contributed an 'Alex the 
    Allegator' icon.
 
    Johan Venter (<email>leonjventer@bigpond.com</a>).<br>
@@ -386,7 +353,7 @@ Contributors
    Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
    Added destroy hook to font structure, worked on const-correctness
    throughout the library, implemented the new FONT structure and made
-   some modules avoid linking dependencies. Added docs for allegro_404_char.
+   some modules avoid linking dependencies.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
@@ -556,21 +523,8 @@ Contributors
    with the ESD sound driver, wrote the ALSA sound driver, wrote the BeOS
    sound driver, added OSS MIDI and sample input support, added banked mode
    support to the SVGAlib driver, wrote the X DGA mode switching code,
-   improved the Linux joystick driver, added an ustrtok_r() function, added
-   fetch_mode_list() support on the svgalib, X11 fullscreen, DGA2 and DGA
-   driver, added pthread timer and did loads of other things too.
-   Have released some WIPs. Contributed a rewrite of the allegro.spec file.
-   (based on one from Osvaldo Santana Neto) Added an ABI compatibility
-   readme. Added to configure script a check that ld supports
-   -export-modules. Updated put_backslash docs. Updated the timer docs for
-   non-DOS. Removed yield_timeslice from XUNLOCK. Fixed a problem where
-   XUnlockDisplay was called after XCloseDisplay. Added a little
-   clarification reg. mouse_accel_factor. Improved the XDGA2 driver by
-   removing unneccessary scrolling, which also resulted in speed-ups due to
-   less locking/unlocking. Added yield after releasing X lock which appears
-   to improve event handling. Fixed sonames for debug and profile libs.
-   Improved behaviour between mouse auto-opening menus and navigating with
-   keyboard. Also unspartanised the ustrtok_r docs.
+   improved the Linux joystick driver, X11 fullscreen, DGA2 and DGA driver,
+   added pthread timers under Linux/Unix and did loads of other things too.
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
@@ -595,14 +549,9 @@ Contributors
    Robert J. Ohannessian (<email>voidstar_@excite.com</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
-   masked_blits with SSE instructions.
-   Added the following to the unified color convertor: color-copy routines,
-   support for 15bit<->16bit conversion, 8bit color, rectangles with any width
-   and added two new MMX routines. Added help options to dat utility.
-   Contributed some updates on readme.mgw. Revamped the retreival mechanism
-   of CPU capabilities and added some flags. Clarified some Dev-C++
-   instructions. Added two new entries to the GFX_VTABLE struct. Fixed fix.bat
-   script under MinGW32/Win2k.
+   masked_blits with SSE instructions.  Added some routines to the unified
+   color convertor.  Revamped the retreival mechanism of CPU capabilities.
+   Did plenty of other things too.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
@@ -622,12 +571,11 @@ Contributors
    Wrote the IF-SEGA /PCI, /PCI2, and /ISA joystick interface drivers.
 
    Salvador Eduardo Tropea (<email>salvador@inti.edu.ar</a>).<br>
-   Improved the keyboard routines (better handling of extended scancodes, 
-   keyboard LED support, capslock and numlock, and alt+numpad input), 
-   contributed the 320x100 VGA graphics mode, added support for proper 16 
-   bit sample mixing, and made numerous other useful suggestions, 
-   contributions and bugfixes. Fixed compilation on GCC 3.x. Fixed inline
-   friend declarations with bodies (gcc 3.01 problem). 
+   Improved the keyboard routines (better handling of extended scancodes,
+   keyboard LED support, capslock and numlock, and alt+numpad input),
+   contributed the 320x100 VGA graphics mode, added support for proper 16
+   bit sample mixing, fixed compilation on GCC 3.x and made numerous other
+   useful suggestions, contributions and bugfixes.
 
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.
@@ -677,7 +625,6 @@ Contributors
    selector sorting algorithm, optimised the spline routines, added the 
    ustrrchr() function, improved the usprintf() handling of floats, changed
    the Z-buffer API, improved rotation functions and provided other bugfixes.
-   Improved fix.bat script.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
@@ -729,9 +676,8 @@ Contributors
    conversions of the palette table, added scare_mouse_area(), added the 
    yield_timeslice() function, added the update selection function to the 
    grabber, added the XCRP and YCRP properties to datafiles in general, and 
-   made various other bugfixes and improvements. Contributed a big header
-   split-up patch. Made it so that users can provide their own ustrdup()
-   function. Removed two hard-coded list sizes from the grabber.
+   made various other bugfixes and improvements. Responsible for the big
+   header split up, and did loads other stuff too.
 
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.
