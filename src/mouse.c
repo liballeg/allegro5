@@ -397,7 +397,6 @@ static BITMAP *create_mouse_pointer(void)
 void set_mouse_sprite(struct BITMAP *sprite)
 {
    BITMAP *old_mouse_screen = _mouse_screen;
-   ASSERT(sprite);
 
    if (!mouse_driver)
       return;
