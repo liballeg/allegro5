@@ -33,6 +33,7 @@ static void digmid_key_on(int inst, int note, int bend, int vol, int pan);
 static void digmid_key_off(int voice);
 static void digmid_set_volume(int voice, int vol);
 static void digmid_set_pitch(int voice, int note, int bend);
+static void digmid_set_pan(int voice, int pan);
 
 
 MIDI_DRIVER midi_digmid =
@@ -53,7 +54,7 @@ MIDI_DRIVER midi_digmid =
    digmid_key_off,
    digmid_set_volume,
    digmid_set_pitch,
-   _dummy_noop2,
+   digmid_set_pan,
    _dummy_noop2
 };
 
@@ -127,6 +128,73 @@ static void destroy_patch(PATCH *pat)
    }
 }
 
+
+
+/* scale64:
+ *  Evalulates a*b/c using 64 bit arithmetic. This is used in an interrupt
+ *  context, so we have to do it ourselves rather than relying on compiler
+ *  support or floating point (it is impossible to reliably lock the
+ *  compiler helpers that implement a 64 bit divide, and it isn't safe to
+ *  use the i386 FPU stack in an interrupt context). Multithreaded systems
+ *  are not bound by this restriction however, so we use the FPU there.
+ */
+#if !(defined ALLEGRO_MULTITHREADED)
+static INLINE unsigned long scale64(unsigned long a, unsigned long b, unsigned long c)
+{
+   unsigned long al = a & 0xFFFF;
+   unsigned long ah = a >> 16;
+   unsigned long bl = b & 0xFFFF;
+   unsigned long bh = b >> 16;
+   unsigned long rl, rh, r, s, t, o;
+
+   /* 64 bit multiply */
+   rl = al*bl;
+   rh = ah*bh;
+
+   t = al*bh;
+   o = rl;
+   rh += (t >> 16);
+   rl += (t << 16);
+   if (rl < o)
+      rh++;
+
+   t = ah*bl;
+   o = rl;
+   rh += (t >> 16);
+   rl += (t << 16);
+   if (rl < o)
+      rh++;
+
+   /* 64 bit divide */
+   s = 0x80000000;
+   t = rh;
+   r = 0;
+
+   while (s) {
+      o = t;
+      t -= c;
+
+      if (t > o)
+	 t = o;
+      else
+	 r |= s;
+
+      t <<= 1;
+      if (rl & s)
+	 t |= 1;
+
+      s >>= 1;
+   }
+
+   return r << 1;
+}
+#else
+static INLINE unsigned long scale64(unsigned long a, unsigned long b, unsigned long c)
+{
+   double scale = b / (double)c;
+   return (unsigned long)a * scale;
+}
+#endif
 
 
 /* load_patch:
@@ -292,6 +360,25 @@ static PATCH *load_patch(PACKFILE *f, int drum)
 
       p->extra[i]->scale_freq = pack_igetw(f);     /* scale values */
       p->extra[i]->scale_factor = pack_igetw(f);
+
+      /* drums use a fixed frequency */
+      if(drum) {
+	 unsigned long freq = scale64(ftbl[drum-1], p->sample[i]->freq, p->extra[i]->base_note);
+
+	 /* frequency scaling */
+	 if (p->extra[i]->scale_factor != 1024) {
+	    unsigned long f1 = scale64(p->sample[i]->freq, p->extra[i]->scale_freq, 60);
+	    freq -= f1;
+	    freq = scale64(freq, p->extra[i]->scale_factor, 1024);
+	    freq += f1;
+	 }
+
+	 /* lower by an octave if we are going to overflow */
+	 while (freq >= (1<<19)-1)
+	    freq /= 2;
+
+	 p->sample[i]->freq = freq;
+      }
 
       pack_fread(buf, 36, f);                      /* skip reserved */
 
@@ -557,7 +644,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 	    if (i < 256) {
 	       /* load this patch */
 	       f = pack_fopen_chunk(f, FALSE);
-	       patch[i] = load_patch(f, (i >= 128));
+	       patch[i] = load_patch(f, ((i > 127) ? (i - 127) : 0));
 	       f = pack_fclose_chunk(f);
 
 	       for (j=i+1; j<256; j++) {
@@ -595,7 +682,7 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 
 	    f = pack_fopen(filename, F_READ);
 	    if (f) {
-	       patch[i] = load_patch(f, (i >= 128));
+	       patch[i] = load_patch(f, ((i > 127) ? (i - 127) : 0));
 	       pack_fclose(f);
 	    }
 
@@ -615,65 +702,6 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 
 
 
-/* scale64:
- *  Evalulates a*b/c using 64 bit arithmetic. This is used in an interrupt
- *  context, so we have to do it ourselves rather than relying on compiler
- *  support or floating point (it is impossible to reliably lock the
- *  compiler helpers that implement a 64 bit divide, and it isn't safe to
- *  use the i386 FPU stack in an interrupt context).
- */
-static INLINE unsigned long scale64(unsigned long a, unsigned long b, unsigned long c)
-{
-   unsigned long al = a & 0xFFFF;
-   unsigned long ah = a >> 16;
-   unsigned long bl = b & 0xFFFF;
-   unsigned long bh = b >> 16;
-   unsigned long rl, rh, r, s, t, o;
-
-   /* 64 bit multiply */
-   rl = al*bl;
-   rh = ah*bh;
-
-   t = al*bh;
-   o = rl;
-   rh += (t >> 16);
-   rl += (t << 16);
-   if (rl < o)
-      rh++;
-
-   t = ah*bl;
-   o = rl;
-   rh += (t >> 16);
-   rl += (t << 16);
-   if (rl < o)
-      rh++;
-
-   /* 64 bit divide */
-   s = 0x80000000;
-   t = rh;
-   r = 0;
-
-   while (s) {
-      o = t;
-      t -= c;
-
-      if (t > o)
-	 t = o;
-      else
-	 r |= s;
-
-      t <<= 1;
-      if (rl & s)
-	 t |= 1;
-
-      s >>= 1;
-   }
-
-   return r << 1;
-}
-
-
-
 /* digmid_freq:
  *  Helper for converting note numbers to sample frequencies.
  */ 
@@ -684,18 +712,16 @@ static int digmid_freq(int inst, SAMPLE *s, PATCH_EXTRA *e, int note, int bend)
    sfreq = s->freq;
    base_note = e->base_note;
 
-   if (inst > 127) { 
-      /* drums use a fixed frequency */
-      freq = scale64(ftbl[inst-128], sfreq, base_note);
-   }
-   else {
-      /* calculate frequency */
+   /* calculate frequency */
+   if(bend) {
       f1 = scale64(ftbl[note], sfreq, base_note);
       f2 = scale64(ftbl[note+1], sfreq, base_note);
 
       /* quick pitch bend method - ~.035% error - acceptable? */
       freq = ((f1*(4096-bend)) + (f2*bend)) / 4096;
    }
+   else
+      freq = scale64(ftbl[note], sfreq, base_note);
 
    /* frequency scaling */
    if (e->scale_factor != 1024) {
@@ -733,10 +759,12 @@ static void digmid_trigger(int inst, int snum, int note, int bend, int vol, int 
    s = patch[inst]->sample[snum];
    e = patch[inst]->extra[snum];
 
-   freq = digmid_freq(inst, s, e, note, bend);
-
-   if (inst > 127)
+   if (inst > 127) {
       pan = e->pan;
+      freq = s->freq;
+   }
+   else
+      freq = digmid_freq(inst, s, e, note, bend);
 
    /* store note information for later use */
    info = &digmid_voice[voice - midi_digmid.basevoice];
@@ -915,6 +943,21 @@ END_OF_STATIC_FUNCTION(digmid_set_pitch);
 
 
 
+static void digmid_set_pan(int voice, int pan)
+{
+   DIGMID_VOICE *info = &digmid_voice[voice - midi_digmid.basevoice];
+
+   if (info->inst > 127)
+      return;
+
+   pan *= 2;
+   voice_set_pan(voice, pan);
+}
+
+END_OF_STATIC_FUNCTION(digmid_set_pan);
+
+
+
 /* digmid_detect:
  *  Have we got a sensible looking patch set?
  */
@@ -968,6 +1011,7 @@ static int digmid_init(int input, int voices)
    LOCK_FUNCTION(digmid_key_off);
    LOCK_FUNCTION(digmid_set_volume);
    LOCK_FUNCTION(digmid_set_pitch);
+   LOCK_FUNCTION(digmid_set_pan);
 
    return 0;
 }
