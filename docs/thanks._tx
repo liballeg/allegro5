@@ -271,7 +271,7 @@ Contributors
    Jan Hubicka (<email>hubicka@horac.ta.jcu.cz</a>).<br>
    Vastly improved the speed of the create_rgb_table() function.
 
-   Jason Wilkins (<email>fenix@io.com</a>).<br>
+   Jason Wilkins (<email>fenix at io dot com</a>).<br>
    Wrote the quaternion math routines, and contributed the BeOS port.
 
    Javier Gonzalez (<email>javigg@wanadoo.es</a>).<br>
@@ -386,7 +386,7 @@ Contributors
    useful suggestions like the addition of a vid_phys_base field to the 
    graphics driver structure.
 
-   Martijn Versteegh (<email>VERSTEEGH@KVI.nl</a>).<br>
+   Martijn Versteegh (<email>m.versteegh@hccnet.nl</a>).<br>
    Added the config hook extension mechanism.
 
    Mathieu Lafon (<email>mlafon@ifhamy.insa-lyon.fr</a>).<br>
