@@ -3174,13 +3174,26 @@ static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
 
 
 
+/* free_modelines:
+ *  Free mode lines.
+ */
+static void free_modelines(XF86VidModeModeInfo **modesinfo, int num_modes)
+{
+   int i;
+
+   for (i = 0; i < num_modes; i++)
+      if (modesinfo[i]->privsize > 0)
+	 XFree(modesinfo[i]->private);
+   XFree(modesinfo);
+}
+
+
+
 /* _xvidmode_private_unset_fullscreen:
  *  Restore original video mode and window attributes.
  */
 static void _xvidmode_private_unset_fullscreen(void)
 {
-   int i;
-
    if (_xwin.num_modes > 0) {
       if (_xwin.mode_switched) {
 	 /* Unlock mode switching.  */
@@ -3193,14 +3206,121 @@ static void _xvidmode_private_unset_fullscreen(void)
       }
 
       /* Free modelines.  */
-      for (i = 0; i < _xwin.num_modes; i++)
-	 if (_xwin.modesinfo[i]->privsize > 0)
-	    XFree(_xwin.modesinfo[i]->private);
-      XFree(_xwin.modesinfo);
+      free_modelines(_xwin.modesinfo, _xwin.num_modes);
       _xwin.num_modes = 0;
+      _xwin.modesinfo = 0;
    }
 }
+
+
+
+/* _xvidmode_private_fetch_mode_list:
+ *  Generates a list of valid video modes.
+ */
+static GFX_MODE_LIST *_xvidmode_private_fetch_mode_list(void)
+{
+   int vid_event_base, vid_error_base;
+   int vid_major_version, vid_minor_version;
+   XF86VidModeModeInfo **modesinfo;
+   int num_modes, num_bpp;
+   GFX_MODE_LIST *mode_list;
+   int i, j;
+
+   /* Test that display is local.  */
+   if (!_xwin_private_display_is_local())
+      return 0;
+
+   /* Test for presence of VidMode extension.  */
+   if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
+       || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version))
+      return 0;
+
+   /* Get list of modelines.  */
+   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, &num_modes, &modesinfo))
+      return 0;
+
+   /* Calculate the number of color depths we have to support.  */
+   num_bpp = 0;
+#ifdef ALLEGRO_COLOR8
+   num_bpp++;
 #endif
+#ifdef ALLEGRO_COLOR16
+   num_bpp += 2;     /* 15, 16 */
+#endif
+#ifdef ALLEGRO_COLOR24
+   num_bpp++;
+#endif
+#ifdef ALLEGRO_COLOR32
+   num_bpp++;
+#endif
+   if (num_bpp == 0) /* ha! */
+      return 0;
+
+   /* Allocate space for mode list.  */
+   mode_list = malloc(sizeof(GFX_MODE_LIST));
+   if (!mode_list) {
+      free_modelines(modesinfo, num_modes);
+      return 0;
+   }
+
+   mode_list->mode = malloc(sizeof(GFX_MODE) * ((num_modes * num_bpp) + 1));
+   if (!mode_list->mode) {
+      free(mode_list);
+      free_modelines(modesinfo, num_modes);
+      return 0;
+   }
+
+   /* Fill in mode list.  */
+   j = 0;
+   for (i = 0; i < num_modes; i++) {
+#define ADD_MODE(BPP)					    \
+      mode_list->mode[j].width = modesinfo[i]->hdisplay;    \
+      mode_list->mode[j].height = modesinfo[i]->vdisplay;   \
+      mode_list->mode[j].bpp = BPP;			    \
+      j++
+#ifdef ALLEGRO_COLOR8
+      ADD_MODE(8);
+#endif
+#ifdef ALLEGRO_COLOR16
+      ADD_MODE(15);
+      ADD_MODE(16);
+#endif
+#ifdef ALLEGRO_COLOR24
+      ADD_MODE(24);
+#endif
+#ifdef ALLEGRO_COLOR32
+      ADD_MODE(32);
+#endif
+   }
+
+   mode_list->mode[j].width = 0;
+   mode_list->mode[j].height = 0;
+   mode_list->mode[j].bpp = 0;
+   mode_list->num_modes = j;
+
+   free_modelines(modesinfo, num_modes);
+
+   return mode_list;
+}
+#endif
+
+
+
+/* _xwin_fetch_mode_list:
+ *  Fetch mode list.
+ */
+GFX_MODE_LIST *_xwin_fetch_mode_list(void)
+{
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   GFX_MODE_LIST *list;
+   XLOCK();
+   list = _xvidmode_private_fetch_mode_list();
+   XUNLOCK();
+   return list;
+#else
+   return 0;
+#endif
+}
 
 
 
