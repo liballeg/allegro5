@@ -23,18 +23,8 @@
    I'll like know about how this port is working.
 
    Status: the minimum to work, this version is much newer than the Others,
-   so can be the most buggy.
-
-   Many problems to be solved.
-   don't use argv or argc on main function, now this not work.
-   don't use printf, stdout, stderr, stdin function related use allegro_message.
-   allegro_message truncates message to 254 chars.
-   low resolutions like 320x200 doesn't fill the entire screen.
-   programs run slowly.
-   missing features include: hardware accelleration, virtual screens,
-   scrolling, midi, joystick, switching, windowed modes, true 16 & 32 bpp
-   colordepths.
-   Update the docs.
+   so can be the most buggy. Consult the file todo.txt for a list of what's
+   missing or otherwise not working very well.
 
 
 ===========================================

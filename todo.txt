@@ -56,6 +56,8 @@ Unix todos:
 Macintosh todos:
 ---------------------------------------------------------------------------
 
+- don't use argv or argc on main function, now this not work.
+- don't use printf, stdout, stderr, stdin function related use allegro_message.
 - allegro_message truncates message to 254 chars.
 - low resolutions like 320x200 doesn't fill the entire screen.
 - some speed-ups would be nice.
