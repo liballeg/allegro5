@@ -68,6 +68,7 @@ static MODE_LIST default_mode_list[] =
    ALL_BPP(640,  480 ),
    ALL_BPP(800,  600 ),
    ALL_BPP(1024, 768 ),
+   ALL_BPP(1280, 960 ),
    ALL_BPP(1280, 1024),
    ALL_BPP(1600, 1200),
    ALL_BPP(80,   80  ),
