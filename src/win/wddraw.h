@@ -18,7 +18,9 @@
 #ifndef WDDRAW_H_INCLUDED
 #define WDDRAW_H_INCLUDED
 
-#define DIRECTDRAW_VERSION 0x0300
+#ifndef DIRECTDRAW_VERSION
+   #define DIRECTDRAW_VERSION 0x0300
+#endif
 
 #include "allegro.h"
 #include "allegro/aintern.h"
