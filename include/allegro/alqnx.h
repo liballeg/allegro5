@@ -45,8 +45,14 @@ AL_VAR(MIDI_DRIVER, midi_alsa);
 AL_VAR(TIMER_DRIVER, timerdrv_unix);
 
 
+/* Graphics drivers */
+#define GFX_PHOTON            AL_ID('Q','P','H',' ')
+#define GFX_PHOTON_DIRECT     AL_ID('Q','P','H','D')
+AL_VAR(GFX_DRIVER, gfx_photon_direct);
 
-/* #define GFX_SAFE_ID           GFX_PHOTON */
+
+
+#define GFX_SAFE_ID           GFX_PHOTON_DIRECT
 #define GFX_SAFE_DEPTH        8
 #define GFX_SAFE_W            640
 #define GFX_SAFE_H            480

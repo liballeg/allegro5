@@ -285,8 +285,9 @@ ALLEGRO_SRC_X_FILES = \
 	
 ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/drivers.c \
-	src/qnx/qsystem.c \
 	src/qnx/qkeydrv.c \
+	src/qnx/qphoton.c \
+	src/qnx/qsystem.c \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
 	src/unix/usigalrm.c \

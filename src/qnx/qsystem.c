@@ -210,6 +210,7 @@ void qnx_sys_exit(void)
 #ifdef SIGQUIT
    signal(SIGQUIT, old_sig_quit);
 #endif
+
    if (ph_event) {
       free(ph_event);
       ph_event = NULL;
