@@ -89,8 +89,10 @@ extern "C" {
 
    #define XUNLOCK()				\
       if (_unix_bg_man->multi_threaded) {	\
-	 if (_xwin.display)			\
+	 if (_xwin.display) {			\
 	    XUnlockDisplay(_xwin.display);	\
+	    yield_timeslice();			\
+	 }					\
       } else {					\
 	 _xwin.lock_count--;			\
       }
