@@ -103,7 +103,7 @@ goto the_end
 
 :got_msvc
 
-call "fix.bat msvc --quick"
+call fix.bat msvc --quick
 
 echo Generating release mode import library
 copy lib\\msvc\\allegro.def lib\\msvc\\all$ver.def > nul
@@ -288,7 +288,7 @@ There are three versions of the DLL included in this zip:
    alp$ver.dll is a profiling build, for collecting performance info
 
 For more general information about using Allegro, see the readme.txt and 
-readme.vc files from the source distribution.
+msvc.txt files from the source distribution.
 
 END_OF_README
 
