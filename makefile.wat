@@ -161,6 +161,10 @@ $(OBJ_DIR)/%.obj: %.s
 else
 
 # -------- black magic to build asm sources with Watcom 10.6 --------
+$(OBJ_DIR)/iscanmmx.obj: iscanmmx.s $(RUNNER)
+	$(RUNNER) echo \\ .text > $(OBJ_DIR)/iscanmmx.asm
+	$(RUNNER) wasm \\ $(WFLAGS) -zq -fr=nul -fp3 -fo=$(OBJ_DIR)/iscanmmx.obj $(OBJ_DIR)/iscanmmx.asm
+
 $(OBJ_DIR)/%.obj: %.s $(RUNNER)
 	gcc $(GCC2WATCOM) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $(OBJ_DIR)/$*.o -c $<
 	$(RUNNER) wdisasm \\ -a $(OBJ_DIR)/$*.o -l=$(OBJ_DIR)/$*.lst
