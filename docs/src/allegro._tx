@@ -4610,25 +4610,31 @@ allegro/text.h for details.
 @\void @textprintf_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                    const char *fmt, ...);
 @xref font, textout_ex, textprintf_centre_ex, textprintf_right_ex
-@xref textprintf_justify_ex, text_height, text_length
-   Formatted text output, using a printf() style format string.
+@xref textprintf_justify_ex, text_height, text_length, uzsprintf
+   Formatted text output, using a printf() style format string. Due to an
+   intenal limitation, this function can't be used for extremely long texts.
+   If you happen to reach this limit, you can work around it by using
+   uzsprintf and textout_ex, which don't have any.
 
 @\void @textprintf_centre_ex(BITMAP *bmp, const FONT *f, int x, y, color,
 @@                          bg, const char *fmt, ...);
 @xref textprintf_ex, textout_centre_ex
    Like textprintf_ex(), but interprets the x coordinate as the centre rather
-   than the left edge of the string.
+   than the left edge of the string. This function shares the text length
+   limitation of textprintf_ex.
 
 @\void @textprintf_right_ex(BITMAP *bmp, const FONT *f, int x, y, color, bg,
 @@                         const char *fmt, ...);
 @xref textprintf_ex, textout_right_ex
    Like textprintf_ex(), but interprets the x coordinate as the right rather
-   than the left edge of the string.
+   than the left edge of the string. This function shares the text length
+   limitation of textprintf_ex.
 
 @\void @textprintf_justify_ex(BITMAP *bmp, const FONT *f, int x1, x2, y,
 @@                           diff, color, bg, const char *fmt, ...);
 @xref textprintf_ex, textout_justify_ex
-   Like textout_justify_ex(), but using a printf() style format string.
+   Like textout_justify_ex(), but using a printf() style format string. This
+   function shares the text length limitation of textprintf_ex.
 
 
 
