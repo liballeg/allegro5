@@ -66,7 +66,7 @@ void _unlock_dpmi_data(void *addr, int size);
 
 
 /* helpers for talking to video memory */
-#define bmp_select(bmp)             _farsetsel((int)(bmp->seg))
+#define bmp_select(bmp)             _farsetsel(bmp->seg)
 
 #define bmp_write8(addr, c)         _farnspokeb(addr, c)
 #define bmp_write15(addr, c)        _farnspokew(addr, c)
