@@ -136,8 +136,7 @@ struct _xwin_type _xwin =
    XWIN_DEFAULT_APPLICATION_NAME,       /* application_name */
    XWIN_DEFAULT_APPLICATION_CLASS,      /* application_class */
 
-   GXcopy,      /* real_drawing_mode */
-   TRUE,        /* drawing_mode_ok */
+   FALSE,       /* drawing_mode_ok */
 
 #ifdef ALLEGRO_MULTITHREADED
    NULL,        /* mutex */
@@ -947,6 +946,9 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
 
    /* Replace entries in vtable with magical wrappers.  */
    _xwin_replace_vtable(bmp->vtable);
+
+   /* The drawing mode may not be ok for direct updates anymore. */
+   _xwin_drawing_mode();
 
    /* Initialize other fields in _xwin structure.  */
    _xwin_last_line = -1;
@@ -2323,11 +2325,9 @@ static void _xwin_private_process_event(XEvent *event)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
 	 break;
       case Expose:
-	 XSetState(_xwin.display, _xwin.gc, 0, 0, GXcopy, -1);
 	 /* Request to redraw part of the window.  */
 	 (*_xwin_window_redrawer)(event->xexpose.x, event->xexpose.y,
 				     event->xexpose.width, event->xexpose.height);
-	 XSetState(_xwin.display, _xwin.gc, 0, 0, _xwin.real_drawing_mode, -1);
 	 break;
       case MappingNotify:
 	 /* Keyboard mapping changed.  */
