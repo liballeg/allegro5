@@ -267,6 +267,15 @@ static void mouse_dinput_handle_event(int ofs, int data)
          else
             _mouse_b &= ~4;
          break;
+
+      case DIMOFS_BUTTON3:
+         if (data & 0x80) {
+            if (_mouse_on)
+               _mouse_b |= 8;
+         }
+         else
+            _mouse_b &= ~8;
+         break;
    }
 }
 
