@@ -684,6 +684,14 @@ static void process_controller(int channel, int ctrl, int data)
       case 127:                                 /* poly mode on */
 	 all_notes_off(channel);
 	 break;
+
+      default:
+	 if (midi_driver->raw_midi) {
+	    midi_driver->raw_midi(0xB0+channel);
+	    midi_driver->raw_midi(ctrl);
+	    midi_driver->raw_midi(data);
+	 }
+	 break;
    }
 }
 
