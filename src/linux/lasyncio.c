@@ -75,7 +75,8 @@ static RETSIGTYPE async_io_event(int signo)
  */
 int al_linux_set_async_mode (unsigned type)
 {
-   struct sigaction sa, org_sigio;
+   static struct sigaction org_sigio;
+   struct sigaction sa;
    
    if (type == ASYNC_DEFAULT)
       type = DEFAULT_ASYNC_IO_MODE;
