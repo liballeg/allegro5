@@ -83,25 +83,48 @@ extern "C" {
    AL_ARRAY(_DRIVER_INFO, _xwin_timer_driver_list);
 
    AL_FUNC(void, _xwin_handle_input, (void));
+   AL_FUNC(void, _xwin_private_handle_input, (void));
 
+#ifndef ALLEGRO_MULTITHREADED
+
+   AL_VAR(int, _xwin_missed_input);
 
    #define XLOCK()                              \
       do {                                      \
-         if (_unix_bg_man->multi_threaded) {    \
-            if (_xwin.display)                  \
-               XLockDisplay(_xwin.display);     \
-         }                                      \
          _xwin.lock_count++;                    \
       } while (0)
 
    #define XUNLOCK()                            \
       do {                                      \
-         if (_unix_bg_man->multi_threaded) {    \
-            if (_xwin.display)                  \
-               XUnlockDisplay(_xwin.display);   \
+         if (_xwin.lock_count == 1) {           \
+            while(_xwin_missed_input) {         \
+               if (_xwin_input_handler)         \
+                  _xwin_input_handler();        \
+               else                             \
+                  _xwin_private_handle_input(); \
+               --_xwin_missed_input;            \
+            }                                   \
          }                                      \
          _xwin.lock_count--;                    \
       } while (0)
+
+#else
+
+   #define XLOCK()                              \
+      do {                                      \
+         if (_xwin.display)                     \
+            XLockDisplay(_xwin.display);        \
+         _xwin.lock_count++;                    \
+      } while (0)
+
+   #define XUNLOCK()                            \
+      do {                                      \
+         if (_xwin.display)                     \
+            XUnlockDisplay(_xwin.display);      \
+         _xwin.lock_count--;                    \
+      } while (0)
+
+#endif
 
 #endif
 

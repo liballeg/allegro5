@@ -147,6 +147,10 @@ int _xwin_in_gfx_call = 0;
 COLORCONV_BLITTER_FUNC *blitter_func = NULL;
 int _xwin_use_bgr_palette_hack = FALSE; /* use BGR hack for colorconversion palette? */
 
+#ifndef ALLEGRO_MULTITHREADED
+int _xwin_missed_input;
+#endif
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 int _xdga_last_line = -1;
 static int _xdga_installed_colormap; 
@@ -201,7 +205,6 @@ static void _xwin_private_flush_buffers(void);
 static void _xwin_private_vsync(void);
 static void _xwin_private_resize_window(int w, int h);
 static void _xwin_private_process_event(XEvent *event);
-static void _xwin_private_handle_input(void);
 static void _xwin_private_set_warped_mouse_mode(int permanent);
 static void _xwin_private_redraw_window(int x, int y, int w, int h);
 static int _xwin_private_scroll_screen(int x, int y);
@@ -2365,7 +2368,7 @@ static void _xwin_private_process_event(XEvent *event)
 /* _xwin_handle_input:
  *  Handle events from the queue.
  */
-static void _xwin_private_handle_input(void)
+void _xwin_private_handle_input(void)
 {
    int i, events, events_queued;
    static XEvent event[MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
@@ -2434,7 +2437,12 @@ static void _xwin_private_handle_input(void)
 
 void _xwin_handle_input(void)
 {
-   if (_xwin.lock_count) return;
+#ifndef ALLEGRO_MULTITHREADED
+   if (_xwin.lock_count) {
+      ++_xwin_missed_input;
+      return;
+   }
+#endif
 
    XLOCK();
 
