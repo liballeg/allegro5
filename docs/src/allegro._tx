@@ -223,8 +223,9 @@ information about how to install Allegro and link your program with it.
    Pass NULL to this function to restore the close button's default 
    functionality. On Windows and BeOS, the following message will appear:
 <textblock>
-      Warning: forcing program shutdown may lead to data loss and unexpected
-      results. It is preferable to use the exit command inside the window.
+      Warning: forcing program shutdown may lead to data loss and
+      unexpected results. It is preferable to use the exit command
+      inside the window.
 
       Proceed anyway?
 
@@ -293,24 +294,28 @@ information about how to install Allegro and link your program with it.
    Contains CPU flags indicating what features are available on the current 
    CPU. The flags can be any combination of these:
 <textblock>
-      CPU_ID       - Indicates that the "cpuid" instruction is available.
-		     If this is set, then all Allegro CPU variables are
-		     100% reliable, otherwise there may be some mistakes.
+      CPU_ID       - Indicates that the "cpuid" instruction is
+		     available. If this is set, then all Allegro CPU
+		     variables are 100% reliable, otherwise there
+		     may be some mistakes.
       CPU_FPU      - An x87 FPU is available.
       CPU_MMX      - Intel MMX  instruction set is available.
       CPU_MMXPLUS  - Intel MMX+ instruction set is available.
       CPU_SSE      - Intel SSE  instruction set is available.
       CPU_SSE2     - Intel SSE2 instruction set is available.
       CPU_3DNOW    - AMD 3DNow! instruction set is available.
-      CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is available.
+      CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is
+		     available.
       CPU_CMOV     - Pentium Pro "cmov" instruction is available.
 <endblock>
    You can check for multiple features by OR-ing the flags together.
    For example, to check if the CPU has an FPU and MMX instructions
    available, you'd do:
 <codeblock>
-      if ((cpu_capabilities & (CPU_FPU | CPU_MMX)) == (CPU_FPU | CPU_MMX))
+      if ((cpu_capabilities & (CPU_FPU | CPU_MMX)) ==
+	  (CPU_FPU | CPU_MMX)) {
 	 printf("CPU has both an FPU and MMX instructions!\n");
+      }
 <endblock>
 
 
@@ -339,7 +344,8 @@ available in past/future versions of Allegro.
 <codeblock>
    int w, h;               - size of the bitmap in pixels
    int clip;               - non-zero if clipping is turned on
-   int cl, cr, ct, cb;     - clip rectangle left, right, top, and bottom
+   int cl, cr, ct, cb;     - clip rectangle left, right, top,
+			     and bottom
    unsigned char *line[];  - pointers to the start of each line
 <endblock>
    There is some other stuff in the structure as well, but it is liable to
@@ -519,8 +525,8 @@ available in past/future versions of Allegro.
 @@typedef struct @MATRIX
 @xref MATRIX_f, 3D math routines
 <codeblock>
-   fixed v[3][3];                - 3x3 scaling and rotation component
-   fixed t[3];                   - x/y/z translation component
+   fixed v[3][3];           - 3x3 scaling and rotation component
+   fixed t[3];              - x/y/z translation component
 <endblock>
    Fixed point matrix structure. Read chapter "3D math routines" for a
    description on how to obtain/use this structure.
@@ -528,8 +534,8 @@ available in past/future versions of Allegro.
 @@typedef struct @MATRIX_f
 @xref MATRIX, 3D math routines
 <codeblock>
-   float v[3][3];                - 3x3 scaling and rotation component
-   float t[3];                   - x/y/z translation component
+   float v[3][3];           - 3x3 scaling and rotation component
+   float t[3];              - x/y/z translation component
 <endblock>
    Floating point matrix structure. Read chapter "3D math routines" for a
    description on how to obtain/use this structure.
@@ -545,15 +551,14 @@ available in past/future versions of Allegro.
 @@typedef struct @DIALOG
 @xref do_dialog, GUI routines
 <codeblock>
-   int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
-   int x, y, w, h;                  - position and size of the object
-   int fg, bg;                      - foreground and background colors
-   int key;                         - ASCII keyboard shortcut
-   int flags;                       - flags about the status of
-                                      the object
-   int d1, d2;                      - whatever you want to use them for
-   void *dp, *dp2, *dp3;            - pointers to more
-                                      object-specific data
+   int (*proc)(int, DIALOG *, int); - dialog procedure
+				      (message handler)
+   int x, y, w, h;       - position and size of the object
+   int fg, bg;           - foreground and background colors
+   int key;              - ASCII keyboard shortcut
+   int flags;            - flags about the status of the object
+   int d1, d2;           - whatever you want to use them for
+   void *dp, *dp2, *dp3; - pointers to more object-specific data
 <endblock>
    This is the structure which contains a GUI object. Read chapter "GUI
    routines" for a description on how to obtain/use this structure.
@@ -5157,7 +5162,7 @@ Read chapter "Structures and types defined by Allegro" for an internal
 description of the BITMAP structure. There are several ways to get direct
 access to the image memory of a bitmap, varying in complexity depending on
 what sort of bitmap you are using.
-<hr>
+
 The simplest approach will only work with memory bitmaps (obtained from 
 create_bitmap(), grabber datafiles, and image files) and sub-bitmaps of 
 memory bitmaps. This uses a table of char pointers, called 'line', which is 
@@ -5168,8 +5173,8 @@ line of the image. For example, a simple memory bitmap putpixel function is:
    {
       bmp-&gtline[y][x] = color;
    }
-<endblock><hr>
-For truecolor modes you need to cast the line pointer to the appropriate 
+<endblock>
+For truecolor modes you need to cast the line pointer to the appropriate
 type, for example:
 <codeblock>
    void memory_putpixel_15_or_16_bpp(BITMAP *bmp, int x, int y, int color)
@@ -5181,8 +5186,8 @@ type, for example:
    {
       ((long *)bmp-&gtline[y])[x] = color;
    }
-<endblock><hr>
-If you want to write to the screen as well as to memory bitmaps, you need to 
+<endblock>
+If you want to write to the screen as well as to memory bitmaps, you need to
 use some helper macros, because the video memory may not be part of your 
 normal address space. This simple routine will work for any linear screen, 
 eg. a VESA linear framebuffers:
@@ -5198,7 +5203,7 @@ bmp_write24(), or bmp_write32(), and multiply the x offset by the number of
 bytes per pixel. There are of course similar functions to read a pixel value
 from a bitmap, namely bmp_read8(), bmp_read16(), bmp_read24() and
 bmp_read32().
-<hr>
+
 This still won't work in banked SVGA modes, however, or on platforms like 
 Windows that do special processing inside the bank switching functions. For 
 more flexible access to bitmap memory, you need to call the routines:
@@ -5253,7 +5258,7 @@ whatever you like to this second line, but you mustn't call bmp_read_line()
 and bmp_write_line() together and expect to be able to read one line and 
 write the other simultaneously. It would be nice if this was possible, but 
 if you do it, your code won't work on single banked SVGA cards.
-<hr>
+
 And then there's mode-X. If you've never done any mode-X graphics coding, 
 you probably won't understand this, but for those of you who want to know 
 how Allegro sets up the mode-X screen bitmaps, here goes...
@@ -5270,7 +5275,8 @@ example, a mode-X putpixel is:
       bmp_select(bmp);
       bmp_write8((unsigned long)bmp-&gtline[y]+(x&gt&gt2), color);
    }
-<endblock><hr>
+<endblock>
+
 Oh yeah: the djgpp nearptr hack. Personally I don't like this very much 
 because it disables memory protection and isn't portable to other platforms, 
 but a lot of people swear by it because it can give you direct access to the 
@@ -6024,10 +6030,12 @@ Recording routines
    mono/stereo mode are supported by the current audio driver, returning one 
    of the values:
 <textblock>
-      0 = it is impossible to record in this format
-      1 = recording is possible, but audio output will be suspended
-      2 = recording is possible at the same time as playing other sounds
-      -n = sampling rate not supported, but rate 'n' would work instead
+      0  = it is impossible to record in this format
+      1  = recording is possible, but audio output will be suspended
+      2  = recording is possible at the same time as playing other
+	   sounds
+      -n = sampling rate not supported, but rate 'n' would work
+	   instead
 <endblock>
 @@int @set_sound_input_source(int source);
 @xref start_sound_input
@@ -7070,7 +7078,8 @@ me.
       QUAT_LONG   - rotation will be greater than 180 degrees
       QUAT_CW     - rotate clockwise when viewed from above
       QUAT_CCW    - rotate counterclockwise when viewed from above
-      QUAT_USER   - the quaternions are interpolated exactly as given
+      QUAT_USER   - the quaternions are interpolated exactly as
+		    given
 <endblock>
 
 
@@ -7093,7 +7102,8 @@ DIALOG structure. The array should end with an object which has the proc
 pointer set to NULL. Each object has a flags field which may contain any
 combination of the bit flags:
 <textblock>
-   D_EXIT          - this object should close the dialog when it is clicked
+   D_EXIT          - this object should close the dialog when it is
+		     clicked
    D_SELECTED      - this object is selected
    D_GOTFOCUS      - this object has got the input focus
    D_GOTMOUSE      - the mouse is currently on top of this object
@@ -7101,8 +7111,9 @@ combination of the bit flags:
    D_DISABLED      - this object is greyed-out and inactive
    D_DIRTY         - this object needs to be redrawn
    D_INTERNAL      - don't use this! It is for internal use by the
-                     library...
-   D_USER          - any powers of two above this are free for your own use
+		     library...
+   D_USER          - any powers of two above this are free for your
+		     own use
 <endblock>
 Each object is controlled by a dialog procedure, which is stored in the proc 
 pointer. This will be called by the dialog manager whenever any action 
@@ -7120,10 +7131,14 @@ The dialog procedure should return one of the values:
 <textblock>
    D_O_K          - normal return status
    D_CLOSE        - tells the dialog manager to close the dialog
-   D_REDRAW       - tells the dialog manager to redraw the entire dialog
-   D_REDRAWME     - tells the dialog manager to redraw the current object
-   D_WANTFOCUS    - requests that the input focus be given to this object
-   D_USED_CHAR    - MSG_CHAR and MSG_XCHAR return this if they used the key
+   D_REDRAW       - tells the dialog manager to redraw the entire
+		    dialog
+   D_REDRAWME     - tells the dialog manager to redraw the current
+		    object
+   D_WANTFOCUS    - requests that the input focus be given to this
+		    object
+   D_USED_CHAR    - MSG_CHAR and MSG_XCHAR return this if they used
+		    the key
 <endblock>
 Dialog procedures may be called with any of the messages:
 
@@ -8157,9 +8172,11 @@ below for the consequences for windowed and overlay DirectX drivers.
 <codeblock>
 	 if (desktop_color_depth() == 16) {
 	    set_color_depth(16);
-	    if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
+	    if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0)
+		!= 0) {
 	       set_color_depth(15);
-	       if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
+	       if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0)
+		   != 0) {
 		  /* 640x480 direct drawing mode not supported */
 		  goto Error;
 	       }
@@ -8180,9 +8197,11 @@ below for the consequences for windowed and overlay DirectX drivers.
 <codeblock>
 	 if (desktop_color_depth() == 16) {
 	    set_color_depth(16);
-	    if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
+	    if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0)
+		!= 0) {
 	       set_color_depth(15);
-	       if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
+	       if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0)
+		   != 0) {
 		  /* 640x480 overlay driver not supported */
 		  goto Error;
 	       }
@@ -8204,11 +8223,12 @@ below for the consequences for windowed and overlay DirectX drivers.
 <textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
-      DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based) with
-			     direct mixing
-      DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with
-			     Allegro mixing
-      DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
+      DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based)
+			     with direct mixing
+      DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based)
+			     with Allegro mixing
+      DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut
+			     device
 <endblock>
 @@Drivers: @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
