@@ -237,7 +237,7 @@
    The latest version of Allegro can always be found on the Allegro 
    homepage, http://alleg.sourceforge.net/.
 
-   There are three mailing lists for Allegro-related discussion, each with a 
+   There are four mailing lists for Allegro-related discussion, each with a
    slightly different purpose.
 
    [AL] - Allegro - allegro@canvaslink.com.
@@ -257,6 +257,14 @@
       talk about algorithms for scrolling a tile map, that would be 
       off-topic in the main Allegro list, but appropriate to discuss here.
 
+   [AC] - Allegro Competitions - alcomp@canvaslink.com.
+
+      This list is usually the way to announce, discuss and inform about any
+      competitions made with Allegro, like the Allegro Game Competition or
+      the Allegro Speedhack, Sizehack and Demohack. This list can also be
+      used by anybody willing to organise events related to Allegro, like
+      discussions or conferences in the IRC #allegro channel.
+
    [AD] - Allegro Developers - conductors@canvaslink.com.
 
       This list is for the people currently working on Allegro, who use it to
@@ -275,24 +283,25 @@
 
    To subscribe to one of the lists, write to listserv@canvaslink.com with 
    the text "subscribe {list} myname" in the body of your message, where 
-   {list} is one of allegro, agp, or conductors.
+   {list} is one of allegro, agp, alcomp, or conductors.
 
    To remove yourself from a list, write to listserv@canvaslink.com with the 
    text "unsubscribe {list}" in the body of your message, where {list} is 
-   one of allegro, agp, or conductors.
+   one of allegro, agp, alcomp, or conductors.
 
    Note that the address for subscribing and unsubscribing is NOT the same 
    as the regular address for posting messages! Please remember to send your 
    administration requests to the listserv, rather than to the list itself.
 
    To send a message to one of the lists, write to allegro@canvaslink.com, 
-   agp@canvaslink.com, or conductors@canvaslink.com. You don't need to be 
-   subscribed to these lists before you can post to them, but it is a good 
-   idea to subscribe in order to see the replies. It is ok to post code 
-   contributions to the developers list without being subscribed, though, as 
-   long as you mention this in your mail so we will know to reply by private 
-   email. Before posting tech-support questions to the Allegro list, please 
-   take a moment to read the guidelines in docs/txt/help.txt.
+   agp@canvaslink.com, alcomp@canvaslink.com, or conductors@canvaslink.com.
+   You don't need to be subscribed to these lists before you can post to
+   them, but it is a good idea to subscribe in order to see the replies. It
+   is ok to post code contributions to the developers list without being
+   subscribed, though, as long as you mention this in your mail so we will
+   know to reply by private email. Before posting tech-support questions to
+   the Allegro list, please take a moment to read the guidelines in
+   docs/txt/help.txt.
 
    You can search through the mailing list archives using the engine on 
    http://www.canvaslink.com/allegro/search.htm.
