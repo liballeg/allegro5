@@ -443,7 +443,7 @@ endif
 PLUGIN_LIB = lib/bcc32/$(VERY_SHORT_VERSION)dat.lib
 PLUGINS_H = obj/bcc32/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
-PLUGIN_SCR = scx
+PLUGIN_SCR = scv
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H

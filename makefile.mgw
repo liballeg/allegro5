@@ -553,7 +553,7 @@ endef
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(RUNNER)
 PLUGINS_H = obj/mingw32/plugins.h
-PLUGIN_SCR = scv
+PLUGIN_SCR = scm
 
 ifdef UNIX_TOOLS
    define GENERATE_PLUGINS_H
