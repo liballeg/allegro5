@@ -527,7 +527,8 @@ static int _read_file(char *filename)
 	 if (flags & HEADING_FLAG)
 	    _add_toc(buf, 1, line, !(flags & NONODE_FLAG), (flags & HTML_FLAG));
 
-	 _add_line(buf, flags & CHAPTER_FLAG ? (flags & ~HTML_FLAG) : flags);
+	 _add_line(buf, flags & CHAPTER_FLAG ?
+            (flags & ~(HTML_FLAG | TEXT_FLAG)) : flags);
 
 	 if (_warn_on_long_lines) {
 	    int len = strlen (buf);
