@@ -35,7 +35,7 @@ static void sound_mac_exit(int input);
 static int sound_mac_mixer_volume(int volume);
 static int sound_mac_buffer_size(void);
 
-static char sb_desc[160] = EMPTY_STRING;
+static char sb_desc[256] = EMPTY_STRING;
 
 static int sound_mac_in_use = 0;
 static int sound_mac_stereo = 0;
@@ -44,7 +44,7 @@ static int sound_mac_buf_size = 256;
 static int sound_mac_total_buf_size = 256;
 static int sound_mac_freq=44100;
 static long _mac_sound=0;
-static char sound_mac_desc[256]="";
+static char sound_mac_desc[256] = EMPTY_STRING;
 static SndDoubleBackUPP myDBUPP=NULL;
 static SndChannelPtr chan=NULL;
 static SndDoubleBufferHeader myDblHeader;
@@ -1346,10 +1346,13 @@ static int sound_mac_detect(int input){
 		     _sound_bits = sound_mac_16bit?16:8;
 		     _sound_stereo = sound_mac_stereo;
 		     sound_mac_buf_size = get_config_int(sound, uconvert_ascii("oss_fragsize",  tmp1), 256);
-		     usprintf(sound_mac_desc,
+		     uszprintf(sound_mac_desc, sizeof(sound_mac_desc),
 		        get_config_text("Apple SoundManager %d.x %d hz, %d-bit, %s , %d "),
-		        myVersion.majorRev,sound_mac_freq,
-		        sound_mac_16bit?16:8,sound_mac_stereo?"stereo":"mono", sound_mac_buf_size);
+		        myVersion.majorRev,
+	                sound_mac_freq,
+		        sound_mac_16bit ? 16 : 8,
+	                uconvert_ascii(sound_mac_stereo ? "stereo" : "mono", tmp1),
+	                sound_mac_buf_size);
 		     digi_driver->desc=sound_mac_desc;
                      return 1;
 		  }
