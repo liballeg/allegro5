@@ -111,7 +111,7 @@ static GFX_DRIVER gfx_xdga =
    0, 0,
    0x10000,
    0,
-   TRUE
+   FALSE
 };
 
 
