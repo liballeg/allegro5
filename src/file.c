@@ -1800,7 +1800,7 @@ long pack_fread(void *p, long n, PACKFILE *f)
  *  of items written, which will be less than n if an error occurs. Error 
  *  codes are stored in errno.
  */
-long pack_fwrite(void *p, long n, PACKFILE *f)
+long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 {
    unsigned char *cp = (unsigned char *)p;
    long c;

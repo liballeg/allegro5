@@ -1826,7 +1826,7 @@ AL_FUNC(long, pack_mgetl, (PACKFILE *f));
 AL_FUNC(int, pack_mputw, (int w, PACKFILE *f));
 AL_FUNC(long, pack_mputl, (long l, PACKFILE *f));
 AL_FUNC(long, pack_fread, (void *p, long n, PACKFILE *f));
-AL_FUNC(long, pack_fwrite, (void *p, long n, PACKFILE *f));
+AL_FUNC(long, pack_fwrite, (AL_CONST void *p, long n, PACKFILE *f));
 AL_FUNC(char *, pack_fgets, (char *p, int max, PACKFILE *f));
 AL_FUNC(int, pack_fputs, (AL_CONST char *p, PACKFILE *f));
 
