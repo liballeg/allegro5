@@ -537,7 +537,7 @@ static bool wkeybd_init(void)
    memset(&key_state, 0, sizeof key_state);
 
    /* Initialise the keyboard object for use as an event source. */
-   _al_event_source_init(&the_keyboard.es, _AL_ALL_KEYBOARD_EVENTS, sizeof(AL_KEYBOARD_EVENT));
+   _al_event_source_init(&the_keyboard.es, _AL_ALL_KEYBOARD_EVENTS);
 
    return true;
 }

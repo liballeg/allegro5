@@ -17,14 +17,13 @@ AL_BEGIN_EXTERN_C
 struct AL_EVENT_SOURCE
 {
    unsigned long event_mask;
-   size_t event_size;
    _AL_MUTEX mutex;
    _AL_VECTOR queues;
    AL_EVENT *all_events;
    AL_EVENT *free_events;
 };
 
-AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, unsigned long event_mask, size_t event_size));
+AL_FUNC(void, _al_event_source_init, (AL_EVENT_SOURCE*, unsigned long event_mask));
 AL_FUNC(void, _al_event_source_free, (AL_EVENT_SOURCE*));
 AL_FUNC(void, _al_event_source_lock, (AL_EVENT_SOURCE*));
 AL_FUNC(void, _al_event_source_unlock, (AL_EVENT_SOURCE*));

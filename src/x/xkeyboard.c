@@ -864,7 +864,7 @@ static bool xkeybd_init(void)
 
    memset(&the_keyboard, 0, sizeof the_keyboard);
 
-   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS, sizeof(AL_KEYBOARD_EVENT));
+   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS);
 
    //_xwin_keydrv_set_leds(_key_shifts);
    

@@ -58,7 +58,6 @@ enum
    unsigned int type;                           \
    srctype *source;                             \
    unsigned long timestamp;                     \
-   int _size;                  /* internal */   \
    signed int _refcount;       /* internal */   \
    union AL_EVENT *_next;      /* internal */   \
    union AL_EVENT *_next_free  /* internal */

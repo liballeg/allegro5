@@ -341,8 +341,7 @@ static bool lkeybd_init(void)
       goto Error;
 
    /* Initialise the keyboard object for use as an event source. */
-   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS,
-                         sizeof(AL_KEYBOARD_EVENT));
+   _al_event_source_init(&the_keyboard.parent.es, _AL_ALL_KEYBOARD_EVENTS);
 
    /* Start watching for data on the fd. */
    _al_unix_start_watching_fd(the_keyboard.fd, process_new_data, NULL);

@@ -495,15 +495,14 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
 
 
 /* _al_copy_event:
- *  Copies the contents of the event SRC to DEST.  How many bytes are
- *  actually copied depends on what type of event SRC is.
+ *  Copies the contents of the event SRC to DEST.
  */
 void _al_copy_event(AL_EVENT *dest, AL_CONST AL_EVENT *src)
 {
    ASSERT(dest);
-   ASSERT(src->any._size > 0);
+   ASSERT(src);
 
-   memcpy(dest, src, src->any._size);
+   *dest = *src;
 
    dest->any._refcount = 0;
    dest->any._next = NULL;

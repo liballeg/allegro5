@@ -248,7 +248,7 @@ static AL_JOYSTICK *ljoy_get_joystick(int num)
    }
 
    /* Initialise the event source part of it. */
-   _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS, sizeof(AL_JOYSTICK_EVENT));
+   _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);
 
    /* Fill in the joystick information fields. */
    {

@@ -806,7 +806,7 @@ static AL_JOYSTICK *joydx_get_joystick(int num)
 
    EnterCriticalSection(&joydx_thread_cs);
    {
-      _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS, sizeof(AL_JOYSTICK_EVENT));
+      _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS);
       joy->gotten = true;
    }
    LeaveCriticalSection(&joydx_thread_cs);
