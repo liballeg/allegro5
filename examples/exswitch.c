@@ -144,7 +144,7 @@ void draw_pointless_graphics(void)
       clear_to_color(graphics_area, palette_color[255]);
 
    cr = ((float)x / (float)graphics_area->w - 0.75) * 2.0;
-   ci = ((float)y / (float)graphics_area->h - 0.5) * 2.0;
+   ci = ((float)y / (float)graphics_area->h - 0.5) * 1.8;
 
    zr = 0;
    zi = 0;
@@ -155,15 +155,19 @@ void draw_pointless_graphics(void)
 
       zr = tr + cr;
       zi = ti + ci;
+      if ((zr < -10) || (zr > 10) || (zi < -10) || (zi > 10))
+	 break;
    }
 
    if ((zi != zi) || (zr != zr))
       c = 0;
-   else
-      c = sqrt(zi*zi + zr*zr) * 256;
-
-   if (c > 255)
+   else if ((zi <= -1) || (zi >= 1) || (zr <= -1) || (zr >= 1))
       c = 255;
+   else {
+      c = sqrt(zi*zi + zr*zr) * 256;
+      if (c > 255)
+	 c = 255;
+   }
 
    putpixel(graphics_area, x, y, makecol(c, c, c));
 
@@ -223,6 +227,11 @@ int main(void)
 
    text_area = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H/2);
    graphics_area = create_sub_bitmap(screen, 0, SCREEN_H/2, SCREEN_W/2, SCREEN_H/2);
+   if ((!text_area) || (!graphics_area)) {
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message("Out of memory!\n");
+      return 1;
+   }
 
    LOCK_VARIABLE(counter);
    LOCK_FUNCTION(increment_counter);
@@ -241,11 +250,13 @@ int main(void)
 	 last_counter = counter;
 
 	 acquire_screen();
-	 textprintf_centre(screen, font, SCREEN_W*3/4, SCREEN_H*3/4, palette_color[255], "Time: %d", last_counter);
+	 textprintf_centre(screen, font, SCREEN_W*3/4, SCREEN_H*3/4,
+			   palette_color[255], "Time: %d", last_counter);
 	 release_screen();
 
 	 acquire_bitmap(graphics_area);
-	 draw_pointless_graphics();
+	 for (i=0; i<10; i++)
+	    draw_pointless_graphics();
 	 release_bitmap(graphics_area);
       }
 
