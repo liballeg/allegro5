@@ -269,6 +269,9 @@ Contributors
    Krzysztof Krzyzaniak (<email>eloy@arrakis.cs.put.poznan.pl</a>).<br>
    Wrote the load_voc() function.
 
+   Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
+   Added destroy hook to font structure.
+
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
    couple of bugs.

@@ -353,12 +353,16 @@ void destroy_font(FONT *f)
 
    while (f) {
       if (f->glyphs) {
-	 for (c=0; c<=f->end-f->start; c++) {
-	    if (f->glyphs[c]) {
-	       if (f->mono)
-		  free(f->glyphs[c]);
-	       else
-		  destroy_bitmap(f->glyphs[c]);
+	 if(f->destroyhook)
+	    f->destroyhook(f->glyphs);
+	 else {
+	    for (c=0; c<=f->end-f->start; c++) {
+	       if (f->glyphs[c]) {
+		  if (f->mono)
+		     free(f->glyphs[c]);
+		  else
+		     destroy_bitmap(f->glyphs[c]);
+	       }
 	    }
 	 }
 

@@ -437,6 +437,7 @@ static FONT *read_font_fixed(PACKFILE *f, int height, int maxchars)
    p->renderhook = NULL;
    p->widthhook = NULL;
    p->heighthook = NULL;
+   p->destroyhook = NULL;
 
    p->glyphs = malloc(maxchars*sizeof(void *));
    if (!p->glyphs) {
@@ -491,6 +492,7 @@ static FONT *read_font_prop(PACKFILE *f, int maxchars)
    p->renderhook = NULL;
    p->widthhook = NULL;
    p->heighthook = NULL;
+   p->destroyhook = NULL;
 
    p->glyphs = malloc(maxchars*sizeof(void *));
    if (!p->glyphs) {
@@ -555,6 +557,7 @@ static FONT *read_font(PACKFILE *f)
       p->renderhook = NULL;
       p->widthhook = NULL;
       p->heighthook = NULL;
+      p->destroyhook = NULL;
 
       if (last_p)
 	 last_p->next = p;
