@@ -22,6 +22,7 @@ PLATFORM_DIR = obj/macosx
 UNIX_TOOLS = 1
 
 RM_OPTS = -f
+MKDIR_OPTS = -p
 
 
 # -------- local variables --------
@@ -204,18 +205,18 @@ endif
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
 	@echo allegro-config script created in $(INSTALLDIR)/bin
 
-HEADERS = $(INSTALLDIR)/include/osxalleg.h                  \
-          $(INSTALLDIR)/include/allegro/platform/aintosx.h  \
-          $(INSTALLDIR)/include/allegro/platform/aintunix.h \
-          $(INSTALLDIR)/include/allegro/platform/alosxcfg.h \
-          $(INSTALLDIR)/include/allegro/platform/alplatf.h  \
-          $(INSTALLDIR)/include/allegro/platform/alosx.h
+HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintosx.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintunix.h \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosxcfg.h \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosx.h
 
 ifdef STATICLINK
-   INSTALL_FILES = $(INSTALLDIR)/lib/lib$(VERSION).a 
+   INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).a 
 else
-   INSTALL_FILES = $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib
-   INSTALL_FILES += $(INSTALLDIR)/lib/lib$(VERSION)-main.a
+   INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-$(shared_version).dylib
+   INSTALL_FILES += $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-main.a
 endif
 
 INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config
@@ -226,22 +227,22 @@ install: generic-install
 	@echo Run make install-framework if you wish to install the library as a framework.
 	@echo Run make install-template if you wish to install the application template.
 
-UNINSTALL_FILES = $(INSTALLDIR)/lib/liballeg.a                       \
-                  $(INSTALLDIR)/lib/liballd.a                        \
-                  $(INSTALLDIR)/lib/liballp.a                        \
-                  $(INSTALLDIR)/lib/liballeg-$(shared_version).dylib \
-                  $(INSTALLDIR)/lib/liballd-$(shared_version).dylib  \
-                  $(INSTALLDIR)/lib/liballp-$(shared_version).dylib  \
-                  $(INSTALLDIR)/lib/liballeg-main.a                  \
-                  $(INSTALLDIR)/lib/liballd-main.a                   \
-                  $(INSTALLDIR)/lib/liballp-main.a                   \
+UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg.a                       \
+                  $(INSTALLDIR)/$(LIBDIR)/liballd.a                        \
+                  $(INSTALLDIR)/$(LIBDIR)/liballp.a                        \
+                  $(INSTALLDIR)/$(LIBDIR)/liballeg-$(shared_version).dylib \
+                  $(INSTALLDIR)/$(LIBDIR)/liballd-$(shared_version).dylib  \
+                  $(INSTALLDIR)/$(LIBDIR)/liballp-$(shared_version).dylib  \
+                  $(INSTALLDIR)/$(LIBDIR)/liballeg-main.a                  \
+                  $(INSTALLDIR)/$(LIBDIR)/liballd-main.a                   \
+                  $(INSTALLDIR)/$(LIBDIR)/liballp-main.a                   \
                   $(HEADERS)                                         \
                   $(INSTALLDIR)/bin/allegro-config
 
 uninstall: generic-uninstall
-	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_major_minor).dylib
-	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-4.dylib
-	rm -f $(INSTALLDIR)/lib/lib$(VERSION).dylib
+	rm -f $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-$(shared_major_minor).dylib
+	rm -f $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-4.dylib
+	rm -f $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).dylib
 	-rm -fr $(FRAMEWORK)
 	-rm -fr $(TEMPLATE)
 	-sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(MAN_DIR)/man3/\1.3,p" docs/src/allegro._tx \
