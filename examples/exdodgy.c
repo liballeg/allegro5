@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include "allegro.h"
+#include <allegro.h>
 
 #if (defined ALLEGRO_DJGPP) && (!defined SCAN_DEPEND)
    #include <dos.h>

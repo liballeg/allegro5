@@ -19,7 +19,7 @@
  */
 
 
-#include "allegro.h"
+#include <allegro.h>
 
 
 #define DIALOG_NUM_SLIDERS       6
