@@ -109,6 +109,7 @@ static void rebuild_list(void *old, int clear);
 
 
 
+/* variable-sized */
 static MENU file_menu[32] =
 {
    { "&Load\t(ctrl+L)",             loader,           NULL,       0, NULL  },
@@ -128,13 +129,16 @@ static MENU file_menu[32] =
 
 
 
+/* variable-sized */
 static MENU new_menu[32] =
 {
-   { "Other",                       new_object,       NULL,       0, NULL  }
+   { "Other",                       new_object,       NULL,       0, NULL  },
+   { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
 
 
+/* variable-sized */
 static MENU objc_menu[32] =
 {
    { "&Grab\t(ctrl+G)",             grabber,          NULL,       0, NULL  },
@@ -150,6 +154,7 @@ static MENU objc_menu[32] =
 
 
 
+/* variable-sized */
 static MENU help_menu[32] =
 {
    { "&Help\t(F1)",                 helper,           NULL,       0, NULL  },
@@ -160,6 +165,7 @@ static MENU help_menu[32] =
 
 
 
+/* variable-sized */
 static MENU menu[32] = 
 { 
    { "&File",                       NULL,             file_menu,  0, NULL  },
@@ -170,6 +176,7 @@ static MENU menu[32] =
 
 
 
+/* variable-sized */
 static MENU popup_menu[32] =
 {
    { "&Grab",                       grabber,          NULL,       0, NULL  },
