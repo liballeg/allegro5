@@ -326,7 +326,8 @@ int write_rtf(char *filename)
 		  p++;
 	       }
 	       fputs("}", f);
-	       p += 2;
+	       if (*p)
+		  p += 2;
 	    }
 	    else if (strincmp(p, "<ul>") == 0) {
 	       /* start bullet list */
@@ -355,7 +356,8 @@ int write_rtf(char *filename)
 	       /* skip unknown HTML tokens */
 	       while ((*p) && (*p != '>'))
 		  p++;
-	       p++;
+	       if (*p)
+		  p++;
 	    }
 	    else if (strincmp(p, "&lt") == 0) {
 	       /* less-than HTML tokens */
