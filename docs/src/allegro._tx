@@ -8148,7 +8148,7 @@ you must include winalleg.h after other Allegro headers.
 
    However you can also call it after the library has been initialised,
    provided that no graphics mode is set. In this case the keyboard, mouse,
-   sound and sound recording modules will be restarted.
+   joystick, sound and sound recording modules will be restarted.
 
    Passing NULL instructs Allegro to switch back to its built-in window if
    an user-created window was registered, or to request a new handle from

@@ -56,9 +56,9 @@ Changes between 4.0.x and 4.1.x series
    The default value for the mouse configuration variable 'emulate_three'
    has been changed to 'no' in all cases (even if you have a 2-button mouse).
 <li>
-   The COLORCONV_KEEP_TRANS flag strictly conforms to the documentation now;
+   The COLORCONV_KEEP_TRANS flag strictly conforms to the documentation now.
    This was not the case before, because it was ignored when loading bitmaps
-   from datafiles. fixup_datafile also was modified to preserve transparency
+   from datafiles. fixup_datafile() was modified to preserve transparency
    when this flag is set, which was not guaranteed before in rare cases.
 <li>
    create_sub_bitmap() is now less tolerant about receiving bad arguments.
