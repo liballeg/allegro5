@@ -1536,7 +1536,7 @@ int write_rtf(char *filename)
 {
    LINE *line = head;
    LINE *l;
-   char *p;
+   char *p, *last = 0;
    FILE *f;
    int preformat = 0;
    int title = 0;
@@ -1707,6 +1707,7 @@ int write_rtf(char *filename)
 	 }
 
 	 while (*p) {
+	    last = 0;
 	    if (strincmp(p, "<p>") == 0) {
 	       /* paragraph breaks */
 	       PAR();
@@ -1905,7 +1906,7 @@ int write_rtf(char *filename)
 
 	       /* normal character */
 	       rfputc((unsigned char)*p, f);
-	       p++;
+	       last = p++;
 	    }
 	 }
 
@@ -1943,8 +1944,10 @@ int write_rtf(char *filename)
 	       }
 	    }
 	    else {
-	       /* normal EOL */
-	       fputs("\n", f);
+	       if (last && *last != 32)
+		  fputs(" ", f); /* add artificial space */
+
+	       fputs("\n", f); /* normal EOL */
 	    }
 	 }
       }
