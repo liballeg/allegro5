@@ -375,7 +375,7 @@
 
    Now you're ready to build the Allegro library with:
 
-   make
+   make (or mingw32-make if you are using a recent version of MingW32)
 
    The dynamically linked version of Allegro gets built by default. If you
    want to build the statically linked version of Allegro, use:
