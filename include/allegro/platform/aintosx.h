@@ -65,6 +65,7 @@ typedef struct BMP_EXTRA_INFO
 void osx_event_handler(void);
 
 void setup_direct_shifts(void);
+void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent);
 BITMAP *osx_qz_create_video_bitmap(int width, int height);
 void osx_qz_destroy_video_bitmap(BITMAP *bmp);

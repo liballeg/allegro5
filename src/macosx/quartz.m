@@ -215,3 +215,27 @@ void osx_qz_destroy_video_bitmap(BITMAP *bmp)
       free(bmp);
    }
 }
+
+
+
+/* osx_qz_blit_to_self:
+ *  Accelerated vram -> vram blitting routine.
+ */
+void osx_qz_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+{
+   Rect source_rect, dest_rect;
+   
+   SetRect(&source_rect, source_x + source->x_ofs, source_y + source->y_ofs,
+      source_x + source->x_ofs + width - 1, source_y + source->y_ofs + height - 1);
+   SetRect(&dest_rect, dest_x + dest->x_ofs, dest_y + dest->y_ofs,
+      dest_x + dest->x_ofs + width - 1, dest_y + dest->y_ofs + height - 1);
+
+   while (!QDDone(BMP_EXTRA(dest)->port));
+   if (!(dest->id & BMP_ID_LOCKED))
+      LockPortBits(BMP_EXTRA(dest)->port);
+   CopyBits(GetPortBitMapForCopyBits(BMP_EXTRA(source)->port),
+            GetPortBitMapForCopyBits(BMP_EXTRA(dest)->port),
+	    &source_rect, &dest_rect, srcCopy, NULL);
+   if (!(dest->id & BMP_ID_LOCKED))
+      UnlockPortBits(BMP_EXTRA(dest)->port);
+}
