@@ -363,6 +363,11 @@ line dat utility. This accepts the following options:
    '-pal objectname'
       Specifies which palette to use.
 
+   '-r'
+      Store the references to original files as relative filenames instead of
+      absolute filenames. This greatly increases the portability of complete
+      source trees containing the source data.
+
    '-s0' - no strip: save everything
    '-s1' - strip grabber specific information from the file
    '-s2' - strip all object properties and names from the file

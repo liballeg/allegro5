@@ -91,8 +91,8 @@ static int quitter(void);
 static int grabber(void);
 static int exporter(void);
 static int deleter(void);
-static int absolute_path_setter(void);
-static int relative_path_setter(void);
+static int absolute_setter(void);
+static int relative_setter(void);
 static int sheller(void);
 static int helper(void);
 static int sysinfo(void);
@@ -104,7 +104,7 @@ static int dither_toggler(void);
 static int index_toggler(void);
 static int sort_toggler(void);
 static int trans_toggler(void);
-static int relp_toggler(void);
+static int relf_toggler(void);
 static int property_delete(void);
 static int property_insert(void);
 static int property_change(void);
@@ -146,10 +146,10 @@ static MENU new_menu[32] =
 
 
 
-static MENU path_menu[] =
+static MENU rel_menu[] =
 {
-   { "To &Relative",                relative_path_setter,NULL,    0, NULL  },
-   { "To &Absolute",                absolute_path_setter,NULL,    0, NULL  },
+   { "To &Relative",                relative_setter,  NULL,       0, NULL  },
+   { "To &Absolute",                absolute_setter,  NULL,       0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
@@ -163,8 +163,8 @@ static MENU objc_menu[32] =
    { "&Delete\t(ctrl+D)",           deleter,          NULL,       0, NULL  },
    { "&Rename\t(ctrl+N)",           renamer,          NULL,       0, NULL  },
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
+   { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
    { "&Shell Edit\t(ctrl+Z)",       sheller,          NULL,       0, NULL  },
-   { "&Convert Path",               NULL,             path_menu,  0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -177,7 +177,7 @@ static MENU opt_menu[] =
    { "&Backup Datafiles",           backup_toggler,   NULL,       0, NULL  },
    { "&Index Objects",              index_toggler,    NULL,       0, NULL  },
    { "&Sort Objects",               sort_toggler,     NULL,       0, NULL  },
-   { "Store &Relative Paths",       relp_toggler,     NULL,       0, NULL  },
+   { "Store &Relative Filenames",   relf_toggler,     NULL,       0, NULL  },
    { "&Dither Images",              dither_toggler,   NULL,       0, NULL  },
    { "Preserve &Transparency",      trans_toggler,    NULL,       0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -186,7 +186,7 @@ static MENU opt_menu[] =
 #define MENU_BACKUP           0
 #define MENU_INDEX            1
 #define MENU_SORT             2
-#define MENU_RELP             3
+#define MENU_RELF             3
 #define MENU_DITHER           4
 #define MENU_TRANS            5
 
@@ -223,7 +223,7 @@ static MENU popup_menu[32] =
    { "&Delete",                     deleter,          NULL,       0, NULL  },
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
-   { "&Convert Path",               NULL,             path_menu,  0, NULL  },
+   { "&Convert Filename",           NULL,             rel_menu,   0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
    { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
@@ -1711,8 +1711,8 @@ static void update_info(void)
    datedit_set_property(&datedit_info, DAT_SORT, 
 		  (opt_menu[MENU_SORT].flags & D_SELECTED) ? "y" : "n");
 
-   datedit_set_property(&datedit_info, DAT_RELP, 
-		  (opt_menu[MENU_RELP].flags & D_SELECTED) ? "y" : "n");
+   datedit_set_property(&datedit_info, DAT_RELF, 
+		  (opt_menu[MENU_RELF].flags & D_SELECTED) ? "y" : "n");
 
    sprintf(buf, "%d", main_dlg[DLG_PACKLIST].d1);
    datedit_set_property(&datedit_info, DAT_PACK, buf);
@@ -1817,10 +1817,10 @@ static void load(char *filename, int flush)
    else
       opt_menu[MENU_TRANS].flags &= ~D_SELECTED;
 
-   if (utolower(*get_datafile_property(&datedit_info, DAT_RELP)) == 'y')
-      opt_menu[MENU_RELP].flags |= D_SELECTED;
+   if (utolower(*get_datafile_property(&datedit_info, DAT_RELF)) == 'y')
+      opt_menu[MENU_RELF].flags |= D_SELECTED;
    else
-      opt_menu[MENU_RELP].flags &= ~D_SELECTED;
+      opt_menu[MENU_RELF].flags &= ~D_SELECTED;
 
    if (sort)
       opt_menu[MENU_SORT].flags |= D_SELECTED;
@@ -1965,7 +1965,7 @@ static int save(int strip)
       options.verbose = TRUE;
       options.write_msg = FALSE;
       options.backup = (opt_menu[MENU_BACKUP].flags & D_SELECTED);
-      options.relative_path = (opt_menu[MENU_RELP].flags & D_SELECTED);
+      options.relative = (opt_menu[MENU_RELF].flags & D_SELECTED);
 
       if (!datedit_save_datafile(datafile, data_file, NULL, &options, password))
 	 err = TRUE;
@@ -2077,7 +2077,7 @@ static int updater(void)
 
    for (c=1; c<data_count; c++) {
       if (data[c].dat->type != DAT_FILE) {
-	 if (!datedit_update(data[c].dat, FALSE, &nowhere)) {
+	 if (!datedit_update(data[c].dat, data_file, FALSE, &nowhere)) {
 	    err = TRUE;
 	    break;
 	 }
@@ -2119,7 +2119,7 @@ static int sel_updater(void)
    for (c=1; c<data_count; c++) {
       if ((c==SELECTED_ITEM) || data_sel[c]) {
 	 if (data[c].dat->type != DAT_FILE) {
-	    if (!datedit_update(data[c].dat, FALSE, &nowhere)) {
+	    if (!datedit_update(data[c].dat, data_file, FALSE, &nowhere)) {
 	       err = TRUE;
 	       break;
 	    }
@@ -2161,7 +2161,7 @@ static int force_updater(void)
 
    for (c=1; c<data_count; c++) {
       if (data[c].dat->type != DAT_FILE) {
-	 if (!datedit_force_update(data[c].dat, FALSE, &nowhere)) {
+	 if (!datedit_force_update(data[c].dat, data_file, FALSE, &nowhere)) {
 	    err = TRUE;
 	    break;
 	 }
@@ -2224,6 +2224,7 @@ static int reader(void)
 {
    DATAFILE *dat;
    char buf[FILENAME_LENGTH], buf2[256];
+   DATEDIT_GRAB_PARAMETERS params;
    AL_CONST char *s;
 
    CHECK_MENU_HOOK("Read", DATEDIT_MENU_FILE);
@@ -2252,7 +2253,18 @@ static int reader(void)
 
       strcpy(grabber_import_file, buf);
 
-      dat = datedit_grab(grabber_import_file, grabber_import_file, DAT_BITMAP, -1, -1, -1, -1, -1);
+      params.datafile = data_file;
+      params.filename = grabber_import_file;
+      params.name = grabber_import_file;
+      params.type = DAT_BITMAP;
+      params.x = -1;
+      params.y = -1;
+      params.w = -1;
+      params.h = -1;
+      params.colordepth = -1;
+      params.relative = (opt_menu[MENU_RELF].flags & D_SELECTED);
+
+      dat = datedit_grab(&params);
 
       set_busy_mouse(FALSE);
 
@@ -2268,7 +2280,11 @@ static int reader(void)
 
 	 show_a_bitmap(grabber_graphic, grabber_palette);
 
-	 strcpy(grabber_graphic_origin, grabber_import_file);
+	 if (opt_menu[MENU_RELF].flags & D_SELECTED)
+	    make_relative_filename(grabber_graphic_origin, data_file, grabber_import_file, GRABBER_GRAPHIC_ORIGIN_SIZE);
+	 else
+	    strcpy(grabber_graphic_origin, grabber_import_file);
+
 	 strcpy(grabber_graphic_date, datedit_ftime2asc(file_time(grabber_import_file)));
       }
       else {
@@ -2332,8 +2348,9 @@ static int grabber(void)
 {
    DATAFILE *dat;
    char *desc = "binary data";
-   AL_CONST char *ext;
-   char buf[256], name[FILENAME_LENGTH], type[8], relpath[FILENAME_LENGTH];
+   AL_CONST char *ext, *origin;
+   DATEDIT_GRAB_PARAMETERS params;
+   char buf[256], name[FILENAME_LENGTH];
    int sel;
    int i;
 
@@ -2360,8 +2377,14 @@ static int grabber(void)
 
    ext = datedit_grab_ext(dat->type);
 
-   strcpy(name, get_datafile_property(dat, DAT_ORIG));
-   if (!name[0]) {
+   origin = get_datafile_property(dat, DAT_ORIG);
+   if (origin[0]) {
+      if (is_relative_filename(origin))
+         make_absolute_filename(name, data_file, origin, sizeof(name));
+      else
+         strcpy(name, origin);
+   }
+   else {
       strcpy(name, grabber_import_file);
       *get_filename(name) = 0;
    }
@@ -2371,18 +2394,22 @@ static int grabber(void)
    if (file_select_ex(buf, name, ext, sizeof(name), 0, 0)) {
       fix_filename_case(name);
 
-      /* Convert the filename to a relative filename if required. */
-      if (opt_menu[MENU_RELP].flags & D_SELECTED) {
-         make_relative_filename(relpath, data_file, name, FILENAME_LENGTH);
-         strcpy(name, relpath);
-      }
-      
       set_busy_mouse(TRUE);
 
       strcpy(grabber_import_file, name);
-      sprintf(type, "%c%c%c%c", dat->type>>24, (dat->type>>16)&0xFF, (dat->type>>8)&0xFF, dat->type&0xFF);
 
-      datedit_grabreplace(dat, name, get_datafile_property(dat, DAT_NAME), type, -1, -1, -1, -1, -1);
+      params.datafile = data_file;
+      params.filename = name;
+      params.name = get_datafile_property(dat, DAT_NAME);
+      params.type = dat->type;
+      params.x = -1;
+      params.y = -1;
+      params.w = -1;
+      params.h = -1;
+      params.colordepth = -1;
+      params.relative = (opt_menu[MENU_RELF].flags & D_SELECTED);
+
+      datedit_grabreplace(dat, &params);
 
       set_modified(TRUE);
 
@@ -2524,18 +2551,18 @@ static int deleter(void)
 
 
 /* handle the convert to absolute path command */
-static int absolute_path_setter(void)
+static int absolute_setter(void)
 {
    int i;
    char *orig;
-   char absolute_path[FILENAME_LENGTH];
+   char absolute[FILENAME_LENGTH];
    
    for (i=1; i<data_count; i++) {
       if ((i == SELECTED_ITEM) || (data_sel[i])) {
          orig = (char *)get_datafile_property(data[i].dat, DAT_ORIG);
          if (is_relative_filename(orig)) {
-            make_absolute_filename(absolute_path, data_file, orig, FILENAME_LENGTH);
-            set_property(&(data[i]), DAT_ORIG, absolute_path);
+            make_absolute_filename(absolute, data_file, orig, FILENAME_LENGTH);
+            set_property(&(data[i]), DAT_ORIG, absolute);
          }
       }
    }
@@ -2546,18 +2573,18 @@ static int absolute_path_setter(void)
 
 
 /* handle the convert to relative path command */
-static int relative_path_setter(void)
+static int relative_setter(void)
 {
    int i;
    char *orig;
-   char relative_path[FILENAME_LENGTH];
+   char relative[FILENAME_LENGTH];
    
    for (i=1; i<data_count; i++) {
       if ((i == SELECTED_ITEM) || (data_sel[i])) {
          orig = (char *)get_datafile_property(data[i].dat, DAT_ORIG);
          if (!is_relative_filename(orig)) {
-            make_relative_filename(relative_path, data_file, orig, FILENAME_LENGTH);
-            set_property(&(data[i]), DAT_ORIG, relative_path);
+            make_relative_filename(relative, data_file, orig, FILENAME_LENGTH);
+            set_property(&(data[i]), DAT_ORIG, relative);
          }
       }
    }
@@ -2618,9 +2645,9 @@ static int trans_toggler(void)
 
 
 /* handle the relative paths option */
-static int relp_toggler(void)
+static int relf_toggler(void)
 {
-   opt_menu[MENU_RELP].flags ^= D_SELECTED;
+   opt_menu[MENU_RELF].flags ^= D_SELECTED;
    return D_O_K;
 }
 
@@ -3094,13 +3121,15 @@ static int sheller(void)
 {
    DATAFILE *dat;
    char buf[256], cmd[256], ext[256], filename[256];
-   AL_CONST char *s, * s2;
+   DATEDIT_GRAB_PARAMETERS params;
+   AL_CONST char *s, * s2, *origin;
 
    int oldw = SCREEN_W;
    int oldh = SCREEN_H;
    int export, delfile;
    int ret, c, i;
    int sel;
+   int relf = FALSE;
 
    CHECK_MENU_HOOK("Shell Edit", DATEDIT_MENU_OBJECT);
 
@@ -3137,9 +3166,16 @@ static int sheller(void)
       return D_O_K;
    }
 
-   strcpy(filename, get_datafile_property(dat, DAT_ORIG));
+   origin = get_datafile_property(dat, DAT_ORIG);
+   if (origin[0]) {
+      if (is_relative_filename(origin)) {
+	 make_absolute_filename(filename, data_file, origin, sizeof(filename));
+	 relf = TRUE;
+      }
+      else {
+	 strcpy(filename, origin);
+      }
 
-   if (filename[0]) {
       export = !exists(filename);
       delfile = FALSE;
    }
@@ -3256,7 +3292,18 @@ static int sheller(void)
 	 goto ohwellitwasaniceidea;
    }
 
-   datedit_grabupdate(dat, filename, datedit_numprop(dat, DAT_XPOS), datedit_numprop(dat, DAT_YPOS), datedit_numprop(dat, DAT_XSIZ), datedit_numprop(dat, DAT_YSIZ));
+   params.datafile = data_file;
+   params.filename = filename;
+   /* params.name = */
+   /* params.type = */
+   params.x = datedit_numprop(dat, DAT_XPOS);
+   params.y = datedit_numprop(dat, DAT_YPOS);
+   params.w = datedit_numprop(dat, DAT_XSIZ);
+   params.h = datedit_numprop(dat, DAT_YSIZ);
+   /* params.colordepth */
+   params.relative = relf;
+
+   datedit_grabupdate(dat, &params);
    datedit_sort_properties(dat->prop);
    select_property(DAT_NAME);
 
@@ -3605,7 +3652,7 @@ int main(int argc, char *argv[])
 	 add_to_menu(file_menu, &tmpmenu, FALSE, NULL, NULL, 2); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_OBJECT)
-	 add_to_menu(objc_menu, &tmpmenu, FALSE, sheller, NULL, 0); 
+	 add_to_menu(objc_menu, &tmpmenu, FALSE, NULL, rel_menu, 0); 
 
       if (datedit_menu_info[i]->flags & DATEDIT_MENU_HELP)
 	 add_to_menu(help_menu, &tmpmenu, FALSE, about, NULL, 0); 
@@ -3660,9 +3707,9 @@ int main(int argc, char *argv[])
          opt_menu[MENU_SORT].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "relative", ""), "yY1"))
-         opt_menu[MENU_RELP].flags |= D_SELECTED;
+         opt_menu[MENU_RELF].flags |= D_SELECTED;
       else
-         opt_menu[MENU_RELP].flags &= ~D_SELECTED;
+         opt_menu[MENU_RELF].flags &= ~D_SELECTED;
 
       if (strpbrk(get_config_string("grabber", "dither", ""), "yY1"))
          opt_menu[MENU_DITHER].flags |= D_SELECTED;
@@ -3707,7 +3754,7 @@ int main(int argc, char *argv[])
    else
       set_config_string("grabber", "sort", "n");
 
-   if (opt_menu[MENU_RELP].flags & D_SELECTED)
+   if (opt_menu[MENU_RELF].flags & D_SELECTED)
       set_config_string("grabber", "relative", "y");
    else
       set_config_string("grabber", "relative", "n");

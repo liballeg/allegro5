@@ -49,7 +49,7 @@ BITMAP *grabber_graphic = NULL;
 PALETTE grabber_palette;
 
 char grabber_import_file[256] = "";
-char grabber_graphic_origin[256] = "";
+char grabber_graphic_origin[GRABBER_GRAPHIC_ORIGIN_SIZE] = "";
 char grabber_graphic_date[256] = "";
 
 
@@ -1424,21 +1424,21 @@ AL_CONST char *datedit_ftime2asc_int(long time)
 
 
 /* grabs an object from a disk file */
-DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, int x, int y, int w, int h, int colordepth)
+DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 {
    static DATAFILE dat;
    void *(*grab)(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth) = NULL;
-   char *ext = get_extension(filename);
+   char *ext = get_extension(params->filename);
    char *tok;
-   char tmp[256];
+   char tmp[1024];
    int c;
 
    dat.dat = NULL;
    dat.size = 0;
    dat.prop = NULL;
 
-   if (type) {
-      dat.type = type;
+   if (params->type) {
+      dat.type = params->type;
    }
    else {
       dat.type = DAT_DATA;
@@ -1485,15 +1485,21 @@ DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, i
 
    found_grabber:
 
-   dat.dat = grab(filename, &dat.size, x, y, w, h, colordepth);
+   dat.dat = grab(params->filename, &dat.size, params->x, params->y, params->w, params->h, params->colordepth);
 
    if (dat.dat) {
-      datedit_set_property(&dat, DAT_NAME, name);
-      datedit_set_property(&dat, DAT_ORIG, filename);
-      datedit_set_property(&dat, DAT_DATE, datedit_ftime2asc(file_time(filename)));
+      datedit_set_property(&dat, DAT_NAME, params->name);
+      if (params->relative) {
+	 make_relative_filename(tmp, params->datafile, params->filename, sizeof(tmp));
+	 datedit_set_property(&dat, DAT_ORIG, tmp);
+      }
+      else {
+	 datedit_set_property(&dat, DAT_ORIG, params->filename);
+      }
+      datedit_set_property(&dat, DAT_DATE, datedit_ftime2asc(file_time(params->filename)));
    }
    else {
-      datedit_error("Error reading %s as type %c%c%c%c", filename, 
+      datedit_error("Error reading %s as type %c%c%c%c", params->filename, 
 		    dat.type>>24, (dat.type>>16)&0xFF,
 		    (dat.type>>8)&0xFF, dat.type&0xFF);
    }
@@ -1504,11 +1510,9 @@ DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, i
 
 
 /* grabs an object over the top of an existing one */
-int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h)
+int datedit_grabreplace(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 {
-   DATAFILE *tmp = datedit_grab(filename, name, 
-				datedit_clean_typename(type), 
-				x, y, w, h, colordepth);
+   DATAFILE *tmp = datedit_grab(params);
 
    if (tmp->dat) {
       _unload_datafile_object(dat);
@@ -1522,10 +1526,16 @@ int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *n
 
 
 /* updates an object in-place */
-int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int w, int h)
+int datedit_grabupdate(DATAFILE *dat, DATEDIT_GRAB_PARAMETERS *params)
 {
-   DATAFILE *tmp = datedit_grab(filename, "dummyname", dat->type, x, y, w, h, -1);
+   DATAFILE *tmp;
    DATAFILE_PROPERTY *tmp_prop;
+
+   params->name = "dummyname";
+   params->type = dat->type;
+   params->colordepth = -1;
+
+   tmp = datedit_grab(params);
 
    if (tmp->dat) {
       /* exchange properties */
@@ -1601,11 +1611,9 @@ int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int
 
 
 /* grabs a new object, inserting it into the datafile */
-DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h)
+DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params)
 {
-   DATAFILE *tmp = datedit_grab(filename, name, 
-				datedit_clean_typename(type), 
-				x, y, w, h, colordepth);
+   DATAFILE *tmp = datedit_grab(params);
    int len;
 
    if (tmp->dat) {
@@ -1745,27 +1753,38 @@ AL_CONST char *datedit_export_ext(int type)
 
 
 
-/* conditionally update an out-of-date object */
-int datedit_update(DATAFILE *dat, int verbose, int *changed)
+/* worker function for the two following ones */
+static int do_datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed, int force)
 {
    AL_CONST char *name = get_datafile_property(dat, DAT_NAME);
    AL_CONST char *origin = get_datafile_property(dat, DAT_ORIG);
    AL_CONST char *date = get_datafile_property(dat, DAT_DATE);
-   time_t origt, datat;
+   DATEDIT_GRAB_PARAMETERS params;
+   char filename[1024];
+   int relf;
 
    if (!*origin) {
       datedit_msg("%s has no origin data - skipping", name);
       return TRUE;
    }
 
-   if (!exists(origin)) {
+   if (is_relative_filename(origin)) {
+      make_absolute_filename(filename, datafile, origin, sizeof(filename));
+      relf = TRUE;
+   }
+   else {
+      strcpy(filename, origin);
+      relf = FALSE;
+   }
+   
+   if (!exists(filename)) {
       datedit_msg("%s: %s not found - skipping", name, origin);
       return TRUE;
    }
 
-   if (*date) {
-      origt = file_time(origin);
-      datat = datedit_asc2ftime(date);
+   if ((!force) && (*date)) {
+      time_t origt = file_time(filename);
+      time_t datat = datedit_asc2ftime(date);
 
       if ((origt/60) <= (datat/60)) {
 	 if (verbose)
@@ -1779,41 +1798,32 @@ int datedit_update(DATAFILE *dat, int verbose, int *changed)
    if (changed)
       *changed = TRUE;
 
-   return datedit_grabupdate(dat, origin, 
-			     datedit_numprop(dat, DAT_XPOS), 
-			     datedit_numprop(dat, DAT_YPOS), 
-			     datedit_numprop(dat, DAT_XSIZ), 
-			     datedit_numprop(dat, DAT_YSIZ));
+   params.datafile = datafile;
+   params.filename = filename;
+   /* params.name = */
+   /* params.type = */
+   params.x = datedit_numprop(dat, DAT_XPOS);
+   params.y = datedit_numprop(dat, DAT_YPOS);
+   params.w = datedit_numprop(dat, DAT_XSIZ);
+   params.h = datedit_numprop(dat, DAT_YSIZ);
+   /* params.colordepth */
+   params.relative = relf;
+
+   return datedit_grabupdate(dat, &params);
+}
+
+
+
+/* conditionally update an out-of-date object */
+int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed)
+{
+   return do_datedit_update(dat, datafile, verbose, changed, FALSE /* don't force */);
 }
 
 
 
 /* unconditionally update an object */
-int datedit_force_update(DATAFILE *dat, int verbose, int *changed)
+int datedit_force_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed)
 {
-   AL_CONST char *name = get_datafile_property(dat, DAT_NAME);
-   AL_CONST char *origin = get_datafile_property(dat, DAT_ORIG);
-
-   if (!*origin) {
-      datedit_msg("%s has no origin data - skipping", name);
-      return TRUE;
-   }
-
-   if (!exists(origin)) {
-      datedit_msg("%s: %s not found - skipping", name, origin);
-      return TRUE;
-   }
-
-   datedit_msg("Updating %s -> %s", origin, name);
-
-   if (changed)
-      *changed = TRUE;
-
-   return datedit_grabupdate(dat, origin, 
-			     datedit_numprop(dat, DAT_XPOS), 
-			     datedit_numprop(dat, DAT_YPOS), 
-			     datedit_numprop(dat, DAT_XSIZ), 
-			     datedit_numprop(dat, DAT_YSIZ));
+   return do_datedit_update(dat, datafile, verbose, changed, TRUE /* force */);
 }
-
-

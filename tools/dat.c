@@ -41,6 +41,7 @@ static int opt_command = 0;
 static int opt_compression = -1;
 static int opt_strip = -1;
 static int opt_sort = -1;
+static int opt_relf = FALSE;
 static int opt_verbose = FALSE;
 static int opt_keepnames = FALSE;
 static int opt_colordepth = -1;
@@ -56,6 +57,8 @@ static char *opt_objecttype = NULL;
 static char *opt_prefixstring = NULL;
 static char *opt_password = NULL;
 static char *opt_palette = NULL;
+
+static char canonical_datafilename[1024];
 
 #define MAX_FILES    256
 
@@ -89,7 +92,7 @@ static void usage(void)
    printf("\t'-e' extracts the named objects from the datafile\n");
    printf("\t'-g x y w h' grabs bitmap data from a specific grid location\n");
    printf("\t'-h outputfile.h' sets the output header file\n");
-   printf("\t'-k' keeps the original file names when grabbing objects\n");
+   printf("\t'-k' keeps the original filenames when grabbing objects\n");
    printf("\t'-l' lists the contents of the datafile\n");
    printf("\t'-m dependencyfile' outputs makefile dependencies\n");
    printf("\t'-n0' no sort: list the objects in the order they were added\n");
@@ -97,6 +100,7 @@ static void usage(void)
    printf("\t'-o output' sets the output file or directory when extracting data\n");
    printf("\t'-p prefixstring' sets the prefix for the output header file\n");
    printf("\t'-pal objectname' specifies which palette to use\n");
+   printf("\t'-r' store references to original files as relative filenames\n");
    printf("\t'-s0' no strip: save everything\n");
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
@@ -397,9 +401,9 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
    char name[256];
    int c;
    DATAFILE *d;
+   DATEDIT_GRAB_PARAMETERS params;
 
-   strcpy(fname, filename);
-   fix_filename_case(fname);
+   canonicalize_filename(fname, filename, sizeof(fname));   
 
    strcpy(name, get_filename(fname));
 
@@ -411,10 +415,21 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
 	    name[c] = '_';
    }
 
+   params.datafile = canonical_datafilename;
+   params.filename = fname;
+   params.name = name;
+   params.type = datedit_clean_typename(opt_objecttype);
+   params.x = opt_gridx;
+   params.y = opt_gridy;
+   params.w = opt_gridw;
+   params.h = opt_gridh;
+   params.colordepth = opt_colordepth;
+   params.relative = opt_relf;
+
    for (c=0; datafile[c].type != DAT_END; c++) {
       if (stricmp(name, get_datafile_property(datafile+c, DAT_NAME)) == 0) {
 	 printf("Replacing %s -> %s\n", fname, name);
-	 if (!datedit_grabreplace(datafile+c, fname, name, opt_objecttype, opt_colordepth, opt_gridx, opt_gridy, opt_gridw, opt_gridh)) {
+	 if (!datedit_grabreplace(datafile+c, &params)) {
 	    err = 1;
 	    return -1;
 	 }
@@ -426,7 +441,7 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
    }
 
    printf("Inserting %s -> %s\n", fname, name);
-   d = datedit_grabnew(datafile, fname, name, opt_objecttype, opt_colordepth, opt_gridx, opt_gridy, opt_gridw, opt_gridh);
+   d = datedit_grabnew(datafile, &params);
    if (!d) {
       err = 1;
       return -1;
@@ -459,7 +474,7 @@ static void do_update(DATAFILE *dat, char *parentname)
 	    return;
       }
       else if ((opt_numnames <= 0) || (is_name(tmp))) {
-	 if (!datedit_update(dat+i, opt_verbose, &changed)) {
+	 if (!datedit_update(dat+i, canonical_datafilename, opt_verbose, &changed)) {
 	    err = 1;
 	    return;
 	 }
@@ -488,7 +503,7 @@ static void do_force_update(DATAFILE *dat, char *parentname)
 	    return;
       }
       else if ((opt_numnames <= 0) || (is_name(tmp))) {
-	 if (!datedit_force_update(dat+i, opt_verbose, &changed)) {
+	 if (!datedit_force_update(dat+i, canonical_datafilename, opt_verbose, &changed)) {
 	    err = 1;
 	    return;
 	 }
@@ -821,6 +836,10 @@ int main(int argc, char *argv[])
 		  opt_prefixstring = argv[++c];
 	       }
 	       break;
+               
+	    case 'r':
+               opt_relf = TRUE;
+               break;
 
 	    case 's':
 	       if (argv[c][2] == '-') {
@@ -908,6 +927,8 @@ int main(int argc, char *argv[])
       usage();
       return 1;
    }
+
+   canonicalize_filename(canonical_datafilename, opt_datafilename, sizeof(canonical_datafilename));
 
    if (colorconv_mode)
       set_color_conversion(colorconv_mode);

@@ -776,6 +776,7 @@ static int parse_string(char *buf, char *argv[])
 static void add_gus_patches(void)
 {
    char dir[256], file[256], buf[256], filename[256];
+   DATEDIT_GRAB_PARAMETERS params;
    PACKFILE *f;
    DATAFILE *d;
    char *argv[16];
@@ -815,8 +816,19 @@ static void add_gus_patches(void)
       if (buf[i] == '\\')
 	 buf[i] = '/';
 
+   params.datafile = NULL;  /* only with absolute filenames */
+   params.filename = buf;
+   params.name = "default_cfg";
+   params.type = DAT_DATA;
+   params.x = -1;
+   params.y = -1;
+   params.w = -1;
+   params.h = -1;
+   params.colordepth = -1;
+   params.relative = FALSE;  /* required (see above) */
+
    printf("Grabbing %s\n", buf);
-   d = datedit_grabnew(datafile, buf, "default_cfg", "DATA", -1, -1, -1, -1, -1);
+   d = datedit_grabnew(datafile, &params);
    if (!d) {
       errno = err = 1;
       return;
@@ -888,8 +900,11 @@ static void add_gus_patches(void)
 			break;
 
 		  if (datafile[j].type == DAT_END) {
+		     params.filename = filename;
+		     params.name = argv[1];
+		     params.type = DAT_PATCH;
 		     printf("Grabbing %s\n", filename);
-		     d = datedit_grabnew(datafile, filename, argv[1], "PAT", -1, -1, -1, -1, -1);
+		     d = datedit_grabnew(datafile, &params);
 		  }
 		  else
 		     d = datafile;
@@ -1873,6 +1888,7 @@ static void print_sf_string(FILE *f, char *title)
 static void add_soundfont_patches(void)
 {
    RIFF_CHUNK file, chunk, subchunk;
+   DATEDIT_GRAB_PARAMETERS params;
    DATAFILE *d;
    FILE *f;
    time_t now;
@@ -1926,7 +1942,18 @@ static void add_soundfont_patches(void)
 
    fclose(f);
 
-   d = datedit_grabnew(datafile, buf, "default_cfg", "DATA", -1, -1, -1, -1, -1);
+   params.datafile = NULL;  /* only with absolute filenames */
+   params.filename = buf;
+   params.name = "default_cfg";
+   params.type = DAT_DATA;
+   params.x = -1;
+   params.y = -1;
+   params.w = -1;
+   params.h = -1;
+   params.colordepth = -1;
+   params.relative = FALSE;  /* required (see above) */
+
+   d = datedit_grabnew(datafile, &params);
 
    delete_file(buf);
 

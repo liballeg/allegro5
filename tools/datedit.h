@@ -42,7 +42,7 @@
 #define DAT_YGRD  DAT_ID('Y','G','R','D')
 #define DAT_XCRP  DAT_ID('X','C','R','P')
 #define DAT_YCRP  DAT_ID('Y','C','R','P')
-#define DAT_RELP  DAT_ID('R','E','L','P')
+#define DAT_RELF  DAT_ID('R','E','L','F')
 
 
 
@@ -134,7 +134,7 @@ typedef struct DATEDIT_SAVE_DATAFILE_OPTIONS {
    int verbose;
    int write_msg;
    int backup;
-   int relative_path;
+   int relative;
 } DATEDIT_SAVE_DATAFILE_OPTIONS;
 
 
@@ -143,16 +143,37 @@ DATAFILE *datedit_load_datafile(AL_CONST char *name, int compile_sprites, AL_CON
 int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixed_prop, AL_CONST DATEDIT_SAVE_DATAFILE_OPTIONS *options, AL_CONST char *password);
 int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *headername, AL_CONST char *progname, AL_CONST char *prefix, int verbose);
 
-void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *ext, char *buf);
 int datedit_export(AL_CONST DATAFILE *dat, AL_CONST char *name);
-DATAFILE *datedit_delete(DATAFILE *dat, int i);
-DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, int x, int y, int w, int h, int colordepth);
-int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h);
-int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int w, int h);
-DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h);
+void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *ext, char *buf);
+
 DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, AL_CONST char *name, int type, void *v, long size);
-int datedit_update(DATAFILE *dat, int verbose, int *changed);
-int datedit_force_update(DATAFILE *dat, int verbose, int *changed);
+DATAFILE *datedit_delete(DATAFILE *dat, int i);
+
+
+typedef struct DATEDIT_GRAB_PARAMETERS {
+   AL_CONST char *datafile;  /* absolute filename of the datafile              */
+   AL_CONST char *filename;  /* absolute filename of the original file         */
+   AL_CONST char *name;      /* name of the object                             */
+   int type;                 /* type of the object                             */
+   int x, y, w, h;           /* area to grab within the bitmap                 */
+   int colordepth;           /* color depth to grab to                         */
+   int relative;             /* whether to use relative filenames for DAT_ORIG */
+} DATEDIT_GRAB_PARAMETERS;
+
+DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params);
+int datedit_grabreplace(DATAFILE *dat, AL_CONST DATEDIT_GRAB_PARAMETERS *params);
+int datedit_grabupdate(DATAFILE *dat, DATEDIT_GRAB_PARAMETERS *params);
+DATAFILE *datedit_grab(AL_CONST DATEDIT_GRAB_PARAMETERS *params);
+
+#if 0
+DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, int type, int colordepth, int x, int y, int w, int h);
+int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, int type, int colordepth, int x, int y, int w, int h);
+int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int w, int h);
+DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, int x, int y, int w, int h, int colordepth);
+#endif
+
+int datedit_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed);
+int datedit_force_update(DATAFILE *dat, AL_CONST char *datafile, int verbose, int *changed);
 
 extern void (*grabber_sel_palette)(PALETTE pal);
 extern void (*grabber_select_property)(int type);
@@ -167,6 +188,8 @@ extern void (*grabber_modified)(int modified);
 
 extern BITMAP *grabber_graphic;
 extern PALETTE grabber_palette;
+
+#define GRABBER_GRAPHIC_ORIGIN_SIZE  256
 
 extern char grabber_import_file[];
 extern char grabber_graphic_origin[];
