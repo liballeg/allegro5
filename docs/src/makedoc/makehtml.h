@@ -18,6 +18,7 @@ extern char *html_document_title;
 extern char *html_footer;
 extern char *html_see_also_text;
 extern char *html_css_filename;
+extern char *html_return_value_text;
 
 
 int write_html(char *filename);

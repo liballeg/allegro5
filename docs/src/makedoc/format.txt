@@ -198,6 +198,17 @@
 
       This would transform 'yo@terra.es' into 'yo EN terra PUNTO es'.
 
+   @retval
+      Used to mark the section of a function description involved with the
+      return value of this function. It has to be obviously at the end of
+      the function description.
+
+   @html_return_value_text=xxx
+      Optional command. By default, when HTML output is generated, the text
+      "Return value:" precedes sections marked with the @retval command.
+      With this command you can customize it, which is necessary for
+      non-english documents.
+
 
 
 ===================================
@@ -237,7 +248,20 @@
          Installs a set of custom handler...
 
    Remember to end the last line with @@ instead of @\. Use allegro._tx as a
-   reference if you have any problems documenting your functions.
+   reference if you have any problems documenting your functions. Finally,
+   for functions which have a return value, you should use the @retval
+   command to mark the first paragraph which talks about the return value.
+   Output formats like HTML or man pages will highlight the beginning of
+   this section (which should be the last of the function description) so
+   the user can quickly see it. Possible example:
+
+      @@int @set_window_close_button(int enable);
+      @xref set_window_close_hook, set_window_title
+         On platforms that are capable of it, this routine disables or
+         enables the window close button for your Allegro program.
+      @retval
+         If the close button is successfully disabled, this function returns
+         zero. On platforms where...
 
 
 

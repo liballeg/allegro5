@@ -74,7 +74,10 @@ int write_man(char *filename)
       }
 
       if (line->flags & MAN_FLAG) {
-	 if (line->flags & DEFINITION_FLAG) {
+	 if (line->flags & RETURN_VALUE_FLAG) {
+	    fprintf(f, ".SH \"RETURN VALUE\"\n");
+	 }
+	 else if (line->flags & DEFINITION_FLAG) {
 	    /* start a manpage */
 	    p = _man_name(line->text);
 

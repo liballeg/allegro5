@@ -350,6 +350,10 @@ static int _read_file(char *filename)
 	    flags |= (HEADING_FLAG | NOCONTENT_FLAG);
 	 else if (mystricmp(buf+1, "heading") == 0)
 	    flags |= HEADING_FLAG;
+	 else if (mystricmp(buf+1, "retval") == 0) {
+	    _add_line("", flags | RETURN_VALUE_FLAG);
+	    flags &= ~(HEADING_FLAG | NOCONTENT_FLAG | NONODE_FLAG);
+	 }
 	 else if (strincmp(buf+1, "titlepage") == 0)
 	    _add_line("", START_TITLE_FLAG);
 	 else if (strincmp(buf+1, "!titlepage") == 0)
@@ -405,6 +409,11 @@ static int _read_file(char *filename)
 	    if (html_see_also_text)
 	       free(html_see_also_text);
 	    html_see_also_text = m_strdup(buf+20);
+	 }
+	 else if (strincmp(buf+1, "html_return_value_text=") == 0) {
+	    if (html_return_value_text)
+	       free(html_return_value_text);
+	    html_return_value_text = m_strdup(buf+24);
 	 }
 	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='=')) {
 	    html_footer = m_strdup(buf+3);

@@ -53,6 +53,7 @@ char *html_document_title;
 char *html_footer;
 char *html_see_also_text;
 char *html_css_filename;
+char *html_return_value_text;
 
 static POST **_post;
 static FILE *_file;
@@ -186,8 +187,10 @@ int write_html(char *filename)
       return 1;
 
    /* English default text initialization */
-   if(!html_see_also_text)
+   if (!html_see_also_text)
       html_see_also_text = m_strdup("See also:");
+   if (!html_return_value_text)
+      html_return_value_text = m_strdup("Return value:");
    
    printf("writing %s\n", filename);
 
@@ -216,6 +219,12 @@ int write_html(char *filename)
 	       return 1;
 	    _add_post_process_xref(line->text);
 	    section_number++;
+	 }
+	 else if (line->flags & RETURN_VALUE_FLAG) {
+	    assert(html_return_value_text);
+	    fputs("<p><b>", _file);
+	    fputs(html_return_value_text, _file);
+	    fputs("</b>\n", _file);
 	 }
 	 else if (line->flags & NODE_FLAG) {
 	    _output_buffered_text();
@@ -326,6 +335,7 @@ int write_html(char *filename)
    
    _post_process_pending_xrefs();
    free(html_see_also_text);
+   free(html_return_value_text);
    destroy_types_lookup_table(auto_types, 0);
 
    return 0;
@@ -396,7 +406,7 @@ static void _write_html_xref_list(char **xref, int *xrefs)
    assert(html_see_also_text);
 
    if (!(*xrefs))
-      return ;
+      return;
 
    fputs("\n<blockquote", _file);
    if (!(html_flags & HTML_IGNORE_CSS))
