@@ -2176,7 +2176,6 @@ char *ustrpbrk(AL_CONST char *s, AL_CONST char *set)
 char *ustrtok(char *s, AL_CONST char *set)
 {
    static char *last = NULL;
-   ASSERT(s);
 
    return ustrtok_r(s, set, &last);
 }
