@@ -52,6 +52,7 @@ static int digi_directsound_buffer_size(void);
 /* sound driver globals */
 static LPDIRECTSOUND directsound = NULL;
 static LPDIRECTSOUNDBUFFER prim_buf = NULL;
+static long int initial_volume;
 static int _freq, _bits, _stereo;
 static unsigned char allegro_to_decibel[256];
 static int _digidsbufsize;
@@ -384,11 +385,16 @@ int v, id;
 
 	_mix_some_samples((unsigned long) _digidsbufdata, 0, 1);
 	LOCK_FUNCTION (digi_directsound_mixer_callback);
-/*	install_int (digi_directsound_mixer_callback, BPS_TO_TIMER(50)); */
-	dbgtid = timeSetEvent (20, 10, digi_directsound_mixer_callback, 0, TIME_PERIODIC);
-	IDirectSoundBuffer_Play (prim_buf, 0, 0, DSBPLAY_LOOPING);
-	IDirectSoundBuffer_SetVolume (prim_buf, DSBVOLUME_MAX);
-    prim_buf_vol = DSBVOLUME_MAX;
+
+        /* get primary buffer volume */
+        IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume);
+        prim_buf_vol = initial_volume;
+
+        /* start playing */
+        /* install_int(digi_directsound_mixer_callback, BPS_TO_TIMER(50)); */
+        dbgtid = timeSetEvent(20, 10, digi_directsound_mixer_callback, 0, TIME_PERIODIC);
+        IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
+	
 	return 0;
 
 Error:
@@ -409,6 +415,9 @@ static void digi_directsound_exit(int input)
 
 	/* destroy primary buffer */
 	if (prim_buf) {
+                /* restore primary buffer initial volume */
+                IDirectSoundBuffer_SetVolume(prim_buf, initial_volume);
+
 		IDirectSoundBuffer_Release(prim_buf);
 		prim_buf = NULL;
 	}

@@ -50,6 +50,7 @@ static int digi_waveout_buffer_size(void);
 /* sound driver globals */
 static HANDLE hWaveOut = NULL;
 static LPWAVEHDR lpWaveHdr = NULL;
+static long int initial_volume;
 static int digiwobufsize, digiwobufdivs, digiwobufpos;
 static unsigned char * digiwobufdata = NULL;
 static int _freq, _bits, _stereo;
@@ -256,7 +257,12 @@ int v, id;
 
 	_mix_some_samples((unsigned long) digiwobufdata, 0, 1);
 	LOCK_FUNCTION (digi_waveout_mixer_callback);
-/*	install_int (digi_waveout_mixer_callback, BPS_TO_TIMER(50)); */
+
+        /* get volume */
+        waveOutGetVolume(hWaveOut, &initial_volume);
+
+        /* start playing */
+        /* install_int (digi_waveout_mixer_callback, BPS_TO_TIMER(50)); */
 	dbgtid = timeSetEvent (20, 10, digi_waveout_mixer_callback, 0, TIME_PERIODIC);
 
 	return 0;
@@ -273,6 +279,10 @@ static void digi_waveout_exit(int input)
 
 	if (hWaveOut != NULL) {
 		waveOutReset (hWaveOut);
+
+                /* restore initial volume */
+                waveOutSetVolume(hWaveOut, initial_volume);
+
 		waveOutUnprepareHeader (hWaveOut, lpWaveHdr, sizeof(WAVEHDR));
 		waveOutClose (hWaveOut);
 		hWaveOut = NULL;

@@ -46,6 +46,7 @@ void midi_win32_raw_midi(int data);
 
 /* driver globals */
 static HMIDIOUT midi_device = NULL;
+static long int initial_volume;
 
 
 /* dynamically generated driver list */
@@ -146,6 +147,9 @@ int midi_win32_init(int input, int voices)
    /* resets midi mapper */
    midiOutReset(midi_device);
 
+   /* get volume */
+   midiOutGetVolume(midi_device, &initial_volume);
+
    return 0;
 
  Error:
@@ -162,6 +166,10 @@ void midi_win32_exit(int input)
    /* close midi stream and release device */
    if (midi_device != NULL) {
       midiOutReset(midi_device);
+
+      /* restore initial volume */
+      midiOutSetVolume(midi_device, initial_volume);
+
       midiOutClose(midi_device);
       midi_device = NULL;
    }

@@ -140,6 +140,7 @@ static DIGI_DRIVER digi_directx =
 /* sound driver globals */
 static LPDIRECTSOUND directsound = NULL;
 static LPDIRECTSOUNDBUFFER prim_buf = NULL;
+static long int initial_volume;
 static int _freq, _bits, _stereo;
 static unsigned char allegro_to_decibel[256];
 
@@ -440,8 +441,8 @@ static int digi_directsound_init(int input, int voices)
    for (v = 1; v < 256; v++)
       allegro_to_decibel[v] = (unsigned char)(106.0 * log10(v));       /* 255 / log10(255) ~ 106 */
 
-   /* set primary buffer (global) volume */
-   IDirectSoundBuffer_SetVolume(prim_buf, DSBVOLUME_MAX); 
+   /* get primary buffer volume */
+   IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume);
 
    return 0;
 
@@ -470,6 +471,9 @@ static void digi_directsound_exit(int input)
 
    /* destroy primary buffer */
    if (prim_buf) {
+      /* restore primary buffer initial volume */
+      IDirectSoundBuffer_SetVolume(prim_buf, initial_volume);
+
       IDirectSoundBuffer_Release(prim_buf);
       prim_buf = NULL;
    }
