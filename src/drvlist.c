@@ -78,7 +78,7 @@ void _driver_list_append_driver(_DRIVER_INFO **drvlist, int id, void *driver, in
 
    drv = realloc(*drvlist, sizeof(_DRIVER_INFO) * (c+2));
    if (!drv)
-      return drvlist;
+      return;
 
    drv[c].id = id;
    drv[c].driver = driver;
