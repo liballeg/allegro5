@@ -12,6 +12,9 @@
  *
  *      By Eric Botcazou.
  *
+ *      Omar Cornut fixed it to handle a weird peculiarity of 
+ *      the DirectInput joystick API.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -177,13 +180,49 @@ static int joystick_dinput_poll(void)
             n_axis++;
          }
 
+         /* In versions of the DirectInput joystick API earlier than 8.00, slider
+          * data is to be found in the Z axis data member, although the object was
+          * reported as a slider during enumeration. 
+          *
+          * Very few locations seem to describe this "feature". Here is one:
+          * http://msdn.microsoft.com/archive/default.asp?url=/archive/en-us/dx81_vb/directx_vb/Input/VB_Ref/Types/dijoystate2.asp
+          *
+          * The interesting part is the note at the bottom of the page:
+          * " Note: Under Microsoft DirectX 7, sliders on some joysticks could be assigned
+          *   to the Z axis, with subsequent code retrieving data from that member. 
+          *   Using DirectX 8, those same sliders will be assigned to the slider array. 
+          *   This should be taken into account when porting applications to DirectX 8. 
+          *   Make any necessary alterations to ensure that slider data is retrieved from 
+          *   the slider array. "
+          */
+
+         /* For U axis (slider 0), get data from Z axis member if API < 0x0800
+          * and if a real Z axis is not present. Otherwise get it from slider 0 member.
+          */
 	 if (dinput_joystick[n_joy].caps & JOYCAPS_HASU) {
+#if DIRECTINPUT_VERSION < 0x0800
+	    if (dinput_joystick[n_joy].caps & JOYCAPS_HASZ)
+               dinput_joystick[n_joy].axis[n_axis] = js.rglSlider[0];
+            else
+               dinput_joystick[n_joy].axis[n_axis] = js.lZ;
+#else
             dinput_joystick[n_joy].axis[n_axis] = js.rglSlider[0];
+#endif
             n_axis++;
          }
 
-	 if (dinput_joystick[n_joy].caps & JOYCAPS_HASV) {
+         /* For V axis (slider 1), get data from slider 0 member if API < 0x0800
+          * and if a real Z axis is not present. Otherwise get it from slider 1 member.
+          */
+         if (dinput_joystick[n_joy].caps & JOYCAPS_HASV) {
+#if DIRECTINPUT_VERSION < 0x0800
+	    if (dinput_joystick[n_joy].caps & JOYCAPS_HASZ)
+               dinput_joystick[n_joy].axis[n_axis] = js.rglSlider[1];
+            else
+               dinput_joystick[n_joy].axis[n_axis] = js.rglSlider[0];
+#else
             dinput_joystick[n_joy].axis[n_axis] = js.rglSlider[1];
+#endif
             n_axis++;
          }
 
