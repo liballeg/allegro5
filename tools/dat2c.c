@@ -346,7 +346,7 @@ static int prepare_dat2c(struct dat2c* dat2c)
     }
     
     if(dat2c->lformat == lineformat_default)
-#if (defined ALLEGRO_UNIX || defined ALLEGRO_QNX || defined ALLEGRO_BEOS)
+#if (defined ALLEGRO_UNIX || defined ALLEGRO_QNX || defined ALLEGRO_BEOS || defined ALLEGRO_MACOSX)
         dat2c->lformat = lineformat_unix;
 #elif (defined ALLEGRO_WINDOWS || defined ALLEGRO_DOS)
         dat2c->lformat = lineformat_dos;
@@ -683,14 +683,14 @@ static void cwrite(struct dat2c* dat2c, enum dat2c_file x,
             } else if(!strncmp(rd, "$dat_id$", 8)) {
                 /* Allegro DAT_ID() */
                 
-                int id = va_arg(va, int);
+                int dat_id = va_arg(va, int);
                 int c[4];
                 int i = 0;
                 
-                c[0] = (id >> 24) & 255;
-                c[1] = (id >> 16) & 255;
-                c[2] = (id >> 8) & 255;
-                c[3] = id & 255;
+                c[0] = (dat_id >> 24) & 255;
+                c[1] = (dat_id >> 16) & 255;
+                c[2] = (dat_id >> 8) & 255;
+                c[3] = dat_id & 255;
                 
                 fputs("DAT_ID('", fp);
                 for(i = 0; i < 4; i++) {

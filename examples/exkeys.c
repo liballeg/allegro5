@@ -43,6 +43,7 @@ char *key_names[] =
    "KEY_LSHIFT",     "KEY_RSHIFT",     "KEY_LCONTROL",   "KEY_RCONTROL",
    "KEY_ALT",        "KEY_ALTGR",      "KEY_LWIN",       "KEY_RWIN",
    "KEY_MENU",       "KEY_SCRLOCK",    "KEY_NUMLOCK",    "KEY_CAPSLOCK",
+   "KEY_EQUALS_PAD", "KEY_BACKQUOTE",  "KEY_SEMICOLON",  "KEY_APPLE",
    "KEY_MAX"
 };
 

@@ -23,18 +23,18 @@
 
 
 
-void format_id(char *buf, int n, int id, AL_CONST char *name)
+void format_id(char *buf, int n, int driver_id, AL_CONST char *name)
 {
    char tmp[8];
 
-   if (id < 256) {
-      sprintf(tmp, "%d", id);
+   if (driver_id < 256) {
+      sprintf(tmp, "%d", driver_id);
    }
    else {
-      tmp[0] = (id >> 24) & 0xFF;
-      tmp[1] = (id >> 16) & 0xFF;
-      tmp[2] = (id >> 8) & 0xFF;
-      tmp[3] = id & 0xFF;
+      tmp[0] = (driver_id >> 24) & 0xFF;
+      tmp[1] = (driver_id >> 16) & 0xFF;
+      tmp[2] = (driver_id >> 8) & 0xFF;
+      tmp[3] = driver_id & 0xFF;
       tmp[4] = 0;
    }
 

@@ -209,7 +209,12 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KEY_NUMLOCK           113
 #define KEY_CAPSLOCK          114
 
-#define KEY_MAX               115
+#define KEY_EQUALS_PAD        115
+#define KEY_BACKQUOTE         116
+#define KEY_SEMICOLON         117
+#define KEY_APPLE             118
+
+#define KEY_MAX               120
 
 #endif /* ALLEGRO_NO_KEY_DEFINES */
 
