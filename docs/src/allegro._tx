@@ -6032,7 +6032,7 @@ to use TrueType fonts, you will need to use an add-on library.
       FONT *myfont;
       PALETTE palette;
       ...
-      myfont = load_bitmap("my_font.pcx", palette, NULL);
+      myfont = load_font("my_font.pcx", palette, NULL);
       if (!myfont)
 	 abort_on_error("Couldn't load font!");
       ...
