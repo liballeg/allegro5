@@ -97,7 +97,6 @@ AL_VAR(int, _packfile_type);
 
 /* various bits of mouse stuff */
 AL_FUNC(void, _handle_mouse_input, (void));
-AL_FUNC(void, _set_mouse_range, (void));
 
 AL_VAR(int, _mouse_x);
 AL_VAR(int, _mouse_y);
