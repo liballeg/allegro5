@@ -175,6 +175,7 @@ static void detect_os()
    if ((r.h.al != 0) && (r.h.al != 1) && (r.h.al != 0x80) && (r.h.al != 0xFF)) {
       os_version = r.h.al;
       os_revision = r.h.ah;
+      os_multitasking = TRUE;
 
       if (os_version == 4) {
          if (os_revision == 90)
@@ -196,6 +197,7 @@ static void detect_os()
 
    if (((p) && (stricmp(p, "Windows_NT") == 0)) || (_get_dos_version(1) == 0x0532)) {
       os_type = OSTYPE_WINNT;
+      os_multitasking = TRUE;
       i_love_bill = TRUE;
       return;
    }
@@ -210,6 +212,7 @@ static void detect_os()
       else
 	 os_type = OSTYPE_OS2;
 
+      os_multitasking = TRUE;
       i_love_bill = TRUE;
       return;
    }
@@ -228,6 +231,7 @@ static void detect_os()
 
       if (r.x.ax == 0xAA55) {
 	 os_type = OSTYPE_DOSEMU;
+	 os_multitasking = TRUE;
 	 i_love_bill = TRUE;     /* (evil chortle) */
 	 return;
       }
@@ -260,6 +264,7 @@ static void detect_os()
 
    if ((r.x.bx == 3) && !(r.x.flags & 1)) {
       os_type = OSTYPE_WIN95;
+      os_multitasking = TRUE;
       i_love_bill = TRUE;
       return;
    }

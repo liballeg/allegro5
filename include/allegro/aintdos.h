@@ -56,7 +56,7 @@
 
 AL_INLINE(void, _enter_critical, (void),
 {
-   /* check if windows version is >= 3 */
+   /* check if windows is running */
    if ((os_type == OSTYPE_WIN3)  || (os_type == OSTYPE_WIN95) ||
        (os_type == OSTYPE_WIN98) || (os_type == OSTYPE_WINME) ||
        (os_type == OSTYPE_WINNT) || (os_type == OSTYPE_WIN2000)) {
@@ -71,7 +71,7 @@ AL_INLINE(void, _enter_critical, (void),
 
 AL_INLINE(void, _exit_critical, (void),
 {
-   /* check if windows version is >= 3 */
+   /* check if windows is running */
    if ((os_type == OSTYPE_WIN3)  || (os_type == OSTYPE_WIN95) ||
        (os_type == OSTYPE_WIN98) || (os_type == OSTYPE_WINME) || 
        (os_type == OSTYPE_WINNT) || (os_type == OSTYPE_WIN2000)) {

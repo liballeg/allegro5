@@ -139,6 +139,8 @@ void _read_os_type()
       os_type = OSTYPE_UNIX;
 
    #endif
+   
+   os_multitasking = TRUE;
 }
 
 

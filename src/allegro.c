@@ -175,6 +175,7 @@ int *_gfx_bank = NULL;
 int os_type = OSTYPE_UNKNOWN;
 int os_version = 0;
 int os_revision = 0;
+int os_multitasking = FALSE;
 
 
 /* processor information */

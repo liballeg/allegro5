@@ -137,6 +137,7 @@ static int sys_directx_init(void)
    win_ver = GetVersion();
    os_version = win_ver & 0xFF;
    os_revision = (win_ver & 0xFF00) >> 8;
+   os_multitasking = TRUE;
 
    if (win_ver < 0x80000000) {
       if (os_version == 5)

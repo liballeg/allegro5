@@ -169,6 +169,7 @@ extern "C" int be_sys_init(void)
    delete_sem(system_started);
 
    os_type = OSTYPE_BEOS;
+   os_multitasking = TRUE;
    
    return 0;
 

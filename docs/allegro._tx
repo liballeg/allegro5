@@ -122,7 +122,7 @@ information about how to install Allegro and link your program with it.
    place to look for a description of the problem.
 
 @@extern int @os_type;
-@xref allegro_init
+@xref allegro_init, os_version, os_multitasking
    Set by allegro_init() to one of the values:
 <pre>
       OSTYPE_UNKNOWN    - unknown, or regular MSDOS
@@ -141,15 +141,21 @@ information about how to install Allegro and link your program with it.
       OSTYPE_UNIX       - Unknown Unix variant
       OSTYPE_BEOS       - BeOS
       OSTYPE_QNX        - QNX
+      OSTYPE_MPW        - Power Macintosh OS
 </pre>
 @@extern int @os_version;
 @@extern int @os_revision;
-@xref os_type
+@xref os_type, os_multitasking
    The major and minor version of the Operating System currently running.
    Set by allegro_init(). If Allegro for some reason was not able to
    retrieve the version of the Operating System, os_version and
    os_revision will be set to zero. For example: Under Win98 SE (v4.10.2222)
    os_version will be set to 4 and os_revision to 10.
+
+@@extern int @os_multitasking;
+@xref os_type, os_version
+   Set by allegro_init() to either TRUE or FALSE depending on whether your
+   Operating System is multitasking or not.
 
 @@void @allegro_message(char *msg, ...);
    Outputs a message, using a printf() format string. This function must 

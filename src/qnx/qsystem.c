@@ -387,6 +387,7 @@ int qnx_sys_init(void)
    }
 
    os_type = OSTYPE_QNX;
+   os_multitasking = TRUE;
 
    set_display_switch_mode(SWITCH_BACKGROUND);
 
