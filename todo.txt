@@ -18,7 +18,8 @@ Win32 todos:
 
 - Update docs to mention cross-compilation support.
 - Mouse pointer update ratio extremely slow when using GFX_GDI driver
-- Better behaviour when no linear low-res modes available
+- set_volume does not seem to work (user error?)
+- Keyboard gets "stuck" under Windows 2000
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -78,11 +79,10 @@ Wishlist
 - Unified color conversion routines for all windowed gfx drivers (now
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
-- More hardware accelerated functions? Trans/lit sprites come to
-  mind.
+- More hardware accelerated functions? Trans/lit sprites come to mind.
 - framebuffer hardware accel via XFB library/driver
 - Better get_config_text support, with multiple fallback configuration
-  files (you can have lot's of the under linux), which is not supported at
+  files (you can have lot's of them under linux), which is not supported at
   the moment (IIRC two at most).
 - Split setup in two: user program and configuration library. This would
   allow easier merge process of configuration program into real user

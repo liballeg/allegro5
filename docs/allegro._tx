@@ -7275,10 +7275,10 @@ main() function, which is used to magically turn an ANSI C style main() into
 a Windows style WinMain(), and so that the Unix code can grab a copy of your 
 argv[] parameter.
 
-The Windows version runs very slowly if you rely on it to automatically lock 
-bitmaps when drawing onto them. For good performance, you need to call 
-acquire_bitmap() and release_bitmap() yourself, and try to keep the amount 
-of locking to a minimum.
+On many platforms Allegro runs very slowly if you rely on it to
+automatically lock bitmaps when drawing onto them. For good performance, you
+need to call acquire_bitmap() and release_bitmap() yourself, and try to keep
+the amount of locking to a minimum.
 
 The Windows version may lose the contents of video memory if the user 
 switches away from your program, so you need to deal with that.
@@ -7386,9 +7386,9 @@ For all platforms, you can use an executable compressor called UPX, which
 is available at http://upx.tsx.org/ . This usually manages a compression
 ratio of about 40%.
 <li>
-When using djgpp: for starters, read the djgpp FAQ section 8.15, and take 
-note of the -s switch and DJP executable compressor. And don't forget to 
-compile your program with optimisation enabled!
+When using djgpp: for starters, read the djgpp FAQ section 8.15, and take
+note of the -s switch. And don't forget to compile your program with
+optimisation enabled!
 <li>
 If a DOS program is only going to run in a limited number of graphics modes, 
 you can specify which graphics drivers you would like to include with the 
