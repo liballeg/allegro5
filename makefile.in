@@ -274,14 +274,38 @@ suid: $(ALLEGRO_EXE_TARGETS)
 	touch suid
 
 clean:
-	rm -f $(OBJ_CLEAN_FILES)
-	rm -f $(OTHER_CLEAN_FILES)
+
+   define RM_OBJ_CLEAN_FILES
+      $(foreach file, $(OBJ_CLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+   define RM_OTHER_CLEAN_FILES
+      $(foreach file, $(OTHER_CLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_OBJ_CLEAN_FILES)
+	$(RM_OTHER_CLEAN_FILES)
 
 distclean: clean
-	rm -f $(DISTCLEAN_FILES)
+
+   define RM_DISTCLEAN_FILES
+      $(foreach file, $(DISTCLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_DISTCLEAN_FILES)
 
 veryclean: distclean
-	rm -f $(VERYCLEAN_FILES) makefile
+
+   define RM_VERYCLEAN_FILES
+      $(foreach file, $(VERYCLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_VERYCLEAN_FILES) 
+	rm -f makefile
 
 maintainer-clean: veryclean
 	rm -f configure
