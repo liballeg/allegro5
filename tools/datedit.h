@@ -96,7 +96,7 @@ extern PALETTE datedit_last_read_pal;
 extern DATAFILE datedit_info;
 
 
-void datedit_init();
+void datedit_init(void);
 
 void datedit_msg(AL_CONST char *fmt, ...);
 void datedit_startmsg(AL_CONST char *fmt, ...);
@@ -139,7 +139,7 @@ extern void (*grabber_get_grid_size)(int *x, int *y);
 extern void (*grabber_rebuild_list)(void *old, int clear);
 extern void (*grabber_get_selection_info)(DATAFILE **dat, DATAFILE ***parent);
 extern int (*grabber_foreach_selection)(int (*proc)(DATAFILE *, int *, int), int *count, int *param, int param2);
-extern DATAFILE *(*grabber_single_selection)();
+extern DATAFILE *(*grabber_single_selection)(void);
 extern void (*grabber_set_selection)(void *object);
 extern void (*grabber_busy_mouse)(int busy);
 

@@ -94,7 +94,7 @@ BITMAP *get_magic_bitmap_format(BITMAP *orig, PALETTE pal)
 
 
 /* creates the light graphic for the mouse pointer, in our magic format */
-BITMAP *create_light_graphic()
+BITMAP *create_light_graphic(void)
 {
    BITMAP *bmp;
    int x, y;
@@ -158,7 +158,7 @@ unsigned short gbtable[65536];
 
 
 /* builds some helper tables for doing color conversions */
-void generate_conversion_tables()
+void generate_conversion_tables(void)
 {
    int r, g, b;
    int cr, cg, cb;

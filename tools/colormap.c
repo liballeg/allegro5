@@ -25,7 +25,7 @@
 
 
 
-void usage()
+void usage(void)
 {
    printf("\nColor map construction utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR);
    printf("\nBy Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");

@@ -144,7 +144,7 @@ BITMAP *texture;
 
 
 /* initialise shape positions */
-void init_shapes()
+void init_shapes(void)
 {
    int c;
 
@@ -165,7 +165,7 @@ void init_shapes()
 
 
 /* update shape positions */
-void animate_shapes()
+void animate_shapes(void)
 {
    int c;
 
@@ -185,7 +185,7 @@ void animate_shapes()
 
 
 /* translate shapes from 3d world space to 2d screen space */
-void translate_shapes()
+void translate_shapes(void)
 {
    int c, d;
    MATRIX matrix;
@@ -364,7 +364,7 @@ void print_progress(int pos)
 
 
 
-int main()
+int main(void)
 {
    BITMAP *buffer;
    PALETTE pal;

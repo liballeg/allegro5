@@ -67,7 +67,7 @@ static int menu_cmp(MENU *m1, MENU *m2)
 
 
 /* main initialisation routine */
-void datedit_init()
+void datedit_init(void)
 {
    int done, i;
 
@@ -357,7 +357,7 @@ static void save_object(DATAFILE *dat, int packed, int packkids, int strip, int 
 {
    int i;
    DATAFILE_PROPERTY *prop;
-   void (*save)();
+   void (*save)(DATAFILE *, int, int, int, int, int, PACKFILE *);
 
    prop = dat->prop;
    datedit_sort_properties(prop);

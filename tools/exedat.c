@@ -32,7 +32,7 @@
 
 
 
-void usage()
+void usage(void)
 {
    printf("\nExecutable data appendation utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR);
    printf("\nBy Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
@@ -75,7 +75,7 @@ struct stat stat_stat;
 
 
 
-void get_stats()
+void get_stats(void)
 {
    PACKFILE *f;
 
@@ -279,7 +279,7 @@ void update_file(char *filename, char *dataname)
 
 
 
-void extract_data()
+void extract_data(void)
 {
    PACKFILE *f, *df;
 
@@ -331,7 +331,7 @@ void extract_data()
 
 
 
-void show_stats()
+void show_stats(void)
 {
    get_stats();
 

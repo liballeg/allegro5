@@ -49,7 +49,7 @@ char *key_names[] =
 
 
 /* helper function for making more room on the screen */
-void scroll()
+void scroll(void)
 {
    blit(screen, screen, 0, 32, 0, 24, SCREEN_W, SCREEN_H-32);
    rectfill(screen, 0, SCREEN_H-16, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
@@ -57,7 +57,7 @@ void scroll()
 
 
 
-int main()
+int main(void)
 {
    char buf[128];
    int k;

@@ -204,7 +204,7 @@ void render(BITMAP *bmp)
 
 
 /* deal with user input */
-void process_input()
+void process_input(void)
 {
    poll_keyboard();
 
@@ -313,7 +313,7 @@ void process_input()
 
 
 
-int main()
+int main(void)
 {
    BITMAP *buffer;
 

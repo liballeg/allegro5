@@ -278,7 +278,7 @@ static int box_active = FALSE;
 
 
 /* starts outputting a progress message */
-static void box_start()
+static void box_start(void)
 {
    show_mouse(NULL);
 
@@ -321,7 +321,7 @@ static void box_out(char *msg)
 
 
 /* outputs text to the progress message */
-static void box_eol()
+static void box_eol(void)
 {
    BITMAP *mouse_screen = _mouse_screen;
 
@@ -376,7 +376,7 @@ static void box_end(int pause)
 
 
 /* returns the currently selected object, or -1 if there is a multiple sel */
-static int single_selection()
+static int single_selection(void)
 {
    int sel = SELECTED_ITEM;
    int i;
@@ -391,7 +391,7 @@ static int single_selection()
 
 
 /* returns a pointer to the currently selected object */
-static DATAFILE *get_single_selection()
+static DATAFILE *get_single_selection(void)
 {
    int sel = single_selection();
 
@@ -1326,7 +1326,7 @@ static int edit_property(char *title, char *value_string, int type, AL_CONST cha
 
 
 /* handle the set property command */
-static int property_insert()
+static int property_insert(void)
 {
    CHECK_MENU_HOOK("Set Property", DATEDIT_MENU_OBJECT);
 
@@ -1336,7 +1336,7 @@ static int property_insert()
 
 
 /* handle the change property command */
-static int property_change()
+static int property_change(void)
 {
    int sel = single_selection();
    DATAFILE *dat;
@@ -1363,7 +1363,7 @@ static int property_change()
 
 
 /* handle the rename command */
-static int renamer()
+static int renamer(void)
 {
    DATAFILE *dat;
    int sel;
@@ -1387,7 +1387,7 @@ static int renamer()
 
 
 /* handle the delete property command */
-static int property_delete()
+static int property_delete(void)
 {
    int sel = single_selection();
    DATAFILE *dat;
@@ -1539,7 +1539,7 @@ static char *pack_getter(int index, int *list_size)
 
 
 /* updates the info chunk with the current settings */
-static void update_info()
+static void update_info(void)
 {
    char buf[8];
 
@@ -1655,7 +1655,7 @@ static void load(char *filename, int flush)
 
 
 /* handle the load command */
-static int loader()
+static int loader(void)
 {
    char buf[FILENAME_LENGTH];
 
@@ -1675,7 +1675,7 @@ static int loader()
 
 
 /* handle the merge command */
-static int merger()
+static int merger(void)
 {
    char buf[FILENAME_LENGTH];
 
@@ -1749,7 +1749,7 @@ static int save(int strip)
 
 
 /* handle the save command */
-static int saver()
+static int saver(void)
 {
    CHECK_MENU_HOOK("Save", DATEDIT_MENU_FILE);
 
@@ -1799,7 +1799,7 @@ static DIALOG strip_dlg[] =
 
 
 /* handle the save stripped command */
-static int strip_saver()
+static int strip_saver(void)
 {
    CHECK_MENU_HOOK("Save Stripped", DATEDIT_MENU_FILE);
 
@@ -1815,7 +1815,7 @@ static int strip_saver()
 
 
 /* handle the update command */
-static int updater()
+static int updater(void)
 {
    int c;
    int nowhere;
@@ -1856,7 +1856,7 @@ static int updater()
 
 
 /* handle the update_selection command */
-static int sel_updater()
+static int sel_updater(void)
 {
    int c;
    int nowhere;
@@ -1899,7 +1899,7 @@ static int sel_updater()
 
 
 /* handle the force_update command */
-static int force_updater()
+static int force_updater(void)
 {
    int c;
    int nowhere;
@@ -1972,7 +1972,7 @@ static void format_file_select_heading(char *dest, char *s1, char *s2, AL_CONST 
 
 
 /* handle the read command */
-static int reader()
+static int reader(void)
 {
    DATAFILE *dat;
    char buf[FILENAME_LENGTH], buf2[256];
@@ -2036,7 +2036,7 @@ static int reader()
 
 
 /* handle the view command */
-static int viewer()
+static int viewer(void)
 {
    CHECK_MENU_HOOK("View", DATEDIT_MENU_FILE);
 
@@ -2055,7 +2055,7 @@ static int viewer()
 
 
 /* handle the quit command */
-static int quitter()
+static int quitter(void)
 {
    CHECK_MENU_HOOK("Quit", DATEDIT_MENU_FILE);
 
@@ -2068,7 +2068,7 @@ static int quitter()
 
 
 /* handle the grab command */
-static int grabber()
+static int grabber(void)
 {
    DATAFILE *dat;
    char *desc = "binary data";
@@ -2134,7 +2134,7 @@ static int grabber()
 
 
 /* handle the export command */
-static int exporter()
+static int exporter(void)
 {
    char *desc = "binary data";
    AL_CONST char *ext = NULL;
@@ -2195,7 +2195,7 @@ static int exporter()
 
 
 /* handle the delete command */
-static int deleter()
+static int deleter(void)
 {
    void *dat;
    void **todel = NULL;
@@ -2392,7 +2392,7 @@ static DIALOG grabber_help[] =
 
 
 /* handle the help command */
-static int helper()
+static int helper(void)
 {
    char buf[256];
    PACKFILE *f;
@@ -2495,7 +2495,7 @@ static DIALOG sys_dlg[] =
 
 
 /* handle the system info */
-static int sysinfo()
+static int sysinfo(void)
 {
    char *systext;
    AL_CONST char* s;

@@ -43,7 +43,7 @@ int next;
 
 
 
-void animate()
+void animate(void)
 {
    /* waits for vertical retrace interrupt */
    vsync();

@@ -85,7 +85,7 @@ BITMAP *make_ball(int w, int h, int br, int bg, int bb);
 
 
 /* construct the magic palette that makes it all work */
-void set_12bit_palette()
+void set_12bit_palette(void)
 {
    int r, g, b;
    PALETTE pal;

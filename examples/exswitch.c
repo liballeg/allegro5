@@ -59,7 +59,7 @@ void show_msg(char *msg)
 
 
 /* displays the current switch mode setting */
-void show_switch_mode()
+void show_switch_mode(void)
 {
    switch (get_display_switch_mode()) {
 
@@ -134,7 +134,7 @@ void set_sw_mode(int mode)
 
 
 /* draws some graphics, for no particular reason at all */
-void draw_pointless_graphics()
+void draw_pointless_graphics(void)
 {
    static int x=0, y=0;
    float zr, zi, cr, ci, tr, ti;
@@ -178,7 +178,7 @@ void draw_pointless_graphics()
 
 
 
-int main()
+int main(void)
 {
    PALETTE pal;
    int finished = FALSE;

@@ -83,7 +83,7 @@ void return_negative_color(AL_CONST PALETTE pal, int x, int y, RGB *rgb)
 
 
 
-void generate_background()
+void generate_background(void)
 {
    int i;
 
@@ -104,7 +104,7 @@ void generate_background()
 
 
 
-int main()
+int main(void)
 {
    int x, y, deltax=1, deltay=1;
 

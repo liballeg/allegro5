@@ -59,7 +59,7 @@ int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
 
 
 
-static void usage()
+static void usage(void)
 {
    printf("\nDatafile -> asm conversion utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n");
    printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");

@@ -128,7 +128,7 @@ void draw_screen(BITMAP *bmp)
 
 
 /* called at a regular speed to update the program state */
-void do_update()
+void do_update(void)
 {
    r1 += ftofix(0.5);
    r2 += ftofix(0.6);

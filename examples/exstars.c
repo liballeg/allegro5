@@ -73,7 +73,7 @@ BITMAP *buffer;
 
 
 /* initialises the starfield system */
-void init_stars()
+void init_stars(void)
 {
    int i;
 
@@ -91,7 +91,7 @@ void init_stars()
 
 
 /* draws the starfield */
-void draw_stars()
+void draw_stars(void)
 {
    int i, c;
    MATRIX m;
@@ -109,7 +109,7 @@ void draw_stars()
 
 
 /* deletes the stars from the screen */
-void erase_stars()
+void erase_stars(void)
 {
    int i;
 
@@ -120,7 +120,7 @@ void erase_stars()
 
 
 /* moves the stars */
-void move_stars()
+void move_stars(void)
 {
    int i;
 
@@ -149,7 +149,7 @@ void move_stars()
 
 
 /* initialises the ship model */
-void init_ship()
+void init_ship(void)
 {
    VECTOR v1, v2, *pts;
    FACE *face;
@@ -242,7 +242,7 @@ void init_ship()
 
 
 /* draws the ship model */
-void draw_ship()
+void draw_ship(void)
 {
    VECTOR outs[NUM_VERTS];
    MATRIX m;
@@ -295,7 +295,7 @@ void draw_ship()
 
 
 /* removes the ship model from the screen */
-void erase_ship()
+void erase_ship(void)
 {
    rectfill(buffer, ship.minx, ship.miny, ship.maxx, ship.maxy, palette_color[0]);
 }

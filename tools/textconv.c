@@ -52,7 +52,7 @@ char *cp_table = NULL;
 
 
 
-void usage()
+void usage(void)
 {
    printf("\nUnicode text format conversion utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR);
    printf("\nBy Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
@@ -114,7 +114,7 @@ UTYPE_INFO *get_format_info(int type, char **desc, int *flip)
 
 
 
-int read_input_file()
+int read_input_file(void)
 {
    FILE *f;
    int alloc, c; 
@@ -150,7 +150,7 @@ int read_input_file()
 
 
 
-int get_input()
+int get_input(void)
 {
    int c;
 

@@ -68,7 +68,7 @@ static int opt_numnames = 0;
 
 
 /* display help on the command syntax */
-static void usage()
+static void usage(void)
 {
    printf("\nDatafile archiving utility for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n");
    printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");

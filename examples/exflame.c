@@ -27,7 +27,7 @@ unsigned char *temp;
  * of varying intensities which are then moved upwards and faded out
  * by the code in main().
  */
-void draw_bottom_line_of_fire()
+void draw_bottom_line_of_fire(void)
 {
    int c, c2;
 
@@ -57,7 +57,7 @@ void draw_bottom_line_of_fire()
 
 
 
-int main()
+int main(void)
 {
    PALETTE palette;
    unsigned long address;

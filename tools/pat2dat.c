@@ -213,7 +213,7 @@ static char *short_drum_names[] =
 
 
 /* display help on the command syntax */
-static void usage()
+static void usage(void)
 {
    printf("\nPatch grabber for the Allegro DIGMID driver " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n");
    printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
@@ -773,7 +773,7 @@ static int parse_string(char *buf, char *argv[])
 
 
 /* inserts all the required patches into the datafile */
-static void add_gus_patches()
+static void add_gus_patches(void)
 {
    char dir[256], file[256], buf[256], filename[256];
    PACKFILE *f;
@@ -1870,7 +1870,7 @@ static void print_sf_string(FILE *f, char *title)
 
 
 /* inserts all the required patches into the datafile */
-static void add_soundfont_patches()
+static void add_soundfont_patches(void)
 {
    RIFF_CHUNK file, chunk, subchunk;
    DATAFILE *d;

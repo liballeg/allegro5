@@ -91,7 +91,7 @@ NODE dummy_node(NODE node, NODE prev)
 
 
 /* calculates a set of node tangents */
-void calc_tangents()
+void calc_tangents(void)
 {
    int i;
 
@@ -157,7 +157,7 @@ void draw_spline(NODE n1, NODE n2)
 
 
 /* draws the spline paths */
-void draw_splines()
+void draw_splines(void)
 {
    char b[80];
    int i;
@@ -196,7 +196,7 @@ void draw_splines()
 
 
 /* let the user input a list of path nodes */
-void input_nodes()
+void input_nodes(void)
 {
    clear_to_color(screen, makecol(255, 255, 255));
 
@@ -256,7 +256,7 @@ void input_nodes()
 
 
 /* moves a sprite along the spline path */
-void walk()
+void walk(void)
 {
    #define MAX_POINTS    256
 
@@ -326,7 +326,7 @@ void walk()
 
 
 /* main program */
-int main()
+int main(void)
 {
    int c;
 
