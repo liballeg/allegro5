@@ -34,8 +34,9 @@
    free professional tools. On that note I'd like to thank Peter Puck for
    making this a reality and for finishing off what I started. Enjoy!
 
-   The screensaver example is built, but you must copy scrsave.scr to your
-   Windows directory if you want to test it.
+   The screensaver example is built, but you must copy scrsave.scr to
+   your windows/system directory (or winnt/system32 directory under
+   Windows NT/2k/XP) if you want to test it.
 
    If you have both GNU bash and GNU fileutils installed on your system, then
    set the environment variable UNIX_TOOLS (set UNIX_TOOLS=1). This is needed

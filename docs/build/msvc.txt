@@ -21,6 +21,10 @@
 
    Status: complete.
 
+   The screensaver example is built, but you must copy scrsave.scr to
+   your windows/system directory (or winnt/system32 directory under
+   Windows NT/2k/XP) if you want to test it.
+
 
 
 ===========================================
