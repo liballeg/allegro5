@@ -8206,14 +8206,14 @@ code from one platform to another (you can find a more detailed version of
 this in the docs section of the Allegro website).
 
 The Windows and Unix versions require you to write END_OF_MAIN() after your 
-main() function, which is used to magically turn an ANSI C style main() into 
-a Windows style WinMain(), and so that the Unix code can grab a copy of your 
-argv[] parameter.
+main() function, which is used to magically turn an ANSI C style main() 
+into a Windows style WinMain(), and so that the Unix code can grab a copy 
+of your argv[] parameter.
 
-On many platforms Allegro runs very slowly if you rely on it to
-automatically lock bitmaps when drawing onto them. For good performance, you
-need to call acquire_bitmap() and release_bitmap() yourself, and try to keep
-the amount of locking to a minimum.
+On many platforms Allegro runs very slowly if you rely on it in order to 
+automatically lock bitmaps when drawing onto them. For good performance, 
+you need to call acquire_bitmap() and release_bitmap() yourself, and try 
+to keep the amount of locking to a minimum.
 
 The Windows version may lose the contents of video memory if the user 
 switches away from your program, so you need to deal with that.
@@ -8224,8 +8224,7 @@ portability of your program, you should call poll_mouse() and
 poll_keyboard() in all the relevant places.
 
 Allegro defines a number of standard macros that can be used to check 
-various attributes of the current platform, or to insulate you from some of 
-the differences between systems:
+various attributes of the current platform:
 
 <b>ALLEGRO_PLATFORM_STR</b><br>
    Text string containing the name of the current platform.
@@ -8272,17 +8271,8 @@ the differences between systems:
    8.3 format (in the djgpp version, this is a variable depending on the 
    runtime environment).
 
-<b>INLINE</b><br>
-   Use this in place of the regular "inline" function modifier keyword, and 
-   your code will work correctly on any of the supported compilers.
-
-<b>ZERO_SIZE_ARRAY(type, name)</b><br>
-   Use this to declare zero-sized arrays in terminal position inside 
-   structures, e.g. in the BITMAP structure. These arrays are effectively 
-   equivalent to the flexible array members of ISO C99.
-
 <b>LONG_LONG</b><br>
-   Defined to whatever represents a 64 bit "long long" integer for the 
+   Defined to whatever represents a 64-bit "long long" integer for the 
    current compiler, or not defined if that isn't supported.
 
 <b>OTHER_PATH_SEPARATOR</b><br>
@@ -8292,17 +8282,24 @@ the differences between systems:
 
 <b>DEVICE_SEPARATOR</b><br>
    Defined to the filename device separator character (a colon for DOS and 
-   Windows), or to zero if there are no explicit devices in paths (eg. Unix).
+   Windows), or to zero if there are no explicit devices in paths (Unix).
+
+Allegro also defines a number of standard macros that can be used to 
+insulate you from some of the differences between systems:
 
 <b>USE_CONSOLE</b><br>
-   If you define this prior to including Allegro headers, the Windows version
-   will be set up for building a console application rather than the normal
-   GUI program.
+   If you define this prior to including Allegro headers, Allegro will be 
+   set up for building a console application rather than the default GUI 
+   program on some platforms (especially Windows).
 
-<b>END_OF_MAIN()</b><br>
-   Putting this after your main() function will enable Windows programs to 
-   work with a regular main() routine, so you don't need to change 
-   everything to use WinMain().
+<b>INLINE</b><br>
+   Use this in place of the regular "inline" function modifier keyword, and 
+   your code will work correctly on any of the supported compilers.
+
+<b>ZERO_SIZE_ARRAY(type, name)</b><br>
+   Use this to declare zero-sized arrays in terminal position inside 
+   structures, like in the BITMAP structure. These arrays are effectively 
+   equivalent to the flexible array members of ISO C99.
 
 
 
