@@ -118,7 +118,8 @@ void check_cpu()
       _i_get_cpuid_info(0x80000000, reg);
       if ((unsigned long)reg[0] > 0x80000000) {
 	 _i_get_cpuid_info(0x80000001, reg);
-	 cpu_3dnow = (reg[3] & 0x80000000 ? TRUE : FALSE);
+	 cpu_3dnow = (reg[3] & 0x80000000 ? 1 : 0);
+	 cpu_3dnow = (reg[3] & 0x40000000 ? 2 : cpu_3dnow);
       }
 
       if (_i_is_cyrix())
