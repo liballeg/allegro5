@@ -157,9 +157,9 @@ unsigned long _blender_alpha24_bgr(unsigned long x, unsigned long y, unsigned lo
  */
 unsigned long _blender_add24(unsigned long x, unsigned long y, unsigned long n)
 {
-   int r = getr24(x) + getr24(y) * n / 256;
-   int g = getg24(x) + getg24(y) * n / 256;
-   int b = getb24(x) + getb24(y) * n / 256;
+   int r = getr24(y) + getr24(x) * n / 256;
+   int g = getg24(y) + getg24(x) * n / 256;
+   int b = getb24(y) + getb24(x) * n / 256;
 
    r = MIN(r, 255);
    g = MIN(g, 255);
@@ -441,9 +441,9 @@ unsigned long _blender_alpha16_bgr(unsigned long x, unsigned long y, unsigned lo
  */
 unsigned long _blender_add16(unsigned long x, unsigned long y, unsigned long n)
 {
-   int r = getr16(x) + getr16(y) * n / 256;
-   int g = getg16(x) + getg16(y) * n / 256;
-   int b = getb16(x) + getb16(y) * n / 256;
+   int r = getr16(y) + getr16(x) * n / 256;
+   int g = getg16(y) + getg16(x) * n / 256;
+   int b = getb16(y) + getb16(x) * n / 256;
 
    r = MIN(r, 255);
    g = MIN(g, 255);
@@ -718,9 +718,9 @@ unsigned long _blender_alpha15_bgr(unsigned long x, unsigned long y, unsigned lo
  */
 unsigned long _blender_add15(unsigned long x, unsigned long y, unsigned long n)
 {
-   int r = getr15(x) + getr15(y) * n / 256;
-   int g = getg15(x) + getg15(y) * n / 256;
-   int b = getb15(x) + getb15(y) * n / 256;
+   int r = getr15(y) + getr15(x) * n / 256;
+   int g = getg15(y) + getg15(x) * n / 256;
+   int b = getb15(y) + getb15(x) * n / 256;
 
    r = MIN(r, 255);
    g = MIN(g, 255);
