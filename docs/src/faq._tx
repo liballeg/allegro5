@@ -244,6 +244,22 @@ DOS problems
 Windows problems
 
 <ul><li><font size="+1">
+@\   I get an "out of environment space" error when I run fix.bat or
+@@   vcvars32.bat!
+</font>
+      Well duh, you need to increase the size of your environment then :-) 
+      You can do this by changing the settings for your DOS box (click the 
+      system menu and select "properties"), or at startup in your config.sys 
+      file (eg. "shell=c:\command.com /e:8192").
+
+<li><font size="+1">
+@@   When I run make, it says "missing separator".
+</font>
+      Make sure that you don't have a semi-colon appended to your MSVCDIR 
+      variable if you are using MSVC, to your MINGDIR variable if you are 
+      using Mingw32 or to your BCC32DIR variable if you are using BCC.
+
+<li><font size="+1">
 @@   I get lots of compile errors about things like "LPDIRECTDRAWSURFACE2"!
 </font>
       You need to tell your compiler how to find the DirectX include files
@@ -258,6 +274,12 @@ Windows problems
 </font>
       You need to upgrade to a more recent version of the DirectX SDK, at 
       least version 5, which you can get from the Microsoft Developer site.
+
+<li><font size="+1">
+@@   When I run make, it says "windres: no resources".
+</font>
+      If Norton Antivirus is installed on your computer, try to disable
+      the "Auto-Protect" feature. Otherwise, try something else ;-)
 
 <li><font size="+1">
 @@   I get errors about a missing WinMain() or main() function!
@@ -275,28 +297,6 @@ Windows problems
       the Borland C++ command line compiler. Either that, or define the
       preprocessor symbol ALLEGRO_USE_CONSOLE prior to including Allegro
       headers if you really need the console for your program.
-
-<li><font size="+1">
-@\   I get an "out of environment space" error when I run fix.bat or
-@@   vcvars32.bat!
-</font>
-      Well duh, you need to increase the size of your environment then :-) 
-      You can do this by changing the settings for your DOS box (click the 
-      system menu and select "properties"), or at startup in your config.sys 
-      file (eg. "shell=c:\command.com /e:8192").
-
-<li><font size="+1">
-@@   I get an error about a "missing separator" when I run make!
-</font>
-      Make sure that you don't have a semi-colon appended to your MSVCDIR 
-      variable if you are using MSVC, to your MINGDIR variable if you are 
-      using Mingw32 or to your BCC32DIR variable if you are using BCC.
-
-<li><font size="+1">
-@@   When I run make, it says "windres: no resources".
-</font>
-      If Norton Antivirus is installed on your computer, try to disable
-      the "Auto-Protect" feature. Otherwise, try something else ;-)
 
 <li><font size="+1">
 @\   In windowed mode artifacts are left on the desktop when the window
