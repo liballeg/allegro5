@@ -2913,7 +2913,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
 		  /* store current string position */
 		  pstr_pos = va_arg(args, int *);
 		  *pstr_pos = len;
-		  slen = 0;
+		  slen = -1;
 		  NEXT_C();
 		  break;
 
