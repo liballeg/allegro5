@@ -70,3 +70,6 @@
 /* Define if constructor attribute is supported. */
 #undef ALLEGRO_USE_CONSTRUCTOR
 
+/* Define if sched_yield is provided by some library.  */
+#undef ALLEGRO_USE_SCHED_YIELD
+

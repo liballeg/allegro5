@@ -234,6 +234,9 @@ if test "X$allegro_shared_libraries" = "Xyes"; then
 fi
 AC_SUBST(ALLEGRO_LIB_TARGETS)
 
+dnl Test where is sched_yield (SunOS).
+ALLEGRO_ACTEST_SCHED_YIELD
+
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
 if test -n "$allegro_support_ossdigi"; then
