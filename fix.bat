@@ -27,7 +27,6 @@ goto help
 echo Configuring Allegro for Windows/BCC32...
 set AL_MAKEFILE=makefile.bcc
 set AL_PLATFORM=ALLEGRO_BCC32
-set AL_NOCONV=1
 goto fix
 
 :djgpp
@@ -42,7 +41,6 @@ goto fix
 echo Configuring Allegro for Windows/Mingw32...
 set AL_MAKEFILE=makefile.mgw
 set AL_PLATFORM=ALLEGRO_MINGW32
-set AL_NOCONV=1
 goto fix
 
 :msvc
@@ -79,7 +77,7 @@ goto end
 :ooes_error
 
 echo.
-echo *** ERROR *** Look up the section "Out of Environment space" in Allegros FAQ.
+echo ERROR: Read the section "Out of Environment space" in Allegro's FAQ.
 goto end
 
 :fix
@@ -110,4 +108,3 @@ echo Done!
 
 set AL_PLATFORM=
 set AL_MAKEFILE=
-
