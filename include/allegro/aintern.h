@@ -106,11 +106,7 @@ AL_VAR(int, _mouse_b);
 AL_VAR(int, _mouse_on);
 
 AL_VAR(BITMAP *, _mouse_screen);
-AL_VAR(BITMAP *, _mouse_sprite);
 AL_VAR(BITMAP *, _mouse_pointer);
-
-AL_VAR(int, _mouse_x_focus);
-AL_VAR(int, _mouse_y_focus);
 
 
 /* various bits of timer stuff */

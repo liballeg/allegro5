@@ -1142,6 +1142,14 @@ Mouse routines
    variables, since you can copy this value into a local variable with a 
    single instruction and then split it up at your leisure.
 
+@@extern BITMAP *@mouse_sprite;
+@@extern int @mouse_x_focus;
+@@exterm int @mouse_y_focus;
+@xref set_mouse_sprite, set_mouse_sprite_focus
+   Global variables containing the current mouse sprite and the focus
+   point.  These are read-only, and only to be modified using the
+   set_mouse_sprite() and set_mouse_sprite_focus() functions.
+
 @@void @show_mouse(BITMAP *bmp);
 @xref install_mouse, install_timer, set_mouse_sprite, scare_mouse
 @xref freeze_mouse_flag

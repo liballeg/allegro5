@@ -333,6 +333,10 @@ AL_FUNC(void, remove_mouse, (void));
 AL_FUNC(int, poll_mouse, (void));
 AL_FUNC(int, mouse_needs_poll, (void));
 
+AL_VAR(struct BITMAP *, mouse_sprite);
+AL_VAR(int, mouse_x_focus);
+AL_VAR(int, mouse_y_focus);
+
 AL_VAR(volatile int, mouse_x);
 AL_VAR(volatile int, mouse_y);
 AL_VAR(volatile int, mouse_z);

@@ -65,8 +65,8 @@ volatile int freeze_mouse_flag = FALSE;
 
 void (*mouse_callback)(int flags) = NULL;
 
-int _mouse_x_focus = 1;                /* focus point in mouse sprite */
-int _mouse_y_focus = 1;
+int mouse_x_focus = 1;                 /* focus point in mouse sprite */
+int mouse_y_focus = 1;
 
 
 #define MOUSE_OFFSCREEN    -4096       /* somewhere to put unwanted cursors */
@@ -98,7 +98,7 @@ static char mouse_pointer_data[DEFAULT_SPRITE_H][DEFAULT_SPRITE_W] =
 
 BITMAP *_mouse_pointer = NULL;         /* default mouse pointer */
 
-BITMAP *_mouse_sprite = NULL; /* current mouse pointer */
+BITMAP *mouse_sprite = NULL;	       /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 
@@ -133,27 +133,27 @@ static void draw_mouse_doublebuffer(int newx, int newy)
    int x1, y1, w, h;
 
    /* grab bit of screen containing where we are and where we'll be */
-   x1 = MIN(mx, newx) - _mouse_x_focus;
-   y1 = MIN(my, newy) - _mouse_y_focus;
+   x1 = MIN(mx, newx) - mouse_x_focus;
+   y1 = MIN(my, newy) - mouse_y_focus;
 
    /* get width of area */
-   w = MAX(mx, newx) - x1 + _mouse_sprite->w+1;
-   h = MAX(my, newy) - y1 + _mouse_sprite->h+1;
+   w = MAX(mx, newx) - x1 + mouse_sprite->w+1;
+   h = MAX(my, newy) - y1 + mouse_sprite->h+1;
 
    /* make new co-ords relative to 'mtemp' bitmap co-ords */
-   newx -= _mouse_x_focus+x1;
-   newy -= _mouse_y_focus+y1;
+   newx -= mouse_x_focus+x1;
+   newy -= mouse_y_focus+y1;
 
    /* save screen image in 'mtemp' */
    blit(_mouse_screen, mtemp, x1, y1, 0, 0, w, h);
 
    /* blit saved image in 'ms' to corect place in this buffer */
-   blit(ms, mtemp, 0, 0, mx-_mouse_x_focus-x1, my-_mouse_y_focus-y1,
-			 _mouse_sprite->w, _mouse_sprite->h);
+   blit(ms, mtemp, 0, 0, mx-mouse_x_focus-x1, my-mouse_y_focus-y1,
+			 mouse_sprite->w, mouse_sprite->h);
 
    /* draw mouse at correct place in 'mtemp' */
-   blit(mtemp, ms, newx, newy, 0, 0, _mouse_sprite->w, _mouse_sprite->h);
-   draw_sprite(mtemp, _mouse_sprite, newx, newy);
+   blit(mtemp, ms, newx, newy, 0, 0, mouse_sprite->w, mouse_sprite->h);
+   draw_sprite(mtemp, mouse_sprite, newx, newy);
 
    /* blit 'mtemp' to screen */
    blit(mtemp, _mouse_screen, 0, 0, x1, y1, w, h);
@@ -194,18 +194,18 @@ static void draw_mouse(int remove, int add)
       mon = TRUE;
 
    if (!normal_draw) {
-      if ((newmx <= mx-_mouse_sprite->w) || (newmx >= mx+_mouse_sprite->w) ||
-	  (newmy <= my-_mouse_sprite->h) || (newmy >= my+_mouse_sprite->h))
+      if ((newmx <= mx-mouse_sprite->w) || (newmx >= mx+mouse_sprite->w) ||
+	  (newmy <= my-mouse_sprite->h) || (newmy >= my+mouse_sprite->h))
 	 normal_draw = 1;
    }
 
    if (normal_draw) {
       if (remove)
-	 blit(ms, _mouse_screen, 0, 0, mx-_mouse_x_focus, my-_mouse_y_focus, _mouse_sprite->w, _mouse_sprite->h);
+	 blit(ms, _mouse_screen, 0, 0, mx-mouse_x_focus, my-mouse_y_focus, mouse_sprite->w, mouse_sprite->h);
 
       if (add) {
-	 blit(_mouse_screen, ms, newmx-_mouse_x_focus, newmy-_mouse_y_focus, 0, 0, _mouse_sprite->w, _mouse_sprite->h);
-	 draw_sprite(_mouse_screen, _mouse_sprite, newmx-_mouse_x_focus, newmy-_mouse_y_focus);
+	 blit(_mouse_screen, ms, newmx-mouse_x_focus, newmy-mouse_y_focus, 0, 0, mouse_sprite->w, mouse_sprite->h);
+	 draw_sprite(_mouse_screen, mouse_sprite, newmx-mouse_x_focus, newmy-mouse_y_focus);
       }
    }
    else
@@ -378,28 +378,28 @@ void set_mouse_sprite(struct BITMAP *sprite)
       show_mouse(NULL);
 
    if (sprite)
-      _mouse_sprite = sprite;
+      mouse_sprite = sprite;
    else
-      _mouse_sprite = _mouse_pointer;
+      mouse_sprite = _mouse_pointer;
 
-   lock_bitmap((struct BITMAP*)_mouse_sprite);
+   lock_bitmap((struct BITMAP*)mouse_sprite);
 
    /* make sure the ms bitmap is big enough */
-   if ((!ms) || (ms->w < _mouse_sprite->w) || (ms->h < _mouse_sprite->h)) {
+   if ((!ms) || (ms->w < mouse_sprite->w) || (ms->h < mouse_sprite->h)) {
       if (ms) {
 	 destroy_bitmap(ms);
 	 destroy_bitmap(mtemp);
       }
 
-      ms = create_bitmap(_mouse_sprite->w, _mouse_sprite->h);
+      ms = create_bitmap(mouse_sprite->w, mouse_sprite->h);
       lock_bitmap(ms);
 
-      mtemp = create_bitmap(_mouse_sprite->w*2, _mouse_sprite->h*2);
+      mtemp = create_bitmap(mouse_sprite->w*2, mouse_sprite->h*2);
       lock_bitmap(mtemp);
    }
 
-   _mouse_x_focus = 1;
-   _mouse_y_focus = 1;
+   mouse_x_focus = 1;
+   mouse_y_focus = 1;
 
    hw_cursor_dirty = TRUE;
 
@@ -418,8 +418,8 @@ void set_mouse_sprite_focus(int x, int y)
    if (!mouse_driver)
       return;
 
-   _mouse_x_focus = x;
-   _mouse_y_focus = y;
+   mouse_x_focus = x;
+   mouse_y_focus = y;
 
    hw_cursor_dirty = TRUE;
 }
@@ -464,7 +464,7 @@ void show_mouse(BITMAP *bmp)
 	 got_hw_cursor = FALSE;
 
 	 if ((gfx_driver) && (gfx_driver->set_mouse_sprite) && (!_dispsw_status))
-	    if (gfx_driver->set_mouse_sprite(_mouse_sprite, _mouse_x_focus, _mouse_y_focus) == 0)
+	    if (gfx_driver->set_mouse_sprite(mouse_sprite, mouse_x_focus, mouse_y_focus) == 0)
 	       got_hw_cursor = TRUE;
 
 	 hw_cursor_dirty = FALSE;
@@ -537,10 +537,10 @@ void scare_mouse_area(int x, int y, int w, int h)
       was_frozen = freeze_mouse_flag;
       freeze_mouse_flag = TRUE;
 
-      if ((mouse_x - _mouse_x_focus < x + w) &&
-	  (mouse_y - _mouse_y_focus < y + h) &&
-	  (mouse_x - _mouse_x_focus + _mouse_sprite->w >= x) &&
-	  (mouse_y - _mouse_y_focus + _mouse_sprite->h >= y)) {
+      if ((mouse_x - mouse_x_focus < x + w) &&
+	  (mouse_y - mouse_y_focus < y + h) &&
+	  (mouse_x - mouse_x_focus + mouse_sprite->w >= x) &&
+	  (mouse_y - mouse_y_focus + mouse_sprite->h >= y)) {
 
 	 if (scared_size < SCARED_SIZE) {
 	    scared_screen[scared_size] = _mouse_screen;
@@ -836,9 +836,9 @@ int install_mouse()
    LOCK_VARIABLE(emulate_three);
    LOCK_VARIABLE(freeze_mouse_flag);
    LOCK_VARIABLE(mouse_callback);
-   LOCK_VARIABLE(_mouse_x_focus);
-   LOCK_VARIABLE(_mouse_y_focus);
-   LOCK_VARIABLE(_mouse_sprite);
+   LOCK_VARIABLE(mouse_x_focus);
+   LOCK_VARIABLE(mouse_y_focus);
+   LOCK_VARIABLE(mouse_sprite);
    LOCK_VARIABLE(mouse_pointer_data);
    LOCK_VARIABLE(_mouse_pointer);
    LOCK_VARIABLE(_mouse_screen);
