@@ -217,6 +217,7 @@ INSTALL_FILES = create_install_dirs                                \
 		$(INSTALL_DIR)/include/allegro/platform            \
 		$(INSTALL_DIR)/include/osxalleg.h                  \
 		$(INSTALL_DIR)/include/allegro/platform/aintosx.h  \
+		$(INSTALL_DIR)/include/allegro/platform/aintunix.h \
 		$(INSTALL_DIR)/include/allegro/platform/alosxcfg.h \
 		$(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
 		$(INSTALL_DIR)/include/allegro/platform/alosx.h    \
