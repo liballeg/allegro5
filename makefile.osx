@@ -203,7 +203,7 @@ endif
 
 INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config
 
-install: generic-uninstall
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 	@echo Run make install-man if you wish to install the man pages.
 	@echo Run make install-framework if you wish to install the library as a framework.
