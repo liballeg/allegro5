@@ -426,7 +426,7 @@ veryclean: distclean
 
 maintainer-clean: veryclean
 	rm -f configure include/allegro/platform/alunixac.hin
-	rm -rf autom4te-*
+	rm -rf autom4te*
 
 
 
