@@ -219,18 +219,18 @@
    don't tend to bother with `allegro-config' when compiling.)
 
 
-   Alternatively, if your shell is sh-like, you can get the environment
-   changes from allegro-config, by typing at a shell prompt:
+   Alternatively, you can get the required environment changes from 
+   allegro-config, by typing at a shell prompt:
 
-	`allegro-config --env`
+	allegro-config --env
 
-   You can add that single command to your .bash_profile instead of all
-   of the above commands.  Note that `allegro-config' itself is in the
-   `bin' directory of the installation, so either make sure that is in
-   your path before running `allegro-config' or specify the path 
-   exactly, for example:
+   You can catenate the output to your .bash_profile, which is pretty
+   much like adding all of the above commands.  Note that `allegro-config'
+   itself is in the `bin' directory of the installation, so either make 
+   sure that directory is in your path before running `allegro-config' or 
+   specify the path exactly, for example:
 
-	`~/bin/allegro-config --env`
+	~/bin/allegro-config --env >> ~/.bash_profile
 
 
 
