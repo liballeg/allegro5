@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Eduard Bloch fixed a freeze caused by the ESD detection code.
+<li>
    3.9.33: Vincent Penquerc'h added mouse button press/release events to 
    the GUI system.
 <li>

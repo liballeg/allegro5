@@ -83,7 +83,7 @@ AL_VAR(MIDI_DRIVER, midi_oss);
 AL_VAR(DIGI_DRIVER, digi_esd);
 
 #define DIGI_DRIVER_ESD                                          \
-      {  DIGI_ESD,        &digi_esd,            FALSE  },
+      {  DIGI_ESD,        &digi_esd,            TRUE  },
 
 #endif /* ALLEGRO_WITH_ESDDIGI */
 
