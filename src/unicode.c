@@ -2201,7 +2201,7 @@ typedef struct SPRINT_INFO
    #define va_int(args, flags)               \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, signed short int)      \
+	 va_arg(args, signed int)      \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_LONG) ?   \
 	 va_arg(args, signed LONGLONG)       \
@@ -2217,7 +2217,7 @@ typedef struct SPRINT_INFO
    #define va_int(args, flags)               \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, signed short int)      \
+	 va_arg(args, signed int)      \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_INT) ?    \
 	 va_arg(args, signed long int)       \
@@ -2237,7 +2237,7 @@ typedef struct SPRINT_INFO
    #define va_uint(args, flags)              \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, unsigned short int)    \
+	 va_arg(args, unsigned int)    \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_LONG) ?   \
 	 va_arg(args, unsigned LONGLONG)     \
@@ -2253,7 +2253,7 @@ typedef struct SPRINT_INFO
    #define va_uint(args, flags)              \
    (                                         \
       ((flags) & SPRINT_FLAG_SHORT_INT) ?    \
-	 va_arg(args, unsigned short int)    \
+	 va_arg(args, unsigned int)    \
       :                                      \
       (((flags) & SPRINT_FLAG_LONG_INT) ?    \
 	 va_arg(args, unsigned long int)     \
