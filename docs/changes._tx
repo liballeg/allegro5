@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Eric Botcazou again updated DirectDraw page and triple
+   buffering, amongst other things.
+<li>
    3.9.34: Bertrand Coconnier improved subtexel accuracy for texture
    mapping.
 <li>
