@@ -40,8 +40,8 @@ int wnd_width = 0;
 int wnd_height = 0;
 int wnd_sysmenu = FALSE;
 
-static int last_wnd_x = 32;
-static int last_wnd_y = 32;
+static int last_wnd_x = -1;
+static int last_wnd_y = -1;
 
 /* graphics */
 WIN_GFX_DRIVER *win_gfx_driver;
@@ -571,9 +571,25 @@ void restore_window_style(void)
  */
 int adjust_window(int w, int h)
 {
-   RECT win_size = {last_wnd_x, last_wnd_y, last_wnd_x+w, last_wnd_y+h };
+   RECT working_area, win_size;
 
    if (!user_wnd) {
+      if (last_wnd_x < 0) {
+         /* first window placement: try to center it */
+         SystemParametersInfo(SPI_GETWORKAREA, 0, &working_area, 0);
+         last_wnd_x = (working_area.left + working_area.right - w)/2;
+         last_wnd_y = (working_area.top + working_area.bottom - h)/2;
+
+#ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
+         last_wnd_x &= 0xfffffffc;
+#endif
+      }
+
+      win_size.left = last_wnd_x;
+      win_size.top = last_wnd_y;
+      win_size.right = last_wnd_x+w;
+      win_size.bottom = last_wnd_y+h;
+
       /* retrieve the size of the decorated window */
       AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    
