@@ -279,6 +279,10 @@ INSTALL_DIRS := \
     $(INSTALLDIR)/$(INCDIR)/allegro/internal \
     $(INSTALLDIR)/$(INCDIR)/allegro/inline
 
+ifdef BINDIR
+    INSTALL_DIRS += $(INSTALLDIR)/$(BINDIR)
+endif
+
 ifdef UNIX_TOOLS
     INSTALL_DIRS := $(subst \,/,$(INSTALL_DIRS))
 else
