@@ -230,7 +230,7 @@ PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB) $(RUNNER)
 PLUGIN_SCR = scw
 
 define GENERATE_PLUGINS_H
-copy tools\plugins\*.inc obj\watcom\plugins.h
+copy /B tools\plugins\*.inc obj\watcom\plugins.h
 endef
 
 define MAKE_PLUGIN_LIB

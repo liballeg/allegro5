@@ -451,7 +451,7 @@ ifdef UNIX_TOOLS
    endef
 else
    define GENERATE_PLUGINS_H
-      copy tools\plugins\*.inc obj\msvc\plugins.h
+      copy /B tools\plugins\*.inc obj\msvc\plugins.h
    endef
 endif
 

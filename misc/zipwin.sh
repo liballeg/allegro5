@@ -167,7 +167,7 @@ s/obj\/msvc\/runner.exe //
 s/\\//\\\\/g
 
 # make sure were are using command.com copy, rather than cp
-s/^.*cat tools.*msvc.plugins.h/copy tools\\\\plugins\\\\*.inc obj\\\\msvc\\\\plugins.h/
+s/^.*cat tools.*msvc.plugins.h/copy \/B tools\\\\plugins\\\\*.inc obj\\\\msvc\\\\plugins.h/
 
 # add blank lines, to make the batch output more readable
 s/^\([^@]*\)$/\\
