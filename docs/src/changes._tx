@@ -11,7 +11,7 @@
 Changes from 4.1.12 to 4.1.13 (March 2004)
 <ul><li>
    Minor changes and clarifications in the docs by Sven Sandberg, Andy Goth,
-   Jon Rafkind and Nathan Smith.
+   Jon Rafkind, Nathan Smith and Daniel Schlyder.
 <li>
    Elias Pchernig extensively modified the ALSA 0.9/1.0 sound driver to make
    it work more nicely.
