@@ -29,6 +29,31 @@
 BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 {
    PACKFILE *f;
+   BITMAP *bmp;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_READ);
+   if (!f)
+      return NULL;
+
+   bmp = load_pcx_pf(f, pal);
+
+   pack_fclose(f);
+
+   return bmp;
+}
+
+
+
+/* load_pcx_pf:
+ *  Like load_pcx, but starts loading from the current place in the PACKFILE
+ *  specified. If successful the offset into the file will be left just after
+ *  the image data. If unsuccessful the offset into the file is unspecified,
+ *  i.e. you must either reset the offset to some known place or close the
+ *  packfile. The packfile is not closed by this function.
+ */
+BITMAP *load_pcx_pf(PACKFILE *f, RGB *pal)
+{
    BITMAP *b;
    PALETTE tmppal;
    int want_palette = TRUE;
@@ -39,7 +64,7 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    int x, y;
    char ch;
    int dest_depth;
-   ASSERT(filename);
+   ASSERT(f);
 
    /* we really need a palette */
    if (!pal) {
@@ -47,16 +72,11 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
       pal = tmppal;
    }
 
-   f = pack_fopen(filename, F_READ);
-   if (!f)
-      return NULL;
-
    pack_getc(f);                    /* skip manufacturer ID */
    pack_getc(f);                    /* skip version flag */
    pack_getc(f);                    /* skip encoding flag */
 
    if (pack_getc(f) != 8) {         /* we like 8 bit color planes */
-      pack_fclose(f);
       return NULL;
    }
 
@@ -77,7 +97,6 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 
    bpp = pack_getc(f) * 8;          /* how many color planes? */
    if ((bpp != 8) && (bpp != 24)) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -89,7 +108,6 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 
    b = create_bitmap_ex(bpp, width, height);
    if (!b) {
-      pack_fclose(f);
       return NULL;
    }
 
@@ -166,8 +184,6 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
       }
    }
 
-   pack_fclose(f);
-
    if (*allegro_errno) {
       destroy_bitmap(b);
       return NULL;
@@ -197,6 +213,30 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
 int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 {
    PACKFILE *f;
+   int ret;
+   ASSERT(filename);
+
+   f = pack_fopen(filename, F_WRITE);
+   if (!f)
+      return -1;
+
+   ret = save_pcx_pf(f, bmp, pal);
+
+   pack_fclose(f);
+   
+   return ret;
+}
+
+
+
+/* save_pcx_pf:
+ *  Like save_pcx but writes into the PACKFILE given instead of a new file.
+ *  The packfile is not closed after writing is completed. On success the
+ *  offset into the file is left after the TGA file just written. On failure
+ *  the offset is left at the end of whatever incomplete data was written.
+ */
+int save_pcx_pf(PACKFILE *f, BITMAP *bmp, AL_CONST RGB *pal)
+{
    PALETTE tmppal;
    int c;
    int x, y;
@@ -204,17 +244,13 @@ int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    int depth, planes;
    char runchar;
    char ch;
-   ASSERT(filename);
+   ASSERT(f);
    ASSERT(bmp);
 
    if (!pal) {
       get_palette(tmppal);
       pal = tmppal;
    }
-
-   f = pack_fopen(filename, F_WRITE);
-   if (!f)
-      return -1;
 
    depth = bitmap_color_depth(bmp);
    if (depth == 8)
@@ -301,8 +337,6 @@ int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 	 pack_putc(_rgb_scale_6[pal[c].b], f);
       }
    }
-
-   pack_fclose(f);
 
    if (*allegro_errno)
       return -1;

@@ -25,33 +25,41 @@
 
 AL_INLINE(int, pack_getc, (PACKFILE *f),
 {
-   f->buf_size--;
-   if (f->buf_size > 0)
-      return *(f->buf_pos++);
-   else
-      return _sort_out_getc(f);
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_getc);
+
+   return f->vtable->pf_getc(f->userdata);
 })
 
 
 AL_INLINE(int, pack_putc, (int c, PACKFILE *f),
 {
-   f->buf_size++;
-   if (f->buf_size >= F_BUF_SIZE)
-      return _sort_out_putc(c, f);
-   else
-      return (*(f->buf_pos++) = c);
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_putc);
+
+   return f->vtable->pf_putc(c, f->userdata);
 })
 
 
 AL_INLINE(int, pack_feof, (PACKFILE *f),
 {
-   return (f->flags & PACKFILE_FLAG_EOF);
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_feof);
+
+   return f->vtable->pf_feof(f->userdata);
 })
 
 
 AL_INLINE(int, pack_ferror, (PACKFILE *f),
 {
-   return (f->flags & PACKFILE_FLAG_ERROR);
+   ASSERT(f);
+   ASSERT(f->vtable);
+   ASSERT(f->vtable->pf_ferror);
+
+   return f->vtable->pf_ferror(f->userdata);
 })
 
 #ifdef __cplusplus

@@ -1152,7 +1152,7 @@ static int load_object(DATAFILE *obj, PACKFILE *f, int type)
    ff = pack_fopen_chunk(f, FALSE);
 
    if (ff) {
-      d = ff->todo;
+      d = ff->normal.todo;
 
       /* look for a load function */
       for (i=0; i<MAX_DATAFILE_TYPES; i++) {
@@ -1375,7 +1375,7 @@ DATAFILE *load_datafile_callback(AL_CONST char *filename, void (*callback)(DATAF
    if (!f)
       return NULL;
 
-   if ((f->flags & PACKFILE_FLAG_CHUNK) && (!(f->flags & PACKFILE_FLAG_EXEDAT)))
+   if ((f->normal.flags & PACKFILE_FLAG_CHUNK) && (!(f->normal.flags & PACKFILE_FLAG_EXEDAT)))
       type = (_packfile_type == DAT_FILE) ? DAT_MAGIC : 0;
    else
       type = pack_mgetl(f);
@@ -1442,7 +1442,7 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
    if (!f)
       return NULL;
 
-   if ((f->flags & PACKFILE_FLAG_CHUNK) && (!(f->flags & PACKFILE_FLAG_EXEDAT)))
+   if ((f->normal.flags & PACKFILE_FLAG_CHUNK) && (!(f->normal.flags & PACKFILE_FLAG_EXEDAT)))
       type = (_packfile_type == DAT_FILE) ? DAT_MAGIC : 0;
    else
       type = pack_mgetl(f);

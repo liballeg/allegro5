@@ -94,9 +94,9 @@ void get_stats(void)
       return;
    }
 
-   stat_exe_size = f->todo;
+   stat_exe_size = f->normal.todo;
 
-   pack_fseek(f, f->todo-8);
+   pack_fseek(f, f->normal.todo-8);
 
    if (pack_mgetl(f) != F_EXE_MAGIC) {
       stat_hasdata = FALSE;
@@ -117,7 +117,7 @@ void get_stats(void)
       return;
    }
 
-   stat_exe_size = f->todo - stat_compressed_size - 16;
+   stat_exe_size = f->normal.todo - stat_compressed_size - 16;
 
    pack_fseek(f, stat_exe_size);
 
@@ -128,7 +128,7 @@ void get_stats(void)
       return;
    }
 
-   stat_uncompressed_size = f->todo;
+   stat_uncompressed_size = f->normal.todo;
 
    pack_fclose(f);
 }
