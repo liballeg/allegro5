@@ -35,8 +35,6 @@
 #define PREV_ROOT 1
 #define PREV_SUB  2
 
-#define VERSION_STRING "4.0.0"
-
 /* Buffered tocs. Only the 'local' pointer should be freed */
 typedef struct BTOC
 {
@@ -133,10 +131,9 @@ int write_devhelp(const char *filename)
    
    fprintf(file, "<?xml version=\"1.0\"?>\n");
    fprintf(file, "\n");
-   fprintf(file, "<book title=\"Allegro Game Library\"\n");
+   fprintf(file, "<book xmlns=\"http://www.devhelp.net/book\"\n");
+   fprintf(file, "      title=\"Allegro Game Library\"\n");
    fprintf(file, "      name=\"allegro\"\n");
-   fprintf(file, "      version=\"%s\"\n", VERSION_STRING);
-   fprintf(file, "      base=\"http://alleg.sf.net/api.html/\"\n");
    fprintf(file, "      link=\"allegro.html\">\n");
    fprintf(file, "\n");
    fprintf(file, "<chapters>\n");
