@@ -156,7 +156,7 @@ ifdef PROFILEMODE
 endif
 
 ifdef ALLEGRO_USE_CYGWIN
-  LIBRARIES += -lmsvcrt -lmoldname
+  LIBRARIES += -L/lib/mingw -lmoldname -lmsvcrt
 endif
 
 PROGRAMS = dibgrab dibhello dibsound scrsave
