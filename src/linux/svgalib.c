@@ -12,7 +12,7 @@
  *
  *      By Stefan T. Boettner.
  * 
- *      Banked mode and VT switching by Peter Wang.
+ *      Modified extensively by Peter Wang.
  *
  *      See readme.txt for copyright information.
  */
@@ -40,7 +40,8 @@ static void svga_exit(BITMAP *b);
 static int  svga_scroll(int x, int y);
 static void svga_vsync(void);
 static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync);
-static void svga_flip(void);
+static void svga_save(void);
+static void svga_restore(void);
 
 #ifndef ALLEGRO_NO_ASM
 unsigned long _svgalib_read_line_asm(BITMAP *bmp, int line);
@@ -66,8 +67,8 @@ GFX_DRIVER gfx_svgalib =
    NULL, NULL,                   /* no system bitmaps */
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
-   svga_flip,
-   svga_flip,
+   svga_save,
+   svga_restore,
    0, 0,
    TRUE,
    0, 0, 0, 0
@@ -77,7 +78,11 @@ GFX_DRIVER gfx_svgalib =
 
 static char svga_desc[256] = EMPTY_STRING;
 
-static unsigned int display_start_mask, scanline_width, bytesperpixel;
+static int svga_mode;
+
+static unsigned int display_start_mask;
+static unsigned int scanline_width;
+static int bytes_per_pixel;
 
 static unsigned char *screen_buffer;
 static int last_line;
@@ -93,6 +98,7 @@ unsigned long _svgalib_read_line(BITMAP *bmp, int line)
 }
 
 
+
 /* _svgalib_write_line:
  *  Update last selected line and select new line.
  */
@@ -104,6 +110,7 @@ unsigned long _svgalib_write_line(BITMAP *bmp, int line)
    last_line = new_line;
    return (unsigned long) (bmp->line[line]);
 }
+
 
 
 /* _svgalib_unwrite_line:
@@ -119,98 +126,88 @@ void _svgalib_unwrite_line(BITMAP *bmp)
 
 
 
-static struct sigaction old_sigusr1, old_sigusr2;
-
-static void svga_save_signals()
-{
-   sigaction(SIGUSR1, NULL, &old_sigusr1);
-   sigaction(SIGUSR2, NULL, &old_sigusr2);
-}
-
-static void svga_restore_signals()
-{
-   sigaction(SIGUSR1, &old_sigusr1, NULL);
-   sigaction(SIGUSR2, &old_sigusr2, NULL);
-}
-
-
-
-static void *svga_create_screen_buffer(int size)
-{
-   screen_buffer = malloc(size);
-   return screen_buffer;
-}
-
-static void svga_free_screen_buffer()
-{
-   if (screen_buffer) {
-      free(screen_buffer);
-      screen_buffer = NULL;
-   }
-}
-
-
-
-/*
- * Wrapper for vga_init().
+/* save_signals, restore_signals:
+ *  Helpers to save and restore signals captured by SVGAlib.
  */
-static int __vga_init(void)
+static const int signals[] = {
+   SIGUSR1, SIGUSR2,
+   SIGHUP, SIGINT, SIGQUIT, SIGILL,
+   SIGTRAP, SIGIOT, SIGBUS, SIGFPE,
+   SIGSEGV, SIGPIPE, SIGALRM, SIGTERM,
+   SIGXCPU, SIGXFSZ, SIGVTALRM, SIGPWR
+};
+
+#define NUM_SIGNALS	(sizeof (signals) / sizeof (int))
+
+static struct sigaction old_signals[NUM_SIGNALS];
+
+static void save_signals()
 {
-   int ret;
-   
-   __al_linux_async_exit();
+   int i;
+   for (i = 0; i < NUM_SIGNALS; i++) 
+      sigaction(signals[i], NULL, old_signals+i);
+}
 
-   seteuid(0);
-   vga_disabledriverreport();
-   ret = vga_init();
-   seteuid(getuid());
-
-   __al_linux_async_init();
-
-   return ret;
+static void restore_signals()
+{
+   int i;
+   for (i = 0; i < NUM_SIGNALS; i++)
+      sigaction(signals[i], old_signals+i, NULL);
 }
 
 
-/*
- * SVGAlib changes the termios, which mucks up our keyboard driver.
- * We also want to do the console switching ourselves, so wrap the 
- * vga_setmode() function call.
+
+/* safe_vga_setmode:
+ *  We don't want SVGAlib messing with our keyboard driver or taking 
+ *  over control of VT switching.  Note that doing all this every 
+ *  time is possibly a little excessive.  
  */
-static int __vga_setmode(int num) 
+static int safe_vga_setmode(int num, int tio)
 {
    struct termios termio;
    struct vt_mode vtm;
    int ret;
 
-   ioctl(__al_linux_console_fd, VT_GETMODE, &vtm);
+   save_signals();
+   if (tio) 
+      ioctl(__al_linux_console_fd, VT_GETMODE, &vtm);
    tcgetattr(__al_linux_console_fd, &termio);
 
    ret = vga_setmode(num);
 
    tcsetattr(__al_linux_console_fd, TCSANOW, &termio);
-   ioctl(__al_linux_console_fd, VT_SETMODE, &vtm);
-   svga_restore_signals();
-   
+   if (tio) 
+      ioctl(__al_linux_console_fd, VT_SETMODE, &vtm);
+   restore_signals();
+
    return ret;
 }
 
 
 
-static int svga_mode_ok(vga_modeinfo *info, int w, int h, int v_w, int v_h, int color_depth)
+/* mode_ok:
+ *  Check if the mode passed matches the size and color depth requirements.
+ */
+static int mode_ok(vga_modeinfo *info, int w, int h, int v_w, int v_h, 
+		   int color_depth)
 {
-   if ((color_depth == 8  && info->colors == 256)  	||
-       (color_depth == 15 && info->colors == 32768) 	|| 
-       (color_depth == 16 && info->colors == 65536) 	||
-       (color_depth == 24 && info->bytesperpixel == 3)  ||
-       (color_depth == 32 && info->bytesperpixel == 4))
-      return (((info->width == w && info->height == h) || (!w && !h))
-	      && (info->maxlogicalwidth >= v_w * info->bytesperpixel));
-   else
-      return 0;
+   return ((((color_depth == 8) && (info->colors == 256))
+	    || ((color_depth == 15) && (info->colors == 32768))
+	    || ((color_depth == 16) && (info->colors == 65536))
+	    || ((color_depth == 24) && (info->bytesperpixel == 3))
+	    || ((color_depth == 32) && (info->bytesperpixel == 4)))
+	   && (((info->width == w) && (info->height == h))
+	       || ((w == 0) && (h == 0)))
+	   && (info->maxlogicalwidth >= (MAX(w, v_w) * info->bytesperpixel)));
 }
 
 
-static vga_modeinfo *svga_set_mode(int w, int h, int v_w, int v_h, int color_depth, int flags)
+
+/* find_and_set_mode:
+ *  Helper to find a suitable video mode and then set it.
+ */
+static vga_modeinfo *find_and_set_mode(int w, int h, int v_w, int v_h,
+				       int color_depth, int flags)
 {
    vga_modeinfo *info;
    int i;
@@ -220,15 +217,15 @@ static vga_modeinfo *svga_set_mode(int w, int h, int v_w, int v_h, int color_dep
 	 continue;
       
       info = vga_getmodeinfo(i);
-      if ((info->flags & IS_MODEX) 
-	  || (!svga_mode_ok(info, w, h, v_w, v_h, color_depth))
-	  || (flags && !(info->flags & flags)))
+      if ((info->flags & IS_MODEX)
+	  || ((flags) && !(info->flags & flags))
+	  || (!mode_ok(info, w, h, v_w, v_h, color_depth)))
 	 continue;
       
-      if (__vga_setmode(i) == 0) {
+      if (safe_vga_setmode(i, 1) == 0) {
+	 svga_mode = i;
 	 gfx_svgalib.w = vga_getxdim();
 	 gfx_svgalib.h = vga_getydim();
-	 __al_linux_console_graphics();
 	 return info;
       }
    }
@@ -237,128 +234,149 @@ static vga_modeinfo *svga_set_mode(int w, int h, int v_w, int v_h, int color_dep
 }
 
 
-static void svga_setup_colour(int color_depth)
+
+/* set_color_shifts:
+ *  Set the color shift values for truecolor modes.
+ */
+static void set_color_shifts(int color_depth, int bgr)
 {
    switch (color_depth) {
-      case 15:
-	 _rgb_r_shift_15 = 10;
-	 _rgb_g_shift_15 = 5;
-	 _rgb_b_shift_15 = 0;
-	 break;
 
-      case 16:
-	 _rgb_r_shift_16 = 11;
-	 _rgb_g_shift_16 = 5;
-	 _rgb_b_shift_16 = 0;
-	 break;
+      #ifdef ALLEGRO_COLOR16
 
-      case 24:
-	 _rgb_r_shift_24 = 16;
-	 _rgb_g_shift_24 = 8;
-	 _rgb_b_shift_24 = 0;
-      	 break;
+         case 15:
+            _rgb_r_shift_15 = 10;
+            _rgb_g_shift_15 = 5;
+            _rgb_b_shift_15 = 0;
+            break;
 
-      case 32:
-      	 _rgb_a_shift_32 = 24;
-   	 _rgb_r_shift_32 = 16;
-         _rgb_g_shift_32 = 8;
-   	 _rgb_b_shift_32 = 0;
-	 break;
+         case 16:
+            _rgb_r_shift_16 = 11;
+            _rgb_g_shift_16 = 5;
+            _rgb_b_shift_16 = 0;
+            break;
+
+      #endif
+
+      #ifdef ALLEGRO_COLOR24
+
+         case 24:
+            if (bgr) {
+               _rgb_r_shift_24 = 0;
+               _rgb_g_shift_24 = 8;
+               _rgb_b_shift_24 = 16;
+	    }
+            else {
+               _rgb_r_shift_24 = 16;
+               _rgb_g_shift_24 = 8;
+               _rgb_b_shift_24 = 0;
+	    }
+            break;
+
+      #endif
+
+      #ifdef ALLEGRO_COLOR32
+
+         case 32:
+            if (bgr) {
+               _rgb_a_shift_32 = 0;
+               _rgb_r_shift_32 = 8;
+               _rgb_g_shift_32 = 16;
+               _rgb_b_shift_32 = 24;
+	    }
+            else {
+               _rgb_a_shift_32 = 24;
+               _rgb_r_shift_32 = 16;
+               _rgb_g_shift_32 = 8;
+               _rgb_b_shift_32 = 0;
+	    }
+            break;
+       
+      #endif
    }
 }
 
 
 
-/* svga_init:
- *  Sets a graphics mode.
+/* do_set_mode:
+ *  Do the hard work of setting a video mode, then return a screen bitmap.
  */
-static BITMAP *svga_private_init(int w, int h, int v_w, int v_h, int color_depth)
+static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
 {
-   int vidmem, width, height;
+   int vid_mem, width, height;
    vga_modeinfo *info;
    BITMAP *bmp;
 
-   /* makes the mode switch more stable */
-   __vga_setmode(TEXT);
+   /* Try get a linear frame buffer.  */
 
-
-   /* Try get a linear frame buffer */
-
-   info = svga_set_mode(w, h, v_w, v_h, color_depth, CAPABLE_LINEAR);
+   info = find_and_set_mode(w, h, v_w, v_h, color_depth, CAPABLE_LINEAR);
    if (info) { 
-      vidmem = vga_setlinearaddressing();
-      if (vidmem < 0) {
+      vid_mem = vga_setlinearaddressing();
+      if (vid_mem < 0) {
 	 ustrcpy(allegro_error, get_config_text("Cannot enable linear addressing"));
 	 return NULL;
       }
 
-      if (v_w) {
-	 width = v_w;
-	 scanline_width = width * info->bytesperpixel;
-	 vga_setlogicalwidth(scanline_width);
-      }
-      else {
-	 width = info->linewidth / info->bytesperpixel;
-	 scanline_width = info->linewidth;
-      }
+      width = info->linewidth / info->bytesperpixel;
+      scanline_width = info->linewidth;
 
-      /* set entries in gfx_svgalib */
-      gfx_svgalib.vid_mem = vidmem;
-      gfx_svgalib.vid_phys_base = (unsigned long)vga_getgraphmem();
+      /* Set entries in gfx_svgalib.  */
+      gfx_svgalib.vid_mem = vid_mem;
       gfx_svgalib.scroll = svga_scroll;
 
       ustrcpy(svga_desc, uconvert_ascii("SVGAlib (linear)", NULL));
       gfx_svgalib.desc = svga_desc;
 
-      /* for hardware scrolling */
+      /* For hardware scrolling.  */
       display_start_mask = info->startaddressrange;
-      bytesperpixel = info->bytesperpixel;
+      bytes_per_pixel = info->bytesperpixel;
 
-      /* set truecolour format */
-      svga_setup_colour(color_depth);
+      /* Set truecolor format.  */
+      set_color_shifts(color_depth, (info->flags & RGB_MISORDERED));
 
-      /* make the screen bitmap and run */
-      bmp = _make_bitmap(width, info->maxpixels / width,
-			 (unsigned long)vga_getgraphmem(),
-			 &gfx_svgalib, color_depth, scanline_width);
-      return bmp;
+      /* Make the screen bitmap.  */
+      return _make_bitmap(width, info->maxpixels / width, 
+			  (unsigned long)vga_getgraphmem(),
+			  &gfx_svgalib, color_depth, scanline_width);
    }
 
-
-   /* Try get a banked frame buffer */
+   /* Try get a banked frame buffer.  */
    
+   /* We don't support virtual screens larger than the screen itself 
+    * in banked mode.  */
    if ((v_w > w) || (v_h > h)) {
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
       return NULL;
    }
 
-   info = svga_set_mode(w, h, v_w, v_h, color_depth, 0);
+   info = find_and_set_mode(w, h, v_w, v_h, color_depth, 0);
    if (info) {
       width = gfx_svgalib.w;
       height = gfx_svgalib.h;
       scanline_width = width * info->bytesperpixel;
+      vid_mem = scanline_width * height;
 
-      /* allocate memory buffer for screen */
-      if (!svga_create_screen_buffer(scanline_width * height))
+      /* Allocate memory buffer for screen.  */
+      screen_buffer = malloc(vid_mem);
+      if (!screen_buffer) 
 	 return NULL;
       last_line = -1;
-
-      /* set entries in gfx_svgalib */
-      gfx_svgalib.vid_mem = scanline_width * height;
-      gfx_svgalib.vid_phys_base = (unsigned long)screen_buffer;
+       
+      /* Set entries in gfx_svgalib.  */
+      gfx_svgalib.vid_mem = vid_mem;
       gfx_svgalib.scroll = NULL;
 
       ustrcpy(svga_desc, uconvert_ascii("SVGAlib (banked)", NULL));
       gfx_svgalib.desc = svga_desc;
 
-      /* set truecolour format */
-      svga_setup_colour(color_depth);
+      /* Set truecolor format.  */
+      set_color_shifts(color_depth, 0);
 
-      /* make the screen bitmap and run */
+      /* Make the screen bitmap.  */
       bmp = _make_bitmap(width, height, (unsigned long)screen_buffer,
 			 &gfx_svgalib, color_depth, scanline_width);
       if (bmp) {
-	 /* set bank switching routines */
+	 /* Set bank switching routines.  */
 #ifndef ALLEGRO_NO_ASM
 	 bmp->read_bank = _svgalib_read_line_asm;
 	 bmp->write_bank = _svgalib_write_line_asm;
@@ -373,31 +391,46 @@ static BITMAP *svga_private_init(int w, int h, int v_w, int v_h, int color_depth
       return bmp;
    }
 
-   /* all is lost */
    ustrcpy(allegro_error, get_config_text("Resolution not supported"));
    return NULL;
 }
 
+
+
+/* svga_init:
+ *  Entry point to set a video mode.
+ */
 static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    static int virgin = 1;
-   BITMAP *bmp;
+   BITMAP *bmp = NULL;
+   int error = 0;
 
    if (!__al_linux_have_ioperms) {
       ustrcpy(allegro_error, get_config_text("This driver needs root privileges"));
       return NULL;
    }
 
+   /* Stop interrupts processing, which interferes with the SVGAlib
+    * VESA driver.  */
+   __al_linux_async_exit();
+
+   /* Initialise SVGAlib.  */
    if (virgin) {
-      svga_save_signals();
-      if (__vga_init() != 0) 
-	 return NULL;
+      seteuid(0);
+      vga_disabledriverreport();
+      error = vga_init();
+      seteuid(getuid());
       virgin = 0;
    }
-   
-   DISABLE();
-   bmp = svga_private_init(w, h, v_w, v_h, color_depth);
-   ENABLE();
+    
+   /* Ask for a video mode.  */
+   if (!error)
+      bmp = do_set_mode(w, h, v_w, v_h, color_depth);
+
+   /* Restart interrupts processing.  */
+   __al_linux_async_init();
+
    return bmp;
 }
 
@@ -408,19 +441,12 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 static void svga_exit(BITMAP *b)
 {
-   DISABLE();
+   if (screen_buffer) {
+      free(screen_buffer);
+      screen_buffer = NULL;
+   }
 
-   svga_free_screen_buffer();
-   
-   __vga_setmode(TEXT);
-   __vga_setmode(TEXT);
-
-   ENABLE();
-   
-   /* Make sure the screen is not filled with crap when we exit.
-    * Not sure why this works; damned if I'm going to find out! :) */
-   ioctl(__al_linux_console_fd, KDSETMODE, KD_GRAPHICS);
-   __al_linux_console_text();
+   safe_vga_setmode(TEXT, 1);
 }
 
 
@@ -430,7 +456,10 @@ static void svga_exit(BITMAP *b)
  */
 static int svga_scroll(int x, int y)
 {
-   vga_setdisplaystart((x * bytesperpixel + y * scanline_width) & display_start_mask);
+   vga_setdisplaystart((x * bytes_per_pixel + y * scanline_width) 
+		       /* & display_start_mask */);
+   /* The bitmask seems to mess things up on my machine, even though
+    * the documentation says it should be there. -- PW  */
    return 0;
 }
 
@@ -462,14 +491,29 @@ static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
 
 
 
-/* svga_flip:
- *  Switch between text and graphics modes.
+/* svga_save:
+ *  Saves the graphics state.
  */
-static void svga_flip()
+static void svga_save()
 {
-   DISABLE();
-   vga_flip();
-   ENABLE();
+   safe_vga_setmode(TEXT, 0);
+}
+
+
+
+/* svga_restore:
+ *  Restores the graphics state.
+ */
+static void svga_restore()
+{
+   al_linux_set_async_mode(ASYNC_OFF);
+   _sigalrm_stop_timer();
+    
+   safe_vga_setmode(svga_mode, 0);
+   vga_setpage(0);
+    
+   _sigalrm_start_timer();
+   al_linux_set_async_mode(ASYNC_DEFAULT);
 }
 
 
