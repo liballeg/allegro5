@@ -197,6 +197,7 @@ AL_INLINE(int, gui_textout, (struct BITMAP *bmp, AL_CONST char *s, int x, int y,
 /* the old close button functions */
 AL_INLINE(int, set_window_close_button, (int enable),
 {
+   (void)enable;
    return 0;
 })
 
