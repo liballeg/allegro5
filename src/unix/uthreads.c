@@ -65,23 +65,26 @@ static void *bg_man_pthreads_threadfunc(void *arg)
 {
    struct timeval old_time, new_time;
    struct timeval delay;
-   unsigned long interval, i;
+   unsigned long interval;
    int n;
 
    block_all_signals();
 
+   interval = 0;
    gettimeofday(&old_time, 0);
 
    while (1) {
       gettimeofday(&new_time, 0);
-      interval = ((new_time.tv_sec - old_time.tv_sec) * 1000000L +
-		  (new_time.tv_usec - old_time.tv_usec));
+      /* add the new time difference to the remainder of the old difference */
+      interval += ((new_time.tv_sec - old_time.tv_sec) * 1000000L +
+		   (new_time.tv_usec - old_time.tv_usec));
       old_time = new_time;
 
-      while (interval) {
-	 i = MIN (interval, INT_MAX/(TIMERS_PER_SECOND/100));
-	 interval -= i;
-	 i = i * (TIMERS_PER_SECOND/100) / 10000L;
+      /* run the callbacks for each 10ms elapsed, but limit to 18ms */
+      if (interval > 18000)
+         interval = 18000;      
+      while (interval > 10000) {
+	 interval -= 10000;	  
 
 	 pthread_mutex_lock(&cli_mutex);
 
@@ -98,8 +101,9 @@ static void *bg_man_pthreads_threadfunc(void *arg)
 	 pthread_mutex_unlock(&cli_mutex);
       }
 
+      /* rest a little bit before checking again */
       delay.tv_sec = 0;
-      delay.tv_usec = 10000;
+      delay.tv_usec = 1000;
       select(0, NULL, NULL, NULL, &delay);
       pthread_testcancel();
    }
