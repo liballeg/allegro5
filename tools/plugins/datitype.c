@@ -235,11 +235,11 @@ static MENU type_menu[] =
 
 static MENU depth_menu[] =
 {
-   { "&256 color palette",       changedepth,   NULL,    0,    (void *)8   },
-   { "1&5 bit hicolor",          changedepth,   NULL,    0,    (void *)15  },
-   { "1&6 bit hicolor",          changedepth,   NULL,    0,    (void *)16  },
-   { "2&4 bit truecolor",        changedepth,   NULL,    0,    (void *)24  },
-   { "&32 bit truecolor",        changedepth,   NULL,    0,    (void *)32  },
+   { "To &256 color palette",    changedepth,   NULL,    0,    (void *)8   },
+   { "To 1&5 bit hicolor",       changedepth,   NULL,    0,    (void *)15  },
+   { "To 1&6 bit hicolor",       changedepth,   NULL,    0,    (void *)16  },
+   { "To 2&4 bit truecolor",     changedepth,   NULL,    0,    (void *)24  },
+   { "To &32 bit truecolor",     changedepth,   NULL,    0,    (void *)32  },
    { NULL,                       NULL,          NULL,    0,    NULL        }
 };
 
@@ -269,7 +269,7 @@ DATEDIT_MENU_INFO datitype_type_menu =
 
 static MENU change_depth_menu =
 {
-   "Color Depth",
+   "Change Color Depth",
    NULL,
    depth_menu,
    0,
