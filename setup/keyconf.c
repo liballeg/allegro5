@@ -698,10 +698,10 @@ int accenter(char *title, int flag)
       }
       else if (flag == KB_ACCENT4_FLAG) {
 	 _key_accent4 = accent_dlg[2].d1;
-	 if (accent_dlg[6].flags & D_SELECTED) _key_accent3_flag = 0;
-	 else if (accent_dlg[7].flags & D_SELECTED) _key_accent3_flag = 1;
-	 else if (accent_dlg[8].flags & D_SELECTED) _key_accent3_flag = 2;
-	 else if (accent_dlg[9].flags & D_SELECTED) _key_accent3_flag = 4;
+	 if (accent_dlg[6].flags & D_SELECTED) _key_accent4_flag = 0;
+	 else if (accent_dlg[7].flags & D_SELECTED) _key_accent4_flag = 1;
+	 else if (accent_dlg[8].flags & D_SELECTED) _key_accent4_flag = 2;
+	 else if (accent_dlg[9].flags & D_SELECTED) _key_accent4_flag = 4;
       }
    }
 

@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Laurence Withers fixed a problem with accents in keyconf.
+<li>
    3.9.34: Javier Gonzalez added DIGMID to the Windows MIDI drivers list.
 <li>
    3.9.34: Eric Botcazou cleaned up the DirectDraw subsystem.
