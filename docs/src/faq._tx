@@ -282,7 +282,7 @@ Windows problems
 <h4><li>
 @@   When I run make, it says "windres: no resources".
 </h4>
-      If an anti-virus software (Norton or MacAfee for example) is running in
+      If an anti-virus software (Norton or McAfee for example) is running in
       the background on your computer, try to disable it temporarily.
 
 <h4><li>
