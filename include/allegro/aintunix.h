@@ -22,31 +22,15 @@
 extern "C" {
 #endif
 
-   /* Asynchronous event processing with SIGALRM.  */
-   AL_FUNC(int, _sigalrm_init, (AL_METHOD(void, handler, (unsigned long interval))));
-   AL_FUNC(void, _sigalrm_exit, (void));
-   AL_FUNC(void, _sigalrm_disable_interrupts, (void));
-   AL_FUNC(void, _sigalrm_enable_interrupts, (void));
-   AL_FUNC(int, _sigalrm_interrupts_disabled, (void));
+#ifndef HAVE_LIBPTHREAD
+   /* Asynchronous event processing with SIGALRM */
    AL_FUNC(void, _sigalrm_request_abort, (void));
-   AL_FUNC(void, _sigalrm_pause, (void));
-   AL_FUNC(void, _sigalrm_unpause, (void));
+   AL_FUNCPTR(void, _sigalrm_timer_interrupt_handler, (unsigned long interval));
+#endif
 
-   /* These should only be used externally in critical cases.  */
-   AL_FUNC(void, _sigalrm_start_timer, (void));
-   AL_FUNC(void, _sigalrm_stop_timer, (void));
-
-   /* Interrupt handlers.  */
-   AL_FUNCPTR(void, _sigalrm_digi_interrupt_handler, (unsigned long interval));
-   AL_FUNCPTR(void, _sigalrm_midi_interrupt_handler, (unsigned long interval));
-
-   /* macros to enable and disable interrupts */
-   #define DISABLE() _sigalrm_disable_interrupts()
-   #define ENABLE()  _sigalrm_enable_interrupts()
-
-
-   /* Generic Unix timer driver hook, for polling through the SIGALRM handler */
-   AL_FUNCPTR(void, _unix_timer_interrupt, (unsigned long interval));
+   /* Macros to enable and disable interrupts */
+   #define DISABLE() _unix_bg_man->disable_interrupts()
+   #define ENABLE()  _unix_bg_man->enable_interrupts()
 
 
    /* Helper for locating config files */
@@ -96,7 +80,7 @@ extern "C" {
 
 
    #define XLOCK()				\
-      if (_xwin_bg_man->multi_threaded) {	\
+      if (_unix_bg_man->multi_threaded) {	\
 	 if (_xwin.display)			\
 	    XLockDisplay(_xwin.display);	\
       } else {					\
@@ -104,7 +88,7 @@ extern "C" {
       }
 
    #define XUNLOCK()				\
-      if (_xwin_bg_man->multi_threaded) {	\
+      if (_unix_bg_man->multi_threaded) {	\
 	 if (_xwin.display)			\
 	    XUnlockDisplay(_xwin.display);	\
       } else {					\
@@ -139,12 +123,15 @@ struct bg_manager
    void (*exit) (void);
    int (*register_func) (bg_func f);
    int (*unregister_func) (bg_func f);
+   void (*enable_interrupts) (void);
+   void (*disable_interrupts) (void);
+   int (*interrupts_disabled) (void);
 };	
 
 extern struct bg_manager _bg_man_pthreads;
 extern struct bg_manager _bg_man_sigalrm;
 
-extern struct bg_manager *_xwin_bg_man;
+extern struct bg_manager *_unix_bg_man;
 
 
 #ifdef __cplusplus

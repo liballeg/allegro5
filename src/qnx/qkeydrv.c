@@ -38,7 +38,7 @@ void qnx_keyboard_handler(int pressed, int code)
    /* Exit by Ctrl-Alt-End.  */
    if (((scancode == 0x4F) || (scancode == 0x53)) && three_finger_flag
        && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
-      _sigalrm_request_abort();
+      exit(0);
 }
 
 

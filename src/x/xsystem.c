@@ -51,9 +51,6 @@ static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void);
 
 
-struct bg_manager *_xwin_bg_man;
-
-
 /* the main system driver for running under X-Windows */
 SYSTEM_DRIVER system_xwin =
 {
@@ -117,7 +114,7 @@ static RETSIGTYPE (*old_sig_quit)(int num);
  */
 static RETSIGTYPE _xwin_signal_handler(int num)
 {
-   if (_sigalrm_interrupts_disabled()) {
+   if (_unix_bg_man->interrupts_disabled()) {
       /* Can not shutdown X-Windows, restore old signal handlers and slam the door.  */
       signal(SIGABRT, old_sig_abrt);
       signal(SIGFPE,  old_sig_fpe);
@@ -140,18 +137,8 @@ static RETSIGTYPE _xwin_signal_handler(int num)
 
 
 
-/* _xwin_interrupts_handler:
- *  Used for handling asynchronous event processing.
- */
-static void _xwin_interrupts_handler(unsigned long interval)
-{
-   if (_unix_timer_interrupt)
-      (*_unix_timer_interrupt)(interval);
-}
-
-
 /* _xwin_bg_handler:
- *  Really used for synchronous stuff
+ *  Really used for synchronous stuff.
  */
 static void _xwin_bg_handler (int threaded)
 {
@@ -187,20 +174,21 @@ static int _xwin_sysdrv_init(void)
    _unix_load_modules(SYSTEM_XWINDOWS);
 
 #ifdef HAVE_LIBPTHREAD
-   _xwin_bg_man = &_bg_man_pthreads;
+   _unix_bg_man = &_bg_man_pthreads;
 #else
-   _xwin_bg_man = &_bg_man_sigalrm;
+   _unix_bg_man = &_bg_man_sigalrm;
 #endif
 
-   /* Initialise sigalrm before bg_man, in case bg_man depends on sigalrm */
-   if (_sigalrm_init(_xwin_interrupts_handler)
-        || _xwin_bg_man->init()) {
+   /* Initialise bg_man */
+   if (_unix_bg_man->init()) {
       _xwin_sysdrv_exit();
       return -1;
    }
+
    /* If multithreaded bg_man, need to init X's lock/unlock facility. 
     * Note that no X calls must be made before this point! */
-   if (_xwin_bg_man->multi_threaded) XInitThreads();
+   if (_unix_bg_man->multi_threaded)
+      XInitThreads();
 
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
@@ -208,7 +196,7 @@ static int _xwin_sysdrv_init(void)
    /* Open the display, create a window, and background-process 
     * events for it all. */
    if (_xwin_open_display(0) || _xwin_create_window()
-       || _xwin_bg_man->register_func (_xwin_bg_handler)) {
+       || _unix_bg_man->register_func (_xwin_bg_handler)) {
 	 _xwin_sysdrv_exit();
 	 return -1;
    }
@@ -225,8 +213,7 @@ static int _xwin_sysdrv_init(void)
  */
 static void _xwin_sysdrv_exit(void)
 {
-   _xwin_bg_man->exit();
-   _sigalrm_exit();
+   _unix_bg_man->exit();
    _xwin_destroy_window();
    _xwin_close_display();
 

@@ -407,6 +407,13 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
    static int virgin = 1;
    BITMAP *bmp = NULL;
    int svgalib2 = 0;
+   
+#ifndef HAVE_LIBPTHREAD
+   /* SVGAlib and the SIGALRM code don't like each other, so only support
+    * pthreads event processing.  */
+   if (_unix_bg_man == &_bg_man_sigalrm)
+      return NULL;
+#endif
 
    /* SVGAlib 2.0 doesn't require special permissions.  */
 #ifdef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
@@ -420,7 +427,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* Stop interrupts processing, which interferes with the SVGAlib
     * VESA driver.  */
-   __al_linux_async_exit();
+   al_linux_set_async_mode (ASYNC_OFF);
 
    /* Initialise SVGAlib.  */
    if (virgin) {
@@ -447,7 +454,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
    error:
 
    /* Restart interrupts processing.  */
-   __al_linux_async_init();
+   al_linux_set_async_mode (ASYNC_DEFAULT);
 
    return bmp;
 }
@@ -524,14 +531,8 @@ static void svga_save()
  */
 static void svga_restore()
 {
-   al_linux_set_async_mode(ASYNC_OFF);
-   _sigalrm_stop_timer();
-    
    safe_vga_setmode(svga_mode, 0);
    vga_setpage(0);
-    
-   _sigalrm_start_timer();
-   al_linux_set_async_mode(ASYNC_DEFAULT);
 }
 
 

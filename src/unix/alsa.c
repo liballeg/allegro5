@@ -137,21 +137,15 @@ static int alsa_buffer_size()
 /* alsa_update:
  *  Update data.
  */
-static void alsa_update(unsigned long interval)
+static void alsa_update(int threaded)
 {
-   int i, e;
-
-   e = errno;
-   DISABLE();
+   int i;
 
    for (i = 0;  i < alsa_fragments; i++) {
       if (snd_pcm_write(pcm_handle, alsa_bufdata, alsa_bufsize) != alsa_bufsize)
 	 break;
       _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
    }
-
-   ENABLE();
-   errno = e;
 }
 
 
@@ -324,9 +318,7 @@ static int alsa_init(int input, int voices)
    _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
 
    /* Add audio interrupt.  */
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = alsa_update;
-   ENABLE();
+   _unix_bg_man->register_func(alsa_update);
 
    uszprintf(alsa_desc, sizeof(alsa_desc),
 	    get_config_text("Card #%d, device #%d: %d bits, %s, %d bps, %s"),
@@ -360,9 +352,7 @@ static void alsa_exit(int input)
       return;
    }
 
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = NULL;
-   ENABLE();
+   _unix_bg_man->unregister_func(alsa_update);
 
    free(alsa_bufdata);
    alsa_bufdata = NULL;

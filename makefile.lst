@@ -270,12 +270,14 @@ ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/umouse.c \
 	src/unix/uoss.c \
 	src/unix/uossmidi.c \
+	src/unix/uptimer.c \
 	src/unix/usigalrm.c \
 	src/unix/usnddrv.c \
+	src/unix/ustimer.c \
 	src/unix/usystem.c \
+	src/unix/uthreads.c \
 	src/unix/utimer.c \
-	src/misc/ufile.c \
-	src/unix/uthreads.c
+	src/misc/ufile.c
 
 ALLEGRO_SRC_X_FILES = \
 	src/x/xgfxdrv.c \
@@ -301,9 +303,11 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/alsamidi.c \
 	src/unix/udjgpp.c \
 	src/unix/umain.c \
+	src/unix/uptimer.c \
 	src/unix/usigalrm.c \
 	src/unix/usystem.c \
-	src/unix/utimer.c \
+	src/unix/ustimer.c \
+	src/unix/uthreads.c \
 	src/misc/colconv.c \
 	src/misc/icolconv.s \
 	src/misc/pckeys.c \

@@ -57,8 +57,8 @@ static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) =
 
 /* Timer driver */
 static _DRIVER_INFO qnx_timer_driver_list[] = {
-   { TIMERDRV_UNIX,    &timerdrv_unix,  TRUE  },
-   { 0,                NULL,            0     }
+   { TIMERDRV_UNIX_PTHREADS, &timerdrv_unix_pthreads, TRUE  },
+   { 0,                      NULL,            	      0     }
 };
 
 
@@ -84,7 +84,7 @@ static void *qnx_events_handler(void *data);
  */
 static RETSIGTYPE qnx_signal_handler(int num)
 {
-   if (_sigalrm_interrupts_disabled()) {
+   if (_unix_bg_man->interrupts_disabled()) {
       /* Can not shutdown X-Windows, restore old signal handlers and slam the door.  */
       signal(SIGABRT, old_sig_abrt);
       signal(SIGFPE,  old_sig_fpe);
@@ -103,17 +103,6 @@ static RETSIGTYPE qnx_signal_handler(int num)
       fprintf(stderr, "Shutting down Allegro due to signal #%d\n", num);
       raise(num);
    }
-}
-
-
-
-/* qnx_interrupts_handler:
- *  Used for handling asynchronous event processing.
- */
-static void qnx_interrupts_handler(unsigned long interval)
-{
-   if (_unix_timer_interrupt)
-      (*_unix_timer_interrupt)(interval);
 }
 
 
@@ -365,7 +354,8 @@ int qnx_sys_init(void)
    region.rid = PtWidgetRid(ph_window);
    PhRegionChange(Ph_REGION_CURSOR | Ph_REGION_EV_SENSE, 0, &region, NULL, NULL);
 
-   if (_sigalrm_init(qnx_interrupts_handler)) {
+   _unix_bg_man = &_bg_man_pthreads;
+   if (_unix_bg_man->init()) {
       qnx_sys_exit();
       return -1;
    }
@@ -403,8 +393,8 @@ void qnx_sys_exit(void)
 {
    void *status;
 
-   _sigalrm_exit();
-   
+   _unix_bg_man->exit();
+ 
    signal(SIGABRT, old_sig_abrt);
    signal(SIGFPE,  old_sig_fpe);
    signal(SIGILL,  old_sig_ill);

@@ -106,10 +106,6 @@ void __al_linux_enable_standard_driver (int type);
 
 extern unsigned __al_linux_async_io_mode;
 
-/* (src/linux/lsystem.c) */
-int __al_linux_async_init (void);
-void __al_linux_async_exit (void);
-
 
 /******************************************/
 /************ Console routines ************/ /* (src/linux/lconsole.c) */

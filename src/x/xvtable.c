@@ -59,8 +59,6 @@ static void _xwin_clear_to_color(BITMAP *dst, int color);
  */
 void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
 {
-   DISABLE();
-
    memcpy(&_xwin_vtable, vtable, sizeof(GFX_VTABLE));
 
    vtable->putpixel = _xwin_putpixel;
@@ -90,8 +88,6 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
    vtable->blit_to_self_backward = _xwin_blit_backward;
    vtable->masked_blit = _xwin_masked_blit;
    vtable->clear_to_color = _xwin_clear_to_color;
-
-   ENABLE();
 }
 
 

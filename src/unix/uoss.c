@@ -64,7 +64,7 @@
 
 
 #define OSS_DEFAULT_FRAGBITS 9
-#define OSS_DEFAULT_NUMFRAGS 2
+#define OSS_DEFAULT_NUMFRAGS 8
 
 int _oss_fragsize;
 int _oss_numfrags;
@@ -164,13 +164,10 @@ static int oss_buffer_size()
 /* oss_update:
  *  Update data.
  */
-static void oss_update(unsigned long interval)
+static void oss_update(int threaded)
 {
-   int i, e;
+   int i;
    audio_buf_info bufinfo;
-
-   e = errno;   
-   DISABLE();
 
    if (ioctl(oss_fd, SNDCTL_DSP_GETOSPACE, &bufinfo) != -1) {
       /* Write fragments.  */
@@ -179,9 +176,6 @@ static void oss_update(unsigned long interval)
 	 _mix_some_samples((unsigned long) oss_bufdata, 0, oss_signed);
       }
    }
-
-   ENABLE();
-   errno = e;
 }
 
 
@@ -400,9 +394,7 @@ static int oss_init(int input, int voices)
    _mix_some_samples((unsigned long) oss_bufdata, 0, oss_signed);
 
    /* Add audio interrupt.  */
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = oss_update;
-   ENABLE();
+   _unix_bg_man->register_func(oss_update);
 
    uszprintf(oss_desc, sizeof(oss_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
 		      _oss_driver, _sound_bits,
@@ -425,9 +417,7 @@ static void oss_exit(int input)
       return;
    }
 
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = 0;
-   ENABLE();
+   _unix_bg_man->unregister_func(oss_update);
 
    free(oss_bufdata);
    oss_bufdata = 0;
@@ -532,9 +522,7 @@ static int oss_rec_start(int rate, int bits, int stereo)
    oss_save_stereo = _sound_stereo;
    oss_save_freq = _sound_freq;
 
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = 0;
-   ENABLE();
+   _unix_bg_man->unregister_func(oss_update);
 
    close(oss_fd);
 
@@ -572,9 +560,7 @@ static void oss_rec_stop()
 
    open_oss_device(0);
 
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = oss_update;
-   ENABLE();
+   _unix_bg_man->register_func(oss_update);
 }
 
 

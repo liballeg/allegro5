@@ -57,8 +57,8 @@ AL_VAR(MIDI_DRIVER, midi_alsa);
 
 
 /* Timer driver */
-#define TIMERDRV_UNIX         AL_ID('U','N','I','X')
-AL_VAR(TIMER_DRIVER, timerdrv_unix);
+#define TIMERDRV_UNIX_PTHREADS	AL_ID('P','T','H','D')
+AL_VAR(TIMER_DRIVER, timerdrv_unix_pthreads);
 
 
 /* Graphics drivers */

@@ -12,6 +12,10 @@
  *
  *      By Michael Bukin.
  *
+ *      Distorted by George Foot.
+ *
+ *      Mangled by Peter Wang.
+ * 
  *      See readme.txt for copyright information.
  */
 
@@ -22,6 +26,9 @@
 #else
 #include "allegro/aintunix.h"
 #endif
+
+
+#ifndef HAVE_LIBPTHREAD
 
 
 #include <signal.h>
@@ -36,8 +43,7 @@ static volatile int _sigalrm_cli_count = 0;
 static volatile int _sigalrm_abort_requested = FALSE;
 static volatile int _sigalrm_aborting = FALSE;
 static void (*_sigalrm_interrupt_handler)(unsigned long interval) = 0;
-void (*_sigalrm_digi_interrupt_handler)(unsigned long interval) = 0;
-void (*_sigalrm_midi_interrupt_handler)(unsigned long interval) = 0;
+void (*_sigalrm_timer_interrupt_handler)(unsigned long interval) = 0;
 static RETSIGTYPE (*_sigalrm_old_signal_handler)(int num) = 0;
 
 static RETSIGTYPE _sigalrm_signal_handler(int num);
@@ -47,7 +53,7 @@ static RETSIGTYPE _sigalrm_signal_handler(int num);
 /* _sigalrm_disable_interrupts:
  *  Disables "interrupts".
  */
-void _sigalrm_disable_interrupts(void)
+static void _sigalrm_disable_interrupts(void)
 {
    _sigalrm_cli_count++;
 }
@@ -76,7 +82,7 @@ void _sigalrm_enable_interrupts(void)
 /* _sigalrm_interrupts_disabled:
  *  Tests if interrupts are disabled.
  */
-int _sigalrm_interrupts_disabled(void)
+static int _sigalrm_interrupts_disabled(void)
 {
    return _sigalrm_cli_count;
 }
@@ -86,7 +92,6 @@ int _sigalrm_interrupts_disabled(void)
 static int first_time = TRUE;
 static struct timeval old_time;
 static struct timeval new_time;
-static int paused;
 
 
 
@@ -96,8 +101,6 @@ static int paused;
 static unsigned long _sigalrm_time_passed(void)
 {
    unsigned long interval;
-
-   if (paused) return 0;
 
    gettimeofday(&new_time, 0);
    if (!first_time) {
@@ -143,25 +146,10 @@ void _sigalrm_request_abort(void)
 
 
 
-void _sigalrm_pause(void)
-{
-   if (paused) return;
-   paused = TRUE;
-}
-
-void _sigalrm_unpause(void)
-{
-   if (!paused) return;
-   gettimeofday(&old_time, 0);
-   paused = FALSE;
-}
-
-
-
 /* _sigalrm_start_timer:
  *  Starts timer in one-shot mode.
  */
-void _sigalrm_start_timer(void)
+static void _sigalrm_start_timer(void)
 {
    struct itimerval timer;
 
@@ -179,7 +167,7 @@ void _sigalrm_start_timer(void)
 /* _sigalrm_stop_timer:
  *  Stops timer.
  */
-void _sigalrm_stop_timer(void)
+static void _sigalrm_stop_timer(void)
 {
    struct itimerval timer;
 
@@ -200,11 +188,14 @@ void _sigalrm_stop_timer(void)
 static RETSIGTYPE _sigalrm_signal_handler(int num)
 {
    unsigned long interval, i;
+   int err;
 
    if (_sigalrm_interrupts_disabled()) {
       _sigalrm_interrupt_pending = TRUE;
       return;
    }
+
+   err = errno;
 
    interval = _sigalrm_time_passed();
 
@@ -217,11 +208,8 @@ static RETSIGTYPE _sigalrm_signal_handler(int num)
       if (_sigalrm_interrupt_handler)
 	 (*_sigalrm_interrupt_handler)(i);
 
-      if (_sigalrm_digi_interrupt_handler)
-	 (*_sigalrm_digi_interrupt_handler)(i);
-
-      if (_sigalrm_midi_interrupt_handler)
-	 (*_sigalrm_midi_interrupt_handler)(i);
+      if (_sigalrm_timer_interrupt_handler)
+	 (*_sigalrm_timer_interrupt_handler)(i);
    }
 
    /* Abort with enabled interrupts.  */
@@ -229,6 +217,8 @@ static RETSIGTYPE _sigalrm_signal_handler(int num)
       _sigalrm_do_abort();
 
    _sigalrm_start_timer();
+
+   errno = err;
 }
 
 
@@ -236,7 +226,7 @@ static RETSIGTYPE _sigalrm_signal_handler(int num)
 /* _sigalrm_init:
  *  Starts interrupts processing.
  */
-int _sigalrm_init(void (*handler)(unsigned long interval))
+static int _sigalrm_init(void (*handler)(unsigned long interval))
 {
    if (_sigalrm_already_installed)
       return -1;
@@ -248,7 +238,6 @@ int _sigalrm_init(void (*handler)(unsigned long interval))
    _sigalrm_cli_count = 0;
 
    first_time = TRUE;
-   paused = FALSE;
 
    _sigalrm_start_timer();
 
@@ -260,7 +249,7 @@ int _sigalrm_init(void (*handler)(unsigned long interval))
 /* _sigalrm_exit:
  *  Stops interrupts processing.
  */
-void _sigalrm_exit(void)
+static void _sigalrm_exit(void)
 {
    if (!_sigalrm_already_installed)
       return;
@@ -275,75 +264,97 @@ void _sigalrm_exit(void)
 }
 
 
+
 /*============================================================
  * SIGALRM bg_manager
  *-----------------------------------------------------------*/
 
-static void (*bg_man_sigalrm_handler_chain) (unsigned long);
-static int bg_man_sigalrm_installed;
 
 #define MAX_FUNCS 16
 static bg_func funcs[MAX_FUNCS];
 static int max_func; /* highest+1 used entry */
 
-static void bg_man_sigalrm_handler (unsigned long interval)
+
+static void bg_man_sigalrm_handler(unsigned long interval)
 {
-	int i;
-	bg_man_sigalrm_handler_chain (interval);
-	for (i = 0; i < max_func; i++)
-		if (funcs[i]) funcs[i](0);
+   int i;
+   for (i = 0; i < max_func; i++)
+      if (funcs[i]) funcs[i](0);
 }
 
-static int bg_man_sigalrm_init (void)
+
+static int bg_man_sigalrm_init(void)
 {
-	if (!_sigalrm_already_installed) return -1; // must install sigalrm first
-	if (bg_man_sigalrm_installed++) return 0;
-	bg_man_sigalrm_handler_chain = _sigalrm_interrupt_handler;
-	_sigalrm_interrupt_handler = bg_man_sigalrm_handler;
-	return 0;
+   return _sigalrm_init(bg_man_sigalrm_handler);
 }
 
-static void bg_man_sigalrm_exit (void)
+
+static void bg_man_sigalrm_exit(void)
 {
-	if (!bg_man_sigalrm_installed) return;
-	if (--bg_man_sigalrm_installed) return;
-	_sigalrm_interrupt_handler = bg_man_sigalrm_handler_chain;
+   _sigalrm_exit();
 }
 
-static int bg_man_sigalrm_register_func (bg_func f)
+
+static int bg_man_sigalrm_register_func(bg_func f)
 {
-	int i;
-	for (i = 0; funcs[i] && i < MAX_FUNCS; i++);
-	if (i == MAX_FUNCS) return -1;
+   int i;
+   for (i = 0; funcs[i] && i < MAX_FUNCS; i++);
+   if (i == MAX_FUNCS) return -1;
 
-	funcs[i] = f;
+   funcs[i] = f;
 
-	if (i == max_func) max_func++;
+   if (i == max_func) max_func++;
 
-	return 0;
+   return 0;
 }
 
-static int bg_man_sigalrm_unregister_func (bg_func f)
+
+static int bg_man_sigalrm_unregister_func(bg_func f)
 {
-	int i;
-	for (i = 0; funcs[i] != f && i < max_func; i++);
-	if (i == max_func) return -1;
+   int i;
+   for (i = 0; funcs[i] != f && i < max_func; i++);
+   if (i == max_func) return -1;
 
-	funcs[i] = NULL;
+   funcs[i] = NULL;
 
-	if (i+1 == max_func)
-		do {
-			max_func--;
-		} while (!funcs[max_func] && max_func > 0);
+   if (i+1 == max_func)
+      do {
+	 max_func--;
+      } while (!funcs[max_func] && max_func > 0);
 
-	return 0;
+   return 0;
 }
 
-struct bg_manager _bg_man_sigalrm = {
-	0,
-	bg_man_sigalrm_init,
-	bg_man_sigalrm_exit,
-	bg_man_sigalrm_register_func,
-	bg_man_sigalrm_unregister_func
+
+static void bg_man_sigalrm_enable_interrupts(void)
+{
+   _sigalrm_enable_interrupts();
+}
+
+
+static void bg_man_sigalrm_disable_interrupts(void)
+{
+   _sigalrm_disable_interrupts();
+}
+
+
+static int bg_man_sigalrm_interrupts_disabled(void)
+{
+   return _sigalrm_interrupts_disabled();
+}
+
+
+struct bg_manager _bg_man_sigalrm =
+{
+   0,
+   bg_man_sigalrm_init,
+   bg_man_sigalrm_exit,
+   bg_man_sigalrm_register_func,
+   bg_man_sigalrm_unregister_func,
+   bg_man_sigalrm_enable_interrupts,
+   bg_man_sigalrm_disable_interrupts,
+   bg_man_sigalrm_interrupts_disabled
 };
 
+
+#endif

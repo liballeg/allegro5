@@ -57,6 +57,11 @@ _DRIVER_INFO _system_driver_list[] =
 
 
 
+/* background function manager */
+struct bg_manager *_unix_bg_man;
+
+
+
 /* _unix_find_resource:
  *  Helper for locating a Unix config file. Looks in the home directory
  *  of the current user, and in /etc.

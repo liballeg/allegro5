@@ -114,22 +114,17 @@ static int _al_esd_buffer_size()
 /* _al_esd_update:
  *  Update data.
  */
-static void _al_esd_update(unsigned long interval)
+static void _al_esd_update(int threaded)
 {
-   fd_set rfds, wfds, efds;
+   fd_set wfds;
    struct timeval timeout;
 
-   FD_ZERO(&rfds);
    FD_ZERO(&wfds);
-   FD_ZERO(&efds);
    FD_SET(_al_esd_fd, &wfds);
    timeout.tv_sec = 0;
    timeout.tv_usec = 0;
 
-   if (select(_al_esd_fd+1, &rfds, &wfds, &efds, &timeout) == -1)
-      return;
-
-   if (FD_ISSET(_al_esd_fd, &wfds)) {
+   if (select(_al_esd_fd+1, NULL, &wfds, NULL, &timeout) > 0) {
       write(_al_esd_fd, _al_esd_bufdata, _al_esd_bufsize);
       _mix_some_samples((unsigned long) _al_esd_bufdata, 0, _al_esd_signed);
    }
@@ -229,9 +224,7 @@ static int _al_esd_init(int input, int voices)
    _mix_some_samples((unsigned long) _al_esd_bufdata, 0, _al_esd_signed);
 
    /* Add audio interrupt.  */
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = _al_esd_update;
-   ENABLE();
+   _unix_bg_man->register_func(_al_esd_update);
 
    uszprintf(_al_esd_desc, sizeof(_al_esd_desc), get_config_text("%s: %d bits, %s, %d bps, %s"),
 			  server, _al_esd_bits,
@@ -254,9 +247,7 @@ static void _al_esd_exit(int input)
       return;
    }
 
-   DISABLE();
-   _sigalrm_digi_interrupt_handler = 0;
-   ENABLE();
+   _unix_bg_man->unregister_func(_al_esd_update);
 
    free(_al_esd_bufdata);
    _al_esd_bufdata = 0;

@@ -23,7 +23,12 @@
 /* list the available drivers */
 _DRIVER_INFO _linux_timer_driver_list[] =
 {
-   {  TIMERDRV_UNIX,     &timerdrv_unix,     TRUE  },
-   {  0,                 NULL,               0     }
+#ifdef TIMERDRV_UNIX_PTHREADS
+   {  TIMERDRV_UNIX_PTHREADS,  &timerdrv_unix_pthreads, TRUE  },
+#endif
+#ifdef TIMERDRV_UNIX_SIGALRM
+   {  TIMERDRV_UNIX_SIGALRM,   &timerdrv_unix_sigalrm,  TRUE  },
+#endif
+   {  0,                       NULL,                    0     }
 };
 

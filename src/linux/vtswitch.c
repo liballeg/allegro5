@@ -128,9 +128,9 @@ static void go_away()
 		if (switch_out_cb[i])
 			switch_out_cb[i]();
 
-	_sigalrm_disable_interrupts();
+	_unix_bg_man->disable_interrupts();
 	if ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))
-		_sigalrm_pause();
+		if (timer_driver) timer_driver->exit();
 
 	/* Disable input devices while we're away */
 	__al_linux_disable_standard_driver(STD_MOUSE);
@@ -148,10 +148,10 @@ static void go_away()
 
 	if ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA)) {
 		__al_linux_wait_for_display();
-		_sigalrm_unpause();
+		if (timer_driver) timer_driver->init();
 	}
 
-	_sigalrm_enable_interrupts();
+	_unix_bg_man->enable_interrupts();
 }
 
 
@@ -163,7 +163,7 @@ static void come_back()
 {
 	int i;
 
-	_sigalrm_disable_interrupts();
+//	_sigalrm_disable_interrupts();
 
 	if (gfx_driver && gfx_driver->restore_video_state)
 		gfx_driver->restore_video_state();
@@ -176,7 +176,7 @@ static void come_back()
 	__al_linux_enable_standard_driver(STD_KBD);
 	__al_linux_enable_standard_driver(STD_MOUSE);
 
-	_sigalrm_enable_interrupts();
+	_unix_bg_man->enable_interrupts();
 
 	for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
 		if (switch_in_cb[i])

@@ -108,8 +108,14 @@ static void _xwin_keydrv_handler(int pressed, int code)
 
    /* Exit by Ctrl-Alt-End.  */
    if (((scancode == 0x4F) || (scancode == 0x53)) && three_finger_flag
-       && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
-      _sigalrm_request_abort();
+       && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG)) {
+#ifndef HAVE_LIBPTHREAD
+      if (_unix_bg_man == &_bg_man_sigalrm)
+         _sigalrm_request_abort();
+      else
+#endif
+         exit(EXIT_SUCCESS);
+   }
 }
 
 

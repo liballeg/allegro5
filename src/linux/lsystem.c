@@ -119,13 +119,11 @@ static RETSIGTYPE signal_handler (int num)
 }
 
 
-/* linux_interrupts_handler:
+/* linux_bg_handler:
  *  Used for handling asynchronous event processing.
  */
-static void _linux_interrupts_handler (unsigned long interval)
+static void linux_bg_handler (int threaded)
 {
-	if (_unix_timer_interrupt)
-		_unix_timer_interrupt (interval);
 	__al_linux_update_standard_drivers();
 }
 
@@ -133,9 +131,14 @@ static void _linux_interrupts_handler (unsigned long interval)
 /* __al_linux_async_init:
  *  Starts asynchronous processing.
  */
-int __al_linux_async_init (void)
+static int __al_linux_async_init (void)
 {
-    	if (_sigalrm_init (_linux_interrupts_handler))
+#ifdef HAVE_LIBPTHREAD
+	_unix_bg_man = &_bg_man_pthreads;
+#else
+	_unix_bg_man = &_bg_man_sigalrm;
+#endif
+	if (_unix_bg_man->init() || _unix_bg_man->register_func (linux_bg_handler))
 		return -1;
 	al_linux_set_async_mode (ASYNC_DEFAULT);
 	return 0;
@@ -145,10 +148,10 @@ int __al_linux_async_init (void)
 /* __al_linux_async_exit:
  *  Stops asynchronous processing.
  */
-void __al_linux_async_exit (void)
+static void __al_linux_async_exit (void)
 {
 	al_linux_set_async_mode (ASYNC_OFF);
-	_sigalrm_exit();
+	_unix_bg_man->exit();
 }
 
 
