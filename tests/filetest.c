@@ -509,7 +509,7 @@ int main(void)
    install_keyboard();
    install_mouse();
 
-   if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
          allegro_message("Unable to set the display mode\n");
          return -1;
