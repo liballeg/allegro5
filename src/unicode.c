@@ -2234,7 +2234,7 @@ double ustrtod(AL_CONST char *s, char **endp)
 AL_CONST char *ustrerror(int err)
 {
    AL_CONST char *s = strerror(err);
-   char tmp[1024];
+   static char tmp[1024];
    return uconvert_ascii(s, tmp);
 }
 
