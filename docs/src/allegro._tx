@@ -1070,7 +1070,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @uwidth(const char *s);
 @xref uwidth_max, ugetc, ugetx, usetc, ucwidth, uisok
-@shortdesc Low level helper function for writing Unicode text data.
+@shortdesc Low level helper function for testing Unicode text data.
    Low level helper function for testing Unicode text data.
 @retval
    Returns the number of bytes occupied by the first character of the
@@ -1734,6 +1734,9 @@ your game.
        */
       override_config_file(NULL);<endblock>
 
+   Note that this function and override_config_data() are mutually exclusive,
+   i.e. calling one will cancel the effects of the other.
+
 @@void @override_config_data(const char *data, int length);
 @xref override_config_file, set_config_data
 @shortdesc Specifies a block of data containing config overrides.
@@ -1747,8 +1750,8 @@ your game.
 	 "keyboard=ES";
       override_config_data(override_data, ustrsize(override_data));<endblock>
 
-   Note that this function and the previous one are mutually exclusive, i.e.
-   calling one will cancel the effects of the other.
+   Note that this function and override_config_file() are mutually exclusive,
+   i.e. calling one will cancel the effects of the other.
 
 @@void @push_config_state();
 @xref pop_config_state, set_config_file, save_joystick_data
@@ -2439,7 +2442,8 @@ information for more details.
    Returns TRUE if the current mouse driver is operating in polling mode.
 
 @@void @enable_hardware_cursor(void);
-@xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys, gfx_capabilities, disable_hardware_cursor
+@xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys
+@xref gfx_capabilities, disable_hardware_cursor
 @shortdesc Enables the OS hardware cursor.
    After calling this function, Allegro will let the operating system draw the
    mouse cursor instead of doing it itself. This is not possible with all
@@ -2450,7 +2454,8 @@ information for more details.
    mickeys.
 
 @@void @disable_hardware_cursor(void);
-@xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys, gfx_capabilities, enable_hardware_cursor
+@xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys
+@xref gfx_capabilities, enable_hardware_cursor
 @shortdesc Disables the OS hardware cursor.
    After calling this function, Allegro will be responsible for drawing the
    mouse cursor rather than the operating system. On some platforms calling
@@ -2459,7 +2464,8 @@ information for more details.
    reliable results again.
 
 @@void @select_mouse_cursor(int cursor);
-@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor, set_mouse_cursor_bitmap
+@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
+@xref enable_hardware_cursor, set_mouse_cursor_bitmap
 @shortdesc Tells Allegro to select software or hardware cursor drawing.
    With this function, you can instruct Allegro to use the native system 
    cursors rather than Allegro's custom cursor. You will need to enable this
@@ -2507,7 +2513,8 @@ information for more details.
 <endblock>
 
 @@void @set_mouse_cursor_bitmap(int cursor, BITMAP *bmp);
-@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities, enable_hardware_cursor
+@xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
+@xref enable_hardware_cursor
 @shortdesc Changes the image Allegro uses for mouse cursors.
    This function changes the cursor image Allegro uses if select_mouse_cursor()
    is called but no native OS cursor can be used, for instance because you
@@ -4358,6 +4365,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_bitmap(int width, int height);
 @xref create_bitmap_ex, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, set_color_depth, is_memory_bitmap
+@xref clear_bitmap, clear_to_color
 @eref Available Allegro examples
 @shortdesc Creates a memory bitmap.
    Creates a memory bitmap sized width by height. The bitmap will have
@@ -4383,6 +4391,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_bitmap_ex(int color_depth, int width, int height);
 @xref create_bitmap, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, is_memory_bitmap
+@xref clear_bitmap, clear_to_color
 @eref ex12bit, exlights, exrgbhsv, extrans
 @shortdesc Creates a memory bitmap specifying color depth.
    Creates a bitmap in a specific color depth (8, 15, 16, 24 or 32 bits per 
@@ -4403,6 +4412,7 @@ Allegro supports several different types of bitmaps:
 
 @@BITMAP *@create_sub_bitmap(BITMAP *parent, int x, y, width, height);
 @xref create_bitmap, create_bitmap_ex, destroy_bitmap, is_sub_bitmap
+@xref clear_bitmap, clear_to_color
 @eref expat, exscroll, exswitch
 @shortdesc Creates a memory sub bitmap.
    Creates a sub-bitmap, ie. a bitmap sharing drawing memory with a 
@@ -4420,7 +4430,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_video_bitmap(int width, int height);
 @xref create_bitmap, create_bitmap_ex, create_system_bitmap
 @xref create_sub_bitmap, destroy_bitmap, screen, show_video_bitmap
-@xref gfx_capabilities, is_video_bitmap
+@xref gfx_capabilities, is_video_bitmap, clear_bitmap, clear_to_color
 @eref ex3buf, exaccel, exflip, exupdate
 @shortdesc Creates a video memory bitmap.
    Allocates a video memory bitmap of the specified size. This can be used
@@ -4442,6 +4452,7 @@ Allegro supports several different types of bitmaps:
 @@BITMAP *@create_system_bitmap(int width, int height);
 @xref create_bitmap, create_bitmap_ex, create_video_bitmap
 @xref create_sub_bitmap, destroy_bitmap, is_system_bitmap
+@xref clear_bitmap, clear_to_color
 @eref exunicod, exupdate
 @shortdesc Creates a system memory bitmap.
    Allocates a system memory bitmap of the specified size. Read the
@@ -4705,23 +4716,39 @@ will not be known, so the file may be converted wrongly.
 @xref load_bitmap
 @shortdesc Loads a BMP bitmap from a file.
    Loads a 256-color or 24-bit truecolor Windows or OS/2 BMP file.
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_lbm(const char *filename, RGB *pal);
 @xref load_bitmap
 @shortdesc Loads an LBM bitmap from a file.
    Loads a 256-color IFF ILBM/PBM file.
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_pcx(const char *filename, RGB *pal);
 @xref load_bitmap
 @eref exscale
 @shortdesc Loads a PCX bitmap from a file.
    Loads a 256-color or 24-bit truecolor PCX file.
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_tga(const char *filename, RGB *pal);
 @xref load_bitmap
 @shortdesc Loads a TGA bitmap from a file.
    Loads a 256-color, 15-bit hicolor, 24-bit truecolor, or 32-bit 
    truecolor+alpha TGA file.
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
@@ -4752,17 +4779,23 @@ will not be known, so the file may be converted wrongly.
 @xref save_bitmap
 @shortdesc Saves a bitmap into a BMP file.
    Writes a bitmap into a 256-color or 24-bit truecolor BMP file.
+@retval
+   Returns non-zero on error.
 
 @@int @save_pcx(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
 @shortdesc Saves a bitmap into a PCX file.
    Writes a bitmap into a 256-color or 24-bit truecolor PCX file.
+@retval
+   Returns non-zero on error.
 
 @@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
 @shortdesc Saves a bitmap into a TGA file.
    Writes a bitmap into a 256-color, 15-bit hicolor, 24-bit truecolor, or
    32-bit truecolor+alpha TGA file.
+@retval
+   Returns non-zero on error.
 
 @\void @register_bitmap_file_type(const char *ext,
 @\          BITMAP *(*load)(const char *filename, RGB *pal),
@@ -4988,7 +5021,7 @@ before including Allegro headers).
    255 to get the entire palette).
 
 @\void @fade_interpolate(const PALETTE source, const PALETTE dest,
-@@                      PALETTE output, int pos, int from, to);
+@@                      PALETTE output, int pos, int from, int to);
 @xref fade_in, fade_out, fade_from
 @shortdesc Calculates a new palette interpolated between two others.
    Calculates a temporary palette part way between source and dest, 
@@ -4999,7 +5032,7 @@ before including Allegro headers).
    pass 0 and 255 to interpolate the entire palette).
 
 @\void @fade_from_range(const PALETTE source, const PALETTE dest,
-@@                     int speed, int from, to);
+@@                     int speed, int from, int to);
 @xref fade_from
 @shortdesc Gradually fades a part of the palette between two others.
    Gradually fades a part of the palette from the source palette to the dest 
@@ -5011,7 +5044,7 @@ before including Allegro headers).
    and it won't work right visually if you are not in an 8 bit color depth
    resolution.
 
-@@void @fade_in_range(const PALETTE p, int speed, int from, to);
+@@void @fade_in_range(const PALETTE p, int speed, int from, int to);
 @xref fade_in
 @shortdesc Gradually fades a part of the palette from black.
    Gradually fades a part of the palette from a black screen to the 
@@ -5023,7 +5056,7 @@ before including Allegro headers).
    and it won't work right visually if you are not in an 8 bit color depth
    resolution.
 
-@@void @fade_out_range(int speed, int from, to);
+@@void @fade_out_range(int speed, int from, int to);
 @xref fade_out
 @shortdesc Gradually fades a part of the palette to black.
    Gradually fades a part of the palette from the current palette to a black 
@@ -5105,13 +5138,22 @@ before including Allegro headers).
    reserved colors which cannot be used, and positive values for fixed
    palette entries that must not be changed, but can be used in the
    optimisation.
+@retval
+   Returns the number of different colors recognised in the provided bitmap,
+   zero if the bitmap is not a truecolor image or there wasn't enough memory
+   to perform the operation, and negative if there was any internal error in
+   the color reduction code.
 
 @@extern PALETTE @default_palette;
 @xref black_palette, desktop_palette
 @eref exjoy
 @shortdesc The default IBM BIOS palette.
    The default IBM BIOS palette. This will be automatically selected 
-   whenever you set a new graphics mode.
+   whenever you set a new graphics mode. The palette contains 16 basic
+   colors plus many gradients between them. If you want to see the values,
+   you can write a small Allegro program which saves a screenshot with this
+   palette, or open the grabber tool provided with Allegro and create a new
+   palette object, which will use this palette by default.
 
 @@extern PALETTE @black_palette;
 @xref default_palette, desktop_palette
@@ -5127,6 +5169,27 @@ before including Allegro headers).
    sure why this is still here, except that the grabber and test programs 
    use it. It is probably the only Atari legacy code left in Allegro, and it 
    would be a shame to remove it :-)
+
+   The contents of this palette are 16 colors repeated 16 times. Color entry
+   zero is equal to color entry 16, which is equal to color entry 24, etc.
+<textblock>
+       Index      Color       RGB values
+         0     White          63  63  63
+         1     Red            63   0   0
+         2     Green           0  63   0
+         3     Yellow         63  63   0
+         4     Blue            0   0  63
+         5     Pink           63   0  63
+         6     Cyan            0  63  63
+         7     Grey           16  16  16
+         8     Light grey     31  31  31
+         9     Light red      63  31  31
+        10     Light green    31  63  31
+        11     Light yellow   63  63  31
+        12     Light blue     31  31  63
+        13     Light pink     63  31  63
+        14     Light cyan     31  63  63
+        15     Black           0   0   0<endblock>
 
 
 
@@ -5228,6 +5291,14 @@ routines!
    directly, hicolor dithering can be automatically enabled when loading 
    graphics by calling the set_color_conversion() function, for example 
    set_color_conversion (COLORCONV_REDUCE_TRUE_TO_HI | COLORCONV_DITHER).
+   
+   Example:
+<codeblock>
+      int pixel1, pixel2;
+
+      /* The following two color values MAY be different. */
+      pixel1 = makecol16_dither(255, 192, 64, 0, 0);
+      pixel2 = makecol16_dither(255, 192, 64, 1, 0);<endblock>
 @retval
    Returns the RGB value dithered for the specified coordinate.
 
@@ -5249,7 +5320,14 @@ routines!
 @xref geta32, getr, getr_depth, makecol, set_color_depth
 @shortdesc Extract a color component from the specified pixel format.
    Given a color in a display dependent format, these functions extract one 
-   of the red, green, or blue components (ranging 0-255).
+   of the red, green, or blue components (ranging 0-255). Example:
+<codeblock>
+      int r, g, b, color_value;
+
+      color_value = _getpixel15(screen, 100, 100);
+      r = getr15(color_value);
+      g = getg15(color_value);
+      b = getb15(color_value);<endblock>
 
 @@int @geta32(int c);
 @xref getr8
@@ -5268,7 +5346,14 @@ routines!
    functions extract one of the red, green, blue, or alpha components 
    (ranging 0-255), calling the preceding 8, 15, 16, 24, or 32-bit get 
    functions as appropriate. The alpha part is only meaningful for 32-bit 
-   pixels.
+   pixels. Example:
+<codeblock>
+      int r, g, b, color_value;
+
+      color_value = getpixel(screen, 100, 100);
+      r = getr(color_value);
+      g = getg(color_value);
+      b = getb(color_value);<endblock>
 
 @@int @getr_depth(int color_depth, int c);
 @@int @getg_depth(int color_depth, int c);
@@ -5280,7 +5365,16 @@ routines!
    Given a color in the format being used by the specified color depth, 
    these functions extract one of the red, green, blue, or alpha components 
    (ranging 0-255). The alpha part is only meaningful for 32-bit pixels.
+   Example:
+<codeblock>
+      int r, g, b, color_value, bpp;
 
+      bpp = bitmap_color_depth(bitmap);
+      color_value = getpixel(bitmap, 100, 100);
+      r = getr_depth(bpp, color_value);
+      g = getg_depth(bpp, color_value);
+      b = getb_depth(bpp, color_value);<endblock>
+      
 @@extern int @palette_color[256];
 @xref set_palette, makecol, set_color_depth
 @eref Available Allegro examples
@@ -5289,7 +5383,13 @@ routines!
    being used by the current display mode. In a 256-color mode this just 
    maps onto the array index. In truecolor modes it looks up the specified 
    entry in the current palette, and converts that RGB value into the 
-   appropriate packed pixel format.
+   appropriate packed pixel format. Example:
+<codeblock>
+      set_color_depth(32);
+      ...
+      set_palette(desktop_palette);
+      /* Put a pixel with the color 2 (green) of the palette */
+      putpixel(screen, 100, 100, palette_color[2]);<endblock>
 
 @@#define @MASK_COLOR_8 0
 @@#define @MASK_COLOR_15 (5.5.5 pink)
@@ -5308,10 +5408,27 @@ routines!
 Drawing primitives
 
 Except for _putpixel(), all these routines are affected by the current 
-drawing mode and the clipping rectangle of the destination bitmap.
+drawing mode and the clipping rectangle of the destination bitmap. Unless
+specified otherwise, all coordinates for drawing operations are inclusive,
+and they, as well as lengths, are specified in pixel units.
+
+@@void @clear_bitmap(BITMAP *bitmap);
+@xref clear_to_color
+@eref Available Allegro examples
+@shortdesc Clears the bitmap to color 0.
+   Clears the bitmap to color 0.
+
+@@void @clear_to_color(BITMAP *bitmap, int color);
+@xref clear_bitmap, makecol
+@eref Available Allegro examples
+@shortdesc Clears the bitmap to the specified color.
+   Clears the bitmap to the specified color. Example:
+<codeblock>
+      /* Clear the screen to red. */
+      clear_to_color(bmp, makecol(255, 0, 0));<endblock>
 
 @@void @putpixel(BITMAP *bmp, int x, int y, int color);
-@xref getpixel, _putpixel, drawing_mode
+@xref getpixel, _putpixel, drawing_mode, makecol
 @eref ex12bit, exalpha, exflame, exjoy, exstars, exswitch
 @shortdesc Writes a pixel into a bitmap.
    Writes a pixel to the specified position in the bitmap, using the current 
@@ -5324,7 +5441,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @@void @_putpixel16(BITMAP *bmp, int x, int y, int color);
 @@void @_putpixel24(BITMAP *bmp, int x, int y, int color);
 @@void @_putpixel32(BITMAP *bmp, int x, int y, int color);
-@xref putpixel
+@xref putpixel, makecol
 @shortdesc Faster specific version of putpixel().
    Like the regular putpixel(), but much faster because they are implemented 
    as an inline assembler functions for specific color depths. These won't 
@@ -5336,12 +5453,15 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @xref putpixel, _getpixel, is_inside_bitmap
 @eref ex12bit, exalpha, exflame, exlights
 @shortdesc Reads a pixel from a bitmap.
-   Reads a pixel from point (x, y) in the bitmap. Returns -1 if the point
-   lies outside the bitmap (ignoring the clipping rectangle).
+   Reads a pixel from point (x, y) in the bitmap.
+@retval
+   Returns -1 if the point lies outside the bitmap (ignoring the clipping
+   rectangle), otherwise the value of the pixel in the color format of the
+   bitmap.
 
    Warning: -1 is also a valid value for pixels contained in 32-bit bitmaps
    with alpha channel (when R,G,B,A are all equal to 255) so you can't use
-   the test against -1 it as a predicate for such bitmaps. In this case, the
+   the test against -1 as a predicate for such bitmaps. In this cases, the
    only reliable predicate is is_inside_bitmap().
  
 @@int @_getpixel(BITMAP *bmp, int x, int y);
@@ -5354,15 +5474,17 @@ drawing mode and the clipping rectangle of the destination bitmap.
    Faster inline versions of getpixel() for specific color depths. These 
    won't work in mode-X, and don't do any clipping, so you must make sure 
    the point lies inside the bitmap.
+@retval
+   Returns the value of the pixel in the color format you specified.
 
 @@void @vline(BITMAP *bmp, int x, int y1, int y2, int color);
-@xref hline, line, drawing_mode
+@xref hline, line, drawing_mode, makecol
 @eref exrgbhsv, exscroll, extruec
 @shortdesc Draws a vertical line onto the bitmap.
    Draws a vertical line onto the bitmap, from point (x, y1) to (x, y2).
 
 @@void @hline(BITMAP *bmp, int x1, int y, int x2, int color);
-@xref vline, line, drawing_mode
+@xref vline, line, drawing_mode, makecol
 @shortdesc Draws a horizontal line onto the bitmap.
    Draws a horizontal line onto the bitmap, from point (x1, y) to (x2, y).
 
@@ -5384,26 +5506,26 @@ drawing mode and the clipping rectangle of the destination bitmap.
 		 dust_strength, draw_dust_particle);<endblock>
 
 @@void @line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-@xref fastline, hline, vline, do_line, drawing_mode
+@xref fastline, hline, vline, do_line, drawing_mode, makecol
 @eref Available Allegro examples
 @shortdesc Draws a line onto the bitmap.
    Draws a line onto the bitmap, from point (x1, y1) to (x2, y2).
 
 @@void @fastline(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-@xref line, hline, vline, do_line, drawing_mode
+@xref line, hline, vline, do_line, drawing_mode, makecol
 @eref Available Allegro examples
 @shortdesc Faster version of line().
    Faster version of the previous function. Note that pixel correctness is
    not guaranteed for this function.
 
 @@void @triangle(BITMAP *bmp, int x1, y1, x2, y2, x3, y3, int color);
-@xref polygon, triangle3d, drawing_mode
+@xref polygon, triangle3d, drawing_mode, makecol
 @eref ex3buf, exstars, exupdate
 @shortdesc Draws a filled triangle.
    Draws a filled triangle between the three points.
 
 @@void @polygon(BITMAP *bmp, int vertices, const int *points, int color);
-@xref triangle, polygon3d, drawing_mode
+@xref triangle, polygon3d, drawing_mode, makecol
 @eref excamera
 @shortdesc Draws a filled polygon.
    Draws a filled polygon with an arbitrary number of corners. Pass the 
@@ -5417,13 +5539,13 @@ drawing mode and the clipping rectangle of the destination bitmap.
       polygon(screen, 6, points, makecol(0, 0, 0));<endblock>
 
 @@void @rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-@xref rectfill, drawing_mode
+@xref rectfill, drawing_mode, makecol
 @eref ex3d, excamera
 @shortdesc Draws an outline rectangle.
    Draws an outline rectangle with the two points as its opposite corners.
 
 @@void @rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-@xref rect, clear_bitmap, drawing_mode
+@xref rect, clear_bitmap, drawing_mode, makecol
 @eref exalpha, excolmap, exkeys, expat, exscroll, exsprite, exstars
 @eref exswitch, extrans
 @shortdesc Draws a solid filled rectangle.
@@ -5449,13 +5571,13 @@ drawing mode and the clipping rectangle of the destination bitmap.
 		   draw_explosion_ring);<endblock>
 
 @@void @circle(BITMAP *bmp, int x, int y, int radius, int color);
-@xref ellipse, arc, circlefill, do_circle, drawing_mode
+@xref ellipse, arc, circlefill, do_circle, drawing_mode, makecol
 @eref ex12bit, exblend, excustom, exjoy, exmem, exmouse, exquat
 @shortdesc Draws a circle.
    Draws a circle with the specified centre and radius.
 
 @@void @circlefill(BITMAP *bmp, int x, int y, int radius, int color);
-@xref ellipsefill, circle, do_circle, drawing_mode
+@xref ellipsefill, circle, do_circle, drawing_mode, makecol
 @eref excolmap, excustom, exdbuf, exflip, exlights, expal, exspline
 @eref extrans
 @shortdesc Draws a filled circle.
@@ -5480,12 +5602,12 @@ drawing mode and the clipping rectangle of the destination bitmap.
 		   draw_explosion_ring);<endblock>
 
 @@void @ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color);
-@xref circle, arc, ellipsefill, do_ellipse, drawing_mode
+@xref circle, arc, ellipsefill, do_ellipse, drawing_mode, makecol
 @shortdesc Draws an ellipse.
    Draws an ellipse with the specified centre and radius.
 
 @@void @ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color);
-@xref circlefill, ellipse, do_ellipse, drawing_mode
+@xref circlefill, ellipse, do_ellipse, drawing_mode, makecol
 @eref ex12bit
 @shortdesc Draws a filled ellipse.
    Draws a filled ellipse with the specified centre and radius.
@@ -5513,7 +5635,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
 	     draw_explosion_ring);<endblock>
 
 @@void @arc(BITMAP *bmp, int x, y, fixed ang1, ang2, int r, int color);
-@xref circle, ellipse, drawing_mode
+@xref circle, ellipse, drawing_mode, makecol
 @shortdesc Draws a circular arc.
    Draws a circular arc with centre x, y and radius r, in an anticlockwise 
    direction starting from the angle a1 and ending when it reaches a2. These 
@@ -5544,7 +5666,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    as in exspline.c.
 
 @@void @spline(BITMAP *bmp, const int points[8], int color);
-@xref calc_spline, drawing_mode
+@xref calc_spline, drawing_mode, makecol
 @eref exspline
 @shortdesc Draws a bezier spline using four control points.
    Draws a bezier spline using the four control points specified in the 
@@ -5552,7 +5674,7 @@ drawing mode and the clipping rectangle of the destination bitmap.
    how to build the points array.
 
 @@void @floodfill(BITMAP *bmp, int x, int y, int color);
-@xref drawing_mode
+@xref drawing_mode, makecol
 @shortdesc Floodfills an enclosed area.
    Floodfills an enclosed area, starting at point (x, y), with the specified 
    color.
@@ -5562,24 +5684,84 @@ drawing mode and the clipping rectangle of the destination bitmap.
 @heading
 Blitting and sprites
 
-All these routines are affected by the clipping rectangle of the destination 
-bitmap.
+As far as Allegro is concerned, a bitmap and a sprite are the same thing,
+but to many people the two words imply slightly different things.  The
+function draw_sprite() is called so rather than draw_bitmap() partly because
+it indicates that it uses a masked drawing mode (if it existed, you could
+expect draw_bitmap() to be a simple block copy), and partly for historical
+reasons. In Allegro 1.0 there were actually different structures for sprites
+and bitmaps, each with their own set of abilities. Allegro 2.0 merged these
+into a single more flexible structure, but retained some names like
+draw_sprite().
 
-@@void @clear_bitmap(BITMAP *bitmap);
-@xref clear_to_color
-@eref Available Allegro examples
-@shortdesc Clears the bitmap to color 0.
-   Clears the bitmap to color 0.
+In wider (non-Allegro) terms, the two words can mean quite different things.
+Generally you can say that sprites are a subset of bitmaps, but even that
+isn't true in 100% of cases.
 
-@@void @clear_to_color(BITMAP *bitmap, int color);
-@xref clear_bitmap
-@eref Available Allegro examples
-@shortdesc Clears the bitmap to the specified color.
-   Clears the bitmap to the specified color.
+BITMAP: a widely accepted term that will be understood by anyone even
+remotely connected with computer graphics. It simply means an image built up
+from a grid of pixels, ie. just about any picture that you are likely to come
+across on a computer (vector graphics formats are the exception, but those
+must be rendered into a bitmap format before they can be displayed by most
+hardware). A more accurate term but slightly rarer term with the same meaning
+is "pixmap" (pixel-map).
+
+SPRITE: a particular usage of bitmapped images, restricted to video games
+(other types of programmer probably won't be familiar with this term).
+Originally on machines like the C64, sprites were a hardware feature that
+allowed a number of small bitmap images to be loaded into special registers,
+and they could then be superimposed over the main graphics display and moved
+around just by modifying the position register. They were used for the moving
+objects (player and enemy characters), and enabled the C64 to do much more
+impressive things than would have been possible if all the drawing had to be
+done directly by the puny CPU.
+
+Later on, a lot of old C64 programmers upgraded to machines like the Atari
+ST, which didn't have any special sprite hardware, but they carried on
+referring to their main moving objects as sprites (the routine to draw such a
+thing would obviously be called draw_sprite()).  A sprite is really just a
+bitmap graphic which is drawn onto the screen, but when you call it a sprite
+rather than a bitmap, this suggests it is a gameplay element that can move
+freely around the world rather than being a static part of the environment,
+and that it will be drawn in a masked overlay mode rather than as a solid
+rectangle (there is also a strong implication that a sprite will be animated
+by cycling through a number of frames, but that isn't always the case).
+
+In recent years some people have started using "sprite" to refer to any
+character graphics, even if they are not in fact drawn as 2d bitmaps, eg.
+"this game uses 3d polygonal player sprites". This is a confusing misuse of
+the word (Doom uses sprites, Quake does not), but it does happen.
+
+The origin of the term "blit" is also rather interesting. This was originally
+BitBlt, an abbreviation of BITmap BLock Transfer, which was a function
+designed (possibly) by the people at Xerox who did so much of the pioneering
+work on graphics display systems, and subsequently copied by virtually
+everybody doing computer graphics (the Microsoft Windows GDI still provides a
+BitBlt function with identical functionality to the original). This routine
+was a workhorse for all sorts of drawing operations, basically copying bitmap
+graphics from one place to another, but including a number of different ROP
+modes (Raster OPerations) for doing things like XOR, inverting pixels, etc.
+A whole family of related words grew up around the BitBlt function, but "blt"
+is impossible to speak (try saying "bltter" or "bltting" :-) so people added
+the vowel to make it easier to pronounce.
+
+Thusly, the act of calling the BitBlt function came to be known as "doing a
+blit". The obvious next step was to rename the function itself to blit(),
+which generally took place at the same time as people decided to simplify the
+original, removing the different ROP modes on the grounds that they aren't
+needed for games coding and don't work well with anything higher than
+monochrome images in any case. This leaves us with a function called blit(),
+which is an abbreviation for "block transfer". A strong case could be made
+for calling this blot() instead, but somehow that just doesn't sound the
+same!
+
+Anyway, all the routines in this chapter are affected by the
+clipping rectangle of the destination bitmap.
 
 @\void @blit(BITMAP *source, BITMAP *dest, int source_x, int source_y,
 @@          int dest_x, int dest_y, int width, int height);
-@xref masked_blit, stretch_blit, draw_sprite, gfx_capabilities, set_color_conversion
+@xref masked_blit, stretch_blit, draw_sprite, gfx_capabilities,
+@xref set_color_conversion
 @shortdesc Copies a rectangular area from one bitmap to another.
    Copies a rectangular area of the source bitmap to the destination bitmap. 
    The source_x and source_y parameters are the top left corner of the area 
@@ -6012,8 +6194,8 @@ to use TrueType fonts, you will need to use an add-on library.
    prepared to deal with a value of NULL for either of these parameters.
 
 @@FONT *@load_font(const char *filename, RGB *pal, void *param);
-@xref register_font_file_type, load_bitmap, load_dat_font
-@xref load_bios_font, load_grx_font, load_grx_or_bios_font, load_bitmap_font, load_txt_font
+@xref register_font_file_type, load_bitmap, load_dat_font, load_bios_font
+@xref load_grx_font, load_grx_or_bios_font, load_bitmap_font, load_txt_font
 @shortdesc Loads a font from a file.
    Loads a font from a file. At present, this supports loading fonts from
    a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
@@ -6048,8 +6230,8 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @is_color_font(FONT *f)
 @xref is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
-   This function returns TRUE if the font is an Allegro color font (as opposed
-   to a monochrome font).
+   This function returns TRUE if the font is an Allegro color font (as
+   opposed to a monochrome font).
 @retval
    Returns TRUE if the font is a color font, FALSE if it is not.
 
@@ -6076,8 +6258,8 @@ to use TrueType fonts, you will need to use an add-on library.
 @shortdesc Returns the number of character ranges in a font.
    This function returns the number of character ranges in a font. You should
    query each of these ranges with get_font_range_begin() and
-   get_font_range_end() to find out what characters are availabel in the font.
-   Example:
+   get_font_range_end() to find out what characters are available in the
+   font. Example:
 <codeblock>
       FONT *f;
       int range;
@@ -6159,9 +6341,8 @@ to use TrueType fonts, you will need to use an add-on library.
    This function merges the character ranges from two fonts and returns a new
    font containing all characters in the old fonts. In general, you cannot
    merge fonts of different types (eg, TrueType fonts and bitmapped fonts),
-   but as a special case, this function can promote a monochrome bitmapped font
-   to a color font and merge those.
-   Example:
+   but as a special case, this function can promote a monochrome bitmapped
+   font to a color font and merge those. Example:
 <codeblock>
       FONT *myfont;
       FONT *myfancy_font;
@@ -6202,9 +6383,10 @@ to use TrueType fonts, you will need to use an add-on library.
    This is only returned if the pal parameter is not NULL. If you pass NULL
    for the name of the palette, the last palette found before the font was
    found is returned.
-   You can also pass NULL for param, which is treated as if you had passed NULL
-   for both strings seperately. In this case, the function will simply load the
-   first font it finds from the datafile and the palette that precedes it.
+   You can also pass NULL for param, which is treated as if you had passed
+   NULL for both strings separately. In this case, the function will simply
+   load the first font it finds from the datafile and the palette that
+   precedes it.
 
    For example, suppose you have a datafile named `fonts.dat' with the
    following contents:
@@ -6224,8 +6406,8 @@ to use TrueType fonts, you will need to use an add-on library.
       
       f = load_dat_font("fonts.dat", pal, NULL);
 <endblock>
-   If instead you want to load the second font, FONT_2, from the datafile, you
-   would use:
+   If instead you want to load the second font, FONT_2, from the datafile,
+   you would use:
 <codeblock>
       FONT *f;
       PALETTE pal;
@@ -6302,21 +6484,22 @@ to use TrueType fonts, you will need to use an add-on library.
 @xref register_font_file_type, load_font
 @shortdesc Loads a font script.
    This function can be used to load scripted fonts. The script file
-   contains a number of lines in the format "filename start end", which specify
-   the source file for that range of characters, the Unicode value of the first
-   character in the range, and the end character in the range (optional, if
-   left out, the entire input file will be grabbed). If the filename is
-   replaced by a hyphen, more characters will be grabbed from the previous
-   input file.
+   contains a number of lines in the format "filename start end", which
+   specify the source file for that range of characters, the Unicode value of
+   the first character in the range, and the end character in the range
+   (optional, if left out, the entire input file will be grabbed). If the
+   filename is replaced by a hyphen, more characters will be grabbed from the
+   previous input file.
    For example, the script:
    <textblock>
       ascii.fnt 0x20 0x7F
       - 0xA0 0xFF
       dingbats.fnt 0x1000
    <endblock>
-   would import the first 96 characters from ascii.fnt as the range 0x20-0x7F,
-   the next 96 characters from ascii.fnt as the range 0xA0-0xFF, and the entire
-   contents of dingbats.fnt starting at Unicode position 0x1000.
+   would import the first 96 characters from ascii.fnt as the range
+   0x20-0x7F, the next 96 characters from ascii.fnt as the range 0xA0-0xFF,
+   and the entire contents of dingbats.fnt starting at Unicode position
+   0x1000.
 @retval
    Returns a pointer to the font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -7664,8 +7847,8 @@ Sound init routines
    available. This function must be called _before_ install_sound(). 
 
 @@void @reserve_voices(int digi_voices, int midi_voices);
-@xref set_volume_per_voice, install_sound, detect_digi_driver, detect_midi_driver
-@xref get_mixer_voices
+@xref set_volume_per_voice, install_sound, detect_digi_driver
+@xref detect_midi_driver, get_mixer_voices
 @shortdesc Reserve a number of voices for the digital and MIDI drivers.
    Call this function to specify the number of voices that are to be used by
    the digital and MIDI sound drivers respectively. This must be done
@@ -7680,7 +7863,8 @@ Sound init routines
    don't reserve any more than you really need.
 
 @@void @set_volume_per_voice(int scale);
-@xref reserve_voices, set_volume, install_sound, detect_digi_driver, detect_midi_driver
+@xref reserve_voices, set_volume, install_sound, detect_digi_driver
+@xref detect_midi_driver
 @shortdesc Sets the volume of a voice.
    By default, Allegro will play a centered sample at half volume on both
    the left and right channel. A sample panned to the far right or left
