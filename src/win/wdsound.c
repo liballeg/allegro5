@@ -1450,10 +1450,10 @@ static int digi_directsound_rec_read(void *buf)
       long int bytes_to_internal = bytes_to_lock - bytes_left_to_fill;
 
       /* yes, copy old buffer to user buffer */
-      memcpy(buf, input_wave_data, input_wave_bytes_read);
+      memcpy((char*)buf, input_wave_data, input_wave_bytes_read);
 
       /* and the rest of bytes we would need to fill in the buffer */
-      memcpy(buf + input_wave_bytes_read, linear_input_ptr, bytes_left_to_fill);
+      memcpy((char*)buf + input_wave_bytes_read, linear_input_ptr, bytes_left_to_fill);
 
       /* and the rest of the data to the internal buffer */
       input_wave_bytes_read = bytes_to_internal;
