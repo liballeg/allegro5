@@ -142,14 +142,7 @@ static unsigned short modifier_table[__allegro_KEY_MAX - __allegro_KEY_MODIFIERS
 };
 
 #define NUM_PAD_KEYS 17
-static int pad_arrow_codes[NUM_PAD_KEYS] = {
-        __allegro_KEY_INSERT, __allegro_KEY_END, __allegro_KEY_DOWN, __allegro_KEY_PGDN,
-        __allegro_KEY_LEFT, __allegro_KEY_5_PAD, __allegro_KEY_RIGHT, __allegro_KEY_HOME,
-        __allegro_KEY_UP, __allegro_KEY_PGUP, __allegro_KEY_PLUS_PAD, __allegro_KEY_MINUS_PAD,
-	__allegro_KEY_ASTERISK, __allegro_KEY_SLASH_PAD, __allegro_KEY_ENTER_PAD, 0/*__allegro_KEY_COMMA_PAD*/,
-	__allegro_KEY_DEL
-};
-static char pad_asciis[NUM_PAD_KEYS] = "0123456789+-*/\r,.";
+static char pad_asciis_numlock[NUM_PAD_KEYS] = "0123456789+-*/\r,.";
 static char pad_asciis_no_numlock[NUM_PAD_KEYS] = { 
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
 	'+', '-', '*', '/', '\r', -1, -1
@@ -162,6 +155,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
         unsigned int code, mycode, press;
         int ascii;
         int map;
+	int val;
         struct kbentry kbe;
 
         ASSERT(buf || bytes_read==0);
@@ -249,17 +243,13 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                                 break;
                         case KT_PAD:
                                 ascii = -1;
-                                if (_key_shifts & __allegro_KB_NUMLOCK_FLAG) {
-                                        int val = KVAL(kbe.kb_value);
-                                        if ((val >= 0) && (val < NUM_PAD_KEYS))
-                                                ascii = pad_asciis[val];
-                                } else {
-					int val = KVAL(kbe.kb_value);
-					if ((val >= 0) && (val < NUM_PAD_KEYS) && pad_arrow_codes[val]) {
-					    	ascii = pad_asciis_no_numlock[val];
-						mycode = pad_arrow_codes[val];
-					}
-                                }
+				val = KVAL(kbe.kb_value);
+				if ((val >= 0) && (val < NUM_PAD_KEYS)) {
+					if (_key_shifts & __allegro_KB_NUMLOCK_FLAG)
+                                                ascii = pad_asciis_numlock[val];
+					else
+						ascii = pad_asciis_no_numlock[val];
+				}
                                 break;
                         case KT_SPEC:
                                 if (mycode == __allegro_KEY_ENTER) {
