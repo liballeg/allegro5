@@ -99,6 +99,9 @@ void _unix_load_modules(int system_driver)
 	 filename = buf3;
       }
 
+      if (!exists(filename))
+	 continue;
+
       handle = dlopen(filename, RTLD_NOW);
       if (!handle) {
 	 /* useful during development */
