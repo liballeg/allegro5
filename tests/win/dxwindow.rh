@@ -4,7 +4,6 @@
 #define CMD_FILE_STOP           101
 #define CMD_FILE_EXIT           102
 #define CMD_SET_SPEED_UP        103
-#define CMD_SET_BOOST           104
-#define CMD_SET_SPEED_DOWN      105
-#define CMD_SET_SPEED_DEFAULT   106
-#define CMD_HELP_ABOUT          107
+#define CMD_SET_SPEED_DOWN      104
+#define CMD_SET_SPEED_DEFAULT   105
+#define CMD_HELP_ABOUT          106

@@ -280,10 +280,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
                PostMessage(hwnd, WM_CLOSE, 0, 0);
                break;
 
-            case CMD_SET_BOOST:
-               boost();
-               break;
-                
             case CMD_SET_SPEED_UP:
                timer_speed -= TIMER_STEP;
                if (timer_speed < TIMER_SPEED_MIN)
@@ -390,6 +386,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       return 0;
 
    install_timer();
+   install_keyboard();
    install_sound(DIGI_AUTODETECT, MIDI_NONE, NULL);
 
    /* install the DirectX windowed driver */
@@ -438,6 +435,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
    /* main loop */
    while (TRUE) {
+
+      /* process the keys */
+      while (keypressed()) {
+         if ((readkey() >> 8) == KEY_B)
+            boost();
+      }
 
       /* animate the screen */
       clear(video_page[next_page]);
