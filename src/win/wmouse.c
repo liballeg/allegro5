@@ -137,13 +137,13 @@ static int mymickey_oy = 0;
        (p.y < mouse_miny) || (p.y > mouse_maxy)) {  \
       if (_mouse_on) {                              \
          _mouse_on = FALSE;                         \
-         wnd_call_proc(mouse_set_syscursor);        \
+         wnd_schedule_proc(mouse_set_syscursor);    \
       }                                             \
    }                                                \
    else {                                           \
       if (!_mouse_on) {                             \
          _mouse_on = TRUE;                          \
-         wnd_call_proc(mouse_set_syscursor);        \
+         wnd_schedule_proc(mouse_set_syscursor);    \
       }                                             \
       _mouse_x = p.x;                               \
       _mouse_y = p.y;                               \
@@ -343,7 +343,7 @@ static void mouse_dinput_handle(void)
 
          if (!_mouse_on) {
             _mouse_on = TRUE;
-            wnd_call_proc(mouse_set_syscursor);
+            wnd_schedule_proc(mouse_set_syscursor);
          }
 
          _handle_mouse_input();
@@ -519,7 +519,7 @@ static int mouse_dinput_exit(void)
    }
 
    /* update the system cursor */
-   wnd_call_proc(mouse_set_syscursor);
+   wnd_schedule_proc(mouse_set_syscursor);
 
    return 0;
 }
