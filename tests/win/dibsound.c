@@ -20,11 +20,6 @@
 
 #include "allegro.h"
 #include "winalleg.h"
-
-#ifndef SCAN_DEPEND
-   #include <commdlg.h>
-#endif
-
 #include "dibsound.rh" 
 
 
