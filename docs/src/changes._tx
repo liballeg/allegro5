@@ -733,7 +733,7 @@ Changes from 3.11 to 3.9.40 (Nov 2001)
    3.9.38: Peter Wang renamed clear() to clear_bitmap(). clear() is still
    provided for backwards compatibility.
 <li>
-   3.9.38: Stephan Roh made fractal generator work under non-Intel
+   3.9.38: Stepan Roh made fractal generator work under non-Intel
    processors.
 <li>
    3.9.38: Eric Botcazou made a valid display switch mode of SWITCH_NONE
@@ -752,7 +752,7 @@ Changes from 3.11 to 3.9.40 (Nov 2001)
 <li>
    3.9.38: Angelo Mottola added a bfixicon utility.
 <li>
-   3.9.38: Stephan Roh made the native Allegro time format of ANSI time_t.
+   3.9.38: Stepan Roh made the native Allegro time format of ANSI time_t.
 <li>
    3.9.38: Peter Wang added an ustrtok_r() function.
 <li>
@@ -1325,7 +1325,7 @@ Changes from 3.11 to 3.9.40 (Nov 2001)
    findnext(), and findclose(), and corrected the documentation for 
    get_executable_name().
 <li>
-   3.9.33: Stephan Roh made patches to allow compilation on IRIX.
+   3.9.33: Stepan Roh made patches to allow compilation on IRIX.
 <li>
    3.9.33: John Harger made a change to improve the stability of AllegroGL
    in Windows.
