@@ -330,7 +330,6 @@ void _xwin_close_display(void)
  */
 static int _xwin_private_create_window(void)
 {
-   XEvent event;
    unsigned long gcmask;
    XGCValues gcvalues;
    XSetWindowAttributes setattr;
@@ -372,9 +371,6 @@ static int _xwin_private_create_window(void)
    /* Set default window parameters.  */
    (*_xwin_window_defaultor)();
 
-   /* Map window.  */
-   XMapWindow(_xwin.display, _xwin.window);
-
    /* Create graphics context.  */
    gcmask = GCFunction | GCForeground | GCBackground | GCFillStyle | GCPlaneMask;
    gcvalues.function = GXcopy;
@@ -408,11 +404,6 @@ static int _xwin_private_create_window(void)
       _xwin.cursor = XCreateFontCursor(_xwin.display, _xwin.cursor_shape);
       XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
    }
-
-   /* Wait for the first exposure event.  */
-   do {
-      XNextEvent(_xwin.display, &event);
-   } while ((event.type != Expose) || (event.xexpose.count != 0));
 
    return 0;
 }
@@ -1370,7 +1361,8 @@ static int _xdga_private_fast_visual_depth(void)
    "The things we must go through to get a proper depth...
    If I find the idiot that thought making 32bit report 24bit was a good idea,
    there may be one less `programmer' in this world..." */
-   XImage *img = XGetImage(_xwin.display, _xwin.window, 0, 0, 1, 1, AllPlanes, ZPixmap);
+   XImage *img = XGetImage(_xwin.display, XDefaultRootWindow(_xwin.display),
+			   0, 0, 1, 1, AllPlanes, ZPixmap);
    int dga_depth = img->bits_per_pixel;
 
    if (dga_depth == 15)
@@ -1761,8 +1753,7 @@ static void _xwin_private_set_window_defaults(void)
    if (_xwin.window == None)
       return;
 
-   /* Set window size and title.  */
-   _xwin_private_resize_window(320, 200);
+   /* Set window title.  */
    XStoreName(_xwin.display, _xwin.window, _xwin.window_title);
 
    /* Set hints.  */
@@ -1838,27 +1829,16 @@ static void _xwin_private_resize_window(int w, int h)
    _xwin.window_height = h;
 
    /* Resize window.  */
+   XUnmapWindow(_xwin.display, _xwin.window);
    XResizeWindow(_xwin.display, _xwin.window, w, h);
+   XMapWindow(_xwin.display, _xwin.window);
 
    hints = XAllocSizeHints();
    if (hints == 0)
       return;
 
    /* Set size and position hints for Window Manager.  */
-   hints->flags = USPosition | PMinSize | PMaxSize | PBaseSize;
-   hints->x = 0;
-   hints->y = 0;
-   hints->min_width  = hints->max_width  = hints->base_width  = w;
-   hints->min_height = hints->max_height = hints->base_height = h;
-   XSetWMNormalHints(_xwin.display, _xwin.window, hints);
-
-   /* Resize window.  */
-   XResizeWindow(_xwin.display, _xwin.window, w, h);
-
-   /* Set size and position hints for Window Manager.  */
-   hints->flags = USPosition | PMinSize | PMaxSize | PBaseSize;
-   hints->x = 0;
-   hints->y = 0;
+   hints->flags = PMinSize | PMaxSize | PBaseSize;
    hints->min_width  = hints->max_width  = hints->base_width  = w;
    hints->min_height = hints->max_height = hints->base_height = h;
    XSetWMNormalHints(_xwin.display, _xwin.window, hints);
