@@ -24,16 +24,16 @@
 #endif
 
 
+PdDirectContext_t              *ph_direct_context = NULL;
 PdOffscreenContext_t           *ph_screen_context = NULL;
 PdOffscreenContext_t           *ph_window_context = NULL;
-int                             ph_gfx_initialized = FALSE;
+int                             ph_gfx_mode = PH_GFX_NONE;
 char                           *ph_dirty_lines = NULL;
 void                          (*ph_update_window)(PhRect_t* rect) = NULL;
 int                             ph_window_w = 0, ph_window_h = 0;
 PgColor_t                       ph_palette[256];
 
 
-static PdDirectContext_t       *direct_context = NULL;
 static char                     driver_desc[128];
 static PgDisplaySettings_t      original_settings;
 static COLORCONV_BLITTER_FUNC  *blitter = NULL;
@@ -190,12 +190,12 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
       ustrcpy(allegro_error, get_config_text("Resolution not supported"));
       return NULL;
    }
-   if (!(direct_context = PdCreateDirectContext())) {
+   if (!(ph_direct_context = PdCreateDirectContext())) {
       ustrcpy(allegro_error, get_config_text("Cannot create direct context"));
       PgSetVideoMode(&original_settings);
       return NULL;
    }
-   if (!PdDirectStart(direct_context)) {
+   if (!PdDirectStart(ph_direct_context)) {
       ustrcpy(allegro_error, get_config_text("Cannot start direct context"));
       return NULL;
    }
@@ -261,15 +261,14 @@ static void qnx_private_phd_exit()
 {
    PhDim_t dim;
    
-   ph_gfx_initialized = FALSE;
+   ph_gfx_mode = PH_GFX_NONE;
    if (ph_screen_context) {
       PhDCRelease(ph_screen_context);
    }
    ph_screen_context = NULL;
-   if (direct_context) {
-      PdDirectStop(direct_context);
-      PdReleaseDirectContext(direct_context);
-      direct_context = NULL;
+   if (ph_direct_context) {
+      PdReleaseDirectContext(ph_direct_context);
+      ph_direct_context = NULL;
       PgSetVideoMode(&original_settings);
    }
    dim.w = 1;
@@ -288,7 +287,7 @@ struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
    
    pthread_mutex_lock(&qnx_events_mutex);
    bmp = qnx_private_phd_init(&gfx_photon_direct, w, h, v_w, v_h, color_depth, TRUE);
-   ph_gfx_initialized = TRUE;
+   ph_gfx_mode = PH_GFX_DIRECT;
    if (!bmp) {
       qnx_private_phd_exit(bmp);
    }
@@ -374,15 +373,15 @@ void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesyn
    for (i=from; i<=to; i++) {
       ph_palette[i] = (p[i].r << 18) | (p[i].g << 10) | (p[i].b << 2);
    }
+   if (retracesync) {
+      PgWaitVSync();
+   }
    if ((desktop_depth != 8) && (ph_window_context)) {
       _set_colorconv_palette(p, from, to);
       ph_update_window(NULL);
    }
    if (desktop_depth == 8) {
       PgSetPalette(ph_palette, 0, from, to - from + 1, Pg_PALSET_HARDLOCKED, 0);
-   }
-   if (retracesync) {
-      PgWaitVSync();
    }
    PgFlush();
 }
@@ -403,7 +402,9 @@ static void update_window_hw(PhRect_t *rect)
       temp.lr.y = ph_window_h;
       rect = &temp;
    }
+   pthread_mutex_lock(qnx_gfx_mutex);
    PgContextBlit(ph_window_context, rect, NULL, rect);
+   pthread_mutex_unlock(qnx_gfx_mutex);
 }
 
 
@@ -441,7 +442,9 @@ static void update_window(PhRect_t *rect)
    /* function doing the hard work */
    blitter(&src_gfx_rect, &dest_gfx_rect);
 
+   pthread_mutex_lock(qnx_gfx_mutex);
    PgContextBlit(ph_window_context, rect, NULL, rect);
+   pthread_mutex_unlock(qnx_gfx_mutex);
 }
 
 
@@ -588,7 +591,7 @@ static void qnx_private_ph_exit()
    
    PgSetPalette(ph_palette, 0, 0, -1, 0, 0);
    PgFlush();
-   ph_gfx_initialized = FALSE;
+   ph_gfx_mode = PH_GFX_NONE;
    if (ph_window_context)
       PhDCRelease(ph_window_context);
    ph_window_context = NULL;
@@ -615,7 +618,7 @@ struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
    
    pthread_mutex_lock(&qnx_events_mutex);
    bmp = qnx_private_ph_init(&gfx_photon, w, h, v_w, v_h, color_depth);
-   ph_gfx_initialized = TRUE;
+   ph_gfx_mode = PH_GFX_WINDOW;
    if (!bmp) {
       qnx_private_ph_exit();
    }
