@@ -324,6 +324,31 @@ compress: $(PROGRAMS)
     endif
 
 
+# -------- autodetect whether the assembler supports MMX instructions --------
+
+.PHONY: mmxtest
+
+mmxtest:
+ifdef UNIX_TOOLS
+	echo // no MMX > obj/djgpp/mmx.h
+	echo .text > obj/djgpp/mmxtest.s
+	echo emms >> obj/djgpp/mmxtest.s
+        echo maskmovq %mm3, %mm1 >> obj/djgpp/mmxtest.s
+	gcc -c obj/djgpp/mmxtest.s -o obj/djgpp/mmxtest.o
+	echo '#define ALLEGRO_MMX' > obj/djgpp/mmx.h
+else
+	echo // no MMX > obj\djgpp\mmx.h
+	echo .text > obj\djgpp\mmxtest.s
+	echo emms >> obj\djgpp\mmxtest.s
+        echo maskmovq %mm3, %mm1 >> obj\djgpp\mmxtest.s
+	gcc -c obj/djgpp/mmxtest.s -o obj/djgpp/mmxtest.o
+	echo #define ALLEGRO_MMX > obj\djgpp\mmx.h
+endif
+
+obj/djgpp/mmx.h:
+	@echo Testing for MMX assembler support...
+	-$(MAKE) mmxtest
+
 
 # -------- finally, we get to the fun part... --------
 
@@ -347,7 +372,7 @@ ifndef CROSSCOMPILE
 obj/djgpp/asmdef.inc: obj/djgpp/asmdef.exe
 	obj/djgpp/asmdef.exe obj/djgpp/asmdef.inc
 
-obj/djgpp/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h
+obj/djgpp/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/mmx.h
 	gcc -O $(WFLAGS) -I. -I./include -o obj/djgpp/asmdef.exe src/i386/asmdef.c
 
 obj/djgpp/setupdat.s: setup/setup.dat tools/dat2s.exe
@@ -361,7 +386,7 @@ setup/setup.exe: $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
 
 else
 
-obj/djgpp/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h
+obj/djgpp/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/mmx.h
 	gcc $(WFLAGS) -I. -I./include -S -o obj/djgpp/asmdef.s src/i386/asmdef.c
 
 obj/djgpp/asmdef.inc: obj/djgpp/asmdef.s
@@ -422,3 +447,5 @@ else
 	del _depend.tmp
 	del _depend2.tmp
 endif
+
+

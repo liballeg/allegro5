@@ -36,7 +36,6 @@
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
-#define ALLEGRO_MMX
 
 #ifdef USE_CONSOLE
    #define ALLEGRO_CONSOLE_OK
@@ -95,5 +94,4 @@
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/aintwin.h"
-
-
+#define ALLEGRO_MMX_HEADER       "obj/mingw32/mmx.h"

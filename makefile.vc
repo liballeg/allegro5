@@ -259,6 +259,23 @@ endif
 
 
 
+# -------- autodetect whether the assembler supports MMX instructions --------
+
+.PHONY: mmxtest
+
+mmxtest:
+	echo // no MMX > obj\msvc\mmx.h
+	echo .text > obj\msvc\mmxtest.s
+	echo emms >> obj\msvc\mmxtest.s
+        echo maskmovq %mm3, %mm1 >> obj\msvc\mmxtest.s
+	gcc -c obj/msvc/mmxtest.s -o obj/msvc/mmxtest.o
+	echo #define ALLEGRO_MMX > obj\msvc\mmx.h
+
+obj/msvc/mmx.h:
+	@echo Testing for MMX assembler support...
+	-$(MAKE) mmxtest
+
+
 # -------- finally, we get to the fun part... --------
 
 ifdef STATICLINK
@@ -317,7 +334,7 @@ endef
 obj/msvc/asmdef.inc: obj/msvc/asmdef.exe
 	obj/msvc/asmdef.exe obj/msvc/asmdef.inc
 
-obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h $(RUNNER)
+obj/msvc/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h obj/msvc/mmx.h $(RUNNER)
 	$(RUNNER) cl @ -nologo $(WFLAGS) -I. -I./include -Foobj/msvc/asmdef.obj -Feobj/msvc/asmdef.exe src/i386/asmdef.c
 
 obj/msvc/runner.exe: src/misc/runner.c
@@ -382,3 +399,4 @@ else
 	del _depend.tmp
 	del _depend2.tmp
 endif
+
