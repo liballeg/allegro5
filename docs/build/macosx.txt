@@ -142,11 +142,11 @@
    Select "Allegro Application" under the "Application" category and enter
    the project name and location in the next dialog. Once the setup is
    complete, you will find yourself with an opened Allegro application
-   project, holding an unique source file (main.m) and some linked
+   project, holding an unique source file (main.c) and some linked
    frameworks. The project can already be compiled to a working application;
    try it!
 
-   The main.m source file contains a very simple skeleton of an Allegro
+   The main.c source file contains a very simple skeleton of an Allegro
    program that will open up a white window with the text "Hello, world!"
    in the center. This file is just a start: you can (and should) completely
    replace its contents to suit your needs.
