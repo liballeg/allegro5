@@ -3055,9 +3055,8 @@ int main(int argc, char *argv[])
    }
    else {
       if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
-	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Error initialising sound\n%s\n", allegro_error);
-	 return 1;
+	 alert ("Error initialising sound", allegro_error, NULL, "OK", NULL, 0, 0);
+	 install_sound(DIGI_NONE, MIDI_NONE, NULL);
       }
    }
 
