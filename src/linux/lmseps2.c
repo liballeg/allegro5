@@ -59,8 +59,13 @@ static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
    /* if data is invalid, return no motion and all buttons released */
    info->l = info->r = info->m = info->x = info->y = info->z = 0;
    info->updated = 1;
-   if ((buf[0] & 0xc0) != 0x00) return 1; /* invalid byte, eat it */
-
+   if (intellimouse) {
+      if ((buf[0] & 0xc8) != 0x08) return 1; /* invalid byte, eat it */
+   }
+   else {
+      if ((buf[0] & 0xc0) != 0x00) return 1; /* invalid byte, eat it */
+   }
+   
    /* data is valid, process it */
    info->l = !!(buf[0] & 1);
    info->r = !!(buf[0] & 2);
@@ -172,22 +177,20 @@ static int mouse_init (void)
 				     uconvert_ascii ("mouse_device", tmp2),
 				     uconvert_ascii ("/dev/mouse", tmp3));
 
-	/* Put Intellimouse into wheel mode */
-	if (intellimouse) {
-		int fd = open (uconvert_toascii (udevice, tmp1), O_WRONLY);
-		if (fd >= 0) {
-			wakeup_im (fd);
-			close (fd);
-		}
-	}
-
 	/* Open mouse device.  Devices are cool. */
-	intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
+	if (intellimouse)
+		intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDWR | O_NONBLOCK);
+	else
+		intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
 	if (intdrv.device < 0) {
 		uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
 			   udevice, ustrerror (errno));
 		return -1;
 	}
+
+	/* Put Intellimouse into wheel mode */
+	if (intellimouse)
+		wakeup_im (intdrv.device);
 
 	/* Discard any garbage, so the next thing we read is a packet header */
 	sync_mouse (intdrv.device);
