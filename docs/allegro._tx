@@ -3493,20 +3493,21 @@ Polygon rendering
 @@void @triangle3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3);
 @@void @triangle3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3);
 @xref polygon3d, quad3d, triangle
-   Draw 3d triangles, using either fixed or floating point vertex 
-   structures. These are equivalent to calling
-      polygon3d(bmp, type, tex, 3, v1, v2, v3);
-   or
-      polygon3d_f(bmp, type, tex, 3, v1, v2, v3);
+   Draw 3d triangles, using either fixed or floating point vertex structures.
+   Unlike quad3d[_f], triangle3d[_f] functions are not wrappers of polygon3d[_f].
+   The triangle3d[_f] functions use their own routines taking into account the
+   constantness of the gradients.
+   Therefore triangle3d[_f](bmp, type, tex, v1, v2, v3) is faster than
+   polygon3d[_f](bmp, type, tex, 3, v[]).
 
 @@void @quad3d(BITMAP *bmp, int type, BITMAP *tex, V3D *v1, *v2, *v3, *v4);
 @@void @quad3d_f(BITMAP *bmp, int type, BITMAP *tex, V3D_f *v1, *v2, *v3, *v4);
 @xref polygon3d, triangle3d
    Draw 3d quads, using either fixed or floating point vertex structures. 
    These are equivalent to calling
-      polygon3d(bmp, type, tex, 4, v1, v2, v3, v4);
+      polygon3d(bmp, type, tex, 4, v[]);
    or
-      polygon3d_f(bmp, type, tex, 4, v1, v2, v3, v4);
+      polygon3d_f(bmp, type, tex, 4, v[]);
 
 @@int @clip3d_f(int type, float min_z, float max_z, int vc,
 @@             V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]);
@@ -3531,6 +3532,68 @@ Polygon rendering
    caution, due to the limited precision of fixed point arithmetic and high 
    chance of rounding errors: the floating point code is better for most 
    situations.
+
+@hnode zbuffered rendering
+<b>Z-BUFFERED RENDERING</b><br>
+
+Z-buffer stores the depth of each pixel that is drawn on a viewport. When a 3D 
+object is rendered, the depth of each of its pixels is compared against the value
+stored into the Z-buffer : if the pixel is closer it is drawn otherwise it is
+skipped.
+
+No polygon sorting is needed. However, backface culling should be done because
+it prevents many invisible polygons to be compared against the Z-buffer.
+Z-buffered rendering is the only algorithm that directly solves penetrating
+shapes (see example exzbuf.c for instance). The price to pay is more complex
+(and slower) routines.
+
+Z-buffered polygons are designed as an extension of the normal POLYTYPE_*
+rendering styles. Just OR the POLYTYPE with the value POLYTYPE_ZBUF, and the
+normal polygon3d(), polygon3d_f(), quad3d(),... will render z-buffered polygons.
+
+Example:
+<pre>
+   polygon3d(bmp, POLYTYPE_ATEX | POLYTYPE_ZBUF, tex, vc, vtx);
+</pre>
+
+Of course, the z coordinates have to be valid regardless of rendering style.
+
+Z-buffered rendering procedure looks like the double-buffered rendering
+procedure. You should follow four steps : create the Z-buffer at the beginning
+of the program then, for each frame, clear the Z-buffer and draw polygons with 
+POLYTYPE_* | POLYTYPE_ZBUF and finally destroy the Z-buffer when leaving the
+program.
+
+@@int @create_zbuffer(BITMAP* bmp);
+@xref clear_zbuffer, destroy_zbuffer
+  Creates the Z-buffer using the size of the BITMAP you are planning to draw
+  on. Only one z-buffer can be defined (and used) at the same time. It is a
+  32 bit/pixel buffer.
+
+@@void @clear_zbuffer(float z);
+@xref create_zbuffer, destroy_zbuffer
+  Writes z into the Z-buffer (0 means far away). This function should be used
+  to initialize the Z-buffer before each frame. Actually, low-level routines
+  compare depth of the current pixel with 1/z : for example, if you want to
+  clip polygons farther than 10, you must call :
+<pre>  clear_zbuffer(0.1);</pre>
+
+@@void @destroy_zbuffer(void);
+@xref create_zbuffer, clear_zbuffer
+  Destroys the Z-buffer when you are finished with.
+
+
+Notes on Z-buffered renderers:
+<ul><li>
+Unlike the normal POLYTYPE_FLAT renderers, the Z-buffered ones don't use
+the hline() routine. Therefore DRAW_MODE has no effect.
+<li>
+The *LIT* routines work the traditional way - through the set of
+blender routines.
+<li>
+All the Z-buffered routines are much slower than their normal counterparts
+(they all use the FPU to interpolate and test 1/z values).
+</ul>
 
 
 
