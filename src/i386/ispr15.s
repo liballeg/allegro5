@@ -32,9 +32,10 @@ FUNC(_linear_draw_trans_sprite15)
 
    START_SPRITE_DRAW(trans_sprite)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   subl S_W, %eax
    subl S_W, %eax                /* - w */
-   shll $1, %eax
    movl %eax, S_SGAP             /* store sprite gap */
 
    movl S_LGAP, %eax
@@ -81,7 +82,9 @@ FUNC(_linear_draw_trans_rgba_sprite15)
 
    START_SPRITE_DRAW(trans_rgba_sprite)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
    subl S_W, %eax                /* - w */
    shll $2, %eax
    movl %eax, S_SGAP             /* store sprite gap */
@@ -132,9 +135,10 @@ FUNC(_linear_draw_lit_sprite15)
 
    START_SPRITE_DRAW(lit_sprite)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   subl S_W, %eax
    subl S_W, %eax                /* - w */
-   shll $1, %eax
    movl %eax, S_SGAP             /* store sprite gap */
 
    movl S_LGAP, %eax

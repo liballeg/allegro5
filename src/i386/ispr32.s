@@ -33,7 +33,9 @@ FUNC(_linear_draw_sprite32)
 
    START_SPRITE_DRAW(sprite)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
    subl S_W, %eax                /* - w */
    shll $2, %eax 
    movl %eax, S_SGAP             /* store sprite gap */
@@ -81,7 +83,8 @@ FUNC(_linear_draw_256_sprite32)
 
    START_SPRITE_DRAW(sprite256)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
    subl S_W, %eax                /* - w */
    movl %eax, S_SGAP             /* store sprite gap */
 
@@ -131,10 +134,12 @@ FUNC(_linear_draw_sprite_v_flip32)
 
    START_SPRITE_DRAW(sprite_v_flip)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
    addl S_W, %eax                /* + w */
+   shll $2, %eax
    negl %eax
-   shll $2, %eax 
    movl %eax, S_SGAP             /* store sprite gap */
 
    movl S_LGAP, %eax
@@ -178,7 +183,9 @@ FUNC(_linear_draw_sprite_h_flip32)
 
    START_SPRITE_DRAW(sprite_h_flip)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
    addl S_W, %eax                /* + w */
    shll $2, %eax 
    movl %eax, S_SGAP             /* store sprite gap */
@@ -224,9 +231,12 @@ FUNC(_linear_draw_sprite_vh_flip32)
 
    START_SPRITE_DRAW(sprite_vh_flip)
 
-   movl S_W, %eax                /* w */
-   subl BMP_W(%esi), %eax        /* - sprite->w */
-   shll $2, %eax 
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
+   subl S_W, %eax                /* - w */
+   shll $2, %eax
+   negl %eax
    movl %eax, S_SGAP             /* store sprite gap */
 
    movl S_LGAP, %eax
@@ -277,7 +287,9 @@ FUNC(_linear_draw_trans_sprite32)
    cmpl $8, VTABLE_COLOR_DEPTH(%eax)
    je trans_sprite_256
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
    subl S_W, %eax                /* - w */
    shll $2, %eax
    movl %eax, S_SGAP             /* store sprite gap */
@@ -319,7 +331,8 @@ trans_sprite_done:
    /* special version for drawing 8 bit alpha channels onto 32 bit RGBA */
    _align_
 trans_sprite_256:
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
    subl S_W, %eax                /* - w */
    movl %eax, S_SGAP             /* store sprite gap */
 
@@ -366,7 +379,9 @@ FUNC(_linear_draw_lit_sprite32)
 
    START_SPRITE_DRAW(lit_sprite)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
+   shrl $2, %eax
    subl S_W, %eax                /* - w */
    shll $2, %eax
    movl %eax, S_SGAP             /* store sprite gap */
@@ -419,7 +434,8 @@ FUNC(_linear_draw_character32)
 
    START_SPRITE_DRAW(draw_char)
 
-   movl BMP_W(%esi), %eax        /* sprite->w */
+   movl BMP_LINE+4(%esi), %eax
+   subl BMP_LINE(%esi), %eax     /* eax = sprite data pitch */
    subl S_W, %eax                /* - w */
    movl %eax, S_SGAP             /* store sprite gap */
 
