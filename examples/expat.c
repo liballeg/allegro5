@@ -17,12 +17,12 @@ void draw_pattern(BITMAP *bitmap, char *message, int color)
 
    /* create a pattern bitmap */
    pattern = create_bitmap(text_length(font, message), text_height(font));
-   clear(pattern);
-   textout(pattern, font, message, 0, 0, 255);
+   clear_to_color(pattern, bitmap_mask_color(pattern));
+   textout(pattern, font, message, 0, 0, palette_color[255]);
 
    /* cover the bitmap with the pattern */
-   drawing_mode(DRAW_MODE_SOLID_PATTERN, pattern, 0, 0);
-   rectfill(bitmap, 0, 0, bitmap->w, bitmap->h, color);
+   drawing_mode(DRAW_MODE_MASKED_PATTERN, pattern, 0, 0);
+   rectfill(bitmap, 0, 0, bitmap->w, bitmap->h, palette_color[color]);
    solid_mode();
 
    /* destroy the pattern bitmap */
@@ -38,22 +38,23 @@ int main()
    BITMAP *bitmap;
 
    allegro_init();
-   install_keyboard(); 
-   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
-      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-	 allegro_message("Couldn't set an 8bpp resolution!?!\n%s", allegro_error);
-	 return 1;
-      }
+   install_keyboard();
+   if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
+      allegro_message("Couldn't set a graphic mode. %s", allegro_error);
+      return 1;
    }
    set_palette(desktop_palette);
-
+   clear_to_color(screen, makecol(255, 255, 255));
+   text_mode(bitmap_mask_color(screen));
+   
    /* first cover the whole screen with a pattern */
    draw_pattern(screen, "<screen>", 255);
 
    /* draw the pattern onto a memory bitmap and then blit it to the screen */
    bitmap = create_bitmap(128, 32);
+   clear_to_color(bitmap, makecol(255, 255, 255));
    draw_pattern(bitmap, "<memory>", 1);
-   blit(bitmap, screen, 0, 0, 32, 32, 128, 32);
+   masked_blit(bitmap, screen, 0, 0, 32, 32, 128, 32);
    destroy_bitmap(bitmap);
 
    /* or we could use a sub-bitmap. These share video memory with their
@@ -61,6 +62,7 @@ int main()
     * across onto the screen.
     */
    bitmap = create_sub_bitmap(screen, 224, 64, 64, 128);
+   rectfill(screen, 224, 64, 286, 192, makecol(255, 255, 255));
    draw_pattern(bitmap, "<subbmp>", 4);
    destroy_bitmap(bitmap);
 

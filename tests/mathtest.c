@@ -392,16 +392,24 @@ DIALOG calculator[] =
 
 int main()
 {
+   int i;
+   
    allegro_init();
    install_mouse();
    install_keyboard();
    install_timer();
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
 
-   textout(screen, font, "Angles are binary, 0-255", 0, 0, 8);
+   textout(screen, font, "Angles are binary, 0-255", 0, 0, palette_color[8]);
    reset_calc();
    strcpy(calc_str, "0");
    errno = 0;
+
+   /* we set up colors to match screen color depth (in case it changed) */
+   for (i = 0; calculator[i].proc; i++) {
+      calculator[i].fg = palette_color[calculator[i].fg];
+      calculator[i].bg = palette_color[calculator[i].bg];
+   }
 
    centre_dialog(calculator);
    do_dialog(calculator, -1);

@@ -4327,6 +4327,9 @@ void change_mode()
 
 int gfx_mode()
 {
+   gfx_w = SCREEN_W;
+   gfx_h = SCREEN_H;
+   gfx_bpp = bitmap_color_depth(screen);
    if (!gfx_mode_select_ex(&gfx_card, &gfx_w, &gfx_h, &gfx_bpp))
       return -1;
 

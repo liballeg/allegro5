@@ -122,7 +122,7 @@ int waveform_proc(int msg, DIALOG *d, int c)
 
 	       val = d->h/2 + val*(d->h-2)/256;
 
-	       line(b, previ, prev, i, val, 1);
+	       line(b, previ, prev, i, val, palette_color[1]);
 
 	       previ = i;
 	       prev = val;
@@ -167,24 +167,24 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	       val = SAMPLE_TO_SCREEN(s->loop_start);
 	       if ((val > 0) && (val < d->w)) {
 		  for (i=0; i<d->h; i+=12) {
-		     line(screen, d->x+val, d->y+1+i, d->x+val+4, d->y+7+i, 2);
-		     line(screen, d->x+val+4, d->y+7+i, d->x+val, d->y+13+i, 2);
+		     line(screen, d->x+val, d->y+1+i, d->x+val+4, d->y+7+i, palette_color[2]);
+		     line(screen, d->x+val+4, d->y+7+i, d->x+val, d->y+13+i, palette_color[2]);
 		  }
-		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, 2);
+		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, palette_color[2]);
 	       }
 
 	       val = SAMPLE_TO_SCREEN(s->loop_end);
 	       if ((val > 0) && (val < d->w)) {
 		  for (i=0; i<d->h; i+=12) {
-		     line(screen, d->x+val, d->y+1+i, d->x+val-4, d->y+7+i, 3);
-		     line(screen, d->x+val-4, d->y+7+i, d->x+val, d->y+13+i, 3);
+		     line(screen, d->x+val, d->y+1+i, d->x+val-4, d->y+7+i, palette_color[3]);
+		     line(screen, d->x+val-4, d->y+7+i, d->x+val, d->y+13+i, palette_color[3]);
 		  }
-		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, 3);
+		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, palette_color[3]);
 	       } 
 
 	       val = SAMPLE_TO_SCREEN(d->d2);
 	       if ((val > 0) && (val < d->w))
-		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, 4);
+		  vline(screen, d->x+val, d->y+1, d->y+d->h-2, palette_color[4]);
 
 	       if (!c)
 		  set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
@@ -412,7 +412,7 @@ int main(int argc, char *argv[])
    install_mouse();
    install_timer();
 
-   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting graphics mode\n%s\n", allegro_error);
       return 1;
@@ -425,12 +425,18 @@ int main(int argc, char *argv[])
    }
 
    set_palette(black_palette);
-   clear_to_color(screen, 8);
+   clear_to_color(screen, palette_color[8]);
    set_palette(desktop_palette);
 
    if (!samplename[0]) {
       if (!file_select("Load sample (voc;wav)", samplename, "VOC;WAV"))
 	 return 0;
+   }
+
+   /* we set up colors to match screen color depth (in case it changed) */
+   for (argc = 0; thedialog[argc].proc; argc++) {
+      thedialog[argc].fg = palette_color[thedialog[argc].fg];
+      thedialog[argc].bg = palette_color[thedialog[argc].bg];
    }
 
    thedialog[DRIVER_STR].dp = (void*)digi_driver->name;
