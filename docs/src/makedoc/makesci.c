@@ -10,9 +10,7 @@
  *
  *      Makedoc's SciTE API output routines.
  *
- *      By Shawn Hargreaves.
- *
- *      Made by Bobby Ferris.
+ *      By Bobby Ferris.
  *
  *      See readme.txt for copyright information.
  *
@@ -23,8 +21,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <assert.h>
 
 #include "makesci.h"
 #include "makemisc.h"
@@ -38,98 +34,70 @@
  #define false 0
 #endif
 
-/* file_size:
- * returns the size of the file specified
+
+
+/* _file_size:
+ * Returns the size of the file specified.
  */
 static int _file_size(const char *filename)
 {
-  int ret;
+  int ret = 0;
   FILE *f = fopen(filename, "r");
-  for(ret = 0; !feof(f); ++ret, fgetc(f))
-    ;
-  fclose(f);
-  return ret;
-}
-
-
-
-/* baf_strtolower:
- * makes a string all lower case
- */
-static char *baf_strtolower(char *str)
-{
-  int i;
-  char *ret = malloc(strlen(str) + 1);
-  for(i = 0; i < strlen(str); ++i)
-  {
-    ret[i] = mytolower(str[i]);
+  if(f) {
+    if(fseek(f, 0L, SEEK_END) == 0)
+      ret = ftell(f);
+    fclose(f);
   }
-  ret[strlen(str)] = '\0';
   return ret;
 }
 
 
 
-/* ignore_line:
- * tells if it is supposed to ignore the line, of if it contains data for the API file
+/* _ignore_line:
+ * Tells if it is supposed to ignore the line, of if it contains data for the
+ * API file.
  */
 static bool _ignore_line(char *x)
 {
-  char *lowerx;
-  lowerx = baf_strtolower(x);
-  if(strncmp(lowerx, "typedef", 7) == 0)
-  {
-    free(lowerx);
-    return true;
-  }
-  if(strncmp(lowerx, "extern", 6) == 0)
-  {
-    free(lowerx);
-    return true;
-  }
-  if(strncmp(lowerx, "struct", 6) == 0)
-  {
-    free(lowerx);
-    return true;
-  }
-  if(strncmp(lowerx, "example", 7) == 0)
-  {
-    free(lowerx);
-    return true;
-  }
-  if(strncmp(lowerx, "drivers", 7) == 0)
-  {
-    free(lowerx);
-    return true;
-  }
-  free(lowerx);
-  return false;
+  return mystricmp(x, "typedef") == 0 ||
+         mystricmp(x, "extern")  == 0 ||
+         mystricmp(x, "struct")  == 0 ||
+         mystricmp(x, "example") == 0 ||
+         mystricmp(x, "drivers") == 0;
 }
 
 
 
-/* convert:
- * converts filename into apifilename
+/* _convert:
+ * Converts filename into apifilename.
  */
 static void _convert(const char *filename, const char *apifilename)
 {
   FILE *tx_file, *api_file;
-  int i, fs = _file_size(filename), offset;
+  int i, fs, offset;
   char tmp[1024];
-  char *buf = malloc(fs+1);
-  memset((void *)buf, '\0', fs);
+  char *buf;
+
   tx_file = fopen(filename, "r");
-  fread((void *)buf, sizeof(char), fs, tx_file); // read in the file
+  if(!tx_file)
+    return;
+  fs = _file_size(filename);
+  buf = malloc(fs+1);
+  fread(buf, sizeof(char), fs, tx_file); /* read in the file */
   fclose(tx_file);
-  
+
   api_file = fopen(apifilename, "w");
+  if (!api_file) {
+    free(buf);
+    return;
+  }
   
   for(i = 0; i < fs; ++i)
   {
     if(buf[i] == '@' && buf[i+1] == '\\')
     {
       int index;
-      memset((void *)tmp, '\0', 1024);
+      memset(tmp, '\0', sizeof(tmp));
       for(; buf[i] == '@' || buf[i] == '\\' || buf[i] == ' '; ++i)
         ;
       for(offset = i; buf[i] != '@'; ++i)
@@ -138,13 +106,13 @@ static void _convert(const char *filename, const char *apifilename)
       ++i;
       if(!_ignore_line(tmp))
       {
-        memset((void *)tmp, '\0', 1024);
+        bool done = false;
+        bool will_be_done = false;
+        memset(tmp, '\0', sizeof(tmp));
         for(offset = i; buf[i] != '\n'; ++i)
           tmp[i-offset] = buf[i];
         index = i-offset;
         ++i;
-        bool done = false;
-        bool will_be_done = false;
         while(!done)
         {
           if(buf[i] == '@' && buf[i+1] == '@')
@@ -163,12 +131,12 @@ static void _convert(const char *filename, const char *apifilename)
       }
       else
       {
-        memset((void *)tmp, '\0', 1024);
+        bool done = false;
+        bool will_be_done = false;
+        memset(tmp, '\0', sizeof(tmp));
         for(offset = i; buf[i] != '\n'; ++i)
           ;
         ++i;
-        bool done = false;
-        bool will_be_done = false;
         while(!done)
         {
           if(buf[i] == '@' && buf[i+1] == '@')
@@ -186,7 +154,7 @@ static void _convert(const char *filename, const char *apifilename)
     }
     else if(buf[i] == '@' && buf[i+1] == '@')
     {
-      memset((void *)tmp, '\0', 1024);
+      memset(tmp, '\0', sizeof(tmp));
       for(; buf[i] == '@'; ++i)
         ;
       for(offset = i; buf[i] != '@'; ++i)
@@ -195,7 +163,7 @@ static void _convert(const char *filename, const char *apifilename)
       ++i;
       if(!_ignore_line(tmp))
       {
-        memset((void *)tmp, '\0', 1024);
+        memset(tmp, '\0', sizeof(tmp));
         for(offset = i; buf[i] != '\n'; ++i)
           tmp[i-offset] = buf[i];
         fprintf(api_file, "%s\n", tmp);
@@ -208,7 +176,9 @@ static void _convert(const char *filename, const char *apifilename)
   free(buf);
 }
 
-/* write_api:
+
+
+/* write_scite:
  * Entry point to the function which translates makedoc's format
  * to correct SciTE API output.
  */
