@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Mac drivers list
+ *      Mac drivers list.
  *
- *      By Ronaldo H Yamada.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */

@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Some others mac stuff
+ *      Some others mac stuff.
  *
- *      By Ronaldo H Yamada.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */

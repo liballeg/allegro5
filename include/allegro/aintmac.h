@@ -10,7 +10,7 @@
  *
  *      Some definitions for internal use by the MacOs library code.
  *
- *      By Ronaldo H. Yamada.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */

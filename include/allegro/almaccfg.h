@@ -10,7 +10,7 @@
  *
  *      Configuration defines for use with MPW.
  *
- *      By Ronaldo H Yamada.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */

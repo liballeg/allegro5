@@ -11,7 +11,7 @@
  *      MacOs header file for the Allegro library.
  *      This should be included by everyone and everything.
  *
- *      By Shawn Hargreaves.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */

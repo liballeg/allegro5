@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Mac Files support
+ *      Mac files support.
  *
- *      By Ronaldo H Yamada.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */

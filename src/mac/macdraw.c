@@ -8,9 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      DrawSprocket GFX drivers.
+ *      DrawSprocket graphics drivers.
  *
- *      By Ronaldo H Yamada.
+ *      By Ronaldo Hideki Yamada.
  *
  *      See readme.txt for copyright information.
  */
