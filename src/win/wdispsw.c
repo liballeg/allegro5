@@ -147,7 +147,9 @@ void sys_switch_in(void)
    _TRACE("sys_switch_in\n");
    app_foreground = TRUE;
 
-   gfx_switch_in();
+   if (win_gfx_driver && win_gfx_driver->switch_in)
+      win_gfx_driver->switch_in();
+
    wnd_acquire_mouse(); 
    sys_directx_switch_in_callback();
 
@@ -183,7 +185,9 @@ void sys_switch_out(void)
    mouse_dinput_unacquire();
    midi_switch_out();
    timer_switch_out();
-   gfx_switch_out();
+
+   if (win_gfx_driver && win_gfx_driver->switch_out)
+      win_gfx_driver->switch_out();
 
    /* handle switch modes */
    switch(get_display_switch_mode())

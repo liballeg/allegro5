@@ -59,6 +59,26 @@ GFX_DRIVER gfx_directx_ovl =
    0,                           // long vid_phys_base;           /* physical address of video memory */
 };
 
+
+static void switch_in_ovl();
+static void switch_out_ovl();
+static void handle_window_move_ovl(int, int, int, int);
+static void hide_overlay();
+
+
+static struct WIN_GFX_DRIVER win_gfx_driver_overlay =
+{
+   switch_in_ovl,
+   switch_out_ovl,
+   NULL,                        // AL_METHOD(void, enter_size_move, (void));   
+   handle_window_move_ovl,
+   hide_overlay,
+   NULL,                        // AL_METHOD(void, init_menu_popup, (void));
+   NULL,                        // AL_METHOD(void, menu_select, (void));
+   NULL,                        // AL_METHOD(void, paint, (RECT *));
+};
+
+
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE2 overlay_surface = NULL;
 static RECT working_area;
@@ -95,8 +115,8 @@ static int show_overlay(int x, int y, int w, int h)
    overlay_visible = TRUE;
 
    /* dest color keying */
-   key.dwColorSpaceLowValue = 0; /* (wnd_back_color & 0xffff); */
-   key.dwColorSpaceHighValue = 0; /* (wnd_back_color >> 16); */
+   key.dwColorSpaceLowValue = 0;
+   key.dwColorSpaceHighValue = 0;
 
    hr = IDirectDrawSurface2_SetColorKey(dd_prim_surface, DDCKEY_DESTOVERLAY, &key);
    if (FAILED(hr)) {
@@ -105,7 +125,7 @@ static int show_overlay(int x, int y, int w, int h)
    }
 
    /* update overlay */
-   _TRACE("Updating overlay (key=0x%x)\n", wnd_back_color);
+   _TRACE("Updating overlay (key=0x%x)\n", 0);
 
    if (is_not_contained(&dest_rect, &working_area))
       hr = DDERR_INVALIDRECT;
@@ -130,7 +150,7 @@ static int show_overlay(int x, int y, int w, int h)
 
 /* hide_overlay:
  */
-void hide_overlay(void)
+static void hide_overlay(void)
 {
    if (overlay_visible) {
       overlay_visible = FALSE;
@@ -215,10 +235,10 @@ static void setup_driver_desc(void)
 
 
 
-/* handle_window_size_ovl:
+/* handle_window_move_ovl:
  *  updates overlay if window has been moved or resized
  */
-void handle_window_size_ovl(int x, int y, int w, int h)
+static void handle_window_move_ovl(int x, int y, int w, int h)
 {
    int xmod;
 
@@ -236,10 +256,10 @@ void handle_window_size_ovl(int x, int y, int w, int h)
 
 
 
-/* wddovl_switch_out:
+/* switch_out_ovl:
  *  handle overlay switched out
  */
-void wddovl_switch_out(void)
+static void switch_out_ovl(void)
 {
    /* if (overlay_surface)
       hide_overlay(); */
@@ -247,10 +267,10 @@ void wddovl_switch_out(void)
 
 
 
-/* wddovl_switch_in:
+/* switch_in_ovl:
  *  handle overlay switched in
  */
-void wddovl_switch_in(void)
+static void switch_in_ovl(void)
 {
    get_working_area(&working_area);
 
@@ -414,6 +434,9 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    else
       set_display_switch_mode(SWITCH_PAUSE);
 
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_driver_overlay;
+
    _exit_critical();
 
    return dd_frontbuffer;
@@ -437,6 +460,9 @@ static void gfx_directx_ovl_exit(struct BITMAP *b)
 
    if (b)
       clear (b);
+
+   /* disconnect from the system driver */
+   win_gfx_driver = NULL;
 
    /* destroy overlay surface */
    if (overlay_surface) {

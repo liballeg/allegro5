@@ -163,7 +163,7 @@ static void gfx_gdi_dblbuf_exit(struct BITMAP *b)
    /* before restoring video mode, hide window */
    wnd_paint_back = FALSE;
    restore_window_style();
-   SetWindowPos(allegro_wnd, HWND_TOPMOST,
+   SetWindowPos(allegro_wnd, HWND_TOP,
 		-100, -100, 0, 0, SWP_SHOWWINDOW); 
 }
 

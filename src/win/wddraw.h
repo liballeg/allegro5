@@ -100,26 +100,8 @@ AL_FUNC(void, release_directx_bitmap, (struct BITMAP *bmp));
 AL_VAR(BMP_EXTRA_INFO *, directx_bmp_list);
 
 
-/* overlay */
-AL_FUNC(void, handle_window_size_ovl, (int x, int y, int w, int h));
-AL_FUNC(void, hide_overlay, (void));
-AL_FUNC(void, wddovl_switch_out, (void));
-AL_FUNC(void, wddovl_switch_in, (void));
-
-AL_VAR(int, wnd_x);
-AL_VAR(int, wnd_y);
-AL_VAR(int, wnd_width);
-AL_VAR(int, wnd_height);
-AL_VAR(int, wnd_sysmenu);
-
-
 /* windowed mode */
-AL_FUNC(void, handle_window_moving_win, (void));
-AL_FUNC(void, handle_window_size_win, (int x, int y, int w, int h));
 AL_FUNCPTR(void, update_window, (RECT* rect));
-AL_FUNC(void, wddwin_switch_out, (void));
-AL_FUNC(void, wddwin_switch_in, (void));
-
 AL_FUNC(void,  _update_8_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
 AL_FUNC(void, _update_24_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
 AL_FUNC(void, _update_32_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));

@@ -66,6 +66,26 @@ GFX_DRIVER gfx_directx_win =
    0,                           // long vid_phys_base;           /* physical address of video memory */
 };
 
+
+static void switch_in_win();
+static void switch_out_win();
+static void handle_window_enter_move_win(void);
+static void handle_window_move_win(int, int, int, int);
+
+
+static struct WIN_GFX_DRIVER win_gfx_driver_windowed =
+{
+   switch_in_win,
+   switch_out_win,
+   handle_window_enter_move_win,
+   handle_window_move_win,
+   NULL,                        // AL_METHOD(void, iconify, (void));
+   handle_window_enter_move_win,
+   handle_window_move_win,
+   NULL,                        // AL_METHOD(void, paint, (RECT *));
+};
+
+
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
 /* if the allegro color depth is not the same as the desktop color depth,
@@ -81,11 +101,11 @@ static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
 
-/* handle_window_moving_win
+/* handle_window_enter_move_win
  *  makes the driver switch to the clipped updating mode,
  *  if window is moved and color conversion is in use,  
  */
-void handle_window_moving_win(void)
+static void handle_window_enter_move_win(void)
 {
    if (!same_color_depth && !clipped_updating_mode) {
       clipped_updating_mode = TRUE;
@@ -95,10 +115,10 @@ void handle_window_moving_win(void)
 
 
 
-/* handle_window_size_win:
+/* handle_window_move_win:
  *  updates window if window has been moved or resized
  */
-void handle_window_size_win(int x, int y, int w, int h)
+static void handle_window_move_win(int x, int y, int w, int h)
 {     
    /* force alignment to speed up color conversion */
    if (!same_color_depth) {
@@ -116,8 +136,7 @@ void handle_window_size_win(int x, int y, int w, int h)
       _TRACE("clipped updating mode off\n");
    }
 
-   if (update_window)
-      update_window(NULL);
+   update_window(NULL);
 }
 
 
@@ -125,21 +144,18 @@ void handle_window_size_win(int x, int y, int w, int h)
 /* update_window_hw
  * function synced with the vertical refresh
  */
-void update_window_hw (RECT* rect)
+static void update_window_hw(RECT* rect)
 {
    RECT dest_rect;
-   
-   if (!pseudo_screen)
-      return;
 
    if (rect) {
       dest_rect = *rect;
    }
    else {
       dest_rect.left   = 0;
-      dest_rect.right  = wnd_width;
+      dest_rect.right  = pseudo_screen->w;
       dest_rect.top    = 0;
-      dest_rect.bottom = wnd_height;
+      dest_rect.bottom = pseudo_screen->h;
    }
 
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
@@ -211,12 +227,9 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
 /* update_window_ex:
  * converts between two color formats
  */
-void update_window_ex (RECT* rect)
+static void update_window_ex(RECT* rect)
 {
    RECT src_rect, dest_rect;
-
-   if (!pseudo_screen)
-      return;
 
    if (rect) {
       /* align the rectangle */
@@ -227,9 +240,9 @@ void update_window_ex (RECT* rect)
    }
    else {
       src_rect.left   = 0;
-      src_rect.right  = wnd_width;
+      src_rect.right  = pseudo_screen->w;
       src_rect.top    = 0;
-      src_rect.bottom = wnd_height;
+      src_rect.bottom = pseudo_screen->h;
    }
 
    dest_rect = src_rect; 
@@ -356,22 +369,22 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 
 
 
-/* wddwin_switch_out:
+/* switch_out_win:
  *  handle window switched out
  */
-void wddwin_switch_out(void)
+static void switch_out_win(void)
 {
 }
 
 
 
-/* wddwin_switch_in:
+/* switch_in_win:
  *  handle window switched in
  */
-void wddwin_switch_in(void)
+static void switch_in_win(void)
 {
    get_working_area(&working_area);
-   handle_window_size_win(wnd_x, wnd_y, wnd_width, wnd_height);
+   handle_window_move_win(wnd_x, wnd_y, wnd_width, wnd_height);
 }
 
 
@@ -476,6 +489,7 @@ static int verify_color_depth (int color_depth)
       clipped_updating_mode = FALSE;
    }
 
+   win_gfx_driver_windowed.paint = update_window;
    return 0;
 }
 
@@ -652,9 +666,13 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
          in order to let the other apps live */  
       set_display_switch_mode(SWITCH_PAUSE);
 
+   pseudo_screen = dd_frontbuffer;
+
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_driver_windowed;
+
    _exit_critical();
 
-   pseudo_screen = dd_frontbuffer;
    return dd_frontbuffer;
 
  Error:
@@ -673,12 +691,16 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 static void gfx_directx_win_exit(struct BITMAP *b)
 { 
    _enter_gfx_critical();
-   
-   free (dirty_lines);
-   dirty_lines = NULL;
-   
+
    if (b)
       clear (b);
+
+   /* disconnect from the system driver */
+   win_gfx_driver = NULL;
+
+   /* destroy dirty lines array */   
+   free(dirty_lines);
+   dirty_lines = NULL;
 
    /* destroy the offscreen backbuffer used in windowed mode */
    gfx_directx_destroy_surf(offscreen_surface);
@@ -700,8 +722,6 @@ static void gfx_directx_win_exit(struct BITMAP *b)
       free (rgb_scale_5335);
       rgb_scale_5335 = NULL;
    }
-
-   update_window = NULL;
 
    /* unlink surface from bitmap */
    if (b)

@@ -25,24 +25,25 @@
 #include "wddraw.h"
 
 /* general */
-#define ALLEGRO_WND_CLASS "AllegroWindow"
 HWND allegro_wnd = NULL;
-static HWND user_wnd = NULL;
-static WNDPROC user_wnd_proc = NULL;
-static HANDLE wnd_thread = NULL;
-static HWND (*wnd_create_proc)(WNDPROC) = NULL;
 int wnd_x = 0;
 int wnd_y = 0;
 int wnd_width = 0;
 int wnd_height = 0;
 int wnd_windowed = FALSE;
 int wnd_sysmenu = FALSE;
+int wnd_paint_back = FALSE;
+
+struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
+
+#define ALLEGRO_WND_CLASS "AllegroWindow"
+static HWND user_wnd = NULL;
+static WNDPROC user_wnd_proc = NULL;
+static HANDLE wnd_thread = NULL;
+static HWND (*wnd_create_proc)(WNDPROC) = NULL;
+
 static int old_style = 0;
 static BOOL allow_wm_close = FALSE;
-
-/* background drawing */
-DWORD wnd_back_color = 0x0000ffff;
-BOOL wnd_paint_back = FALSE;
 
 /* custom window msgs */
 static UINT msg_call_proc = 0;
@@ -148,8 +149,8 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	 break;
 
       case WM_ENTERSIZEMOVE:
-         if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
-            handle_window_moving_win();
+         if (win_gfx_driver && win_gfx_driver->enter_size_move)
+            win_gfx_driver->enter_size_move();
          break;
 
       case WM_MOVE:
@@ -158,15 +159,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	       wnd_x = (short) LOWORD(lparam);
 	       wnd_y = (short) HIWORD(lparam);
 
-               if (gfx_driver) {
-                  if (gfx_driver->id == GFX_DIRECTX_OVL)
-	             handle_window_size_ovl(wnd_x, wnd_y, wnd_width, wnd_height);
-	          else if (gfx_driver->id == GFX_DIRECTX_WIN)
-		     handle_window_size_win(wnd_x, wnd_y, wnd_width, wnd_height);
-               }
+               if (win_gfx_driver && win_gfx_driver->move)
+                  win_gfx_driver->move(wnd_x, wnd_y, wnd_width, wnd_height);
 	    }
-	    else if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_OVL))
-	       hide_overlay();
+	    else if (win_gfx_driver && win_gfx_driver->iconify)
+               win_gfx_driver->iconify();
 	 }
 	 break;
 
@@ -181,32 +178,25 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	 break;
 
       case WM_PAINT:
-	 if (!wnd_paint_back)
-	 {
-	    BeginPaint(wnd, &ps);
-	    EndPaint(wnd, &ps);
-	 }
-	 else if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN)) {
-	    BeginPaint(wnd, &ps);
-            if (update_window)
-	       update_window(&(ps.rcPaint));
-	    EndPaint(wnd, &ps);
-	 }
+         BeginPaint(wnd, &ps);
+         if (win_gfx_driver && win_gfx_driver->paint)
+            win_gfx_driver->paint(&ps.rcPaint);
+         EndPaint(wnd, &ps);
 	 break;
 
       case WM_INITMENUPOPUP:
 	 wnd_sysmenu = TRUE;
 	 mouse_sysmenu_changed();
-         if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
-            handle_window_moving_win();
+         if (win_gfx_driver && win_gfx_driver->init_menu_popup)
+            win_gfx_driver->init_menu_popup();
 	 break;
 
       case WM_MENUSELECT:
 	 if ((HIWORD(wparam) == 0xFFFF) && (!lparam)) {
 	    wnd_sysmenu = FALSE;
 	    mouse_sysmenu_changed();
-            if (gfx_driver && (gfx_driver->id == GFX_DIRECTX_WIN))
-               handle_window_size_win(wnd_x, wnd_y, wnd_width, wnd_height);
+            if (win_gfx_driver && win_gfx_driver->menu_select)
+               win_gfx_driver->menu_select(wnd_x, wnd_y, wnd_width, wnd_height);
 	 }
 	 break;
 
@@ -288,8 +278,7 @@ static HWND create_directx_window(void)
    do_uconvert(get_filename(fname), U_CURRENT, title, U_ASCII, sizeof(title));
 
    /* create the window now */
-   wnd = CreateWindowEx(
-			  0,
+   wnd = CreateWindowEx(  0,
 			  ALLEGRO_WND_CLASS,
 			  title,
 			  WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX,

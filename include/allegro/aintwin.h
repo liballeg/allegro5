@@ -44,8 +44,6 @@
 AL_VAR(HINSTANCE, allegro_inst);
 AL_VAR(HWND, allegro_wnd);
 AL_VAR(HANDLE, allegro_thread);
-AL_VAR(DWORD, wnd_back_color);
-AL_VAR(BOOL, wnd_paint_back);
 
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));
@@ -55,8 +53,26 @@ AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
 
 /* Stuff moved over from wddraw.h */
-
+AL_VAR(int, wnd_x);
+AL_VAR(int, wnd_y);
+AL_VAR(int, wnd_width);
+AL_VAR(int, wnd_height);
 AL_VAR(int, wnd_windowed);
+AL_VAR(int, wnd_sysmenu);
+AL_VAR(int, wnd_paint_back);
+
+struct WIN_GFX_DRIVER {
+   void (*switch_in)(void);
+   void (*switch_out)(void);
+   void (*enter_size_move)(void);
+   void (*move)(int, int, int, int);
+   void (*iconify)(void);
+   void (*init_menu_popup)(void);
+   void (*menu_select)(int, int, int, int);
+   void (*paint)(RECT *);
+};   
+
+AL_VAR(struct WIN_GFX_DRIVER *, win_gfx_driver);
 
 #define _enter_gfx_critical() EnterCriticalSection(&gfx_crit_sect);
 #define _exit_gfx_critical() LeaveCriticalSection(&gfx_crit_sect);
@@ -94,10 +110,8 @@ AL_FUNC(int, sys_directx_set_display_switch_callback, (int dir, void (*cb)(void)
 AL_FUNC(void, sys_directx_remove_display_switch_callback, (void (*cb)(void)));
 
 AL_FUNC(void, sys_switch_in, (void));
-AL_FUNC(void, gfx_switch_in, (void));
 
 AL_FUNC(void, sys_switch_out, (void));
-AL_FUNC(void, gfx_switch_out, (void));
 AL_FUNC(void, thread_switch_out, (void));
 AL_FUNC(void, midi_switch_out, (void));
 AL_FUNC(void, timer_switch_out, (void));

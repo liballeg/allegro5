@@ -34,40 +34,6 @@ static void gfx_directx_switch_out(void)
 
 
 
-/* gfx_switch_out:
- *  Handles switching away from the graphics subsystem.
- */
-void gfx_switch_out(void)
-{
-   if (gfx_driver) {
-      if (gfx_driver->id == GFX_DIRECTX_WIN) {
-	 if (get_display_switch_mode() == SWITCH_PAUSE)
-	    wddwin_switch_out();
-      }
-      else if (gfx_driver->id == GFX_DIRECTX_OVL)
-	 wddovl_switch_out();
-   }
-}
-
-
-
-/* gfx_switch_in:
- *  Handles switching back to the graphics subsystem.
- */
-void gfx_switch_in(void)
-{
-   if (gfx_driver) {
-      if (gfx_driver->id == GFX_DIRECTX_WIN) {
-	 if (get_display_switch_mode() == SWITCH_PAUSE)
-	    wddwin_switch_in();
-      }
-      else if (gfx_driver->id == GFX_DIRECTX_OVL)
-	 wddovl_switch_in();
-   }
-}
-
-
-
 /* gfx_directx_lock:
  *  Locks the surface and prepares the lines array of the bitmap.
  */
