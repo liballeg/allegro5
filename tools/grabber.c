@@ -31,6 +31,7 @@
 
 /* 80 characters * maximum character width (6 bytes for UTF8) */
 #define FILENAME_LENGTH (80*6)
+#define MAX_BYTES_PER_CHAR 6
 
 
 typedef struct DATAITEM
@@ -48,12 +49,12 @@ static char *data_sel = NULL;
 static int data_count = 0;
 static int data_malloced = 0;
 
-static char data_file[256] = "";
-static char header_file[256] = "";
-static char prefix_string[256] = "";
-static char password[256];
-static char xgrid_string[16];
-static char ygrid_string[16];
+static char data_file[256 * MAX_BYTES_PER_CHAR] = "";
+static char header_file[256 * MAX_BYTES_PER_CHAR] = "";
+static char prefix_string[256 * MAX_BYTES_PER_CHAR] = "";
+static char password[256 * MAX_BYTES_PER_CHAR];
+static char xgrid_string[5 * MAX_BYTES_PER_CHAR];
+static char ygrid_string[5 * MAX_BYTES_PER_CHAR];
 
 static int current_view_object = -1;
 static int current_property_object = -1;
