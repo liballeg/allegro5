@@ -135,70 +135,78 @@ DISTCLEAN_FILES += $(addprefix tests/win/, dibgrab.exe dibhello.exe dibsound.exe
 
 # -------- rules for installing and removing the library files --------
 
-ifneq ($(wildcard $(DJDIR)/bin/cp.exe),)
-   HAVE_CP = 1
-endif
+ifdef UNIX_TOOLS
 
 $(BCC32DIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp lib/bcc32/$(IMPLIB_BASENAME) $(BCC32DIR_U)/lib
-else
-	copy lib\bcc32\$(IMPLIB_BASENAME) $(BCC32DIR_D)\lib
-endif
+	cp lib/bcc32/$(IMPLIB_BASENAME) $(BCC32DIR_U)/lib
 
 $(BCC32DIR_U)/include/allegro.h: include/allegro.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp include/allegro.h $(BCC32DIR_U)/include
-else
-	copy include\allegro.h $(BCC32DIR_D)\include
-endif
+	cp include/allegro.h $(BCC32DIR_U)/include
 
 $(BCC32DIR_U)/include/winalleg.h: include/winalleg.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp include/winalleg.h $(BCC32DIR_U)/include
+	cp include/winalleg.h $(BCC32DIR_U)/include
+
+$(BCC32DIR_U)/include/allegro:
+	mkdir $(BCC32DIR_U)/include/allegro 
+
+$(BCC32DIR_U)/include/allegro/%.h: include/allegro/%.h
+	cp $< $@
+
+$(BCC32DIR_U)/include/allegro/internal:
+	mkdir $(BCC32DIR_U)/include/allegro/internal
+
+$(BCC32DIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+	cp $< $@
+
+$(BCC32DIR_U)/include/allegro/inline:
+	mkdir $(BCC32DIR_U)/include/allegro/inline
+
+$(BCC32DIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+	cp $< $@
+
+$(BCC32DIR_U)/include/allegro/platform:
+	mkdir $(BCC32DIR_U)/include/allegro/platform
+
+$(BCC32DIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+	cp $< $@
+
 else
+
+$(BCC32DIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
+	copy lib\bcc32\$(IMPLIB_BASENAME) $(BCC32DIR_D)\lib
+
+$(BCC32DIR_U)/include/allegro.h: include/allegro.h
+	copy include\allegro.h $(BCC32DIR_D)\include
+
+$(BCC32DIR_U)/include/winalleg.h: include/winalleg.h
 	copy include\winalleg.h $(BCC32DIR_D)\include
-endif
 
 $(BCC32DIR_U)/include/allegro:
 	md $(BCC32DIR_D)\include\allegro 
 
 $(BCC32DIR_U)/include/allegro/%.h: include/allegro/%.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
 
 $(BCC32DIR_U)/include/allegro/internal:
 	md $(BCC32DIR_D)\include\allegro\internal
 
 $(BCC32DIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
 
 $(BCC32DIR_U)/include/allegro/inline:
 	md $(BCC32DIR_D)\include\allegro\inline
 
 $(BCC32DIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
 
 $(BCC32DIR_U)/include/allegro/platform:
 	md $(BCC32DIR_D)\include\allegro\platform
 
 $(BCC32DIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
+
+endif # UNIX_TOOLS
+
 
 HEADERS = $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/*.h))          \
           $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/internal/*.h)) \
@@ -220,8 +228,8 @@ INSTALL_FILES = $(BCC32DIR_U)/lib/$(IMPLIB_BASENAME)              \
 
 install: $(INSTALL_FILES)
 ifneq ($(wildcard lib/msvc/$(DLL_BASENAME)),)
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp lib/msvc/$(DLL_BASENAME) $(WINDIR_U)
+ifdef UNIX_TOOLS
+	cp lib/msvc/$(DLL_BASENAME) $(WINDIR_U)
 else
 	copy lib\msvc\$(DLL_BASENAME) $(WINDIR_D)
 endif
@@ -242,23 +250,45 @@ UNINSTALL_FILES = $(BCC32DIR_U)/lib/alleg.lib                \
 		  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
 
 uninstall:
+ifdef UNIX_TOOLS
 	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(BCC32DIR_U)/include/allegro/platform
+	-rmdir $(BCC32DIR_U)/include/allegro/inline
+	-rmdir $(BCC32DIR_U)/include/allegro/internal
+	-rmdir $(BCC32DIR_U)/include/allegro
+else
+   define RM_FILES
+      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
 	-rd $(BCC32DIR_D)\include\allegro\platform
 	-rd $(BCC32DIR_D)\include\allegro\inline
 	-rd $(BCC32DIR_D)\include\allegro\internal
 	-rd $(BCC32DIR_D)\include\allegro
+endif
 	@echo All gone!
 
 
 
-# -------- link as a DLL --------
+# -------- link as a DLL (sort of ;-) --------
 
-define MAKE_LIB
-   echo LIBRARY     $(DLL_BASENAME) > _allegro.def
-   copy _allegro.def + $(subst /,\,$(EXPDEF_NAME)) _allegro.def > nul
-   implib $(subst /,\,$(IMPLIB_NAME)) _allegro.def > nul
-   del _allegro.def
-endef
+ifdef UNIX_TOOLS
+   define MAKE_LIB
+      echo LIBRARY     $(DLL_BASENAME) > _allegro.def
+      cat _allegro.def $(EXPDEF_NAME) > _allegr2.def
+      implib $(subst /,\,$(IMPLIB_NAME)) _allegr2.def
+      rm _allegro.def _allegr2.def
+   endef
+else
+   define MAKE_LIB
+      echo LIBRARY     $(DLL_BASENAME) > _allegro.def
+      copy _allegro.def + $(subst /,\,$(EXPDEF_NAME)) _allegr2.def
+      implib $(subst /,\,$(IMPLIB_NAME)) _allegr2.def
+      del _allegro.def
+      del _allegr2.def
+   endef
+endif
 
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
@@ -266,40 +296,66 @@ $(OBJ_DIR)/%.obj: %.c
 	bcc32 $(COMPILE_FLAGS) -W -I. -I./include -c -o$(subst /,\,$@) $(subst /,\,$<)
 
 $(OBJ_DIR)/%.res: %.rc
-	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<) > nul
+	brcc32 -i $(BCC32DIR)\include -fo $(subst /,\,$@) $(subst /,\,$<)
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 ifdef DELETE_TDS_FILES
+   ifdef UNIX_TOOLS
+	@rm $(subst .exe,.tds,$@)
+   else
 	@del $(subst .exe,.tds,$(subst /,\,$@))
+   endif
 endif
 
 tests/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 ifdef DELETE_TDS_FILES
+   ifdef UNIX_TOOLS
+	@rm $(subst .exe,.tds,$@)
+   else
 	@del $(subst .exe,.tds,$(subst /,\,$@))
+   endif
 endif
 
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.obj $(OBJ_DIR)/dibsound.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/dibsound.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/dibsound.obj),tests\win\dibsound.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
+ifdef UNIX_TOOLS
+	@rm res.rsp
+   ifdef DELETE_TDS_FILES
+	@rm tests/win/dibsound.tds
+   endif
+else
 	@del res.rsp
-ifdef DELETE_TDS_FILES
+   ifdef DELETE_TDS_FILES
 	@del tests\win\dibsound.tds
+   endif
 endif
 
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/scrsave.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/scrsave.obj),tests\win\scrsave.scr,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
+ifdef UNIX_TOOLS
+	@rm res.rsp
+   ifdef DELETE_TDS_FILES
+	@rm tests/win/scrsave.tds
+   endif
+else
 	@del res.rsp
-ifdef DELETE_TDS_FILES
+   ifdef DELETE_TDS_FILES
 	@del tests\win\scrsave.tds
+   endif
 endif
 
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME)
 	ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 ifdef DELETE_TDS_FILES
+   ifdef UNIX_TOOLS
+	@rm $(subst .exe,.tds,$@)
+   else
 	@del $(subst .exe,.tds,$(subst /,\,$@))
+   endif
 endif
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
@@ -308,10 +364,17 @@ define DO_LINK_CONSOLE
    ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(LIBRARIES))
 endef
 ifdef DELETE_TDS_FILES
-   define LINK_CONSOLE
-      $(DO_LINK_CONSOLE)
-      @del $(subst .exe,.tds,$(subst /,\,$@))
-   endef
+   ifdef UNIX_TOOLS
+      define LINK_CONSOLE
+         $(DO_LINK_CONSOLE)
+         @rm $(subst .exe,.tds,$@)
+      endef
+   else
+      define LINK_CONSOLE
+         $(DO_LINK_CONSOLE)
+         @del $(subst .exe,.tds,$(subst /,\,$@))
+      endef
+   endif
 else
    LINK_CONSOLE = $(DO_LINK_CONSOLE)
 endif
@@ -321,34 +384,45 @@ PLUGINS_H = obj/bcc32/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scx
 
-ifneq ($(wildcard $(DJDIR)/bin/cat.exe),)
-
-define GENERATE_PLUGINS_H
-   $(DJDIR)/bin/cat tools/plugins/*.inc > obj/bcc32/plugins.h
-endef
-
+ifdef UNIX_TOOLS
+   define GENERATE_PLUGINS_H
+      cat tools/plugins/*.inc > obj/bcc32/plugins.h
+   endef
 else
-
-define GENERATE_PLUGINS_H
-   copy tools\plugins\*.inc obj\bcc32\plugins.h
-endef
-
+   define GENERATE_PLUGINS_H
+      copy tools\plugins\*.inc obj\bcc32\plugins.h
+   endef
 endif
 
-define MAKE_PLUGIN_LIB
-   $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile)) > nul
-   )
-   @del $(subst .lib,.BAK,$(subst /,\,$(PLUGIN_LIB)))
-endef
+ifdef UNIX_TOOLS
+   define MAKE_PLUGIN_LIB
+      $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile))
+      )
+      @rm $(subst .lib,.BAK,$(PLUGIN_LIB))
+   endef
+else
+   define MAKE_PLUGIN_LIB
+      $(foreach objfile, $(PLUGIN_OBJS), tlib $(subst /,\,$(PLUGIN_LIB) + $(objfile))
+      )
+      @del $(subst .lib,.BAK,$(subst /,\,$(PLUGIN_LIB)))
+   endef
+endif
 
 define DO_LINK_WITH_PLUGINS
    ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
 endef
 ifdef DELETE_TDS_FILES
-   define LINK_WITH_PLUGINS
-      $(DO_LINK_WITH_PLUGINS)
-      @del $(subst .exe,.tds,$(subst /,\,$@))
-   endef
+   ifdef UNIX_TOOLS
+      define LINK_WITH_PLUGINS
+         $(DO_LINK_WITH_PLUGINS)
+         @rm $(subst .exe,.tds,$@)
+      endef
+   else
+      define LINK_WITH_PLUGINS
+         $(DO_LINK_WITH_PLUGINS)
+         @del $(subst .exe,.tds,$(subst /,\,$@))
+      endef
+   endif
 else
    LINK_WITH_PLUGINS = $(DO_LINK_WITH_PLUGINS)
 endif
@@ -357,10 +431,17 @@ define DO_LINK_CONSOLE_WITH_PLUGINS
    ilink32 $(LFLAGS) -ap -Tpe c0x32 $(subst /,\,$<),$(subst /,\,$@),,$(subst /,\,$(LIB_NAME) $(PLUGIN_LIB) $(LIBRARIES))
 endef
 ifdef DELETE_TDS_FILES
-   define LINK_CONSOLE_WITH_PLUGINS
-      $(DO_LINK_CONSOLE_WITH_PLUGINS)
-      @del $(subst .exe,.tds,$(subst /,\,$@))
-   endef
+   ifdef UNIX_TOOLS
+      define LINK_CONSOLE_WITH_PLUGINS
+         $(DO_LINK_CONSOLE_WITH_PLUGINS)
+         @rm $(subst .exe,.tds,$@)
+      endef
+   else
+      define LINK_CONSOLE_WITH_PLUGINS
+         $(DO_LINK_CONSOLE_WITH_PLUGINS)
+         @del $(subst .exe,.tds,$(subst /,\,$@))
+      endef
+   endif
 else
    LINK_CONSOLE_WITH_PLUGINS = $(DO_LINK_CONSOLE_WITH_PLUGINS)
 endif
@@ -377,9 +458,16 @@ $(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
 fixdemo: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
 	@echo $(subst /,\\,$(OBJ_DIR)/demo.res) > res.rsp
 	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/demo.obj),demo\demo.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
+ifdef UNIX_TOOLS
+	@rm res.rsp
+   ifdef DELETE_TDS_FILES
+	@rm demo/demo.tds
+   endif
+else
 	@del res.rsp
-ifdef DELETE_TDS_FILES
+   ifdef DELETE_TDS_FILES
 	@del demo\demo.tds
+   endif
 endif
 
 

@@ -31,7 +31,7 @@
    - Recent set of DirectX and other Windows SDK headers.
    - djgpp compiler (djdev*.zip, gcc*b.zip, and bnu*b.zip).
    - GNU make (mak*b.zip).
-   - Optional: rm (fil*b.zip). Used by the clean and uninstall targets.
+   - Optional: rm (fil*b.zip). Used by the clean targets.
    - Optional: sed (sed*b.zip). Used by "make depend" and "fixdll".
    - Optional: sort (txt*b.zip). Used by "fixdll". Use Unix sort, not DOS!
 

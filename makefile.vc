@@ -180,9 +180,55 @@ DISTCLEAN_FILES += $(addprefix tests/win/, dibgrab.exe dibhello.exe dibsound.exe
 
 # -------- rules for installing and removing the library files --------
 
-ifneq ($(wildcard $(DJDIR)/bin/cp.exe),)
-   HAVE_CP = 1
+ifdef UNIX_TOOLS
+
+$(MSVCDIR_U)/lib:
+	mkdir $(MSVCDIR_U)/lib
+
+ifndef STATICLINK
+
+$(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
+	cp lib/msvc/$(DLL_BASENAME) $(WINDIR_U)
+
 endif
+
+$(MSVCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
+	cp lib/msvc/$(IMPLIB_BASENAME) $(MSVCDIR_U)/lib
+
+$(MSVCDIR_U)/include:
+	mkdir $(MSVCDIR_U)/include
+
+$(MSVCDIR_U)/include/allegro.h: include/allegro.h
+	cp include/allegro.h $(MSVCDIR_U)/include
+
+$(MSVCDIR_U)/include/winalleg.h: include/winalleg.h
+	cp include/winalleg.h $(MSVCDIR_U)/include
+
+$(MSVCDIR_U)/include/allegro:
+	mkdir $(MSVCDIR_U)/include/allegro 
+
+$(MSVCDIR_U)/include/allegro/%.h: include/allegro/%.h
+	cp $< $@
+
+$(MSVCDIR_U)/include/allegro/internal:
+	mkdir $(MSVCDIR_U)/include/allegro/internal
+
+$(MSVCDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+	cp $< $@
+
+$(MSVCDIR_U)/include/allegro/inline:
+	mkdir $(MSVCDIR_U)/include/allegro/inline
+
+$(MSVCDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+	cp $< $@
+
+$(MSVCDIR_U)/include/allegro/platform:
+	mkdir $(MSVCDIR_U)/include/allegro/platform
+
+$(MSVCDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+	cp $< $@
+
+else
 
 $(MSVCDIR_U)/lib:
 	md $(MSVCDIR_D)\lib
@@ -190,77 +236,48 @@ $(MSVCDIR_U)/lib:
 ifndef STATICLINK
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp lib/msvc/$(DLL_BASENAME) $(WINDIR_U)
-else
 	copy lib\msvc\$(DLL_BASENAME) $(WINDIR_D)
-endif
 
 endif
 
 $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp lib/msvc/$(IMPLIB_BASENAME) $(MSVCDIR_U)/lib
-else
 	copy lib\msvc\$(IMPLIB_BASENAME) $(MSVCDIR_D)\lib
-endif
 
 $(MSVCDIR_U)/include:
 	md $(MSVCDIR_D)\include
 
 $(MSVCDIR_U)/include/allegro.h: include/allegro.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp include/allegro.h $(MSVCDIR_U)/include
-else
 	copy include\allegro.h $(MSVCDIR_D)\include
-endif
 
 $(MSVCDIR_U)/include/winalleg.h: include/winalleg.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp include/winalleg.h $(MSVCDIR_U)/include
-else
 	copy include\winalleg.h $(MSVCDIR_D)\include
-endif
 
 $(MSVCDIR_U)/include/allegro:
 	md $(MSVCDIR_D)\include\allegro 
 
 $(MSVCDIR_U)/include/allegro/%.h: include/allegro/%.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
 
 $(MSVCDIR_U)/include/allegro/internal:
 	md $(MSVCDIR_D)\include\allegro\internal
 
 $(MSVCDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
 
 $(MSVCDIR_U)/include/allegro/inline:
 	md $(MSVCDIR_D)\include\allegro\inline
 
 $(MSVCDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
-endif
 
 $(MSVCDIR_U)/include/allegro/platform:
 	md $(MSVCDIR_D)\include\allegro\platform
 
 $(MSVCDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-ifdef HAVE_CP
-	$(DJDIR)/bin/cp $< $@
-else
 	copy $(subst /,\,$< $@)
+
 endif
+
 
 HEADERS = $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/*.h))          \
           $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/internal/*.h)) \
@@ -301,11 +318,23 @@ UNINSTALL_FILES = $(MSVCDIR_U)/lib/alleg.lib                \
 		  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
 
 uninstall:
+ifdef UNIX_TOOLS
 	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(MSVCDIR_U)/include/allegro/platform
+	-rmdir $(MSVCDIR_U)/include/allegro/inline
+	-rmdir $(MSVCDIR_U)/include/allegro/internal
+	-rmdir $(MSVCDIR_U)/include/allegro
+else
+   define RM_FILES
+      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
 	-rd $(MSVCDIR_D)\include\allegro\platform
 	-rd $(MSVCDIR_D)\include\allegro\inline
 	-rd $(MSVCDIR_D)\include\allegro\internal
 	-rd $(MSVCDIR_D)\include\allegro
+endif
 	@echo All gone!
 
 
@@ -401,18 +430,14 @@ PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(RUNNER)
 PLUGINS_H = obj/msvc/plugins.h
 PLUGIN_SCR = scv
 
-ifneq ($(wildcard $(DJDIR)/bin/cat.exe),)
-
-define GENERATE_PLUGINS_H
-   $(DJDIR)/bin/cat tools/plugins/*.inc > obj/msvc/plugins.h
-endef
-
+ifdef UNIX_TOOLS
+   define GENERATE_PLUGINS_H
+      cat tools/plugins/*.inc > obj/msvc/plugins.h
+   endef
 else
-
-define GENERATE_PLUGINS_H
-   copy tools\plugins\*.inc obj\msvc\plugins.h
-endef
-
+   define GENERATE_PLUGINS_H
+      copy tools\plugins\*.inc obj\msvc\plugins.h
+   endef
 endif
 
 define MAKE_PLUGIN_LIB

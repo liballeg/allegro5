@@ -232,32 +232,29 @@ $(MINGDIR_U)/include/allegro.h: include/allegro.h
 $(MINGDIR_U)/include/winalleg.h: include/winalleg.h
 	cp include/winalleg.h $(MINGDIR_U)/include
 
-$(MINGDIR_U)/include:
-	mkdir -p $(MINGDIR_U)/include
-
 $(MINGDIR_U)/include/allegro:
-	mkdir -p $(MINGDIR_U)/include/allegro 
+	mkdir $(MINGDIR_U)/include/allegro 
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
-	cp $(subst \,/,$< $@)
+	cp $< $@
 
 $(MINGDIR_U)/include/allegro/internal:
-	mkdir -p $(MINGDIR_U)/include/allegro/internal
+	mkdir $(MINGDIR_U)/include/allegro/internal
 
 $(MINGDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-	cp $(subst \,/,$< $@)
+	cp $< $@
 
 $(MINGDIR_U)/include/allegro/inline:
-	mkdir -p $(MINGDIR_U)/include/allegro/inline
+	mkdir $(MINGDIR_U)/include/allegro/inline
 
 $(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-	cp $(subst \,/,$< $@)
+	cp $< $@
 
 $(MINGDIR_U)/include/allegro/platform:
 	mkdir -p $(MINGDIR_U)/include/allegro/platform
 
 $(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-	cp $(subst \,/,$< $@)
+	cp $< $@
 
 else
 
@@ -345,11 +342,23 @@ UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a               \
                   $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
 
 uninstall:
+ifdef UNIX_TOOLS
 	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(MINGDIR_U)/include/allegro/platform
+	-rmdir $(MINGDIR_U)/include/allegro/inline
+	-rmdir $(MINGDIR_U)/include/allegro/internal
+	-rmdir $(MINGDIR_U)/include/allegro
+else
+   define RM_FILES
+      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
+      )
+   endef
+	-$(RM_FILES)
 	-rd $(MINGDIR_D)\include\allegro\platform
 	-rd $(MINGDIR_D)\include\allegro\inline
 	-rd $(MINGDIR_D)\include\allegro\internal
 	-rd $(MINGDIR_D)\include\allegro
+endif
 	@echo All gone!
 
 
@@ -464,18 +473,14 @@ PLUGINS_H = obj/mingw32/plugins.h
 PLUGIN_SCR = scv
 
 ifdef UNIX_TOOLS
-
-define GENERATE_PLUGINS_H
-   cat tools/plugins/*.inc > obj/mingw32/plugins.h
-endef
-
+   define GENERATE_PLUGINS_H
+      cat tools/plugins/*.inc > obj/mingw32/plugins.h
+   endef
 else
-
-define GENERATE_PLUGINS_H
-   copy tools\plugins\*.inc obj\mingw32\plugins.h
-endef
-
-endif # UNIX_TOOLS
+   define GENERATE_PLUGINS_H
+      copy tools\plugins\*.inc obj\mingw32\plugins.h
+   endef
+endif
 
 define MAKE_PLUGIN_LIB
    ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
