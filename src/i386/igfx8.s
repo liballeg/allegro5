@@ -106,9 +106,10 @@ putpix_solid_mode:
    movb %bl, %es:(%eax, %ecx)    /* store the pixel */
 
 putpix_done:
+   popw %es
+
    UNWRITE_BANK()
 
-   popw %es
    popl %ebx
    movl %ebp, %esp
    popl %ebp

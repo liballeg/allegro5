@@ -439,9 +439,8 @@ name##_done:                                                               ; \
    popl %edi                                                               ; \
    popl %esi                                                               ; \
    popl %ebx                                                               ; \
-									   ; \
    movl %ebp, %esp                                                         ; \
-   popl %ebp                     /* finshed drawing an RLE sprite */
+   popl %ebp                     /* finished drawing an RLE sprite */
 
 
 

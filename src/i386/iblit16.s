@@ -35,9 +35,9 @@
 FUNC(_linear_clear_to_color16)
    pushl %ebp
    movl %esp, %ebp
-   pushl %ebx
-   pushl %esi
    pushl %edi
+   pushl %esi
+   pushl %ebx
    pushw %es 
 
    movl ARG1, %edx               /* edx = bmp */
@@ -284,12 +284,13 @@ clear_no_long:
    jg clear_loop                 /* and loop */
 
 clear_done:
+   popw %es
+
    UNWRITE_BANK()
 
-   popw %es
-   popl %edi
-   popl %esi
    popl %ebx
+   popl %esi
+   popl %edi
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_clear_to_color16() */
@@ -304,10 +305,10 @@ clear_done:
 FUNC(_linear_blit16)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_DEST, %edx
    movw BMP_SEG(%edx), %es       /* load destination segment */
@@ -426,8 +427,7 @@ blit_only_one_word:
 
    _align_
 blit_done:
-   movl B_SOURCE, %edx
-   UNWRITE_BANK()
+   popw %es
 
    movl B_DEST, %edx
    UNWRITE_BANK()
@@ -435,7 +435,6 @@ blit_done:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_blit16() */
@@ -450,10 +449,10 @@ blit_done:
 FUNC(_linear_blit_backward16)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_HEIGHT, %eax           /* y values go from high to low */
    decl %eax
@@ -496,8 +495,7 @@ blit_backwards_loop:
 
    cld                           /* finished */
 
-   movl B_SOURCE, %edx
-   UNWRITE_BANK()
+   popw %es
 
    movl B_DEST, %edx
    UNWRITE_BANK()
@@ -505,7 +503,6 @@ blit_backwards_loop:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_blit_backward16() */
@@ -524,10 +521,10 @@ FUNC(_linear_masked_blit16)
    pushl %ebp
    movl %esp, %ebp
    subl $4, %esp                 /* one local variable */
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    #define V_MASK    -4(%ebp)
 
@@ -581,13 +578,14 @@ FUNC(_linear_masked_blit16)
    masked32_blit_end:
    )
 
+   popw %es
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_masked_blit16() */
@@ -596,4 +594,3 @@ FUNC(_linear_masked_blit16)
 
 
 #endif      /* ifdef ALLEGRO_COLOR16 */
-

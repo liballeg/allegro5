@@ -35,9 +35,9 @@
 FUNC(_linear_clear_to_color8)
    pushl %ebp
    movl %esp, %ebp
-   pushl %ebx
-   pushl %esi
    pushl %edi
+   pushl %esi
+   pushl %ebx
    pushw %es 
 
    movl ARG1, %edx               /* edx = bmp */
@@ -288,12 +288,13 @@ clear_no_long:
    jg clear_loop                 /* and loop */
 
 clear_done:
+   popw %es
+
    UNWRITE_BANK()
 
-   popw %es
-   popl %edi
+   popl %ebx   
    popl %esi
-   popl %ebx
+   popl %edi
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_clear_to_color8() */
@@ -308,10 +309,10 @@ clear_done:
 FUNC(_linear_blit8)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_DEST, %edx
    movw BMP_SEG(%edx), %es       /* load destination segment */
@@ -364,8 +365,7 @@ blit_only_one_word:
 
    _align_
 blit_done:
-   movl B_SOURCE, %edx
-   UNWRITE_BANK()
+   popw %es
 
    movl B_DEST, %edx
    UNWRITE_BANK()
@@ -373,7 +373,6 @@ blit_done:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_blit8() */
@@ -388,10 +387,10 @@ blit_done:
 FUNC(_linear_blit_backward8)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_HEIGHT, %eax           /* y values go from high to low */
    decl %eax
@@ -481,8 +480,7 @@ blit_backwards_loop_fast:
 blit_backwards_end:
    cld                           /* finished */
 
-   movl B_SOURCE, %edx
-   UNWRITE_BANK()
+   popw %es
 
    movl B_DEST, %edx
    UNWRITE_BANK()
@@ -490,7 +488,6 @@ blit_backwards_end:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_blit_backward8() */
@@ -508,10 +505,10 @@ FUNC(_linear_blit8_end)
 FUNC(_linear_masked_blit8)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_DEST, %edx
    movw BMP_SEG(%edx), %es 
@@ -627,13 +624,14 @@ FUNC(_linear_masked_blit8)
    masked16_blit_end:
    )
 
+   popw %es
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_masked_blit8() */

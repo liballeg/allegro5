@@ -32,8 +32,8 @@ FUNC(_linear_clear_to_color24)
    pushl %ebp
    movl %esp, %ebp
    subl $12, %esp                /* 12 bytes temp space for local variables */
-   pushl %ebx
    pushl %edi
+   pushl %ebx
    pushw %es 
 
    movl ARG1, %edx               /* edx = bmp */
@@ -96,12 +96,13 @@ clear_normal_line:
    decl -12(%ebp)                /* dec loop counter */ 
    jnz clear_loop                /* and loop */
 
+   popw %es
+
    movl ARG1, %edx
    UNWRITE_BANK()
 
-   popw %es
-   popl %edi
    popl %ebx
+   popl %edi
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_clear_to_color() */
@@ -116,10 +117,10 @@ clear_normal_line:
 FUNC(_linear_blit24)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_DEST, %edx
    movw BMP_SEG(%edx), %es       /* load destination segment */
@@ -166,8 +167,7 @@ notcarry2:
    decl B_HEIGHT
    jg blit_loop_blitter24        /* and loop */
 
-   movl B_SOURCE, %edx
-   UNWRITE_BANK()
+   popw %es
 
    movl B_DEST, %edx
    UNWRITE_BANK()
@@ -175,7 +175,6 @@ notcarry2:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_blit24() */
@@ -190,10 +189,10 @@ notcarry2:
 FUNC(_linear_blit_backward24)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_HEIGHT, %eax           /* y values go from high to low */
    decl %eax
@@ -252,8 +251,7 @@ not_carry2:
 
    cld                           /* finished */
 
-   movl B_SOURCE, %edx
-   UNWRITE_BANK()
+   popw %es
 
    movl B_DEST, %edx
    UNWRITE_BANK()
@@ -261,7 +259,6 @@ not_carry2:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_blit_backward24() */
@@ -279,10 +276,10 @@ FUNC(_linear_blit24_end)
 FUNC(_linear_masked_blit24)
    pushl %ebp
    movl %esp, %ebp
-   pushw %es 
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl B_DEST, %edx
    movw BMP_SEG(%edx), %es 
@@ -338,13 +335,14 @@ befloop:
    decl B_HEIGHT
    jg blit_loop_blitter          /* and loop */
 
+   popw %es
+
    movl B_DEST, %edx
    UNWRITE_BANK()
 
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _linear_masked_blit24() */
@@ -353,4 +351,3 @@ befloop:
 
 
 #endif      /* ifdef ALLEGRO_COLOR24 */
-
