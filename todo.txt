@@ -26,7 +26,13 @@ Win32 todos:
 ---------------------------------------------------------------------------
 
 - Fix 'IE bars popup over a fullscreen DirectX window' bug
-- Investigate mouse problem with USB Wacom Tablet (bug #226445)
+- Fix mouse cursor in fullscreen mode after win_set_window()
+- Fix the emergency exit bug
+- Fix the CTRL+ALT+END bug
+- Fix ill-behaviour at startup (SetForeground)
+- Investigate plugins script support
+- Investigate problem with keyboard in the dxwindow test
+- Modify convert_hbitmap_to_bitmap() behaviour with 8-bit DDBs
 
 Linux todos:
 ---------------------------------------------------------------------------
