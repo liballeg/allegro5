@@ -32,7 +32,7 @@ PALETTE pal;
 
 
 
-long FAR PASCAL WndProc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 {
    RECT rect, updaterect;
    PAINTSTRUCT ps;
@@ -107,7 +107,7 @@ long FAR PASCAL WndProc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 
 
 
-int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
    static char szAppName[] = "Hello";
    WNDCLASS wndclass;

@@ -50,7 +50,7 @@ BOUNCER bouncer[NUM_BOUNCERS];
 
 
 /* initialises our graphical effect */
-void ss_init()
+void ss_init(void)
 {
    int i;
 
@@ -77,7 +77,7 @@ void ss_init()
 
 
 /* animates the graphical effect */
-void ss_update()
+void ss_update(void)
 {
    int i;
 
@@ -104,7 +104,7 @@ void ss_update()
 
 
 /* draws the graphical effect */
-void ss_draw()
+void ss_draw(void)
 {
    clear(buf);
 
@@ -124,7 +124,7 @@ void ss_draw()
 
 
 /* shuts down the graphical effect */
-void ss_exit()
+void ss_exit(void)
 {
 }
 
@@ -171,7 +171,7 @@ int do_password(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 
 
 /* window procedure for the screensaver preview */
-long FAR PASCAL preview_wnd_proc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
+LRESULT CALLBACK preview_wnd_proc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 {
    PAINTSTRUCT ps;
    HDC hdc;
@@ -332,7 +332,7 @@ int do_saver(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 
 
 /* the main program body */
-int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
    HWND hwnd;
    char *args;

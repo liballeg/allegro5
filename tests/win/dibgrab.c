@@ -20,10 +20,6 @@
 #include "allegro.h"
 #include "winalleg.h"
 
-#ifndef SCAN_DEPEND
-   #include <commdlg.h>
-#endif
-
 
 
 #define GRAB_W    64
@@ -40,7 +36,7 @@ PALETTE pal;
 
 
 
-long FAR PASCAL WndProc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 {
    HWND dwnd;
    HDC hdc, ddc;
@@ -143,7 +139,7 @@ long FAR PASCAL WndProc(HWND hwnd, UINT message, UINT wParam, LONG lParam)
 
 
 
-int PASCAL WinMain(HANDLE hInstance, HANDLE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
    static char szAppName[] = "Magnificator";
    WNDCLASS wndclass;
