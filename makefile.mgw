@@ -47,20 +47,21 @@ ifeq ($(OS),Windows_NT)
   WINSYSDIR = $(SYSTEMROOT)
   WINSUBDIR = system32
 else
-  WINSYSDIR = $(windir)
+  WINSYSDIR = $(WINDIR)
   WINSUBDIR = system
 endif
 
 ifneq ($(WINSYSDIR),)
-  WINDIR =$(WINSYSDIR)\$(WINSUBDIR)
+  WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
+  WINDIR_D = $(subst /,\,$(WINSYSDIR)\$(WINSUBDIR))
 else
 badwin:
-	@echo Your SYSTEMROOT or windir environment variable is not set!
+	@echo Your SYSTEMROOT or WINDIR environment variable is not set!
 endif
 
 ifdef MINGDIR
-MINGDIR_U = $(subst \,/,$(MINGDIR))
-MINGDIR_D = $(subst /,\,$(MINGDIR))
+  MINGDIR_U = $(subst \,/,$(MINGDIR))
+  MINGDIR_D = $(subst /,\,$(MINGDIR))
 else
 badming:
 	@echo Please specify your mingw32 directory via MINGDIR=. See the readme.mgw file!
@@ -192,7 +193,7 @@ ifdef STATICLINK
 
 # -------- link as a static library --------
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+  ar rs $(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = -DALLEGRO_STATICLINK 
@@ -210,7 +211,7 @@ define MAKE_LIB
 endef
 endif
 
-endif
+endif # STATICLINK
 
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
@@ -221,35 +222,35 @@ $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 ifdef STATICLINK
+
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
-else 
-*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
-endif
 
-ifdef STATICLINK
 wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
-else
+
+define LINK_CONSOLE
+gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+endef
+
+else 
+
+*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
+
 wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
-endif
+
+define LINK_CONSOLE
+gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME)
+endef
+
+endif # STATICLINK
 
 $(OBJ_DIR)/scrsave.res: wintests/scrsave.rc
 	windres -O coff -o $(OBJ_DIR)/scrsave.res -i wintests/scrsave.rc
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
-
-ifdef STATICLINK
-define LINK_CONSOLE
-gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
-endef
-else
-define LINK_CONSOLE
-gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME)
-endef
-endif
 
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
 	obj/mingw32/asmdef.exe obj/mingw32/asmdef.inc
@@ -272,33 +273,34 @@ ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 ifdef STATICLINK
-define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
-endef
-else
-define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
-endef
-endif
 
-ifdef STATICLINK
+define LINK_WITH_PLUGINS
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+endef
+
 define LINK_CONSOLE_WITH_PLUGINS
 gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
+
 else
+
+define LINK_WITH_PLUGINS
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
+endef
+
 define LINK_CONSOLE_WITH_PLUGINS
 gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
 endef
-endif
+
+endif # STATICLINK
 
 
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = -D__MINGW32__ -MM -MG -I. -I./include $(subst ;, -isystem ,$(INCLUDE))
+DEPEND_PARAMS = -D__MINGW32__ -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
-	echo "-isystem $(INCLUDE)" | sed -e "s/;$$//" -e "s/;/ -isystem /g" > _depend.arg
 	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c wintests/*.c > _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
@@ -308,4 +310,4 @@ depend:
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg_s\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg_s/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld_s\/\1\.o:/" _depend2.tmp > obj/mingw32/alld_s/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp_s\/\1\.o:/" _depend2.tmp > obj/mingw32/allp_s/makefile.dep
-	rm _depend.arg _depend.tmp _depend2.tmp
+	rm _depend.tmp _depend2.tmp
