@@ -615,7 +615,7 @@ static void read_keyboard_config()
    char filename[512], tmp1[128], tmp2[128], *ext, *datafile;
    AL_CONST char* name;
 
-   name = get_config_string(NULL, uconvert_ascii("keyboard", tmp1), NULL);
+   name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("keyboard", tmp2), NULL);
 
    if ((!name) || (!ugetc(name)))
       return;

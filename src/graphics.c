@@ -471,7 +471,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	       usprintf(buf, uconvert_ascii("gfx_card%d", tmp), n);
 	       break;
 	 }
-	 card = get_config_id(NULL, buf, GFX_AUTODETECT);
+	 card = get_config_id(uconvert_ascii("graphics", tmp), buf, GFX_AUTODETECT);
 
 	 if (card != GFX_AUTODETECT) {
 	    for (c=0; driver_list[c].driver; c++) {

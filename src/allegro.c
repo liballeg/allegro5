@@ -260,7 +260,7 @@ void _remove_exit_func(void (*func)(void))
  */
 int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func)(void)))
 {
-   char tmp[32];
+   char tmp1[64], tmp2[64];
    int i;
 
    #ifndef CONSTRUCTOR_FUNCTION
@@ -308,7 +308,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    _load_config_text();
 
    if (system_id == SYSTEM_AUTODETECT)
-      system_id = get_config_id(NULL, uconvert_ascii("system", tmp), SYSTEM_AUTODETECT);
+      system_id = get_config_id(uconvert_ascii("system", tmp1), uconvert_ascii("system", tmp2), SYSTEM_AUTODETECT);
 
    system_driver = NULL;
 

@@ -1037,7 +1037,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    AL_CONST char *p;
 
    /* look for driver in the config file location */
-   p = get_config_string(NULL, uconvert_ascii("vbeaf_driver", tmp1), NULL);
+   p = get_config_string(uconvert_ascii("graphics", tmp1), uconvert_ascii("vbeaf_driver", tmp2), NULL);
 
    if ((p) && (ugetc(p))) {
       ustrcpy(filename, p);

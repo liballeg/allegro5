@@ -164,11 +164,11 @@ static void wakeup_im (int fd)
  */
 static int mouse_init (void)
 {
-	char tmp[80], tmp2[80];
+	char tmp1[80], tmp2[80], tmp3[80];
 	AL_CONST char *device;
 
 	/* Find the device filename */
-	device = get_config_string (NULL, uconvert_ascii ("mouse_device", tmp), uconvert_ascii("/dev/mouse", tmp2));
+	device = get_config_string (uconvert_ascii ("mouse", tmp1), uconvert_ascii ("mouse_device", tmp2), uconvert_ascii("/dev/mouse", tmp3));
 
 	/* Put Intellimouse into wheel mode */
 	if (intellimouse) {
@@ -182,7 +182,7 @@ static int mouse_init (void)
 	/* Open mouse device.  Devices are cool. */
 	intdrv.device = open (device, O_RDONLY | O_NONBLOCK);
 	if (intdrv.device < 0) {
-		usprintf (allegro_error, get_config_text ("Unable to open %s: %s"), uconvert_ascii ("/dev/mouse", tmp), ustrerror (errno));
+		usprintf (allegro_error, get_config_text ("Unable to open %s: %s"), uconvert_ascii ("/dev/mouse", tmp1), ustrerror (errno));
 		return -1;
 	}
 

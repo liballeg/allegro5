@@ -1217,8 +1217,8 @@ static void mouse_proc(int type)
 
 static void save_mouse_data(void)
 {
-   char tmp[64];
-   set_config_id(NULL, uconvert_ascii("mouse", tmp), mouse_type);
+   char tmp1[64], tmp2[64];
+   set_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), mouse_type);
 }
 
 
@@ -2529,16 +2529,16 @@ static DIALOG_STATE main_handler(int c)
       case 7:
 	 /* save settings and quit */
 	 set_config_file(SETUP_CFG_FILE);
+	 set_config_string("system", "keyboard", keyboard_type);
+	 set_config_string("system", "language", language_type);
+	 save_mouse_data();
 	 for (i=0; parameters[i].name; i++) {
 	    if (parameters[i].value[0])
 	       set_config_string("sound", parameters[i].name, parameters[i].value);
 	    else
 	       set_config_string("sound", parameters[i].name, " ");
 	 }
-	 set_config_string(NULL, "keyboard", keyboard_type);
-	 set_config_string(NULL, "language", language_type);
 	 save_joystick_data(NULL);
-	 save_mouse_data();
 	 return state_exit;
 
       default:
@@ -2617,7 +2617,7 @@ static DIALOG_STATE main_handler(int c)
 	 strcpy(parameters[i].value, parameters[i].def);
    }
 
-   strcpy(keyboard_type, get_config_string(NULL, "keyboard", ""));
+   strcpy(keyboard_type, get_config_string("system", "keyboard", ""));
    for (i=0; keyboard_type[i]; i++)
       if (!uisspace(keyboard_type[i]))
 	 break;
@@ -2625,7 +2625,7 @@ static DIALOG_STATE main_handler(int c)
    if (!keyboard_type[i])
       strcpy(keyboard_type, "us");
 
-   strcpy(language_type, get_config_string(NULL, "language", ""));
+   strcpy(language_type, get_config_string("system", "language", ""));
    for (i=0; language_type[i]; i++)
       if (!uisspace(language_type[i]))
 	 break;

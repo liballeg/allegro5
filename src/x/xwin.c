@@ -2681,7 +2681,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    int offset_x, offset_y;
    char *fb_addr;
    struct passwd *pass;
-   char tmp[80];
+   char tmp1[80], tmp2[80];
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    int vid_event_base, vid_error_base;
    int vid_major_version, vid_minor_version;
@@ -2857,7 +2857,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    offset_x = 0;
    offset_y = 0;
    if (banksize >= memsize) {
-      if (get_config_int(NULL, uconvert_ascii("dga_centre", tmp), 1)) {
+      if (get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("dga_centre", tmp2), 1)) {
          offset_x = (s_w - w) / 2;
          offset_y = (s_h - h) / 2;
       }
@@ -2897,7 +2897,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    _xwin.in_dga_mode = 1;
    
    /* Allow workaround for buggy servers (e.g. 3dfx Voodoo 3/Banshee).  */
-   if (get_config_int(NULL, uconvert_ascii("dga_mouse", tmp), 1) == 0)
+   if (get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("dga_mouse", tmp2), 1) == 0)
       _xwin.disable_dga_mouse = 1;
 
    set_display_switch_mode(SWITCH_NONE);
@@ -2930,7 +2930,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    }
 
    /* Clear video memory */
-   if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
+   if (get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("dga_clear", tmp2), 1)) {
       int line, offset;
       int width = s_w * (_xwin.fast_visual_depth / 8);
 

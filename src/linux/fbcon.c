@@ -393,11 +393,11 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
  */
 static int fb_open_device(void)
 {
-   char fname[256], tmp[256];
+   char fname[256], tmp1[256], tmp2[256];
    AL_CONST char *p;
 
    /* find the device filename */
-   p = get_config_string(NULL, uconvert_ascii("framebuffer", tmp), NULL);
+   p = get_config_string(uconvert_ascii("graphics", tmp1), uconvert_ascii("framebuffer", tmp2), NULL);
 
    if (p && ugetc(p))
       do_uconvert(p, U_CURRENT, fname, U_ASCII, sizeof(fname));
@@ -414,7 +414,7 @@ static int fb_open_device(void)
 
    /* open the framebuffer device */
    if ((fbfd = open(fname, O_RDWR)) < 0) {
-      usprintf(allegro_error, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp));
+      usprintf(allegro_error, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp1));
       return 1;
    }
 

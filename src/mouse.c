@@ -807,7 +807,7 @@ int install_mouse()
    _DRIVER_INFO *driver_list;
    int num_buttons = -1;
    AL_CONST char *emulate;
-   char tmp[64];
+   char tmp1[64], tmp2[64];
    int i;
 
    if (mouse_driver)
@@ -855,7 +855,7 @@ int install_mouse()
       driver_list = _mouse_driver_list;
 
    if (mouse_type == MOUSEDRV_AUTODETECT)
-      mouse_type = get_config_id(NULL, uconvert_ascii("mouse", tmp), MOUSEDRV_AUTODETECT);
+      mouse_type = get_config_id(uconvert_ascii("mouse", tmp1), uconvert_ascii("mouse", tmp2), MOUSEDRV_AUTODETECT);
 
    if (mouse_type != MOUSEDRV_AUTODETECT) {
       for (i=0; driver_list[i].driver; i++) {
@@ -886,8 +886,8 @@ int install_mouse()
       return -1;
    }
 
-   num_buttons = get_config_int(NULL, uconvert_ascii("num_buttons", tmp), num_buttons);
-   emulate = get_config_string(NULL, uconvert_ascii("emulate_three", tmp), NULL);
+   num_buttons = get_config_int(uconvert_ascii("mouse", tmp1), uconvert_ascii("num_buttons", tmp2), num_buttons);
+   emulate = get_config_string(uconvert_ascii("mouse", tmp1), uconvert_ascii("emulate_three", tmp2), NULL);
 
    if ((emulate) && ((i = ugetc(emulate)) != 0)) {
       if ((i == 'y') || (i == 'Y') || (i == '1'))

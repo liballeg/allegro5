@@ -1093,7 +1093,7 @@ void _load_config_text()
       config_language = NULL;
    }
 
-   name = get_config_string(NULL, uconvert_ascii("language", tmp1), NULL);
+   name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("language", tmp2), NULL);
 
    if ((name) && (ugetc(name))) {
       namecpy = ustrdup(name);
