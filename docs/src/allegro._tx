@@ -2362,7 +2362,8 @@ Allegro does not provide such devices.)
    milliseconds between ticks. This is the same thing as 
    install_int_ex(proc, MSEC_TO_TIMER(speed)). If you call this routine 
    without having first installed the timer module, install_timer() will be 
-   called automatically.
+   called automatically. Calling again this routine with the same timer
+   handler as parameter allows you to adjust its speed.
 @retval
    Returns zero on success, or a negative number if there is no room to add
    a new user timer.
@@ -2484,9 +2485,6 @@ Allegro does not provide such devices.)
    multitasking operating systems it is good form to give up the CPU for a
    while if you will not be using it.
 
-   In DOS, where Allegro takes over the timer, the standard delay() function will 
-   no longer work, so you should use this routine instead.
-
 @@void @rest_callback(long time, void (*callback)())
 @xref install_timer, rest
    Like rest(), but continually calls the specified function while it is 
@@ -2513,11 +2511,27 @@ combinations are possible seems to vary from one keyboard to another).
    Installs the Allegro keyboard interrupt handler. You must call this 
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
-   library functions to access the keyboard. Returns zero on success, or a
-   negative number on failure (but you may decide not to check the return
-   value as this function is very unlikely to fail). Note that on some
-   platforms the keyboard won't work unless you have set a graphics mode,
-   even if this function returns zero before calling set_gfx_mode.
+   library functions to access the keyboard.
+   
+   Note that on some platforms the keyboard won't work unless you have set a
+   graphics mode, even if this function returns a success value before
+   calling set_gfx_mode. This can happen in environments with graphic
+   windowed modes, since Allegro usually reads the keyboard through the
+   graphical window (which appears after the set_gfx_call). Example:
+<codeblock>
+      allegro_init();
+      install_timer();
+      install_keyboard();
+      /* We are not 100% we can read the keyboard yet! */
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0)
+         exit(1);
+
+      /* Now we are guaranteed to be able to read the keyboard. */
+      readkey();<endblock>
+@retval
+   Returns zero on success, or a negative number on failure (but you may
+   decide not to check the return value as this function is very unlikely to
+   fail).
 
 @@void @remove_keyboard();
 @xref install_keyboard, allegro_exit
@@ -2541,17 +2555,21 @@ combinations are possible seems to vary from one keyboard to another).
    Wherever possible, Allegro will read the keyboard input asynchronously 
    (ie. from inside an interrupt handler), but on some platforms that may 
    not be possible, in which case you must call this routine at regular 
-   intervals to update the keyboard state variables. To help you test your 
-   keyboard polling code even if you are programming on a platform that 
-   doesn't require it, after the first time that you call this function 
-   Allegro will switch into polling mode, so from that point onwards you 
-   will have to call this routine in order to get any keyboard input at all, 
-   regardless of whether the current driver actually needs to be polled or 
-   not. The keypressed(), readkey(), and ureadkey() functions call 
-   poll_keyboard() automatically, so you only need to use this function when 
-   accessing the key[] array and key_shifts variable. Returns zero on
-   success, or a negative number on failure (ie. no keyboard driver
-   installed).
+   intervals to update the keyboard state variables.
+
+   To help you test your keyboard polling code even if you are programming
+   on a platform that doesn't require it, after the first time that you
+   call this function Allegro will switch into polling mode, so from that
+   point onwards you will have to call this routine in order to get any
+   keyboard input at all, regardless of whether the current driver actually
+   needs to be polled or not.
+
+   The keypressed(), readkey(), and ureadkey() functions call poll_keyboard()
+   automatically, so you only need to use this function when accessing the
+   key[] array and key_shifts variable.
+@retval
+   Returns zero on success, or a negative number on failure (ie. no keyboard
+   driver installed).
 
 @@int @keyboard_needs_poll();
 @xref poll_keyboard, install_keyboard, key
@@ -2630,12 +2648,29 @@ combinations are possible seems to vary from one keyboard to another).
       KB_ACCENT3_FLAG
       KB_ACCENT4_FLAG<endblock>
 
+   Example:
+<codeblock>
+      if (key[KEY_W]) {
+	 if (key_shifts & KB_SHIFT_FLAG) {
+	    /* User is pressing shift + W. */
+	 } else {
+	    /* Hmmm... lower case W then. */
+	 }
+      }<endblock>
+
 @@int @keypressed();
 @xref install_keyboard, readkey, ureadkey, clear_keybuf
 @xref simulate_keypress, simulate_ukeypress
 @eref Available Allegro examples
-   Returns TRUE if there are keypresses waiting in the input buffer. This is 
-   equivalent to the libc kbhit() function.
+   Returns TRUE if there are keypresses waiting in the input buffer. You can
+   use this to see if the next call to readkey() is going to block or to 
+   simply wait for the user to press a key while you still update the screen
+   possibly drawing some animation. Example:
+<codeblock>
+      while (!keypressed()) {
+         /* Show cool animated logo. */
+      }
+      /* So he skipped our title screen. */<endblock>
 
 @@int @readkey();
 @xref install_keyboard, ureadkey, keypressed, clear_keybuf, simulate_keypress
