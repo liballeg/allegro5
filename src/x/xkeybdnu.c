@@ -312,7 +312,8 @@ static void handle_key_release(XKeyEvent *ke, bool state_field_reliable)
    if (mycode < 0)
       return;
 
-   last_press_code = -1;
+   if (last_press_code == mycode)
+      last_press_code = -1;
 
    /* TODO: I don't like this code being here */
    if (!state_field_reliable) {
