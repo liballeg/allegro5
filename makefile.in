@@ -19,7 +19,7 @@ includedir = @includedir@
 infodir = @infodir@
 mandir = @mandir@
 libdir = @libdir@
-modulebasedir = @libdir@/allegro
+modulebasedir = $(libdir)/allegro
 moduledir = $(modulebasedir)/$(shared_major_minor)
 
 EXE =
