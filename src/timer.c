@@ -23,7 +23,12 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
+/* Only tested with X11 so far. Can remove completely once it is tested with
+ * other platforms.
+ */
+#ifndef ALLEGRO_WITH_XWINDOWS
 #undef ALLEGRO_MULTITHREADED  /* FIXME */
+#endif
 
 
 TIMER_DRIVER *timer_driver = NULL;        /* the active driver */
