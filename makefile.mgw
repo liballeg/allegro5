@@ -498,11 +498,11 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   gcc $(LFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-   gcc $(LFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 
