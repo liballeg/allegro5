@@ -279,16 +279,16 @@ static int create_driver_list()
    driver_list = malloc(sizeof(DRIVER_LIST) * 3);
    if (!driver_list) return -1;
 
-   driver_list[0].id   = GFX_AUTODETECT_WINDOWED;
-   driver_list[0].name = "Autodetect windowed";
+   driver_list[0].id   = GFX_AUTODETECT;
+   driver_list[0].name = "Autodetect";
    create_mode_list(&driver_list[0]);
 
-   driver_list[1].id   = GFX_AUTODETECT_FULLSCREEN;
-   driver_list[1].name = "Autodetect fullscreen";
+   driver_list[1].id   = GFX_AUTODETECT_WINDOWED;
+   driver_list[1].name = "Autodetect windowed";
    create_mode_list(&driver_list[1]);
 
-   driver_list[2].id   = GFX_AUTODETECT;
-   driver_list[2].name = "Autodetect";
+   driver_list[2].id   = GFX_AUTODETECT_FULLSCREEN;
+   driver_list[2].name = "Autodetect fullscreen";
    create_mode_list(&driver_list[2]);
 
    driver_count = 0;
