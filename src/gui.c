@@ -1207,6 +1207,43 @@ void (*gui_menu_draw_menu_item)(MENU *m, int x, int y, int w, int h, int bar, in
 
 
 
+/* split_around_tab:
+ *  Helper function for splitting a string into two tokens
+ *  delimited by the first TAB character.
+ */
+static char* split_around_tab(const char *s, char **tok1, char **tok2)
+{
+   char *buf, *last;
+   char tmp[16];
+
+   buf = ustrdup(s);
+   *tok1 = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
+   *tok2 = ustrtok_r(NULL, empty_string, &last);
+
+   return buf;
+}
+
+
+
+/* bar_entry_lengh:
+ *  Helper function for calculating the length of a menu bar entry.
+ */
+static int bar_entry_length(const char *text)
+{
+   char *buf, *tok1, *tok2;
+   int len;
+
+   buf = split_around_tab(text, &tok1, &tok2);
+   len = gui_strlen(tok1) + 16;
+   if (tok2)
+      len += gui_strlen(tok2) + 16;
+   free(buf);
+
+   return len;
+}
+
+
+
 /* get_menu_pos:
  *  Calculates the coordinates of an object within a top level menu bar.
  */
@@ -1218,10 +1255,10 @@ static void get_menu_pos(MENU_PLAYER *m, int c, int *x, int *y, int *w)
       *x = m->x+1;
 
       for (c2=0; c2<c; c2++)
-	 *x += gui_strlen(m->menu[c2].text) + 16;
+	 *x += bar_entry_length(m->menu[c2].text);
 
       *y = m->y+1;
-      *w = gui_strlen(m->menu[c].text) + 16;
+      *w = bar_entry_length(m->menu[c].text);
    }
    else {
       *x = m->x+1;
@@ -1239,10 +1276,8 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
 {
    int fg, bg;
    int x, y, w;
-   char *buf, *tok;
-   char *last;
+   char *buf, *tok1, *tok2;
    int my;
-   char tmp[16];
 
    get_menu_pos(m, c, &x, &y, &w);
 
@@ -1276,14 +1311,10 @@ static void draw_menu_item(MENU_PLAYER *m, int c)
    rectfill(screen, x, y, x+w-1, y+text_height(font)+3, bg);
 
    if (ugetc(m->menu[c].text)) {
-      buf = ustrdup(m->menu[c].text);
-      tok = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
-
-      gui_textout_ex(screen, tok, x+8, y+1, fg, bg, FALSE);
-
-      tok = ustrtok_r(NULL, empty_string, &last);
-      if (tok)
- 	 gui_textout_ex(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, bg, FALSE);
+      buf = split_around_tab(m->menu[c].text, &tok1, &tok2);
+      gui_textout_ex(screen, tok1, x+8, y+1, fg, bg, FALSE);
+      if (tok2)
+ 	 gui_textout_ex(screen, tok2, x+w-gui_strlen(tok2)-10, y+1, fg, bg, FALSE);
 
       if ((m->menu[c].child) && (!m->bar)) {
          my = y + text_height(font)/2;
@@ -1392,11 +1423,10 @@ static int mouse_in_parent_menu(MENU_PLAYER *m)
  */
 static void layout_menu(MENU_PLAYER *m, MENU *menu, int bar, int x, int y, int minw, int minh)
 {
-   char *buf, *tok, *last;
+   char *buf, *tok1, *tok2;
    int extra = 0;
    int c;
    int child = FALSE;
-   char tmp[16];
 
    m->menu = menu;
    m->bar = bar;
@@ -1410,34 +1440,33 @@ static void layout_menu(MENU_PLAYER *m, MENU *menu, int bar, int x, int y, int m
    /* calculate size of the menu */
    for (m->size=0; m->menu[m->size].text; m->size++) {
 
-      if ((m->menu[m->size].child) && (!m->bar))
-         child = TRUE;
-
-      if (ugetc(m->menu[m->size].text)) {
-         buf = ustrdup(m->menu[m->size].text);
-         tok = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
-         c = gui_strlen(tok);
-      }
-      else {
-         buf = NULL;
-         c = 0;
-      }
-
       if (m->bar) {
-	 m->w += c+16;
+	 m->w += bar_entry_length(m->menu[m->size].text);
       }
       else {
+	 if (m->menu[m->size].child)
+	    child = TRUE;
+
+	 if (ugetc(m->menu[m->size].text)) {
+	    buf = split_around_tab(m->menu[m->size].text, &tok1, &tok2);
+	    c = gui_strlen(tok1);
+	 }
+	 else {
+	    buf = NULL;
+	    c = 0;
+	 }
+
 	 m->h += text_height(font)+4;
 	 m->w = MAX(m->w, c+16);
-      }
 
-      if (buf) {
-	 tok = ustrtok_r(NULL, empty_string, &last);
-	 if (tok) {
-	    c = gui_strlen(tok);
-	    extra = MAX(extra, c);
+	 if (buf) {
+	    if (tok2) {
+	       c = gui_strlen(tok2);
+	       extra = MAX(extra, c);
+	    }
+
+	    free(buf);
 	 }
-	 free(buf);
       }
    }
 
