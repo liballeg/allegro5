@@ -152,15 +152,14 @@ static int gfx_gdi_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocu
 
 
 /* update_mouse_pointer:
- *  worker function that updates the mouse pointer
+ *  Worker function that updates the mouse pointer.
  */
 static void update_mouse_pointer(int x, int y, int retrace)
 {
    HDC hdc;
 
    /* put the screen contents located at the new position into the frontbuffer */
-   blit(gdi_screen, mouse_frontbuffer, x, y, 0, 0,
-        mouse_frontbuffer->w, mouse_frontbuffer->h);
+   blit(gdi_screen, mouse_frontbuffer, x, y, 0, 0, mouse_frontbuffer->w, mouse_frontbuffer->h);
 
    /* draw the mouse pointer onto the frontbuffer */
    draw_sprite(mouse_frontbuffer, mouse_sprite, 0, 0);
@@ -170,20 +169,18 @@ static void update_mouse_pointer(int x, int y, int retrace)
    if (_color_depth == 8)
       set_palette_to_hdc(hdc, palette);
 
-   if (retrace)
+   if (retrace) {
       /* restore the screen contents located at the old position */
-      blit_to_hdc(mouse_backbuffer, hdc, 0, 0, mouse_xpos, mouse_ypos,
-                  mouse_backbuffer->w, mouse_backbuffer->h);
+      blit_to_hdc(mouse_backbuffer, hdc, 0, 0, mouse_xpos, mouse_ypos, mouse_backbuffer->w, mouse_backbuffer->h);
+   }
 
    /* blit the mouse pointer onto the screen */
-   blit_to_hdc(mouse_frontbuffer, hdc, 0, 0, x, y,
-               mouse_frontbuffer->w, mouse_frontbuffer->h);
+   blit_to_hdc(mouse_frontbuffer, hdc, 0, 0, x, y, mouse_frontbuffer->w, mouse_frontbuffer->h);
 
    ReleaseDC(allegro_wnd, hdc);
 
    /* save the screen contents located at the new position into the backbuffer */
-   blit(gdi_screen, mouse_backbuffer, x, y, 0, 0,
-        mouse_backbuffer->w, mouse_backbuffer->h);
+   blit(gdi_screen, mouse_backbuffer, x, y, 0, 0, mouse_backbuffer->w, mouse_backbuffer->h);
 
    /* save the new position */
    mouse_xpos = x;
@@ -227,8 +224,7 @@ static void gfx_gdi_hide_mouse(void)
       set_palette_to_hdc(hdc, palette);
 
    /* restore the screen contents located at the old position */
-   blit_to_hdc(mouse_backbuffer, hdc, 0, 0, mouse_xpos, mouse_ypos,
-               mouse_backbuffer->w, mouse_backbuffer->h);
+   blit_to_hdc(mouse_backbuffer, hdc, 0, 0, mouse_xpos, mouse_ypos, mouse_backbuffer->w, mouse_backbuffer->h);
 
    ReleaseDC(allegro_wnd, hdc);
 
@@ -256,7 +252,7 @@ static void gfx_gdi_move_mouse(int x, int y)
 
 
 /* render_proc:
- *  timer proc that updates the window
+ *  Timer proc that updates the window.
  */
 static void render_proc(void)
 {
@@ -270,7 +266,8 @@ static void render_proc(void)
    render_semaphore = TRUE;
 
    /* to prevent the drawing threads and the rendering proc
-      from concurrently accessing the dirty lines array */
+    * from concurrently accessing the dirty lines array.
+    */
    _enter_gfx_critical();
 
    if (!gdi_screen) {
@@ -282,7 +279,7 @@ static void render_proc(void)
    /* pseudo dirty rectangles mechanism:
     *  at most only one GDI call is performed for each frame,
     *  a true dirty rectangles mechanism makes the demo game
-    *  unplayable in 640x480 on my system
+    *  unplayable in 640x480 on my system.
     */
 
    /* find the first dirty line */
@@ -361,7 +358,7 @@ static void gdi_exit_sysmode(void)
 
 
 /* gdi_update_window:
- *  updates the window
+ *  Updates the window.
  */
 static void gdi_update_window(RECT *rect)
 {
@@ -394,7 +391,8 @@ static void gdi_update_window(RECT *rect)
 static void gfx_gdi_lock(struct BITMAP *bmp)
 {
    /* to prevent the drawing threads and the rendering proc
-      from concurrently accessing the dirty lines array */
+    * from concurrently accessing the dirty lines array
+    */
    _enter_gfx_critical();
 
    /* arrange for drawing requests to pause when we are in the background */
@@ -480,8 +478,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
 
    /* create the screen surface */
    screen_surf = malloc(w * h * BYTES_PER_PIXEL(color_depth));
-   gdi_screen = _make_bitmap(w, h, (unsigned long) screen_surf, &gfx_gdi, color_depth,
-                                                                w * BYTES_PER_PIXEL(color_depth));
+   gdi_screen = _make_bitmap(w, h, (unsigned long)screen_surf, &gfx_gdi, color_depth, w * BYTES_PER_PIXEL(color_depth));
    gdi_screen->write_bank = gfx_gdi_write_bank; 
    _screen_vtable.acquire = gfx_gdi_lock;
    _screen_vtable.release = gfx_gdi_unlock;
