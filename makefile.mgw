@@ -123,7 +123,12 @@ VPATH = src/win src/i386 src/misc wintests
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
+ifdef PROFILEMODE
 LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound -lgmon
+else
+LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
+endif
+
 PROGRAMS = dibgrab dibhello scrsave
 
 dibgrab: wintests/dibgrab.exe
