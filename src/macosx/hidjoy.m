@@ -221,18 +221,18 @@ static int hid_joy_poll(void)
                      joy[i].stick[element->stick].axis[0].pos = 0;
                      joy[i].stick[element->stick].axis[0].d1 = 0;
                      joy[i].stick[element->stick].axis[0].d2 = 0;
-                     joy[i].stick[element->stick].axis[1].pos = 128;
-                     joy[i].stick[element->stick].axis[1].d1 = 0;
-                     joy[i].stick[element->stick].axis[1].d2 = 1;
+                     joy[i].stick[element->stick].axis[1].pos = -128;
+                     joy[i].stick[element->stick].axis[1].d1 = 1;
+                     joy[i].stick[element->stick].axis[1].d2 = 0;
 		     break;
 		     
                   case 1:  /* up and right */
                      joy[i].stick[element->stick].axis[0].pos = 128;
                      joy[i].stick[element->stick].axis[0].d1 = 0;
                      joy[i].stick[element->stick].axis[0].d2 = 1;
-                     joy[i].stick[element->stick].axis[1].pos = 128;
-                     joy[i].stick[element->stick].axis[1].d1 = 0;
-                     joy[i].stick[element->stick].axis[1].d2 = 1;
+                     joy[i].stick[element->stick].axis[1].pos = -128;
+                     joy[i].stick[element->stick].axis[1].d1 = 1;
+                     joy[i].stick[element->stick].axis[1].d2 = 0;
 		     break;
 		     
                   case 2:  /* right */
@@ -248,27 +248,27 @@ static int hid_joy_poll(void)
                      joy[i].stick[element->stick].axis[0].pos = 128;
                      joy[i].stick[element->stick].axis[0].d1 = 0;
                      joy[i].stick[element->stick].axis[0].d2 = 1;
-                     joy[i].stick[element->stick].axis[1].pos = -128;
-                     joy[i].stick[element->stick].axis[1].d1 = 1;
-                     joy[i].stick[element->stick].axis[1].d2 = 0;
+                     joy[i].stick[element->stick].axis[1].pos = 128;
+                     joy[i].stick[element->stick].axis[1].d1 = 0;
+                     joy[i].stick[element->stick].axis[1].d2 = 1;
 		     break;
 		     
                   case 4:  /* down */
                      joy[i].stick[element->stick].axis[0].pos = 0;
                      joy[i].stick[element->stick].axis[0].d1 = 0;
                      joy[i].stick[element->stick].axis[0].d2 = 0;
-                     joy[i].stick[element->stick].axis[1].pos = -128;
-                     joy[i].stick[element->stick].axis[1].d1 = 1;
-                     joy[i].stick[element->stick].axis[1].d2 = 0;
+                     joy[i].stick[element->stick].axis[1].pos = 128;
+                     joy[i].stick[element->stick].axis[1].d1 = 0;
+                     joy[i].stick[element->stick].axis[1].d2 = 1;
 		     break;
 		     
                   case 5:  /* down and left */
                      joy[i].stick[element->stick].axis[0].pos = -128;
                      joy[i].stick[element->stick].axis[0].d1 = 1;
                      joy[i].stick[element->stick].axis[0].d2 = 0;
-                     joy[i].stick[element->stick].axis[1].pos = -128;
-                     joy[i].stick[element->stick].axis[1].d1 = 1;
-                     joy[i].stick[element->stick].axis[1].d2 = 0;
+                     joy[i].stick[element->stick].axis[1].pos = 128;
+                     joy[i].stick[element->stick].axis[1].d1 = 0;
+                     joy[i].stick[element->stick].axis[1].d2 = 1;
 		     break;
 		     
                   case 6:  /* left */
@@ -284,9 +284,9 @@ static int hid_joy_poll(void)
                      joy[i].stick[element->stick].axis[0].pos = -128;
                      joy[i].stick[element->stick].axis[0].d1 = 1;
                      joy[i].stick[element->stick].axis[0].d2 = 0;
-                     joy[i].stick[element->stick].axis[1].pos = 128;
-                     joy[i].stick[element->stick].axis[1].d1 = 0;
-                     joy[i].stick[element->stick].axis[1].d2 = 1;
+                     joy[i].stick[element->stick].axis[1].pos = -128;
+                     joy[i].stick[element->stick].axis[1].d1 = 1;
+                     joy[i].stick[element->stick].axis[1].d2 = 0;
 		     break;
 		     
                   case 15:  /* centered */
