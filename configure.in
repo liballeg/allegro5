@@ -145,9 +145,9 @@ if test -n "GCC"; then
   else
     WFLAGS="-Wall"
   fi
-  CFLAGS="-O3 -ffast-math -fomit-frame-pointer $WFLAGS"
-  ALLEGRO_DEBUG_CFLAGS="-O2 -g $WFLAGS -DDEBUGMODE"
-  ALLEGRO_PROFILE_CFLAGS="-O3 -pg -ffast-math $WFLAGS"
+  CFLAGS="-O2 -funroll-loops -ffast-math -fomit-frame-pointer $WFLAGS"
+  ALLEGRO_DEBUG_CFLAGS="-g $WFLAGS -DDEBUGMODE"
+  ALLEGRO_PROFILE_CFLAGS="-pg -O2 -funroll-loops -ffast-math $WFLAGS"
   if test "$allegro_cv_support_asm" != i386; then
     CFLAGS="$CFLAGS -DALLEGRO_USE_C"
     ALLEGRO_DEBUG_CFLAGS="$ALLEGRO_DEBUG_CFLAGS -DALLEGRO_USE_C"
