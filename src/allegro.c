@@ -17,6 +17,7 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -350,11 +351,11 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
       AL_CONST char *msg = get_config_text("Fatal error: unable to activate the Allegro system");
 
       if (ugetc(allegro_error))
-	 allegro_message("%s\n%s\n", msg, allegro_error);
+	 allegro_message(uconvert_ascii("%s\n%s\n", tmp1), msg, allegro_error);
       else
-	 allegro_message("%s\n", msg);
+	 allegro_message(uconvert_ascii("%s\n", tmp1), msg);
 
-      exit(1);
+      exit(EXIT_FAILURE);
    }
 
    /* detect CPU type */

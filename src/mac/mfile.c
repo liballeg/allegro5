@@ -556,11 +556,11 @@ void _al_getdcwd(int drive, char *buf, int size){
 #endif
       if(strlen(fullname)<size)
       {
-         strcpy(buf,fullname);
+         do_uconvert(fullname, U_ASCII, buf, U_CURRENT, size);
       }
       else
       {
-         strcpy(buf,"");
+         usetc(buf, 0);
       }
    }
    else

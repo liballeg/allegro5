@@ -229,7 +229,7 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
       if ((utolower(p[0]) >= 'a') && (utolower(p[0]) <= 'z') && (p[1] == DEVICE_SEPARATOR))
 	 p += 2;
 
-      do_uconvert(p, U_ASCII, buf+pos, U_CURRENT, sizeof(buf)-pos);
+      ustrzcpy(buf+pos, sizeof(buf)-pos, p);
       pos = ustrsize(buf);
    }
 
