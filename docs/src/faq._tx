@@ -351,6 +351,14 @@ Unix problems
       Bourne-style shell like bash, try "make 2&gt logfile.txt".
 
 <h4><li>
+@@   When I try to run Allegro programs, I get "error while loading shared libraries:
+   liballeg.so.4.0: cannot open shared object file: No such file or directory".
+</h4>
+
+      You need to teach the dynamic linker where to find the Allegro shared library.
+      See docs/build/unix.txt, near the end of the 'Installing Allegro' section.
+
+<h4><li>
 @@   When I try to use DGA2, I get "resolution not supported", but the X
    server does actually support that resolution !
 </h4>
