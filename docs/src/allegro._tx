@@ -5542,7 +5542,7 @@ MIDI music routines
    call this before or after initialising the sound code, or can simply set 
    the ibk_file and ibk_drum_file variables in the configuration file to 
    have the data loaded automatically. Note that this function has no effect 
-   on any drivers other than the Adlib one!
+   on any drivers other than the Adlib one! Returns non-zero on error.
 
 
 
