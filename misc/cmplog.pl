@@ -6,7 +6,7 @@
 #  Usage: cmplog profile1.log profile2.log
 
 
-if (not ($f1 = shift) && ($f2 = shift)) {
+if (not (($f1 = shift) && ($f2 = shift))) {
    print "Usage: cmplog file1.log file2.log\n";
    exit
 }
@@ -32,11 +32,11 @@ while ($l1 = <A> and $l2 = <B>) {
       $v1 = $2;
       $l2 =~ /- ([0-9]+|N\/A)/;
       $v2 = $1;
-      $p = ($v1 == 0) ? "N/A" : int($v2*100/$v1) . "%";
+      $p = ($v1 == 0) || ($v2 == 0) ? "N/A" : int($v2*100/$v1) . "%";
       $name .= " " x (32 - length($name));
       print "\t$name = $p\n";
    }
    elsif ($l1 =~ /^\r?(.*):\r?$/) {
-      print("\n\n$1:\n\n");
+      print "\n\n$1:\n\n";
    }
 }
