@@ -237,26 +237,20 @@ static void sys_directx_set_window_title(AL_CONST char *name)
 static void sys_directx_message(AL_CONST char *msg)
 {
    char *tmp1 = malloc(4096);
-   char *tmp2 = malloc(128);
-   char fname[256], *title;
+   char *tmp2 = malloc(4096);
+   char *title = malloc(4096);
 
-   get_executable_name(fname, sizeof(fname));
-   ustrlwr(fname);
-
-   usetc(get_extension(fname), 0);
-   if (ugetat(fname, -1) == '.')
-      usetat(fname, -1, 0);
-
-   title = get_filename(fname);
+   GetWindowText(allegro_wnd, title, 4096);
 
    while ((ugetc(msg) == '\r') || (ugetc(msg) == '\n'))
       msg += uwidth(msg);
 
    MessageBoxW(allegro_wnd,
 	       (unsigned short *)uconvert(msg, U_CURRENT, tmp1, U_UNICODE, 4096),
-	       (unsigned short *)uconvert(title, U_CURRENT, tmp2, U_UNICODE, 128),
+           (unsigned short *)uconvert(title, U_CURRENT, tmp2, U_UNICODE, 4096),
 	       MB_OK);
 
+   free(title);
    free(tmp1);
    free(tmp2);
 }
