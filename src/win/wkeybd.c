@@ -28,7 +28,7 @@
 #endif
 
 #ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
+   #error something is wrong with the makefile
 #endif
 
 
@@ -61,7 +61,6 @@ KEYBOARD_DRIVER keyboard_directx =
 };
 
 
-
 #define DINPUT_BUFFERSIZE 256
 static HANDLE key_input_event = NULL;
 static HANDLE key_input_processed_event = NULL;
@@ -71,7 +70,7 @@ static LPDIRECTINPUTDEVICE key_dinput_device = NULL;
 
 
 /* dinput_err_str:
- *  returns a DirectInput error string
+ *  Returns a DirectInput error string.
  */
 #ifdef DEBUGMODE
 static char* dinput_err_str(long err)
@@ -112,7 +111,7 @@ static char* dinput_err_str(long err)
 
 
 /* key_dinput_handle_scancode:
- *  handles single scancode
+ *  Handles a single scancode.
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
@@ -132,7 +131,7 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
       return;
 
    /* if not foreground, filter out press codes and handle only release codes */
-   if (pressed == 0 || (app_foreground && !wnd_sysmenu)) {
+   if (!pressed || (app_foreground && !wnd_sysmenu)) {
       if (scancode > 0x7F) {
 	 _handle_pckey(0xE0);
       }
@@ -151,47 +150,39 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 
 
 /* key_dinput_handle:
- *  handles queued keyboard input
+ *  Handles queued keyboard input.
  */
 static void key_dinput_handle(void)
 {
+   static DIDEVICEOBJECTDATA scancode_buffer[DINPUT_BUFFERSIZE];
    long int waiting_scancodes;
    HRESULT hr;
-   int current;
-   static DIDEVICEOBJECTDATA scancode_buffer[DINPUT_BUFFERSIZE];
+   int i;
 
-   while (TRUE) {
-      /* the whole buffer is free */
-      waiting_scancodes = DINPUT_BUFFERSIZE;
+   /* the whole buffer is free */
+   waiting_scancodes = DINPUT_BUFFERSIZE;
 
-      /* fill the buffer */
-      hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
-					    sizeof(DIDEVICEOBJECTDATA),
-					    scancode_buffer,
-					    &waiting_scancodes,
-					    0);
+   /* fill the buffer */
+   hr = IDirectInputDevice_GetDeviceData(key_dinput_device,
+                                         sizeof(DIDEVICEOBJECTDATA),
+                                         scancode_buffer,
+                                         &waiting_scancodes,
+                                         0);
 
-      /* was device lost ? */
-      if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
-	 /* reacquire device and stop polling */
-         _TRACE("keyboard device not acquired or lost\n");
-	 wnd_acquire_keyboard();
-         break;
-      }
-      else if (FAILED(hr)) {
-	 /* any other error will also stop polling */
-	 _TRACE("unexpected error while filling keyboard scancode buffer\n");
-	 break;
-      }
-      else {
-	 /* normally only this case should happen */
-	 for (current = 0; current < waiting_scancodes; current++) {
-	    key_dinput_handle_scancode(
-			 (unsigned char)(scancode_buffer[current].dwOfs),
-		         (scancode_buffer[current].dwData & 0x80) == 0x80);
-	 }
-
-	 break;
+   /* was device lost ? */
+   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+      /* reacquire device */
+      _TRACE("keyboard device not acquired or lost\n");
+      wnd_acquire_keyboard();
+   }
+   else if (FAILED(hr)) {  /* other error? */
+      _TRACE("unexpected error while filling keyboard scancode buffer\n");
+   }
+   else {
+      /* normally only this case should happen */
+      for (i = 0; i < waiting_scancodes; i++) {
+         key_dinput_handle_scancode((unsigned char) scancode_buffer[i].dwOfs,
+                                    scancode_buffer[i].dwData & 0x80);
       }
    }
 
@@ -201,7 +192,7 @@ static void key_dinput_handle(void)
 
 
 /* key_dinput_acquire:
- *  acquires keyboard device. This must be called after a
+ *  Acquires the keyboard device. This must be called after a
  *  window switch for example if the device is in foreground
  *  cooperative level.
  */
@@ -248,7 +239,7 @@ int key_dinput_acquire(void)
 
 
 /* key_dinput_unacquire:
- *  unacquires keyboard device.
+ *  Unacquires the keyboard device.
  */
 int key_dinput_unacquire(void)
 {
@@ -271,7 +262,7 @@ int key_dinput_unacquire(void)
 
 
 /* key_dinput_exit:
- *  releases DirectInput keyboard device
+ *  Shuts down the DirectInput keyboard device.
  */
 static int key_dinput_exit(void)
 {
@@ -305,7 +296,7 @@ static int key_dinput_exit(void)
 
 
 /* key_dinput_init:
- *  setup DirectInput keyboard device
+ *  Sets up the DirectInput keyboard device.
  */
 static int key_dinput_init(void)
 {

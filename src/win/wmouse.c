@@ -28,7 +28,7 @@
 #endif
 
 #ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
+   #error something is wrong with the makefile
 #endif
 
 
@@ -46,7 +46,6 @@ static void mouse_directx_position(int x, int y);
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
-static void mouse_directx_poll(void);
 
 
 MOUSE_DRIVER mouse_directx =
@@ -191,6 +190,162 @@ static char* dinput_err_str(long err)
 #else
 #define dinput_err_str(hr) "\0"
 #endif
+
+
+
+/* mouse_dinput_handle_event:
+ *  Handles a single event.
+ */
+static void mouse_dinput_handle_event(int ofs, int data)
+{
+   switch (ofs) {
+
+      case DIMOFS_X:
+         if (!gfx_driver || !gfx_driver->windowed) {
+            if (mouse_accel_mult) {
+               if (ABS(data) >= mouse_accel_thr2)
+                  data *= (mouse_accel_mult<<1);
+               else if (ABS(data) >= mouse_accel_thr1) 
+                  data *= mouse_accel_mult;
+            }
+
+            dinput_x += data;
+         }
+         break;
+
+      case DIMOFS_Y:
+         if (!gfx_driver || !gfx_driver->windowed) {
+            if (mouse_accel_mult) {
+               if (ABS(data) >= mouse_accel_thr2)
+                  data *= (mouse_accel_mult<<1);
+               else if (ABS(data) >= mouse_accel_thr1) 
+                  data *= mouse_accel_mult;
+            }
+
+            dinput_y += data;
+         }
+         break;
+
+      case DIMOFS_Z:
+         if (dinput_wheel && _mouse_on)
+            _mouse_z += data/120;
+         break;
+
+      case DIMOFS_BUTTON0:
+         if (data & 0x80) {
+            if (_mouse_on)
+               _mouse_b |= 1;
+         }
+         else
+            _mouse_b &= ~1;
+         break;
+
+      case DIMOFS_BUTTON1:
+         if (data & 0x80) {
+            if (_mouse_on)
+               _mouse_b |= 2;
+         }
+         else
+            _mouse_b &= ~2;
+         break;
+
+      case DIMOFS_BUTTON2:
+         if (data & 0x80) {
+            if (_mouse_on)
+               _mouse_b |= 4;
+         }
+         else
+            _mouse_b &= ~4;
+         break;
+   }
+}
+
+
+
+/* mouse_dinput_handle:
+ *  Handles queued mouse input.
+ */
+static void mouse_dinput_handle(void)
+{
+   static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
+   long int waiting_messages;
+   HRESULT hr;
+   int i;
+
+   /* the whole buffer is free */
+   waiting_messages = DINPUT_BUFFERSIZE;
+
+   /* fill the buffer */
+   hr = IDirectInputDevice_GetDeviceData(mouse_dinput_device,
+                                         sizeof(DIDEVICEOBJECTDATA),
+                                         message_buffer,
+                                         &waiting_messages,
+                                         0);
+
+   /* was device lost ? */
+   if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
+      /* reacquire device */
+      _TRACE("mouse device not acquired or lost\n");
+      wnd_acquire_mouse();
+   }
+   else if (FAILED(hr)) {  /* other error? */
+      _TRACE("unexpected error while filling mouse message buffer\n");
+   }
+   else {
+      /* normally only this case should happen */
+      for (i = 0; i < waiting_messages; i++) {
+         mouse_dinput_handle_event(message_buffer[i].dwOfs,
+                                   message_buffer[i].dwData);
+      }
+
+      if (gfx_driver && gfx_driver->windowed) {
+         /* windowed input mode */
+         if (!wnd_sysmenu) {
+            POINT p;
+
+            READ_CURSOR_POS(p);
+
+            mymickey_x += p.x - mymickey_ox;
+            mymickey_y += p.y - mymickey_oy;
+
+            mymickey_ox = p.x;
+            mymickey_oy = p.y;
+
+            _handle_mouse_input();
+         }
+      }
+      else {
+         /* fullscreen input mode */
+         mymickey_x += dinput_x - mymickey_ox;
+         mymickey_y += dinput_y - mymickey_oy;
+
+         mymickey_ox = dinput_x;
+         mymickey_oy = dinput_y;
+
+         _mouse_x = MICKEY_TO_COORD_X(mouse_mx + dinput_x);
+         _mouse_y = MICKEY_TO_COORD_Y(mouse_my + dinput_y);
+
+         if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
+             (_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
+
+            _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
+            _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
+
+            mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
+            mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
+
+            CLEAR_MICKEYS();
+         }
+
+         if (!_mouse_on) {
+            _mouse_on = TRUE;
+            mouse_set_syscursor(FALSE);
+         }
+
+         _handle_mouse_input();
+      }
+   }
+}
 
 
 
@@ -402,7 +557,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (wnd_register_event(mouse_input_event, mouse_directx_poll) != 0)
+   if (wnd_register_event(mouse_input_event, mouse_dinput_handle) != 0)
       goto Error;
 
    /* Acquire the device */
@@ -415,162 +570,6 @@ static int mouse_dinput_init(void)
  Error:
    mouse_dinput_exit();
    return -1;
-}
-
-
-
-/* mouse_directx_poll:
- *  Handles queued mouse input.
- */
-static void mouse_directx_poll(void)
-{
-   long int waiting_messages;
-   HRESULT hr;
-   int current;
-   static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];
-   int ofs, data;
-
-   while (TRUE) {
-      /* the whole buffer is free */
-      waiting_messages = DINPUT_BUFFERSIZE;
-
-      /* fill the buffer */
-      hr = IDirectInputDevice_GetDeviceData(mouse_dinput_device,
-					    sizeof(DIDEVICEOBJECTDATA),
-					    message_buffer,
-					    &waiting_messages,
-					    0);
-
-      /* was device lost ? */
-      if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
-	 /* reacquire device and stop polling */
-	 _TRACE("mouse device not acquired or lost\n");
-	 wnd_acquire_mouse();
-	 break;
-      }
-      else if (FAILED(hr)) {
-	 /* any other error will also stop polling */
-	 _TRACE("unexpected error while filling mouse message buffer\n"); 
-	 break;
-      }
-      else {
-	 /* normally only this case should happen */
-	 for (current = 0; current < waiting_messages; current++) {
-	    ofs = message_buffer[current].dwOfs;
-	    data = message_buffer[current].dwData;
-
-	    switch (ofs) {
-
-	       case DIMOFS_X:
-	          if (!gfx_driver || !gfx_driver->windowed) {
-		     if (mouse_accel_mult) {
-		        if (ABS(data) >= mouse_accel_thr2)
-		           data *= (mouse_accel_mult<<1);
-		        else if (ABS(data) >= mouse_accel_thr1) 
-		           data *= mouse_accel_mult;
-		     }
-
-		     dinput_x += data;
-		  }
-		  break;
-
-	       case DIMOFS_Y:
-	          if (!gfx_driver || !gfx_driver->windowed) {
-		     if (mouse_accel_mult) {
-		        if (ABS(data) >= mouse_accel_thr2)
-			   data *= (mouse_accel_mult<<1);
-		        else if (ABS(data) >= mouse_accel_thr1) 
-			   data *= mouse_accel_mult;
-		     }
-
-		     dinput_y += data;
-		  }
-		  break;
-
-	       case DIMOFS_Z:
-		  if ((dinput_wheel) && (_mouse_on))
-		     _mouse_z += data/120;
-		  break;
-
-	       case DIMOFS_BUTTON0:
-		  if (data & 0x80) {
-		     if (_mouse_on)
-			_mouse_b |= 1;
-		  }
-		  else
-		     _mouse_b &= ~1;
-		  break;
-
-	       case DIMOFS_BUTTON1:
-		  if (data & 0x80) {
-		     if (_mouse_on)
-			_mouse_b |= 2;
-		  }
-		  else
-		     _mouse_b &= ~2;
-		  break;
-
-	       case DIMOFS_BUTTON2:
-		  if (data & 0x80) {
-		     if (_mouse_on)
-			_mouse_b |= 4;
-		  }
-		  else
-		     _mouse_b &= ~4;
-		  break;
-	    }
-	 }
-
-	 if (gfx_driver && gfx_driver->windowed) {
-	    /* windowed input mode */
-	    if (!wnd_sysmenu) {
-	       POINT p;
-
-	       READ_CURSOR_POS(p);
-
-	       mymickey_x += p.x - mymickey_ox;
-	       mymickey_y += p.y - mymickey_oy;
-
-	       mymickey_ox = p.x;
-	       mymickey_oy = p.y;
-
-	       _handle_mouse_input();
-	    }
-	 }
-	 else {
-	    /* normal fullscreen input mode */
-	    mymickey_x += dinput_x - mymickey_ox;
-	    mymickey_y += dinput_y - mymickey_oy;
-
-	    mymickey_ox = dinput_x;
-	    mymickey_oy = dinput_y;
-
-	    _mouse_x = MICKEY_TO_COORD_X(mouse_mx + dinput_x);
-	    _mouse_y = MICKEY_TO_COORD_Y(mouse_my + dinput_y);
-
-	    if ((_mouse_x < mouse_minx) || (_mouse_x > mouse_maxx) ||
-		(_mouse_y < mouse_miny) || (_mouse_y > mouse_maxy)) {
-
-	       _mouse_x = MID(mouse_minx, _mouse_x, mouse_maxx);
-	       _mouse_y = MID(mouse_miny, _mouse_y, mouse_maxy);
-
-	       mouse_mx = COORD_TO_MICKEY_X(_mouse_x);
-	       mouse_my = COORD_TO_MICKEY_Y(_mouse_y);
-
-	       CLEAR_MICKEYS();
-	    }
-
-            if (!_mouse_on) {
-               _mouse_on = TRUE;
-               mouse_set_syscursor(FALSE);
-            }
-
-	    _handle_mouse_input();
-	 }
-
-	 break;
-      }
-   }
 }
 
 
