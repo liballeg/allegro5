@@ -48,6 +48,7 @@ static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
 static void mouse_directx_poll(void);
 
+
 MOUSE_DRIVER mouse_directx =
 {
    MOUSE_DIRECTX,
@@ -56,13 +57,13 @@ MOUSE_DRIVER mouse_directx =
    "DirectInput mouse",
    mouse_directx_init,
    mouse_directx_exit,
-   NULL,                        /* mouse_directx_poll, */
-   NULL,
+   NULL,                       // AL_METHOD(void, poll, (void));
+   NULL,                       // AL_METHOD(void, timer_poll, (void));
    mouse_directx_position,
    mouse_directx_set_range,
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
-   NULL
+   NULL                        // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
 };
 
 
@@ -76,21 +77,25 @@ static LPDIRECTINPUTDEVICE mouse_dinput_device = NULL;
 static int dinput_buttons = 0;
 static int dinput_wheel = FALSE;
 
-static int dinput_x = 0;        /* tracked dinput positon */
+static int dinput_x = 0;              /* tracked dinput positon */
 static int dinput_y = 0;
 
-static int mouse_mx = 0;        /* internal position, in mickeys */
+static int mouse_mx = 0;              /* internal position, in mickeys */
 static int mouse_my = 0;
 
-static int mouse_sx = 2;        /* mickey -> pixel scaling factor */
+static int mouse_sx = 2;              /* mickey -> pixel scaling factor */
 static int mouse_sy = 2;
 
-static int mouse_minx = 0;      /* mouse range */
+static int mouse_accel_mult = 3;      /* mouse acceleration parameters */
+static int mouse_accel_thr1 = 5;
+static int mouse_accel_thr2 = 16;
+
+static int mouse_minx = 0;            /* mouse range */
 static int mouse_miny = 0;
 static int mouse_maxx = 319;
 static int mouse_maxy = 199;
 
-static int mymickey_x = 0;      /* for get_mouse_mickeys() */
+static int mymickey_x = 0;            /* for get_mouse_mickeys() */
 static int mymickey_y = 0;
 static int mymickey_ox = 0;
 static int mymickey_oy = 0;
@@ -153,7 +158,7 @@ static char* dinput_err_str(long err)
 
 
 /* mouse_dinput_acquire:
- *  acquires mouse device.
+ *  acquires the mouse device
  */
 int mouse_dinput_acquire(void)
 {
@@ -169,7 +174,7 @@ int mouse_dinput_acquire(void)
 	 return -1;
       }
 
-      /* initialise mouse state */
+      /* initialize mouse state */
       SetEvent(mouse_input_event);
 
       return 0;
@@ -184,7 +189,7 @@ int mouse_dinput_acquire(void)
 
 
 /* mouse_dinput_unacquire:
- *  unacquires mouse device.
+ *  unacquires the mouse device
  */
 int mouse_dinput_unacquire(void)
 {
@@ -207,7 +212,7 @@ int mouse_dinput_unacquire(void)
 
 
 /* mouse_set_cursor:
- *  selects whatever cursor we should display.
+ *  selects whatever cursor we should display
  */
 int mouse_set_cursor(void)
 {
@@ -222,16 +227,16 @@ int mouse_set_cursor(void)
 
 
 /* mouse_sysmenu_changed:
- *  alters the windowed mouse state when going to/from sysmenu mode.
+ *  alters the windowed mouse state when going to/from sysmenu mode
  */
-void mouse_sysmenu_changed()
+void mouse_sysmenu_changed(void)
 {
+   POINT p;
+
    if (wnd_sysmenu) {
       _mouse_on = FALSE;
    }
    else {
-      POINT p;
-
       GetCursorPos(&p);
 
       p.x -= wnd_x;
@@ -284,10 +289,10 @@ static void mouse_dinput_exit(void)
 
 
 
-/* mouse_enum_ccallback:
- *  to find out how many buttons we have.
+/* mouse_enum_callback:
+ *  helper to find out how many buttons we have
  */
-BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
+static BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
    if (memcmp(&lpddoi->guidType, &GUID_ZAxis, sizeof(GUID)) == 0)
       dinput_wheel = TRUE;
@@ -334,6 +339,8 @@ static int mouse_dinput_init(void)
    dinput_wheel = FALSE;
 
    hr = IDirectInputDevice_EnumObjects(mouse_dinput_device, mouse_enum_callback, NULL, DIDFT_PSHBUTTON | DIDFT_AXIS);
+   if (FAILED(hr))
+      goto Error;
 
    /* Set data format */
    hr = IDirectInputDevice_SetDataFormat(mouse_dinput_device, &c_dfDIMouse);
@@ -421,20 +428,22 @@ static void mouse_directx_poll(void)
 
 	       case DIMOFS_X:
 	          if (!gfx_driver || !gfx_driver->windowed) {
-		     if ((data > 32) || (data < -32)) 
-			data *= 4;
-		     else if ((data > 16) || (data < -16)) 
-			data *= 2;
+		     if (ABS(data) >= mouse_accel_thr2)
+			data *= (mouse_accel_mult<<1);
+		     else if (ABS(data) >= mouse_accel_thr1) 
+			data *= mouse_accel_mult;
+
 		     dinput_x += data;
 		  }
 		  break;
 
 	       case DIMOFS_Y:
 	          if (!gfx_driver || !gfx_driver->windowed) {
-		     if ((data > 32) || (data < -32)) 
-			data *= 4;
-		     else if ((data > 16) || (data < -16)) 
-			data *= 2;
+		     if (ABS(data) >= mouse_accel_thr2)
+			data *= (mouse_accel_mult<<1);
+		     else if (ABS(data) >= mouse_accel_thr1) 
+			data *= mouse_accel_mult;
+	
 		     dinput_y += data;
 		  }
 		  break;
@@ -548,6 +557,7 @@ static void mouse_directx_poll(void)
 
 
 /* mouse_directx_thread:
+ *  thread loop function
  */
 static void mouse_directx_thread(HANDLE setup_event)
 {
@@ -598,13 +608,32 @@ static int mouse_directx_init(void)
 {
    HANDLE events[2];
    DWORD result;
+   char *section;
+   int factor, t1, t2;
+   char tmp1[64], tmp2[256];
 
-   /* Mouse input is handled by a additional thread */
+   /* get user acceleration parameters */
+   section = uconvert_ascii("mouse", tmp1);
+   factor = get_config_int(section, uconvert_ascii("mouse_accel_factor", tmp2), mouse_accel_mult);
+   if (factor > 0) {
+      mouse_accel_mult = factor;
+      t1 = get_config_int(section, uconvert_ascii("mouse_accel_threshold1", tmp2), mouse_accel_thr1);
+      mouse_accel_thr1 = (t1 > 0 ? t1 : INT_MAX);
+      t2 = get_config_int(section, uconvert_ascii("mouse_accel_threshold2", tmp2), mouse_accel_thr2);
+      mouse_accel_thr2 = (t2 > 0 ? t2 : INT_MAX);
+   }
+   else {
+      mouse_accel_mult = 0;
+      mouse_accel_thr1 = INT_MAX;
+      mouse_accel_thr2 = INT_MAX;
+   }
+
+   /* mouse input is handled by a additional thread */
    mouse_thread_stop_event = CreateEvent(NULL, FALSE, FALSE, NULL);
    events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
    events[1] = (HANDLE) _beginthread(mouse_directx_thread, 0, events[0]);
 
-   /* Wait until thread quits or acknowledge that it is up */
+   /* wait until thread quits or acknowledge that it is up */
    result = WaitForMultipleObjects(2, events, FALSE, INFINITE);
    CloseHandle(events[0]);
 
