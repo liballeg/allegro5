@@ -298,23 +298,41 @@ int find_dialog_focus(DIALOG *dialog)
 
 
 /* object_message:
- *  Sends a message to a widget, automatically acquiring and releasing   
- *  the screen BITMAP if sending MSG_DRAW.
+ *  Sends a message to a widget, automatically scaring and unscaring
+ *  the mouse if the message is MSG_DRAW.
  */
 int object_message(DIALOG *dialog, int msg, int c)
 {
+#ifdef ALLEGRO_WINDOWS
+   /* exported address of d_clear_proc */
+   extern int (*_d_clear_proc)(int, DIALOG *, int);
+#endif
+
    int ret;
    ASSERT(dialog);
 
    if (msg == MSG_DRAW) {
-      if (dialog->flags & D_HIDDEN) return D_O_K;
+      if (dialog->flags & D_HIDDEN)
+	 return D_O_K;
+
+#ifdef ALLEGRO_WINDOWS
+      if (dialog->proc == _d_clear_proc)
+#else
+      if (dialog->proc == d_clear_proc)
+#endif
+	 scare_mouse();
+      else
+	 scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
+
       acquire_screen();
    }
 
    ret = dialog->proc(msg, dialog, c);
 
-   if (msg == MSG_DRAW)
+   if (msg == MSG_DRAW) {
       release_screen();
+      unscare_mouse();
+   }
 
    if (ret & D_REDRAWME) {
       dialog->flags |= D_DIRTY;
@@ -336,10 +354,8 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
    int count, res, r, force;
    ASSERT(dialog);
 
-   if (msg == MSG_DRAW) {
-      scare_mouse();
+   if (msg == MSG_DRAW)
       acquire_screen();
-   }
 
    force = ((msg == MSG_START) || (msg == MSG_END));
 
@@ -347,12 +363,7 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 
    for (count=0; dialog[count].proc; count++) { 
       if ((force) || (!(dialog[count].flags & D_HIDDEN))) {
-	 r = dialog[count].proc(msg, &dialog[count], c);
-
-	 if (r & D_REDRAWME) {
-	    dialog[count].flags |= D_DIRTY;
-	    r &= ~D_REDRAWME;
-	 }
+	 r = object_message(dialog+count, msg, c);
 
 	 if (r != D_O_K) {
 	    res |= r;
@@ -362,17 +373,13 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 
 	 if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	    dialog[count].flags &= ~D_DIRTY;
-	    scare_mouse();
 	    object_message(dialog+count, MSG_DRAW, 0);
-	    unscare_mouse();
 	 }
       }
    }
 
-   if (msg == MSG_DRAW) {
+   if (msg == MSG_DRAW)
       release_screen();
-      unscare_mouse();
-   }
 
    return res;
 }
@@ -449,20 +456,16 @@ int offer_focus(DIALOG *dialog, int obj, int *focus_obj, int force)
 	       res &= ~D_WANTFOCUS;
 	 }
 	 dialog[*focus_obj].flags &= ~D_GOTFOCUS;
-	 scare_mouse();
 	 res |= object_message(dialog+*focus_obj, MSG_DRAW, 0);
-	 unscare_mouse();
       }
 
       *focus_obj = obj;
 
       /* give focus to new object */
       if (obj >= 0) {
-	 scare_mouse();
 	 dialog[obj].flags |= D_GOTFOCUS;
 	 res |= object_message(dialog+obj, MSG_GOTFOCUS, 0);
 	 res |= object_message(dialog+obj, MSG_DRAW, 0);
-	 unscare_mouse();
       }
    }
 
@@ -848,9 +851,7 @@ static void check_for_redraw(DIALOG_PLAYER *player)
    for (c=0; player->dialog[c].proc; c++) {
       if ((player->dialog[c].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	 player->dialog[c].flags &= ~D_DIRTY;
-	 scare_mouse();
 	 MESSAGE(c, MSG_DRAW, 0);
-	 unscare_mouse();
       }
    }
 }

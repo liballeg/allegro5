@@ -50,14 +50,10 @@ extern DIALOG calculator[];
 
 void redraw(DIALOG *d)
 {
-   show_mouse(NULL);
-
    object_message(calculator+CALC_STR, MSG_DRAW, 0);
 
    if (d)
       object_message(d, MSG_DRAW, 0);
-
-   show_mouse(screen);
 }
 
 

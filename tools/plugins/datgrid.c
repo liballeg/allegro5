@@ -399,9 +399,7 @@ static int gg_text_proc(int msg, DIALOG *d, int c)
 	 else
 	    d->flags |= D_DISABLED;
 
-	 show_mouse(NULL);
 	 object_message(d, MSG_DRAW, 0);
-	 show_mouse(screen);
       }
 
       return D_O_K;
@@ -425,9 +423,7 @@ static int gg_edit_proc(int msg, DIALOG *d, int c)
 	 else
 	    d->flags |= D_DISABLED;
 
-	 show_mouse(NULL);
 	 object_message(d, MSG_DRAW, 0);
-	 show_mouse(screen);
       }
 
       return D_O_K;

@@ -166,16 +166,11 @@ int d_listchange_proc(int msg, DIALOG* d, int c)
       what_dialog[GFX_MODELIST].d1 = 0;
       what_dialog[GFX_MODELIST].d2 = 0;
 
-      scare_mouse();
       object_message(&what_dialog[GFX_MODELIST], MSG_DRAW, 0);
-      unscare_mouse();
 
       if (what_dialog == gfx_mode_ex_dialog) {
          what_dialog[GFX_DEPTHLIST].d1 = 0;
-
-         scare_mouse();
          object_message(&what_dialog[GFX_DEPTHLIST], MSG_DRAW, 0);
-         unscare_mouse();
       }
    }
 
@@ -184,10 +179,7 @@ int d_listchange_proc(int msg, DIALOG* d, int c)
 
       if (what_dialog == gfx_mode_ex_dialog) {
          what_dialog[GFX_DEPTHLIST].d1 = 0;
-
-         scare_mouse();
          object_message(&what_dialog[GFX_DEPTHLIST], MSG_DRAW, 0);
-         unscare_mouse();
       }
    }
 

@@ -214,12 +214,10 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
       s += usetc(s, OTHER_PATH_SEPARATOR);
       usetc(s, 0);
 
-      scare_mouse();
       object_message(file_selector+FS_FILES, MSG_START, 0);
       object_message(file_selector+FS_FILES, MSG_DRAW, 0);
       object_message(file_selector+FS_EDIT, MSG_START, 0);
       object_message(file_selector+FS_EDIT, MSG_DRAW, 0);
-      unscare_mouse();
 
       return D_O_K;
    }
@@ -274,7 +272,6 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 	    return D_CLOSE;
       }
 
-      scare_mouse();
       object_message(file_selector+FS_FILES, MSG_START, 0);
       /* did we `cd ..' ? */
       if (ustrlen(updir)) {
@@ -303,7 +300,6 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
       object_message(file_selector+FS_FILES, MSG_DRAW, 0);
       object_message(d, MSG_START, 0);
       object_message(d, MSG_DRAW, 0);
-      unscare_mouse();
 
       return D_O_K;
    }
@@ -618,10 +614,8 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
       else {
 	 usetc(updir, 0);
       }
-      scare_mouse();
       object_message(file_selector+FS_EDIT, MSG_START, 0);
       object_message(file_selector+FS_EDIT, MSG_DRAW, 0);
-      unscare_mouse();
 
       if (ret == D_CLOSE)
 	 return object_message(file_selector+FS_EDIT, MSG_KEY, 0);

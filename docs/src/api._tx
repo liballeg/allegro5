@@ -88,6 +88,9 @@ Changes between 4.0.x and 4.1.x series
 <li>
    A datafile object returned by load_datafile_object() used not to contain
    the properties attached to the object. This has been fixed.
+<li>
+   object_message() now takes care of scaring and unscaring the mouse if the
+   message to be sent is MSG_DRAW.
 </ul>
 
 @heading

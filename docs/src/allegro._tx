@@ -7438,7 +7438,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    the function to authoritatively set the focus to the object.
 
 @@int @object_message(DIALOG *dialog, int msg, int c);
-@xref dialog_message
+@xref dialog_message, scare_mouse, scare_mouse_area, unscare_mouse
    Sends a message to an object and returns the answer it has generated.
    Remember that the first parameter is the dialog object (not a whole
    array) that you wish to send the message to. For example, to make the
@@ -7446,6 +7446,8 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 <codeblock>
       object_message(&dialog[1], MSG_DRAW, 0);
 <endblock>
+   The function will take care of scaring and unscaring the mouse if the
+   message is MSG_DRAW.
 @@int @dialog_message(DIALOG *dialog, int msg, int c, int *obj);
 @xref object_message, broadcast_dialog_message
    Sends a message to all the objects in an array. If any of the dialog 

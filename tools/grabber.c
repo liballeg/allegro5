@@ -1022,11 +1022,8 @@ static int view_proc(int msg, DIALOG *d, int c)
    int i, c1, c2;
 
    if (msg == MSG_IDLE) {
-      if (current_view_object != SELECTED_ITEM) {
-	 show_mouse(NULL);
+      if (current_view_object != SELECTED_ITEM)
 	 object_message(d, MSG_DRAW, 0);
-	 show_mouse(screen);
-      }
    }
    else if (msg == MSG_DRAW) {
       current_view_object = SELECTED_ITEM;
@@ -1192,11 +1189,8 @@ static int prop_proc(int msg, DIALOG *d, int c)
 	 break;
 
       case MSG_IDLE:
-	 if (current_property_object != SELECTED_ITEM) {
-	    show_mouse(NULL);
+	 if (current_property_object != SELECTED_ITEM)
 	    object_message(d, MSG_DRAW, 0);
-	    show_mouse(screen);
-	 }
 	 break;
 
       case MSG_DRAW:
@@ -2597,10 +2591,7 @@ static int d_helptext_proc(int msg, DIALOG *d, int c)
 
       d->d2 = 0;
 
-      show_mouse(NULL);
       object_message(d, MSG_DRAW, c);
-      show_mouse(screen);
-
       return D_O_K;
    }
    else

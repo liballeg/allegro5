@@ -254,15 +254,7 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	    if (read_sound_input(waveform_buffer)) {
 	       freeze_mouse_flag = TRUE;
 	       poll_mouse();
-	       if ((mouse_x < d->x-32) || (mouse_x > d->x+d->w+16) ||
-		   (mouse_y < d->y-32) || (mouse_y > d->y+d->h+16)) {
-		  object_message(d, MSG_DRAW, 0);
-	       }
-	       else {
-		  show_mouse(NULL);
-		  object_message(d, MSG_DRAW, 0);
-		  show_mouse(screen);
-	       }
+	       object_message(d, MSG_DRAW, 0);
 	       freeze_mouse_flag = FALSE;
 	    }
 	 }
@@ -436,11 +428,9 @@ int record_proc(int msg, DIALOG *d, int c)
 /* helper for redrawing a specific part of the keyboard object */
 void redraw_keyboard(DIALOG *d, int c)
 {
-   show_mouse(NULL);
    set_clip(screen, d->x+(c-36)*12-6, d->y, d->x+(c-36)*12+18, d->y+d->h);
    object_message(d, MSG_DRAW, 0);
    set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-   show_mouse(screen);
 }
 
 

@@ -70,11 +70,9 @@ int waveform_proc(int msg, DIALOG *d, int c)
 	 min = MAX(d->x+MIN(i,j)-6, d->x+1);                \
 	 max = MIN(d->x+MAX(i,j)+6, d->x+d->w-2);           \
 	 oldval = newval;                                   \
-	 show_mouse(NULL);                                  \
 	 set_clip(screen, min, d->y+1, max, d->y+d->h-2);   \
 	 object_message(d, MSG_DRAW, 1);                    \
 	 set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);    \
-	 show_mouse(screen);                                \
       }                                                     \
    }
 

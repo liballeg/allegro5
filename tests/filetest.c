@@ -99,10 +99,8 @@ static int fa_button_proc(int msg, DIALOG *d, int c)
       else
          global_attr &= ~(d->d2);
 
-      scare_mouse();
       object_message(fa_viewer+FA_FILES, MSG_START, 0);
       object_message(fa_viewer+FA_FILES, MSG_DRAW, 0);
-      unscare_mouse();
 
       return ret;
    }
@@ -149,7 +147,6 @@ static int fa_filename_proc(int msg, DIALOG *d, int c)
 	    return D_O_K;
       }
 
-      scare_mouse();
       object_message(fa_viewer+FA_FILES, MSG_START, 0);
       /* did we `cd ..' ? */
       if (ustrlen(updir)) {
@@ -178,7 +175,6 @@ static int fa_filename_proc(int msg, DIALOG *d, int c)
       object_message(fa_viewer+FA_FILES, MSG_DRAW, 0);
       object_message(d, MSG_START, 0);
       object_message(d, MSG_DRAW, 0);
-      unscare_mouse();
 
       return D_O_K;
    }
@@ -486,10 +482,9 @@ static int fa_flist_proc(int msg, DIALOG *d, int c)
       else {
 	 usetc(updir, 0);
       }
-      scare_mouse();
+
       object_message(fa_viewer+FA_TEXT, MSG_START, 0);
       object_message(fa_viewer+FA_TEXT, MSG_DRAW, 0);
-      unscare_mouse();
 
       if (ret == D_CLOSE)
 	 return object_message(fa_viewer+FA_TEXT, MSG_KEY, 0);

@@ -98,21 +98,18 @@ int clock_proc(int msg, DIALOG *d, int c)
 	     (the_time.tm_hour != t->tm_hour)) {
 	    the_time = *t;
 
-	    /* Redraw ourselves if the time has changed. Note that we have
-	     * to turn the mouse off before doing this: the dialog manager
-	     * turns it off whenever it sends us a draw message, but we
-	     * are sending the message ourselves here so we are responsible 
-	     * for making sure the mouse is off first. Also note the use of
-	     * the object_message function rather than a simple recursive call
-	     * to clock_proc(). This vectors the call through the function
+	    /* Redraw ourselves if the time has changed. Note that the dialog
+	     * manager automatically turns off the mouse pointer whenever a
+	     * MSG_DRAW message is sent to an individual object or an entire
+	     * dialog, so we don't have to do it explicitly. Also note the use
+	     * of the object_message function rather than a simple recursive
+	     * call to clock_proc(). This vectors the call through the function
 	     * pointer in the dialog object, which allows other object
 	     * procedures to hook it, for example a different type of clock
 	     * could process the draw messages itself but pass idle messages
 	     * on to this procedure.
 	     */
-	    show_mouse(NULL);
 	    object_message(d, MSG_DRAW, 0);
-	    show_mouse(screen);
 	 }
 	 break;
 

@@ -339,11 +339,9 @@ int piano_proc(int msg, DIALOG *d, int c)
       case MSG_CLICK:
 	 d->d1 = (mouse_x - d->x) / 12;
 
-	 show_mouse(NULL);
 	 set_clip(screen, d->x+d->d1*12-6, d->y, d->x+d->d1*12+18, d->y+d->h);
 	 object_message(d, MSG_DRAW, 0);
 	 set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-	 show_mouse(screen);
 
 	 pitch = 36 + d->d1;
 	 delay = 0;
@@ -376,12 +374,10 @@ int piano_proc(int msg, DIALOG *d, int c)
 	 } while ((mouse_b) && (d->d1 == (mouse_x - d->x) / 12));
 
 	 if (d->d1 >= 0) {
-	    show_mouse(NULL);
 	    set_clip(screen, d->x+d->d1*12-6, d->y, d->x+d->d1*12+18, d->y+d->h);
 	    d->d1 = -1;
 	    object_message(d, MSG_DRAW, 0);
 	    set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-	    show_mouse(screen);
 	 }
 	 break;
 

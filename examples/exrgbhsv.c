@@ -99,9 +99,7 @@ int my_slider_proc(int msg, DIALOG *d, int c)
 	 /* has the slider position changed? */
 	 if (d->d2 != *color) {
 	    d->d2 = *color;
-	    show_mouse(NULL);
 	    object_message(d, MSG_DRAW, 0);
-	    show_mouse(screen);
 	 }
 	 break;
    }

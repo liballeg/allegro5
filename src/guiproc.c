@@ -28,6 +28,10 @@
 #include "allegro/internal/aintern.h"
 
 
+#ifdef ALLEGRO_WINDOWS
+/* exported address of d_clear_proc */
+int (*_d_clear_proc)(int, DIALOG *, int) = NULL;
+#endif
 
 /* typedef for the listbox callback functions */
 typedef char *(*getfuncptr)(int, int *);
@@ -147,6 +151,13 @@ int d_yield_proc(int msg, DIALOG *d, int c)
 int d_clear_proc(int msg, DIALOG *d, int c)
 {
    ASSERT(d);
+
+#ifdef ALLEGRO_WINDOWS
+   /* kludge to get the exported address of d_clear_proc */
+   if (!_d_clear_proc)
+      _d_clear_proc = d->proc;
+#endif
+
    if (msg == MSG_DRAW) {
       set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
       clear_to_color(screen, d->bg);
@@ -339,9 +350,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
 
 	 /* or just toggle */
 	 d->flags ^= D_SELECTED;
-	 scare_mouse();
 	 object_message(d, MSG_DRAW, 0);
-	 unscare_mouse();
 	 break;
 
       case MSG_CLICK:
@@ -363,9 +372,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	    if (((state1) && (!state2)) || ((state2) && (!state1))) {
 	       d->flags ^= D_SELECTED;
 	       state1 = d->flags & D_SELECTED;
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse();
 	    }
 
 	    /* let other objects continue to animate */
@@ -477,9 +484,7 @@ int d_radio_proc(int msg, DIALOG *d, int c)
       case MSG_RADIO:
 	 if ((c == d->d1) && (d->flags & D_SELECTED)) {
 	    d->flags &= ~D_SELECTED;
-	    scare_mouse();
 	    object_message(d, MSG_DRAW, 0);
-	    unscare_mouse();
 	 }
 	 break;
    }
@@ -707,9 +712,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	       break;
 	 }
 	 d->d2 = MID(0, p, l);
-	 scare_mouse();
 	 object_message(d, MSG_DRAW, 0);
-	 unscare_mouse();
 	 break;
 
       case MSG_WANTFOCUS:
@@ -772,9 +775,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	 }
 	 else if ((c >> 8) == KEY_ENTER) {
 	    if (d->flags & D_EXIT) {
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse();
 	       return D_CLOSE;
 	    }
 	    else
@@ -788,9 +789,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	    /* don't process regular keys here: MSG_UCHAR will do that */
 	    break;
 	 }
-	 scare_mouse();
 	 object_message(d, MSG_DRAW, 0);
-	 unscare_mouse();
 	 return D_USED_CHAR;
 
       case MSG_UCHAR:
@@ -799,9 +798,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	       uinsert(s, d->d2, c);
 	       d->d2++;
 
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse();
 	    }
 	    return D_USED_CHAR;
 	 }
@@ -837,9 +834,7 @@ void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, int h
 
 	    if (yy != *offset) {
 	       *offset = yy;
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse();
 	    }
 
 	    /* let other objects continue to animate */
@@ -860,9 +855,7 @@ void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, int h
 
 	 if (yy != *offset) {
 	    *offset = yy;
-	    scare_mouse();
 	    object_message(d, MSG_DRAW, 0);
-	    unscare_mouse();
 	 }
       }
 
@@ -1150,11 +1143,8 @@ int d_list_proc(int msg, DIALOG *d, int c)
 		     sel[i] = FALSE;
 		  }
 	       }
-	       if (redraw) {
-		  scare_mouse();
+	       if (redraw)
 		  object_message(d, MSG_DRAW, 0);
-		  unscare_mouse();
-	       }
 	    }
 	    _handle_listbox_click(d);
 	    while (gui_mouse_b()) {
@@ -1196,9 +1186,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	       i = MIN(listsize-height, d->d2+delta);
 	    if (i != d->d2) {
 	       d->d2 = i;
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse(); 
 	    }
 	 }
 	 break;
@@ -1333,9 +1321,7 @@ int d_text_list_proc(int msg, DIALOG *d, int c)
 			}
 
 			_handle_scrollable_scroll(d, listsize, &d->d1, &d->d2);
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			return D_USED_CHAR;
 		     }
 		  }
@@ -1884,9 +1870,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 		  retval |= (*proc)(d->dp3, d->d2);
 	       }
 
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse();
 	    }
 	 }
 	 break;
@@ -1901,9 +1885,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       retval |= (*proc)(d->dp3, d->d2);
 	    }
 
-	    scare_mouse();
 	    object_message(d, MSG_DRAW, 0);
-	    unscare_mouse();
 	 }
 	 break;
 
@@ -1935,9 +1917,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 		  retval |= (*proc)(d->dp3, d->d2);
 	       }
 
-	       scare_mouse();
 	       object_message(d, MSG_DRAW, 0);
-	       unscare_mouse();
 	    }
 
 	    /* let other objects continue to animate */
