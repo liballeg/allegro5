@@ -137,6 +137,9 @@ $(OBJ_DIR)/%.o: %.c
 */%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
+tests/win/%.exe: $(OBJ_DIR)/%.o $(LIB_NAME)
+	$(RSXGCC) $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
+
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(LIB_NAME)
 	$(RSXGCC) $(LFLAGS) -o tests/win/scrsave.exe $(OBJ_DIR)/scrsave.o $(LIB_NAME) $(LIBRARIES)
 	rsrc $(OBJ_DIR)/scrsave.res tests/win/scrsave.exe
