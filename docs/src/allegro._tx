@@ -8637,6 +8637,9 @@ various attributes of the current platform:
 <b>ALLEGRO_LITTLE_ENDIAN</b><br>
    Defined if you are building for a processor of the relevant type.
 
+<b>ALLEGRO_MULTITHREADED</b><br>
+   Defined if the library is internally multi-threaded on this system.
+
 <b>ALLEGRO_USE_CONSTRUCTOR</b><br>
    Defined if the compiler supports constructor/destructor functions.
 
