@@ -267,6 +267,7 @@ static void gfx_directx_set_palette_win(struct RGB *p, int from, int to, int vsy
                                    ((p[n].g<<2) << desk_g) |
                                    ((p[n].b<<2) << desk_b) );
    }
+   update_window(NULL);
 }
 
 
