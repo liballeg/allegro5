@@ -15,6 +15,9 @@ OBJ_DIR = obj/djgpp/$(VERSION)
 LIB_NAME = lib/djgpp/lib$(VERSION).a
 EXE = .exe
 OBJ = .o
+ifdef CROSSCOMPILE
+UNIX_TOOLS = 1
+endif
 
 
 
@@ -64,7 +67,7 @@ ifndef CROSSCOMPILE
 
 ifeq ($(wildcard $(DJDIR_U)/bin/djasm.exe),)
 baddjdev:
-	@echo Missing djgpp package! You need to install djdev202.zip (or whatever the
+	@echo Missing djgpp package! You need to install djdev203.zip (or whatever the
 	@echo latest version is). Download this from wherever you got djgpp, and unzip
 	@echo it into the root of your djgpp directory.
 endif
@@ -75,7 +78,7 @@ endif
 
 ifeq ($(wildcard $(DJDIR_U)/bin/gcc.exe),)
 badgcc:
-	@echo Missing djgpp package! You need to install gcc281b.zip (or whatever the
+	@echo Missing djgpp package! You need to install gcc2952b.zip (or whatever the
 	@echo latest version is). Download this from wherever you got djgpp, and unzip
 	@echo it into the root of your djgpp directory.
 endif
@@ -86,7 +89,7 @@ endif
 
 ifeq ($(wildcard $(DJDIR_U)/bin/ld.exe),)
 badbnu:
-	@echo Missing djgpp package! You need to install bnu281b.zip (or whatever the
+	@echo Missing djgpp package! You need to install bnu210b.zip (or whatever the
 	@echo latest version is). Download this from wherever you got djgpp, and unzip
 	@echo it into the root of your djgpp directory.
 endif
@@ -97,7 +100,7 @@ endif
 
 ifeq ($(wildcard $(DJDIR_U)/bin/make.exe),)
 badmake:
-	@echo Missing djgpp package! You need to install mak377b.zip (or whatever the
+	@echo Missing djgpp package! You need to install mak3791b.zip (or whatever the
 	@echo latest version is). Download this from wherever you got djgpp, and unzip
 	@echo it into the root of your djgpp directory.
 endif
@@ -108,7 +111,7 @@ endif
 
 ifeq ($(wildcard $(DJDIR_U)/bin/makeinfo.exe),)
 badtxi:
-	@echo Missing djgpp package! You need to install txi312b.zip (or whatever the
+	@echo Missing djgpp package! You need to install txi40b.zip (or whatever the
 	@echo latest version is). Download this from wherever you got djgpp, and unzip
 	@echo it into the root of your djgpp directory. If you do not need the Info
 	@echo documentation, run make all to ignore this error.
@@ -161,7 +164,11 @@ else
 ifdef PENTIUMONLY
 OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
 else
+ifdef I686ONLY
+OFLAGS = -march=i686 -O2 -funroll-loops -ffast-math
+else
 OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
+endif
 endif
 endif
 
@@ -222,7 +229,7 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) \
 
 # -------- rules for installing and removing the library files --------
 
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 
 $(DJDIR_U)/lib/lib$(VERSION).a: $(LIB_NAME)
 	cp lib/djgpp/lib$(VERSION).a $(DJDIR_U)/lib
@@ -280,7 +287,7 @@ UNINSTALL_FILES = $(DJDIR_U)/lib/liballeg.a \
 uninstall:
 	-install-info --delete $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
 	-rm -fv $(UNINSTALL_FILES)
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 	-rmdir $(DJDIR_U)/include/allegro
 else
 	-rd $(DJDIR_D)\include\allegro
@@ -294,7 +301,7 @@ endif
 .PHONY: mmxtest
 
 mmxtest:
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 	echo // no MMX > obj/djgpp/mmx.h
 	echo .text > obj/djgpp/mmxtest.s
 	echo emms >> obj/djgpp/mmxtest.s
@@ -389,7 +396,7 @@ PLUGINS_H = obj/djgpp/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scr
 
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 
 define GENERATE_PLUGINS_H
 cat tools/plugins/*.inc > obj/djgpp/plugins.h

@@ -55,7 +55,8 @@
    prefer), and unzip everything. Allegro contains several subdirectories, 
    so you must specify the -d flag if you are using pkunzip.
 
-   If you are using PGCC, set the environment variable "PGCC=1".
+   If you are using PGCC, set the environment variable "PGCC=1", or type
+   "make PGCC=1" on the command line.
 
    If you are running under Linux, and want to cross-compile the djgpp 
    version of Allegro, set the environment variable "CROSSCOMPILE=1", set 
@@ -93,12 +94,61 @@
    files and HTML format documentation).
 
    If your copy of Allegro is set up for use with some different compiler 
-   (unlikely, if you downloaded the djgpp distribution), you will have to 
-   run fixdjgpp.bat before compiling it.
+   (if you downloaded a tar.gz archive or a CVS version), you will have to 
+   run fixdjgpp.bat before compiling it. If you are using bash you can run
+   fixdjgpp.sh instead. See below for why you might want to do this.
 
    If your copy of Allegro doesn't include the makefile.dep dependency files 
-   (unlikely, unless you have run "make veryclean" at some point), you can 
+   (if you have run "make veryclean" or you have the CVS version), you can 
    regenerate them by running "make depend".
+
+   If `make' tells you that you need to download a new package, or if you
+   need the `sed' package to generate dependencies, you can find these at
+     ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/
+ 
+   A list of all the available options:
+    CROSSCOMPILE
+                Set this if you are crosscompiling; it implies
+                UNIX_TOOLS.
+
+    WARNMODE
+                Set this if you want Allegro to display and stop on
+                nearly all warnings issued by the compiler. Allegro
+                should compile fine with this set.
+
+    PENTIUMONLY
+      or
+    I686ONLY
+                These affect the level of optimisation that Allegro
+                uses. Please note that if you compile with either of
+                these options, your executables will not be portable to
+                an earlier processor architecture. Simply set to 1 to
+                activate. The default level of optimisation Allegro uses
+                will run adequately on these systems, and will also work
+                on anything from a 386 upwards.
+
+    UNIX_TOOLS
+                If your system does not have the usual DOS tools
+                available (`md', `rd', `copy', etc., and commands which
+                understand the \ character), then set this to 1 to use
+                the unix equivalents. This is set implicitly when you
+                set CROSSCOMPILE.
+
+    UNIX_FILES
+                (This only applies if you use it when running the
+                fixdjgpp.sh script).
+
+                If you set this, then the `utod' utility won't be run on
+                the Allegro files before compilation. DJGPP and all
+                related utilities handle UNIX-style files (LF instead of
+                CRLF for a newline) without problems; it is only MS-DOS
+                style editors/broken Windows applications that fail. Set
+                this if you want to be able to use the Allegro files in
+                both DJGPP and UNIX.
+
+   To activate any of these, type "make WARNMODE=1" on the command line.
+   Alternatively, if you use the fixdjgpp.sh script, you can pass these
+   on the command line (eg. "WARNMODE=1;UNIX_TOOLS=1;./fixdjgpp.sh").
 
 
 
