@@ -266,9 +266,8 @@ Windows problems
 
 @@   When I run make, it says "windres: no resources".
 
-      If Norton Antivirus is installed on your computer, try to disable
-      the "Auto-Protect" feature temporarily. Otherwise, try something
-      else ;-)
+      If an anti-virus software (Norton or MacAfee for example) is running in
+      the background on your computer, try to disable it temporarily.
 
 
 @@   I get an error about a missing WinMain() or main() function!
