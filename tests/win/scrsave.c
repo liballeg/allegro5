@@ -11,13 +11,20 @@
  *      Example program showing how to write a Windows screensaver. This
  *      uses a fullscreen DirectX mode when activated normally, or the
  *      GDI interface functions when it is running in preview mode from
- *      inside the Windows screensaver selection dialog.
+ *      inside the Windows screensaver selection dialog. When in
+ *      configuration mode, it just uses a standard Windows API dialog.
+ *      This also demonstrates how to load, save, and modify the
+ *      configuration options.
  *
  *      Compile this like a normal executable, but rename the output
  *      program to have a .scr extension, and then copy it into your
- *      windows directory.
+ *      'windows/system' directory (or 'winnt/system32' directory under
+ *      Windows NT/2000/XP).
  *
  *      By Shawn Hargreaves.
+ *
+ *      Modified by Andrei Ellman to demonstrate loading, saving and
+ *      modifying of configuration settings.
  *
  *      See readme.txt for copyright information.
  */
@@ -27,8 +34,24 @@
 
 #include "allegro.h"
 #include "winalleg.h"
+#include "scrsave.rh"
 
 
+
+#define INISETTINGNAME_SHOWBLUECROSS   "showbluecross"
+#define INISETTINGDEFAULT_SHOWBLUECROSS   1
+
+#define INISETTINGNAME_SHOWEXTRATEXT   "showextratext"
+#define INISETTINGDEFAULT_SHOWEXTRATEXT   1
+
+#define INISETTINGNAME_MESSAGE   "message"
+#define INISETTINGDEFAULT_MESSAGE   "This message may be changed"
+
+#define MAX_MESSAGE_LENGTH 40
+
+
+int setting_show_blue_cross, setting_show_extra_text;
+char saver_message[MAX_MESSAGE_LENGTH+1];
 
 BITMAP *buf;
 
@@ -49,10 +72,58 @@ BOUNCER bouncer[NUM_BOUNCERS];
 
 
 
+void set_saver_config(void)
+{
+   /* Because of the different ways screensavers are invoked from the shell,
+    * we must make absolutely sure we set the INI file to be in the same
+    * directory as the SCR file. set_config_file() is not sufficient in these
+    * circumstances, so we have to set the ABSOLUTE path of the INI file.
+    */
+
+   char szPath[512], szINIFile[512];
+
+   /* As we are using SYSTEM_NONE as the system driver, we cannot use Allegro's
+    * get_executable_name(). Thankfully, this is a Windows specific program, so
+    * we can get away with the equivalent Windows code below.
+    */
+   if(GetModuleFileName(NULL, szPath, sizeof(szPath))==0)
+      szPath[0]=0;
+
+   replace_filename(szINIFile, szPath, "scrsave.ini", 512);
+
+   set_config_file(szINIFile);
+}
+
+
+
+void load_config(void)
+{
+   set_saver_config();
+
+   setting_show_blue_cross = get_config_int(NULL, INISETTINGNAME_SHOWBLUECROSS, INISETTINGDEFAULT_SHOWBLUECROSS);
+   setting_show_extra_text = get_config_int(NULL, INISETTINGNAME_SHOWEXTRATEXT, INISETTINGDEFAULT_SHOWEXTRATEXT);
+   ustrzcpy(saver_message, MAX_MESSAGE_LENGTH+1, get_config_string(NULL, INISETTINGNAME_MESSAGE, INISETTINGDEFAULT_MESSAGE));
+}
+
+
+
+void save_config(void)
+{
+   set_saver_config();
+
+   set_config_int(NULL, INISETTINGNAME_SHOWBLUECROSS, setting_show_blue_cross);
+   set_config_int(NULL, INISETTINGNAME_SHOWEXTRATEXT, setting_show_extra_text);
+   set_config_string(NULL, INISETTINGNAME_MESSAGE, saver_message);
+}
+
+
+
 /* initialises our graphical effect */
 void ss_init(void)
 {
    int i;
+
+   load_config();
 
    xline = 0;
    yline = 0;
@@ -108,15 +179,19 @@ void ss_draw(void)
 {
    clear_bitmap(buf);
 
-   line(buf, 0, 0, buf->w, buf->h, makecol(0, 0, 255));
-   line(buf, buf->w, 0, 0, buf->h, makecol(0, 0, 255));
+   if (setting_show_blue_cross) {
+      line(buf, 0, 0, buf->w, buf->h, makecol(0, 0, 255));
+      line(buf, buf->w, 0, 0, buf->h, makecol(0, 0, 255));
+   }
 
    vline(buf, xline, 0, buf->h, makecol(255, 0, 0));
    hline(buf, 0, yline, buf->w, makecol(0, 255, 0));
 
    textout_centre_ex(buf, font, "Allegro", bouncer[0].x, bouncer[0].y, makecol(0, 128, 255), -1);
    textout_centre_ex(buf, font, "Screensaver", bouncer[1].x, bouncer[1].y, makecol(255, 128, 0), -1);
-   textout_centre_ex(buf, font, "<insert cool effect here>", bouncer[2].x, bouncer[2].y, makecol(255, 255, 255), -1);
+
+   if (setting_show_extra_text)
+      textout_centre_ex(buf, font, saver_message, bouncer[2].x, bouncer[2].y, makecol(255, 255, 255), -1);
 }
 
 
@@ -133,10 +208,36 @@ BOOL CALLBACK settings_dlg_proc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 {
    switch (uMsg) {
 
-      case WM_COMMAND: 
-	 switch (HIWORD(wParam)) { 
+      case WM_INITDIALOG:
+	 /* Set up the values for the controls, and grey them out if appropriate. */
+	 SendMessage(GetDlgItem(hwndDlg, IDC_CHECK_BLUECROSS), BM_SETCHECK, (setting_show_blue_cross?BST_CHECKED:BST_UNCHECKED), 0);
+	 SendMessage(GetDlgItem(hwndDlg, IDC_CHECK_SHOWMESSAGE), BM_SETCHECK, (setting_show_extra_text?BST_CHECKED:BST_UNCHECKED), 0);
+	 SendMessage(GetDlgItem(hwndDlg, IDC_EDIT_MESSAGE), WM_SETTEXT, 0, (LPARAM) ((LPCTSTR) saver_message));
+	 SendMessage(GetDlgItem(hwndDlg, IDC_EDIT_MESSAGE), EM_LIMITTEXT, MAX_MESSAGE_LENGTH, 0);
+	 EnableWindow(GetDlgItem(hwndDlg, IDC_EDIT_MESSAGE), setting_show_extra_text);
+	 break;
 
-	    case BN_CLICKED:
+
+      case WM_COMMAND:
+	 switch (LOWORD(wParam)) {
+
+	    case IDC_CHECK_SHOWMESSAGE:
+	       /* If this checkbox is changed, then we will grey-out the edit-box accordingly. */
+	       EnableWindow(GetDlgItem(hwndDlg, IDC_EDIT_MESSAGE), (SendMessage(GetDlgItem(hwndDlg, IDC_CHECK_SHOWMESSAGE), BM_GETCHECK, 0, 0)==BST_CHECKED));
+	       return 1;
+
+	    case IDOK:
+	       /* Read in the settings from the dialog. */
+	       setting_show_blue_cross = (SendMessage(GetDlgItem(hwndDlg, IDC_CHECK_BLUECROSS), BM_GETCHECK, 0, 0)==BST_CHECKED?1:0);
+	       setting_show_extra_text = (SendMessage(GetDlgItem(hwndDlg, IDC_CHECK_SHOWMESSAGE), BM_GETCHECK, 0, 0)==BST_CHECKED?1:0);
+	       SendMessage(GetDlgItem(hwndDlg, IDC_EDIT_MESSAGE), WM_GETTEXT, (WPARAM)(MAX_MESSAGE_LENGTH+1), (LPARAM) ((LPCTSTR) saver_message));
+
+	       /* And now save these settings to the INI file. */
+	       save_config();
+	       EndDialog(hwndDlg, 1);
+	       return 1;
+
+	    case IDCANCEL:
 	       EndDialog(hwndDlg, 0);
 	       return 1;
 	 }
@@ -151,6 +252,11 @@ BOOL CALLBACK settings_dlg_proc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 /* the settings dialog function */
 int do_settings(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
 {
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      exit(0);
+
+   load_config();
+
    DialogBox(hInstance, "ID_CONFIG_DLG", hParentWnd, settings_dlg_proc);
 
    return 0;
