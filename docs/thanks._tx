@@ -41,8 +41,8 @@ Contributors
    Wrote the original version of the digital audio streaming code.
 
    Andrew Geers (<email>andy@geerswj.clara.net</a>).<br>
-   Added the -ppassword and -nosound options to the grabber, and scrolling 
-   support in the image viewer.
+   Added the -ppassword and -nosound options to the grabber, scrolling 
+   support in the image viewer, and the flipped rotated sprite routines.
 
    Andy Goth (<email>andygoth@vetec.com</a>).<br>
    Made the gfx_card config variable more flexible, added the 256x256 

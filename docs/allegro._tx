@@ -3056,7 +3056,8 @@ bitmap.
    an 8 bit image, even if the destination is a truecolor bitmap.
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
-@xref draw_sprite, rotate_scaled_sprite, pivot_sprite, itofix
+@xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
+@xref pivot_sprite, pivot_sprite_v_flip, itofix
 @xref fixed point trig, bitmap_mask_color
    Draws the sprite image onto the bitmap at the specified position, 
    rotating it by the specified angle. The angle is a fixed point 16.16 
@@ -3070,9 +3071,15 @@ bitmap.
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
 
+@\void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
+@xref rotate_sprite, pivot_sprite_v_flip
+   Like rotate_sprite, but also flips the image vertically.  To flip 
+   horizontally, use this routine but add fixtoi(128) to the angle.  To flip
+   in both directions, use rotate_sprite() and add fixtoi(128) to its angle.
+
 @\void @pivot_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                  int cx, int cy, fixed angle);
-@xref pivot_scaled_sprite, rotate_sprite
+@xref pivot_scaled_sprite, pivot_sprite_v_flip, rotate_sprite
    Like rotate_sprite(), but rotates the image around the specified pivot 
    location rather than always just using the centre of the sprite.
 
@@ -3080,6 +3087,12 @@ bitmap.
 @@                         int cx, int cy, fixed angle, fixed scale));
 @xref pivot_sprite, rotate_scaled_sprite
    Like rotate_scaled_sprite(), but rotates the image around the specified 
+   pivot location rather than always just using the centre of the sprite.
+
+@\void @pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                         int cx, int cy, fixed angle);
+@xref pivot_sprite, rotate_sprite_v_flip
+   Like rotate_sprite_v_flip(), but rotates the image around the specified
    pivot location rather than always just using the centre of the sprite.
 
 @@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);

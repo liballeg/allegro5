@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Andrew Geers added flipped rotated sprites.
+<li>
    3.9.33: George Foot made the Unix makefile work for non-root users.
 <li>
    3.9.33: Grzegorz Adam Hankiewicz made language config files be forced
