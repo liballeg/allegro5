@@ -414,10 +414,13 @@ information about how to install Allegro and link your program with it.
 		     variables are 100% reliable, otherwise there
 		     may be some mistakes.
       CPU_FPU      - An x87 FPU is available.
+      CPU_IA64     - Running on Intel 64 bit CPU
+      CPU_AMD64    - Running on AMD 64 bit CPU
       CPU_MMX      - Intel MMX  instruction set is available.
       CPU_MMXPLUS  - Intel MMX+ instruction set is available.
       CPU_SSE      - Intel SSE  instruction set is available.
       CPU_SSE2     - Intel SSE2 instruction set is available.
+      CPU_SSE3     - Intel SSE3 instruction set is available.
       CPU_3DNOW    - AMD 3DNow! instruction set is available.
       CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is
 		     available.

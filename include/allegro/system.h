@@ -108,6 +108,9 @@ AL_FUNC(void, check_cpu, (void));
 #define CPU_3DNOW    0x0040
 #define CPU_ENH3DNOW 0x0080
 #define CPU_CMOV     0x0100
+#define CPU_AMD64    0x0200
+#define CPU_IA64     0x0400
+#define CPU_SSE3     0x0800
 
 AL_ARRAY(char, cpu_vendor);
 AL_VAR(int, cpu_family);
