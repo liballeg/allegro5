@@ -147,6 +147,7 @@ information about how to install Allegro and link your program with it.
       OSTYPE_BEOS       - BeOS
       OSTYPE_QNX        - QNX
       OSTYPE_MACOS      - MacOS
+      OSTYPE_DARWIN     - Darwin
 <endblock>
 @@extern int @os_version;
 @@extern int @os_revision;

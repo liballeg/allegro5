@@ -17,7 +17,7 @@ echo "$prev"
 echo ""
 echo "\$(LIBDIR)/libaldat.a: \$(LIBALDAT_OBJECTS)"
 echo "	rm -f \$(LIBDIR)/libaldat.a"
-echo "	\$(AR) rvs \$(LIBDIR)/libaldat.a \$(LIBALDAT_OBJECTS)"
+echo "	\$(AR) \$(LIBDIR)/libaldat.a \$(LIBALDAT_OBJECTS)"
 echo ""
 
 # Debugging library.
@@ -32,7 +32,7 @@ echo "$prev"
 echo ""
 echo "\$(LIBDIR)/libaddat.a: \$(LIBADDAT_OBJECTS)"
 echo "	rm -f \$(LIBDIR)/libaddat.a"
-echo "	\$(AR) rvs \$(LIBDIR)/libaddat.a \$(LIBADDAT_OBJECTS)"
+echo "	\$(AR) \$(LIBDIR)/libaddat.a \$(LIBADDAT_OBJECTS)"
 echo ""
 
 # Profiling library.
@@ -47,7 +47,7 @@ echo "$prev"
 echo ""
 echo "\$(LIBDIR)/libapdat.a: \$(LIBAPDAT_OBJECTS)"
 echo "	rm -f \$(LIBDIR)/libapdat.a"
-echo "	\$(AR) rvs \$(LIBDIR)/libapdat.a \$(LIBAPDAT_OBJECTS)"
+echo "	\$(AR) \$(LIBDIR)/libapdat.a \$(LIBAPDAT_OBJECTS)"
 echo ""
 
 missing=

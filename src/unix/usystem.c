@@ -175,6 +175,9 @@ void _read_os_type()
       else if (!strcmp(utsn.sysname, "QNX")) {
 	 os_type = OSTYPE_QNX;
       }
+      else if (!strcmp(utsn.sysname, "Darwin")) {
+	 os_type = OSTYPE_DARWIN;
+      }
       else {
 	 os_type = OSTYPE_UNIX;     /* that's all we can say for now */
       }

@@ -2612,6 +2612,7 @@ static int sysinfo(void)
       case OSTYPE_BEOS:       s = "BeOS";                       break;
       case OSTYPE_QNX:        s = "QNX";                        break;
       case OSTYPE_MACOS:      s = "MacOS";                      break;
+      case OSTYPE_DARWIN:     s = "Darwin";                     break;
       default:                s = "Unknown";                    break;
    }
 

@@ -41,6 +41,9 @@
 /* Define if SVGAlib driver can check vga_version */
 #undef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
 
+/* Define if target platform is Darwin */
+#undef ALLEGRO_DARWIN
+
 /* Define if target machine is little endian.  */
 #undef ALLEGRO_LITTLE_ENDIAN
 

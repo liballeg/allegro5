@@ -97,16 +97,19 @@ AC_PROG_CC
 ALLEGRO_ACTEST_GCC_VERSION
 AC_PROG_CPP
 ALLEGRO_ACTEST_PROG_LD_S
-AC_PROG_RANLIB
+ALLEGRO_ACTEST_AR_SUPPORT
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
 
 dnl LDCONFIG is used for installing shared libraries, in Linux/ELF at least
-AC_PATH_PROGS(LDCONFIG, ldconfig, [echo ought to run ldconfig], $PATH:/sbin:/usr/sbin)
+AC_PATH_PROG(LDCONFIG, ldconfig, [echo ought to run ldconfig], $PATH:/sbin:/usr/sbin)
+
+dnl MAKEINFO is needed for producing the info pages
+AC_PATH_PROG(MAKEINFO, makeinfo, [echo ought to run makeinfo], $PATH:/sbin/:/usr/bin)
 
 dnl INSTALL_INFO is needed for installing the info pages
-AC_PATH_PROGS(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
+AC_PATH_PROG(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
 
 dnl Test for asm support.
 ALLEGRO_ACTEST_SUPPORT_ASM
@@ -196,6 +199,15 @@ AC_SUBST(ALLEGRO_DEBUG_CFLAGS)
 AC_SUBST(ALLEGRO_PROFILE_CFLAGS)
 AC_SUBST(ALLEGRO_SFLAGS)
 AC_SUBST(ALLEGRO_SHAREDLIB_CFLAGS)
+
+dnl How to make the library archive
+if test "X$allegro_cv_support_ar" = "Xyes"; then
+  AR="ar rvs"
+else
+  AR="\$(LD) -r -keep_private_externs -o"
+fi
+
+AC_SUBST(AR)
 
 dnl Which version of library to link with (shared/debugging/profiling/normal)?
 if test "X$allegro_build_debugging_programs" = "Xyes"; then
@@ -460,6 +472,16 @@ AC_SUBST(ALLEGRO_MODULE_TARGETS)
 
 dnl Additional libraries.
 LIBS="-lm $LIBS"
+
+case "$allegro_system" in
+
+*darwin*)
+  AC_DEFINE(ALLEGRO_DARWIN)
+  LIBS="-lcc_dynamic $LIBS"
+  ;;
+
+esac
+
 AC_SUBST(LIBS)
 
 dnl Headers, features, functions and macros.

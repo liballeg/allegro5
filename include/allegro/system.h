@@ -52,6 +52,7 @@ AL_ARRAY(char, allegro_error);
 #define OSTYPE_BEOS        AL_ID('B','E','O','S')
 #define OSTYPE_QNX         AL_ID('Q','N','X',' ')
 #define OSTYPE_MACOS       AL_ID('M','A','C',' ')
+#define OSTYPE_DARWIN      AL_ID('D','A','R','W')
 
 AL_VAR(int, os_type);
 AL_VAR(int, os_version);
