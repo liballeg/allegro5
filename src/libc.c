@@ -22,6 +22,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include <string.h>
 
 
 static int _al_rand_seed = 0;
