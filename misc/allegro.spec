@@ -6,8 +6,8 @@ Release:        1
 Copyright:      Gift Ware
 Packager:       George Foot <george.foot@merton.oxford.ac.uk>
 Group:          Development/Libraries
-Source:         allegro-3.9.34.tar.gz
-Buildroot:      /var/tmp/allegro-buildroot
+Source:         %{name}-%{version}.tar.gz
+Buildroot:      %{_tmppath}/%{name}-buildroot
 
 %description
      ______   ___    ___
@@ -46,14 +46,14 @@ madurez.
 
 %install
 mkdir -p $RPM_BUILD_ROOT/usr/local/src
-cp $RPM_SOURCE_DIR/allegro-3.9.34.tar.gz $RPM_BUILD_ROOT/usr/local/src/allegro-3.9.34.tar.gz
+cp $RPM_SOURCE_DIR/%{name}-%{version}.tar.gz $RPM_BUILD_ROOT/usr/local/src/%{name}-%{version}.tar.gz
 
 %post
 cd /usr/local/src
-rm -rf allegro-3.9.34
-gunzip -cd allegro-3.9.34.tar.gz | tar -xf -
-rm -f allegro-3.9.34.tar.gz
-cd allegro-3.9.34
+rm -rf %{name}-%{version}
+gunzip -cd %{name}-%{version}.tar.gz | tar -xf -
+rm -f %{name}-%{version}.tar.gz
+cd %{name}-%{version}
 CFLAGS="$RPM_OPT_FLAGS" ./configure
 make depend
 make
@@ -63,10 +63,10 @@ make install-info
 
 %preun
 cd /usr/local/src
-make -C allegro-3.9.34 uninstall
-rm -rf allegro-3.9.34
-touch allegro-3.9.34.tar.gz
+make -C %{name}-%{version} uninstall
+rm -rf %{name}-%{version}
+touch %{name}-%{version}.tar.gz
 
 %files
-/usr/local/src/allegro-3.9.34.tar.gz
+/usr/local/src/%{name}-%{version}.tar.gz
 
