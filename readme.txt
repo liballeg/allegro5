@@ -69,6 +69,7 @@
    BeOS              - see docs/build/beos.txt
    QNX               - see docs/build/qnx.txt
    MacOS/MPW         - see docs/build/macos.txt
+   Darwin/MacOS X    - see docs/build/darwin.txt
 
    General API information can be found in docs/txt/allegro.txt, which is
    also available in HTML, TexInfo, and RTF format in the docs directory.

@@ -8352,6 +8352,9 @@ following macros:
    on a program to be linked against the Allegro library when it includes
    the allegro.h header file. Note that the configuration and file routines
    are not guaranteed to work on Unix systems when this symbol is defined.
+   Moreover, on Darwin/MacOS X systems, this symbol simply prevents the
+   program from being linked against the Allegro library! This highly non
+   portable feature is primarily intended to be used under Windows.
 
 <b>ALLEGRO_USE_CONSOLE</b><br>
    If you define this prior to including Allegro headers, Allegro will be 

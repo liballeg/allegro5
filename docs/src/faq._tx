@@ -305,6 +305,15 @@ Unix problems
       of your argv[] parameters (it needs those for various internal things).
 
 <li><font size="+1">
+@@   I get an error about a duplicate definition of the "_main" symbol!
+</font>
+      You are probably on a Darwin/MacOS X system. If so, make sure the symbol
+      USE_CONSOLE is not defined in your program: it is a deprecated symbol
+      that must be replaced by ALLEGRO_USE_CONSOLE. Also note that the magic
+      main can't be disabled on such a system: you simply can't define the
+      symbol ALLEGRO_NO_MAGIC_MAIN in a program linked against Allegro.
+
+<li><font size="+1">
 @@   Compile errors scroll off the screen way too quickly for me to read them!
 </font>
       You need to redirect stderr into a file, so you can view them later. 
