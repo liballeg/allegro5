@@ -433,9 +433,11 @@ int main(int argc, char *argv[])
    install_timer();
 
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting graphics mode\n%s\n", allegro_error);
-      return 1;
+      if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
+	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+	 allegro_message("Error setting graphics mode\n%s\n", allegro_error);
+	 return 1;
+      }
    }
 
    /* we use only one voice */
