@@ -263,8 +263,7 @@ else
 	@mkdir $(FRAMEWORK)
 	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Resources
-	@cp $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
-	@chmod a+x $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
+	@ln -s $(INSTALL_DIR)/lib/lib$(VERSION)-$(shared_version).dylib $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
 	@cp include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@cp include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@cp -r include/allegro $(FRAMEWORK)/Versions/$(shared_version)/Headers
