@@ -215,7 +215,7 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KEY_SEMICOLON         117
 #define KEY_COMMAND           118
 
-#define KEY_MAX               120
+#define KEY_MAX               119
 
 #endif /* ALLEGRO_NO_KEY_DEFINES */
 
