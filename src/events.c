@@ -25,8 +25,7 @@
 
 
 
-#define INITIAL_QUEUE_SIZE      32
-#define MAX_QUEUE_SIZE          512 /* power of 2 for max use of _AL_VECTOR */
+#define MAX_QUEUE_SIZE  512  /* power of 2 for max use of _AL_VECTOR */
 
 
 struct AL_EVENT_QUEUE
