@@ -49,6 +49,7 @@ static int _xdga2_request_video_bitmap(BITMAP *bmp);
 static int _xdga2_scroll_screen(int x, int y);
 static void _xdga2_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static void _xdga2_acquire(BITMAP *bmp);
+static int _xdga2_fetch_mode_list(void);
 
 #ifdef ALLEGRO_NO_ASM
 unsigned long _xdga2_write_line(BITMAP *bmp, int line);
@@ -93,7 +94,7 @@ GFX_DRIVER gfx_xdga2 =
    NULL, NULL, NULL, NULL,
    NULL,
    NULL, NULL,
-   NULL,
+   _xdga2_fetch_mode_list,
    640, 480,
    TRUE,
    0, 0,
@@ -124,7 +125,7 @@ GFX_DRIVER gfx_xdga2_soft =
    NULL, NULL, NULL, NULL,
    NULL,
    NULL, NULL,
-   NULL,
+   _xdga2_fetch_mode_list,
    640, 480,
    TRUE,
    0, 0,
@@ -132,6 +133,52 @@ GFX_DRIVER gfx_xdga2_soft =
    0,
    FALSE
 };
+
+
+
+/* _xdga2_fetch_mode_list:
+ *  Creates list of available DGA2 video modes.
+ */
+static int _xdga2_fetch_mode_list(void)
+{
+   XDGAMode *mode;
+   int bpp, num_modes, stored_modes, i, j, already_there;
+
+   mode = XDGAQueryModes(_xwin.display, _xwin.screen, &num_modes);
+   if (!mode)
+      return -1;
+      
+   if (gfx_mode_list)
+      free(gfx_mode_list);
+
+   stored_modes = 0;
+   for (i=0; i<num_modes; i++) {
+      bpp = mode[i].depth == 24 ? mode[i].bitsPerPixel : mode[i].depth;
+      already_there = FALSE;
+      for (j=0; j<stored_modes; j++) {
+         if ((gfx_mode_list[j].width == mode[i].viewportWidth) &&
+             (gfx_mode_list[j].height == mode[i].viewportHeight) &&
+             (gfx_mode_list[j].bpp == bpp)) {
+            already_there = TRUE;
+            break;
+         }
+      }
+      if (!already_there) {
+         gfx_mode_list = realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (stored_modes + 1));
+         gfx_mode_list[stored_modes].width = mode[i].viewportWidth;
+         gfx_mode_list[stored_modes].height = mode[i].viewportHeight;
+         gfx_mode_list[stored_modes].bpp = bpp;
+         stored_modes++;
+      }
+   }
+   gfx_mode_list = realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (stored_modes + 1));
+   gfx_mode_list[stored_modes].width = 0;
+   gfx_mode_list[stored_modes].height = 0;
+   gfx_mode_list[stored_modes].bpp = 0;
+   
+   XFree(mode);
+   return 0;
+}
 
 
 
