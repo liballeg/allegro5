@@ -368,8 +368,7 @@ int main()
 {
    BITMAP *buffer;
    PALETTE pal;
-   int c = GFX_AUTODETECT;
-   int w, h, bpp;
+   int c, w, h, bpp;
    int last_retrace_count;
 
    allegro_init();
@@ -445,6 +444,7 @@ int main()
    }
    set_palette(desktop_palette);
 
+   c = GFX_AUTODETECT;
    w = SCREEN_W;
    h = SCREEN_H;
    bpp = bitmap_color_depth(screen);
