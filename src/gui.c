@@ -922,7 +922,7 @@ int update_dialog(DIALOG_PLAYER *player)
       else
 	 player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
 
-      goto getout;
+      /* goto getout; */  /* to avoid an updating delay */
    }
 
    /* deal with mouse wheel clicks */
@@ -935,10 +935,11 @@ int update_dialog(DIALOG_PLAYER *player)
 	 MESSAGE(player->mouse_obj, MSG_WHEEL, z-player->mouse_oz);
       }
       else
-	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
+	 player->res |= dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
 
       player->mouse_oz = z;
-      goto getout;
+
+      /* goto getout; */  /* to avoid an updating delay */
    }
 
    /* fake joystick input by converting it to key presses */
