@@ -124,6 +124,7 @@ AL_VAR(int, cpu_family);
 AL_VAR(int, cpu_model);
 AL_VAR(int, cpu_fpu);
 AL_VAR(int, cpu_mmx);
+AL_VAR(int, cpu_sse);
 AL_VAR(int, cpu_3dnow);
 AL_VAR(int, cpu_cpuid);
 

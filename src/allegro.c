@@ -182,8 +182,9 @@ int os_multitasking = FALSE;
 char cpu_vendor[32] = EMPTY_STRING;
 int cpu_family = 0;
 int cpu_model = 0;
-int cpu_fpu = FALSE; 
-int cpu_mmx = FALSE; 
+int cpu_fpu = FALSE;
+int cpu_mmx = FALSE;
+int cpu_sse = 0;
 int cpu_3dnow = FALSE;
 int cpu_cpuid = FALSE; 
 

@@ -51,6 +51,7 @@ PALETTE mypal;
 #define NUM_PATTERNS    8
 BITMAP *pattern[NUM_PATTERNS];
 
+int has_cpu_sse = 0;
 int has_cpu_mmx = 0;
 int has_cpu_3d = 0;
 int type3d = POLYTYPE_FLAT;
@@ -3636,6 +3637,7 @@ int p3d_profile_proc(void)
    int *tims = scr_0_tims;
    int old_mmx = cpu_mmx;
    int old_3d = cpu_3dnow;
+   int old_sse = cpu_sse;
    BITMAP *old_screen = screen;
    BITMAP *buffer;
    static char fname[80*6] = EMPTY_STRING; /* 80 chars * max UTF8 char width */
@@ -3747,6 +3749,7 @@ int p3d_profile_proc(void)
    destroy_bitmap(buffer);
    cpu_mmx = old_mmx;
    cpu_3dnow = old_3d;
+   cpu_sse = old_sse;
    show_mouse(screen);
    return D_REDRAW;
 }
@@ -3964,10 +3967,12 @@ int mmx_auto_proc(void)
 
    cpu_mmx = has_cpu_mmx;
    cpu_3dnow = has_cpu_3d;
+   cpu_sse = has_cpu_sse;
 
    mmx_menu[0].flags = D_SELECTED;
    mmx_menu[1].flags = 0;
    mmx_menu[2].flags = 0;
+   mmx_menu[3].flags = 0;
 
    return D_O_K;
 }
@@ -3984,6 +3989,7 @@ int mmx_3doff_proc(void)
    mmx_menu[0].flags = 0;
    mmx_menu[1].flags = D_SELECTED;
    mmx_menu[2].flags = 0;
+   mmx_menu[3].flags = 0;
 
    return D_O_K;
 }
@@ -3996,14 +4002,32 @@ int mmx_off_proc(void)
 
    cpu_mmx = 0;
    cpu_3dnow = 0;
+   cpu_sse = 0;
 
    mmx_menu[0].flags = 0;
    mmx_menu[1].flags = 0;
    mmx_menu[2].flags = D_SELECTED;
+   mmx_menu[3].flags = 0;
 
    return D_O_K;
 }
 
+
+int sse_off_proc(void)
+{
+   extern MENU mmx_menu[];
+
+   cpu_mmx = has_cpu_mmx;
+   cpu_3dnow = has_cpu_3d;
+   cpu_sse = 0;
+
+   mmx_menu[0].flags = 0;
+   mmx_menu[1].flags = 0;
+   mmx_menu[2].flags = 0;
+   mmx_menu[3].flags = D_SELECTED;
+
+   return D_O_K;
+}
 
 
 void set_switch_mode_menu(int mode)
@@ -4109,6 +4133,7 @@ MENU mmx_menu[] =
    { "&Autodetect",              mmx_auto_proc,    NULL,    D_SELECTED,    NULL  },
    { "&Disable 3DNow",           mmx_3doff_proc,   NULL,    0,             NULL  },
    { "&Disable MMX",             mmx_off_proc,     NULL,    0,             NULL  },
+   { "&Disable SSE",             sse_off_proc,     NULL,    0,             NULL  },
    { NULL,                       NULL,             NULL,    0,             NULL  }
 };
 
@@ -4569,6 +4594,12 @@ int main()
 
       sprintf(cpu_specs, "CPU family: %d86", cpu_family);
 
+      if (cpu_sse == 1)
+	 strcat(cpu_specs, " / SSE");
+	 
+      if (cpu_sse == 2)
+	 strcat(cpu_specs, " / SSE2");
+	 
       if (cpu_mmx)
 	 strcat(cpu_specs, " / MMX");
 
@@ -4583,6 +4614,7 @@ int main()
 
    has_cpu_mmx = cpu_mmx;
    has_cpu_3d = cpu_3dnow;
+   has_cpu_sse = cpu_sse;
 
    install_keyboard();
    install_timer();

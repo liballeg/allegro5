@@ -251,7 +251,7 @@ information about how to install Allegro and link your program with it.
    timeslice. Also known as the "play nice with multitasking" option.
 
 @@void @check_cpu();
-@xref cpu_cpuid, cpu_family, cpu_fpu, cpu_mmx, cpu_3dnow, cpu_model
+@xref cpu_cpuid, cpu_family, cpu_fpu, cpu_mmx, cpu_sse, cpu_3dnow, cpu_model
 @xref cpu_vendor
    Detects the CPU type, setting the following global variables. You don't 
    normally need to call this, because allegro_init() will do it for you.
@@ -284,6 +284,10 @@ information about how to install Allegro and link your program with it.
 @@extern int @cpu_3dnow;
    Contains TRUE or FALSE, depending on whether the AMD 3DNow! instruction 
    set is available.
+
+@@extern int @cpu_sse;
+   Contains 0, 1 or 2, depending on the version of the SSE instructions
+   available. Set to 0 if SSE is not available.
 
 @@extern int @cpu_cpuid;
    Contains TRUE or FALSE, depending on whether the Intel "cpuid" 

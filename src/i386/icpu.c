@@ -112,6 +112,7 @@ void check_cpu()
 	 cpu_model = (reg[0] & 0xF0) >> 4;
 	 cpu_fpu = (reg[3] & 1 ? TRUE : FALSE);
 	 cpu_mmx = (reg[3] & 0x800000 ? TRUE : FALSE);
+	 cpu_sse = (reg[3] & 0x4000000 ? 2 : (reg[3] & 0x2000000 ? 1 : 0));
       }
 
       _i_get_cpuid_info(0x80000000, reg);
