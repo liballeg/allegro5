@@ -2480,7 +2480,7 @@ Graphics modes
    win95), plus it is supported by the VBE 3.0 and VBE/AF drivers for a 
    limited number of high-end graphics cards. You can look at the 
    GFX_CAN_TRIPLE_BUFFER bit in the gfx_capabilities flag to see if it will 
-   work with the current driver.
+   work with the current driver. This function returns zero on success.
 
 @@int @poll_scroll();
 @xref request_scroll, request_video_bitmap
@@ -2507,7 +2507,7 @@ Graphics modes
    vertical retrace, but you can carry on running other code in the meantime 
    and use the poll_scroll() routine to detect when the flip has actually 
    taken place. Triple buffering is only possible on certain hardware: see 
-   the comments about request_scroll().
+   the comments about request_scroll(). Returns zero on success.
 
 
 
