@@ -11,6 +11,109 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.37: Sven Sandberg added Ctrl + arrow keys to d_edit_proc().
+<li>
+   3.9.37: Eric Botcazou changed the color key for the Windows overlay
+   driver to bright pink.
+<li>
+   3.9.37: Eric Botcazou reverted some changes he made to the timer core
+   last release which were causing problems with the MIDI player, and
+   removed the Windows multithreaded timer driver.
+<li>
+   3.9.37: Henrik Stokseth made some updates to the OS detection code, and
+   added a os_multitasking variable.
+<li>
+   3.9.37: Eric Botcazou fixed a problem in the config routines, where
+   entries in the NULL section were hiding duplicate entries in other
+   sections.
+<li>
+   3.9.37: Henrik Stokseth unified the fix* scripts, and gave them new
+   options.
+<li>
+   3.9.37: Peter Wang added support for dynamically loaded modules under
+   Unix.  The SVGAlib, ALSA digital, ALSA MIDI, ESD and DGA2 drivers will
+   be built as modules when possible.  This removes external dependencies
+   on the main library and improves binary transportability under Linux.
+<li>
+   3.9.37: Eric Botcazou changed made many changes and bug fixes to the
+   Unicode string functions, and their use in the library.  The old
+   functions now behave exactly like the libc equivalents, while the new
+   functions (the 'z' functions) behave more sanely.  This change affects
+   most code which uses the Unicode functions.
+<li>
+   3.9.37: Bertrand Coconnier changed the recently merged scene rendering
+   API, fixed a bug, and provided a new example program.  The API change
+   will affect all code which uses the scene functions.
+<li>
+   3.9.37: Laurence Withers wrapped registration of the bitmap file types
+   in a constructor. Where constructors are supported, this should reduce
+   the executable size when statically linking (unless you use the bitmap
+   loaders, of course).
+<li>
+   3.9.37: Ben Davis modified the set_volume_per_voice scale. Please see
+   the docs for this function if you have used it in the past.
+<li>
+   3.9.37: Eric Botcazou worked around a DOS mouse bug under Win2k.
+<li>
+   3.9.37: Eric Botcazou added VGA Mode 13h support under DirectX 5 or
+   greater.
+<li>
+   3.9.37: Henrik Stokseth added a get_gfx_mode_list() function, and the
+   implementation of it for the VESA driver.
+<li>
+   3.9.37: Eric Botcazou and Annie Testes toiled hard to avoid buffer
+   overflows (particularly with regards to the Unicode functions).
+<li>
+   3.9.37: Eric Botcazou fixed a mouse mickeys bug and cleaned up the
+   input subsystem under Windows.
+<li>
+   3.9.37: Eric Botcazou made two minor changes in the handling of index 0
+   in paletted modes.
+<li>
+   3.9.37: Eric Botcazou added a transparency preserving feature to the
+   grabber and dat utility.
+<li>
+   3.9.37: Eric Botcazou fixed a crash when alt-tabbing in page flipping
+   under Windows.
+<li>
+   3.9.37: Peter Wang added gui_menu_draw_menu and gui_menu_draw_menu_item
+   to allow customising the look of the GUI menus (to a certain extent).
+<li>
+   3.9.37: Angelo Mottola added support for the new
+   GFX_AUTODETECT_FULLSCREEN and GFX_AUTODETECT_WINDOWED constants, which
+   we _all_ wholeheartedly agreed upon :-)
+<li>
+   3.9.37: Eduard Bloch made config vars which exist but are empty return
+   defaults.
+<li>
+   3.9.37: Elias Pschernig added a COLORCONV_KEEP_TRANS mode.
+<li>
+   3.9.37: Henrik Stokseth added support for compiling with Cygwin. It
+   works in Mingw compatibility mode.
+<li>
+   3.9.37: Angelo Mottola made GUI submenus automatically open when the
+   mouse hovers for long enough. (This was an old patch that finally got
+   merged.) Eric made some related modifications to later.
+<li>
+   3.9.37: Eric Botcazou made clear_keybuf() not clear the key[] array.
+<li>
+   3.9.37: Sven Sandberg added a --quick option to fix scripts.
+<li>
+   3.9.37: Angelo Mottola did _loads_ of work on the QNX port (much too
+   much to document here).
+<li>
+   3.9.37: Eric Botcazou made the Win32 asm color conversion code for
+   windowed drivers available for other ports, and added a few other
+   converters. Isaac Cruz added one too.
+<li>
+   3.9.37: Eric Botcazou restructured the config file format.  Some
+   previously unsectioned variables are now in sections.
+<li>
+   3.9.37: George Foot added a threading system to handle asynchronous
+   events, instead of using SIGALRM (under Unix).
+<li>
+   3.9.37: George Foot fixed some problems with pack_fgets().
+<li>
    3.9.36: Eric Botcazou made it so that set_keyboard_rate(0, 0) will
    disable keyboard repeat, as in the documentation.
 <li>

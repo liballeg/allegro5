@@ -162,11 +162,15 @@ Contributors
    Wrote the d_textbox_proc() dialog object and the new grabber help system.
 
    Eduard Bloch (<email>edi@gmx.de</a>).<br>
-   Fixed a freeze caused by the ESD detection code and suggested better ways
-   to find the path to the executable in Unix.
+   Fixed a freeze caused by the ESD detection code, fixed a bad behaviour
+   of the config routines, and suggested better ways to find the path to
+   the executable in Unix.
 
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
+
+   Elias Pschernig (<email>eliaspschernig@aon.at</a>).<br>
+   Added a COLORCONV_KEEP_TRANS mode.
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
