@@ -3067,6 +3067,8 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   set_window_title("Allegro Datafile Editor");
+
    if (no_sound) {
       install_sound(DIGI_NONE, MIDI_NONE, NULL);
    }
