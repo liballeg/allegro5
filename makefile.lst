@@ -144,7 +144,6 @@ ALLEGRO_SRC_DOS_FILES = \
 	src/dos/pic.c \
 	src/dos/psxpad.c \
 	src/dos/sb.c \
-	src/dos/sidewind.s \
 	src/dos/sndscape.c \
 	src/dos/snespad.c \
 	src/dos/sw.c \

@@ -12,12 +12,13 @@
  *
  *      Main code by S.Sakamaki, using information provided by Robert Grubbs.
  *
- *      Sidewinder detection routine (of aggressive mode) under Windows ,
- *      comments and translation by Tomohiko Sugiura
+ *      Sidewinder detection routine (of aggressive mode) under Windows,
+ *      comments and translation by Tomohiko Sugiura.
  *
  *      See readme.txt for copyright information.
  */
- 
+
+
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintdos.h"
@@ -27,14 +28,11 @@
 #endif
 
 
-
 /* driver functions */
 static int sw_init(void);
 static int sw_init_aggressive(void);
 static void sw_exit(void);
 static int sw_poll(void);
-
-
 
 
 static int read_sidewinder(void);
@@ -57,13 +55,12 @@ static int g_endstrobelimit = 0;
 static int g_sw_raw_input[4];
 
 
-#define SWMODE_A	1
-#define SWMODE_B	2
+#define SWMODE_A  1
+#define SWMODE_B  2
 
 
-
-static void _sw_reset_swbuff_index();
-static void _sw_swbuff_index_dec();
+static void _sw_reset_swbuff_index(void);
+static void _sw_swbuff_index_dec(void);
 static int _sw_poll(int gameport, int endstrobe_limit);
 
 static int _sw_poll_b(int gameport, int endstrobelimit);
@@ -105,7 +102,6 @@ JOYSTICK_DRIVER joystick_sw_ag =
    NULL, NULL,
    NULL, NULL
 };
-
 
 
 
@@ -211,6 +207,7 @@ static int sw_init(void)
       joy[i].button[8].name = get_config_text("Start");
       joy[i].button[9].name = get_config_text("M");
    }
+
    return 0;
 }
 
@@ -260,6 +257,7 @@ static int sw_poll(void)
 
    return 0;
 }
+
 
 
 static int read_sidewinder(void)
@@ -320,6 +318,7 @@ static int read_sidewinder(void)
 	 d0 += 1;
       }
    }
+
    return result;
 }
 
@@ -349,14 +348,15 @@ static int _sw_convert(char* data, int* paddatabuff, int mode, int sw_count)
       *paddatabuff++ = d1;
       d0 += 1;
    }
+
    return TRUE;
 }
 
 
 
-/** _sw_check_parity *********************************/
-/** parity bit is 0 if odd button is pressed, else 1 */
-/*****************************************************/
+/* _sw_check_parity:
+ *  Parity bit is 0 if odd button is pressed, else 1.
+ */
 static int _sw_check_parity(int data)
 {
    /*
@@ -376,23 +376,24 @@ static int _sw_check_parity(int data)
 
 
 
-/** _sw_mode_a_convert *************************/
-/**          xxUxxxxx                         **/
-/**          xxDxxxxx                         **/
-/**          xxRxxxxx                         **/
-/**          xxLxxxxx                         **/
-/** convert  xx0xxxxx   to  xPMS76543210LRDU  **/
-/**          xx1xxxxx       MLB is not used   **/
-/**          xx2xxxxx                         **/
-/**          xx3xxxxx                         **/
-/**          xx4xxxxx                         **/
-/**          xx5xxxxx                         **/
-/**          xx6xxxxx                         **/
-/**          xx7xxxxx                         **/
-/**          xxSxxxxx                         **/
-/**          xxMxxxxx                         **/
-/**          xxPxxxxx                         **/
-/***********************************************/
+/* _sw_mode_a_convert:
+ *
+ *           xxUxxxxx
+ *           xxDxxxxx
+ *           xxRxxxxx
+ *           xxLxxxxx
+ * converts  xx0xxxxx   to  xPMS76543210LRDU
+ *           xx1xxxxx       MLB is not used
+ *           xx2xxxxx
+ *           xx3xxxxx
+ *           xx4xxxxx
+ *           xx5xxxxx
+ *           xx6xxxxx
+ *           xx7xxxxx
+ *           xxSxxxxx
+ *           xxMxxxxx
+ *           xxPxxxxx
+ */
 static int _sw_mode_a_convert(char* data)
 {
    int d0;
@@ -405,18 +406,19 @@ static int _sw_mode_a_convert(char* data)
       d1 |= ( *(data + d0) >> 5 ) & 0x01;
       d0 -= 1;
    }
+
    return d1;					/* 15 buttons status */
 }
 
 
 
-/** _sw_mode_b_convert *************************/
-/**          RDUxxxxx                         **/
-/**          10Lxxxxx                         **/
-/** convert  432xxxxx   to  xPMS76543210LRDU  **/
-/**          765xxxxx       MLB is not used   **/
-/**          PMSxxxxx                         **/
-/***********************************************/
+/*_sw_mode_b_convert:
+ *           RDUxxxxx
+ *           10Lxxxxx
+ * converts  432xxxxx   to  xPMS76543210LRDU
+ *           765xxxxx       MLB is not used
+ *           PMSxxxxx
+ */
 static int _sw_mode_b_convert(char* data)
 {
    int d0;
@@ -429,6 +431,7 @@ static int _sw_mode_b_convert(char* data)
       d1 |= ( *(data + d0) >> 5 ) & 0x07;
       d0 -= 1;
    }
+
    return d1;					/* 15 buttons status */
 }
 
@@ -485,7 +488,7 @@ static int _sw_trace_data(char* data, int* sw_count, int* mode)
 
 	 if ( d2 == *mode) {			/* All sw must be same mode(A or B) */
 	    /* if recieved data is valid, */
-	    d2 = 0; 								
+	    d2 = 0;
 	    *sw_count += 1;
 	    if (length >= g_endstrobelimit)
 	       break;	/* finish all pad */
@@ -496,6 +499,7 @@ static int _sw_trace_data(char* data, int* sw_count, int* mode)
 	 }
       }
    }
+
    return TRUE;
 }
 
@@ -514,9 +518,9 @@ static int _sw_get_base_count(int* count)
    if (!_sw_wait_strobe(&swbyte, &length, 0))
       return FALSE;
    *count += length;
+
    return TRUE;
 }
-
 
 
 
@@ -549,26 +553,29 @@ static int _sw_wait_strobe(char* data, int* length, char HL)
       }
       *length += 1;
    }
+
    return TRUE;
 }
 
 
 
-static void _sw_reset_swbuff_index()
+static void _sw_reset_swbuff_index(void)
 {
    g_swbuff_index = 0;
 }
 
-static void _sw_swbuff_index_dec()
+
+
+static void _sw_swbuff_index_dec(void)
 {
    g_swbuff_index -= 1;
 }
 
 
 
-/** _sw_in ***************************/
-/** read memory of sw data buffer   **/
-/*************************************/
+/* _sw_in:
+ *  Reads memory of sw data buffer.
+ */
 static int _sw_in(char* data)
 {
    if (g_swbuff_index == g_valid_count)
@@ -580,9 +587,9 @@ static int _sw_in(char* data)
 
 
 
-/*** _sw_poll *****************************/
-/** polling sw data from gameport        **/
-/******************************************/
+/* _sw_poll:
+ *  Polls sw data from gameport.
+ */
 static int _sw_poll(int gameport, int endstrobelimit)
 {
    unsigned char* buff = g_swbuff;
@@ -698,6 +705,6 @@ static int change_mode_b(void)
 
    if (loop >= limit)
       return FALSE;
+
    return TRUE;
 }
-
