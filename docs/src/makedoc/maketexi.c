@@ -634,7 +634,7 @@ char *strstruct(char *line, char **auto_types, int *length, char *found_auto_typ
 	 *length = end - line;
 	 /* Now compare with the auto_types table */
 	 while(*compare) {
-	    if(*length == strlen(*compare) && !strncmp(line, *compare, *length)) {
+	    if(*length == (signed)strlen(*compare) && !strncmp(line, *compare, *length)) {
 	       /* The auto_type must be followed by a blank space */
 	       if(*(line + *length) == ' ') {
 		  if(found_auto_types)
