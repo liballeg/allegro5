@@ -18,6 +18,10 @@
  */
 
 
+/* Define to test the low-level al_find*() functions */
+#undef USE_FINDFIRST
+
+
 #include <time.h>
 
 #include "allegro.h"
