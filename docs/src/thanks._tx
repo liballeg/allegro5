@@ -195,7 +195,7 @@ Contributors
    set_window_title() under BeOS, potentially unsafe constructs in the
    Windows code, the installall makefile target under Windows, added 
    set_allegro_resource_path(), fixed make uninstall with mingw make,
-   added ALLEGRO_LIB_BUILD flag for gcc variants not using configure
+   added ALLEGRO_LIB_BUILD flag for gcc variants not using configure,
    fixed a bunch of warnings in MinGW and did plenty of other things too.
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
@@ -821,7 +821,7 @@ Contributors
    Fixed a Bashism in fix.sh that makes Solaris' sh choke, a race
    condition in the mixer under Unix w/ threads, Windows, BeOS and MacOS X,
    a crash in makedoc, made it possible to put functions from .s sources 
-   in a shared library under Unix and removed depricated use of several
+   in a shared library under Unix and removed deprecated use of several
    functions.
 
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
