@@ -55,14 +55,21 @@ static char *fs_dlist_getter(int, int *);
 
 #endif
 
-
-#define FLIST_SIZE      2048
+/* Number of entries is limited by available memory
+ * Initial capacity is given by FLIST_START_CAPACITY, structure can grow beyond
+ * this. Normally keeps the structure in memory between invocations, but it
+ * attempts to free memory after processing a directory with more than 
+ * FLIST_UPPER_CAPACITY 
+ */
+#define FLIST_START_CAPACITY 128
+#define FLIST_UPPER_CAPACITY 2048
 
 typedef struct FLIST
 {
    char dir[1024];
    int size;
-   char *name[FLIST_SIZE];
+   int capacity;
+   char** name;
 } FLIST;
 
 static FLIST *flist = NULL;
@@ -427,7 +434,7 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
       }
    }
 
-   if ((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1)))) {
+   if (((ugetc(s) != '.') || (ugetat(s, 1)))) {
       int size = ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0);
       name = malloc(size);
       if (!name)
@@ -449,6 +456,17 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
 	       break;
 	    if (ustrfilecmp(name, flist->name[c]) < 0)
 	       break;
+	 }
+      }
+      /* Do we need to allocate more space in the structure? */
+      /* This doubles the capacity of the array each time, */
+      /* which gives 'linear' compexity */
+      if (flist->size==flist->capacity) {
+	 flist->name=_al_sane_realloc(flist->name, sizeof(char*)*(flist->capacity*=2));
+	 if (flist->name==NULL) {
+	    *allegro_error=ENOMEM;
+	    /* Stop the enumeration by returning non-zero */
+	    return -1;
 	 }
       }
 
@@ -520,11 +538,29 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 	    *allegro_errno = ENOMEM;
 	    return D_CLOSE; 
 	 }
+	 flist->capacity=FLIST_START_CAPACITY;
+	 flist->name=malloc(flist->capacity*sizeof(char*));
+	 if (!flist->name) {
+	    *allegro_errno = ENOMEM;
+	    return D_CLOSE;
+         }
       }
       else {
 	 for (i=0; i<flist->size; i++)
-	    if (flist->name[i])
+	    if (flist->name[i]) {
 	       free(flist->name[i]);
+	       /* PH add: maybe avoid multiple frees */
+	       flist->name[i]=NULL;
+	    }
+	 /* Maybe shrink the structure */
+	 if (flist->capacity>FLIST_UPPER_CAPACITY) {
+	    flist->name=_al_sane_realloc(flist->name, sizeof(char*)*(flist->capacity=FLIST_UPPER_CAPACITY));
+	    if (!flist) {
+	       /* Oops! Should never happen, I hope */
+	       *allegro_errno = ENOMEM;
+	       return D_CLOSE;
+	    }
+	 }
       }
 
       flist->size = 0;
