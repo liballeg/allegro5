@@ -1652,11 +1652,13 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
 
       if (auto_open &&
 	  (gui_menu_opening_delay >= 0)) {            /* menu auto-opening on? */
-         if (mouse_in_parent_menu(m.parent)) {
-            /* automatically goes back to parent */
-            ret = -2;
-            break;
-         }
+	 if (!mouse_in_single_menu(&m)) {
+	    if (mouse_in_parent_menu(m.parent)) {
+	       /* automatically goes back to parent */
+	       ret = -2;
+	       break;
+	    }
+	 }
 
          if ((mouse_sel >= 0) && (m.menu[mouse_sel].child)) {
             if (m.bar) {
