@@ -98,8 +98,9 @@ information about how to install Allegro and link your program with it.
    atexit_ptr parameters should point to the errno variable and atexit 
    function from your libc: these are required because when Allegro is 
    linked as a DLL, it doesn't have direct access to your local libc data.
-   Currently this function always returns zero. If no system driver can be
-   used, the program will abort.
+   atexit_ptr may be NULL, in which case it is your responsibility to call
+   allegro_exit manually. Currently this function always returns zero. If no
+   system driver can be used, the program will abort.
 
 @@int @allegro_init();
 @xref install_allegro, allegro_exit
