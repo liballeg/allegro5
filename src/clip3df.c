@@ -21,7 +21,8 @@
 #define INT_NONE        0
 #define INT_1COL        1
 #define INT_3COL        2
-#define INT_UV          4
+#define INT_3COLP       4
+#define INT_UV          8
 
 
 
@@ -49,7 +50,14 @@
    if (flags & INT_1COL) {                               \
       v3->c = (int)((v2->c - v1->c) * t + v1->c);        \
    }                                                     \
-   else if (flags & INT_3COL) { \
+   else if (flags & INT_3COLP) {                         \
+      int bpp = bitmap_color_depth(screen);              \
+      int r = (int)((getr_depth(bpp, v2->c) - getr_depth(bpp, v1->c)) * t + getr_depth(bpp, v1->c)); \
+      int g = (int)((getg_depth(bpp, v2->c) - getg_depth(bpp, v1->c)) * t + getg_depth(bpp, v1->c)); \
+      int b = (int)((getb_depth(bpp, v2->c) - getb_depth(bpp, v1->c)) * t + getb_depth(bpp, v1->c)); \
+      v3->c = makecol_depth(bpp, r&255, g&255, b&255);   \
+   }                                                     \
+   else if (flags & INT_3COL) {                          \
       int r = (int)(((v2->c & 0xFF0000) - (v1->c & 0xFF0000)) * t + (v1->c & 0xFF0000)); \
       int g = (int)(((v2->c & 0x00FF00) - (v1->c & 0x00FF00)) * t + (v1->c & 0x00FF00)); \
       int b = (int)(((v2->c & 0x0000FF) - (v1->c & 0x0000FF)) * t + (v1->c & 0x0000FF)); \
@@ -83,7 +91,7 @@ int clip3d_f(int type, float min_z, float max_z, int vc, AL_CONST V3D_f *vtx[], 
 
    static int flag_table[] = {
       INT_NONE,                             /* flat */
-      INT_1COL,                             /* gcol */
+      INT_3COLP,                            /* gcol */
       INT_3COL,                             /* grgb */
       INT_UV,                               /* atex */
       INT_UV,                               /* ptex */
@@ -92,7 +100,11 @@ int clip3d_f(int type, float min_z, float max_z, int vc, AL_CONST V3D_f *vtx[], 
       INT_UV + INT_1COL,                    /* atex lit */
       INT_UV + INT_1COL,                    /* ptex lit */
       INT_UV + INT_1COL,                    /* atex mask lit */
-      INT_UV + INT_1COL                     /* ptex mask lit */
+      INT_UV + INT_1COL,                    /* ptex mask lit */
+      INT_UV,                               /* atex trans */
+      INT_UV,                               /* ptex trans */
+      INT_UV,                               /* atex mask trans */
+      INT_UV                                /* ptex mask trans */
    };
 
    type &= ~POLYTYPE_ZBUF;
