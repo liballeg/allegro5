@@ -11,6 +11,7 @@ Miscellaneous 4.2 todos:
 ---------------------------------------------------------------------------
 
 - Make the test program report the SSE3/64 bit detection flags from AJ's patch
+- Peter's 64-bit patch and some more similar ones
 - Make the grabber (try to) use system cursors
 - Purge main docs of DOSisms if that hasn't been done already
 - Documentation for Peter's packfile patch
