@@ -152,7 +152,6 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 	       case 32:
 		  color_depth = orig_mode.bits_per_pixel;
 		  set_color_depth(color_depth);
-	       default:
 	    }
 	    break;
 	 case 0:

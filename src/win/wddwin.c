@@ -448,6 +448,10 @@ static int wnd_set_windowed_coop(void)
  */
 static int verify_color_depth (int color_depth)
 {
+   AL_CONST char *ddu;
+   char tmp1[64], tmp2[128];
+   int i;
+
    if ((gfx_directx_compare_color_depth(color_depth) == 0) && (color_depth != 8)) {
       /* the color depths match */ 
       update_window = update_matching_window;
@@ -464,6 +468,17 @@ static int verify_color_depth (int color_depth)
          return -1;
 
       update_window = update_colorconv_window;
+
+      /* read direct updating configuration variable */
+      ddu = get_config_string(uconvert_ascii("graphics", tmp1),
+                              uconvert_ascii("disable_direct_updating", tmp2),
+                              NULL);
+
+      if ((ddu) && ((i = ugetc(ddu)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1')))
+         direct_updating_mode_enabled = FALSE;
+      else
+         direct_updating_mode_enabled = TRUE;
+
       direct_updating_mode_on = direct_updating_mode_enabled;
    }
 
@@ -539,8 +554,6 @@ static void setup_driver_desc(void)
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
 {
    unsigned char *cmap;
-   char tmp1[64], tmp2[128];
-   AL_CONST char *ddu;
    HRESULT hr;
    int i;
 
@@ -657,16 +670,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
    /* grab input devices */
    win_grab_input();
-
-   /* read direct updating configuration variable */
-   ddu = get_config_string(uconvert_ascii("graphics", tmp1),
-                           uconvert_ascii("disable_direct_updating", tmp2),
-                           NULL);
-
-   if ((ddu) && ((i = ugetc(ddu)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1')))
-      direct_updating_mode_enabled = FALSE;
-   else
-      direct_updating_mode_enabled = TRUE;
 
    _exit_critical();
 

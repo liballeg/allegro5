@@ -105,6 +105,14 @@ DJGPP problems
       above 16384).
 
 <li><font size="+1">
+@@   When I run make, it says "conflicting types for va_list".
+</font>
+      As the error message suggests, there is a conflict between newer
+      versions of gcc and older versions of the libc. You should read the 
+      readme.DJGPP file contained in the gcc*b.zip archive (a fix is 
+      appended to the end of the file).
+
+<li><font size="+1">
 @@   When I try to compile a program using Allegro, I get lots of errors like:<br>
    C:\TEMP\ccdaaaaa(.text+0x9):x.c: undefined reference to `allegro_init'<br>
    C:\TEMP\ccdaaaaa(.text+0xe):x.c: undefined reference to `install_keyboard'<br>
@@ -275,6 +283,12 @@ Windows problems
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
       file (eg. "shell=c:\command.com /e:8192").
+<h4><li>
+@@   I get an error about a "missing separator" when I run make!
+</h4>
+      Make sure that you don't have a semi-colon appended to your MSVCDIR 
+      variable if you are using MSVC, to your MINGDIR variable if you are 
+      using Mingw32 or to your BCC32DIR variable if you are using BCC.
 </ul>
 
 

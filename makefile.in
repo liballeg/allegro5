@@ -243,7 +243,7 @@ docs/allegro.ps: docs/allegro.dvi
 	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
 
 # Dependencies and rules for building libraries and simple programs.
-include makefile.dep
+-include makefile.dep
 
 all: lib modules programs docs
 
@@ -273,14 +273,38 @@ suid: $(ALLEGRO_EXE_TARGETS)
 	touch suid
 
 clean:
-	rm -f $(OBJ_CLEAN_FILES)
-	rm -f $(OTHER_CLEAN_FILES)
+
+   define RM_OBJ_CLEAN_FILES
+      $(foreach file, $(OBJ_CLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+   define RM_OTHER_CLEAN_FILES
+      $(foreach file, $(OTHER_CLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_OBJ_CLEAN_FILES)
+	$(RM_OTHER_CLEAN_FILES)
 
 distclean: clean
-	rm -f $(DISTCLEAN_FILES)
+
+   define RM_DISTCLEAN_FILES
+      $(foreach file, $(DISTCLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_DISTCLEAN_FILES)
 
 veryclean: distclean
-	rm -f $(VERYCLEAN_FILES) makefile
+
+   define RM_VERYCLEAN_FILES
+      $(foreach file, $(VERYCLEAN_FILES), rm -f $(file)
+      )
+   endef
+
+	$(RM_VERYCLEAN_FILES) 
+	rm -f makefile
 
 maintainer-clean: veryclean
 	rm -f configure
@@ -324,7 +348,7 @@ install-lib: lib
 	@echo Installing allegro-config to $(bindir)
 	@$(INSTALL_PROGRAM) allegro-config $(bindir)
 	@if test -n "$(LIBDIR)/liball*-$(shared_version).so"; then \
-		(grep -q $(libdir) /etc/ld.so.conf || \
+		(cat /etc/ld.so.conf | grep $(libdir) >/dev/null || \
 		 test $(libdir) = /lib || test $(libdir) = /usr/lib) \
 		&& ($(LDCONFIG) $(libdir) || true) || (\
 			echo "" ; \
@@ -379,7 +403,7 @@ install-info: docs
 	$(mkinstalldirs) $(infodir)
 	@$(INSTALL_DATA) docs/info/allegro.info $(infodir)
 	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
-	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
+	  if $(INSTALL_INFO) --version 2>&1 | grep "Debian" >/dev/null; then \
 	    $(INSTALL_INFO) --section Development -- $(infodir)/allegro.info; \
 	  else \
 	    $(INSTALL_INFO) $(infodir)/allegro.info $(INFO_DIR); \
@@ -454,7 +478,7 @@ uninstall-info:
 	  gunzip $(infodir)/allegro.info.gz; \
 	fi;
 	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
-	  if $(INSTALL_INFO) --version 2>&1 | grep -q "Debian"; then \
+	  if $(INSTALL_INFO) --version 2>&1 | grep "Debian" >/dev/null; then \
 	    $(INSTALL_INFO) --remove $(infodir)/allegro.info; \
 	  else \
 	    $(INSTALL_INFO) --remove $(infodir)/allegro.info $(INFO_DIR); \
@@ -481,7 +505,7 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh fbcon -- $(ALLEGRO_MODULE_FBCON_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsadigi -lasound $(ALLEGRO_MODULE_ALSADIGI_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsamidi -lasound $(ALLEGRO_MODULE_ALSAMIDI_FILES)' >>makefile.dep
-	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi "`esd-config --libs`" $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi "\`esd-config --libs\`" $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh dga2 -lXxf86dga $(ALLEGRO_MODULE_DGA2_FILES)' >> makefile.dep
 	@echo "Generating dependencies for simple programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep

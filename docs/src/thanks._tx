@@ -161,6 +161,9 @@ Contributors
    David Calvin (<email>calvid@rpi.edu</a>).<br>
    Wrote the original version of the sound setup utility.
 
+   Deepak T (<email>coolbool@gmx.net</a>).<br>
+   Fixed clipping in three C sprite drawing routines.
+
    Dmitriy Kazimirow (<email>mariann@mail.ru</a>).<br>
    Provided the Russian keyboard mapping and message translation files.
 
@@ -425,6 +428,14 @@ Contributors
    Matthew Bowie (<email>catcat@nmt.edu</a>).<br>
    Added support for 4-button joysticks.
 
+   Matthew Leverton (<email>matthew@leverton.cc</a>).<br>
+   Fixed a bug with mouse mickeys in windowed mode under Windows. Fixed a
+   problem with al_find*() and NTFS partitions under Windows. Added missing
+   header files to be installed by the Windows binary distribution.
+
+   Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
+   Contributed the Canada (French) keyboard mapping file.
+
    Michael Bevin (<email>michael.bevin@stonebow.otago.ac.nz</a>).<br>
    Optimised the create_trans_table() function.
 
@@ -556,9 +567,9 @@ Contributors
    Robert J. Ohannessian (<email>voidstar_@excite.com</a>).<br>
    Added MMX optimisation for the 8 and 16 bit clear() functions, and fixed
    bad clearing of subbitmaps. Also added SSE detection and optimized some
-   masked_blits with SSE instructions.  Added some routines to the unified
-   color convertor.  Revamped the retrieval mechanism of CPU capabilities.
-   Did plenty of other things too.
+   masked_blits with SSE instructions. Added some routines to the unified
+   color convertor and made some of them more robust. Revamped the retrieval
+   mechanism of CPU capabilities. Did plenty of other things too.
 
    Robin Burrows (<email>rburrows@bigfoot.com</a>).<br>
    Provided a new page flipping code for the DirectDraw subsytem, added a
