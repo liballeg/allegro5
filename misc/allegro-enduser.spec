@@ -6,8 +6,8 @@ Release:        1
 Copyright:      Gift Ware
 Packager:       George Foot <george.foot@merton.oxford.ac.uk>
 Group:          Development/Libraries
-Source:         allegro-3.9.34-enduser.tar.gz
-Buildroot:      /var/tmp/allegro-buildroot
+Source:         allegro-%{version}-enduser.tar.gz
+Buildroot:      %{_tmppath}/allegro-buildroot
 
 %description
      ______   ___    ___
@@ -46,14 +46,14 @@ madurez.
 
 %install
 mkdir -p $RPM_BUILD_ROOT/usr/local/src
-cp $RPM_SOURCE_DIR/allegro-3.9.34-enduser.tar.gz $RPM_BUILD_ROOT/usr/local/src/allegro-3.9.34-enduser.tar.gz
+cp $RPM_SOURCE_DIR/allegro-%{version}-enduser.tar.gz $RPM_BUILD_ROOT/usr/local/src/allegro-%{version}-enduser.tar.gz
 
 %post
 cd /usr/local/src
-rm -rf allegro-3.9.34
-gunzip -cd allegro-3.9.34-enduser.tar.gz | tar -xf -
-rm -f allegro-3.9.34-enduser.tar.gz
-cd allegro-3.9.34
+rm -rf allegro-%{version}
+gunzip -cd allegro-%{version}-enduser.tar.gz | tar -xf -
+rm -f allegro-%{version}-enduser.tar.gz
+cd allegro-%{version}
 CFLAGS="$RPM_OPT_FLAGS" ./configure
 make depend
 make lib
@@ -63,13 +63,13 @@ make uninstall --dry-run >> /usr/local/bin/allegro-uninstall
 echo "rm -f /usr/local/bin/allegro-uninstall" >> /usr/local/bin/allegro-uninstall
 chmod 700 /usr/local/bin/allegro-uninstall
 cd ..
-rm -rf allegro-3.9.34
+rm -rf allegro-%{version}
 
 %preun
 /usr/local/bin/allegro-uninstall
 cd /usr/local/src
-touch allegro-3.9.34-enduser.tar.gz
+touch allegro-%{version}-enduser.tar.gz
 
 %files
-/usr/local/src/allegro-3.9.34-enduser.tar.gz
+/usr/local/src/allegro-%{version}-enduser.tar.gz
 
