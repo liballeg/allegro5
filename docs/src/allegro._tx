@@ -3652,11 +3652,11 @@ bitmap.
 @@void @draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
 @xref draw_lit_rle_sprite, color_map, set_trans_blender, bitmap_mask_color
-   In 256 color modes, use the global color_map table to tint the sprite
+   In 256 color modes, uses the global color_map table to tint the sprite
    image to the specified color or to light it to the level specified by
    'color', depending on the function which was used to build the table
    (create_trans_table or create_light_table), and draws the resulting image
-   to the destination bitmap. In truecolor modes, use the blender functions
+   to the destination bitmap. In truecolor modes, uses the blender functions
    to light the sprite image using the alpha level specified by 'color' (the
    alpha level which was passed to the blender functions is ignored) and
    draws the resulting image to the destination bitmap. The 'color' parameter
@@ -4417,7 +4417,7 @@ Transparency and patterned drawing
    Sets the graphics drawing mode. This only affects the geometric routines 
    like putpixel, lines, rectangles, circles, polygons, floodfill, etc, not 
    the text output, blitting, or sprite drawing functions. The mode should 
-   be one of the values:
+   be one of the following constants:
 <pre>
       DRAW_MODE_SOLID               - the default, solid color
                                       drawing
@@ -4427,6 +4427,9 @@ Transparency and patterned drawing
       DRAW_MODE_MASKED_PATTERN      - masked pattern fill
       DRAW_MODE_TRANS               - translucent color blending
 </pre>
+   In DRAW_MODE_SOLID, pixels of the bitmap being drawn onto are simply 
+   replaced by those produced by the drawing function.
+
    In DRAW_MODE_XOR, pixels are written to the bitmap with an exclusive-or 
    operation rather than a simple copy, so drawing the same shape twice will 
    erase it. Because it involves reading as well as writing the bitmap 
@@ -4485,9 +4488,9 @@ Transparency and patterned drawing
 
 @hnode 256 color transparency
 In paletted video modes, translucency and lighting are implemented with a 
-64k lookup table, which contain the result of combining any two colors c1 
-and c2. You must set up this table before you use any of the lighting or 
-translucency routines. Depending on how you construct the table, a range of 
+64k lookup table, which contains the result of combining any two colors c1 
+and c2. You must set up this table before you use any of the translucency 
+or lighting routines. Depending on how you construct the table, a range of 
 different effects are possible. For example, translucency can be implemented 
 by using a color halfway between c1 and c2 as the result of the combination. 
 Lighting is achieved by treating one of the colors as a light level (0-255) 
@@ -4506,28 +4509,15 @@ typedef struct {
 @@extern COLOR_MAP *@color_map;
 @xref create_color_table, create_light_table, create_trans_table
 @xref create_blender_table, set_trans_blender, draw_trans_sprite
-@xref draw_lit_sprite, drawing_mode
+@xref draw_lit_sprite, draw_gouraud_sprite, drawing_mode
    Global pointer to the color mapping table. This must be set before using 
    any translucent or lit drawing functions in a 256 color video mode!
-
-@\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
-@@                        int r, g, b, void (*callback)(int pos));
-@xref color_map, create_trans_table, create_color_table
-@xref create_blender_table, draw_lit_sprite
-   Fills the specified color mapping table with lookup data for doing 
-   lighting effects with the specified palette. When combining the colors c1 
-   and c2 with this table, c1 is treated as a light level from 0-255. At 
-   light level 255 the table will output color c2 unchanged, at light level 
-   0 it will output the r, g, b value you specify to this function, and at 
-   intermediate light levels it will output a color somewhere between the 
-   two extremes. The r, g, and b values are in the range 0-63. If the 
-   callback function is not NULL, it will be called 256 times during the 
-   calculation, allowing you to display a progress indicator.
 
 @\void @create_trans_table(COLOR_MAP *table, const PALETTE pal,
 @@                        int r, g, b, void (*callback)(int pos));
 @xref color_map, create_light_table, create_color_table
-@xref create_blender_table, draw_trans_sprite
+@xref create_blender_table, draw_trans_sprite, draw_lit_sprite
+@xref draw_gouraud_sprite
    Fills the specified color mapping table with lookup data for doing 
    translucency effects with the specified palette. When combining the 
    colors c1 and c2 with this table, the result will be a color somewhere 
@@ -4539,10 +4529,26 @@ typedef struct {
    If the callback function is not NULL, it will be called 256 times during 
    the calculation, allowing you to display a progress indicator.
 
+@\void @create_light_table(COLOR_MAP *table, const PALETTE pal,
+@@                        int r, g, b, void (*callback)(int pos));
+@xref color_map, create_trans_table, create_color_table
+@xref create_blender_table, draw_trans_sprite, draw_lit_sprite
+@xref draw_gouraud_sprite
+   Fills the specified color mapping table with lookup data for doing 
+   lighting effects with the specified palette. When combining the colors c1 
+   and c2 with this table, c1 is treated as a light level from 0-255. At 
+   light level 255 the table will output color c2 unchanged, at light level 
+   0 it will output the r, g, b value you specify to this function, and at 
+   intermediate light levels it will output a color somewhere between the 
+   two extremes. The r, g, and b values are in the range 0-63. If the 
+   callback function is not NULL, it will be called 256 times during the 
+   calculation, allowing you to display a progress indicator.
+
 @\void @create_color_table(COLOR_MAP *table, const PALETTE pal,
 @\                        void (*blend)(PALETTE pal, int x, int y, RGB *rgb),
 @@                        void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_blender_table
+@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
    Fills the specified color mapping table with lookup data for doing 
    customised effects with the specified palette, calling the blend function 
    to determine the results of each color combination. Your blend routine 
@@ -4557,6 +4563,7 @@ typedef struct {
 @\void @create_blender_table(COLOR_MAP *table, const PALETTE pal,
 @@                          void (*callback)(int pos));
 @xref color_map, create_light_table, create_trans_table, create_color_table
+@xref draw_trans_sprite, draw_lit_sprite, draw_gouraud_sprite
 @xref set_trans_blender, set_blender_mode
    Fills the specified color mapping table with lookup data for doing a 
    paletted equivalent of whatever truecolor blender mode is currently 
@@ -4567,13 +4574,32 @@ typedef struct {
 
 @hnode truecolor transparency
 In truecolor video modes, translucency and lighting are implemented by a 
-blender function in the form:
+blender function of the form:
 <pre>
 unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);
 </pre>
-This routine takes two color parameters, decomposes them into their red, 
-green, and blue components, combines them according to the interpolation 
-value n, and then merges the result back into a single return color value.
+
+For each pixel to be drawn, this routine is passed two color parameters x 
+and y, decomposes them into their red, green and blue components, combines 
+them according to some mathematical transformation involving the 
+interpolation factor n, and then merges the result back into a single 
+return color value, which will be used to draw the pixel onto 
+the destination bitmap.
+
+The parameter x represents the blending modifier color and the parameter y 
+represents the base color to be modified. The interpolation factor n is in 
+the range [0-255] and controls the solidity of the blending.
+
+When a translucent drawing function is used, x is the color of the source, 
+y is the color of the bitmap begin drawn onto and n is the alpha level   
+that was passed to the function that sets the blending mode (the RGB triplet 
+that was passed to this function is not taken into account).
+
+When a lit sprite drawing function is used, x is the color represented by 
+the RGB triplet that was passed to the function that sets the blending mode 
+(the alpha level that was passed to this function is not taken into 
+account), y is the color of the sprite and n is the alpha level that was 
+passed to the drawing function itself.
 
 Since these routines may be used from various different color depths, there 
 are three such callbacks, one for use with 15 bit 5.5.5 pixels, one for 16 
@@ -4587,16 +4613,8 @@ between the 24 and 32 bit code since the bit packing is the same).
 @xref set_difference_blender, set_dissolve_blender, set_dodge_blender
 @xref set_hue_blender, set_invert_blender, set_luminance_blender
 @xref set_multiply_blender, set_saturation_blender, set_screen_blender
-   Selects the default set of truecolor blender routines, which perform a 
-   simple linear interpolation between the source and destination colors. 
-   When a translucent drawing function is called, the alpha parameter set by 
-   this routine is used as the interpolation factor, which controls the 
-   solidity of the drawing (range 0 to 255). When a lit sprite drawing 
-   function is called, the alpha value passed to this routine is ignored, 
-   and instead the color passed to the sprite function is used to select an 
-   alpha level. The blender routine will then be used to interpolate between 
-   the sprite color and the RGB values that were passed to this function 
-   (ranging 0-255).
+   Enables a linear interpolator blender mode for combining translucent 
+   or lit truecolor pixels.
 
 @@void @set_alpha_blender();
 @xref set_trans_blender, draw_trans_sprite, draw_trans_rle_sprite,
@@ -4624,77 +4642,77 @@ between the 24 and 32 bit code since the bit packing is the same).
 
 @@void @set_add_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables an additive color blender mode for combining lit or translucent 
+   Enables an additive blender mode for combining translucent or lit 
    truecolor pixels.
 
 @@void @set_burn_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a burn blender mode for combining lit or translucent truecolor 
-   pixels. Here the lightness values of the colours of the source image
+   Enables a burn blender mode for combining translucent or lit truecolor 
+   pixels. Here the lightness values of the colours of the source image 
    reduce the lightness of the destination image, darkening the image.
 
 @@void @set_color_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a color blender mode for combining lit or translucent truecolor 
-   pixels. Applies only the hue and saturation of the source image to the
+   Enables a color blender mode for combining translucent or lit truecolor 
+   pixels. Applies only the hue and saturation of the source image to the 
    destination image. The luminance of the destination image is not affected.
 
 @@void @set_difference_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a difference blender mode for combining lit or translucent 
-   truecolor pixels. This makes an image which has colours calculated by the
+   Enables a difference blender mode for combining translucent or lit 
+   truecolor pixels. This makes an image which has colours calculated by the 
    difference between the source and destination colours.
 
 @@void @set_dissolve_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a dissolve blender mode for combining lit or translucent 
-   truecolor pixels. Randomly replaces the colours of some pixels in the
-   destination image with those of the source image. The number of pixels
-   replaced depends on the alpha value (higher value, more pixels replaced;
+   Enables a dissolve blender mode for combining translucent or lit 
+   truecolor pixels. Randomly replaces the colours of some pixels in the 
+   destination image with those of the source image. The number of pixels 
+   replaced depends on the alpha value (higher value, more pixels replaced; 
    you get the idea :).
 
 @@void @set_dodge_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a dodge blender mode for combining lit or translucent truecolor 
-   pixels. The lightness of colours in the source lighten the colours of the
+   Enables a dodge blender mode for combining translucent or lit truecolor 
+   pixels. The lightness of colours in the source lighten the colours of the 
    destination. White has the most effect; black has none.
 
 @@void @set_hue_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a hue blender mode for combining lit or translucent truecolor 
+   Enables a hue blender mode for combining translucent or lit truecolor 
    pixels. This applies the hue of the source to the destination.
 
 @@void @set_invert_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables an invert blender mode for combining lit or translucent truecolor 
-   pixels. Blends the inverse (or negative) colour of the source with the
+   Enables an invert blender mode for combining translucent or lit truecolor 
+   pixels. Blends the inverse (or negative) colour of the source with the 
    destination.
 
 @@void @set_luminance_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a luminance blender mode for combining lit or translucent 
+   Enables a luminance blender mode for combining translucent or lit 
    truecolor pixels. Applies the luminance of the source to the destination.
    The colour of the destination is not affected.
 
 @@void @set_multiply_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a multiply blender mode for combining lit or translucent 
-   truecolor pixels. Combines the source and destination images, multiplying
-   the colours to produce a darker colour. If a colour is multiplied by
-   white it remains unchanged; when multiplied by black it also becomes
+   Enables a multiply blender mode for combining translucent or lit 
+   truecolor pixels. Combines the source and destination images, multiplying 
+   the colours to produce a darker colour. If a colour is multiplied by 
+   white it remains unchanged; when multiplied by black it also becomes 
    black.
 
 @@void @set_saturation_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a saturation blender mode for combining lit or translucent 
-   truecolor pixels. Applies the saturation of the source to the destination
+   Enables a saturation blender mode for combining translucent or lit 
+   truecolor pixels. Applies the saturation of the source to the destination 
    image.
 
 @@void @set_screen_blender(int r, int g, int b, int a);
 @xref set_trans_blender, drawing_mode
-   Enables a screen blender mode for combining lit or translucent truecolor 
-   pixels. This blender mode lightens the colour of the destination image by
-   multiplying the inverse of the source and destination colours. Sort of
+   Enables a screen blender mode for combining translucent or lit truecolor 
+   pixels. This blender mode lightens the colour of the destination image by 
+   multiplying the inverse of the source and destination colours. Sort of 
    like the opposite of the multiply blender mode.
 
 @@void @set_blender_mode(BLENDER_FUNC b15, b16, b24, int r, g, b, a);
