@@ -28,8 +28,16 @@
 #include <unistd.h>
 #include <dmedia/audio.h>
 
+#ifdef HAVE_LIBPTHREAD
+#include <pthread.h>
+#endif
+
 #define _AL_SGIAL_PORTSIZE 12288
-#define _AL_SGIAL_BUFFERSIZE 4096
+#ifdef HAVE_LIBPTHREAD
+   #define _AL_SGIAL_BUFFERSIZE 2048
+#else
+   #define _AL_SGIAL_BUFFERSIZE 4096
+#endif
 
 static ALconfig _al_sgial_config;
 static ALport _al_sgial_port;
@@ -44,6 +52,10 @@ static int _al_sgial_mixer_volume(int volume);
 static int _al_sgial_buffer_size(void);
 
 static char _al_sgial_desc[256] = EMPTY_STRING;
+
+#ifdef HAVE_LIBPTHREAD
+static pthread_t thread;
+#endif
 
 DIGI_DRIVER digi_sgial =
 {
@@ -112,16 +124,42 @@ static int _al_sgial_buffer_size(void)
 
 
 
-/* _al_sgial_update:
+#ifdef HAVE_LIBPTHREAD
+
+/* _al_sgial_puller_thread_func: [dedicated thread]
+ *  We have threads, therefore we can use a thread to pull sound data
+ *  as required.
+ */
+static void *_al_sgial_puller_thread_func(void *arg)
+{
+   int fd;
+   fd_set fds;
+   fd = alGetFD(_al_sgial_port);
+
+   while (1) {
+      alSetFillPoint(_al_sgial_port, _AL_SGIAL_PORTSIZE - _AL_SGIAL_BUFFERSIZE);
+      FD_ZERO(&fds);
+      FD_SET(fd, &fds);
+      select(FD_SETSIZE, NULL, &fds, NULL, NULL);
+      alWriteFrames(_al_sgial_port, _al_sgial_bufdata, _al_sgial_bufsize);
+      _mix_some_samples((unsigned long) _al_sgial_bufdata, 0, _al_sgial_signed);
+   }
+}
+
+#else
+
+/* _al_sgial_update: [SIGALRM callback]
  *  Updates data.
  */
 static void _al_sgial_update(int threaded)
 {
    if (alGetFillable(_al_sgial_port) > _al_sgial_bufsize) {
       alWriteFrames(_al_sgial_port, _al_sgial_bufdata, _al_sgial_bufsize);
-      _mix_some_samples((unsigned long) _al_sgial_bufdata, 0, _al_sgial_signed); 
+      _mix_some_samples((unsigned long) _al_sgial_bufdata, 0, _al_sgial_signed);
    }
 }
+
+#endif
 
 
 
@@ -168,7 +206,7 @@ static int _al_sgial_init(int input, int voices)
    _al_sgial_bits = (_sound_bits == 8) ? AL_SAMPLE_8: AL_SAMPLE_16;
    _al_sgial_stereo = (_sound_stereo) ? AL_STEREO : AL_MONO;
    _al_sgial_signed = 1;
-   
+
    pv.param = AL_RATE;
    if (alGetParams(AL_DEFAULT_OUTPUT, &pv, 1) < 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not read SGI AL parameters"));
@@ -194,7 +232,7 @@ static int _al_sgial_init(int input, int voices)
    }
 
    _al_sgial_bufsize = _AL_SGIAL_BUFFERSIZE;
-   _al_sgial_bufdata = malloc(_AL_SGIAL_BUFFERSIZE*((_al_sgial_bits==AL_SAMPLE_16) ? 2 : 1)*((_al_sgial_stereo==AL_STEREO) ? 2 : 1));
+   _al_sgial_bufdata = malloc(_al_sgial_bufsize*((_al_sgial_bits==AL_SAMPLE_16) ? 2 : 1)*((_al_sgial_stereo==AL_STEREO) ? 2 : 1));
    if (!_al_sgial_bufdata) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not allocate audio buffer"));
       alClosePort(_al_sgial_port);
@@ -204,7 +242,7 @@ static int _al_sgial_init(int input, int voices)
 
    digi_sgial.voices = voices;
 
-   if (_mixer_init(_AL_SGIAL_BUFFERSIZE*((_al_sgial_stereo==AL_STEREO) ? 2 :1 ), _al_sgial_rate,
+   if (_mixer_init(_al_sgial_bufsize*((_al_sgial_stereo==AL_STEREO) ? 2 :1 ), _al_sgial_rate,
 		   ((_al_sgial_stereo == AL_STEREO) ? 1 : 0), ((_al_sgial_bits == AL_SAMPLE_16) ? 1 : 0),
 		   &digi_sgial.voices) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
@@ -216,8 +254,13 @@ static int _al_sgial_init(int input, int voices)
 
    _mix_some_samples((unsigned long) _al_sgial_bufdata, 0, _al_sgial_signed);
 
+#ifdef HAVE_LIBPTHREAD
+   /* Add audio thread. */
+   pthread_create(&thread, NULL, _al_sgial_puller_thread_func, NULL);
+#else
    /* Add audio interrupt.  */
    _unix_bg_man->register_func(_al_sgial_update);
+#endif
 
    uszprintf(_al_sgial_desc, sizeof(_al_sgial_desc), get_config_text("SGI AL: %d bits, %s, %d bps, %s"),
 	     _al_sgial_bits,
@@ -239,7 +282,11 @@ static void _al_sgial_exit(int input)
    if (input)
       return;
 
+#ifdef HAVE_LIBPTHREAD
+   pthread_cancel(thread);
+#else
    _unix_bg_man->unregister_func(_al_sgial_update);
+#endif
 
    free(_al_sgial_bufdata);
    _al_sgial_bufdata = NULL;
