@@ -1326,6 +1326,7 @@ static int detect_mouse(void)
    int retval = -1;
    char buffer[256];
    char tmp1[256], tmp2[256], tmp3[64], tmp4[64];
+   AL_CONST char *drv_name;
    int count;
    _DRIVER_INFO *list;
    int list_size;
@@ -1379,17 +1380,19 @@ static int detect_mouse(void)
    for (i = 0; i < list_size; i++) {
       MOUSE_DRIVER *drv = list[i].driver;
       if (drv->analyse_data && drv->analyse_data (buffer, count)) {
-	 if (alert(uconvert_ascii("This driver understands your mouse:", tmp1), drv->name, uconvert_ascii("Select it?", tmp2),
-             uconvert_ascii("Yes", tmp3), uconvert_ascii("No", tmp4), 'y', 'n') == 1)
+	 drv_name = get_config_text(drv->ascii_name);
+	 if (alert(uconvert_ascii("This driver understands your mouse:", tmp1), drv_name, uconvert_ascii("Select it?", tmp2),
+		   uconvert_ascii("Yes", tmp3), uconvert_ascii("No", tmp4), 'y', 'n') == 1)
 	    break;
       }
    }
 
-   if (i < list_size)
+   if (i < list_size) {
       retval = i;
+   }
    else {
-      alert(uconvert_ascii("No drivers understand your mouse", tmp1), NULL, uconvert_ascii("Try using the GPM repeater", tmp2),
-            uconvert_ascii("Ok", tmp3), NULL, 0, 0);
+      alert(uconvert_ascii("No driver understands your mouse", tmp1), uconvert_ascii("Try using the GPM repeater", tmp2),
+	    uconvert_ascii("or set the device filename by hand", tmp3), uconvert_ascii("Ok", tmp4), NULL, 0, 0);
       retval = -1;
    }
 
@@ -2445,8 +2448,8 @@ static DIALOG_STATE main_handler(int c)
 	 if (init_sound(uconvert_ascii("Unable to autodetect!", tmp1)) != 0)
 	    return state_redraw;
 
-	 uszprintf(b1, sizeof(b1), uconvert_ascii("Digital: %s", tmp1), digi_driver->name);
-	 uszprintf(b2, sizeof(b2), uconvert_ascii("MIDI: %s", tmp1), midi_driver->name);
+	 uszprintf(b1, sizeof(b1), uconvert_ascii("Digital: %s", tmp1), uconvert_ascii(digi_driver->ascii_name, tmp2));
+	 uszprintf(b2, sizeof(b2), uconvert_ascii("MIDI: %s", tmp1), uconvert_ascii(midi_driver->ascii_name, tmp2));
 	 alert(uconvert_ascii("- detected hardware -", tmp1), b1, b2, uconvert_ascii("Ok", tmp2), NULL, 0, 0);
 
 	 for (i=0; parameters[i].name; i++) {
@@ -2487,9 +2490,9 @@ static DIALOG_STATE main_handler(int c)
 	 if (init_sound(uconvert_ascii("Sound initialization failed!", tmp1)) != 0)
 	    return state_redraw;
 	 uszprintf(digi_desc, sizeof(digi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
-                   digi_driver->name, digi_driver->desc);
-         uszprintf(midi_desc, sizeof(midi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
-                   midi_driver->name, midi_driver->desc);
+		   uconvert_ascii(digi_driver->ascii_name, tmp2), digi_driver->desc);
+	 uszprintf(midi_desc, sizeof(midi_desc), uconvert_ascii("Driver: %s        Description: %s", tmp1),
+		   uconvert_ascii(midi_driver->ascii_name, tmp2), midi_driver->desc);
 	 activate_dialog(test_dlg, test_handler, FALSE);
 	 break;
 
