@@ -2655,7 +2655,7 @@ Graphics modes
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
 @xref allegro_error, Standard config variables, GFX_*/DOS, GFX_*/Windows
-@xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX
+@xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX, create_video_bitmap
 @eref Available Allegro examples
    Switches into graphics mode. The card parameter should usually be 
    GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
@@ -2706,6 +2706,15 @@ Graphics modes
    width can be any multiple of eight greater than or equal to the physical 
    screen width, and the virtual height will be set accordingly (the VGA has 
    256k of vram, so the virtual height will be 256*1024/virtual_width).
+
+   Currently using a big virtual screen for page flipping is considered bad
+   practice.  There are platforms which don't support virtual screens bigger
+   than the physical screen but can create different video pages to flip back
+   and forth. This means that if you want page flipping and aren't going to
+   use hardware scrolling you should call set_gfx_mode() with zero as
+   parameter for virtual screen size, and later create the different video
+   pages with create_video_bitmap. Otherwise, your program will be limited to
+   the platforms supporting hardware scrolling.
 
    After you select a graphics mode, the physical and virtual screen sizes 
    can be checked with the macros SCREEN_W, SCREEN_H, VIRTUAL_W, and 
