@@ -762,6 +762,11 @@ Alternatively, you can use the datafile array for compatibility with code
 that was originally written for separately loaded datafiles, with the 
 standard syntax item_data[index].dat.
 
+If your datafile contains truecolor images, be sure to call fixup_datafile()
+after you have set the graphics mode. You must also call fixup_datafile()
+if your platform does not support constructors (currently any non GCC-based
+platform).
+
 Note that compiled sprites are not supported and will cause dat2s to
 abort whenever it encounters one of them. However you can use the '-S'
 option to instruct dat2s to convert them to regular BITMAP objects.
@@ -853,7 +858,7 @@ Notes
  - If your datafile contains truecolor images, be sure to call 
    fixup_datafile() after you have set the graphics mode. You must
    also call fixup_datafile() if your platform does not support
-   constructors.
+   constructors (currently any non GCC-based platform).
    
  - Compiled sprites are *not* supported (but see the commandline option
    --convert-compiled-sprites , above). This is because Allegro silently

@@ -7200,9 +7200,9 @@ directly from a specific datafile object.
 
 @@void @fixup_datafile(DATAFILE *data);
 @xref set_gfx_mode, set_color_conversion, Differences between platforms
-   If you are using compiled datafiles (produced by the dat2s utility) on a
-   platform that doesn't support constructors, or on a platform that does
-   support constructors and the datafiles contain truecolor images, you
+   If you are using compiled datafiles (produced by the dat2s and dat2c
+   utilities) on a platform that doesn't support constructors (currently any
+   non GCC-based platform), or if the datafiles contain truecolor images, you
    must call this function once after your set the video mode that you will
    be using. This will ensure the datafiles are properly initialised in the
    first case and convert the color values into the appropriate format in

@@ -415,6 +415,8 @@ static int setup_allegro(void)
 
 /* main()
  */
+static int truecolor = FALSE;
+ 
 int main(int argc, char* argv[])
 {
     struct dat2c* dat2c = malloc_dat2c();
@@ -431,8 +433,25 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    if (dat2c->fname_c)
+        printf("Converting %s to %s...\n", dat2c->fname_dat, dat2c->fname_c);
+
     result = do_conversion(dat2c);
     free_dat2c(dat2c);
+
+#ifdef ALLEGRO_USE_CONSTRUCTOR
+
+    if (truecolor) {
+        printf("\nI noticed some truecolor images, so you must call fixup_datafile()\n");
+        printf("before using this data! (after setting a video mode).\n");
+    }
+
+#else
+
+    printf("\nI don't know how to do constructor functions on this platform, so you must\n");
+    printf("call fixup_datafile() before using this data! (after setting a video mode).\n");
+
+#endif
     
     return result;
 }
@@ -1069,45 +1088,24 @@ static int cvt_FILE(struct dat2c* dat2c, DATAFILE* dat, const char* name)
 static int cvt_BITMAP_aux(struct dat2c* dat2c, BITMAP* bmp,
     const char* name, int export)
 {
-    int bpp = 0;
+    int bpp = bitmap_color_depth(bmp);
+    int bypp = (bpp + 7) / 8;
     int y = 0;
+
+    if (bpp > 8)
+        truecolor = TRUE;
     
     /* declare this in the header if we are exporting objects */
     if(export) {
         cwrite(dat2c, H, "extern BITMAP $string lower$;$n$$n$", name);
     }
-    
-    /* figure out bytes per pixel */
-    switch(bmp->vtable->color_depth) {
-        case 8:
-            bpp = 1;
-            break;
-            
-        case 15:
-        case 16:
-            bpp = 2;
-            break;
-            
-        case 24:
-            bpp = 3;
-            break;
-            
-        case 32:
-            bpp = 4;
-            break;
-    }
-    if(!bpp) {
-        fprintf(stderr, "Invalid color depth %c in bitmap %s.\n",
-            bmp->vtable->color_depth, name);
-        return 1;
-    }
-    
+
     /* write out lines data (we actually write it as one big chunk) */
     cwrite(dat2c, C, "static unsigned char $string lower$_lines[] = $n$",
         name);
     
     for(y = 0; y < bmp->h; y++) {
-        cwrite(dat2c, C, "$data$$n$", bmp->w * bpp, 4, bmp->line[y]);
+        cwrite(dat2c, C, "$data$$n$", bmp->w * bypp, 4, bmp->line[y]);
     }
     
     cwrite(dat2c, C, ";$n$$n$");
@@ -1129,13 +1127,13 @@ static int cvt_BITMAP_aux(struct dat2c* dat2c, BITMAP* bmp,
         bmp->h + 1,  /* trailing 0 for convenience */
         name,
         bmp->w, bmp->h,
-        bmp->vtable->color_depth,
+        bpp,
         name);
     
     /* write list of lines */
     for(y = 0; y < bmp->h; y++) {
         cwrite(dat2c, C, "      $string lower$_lines + $int$,$n$",
-            name, y * bmp->w * bpp);
+            name, y * bmp->w * bypp);
     }
     
     /* close BITMAP structure */
@@ -1439,6 +1437,10 @@ static int cvt_RLE_SPRITE(struct dat2c* dat2c, DATAFILE* dat,
     const char* name)
 {
     RLE_SPRITE* rle = dat->dat;
+    int bpp = rle->color_depth;
+
+    if (bpp > 8)
+        truecolor = TRUE;
 
     /* declare this in the header if we are exporting objects */
     if(dat2c->global_symbols) {
@@ -1457,7 +1459,7 @@ static int cvt_RLE_SPRITE(struct dat2c* dat2c, DATAFILE* dat,
         rle->size,
         name,
         rle->w, rle->h,
-        rle->color_depth,
+        bpp,
         rle->size,
         rle->size, 4, rle->dat);
 
