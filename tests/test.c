@@ -4006,6 +4006,63 @@ int mmx_off_proc(void)
 
 
 
+void set_switch_mode_menu(int mode)
+{
+   extern MENU switch_menu[];
+   int i;
+
+   if (set_display_switch_mode(mode) == 0) {
+      for (i=0; i<5; i++)
+         switch_menu[i].flags = 0;
+
+      switch_menu[mode-SWITCH_NONE].flags = D_SELECTED;
+   }
+   else
+      alert("Error setting switch mode:", "not supported by this graphics driver", NULL, "Sorry", NULL, 13, 0);
+}
+
+
+
+int sw_none_proc(void)
+{
+   set_switch_mode_menu(SWITCH_NONE);
+   return D_O_K;
+}
+
+
+
+int sw_pause_proc(void)
+{
+   set_switch_mode_menu(SWITCH_PAUSE);
+   return D_O_K;
+}
+
+
+
+int sw_amnesia_proc(void)
+{
+   set_switch_mode_menu(SWITCH_AMNESIA);
+   return D_O_K;
+}
+
+
+
+int sw_backgr_proc(void)
+{
+   set_switch_mode_menu(SWITCH_BACKGROUND);
+   return D_O_K;
+}
+
+
+
+int sw_backamn_proc(void)
+{
+   set_switch_mode_menu(SWITCH_BACKAMNESIA);
+   return D_O_K;
+}
+
+
+
 int gfx_mode_proc(void)
 {
    int gfx_mode();
@@ -4057,6 +4114,18 @@ MENU mmx_menu[] =
 
 
 
+MENU switch_menu[] =
+{
+   { "&None",                    sw_none_proc,     NULL,    D_SELECTED,    NULL  },
+   { "&Pause",                   sw_pause_proc,    NULL,    0,             NULL  },
+   { "&Amnesia",                 sw_amnesia_proc,  NULL,    0,             NULL  },
+   { "&Background",              sw_backgr_proc,   NULL,    0,             NULL  },
+   { "Backa&mnesia",             sw_backamn_proc,  NULL,    0,             NULL  },
+   { NULL,                       NULL,             NULL,    0,             NULL  }
+};
+
+
+
 MENU test_menu[] =
 {
    { "&Graphics mode",           gfx_mode_proc,    NULL,       0,          NULL  },
@@ -4065,6 +4134,7 @@ MENU test_menu[] =
  #ifdef ALLEGRO_I386
    { "MM&X mode",                NULL,             mmx_menu,   0,          NULL  },
  #endif
+   { "&Switch mode",             NULL,             switch_menu,0,          NULL  },
    { "",                         NULL,             NULL,       0,          NULL  },
    { "&Profile Screen",          profile_proc,     NULL,       0,          NULL  },
    { "Profile &Memory",          mem_profile_proc, NULL,       0,          NULL  },
@@ -4329,6 +4399,8 @@ void change_mode()
 
    if (!c)
       strcat(gfx_specs3, "0");
+
+   set_switch_mode_menu(get_display_switch_mode());
 
    if (global_sprite) {
       destroy_bitmap(global_sprite);
