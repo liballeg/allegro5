@@ -701,8 +701,8 @@ static void stretch_dialog(DIALOG *d, int width, int height)
     
       d[FS_FRAME].w   = width;
       d[FS_FRAME].x   = 0;
-      d[FS_MESSAGE].w = 1;
-      d[FS_MESSAGE].x = width/2;
+      d[FS_MESSAGE].w = witdh - 2;
+      d[FS_MESSAGE].x = 1;
       d[FS_EDIT].w    = d[FS_FRAME].w - 2*hpad - 1;
       d[FS_EDIT].x    = hpad;
       d[FS_CANCEL].w  = 10*font_w + 1;
@@ -751,8 +751,8 @@ static void stretch_dialog(DIALOG *d, int width, int height)
     
       d[FS_FRAME].w   = width;
       d[FS_FRAME].x   = 0;
-      d[FS_MESSAGE].w = 1;
-      d[FS_MESSAGE].x = width/2;
+      d[FS_MESSAGE].w = width - 2;
+      d[FS_MESSAGE].x = 1;
       d[FS_EDIT].w    = d[FS_FRAME].w - 2*hpad - 1;
       d[FS_EDIT].x    = hpad;
       d[FS_FILES].w   = d[FS_FRAME].w - 2*hpad;
