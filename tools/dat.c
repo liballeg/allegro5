@@ -91,11 +91,11 @@ static void usage(void)
    printf("\t'-k' keeps the original file names when grabbing objects\n");
    printf("\t'-l' lists the contents of the datafile\n");
    printf("\t'-m dependencyfile' outputs makefile dependencies\n");
+   printf("\t'-n0' no sort: list the objects in the order they were added\n");
+   printf("\t'-n1' sort the objects of the datafile alphabetically by name\n");
    printf("\t'-o output' sets the output file or directory when extracting data\n");
    printf("\t'-p prefixstring' sets the prefix for the output header file\n");
    printf("\t'-pal objectname' specifies which palette to use\n");
-   printf("\t'-r0' no sort\n");
-   printf("\t'-r1' sort the objects of the datafile alphabetically by name\n");
    printf("\t'-s0' no strip: save everything\n");
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
@@ -778,6 +778,15 @@ int main(int argc, char *argv[])
 	       opt_dependencyfile = argv[++c];
 	       break;
 
+	    case 'n':
+	       if ((opt_sort >= 0) ||
+		   (argv[c][2] < '0') || (argv[c][2] > '1')) {
+		  usage();
+		  return 1;
+	       }
+	       opt_sort = argv[c][2] - '0';
+	       break;
+
 	    case 'o':
 	       if ((opt_outputname) || (c >= argc-1)) {
 		  usage();
@@ -803,15 +812,6 @@ int main(int argc, char *argv[])
 		  }
 		  opt_prefixstring = argv[++c];
 	       }
-	       break;
-
-	    case 'r':
-	       if ((opt_sort >= 0) ||
-		   (argv[c][2] < '0') || (argv[c][2] > '1')) {
-		  usage();
-		  return 1;
-	       }
-	       opt_sort = argv[c][2] - '0';
 	       break;
 
 	    case 's':
