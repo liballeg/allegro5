@@ -35,6 +35,11 @@
 # define O_TEXT    0
 #endif
 
+/* IRIX has things in math.h which conflicts with our aliases.  */
+#ifdef __sgi__
+# define ALLEGRO_NO_FIX_ALIASES
+#endif
+
 /* These defines will be provided by configure script.  */
 #undef ALLEGRO_COLOR8
 #undef ALLEGRO_COLOR16

@@ -6252,6 +6252,9 @@ functions which map the old names to the new names, eg. fsqrt() calls
 fixsqrt(). You can disable the aliases by defining the preprocessor macro
 ALLEGRO_NO_FIX_ALIASES before including allegro.h.
 
+Note that we don't provide the backwards compatibility aliases under IRIX
+as it would require too much black magic.
+
 
 
 @heading
