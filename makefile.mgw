@@ -227,13 +227,14 @@ endif # STATICLINK
 $(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
 	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
 
-$(MINGDIR_U)/include/allegro.h: include/allegro.h
+$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include/allegro
 	cp include/allegro.h $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/winalleg.h: include/winalleg.h
 	cp include/winalleg.h $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/allegro:
+	mkdir $(MINGDIR_U)/include
 	mkdir $(MINGDIR_U)/include/allegro 
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
