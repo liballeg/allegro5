@@ -103,9 +103,9 @@ Setting up MinGW to build Allegro
    3. Set the environment variable MINGDIR to the compiler directory. If you
       use Windows 9x, you can add the line
 <textblock>
-	 set MINGDIR=c:\mingw32
+	 set MINGDIR=c:\MinGW
 <endblock>
-      to your '<tt>c:\autoexec.bat</tt>' file, assuming '<tt>c:\mingw32</tt>' is the compiler
+      to your '<tt>c:\autoexec.bat</tt>' file, assuming '<tt>c:\MinGW</tt>' is the compiler
       directory, and reboot. If you use Windows ME, you can run '<tt>msconfig</tt>',
       select the 'Environment' tab and then add <tt>MINGDIR</tt>. If you use
       Windows NT/2k/XP, you can open the Control Panel, click the 'System'
