@@ -39,10 +39,6 @@ static int osx_sys_desktop_color_depth(void);
 static int osx_sys_get_desktop_resolution(int *width, int *height);
 
 
-#define WINDOW_TITLE_SIZE     256
-#define MESSAGE_STRING_SIZE   4096
-
-
 /* Global variables */
 int    __crt0_argc;
 char **__crt0_argv;
@@ -50,7 +46,7 @@ NSBundle *osx_bundle = NULL;
 pthread_mutex_t osx_event_mutex;
 NSCursor *osx_cursor = NULL;
 NSWindow *osx_window = NULL;
-char osx_window_title[WINDOW_TITLE_SIZE];
+char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
@@ -463,12 +459,14 @@ static int osx_sys_find_resource(char *dest, AL_CONST char *resource, int size)
  */
 static void osx_sys_message(AL_CONST char *msg)
 {
-   char utf8_msg[MESSAGE_STRING_SIZE];
+   char tmp[ALLEGRO_MESSAGE_SIZE];
    NSString *ns_title, *ns_msg;
    
-   do_uconvert(msg, U_CURRENT, utf8_msg, U_UTF8, MESSAGE_STRING_SIZE);
+   fputs(uconvert_toascii(msg, tmp), stderr);
+   
+   do_uconvert(msg, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
    ns_title = [NSString stringWithUTF8String: osx_window_title];
-   ns_msg = [NSString stringWithUTF8String: utf8_msg];
+   ns_msg = [NSString stringWithUTF8String: tmp];
    
    pthread_mutex_lock(&osx_event_mutex);
    skip_events_processing = TRUE;
@@ -488,10 +486,10 @@ static void osx_sys_message(AL_CONST char *msg)
  */
 static void osx_sys_set_window_title(AL_CONST char *title)
 {
-   char tmp[WINDOW_TITLE_SIZE];
+   char tmp[ALLEGRO_MESSAGE_SIZE];
    
    strcpy(osx_window_title, title);
-   do_uconvert(title, U_CURRENT, tmp, U_UTF8, WINDOW_TITLE_SIZE);
+   do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
 
    NSString *ns_title = [NSString stringWithUTF8String: tmp];
    
@@ -581,5 +579,3 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    
    return 0;
 }
-
-
