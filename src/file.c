@@ -1967,9 +1967,9 @@ static void pack_ungetc (int ch, PACKFILE *f)
 
 /* pack_fgets:
  *  Reads a line from a text file, storing it at location p. Stops when a
- *  linefeed is encountered, or max characters have been read. Returns a
- *  pointer to where it stored the text, or NULL on error. The end of line
- *  is handled by detecting optional '\r' characters optionally followed 
+ *  linefeed is encountered, or max bytes have been read. Returns a pointer
+ *  to where it stored the text, or NULL on error. The end of line is
+ *  handled by detecting optional '\r' characters optionally followed 
  *  by '\n' characters. This supports CR-LF (DOS/Windows), LF (Unix), and
  *  CR (Mac) formats.
  */
@@ -1980,12 +1980,12 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
 
    *allegro_errno = 0;
 
-   pmax = p+max - ucwidth(0);
-
    if (pack_feof(f)) {
-      if (ucwidth(0) < max) usetc (p,0);
+      if (ucwidth(0) <= max) usetc (p,0);
       return NULL;
    }
+
+   pmax = p+max - ucwidth(0);
 
    while ((c = pack_getc (f)) != EOF) {
 
