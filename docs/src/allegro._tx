@@ -8263,6 +8263,10 @@ the differences between systems:
    graphics mode. If this define is absent, you are running in an 
    environment like Windows that has no stdout at all.
 
+<b>ALLEGRO_MAGIC_MAIN</b><br>
+   Defined if Allegro uses a magic main, i.e takes over the main() entry 
+   point and turns it into a secondary entry point suited to its needs.
+
 <b>ALLEGRO_LFN</b><br>
    Non-zero if long filenames are supported, or zero if you are limited to 
    8.3 format (in the djgpp version, this is a variable depending on the 

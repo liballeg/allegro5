@@ -29,6 +29,7 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 
 
 #if (!defined ALLEGRO_NO_MAGIC_MAIN) && (!defined ALLEGRO_SRC)
+   #define ALLEGRO_MAGIC_MAIN
    #define main _mangled_main
    #undef END_OF_MAIN
 
