@@ -470,8 +470,8 @@ available in past/future versions of Allegro.
 <codeblock>
    int flags;                       - status flags for this
 				      input
-   int num_axis;                    - how many axis do we
-				      have?
+   int num_axis;                    - how many axes do we
+				      have? (note the misspelling)
    JOYSTICK_AXIS_INFO axis[n];      - axis state information
    char *name;                      - description of this
 				      input
@@ -2830,7 +2830,7 @@ Joystick routines
    gamepad controller, the coolie hat on a Flightstick Pro or Wingman 
    Extreme, or a normal joystick which hasn't yet been calibrated), or they 
    can be full analogue inputs with a smooth range of motion. Sticks may 
-   also have different numbers of axis, for example a normal directional 
+   also have different numbers of axes, for example a normal directional 
    control has two, but the Flightstick Pro throttle is only a single axis, 
    and it is possible that the system could be extended in the future to 
    support full 3d controllers. A stick input is described by the structure:
@@ -2839,8 +2839,8 @@ Joystick routines
       {
 	 int flags;                       - status flags for this
 					    input
-	 int num_axis;                    - how many axis do we
-					    have?
+	 int num_axis;                    - how many axes do we
+					    have? (note the misspelling)
 	 JOYSTICK_AXIS_INFO axis[n];      - axis state information
 	 char *name;                      - description of this
 					    input
@@ -7704,7 +7704,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @xref get_align_matrix
 @eref ex12bit, exquat, exstars
    Constructs a transformation matrix which will rotate points around all 
-   three axis by the specified amounts (given in binary, 256 degrees to a 
+   three axes by the specified amounts (given in binary, 256 degrees to a 
    circle format).
 
 @\void @get_align_matrix(MATRIX *m, fixed xfront, yfront, zfront, 
@@ -7733,7 +7733,7 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 @xref apply_matrix, get_rotation_matrix, get_scaling_matrix
 @xref get_translation_matrix
    Constructs a transformation matrix which will rotate points around all 
-   three axis by the specified amounts (given in binary, 256 degrees to a 
+   three axes by the specified amounts (given in binary, 256 degrees to a 
    circle format), scale the result by the specified amount (pass 1 for no 
    change of scale), and then translate to the requested x, y, z position.
 
@@ -7903,7 +7903,7 @@ me.
 
 @@void @get_rotation_quat(QUAT *q, float x, float y, float z);
 @eref exquat
-   Constructs a quaternion that will rotate points around all three axis by 
+   Constructs a quaternion that will rotate points around all three axes by 
    the specified amounts (given in binary, 256 degrees to a circle format).
 
 @@void @get_vector_rotation_quat(QUAT *q, float x, y, z, float a);
@@ -8726,7 +8726,7 @@ DOS specifics
 <li>
    JOY_TYPE_GRIP4<br>
       Version of the Gravis GrIP driver that is constrained to only move 
-      along the four main axis.
+      along the four main axes.
 <li>
    JOY_TYPE_SNESPAD_LPT1<br>
    JOY_TYPE_SNESPAD_LPT2<br>
