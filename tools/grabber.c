@@ -285,6 +285,7 @@ static DIALOG main_dlg[] =
    { custkey_proc,      0,    0,    0,    0,    0,    0,    0,       D_DISABLED, 0,             0,       NULL,             NULL, NULL  },
    { list_proc,         20,   86,   209,  388,  0,    0,    0,       D_EXIT,     0,             0,       list_getter,      NULL, NULL  },
    { view_proc,         260,  218,  0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
 
@@ -2878,6 +2879,7 @@ static DIALOG grabber_help[] =
    { d_text_proc,       0,    4,    0,    0,    255,  8,    0,    0,       0,    0,    "Help viewer by Doug Eleveld", NULL, NULL },
    { d_menu_proc,       0,    0,    0,    0,    255,  0,    0,    0,       0,    0,    grabber_help_topic, NULL, NULL },
    { d_helptext_proc,   0,    20,   0,    0,    255,  0,    0,    0,       0,    0,    NULL, NULL, NULL },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL, NULL, NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL, NULL, NULL }
 };
 
