@@ -47,6 +47,14 @@ void be_sys_set_window_title(AL_CONST char *name);
 void be_sys_message(AL_CONST char *msg);
 int be_sys_desktop_color_depth(void);
 void be_sys_yield_timeslice(void);
+int be_sys_set_display_switch_mode(int mode);
+int be_sys_set_display_switch_cb(int dir, void (*cb)(void));
+void be_sys_remove_display_switch_cb(void (*cb)(void));
+void be_sys_suspend(void);
+void be_sys_resume(void);
+void be_main_suspend(void);
+void be_main_resume(void);
+void be_display_switch_callback(int dir);
 
 struct BITMAP *be_gfx_fullscreen_init(int w, int h, int v_w, int v_h, int color_depth);
 struct BITMAP *be_gfx_fullscreen_safe_init(int w, int h, int v_w, int v_h, int color_depth);
@@ -72,7 +80,6 @@ void be_gfx_windowed_exit(struct BITMAP *b);
 void be_gfx_windowed_acquire(struct BITMAP *bmp);
 void be_gfx_windowed_release(struct BITMAP *bmp);
 void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
-int  be_gfx_windowed_scroll(int x, int y);
 void be_gfx_windowed_vsync(void);
 #ifdef ALLEGRO_NO_ASM
 void be_gfx_windowed_unwrite_bank(BITMAP *bmp);
@@ -87,6 +94,8 @@ void be_time_exit(void);
 //int  be_time_can_simulate_retrace(void);
 //void be_time_simulate_retrace(int enable);
 void be_time_rest(long time, AL_METHOD(void, callback, (void)));
+void be_time_suspend(void);
+void be_time_resume(void);
 
 int be_mouse_init(void);
 void be_mouse_exit(void);
@@ -104,6 +113,8 @@ int be_sound_init(int input, int voices);
 void be_sound_exit(int input);
 int be_sound_buffer_size();
 int be_sound_mixer_volume(int volume);
+void be_sound_suspend(void);
+void be_sound_resume(void);
 
 int be_midi_detect(int input);
 int be_midi_init(int input, int voices);

@@ -44,6 +44,7 @@
 static volatile int be_sound_thread_running = FALSE;
 static thread_id be_sound_thread_id = -1;
 
+static BLocker *locker;
 static BPushGameSound *be_sound;
 
 static int be_sound_bufsize;
@@ -51,6 +52,8 @@ static unsigned char *be_sound_bufdata;
 static int be_sound_signed;
 
 static char be_sound_desc[320] = EMPTY_STRING;
+
+static bool be_sound_active;
 
 
 
@@ -65,12 +68,15 @@ static int32 be_sound_thread(void *sound_started)
    release_sem(*(sem_id *)sound_started);
 
    while (be_sound_thread_running) {
-      
+
+      locker->Lock();      
       if (be_sound->LockNextPage((void **)&p, &size) >= 0) {
 	 memcpy(p, be_sound_bufdata, size);
 	 be_sound->UnlockPage(p);
-	 _mix_some_samples((unsigned long) be_sound_bufdata, 0, be_sound_signed);
+	 if (be_sound_active)
+	    _mix_some_samples((unsigned long) be_sound_bufdata, 0, be_sound_signed);
       }
+      locker->Unlock();
       
       snooze(BE_SOUND_THREAD_PERIOD);
    }
@@ -187,6 +193,11 @@ extern "C" int be_sound_init(int input, int voices)
    if (sound_started < B_NO_ERROR) {
       goto cleanup;
    }
+   
+   locker = new BLocker();
+   if (!locker)
+      goto cleanup;
+   be_sound_active = true;
 
    be_sound_thread_id = spawn_thread(be_sound_thread, BE_SOUND_THREAD_NAME,
   				     BE_SOUND_THREAD_PRIORITY, &sound_started);
@@ -245,6 +256,8 @@ extern "C" void be_sound_exit(int input)
    _mixer_exit();
    
    delete be_sound;
+   delete locker;
+   locker = NULL;
 }
 
 
@@ -268,4 +281,33 @@ extern "C" int be_sound_mixer_volume(int volume)
       return -1;
    
    return (be_sound->SetGain((float)volume / 255.0) == B_OK);
+}
+
+
+
+/* be_sound_suspend:
+ *  Pauses the sound thread.
+ */
+extern "C" void be_sound_suspend(void)
+{
+   if (!be_sound_thread_running)
+      return;
+   locker->Lock();
+   be_sound_active = false;
+   memset(be_sound_bufdata, 0, be_sound_bufsize);
+   locker->Unlock();
+}
+
+
+
+/* be_sound_resume:
+ *  Resumes the sound thread.
+ */
+extern "C" void be_sound_resume(void)
+{
+   if (!be_sound_thread_running)
+      return;
+   locker->Lock();
+   be_sound_active = true;
+   locker->Unlock();
 }

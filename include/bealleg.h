@@ -160,8 +160,6 @@ class BeAllegroWindow
       void **screen_line; 
       uint32 screen_height;
       uint32 screen_depth;
-      uint32 scroll_x;
-      uint32 scroll_y;
 
       void **display_line;
       uint32 display_depth;
@@ -208,15 +206,17 @@ extern BeAllegroApp    *be_allegro_app;
 extern BeAllegroWindow *be_allegro_window;
 extern BeAllegroView   *be_allegro_view; 
 extern BeAllegroScreen *be_allegro_screen;
+extern BMidiSynth      *be_midisynth;
 
 extern sem_id   be_fullscreen_lock;
 extern sem_id   be_mouse_view_attached;
 extern BWindow *be_mouse_window;
 extern BView   *be_mouse_view; 
 extern bool     be_mouse_window_mode;
-extern HOOKS hooks;
+extern HOOKS    be_hooks;
 extern const BE_MODE_TABLE be_mode_table[];
-extern int32  (*sync_func)();
+extern int32  (*be_sync_func)();
+extern int      _be_switch_mode;
 
 
 

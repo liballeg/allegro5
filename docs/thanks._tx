@@ -50,7 +50,8 @@ Contributors
 
    Angelo Mottola (<email>a.mottola@libero.it</a>).<br>
    Added the BeOS joystick driver, MIDI driver, windowed graphics driver,
-   mouse wheel support and wrote the DGA2 driver for X.
+   mouse wheel support, display switching support and wrote the DGA2
+   driver for X.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.

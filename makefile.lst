@@ -192,10 +192,11 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/misc/pckeys.c
 
 ALLEGRO_SRC_BEOS_FILES = \
+	src/beos/baccel.cpp \
 	src/beos/bclasses.cpp \
+	src/beos/bdispsw.cpp \
 	src/beos/bgfx.c \
 	src/beos/bgfxapi.cpp \
-	src/beos/baccel.cpp \
 	src/beos/bgfxdrv.c \
 	src/beos/bjoy.c \
 	src/beos/bjoydrv.c \

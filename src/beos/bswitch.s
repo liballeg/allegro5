@@ -60,7 +60,7 @@ FUNC(_be_gfx_fullscreen_accel_read_write_bank_asm)
    jnz be_gfx_fullscreen_accel_already_acquired
 
    pushal
-   call *GLOBL(sync_func)
+   call *GLOBL(be_sync_func)
    pushl GLOBL(be_fullscreen_lock)
    call GLOBL(acquire_sem)
    addl $4, %esp
@@ -122,8 +122,11 @@ FUNC(_be_gfx_windowed_unwrite_bank_asm)
  */
 FUNC(_be_gfx_windowed_read_write_bank_asm)
    pushl %ecx
+   pushl %eax
    movl GLOBL(be_dirty_lines), %ecx
+   addl BMP_YOFFSET(%edx), %eax
    movl $1, (%ecx, %eax, 4)
+   popl %eax
    popl %ecx
    movl BMP_LINE(%edx, %eax, 4), %eax
    ret

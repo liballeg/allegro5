@@ -140,3 +140,23 @@ extern "C" void be_time_rest(long time, AL_METHOD(void, callback, (void)))
       snooze(time);
    }
 }
+
+
+
+/* be_time_suspend:
+ */
+extern "C" void be_time_suspend(void)
+{
+   if (timer_thread_id > 0) {
+      suspend_thread(timer_thread_id);
+   }
+}
+
+
+
+extern "C" void be_time_resume(void)
+{
+   if (timer_thread_id > 0) {
+      resume_thread(timer_thread_id);
+   }
+}

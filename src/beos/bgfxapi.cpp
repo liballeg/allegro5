@@ -31,7 +31,7 @@
 
 #define BE_DRAWING_THREAD_PERIOD    16000
 #define BE_DRAWING_THREAD_NAME	    "drawing thread"
-#define BE_DRAWING_THREAD_PRIORITY  B_NORMAL_PRIORITY
+#define BE_DRAWING_THREAD_PRIORITY  B_REAL_TIME_DISPLAY_PRIORITY
 
 
 typedef void (*BLITTER_FUNCTION)(void **src, void **dest, 
@@ -81,8 +81,6 @@ BeAllegroWindow	    *be_allegro_window	    = NULL;
 BeAllegroView	    *be_allegro_view	    = NULL;
 BeAllegroScreen	    *be_allegro_screen	    = NULL; 
  
-
-
 static uint32 cmap[0x1000];
 static uint32 rmap[256];
 static uint32 gmap[256];
@@ -379,15 +377,55 @@ static void _be_gfx_create_mapping_tables(int depth)
 
 static inline void change_focus(bool active)
 {
-   if (focus_count < 0) {
+/*   if (focus_count < 0) {
       focus_count = 0;
    }
-
+*/
    if (active) {
-      focus_count++;
+//      focus_count++;
+      focus_count = 1;
+      if (be_gfx_initialized) {
+         switch (_be_switch_mode) {
+            case SWITCH_AMNESIA:
+            case SWITCH_BACKAMNESIA:
+               if (be_allegro_window->drawing_thread_id > 0) {
+                  resume_thread(be_allegro_window->drawing_thread_id);
+               }
+               if (_be_switch_mode == SWITCH_BACKAMNESIA)
+                  break;
+            case SWITCH_PAUSE:
+               be_sound_resume();
+               be_time_resume();
+               be_sys_resume();
+               be_main_resume();
+               break;
+         }
+      }
+      be_display_switch_callback(SWITCH_IN);
    }
    else {
-      focus_count--;
+//      focus_count--;
+      focus_count = 0;
+      be_display_switch_callback(SWITCH_OUT);
+      if (be_gfx_initialized) {
+         switch (_be_switch_mode) {
+            case SWITCH_AMNESIA:
+            case SWITCH_BACKAMNESIA:
+               if (be_allegro_window->drawing_thread_id > 0) {
+                  suspend_thread(be_allegro_window->drawing_thread_id);
+               }
+               if (_be_switch_mode == SWITCH_BACKAMNESIA)
+                  break;
+            case SWITCH_PAUSE:
+               if (be_midisynth)
+                  be_midisynth->AllNotesOff(false);
+               be_sound_suspend();
+               be_time_suspend();
+               be_sys_suspend();
+               be_main_suspend();
+               break;
+         }
+      }
    }
 }
 
@@ -552,6 +590,9 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    _be_sys_get_executable_name(path, sizeof(path));
    path[sizeof(path)-1] = '\0';
    exe = get_filename(path);
+
+   be_sys_set_display_switch_mode(SWITCH_NONE);
+   
    be_allegro_screen = new BeAllegroScreen(exe, mode, &error, false);
 
    if(error != B_OK) {
@@ -607,7 +648,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
       goto cleanup;
    }
 
-   sync_func = NULL;
+   be_sync_func = NULL;
    if (accel) {
       be_gfx_fullscreen_accelerate(color_depth);
    }
@@ -640,7 +681,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    _be_gfx_set_truecolor_shifts();
    
    be_gfx_initialized = true;
-
+   
    release_sem(be_fullscreen_lock);
 
    return bmp;
@@ -705,7 +746,7 @@ extern "C" void be_gfx_fullscreen_exit(struct BITMAP *bmp)
 extern "C" unsigned long be_gfx_fullscreen_accel_read_write_bank(BITMAP *bmp, int line)
 {
    if (!(bmp->id & BMP_ID_LOCKED)) {
-      sync_func();
+      be_sync_func();
       acquire_sem(be_fullscreen_lock);
       bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
    }
@@ -743,8 +784,8 @@ extern "C" void be_gfx_fullscreen_acquire(struct BITMAP *bmp)
       acquire_sem(be_fullscreen_lock);
       bmp->id |= BMP_ID_LOCKED;
    }
-   if (sync_func)
-      sync_func();
+   if (be_sync_func)
+      be_sync_func();
    lock_count++;
 }
 
@@ -878,7 +919,7 @@ extern "C" void be_gfx_windowed_unwrite_bank(BITMAP *bmp)
 
 extern "C" unsigned long be_gfx_windowed_read_write_bank(BITMAP *bmp, int line)
 {
-   be_dirty_lines[line] = 1;
+   be_dirty_lines[bmp->y_ofs + line] = 1;
    return (unsigned long)(bmp->line[line]);
 }
 
@@ -911,8 +952,6 @@ BeAllegroWindow::BeAllegroWindow(BRect frame, const char *title,
    }
 
    screen_depth = color_depth;
-   scroll_x = 0;
-   scroll_y = 0;
 
    // we fill this in later in DirectConnected
    display_line = (void **)malloc(v_h * sizeof(void *));
@@ -949,10 +988,13 @@ BeAllegroWindow::~BeAllegroWindow()
    locker->Unlock();
    Sync();
    wait_for_thread(drawing_thread_id, &result);
+   drawing_thread_id = -1;
    Hide();
 
    delete locker;
    delete_sem(be_window_lock);
+   blitter = NULL;
+   connected = false;
 
    if (rects) {
       free(rects);
@@ -1011,6 +1053,7 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
    }
 
    locker->Lock();
+   connected = false;
    
    switch (info->buffer_state & B_DIRECT_MODE_MASK) {
       case B_DIRECT_START:
@@ -1020,8 +1063,6 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
       case B_DIRECT_MODIFY: {
 	    uint8 old_display_depth = display_depth;
 	    uint32 stride, i;
-
-        connected = false;
 
 	    switch (info->pixel_format) {
 	       case B_CMAP8:  
@@ -1048,7 +1089,7 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	    }
 
 	    if (old_display_depth != display_depth) {
-	       _be_gfx_init_conversion_shifts(display_depth);      
+	       _be_gfx_init_conversion_shifts(display_depth);
 
 	       // FIXME move this somewhere else
 	       if (display_depth == 8) {
@@ -1096,11 +1137,15 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	 break;
 
       case B_DIRECT_STOP:
-	 connected = false;
 	 break;
    }
+  
+   if (screen_depth == 8)
+      be_gfx_windowed_set_palette(_current_palette, 0, 255, 0);
+   else
+      release_sem(be_window_lock);
+
    locker->Unlock();
-   release_sem(be_window_lock);
 }
 
 
@@ -1155,13 +1200,16 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
       v_h = h;
    }
 
-   if ((w > v_w) || (h > v_h)) {
+   if ((w != v_w) || (h != v_h)) {
+      ustrcpy(allegro_error, get_config_text("Unsupported virtual resolution"));
       return NULL;
    }
    
    _be_sys_get_executable_name(path, sizeof(path));
    path[sizeof(path)-1] = '\0';
    exe = get_filename(path);
+
+   be_sys_set_display_switch_mode(SWITCH_PAUSE);
 
    be_allegro_window = new BeAllegroWindow(BRect(0, 0, w-1, h-1), exe,
 			      B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
@@ -1278,15 +1326,6 @@ extern "C" void be_gfx_windowed_release(struct BITMAP *bmp)
    release_sem(be_window_lock);
 }
 
- 
-
-extern "C" int be_gfx_windowed_scroll(int x, int y)
-{
-   be_allegro_window->scroll_x = x;
-   be_allegro_window->scroll_y = y;
-   return 0;
-}
-
 
 
 extern "C" void be_gfx_windowed_vsync(void)
@@ -1359,9 +1398,6 @@ extern "C" void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, in
    
    if (be_allegro_window->display_depth > 8) {
       _be_gfx_set_truecolor_colors(p, from, to);
-      for (i=0; i<be_allegro_window->screen_height; i++)
-         be_dirty_lines[i] = 1;
-      release_sem(be_window_lock);
    }
    else {
       if (be_allegro_window->screen_depth == 8) {
@@ -1371,4 +1407,7 @@ extern "C" void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, in
 	 _be_gfx_set_palette_colors(p, from, to);
       }
    }
+   for (i=0; i<be_allegro_window->screen_height; i++)
+      be_dirty_lines[i] = 1;
+   release_sem(be_window_lock);
 }

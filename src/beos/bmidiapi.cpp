@@ -24,8 +24,8 @@
 #endif                
 
 
+BMidiSynth *be_midisynth = NULL;
 static char be_midi_driver_desc[256] = EMPTY_STRING;
-static BMidiSynth *be_midisynth = NULL;
 static int cur_patch[17];
 static int cur_note[17];
 static int cur_vol[17];
