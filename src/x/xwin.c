@@ -12,7 +12,7 @@
  *
  *      By Michael Bukin.
  *
- *      DGA video mode switching by Peter Wang.
+ *      Video mode switching by Peter Wang and Benjamin Stover.
  *
  *      See readme.txt for copyright information.
  */
@@ -38,9 +38,12 @@
 #include <X11/extensions/XShm.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#include <X11/extensions/xf86vmode.h>
+#endif
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 #include <X11/extensions/xf86dga.h>
-#include <X11/extensions/xf86vmode.h>
 #endif
 
 
@@ -111,11 +114,15 @@ struct _xwin_type _xwin =
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    0, 		/* disable_dga_mouse */
+#endif
+
    0,           /* keyboard_grabbed */
    0,           /* mouse_grabbed */
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    0,           /* modesinfo */
    0,           /* num_modes */
+   0,           /* override_redirected */
 #endif
 
    XWIN_DEFAULT_WINDOW_TITLE,           /* window_title */
@@ -141,7 +148,7 @@ static char _xwin_driver_desc[256] = EMPTY_STRING;
 /* Array of keycodes which are pressed now (used for auto-repeat).  */
 int _xwin_keycode_pressed[256];
 
-/* This is used to intercept window closing requests */
+/* This is used to intercept window closing requests.  */
 static Atom wm_delete_window;
 
 
@@ -157,7 +164,7 @@ static void _xwin_private_select_screen_to_buffer_function(void);
 static void _xwin_private_select_set_colors_function(void);
 static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga);
 static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
-					   int vw, int vh, int depth);
+					   int vw, int vh, int depth, int fullscreen);
 static void _xwin_private_destroy_screen(void);
 static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
 						  unsigned char *frame_buffer,
@@ -194,7 +201,7 @@ static void _xwin_private_init_keyboard_tables(void);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
-					   int vw, int vh, int depth, int fullscr);
+					   int vw, int vh, int depth, int fullscreen);
 static void _xdga_private_destroy_screen(void);
 static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int _xdga_private_scroll_screen(int x, int y);
@@ -248,6 +255,11 @@ static void _xwin_private_slow_palette_15(int sx, int sy, int sw, int sh);
 static void _xwin_private_slow_palette_16(int sx, int sy, int sw, int sh);
 static void _xwin_private_slow_palette_24(int sx, int sy, int sw, int sh);
 static void _xwin_private_slow_palette_32(int sx, int sy, int sw, int sh);
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh);
+static void _xvidmode_private_unset_fullscreen(void);
+#endif
 
 #ifdef ALLEGRO_NO_ASM
 unsigned long _xwin_write_line (BITMAP *bmp, int line);
@@ -629,8 +641,12 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
  *  Creates screen data and other resources.
  */
 static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
-					   int vw, int vh, int depth)
+					   int vw, int vh, int depth, int fullscreen)
 {
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   XSetWindowAttributes setattr;
+#endif
+
    if (_xwin.window == None) {
       ustrcpy(allegro_error, get_config_text("No window"));
       return 0;
@@ -672,6 +688,16 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   /* If we are going fullscreen, disable window decorations.  */
+   if (fullscreen) {
+      setattr.override_redirect = True;
+      XChangeWindowAttributes(_xwin.display, _xwin.window,
+			      CWOverrideRedirect, &setattr);
+      _xwin.override_redirected = 1;
+   }
+#endif
+
    /* Set window size and save dimensions.  */
    _xwin_private_resize_window(w, h);
    _xwin.screen_width = w;
@@ -679,6 +705,39 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
    _xwin.screen_depth = depth;
    _xwin.virtual_width = vw;
    _xwin.virtual_height = vh;
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   if (fullscreen) {
+      /* Switch video mode.  */
+      if (!_xvidmode_private_set_fullscreen(w, h, 0, 0)) {
+	 ustrcpy(allegro_error, get_config_text("Can not set video mode"));
+	 return 0;
+      }
+
+      /* Hack: make the window fully visible.  */
+      XMoveWindow(_xwin.display, _xwin.window, 0, 0);
+      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
+      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
+      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
+      XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, h - 1);
+      XSync(_xwin.display, False);
+	  
+      /* Grab the keyboard and mouse.  */
+      if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
+			GrabModeAsync, GrabModeAsync, CurrentTime) != GrabSuccess) {
+	 ustrcpy(allegro_error, get_config_text("Can not grab keyboard"));
+	 return 0;
+      }
+      _xwin.keyboard_grabbed = 1;
+      if (XGrabPointer(_xwin.display, _xwin.window, False,
+		       PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
+		       GrabModeAsync, GrabModeAsync, _xwin.window, None, CurrentTime) != GrabSuccess) {
+	 ustrcpy(allegro_error, get_config_text("Can not grab mouse"));
+	 return 0;
+      }
+      _xwin.mouse_grabbed = 1;
+   }
+#endif
 
    /* Create XImage with the size of virtual screen.  */
    if (_xwin_private_create_ximage(vw, vh) != 0) {
@@ -698,11 +757,11 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 }
 
 BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
-			    int vw, int vh, int depth)
+			    int vw, int vh, int depth, int fullscreen)
 {
    BITMAP *bmp;
    DISABLE();
-   bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth);
+   bmp = _xwin_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
    if (bmp == 0)
       _xwin_private_destroy_screen();
    ENABLE();
@@ -716,6 +775,10 @@ BITMAP *_xwin_create_screen(GFX_DRIVER *drv, int w, int h,
  */
 static void _xwin_private_destroy_screen(void)
 {
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   XSetWindowAttributes setattr;
+#endif
+
    if (_xwin.buffer_line != 0) {
       free(_xwin.buffer_line);
       _xwin.buffer_line = 0;
@@ -732,6 +795,28 @@ static void _xwin_private_destroy_screen(void)
    }
 
    _xwin_private_destroy_ximage();
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   if (_xwin.mouse_grabbed) {
+      XUngrabPointer(_xwin.display, CurrentTime);
+      _xwin.mouse_grabbed = 0;
+   }
+
+   if (_xwin.keyboard_grabbed) {
+      XUngrabKeyboard(_xwin.display, CurrentTime);
+      _xwin.keyboard_grabbed = 0;
+   }
+
+   _xvidmode_private_unset_fullscreen();
+
+   if (_xwin.override_redirected) {
+      setattr.override_redirect = False;
+      XChangeWindowAttributes(_xwin.display, _xwin.window,
+			      CWOverrideRedirect, &setattr);
+      _xwin.override_redirected = 0;
+   }
+#endif
+
    (*_xwin_window_defaultor)();
 }
 
@@ -2576,71 +2661,29 @@ void _xwin_unwrite_line(BITMAP *bmp)
 
 
 /*
- * Support  for XF86DGA extension (direct access to frame buffer).
+ * Support for XF86DGA extension (direct access to frame buffer).
  */
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-
-/* Helpers for DGA mode switching.  */
-static int _xdga_private_get_mode_lines()
-{
-   if ((_xwin.num_modes > 0) || (XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, &_xwin.num_modes, &_xwin.modesinfo)))
-      return 1;
-
-   _xwin.num_modes = 0;
-   return 0;
-}
-
-static void _xdga_private_free_mode_lines()
-{
-   int i;
-
-   for (i = 0; i < _xwin.num_modes; i++)
-      if (_xwin.modesinfo[i]->privsize > 0)
-	 XFree(_xwin.modesinfo[i]->private);
-   XFree(_xwin.modesinfo);
-
-   _xwin.num_modes = 0;
-}
-
-static int _xdga_private_switch_to_mode(int w, int h, int vw, int vh)
-{
-   int i;
-
-   for (i = 0; i < _xwin.num_modes; i++) {
-      if ((_xwin.modesinfo[i]->hdisplay == w) &&
-	  (_xwin.modesinfo[i]->vdisplay == h) && 
-	  (_xwin.modesinfo[i]->htotal > vw) && 
-	  (_xwin.modesinfo[i]->vtotal > vh)) {
-	 if (i == 0) 
-	    return 1;
-	 else
-	    return XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, 
-					   _xwin.modesinfo[i]);
-      }
-   }
-   return 0;
-}
-
-
-
 /* _xdga_create_screen:
  *  Create screen bitmap.
  */
 static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
-					   int vw, int vh, int depth, int fullscr)
+					   int vw, int vh, int depth, int fullscreen)
 {
    int dga_flags, dotclock;
    int dga_event_base, dga_error_base;
-   int vid_event_base, vid_error_base;
    int dga_major_version, dga_minor_version;
-   int vid_major_version, vid_minor_version;
    int fb_width, banksize, memsize;
    int s_w, s_h, v_w, v_h;
    int offset_x, offset_y;
-   XF86VidModeModeLine modeline;
    char *fb_addr;
    struct passwd *pass;
    char tmp[80];
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   int vid_event_base, vid_error_base;
+   int vid_major_version, vid_minor_version;
+   XF86VidModeModeLine modeline;
+#endif
    
    if (_xwin.window == None) {
       ustrcpy(allegro_error, get_config_text("No window"));
@@ -2712,12 +2755,14 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    /* Test for presence of VidMode extension.  */
    if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
        || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
       ustrcpy(allegro_error, get_config_text("VidMode extension is not supported"));
       return 0;
    }
+#endif
 
    /* Query DirectVideo capabilities.  */
    if (!XF86DGAQueryDirectVideo(_xwin.display, _xwin.screen, &dga_flags)) {
@@ -2728,6 +2773,14 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       ustrcpy(allegro_error, get_config_text("DirectVideo is not supported"));
       return 0;
    }
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   /* Switch video mode if appropriate.  */
+   if ((fullscreen) && (!_xvidmode_private_set_fullscreen(w, h, vw, vh))) {
+      ustrcpy(allegro_error, get_config_text("Can not set video mode"));
+      return 0;
+   }
+#endif
 
    /* If you want to use debugger, comment grabbing (but there will be no input in Allegro).  */
 #if 1
@@ -2754,39 +2807,26 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
-   /* Switch video mode if using fullscreen driver.  */
-   if (fullscr) {
-      if (!_xdga_private_get_mode_lines() || 
-	  !_xdga_private_switch_to_mode(w, h, vw, vh)) {
-	 ustrcpy(allegro_error, get_config_text("Can not set video mode"));
-	 return 0;
-      }
-   }
-
    /* Get current video mode settings.  */
-   if (!XF86DGAGetVideo(_xwin.display, _xwin.screen, &fb_addr, &v_w, &banksize, &memsize)
-       || !XF86VidModeGetModeLine(_xwin.display, _xwin.screen, &dotclock, &modeline)) {
+   if (!XF86DGAGetVideo(_xwin.display, _xwin.screen, &fb_addr, &v_w, &banksize, &memsize)) {
       ustrcpy(allegro_error, get_config_text("Can not get video mode settings"));
       return 0;
    }
 
-   /* From SDL source code:
-    * "Arggghh.  The XFree86 3.3.2 implementation of XF86DGAGetVideo()
-    *  sets atexit() and signal handler functions to the DGA cleanup
-    *  function which calls _exit() internally.  This blows away any
-    *  atexit() call we might have made previously, and causes a
-    *  segmentation fault on exit if we, as a shared library, are
-    *  dynamically unloaded.  Hack, hack, hack."
-    */
-   atexit(allegro_exit);
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   /* Get current screen size.  */
+   if (!XF86VidModeGetModeLine(_xwin.display, _xwin.screen, &dotclock, &modeline)) {
+      ustrcpy(allegro_error, get_config_text("Can not get video mode settings"));
+      return 0;
+   }
 
+   if ((modeline.privsize > 0) && (modeline.private != 0))
+      XFree(modeline.private);
+#endif
+   
    /* I'm not sure that it is correct, but what else?  */
    memsize *= 1024;
    fb_width = v_w * (_xwin.fast_visual_depth / 8);
-
-   /* Free private data.  */
-   if ((modeline.privsize > 0) && (modeline.private != 0))
-      XFree(modeline.private);
 
    /* Test that each line is included in one bank only.  */
    if ((banksize < memsize) && ((banksize % fb_width) != 0)) {
@@ -2795,8 +2835,15 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    }
 
    v_h = memsize / fb_width;
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    s_w = modeline.hdisplay;
    s_h = modeline.vdisplay;
+#else
+   /* This is not completely correct, but it allows us to decouple DGA from
+    * VidMode extensions (even if both are always available together).  */
+   s_w = w;
+   s_h = h;
+#endif
 
    if ((s_w < w) || (s_h < h) || ((vw - w) > (v_w - s_w)) || ((vh - h) > (v_h - s_h))) {
       ustrcpy(allegro_error, get_config_text("Unsupported screen size"));
@@ -2879,7 +2926,6 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       _xdga_installed_colormap = 0;
    }
 
-
    /* Clear video memory */
    if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
       int line, offset;
@@ -2903,11 +2949,11 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    return _xwin_private_create_screen_bitmap(drv, 1, fb_addr + offset_y * fb_width + offset_x * (_xwin.fast_visual_depth / 8), fb_width);
 }
 
-BITMAP *_xdga_create_screen(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int fullscr)
+BITMAP *_xdga_create_screen(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int fullscreen)
 {
    BITMAP *bmp;
    DISABLE();
-   bmp = _xdga_private_create_screen(drv, w, h, vw, vh, depth, fullscr);
+   bmp = _xdga_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
    if (bmp == 0)
       _xdga_private_destroy_screen();
    else
@@ -2941,11 +2987,6 @@ static void _xdga_private_destroy_screen(void)
    if (_xwin.in_dga_mode) {
       XF86DGADirectVideo(_xwin.display, _xwin.screen, 0);
 
-      if (_xwin.num_modes > 0) {
-	 XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, _xwin.modesinfo[0]);
-	 _xdga_private_free_mode_lines();
-      }
-
       if (_xwin.fast_visual_depth == 8) {
          _xwin.colormap = _xdga_colormap[0];
          XFreeColormap(_xwin.display, _xdga_colormap[1]);
@@ -2967,6 +3008,10 @@ static void _xdga_private_destroy_screen(void)
       XUngrabKeyboard(_xwin.display, CurrentTime);
       _xwin.keyboard_grabbed = 0;
    }
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   _xvidmode_private_unset_fullscreen();
+#endif
 }
 
 void _xdga_destroy_screen(void)
@@ -3065,6 +3110,78 @@ int _xdga_scroll_screen(int x, int y)
    result = _xdga_private_scroll_screen(x, y);
    ENABLE();
    return result;
+}
+#endif
+
+
+
+/*
+ * Support for XF86VidMode extension.
+ */
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+/* _xvidmode_private_set_fullscreen:
+ *  Attempt to switch video mode and make window fullscreen.
+ */
+static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
+{
+   int vid_event_base, vid_error_base;
+   int vid_major_version, vid_minor_version;
+   XF86VidModeModeInfo *mode;
+   int i;
+
+   /* Test for presence of VidMode extension.  */
+   if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
+       || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
+      ustrcpy(allegro_error, get_config_text("VidMode extension is not supported"));
+      return 0;
+   }
+
+   /* Get list of modelines.  */
+   if (!XF86VidModeGetAllModeLines(_xwin.display, _xwin.screen, 
+				   &_xwin.num_modes, &_xwin.modesinfo))
+      return 0;
+
+   /* Search for a matching video mode.  */
+   for (i = 0; i < _xwin.num_modes; i++) {
+      mode = _xwin.modesinfo[i];
+      if ((mode->hdisplay == w) && (mode->vdisplay == h)
+	  && (mode->htotal > vw) && (mode->vtotal > vh)) {
+	 /* Switch video mode.  */
+	 if (!XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, mode))
+	    return 0;
+
+	 /* Lock mode switching.  */
+	 XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, True);
+	 return 1;
+      }
+   }
+
+   return 0;
+}
+
+
+
+/* _xvidmode_private_unset_fullscreen:
+ *  Restore original video mode and window attributes.
+ */
+static void _xvidmode_private_unset_fullscreen(void)
+{
+   int i;
+
+   if (_xwin.num_modes > 0) {
+      /* Unlock mode switching.  */
+      XF86VidModeLockModeSwitch(_xwin.display, _xwin.screen, False);
+
+      /* Restore the original video mode.  */
+      XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, _xwin.modesinfo[0]);
+
+      /* Free modelines.  */
+      for (i = 0; i < _xwin.num_modes; i++)
+	 if (_xwin.modesinfo[i]->privsize > 0)
+	    XFree(_xwin.modesinfo[i]->private);
+      XFree(_xwin.modesinfo);
+      _xwin.num_modes = 0;
+   }
 }
 #endif
 

@@ -33,7 +33,7 @@ extern "C" {
    AL_FUNC(int, _xwin_create_window, (void));
    AL_FUNC(void, _xwin_destroy_window, (void));
    AL_FUNC(BITMAP*, _xwin_create_screen, (GFX_DRIVER *drv, int w, int h,
-					  int vw, int vh, int depth));
+					  int vw, int vh, int depth, int fullscreen));
    AL_FUNC(void, _xwin_destroy_screen, (void));
    AL_FUNC(void, _xwin_set_palette_range, (AL_CONST PALETTE p, int from, int to, int vsync));
    AL_FUNC(void, _xwin_flush_buffers, (void));
@@ -49,7 +49,7 @@ extern "C" {
    AL_FUNC(void, _xwin_init_keyboard_tables, (void));
 
    AL_FUNC(BITMAP*, _xdga_create_screen, (GFX_DRIVER *drv, int w, int h,
-					  int vw, int vh, int depth, int fullscr));
+					  int vw, int vh, int depth, int fullscreen));
    AL_FUNC(void, _xdga_destroy_screen, (void));
    AL_FUNC(void, _xdga_set_palette_range, (AL_CONST PALETTE p, int from, int to, int vsync));
    AL_FUNC(int, _xdga_scroll_screen, (int x, int y));
@@ -59,7 +59,7 @@ extern "C" {
 
    /* Defined in xdga2.c.  */
    AL_FUNC(BITMAP*, _xdga2_gfxdrv_init_drv, (GFX_DRIVER *drv, int w, int h,
-                    int vw, int vh, int depth, int accel));
+					     int vw, int vh, int depth, int accel));
    AL_FUNC(void, _xdga2_gfxdrv_exit, (BITMAP *bmp));
    AL_FUNC(int, _xdga2_scroll_screen, (int x, int y));
    AL_FUNC(void, _xdga2_set_palette_range, (AL_CONST PALETTE p, int from, int to, int vsync));

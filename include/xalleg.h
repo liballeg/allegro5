@@ -45,9 +45,12 @@
 #include <X11/extensions/XShm.h>
 #endif
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+#include <X11/extensions/xf86vmode.h>
+#endif
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 #include <X11/extensions/xf86dga.h>
-#include <X11/extensions/xf86vmode.h>
 #endif
 
 
@@ -114,11 +117,15 @@ extern struct _xwin_type
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    int disable_dga_mouse;
+#endif
+
    int keyboard_grabbed;
    int mouse_grabbed;
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
    XF86VidModeModeInfo **modesinfo;
    int num_modes;
+   int override_redirected;
 #endif
 
    char window_title[1024];

@@ -51,9 +51,39 @@ static GFX_DRIVER gfx_xwin =
 
 
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+static BITMAP *_xwin_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
+
+
+static GFX_DRIVER gfx_xwin_fullscreen =
+{
+   GFX_XWINDOWS_FULLSCREEN,
+   empty_string,
+   empty_string,
+   "Fullscreen X-Window",
+   _xwin_fullscreen_gfxdrv_init,
+   _xwin_gfxdrv_exit,
+   _xwin_scroll_screen,
+   _xwin_vsync,
+   _xwin_set_palette_range,
+   NULL, NULL, NULL,
+   NULL, NULL, NULL, NULL,
+   NULL, NULL,
+   NULL, NULL, NULL, NULL,
+   NULL,
+   NULL, NULL,
+   320, 200,
+   TRUE,
+   0, 0,
+   0x10000,
+   0
+};
+#endif
+
+
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static BITMAP *_xdga_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
-static BITMAP *_xdga_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
 static void _xdga_gfxdrv_exit(BITMAP *bmp);
 
 
@@ -82,6 +112,10 @@ static GFX_DRIVER gfx_xdga =
 };
 
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+static BITMAP *_xdga_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth);
+
+
 static GFX_DRIVER gfx_xdga_fullscreen =
 {
    GFX_XDGA_FULLSCREEN,
@@ -105,6 +139,7 @@ static GFX_DRIVER gfx_xdga_fullscreen =
    0x10000,
    0
 };
+#endif
 #endif
 
 
@@ -168,7 +203,6 @@ static GFX_DRIVER gfx_xdga2_soft =
    0,
    0
 };
-
 #endif
 
 
@@ -177,15 +211,20 @@ static GFX_DRIVER gfx_xdga2_soft =
 _DRIVER_INFO _xwin_gfx_driver_list[] =
 {
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
-   {  GFX_XDGA2,           &gfx_xdga2,           TRUE  },
-   {  GFX_XDGA2_SOFT,      &gfx_xdga2_soft,      TRUE  },
+   {  GFX_XDGA2,               &gfx_xdga2,           TRUE  },
+   {  GFX_XDGA2_SOFT,          &gfx_xdga2_soft,      TRUE  },
 #endif
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   {  GFX_XDGA_FULLSCREEN, &gfx_xdga_fullscreen, TRUE  },
-   {  GFX_XDGA,            &gfx_xdga,            TRUE  },
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   {  GFX_XDGA_FULLSCREEN,     &gfx_xdga_fullscreen, TRUE  },
 #endif
-   {  GFX_XWINDOWS,        &gfx_xwin,            TRUE  },
-   {  0,                   NULL,                 0     }
+   {  GFX_XDGA,                &gfx_xdga,            TRUE  },
+#endif
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+   {  GFX_XWINDOWS_FULLSCREEN, &gfx_xwin_fullscreen, TRUE  },
+#endif
+   {  GFX_XWINDOWS,            &gfx_xwin,            TRUE  },
+   {  0,                       NULL,                 0     }
 };
 
 
@@ -195,7 +234,7 @@ _DRIVER_INFO _xwin_gfx_driver_list[] =
  */
 static BITMAP *_xwin_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
 {
-   return _xwin_create_screen(&gfx_xwin, w, h, vw, vh, color_depth);
+   return _xwin_create_screen(&gfx_xwin, w, h, vw, vh, color_depth, FALSE);
 }
 
 
@@ -210,6 +249,18 @@ static void _xwin_gfxdrv_exit(BITMAP *bmp)
 
 
 
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+/* _xwin_fullscreen_gfxdrv_init:
+ *  Creates screen bitmap (with video mode extension).
+ */
+static BITMAP *_xwin_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
+{
+   return _xwin_create_screen(&gfx_xwin_fullscreen, w, h, vw, vh, color_depth, TRUE);
+}
+#endif
+
+
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 /* _xdga_gfxdrv_init:
  *  Creates screen bitmap.
@@ -219,11 +270,19 @@ static BITMAP *_xdga_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
    return _xdga_create_screen(&gfx_xdga, w, h, vw, vh, color_depth, FALSE);
 }
 
+
+
+#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+/* _xdga_gfxdrv_init:
+ *  Creates screen bitmap (with video mode extension).
+ */
 static BITMAP *_xdga_fullscreen_gfxdrv_init(int w, int h, int vw, int vh, int color_depth)
 {
-   /* attempt to use full screen */
    return _xdga_create_screen(&gfx_xdga_fullscreen, w, h, vw, vh, color_depth, TRUE);
 }
+#endif
+
+
 
 /* _xdga_gfxdrv_exit:
  *  Shuts down the DGA X-Windows driver.

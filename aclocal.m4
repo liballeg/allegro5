@@ -121,6 +121,7 @@ dnl Test for X-Windows support.
 dnl
 dnl Variables:
 dnl  allegro_enable_xwin_shm=(yes|)
+dnl  allegro_enable_xwin_xf86vidmode=(yes|)
 dnl  allegro_enable_xwin_xf86dga=(yes|)
 dnl  allegro_enable_xwin_xf86dga2=(yes|)
 dnl  allegro_support_xwindows=(yes|)
@@ -132,12 +133,16 @@ AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_XWINDOWS,
 [  --enable-xwin-shm[=x]   enable the use of MIT-SHM Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_shm=yes,
 allegro_enable_xwin_shm=yes)
+AC_ARG_ENABLE(xwin-vidmode,
+[  --enable-xwin-vidmode[=x] enable the use of XF86VidMode Extension [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_xwin_xf86vidmode=yes,
+allegro_enable_xwin_xf86vidmode=yes)
 AC_ARG_ENABLE(xwin-dga,
 [  --enable-xwin-dga[=x]   enable the use of XF86DGA Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga=yes,
 allegro_enable_xwin_xf86dga=yes)
 AC_ARG_ENABLE(xwin-dga2,
-[  --enable-xwin-dga2[=x]   enable the use of DGA 2.0 Extension [default=yes]],
+[  --enable-xwin-dga2[=x]  enable the use of DGA 2.0 Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga2=yes,
 allegro_enable_xwin_xf86dga2=yes)
 
@@ -163,12 +168,18 @@ if test -z "$no_x"; then
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM)])
   fi
 
+  dnl Test for XF86VidMode extension.
+  if test -n "$allegro_enable_xwin_xf86vidmode"; then
+    AC_CHECK_LIB(Xxf86vm, XF86VidModeQueryExtension,
+      [LIBS="-lXxf86vm $LIBS"
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)])
+  fi
+
   dnl Test for XF86DGA extension.
   if test -n "$allegro_enable_xwin_xf86dga"; then
     AC_CHECK_LIB(Xxf86dga, XF86DGAQueryExtension,
-      [AC_CHECK_LIB(Xxf86vm, XF86VidModeQueryExtension,
-	[LIBS="-lXxf86dga -lXxf86vm $LIBS"
-	AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA)])])
+      [LIBS="-lXxf86dga $LIBS"
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA)])
   fi
 
   dnl Test for DGA 2.0 extension.

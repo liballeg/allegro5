@@ -46,6 +46,9 @@
 /* Define if MIT-SHM extension is supported.  */
 #undef ALLEGRO_XWINDOWS_WITH_SHM
 
+/* Define if XF86VidMode extension is supported.  */
+#undef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
+
 /* Define if XF86DGA extension is supported.  */
 #undef ALLEGRO_XWINDOWS_WITH_XF86DGA
 

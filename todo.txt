@@ -46,8 +46,7 @@ X11 todos:
 - speed up X11 driver
 - key[] should not be internationalised (e.g. KEY_S should always be set
   for the key two to the right of CapsLock)
-- separate fullscreen option from XDFS, XDGA, etc. (almost there)
-- video mode switching crashes some X servers
+- video mode switching crashes some X servers (mine)
 
 Unix todos:
 ---------------------------------------------------------------------------
