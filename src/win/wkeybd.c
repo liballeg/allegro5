@@ -60,6 +60,36 @@ KEYBOARD_DRIVER keyboard_directx =
    _pckey_scancode_to_ascii
 };
 
+/* Map Windows keyboard IDs to Allegro ID strings */
+typedef struct {
+    unsigned int code;
+    char* name;
+} language_map_t;
+
+static language_map_t language_map[] = {
+    { 0x0813, "BE" },
+    { 0x0416, "BR" },
+    { 0x1009, "CF" },
+    { 0x0807, "CH" },
+    { 0x0405, "CZ" },
+    { 0x0407, "DE" },
+    { 0x0406, "DK" },
+    { 0x040a, "ES" },
+    { 0x040b, "FI" },
+    { 0x040c, "FR" },
+    { 0x0410, "IT" },
+    { 0x0414, "NO" },
+    { 0x0415, "PL" },
+    { 0x0416, "PT" },
+    { 0x0816, "PT" },
+    { 0x0419, "RU" },
+    { 0x041d, "SE" },
+    { 0x041b, "SK" },
+    { 0x0424, "SK" },
+    { 0x0809, "UK" },
+    { 0x0409, "US" },
+    { 0, NULL }    
+};
 
 #define DINPUT_BUFFERSIZE 256
 static HANDLE key_input_event = NULL;
@@ -396,6 +426,22 @@ static int key_dinput_init(void)
  */
 static int key_directx_init(void)
 {
+   char buffer[KL_NAMELENGTH+1];
+   unsigned int lang_id;
+   int i;
+   
+   /* Detect default keyboard layout */
+   if (GetKeyboardLayoutName(buffer)) {
+      lang_id = strtol(buffer, NULL, 16);
+      lang_id &= 0xffff;
+      for (i=0; language_map[i].code; i++) {
+         if (language_map[i].code == lang_id) {
+            _keyboard_layout = language_map[i].name;
+            break;
+         }
+      }
+   }
+   
    /* Because DirectInput uses the same scancodes as the pc keyboard
     * controller, the DirectX keyboard driver passes them into the
     * pckeys translation routines.
@@ -431,6 +477,7 @@ static void key_directx_exit(void)
       /* now we can free all resources */
       CloseHandle(key_input_processed_event);
    }
+   _keyboard_layout = NULL;
 }
 
 

@@ -62,7 +62,7 @@ int _key_accent4_flag = 0;
 
 int _key_standard_kb = TRUE;
 
-
+char *_keyboard_layout = NULL;
 
 /* lookup table for converting hardware scancodes into Allegro format */
 static unsigned char hw_to_mycode[128] =
@@ -627,7 +627,7 @@ static void read_keyboard_config(void)
    char filename[1024], tmp1[128], tmp2[128], *ext, *datafile;
    AL_CONST char* name;
 
-   name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("keyboard", tmp2), NULL);
+   name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("keyboard", tmp2), _keyboard_layout);
 
    if ((!name) || (!ugetc(name)))
       return;

@@ -192,6 +192,8 @@ AL_VAR(int, _key_accent4_flag);
 
 AL_VAR(int, _key_standard_kb);
 
+AL_VAR(char *, _keyboard_layout);
+
 
 /* various bits of joystick stuff */
 AL_VAR(int, _joy_type);
