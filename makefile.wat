@@ -221,7 +221,7 @@ obj/watcom/runner.exe: src/misc/runner.c
 	gcc -O -Wall -Werror -o obj/watcom/runner.exe src/misc/runner.c
 
 define LINK_WITHOUT_LIB
-   $(RUNNER) wlink \\ @ $(LFLAGS) "name $@" "file $^"
+   $(RUNNER) wlink \\ @ $(LFLAGS) "name $@" "$(addprefix file ,$^)"
 endef
 
 PLUGIN_LIB = lib/watcom/$(VERY_SHORT_VERSION)dat.lib
