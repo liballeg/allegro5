@@ -479,10 +479,15 @@ void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 
 	 for (x = w - 1; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
 	    unsigned long c = *s;
+#if PP_DEPTH == 8
+	    c = DTS_BLEND(blender, GET_PIXEL(ds), c);
+	    PUT_PIXEL(dd, c);
+#else
             if (!IS_SPRITE_MASK(src, c)) {
 	       c = DTS_BLEND(blender, GET_PIXEL(ds), c);
 	       PUT_PIXEL(dd, c);
 	    }
+#endif
 	 }
       }
 
@@ -498,10 +503,15 @@ void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
+#if PP_DEPTH == 8
+	    c = DTS_BLEND(blender, GET_PIXEL(ds), c);
+	    PUT_PIXEL(dd, c);
+#else
 	    if (!IS_SPRITE_MASK(src, c)) {
 	       c = DTS_BLEND(blender, GET_PIXEL(ds), c);
 	       PUT_PIXEL(dd, c);
 	    }
+#endif
 	 }
       }
 
@@ -514,10 +524,15 @@ void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
+#if PP_DEPTH == 8
+	    c = DTS_BLEND(blender, GET_MEMORY_PIXEL(d), c);
+	    PUT_MEMORY_PIXEL(d, c);
+#else
 	    if (!IS_SPRITE_MASK(src, c)) {
 	       c = DTS_BLEND(blender, GET_MEMORY_PIXEL(d), c);
 	       PUT_MEMORY_PIXEL(d, c);
 	    }
+#endif
 	 }
       }
    }
