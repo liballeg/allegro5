@@ -318,7 +318,7 @@ fi
 
 dnl Test for SGI AL drivers.
 ALLEGRO_ACTEST_SGIALDIGI
-if test -n "$allegro_cv_support_sgialdigi"; then
+if test "$allegro_cv_support_sgialdigi" = yes; then
    AC_DEFINE(ALLEGRO_WITH_SGIALDIGI)
 fi
 
@@ -468,6 +468,11 @@ if test -n "$allegro_support_modules"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-fbcon.so"
   fi
 
+  dnl DGA2.
+  if test "X$allegro_support_xf86dga2" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-dga2.so"
+  fi
+
   dnl ALSA DIGI.
   if test "X$allegro_cv_support_alsadigi" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsadigi.so"
@@ -488,9 +493,9 @@ if test -n "$allegro_support_modules"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-artsdigi.so"
   fi
 
-  dnl DGA2.
-  if test "X$allegro_support_xf86dga2" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-dga2.so"
+  dnl SGI AL DIGI.
+  if test "X$allegro_cv_support_sgialdigi" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-sgialdigi.so"
   fi
 fi
 AC_SUBST(ALLEGRO_MODULE_TARGETS)
