@@ -306,11 +306,12 @@ veryclean: distclean
       )
    endef
 
-	$(RM_VERYCLEAN_FILES) 
+	$(RM_VERYCLEAN_FILES)
 	rm -f makefile
 
 maintainer-clean: veryclean
 	rm -f configure
+	rm -rf autom4te-*
 
 install: $(INSTALL_TARGETS)
 
