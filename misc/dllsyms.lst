@@ -697,6 +697,7 @@
     ustrlen
     ustrlwr
     ustrncmp
+    ustrnicmp
     ustrpbrk
     ustrrchr
     ustrsize
@@ -759,6 +760,7 @@
     gfx_directx_soft DATA
     gfx_directx_win DATA
     gfx_gdi DATA
+    joystick_directx DATA
     joystick_win32 DATA
     keyboard_directx DATA
     mouse_directx DATA
@@ -880,7 +882,6 @@
     _construct_datafile
     _create_driver_list
     _current_palette_changed DATA
-    _current_refresh_rate DATA
     _datafile_type DATA
     _default_font DATA
     _destroy_driver_list
@@ -1265,6 +1266,7 @@
     _screen_split_position DATA
     _screen_vtable DATA
     _set_colorconv_palette
+    _set_current_refresh_rate
     _sort_out_virtual_width
     _sound_bits DATA
     _sound_dma DATA
@@ -1280,6 +1282,8 @@
     _stub_bank_switch_end
     _stub_unbank_switch
     _sub_bitmap_id_count DATA
+    _switch_in
+    _switch_out
     _textmode DATA
     _timer_installed DATA
     _timer_queue DATA
@@ -1287,6 +1291,7 @@
     _unload_datafile_object
     _unregister_switch_bitmap
     _voice DATA
+    _vsync_speed DATA
     _zbuffer DATA
     font_vtable_color DATA
     font_vtable_mono DATA
