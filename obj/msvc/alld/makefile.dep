@@ -132,7 +132,7 @@ obj/msvc/alld/pcx.obj: src/pcx.c include/allegro.h include/allegro/alconfig.h \
 obj/msvc/alld/poly3d.obj: src/poly3d.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h \
- include/allegro/aintern.h
+ include/allegro/aintern.h obj/msvc/mmx.h
 obj/msvc/alld/polygon.obj: src/polygon.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h \
@@ -260,6 +260,11 @@ obj/msvc/alld/wdispsw.obj: src/win/wdispsw.c src/win/wddraw.h include/allegro.h 
  include/allegro/alinline.h include/allegro/al386vc.h \
  include/allegro/alwin.h include/allegro/aintern.h \
  include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alld/wdsndmix.obj: src/win/wdsndmix.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
 obj/msvc/alld/wdsound.obj: src/win/wdsound.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almsvc.h \
  include/allegro/alinline.h include/allegro/al386vc.h \
@@ -311,6 +316,11 @@ obj/msvc/alld/wsnddrv.obj: src/win/wsnddrv.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almsvc.h \
  include/allegro/alinline.h include/allegro/al386vc.h \
  include/allegro/alwin.h
+obj/msvc/alld/wsndwo.obj: src/win/wsndwo.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
 obj/msvc/alld/wsystem.obj: src/win/wsystem.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almsvc.h \
  include/allegro/alinline.h include/allegro/al386vc.h \
@@ -334,7 +344,7 @@ obj/msvc/alld/wwnd.obj: src/win/wwnd.c src/win/wddraw.h include/allegro.h \
 obj/msvc/alld/asmdef.obj: src/i386/asmdef.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almsvc.h \
  include/allegro/alinline.h include/allegro/al386vc.h \
- include/allegro/alwin.h include/allegro/aintern.h
+ include/allegro/alwin.h include/allegro/aintern.h obj/msvc/mmx.h
 obj/msvc/alld/icpu.obj: src/i386/icpu.c include/allegro.h include/allegro/alconfig.h \
  include/allegro/almsvc.h include/allegro/alinline.h \
  include/allegro/al386vc.h include/allegro/alwin.h

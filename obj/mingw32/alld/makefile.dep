@@ -260,6 +260,11 @@ obj/mingw32/alld/wdispsw.o: src/win/wdispsw.c src/win/wddraw.h include/allegro.h
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h include/allegro/aintern.h \
  include/allegro/aintwin.h include/winalleg.h
+obj/mingw32/alld/wdsndmix.o: src/win/wdsndmix.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almngw32.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
 obj/mingw32/alld/wdsound.o: src/win/wdsound.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
@@ -311,6 +316,11 @@ obj/mingw32/alld/wsnddrv.o: src/win/wsnddrv.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
  include/allegro/alwin.h
+obj/mingw32/alld/wsndwo.o: src/win/wsndwo.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almngw32.h \
+ include/allegro/alinline.h include/allegro/al386gcc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
 obj/mingw32/alld/wsystem.o: src/win/wsystem.c include/allegro.h \
  include/allegro/alconfig.h include/allegro/almngw32.h \
  include/allegro/alinline.h include/allegro/al386gcc.h \
