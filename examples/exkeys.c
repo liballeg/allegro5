@@ -171,7 +171,7 @@ int main(void)
    k = readkey();
    acquire_screen();
 
-   while ((k>>8) != KEY_F6) {
+   while ((k>>8) != KEY_F6 && (k>>8) != KEY_ESC) {
       scroll();
       textprintf_ex(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), makecol(255, 255, 255),
 		    "Wrong key, stupid! I said press F6");
