@@ -3691,7 +3691,7 @@ int p3d_profile_proc(void)
 	 alert("Error writing", fname, NULL, "OK", NULL, 13, 0);
       }
       else {
-	 fprintf(f, "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " - 3D rendering profile results\n\n");
+	 fprintf(f, "Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " profile results (3D rendering)\n\n");
 
 	 fprintf(f, "Graphics driver: %s\n", gfx_driver->name);
 	 fprintf(f, "Description: %s\n\n", gfx_driver->desc);
