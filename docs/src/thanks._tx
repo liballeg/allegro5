@@ -475,7 +475,7 @@ Contributors
    function, and a fair amount of the other truecolor stuff too (bitmap 
    scaling, image loading, etc).
 
-   Mike Pichagin (<email>mailfrom@mail.ru</a>).<br>
+   mblsha (<email>mailfrom@mail.ru</a>).<br>
    Contributed the ustrnicmp() function.
 
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
