@@ -86,14 +86,12 @@ int32 mouse_thread(void *mouse_started)
 	    int dy = (int)cursor.y - 240;
 
 	    if (be_mouse_warped) {
-	       be_mickey_x = 0;
-	       be_mickey_y = 0;
+	       dx = 0;
+	       dy = 0;
 	       be_mouse_warped = false;
 	    }
-	    else {
-	       be_mickey_x += dx;
-	       be_mickey_y += dy;
-	    }
+	    be_mickey_x = dx;
+	    be_mickey_y = dy;
 	    be_mouse_x += dx;
 	    be_mouse_y += dy;
 	    
@@ -239,8 +237,8 @@ extern "C" void be_mouse_exit(void)
 extern "C" void be_mouse_position(int x, int y)
 {
    acquire_sem(_be_mouse_view_attached);
-   be_mouse_x = x;
-   be_mouse_y = y;
+   _mouse_x = be_mouse_x = CLAMP(limit_left, x, limit_right);
+   _mouse_y = be_mouse_y = CLAMP(limit_up,   y, limit_down);
    be_mouse_warped = true;
    if (!_be_mouse_window_mode)
       set_mouse_position(320, 240);

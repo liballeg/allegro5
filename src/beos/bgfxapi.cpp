@@ -819,9 +819,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
 				    B_DISPLAY_PRIORITY, (void *)_be_allegro_screen);
    resume_thread(palette_thread_id);
 
-   if (!be_app->IsCursorHidden()) {
-      be_app->HideCursor();
-   }
+   be_app->HideCursor();
 
    release_sem(_be_fullscreen_lock);
 
