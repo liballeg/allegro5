@@ -9,7 +9,9 @@
  *                                           \_/__/
  *
  *      Windows header file for the Allegro library.
- *      This should be included by everyone and everything.
+ *
+ *      This doesn't need to be included; it prototypes functions you
+ *      can use to let Allegro work with native (external) windows.
  *
  *      By Shawn Hargreaves.
  *

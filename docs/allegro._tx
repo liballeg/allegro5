@@ -211,12 +211,14 @@ information about how to install Allegro and link your program with it.
    Windows.
 
 @@int @desktop_color_depth();
+@xref get_desktop_resolution
    On platforms that can run Allegro programs in a window on an existing 
    desktop, returns the currently selected desktop color depth (your program 
    is likely to run faster if it uses this same depth). On platforms where 
    this information is not available or does not apply, returns zero.
 
 @@int @get_desktop_resolution(int *width, int *height);
+@xref desktop_color_depth
    On platforms that can run Allegro programs in a window on an existing
    desktop, this retrieves the current desktop resolution (e.g. you may want
    to call this function before creating a large window because, with some
