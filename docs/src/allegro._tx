@@ -6139,18 +6139,23 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@int @delete_file(const char *filename);
    Removes a file from the disk.
 
-@\int @for_each_file(const char *name, int attrib,
-@\                  void (*callback)(const char *filename, int attrib, int param),
-@@                  int param);
-   Finds all the files on the disk which match the given wildcard 
-   specification and file attributes (see above), and executes callback() 
-   once for each. callback() will be passed three arguments, the first a 
-   string which contains the completed filename, the second being the 
-   attributes of the file, and the third an int which is simply a copy of 
-   param (you can use this for whatever you like). If an error occurs an 
-   error code will be stored in errno, and callback() can cause 
-   for_each_file() to abort by setting errno itself. Returns the number of 
-   successful calls made to callback().
+@\int @for_each_file_ex(const char *name, int in_attrib, int out_attrib,
+@\                     int (*callback)(const char *filename, int attrib,
+@@                     void *param), void *param);
+   Finds all the files on disk which match the given wildcard specification
+   and file attributes, and executes callback() once for each. in_attrib is 
+   a bitmask specifying the attributes the files must carry, out_attrib is a 
+   bitmask specifying the attributes the files must not carry; attributes 
+   which are not specified in either bitmasks are not taken into account for 
+   deciding whether callback() is invoked or not. callback() will be passed 
+   three arguments: the first is a string which contains the completed 
+   filename, the second is the actual attributes of the file, and the third 
+   is a void pointer which is simply a copy of param (you can use this for 
+   whatever you like). It must return 0 to let the enumeration proceed, or 
+   any non-zero value to stop it. If an error occurs, the error code will be 
+   stored in errno but the enumeration won't stop. Returns the number of 
+   successful calls made to callback(), that is the number of times 
+   callback() was called and returned 0.
 
 @@int @al_findfirst(const char *pattern, struct al_ffblk *info, int attrib);
 @xref al_findnext, al_findclose

@@ -154,6 +154,10 @@ AL_INLINE(int, file_select, (AL_CONST char *message, char *path, AL_CONST char *
 })
 
 
+/* the old (and broken!) file enumeration function */
+AL_FUNC(int, for_each_file, (AL_CONST char *name, int attrib, AL_METHOD(void, callback, (AL_CONST char *filename, int attrib, int param)), int param));
+
+
 /* the old state-based textout functions */
 AL_VAR(int, _textmode);
 AL_FUNC(int, text_mode, (int mode));

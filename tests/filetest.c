@@ -46,7 +46,7 @@ static char updir[1024];
 #define SIZE_OFFSET 24
 #define NAME_OFFSET 33
 
-static int global_attr = FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_DIREC | FA_ARCH;
+static int global_attr = 0;
 
 
 static int fa_button_proc(int, DIALOG *, int);
@@ -64,12 +64,12 @@ static DIALOG fa_viewer[] =
    { fa_filename_proc,     35,   97,   557,    8,   0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
    { fa_flist_proc,        35,  126,   440,  269,   0,    0,    0,    D_EXIT,  0,    0,    fa_flist_getter,  NULL, NULL  },
    { d_box_proc,          495,  126,   110,  232,   0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-   { fa_button_proc,      505,  146,    90,   17,   0,    0,    0,    D_SELECTED,1,  FA_RDONLY,"FA_RDONLY",  NULL, NULL  },
-   { fa_button_proc,      505,  183,    90,   17,   0,    0,    0,    D_SELECTED,1,  FA_HIDDEN,"FA_HIDDEN",  NULL, NULL  },
-   { fa_button_proc,      505,  220,    90,   17,   0,    0,    0,    D_SELECTED,1,  FA_SYSTEM,"FA_SYSTEM",  NULL, NULL  },
-   { fa_button_proc,      505,  257,    90,   17,   0,    0,    0,    D_SELECTED,1,  FA_LABEL,"FA_LABEL",    NULL, NULL  },
-   { fa_button_proc,      505,  294,    90,   17,   0,    0,    0,    D_SELECTED,1,  FA_DIREC,"FA_DIREC",    NULL, NULL  },
-   { fa_button_proc,      505,  331,    90,   17,   0,    0,    0,    D_SELECTED,1,  FA_ARCH,"FA_ARCH",      NULL, NULL  },
+   { fa_button_proc,      505,  146,    90,   17,   0,    0,    0,    0,       1,    FA_RDONLY,"FA_RDONLY",  NULL, NULL  },
+   { fa_button_proc,      505,  183,    90,   17,   0,    0,    0,    0,       1,    FA_HIDDEN,"FA_HIDDEN",  NULL, NULL  },
+   { fa_button_proc,      505,  220,    90,   17,   0,    0,    0,    0,       1,    FA_SYSTEM,"FA_SYSTEM",  NULL, NULL  },
+   { fa_button_proc,      505,  257,    90,   17,   0,    0,    0,    0,       1,    FA_LABEL,"FA_LABEL",    NULL, NULL  },
+   { fa_button_proc,      505,  294,    90,   17,   0,    0,    0,    0,       1,    FA_DIREC,"FA_DIREC",    NULL, NULL  },
+   { fa_button_proc,      505,  331,    90,   17,   0,    0,    0,    0,       1,    FA_ARCH,"FA_ARCH",      NULL, NULL  },
    { d_yield_proc,          0,    0,     0,    0,   0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,                  0,    0,     0,    0,   0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  }
 };
@@ -282,9 +282,6 @@ static void put_time(char *buffer, time_t time)
 
    strftime(tmp1, sizeof(tmp1), "%m/%d/%Y %H:%M ", localtime(&time));
    
-   /* QNX may set errno here (don't ask me why!) */
-   errno = 0;
-   
    ustrcpy(buffer, uconvert_ascii(tmp1, tmp2));
 }
 
@@ -311,7 +308,7 @@ static void put_size(char *buffer, long size)
 #ifdef USE_FINDFIRST
 static void fa_flist_putter(struct al_ffblk *info)
 #else
-static void fa_flist_putter(AL_CONST char *str, int attrib, int param)
+static int fa_flist_putter(AL_CONST char *str, int attrib, void *param)
 #endif
 {
    char *s, *name;
@@ -329,7 +326,11 @@ static void fa_flist_putter(AL_CONST char *str, int attrib, int param)
    if ((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1)))) {
       name = malloc(NAME_OFFSET + ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0));
       if (!name)
+#ifdef USE_FINDFIRST
 	 return;
+#else
+	 return -1;
+#endif
 
       for (c=0; c<flist->size; c++) {
 	 if (ugetat(flist->name[c], -1) == OTHER_PATH_SEPARATOR) {
@@ -366,6 +367,12 @@ static void fa_flist_putter(AL_CONST char *str, int attrib, int param)
 
       flist->size++;
    }
+  
+#ifdef USE_FINDFIRST
+   return;
+#else
+   return 0;
+#endif
 }
 
 
@@ -435,7 +442,7 @@ static int fa_flist_proc(int msg, DIALOG *d, int c)
       if (*allegro_errno == ENOENT)
          *allegro_errno = 0;
 #else
-      for_each_file(flist->dir, global_attr, fa_flist_putter, 0);
+      for_each_file_ex(flist->dir, global_attr, 0, fa_flist_putter, NULL);
 #endif
 
       if (*allegro_errno)

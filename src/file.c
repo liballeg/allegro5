@@ -877,6 +877,65 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
 
 
 
+/* for_each_file_ex:
+ *  Finds all the files on disk which match the given wildcard specification
+ *  and file attributes, and executes callback() once for each. callback()
+ *  will be passed three arguments: the first is a string which contains the
+ *  completed filename, the second is the actual attributes of the file, and
+ *  the third is a void pointer which is simply a copy of param (you can use
+ *  this for whatever you like). It must return 0 to let the enumeration
+ *  proceed, or any non-zero value to stop it. If an error occurs, the error
+ *  code will be stored in errno but the enumeration won't stop. Returns the
+ *  number of successful calls made to callback(), that is the number of
+ *  times callback() was called and returned 0. The file attribute masks may
+ *  contain any of the FA_* flags from dir.h.
+ */
+int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*callback)(AL_CONST char *filename, int attrib, void *param), void *param)
+{
+   char buf[1024];
+   struct al_ffblk info;
+   int ret, c = 0;
+   ASSERT(name);
+
+   if (ustrchr(name, '#')) {
+      *allegro_errno = ENOTDIR;
+      return 0;
+   }
+
+   if (!_al_file_isok(name))
+      return 0;
+
+   if (al_findfirst(name, &info, ~out_attrib) != 0) {
+      /* no entry is not an error for for_each_file_ex() */
+      if (*allegro_errno == ENOENT)
+	 *allegro_errno = 0;
+
+      return 0;
+   }
+
+   do {
+      if ((~info.attrib & in_attrib) == 0) {
+	 replace_filename(buf, name, info.name, sizeof(buf));
+	 ret = (*callback)(buf, info.attrib, param);
+
+	 if (ret != 0)
+	    break;
+
+	 c++;
+      }
+   } while (al_findnext(&info) == 0);
+
+   al_findclose(&info);
+
+   /* no entry is not an error for for_each_file_ex() */
+   if (*allegro_errno == ENOENT)
+      *allegro_errno = 0;
+
+   return c;
+}
+
+
+
 /* find_resource:
  *  Tries lots of different places that a resource file might live.
  */
