@@ -443,7 +443,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       }
 
       /* animate the screen */
-      clear(video_page[next_page]);
+      clear_bitmap(video_page[next_page]);
       if (!running)
          textout_ex(video_page[next_page], font, "Paused", 10, 10, 96, -1);
 
