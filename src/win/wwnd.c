@@ -30,11 +30,6 @@
    #error something is wrong with the makefile
 #endif
 
-#ifndef WM_APPCOMMAND
-   /* from the Platform SDK July 2000 */
-   #define WM_APPCOMMAND 0x0319
-#endif
-
 
 /* general */
 HWND allegro_wnd = NULL;
@@ -388,14 +383,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             return 0;
          break;
 
-      case WM_APPCOMMAND:
-         /* disable the default message-based key handler
-          * needed to prevent conflicts under Win2k
-          */
-         if (!user_wnd_proc || _keyboard_installed)
-            return TRUE;
-         break;
-
       case WM_INITMENUPOPUP:
          wnd_sysmenu = TRUE;
          mouse_set_sysmenu(TRUE);
@@ -412,6 +399,12 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             if (win_gfx_driver && win_gfx_driver->exit_sysmode)
                win_gfx_driver->exit_sysmode();
          }
+         break;
+
+      case WM_SYSCOMMAND:
+         /* disable screensaver and power down */
+         if (((wparam&0xFFF0)==SC_SCREENSAVE) || ((wparam&0xFFF0)==SC_MONITORPOWER))
+            return 0;
          break;
 
       case WM_CLOSE:
