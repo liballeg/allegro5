@@ -4871,30 +4871,33 @@ Sound init routines
    If the resultant output is either too loud or too quiet, this function 
    can be used to adjust the volume of each voice. You should first check 
    that your speakers are at a reasonable volume, Allegro's global volume 
-   is at maximum (see set_volume), and any other mixers such as the Windows 
-   Volume Control are set reasonably.
+   is at maximum (see set_volume() below), and any other mixers such as 
+   the Windows Volume Control are set reasonably.
 
    Once you are sure that Allegro's output level is unsuitable for your 
    application, use this function to adjust it. This must be done _before_ 
-   calling install_sound(). Note that this function is only relevant for 
-   drivers that use the Allegro mixer (which is most of them).
+   calling install_sound(). Note that this function is currently only 
+   relevant for drivers that use the Allegro mixer (which is most of them).
 
-   If you pass 0 to this function, each centred sample will play at half the 
-   maximum volume, as will all samples played through a mono driver. Samples 
-   at the extreme left and right will play at full volume through that 
-   channel. So it is safe to play up to two centred samples, or one on each 
-   side, without risking distortion.
+   If you pass 0 to this function, each centred sample will play at the 
+   maximum volume possible without distortion, as will all samples played 
+   through a mono driver. Samples at the extreme left and right will distort 
+   if played at full volume. If you wish to play panned samples at full 
+   volume without distortion, you should pass 1 to this function.
+   Note: this is different from the function's behaviour in WIPs 3.9.34, 
+   3.9.35 and 3.9.36. If you used this function under one of these WIPs, 
+   you will have to increase your parameter by one to get the same volume.
 
-   Each time you increase the parameter by 1, the volume of each voice will 
-   halve. For example, if you pass 3, you can play up to 16 centred samples 
-   at maximum volume without distortion.
+   Each time you increase the parameter by one, the volume of each voice 
+   will halve. For example, if you pass 4, you can play up to 16 centred 
+   samples at maximum volume without distortion.
 
    Here are the default values, dependent on the number of voices:
 <PRE>
-   1-8 voices - set_volume_per_voice(1);
-    16 voices - set_volume_per_voice(2);
-    32 voices - set_volume_per_voice(3);
-    64 voices - set_volume_per_voice(4);
+   1-8 voices - set_volume_per_voice(2)
+    16 voices - set_volume_per_voice(3)
+    32 voices - set_volume_per_voice(4)
+    64 voices - set_volume_per_voice(5)
 </PRE>
    Of course this function does not override the volume you specify with 
    play_sample() or voice_set_volume(). It simply alters the overall output 

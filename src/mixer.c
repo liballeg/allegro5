@@ -14,9 +14,9 @@
  *
  *      Proper 16 bit sample support added by Salvador Eduardo Tropea.
  *
- *      Ben Davis provided the voice_volume_scale functionality, programmed
- *      the silent mixer so that silent voices don't freeze, and fixed a
- *      few minor bugs elsewhere.
+ *      Ben Davis provided the set_volume_per_voice() functionality,
+ *      programmed the silent mixer so that silent voices don't freeze,
+ *      and fixed a few minor bugs elsewhere.
  *
  *      See readme.txt for copyright information.
  */
@@ -94,18 +94,22 @@ static int mix_16bit;
 static int voice_volume_scale = -1;
 
 
-static void mixer_lock_mem();
+static void mixer_lock_mem(void);
 
 
 
 /* set_volume_per_voice:
  *  Enables the programmer (not the end-user) to alter the maximum volume of
- *  each voice. Pass -1 for Allegro to work as it did before this option was
- *  provided (volume dependent on number of voices). Pass 0 if you want a
- *  single sample to be as loud as possible without distorting (even when
- *  panned to one side). Each time it increases by 1, the volume halves.
+ *  each voice:
+ *  - pass -1 for Allegro to work as it did before this option was provided
+ *    (volume dependent on number of voices),
+ *  - pass 0 if you want a single centred sample to be as loud as possible
+ *    without distorting,
+ *  - pass 1 if you want to pan a full-volume sample to one side without
+ *    distortion,
+ *  - each time the scale parameter increases by 1, the volume halves.
  *
- *  This must be called *before* install_sound().
+ *  This must be called _before_ install_sound().
  */
 void set_volume_per_voice(int scale)
 {
@@ -129,7 +133,7 @@ static int create_volume_table(int vol_scale)
       LOCK_DATA(volume_table, SIZE_VOLUME_TABLE);
    }
 
-   step = (double)(16384 >> vol_scale) / ENTRIES_VOL_TABLE;
+   step = (double)(32768 >> vol_scale) / ENTRIES_VOL_TABLE;
 
    for (i=0; i<ENTRIES_VOL_TABLE; i++, acum+=step)
       volume_table[i] = acum;
@@ -158,7 +162,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
    int mix_vol_scale;
 
    mix_voices = 1;
-   mix_vol_scale = -2;
+   mix_vol_scale = -1;
 
    while ((mix_voices < MIXER_MAX_SFX) && (mix_voices < *voices)) {
       mix_voices <<= 1;
@@ -167,8 +171,11 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 
    if (voice_volume_scale >= 0)
       mix_vol_scale = voice_volume_scale;
-   else
-      if (mix_vol_scale < 1) mix_vol_scale = 1;
+   else {
+      /* backward compatibility with 3.12 version */
+      if (mix_vol_scale < 2)
+         mix_vol_scale = 2;
+   }
 
    *voices = mix_voices;
 
@@ -202,7 +209,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 
    for (j=0; j<MIX_VOLUME_LEVELS; j++)
       for (i=0; i<256; i++)
-	 mix_vol_table[j][i] = ((i-128) * j * 64 / MIX_VOLUME_LEVELS) >> mix_vol_scale;
+         mix_vol_table[j][i] = ((i-128) * j * 128 / MIX_VOLUME_LEVELS) >> mix_vol_scale;
 
    if ((_sound_hq) && (mix_stereo) && (mix_16bit)) {
       /* make high quality table if requested and output is 16 bit stereo */
@@ -224,7 +231,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
       clip_max = 0xFF;
    }
 
-   /* We now always use a clip table, owing to the new voice_volume_scale
+   /* We now always use a clip table, owing to the new set_volume_per_voice()
     * functionality. It is not a big loss in performance.
     */
    mix_clip_table = malloc(sizeof(short) * clip_size);
@@ -259,7 +266,7 @@ int _mixer_init(int bufsize, int freq, int stereo, int is16bit, int *voices)
 /* _mixer_exit:
  *  Cleans up the sample mixer code when you are done with it.
  */
-void _mixer_exit()
+void _mixer_exit(void)
 {
    if (mix_buffer) {
       free(mix_buffer);
@@ -1499,7 +1506,7 @@ END_OF_FUNCTION(_mixer_set_vibrato);
 /* mixer_lock_mem:
  *  Locks memory used by the functions in this file.
  */
-static void mixer_lock_mem()
+static void mixer_lock_mem(void)
 {
    LOCK_VARIABLE(mixer_voice);
    LOCK_VARIABLE(mix_buffer);
