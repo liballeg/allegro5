@@ -44,7 +44,9 @@ static int32 timer_thread(void *timer_started)
    
    while(timer_thread_running) {
       snooze((bigtime_t)(delay / 1.193181));
+      acquire_sem(_be_sound_stream_lock);
       delay = _handle_timer_tick(delay);
+      release_sem(_be_sound_stream_lock);
    }
 
    return 0;

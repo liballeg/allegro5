@@ -111,26 +111,27 @@ static int32 system_thread(void *data)
    if (_be_allegro_app == NULL) {
       char sig[MAXPATHLEN] = "application/x-vnd.Allegro-";
       char exe[MAXPATHLEN];
-      char *cmd, *p;
+      char *term, *p;
 
       _be_sys_get_executable_name(exe, sizeof(exe));
 
       strncat(sig, get_filename(exe), sizeof(sig));
       sig[sizeof(sig)-1] = '\0';
 
-      cmd = getenv("_");
-      if ((cmd) && (strlen(cmd) >= 7) &&
-          (!strcmp(cmd + strlen(cmd) - 7, "Tracker"))) {
-         p = &exe[strlen(exe) - 1];
-         while (*p != '/') p--;
-         *(p + 1) = '\0';
-         /* Save real application path for later if started from the Tracker */
-         strcpy(app_path, exe);
-      }
-
       _be_allegro_app = new BeAllegroApp(sig);
 
       using_custom_allegro_app = false;
+
+      term = getenv("TERM");
+      if (!strcmp(term, "dumb")) {
+         /* The TERM environmental variable is set to "dumb" if the app was
+          * not started from a terminal.
+          */
+         p = &exe[strlen(exe) - 1];
+         while (*p != '/') p--;
+         *(p + 1) = '\0';
+         strcpy(app_path, exe);
+      }
    }
    else {
       using_custom_allegro_app = true;
@@ -168,6 +169,12 @@ extern "C" int be_sys_init(void)
       goto cleanup;
    }
    
+   _be_sound_stream_lock = create_sem(1, "audiostream lock");
+   
+   if (_be_sound_stream_lock < 0) {
+      goto cleanup;
+   }
+   
    system_started = create_sem(0, "starting system driver...");
 
    if(system_started < 0) {
@@ -191,12 +198,8 @@ extern "C" int be_sys_init(void)
    os_version = atoi(strtok(os_name.release, "."));
    os_revision = atoi(strtok(NULL, "."));
 
-   /* We fix the path here as changing it before the app has been started
-    * doesn't seem to work.
-    */
-   snooze(10000);
    chdir(app_path);
-   
+
    return 0;
 
    cleanup: {
@@ -233,6 +236,11 @@ extern "C" void be_sys_exit(void)
    if (_be_mouse_view_attached > 0) {
       delete_sem(_be_mouse_view_attached);
       _be_mouse_view_attached = -1;
+   }
+   
+   if (_be_sound_stream_lock > 0) {
+      delete_sem(_be_sound_stream_lock);
+      _be_sound_stream_lock = -1;
    }
 
    if (!using_custom_allegro_app) {

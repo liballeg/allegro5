@@ -551,16 +551,17 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    else
       uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object");
    drv->desc = driver_desc;
-   
-   be_gfx_initialized = true;
 
+   be_gfx_initialized = true;
+   
    palette_thread_id = spawn_thread(palette_updater_thread, "palette updater", 
 				    B_DISPLAY_PRIORITY, (void *)_be_allegro_screen);
    resume_thread(palette_thread_id);
 
    be_app->HideCursor();
-
+   
    release_sem(_be_fullscreen_lock);
+   while (!_be_focus_count);
 
    return bmp;
 

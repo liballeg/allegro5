@@ -36,13 +36,13 @@
 #endif
 
 
+sem_id _be_sound_stream_lock = -1;
+
 static bool be_sound_active = false;
 static bool be_sound_stream_locked = false;
 
 static BLocker *locker = NULL;
 static BSoundPlayer *be_sound = NULL;
-
-static sem_id be_sound_stream_lock = -1;
 
 static int be_sound_bufsize;
 static int be_sound_signed;
@@ -57,7 +57,7 @@ static char be_sound_desc[320] = EMPTY_STRING;
 static void be_sound_handler(void *cookie, void *buffer, size_t size, const media_raw_audio_format &format)
 {
    locker->Lock();
-   acquire_sem(be_sound_stream_lock);
+   acquire_sem(_be_sound_stream_lock);
    if (be_sound_active) {
       be_main_suspend();
       _mix_some_samples((unsigned long)buffer, 0, be_sound_signed);
@@ -66,7 +66,7 @@ static void be_sound_handler(void *cookie, void *buffer, size_t size, const medi
    else {
       memset(buffer, 0, size);
    }
-   release_sem(be_sound_stream_lock);
+   release_sem(_be_sound_stream_lock);
    locker->Unlock();
 }
       
@@ -166,10 +166,6 @@ extern "C" int be_sound_init(int input, int voices)
    if (!locker)
       goto cleanup;
    
-   be_sound_stream_lock = create_sem(0, "audiostream lock");
-   if (be_sound_stream_lock == -1)
-      goto cleanup;
-
    be_sound->Start();
    be_sound->SetHasData(true);
 
@@ -178,9 +174,7 @@ extern "C" int be_sound_init(int input, int voices)
 	     _sound_freq, uconvert_ascii((char *)(_sound_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = be_sound_desc;
-
    be_sound_active = true;
-   release_sem(be_sound_stream_lock);
    
    return 0;
 
@@ -203,18 +197,13 @@ extern "C" void be_sound_exit(int input)
    be_sound_active = false;
    be_sound->Stop();
    
-   if (be_sound_stream_lock != -1)
-      acquire_sem(be_sound_stream_lock);
+   acquire_sem(_be_sound_stream_lock);
    _mixer_exit();
+   release_sem(_be_sound_stream_lock);
    
    delete be_sound;
    delete locker;
-   
-   if (be_sound_stream_lock != -1) {
-      delete_sem(be_sound_stream_lock);
-      be_sound_stream_lock = -1;
-   }
-   
+      
    be_sound = NULL;
    locker = NULL;
 }
@@ -228,7 +217,7 @@ extern "C" void *be_sound_lock_voice(int voice, int start, int end)
 {
    if (!be_sound_stream_locked) {
       be_sound_stream_locked = true;
-      acquire_sem(be_sound_stream_lock);
+      acquire_sem(_be_sound_stream_lock);
    }
    return NULL;
 }
@@ -242,7 +231,7 @@ void be_sound_unlock_voice(int voice)
 {
    if (be_sound_stream_locked) {
       be_sound_stream_locked = false;
-      release_sem(be_sound_stream_lock);
+      release_sem(_be_sound_stream_lock);
    }
 }
 
