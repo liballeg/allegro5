@@ -25,17 +25,6 @@
 #include "makesci.h"
 #include "makemisc.h"
 
-#ifndef bool
- #define bool int
-#endif
-
-#ifndef true
- #define true 1
- #define false 0
-#endif
-
-
-
 /* _file_size:
  * Returns the size of the file specified.
  */
@@ -57,7 +46,7 @@ static int _file_size(const char *filename)
  * Tells if it is supposed to ignore the line, of if it contains data for the
  * API file.
  */
-static bool _ignore_line(char *x)
+static int _ignore_line(char *x)
 {
   return mystricmp(x, "typedef") == 0 ||
          mystricmp(x, "extern")  == 0 ||
@@ -106,8 +95,8 @@ static void _convert(const char *filename, const char *apifilename)
       ++i;
       if(!_ignore_line(tmp))
       {
-        bool done = false;
-        bool will_be_done = false;
+        int done = 0;
+        int will_be_done = 0;
         memset(tmp, '\0', sizeof(tmp));
         for(offset = i; buf[i] != '\n'; ++i)
           tmp[i-offset] = buf[i];
@@ -116,7 +105,7 @@ static void _convert(const char *filename, const char *apifilename)
         while(!done)
         {
           if(buf[i] == '@' && buf[i+1] == '@')
-            will_be_done = true;
+            will_be_done = 1;
           for(; buf[i] == '@' || buf[i] == '\\' || buf[i] == ' '; ++i)
             ;
           --i;
@@ -125,14 +114,14 @@ static void _convert(const char *filename, const char *apifilename)
           index = (i - offset)+index;
           ++i;
           if(will_be_done)
-            done=true;
+            done=1;
         }
         fprintf(api_file, "%s\n", tmp);
       }
       else
       {
-        bool done = false;
-        bool will_be_done = false;
+        int done = 0;
+        int will_be_done = 0;
         memset(tmp, '\0', sizeof(tmp));
         for(offset = i; buf[i] != '\n'; ++i)
           ;
@@ -140,7 +129,7 @@ static void _convert(const char *filename, const char *apifilename)
         while(!done)
         {
           if(buf[i] == '@' && buf[i+1] == '@')
-            will_be_done = true;
+            will_be_done = 1;
           for(; buf[i] == '@' || buf[i] == '\\' || buf[i] == ' '; ++i)
             ;
           --i;
@@ -148,7 +137,7 @@ static void _convert(const char *filename, const char *apifilename)
             ;
           ++i;
           if(will_be_done)
-            done=true;
+            done=1;
         }
       }
     }
