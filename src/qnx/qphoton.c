@@ -15,6 +15,7 @@
  *      See readme.txt for copyright information.
  */
 
+
 #include "qnxalleg.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintqnx.h"
@@ -24,29 +25,110 @@
 #endif
 
 
-PdDirectContext_t              *ph_direct_context = NULL;
-PdOffscreenContext_t           *ph_screen_context = NULL;
-PdOffscreenContext_t           *ph_window_context = NULL;
-int                             ph_gfx_mode = PH_GFX_NONE;
-char                           *ph_dirty_lines = NULL;
-void                          (*ph_update_window)(PhRect_t* rect) = NULL;
-int                             ph_window_w = 0, ph_window_h = 0;
-PgColor_t                       ph_palette[256];
+static struct BITMAP *qnx_ph_init(int, int, int, int, int);
+static void qnx_ph_exit(struct BITMAP *);
+static struct BITMAP *qnx_phd_init(int, int, int, int, int);
+static void qnx_phd_exit(struct BITMAP *);
+static void qnx_ph_vsync(void);
+static void qnx_ph_set_palette(AL_CONST struct RGB *, int, int, int);
 
 
-static char                     driver_desc[256];
-static PgDisplaySettings_t      original_settings;
-static COLORCONV_BLITTER_FUNC  *blitter = NULL;
-static char                    *pseudo_screen_addr = NULL;
-static int                      pseudo_screen_pitch;
-static int                      pseudo_screen_depth;
-static char                    *window_addr = NULL;
-static int                      window_pitch;
-static int                      desktop_depth;
+GFX_DRIVER gfx_photon =
+{
+   GFX_PHOTON,
+   empty_string, 
+   empty_string,
+   "Photon", 
+   qnx_ph_init,                  /* AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth)); */
+   qnx_ph_exit,                  /* AL_METHOD(void, exit, (struct BITMAP *b)); */
+   NULL,                         /* AL_METHOD(int, scroll, (int x, int y)); */
+   qnx_ph_vsync,                 /* AL_METHOD(void, vsync, (void)); */
+   qnx_ph_set_palette,           /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
+   NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
+   NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus)); */
+   NULL,                         /* AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y)); */
+   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
+   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
+   NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
+   NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
+   NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
+   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
+   0, 0,                         /* physical (not virtual!) screen size */
+   TRUE,                         /* true if video memory is linear */
+   0,                            /* bank size, in bytes */
+   0,                            /* bank granularity, in bytes */
+   0,                            /* video memory size, in bytes */
+   0,                            /* physical address of video memory */
+   TRUE
+};
 
 
-static int find_video_mode(int w, int h, int depth);
-static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_w, int v_h, int color_depth, int accel);
+GFX_DRIVER gfx_photon_direct =
+{
+   GFX_PHOTON_DIRECT,
+   empty_string, 
+   empty_string,
+   "Photon direct",
+   qnx_phd_init,                 /* AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth)); */
+   qnx_phd_exit,                 /* AL_METHOD(void, exit, (struct BITMAP *b)); */
+   NULL,                         /* AL_METHOD(int, scroll, (int x, int y)); */
+   qnx_ph_vsync,                 /* AL_METHOD(void, vsync, (void)); */
+   qnx_ph_set_palette,           /* AL_METHOD(void, set_palette, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   NULL,                         /* AL_METHOD(int, request_scroll, (int x, int y)); */
+   NULL,                         /* AL_METHOD(int, poll_scroll, (void)); */
+   NULL,                         /* AL_METHOD(void, enable_triple_buffer, (void)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height)); */
+   NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                         /* AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus)); */
+   NULL,                         /* AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y)); */
+   NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
+   NULL,                         /* AL_METHOD(void, move_mouse, (int x, int y)); */
+   NULL,                         /* AL_METHOD(void, drawing_mode, (void)); */
+   NULL,                         /* AL_METHOD(void, save_video_state, (void)); */
+   NULL,                         /* AL_METHOD(void, restore_video_state, (void)); */
+   NULL,                         /* AL_METHOD(int, fetch_mode_list, (void)); */
+   0, 0,                         /* physical (not virtual!) screen size */
+   TRUE,                         /* true if video memory is linear */
+   0,                            /* bank size, in bytes */
+   0,                            /* bank granularity, in bytes */
+   0,                            /* video memory size, in bytes */
+   0,                            /* physical address of video memory */
+   FALSE
+};
+
+
+PdDirectContext_t *ph_direct_context = NULL;
+PdOffscreenContext_t *ph_screen_context = NULL;
+PdOffscreenContext_t *ph_window_context = NULL;
+int ph_gfx_mode = PH_GFX_NONE;
+char *ph_dirty_lines = NULL;
+void (*ph_update_window)(PhRect_t* rect) = NULL;
+int ph_window_w = 0, ph_window_h = 0;
+PgColor_t ph_palette[256];
+
+
+static char driver_desc[256];
+static PgDisplaySettings_t original_settings;
+static COLORCONV_BLITTER_FUNC *blitter = NULL;
+static char *pseudo_screen_addr = NULL;
+static int pseudo_screen_pitch;
+static int pseudo_screen_depth;
+static char *window_addr = NULL;
+static int window_pitch;
+static int desktop_depth;
+
 
 #ifdef ALLEGRO_NO_ASM
 static inline void update_dirty_lines();
@@ -259,7 +341,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
 /* qnx_private_phd_exit:
  *  This is where the video driver is actually closed.
  */
-static void qnx_private_phd_exit()
+static void qnx_private_phd_exit(void)
 {
    PhDim_t dim;
    
@@ -284,16 +366,16 @@ static void qnx_private_phd_exit()
 /* qnx_phd_init:
  *  Initializes Photon gfx driver using the direct (fullscreen) mode.
  */
-struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
+static struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
    
    pthread_mutex_lock(&qnx_events_mutex);
    bmp = qnx_private_phd_init(&gfx_photon_direct, w, h, v_w, v_h, color_depth, TRUE);
    ph_gfx_mode = PH_GFX_DIRECT;
-   if (!bmp) {
-      qnx_private_phd_exit(bmp);
-   }
+   if (!bmp)
+      qnx_private_phd_exit();
+
    pthread_mutex_unlock(&qnx_events_mutex);
 
    return bmp;
@@ -304,7 +386,7 @@ struct BITMAP *qnx_phd_init(int w, int h, int v_w, int v_h, int color_depth)
 /* qnx_phd_exit:
  *  Shuts down photon direct driver.
  */
-void qnx_phd_exit(struct BITMAP *bmp)
+static void qnx_phd_exit(struct BITMAP *bmp)
 {
    pthread_mutex_lock(&qnx_events_mutex);
    qnx_private_phd_exit();
@@ -359,7 +441,7 @@ static void phd_release(BITMAP *bmp)
 /* qnx_ph_vsync:
  *  Waits for vertical retrace.
  */
-void qnx_ph_vsync(void)
+static void qnx_ph_vsync(void)
 {
    PgWaitVSync();
 }
@@ -369,7 +451,7 @@ void qnx_ph_vsync(void)
 /* qnx_ph_set_palette:
  *  Sets hardware palette.
  */
-void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesync)
+static void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesync)
 {
    int i;
    int mode = Pg_PALSET_HARDLOCKED;
@@ -593,7 +675,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
 /* qnx_private_ph_exit:
  *  This is where the video driver is actually closed.
  */
-static void qnx_private_ph_exit()
+static void qnx_private_ph_exit(void)
 {
    PhDim_t dim;
    
@@ -620,7 +702,7 @@ static void qnx_private_ph_exit()
 /* qnx_ph_init:
  *  Initializes normal windowed Photon gfx driver.
  */
-struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
+static struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    BITMAP *bmp;
    
@@ -640,7 +722,7 @@ struct BITMAP *qnx_ph_init(int w, int h, int v_w, int v_h, int color_depth)
 /* qnx_ph_exit:
  *  Shuts down photon windowed gfx driver.
  */
-void qnx_ph_exit(struct BITMAP *b)
+static void qnx_ph_exit(struct BITMAP *b)
 {
    pthread_mutex_lock(&qnx_events_mutex);
    qnx_private_ph_exit();
@@ -655,7 +737,7 @@ void qnx_ph_exit(struct BITMAP *b)
 /* update_dirty_lines:
  *  Dirty line updater routine.
  */
-static inline void update_dirty_lines()
+static inline void update_dirty_lines(void)
 {
    PhRect_t rect;
    int i = 0;

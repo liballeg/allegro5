@@ -294,7 +294,7 @@ ALLEGRO_SRC_X_FILES = \
 	src/misc/pckeys.c
 	
 ALLEGRO_SRC_QNX_FILES = \
-	src/qnx/drivers.c \
+	src/qnx/qdrivers.c \
 	src/qnx/qkeydrv.c \
 	src/qnx/qmouse.c \
 	src/qnx/qphoton.c \
@@ -309,7 +309,6 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/usystem.c \
 	src/unix/ustimer.c \
 	src/unix/uthreads.c \
-	src/unix/utimer.c \
 	src/misc/ufile.c \
 	src/misc/colconv.c \
 	src/misc/icolconv.s \

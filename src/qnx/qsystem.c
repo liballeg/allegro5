@@ -17,6 +17,7 @@
  *      See readme.txt for copyright information.
  */
 
+
 #include "qnxalleg.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintqnx.h"
@@ -33,36 +34,82 @@
 #include <sched.h>
 
 
-#define MAX_SWITCH_CALLBACKS		8
+static int qnx_sys_init(void);
+static void qnx_sys_exit(void);
+static void qnx_sys_message(AL_CONST char *);
+static void qnx_sys_set_window_title(AL_CONST char *);
+static int qnx_sys_set_window_close_button(int);
+static void qnx_sys_set_window_close_hook(AL_METHOD(void, proc, (void)));
+static int qnx_sys_set_display_switch_mode(int mode);
+static int qnx_sys_set_display_switch_cb(int dir, AL_METHOD(void, cb, (void)));
+static void qnx_sys_remove_display_switch_cb(AL_METHOD(void, cb, (void)));
+static void qnx_sys_yield_timeslice(void);
+static int qnx_sys_desktop_color_depth(void);
+static int qnx_sys_get_desktop_resolution(int *width, int *height);
+
+
+SYSTEM_DRIVER system_qnx =
+{
+   SYSTEM_QNX,
+   empty_string,
+   empty_string,
+   "QNX Realtime Platform",
+   qnx_sys_init,                    /* AL_METHOD(int, init, (void)); */
+   qnx_sys_exit,                    /* AL_METHOD(void, exit, (void)); */
+   _unix_get_executable_name,       /* AL_METHOD(void, get_executable_name, (char *output, int size)); */
+   _unix_find_resource,             /* AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size)); */
+   qnx_sys_set_window_title,        /* AL_METHOD(void, set_window_title, (AL_CONST char *name)); */
+   qnx_sys_set_window_close_button, /* AL_METHOD(int, set_window_close_button, (int enable)); */
+   qnx_sys_set_window_close_hook,   /* AL_METHOD(void, set_window_close_hook, (AL_METHOD(void, proc, (void)))); */
+   qnx_sys_message,                 /* AL_METHOD(void, message, (AL_CONST char *msg)); */
+   NULL,                            /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
+   NULL,                            /* AL_METHOD(void, save_console_state, (void)); */
+   NULL,                            /* AL_METHOD(void, restore_console_state, (void)); */
+   NULL,                            /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
+   NULL,                            /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
+   NULL,                            /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
+   NULL,                            /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
+   NULL,                            /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
+   NULL,                            /* AL_METHOD(void, read_hardware_palette, (void)); */
+   NULL,                            /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   NULL,                            /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
+   qnx_sys_set_display_switch_mode, /* AL_METHOD(int, set_display_switch_mode, (int mode)); */
+   qnx_sys_set_display_switch_cb,   /* AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void)))); */
+   qnx_sys_remove_display_switch_cb,/* AL_METHOD(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void)))); */
+   NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
+   qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
+   qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
+   qnx_sys_yield_timeslice,         /* AL_METHOD(void, yield_timeslice, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
+   NULL,                            /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
+};
 
 
 /* Global variables */
-PtWidget_t                *ph_window = NULL;
-PhEvent_t                 *ph_event = NULL;
-pthread_mutex_t            qnx_events_mutex;
-pthread_mutex_t           *qnx_gfx_mutex;
+PtWidget_t *ph_window = NULL;
+PhEvent_t *ph_event = NULL;
+pthread_mutex_t qnx_events_mutex;
+pthread_mutex_t *qnx_gfx_mutex;
 
-static void              (*window_close_hook)(void) = NULL;
-static pthread_mutex_t     gfx_mutex;
-static pthread_t           qnx_events_thread;
-static int                 qnx_system_done;
-static int                 switch_mode = SWITCH_BACKGROUND;
+static void (*window_close_hook)(void) = NULL;
+static pthread_mutex_t gfx_mutex;
+static pthread_t qnx_events_thread;
+static int qnx_system_done;
+static int switch_mode = SWITCH_BACKGROUND;
 
 #define WINDOW_TITLE_SIZE  256
-static char                window_title[WINDOW_TITLE_SIZE];
+static char window_title[WINDOW_TITLE_SIZE];
 
+#define MAX_SWITCH_CALLBACKS 8
 static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = 
    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) =
    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-
-
-/* Timer driver */
-static _DRIVER_INFO qnx_timer_driver_list[] = {
-   { TIMERDRV_UNIX_PTHREADS, &timerdrv_unix_pthreads, TRUE  },
-   { 0,                      NULL,            	      0     }
-};
-
 
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
@@ -309,7 +356,7 @@ static void *qnx_events_handler(void *data)
 /* qnx_sys_init:
  *  Initializes the QNX system driver.
  */
-int qnx_sys_init(void)
+static int qnx_sys_init(void)
 {
    PhRegion_t region;
    PtArg_t arg[6];
@@ -393,7 +440,7 @@ int qnx_sys_init(void)
 /* qnx_sys_exit:
  *  Shuts down the QNX system driver.
  */
-void qnx_sys_exit(void)
+static void qnx_sys_exit(void)
 {
    void *status;
 
@@ -426,7 +473,7 @@ void qnx_sys_exit(void)
 /* qnx_sys_set_window_title:
  *  Sets the Photon window title.
  */
-void qnx_sys_set_window_title(AL_CONST char *name)
+static void qnx_sys_set_window_title(AL_CONST char *name)
 {
    PtArg_t arg;
 
@@ -440,7 +487,7 @@ void qnx_sys_set_window_title(AL_CONST char *name)
 /* qnx_sys_set_window_close_button:
  *  Enables or disables Photon window close button.
  */
-int qnx_sys_set_window_close_button(int enable)
+static int qnx_sys_set_window_close_button(int enable)
 {
    PtSetResource(ph_window, Pt_ARG_WINDOW_RENDER_FLAGS, 
       (enable ? Pt_TRUE : Pt_FALSE), Ph_WM_RENDER_CLOSE);
@@ -452,7 +499,7 @@ int qnx_sys_set_window_close_button(int enable)
 /* qnx_sys_set_window_close_hook:
  *  Sets procedure to be called on window close requests.
  */
-void qnx_sys_set_window_close_hook(void (*proc)(void))
+static void qnx_sys_set_window_close_hook(void (*proc)(void))
 {
    window_close_hook = proc;
 }
@@ -462,7 +509,7 @@ void qnx_sys_set_window_close_hook(void (*proc)(void))
 /* qnx_sys_message:
  *  Prints out a message using a system message box.
  */
-void qnx_sys_message(AL_CONST char *msg)
+static void qnx_sys_message(AL_CONST char *msg)
 {
    const char *button[] = { "&Ok" };
    char *tmp=malloc(ALLEGRO_MESSAGE_SIZE);
@@ -488,7 +535,7 @@ void qnx_sys_message(AL_CONST char *msg)
 /* qnx_sys_set_display_switch_mode:
  *  Sets current display switching behaviour.
  */
-int qnx_sys_set_display_switch_mode (int mode)
+static int qnx_sys_set_display_switch_mode (int mode)
 {
    if (mode != SWITCH_BACKGROUND)
       return -1;   
@@ -502,7 +549,7 @@ int qnx_sys_set_display_switch_mode (int mode)
  *  Adds a callback function to the queue of functions to be called on display
  *  switching.
  */
-int qnx_sys_set_display_switch_cb(int dir, void (*cb)(void))
+static int qnx_sys_set_display_switch_cb(int dir, void (*cb)(void))
 {
    int i;
    
@@ -540,7 +587,7 @@ int qnx_sys_set_display_switch_cb(int dir, void (*cb)(void))
  *  Removes specified callback function from the queue of functions to be
  *  called on display switching.
  */
-void qnx_sys_remove_display_switch_cb(void (*cb)(void))
+static void qnx_sys_remove_display_switch_cb(void (*cb)(void))
 {
    int i;
 
@@ -557,7 +604,7 @@ void qnx_sys_remove_display_switch_cb(void (*cb)(void))
 /* qnx_sys_desktop_color_depth:
  *  Returns the current desktop color depth.
  */
-int qnx_sys_desktop_color_depth(void)
+static int qnx_sys_desktop_color_depth(void)
 {
    PgDisplaySettings_t settings;
    PgVideoModeInfo_t mode_info;
@@ -573,7 +620,7 @@ int qnx_sys_desktop_color_depth(void)
 /* qnx_sys_get_desktop_resolution:
  *  Returns the current desktop resolution.
  */
-int qnx_sys_get_desktop_resolution(int *width, int *height)
+static int qnx_sys_get_desktop_resolution(int *width, int *height)
 {
    PgDisplaySettings_t settings;
    PgVideoModeInfo_t mode_info;
@@ -591,14 +638,7 @@ int qnx_sys_get_desktop_resolution(int *width, int *height)
 /* qnx_sys_yield_timeslice:
  *  Gives some CPU time to other apps to play nice with multitasking.
  */
-void qnx_sys_yield_timeslice(void)
+static void qnx_sys_yield_timeslice(void)
 {
    usleep(10000);
-}
-
-
-
-_DRIVER_INFO *qnx_sys_timer_drivers(void)
-{
-   return qnx_timer_driver_list;
 }

@@ -22,6 +22,32 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintqnx.h"
 
+#ifndef ALLEGRO_QNX
+#error Something is wrong with the makefile
+#endif
+
+
+static int qnx_keyboard_init(void);
+static void qnx_keyboard_exit(void);
+
+
+KEYBOARD_DRIVER keyboard_qnx =
+{
+   KEYBOARD_QNX,
+   empty_string,
+   empty_string,
+   "QNX keyboard",
+   TRUE,
+   qnx_keyboard_init,
+   qnx_keyboard_exit,
+   NULL,   // AL_METHOD(void, poll, (void));
+   NULL,   // AL_METHOD(void, set_leds, (int leds));
+   NULL,   // AL_METHOD(void, set_rate, (int delay, int rate));
+   NULL,   // AL_METHOD(void, wait_for_input, (void));
+   NULL,   // AL_METHOD(void, stop_waiting_for_input, (void));
+   _pckey_scancode_to_ascii
+};
+
 
 
 /* qnx_keyboard_handler:
@@ -67,7 +93,7 @@ void qnx_keyboard_focused(int focused, int state)
 /* qnx_keyboard_init:
  *  Installs the keyboard handler.
  */
-int qnx_keyboard_init(void)
+static int qnx_keyboard_init(void)
 {
    _pckeys_init();
    return 0;
@@ -78,8 +104,7 @@ int qnx_keyboard_init(void)
 /* qnx_keyboard_exit:
  *  Removes the keyboard handler.
  */
-void qnx_keyboard_exit(void)
+static void qnx_keyboard_exit(void)
 {
    qnx_keyboard_focused(FALSE, 0);
 }
-
