@@ -562,6 +562,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
    PCMWAVEFORMAT pcmwf;
    DSBUFFERDESC dsbdesc;
    HRESULT hr;
+   int switch_mode;
 
    /* setup wave format structure */
    memset(&pcmwf, 0, sizeof(PCMWAVEFORMAT));
@@ -578,13 +579,10 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
 
    /* need default controls (pan, volume, frequency) */
    dsbdesc.dwFlags = DSBCAPS_CTRLPAN | DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY;
-   switch (get_display_switch_mode()) {
 
-      case SWITCH_BACKAMNESIA:
-      case SWITCH_BACKGROUND:
-         dsbdesc.dwFlags |= DSBCAPS_STICKYFOCUS;
-         break;
-   }
+   switch_mode = get_display_switch_mode();
+   if ((switch_mode == SWITCH_BACKAMNESIA) || (switch_mode == SWITCH_BACKGROUND))
+      dsbdesc.dwFlags |= DSBCAPS_STICKYFOCUS;
 
    dsbdesc.dwBufferBytes = len * (bits / 8) * (stereo ? 2 : 1);
    dsbdesc.lpwfxFormat = (LPWAVEFORMATEX)&pcmwf;
