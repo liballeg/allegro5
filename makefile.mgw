@@ -369,7 +369,7 @@ endif
 
 .PHONY: compress
 
-compress: $(PROGRAMS)
+compress:
 ifdef UPX_BIN
 	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/mingw32/all*.dll
 else

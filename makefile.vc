@@ -333,7 +333,7 @@ endif
 
 .PHONY: compress
 
-compress: $(PROGRAMS)
+compress:
 ifdef UPX_BIN
 	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/msvc/all*.dll
 else
