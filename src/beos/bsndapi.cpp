@@ -23,7 +23,9 @@
 #error something is wrong with the makefile
 #endif
 
+#ifndef SCAN_DEPEND
 #include <game/GameSoundDefs.h>
+#endif
 
 
 #ifdef ALLEGRO_BIG_ENDIAN
