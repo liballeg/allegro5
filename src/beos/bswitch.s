@@ -25,11 +25,11 @@
 .text
 
 
-/* _be_gfx_fullscreen_read_write_bank_asm:
+/* _be_gfx_bwindowscreen_read_write_bank_asm:
  *   eax = line number
  *   edx = bitmap
  */
-FUNC(_be_gfx_fullscreen_read_write_bank_asm)
+FUNC(_be_gfx_bwindowscreen_read_write_bank_asm)
 
    /* check whether bitmap is already locked */
    testl $BMP_ID_LOCKED, BMP_ID(%edx)
@@ -54,10 +54,10 @@ FUNC(_be_gfx_fullscreen_read_write_bank_asm)
 
 
 
-/* _be_gfx_fullscreen_unwrite_bank_asm:
+/* _be_gfx_bwindowscreen_unwrite_bank_asm:
  *   edx = bitmap
  */
-FUNC(_be_gfx_fullscreen_unwrite_bank_asm)
+FUNC(_be_gfx_bwindowscreen_unwrite_bank_asm)
 
    /* only unlock bitmaps that were autolocked */
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
@@ -71,11 +71,11 @@ FUNC(_be_gfx_fullscreen_unwrite_bank_asm)
 
 
 
-/* _be_gfx_windowed_read_write_bank_asm:
+/* _be_gfx_bwindow_read_write_bank_asm:
  *   eax = line number
  *   edx = bitmap
  */
-FUNC(_be_gfx_windowed_read_write_bank_asm)
+FUNC(_be_gfx_bwindow_read_write_bank_asm)
 
    /* clobber the line */
    pushl %ecx
@@ -101,10 +101,10 @@ FUNC(_be_gfx_windowed_read_write_bank_asm)
 
 
 
-/* _be_gfx_windowed_unwrite_bank_asm:
+/* _be_gfx_bwindow_unwrite_bank_asm:
  *   edx = bitmap
  */
-FUNC(_be_gfx_windowed_unwrite_bank_asm)
+FUNC(_be_gfx_bwindow_unwrite_bank_asm)
 
    /* only unlock bitmaps that were autolocked */
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
@@ -119,6 +119,8 @@ FUNC(_be_gfx_windowed_unwrite_bank_asm)
    popl %edx
    popl %eax
    popl %ecx
+
+   andl $~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK), BMP_ID(%edx)
 
   No_unlock_win:
    ret 

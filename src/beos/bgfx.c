@@ -25,23 +25,23 @@
 
 
 
-GFX_DRIVER gfx_beos_fullscreen = {
+GFX_DRIVER gfx_beos_bwindowscreen_accel = {
    GFX_BEOS_FULLSCREEN,               // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
-   "Fullscreen",                      // char *ascii_name;
-   be_gfx_fullscreen_init,            // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
-   be_gfx_fullscreen_exit,            // AL_METHOD(void, exit, (struct BITMAP *b));
-   be_gfx_fullscreen_scroll,          // AL_METHOD(int, scroll, (int x, int y));
+   "BWindowScreen accel",             // char *ascii_name;
+   be_gfx_bwindowscreen_accel_init,   // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
+   be_gfx_bwindowscreen_exit,         // AL_METHOD(void, exit, (struct BITMAP *b));
+   be_gfx_bwindowscreen_scroll,       // AL_METHOD(int, scroll, (int x, int y));
    be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
-   be_gfx_fullscreen_set_palette,     // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
-   be_gfx_fullscreen_request_scroll,  // AL_METHOD(int, request_scroll, (int x, int y));
-   be_gfx_fullscreen_poll_scroll,     // AL_METHOD(int, poll_scroll, (void));
+   be_gfx_bwindowscreen_set_palette,  // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
+   be_gfx_bwindowscreen_request_scroll,// AL_METHOD(int, request_scroll, (int x, int y));
+   be_gfx_bwindowscreen_poll_scroll,  // AL_METHOD(int, poll_scroll, (void));
    NULL,                              // AL_METHOD(void, enable_triple_buffer, (void));
    NULL,                              // AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height));
    NULL,                              // AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap));
    NULL,                              // AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap));
-   be_gfx_fullscreen_request_video_bitmap,// AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
+   be_gfx_bwindowscreen_request_video_bitmap,// AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
    NULL,                              // AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
    NULL,                              // AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
    NULL,                              // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
@@ -51,7 +51,7 @@ GFX_DRIVER gfx_beos_fullscreen = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
-   be_gfx_fullscreen_fetch_mode_list, // AL_METHOD(int, fetch_mode_list, (void));
+   be_gfx_bwindowscreen_fetch_mode_list,// AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
    0,                                 // long bank_size;  /* bank size, in bytes */
@@ -63,23 +63,23 @@ GFX_DRIVER gfx_beos_fullscreen = {
 
 
 
-GFX_DRIVER gfx_beos_fullscreen_safe = {
+GFX_DRIVER gfx_beos_bwindowscreen = {
    GFX_BEOS_FULLSCREEN_SAFE,          // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
-   "Safe Fullscreen",                 // char *ascii_name;
-   be_gfx_fullscreen_safe_init,       // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
-   be_gfx_fullscreen_exit,            // AL_METHOD(void, exit, (struct BITMAP *b));
-   be_gfx_fullscreen_scroll,          // AL_METHOD(int, scroll, (int x, int y));
+   "BWindowScreen",                   // char *ascii_name;
+   be_gfx_bwindowscreen_init,         // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
+   be_gfx_bwindowscreen_exit,         // AL_METHOD(void, exit, (struct BITMAP *b));
+   be_gfx_bwindowscreen_scroll,       // AL_METHOD(int, scroll, (int x, int y));
    be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
-   be_gfx_fullscreen_set_palette,     // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
-   be_gfx_fullscreen_request_scroll,  // AL_METHOD(int, request_scroll, (int x, int y));
-   be_gfx_fullscreen_poll_scroll,     // AL_METHOD(int, poll_scroll, (void));
+   be_gfx_bwindowscreen_set_palette,  // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
+   be_gfx_bwindowscreen_request_scroll,// AL_METHOD(int, request_scroll, (int x, int y));
+   be_gfx_bwindowscreen_poll_scroll,  // AL_METHOD(int, poll_scroll, (void));
    NULL,                              // AL_METHOD(void, enable_triple_buffer, (void));
    NULL,                              // AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height));
    NULL,                              // AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap));
    NULL,                              // AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap));
-   be_gfx_fullscreen_request_video_bitmap,// AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
+   be_gfx_bwindowscreen_request_video_bitmap,// AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
    NULL,                              // AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
    NULL,                              // AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
    NULL,                              // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
@@ -89,7 +89,7 @@ GFX_DRIVER gfx_beos_fullscreen_safe = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
-   be_gfx_fullscreen_fetch_mode_list, // AL_METHOD(int, fetch_mode_list, (void));
+   be_gfx_bwindowscreen_fetch_mode_list,// AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
    0,                                 // long bank_size;  /* bank size, in bytes */
@@ -101,16 +101,16 @@ GFX_DRIVER gfx_beos_fullscreen_safe = {
 
 
 
-GFX_DRIVER gfx_beos_windowed = {
+GFX_DRIVER gfx_beos_bdirectwindow = {
    GFX_BEOS_WINDOWED,                 // int id;
    empty_string,                      // char *name;
    empty_string,                      // char *desc;
-   "Windowed",                        // char *ascii_name;
-   be_gfx_windowed_init,              // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
-   be_gfx_windowed_exit,              // AL_METHOD(void, exit, (struct BITMAP *b));
+   "BDirectWindow",                   // char *ascii_name;
+   be_gfx_bdirectwindow_init,         // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
+   be_gfx_bdirectwindow_exit,         // AL_METHOD(void, exit, (struct BITMAP *b));
    NULL,                              // AL_METHOD(int, scroll, (int x, int y));
    be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
-   be_gfx_windowed_set_palette,       // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
+   be_gfx_bdirectwindow_set_palette,  // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
    NULL,                              // AL_METHOD(int, request_scroll, (int x, int y));
    NULL,                              // AL_METHOD(int, poll_scroll, (void));
    NULL,                              // AL_METHOD(void, enable_triple_buffer, (void));
@@ -136,3 +136,80 @@ GFX_DRIVER gfx_beos_windowed = {
    0,                                 // long vid_phys_base;  /* physical address of video memory */
    TRUE                               // int windowed;  /* true if driver runs windowed */
 };
+
+
+
+GFX_DRIVER gfx_beos_bwindow = {
+   GFX_BEOS_WINDOWED_SAFE,            // int id;
+   empty_string,                      // char *name;
+   empty_string,                      // char *desc;
+   "BWindow",                         // char *ascii_name;
+   be_gfx_bwindow_init,               // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
+   be_gfx_bwindow_exit,               // AL_METHOD(void, exit, (struct BITMAP *b));
+   NULL,                              // AL_METHOD(int, scroll, (int x, int y));
+   be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
+   be_gfx_bwindow_set_palette,        // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
+   NULL,                              // AL_METHOD(int, request_scroll, (int x, int y));
+   NULL,                              // AL_METHOD(int, poll_scroll, (void));
+   NULL,                              // AL_METHOD(void, enable_triple_buffer, (void));
+   NULL,                              // AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height));
+   NULL,                              // AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
+   NULL,                              // AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
+   NULL,                              // AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y));
+   NULL,                              // AL_METHOD(void, hide_mouse, (void));
+   NULL,                              // AL_METHOD(void, move_mouse, (int x, int y));
+   NULL,                              // AL_METHOD(void, drawing_mode, (void));
+   NULL,                              // AL_METHOD(void, save_state, (void));
+   NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
+   0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
+   TRUE,                              // int linear;  /* true if video memory is linear */
+   0,                                 // long bank_size;  /* bank size, in bytes */
+   0,                                 // long bank_gran;  /* bank granularity, in bytes */
+   0,                                 // long vid_mem;  /* video memory size, in bytes */
+   0,                                 // long vid_phys_base;  /* physical address of video memory */
+   TRUE                               // int windowed;  /* true if driver runs windowed */
+};
+
+
+
+GFX_DRIVER gfx_beos_overlay = {
+   GFX_BEOS_OVERLAY,                  // int id;
+   empty_string,                      // char *name;
+   empty_string,                      // char *desc;
+   "BWindow (overlay)",               // char *ascii_name;
+   be_gfx_overlay_init,               // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
+   be_gfx_overlay_exit,               // AL_METHOD(void, exit, (struct BITMAP *b));
+   NULL,                              // AL_METHOD(int, scroll, (int x, int y));
+   be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
+   NULL,                              // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
+   NULL,                              // AL_METHOD(int, request_scroll, (int x, int y));
+   NULL,                              // AL_METHOD(int, poll_scroll, (void));
+   NULL,                              // AL_METHOD(void, enable_triple_buffer, (void));
+   NULL,                              // AL_METHOD(struct BITMAP *, create_video_bitmap, (int width, int height));
+   NULL,                              // AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(int, show_video_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(int, request_video_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(struct BITMAP *, create_system_bitmap, (int width, int height));
+   NULL,                              // AL_METHOD(void, destroy_system_bitmap, (struct BITMAP *bitmap));
+   NULL,                              // AL_METHOD(int, set_mouse_sprite, (struct BITMAP *sprite, int xfocus, int yfocus));
+   NULL,                              // AL_METHOD(int, show_mouse, (struct BITMAP *bmp, int x, int y));
+   NULL,                              // AL_METHOD(void, hide_mouse, (void));
+   NULL,                              // AL_METHOD(void, move_mouse, (int x, int y));
+   NULL,                              // AL_METHOD(void, drawing_mode, (void));
+   NULL,                              // AL_METHOD(void, save_state, (void));
+   NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
+   0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
+   TRUE,                              // int linear;  /* true if video memory is linear */
+   0,                                 // long bank_size;  /* bank size, in bytes */
+   0,                                 // long bank_gran;  /* bank granularity, in bytes */
+   0,                                 // long vid_mem;  /* video memory size, in bytes */
+   0,                                 // long vid_phys_base;  /* physical address of video memory */
+   FALSE                              // int windowed;  /* true if driver runs windowed */
+};
+

@@ -471,7 +471,7 @@ int32 killer_thread(void *data)
 
 
 
-void be_terminate(thread_id caller, bool exit_caller)
+void _be_terminate(thread_id caller, bool exit_caller)
 {
    thread_id killer;
 

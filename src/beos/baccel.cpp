@@ -244,11 +244,10 @@ static void be_gfx_accel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x
 
 
 
-
-/* be_gfx_fullscreen_accelerate:
+/* be_gfx_bwindowscreen_accelerate:
  *  Detects and initializes hardware accelerated gfx functions.
  */
-extern "C" void be_gfx_fullscreen_accelerate(int depth)
+extern "C" void be_gfx_bwindowscreen_accelerate(int depth)
 {
    _be_hooks.draw_line_8   = (LINE8_HOOK)  _be_allegro_screen->CardHookAt(LINE8_HOOK_NUM);
    _be_hooks.draw_line_16  = (LINE16_HOOK) _be_allegro_screen->CardHookAt(LINE16_HOOK_NUM);

@@ -55,39 +55,49 @@ void be_sys_resume(void);
 void be_main_suspend(void);
 void be_main_resume(void);
 
-struct BITMAP *be_gfx_fullscreen_init(int w, int h, int v_w, int v_h, int color_depth);
-struct BITMAP *be_gfx_fullscreen_safe_init(int w, int h, int v_w, int v_h, int color_depth);
-void be_gfx_fullscreen_exit(struct BITMAP *b);
-void be_gfx_fullscreen_acquire(struct BITMAP *b);
-void be_gfx_fullscreen_release(struct BITMAP *b);
-void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
-int be_gfx_fullscreen_scroll(int x, int y);
-int be_gfx_fullscreen_request_scroll(int x, int y);
-int be_gfx_fullscreen_poll_scroll(void);
-int be_gfx_fullscreen_request_video_bitmap(struct BITMAP *bitmap);
+struct BITMAP *be_gfx_bwindowscreen_accel_init(int w, int h, int v_w, int v_h, int color_depth);
+struct BITMAP *be_gfx_bwindowscreen_init(int w, int h, int v_w, int v_h, int color_depth);
+void be_gfx_bwindowscreen_exit(struct BITMAP *b);
+void be_gfx_bwindowscreen_acquire(struct BITMAP *b);
+void be_gfx_bwindowscreen_release(struct BITMAP *b);
+void be_gfx_bwindowscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
+int be_gfx_bwindowscreen_scroll(int x, int y);
+int be_gfx_bwindowscreen_request_scroll(int x, int y);
+int be_gfx_bwindowscreen_poll_scroll(void);
+int be_gfx_bwindowscreen_request_video_bitmap(struct BITMAP *bitmap);
 void be_gfx_vsync(void);
-struct GFX_MODE_LIST *be_gfx_fullscreen_fetch_mode_list(void);
-void be_gfx_fullscreen_accelerate(int color_depth);
+struct GFX_MODE_LIST *be_gfx_bwindowscreen_fetch_mode_list(void);
+void be_gfx_bwindowscreen_accelerate(int color_depth);
 #ifdef ALLEGRO_NO_ASM
-unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line);
-void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp);
+unsigned long be_gfx_bwindowscreen_read_write_bank(BITMAP *bmp, int line);
+void be_gfx_bwindowscreen_unwrite_bank(BITMAP *bmp);
 #else
-unsigned long _be_gfx_fullscreen_read_write_bank_asm(BITMAP *bmp, int line);
-void _be_gfx_fullscreen_unwrite_bank_asm(BITMAP *bmp);
+unsigned long _be_gfx_bwindowscreen_read_write_bank_asm(BITMAP *bmp, int line);
+void _be_gfx_bwindowscreen_unwrite_bank_asm(BITMAP *bmp);
 #endif
 
-struct BITMAP *be_gfx_windowed_init(int w, int h, int v_w, int v_h, int color_depth);
-void be_gfx_windowed_exit(struct BITMAP *b);
-void be_gfx_windowed_acquire(struct BITMAP *bmp);
-void be_gfx_windowed_release(struct BITMAP *bmp);
-void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
+struct BITMAP *be_gfx_bdirectwindow_init(int w, int h, int v_w, int v_h, int color_depth);
+void be_gfx_bdirectwindow_exit(struct BITMAP *b);
+void be_gfx_bdirectwindow_acquire(struct BITMAP *bmp);
+void be_gfx_bdirectwindow_release(struct BITMAP *bmp);
+void be_gfx_bdirectwindow_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
+
+struct BITMAP *be_gfx_bwindow_init(int w, int h, int v_w, int v_h, int color_depth);
+void be_gfx_bwindow_exit(struct BITMAP *b);
+void be_gfx_bwindow_acquire(struct BITMAP *bmp);
+void be_gfx_bwindow_release(struct BITMAP *bmp);
+void be_gfx_bwindow_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
+
 #ifdef ALLEGRO_NO_ASM
-void be_gfx_windowed_unwrite_bank(BITMAP *bmp);
-unsigned long be_gfx_windowed_read_write_bank(BITMAP *bmp, int line);
+void _be_gfx_bwindow_unwrite_bank(BITMAP *bmp);
+unsigned long _be_gfx_bwindow_read_write_bank(BITMAP *bmp, int line);
 #else
-void _be_gfx_windowed_unwrite_bank_asm(BITMAP *bmp);
-unsigned long _be_gfx_windowed_read_write_bank_asm(BITMAP *bmp, int line);
+void _be_gfx_bwindow_unwrite_bank_asm(BITMAP *bmp);
+unsigned long _be_gfx_bwindow_read_write_bank_asm(BITMAP *bmp, int line);
 #endif
+
+struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, int color_depth);
+void be_gfx_overlay_exit(struct BITMAP *b);
 
 int  be_time_init(void);
 void be_time_exit(void);

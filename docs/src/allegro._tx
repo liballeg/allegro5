@@ -8442,9 +8442,20 @@ BeOS specifics
    GFX_BEOS_FULLSCREEN_SAFE<br>
       Works the same as GFX_FULLSCREEN, but disables acceleration.
 <li>
+   GFX_BEOS_OVERLAY<br>
+      Fullscreen mode using BWindow with a BBitmap overlay. This mode
+      isn't supported by all graphics cards, only supports 15, 16 and 32 bit
+      color depths, but allows any fullscreen resolution, even low ones
+      that are normally unavailable under BeOS.
+<li>
    GFX_BEOS_WINDOWED<br>
       Fast windowed mode using the BDirectWindow class. Not all graphics
       cards support this.
+</ul>
+<li>
+   GFX_BEOS_WINDOWED_SAFE<br>
+      Safe windowed mode using the normal BWindow class. Slow but
+      always works.
 </ul>
 @@Drivers: @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input

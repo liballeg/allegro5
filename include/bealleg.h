@@ -53,6 +53,8 @@
    #include <Be.h>
 #endif
 
+#define BE_ALLEGRO_VIEW_DIRECT    1
+#define BE_ALLEGRO_VIEW_OVERLAY   2
 
 #define LINE8_HOOK_NUM    3
 #define LINE16_HOOK_NUM  12
@@ -136,21 +138,45 @@ class BeAllegroView
    : public BView
 {
    public:
-      BeAllegroView(BRect, const char *, uint32, uint32);
-     ~BeAllegroView();
-
-      void AttachedToWindow();
+      BeAllegroView(BRect, const char *, uint32, uint32, int);
+      
       void MessageReceived(BMessage *);
+      void Draw(BRect);
+      
+   private:
+      int flags;
 };
 
 
 
 class BeAllegroWindow
-   : public BDirectWindow
+   : public BWindow
 {
    public:
       BeAllegroWindow(BRect, const char *, window_look, window_feel, uint32, uint32, uint32, uint32, uint32);
      ~BeAllegroWindow();
+
+      void MessageReceived(BMessage *);
+      bool QuitRequested(void);
+      void WindowActivated(bool);
+      
+      int screen_depth;
+      int screen_width;
+      int screen_height;
+      BBitmap *buffer;
+      BBitmap *aux_buffer;
+      bool dying;
+      thread_id	drawing_thread_id;
+};
+
+
+
+class BeAllegroDirectWindow
+   : public BDirectWindow
+{
+   public:
+      BeAllegroDirectWindow(BRect, const char *, window_look, window_feel, uint32, uint32, uint32, uint32, uint32);
+     ~BeAllegroDirectWindow();
 
       void DirectConnected(direct_buffer_info *);
       void MessageReceived(BMessage *);
@@ -192,6 +218,23 @@ class BeAllegroScreen
 
 
 
+class BeAllegroOverlay
+   : public BWindow
+{
+   public:
+      BeAllegroOverlay(BRect, const char *, window_look, window_feel, uint32, uint32, uint32, uint32, uint32);
+     ~BeAllegroOverlay();
+
+      void MessageReceived(BMessage *);
+      bool QuitRequested(void);
+      void WindowActivated(bool);
+      
+      BBitmap *buffer;
+      rgb_color color_key;
+};
+
+
+
 class BeAllegroApp
    : public BApplication
 {
@@ -206,12 +249,15 @@ class BeAllegroApp
 
 AL_VAR(BeAllegroApp, *_be_allegro_app);
 AL_VAR(BeAllegroWindow, *_be_allegro_window);
+AL_VAR(BeAllegroDirectWindow, *_be_allegro_direct_window);
 AL_VAR(BeAllegroView, *_be_allegro_view);
 AL_VAR(BeAllegroScreen, *_be_allegro_screen);
+AL_VAR(BeAllegroOverlay, *_be_allegro_overlay);
 AL_VAR(BWindow, *_be_window);
 AL_VAR(BMidiSynth, *_be_midisynth);
 AL_VAR(sem_id, _be_sound_stream_lock);
 AL_VAR(sem_id, _be_fullscreen_lock);
+AL_VAR(sem_id, _be_window_lock);
 AL_VAR(sem_id, _be_mouse_view_attached);
 AL_VAR(BWindow, *_be_mouse_window);
 AL_VAR(BView, *_be_mouse_view);
@@ -221,6 +267,7 @@ AL_VAR(HOOKS, _be_hooks);
 AL_VAR(int, _be_switch_mode);
 AL_VAR(volatile int, _be_lock_count);
 AL_VAR(volatile int, _be_focus_count);
+AL_VAR(volatile bool, _be_gfx_initialized);
 AL_VAR(int, *_be_dirty_lines);
 
 AL_ARRAY(AL_CONST BE_MODE_TABLE, _be_mode_table);
@@ -229,7 +276,10 @@ AL_ARRAY(AL_CONST BE_MODE_TABLE, _be_mode_table);
 extern int32 (*_be_sync_func)();
 extern void (*_be_window_close_hook)();
 
-void be_terminate(thread_id caller, bool exit_caller);
+void _be_terminate(thread_id caller, bool exit_caller);
+void _be_gfx_set_truecolor_shifts();
+void _be_change_focus(bool active);
+bool _be_handle_window_close(const char *title);
 
 
 
