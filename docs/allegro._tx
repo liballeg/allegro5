@@ -7727,7 +7727,7 @@ makefiles also provide some special pseudo-targets:
    this after "make veryclean", or whenever you add new headers to the 
    Allegro sources.
 <li>
-   'compress' (djgpp only)<br>
+   'compress' (djgpp, mingw32 and msvc only)<br>
    Uses the DJP or UPX executable compressors (whichever you have installed) 
    to compress the example executables and utility programs, which can 
    recover a significant amount of disk space.
