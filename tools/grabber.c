@@ -304,8 +304,8 @@ static DIALOG main_dlg[] =
 #define DLG_PACKLIST          14
 #define DLG_PROP              15
 #define DLG_FIRSTWHITE        16
-#define DLG_LIST              47
-#define DLG_VIEW              48
+#define DLG_LIST              48
+#define DLG_VIEW              49
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
