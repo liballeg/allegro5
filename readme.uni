@@ -51,9 +51,10 @@
       sh fixunix.sh
 
    From here on everything is a pretty standard Unix-style install process. 
-   First you configure it:
+   First you configure it and build the dependencies:
 
       ./configure
+      make depend
 
    Then you build it:
 
@@ -109,12 +110,14 @@
 =======================================
 
    The options for linking with Allegro are quite complicated, since 
-   depending on how it was configured, it may need to pull in other 
-   libraries (X, GGI, SVGAlib), as well as just Allegro itself. To avoid you 
-   having to work out the right linker commands for yourself, the 
-   installation creates a script, allegro-config, that will print out a 
-   suitable commandline. You can use this inside a backtick command 
-   substitution, for example:
+   for static versions of the library, depending on how it was configured, 
+   it may need to pull in other libraries (X, GGI, SVGAlib), as well as just 
+   Allegro itself, and for all versions the library is split into two chunks
+   -- one of which is always static, and the other of which is sometimes
+   shared. To avoid you having to work out the right linker commands for 
+   yourself, the installation creates a script, allegro-config, that will 
+   print out a suitable commandline. You can use this inside a backtick 
+   command substitution, for example:
 
       gcc myfile.c -o myprogram `allegro-config --libs`
 
