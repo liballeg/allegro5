@@ -292,6 +292,7 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qsystem.c \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
+	src/unix/udjgpp.c \
 	src/unix/umain.c \
 	src/unix/usigalrm.c \
 	src/unix/utimer.c \
