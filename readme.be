@@ -31,6 +31,8 @@
    BeOS Intel R4 and R5 Pro Edition come with everything you need. If you
    have BeOS Intel R5 Personal Edition, you require the development tools;
    these can be found on the Be homepage at http://www.be.com.
+   You also need updated binutils, which can be found at bebits.com. It
+   might not be a bad idea to update gcc as well, but is not required.
 
 
 
@@ -63,14 +65,16 @@
    examples to learn more about it. A simple example of a command line to
    compile an allegro program:
 
-   gcc foo.c -O2 -Wall -o foo -lalleg
-
+   gcc foo.c -O2 -Wall -o foo `allegro-config --shared`
+   
+   The `allegro-config --shared` is explained in the next section.
+        
    The dynamically linked version of Allegro gets built by default but if
    you want to build the statically linked version of Allegro write the
    following on the command line:
 
    export STATICLINK=1
-
+   
    In the same manner we can also enter one of the following lines to
    build either the debug or the profiling version of the library:
 
@@ -85,22 +89,28 @@
             
    If you have compiled a static version of the library, it will be copied to
    /boot/develop/lib/x86.
-
-
+     
 =======================================
 ============ Using Allegro ============
 =======================================
+   
+   Linking Allegro to a program also requires you to link several other BeOS
+   libraries and set the correct library search pathes. To simplify the linking
+   process, the installation sets up a script, allegro-config, that will print
+   out a suitable commandline. You can use this inside backtick command
+   substitution, for example:
 
-   Linking Allegro statically to a program also requires you to link several
-   other BeOS libraries. To simplify the linking process, the installation
-   sets up a script, allegro-config, that will print out a suitable
-   commandline. You can use this inside backtick command substitution, for
-   example:
+      gcc myfile.c -o myprogram `allegro-config --static`
 
-      gcc myfile.c -o myprogram `allegro-config --libs`
+   This will enable you to link against the static library.
+   
+   The `allegro-config --shared` option mentioned above will output all the
+   options and libraries needed to link dynamically against the shared version
+   of the Allegro library. You can also run these allegro-config commands on the
+   commandline to see what exactly they do.
 
-   Or if you want to build a debug version of your program, assuming that 
-   you have installed the debug version of Allegro:
+   If you want to build a debug version of your program, assuming that 
+   you have installed the debug version of Allegro, use:
 
       gcc myfile.c -o myprogram `allegro-config --libs debug`
 
