@@ -38,9 +38,11 @@ Trivial problems
 @@   What is Allegro?
       See <tt>readme.txt</tt>.
 
+
 @@   Where can I get it?
       From any SimTel mirror, in the directory <tt>gnu/djgpp/v2tk/</tt>,
       or from the Allegro homepage, <link>http://alleg.sourceforge.net/</a>.
+
 
 @@   How do I use it?
       See <tt>allegro.txt</tt>.
@@ -57,21 +59,25 @@ DJGPP problems
       <tt>v2gnu/mak*b.zip</tt> (whatever the latest version number is).
       You can get this from <link>http://www.delorie.com/djgpp/</a>.
 
+
 @@   Make doesn't work properly.
       Are you sure that you have installed djgpp correctly? Check the 
       instructions in the djgpp readme.1st file, and in particular confirm 
       that you have set the DJGPP environment variable and added the 
       <tt>djgpp\bin</tt> directory to your path.
 
+
 @@   My djgpp installation is fine, but make still doesn't work properly.
       Are you sure that you are using the GNU make program, and not some 
       other version like the Borland one? If in doubt, run <tt>make -v</tt> and
       check that the GNU copyright message is displayed.
 
+
 @@   When I run make, it asks me for some parameters. What do I type?
       You shouldn't be running make from the Win95 explorer! Bring up a DOS 
       box, change to your Allegro directory, and type <tt>make</tt> at the command
       prompt.
+
 
 @@   When I run make, it says "makefile has modification time in the future".
       Are you sure that your system time and date are set correctly?
@@ -215,6 +221,7 @@ DOS problems
       of helper functions from the core lib. The djgpp DXE format is nowhere 
       near flexible enough to support this, and we don't want to make Allegro 
       dependent on any other dynamic linking packages.
+
 
 @\   I get an "out of environment space" error when I run fix.bat or
 @@   vcvars32.bat!
