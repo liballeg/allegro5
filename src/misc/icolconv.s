@@ -37,11 +37,12 @@
    .byte 0xc0 + 8*dst + src  /* mod field */
 
 /* local variables */
-#define LOCAL1   -4(%esp)
-#define LOCAL2   -8(%esp)
-#define LOCAL3   -12(%esp)
-#define LOCAL4   -16(%esp)
-
+#define LOCAL1   12(%esp)
+#define LOCAL2   8(%esp)
+#define LOCAL3   4(%esp)
+#define LOCAL4   0(%esp)
+#define RESERVE_LOCALS subl $16, %esp
+#define CLEANUP_LOCALS addl $16, %esp
 
 /* helper macros */
 #define INIT_CONVERSION_1(mask_red, mask_green, mask_blue)                           \
@@ -124,6 +125,8 @@ FUNC (_colorconv_blit_8_to_16)
    pushl %ebx
    pushl %esi
    pushl %edi
+
+   RESERVE_LOCALS
 
    /* init register values */
 
@@ -234,6 +237,8 @@ FUNC (_colorconv_blit_8_to_16)
       movl %edx, LOCAL1
       jnz next_line_8_to_16
 
+   CLEANUP_LOCALS
+
    emms
    popl %edi
    popl %esi
@@ -257,6 +262,8 @@ FUNC (_colorconv_blit_8_to_32)
    pushl %ebx
    pushl %esi
    pushl %edi
+
+   RESERVE_LOCALS
 
    /* init register values */
 
@@ -367,6 +374,7 @@ FUNC (_colorconv_blit_8_to_32)
       movl %edx, LOCAL1
       jnz next_line_8_to_32
 
+   CLEANUP_LOCALS
    emms
    popl %edi
    popl %esi
@@ -1396,24 +1404,28 @@ FUNC (_colorconv_blit_32_to_24)
 /*  optimized for Intel Pentium                                                             */
 /********************************************************************************************/
 
+/* reserve storage for ONE 32-bit push on the stack */
+#define MYLOCAL1    8(%esp)
+#define MYLOCAL2    4(%esp)
+#define MYLOCAL3    0(%esp)
+#define RESERVE_MYLOCALS subl $16, %esp
+#define CLEANUP_MYLOCALS addl $16, %esp
+
 /* create the (pseudo - we need %ebp) stack frame */
 #define CREATE_STACK_FRAME  \
    pushl %ebp             ; \
    movl %esp, %ebp        ; \
    pushl %ebx             ; \
    pushl %esi             ; \
-   pushl %edi
+   pushl %edi             ; \
+   RESERVE_MYLOCALS
 
 #define DESTROY_STACK_FRAME \
+   CLEANUP_MYLOCALS       ; \
    popl %edi              ; \
    popl %esi              ; \
    popl %ebx              ; \
    popl %ebp
-
-/* reserve storage for ONE 32-bit push on the stack */
-#define MYLOCAL1   -8(%esp)
-#define MYLOCAL2  -12(%esp)
-#define MYLOCAL3  -16(%esp)
 
 /* initialize the registers */
 #define SIZE_1
@@ -2344,7 +2356,7 @@ FUNC (_colorconv_blit_16_to_24)
       /* 100% Pentium pairable loop */
       /* 22 cycles = 20 cycles/4 pixels + 1 cycle stack + 1 cycle loop */
       next_block_16_to_24_no_mmx:
-         movl %ecx, -16(%esp)           /* fake pushl %ecx                  */
+         movl %ecx, (%esp)              /* fake pushl %ecx                  */
          xorl %ebx, %ebx
          xorl %eax, %eax
          movb 7(%esi), %bl              /* bl = high byte pixel4            */
@@ -2383,7 +2395,7 @@ FUNC (_colorconv_blit_16_to_24)
          movl 1024(%ebp,%ebx,4), %ebx   /* lookup: ebx = r0g8b8 pixel1      */
          /* nop */
          addl %ecx, %ebx                /* ebx = r8g8b8 pixel1              */
-         movl -16(%esp), %ecx           /* fake popl %ecx                   */
+         movl (%esp), %ecx              /* fake popl %ecx                   */
          orl  %ebx, %eax                /* eax = b8 pixel2 << 24 | pixel1   */
          decl %ecx
          movl %eax, -12(%edi)           /* write pixel1..b8 pixel2          */
