@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
       }
       else {
 	 if (buf[0])
-	    strcat(buf, " ");
+	    strncat(buf, " ", 256-1);
 
 	 if (flip_slashes) {
 	    j = strlen(buf);
-	    strcat(buf, argv[i]);
+	    strncat(buf, argv[i], 256-1);
 	    while (buf[j]) {
 	       if (buf[j] == '/')
 		  buf[j] = '\\';
@@ -78,13 +78,13 @@ int main(int argc, char *argv[])
 	    }
 	 }
 	 else
-	    strcat(buf, argv[i]);
+	    strncat(buf, argv[i], 256-1);
       }
    }
 
    if (f) {
       fclose(f);
-      strcat(buf, " @_tmpfile.arg");
+      strncat(buf, " @_tmpfile.arg", 256-1);
    }
 
    p = strchr(buf, ' ');

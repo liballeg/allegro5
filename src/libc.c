@@ -12,7 +12,7 @@
  *
  *      By Michael Bukin.
  *
- *      Henrik Stokseth added _al_sane_realloc() function.
+ *      Henrik Stokseth added _al_sane_realloc() and _al_sane_strncpy() functions.
  *
  *      _al_srand() and _al_rand() functions based on code by Paul Pridham.
  *
@@ -136,6 +136,21 @@ void *_al_sane_realloc(void *ptr, size_t size)
    }
    
    return tmp_ptr;
+}
+
+
+
+/* _al_sane_strncpy:
+ *  strncpy() substitution which properly null terminates a string.
+ */
+char *_al_sane_strncpy(char *dest, const char *src, size_t n)
+{
+   if (n <= 0)
+      return dest;
+   dest[0] = '\0';
+   strncat(dest, src, n - 1);
+   
+   return dest;
 }
 
 

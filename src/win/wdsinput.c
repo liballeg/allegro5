@@ -65,39 +65,39 @@ static char *ds_err(long err)
    switch (err) {
 
       case DS_OK:
-         strcpy(err_str, "DS_OK");
+         _al_sane_strncpy(err_str, "DS_OK", 64);
          break;
 
       case DSERR_ALLOCATED:
-         strcpy(err_str, "DSERR_ALLOCATED");
+         _al_sane_strncpy(err_str, "DSERR_ALLOCATED", 64);
          break;
 
       case DSERR_BADFORMAT:
-         strcpy(err_str, "DSERR_BADFORMAT");
+         _al_sane_strncpy(err_str, "DSERR_BADFORMAT", 64);
          break;
 
       case DSERR_INVALIDPARAM:
-         strcpy(err_str, "DSERR_INVALIDPARAM");
+         _al_sane_strncpy(err_str, "DSERR_INVALIDPARAM", 64);
          break;
 
       case DSERR_NOAGGREGATION:
-         strcpy(err_str, "DSERR_NOAGGREGATION");
+         _al_sane_strncpy(err_str, "DSERR_NOAGGREGATION", 64);
          break;
 
       case DSERR_OUTOFMEMORY:
-         strcpy(err_str, "DSERR_OUTOFMEMORY");
+         _al_sane_strncpy(err_str, "DSERR_OUTOFMEMORY", 64);
          break;
 
       case DSERR_UNINITIALIZED:
-         strcpy(err_str, "DSERR_UNINITIALIZED");
+         _al_sane_strncpy(err_str, "DSERR_UNINITIALIZED", 64);
          break;
 
       case DSERR_UNSUPPORTED:
-         strcpy(err_str, "DSERR_UNSUPPORTED");
+         _al_sane_strncpy(err_str, "DSERR_UNSUPPORTED", 64);
          break;
 
       default:
-         strcpy(err_str, "DSERR_UNKNOWN");
+         _al_sane_strncpy(err_str, "DSERR_UNKNOWN", 64);
          break;
    }
 

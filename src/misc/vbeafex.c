@@ -958,8 +958,8 @@ static const char *get_nucleus_path(void)
       if (!buffer)
 	 buffer = malloc(256);
 
-      strcpy(buffer , p);
-      strcat(buffer, "\\nucleus");
+      _al_sane_strncpy(buffer , p, 256);
+      strncat(buffer, "\\nucleus", 256-1);
       return buffer;
    }
 
@@ -978,9 +978,9 @@ static const char *get_nucleus_config_path(void)
    if (!buffer)
       buffer = malloc(256);
 
-   strcpy(buffer, get_nucleus_path());
+   _al_sane_strncpy(buffer, get_nucleus_path(), 256);
    put_backslash(buffer);
-   strcat(buffer, "config");
+   strncat(buffer, "config", 256-1);
 
    return buffer;
 }
@@ -1010,7 +1010,7 @@ static const char *get_machine_name(void)
    #ifdef ALLEGRO_DJGPP
       gethostname(buffer, 255);
    #else
-      strcpy(buffer, "pc");
+      _al_sane_strncpy(buffer, "pc", 256);
    #endif
 
    return buffer;

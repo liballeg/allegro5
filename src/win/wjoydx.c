@@ -82,23 +82,23 @@ static char* dinput_err_str(long err)
    switch (err) {
 
       case DIERR_NOTACQUIRED:
-         strcpy(err_str, "the device is not acquired");
+         _al_sane_strncpy(err_str, "the device is not acquired", 64);
          break;
 
       case DIERR_INPUTLOST:
-         strcpy(err_str, "access to the device was not granted");
+         _al_sane_strncpy(err_str, "access to the device was not granted", 64);
          break;
 
       case DIERR_INVALIDPARAM:
-         strcpy(err_str, "the device does not have a selected data format");
+         _al_sane_strncpy(err_str, "the device does not have a selected data format", 64);
          break;
 
       case DIERR_OTHERAPPHASPRIO:
-         strcpy(err_str, "can't acquire the device in background");
+         _al_sane_strncpy(err_str, "can't acquire the device in background", 64);
          break;
 
       default:
-         strcpy(err_str, "unknown error");
+         _al_sane_strncpy(err_str, "unknown error", 64);
    }
 
    return err_str;

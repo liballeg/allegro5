@@ -407,11 +407,10 @@ static int fb_open_device(void)
       p = getenv("FRAMEBUFFER");
 
       if ((p) && (p[0])) {
-	 strncpy(fname, p, sizeof(fname)-1);
-	 fname[sizeof(fname)-1] = 0;
+	 _al_sane_strncpy(fname, p, sizeof(fname));
       }
       else
-	 strcpy(fname, "/dev/fb0");
+	 _al_sane_strncpy(fname, "/dev/fb0", 1024);
    }
 
    /* open the framebuffer device */

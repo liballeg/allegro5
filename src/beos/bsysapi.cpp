@@ -94,10 +94,10 @@ extern "C" void _be_sys_get_executable_name(char *output, int size)
    cookie = 0;
 
    if (get_next_image_info(0, &cookie, &info) == B_NO_ERROR) {
-      strncpy(output, info.name, size);
+      _al_sane_strncpy(output, info.name, size);
    }
    else {
-      strncpy(output, EXE_NAME_UNKNOWN, size);
+      _al_sane_strncpy(output, EXE_NAME_UNKNOWN, size);
    }
 
    output[size-1] = '\0';
@@ -118,7 +118,7 @@ static int32 system_thread(void *data)
 
       _be_sys_get_executable_name(exe, sizeof(exe));
 
-      strncat(sig, get_filename(exe), sizeof(sig));
+      strncat(sig, get_filename(exe), sizeof(sig)-1);
       sig[sizeof(sig)-1] = '\0';
 
       _be_allegro_app = new BeAllegroApp(sig);
@@ -133,7 +133,7 @@ static int32 system_thread(void *data)
          p = &exe[strlen(exe) - 1];
          while (*p != '/') p--;
          *(p + 1) = '\0';
-         strcpy(app_path, exe);
+         _al_sane_strncpy(app_path, exe, MAXPATHLEN);
       }
    }
    else {

@@ -160,8 +160,6 @@ static Atom wm_delete_window;
 
 
 /* Forward declarations for private functions.  */
-static char *_xwin_safe_copy(char *dst, const char *src, int len);
-
 static int _xwin_private_open_display(char *name);
 static int _xwin_private_create_window(void);
 static void _xwin_private_destroy_window(void);
@@ -288,20 +286,6 @@ unsigned long _xdga_switch_bank_asm (BITMAP *bmp, int line);
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static void _xdga_switch_screen_bank(int line);
 #endif
-
-
-
-/* _xwin_safe_copy:
- *  Copy string, testing for buffer overrun (why isn't it in ANSI C?).
- */
-static char* _xwin_safe_copy(char *dst, const char *src, int len)
-{
-   if (len <= 0)
-      return dst;
-   dst[0] = 0;
-   strncat(dst, src, len - 1);
-   return dst;
-}
 
 
 
@@ -2631,9 +2615,9 @@ void _xwin_update_screen(int x, int y, int w, int h)
 static void _xwin_private_set_window_title(AL_CONST char *name)
 {
    if (!name)
-      _xwin_safe_copy(_xwin.window_title, XWIN_DEFAULT_WINDOW_TITLE, sizeof(_xwin.window_title));
+      _al_sane_strncpy(_xwin.window_title, XWIN_DEFAULT_WINDOW_TITLE, sizeof(_xwin.window_title));
    else
-      _xwin_safe_copy(_xwin.window_title, name, sizeof(_xwin.window_title));
+      _al_sane_strncpy(_xwin.window_title, name, sizeof(_xwin.window_title));
 
    if (_xwin.window != None)
       XStoreName(_xwin.display, _xwin.window, _xwin.window_title);
@@ -2656,14 +2640,14 @@ static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *gr
    XClassHint hint;
 
    if (!name)
-      _xwin_safe_copy(_xwin.application_name, XWIN_DEFAULT_APPLICATION_NAME, sizeof(_xwin.application_name));
+      _al_sane_strncpy(_xwin.application_name, XWIN_DEFAULT_APPLICATION_NAME, sizeof(_xwin.application_name));
    else
-      _xwin_safe_copy(_xwin.application_name, name, sizeof(_xwin.application_name));
+      _al_sane_strncpy(_xwin.application_name, name, sizeof(_xwin.application_name));
 
    if (!group)
-      _xwin_safe_copy(_xwin.application_class, XWIN_DEFAULT_APPLICATION_CLASS, sizeof(_xwin.application_class));
+      _al_sane_strncpy(_xwin.application_class, XWIN_DEFAULT_APPLICATION_CLASS, sizeof(_xwin.application_class));
    else
-      _xwin_safe_copy(_xwin.application_class, group, sizeof(_xwin.application_class));
+      _al_sane_strncpy(_xwin.application_class, group, sizeof(_xwin.application_class));
 
    if (_xwin.window != None) {
       hint.res_name = _xwin.application_name;

@@ -506,7 +506,7 @@ static void osx_sys_set_window_title(AL_CONST char *title)
 {
    char tmp[ALLEGRO_MESSAGE_SIZE];
    
-   strcpy(osx_window_title, title);
+   _al_sane_strncpy(osx_window_title, title, ALLEGRO_MESSAGE_SIZE);
    do_uconvert(title, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE);
 
    NSString *ns_title = [NSString stringWithUTF8String: tmp];

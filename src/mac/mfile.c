@@ -33,7 +33,7 @@ Str255 mname="\0";
 
 static short parent(short vRefNum, long dirID);
 static char *getfilename(const char *fullpath);
-static void getpath(char *filename);
+static void getpath(char *filename, unsigned int filename_size);
 static long finddirect(void *pdta);
 void getcwd(char *p, int size);
 
@@ -41,7 +41,7 @@ void getcwd(char *p, int size);
 /*
  *
  */
-static void getfullpath(short vRefNum,long dirID, char * fullname)
+static void getfullpath(short vRefNum,long dirID, char * fullname, unsigned int fullname_size)
 {
    CInfoPBRec myPB;
    Str255 dirName;
@@ -53,7 +53,7 @@ static void getfullpath(short vRefNum,long dirID, char * fullname)
    dirName[2]=0;
    dirName[3]=0;
    
-   strcpy(fullname,"");
+   _al_sane_strncpy(fullname,"",fullname_size);
    myPB.dirInfo.ioNamePtr = dirName;
    myPB.dirInfo.ioVRefNum = vRefNum;
    myPB.dirInfo.ioDrParID = dirID;
@@ -63,19 +63,19 @@ static void getfullpath(short vRefNum,long dirID, char * fullname)
 
    ptoc(dirName,tmp2);
    if(tmp2[0]){
-      strcpy(fullname,"/");
-      strcat(fullname,tmp2);
+      _al_sane_strncpy(fullname,"/",fullname_size);
+      strncat(fullname,tmp2,fullname_size-1);
    }
    
    while(myPB.dirInfo.ioDrDirID != fsRtDirID){
       myPB.dirInfo.ioDrDirID = myPB.dirInfo.ioDrParID;
       myErr = PBGetCatInfoSync(&myPB);
 
-      strcpy(tmp1,fullname);
+      _al_sane_strncpy(tmp1,fullname,1024);
       ptoc(dirName,tmp2);  
-      strcpy(fullname,"/");
-      strcat(fullname,tmp2);
-      strcat(fullname,tmp1);
+      _al_sane_strncpy(fullname,"/",fullname_size);
+      strncat(fullname,tmp2,fullname_size-1);
+      strncat(fullname,tmp1,fullname_size-1);
    }
    printf("%s\n",fullname);
 }
@@ -218,7 +218,7 @@ static char *getfilename(const char *fullpath)
 /*
  *
  */
-static void getpath(char *filename)
+static void getpath(char *filename, unsigned int filename_size)
 {
    char *temp,*d,*s,*last;
    int div;
@@ -242,7 +242,7 @@ static void getpath(char *filename)
       }
       *d=0;
       *last=0;
-      strcpy(filename,temp);
+      _al_sane_strncpy(filename,temp,filename_size);
       free(temp);
    }
 }
@@ -273,7 +273,7 @@ static long finddirect(void *pdta){
    char *buffer=malloc(buffersize+1);
 
    if(!buffer)return 0;
-   strcpy(buffer,dta->dirname);
+   _al_sane_strncpy(buffer,dta->dirname,buffersize+1);
 
    dta->dirbase=MainDir;
    
@@ -338,7 +338,7 @@ void _al_findclose(void *dta)
 /*
  *
  */
-int _al_findnext(void *pdta, char *nameret, int *aret)
+int _al_findnext(void *pdta, char *nameret, unsigned int nameret_size, int *aret)
 {
    ffblkPtr dta=(ffblkPtr)pdta;
    char cname[256];
@@ -366,8 +366,8 @@ int _al_findnext(void *pdta, char *nameret, int *aret)
          if(list){
             if(ff_match(cname, dta->pattern)){
                if(nameret){
-                  strcpy(nameret,dta->dirname);
-                  strcat(nameret,cname);
+                  _al_sane_strncpy(nameret,dta->dirname,nameret_size);
+                  strncat(nameret,cname,nameret_size-1);
                }
                if(aret)*aret=curattr;
                err='OK';
@@ -386,7 +386,7 @@ int _al_findnext(void *pdta, char *nameret, int *aret)
 /*
  *
  */
-void * _al_findfirst(const char *pattern,int attrib, char *nameret, int *aret)
+void * _al_findfirst(const char *pattern,int attrib, char *nameret, unsigned int nameret_size, int *aret)
 {
    ffblkPtr dta=(ffblkPtr)malloc(sizeof(ffblk));
    
@@ -399,11 +399,11 @@ void * _al_findfirst(const char *pattern,int attrib, char *nameret, int *aret)
 
    if (dta){ 
       dta->attrib = attrib;
-      strcpy(dta->dirname, pattern);
-      getpath(dta->dirname);
-      strcpy(dta->pattern, getfilename(pattern));   
-      if (dta->dirname[0] == 0)strcpy(dta->dirname, "./");
-      if (strcmp(dta->pattern, "*.*") == 0)strcpy(dta->pattern, "*");
+      _al_sane_strncpy(dta->dirname, pattern,FF_MAXPATHLEN);
+      getpath(dta->dirname,FF_MAXPATHLEN);
+      _al_sane_strncpy(dta->pattern, getfilename(pattern),FF_MAXPATHLEN);   
+      if (dta->dirname[0] == 0)_al_sane_strncpy(dta->dirname, "./",FF_MAXPATHLEN);
+      if (strcmp(dta->pattern, "*.*") == 0)_al_sane_strncpy(dta->pattern, "*",FF_MAXPATHLEN);
       UppercaseStripDiacritics(dta->pattern,strlen(dta->pattern),smSystemScript);
       dta->cpb.dirInfo.ioCompletion=NULL;
       dta->cpb.dirInfo.ioVRefNum=MainVol;
@@ -413,19 +413,19 @@ void * _al_findfirst(const char *pattern,int attrib, char *nameret, int *aret)
       fflush(stdout);
 #endif
       if((finddirect(dta))!=0){
-         getfullpath(MainVol,dta->dirbase,dta->dirname);
-	 strcat(dta->dirname,"/");
+         getfullpath(MainVol,dta->dirbase,dta->dirname,FF_MAXPATHLEN);
+	 strncat(dta->dirname,"/",FF_MAXPATHLEN-1);
          dta->dattr=attrib;
 	 if(attrib & FA_DIREC){
             if(nameret){
-               strcpy(nameret,dta->dirname);
-               strcat(nameret,"..");
+               _al_sane_strncpy(nameret,dta->dirname,nameret_size);
+               strncat(nameret,"..",nameret_size-1);
             }
             if(aret)
 	       *aret=FA_DIREC;
          }
          else
-	    if ((_al_findnext(dta,nameret,aret))!=0){
+	    if ((_al_findnext(dta,nameret,nameret_size,aret))!=0){
 #if (TRACE_MAC_FILE)
             fprintf(stdout,"_al_findfirst failed no files found\n");
             fflush(stdout);
@@ -473,7 +473,7 @@ int _al_file_exists(const char *filename, int attrib, int *aret){
    void *dta;
    int x=false;
    
-   dta=_al_findfirst(filename,attrib,NULL,aret);
+   dta=_al_findfirst(filename,attrib,NULL,0,aret);
    if(dta){
       _al_findclose(dta);
       x=true;
@@ -494,7 +494,7 @@ long _al_file_size(const char *filename){
    void *dta;
    long fs;
    
-   dta = _al_findfirst(filename,0/*FA_RDONLY | FA_HIDDEN | FA_ARCH*/,NULL,NULL);
+   dta = _al_findfirst(filename,0/*FA_RDONLY | FA_HIDDEN | FA_ARCH*/,NULL,0,NULL);
    if (dta){
       fs=((ffblkPtr)dta)->cpb.hFileInfo.ioFlLgLen;   
       _al_findclose(dta);
@@ -516,7 +516,7 @@ time_t _al_file_time(const char *filename){
    void *dta;
    time_t ft;
    
-   dta = _al_findfirst(filename,0/*FA_RDONLY | FA_HIDDEN | FA_ARCH*/,NULL,NULL);
+   dta = _al_findfirst(filename,0/*FA_RDONLY | FA_HIDDEN | FA_ARCH*/,NULL,0,NULL);
    if (dta){
       ft=((ffblkPtr)dta)->cpb.hFileInfo.ioFlMdDat;   
       _al_findclose(dta);
@@ -540,7 +540,7 @@ void _al_getdcwd(int drive, char *buf, int size){
    if(volname[0]==0)
       _mac_file_sys_init();
 
-   getfullpath(MainVol,MainDir,fullname);
+   getfullpath(MainVol,MainDir,fullname,1024);
 #if (TRACE_MAC_FILE)
    fprintf(stdout,"_al_getdcwd(%d,%s,&d)\n",drive,fullname,size);
    fflush(stdout);
@@ -585,7 +585,7 @@ int _al_open(const char *filename,int mode){
 	    s=(char *)filename;
 	    s++;
 	 }
-	 strcpy(path,volname);
+	 _al_sane_strncpy(path,volname,size);
 	 d=path+strlen(volname);
 	 *d++=':';
          div=1;

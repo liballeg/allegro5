@@ -86,7 +86,7 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
          midiOutGetDevCaps(i-1, &caps, sizeof(caps));
 
 	 driver->ascii_name = malloc(strlen(caps.szPname)+1);
-	 strcpy((char *)driver->ascii_name, caps.szPname);
+	 _al_sane_strncpy((char *)driver->ascii_name, caps.szPname, strlen(caps.szPname)+1);
 
 	 driver->detect = midi_win32_detect;
 	 driver->init = midi_win32_init;

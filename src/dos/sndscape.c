@@ -368,14 +368,14 @@ static void stop_codec(void)
  *  if found, writes its associated right-hand value to a destination buffer.
  *  This function is case-insensitive.
  */
-static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
+static int get_ini_config_entry(char *entry, char *dest, unsigned int dest_size, FILE *fp)
 {
    char str[83];
    char tokstr[33];
    char *p;
 
    /* make a local copy of the entry, upper-case it */
-   strcpy(tokstr, entry);
+   _al_sane_strncpy(tokstr, entry, 33);
    strupr(tokstr);
 
    /* rewind the file and try to find it... */
@@ -411,7 +411,7 @@ static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
 	 continue;
 
       /* it's our string - copy the right-hand value to buffer */
-      strcpy(dest, str+strlen(str)+1);
+      _al_sane_strncpy(dest, str+strlen(str)+1, dest_size);
       break;
    }
 
@@ -433,18 +433,18 @@ static int get_init_config(void)
    if (!(ep = getenv("SNDSCAPE")))
       return FALSE;
 
-   strcpy(str, ep);
+   _al_sane_strncpy(str, ep, 78);
 
    if (str[strlen(str)-1] == '\\')
       str[strlen(str)-1] = 0;
 
-   strcat(str, "\\SNDSCAPE.INI");
+   strncat(str, "\\SNDSCAPE.INI", 78-1);
 
    if (!(fp = fopen(str, "r")))
       return FALSE;
 
    /* read all of the necessary config info ... */
-   if (get_ini_config_entry("Product", str, fp)) {
+   if (get_ini_config_entry("Product", str, 78, fp)) {
       fclose(fp);
       return FALSE;
    }
@@ -456,21 +456,21 @@ static int get_init_config(void)
    else
       soundscape_irqset = ss_irqs;
 
-   if (get_ini_config_entry("Port", str, fp)) {
+   if (get_ini_config_entry("Port", str, 78, fp)) {
       fclose(fp);
       return FALSE;
    }
 
    soundscape_baseport = strtol(str, NULL, 16);
 
-   if (get_ini_config_entry("WavePort", str, fp)) {
+   if (get_ini_config_entry("WavePort", str, 78, fp)) {
       fclose(fp);
       return FALSE;
    }
 
    soundscape_waveport = strtol(str, NULL, 16);
 
-   if (get_ini_config_entry("IRQ", str, fp)) {
+   if (get_ini_config_entry("IRQ", str, 78, fp)) {
       fclose(fp);
       return FALSE;
    }
@@ -480,7 +480,7 @@ static int get_init_config(void)
    if (soundscape_midiirq == 2)
       soundscape_midiirq = 9;
 
-   if (get_ini_config_entry("SBIRQ", str, fp)) {
+   if (get_ini_config_entry("SBIRQ", str, 78, fp)) {
       fclose(fp);
       return FALSE;
    }
@@ -490,7 +490,7 @@ static int get_init_config(void)
    if (soundscape_waveirq == 2)
       soundscape_waveirq = 9;
 
-   if (get_ini_config_entry("DMA", str, fp)) {
+   if (get_ini_config_entry("DMA", str, 78, fp)) {
       fclose(fp);
       return FALSE;
    }

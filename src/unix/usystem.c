@@ -146,7 +146,7 @@ void _read_os_type()
 
       /* fetch OS version and revision */
       tmpstr = malloc(strlen(utsn.release)+1);
-      strcpy(tmpstr, utsn.release);
+      _al_sane_strncpy(tmpstr, utsn.release, strlen(utsn.release)+1);
       tmpstr2 = NULL;
 
       for (pos = 0; pos <= strlen(utsn.release); pos++) {
@@ -234,9 +234,9 @@ void _unix_get_executable_name(char *output, int size)
 	 if (temp) {
 	    buffer = temp;
 
-	    strncpy (buffer, start, end - start);
+	    _al_sane_strncpy (buffer, start, end - start);
 	    *(buffer + (end - start)) = '/';
-	    strcpy (buffer + (end - start) + 1, __crt0_argv[0]);
+	    _al_sane_strncpy (buffer + (end - start) + 1, __crt0_argv[0], end - start + 1 + strlen (__crt0_argv[0]) + 1);
 
 	    if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
 	       do_uconvert (buffer, U_ASCII, output, U_CURRENT, size);

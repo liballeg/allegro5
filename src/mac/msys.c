@@ -199,7 +199,7 @@ void _mac_get_executable_name(char *output, int size) {
    e = GetProcessInformation(&curPSN, &info);
 
    size = MIN(size, (unsigned char)appName[0]);
-   strncpy(output, (char const *)appName+1, size);
+   _al_sane_strncpy(output, (char const *)appName+1, size);
    output[size] = 0;
 }
 
@@ -506,9 +506,9 @@ QDGlobals qd;
  * an strdup function to mac
  */
 char *strdup(const char *p){
-   char *tmp=malloc(strlen(p));
+   char *tmp=malloc(strlen(p)+1);
    if(tmp){
-      strcpy(tmp,p);
+      _al_sane_strncpy(tmp,p,strlen(p)+1);
    }
    return tmp;
 }

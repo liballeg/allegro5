@@ -1398,7 +1398,7 @@ static int clone_password(PACKFILE *f)
 	 *allegro_errno = ENOMEM;
 	 return FALSE;
       }
-      strcpy(f->passdata, the_password);
+      _al_sane_strncpy(f->passdata, the_password, strlen(the_password)+1);
    }
    else
       f->passdata = NULL;
@@ -1852,7 +1852,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 	       free(chunk);
 	       return NULL;
 	    }
-	    strcpy(chunk->passdata, f->passdata);
+	    _al_sane_strncpy(chunk->passdata, f->passdata, strlen(f->passdata)+1);
 	    chunk->passpos = chunk->passdata + (long)f->passpos - (long)f->passdata;
 	    f->passpos = f->passdata;
 	 }

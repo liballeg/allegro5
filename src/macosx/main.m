@@ -84,7 +84,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    GetProcessBundleLocation(&psn, &processRef);
    FSGetCatalogInfo(&processRef, kFSCatInfoNodeFlags, &processInfo, NULL, NULL, NULL);
    if (processInfo.nodeFlags & kFSNodeIsDirectoryMask) {
-      strncpy(path, __crt0_argv[0], sizeof(path));
+      _al_sane_strncpy(path, __crt0_argv[0], sizeof(path));
       for (i = 0; i < 4; i++) {
          for (p = path + strlen(path); (p >= path) && (*p != '/'); p--);
          *p = '\0';

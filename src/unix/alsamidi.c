@@ -185,11 +185,11 @@ static int alsa_rawmidi_init(int input, int voices)
       snd_rawmidi_nonblock(rawmidi_handle, 0);
       snd_rawmidi_info_malloc(&info);
       snd_rawmidi_info(rawmidi_handle, info);
-      strcpy(alsa_rawmidi_desc, snd_rawmidi_info_get_name(info));
+      _al_sane_strncpy(alsa_rawmidi_desc, snd_rawmidi_info_get_name(info), 256);
 #else  /* ALLEGRO_ALSA_VERSION == 5 */
       snd_rawmidi_block_mode(rawmidi_handle, 1);
       snd_rawmidi_info(rawmidi_handle, &info);
-      strcpy(alsa_rawmidi_desc, info.name);
+      _al_sane_strncpy(alsa_rawmidi_desc, info.name, 256);
 #endif
       midi_alsa.desc = alsa_rawmidi_desc;
    }

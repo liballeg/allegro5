@@ -356,15 +356,15 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 
    do_uconvert(pattern, U_CURRENT, ff_data->dirname, U_ASCII, sizeof(ff_data->dirname));
    p = ff_get_filename(ff_data->dirname);
-   strncpy(ff_data->pattern, p, sizeof(ff_data->pattern));
+   _al_sane_strncpy(ff_data->pattern, p, sizeof(ff_data->pattern));
    if (p == ff_data->dirname)
-      strcpy(ff_data->dirname, "./");
+      _al_sane_strncpy(ff_data->dirname, "./", FF_MAXPATHLEN);
    else
       *p = 0;
 
    /* nasty bodge, but gives better compatibility with DOS programs */
    if (strcmp(ff_data->pattern, "*.*") == 0)
-      strcpy(ff_data->pattern, "*");
+      _al_sane_strncpy(ff_data->pattern, "*", FF_MAXPATHLEN);
 
    /* start the search */
    errno = *allegro_errno = 0;
@@ -420,7 +420,7 @@ int al_findnext(struct al_ffblk *info)
          strncat(tempname, entry->d_name, NAMLEN(entry));
 
       if (ff_match(tempname, ff_data->pattern)) {
-         strcpy(filename, ff_data->dirname);
+         _al_sane_strncpy(filename, ff_data->dirname, FF_MAXPATHLEN);
          ff_put_backslash(filename, sizeof(filename));
          strncat(filename, tempname, sizeof(filename) - strlen(filename) - 1);
 

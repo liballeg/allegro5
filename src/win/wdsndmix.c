@@ -160,8 +160,8 @@ DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
 
    driver_names[num] = malloc(strlen(name)+10);
    if (driver_names[num]) {
-      strcpy(driver_names[num], "Allegmix ");
-      strcpy(driver_names[num]+9, name);
+      _al_sane_strncpy(driver_names[num], "Allegmix ", strlen(name)+10);
+      _al_sane_strncpy(driver_names[num]+9, name, strlen(name)+1);
       driver->ascii_name = driver_names[num];
    }
 
@@ -268,39 +268,39 @@ static char *ds_err(long err)
    switch (err) {
 
       case DS_OK:
-         strcpy(err_str, "DS_OK");
+         _al_sane_strncpy(err_str, "DS_OK", 64);
          break;
 
       case DSERR_ALLOCATED:
-         strcpy(err_str, "DSERR_ALLOCATED");
+         _al_sane_strncpy(err_str, "DSERR_ALLOCATED", 64);
          break;
 
       case DSERR_BADFORMAT:
-         strcpy(err_str, "DSERR_BADFORMAT");
+         _al_sane_strncpy(err_str, "DSERR_BADFORMAT", 64);
          break;
 
       case DSERR_INVALIDPARAM:
-         strcpy(err_str, "DSERR_INVALIDPARAM");
+         _al_sane_strncpy(err_str, "DSERR_INVALIDPARAM", 64);
          break;
 
       case DSERR_NOAGGREGATION:
-         strcpy(err_str, "DSERR_NOAGGREGATION");
+         _al_sane_strncpy(err_str, "DSERR_NOAGGREGATION", 64);
          break;
 
       case DSERR_OUTOFMEMORY:
-         strcpy(err_str, "DSERR_OUTOFMEMORY");
+         _al_sane_strncpy(err_str, "DSERR_OUTOFMEMORY", 64);
          break;
 
       case DSERR_UNINITIALIZED:
-         strcpy(err_str, "DSERR_UNINITIALIZED");
+         _al_sane_strncpy(err_str, "DSERR_UNINITIALIZED", 64);
          break;
 
       case DSERR_UNSUPPORTED:
-         strcpy(err_str, "DSERR_UNSUPPORTED");
+         _al_sane_strncpy(err_str, "DSERR_UNSUPPORTED", 64);
          break;
 
       default:
-         strcpy(err_str, "DSERR_UNKNOWN");
+         _al_sane_strncpy(err_str, "DSERR_UNKNOWN", 64);
          break;
    }
 

@@ -288,7 +288,7 @@ static int grip_init()
 	    stick_class[i][stick] = GRIP_CLASS_AXIS;
 
 	    /* name stick... :( */
-	    strcpy(tmpstr, "Stick");
+	    _al_sane_strncpy(tmpstr, "Stick", 1287);
 	    if (joy[i].num_sticks > 1) {
 	       tmpstr[strlen(tmpstr)+2] = '\0';
 	       tmpstr[strlen(tmpstr)+1] = '1'+stick;
@@ -302,7 +302,7 @@ static int grip_init()
 	    joy[i].stick[stick].num_axis = ((stick*2) == last_axis) ? 1 : 2;
 	    _GrGetControlName(slot_index[i], GRIP_CLASS_AXIS, stick*2, tmpstr);
 	    if (tmpstr[0] == '\0')
-	       strcpy(tmpstr, "X");
+	       _al_sane_strncpy(tmpstr, "X", 1287);
 
 	    SIMPLIFY_AXIS(tmpstr);
 
@@ -314,7 +314,7 @@ static int grip_init()
 	    if (joy[i].stick[stick].num_axis == 2) {
 	       _GrGetControlName(slot_index[i], GRIP_CLASS_AXIS, stick*2 + 1, tmpstr);
 	       if (tmpstr[0] == '\0')
-		  strcpy(tmpstr, "Y");
+		  _al_sane_strncpy(tmpstr, "Y", 1287);
 
 	       SIMPLIFY_AXIS(tmpstr);
 
@@ -348,7 +348,7 @@ static int grip_init()
 	    stick_class[i][stick] = GRIP_CLASS_ANALOG;
 
 	    /* name pad... :( */
-	    strcpy(tmpstr, "Analog");
+	    _al_sane_strncpy(tmpstr, "Analog", 1287);
 	    if (num_pads > 1) {
 	       tmpstr[strlen(tmpstr)+2] = '\0';
 	       tmpstr[strlen(tmpstr)+1] = '1'+stick-analog_start;
@@ -362,7 +362,7 @@ static int grip_init()
 	    joy[i].stick[stick].num_axis = 2;
 	    _GrGetControlName(slot_index[i], GRIP_CLASS_ANALOG, (stick-analog_start)*2, tmpstr);
 	    if (tmpstr[0] == '\0')
-	       strcpy(tmpstr, "X");
+	       _al_sane_strncpy(tmpstr, "X", 1287);
 
 	    SIMPLIFY_AXIS(tmpstr);
 
@@ -373,7 +373,7 @@ static int grip_init()
 
 	    _GrGetControlName(slot_index[i], GRIP_CLASS_ANALOG, (stick-analog_start)*2 + 1, tmpstr);
 	    if (tmpstr[0] == '\0')
-	       strcpy(tmpstr, "Y");
+	       _al_sane_strncpy(tmpstr, "Y", 1287);
 
 	    SIMPLIFY_AXIS(tmpstr);
 
@@ -406,7 +406,7 @@ static int grip_init()
 	    stick_class[i][stick] = GRIP_CLASS_POV_HAT;
 
 	    /* name hat... :( */
-	    strcpy(tmpstr, "Hat");
+	    _al_sane_strncpy(tmpstr, "Hat", 1287);
 	    if (num_hats > 1) {
 	       tmpstr[strlen(tmpstr)+2] = '\0';
 	       tmpstr[strlen(tmpstr)+1] = '1'+stick-pov_start;
@@ -420,7 +420,7 @@ static int grip_init()
 	    joy[i].stick[stick].num_axis = 2;
 	    _GrGetControlName(slot_index[i], GRIP_CLASS_POV_HAT, (stick-pov_start)*2, tmpstr);
 	    if (tmpstr[0] == '\0')
-	       strcpy(tmpstr, "X");
+	       _al_sane_strncpy(tmpstr, "X", 1287);
 
 	    SIMPLIFY_AXIS(tmpstr);
 
@@ -431,7 +431,7 @@ static int grip_init()
 
 	    _GrGetControlName(slot_index[i], GRIP_CLASS_POV_HAT, (stick-pov_start)*2 + 1, tmpstr);
 	    if (tmpstr[0] == '\0')
-	       strcpy(tmpstr, "Y");
+	       _al_sane_strncpy(tmpstr, "Y", 1287);
 
 	    SIMPLIFY_AXIS(tmpstr);
 
@@ -499,7 +499,7 @@ static int grip_init()
 	    joy[i].stick[stick].num_axis = last_axis;
 
 	    /* name throttle... */
-	    strcpy(tmpstr, "Throttle");
+	    _al_sane_strncpy(tmpstr, "Throttle", 1287);
 	    if (num_throt_sticks > 1) {
 	       tmpstr[strlen(tmpstr)+2] = '\0';
 	       tmpstr[strlen(tmpstr)+1] = '1'+stick-throttle_start;
@@ -512,7 +512,7 @@ static int grip_init()
 	       /* name axis */
 	       _GrGetControlName(slot_index[i], GRIP_CLASS_THROTTLE, throttle_count, tmpstr);
 	       if (tmpstr[0] == '\0')
-		  strcpy(tmpstr, "Throttle");
+		  _al_sane_strncpy(tmpstr, "Throttle", 1287);
 
 	       joy[i].stick[stick].axis[a].name = get_config_text(tmpstr);
 	       joy[i].stick[stick].axis[a].pos = 0;
@@ -540,7 +540,7 @@ static int grip_init()
 	 for (b=0; b<joy[i].num_buttons; b++) {
 	    _GrGetControlName(slot_index[i], GRIP_CLASS_BUTTON, b, tmpstr);
 	    if (tmpstr[0] == '\0')
-	       strcpy(tmpstr, name_b[b]);
+	       _al_sane_strncpy(tmpstr, name_b[b], 1287);
 	    joy[i].button[b].name = get_config_text(tmpstr);
 	    joy[i].button[b].b = 0;
 	 }
