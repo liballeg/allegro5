@@ -2032,6 +2032,7 @@ typedef struct DIALOG_PLAYER
    int click_wait;
    int mouse_ox, mouse_oy;
    int mouse_oz;
+   int mouse_b;
    DIALOG *dialog;
    struct DIALOG_PLAYER *previous;
 } DIALOG_PLAYER;
@@ -2076,7 +2077,13 @@ typedef struct DIALOG_PLAYER
 #define MSG_IDLE        15       /* update any background stuff */
 #define MSG_RADIO       16       /* clear radio buttons */
 #define MSG_WHEEL       17       /* mouse wheel moved */
-#define MSG_USER        18       /* from here on are free... */
+#define MSG_LPRESS      18       /* mouse left button pressed */
+#define MSG_LRELEASE    19       /* mouse left button released */
+#define MSG_MPRESS      20       /* mouse middle button pressed */
+#define MSG_MRELEASE    21       /* mouse middle button released */
+#define MSG_RPRESS      22       /* mouse right button pressed */
+#define MSG_RRELEASE    23       /* mouse right button released */
+#define MSG_USER        24       /* from here on are free... */
 
 
 /* some dialog procedures */

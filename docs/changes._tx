@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Vincent Penquerc'h added mouse button press/release events to 
+   the GUI system.
+<li>
    3.9.33: Peter Wang solved a conflict with SVGAlib.
 <li>
    3.9.33: Vincent Penquerc'h added the XCRP and YCRP properties to bitmap 

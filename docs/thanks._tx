@@ -528,11 +528,12 @@ Contributors
    getting the IF-SEGA joystick drivers by S.Suzuki merged into my codebase.
 
    Vincent Penquerc'h (<email>vpenquerch@cr2a-di.fr</a>).<br>
-   Added the D_DIRTY flag to the GUI system, optimised the 256 to truecolor 
-   blitting code to avoid repeated conversions of the palette table, added 
-   scare_mouse_area(), added the yield_timeslice() function, added the 
-   update selection function to the grabber, and made various other bugfixes 
-   and improvements.
+   Added the D_DIRTY flag and mouse button press/release events to the GUI
+   system, optimised the 256 to truecolor blitting code to avoid repeated 
+   conversions of the palette table, added scare_mouse_area(), added the 
+   yield_timeslice() function, added the update selection function to the 
+   grabber, added the XCRP and YCRP properties to datafiles in general, and 
+   made various other bugfixes and improvements.
 
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.
