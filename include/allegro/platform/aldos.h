@@ -71,6 +71,7 @@ AL_VAR(MOUSE_DRIVER, mousedrv_win2k);
 #define JOY_TYPE_WINGEX          AL_ID('W','I','N','G')
 #define JOY_TYPE_SIDEWINDER      AL_ID('S','W',' ',' ')
 #define JOY_TYPE_SIDEWINDER_AG   AL_ID('S','W','A','G')
+#define JOY_TYPE_SIDEWINDER_PP   AL_ID('S','W','P','P')
 #define JOY_TYPE_GAMEPAD_PRO     AL_ID('G','P','R','O')
 #define JOY_TYPE_GRIP            AL_ID('G','R','I','P')
 #define JOY_TYPE_GRIP4           AL_ID('G','R','I','4')
@@ -104,6 +105,7 @@ AL_VAR(JOYSTICK_DRIVER, joystick_fspro);
 AL_VAR(JOYSTICK_DRIVER, joystick_wingex);
 AL_VAR(JOYSTICK_DRIVER, joystick_sw);
 AL_VAR(JOYSTICK_DRIVER, joystick_sw_ag);
+AL_VAR(JOYSTICK_DRIVER, joystick_sw_pp);
 AL_VAR(JOYSTICK_DRIVER, joystick_gpro);
 AL_VAR(JOYSTICK_DRIVER, joystick_grip);
 AL_VAR(JOYSTICK_DRIVER, joystick_grip4);
@@ -139,7 +141,8 @@ AL_VAR(JOYSTICK_DRIVER, joystick_ww);
 
 #define JOYSTICK_DRIVER_SIDEWINDER                                \
       { JOY_TYPE_SIDEWINDER,     &joystick_sw,        TRUE  },    \
-      { JOY_TYPE_SIDEWINDER_AG,  &joystick_sw_ag,     TRUE  },
+      { JOY_TYPE_SIDEWINDER_AG,  &joystick_sw_ag,     TRUE  },    \
+      { JOY_TYPE_SIDEWINDER_PP,  &joystick_sw_pp,     TRUE  },
 
 #define JOYSTICK_DRIVER_GAMEPAD_PRO                               \
       { JOY_TYPE_GAMEPAD_PRO,    &joystick_gpro,      TRUE  },

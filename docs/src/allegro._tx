@@ -7745,6 +7745,9 @@ DOS specifics
       An alternative driver to JOY_TYPE_SIDEWINDER.
       Try this if your Sidewinder isn't recognized with JOY_TYPE_SIDEWINDER.
 <li>
+   JOY_TYPE_SIDEWINDER_PP<br>
+      The Microsoft Sidewinder 3D/Precision/Force Feedback Pro joysticks.
+<li>
    JOY_TYPE_GAMEPAD_PRO<br>
       The Gravis GamePad Pro (supports up to two controllers, each with ten 
       buttons and a digital direction control).

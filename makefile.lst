@@ -148,6 +148,8 @@ ALLEGRO_SRC_DOS_FILES = \
 	src/dos/sndscape.c \
 	src/dos/snespad.c \
 	src/dos/sw.c \
+	src/dos/swpp.c \
+	src/dos/swpps.s \
 	src/dos/vesa.c \
 	src/dos/vesas.s \
 	src/dos/wss.c \
