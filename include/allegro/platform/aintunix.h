@@ -219,20 +219,6 @@ AL_INLINE(void, _al_cond_wait, (_AL_COND *cond, _AL_MUTEX *mutex),
    pthread_cond_wait(&cond->cond, &mutex->mutex);
 })
 
-AL_INLINE(int, _al_cond_timedwait, (_AL_COND *cond, _AL_MUTEX *mutex,
-				    unsigned long abstime),
-{
-   struct timespec timeout;
-   int retcode = 0;
-
-   timeout.tv_sec = abstime / 1000;
-   timeout.tv_nsec = (abstime % 1000) * 1000;
-
-   retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex, &timeout);
-
-   return (retcode == ETIMEDOUT) ? -1 : 0;
-})
-
 AL_INLINE(void, _al_cond_broadcast, (_AL_COND *cond),
 {
    pthread_cond_broadcast(&cond->cond);

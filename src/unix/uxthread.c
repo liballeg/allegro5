@@ -16,6 +16,8 @@
  */
 
 
+#include <sys/time.h>
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
@@ -88,6 +90,37 @@ void _al_mutex_destroy(_AL_MUTEX *mutex)
    mutex->inited = false;
 }
 
+
+/* condition variables */
+/* most of the condition variable implementation is actually inline */
+
+int _al_cond_timedwait(_AL_COND *cond, _AL_MUTEX *mutex, unsigned long abstime)
+{
+   long msecs;
+   struct timeval now;
+   struct timespec timeout;
+   int retcode = 0;
+
+   /* FIXME: It is rather stupid that abstime is referenced to
+    * al_current_time() base.  A different interface is needed, which
+    * takes into account that win32 uses relative timeouts for
+    * WaitFor*, but relative timeouts are bad for _al_cond_timedwait().
+    */
+   
+   msecs = abstime - al_current_time();
+   if (msecs < 0)
+      return -1;
+
+   gettimeofday(&now, NULL);
+   timeout.tv_sec = now.tv_sec + (msecs / 1000);
+   timeout.tv_nsec = (now.tv_usec + (msecs % 1000)) * 1000;
+   timeout.tv_sec += timeout.tv_nsec / 1000000000L;
+   timeout.tv_nsec = timeout.tv_nsec % 1000000000L;
+
+   retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex, &timeout);
+
+   return (retcode == ETIMEDOUT) ? -1 : 0;
+}
 
 
 /*
