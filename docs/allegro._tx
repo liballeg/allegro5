@@ -909,6 +909,10 @@ language = x<br>
    location pointed to by the ALLEGRO environment variable. Look in the 
    language.dat file to see which mappings are currently available.
 <li>
+menu_opening_delay = x<br>
+   Sets how long the menus take to auto-open. The time is given in milliseconds 
+   (default is 300). Specifying -1 will disable the auto-opening feature.
+<li>
 disable_mt_timer = x<br>
    Windows only: sets whether to disable the multi-threaded timer driver (yes 
    or no). The multi-threaded driver can cause problems with the MSVC debugger.

@@ -1434,6 +1434,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
    int mouse_sel;
    int _x, _y;
    int redraw = TRUE;
+   int back_from_child = FALSE;
 
    scare_mouse();
 
@@ -1616,18 +1617,23 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
             break;
          }
 
-         if ((m.bar) && (mouse_sel >= 0) && (m.menu[mouse_sel].child)) {
-            /* don't wait for bar menu items */
-            ret = mouse_sel;
-            gui_timer = 0;
-         }
-         else {
-            /* sub menu auto-opening if enough time has passed */
-            if ((gui_timer > gui_menu_opening_delay) &&
-                (mouse_sel >= 0) && (m.menu[mouse_sel].child))
-               ret = mouse_sel;
+         if ((m.sel >= 0) && (m.menu[m.sel].child)) {
+            if (m.bar) {
+               /* top level menu auto-opening if back from child */
+               if (back_from_child) {
+                  gui_timer = 0;
+                  ret = m.sel;
+               }
+            }
+            else {
+               /* sub menu auto-opening if enough time has passed */
+               if (gui_timer > gui_menu_opening_delay)
+                  ret = m.sel;
+            }
          }
       }
+
+      back_from_child = FALSE;
 
       if ((ret >= 0) && (m.menu[ret].flags & D_DISABLED))
 	 ret = -1;
@@ -1653,6 +1659,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 		  redraw = TRUE;
 		  mouse_on = FALSE;
 		  gui_timer = 0;
+                  back_from_child = TRUE;
 	       }
 	    }
 	 }
