@@ -327,7 +327,7 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 	 if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	    dialog[count].flags &= ~D_DIRTY;
 	    scare_mouse();
-	    SEND_MESSAGE(dialog+count, MSG_DRAW, 0);
+	    object_message(dialog+count, MSG_DRAW, 0);
 	    unscare_mouse();
 	 }
       }
@@ -392,7 +392,7 @@ int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
 
    /* check if object wants the focus */
    if (obj >= 0) {
-      res = SEND_MESSAGE(d+obj, MSG_WANTFOCUS, 0);
+      res = object_message(d+obj, MSG_WANTFOCUS, 0);
       if (res & D_WANTFOCUS)
 	 res ^= D_WANTFOCUS;
       else
@@ -402,7 +402,7 @@ int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
    if ((obj >= 0) || (force)) {
       /* take focus away from old object */
       if (*focus_obj >= 0) {
-	 res |= SEND_MESSAGE(d+*focus_obj, MSG_LOSTFOCUS, 0);
+	 res |= object_message(d+*focus_obj, MSG_LOSTFOCUS, 0);
 	 if (res & D_WANTFOCUS) {
 	    if (obj < 0)
 	       return D_O_K;
@@ -411,7 +411,7 @@ int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
 	 }
 	 d[*focus_obj].flags &= ~D_GOTFOCUS;
 	 scare_mouse();
-	 res |= SEND_MESSAGE(d+*focus_obj, MSG_DRAW, 0);
+	 res |= object_message(d+*focus_obj, MSG_DRAW, 0);
 	 unscare_mouse();
       }
 
@@ -421,8 +421,8 @@ int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
       if (obj >= 0) {
 	 scare_mouse();
 	 d[obj].flags |= D_GOTFOCUS;
-	 res |= SEND_MESSAGE(d+obj, MSG_GOTFOCUS, 0);
-	 res |= SEND_MESSAGE(d+obj, MSG_DRAW, 0);
+	 res |= object_message(d+obj, MSG_GOTFOCUS, 0);
+	 res |= object_message(d+obj, MSG_DRAW, 0);
 	 unscare_mouse();
       }
    }
@@ -595,7 +595,7 @@ static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
 
 
 #define MESSAGE(i, msg, c) {                       \
-   r = SEND_MESSAGE(player->dialog+i, msg, c);     \
+   r = object_message(player->dialog+i, msg, c);   \
    if (r != D_O_K) {                               \
       player->res |= r;                            \
       player->obj = i;                             \
@@ -756,7 +756,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    else
       c = player->mouse_obj;
 
-   if ((c >= 0) && ((SEND_MESSAGE(dialog+c, MSG_WANTFOCUS, 0)) & D_WANTFOCUS)) {
+   if ((c >= 0) && ((object_message(dialog+c, MSG_WANTFOCUS, 0)) & D_WANTFOCUS)) {
       dialog[c].flags |= D_GOTFOCUS;
       player->focus_obj = c;
    }
@@ -1807,7 +1807,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	 for (i=0; active_dialog[i].proc; i++)
 	    if (active_dialog[i].flags & D_GOTMOUSE) {
 	       active_dialog[i].flags &= ~D_GOTMOUSE;
-	       SEND_MESSAGE(active_dialog+i, MSG_LOSTMOUSE, 0);
+	       object_message(active_dialog+i, MSG_LOSTMOUSE, 0);
 	       break;
 	    }
 
@@ -1821,7 +1821,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
 	 i = find_mouse_object(active_dialog);
 	 if (i >= 0) {
 	    active_dialog[i].flags |= D_GOTMOUSE;
-	    SEND_MESSAGE(active_dialog+i, MSG_GOTMOUSE, 0);
+	    object_message(active_dialog+i, MSG_GOTMOUSE, 0);
 	 }
 	 break;
    }

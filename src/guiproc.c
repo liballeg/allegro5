@@ -341,7 +341,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	 /* or just toggle */
 	 d->flags ^= D_SELECTED;
 	 scare_mouse();
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 unscare_mouse();
 	 break;
 
@@ -365,7 +365,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	       d->flags ^= D_SELECTED;
 	       state1 = d->flags & D_SELECTED;
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	    }
 
@@ -486,7 +486,7 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	 if ((c == d->d1) && (d->flags & D_SELECTED)) {
 	    d->flags &= ~D_SELECTED;
 	    scare_mouse();
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    unscare_mouse();
 	 }
 	 break;
@@ -715,7 +715,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	 }
 	 d->d2 = MID(0, p, l);
 	 scare_mouse();
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 unscare_mouse();
 	 break;
 
@@ -780,7 +780,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	 else if ((c >> 8) == KEY_ENTER) {
 	    if (d->flags & D_EXIT) {
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	       return D_CLOSE;
 	    }
@@ -796,7 +796,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	    break;
 	 }
 	 scare_mouse();
-	 SEND_MESSAGE(d, MSG_DRAW, 0);
+	 object_message(d, MSG_DRAW, 0);
 	 unscare_mouse();
 	 return D_USED_CHAR;
 
@@ -807,7 +807,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	       d->d2++;
 
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	    }
 	    return D_USED_CHAR;
@@ -845,7 +845,7 @@ void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, int h
 	    if (yy != *offset) {
 	       *offset = yy;
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	    }
 
@@ -868,7 +868,7 @@ void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, int h
 	 if (yy != *offset) {
 	    *offset = yy;
 	    scare_mouse();
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    unscare_mouse();
 	 }
       }
@@ -1161,7 +1161,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	       }
 	       if (redraw) {
 		  scare_mouse();
-		  SEND_MESSAGE(d, MSG_DRAW, 0);
+		  object_message(d, MSG_DRAW, 0);
 		  unscare_mouse();
 	       }
 	    }
@@ -1186,7 +1186,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	    if (d->flags & D_EXIT) {
 	       if (listsize) {
 		  i = d->d1;
-		  SEND_MESSAGE(d, MSG_CLICK, 0);
+		  object_message(d, MSG_CLICK, 0);
 		  if (i == d->d1) 
 		     return D_CLOSE;
 	       }
@@ -1206,7 +1206,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	    if (i != d->d2) {
 	       d->d2 = i;
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse(); 
 	    }
 	 }
@@ -1342,7 +1342,7 @@ int d_text_list_proc(int msg, DIALOG *d, int c)
 
 			_handle_scrollable_scroll(d, listsize, &d->d1, &d->d2);
 			scare_mouse();
-			SEND_MESSAGE(d, MSG_DRAW, 0);
+			object_message(d, MSG_DRAW, 0);
 			unscare_mouse();
 			return D_USED_CHAR;
 		     }
@@ -1895,7 +1895,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       }
 
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	    }
 	 }
@@ -1912,7 +1912,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	    }
 
 	    scare_mouse();
-	    SEND_MESSAGE(d, MSG_DRAW, 0);
+	    object_message(d, MSG_DRAW, 0);
 	    unscare_mouse();
 	 }
 	 break;
@@ -1946,7 +1946,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       }
 
 	       scare_mouse();
-	       SEND_MESSAGE(d, MSG_DRAW, 0);
+	       object_message(d, MSG_DRAW, 0);
 	       unscare_mouse();
 	    }
 
