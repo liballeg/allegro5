@@ -1270,8 +1270,10 @@ AL_INLINE(int, SEND_MESSAGE, (DIALOG *d, int msg, int c),
 {
    int ret;
 
-   if (msg == MSG_DRAW)
+   if (msg == MSG_DRAW) {
+      if (d->flags & D_HIDDEN) return D_O_K;
       acquire_screen();
+   }
 
    ret = d->proc(msg, d, c);
 
