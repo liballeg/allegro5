@@ -1,7 +1,6 @@
 #
-#  Rules for building the Allegro static link library with MINGW32.
-#  This file is included by the primary makefile,
-#  and should not be used directly.
+#  Rules for building the Allegro library with Mingw32. This file is included
+#  by the primary makefile, and should not be used directly.
 #
 #  The "depend" target uses sed.
 #

@@ -7,7 +7,7 @@
 #        DEBUGMODE=1       selects a debug build.
 #        PROFILEMODE=1     selects a profiling build.
 #        WARNMODE=1        selects strict compiler warnings.
-#        STATICLINK=1      use static linking (MSVC only).
+#        STATICLINK=1      use static linking (MSVC, Mingw32).
 #        PGCC=1            use PGCC compiler switches (djgpp, RSXNT, Mingw32).
 #        PENTIUMONLY=1     make the library faster, but pentium-only.
 #        CROSSCOMPILE=1    build djgpp version under Linux (djgpp only).
