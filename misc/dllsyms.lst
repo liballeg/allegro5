@@ -51,6 +51,7 @@
     _sort_out_putc
     _system_driver_list DATA
     _tan_tbl DATA
+    _textmode DATA
     _timer_driver_list DATA
     _ustrdup
     _vtable_list DATA
@@ -177,6 +178,7 @@
     dot_product
     dot_product_f
     draw_character
+    draw_character_ex
     draw_compiled_sprite
     draw_gouraud_sprite
     draw_lit_rle_sprite
@@ -348,6 +350,7 @@
     gui_strlen
     gui_text_list_proc DATA
     gui_textout
+    gui_textout_ex
     hline
     hook_config_section
     hsv_to_rgb
@@ -657,12 +660,20 @@
     text_mode
     textout
     textout_centre
+    textout_centre_ex
+    textout_ex
     textout_justify
+    textout_justify_ex
     textout_right
+    textout_right_ex
     textprintf
     textprintf_centre
+    textprintf_centre_ex
+    textprintf_ex
     textprintf_justify
+    textprintf_justify_ex
     textprintf_right
+    textprintf_right_ex
     three_finger_flag DATA
     timer_can_simulate_retrace
     timer_driver DATA
@@ -1289,7 +1300,6 @@
     _sub_bitmap_id_count DATA
     _switch_in
     _switch_out
-    _textmode DATA
     _timer_installed DATA
     _timer_queue DATA
     _timer_use_retrace DATA
