@@ -20,6 +20,10 @@
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
 
+#ifndef SCAN_DEPEND
+   #include <process.h>
+#endif
+
 
 
 /* threads */
