@@ -7695,8 +7695,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based) with
-                             direct mixing (backward playing is not
-                             supported)
+                             direct mixing
       DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with
                              Allegro mixing
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
