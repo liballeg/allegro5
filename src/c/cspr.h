@@ -22,7 +22,7 @@
  *  Draws a sprite onto a linear bitmap at the specified x, y position,
  *  using a masked drawing mode where zero pixels are not output.
  */
-void FUNC_LINEAR_DRAW_SPRITE(BITMAP *dst,AL_CONST BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -67,7 +67,7 @@ void FUNC_LINEAR_DRAW_SPRITE(BITMAP *dst,AL_CONST BITMAP *src, int dx, int dy)
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_PIXEL(d, c);
 	    }
 	 }
@@ -82,7 +82,7 @@ void FUNC_LINEAR_DRAW_SPRITE(BITMAP *dst,AL_CONST BITMAP *src, int dx, int dy)
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), INC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_MEMORY_PIXEL(d, c);
 	    }
 	 }
@@ -98,7 +98,7 @@ void FUNC_LINEAR_DRAW_SPRITE_END(void) { }
  *  Draws a 256 coor sprite onto a linear bitmap at the specified x, y
  *  position, using a masked drawing mode where zero pixels are not output.
  */
-void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst,AL_CONST BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -176,7 +176,7 @@ void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst,AL_CONST BITMAP *src, int dx, int d
 /* _linear_draw_sprite_v_flip:
  *  Draws a sprite to a linear bitmap, flipping vertically.
  */
-void FUNC_LINEAR_DRAW_SPRITE_V_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_SPRITE_V_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -251,7 +251,7 @@ void FUNC_LINEAR_DRAW_SPRITE_V_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, i
 /* _linear_draw_sprite_h_flip:
  *  Draws a sprite to a linear bitmap, flipping horizontally.
  */
-void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -298,7 +298,7 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, i
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_PIXEL(d, c);
 	    }
 	 }
@@ -313,7 +313,7 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, i
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_MEMORY_PIXEL(d, c);
 	    }
 	 }
@@ -326,7 +326,7 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, i
 /* _linear_draw_sprite_vh_flip:
  *  Draws a sprite to a linear bitmap, flipping both vertically and horizontally.
  */
-void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -375,7 +375,7 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, 
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_PIXEL(d, c);
 	    }
 	 }
@@ -390,7 +390,7 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, 
 
 	 for (x = w - 1; x >= 0; INC_PIXEL_PTR(s), DEC_PIXEL_PTR(d), x--) {
 	    unsigned long c = GET_MEMORY_PIXEL(s);
-	    if (!IS_SPRITE_MASK((BITMAP *)src, c)) {
+	    if (!IS_SPRITE_MASK(src, c)) {
 	       PUT_MEMORY_PIXEL(d, c);
 	    }
 	 }
@@ -403,7 +403,7 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst,AL_CONST  BITMAP *src, int dx, 
 /* _linear_draw_trans_sprite:
  *  Draws a translucent sprite onto a linear bitmap.
  */
-void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -497,7 +497,7 @@ void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst,AL_CONST  BITMAP *src, int dx, in
 /* _linear_draw_trans_rgba_sprite:
  *  Draws a translucent RGBA sprite onto a linear bitmap.
  */
-void FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy)
+void FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -561,7 +561,7 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE(BITMAP *dst,AL_CONST  BITMAP *src, int d
 /* _linear_draw_lit_sprite:
  *  Draws a lit sprite onto a linear bitmap.
  */
-void FUNC_LINEAR_DRAW_LIT_SPRITE(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy, int color)
+void FUNC_LINEAR_DRAW_LIT_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
@@ -642,7 +642,7 @@ void FUNC_LINEAR_DRAW_LIT_SPRITE(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int 
  *  For proportional font output onto a linear bitmap: uses the sprite as
  *  a mask, replacing all set pixels with the specified color.
  */
-void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst,AL_CONST  BITMAP *src, int dx, int dy, int color)
+void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
 {
    int x, y, w, h;
    int dxbeg, dybeg;
