@@ -8748,6 +8748,7 @@ makefiles also provide some special pseudo-targets:
 @externalfile abi ABI compatibility information
 @externalfile ahack The Allegro hacker's guide
 @externalfile const Allegro `const'-correctness
+@externalfile packfile Packfile format information
 @headingnocontent
 Conclusion
 
