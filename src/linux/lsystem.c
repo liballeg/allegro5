@@ -30,9 +30,7 @@
 #include "linalleg.h"
 
 #ifdef HAVE_SYS_IO_H
-/* This exists in Red Hat systems, at least, and defines the iopl function
- * which, contrary to the documentation, is left out of unistd.h.
- */
+/* iopl() exists in here instead of unistd.h in glibc */
 #include <sys/io.h>
 #endif
 
