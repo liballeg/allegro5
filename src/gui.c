@@ -1136,6 +1136,9 @@ static void draw_menu_item(MENU_INFO *m, int c)
    int i, j, x, y, w;
    char buf[256], *tok;
    int my;
+   int rtm;
+
+   rtm=_textmode;
 
    if (m->menu[c].flags & D_DISABLED) {
       if (c == m->sel) {
@@ -1202,6 +1205,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
       line(screen, x+1, y+text_height(font)/2+1, x+3, y+text_height(font)+1, fg);
       line(screen, x+3, y+text_height(font)+1, x+6, y+2, fg);
    }
+   _textmode=rtm;
 }
 
 

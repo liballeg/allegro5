@@ -208,6 +208,10 @@ int d_bitmap_proc(int msg, DIALOG *d, int c)
  */
 int d_text_proc(int msg, DIALOG *d, int c)
 {
+   int rtm;
+
+   rtm=_textmode;
+
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       FONT *oldfont = font;
@@ -221,6 +225,8 @@ int d_text_proc(int msg, DIALOG *d, int c)
       font = oldfont;
    }
 
+   _textmode=rtm;
+
    return D_O_K;
 }
 
@@ -232,6 +238,10 @@ int d_text_proc(int msg, DIALOG *d, int c)
  */
 int d_ctext_proc(int msg, DIALOG *d, int c)
 {
+   int rtm;
+
+   rtm=_textmode;
+
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       FONT *oldfont = font;
@@ -245,6 +255,8 @@ int d_ctext_proc(int msg, DIALOG *d, int c)
       font = oldfont;
    }
 
+   _textmode=rtm;
+
    return D_O_K;
 }
 
@@ -256,6 +268,10 @@ int d_ctext_proc(int msg, DIALOG *d, int c)
  */
 int d_rtext_proc(int msg, DIALOG *d, int c)
 {
+   int rtm;
+
+   rtm=_textmode;
+
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       FONT *oldfont = font;
@@ -268,6 +284,8 @@ int d_rtext_proc(int msg, DIALOG *d, int c)
 
       font = oldfont;
    }
+
+   _textmode=rtm;
 
    return D_O_K;
 }
@@ -286,6 +304,9 @@ int d_button_proc(int msg, DIALOG *d, int c)
    int black;
    int swap;
    int g;
+   int rtm;
+
+   rtm=_textmode;
 
    switch (msg) {
 
@@ -372,6 +393,8 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	 break; 
    }
 
+   _textmode=rtm;
+
    return D_O_K;
 }
 
@@ -385,6 +408,9 @@ int d_check_proc(int msg, DIALOG *d, int c)
 {
    int x;
    int fg, bg;
+   int rtm;
+
+   rtm=_textmode;
 
    if (msg==MSG_DRAW) {
       fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
@@ -404,6 +430,8 @@ int d_check_proc(int msg, DIALOG *d, int c)
       return D_O_K;
    } 
 
+   _textmode=rtm;
+
    return d_button_proc(msg, d, 0);
 }
 
@@ -417,6 +445,9 @@ int d_check_proc(int msg, DIALOG *d, int c)
 int d_radio_proc(int msg, DIALOG *d, int c)
 {
    int x, center, r, ret, fg, bg;
+   int rtm;
+
+   rtm=_textmode;
 
    switch(msg) {
 
@@ -481,6 +512,8 @@ int d_radio_proc(int msg, DIALOG *d, int c)
       broadcast_dialog_message(MSG_RADIO, d->d1);
       d->flags |= D_SELECTED;
    }
+
+   _textmode=rtm;
 
    return ret;
 }
@@ -610,6 +643,9 @@ int d_edit_proc(int msg, DIALOG *d, int c)
    int f, l, p, w, x, fg, b, scroll;
    char buf[16];
    char *s;
+   int rtm;
+
+   rtm=_textmode;
 
    s = d->dp;
    l = ustrlen(s);
@@ -764,6 +800,8 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	 }
 	 break;
    }
+
+   _textmode=rtm;
 
    return D_O_K;
 }
@@ -1016,6 +1054,9 @@ void _draw_listbox(DIALOG *d)
    int fg_color, fg, bg;
    char *sel = d->dp2;
    char s[1024];
+   int rtm;
+
+   rtm=_textmode;
 
    (*(getfuncptr)d->dp)(-1, &listsize);
    height = (d->h-4) / text_height(font);
@@ -1067,6 +1108,8 @@ void _draw_listbox(DIALOG *d)
 
    /* draw frame, maybe with scrollbar */
    _draw_scrollable_frame(d, listsize, d->d2, height, fg_color, d->bg);
+
+   _textmode=rtm;
 }
 
 
@@ -1346,6 +1389,9 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    int line = 0;
    int i = 0;
    int noignore;
+   int rtm;
+
+   rtm=_textmode;
 
    usetc(s+usetc(s, '.'), 0);
    usetc(text+usetc(text, ' '), 0);
@@ -1503,6 +1549,8 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	 return;
       }
    }
+
+   _textmode=rtm;
 }
 
 
