@@ -47,7 +47,6 @@ int gui_textout(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int cent
    int in_pos = 0;
    int out_pos = 0;
    int pix_len, c;
-   ASSERT(bmp);
    ASSERT(s);
 
    while (((c = ugetc(s+in_pos)) != 0) && (out_pos<(int)(sizeof(tmp)-ucwidth(0)))) {
