@@ -33,8 +33,6 @@ int    __crt0_argc;
 char **__crt0_argv;
 extern void *_mangled_main_address;
 
-static int al_argc;
-static char **al_argv;
 static char *arg0;
 static int refresh_rate = 70;
 
@@ -98,12 +96,8 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       chdir(path);
       osx_bundle = [NSBundle mainBundle];
       arg0 = strdup([[osx_bundle bundlePath] lossyCString]);
-      al_argv = &arg0;
-      al_argc = 1;
-   }
-   else {
-      al_argc = __crt0_argc;
-      al_argv = __crt0_argv;
+      __crt0_argv = &arg0;
+      __crt0_argc = 1;
    }
    
    /* QuickTime Note Allocator seems not to like being initialized from a
@@ -172,7 +166,7 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
    while (![NSApp isActive]);
    
    /* Call the user main() */
-   result = real_main(al_argc, al_argv);
+   result = real_main(__crt0_argc, __crt0_argv);
    CloseComponent(osx_note_allocator);
    exit(result);
    

@@ -436,7 +436,7 @@ static void osx_sys_exit(void)
 static void osx_sys_get_executable_name(char *output, int size)
 {
    if (osx_bundle)
-      do_uconvert([[osx_bundle bundlePath] cString], U_ASCII, output, U_CURRENT, size);
+      do_uconvert([[osx_bundle bundlePath] lossyCString], U_ASCII, output, U_CURRENT, size);
    else
       do_uconvert(__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
 }

@@ -58,15 +58,13 @@
 extern int    __crt0_argc;
 extern char **__crt0_argv;
 
-#ifndef ALLEGRO_NO_MAGIC_MAIN
-   #define ALLEGRO_MAGIC_MAIN
-   #define main _mangled_main
-   #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
-#else
-   #undef END_OF_MAIN
-   #define END_OF_MAIN() void *_mangled_main_address;
-#endif
+/* Always use main() magic */
+#undef ALLEGRO_NO_MAGIC_MAIN
+#define ALLEGRO_MAGIC_MAIN
+#define main _mangled_main
+#undef END_OF_MAIN
+#define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
+
 
 /* System driver */
 #define SYSTEM_MACOSX           AL_ID('O','S','X',0)
