@@ -8,12 +8,14 @@
     _current_palette DATA
     _default_ds
     _digi_driver_list DATA
+    _get_allegro_version
     _getpixel
     _getpixel15
     _getpixel16
     _getpixel24
     _getpixel32
     _gfx_driver_list DATA
+    _install_allegro
     _joystick_driver_list DATA
     _keyboard_driver_list DATA
     _midi_driver_list DATA
@@ -47,6 +49,23 @@
     _rgb_scale_5 DATA
     _rgb_scale_6 DATA
     _set_color
+    _soft_arc
+    _soft_circle
+    _soft_circlefill
+    _soft_draw_gouraud_sprite
+    _soft_ellipse
+    _soft_ellipsefill
+    _soft_floodfill
+    _soft_polygon
+    _soft_polygon3d
+    _soft_polygon3d_f
+    _soft_quad3d
+    _soft_quad3d_f
+    _soft_rect
+    _soft_spline
+    _soft_triangle
+    _soft_triangle3d
+    _soft_triangle3d_f
     _sort_out_getc
     _sort_out_putc
     _system_driver_list DATA
@@ -398,6 +417,7 @@
     is_sub_bitmap
     is_system_bitmap
     is_video_bitmap
+    is_windowed_mode
     itofix
     joy DATA
     joystick_driver DATA
@@ -602,6 +622,7 @@
     save_sample
     save_tga
     scancode_to_ascii
+    scancode_to_name
     scare_mouse
     scare_mouse_area
     scene_gap DATA
@@ -609,6 +630,7 @@
     scene_polygon3d_f
     screen DATA
     scroll_screen
+    select_mouse_cursor
     select_palette
     set_add_blender
     set_allegro_resource_path
@@ -1010,7 +1032,9 @@
     _key_shift_table DATA
     _key_shifts DATA
     _key_standard_kb DATA
+    _keyboard_common_names DATA
     _keyboard_installed DATA
+    _keyboard_layout DATA
     _last_bank_1 DATA
     _last_bank_2 DATA
     _linear_blit16
@@ -1162,7 +1186,9 @@
     _parallelogram_map
     _parallelogram_map_standard
     _pckey_scancode_to_ascii
+    _pckey_scancode_to_name
     _pckeys_init
+    _pckeys_names DATA
     _phys_voice DATA
     _pivot_scaled_sprite_flip
     _poly_scanline_atex16
