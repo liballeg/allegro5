@@ -127,6 +127,7 @@ typedef struct HOOKS {
 typedef struct {
    int    d, w, h;
    uint32 mode;
+   uint32 space;
 } BE_MODE_TABLE;
 
 

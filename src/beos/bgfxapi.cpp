@@ -58,31 +58,31 @@ typedef void (*BLITTER_FUNCTION)(void **src, void **dest,
    int sx, int sy, int sw, int sh);
 
 AL_CONST BE_MODE_TABLE _be_mode_table[] = {
-   { 8,    640,  400, B_8_BIT_640x400    },
-   { 8,    640,  480, B_8_BIT_640x480    },
-   { 8,    800,  600, B_8_BIT_800x600    },
-   { 8,   1024,  768, B_8_BIT_1024x768   },
-   { 8,   1152,  900, B_8_BIT_1152x900   },
-   { 8,   1280, 1024, B_8_BIT_1280x1024  },
-   { 8,   1600, 1200, B_8_BIT_1600x1200  },
-   { 15,   640,  480, B_15_BIT_640x480   },
-   { 15,   800,  600, B_15_BIT_800x600   },
-   { 15,  1024,  768, B_15_BIT_1024x768  },
-   { 15,  1152,  900, B_15_BIT_1152x900  },
-   { 15,  1280, 1024, B_15_BIT_1280x1024 },
-   { 15,  1600, 1200, B_15_BIT_1600x1200 },
-   { 16,   640,  480, B_16_BIT_640x480   },
-   { 16,   800,  600, B_16_BIT_800x600   },
-   { 16,  1024,  768, B_16_BIT_1024x768  },
-   { 16,  1152,  900, B_16_BIT_1152x900  },
-   { 16,  1280, 1024, B_16_BIT_1280x1024 },
-   { 16,  1600, 1200, B_16_BIT_1600x1200 },
-   { 32,   640,  480, B_32_BIT_640x480   },
-   { 32,   800,  600, B_32_BIT_800x600   },
-   { 32,  1024,  768, B_32_BIT_1024x768  },
-   { 32,  1152,  900, B_32_BIT_1152x900  },
-   { 32,  1280, 1024, B_32_BIT_1280x1024 },
-   { 32,  1600, 1200, B_32_BIT_1600x1200 },
+   { 8,    640,  400, B_8_BIT_640x400,    B_CMAP8 },
+   { 8,    640,  480, B_8_BIT_640x480,    B_CMAP8 },
+   { 8,    800,  600, B_8_BIT_800x600,    B_CMAP8 },
+   { 8,   1024,  768, B_8_BIT_1024x768,   B_CMAP8 },
+   { 8,   1152,  900, B_8_BIT_1152x900,   B_CMAP8 },
+   { 8,   1280, 1024, B_8_BIT_1280x1024,  B_CMAP8 },
+   { 8,   1600, 1200, B_8_BIT_1600x1200,  B_CMAP8 },
+   { 15,   640,  480, B_15_BIT_640x480,   B_RGB15 },
+   { 15,   800,  600, B_15_BIT_800x600,   B_RGB15 },
+   { 15,  1024,  768, B_15_BIT_1024x768,  B_RGB15 },
+   { 15,  1152,  900, B_15_BIT_1152x900,  B_RGB15 },
+   { 15,  1280, 1024, B_15_BIT_1280x1024, B_RGB15 },
+   { 15,  1600, 1200, B_15_BIT_1600x1200, B_RGB15 },
+   { 16,   640,  480, B_16_BIT_640x480,   B_RGB16 },
+   { 16,   800,  600, B_16_BIT_800x600,   B_RGB16 },
+   { 16,  1024,  768, B_16_BIT_1024x768,  B_RGB16 },
+   { 16,  1152,  900, B_16_BIT_1152x900,  B_RGB16 },
+   { 16,  1280, 1024, B_16_BIT_1280x1024, B_RGB16 },
+   { 16,  1600, 1200, B_16_BIT_1600x1200, B_RGB16 },
+   { 32,   640,  480, B_32_BIT_640x480,   B_RGB32 },
+   { 32,   800,  600, B_32_BIT_800x600,   B_RGB32 },
+   { 32,  1024,  768, B_32_BIT_1024x768,  B_RGB32 },
+   { 32,  1152,  900, B_32_BIT_1152x900,  B_RGB32 },
+   { 32,  1280, 1024, B_32_BIT_1280x1024, B_RGB32 },
+   { 32,  1600, 1200, B_32_BIT_1600x1200, B_RGB32 },
    { -1 }
 };
 
@@ -620,25 +620,57 @@ static int32 palette_updater_thread(void *data)
  */
 extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
 {
-   int i, num_modes;
+   int j, be_mode, num_modes = 0;
+   uint32 i, count;
+   display_mode *mode;
+   bool already_there;
    
    destroy_gfx_mode_list();
-      
-   for (num_modes=0; _be_mode_table[num_modes].d > 0; num_modes++);
-   gfx_mode_list = (GFX_MODE_LIST *)malloc(sizeof(GFX_MODE_LIST) * num_modes);
-   if (!gfx_mode_list) return -1;
-  
-   for (i=0; i<num_modes; i++) {
-      gfx_mode_list[i].width = _be_mode_table[i].w;
-      gfx_mode_list[i].height = _be_mode_table[i].h;
-      gfx_mode_list[i].bpp = _be_mode_table[i].d;
-   }
+   
+   if (BScreen().GetModeList(&mode, &count) != B_OK)
+      return -1;
+   
+   for (i=0; i<count; i++) {
+      be_mode = 0;
+      while (_be_mode_table[be_mode].d > 0) {
+         if ((mode[i].virtual_width == _be_mode_table[be_mode].w) &&
+             (mode[i].virtual_height == _be_mode_table[be_mode].h) &&
+             (mode[i].space == _be_mode_table[be_mode].space))
+            break;
+         be_mode++;
+      }
+      if (_be_mode_table[be_mode].d == -1)
+         continue;
 
+      already_there = false;
+      for (j=0; j<num_modes; j++) {
+         if ((gfx_mode_list[j].width == _be_mode_table[be_mode].w) &&
+             (gfx_mode_list[j].height == _be_mode_table[be_mode].h) &&
+             (gfx_mode_list[j].bpp == _be_mode_table[be_mode].d)) {
+            already_there = true;
+            break;
+         }
+      }
+      if (!already_there) {
+         gfx_mode_list = (GFX_MODE_LIST *)realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (num_modes + 1));
+         if (!gfx_mode_list)
+            return -1;
+         gfx_mode_list[num_modes].width = _be_mode_table[be_mode].w;
+         gfx_mode_list[num_modes].height = _be_mode_table[be_mode].h;
+         gfx_mode_list[num_modes].bpp = _be_mode_table[be_mode].d;
+         num_modes++;
+      }
+   }
+   gfx_mode_list = (GFX_MODE_LIST *)realloc(gfx_mode_list, sizeof(GFX_MODE_LIST) * (num_modes + 1));
+   if (!gfx_mode_list)
+      return -1;
    gfx_mode_list[num_modes].width = 0;
    gfx_mode_list[num_modes].height = 0;
    gfx_mode_list[num_modes].bpp = 0;
 
    _gfx_mode_list_malloced = TRUE;
+   
+   free(mode);
    
    return 0;
 }
