@@ -954,7 +954,7 @@ static void _fb_set_pixclock(int new_val)
 void _module_init(int system_driver)
 {
    if (system_driver == SYSTEM_LINUX)
-      _unix_register_gfx_driver(GFX_FBCON, &gfx_fbcon, TRUE, FALSE);
+      _unix_register_gfx_driver(GFX_FBCON, &gfx_fbcon, TRUE, TRUE);
 }
 
 #endif      /* ifdef ALLEGRO_MODULE */
