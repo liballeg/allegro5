@@ -42,6 +42,7 @@ static void svga_vsync(void);
 static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync);
 static void svga_save(void);
 static void svga_restore(void);
+static int svga_fetch_mode_list(void);
 
 #ifndef ALLEGRO_NO_ASM
 unsigned long _svgalib_read_line_asm(BITMAP *bmp, int line);
@@ -69,7 +70,7 @@ GFX_DRIVER gfx_svgalib =
    NULL,                         /* no drawing mode hook */
    svga_save,
    svga_restore,
-   NULL,                         /* no fetch mode hook */
+   svga_fetch_mode_list,
    0, 0,
    TRUE,
    0, 0, 0, 0, FALSE
@@ -186,21 +187,33 @@ static int safe_vga_setmode(int num, int tio)
 
 
 
+/* get_depth:
+ *  SVGAlib speaks in number of colors and bytes per pixel.
+ *  Allegro speaks in color depths.
+ */
+static int get_depth(int ncolors, int bytesperpixel)
+{
+   if (ncolors == 256) return 8;
+   if (ncolors == 32768) return 15;
+   if (ncolors == 65536) return 16;
+   if (bytesperpixel == 3) return 24;
+   if (bytesperpixel == 4) return 32;
+   return -1;
+}
+
+
+
 /* mode_ok:
  *  Check if the mode passed matches the size and color depth requirements.
  */
 static int mode_ok(vga_modeinfo *info, int w, int h, int v_w, int v_h, 
 		   int color_depth)
 {
-   return ((((color_depth == 8) && (info->colors == 256))
-	    || ((color_depth == 15) && (info->colors == 32768))
-	    || ((color_depth == 16) && (info->colors == 65536))
-	    || ((color_depth == 24) && (info->bytesperpixel == 3))
-	    || ((color_depth == 32) && (info->bytesperpixel == 4)))
+   return ((color_depth == get_depth(info->colors, info->bytesperpixel))
 	   && (((info->width == w) && (info->height == h))
 	       || ((w == 0) && (h == 0)))
- 	   && (info->linewidth >= (MAX(w, v_w) * info->bytesperpixel))
- 	   && (info->maxpixels >= (MAX(w, v_w) * MAX(h, v_h))));
+	   && (info->linewidth >= (MAX(w, v_w) * info->bytesperpixel))
+	   && (info->maxpixels >= (MAX(w, v_w) * MAX(h, v_h))));
 }
 
 
@@ -399,6 +412,20 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
 
 
 
+/* svga_version2:
+ *  Returns non-zero if we have SVGAlib version 2 (or the prereleases).
+ */
+static int svga_version2()
+{
+   #ifdef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
+      return vga_version >= 0x1900;
+   #else
+      return 0;
+   #endif
+}
+
+
+
 /* svga_init:
  *  Entry point to set a video mode.
  */
@@ -406,7 +433,6 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    static int virgin = 1;
    BITMAP *bmp = NULL;
-   int svgalib2 = 0;
    
 #ifndef HAVE_LIBPTHREAD
    /* SVGAlib and the SIGALRM code don't like each other, so only support
@@ -415,12 +441,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
       return NULL;
 #endif
 
-   /* SVGAlib 2.0 doesn't require special permissions.  */
-#ifdef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
-   svgalib2 = vga_version >= 0x1900;
-#endif
-
-   if ((!svgalib2) && (!__al_linux_have_ioperms)) {
+   if ((!svga_version2()) && (!__al_linux_have_ioperms)) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs root privileges"));
       return NULL;
    }
@@ -431,7 +452,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* Initialise SVGAlib.  */
    if (virgin) {
-      if (!svgalib2) 
+      if (!svga_version2())
 	 seteuid(0);
       else {
 	 /* Avoid having SVGAlib calling exit() on us.  */
@@ -443,7 +464,7 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
       vga_disabledriverreport();
       if (vga_init() != 0)
 	 goto error;
-      if (!svgalib2)
+      if (!svga_version2())
 	 seteuid(getuid());
       virgin = 0;
    }
@@ -533,6 +554,55 @@ static void svga_restore()
 {
    safe_vga_setmode(svga_mode, 0);
    vga_setpage(0);
+}
+
+
+
+/* svga_fetch_mode_list:
+ *  Generates a list of valid video modes.
+ *  Returns 0 on success and -1 on failure.
+ */
+static int svga_fetch_mode_list(void)
+{
+   vga_modeinfo *info;
+   int i, count, bpp;
+
+   if ((!svga_version2()) && (!__al_linux_have_ioperms))
+      return -1;
+
+   for (i = 0, count = 0; i <= vga_lastmodenumber(); i++) {
+      if (vga_hasmode(i)) {
+	 info = vga_getmodeinfo(i);
+	 if (!(info->flags & IS_MODEX))
+	    count++;
+      }
+   }
+
+   free(gfx_mode_list);
+   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (count + 1));
+   if (!gfx_mode_list)
+      return -1;
+
+   for (i = 0, count = 0; i <= vga_lastmodenumber(); i++) {
+      if (!vga_hasmode(i))
+	 continue;
+      info = vga_getmodeinfo(i);
+      if (info->flags & IS_MODEX)
+	 continue;
+      bpp = get_depth(info->colors, info->bytesperpixel);
+      if (bpp < 0)
+	 continue;
+      gfx_mode_list[count].width = info->width;
+      gfx_mode_list[count].height = info->height;
+      gfx_mode_list[count].bpp = bpp;
+      count++;
+   }
+   
+   gfx_mode_list[count].width = 0;
+   gfx_mode_list[count].height = 0;
+   gfx_mode_list[count].bpp = 0;
+
+   return 0;
 }
 
 
