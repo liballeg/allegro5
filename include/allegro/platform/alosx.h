@@ -74,7 +74,7 @@ extern char **__crt0_argv;
 
 
 /* System driver */
-#define SYSTEM_MACOSX           AL_ID('O','S','X',0)
+#define SYSTEM_MACOSX           AL_ID('O','S','X',' ')
 AL_VAR(SYSTEM_DRIVER, system_macosx);
 
 /* Timer driver */
@@ -96,14 +96,14 @@ AL_VAR(GFX_DRIVER, gfx_quartz_window);
 AL_VAR(GFX_DRIVER, gfx_quartz_full);
 
 /* Digital sound drivers */
-#define DIGI_CORE_AUDIO         AL_ID('D','C','A',0)
+#define DIGI_CORE_AUDIO         AL_ID('D','C','A',' ')
 #define DIGI_SOUND_MANAGER      AL_ID('S','N','D','M')
 AL_VAR(DIGI_DRIVER, digi_core_audio);
 AL_VAR(DIGI_DRIVER, digi_sound_manager);
 
 /* MIDI music drivers */
-#define MIDI_CORE_AUDIO         AL_ID('M','C','A',0)
-#define MIDI_QUICKTIME          AL_ID('Q','T','M',0)
+#define MIDI_CORE_AUDIO         AL_ID('M','C','A',' ')
+#define MIDI_QUICKTIME          AL_ID('Q','T','M',' ')
 AL_VAR(MIDI_DRIVER, midi_core_audio);
 AL_VAR(MIDI_DRIVER, midi_quicktime);
 
