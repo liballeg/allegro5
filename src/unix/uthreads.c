@@ -239,7 +239,7 @@ void *_unix_create_mutex (void)
    }
 
    mx->lock_count = 0;
-   mx->owner = NULL;
+   mx->owner = (pthread_t) 0;
 
    pthread_mutex_init (&mx->actual_mutex, NULL);
 
@@ -289,7 +289,7 @@ void _unix_unlock_mutex (void *handle)
    mx->lock_count--;
 
    if (mx->lock_count == 0) {
-      mx->owner = NULL;
+      mx->owner = (pthread_t) 0;
       pthread_mutex_unlock (&mx->actual_mutex);
    }
 }
