@@ -1,0 +1,102 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		 QNX-specific information.
+
+	 See readme.txt for a more general overview.
+
+
+
+===================================
+============ QNX notes ============
+===================================
+
+   Status: it works, though these are still some synchronization problems
+   with the events handler. The ALSA digital sound driver needs some
+   investigations as it seems to have initialization problems: it sounds bad
+   for a while, and after some time it starts sounding nicely as it should.
+
+
+
+===========================================
+============ Required software ============
+===========================================
+
+   The library works with QNX 6.0 RTP. You need the development tools
+   installed on your system; if you don't have them, you can get them from the
+   QNX online repository using the Package Manager.
+
+
+
+============================================
+============ Installing Allegro ============
+============================================
+
+   As Allegro is a multiplatform library, you first need to set it up for use
+   on QNX RTP, by running:
+
+      sh fixqnx.sh
+
+   Now you may want to generate the dependencies; this step is optional if you
+   are using an official WIP release, but it is required if you got a CVS
+   snapshot of the library.
+
+      make depend
+
+   Then you need to build Allegro:
+
+      make
+
+   And finally install it (you need to be root for this):
+
+      su -c "make install"
+
+   Installing the library will copy the header files to /usr/include, the
+   library file to /x86/lib and the allegro-config script into /usr/bin.
+   
+   
+
+=======================================
+============ Using Allegro ============
+=======================================
+
+   Linking with Allegro requires you to link also other libraries to your
+   executables. To avoid you having to work out the right linker commands for
+   yourself, the installation creates a script, allegro-config, that will 
+   print out a suitable commandline. You can use this inside a backtick 
+   command substitution, for example:
+
+      gcc myfile.c -o myprogram `allegro-config --libs`
+
+   Or if you want to build a debug version of your program, assuming that 
+   you have installed the debug version of Allegro:
+
+      gcc myfile.c -o myprogram `allegro-config --libs debug`
+
+   Unix newbies, take note that these are ` backticks, not normal ' quotes!
+
+   There are also switches for printing out the Allegro version number and
+   overriding the install paths. Run allegro-config without any arguments
+   for a full list of options.
+
+   Don't forget that you need to use the END_OF_MAIN() macro right after 
+   your main() function!
+
+
+
+=====================================
+============ Final notes ============
+=====================================
+
+   Allegro for QNX requires you to be running the Photon MicroGUI environment;
+   if Photon cannot be found, the library will fail to initialize. If this
+   happens, you're probably in a text console; just run "ph" to start Photon.
+   

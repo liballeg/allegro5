@@ -96,16 +96,16 @@ $(INC_DIR)/allegro:
 
 HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
 
-#/bin/allegro-config:
-#	cp misc/allegro-config.be /bin/allegro-config
-#	chmod a+x /bin/allegro-config
+/usr/bin/allegro-config:
+	cp misc/allegro-config.qnx /usr/bin/allegro-config
+	chmod a+x /usr/bin/allegro-config
 
 INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a \
 		$(INC_DIR)/allegro.h \
 		$(INC_DIR)/qnxalleg.h \
 		$(INC_DIR)/allegro \
-		$(HEADERS)
-#		/bin/allegro-config
+		$(HEADERS) \
+		/usr/bin/allegro-config
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) QNX library has been installed.
@@ -116,7 +116,7 @@ UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.
 uninstall:
 	rm -f $(UNINSTALL_FILES)
 	rm -fr $(INC_DIR)/allegro
-#	rm -f /bin/allegro-config
+	rm -f /usr/bin/allegro-config
 	@echo All gone!	
 
 # -------- autodetect whether the assembler supports MMX instructions --------
