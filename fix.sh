@@ -41,7 +41,7 @@ proc_filelist()
       -name "*.h" -o -name "*.hin" -o -name "*.in" -o -name "*.inc" -o \
       -name "*.m4" -o -name "*.mft" -o -name "*.s" -o -name "*.rc" -o \
       -name "*.spec" -o -name "*.pl" -o -name "*.txt" -o -name "*._tx" -o \
-      -name "makefile*" -o -name "readme.*" -o -name "configure" -o \
+      -name "makefile*" -o -name "*.inl" -o -name "configure" -o \
       -name "CHANGES" -o -name "AUTHORS" -o -name "THANKS" \
    ")"`
 
@@ -75,7 +75,10 @@ proc_dtou()
       touch -r _tmpfile $file
       rm _tmpfile
    done
-   chmod -f +x configure *.sh misc/*.sh misc/*.pl
+   chmod +x *.sh misc/*.sh misc/*.pl
+   if [ -e configure ]; then
+      chmod +x configure
+   fi
 }
 
 proc_utom()
