@@ -125,7 +125,6 @@ information about how to install Allegro and link your program with it.
 
 @@Macro @END_OF_MAIN()
 @xref Windows specifics, Unix specifics, Differences between platforms
-@xref exhello
    In order to maintain cross-platform compatibility, you have to put this
    macro at the very end of your main function. This macro uses some `magic'
    to mangle your main procedure on platforms that need it like Windows
