@@ -1820,7 +1820,7 @@ static DIALOG mouse_dlg[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
    { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
    { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
-   { d_list_proc,       85,   36,   151,  84,   255,  16,   0,       D_EXIT,     0,             0,       (void*)mouse_getter,          NULL,    "Select a type of mouse" },
+   { d_list_proc,       70,   36,   181,  84,   255,  16,   0,       D_EXIT,     0,             0,       (void*)mouse_getter,          NULL,    "Select a type of mouse" },
    { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }

@@ -86,7 +86,7 @@ MOUSE_DRIVER mousedrv_mickeys =
    MOUSEDRV_MICKEYS,
    empty_string,
    empty_string,
-   "Mickey Mouse",
+   "Mickey mouse",
    mick_init,
    mick_exit,
    NULL,
@@ -114,7 +114,7 @@ MOUSE_DRIVER mousedrv_int33 =
    MOUSEDRV_INT33,
    empty_string,
    empty_string,
-   "int 0x33 mouse",
+   "Int 0x33 mouse",
    int33_init,
    int33_exit,
    NULL,
@@ -153,12 +153,60 @@ MOUSE_DRIVER mousedrv_polling =
 
 
 
+/* this driver is a wrapper for the polling driver*/
+static int winnt_init(void);
+
+
+MOUSE_DRIVER mousedrv_winnt =
+{
+   MOUSEDRV_POLLING,
+   empty_string,
+   empty_string,
+   "Windows NT mouse",
+   winnt_init,
+   polling_exit,
+   NULL,
+   polling_timer_poll,
+   int33_position,
+   int33_set_range,
+   int33_set_speed,
+   int33_get_mickeys,
+   NULL
+};
+
+
+
+/* this driver is a wrapper for the mickeys driver */
+static int win2k_init(void);
+
+
+MOUSE_DRIVER mousedrv_win2k =
+{
+   MOUSEDRV_MICKEYS,
+   empty_string,
+   empty_string,
+   "Windows 2000 mouse",
+   win2k_init,
+   mick_exit,
+   NULL,
+   NULL,
+   mick_position,
+   mick_set_range,
+   mick_set_speed,
+   mick_get_mickeys,
+   NULL
+};
+
+
+
 /* list the available drivers */
 _DRIVER_INFO _mouse_driver_list[] =
 {
    { MOUSEDRV_MICKEYS,  &mousedrv_mickeys,   TRUE  },
    { MOUSEDRV_INT33,    &mousedrv_int33,     TRUE  },
    { MOUSEDRV_POLLING,  &mousedrv_polling,   TRUE  },
+   { MOUSEDRV_WINNT,    &mousedrv_winnt,     TRUE  },
+   { MOUSEDRV_WIN2K,    &mousedrv_win2k,     TRUE  },
    { MOUSEDRV_NONE,     &mousedrv_none,      TRUE  },
    { 0,                 NULL,                0     }
 };
@@ -354,14 +402,11 @@ static void mick_get_mickeys(int *mickeyx, int *mickeyy)
 
 
 
-/* mick_init:
- *  Initialises the mickey-mode driver.
+/* mick_lock:
+ *  Locks the mickeys stuff.
  */
-static int mick_init()
+static void mick_lock(void)
 {
-   if (os_type == OSTYPE_WINNT)
-      return -1;
-
    LOCK_VARIABLE(mousedrv_mickeys);
    LOCK_VARIABLE(mouse_mx);
    LOCK_VARIABLE(mouse_my);
@@ -376,6 +421,35 @@ static int mick_init()
    LOCK_VARIABLE(mymickey_ox);
    LOCK_VARIABLE(mymickey_oy);
    LOCK_FUNCTION(mick_handler);
+}
+
+
+
+/* mick_init:
+ *  Initialises the mickey-mode driver.
+ */
+static int mick_init()
+{
+   if (os_type == OSTYPE_WINNT)
+      return -1;
+
+   mick_lock();
+
+   return init_mouse(mick_handler);
+}
+
+
+
+/* win2k_init:
+ *  Initialises the win2k driver.
+ */
+static int win2k_init()
+{
+   /* only for use under Win2k */
+   if (os_type != OSTYPE_WINNT)
+      return -1;
+
+   mick_lock();
 
    return init_mouse(mick_handler);
 }
@@ -561,6 +635,26 @@ END_OF_STATIC_FUNCTION(polling_timer_poll);
  */
 static int polling_init()
 {
+   if (os_type == OSTYPE_WINNT)
+      return -1;
+
+   LOCK_VARIABLE(mousedrv_polling);
+   LOCK_FUNCTION(polling_timer_poll);
+
+   return init_mouse(NULL);
+}
+
+
+
+/* winnt_init:
+ *  Initialises the WinNT driver.
+ */
+static int winnt_init()
+{
+   /* only for use under WinNT */
+   if (os_type != OSTYPE_WINNT)
+      return -1;
+
    LOCK_VARIABLE(mousedrv_polling);
    LOCK_FUNCTION(polling_timer_poll);
 

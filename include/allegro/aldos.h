@@ -50,10 +50,14 @@ AL_VAR(TIMER_DRIVER, timedrv_variable_rate);
 #define MOUSEDRV_MICKEYS         AL_ID('M','I','C','K')
 #define MOUSEDRV_INT33           AL_ID('I','3','3',' ')
 #define MOUSEDRV_POLLING         AL_ID('P','O','L','L')
+#define MOUSEDRV_WINNT           AL_ID('W','N','T',' ')
+#define MOUSEDRV_WIN2K           AL_ID('W','2','K',' ')
 
 AL_VAR(MOUSE_DRIVER, mousedrv_mickeys);
 AL_VAR(MOUSE_DRIVER, mousedrv_int33);
 AL_VAR(MOUSE_DRIVER, mousedrv_polling);
+AL_VAR(MOUSE_DRIVER, mousedrv_winnt);
+AL_VAR(MOUSE_DRIVER, mousedrv_win2k);
 
 
 
