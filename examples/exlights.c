@@ -150,6 +150,8 @@ BITMAP *create_light_graphic(void)
 
 
 
+#ifdef ALLEGRO_LITTLE_ENDIAN
+
 /* lookup tables for speeding up the color conversion */
 unsigned short rgtable[65536];
 unsigned long brtable[65536];
@@ -213,11 +215,11 @@ void blit_magic_format_to_screen(BITMAP *bmp)
     * components in a single lookup, and allow me to precalculate the 
     * makecol() operation.
     *
-    * Warning #2: this code is non endianess-safe. It will not port to
-    * a big-endian platform without some major rewriting.
+    * Warning #2: this code assumes little-endianess.
     *
     * Here is a (rather confusing) attempt to diagram the logic of the
-    * lookup table lighting conversion from 24 to 16 bit format:
+    * lookup table lighting conversion from 24 to 16 bit format in little-
+    * endian format:
     *
     *
     *  inputs: |     (dword 1)     |     (dword 2)     |     (dword 3)     |
@@ -285,6 +287,121 @@ void blit_magic_format_to_screen(BITMAP *bmp)
 }
 
 
+#elif defined ALLEGRO_BIG_ENDIAN
+
+
+/* lookup tables for speeding up the color conversion */
+unsigned short bgtable[65536];
+unsigned long rbtable[65536];
+unsigned short grtable[65536];
+
+
+
+/* builds some helper tables for doing color conversions */
+void generate_conversion_tables(void)
+{
+   int r, g, b;
+   int cr, cg, cb;
+
+   /* this table combines a 16 bit b+g value into a screen pixel */
+   for (b=0; b<256; b++) {
+      cb = (b&31) * (b>>5) * 255/217;
+      for (g=0; g<256; g++) {
+	 cg = (g&31) * (g>>5) * 255/217;
+	 bgtable[b+g*256] = makecol(0, cg, cb);
+      }
+   }
+
+   /* this table combines a 16 bit g+r value into a screen pixel */
+   for (r=0; r<256; r++) {
+      cr = (r&31) * (r>>5) * 255/217;
+      for (b=0; b<256; b++) {
+	 cb = (b&31) * (b>>5) * 255/217;
+	 rbtable[r+b*256] = makecol(cr, 0, 0) | (makecol(0, 0, cb) << 16);
+      }
+   }
+
+   /* this table combines a 16 bit r+r value into a screen pixel */
+   for (g=0; g<256; g++) {
+      cg = (g&31) * (g>>5) * 255/217;
+      for (r=0; r<256; r++) {
+	 cr = (r&31) * (r>>5) * 255/217;
+	 grtable[g+r*256] = makecol(cr, cg, 0);
+      }
+   }
+}
+
+
+
+/* copies from our magic format data onto a normal Allegro screen bitmap */
+void blit_magic_format_to_screen(BITMAP *bmp)
+{
+   unsigned long addr;
+   unsigned long *data;
+   unsigned long in1, in2, in3, temp1, temp2, temp3;
+   unsigned long out1, out2;
+   int x, y;
+
+   /* Warning: this is the big-endian version of the routine above. We need
+    * a different lookup tables arrangement and we also need to shuffle the
+    * bytes order before doing the lookup.
+    *
+    * Here is a (rather confusing) attempt to diagram the logic of the
+    * lookup table lighting conversion from 24 to 16 bit format in big-
+    * endian format:
+    *
+    *
+    *  inputs: |     (dword 1)     |     (dword 2)     |     (dword 3)     |
+    *  pixels: |   (pixel1)   |   (pixel2)   |   (pixel3)   |   (pixel4)   |
+    *  bytes:  | r2   b1   g1   r1   g3   r3   b2   g2   b4   g4   r4   b3 |
+    *  bytes2: | b2   g2   r2   b1   g1   r1   b4   g4   r4   b3   g3   r3 |
+    *          |    |         |         |         |         |         |    |
+    *  lookup: | bgtable   rbtable   grtable   bgtable   rbtable   grtable |
+    *          |    |         |         |         |         |         |    |
+    *  pixels: |   (pixel2)   |   (pixel1)   |   (pixel4)   |   (pixel3)   |
+    *  outputs |          (dword 1)          |          (dword 2)          |
+    */
+
+   bmp_select(screen);
+
+   for (y=0; y<SCREEN_H; y++) {
+      addr = bmp_write_line(screen, y);
+      data = (unsigned long *)bmp->line[y];
+
+      for (x=0; x<SCREEN_W/4; x++) {
+	 in1 = *(data++);
+	 in2 = *(data++);
+	 in3 = *(data++);
+
+	 /* trust me, this does make sense, really :-) */
+	 temp1 = (in1 << 16) | (in2 >> 16);
+	 temp2 = (in1 >> 16) | (in3 << 16);
+	 temp3 = (in3 >> 16) | (in2 << 16);
+
+	 out1 = bgtable[temp1&0xFFFF] |
+	        rbtable[temp1>>16] |
+		(grtable[temp2&0xFFFF] << 16);
+
+	 out2 = bgtable[temp2>>16] |
+	        rbtable[temp3&0xFFFF] |
+		(grtable[temp3>>16] << 16);
+
+	 bmp_write32(addr, out1);
+	 bmp_write32(addr+4, out2);
+
+	 addr += 8;
+      }
+   }
+
+   bmp_unwrite_line(screen);
+}
+
+
+#else
+#error Unknown endianess!
+#endif
+
+
 
 int main(int argc, char *argv[])
 {
@@ -302,11 +419,11 @@ int main(int argc, char *argv[])
 
    /* set a 15 or 16 bpp video mode */
    set_color_depth(16);
-   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+   if (set_gfx_mode(GFX_AUTODETECT_FULLSCREEN, 640, 480, 0, 0) != 0) {
       set_color_depth(15);
-      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_AUTODETECT_FULLSCREEN, 640, 480, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Error setting a 15 or 16 bpp 640x480 video mode\n%s\n", allegro_error);
+	 allegro_message("Error setting a 15 or 16 bpp 640x480 fullscreen video mode\n%s\n", allegro_error);
 	 return 1;
       }
    }
