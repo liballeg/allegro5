@@ -104,7 +104,7 @@ static void *ptimer_thread_func(void *unused)
 #endif
 
 #ifdef ALLEGRO_QNX
-   /* thread priority setting for QNX:
+   /* thread priority adjustment for QNX:
     *  The timer thread is set to the highest relative priority.
     *  (see the comment in src/qnx/qsystem.c about the scheduling policy)
     */
@@ -113,7 +113,7 @@ static void *ptimer_thread_func(void *unused)
       int spolicy;
    
       if (pthread_getschedparam(pthread_self(), &spolicy, &sparam) == EOK) {
-         sparam.sched_priority += 2;
+         sparam.sched_priority += 4;
          pthread_setschedparam(pthread_self(), spolicy, &sparam);
       }
    }
