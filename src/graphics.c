@@ -164,7 +164,8 @@ int get_refresh_rate(void)
 /* get_gfx_mode_list:
  *  Attempts to create a list of all the supported video modes for a certain
  *  GFX driver. The result is placed in the gfx_mode_list array.
- *  Returns: 0 on success and -1 if the function is not supported.
+ *  Returns: 0 on success and -2 if the function is not supported, and
+ *  -1 if the function failed.
  */
 int get_gfx_mode_list(int card)
 {
@@ -189,7 +190,7 @@ int get_gfx_mode_list(int card)
       if (entry->id == card) {
 	 drv = entry->driver;
 	 if (!drv->fetch_mode_list)
-	    break;
+	    return -2;
 	 if (drv->fetch_mode_list() < 0)
 	    return -1;
 	 return 0;
