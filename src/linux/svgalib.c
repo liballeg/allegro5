@@ -94,8 +94,7 @@ static int last_line;
 
 #ifdef ALLEGRO_MODULE
 
-/* If this is non-zero, this module won't be unloaded.  */
-int _module_dont_unload_me_dirty_hack = 0;
+int _module_has_registered_via_atexit = 0;
 
 #endif
 
@@ -191,7 +190,7 @@ static int safe_vga_setmode(int num, int tio)
    /* A side-effect of vga_setmode() is that it will register an
     * atexit handler.  See umodules.c for this problem.
     */
-   _module_dont_unload_me_dirty_hack = 1;
+   _module_has_registered_via_atexit = 1;
 #endif
 
    tcsetattr(__al_linux_console_fd, TCSANOW, &termio);

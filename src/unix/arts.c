@@ -25,6 +25,10 @@
 
 #include <artsc.h>
 
+#ifdef ALLEGRO_MODULE
+int _module_has_registered_via_atexit = 0;
+#endif
+
 static int _al_arts_bits, _al_arts_rate, _al_arts_stereo;
 #define _al_arts_signed (TRUE)
 
@@ -178,6 +182,14 @@ static int _al_arts_init(int input, int voices)
       return -1;
    }
 
+#ifdef ALLEGRO_MODULE
+   /* A side-effect of arts_init() is that it will register an
+    * atexit handler.  See umodules.c for this problem.
+    * ??? this seems to be the case only for recent versions.
+    */
+   _module_has_registered_via_atexit = 1;
+#endif
+
    /* Make a copy of the global sound settings.  */
    _al_arts_bits = (_sound_bits == 8) ? 8 : 16;
    _al_arts_stereo = (_sound_stereo) ? 1 : 0;
@@ -274,10 +286,16 @@ static void _al_arts_exit(int input)
    free(_al_arts_bufdata);
    _al_arts_bufdata = NULL;
 
-   arts_close_stream(_al_arts_stream);
-   _al_arts_stream = NULL;
+   /* Do not call the cleanup routines if we are being
+    * called by the exit mechanism because they may have
+    * already been called by it (see above).
+    */
+   if (!_allegro_in_exit) {
+      arts_close_stream(_al_arts_stream);
+      _al_arts_stream = NULL;
 
-   arts_free();
+      arts_free();
+   }
 }
 
 

@@ -1167,6 +1167,10 @@ typedef struct SYSTEM_DRIVER_AUX {
 AL_VAR(SYSTEM_DRIVER_AUX *, _al_system_driver_aux);
 
 
+/* flag to know whether we are being called by the exit mechanism */
+AL_VAR(int, _allegro_in_exit);
+
+
 /* flag to decide whether to disable the screensaver */
 enum {
   NEVER_DISABLED,
