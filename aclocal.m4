@@ -308,6 +308,7 @@ if test -n "$allegro_enable_ossmidi"; then
   AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossmidi=yes)
   AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossmidi=yes)
   AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossmidi=yes)
+  AC_CHECK_HEADERS(linux/awe_voice.h)
 fi
 ])
 
