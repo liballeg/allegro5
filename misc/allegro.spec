@@ -9,7 +9,7 @@ Name: allegro
 Version: 4.0.3
 Release: 1
 License: Gift Ware
-Packager: Allegro development team <conductors@canvaslink.com>
+Packager: Allegro development team
 Group: System/Libraries
 Source: ftp://sunsite.dk/allegro/%{name}-%{version}.tar.gz
 URL: http://alleg.sourceforge.net
