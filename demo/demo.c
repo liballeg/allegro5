@@ -2180,7 +2180,11 @@ int main(int argc, char *argv[])
       exit(1);
 
    set_color_depth(8);
-   if (set_gfx_mode(c, w, h, w, h * 2) != 0 && set_gfx_mode(c, w, h, 0, 0) != 0) {
+#ifdef ALLEGRO_VRAM_SINGLE_SURFACE
+   if (set_gfx_mode(c, w, h, w, h * 2) != 0) {
+#else
+   if (set_gfx_mode(c, w, h, 0, 0) != 0) {
+#endif
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting 8bpp graphics mode\n%s\n", allegro_error);
       exit(1);
