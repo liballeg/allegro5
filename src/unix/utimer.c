@@ -50,9 +50,13 @@ void _unix_rest(unsigned int ms, void (*callback) (void))
       }
    }
    else {
+#ifdef ALLEGRO_MACOSX
+      usleep(ms * 1000);
+#else
       struct timeval timeout;
       timeout.tv_sec = 0;
       timeout.tv_usec = ms * 1000;
       select(0, NULL, NULL, NULL, &timeout);
+#endif
    }
 }
