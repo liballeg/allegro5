@@ -11,10 +11,13 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MinGW32
-RUNNER = obj/mingw32/runner.exe
 EXE = .exe
 OBJ = .o
 HTML = html
+
+ifndef CROSSCOMPILE
+   PLUGIN_RUNNER = obj/mingw32/runner.exe
+endif
 
 PLATFORM_DIR = obj/mingw32
 
@@ -251,25 +254,25 @@ $(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
 	cp include/winalleg.h $(MINGDIR_U)/include
 
 $(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	mkdir $(MINGDIR_U)/include/allegro
+	mkdir -p $(MINGDIR_U)/include/allegro
 
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	cp $< $@
 
 $(MINGDIR_U)/include/allegro/internal:
-	mkdir $(MINGDIR_U)/include/allegro/internal
+	mkdir -p $(MINGDIR_U)/include/allegro/internal
 
 $(MINGDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
 	cp $< $@
 
 $(MINGDIR_U)/include/allegro/inline:
-	mkdir $(MINGDIR_U)/include/allegro/inline
+	mkdir -p $(MINGDIR_U)/include/allegro/inline
 
 $(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
 	cp $< $@
 
 $(MINGDIR_U)/include/allegro/platform:
-	mkdir $(MINGDIR_U)/include/allegro/platform
+	mkdir -p $(MINGDIR_U)/include/allegro/platform
 
 $(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
 	cp $< $@
@@ -411,8 +414,8 @@ ifndef CROSSCOMPILE
    DLLWRAP = dllwrap
    WINDRES = windres
 else
-   DLLWRAP = i386-mingw32msvc-dllwrap
-   WINDRES = i386-mingw32msvc-windres
+   DLLWRAP = $(XPREFIX)dllwrap
+   WINDRES = $(XPREFIX)windres
 endif
 
 ifdef STATICLINK
@@ -452,16 +455,15 @@ obj/mingw32/%.res: %.rc
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
-tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
-
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
-tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+ifdef CROSSCOMPILE
 
-ifndef CROSSCOMPILE
+demo/demo.exe: $(OBJ_DIR)/demo.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
+else
 
 obj/mingw32/demo.res: demo/demo.dat tools/win/wfixicon.exe
 ifdef STATICLINK
@@ -483,9 +485,9 @@ endif
 demo/demo.exe: $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
-endif
+endif # CROSSCOMPILE
 
-*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+examples/%.exe setup/%.exe tests/%.exe tests/win/%.exe tools/%.exe tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
@@ -517,7 +519,7 @@ obj/mingw32/runner.exe: src/misc/runnergw.c
 endif # CROSSCOMPILE
 
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
-PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(RUNNER)
+PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB) $(PLUGIN_RUNNER)
 PLUGINS_H = obj/mingw32/plugins.h
 PLUGIN_SCR = scm
 
@@ -536,11 +538,11 @@ define MAKE_PLUGIN_LIB
 endef
 
 define LINK_WITH_PLUGINS
-   $(RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(PLUGIN_RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-   $(RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+   $(PLUGIN_RUNNER) gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 

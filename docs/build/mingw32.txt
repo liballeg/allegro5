@@ -259,19 +259,24 @@
 
    Brief example of how to set up a MingW32 cross-compiler system:
 
-   1) Download the prebuilt MingW32 cross-compiler from
-      'http://www.devolution.com/~slouken/SDL/Xmingw32/'
-      Uncompress this file to '/usr/local/'. If you put the cross-compiler
-      elsewhere you will have to edit the file 'xmake.sh' and replace
-      XC_PATH and INSTALL_BASE with the right directory names.
+   1) Install the MingW32 cross-compiler, and edit the file 'xmake.sh',
+      replacing XC_PATH, XPREFIX and INSTALL_BASE with the right names.
+      For example, if your compiler's base dir (the one with bin, lib and
+      include sub-folders) is /usr/i586-mingw32msvc, and you have
+      prefix-less binaries in /usr/i586-mingw32msvc/bin, you would use:
+
+      XC_PATH=/usr/i586-mingw32msvc/bin
+      XPREFIX=
+      INSTALL_BASE=/usr/i586-mingw32msvc
 
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
-      from 'http://alleg.sourceforge.net/wip.html' and unzip it to
-      '/usr/local/cross-tools/i386-mingw32msvc/'. Make sure you convert all
-      text files to unix style (unzip -a) or the pre-processor will croak.
+      from 'http://alleg.sourceforge.net/wip.html' and unzip it to the
+      cross-compiler base dir. Make sure you convert all text files to unix
+      style (unzip -a) or the pre-processor will croak.
 
-   3) Then run './fix.sh mingw32 --dtou'. You are now finished with all the
-      preparations.
+   3) Then run './fix.sh mingw32 --dtou' (--dtou is only needed if your
+      allegro directory has text files in DOS format, otherwise you can
+      use --quick). You are now finished with all the preparations.
    
    4) You can now run './xmake.sh' to build the Allegro library and then run
       './xmake.sh install' as root to install Allegro. You can use
