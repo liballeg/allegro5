@@ -97,6 +97,10 @@ Changes between 4.0.x and 4.2.x series
    file_select_ex() now treats '(+)d' as it does for any other attributes in
    the extension string which is passed to it: only directories are included
    and, among them, only those with the correct set of attributes.
+<li>
+   d_ctext_proc() now behaves like d_text_proc() and d_rtext_proc(), that is
+   it takes into account the bounding box to calculate the position which the
+   string is centered around. It previously used only the x field.
 </ul>
 
 @heading
