@@ -391,7 +391,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
          if (argc >= argc_max) {
             argc_max += 64;
-            argv = realloc(sizeof(char *) * argc_max);
+            argv = realloc(argv, sizeof(char *) * argc_max);
             if (!argv) {
                free(argbuf);
                return 1;
