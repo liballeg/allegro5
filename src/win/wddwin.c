@@ -460,7 +460,6 @@ static int verify_color_depth (int color_depth)
          return -1;
 
       update_window = update_colorconv_window;
-      direct_updating_mode_on = direct_updating_mode_enabled;
    }
 
    return 0;
@@ -682,6 +681,8 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       direct_updating_mode_enabled = FALSE;
    else
       direct_updating_mode_enabled = TRUE;
+
+   direct_updating_mode_on = direct_updating_mode_enabled;
 
    _exit_critical();
 
