@@ -440,6 +440,7 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
       DeleteObject(overlay_brush);
       gfx_directx_destroy_surf(overlay_surface);
       overlay_surface = NULL;
+      dd_frontbuffer = NULL;
    }
 
    /* unregister bitmap */

@@ -697,18 +697,24 @@ static void gfx_directx_win_exit(struct BITMAP *bmp)
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
 
-   /* destroy dirty lines array */   
-   free(wd_dirty_lines);
-   wd_dirty_lines = NULL;
+   /* destroy dirty lines array */
+   if (wd_dirty_lines) {
+      free(wd_dirty_lines);
+      wd_dirty_lines = NULL;
+   }
 
    /* destroy the offscreen backbuffer */
-   gfx_directx_destroy_surf(offscreen_surface);
-   offscreen_surface = NULL;
-   dd_frontbuffer = NULL;
+   if (offscreen_surface) {
+      gfx_directx_destroy_surf(offscreen_surface);
+      offscreen_surface = NULL;
+      dd_frontbuffer = NULL;
+   }
 
    /* destroy the pre-converted offscreen buffer */
-   gfx_directx_destroy_surf(preconv_offscreen_surface);
-   preconv_offscreen_surface = NULL;
+   if (preconv_offscreen_surface) {
+      gfx_directx_destroy_surf(preconv_offscreen_surface);
+      preconv_offscreen_surface = NULL;
+   }
 
    /* release the color conversion blitter */
    if (colorconv_blit) {

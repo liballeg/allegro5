@@ -307,8 +307,11 @@ void gfx_directx_exit(struct BITMAP *bmp)
    win_gfx_driver = NULL;
 
    /* destroy primary surface */
-   gfx_directx_destroy_surf(dd_prim_surface);
-   dd_prim_surface = NULL;
+   if (dd_prim_surface) {
+      gfx_directx_destroy_surf(dd_prim_surface);
+      dd_prim_surface = NULL;
+      dd_frontbuffer = NULL;
+   }
 
    /* unregister bitmap */
    if (bmp) {
