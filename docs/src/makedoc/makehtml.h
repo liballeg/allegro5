@@ -17,6 +17,7 @@ extern const char *html_extension;
 extern char *document_title;
 extern char *html_footer;
 extern char *html_see_also_text;
+extern char *css_filename;
 
 
 int write_html(char *filename);

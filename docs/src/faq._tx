@@ -15,6 +15,7 @@
 
 
 @html
+@external-css=allegro.css
 @rtf
 @!text
 <center><h1><b>

@@ -299,7 +299,7 @@ static int _read_file(char *filename)
    f = fopen(filename, "r");
    if (!f)
       return 1;
-
+      
    while (_my_fgets(buf, 1023, f)) {
       char *end = strpbrk(buf, "\r\n");
       line++;
@@ -436,6 +436,8 @@ static int _read_file(char *filename)
 	 }
 	 else if (strincmp(buf+1, "multiwordheaders") == 0)
 	    multiwordheaders = 1;
+	 else if (strincmp(buf+1, "external-css=") == 0)
+	    css_filename = m_strdup(buf+14);
 	 else if (buf[1] == '$')
 	    _add_line(buf+2, TEXINFO_FLAG | TEXINFO_CMD_FLAG);
 	 else if (buf[1] == '@') {

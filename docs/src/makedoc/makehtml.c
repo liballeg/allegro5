@@ -49,6 +49,7 @@ const char *html_extension = "html";
 char *document_title;
 char *html_footer;
 char *html_see_also_text;
+char *css_filename = NULL;
 
 static POST **_post;
 static FILE *_file;
@@ -83,6 +84,89 @@ static void _close_html_file(FILE *file);
 static void _output_sorted_nested_toc(TOC **list, unsigned int num_items);
 static int _detect_non_paragraph_sections(const char *text);
 static char *_mark_up_auto_types(char *line, char **auto_types);
+static void _output_css(char *filename);
+
+
+const char *css_data = "\
+A.xref:link {\n\
+\tcolor:           blue;\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.xref:visited {\n\
+\tcolor:           blue;\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.xref:hover {\n\
+\tcolor:           blue;\n\
+\ttext-decoration: underline;\n\
+\tbackground:      rgb(220, 220, 220);\n\
+}\n\
+A.xref:active {\n\
+\tcolor:           red;\n\
+\ttext-decoration: none;\n\
+\tbackground:      rgb(255, 204, 50);\n\
+}\n\
+A.autotype:link {\n\
+\tcolor:           rgb(64, 64, 255);\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.autotype:visited {\n\
+\tcolor:           rgb(64, 64, 255);\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.autotype:hover {\n\
+\tcolor:           rgb(64, 64, 255);\n\
+\ttext-decoration: underline;\n\
+\tbackground:      transparent;\n\
+}\n\
+A.autotype:active {\n\
+\tcolor:           red;\n\
+\ttext-decoration: none;\n\
+\tbackground:      transparent;\n\
+}\n\
+blockquote.xref {\n\
+\tfont-family:     helvetica, verdana, serif;\n\
+\tfont-size:       smaller;\n\
+\tborder:          thin solid rgb(220, 220, 220);\n\
+\tcolor:           black;\n\
+\tbackground:      rgb(240, 240, 240);\n\
+}\n\
+blockquote.code {\n\
+\tborder:          thin solid rgb(255, 234, 190);\n\
+\tcolor:           black;\n\
+\tbackground:      rgb(255, 255, 205);\n\
+}\n\
+blockquote.text {\n\
+\tborder:          thin solid rgb(190, 234, 255);\n\
+\tcolor:           black;\n\
+\tbackground:      rgb(225, 255, 255);\n\
+}\n\
+div.al-api {\n\
+\tpadding-left:    0.5em;\n\
+\tcolor:           black;\n\
+\tbackground:      rgb(255, 234, 100);\n\
+\tfont-weight:     bold;\n\
+\tborder-bottom:   medium solid rgb(255, 204, 51);\n\
+\torder-left:     medium solid rgb(255, 204, 51);\n\
+\tmargin-top:      2em;\n\
+}\n\
+div.al-api-cont {\n\
+\tpadding-left:    0.5em;\n\
+\tcolor:           black;\n\
+\tbackground:      rgb(255, 234, 100);\n\
+\tfont-weight:     bold;\n\
+\tborder-bottom:   medium solid rgb(255, 204, 51);\n\
+\tborder-left:     medium solid rgb(255, 204, 51);\n\
+\tmargin-top:      -1em;\n\
+}\n\
+div.faq-shift-to-right {\n\
+\tmargin-left: 2em;\n\
+}\n\
+";
 
 
 
@@ -109,12 +193,14 @@ int write_html(char *filename)
    _file = fopen(filename, "w");
    if (!_file)
       return 1;
+   
 
    /* Build up a table with Allegro's structures' names (spelling?) */
    auto_types = build_types_lookup_table(0);
    
    strcpy(_filename, filename);
    if(document_title) _output_html_header(0);
+   if(css_filename)   _output_css(filename);
 
    while (line) {
       if (line->flags & HTML_FLAG) {
@@ -147,10 +233,10 @@ int write_html(char *filename)
 	    if (!prev_continued) {
 	       if (!(html_flags & HTML_IGNORE_CSS)) {
 	           if (!last_line_was_a_definition) {
-		       fputs("<div class=\"al-api\">", _file);
+		       fputs("<div class=\"al-api\"><b>", _file);
 		   }
 		   else {
-		       fputs("<div class=\"al-api-cont\">", _file);
+		       fputs("<div class=\"al-api-cont\"><b>", _file);
 		   }
 	       }
 	       else {
@@ -165,7 +251,7 @@ int write_html(char *filename)
 	    _hfprintf("%s", temp);
 	    if (!(line->flags & CONTINUE_FLAG)) {
 	        if (!(html_flags & HTML_IGNORE_CSS)) {
-		   fputs("</div><br>", _file);
+		   fputs("</b></div><br>", _file);
 		}
 		else {
 		   fputs("</b></font><br>", _file);
@@ -355,6 +441,50 @@ static void _write_html_xref(char *xref)
 
       tok = strtok(NULL, ",;");
    }
+}
+
+/* _output_css:
+ * Writes a separate CSS file
+ */
+static void _output_css(char *filename) {
+   FILE *css;
+   int size;
+   char *css_path;
+
+   if ((!css_filename) || (html_flags & HTML_IGNORE_CSS)) {
+      return;
+   }
+   
+   size = strlen(filename) + strlen(css_filename) + 2;
+   css_path = malloc(size);
+   
+   if (css_path) {
+      char *c = strrchr(filename, '/');
+      if (!c) {
+         strcpy(css_path, css_filename);
+      }
+      else {
+         *c = 0;
+         sprintf(css_path, "%s/%s", filename, css_filename);
+         *c = '/';
+      }
+   }
+   else {
+      return;
+   }
+   
+   css = fopen(css_path, "wt");
+   
+   if (!css) {
+      free(css_path);
+      return;
+   }
+   
+   fprintf(css, "%s", css_data);
+   fclose(css);
+   free(css_path);
+   
+   return;
 }
 
 
@@ -636,7 +766,14 @@ static void _output_html_header(char *section)
       /* optional style sheet output */
       if (!(html_flags & HTML_IGNORE_CSS)) {
 	 fputs("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\">\n", _file);
-	 fputs("<link rel=\"stylesheet\" type=\"text/css\" href=\"allegro.css\">", _file);
+	 if (css_filename) {
+	    fprintf(_file, "<link rel=\"stylesheet\" type=\"text/css\" href=\"%s\">", css_filename);
+	 }
+	 else {
+	    fputs("<style type=\"text/css\"><!--\n", _file);
+	    fprintf(_file, "%s\n", css_data);
+	    fputs("\n--></style>\n", _file);
+	 }
       }
 
       /* header end and body start */

@@ -11,6 +11,7 @@
 @#
 @#ignore_css
 @#
+@external-css=allegro.css
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
