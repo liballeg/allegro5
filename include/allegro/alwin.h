@@ -171,9 +171,3 @@ AL_VAR(JOYSTICK_DRIVER, joystick_win32);
 #define JOYSTICK_DRIVER_WIN32                                     \
       { JOY_TYPE_WIN32,          &joystick_win32,  TRUE  },
 
-AL_FUNC(int, calibrate_joystick_tl, (void));
-AL_FUNC(int, calibrate_joystick_br, (void));
-AL_FUNC(int, calibrate_joystick_throttle_min, (void));
-AL_FUNC(int, calibrate_joystick_throttle_max, (void));
-AL_FUNC(int, calibrate_joystick_hat, (int direction));
-
