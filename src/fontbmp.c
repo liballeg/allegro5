@@ -276,4 +276,6 @@ FONT *grab_font_from_bitmap(BITMAP *bmp)
 	 cf->next = 0;
       }
    }
+   
+   return f;
 }
