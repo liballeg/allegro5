@@ -6,12 +6,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.0.2 (CVS)
+				       \_/__/     Version 4.0.3 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Mar 18, 2002.
+	     By Shawn Hargreaves, Jul 04, 2002.
 
 		See the AUTHORS file for a
 	       complete list of contributors.

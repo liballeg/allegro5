@@ -3,5 +3,5 @@
 LIBRARY_VERSION = 40
 
 # Shared library versions for Unix
-shared_version = 4.0.2
+shared_version = 4.0.3
 shared_major_minor = 4.0
