@@ -5611,12 +5611,14 @@ flag on DOS-like systems or starting with '.' on Unix (dotted files -
 excluding '.' and '..'). FA_DIREC represents directories. Flags can be 
 combined using '|' (binary OR operator).
 
-When passed to the functions as the 'attrib' parameter, flags represent an 
-upper set the actual flag set of matching files must be included in. That 
-is, in order for a file to be matching, its attributes may contain any of 
-the specified flags but must not contain any of the unspecified flags. 
-Thus, if you pass 'FA_DIREC | FA_LABEL', normal directories will be 
-included but not hidden directories.
+When passed to the functions as the 'attrib' parameter, these flags 
+represent an upper set in which the actual flag set of a matching file must 
+be included. That is, in order for a file to be matching, its attributes 
+may contain any of the specified flags but must not contain any of the 
+unspecified flags. Thus, if you pass 'FA_DIREC | FA_RDONLY', normal files 
+and directories will be included as well as read-only files and 
+directories, but not hidden files and directories. Similarly, if you pass 
+'FA_ARCH' then both archived and non-archived files will be included.
 
 @@void @get_executable_name(char *buf, int size);
    Fills buf with the full path to the current executable, writing at most 
