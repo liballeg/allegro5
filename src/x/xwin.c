@@ -2834,11 +2834,18 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
    /* Clear video memory */
    if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
-      int offset;
-      for (offset = 0; offset < memsize; offset++) {
-	 if ((offset % banksize) == 0)
-	    XF86DGASetVidPage(_xwin.display, _xwin.screen, offset/banksize);
-         fb_addr[offset % banksize] = 0;
+      int bank, banks = memsize / banksize;
+
+      /* Clear full banks.  */
+      for (bank = 0; bank < banks; bank++) {
+	 XF86DGASetVidPage(_xwin.display, _xwin.screen, bank);
+	 memset(fb_addr, 0, banksize);
+      }
+
+      /* Clear last bank.  */
+      if ((memsize % banksize) != 0) {
+	 XF86DGASetVidPage(_xwin.display, _xwin.screen, bank);
+	 memset(fb_addr, 0, memsize % banksize);
       }
    }
 
