@@ -178,6 +178,31 @@ fi
 ])
 
 dnl
+dnl Test for System V sys/procfs.h.
+dnl
+dnl Variables:
+dnl  allegro_sv_procfs=(yes|no)
+dnl
+AC_MSG_CHECKING(for System V sys/procfs)
+AC_DEFUN(ALLEGRO_SV_PROCFS,
+[AC_CHECK_HEADER(sys/procfs.h,
+AC_TRY_COMPILE([#include  <sys/procfs.h>], [struct prpsinfo psinfo;],
+allegro_sv_procfs=yes, allegro_sv_procfs=no), allegro_sv_procfs=no)])
+AC_MSG_RESULT($allegro_sv_procfs)
+
+dnl
+dnl Test if sys/procfs.h tells us argc/argv.
+dnl
+dnl Variables:
+dnl  allegro_procfs_argcv=(yes|no)
+dnl
+AC_MSG_CHECKING(if sys/procfs.h tells us argc/argv)
+AC_DEFUN(ALLEGRO_PROCFS_ARGCV,
+[AC_TRY_COMPILE([#include  <sys/procfs.h>], [struct prpsinfo psinfo; psinfo.pr_argc = 0;],
+allegro_procfs_argcv=yes, allegro_procfs_argcv=no)])
+AC_MSG_RESULT($allegro_procfs_argcv)
+
+dnl
 dnl Test for X-Windows support.
 dnl
 dnl Variables:

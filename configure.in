@@ -414,6 +414,19 @@ else
   _disabled_modules="ossmidi $_disabled_modules"
 fi
 
+dnl Test for System V procfs
+ALLEGRO_SV_PROCFS
+if test "$allegro_sv_procfs" = yes; then
+   AC_DEFINE(ALLEGRO_HAVE_SV_PROCFS,1,
+      [Define to 1 if you have a System V sys/procfs.h])
+      
+   ALLEGRO_PROCFS_ARGCV
+   if test "$allegro_procfs_argcv" = yes; then
+      AC_DEFINE(ALLEGRO_HAVE_PROCFS_ARGCV,1,
+         [Define to 1 if procfs reveals argc and argv])
+   fi
+fi
+
 dnl Test for X-Windows support.
 ALLEGRO_ACTEST_SUPPORT_XWINDOWS
 if test "$allegro_support_xwindows" = yes; then
