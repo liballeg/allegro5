@@ -1710,10 +1710,11 @@ int uisdigit(int c)
  */
 char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
 {
-   char *s = malloc_func(ustrsizez(src));
+   int size = ustrsizez(src);
+   char *s = malloc_func(size);
 
    if (s)
-      ustrcpy(s, src);  /* ustrzcpy() not needed */
+      ustrzcpy(s, size, src);
 
    return s;
 }
@@ -2127,7 +2128,7 @@ char *ustrtok_r(char *s, AL_CONST char *set, char **last)
    skip_leading_delimiters:
 
    prev_str = s;
-   c = ugetxc((AL_CONST char **)&s);
+   c = ugetx(&s);
 
    setp = set;
 
@@ -2145,7 +2146,7 @@ char *ustrtok_r(char *s, AL_CONST char *set, char **last)
 
    for (;;) {
       prev_str = s;
-      c = ugetxc((AL_CONST char **)&s);
+      c = ugetx(&s);
 
       setp = set;
 
