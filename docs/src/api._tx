@@ -158,6 +158,8 @@ Deprecated materials
    and OLD_FILESEL_HEIGHT if you want the file selector to be displayed with
    the dimensions of the old file selector).
 <li>
+   fix_filename_path (canonicalize_filename).
+<li>
    for_each_file (for_each_file_ex).
 <li>
    gui_textout (gui_textout_ex, passing the mode you would have passed to

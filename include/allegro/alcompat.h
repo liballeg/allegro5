@@ -144,6 +144,10 @@ AL_FUNC_DEPRECATED(int, initialise_joystick, (void));
 #define generate_optimised_pallete     generate_optimised_palette
 
 
+/* a pretty vague name */
+#define fix_filename_path              canonicalize_filename
+
+
 /* the good old file selector */
 #define OLD_FILESEL_WIDTH   -1
 #define OLD_FILESEL_HEIGHT  -1

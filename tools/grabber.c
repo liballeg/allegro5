@@ -1753,7 +1753,7 @@ static void load(char *filename, int flush)
    }
 
    if (filename) {
-      fix_filename_path(data_file, filename, sizeof(data_file));
+      canonicalize_filename(data_file, filename, sizeof(data_file));
       strcpy(data_file, datedit_pretty_name(data_file, "dat", FALSE));
    }
    else

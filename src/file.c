@@ -145,10 +145,11 @@ char *fix_filename_slashes(char *filename)
 
 
 
-/* fix_filename_path:
- *  Canonicalizes path.
+/* Canonicalize_filename:
+ *  Returns the canonical form of the specified filename, i.e. the
+ *  minimal absolute filename describing the same file.
  */
-char *fix_filename_path(char *dest, AL_CONST char *path, int size)
+char *canonicalize_filename(char *dest, AL_CONST char *filename, int size)
 {
    int saved_errno = errno;
    char buf[1024], buf2[1024];
@@ -157,19 +158,19 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
    int drive = -1;
    int c1, i;
    ASSERT(dest);
-   ASSERT(path);
+   ASSERT(filename);
    ASSERT(size >= 0);
 
    #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
 
       /* check whether we have a drive letter */
-      c1 = utolower(ugetc(path));
+      c1 = utolower(ugetc(filename));
       if ((c1 >= 'a') && (c1 <= 'z')) {
-	 int c2 = ugetat(path, 1);
+	 int c2 = ugetat(filename, 1);
 	 if (c2 == DEVICE_SEPARATOR) {
 	    drive = c1 - 'a';
-	    path += uwidth(path);
-	    path += uwidth(path);
+	    filename += uwidth(filename);
+	    filename += uwidth(filename);
 	 }
       }
 
@@ -184,9 +185,9 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
 
    #ifdef ALLEGRO_UNIX
 
-      /* if the path starts with ~ then it's relative to a home directory */
-      if ((ugetc(path) == '~')) {
-	 AL_CONST char *tail = path + uwidth(path); /* could be the username */
+      /* if the filename starts with ~ then it's relative to a home directory */
+      if ((ugetc(filename) == '~')) {
+	 AL_CONST char *tail = filename + uwidth(filename); /* could be the username */
 	 char *home = NULL;                /* their home directory */
 
 	 if (ugetc(tail) == '/' || !ugetc(tail)) {
@@ -236,23 +237,23 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
 	    }
 	 }
 
-	 /* If we got a home directory, prepend it to the path. Otherwise
-	  * we leave the path alone, like bash but not tcsh; bash is better
+	 /* If we got a home directory, prepend it to the filename. Otherwise
+	  * we leave the filename alone, like bash but not tcsh; bash is better
 	  * anyway. :)
 	  */
 	 if (home) {
 	    do_uconvert(home, U_ASCII, buf+pos, U_CURRENT, sizeof(buf)-pos);
 	    free(home);
 	    pos = ustrsize(buf);
-	    path = tail;
+	    filename = tail;
 	    goto no_relativisation;
 	 }
       }
 
    #endif   /* Unix */
 
-   /* if the path is relative, make it absolute */
-   if ((ugetc(path) != '/') && (ugetc(path) != OTHER_PATH_SEPARATOR) && (ugetc(path) != '#')) {
+   /* if the filename is relative, make it absolute */
+   if ((ugetc(filename) != '/') && (ugetc(filename) != OTHER_PATH_SEPARATOR) && (ugetc(filename) != '#')) {
       _al_getdcwd(drive, buf2, sizeof(buf2) - ucwidth(OTHER_PATH_SEPARATOR));
       put_backslash(buf2);
 
@@ -268,8 +269,8 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
    no_relativisation:
  #endif
 
-   /* add our path, and clean it up a bit */
-   ustrzcpy(buf+pos, sizeof(buf)-pos, path);
+   /* add our filename, and clean it up a bit */
+   ustrzcpy(buf+pos, sizeof(buf)-pos, filename);
 
    fix_filename_case(buf);
    fix_filename_slashes(buf);
@@ -350,7 +351,7 @@ char *make_absolute_filename(char *dest, AL_CONST char *path, AL_CONST char *fil
 
    replace_filename(tmp, path, filename, sizeof(tmp));
 
-   fix_filename_path(dest, tmp, size);
+   canonicalize_filename(dest, tmp, size);
 
    return dest;
 }

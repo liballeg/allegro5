@@ -6305,20 +6305,21 @@ directories, but not hidden files and directories. Similarly, if you pass
    argv[0] does not specify the path, we search for our file in $PATH.
 
 @@char *@fix_filename_case(char *path);
-@xref fix_filename_slashes, fix_filename_path
+@xref fix_filename_slashes, canonicalize_filename
    Converts a filename to a standardised case. On DOS platforms, they will 
    be entirely uppercase. Returns a copy of the path parameter.
 
 @@char *@fix_filename_slashes(char *path);
-@xref fix_filename_case, fix_filename_path
+@xref fix_filename_case, canonicalize_filename
    Converts all the directory separators in a filename to a standard 
    character. On DOS platforms, this is a backslash. Returns a copy of the 
    path parameter.
 
-@@char *@fix_filename_path(char *dest, const char *path, int size);
+@@char *@canonicalize_filename(char *dest, const char *filename, int size);
 @xref fix_filename_case, fix_filename_slashes
-   Converts a partial filename into a full path, storing at most size bytes 
-   into the dest buffer. Returns a copy of the dest parameter.
+   Converts any filename into its canonical form, i.e. the minimal absolute
+   filename describing the same file, storing at most size bytes into the
+   dest buffer. Returns a copy of the dest parameter.
 
 @@char *@make_absolute_filename(char *dest, const char *path, const char *filename, int size);
 @xref make_relative_filename, is_relative_filename

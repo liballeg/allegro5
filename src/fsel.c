@@ -270,7 +270,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
    int i;
 
    if (msg == MSG_START) {
-      fix_filename_path(b, s, sizeof(b));
+      canonicalize_filename(b, s, sizeof(b));
       ustrzcpy(s, size, b);
    }
 
@@ -278,7 +278,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
       if ((!ugetc(s)) || (ugetat(s, -1) == DEVICE_SEPARATOR))
 	 ustrzcat(s, size, uconvert_ascii("./", tmp));
 
-      fix_filename_path(b, s, sizeof(b));
+      canonicalize_filename(b, s, sizeof(b));
       ustrzcpy(s, size - ucwidth(OTHER_PATH_SEPARATOR), b);
 
       ch = ugetat(s, -1);
