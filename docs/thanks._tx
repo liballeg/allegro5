@@ -129,6 +129,9 @@ Contributors
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
+   Eric Botcazou (<email>botcazou@club-internet.fr</a>).<br>
+   Made the DGA driver work better in 32bpp modes.
+
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
    helped with the Swedish message translation.

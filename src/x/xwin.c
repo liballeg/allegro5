@@ -1360,19 +1360,19 @@ static int _xwin_private_fast_visual_depth(void)
  */
 static int _xdga_private_fast_visual_depth(void)
 {
-   switch (_xwin.window_depth) {
-      case 8:
-	 return 8;
-      case 15:
-      case 16:
-	 return 16;
-      case 24:
-	 return 24;
-      case 32:
-	 return 32;
-   }
+/* Quoted from the xmms sources:
+   "The things we must go through to get a proper depth...
+   If I find the idiot that thought making 32bit report 24bit was a good idea,
+   there may be one less `programmer' in this world..." */
+   XImage *img = XGetImage(_xwin.display, _xwin.window, 0, 0, 1, 1, AllPlanes, ZPixmap);
+   int dga_depth = img->bits_per_pixel;
 
-   return 0;
+   if (dga_depth == 15)
+      dga_depth = 16;
+
+   XDestroyImage(img);
+
+   return dga_depth;
 }
 
 #endif
@@ -2754,8 +2754,8 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    _xwin.screen_width = w;
    _xwin.screen_height = h;
    _xwin.screen_depth = depth;
-   _xwin.virtual_width = v_w - s_w + w;
-   _xwin.virtual_height = v_h - s_h + h;
+   _xwin.virtual_width = vw;
+   _xwin.virtual_height = vh;
 
    if (banksize < memsize) {
       /* Banked frame buffer.  */
@@ -2913,7 +2913,8 @@ static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsy
       if (!_xwin.matching_formats)
 	 _xwin_private_update_screen(0, 0, _xwin.virtual_width, _xwin.virtual_height);
 
-      /* Have to install colormap again.  */
+      /* Have to install colormap again, but with another ID. */
+      _xwin.colormap = XCopyColormapAndFree(_xwin.display, _xwin.colormap);
       XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap);
    }
 }
