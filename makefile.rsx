@@ -182,7 +182,7 @@ DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
 depend:
 	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
-ifdef CROSSCOMPILE
+ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alleg\/\1\.o:/" _depend2.tmp > obj/rsxnt/alleg/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/alld\/\1\.o:/" _depend2.tmp > obj/rsxnt/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/rsxnt\/allp\/\1\.o:/" _depend2.tmp > obj/rsxnt/allp/makefile.dep
