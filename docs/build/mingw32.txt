@@ -39,7 +39,7 @@
    of command.com if it finds it somewhere in the path.
 
    "make depend" and "fixdll.bat" require that you have GNU sed installed.
-   "fixdll.bat" requires that have GNU sort (not DOS !) installed.
+   "fixdll.bat" requires that you have GNU sort (not DOS !) installed.
    You can download some extra utilities for MingW32 from:
       http://sourceforge.net/projects/gnuwin32/
 
