@@ -13,7 +13,7 @@ shift; shift
 sources=$*
 objects=`echo $sources | sed 's,[^	 ]*/,,g;s,\.[^.	 ]*,,g'`
 
-MODNAME=`echo $modname | tr [a-z] [A-Z]`
+MODNAME=`echo $modname | tr a-z A-Z`
 
 module="alleg-${modname}.so"
 objlist="MODULE_${MODNAME}_OBJECTS"
