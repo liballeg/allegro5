@@ -221,7 +221,8 @@ int main()
 
    } while (!keypressed());
 
-   /* if you press a key, you will be again in the peaceful DOS. */
+   destroy_bitmap(bmp);
+
    return 0;
 }
 
