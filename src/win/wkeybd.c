@@ -115,33 +115,40 @@ static char* dinput_err_str(long err)
  */
 static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 {
-   /* three-finger salute for killing the program */
-   if ((((scancode & 0x7f) == 0x4F) || ((scancode & 0x7f) == 0x53)) &&
-       (three_finger_flag) && (_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG)) {
-      _TRACE("Terminating application\n");
-      ExitProcess(0);
-   }
-
-   /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc, alt+F4) */
-   if ((pressed) && 
-       ((((scancode & 0x7f) == 0x0F) && (_key_shifts & KB_ALT_FLAG)) ||
-       (((scancode & 0x7f) == 0x01) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) ||
-       (((scancode & 0x7f) == 0x39) && (_key_shifts & KB_ALT_FLAG)) ||
-       (((scancode & 0x7f) == 0x3E) && (_key_shifts & KB_ALT_FLAG))))
+   /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc) */
+   if (((scancode == DIK_TAB) && (_key_shifts & KB_ALT_FLAG))
+       || ((scancode == DIK_SPACE) && (_key_shifts & KB_ALT_FLAG))
+       || ((scancode == DIK_ESCAPE) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))))
       return;
 
+   /* alt+F4 triggers a WM_CLOSE under Windows */
+   if ((scancode == DIK_F4) && (_key_shifts & KB_ALT_FLAG)) {
+      if (pressed)
+         PostMessage(allegro_wnd, WM_CLOSE, 0, 0);
+      return;
+   }
+
    /* if not foreground, filter out press codes and handle only release codes */
-   if (!pressed || (app_foreground && !wnd_sysmenu)) {
-      if (scancode > 0x7F) {
-	 _handle_pckey(0xE0);
+   if (!wnd_sysmenu || !pressed) {
+
+      /* three-finger salute for killing the program */
+      if (((scancode == DIK_END) || (scancode == DIK_NUMPAD1))
+          && ((_key_shifts & KB_CTRL_FLAG) && (_key_shifts & KB_ALT_FLAG))
+          && three_finger_flag) {
+         _TRACE("Terminating application\n");
+         ExitProcess(0);  /* unsafe */
       }
 
       /* dirty hack to let Allegro for Windows use the DOS/Linux way of handling CapsLock */
       if (((scancode == DIK_CAPITAL) || (scancode == DIK_LSHIFT) || (scancode == DIK_RSHIFT))
-                                              && pressed && (_key_shifts & KB_CAPSLOCK_FLAG)) {
+          && pressed
+          && (_key_shifts & KB_CAPSLOCK_FLAG)) {
          keybd_event(VK_CAPITAL, 0, 0, 0);
          keybd_event(VK_CAPITAL, 0, KEYEVENTF_KEYUP, 0);
       }
+
+      if (scancode & 0x80)
+	 _handle_pckey(0xE0);
 
       _handle_pckey((scancode & 0x7F) | (pressed ? 0 : 0x80));
    }
