@@ -3577,22 +3577,21 @@ Polygon rendering
    situations.
 
 @hnode zbuffered rendering
-<b>Z-BUFFERED RENDERING</b><br>
+A Z-buffer stores the depth of each pixel that is drawn on a viewport.
+When a 3D object is rendered, the depth of each of its pixels is compared
+against the value stored into the Z-buffer: if the pixel is closer it is
+drawn, otherwise it is skipped.
 
-Z-buffer stores the depth of each pixel that is drawn on a viewport. When a 3D 
-object is rendered, the depth of each of its pixels is compared against the value
-stored into the Z-buffer : if the pixel is closer it is drawn otherwise it is
-skipped.
-
-No polygon sorting is needed. However, backface culling should be done because
-it prevents many invisible polygons to be compared against the Z-buffer.
-Z-buffered rendering is the only algorithm that directly solves penetrating
-shapes (see example exzbuf.c for instance). The price to pay is more complex
-(and slower) routines.
+No polygon sorting is needed. However, backface culling should be done
+because it prevents many invisible polygons being compared against the
+Z-buffer. Z-buffered rendering is the only algorithm that directly solves
+penetrating shapes (see example exzbuf.c, for instance). The price to pay
+is more complex (and slower) routines.
 
 Z-buffered polygons are designed as an extension of the normal POLYTYPE_*
-rendering styles. Just OR the POLYTYPE with the value POLYTYPE_ZBUF, and the
-normal polygon3d(), polygon3d_f(), quad3d(),... will render z-buffered polygons.
+rendering styles. Just OR the POLYTYPE with the value POLYTYPE_ZBUF, and
+the normal polygon3d(), polygon3d_f(), quad3d(), etc. functions will
+render z-buffered polygons.
 
 Example:
 <pre>
@@ -3601,30 +3600,11 @@ Example:
 
 Of course, the z coordinates have to be valid regardless of rendering style.
 
-Z-buffered rendering procedure looks like the double-buffered rendering
-procedure. You should follow four steps : create the Z-buffer at the beginning
-of the program then, for each frame, clear the Z-buffer and draw polygons with 
-POLYTYPE_* | POLYTYPE_ZBUF and finally destroy the Z-buffer when leaving the
-program.
-
-@@int @create_zbuffer(BITMAP* bmp);
-@xref clear_zbuffer, destroy_zbuffer
-  Creates the Z-buffer using the size of the BITMAP you are planning to draw
-  on. Only one z-buffer can be defined (and used) at the same time. It is a
-  32 bit/pixel buffer.
-
-@@void @clear_zbuffer(float z);
-@xref create_zbuffer, destroy_zbuffer
-  Writes z into the Z-buffer (0 means far away). This function should be used
-  to initialize the Z-buffer before each frame. Actually, low-level routines
-  compare depth of the current pixel with 1/z : for example, if you want to
-  clip polygons farther than 10, you must call :
-<pre>  clear_zbuffer(0.1);</pre>
-
-@@void @destroy_zbuffer(void);
-@xref create_zbuffer, clear_zbuffer
-  Destroys the Z-buffer when you are finished with.
-
+A Z-buffered rendering procedure looks like a double-buffered rendering
+procedure. You should follow four steps: create the Z-buffer at the
+beginning of the program then, for each frame, clear the Z-buffer and draw
+polygons with POLYTYPE_* | POLYTYPE_ZBUF and finally destroy the Z-buffer
+when leaving the program.
 
 Notes on Z-buffered renderers:
 <ul><li>
@@ -3637,6 +3617,22 @@ blender routines.
 All the Z-buffered routines are much slower than their normal counterparts
 (they all use the FPU to interpolate and test 1/z values).
 </ul>
+@@int @create_zbuffer(BITMAP* bmp);
+@xref clear_zbuffer, destroy_zbuffer
+  Creates the Z-buffer using the size of the BITMAP you are planning to draw
+  on. Only one z-buffer can be defined (and used) at the same time. It is a
+  32 bit/pixel buffer.
+
+@@void @clear_zbuffer(float z);
+@xref create_zbuffer, destroy_zbuffer
+  Writes z into the Z-buffer (0 means far away). This function should be used
+  to initialize the Z-buffer before each frame. Actually, low-level routines
+  compare depth of the current pixel with 1/z: for example, if you want to
+  clip polygons farther than 10, you must call clear_zbuffer(0.1);
+
+@@void @destroy_zbuffer(void);
+@xref create_zbuffer, clear_zbuffer
+  Destroys the Z-buffer when you are finished with.
 
 
 
