@@ -1031,6 +1031,7 @@ static BITMAP *try_vram_location(int x, int y, int w, int h)
  */
 BITMAP *create_video_bitmap(int width, int height)
 {
+   VRAM_BITMAP origin_vram_bitmap;
    VRAM_BITMAP *blockx;
    VRAM_BITMAP *blocky;
    VRAM_BITMAP *block;
@@ -1057,22 +1058,18 @@ BITMAP *create_video_bitmap(int width, int height)
       return bmp;
    }
 
-   /* otherwise fall back on subdividing the normal screen surface */
-   if ((bmp = try_vram_location(0, 0, width, height)) != NULL)
-      return bmp;
+   /* otherwise fall back on subdividing the normal screen surface:
+    *  it is sufficient to test the nodes of the grid made up of the X-axis, the Y-axis
+    *  and the straight lines carrying the right edge or the bottom edge of the bitmaps
+    */
+   memset(&origin_vram_bitmap, 0, sizeof(VRAM_BITMAP));  /* brings X-axis and Y-axis */
+   origin_vram_bitmap.next = vram_bitmap_list;
 
-   for (blocky = vram_bitmap_list; blocky; blocky = blocky->next) {
-      for (blockx = vram_bitmap_list; blockx; blockx = blockx->next) {
-	 if ((bmp = try_vram_location((blockx->x+blockx->w+15)&~15, blocky->y, width, height)) != NULL)
+   /* do the search in O(n^3) time */
+   for (blocky = &origin_vram_bitmap; blocky; blocky = blocky->next)
+      for (blockx = &origin_vram_bitmap; blockx; blockx = blockx->next)
+	 if ((bmp = try_vram_location((blockx->x+blockx->w+15)&~15, blocky->y+blocky->h, width, height)) != NULL)
 	    return bmp;
-	 if ((bmp = try_vram_location((blockx->x-width)&~15, blocky->y, width, height)) != NULL)
-	    return bmp;
-	 if ((bmp = try_vram_location(blockx->x, blocky->y+blocky->h, width, height)) != NULL)
-	    return bmp;
-	 if ((bmp = try_vram_location(blockx->x, blocky->y-height, width, height)) != NULL)
-	    return bmp;
-      }
-   }
 
    return NULL;
 }
