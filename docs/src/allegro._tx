@@ -942,8 +942,8 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@_ustrdup(const char *src, void* (*malloc_func) (size_t))
 @xref ustrdup, uconvert, ustrsize, ustrsizez
-   Does the same as ustrdup(), but allows the user to specify his own memory
-   allocater function.
+   Does the same as ustrdup(), but allows the user to specify a custom memory
+   allocator function.
 
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrzcpy, ustrncpy
