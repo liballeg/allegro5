@@ -98,30 +98,31 @@ mktargz $basename-enduser
 
 
 ################################################################
-# Create RPM distribution(s)
+# Create SRPM distribution
 #
-# I'm a little hazy on this. :)  These are binary RPMs which
-# actually contain source code that gets built, installed and
-# deleted when you install the RPM.  I hope...
+# We don't actually create the binary RPMs here, since that
+# will really need to be done on many different machines.
+# Instead we'll build the source RPM.
 #
 # This requires you to have Red Hat's default RPM build system
 # properly set up, so we'll skip it if that's not the case.
 
-mkrpm() {
-	echo "Creating $1 RPM from $2.tar.gz"
+rpmdir=
+[ -d /usr/src/redhat ] && rpmdir=/usr/src/redhat
+[ -d /usr/src/RPM ] && rpmdir=/usr/src/RPM
+[ -d /usr/src/rpm ] && rpmdir=/usr/src/rpm
+
+if [ -n "$rpmdir" ]; then
+	echo "Creating SRPM"
 	echo "Enter your root password if prompted"
 	su -c "(\
-		rm -f /usr/src/redhat/RPMS/i386/$1-*.rpm ;\
-		cp -f $2.tar.gz /usr/src/redhat/SOURCES/$2.tar.gz ;\
-		rpm -bb $dir/$basename/misc/$1.spec ;\
-		mv -f /usr/src/redhat/RPMS/i386/$1-*.rpm . ;\
-		rm -f /usr/src/redhat/SOURCES/$1.tar.gz ;\
+		cp -f $basename.tar.gz $rpmdir/SOURCES ;\
+		#cp -f $dir/$basename/misc/alex.xpm $rpmdir/SOURCES ;\
+		rpm -bs $dir/$basename/misc/allegro.spec ;\
+		mv -f $rpmdir/SRPMS/allegro-*.rpm . ;\
+		#rm -f $rpmdir/SOURCES/alex.xpm ;\
+		rm -f $rpmdir/SOURCES/$basename.tar.gz ;\
 	)"
-}
-
-if [ -d /usr/src/redhat ]; then
-	mkrpm allegro $basename
-	mkrpm allegro-enduser $basename-enduser
 fi
 
 

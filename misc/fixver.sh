@@ -110,18 +110,10 @@ echo "Patching misc/modules.in.."
 cp misc/modules.in fixver.tmp
 sed -e "s/[0-9][0-9.]*[0-9]/$1.$2.$3/g" fixver.tmp > misc/modules.in
 
-# patch the spec files
-echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
-echo "s/Version:        .*/Version:        $1.$2.$3/" >> fixver.sed
-echo "s/allegro-[0-9][0-9.]*[0-9]/allegro-$1.$2.$3/g" >> fixver.sed
-
+# patch the spec file
 echo "Patching misc/allegro.spec..."
 cp misc/allegro.spec fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/allegro.spec
-
-echo "Patching misc/allegro-enduser.spec..."
-cp misc/allegro-enduser.spec fixver.tmp
-sed -f fixver.sed fixver.tmp > misc/allegro-enduser.spec
+sed -e "s/^Version: .*/Version: $1.$2.$3/" fixver.tmp > misc/allegro.spec
 
 # clean up after ourselves
 rm fixver.sed fixver.tmp
