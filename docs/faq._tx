@@ -252,7 +252,8 @@ Windows problems
       and libraries: put the DirectX SDK /include and /lib directories in the
       compiler/linker path. Alternatively, if you don't want to modify any
       configuration stuff, you can simply copy the files from the DirectX SDK
-      /include and /lib directories to the corresponding ones for your compiler.
+      /include and /lib directories to the corresponding ones for your
+      compiler.
 
 <h4><li>
 @@   I get errors about a missing WinMain() or main() function!
@@ -262,7 +263,8 @@ Windows problems
       normal main() function into a Windows-style WinMain() entrypoint.
 
 <h4><li>
-@@   I get an "out of environment space" error when I run fix.bat or vcvars32.bat!
+@@   I get an "out of environment space" error when I run fix.bat or 
+   vcvars32.bat!
 </h4>
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 
