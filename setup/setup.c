@@ -2789,8 +2789,6 @@ int main(void)
    if (!language_type[i])
       ustrzcpy(language_type, sizeof(language_type), uconvert_ascii("en", tmp2));
 
-   install_joystick(JOY_TYPE_AUTODETECT);
-
    find_sound_drivers();
 
    set_config_data(empty_string, 0);
