@@ -121,7 +121,7 @@ static void set_window_alpha()
 {
    if (desktop_depth == 32)
       set_window_alpha();
-//   [super display];
+   [super display];
 }
 
 - (void)miniaturize: (id)sender

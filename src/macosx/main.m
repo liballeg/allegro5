@@ -151,17 +151,17 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 - (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification
 {
    CFDictionaryRef mode;
+   int new_refresh_rate;
    
    if ((osx_window) && (osx_gfx_mode == OSX_GFX_WINDOW)) {
       osx_setup_colorconv_blitter();
       [osx_window display];
    }
-   pthread_mutex_lock(&osx_event_mutex);
    mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
-   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &refresh_rate);
-   if (refresh_rate <= 0)
-      refresh_rate = 70;
-   pthread_mutex_unlock(&osx_event_mutex);
+   CFNumberGetValue(CFDictionaryGetValue(mode, kCGDisplayRefreshRate), kCFNumberSInt32Type, &new_refresh_rate);
+   if (new_refresh_rate <= 0)
+      new_refresh_rate = 70;
+   refresh_rate = new_refresh_rate;
 }
 
 
