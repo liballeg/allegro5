@@ -380,29 +380,50 @@ information about how to install Allegro and link your program with it.
 @@extern char @cpu_vendor[];
 @xref check_cpu, cpu_family, cpu_model, cpu_capabilities, allegro_init
 @shortdesc Contains the CPU vendor name.
-   Contains the CPU vendor name, if known (empty string on non-Intel 
-   platforms). You can read this variable after you have called check_cpu()
+   On Intel PCs, contains the CPU vendor name if known. On Mac OSX systems 
+   this contains the PPC subtype name. On other platforms, this may be an empty
+   string. You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
 @@extern int @cpu_family;
 @xref check_cpu, cpu_vendor, cpu_model, cpu_capabilities, allegro_init
-@shortdesc Contains the Intel CPU type.
-   Contains the Intel CPU type, where applicable: 3=386, 4=486, 5=Pentium, 
-   6=PPro, etc. You can read this variable after you have called check_cpu()
+@shortdesc Contains the CPU type.
+   Contains the Intel type, where applicable. Allegro defines the following
+   CPU family types:
+<textblock>
+    CPU_FAMILY_UNKNOWN  - The type of processor is unknown
+    CPU_FAMILY_I386     - The processor is an Intel-compatible 386
+    CPU_FAMILY_I486     - The processor is an Intel-compatible 486
+    CPU_FAMILY_I586     - The processor is a Pentium or equivalent
+    CPU_FAMILY_I686     - The processor is a Pentium Pro, II, III or equivalent
+    CPU_FAMILY_ITANIUM  - The processor is an Itanium processor
+    CPU_FAMILY_POWERPC  - The processor is a PowerPC processor
+    CPU_FAMILY_EXTENDED - The processor type needs to be read from the cpu_model</endblock>
+   You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
 @@extern int @cpu_model;
 @xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities, allegro_init
 @shortdesc Contains the Intel CPU submodel.
-   Contains the Intel CPU submodel, where applicable. On a 486 
-   (cpu_family=4), zero or one indicates a DX chip, 2 an SX, 3 a 487 (SX) or 
-   486 DX, 4 an SL, 5 an SX2, 7 a DX2 write-back enhanced, 8 a DX4 or DX4 
-   overdrive, 14 a Cyrix, and 15 is unknown. On a Pentium chip 
-   (cpu_family=5), 1 indicates a Pentium (510\66, 567\66), 2 is a Pentium 
-   P54C, 3 is a Pentium overdrive processor, 5 is a Pentium overdrive for 
-   IntelDX4, 14 is a Cyrix, and 15 is unknown. You can read this variable
-   after you have called check_cpu() (which is automatically called by
-   allegro_init()).
+   Contains the CPU submodel, where applicable. Allegro defines at least the 
+   following CPU family types (see include/allegro/system.h for a more 
+   complete list):
+<textblock>   
+   CPU_FAMILY_I586:
+      CPU_MODEL_PENTIUM, CPU_MODEL_K5, CPU_MODEL_K6
+
+   CPU_FAMILY_I686:
+      CPU_MODEL_PENTIUMPRO, CPU_MODEL_PENTIUMII, CPU_MODEL_PENTIUMIIIKATMAI,
+      CPU_MODEL_PENTIUMIIICOPPERMINE, CPU_MODEL_ATHLON, CPU_MODEL_DURON
+
+   CPU_FAMILY_EXTENDED:
+      CPU_MODEL_PENTIUMIV, CPU_MODEL_XEON, CPU_MODEL_ATHLON64, CPU_MODEL_OPTERON
+
+   CPU_FAMILY_POWERPC:
+      CPU_MODEL_POWERPC_x, for x=601-604, 620, 750, 7400, 7450</endblock>
+   You can read this variable after you have called check_cpu() (which is 
+   automatically called by allegro_init()). Make sure you check the cpu_family
+   and cpu_vendor so you know which models make sense to check.
 
 @@extern int @cpu_capabilities;
 @xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities,
@@ -415,7 +436,7 @@ information about how to install Allegro and link your program with it.
 		     available. If this is set, then all Allegro CPU
 		     variables are 100% reliable, otherwise there
 		     may be some mistakes.
-      CPU_FPU      - An x87 FPU is available.
+      CPU_FPU      - An FPU is available.
       CPU_IA64     - Running on Intel 64 bit CPU
       CPU_AMD64    - Running on AMD 64 bit CPU
       CPU_MMX      - Intel MMX  instruction set is available.

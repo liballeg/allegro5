@@ -114,7 +114,8 @@ void check_cpu()
 	 _i_get_cpuid_info(1, reg);
 
 	 cpu_family = (reg[0] & 0xF00) >> 8;
-	 cpu_model = (reg[0] & 0xF0) >> 4;  //Note: Pentium 4 = 0xF -> needs changing.
+	 cpu_model = (reg[0] & 0xF0) >> 4;
+	 /* Note: cpu_family = 15 can mean a Pentium IV, Xeon, AMD64, Opteron... */
 
 	 cpu_capabilities |= (reg[3] & 1 ? CPU_FPU : 0);
 	 cpu_capabilities |= (reg[3] & 0x800000 ? CPU_MMX : 0);
