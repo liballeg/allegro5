@@ -70,9 +70,11 @@ static int thread_alive;
 
 static void block_all_signals(void)
 {
+#ifndef ALLEGRO_MACOSX
    sigset_t mask;
    sigfillset(&mask);
    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+#endif
 }
 
 

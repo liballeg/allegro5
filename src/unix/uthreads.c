@@ -41,9 +41,11 @@ static int cli_count;
 
 static void block_all_signals (void)
 {
+#ifndef ALLEGRO_MACOSX
 	sigset_t mask;
 	sigfillset (&mask);
 	pthread_sigmask (SIG_BLOCK, &mask, NULL);
+#endif
 }
 
 static void *bg_man_pthreads_threadfunc (void *arg)
