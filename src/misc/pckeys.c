@@ -173,7 +173,8 @@ static unsigned short standard_key_ascii_table[KEY_MAX] =
    /* misc chars */  27, '`', '-', '=', 8, 9, '[', ']', 13, ';', '\'', '\\', '\\', ',', '.', '/', ' ',
    /* controls */    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
    /* numpad */      '/', '*', '-', '+', '.', 13,
-   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   /* others */      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -189,7 +190,8 @@ static unsigned short standard_key_capslock_table[KEY_MAX] =
    /* misc chars */  27, '`', '-', '=', 8, 9, '[', ']', 13, ';', '\'', '\\', '\\', ',', '.', '/', ' ',
    /* controls */    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
    /* numpad */      '/', '*', '-', '+', '.', 13,
-   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   /* others */      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -205,7 +207,8 @@ static unsigned short standard_key_shift_table[KEY_MAX] =
    /* misc chars */  27, '~', '_', '+', 8, 9, '{', '}', 13, ':', '"', '|', '|', '<', '>', '?', ' ',
    /* controls */    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
    /* numpad */      '/', '*', '-', '+', '.', 13,
-   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   /* others */      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 
@@ -221,7 +224,8 @@ static unsigned short standard_key_control_table[KEY_MAX] =
    /* misc chars */  27, 2, 2, 2, 127, 127, 2, 2, 10, 2, 2, 2, 2, 2, 2, 2, 2,
    /* controls */    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
    /* numpad */      2, 2, 2, 2, 2, 10,
-   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+   /* others */      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 
