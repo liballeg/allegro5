@@ -360,18 +360,48 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 
       i = (int)h;
       f = h - i;
-      x = v * (1.0f - s) + 0.5f;
-      y = v * (1.0f - (s * f)) + 0.5f;
-      z = v * (1.0f - (s * (1.0f - f))) + 0.5f;
+      x = v * s;
+      y = x * f;
+      z = v - x + 0.5f;
 
       switch (i) {
+
 	 case 6:
-	 case 0: *r = v; *g = z; *b = x; break;
-	 case 1: *r = y; *g = v; *b = x; break;
-	 case 2: *r = x; *g = v; *b = z; break;
-	 case 3: *r = x; *g = y; *b = v; break;
-	 case 4: *r = z; *g = x; *b = v; break;
-	 case 5: *r = v; *g = x; *b = y; break;
+	 case 0:
+	    *r = v;
+	    *g = z + y;
+	    *b = z;
+	    break;
+
+	 case 1:
+	    *r = v - y + 0.5f;
+	    *g = v;
+	    *b = z;
+	    break;
+
+	 case 2:
+	    *r = z;
+	    *g = v;
+	    *b = z + y;
+	    break;
+
+	 case 3:
+	    *r = z;
+	    *g = v - y + 0.5f;
+	    *b = v;
+	    break;
+
+	 case 4:
+	    *r = z + y;
+	    *g = z;
+	    *b = v;
+	    break;
+
+	 case 5:
+	    *r = v;
+	    *g = z;
+	    *b = v - y + 0.5f;
+	    break;
       }
    }
 }
