@@ -216,7 +216,7 @@ int wnd_register_event(HANDLE event_id, void (*event_handler)(void))
 
 
 /* wnd_unregister_event:
- *  Removes an event from the windo thread event queue.
+ *  Removes an event from the window thread event queue.
  */
 void wnd_unregister_event(HANDLE event_id)
 {
@@ -542,13 +542,13 @@ static void wnd_thread_proc(HANDLE setup_event)
    MSG msg;
 
    thread_init();
-   _TRACE("window thread starts\n");   
+   _TRACE("window thread starts\n");
 
    /* setup window */
-   if (!wnd_create_proc)
-      allegro_wnd = create_directx_window();
-   else
+   if (wnd_create_proc)
       allegro_wnd = wnd_create_proc(directx_wnd_proc);
+   else
+      allegro_wnd = create_directx_window();
 
    if (!allegro_wnd)
       goto End;
@@ -605,7 +605,6 @@ int init_directx_window(void)
    msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
-   /* prepare window for Allegro */
    if (user_wnd) {
       /* hook the user window */
       user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
@@ -640,10 +639,6 @@ int init_directx_window(void)
 	 default:               /* thread failed to create window */
 	    return -1;
       } 
-
-      /* this should never happen because the thread would also stop */
-      if (allegro_wnd == NULL)
-	 return -1;
    }
 
    /* initialize gfx critical section */
