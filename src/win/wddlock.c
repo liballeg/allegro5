@@ -42,18 +42,29 @@ static void gfx_directx_switch_out(void)
 /* gfx_directx_restore:
  *  Restores all the video and system bitmaps.
  */
-void gfx_directx_restore(void)
+int gfx_directx_restore(void)
 {
    BMP_EXTRA_INFO *item = directx_bmp_list;
+   HRESULT hr;
 
    _enter_gfx_critical();
 
    while (item) {
-      IDirectDrawSurface2_Restore(item->surf);
+      hr = IDirectDrawSurface2_Restore(item->surf);
+      if (FAILED(hr)) {
+         /* abort restoring if an unexpected error occurred */
+         if (hr != DDERR_IMPLICITLYCREATED) {
+            _exit_gfx_critical();
+            return -1;
+         }
+      }
+
       item = item->next;
    }
 
    _exit_gfx_critical();
+
+   return 0;
 }
 
 
@@ -114,9 +125,24 @@ void gfx_directx_lock(BITMAP *bmp)
 	 surf_desc.dwFlags = 0;
 
 	 hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
-                                       DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL); 
+                                       DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
+
+	 /* If the surface has been lost, try to restore all surfaces
+	  * and, on success, try again to lock the surface.
+	  */
+	 if (hr == DDERR_SURFACELOST) {
+	    if (gfx_directx_restore() == 0) {
+	       surf_desc.dwSize = sizeof(surf_desc);
+	       surf_desc.dwFlags = 0;
+
+	       hr = IDirectDrawSurface2_Lock(surf, NULL, &surf_desc,
+                                             DDLOCK_WAIT | DDLOCK_SURFACEMEMORYPTR, NULL);
+	    }
+	 }
 
 	 if (FAILED(hr)) {
+	    _TRACE("Can't lock surface (%x)\n", hr);
+
 	    /* lock failed, use pseudo surface memory */
 	    bmp_extra->flags |= BMP_FLAG_LOST;
 	    data = pseudo_surf_mem;
@@ -203,6 +229,7 @@ void gfx_directx_unlock(BITMAP *bmp)
 {
    BMP_EXTRA_INFO *bmp_extra;
    BITMAP *parent;
+   HRESULT hr;
 
    if (bmp->id & BMP_ID_SUB) {
       /* recurse when unlocking sub-bitmaps */
@@ -221,7 +248,18 @@ void gfx_directx_unlock(BITMAP *bmp)
          if ((!bmp_extra->lock_nesting) && (bmp->id & BMP_ID_LOCKED)) {
             if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
 	       /* only unlock if it doesn't use pseudo video memory */
-	       IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	       hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+
+	       /* If the surface has been lost, try to restore all surfaces
+	        * and, on success, try again to unlock the surface.
+	        */
+	       if (hr == DDERR_SURFACELOST) {
+	          if (gfx_directx_restore() == 0)
+	             hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	       }
+
+	       if (FAILED(hr))
+	          _TRACE("Can't unlock surface (%x)\n", hr);
             }
 
             bmp->id &= ~BMP_ID_LOCKED;
@@ -241,6 +279,7 @@ void gfx_directx_unlock(BITMAP *bmp)
 void gfx_directx_release_lock(BITMAP *bmp)
 {
    BMP_EXTRA_INFO *bmp_extra;
+   HRESULT hr;
 
    /* handle display switch */
    if (!app_foreground)
@@ -257,7 +296,18 @@ void gfx_directx_release_lock(BITMAP *bmp)
 
       if (!(bmp_extra->flags & BMP_FLAG_LOST)) {
 	 /* only unlock if it doesn't use pseudo video memory */
-	 IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	 hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+
+	 /* If the surface has been lost, try to restore all surfaces
+	  * and, on success, try again to unlock the surface.
+	  */
+	 if (hr == DDERR_SURFACELOST) {
+	    if (gfx_directx_restore() == 0)
+	       hr = IDirectDrawSurface2_Unlock(bmp_extra->surf, NULL);
+	 }
+
+	 if (FAILED(hr))
+	    _TRACE("Can't release lock (%x)\n", hr);
       }
 
       bmp->id &= ~BMP_ID_LOCKED;

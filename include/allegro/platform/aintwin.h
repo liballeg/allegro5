@@ -90,7 +90,7 @@ AL_VAR(int, gfx_crit_sect_nesting);
                                gfx_crit_sect_nesting--
 #define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
 
-AL_FUNC(void, gfx_directx_restore, (void));
+AL_FUNC(int, gfx_directx_restore, (void));
 
 
 /* switch routines */

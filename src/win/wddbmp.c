@@ -410,10 +410,27 @@ static int flip_directx_bitmap(BITMAP *bmp, int wait)
        *  - invisible is either backbuffersurf or tripbuffersurf
        */
       hr = IDirectDrawSurface2_Flip(visible, invisible, wait ? DDFLIP_WAIT : 0);
+
+      /* If the surface has been lost, try to restore all surfaces
+       * and, on success, try again to flip the surfaces.
+       */
+      if (hr == DDERR_SURFACELOST) {
+         if (gfx_directx_restore() == 0)
+            hr = IDirectDrawSurface2_Flip(visible, invisible, wait ? DDFLIP_WAIT : 0);
+      }
    }
    else {
       /* attach invisible surface to visible one */
       hr = IDirectDrawSurface2_AddAttachedSurface(visible, invisible);
+
+      /* If the surface has been lost, try to restore all surfaces
+       * and, on success, try again to attach the surface.
+       */
+      if (hr == DDERR_SURFACELOST) {
+         if (gfx_directx_restore() == 0)
+            hr = IDirectDrawSurface2_AddAttachedSurface(visible, invisible);
+      }
+
       if (FAILED(hr)) {
          _TRACE("Can't attach surface (%x)\n", hr);
          return -1;
@@ -421,6 +438,14 @@ static int flip_directx_bitmap(BITMAP *bmp, int wait)
 
       /* flip the surfaces */
       hr = IDirectDrawSurface2_Flip(visible, invisible, wait ? DDFLIP_WAIT : 0);
+
+      /* If the surface has been lost, try to restore all surfaces
+       * and, on success, try again to flip the surfaces.
+       */
+      if (hr == DDERR_SURFACELOST) {
+         if (gfx_directx_restore() == 0)
+            hr = IDirectDrawSurface2_Flip(visible, invisible, wait ? DDFLIP_WAIT : 0);
+      }
 
       /* detach invisible surface */
       IDirectDrawSurface2_DeleteAttachedSurface(visible, 0, invisible);
@@ -476,6 +501,15 @@ int gfx_directx_poll_scroll(void)
    HRESULT hr;
 
    hr = IDirectDrawSurface2_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
+
+   /* If the surface has been lost, try to restore all surfaces
+    * and, on success, try again to get flip status.
+    */
+   if (hr == DDERR_SURFACELOST) {
+      if (gfx_directx_restore() == 0)
+         hr = IDirectDrawSurface2_GetFlipStatus(BMP_EXTRA(dd_frontbuffer)->surf, DDGFS_ISFLIPDONE);
+   }
+
    if (FAILED(hr))
       return -1;
    else
@@ -524,6 +558,15 @@ HDC win_get_dc(BITMAP *bmp)
       if (bmp->id & (BMP_ID_SYSTEM | BMP_ID_VIDEO)) {
          surf = BMP_EXTRA(bmp)->surf;
          hr = IDirectDrawSurface2_GetDC(surf, &dc);
+
+         /* If the surface has been lost, try to restore all surfaces
+          * and, on success, try again to get the DC.
+          */
+         if (hr == DDERR_SURFACELOST) {
+            if (gfx_directx_restore() == 0)
+               hr = IDirectDrawSurface2_GetDC(surf, &dc);
+         }
+
          if (hr == DD_OK)
             return dc;
       }
@@ -540,11 +583,20 @@ HDC win_get_dc(BITMAP *bmp)
 void win_release_dc(BITMAP *bmp, HDC dc)
 {
    LPDIRECTDRAWSURFACE2 surf;
+   HRESULT hr;
 
    if (bmp) {
       if (bmp->id & (BMP_ID_SYSTEM | BMP_ID_VIDEO)) {
          surf = BMP_EXTRA(bmp)->surf;
-         IDirectDrawSurface2_ReleaseDC(surf, dc);
+         hr = IDirectDrawSurface2_ReleaseDC(surf, dc);
+
+         /* If the surface has been lost, try to restore all surfaces
+          * and, on success, try again to release the DC.
+          */
+         if (hr == DDERR_SURFACELOST) {
+            if (gfx_directx_restore() == 0)
+               hr = IDirectDrawSurface2_ReleaseDC(surf, dc);
+         }
       }
    }
 }
