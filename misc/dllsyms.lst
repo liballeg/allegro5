@@ -66,6 +66,7 @@
     al_trace
     alert
     alert3
+    allegro_404_char DATA
     allegro_errno DATA
     allegro_error DATA
     allegro_exit
@@ -105,13 +106,9 @@
     close_fli
     color_map DATA
     config_is_hooked
-    cpu_3dnow DATA
-    cpu_cpuid DATA
+    cpu_capabilities DATA
     cpu_family DATA
-    cpu_fpu DATA
-    cpu_mmx DATA
     cpu_model DATA
-    cpu_sse DATA
     cpu_vendor DATA
     create_bitmap
     create_bitmap_ex
@@ -212,6 +209,7 @@
     fceil
     fcos
     fdiv
+    ffloor
     fhypot
     file_exists
     file_select
@@ -780,6 +778,7 @@
     win_set_wnd_create_proc
     _add_edge
     _add_exit_func
+    _al_drive_exists
     _al_file_isok
     _al_file_size
     _al_file_time
@@ -849,6 +848,7 @@
     _blender_trans16
     _blender_trans24
     _blender_write_alpha
+    _blit_between_formats
     _clip_polygon_segment
     _clip_polygon_segment_f
     _color_conv DATA
@@ -881,6 +881,7 @@
     _create_driver_list
     _current_palette_changed DATA
     _current_refresh_rate DATA
+    _datafile_type DATA
     _default_font DATA
     _destroy_driver_list
     _digi_volume DATA
@@ -1098,6 +1099,7 @@
     _normal_line
     _normal_rectfill
     _optim_alternative_drawer DATA
+    _pack_fdopen
     _packfile_datasize DATA
     _packfile_filesize DATA
     _packfile_type DATA
@@ -1112,6 +1114,7 @@
     _pckey_scancode_to_ascii
     _pckeys_init
     _phys_voice DATA
+    _pivot_scaled_sprite_flip
     _poly_scanline_atex16
     _poly_scanline_atex24
     _poly_scanline_atex32
@@ -1285,18 +1288,5 @@
     _unregister_switch_bitmap
     _voice DATA
     _zbuffer DATA
-    allegro_404_char DATA
-    datafile_type DATA
     font_vtable_color DATA
     font_vtable_mono DATA
-    load_bitmap_object
-    load_compiled_sprite_object
-    load_data_object
-    load_file_object
-    load_font_object
-    load_midi_object
-    load_rle_sprite_object
-    load_sample_object
-    load_xcompiled_sprite_object
-    unload_midi
-    unload_sample
