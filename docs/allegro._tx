@@ -7259,7 +7259,8 @@ DOS specifics
       failing if these are not available on current platform.
 <li>
    GFX_AUTODETECT_WINDOWED<br>
-      Same as above, but uses only windowed drivers.
+      Same as above, but uses only windowed drivers. This will always fail
+      under DOS.
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
@@ -7677,14 +7678,8 @@ function to remind you :-)
       failing if these are not available on current platform.
 <li>
    GFX_AUTODETECT_WINDOWED<br>
-      Same as above, but uses only windowed drivers.
-<li>
-   GFX_AUTODETECT_FULLSCREEN<br>
-      Autodetects a graphics driver, but will only use fullscreen drivers,
-      failing if these are not available on current platform.
-<li>
-   GFX_AUTODETECT_WINDOWED<br>
-      Same as above, but uses only windowed drivers.
+      Same as above, but uses only windowed drivers. This will always fail
+      under Linux console mode.
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
@@ -7725,6 +7720,13 @@ function to remind you :-)
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
+<li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
 <li>
    GFX_SAFE<br>
       Special driver for when you want to reliably set a graphics mode and 
