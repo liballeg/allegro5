@@ -297,9 +297,9 @@ static void update_title(void)
 
 
 /* indicates a possible modification of the currently loaded datafile */
-static void modified(int yes_or_no)
+static void set_modified(int modified)
 {
-   is_modified = yes_or_no;
+   is_modified = modified;
    update_title();
 }
 
@@ -311,7 +311,7 @@ static int edit_mod_proc(int msg, DIALOG *d, int c)
    int ret = d_edit_proc(msg, d, c);
    
    if ((msg == MSG_CHAR) || (msg == MSG_UCHAR))
-      modified(1);
+      set_modified(TRUE);
 
    return ret;
 }
@@ -324,7 +324,7 @@ static int droplist_mod_proc(int msg, DIALOG *d, int c)
    int ret = droplist_proc(msg, d, c);
    
    if ((msg == MSG_CHAR) || (msg == MSG_UCHAR) || (msg == MSG_CLICK))
-      modified(1);
+      set_modified(TRUE);
 
    return ret;
 }
@@ -1348,7 +1348,7 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
    else
       prop_dlg[PROP_DLG_TYPE].proc = d_text_proc;
 
-   modified(1);
+   set_modified(TRUE);
 
    return (do_dialog(prop_dlg, (change_type ? PROP_DLG_TYPE : PROP_DLG_VALUE)) == PROP_DLG_OK);
 }
@@ -1675,11 +1675,11 @@ static void load(char *filename, int flush)
 
       datedit_sort_datafile(datafile);
       
-      modified(1);
+      set_modified(TRUE);
    }
    else {
       datafile = new_datafile;
-      modified(0);
+      set_modified(FALSE);
    }
 
    SELECTED_ITEM = 0;
@@ -1783,7 +1783,7 @@ static int save(int strip)
       if (!datedit_save_datafile(datafile, data_file, strip, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
 	 err = TRUE;
       else
-	 modified(0);
+	 set_modified(FALSE);
 
       if ((header_file[0]) && (!err)) {
 	 box_eol();
@@ -1912,7 +1912,7 @@ static int updater(void)
 
    select_property(DAT_NAME);
 
-   modified(1);
+   set_modified(TRUE);
 
    return D_REDRAW;
 }
@@ -1957,7 +1957,7 @@ static int sel_updater(void)
 
    select_property(DAT_NAME);
 
-   modified(1);
+   set_modified(TRUE);
 
    return D_REDRAW;
 }
@@ -2000,7 +2000,7 @@ static int force_updater(void)
 
    select_property(DAT_NAME);
 
-   modified(1);
+   set_modified(TRUE);
 
    return D_REDRAW;
 }
@@ -2199,7 +2199,7 @@ static int grabber(void)
 
       datedit_grabreplace(dat, name, get_datafile_property(dat, DAT_NAME), type, -1, -1, -1, -1, -1);
 
-      modified(1);
+      set_modified(TRUE);
 
       if (dat->type == DAT_FILE)
 	 rebuild_list(NULL, TRUE);
@@ -2333,7 +2333,7 @@ static int deleter(void)
 
    free(todel);
 
-   modified(1);
+   set_modified(TRUE);
 
    return D_REDRAW;
 }
@@ -2775,7 +2775,7 @@ static int add_new(int type)
 	 rebuild_list(v, TRUE);
 	 select_property(DAT_NAME);
          
-	 modified(1);
+	 set_modified(TRUE);
       }
    }
 
@@ -2963,7 +2963,7 @@ static int sheller(void)
    datedit_sort_properties(dat->prop);
    select_property(DAT_NAME);
 
-   modified(1);
+   set_modified(TRUE);
 
    ohwellitwasaniceidea:
 
@@ -3276,7 +3276,7 @@ int main(int argc, char *argv[])
    grabber_single_selection = get_single_selection;
    grabber_set_selection = set_selection;
    grabber_busy_mouse = set_busy_mouse;
-   grabber_modified = modified;
+   grabber_modified = set_modified;
 
    datedit_init();
 

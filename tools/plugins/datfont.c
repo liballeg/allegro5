@@ -1092,7 +1092,7 @@ static int import_proc(int msg, DIALOG *d, int c)
 	    object_message(view_font_dlg+VIEWER, MSG_START, 0);
 	    object_message(view_font_dlg+RANGE_LIST, MSG_START, 0);
 	    
-	    grabber_modified(1);
+	    grabber_modified(TRUE);
 	 }
       }
 
@@ -1163,7 +1163,7 @@ static int delete_proc(int msg, DIALOG *d, int c)
       object_message(view_font_dlg+VIEWER, MSG_START, 0);
       object_message(view_font_dlg+RANGE_LIST, MSG_START, 0);
 
-      grabber_modified(1);
+      grabber_modified(TRUE);
 
       return D_REDRAW;
    }

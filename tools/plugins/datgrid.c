@@ -609,7 +609,7 @@ static int griddler(void)
 
    if (selitem) {
       grabber_sel_palette(grabber_palette);
-      grabber_modified(1);
+      grabber_modified(TRUE);
    }
    else
       alert("No grid found - nothing grabbed!", NULL, NULL, "Hmm...", NULL, 13, 0);
@@ -674,7 +674,7 @@ static int do_autocropper(DATAFILE *dat, int *param, int param2)
       datedit_set_property(dat, DAT_YCRP, buf);
    }
    
-   grabber_modified(1);
+   grabber_modified(TRUE);
 
    return D_REDRAW;
 }
