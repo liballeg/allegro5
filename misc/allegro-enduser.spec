@@ -74,7 +74,6 @@ gunzip -cd allegro-%{version}-enduser.tar.gz | tar -xf -
 rm -f allegro-%{version}-enduser.tar.gz
 cd allegro-%{version}
 CFLAGS="$RPM_OPT_FLAGS" ./configure
-make depend
 make lib
 make install
 echo "#!/bin/sh" > /usr/local/bin/allegro-uninstall

@@ -74,7 +74,6 @@ gunzip -cd %{name}-%{version}.tar.gz | tar -xf -
 rm -f %{name}-%{version}.tar.gz
 cd %{name}-%{version}
 CFLAGS="$RPM_OPT_FLAGS" ./configure
-make depend
 make
 make install
 make install-man
