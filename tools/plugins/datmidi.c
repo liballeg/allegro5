@@ -107,7 +107,7 @@ static void *grab_midi(AL_CONST char *filename, long *size, int x, int y, int w,
 
 
 /* saves a MIDI object in the datafile format */
-static void save_midi(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static void save_midi(DATAFILE *dat, int packed, int packkids, int strip, int *keeplist, int sort, int verbose, int extra, PACKFILE *f)
 {
    MIDI *midi = (MIDI *)dat->dat;
    int c;

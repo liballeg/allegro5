@@ -348,6 +348,7 @@ line dat utility. This accepts the following options:
    '-s0' - no strip: save everything
    '-s1' - strip grabber specific information from the file
    '-s2' - strip all object properties and names from the file
+   '-s-PROP' do not strip object property PROP from the file
       Sets the strip mode (see below). These can be used on their own to 
       strip properties from the datafile, or in combination with any other 
       options.
@@ -415,8 +416,13 @@ be possible to recover the object names even after they have been stripped
 out of the datafile. If the grabber and dat utilities cannot find any name 
 properties in a datafile, they will look for a header (.h) file with the 
 same name, and attempt to parse this to recover the names. This is far from 
-foolproof, and will not work for nested datafiles, but in some situations it 
-allows the names to be read back from the index definition header.
+foolproof, and will not work for nested datafiles, but in some situations 
+it allows the names to be read back from the index definition header. In 
+addition to those three strip modes, you can define properties to be kept, 
+whatever the strip mode. For example, if you want to strip all properties 
+but the NAME, this command will do the job:
+
+   dat -s2 -s-NAME file.dat
 
 The objects of the datafile can be sorted alphabetically by name. This is 
 selected by the Sort checkbox in the grabber, or by using the '-r0' and 

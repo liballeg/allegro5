@@ -1833,7 +1833,7 @@ static int save(int strip)
 
       update_info();
 
-      if (!datedit_save_datafile(datafile, data_file, strip, -1, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
+      if (!datedit_save_datafile(datafile, data_file, strip, NULL, -1, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
 	 err = TRUE;
       else
 	 set_modified(FALSE);

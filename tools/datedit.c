@@ -171,7 +171,7 @@ static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int 
 
 
 /* save raw binary data */
-static void save_binary(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static void save_binary(DATAFILE *dat, int packed, int packkids, int strip, int *keeplist, int sort, int verbose, int extra, PACKFILE *f)
 {
    pack_fwrite(dat->dat, dat->size, f);
 }
@@ -181,7 +181,7 @@ static void save_binary(DATAFILE *dat, int packed, int packkids, int strip, int 
 /* export a child datafile */
 static int export_datafile(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
-   return datedit_save_datafile((DATAFILE *)dat->dat, filename, -1, -1, -1, FALSE, FALSE, FALSE, NULL);
+   return datedit_save_datafile((DATAFILE *)dat->dat, filename, -1, NULL, -1, -1, FALSE, FALSE, FALSE, NULL);
 }
 
 
@@ -320,12 +320,19 @@ static void *grab_datafile(AL_CONST char *filename, long *size, int x, int y, in
 
 
 /* queries whether this property belongs in the current strip mode */
-static int should_save_prop(int type, int strip)
+static int should_save_prop(int type, int strip, int *keeplist)
 {
-   if (strip == 0) {
+   if (strip == 0)
       return TRUE;
+
+   if (keeplist) {
+      while (*keeplist) {
+	 if (type == *keeplist++)
+	    return TRUE;
+      }
    }
-   else if (strip >= 2) {
+
+   if (strip >= 2) {
       return FALSE;
    }
    else {
@@ -354,17 +361,17 @@ static int percent(int a, int b)
 
 
 /* saves an object */
-static void save_object(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, PACKFILE *f)
+static void save_object(DATAFILE *dat, int packed, int packkids, int strip, int *keeplist, int sort, int verbose, PACKFILE *f)
 {
    int i;
    DATAFILE_PROPERTY *prop;
-   void (*save)(DATAFILE *, int, int, int, int, int, int, PACKFILE *);
+   void (*save)(DATAFILE *, int, int, int, int *, int, int, int, PACKFILE *);
 
    prop = dat->prop;
    datedit_sort_properties(prop);
 
    while ((prop) && (prop->type != DAT_END)) {
-      if (should_save_prop(prop->type, strip)) {
+      if (should_save_prop(prop->type, strip, keeplist)) {
 	 pack_mputl(DAT_PROPERTY, f);
 	 pack_mputl(prop->type, f);
 	 pack_mputl(strlen(prop->dat), f);
@@ -400,13 +407,13 @@ static void save_object(DATAFILE *dat, int packed, int packkids, int strip, int 
       if (verbose)
 	 datedit_endmsg("");
 
-      save((DATAFILE *)dat->dat, packed, packkids, strip, sort, verbose, FALSE, f);
+      save((DATAFILE *)dat->dat, packed, packkids, strip, keeplist, sort, verbose, FALSE, f);
 
       if (verbose)
 	 datedit_startmsg("End of %-21s", get_datafile_property(dat, DAT_NAME));
    }
    else
-      save(dat, (packed || packkids), FALSE, strip, sort, verbose, FALSE, f);
+      save(dat, (packed || packkids), FALSE, strip, keeplist, sort, verbose, FALSE, f);
 
    pack_fclose_chunk(f);
 
@@ -429,7 +436,7 @@ static void save_object(DATAFILE *dat, int packed, int packkids, int strip, int 
 
 
 /* saves a datafile */
-static void save_datafile(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE *f)
+static void save_datafile(DATAFILE *dat, int packed, int packkids, int strip, int *keeplist, int sort, int verbose, int extra, PACKFILE *f)
 {
    int c, size;
 
@@ -443,7 +450,7 @@ static void save_datafile(DATAFILE *dat, int packed, int packkids, int strip, in
    pack_mputl(extra ? size+1 : size, f);
 
    for (c=0; c<size; c++) {
-      save_object(dat+c, packed, packkids, strip, sort, verbose, f);
+      save_object(dat+c, packed, packkids, strip, keeplist, sort, verbose, f);
 
       if (errno)
 	 return;
@@ -1042,7 +1049,7 @@ int datedit_sorttype(int sort)
 
 
 /* saves a datafile */
-int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int pack, int sort, int verbose, int write_msg, int backup, AL_CONST char *password)
+int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int *keeplist, int pack, int sort, int verbose, int write_msg, int backup, AL_CONST char *password)
 {
    char *pretty_name;
    char backup_name[256];
@@ -1069,11 +1076,11 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int pac
       pack_mputl(DAT_MAGIC, f);
       file_datasize = 12;
 
-      save_datafile(dat, (pack >= 2), (pack >= 1), strip, sort, verbose, (strip <= 0), f);
+      save_datafile(dat, (pack >= 2), (pack >= 1), strip, keeplist, sort, verbose, (strip <= 0), f);
 
       if (strip <= 0) {
 	 datedit_set_property(&datedit_info, DAT_NAME, "GrabberInfo");
-	 save_object(&datedit_info, FALSE, FALSE, FALSE, FALSE, FALSE, f);
+	 save_object(&datedit_info, FALSE, FALSE, FALSE, NULL, FALSE, FALSE, f);
       }
 
       pack_fclose(f); 

@@ -62,6 +62,9 @@ static char *opt_palette = NULL;
 static char *opt_proplist[MAX_FILES];
 static int opt_numprops = 0;
 
+static char *opt_keep_proplist[MAX_FILES];
+static int opt_keep_numprops = 0;
+
 static char *opt_namelist[MAX_FILES];
 static int opt_usedname[MAX_FILES];
 static int opt_numnames = 0;
@@ -96,6 +99,7 @@ static void usage(void)
    printf("\t'-s0' no strip: save everything\n");
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
+   printf("\t'-s-PROP' do not strip object property PROP from the file\n");
    printf("\t'-t type' sets the object type when adding files\n");
    printf("\t'-transparency' preserves transparency through color conversion\n");
    printf("\t'-u' updates the contents of the datafile\n");
@@ -682,6 +686,7 @@ static int do_save_dependencies(DATAFILE *dat, char *srcname, char *depname)
 int main(int argc, char *argv[])
 {
    int c, colorconv_mode = 0;
+   int *opt_keep_typelist = NULL;
 
    install_allegro(SYSTEM_NONE, &errno, atexit);
    datedit_init();
@@ -810,12 +815,18 @@ int main(int argc, char *argv[])
 	       break;
 
 	    case 's':
-	       if ((opt_strip >= 0) || 
-		   (argv[c][2] < '0') || (argv[c][2] > '2')) {
-		  usage();
-		  return 1;
+	       if (argv[c][2] == '-') {
+		  if (opt_keep_numprops < MAX_FILES)
+		     opt_keep_proplist[opt_keep_numprops++] = argv[c]+3;
 	       }
-	       opt_strip = argv[c][2] - '0';
+	       else {
+		  if ((opt_strip >= 0) || 
+		      (argv[c][2] < '0') || (argv[c][2] > '2')) {
+		     usage();
+		     return 1;
+	          }
+	          opt_strip = argv[c][2] - '0';
+	       }
 	       break;
 
 	    case 't':
@@ -986,10 +997,25 @@ int main(int argc, char *argv[])
 	       }
 	    }
 	 }
+
+	 if (opt_keep_numprops > 0) {
+	    if (opt_strip < 0) {
+	       printf("Error: no strip mode\n");
+	       err = 1;
+	    }
+	    else {
+	       opt_keep_typelist = malloc((opt_keep_numprops+1)*sizeof(int));
+
+	       for (c=0; c<opt_keep_numprops; c++)
+		  opt_keep_typelist[c] = datedit_clean_typename(opt_keep_proplist[c]);
+
+	       opt_keep_typelist[opt_keep_numprops] = 0;
+	    }
+	 }
       }
 
       if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0) || (opt_sort >= 0)))
-	 if (!datedit_save_datafile(datafile, opt_datafile, opt_strip, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
+	 if (!datedit_save_datafile(datafile, opt_datafile, opt_strip, opt_keep_typelist, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
 	    err = 1;
 
       if ((!err) && (opt_headername))
@@ -999,6 +1025,9 @@ int main(int argc, char *argv[])
       if ((!err) && (opt_dependencyfile))
 	 if (!do_save_dependencies(datafile, opt_datafile, opt_dependencyfile))
 	    err = 1;
+
+      if (opt_keep_typelist)
+	 free(opt_keep_typelist);
 
       unload_datafile(datafile);
    }
