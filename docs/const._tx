@@ -1,0 +1,117 @@
+@<html>
+@<head>
+@<title>Allegro `const'-correctness</title>
+@<body>
+<center><h1><b>
+Allegro `const'-correctness
+</b></h1></center>
+<hr>
+<i>
+This is a short document about the introduction of `const'-correctness
+to Allegro. It details what changes have occurred to internal library
+code, the API changes (mainly transparent) and what you will need to do
+to adapt code to compile without warnings (again, mainly nothing).
+</i>
+
+
+@!text
+@heading
+Contents
+
+@shortcontents
+
+
+@text
+
+@heading
+Library changes
+
+There are very few actual changes to the library code itself; only some
+symbol declarations and definitions have been altered to include
+AL_CONST. See below for a description of the AL_CONST preprocessor
+define. In a few places, some string was changed that should not have
+been - in these cases, the string is simply duplicated and then the
+duplicate is erased on exiting the function.
+
+In all, there were very few changes to the library code.
+
+
+
+@heading
+The AL_CONST preprocessor define
+
+In order to support compilers which don't know about the `const'
+keyword, or perhaps use a different keyword, the preprocessor symbol
+AL_CONST is used wherever `const' would normally be used. Note that in
+the documentation, I have used `const' for readability.
+
+Currently, the `const' support is only compiled if ALLEGRO_GCC is
+defined. Please contact me (lwithers@lwithers.demon.co.uk) with
+information on other compilers if you would like `const'-correctness
+support, and I will (try to) add it.
+
+
+
+@heading
+Allegro API changes
+
+These are, generally speaking, totally transparent to the user. I did
+not change the behaviour of any function; only its parameter types.
+Basically, if you can pass it as <code>type* ptr</code>, then you can
+pass it as <code>const type* ptr</code> without any problem whatsoever.
+Note also that certain changes may remove warnings in your program as
+static strings, etc, are now treated as `const' by Allegro functions.
+
+There are a few places, described below, where there will be an effect
+on existing code.
+
+`const'-correctness is deemed important for two reasons. Firstly, it can
+increase code readability and comprehension of Allegro functions (for
+instance, you can see which parameters are altered and which are not).
+Secondly, it ensures that the Allegro code is not changing data which it
+should not be, and that client callback functions are not breaking
+Allegro by changing data they should not be.
+
+
+
+@heading
+Callback functions and Pointers to Pointers
+
+Certain callback functions now have a different type - they take `const'
+pointers as opposed to non-`const' pointers. As far as I know, a
+compiler will issue a warning about incompatible pointer types. You
+should update your callback function to the new format (which will be
+listed in the main Allegro documentation).
+
+Also, when passing a pointer to a pointer to an Allegro function which
+is declared as taking an <code>AL_CONST type** ptr</code>, you will need
+to cast your pointer to be `const' if it is not already. For instance:
+
+<pre>int some_allegro_function(AL_CONST char** p);
+
+void my_func(char** x)
+{
+    some_allegro_function((AL_CONST char**) x);
+}</pre>
+
+I realise that this is a change to the Allegro API, and that we are
+supposed to avoid those at all costs, but this is essentially fixing a
+bug in Allegro and changing behaviour. It also ensures that
+client-supplied callback functions are functioning correctly, and not
+altering data that they should not. Callback functions which do not
+treat relevant parameters as `const' are, in a small (but potentially
+signficant) way, broken.
+
+
+
+@heading
+Finally...
+
+I have only tested this myself on DJGPP 2.95.2, so if you have
+experiences of it not working (I have tried to get Linux and BeOS ports
+right, but I've no guarantee it worked...) email me the *exact* error
+message and I will fix it.
+
+Email: lwithers@lwithers.demon.co.uk
+
+Thanks for listening :-)
