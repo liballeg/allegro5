@@ -21,13 +21,12 @@
 
 /* TODO:
  * [ ] Remove axis range from the config file ?
- * [ ] Should 'analyse_data' be more strict ? (for example reject KEY_A, etc.)
- * Anyway setup cannot work with evdev
  * [ ] Speed
  * [ ] Mickeys
  */
-#include <stdio.h>
 
+
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <linux/input.h>
 
@@ -504,7 +503,7 @@ static int analyse_data (AL_CONST char *buffer, int size)
  */
 static int mouse_init (void)
 {
-   char tmp1[128], tmp2[128], tmp3[128];
+   char tmp1[128], tmp2[128];
    AL_CONST char *udevice;
 
    /* Set the current tool */
@@ -513,16 +512,39 @@ static int mouse_init (void)
    /* Find the device filename */
    udevice = get_config_string (uconvert_ascii ("mouse", tmp1),
                                 uconvert_ascii ("mouse_device", tmp2),
-                                uconvert_ascii ("/dev/input/mice", tmp3));
+                                NULL);
 
    /* Open mouse device.  Devices are cool. */
-   intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
-   if (intdrv.device < 0) {
-      uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
-                 udevice, ustrerror (errno));
+   if (udevice) {
+      intdrv.device = open (uconvert_toascii (udevice, tmp1), O_RDONLY | O_NONBLOCK);
+      if (intdrv.device < 0) {
+         uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open %s: %s"),
+                    udevice, ustrerror (errno));
+         return -1;
+      }
+   }
+   else {
+      /* If not specified in the config file, try some common device files
+       * but not /dev/input/event because it may not be a mouse.
+       */
+      const char *device_name[] = { "/dev/input/mice",
+                                    "/dev/input/mouse",
+                                    "/dev/input/mouse0",
+                                    NULL };
+      int i;
+
+      for (i=0; device_name[i]; i++) {
+         intdrv.device = open (device_name[i], O_RDONLY | O_NONBLOCK);
+         if (intdrv.device >= 0)
+            goto Found;
+      }
+
+      uszprintf (allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("Unable to open a mouse device: %s"),
+                 ustrerror (errno));
       return -1;
    }
 
+ Found:
    /* Init the tablet data */
    init_tablet(intdrv.device);
 
