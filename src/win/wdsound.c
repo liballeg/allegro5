@@ -8,15 +8,13 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      DirectSound windows sound driver.
+ *      DirectSound sound driver.
  *
  *      By Stefan Schimanski.
  *
- *      Various bugfixes by Patrick Hogan.
+ *      Various bugfixes by Patrick Hogan and Javier Gonzalez.
  *
  *      Custom loop points support added by Eric Botcazou.
- *
- *      Bugfixes by Javier Gonzalez.
  *
  *      See readme.txt for copyright information.
  */
@@ -74,17 +72,17 @@ static int digi_directsound_get_pan(int voice);
 static void digi_directsound_set_pan(int voice, int pan);
 
 
-/* template driver: will be cloned for each hardware device */
-static DIGI_DRIVER digi_directx = 
+/* template driver: will be cloned for each device */
+static DIGI_DRIVER digi_directsound = 
 {
    0,
    empty_string,
    empty_string,
    empty_string,
-   0,                           /* available voices */
-   0,                           /* voice number offset */
-   16,                          /* maximum voices we can support */
-   4,                           /* default number of voices to use */
+   0,   // available voices
+   0,   // voice number offset
+   16,  // maximum voices we can support
+   4,   // default number of voices to use
 
    /* setup routines */
    digi_directsound_detect,
@@ -95,7 +93,7 @@ static DIGI_DRIVER digi_directx =
    /* audiostream locking functions */
    digi_directsound_lock_voice,
    digi_directsound_unlock_voice,
-   NULL,
+   NULL,  // AL_METHOD(int,  buffer_size, (void));
 
    /* voice control functions */
    digi_directsound_init_voice,
@@ -111,20 +109,25 @@ static DIGI_DRIVER digi_directx =
    /* volume control functions */
    digi_directsound_get_volume,
    digi_directsound_set_volume,
-   NULL, NULL,
+   NULL,  // AL_METHOD(void, ramp_volume, (int voice, int time, int endvol));
+   NULL,  // AL_METHOD(void, stop_volume_ramp, (int voice));
 
    /* pitch control functions */
    digi_directsound_get_frequency,
    digi_directsound_set_frequency,
-   NULL, NULL,
+   NULL,  // AL_METHOD(void, sweep_frequency, (int voice, int time, int endfreq));
+   NULL,  // AL_METHOD(void, stop_frequency_sweep, (int voice));
 
    /* pan control functions */
    digi_directsound_get_pan,
    digi_directsound_set_pan,
-   NULL, NULL,
+   NULL,  // AL_METHOD(void, sweep_pan, (int voice, int time, int endpan));
+   NULL,  // AL_METHOD(void, stop_pan_sweep, (int voice));
 
    /* effect control functions */
-   NULL, NULL, NULL,
+   NULL,  // AL_METHOD(void, set_echo, (int voice, int strength, int delay));
+   NULL,  // AL_METHOD(void, set_tremolo, (int voice, int rate, int depth));
+   NULL,  // AL_METHOD(void, set_vibrato, (int voice, int rate, int depth));
 
    /* input functions */
    0,                           /* int rec_cap_bits; */
@@ -141,8 +144,6 @@ static DIGI_DRIVER digi_directx =
 /* sound driver globals */
 static LPDIRECTSOUND directsound = NULL;
 static LPDIRECTSOUNDBUFFER prim_buf = NULL;
-
-/* misc */
 static long int initial_volume;
 static int _freq, _bits, _stereo;
 static int alleg_to_dsound_volume[256];
@@ -176,16 +177,14 @@ static struct DIRECTSOUND_VOICE *ds_voices;
 static _DRIVER_INFO *driver_list = NULL;
 
 #define MAX_DRIVERS  16
-
 static int num_drivers = 0;
-
 static char *driver_names[MAX_DRIVERS];
 static LPGUID driver_guids[MAX_DRIVERS];
 
 
 
 /* DSEnumCallback:
- *  callback for enumaterating the available sound drivers
+ *  Callback function for enumerating the available DirectSound drivers.
  */
 static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext)
 {
@@ -226,7 +225,7 @@ _DRIVER_INFO *_get_win_digi_driver_list(void)
       /* pure DirectSound drivers */
       for (i=0; i<num_drivers; i++) {
          driver = malloc(sizeof(DIGI_DRIVER));
-         memcpy(driver, &digi_directx, sizeof(DIGI_DRIVER));
+         memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
          driver->id = DIGI_DIRECTX(i);
          driver->ascii_name = driver_names[i];
 
@@ -274,7 +273,7 @@ void _free_win_digi_driver_list(void)
 
 
 /* ds_err:
- *  returns an error string
+ *  Returns a DirectSound error string.
  */
 #ifdef DEBUGMODE
 static char *ds_err(long err)
@@ -328,8 +327,40 @@ static char *ds_err(long err)
 
 
 
+/* digi_directsound_detect:
+ */
+static int digi_directsound_detect(int input)
+{
+   HRESULT hr;
+   int id;
+
+   /* deduce our device number from the driver ID code */
+   id = ((digi_driver->id >> 8) & 0xFF) - 'A';
+
+   if (input)
+      return digi_directsound_capture_detect(driver_guids[id]);
+
+   if (!directsound) {
+      /* initialize DirectSound interface */
+      hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
+      if (FAILED(hr)) {
+         _TRACE("DirectSound interface creation failed during detect (%s).\n", ds_err(hr));
+         return 0;
+      }
+
+      _TRACE("DirectSound interface successfully created.\n");
+
+      /* release DirectSound interface */
+      IDirectSound_Release(directsound);
+      directsound = NULL;
+   }
+
+   return 1;
+}
+
+
+
 /* digi_directsound_init:
- *  initializes DirectSound
  */
 static int digi_directsound_init(int input, int voices)
 {
@@ -463,7 +494,6 @@ static int digi_directsound_init(int input, int voices)
 
 
 /* digi_directsound_exit:
- *  closes DirectSound.
  */
 static void digi_directsound_exit(int input)
 {
@@ -500,7 +530,6 @@ static void digi_directsound_exit(int input)
 
 
 /* digi_directsound_mixer_volume:
- *  sets mixer volume
  */
 static int digi_directsound_mixer_volume(int volume)
 {
@@ -516,47 +545,13 @@ static int digi_directsound_mixer_volume(int volume)
 
 
 
-/* digi_directsound_detect:
- *  detects DirectSound
- */
-static int digi_directsound_detect(int input)
-{
-   HRESULT hr;
-   int id;
-
-   /* deduce our device number from the driver ID code */
-   id = ((digi_driver->id >> 8) & 0xFF) - 'A';
-
-   if (input)
-      return digi_directsound_capture_detect(driver_guids[id]);
-
-   if (!directsound) {
-      /* initialize DirectSound interface */
-      hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
-      if (FAILED(hr)) {
-         _TRACE("DirectSound interface creation failed during detect (%s).\n", ds_err(hr));
-         return 0;
-      }
-
-      _TRACE("DirectSound interface successfully created.\n");
-
-      /* release DirectSound interface */
-      IDirectSound_Release(directsound);
-      directsound = NULL;
-   }
-
-   return 1;
-}
-
-
-
 /********************************************************/
 /*********** voice management functions *****************/
 /********************************************************/
 
 
 /* create_directsound_buffer:
- *  worker function for creating a DS buffer from a sample
+ *  Worker function for creating a DirectSound buffer from a sample.
  */
 static int create_directsound_buffer(LPDIRECTSOUNDBUFFER *snd_buf, AL_CONST SAMPLE *sample, int loop_buffer)
 {

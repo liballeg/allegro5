@@ -13,7 +13,7 @@
  *      By Robin Burrows.
  *
  *      Based on original src/win/wdsound.c by Stefan Schimanski
- *      and src/unix/oss.c by Joshua Heyer.
+ *                        src/unix/oss.c by Joshua Heyer.
  *
  *      Bugfixes by Javier Gonzalez.
  *
@@ -46,11 +46,85 @@
 #endif
 
 
-static int digi_directsound_detect(int input);
-static int digi_directsound_init(int input, int voices);
-static void digi_directsound_exit(int input);
-static int digi_directsound_mixer_volume(int volume);
-static int digi_directsound_buffer_size(void);
+static int digi_dsoundmix_detect(int input);
+static int digi_dsoundmix_init(int input, int voices);
+static void digi_dsoundmix_exit(int input);
+static int digi_dsoundmix_mixer_volume(int volume);
+static int digi_dsoundmix_buffer_size(void);
+
+
+/* template driver: will be cloned for each device */
+static DIGI_DRIVER digi_dsoundmix =
+{
+   0,
+   empty_string,
+   empty_string,
+   empty_string,
+   0,              // available voices
+   0,              // voice number offset
+   MIXER_MAX_SFX,  // maximum voices we can support
+   MIXER_DEF_SFX,  // default number of voices to use
+
+   /* setup routines */
+   digi_dsoundmix_detect,
+   digi_dsoundmix_init,
+   digi_dsoundmix_exit,
+   digi_dsoundmix_mixer_volume,
+
+   /* audiostream locking functions */
+   NULL,  // AL_METHOD(void *, lock_voice, (int voice, int start, int end));
+   NULL,  // AL_METHOD(void, unlock_voice, (int voice));
+   digi_dsoundmix_buffer_size,
+
+   /* voice control functions */
+   _mixer_init_voice,
+   _mixer_release_voice,
+   _mixer_start_voice,
+   _mixer_stop_voice,
+   _mixer_loop_voice,
+
+   /* position control functions */
+   _mixer_get_position,
+   _mixer_set_position,
+
+   /* volume control functions */
+   _mixer_get_volume,
+   _mixer_set_volume,
+   _mixer_ramp_volume,
+   _mixer_stop_volume_ramp,
+
+   /* pitch control functions */
+   _mixer_get_frequency,
+   _mixer_set_frequency,
+   _mixer_sweep_frequency,
+   _mixer_stop_frequency_sweep,
+
+   /* pan control functions */
+   _mixer_get_pan,
+   _mixer_set_pan,
+   _mixer_sweep_pan,
+   _mixer_stop_pan_sweep,
+
+   /* effect control functions */
+   _mixer_set_echo,
+   _mixer_set_tremolo,
+   _mixer_set_vibrato,
+
+   /* input functions */
+   0,  // int rec_cap_bits;
+   0,  // int rec_cap_stereo;
+   digi_directsound_rec_cap_rate,
+   digi_directsound_rec_cap_param,
+   digi_directsound_rec_source,
+   digi_directsound_rec_start,
+   digi_directsound_rec_stop,
+   digi_directsound_rec_read
+};
+
+
+#define MAX_DRIVERS  16
+static char *driver_names[MAX_DRIVERS];
+static LPGUID driver_guids[MAX_DRIVERS];
 
 
 /* sound driver globals */
@@ -64,79 +138,46 @@ static unsigned char *digidsbufdata;
 static unsigned int bufdivs = 16;
 static int prim_buf_paused = FALSE;
 static int prim_buf_vol;
-static UINT dbgtid;
-
-static DIGI_DRIVER digi_directx =
-{
-   0,
-   empty_string,
-   empty_string,
-   empty_string,
-   0,
-   0,
-   MIXER_MAX_SFX,
-   MIXER_DEF_SFX,
-
-   digi_directsound_detect,
-   digi_directsound_init,
-   digi_directsound_exit,
-   digi_directsound_mixer_volume,
-
-   NULL,
-   NULL,
-   digi_directsound_buffer_size,
-   _mixer_init_voice,
-   _mixer_release_voice,
-   _mixer_start_voice,
-   _mixer_stop_voice,
-   _mixer_loop_voice,
-
-   _mixer_get_position,
-   _mixer_set_position,
-
-   _mixer_get_volume,
-   _mixer_set_volume,
-   _mixer_ramp_volume,
-   _mixer_stop_volume_ramp,
-
-   _mixer_get_frequency,
-   _mixer_set_frequency,
-   _mixer_sweep_frequency,
-   _mixer_stop_frequency_sweep,
-
-   _mixer_get_pan,
-   _mixer_set_pan,
-   _mixer_sweep_pan,
-   _mixer_stop_pan_sweep,
-
-   _mixer_set_echo,
-   _mixer_set_tremolo,
-   _mixer_set_vibrato,
-
-   /* input functions */
-   0,                           /* int rec_cap_bits; */
-   0,                           /* int rec_cap_stereo; */
-   digi_directsound_rec_cap_rate,
-   digi_directsound_rec_cap_param,
-   digi_directsound_rec_source,
-   digi_directsound_rec_start,
-   digi_directsound_rec_stop,
-   digi_directsound_rec_read
-};
-
-
-#define MAX_DRIVERS  16
-
-static char *driver_names[MAX_DRIVERS];
-static LPGUID driver_guids[MAX_DRIVERS];
+static unsigned int dbgtid;
 
 
 
-/* digi_diretsound_mixer_callback:
- *  callback to update sound in primary buffer
+/* _get_dsalmix_driver:
+ *  System driver hook for listing the available sound drivers. This 
+ *  generates the device list at runtime, to match whatever DirectSound
+ *  devices are available.
  */
-static void CALLBACK digi_directsound_mixer_callback(UINT uID, UINT uMsg, DWORD dwUser,
-                                                     DWORD dw1, DWORD dw2)
+DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
+{
+   DIGI_DRIVER *driver;
+
+   driver = malloc(sizeof(DIGI_DRIVER));
+   if (!driver)
+      return NULL;
+
+   memcpy(driver, &digi_dsoundmix, sizeof(DIGI_DRIVER));
+
+   driver->id = DIGI_DIRECTAMX(num);
+
+   driver_names[num] = malloc(strlen(name)+10);
+   if (driver_names[num]) {
+      strcpy(driver_names[num], "Allegmix ");
+      strcpy(driver_names[num]+9, name);
+      driver->ascii_name = driver_names[num];
+   }
+
+   driver_guids[num] = guid;
+
+   return driver;
+}
+
+
+
+/* digi_dsoundmix_mixer_callback:
+ *  Callback function to update sound in primary buffer.
+ */
+static void CALLBACK digi_dsoundmix_mixer_callback(UINT uID, UINT uMsg, DWORD dwUser,
+                                                   DWORD dw1, DWORD dw2)
 { 
    LPVOID lpvPtr1, lpvPtr2;
    DWORD dwBytes1, dwBytes2, writecurs;
@@ -220,39 +261,8 @@ static void CALLBACK digi_directsound_mixer_callback(UINT uID, UINT uMsg, DWORD 
 
 
 
-/* _get_digi_driver_list:
- *  System driver hook for listing the available sound drivers. This 
- *  generates the device list at runtime, to match whatever DirectSound
- *  devices are available.
- */
-DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
-{
-   DIGI_DRIVER *driver;
-
-   driver = malloc(sizeof(DIGI_DRIVER));
-   if (!driver)
-      return NULL;
-
-   memcpy(driver, &digi_directx, sizeof(DIGI_DRIVER));
-
-   driver->id = DIGI_DIRECTAMX(num);
-
-   driver_names[num] = malloc(strlen(name)+10);
-   if (driver_names[num]) {
-      strcpy(driver_names[num], "Allegmix ");
-      strcpy(driver_names[num]+9, name);
-      driver->ascii_name = driver_names[num];
-   }
-
-   driver_guids[num] = guid;
-
-   return driver;
-}
-
-
-
 /* ds_err:
- *  returns an error string
+ *  Returns a DirectSound error string.
  */
 #ifdef DEBUGMODE
 static char *ds_err(long err)
@@ -306,10 +316,42 @@ static char *ds_err(long err)
 
 
 
-/* digi_directsound_init:
- *  initializes DirectSound
+/* digi_dsoundmix_detect:
  */
-static int digi_directsound_init(int input, int voices)
+static int digi_dsoundmix_detect(int input)
+{
+   HRESULT hr;
+   int id;
+
+   /* deduce our device number from the driver ID code */
+   id = ((digi_driver->id >> 8) & 0xFF) - 'A';
+
+   if (input)
+      return digi_directsound_capture_detect(driver_guids[id]);
+
+   if (!directsound) {
+      /* initialize DirectSound interface */
+      hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
+      if (FAILED(hr)) {
+         _TRACE("DirectSound interface creation failed during detect (%s)\n", ds_err(hr));
+         return 0;
+      }
+
+      _TRACE("DirectSound interface successfully created\n");
+
+      /* release DirectSound */
+      IDirectSound_Release(directsound);
+      directsound = NULL;
+   }
+
+   return 1;
+}
+
+
+
+/* digi_dsoundmix_init:
+ */
+static int digi_dsoundmix_init(int input, int voices)
 {
    LPVOID lpvPtr1, lpvPtr2;
    DWORD dwBytes1, dwBytes2;
@@ -451,24 +493,22 @@ static int digi_directsound_init(int input, int voices)
    prim_buf_vol = initial_volume;
 
    /* start playing */
-   /* install_int(digi_directsound_mixer_callback, BPS_TO_TIMER(50)); */
-   dbgtid = timeSetEvent(20, 10, digi_directsound_mixer_callback, 0, TIME_PERIODIC);
+   dbgtid = timeSetEvent(20, 10, digi_dsoundmix_mixer_callback, 0, TIME_PERIODIC);
    IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
 	
    return 0;
 
  Error:
    _TRACE("digi_directsound_init() failed\n");
-   digi_directsound_exit(0);
+   digi_dsoundmix_exit(0);
    return -1;
 }
 
 
 
-/* digi_directsound_exit:
- *  closes DirectSound
+/* digi_dsoundmix_exit:
  */
-static void digi_directsound_exit(int input)
+static void digi_dsoundmix_exit(int input)
 {
    if (input) {
       digi_directsound_capture_exit();
@@ -501,10 +541,9 @@ static void digi_directsound_exit(int input)
 
 
 
-/* digi_directsound_mixer_volume:
- *  sets mixer volume
+/* digi_dsoundmix_mixer_volume:
  */
-static int digi_directsound_mixer_volume(int volume)
+static int digi_dsoundmix_mixer_volume(int volume)
 {
    if (prim_buf) {
       prim_buf_vol = alleg_to_dsound_volume[MID(0, volume, 255)];
@@ -516,44 +555,9 @@ static int digi_directsound_mixer_volume(int volume)
 
 
 
-/* digi_directsound_buffer_size:
- *  returns size of buffer in samples
+/* digi_dsoundmix_buffer_size:
  */
-static int digi_directsound_buffer_size(void)
+static int digi_dsoundmix_buffer_size(void)
 {
    return digidsbufsize / (_bits / 8) / (_stereo ? 2 : 1);
-}
-
-
-
-/* digi_directsound_detect:
- *  detects DirectSound
- */
-static int digi_directsound_detect(int input)
-{
-   HRESULT hr;
-   int id;
-
-   /* deduce our device number from the driver ID code */
-   id = ((digi_driver->id >> 8) & 0xFF) - 'A';
-
-   if (input)
-      return digi_directsound_capture_detect(driver_guids[id]);
-
-   if (!directsound) {
-      /* initialize DirectSound interface */
-      hr = DirectSoundCreate(driver_guids[id], &directsound, NULL);
-      if (FAILED(hr)) {
-         _TRACE("DirectSound interface creation failed during detect (%s)\n", ds_err(hr));
-         return 0;
-      }
-
-      _TRACE("DirectSound interface successfully created\n");
-
-      /* release DirectSound */
-      IDirectSound_Release(directsound);
-      directsound = NULL;
-   }
-
-   return 1;
 }
