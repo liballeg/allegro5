@@ -74,8 +74,9 @@ static void handle_window_exit_sysmode_win(void);
 static void handle_window_move_win(int, int, int, int);
 
 
-static struct WIN_GFX_DRIVER win_gfx_driver_windowed =
+static WIN_GFX_DRIVER win_gfx_driver_windowed =
 {
+   TRUE,
    switch_in_win,
    NULL,                        // AL_METHOD(void, switch_out, (void));
    handle_window_enter_sysmode_win,
@@ -477,14 +478,13 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    
    /* display the window */
    MoveWindow(allegro_wnd, win_size.left, win_size.top,
-      win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+              win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
    /* check that the actual window size is the one requested */
    GetClientRect(allegro_wnd, &win_size);
@@ -493,10 +493,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       _TRACE("window size not supported.\n");
       goto Error;
    }
-
-   /* acquire input devices */
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
 
    /* get the working area */
    get_working_area(&working_area);
@@ -549,13 +545,16 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    wd_dirty_lines = calloc(h+1, sizeof(char));
    wd_dirty_lines[h] = 0;
 
-   /* set default switching policy */
-   set_display_switch_mode(SWITCH_PAUSE);
-
    pseudo_screen = dd_frontbuffer;
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_windowed;
+
+   /* set default switching policy */
+   set_display_switch_mode(SWITCH_PAUSE);
+
+   /* grab input devices */
+   win_grab_input();
 
    _exit_critical();
 

@@ -240,8 +240,12 @@ void gfx_directx_exit(struct BITMAP *b)
    _enter_critical();
 
    set_sync_timer_freq(70);
+
    if (b)
       clear(b);
+
+   /* disconnect from the system driver */
+   win_gfx_driver = NULL;
 
    /* destroy primary surface */
    gfx_directx_destroy_surf(dd_prim_surface);
@@ -273,7 +277,6 @@ void gfx_directx_exit(struct BITMAP *b)
    }
 
    /* before restoring video mode, hide window */
-   wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
    system_driver->restore_console_state();
    restore_window_style();

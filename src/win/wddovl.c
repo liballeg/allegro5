@@ -67,8 +67,9 @@ static void handle_window_move_ovl(int, int, int, int);
 static void hide_overlay(void);
 
 
-static struct WIN_GFX_DRIVER win_gfx_driver_overlay =
+static WIN_GFX_DRIVER win_gfx_driver_overlay =
 {
+   TRUE,
    switch_in_ovl,
    switch_out_ovl,
    NULL,                        // AL_METHOD(void, enter_sysmode, (void));
@@ -352,7 +353,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    win_size.bottom = wnd_y + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -368,10 +368,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       _TRACE("window size not supported.\n");
       goto Error;
    }
-
-   /* acquire input devices */
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
 
    /* get the working area */
    get_working_area(&working_area);
@@ -431,11 +427,14 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (same_color_depth)
       enable_acceleration(&gfx_directx_ovl);
 
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_driver_overlay;
+
    /* set default switching policy */
    set_display_switch_mode(SWITCH_PAUSE);
 
-   /* connect to the system driver */
-   win_gfx_driver = &win_gfx_driver_overlay;
+   /* grab input devices */
+   win_grab_input();
 
    _exit_critical();
 

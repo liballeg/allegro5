@@ -81,8 +81,9 @@ static void gdi_exit_sysmode(void);
 static void gdi_update_window(RECT *rect);
 
 
-static struct WIN_GFX_DRIVER win_gfx_driver_gdi =
+static WIN_GFX_DRIVER win_gfx_driver_gdi =
 {
+   TRUE,
    NULL,                        // AL_METHOD(void, switch_in, (void));
    NULL,                        // AL_METHOD(void, switch_out, (void));
    gdi_enter_sysmode,
@@ -457,7 +458,6 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
-   wnd_windowed = TRUE;
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -466,31 +466,31 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    MoveWindow(allegro_wnd, win_size.left, win_size.top, 
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
 
-   /* acquire input devices */
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
-
    /* the last flag serves as end of loop delimiter */
    gdi_dirty_lines = calloc(h+1, sizeof(char));
    gdi_dirty_lines[h] = 1;
 
-   /* set the default switching policy */
-   set_display_switch_mode(SWITCH_PAUSE);
-
    /* create the screen surface */
    screen_surf = malloc(w * h * BYTES_PER_PIXEL(color_depth));
-   gdi_screen = _make_bitmap(w, h, (unsigned long) screen_surf, &gfx_gdi, color_depth, w * BYTES_PER_PIXEL(color_depth));
+   gdi_screen = _make_bitmap(w, h, (unsigned long) screen_surf, &gfx_gdi, color_depth,
+                                                                w * BYTES_PER_PIXEL(color_depth));
    gdi_screen->write_bank = gfx_gdi_write_bank; 
    _screen_vtable.acquire = gfx_gdi_lock;
    _screen_vtable.release = gfx_gdi_unlock;
    _screen_vtable.unwrite_bank = gfx_gdi_unwrite_bank; 
 
-   /* connect to the system driver */
-   win_gfx_driver = &win_gfx_driver_gdi;
-
    /* create render timer */
    vsync_event = CreateEvent(NULL, FALSE, FALSE, NULL);
    render_timer = SetTimer(allegro_wnd, 0, RENDER_DELAY, (TIMERPROC) render_proc);
+
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_driver_gdi;
+
+   /* set the default switching policy */
+   set_display_switch_mode(SWITCH_PAUSE);
+
+   /* grab input devices */
+   win_grab_input();
 
    _exit_critical();
 
@@ -540,7 +540,6 @@ static void gfx_gdi_exit(struct BITMAP *b)
    _exit_gfx_critical();
 
    /* before restoring video mode, hide window */
-   wnd_windowed = TRUE;
    set_display_switch_mode(SWITCH_PAUSE);
    system_driver->restore_console_state();
    restore_window_style();

@@ -65,14 +65,14 @@ int sys_directx_set_display_switch_mode(int mode)
    {
       case SWITCH_BACKGROUND:
       case SWITCH_PAUSE:
-	 if (!wnd_windowed)
-	    return -1;
+         if (win_gfx_driver && !win_gfx_driver->has_backing_store)
+            return -1;
 	 break;
 
       case SWITCH_BACKAMNESIA:
       case SWITCH_AMNESIA:
-	 if (wnd_windowed)
-	    return -1;
+         if (!win_gfx_driver || win_gfx_driver->has_backing_store)
+            return -1;
 	 break;
 
       default:

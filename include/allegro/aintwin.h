@@ -69,7 +69,6 @@ AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
 AL_VAR(int, wnd_width);
 AL_VAR(int, wnd_height);
-AL_VAR(int, wnd_windowed);
 AL_VAR(int, wnd_sysmenu);
 
 AL_FUNCPTR(void, user_close_proc, (void));
@@ -83,18 +82,6 @@ AL_VAR(int, gfx_crit_sect_nesting);
 #define _exit_gfx_critical()   LeaveCriticalSection(&gfx_crit_sect); \
                                gfx_crit_sect_nesting--
 #define GFX_CRITICAL_RELEASED  (!gfx_crit_sect_nesting)
-
-struct WIN_GFX_DRIVER {
-   AL_METHOD(void, switch_in, (void));
-   AL_METHOD(void, switch_out, (void));
-   AL_METHOD(void, enter_sysmode, (void));
-   AL_METHOD(void, exit_sysmode, (void));
-   AL_METHOD(void, move, (int x, int y, int w, int h));
-   AL_METHOD(void, iconify, (void));
-   AL_METHOD(void, paint, (RECT *rect));
-};   
-
-AL_VAR(struct WIN_GFX_DRIVER *, win_gfx_driver);
 
 /* stuff moved over from wddraw.h */
 typedef struct BMP_EXTRA_INFO {
@@ -143,8 +130,9 @@ AL_FUNC(void, sys_directx_switch_in_callback, (void));
 /************** keyboard routines **********/
 /*******************************************/
 AL_FUNC(int, key_dinput_acquire, (void));
-AL_FUNC(void, key_dinput_unacquire, (void));
+AL_FUNC(int, key_dinput_unacquire, (void));
 AL_FUNC(void, wnd_acquire_keyboard, (void));
+AL_FUNC(void, wnd_unacquire_keyboard, (void));
 
 
 
@@ -152,10 +140,11 @@ AL_FUNC(void, wnd_acquire_keyboard, (void));
 /************** mouse routines *************/
 /*******************************************/
 AL_FUNC(int, mouse_dinput_acquire, (void));
-AL_FUNC(void, mouse_dinput_unacquire, (void));
+AL_FUNC(int, mouse_dinput_unacquire, (void));
 AL_FUNC(int, mouse_set_cursor, (void));
 AL_FUNC(void, mouse_sysmenu_changed, (void));
 AL_FUNC(void, wnd_acquire_mouse, (void));
+AL_FUNC(void, wnd_unacquire_mouse, (void));
 AL_FUNC(void, wnd_set_cursor, (void));
 
 

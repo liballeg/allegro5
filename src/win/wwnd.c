@@ -38,11 +38,10 @@ int wnd_x = 0;
 int wnd_y = 0;
 int wnd_width = 0;
 int wnd_height = 0;
-int wnd_windowed = TRUE;
 int wnd_sysmenu = FALSE;
 
 /* graphics */
-struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
+WIN_GFX_DRIVER *win_gfx_driver;
 CRITICAL_SECTION gfx_crit_sect;
 int gfx_crit_sect_nesting = 0;
 
@@ -60,7 +59,9 @@ static int old_style = 0;
 /* custom window msgs */
 static UINT msg_call_proc = 0;
 static UINT msg_acquire_keyboard = 0;
+static UINT msg_unacquire_keyboard = 0;
 static UINT msg_acquire_mouse = 0;
+static UINT msg_unacquire_mouse = 0;
 static UINT msg_set_cursor = 0;
 
 
@@ -96,6 +97,17 @@ void win_set_wnd_create_proc(HWND proc)
 
 
 
+/* win_grab_input:
+ *  grabs the input devices
+ */
+void win_grab_input(void)
+{
+   wnd_acquire_keyboard();
+   wnd_acquire_mouse();
+}
+
+
+
 /* wnd_call_proc:
  *  lets call a procedure from the window thread
  */
@@ -119,12 +131,32 @@ void wnd_acquire_keyboard(void)
 
 
 
+/* wnd_unacquire_keyboard:
+ *  posts msg to window to unacquire the keyboard device
+ */
+void wnd_unacquire_keyboard(void)
+{
+   PostMessage(allegro_wnd, msg_unacquire_keyboard, 0, 0);
+}
+
+
+
 /* wnd_acquire_mouse:
  *  posts msg to window to acquire the mouse device
  */
 void wnd_acquire_mouse(void)
 {
    PostMessage(allegro_wnd, msg_acquire_mouse, 0, 0);
+}
+
+
+
+/* wnd_unacquire_mouse:
+ *  posts msg to window to unacquire the mouse device
+ */
+void wnd_unacquire_mouse(void)
+{
+   PostMessage(allegro_wnd, msg_unacquire_mouse, 0, 0);
 }
 
 
@@ -152,8 +184,14 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
    if (message == msg_acquire_keyboard)
       return key_dinput_acquire();
 
+   if (message == msg_unacquire_keyboard)
+      return key_dinput_unacquire();
+
    if (message == msg_acquire_mouse)
       return mouse_dinput_acquire();
+
+   if (message == msg_unacquire_mouse)
+      return mouse_dinput_unacquire();
 
    if (message == msg_set_cursor)
       return mouse_set_cursor();
@@ -217,11 +255,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
       case WM_SIZE:
 	 wnd_width = LOWORD(lparam);
 	 wnd_height = HIWORD(lparam);
-	 break;
-
-      case WM_NCPAINT:
-	 if (!wnd_windowed)
-	    return 0;
 	 break;
 
       case WM_PAINT:
@@ -403,7 +436,9 @@ int init_directx_window(void)
    /* setup globals */
    msg_call_proc = RegisterWindowMessage("Allegro call proc");
    msg_acquire_keyboard = RegisterWindowMessage("Allegro keyboard acquire proc");
+   msg_unacquire_keyboard = RegisterWindowMessage("Allegro keyboard unacquire proc");
    msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
+   msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
    msg_set_cursor = RegisterWindowMessage("Allegro mouse cursor proc");
 
    /* prepare window for Allegro */

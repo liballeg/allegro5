@@ -133,14 +133,26 @@ GFX_DRIVER gfx_directx_safe =
 
 
 
+static WIN_GFX_DRIVER win_gfx_fullscreen =
+{
+   FALSE,
+   NULL,                        // AL_METHOD(void, switch_in, (void));
+   NULL,                        // AL_METHOD(void, switch_out, (void));
+   NULL,                        // AL_METHOD(void, enter_sysmode, (void));
+   NULL,                        // AL_METHOD(void, exit_sysmode, (void));
+   NULL,                        // AL_METHOD(void, move, (int x, int y, int w, int h));
+   NULL,                        // AL_METHOD(void, iconify, (void));
+   NULL                         // AL_METHOD(void, paint, (RECT *));
+};
+
+
+
 /* gfx_directx_accel:
  */
 static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int color_depth)
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
       return NULL;
-
-   wnd_windowed = FALSE;
 
    _enter_critical();
 
@@ -165,7 +177,14 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO);
    enable_acceleration(&gfx_directx_accel);
 
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_fullscreen;
+
+   /* set the default switching policy */
    set_display_switch_mode(SWITCH_AMNESIA);
+
+   /* grab input devices */
+   win_grab_input();
 
    _exit_critical();
 
@@ -185,8 +204,6 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
       return NULL;
-
-   wnd_windowed = FALSE;
 
    _enter_critical();
 
@@ -210,7 +227,14 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
 
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_fullscreen;
+
+   /* set the default switching policy */
    set_display_switch_mode(SWITCH_AMNESIA);
+
+   /* grab input devices */
+   win_grab_input();
 
    _exit_critical();
 
@@ -230,8 +254,6 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
 {
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
       return NULL;
-
-   wnd_windowed = FALSE;
 
    _enter_critical();
 
@@ -255,7 +277,14 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
       goto Error;
    dd_frontbuffer = make_directx_bitmap(dd_prim_surface, w, h, color_depth, BMP_ID_VIDEO); 
 
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_fullscreen;
+
+   /* set the default switching policy */
    set_display_switch_mode(SWITCH_AMNESIA);
+
+   /* grab input devices */
+   win_grab_input();
 
    _exit_critical();
 

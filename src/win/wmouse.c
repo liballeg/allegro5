@@ -93,9 +93,6 @@ static int mymickey_y = 0;
 static int mymickey_ox = 0;
 static int mymickey_oy = 0;
 
-static int mouse_wason_valid = FALSE;
-static int mouse_wason = FALSE;
-
 #define MICKEY_TO_COORD_X(n)        ((n) / mouse_sx)
 #define MICKEY_TO_COORD_Y(n)        ((n) / mouse_sy)
 
@@ -160,9 +157,9 @@ int mouse_dinput_acquire(void)
 {
    HRESULT hr;
 
-   _mouse_b = 0;
-
    if (mouse_dinput_device) {
+      _mouse_b = 0;
+
       hr = IDirectInputDevice_Acquire(mouse_dinput_device);
 
       if (FAILED(hr)) {
@@ -170,13 +167,7 @@ int mouse_dinput_acquire(void)
 	 return -1;
       }
 
-      if (mouse_wason_valid) {
-	 _mouse_on = mouse_wason;
-	 mouse_wason_valid = FALSE;
-      }
-
-      mouse_set_cursor();
-
+      /* initialise mouse state */
       SetEvent(mouse_input_event);
 
       return 0;
@@ -193,25 +184,32 @@ int mouse_dinput_acquire(void)
 /* mouse_dinput_unacquire:
  *  unacquires mouse device.
  */
-void mouse_dinput_unacquire(void)
+int mouse_dinput_unacquire(void)
 {
    if (mouse_dinput_device) {
       IDirectInputDevice_Unacquire(mouse_dinput_device);
 
-      mouse_wason_valid = TRUE;
-      mouse_wason = _mouse_on;
-      _mouse_on = FALSE;
+      if (_mouse_on) {
+         _mouse_on = FALSE;
+         mouse_set_cursor();
+      }
+
+      _mouse_b = 0;
+
+      return 0;
    }
+   else
+      return -1;
 }
 
 
 
 /* mouse_set_cursor:
- *  Selects whatever cursor we should display.
+ *  selects whatever cursor we should display.
  */
 int mouse_set_cursor(void)
 {
-   if (((mouse_dinput_device) && (_mouse_on)) || (!wnd_windowed))
+   if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed))
       SetCursor(NULL);
    else
       SetCursor(LoadCursor(NULL, IDC_ARROW));
@@ -222,7 +220,7 @@ int mouse_set_cursor(void)
 
 
 /* mouse_sysmenu_changed:
- *  Alters the windowed mouse state when going to/from sysmenu mode.
+ *  alters the windowed mouse state when going to/from sysmenu mode.
  */
 void mouse_sysmenu_changed()
 {
@@ -285,7 +283,7 @@ static void mouse_dinput_exit(void)
 
 
 /* mouse_enum_ccallback:
- *  For finding out how many buttons we have.
+ *  to find out how many buttons we have.
  */
 BOOL CALLBACK mouse_enum_callback(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
@@ -307,15 +305,15 @@ static int mouse_dinput_init(void)
    HRESULT hr;
    DIPROPDWORD property_buf_size =
    {
-   // the header
+      /* the header */
       {
 	 sizeof(DIPROPDWORD),   // diph.dwSize
-	 sizeof(DIPROPHEADER), // diph.dwHeaderSize
-	 0,                    // diph.dwObj
-	 DIPH_DEVICE,          // diph.dwHow
+	 sizeof(DIPROPHEADER),  // diph.dwHeaderSize
+	 0,                     // diph.dwObj
+	 DIPH_DEVICE,           // diph.dwHow
       },
 
-   // the data
+      /* the data */
       DINPUT_BUFFERSIZE,        // dwData
    };
 
@@ -356,12 +354,17 @@ static int mouse_dinput_init(void)
    if (FAILED(hr))
       goto Error;
 
-   /* Acquire the created device */
-   wnd_acquire_mouse();
+   /* Set the initial state */
+   _mouse_on = FALSE;
 
-   /* Make sure that the pointer is inside the window quickly enough */
-   if (win_gfx_driver && wnd_windowed)
-      SetCursorPos(wnd_x+8, wnd_y+8);
+   /* Acquire the created device */
+   if (gfx_driver) {
+      wnd_acquire_mouse();
+
+      /* Make sure that the pointer is inside the window quickly enough */
+      if (gfx_driver->windowed)
+         SetCursorPos(wnd_x+8, wnd_y+8);
+   }
 
    return 0;
 
@@ -415,7 +418,7 @@ static void mouse_directx_poll(void)
 	    switch (ofs) {
 
 	       case DIMOFS_X:
-	          if (!wnd_windowed) {
+	          if (!gfx_driver || !gfx_driver->windowed) {
 		     if ((data > 32) || (data < -32)) 
 			data *= 4;
 		     else if ((data > 16) || (data < -16)) 
@@ -425,7 +428,7 @@ static void mouse_directx_poll(void)
 		  break;
 
 	       case DIMOFS_Y:
-	          if (!wnd_windowed) {
+	          if (!gfx_driver || !gfx_driver->windowed) {
 		     if ((data > 32) || (data < -32)) 
 			data *= 4;
 		     else if ((data > 16) || (data < -16)) 
@@ -468,7 +471,7 @@ static void mouse_directx_poll(void)
 	    }
 	 }
 
-	 if (wnd_windowed) {
+	 if (gfx_driver && gfx_driver->windowed) {
 	    /* windowed input mode */
 	    if (!wnd_sysmenu) {
 	       POINT p;
@@ -478,8 +481,11 @@ static void mouse_directx_poll(void)
 	       p.x -= wnd_x;
 	       p.y -= wnd_y;
 
-	       mymickey_x += p.x - _mouse_x;
-	       mymickey_y += p.y - _mouse_y;
+	       mymickey_x += p.x - mymickey_ox;
+	       mymickey_y += p.y - mymickey_oy;
+
+	       mymickey_ox = p.x;
+	       mymickey_oy = p.y;
 
 	       if ((p.x < mouse_minx) || (p.x > mouse_maxx) ||
 		   (p.y < mouse_miny) || (p.y > mouse_maxy)) {
@@ -524,7 +530,11 @@ static void mouse_directx_poll(void)
 	       CLEAR_MICKEYS();
 	    }
 
-	    _mouse_on = TRUE;
+	    if (!_mouse_on) {
+	       _mouse_on = TRUE;
+	       wnd_set_cursor();
+	    }
+
 	    _handle_mouse_input();
 	 }
 
@@ -643,7 +653,7 @@ static void mouse_directx_position(int x, int y)
 
    mymickey_x = mymickey_y = 0;
 
-   if (wnd_windowed)
+   if (gfx_driver && gfx_driver->windowed)
       SetCursorPos(x+wnd_x, y+wnd_y);
 
    _exit_critical();

@@ -206,13 +206,14 @@ static void key_dinput_handle(void)
 int key_dinput_acquire(void)
 {
    HRESULT hr;
+   int mask, state;
    char key_state[256];
 
    if (key_dinput_device) {
-      int mask = KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG;
-      int state = 0;
+      mask = KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG;
+      state = 0;
 
-      /* Read the current keyboard state */
+      /* Read the current Windows keyboard state */
       GetKeyboardState(key_state);
 
       if (key_state[VK_SCROLL] & 1)
@@ -233,6 +234,7 @@ int key_dinput_acquire(void)
          return -1;
       }
 
+      /* Initialize keyboard state */
       SetEvent(key_input_event);
 
       return 0;
@@ -246,18 +248,22 @@ int key_dinput_acquire(void)
 /* key_dinput_unacquire:
  *  unacquires keyboard device.
  */
-void key_dinput_unacquire(void)
+int key_dinput_unacquire(void)
 {
    int key;
 
    if (key_dinput_device) {
+      IDirectInputDevice_Unacquire(key_dinput_device);
+
       /* release all keys */
       for (key=0; key<256; key++)
          if ((key != 0x61) && (key != 0xE1))  /* PAUSE */
-            key_dinput_handle_scancode((unsigned char)key, FALSE);
+            key_dinput_handle_scancode((unsigned char) key, FALSE);
 
-      IDirectInputDevice_Unacquire(key_dinput_device);
+      return 0;
    }
+   else
+      return -1;
 }
 
 
@@ -300,16 +306,16 @@ static int key_dinput_init(void)
    HRESULT hr;
    DIPROPDWORD property_buf_size =
    {
-   // the header
+      /* the header */
       {
-	 sizeof(DIPROPDWORD),   // diph.dwSize
-	  sizeof(DIPROPHEADER), // diph.dwHeaderSize
-	  0,                    // diph.dwObj
-	  DIPH_DEVICE,          // diph.dwHow
+	  sizeof(DIPROPDWORD),   // diph.dwSize
+	  sizeof(DIPROPHEADER),  // diph.dwHeaderSize
+	  0,                     // diph.dwObj
+	  DIPH_DEVICE,           // diph.dwHow
       },
 
-   // the data
-      DINPUT_BUFFERSIZE,        // dwData
+      /* the data */
+      DINPUT_BUFFERSIZE,         // dwData
    };
 
    /* Get DirectInput interface */
@@ -344,10 +350,8 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Acquire the created device */
-   wnd_acquire_keyboard();   
-
-   /* Initialize keyboard state */
-   SetEvent(key_input_event);
+   if (gfx_driver)
+      wnd_acquire_keyboard();   
 
    return 0;
 
