@@ -51,21 +51,21 @@
       movd %eax, %mm5                                                              ; \
       punpckldq %mm5, %mm5                                                         ; \
                                                                                    ; \
-      movl ARG1, %eax             /* eax = &src_desc */                            ; \
-      movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */                    ; \
-      movl 12(%eax), %edx         /* edx = src_desc.dwWidth */                     ; \
-      movl 16(%eax), %esi         /* esi = src_desc.lPitch */                      ; \
-      movl 36(%eax), %eax         /* eax = src_desc.lpSurface */                   ; \
-      shll $2, %edx               /* edx = SCREEN_W * 4 */                         ; \
-      subl %edx, %esi             /* esi = (src_desc.lPitch) - edx */              ; \
+      movl ARG1, %eax                  /* eax = src_rect                 */        ; \
+      movl GFXRECT_WIDTH(%eax), %edx   /* edx = src_rect->width          */        ; \
+      movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx = src_rect->height         */        ; \
+      movl GFXRECT_PITCH(%eax), %esi   /* esi = src_rect->pitch          */        ; \
+      movl GFXRECT_DATA(%eax), %eax    /* eax = src_rect->data           */        ; \
+      shll $2, %edx                    /* edx = SCREEN_W * 4             */        ; \
+      subl %edx, %esi                  /* esi = (src_rect->pitch) - edx  */        ; \
                                                                                    ; \
-      movl ARG2, %ebx             /* ebx = &dest_desc */                           ; \
-      shrl $1, %edx               /* edx = SCREEN_W * 2 */                         ; \
-      movl 16(%ebx), %edi         /* edi = dest_desc.lPitch */                     ; \
-      movl 36(%ebx), %ebx         /* ebx = dest_desc.lpSurface */                  ; \
-      subl %edx, %edi             /* edi = (dest_desc.lPitch) - edx */             ; \
-      shrl $2, %edx               /* edx = SCREEN_W / 2 */
-      
+      movl ARG2, %ebx                  /* ebx = dest_rect                */        ; \
+      shrl $1, %edx                    /* edx = SCREEN_W * 2             */        ; \
+      movl GFXRECT_PITCH(%ebx), %edi   /* edi = dest_rect->pitch         */        ; \
+      movl GFXRECT_DATA(%ebx), %ebx    /* ebx = dest_rect->data          */        ; \
+      subl %edx, %edi                  /* edi = (dest_rect->pitch) - edx */        ; \
+      shrl $2, %edx                    /* edx = SCREEN_W / 2             */
+
 
 #define INIT_CONVERSION_2(mask_red, mask_green, mask_blue) \
       /* init register values */                                                   ; \
@@ -80,28 +80,28 @@
       movd %eax, %mm5                                                              ; \
       punpckldq %mm5, %mm5                                                         ; \
                                                                                    ; \
-      movl ARG1, %eax             /* eax = &src_desc */                            ; \
-      movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */                    ; \
-      movl 12(%eax), %edx         /* edx = src_desc.dwWidth */                     ; \
-      movl 16(%eax), %esi         /* esi = src_desc.lPitch */                      ; \
-      movl 36(%eax), %eax         /* eax = src_desc.lpSurface */                   ; \
-      addl %edx, %edx             /* edx = SCREEN_W * 2 */                         ; \
-      subl %edx, %esi             /* esi = (src_desc.lPitch) - edx */              ; \
+      movl ARG1, %eax                  /* eax = src_rect                 */        ; \
+      movl GFXRECT_WIDTH(%eax), %edx   /* edx = src_rect->width          */        ; \
+      movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx = src_rect->height         */        ; \
+      movl GFXRECT_PITCH(%eax), %esi   /* esi = src_rect->pitch          */        ; \
+      movl GFXRECT_DATA(%eax), %eax    /* eax = src_rect->data           */        ; \
+      addl %edx, %edx                  /* edx = SCREEN_W * 2             */        ; \
+      subl %edx, %esi                  /* esi = (src_rect->pitch) - edx  */        ; \
                                                                                    ; \
-      movl ARG2, %ebx             /* ebx = &dest_desc */                           ; \
-      addl %edx, %edx             /* edx = SCREEN_W * 4 */                         ; \
-      movl 16(%ebx), %edi         /* edi = dest_desc.lPitch */                     ; \
-      movl 36(%ebx), %ebx         /* ebx = dest_desc.lpSurface */                  ; \
-      subl %edx, %edi             /* edi = (dest_desc.lPitch) - edx */             ; \
-      shrl $3, %edx               /* edx = SCREEN_W / 2 */
-      
+      movl ARG2, %ebx                  /* ebx = dest_rect                */        ; \
+      addl %edx, %edx                  /* edx = SCREEN_W * 4             */        ; \
+      movl GFXRECT_PITCH(%ebx), %edi   /* edi = dest_rect->pitch         */        ; \
+      movl GFXRECT_DATA(%ebx), %ebx    /* ebx = dest_rect->data          */        ; \
+      subl %edx, %edi                  /* edi = (dest_rect->pitch) - edx */        ; \
+      shrl $3, %edx                    /* edx = SCREEN_W / 2             */
 
-/* void _update_32_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+
+/* void _colorconv_blit_32_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_32_to_16)
+FUNC (_colorconv_blit_32_to_16)
    movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
    test %eax, %eax
-   jz _update_32_to_16_no_mmx
+   jz _colorconv_blit_32_to_16_no_mmx
 
    pushl %ebp
    movl %esp, %ebp
@@ -113,8 +113,8 @@ FUNC (_update_32_to_16)
 
    /* 32 bit to 16 bit conversion:
     we have:
-    eax = src_desc.lpSurface
-    ebx = dest_desc.lpSurface
+    eax = src_rect->data
+    ebx = dest_rect->data
     ecx = SCREEN_H
     edx = SCREEN_W / 2
     esi = offset from the end of a line to the beginning of the next
@@ -164,12 +164,12 @@ FUNC (_update_32_to_16)
    ret
 
 
-/* void _update_32_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_32_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_32_to_15)
+FUNC (_colorconv_blit_32_to_15)
    movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
    test %eax, %eax
-   jz _update_32_to_15_no_mmx
+   jz _colorconv_blit_32_to_15_no_mmx
 
    pushl %ebp
    movl %esp, %ebp
@@ -181,8 +181,8 @@ FUNC (_update_32_to_15)
 
    /* 32 bit to 15 bit conversion:
     we have:
-    eax = src_desc.lpSurface
-    ebx = dest_desc.lpSurface
+    eax = src_rect->data
+    ebx = dest_rect->data
     ecx = SCREEN_H
     edx = SCREEN_W / 2
     esi = offset from the end of a line to the beginning of the next
@@ -231,12 +231,12 @@ FUNC (_update_32_to_15)
 
 
 
-/* void _update_16_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_16_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_16_to_32)
+FUNC (_colorconv_blit_16_to_32)
    movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
    test %eax, %eax
-   jz _update_16_to_32_no_mmx
+   jz _colorconv_blit_16_to_32_no_mmx
 
    pushl %ebp
    movl %esp, %ebp
@@ -248,8 +248,8 @@ FUNC (_update_16_to_32)
 
    /* 16 bit to 32 bit conversion:
     we have:
-    eax = src_desc.lpSurface
-    ebx = dest_desc.lpSurface
+    eax = src_rect->data
+    ebx = dest_rect->data
     ecx = SCREEN_H
     edx = SCREEN_W / 2
     esi = offset from the end of a line to the beginning of the next
@@ -295,12 +295,12 @@ FUNC (_update_16_to_32)
 
 
 
-/* void _update_8_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_8_to_32)
+FUNC (_colorconv_blit_8_to_32)
    movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
    test %eax, %eax
-   jz _update_8_to_32_no_mmx
+   jz _colorconv_blit_8_to_32_no_mmx
 
    pushl %ebp
    movl %esp, %ebp
@@ -310,30 +310,30 @@ FUNC (_update_8_to_32)
 
    /* init register values */
 
-   movl ARG1, %eax             /* eax = &src_desc */
-   movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */
-   movl %ecx, LOCAL1           /* LOCAL1 = SCREEN_H */
-   movl 12(%eax), %edi         /* edi = src_desc.dwWidth */
-   movl 16(%eax), %esi         /* esi = src_desc.lPitch */
-   movl 36(%eax), %eax         /* eax = src_desc.lpSurface */
+   movl ARG1, %eax                    /* eax = src_rect         */
+   movl GFXRECT_WIDTH(%eax), %edi     /* edi = src_rect->width  */
+   movl GFXRECT_HEIGHT(%eax), %ecx    /* ecx = src_rect->height */
+   movl GFXRECT_PITCH(%eax), %esi     /* esi = src_rect->pitch  */
+   movl GFXRECT_DATA(%eax), %eax      /* eax = src_rect->data   */
+   movl %ecx, LOCAL1                  /* LOCAL1 = SCREEN_H      */
    subl %edi, %esi
-   movl %esi, LOCAL2           /* LOCAL2 = src_desc.lPitch - SCREEN_W */
+   movl %esi, LOCAL2                  /* LOCAL2 = src_rect->pitch - SCREEN_W */
 
-   movl ARG2, %ebx             /* ebx = &dest_desc */
-   shll $2, %edi               /* edi = SCREEN_W * 4 */
-   movl 16(%ebx), %edx         /* edx = dest_desc.lPitch */
-   movl 36(%ebx), %ebx         /* ebx = dest_desc.lpSurface */
+   movl ARG2, %ebx                    /* ebx = dest_rect        */
+   shll $2, %edi                      /* edi = SCREEN_W * 4     */
+   movl GFXRECT_PITCH(%ebx), %edx     /* edx = dest_rect->pitch */
+   movl GFXRECT_DATA(%ebx), %ebx      /* ebx = dest_rect->data  */
    subl %edi, %edx
-   movl %edx, LOCAL3           /* LOCAL3 = (dest_desc.lPitch) - (SCREEN_W * 4) */
-   shrl $4, %edi               /* edi = SCREEN_W / 4 */
-   movl GLOBL(allegro_palette), %esi  /* esi = allegro_palette */
+   movl %edx, LOCAL3                  /* LOCAL3 = (dest_rect->pitch) - (SCREEN_W * 4) */
+   shrl $4, %edi                      /* edi = SCREEN_W / 4                           */
+   movl GLOBL(_colorconv_indexed_palette), %esi  /* esi = _colorconv_indexed_palette  */
 
 
    /* 8 bit to 32 bit conversion:
     we have:
-    eax = src_desc.lpSurface
-    ebx = dest_desc.lpSurface
-    esi = allegro_palette
+    eax = src_rect->data
+    ebx = dest_rect->data
+    esi = _colorconv_indexed_palette
     edi = SCREEN_W / 4
     LOCAL1 = SCREEN_H
     LOCAL2 = offset from the end of a line to the beginning of the next
@@ -385,15 +385,15 @@ FUNC (_update_8_to_32)
    ret
 
 
-/* void _update_8_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-/* void _update_8_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_8_to_16)
-FUNC (_update_8_to_15)
+FUNC (_colorconv_blit_8_to_16)
+FUNC (_colorconv_blit_8_to_15)
    movl GLOBL(cpu_mmx), %eax     /* if MMX is enabled (or not disabled :) */
    test %eax, %eax
-   jz _update_8_to_16_no_mmx
+   jz _colorconv_blit_8_to_16_no_mmx
 
    pushl %ebp
    movl %esp, %ebp
@@ -403,30 +403,30 @@ FUNC (_update_8_to_15)
 
    /* init register values */
 
-   movl ARG1, %eax             /* eax = &src_desc */
-   movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */
-   movl %ecx, LOCAL1           /* LOCAL1 = SCREEN_H */
-   movl 12(%eax), %edi         /* edi = src_desc.dwWidth */
-   movl 16(%eax), %esi         /* esi = src_desc.lPitch */
-   movl 36(%eax), %eax         /* eax = src_desc.lpSurface */
+   movl ARG1, %eax                    /* eax = src_rect         */
+   movl GFXRECT_WIDTH(%eax), %edi     /* edi = src_rect->width  */
+   movl GFXRECT_HEIGHT(%eax), %ecx    /* ecx = src_rect->height */
+   movl GFXRECT_PITCH(%eax), %esi     /* esi = src_rect->pitch  */
+   movl GFXRECT_DATA(%eax), %eax      /* eax = src_rect->data   */
+   movl %ecx, LOCAL1                  /* LOCAL1 = SCREEN_H      */
    subl %edi, %esi
-   movl %esi, LOCAL2           /* LOCAL2 = src_desc.lPitch - SCREEN_W */
+   movl %esi, LOCAL2                  /* LOCAL2 = src_rect->pitch - SCREEN_W */
 
-   movl ARG2, %ebx             /* ebx = &dest_desc */
-   addl %edi, %edi             /* edi = SCREEN_W * 2 */
-   movl 16(%ebx), %edx         /* edx = dest_desc.lPitch */
-   movl 36(%ebx), %ebx         /* ebx = dest_desc.lpSurface */
+   movl ARG2, %ebx                    /* ebx = &*dest_rect      */
+   addl %edi, %edi                    /* edi = SCREEN_W * 2     */
+   movl GFXRECT_PITCH(%ebx), %edx     /* edx = dest_rect->pitch */
+   movl GFXRECT_DATA(%ebx), %ebx      /* ebx = dest_rect->data  */
    subl %edi, %edx
-   movl %edx, LOCAL3           /* LOCAL3 = (dest_desc.lPitch) - (SCREEN_W * 2) */
-   shrl $3, %edi               /* edi = SCREEN_W / 4 */
-   movl GLOBL(allegro_palette), %esi  /* esi = allegro_palette */
+   movl %edx, LOCAL3                  /* LOCAL3 = (dest_rect->pitch) - (SCREEN_W * 2) */
+   shrl $3, %edi                      /* edi = SCREEN_W / 4                           */
+   movl GLOBL(_colorconv_indexed_palette), %esi  /* esi = _colorconv_indexed_palette  */
 
 
    /* 8 bit to 16 bit conversion:
     we have:
-    eax = src_desc.lpSurface
-    ebx = dest_desc.lpSurface
-    esi = allegro_palette
+    eax = src_rect->data
+    ebx = dest_rect->data
+    esi = _colorconv_indexed_palette
     edi = SCREEN_W / 4
     LOCAL1 = SCREEN_H
     LOCAL2 = offset from the end of a line to the beginning of the next
@@ -512,25 +512,25 @@ FUNC (_update_8_to_15)
 #define LOOP_RATIO_2 1
 #define LOOP_RATIO_4 2
 
-#define INIT_REGISTERS_NO_MMX(src_mul_code, dest_mul_code, width_ratio)      \
-   movl ARG1, %eax          /* eax    = &src_desc                   */     ; \
-   movl 12(%eax), %ebx      /* ebx    = src_desc.dwWidth            */     ; \
-   movl 8(%eax), %ecx       /* ecx    = src_desc.dwHeight           */     ; \
-   movl 16(%eax), %edx      /* edx    = src_desc.lPitch             */     ; \
-   movl %ebx, %edi          /* edi    = width                       */     ; \
-   src_mul_code             /* ebx    = width*x                     */     ; \
-   movl 36(%eax), %esi      /* esi    = src_desc.lpSurface          */     ; \
-   subl %ebx, %edx                                                         ; \
-   movl %edi, %ebx                                                         ; \
-   shrl $width_ratio, %edi                                                 ; \
-   movl ARG2, %eax          /* eax    = &dest_desc                  */     ; \
-   movl %edi, MYLOCAL1      /* LOCAL1 = width/y                     */     ; \
-   movl %edx, MYLOCAL2      /* LOCAL2 = src_desc.lPitch - width*x   */     ; \
-   dest_mul_code            /* ebx    = width*y                     */     ; \
-   movl 16(%eax), %edx      /* edx    = dest_desc.lPitch            */     ; \
-   subl %ebx, %edx                                                         ; \
-   movl 36(%eax), %edi      /* edi    = dest_desc.lpSurface         */     ; \
-   movl %edx, MYLOCAL3      /* LOCAL3 = dest_desc.lPitch - width*y  */
+#define INIT_REGISTERS_NO_MMX(src_mul_code, dest_mul_code, width_ratio)           \
+   movl ARG1, %eax                  /* eax    = src_rect                    */  ; \
+   movl GFXRECT_WIDTH(%eax), %ebx   /* ebx    = src_rect->width             */  ; \
+   movl GFXRECT_HEIGHT(%eax), %ecx  /* ecx    = src_rect->height            */  ; \
+   movl GFXRECT_PITCH(%eax), %edx   /* edx    = src_rect->pitch             */  ; \
+   movl %ebx, %edi                  /* edi    = width                       */  ; \
+   src_mul_code                     /* ebx    = width*x                     */  ; \
+   movl GFXRECT_DATA(%eax), %esi    /* esi    = src_rect->data              */  ; \
+   subl %ebx, %edx                                                              ; \
+   movl %edi, %ebx                                                              ; \
+   shrl $width_ratio, %edi                                                      ; \
+   movl ARG2, %eax                  /* eax    = dest_rect                   */  ; \
+   movl %edi, MYLOCAL1              /* LOCAL1 = width/y                     */  ; \
+   movl %edx, MYLOCAL2              /* LOCAL2 = src_rect->pitch - width*x   */  ; \
+   dest_mul_code                    /* ebx    = width*y                     */  ; \
+   movl GFXRECT_PITCH(%eax), %edx   /* edx    = dest_rect->pitch            */  ; \
+   subl %ebx, %edx                                                              ; \
+   movl GFXRECT_DATA(%eax), %edi    /* edi    = dest_rect->data             */  ; \
+   movl %edx, MYLOCAL3              /* LOCAL3 = dest_rect->pitch - width*y  */
 
   /* registers state after initialization:
     eax: free 
@@ -546,9 +546,9 @@ FUNC (_update_8_to_15)
    */
    
 
-/* void _update_24_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_24_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_24_to_32)
+FUNC (_colorconv_blit_24_to_32)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_4, LOOP_RATIO_4)
    movl 4(%esi), %ebx  /* init first line */
@@ -592,17 +592,17 @@ FUNC (_update_24_to_32)
    ret
 
 
-/* void _update_16_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_16_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
 _align_
-_update_16_to_32_no_mmx:
+_colorconv_blit_16_to_32_no_mmx:
 #else
-FUNC (_update_16_to_32)
+FUNC (_colorconv_blit_16_to_32)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_4, LOOP_RATIO_2)
-   movl GLOBL(rgb_scale_5335), %ebp
+   movl GLOBL(_colorconv_rgb_scale_5335), %ebp
    movl $0, %eax  /* init first line */  
 
    _align_
@@ -645,18 +645,18 @@ FUNC (_update_16_to_32)
    ret
 
 
-/* void _update_8_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
 _align_
-_update_8_to_32_no_mmx:
+_colorconv_blit_8_to_32_no_mmx:
 #else
-FUNC (_update_8_to_32)
+FUNC (_colorconv_blit_8_to_32)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_4, LOOP_RATIO_4)
    movl $0, %eax     /* init first line */
-   movl GLOBL(allegro_palette), %ebp
+   movl GLOBL(_colorconv_indexed_palette), %ebp
    movb (%esi), %al  /* init first line */
 
    _align_
@@ -700,9 +700,9 @@ FUNC (_update_8_to_32)
    ret
 
 
-/* void _update_32_to_24 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_32_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_32_to_24)
+FUNC (_colorconv_blit_32_to_24)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_3, LOOP_RATIO_4)
    movl 4(%esi), %ebx  /* init first line */
@@ -749,12 +749,12 @@ FUNC (_update_32_to_24)
  
 
 
-/* void _update_16_to_24 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_16_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_16_to_24)
+FUNC (_colorconv_blit_16_to_24)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_3, LOOP_RATIO_4)
-   movl GLOBL(rgb_scale_5335), %ebp
+   movl GLOBL(_colorconv_rgb_scale_5335), %ebp
 
    next_line_16_to_24_no_mmx:
       movl MYLOCAL1, %edx      
@@ -819,12 +819,12 @@ FUNC (_update_16_to_24)
    ret
 
 
-/* void _update_8_to_24 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_8_to_24)
+FUNC (_colorconv_blit_8_to_24)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_3, LOOP_RATIO_4)
-   movl GLOBL(allegro_palette), %ebp
+   movl GLOBL(_colorconv_indexed_palette), %ebp
    movl $0, %eax  /* init first line */
 
    _align_
@@ -871,7 +871,7 @@ FUNC (_update_8_to_24)
    ret
 
 
-#define CONV_TRUE_TO_16_NO_MMX(name, pixsize_plus_0, pixsize_plus_1, pixsize_plus_2, pixsize_times_2)  \
+#define CONV_TRUE_TO_16_NO_MMX(name, bytes_ppixel)                                 \
    _align_                                                                       ; \
    next_line_##name:                                                             ; \
       movl MYLOCAL1, %edx                                                        ; \
@@ -881,20 +881,20 @@ FUNC (_update_8_to_24)
       /* 100% Pentium pairable loop */                                           ; \
       /* 10 cycles = 9 cycles/2 pixels + 1 cycle loop */                         ; \
       next_block_##name:                                                         ; \
-         movb pixsize_plus_0(%esi), %al   /* al = b8 pixel2                  */  ; \
+         movb bytes_ppixel(%esi), %al     /* al = b8 pixel2                  */  ; \
          addl $4, %edi                    /* 2 pixels written                */  ; \
          shrb $3, %al                     /* al = b5 pixel2                  */  ; \
-         movb pixsize_plus_1(%esi), %bh   /* ebx = g8 pixel2 << 8            */  ; \
+         movb bytes_ppixel+1(%esi), %bh   /* ebx = g8 pixel2 << 8            */  ; \
          shll $16, %ebx                   /* ebx = g8 pixel2 << 24           */  ; \
          movb (%esi), %cl                 /* cl = b8 pixel1                  */  ; \
          shrb $3, %cl                     /* cl = b5 pixel1                  */  ; \
-         movb pixsize_plus_2(%esi), %ah   /* eax = r8b5 pixel2               */  ; \
+         movb bytes_ppixel+2(%esi), %ah   /* eax = r8b5 pixel2               */  ; \
          shll $16, %eax                   /* eax = r8b5 pixel2 << 16         */  ; \
          movb 1(%esi), %bh                /* ebx = g8 pixel2 | g8 pixel1     */  ; \
          shrl $5, %ebx                    /* ebx = g6 pixel2 | g6 pixel1     */  ; \
          movb 2(%esi), %ch                /* ecx = r8b5 pixel1               */  ; \
          orl  %ecx, %eax                  /* eax = r8b5 pixel2 | r8b5 pixel1 */  ; \
-         addl $pixsize_times_2, %esi      /* 2 pixels read                   */  ; \
+         addl $bytes_ppixel*2, %esi       /* 2 pixels read                   */  ; \
          andl $0xf81ff81f, %eax           /* eax = r5b5 pixel2 | r5b5 pixel1 */  ; \
          andl $0x07e007e0, %ebx           /* clean g6 pixel2 | g6 pixel1     */  ; \
          orl  %ebx, %eax                  /* eax = pixel2 | pixel1           */  ; \
@@ -909,45 +909,45 @@ FUNC (_update_8_to_24)
       jnz next_line_##name
 
 
-/* void _update_32_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_32_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
 _align_
-_update_32_to_16_no_mmx:
+_colorconv_blit_32_to_16_no_mmx:
 #else
-FUNC (_update_32_to_16)
+FUNC (_colorconv_blit_32_to_16)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_2, LOOP_RATIO_2)  
-   CONV_TRUE_TO_16_NO_MMX(32_to_16_no_mmx, 4, 5, 6, 8)
+   CONV_TRUE_TO_16_NO_MMX(32_to_16_no_mmx, 4)
    DESTROY_STACK_FRAME
    ret
 
 
-/* void _update_24_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_24_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_24_to_16)
+FUNC (_colorconv_blit_24_to_16)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_2, LOOP_RATIO_2)
-   CONV_TRUE_TO_16_NO_MMX(24_to_16_no_mmx, 3, 4, 5, 6)
+   CONV_TRUE_TO_16_NO_MMX(24_to_16_no_mmx, 3)
    DESTROY_STACK_FRAME
    ret
 
 
-/* void _update_8_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-/* void _update_8_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_8_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
 _align_
-_update_8_to_16_no_mmx:
+_colorconv_blit_8_to_16_no_mmx:
 #else
-FUNC (_update_8_to_16)
-FUNC (_update_8_to_15)
+FUNC (_colorconv_blit_8_to_16)
+FUNC (_colorconv_blit_8_to_15)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_2, LOOP_RATIO_4)
-   movl GLOBL(allegro_palette), %ebp
+   movl GLOBL(_colorconv_indexed_palette), %ebp
    movl $0, %eax  /* init first line */
 
    _align_
@@ -990,7 +990,7 @@ FUNC (_update_8_to_15)
    ret
 
 
-#define CONV_TRUE_TO_15_NO_MMX(name, pixsize_plus_0, pixsize_plus_1, pixsize_plus_2, pixsize_times_2)  \
+#define CONV_TRUE_TO_15_NO_MMX(name, bytes_ppixel)                                 \
    _align_                                                                       ; \
    next_line_##name:                                                             ; \
       movl MYLOCAL1, %edx                                                        ; \
@@ -1000,12 +1000,12 @@ FUNC (_update_8_to_15)
       /* 100% Pentium pairable loop */                                           ; \
       /* 11 cycles = 10 cycles/2 pixels + 1 cycle loop */                        ; \
       next_block_##name:                                                         ; \
-         movb pixsize_plus_0(%esi), %al   /* al = b8 pixel2                  */  ; \
+         movb bytes_ppixel(%esi), %al     /* al = b8 pixel2                  */  ; \
          addl $4, %edi                    /* 2 pixels written                */  ; \
          shrb $3, %al                     /* al = b5 pixel2                  */  ; \
-         movb pixsize_plus_1(%esi), %bh   /* ebx = g8 pixel2 << 8            */  ; \
+         movb bytes_ppixel+1(%esi), %bh   /* ebx = g8 pixel2 << 8            */  ; \
          shll $16, %ebx                   /* ebx = g8 pixel2 << 24           */  ; \
-         movb pixsize_plus_2(%esi), %ah   /* eax = r8b5 pixel2               */  ; \
+         movb bytes_ppixel+2(%esi), %ah   /* eax = r8b5 pixel2               */  ; \
          shrb $1, %ah                     /* eax = r7b5 pixel2               */  ; \
          movb (%esi), %cl                 /* cl = b8 pixel1                  */  ; \
          shrb $3, %cl                     /* cl = b5 pixel1                  */  ; \
@@ -1013,7 +1013,7 @@ FUNC (_update_8_to_15)
          shll $16, %eax                   /* eax = r7b5 pixel2 << 16         */  ; \
          movb 2(%esi), %ch                /* ecx = r8b5 pixel1               */  ; \
          shrb $1, %ch                     /* ecx = r7b5 pixel1               */  ; \
-         addl $pixsize_times_2, %esi      /* 2 pixels read                   */  ; \
+         addl $bytes_ppixel*2, %esi       /* 2 pixels read                   */  ; \
          shrl $6, %ebx                    /* ebx = g5 pixel2 | g5 pixel1     */  ; \
          orl  %ecx, %eax                  /* eax = r7b5 pixel2 | r7b5 pixel1 */  ; \
          andl $0x7c1f7c1f, %eax           /* eax = r5b5 pixel2 | r5b5 pixel1 */  ; \
@@ -1030,26 +1030,26 @@ FUNC (_update_8_to_15)
       jnz next_line_##name
 
 
-/* void _update_32_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_32_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
 _align_
-_update_32_to_15_no_mmx:
+_colorconv_blit_32_to_15_no_mmx:
 #else
-FUNC (_update_32_to_15)
+FUNC (_colorconv_blit_32_to_15)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_4, SIZE_2, LOOP_RATIO_2)  
-   CONV_TRUE_TO_15_NO_MMX(32_to_15_no_mmx, 4, 5, 6, 8)
+   CONV_TRUE_TO_15_NO_MMX(32_to_15_no_mmx, 4)
    DESTROY_STACK_FRAME
    ret
 
 
-/* void _update_24_to_15 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc)
+/* void _colorconv_blit_24_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
-FUNC (_update_24_to_15)
+FUNC (_colorconv_blit_24_to_15)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_3, SIZE_2, LOOP_RATIO_2)
-   CONV_TRUE_TO_15_NO_MMX(24_to_15_no_mmx, 3, 4, 5, 6)
+   CONV_TRUE_TO_15_NO_MMX(24_to_15_no_mmx, 3)
    DESTROY_STACK_FRAME
    ret

@@ -7,6 +7,7 @@ ALLEGRO_SRC_FILES = \
 	src/clip3d.c \
 	src/clip3df.c \
 	src/colblend.c \
+	src/colconv.c \
 	src/color.c \
 	src/config.c \
 	src/datafile.c \
@@ -94,6 +95,7 @@ ALLEGRO_SRC_I386_FILES = \
 	src/i386/iblit24.s \
 	src/i386/iblit32.s \
 	src/i386/iblit8.s \
+	src/i386/icolconv.s \
 	src/i386/icpu.c \
 	src/i386/icpus.s \
 	src/i386/icsprite.c \
@@ -172,7 +174,6 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wddmode.c \
 	src/win/wddovl.c \
 	src/win/wddwin.c \
-	src/win/update.s \
 	src/win/wdsinput.c \
 	src/win/wdsndmix.c \
 	src/win/wdsound.c \

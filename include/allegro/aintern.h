@@ -530,6 +530,53 @@ AL_FUNC(void, _x_clear_to_color, (BITMAP *bitmap, int color));
 #endif
 
 
+/* color conversion routines */
+typedef struct GRAPHICS_RECT {
+   int width;
+   int height;
+   int pitch;
+   void *data;
+} GRAPHICS_RECT;
+
+typedef void (COLORCONV_BLITTER_FUNC)(GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect);
+
+AL_FUNC(COLORCONV_BLITTER_FUNC *, _get_colorconv_blitter, (int from_depth, int to_depth));
+AL_FUNC(void, _release_colorconv_blitter, (COLORCONV_BLITTER_FUNC *blitter));
+AL_FUNC(void, _set_colorconv_palette, (AL_CONST struct RGB *p, int from, int to));
+
+#ifdef ALLEGRO_COLOR8
+
+AL_FUNC(void, _colorconv_blit_8_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_8_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_8_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_8_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+
+#endif
+
+#ifdef ALLEGRO_COLOR16
+
+AL_FUNC(void, _colorconv_blit_16_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_16_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+
+#endif
+
+#ifdef ALLEGRO_COLOR24
+
+AL_FUNC(void, _colorconv_blit_24_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_24_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_24_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+
+#endif
+
+#ifdef ALLEGRO_COLOR32
+
+AL_FUNC(void, _colorconv_blit_32_to_15, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_32_to_16, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_32_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+
+#endif
+
+
 /* asm helper for stretch_blit() */
 #ifndef SCAN_EXPORT
 AL_FUNC(void, _do_stretch, (BITMAP *source, BITMAP *dest, void *drawer, int sx, fixed sy, fixed syd, int dx, int dy, int dh, int color_depth));

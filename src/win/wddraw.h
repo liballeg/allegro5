@@ -103,19 +103,6 @@ AL_VAR(BMP_EXTRA_INFO *, directx_bmp_list);
 
 
 /* windowed mode */
-AL_FUNC(void,  _update_8_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_24_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_32_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void,  _update_8_to_16, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_24_to_16, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_32_to_16, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void,  _update_8_to_24, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_16_to_24, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_32_to_24, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void,  _update_8_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_16_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-AL_FUNC(void, _update_24_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
-
 AL_VAR(BITMAP*, pseudo_screen);
 
 

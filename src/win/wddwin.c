@@ -21,8 +21,6 @@
 BITMAP* pseudo_screen = NULL;   /* for page-flipping          */
 
 /* exported only for asmlock.s */
-int* allegro_palette = NULL;    /* for conversion from 8-bit  */
-int* rgb_scale_5335 = NULL;     /* for conversion from 16-bit */
 char* wd_dirty_lines = NULL;    /* used in WRITE_BANK()       */
 void (*update_window) (RECT* rect) = NULL;  /* window updater */
 
@@ -95,9 +93,8 @@ static LPDIRECTDRAWSURFACE2 offscreen_surface = NULL;
  */ 
 static LPDIRECTDRAWSURFACE2 preconv_offscreen_surface = NULL;
 static RECT working_area;
-static void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+static COLORCONV_BLITTER_FUNC *_update = NULL;
 static int clipped_updating_mode;
-static int allegro_palette_size;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
@@ -211,6 +208,7 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
                           LPDIRECTDRAWSURFACE2 src_surf, RECT *src_rect )
 {
    DDSURFACEDESC src_desc, dest_desc;
+   struct GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
    HRESULT hr;
 
    src_desc.dwSize = sizeof(src_desc);
@@ -228,11 +226,18 @@ static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
       return -1;
    }
    
-   src_desc.dwWidth  = src_rect->right  - src_rect->left;
-   src_desc.dwHeight = src_rect->bottom - src_rect->top;
+   /* fill in source graphics rectangle description */
+   src_gfx_rect.width  = src_rect->right  - src_rect->left;
+   src_gfx_rect.height = src_rect->bottom - src_rect->top;
+   src_gfx_rect.pitch  = src_desc.lPitch;
+   src_gfx_rect.data   = src_desc.lpSurface;
 
+   /* fill in destination graphics rectangle description */
+   dest_gfx_rect.pitch = dest_desc.lPitch;
+   dest_gfx_rect.data  = dest_desc.lpSurface;
+   
    /* function doing the hard work */
-   _update(&src_desc, &dest_desc);
+   _update(&src_gfx_rect, &dest_gfx_rect);
 
    IDirectDrawSurface2_Unlock(src_surf, NULL);
    IDirectDrawSurface2_Unlock(dest_surf, NULL);
@@ -297,60 +302,6 @@ static void update_window_ex(RECT* rect)
 
 
 
-/* build_rgb_scale_5335_table
- *  create pre-calculated tables for 16-bit to truecolor conversion
- */
-static void build_rgb_scale_5335_table(void)
-{
-   int i, color, red, green, blue;
-
-   if (desktop_depth == 24)
-      /* 6 contiguous 256-entry tables (6k) */
-      rgb_scale_5335 = malloc(sizeof(int)*1536);
-   else  /* 32-bit */
-      /* 2 contiguous 256-entry tables (2k) */
-      rgb_scale_5335 = malloc(sizeof(int)*512);
-    
-   /* 1st table: r5g3 to r8g8b0 */ 
-   for (i=0; i<256; i++) {
-      red = _rgb_scale_5[i>>3];
-      green=(i&7)<<5;
-
-      if (green >= 68)
-           green++;
-
-       if (green >= 160)
-           green++;
-
-      color = (red<<16) | (green<<8);
-      rgb_scale_5335[i] = color;
-
-      if (desktop_depth == 24) {
-         rgb_scale_5335[ 512+i] = (color>>8)+((color&0xff)<<24);
-         rgb_scale_5335[1024+i] = (color>>16)+((color&0xffff)<<16);
-      }
-   }        
-
-   /* 2nd table: g3b5 to r0g8b8 */
-   for (i=0; i<256; i++) {
-      blue = _rgb_scale_5[i&0x1f];
-      green=(i>>5)<<2;
-
-      if (green == 0x1c)
-          green++;
-
-      color = (green<<8) | blue;
-      rgb_scale_5335[256+i] = color;
-
-      if (desktop_depth == 24) {
-         rgb_scale_5335[ 512+256+i] = (color>>8)+((color&0xff)<<24);
-         rgb_scale_5335[1024+256+i] = (color>>16)+((color&0xffff)<<16);
-      }
-   }     
-}
-
-
-
 /* setup_driver_desc:
  *  Sets up the driver description string.
  */
@@ -373,24 +324,7 @@ static void setup_driver_desc(void)
  */
 static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
-   int n, color;
-
-   for (n = from; n <= to; n++) {
-      color = makecol_depth(desktop_depth, p[n].r<<2, p[n].g<<2, p[n].b<<2);
-      allegro_palette[n] = color;
-
-      if ((desktop_depth == 15) || (desktop_depth == 16)) {
-         /* 2 pre-calculated shift tables (2k) */
-         allegro_palette[PAL_SIZE+n] = color<<16; 
-      }
-      else if (desktop_depth == 24) {
-         /* 4 pre-calculated shift tables (4k) */
-         allegro_palette[PAL_SIZE+n]   = (color>>8)+((color&0xff)<<24);
-         allegro_palette[PAL_SIZE*2+n] = (color>>16)+((color&0xffff)<<16);
-         allegro_palette[PAL_SIZE*3+n] = color<<8;
-      }
-   }
-
+   _set_colorconv_palette(p, from, to);
    update_window(NULL);
 }
 
@@ -434,73 +368,10 @@ static int verify_color_depth (int color_depth)
    }
    else {
       /* the color depths don't match, need color conversion */
-      switch (desktop_depth) {
-         case 8:
-            return -1;   /* no conversion from true color to 8 bit */
-	    break;
+      _update = _get_colorconv_blitter(color_depth, desktop_depth);
 
-         case 15:
-            if (color_depth == 8) {
-	       allegro_palette_size = PAL_SIZE*2;
-               _update = _update_8_to_15;
-            }
-            else if (color_depth == 24) {
-               _update = _update_24_to_15;
-            }
-            else if (color_depth == 32) {
-               _update = _update_32_to_15;
-            }
-            else
-               return -1;
-            break;
-      
-         case 16:
-            if (color_depth == 8) {
-               allegro_palette_size = PAL_SIZE*2; 
-               _update = _update_8_to_16;
-            }
-            else if (color_depth == 24) {
-               _update = _update_24_to_16;
-            }
-            else if (color_depth == 32) {
-               _update = _update_32_to_16;
-            }
-            else
-               return -1;
-            break;
-
-         case 24:
-            if (color_depth == 8) {
-               allegro_palette_size = PAL_SIZE*4;
-               _update = _update_8_to_24;
-            }
-            else if (color_depth == 16) {
-               build_rgb_scale_5335_table();
-               _update = _update_16_to_24;
-            }
-            else if (color_depth == 32) {
-               _update = _update_32_to_24;
-            }
-            else
-               return -1;
-	    break;
-
-         case 32:
-            if (color_depth == 8) {
-               allegro_palette_size = PAL_SIZE;
-               _update = _update_8_to_32;
-            }
-            else if (color_depth == 16) {
-               build_rgb_scale_5335_table();
-               _update = _update_16_to_32;
-            }
-            else if (color_depth == 24) {
-               _update = _update_24_to_32;
-            }
-            else
-               return -1;
-            break;
-      } /* end of switch(desktop_depth) */
+      if (!_update)
+         return -1;
 
       update_window = update_window_ex;
       clipped_updating_mode = FALSE;
@@ -650,7 +521,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 	    goto Error;
       }
       else {
-         allegro_palette = malloc(sizeof(int) * allegro_palette_size);
          gfx_directx_win.set_palette = gfx_directx_set_palette_win;
          /* use the core library color conversion functions */ 
          gfx_directx_update_color_format(dd_prim_surface, desktop_depth);
@@ -726,16 +596,10 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    gfx_directx_destroy_surf(preconv_offscreen_surface);
    preconv_offscreen_surface = NULL;
 
-   /* destroy the palette */
-   if (allegro_palette) {
-      free (allegro_palette);
-      allegro_palette = NULL;
-   }
-
-   /* destroy the shift table */
-   if (rgb_scale_5335) {
-      free (rgb_scale_5335);
-      rgb_scale_5335 = NULL;
+   /* release the color conversion blitter */
+   if (_update) {
+      _release_colorconv_blitter(_update);
+      _update = NULL;
    }
 
    /* unlink surface from bitmap */
