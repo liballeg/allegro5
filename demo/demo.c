@@ -385,7 +385,8 @@ void move_everyone(void)
 
    /* fire bullet? */
    if (!shot) {
-      if ((key[KEY_SPACE]) || (joy[0].button[0].b) || (joy[0].button[1].b)) {
+      if ((key[KEY_SPACE] || key[KEY_LCONTROL] || key[KEY_RCONTROL]) ||
+	 (joy[0].button[0].b) || (joy[0].button[1].b)) {
 	 if (prev_bullet_time + BULLET_DELAY < game_time) {
 	    bullet = add_bullet((pos >> SPEED_SHIFT) - 2, SCREEN_H - 64);
 	    if (bullet) {
@@ -2163,12 +2164,8 @@ int main(int argc, char *argv[])
       destroy_bitmap(bmp);
    }
 
-   c = retrace_count;
-
    if (!jumpstart) {
-      do {
-      } while (retrace_count-c < 120);
-
+      rest (1000);
       fade_out(1);
    }
 
@@ -2183,7 +2180,7 @@ int main(int argc, char *argv[])
       exit(1);
 
    set_color_depth(8);
-   if (set_gfx_mode(c, w, h, 0, 0) != 0) {
+   if (set_gfx_mode(c, w, h, w, h * 2) != 0 && set_gfx_mode(c, w, h, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
       allegro_message("Error setting 8bpp graphics mode\n%s\n", allegro_error);
       exit(1);
