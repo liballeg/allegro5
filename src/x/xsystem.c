@@ -40,6 +40,7 @@ static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void));
 static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
 static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height);
+static void _xwin_sysdrv_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_digi_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_midi_drivers(void);
@@ -81,6 +82,7 @@ SYSTEM_DRIVER system_xwin =
    NULL, /* display_switch_lock */
    _xwin_sysdrv_desktop_color_depth,
    _xwin_sysdrv_get_desktop_resolution,
+   _xwin_sysdrv_get_gfx_safe_mode,
    _unix_yield_timeslice,
    _xwin_sysdrv_gfx_drivers,
    _xwin_sysdrv_digi_drivers,
@@ -376,5 +378,18 @@ static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height)
    *height = DisplayHeight(_xwin.display, _xwin.screen);
 
    return 0;
+}
+
+
+
+/* _xwin_sysdrv_get_gfx_safe_mode:
+ *  Defines the safe graphics mode for this system.
+ */
+static void _xwin_sysdrv_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
+{
+   *driver = GFX_XWINDOWS;
+   mode->width = 320;
+   mode->height = 200;
+   mode->bpp = 8;
 }
 

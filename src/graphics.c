@@ -563,35 +563,58 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    extern void blit_end();
    _DRIVER_INFO *driver_list;
    GFX_DRIVER *drv;
+   struct GFX_MODE mode;
    char buf[ALLEGRO_ERROR_SIZE], tmp[64];
    int flags = 0;
-   int c;
+   int c, driver, ret;
 
    _gfx_mode_set_count++;
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
-      _safe_gfx_mode_change = 1;
       ustrzcpy(buf, sizeof(buf), allegro_error);
-      if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
-	 set_color_depth(8);
+
+      if (system_driver->get_gfx_safe_mode) {
+	 /* retrieve the safe graphics mode */
+	 system_driver->get_gfx_safe_mode(&driver, &mode);
+
+	 /* try using the specified depth and resolution */
+	 if (set_gfx_mode(driver, w, h, 0, 0) == 0)
+	    return 0;
+
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
+
+	 /* finally use the safe settings */
+	 set_color_depth(mode.bpp);
+	 if (set_gfx_mode(driver, mode.width, mode.height, 0, 0) == 0)
+	    return 0;
+
+	 ASSERT(FALSE);  /* the safe graphics mode must always work */
+      }
+      else {
+	 /* no safe graphics mode, try normal autodetected modes */
+	 if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) == 0)
+	    return 0;
+
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
+
+	 /* finally try hard-coded autodetected modes with custom settings */
 	 allow_config = FALSE;
+	 _safe_gfx_mode_change = 1;
+
+	 ret = set_gfx_mode(GFX_AUTODETECT, 0, 0, 0, 0);
+
 	 _safe_gfx_mode_change = 0;
-      #ifdef GFX_SAFE_ID
-	 if (set_gfx_mode(GFX_SAFE_ID, GFX_SAFE_W, GFX_SAFE_H, 0, 0) != 0) {
-      #else
-	 if (set_gfx_mode(GFX_AUTODETECT, 0, 0, 0, 0) != 0) {
-      #endif
-	    set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	    allegro_message(uconvert_ascii("%s\n", tmp), get_config_text("Fatal error: unable to set GFX_SAFE"));
-	    return -1;
-	 }
 	 allow_config = TRUE;
+
+	 if (ret == 0)
+	    return 0;
       }
 
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, buf);
-      _safe_gfx_mode_change = 0;
-      return 0;
+      /* failing to set GFX_SAFE is a fatal error */
+      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+      allegro_message(uconvert_ascii("%s\n", tmp), get_config_text("Fatal error: unable to set GFX_SAFE"));
+      return -1;
    }
 
    /* remember the current console state */

@@ -43,6 +43,7 @@ static void qnx_sys_set_window_title(AL_CONST char *);
 static int qnx_sys_set_window_close_button(int);
 static void qnx_sys_set_window_close_hook(AL_METHOD(void, proc, (void)));
 static int qnx_sys_set_display_switch_mode(int mode);
+static void qnx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
 static void qnx_sys_yield_timeslice(void);
 static int qnx_sys_desktop_color_depth(void);
 static int qnx_sys_get_desktop_resolution(int *width, int *height);
@@ -77,6 +78,7 @@ SYSTEM_DRIVER system_qnx =
    NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
    qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
    qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
+   qnx_sys_get_gfx_safe_mode,       /* AL_METHOD(void, get_gfx_safe_mode, (int *driver, struct GFX_MODE *mode)); */
    qnx_sys_yield_timeslice,         /* AL_METHOD(void, yield_timeslice, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    NULL,                            /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
@@ -585,6 +587,19 @@ static int qnx_sys_get_desktop_resolution(int *width, int *height)
    *width = mode_info.width;
    *height = mode_info.height;
    return 0;
+}
+
+
+
+/* qnx_sys_get_gfx_safe_mode:
+ *  Defines the safe graphics mode for this system.
+ */
+static void qnx_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
+{
+   *driver = GFX_PHOTON_WIN;
+   mode->width = 320;
+   mode->height = 200;
+   mode->bpp = 8;
 }
 
 

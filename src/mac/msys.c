@@ -59,6 +59,7 @@ static void mac_message(const char *msg);
 static void mac_assert(const char *msg);
 static BITMAP * mac_create_bitmap(int color_depth, int width, int height);
 static int mac_desktop_color_depth(void);
+static void mac_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
 static void mac_yield_timeslice(void);
 static int mac_trace_handler(const char *msg);
 
@@ -92,6 +93,7 @@ SYSTEM_DRIVER system_macos ={
    NULL, /* display_switch_lock */
    mac_desktop_color_depth,
    NULL, /* get_desktop_resolution */
+   mac_get_gfx_safe_mode,
    mac_yield_timeslice,
    NULL, /* gfx_drivers */
    NULL, /* digi_drivers */
@@ -326,6 +328,19 @@ BITMAP *mac_create_bitmap(int color_depth, int width, int height)
 static int mac_desktop_color_depth(void)
 {
    return 0;
+}
+
+
+
+/* mac_get_gfx_safe_mode:
+ *  Defines the safe graphics mode for this system.
+ */
+static void mac_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
+{
+   *driver = GFX_DRAWSPROCKET;
+   mode->width = 320;
+   mode->height = 200;
+   mode->bpp = 8;
 }
 
 

@@ -28,6 +28,7 @@
 struct RGB;
 struct BITMAP;
 struct GFX_VTABLE;
+struct GFX_MODE;
 
 #define ALLEGRO_ERROR_SIZE 256
 
@@ -118,6 +119,7 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(void, display_switch_lock, (int lock, int foreground));
    AL_METHOD(int, desktop_color_depth, (void));
    AL_METHOD(int, get_desktop_resolution, (int *width, int *height));
+   AL_METHOD(void, get_gfx_safe_mode, (int *driver, struct GFX_MODE *mode));
    AL_METHOD(void, yield_timeslice, (void));
    AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));

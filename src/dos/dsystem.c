@@ -97,6 +97,7 @@ static void sys_dos_save_console_state(void);
 static void sys_dos_restore_console_state(void);
 static void sys_dos_read_palette(void);
 static void sys_dos_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
+static void sys_dos_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode);
 static void sys_dos_yield_timeslice(void);
 
 #ifdef ALLEGRO_DJGPP
@@ -136,6 +137,7 @@ SYSTEM_DRIVER system_dos =
    NULL, /* display_switch_lock */
    NULL, /* desktop_color_depth */
    NULL, /* get_desktop_resolution */
+   sys_dos_get_gfx_safe_mode,
    sys_dos_yield_timeslice,
    NULL, /* gfx_drivers */
    NULL, /* digi_drivers */
@@ -535,6 +537,19 @@ static void sys_dos_set_palette(AL_CONST struct RGB *p, int from, int to, int vs
       sys_dos_save_console_state();
 
    _vga_set_palette_range(p, from, to, vsync);
+}
+
+
+
+/* sys_dos_get_gfx_safe_mode:
+ *  Defines the safe graphics mode for this system.
+ */
+static void sys_dos_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
+{
+   *driver = GFX_VGA;
+   mode->width = 320;
+   mode->height = 200;
+   mode->bpp = 8;
 }
 
 

@@ -53,6 +53,7 @@ SYSTEM_DRIVER system_beos = {
    NULL,                        // AL_METHOD(void, display_switch_lock, (int lock));
    be_sys_desktop_color_depth,  // AL_METHOD(int, desktop_color_depth, (void));
    be_sys_get_desktop_resolution, // AL_METHOD(int, get_desktop_resolution, (int *width, int *height));
+   be_sys_get_gfx_safe_mode,    // AL_METHOD(void, get_gfx_safe_mode, (int *driver, struct GFX_MODE *mode));
    be_sys_yield_timeslice,      // AL_METHOD(void, yield_timeslice, (void));
    NULL,                        // AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    NULL,                        // AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));

@@ -74,7 +74,3 @@ AL_VAR(MIDI_DRIVER, midi_beos);
 #define JOYSTICK_DRIVER_BEOS                                            \
    {  JOYSTICK_BEOS,   &joystick_beos,  TRUE  },
 
-#define GFX_SAFE_ID     GFX_BWINDOW
-#define GFX_SAFE_DEPTH  8
-#define GFX_SAFE_W      320
-#define GFX_SAFE_H      200

@@ -63,11 +63,6 @@ AL_VAR(GFX_DRIVER, gfx_photon_soft);
 AL_VAR(GFX_DRIVER, gfx_photon_safe);
 AL_VAR(GFX_DRIVER, gfx_photon_win);
 
-#define GFX_SAFE_ID           GFX_PHOTON_SAFE
-#define GFX_SAFE_DEPTH        8
-#define GFX_SAFE_W            320
-#define GFX_SAFE_H            200
-
 
 /* Sound driver */
 #define DIGI_ALSA             AL_ID('A','L','S','A')

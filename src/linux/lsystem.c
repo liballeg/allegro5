@@ -88,6 +88,7 @@ SYSTEM_DRIVER system_linux =
    __al_linux_display_switch_lock,
    NULL, /* desktop_color_depth */
    NULL, /* get_desktop_resolution */
+   NULL, /* get_gfx_safe_mode */
    _unix_yield_timeslice,
    get_gfx_driver_list,
    get_digi_driver_list,

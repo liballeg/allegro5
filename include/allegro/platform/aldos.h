@@ -218,11 +218,6 @@ AL_FUNC(int, calibrate_joystick_hat, (int direction));
 #define GFX_VBEAF                AL_ID('V','B','A','F')
 #define GFX_XTENDED              AL_ID('X','T','N','D')
 
-#define GFX_SAFE_ID              GFX_VGA
-#define GFX_SAFE_DEPTH           8
-#define GFX_SAFE_W               320
-#define GFX_SAFE_H               200
-
 
 AL_VAR(GFX_DRIVER, gfx_vga);
 AL_VAR(GFX_DRIVER, gfx_modex);

@@ -146,11 +146,6 @@ AL_VAR(GFX_DRIVER, gfx_gdi);
    {  GFX_DIRECTX_OVL,     &gfx_directx_ovl,       TRUE  },             \
    {  GFX_GDI,             &gfx_gdi,               FALSE },
 
-#define GFX_SAFE_ID              GFX_DIRECTX_SAFE
-#define GFX_SAFE_DEPTH           8
-#define GFX_SAFE_W               640
-#define GFX_SAFE_H               480
-
 
 
 /********************************************/

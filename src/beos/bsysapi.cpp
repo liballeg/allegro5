@@ -413,6 +413,16 @@ extern "C" int be_sys_get_desktop_resolution(int *width, int *height)
 
 
 
+extern "C" void be_sys_get_gfx_safe_mode(int *driver, struct GFX_MODE *mode)
+{
+   *driver = GFX_BWINDOW;
+   mode->width = 320;
+   mode->height = 200;
+   mode->bpp = 8;
+}
+
+
+
 extern "C" void be_sys_yield_timeslice(void)
 {
    snooze(YIELD_TIME);
