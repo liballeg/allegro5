@@ -90,7 +90,7 @@ extern "C" BBitmap *convert_to_bbitmap(BITMAP *bmp, PALETTE pal, PALETTE system_
 extern "C" void usage(void)
 {
    printf("\nBeOS executable icon patcher for Allegro " ALLEGRO_VERSION_STR "\n");
-   printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
+   printf("By Angelo Mottola, " ALLEGRO_DATE_STR "\n\n");
    printf("Usage: bfixicon exename bitmap [bitmap]\n");
    printf(" or\n");
    printf("       bfixicon exename -d datafile object [palette] [object [palette]]\n");

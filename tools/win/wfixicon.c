@@ -171,7 +171,7 @@ int save_ico(AL_CONST char *filename, BITMAP *bmp[], int num, PALETTE pal[])
 void usage(void)
 {
    printf("\nWindows icon converter for Allegro " ALLEGRO_VERSION_STR "\n");
-   printf("By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n");
+   printf("By Elias Pschernig, " ALLEGRO_DATE_STR "\n\n");
    printf("Usage: wfixicon icon [-r[o]] bitmap [bitmap...]\n");
    printf(" or\n");
    printf("       wfixicon icon [-r[o]] -d datafile object [palette] [object...]\n");
