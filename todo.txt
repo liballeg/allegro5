@@ -15,6 +15,7 @@ Miscellaneous 4.2 todos:
 - Make the grabber (try to) use system cursors
 - Purge main docs of DOSisms if that hasn't been done already
 - Documentation for Peter's packfile patch
+- Check out a problem with running Allegro on multi-pricessor machines, probably has something to do with mouse drawing.
 - Check if the examples correctly demonstrate new features since 4.0, eg
    - mouse cursors
    - custom packfiles
