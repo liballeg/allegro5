@@ -8002,15 +8002,14 @@ ensure there is room for the check.
    example, an extension string of "PCX;BMP;/+r-h" will display only PCX or
    BMP files that are read-only and not hidden. The directories are not
    affected in the same way as the other files by the extension string: the
-   extensions and other attributes are never taken into account for them and
-   the 'd' character has no effect unless preceded by '-'; in other words,
-   all directories are included when '(+)d' is passed or when 'd' is not
-   mentioned in the string. The file selector is stretched to the width and
-   height specified in the w and h parameters, and to the size of the
-   standard Allegro font. If either the width or height argument is set to
-   zero, it is stretched to the corresponding screen dimension. This
-   function returns zero if it was closed with the Cancel button or non-zero
-   if it was OK'd.
+   extensions are never taken into account for them and the other attributes
+   are taken into account only when 'd' is mentioned in the string; in other
+   words, all directories are included when 'd' is not mentioned in the
+   string. The file selector is stretched to the width and height specified
+   in the w and h parameters, and to the size of the standard Allegro font.
+   If either the width or height argument is set to zero, it is stretched
+   to the corresponding screen dimension. This function returns zero if it
+   was closed with the Cancel button or non-zero if it was OK'd.
 
 @@int @gfx_mode_select(int *card, int *w, int *h);
 @xref gfx_mode_select_ex, set_gfx_mode, gui_fg_color

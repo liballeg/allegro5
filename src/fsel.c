@@ -419,9 +419,6 @@ static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
       /* Check if file attributes match. */
       if (check_attrib) {
 	 for (c=0; c<ATTRB_MAX; c++) {
-	    /* ???? We check all attributes except FA_DIREC. */
-	    if (c == ATTRB_DIREC)
-	       continue;
 	    if ((attrb_state[c] == ATTRB_SET) && (!(attrib & attrb_flag[c])))
 	       return 0;
 	    if ((attrb_state[c] == ATTRB_UNSET) && (attrib & attrb_flag[c]))
@@ -535,15 +532,16 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
       replace_filename(flist->dir, s, uconvert_ascii("*.*", tmp), sizeof(flist->dir));
 
       /* The semantics of the attributes passed to file_select_ex() is
-       * different from that of for_each_file_ex() because directories
-       * are always all included regardless of the other specified
-       * attributes, unless they are all excluded. So we can't filter
-       * with for_each_file_ex() unless we are in the latter case.
+       * different from that of for_each_file_ex() in one case: when
+       * the 'd' attribute is not mentioned in the set of characters,
+       * the other attributes are not taken into account for directories,
+       * i.e the directories are all included. So we can't filter with
+       * for_each_file_ex() in that case.
        */
-      if (attrb_state[ATTRB_DIREC] == ATTRB_UNSET)
-	 for_each_file_ex(flist->dir, build_attrb_flag(ATTRB_SET), build_attrb_flag(ATTRB_UNSET) | FA_LABEL, fs_flist_putter, (void *)FALSE /* don't check */);
+      if (attrb_state[ATTRB_DIREC] == ATTRB_ABSENT)
+	 for_each_file_ex(flist->dir, 0 /* accept all dirs */, FA_LABEL, fs_flist_putter, (void *)1UL /* check */);
       else
-	 for_each_file_ex(flist->dir, 0 /* accept all dirs */, FA_LABEL, fs_flist_putter, (void *)TRUE /* check */);
+	 for_each_file_ex(flist->dir, build_attrb_flag(ATTRB_SET), build_attrb_flag(ATTRB_UNSET) | FA_LABEL, fs_flist_putter, (void *)0UL /* don't check */);
 
       usetc(get_filename(flist->dir), 0);
       d->d1 = d->d2 = 0;
