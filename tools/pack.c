@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
    PACKFILE *in, *out;
    int c;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      return 1;
 
    if (argc == 3) {
       f1 = argv[1];

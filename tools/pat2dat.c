@@ -2281,7 +2281,8 @@ int main(int argc, char *argv[])
 {
    int c;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+       return 1;
    datedit_init();
 
    for (c=0; c<128; c++)

@@ -16,7 +16,8 @@ int main()
    BITMAP *memory_bitmap;
    int x, y;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard(); 
    if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

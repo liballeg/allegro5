@@ -23,7 +23,8 @@ int main(int argc, char *argv[])
    MIDI *the_music;
    char msg[8192];
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    if (argc != 2) {
       allegro_message("Usage: 'exdodgy filename.mid'\n");

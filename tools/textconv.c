@@ -306,7 +306,8 @@ int main(int argc, char *argv[])
    int err = 0;
    int c;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      return 1;
 
    for (c=1; c<argc; c++) {
       if (argv[c][0] == '-') {

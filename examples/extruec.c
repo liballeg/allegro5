@@ -62,7 +62,8 @@ void test(int colordepth)
 
 int main()
 {
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard(); 
 
    /* try each of the possible possible color depths... */

@@ -145,7 +145,8 @@ int main(int argc, char *argv[])
    int card = GFX_AUTODETECT;
    int w, h, bpp, page, i;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    /* check command line arguments */
    if (argc == 2)

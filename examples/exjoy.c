@@ -20,7 +20,8 @@ int main()
    AL_CONST char *msg;
    int c;
 
-   allegro_init();         /* you NEED this man! ;-) */
+   if (allegro_init() != 0)/* you NEED this man! ;-) */
+      return 1;
 
    install_keyboard();     /* ahh... read the docs. I will explain only
 			    * joystick specific routines

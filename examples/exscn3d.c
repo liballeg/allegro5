@@ -157,7 +157,8 @@ int main(void)
    int frame = 0;
    float fps = 0.;
    
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_mouse();
    install_timer();

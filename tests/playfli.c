@@ -64,7 +64,8 @@ int main(int argc, char *argv[])
    int h = 200;
    int c, ret;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    if (argc < 2) {
       usage();

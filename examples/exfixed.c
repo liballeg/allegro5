@@ -16,7 +16,8 @@ int main()
    /* declare three 32 bit (16.16) fixed point variables */
    fixed x, y, z;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    /* convert integers to fixed point like this */
    x = itofix(10);

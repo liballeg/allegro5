@@ -874,7 +874,8 @@ int main(int argc, char *argv[])
    DATAFILE *font_data;
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      exit(EXIT_FAILURE);
 
    if (argc > 1) {
       if (strcmp(argv[1], "--split-altgr") == 0) {

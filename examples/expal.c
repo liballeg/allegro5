@@ -17,7 +17,8 @@ int main()
    RGB temp;
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard(); 
    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
       if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {

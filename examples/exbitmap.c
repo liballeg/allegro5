@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
    BITMAP *the_image;
    PALETTE the_palette;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    if (argc != 2) {
       allegro_message("Usage: 'exbitmap filename.[bmp|lbm|pcx|tga]'\n");

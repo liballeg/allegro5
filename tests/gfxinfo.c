@@ -55,7 +55,8 @@ int main(int argc, char *argv[])
    int driver_count, i, id;
    char buf[5];
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    printf("Allegro graphics info utility " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n");
    printf("By Lorenzo Petrone, " ALLEGRO_DATE_STR "\n\n");

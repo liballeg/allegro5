@@ -64,7 +64,8 @@ int main(int argc, char *argv[])
    int done = FALSE;
    int i;
 
-   allegro_init(); 
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard(); 
    install_timer();
 

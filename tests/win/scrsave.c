@@ -234,7 +234,8 @@ int do_preview(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
    else
       rc.right = rc.bottom = 256;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      exit(0);
    set_palette(default_palette);
    set_gdi_color_format();
 
@@ -284,7 +285,8 @@ int do_saver(HANDLE hInstance, HANDLE hPrevInstance, HWND hParentWnd)
    if (!scrsaver_mutex || (GetLastError() == ERROR_ALREADY_EXISTS))
       return -1;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return -1;
    install_keyboard();
    install_mouse();
    install_timer();

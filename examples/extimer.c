@@ -52,7 +52,8 @@ int main()
 {
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard(); 
    install_timer();
    if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {

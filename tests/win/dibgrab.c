@@ -169,7 +169,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		       hInstance,
 		       NULL);
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      exit(0);
    set_gdi_color_format();
 
    grab_region = create_bitmap_ex(32, GRAB_W, GRAB_H);

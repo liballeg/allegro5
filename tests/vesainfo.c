@@ -480,7 +480,8 @@ int main(int argc, char *argv[])
 {
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return -1;
 
    for (c=1; c<argc; c++)
       if (((argv[c][0] == '-') || (argv[c][0] == '/')) &&

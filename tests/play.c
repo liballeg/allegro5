@@ -142,7 +142,8 @@ int main(int argc, char *argv[])
    int doodle_pitch[12] = { 60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79 };
    int i;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    if (argc < 2) {
       usage();

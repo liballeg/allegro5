@@ -21,7 +21,8 @@ int main(int argc, char *argv[])
    int ret = -1;
    int x, y, c, a;
 
-   allegro_init(); 
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard(); 
    install_mouse(); 
    install_timer();

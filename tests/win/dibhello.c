@@ -143,7 +143,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		       NULL);                /* creation parameters */
 
    /* we have to install platform independent driver */
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      exit(0);
 
    set_color_conversion(COLORCONV_NONE);
 

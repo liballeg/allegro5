@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
 {
    int i;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    if (argc < 2) {
       allegro_message("Usage: 'exxfade files.[bmp|lbm|pcx|tga]'\n");

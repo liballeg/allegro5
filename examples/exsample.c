@@ -15,7 +15,8 @@ int main(int argc, char *argv[])
    int pan = 128;
    int pitch = 1000;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    if (argc != 2) {
       allegro_message("Usage: 'exsample filename.[wav|voc]'\n");

@@ -190,7 +190,8 @@ int main(void)
    int c = GFX_AUTODETECT;
    int w, h, bpp, i;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_mouse();
    install_timer();

@@ -735,7 +735,8 @@ int main(int argc, char *argv[])
 {
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    #ifdef SYSTEM_XWINDOWS
       if (system_driver->id == SYSTEM_XWINDOWS) {

@@ -76,7 +76,8 @@ int main(int argc, char *argv[])
     *  from any Allegro API call must be in 16-bit Unicode format
     */
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_timer();
 

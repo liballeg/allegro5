@@ -593,7 +593,8 @@ int main()
    for (i=126; i>=0; i--)
       pitch[i] = pitch[i+1] / pow(2.0, 1.0/12.0);
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_mouse();
    install_timer();

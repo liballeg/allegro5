@@ -108,7 +108,8 @@ int main(void)
 {
    int x, y, deltax=1, deltay=1;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
 
    temp = create_bitmap(320, 200);

@@ -13,7 +13,8 @@
 int main()
 {
    /* you should always do this at the start of Allegro programs */
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    /* set up the keyboard handler */
    install_keyboard(); 

@@ -17,7 +17,8 @@ int main()
    BITMAP *active_page;
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_timer();
 
    /* Some platforms do page flipping by making one large screen that you

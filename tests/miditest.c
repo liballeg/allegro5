@@ -430,7 +430,8 @@ DIALOG thedialog[] =
 
 int main()
 {
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_mouse();
    install_timer();

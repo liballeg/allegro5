@@ -2000,7 +2000,8 @@ int main(int argc, char *argv[])
 	 jumpstart = TRUE;
    }
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_timer();
    install_mouse();

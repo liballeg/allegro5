@@ -394,7 +394,8 @@ int main(void)
 {
    int i;
    
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_mouse();
    install_keyboard();
    install_timer();

@@ -2716,7 +2716,8 @@ int main(void)
    int i;
 
  #ifndef SETUP_EMBEDDED
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_mouse();
    install_keyboard();
    install_timer();

@@ -688,7 +688,8 @@ int main(int argc, char *argv[])
    int c, colorconv_mode = 0;
    int *opt_keep_typelist = NULL;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      return 1;
    datedit_init();
 
    for (c=0; c<PAL_SIZE; c++)

@@ -25,7 +25,8 @@ int main()
    int h = 100;
    int split_h = 0;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
 
    #ifdef GFX_MODEX

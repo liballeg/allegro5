@@ -3148,7 +3148,8 @@ int main(int argc, char *argv[])
    char *fname = NULL;
    static int color_depths[] = { 32, 16, 15, 8, 0 };
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    for (i=1; i<argc; i++) {
       if (argv[i][0] == '-') {

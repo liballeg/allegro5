@@ -4546,7 +4546,8 @@ int main(void)
    LOCK_VARIABLE(tm);
    LOCK_VARIABLE(_tm);
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
 
    for (c=0; c<32; c++)
       mypal[c] = desktop_palette[c];

@@ -523,7 +523,8 @@ int main(int argc, char *argv[])
    char tm[80];
    time_t now;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      return 1;
    datedit_init();
 
    time(&now);

@@ -320,7 +320,8 @@ int main(int argc, char *argv[])
    POINT_T *points;
    MATRIX m;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
 
    /* first set your graphics mode as normal, except twice as wide because

@@ -197,7 +197,8 @@ int main(int argc, char *argv[])
    DATAFILE *dat;
    PACKFILE *f;
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+       exit(EXIT_FAILURE);
    set_color_conversion(COLORCONV_NONE);
 
    if (argc < 3)

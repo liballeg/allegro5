@@ -134,7 +134,8 @@ int main()
    float tz1 = 100.;		/* cube #1 z coordinate */
    float tz2 = 105.;		/* cube #2 z coordinate */
    
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_keyboard();
    install_mouse();
    install_timer();

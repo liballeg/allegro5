@@ -165,7 +165,8 @@ int main()
    BITMAP *page1, *page2, *page3;
    int c;
 
-   allegro_init();
+   if (allegro_init() != 0)
+      return 1;
    install_timer();
    install_keyboard();
    install_mouse();

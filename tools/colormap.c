@@ -175,7 +175,8 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   install_allegro(SYSTEM_NONE, &errno, atexit);
+   if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
+      return 1;
    set_color_conversion(COLORCONV_NONE);
 
    bmp = load_bitmap(infile, the_pal);
