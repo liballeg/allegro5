@@ -51,7 +51,7 @@ typedef struct AL_JOYSTICK_DRIVER /* new joystick driver structure */
    AL_METHOD(bool, init, (void));
    AL_METHOD(void, exit, (void));
    AL_METHOD(int, num_joysticks, (void));
-   AL_METHOD(AL_JOYSTICK*, request_joystick, (int joyn));
+   AL_METHOD(AL_JOYSTICK*, get_joystick, (int joyn));
    AL_METHOD(void, release_joystick, (AL_JOYSTICK*));
    AL_METHOD(void, get_state, (AL_JOYSTICK*, AL_JOYSTATE *ret_state));
 } AL_JOYSTICK_DRIVER;

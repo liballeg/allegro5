@@ -168,7 +168,7 @@ int install_joystick(int type)
    if (_joystick_installed)
       return 0;
 
-   if (!al_install_joystick_driver())
+   if (!al_install_joystick())
       return -1;
 
    clear_joystick_vars();
@@ -176,7 +176,7 @@ int install_joystick(int type)
    usetc(allegro_error, 0);
 
    for (c=0; c<MAX_JOYSTICKS; c++) {
-      new_joy[num_joysticks] = al_request_joystick(c);
+      new_joy[num_joysticks] = al_get_joystick(c);
       if (new_joy[num_joysticks]) {
          fill_old_joystick_info(num_joysticks, new_joy[num_joysticks]);
          num_joysticks++;
@@ -185,7 +185,7 @@ int install_joystick(int type)
 
    if (num_joysticks == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text ("No joysticks found"));
-      al_uninstall_joystick_driver();
+      al_uninstall_joystick();
       return -1;
    }
 
@@ -214,7 +214,7 @@ void remove_joystick(void)
          new_joy[num_joysticks] = NULL;
       }
 
-      al_uninstall_joystick_driver();
+      al_uninstall_joystick();
 
       joystick_driver = NULL;
       _joy_type = JOY_TYPE_NONE;

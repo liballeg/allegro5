@@ -33,9 +33,9 @@
  * Timer object is used instead of a win32 Event.  Once all the
  * joysticks are set up, a dedicated background thread is started.
  *
- * 2. When al_request_joystick() is called, the remaining
- * initialisation is done on one of one of the AL_JOYSTICK_DIRECTX
- * structures, and then the address of it is returned to the user.
+ * 2. When al_get_joystick() is called, the remaining initialisation
+ * is done on one of one of the AL_JOYSTICK_DIRECTX structures, and
+ * then the address of it is returned to the user.
  *
  * 3. The background thread waits upon the win32 Events/Waitable Timer
  * objects.  When one of them is triggered, the thread wakes up and
@@ -112,7 +112,7 @@ typedef struct AL_JOYSTICK_DIRECTX {
 
    CAPS_AND_NAMES caps_and_names;
 
-   bool requested;
+   bool gotten;
    AL_JOYSTATE joystate;
 
    LPDIRECTINPUTDEVICE2 device;
@@ -133,7 +133,7 @@ typedef struct AL_JOYSTICK_DIRECTX {
 static bool joydx_init(void);
 static void joydx_exit(void);
 static int joydx_get_num_joysticks(void);
-static AL_JOYSTICK *joydx_request_joystick(int num);
+static AL_JOYSTICK *joydx_get_joystick(int num);
 static void joydx_release_joystick(AL_JOYSTICK *joy);
 static void joydx_get_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state);
 
@@ -157,7 +157,7 @@ AL_JOYSTICK_DRIVER _al_joydrv_directx =
    joydx_init,
    joydx_exit,
    joydx_get_num_joysticks,
-   joydx_request_joystick,
+   joydx_get_joystick,
    joydx_release_joystick,
    joydx_get_state
 };
@@ -578,7 +578,7 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
    fill_joystick_info_using_caps_and_names(&joydx_joystick[joydx_num_joysticks]);
    joydx_joystick[joydx_num_joysticks].parent.num = joydx_num_joysticks;
    joydx_joystick[joydx_num_joysticks].device = dinput_device;
-   joydx_joystick[joydx_num_joysticks].requested = false;
+   joydx_joystick[joydx_num_joysticks].gotten = false;
 
    /* create a thread event for this joystick */
    JOYSTICK_WAKER(joydx_num_joysticks) = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -646,8 +646,8 @@ static BOOL CALLBACK joystick_enum_callback(LPCDIDEVICEINSTANCE lpddi, LPVOID pv
  *
  *  To avoid enumerating the the joysticks over and over, this does
  *  the enumeration once and does almost all the setting up required
- *  of the devices. joydx_request_joystick() is left with
- *  very little work to do.
+ *  of the devices. joydx_get_joystick() is left with very little work
+ *  to do.
  */
 static bool joydx_init(void)
 {
@@ -758,7 +758,7 @@ static void joydx_exit(void)
 
    /* destroy the devices */
    for (i = 0; i < joydx_num_joysticks; i++) {
-      ASSERT(!joydx_joystick[i].requested);
+      ASSERT(!joydx_joystick[i].gotten);
 
       IDirectInputDevice2_SetEventNotification(joydx_joystick[i].device, NULL);
       IDirectInputDevice2_Release(joydx_joystick[i].device);
@@ -788,26 +788,26 @@ static int joydx_get_num_joysticks(void)
 
 
 
-/* joydx_request_joystick: [primary thread]
+/* joydx_get_joystick: [primary thread]
  *
  *  Returns the address of a AL_JOYSTICK structure for the device
  *  number NUM.  The top-level joystick functions will not call this
- *  function if joystick number NUM was already requested.
+ *  function if joystick number NUM was already gotten.
  *
  *  Note: event source initialisation is delayed until now to get the
- *  right semantics, i.e. when you first request a joystick it is not
+ *  right semantics, i.e. when you first 'get' a joystick it is not
  *  registered to any event queues.
  */
-static AL_JOYSTICK *joydx_request_joystick(int num)
+static AL_JOYSTICK *joydx_get_joystick(int num)
 {
    AL_JOYSTICK_DIRECTX *joy = &joydx_joystick[num];
 
-   ASSERT(!joy->requested);
+   ASSERT(!joy->gotten);
 
    EnterCriticalSection(&joydx_thread_cs);
    {
       _al_event_source_init(&joy->parent.es, _AL_ALL_JOYSTICK_EVENTS, sizeof(AL_JOYSTICK_EVENT));
-      joy->requested = true;
+      joy->gotten = true;
    }
    LeaveCriticalSection(&joydx_thread_cs);
 
@@ -817,17 +817,17 @@ static AL_JOYSTICK *joydx_request_joystick(int num)
 
 
 /* joydx_release_joystick: [primary thread]
- *  Releases a previously requested joystick.
+ *  Releases a previously gotten joystick.
  */
 static void joydx_release_joystick(AL_JOYSTICK *joy_)
 {
    AL_JOYSTICK_DIRECTX *joy = (AL_JOYSTICK_DIRECTX *)joy_;
 
-   ASSERT(joy->requested);
+   ASSERT(joy->gotten);
 
    EnterCriticalSection(&joydx_thread_cs);
    {
-      joy->requested = false;
+      joy->gotten = false;
       _al_event_source_free(&joy->parent.es);
    }
    LeaveCriticalSection(&joydx_thread_cs);
@@ -876,7 +876,7 @@ static void joydx_thread_proc(LPVOID unused)
 
       EnterCriticalSection(&joydx_thread_cs);
       {
-         if (joydx_joystick[num].requested)
+         if (joydx_joystick[num].gotten)
             update_joystick(&joydx_joystick[num]);
       }
       LeaveCriticalSection(&joydx_thread_cs);

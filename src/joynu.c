@@ -33,12 +33,12 @@ static _AL_VECTOR opened_joysticks = _AL_VECTOR_INITIALIZER(AL_JOYSTICK *);
 
 
 
-/* al_install_joystick_driver: [primary thread]
+/* al_install_joystick: [primary thread]
  *
  *  Install a joystick driver, returning true if successful.  If a
  *  joystick driver was already installed, returns true immediately.
  */
-bool al_install_joystick_driver(void)
+bool al_install_joystick(void)
 {
    _DRIVER_INFO *driver_list;
    AL_JOYSTICK_DRIVER *driver;
@@ -89,7 +89,7 @@ bool al_install_joystick_driver(void)
    }
 
    if (new_joystick_driver) {
-      _add_exit_func(al_uninstall_joystick_driver);
+      _add_exit_func(al_uninstall_joystick);
       return true;
    }
 
@@ -98,7 +98,7 @@ bool al_install_joystick_driver(void)
 
 
 
-/* al_uninstall_joystick_driver: [primary thread]
+/* al_uninstall_joystick: [primary thread]
  *
  *  Uninstalls the active joystick driver.  All outstanding
  *  AL_JOYSTICKs are automatically released.  If no joystick driver
@@ -106,7 +106,7 @@ bool al_install_joystick_driver(void)
  *
  *  This function is automatically called when Allegro is shut down.
  */
-void al_uninstall_joystick_driver(void)
+void al_uninstall_joystick(void)
 {
    if (new_joystick_driver) {
       /* automatically release all the outstanding joysticks */
@@ -122,7 +122,7 @@ void al_uninstall_joystick_driver(void)
    }
 
    /* this is an atexit'd function */
-   _remove_exit_func(al_uninstall_joystick_driver);
+   _remove_exit_func(al_uninstall_joystick);
 }
 
 
@@ -166,16 +166,16 @@ static AL_JOYSTICK *find_opened_joystick_by_num(int num)
 
 
 
-/* al_request_joystick: [primary thread]
+/* al_get_joystick: [primary thread]
  *
- *  Make a request for joystick number NUM on the system.  If
- *  successful a pointer to a joystick object is returned.  Otherwise
- *  NULL is returned.
+ *  Get a handle for joystick number NUM on the system.  If successful
+ *  a pointer to a joystick object is returned.  Otherwise NULL is
+ *  returned.
  *
- *  If the joystick was previously requested (and not yet released)
- *  then the returned object will be the same as in previous calls.
+ *  If the joystick was previously 'gotten' (and not yet released)
+ *  then the returned pointer will be the same as in previous calls.
  */
-AL_JOYSTICK *al_request_joystick(int num)
+AL_JOYSTICK *al_get_joystick(int num)
 {
    ASSERT(new_joystick_driver);
    ASSERT(num >= 0);
@@ -189,7 +189,7 @@ AL_JOYSTICK *al_request_joystick(int num)
       if ((joy = find_opened_joystick_by_num(num)))
          return joy;
 
-      if ((joy = new_joystick_driver->request_joystick(num))) {
+      if ((joy = new_joystick_driver->get_joystick(num))) {
          /* Add the new structure to the list of opened joysticks. */
          slot = _al_vector_alloc_back(&opened_joysticks);
          *slot = joy;
@@ -202,7 +202,7 @@ AL_JOYSTICK *al_request_joystick(int num)
 
 
 /* al_release_joystick: [primary thread]
- *  Release a previously requested joystick object.
+ *  Release a previously 'gotten' joystick object.
  */
 void al_release_joystick(AL_JOYSTICK *joy)
 {
@@ -212,6 +212,18 @@ void al_release_joystick(AL_JOYSTICK *joy)
    new_joystick_driver->release_joystick(joy);
 
    _al_vector_find_and_delete(&opened_joysticks, &joy);
+}
+
+
+
+/* al_joystick_name: [primary thread]
+ *  Return the name of the given joystick.
+ */
+AL_CONST char *al_joystick_name(AL_JOYSTICK *joy)
+{
+   ASSERT(joy);
+
+   return "Joystick"; /* TODO */
 }
 
 

@@ -59,12 +59,13 @@ enum
 
 
 
-AL_FUNC(bool,           al_install_joystick_driver, (void));
-AL_FUNC(void,           al_uninstall_joystick_driver, (void));
+AL_FUNC(bool,           al_install_joystick,    (void));
+AL_FUNC(void,           al_uninstall_joystick,  (void));
 
 AL_FUNC(int,            al_num_joysticks,       (void));
-AL_FUNC(AL_JOYSTICK*,   al_request_joystick,    (int joyn));
+AL_FUNC(AL_JOYSTICK*,   al_get_joystick,        (int joyn));
 AL_FUNC(void,           al_release_joystick,    (AL_JOYSTICK*));
+AL_FUNC(AL_CONST char*, al_joystick_name,       (AL_JOYSTICK*));
 
 AL_FUNC(int,            al_joystick_num_sticks, (AL_JOYSTICK*));
 AL_FUNC(int,            al_joystick_stick_flags,(AL_JOYSTICK*, int stick)); /* junk? */

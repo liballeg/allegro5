@@ -62,7 +62,7 @@ typedef struct AL_JOYSTICK_LINUX
 static bool ljoy_init(void);
 static void ljoy_exit(void);
 static int ljoy_num_joysticks(void);
-static AL_JOYSTICK *ljoy_request_joystick(int num);
+static AL_JOYSTICK *ljoy_get_joystick(int num);
 static void ljoy_release_joystick(AL_JOYSTICK *joy_);
 static void ljoy_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state);
 
@@ -82,7 +82,7 @@ AL_JOYSTICK_DRIVER _al_joydrv_linux_analogue =
    ljoy_init,
    ljoy_exit,
    ljoy_num_joysticks,
-   ljoy_request_joystick,
+   ljoy_get_joystick,
    ljoy_release_joystick,
    ljoy_get_state
 };
@@ -221,14 +221,14 @@ static int ljoy_num_joysticks(void)
 
 
 
-/* ljoy_request_joystick: [primary thread]
+/* ljoy_get_joystick: [primary thread]
  *
  *  Returns the address of a AL_JOYSTICK structure for the device
  *  number NUM.  The top-level joystick functions will not call this
- *  function if joystick number NUM was already requested.  If the
+ *  function if joystick number NUM was already gotten.  If the
  *  device cannot be opened, NULL is returned.
  */
-static AL_JOYSTICK *ljoy_request_joystick(int num)
+static AL_JOYSTICK *ljoy_get_joystick(int num)
 {
    AL_JOYSTICK_LINUX *joy;
    int fd;
