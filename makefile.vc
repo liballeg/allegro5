@@ -50,6 +50,9 @@ endif
 
 ifeq ($(OS),Windows_NT)
 WINSYSDIR = $(SYSTEMROOT)
+ifeq ($(WINSYSDIR),)
+WINSYSDIR = $(SystemRoot)
+endif
 WINSUBDIR = system32
 else
 WINSYSDIR = $(windir)
@@ -68,12 +71,22 @@ ifdef MSVCDIR
 MSVCDIR_U = $(subst \,/,$(MSVCDIR))
 MSVCDIR_D = $(subst /,\,$(MSVCDIR))
 else
+ifdef MSVCDir
+MSVCDIR_U = $(subst \,/,$(MSVCDir))
+MSVCDIR_D = $(subst /,\,$(MSVCDir))
+else
 ifdef MSDEVDIR
 MSVCDIR_U = $(subst \,/,$(MSDEVDIR))
 MSVCDIR_D = $(subst /,\,$(MSDEVDIR))
 else
+ifdef MSDevDir
+MSVCDIR_U = $(subst \,/,$(MSDevDir))
+MSVCDIR_D = $(subst /,\,$(MSDevDir))
+else
 badmsvc:
 	@echo Your MSVCDIR or MSDEVDIR environment variable is not set!
+endif
+endif
 endif
 endif
 
