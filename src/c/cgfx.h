@@ -23,6 +23,8 @@
  */
 void FUNC_LINEAR_PUTPIXEL(BITMAP *dst, int dx, int dy, int color)
 {
+   ASSERT(dst);
+
    if (dst->clip && ((dx < dst->cl) || (dx >= dst->cr) || (dy < dst->ct) || (dy >= dst->cb)))
       return;
 
@@ -77,6 +79,8 @@ void FUNC_LINEAR_PUTPIXEL(BITMAP *dst, int dx, int dy, int color)
  */
 int FUNC_LINEAR_GETPIXEL(BITMAP *src, int sx, int sy)
 {
+   ASSERT(src);
+
    if ((sx < 0) || (sx >= src->w) || (sy < 0) || (sy >= src->h))
       return -1;
    else {
@@ -99,6 +103,8 @@ int FUNC_LINEAR_GETPIXEL(BITMAP *src, int sx, int sy)
 void FUNC_LINEAR_HLINE(BITMAP *dst, int dx1, int dy, int dx2, int color)
 {
    int w;
+
+   ASSERT(dst);
 
    if (dx1 > dx2) {
       int tmp = dx1;
@@ -218,6 +224,8 @@ void FUNC_LINEAR_HLINE(BITMAP *dst, int dx1, int dy, int dx2, int color)
 void FUNC_LINEAR_VLINE(BITMAP *dst, int dx, int dy1, int dy2, int color)
 {
    int y;
+
+   ASSERT(dst);
 
    if (dy1 > dy2) {
       int tmp = dy1;

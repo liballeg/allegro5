@@ -24,7 +24,11 @@
 void FUNC_LINEAR_CLEAR_TO_COLOR(BITMAP *dst, int color)
 {
    int x, y;
-   int w = dst->cr - dst->cl;
+   int w;
+
+   ASSERT(dst);
+
+   w = dst->cr - dst->cl;
 
    bmp_select(dst);
 
@@ -48,6 +52,9 @@ void FUNC_LINEAR_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 		      int dx, int dy, int w, int h)
 {
    int x, y;
+
+   ASSERT(src);
+   ASSERT(dst);
 
    for (y = 0; y < h; y++) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx);
@@ -77,6 +84,9 @@ void FUNC_LINEAR_BLIT_BACKWARD(BITMAP *src, BITMAP *dst, int sx, int sy,
 			       int dx, int dy, int w, int h)
 {
    int x, y;
+
+   ASSERT(src);
+   ASSERT(dst);
 
    for (y = h - 1; y >= 0; y--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx + w - 1);
@@ -108,7 +118,12 @@ void FUNC_LINEAR_MASKED_BLIT(BITMAP *src, BITMAP *dst, int sx, int sy,
 			     int dx, int dy, int w, int h)
 {
    int x, y;
-   unsigned long mask_color = bitmap_mask_color(dst);
+   unsigned long mask_color;
+
+   ASSERT(src);
+   ASSERT(dst);
+
+   mask_color = bitmap_mask_color(dst);
 
    for (y = 0; y < h; y++) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy + y), sx);

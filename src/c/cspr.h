@@ -28,6 +28,9 @@ void FUNC_LINEAR_DRAW_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
    int dxbeg, dybeg;
    int sxbeg, sybeg;
 
+   ASSERT(dst);
+   ASSERT(src);
+
    if (dst->clip) {
       int tmp;
 
@@ -105,6 +108,9 @@ void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
    int sxbeg, sybeg;
    int *table;
 
+   ASSERT(dst);
+   ASSERT(src);
+
    if (dst->clip) {
       int tmp;
 
@@ -136,6 +142,7 @@ void FUNC_LINEAR_DRAW_256_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
    }
 
    table = _palette_expansion_table(bitmap_color_depth(dst));
+   ASSERT(table);
 
    if (dst->id & (BMP_ID_VIDEO | BMP_ID_SYSTEM)) {
       bmp_select(dst);
@@ -181,6 +188,9 @@ void FUNC_LINEAR_DRAW_SPRITE_V_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
    int x, y, w, h;
    int dxbeg, dybeg;
    int sxbeg, sybeg;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;
@@ -259,6 +269,9 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
    int dxbeg, dybeg;
    int sxbeg, sybeg;
 
+   ASSERT(dst);
+   ASSERT(src);
+
    if (dst->clip) {
       int tmp;
 
@@ -335,6 +348,9 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
    int x, y, w, h;
    int dxbeg, dybeg;
    int sxbeg, sybeg;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;
@@ -417,6 +433,9 @@ void FUNC_LINEAR_DRAW_TRANS_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy)
    int dxbeg, dybeg;
    int sxbeg, sybeg;
    DTS_BLENDER blender;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;
@@ -512,6 +531,9 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy
    int sxbeg, sybeg;
    RGBA_BLENDER blender;
 
+   ASSERT(dst);
+   ASSERT(src);
+
    if (dst->clip) {
       int tmp;
 
@@ -575,6 +597,9 @@ void FUNC_LINEAR_DRAW_LIT_SPRITE(BITMAP *dst, BITMAP *src, int dx, int dy, int c
    int dxbeg, dybeg;
    int sxbeg, sybeg;
    DLS_BLENDER blender;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;
@@ -656,6 +681,9 @@ void FUNC_LINEAR_DRAW_CHARACTER(BITMAP *dst, BITMAP *src, int dx, int dy, int co
    int dxbeg, dybeg;
    int sxbeg, sybeg;
 
+   ASSERT(dst);
+   ASSERT(src);
+
    if (dst->clip) {
       int tmp;
 
@@ -736,6 +764,9 @@ void FUNC_LINEAR_DRAW_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, 
    int dxbeg, dybeg;
    int sxbeg, sybeg;
    RLE_PTR s;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;
@@ -922,6 +953,9 @@ void FUNC_LINEAR_DRAW_TRANS_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *src, in
    int sxbeg, sybeg;
    RLE_PTR s;
    DTS_BLENDER blender;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;
@@ -1123,6 +1157,9 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *sr
    unsigned long *s;
    RGBA_BLENDER blender;
 
+   ASSERT(dst);
+   ASSERT(src);
+
    if (dst->clip) {
       int tmp;
 
@@ -1315,6 +1352,9 @@ void FUNC_LINEAR_DRAW_LIT_RLE_SPRITE(BITMAP *dst, AL_CONST RLE_SPRITE *src, int 
    int sxbeg, sybeg;
    RLE_PTR s;
    DLS_BLENDER blender;
+
+   ASSERT(dst);
+   ASSERT(src);
 
    if (dst->clip) {
       int tmp;

@@ -37,6 +37,8 @@ int dd = _al_stretch.dd;                                                  \
 type *s = (type*) sptr;                                                   \
 unsigned long d = dptr;                                                   \
 unsigned long dend = d + _al_stretch.dw;                                  \
+ASSERT(s);                                                                \
+ASSERT(d);                                                                \
 for (; d < dend; d += (size), (unsigned char*) s += _al_stretch.sinc) {   \
    set(d, get(s));                                                        \
    if (dd >= 0)                                                           \
@@ -54,6 +56,9 @@ static void stretch_linex(unsigned long dptr, unsigned char *sptr)
    int plane;
    int dw = _al_stretch.dw;
    int first_dd = _al_stretch.dd;
+
+   ASSERT(dptr);
+   ASSERT(sptr);
 
    for (plane = 0; plane < 4; plane++) {
       int dd = first_dd;
@@ -134,6 +139,8 @@ int dd = _al_stretch.dd;                                                  \
 type *s = (type*) sptr;                                                   \
 unsigned long d = dptr;                                                   \
 unsigned long dend = d + _al_stretch.dw;                                  \
+ASSERT(s);                                                                \
+ASSERT(d);                                                                \
 for (; d < dend; d += (size), (unsigned char*) s += _al_stretch.sinc) {   \
    unsigned long color = get(s);                                          \
    if (color != (mask))                                                   \
@@ -153,6 +160,9 @@ static void stretch_masked_linex(unsigned long dptr, unsigned char *sptr)
    int plane;
    int dw = _al_stretch.dw;
    int first_dd = _al_stretch.dd;
+
+   ASSERT(dptr);
+   ASSERT(sptr);
 
    for (plane = 0; plane < 4; plane++) {
       int dd = first_dd;
@@ -239,6 +249,9 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
    int dybeg, dyend;
    int sxofs, dxofs;
    void (*stretch_line)(unsigned long dptr, unsigned char *sptr);
+
+   ASSERT(src);
+   ASSERT(dst);
 
    if ((sw <= 0) || (sh <= 0) || (dw <= 0) || (dh <= 0))
       return;
@@ -391,6 +404,8 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
       }
    }
 
+   ASSERT(stretch_line);
+
    /* Walk in y direction until we reach first non-clipped line.  */
    i2 = (dd = (i1 = 2 * sh) - dh) - dh;
    for (x = dy, y = sy; x < dybeg; x++, y += yinc) {
@@ -420,6 +435,9 @@ static void _al_stretch_blit(BITMAP *src, BITMAP *dst,
 void stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
 		  int dx, int dy, int dw, int dh)
 {
+   ASSERT(src);
+   ASSERT(dst);
+
    #ifdef ALLEGRO_MPW
       if (is_system_bitmap(src) && is_system_bitmap(dst))
          system_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh);
@@ -436,6 +454,9 @@ void stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
 void masked_stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int sh,
                          int dx, int dy, int dw, int dh)
 {
+   ASSERT(src);
+   ASSERT(dst);
+
    _al_stretch_blit(src, dst, sx, sy, sw, sh, dx, dy, dw, dh, 1);
 }
 
@@ -446,6 +467,9 @@ void masked_stretch_blit(BITMAP *src, BITMAP *dst, int sx, int sy, int sw, int s
  */
 void stretch_sprite(BITMAP *dst, BITMAP *src, int x, int y, int w, int h)
 {
+   ASSERT(src);
+   ASSERT(dst);
+
    _al_stretch_blit(src, dst, 0, 0, src->w, src->h, x, y, w, h, 1);
 }
 

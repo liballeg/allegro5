@@ -27,10 +27,18 @@
 void FUNC_POLY_ZBUF_FLAT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   float z = info->z;
-   unsigned long c = info->c;
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   float z;
+   unsigned long c;
+   PIXEL_PTR d;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   z = info->z;
+   c = info->c;
+   d = (PIXEL_PTR) addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -52,11 +60,19 @@ void FUNC_POLY_ZBUF_FLAT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   float z = info->z;
-   fixed c = info->c;
-   fixed dc = info->dc;
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   float z;
+   fixed c, dc;
+   PIXEL_PTR d;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   z = info->z;
+   c = info->c;
+   dc = info->dc;
+   d = (PIXEL_PTR) addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -79,15 +95,23 @@ void FUNC_POLY_ZBUF_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_GRGB(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   fixed r = info->r;
-   fixed g = info->g;
-   fixed b = info->b;
-   fixed dr = info->dr;
-   fixed dg = info->dg;
-   fixed db = info->db;
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   fixed r, g, b, dr, dg, db;
+   PIXEL_PTR d;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   r = info->r;
+   g = info->g;
+   b = info->b;
+   dr = info->dr;
+   dg = info->dg;
+   db = info->db;
+   d = (PIXEL_PTR) addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -110,17 +134,27 @@ void FUNC_POLY_ZBUF_GRGB(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_ATEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -145,17 +179,27 @@ void FUNC_POLY_ZBUF_ATEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_ATEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -182,20 +226,31 @@ void FUNC_POLY_ZBUF_ATEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed c = info->c;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   fixed dc = info->dc;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed u, v, c, du, dv, dc;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PS_BLENDER blender;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   c = info->c;
+   du = info->du;
+   dv = info->dv;
+   dc = info->dc;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -222,20 +277,31 @@ void FUNC_POLY_ZBUF_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed c = info->c;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   fixed dc = info->dc;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed u, v, c, du, dv, dc;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PS_BLENDER blender;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   c = info->c;
+   du = info->du;
+   dv = info->dv;
+   dc = info->dc;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < z) {
@@ -264,18 +330,27 @@ void FUNC_POLY_ZBUF_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *in
 void FUNC_POLY_ZBUF_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu;
-   double dfv = info->dfv;
-   double dfz = info->dz;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu;
+   dfv = info->dfv;
+   dfz = info->dz;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < fz) {
@@ -302,18 +377,27 @@ void FUNC_POLY_ZBUF_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu;
-   double dfv = info->dfv;
-   double dfz = info->dz;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu;
+   dfv = info->dfv;
+   dfz = info->dz;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < fz) {
@@ -342,21 +426,32 @@ void FUNC_POLY_ZBUF_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed c = info->c;
-   fixed dc = info->dc;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu;
-   double dfv = info->dfv;
-   double dfz = info->dz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed c, dc;
+   double fu, fv, fz, dfu, dfv, dfz;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   c = info->c;
+   dc = info->dc;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu;
+   dfv = info->dfv;
+   dfz = info->dz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < fz) {
@@ -385,21 +480,32 @@ void FUNC_POLY_ZBUF_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed c = info->c;
-   fixed dc = info->dc;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu;
-   double dfv = info->dfv;
-   double dfz = info->dz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed c, dc;
+   double fu, fv, fz, dfu, dfv, dfz;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   c = info->c;
+   dc = info->dc;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu;
+   dfv = info->dfv;
+   dfz = info->dz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       if (*zb < fz) {
@@ -430,19 +536,31 @@ void FUNC_POLY_ZBUF_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *in
 void FUNC_POLY_ZBUF_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
       if (*zb < z) {
@@ -468,19 +586,31 @@ void FUNC_POLY_ZBUF_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
-   float z = info->z;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   float z;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
+   z = info->z;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
       if (*zb < z) {
@@ -507,20 +637,31 @@ void FUNC_POLY_ZBUF_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *
 void FUNC_POLY_ZBUF_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu;
-   double dfv = info->dfv;
-   double dfz = info->dz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu;
+   dfv = info->dfv;
+   dfz = info->dz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
       if (*zb < fz) {
@@ -548,20 +689,31 @@ void FUNC_POLY_ZBUF_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_ZBUF_PTEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu;
-   double dfv = info->dfv;
-   double dfz = info->dz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
-   ZBUF_PTR zb = (ZBUF_PTR) info->zbuf_addr;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   ZBUF_PTR zb;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu;
+   dfv = info->dfv;
+   dfz = info->dz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
+   zb = (ZBUF_PTR) info->zbuf_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
       if (*zb < fz) {

@@ -29,9 +29,15 @@
 void FUNC_POLY_SCANLINE_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   fixed c = info->c;
-   fixed dc = info->dc;
-   PIXEL_PTR d = (PIXEL_PTR) addr;
+   fixed c, dc;
+   PIXEL_PTR d;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   c = info->c;
+   dc = info->dc;
+   d = (PIXEL_PTR) addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PUT_PIXEL(d, (c >> 16));
@@ -49,13 +55,20 @@ void FUNC_POLY_SCANLINE_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_SCANLINE_GRGB(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   fixed r = info->r;
-   fixed g = info->g;
-   fixed b = info->b;
-   fixed dr = info->dr;
-   fixed dg = info->dg;
-   fixed db = info->db;
-   PIXEL_PTR d = (PIXEL_PTR) addr;
+   fixed r, g, b;
+   fixed dr, dg, db;
+   PIXEL_PTR d;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   r = info->r;
+   g = info->g;
+   b = info->b;
+   dr = info->dr;
+   dg = info->dg;
+   db = info->db;
+   d = (PIXEL_PTR) addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PUT_RGB(d, (r >> 16), (g >> 16), (b >> 16));
@@ -73,15 +86,23 @@ void FUNC_POLY_SCANLINE_GRGB(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_SCANLINE_ATEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
@@ -101,15 +122,23 @@ void FUNC_POLY_SCANLINE_ATEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_SCANLINE_ATEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
@@ -131,18 +160,27 @@ void FUNC_POLY_SCANLINE_ATEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *in
 void FUNC_POLY_SCANLINE_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed c = info->c;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   fixed dc = info->dc;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
+   int vmask, vshift, umask;
+   fixed u, v, c, du, dv, dc;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   c = info->c;
+   du = info->du;
+   dv = info->dv;
+   dc = info->dc;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
@@ -164,18 +202,27 @@ void FUNC_POLY_SCANLINE_ATEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
 void FUNC_POLY_SCANLINE_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed c = info->c;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   fixed dc = info->dc;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
+   int vmask, vshift, umask;
+   fixed u, v, c, du, dv, dc;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   c = info->c;
+   du = info->du;
+   dv = info->dv;
+   dc = info->dc;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
@@ -199,20 +246,29 @@ void FUNC_POLY_SCANLINE_ATEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
 void FUNC_POLY_SCANLINE_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu * 4;
-   double dfv = info->dfv * 4;
-   double dfz = info->dz * 4;
-   double z1 = 1. / fz;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   long u = fu * z1;
-   long v = fv * z1;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz, z1;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   long u, v;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu * 4;
+   dfv = info->dfv * 4;
+   dfz = info->dz * 4;
+   z1 = 1. / fz;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   u = fu * z1;
+   v = fv * z1;
 
    /* update depth */
    fz += dfz;
@@ -254,20 +310,29 @@ void FUNC_POLY_SCANLINE_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
 void FUNC_POLY_SCANLINE_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu * 4;
-   double dfv = info->dfv * 4;
-   double dfz = info->dz * 4;
-   double z1 = 1. / fz;
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   long u = fu * z1;
-   long v = fv * z1;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz, z1;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   long u, v;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu * 4;
+   dfv = info->dfv * 4;
+   dfz = info->dz * 4;
+   z1 = 1. / fz;
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   u = fu * z1;
+   v = fv * z1;
 
    /* update depth */
    fz += dfz;
@@ -311,23 +376,34 @@ void FUNC_POLY_SCANLINE_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *in
 void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed c = info->c;
-   fixed dc = info->dc;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu * 4;
-   double dfv = info->dfv * 4;
-   double dfz = info->dz * 4;
-   double z1 = 1. / fz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   long u = fu * z1;
-   long v = fv * z1;
+   int vmask, vshift, umask;
+   fixed c, dc;
+   double fu, fv, fz, dfu, dfv, dfz, z1;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   long u, v;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   c = info->c;
+   dc = info->dc;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu * 4;
+   dfv = info->dfv * 4;
+   dfz = info->dz * 4;
+   z1 = 1. / fz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   u = fu * z1;
+   v = fv * z1;
 
    /* update depth */
    fz += dfz;
@@ -369,23 +445,34 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
 void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed c = info->c;
-   fixed dc = info->dc;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu * 4;
-   double dfv = info->dfv * 4;
-   double dfz = info->dz * 4;
-   double z1 = 1. / fz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   long u = fu * z1;
-   long v = fv * z1;
+   int vmask, vshift, umask;
+   fixed c, dc;
+   double fu, fv, fz, dfu, dfv, dfz, z1;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   long u, v;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   c = info->c;
+   dc = info->dc;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu * 4;
+   dfv = info->dfv * 4;
+   dfz = info->dz * 4;
+   z1 = 1. / fz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   u = fu * z1;
+   v = fv * z1;
 
    /* update depth */
    fz += dfz;
@@ -429,17 +516,27 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
 void FUNC_POLY_SCANLINE_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   PS_BLENDER blender;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
@@ -460,17 +557,27 @@ void FUNC_POLY_SCANLINE_ATEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *i
 void FUNC_POLY_SCANLINE_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   fixed u = info->u;
-   fixed v = info->v;
-   fixed du = info->du;
-   fixed dv = info->dv;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
+   int vmask, vshift, umask;
+   fixed u, v, du, dv;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   PS_BLENDER blender;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   u = info->u;
+   v = info->v;
+   du = info->du;
+   dv = info->dv;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
 
    for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), INC_PIXEL_PTR(r), x--) {
       PIXEL_PTR s = OFFSET_PIXEL_PTR(texture, ((v >> vshift) & vmask) + ((u >> 16) & umask));
@@ -493,22 +600,33 @@ void FUNC_POLY_SCANLINE_ATEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGME
 void FUNC_POLY_SCANLINE_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu * 4;
-   double dfv = info->dfv * 4;
-   double dfz = info->dz * 4;
-   double z1 = 1. / fz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
-   long u = fu * z1;
-   long v = fv * z1;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz, z1;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   long u, v;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu * 4;
+   dfv = info->dfv * 4;
+   dfz = info->dz * 4;
+   z1 = 1. / fz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
+   u = fu * z1;
+   v = fv * z1;
 
    /* update depth */
    fz += dfz;
@@ -549,22 +667,33 @@ void FUNC_POLY_SCANLINE_PTEX_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *i
 void FUNC_POLY_SCANLINE_PTEX_MASK_TRANS(unsigned long addr, int w, POLYGON_SEGMENT *info)
 {
    int x, i, imax = 3;
-   int vmask = info->vmask << info->vshift;
-   int vshift = 16 - info->vshift;
-   int umask = info->umask;
-   double fu = info->fu;
-   double fv = info->fv;
-   double fz = info->z;
-   double dfu = info->dfu * 4;
-   double dfv = info->dfv * 4;
-   double dfz = info->dz * 4;
-   double z1 = 1. / fz;
-   PS_BLENDER blender = MAKE_PS_BLENDER();
-   PIXEL_PTR texture = (PIXEL_PTR) (info->texture);
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-   PIXEL_PTR r = (PIXEL_PTR) info->read_addr;
-   long u = fu * z1;
-   long v = fv * z1;
+   int vmask, vshift, umask;
+   double fu, fv, fz, dfu, dfv, dfz, z1;
+   PS_BLENDER blender;
+   PIXEL_PTR texture;
+   PIXEL_PTR d;
+   PIXEL_PTR r;
+   long u, v;
+
+   ASSERT(addr);
+   ASSERT(info);
+
+   vmask = info->vmask << info->vshift;
+   vshift = 16 - info->vshift;
+   umask = info->umask;
+   fu = info->fu;
+   fv = info->fv;
+   fz = info->z;
+   dfu = info->dfu * 4;
+   dfv = info->dfv * 4;
+   dfz = info->dz * 4;
+   z1 = 1. / fz;
+   blender = MAKE_PS_BLENDER();
+   texture = (PIXEL_PTR) (info->texture);
+   d = (PIXEL_PTR) addr;
+   r = (PIXEL_PTR) info->read_addr;
+   u = fu * z1;
+   v = fv * z1;
 
    /* update depth */
    fz += dfz;
