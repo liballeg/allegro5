@@ -232,11 +232,14 @@ if test -z "$no_x"; then
   fi
   LIBS="-lX11 $LIBS"
 
+  dnl Test for Xext library.
+  AC_CHECK_LIB(Xext, XMissingExtension,
+    [LIBS="-lXext $LIBS"])
+
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
     AC_CHECK_LIB(Xext, XShmQueryExtension,
-      [LIBS="-lXext $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM)])
+      [AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM)])
   fi
 
   dnl Test for XF86VidMode extension.
