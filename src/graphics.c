@@ -229,7 +229,9 @@ GFX_MODE_LIST *get_gfx_mode_list(int card)
    _DRIVER_INFO *list_entry;
    GFX_DRIVER *drv = NULL;
    GFX_MODE_LIST *gfx_mode_list = NULL;
-   
+
+   ASSERT(system_driver);
+
    /* ask the system driver for a list of graphics hardware drivers */
    if (system_driver->gfx_drivers)
       list_entry = system_driver->gfx_drivers();
@@ -592,6 +594,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    AL_CONST char *dv;
    int flags = 0;
    int c, driver, ret;
+   ASSERT(system_driver);
 
    _gfx_mode_set_count++;
 
@@ -968,6 +971,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    int i;
    ASSERT(width >= 0);
    ASSERT(height >= 0);
+   ASSERT(system_driver);
 
    if (system_driver->create_bitmap)
       return system_driver->create_bitmap(color_depth, width, height);
@@ -1038,6 +1042,7 @@ BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height)
    ASSERT(parent);
    ASSERT((x >= 0) && (y >= 0) && (x < parent->w) && (y < parent->h));
    ASSERT((width > 0) && (height > 0));
+   ASSERT(system_driver);
 
    if (x+width > parent->w) 
       width = parent->w-x;

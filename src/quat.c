@@ -44,6 +44,9 @@ QUAT identity_quat = { 1.0, 0.0, 0.0, 0.0 };
 void quat_mul(AL_CONST QUAT *p, AL_CONST QUAT *q, QUAT *out)
 {
    QUAT temp;
+   ASSERT(p);
+   ASSERT(q);
+   ASSERT(out);
 
    /* qp = ww' - v.v' + vxv' + wv' + w'v */
 
@@ -90,6 +93,8 @@ void quat_mul(AL_CONST QUAT *p, AL_CONST QUAT *q, QUAT *out)
  */
 void get_x_rotate_quat(QUAT *q, float r)
 {
+   ASSERT(q);
+
    q->w = floatcos(r / 2);
    q->x = floatsin(r / 2);
    q->y = 0;
@@ -105,6 +110,8 @@ void get_x_rotate_quat(QUAT *q, float r)
  */
 void get_y_rotate_quat(QUAT *q, float r)
 {
+   ASSERT(q);
+
    q->w = floatcos(r / 2);
    q->x = 0;
    q->y = floatsin(r / 2);
@@ -120,6 +127,8 @@ void get_y_rotate_quat(QUAT *q, float r)
  */
 void get_z_rotate_quat(QUAT *q, float r)
 {
+   ASSERT(q);
+
    q->w = floatcos(r / 2);
    q->x = 0;
    q->y = 0;
@@ -142,6 +151,8 @@ void get_rotation_quat(QUAT *q, float x, float y, float z)
    float cz;
    float cycz;
    float sysz;
+
+   ASSERT(q);
 
    sx = floatsin(x / 2);
    sy = floatsin(y / 2);
@@ -170,6 +181,8 @@ void get_vector_rotation_quat(QUAT *q, float x, float y, float z, float a)
 {
    float l;
    float s;
+
+   ASSERT(q);
 
    l = vector_length_f(x, y, z);
 
@@ -207,6 +220,8 @@ void quat_to_matrix(AL_CONST QUAT *q, MATRIX_f *m)
    float xy;
    float xz;
    float yz;
+   ASSERT(q);
+   ASSERT(m);
 
   /* This is the layout for converting the values in a quaternion to a
    * matrix.
@@ -259,8 +274,9 @@ void matrix_to_quat(AL_CONST MATRIX_f *m, QUAT *q)
    int   j;
    int   k;
    float out[4];
-
    static int next[3] = { 1, 2, 0 };
+   ASSERT(m);
+   ASSERT(q);
 
    diag = m->v[0][0] + m->v[1][1] + m->v[2][2];
 
@@ -320,6 +336,9 @@ void matrix_to_quat(AL_CONST MATRIX_f *m, QUAT *q)
  */
 static INLINE void quat_conjugate(AL_CONST QUAT *q, QUAT *out)
 {
+   ASSERT(q);
+   ASSERT(out);
+
    /* q^* = w - x - y - z */
    out->w =  (q->w);
    out->x = -(q->x);
@@ -334,6 +353,8 @@ static INLINE void quat_conjugate(AL_CONST QUAT *q, QUAT *out)
  */
 static INLINE float quat_normal(AL_CONST QUAT *q)
 {
+   ASSERT(q);
+
    /* N(q) = ww + xx + yy + zz */
    return ((q->w * q->w) + (q->x * q->x) + (q->y * q->y) + (q->z * q->z));
 }
@@ -347,6 +368,8 @@ static INLINE void quat_inverse(AL_CONST QUAT *q, QUAT *out)
 {
    QUAT  con;
    float norm;
+   ASSERT(q);
+   ASSERT(out);
 
    /* q^-1 = q^* / N(q) */
 
@@ -379,6 +402,10 @@ void apply_quat(AL_CONST QUAT *q, float x, float y, float z, float *xout, float 
    QUAT v;
    QUAT i;
    QUAT t;
+   ASSERT(q);
+   ASSERT(xout);
+   ASSERT(yout);
+   ASSERT(zout);
 
    /* v' = q * v * q^-1 */
 
@@ -429,6 +456,9 @@ void quat_slerp(AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT *out, int 
    double scale_from;
    double scale_to;
    double sin_angle;
+   ASSERT(from);
+   ASSERT(to);
+   ASSERT(out);
 
    cos_angle = (from->x * to->x) +
 	       (from->y * to->y) +
