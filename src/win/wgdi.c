@@ -459,9 +459,16 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    wnd_height = h;
    wnd_windowed = TRUE;
 
+   /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
+
+   /* display the window */
    MoveWindow(allegro_wnd, win_size.left, win_size.top, 
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+
+   /* acquire input devices */
+   wnd_acquire_keyboard();
+   wnd_acquire_mouse();
 
    /* the last flag serves as end of loop delimiter */
    gdi_dirty_lines = calloc(h+1, sizeof(char));
