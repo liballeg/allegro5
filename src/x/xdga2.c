@@ -46,16 +46,16 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
 static void (*_orig_hline) (BITMAP *bmp, int x1, int y, int x2, int color);
 static void (*_orig_vline) (BITMAP *bmp, int x, int y1, int y2, int color);
 static void (*_orig_rectfill) (BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-static void (*_orig_draw_sprite) (BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y);
-static void (*_orig_masked_blit) (AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void (*_orig_draw_sprite) (BITMAP *bmp, BITMAP *sprite, int x, int y);
+static void (*_orig_masked_blit) (BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
 static void _xaccel_hline(BITMAP *bmp, int x1, int y, int x2, int color);
 static void _xaccel_vline(BITMAP *bmp, int x, int y1, int y2, int color);
 static void _xaccel_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void _xaccel_clear_to_color(BITMAP *bmp, int color);
-static void _xaccel_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-static void _xaccel_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y);
-static void _xaccel_masked_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
+static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
 
 
@@ -685,7 +685,7 @@ static void _xaccel_clear_to_color(BITMAP *bmp, int color)
 /* _xaccel_blit_to_self:
  *  Accelerated vram -> vram blit.
  */
-static void _xaccel_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    source_x += source->x_ofs;
    source_y += source->y_ofs;
@@ -702,7 +702,7 @@ static void _xaccel_blit_to_self(AL_CONST BITMAP *source, BITMAP *dest, int sour
 /* _xaccel_draw_sprite:
  *  Accelerated draw_sprite.
  */
-static void _xaccel_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y)
+static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
 {
    int sx, sy, w, h;
 
@@ -749,7 +749,7 @@ static void _xaccel_draw_sprite(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int
 /* _xaccel_masked_blit:
  *  Accelerated masked_blit.
  */
-static void _xaccel_masked_blit(AL_CONST BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    source_x += source->x_ofs;
    source_y += source->y_ofs;

@@ -6812,7 +6812,6 @@ function to remind you :-)
    GFX_XDFS<br>
       Like GFX_XDGA, but also changes the screen resolution so that it will 
       run fullscreen. This driver requires root permissions.
-</ul>
 <li>
    GFX_XDGA2<br>
       Use new DGA 2.0 extension provided by XFree86 4.0.x. This will work
