@@ -456,7 +456,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
    gfx_gdi.w = w;
    gfx_gdi.h = h;
 
-   if (adjust_window(32, 32, w, h) != 0) {
+   if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
@@ -506,6 +506,8 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
 static void gfx_gdi_exit(struct BITMAP *b)
 {
    _enter_critical();
+
+   save_window_pos();
 
    _enter_gfx_critical();
 

@@ -569,7 +569,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if (finalize_directx_init() != 0)
       goto Error;
 
-   if (adjust_window(32, 32, w, h) != 0) {
+   if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
@@ -689,6 +689,8 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 static void gfx_directx_win_exit(struct BITMAP *bmp)
 { 
    _enter_gfx_critical();
+
+   save_window_pos();
 
    if (bmp)
       clear_bitmap(bmp);

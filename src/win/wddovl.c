@@ -319,7 +319,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    overlay_brush = CreateSolidBrush(MASK_COLOR_32);
    SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) overlay_brush);
 
-   if (adjust_window(32, 32, w, h) != 0) {
+   if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
@@ -424,6 +424,8 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 static void gfx_directx_ovl_exit(struct BITMAP *bmp)
 {
    _enter_gfx_critical();
+
+   save_window_pos();
 
    if (bmp)
       clear_bitmap(bmp);

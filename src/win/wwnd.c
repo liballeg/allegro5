@@ -45,6 +45,9 @@ int wnd_width = 0;
 int wnd_height = 0;
 int wnd_sysmenu = FALSE;
 
+static int last_wnd_x = 32;
+static int last_wnd_y = 32;
+
 /* graphics */
 WIN_GFX_DRIVER *win_gfx_driver;
 CRITICAL_SECTION gfx_crit_sect;
@@ -493,12 +496,24 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
 
 
+/* save_window_pos:
+ *  Stores the position of the current window, before closing it, so it can be
+ *  used as the initial position for the next window.
+ */
+void save_window_pos(void)
+{
+   last_wnd_x = wnd_x;
+   last_wnd_y = wnd_y;
+}
+
+
+
 /* adjust_window:
  *  Moves and resizes the window if we have full control over it.
  */
-int adjust_window(int x, int y, int w, int h)
+int adjust_window(int w, int h)
 {
-   RECT win_size = {x, y, x+w, y+h };
+   RECT win_size = {last_wnd_x, last_wnd_y, last_wnd_x+w, last_wnd_y+h };
 
    if (!user_wnd) {
       /* retrieve the size of the decorated window */
@@ -513,8 +528,8 @@ int adjust_window(int x, int y, int w, int h)
       if (((win_size.right - win_size.left) != w) || ((win_size.bottom - win_size.top) != h))
          return -1;
 
-      wnd_x = x;
-      wnd_y = y;
+      wnd_x = last_wnd_x;
+      wnd_y = last_wnd_y;
       wnd_width = w;
       wnd_height = h;
    }
