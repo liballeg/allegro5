@@ -103,7 +103,7 @@ void _unix_rest(unsigned int ms, void (*callback) (void))
 	    break;
 
 #ifdef ALLEGRO_MACOSX
-	 result = usleep((delay.tv_usec * 1000000L) + delay.tv_usec);
+	 result = usleep((delay.tv_sec * 1000000L) + delay.tv_usec);
 #else
 	 result = select(0, NULL, NULL, NULL, &delay);
 #endif
