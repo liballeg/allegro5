@@ -124,6 +124,9 @@ void _read_os_type()
       if (!strcmp(utsn.sysname, "Linux")) {
 	 os_type = OSTYPE_LINUX;
       }
+      else if (!strcmp(utsn.sysname, "FreeBSD")) {
+	 os_type = OSTYPE_FREEBSD;
+      }
       else {
 	 os_type = OSTYPE_UNIX;     /* that's all we can say for now */
       }
