@@ -92,6 +92,16 @@
    library. You can fix this by adding "/usr/local/lib" to your 
    /etc/ld.so.conf file, and then running ldconfig.
 
+   If you are compiling a CVS version of Allegro, you'll need to
+   generate the configure script:
+   
+      autoconf
+      
+   You will also need:
+   
+      make depend
+      
+   To create the dependency files.
 
 
 =======================================
