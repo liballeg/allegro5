@@ -254,10 +254,9 @@ void gfx_directx_unlock(BITMAP *bmp)
 
 	 bmp->id &= ~BMP_ID_LOCKED;
       }
+      /* release bitmap for other threads */
+      _exit_gfx_critical();
    }
-
-   /* release bitmap for other threads */
-   _exit_gfx_critical();
 }
 
 
