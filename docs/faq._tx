@@ -210,16 +210,6 @@ DOS problems
       volume of Allegro's digital sound output.
 
 <h4><li>
-@@   When I compile Allegro, make fails with `Error: operands given don't 
-   match any known 386 instruction'.
-</h4>
-      You need to update your version of binutils. As of writing, the latest 
-      is version 2.10, and you can download it at: 
-      <link>ftp://ftp.demon.co.uk/pub/mirrors/simtelnet/gnu/djgpp/v2gnu/</a>.
-      Look for the latest version of bnu*b.zip (bnu210b.zip, at time 
-      of writing).
-
-<h4><li>
 @@   Why doesn't it work with my video card?
 </h4>
       Try using a FreeBE/AF driver (<link>http://www.talula.demon.co.uk/freebe/</a>),
@@ -303,6 +293,14 @@ General problems
       The grabber needs to be linked with the code in datedit.c. But you 
       shouldn't have to worry about doing this by hand: just run "make" and 
       that will build everything for you.
+
+<h4><li>
+@@   When I compile Allegro, make fails with something like `Error: operands
+   given don't match any known 386 instruction' or `Error: no such
+   instruction `maskmovq %mm3, %mm1''.
+</h4>
+      You need to update your version of GNU binutils. See readme.txt to
+      find out what the minimum required version you need is.
 
 <h4><li>
 @@   Can I use Allegro with my &ltfoobar&gt compiler?

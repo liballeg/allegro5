@@ -85,6 +85,7 @@
 
    GCC                       - The GNU Compiler Collection.
    Binutils v2.10 or greater - The GNU Binary Utilities.
+   Make                      - The GNU Make utility.
    
    Additional requirements are listed in the various readme files.
 
