@@ -80,6 +80,18 @@ struct WINDOW_MODULES {
    int midi_input_card;
 };
 
+/* Used in adjust_window(). */
+#ifndef TITLEBARINFO
+   #ifndef CCHILDREN_TITLEBAR
+      #define CCHILDREN_TITLEBAR 5
+   #endif
+typedef struct {
+   DWORD cbSize;
+   RECT  rcTitleBar;
+   DWORD rgstate[CCHILDREN_TITLEBAR + 1];
+} TITLEBARINFO, *PTITLEBARINFO, *LPTITLEBARINFO;
+#endif /* ifndef TITLEBARINFO */
+
 
 
 /* init_window_modules:
@@ -580,7 +592,11 @@ void restore_window_style(void)
 int adjust_window(int w, int h)
 {
    RECT working_area, win_size;
-   int tb_height;
+   TITLEBARINFO tb_info;
+   HMODULE user32_handle;
+   typedef BOOL (WINAPI *func)(HWND, PTITLEBARINFO);
+   func get_title_bar_info = NULL;
+   int tb_height = 0;
    static int last_w=-1, last_h=-1;
 
    if (!user_wnd) {
@@ -592,8 +608,20 @@ int adjust_window(int w, int h)
          last_wnd_y = (working_area.top + working_area.bottom - h)/2;
       }
       else {
-	 /* try to get the height of the window's title bar */
-	 tb_height = GetSystemMetrics(SM_CYSIZE);
+         /* try to get the height of the window's title bar */
+         user32_handle = GetModuleHandle("user32");
+         if (user32_handle) {
+            get_title_bar_info
+               = (func)GetProcAddress(user32_handle, "GetTitleBarInfo");
+            if (get_title_bar_info) {
+               tb_info.cbSize = sizeof(TITLEBARINFO);
+               if (get_title_bar_info(allegro_wnd, &tb_info))
+                  tb_height
+                     = tb_info.rcTitleBar.bottom - tb_info.rcTitleBar.top;
+            }
+         }
+         if (!user32_handle || !get_title_bar_info)
+            tb_height = GetSystemMetrics(SM_CYSIZE);
          
 	 /* try to center the window relative to its last position */
 	 last_wnd_x += (last_w - w)/2;
