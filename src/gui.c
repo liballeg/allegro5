@@ -1119,6 +1119,11 @@ typedef struct MENU_INFO            /* information about a popup menu */
 
 
 
+void (*gui_menu_draw_menu)(int x, int y, int w, int h) = NULL;
+void (*gui_menu_draw_menu_item)(MENU *m, int x, int y, int w, int h, int bar, int sel);
+
+
+
 /* get_menu_pos:
  *  Calculates the coordinates of an object within a top level menu bar.
  */
@@ -1155,6 +1160,14 @@ static void draw_menu_item(MENU_INFO *m, int c)
    int my;
    int rtm;
 
+   get_menu_pos(m, c, &x, &y, &w);
+
+   if (gui_menu_draw_menu_item) {
+      gui_menu_draw_menu_item(&m->menu[c], x, y, w, text_height(font)+4,
+			      m->bar, (c == m->sel) ? TRUE : FALSE);
+      return;
+   }
+
    if (m->menu[c].flags & D_DISABLED) {
       if (c == m->sel) {
 	 fg = gui_mg_color;
@@ -1175,8 +1188,6 @@ static void draw_menu_item(MENU_INFO *m, int c)
 	 bg = gui_bg_color;
       } 
    }
-
-   get_menu_pos(m, c, &x, &y, &w);
 
    rectfill(screen, x, y, x+w-1, y+text_height(font)+3, bg);
    rtm = text_mode(bg);
@@ -1233,9 +1244,13 @@ static void draw_menu(MENU_INFO *m)
 {
    int c;
 
-   rect(screen, m->x, m->y, m->x+m->w-1, m->y+m->h-1, gui_fg_color);
-   vline(screen, m->x+m->w, m->y+1, m->y+m->h, gui_fg_color);
-   hline(screen, m->x+1, m->y+m->h, m->x+m->w, gui_fg_color);
+   if (gui_menu_draw_menu)
+      gui_menu_draw_menu(m->x, m->y, m->w, m->h);
+   else {
+      rect(screen, m->x, m->y, m->x+m->w-1, m->y+m->h-1, gui_fg_color);
+      vline(screen, m->x+m->w, m->y+1, m->y+m->h, gui_fg_color);
+      hline(screen, m->x+1, m->y+m->h, m->x+m->w, gui_fg_color);
+   }
 
    for (c=0; m->menu[c].text; c++)
       draw_menu_item(m, c);

@@ -2123,6 +2123,9 @@ AL_VAR(DIALOG_PROC, gui_edit_proc);
 AL_VAR(DIALOG_PROC, gui_list_proc);
 AL_VAR(DIALOG_PROC, gui_text_list_proc);
 
+AL_FUNCPTR(void, gui_menu_draw_menu, (int x, int y, int w, int h));
+AL_FUNCPTR(void, gui_menu_draw_menu_item, (MENU *m, int x, int y, int w, int h, int bar, int sel));
+
 AL_VAR(DIALOG *, active_dialog);
 AL_VAR(MENU *, active_menu);
 
