@@ -67,7 +67,7 @@ GFX_DRIVER gfx_directx_soft =
    GFX_DIRECTX_ACCEL,
    empty_string,
    empty_string,
-   "DirectDraw",
+   "DirectDraw soft",
    init_directx_soft,
    gfx_directx_exit,
    NULL,                        // AL_METHOD(int, scroll, (int x, int y)); 
