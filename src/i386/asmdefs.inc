@@ -28,6 +28,8 @@
    #include "obj/watcom/asmdef.inc"
 #elif defined __BEOS__
    #include "obj/beos/asmdef.inc"
+#elif defined __QNX__
+   #include "obj/qnx/asmdef.inc"
 #elif defined DJGPP
    #include "obj/djgpp/asmdef.inc"
 #elif defined __unix__
