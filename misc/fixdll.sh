@@ -28,6 +28,10 @@ if [ ! -f include/allegro.h ]; then
 fi
 
 
+# i18n changes the behaviour of sort (under Linux), which we don't want
+export LC_ALL=C
+
+
 # test for the presence of GNU sort
 echo "_a" > _ord1.tmp
 echo "a" >> _ord1.tmp
