@@ -334,6 +334,7 @@
     gfx_driver DATA
     gfx_mode_select
     gfx_mode_select_ex
+    gfx_mode_select_filter
     gui_bg_color DATA
     gui_button_proc DATA
     gui_ctext_proc DATA
@@ -1319,6 +1320,7 @@
     _unregister_switch_bitmap
     _voice DATA
     _vsync_speed DATA
+    _wait_for_vsync DATA
     _zbuffer DATA
     font_vtable_color DATA
     font_vtable_mono DATA
