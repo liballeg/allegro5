@@ -300,15 +300,18 @@ static void sys_directx_set_window_close_hook(void (*proc)(void))
  */
 static void sys_directx_message(AL_CONST char *msg)
 {
-   char tmp1[4096], tmp2[256];
+   char *tmp1 = malloc(4096);
+   char tmp2[256];
 
    while ((ugetc(msg) == '\r') || (ugetc(msg) == '\n'))
       msg += uwidth(msg);
 
    MessageBoxW(allegro_wnd,
-	       (unsigned short *)uconvert(msg, U_CURRENT, tmp1, U_UNICODE, sizeof(tmp1)),
+	       (unsigned short *)uconvert(msg, U_CURRENT, tmp1, U_UNICODE, 4096),
 	       (unsigned short *)uconvert(wnd_title, U_ASCII, tmp2, U_UNICODE, sizeof(tmp2)),
 	       MB_OK);
+
+   free(tmp1);
 }
 
 

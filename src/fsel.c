@@ -710,7 +710,7 @@ static void stretch_dialog(DIALOG *d, int width, int height)
    #ifdef HAVE_DIR_LIST
 
       /* horizontal settings */
-      font_w = text_length(font, "a");
+      font_w = text_length(font, uconvert_ascii("A", NULL));
 
       if (width == 0)
           width = 0.95*SCREEN_W + 1;
@@ -760,7 +760,7 @@ static void stretch_dialog(DIALOG *d, int width, int height)
    #else
 
       /* horizontal settings */
-      font_w = text_length(font, "a");
+      font_w = text_length(font, uconvert_ascii("A", NULL));
 
       if (width == 0)
           width = 0.95*SCREEN_W + 1;
