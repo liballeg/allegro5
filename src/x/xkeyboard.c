@@ -333,11 +333,12 @@ void _xwin_keyboard_handler(XKeyEvent *event)
       int unicode = 0, r = 0;
 
 #if defined (ALLEGRO_USE_XIM) && defined(X_HAVE_UTF8_STRING)
-      len = Xutf8LookupString(xic, event, buffer, sizeof buffer, NULL, NULL);
-#else
-      /* XLookupString is supposed to only use ASCII. */
-      len = XLookupString(event, buffer, sizeof buffer, NULL, NULL);
+      if (xic)
+	 len = Xutf8LookupString(xic, event, buffer, sizeof buffer, NULL, NULL);
+      else
 #endif
+      /* XLookupString is supposed to only use ASCII. */
+	 len = XLookupString(event, buffer, sizeof buffer, NULL, NULL);
       buffer[len] = '\0';
       uconvert(buffer, U_UTF8, buffer2, U_UNICODE, sizeof buffer2);
       unicode = *(unsigned short *)buffer2;
