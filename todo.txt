@@ -10,7 +10,6 @@ Updates or comments can be sent to the TODO list maintainer Peter Wang
 General (Platform independant) todos:
 ---------------------------------------------------------------------------
 
-- New example to test P3D scene rendering
 - rewrite set_gfx_mode, or at least have dynamic driver lists
 - find solution or API to timer/multithread problem
 - don't use BITMAPs for zbuffers

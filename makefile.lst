@@ -386,6 +386,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exrgbhsv.c \
 	examples/exsample.c \
 	examples/exscale.c \
+	examples/exscn3d.c \
 	examples/exscroll.c \
 	examples/exshade.c \
 	examples/exspline.c \
@@ -432,6 +433,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exrgbhsv \
 	examples/exsample \
 	examples/exscale \
+	examples/exscn3d \
 	examples/exscroll \
 	examples/exshade \
 	examples/exspline \
