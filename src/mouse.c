@@ -36,7 +36,7 @@ MOUSE_DRIVER mousedrv_none =
    "No mouse",
    nomouse_init,
    nomouse_exit,
-   NULL, NULL, NULL, NULL, NULL, NULL, NULL
+   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -731,6 +731,41 @@ void get_mouse_mickeys(int *mickeyx, int *mickeyy)
    else {
       *mickeyx = 0;
       *mickeyy = 0;
+   }
+}
+
+
+
+/* enable_hardware_cursor:
+ *  enabels the hardware cursor on platforms where this needs to be done
+ *  explicitly
+ */
+void enable_hardware_cursor(void)
+{
+   if ((mouse_driver) && (mouse_driver->enable_hardware_cursor)) {
+      mouse_driver->enable_hardware_cursor(TRUE);
+      if (is_same_bitmap(_mouse_screen, screen)) {
+         BITMAP *bmp = _mouse_screen;
+         show_mouse(NULL);
+         show_mouse(bmp);
+      }
+   }
+}
+
+
+
+/* disable_hardware_cursor:
+ *  disables the hardware cursor on platforms where this interferes with mickeys
+ */
+void disable_hardware_cursor(void)
+{
+   if ((mouse_driver) && (mouse_driver->enable_hardware_cursor)) {
+      mouse_driver->enable_hardware_cursor(FALSE);
+      if (is_same_bitmap(_mouse_screen, screen)) {
+         BITMAP *bmp = _mouse_screen;
+         show_mouse(NULL);
+         show_mouse(bmp);
+      }
    }
 }
 

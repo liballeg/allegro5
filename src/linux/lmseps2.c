@@ -240,7 +240,8 @@ MOUSE_DRIVER mousedrv_linux_ps2 =
 	__al_linux_mouse_set_range,
 	__al_linux_mouse_set_speed,
 	__al_linux_mouse_get_mickeys,
-	analyse_data
+	analyse_data,
+	NULL /* enable_hardware_cursor */
 };
 
 MOUSE_DRIVER mousedrv_linux_ips2 =
@@ -257,5 +258,6 @@ MOUSE_DRIVER mousedrv_linux_ips2 =
 	__al_linux_mouse_set_range,
 	__al_linux_mouse_set_speed,
 	__al_linux_mouse_get_mickeys,
-	analyse_data
+	analyse_data,
+	NULL /* enable_hardware_cursor */
 };

@@ -147,7 +147,7 @@ int write_rtf(char *filename)
 	    }
 	    else {
 	       l = line;
-	       while ((l->next) && (is_empty(strip_html(l->text))))
+	       while ((l->next) && l->text && (is_empty(strip_html(l->text))))
 		  l = l->next;
 
 	       if (l->flags & (HEADING_FLAG | DEFINITION_FLAG | NODE_FLAG)) {
@@ -475,7 +475,7 @@ int write_rtf(char *filename)
       /* advance to the next line */
       l = line->next;
       if (l) {
-	 while ((l->next) && (is_empty(l->text)) && (l->next->flags == l->flags)) {
+	 while ((l->next) && l->text && (is_empty(l->text)) && (l->next->flags == l->flags)) {
 	    l = l->next;
 	 }
 	 if ((l->next) && (l->next->flags & HEADING_FLAG)) {

@@ -31,6 +31,7 @@ AL_VAR(int, _xwin_in_gfx_call);
 AL_VAR(void *, allegro_icon);
 
 
+AL_FUNC(void, _xwin_set_warped_mouse_mode, (int permanent));
 AL_FUNC(int, _xwin_open_display, (char *name));
 AL_FUNC(void, _xwin_close_display, (void));
 AL_FUNC(int, _xwin_create_window, (void));
@@ -42,7 +43,7 @@ AL_FUNC(void, _xwin_set_palette_range, (AL_CONST PALETTE p, int from, int to, in
 AL_FUNC(void, _xwin_flush_buffers, (void));
 AL_FUNC(void, _xwin_vsync, (void));
 AL_FUNC(void, _xwin_handle_input, (void));
-AL_FUNC(void, _xwin_set_warped_mouse_mode, (int permanent));
+AL_FUNC(void, _xwin_enable_hardware_cursor, (int mode));
 AL_FUNC(void, _xwin_redraw_window, (int x, int y, int w, int h));
 AL_FUNC(int, _xwin_scroll_screen, (int x, int y));
 AL_FUNC(void, _xwin_update_screen, (int x, int y, int w, int h));

@@ -250,6 +250,36 @@ endif
 
 # -------- rules for installing and removing the generic library files --------
 
+INSTALL_DIRS := \
+    $(INSTALLDIR)/$(LIBDIR) \
+    $(INSTALLDIR)/$(INCDIR) \
+    $(INSTALLDIR)/$(INCDIR)/allegro \
+    $(INSTALLDIR)/$(INCDIR)/allegro/platform \
+    $(INSTALLDIR)/$(INCDIR)/allegro/internal \
+    $(INSTALLDIR)/$(INCDIR)/allegro/inline
+
+ifdef UNIX_TOOLS
+    INSTALL_DIRS := $(subst \,/,$(INSTALL_DIRS))
+else
+    INSTALL_DIRS := $(subst /,\,$(INSTALL_DIRS))
+endif
+
+# Make sure we don't try to create already existing directories.
+existing_dirs := $(foreach dir,$(INSTALL_DIRS),$(wildcard $(dir)))
+INSTALL_DIRS := $(filter-out $(existing_dirs),$(INSTALL_DIRS))
+
+.PHONY: create-install-dirs
+
+create-install-dirs:
+ifneq (,$(INSTALL_DIRS))
+    define MKDIRS
+    $(foreach file,$(INSTALL_DIRS),mkdir $(MKDIR_OPTS) $(file)
+    )
+    endef
+	$(MKDIRS)
+endif
+
+
 INSTALLDIR_U = $(subst \,/,$(INSTALLDIR))
 INSTALLDIR_D = $(subst /,\,$(INSTALLDIR))
 
@@ -262,74 +292,37 @@ INCDIR_D = $(subst /,\,$(INCDIR))
 
 ifdef UNIX_TOOLS
 
-$(INSTALLDIR_U)/$(LIBDIR_U):
-	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(LIBDIR_U)
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform: $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
-	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h
 	cp $< $@
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro: $(INSTALLDIR_U)/$(INCDIR_U)
-	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)/allegro 
-
-$(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h $(INSTALLDIR_U)/$(INCDIR_U)
+$(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h
 	cp $< $@
-
-$(INSTALLDIR_U)/$(INCDIR_U):
-	mkdir $(MKDIR_OPTS) $(INSTALLDIR_U)/$(INCDIR_U)
 
 else
 
-$(INSTALLDIR_U)/$(LIBDIR_U):
-	md $(INSTALLDIR_D)\$(LIBDIR_D)
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform/%.h: include/allegro/platform/%.h
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/platform: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	md $(INSTALLDIR_D)\$(INCDIR_D)\allegro\platform
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/%.h: include/allegro/internal/%.h
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	md $(INSTALLDIR_D)\$(INCDIR_D)\allegro\internal
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/%.inl: include/allegro/inline/%.inl
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline: $(INSTALLDIR_U)/$(INCDIR_U)/allegro
-	md $(INSTALLDIR_D)\$(INCDIR_D)\allegro\inline
-
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h $(INSTALLDIR_U)/$(INCDIR_U)/allegro
+$(INSTALLDIR_U)/$(INCDIR_U)/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
 
-$(INSTALLDIR_U)/$(INCDIR_U)/allegro: $(INSTALLDIR_U)/$(INCDIR_U)
-	-md $(INSTALLDIR_D)\$(INCDIR_D)\allegro 
-# workaround for a weird make problem
-
-$(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h $(INSTALLDIR_U)/$(INCDIR_U)
+$(INSTALLDIR_U)/$(INCDIR_U)/%.h: include/%.h
 	copy $(subst /,\,$< $@)
-
-$(INSTALLDIR_U)/$(INCDIR_U):
-	md $(INSTALLDIR_D)\$(INCDIR_D)
 
 endif
 
@@ -339,7 +332,7 @@ INSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h                          
                  $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/internal/,$(notdir $(wildcard include/allegro/internal/*.h))) \
                  $(addprefix $(INSTALLDIR_U)/$(INCDIR_U)/allegro/inline/,$(notdir $(wildcard include/allegro/inline/*.inl)))
 
-generic-install: $(INSTALL_FILES)
+generic-install: create-install-dirs $(INSTALL_FILES)
 
 UNINSTALL_FILES += $(INSTALLDIR_U)/$(INCDIR_U)/allegro.h            \
 		   $(INSTALLDIR_U)/$(INCDIR_U)/allegro/*.h          \

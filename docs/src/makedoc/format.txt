@@ -172,6 +172,16 @@
       Similar to @heading but doesn't create another file. xxx represents
       the title of the new subsection.
 
+   @chapter
+      Like @heading, but one level above. It allows to partition the
+      documentation into multiple parts, each containing multiple @heading
+      sections. Currently, only the devhelp output format makes use of
+      this.
+
+   @endchapter
+      Ends the last chapter started by @chapter. Otherwise, a chapter ends
+      at the next @chapter command or at the end of the file.
+
    @tallbullets
       Uses tall bullets in the output formats that support them.
 
@@ -181,6 +191,11 @@
 
    @contents
       Generates an index for the info and html outputs.
+
+   @shortcontents
+      Similiar to @contents, but is always present in html files, even with
+      formats like devhelp or chm which normally put the results of
+      @contents into their navigation pane instead of the actual html.
 
    @htmlindex xxx
       Used in the main index HTML file of the document, creates a link to an

@@ -32,13 +32,13 @@
 #include "makedoc.h"
 
 #define ALT_TEXT(toc)   ((toc->alt) ? toc->alt : toc->text)
-#define PREV_ROOT 1
-#define PREV_SUB  2
+enum PREV { PREV_NO, PREV_ROOT, PREV_SUB, PREV_CHAP };
+enum TYPE { TYPE_ROOT1, TYPE_ROOT2, TYPE_SUB1, TYPE_SUB2, TYPE_FUNC };
 
 /* Buffered tocs. Only the 'local' pointer should be freed */
 typedef struct BTOC
 {
-   int type;
+   enum TYPE type;
    const char *name;
    char *local;
 } BTOC;
@@ -46,7 +46,7 @@ typedef struct BTOC
 extern const char *html_extension;
 
 static void _write_object(FILE *file, const char *name, const char *local, int open);
-static void _output_btoc(FILE *file, BTOC *btoc, int *btoc_prev, int *num_btoc);
+static void _output_btoc(FILE *file, BTOC *btoc, int *num_btoc);
 static int _qsort_btoc_helper(const void *e1, const void *e2);
 
 
@@ -55,15 +55,14 @@ static int _qsort_btoc_helper(const void *e1, const void *e2);
  * Sorts all the buffered tocs read so far and frees their memory after
  * writting them to the file. Can be safely called at any moment, as long
  * as the pointer to num_btoc is meaningfull and contains the number of
- * buffered tocs in the btoc table. Note that btoc_prev is NOT sorted.
+ * buffered tocs in the btoc table.
  */
-static void _output_btoc(FILE *file, BTOC *btoc, int *btoc_prev, int *num_btoc)
+static void _output_btoc(FILE *file, BTOC *btoc, int *num_btoc)
 {
    int num;
 
    assert(btoc);
    assert(num_btoc);
-   assert(btoc_prev);
 
    qsort(btoc, *num_btoc, sizeof(BTOC), _qsort_btoc_helper);
 
@@ -99,10 +98,37 @@ static void _write_object(FILE *file, const char *name, const char *local, int t
    assert(file);
    assert(name);
    assert(local);
-   
+
    fprintf(file, "%s name=\"%s\" link=\"%s\"%s>\n",
-      type == 0 ? "  <sub" : type == 1 ? "    <sub" : "  <function",
-      name, local, type ? "/" : "");
+      type == TYPE_ROOT1 ? "  <sub" :
+      (type == TYPE_SUB1 || type == TYPE_ROOT2) ? "    <sub" :
+      type == TYPE_SUB2 ? "      <sub" : "  <function",
+      name, local, (type == TYPE_ROOT1 || type == TYPE_ROOT2) ? "" : "/");
+}
+
+
+
+static char *devhelp_blank_page(char const *name, char const *filename, int num)
+{
+   char str[256];
+   char *path;
+   FILE *file;
+   
+   sprintf(str, "chapter%i.html", num);
+   path = m_replace_filename (filename, str);
+   printf("Writing %s.\n", path);
+   
+   file = fopen(path, "w");
+   if (file) {
+      /* Ideally, this would use Allegro's common HTML style and header
+         and footer. */
+      fprintf(file, "<html>\n<head><title>%s</title></head>\n<body>\n", name);
+      fprintf(file, "<h1>%s</h1>", name);
+      fprintf(file, "<p>Use the table of contents to navigate through this chapter.");
+      fprintf(file, "</body>\n</html>\n");
+      fclose(file);
+   }
+   return path;
 }
 
 
@@ -115,9 +141,11 @@ int write_devhelp(const char *filename)
    FILE *file;
    TOC *toc;
    char *dest_name;
-   int btoc_prev[TOC_SIZE];
-   int section_number = -1, prev = 0, num_btoc = 0;
-   
+   int section_number = -1, num_btoc = 0;
+   enum PREV prev = PREV_NO;
+   int in_chapter = 0;
+   int chapter_num = 1;
+
    if (!strcmp(get_extension(filename), "htm"))
       html_extension = "html";
 
@@ -137,7 +165,7 @@ int write_devhelp(const char *filename)
    fprintf(file, "      link=\"allegro.html\">\n");
    fprintf(file, "\n");
    fprintf(file, "<chapters>\n");
-   
+
    toc = tochead;
    if (toc)
       toc = toc->next;
@@ -145,16 +173,27 @@ int write_devhelp(const char *filename)
    for (; toc; toc = toc->next) {
       char name[256];
 
-      if (toc->htmlable) {
-	 if (toc->root) {
+      if (toc->htmlable || toc->root > 1) {
+	 if (toc->root ) {
 
-	    _output_btoc(file, btoc, btoc_prev, &num_btoc);
-	    if (prev == PREV_SUB)
-	       fprintf(file, "  </sub>\n");
-	    if (prev == PREV_ROOT)
-	       fprintf(file, "  </sub>\n");
+	    /* Write previous section. */
+	    _output_btoc(file, btoc, &num_btoc);
 
-	    if (toc->otherfile) {
+	    if (prev == PREV_ROOT || prev == PREV_SUB)
+	       fprintf(file, "%s</sub>\n", in_chapter ? "    " : "  ");
+
+            if (toc->root == 2 || toc->root == 3) {
+	       if (in_chapter)
+		  fprintf(file, "  </sub>\n");
+	       if (toc->root == 2) {
+		  char *path;
+		  path = devhelp_blank_page(ALT_TEXT(toc), filename, chapter_num++);
+		  strcpy(name, get_filename(path));
+		  free(path);
+	       }
+	       in_chapter = 0;
+	    }
+	    else if (toc->otherfile) {
 	       sprintf(name, "%.240s.%.10s", toc->text, html_extension);
 	    }
 	    else {
@@ -162,31 +201,40 @@ int write_devhelp(const char *filename)
 	       get_section_filename(name, filename, section_number);
 	    }
 
-	    prev = PREV_ROOT;
+	    if (toc->root == 3) {
+	       prev = PREV_NO;
+	    }
+	    else {
 
-	    _write_object(file, ALT_TEXT(toc), name, 0);
+	       prev = toc->root == 1 ? PREV_ROOT : PREV_CHAP;
+
+	       _write_object(file, ALT_TEXT(toc), name, in_chapter ? TYPE_ROOT2 : TYPE_ROOT1);
+
+	       if (toc->root == 2)
+		  in_chapter = 1;
+	    }
 	 }
 	 else {
-
-	    btoc_prev[num_btoc] = prev;
 
 	    get_section_filename(name, filename, section_number);
 	    strcat(name, "#");
 	    strcat(name, toc->text);
 
 	    prev = PREV_SUB;
-	    
+
 	    /* Buffer toc for posterior output */
-            btoc[num_btoc].type = 1;
+            btoc[num_btoc].type = in_chapter ? TYPE_SUB2 : TYPE_SUB1;
 	    btoc[num_btoc].local = m_strdup(name);
 	    btoc[num_btoc++].name = ALT_TEXT(toc);
 	 }
       }
    }
 
-   _output_btoc(file, btoc, btoc_prev, &num_btoc);
+   _output_btoc(file, btoc, &num_btoc);
 
-   if (prev == PREV_ROOT)
+   if (prev == PREV_SUB || prev == PREV_ROOT)
+	       fprintf(file, "%s</sub>\n", in_chapter ? "    " : "  ");
+   if (in_chapter)
       fprintf(file, "  </sub>\n");
 
    fprintf(file, "</chapters>\n");
@@ -201,6 +249,8 @@ int write_devhelp(const char *filename)
    section_number = -1;
    for (; toc; toc = toc->next) {
       char name[256];
+      if (!toc->htmlable)
+         continue;
       if (toc->root) {
          if (!toc->otherfile) {
 	    section_number++;
@@ -209,12 +259,12 @@ int write_devhelp(const char *filename)
          get_section_filename(name, filename, section_number);
 	 strcat(name, "#");
 	 strcat(name, toc->text);
-         btoc[num_btoc].type = 2;
+         btoc[num_btoc].type = TYPE_FUNC;
          btoc[num_btoc].local = m_strdup(name);
 	 btoc[num_btoc++].name = ALT_TEXT(toc);
       }
    }
-   _output_btoc(file, btoc, btoc_prev, &num_btoc);
+   _output_btoc(file, btoc, &num_btoc);
 
    fprintf(file, "</functions>\n");
    fprintf(file, "\n");

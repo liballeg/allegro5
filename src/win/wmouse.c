@@ -62,8 +62,12 @@ MOUSE_DRIVER mouse_directx =
    mouse_directx_set_range,
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
-   NULL                        // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
+   NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
+   NULL                        // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
 };
+
+
+HCURSOR _win_hcursor = NULL;	/* Hardware cursor to display */
 
 
 #define DINPUT_BUFFERSIZE 256
@@ -456,7 +460,7 @@ int mouse_dinput_grab(void)
 int mouse_set_syscursor(void)
 {
    if ((mouse_dinput_device && _mouse_on) || (gfx_driver && !gfx_driver->windowed)) {
-      SetCursor(NULL);
+      SetCursor(_win_hcursor);
       /* Make sure the cursor is removed by the system. */
       PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
    }

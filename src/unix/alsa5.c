@@ -18,7 +18,7 @@
 
 #include "allegro.h"
 
-#if (ALLEGRO_ALSA_VERSION == 5) && (defined DIGI_ALSA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
+#if (ALLEGRO_ALSA_VERSION == 5) && (defined ALLEGRO_WITH_ALSADIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/internal/aintern.h"
 #ifdef ALLEGRO_QNX

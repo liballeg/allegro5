@@ -18,7 +18,7 @@
 
 #include "allegro.h"
 
-#if (defined DIGI_ARTS) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
+#if (defined ALLEGRO_WITH_ARTSDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"

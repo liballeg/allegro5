@@ -68,6 +68,7 @@ static int _write_toc(const char *filename, int is_index)
    TOC *toc;
    int btoc_prev[TOC_SIZE];
    int section_number = -1, prev = 0, num_btoc = 0;
+   int in_chapter = 0;
    
    if (!file)
       return 1;
@@ -141,6 +142,29 @@ static int _write_toc(const char *filename, int is_index)
 	       _write_object(file, ALT_TEXT(toc), name);
 	 }
       }
+      else if ((toc->root == 2 || toc->root == 3) && !is_index) {
+         _output_btoc(file, btoc, btoc_prev, &num_btoc);
+	 if (prev == PREV_SUB)
+	    fprintf(file, "</li></ul></li>\n");
+         if (prev == PREV_ROOT)
+	    fprintf(file, "</li>\n");
+         if (in_chapter) {
+            fprintf(file, "</ul>\n");
+            in_chapter = 0;
+         }
+         if (toc->root == 2) {
+            fprintf(file, "<li><object type=\"text/sitemap\">\n");
+            fprintf(file, "<param name=\"Name\" value=\"%s\">\n", ALT_TEXT(toc));
+            fprintf(file, "</object>\n</li>\n");
+            fprintf(file, "<ul>\n");
+            in_chapter = 1;
+         }
+         prev = 0;
+      }
+   }
+
+   if (in_chapter) {
+      fprintf(file, "</ul>\n");
    }
 
    _output_btoc(file, btoc, btoc_prev, &num_btoc);
@@ -287,10 +311,9 @@ static int _write_hhp(const char *filename)
  */
 int write_chm(char *filename)
 {
-   FILE *file;
-   int found_signature = 0;
+   FILE *file; 
    char *temp;
-   
+
    if (!strcmp(get_extension(filename), "htm"))
       html_extension = "html";
 
@@ -300,32 +323,13 @@ int write_chm(char *filename)
       printf("HTML files and put @multiplefiles in allegro._tx.\n\n");
       return 1;
    }
-      
-   system("hhc.exe > tempfile");
-   file = fopen("tempfile", "r");
-   if (file) {
-      char buf[256];
-      int n = fread(buf, 1, 255, file);
-      buf[n] = 0;
-      fclose(file);
-      if (strstr(buf, "HTML Help"))
-	 found_signature++;
-   }
-   remove("tempfile");
-   
-   if (!found_signature) {
-      printf("\nCannot find the HTML Help Compiler necessary to generate .chm output.\n");
-      printf("You can try to obtain it from Microsoft:\n");
-      printf("http://go.microsoft.com/fwlink/?LinkId=14188\n\n");
-      return 1;
-   }
 
    temp = m_replace_extension(filename, "hhp");
    printf("writing '%s'\n", temp);
    if (_write_hhp(temp))
       return 1;
    free(temp);
-   
+
    temp = m_replace_extension(filename, "hhc");
    printf("writing '%s'\n", temp);
    _write_toc(temp, 0);

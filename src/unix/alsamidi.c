@@ -17,7 +17,7 @@
 
 #include "allegro.h"
 
-#if (defined MIDI_ALSA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
+#if (defined ALLEGRO_WITH_ALSAMIDI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/internal/aintern.h"
 

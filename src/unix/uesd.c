@@ -20,7 +20,7 @@
 
 #include "allegro.h"
 
-#if (defined DIGI_ESD) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
+#if (defined ALLEGRO_WITH_ESDDIGI) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"

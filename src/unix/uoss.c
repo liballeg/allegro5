@@ -22,7 +22,7 @@
 
 #include "allegro.h"
 
-#ifdef DIGI_OSS
+#ifdef ALLEGRO_WITH_OSSDIGI
 
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"

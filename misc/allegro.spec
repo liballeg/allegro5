@@ -1,7 +1,7 @@
 # RPM spec file for Allegro.
 
 Summary: A game programming library.
-Summary(es): Una libreria de programacion de juegos.
+Summary(es): Una librería de programación de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
@@ -49,7 +49,7 @@ Computerspielen und anderen Formen von Multimediaprogrammierung.
 
 %package devel
 Summary: A game programming library.
-Summary(es): Una libreria de programacion de juegos.
+Summary(es): Una librería de programación de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
 Summary(de): Eine Bibliothek zur Programmierung von Spielen.
@@ -183,6 +183,7 @@ rm -rf %{buildroot}
 %{_includedir}/*
 %{_infodir}/allegro.info*
 %{_mandir}/man3/*
+%{_datadir}/aclocal/allegro.m4
 
 %files tools
 %defattr(-,root,root)
@@ -200,7 +201,10 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
-* Sat Apr 05 2003 Shawn Walker <eviltypeguy@icculus.org>  4.1.10-1
+* Tue Sep 14 2004 Shawn Walker <adonijah@gmail.com>  4.1.15-2
+- add aclocal.m4 for allegro to package
+
+* Sat Apr 05 2003 Shawn Walker <adonijah@gmail.com>  4.1.10-1
 - added dat2c to tools package
 - added additional documentation to tools package
 - removed makedoc source code entry from tools package

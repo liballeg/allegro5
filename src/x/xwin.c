@@ -255,7 +255,7 @@ static void _xwin_private_slow_palette_24(int sx, int sy, int sw, int sh);
 static void _xwin_private_slow_palette_32(int sx, int sy, int sw, int sh);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh);
+static int _xvidmode_private_set_fullscreen(int w, int h);
 static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
@@ -412,10 +412,8 @@ static int _xwin_private_create_window(void)
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
    /* Detect if ARGB cursors are supported */
    _xwin.support_argb_cursor = XcursorSupportsARGB(_xwin.display);
-   _xwin.hw_cursor_ok = 1;
-#else
-   _xwin.hw_cursor_ok = 0;
 #endif
+   _xwin.hw_cursor_ok = 0;
    
    return 0;
 }
@@ -703,7 +701,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       int i;
 
       /* Switch video mode.  */
-      if (!_xvidmode_private_set_fullscreen(w, h, 0, 0)) {
+      if (!_xvidmode_private_set_fullscreen(w, h)) {
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
 	 return 0;
       }
@@ -1511,6 +1509,31 @@ static int _xwin_private_fast_visual_depth(void)
 
 
 
+/* _xwin_enable_hardware_cursor:
+ *  enable the hardware cursor; this disables the mouse mickey warping hack
+ */
+void _xwin_enable_hardware_cursor(int mode)
+{
+#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
+   if (_xwin.support_argb_cursor)
+      _xwin.hw_cursor_ok = mode;
+   else
+#endif
+      _xwin.hw_cursor_ok = 0;
+   
+   /* Switch to non-warped mode */
+   if (_xwin.hw_cursor_ok) {
+      _xwin.mouse_warped = 0;
+      /* Move X-cursor to Allegro cursor.  */
+      XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
+		   0, 0, _xwin.window_width, _xwin.window_height,
+		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
+		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+   }
+}
+
+
+
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
 
 /* _xwin_set_mouse_sprite:
@@ -1642,12 +1665,10 @@ void _xwin_hide_mouse(void)
 
 
 /* _xwin_move_mouse:
- *  Move the custom X cursor. This is actually done automatically.
+ *  Get mouse move notification. Not that we need it...
  */
 void _xwin_move_mouse(int x, int y)
 {
-      _mouse_x = x;
-      _mouse_y = y;
 }
 
 #endif   /* ALLEGRO_XWINDOWS_WITH_XCURSOR */
@@ -2343,14 +2364,6 @@ void _xwin_private_handle_input(void)
 		   0, 0, _xwin.window_width, _xwin.window_height,
 		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
 		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
-      /* Re-enable hardware cursor */
-      _xwin.hw_cursor_ok = 1;
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-      if (_xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
-	 show_mouse(_mouse_screen);
-      }
-#endif
-         
    }
 
    /* Flush X-buffers.  */
@@ -2406,15 +2419,9 @@ void _xwin_handle_input(void)
  */
 static void _xwin_private_set_warped_mouse_mode(int permanent)
 {
-   _xwin.mouse_warped = ((permanent) ? 1 : (MOUSE_WARP_DELAY*7/8));
-   
-   /* Disable hardware cursor in warp mode */
-#ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-   if (_xwin.hw_cursor_ok && permanent && _xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
-      show_mouse(_mouse_screen);
-   }
-#endif
-   _xwin.hw_cursor_ok = !permanent;
+   /* Don't enable warp mode if the hardware cursor is being displayed */
+   if (!_xwin.hw_cursor_ok)
+      _xwin.mouse_warped = ((permanent) ? 1 : (MOUSE_WARP_DELAY*7/8));
 }
 
 void _xwin_set_warped_mouse_mode(int permanent)
@@ -2700,7 +2707,7 @@ void _xwin_unwrite_line(BITMAP *bmp)
 /* _xvidmode_private_set_fullscreen:
  *  Attempt to switch video mode and make window fullscreen.
  */
-static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
+static int _xvidmode_private_set_fullscreen(int w, int h)
 {
    int vid_event_base, vid_error_base;
    int vid_major_version, vid_minor_version;
@@ -2728,8 +2735,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
    /* Search for a matching video mode.  */
    for (i = 0; i < _xwin.num_modes; i++) {
       mode = _xwin.modesinfo[i];
-      if ((mode->hdisplay == w) && (mode->vdisplay == h)
-	  && (mode->htotal > vw) && (mode->vtotal > vh)) {
+      if ((mode->hdisplay == w) && (mode->vdisplay == h)) {
 	 /* Switch video mode.  */
 	 if (!XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, mode))
 	    return 0;

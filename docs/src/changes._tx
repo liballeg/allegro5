@@ -8,6 +8,81 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.15 to 4.1.16 (October 2004)
+<ul><li>
+   Peter Wang fixed two problems with the keyboard driver on Windows.
+<li>
+   Chris Robinson fixed a problem causing some components to wrongly
+   initialized in Windows when the window is set.
+<li>
+   Elias Pschernig added chapters to the documentation.
+<li>
+   Chris Robinson fixed a bug where the X11 fullscreen driver would fail if
+   no virtual screen was reported.
+<li>
+   Daniel Schlyder added a set_allegro_resource_path() function .
+<li>
+   Elias Pschernig fixed an issue with xf2pcx.
+<li>
+   David A. Capello made makedoc write sub-section headings for .txt output.
+<li>
+   Evert Glebbeek added hardware cursor support to the X11 and DirectX window
+   drivers.
+<li>
+   Peter Wang made the Linux joystick driver read more than one joystick
+   event at a time, as pointed out by Greg Lee.
+<li>
+   Evert Glebbeek removed the need for magic main under UNIX and added a
+   --enable-magicmain option to the configure script.
+<li>
+   Evert Glebbeek fixed a crash when initializing, deinitializing and 
+   reinitializing Allegro on Windows.
+<li>
+   Evert Glebbeek fixed a possible memory protection problem in stretch_blit
+   on Windows XP SP2, as suggested by Chris Robinson.
+<li>
+   Chris Robinson fixed set_palette() not waiting for vsync in X11.
+<li>
+   Peter Wang deprecated the retrace simulator.
+<li>
+   Daniel Verkamp contributed a MIDI input driver for the Windows port.
+<li>
+   Chris Robinson improved the speed of drawing primitives on X11 and 
+   implemented locking/unlocking for video bitmaps.
+<li>
+   Evert Glebbeek fixed a problem with the build process on non-intel UNIX
+   systems.
+<li>
+   Peter Wang fixed a problem with programs aborting on exit under X11.
+<li>
+   Peter Wang disabled VBE/AF by default on Linux.
+<li>
+   Sam Hocevar fixed a bug where makedoc would crash for missing @erefs.
+<li>
+   Peter Wang made the mouse movement appear smoother.
+<li>
+   Chris Robinson made the file routines work with files containing a # in the 
+   filename.
+<li>
+   Peter Wang fixed a bug in remove_int().
+<li>
+   Bobby Ferris added SciTE .api file generation to makedoc.
+<li>
+   Sam Hocevar made is possible to put functions defined in assembler 
+   sourcefiles in a shared library in UNIX.
+<li>
+   Evert Glebbeek removed the weak declaration of allegro_icon and changed
+   xfixicon.sh accordingly.
+<li>
+   Evert Glebbeek made get_executable_name() use procfs on UNIX.
+<li>
+   Grzegorz Adam Hankiewicz made many improvements to the documentation and
+   to the makedoc tool.
+<li>
+   Many fixes to source, examples and documentation.
+</ul>
+
+@heading
 Changes from 4.1.14 to 4.1.15 (July 2004)
 <ul><li>
    Chris Robinson tweaked tests/play.c slightly.
