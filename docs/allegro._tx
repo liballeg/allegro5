@@ -7229,6 +7229,10 @@ more program code to catch up :-)
 Having said that, there are several things you can do to make your programs 
 smaller:
 <ul><li>
+For all platforms, you can use an executable compressor called UPX, which
+is available at http://upx.tsx.org/ . This usually manages a compression
+ratio of about 40%.
+<li>
 When using djgpp: for starters, read the djgpp FAQ section 8.15, and take 
 note of the -s switch and DJP executable compressor. And don't forget to 
 compile your program with optimisation enabled!
@@ -7570,6 +7574,7 @@ makefiles also provide some special pseudo-targets:
 @htmlindex FAQ
 @htmlindex Help
 @htmlindex aHack
+@htmlindex const
 @headingnocontent
 Conclusion
 

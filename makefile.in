@@ -151,7 +151,7 @@ $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
 DOCS = docs/ahack.html CHANGES docs/changes.html faq.txt docs/faq.html \
        help.txt docs/help.html AUTHORS THANKS docs/thanks.html \
        allegro.txt docs/allegro.html docs/allegro.texi docs/allegro.info \
-       docs/install_allegro.3
+       docs/install_allegro.3 docs/const.html
 
 MAKEDOC = docs/makedoc$(EXE)
 
@@ -199,6 +199,9 @@ AUTHORS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
 
 THANKS: $(srcdir)/docs/thanks._tx $(MAKEDOC)
 	$(MAKEDOC) -part -ascii THANKS $(srcdir)/docs/thanks._tx
+
+docs/const.html: $(srcdir)/docs/const._tx $(MAKEDOC)
+	$(MAKEDOC) -html docs/const.html $(srcdir)/docs/const._tx
 
 allegro.dvi: $(srcdir)/docs/allegro.texi
 	texi2dvi -c $<

@@ -45,11 +45,6 @@ keyword, or perhaps use a different keyword, the preprocessor symbol
 AL_CONST is used wherever `const' would normally be used. Note that in
 the documentation, I have used `const' for readability.
 
-Currently, the `const' support is only compiled if ALLEGRO_GCC is
-defined. Please contact me (lwithers@lwithers.demon.co.uk) with
-information on other compilers if you would like `const'-correctness
-support, and I will (try to) add it.
-
 
 
 @heading
@@ -102,6 +97,28 @@ altering data that they should not. Callback functions which do not
 treat relevant parameters as `const' are, in a small (but potentially
 signficant) way, broken.
 
+Please note that for the Unicode function ugetx(), I have provided an
+alternative version ugetxc(), which takes a `const char**' parameter as
+opposed to a `char**' parameter. This is because it is valid to pass
+either a `char**' or a `const char**', but unfortunately there is no way
+to tell the compiler exactly what we mean.
+
+
+
+@heading
+BITMAP objects
+
+Allegro represents both a screen bitmap and a memory bitmap by a single
+object; a BITMAP. Unfortunately, these two things can be very different.
+For instance, reading a pixel from a bitmap would not seem to change it,
+but if it is a screen bitmap we are reading from, then it is possible
+that some parameter of the video card is changed to select the correct
+line, etc.
+
+Therefore, a const BITMAP parameter does not make sense, and is not used
+throughout the library. This is unfortunate, but I cannot see any way
+around it.
+
 
 
 @heading
@@ -110,7 +127,8 @@ Finally...
 I have only tested this myself on DJGPP 2.95.2, so if you have
 experiences of it not working (I have tried to get Linux and BeOS ports
 right, but I've no guarantee it worked...) email me the *exact* error
-message and I will fix it.
+message and I will fix it. You can also contact the Allegro conductors
+list; see `How to get help' in the Allegro documentation.
 
 Email: lwithers@lwithers.demon.co.uk
 
