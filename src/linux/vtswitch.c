@@ -76,8 +76,7 @@ static void go_away(void)
 		if (timer_driver) timer_driver->exit();
 
 	/* Disable input devices while we're away */
-	__al_linux_disable_standard_driver(STD_MOUSE);
-	__al_linux_disable_standard_driver(STD_KBD);
+	__al_linux_suspend_standard_drivers();
 
 	_save_switch_state(switch_mode);
 
@@ -114,8 +113,7 @@ static void come_back(void)
 	ioctl(__al_linux_console_fd, VT_RELDISP, VT_ACKACQ);
 	console_active = 1;
 
-	__al_linux_enable_standard_driver(STD_KBD);
-	__al_linux_enable_standard_driver(STD_MOUSE);
+	__al_linux_resume_standard_drivers();
 
 	_unix_bg_man->enable_interrupts();
 

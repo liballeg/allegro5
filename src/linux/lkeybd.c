@@ -62,8 +62,7 @@ static STD_DRIVER std_keyboard =
    update_keyboard,
    resume_keyboard,
    suspend_keyboard,
-   -1,  /* fd -- filled in later */
-   { 0 }
+   -1   /* fd -- filled in later */
 };
 
 

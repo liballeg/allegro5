@@ -59,51 +59,37 @@ int __al_linux_unmap_memory (struct MAPPED_MEMORY *info);
 /************ Standard drivers ************/ /* (src/linux/lstddrv.c) */
 /******************************************/
 
-#define PRIVATE_SIZE   1
+/* This "standard drivers" business is mostly a historical artifact.
+ * It was highly over-engineered, now simplified.  It has been mostly
+ * superseded by the newer, shinier, better bg_man.  But hey, at least
+ * it didn't suffer the fate of its cousin lasyncio.c, now dead,
+ * buried, and without a tombstone to show for it. --pw
+ */
 
 typedef struct STD_DRIVER {
-   unsigned    type; /* One of the above STD_ constants */
+   unsigned    type; /* One of the below STD_ constants */
 
    int (*update) (void);
    void (*resume) (void);
    void (*suspend) (void);
 
    int         fd;   /* Descriptor of the opened device */
-
-#ifndef __cplusplus
-   unsigned    private[PRIVATE_SIZE];
-#else
-   unsigned    priv[PRIVATE_SIZE];
-#endif
 } STD_DRIVER;
 
-#define STD_RTC              0
-#define STD_MOUSE            1
-#define STD_KBD              2
+#define STD_MOUSE            0
+#define STD_KBD              1
 
-#define N_STD_DRIVERS        3
+#define N_STD_DRIVERS        2
 
 /* List of standard drivers */
 extern STD_DRIVER *__al_linux_std_drivers[];
 
-/* Indices of the fields in the STD_DRIVER.private array */
-#define PRIV_ENABLED       0
-
 /* Exported functions */
 int  __al_linux_add_standard_driver (STD_DRIVER *spec);
 int  __al_linux_remove_standard_driver (STD_DRIVER *spec);
-int  __al_linux_update_standard_driver (int type);
-void __al_linux_update_standard_drivers (void);
-void __al_linux_async_set_drivers (int which, int on_off);
-void __al_linux_disable_standard_driver (int type);
-void __al_linux_enable_standard_driver (int type);
-
-
-/******************************************/
-/************ Asynchronous I/O ************/ /* (src/linux/lasyncio.c) */
-/******************************************/
-
-extern unsigned __al_linux_async_io_mode;
+void __al_linux_update_standard_drivers (int threaded);
+void __al_linux_suspend_standard_drivers (void);
+void __al_linux_resume_standard_drivers (void);
 
 
 /******************************************/

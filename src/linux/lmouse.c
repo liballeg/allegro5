@@ -163,8 +163,7 @@ static STD_DRIVER std_mouse = {
    update_mouse,
    resume_mouse,
    suspend_mouse,
-   -1,  /* fd -- filled in later */
-   { 0 }
+   -1   /* fd -- filled in later */
 };
 
 

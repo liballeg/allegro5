@@ -129,42 +129,27 @@ static RETSIGTYPE signal_handler (int num)
 }
 
 
-/* linux_bg_handler:
- *  Used for handling asynchronous event processing.
- */
-static void linux_bg_handler (int threaded)
-{
-	__al_linux_update_standard_drivers();
-}
-
-
-/* __al_linux_async_init:
+/* __al_linux_bgman_init:
  *  Starts asynchronous processing.
  */
-static int __al_linux_async_init (void)
+static int __al_linux_bgman_init (void)
 {
 #ifdef HAVE_LIBPTHREAD
 	_unix_bg_man = &_bg_man_pthreads;
 #else
 	_unix_bg_man = &_bg_man_sigalrm;
 #endif
-	if (_unix_bg_man->init() || _unix_bg_man->register_func (linux_bg_handler))
+	if (_unix_bg_man->init() || _unix_bg_man->register_func (__al_linux_update_standard_drivers))
 		return -1;
-#ifndef HAVE_LIBPTHREAD
-	al_linux_set_async_mode (ASYNC_DEFAULT);
-#endif
 	return 0;
 }
 
 
-/* __al_linux_async_exit:
+/* __al_linux_bgman_exit:
  *  Stops asynchronous processing.
  */
-static void __al_linux_async_exit (void)
+static void __al_linux_bgman_exit (void)
 {
-#ifndef HAVE_LIBPTHREAD
-	al_linux_set_async_mode (ASYNC_OFF);
-#endif
 	_unix_bg_man->exit();
 }
 
@@ -220,7 +205,7 @@ static int sys_linux_init (void)
 #endif
 
 	/* Initialise async event processing */
-    	if (__al_linux_async_init()) {
+    	if (__al_linux_bgman_init()) {
 		/* shutdown everything.  */
 		sys_linux_exit();
 		return -1;
@@ -244,7 +229,7 @@ static void sys_linux_exit (void)
 	__al_linux_done_vtswitch();
 
 	/* shut down asynchronous event processing */
-	__al_linux_async_exit();
+	__al_linux_bgman_exit();
 
 	/* remove emergency exit signal handlers */
 	signal(SIGABRT, old_sig_abrt);
