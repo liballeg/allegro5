@@ -1686,7 +1686,7 @@ void _module_init_modex(int system_driver)
 #endif
 
 
-#else      /* ifdef GFX_MODEX */
+#else      /* ifdef GFX_HAS_VGA */
 
 void split_modex_screen(int line)
 {
