@@ -382,7 +382,7 @@ install-programs: programs
 	  fi; \
 	done
 
-install-info:
+install-info: docs
 	@echo Installing Allegro info documentation...
 	$(mkinstalldirs) $(infodir)
 	@$(INSTALL_DATA) docs/allegro.info $(infodir)
@@ -400,14 +400,14 @@ install-gzipped-info: install-info
 	@echo Compressing documentation...
 	@gzip -9 -f $(infodir)/allegro.info
 
-install-man:
+install-man: docs
 	$(mkinstalldirs) $(mandir)/man3
 	@for file in $(srcdir)/docs/*.3; do \
 	  echo Installing $$file to $(mandir)/man3; \
 	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
 	done
 
-install-gzipped-man:
+install-gzipped-man: docs
 	$(mkinstalldirs) $(mandir)/man3
 	@for file in $(srcdir)/docs/*.3; do \
 	  echo Installing $$file.gz to $(mandir)/man3; \
