@@ -426,8 +426,6 @@ BITMAP *gfx_directx_create_video_bitmap(int width, int height)
 {
    DDRAW_SURFACE *surf;
    BITMAP *bmp;
-   HRESULT hr;
-   int type;
 
    /* try to detect page flipping and triple buffering patterns */
    if ((width == forefront_bitmap->w) && (height == forefront_bitmap->h)) {

@@ -603,7 +603,7 @@ static void parse_extension_string(AL_CONST char *ext)
 {
    attrb_state_t state;
    char ext_tokens[32], attrb_char[32];
-   char *tok, *last, *p, *attrb_p;
+   char *last, *p, *attrb_p;
    int c, c2, i;
 
    fext = ustrdup(ext);

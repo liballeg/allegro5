@@ -231,7 +231,7 @@ static int digi_waveout_init(int input, int voices)
 {
    MMRESULT mmr;
    WAVEFORMATEX format;
-   int v, id;
+   int id;
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));

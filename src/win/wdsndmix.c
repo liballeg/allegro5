@@ -180,7 +180,7 @@ static void digi_dsoundmix_mixer_callback(void)
    LPVOID lpvPtr1, lpvPtr2;
    DWORD dwBytes1, dwBytes2, writecurs;
    HRESULT hr;
-   int i, switch_mode;
+   int switch_mode;
 
    /* handle display switchs */
    switch_mode = get_display_switch_mode();

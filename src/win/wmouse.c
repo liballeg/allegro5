@@ -621,7 +621,6 @@ static int mouse_dinput_init(void)
  */
 static int mouse_directx_init(void)
 {
-   int factor, t1, t2;
    char tmp1[64], tmp2[128];
 
    /* get user acceleration factor */

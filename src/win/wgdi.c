@@ -105,7 +105,6 @@ static WIN_GFX_DRIVER win_gfx_driver_gdi =
 static char *screen_surf;
 static BITMAP *gdi_screen;
 static int lock_nesting = 0;
-static UINT render_timer = 0;
 static int render_semaphore = FALSE;
 static PALETTE palette;
 static HANDLE vsync_event;
@@ -557,7 +556,7 @@ static void gfx_gdi_exit(struct BITMAP *bmp)
  */
 static void gfx_gdi_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
-   int c, line;
+   int c;
 
    for (c=from; c<=to; c++)
       palette[c] = p[c];
