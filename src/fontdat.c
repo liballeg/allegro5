@@ -21,45 +21,76 @@
 #include "allegro.h"
 
 /* load_dat_font:
- *  Loads a font from the datafile named filename. The palette is set to the
- *  last palette encountered before the font. param points to an integer that
- *  specifies what font to load, if there is more than one in the datafile.
- *  Either of these may be NULL, in which case the palette is ignored and a
- *  value of 0 is used for the font index
+ *  Loads a font from the datafile named filename. param can optionally be set
+ *  to a list of two strings, which you can use to load a specific font and
+ *  palette from a datafile by name. If pal is NULL, or the second string
+ *  argument is NULL, no palette information is returned.
+ *  If param is NULL, the first font found in the datafile will be returned
+ *  and the last palette found prior to the font will be returned.
  */
 FONT *load_dat_font(AL_CONST char *filename, RGB *pal, void *param)
 {
    FONT *fnt;
    DATAFILE *df;
    RGB *p = NULL;
-   int font_index, c, n;
+   char **names;
+   int c, n, want_palette;
    ASSERT(filename);
    
+   /* Load font and palette by name? */
+   names = param;
+   
    fnt = NULL;
-   font_index = param?*(int *)param:0;
-   df = load_datafile(filename);
-   if (!df) {
-      return NULL;
+   p = NULL;
+
+   /* Load font by name? */
+   if (names && names[0]) {
+      df = load_datafile_object(filename, names[0]);
+      if (!df) {
+         return NULL;
+      }
+      fnt = df->dat;
+      df->dat = NULL;
+      unload_datafile_object(df);
    }
-   n = 0;
-   for (c=0; df[c].type!=DAT_END; c++) {
-      if (df[c].type==DAT_PALETTE)
-         p = df[c].dat;
-      if (df[c].type==DAT_FONT) {
-         if (font_index==n) {
+   
+   /* Load palette by name? */
+   want_palette = TRUE;
+   if (names && names[1]) {
+      df = load_datafile_object(filename, names[1]);
+      if (df) {
+         memcpy(pal, df->dat, sizeof(PALETTE));
+      }
+      unload_datafile_object(df);
+      want_palette = FALSE;
+   }
+   
+   if (!fnt || want_palette) {
+      df = load_datafile(filename);
+   
+      if (!df) {
+         return NULL;
+      }
+   
+      for (c=0; df[c].type!=DAT_END; c++) {
+         /* Only pick the last palette if no palette was named */
+         if (df[c].type==DAT_PALETTE && want_palette)
+            p = df[c].dat;
+         /* Only pick a font if no font was named */
+         if (df[c].type==DAT_FONT && !fnt) {
             fnt = df[c].dat;
             df[c].dat = NULL;
             break;
          }
-         else {
-            n++;
-         }
       }
-   }
-   if (p && pal && fnt) {
-      memcpy(pal, p, sizeof(PALETTE));
+   
+   
+      if (p && pal && want_palette && fnt) {
+         memcpy(pal, p, sizeof(PALETTE));
+      }
+   
+      unload_datafile(df);
    }
    
-   unload_datafile(df);
    return fnt;
 }
