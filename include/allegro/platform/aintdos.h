@@ -174,7 +174,7 @@ AL_FUNC(void, _dma_lock_mem, (void));
 
 
 /* VGA register access helpers */
-#include "aintvga.h"
+#include "allegro/internal/aintvga.h"
 
 
 

@@ -26,7 +26,7 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
-#include "allegro/platform/aintvga.h"
+#include "allegro/internal/aintvga.h"
 #include "linalleg.h"
 
 #ifdef HAVE_MMAP

@@ -188,7 +188,7 @@ allegro_h = $(srcdir)/include/allegro.h \
 	$(ALLEGRO_EXTRA_HEADER)
 allegro_aintern_h = $(srcdir)/include/allegro/internal/aintern.h
 allegro_aintdos_h = $(srcdir)/include/allegro/platform/aintdos.h \
-	$(srcdir)/include/allegro/platform/aintvga.h
+	$(srcdir)/include/allegro/internal/aintvga.h
 obj_unix_asmdef_inc = $(OBJDIR)/asmdef.inc
 
 $(obj_unix_asmdef_inc): src/i386/asmdef$(EXE)
