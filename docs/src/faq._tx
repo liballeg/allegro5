@@ -253,7 +253,7 @@ Windows problems
 
       Make sure that you don't have a semi-colon appended to your MSVCDIR 
       variable if you are using MSVC, to your MINGDIR variable if you are 
-      using Mingw32 or to your BCC32DIR variable if you are using BCC.
+      using MinGW or to your BCC32DIR variable if you are using BCC.
       Also run <tt>make -v</tt> from the command line and make sure you are using
       GNU make and not Borland make or Microsoft make.
 
@@ -305,7 +305,7 @@ Windows problems
       "Windows specifics" section of the documentation.
       <p>
       If your program only includes header files of the C++ standard library,
-      you're very likely trying to compile it with gcc 3.x for Mingw32; if so,
+      you're very likely trying to compile it with gcc 3.x for MinGW; if so,
       define the symbol <tt>__GTHREAD_HIDE_WIN32API</tt> on the compiler command line:
       <pre>
          g++ -D__GTHREAD_HIDE_WIN32API program.cpp -lalleg

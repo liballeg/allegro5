@@ -1,6 +1,6 @@
 @html_text_substitution=readme.txt|<a href="../readme.html">readme.txt</a>
 @external-css=../allegro.css
-@document_title=Notes on building the MingW32/Cygwin version of Allegro.
+@document_title=Notes on building the MinGW/Cygwin version of Allegro.
 @<pre>
      ______   ___    ___
     /\  _  \ /\_ \  /\_ \
@@ -13,7 +13,7 @@
 				       \_/__/
 
 
-   Notes on building the MingW32/Cygwin version of Allegro.
+   Notes on building the MinGW/Cygwin version of Allegro.
 
    Written by Henrik Stokseth.
 
@@ -32,9 +32,9 @@
 
 
 @heading
-MingW32 notes
+MinGW notes
 
-   This is a complete MingW32 port of Allegro. This build doesn't rely
+   This is a complete MinGW port of Allegro. This build doesn't rely
    on the DLL files produced by MSVC any longer but can make them itself.
    I'm proud to say Allegro can now make Win32 programs entirely using
    free professional tools. On that note I'd like to thank Peter Puck for
@@ -52,7 +52,7 @@ MingW32 notes
 
    "<tt>make depend</tt>" and "<tt>fixdll.bat</tt>" require that you have GNU sed installed.
    "<tt>fixdll.bat</tt>" requires that you have GNU sort (not DOS sort!) installed.
-   You can download some extra utilities for MingW32 from:
+   You can download some extra utilities for MinGW from:
    '<link>http://sourceforge.net/projects/gnuwin32/</a>'
 
 
@@ -60,11 +60,11 @@ MingW32 notes
 @heading
 Obtaining and installing the compiler & tools
 
-   You have four choices when it comes to installing MingW32 and Allegro
+   You have four choices when it comes to installing MinGW and Allegro
    on your computer:
 <ul>
-      <li>The section 'Setting up MingW32 to build Allegro' describes how to set
-      up the MingW32 command line tools which is the preferred choice for
+      <li>The section 'Setting up MinGW to build Allegro' describes how to set
+      up the MinGW command line tools which is the preferred choice for
       those who like to work on the command line.
 
       <li>The section 'Setting up Dev-C++ to build Allegro' describes how to set
@@ -76,7 +76,7 @@ Obtaining and installing the compiler & tools
       Unix-like environment for you to work in.
 
       <li>The last section 'Cross compilation' describes how to set up the
-      MingW32 command line tools to compile Win32 programs from your Linux
+      MinGW command line tools to compile Win32 programs from your Linux
       box.
 </ul>
    Note: You will need a program to decompress .zip, .tar.gz and optionally
@@ -86,16 +86,16 @@ Obtaining and installing the compiler & tools
 
 
 @heading
-Setting up MingW32 to build Allegro
+Setting up MinGW to build Allegro
 
    The procedure is as follows:
 <blockquote>
-   1. Make sure you have a working MingW32 installation. You can download the
+   1. Make sure you have a working MinGW installation. You can download the
       complete distribution or individual packages from '<link>http://www.mingw.org</a>'
       or '<link>http://sourceforge.net/projects/mingw/</a>'. You can also use
       the Minimal SYStem (MSYS) environment with Allegro.
 
-   2. Get the minimal DirectX 7 SDK for MingW32 (<tt>dx70_mgw.zip</tt>). You
+   2. Get the minimal DirectX 7 SDK for MinGW (<tt>dx70_mgw.zip</tt>). You
       download it hrom '<link>http://alleg.sourceforge.net/wip.html</a>'. Note
       that this is *not* the same package as '<tt>dx70_min.zip</tt>'. Unzip it
       to the compiler directory, overwriting any existing files.
@@ -136,8 +136,8 @@ Setting up MingW32 to build Allegro
 Setting up Dev-C++ to build Allegro
 
    Note: we assume that the complete version of the Dev-C++ environment (i.e
-   with the bundled MingW32 compiler) is used. If you use instead Dev-C++ as
-   a mere IDE on top of an already installed MingW32 compiler, follow the
+   with the bundled MinGW compiler) is used. If you use instead Dev-C++ as
+   a mere IDE on top of an already installed MinGW compiler, follow the
    instructions given in the previous section.
 
    The procedure is as follows:
@@ -189,7 +189,7 @@ Setting up Cygwin to build Allegro
       fileutils, gcc, gdb, login, make, man, mingw-runtime, sed, sh-utils,
       texinfo, textutils and w32api.
 
-   2. Get the minimal DirectX 7 SDK for MingW32. (<tt>dx70_mgw.zip</tt>) Download it
+   2. Get the minimal DirectX 7 SDK for MinGW. (<tt>dx70_mgw.zip</tt>) Download it
       from '<link>http://alleg.sourceforge.net/wip.html</a>' and unzip it to a
       temporary directory, for instance '<tt>C:\Temp</tt>'. Then move the contents of
       '<tt>C:\Temp\lib</tt>' to '<tt>C:\cygwin\lib\w32api</tt>', and the contents of
@@ -216,7 +216,7 @@ Setting up Cygwin to build Allegro
 <endblock>
    Note: if you have problems installing the profiling version of the Allegro
    library, you will probably need to copy a file called <tt>libgmon.a</tt> from the
-   MingW32 distribution to your <tt>/lib/mingw</tt> directory (<tt>c:\cygwin\lib\mingw</tt>) in
+   MinGW distribution to your <tt>/lib/mingw</tt> directory (<tt>c:\cygwin\lib\mingw</tt>) in
    Cygwin. This is expected to be fixed in a later release of the
    mingw-runtime package (I'm currently using mingw-runtime-1.2-1).
 
@@ -227,7 +227,7 @@ Cross compilation
 
    The procedure is as follows:
 <blockquote>
-   1. Download and install the MingW32 cross-compiler. You can get the
+   1. Download and install the MinGW cross-compiler. You can get the
       software:
       
       <ul><li>directly from the MingW site: <link>http://sourceforge.net/projects/mingw/</a>.
@@ -251,7 +251,7 @@ Cross compilation
       <li>as a premade Debian package called '<tt>mingw32</tt>', which you can install
       with '<tt>apt-get install mingw32</tt>'.
       </ul>
-   2. Get the minimal DirectX 7 SDK for MingW32 (<tt>dx70_mgw.zip</tt>).
+   2. Get the minimal DirectX 7 SDK for MinGW (<tt>dx70_mgw.zip</tt>).
       Download it from '<link>http://alleg.sourceforge.net/wip.html</a>' and unzip it
       in the cross-compiler base directory. Make sure you convert all text
       files to unix style (<tt>unzip -a</tt>) or the preprocessor will croak. The
@@ -303,7 +303,7 @@ Installing Allegro
    you have unzipped it to <tt>c:\cygwin\allegro</tt> (which is equivalent to
    <tt>/allegro</tt> from within the Cygwin environment).
 
-   First configure Allegro for MingW32. Unless you are using MSYS or Cygwin,
+   First configure Allegro for MinGW. Unless you are using MSYS or Cygwin,
    enter the following on the commandline (click on '<tt>Start -&gt Run</tt>' then type
    "<tt>command</tt>" or "<tt>cmd</tt>" to get a command prompt):
 <textblock>
@@ -319,7 +319,7 @@ Installing Allegro
 <endblock>
    Now you're ready to build the Allegro library with:
 <textblock>
-      make (or mingw32-make if you are using a recent version of MingW32)
+      make (or mingw32-make if you are using a recent version of MinGW)
 <endblock>
    The dynamically linked version of Allegro gets built by default. If you
    want to build the statically linked version of Allegro, use:
@@ -371,7 +371,7 @@ Installing Allegro
    unless you have run "<tt>make veryclean</tt>" at some point, or are using the CVS
    version of Allegro), you can regenerate it by running "<tt>misc\fixdll.bat</tt>".
    You will need to have GNU sed and sort installed for this operation to
-   work. The version of sed that is linked from the MingW32 site does not
+   work. The version of sed that is linked from the MinGW site does not
    work properly; it has issues with end-of-line characters. You should get
    sed and sort from the link at the top of this document.
 
@@ -417,10 +417,10 @@ Using Allegro
 
 
 @heading
-Compiling manually with MingW32
+Compiling manually with MinGW
 
    A simple example of a command line to compile an Allegro program with
-   MingW32 looks like:
+   MinGW looks like:
 <textblock>
       gcc foo.c -Wl,--subsystem,windows -O2 -Wall -o foo.exe -lalleg
 <endblock>
