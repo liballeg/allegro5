@@ -427,14 +427,19 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
    /* disconnect from the system driver */
    win_gfx_driver = NULL;
 
-   /* destroy overlay surface */
+   /* destroy the overlay surface */
    if (overlay_surface) {
       hide_overlay();
       gfx_directx_destroy_surface(overlay_surface);
       overlay_surface = NULL;
       forefront_bitmap = NULL;
+   }
+
+   /* destroy the viewport */
+   if (viewport) {
       destroy_bitmap(background);
       free(viewport);
+      viewport = NULL;
    }
 
    gfx_directx_exit(NULL);
