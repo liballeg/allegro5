@@ -331,29 +331,54 @@ available in past/future versions of Allegro.
    math routines" for the full explanation.
    
 @@typedef struct @BITMAP
-@xref set_clip, Direct access to video memory
-The BITMAP structure internally looks like:
+@xref create_bitmap, set_clip, bitmap_color_depth, RLE_SPRITE
+@xref COMPILED_SPRITE, Direct access to video memory
 <codeblock>
    int w, h;               - size of the bitmap in pixels
    int clip;               - non-zero if clipping is turned on
    int cl, cr, ct, cb;     - clip rectangle left, right, top, and bottom
    unsigned char *line[];  - pointers to the start of each line
 <endblock>
-There is some other stuff in the structure as well, but it is liable to 
-change and you shouldn't use anything except the above. The w and h fields
-can be used to obtain the size of an existing bitmap:
+   There is some other stuff in the structure as well, but it is liable to
+   change and you shouldn't use anything except the above. The w and h
+   fields can be used to obtain the size of an existing bitmap:
 <codeblock>
-   bmp = load_bitmap("file.bmp", pal);
-   allegro_message("Bitmap size: (%dx%d)\n", bmp->w, bmp->h);
+      bmp = load_bitmap("file.bmp", pal);
+      allegro_message("Bitmap size: (%dx%d)\n", bmp->w, bmp->h);
 <endblock>
-The clipping rectangle is inclusive on the left and top (0 allows drawing to
-position 0) but exclusive on the right and bottom (10 allows drawing to
-position 9, but not to 10). Note this is not the same format as you pass to
-set_clip(), which takes inclusive coordinates for all four corners. All the
-values of this structure should be regarded as read-only, with the exception
-of the line field, whose access is described in depth in the "Direct access
-to video memory" section of the manual. If you want to modify the clipping
-region, please refrain from changing this structure, use set_clip() instead.
+   The clipping rectangle is inclusive on the left and top (0 allows drawing
+   to position 0) but exclusive on the right and bottom (10 allows drawing
+   to position 9, but not to 10). Note this is not the same format as you
+   pass to set_clip(), which takes inclusive coordinates for all four
+   corners. All the values of this structure should be regarded as read-only,
+   with the exception of the line field, whose access is described in depth
+   in the "Direct access to video memory" section of the manual. If you want
+   to modify the clipping region, please refrain from changing this
+   structure, use set_clip() instead.
+
+@@typedef struct @RLE_SPRITE
+@xref get_rle_sprite, BITMAP, COMPILED_SPRITE, RLE sprites
+<codeblock>
+   int w, h;           - width and height in pixels
+   int color_depth;    - color depth of the image
+<endblock>
+   RLE sprites store the image in a simple run-length encoded format, where
+   repeated zero pixels are replaced by a single length count, and strings of
+   non-zero pixels are preceded by a counter giving the length of the solid
+   run. Read chapter "RLE sprites" for a description of the restrictions and
+   how to obtain/use this structure.
+   
+@@typedef struct @COMPILED_SPRITE
+@xref get_compiled_sprite, BITMAP, RLE_SPRITE, Compiled sprites
+<codeblock>
+   short planar;        - set if it's a planar (mode-X) sprite
+   short color_depth;   - color depth of the image
+   short w, h;          - size of the sprite
+<endblock>
+   Compiled sprites are stored as actual machine code instructions that draw
+   a specific image onto a bitmap, using mov instructions with immediate data
+   values. Read chapter "Compiled sprites" for a description of the
+   restrictions and how to obtain/use this structure.
 
 @@typedef struct @JOYSTICK_INFO
 @xref joy, Joystick routines
@@ -478,7 +503,7 @@ region, please refrain from changing this structure, use set_clip() instead.
    obtain/use this structure.
 
 @@typedef struct @DATAFILE
-@xref Using datafiles
+@xref load_datafile, Using datafiles
 <codeblock>
    void *dat;     - pointer to the actual data
    int type;      - type of the data
@@ -515,7 +540,7 @@ region, please refrain from changing this structure, use set_clip() instead.
    obtain/use this structure.
 
 @@typedef struct @DIALOG
-@xref GUI routines
+@xref do_dialog, GUI routines
 <codeblock>
    int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
    int x, y, w, h;                  - position and size of the object
@@ -561,7 +586,7 @@ region, please refrain from changing this structure, use set_clip() instead.
    the future.
 
 @@typedef struct @SAMPLE
-@xref Digital sample routines
+@xref load_sample, Digital sample routines
 <codeblock>
    int bits;                   - 8 or 16
    int stereo;                 - sample type flag
@@ -575,17 +600,17 @@ region, please refrain from changing this structure, use set_clip() instead.
    routines.
 
 @@typedef struct @MIDI
-@xref Music routines (MIDI)
+@xref load_midi, Music routines (MIDI)
    A structure holding MIDI data. Read chapter "Music routines (MIDI)" for a
    description on how to obtain/use this structure.
 
 @@typedef struct @AUDIOSTREAM
-@xref Audio stream routines
+@xref play_audio_stream, Audio stream routines
    A structure holding an audiostream. Read chapter "Audio stream routines"
    for a description on how to obtain/use this structure.
 
 @@typedef struct @PACKFILE
-@xref Packfile functions, pack_fopen
+@xref pack_fopen, Packfile functions
 <codeblock>
    int hndl;                   - DOS file handle
    int flags;                  - PACKFILE_FLAG_* constants
@@ -4027,7 +4052,9 @@ is quite complicated, and it contains a lot of data. In many situations,
 though, you will find yourself storing images that are only ever copied to 
 the screen, rather than being drawn onto or used as filling patterns, etc. 
 If this is the case you may be better off storing your images in RLE_SPRITE 
-or COMPILED_SPRITE structures rather than regular bitmaps.
+(read chapter "Structures and types defined by Allegro" for an internal
+description of the RLE_SPRITE structure) or COMPILED_SPRITE (see next
+chapter) structures rather than regular bitmaps.
 
 RLE sprites store the image in a simple run-length encoded format, where 
 repeated zero pixels are replaced by a single length count, and strings of 
@@ -4091,15 +4118,18 @@ Compiled sprites
 
 Compiled sprites are stored as actual machine code instructions that draw a 
 specific image onto a bitmap, using mov instructions with immediate data 
-values. This is the fastest way to draw a masked image: on my machine 
-drawing compiled sprites is about five times as fast as using draw_sprite() 
-with a regular bitmap. Compiled sprites are big, so if memory is tight you 
-should use RLE sprites instead, and what you can do with them is even more 
-restricted than with RLE sprites, because they don't support clipping. If 
-you try to draw one off the edge of a bitmap, you will corrupt memory and 
-probably crash the system. You can convert bitmaps into compiled sprites at 
-runtime, or you can create compiled sprite structures in grabber datafiles 
-by making a new object of type 'Compiled sprite' or 'Compiled x-sprite'.
+values. This is the fastest way to draw a masked image: on slow machines,
+up to and including a 486, drawing compiled sprites can be about to five
+times as fast as using draw_sprite() with a regular bitmap. On newer
+machines the difference is usually negligible.
+
+Compiled sprites are big, so if memory is tight you should use RLE sprites
+instead, and what you can do with them is even more restricted than with RLE
+sprites, because they don't support clipping. If you try to draw one off the
+edge of a bitmap, you will corrupt memory and probably crash the system. You
+can convert bitmaps into compiled sprites at runtime, or you can create
+compiled sprite structures in grabber datafiles by making a new object of
+type 'Compiled sprite' or 'Compiled x-sprite'.
 
 @@COMPILED_SPRITE *@get_compiled_sprite(BITMAP *bitmap, int planar);
 @xref draw_compiled_sprite, destroy_compiled_sprite
@@ -6256,7 +6286,6 @@ directories, but not hidden files and directories. Similarly, if you pass
    binary block rather than as a BITMAP object.
 
 @hnode Packfile functions
-@xref pack_fopen
 @@int  @pack_fclose(PACKFILE *f);
 @@int  @pack_fseek(PACKFILE *f, int offset);
 @@int  @pack_feof(PACKFILE *f);
@@ -6275,6 +6304,7 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@long @pack_fwrite(const void *p, long n, PACKFILE *f);
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
 @@int  @pack_fputs(const char *p, PACKFILE *f);
+@xref pack_fopen
 @!rtf
 
 @rtf
