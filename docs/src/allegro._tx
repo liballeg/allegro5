@@ -6537,27 +6537,26 @@ directories, but not hidden files and directories. Similarly, if you pass
    binary block rather than as a BITMAP object.
 
 @@int @pack_fclose(PACKFILE *f);
-@xref pack_fopen_chunk, packfile_password
-   Closes a PACKFILE stream previously opened with pack_fopen_chunk. After
-   you have closed the stream, performing operations on it will yield errors
-   in your application making it crash or even block your OS.
+@xref pack_fopen, packfile_password
+   Closes the stream f previously opened with pack_fopen_chunk. After you
+   have closed the stream, performing operations on it will yield errors in
+   your application (e.g. crash it) or even block your OS.
 @retval
-   Returns zero on success. On error it returns an error code which is
-   also stored in errno. This function can fail only when writting to files:
-   if the file was opened in read mode it will always succeed.
+   Returns zero on success. On error, returns an error code which is also
+   stored in errno. This function can fail only when writing to files: if the
+   file was opened in read mode, it will always succeed.
    
 @@int @pack_fseek(PACKFILE *f, int offset);
 @xref pack_fopen, pack_fopen_chunk
-   With fseek you can move the file position of the PACKFILE stream. Unlike
-   the `fseek' function, seeking only supports forward movement relative to
-   the current position and in read only streams, so don't use negative
-   offsets.
+   Moves the position indicator of the stream f. Unlike the standard `fseek'
+   function, this only supports forward movements relative to the current
+   position and in read-only streams, so don't use negative offsets.
    
    Note that seeking is very slow when reading compressed files, and so
    should be avoided unless you are sure that the file is not compressed.
 @retval
-   Returns zero on success, otherwise negative, storing the underlaying OS
-   error code in allegro_errno (if there was any).
+   Returns zero on success or a negative number on error, storing the error
+   code in errno.
 
 @@int @pack_feof(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_ferror
@@ -6570,104 +6569,105 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@int @pack_ferror(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
-   Since EOF is used to report both end of file and random errors, it's often
-   better to use the pack_feof function to check explicitly for end of file
-   and pack_ferror to check for errors. Both functions check indicators that
-   are part of the internal state of the PACKFILE stream to detect correctly
-   the different situations.
+   Since EOF is used to report errors by some functions, it's often better to
+   use the pack_feof function to check explicitly for end of file and
+   pack_ferror to check for errors. Both functions check indicators that are
+   part of the internal state of the PACKFILE stream to detect correctly the
+   different situations.
 @retval
    Returns nonzero if the error indicator for the PACKFILE stream is set,
-   indicating that an error has occurred on a previous operation of the
+   indicating that an error has occurred during a previous operation on the
    stream.
    
 @@int @pack_getc(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
-   Reads and returns the next character from the stream, or EOF if the end of
-   the file was reached.
+   Returns the next character from the stream, or EOF if the end of the file
+   was reached.
 
 @@int @pack_putc(int c, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk
    Puts a character in the stream.
 @retval
-   Returns EOF if there were any problems, zero otherwise.
+   Returns zero on success, or EOF on error.
    
 @@int @pack_igetw(PACKFILE *f);
 @xref pack_getc
-   Like pack_getc, but reads a 16 bit word from a file, using Intel byte
-   ordering (least significat byte first, little-endian).
+   Like pack_getc, but reads a 16-bit word from a file, using Intel byte
+   ordering (least significant byte first, a.k.a. little-endian).
 
 @@int @pack_iputw(int c, PACKFILE *f);
 @xref pack_putc
-   Like pack_putc, but writes a 16 bit word to a file, using Intel byte
-   ordering (least significant byte first, little-endian).
+   Like pack_putc, but writes a 16-bit word to a file, using Intel byte
+   ordering (least significant byte first, a.k.a. little-endian).
    
 @@long @pack_igetl(PACKFILE *f);
 @xref pack_getc
    Like pack_getc, but reads a 32 bit long from a file, using Intel byte
-   ordering (least significat byte first, little-endian).
+   ordering (least significant byte first, a.k.a. little-endian).
 
 @@long @pack_iputl(long c, PACKFILE *f);
 @xref pack_putc
    Like pack_putc, but writes a 32 bit long to a file, using Intel byte
-   ordering (least significant byte first, little-endian).
+   ordering (least significant byte first, a.k.a. little-endian).
    
 @@int @pack_mgetw(PACKFILE *f);
 @xref pack_getc
-   Like pack_getc, but reads a 16 bit word from a file, using Motorola byte
-   ordering (most significant byte first, big-endian).
+   Like pack_getc, but reads a 16-bit word from a file, using Motorola byte
+   ordering (most significant byte first, a.k.a. big-endian).
 
 @@int @pack_mputw(int c, PACKFILE *f);
 @xref pack_putc
-   Like pack_putc, but writes a 16 bit word to a file, using Motorola byte
-   ordering (most significant byte first, big-endian).
+   Like pack_putc, but writes a 16-bit word to a file, using Motorola byte
+   ordering (most significant byte first, a.k.a. big-endian).
    
 @@long @pack_mgetl(PACKFILE *f);
 @xref pack_getc
    Like pack_getc, but reads a 32 bit long from a file, using Motorola byte
-   ordering (most significant byte first, big-endian).
+   ordering (most significant byte first, a.k.a. big-endian).
 
 @@long @pack_mputl(long c, PACKFILE *f);
 @xref pack_putc
    Like pack_putc, but writes a 32 bit long to a file, using Motorola byte
-   ordering (most significant byte first, big-endian).
+   ordering (most significant byte first, a.k.a. big-endian).
    
 @@long @pack_fread(void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
-   Reads n bytes from the PACKFILE stream f, storing them at the memory
-   location p.
+   Reads n bytes from the stream f, storing them at the memory location
+   pointed by p.
 @retval
-   Returns the number of items read, which will be less than n if EOF is
+   Returns the number of bytes read, which will be less than n if EOF is
    reached of an error occurs. Error codes are stored in errno.
 
 @@long @pack_fwrite(const void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
-   Writes n bytes to the PACKFILE stream f from memory location p.
+   Writes n bytes to the stream f from memory location pointed by p.
 @retval
-   Returns the number of items written, which will be less than n if an
+   Returns the number of bytes written, which will be less than n if an
    error occurs. Error codes are stored in errno.
 
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
-   Reads a line from a PACKFILE stream, storing it at location p. Stops when
-   a linefeed is encountered, or max bytes have been read. The end of line
-   is handled by detecting optional '\r' characters optionally followed
-   by '\n' characters. This supports CR-LF (DOS/Windows), LF (Unix), and
-   CR (Mac) formats.
+   Reads a line from the stream f, storing it at location pointed by p. Stops
+   when a linefeed is encountered, or 'max' bytes have been read. The end of
+   line is handled by detecting the right combination of characters for the
+   platform. This supports CR-LF (DOS/Windows), LF (Unix), and CR (Mac)
+   formats.
 
    Note, however, that the trailing carriage return is not included in the
-   retured string, in order to provide easy code portability across platforms.
-   If you require this behaviour, use pack_fread() and/or pack_getc() instead.
+   returned string, in order to provide easy code portability across
+   platforms. If you need the carriage return, use pack_fread() and/or
+   pack_getc() instead.
 @retval
-   Returns a pointer to where it stored the text, or NULL on error.
+   Returns the pointer p on success, or NULL on error.
 
 @@int @pack_fputs(const char *p, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fwrite, pack_putc
-   Writes a string to a PACKFILE stream file. The input string is converted
+   Writes a string to the stream file file. The input string is converted
    from the current text encoding format to UTF-8 before writing. Newline
    characters (\n) are written as \r\n on DOS and Windows platforms. If you
    don't want this behaviour, use pack_fwrite() and/or pack_putc() instead.
 @retval
-   Returns zero on success, negative on error.
+   Returns zero on success or a negative number on error.
 
 @@PACKFILE *@pack_fopen_chunk(PACKFILE *f, int pack);
 @xref pack_fclose_chunk, pack_fopen
@@ -6683,11 +6683,11 @@ directories, but not hidden files and directories. Similarly, if you pass
       write some data to f
       f = pack_fclose_chunk(f);
 <endblock>
-   The data written to the chunk will be prefixed with two length counts (32 
-   bit, big-endian). For uncompressed chunks these will both be set to the 
-   size of the data in the chunk. For compressed chunks (created by setting 
-   the pack flag), the first length will be the raw size of the chunk, and 
-   the second will be the negative size of the uncompressed data.
+   The data written to the chunk will be prefixed with two length counts
+   (32-bit, a.k.a. big-endian). For uncompressed chunks these will both be
+   set to the size of the data in the chunk. For compressed chunks (created
+   by setting the pack flag), the first length will be the raw size of the
+   chunk, and the second will be the negative size of the uncompressed data.
 
    To read the chunk, use the code:
 <codeblock>
