@@ -770,10 +770,7 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	       hfprintf(f, "<li><a href=\"%s\">%s</a>\n", name, ALT_TEXT(toc));
 	    }
 	    else if (body) {
-	       if (toc_size(section_number) == 0)
-		  hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
-	       else
-		  hfprintf(f, "<li><a href=\"#%s_toc\">%s</a>\n", toc->text, ALT_TEXT(toc));
+	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
 	       section_number++;
 	    }
 	    else {
@@ -818,15 +815,7 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 		  }
 	       }
 
-	       /* Looks like nobody uses the %s_toc feature, which produces
-		* bad html code anyway */
-	       /*if (!nested)
-		  hfprintf(f, "<a name=\"%s_toc\">", toc->text); */
-
 	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
-
-  	       /*if (!nested)
-		  fprintf(f, "</a>");*/
 	    }
 
 	    toc = toc->next;
