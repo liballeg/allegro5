@@ -3299,7 +3299,7 @@ incorrect data.
 	 }
       }<endblock>
 @retval
-   Returns zero on success, non zero if the calibration could not be
+   Returns zero on success, non-zero if the calibration could not be
    performed successfully.
    
 @@int @save_joystick_data(const char *filename);
@@ -3311,7 +3311,7 @@ incorrect data.
    load_joystick_data(). Pass a NULL filename to write the data to the 
    currently selected configuration file.
 @retval
-   Returns zero on success, non zero if the data could not be saved.
+   Returns zero on success, non-zero if the data could not be saved.
 
 @@int @load_joystick_data(const char *filename);
 @xref install_joystick, save_joystick_data, set_config_file
@@ -3848,7 +3848,7 @@ GFX_SAFE:<br>
    scrolling the screen, so you don't need to call vsync() before it. This 
    means that scroll_screen() has the same time delay effects as vsync().
 @retval
-   Returns zero on success. Returns non zero if the graphics driver can't
+   Returns zero on success. Returns non-zero if the graphics driver can't
    handle hardware scrolling or the virtual screen is not large enough.
 
 @@int @request_scroll(int x, int y);
@@ -3868,7 +3868,7 @@ GFX_SAFE:<br>
    cards. You can look at the GFX_CAN_TRIPLE_BUFFER bit in the
    gfx_capabilities flag to see if it will work with the current driver.
 @retval
-   This function returns zero on success, non zero otherwise.
+   This function returns zero on success, non-zero otherwise.
 
 @@int @poll_scroll();
 @xref request_scroll, request_video_bitmap
@@ -3876,7 +3876,7 @@ GFX_SAFE:<br>
    This function is used for triple buffering. It checks the status of a 
    hardware scroll previously initiated by the request_scroll() routine.
 @retval
-   Returns non zero if it is still waiting to take place, and zero if the
+   Returns non-zero if it is still waiting to take place, and zero if the
    requested scroll has already happened.
 
 @@int @show_video_bitmap(BITMAP *bitmap);
@@ -3925,31 +3925,20 @@ GFX_SAFE:<br>
 Bitmap objects
 
 Once you have selected a graphics mode, you can draw things onto the display 
-via the 'screen' bitmap. All the Allegro graphics routines draw onto BITMAP 
+via the `screen' bitmap. All the Allegro graphics routines draw onto BITMAP
 structures, which are areas of memory containing rectangular images, stored 
 as packed byte arrays (in 8-bit modes one byte per pixel, in 15- and 16-bit 
 modes sizeof(short) bytes per pixel, in 24-bit modes 3 bytes per pixel and 
 in 32-bit modes sizeof(long) bytes per pixel). You can create and manipulate 
-bitmaps in system RAM, or you can write to the special 'screen' bitmap which 
+bitmaps in system RAM, or you can write to the special `screen' bitmap which
 represents the video memory in your graphics card.
 
-For example, to draw a pixel onto the screen you would write:
-<codeblock>
-   putpixel(screen, x, y, color);
-<endblock>
-Or to implement a double-buffered system:
-<codeblock>
-   BITMAP *bmp = create_bitmap(320, 200);    // make a bitmap in RAM
-   clear_bitmap(bmp);                        // zero the memory bitmap
-   putpixel(bmp, x, y, color);               // draw onto the memory bitmap
-   blit(bmp, screen, 0, 0, 0, 0, 320, 200);  // copy it to the screen
-<endblock>
-See below for information on how to get direct access to the image memory in 
-a bitmap.
+Read chapter "Direct access to video memory" for information on how to get
+direct access to the image memory in a bitmap.
 
 Allegro supports several different types of bitmaps:
 <ul><li>
-     The screen bitmap, which represents the hardware video memory.
+     The `screen' bitmap, which represents the hardware video memory.
      Ultimately you have to draw onto this in order for your image to be 
      visible. It is destroyed by any subsequent calls to set_gfx_mode().
 <li>
@@ -4004,6 +3993,21 @@ Allegro supports several different types of bitmaps:
    size, so if you want to draw onto a larger virtual screen space outside 
    this rectangle, you will need to adjust the clipping.
 
+   For example, to draw a pixel onto the screen you would write:
+<codeblock>
+      putpixel(screen, x, y, color);
+<endblock>
+   Or to implement a double-buffered system:
+<codeblock>
+      /* Make a bitmap in RAM. */
+      BITMAP *bmp = create_bitmap(320, 200);
+      /* Clean the memory bitmap. */
+      clear_bitmap(bmp);
+      /* Draw onto the memory bitmap. */
+      putpixel(bmp, x, y, color);
+      /* Copy it to the screen. */
+      blit(bmp, screen, 0, 0, 0, 0, 320, 200);<endblock>
+
    Warning: be very careful when using this pointer at the same time as any
    bitmaps created by the create_video_bitmap() function (see the description
    of this function for more detailed information).
@@ -4013,32 +4017,69 @@ Allegro supports several different types of bitmaps:
 @xref screen, set_gfx_mode, VIRTUAL_W, VIRTUAL_H
 @eref Available Allegro examples
    Global defines that return the width and height of the screen, or zero if
-   the screen has not been initialised yet.
+   the screen has not been initialised yet. Example:
+<codeblock>
+      char buf[100];
+      ...
+      uszprintf(buf, sizeof(buf),
+		"The screen size is %d x %d pixels",
+		SCREEN_W, SCREEN_H);<endblock>
 
 @@#define @VIRTUAL_W;
 @@#define @VIRTUAL_H;
 @xref screen, set_gfx_mode, SCREEN_W, SCREEN_H
    Global defines that return the width and height of the virtual screen, or
-   zero if the screen has not been initialised yet.
+   zero if the screen has not been initialised yet. Example:
+<codeblock>
+      char buf[100];
+      ...
+      uszprintf(buf, sizeof(buf),
+		"The virtual screen size is %d x %d pixels",
+		SCREEN_W, SCREEN_H);<endblock>
 
 @@BITMAP *@create_bitmap(int width, int height);
 @xref create_bitmap_ex, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, set_color_depth, is_memory_bitmap
 @eref Available Allegro examples
-   Creates a memory bitmap sized width by height, and returns a pointer to 
-   it. The bitmap will have clipping turned on, and the clipping rectangle 
-   set to the full size of the bitmap. The image memory will not be cleared, 
-   so it will probably contain garbage: you should clear the bitmap before 
-   using it. This routine always uses the global pixel format, as specified 
-   by calling set_color_depth(). The minimum height of the BITMAP must be 1
-   and width can't be negative.
+   Creates a memory bitmap sized width by height. The bitmap will have
+   clipping turned on, and the clipping rectangle set to the full size of the
+   bitmap. The image memory will not be cleared, so it will probably contain
+   garbage: you should clear the bitmap before using it. This routine always
+   uses the global pixel format, as specified by calling set_color_depth().
+   The minimum height of the BITMAP must be 1 and width can't be negative.
+   Example:
+<codeblock>
+      /* Create a 10 pixel tall bitmap, as wide as the screen. */
+      BITMAP *bmp = create_bitmap(SCREEN_W, 10);
+      if (!bmp)
+	 abort_on_error("Couldn't create bitmap!");
+      /* Use the bitmap. */
+      ...
+      /* Destroy it when we don't need it any more. */
+      destroy_bitmap(bmp);<endblock>
+@retval
+   Returns a pointer to the created bitmap, or NULL if the bitmap could not
+   be created. Remember to free this bitmap later to avoid memory leaks.
 
 @@BITMAP *@create_bitmap_ex(int color_depth, int width, int height);
 @xref create_bitmap, create_sub_bitmap, create_video_bitmap
 @xref create_system_bitmap, destroy_bitmap, is_memory_bitmap
 @eref ex12bit, exlights, exrgbhsv, extrans
    Creates a bitmap in a specific color depth (8, 15, 16, 24 or 32 bits per 
-   pixel).
+   pixel). Example:
+<codeblock>
+      /* Create screen sized bitmap in 32 bits per pixel. /*
+      BITMAP *bmp = create_bitmap_x(32, SCREEN_W, SCREEN_H);
+      if (!bmp)
+	 abort_on_error("Couldn't create bitmap!");
+      /* Use the bitmap. */
+      ...
+      /* Destroy it when we don't need it any more. */
+      destroy_bitmap(bmp);<endblock>
+@retval
+   Returns a pointer to the created bitmap, or NULL if the bitmap could not
+   be created. Remember to free this bitmap later to avoid memory leaks.
+   
 
 @@BITMAP *@create_sub_bitmap(BITMAP *parent, int x, y, width, height);
 @xref create_bitmap, create_bitmap_ex, destroy_bitmap, is_sub_bitmap
@@ -4049,31 +4090,44 @@ Allegro supports several different types of bitmaps:
    must be a multiple of four. The sub-bitmap width and height can extend 
    beyond the right and bottom edges of the parent (they will be clipped), 
    but the origin point must lie within the parent region.
+@retval
+   Returns a pointer to the created sub bitmap, or NULL if the sub bitmap
+   could not be created. Remember to free the sub bitmap before freeing
+   the parent bitmap to avoid memory leaks and potential crashes accessing
+   memory which has been freed.
 
 @@BITMAP *@create_video_bitmap(int width, int height);
 @xref create_bitmap, create_bitmap_ex, create_system_bitmap
 @xref create_sub_bitmap, destroy_bitmap, screen, show_video_bitmap
 @xref gfx_capabilities, is_video_bitmap
 @eref ex3buf, exaccel, exflip, exupdate
-   Allocates a video memory bitmap of the specified size, returning a 
-   pointer to it on success or NULL on failure (ie. if you have run out of 
-   vram). This can be used to allocate offscreen video memory for storing 
-   source graphics ready for a hardware accelerated blitting operation, or 
-   to create multiple video memory pages which can then be displayed by 
-   calling show_video_bitmap().
+   Allocates a video memory bitmap of the specified size. This can be used
+   to allocate offscreen video memory for storing source graphics ready for
+   a hardware accelerated blitting operation, or to create multiple video
+   memory pages which can then be displayed by calling show_video_bitmap().
+   Read the introduction of this chapter for a comparison with other types
+   of bitmaps and other specific details.
 
    Warning: video memory bitmaps are usually allocated from the same space
    as the screen bitmap, so they may overlap with it; it is therefore not
    a good idea to use the global screen at the same time as any surfaces
    returned by this function.
-
+@retval
+   Returns a pointer to the bitmap on success, or NULL if you have run out
+   of video ram. Remember to destroy this bitmap before any subsequent
+   call to set_gfx_mode().
+   
 @@BITMAP *@create_system_bitmap(int width, int height);
 @xref create_bitmap, create_bitmap_ex, create_video_bitmap
 @xref create_sub_bitmap, destroy_bitmap, is_system_bitmap
 @eref exunicod, exupdate
-   Allocates a system memory bitmap of the specified size, returning a 
-   pointer to it on success or NULL on failure.
-
+   Allocates a system memory bitmap of the specified size. Read the
+   introduction of this chapter for a comparison with other types of bitmaps
+   and other specific details.
+@retval
+   Returns a pointer to the bitmap on success, NULL otherwise. Remember to
+   destroy this bitmap before any subsequent call to set_gfx_mode().
+   
 @@void @destroy_bitmap(BITMAP *bitmap);
 @xref create_bitmap, load_bitmap
 @eref Available Allegro examples
@@ -4091,14 +4145,32 @@ Allegro supports several different types of bitmaps:
 @xref set_color_depth, bitmap_mask_color
 @eref ex3d, exlights, exscn3d, exswitch, extrans, exupdate, exzbuf
    Returns the color depth of the specified bitmap (8, 15, 16, 24, or 32).
+   Example:
+<codeblock>
+      switch (bitmap_color_depth(screen)) {
+	 case 8:
+	    /* Fade screen changing palette. */
+	    break;
+	 default:
+	    /* Truecolor fake palette fading. */
+	    break;
+      }<endblock>
 
 @@int @bitmap_mask_color(BITMAP *bmp);
 @xref MASK_COLOR_8, set_color_depth, bitmap_color_depth
 @eref ex3d, exmouse, expat
    Returns the mask color for the specified bitmap (the value which is 
    skipped when drawing sprites). For 256-color bitmaps this is zero, and 
-   for truecolor bitmaps it is bright pink (maximum red and blue, zero 
-   green).
+   for truecolor bitmaps it is bright pink (maximum red and blue, zero
+   green). A frequent use of this function is to clear a bitmap with the mask
+   color so you can later use this bitmap with masked_blit() or
+   draw_sprite() after drawing other stuff on it. Example:
+<codeblock>
+      /* Replace mask color with another color. */
+      for (y = 0; y < bmp->h; y++)
+	 for (x = 0; x < bmp->w; x++)
+	    if (getpixel(bmp, x, y) == bitmap_mask_color(bmp))
+	       putpixel(bmp, x, y, another_color);<endblock>
 
 @@int @is_same_bitmap(BITMAP *bmp1, BITMAP *bmp2);
 @xref create_sub_bitmap
@@ -4118,7 +4190,7 @@ Allegro supports several different types of bitmaps:
    _putpixel(), _getpixel(), bmp_write_line(), and bmp_read_line() functions.
 
    Historically there were only linear and planar bitmaps for Allegro, so
-   is_linear_bitmap is actually an alias for !is_planar_bitmap.
+   is_linear_bitmap() is actually an alias for !is_planar_bitmap().
 
 @@int @is_memory_bitmap(BITMAP *bmp);
 @xref is_linear_bitmap, is_planar_bitmap
@@ -4242,7 +4314,7 @@ Allegro supports several different types of bitmaps:
 @heading
 Loading image files
 
-Warning: when using truecolor images, you should always set the graphics 
+Warning: when using truecolor images, you should always set the graphics
 mode before loading any bitmap data! Otherwise the pixel format (RGB or BGR)
 will not be known, so the file may be converted wrongly.
 
@@ -4252,12 +4324,10 @@ will not be known, so the file may be converted wrongly.
 @xref generate_optimized_palette, generate_332_palette
 @eref exaccel, exalpha, exbitmap, exblend, exconfig, exlights, exshade
 @eref extrans, exxfade
-   Loads a bitmap from a file, returning a pointer to a bitmap and storing 
-   the palette data in the specified location, which should be an array of 
-   256 RGB structures. You are responsible for destroying the bitmap when 
-   you are finished with it. Returns NULL on error. At present this function 
-   supports BMP, LBM, PCX, and TGA files, determining the type from the file 
-   extension.
+   Loads a bitmap from a file. The palette data will be stored in the second
+   parameter, which should be an array of 256 RGB structures. At present this
+   function supports BMP, LBM, PCX, and TGA files, determining the type from
+   the file extension.
 
    If the file contains a truecolor image, you must set the video mode or
    call set_color_conversion() before loading it. In this case, if the
@@ -4269,6 +4339,21 @@ will not be known, so the file may be converted wrongly.
    not returned. Additionally, if the file is a truecolor image and the
    destination color depth is 8-bit, the color conversion process will use
    the current palette instead of generating an optimized one.
+
+   Example:
+<codeblock>
+      BITMAP *bmp;
+      PALETTE palette;
+      ...
+      bmp = load_bitmap("image.pcx", palette);
+      if (!bmp)
+	 abort_on_error("Couldn't load image.pcx!");
+      ...
+      destroy_bitmap(bmp);<endblock>
+@retval
+   Returns a pointer to the bitmap or NULL on error. Remember that you are
+   responsible for destroying the bitmap when you are finished with it to
+   avoid memory leaks.
 
 @@BITMAP *@load_bmp(const char *filename, RGB *pal);
 @xref load_bitmap
@@ -4291,9 +4376,9 @@ will not be known, so the file may be converted wrongly.
 @@int @save_bitmap(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bmp, save_pcx, save_tga, load_bitmap, register_bitmap_file_type
    Writes a bitmap into a file, using the specified palette, which should be 
-   an array of 256 RGB structures. Returns non-zero on error. The output 
-   format is determined from the filename extension: at present this 
-   function supports BMP, PCX and TGA formats.
+   an array of 256 RGB structures. The output format is determined from the
+   filename extension: at present this function supports BMP, PCX and TGA
+   formats.
 
    Two things to watch out for: on some video cards it may be faster to copy
    the screen to a memory bitmap and save the latter, and if you use this to
@@ -4304,11 +4389,13 @@ will not be known, so the file may be converted wrongly.
 <codeblock>
       BITMAP *bmp;
       PALETTE pal;
-
+      ...
       get_palette(pal);
       bmp = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
       save_bitmap("dump.pcx", bmp, pal);
       destroy_bitmap(bmp);<endblock>
+@retval
+   Returns non-zero on error.
       
 @@int @save_bmp(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
@@ -4329,7 +4416,20 @@ will not be known, so the file may be converted wrongly.
 @xref load_bitmap, save_bitmap
    Informs the load_bitmap() and save_bitmap() functions of a new file type, 
    providing routines to read and write images in this format (either 
-   function may be NULL).
+   function may be NULL). The functions you supply must follow the same
+   prototype as load_bitmap() and save_bitmap(). Example:
+<codeblock>
+      BITMAP *load_dump(const char *filename, RGB *pal)
+      {
+	 ...
+      }
+      
+      int save_dump(const char *filename, BITMAP *bmp, const RGB *pal)
+      {
+	 ...
+      }
+
+	 register_bitmap_file_type("dump", load_dump, save_dump);<endblock>
 
 @@void @set_color_conversion(int mode);
 @xref set_color_depth, load_bitmap, load_datafile, fixup_datafile
@@ -7536,7 +7636,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    call this function before install_allegro(), but after set_uformat() if
    you want to use a text encoding format other than the default.
 @retval
-   Returns non zero on success, zero if the path could not be added or you
+   Returns non-zero on success, zero if the path could not be added or you
    wanted to remove a path and the priority used didn't have any associated
    path. Modification of existing paths always succeeds.
 
@@ -9246,7 +9346,7 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @xref find_dialog_focus
    Offers the input focus to a particular object. Normally the function sends
    the MSG_WANTFOCUS message to query whether the object is willing to accept
-   the focus. However, passing any non zero value as force argument instructs
+   the focus. However, passing any non-zero value as force argument instructs
    the function to authoritatively set the focus to the object.
 
 @@int @object_message(DIALOG *dialog, int msg, int c);
