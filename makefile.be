@@ -173,10 +173,11 @@ else
 endif
 	sed -e "s/@prefix@/\/boot\/develop/" temp > temp2
 	sed -e "s/@LIB_TO_LINK@/$(VERSION)/" temp2 > temp
-	sed -e "s/@LDFLAGS@ @LIBS@/$(LIBRARIES)/" temp >temp2
-	sed -e "s/include/headers/" temp2 >temp
-	sed -e "s/ -l\$${lib_type}_unsharable//" temp >temp2
-	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/home\/config\/lib\"/" temp2 >/bin/allegro-config
+	sed -e "s/@LDFLAGS@//" temp > temp2
+	sed -e "s/@LIBS@/$(LIBRARIES)/" temp2 > temp
+	sed -e "s/include/headers/" temp >temp2
+	sed -e "s/ -l\$${lib_type}_unsharable//" temp2 >temp
+	sed -e "s/libdirs=-L\$${exec_prefix}\/lib/libdirs=\"-L\$${exec_prefix}\/lib\/x86 -L\/boot\/home\/config\/lib\"/" temp >/bin/allegro-config
 	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 
