@@ -64,7 +64,7 @@ static unsigned char *cursor_data = NULL;
 static NSBitmapImageRep *cursor_rep = NULL;
 static NSImage *cursor_image = NULL;
 static int old_x, old_y;
-static int buttons;
+static int buttons = 0;
 static int skip_events_processing = FALSE;
 
 
@@ -230,7 +230,7 @@ void osx_event_handler()
 	       buttons &= ~(([event type] == NSOtherMouseUp) ? 0x4 : 0);
 	    }
 	    if (_mouse_installed)
-               osx_mouse_handler(0, 0, 0, buttons);
+	       osx_mouse_handler(0, 0, 0, buttons);
 	    [NSApp sendEvent: event];
 	    break;
 	    
