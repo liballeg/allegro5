@@ -685,12 +685,70 @@ void do_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(BI
 
 /* _normal_line:
  *  Draws a line from x1, y1 to x2, y2, using putpixel() to do the work.
+ */
+void _normal_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+{
+   int sx, sy, dx, dy, t;
+
+   if (x1 == x2) {
+      vline(bmp, x1, y1, y2, color);
+      return;
+   }
+
+   if (y1 == y2) {
+      hline(bmp, x1, y1, x2, color);
+      return;
+   }
+
+   /* use a bounding box to check if the line needs clipping */
+   if (bmp->clip) {
+      sx = x1;
+      sy = y1;
+      dx = x2;
+      dy = y2;
+
+      if (sx > dx) {
+	 t = sx;
+	 sx = dx;
+	 dx = t;
+      }
+
+      if (sy > dy) {
+	 t = sy;
+	 sy = dy;
+	 dy = t;
+      }
+
+      if ((sx >= bmp->cr) || (sy >= bmp->cb) || (dx < bmp->cl) || (dy < bmp->ct))
+	 return;
+
+      if ((sx >= bmp->cl) && (sy >= bmp->ct) && (dx < bmp->cr) && (dy < bmp->cb))
+	 bmp->clip = FALSE;
+
+      t = TRUE;
+   }
+   else
+      t= FALSE;
+
+   acquire_bitmap(bmp);
+
+   do_line(bmp, x1, y1, x2, y2, color, bmp->vtable->putpixel);
+
+   release_bitmap(bmp);
+
+   bmp->clip = t;
+}
+
+
+
+/* _fast_line:
+ *  Draws a line from x1, y1 to x2, y2, using putpixel() to do the work.
  *  This is an implementation of the Cohen-Sutherland line clipping algorithm.
  *  Loops over the line until it can be either trivially rejected or trivially
  *  accepted. If it is neither rejected nor accepted, subdivide it into two
  *  segments, one of which can be rejected.
  */
-void _normal_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+void _fast_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
    int code0, code1;
    int outcode;

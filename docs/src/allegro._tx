@@ -4365,9 +4365,15 @@ drawing mode and the clipping rectangle of the destination bitmap.
    so it is suitable for use with putpixel().
 
 @@void @line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-@xref hline, vline, do_line, drawing_mode
+@xref fastline, hline, vline, do_line, drawing_mode
 @eref Available Allegro examples
    Draws a line onto the bitmap, from point (x1, y1) to (x2, y2).
+
+@@void @fastline(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+@xref line, hline, vline, do_line, drawing_mode
+@eref Available Allegro examples
+   Faster version of the previous function. Note that pixel correctness is
+   not guaranteed for this function.
 
 @@void @triangle(BITMAP *bmp, int x1, y1, x2, y2, x3, y3, int color);
 @xref polygon, triangle3d, drawing_mode

@@ -44,6 +44,7 @@ GFX_VTABLE __linear_vtable16 =
    _linear_hline16,
    _linear_hline16,
    _normal_line,
+   _fast_line,
    _normal_rectfill,
    NULL,
    _linear_draw_sprite16,

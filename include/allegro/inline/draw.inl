@@ -66,6 +66,14 @@ AL_INLINE(void, line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
 })
 
 
+AL_INLINE(void, fastline, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
+{
+   ASSERT(bmp);
+
+   bmp->vtable->fastline(bmp, x1, y1, x2, y2, color);
+})
+
+
 AL_INLINE(void, rectfill, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color),
 {
    ASSERT(bmp);

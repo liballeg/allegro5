@@ -457,6 +457,7 @@ AL_FUNC(unsigned long, _blender_write_alpha, (unsigned long x, unsigned long y, 
 
 /* graphics drawing routines */
 AL_FUNC(void, _normal_line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
+AL_FUNC(void, _fast_line, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
 AL_FUNC(void, _normal_rectfill, (BITMAP *bmp, int x1, int y1, int x2, int y2, int color));
 
 #ifdef ALLEGRO_COLOR8
