@@ -3,7 +3,7 @@
 # Create `languages.dat' and `keyboard.dat' from `resource' directory.
 #
 
-DAT=dat
+test -z "$DAT" && DAT=dat
 
 echo "Creating keyboard.dat..."
 (cd resource/keyboard; $DAT -a -c1 ../../keyboard.dat *.cfg)
