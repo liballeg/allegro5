@@ -108,11 +108,6 @@ echo "Patching misc/allegro-config-qnx.sh..."
 cp misc/allegro-config-qnx.sh fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config-qnx.sh
 
-# patch modules.lst
-echo "Patching modules.lst.."
-cp modules.lst fixver.tmp
-sed -e "s/[0-9][0-9.]*[0-9]/$1.$2.$3/g" fixver.tmp > modules.lst
-
 # patch the spec file
 echo "Patching misc/allegro.spec..."
 cp misc/allegro.spec fixver.tmp

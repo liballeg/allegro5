@@ -15,7 +15,7 @@ objects=`echo $sources | sed 's,[^	 ]*/,,g;s,\.[^.	 ]*,,g'`
 
 MODNAME=`echo $modname | tr [a-z] [A-Z]`
 
-module="alleg-${modname}-\$(shared_version).so"
+module="alleg-${modname}.so"
 objlist="MODULE_${MODNAME}_OBJECTS"
 
 

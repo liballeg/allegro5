@@ -19,7 +19,8 @@ includedir = @includedir@
 infodir = @infodir@
 mandir = @mandir@
 libdir = @libdir@
-moduledir = @libdir@/allegro
+modulebasedir = @libdir@/allegro
+moduledir = $(modulebasedir)/$(shared_major_minor)
 
 EXE =
 OBJ = .o
@@ -420,7 +421,7 @@ uninstall-shared:
 	done
 
 uninstall-modules:
-	rm -rf $(moduledir)
+	rm -rf $(modulebasedir) $(moduledir)
 
 uninstall-headers:
 	rm -f $(includedir)/allegro.h

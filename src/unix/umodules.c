@@ -77,7 +77,8 @@ void _unix_load_modules(int system_driver)
    MODULE *m;
  
    for (path = module_path; *path; path++) {
-      snprintf(buf, sizeof buf, "%smodules.lst", *path);
+      snprintf(buf, sizeof buf, "%s%d.%d/modules.lst", *path,
+	       ALLEGRO_VERSION, ALLEGRO_SUB_VERSION);
       f = pack_fopen(uconvert_ascii(buf, buf2), F_READ);
       if (f) goto found;
    }
@@ -95,7 +96,8 @@ void _unix_load_modules(int system_driver)
 	 continue;
 
       if (filename[0] != '/') {
-	 snprintf(buf3, sizeof buf3, "%s%s", *path, filename);
+	 snprintf(buf3, sizeof buf3, "%s%d.%d/%s", *path,
+		  ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, filename);
 	 filename = buf3;
       }
 

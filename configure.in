@@ -422,37 +422,37 @@ if test -n "$allegro_support_modules"; then
 
   dnl VGA/ModeX.
   if test "X$allegro_enable_vga" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-vga-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-vga.so"
   fi
 
   dnl SVGAlib.
   if test "X$allegro_support_svgalib" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-svgalib-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-svgalib.so"
   fi
 
   dnl fbcon.
   if test "X$allegro_support_fbcon" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-fbcon-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-fbcon.so"
   fi
 
   dnl ALSA DIGI.
   if test "X$allegro_cv_support_alsadigi" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsadigi-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsadigi.so"
   fi
 
   dnl ALSA MIDI.
   if test "X$allegro_cv_support_alsamidi" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsamidi-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-alsamidi.so"
   fi
 
   dnl ESD DIGI.
   if test "X$allegro_support_esddigi" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-esddigi-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-esddigi.so"
   fi
 
   dnl DGA2.
   if test "X$allegro_support_xf86dga2" = "Xyes"; then
-    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-dga2-\$(shared_version).so"
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-dga2.so"
   fi
 fi
 AC_SUBST(ALLEGRO_MODULE_TARGETS)
