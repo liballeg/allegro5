@@ -611,7 +611,9 @@ static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, 
    long int size, size_a, size_b;
    HRESULT hr;
 
+   /* transform from samples to bytes */
    size = len * (bits / 8) * (stereo ? 2 : 1);
+   offset = offset * (bits / 8) * (stereo ? 2 : 1);
 
    /* lock the buffer portion */
    hr = IDirectSoundBuffer_Lock(snd_buf, offset, size, &buf_a, &size_a, &buf_b, &size_b, 0);
