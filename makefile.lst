@@ -578,10 +578,15 @@ OTHER_CLEAN_FILES = \
 	log */log */*/log core */core */*/core
 
 DISTCLEAN_FILES = \
-	docs/texi/*.texi docs/texi/*.txi docs/*.tex docs/info/*.info \
-	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
-	docs/html/*.html docs/html/*.htm docs/html/*.css docs/chm/*.chm docs/chm/*.hh* \
-	docs/rtf/*.rtf docs/devhelp/*.html docs/devhelp/*.devhelp \
+	docs/texi/*.texi docs/texi/*.txi \
+	docs/info/*.info docs/info/*.inf \
+	docs/man/*.3 \
+	docs/build/*.txt docs/txt/*.txt \
+	docs/rtf/*.rtf \
+	docs/html/*.html docs/html/*.htm docs/html/build/*.html \
+	docs/html/build/*.htm docs/html/*.css \
+	docs/chm/*.html docs/chm/build/*.html docs/chm/*.chm docs/chm/*.hh* \
+	docs/devhelp/*.html docs/devhelp/build/*.html docs/devhelp/*.devhelp \
 	docs/makedoc docs/allegro.dvi docs/allegro.ps* docs/allegro.pdf \
 	docs/allegro.aux docs/allegro.cp docs/allegro.fn docs/allegro.fns \
 	docs/allegro.ky docs/allegro.log docs/allegro.pg docs/allegro.toc \
