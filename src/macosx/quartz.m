@@ -193,6 +193,10 @@ static BITMAP *_make_quickdraw_bitmap(int width, int height, int flags)
  */
 BITMAP *osx_qz_create_video_bitmap(int width, int height)
 {
+   if ((gfx_driver->w == width) && (gfx_driver->h == height) && (!osx_screen_used)) {
+      osx_screen_used = TRUE;
+      return screen;
+   }
    return _make_quickdraw_bitmap(width, height, useDistantHdwrMem);
 }
 
@@ -214,7 +218,11 @@ BITMAP *osx_qz_create_system_bitmap(int width, int height)
 void osx_qz_destroy_video_bitmap(BITMAP *bmp)
 {
    if (bmp) {
-      if (bmp->extra) {
+     if (bmp == screen) {
+        osx_screen_used = FALSE;
+        return;
+     }
+     if (bmp->extra) {
          if (BMP_EXTRA(bmp)->port)
             DisposeGWorld(BMP_EXTRA(bmp)->port);
          free(bmp->extra);

@@ -25,7 +25,7 @@
 #endif
 
 
-#define FADE_STEPS               64
+#define FADE_STEPS               16
 
 
 static BITMAP *osx_qz_full_init(int, int, int, int, int);
@@ -38,12 +38,14 @@ static GFX_MODE_LIST *osx_qz_fetch_mode_list(void);
 
 CGDirectPaletteRef osx_palette = NULL;
 int osx_palette_dirty = FALSE;
+int osx_screen_used;
 
 static int lock_nesting = 0;
 static char driver_desc[256];
 static CFDictionaryRef old_mode = NULL;
 static CGrafPtr screen_port = NULL;
 static CGGammaValue original_table[768];
+static BITMAP *old_visible_bmp = NULL;
 
 
 
@@ -173,7 +175,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    osx_init_fade_system();
    old_mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CGDisplayHideCursor(kCGDirectMainDisplay);
-   osx_fade_screen(FALSE, 0.3);
+   osx_fade_screen(FALSE, 0.2);
    if (CGDisplayCapture(kCGDirectMainDisplay) != kCGErrorSuccess) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot capture main display"));
       return NULL;
@@ -227,6 +229,9 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    clear_keybuf();
    osx_gfx_mode = OSX_GFX_FULL;
    osx_skip_mouse_move = TRUE;
+   osx_screen_used = FALSE;
+   
+   old_visible_bmp = bmp;
    
    return bmp;
 }
@@ -263,12 +268,12 @@ static void osx_qz_full_exit(BITMAP *bmp)
    }
    
    if (old_mode) {
-      osx_fade_screen(FALSE, 0.2);
+      osx_fade_screen(FALSE, 0.1);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
       CGDisplayShowCursor(kCGDirectMainDisplay);
       ShowMenuBar();
-      osx_fade_screen(TRUE, 0.3);
+      osx_fade_screen(TRUE, 0.2);
       CGDisplayRestoreColorSyncSettings();
       old_mode = NULL;
    }
@@ -324,6 +329,8 @@ static void osx_qz_full_set_palette(AL_CONST struct RGB *p, int from, int to, in
 static int osx_qz_show_video_bitmap(BITMAP *bmp)
 {
    Rect rect;
+   char *addr;
+   int i;
    
    if ((bmp->w != gfx_quartz_full.w) || (bmp->h != gfx_quartz_full.h))
       return -1;
@@ -340,6 +347,17 @@ static int osx_qz_show_video_bitmap(BITMAP *bmp)
 	    &rect, &rect, srcCopy, NULL);
    UnlockPortBits(screen_port);
    UnlockPortBits(BMP_EXTRA(bmp)->port);
+
+   /* Since we're copying instead of page flipping, we have to make sure
+    * the page now in the back does not have line pointers pointing to
+    * the real screen, so we swap them with the page now in the front.
+    */
+   for (i = 0; i < bmp->h; i++) {
+      addr = bmp->line[i];
+      bmp->line[i] = old_visible_bmp->line[i];
+      old_visible_bmp->line[i] = addr;
+   }
+   old_visible_bmp = bmp;
    
    return 0;
 }

@@ -286,7 +286,7 @@ void osx_event_handler()
             
 	 case NSAppKitDefined:
             switch ([event subtype]) {
-	       
+                  
                case NSApplicationActivatedEventType:
 	          if (osx_window) {
 		     [osx_window invalidateCursorRectsForView: [osx_window contentView]];
