@@ -113,6 +113,22 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
       }
    }
 
+   /* if it is a .dat, look in /usr/share/ and /usr/local/share/ */
+   if (ustricmp(get_extension(resource), uconvert_ascii("dat", tmp)) == 0) {
+      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/usr/share/allegro/", tmp));
+      ustrzcat(buf, sizeof(buf), resource);
+      if (exists(buf)) {
+	 ustrzcpy(dest, size, buf);
+	 return 0;
+      }
+      ustrzcpy(buf, sizeof(buf), uconvert_ascii("/usr/local/share/allegro/", tmp));
+      ustrzcat(buf, sizeof(buf), resource);
+      if (exists(buf)) {
+	 ustrzcpy(dest, size, buf);
+	 return 0;
+      }
+   }
+
    return -1;
 }
 
