@@ -3262,6 +3262,7 @@ bitmap.
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
+@xref rotate_scaled_sprite_flip, rotate_scaled_sprite_v_flip
 @xref pivot_sprite, pivot_sprite_v_flip, itofix
 @xref fixed point trig, bitmap_mask_color
    Draws the sprite image onto the bitmap at the specified position, 
@@ -3272,12 +3273,25 @@ bitmap.
 
 @\void @rotate_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                          fixed angle, fixed scale);
-@xref rotate_sprite, pivot_scaled_sprite, bitmap_mask_color
+@xref rotate_sprite, rotate_scaled_sprite_flip, rotate_scaled_sprite_v_flip
+@xref pivot_scaled_sprite, bitmap_mask_color
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
 
+@\void @rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                               fixed angle, fixed scale, int h_flip, v_flip)
+@xref rotate_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
+   Rotates and scales a sprite, optionally flipping it about either axis.
+
+@\void @rotate_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                                 fixed angle, fixed scale)
+@xref rotate_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
+   Draws the sprite, similar to rotate_scaled_sprite_flip() except that it
+   flips the sprite vertically first. Passes 0, 1 as last two parameters
+   to rotate_scaled_sprite_flip().
+
 @@void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
-@xref rotate_sprite, pivot_sprite_v_flip
+@xref rotate_sprite, rotate_scaled_sprite_v_flip, pivot_sprite_v_flip
    Like rotate_sprite, but also flips the image vertically.  To flip 
    horizontally, use this routine but add fixtoi(128) to the angle.  To flip
    in both directions, use rotate_sprite() and add fixtoi(128) to its angle.
