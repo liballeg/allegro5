@@ -324,7 +324,7 @@ void osx_event_handler()
 	    break;
       }
    }
-   if (_mouse_installed) {
+   if ((_mouse_installed) && (osx_gfx_mode != OSX_GFX_NONE) && (!skip_events_processing)) {
       if (osx_mouse_warped) {
          old_x = _mouse_x;
          old_y = _mouse_y;
