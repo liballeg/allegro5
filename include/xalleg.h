@@ -132,6 +132,8 @@ AL_METHOD (int, _xwin_window_creator, (void));
 AL_METHOD (void, _xwin_window_defaultor, (void));
 AL_METHOD (void, _xwin_window_redrawer, (int, int, int, int));
 
+AL_METHOD (void, _xwin_keyboard_callback, (int, int));
+
 
 
 #ifdef __cplusplus

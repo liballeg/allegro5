@@ -1885,6 +1885,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 /* Key pressed.  */
 	 kcode = event->xkey.keycode;
 	 if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
+	    if (_xwin_keyboard_callback)
+	       (*_xwin_keyboard_callback)(1, kcode);
 	    scode = _xwin.keycode_to_scancode[kcode];
 	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
 	       _xwin_keycode_pressed[kcode] = TRUE;
@@ -1896,6 +1898,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 /* Key release.  */
 	 kcode = event->xkey.keycode;
 	 if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
+	    if (_xwin_keyboard_callback)
+	       (*_xwin_keyboard_callback)(0, kcode);
 	    scode = _xwin.keycode_to_scancode[kcode];
 	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
 	       (*_xwin_keyboard_interrupt)(0, scode);
@@ -2476,6 +2480,7 @@ static void _xwin_private_init_keyboard_tables(void)
    int min_keycode;
    int max_keycode;
    KeySym keysym;
+   char *section, *option_format, option[80], tmp1[80], tmp2[80];
 
    if (_xwin.display == 0)
       return;
@@ -2494,7 +2499,7 @@ static void _xwin_private_init_keyboard_tables(void)
    if (max_keycode > 255)
       max_keycode = 255;
 
-   /* Setup mappings.  */
+   /* Setup initial X keycode to Allegro scancode mappings.  */
    for (i = min_keycode; i <= max_keycode; i++) {
       keysym = XKeycodeToKeysym(_xwin.display, i, 0);
       if (keysym != NoSymbol) {
@@ -2505,6 +2510,19 @@ static void _xwin_private_init_keyboard_tables(void)
 	    }
 	 }
       }
+   }
+
+   /* Override with user's own mappings.  */
+   section = uconvert_ascii("xkeymap", tmp1);
+   option_format = uconvert_ascii("keycode%d", tmp2);
+
+   for (i = min_keycode; i <= max_keycode; i++) {
+      int scancode;
+
+      usprintf(option, option_format, i);
+      scancode = get_config_int(section, option, -1);
+      if (scancode > 0)
+	 _xwin.keycode_to_scancode[i] = scancode;
    }
 }
 
