@@ -954,11 +954,14 @@ int main(int argc, char *argv[])
    if (!split_altgr)
       edit_menu[5].flags = D_DISABLED;
 
-   if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
-      exit(EXIT_FAILURE);
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
+	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 return 1;
+      }
    }
+
    set_palette(desktop_palette);
    set_color(0, &black_rgb);
    gui_fg_color = palette_color[255];
