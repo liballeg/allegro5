@@ -807,14 +807,9 @@ int update_dialog(DIALOG_PLAYER *player)
 	    MESSAGE(player->mouse_obj, MSG_RRELEASE, new_mouse_b);
 
          player->mouse_b = new_mouse_b;
-
-	 if (player->res == D_O_K)
-	    player->click_wait = TRUE;
       }
       else
 	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
-
-      goto getout;
    }
 
    /* need to reinstall the dclick and switch handlers? */
