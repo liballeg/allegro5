@@ -14,6 +14,8 @@
  * 
  *      Modified extensively by Peter Wang.
  *
+ *      Horizontal scrolling fixed by Attila Szilagyi.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -82,9 +84,9 @@ static char svga_desc[256] = EMPTY_STRING;
 
 static int svga_mode;
 
+static unsigned int bytes_per_line;
+static unsigned int pixels_per_line;
 static unsigned int display_start_mask;
-static unsigned int scanline_width;
-static int bytes_per_pixel;
 
 static unsigned char *screen_buffer;
 static int last_line;
@@ -108,7 +110,7 @@ unsigned long _svgalib_write_line(BITMAP *bmp, int line)
 {
    int new_line = line + bmp->y_ofs;
    if ((new_line != last_line) && (last_line >= 0))
-      vga_drawscansegment(screen_buffer + last_line * scanline_width, 0, last_line, scanline_width);
+      vga_drawscansegment(screen_buffer + last_line * bytes_per_line, 0, last_line, bytes_per_line);
    last_line = new_line;
    return (unsigned long) (bmp->line[line]);
 }
@@ -121,7 +123,7 @@ unsigned long _svgalib_write_line(BITMAP *bmp, int line)
 void _svgalib_unwrite_line(BITMAP *bmp)
 {
    if (last_line >= 0) {
-      vga_drawscanline(last_line, screen_buffer + last_line * scanline_width);
+      vga_drawscanline(last_line, screen_buffer + last_line * bytes_per_line);
       last_line = -1;
    }
 }
@@ -212,7 +214,7 @@ static int mode_ok(vga_modeinfo *info, int w, int h, int v_w, int v_h,
    return ((color_depth == get_depth(info->colors, info->bytesperpixel))
 	   && (((info->width == w) && (info->height == h))
 	       || ((w == 0) && (h == 0)))
-	   && (info->linewidth >= (MAX(w, v_w) * info->bytesperpixel))
+	   && (info->maxlogicalwidth >= (MAX(w, v_w) * info->bytesperpixel))
 	   && (info->maxpixels >= (MAX(w, v_w) * MAX(h, v_h))));
 }
 
@@ -333,8 +335,20 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
 	 return NULL;
       }
 
-      width = info->linewidth / info->bytesperpixel;
-      scanline_width = info->linewidth;
+      if ((v_w != 0) && (w != v_w)) {
+	 if ((v_w % 8) || (v_w < w)) {
+	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Invalid virtual resolution requested"));
+	    return NULL;
+	 }
+	 bytes_per_line = v_w * info->bytesperpixel;
+	 vga_setlogicalwidth(bytes_per_line);
+      }
+      else {
+	 bytes_per_line = info->linewidth;
+      }
+
+      width = bytes_per_line / info->bytesperpixel;
+      height = info->maxpixels / width;
 
       /* Set entries in gfx_svgalib.  */
       gfx_svgalib.vid_mem = vid_mem;
@@ -344,16 +358,16 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
       gfx_svgalib.desc = svga_desc;
 
       /* For hardware scrolling.  */
+      pixels_per_line = width;
       display_start_mask = info->startaddressrange;
-      bytes_per_pixel = info->bytesperpixel;
 
       /* Set truecolor format.  */
       set_color_shifts(color_depth, (info->flags & RGB_MISORDERED));
 
       /* Make the screen bitmap.  */
-      return _make_bitmap(width, info->maxpixels / width, 
+      return _make_bitmap(width, height,
 			  (unsigned long)vga_getgraphmem(),
-			  &gfx_svgalib, color_depth, scanline_width);
+			  &gfx_svgalib, color_depth, bytes_per_line);
    }
 
    /* Try get a banked frame buffer.  */
@@ -369,8 +383,8 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
    if (info) {
       width = gfx_svgalib.w;
       height = gfx_svgalib.h;
-      scanline_width = width * info->bytesperpixel;
-      vid_mem = scanline_width * height;
+      bytes_per_line = width * info->bytesperpixel;
+      vid_mem = bytes_per_line * height;
 
       /* Allocate memory buffer for screen.  */
       screen_buffer = malloc(vid_mem);
@@ -390,7 +404,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
 
       /* Make the screen bitmap.  */
       bmp = _make_bitmap(width, height, (unsigned long)screen_buffer,
-			 &gfx_svgalib, color_depth, scanline_width);
+			 &gfx_svgalib, color_depth, bytes_per_line);
       if (bmp) {
 	 /* Set bank switching routines.  */
 #ifndef ALLEGRO_NO_ASM
@@ -491,8 +505,7 @@ static void svga_exit(BITMAP *b)
  */
 static int svga_scroll(int x, int y)
 {
-   vga_setdisplaystart((x * bytes_per_pixel + y * scanline_width) 
-		       /* & display_start_mask */);
+   vga_setdisplaystart((x + y * pixels_per_line) /* & display_start_mask */);
    /* The bitmask seems to mess things up on my machine, even though
     * the documentation says it should be there. -- PW  */
    return 0;
