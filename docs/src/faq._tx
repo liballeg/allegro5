@@ -271,9 +271,10 @@ Windows problems
 </font>
       Make sure you're building a Windows GUI Application, and not a Windows
       Console Application. This is a setting when you create the project in
-      MSVC. This is specified by the '-tW' flag for the Borland C++ command
-      line compiler. Either that, or #define ALLEGRO_USE_CONSOLE at the top
-      if you really need the console for your program.
+      MSVC or Borland C++ Builder. This is specified by the '-tW' flag for
+      the Borland C++ command line compiler. Either that, or define the
+      preprocessor symbol ALLEGRO_USE_CONSOLE prior to including Allegro
+      headers if you really need the console for your program.
 
 <li><font size="+1">
 @\   I get an "out of environment space" error when I run fix.bat or
