@@ -33,6 +33,7 @@ typedef struct MODE_INFO {
    GFX_MODE_LIST *gfx;
 } MODE_INFO;
 
+
 static int pixel_realdepth[] = {8, 15, 15, 16, 16, 24, 24, 32, 32, 0};
 
 static DDPIXELFORMAT pixel_format[] = {
@@ -63,8 +64,8 @@ static int _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate, _wnd_flags;
 
 
 /* wnd_set_video_mode:
- *  called by window thread to set a gfx mode; this is needed because DirectDraw can only
- *  change the mode in the thread that handles the window
+ *  Called by window thread to set a gfx mode; this is needed because DirectDraw can only
+ *  change the mode in the thread that handles the window.
  */
 static int wnd_set_video_mode(void)
 {
@@ -74,7 +75,7 @@ static int wnd_set_video_mode(void)
    hr = IDirectDraw2_SetCooperativeLevel(directdraw, allegro_wnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN);
    if (FAILED(hr)) {
       _TRACE("SetCooperativeLevel() failed (%x)\n", hr);
-      goto Error;
+      return -1;
    }
 
    /* switch to fullscreen mode */
@@ -83,19 +84,16 @@ static int wnd_set_video_mode(void)
    if (FAILED(hr)) {
       _TRACE("SetDisplayMode(%u, %u, %u, %u, %u) failed (%x)\n", _wnd_width, _wnd_height, _wnd_depth,
                                                                  _wnd_refresh_rate, _wnd_flags, hr);
-      goto Error;
+      return -1;
    }
 
    return 0;
-
- Error:
-   return -1;
 }
 
 
 
 /* _get_color_shift:
- *  returns shift value for color mask
+ *  Returns shift value for color mask.
  */
 static int _get_color_shift(int mask)
 {
@@ -110,7 +108,7 @@ static int _get_color_shift(int mask)
 
 
 /* _get_color_bits:
- *  returns used bits in color mask
+ *  Returns used bits in color mask.
  */
 static int _get_color_bits(int mask)
 {
@@ -128,9 +126,9 @@ static int _get_color_bits(int mask)
 
 
 /* gfx_directx_compare_color_depth:
- *  compares the requested color depth with the desktop depth and find the best
- *   pixel format for color conversion if they don't match
- *  returns 0 if the depths match, -1 if they don't
+ *  Compares the requested color depth with the desktop depth and find
+ *  the best pixel format for color conversion if they don't match.
+ *  Returns 0 if the depths match, -1 if they don't.
  */ 
 int gfx_directx_compare_color_depth(int color_depth)
 {
@@ -177,7 +175,7 @@ int gfx_directx_compare_color_depth(int color_depth)
 
 
 /* gfx_directx_update_color_format:
- *  sets the _rgb variables for correct color format
+ *  Sets the _rgb variables for correct color format.
  */
 int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
 {
@@ -231,7 +229,7 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
 
 
 /* EnumModesCallback:
- *  callback for graphics mode enumeration
+ *  Callback function for graphics mode enumeration.
  */ 
 static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID mode_info_addr)
 {
@@ -242,22 +240,24 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
    if (mode_info->check_if_available) {
       mode_info->mode_supported = TRUE;
    }
-
-   /* build gfx mode-list */
    else {
+      /* build gfx mode-list */
       mode_info->gfx = realloc(mode_info->gfx, sizeof(GFX_MODE_LIST) * (mode_info->modes + 1));
-      if (!mode_info->gfx) return DDENUMRET_CANCEL;
+      if (!mode_info->gfx)
+         return DDENUMRET_CANCEL;
 
       mode_info->gfx[mode_info->modes].width  = lpDDSurfaceDesc->dwWidth;
       mode_info->gfx[mode_info->modes].height = lpDDSurfaceDesc->dwHeight;
       mode_info->gfx[mode_info->modes].bpp    = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
 
-      /* check if 16 bpp mode is 16 bpp or 15 bpp*/
+      /* check if 16 bpp mode is 16 bpp or 15 bpp */
       if (mode_info->gfx[mode_info->modes].bpp == 16) {
          real_bpp = _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
                     _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
                     _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
-         if (real_bpp == 15) mode_info->gfx[mode_info->modes].bpp = real_bpp;
+
+         if (real_bpp == 15)
+            mode_info->gfx[mode_info->modes].bpp = real_bpp;
       }
 
       mode_info->modes++;
@@ -269,8 +269,8 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
 
 
 /* gfx_directx_fetch_mode_list:
- *  creates a list of available video modes,
- *  returns number of video modes on success and -1 on failure.
+ *  Creates a list of available video modes.
+ *  Returns number of video modes on success and -1 on failure.
  */
 int gfx_directx_fetch_mode_list(void)
 {
@@ -281,8 +281,10 @@ int gfx_directx_fetch_mode_list(void)
    destroy_gfx_mode_list();
 
    /* enumerate VGA Mode 13h under DirectX 5 or greater */
-   if (_dx_ver >= 0x500) enum_flags = DDEDM_STANDARDVGAMODES;
-   else enum_flags = 0;
+   if (_dx_ver >= 0x500)
+      enum_flags = DDEDM_STANDARDVGAMODES;
+   else
+      enum_flags = 0;
 
    if (!directdraw) {
       init_directx();
@@ -299,7 +301,8 @@ int gfx_directx_fetch_mode_list(void)
    hr = IDirectDraw2_EnumDisplayModes(directdraw, enum_flags, NULL, &mode_info, EnumModesCallback);
 
    if (FAILED(hr)) {
-      if (dx_was_off) exit_directx();
+      if (dx_was_off)
+         exit_directx();
 
       return -1;
    }
@@ -323,7 +326,7 @@ int gfx_directx_fetch_mode_list(void)
 
 
 /* set_video_mode:
- *  sets the requested fullscreen video mode
+ *  Sets the requested fullscreen video mode.
  */
 int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
 {

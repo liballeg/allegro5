@@ -561,8 +561,8 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       }
    }
    else {
-       if (gfx_directx_update_color_format(offscreen_surface, color_depth) != 0)
-          goto Error;
+      if (gfx_directx_update_color_format(offscreen_surface, color_depth) != 0)
+         goto Error;
    }
 
    /* setup Allegro gfx driver */
