@@ -47,7 +47,7 @@ static BSoundPlayer *be_sound = NULL;
 static int be_sound_bufsize;
 static int be_sound_signed;
 
-static char be_sound_desc[320] = EMPTY_STRING;
+static char be_sound_desc[256] = EMPTY_STRING;
 
 
 
@@ -107,7 +107,7 @@ extern "C" int be_sound_detect(int input)
 extern "C" int be_sound_init(int input, int voices)
 {
    media_raw_audio_format format;
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
 
    if (input) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
