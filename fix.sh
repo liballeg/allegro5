@@ -60,6 +60,14 @@ proc_unix()
    AL_NOMAKE="1"
 }
 
+proc_mac()
+{
+   AL_COMPILER="Mac"
+   AL_MAKEFILE="dummy"
+   AL_PLATFORM="ALLEGRO_MPW"
+   AL_NOMAKE="1"
+}
+
 proc_watcom()
 {
    AL_COMPILER="DOS (Watcom)"
@@ -70,13 +78,14 @@ proc_watcom()
 proc_help()
 {
    echo ""
-   echo "Usage: ./fix.sh <platform> [--quick|--dtou|--utod]"
+   echo "Usage: ./fix.sh <platform> [--quick|--dtou|--utod|--utom|--mtou]"
    echo ""
    echo "Where platform is one of: bcc32, beos, djgpp, mingw32, msvc, qnx, rsxnt, unix"
-   echo "and watcom."
+   echo "mac and watcom."
    echo "The --quick parameter turns of text file conversion, --dtou converts from"
-   echo "DOS/Win32 format to unix and --utod converts from unix to DOS/Win32 format."
-   echo "If no parameter is specified --dtou is assumed."
+   echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
+   echo "--utom converts from Unix to Macintosh format and --mtou converts from"
+   echo "Macintosh to Unix format. If no parameter is specified --dtou is assumed."
    echo ""
 }
 
@@ -119,12 +128,36 @@ proc_dtou()
    proc_filelist
    for file in $AL_FILELIST; do
       echo "$file"
-      mv $file _tmpfile;
+      mv $file _tmpfile
       tr -d '\015' < _tmpfile > $file
       touch -r _tmpfile $file
       rm _tmpfile
    done
    chmod +x configure *.sh misc/*.sh misc/*.pl
+}
+
+proc_utom()
+{
+   proc_filelist
+   for file in $AL_FILELIST; do
+      echo "$file"
+      mv $file _tmpfile
+      tr '\012' '\015' < _tmpfile > $file
+      touch -r _tmpfile $file
+      rm _tmpfile
+   done
+}
+
+proc_mtou()
+{
+   proc_filelist
+   for file in $AL_FILELIST; do
+      echo "$file"
+      mv $file _tmpfile
+      tr '\015' '\012' < _tmpfile > $file
+      touch -r _tmpfile $file
+      rm _tmpfile
+   done
 }
 
 # take action!
@@ -153,6 +186,9 @@ elif [ "$1" = "rsxnt" ]; then
 elif [ "$1" = "unix" ]; then
    proc_unix
    proc_fix
+elif [ "$1" = "mac" ]; then
+   proc_mac
+   proc_fix
 elif [ "$1" = "watcom" ]; then
    proc_watcom
    proc_fix
@@ -172,6 +208,12 @@ if [ "$2" = "--utod" ]; then
 elif [ "$2" = "--dtou" ]; then
    echo "Converting files from DOS/Win32 to Unix..."
    proc_dtou
+elif [ "$2" = "--utom" ]; then
+   echo "Converting files from Unix to Macintosh..."
+   proc_utom
+elif [ "$2" = "--mtou" ]; then
+   echo "Converting files from Macintosh to Unix..."
+   proc_mtou
 elif [ "$2" = "--quick" ]; then
    echo "No text file conversion..."
 else
