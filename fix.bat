@@ -85,7 +85,7 @@ echo The --quick parameter is used to turn off LF to CR/LF conversion.
 echo.
 echo Use the --msvcpaths parameter if your MSVCDir variable contains 
 echo spaces (you can view content of that variable by typing 
-echo SET MSVCDir
+echo echo %%MSVCDir%%
 echo on the command line). Remember that this will only work if you
 echo have MinGW gcc in your PATH.
 echo.
