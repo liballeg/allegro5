@@ -99,7 +99,7 @@ int gui_textout_ex(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int b
 int gui_strlen(AL_CONST char *s)
 {
    ASSERT(s);
-   return gui_textout(NULL, s, 0, 0, 0, 0);
+   return gui_textout_ex(NULL, s, 0, 0, 0, 0, 0);
 }
 
 
@@ -218,16 +218,13 @@ int d_text_proc(int msg, DIALOG *d, int c)
 {
    ASSERT(d);
    if (msg==MSG_DRAW) {
-      int rtm;
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       FONT *oldfont = font;
 
       if (d->dp2)
 	 font = d->dp2;
 
-      rtm = text_mode(d->bg);
-      gui_textout(screen, d->dp, d->x, d->y, fg, FALSE);
-      text_mode(rtm);
+      gui_textout_ex(screen, d->dp, d->x, d->y, fg, d->bg, FALSE);
 
       font = oldfont;
    }
@@ -245,16 +242,13 @@ int d_ctext_proc(int msg, DIALOG *d, int c)
 {
    ASSERT(d);
    if (msg==MSG_DRAW) {
-      int rtm;
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       FONT *oldfont = font;
 
       if (d->dp2)
 	 font = d->dp2;
 
-      rtm = text_mode(d->bg);
-      gui_textout(screen, d->dp, d->x, d->y, fg, TRUE);
-      text_mode(rtm);
+      gui_textout_ex(screen, d->dp, d->x, d->y, fg, d->bg, TRUE);
 
       font = oldfont;
    }
@@ -272,16 +266,13 @@ int d_rtext_proc(int msg, DIALOG *d, int c)
 {
    ASSERT(d);
    if (msg==MSG_DRAW) {
-      int rtm;
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       FONT *oldfont = font;
 
       if (d->dp2)
 	 font = d->dp2;
 
-      rtm = text_mode(d->bg);
-      gui_textout(screen, d->dp, d->x + d->w - gui_strlen(d->dp), d->y, fg, FALSE);
-      text_mode(rtm);
+      gui_textout_ex(screen, d->dp, d->x + d->w - gui_strlen(d->dp), d->y, fg, d->bg, FALSE);
 
       font = oldfont;
    }
@@ -303,7 +294,6 @@ int d_button_proc(int msg, DIALOG *d, int c)
    int black;
    int swap;
    int g;
-   int rtm;
    ASSERT(d);
 
    switch (msg) {
@@ -315,16 +305,14 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	    state2 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 	 }
 	 else {
-	    g = 0; 
+	    g = 0;
 	    state1 = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 	    state2 = d->bg;
 	 }
 
 	 rectfill(screen, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
 	 rect(screen, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
-	 rtm = text_mode(-1);
-	 gui_textout(screen, d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, TRUE);
-	 text_mode(rtm);
+	 gui_textout_ex(screen, d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
 
 	 if (d->flags & D_SELECTED) {
 	    vline(screen, d->x, d->y, d->y+d->h-2, d->bg);
@@ -408,26 +396,20 @@ int d_check_proc(int msg, DIALOG *d, int c)
    ASSERT(d);
 
    if (msg==MSG_DRAW) {
-      int rtm;
-
       fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       bg = (d->bg < 0) ? gui_bg_color : d->bg;
 
-      rtm = text_mode(d->bg);
-
-      x = d->x + ((d->d1) ? 0 : gui_textout(screen, d->dp, d->x, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE) + text_height(font)/2);
+      x = d->x + ((d->d1) ? 0 : gui_textout_ex(screen, d->dp, d->x, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE) + text_height(font)/2);
       rectfill(screen, x+1, d->y+1, x+d->h-2, d->y+d->h-2, bg);
       rect(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
       if (d->d1)
-	 gui_textout(screen, d->dp, x+d->h-1+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE);
+	 gui_textout_ex(screen, d->dp, x+d->h-1+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
       if (d->flags & D_SELECTED) {
 	 line(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
 	 line(screen, x, d->y+d->h-1, x+d->h-1, d->y, fg);
       }
       if (d->flags & D_GOTFOCUS)
 	 dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
-
-      text_mode(rtm);
 
       return D_O_K;
    } 
@@ -445,7 +427,6 @@ int d_check_proc(int msg, DIALOG *d, int c)
 int d_radio_proc(int msg, DIALOG *d, int c)
 {
    int x, center, r, ret, fg, bg;
-   int rtm;
    ASSERT(d);
 
    switch(msg) {
@@ -454,9 +435,7 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	 fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 	 bg = (d->bg < 0) ? gui_bg_color : d->bg;
 
-	 rtm = text_mode(d->bg);
-	 gui_textout(screen, d->dp, d->x+d->h-1+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE);
-	 text_mode(rtm);
+	 gui_textout_ex(screen, d->dp, d->x+d->h-1+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
 
 	 x = d->x;
 	 r = d->h/2;
@@ -646,7 +625,6 @@ int d_edit_proc(int msg, DIALOG *d, int c)
    int f, l, p, w, x, fg, b, scroll;
    char buf[16];
    char *s, *t;
-   int rtm;
    ASSERT(d);
 
    s = d->dp;
@@ -702,12 +680,10 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	    f = ugetat(s, p);
 	    usetc(buf+usetc(buf, (f) ? f : ' '), 0);
 	    w = text_length(font, buf);
-	    if (x+w > d->w) 
+	    if (x+w > d->w)
 	       break;
 	    f = ((p == d->d2) && (d->flags & D_GOTFOCUS));
-	    rtm = text_mode((f) ? fg : d->bg);
-	    textout(screen, font, buf, d->x+x, d->y, (f) ? d->bg : fg);
-	    text_mode(rtm);
+	    textout_ex(screen, font, buf, d->x+x, d->y, (f) ? d->bg : fg, (f) ? fg : d->bg);
 	    x += w;
 	 }
 	 if (x < d->w)
@@ -1077,7 +1053,6 @@ void _draw_listbox(DIALOG *d)
    int fg_color, fg, bg;
    char *sel = d->dp2;
    char s[1024];
-   int rtm;
 
    (*(getfuncptr)d->dp)(-1, &listsize);
    height = (d->h-4) / text_height(font);
@@ -1103,16 +1078,14 @@ void _draw_listbox(DIALOG *d)
 	 ustrzcpy(s, sizeof(s), (*(getfuncptr)d->dp)(i+d->d2, NULL));
 	 x = d->x + 2;
 	 y = d->y + 2 + i*text_height(font);
-	 rtm = text_mode(bg);
-	 rectfill(screen, x, y, x+7, y+text_height(font)-1, bg); 
+	 rectfill(screen, x, y, x+7, y+text_height(font)-1, bg);
 	 x += 8;
 	 len = ustrlen(s);
 	 while (text_length(font, s) >= MAX(d->w - 1 - (bar ? 22 : 10), 1)) {
 	    len--;
 	    usetat(s, len, 0);
 	 }
-	 textout(screen, font, s, x, y, fg);
-	 text_mode(rtm);
+	 textout_ex(screen, font, s, x, y, fg, bg);
 	 x += text_length(font, s);
 	 if (x <= d->x+w) 
 	    rectfill(screen, x, y, d->x+w, y+text_height(font)-1, bg);
@@ -1411,7 +1384,6 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    int line = 0;
    int i = 0;
    int noignore;
-   int rtm;
 
    usetc(s+usetc(s, '.'), 0);
    usetc(text+usetc(text, ' '), 0);
@@ -1430,10 +1402,8 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    }
 
    /* choose the text color */
-   if (disabled) 
+   if (disabled)
       fg = disable;
-
-   rtm = text_mode(deselect);
 
    /* loop over the entire string */
    while (1) {
@@ -1529,7 +1499,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	       case '\t':
 		  for (i=0; i<tabsize; i++) {
 		     usetc(s+usetc(s, ' '), 0);
-		     textout(screen, font, s, x1, y1, fg);
+		     textout_ex(screen, font, s, x1, y1, fg, deselect);
 		     x1 += text_length(font, s);
 		  }
 		  break;
@@ -1538,7 +1508,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	       default:
 		  if (printed != ignore) {
 		     usetc(s+usetc(s, ugetc(printed)), 0);
-		     textout(screen, font, s, x1, y1, fg);
+		     textout_ex(screen, font, s, x1, y1, fg, deselect);
 		     x1 += text_length(font, s);
 		  }
 	    }
@@ -1561,17 +1531,15 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
       /* check if we are at the end of the string */
       if (!ugetc(printed)) {
 	 /* the under blank bit */
-	 if (draw) 
+	 if (draw)
 	    rectfill(screen, x+1, y1, x+w-3, y+h-1, deselect);
 
 	 /* tell how many lines we found */
 	 *listsize = line;
-	 text_mode(rtm);
 	 return;
       }
    }
 
-   text_mode(rtm);
 }
 
 

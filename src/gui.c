@@ -1232,7 +1232,6 @@ static void draw_menu_item(MENU_INFO *m, int c)
    char *buf, *tok;
    char *last;
    int my;
-   int rtm;
    char tmp[16];
 
    get_menu_pos(m, c, &x, &y, &w);
@@ -1265,17 +1264,16 @@ static void draw_menu_item(MENU_INFO *m, int c)
    }
 
    rectfill(screen, x, y, x+w-1, y+text_height(font)+3, bg);
-   rtm = text_mode(bg);
 
    if (ugetc(m->menu[c].text)) {
       buf = ustrdup(m->menu[c].text);
       tok = ustrtok_r(buf, uconvert_ascii("\t", tmp), &last);
 
-      gui_textout(screen, tok, x+8, y+1, fg, FALSE);
+      gui_textout_ex(screen, tok, x+8, y+1, fg, bg, FALSE);
 
       tok = ustrtok_r(NULL, empty_string, &last);
       if (tok)
- 	 gui_textout(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, FALSE);
+ 	 gui_textout_ex(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, bg, FALSE);
 
       if ((m->menu[c].child) && (!m->bar)) {
          my = y + text_height(font)/2;
@@ -1299,8 +1297,6 @@ static void draw_menu_item(MENU_INFO *m, int c)
       line(screen, x+1, y+text_height(font)/2+1, x+3, y+text_height(font)+1, fg);
       line(screen, x+3, y+text_height(font)+1, x+6, y+2, fg);
    }
-
-   text_mode(rtm);
 }
 
 
