@@ -259,8 +259,12 @@ information about how to install Allegro and link your program with it.
    Finds out the currently selected desktop color depth. You can use this
    information to make your program use the same color depth as the desktop,
    which will likely make it run faster because the graphic driver won't be
-   doing unnecessary color conversions behind your back. Usually you want to
-   call this before setting the graphic mode. Example:
+   doing unnecessary color conversions behind your back.
+
+   Under some OSes, switching to a full screen graphics mode may automatically
+   change the desktop color depth. You have, therefore, to call this function
+   before setting any graphics mode in order to retrieve the real desktop
+   color depth. Example:
 <codeblock>
       allegro_init();
       ...
@@ -277,8 +281,12 @@ information about how to install Allegro and link your program with it.
    information to avoid creating windows bigger than the current resolution.
    This is especially important for some windowed drivers which are unable
    to create windows bigger than the desktop. Each parameter is a pointer
-   to an integer where one dimension of the screen will be stored. Usually
-   you want to call this before setting the graphic mode. Example:
+   to an integer where one dimension of the screen will be stored.
+
+   Under some OSes, switching to a full screen graphics mode may automatically
+   change the desktop resolution. You have, therefore, to call this function
+   before setting any graphics mode in order to retrieve the real desktop
+   resolution. Example:
 <codeblock>
       int width, height;
       
@@ -413,7 +421,7 @@ available in past/future versions of Allegro.
    with the exception of the line field, whose access is described in depth
    in the "Direct access to video memory" section of the manual. If you want
    to modify the clipping region, please refrain from changing this
-   structure, use set_clip() instead.
+   structure. Use set_clip() instead.
 
 @@typedef struct @RLE_SPRITE
 @xref get_rle_sprite, BITMAP, COMPILED_SPRITE, RLE sprites
@@ -915,92 +923,108 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ugetc(const char *s);
 @xref ugetx, usetc, uwidth, ucwidth, uisok
-   Low level helper function for reading Unicode text data. Given a pointer 
-   to a string in the current encoding format, it returns the next character 
-   from the string.
+   Low level helper function for reading Unicode text data.
+@retval
+   Returns the character pointed to by s in the current encoding format.
 
 @@int @ugetx(char **s);
 @@int @ugetxc(const char **s);
 @xref ugetc, usetc, uwidth, ucwidth, uisok
-   Low level helper function for reading Unicode text data. Given the 
-   address of a pointer to a string in the current encoding format, it 
-   returns the next character from the string, and advances the pointer to 
-   the character after the one just read.
-
-   ugetxc is provided for working with pointer-to-pointer-to-const char 
-   data.
+   Low level helper function for reading Unicode text data. ugetxc is
+   provided for working with pointer-to-pointer-to-const char data.
+@retval
+   Returns the character pointed to by s in the current encoding format, and
+   advances the pointer to the next character after the one just returned.
 
 @@int @usetc(char *s, int c);
 @xref ugetc, ugetx, uwidth, ucwidth, uisok
-   Low level helper function for writing Unicode text data. It writes the 
-   specified character to the given address in the current encoding format, 
-   and returns the number of bytes written.
+   Low level helper function for writing Unicode text data. Writes the
+   character c to the address pointed to by s.
+@retval
+   Returns the number of bytes written, which is equal to the width of the
+   character in the current encoding format.
 
 @@int @uwidth(const char *s);
 @xref uwidth_max, ugetc, ugetx, usetc, ucwidth, uisok
-   Low level helper function for testing Unicode text data. It returns the 
-   number of bytes occupied by the first character of the specified string, 
-   in the current encoding format.
+   Low level helper function for testing Unicode text data.
+@retval
+   Returns the number of bytes occupied by the first character of the
+   specified string, in the current encoding format.
 
 @@int @ucwidth(int c);
 @xref uwidth_max, ugetc, ugetx, usetc, uwidth, uisok
-   Low level helper function for testing Unicode text data. It returns the 
-   number of bytes that would be occupied by the specified character value, 
-   when encoded in the current format.
+   Low level helper function for testing Unicode text data.
+@retval
+   Returns the number of bytes that would be occupied by the specified
+   character value, when encoded in the current format.
 
 @@int @uisok(int c);
 @xref ugetc, ugetx, usetc, uwidth, ucwidth
-   Low level helper function for testing Unicode text data. Tests whether 
-   the specified value can be correctly encoded in the current format.
+   Low level helper function for testing Unicode text data. Finds out if the
+   character value c can be encoded correctly in the current format, which can
+   be useful if you are converting from Unicode to ASCII or another encoding
+   format where the range of valid characters is limited.
+@retval
+   Returns non-zero if the value can be correctly encoded, zero otherwise.
 
 @@int @uoffset(const char *s, int index);
 @xref ugetat, usetat, uinsert, uremove
-   Returns the offset in bytes from the start of the string to the character 
-   at the specified index. If the index is negative, it counts backward from 
-   the end of the string, so an index of -1 will return an offset to the last
-   character.
+   Finds out the offset (in bytes from the start of the string) of the
+   character at the specified index in the string s. If the index is negative,
+   it counts backward from the end of the string, so an index of -1 will
+   return an offset to the last character.
+@retval
+   Returns the offset in bytes to the specified character.
 
 @@int @ugetat(const char *s, int index);
 @xref uoffset, usetat, uinsert, uremove
-   Returns the character value at the specified index within the string. A 
-   zero index parameter will return the first character of the string. If 
-   the index is negative, it counts backward from the end of the string, so 
-   an index of -1 will return the last character of the string.
+   Finds out the character value at the specified index in the string. A zero
+   index parameter will return the first character of the string. If the index
+   is negative, it counts backward from the end of the string, so an index of
+   -1 will return the last character of the string.
+@retval
+   Returns the character value at the specified index in the string.
 
 @@int @usetat(char *s, int index, int c);
 @xref uoffset, ugetat, uinsert, uremove
-   Replaces the character at the specified index within the string with 
-   value c, handling any adjustments for variable width data (ie. if c 
-   encodes to a different width than the previous value at that location). 
-   Returns the number of bytes by which the trailing part of the string was 
-   moved. If the index is negative, it counts backward from the end of the 
-   string.
+   Replaces the character at the specified index in the string with value c,
+   handling any adjustments for variable width data (ie. if c encodes to a
+   different width than the previous value at that location). If the index is
+   negative, it counts backward from the end of the string.
+@retval
+   Returns the number of bytes by which the trailing part of the string was
+   moved. This is of interest only with text encoding formats where
+   characters have a variable length, like UTF-8.
 
 @@int @uinsert(char *s, int index, int c);
 @xref uoffset, ugetat, usetat, uremove
-   Inserts the character c at the specified index within the string, sliding 
-   the rest of the data along to make room. Returns the number of bytes by 
-   which the trailing part of the string was moved. If the index is 
-   negative, it counts backward from the end of the string.
+   Inserts the character c at the specified index in the string, sliding the
+   rest of the data along to make room. If the index is negative, it counts
+   backward from the end of the string.
+@retval
+   Returns the number of bytes by which the trailing part of the string was
+   moved.
 
 @@int @uremove(char *s, int index);
 @xref uoffset, ugetat, usetat, uinsert
    Removes the character at the specified index within the string, sliding 
-   the rest of the data back to fill the gap. Returns the number of bytes by 
-   which the trailing part of the string was moved. If the index is 
-   negative, it counts backward from the end of the string.
+   the rest of the data back to fill the gap. If the index is negative, it
+   counts backward from the end of the string.
+@retval
+   Returns the number of bytes by which the trailing part of the string was
+   moved.
 
 @@int @ustrsize(const char *s);
-@xref ustrsizez
+@xref ustrsizez, empty_string
 @eref exunicod
    Returns the size of the specified string in bytes, not including the 
-   trailing zero.
+   trailing null character.
 
 @@int @ustrsizez(const char *s);
-@xref ustrsize
+@xref ustrsize, empty_string
 @eref exunicod
    Returns the size of the specified string in bytes, including the trailing 
-   zero.
+   null character.
 
 @@int @uwidth_max(int type);
 @xref uwidth, ucwidth
@@ -1028,10 +1052,11 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrdup(const char *src)
 @xref _ustrdup, uconvert, ustrsize, ustrsizez
 @eref exconfig
-   This functions copies the NULL-terminated string src into a newly
-   allocated area of memory. The memory returned by this call must be freed
-   by the caller. Returns NULL if it cannot allocate space for the duplicated
-   string.
+   This functions copies the null-terminated string src into a newly
+   allocated area of memory, effectively duplicating it.
+@retval
+   Returns the newly allocated string. This memory must be freed by the
+   caller. Returns NULL if it cannot allocate space for the duplicated string.
 
 @@char *@_ustrdup(const char *src, void* (*malloc_func) (size_t))
 @xref ustrdup, uconvert, ustrsize, ustrsizez
@@ -1041,28 +1066,50 @@ is best to set it with set_uformat() just before you call these.
 @@char *@ustrcpy(char *dest, const char *src);
 @xref uconvert, ustrzcpy, ustrncpy
 @eref exunicod
-   This function copies src (including the terminating NULL character) into 
-   dest. The return value is the value of dest.
+   This function copies src (including the terminating null character into
+   dest. You should try to avoid this function because it is very easy to
+   overflow the destination buffer. Use ustrzcpy instead.
+@retval
+   Returns the value of dest.
 
 @@char *@ustrzcpy(char *dest, int size, const char *src);
 @xref uconvert, ustrcpy, ustrzncpy
 @eref exgui
-   This function copies src (including the terminating NULL character) into 
-   dest, whose length in bytes is specified by size and which is guaranteed 
-   to be NULL-terminated. The return value is the value of dest.
+   This function copies src (including the terminating NULL character into
+   dest, whose length in bytes is specified by size and which is guaranteed
+   to be null-terminated even if src is bigger than size.
+   
+   Note that, even for empty strings, your destination string must have at
+   least enough bytes to store the terminating null character of the string,
+   and your parameter size must reflect this. Otherwise, the debug version of
+   Allegro will abort at an assertion, and the release version of Allegro
+   will overrun the destination buffer.
+@retval
+   Returns the value of dest.
 
 @@char *@ustrcat(char *dest, const char *src);
 @xref uconvert, ustrzcat, ustrncat
 @eref exunicod
-   This function concatenates src to the end of dest. The return value is the
-   value of dest.
+   This function concatenates src to the end of dest. You should try to avoid
+   this function because it is very easy to overflow the destination buffer,
+   use ustrzcat instead.
+@retval
+   Returns the value of dest.
 
 @@char *@ustrzcat(char *dest, int size, const char *src);
 @xref uconvert, ustrcat, ustrzncat
 @eref exgui
    This function concatenates src to the end of dest, whose length in bytes 
-   is specified by size and which is guaranteed to be NULL-terminated. The 
-   return value is the value of dest.
+   is specified by size and which is guaranteed to be null-terminated even
+   when src is bigger than size.
+
+   Note that, even for empty strings, your destination string must have at
+   least enough bytes to store the terminating null character of the string,
+   and your parameter size must reflect this. Otherwise, the debug version of
+   Allegro will abort at an assertion, and the release version of Allegro
+   will overrun the destination buffer.
+@retval
+   Returns the value of dest.
 
 @@int @ustrlen(const char *s);
 @xref uconvert, ustrsize, ustrsizez
@@ -1071,69 +1118,96 @@ is best to set it with set_uformat() just before you call these.
 
 @@int @ustrcmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrncmp, ustricmp, ustrnicmp
-   This function compares s1 and s2. Returns zero if the strings are equal,
-   a positive number if s1 comes after s2 in the ASCII collating sequence,
-   else a negative number.
+   This function compares s1 and s2.
+@retval
+   Returns zero if the strings are equal, a positive number if s1 comes after
+   s2 in the ASCII collating sequence, else a negative number.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
 @xref uconvert, ustrcpy, ustrzncpy
    This function is like ustrcpy() except that no more than n characters 
-   from src are copied into dest. If src is shorter than n characters, NULL 
+   from src are copied into dest. If src is shorter than n characters, null
    characters are appended to dest as padding until n characters have been 
-   written. Note that if src is longer than n characters, dest will not be 
-   NULL-terminated. The return value is the value of dest.
+   written.
+
+   Note that if src is longer than n characters, dest will not be
+   null-terminated.
+@retval
+   The return value is the value of dest.
 
 @@char *@ustrzncpy(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcpy, ustrncpy
    This function is like ustrzcpy() except that no more than n characters 
-   from src are copied into dest. If src is shorter than n characters, NULL 
+   from src are copied into dest. If src is shorter than n characters, null
    characters are appended to dest as padding until n characters have been 
-   written. Note that dest is guaranteed to be NULL-terminated. The return 
-   value is the value of dest.
+   written. In any case, dest is guaranteed to be null-terminated.
+
+   Note that, even for empty strings, your destination string must have at
+   least enough bytes to store the terminating null character of the string,
+   and your parameter size must reflect this. Otherwise, the debug version of
+   Allegro will abort at an assertion, and the release version of Allegro
+   will overrun the destination buffer.
+@retval
+   The return value is the value of dest.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
 @xref uconvert, ustrcat, ustrzncat
    This function is like ustrcat() except that no more than n characters 
-   from src are appended to the end of dest. If the terminating NULL 
+   from src are appended to the end of dest. If the terminating null
    character in src is reached before n characters have been written, the 
-   NULL character is copied, but no other characters are written. If n 
-   characters are written before a terminating NULL is encountered, the 
-   function appends its own NULL character to dest, so that n+1 characters 
-   are written. The return value is the value of dest.
+   null character is copied, but no other characters are written. If n
+   characters are written before a terminating null is encountered, the
+   function appends its own null character to dest, so that n+1 characters
+   are written. You should try to avoid this function because it is very
+   easy to overflow the destination buffer. Use ustrzncat instead.
+@retval
+   The return value is the value of dest.
 
 @@char *@ustrzncat(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcat, ustrncat
    This function is like ustrzcat() except that no more than n characters 
-   from src are appended to the end of dest. If the terminating NULL 
+   from src are appended to the end of dest. If the terminating null
    character in src is reached before n characters have been written, the 
-   NULL character is copied, but no other characters are written. Note that 
-   dest is guaranteed to be NULL-terminated. The return value is the value 
-   of dest.
+   null character is copied, but no other characters are written. Note that
+   dest is guaranteed to be null-terminated.
+@retval
+   The return value is the value of dest.
 
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp, ustrnicmp
-   This function compares up to n characters of s1 and s2. Returns zero if
-   the substrings are equal, a positive number if s1 comes after s2 in the
-   ASCII collating sequence, else a negative number.
+   This function compares up to n characters of s1 and s2.
+@retval
+   Returns zero if the substrings are equal, a positive number if s1 comes
+   after s2 in the ASCII collating sequence, else a negative number.
 
 @@int @ustricmp(const char *s1, const char *s2);
 @xref uconvert, ustrsize, ustrsizez, ustrnicmp, ustrcmp, ustrncmp
 @eref exconfig
    This function compares s1 and s2, ignoring case.
+@retval
+   Returns zero if the strings are equal, a positive number if s1 comes after
+   s2 in the ASCII collating sequence, else a negative number.
 
 @@int @ustrnicmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustricmp, ustrcmp, ustrncmp
    This function compares up to n characters of s1 and s2, ignoring case.
+@retval
+   Returns zero if the strings are equal, a positive number if s1 comes after
+   s2 in the ASCII collating sequence, else a negative number.
 
 @@char *@ustrlwr(char *s);
 @xref uconvert, utolower, ustrupr
    This function replaces all upper case letters in s with lower case
    letters.
+@retval
+   The return value is the value of s.
 
 @@char *@ustrupr(char *s);
 @xref uconvert, utolower, ustrlwr
    This function replaces all lower case letters in s with upper case
    letters.
+@retval
+   The return value is the value of s.
 
 @@char *@ustrchr(const char *s, int c);
 @xref uconvert, ustrrchr, ustrstr, ustrpbrk, ustrtok
@@ -2241,7 +2315,7 @@ combinations are possible seems to vary from one keyboard to another).
    library functions to access the keyboard. Returns zero on success, or a
    negative number on failure (but you may decide not to check the return
    value as this function is very unlikely to fail). Note that on some
-   platforms the keyboard won't work unless you have set a graphic mode,
+   platforms the keyboard won't work unless you have set a graphics mode,
    even if this function returns zero before calling set_gfx_mode.
 
 @@void @remove_keyboard();
@@ -2837,7 +2911,7 @@ Graphics modes
    of the screen: your code will have to deal with this little detail.
 
    Finally, GFX_TEXT is another magic driver which usually closes any
-   previously opened graphic mode, making you unable to use the global
+   previously opened graphics mode, making you unable to use the global
    variable screen, and in those environments that have text modes, sets one
    previously used or the closest match to that (usually 80x25). With this
    driver the size parameters of set_gfx_mode don't mean anything, so you can
@@ -6768,25 +6842,25 @@ directories, but not hidden files and directories. Similarly, if you pass
 @@long @pack_fread(void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
    Reads n bytes from the stream f, storing them at the memory location
-   pointed by p.
+   pointed to by p.
 @retval
    Returns the number of bytes read, which will be less than n if EOF is
    reached or an error occurs. Error codes are stored in errno.
 
 @@long @pack_fwrite(const void *p, long n, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_feof
-   Writes n bytes to the stream f from memory location pointed by p.
+   Writes n bytes to the stream f from memory location pointed to by p.
 @retval
    Returns the number of bytes written, which will be less than n if an
    error occurs. Error codes are stored in errno.
 
 @@char *@pack_fgets(char *p, int max, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fread, pack_getc
-   Reads a line from the stream f, storing it at location pointed by p. Stops
-   when a linefeed is encountered, or 'max' bytes have been read. The end of
-   line is handled by detecting the right combination of characters for the
-   platform. This supports CR-LF (DOS/Windows), LF (Unix), and CR (Mac)
-   formats.
+   Reads a line from the stream f, storing it at location pointed to by p.
+   Stops when a linefeed is encountered, or 'max' bytes have been read. The
+   end of line is handled by detecting the right combination of characters
+   for the platform. This supports CR-LF (DOS/Windows), LF (Unix), and CR
+   (Mac) formats.
 @retval
    Returns the pointer p on success, or NULL on error.
 
@@ -8609,7 +8683,7 @@ below for the consequences for windowed and overlay DirectX drivers.
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      This closes any graphic mode previously opened with set_gfx_mode.
+      This closes any graphics mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -8927,7 +9001,7 @@ function to remind you :-)
    for the set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      This closes any graphic mode previously opened with set_gfx_mode.
+      This closes any graphics mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -9016,7 +9090,7 @@ BeOS specifics
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      This closes any graphic mode previously opened with set_gfx_mode.
+      This closes any graphics mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -9082,7 +9156,7 @@ QNX specifics
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      This closes any graphic mode previously opened with set_gfx_mode.
+      This closes any graphics mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
@@ -9159,7 +9233,7 @@ MacOS X specifics
    set_gfx_mode() function:
 <ul><li>
    GFX_TEXT<br>
-      This closes any graphic mode previously opened with set_gfx_mode.
+      This closes any graphics mode previously opened with set_gfx_mode.
 <li>
    GFX_AUTODETECT<br>
       Let Allegro pick an appropriate graphics driver.
