@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #include "makeman.h"
@@ -30,6 +31,9 @@
 
 char manheader[256] = "";
 char mansynopsis[256] = "";
+
+char *man_shortdesc_force1;
+char *man_shortdesc_force2;
 
 static int _mpreformat = 0;
 static int _mpreindent = 0;
@@ -57,6 +61,15 @@ int write_man(char *filename)
    FILE *f2;
    char *p;
    int i;
+
+   /* Free strings if not both of them where specified. */
+   if (!(man_shortdesc_force1 && man_shortdesc_force2)) {
+      if (man_shortdesc_force1)
+	 free(man_shortdesc_force1);
+      if (man_shortdesc_force2)
+	 free(man_shortdesc_force2);
+      man_shortdesc_force1 = man_shortdesc_force2 = 0;
+   }
 
    while (line) {
       if (line->flags & (HEADING_FLAG | DEFINITION_FLAG | NODE_FLAG)) {
@@ -401,19 +414,28 @@ static void _write_short_desc(FILE *f, LINE *line)
       
    while (1) {
       if (!line)
-	 return ;
+	 goto empty_title;
       if (line->flags & (MAN_FLAG | DEFINITION_FLAG))
-	 return ;
+	 goto empty_title;
       if (line->flags & (HEADING_FLAG | DEFINITION_FLAG | NODE_FLAG))
-	 return ;
+	 goto empty_title;
 
       if (line->flags & SHORT_DESC_FLAG) {
-	 fprintf(f, " \\- %s\\&", line->text);
+	 /* Do we need to add the forced text to the title? */
+	 if (man_shortdesc_force1 && !mystristr(line->text, man_shortdesc_force1))
+	    fprintf(f, " \\- %s %s\\&", line->text, man_shortdesc_force2);
+	 else
+	    fprintf(f, " \\- %s\\&", line->text);
 	 return ;
       }
          
       line = line->next;
    }
+
+   empty_title:
+   /* If we reach here, we didn't find a short description. Force one? */
+   if (man_shortdesc_force1)
+      fprintf(f, " \\- %s\\&", man_shortdesc_force2);
 }
 
 

@@ -245,6 +245,20 @@
       are documenting. This description will appear for example in the name
       of man pages, which can be queried with the apropos command.
 
+   @man_shortdesc_force1=xxx
+   @man_shortdesc_force2=xxx
+      Man pages use the short description in the title. However, one of the
+      ways of locating a man page is usually running `apropos string', and
+      maybe it's difficult to formulate short descriptions which always
+      contain a specific keyword. That's why these commands exist. For every
+      man page title, the first string is searched ignoring case. If this
+      string is found, nothing happens. Otherwise, the second string will
+      be appended to the short description (if any). This allows to populate
+      all manpages with a nice title without having to specify a short
+      description for each of them. Example:
+
+         @man_shortdesc_force1=allegro
+         @man_shortdesc_force2=Allegro game programming library.
 
 
 ===================================

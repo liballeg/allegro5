@@ -483,6 +483,16 @@ static int _read_file(char *filename)
 	    strcpy(manheader, buf+6);
 	 else if (strincmp(buf+1, "mans=") == 0)
 	    strcpy(mansynopsis, buf+6);
+	 else if (strincmp(buf+1, "man_shortdesc_force1=") == 0) {
+	    if (man_shortdesc_force1)
+	       free(man_shortdesc_force1);
+	    man_shortdesc_force1 = m_strdup(buf+22);
+	 }
+	 else if (strincmp(buf+1, "man_shortdesc_force2=") == 0) {
+	    if (man_shortdesc_force2)
+	       free(man_shortdesc_force2);
+	    man_shortdesc_force2 = m_strdup(buf+22);
+	 }
 	 else if (strincmp(buf+1, "locale=") == 0) {
 	    printf("'%s' tag obsolete, will be ignored.\n"
 		   "Please use @charset='' or @rtf_language_header='' instead.\n"
@@ -584,6 +594,10 @@ static void _free_data(void)
       free(_email_mangle_at);
    if (_email_mangle_dot)
       free(_email_mangle_dot);
+   if (man_shortdesc_force1)
+      free(man_shortdesc_force1);
+   if (man_shortdesc_force2)
+      free(man_shortdesc_force2);
 }
 
 
