@@ -129,6 +129,7 @@ void (*midi_sysex_callback)(AL_CONST unsigned char *data, int length) = NULL;
 void lock_midi(MIDI *midi)
 {
    int c;
+   ASSERT(midi);
 
    LOCK_DATA(midi, sizeof(MIDI));
 
@@ -1073,6 +1074,7 @@ static int load_patches(MIDI *midi)
    unsigned char running_status, event;
    long l;
    int c;
+   ASSERT(midi);
 
    for (c=0; c<128; c++)                        /* initialise to unused */
       patches[c] = drums[c] = FALSE;
@@ -1173,6 +1175,7 @@ static int load_patches(MIDI *midi)
 static void prepare_to_play(MIDI *midi)
 {
    int c;
+   ASSERT(midi);
 
    for (c=0; c<16; c++)
       reset_controllers(c);
@@ -1284,7 +1287,7 @@ int play_looped_midi(MIDI *midi, int loop_start, int loop_end)
 /* stop_midi:
  *  Stops whatever MIDI file is currently playing.
  */
-void stop_midi()
+void stop_midi(void)
 {
    play_midi(NULL, FALSE);
 }
@@ -1296,7 +1299,7 @@ END_OF_FUNCTION(stop_midi);
 /* midi_pause:
  *  Pauses the currently playing MIDI file.
  */
-void midi_pause()
+void midi_pause(void)
 {
    int c;
 
@@ -1318,7 +1321,7 @@ END_OF_FUNCTION(midi_pause);
 /* midi_resume:
  *  Resumes playing a paused MIDI file.
  */
-void midi_resume() 
+void midi_resume(void)
 {
    if (!midifile)
       return;
@@ -1451,6 +1454,7 @@ void midi_out(unsigned char *data, int length)
    unsigned char *pos = data;
    unsigned char running_status = 0;
    long timer = 0;
+   ASSERT(data);
 
    midi_semaphore = TRUE;
    _midi_tick++;
@@ -1468,7 +1472,7 @@ void midi_out(unsigned char *data, int length)
 /* load_midi_patches:
  *  Tells the MIDI driver to preload the entire sample set.
  */
-int load_midi_patches()
+int load_midi_patches(void)
 {
    char patches[128], drums[128];
    int c, ret;
