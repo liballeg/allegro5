@@ -106,8 +106,10 @@
    
    The `allegro-config --shared` option mentioned above will output all the
    options and libraries needed to link dynamically against the shared version
-   of the Allegro library. You can also run these allegro-config commands on the
-   commandline to see what exactly they do.
+   of the Allegro library. If you use --libs instead of --shared or --static,
+   the script will generate the linking arguments according to the latest
+   installed library version. You can also run these allegro-config commands
+   on the commandline to see what exactly they do.
 
    If you want to build a debug version of your program, assuming that 
    you have installed the debug version of Allegro, use:
