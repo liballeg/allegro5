@@ -375,7 +375,7 @@ static int get_ini_config_entry(char *entry, char *dest, unsigned int dest_size,
    char *p;
 
    /* make a local copy of the entry, upper-case it */
-   _al_sane_strncpy(tokstr, entry, 33);
+   _al_sane_strncpy(tokstr, entry, sizeof(tokstr));
    strupr(tokstr);
 
    /* rewind the file and try to find it... */
@@ -433,18 +433,18 @@ static int get_init_config(void)
    if (!(ep = getenv("SNDSCAPE")))
       return FALSE;
 
-   _al_sane_strncpy(str, ep, 78);
+   _al_sane_strncpy(str, ep, sizeof(str));
 
    if (str[strlen(str)-1] == '\\')
       str[strlen(str)-1] = 0;
 
-   strncat(str, "\\SNDSCAPE.INI", 78-1);
+   strncat(str, "\\SNDSCAPE.INI", sizeof(str)-1);
 
    if (!(fp = fopen(str, "r")))
       return FALSE;
 
    /* read all of the necessary config info ... */
-   if (get_ini_config_entry("Product", str, 78, fp)) {
+   if (get_ini_config_entry("Product", str, sizeof(str), fp)) {
       fclose(fp);
       return FALSE;
    }
@@ -456,21 +456,21 @@ static int get_init_config(void)
    else
       soundscape_irqset = ss_irqs;
 
-   if (get_ini_config_entry("Port", str, 78, fp)) {
+   if (get_ini_config_entry("Port", str, sizeof(str), fp)) {
       fclose(fp);
       return FALSE;
    }
 
    soundscape_baseport = strtol(str, NULL, 16);
 
-   if (get_ini_config_entry("WavePort", str, 78, fp)) {
+   if (get_ini_config_entry("WavePort", str, sizeof(str), fp)) {
       fclose(fp);
       return FALSE;
    }
 
    soundscape_waveport = strtol(str, NULL, 16);
 
-   if (get_ini_config_entry("IRQ", str, 78, fp)) {
+   if (get_ini_config_entry("IRQ", str, sizeof(str), fp)) {
       fclose(fp);
       return FALSE;
    }
@@ -480,7 +480,7 @@ static int get_init_config(void)
    if (soundscape_midiirq == 2)
       soundscape_midiirq = 9;
 
-   if (get_ini_config_entry("SBIRQ", str, 78, fp)) {
+   if (get_ini_config_entry("SBIRQ", str, sizeof(str), fp)) {
       fclose(fp);
       return FALSE;
    }
@@ -490,7 +490,7 @@ static int get_init_config(void)
    if (soundscape_waveirq == 2)
       soundscape_waveirq = 9;
 
-   if (get_ini_config_entry("DMA", str, 78, fp)) {
+   if (get_ini_config_entry("DMA", str, sizeof(str), fp)) {
       fclose(fp);
       return FALSE;
    }

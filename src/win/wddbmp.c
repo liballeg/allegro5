@@ -80,75 +80,75 @@ static char *dd_err(long err)
    switch (err) {
 
       case DD_OK:
-         _al_sane_strncpy(err_str, "DD_OK", 64);
+         _al_sane_strncpy(err_str, "DD_OK", sizeof(err_str));
          break;
 
       case DDERR_GENERIC:
-         _al_sane_strncpy(err_str, "DDERR_GENERIC", 64);
+         _al_sane_strncpy(err_str, "DDERR_GENERIC", sizeof(err_str));
          break;
 
      case DDERR_INCOMPATIBLEPRIMARY:
-         _al_sane_strncpy(err_str, "DDERR_INCOMPATIBLEPRIMARY", 64);
+         _al_sane_strncpy(err_str, "DDERR_INCOMPATIBLEPRIMARY", sizeof(err_str));
          break;
 
      case DDERR_INVALIDCAPS:
-         _al_sane_strncpy(err_str, "DDERR_INVALIDCAPS", 64);
+         _al_sane_strncpy(err_str, "DDERR_INVALIDCAPS", sizeof(err_str));
          break;
 
       case DDERR_INVALIDOBJECT:
-         _al_sane_strncpy(err_str, "DDERR_INVALIDOBJECT", 64);
+         _al_sane_strncpy(err_str, "DDERR_INVALIDOBJECT", sizeof(err_str));
          break;
 
       case DDERR_INVALIDPARAMS:
-         _al_sane_strncpy(err_str, "DDERR_INVALIDPARAMS", 64);
+         _al_sane_strncpy(err_str, "DDERR_INVALIDPARAMS", sizeof(err_str));
          break;
 
      case DDERR_INVALIDPIXELFORMAT:
-         _al_sane_strncpy(err_str, "DDERR_INVALIDPIXELFORMAT", 64);
+         _al_sane_strncpy(err_str, "DDERR_INVALIDPIXELFORMAT", sizeof(err_str));
          break;
 
       case DDERR_NOFLIPHW:
-         _al_sane_strncpy(err_str, "DDERR_NOFLIPHW", 64);
+         _al_sane_strncpy(err_str, "DDERR_NOFLIPHW", sizeof(err_str));
          break;
 
       case DDERR_NOTFLIPPABLE:
-         _al_sane_strncpy(err_str, "DDERR_NOTFLIPPABLE", 64);
+         _al_sane_strncpy(err_str, "DDERR_NOTFLIPPABLE", sizeof(err_str));
          break;
 
       case DDERR_OUTOFMEMORY:
-         _al_sane_strncpy(err_str, "DDERR_OUTOFMEMORY", 64);
+         _al_sane_strncpy(err_str, "DDERR_OUTOFMEMORY", sizeof(err_str));
          break;
 
       case DDERR_OUTOFVIDEOMEMORY:
-         _al_sane_strncpy(err_str, "DDERR_OUTOFVIDEOMEMORY", 64);
+         _al_sane_strncpy(err_str, "DDERR_OUTOFVIDEOMEMORY", sizeof(err_str));
          break;
 
      case DDERR_PRIMARYSURFACEALREADYEXISTS:
-         _al_sane_strncpy(err_str, "DDERR_PRIMARYSURFACEALREADYEXISTS", 64);
+         _al_sane_strncpy(err_str, "DDERR_PRIMARYSURFACEALREADYEXISTS", sizeof(err_str));
          break;
 
       case DDERR_SURFACEBUSY:
-         _al_sane_strncpy(err_str, "DDERR_SURFACEBUSY", 64);
+         _al_sane_strncpy(err_str, "DDERR_SURFACEBUSY", sizeof(err_str));
          break;
 
       case DDERR_SURFACELOST:
-         _al_sane_strncpy(err_str, "DDERR_SURFACELOST", 64);
+         _al_sane_strncpy(err_str, "DDERR_SURFACELOST", sizeof(err_str));
          break;
 
      case DDERR_UNSUPPORTED:
-         _al_sane_strncpy(err_str, "DDERR_UNSUPPORTED", 64);
+         _al_sane_strncpy(err_str, "DDERR_UNSUPPORTED", sizeof(err_str));
          break;
 
      case DDERR_UNSUPPORTEDMODE:
-         _al_sane_strncpy(err_str, "DDERR_UNSUPPORTEDMODE", 64);
+         _al_sane_strncpy(err_str, "DDERR_UNSUPPORTEDMODE", sizeof(err_str));
          break;
 
      case DDERR_WASSTILLDRAWING:
-         _al_sane_strncpy(err_str, "DDERR_WASSTILLDRAWING", 64);
+         _al_sane_strncpy(err_str, "DDERR_WASSTILLDRAWING", sizeof(err_str));
          break;
 
       default:
-         _al_sane_strncpy(err_str, "DDERR_UNKNOWN", 64);
+         _al_sane_strncpy(err_str, "DDERR_UNKNOWN", sizeof(err_str));
          break;
    }
 

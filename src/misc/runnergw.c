@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
          fclose(file);
       }
       else {
-         strncat(var, argv[i], 4096-1);
+         strncat(var, argv[i], sizeof(var)-1);
          p = var + strlen(var);
       }
 

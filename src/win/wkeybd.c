@@ -80,26 +80,26 @@ static char* dinput_err_str(long err)
    switch (err) {
 
       case DIERR_NOTACQUIRED:
-         _al_sane_strncpy(err_str, "the device is not acquired", 64);
+         _al_sane_strncpy(err_str, "the device is not acquired", sizeof(err_str));
          break;
 
       case DIERR_INPUTLOST:
-         _al_sane_strncpy(err_str, "access to the device was lost", 64);
+         _al_sane_strncpy(err_str, "access to the device was lost", sizeof(err_str));
          break;
 
       case DIERR_INVALIDPARAM:
-         _al_sane_strncpy(err_str, "the device does not have a selected data format", 64);
+         _al_sane_strncpy(err_str, "the device does not have a selected data format", sizeof(err_str));
          break;
 
 #ifdef DIERR_OTHERAPPHASPRIO
       /* this is not a legacy DirectX 3 error code */
       case DIERR_OTHERAPPHASPRIO:
-         _al_sane_strncpy(err_str, "can't acquire the device in background", 64);
+         _al_sane_strncpy(err_str, "can't acquire the device in background", sizeof(err_str));
          break;
 #endif
 
       default:
-         _al_sane_strncpy(err_str, "unknown error", 64);
+         _al_sane_strncpy(err_str, "unknown error", sizeof(err_str));
    }
 
    return err_str;

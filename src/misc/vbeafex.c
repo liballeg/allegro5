@@ -50,6 +50,8 @@
 #endif
 
 
+#define BUFFER_SIZE  256
+
 
 /* FAFEXT_LIBC extension structure */
 typedef struct LIBC_DATA
@@ -922,9 +924,9 @@ static const char *get_current_path(void)
    static char *buffer = NULL;
 
    if (!buffer)
-      buffer = malloc(256);
+      buffer = malloc(BUFFER_SIZE);
 
-   getcwd(buffer, 255);
+   getcwd(buffer, BUFFER_SIZE-1);
 
    return buffer;
 }
@@ -956,10 +958,10 @@ static const char *get_nucleus_path(void)
    p = getenv("WINBOOTDIR");
    if (p) {
       if (!buffer)
-	 buffer = malloc(256);
+	 buffer = malloc(BUFFER_SIZE);
 
-      _al_sane_strncpy(buffer , p, 256);
-      strncat(buffer, "\\nucleus", 256-1);
+      _al_sane_strncpy(buffer , p, BUFFER_SIZE);
+      strncat(buffer, "\\nucleus", BUFFER_SIZE-1);
       return buffer;
    }
 
@@ -976,11 +978,11 @@ static const char *get_nucleus_config_path(void)
    static char *buffer = NULL;
 
    if (!buffer)
-      buffer = malloc(256);
+      buffer = malloc(BUFFER_SIZE);
 
-   _al_sane_strncpy(buffer, get_nucleus_path(), 256);
+   _al_sane_strncpy(buffer, get_nucleus_path(), BUFFER_SIZE);
    put_backslash(buffer);
-   strncat(buffer, "config", 256-1);
+   strncat(buffer, "config", BUFFER_SIZE-1);
 
    return buffer;
 }
@@ -1005,12 +1007,12 @@ static const char *get_machine_name(void)
    static char *buffer = NULL;
 
    if (!buffer)
-      buffer = malloc(256);
+      buffer = malloc(BUFFER_SIZE);
 
    #ifdef ALLEGRO_DJGPP
-      gethostname(buffer, 255);
+      gethostname(buffer, BUFFER_SIZE-1);
    #else
-      _al_sane_strncpy(buffer, "pc", 256);
+      _al_sane_strncpy(buffer, "pc", BUFFER_SIZE);
    #endif
 
    return buffer;

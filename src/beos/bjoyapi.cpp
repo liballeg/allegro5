@@ -75,7 +75,7 @@ extern "C" int be_joy_init(void)
    }
    be_joy->GetControllerName(temp);
    name = temp->LockBuffer(0);
-   _al_sane_strncpy(desc, name, 30);
+   _al_sane_strncpy(desc, name, sizeof(desc));
    temp->UnlockBuffer();
    joystick_beos.desc = desc;
 
@@ -98,12 +98,12 @@ extern "C" int be_joy_init(void)
          joy[i].stick[0].name = name_stick;
          be_joy->GetAxisNameAt(0, temp);
          name = temp->LockBuffer(0);
-         _al_sane_strncpy(name_x, name, 10);
+         _al_sane_strncpy(name_x, name, sizeof(name_x));
          temp->UnlockBuffer();
          joy[i].stick[0].axis[0].name = name_x;
          be_joy->GetAxisNameAt(1, temp);
          name = temp->LockBuffer(0);
-         _al_sane_strncpy(name_y, name, 10);
+         _al_sane_strncpy(name_y, name, sizeof(name_y));
          temp->UnlockBuffer();
          joy[i].stick[0].axis[1].name = name_y;
          

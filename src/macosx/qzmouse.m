@@ -122,13 +122,13 @@ static int osx_mouse_init(void)
          }
          if (buttons > max_buttons) {
             max_buttons = buttons;
-	    _al_sane_strncpy(driver_desc, "", 256);
+	    _al_sane_strncpy(driver_desc, "", sizeof(driver_desc));
             if (device[i].manufacturer) {
-	       strncat(driver_desc, device[i].manufacturer, 256-1);
-	       strncat(driver_desc, " ", 256-1);
+	       strncat(driver_desc, device[i].manufacturer, sizeof(driver_desc)-1);
+	       strncat(driver_desc, " ", sizeof(driver_desc)-1);
 	    }
 	    if (device[i].product)
-	       strncat(driver_desc, device[i].product, 256-1);
+	       strncat(driver_desc, device[i].product, sizeof(driver_desc)-1);
 	    mouse_macosx.desc = driver_desc;
 	 }
       }
