@@ -37,7 +37,9 @@ fi
 ################################################################
 # Error reporter
 
-error() { echo "Error occured, aborting" ; exit 1 }
+error() {
+	echo "Error occured, aborting" ; exit 1
+}
 
 
 ################################################################
