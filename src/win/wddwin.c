@@ -39,7 +39,6 @@ static int wnd_set_windowed_coop(void);
 static void create_offscreen (int w, int h, int color_depth);
 static int verify_color_depth (int color_depth);
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap);
-static void gfx_directx_unlock_win(BITMAP *bmp);
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth);
 static void gfx_directx_win_exit(struct BITMAP *b);
 
@@ -78,6 +77,8 @@ GFX_DRIVER gfx_directx_win =
    0,                           // long vid_mem;                 /* video memory size, in bytes */
    0,                           // long vid_phys_base;           /* physical address of video memory */
 };
+
+static char gfx_driver_desc[256] = EMPTY_STRING;
 
 static int pixel_match[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
 
@@ -148,6 +149,9 @@ void handle_window_size_win(void)
          GetWindowRect(allegro_wnd, &dwin_rect);
          SetWindowPos(allegro_wnd, 0, dwin_rect.left + lmod, dwin_rect.top, 0, 0, SWP_NOZORDER | SWP_NOSIZE);     
       }   
+
+      /* to avoid side effects */
+      update_window(NULL); 
    }
 }
 
@@ -306,6 +310,22 @@ static void build_rgb_scale_5335_table(void)
          rgb_scale_5335[1024+256+i] = (color>>16)+((color&0xffff)<<16);
       }
    }     
+}
+
+
+/* setup_driver_desc:
+ *  Sets up the driver description string.
+ */
+static void setup_driver_desc(void)
+{
+   char tmp1[80], tmp2[80];
+
+   usprintf(gfx_driver_desc,
+       uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
+           uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
+               desktop_depth );
+   
+   gfx_directx_win.desc = gfx_driver_desc;
 }
 
 
@@ -606,16 +626,6 @@ static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
 
 
 
-/* gfx_directx_unlock_win:
- */
-static void gfx_directx_unlock_win(BITMAP *bmp)
-{
-   gfx_directx_unlock(bmp);
-   update_window(NULL);
-}
-
-
-
 /* _get_color_shift:
  *  return shift value for color mask
  */
@@ -789,6 +799,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    }
 
    /* setup Allegro gfx driver */
+   setup_driver_desc();
    if (!same_color_depth) {  /* use system bitmaps instead of video */
       gfx_directx_win.create_video_bitmap = gfx_directx_create_video_bitmap_win;
       gfx_directx_win.destroy_video_bitmap = gfx_directx_destroy_video_bitmap_win;
@@ -804,8 +815,9 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    dd_frontbuffer->vtable = &_special_vtable;
    dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
 
-   dirty_lines = malloc(4*h);
-   memset(dirty_lines, 0, 4*h);
+   /* the last flag serves as end of loop delimiter */ 
+   dirty_lines = malloc(4*(h+1));
+   memset(dirty_lines, 0, 4*(h+1));
    app_active = TRUE;
    reused_screen = FALSE;
 

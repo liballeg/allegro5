@@ -67,6 +67,7 @@ AL_FUNC(int, gfx_directx_update_color_format, (int color_depth));
 AL_FUNC(void, gfx_directx_lock, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_autolock, (BITMAP* bmp));
 AL_FUNC(void, gfx_directx_unlock, (BITMAP *bmp));
+AL_FUNC(void, gfx_directx_unlock_win, (BITMAP *bmp));
 AL_FUNC(void, gfx_directx_release_lock, (BITMAP * bmp));
 AL_FUNC(void, gfx_directx_write_bank, (void));
 AL_FUNC(void, gfx_directx_unwrite_bank, (void));

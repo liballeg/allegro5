@@ -58,11 +58,12 @@ GFX_DRIVER gfx_directx_ovl =
    0,                           // long vid_phys_base;           /* physical address of video memory */
 };
 
-
+static char gfx_driver_desc[256] = EMPTY_STRING;
 
 LPDIRECTDRAWSURFACE overlay_surface = NULL;
 BOOL overlay_visible = FALSE;
 
+static int desktop_depth;
 
 
 /* create_overlay:
@@ -188,7 +189,6 @@ static int _get_n_bits (int mask)
  */
 static int verify_color_depth (int color_depth)
 {
-   int desktop_depth;
    DDSURFACEDESC surf_desc;
    HRESULT hr;
    
@@ -211,6 +211,21 @@ static int verify_color_depth (int color_depth)
       return 0;
    else
       return -1;
+}
+
+
+/* setup_driver_desc:
+ *  Sets up the driver description string.
+ */
+static void setup_driver_desc(void)
+{
+   char tmp1[80];
+
+   usprintf(gfx_driver_desc,
+       uconvert_ascii("DirectDraw, in matching, %d bpp window", tmp1),
+           desktop_depth);
+   
+   gfx_directx_ovl.desc = gfx_driver_desc;
 }
 
 
@@ -301,6 +316,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    /* setup Allegro gfx driver */
+   setup_driver_desc();
    if (setup_driver(&gfx_directx_ovl, w, h, color_depth) != 0)
       goto Error;
    dd_frontbuffer = make_directx_bitmap(overlay_surface, w, h, color_depth, BMP_ID_VIDEO);
