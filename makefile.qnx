@@ -55,6 +55,8 @@ endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
+
+
 ifdef DEBUGMODE
 
 # -------- debugging build --------
@@ -105,7 +107,7 @@ MY_OBJECTS = $(I386_OBJECTS)
 
 endif # ALLEGRO_USE_C
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_QNX_FILES)))
+OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_QNX_FILES)))
 
 LIBRARIES = -lm -lph -lasound
 
