@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_FLI_H
 #define ALLEGRO_FLI_H
 
+#include "base.h"
+#include "palette.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
-#include "palette.h"
 
 struct BITMAP;
 

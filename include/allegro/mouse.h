@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_MOUSE_H
 #define ALLEGRO_MOUSE_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 #define MOUSEDRV_AUTODETECT  -1
 #define MOUSEDRV_NONE         0

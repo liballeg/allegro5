@@ -29,11 +29,11 @@
    #include <time.h>
 #endif
 
+#include "internal/alconfig.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "internal/alconfig.h"
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      1

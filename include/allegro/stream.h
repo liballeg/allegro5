@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_STREAM_H
 #define ALLEGRO_STREAM_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 struct SAMPLE;
 

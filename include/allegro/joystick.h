@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_JOYSTICK_H
 #define ALLEGRO_JOYSTICK_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 #define JOY_TYPE_AUTODETECT      -1
 #define JOY_TYPE_NONE            0

@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_DATAFILE_H
 #define ALLEGRO_DATAFILE_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 struct BITMAP;
 struct PACKFILE;

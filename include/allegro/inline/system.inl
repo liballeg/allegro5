@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_SYSTEM_INL
 #define ALLEGRO_SYSTEM_INL
 
+#include "allegro/debug.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "allegro/debug.h"
 
 
 AL_INLINE(void, set_window_title, (char *name),

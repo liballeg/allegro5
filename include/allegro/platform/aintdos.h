@@ -173,13 +173,12 @@ AL_FUNC(unsigned long, _dma_todo, (int channel));
 AL_FUNC(void, _dma_lock_mem, (void));
 
 
-/* VGA register access helpers */
-#include "allegro/internal/aintvga.h"
-
-
 
 #ifdef __cplusplus
    }
 #endif
+
+/* VGA register access helpers */
+#include "allegro/internal/aintvga.h"
 
 #endif          /* ifndef AINTDOS_H */

@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_GFX_H
 #define ALLEGRO_GFX_H
 
+#include "base.h"
+#include "fixed.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
-#include "fixed.h"
 
 struct RLE_SPRITE;
 struct FONT_GLYPH;
@@ -381,11 +381,11 @@ AL_FUNC(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
 
 AL_FUNC(void, lock_bitmap, (struct BITMAP *bmp));
 
-#include "inline/gfx.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/gfx.inl"
 
 #endif          /* ifndef ALLEGRO_GFX_H */
 

@@ -19,14 +19,13 @@
 #ifndef ALLEGRO_FMATHS_INL
 #define ALLEGRO_FMATHS_INL
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
-
 #define ALLEGRO_IMPORT_MATH_ASM
 #include "asm.inl"
 #undef ALLEGRO_IMPORT_MATH_ASM
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 /* ftofix and fixtof are used in generic C versions of fixmul and fixdiv */

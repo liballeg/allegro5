@@ -24,10 +24,6 @@
 #error Please include allegro.h before macalleg.h!
 #endif
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #if (!defined SCAN_EXPORT) && (!defined SCAN_DEPEND)
 #endif
 
@@ -66,6 +62,10 @@
 
 #include "allegro/platform/macdef.h"
 
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 typedef BITMAP BITMAP;
 

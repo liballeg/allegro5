@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_QUAT_H
 #define ALLEGRO_QUAT_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 typedef struct QUAT
 {

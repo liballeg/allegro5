@@ -19,13 +19,12 @@
 #ifndef ALLEGRO_DRAW_INL
 #define ALLEGRO_DRAW_INL
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "allegro/debug.h"
 #include "gfx.inl"
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 AL_INLINE(int, getpixel, (BITMAP *bmp, int x, int y),
 {

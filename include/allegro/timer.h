@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_TIMER_H
 #define ALLEGRO_TIMER_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 #define TIMERS_PER_SECOND     1193181L
 #define SECS_TO_TIMER(x)      ((long)(x) * TIMERS_PER_SECOND)

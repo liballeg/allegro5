@@ -22,10 +22,6 @@
 #ifndef ALLEGRO_H
 #define ALLEGRO_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "allegro/base.h"
 
 #include "allegro/system.h"
@@ -68,18 +64,13 @@
    #include "allegro/alcompat.h"
 #endif
 
+#ifdef __cplusplus
+   #include "allegro/fix.h"
+#endif
+
 
 #ifdef ALLEGRO_EXTRA_HEADER
    #include ALLEGRO_EXTRA_HEADER
-#endif
-
-
-#ifdef __cplusplus
-   }
-#endif
-
-#ifdef __cplusplus
-#include "allegro/fix.h"
 #endif
 
 #endif          /* ifndef ALLEGRO_H */

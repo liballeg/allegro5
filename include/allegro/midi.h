@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_MIDI_H
 #define ALLEGRO_MIDI_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
                                        /* Theoretical maximums: */
-#include "base.h"
-
 #define MIDI_VOICES           64       /* actual drivers may not be */
 #define MIDI_TRACKS           32       /* able to handle this many */
 

@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_TEXT_H
 #define ALLEGRO_TEXT_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 struct BITMAP;
 

@@ -16,7 +16,7 @@ General (Platform independant) todos:
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
 - make the 'save' method of plugins return -1 on failure
-- move all #include directives out of the range of extern "C" directives
+- add a C++ test (enabled by a configure-like check)
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -26,7 +26,6 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Remove the note on C++ in docs/build/bcc32.txt once the problem is fixed
 - Fix ill-behaviour at startup (SetForeground)
 - Investigate plugins script support
 - Investigate problem with keyboard in the dxwindow test

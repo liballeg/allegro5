@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_DIGI_H
 #define ALLEGRO_DIGI_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 #define DIGI_VOICES           64       /* Theoretical maximums: */
                                        /* actual drivers may not be */

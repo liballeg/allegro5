@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_SYSTEM_H
 #define ALLEGRO_SYSTEM_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 struct RGB;
 struct BITMAP;
@@ -136,11 +136,11 @@ AL_VAR(SYSTEM_DRIVER, system_none);
 AL_VAR(SYSTEM_DRIVER *, system_driver);
 AL_ARRAY(_DRIVER_INFO, _system_driver_list);
 
-#include "inline/system.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/system.inl"
 
 #endif          /* ifndef ALLEGRO_SYSTEM_H */
 

@@ -107,10 +107,19 @@ extern "C" {
 #endif
 
 
+#ifdef __cplusplus
+}
+#endif
+
+
 #ifdef ALLEGRO_LINUX
    #include "aintlnx.h"
 #endif
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Typedef for background functions, called frequently in the background.
  * `threaded' is nonzero if the function is being called from a thread.

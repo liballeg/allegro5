@@ -19,15 +19,14 @@
 #ifndef ALLEGRO_SOUND_H
 #define ALLEGRO_SOUND_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "base.h"
-
 #include "digi.h"
 #include "stream.h"
 #include "midi.h"
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 AL_FUNC(void, reserve_voices, (int digi_voices, int midi_voices));
 AL_FUNC(void, set_volume_per_voice, (int scale));

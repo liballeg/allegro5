@@ -15,9 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
 
 /*******************************************/
 /************* system drivers **************/
@@ -69,6 +66,3 @@ AL_VAR(MIDI_DRIVER, midi_quicktime);
 /*******************************************/
 /*no yet */
 
-#ifdef __cplusplus
-   }
-#endif

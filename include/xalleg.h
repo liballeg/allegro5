@@ -18,10 +18,6 @@
 #ifndef X_ALLEGRO_H
 #define X_ALLEGRO_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #ifndef ALLEGRO_H
 #error Please include allegro.h before xalleg.h!
 #endif
@@ -53,6 +49,10 @@
 #include <X11/extensions/xf86dga.h>
 #endif
 
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* X-Windows resources used by the library.  */
 extern struct _xwin_type

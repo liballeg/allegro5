@@ -37,6 +37,10 @@
 #define ALLEGRO_USE_CONSTRUCTOR
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* memory locking macros */
 void _unlock_dpmi_data(void *addr, int size);
 
@@ -83,6 +87,10 @@ void bmp_write24(unsigned long addr, int c)
    _farnspokew(addr, c&0xFFFF);
    _farnspokeb(addr+2, c>>16);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 
 /* describe the asm syntax for this platform */

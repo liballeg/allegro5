@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_FMATH_H
 #define ALLEGRO_FMATH_H
 
+#include "base.h"
+#include "fixed.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
-#include "fixed.h"
 
 AL_FUNC(fixed, fixsqrt, (fixed x));
 AL_FUNC(fixed, fixhypot, (fixed x, fixed y));
@@ -35,11 +35,11 @@ AL_ARRAY(fixed, _cos_tbl);
 AL_ARRAY(fixed, _tan_tbl);
 AL_ARRAY(fixed, _acos_tbl);
 
-#include "inline/fmaths.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/fmaths.inl"
 
 #endif          /* ifndef ALLEGRO_FMATH_H */
 

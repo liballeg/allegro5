@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_FIXED_H
 #define ALLEGRO_FIXED_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 typedef long fixed;
 

@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_UNICODE__H
 #define ALLEGRO_UNICODE__H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 #define U_ASCII         AL_ID('A','S','C','8')
 #define U_ASCII_CP      AL_ID('A','S','C','P')

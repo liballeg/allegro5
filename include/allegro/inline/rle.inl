@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_RLE_INL
 #define ALLEGRO_RLE_INL
 
+#include "allegro/debug.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "allegro/debug.h"
 
 
 AL_INLINE(void, draw_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y),

@@ -19,13 +19,13 @@
 #ifndef ALLEGRO_DRAW_H
 #define ALLEGRO_DRAW_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "base.h"
 #include "fixed.h"
 #include "gfx.h"
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 #define DRAW_MODE_SOLID             0        /* flags for drawing_mode() */
 #define DRAW_MODE_XOR               1
@@ -59,11 +59,11 @@ AL_FUNC(void, masked_stretch_blit, (struct BITMAP *s, struct BITMAP *d, int s_x,
 AL_FUNC(void, stretch_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int w, int h));
 AL_FUNC(void, draw_gouraud_sprite, (struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
 
-#include "inline/draw.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/draw.inl"
 
 #endif          /* ifndef ALLEGRO_DRAW_H */
 

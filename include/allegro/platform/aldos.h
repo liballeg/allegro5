@@ -341,5 +341,13 @@ AL_VAR(MIDI_DRIVER, midi_awe32);
       {  MIDI_MPU,         &midi_mpu401,        FALSE  },
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 AL_FUNC(int, load_ibk, (AL_CONST char *filename, int drums));
+
+#ifdef __cplusplus
+}
+#endif
 

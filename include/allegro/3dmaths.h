@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_3DMATHS_H
 #define ALLEGRO_3DMATHS_H
 
+#include "base.h"
+#include "fixed.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
-#include "fixed.h"
 
 struct QUAT;
 struct MATRIX_f;
@@ -53,11 +53,11 @@ AL_FUNC(void, set_projection_viewport, (int x, int y, int w, int h));
 AL_FUNC(void, quat_to_matrix, (AL_CONST struct QUAT *q, struct MATRIX_f *m));
 AL_FUNC(void, matrix_to_quat, (AL_CONST struct MATRIX_f *m, struct QUAT *q));
 
-#include "inline/3dmaths.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/3dmaths.inl"
 
 #endif          /* ifndef ALLEGRO_3DMATHS_H */
 

@@ -93,15 +93,5 @@
    Don't forget that you need to use the END_OF_MAIN() macro right after 
    your main() function!
 
-   Note: including any Allegro headers in a C++ program currently prevents
-   Borland C++ from compiling it. The workaround is to include the following
-   6 standard C headers prior to including any Allegro headers:
-      #include <errno.h>
-      #include <limits.h>
-      #include <stdarg.h>
-      #include <stddef.h>
-      #include <stdlib.h>
-      #include <time.h>
-
    You will need to distribute the appropriate DLL along with your program.
 

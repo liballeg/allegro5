@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_CONFIG_H
 #define ALLEGRO_CONFIG_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 AL_FUNC(void, set_config_file, (AL_CONST char *filename));
 AL_FUNC(void, set_config_data, (AL_CONST char *data, int length));

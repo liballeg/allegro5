@@ -19,10 +19,6 @@
 #ifndef ALLEGRO_GRAPHICS_H
 #define ALLEGRO_GRAPHICS_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "base.h"
 #include "gfx.h"
 #include "text.h"
@@ -33,9 +29,5 @@
 #include "rle.h"
 #include "compiled.h"
 
-#ifdef __cplusplus
-   }
-#endif
-
-#endif          /* !defined ALLEGRO_GRAPHICS_H */
+#endif          /* ifndef ALLEGRO_GRAPHICS_H */
 

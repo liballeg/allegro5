@@ -19,13 +19,13 @@
 #ifndef ALLEGRO_MATRIX_H
 #define ALLEGRO_MATRIX_H
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "base.h"
 #include "fixed.h"
 #include "fmaths.h"
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 typedef struct MATRIX            /* transformation matrix (fixed point) */
 {
@@ -85,11 +85,11 @@ AL_FUNC(void, matrix_mul_f, (AL_CONST MATRIX_f *m1, AL_CONST MATRIX_f *m2, MATRI
 
 AL_FUNC(void, apply_matrix_f, (AL_CONST MATRIX_f *m, float x, float y, float z, float *xout, float *yout, float *zout));
 
-#include "inline/matrix.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/matrix.inl"
 
 #endif          /* ifndef ALLEGRO_MATRIX_H */
 

@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_RLE_H
 #define ALLEGRO_RLE_H
 
+#include "base.h"
+#include "gfx.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
-#include "gfx.h"
 
 typedef struct RLE_SPRITE           /* a RLE compressed sprite */
 {
@@ -38,11 +38,11 @@ typedef struct RLE_SPRITE           /* a RLE compressed sprite */
 AL_FUNC(RLE_SPRITE *, get_rle_sprite, (struct BITMAP *bitmap));
 AL_FUNC(void, destroy_rle_sprite, (RLE_SPRITE *sprite));
 
-#include "inline/rle.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/rle.inl"
 
 #endif          /* ifndef ALLEGRO_RLE_H */
 

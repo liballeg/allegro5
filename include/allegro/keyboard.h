@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_KEYBOARD_H
 #define ALLEGRO_KEYBOARD_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 typedef struct KEYBOARD_DRIVER
 {

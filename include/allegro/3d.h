@@ -19,12 +19,12 @@
 #ifndef ALLEGRO_3D_H
 #define ALLEGRO_3D_H
 
+#include "base.h"
+#include "fixed.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
-#include "fixed.h"
 
 struct BITMAP;
 

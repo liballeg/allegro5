@@ -27,10 +27,6 @@
    #error bad include
 #endif
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 
 #include "winalleg.h"
 
@@ -48,6 +44,10 @@
    #include <objbase.h>  /* for LPGUID */
 #endif
 
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 /* generals */
 AL_VAR(HINSTANCE, allegro_inst);

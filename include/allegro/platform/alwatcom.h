@@ -85,6 +85,10 @@
 #define _CRT0_FLAG_NEARPTR          1
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef union __dpmi_regs
 {
    struct {
@@ -152,6 +156,11 @@ long _allocate_real_mode_callback(void (*handler)(__dpmi_regs *r), __dpmi_regs *
 
 /* memory locking macros */
 void _unlock_dpmi_data(void *addr, int size);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #define END_OF_FUNCTION(x)          void x##_end(void) { }
 #define END_OF_STATIC_FUNCTION(x)   static void x##_end(void) { }

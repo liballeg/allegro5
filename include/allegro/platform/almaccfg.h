@@ -60,6 +60,9 @@
 #define ALLEGRO_NO_STRUPR 1
 
 //#define ALLEGRO_NO_STRDUP 1
+#ifdef __cplusplus
+extern "C"
+#endif
 char *strdup(const char *);
 
 #ifndef AL_INLINE

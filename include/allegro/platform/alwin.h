@@ -25,7 +25,15 @@
 /*******************************************/
 /********** magic main emulation ***********/
 /*******************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nShow));
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #if (!defined ALLEGRO_NO_MAGIC_MAIN) && (!defined ALLEGRO_SRC)

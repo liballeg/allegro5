@@ -19,10 +19,10 @@
 #ifndef ALLEGRO_FIX_H
 #define ALLEGRO_FIX_H
 
-#ifdef __cplusplus
-
 #include "fixed.h"
 #include "fmaths.h"
+
+#ifdef __cplusplus
 
 class fix      /* C++ wrapper for the fixed point routines */
 {
@@ -201,9 +201,9 @@ public:
    inline friend fix atan2(fix x, fix y);
 };
 
-#include "inline/fix.inl"
-
 #endif          /* ifdef __cplusplus */
+
+#include "inline/fix.inl"
 
 #endif          /* ifndef ALLEGRO_FIX_H */
 

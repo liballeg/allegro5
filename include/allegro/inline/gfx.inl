@@ -19,16 +19,15 @@
 #ifndef ALLEGRO_GFX_INL
 #define ALLEGRO_GFX_INL
 
-#ifdef __cplusplus
-   extern "C" {
-#endif
-
 #include "allegro/debug.h"
-
 
 #define ALLEGRO_IMPORT_GFX_ASM
 #include "asm.inl"
 #undef ALLEGRO_IMPORT_GFX_ASM
+
+#ifdef __cplusplus
+   extern "C" {
+#endif
 
 
 #ifdef ALLEGRO_NO_ASM

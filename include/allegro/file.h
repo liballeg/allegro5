@@ -19,11 +19,11 @@
 #ifndef ALLEGRO_FILE_H
 #define ALLEGRO_FILE_H
 
+#include "base.h"
+
 #ifdef __cplusplus
    extern "C" {
 #endif
-
-#include "base.h"
 
 AL_FUNC(char *, fix_filename_case, (char *path));
 AL_FUNC(char *, fix_filename_slashes, (char *path));
@@ -117,11 +117,11 @@ AL_FUNC(int, pack_fputs, (AL_CONST char *p, PACKFILE *f));
 AL_FUNC(int, _sort_out_getc, (PACKFILE *f));
 AL_FUNC(int, _sort_out_putc, (int c, PACKFILE *f));
 
-#include "inline/file.inl"
-
 #ifdef __cplusplus
    }
 #endif
+
+#include "inline/file.inl"
 
 #endif          /* ifndef ALLEGRO_FILE_H */
 

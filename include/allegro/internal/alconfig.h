@@ -214,6 +214,10 @@
 #endif
 
 
+#ifdef __cplusplus
+   extern "C" {
+#endif
+
 /* emulate missing library functions */
 #ifdef ALLEGRO_NO_STRICMP
    AL_FUNC(int, _alemu_stricmp, (AL_CONST char *s1, AL_CONST char *s2));
@@ -320,6 +324,10 @@
       #error endianess not defined
    #endif
 
+#endif
+
+#ifdef __cplusplus
+   }
 #endif
 
 
