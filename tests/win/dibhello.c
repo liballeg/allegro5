@@ -163,8 +163,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 
    /* draw something into a */
    clear_bitmap(a);
-   textout_centre(a, font, "Hello world", 160, 100, makecol24(255, 0, 0));
-   textout_centre(a, font, "This was created using Allegro", 160, 120, makecol24(0, 255, 0));
+   textout_centre_ex(a, font, "Hello world", 160, 100, makecol24(255, 0, 0), 0);
+   textout_centre_ex(a, font, "This was created using Allegro", 160, 120, makecol24(0, 255, 0), 0);
 
    for (x=0; x<255; x++) {
       vline(a, x+20, 10, 20, makecol24(x, 0, 0));
