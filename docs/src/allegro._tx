@@ -2688,13 +2688,17 @@ Allegro supports several different types of bitmaps:
      systems. These can be obtained by calling create_bitmap(), load_pcx(), 
      or by loading a grabber datafile.
 
-   - Sub-bitmaps. These share image memory with a parent bitmap (which 
-     can be the screen, a memory bitmap, or another sub-bitmap), so drawing 
-     onto them will also change their parent. They can be of any size and 
-     located anywhere within the parent bitmap, and can have their own 
-     clipping rectangles, so they are a useful way of dividing a bitmap into 
-     several smaller units, eg. splitting a large virtual screen into 
-     multiple sections (see examples/exscroll.c).
+   - Sub-bitmaps. These share image memory with a parent bitmap (which can be
+     the screen, a video or system bitmap, a memory bitmap, or another
+     sub-bitmap), so drawing onto them will also change their parent. They can
+     be of any size and located anywhere within the parent bitmap, and can
+     have their own clipping rectangles, so they are a useful way of dividing
+     a bitmap into several smaller units, eg. splitting a large virtual screen
+     into multiple sections (see examples/exscroll.c).
+
+     Warning: Make sure not to destroy a bitmap before all of its sub-bitmaps,
+     otherwise bad things will happen when you try to access one of these
+     sub-bitmaps.
 
    - Video memory bitmaps. These are created by the create_video_bitmap() 
      function, and are usually implemented as sub-bitmaps of the screen 
