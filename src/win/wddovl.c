@@ -115,7 +115,12 @@ static void switch_in_overlay(void)
 static int update_overlay(int x, int y, int w, int h)
 {
    HRESULT hr;
-   RECT dest_rect = {x, y, x + w, y + h};
+   RECT dest_rect;
+
+   dest_rect.left = x;
+   dest_rect.top = y;
+   dest_rect.right = x + w;
+   dest_rect.bottom = y + h;
 
    /* show the overlay surface */
    hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface, NULL,
