@@ -600,7 +600,7 @@ static void _cwrite_esc(FILE* fp, const unsigned char* data, int amt)
                 break;
             
             default:
-                if(*rd < 32) {
+                if(*rd < 32 || *rd >= 127) {
                     _cwrite_esc_char(fp, *rd);
                     was_num_escape = 2;
                 } else {
@@ -1668,7 +1668,8 @@ int do_conversion(struct dat2c* dat2c)
         dat2c->prefix ? "_" : "", 
         dat2c->datafile_name ? dat2c->datafile_name : "data");
 
-    write_header_start(dat2c);
+    if (dat2c->fname_h)
+        write_header_start(dat2c);
     write_source_start(dat2c);
     
     result = write_datafile(dat2c, dat2c->dat, 
