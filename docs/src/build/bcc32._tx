@@ -30,6 +30,10 @@ BCC32 notes
    programs and run them with the Allegro DLLs.  Thanks to Inprise for
    creating the very useful IMPLIB program. 
 
+   The screensaver example is built, but you must copy <tt>scrsave.scr</tt> to
+   your <tt>windows/system</tt> directory (or <tt>winnt/system32</tt> directory
+   under Windows NT/2k/XP) if you want to test it.
+
 
 
 @heading
