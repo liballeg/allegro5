@@ -74,7 +74,7 @@ int init_gfx(PALETTE *pal)
    /* color 0 = black */
    (*pal)[0].r = (*pal)[0].g = (*pal)[0].b = 0;
    /* color 1 = red */
-   (*pal)[1].r = 255;
+   (*pal)[1].r = 63;
    (*pal)[1].g = (*pal)[1].b = 0;
 
    /* copy the desktop palette */
@@ -86,6 +86,9 @@ int init_gfx(PALETTE *pal)
       (*pal)[i].b = (i-64) * 2;
       (*pal)[i].g = (*pal)[i].r = 0;
    }
+
+   for (i=96; i<256; i++)
+      (*pal)[i].r = (*pal)[i].g = (*pal)[i].b = 0; 
 
    /* set the graphics mode */
    if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
