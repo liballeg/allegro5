@@ -243,6 +243,8 @@ static void *qnx_events_handler(void *data)
                      break;
                   case Ph_WM_FOCUS:
                      if (window_event->event_state == Ph_WM_EVSTATE_FOCUS) {
+                        if (ph_window_context)
+                           ph_update_window(NULL);
                         PgSetPalette(ph_palette, 0, 0, 256, Pg_PALSET_HARDLOCKED, 0);
                         PgFlush();
                         for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
