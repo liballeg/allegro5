@@ -120,13 +120,17 @@ else
 # -------- optimised build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
-LFLAGS =
+
+ifndef SYMBOLMODE
+LFLAGS = -s
+else
+LFLAGS = 
+endif
 
 endif
 endif
 
 CFLAGS += -fno-common -pipe
-
 
 
 # -------- list platform specific objects and programs --------
