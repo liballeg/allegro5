@@ -98,7 +98,7 @@ void generate_background(void)
 
    /* draws some things on the screen using not-greyscale colors */
    for (i=0; i<3000; i++)
-      circlefill(background, rand()%320, rand()%200, rand()%25, 64+rand()%192);
+      circlefill(background, AL_RAND()%320, AL_RAND()%200, AL_RAND()%25, 64+AL_RAND()%192);
 }
 
 

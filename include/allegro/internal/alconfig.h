@@ -334,6 +334,12 @@
 
 #endif
 
+
+/* default random function definition */
+#ifndef AL_RAND
+   #define AL_RAND()       (rand())
+#endif
+
 #ifdef __cplusplus
    }
 #endif

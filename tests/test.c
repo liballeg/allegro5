@@ -592,12 +592,12 @@ void putpix_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 255) + 32;
-      y = (rand() & 127) + 40;
+      x = (AL_RAND() & 255) + 32;
+      y = (AL_RAND() & 127) + 40;
       putpixel(screen, xoff+x, yoff+y, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -629,13 +629,13 @@ void hline_demo(void)
 
    while (!next()) {
 
-      x1 = (rand() & 255) + 32;
-      x2 = (rand() & 255) + 32;
-      y = (rand() & 127) + 40;
+      x1 = (AL_RAND() & 255) + 32;
+      x2 = (AL_RAND() & 255) + 32;
+      y = (AL_RAND() & 127) + 40;
       hline(screen, xoff+x1, yoff+y, xoff+x2, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -667,13 +667,13 @@ void vline_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 255) + 32;
-      y1 = (rand() & 127) + 40;
-      y2 = (rand() & 127) + 40;
+      x = (AL_RAND() & 255) + 32;
+      y1 = (AL_RAND() & 127) + 40;
+      y2 = (AL_RAND() & 127) + 40;
       vline(screen, xoff+x, yoff+y1, yoff+y2, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -705,14 +705,14 @@ void line_demo(void)
 
    while (!next()) {
 
-      x1 = (rand() & 255) + 32;
-      x2 = (rand() & 255) + 32;
-      y1 = (rand() & 127) + 40;
-      y2 = (rand() & 127) + 40;
+      x1 = (AL_RAND() & 255) + 32;
+      x2 = (AL_RAND() & 255) + 32;
+      y1 = (AL_RAND() & 127) + 40;
+      y2 = (AL_RAND() & 127) + 40;
       line(screen, xoff+x1, yoff+y1, xoff+x2, yoff+y2, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -744,14 +744,14 @@ void rectfill_demo(void)
 
    while (!next()) {
 
-      x1 = (rand() & 255) + 32;
-      y1 = (rand() & 127) + 40;
-      x2 = (rand() & 255) + 32;
-      y2 = (rand() & 127) + 40;
+      x1 = (AL_RAND() & 255) + 32;
+      y1 = (AL_RAND() & 127) + 40;
+      x2 = (AL_RAND() & 255) + 32;
+      y2 = (AL_RAND() & 127) + 40;
       rectfill(screen, xoff+x1, yoff+y1, xoff+x2, yoff+y2, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -783,16 +783,16 @@ void triangle_demo(void)
 
    while (!next()) {
 
-      x1 = (rand() & 255) + 32;
-      x2 = (rand() & 255) + 32;
-      x3 = (rand() & 255) + 32;
-      y1 = (rand() & 127) + 40;
-      y2 = (rand() & 127) + 40;
-      y3 = (rand() & 127) + 40;
+      x1 = (AL_RAND() & 255) + 32;
+      x2 = (AL_RAND() & 255) + 32;
+      x3 = (AL_RAND() & 255) + 32;
+      y1 = (AL_RAND() & 127) + 40;
+      y2 = (AL_RAND() & 127) + 40;
+      y3 = (AL_RAND() & 127) + 40;
       triangle(screen, xoff+x1, yoff+y1, xoff+x2, yoff+y2, xoff+x3, yoff+y3, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -833,29 +833,29 @@ void triangle3d_demo(void)
    ct = 0;
 
    while (!next()) {
-      v1.x = itofix((rand() & 255) + x0);
-      v2.x = itofix((rand() & 255) + x0);
-      v3.x = itofix((rand() & 255) + x0);
-      v1.y = itofix((rand() & 127) + y0);
-      v2.y = itofix((rand() & 127) + y0);
-      v3.y = itofix((rand() & 127) + y0);
-      v1.z = itofix((rand() & 127) + 400);
-      v2.z = itofix((rand() & 127) + 400);
-      v3.z = itofix((rand() & 127) + 400);
+      v1.x = itofix((AL_RAND() & 255) + x0);
+      v2.x = itofix((AL_RAND() & 255) + x0);
+      v3.x = itofix((AL_RAND() & 255) + x0);
+      v1.y = itofix((AL_RAND() & 127) + y0);
+      v2.y = itofix((AL_RAND() & 127) + y0);
+      v3.y = itofix((AL_RAND() & 127) + y0);
+      v1.z = itofix((AL_RAND() & 127) + 400);
+      v2.z = itofix((AL_RAND() & 127) + 400);
+      v3.z = itofix((AL_RAND() & 127) + 400);
 
       if ((type3d == POLYTYPE_ATEX_LIT) || (type3d == POLYTYPE_PTEX_LIT) ||
 	  (type3d == POLYTYPE_ATEX_MASK_LIT) || (type3d == POLYTYPE_PTEX_MASK_LIT)) {
-	 v1.c = rand() & 255;
-	 v2.c = rand() & 255;
-	 v3.c = rand() & 255;
+	 v1.c = AL_RAND() & 255;
+	 v2.c = AL_RAND() & 255;
+	 v3.c = AL_RAND() & 255;
       } 
       else {
-	 v1.c = palette_color[rand() & 255];
-	 v2.c = palette_color[rand() & 255];
-	 v3.c = palette_color[rand() & 255];
+	 v1.c = palette_color[AL_RAND() & 255];
+	 v2.c = palette_color[AL_RAND() & 255];
+	 v3.c = palette_color[AL_RAND() & 255];
       }
 
-      triangle3d(screen, type3d, pattern[rand()%NUM_PATTERNS], &v1, &v2, &v3);
+      triangle3d(screen, type3d, pattern[AL_RAND()%NUM_PATTERNS], &v1, &v2, &v3);
 
       if (ct >= 0) {
 	 if (tm >= TIME_SPEED) {
@@ -884,13 +884,13 @@ void circle_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 92;
-      y = (rand() & 63) + 76;
-      r = (rand() & 31) + 16;
+      x = (AL_RAND() & 127) + 92;
+      y = (AL_RAND() & 63) + 76;
+      r = (AL_RAND() & 31) + 16;
       circle(screen, xoff+x, yoff+y, r, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -922,13 +922,13 @@ void circlefill_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 92;
-      y = (rand() & 63) + 76;
-      r = (rand() & 31) + 16;
+      x = (AL_RAND() & 127) + 92;
+      y = (AL_RAND() & 63) + 76;
+      r = (AL_RAND() & 31) + 16;
       circlefill(screen, xoff+x, yoff+y, r, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -960,14 +960,14 @@ void ellipse_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 92;
-      y = (rand() & 63) + 76;
-      rx = (rand() & 31) + 16;
-      ry = (rand() & 31) + 16;
+      x = (AL_RAND() & 127) + 92;
+      y = (AL_RAND() & 63) + 76;
+      rx = (AL_RAND() & 31) + 16;
+      ry = (AL_RAND() & 31) + 16;
       ellipse(screen, xoff+x, yoff+y, rx, ry, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -999,14 +999,14 @@ void ellipsefill_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 92;
-      y = (rand() & 63) + 76;
-      rx = (rand() & 31) + 16;
-      ry = (rand() & 31) + 16;
+      x = (AL_RAND() & 127) + 92;
+      y = (AL_RAND() & 63) + 76;
+      rx = (AL_RAND() & 31) + 16;
+      ry = (AL_RAND() & 31) + 16;
       ellipsefill(screen, xoff+x, yoff+y, rx, ry, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -1039,15 +1039,15 @@ void arc_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 92;
-      y = (rand() & 63) + 76;
-      r = (rand() & 31) + 16;
-      a1 = (rand() & 0xFF) << 16;
-      a2 = (rand() & 0xFF) << 16;
+      x = (AL_RAND() & 127) + 92;
+      y = (AL_RAND() & 63) + 76;
+      r = (AL_RAND() & 31) + 16;
+      a1 = (AL_RAND() & 0xFF) << 16;
+      a2 = (AL_RAND() & 0xFF) << 16;
       arc(screen, xoff+x, yoff+y, a1, a2, r, palette_color[c]);
 
       if (mode >= DRAW_MODE_COPY_PATTERN)
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
       if (++c >= 16)
 	 c = 0;
@@ -1079,8 +1079,8 @@ void textout_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 40;
-      y = (rand() & 127) + 40;
+      x = (AL_RAND() & 127) + 40;
+      y = (AL_RAND() & 127) + 40;
       textout_ex(screen, font, "textout test", xoff+x, yoff+y, palette_color[c], palette_color[0]);
 
       if (++c >= 16)
@@ -1114,8 +1114,8 @@ void sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
       draw_sprite(screen, global_sprite, xoff+x, yoff+y);
 
       if (ct >= 0) {
@@ -1146,11 +1146,11 @@ void xlu_sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
 
       if (bitmap_color_depth(screen) > 8)
-	 set_trans_blender(0, 0, 0, rand()&0x7F);
+	 set_trans_blender(0, 0, 0, AL_RAND()&0x7F);
 
       draw_trans_sprite(screen, global_sprite, xoff+x, yoff+y);
 
@@ -1183,11 +1183,11 @@ void lit_sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
 
       if (bitmap_color_depth(screen) > 8)
-	 set_trans_blender(rand()&0xFF, rand()&0xFF, rand()&0xFF, 0);
+	 set_trans_blender(AL_RAND()&0xFF, AL_RAND()&0xFF, AL_RAND()&0xFF, 0);
 
       draw_lit_sprite(screen, global_sprite, xoff+x, yoff+y, c);
 
@@ -1221,11 +1221,11 @@ void rle_xlu_sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
 
       if (bitmap_color_depth(screen) > 8)
-	 set_trans_blender(0, 0, 0, rand()&0x7F);
+	 set_trans_blender(0, 0, 0, AL_RAND()&0x7F);
 
       draw_trans_rle_sprite(screen, global_rle_sprite, xoff+x, yoff+y);
 
@@ -1258,11 +1258,11 @@ void rle_lit_sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
 
       if (bitmap_color_depth(screen) > 8)
-	 set_trans_blender(rand()&0xFF, rand()&0xFF, rand()&0xFF, 0);
+	 set_trans_blender(AL_RAND()&0xFF, AL_RAND()&0xFF, AL_RAND()&0xFF, 0);
 
       draw_lit_rle_sprite(screen, global_rle_sprite, xoff+x, yoff+y, c);
 
@@ -1296,8 +1296,8 @@ void rle_sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
       draw_rle_sprite(screen, global_rle_sprite, xoff+x, yoff+y);
 
       if (ct >= 0) {
@@ -1328,8 +1328,8 @@ void compiled_sprite_demo(void)
 
    while (!next()) {
 
-      x = (rand() & xand) + xadd;
-      y = (rand() & 127) + 30;
+      x = (AL_RAND() & xand) + xadd;
+      y = (AL_RAND() & 127) + 30;
       draw_compiled_sprite(screen, global_compiled_sprite, xoff+x, yoff+y);
 
       if (ct >= 0) {
@@ -1392,8 +1392,8 @@ void blit_demo(void)
 
    while (!next()) {
 
-      x = (rand() & 127) + 60;
-      y = (rand() & 63) + 50;
+      x = (AL_RAND() & 127) + 60;
+      y = (AL_RAND() & 63) + 50;
 
       if (blit_align)
 	 x &= 0xFFFC;
@@ -2152,7 +2152,7 @@ void test_it(char *msg, void (*func)(int, int))
    int x = 0;
    int y = 0;
    int c = 0;
-   int pat = rand()%NUM_PATTERNS;
+   int pat = AL_RAND()%NUM_PATTERNS;
 
    do { 
       acquire_screen();
@@ -2227,19 +2227,19 @@ void do_it(char *msg, int clip_flag, void (*func)(void))
 
    if (clip_flag) {
       do {
-	 x1 = (rand() & 255) + 32;
-	 x2 = (rand() & 255) + 32;
+	 x1 = (AL_RAND() & 255) + 32;
+	 x2 = (AL_RAND() & 255) + 32;
       } while (abs(x1-x2) < 30);
       do {
-	 y1 = (rand() & 127) + 40;
-	 y2 = (rand() & 127) + 40;
+	 y1 = (AL_RAND() & 127) + 40;
+	 y2 = (AL_RAND() & 127) + 40;
       } while (abs(y1-y2) < 20);
       set_clip(screen, xoff+x1, yoff+y1, xoff+x2, yoff+y2);
    }
    else
       set_clip(screen, 0, 0, 0, 0);
 
-   drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+   drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 
    (*func)();
 
@@ -2304,7 +2304,7 @@ int floodfill_proc(void)
 	 c = readkey() & 0xff;
 	 if ((c >= '0') && (c <= '9')) {
 	    scare_mouse();
-	    drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	    drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 	    floodfill(screen, mouse_x, mouse_y, palette_color[c-'0']);
 	    solid_mode();
 	    unscare_mouse();
@@ -2475,7 +2475,7 @@ int polygon_proc(void)
 
 	 line(screen, points[(num_points-1)*2], points[(num_points-1)*2+1], 
 						   points[0], points[1], palette_color[255]);
-	 drawing_mode(mode, pattern[rand()%NUM_PATTERNS], 0, 0);
+	 drawing_mode(mode, pattern[AL_RAND()%NUM_PATTERNS], 0, 0);
 	 polygon(screen, num_points, points, palette_color[1]);
 	 solid_mode();
 

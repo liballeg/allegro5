@@ -276,7 +276,7 @@ POINT_T *make_points(int *numpoints, char *msg)
 	 if (getpixel(bmp, x, y)) {
 	    points[n].x = itofix(x - bmp->w/2) * 6;
 	    points[n].y = itofix(y - bmp->h/2) * 12;
-	    points[n].c = rand() % 4;
+	    points[n].c = AL_RAND() % 4;
 	    n++;
 	 }
       }

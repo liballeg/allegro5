@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
    blit(scr_buffer, screen, 0, 0, 0, 0, scr_buffer->w, scr_buffer->h);
 
    while (!keypressed()) {
-      stretch_blit(scr_buffer, screen, 0, 0, rand()%scr_buffer->w,
-		   rand()%scr_buffer->h, rand()%SCREEN_W, rand()%SCREEN_H,
-		   rand()%SCREEN_W, rand()%SCREEN_H);
+      stretch_blit(scr_buffer, screen, 0, 0, AL_RAND()%scr_buffer->w,
+		   AL_RAND()%scr_buffer->h, AL_RAND()%SCREEN_W, AL_RAND()%SCREEN_H,
+		   AL_RAND()%SCREEN_W, AL_RAND()%SCREEN_H);
       vsync();
    }
 

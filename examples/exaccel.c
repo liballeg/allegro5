@@ -26,10 +26,10 @@ typedef struct IMAGE
 /* initialises an image structure to a random position and velocity */
 void init_image(IMAGE *image)
 {
-   image->x = (float)(rand() % 704);
-   image->y = (float)(rand() % 568);
-   image->dx = (float)((rand() % 255) - 127) / 32.0;
-   image->dy = (float)((rand() % 255) - 127) / 32.0;
+   image->x = (float)(AL_RAND() % 704);
+   image->y = (float)(AL_RAND() % 568);
+   image->dx = (float)((AL_RAND() % 255) - 127) / 32.0;
+   image->dy = (float)((AL_RAND() % 255) - 127) / 32.0;
 }
 
 

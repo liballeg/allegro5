@@ -27,6 +27,9 @@
 /* Provide implementations of missing definitions */
 #define O_BINARY     0
 
+/* Override default definitions for this platform */
+#define AL_RAND()    ((rand() >> 16) & 0x7fff)
+
 /* A static auto config */
 #define HAVE_LIBPTHREAD
 #define HAVE_DIRENT_H

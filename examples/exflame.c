@@ -42,7 +42,7 @@ void draw_bottom_line_of_fire(void)
 	    temp[c2] = MIN(temp[c2] + 20-ABS(hotspot[c]-c2), 192);
 
       /* move the hotspots */
-      hotspot[c] += (rand() & 7) - 3; 
+      hotspot[c] += (AL_RAND() & 7) - 3; 
       if (hotspot[c] < 0)
 	 hotspot[c] += SCREEN_W;
       else
@@ -82,7 +82,7 @@ int main(void)
    }
 
    for (c=0; c<FIRE_HOTSPOTS; c++)
-      hotspot[c] = rand() % SCREEN_W;
+      hotspot[c] = AL_RAND() % SCREEN_W;
 
    /* fill our palette with a gradually altering sequence of colors */
    for (c=0; c<64; c++) {

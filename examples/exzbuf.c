@@ -205,13 +205,13 @@ int main(void)
    rx1 = ry1 = rz1 = 0.;
    rx2 = ry2 = rz2 = 0.;
    
-   drx1 = ((rand() & 31) - 16) / 4.;
-   dry1 = ((rand() & 31) - 16) / 4.;
-   drz1 = ((rand() & 31) - 16) / 4.;
+   drx1 = ((AL_RAND() & 31) - 16) / 4.;
+   dry1 = ((AL_RAND() & 31) - 16) / 4.;
+   drz1 = ((AL_RAND() & 31) - 16) / 4.;
 
-   drx2 = ((rand() & 31) - 16) / 4.;
-   dry2 = ((rand() & 31) - 16) / 4.;
-   drz2 = ((rand() & 31) - 16) / 4.;
+   drx2 = ((AL_RAND() & 31) - 16) / 4.;
+   dry2 = ((AL_RAND() & 31) - 16) / 4.;
+   drz2 = ((AL_RAND() & 31) - 16) / 4.;
 
    /* set the transformation matrices */
    get_transformation_matrix_f(&matrix1, 1., rx1, ry1, rz1, tx, 0., tz1);

@@ -78,9 +78,9 @@ void init_stars(void)
    int i;
 
    for (i=0; i<NUM_STARS; i++) {
-      stars[i].x = itofix((rand() % XY_CUBE) - (XY_CUBE >> 1));
-      stars[i].y = itofix((rand() % XY_CUBE) - (XY_CUBE >> 1));
-      stars[i].z = itofix((rand() % (Z_FAR - Z_NEAR)) + Z_NEAR);
+      stars[i].x = itofix((AL_RAND() % XY_CUBE) - (XY_CUBE >> 1));
+      stars[i].y = itofix((AL_RAND() % XY_CUBE) - (XY_CUBE >> 1));
+      stars[i].z = itofix((AL_RAND() % (Z_FAR - Z_NEAR)) + Z_NEAR);
    }
 
    delta.x = 0;

@@ -147,8 +147,8 @@ static int worms(void)
 
       if ((tx < 0) || (ty < 0)) {
 	 do {
-	    tx = 16+rand()%(SCREEN_W-32);
-	    ty = 16+rand()%(SCREEN_H-32);
+	    tx = 16+AL_RAND()%(SCREEN_W-32);
+	    ty = 16+AL_RAND()%(SCREEN_H-32);
 	 } while ((ABS(x-tx)+ABS(y-ty)) < 64);
 
 	 circle(screen, tx, ty, 8, c2);

@@ -107,7 +107,7 @@ int main(void)
       }
 
       /* randomly alter the landscape position */
-      if (rand()&1) {
+      if (AL_RAND()&1) {
 	 if (h > 5)
 	    h--;
       }

@@ -30,23 +30,23 @@ SHAPE shapes[NUM_SHAPES];
 /* randomly initialises a shape structure */
 void init_shape(SHAPE *shape)
 {
-   shape->color = 1+(rand()%15);
+   shape->color = 1+(AL_RAND()%15);
 
    /* randomly position the corners */
-   shape->dir1 = itofix(rand()%256);
-   shape->dir2 = itofix(rand()%256);
-   shape->dir3 = itofix(rand()%256);
+   shape->dir1 = itofix(AL_RAND()%256);
+   shape->dir2 = itofix(AL_RAND()%256);
+   shape->dir3 = itofix(AL_RAND()%256);
 
-   shape->dist1 = itofix(rand()%64);
-   shape->dist2 = itofix(rand()%64);
-   shape->dist3 = itofix(rand()%64);
+   shape->dist1 = itofix(AL_RAND()%64);
+   shape->dist2 = itofix(AL_RAND()%64);
+   shape->dist3 = itofix(AL_RAND()%64);
 
    /* rand centre position and movement speed/direction */
-   shape->x = itofix(rand() % SCREEN_W);
-   shape->y = itofix(rand() % SCREEN_H);
-   shape->ac = itofix((rand()%9)-4);
-   shape->xc = itofix((rand()%7)-2);
-   shape->yc = itofix((rand()%7)-2);
+   shape->x = itofix(AL_RAND() % SCREEN_W);
+   shape->y = itofix(AL_RAND() % SCREEN_H);
+   shape->ac = itofix((AL_RAND()%9)-4);
+   shape->xc = itofix((AL_RAND()%7)-2);
+   shape->yc = itofix((AL_RAND()%7)-2);
 }
 
 
@@ -64,13 +64,13 @@ void move_shape(SHAPE *shape)
    if (((shape->x <= 0) && (shape->xc < 0)) ||
        ((shape->x >= itofix(SCREEN_W)) && (shape->xc > 0))) {
       shape->xc = -shape->xc;
-      shape->ac = itofix((rand()%9)-4);
+      shape->ac = itofix((AL_RAND()%9)-4);
    }
 
    if (((shape->y <= 0) && (shape->yc < 0)) ||
        ((shape->y >= itofix(SCREEN_H)) && (shape->yc > 0))) {
       shape->yc = -shape->yc;
-      shape->ac = itofix((rand()%9)-4);
+      shape->ac = itofix((AL_RAND()%9)-4);
    }
 }
 

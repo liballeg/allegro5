@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
       }
 
       length[i] = text_length(f, mesg) + 8;
-      pos[i] = ((float)rand()/RAND_MAX) * SCREEN_W;
+      pos[i] = ((float)AL_RAND()/RAND_MAX) * SCREEN_W;
       mesg_bmp[i] = create_system_bitmap(length[i], height);
       clear_to_color(mesg_bmp[i], makecol(255, 255, 255));
       textout_ex(mesg_bmp[i], f, mesg, 8, 1, makecol(0, 0, 0), -1);

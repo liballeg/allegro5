@@ -333,9 +333,9 @@ void move_everyone(void)
 		  alien[c].x += alien[c].d;
 	    }
 	    else {
-	       alien[c].x = 16 + rand() % (SCREEN_W-32);
-	       alien[c].y = -60 - (rand() & 0x3f);
-	       alien[c].d = (rand()&1) ? 1 : -1;
+	       alien[c].x = 16 + AL_RAND() % (SCREEN_W-32);
+	       alien[c].y = -60 - (AL_RAND() & 0x3f);
+	       alien[c].d = (AL_RAND()&1) ? 1 : -1;
 	       alien[c].shot = FALSE;
 	       alien[c].state = -1;
 	    }
@@ -355,9 +355,9 @@ void move_everyone(void)
 
       if (alien[c].y > SCREEN_H+30) {
 	 if (!alien[c].shot) {
-	    alien[c].x = rand() % (SCREEN_W-32);
-	    alien[c].y = -32 - (rand() & 0x3f);
-	    alien[c].d = (rand()&1) ? 1 : -1;
+	    alien[c].x = AL_RAND() % (SCREEN_W-32);
+	    alien[c].y = -32 - (AL_RAND() & 0x3f);
+	    alien[c].d = (AL_RAND()&1) ? 1 : -1;
 	 }
       }
       else {
@@ -714,15 +714,15 @@ void play_game(void)
       skip_speed = 3;
 
    for (c=0; c<MAX_STARS; c++) {
-      star[c].ox = rand() % SCREEN_W;
-      star[c].oy = rand() % SCREEN_H;
-      star[c].z = rand() & 7;
+      star[c].ox = AL_RAND() % SCREEN_W;
+      star[c].oy = AL_RAND() % SCREEN_H;
+      star[c].z = AL_RAND() & 7;
    }
 
    for (c=0; c<MAX_ALIENS; c++) {
-      alien[c].x = 16 + rand() % (SCREEN_W-32);
-      alien[c].y = -60 - (rand() & 0x3f);
-      alien[c].d = (rand()&1) ? 1 : -1;
+      alien[c].x = 16 + AL_RAND() % (SCREEN_W-32);
+      alien[c].y = -60 - (AL_RAND() & 0x3f);
+      alien[c].d = (AL_RAND()&1) ? 1 : -1;
       alien[c].state = -1;
       alien[c].shot = FALSE;
    }
@@ -898,8 +898,8 @@ void generate_explosions(void)
 
    for (c=0; c<HOTSPOTS; c++) {
       hot[c].x = hot[c].y = (EXPLODE_SIZE/2)<<16;
-      hot[c].xc = (rand()&0xFFFF)-0x7FFF;
-      hot[c].yc = (rand()&0xFFFF)-0x7FFF;
+      hot[c].xc = (AL_RAND()&0xFFFF)-0x7FFF;
+      hot[c].yc = (AL_RAND()&0xFFFF)-0x7FFF;
    }
 
    for (c=0; c<EXPLODE_FRAMES; c++) {
@@ -1694,12 +1694,12 @@ int title_screen(void)
 	 /* animate the starfield */
 	 for (c=0; c<star_count; c++) {
 	    if (star[c].z <= itofix(1)) {
-	       x = itofix(rand()&0xff);
-	       y = itofix(((rand()&3)+1)*SCREEN_W);
+	       x = itofix(AL_RAND()&0xff);
+	       y = itofix(((AL_RAND()&3)+1)*SCREEN_W);
 
 	       star[c].x = fixmul(fixcos(x), y);
 	       star[c].y = fixmul(fixsin(x), y);
-	       star[c].z = itofix((rand() & 0x1f) + 0x20);
+	       star[c].z = itofix((AL_RAND() & 0x1f) + 0x20);
 	    }
 
 	    x = fixdiv(star[c].x, star[c].z);

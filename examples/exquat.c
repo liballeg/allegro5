@@ -306,9 +306,9 @@ int main(void)
    /* initialize the first destination orientation */
    srand(time(NULL));
 
-   e_to.x = (float)(rand() % 256);
-   e_to.y = (float)(rand() % 256);
-   e_to.z = (float)(rand() % 256);
+   e_to.x = (float)(AL_RAND() % 256);
+   e_to.y = (float)(AL_RAND() % 256);
+   e_to.z = (float)(AL_RAND() % 256);
 
    /* the camera is backed away from the origin and turned to face it */
    get_camera_matrix_f(&camera, 5, 0, 0, -1, 0, 0, 0, 0, 1, 46, 1.33f);
@@ -434,9 +434,9 @@ int main(void)
 	     */
 	    e_from = e_to;
 
-	    e_to.x = (float)(rand() % 256);
-	    e_to.y = (float)(rand() % 256);
-	    e_to.z = (float)(rand() % 256);
+	    e_to.x = (float)(AL_RAND() % 256);
+	    e_to.y = (float)(AL_RAND() % 256);
+	    e_to.z = (float)(AL_RAND() % 256);
 
 	    break;
 	 }

@@ -149,16 +149,16 @@ void init_shapes(void)
    int c;
 
    for (c=0; c<NUM_SHAPES; c++) {
-      shapes[c].x = ((rand() & 255) - 128) << 16;
-      shapes[c].y = ((rand() & 255) - 128) << 16;
+      shapes[c].x = ((AL_RAND() & 255) - 128) << 16;
+      shapes[c].y = ((AL_RAND() & 255) - 128) << 16;
       shapes[c].z = 768 << 16;
       shapes[c].rx = 0;
       shapes[c].ry = 0;
       shapes[c].rz = 0;
-      shapes[c].dz =  ((rand() & 255) - 8) << 12;
-      shapes[c].drx = ((rand() & 31) - 16) << 12;
-      shapes[c].dry = ((rand() & 31) - 16) << 12;
-      shapes[c].drz = ((rand() & 31) - 16) << 12;
+      shapes[c].dz =  ((AL_RAND() & 255) - 8) << 12;
+      shapes[c].drx = ((AL_RAND() & 31) - 16) << 12;
+      shapes[c].dry = ((AL_RAND() & 31) - 16) << 12;
+      shapes[c].drz = ((AL_RAND() & 31) - 16) << 12;
    }
 }
 

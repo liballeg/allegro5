@@ -9268,6 +9268,12 @@ insulate you from some of the differences between systems:
    Use this in place of the regular "const" object modifier keyword, and 
    your code will work correctly on any of the supported compilers.
 
+<b>AL_RAND()</b><br>
+   On platforms that require it, this macro does a simple shift 
+   transformation of the libc rand() function, in order to improve the 
+   perceived randomness of the output series in the lower 16 bits.
+   Where not required, it directly translates into a rand() call.
+
 
 
 @headingnocontent
