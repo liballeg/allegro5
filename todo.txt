@@ -24,7 +24,6 @@ General (Platform independant) todos:
 - include dat2c once finished
 - resolve findfirst issues
 - remove joystick control from main part of setup
-- Polish keyboard patch
 - bug in menus related to auto-opening patch
 
 DOS todos:
