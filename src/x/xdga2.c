@@ -72,6 +72,7 @@ static void _xaccel_blit_to_self(BITMAP *source, BITMAP *dest, int source_x, int
 static void _xaccel_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void _xaccel_masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
+#define DGA_MAX_EVENTS 5
 
 
 GFX_DRIVER gfx_xdga2 =
@@ -141,7 +142,7 @@ GFX_DRIVER gfx_xdga2_soft =
 /* _xdga2_fetch_mode_list:
  *  Creates list of available DGA2 video modes.
  */
-static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
+static GFX_MODE_LIST *_xdga2_private_fetch_mode_list(void)
 {
    XDGAMode *mode;
    int bpp, num_modes, stored_modes, i, j, already_there;
@@ -204,6 +205,17 @@ static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
 
 
 
+static GFX_MODE_LIST *_xdga2_fetch_mode_list(void)
+{
+   GFX_MODE_LIST *list;
+   XLOCK ();
+   list = _xdga2_private_fetch_mode_list();
+   XUNLOCK ();
+   return list;
+}
+
+
+
 /* _xdga2_find_mode:
  *  Returns id number of specified video mode if available, 0 otherwise.
  */
@@ -259,8 +271,8 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
  */
 static void _xdga2_handle_input(void)
 {
-   int i, events;
-   static XDGAEvent event[5];
+   int i, events, events_queued;
+   static XDGAEvent event[DGA_MAX_EVENTS + 1];
    XDGAEvent *cur_event;
    XKeyEvent key;
    int kcode, scode, dx, dy, dz = 0;
@@ -272,20 +284,35 @@ static void _xdga2_handle_input(void)
    XSync(_xwin.display, False);
 
    /* How much events are available in the queue.  */
-   events = XEventsQueued(_xwin.display, QueuedAlready);
+   events = events_queued = XEventsQueued(_xwin.display, QueuedAlready);
    if (events <= 0)
       return;
 
    /* Limit amount of events we read at once.  */
-   if (events > 5)
-      events = 5;
+   if (events > DGA_MAX_EVENTS)
+      events = DGA_MAX_EVENTS;
 
    /* Read pending events.  */
    for (i = 0; i < events; i++)
       XNextEvent(_xwin.display, (XEvent *)&event[i]);
 
+   /* see xwin.c */
+   if (events_queued > events && event[i - 1].type == KeyRelease) {
+      XNextEvent(_xwin.display, (XEvent *)&event[i]);
+      events++;
+   }
+
    /* Process all events.  */
    for (i = 0; i < events; i++) {
+      /* see xwin.c */
+      if (event[i].type == KeyRelease && (i + 1) < events) {
+         if (event[i + 1].type == KeyPress) {
+            if (event[i].xkey.keycode == event[i + 1].xkey.keycode &&
+               event[i].xkey.time == event[i + 1].xkey.time)
+               continue;
+         }
+      }
+
       cur_event = &event[i];
       switch (cur_event->type - dga_event_base) {
 
