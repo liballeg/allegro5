@@ -14,6 +14,8 @@
  *
  *      Hook functions added by Martijn Versteegh.
  *
+ *      Annie Testes lifted several hardcoded length limitations.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -245,12 +247,18 @@ static void init_config(int loaddata)
 
 
 
-/* get_line: 
- *  Helper for splitting files up into individual lines.
+/* get_line:
+ *  Helper for splitting files up into individual lines. Returns the length
+ *  in bytes of the sequence of characters delimited by the first EOL marker
+ *  in the array DATA of length LENGTH, and allocates NAME and VAL to record
+ *  the name and the value of the config entry respectively; otherwise set
+ *  NAME to NULL and returns a copy of the line through VAL if the line was
+ *  blank or a comment. Returns -1 and set allegro_errno on failure.
  */
-static int get_line(AL_CONST char *data, int length, char *name, int name_size, char *val, int val_size)
+static int get_line(AL_CONST char *data, int length, char **name, char **val)
 {
-   char buf[256], buf2[256];
+   char *buf;
+   int buf_size=256;
    int inpos, outpos, i, j;
    int c, c2, w0;
 
@@ -258,7 +266,14 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
    outpos = 0;
    w0 = ucwidth(0);
 
-   while ((inpos<length) && (outpos<(int)sizeof(buf)-w0)) {
+   buf = malloc(buf_size);
+   if (!buf) {
+     *allegro_errno = ENOMEM;
+     return -1;
+   }
+
+   /* search for an EOL marker */
+   while (inpos<length) {
       c = ugetc(data+inpos);
       if ((c == '\r') || (c == '\n')) {
 	 inpos += uwidth(data+inpos);
@@ -268,6 +283,16 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
 	       inpos += uwidth(data+inpos);
 	 }
 	 break;
+      }
+
+      /* increase the buffer size if needed */
+      if (outpos>=(int)buf_size-w0) {
+	 buf_size *= 2;
+	 buf = _al_sane_realloc(buf, buf_size);
+	 if (!buf) {
+	    *allegro_errno = ENOMEM;
+	    return -1;
+	 }
       }
 
       outpos += usetc(buf+outpos, c);
@@ -288,34 +313,52 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
    /* read name string */
    j = 0;
 
+   /* compute name length */
    while ((c) && (!uisspace(c)) && (c != '=') && (c != '#')) {
-      j += usetc(buf2+j, c);
+      j += ucwidth(c);
       i += uwidth(buf+i);
       c = ugetc(buf+i);
    }
 
    if (j) {
       /* got a variable */
-      usetc(buf2+j, 0);
-      ustrzcpy(name, name_size, buf2);
+      *name = malloc(j+w0);
+      if (!(*name)) {
+	 *allegro_errno = ENOMEM;
+	 free(buf);
+	 return -1;
+      }
+
+      ustrzcpy(*name, j+w0, buf+i-j);
 
       while ((c) && ((uisspace(c)) || (c == '='))) {
 	 i += uwidth(buf+i);
 	 c = ugetc(buf+i);
       }
 
-      ustrzcpy(val, val_size, buf+i);
+      *val = ustrdup(buf+i);
+      if (!(*val)) {
+	 free(name);
+	 free(buf);
+	 return -1;
+      }
 
       /* strip trailing spaces */
-      i = ustrlen(val) - 1;
-      while ((i >= 0) && (uisspace(ugetat(val, i))))
-	 usetat(val, i--, 0);
+      i = ustrlen(*val) - 1;
+      while ((i >= 0) && (uisspace(ugetat(*val, i))))
+	 usetat(*val, i--, 0);
    }
    else {
       /* blank line or comment */
-      usetc(name, 0);
-      ustrzcpy(val, val_size, buf);
+      *name = NULL;
+      *val = ustrdup(buf);
+      if (!(*val)) {
+	 free(buf);
+	 return -1;
+      }
    }
+
+   free(buf);
 
    return inpos;
 }
@@ -327,9 +370,9 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
  */
 static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONST char *filename)
 {
-   char name[256], val[256];
    CONFIG_ENTRY **prev, *p;
-   int pos;
+   char *name, *val;
+   int ret, pos;
 
    init_config(FALSE);
 
@@ -339,14 +382,22 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
    }
 
    *config = malloc(sizeof(CONFIG));
-   if (!(*config))
+   if (!(*config)) {
+      *allegro_errno = ENOMEM;
       return;
+   }
 
    (*config)->head = NULL;
    (*config)->dirty = FALSE;
 
-   if (filename)
+   if (filename) {
       (*config)->filename = ustrdup(filename);
+      if (!(*config)->filename) {
+	 free(*config);
+	 *config = NULL;
+	 return;
+      }
+   }
    else
       (*config)->filename = NULL;
 
@@ -354,18 +405,25 @@ static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONS
    pos = 0;
 
    while (pos < length) {
-      pos += get_line(data+pos, length-pos, name, sizeof(name), val, sizeof(val));
+      ret = get_line(data+pos, length-pos, &name, &val);
+      if (ret<0) {
+	 free(*config);
+	 *config = NULL;
+	 return;
+      }
+
+      pos += ret;
 
       p = malloc(sizeof(CONFIG_ENTRY));
-      if (!p)
+      if (!p) {
+	 *allegro_errno = ENOMEM;
+	 free(*config);
+	 *config = NULL;
 	 return;
+      }
 
-      if (ugetc(name))
-         p->name = ustrdup(name);
-      else
-	 p->name = NULL;
-
-      p->data = ustrdup(val);
+      p->name = name;
+      p->data = val;
 
       p->next = NULL;
       *prev = p;
@@ -836,9 +894,11 @@ char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
 {
    #define MAX_ARGV  16
 
-   static char buf[256];
+   static char *buf = NULL;
+   static int buf_size = 0;
    static char *argv[MAX_ARGV];
    int pos, ac, q, c;
+   int s_size;
 
    AL_CONST char *s = get_config_string(section, name, NULL);
 
@@ -847,7 +907,19 @@ char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
       return NULL;
    }
 
-   ustrzcpy(buf, sizeof(buf), s);
+   /* increase the buffer size if needed */
+   s_size = ustrsizez(s);
+   if (s_size>buf_size) {
+      buf_size = s_size;
+      buf = _al_sane_realloc(buf, buf_size);
+      if (!buf) {
+	 *allegro_errno = ENOMEM;
+	 *argc = 0;
+	 return NULL;
+      }
+   }
+
+   ustrcpy(buf, s);
    pos = 0;
    ac = 0;
 
@@ -1153,17 +1225,45 @@ void reload_config_texts(AL_CONST char *new_language)
  */
 AL_CONST char *get_config_text(AL_CONST char *msg)
 {
-   char tmp1[256], tmp2[256], name[256];
+   char tmp1[256];
    AL_CONST char *section = uconvert_ascii("[language]", tmp1);
    AL_CONST char *umsg;
    AL_CONST char *s;
+   AL_CONST char *ret = NULL;
+   char *name;
    CONFIG_HOOK *hook;
    CONFIG_ENTRY *p;
-   int c, pos;
+   int c, pos, size;
    ASSERT(msg);
 
-   umsg = uconvert_ascii(msg, tmp2);
    init_config(TRUE);
+
+   /* allocate memory and convert message to current encoding format */
+   if (need_uconvert(msg, U_ASCII, U_CURRENT)) {
+      size = uconvert_size(msg, U_ASCII, U_CURRENT);
+      umsg = malloc(size);
+      if (!umsg) {
+	 *allegro_errno = ENOMEM;
+	 return empty_string;
+      }
+
+      name = malloc(size);
+      if (!name) {
+	 free((char *)umsg);  /* remove constness */
+	 *allegro_errno = ENOMEM;
+	 return empty_string;
+      }
+
+      do_uconvert(msg, U_ASCII, (char*)umsg, U_CURRENT, size);
+   }
+   else {
+      umsg = msg;
+      name = malloc(ustrsizez(msg));
+      if (!name) {
+	 *allegro_errno = ENOMEM;
+	 return empty_string;
+      }
+   }
 
    s = umsg;
    pos = 0;
@@ -1182,29 +1282,44 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
 
    while (hook) {
       if (ustricmp(section, hook->section) == 0) {
-	 if (hook->stringgetter)
-	    return hook->stringgetter(name, umsg);
+	 if (hook->stringgetter) {
+	    ret = hook->stringgetter(name, umsg);
+	    break;
+	 }
       }
+
       hook = hook->next;
    }
 
-   /* find the string */
-   p = find_config_string(config_override, section, name, NULL);
+   if (!ret) {
+      /* find the string */
+      p = find_config_string(config_override, section, name, NULL);
 
-   if (!p) {
-      p = find_config_string(config[0], section, name, NULL);
+      if (!p) {
+	 p = find_config_string(config[0], section, name, NULL);
 
-      if (!p)
-	 p = find_config_string(config_language, section, name, NULL);
+	 if (!p)
+	    p = find_config_string(config_language, section, name, NULL);
+      }
+
+      if (p) {
+	 ret = (p->data ? p->data : empty_string);
+      }
+      else {
+	 /* no translation, so store off this value in the file */
+	 p = config_language->head;
+	 insert_variable(config_language, NULL, name, umsg);
+	 config_language->head->next = p;
+	 ret = config_language->head->data;
+      }
    }
 
-   if (p)
-      return (p->data ? p->data : empty_string);
+   /* free memory */
+   if (umsg!=msg)
+      free((char*) umsg);  /* remove constness */
 
-   /* no translation, so store off this value in the file */
-   p = config_language->head;
-   insert_variable(config_language, NULL, name, umsg);
-   config_language->head->next = p;
-   return config_language->head->data;
+   free(name);
+
+   return ret;
 }
 
