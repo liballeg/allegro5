@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Optimised palette generation routines, by Michal Mertl.
+ *      Optimised palette generation routines.
+ *
+ *      By Michal Mertl.
  *
  *      Portability improvements and bugfixes by Michael Bukin.
  *
@@ -304,8 +306,9 @@ int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST signed ch
       pal[0].g = 0;
       pal[0].b = 63;
 
-      tmprsvd[0] = -1;
+      tmprsvd[0] = 1;
       rsvdcnt++;
+      rsvduse++;
 
       for (i=1; i<256; i++)
 	 tmprsvd[i] = 0;

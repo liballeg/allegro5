@@ -31,24 +31,23 @@
  */
 static int get_replacement_mask_color(BITMAP *bmp)
 {
-   int depth, r, g, b, c;
+   int depth, c, g = 0;
 
    depth = bitmap_color_depth(bmp);
 
    if (depth == 8) {
-      /* to do */
-      return 0;
+      if (rgb_map)
+         return rgb_map->data[31][1][31];
+      else
+         return bestfit_color(_current_palette, 63, 1, 63);
    }
+   else {
+      do
+         c = makecol_depth(depth, 255, ++g, 255);
+      while (c == bitmap_mask_color(bmp));
 
-   r = getr_depth(depth, bitmap_mask_color(bmp));
-   g = getg_depth(depth, bitmap_mask_color(bmp));
-   b = getb_depth(depth, bitmap_mask_color(bmp));
-
-   do
-      c = makecol_depth(depth, r, ++g, b);
-   while (c == bitmap_mask_color(bmp));
-
-   return c;
+      return c;
+   }
 }
 
 

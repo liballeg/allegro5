@@ -296,6 +296,7 @@ int bestfit_color(AL_CONST PALETTE pal, int r, int g, int b)
    bestfit = 0;
    lowest = INT_MAX;
 
+   /* only the transparent (pink) color can be mapped to index 0 */
    if ((r == 63) && (g == 0) && (b == 63))
       i = 0;
    else
@@ -424,7 +425,7 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
  *  about them etc...
  *
  *  It does just about 80000 tests for distances and this is about 100
- *  times better than normal 256*32000 tests so the caluclation time
+ *  times better than normal 256*32000 tests so the calculation time
  *  is now less than one second at all computers I tested.
  */
 void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int pos))
@@ -502,7 +503,7 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
    data = (unsigned char *)table->data;
 
    /* add starting seeds for floodfill */
-   for (i=1; i<256; i++) { 
+   for (i=1; i<PAL_SIZE; i++) { 
       curr = pos(pal[i].r, pal[i].g, pal[i].b);
       if (next[curr] == UNUSED) {
 	 data[curr] = i;
@@ -591,6 +592,10 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
       }
    }
 
+   /* only the transparent (pink) color can be mapped to index 0 */
+   if ((pal[0].r == 63) && (pal[0].g == 0) && (pal[0].b == 63))
+      table->data[31][0][31] = 0;
+
    if (callback)
       while (cbcount < 256)
 	 callback(cbcount++);
@@ -667,7 +672,7 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
    if (callback)
       (*callback)(0);
 
-   for (x=1; x<256; x++) {
+   for (x=1; x<PAL_SIZE; x++) {
       i = pal[x].r * r / 255;
       j = pal[x].g * g / 255;
       k = pal[x].b * b / 255;
@@ -676,7 +681,7 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
       q = tmp;
 
       if (rgb_map) {
-	 for (y=0; y<256; y++) {
+	 for (y=0; y<PAL_SIZE; y++) {
 	    c.r = i + *(q++);
 	    c.g = j + *(q++);
 	    c.b = k + *(q++);
@@ -684,7 +689,7 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
 	 }
       }
       else {
-	 for (y=0; y<256; y++) {
+	 for (y=0; y<PAL_SIZE; y++) {
 	    c.r = i + *(q++); 
 	    c.g = j + *(q++); 
 	    c.b = k + *(q++);
