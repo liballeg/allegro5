@@ -4700,8 +4700,8 @@ unpacking is very fast and it does not require much memory. Packed files
 always begin with the 32 bit value F_PACK_MAGIC, and autodetect files with 
 the value F_NOPACK_MAGIC.
 
-@@char *@get_executable_name(char *buf, int size);
-   Fills buf with the full path to the current executable, returning at most 
+@@void @get_executable_name(char *buf, int size);
+   Fills buf with the full path to the current executable, writing at most 
    size bytes.
 
 @@char *@fix_filename_case(char *path);

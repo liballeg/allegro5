@@ -11,7 +11,8 @@
 Changes from 3.11 to current
 <ul><li>
    3.9.33: Grzegorz Adam Hankiewicz added documentation for findfirst(), 
-   findnext(), and findclose().
+   findnext(), and findclose(), and corrected the documentation for 
+   get_executable_name().
 <li>
    3.9.33: Stephan Roh made patches to allow compilation on IRIX.
 <li>
