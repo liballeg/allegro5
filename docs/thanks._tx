@@ -384,7 +384,8 @@ Contributors
    Peter Cech (<email>7cech@nw.fmph.uniba.sk</a>).<br>
    Added grabber support for the 8x8 BIOS font format, and support for 
    hot-swapping between a custom keyboard layout and the standard US 
-   mapping. Optimised the alpha sprite blending routines.
+   mapping. Optimised the alpha sprite blending routines. Added non-ASCII
+   space recognition to uisspace().
 
    Peter Monks (<email>pmonks@iname.com</a>).<br>
    Wrote the Video-7 graphics driver (now available as part of the FreeBE/AF 

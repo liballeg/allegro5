@@ -16,6 +16,8 @@
  *
  *      ustrrchr() and usprintf() improvements by Sven Sandberg.
  *
+ *      Peter Cech added some non-ASCII characters to uissspace(). 
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -1663,7 +1665,9 @@ int utoupper(int c)
 int uisspace(int c)
 {
    return ((c == ' ') || (c == '\t') || (c == '\r') || 
-	   (c == '\n') || (c == '\f') || (c == '\v'));
+	   (c == '\n') || (c == '\f') || (c == '\v') ||
+	   (c == 0x1680) || ((c >= 0x2000) && (c <= 0x200A)) ||
+	   (c == 0x2028) || (c == 0x202f) || (c == 0x3000));
 }
 
 

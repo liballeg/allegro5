@@ -10,6 +10,8 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Peter Cech made uisspace() recognise non-ASCII space characters.
+<li>
    3.9.32: S.Sakamaki added a function for controlling the refresh rate when 
    using the DOS VESA 3.0 driver (this could also be supported by some other 
    drivers if anyone wants to implement that).
