@@ -49,24 +49,24 @@ AL_INLINE(int, _default_ds, (void),
     * the same calling convention on both sides.
     */
 
-AL_FUNC(unsigned long, bmp_write_line, (BITMAP *bmp, int line));
-AL_FUNC(unsigned long, bmp_read_line, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, bmp_write_line, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, bmp_read_line, (BITMAP *bmp, int line));
 AL_FUNC(void, bmp_unwrite_line, (BITMAP *bmp));
 
 #else
 
-typedef AL_METHOD(unsigned long, _BMP_BANK_SWITCHER, (BITMAP *bmp, int line));
+typedef AL_METHOD(uintptr_t, _BMP_BANK_SWITCHER, (BITMAP *bmp, int line));
 typedef AL_METHOD(void, _BMP_UNBANK_SWITCHER, (BITMAP *bmp));
 
 
-AL_INLINE(unsigned long, bmp_write_line, (BITMAP *bmp, int line),
+AL_INLINE(uintptr_t, bmp_write_line, (BITMAP *bmp, int line),
 {
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->write_bank;
    return switcher(bmp, line);
 })
 
 
-AL_INLINE(unsigned long, bmp_read_line, (BITMAP *bmp, int line),
+AL_INLINE(uintptr_t, bmp_read_line, (BITMAP *bmp, int line),
 {
    _BMP_BANK_SWITCHER switcher = (_BMP_BANK_SWITCHER)bmp->read_bank;
    return switcher(bmp, line);

@@ -331,25 +331,25 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
       case 32:
 	 for (y=0; y<image->h; y++)
 	    for (x=0; x<image->w; x++)
-	       insert_node(bmp_read32((unsigned long)image->line[y]+x*sizeof(long)) & bitmask24);
+	       insert_node(bmp_read32((uintptr_t)image->line[y]+x*sizeof(int32_t)) & bitmask24);
 	 break;
 
       case 24:
 	 for (y=0; y<image->h; y++)
 	    for (x=0; x<image->w; x++)
-	       insert_node(bmp_read24((unsigned long)image->line[y]+x*3) & bitmask24);
+	       insert_node(bmp_read24((uintptr_t)image->line[y]+x*3) & bitmask24);
 	 break;
 
       case 16:
 	 for (y=0; y<image->h; y++)
 	    for (x=0; x<image->w; x++)
-	       insert_node(bmp_read16((unsigned long)image->line[y]+x*sizeof(short)) & bitmask16);
+	       insert_node(bmp_read16((uintptr_t)image->line[y]+x*sizeof(short)) & bitmask16);
 	 break;
 
       case 15:
 	 for (y=0; y<image->h; y++)
 	    for (x=0; x<image->w; x++)
-	       insert_node(bmp_read15((unsigned long)image->line[y]+x*sizeof(short)) & bitmask15);
+	       insert_node(bmp_read15((uintptr_t)image->line[y]+x*sizeof(short)) & bitmask15);
 	 break;
 
       default:

@@ -36,7 +36,7 @@ AL_FUNC(void, _vga_regs_init, (void));
 AL_FUNC(void, _vga_vsync, (void));
 AL_FUNC(void, _vga_set_palette_range, (AL_CONST PALETTE p, int from, int to, int sync));
 AL_FUNC(void, _set_vga_virtual_width, (int old_width, int new_width));
-AL_FUNC(unsigned long, _set_vga_mode, (int modenum));
+AL_FUNC(uintptr_t, _set_vga_mode, (int modenum));
 AL_FUNC(void, _unset_vga_mode, (void));
 AL_FUNC(void, _save_vga_mode, (void));
 AL_FUNC(void, _restore_vga_mode, (void));

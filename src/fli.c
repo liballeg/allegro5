@@ -197,16 +197,16 @@ static void fli_skip(int bytes)
 
 #if 0
 /* the "cast expression as lvalue" extension is deprecated in GCC 3.4 */
-#define READ_WORD_NC(p)    (*((unsigned short *)(p))++)
-#define READ_SHORT_NC(p)   (*((signed short *)(p))++)
-#define READ_ULONG_NC(p)   (*((unsigned long *)(p))++)
-#define READ_LONG_NC(p)    (*((signed long *)(p))++)
+#define READ_WORD_NC(p)    (*((uint16_t *)(p))++)
+#define READ_SHORT_NC(p)   (*((int16_t *)(p))++)
+#define READ_ULONG_NC(p)   (*((uint32_t *)(p))++)
+#define READ_LONG_NC(p)    (*((int32_t *)(p))++)
 #else
 /* we use the "statement-expression" extension instead */
-#define READ_WORD_NC(p)    ({ unsigned short *__p = (unsigned short *)(p); p+=2; *__p; })
-#define READ_SHORT_NC(p)   ({ signed short *__p = (signed short *)(p); p+=2; *__p; })
-#define READ_ULONG_NC(p)   ({ unsigned long *__p = (unsigned long *)(p); p+=4; *__p; })
-#define READ_LONG_NC(p)    ({ signed long *__p = (signed long *)(p); p+=4; *__p; })
+#define READ_WORD_NC(p)    ({ uint16_t *__p = (uint16_t *)(p); p+=2; *__p; })
+#define READ_SHORT_NC(p)   ({ int16_t *__p = (int16_t *)(p); p+=2; *__p; })
+#define READ_ULONG_NC(p)   ({ uint32_t *__p = (uint32_t *)(p); p+=4; *__p; })
+#define READ_LONG_NC(p)    ({ int32_t *__p = (int32_t *)(p); p+=4; *__p; })
 #endif
 
 #else
@@ -270,7 +270,7 @@ static signed long _fli_read_long_nc(unsigned char **p)
 #define READ_RLE_WORD_NC(p,pos,size)                            \
 {                                                               \
    int c;                                                       \
-   unsigned short *ptr = (unsigned short*) (pos);               \
+   uint16_t *ptr = (uint16_t*) (pos);                           \
    unsigned short v = READ_WORD_NC(p);                          \
 								\
    for (c = 0; c < (size); c++)                                 \

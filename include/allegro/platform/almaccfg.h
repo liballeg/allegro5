@@ -50,7 +50,7 @@
 #define LOCK_CODE(c, s)				_mac_lock((void *)c, s)
 #define UNLOCK_DATA(d,s)			_mac_unlock((void *)d, s)
 #define LOCK_VARIABLE(x)			LOCK_DATA((void *)&x, sizeof(x))
-#define LOCK_FUNCTION(x)			LOCK_CODE((void *)x, (long)x##_end - (long)x)
+#define LOCK_FUNCTION(x)			LOCK_CODE((void *)x, (intptr_t)x##_end - (intptr_t)x)
 
 /* long filename status */
 #define ALLEGRO_LFN  0

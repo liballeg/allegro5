@@ -105,7 +105,7 @@ static int flooder(BITMAP *bmp, int x, int y, int src_color, int dest_color)
 
 	 #ifdef ALLEGRO_COLOR32
 	    case 32:
-	       FLOODER(32, sizeof(long));
+	       FLOODER(32, sizeof(int32_t));
 	       break;
 	 #endif
       }

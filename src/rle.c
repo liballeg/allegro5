@@ -57,15 +57,15 @@ RLE_SPRITE *get_rle_sprite(BITMAP *bitmap)
    }
 
    #define WRITE_TO_SPRITE16(x) {                                            \
-      _grow_scratch_mem((c+1)*sizeof(short));                                \
-      p = (signed short *)_scratch_mem;                                      \
+      _grow_scratch_mem((c+1)*sizeof(int16_t));                              \
+      p = (int16_t *)_scratch_mem;                                           \
       p[c] = x;                                                              \
       c++;                                                                   \
    }
 
    #define WRITE_TO_SPRITE32(x) {                                            \
-      _grow_scratch_mem((c+1)*sizeof(long));                                 \
-      p = (signed long *)_scratch_mem;                                       \
+      _grow_scratch_mem((c+1)*sizeof(int32_t));                              \
+      p = (int32_t *)_scratch_mem;                                           \
       p[c] = x;                                                              \
       c++;                                                                   \
    }
@@ -132,9 +132,9 @@ RLE_SPRITE *get_rle_sprite(BITMAP *bitmap)
 	 case 24:
 	 case 32:
 	    {
-	       signed long *p = (signed long *)_scratch_mem;
+	       int32_t *p = (int32_t *)_scratch_mem;
 	       DO_RLE(32);
-	       c *= sizeof(long);
+	       c *= sizeof(int32_t);
 	    }
 	    break;
 

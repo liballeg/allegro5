@@ -32,6 +32,8 @@
 #define ALLEGRO_DOS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
+#define ALLEGRO_GUESS_INTTYPES_OK
+   /* inttypes.h and stdint.h not available in djgpp 2.02 */
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_VRAM_SINGLE_SURFACE
 #define ALLEGRO_USE_CONSTRUCTOR
@@ -50,7 +52,7 @@ void _unlock_dpmi_data(void *addr, int size);
 #define LOCK_CODE(c, s)             _go32_dpmi_lock_code((void *)c, s)
 #define UNLOCK_DATA(d,s)            _unlock_dpmi_data((void *)d, s)
 #define LOCK_VARIABLE(x)            LOCK_DATA((void *)&x, sizeof(x))
-#define LOCK_FUNCTION(x)            LOCK_CODE((void *)x, (long)x##_end - (long)x)
+#define LOCK_FUNCTION(x)            LOCK_CODE((void *)x, (intptr_t)x##_end - (intptr_t)x)
 
 
 /* long filename status */
@@ -71,6 +73,8 @@ void _unlock_dpmi_data(void *addr, int size);
 #define bmp_write8(addr, c)         _farnspokeb(addr, c)
 #define bmp_write15(addr, c)        _farnspokew(addr, c)
 #define bmp_write16(addr, c)        _farnspokew(addr, c)
+#define bmp_write24(addr, c)        ({ _farnspokew(addr, c&0xFFFF); \
+                                       _farnspokeb(addr+2, c>>16); })
 #define bmp_write32(addr, c)        _farnspokel(addr, c)
 
 #define bmp_read8(addr)             _farnspeekb(addr)
@@ -78,15 +82,6 @@ void _unlock_dpmi_data(void *addr, int size);
 #define bmp_read16(addr)            _farnspeekw(addr)
 #define bmp_read32(addr)            _farnspeekl(addr)
 #define bmp_read24(addr)            (_farnspeekl(addr) & 0xFFFFFF)
-
-#ifndef AL_INLINE
-extern __inline__  /* special bodge because AL_INLINE isn't defined yet */
-#endif
-void bmp_write24(unsigned long addr, int c)
-{
-   _farnspokew(addr, c&0xFFFF);
-   _farnspokeb(addr+2, c>>16);
-}
 
 #ifdef __cplusplus
 }

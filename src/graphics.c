@@ -892,7 +892,7 @@ void _sort_out_virtual_width(int *width, GFX_DRIVER *driver)
  *  switching table using bank size/granularity information from the 
  *  specified graphics driver.
  */
-BITMAP *_make_bitmap(int w, int h, unsigned long addr, GFX_DRIVER *driver, int color_depth, int bpl)
+BITMAP *_make_bitmap(int w, int h, uintptr_t addr, GFX_DRIVER *driver, int color_depth, int bpl)
 {
    GFX_VTABLE *vtable = _get_vtable(color_depth);
    int i, bank, size;

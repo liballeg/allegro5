@@ -137,7 +137,7 @@ int update_color_value(void *dp3, int val)
 {
    /* 'val' is the value of the slider's position (0-255),
       'type' is which slider was changed */
-   int type = ((unsigned long)dp3 - (unsigned long)colors) / sizeof(colors[0]);
+   int type = ((uintptr_t)dp3 - (uintptr_t)colors) / sizeof(colors[0]);
    int r, g, b;
    float h, s, v;
 

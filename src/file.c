@@ -1433,17 +1433,17 @@ void packfile_password(AL_CONST char *password)
 /* encrypt_id:
  *  Helper for encrypting magic numbers, using the current password.
  */
-static long encrypt_id(long x, int new_format)
+static int32_t encrypt_id(long x, int new_format)
 {
-   long mask = 0;
+   int32_t mask = 0;
    int i, pos;
 
    if (the_password[0]) {
       for (i=0; the_password[i]; i++)
-	 mask ^= ((long)the_password[i] << ((i&3) * 8));
+	 mask ^= ((int32_t)the_password[i] << ((i&3) * 8));
 
       for (i=0, pos=0; i<4; i++) {
-	 mask ^= (long)the_password[pos++] << (24-i*8);
+	 mask ^= (int32_t)the_password[pos++] << (24-i*8);
 	 if (!the_password[pos])
 	    pos = 0;
       }

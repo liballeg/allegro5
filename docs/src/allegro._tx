@@ -4242,11 +4242,11 @@ Bitmap objects
 Once you have selected a graphics mode, you can draw things onto the display 
 via the `screen' bitmap. All the Allegro graphics routines draw onto BITMAP
 structures, which are areas of memory containing rectangular images, stored 
-as packed byte arrays (in 8-bit modes one byte per pixel, in 15- and 16-bit 
-modes sizeof(short) bytes per pixel, in 24-bit modes 3 bytes per pixel and 
-in 32-bit modes sizeof(long) bytes per pixel). You can create and manipulate 
-bitmaps in system RAM, or you can write to the special `screen' bitmap which
-represents the video memory in your graphics card.
+as packed byte arrays (in 8-bit modes one byte per pixel, in 15- and 16-bit
+modes two bytes per pixel, in 24-bit modes 3 bytes per pixel and in 32-bit
+modes 4 bytes per pixel). You can create and manipulate bitmaps in system
+RAM, or you can write to the special `screen' bitmap which represents the
+video memory in your graphics card.
 
 Read chapter "Direct access to video memory" for information on how to get
 direct access to the image memory in a bitmap.

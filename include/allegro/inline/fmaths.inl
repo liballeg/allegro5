@@ -41,7 +41,7 @@ AL_INLINE(fixed, ftofix, (double x),
       return -0x7FFFFFFF;
    }
 
-   return (long)(x * 65536.0 + (x < 0 ? -0.5 : 0.5));
+   return (fixed)(x * 65536.0 + (x < 0 ? -0.5 : 0.5));
 })
 
 
@@ -130,7 +130,7 @@ AL_INLINE(int, fixfloor, (fixed x),
 
 AL_INLINE(int, fixceil, (fixed x),
 {
-   if (x > (long)(0x7FFF0000)) {
+   if (x > 0x7FFF0000) {
       *allegro_errno = ERANGE;
       return 0x7FFF;
    }

@@ -47,8 +47,8 @@ typedef struct BMP_EXTRA_INFO {
 
 AL_VAR(BITMAP *, ph_frontbuffer);
 
-AL_FUNC(unsigned long, ph_write_line, (BITMAP *bmp, int line));
-AL_FUNC(unsigned long, ph_write_line_asm, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, ph_write_line, (BITMAP *bmp, int line));
+AL_FUNC(uintptr_t, ph_write_line_asm, (BITMAP *bmp, int line));
 AL_FUNC(void, ph_unwrite_line, (BITMAP *bmp, int line));
 AL_FUNC(void, ph_unwrite_line_asm, (BITMAP *bmp, int line));
 AL_FUNC(void, ph_acquire, (BITMAP *bmp));

@@ -40,7 +40,7 @@ static BITMAP *scene_bmp;
 static COLOR_MAP *scene_cmap;
 static int scene_alpha;
 static int last_x, scene_y;
-static unsigned long scene_addr;
+static uintptr_t scene_addr;
 static float last_z;
 static POLYGON_EDGE **hash = NULL;
 

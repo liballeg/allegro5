@@ -20,15 +20,15 @@
 
 #define PP_DEPTH               32
 
-#define PIXEL_PTR              unsigned long*
+#define PIXEL_PTR              uint32_t*
 #define OFFSET_PIXEL_PTR(p,x)  ((PIXEL_PTR) (p) + (x))
 #define INC_PIXEL_PTR(p)       ((p)++)
 #define DEC_PIXEL_PTR(p)       ((p)--)
 
-#define PUT_PIXEL(p,c)         bmp_write32((unsigned long) (p), (c))
+#define PUT_PIXEL(p,c)         bmp_write32((uintptr_t) (p), (c))
 #define PUT_MEMORY_PIXEL(p,c)  (*(p) = (c))
-#define PUT_RGB(p,r,g,b)       bmp_write32((unsigned long) (p), makecol32((r), (g), (b)))
-#define GET_PIXEL(p)           bmp_read32((unsigned long) (p))
+#define PUT_RGB(p,r,g,b)       bmp_write32((uintptr_t) (p), makecol32((r), (g), (b)))
+#define GET_PIXEL(p)           bmp_read32((uintptr_t) (p))
 #define GET_MEMORY_PIXEL(p)    (*(p))
 
 #define IS_MASK(c)             ((unsigned long) (c) == MASK_COLOR_32)
@@ -60,7 +60,7 @@
 #define GET_PATTERN_PIXEL(x,y) GET_MEMORY_PIXEL(OFFSET_PIXEL_PTR(PATTERN_LINE(y), \
                                                 ((x) - _drawing_x_anchor) & _drawing_x_mask))
 
-#define RLE_PTR                signed long*
+#define RLE_PTR                int32_t*
 #define RLE_IS_EOL(c)          ((unsigned long) (c) == MASK_COLOR_32)
 
 #define FUNC_LINEAR_CLEAR_TO_COLOR          _linear_clear_to_color32

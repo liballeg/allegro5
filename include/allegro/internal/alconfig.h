@@ -59,6 +59,10 @@
    #else
       #error platform not supported
    #endif
+
+   #ifndef SCAN_DEPEND
+      #include "allegro/platform/astdint.h"
+   #endif
 #endif
 
 
@@ -269,12 +273,12 @@
 /* not many places actually use these, but still worth emulating */
 #ifndef ALLEGRO_DJGPP
    #define _farsetsel(seg)
-   #define _farnspokeb(addr, val)   (*((unsigned char  *)(addr)) = (val))
-   #define _farnspokew(addr, val)   (*((unsigned short *)(addr)) = (val))
-   #define _farnspokel(addr, val)   (*((unsigned long  *)(addr)) = (val))
-   #define _farnspeekb(addr)        (*((unsigned char  *)(addr)))
-   #define _farnspeekw(addr)        (*((unsigned short *)(addr)))
-   #define _farnspeekl(addr)        (*((unsigned long  *)(addr)))
+   #define _farnspokeb(addr, val)   (*((uint8_t  *)(addr)) = (val))
+   #define _farnspokew(addr, val)   (*((uint16_t *)(addr)) = (val))
+   #define _farnspokel(addr, val)   (*((uint32_t *)(addr)) = (val))
+   #define _farnspeekb(addr)        (*((uint8_t  *)(addr)))
+   #define _farnspeekw(addr)        (*((uint16_t *)(addr)))
+   #define _farnspeekl(addr)        (*((uint32_t *)(addr)))
 #endif
 
 
@@ -310,17 +314,17 @@
 #endif
 
 #ifndef bmp_write8
-   #define bmp_write8(addr, c)         (*((unsigned char  *)(addr)) = (c))
-   #define bmp_write15(addr, c)        (*((unsigned short *)(addr)) = (c))
-   #define bmp_write16(addr, c)        (*((unsigned short *)(addr)) = (c))
-   #define bmp_write32(addr, c)        (*((unsigned long  *)(addr)) = (c))
+   #define bmp_write8(addr, c)         (*((uint8_t  *)(addr)) = (c))
+   #define bmp_write15(addr, c)        (*((uint16_t *)(addr)) = (c))
+   #define bmp_write16(addr, c)        (*((uint16_t *)(addr)) = (c))
+   #define bmp_write32(addr, c)        (*((uint32_t *)(addr)) = (c))
 
-   #define bmp_read8(addr)             (*((unsigned char  *)(addr)))
-   #define bmp_read15(addr)            (*((unsigned short *)(addr)))
-   #define bmp_read16(addr)            (*((unsigned short *)(addr)))
-   #define bmp_read32(addr)            (*((unsigned long  *)(addr)))
+   #define bmp_read8(addr)             (*((uint8_t  *)(addr)))
+   #define bmp_read15(addr)            (*((uint16_t *)(addr)))
+   #define bmp_read16(addr)            (*((uint16_t *)(addr)))
+   #define bmp_read32(addr)            (*((uint32_t *)(addr)))
 
-   AL_INLINE(int, bmp_read24, (unsigned long addr),
+   AL_INLINE(int, bmp_read24, (uintptr_t addr),
    {
       unsigned char *p = (unsigned char *)addr;
       int c;
@@ -330,7 +334,7 @@
       return c;
    })
 
-   AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
+   AL_INLINE(void, bmp_write24, (uintptr_t addr, int c),
    {
       unsigned char *p = (unsigned char *)addr;
 

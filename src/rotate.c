@@ -82,7 +82,7 @@ SCANLINE_DRAWER_GENERIC(generic
 				       fixed spr_dx, fixed spr_dy)    \
    {                                                                  \
       int c;                                                          \
-      unsigned long addr, end_addr;                                   \
+      uintptr_t addr, end_addr;                                   \
       unsigned char **spr_line = spr->line;                           \
                                                                       \
       r_bmp_x >>= 16;                                                 \
@@ -137,7 +137,7 @@ SCANLINE_DRAWER_GENERIC(generic
 
 #ifdef ALLEGRO_COLOR32
    SCANLINE_DRAWER(32,
-		   c = ((unsigned long *)spr_line[l_spr_y>>16])
+		   c = ((uint32_t *)spr_line[l_spr_y>>16])
 		       [l_spr_x>>16])
 #endif
 
@@ -147,14 +147,14 @@ SCANLINE_DRAWER_GENERIC(generic
     fixed l_spr_x, fixed l_spr_y, fixed spr_dx, fixed spr_dy)
    {
       int c;
-      unsigned long start_addr, addr, end_addr;
+      uintptr_t start_addr, addr, end_addr;
       unsigned char **spr_line = spr->line;
       int plane;
       fixed spr_x, spr_y;
 
       r_bmp_x >>= 16;
       l_bmp_x >>= 16;
-      start_addr = (unsigned long)bmp->line[bmp_y_i];
+      start_addr = (uintptr_t)bmp->line[bmp_y_i];
       spr_dx <<= 2;
       spr_dy <<= 2;
       for (plane = 0; plane < 4; plane++) {

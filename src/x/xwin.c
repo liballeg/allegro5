@@ -263,10 +263,10 @@ static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
 #ifdef ALLEGRO_NO_ASM
-unsigned long _xwin_write_line (BITMAP *bmp, int line);
+uintptr_t _xwin_write_line (BITMAP *bmp, int line);
 void _xwin_unwrite_line (BITMAP *bmp);
 #else
-unsigned long _xwin_write_line_asm (BITMAP *bmp, int line);
+uintptr_t _xwin_write_line_asm (BITMAP *bmp, int line);
 void _xwin_unwrite_line_asm (BITMAP *bmp);
 #endif
 
@@ -923,7 +923,7 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
 
    /* Create bitmap.  */
    bmp = _make_bitmap(_xwin.virtual_width, _xwin.virtual_height,
-		      (unsigned long) (_xwin.screen_line[0]), drv,
+		      (uintptr_t) (_xwin.screen_line[0]), drv,
 		      _xwin.screen_depth, bytes_per_screen_line);
    if (bmp == 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
@@ -1450,17 +1450,17 @@ static int _xwin_private_fast_visual_depth(void)
 {
    int ok, x, sizex;
    int test_depth;
-   unsigned char *p8;
-   unsigned short *p16;
-   unsigned long *p32;
+   uint8_t *p8;
+   uint16_t *p16;
+   uint32_t *p32;
 
    if (_xwin.ximage == 0)
       return 0;
 
    /* Use first line of XImage for test.  */
    p8 = _xwin.ximage->data + _xwin.ximage->xoffset;
-   p16 = (unsigned short*) p8;
-   p32 = (unsigned long*) p8;
+   p16 = (uint16_t*) p8;
+   p32 = (uint32_t*) p8;
 
    sizex = _xwin.ximage->bytes_per_line - _xwin.ximage->xoffset;
 
@@ -1469,11 +1469,11 @@ static int _xwin_private_fast_visual_depth(void)
    }
    else if (_xwin.window_depth > 16) {
       test_depth = 32;
-      sizex /= sizeof (unsigned long);
+      sizex /= sizeof (uint32_t);
    }
    else if (_xwin.window_depth > 8) {
       test_depth = 16;
-      sizex /= sizeof (unsigned short);
+      sizex /= sizeof (uint16_t);
    }
    else {
       test_depth = 8;
@@ -1795,35 +1795,35 @@ MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_8_to_8,
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_8_to_16,
 		    unsigned char, unsigned short, 0, 0, 0, 0xFF, 0xFF, 0xFF);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_8_to_32,
-		    unsigned char, unsigned long, 0, 0, 0, 0xFF, 0xFF, 0xFF);
+		    unsigned char, uint32_t, 0, 0, 0, 0xFF, 0xFF, 0xFF);
 
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_15_to_8,
 		    unsigned short, unsigned char, 0, 5, 10, 0x1F, 0x1F, 0x1F);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_15_to_16,
 		    unsigned short, unsigned short, 0, 5, 10, 0x1F, 0x1F, 0x1F);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_15_to_32,
-		    unsigned short, unsigned long, 0, 5, 10, 0x1F, 0x1F, 0x1F);
+		    unsigned short, uint32_t, 0, 5, 10, 0x1F, 0x1F, 0x1F);
 
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_16_to_8,
 		    unsigned short, unsigned char, 0, 5, 11, 0x1F, 0x3F, 0x1F);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_16_to_16,
 		    unsigned short, unsigned short, 0, 5, 11, 0x1F, 0x3F, 0x1F);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_16_to_32,
-		    unsigned short, unsigned long, 0, 5, 11, 0x1F, 0x3F, 0x1F);
+		    unsigned short, uint32_t, 0, 5, 11, 0x1F, 0x3F, 0x1F);
 
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_32_to_8,
-		    unsigned long, unsigned char, 0, 8, 16, 0xFF, 0xFF, 0xFF);
+		    uint32_t, unsigned char, 0, 8, 16, 0xFF, 0xFF, 0xFF);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_32_to_16,
-		    unsigned long, unsigned short, 0, 8, 16, 0xFF, 0xFF, 0xFF);
+		    uint32_t, unsigned short, 0, 8, 16, 0xFF, 0xFF, 0xFF);
 MAKE_FAST_TRUECOLOR(_xwin_private_fast_truecolor_32_to_32,
-		    unsigned long, unsigned long, 0, 8, 16, 0xFF, 0xFF, 0xFF);
+		    uint32_t, uint32_t, 0, 8, 16, 0xFF, 0xFF, 0xFF);
 
 MAKE_FAST_TRUECOLOR24(_xwin_private_fast_truecolor_24_to_8,
 		      unsigned char);
 MAKE_FAST_TRUECOLOR24(_xwin_private_fast_truecolor_24_to_16,
 		      unsigned short);
 MAKE_FAST_TRUECOLOR24(_xwin_private_fast_truecolor_24_to_32,
-		      unsigned long);
+		      uint32_t);
 
 MAKE_FAST_TRUECOLOR_TO24(_xwin_private_fast_truecolor_8_to_24,
 			 unsigned char, 0, 0, 0, 0xFF, 0xFF, 0xFF);
@@ -1832,7 +1832,7 @@ MAKE_FAST_TRUECOLOR_TO24(_xwin_private_fast_truecolor_15_to_24,
 MAKE_FAST_TRUECOLOR_TO24(_xwin_private_fast_truecolor_16_to_24,
 			 unsigned short, 0, 5, 11, 0x1F, 0x3F, 0x1F);
 MAKE_FAST_TRUECOLOR_TO24(_xwin_private_fast_truecolor_32_to_24,
-			 unsigned long, 0, 8, 16, 0xFF, 0xFF, 0xFF);
+			 uint32_t, 0, 8, 16, 0xFF, 0xFF, 0xFF);
 
 MAKE_FAST_TRUECOLOR24_TO24(_xwin_private_fast_truecolor_24_to_24);
 
@@ -1888,35 +1888,35 @@ MAKE_FAST_PALETTE8(_xwin_private_fast_palette_8_to_8,
 MAKE_FAST_PALETTE8(_xwin_private_fast_palette_8_to_16,
 		   unsigned short);
 MAKE_FAST_PALETTE8(_xwin_private_fast_palette_8_to_32,
-		   unsigned long);
+		   uint32_t);
 
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_15_to_8,
 		  unsigned short, unsigned char, 1, 6, 11);
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_15_to_16,
 		  unsigned short, unsigned short, 1, 6, 11);
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_15_to_32,
-		  unsigned short, unsigned long, 1, 6, 11);
+		  unsigned short, uint32_t, 1, 6, 11);
 
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_16_to_8,
 		  unsigned short, unsigned char, 1, 7, 12);
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_16_to_16,
 		  unsigned short, unsigned short, 1, 7, 12);
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_16_to_32,
-		  unsigned short, unsigned long, 1, 7, 12);
+		  unsigned short, uint32_t, 1, 7, 12);
 
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_32_to_8,
-		  unsigned long, unsigned char, 4, 12, 20);
+		  uint32_t, unsigned char, 4, 12, 20);
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_32_to_16,
-		  unsigned long, unsigned short, 4, 12, 20);
+		  uint32_t, unsigned short, 4, 12, 20);
 MAKE_FAST_PALETTE(_xwin_private_fast_palette_32_to_32,
-		  unsigned long, unsigned long, 4, 12, 20);
+		  uint32_t, uint32_t, 4, 12, 20);
 
 MAKE_FAST_PALETTE24(_xwin_private_fast_palette_24_to_8,
 		    unsigned char);
 MAKE_FAST_PALETTE24(_xwin_private_fast_palette_24_to_16,
 		    unsigned short);
 MAKE_FAST_PALETTE24(_xwin_private_fast_palette_24_to_32,
-		    unsigned long);
+		    uint32_t);
 
 #define MAKE_SLOW_TRUECOLOR(name,stype,rshift,gshift,bshift,rmask,gmask,bmask)          \
 static void name(int sx, int sy, int sw, int sh)                                        \
@@ -1952,7 +1952,7 @@ static void name(int sx, int sy, int sw, int sh)                                
 MAKE_SLOW_TRUECOLOR(_xwin_private_slow_truecolor_8, unsigned char, 0, 0, 0, 0xFF, 0xFF, 0xFF);
 MAKE_SLOW_TRUECOLOR(_xwin_private_slow_truecolor_15, unsigned short, 0, 5, 10, 0x1F, 0x1F, 0x1F);
 MAKE_SLOW_TRUECOLOR(_xwin_private_slow_truecolor_16, unsigned short, 0, 5, 11, 0x1F, 0x3F, 0x1F);
-MAKE_SLOW_TRUECOLOR(_xwin_private_slow_truecolor_32, unsigned long, 0, 8, 16, 0xFF, 0xFF, 0xFF);
+MAKE_SLOW_TRUECOLOR(_xwin_private_slow_truecolor_32, uint32_t, 0, 8, 16, 0xFF, 0xFF, 0xFF);
 MAKE_SLOW_TRUECOLOR24(_xwin_private_slow_truecolor_24);
 
 #define MAKE_SLOW_PALETTE8(name)                                                        \
@@ -2005,7 +2005,7 @@ static void name(int sx, int sy, int sw, int sh)                                
 MAKE_SLOW_PALETTE8(_xwin_private_slow_palette_8);
 MAKE_SLOW_PALETTE(_xwin_private_slow_palette_15, unsigned short, 1, 6, 11);
 MAKE_SLOW_PALETTE(_xwin_private_slow_palette_16, unsigned short, 1, 7, 12);
-MAKE_SLOW_PALETTE(_xwin_private_slow_palette_32, unsigned long, 4, 12, 20);
+MAKE_SLOW_PALETTE(_xwin_private_slow_palette_32, uint32_t, 4, 12, 20);
 MAKE_SLOW_PALETTE24(_xwin_private_slow_palette_24);
 
 /*
@@ -2669,13 +2669,13 @@ int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
 /* _xwin_write_line:
  *  Update last selected line and select new line.
  */
-unsigned long _xwin_write_line(BITMAP *bmp, int line)
+uintptr_t _xwin_write_line(BITMAP *bmp, int line)
 {
    int new_line = line + bmp->y_ofs;
    if ((new_line != _xwin_last_line) && (!_xwin_in_gfx_call) && (_xwin_last_line >= 0))
       _xwin_update_screen(0, _xwin_last_line, _xwin.virtual_width, 1);
    _xwin_last_line = new_line;
-   return (unsigned long) (bmp->line[line]);
+   return (uintptr_t) (bmp->line[line]);
 }
 
 

@@ -77,10 +77,10 @@ void be_gfx_vsync(void);
 struct GFX_MODE_LIST *be_gfx_bwindowscreen_fetch_mode_list(void);
 void be_gfx_bwindowscreen_accelerate(int color_depth);
 #ifdef ALLEGRO_NO_ASM
-unsigned long be_gfx_bwindowscreen_read_write_bank(BITMAP *bmp, int line);
+uintptr_t be_gfx_bwindowscreen_read_write_bank(BITMAP *bmp, int line);
 void be_gfx_bwindowscreen_unwrite_bank(BITMAP *bmp);
 #else
-unsigned long _be_gfx_bwindowscreen_read_write_bank_asm(BITMAP *bmp, int line);
+uintptr_t _be_gfx_bwindowscreen_read_write_bank_asm(BITMAP *bmp, int line);
 void _be_gfx_bwindowscreen_unwrite_bank_asm(BITMAP *bmp);
 #endif
 
@@ -98,10 +98,10 @@ void be_gfx_bwindow_set_palette(AL_CONST struct RGB *p, int from, int to, int vs
 
 #ifdef ALLEGRO_NO_ASM
 void _be_gfx_bwindow_unwrite_bank(BITMAP *bmp);
-unsigned long _be_gfx_bwindow_read_write_bank(BITMAP *bmp, int line);
+uintptr_t _be_gfx_bwindow_read_write_bank(BITMAP *bmp, int line);
 #else
 void _be_gfx_bwindow_unwrite_bank_asm(BITMAP *bmp);
-unsigned long _be_gfx_bwindow_read_write_bank_asm(BITMAP *bmp, int line);
+uintptr_t _be_gfx_bwindow_read_write_bank_asm(BITMAP *bmp, int line);
 #endif
 
 struct BITMAP *be_gfx_overlay_init(int w, int h, int v_w, int v_h, int color_depth);

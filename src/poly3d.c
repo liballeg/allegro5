@@ -40,13 +40,13 @@
 #ifdef ALLEGRO_MMX
 
 /* for use by iscan.s */
-unsigned long _mask_mmx_15[] = { 0x03E0001F, 0x007C };
-unsigned long _mask_mmx_16[] = { 0x07E0001F, 0x00F8 };
+uint32_t _mask_mmx_15[] = { 0x03E0001F, 0x007C };
+uint32_t _mask_mmx_16[] = { 0x07E0001F, 0x00F8 };
 
 #endif
 
 
-void _poly_scanline_dummy(unsigned long addr, int w, POLYGON_SEGMENT *info) { }
+void _poly_scanline_dummy(uintptr_t addr, int w, POLYGON_SEGMENT *info) { }
 
 ZBUFFER *_zbuffer = NULL;
 

@@ -119,6 +119,15 @@ Changes between 4.0.x and 4.2.x series
 <li>
    The get_align_matrix[_f] functions would return mirrored matrices in some
    cases, this was fixed.
+<li>
+   In many places 'unsigned long' variables were used to hold memory
+   addresses. These have been changed to use the 'uintptr_t' type instead.
+<li>
+   16-bit bitmaps used to be arrays of unsigned shorts, and 32-bit bitmaps
+   used to be arrays of unsigned longs. They have been changed to be arrays
+   of 16-bit and 32-bit integers respectively. This makes a difference on
+   platforms where an unsigned long is not 32-bits wide (e.g. some 64-bit
+   platforms).
 </ul>
 
 @heading

@@ -122,7 +122,7 @@ static void _al_arts_update(int threaded)
       if (arts_write(_al_arts_stream, _al_arts_bufdata, _al_arts_bufsize)
 	  < _al_arts_bufsize)
 	 break;
-      _mix_some_samples((unsigned long) _al_arts_bufdata, 0, _al_arts_signed);
+      _mix_some_samples((uintptr_t) _al_arts_bufdata, 0, _al_arts_signed);
    }
 }
 
@@ -237,7 +237,7 @@ static int _al_arts_init(int input, int voices)
       goto error;
    }
 
-   _mix_some_samples((unsigned long) _al_arts_bufdata, 0, _al_arts_signed);
+   _mix_some_samples((uintptr_t) _al_arts_bufdata, 0, _al_arts_signed);
 
    /* Add audio interrupt.  */
    _unix_bg_man->register_func(_al_arts_update);

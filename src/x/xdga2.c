@@ -50,9 +50,9 @@ static void _xdga2_acquire(BITMAP *bmp);
 static GFX_MODE_LIST *_xdga2_fetch_mode_list(void);
 
 #ifdef ALLEGRO_NO_ASM
-unsigned long _xdga2_write_line(BITMAP *bmp, int line);
+uintptr_t _xdga2_write_line(BITMAP *bmp, int line);
 #else
-unsigned long _xdga2_write_line_asm(BITMAP *bmp, int line);
+uintptr_t _xdga2_write_line_asm(BITMAP *bmp, int line);
 #endif
 
 
@@ -224,6 +224,8 @@ static int _xdga2_find_mode(int w, int h, int vw, int vh, int depth)
    int bpp, i, found;
 
    mode = XDGAQueryModes(_xwin.display, _xwin.screen, &num_modes);
+   if (!mode)
+      return 0;
 
    /* Let's first try setting also requested refresh rate */
    for (i=0; i<num_modes; i++) {
@@ -542,7 +544,7 @@ static BITMAP *_xdga2_private_gfxdrv_init_drv(GFX_DRIVER *drv, int w, int h, int
    /* Creates screen bitmap */
    drv->linear = TRUE;
    bmp = _make_bitmap(dga_device->mode.imageWidth, dga_device->mode.imageHeight,
-         (unsigned long)dga_device->data, drv, depth,
+         (uintptr_t)dga_device->data, drv, depth,
          dga_device->mode.bytesPerScanline);
    if (!bmp) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory"));
@@ -819,12 +821,12 @@ static void _xdga2_acquire(BITMAP *bmp)
 /* _xdga2_write_line:
  *  Returns new line and synchronizes framebuffer if needed.
  */
-unsigned long _xdga2_write_line(BITMAP *bmp, int line)
+uintptr_t _xdga2_write_line(BITMAP *bmp, int line)
 {
    if (!(bmp->id & BMP_ID_LOCKED))
       _xdga2_lock(bmp);
 
-   return (unsigned long)(bmp->line[line]);
+   return (uintptr_t)(bmp->line[line]);
 }
 
 #endif
