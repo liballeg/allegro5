@@ -160,7 +160,7 @@ struct DIRECTSOUND_VOICE {
    int stereo;
    int reversed;
    int len;
-   void *data;
+   char *data;
    int loop_offset;
    int loop_len;
    int looping;
@@ -604,7 +604,7 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
 /* fill_dsound_buffer:
  *  Worker function for copying data to a DirectSound buffer.
  */
-static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int len, int bits, int stereo, int reversed, void *data)
+static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int len, int bits, int stereo, int reversed, char *data)
 {
    void *buf_a, *buf_b;
    long int size, size_a, size_b;
@@ -701,7 +701,7 @@ static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE *sample)
    ds_voices[voice].stereo = sample->stereo;
    ds_voices[voice].reversed = FALSE;
    ds_voices[voice].len = sample->len;
-   ds_voices[voice].data = sample->data;
+   ds_voices[voice].data = (char *)sample->data;
    ds_voices[voice].loop_offset = 0;
    ds_voices[voice].loop_len = 0;
    ds_voices[voice].looping = 0;
