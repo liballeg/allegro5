@@ -586,7 +586,9 @@ FUNC(_linear_masked_blit8)
       _align_
    masked16_put12_skip3:
       movw %ax, %es:(%edi)       /* write the pixel */
-      jmp masked16_blit_skip3
+      orb %dh, %dh
+      jnz masked16_blit_skip3
+      jmp masked16_blit_skip4
       _align_
    masked16_put123_skip4:
       movw %ax, %es:(%edi)       /* write the pixel */
