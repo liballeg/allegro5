@@ -36,6 +36,16 @@
 AL_VAR(int, _allegro_count);
 
 
+/* flag to decide whether to disable the screensaver */
+enum {
+  NEVER_DISABLED,
+  FULLSCREEN_DISABLED,
+  ALWAYS_DISABLED
+};
+
+AL_VAR(int, _screensaver_policy);
+
+
 /* some Allegro functions need a block of scratch memory */
 AL_VAR(void *, _scratch_mem);
 AL_VAR(int, _scratch_mem_size);
