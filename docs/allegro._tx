@@ -129,7 +129,9 @@ information about how to install Allegro and link your program with it.
       OSTYPE_WIN3       - Windows 3.1 or earlier
       OSTYPE_WIN95      - Windows 95
       OSTYPE_WIN98      - Windows 98
+      OSTYPE_WINME      - Windows Me
       OSTYPE_WINNT      - Windows NT
+      OSTYPE_WIN2000    - Windows 2000
       OSTYPE_OS2        - OS/2
       OSTYPE_WARP       - OS/2 Warp 3
       OSTYPE_DOSEMU     - Linux DOSEMU
@@ -140,6 +142,18 @@ information about how to install Allegro and link your program with it.
       OSTYPE_BEOS       - BeOS
       OSTYPE_QNX        - QNX
 </pre>
+@@extern int @os_version;
+@xref os_type, os_revision
+   Set by allegro_init().
+   The major version of the Operating System currently running.
+   For example: Under Win98 SE (v4.10.2222) this will return 4.
+
+@@extern int @os_revision;
+@xref os_type, os_version
+   Set by allegro_init().
+   The minor version of the Operating System currently running.
+   For example: Under Win98 SE (v4.10.2222) this will return 10.
+
 @@void @allegro_message(char *msg, ...);
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
