@@ -11,12 +11,23 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = BeOS
-OBJ_DIR = obj/beos/$(VERSION)
-LIB_NAME = lib/beos/lib$(VERSION).a
 EXE = 
 OBJ = .o
 HTML = html
 
+ifdef STATICLINK
+
+# -------- link as a static library --------
+OBJ_DIR = obj/beos/$(VERSION)_s
+LIB_NAME = lib/beos/lib$(VERSION)_s.a
+
+else
+
+# -------- link as a DLL --------
+OBJ_DIR = obj/beos/$(VERSION)
+LIB_NAME = lib/beos/lib$(VERSION).so
+
+endif # STATICLINK
 
 # -------- give a sensible default target for make without any args --------
 
@@ -56,7 +67,7 @@ ifdef DEBUGMODE
 # -------- debugging build --------
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia -g
+LFLAGS = -g
 
 
 else
@@ -65,7 +76,7 @@ ifdef PROFILEMODE
 # -------- profiling build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -pg
 SFLAGS = $(WFLAGS)
-LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia -pg
+LFLAGS = -pg
 
 else
 
@@ -74,9 +85,9 @@ CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifdef SYMBOLMODE
-LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia -s
+LFLAGS = -s
 else
-LFLAGS = -lbe -lgame -ldevice -lmidi -lmedia
+LFLAGS = 
 endif
 
 endif
@@ -87,17 +98,29 @@ endif
 
 VPATH = src/beos src/i386 src/misc
 
+LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
+
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
 	      $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
 
 
 # -------- rules for installing and removing the library files --------
 
-INC_DIR = /boot/develop/headers/cpp
+INC_DIR = /boot/develop/headers
 LIB_DIR = /boot/develop/lib/x86
+SHARED_LIB_DIR = /boot/home/config/lib
+
+ifdef STATICLINK
 
 $(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
-	cp $(LIB_NAME) $(LIB_DIR)
+	cp $< $@
+	
+else	
+		
+$(SHARED_LIB_DIR)/lib$(VERSION).so: $(LIB_NAME)
+	cp $< $@	
+	
+endif
 
 $(INC_DIR)/%: include/%
 	cp $< $@
@@ -114,17 +137,23 @@ HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*
 	cp misc/allegro-config.be /bin/allegro-config
 	chmod a+x /bin/allegro-config
 
-INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a \
-		$(INC_DIR)/allegro.h \
+INSTALL_FILES =  $(INC_DIR)/allegro.h \
 		$(INC_DIR)/bealleg.h \
 		$(INC_DIR)/allegro \
 		$(HEADERS) \
 		/bin/allegro-config
+		
+ifdef STATICLINK
+	INSTALL_FILES += $(LIB_DIR)/lib$(VERSION).a 
+else
+	INSTALL_FILES += $(SHARED_LIB_DIR)/lib$(VERSION).so
+endif		
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) BeOS library has been installed.
 
 UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.a \
+		$(SHARED_LIB_DIR)/liballeg.so $(SHARED_LIB_DIR)/liballd.so $(SHARED_LIB_DIR)/liballp.so \
 		$(INC_DIR)/allegro.h $(INC_DIR)/bealleg.h $(INC_DIR)/allegro/*.h
 
 uninstall:
@@ -152,9 +181,22 @@ obj/beos/mmx.h:
 
 # -------- finally, we get to the fun part... --------
 
+ifdef STATICLINK
+
+# -------- link as a static library --------
 define MAKE_LIB
 ar rs $(LIB_NAME) $(OBJECTS)
 endef
+
+else
+
+# -------- link as a shared library --------
+
+define MAKE_LIB
+  $(CC) -nostart $(PFLAGS) -o $(LIB_NAME) $(OBJECTS) $(LIBRARIES)
+endef
+
+endif # STATICLINK
 
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
@@ -170,20 +212,15 @@ $(OBJ_DIR)/%.o: %.s
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
 	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
 
+# link without Allegro, because we have no shared library yet
+docs/makedoc: $(OBJ_DIR)/makedoc$(OBJ)
+	gcc -o $@ $<
+
 obj/beos/asmdef.inc: obj/beos/asmdef
 	obj/beos/asmdef obj/beos/asmdef.inc
 
 obj/beos/asmdef: src/i386/asmdef.c include/*.h include/allegro/*.h obj/beos/mmx.h
 	gcc -O $(WFLAGS) -I. -I./include -o obj/beos/asmdef src/i386/asmdef.c
-
-obj/beos/setupdat.s: setup/setup.dat tools/dat2s
-	tools/dat2s -o obj/beos/setupdat.s setup/setup.dat
-
-obj/beos/setupdat.o: obj/beos/setupdat.s
-	gcc -o obj/beos/setupdat.o -c obj/beos/setupdat.s
-
-setup/setup: $(OBJ_DIR)/setup.o obj/beos/setupdat.o $(LIB_NAME)
-	gcc $(LFLAGS) -o setup/setup $(OBJ_DIR)/setup.o obj/beos/setupdat.o $(LIB_NAME)
 
 PLUGIN_LIB = lib/beos/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/beos/plugins.h
