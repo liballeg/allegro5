@@ -624,7 +624,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
       usprintf(_xwin_driver_desc,
 	       uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
 	       _xwin.window_depth,
-	       uconvert_ascii((dga ? "DGA 1.0 mode" : "window"), tmp2));
+	       uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp2));
    }
    else {
       usprintf(_xwin_driver_desc,
@@ -632,7 +632,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
 	       uconvert_ascii((_xwin.fast_visual_depth ? "fast" : "slow"), tmp2),
 	       uconvert_ascii((_xwin.visual_is_truecolor ? "truecolor" : "paletted"), tmp3),
 	       _xwin.window_depth,
-	       uconvert_ascii((dga ? "DGA 1.0 mode" : "window"), tmp4));
+	       uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp4));
    }
    drv->desc = _xwin_driver_desc;
 }
@@ -718,6 +718,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 
       /* Hack: make the window fully visible.  */
       XMoveWindow(_xwin.display, _xwin.window, 0, 0);
+      XF86VidModeSetViewPort(_xwin.display, _xwin.screen, 0, 0);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, 0);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, w - 1, 0);
       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 0, h - 1);
