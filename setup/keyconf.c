@@ -773,7 +773,7 @@ int tester()
    clear_to_color(screen, palette_color[8]);
 
    for (i=0; i<=KEY_MAX; i++)
-      textout_ex(screen, font, scancode_name[i], 32+(i%4)*160, 88+(i/4)*14, palette_color[255], palette_color[8]);
+      textout_ex(screen, font, scancode_name[i], 32+(i%4)*160, 60+(i/4)*14, palette_color[255], palette_color[8]);
 
    release_screen();
 
@@ -789,7 +789,7 @@ int tester()
       acquire_screen();
 
       for (i=0; i<KEY_MAX; i++)
-	 textout_ex(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 88+(i/4)*14, palette_color[255], palette_color[8]);
+	 textout_ex(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 60+(i/4)*14, palette_color[255], palette_color[8]);
 
       buf[0] = 0;
 
@@ -849,7 +849,7 @@ int tester()
 	 a = ureadkey(&i);
 	 if (!a)
 	    a = ' ';
-	 textprintf_ex(screen, font, 32, 48, palette_color[255], palette_color[8], "ureadkey() returns scancode 0x%02X, U+0x%04X, '%c'", i, a, a);
+	 textprintf_ex(screen, font, 32, 34, palette_color[255], palette_color[8], "ureadkey() returns scancode 0x%02X, U+0x%04X, '%c'", i, a, a);
       }
 
    } while ((!key[KEY_ESC]) && (!mouse_b));
