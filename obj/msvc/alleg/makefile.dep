@@ -1,0 +1,715 @@
+obj/msvc/alleg/allegro.obj: src/allegro.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/blit.obj: src/blit.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/bmp.obj: src/bmp.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/clip3d.obj: src/clip3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/clip3df.obj: src/clip3df.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/colblend.obj: src/colblend.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/color.obj: src/color.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/config.obj: src/config.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/datafile.obj: src/datafile.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/dataregi.obj: src/dataregi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/digmid.obj: src/digmid.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/dispsw.obj: src/dispsw.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/dither.obj: src/dither.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/file.obj: src/file.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/fli.obj: src/fli.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/flood.obj: src/flood.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/fsel.obj: src/fsel.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h include/winalleg.h
+obj/msvc/alleg/gfx.obj: src/gfx.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/glyph.obj: src/glyph.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/graphics.obj: src/graphics.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/gsprite.obj: src/gsprite.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/gui.obj: src/gui.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/guiproc.obj: src/guiproc.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/inline.obj: src/inline.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h include/allegro/aintwin.h \
+ include/winalleg.h
+obj/msvc/alleg/joystick.obj: src/joystick.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/keyboard.obj: src/keyboard.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/lbm.obj: src/lbm.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/libc.obj: src/libc.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/math.obj: src/math.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/math3d.obj: src/math3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/midi.obj: src/midi.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/mixer.obj: src/mixer.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/modesel.obj: src/modesel.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/mouse.obj: src/mouse.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/pcx.obj: src/pcx.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/poly3d.obj: src/poly3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/polygon.obj: src/polygon.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/quantize.obj: src/quantize.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/quat.obj: src/quat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/readbmp.obj: src/readbmp.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/rle.obj: src/rle.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/rotate.obj: src/rotate.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/sound.obj: src/sound.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/spline.obj: src/spline.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/stream.obj: src/stream.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/text.obj: src/text.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h src/font.h
+obj/msvc/alleg/tga.obj: src/tga.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/timer.obj: src/timer.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/unicode.obj: src/unicode.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/vtable.obj: src/vtable.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/vtable15.obj: src/vtable15.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/vtable16.obj: src/vtable16.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/vtable24.obj: src/vtable24.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/vtable32.obj: src/vtable32.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/vtable8.obj: src/vtable8.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/gdi.obj: src/win/gdi.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h include/winalleg.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/wddaccel.obj: src/win/wddaccel.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddbmp.obj: src/win/wddbmp.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddbmpl.obj: src/win/wddbmpl.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddfull.obj: src/win/wddfull.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddlock.obj: src/win/wddlock.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddmode.obj: src/win/wddmode.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddovl.obj: src/win/wddovl.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddraw.obj: src/win/wddraw.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wddwin.obj: src/win/wddwin.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wdispsw.obj: src/win/wdispsw.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wdsound.obj: src/win/wdsound.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wdxver.obj: src/win/wdxver.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wfile.obj: src/win/wfile.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/wgdi.obj: src/win/wgdi.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wgfxdrv.obj: src/win/wgfxdrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/wjoydrv.obj: src/win/wjoydrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/wjoyw32.obj: src/win/wjoyw32.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wkeybd.obj: src/win/wkeybd.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wmidi.obj: src/win/wmidi.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h include/allegro/aintwin.h \
+ include/winalleg.h
+obj/msvc/alleg/wmouse.obj: src/win/wmouse.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wsnddrv.obj: src/win/wsnddrv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/wsystem.obj: src/win/wsystem.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h src/win/wddraw.h
+obj/msvc/alleg/wthread.obj: src/win/wthread.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wtimer.obj: src/win/wtimer.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/wwnd.obj: src/win/wwnd.c src/win/wddraw.h include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/asmdef.obj: src/i386/asmdef.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/icpu.obj: src/i386/icpu.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/icsprite.obj: src/i386/icsprite.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h src/i386/opcodes.h
+obj/msvc/alleg/istretch.obj: src/i386/istretch.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h src/i386/opcodes.h
+obj/msvc/alleg/modex.obj: src/misc/modex.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h include/allegro/aintvga.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/pckeys.obj: src/misc/pckeys.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/runner.obj: src/misc/runner.c
+obj/msvc/alleg/ufile.obj: src/misc/ufile.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/vbeaf.obj: src/misc/vbeaf.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/vbeafex.obj: src/misc/vbeafex.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/vga.obj: src/misc/vga.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h include/allegro/aintvga.h \
+ include/allegro/aintwin.h include/winalleg.h
+obj/msvc/alleg/vgaregs.obj: src/misc/vgaregs.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ include/allegro/aintvga.h
+obj/msvc/alleg/demo.obj: demo/demo.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h demo/demo.h
+obj/msvc/alleg/ex12bit.obj: examples/ex12bit.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/ex3buf.obj: examples/ex3buf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/ex3d.obj: examples/ex3d.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/exaccel.obj: examples/exaccel.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exalpha.obj: examples/exalpha.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exbitmap.obj: examples/exbitmap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exblend.obj: examples/exblend.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/excamera.obj: examples/excamera.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/excolmap.obj: examples/excolmap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/excustom.obj: examples/excustom.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exdata.obj: examples/exdata.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h examples/example.h
+obj/msvc/alleg/exdbuf.obj: examples/exdbuf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exdodgy.obj: examples/exdodgy.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exexedat.obj: examples/exexedat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h examples/example.h
+obj/msvc/alleg/exfixed.obj: examples/exfixed.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exflame.obj: examples/exflame.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exflip.obj: examples/exflip.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exgui.obj: examples/exgui.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h examples/example.h
+obj/msvc/alleg/exhello.obj: examples/exhello.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exjoy.obj: examples/exjoy.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/exkeys.obj: examples/exkeys.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exlights.obj: examples/exlights.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exmem.obj: examples/exmem.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/exmidi.obj: examples/exmidi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exmouse.obj: examples/exmouse.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/expal.obj: examples/expal.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/expat.obj: examples/expat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/exquat.obj: examples/exquat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exrgbhsv.obj: examples/exrgbhsv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exsample.obj: examples/exsample.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exscale.obj: examples/exscale.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exscroll.obj: examples/exscroll.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exshade.obj: examples/exshade.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exspline.obj: examples/exspline.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exsprite.obj: examples/exsprite.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h examples/running.h
+obj/msvc/alleg/exstars.obj: examples/exstars.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exstream.obj: examples/exstream.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exswitch.obj: examples/exswitch.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/extimer.obj: examples/extimer.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/extrans.obj: examples/extrans.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/extruec.obj: examples/extruec.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exupdate.obj: examples/exupdate.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/exxfade.obj: examples/exxfade.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/keyconf.obj: setup/keyconf.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/setup.obj: setup/setup.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h include/allegro/aintwin.h \
+ include/winalleg.h setup/setup.h
+obj/msvc/alleg/afinfo.obj: tests/afinfo.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/akaitest.obj: tests/akaitest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/digitest.obj: tests/digitest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/mathtest.obj: tests/mathtest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/miditest.obj: tests/miditest.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/play.obj: tests/play.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/playfli.obj: tests/playfli.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/test.obj: tests/test.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/vesainfo.obj: tests/vesainfo.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/colormap.obj: tools/colormap.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h
+obj/msvc/alleg/dat.obj: tools/dat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h tools/datedit.h
+obj/msvc/alleg/dat2s.obj: tools/dat2s.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h tools/datedit.h
+obj/msvc/alleg/datedit.obj: tools/datedit.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h tools/datedit.h \
+ obj/msvc/plugins.h
+obj/msvc/alleg/exedat.obj: tools/exedat.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h \
+ include/allegro/aintern.h
+obj/msvc/alleg/grabber.obj: tools/grabber.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h tools/datedit.h
+obj/msvc/alleg/pack.obj: tools/pack.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/pat2dat.obj: tools/pat2dat.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h tools/datedit.h
+obj/msvc/alleg/rgbmap.obj: tools/rgbmap.c include/allegro.h include/allegro/alconfig.h \
+ include/allegro/almsvc.h include/allegro/alinline.h \
+ include/allegro/al386vc.h include/allegro/alwin.h
+obj/msvc/alleg/textconv.obj: tools/textconv.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h
+obj/msvc/alleg/datalpha.obj: tools/plugins/datalpha.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/msvc/alleg/datfli.obj: tools/plugins/datfli.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/msvc/alleg/datfont.obj: tools/plugins/datfont.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/msvc/alleg/datgrab.obj: tools/plugins/datgrab.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h tools/plugins/../datedit.h
+obj/msvc/alleg/datgrid.obj: tools/plugins/datgrid.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h tools/plugins/../datedit.h
+obj/msvc/alleg/datimage.obj: tools/plugins/datimage.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h tools/plugins/../datedit.h
+obj/msvc/alleg/datitype.obj: tools/plugins/datitype.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h tools/plugins/../datedit.h
+obj/msvc/alleg/datmidi.obj: tools/plugins/datmidi.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/msvc/alleg/datpal.obj: tools/plugins/datpal.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/allegro/aintern.h \
+ tools/plugins/../datedit.h
+obj/msvc/alleg/datsamp.obj: tools/plugins/datsamp.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h tools/plugins/../datedit.h
+obj/msvc/alleg/datworms.obj: tools/plugins/datworms.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h tools/plugins/../datedit.h
+obj/msvc/alleg/dibgrab.obj: wintests/dibgrab.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/winalleg.h
+obj/msvc/alleg/dibhello.obj: wintests/dibhello.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/winalleg.h
+obj/msvc/alleg/scrsave.obj: wintests/scrsave.c include/allegro.h \
+ include/allegro/alconfig.h include/allegro/almsvc.h \
+ include/allegro/alinline.h include/allegro/al386vc.h \
+ include/allegro/alwin.h include/winalleg.h
+obj/msvc/alleg/iblit16.obj: src/i386/iblit16.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/blit.inc
+obj/msvc/alleg/iblit24.obj: src/i386/iblit24.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/blit.inc
+obj/msvc/alleg/iblit32.obj: src/i386/iblit32.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/blit.inc
+obj/msvc/alleg/iblit8.obj: src/i386/iblit8.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/blit.inc
+obj/msvc/alleg/icpus.obj: src/i386/icpus.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/igfx15.obj: src/i386/igfx15.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/igfx16.obj: src/i386/igfx16.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/igfx24.obj: src/i386/igfx24.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/igfx32.obj: src/i386/igfx32.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/igfx8.obj: src/i386/igfx8.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/imisc.obj: src/i386/imisc.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/iscan.obj: src/i386/iscan.s src/i386/asmdefs.inc obj/msvc/asmdef.inc
+obj/msvc/alleg/ispr15.obj: src/i386/ispr15.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/sprite.inc
+obj/msvc/alleg/ispr16.obj: src/i386/ispr16.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/sprite.inc
+obj/msvc/alleg/ispr24.obj: src/i386/ispr24.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/sprite.inc
+obj/msvc/alleg/ispr32.obj: src/i386/ispr32.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/sprite.inc
+obj/msvc/alleg/ispr8.obj: src/i386/ispr8.s src/i386/asmdefs.inc obj/msvc/asmdef.inc \
+ src/i386/sprite.inc
