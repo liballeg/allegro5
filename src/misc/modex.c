@@ -8,10 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Video driver for VGA tweaked modes (aka mode-X). This file lives
- *      in the misc directory because although it currently only works
- *      on DOS, it can potentially be shared by the console mode Linux
- *      version.
+ *      Video driver for VGA tweaked modes (aka mode-X).
  *
  *      By Shawn Hargreaves.
  *
@@ -34,6 +31,7 @@
 #endif
 
 #ifdef GFX_MODEX
+#if (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 
@@ -936,40 +934,6 @@ static void modex_enable_triple_buffer(void)
 
 
 
-/* split_modex_screen:
- *  Enables a horizontal split screen at the specified line.
- *  Based on code from Paul Fenwick's XLIBDJ, which was in turn based 
- *  on Michael Abrash's routines in PC Techniques, June 1991.
- */
-void split_modex_screen(int line)
-{
-   if (gfx_driver != &gfx_modex)
-      return;
-
-   if (line < 0)
-      line = 0;
-   else if (line >= SCREEN_H)
-      line = 0;
-
-   _screen_split_position = line;
-
-   /* adjust the line for double-scanned modes */
-   if (SCREEN_H <= 150)
-      line <<= 2;
-   else if (SCREEN_H <= 300)
-      line <<= 1;
-
-   /* disable panning of the split screen area */
-   _alter_vga_register(0x3C0, 0x30, 0x20, 0x20);
-
-   /* set the line compare registers */
-   _write_vga_register(0x3D4, 0x18, (line-1) & 0xFF);
-   _alter_vga_register(0x3D4, 7, 0x10, ((line-1) & 0x100) >> 4);
-   _alter_vga_register(0x3D4, 9, 0x40, ((line-1) & 0x200) >> 3);
-}
-
-
-
 /* x_write:
  *  Inline helper for the C drawing functions: writes a pixel onto a
  *  mode-X bitmap, performing clipping but ignoring the drawing mode.
@@ -1627,5 +1591,77 @@ static GFX_MODE_LIST *modex_fetch_mode_list()
 
    return mode_list;
 }
+
+
+
+/* split_modex_screen:
+ *  Enables a horizontal split screen at the specified line.
+ *  Based on code from Paul Fenwick's XLIBDJ, which was in turn based 
+ *  on Michael Abrash's routines in PC Techniques, June 1991.
+ */
+#ifdef ALLEGRO_MODULE
+static void module_split_modex_screen(int line)
+#else
+void split_modex_screen(int line)
+#endif
+{
+   if (gfx_driver != &gfx_modex)
+      return;
+
+   if (line < 0)
+      line = 0;
+   else if (line >= SCREEN_H)
+      line = 0;
+
+   _screen_split_position = line;
+
+   /* adjust the line for double-scanned modes */
+   if (SCREEN_H <= 150)
+      line <<= 2;
+   else if (SCREEN_H <= 300)
+      line <<= 1;
+
+   /* disable panning of the split screen area */
+   _alter_vga_register(0x3C0, 0x30, 0x20, 0x20);
+
+   /* set the line compare registers */
+   _write_vga_register(0x3D4, 0x18, (line-1) & 0xFF);
+   _alter_vga_register(0x3D4, 7, 0x10, ((line-1) & 0x100) >> 4);
+   _alter_vga_register(0x3D4, 9, 0x40, ((line-1) & 0x200) >> 3);
+}
+
+
+
+#endif      /* (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ... */
+
+
+#if (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_WITH_MODULES)
+
+void (*_split_modex_screen_ptr)(int);
+
+void (split_modex_screen)(int line)
+{
+   _split_modex_screen_ptr(line);
+}
+
+#endif
+
+
+#if (defined ALLEGRO_LINUX_VGA) && (defined ALLEGRO_MODULE)
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init_modex(int system_driver)
+{
+   if (system_driver == SYSTEM_LINUX)
+      _unix_register_gfx_driver(GFX_MODEX, &gfx_modex, TRUE, FALSE);
+
+   _split_modex_screen_ptr = module_split_modex_screen;
+}
+
+#endif
+
+
 
 #endif      /* ifdef GFX_MODEX */

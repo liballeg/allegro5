@@ -415,6 +415,11 @@ fi
 dnl Modules.
 if test -n "$allegro_support_modules"; then
 
+  dnl VGA/ModeX.
+  if test "X$allegro_enable_vga" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-vga-\$(shared_version).so"
+  fi
+
   dnl SVGAlib.
   if test "X$allegro_support_svgalib" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-svgalib-\$(shared_version).so"

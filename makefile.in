@@ -465,6 +465,7 @@ depend:
 	@echo "Generating dependencies for libraries"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplib.sh $(ALLEGRO_LIBRARY_SOURCES)' >>makefile.dep
 	@echo "Generating dependencies for dynamically loaded modules"
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh vga -- $(ALLEGRO_MODULE_VGA_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh svgalib -lvga $(ALLEGRO_MODULE_SVGALIB_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh fbcon -- $(ALLEGRO_MODULE_FBCON_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsadigi -lasound $(ALLEGRO_MODULE_ALSADIGI_FILES)' >>makefile.dep

@@ -19,12 +19,15 @@
  *
  *      See readme.txt for copyright information.
  */
-
-
+ 
+ 
+#include "allegro/platform/alunixac.h"
 #include "../i386/asmdefs.inc"
 
 .text
 
+
+#if (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 /* _x_bank_switch:
@@ -1673,4 +1676,4 @@ FUNC(_x_draw_sprite_end)
    ret
 
 
-
+#endif        /* (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ... */

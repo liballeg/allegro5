@@ -28,7 +28,7 @@
 #include "allegro/platform/aintunix.h"
 #include "allegro/internal/aintvga.h"
 
-#ifdef ALLEGRO_LINUX_VGA
+#if ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 
@@ -206,4 +206,4 @@ void _restore_vga_mode (void)
 
 
 
-#endif      /* ifdef ALLEGRO_LINUX_VGA */
+#endif      /* if ((defined ALLEGRO_LINUX_VGA) && ... */

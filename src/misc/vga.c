@@ -8,10 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Video driver for VGA mode 13h (320x200x256). This file lives
- *      in the misc directory because although it currently only works
- *      on DOS, it can potentially be shared by the console mode Linux
- *      version.
+ *      Video driver for VGA mode 13h (320x200x256).
  *
  *      By Shawn Hargreaves.
  *
@@ -34,6 +31,7 @@
 #endif
 
 #ifdef GFX_VGA
+#if (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 
@@ -358,4 +356,26 @@ static GFX_MODE_LIST *vga_fetch_mode_list()
    return mode_list;
 }
 
+
+
+#ifdef ALLEGRO_MODULE
+
+extern void _module_init_modex(int);  /* from modex.c */
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   _module_init_modex(system_driver);
+   
+   if (system_driver == SYSTEM_LINUX)
+      _unix_register_gfx_driver(GFX_VGA, &gfx_vga, TRUE, TRUE);
+}
+
+#endif      /* ifdef ALLEGRO_MODULE */
+
+
+
+#endif      /* (!defined ALLEGRO_UNIX) || ((defined ALLEGRO_LINUX_VGA) && ...) */
 #endif      /* ifdef GFX_VGA */

@@ -28,7 +28,7 @@ _DRIVER_INFO _linux_gfx_driver_list[] =
 #ifdef ALLEGRO_LINUX_VBEAF
    {  GFX_VBEAF,    &gfx_vbeaf,    TRUE  },
 #endif
-#ifdef ALLEGRO_LINUX_VGA
+#if (defined ALLEGRO_LINUX_VGA) && (!defined ALLEGRO_WITH_MODULES)
    {  GFX_VGA,      &gfx_vga,      TRUE  },
    {  GFX_MODEX,    &gfx_modex,    TRUE  },
 #endif
