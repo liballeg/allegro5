@@ -22,7 +22,6 @@ General (Platform independant) todos:
 - check and/or fix compilation with gcc 3.0
 - asm draw_sprite et al. don't work with sub-bitmaps
 - include dat2c once finished
-- include exunicod
 
 DOS todos:
 ---------------------------------------------------------------------------
@@ -44,7 +43,6 @@ Linux todos:
 - keyboard set_rate
 - Find out more about sched_yield
 - switch to proper SRPMs and RPMS (esp. now that we have modules)
-- pthread alternatives for timers and event processing (instead of SIGALRM)
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -61,7 +59,7 @@ Unix todos:
 
 - check which parts of makefiles break with non-GNU make
 - update ALSA drivers to latest stable version
-- resolve PIC-related problems, esp. on Debian
+- "still PIC-related problems with X lib, waiting for XFree people"
 
 Macintosh todos:
 ---------------------------------------------------------------------------
