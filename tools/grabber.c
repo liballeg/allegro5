@@ -572,6 +572,16 @@ static void add_to_menu(MENU *menu, MENU *newmenu, int needdp, int (*endproc)(vo
 
 
 
+/* returns whether the given character is part of a word or not */
+static int is_suitable_word_start(int c)
+{
+   if (uisspace(c)) return 1;
+   if (c=='/') return 1;
+   return 0;
+}
+
+
+
 /* automatically generates keyboard shortcuts for a menu */
 static void add_menu_shortcuts(MENU *menu)
 {
@@ -608,7 +618,7 @@ static void add_menu_shortcuts(MENU *menu)
 	    alphabet[c] = TRUE;
 	    break;
 	 }
-	 word = uisspace(menu[i].text[j]);
+	 word = is_suitable_word_start(menu[i].text[j]);
       }
 
       if (goodpos < 0) {
