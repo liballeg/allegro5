@@ -345,7 +345,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    }
 
    /* create surfaces */
-   if (create_primary() != 0)
+   if (create_primary(FALSE) != 0)
       goto Error;
 
    if (create_overlay(w, h, color_depth) != 0)

@@ -587,7 +587,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    get_working_area(&working_area);
 
    /* create primary surface */
-   if (create_primary() != 0)
+   if (create_primary(FALSE) != 0)
       goto Error;
 
    /* create clipper */
