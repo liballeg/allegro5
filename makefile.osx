@@ -44,7 +44,7 @@ MAN_DIR = /usr/local/man
 ifdef STATICLINK
 
 # -------- link as a static library --------
-LIB_NAME = lib/macosx/lib$(VERSION).a
+LIB_NAME = lib/macosx/lib$(VERSION)_s.a
 
 else
 
@@ -169,9 +169,9 @@ INCDIR = include
 
 ifdef STATICLINK
 
-$(INSTALLDIR)/lib/lib$(VERSION).a: $(LIB_NAME)
+$(INSTALLDIR)/lib/lib$(VERSION)_s.a: $(LIB_NAME)
 	cp $(LIB_NAME) $(INSTALLDIR)/lib
-	ranlib $(INSTALLDIR)/lib/lib$(VERSION).a
+	ranlib $(INSTALLDIR)/lib/lib$(VERSION)_s.a
 
 else
 
@@ -202,7 +202,8 @@ endif
 	@sed -e "s/@INCLUDE_PREFIX@/\/usr\/local/" temp >temp2
 	@sed -e "s/@FRAMEWORKS@/-framework Cocoa -framework $(FRAMEWORK_NAME) -l$(VERSION)-main/" temp2 > temp
 	@sed -e "s/accepts_frameworks=no/accepts_frameworks=yes/" temp > temp2
-	@sed -e "s/-l\$${lib_type}_unsharable/-l\$${lib_type}-main $(LIBRARIES)/" temp2 >$(INSTALLDIR)/bin/allegro-config
+	@sed -e "s/{lib_type} \$$allegro_libs/{lib_type}_s \$$allegro_libs/" temp2 > temp
+	@sed -e "s/-l\$${lib_type}_unsharable/-l\$${lib_type}-main $(LIBRARIES)/" temp >$(INSTALLDIR)/bin/allegro-config
 	@rm -f temp temp2
 	@chmod a+x $(INSTALLDIR)/bin/allegro-config
 	@echo allegro-config script created in $(INSTALLDIR)/bin
@@ -215,7 +216,7 @@ HEADERS = $(INSTALLDIR)/$(INCDIR)/osxalleg.h                  \
           $(INSTALLDIR)/$(INCDIR)/allegro/platform/alosx.h
 
 ifdef STATICLINK
-   INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).a 
+   INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)_s.a 
 else
    INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-$(shared_version).dylib
    INSTALL_FILES += $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION)-main.a
@@ -229,9 +230,9 @@ install: generic-install
 	@echo Run make install-framework if you wish to install the library as a framework.
 	@echo Run make install-template if you wish to install the application template.
 
-UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg.a                       \
-                  $(INSTALLDIR)/$(LIBDIR)/liballd.a                        \
-                  $(INSTALLDIR)/$(LIBDIR)/liballp.a                        \
+UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg_s.a                     \
+                  $(INSTALLDIR)/$(LIBDIR)/liballd_s.a                      \
+                  $(INSTALLDIR)/$(LIBDIR)/liballp_s.a                      \
                   $(INSTALLDIR)/$(LIBDIR)/liballeg-$(shared_version).dylib \
                   $(INSTALLDIR)/$(LIBDIR)/liballd-$(shared_version).dylib  \
                   $(INSTALLDIR)/$(LIBDIR)/liballp-$(shared_version).dylib  \
