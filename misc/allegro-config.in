@@ -21,6 +21,7 @@ lib_type=@LIB_TO_LINK@
 allegro_ldflags=`echo "@LDFLAGS@" | sed -e "s/ -s\b//"`
 allegro_libs="@LIBS@"
 allegro_cflags=""
+allegro_cppflags=""
 
 usage()
 {
@@ -33,6 +34,7 @@ Options:
 	--exec-prefix[=DIR]
 	--version[=VERSION]
 	--cflags
+	--cppflags
 	--libs
 	--static
 	--shared
@@ -90,6 +92,10 @@ while test $# -gt 0; do
 	 echo_cflags=yes
       ;;
 
+      --cppflags)
+	 echo_cppflags=yes
+      ;;
+
       --libs)
 	 echo_libs=yes
       ;;
@@ -114,6 +120,7 @@ while test $# -gt 0; do
 
       debug)
 	 allegro_cflags=-DDEBUGMODE $allegro_cflags
+	 allegro_cppflags=-DDEBUGMODE $allegro_cppflags
 	 lib_type=alld
       ;;
 
@@ -139,6 +146,10 @@ fi
 
 if test "$echo_cflags" = "yes"; then
    echo -I${prefix}/include $allegro_cflags
+fi
+
+if test "$echo_cppflags" = "yes"; then
+   echo -I${prefix}/include $allegro_cppflags
 fi
 
 if test "$echo_libs" = "yes"; then
