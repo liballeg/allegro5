@@ -1,0 +1,34 @@
+# Henrik Stokseth provided this makefile for cross-compiling to mingw32.
+#
+# Brief example of how to set up a mingw32 cross compiling system:
+# Download the prebuilt cross-mingw32-compiler from:
+# http://www.devolution.com/~slouken/SDL/Xmingw32/
+# Uncompress this file to /usr/local/
+# Then replace the directx libraries with the ones you find in Microsoft's
+# DirectX 7.0 SDK. URL to a minimal DX SDK can be found in readme.mgw
+# Then run: make -f makefile.mgx (... and voila!)
+
+
+# 1. Put here the path on which the compiler and other tools
+# for the target will be found with standard names (eg gcc,
+# not win32-gcc).
+
+XC_PATH=/usr/local/cross-tools/i386-mingw32msvc/bin:/usr/local/cross-tools/bin
+
+# 2. Put here the path for where things are to be installed.
+# You should have created the lib, info and include directories
+# in this directory.
+
+INSTALL_BASE=/usr/local/cross-tools/i386-mingw32msvc
+
+
+all : main install
+
+main :
+	make CROSSCOMPILE="1" \
+		MINGDIR="$(INSTALL_BASE)" \
+		NATIVEPATH="$(PATH)" \
+		PATH="$(XC_PATH):$(PATH)"
+
+install :
+	make CROSSCOMPILE="1" MINGDIR="$(INSTALL_BASE)" install

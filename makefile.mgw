@@ -54,8 +54,10 @@ ifneq ($(WINSYSDIR),)
   WINDIR_U = $(subst \,/,$(WINSYSDIR)/$(WINSUBDIR))
   WINDIR_D = $(subst /,\,$(WINSYSDIR)\$(WINSUBDIR))
 else
+ifndef CROSSCOMPILE
 badwin:
 	@echo Your SYSTEMROOT or WINDIR environment variable is not set!
+endif
 endif
 
 ifdef MINGDIR
@@ -137,6 +139,25 @@ scrsave: wintests/scrsave.scr
 
 # -------- rules for installing and removing the library files --------
 
+ifdef CROSSCOMPILE
+
+$(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
+	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
+
+$(MINGDIR_U)/include/allegro.h: include/allegro.h
+	cp include/allegro.h $(MINGDIR_U)/include
+
+$(MINGDIR_U)/include/winalleg.h: include/winalleg.h
+	cp include/winalleg.h $(MINGDIR_U)/include
+
+$(MINGDIR_U)/include/allegro:
+	mkdir $(MINGDIR_U)/include/allegro 
+
+$(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
+	cp $(subst \,/,$< $@)
+
+else
+
 ifndef STATICLINK
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
@@ -159,13 +180,18 @@ $(MINGDIR_U)/include/allegro:
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
 
+endif # CROSSCOMPILE
+
+
 HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
 
 INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
                 $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
 
+ifndef CROSSCOMPILE
 ifndef STATICLINK
   INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+endif
 endif
 
 install: $(INSTALL_FILES)
@@ -187,11 +213,19 @@ uninstall:
 .PHONY: mmxtest
 
 mmxtest:
+ifdef CROSSCOMPILE
+	echo // no MMX > obj/mingw32/mmx.h
+	echo .text > obj/mingw32/mmxtest.s
+	echo emms >> obj/mingw32/mmxtest.s
+	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
+	echo "#define ALLEGRO_MMX" > obj/mingw32/mmx.h
+else
 	echo // no MMX > obj\mingw32\mmx.h
 	echo .text > obj\mingw32\mmxtest.s
 	echo emms >> obj\mingw32\mmxtest.s
 	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
 	echo #define ALLEGRO_MMX > obj\mingw32\mmx.h
+endif
 
 obj/mingw32/mmx.h:
 	@echo Testing for MMX assembler support...
@@ -213,13 +247,22 @@ COMPILE_FLAGS = -DALLEGRO_STATICLINK
 else
 
 # -------- link as a DLL --------
+
+ifndef CROSSCOMPILE
+  DLLWRAP = dllwrap
+  WINDRES = windres
+else
+  DLLWRAP = i386-mingw32msvc-dllwrap
+  WINDRES = i386-mingw32msvc-windres
+endif
+
 ifdef FASTDLL
   define MAKE_LIB
     gcc $(LFLAGS) -shared -Wl,--out-implib,$(IMPLIB_NAME),--just-symbols,$(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
   endef
 else
   define MAKE_LIB
-    dllwrap --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
+    $(DLLWRAP) --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
   endef
 endif
 
@@ -260,9 +303,11 @@ endef
 endif # STATICLINK
 
 $(OBJ_DIR)/scrsave.res: wintests/scrsave.rc
-	windres -O coff -o $(OBJ_DIR)/scrsave.res -i wintests/scrsave.rc
+	$(WINDRES) -O coff -o $(OBJ_DIR)/scrsave.res -i wintests/scrsave.rc
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
+
+ifndef CROSSCOMPILE
 
 obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
 	obj/mingw32/asmdef.exe obj/mingw32/asmdef.inc
@@ -270,15 +315,35 @@ obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
 obj/mingw32/asmdef.exe: src/i386/asmdef.c
 	gcc -O $(WFLAGS) -I. -I./include -o obj/mingw32/asmdef.exe src/i386/asmdef.c
 
+else
+
+obj/mingw32/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/mingw32/mmx.h
+	gcc $(WFLAGS) -I. -I./include -S -o obj/mingw32/asmdef.s src/i386/asmdef.c
+
+obj/mingw32/asmdef.inc: obj/mingw32/asmdef.s
+	if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi
+	misc/asmdef.sh obj/mingw32/asmdef.s obj/mingw32/asmdef.inc
+
+endif
+
 PLUGIN_LIB = lib/mingw32/$(VERY_SHORT_VERSION)dat.a
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB)
 PLUGINS_H = obj/mingw32/plugins.h
 PLUGIN_SCR = scv
 
+ifdef CROSSCOMPILE
+
+define GENERATE_PLUGINS_H
+  cat tools/plugins/*.inc > obj/mingw32/plugins.h
+endef
+
+else
 
 define GENERATE_PLUGINS_H
   copy tools\plugins\*.inc obj\mingw32\plugins.h
 endef
+
+endif
 
 define MAKE_PLUGIN_LIB
   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
