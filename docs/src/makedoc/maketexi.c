@@ -130,6 +130,7 @@ int write_texinfo(char *filename)
 	       buf[i] = 0;
 
 	       if (!(line->flags & NONODE_FLAG) &&
+		  /* Output a symbol (@@void @func()). */
 		   (_valid_texinfo_node(buf, &next, &prev))) {
 		  if (toc_waiting) {
 		     _output_texinfo_toc(f, 0, 1, section_number-1);
@@ -282,11 +283,16 @@ int write_texinfo(char *filename)
 	 }
 
 	 if (_valid_texinfo_node(line->text, &next, &prev)) {
+	    /* Outputs a @hnode. */
 	    if (xrefs > 0) {
 	       fputs("See also:@*\n", f);
 	       for (i=0; i<xrefs; i++)
 		  _write_textinfo_xref(f, xref[i], chapter_nodes, multi_identifier_nodes);
 	       xrefs = 0;
+	    }
+	    if (toc_waiting) {
+	       _output_texinfo_toc(f, 0, 1, section_number-1);
+	       toc_waiting = 0;
 	    }
 	    _write_auto_types_xrefs(f, auto_types, found_auto_types);
 	    fprintf(f, "@node %s, %s, %s, %s\n", line->text, next, prev, _node_name(section_number-1));
