@@ -1319,7 +1319,7 @@ typedef struct FONT                 /* a range of consecutive characters */
    AL_METHOD(void, renderhook, (BITMAP *bmp, void *glyphs, int ch, int x, int y, int color));
    AL_METHOD(int, widthhook, (void *glyphs, int ch));
    AL_METHOD(int, heighthook, (void *glyphs));
-   AL_METHOD(void, destroyhook, (void *glyphs));
+   AL_METHOD(void, destroyhook, (void *glyphs, int start, int end));
 } FONT;
 
 

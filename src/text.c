@@ -354,7 +354,7 @@ void destroy_font(FONT *f)
    while (f) {
       if (f->glyphs) {
 	 if(f->destroyhook)
-	    f->destroyhook(f->glyphs);
+	    f->destroyhook(f->glyphs, f->start, f->end);
 	 else {
 	    for (c=0; c<=f->end-f->start; c++) {
 	       if (f->glyphs[c]) {
