@@ -4,7 +4,8 @@ This is the public TODO list for the Allegro Game/Multimedia Library.
 
 Updates or comments can be sent to the TODO list maintainer Peter Wang
 <tjaden@alphalink.com.au> or to the Allegro developer's mailinglist
-<conductors@canvaslink.com>, preferrably with the text [TODO] in the subject.
+<alleg-developers@lists.sourceforge.net>, preferrably with the text [TODO]
+in the subject.
 
 
 General (Platform independent) todos:

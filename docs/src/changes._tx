@@ -2993,11 +2993,11 @@ Changes from 3.1 to 3.11 (Feb 1999)
    a word with no particular meaning, I realised that it is in fact a 
    recursive acronym for "Allegro Low Level Game Routines".
 <li>
-   Established a new mailing list (conductors@canvaslink.com) for use by the 
-   people currently working on Allegro. Please send code contributions to 
-   this list rather than directly to me (Shawn Hargreaves), because this 
-   will allow Allegro development to continue even if I'm not around or am 
-   busy with something else at the moment.
+   Established a new mailing list for use by the people currently working on
+   Allegro. Please send code contributions to this list rather than directly
+   to me (Shawn Hargreaves), because this will allow Allegro development to
+   continue even if I'm not around or am busy with something else at the
+   moment.
 <li>
    Andreas Kluge wrote a driver for Ensoniq Soundscape cards.
 <li>
