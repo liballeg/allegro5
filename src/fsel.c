@@ -385,8 +385,8 @@ static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
    char *t1, *t2;
 
    for (;;) {
-      c1 = utolower(ugetx(&s1));
-      c2 = utolower(ugetx(&s2));
+      c1 = utolower(ugetxc(&s1));
+      c2 = utolower(ugetxc(&s2));
 
       if ((c1 >= '0') && (c1 <= '9') && (c2 >= '0') && (c2 <= '9')) {
 	 x1 = ustrtol(s1 - ucwidth(c1), &t1, 10);

@@ -63,7 +63,7 @@ typedef struct UTYPE_INFO
 {
    int id;
    AL_METHOD(int, u_getc, (AL_CONST char *s));
-   AL_METHOD(int, u_getx, (AL_CONST char **s));
+   AL_METHOD(int, u_getx, (char **s));
    AL_METHOD(int, u_setc, (char *s, int c));
    AL_METHOD(int, u_width, (AL_CONST char *s));
    AL_METHOD(int, u_cwidth, (int c));
@@ -179,7 +179,31 @@ AL_FUNC(void, _draw_scrollable_frame, (DIALOG *d, int listsize, int offset, int 
 AL_FUNC(void, _draw_listbox, (DIALOG *d));
 AL_FUNC(void, _draw_textbox, (char *thetext, int *listsize, int draw, int offset, int wword, int tabsize, int x, int y, int w, int h, int disabled, int fore, int deselect, int disable));
 
+/* text- and font-related stuff */
+typedef struct FONT_VTABLE {
+
+    AL_METHOD(int, text_length, (AL_CONST FONT* f, AL_CONST char* text));
+    AL_METHOD(void, render, (AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, BITMAP* bmp, int x, int y));
+    AL_METHOD(void, destroy, (FONT* f));
+
+}FONT_VTABLE;
+
 AL_VAR(FONT, _default_font);
+AL_VAR(FONT_VTABLE*, font_vtable_mono);
+AL_VAR(FONT_VTABLE*, font_vtable_color);
+AL_VAR(int, allegro_404_char);
+
+typedef struct FONT_MONO_DATA {
+    int begin, end;                 /* first char and one-past-the-end char */
+    FONT_GLYPH** glyphs;            /* our glyphs */
+    struct FONT_MONO_DATA* next;    /* linked list structure */
+}FONT_MONO_DATA;
+
+typedef struct FONT_COLOR_DATA {
+    int begin, end;                 /* first char and one-past-the-end char */
+    BITMAP** bitmaps;               /* our glyphs */
+    struct FONT_COLOR_DATA* next;   /* linked list structure */
+}FONT_COLOR_DATA;
 
 
 /* caches and tables for svga bank switching */

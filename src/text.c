@@ -23,29 +23,7 @@
 
 
 
-/* include bitmap data for the default font */
-#include "font.h"
-
-FONT *font = &_default_font;
-
 int _textmode = 0;
-
-
-
-/* find_range:
- *  Searches a font for a specific character.
- */
-static INLINE AL_CONST FONT *find_range(AL_CONST FONT *f, int c)
-{
-   while (f) {
-      if ((c >= f->start) && (c <= f->end))
-	 return f;
-
-      f = f->next;
-   }
-
-   return NULL;
-}
 
 
 
@@ -70,26 +48,6 @@ int text_mode(int mode)
 
 
 
-/* masked_character:
- *  Helper routine for masked multicolor output of proportional fonts.
- */
-static void masked_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
-{
-   bmp->vtable->draw_256_sprite(bmp, sprite, x, y);
-}
-
-
-
-/* opaque_character:
- *  Helper routine for opaque multicolor output of proportional fonts.
- */
-static void opaque_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
-{
-   blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
-}
-
-
-
 /* textout:
  *  Writes the null terminated string str onto bmp at position x, y, using 
  *  the current text mode and the specified font and foreground color.
@@ -99,58 +57,7 @@ static void opaque_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int colo
  */
 void textout(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
-   void (*putter)() = NULL;
-   AL_CONST FONT *range = NULL;
-   int c;
-
-   acquire_bitmap(bmp);
-
-   while ((c = ugetx(&str)) != 0) {
-      if ((!range) || (c < range->start) || (c > range->end)) {
-	 /* search for a suitable character range */
-	 range = find_range(f, c);
-
-	 if (!range)
-	    range = find_range(f, (c = '^'));
-
-	 if (range) {
-	    if (range->renderhook)
-	       putter = NULL;
-	    else if (range->mono)
-	       putter = bmp->vtable->draw_glyph;
-	    else if (color >= 0)
-	       putter = bmp->vtable->draw_character;
-	    else if (_textmode < 0)
-	       putter = masked_character;
-	    else
-	       putter = opaque_character; 
-	 }
-      }
-
-      if (range) {
-	 /* draw the character */
-	 c -= range->start;
-
-	 if (range->renderhook)
-	    range->renderhook(bmp, range->glyphs, c, x, y, color);
-	 else
-	    putter(bmp, range->glyphs[c], x, y, color);
-
-	 if (range->widthhook)
-	    x += range->widthhook(range->glyphs, c);
-	 else if (range->mono)
-	    x += ((FONT_GLYPH *)(range->glyphs[c]))->w;
-	 else
-	    x += ((BITMAP *)(range->glyphs[c]))->w;
-
-	 if (x >= bmp->cr) {
-	    release_bitmap(bmp);
-	    return;
-	 }
-      }
-   }
-
-   release_bitmap(bmp);
+    f->vtable->render(f, str, color, _textmode, bmp, x, y);
 }
 
 
@@ -305,30 +212,7 @@ void textprintf_justify(BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, in
  */
 int text_length(AL_CONST FONT *f, AL_CONST char *str)
 {
-   AL_CONST FONT *range;
-   int c, len;
-
-   len = 0;
-
-   while ((c = ugetx(&str)) != 0) {
-      range = find_range(f, c);
-
-      if (!range)
-	 range = find_range(f, (c = '^'));
-
-      if (range) {
-	 c -= range->start;
-
-	 if (range->widthhook)
-	    len += range->widthhook(range->glyphs, c);
-	 else if (range->mono)
-	    len += ((FONT_GLYPH *)(range->glyphs[c]))->w;
-	 else
-	    len += ((BITMAP *)(range->glyphs[c]))->w;
-      }
-   }
-
-   return len;
+    return f->vtable->text_length(f, str);
 }
 
 
@@ -338,45 +222,17 @@ int text_length(AL_CONST FONT *f, AL_CONST char *str)
  */
 int text_height(AL_CONST FONT *f)
 {
-   if (f->heighthook)
-      return f->heighthook(f->glyphs);
-   else if (f->mono)
-      return ((FONT_GLYPH *)(f->glyphs[0]))->h;
-   else
-      return ((BITMAP *)(f->glyphs[0]))->h;
+    return f->height;
 }
 
 
 
 /* destroy_font:
  *  Frees the memory being used by a font structure.
+ *  This is now wholly handled in the vtable.
  */
 void destroy_font(FONT *f)
 {
-   FONT *next;
-   int c;
-
-   while (f) {
-      if (f->glyphs) {
-	 if(f->destroyhook)
-	    f->destroyhook(f->glyphs, f->start, f->end);
-	 else {
-	    for (c=0; c<=f->end-f->start; c++) {
-	       if (f->glyphs[c]) {
-		  if (f->mono)
-		     free(f->glyphs[c]);
-		  else
-		     destroy_bitmap(f->glyphs[c]);
-	       }
-	    }
-	 }
-
-	 free(f->glyphs);
-      }
-
-      next = f->next;
-      free(f);
-      f = next;
-   }
+    f->vtable->destroy(f);
 }
 

@@ -1338,7 +1338,7 @@ static int menu_key_shortcut(int c, AL_CONST char *s)
 {
    int d;
 
-   while ((d = ugetx(&s)) != 0) {
+   while ((d = ugetxc(&s)) != 0) {
       if (d == '&') {
 	 d = ugetc(s);
 	 if ((d != '&') && (utolower(d) == utolower(c & 0xFF)))
@@ -1389,7 +1389,7 @@ int menu_alt_key(int k, MENU *m)
 
    for (c=0; m[c].text; c++) {
       s = m[c].text;
-      while ((d = ugetx(&s)) != 0) {
+      while ((d = ugetxc(&s)) != 0) {
 	 if (d == '&') {
 	    d = ugetc(s);
 	    if ((d != '&') && (utolower(d) == utolower(k)))

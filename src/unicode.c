@@ -49,7 +49,7 @@ static int ascii_getc(AL_CONST char *s)
 /* ascii_getx:
  *  Reads a character from an ASCII string, advancing the pointer position.
  */
-static int ascii_getx(AL_CONST char **s)
+static int ascii_getx(char **s)
 {
    return *((unsigned char *)((*s)++));
 }
@@ -184,7 +184,7 @@ static int ascii_cp_getc(AL_CONST char *s)
 /* ascii_cp_getx:
  *  Reads from an ASCII codepage string, advancing pointer position.
  */
-static int ascii_cp_getx(AL_CONST char **s)
+static int ascii_cp_getx(char **s)
 {
    return codepage_table[*((unsigned char *)((*s)++))];
 }
@@ -257,7 +257,7 @@ static int unicode_getc(AL_CONST char *s)
 /* unicode_getx:
  *  Reads a character from a Unicode string, advancing the pointer position.
  */
-static int unicode_getx(AL_CONST char **s)
+static int unicode_getx(char **s)
 {
    int c = *((unsigned short *)(*s));
    (*s) += sizeof(unsigned short);
@@ -340,7 +340,7 @@ static int utf8_getc(AL_CONST char *s)
 /* utf8_getx:
  *  Reads a character from a UTF-8 string, advancing the pointer position.
  */
-static int utf8_getx(AL_CONST char **s)
+static int utf8_getx(char **s)
 {
    int c = *((unsigned char *)((*s)++));
    int n, t;
@@ -483,7 +483,8 @@ UTYPE_INFO utypes[] =
 static int utype = U_UTF8;
 
 int (*ugetc)(AL_CONST char *s) = utf8_getc;
-int (*ugetx)(AL_CONST char **s) = utf8_getx;
+int (*ugetx)(char **s) = utf8_getx;
+int (*ugetxc)(AL_CONST char** s) = (int (*)(AL_CONST char**)) utf8_getx;
 int (*usetc)(char *s, int c) = utf8_setc;
 int (*uwidth)(AL_CONST char *s) = utf8_width;
 int (*ucwidth)(int c) = utf8_cwidth;
@@ -520,7 +521,8 @@ void set_uformat(int type)
    if (info) {
       utype = info->id;
       ugetc = info->u_getc;
-      ugetx = info->u_getx;
+      ugetx = (int (*)(char**)) info->u_getx;
+      ugetxc = (int (*)(AL_CONST char**)) info->u_getx;
       usetc = info->u_setc;
       uwidth = info->u_width;
       ucwidth = info->u_cwidth;
@@ -544,7 +546,7 @@ int get_uformat()
  *  Allows the user to hook in custom routines for supporting a new string
  *  encoding format.
  */
-void register_uformat(int type, int (*ugetc)(AL_CONST char *s), int (*ugetx)(AL_CONST char **s), int (*usetc)(char *s, int c), int (*uwidth)(AL_CONST char *s), int (*ucwidth)(int c), int (*uisok)(int c), int uwidth_max)
+void register_uformat(int type, int (*ugetc)(AL_CONST char *s), int (*ugetx)(char **s), int (*usetc)(char *s, int c), int (*uwidth)(AL_CONST char *s), int (*ucwidth)(int c), int (*uisok)(int c), int uwidth_max)
 {
    UTYPE_INFO *info = _find_utype(type);
 
@@ -627,7 +629,7 @@ int uconvert_size(AL_CONST char *s, int type, int newtype)
 
    size = 0;
 
-   while ((c = info->u_getx(&s)) != 0)
+   while ((c = info->u_getx((char**)&s)) != 0)
       size += outfo->u_cwidth(c);
 
    return size + outfo->u_cwidth(0);
@@ -657,7 +659,7 @@ void do_uconvert(AL_CONST char *s, int type, char *buf, int newtype, int size)
 
    size -= outfo->u_cwidth(0);
 
-   while ((c = info->u_getx(&s)) != 0) {
+   while ((c = info->u_getx((char**)&s)) != 0) {
       if (!outfo->u_isok(c))
 	 c = '^';
 
@@ -713,7 +715,7 @@ int uoffset(AL_CONST char *s, int index)
 
    while (index-- > 0) {
       last = s;
-      if (!ugetx(&s)) {
+      if (!ugetxc(&s)) {
 	 s = last;
 	 break;
       }
@@ -1727,7 +1729,7 @@ int ustrsize(AL_CONST char *s)
 
    do {
       last = s;
-   } while (ugetx(&s) != 0);
+   } while (ugetxc(&s) != 0);
 
    return (long)last - (long)orig;
 }
@@ -1743,7 +1745,7 @@ int ustrsizez(AL_CONST char *s)
    AL_CONST char *orig = s;
 
    do {
-   } while (ugetx(&s) != 0);
+   } while (ugetxc(&s) != 0);
 
    return (long)s - (long)orig;
 }
@@ -1758,7 +1760,7 @@ char *ustrcpy(char *dest, AL_CONST char *src)
    int pos = 0;
    int c;
 
-   while ((c = ugetx(&src)) != 0)
+   while ((c = ugetxc(&src)) != 0)
       pos += usetc(dest+pos, c);
 
    usetc(dest+pos, 0);
@@ -1776,7 +1778,7 @@ char *ustrcat(char *dest, AL_CONST char *src)
    int pos = ustrsize(dest);
    int c;
 
-   while ((c = ugetx(&src)) != 0)
+   while ((c = ugetxc(&src)) != 0)
       pos += usetc(dest+pos, c);
 
    usetc(dest+pos, 0);
@@ -1793,7 +1795,7 @@ int ustrlen(AL_CONST char *s)
 {
    int c = 0;
 
-   while (ugetx(&s))
+   while (ugetxc(&s))
       c++;
 
    return c;
@@ -1809,8 +1811,8 @@ int ustrcmp(AL_CONST char *s1, AL_CONST char *s2)
    int c1, c2;
 
    for (;;) {
-      c1 = ugetx(&s1);
-      c2 = ugetx(&s2);
+      c1 = ugetxc(&s1);
+      c2 = ugetxc(&s2);
 
       if (c1 != c2)
 	 return c1 - c2;
@@ -1832,7 +1834,7 @@ char *ustrncpy(char *dest, AL_CONST char *src, int n)
    int pos = 0;
    int c;
 
-   while (((c = ugetx(&src)) != 0) && (pos < n))
+   while (((c = ugetxc(&src)) != 0) && (pos < n))
       pos += usetc(dest+pos, c);
 
    usetc(dest+pos, 0);
@@ -1853,7 +1855,7 @@ char *ustrncat(char *dest, AL_CONST char *src, int n)
    int pos = 0;
    int c;
 
-   while (((c = ugetx(&src)) != 0) && (pos < n))
+   while (((c = ugetxc(&src)) != 0) && (pos < n))
       pos += usetc(d+pos, c);
 
    usetc(d+pos, 0);
@@ -1876,8 +1878,8 @@ int ustrncmp(AL_CONST char *s1, AL_CONST char *s2, int n)
       return 0;
 
    for (;;) {
-      c1 = ugetx(&s1);
-      c2 = ugetx(&s2);
+      c1 = ugetxc(&s1);
+      c2 = ugetxc(&s2);
 
       if (c1 != c2)
 	 return c1 - c2;
@@ -1897,8 +1899,8 @@ int ustricmp(AL_CONST char *s1, AL_CONST char *s2)
    int c1, c2;
 
    for (;;) {
-      c1 = utolower(ugetx(&s1));
-      c2 = utolower(ugetx(&s2));
+      c1 = utolower(ugetxc(&s1));
+      c2 = utolower(ugetxc(&s2));
 
       if (c1 != c2)
 	 return c1 - c2;
@@ -2026,7 +2028,7 @@ char *ustrpbrk(AL_CONST char *s, AL_CONST char *set)
    while ((c = ugetc(s)) != 0) {
       setp = set;
 
-      while ((d = ugetx(&setp)) != 0) {
+      while ((d = ugetxc(&setp)) != 0) {
 	 if (c == d)
 	    return (char *)s;
       }
@@ -2059,11 +2061,11 @@ char *ustrtok(char *s, AL_CONST char *set)
    skip_leading_delimiters:
 
    prev_str = s;
-   c = ugetx((AL_CONST char **)&s);
+   c = ugetxc((AL_CONST char **)&s);
 
    setp = set;
 
-   while ((sc = ugetx(&setp)) != 0) {
+   while ((sc = ugetxc(&setp)) != 0) {
       if (c == sc)
 	 goto skip_leading_delimiters;
    }
@@ -2077,12 +2079,12 @@ char *ustrtok(char *s, AL_CONST char *set)
 
    for (;;) {
       prev_str = s;
-      c = ugetx((AL_CONST char **)&s);
+      c = ugetxc((AL_CONST char **)&s);
 
       setp = set;
 
       do {
-	 sc = ugetx(&setp);
+	 sc = ugetxc(&setp);
 	 if (sc == c) {
 	    if (!c) {
 	       last = NULL;
@@ -2470,7 +2472,7 @@ static int sprint_string(char **buf, SPRINT_INFO *info, AL_CONST char *s)
    int len = 0;
    int c;
 
-   while ((c = ugetx(&s)) != 0) {
+   while ((c = ugetxc(&s)) != 0) {
       if ((info->precision >= 0) && (len >= info->precision))
 	 break;
 
@@ -2495,7 +2497,7 @@ int uvsprintf(char *buf, AL_CONST char *format, va_list args)
    int shift, shiftbytes, shiftfiller;
    int len = 0;
 
-   while ((c = ugetx(&format)) != 0) {
+   while ((c = ugetxc(&format)) != 0) {
 
       if (c == '%') {
 	 if (ugetc(format) == '%') {

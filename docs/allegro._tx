@@ -366,11 +366,14 @@ table to the set_ucodepage() function.
    from the string.
 
 @@int @ugetx(char **s);
+@@int @ugetxc(const char **s);
 @xref ugetc, usetc, uwidth, ucwidth, uisok
    Low level helper function for reading Unicode text data. Given the 
    address of a pointer to a string in the current encoding format, it 
    returns the next character from the string, and advances the pointer to 
    the character after the one just read.
+
+   ugetxc is provided for working with pointer-to-pointer-to-const char data.
 
 @@int @usetc(char *s, int c);
 @xref ugetc, ugetx, uwidth, ucwidth, uisok

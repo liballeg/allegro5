@@ -202,7 +202,7 @@ AL_ARRAY(_DRIVER_INFO, _system_driver_list);
 
 AL_FUNC(void, set_uformat, (int type));
 AL_FUNC(int, get_uformat, (void));
-AL_FUNC(void, register_uformat, (int type, AL_METHOD(int, u_getc, (AL_CONST char *s)), AL_METHOD(int, u_getx, (AL_CONST char **s)), AL_METHOD(int, u_setc, (char *s, int c)), AL_METHOD(int, u_width, (AL_CONST char *s)), AL_METHOD(int, u_cwidth, (int c)), AL_METHOD(int, u_isok, (int c)), int u_width_max));
+AL_FUNC(void, register_uformat, (int type, AL_METHOD(int, u_getc, (AL_CONST char *s)), AL_METHOD(int, u_getx, (char **s)), AL_METHOD(int, u_setc, (char *s, int c)), AL_METHOD(int, u_width, (AL_CONST char *s)), AL_METHOD(int, u_cwidth, (int c)), AL_METHOD(int, u_isok, (int c)), int u_width_max));
 AL_FUNC(void, set_ucodepage, (AL_CONST unsigned short *table, AL_CONST unsigned short *extras));
 
 AL_FUNC(int, need_uconvert, (AL_CONST char *s, int type, int newtype));
@@ -219,7 +219,8 @@ AL_FUNC(int, uwidth_max, (int type));
 AL_ARRAY(char, empty_string);
 
 AL_FUNCPTR(int, ugetc, (AL_CONST char *s));
-AL_FUNCPTR(int, ugetx, (AL_CONST char **s));
+AL_FUNCPTR(int, ugetx, (char **s));
+AL_FUNCPTR(int, ugetxc, (AL_CONST char **s));
 AL_FUNCPTR(int, usetc, (char *s, int c));
 AL_FUNCPTR(int, uwidth, (AL_CONST char *s));
 AL_FUNCPTR(int, ucwidth, (int c));
@@ -1314,18 +1315,15 @@ typedef struct FONT_GLYPH           /* a single monochrome font character */
 } FONT_GLYPH;
 
 
-typedef struct FONT                 /* a range of consecutive characters */
-{
-   int mono;                        /* 1 or 8 bit format? */
-   int start, end;                  /* range limits (inclusive) */
-   void **glyphs;                   /* characters (FONT_GLYPH or BITMAP) */
-   struct FONT *next;               /* linked list (sparse Unicode format) */
-   AL_METHOD(void, renderhook, (BITMAP *bmp, void *glyphs, int ch, int x, int y, int color));
-   AL_METHOD(int, widthhook, (void *glyphs, int ch));
-   AL_METHOD(int, heighthook, (void *glyphs));
-   AL_METHOD(void, destroyhook, (void *glyphs, int start, int end));
-} FONT;
+struct FONT_VTABLE;
 
+typedef struct FONT
+{
+    void* data;
+    int height;
+
+    struct FONT_VTABLE* vtable;
+}FONT;
 
 AL_VAR(FONT *, font);
 

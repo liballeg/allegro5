@@ -208,7 +208,7 @@ static void output_midi(MIDI *midi, char *name)
 
 static void output_font(FONT *f, char *name, int depth)
 {
-   FONT_GLYPH *g;
+/*   FONT_GLYPH *g;
    char buf[160], goodname[160];
    int c;
 
@@ -267,7 +267,7 @@ static void output_font(FONT *f, char *name, int depth)
    fprintf(outfile, "\t.long %-16d# widthhook\n", 0);
    fprintf(outfile, "\t.long %-16d# heighthook\n", 0);
    fprintf(outfile, "\t.long %-16d# destroyhook\n", 0);
-   fprintf(outfile, "\n");
+   fprintf(outfile, "\n");*/
 }
 
 

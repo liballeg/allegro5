@@ -1144,7 +1144,7 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
    s = umsg;
    pos = 0;
 
-   while ((c = ugetx(&s)) != 0) {
+   while ((c = ugetxc(&s)) != 0) {
       if ((uisspace(c)) || (c == '=') || (c == '#'))
 	 pos += usetc(name+pos, '_');
       else

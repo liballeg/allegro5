@@ -525,7 +525,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
    /* split up the object name */
    pos = 0;
 
-   while ((c = ugetx(&objname)) != 0) {
+   while ((c = ugetxc(&objname)) != 0) {
       if ((c == '#') || (c == '/') || (c == OTHER_PATH_SEPARATOR)) {
 	 recurse = TRUE;
 	 break;
@@ -1056,7 +1056,7 @@ void packfile_password(AL_CONST char *password)
    int c;
 
    if (password) {
-      while ((c = ugetx(&password)) != 0) {
+      while ((c = ugetxc(&password)) != 0) {
 	 the_password[i++] = c;
 	 if (i >= (int)sizeof(the_password)-1)
 	    break;

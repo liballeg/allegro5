@@ -17,6 +17,7 @@ ALLEGRO_SRC_FILES = \
 	src/file.c \
 	src/fli.c \
 	src/flood.c \
+	src/font.c \
 	src/fsel.c \
 	src/gfx.c \
 	src/glyph.c \
