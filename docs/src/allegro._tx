@@ -3976,7 +3976,7 @@ bitmap.
    as rotating it.
 
 @\void @rotate_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
-@@                                 fixed angle, fixed scale)
+@@                                 fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
    Draws the sprite, similar to rotate_scaled_sprite() except that it flips
    the sprite vertically first.
@@ -3994,7 +3994,7 @@ bitmap.
    (cx, cy) to (x, y) in the bitmap, then rotates around this point.
 
 @\void @pivot_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
-@@                         int cx, int cy, fixed angle, fixed scale));
+@@                         int cx, int cy, fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite
 @xref pivot_sprite, pivot_scaled_sprite_v_flip
    Like rotate_scaled_sprite(), but aligns the point in the sprite given by
@@ -4002,7 +4002,7 @@ bitmap.
    point.
 
 @\void @pivot_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
-@@                                fixed angle, fixed scale)
+@@                                int cx, int cy, fixed angle, fixed scale);
 @xref rotate_sprite, rotate_scaled_sprite_v_flip, rotate_sprite_v_flip
 @xref pivot_sprite, pivot_scaled_sprite
    Like rotate_scaled_sprite_v_flip(), but aligns the point in the sprite
