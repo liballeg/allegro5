@@ -1929,7 +1929,7 @@ int title_screen()
 	    c += (150-credit_scroll) * (150-credit_scroll) * SCREEN_W / 22500;
 
 	 textprintf(buffer, data[TITLE_FONT].dat, c, 4, -1, "%s:", cred->name);
-	 add_to_list(&dirty, 0, 4, SCREEN_W, 24);
+	 add_to_list(&dirty, 0, 4, SCREEN_W, text_height(data[TITLE_FONT].dat));
       }
 
       /* draw the Allegro logo over the top */
