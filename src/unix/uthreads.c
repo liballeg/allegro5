@@ -132,7 +132,7 @@ static int bg_man_pthreads_unregister_func (bg_func f)
 		if (i+1 == max_func)
 			do {
 				max_func--;
-			} while (!funcs[max_func] && max_func > 0);
+			} while ((max_func > 0) && !funcs[max_func-1]);
 	}
 
 	bg_man_pthreads_enable_interrupts ();
