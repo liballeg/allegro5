@@ -14,6 +14,7 @@ version=4.1.9
 prefix=@prefix@
 exec_prefix=$prefix
 exec_prefix_set=no
+include_prefix=@INCLUDE_PREFIX@
 
 static_libs=@LINK_WITH_STATIC_LIBS@
 lib_type=@LIB_TO_LINK@
@@ -145,11 +146,19 @@ if test "$echo_exec_prefix" = "yes"; then
 fi
 
 if test "$echo_cflags" = "yes"; then
-   echo -I${prefix}/include $allegro_cflags
+   if test -n "$include_prefix"; then
+      echo -I${include_prefix}/include $allegro_cflags
+   else
+      echo $allegro_cflags
+   fi
 fi
 
 if test "$echo_cppflags" = "yes"; then
-   echo -I${prefix}/include $allegro_cppflags
+   if test -n "$include_prefix"; then
+      echo -I${include_prefix}/include $allegro_cppflags
+   else
+      echo $allegro_cppflags
+   fi
 fi
 
 if test "$echo_libs" = "yes"; then

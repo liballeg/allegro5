@@ -542,6 +542,26 @@ fi
 AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])
 
 dnl
+dnl Test for include path conflict with gcc 3.1 or later.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_include_prefix
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX,
+[AC_MSG_CHECKING(whether an include prefix is needed)
+allegro_save_CFLAGS="$CFLAGS"
+CFLAGS="-Werror -I$prefix/include $CFLAGS"
+AC_CACHE_VAL(allegro_cv_support_include_prefix,
+[if test $GCC = yes; then
+   AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_include_prefix=yes, allegro_cv_support_include_prefix=no)
+else
+   allegro_cv_support_include_prefix=yes
+fi
+])
+CFLAGS="$allegro_save_CFLAGS"
+AC_MSG_RESULT($allegro_cv_support_include_prefix)])
+
+dnl
 dnl Test whether the assembler can read from a pipe.
 dnl
 dnl Variables:
