@@ -589,6 +589,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 	 for (i=0; i<flist->size; i++)
 	    if (flist->name[i])
 	       free(flist->name[i]);
+	 free(flist->name);
 	 free(flist);
 	 flist = NULL;
       }
