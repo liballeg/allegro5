@@ -52,7 +52,7 @@ unsigned long _mask_mmx_16[] = { 0x07E0001F, 0x00F8 };
  */
 #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
 
-AL_INLINE(int, fceil, (fixed x),
+static int fceil (fixed x)
 {
    int result;
 
@@ -82,11 +82,11 @@ AL_INLINE(int, fceil, (fixed x),
    );
 
    return result;
-})
+}
 
 #else
 
-AL_INLINE(int, fceil, (fixed x),
+static int fceil (fixed x)
 {
    x += 0xFFFF;
    if (x >= 0x80000000) {
@@ -95,7 +95,7 @@ AL_INLINE(int, fceil, (fixed x),
    }
 
    return (x >> 16);
-})
+}
 
 #endif
 
