@@ -1875,13 +1875,25 @@ static void add_soundfont_patches(void)
    DATAFILE *d;
    FILE *f;
    time_t now;
-   char buf[256];
+   char buf[256] = "XXXXXX";
    char tm[80];
    int i;
 
+   #ifdef HAVE_MKSTEMP
+
+      int tmp_fd;
+
+      tmp_fd = mkstemp(buf);
+      close(tmp_fd);
+
+   #else
+
+      tmpnam(buf);
+
+   #endif
+   
    printf("Generating index file\n");
 
-   tmpnam(buf);
    f = fopen(buf, F_WRITE);
    if (!f) {
       fprintf(stderr, "Error writing temporary file\n");
