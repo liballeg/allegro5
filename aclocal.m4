@@ -450,3 +450,20 @@ AC_TRY_LINK(,{},allegro_cv_prog_ld_s=yes, allegro_cv_prog_ld_s=no)])
 LDFLAGS=$allegro_save_LDFLAGS
 AC_MSG_RESULT($allegro_cv_prog_ld_s)
 ])
+
+dnl
+dnl Test for buggy gcc version.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_fomit_frame_pointer
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_VERSION,
+[AC_MSG_CHECKING(whether -fomit-frame-pointer is safe)
+AC_CACHE_VAL(allegro_cv_support_fomit_frame_pointer,
+[if test `gcc --version` == 3.00 -o `gcc --version` == 3.01 -o `gcc --version` == 3.02; then
+  allegro_cv_support_fomit_frame_pointer=no
+else
+  allegro_cv_support_fomit_frame_pointer=yes
+fi
+])
+AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])

@@ -94,6 +94,7 @@ test "X$enableval" != "Xno" && allegro_strict_warnings=yes)
 
 dnl Check for tools.
 AC_PROG_CC
+ALLEGRO_ACTEST_GCC_VERSION
 AC_PROG_CPP
 ALLEGRO_ACTEST_PROG_LD_S
 AC_PROG_RANLIB
@@ -167,7 +168,11 @@ if test -n "GCC"; then
   else
     TARGET_ARCH=
   fi
-  CFLAGS="$TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
+  if test "X$allegro_cv_support_fomit_frame_pointer" = "Xyes"; then
+    CFLAGS="$TARGET_ARCH -O2 -funroll-loops -ffast-math -fomit-frame-pointer $WFLAGS"
+  else
+    CFLAGS="$TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
+  fi
   ALLEGRO_DEBUG_CFLAGS="-g $WFLAGS -DDEBUGMODE"
   ALLEGRO_PROFILE_CFLAGS="-pg $TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
   if test "$allegro_cv_support_asm" != i386; then
