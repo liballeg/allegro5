@@ -36,9 +36,13 @@
 #pragma disable_message (120 201 202)
 
 
-/* these are available in OpenWatcom 1.3, at least */
-#define HAVE_INTTYPES_H
-#define HAVE_STDINT_H
+/* these are available in OpenWatcom 1.3 (12.3) */
+#if __WATCOMC__ >= 1230
+   #define HAVE_INTTYPES_H
+   #define HAVE_STDINT_H
+#else
+   #define ALLEGRO_GUESS_INTTYPES_OK
+#endif
 
 
 /* describe this platform */
