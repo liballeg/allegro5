@@ -467,11 +467,11 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	 }
 
 	 if (d->flags & D_GOTFOCUS) {
-            if (d->d2 == 1)
-               dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
-            else
-               dotted_rect(x, d->y, x+d->h-1, d->y+d->h-1, fg, bg);
-         }
+	    if (d->d2 == 1)
+	       dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
+	    else
+	       dotted_rect(x, d->y, x+d->h-1, d->y+d->h-1, fg, bg);
+	 }
 
 	 return D_O_K;
 
@@ -626,9 +626,10 @@ int d_keyboard_proc(int msg, DIALOG *d, int c)
 int d_edit_proc(int msg, DIALOG *d, int c)
 {
    static int ignore_next_uchar = FALSE;
+   int last_was_space, new_pos, i, k;
    int f, l, p, w, x, fg, b, scroll;
    char buf[16];
-   char *s;
+   char *s, *t;
    int rtm;
 
    s = d->dp;
@@ -727,10 +728,38 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	 ignore_next_uchar = FALSE;
 
 	 if ((c >> 8) == KEY_LEFT) {
-	    if (d->d2 > 0) d->d2--;
+	    if (d->d2 > 0) {
+	       if (key_shifts & KB_CTRL_FLAG) {
+		  last_was_space = TRUE;
+		  new_pos = 0;
+		  t = s;
+		  for (i = 0; i < d->d2; i++) {
+		     k = ugetx(&t);
+		     if (uisspace(k))
+			last_was_space = TRUE;
+		     else if (last_was_space) {
+			last_was_space = FALSE;
+			new_pos = i;
+		     }
+		  }
+		  d->d2 = new_pos;
+	       }
+	       else
+		  d->d2--;
+	    }
 	 }
 	 else if ((c >> 8) == KEY_RIGHT) {
-	    if (d->d2 < l) d->d2++;
+	    if (d->d2 < l) {
+	       if (key_shifts & KB_CTRL_FLAG) {
+		  t = s + uoffset(s, d->d2);
+		  for (k = ugetx(&t); uisspace(k); k = ugetx(&t))
+		     d->d2++;
+		  for (; k && !uisspace(k); k = ugetx(&t))
+		     d->d2++;
+	       }
+	       else
+		  d->d2++;
+	    }
 	 }
 	 else if ((c >> 8) == KEY_HOME) {
 	    d->d2 = 0;
@@ -993,7 +1022,7 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
       putpixel(pattern, 1, 1, fg_color);
 
       if (offset > 0) {
-         len = (((d->h-5) * offset) + listsize/2) / listsize;
+	 len = (((d->h-5) * offset) + listsize/2) / listsize;
 	 rectfill(screen, xx, yy, xx+8, yy+len, bg);
 	 yy += len;
       }
@@ -1143,7 +1172,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	       _handle_listbox_click(d);
 	       d->flags &= ~D_INTERNAL;
 	    }
-         }
+	 }
 	 else {
 	    _handle_scrollable_scroll_click(d, listsize, &d->d2, height);
 	 }
@@ -1415,20 +1444,20 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	    if (wword) {
 	       /* remember where we were */
 	       oldscan = scanned;
-               noignore = FALSE;
+	       noignore = FALSE;
 
 	       /* go backwards looking for start of word */
 	       while (!uisspace(ugetc(scanned))) {
 		  /* don't wrap too far */
 		  if (scanned == printed) {
 		     /* the whole line is filled, so stop here */
-                     tmp = ptmp = scanned;
-                     while (ptmp != oldscan) {
-                        ptmp = tmp;
-                        tmp += uwidth(tmp);
-                     }
+		     tmp = ptmp = scanned;
+		     while (ptmp != oldscan) {
+			ptmp = tmp;
+			tmp += uwidth(tmp);
+		     }
 		     scanned = ptmp;
-                     noignore = TRUE;
+		     noignore = TRUE;
 		     break;
 		  }
 		  /* look further backwards to wrap */
@@ -1440,12 +1469,12 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 		  scanned = ptmp;
 	       }
 	       /* put the space at the end of the line */
-               if (!noignore) {
-                  ignore = scanned;
-                  scanned += uwidth(scanned);
-               }
+	       if (!noignore) {
+		  ignore = scanned;
+		  scanned += uwidth(scanned);
+	       }
 	       else
-                  ignore = NULL;
+		  ignore = NULL;
 
 	       /* check for endline at the convenient place */
 	       if (ugetc(scanned) == '\n') 
@@ -1629,9 +1658,9 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	    else if ((c>>8) == KEY_END) 
 	       d->d2 = d->d1-l;
 	    else if ((c>>8) == KEY_PGUP) 
-               d->d2 -= (bottom-top) ? bottom-top : 1;
+	       d->d2 -= (bottom-top) ? bottom-top : 1;
 	    else if ((c>>8) == KEY_PGDN) 
-               d->d2 += (bottom-top) ? bottom-top : 1;
+	       d->d2 += (bottom-top) ? bottom-top : 1;
 	    else 
 	       used = D_O_K;
 
@@ -1655,8 +1684,8 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	 l = (d->h-8)/text_height(font);
 	 delta = (l > 3) ? 3 : 1;
 
-         /* scroll, making sure that the list stays in bounds */
-         start = d->d2;
+	 /* scroll, making sure that the list stays in bounds */
+	 start = d->d2;
 	 d->d2 = (c > 0) ? MAX(0, d->d2-delta) : MIN(d->d1-l, d->d2+delta);
 
 	 /* if we changed something, better redraw... */
@@ -1934,11 +1963,11 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 
 /* Overridable procedures used by standard GUI dialogs.  */
 
-#define MAKE_PROC(proc, default)				\
-int (*proc)(int, DIALOG *, int);		       		\
-int _##proc(int msg, DIALOG *d, int c)				\
-{								\
-    return proc ? proc(msg, d, c) : default(msg, d, c);		\
+#define MAKE_PROC(proc, default)                                \
+int (*proc)(int, DIALOG *, int);                                \
+int _##proc(int msg, DIALOG *d, int c)                          \
+{                                                               \
+    return proc ? proc(msg, d, c) : default(msg, d, c);         \
 }
 
 MAKE_PROC(gui_shadow_box_proc, d_shadow_box_proc);
