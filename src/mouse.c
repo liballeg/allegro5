@@ -895,10 +895,7 @@ int install_mouse(void)
 	 emulate_three = FALSE;
    }
    else {
-      if (num_buttons < 3)
-	 emulate_three = TRUE;
-      else
-	 emulate_three = FALSE;
+      emulate_three = FALSE;
    }
 
    mouse_polled = (mouse_driver->poll) ? TRUE : FALSE;

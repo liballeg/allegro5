@@ -1109,8 +1109,7 @@ num_buttons = x<br>
 <li>
 emulate_three = x<br>
    Sets whether to emulate a third mouse button by detecting chords of the 
-   left and right buttons (yes or no). Defaults to yes if you have a two 
-   button mouse, no otherwise.
+   left and right buttons (yes or no). Defaults to no.
 <li>
 mouse_device = x<br>
    Linux only: specifies the name of the mouse device file (eg. /dev/mouse).

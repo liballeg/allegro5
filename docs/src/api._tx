@@ -52,5 +52,8 @@ Changes between 4.0.x and 4.1.x series
    take into account the refresh rate (if it is known) when the retrace
    simulator is not installed. This was not the case before, except under
    Windows.
+<li>
+   The default value for the mouse configuration variable 'emulate_three'
+   has been changed to 'no' in all cases (even if you have a 2-button mouse).
 </ul>
 
