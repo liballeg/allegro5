@@ -302,6 +302,8 @@ static int fs_dlist_proc(int msg, DIALOG *d, int c)
 static int fs_edit_proc(int msg, DIALOG *d, int c)
 {
    char *s = d->dp;
+   int list_size;
+   int found = 0;
    char b[512];
    int ch, attr;
    int i;
@@ -338,13 +340,22 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 	 for (i = 0; i<flist->size; i++) {
 	    if (!ustrcmp(updir, flist->name[i])) {  /* we got it ! */
 	       file_selector[FS_FILES].d1 = i;
-	       if (i>11)
-		  file_selector[FS_FILES].d2 = i-11;
+	       /* we have to know the number of visible lines in the filelist */
+	       /* -1 to avoid an off-by-one problem */
+               list_size = (file_selector[FS_FILES].h-4) / text_height(font) - 1;
+               if (i>list_size)
+		  file_selector[FS_FILES].d2 = i-list_size;
 	       else
 		  file_selector[FS_FILES].d2 = 0;
+               found = 1;
 	       break;  /* ok, our work is done... */
 	    }
 	 }
+	 /* by some strange reason, we didn't find the old directory... */
+         if (!found) {
+            file_selector[FS_FILES].d1 = 0;
+            file_selector[FS_FILES].d2 = 0;
+         }
       }
       /* and continue... */
       SEND_MESSAGE(file_selector+FS_FILES, MSG_DRAW, 0);
