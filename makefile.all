@@ -123,7 +123,8 @@ EXAMPLES = $(basename $(notdir $(ALLEGRO_EXAMPLE_FILES)))
 EXAMPLE_FILES = $(addprefix examples/, $(addsuffix $(EXE), $(EXAMPLES)))
 
 ifdef HTML
-DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile readme
+DOCBASEFILES = ahack changes faq help thanks allegro const abi api packfile \
+               readme makedoc datafiles grabber dat dat2c dat2s
 DOCBUILDFILES = bcc32 beos darwin djgpp linux macosx mingw32 msvc qnx unix watcom
 DOCTXTBUILDFILES = $(addprefix docs/build/,$(addsuffix .txt,$(DOCBUILDFILES)))
 
