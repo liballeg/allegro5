@@ -382,8 +382,12 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
             else {
                /* default window close message */
                if (MessageBox(wnd, ALLEGRO_WINDOW_CLOSE_MESSAGE, wnd_title,
-                              MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES)
-                  ExitProcess(0);
+                              MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2) == IDYES) {
+                  TerminateThread(allegro_thread, 0);
+                  SetEvent(_foreground_event);  /* see comment in WM_DESTROY case */
+                  remove_timer();
+                  DestroyWindow(wnd);
+               }
             }
             return 0;
          }
