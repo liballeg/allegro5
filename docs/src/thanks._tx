@@ -722,6 +722,9 @@ Contributors
    Improved the cpu detection for Cyrix chips and made the file selector 
    only list valid drive letters.
 
+   Thomas Fjellstrom (<email>tfjellstrom@home.com</a>).<br>
+   Wrote the ALSA MIDI driver.
+
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
    Added NetBSD detection.
 
@@ -740,9 +743,6 @@ Contributors
 
    Tom Breton (<email>tob@world.std.com</a>).<br>
    Added the functionality selection #ifndefs to allegro.h.
-
-   Tom Fjellstrom (<email>tfjellstrom@home.com</a>).<br>
-   Wrote the ALSA MIDI driver.
 
    Tom Novelli (<email>tnovelli@cyber3.servtech.com</a>).<br>
    Wrote the original version of the digital MIDI driver.
