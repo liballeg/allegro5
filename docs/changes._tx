@@ -139,9 +139,9 @@ Changes from 3.11 to current
 <li>
    3.9.34: Stepan Roh added workaround for fceil defined in Irix headers.
 <li>
-   3.9.34: Michael Bukin change DGA screen clearing.
+   3.9.34: Michael Bukin changed DGA screen clearing.
 <li>
-   3.9.34: Tomohiko Sugiura added more aggressive sidewinder driver.
+   3.9.34: Tomohiko Sugiura added a more aggressive Sidewinder driver.
 <li>
    3.9.34: Tomohiko Sugiura added three Japanese keys.
 <li>
