@@ -389,6 +389,29 @@ if test -n "$allegro_enable_esddigi"; then
 fi])
 
 dnl
+dnl Test for ARTS DIGI driver.
+dnl
+dnl Variables:
+dnl  allegro_support_artsdigi=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_ARTSDIGI,
+[AC_ARG_ENABLE(artsdigi,
+[  --enable-artsdigi[=x]    enable building ARTS DIGI driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_artsdigi=yes,
+allegro_enable_artsdigi=yes)
+
+if test -n "$allegro_enable_artsdigi"; then
+  AC_PATH_PROG(ARTSC_CONFIG, artsc-config)
+  if test -n "$ARTSC_CONFIG"; then
+    allegro_support_artsdigi=yes
+    CFLAGS="`$ARTSC_CONFIG --cflags` $CFLAGS"
+    if test -z "$allegro_support_modules"; then
+      LIBS="`$ARTSC_CONFIG --libs` $LIBS"
+    fi
+  fi
+fi])
+
+dnl
 dnl Test where is sched_yield (SunOS).
 dnl
 dnl Variables:

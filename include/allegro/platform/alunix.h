@@ -101,6 +101,21 @@ AL_VAR(DIGI_DRIVER, digi_esd);
 
 #endif /* ALLEGRO_WITH_ESDDIGI */
 
+#ifdef ALLEGRO_WITH_ARTSDIGI
+
+#define DIGI_ARTS             AL_ID('A','R','T','S')
+
+#ifndef ALLEGRO_WITH_MODULES
+
+AL_VAR(DIGI_DRIVER, digi_arts);
+
+#define DIGI_DRIVER_ARTS                                         \
+      {  DIGI_ARTS,       &digi_arts,            TRUE  },
+
+#endif
+
+#endif /* ALLEGRO_WITH_ARTSDIGI */
+
 #ifdef ALLEGRO_WITH_ALSADIGI
 
 #define DIGI_ALSA             AL_ID('A','L','S','A')

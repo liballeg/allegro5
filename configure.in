@@ -309,6 +309,12 @@ if test -n "$allegro_support_esddigi"; then
   AC_DEFINE(ALLEGRO_WITH_ESDDIGI)
 fi
 
+dnl Test for aRts drivers.
+ALLEGRO_ACTEST_ARTSDIGI
+if test -n "$allegro_support_artsdigi"; then
+  AC_DEFINE(ALLEGRO_WITH_ARTSDIGI)
+fi
+
 dnl Test for OSS MIDI drivers.
 ALLEGRO_ACTEST_OSSMIDI
 if test -n "$allegro_support_ossmidi"; then
@@ -468,6 +474,11 @@ if test -n "$allegro_support_modules"; then
   dnl ESD DIGI.
   if test "X$allegro_support_esddigi" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-esddigi.so"
+  fi
+
+  dnl aRts DIGI.
+  if test "X$allegro_support_artsdigi" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-artsdigi.so"
   fi
 
   dnl DGA2.

@@ -264,6 +264,7 @@ ALLEGRO_SRC_LINUX_FILES = \
 ALLEGRO_SRC_UNIX_FILES = \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
+	src/unix/arts.c \
 	src/unix/udjgpp.c \
 	src/unix/udrvlist.c \
 	src/unix/uesd.c \
@@ -341,6 +342,9 @@ ALLEGRO_MODULE_ALSAMIDI_FILES = \
 
 ALLEGRO_MODULE_ESD_FILES = \
 	src/unix/uesd.c
+
+ALLEGRO_MODULE_ARTS_FILES = \
+	src/unix/arts.c
 
 ALLEGRO_MODULE_DGA2_FILES = \
 	src/x/xdga2.c \
