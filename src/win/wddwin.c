@@ -80,6 +80,7 @@ static int allegro_palette_size;
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
+
 /* handle_window_moving_win
  *  makes the driver switch to the clipped updating mode,
  *  if window is moved and color conversion is in use,  
@@ -91,6 +92,7 @@ void handle_window_moving_win(void)
       _TRACE("clipped updating mode on\n");
    }
 }
+
 
 
 /* handle_window_size_win:
@@ -122,6 +124,7 @@ void handle_window_size_win(void)
 }
 
 
+
 /* update_window_hw
  * function synced with the vertical refresh
  */
@@ -130,7 +133,7 @@ void update_window_hw (RECT* rect)
    RECT update_rect;
    HRESULT hr;
    
-   if (!offscreen_surface)
+   if (!pseudo_screen)
       return;
 
    if (rect) {
@@ -157,6 +160,7 @@ void update_window_hw (RECT* rect)
 }
 
 
+
 /* update_window_ex:
  * converts between two color formats
  */
@@ -166,7 +170,7 @@ void update_window_ex (RECT* rect)
    HRESULT hr;
    RECT update_rect;
 
-   if (!offscreen_surface)
+   if (!pseudo_screen)
       return;
 
    src_desc.dwSize = sizeof(src_desc);
@@ -197,8 +201,8 @@ void update_window_ex (RECT* rect)
       if (FAILED(hr)) {
          IDirectDrawSurface_Unlock(preconv_offscreen_surface, NULL);
          goto End;
-      }
-   
+      }   
+
       src_desc.dwWidth = update_rect.right - update_rect.left;
       src_desc.dwHeight = update_rect.bottom - update_rect.top;
 
@@ -241,6 +245,7 @@ void update_window_ex (RECT* rect)
   End:
    _exit_gfx_critical();
 }
+
 
 
 /* build_rgb_scale_5335_table
@@ -296,6 +301,7 @@ static void build_rgb_scale_5335_table(void)
 }
 
 
+
 /* setup_driver_desc:
  *  Sets up the driver description string.
  */
@@ -310,6 +316,7 @@ static void setup_driver_desc(void)
    
    gfx_directx_win.desc = gfx_driver_desc;
 }
+
 
 
 /* gfx_directx_set_palette_win:
@@ -339,12 +346,14 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 }
 
 
+
 /* wddwin_switch_out:
  *  handle window switched out
  */
 void wddwin_switch_out(void)
 {
 }
+
 
 
 /* wddwin_switch_in:
@@ -354,6 +363,7 @@ void wddwin_switch_in(void)
 {
    handle_window_size_win();
 }
+
 
 
 /* wnd_set_windowed_coop
@@ -370,6 +380,7 @@ static int wnd_set_windowed_coop(void)
 
    return 0;
 }
+
 
 
 /* verify_color_depth:
@@ -459,6 +470,7 @@ static int verify_color_depth (int color_depth)
 }
 
 
+
 /* gfx_directx_show_video_bitmap_win:
  */
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
@@ -478,12 +490,18 @@ static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
 }
 
 
+
 /* create_offscreen:
  */
 static int create_offscreen(int w, int h, int color_depth)
 {
    if (same_color_depth) {
       offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
+      
+      if (!offscreen_surface) {
+         _TRACE("Can't create offscreen surface in video memory.\n");
+         offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
+      }
    }
    else {
       /* create pre-converted offscreen surface */
@@ -511,6 +529,7 @@ static int create_offscreen(int w, int h, int color_depth)
 }
 
 
+
 /* init_directx_win:
  */
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
@@ -520,6 +539,10 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
    /* Flipping is impossible in windowed mode */
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
+      return NULL;
+
+   /* Alignment restrictions (for color conversion) */
+   if (w%4)
       return NULL;
 
    _enter_critical();
@@ -542,20 +565,22 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
-   window_rect = win_size;
    wnd_windowed = TRUE;
 
-   /* set default switching policy */
-   if (same_color_depth)
-      set_display_switch_mode(SWITCH_BACKGROUND);
-   else
-      /* color conversion adds a significant overhead, so we have to pause
-         in order to let the other apps live */  
-      set_display_switch_mode(SWITCH_PAUSE);
-
+   /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
+   
+   /* display the window */
    MoveWindow(allegro_wnd, win_size.left, win_size.top,
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+
+   /* check that the actual window size is the one requested */
+   GetClientRect(allegro_wnd, &win_size);
+   if ( ((win_size.right - win_size.left) != w) || 
+        ((win_size.bottom - win_size.top) != h) ) {
+      _TRACE("window size not supported.\n");
+      goto Error;
+   }
 
    /* create primary surface */
    if (create_primary() != 0)
@@ -606,6 +631,14 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    dirty_lines = malloc(4*(h+1));
    memset(dirty_lines, 0, 4*(h+1));
 
+   /* set default switching policy */
+   if (same_color_depth)
+      set_display_switch_mode(SWITCH_BACKGROUND);
+   else
+      /* color conversion adds a significant overhead, so we have to pause
+         in order to let the other apps live */  
+      set_display_switch_mode(SWITCH_PAUSE);
+
    _exit_critical();
 
    pseudo_screen = dd_frontbuffer;
@@ -619,6 +652,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
    return NULL;
 }
+
 
 
 /* gfx_directx_exit:

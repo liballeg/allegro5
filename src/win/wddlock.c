@@ -34,7 +34,7 @@ void gfx_switch_out(void)
 	    wddwin_switch_out();
       }
       else if (gfx_driver->id == GFX_DIRECTX_OVL)
-	 wddovl_switch_in();
+	 wddovl_switch_out();
    }
 }
 

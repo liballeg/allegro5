@@ -217,8 +217,8 @@ void handle_window_size(int x, int y, int w, int h)
  */
 void wddovl_switch_out(void)
 {
-   if (overlay_surface)
-      hide_overlay();
+   /* if (overlay_surface)
+      hide_overlay(); */
 }
 
 
@@ -304,10 +304,22 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    win_size.bottom = wnd_y + h;
    wnd_width = w;
    wnd_height = h;
+   wnd_windowed = TRUE;
 
+   /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
+
+   /* display the window */
    MoveWindow(allegro_wnd, win_size.left, win_size.top,
       win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+
+   /* check that the actual window size is the one requested */
+   GetClientRect(allegro_wnd, &win_size);
+   if ( ((win_size.right - win_size.left) != w) || 
+        ((win_size.bottom - win_size.top) != h) ) {
+      _TRACE("window size not supported.\n");
+      goto Error;
+   }
 
    /* create surfaces */
    if (create_primary() != 0)
@@ -363,8 +375,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    /* on my ATI card, hardware-accelerated primitives corrupt the screen when the color depths don't match */
    if (same_color_depth)
       enable_acceleration(&gfx_directx_ovl);
-
-   wnd_windowed = TRUE;
 
    /* set default switching policy */
    if (same_color_depth)

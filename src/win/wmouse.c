@@ -125,7 +125,7 @@ int mouse_dinput_acquire(void)
       hr = IDirectInputDevice_Acquire(mouse_dinput_device);
 
       if (FAILED(hr)) {
-	 _TRACE("acquire mouse = %s (%x)\n", win_err_str(hr), hr);
+	 _TRACE("acquire mouse failed = %s (%x)\n", win_err_str(hr), hr);
 	 return -1;
       }
 
