@@ -228,6 +228,14 @@ DOS problems
       of helper functions from the core lib. The djgpp DXE format is nowhere 
       near flexible enough to support this, and I don't want to make Allegro 
       dependent on any other dynamic linking packages.
+<h4><li>
+@@   I get an "out of environment space" error when I run fix.bat or 
+   vcvars32.bat!
+</h4>
+      Well duh, you need to increase the size of your environment then :-) 
+      You can do this by changing the settings for your DOS box (click the 
+      system menu and select "properties"), or at startup in your config.sys 
+      file (eg. "shell=c:\command.com /e:8192").
 </ul>
 
 
