@@ -353,8 +353,6 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
       *r = *g = *b = (int)v;
    }
    else {
-      while (h < 0)
-	 h += 360;
       h = fmod(h, 360) / 60.0;
       i = (int)h;
       f = h - i;
