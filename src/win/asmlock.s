@@ -235,7 +235,7 @@ FUNC (gfx_gdi_write_bank)
 
       /* lock the surface */
       pushl %edx
-      call GLOBL(gfx_gdi_autolock) 
+      call *GLOBL(ptr_gfx_gdi_autolock) 
       popl %edx
 
    Locked_gdi:
@@ -259,7 +259,7 @@ FUNC (gfx_gdi_unwrite_bank)
 
       /* unlock surface */
       pushl %edx
-      call GLOBL(gfx_gdi_unlock) 
+      call *GLOBL(ptr_gfx_gdi_unlock) 
       popl %edx
       
       /* clear the autolock flag */

@@ -27,6 +27,10 @@ extern void gfx_gdi_write_bank(void);
 extern void gfx_gdi_unwrite_bank(void);
 
 /* exported only for asmlock.s */
+static void gfx_gdi_autolock(struct BITMAP* bmp);
+static void gfx_gdi_unlock(struct BITMAP* bmp);
+void (*ptr_gfx_gdi_autolock) (struct BITMAP* bmp) = gfx_gdi_autolock;
+void (*ptr_gfx_gdi_unlock) (struct BITMAP* bmp) = gfx_gdi_unlock;
 char *gdi_dirty_lines = NULL; /* used in WRITE_BANK() */
 
 
@@ -378,7 +382,7 @@ static void gdi_update_window(RECT *rect)
 
 /* gfx_gdi_lock:
  */
-void gfx_gdi_lock(struct BITMAP *bmp)
+static void gfx_gdi_lock(struct BITMAP *bmp)
 {
    /* to prevent the drawing threads and the rendering proc
       from concurrently accessing the dirty lines array */
@@ -408,7 +412,7 @@ void gfx_gdi_lock(struct BITMAP *bmp)
 
 /* gfx_gdi_autolock:
  */
-void gfx_gdi_autolock(struct BITMAP *bmp)
+static void gfx_gdi_autolock(struct BITMAP *bmp)
 {
    gfx_gdi_lock(bmp);
    bmp->id |= BMP_ID_AUTOLOCK;
@@ -418,7 +422,7 @@ void gfx_gdi_autolock(struct BITMAP *bmp)
 
 /* gfx_gdi_unlock:
  */
-void gfx_gdi_unlock(struct BITMAP *bmp)
+static void gfx_gdi_unlock(struct BITMAP *bmp)
 {
    if (lock_nesting > 0) {
       lock_nesting--;
