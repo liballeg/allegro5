@@ -31,11 +31,6 @@ Linux todos:
 ---------------------------------------------------------------------------
 
 - Enable autodetection for SVGAlib driver.
-- Fix strange fb_init bug when user request a non-existant resolution in
-  his /etc/fb.modes file. Oh well, this doesn't seem to be so important,
-  since it's pretty inexpensive to write a correct fb.modes file and quite
-  rare to request exotic resolutions, but should be dealt with at least
-  before 4.0.
 - Rewrite GGI driver or remove it
 - keyboard set_rate
 - Find out more about sched_yield

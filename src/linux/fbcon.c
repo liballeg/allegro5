@@ -717,18 +717,24 @@ static char *get_line (FILE *file)
 {
    static char buffer[1024];
    char *ch;
-   if (feof (file)) return NULL;
-   fgets (buffer, sizeof buffer, file);
-   if (!strchr (buffer, '\n')) {
+
+   ASSERT (file);
+   if (!fgets (buffer, sizeof (buffer), file))
+      return 0;
+
+   /* if there's no eol, get one before continuing */
+   if (!strchr (buffer, '\n') && strlen (buffer) == 1 + sizeof (buffer)) {
+      char waste[128], *ret;
+
       do {
-	 fgets (buffer, sizeof buffer, file);
-      } while (!strchr (buffer, '\n'));
-      return NULL;
+	 ret = fgets (waste, sizeof (waste), file);
+      } while (ret && !strchr (waste, '\n'));
+      /* this doesn't actually exit because we still have buffer */
    }
-   ch = strchr (buffer, '#');
-   if (ch) *ch = '\0';
-   ch = strchr (buffer, '\n');
-   if (ch) *ch = '\0';
+   
+   if ((ch = strpbrk (buffer, "#\n")))
+      *ch = 0;
+      
    ch = buffer;
    while (uisspace(*ch)) ch++;
    return ch;
