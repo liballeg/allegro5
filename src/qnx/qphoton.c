@@ -370,19 +370,23 @@ void qnx_ph_vsync(void)
 void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesync)
 {
    int i;
-
+   int mode = Pg_PALSET_HARDLOCKED;
+   
    for (i=from; i<=to; i++) {
       ph_palette[i] = (p[i].r << 18) | (p[i].g << 10) | (p[i].b << 2);
    }
    if (retracesync) {
       PgWaitVSync();
    }
-   if ((desktop_depth != 8) && (ph_window_context)) {
-      _set_colorconv_palette(p, from, to);
-      ph_update_window(NULL);
+   if (ph_gfx_mode == PH_GFX_WINDOW) {
+      if (desktop_depth != 8) {
+         _set_colorconv_palette(p, from, to);
+         ph_update_window(NULL);
+      }
+      mode |= Pg_PALSET_FORCE_EXPOSE;
    }
    if (desktop_depth == 8) {
-      PgSetPalette(ph_palette, 0, from, to - from + 1, Pg_PALSET_HARDLOCKED, 0);
+      PgSetPalette(ph_palette, 0, from, to - from + 1, mode, 0);
    }
    PgFlush();
 }
