@@ -29,55 +29,25 @@ AL_FUNC(int, _WinMain, (void *_main, void *hInst, void *hPrev, char *Cmd, int nS
 
 
 #if (!defined ALLEGRO_NO_MAGIC_MAIN) && (!defined ALLEGRO_SRC)
+
    #define ALLEGRO_MAGIC_MAIN
    #define main _mangled_main
    #undef END_OF_MAIN
 
-   #ifdef ALLEGRO_GCC
+   /* disable strict pointer typing because of the vague prototype below */
+   #define NO_STRICT
 
-      #ifdef _WINBASE_H
-
-         /* GCC version, using __attribute__ ((stdcall)) */
-         #define END_OF_MAIN()                                                                             \
-                                                                                                           \
-            int __attribute__ ((stdcall)) WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR Cmd, int nShow)  \
-            {                                                                                              \
-               return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);                           \
-            }
-
-      #else
-
-         /* disable strict pointer typing because of the vague prototype below */
-         #define NO_STRICT
-
-         #ifdef __cplusplus
-            extern "C" int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
-         #endif
-
-         /* GCC version, using __attribute__ ((stdcall)) */
-         #define END_OF_MAIN()                                                                     \
-                                                                                                   \
-            int __attribute__ ((stdcall)) WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
-            {                                                                                      \
-               return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);                   \
-            }
-
-      #endif
-
-   #else
-
-      /* disable strict pointer typing because of the vague prototype below */
-      #define NO_STRICT
-
-      /* MSVC and BCC32 version, using __stdcall */
-      #define END_OF_MAIN()                                                        \
-                                                                                   \
-         int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)     \
-         {                                                                         \
-            return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);      \
-         }
-
+   #ifdef __cplusplus
+      extern "C" int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow);
    #endif
+
+   #define END_OF_MAIN()                                                     \
+                                                                             \
+      int __stdcall WinMain(void *hInst, void *hPrev, char *Cmd, int nShow)  \
+      {                                                                      \
+         return _WinMain((void *)_mangled_main, hInst, hPrev, Cmd, nShow);   \
+      }
+
 #endif
 
 
