@@ -17,7 +17,6 @@ General (Platform independant) todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
-- Mouse pointer update ratio extremely slow when using GFX_GDI driver
 - Keyboard gets "stuck" under Windows 2000
 - Window close button
 

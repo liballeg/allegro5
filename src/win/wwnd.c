@@ -36,6 +36,8 @@ int wnd_paint_back = FALSE;
 
 struct WIN_GFX_DRIVER *win_gfx_driver = NULL;
 
+CRITICAL_SECTION gfx_crit_sect;
+
 #define ALLEGRO_WND_CLASS "AllegroWindow"
 static HWND user_wnd = NULL;
 static WNDPROC user_wnd_proc = NULL;
@@ -360,6 +362,9 @@ int init_directx_window(void)
       allegro_wnd = user_wnd;
    }
    else {
+      /* initialize gfx critical section */
+      InitializeCriticalSection(&gfx_crit_sect);
+
       /* create window thread */
       events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);        /* acknowledges that thread is up */
       events[1] = (HANDLE) _beginthread(wnd_thread_proc, 0, events[0]);
@@ -408,5 +413,7 @@ void exit_directx_window(void)
       /* wait until the window thread ends */
       WaitForSingleObject(wnd_thread, INFINITE);
       wnd_thread = NULL;
+
+      DeleteCriticalSection(&gfx_crit_sect);
    }
 }

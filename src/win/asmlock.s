@@ -8,7 +8,7 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Asm functions for DirectDraw bitmap locking.
+ *      Asm functions for Windows bitmap locking.
  *
  *      By Isaac Cruz.
  *
@@ -81,10 +81,9 @@ FUNC (gfx_directx_unwrite_bank)
 FUNC (gfx_directx_write_bank_win)
       
       pushal
-      movl GLOBL(dirty_lines), %ebx
-      movl BMP_YOFFSET(%edx), %ecx
-      leal (%ebx,%ecx,4), %ebx  
-      movl $1, (%ebx,%eax,4)   /* dirty_lines[line] = 1; (line has changed) */
+      movl GLOBL(wd_dirty_lines), %ebx
+      addl BMP_YOFFSET(%edx), %ebx
+      movb $1, (%ebx,%eax)   /* wd_dirty_lines[line] = 1; (line has changed) */
       
       /* check whether is locked already */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
@@ -180,26 +179,26 @@ update_dirty_lines:
       subl $16, %esp  /* allocate a RECT structure */
 
       movl $0, RECT_LEFT
-      movl (%eax), %ecx       /* ecx = pseudo_screen->w */
+      movl (%eax), %ecx                /* ecx = pseudo_screen->w */
       movl %ecx, RECT_RIGHT
-      movl GLOBL(dirty_lines), %ebx    /* ebx = dirty_lines */
+      movl GLOBL(wd_dirty_lines), %ebx /* ebx = wd_dirty_lines   */
       movl BMP_H(%eax), %esi           /* esi = pseudo_screen->h */
       movl $0, %edi  
       
    _align_
    next_line:
-      movl (%ebx,%edi,4), %eax  /* eax = dirty_lines[edi] */
-      testl %eax, %eax   /* is dirty? */
-      jz test_end  /* no ! */
+      movb (%ebx,%edi), %al  /* al = wd_dirty_lines[edi] */
+      testb %al, %al         /* is dirty? */
+      jz test_end            /* no ! */
 
       movl %edi, RECT_TOP
    _align_
    loop_dirty_lines:
-      movl $0, (%ebx,%edi,4)   /* dirty_lines[edi] = 0 */
+      movb $0, (%ebx,%edi)   /* wd_dirty_lines[edi] = 0  */
       incl %edi
-      movl (%ebx,%edi,4), %eax  /* eax = dirty_lines[edi] */
-      testl %eax, %eax    /* is still dirty? */
-      jnz loop_dirty_lines  /* yes ! */
+      movb (%ebx,%edi), %al  /* al = wd_dirty_lines[edi] */
+      testb %al, %al         /* is still dirty? */
+      jnz loop_dirty_lines   /* yes ! */
 
       movl %edi, RECT_BOTTOM
       leal RECT_LEFT, %eax
@@ -214,5 +213,59 @@ update_dirty_lines:
       jge next_line    /* no ! */
       
       addl $16, %esp
+
+      ret
+
+
+
+/* gfx_gdi_write_bank:
+ *  edx = bitmap
+ *  eax = line
+ */
+FUNC (gfx_gdi_write_bank)
+      
+      pushal
+      movl GLOBL(gdi_dirty_lines), %ebx
+      addl BMP_YOFFSET(%edx), %ebx
+      movb $1, (%ebx,%eax)   /* gdi_dirty_lines[line] = 1; (line has changed) */
+      
+      /* check whether is locked already */
+      testl $BMP_ID_LOCKED, BMP_ID(%edx)
+      jnz Locked_gdi
+
+      /* lock the surface */
+      pushl %edx
+      call GLOBL(gfx_gdi_autolock) 
+      popl %edx
+
+   Locked_gdi:
+      popal
+      /* get pointer to the video memory */
+      movl BMP_LINE(%edx,%eax,4), %eax
+      
+      ret
+
+
+
+/* gfx_gdi_unwrite_bank:
+ *  edx = bmp
+ */
+FUNC (gfx_gdi_unwrite_bank)
+      pushal
+
+      /* only unlock bitmaps that were autolocked */
+      testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
+      jz NoUnlock_gdi
+
+      /* unlock surface */
+      pushl %edx
+      call GLOBL(gfx_gdi_unlock) 
+      popl %edx
+      
+      /* clear the autolock flag */
+      andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
+
+   NoUnlock_gdi:
+      popal
 
       ret

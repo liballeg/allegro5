@@ -65,11 +65,11 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
    
    /* only for windowed mode */
    if (dest_parent == pseudo_screen) {
-      src_rect.left  = dest_parent_x;
-      src_rect.top   = dest_parent_y;
-      src_rect.right = dest_parent_x + width;
-      src_rect.bottom= dest_parent_y + height;
-      update_window(&src_rect);
+      src_rect.left   = dest_parent_x;
+      src_rect.top    = dest_parent_y;
+      src_rect.right  = dest_parent_x + width;
+      src_rect.bottom = dest_parent_y + height;
+      win_gfx_driver->paint(&src_rect);
    }
 }
 
@@ -130,8 +130,7 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
 
       /* only for windowed mode */
       if (dest_parent == pseudo_screen)
-         update_window(&dest_rect);
-
+         win_gfx_driver->paint(&dest_rect);
    }
    else {
       /* have to use the original software version */
@@ -228,8 +227,7 @@ static void ddraw_clear_to_color(BITMAP * bitmap, int color)
 
    /* only for windowed mode */
    if (parent == pseudo_screen)
-      update_window(&dest_rect);
-
+      win_gfx_driver->paint(&dest_rect);
 }
 
 
@@ -309,7 +307,7 @@ static void ddraw_rectfill(BITMAP *bitmap, int x1, int y1, int x2, int y2, int c
 
    /* only for windowed mode */
    if (parent == pseudo_screen)
-      update_window(&dest_rect);
+      win_gfx_driver->paint(&dest_rect);
 }
 
 
@@ -377,7 +375,7 @@ static void ddraw_hline(BITMAP *bitmap, int x1, int y, int x2, int color)
 
    /* only for windowed mode */
    if (parent == pseudo_screen)
-      update_window(&dest_rect);
+      win_gfx_driver->paint(&dest_rect);
 }
 
 
@@ -444,7 +442,7 @@ static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
 
    /* only for windowed mode */
    if (parent == pseudo_screen)
-      update_window(&dest_rect);
+      win_gfx_driver->paint(&dest_rect);
 }
 
 

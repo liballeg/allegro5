@@ -19,9 +19,11 @@
 
 
 BITMAP* pseudo_screen = NULL;   /* for page-flipping          */
+
+/* exported only for asmlock.s */
 int* allegro_palette = NULL;    /* for conversion from 8-bit  */
 int* rgb_scale_5335 = NULL;     /* for conversion from 16-bit */
-int* dirty_lines = NULL;        /* used in WRITE_BANK         */
+char* wd_dirty_lines = NULL;    /* used in WRITE_BANK()       */
 void (*update_window) (RECT* rect) = NULL;  /* window updater */
 
 
@@ -150,14 +152,16 @@ static void update_window_hw(RECT* rect)
 {
    RECT dest_rect;
 
-   if (rect) {
+   if (!pseudo_screen)
+      return;
+
+   if (rect)
       dest_rect = *rect;
-   }
    else {
       dest_rect.left   = 0;
-      dest_rect.right  = pseudo_screen->w;
+      dest_rect.right  = gfx_directx_win.w;
       dest_rect.top    = 0;
-      dest_rect.bottom = pseudo_screen->h;
+      dest_rect.bottom = gfx_directx_win.h;
    }
 
    ClientToScreen(allegro_wnd, (LPPOINT)&dest_rect);
@@ -233,6 +237,9 @@ static void update_window_ex(RECT* rect)
 {
    RECT src_rect, dest_rect;
 
+   if (!pseudo_screen)
+      return;
+
    if (rect) {
       /* align the rectangle */
       src_rect.left   = rect->left & 0xfffffffc;
@@ -242,9 +249,9 @@ static void update_window_ex(RECT* rect)
    }
    else {
       src_rect.left   = 0;
-      src_rect.right  = pseudo_screen->w;
+      src_rect.right  = gfx_directx_win.w;
       src_rect.top    = 0;
-      src_rect.bottom = pseudo_screen->h;
+      src_rect.bottom = gfx_directx_win.h;
    }
 
    dest_rect = src_rect; 
@@ -584,13 +591,13 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    /* adjust window */
-   wnd_paint_back = TRUE;
    win_size.left = wnd_x = 32;
    win_size.right = 32 + w;
    win_size.top = wnd_y = 32;
    win_size.bottom = 32 + h;
    wnd_width = w;
    wnd_height = h;
+   wnd_paint_back = TRUE; 
 
    /* retrieve the size of the decorated window */
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
@@ -656,8 +663,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
 
    /* the last flag serves as end of loop delimiter */ 
-   dirty_lines = malloc(4*(h+1));
-   memset(dirty_lines, 0, 4*(h+1));
+   wd_dirty_lines = calloc(h+1, sizeof(char));
 
    /* set default switching policy */
    wnd_windowed = TRUE;
@@ -683,7 +689,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
 
 
 
-/* gfx_directx_exit:
+/* gfx_directx_win_exit:
  */
 static void gfx_directx_win_exit(struct BITMAP *b)
 { 
@@ -696,10 +702,10 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    win_gfx_driver = NULL;
 
    /* destroy dirty lines array */   
-   free(dirty_lines);
-   dirty_lines = NULL;
+   free(wd_dirty_lines);
+   wd_dirty_lines = NULL;
 
-   /* destroy the offscreen backbuffer used in windowed mode */
+   /* destroy the offscreen backbuffer */
    gfx_directx_destroy_surf(offscreen_surface);
    offscreen_surface = NULL;
    pseudo_screen = NULL;

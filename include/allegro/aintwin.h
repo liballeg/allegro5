@@ -52,7 +52,7 @@ AL_FUNC(int, get_dx_ver, (void));
 AL_FUNC(void, set_sync_timer_freq, (int freq));
 AL_FUNC(void, restore_window_style, (void));
 
-/* Stuff moved over from wddraw.h */
+/* main window */
 AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
 AL_VAR(int, wnd_width);
@@ -65,11 +65,11 @@ struct WIN_GFX_DRIVER {
    void (*switch_in)(void);
    void (*switch_out)(void);
    void (*enter_size_move)(void);
-   void (*move)(int, int, int, int);
+   void (*move)(int x, int y, int w, int h);
    void (*iconify)(void);
    void (*init_menu_popup)(void);
-   void (*menu_select)(int, int, int, int);
-   void (*paint)(RECT *);
+   void (*menu_select)(int x, int y, int w, int h);
+   void (*paint)(RECT *rect);
 };   
 
 AL_VAR(struct WIN_GFX_DRIVER *, win_gfx_driver);
@@ -80,6 +80,7 @@ AL_VAR(struct WIN_GFX_DRIVER *, win_gfx_driver);
 AL_VAR(CRITICAL_SECTION, gfx_crit_sect);
 AL_VAR(char *, pseudo_surf_mem);
 
+/* stuff moved over from wddraw.h */
 typedef struct BMP_EXTRA_INFO {
    LPDIRECTDRAWSURFACE2 surf;
    struct BMP_EXTRA_INFO *next;

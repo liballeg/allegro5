@@ -103,7 +103,6 @@ AL_VAR(BMP_EXTRA_INFO *, directx_bmp_list);
 
 
 /* windowed mode */
-AL_FUNCPTR(void, update_window, (RECT* rect));
 AL_FUNC(void,  _update_8_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
 AL_FUNC(void, _update_24_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
 AL_FUNC(void, _update_32_to_15, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
@@ -118,10 +117,6 @@ AL_FUNC(void, _update_16_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_
 AL_FUNC(void, _update_24_to_32, (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc));
 
 AL_VAR(BITMAP*, pseudo_screen);
-AL_VAR(int*, allegro_palette);
-AL_VAR(int*, rgb_scale_5335);
-AL_VAR(int*, dirty_lines);
 
 
 #endif
-
