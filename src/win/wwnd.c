@@ -62,12 +62,6 @@ static int old_style = 0;
 /* custom window msgs */
 #define SWITCH_TIMER  1
 static UINT msg_call_proc = 0;
-static UINT msg_acquire_keyboard = 0;
-static UINT msg_unacquire_keyboard = 0;
-static UINT msg_acquire_mouse = 0;
-static UINT msg_unacquire_mouse = 0;
-static UINT msg_acquire_joystick = 0;
-static UINT msg_unacquire_joystick = 0;
 static UINT msg_set_syscursor = 0;
 static UINT msg_suicide = 0;
 
@@ -173,74 +167,23 @@ static void exit_window_modules(struct WINDOW_MODULES *wm)
 
 
 /* wnd_call_proc:
- *  Lets call a procedure from the window thread.
+ *  Instructs the window thread to call the specified procedure, and
+ *  wait until the procedure has returned.
  */
 int wnd_call_proc(int (*proc) (void))
 {
-   if (proc)
-      return SendMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
-   else
-      return -1;
+   return SendMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
 }
 
 
 
-/* wnd_acquire_keyboard:
- *  Posts msg to window to acquire the keyboard device.
+/* wnd_schedule_proc:
+ *  Instructs the window thread to call the specified procedure, but
+ *  doesn't wait until the procedure has returned.
  */
-void wnd_acquire_keyboard(void)
+void wnd_schedule_proc(int (*proc) (void))
 {
-   PostMessage(allegro_wnd, msg_acquire_keyboard, 0, 0);
-}
-
-
-
-/* wnd_unacquire_keyboard:
- *  Posts msg to window to unacquire the keyboard device.
- */
-void wnd_unacquire_keyboard(void)
-{
-   PostMessage(allegro_wnd, msg_unacquire_keyboard, 0, 0);
-}
-
-
-
-/* wnd_acquire_mouse:
- *  Posts msg to window to acquire the mouse device.
- */
-void wnd_acquire_mouse(void)
-{
-   PostMessage(allegro_wnd, msg_acquire_mouse, 0, 0);
-}
-
-
-
-/* wnd_unacquire_mouse:
- *  Posts msg to window to unacquire the mouse device.
- */
-void wnd_unacquire_mouse(void)
-{
-   PostMessage(allegro_wnd, msg_unacquire_mouse, 0, 0);
-}
-
-
-
-/* wnd_acquire_joystick:
- *  Posts msg to window to acquire the joystick device.
- */
-void wnd_acquire_joystick(void)
-{
-   PostMessage(allegro_wnd, msg_acquire_joystick, 0, 0);
-}
-
-
-
-/* wnd_unacquire_joystick:
- *  Posts msg to window to unacquire the joystick device.
- */
-void wnd_unacquire_joystick(void)
-{
-   PostMessage(allegro_wnd, msg_unacquire_joystick, 0, 0);
+   PostMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
 }
 
 
@@ -264,24 +207,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
    if (message == msg_call_proc)
       return ((int (*)(void))wparam) ();
-
-   if (message == msg_acquire_keyboard)
-      return key_dinput_acquire();
-
-   if (message == msg_unacquire_keyboard)
-      return key_dinput_unacquire();
-
-   if (message == msg_acquire_mouse)
-      return mouse_dinput_acquire();
-
-   if (message == msg_unacquire_mouse)
-      return mouse_dinput_unacquire();
-
-   if (message == msg_acquire_joystick)
-      return joystick_dinput_acquire();
-
-   if (message == msg_unacquire_joystick)
-      return joystick_dinput_unacquire();
 
    if (message == msg_set_syscursor)
       return mouse_set_syscursor(wparam);
@@ -548,12 +473,6 @@ int init_directx_window(void)
 
    /* setup globals */
    msg_call_proc = RegisterWindowMessage("Allegro call proc");
-   msg_acquire_keyboard = RegisterWindowMessage("Allegro keyboard acquire proc");
-   msg_unacquire_keyboard = RegisterWindowMessage("Allegro keyboard unacquire proc");
-   msg_acquire_mouse = RegisterWindowMessage("Allegro mouse acquire proc");
-   msg_unacquire_mouse = RegisterWindowMessage("Allegro mouse unacquire proc");
-   msg_acquire_joystick = RegisterWindowMessage("Allegro joystick acquire proc");
-   msg_unacquire_joystick = RegisterWindowMessage("Allegro joystick unacquire proc");
    msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
@@ -743,7 +662,7 @@ void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
  */
 void win_grab_input(void)
 {
-   wnd_acquire_keyboard();
-   wnd_acquire_mouse();
-   wnd_acquire_joystick();
+   wnd_schedule_proc(key_dinput_acquire);
+   wnd_schedule_proc(mouse_dinput_acquire);
+   wnd_schedule_proc(joystick_dinput_acquire);
 }

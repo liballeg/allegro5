@@ -106,14 +106,9 @@ AL_FUNC(int, thread_switch_out, (void));
 
 
 /* main window routines */
-AL_FUNC(void, wnd_acquire_keyboard, (void));
-AL_FUNC(void, wnd_unacquire_keyboard, (void));
-AL_FUNC(void, wnd_acquire_mouse, (void));
-AL_FUNC(void, wnd_unacquire_mouse, (void));
-AL_FUNC(void, wnd_acquire_joystick, (void));
-AL_FUNC(void, wnd_unacquire_joystick, (void));
-AL_FUNC(void, wnd_set_syscursor, (int state));
 AL_FUNC(int, wnd_call_proc, (int (*proc)(void)));
+AL_FUNC(void, wnd_schedule_proc, (int (*proc)(void)));
+AL_FUNC(void, wnd_set_syscursor, (int state));
 
 
 /* input routines */

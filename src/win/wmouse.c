@@ -286,7 +286,7 @@ static void mouse_dinput_handle(void)
    if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
       /* reacquire device */
       _TRACE("mouse device not acquired or lost\n");
-      wnd_acquire_mouse();
+      wnd_schedule_proc(mouse_dinput_acquire);
    }
    else if (FAILED(hr)) {  /* other error? */
       _TRACE("unexpected error while filling mouse message buffer\n");
@@ -458,7 +458,7 @@ static int mouse_dinput_exit(void)
       input_unregister_event(mouse_input_event);
 
       /* unacquire device */
-      wnd_unacquire_mouse();
+      wnd_call_proc(mouse_dinput_unacquire);
 
       /* now it can be released */
       IDirectInputDevice_Release(mouse_dinput_device);
@@ -561,9 +561,9 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Acquire the device */
-   _mouse_on = TRUE;
+   wnd_call_proc(mouse_dinput_acquire);
    wnd_set_syscursor(FALSE);
-   wnd_acquire_mouse();
+   _mouse_on = TRUE;
 
    return 0;
 

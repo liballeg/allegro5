@@ -339,8 +339,9 @@ static void sys_directx_save_console_state(void)
 static void sys_directx_restore_console_state(void)
 {
    /* unacquire input devices */
-   wnd_unacquire_keyboard();
-   wnd_unacquire_mouse();
+   wnd_schedule_proc(key_dinput_unacquire);
+   wnd_schedule_proc(mouse_dinput_unacquire);
+   wnd_schedule_proc(joystick_dinput_unacquire);
 
    /* re-size and hide window */
    SetWindowPos(allegro_wnd, HWND_TOP, wnd_rect.left, wnd_rect.top,

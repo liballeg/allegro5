@@ -199,7 +199,7 @@ static int joystick_dinput_poll(void)
          if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
 	    /* reacquire device */
 	    _TRACE("joystick device not acquired or lost\n");
-	    wnd_acquire_joystick();
+	    wnd_schedule_proc(joystick_dinput_acquire);
          }
          else {
             _TRACE("unexpected error while polling the joystick\n");
@@ -413,7 +413,7 @@ static int joystick_dinput_init(void)
    }
 
    /* acquire the devices */
-   wnd_acquire_joystick();
+   wnd_call_proc(joystick_dinput_acquire);
 
    return (dinput_joy_num == 0);
 }
@@ -428,7 +428,7 @@ static void joystick_dinput_exit(void)
    int i, j;
 
    /* unacquire the devices */
-   wnd_unacquire_joystick();
+   wnd_call_proc(joystick_dinput_unacquire);
 
    /* destroy the devices */
    for (i=0; i<dinput_joy_num; i++) {

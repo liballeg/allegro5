@@ -180,7 +180,7 @@ static void key_dinput_handle(void)
    if ((hr == DIERR_NOTACQUIRED) || (hr == DIERR_INPUTLOST)) {
       /* reacquire device */
       _TRACE("keyboard device not acquired or lost\n");
-      wnd_acquire_keyboard();
+      wnd_schedule_proc(key_dinput_acquire);
    }
    else if (FAILED(hr)) {  /* other error? */
       _TRACE("unexpected error while filling keyboard scancode buffer\n");
@@ -278,7 +278,7 @@ static int key_dinput_exit(void)
       input_unregister_event(key_input_event);
 
       /* unacquire device */
-      wnd_unacquire_keyboard();
+      wnd_call_proc(key_dinput_unacquire);
 
       /* now it can be released */
       IDirectInputDevice_Release(key_dinput_device);
@@ -358,7 +358,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Acquire the device */
-   wnd_acquire_keyboard();
+   wnd_call_proc(key_dinput_acquire);
 
    return 0;
 
