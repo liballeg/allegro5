@@ -2498,13 +2498,20 @@ information for more details.
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
 @xref enable_hardware_cursor, set_mouse_cursor_bitmap
 @shortdesc Tells Allegro to select software or hardware cursor drawing.
-   With this function, you can instruct Allegro to use the native system 
-   cursors rather than Allegro's custom cursor. You will need to enable this
-   functionality by calling enable_hardware_cursor(). Allegro will substitute
-   its own default cursor if the system does not support this functionality
-   or if it has not been enabled. You should check the GFX_SYSTEM_CURSOR flag
-   in gfx_capabilities after calling show_mouse() to see wether or not Allegro
-   is really using the default system cursor.
+   This function allows you to use the operating system's native mouse
+   cursors rather than some custom cursor. You will need to enable this
+   functionality by calling enable_hardware_cursor() beforehand. If the
+   operating system does not support this functionality, or if it has
+   not been enabled, then Allegro will substitute its own cursor images.
+   You can change these substitute images using set_mouse_cursor_bitmap().
+
+   Note that the effects of this function are not apparent until show_mouse()
+   is called.
+
+   To know whether the operating system's native cursor is being used,
+   or if Allegro has made a substitution, you can check the GFX_SYSTEM_CURSOR
+   flag in gfx_capabilities after calling show_mouse().
+
    The cursor argument selects the type of cursor to be displayed:
    
    <b>MOUSE_CURSOR_NONE</b><br>
@@ -2512,7 +2519,8 @@ information for more details.
    show_mouse(NULL);
    
    <b>MOUSE_CURSOR_ALLEGRO</b><br>
-   Selects the custom Allegro cursor.
+   Selects the custom Allegro cursor, i.e. the one that you set with
+   set_mouse_sprite().
    
    <b>MOUSE_CURSOR_ARROW</b><br>
    The operating system default arrow cursor.
@@ -2547,9 +2555,28 @@ information for more details.
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
 @xref enable_hardware_cursor
 @shortdesc Changes the image Allegro uses for mouse cursors.
-   This function changes the cursor image Allegro uses if select_mouse_cursor()
-   is called but no native OS cursor can be used, for instance because you
-   did not call enable_hardware_cursor().
+   This function changes the cursor image Allegro uses if
+   select_mouse_cursor() is called but no native operating system cursor
+   can be used, e.g. because you did not call enable_hardware_cursor().
+
+   The cursor argument can be one of:<br>
+   <b>MOUSE_CURSOR_ALLEGRO</b><br>
+   <b>MOUSE_CURSOR_ARROW</b><br>
+   <b>MOUSE_CURSOR_BUSY</b><br>
+   <b>MOUSE_CURSOR_QUESTION</b><br>
+   <b>MOUSE_CURSOR_EDIT</b><br>
+
+   but <i>not</i> MOUSE_CURSOR_NONE.
+
+   The bmp argument can either point to a valid bitmap or it can be NULL.
+   Passing a bitmap makes Allegro use that image in place of its own
+   default substition (should the operating system's native cursor
+   be unavailable). The bitmap must remain available for the duration
+   in which it could be used. Passing NULL lets Allegro revert to its
+   default substitutions.
+
+   The effect of this function will not be apparent until show_mouse() is
+   called.
 
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
