@@ -55,38 +55,38 @@ SYSTEM_DRIVER system_qnx =
    empty_string,
    empty_string,
    "QNX Realtime Platform",
-   qnx_sys_init,                    /* AL_METHOD(int, init, (void)); */
-   qnx_sys_exit,                    /* AL_METHOD(void, exit, (void)); */
-   _unix_get_executable_name,       /* AL_METHOD(void, get_executable_name, (char *output, int size)); */
-   _unix_find_resource,             /* AL_METHOD(int, find_resource, (char *dest, AL_CONST char *resource, int size)); */
-   qnx_sys_set_window_title,        /* AL_METHOD(void, set_window_title, (AL_CONST char *name)); */
-   qnx_sys_set_window_close_button, /* AL_METHOD(int, set_window_close_button, (int enable)); */
-   qnx_sys_set_window_close_hook,   /* AL_METHOD(void, set_window_close_hook, (AL_METHOD(void, proc, (void)))); */
-   qnx_sys_message,                 /* AL_METHOD(void, message, (AL_CONST char *msg)); */
-   NULL,                            /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
-   NULL,                            /* AL_METHOD(void, save_console_state, (void)); */
-   NULL,                            /* AL_METHOD(void, restore_console_state, (void)); */
-   NULL,                            /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
-   NULL,                            /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
-   NULL,                            /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
-   NULL,                            /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
-   NULL,                            /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
-   NULL,                            /* AL_METHOD(void, read_hardware_palette, (void)); */
-   NULL,                            /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
-   NULL,                            /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
-   qnx_sys_set_display_switch_mode, /* AL_METHOD(int, set_display_switch_mode, (int mode)); */
-   NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
-   qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
-   qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
-   qnx_sys_get_gfx_safe_mode,       /* AL_METHOD(void, get_gfx_safe_mode, (int *driver, struct GFX_MODE *mode)); */
-   qnx_sys_yield_timeslice,         /* AL_METHOD(void, yield_timeslice, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
-   NULL,                            /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
+   qnx_sys_init,
+   qnx_sys_exit,
+   _unix_get_executable_name,
+   _unix_find_resource,
+   qnx_sys_set_window_title,
+   qnx_sys_set_window_close_button,
+   qnx_sys_set_window_close_hook,
+   qnx_sys_message,
+   NULL,  /* AL_METHOD(void, assert, (AL_CONST char *msg)); */
+   NULL,  /* AL_METHOD(void, save_console_state, (void)); */
+   NULL,  /* AL_METHOD(void, restore_console_state, (void)); */
+   NULL,  /* AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height)); */
+   NULL,  /* AL_METHOD(void, created_bitmap, (struct BITMAP *bmp)); */
+   NULL,  /* AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height)); */
+   NULL,  /* AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent)); */
+   NULL,  /* AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap)); */
+   NULL,  /* AL_METHOD(void, read_hardware_palette, (void)); */
+   NULL,  /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
+   NULL,  /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
+   qnx_sys_set_display_switch_mode,
+   NULL,  /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
+   qnx_sys_desktop_color_depth,
+   qnx_sys_get_desktop_resolution,
+   qnx_sys_get_gfx_safe_mode,
+   qnx_sys_yield_timeslice,
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, keyboard_drivers, (void)); */
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, mouse_drivers, (void)); */
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, joystick_drivers, (void)); */
+   NULL,  /* AL_METHOD(_DRIVER_INFO *, timer_drivers, (void)); */
 };
 
 
