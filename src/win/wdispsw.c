@@ -143,7 +143,7 @@ void sys_switch_out(void)
    mode = get_display_switch_mode();
 
    if ((mode == SWITCH_AMNESIA) || (mode == SWITCH_PAUSE)) {
-      _TRACE("AMNESIA or PAUSE suspension\n");
+      _TRACE("AMNESIA or PAUSE mode suspension\n");
       ResetEvent(foreground_event);
 
       /* if the thread doesn't stop, lower its priority only if another window is active */ 
