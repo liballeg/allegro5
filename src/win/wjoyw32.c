@@ -62,7 +62,7 @@ JOYSTICK_DRIVER joystick_win32 =
 
 /* win32 joystick state */
 #define MAXJOYSTICKS 4
-#define MAXBUTTONS 10
+#define MAXBUTTONS 16
 #define MAXAXES 3
 
 struct WIN32_JOYSTICK {
@@ -364,8 +364,8 @@ static int joy_init()
    static char name_stick[] = "stick";
    static char name_hat[] = "hat";
    static char name_throttle[] = "throttle";
-   static char *name_b[] =
-   {"B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10"};
+   static char *name_b[MAXBUTTONS] = {"B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8",
+                                      "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16"};
    int n_but;
    int n_stick, n_joy, n_axes;
 
