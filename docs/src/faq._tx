@@ -485,7 +485,7 @@ General problems
       will rotate the graphic by 45 degrees.
 
 <li><font size="+1">
-@@   I can't get the d_icon_proc() GUI object to work!
+@@   I can't get the d_bitmap_proc() or d_icon_proc() GUI object to work!
 </font>
       You are probably trying to initialise the dialog structure with a 
       pointer to your bitmap, right? That won't work because the dialog is 
