@@ -5,6 +5,7 @@
 @<html>
 @<head>
 @<title>Allegro FAQ</title>
+@</head>
 @<body>
 @!html
 @!rtf
@@ -617,3 +618,5 @@ General problems
 </h4>
       See <link>http://www.talula.demon.co.uk/allegro/maillist.html</a>.
 </ul>
+@</body>
+@</html>

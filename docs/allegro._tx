@@ -8,7 +8,7 @@
 @multiplefiles
 @#
 @locale=latin1
-@h=<html><head><title>#</title><body>
+@h=<html><head><title>#</title></head><body>
 @f=<p><hr><p><a href="allegro.html">Back to Contents</a><p>
 @rtfh=Allegro - a game programming library
 @manh="version 3.9.35 (CVS)" "Allegro" "Allegro manual"
@@ -33,7 +33,7 @@
 @$@node Top, , (dir), (dir)
 @<html>
 @<head>
-@<title>Allegro - a game programming library</title>
+@<title>Allegro - a game programming library</title></head>
 @<body>
 @titlepage
 @<pre>
@@ -8021,4 +8021,5 @@ Index
 
 @html
 @text
-
+@</body>
+@</html>

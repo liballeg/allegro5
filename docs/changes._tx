@@ -5,6 +5,7 @@
 @<html>
 @<head>
 @<title>Allegro Changes</title>
+@</head>
 @<body>
 
 @heading
@@ -2147,3 +2148,5 @@ Changes from 1.x to 2.0 beta (Jan/Feb 1996)
 <li>
    There are probably lots of other things that I have forgotten about.
 </ul>
+@</body>
+@</html>

@@ -5,6 +5,7 @@
 @<html>
 @<head>
 @<title>Allegro Contributors</title>
+@</head>
 @<body>
 @<center><h1><b><i>The Hall of Fame</i></b></h1></center><hr>
 @startoutput AUTHORS
@@ -137,7 +138,7 @@ Contributors
    Provided the Russian keyboard mapping and message translation files.
 
    Dominique Biesmans (<email>Dominique.Biesmans@ping.be</a>).<br>
-   Wrote the mode-X version of draw_sprite() and the mode-X <-> linear 
+   Wrote the mode-X version of draw_sprite() and the mode-X &lt-&gt linear
    blitting functions.
 
    Doug Eleveld (<email>D.J.Eleveld@anest.azg.nl</a>).<br>
@@ -692,3 +693,5 @@ Thanks!
    without the cafetiere they gave me last Christmas :-)
 
 @endoutput THANKS
+@</body>
+@</html>

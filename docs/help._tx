@@ -5,6 +5,7 @@
 @<html>
 @<head>
 @<title>What to do when your Allegro program doesn't work</title>
+@</head>
 @<body>
 @!html
 @!rtf
@@ -328,3 +329,5 @@ Part 8 - a model of perfection
       readkey();
    }
 </pre>
+@</body>
+@</html>

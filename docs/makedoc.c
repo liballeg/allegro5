@@ -801,13 +801,15 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 		  }
 	       }
 
-	       if (!nested)
-		  hfprintf(f, "<a name=\"%s_toc\">", toc->text);
+	       /* Looks like nobody uses the %s_toc feature, which produces
+		* bad html code anyway */
+	       /*if (!nested)
+		  hfprintf(f, "<a name=\"%s_toc\">", toc->text); */
 
 	       hfprintf(f, "<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
 
-	       if (!nested)
-		  fprintf(f, "</a>");
+  	       /*if (!nested)
+		  fprintf(f, "</a>");*/
 	    }
 
 	    toc = toc->next;
@@ -1506,7 +1508,7 @@ int write_texinfo(char *filename)
 	 xref[xrefs++] = line->text;
       }
       else if (line->flags & START_TITLE_FLAG) {
-	 /* Remember where the title starts */
+	 /* remember where the title starts */
 	 title_line = line;
 	 if (!title_pass)
 	    fputs("@titlepage\n", f);

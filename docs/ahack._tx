@@ -3,8 +3,7 @@
 @# format. Read makedoc.c for a description of what is going on...
 @#
 @<html>
-@<head>
-@<title>Allegro Hacker's Guide</title>
+@<head><title>Allegro Hacker's Guide</title></head>
 @<body>
 <center><h1><b>
 The Allegro Hacker's Guide
@@ -355,3 +354,5 @@ must call _remove_exit_func() from inside your shutdown routine, or you will
 find yourself stuck in an endless loop.
 
 
+@</body>
+@</html>

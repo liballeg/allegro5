@@ -1,6 +1,7 @@
 @<html>
 @<head>
 @<title>Allegro `const'-correctness</title>
+@</head>
 @<body>
 <center><h1><b>
 Allegro `const'-correctness
@@ -133,3 +134,5 @@ list; see `How to get help' in the Allegro documentation.
 Email: lwithers@lwithers.demon.co.uk
 
 Thanks for listening :-)
+@</body>
+@</html>
