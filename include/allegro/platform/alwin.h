@@ -75,9 +75,6 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 #define TIMER_WIN32_HIGH_PERF    AL_ID('W','3','2','H')
 #define TIMER_WIN32_LOW_PERF     AL_ID('W','3','2','L')
 
-AL_VAR(TIMER_DRIVER, timer_win32_high_perf);
-AL_VAR(TIMER_DRIVER, timer_win32_low_perf);
-
 
 
 /*******************************************/
@@ -85,16 +82,12 @@ AL_VAR(TIMER_DRIVER, timer_win32_low_perf);
 /*******************************************/
 #define KEYBOARD_DIRECTX         AL_ID('D','X',' ',' ')
 
-AL_VAR(KEYBOARD_DRIVER, keyboard_directx);
-
 
 
 /*******************************************/
 /************* mouse drivers ***************/
 /*******************************************/
 #define MOUSE_DIRECTX            AL_ID('D','X',' ',' ')
-
-AL_VAR(MOUSE_DRIVER, mouse_directx);
 
 
 

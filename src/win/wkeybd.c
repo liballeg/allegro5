@@ -32,6 +32,9 @@
 #endif
 
 
+static KEYBOARD_DRIVER keyboard_directx;
+
+
 _DRIVER_INFO _keyboard_driver_list[] =
 {
    {KEYBOARD_DIRECTX, &keyboard_directx, TRUE},
@@ -45,7 +48,7 @@ static void key_directx_wait_for_input(void);
 static void key_directx_stop_wait(void);
 
 
-KEYBOARD_DRIVER keyboard_directx =
+static KEYBOARD_DRIVER keyboard_directx =
 {
    KEYBOARD_DIRECTX,
    0,

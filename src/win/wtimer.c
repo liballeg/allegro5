@@ -36,6 +36,10 @@
 #endif
 
 
+static TIMER_DRIVER timer_win32_high_perf;
+static TIMER_DRIVER timer_win32_low_perf;
+
+
 _DRIVER_INFO _timer_driver_list[] =
 {
    {TIMER_WIN32_HIGH_PERF, &timer_win32_high_perf, TRUE},
@@ -50,7 +54,7 @@ static void tim_win32_exit(void);
 static void tim_win32_rest(unsigned int time, AL_METHOD(void, callback, (void)));
 
 
-TIMER_DRIVER timer_win32_high_perf =
+static TIMER_DRIVER timer_win32_high_perf =
 {
    TIMER_WIN32_HIGH_PERF,
    empty_string,
@@ -63,7 +67,7 @@ TIMER_DRIVER timer_win32_high_perf =
 };
 
 
-TIMER_DRIVER timer_win32_low_perf =
+static TIMER_DRIVER timer_win32_low_perf =
 {
    TIMER_WIN32_LOW_PERF,
    empty_string,
