@@ -144,6 +144,7 @@ static void joy_exit (void)
 
 static void set_axis (JOYSTICK_AXIS_INFO *axis, int value)
 {
+	ASSERT(axis);
 	axis->pos = value * 127 / 32767;
 	axis->d1 = (value < -8192);
 	axis->d2 = (value > 8192);

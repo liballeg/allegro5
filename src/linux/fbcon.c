@@ -578,6 +578,7 @@ static void fb_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
    unsigned short r[256], g[256], b[256];
    struct fb_cmap cmap;
    int i;
+   ASSERT(p);
 
    cmap.start = from;
    cmap.len = to-from+1;
@@ -735,8 +736,8 @@ static char *get_line (FILE *file)
 {
    static char buffer[1024];
    char *ch;
-
    ASSERT (file);
+
    if (!fgets (buffer, sizeof (buffer), file))
       return 0;
 
@@ -914,6 +915,7 @@ static void set_default_timings (void)
 static int update_timings(struct fb_var_screeninfo *mode)
 {
    struct timings *t;
+   ASSERT(mode);
 
    set_default_timings();
    t = _fb_get_timings (mode->xres, mode->yres);

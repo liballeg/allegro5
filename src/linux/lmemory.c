@@ -64,6 +64,7 @@ int __al_linux_shutdown_memory (void)
  */
 int __al_linux_map_memory (struct MAPPED_MEMORY *info)
 {
+	ASSERT(info);
 	info->data = mmap (0, info->size, info->perms, MAP_SHARED, mem_fd, info->base);
 	if (info->data == MAP_FAILED) {
 		info->data = NULL;
@@ -78,6 +79,7 @@ int __al_linux_map_memory (struct MAPPED_MEMORY *info)
  */
 int __al_linux_unmap_memory (struct MAPPED_MEMORY *info)
 {
+	ASSERT(info);
 	if (info->data == NULL)
 		return 0;
 	if (!munmap (info->data, info->size)) {

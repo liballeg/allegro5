@@ -131,7 +131,11 @@ void __al_linux_get_vga_regs(MODE_REGISTERS *regs)
 static void __al_linux_save_palette (MODE_REGISTERS *regs)
 {
    int c;
-   unsigned char *ptr = regs->palette.vga;
+   unsigned char *ptr;
+   ASSERT(regs);
+
+   ptr = regs->palette.vga;
+
    for (c = 0; c < 256; c++) {
       outportb (0x3c7, c);
       *ptr++ = inportb (0x3c9);
@@ -143,7 +147,11 @@ static void __al_linux_save_palette (MODE_REGISTERS *regs)
 static void __al_linux_restore_palette (MODE_REGISTERS *regs)
 {
    int c;
-   unsigned char *ptr = regs->palette.vga;
+   unsigned char *ptr;
+   ASSERT(regs);
+
+   ptr = regs->palette.vga;
+
    for (c = 0; c < 256; c++) {
       outportb (0x3c8, c);
       outportb (0x3c9, *ptr++);
@@ -155,7 +163,8 @@ static void __al_linux_restore_palette (MODE_REGISTERS *regs)
 
 static inline void slow_byte_copy(char *from, char *to, unsigned count)
 {
-   unsigned      i;
+   unsigned int i;
+   ASSERT(from && to);
 
    for (i = 0; i < count; i++) {
       *to++ = *from++;
@@ -170,6 +179,8 @@ static inline void slow_byte_copy(char *from, char *to, unsigned count)
  */
 static void __al_linux_save_text_font (MODE_REGISTERS *regs)
 {
+   ASSERT(regs);
+
    if (!regs->text_font1)
       regs->text_font1 = (unsigned char*) malloc (VGA_FONT_SIZE);
    if (!regs->text_font2)
@@ -201,6 +212,8 @@ static void __al_linux_save_text_font (MODE_REGISTERS *regs)
  */
 static void __al_linux_restore_text_font(MODE_REGISTERS *regs)
 {
+   ASSERT(regs);
+
    /* Same as in the previous routing.  We're restoring the font in a 
     * 4bpp mode to have access to separate memory planes. */
    inportb(_is1);

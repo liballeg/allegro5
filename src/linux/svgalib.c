@@ -106,6 +106,9 @@ int _module_dont_unload_me_dirty_hack = 0;
  */
 unsigned long _svgalib_read_line(BITMAP *bmp, int line)
 {
+   ASSERT(bmp);
+   ASSERT(line>=0 && line<bmp->h);
+
    return (unsigned long) (bmp->line[line]);
 }
 
@@ -116,7 +119,11 @@ unsigned long _svgalib_read_line(BITMAP *bmp, int line)
  */
 unsigned long _svgalib_write_line(BITMAP *bmp, int line)
 {
-   int new_line = line + bmp->y_ofs;
+   int new_line;
+   ASSERT(bmp);
+   ASSERT(line>=0 && line<bmp->h);
+
+   new_line = line + bmp->y_ofs;
    if ((new_line != last_line) && (last_line >= 0))
       vga_drawscansegment(screen_buffer + last_line * bytes_per_line, 0, last_line, bytes_per_line);
    last_line = new_line;
@@ -130,6 +137,8 @@ unsigned long _svgalib_write_line(BITMAP *bmp, int line)
  */
 void _svgalib_unwrite_line(BITMAP *bmp)
 {
+   ASSERT(bmp);
+
    if (last_line >= 0) {
       vga_drawscanline(last_line, screen_buffer + last_line * bytes_per_line);
       last_line = -1;
@@ -226,6 +235,8 @@ static int get_depth(int ncolors, int bytesperpixel)
 static int mode_ok(vga_modeinfo *info, int w, int h, int v_w, int v_h, 
 		   int color_depth)
 {
+   ASSERT(info);
+
    return ((color_depth == get_depth(info->colors, info->bytesperpixel))
 	   && (((info->width == w) && (info->height == h))
 	       || ((w == 0) && (h == 0)))
@@ -550,6 +561,10 @@ static void svga_vsync(void)
 static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
 {
    int i;
+   ASSERT(p);
+   ASSERT(from>=0 && from<=255);
+   ASSERT(to>=0 && to<=255);
+   ASSERT(from<=to);
 
    if (vsync)
       vga_waitretrace();

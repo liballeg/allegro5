@@ -174,6 +174,8 @@ static RETSIGTYPE vt_switch_requested(int signo)
  */
 void __al_linux_acquire_bitmap(BITMAP *bmp)
 {
+	ASSERT(bmp);
+
 	__al_linux_switching_blocked++;
 }
 
@@ -184,6 +186,8 @@ void __al_linux_acquire_bitmap(BITMAP *bmp)
  */
 void __al_linux_release_bitmap(BITMAP *bmp)
 {
+	ASSERT(bmp);
+
 	__al_linux_switching_blocked--;
 	poll_console_switch();
 }

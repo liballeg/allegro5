@@ -33,6 +33,8 @@ STD_DRIVER *__al_linux_std_drivers[N_STD_DRIVERS];
 
 static void __async_disable_driver (STD_DRIVER *drv, int mode)
 {
+   ASSERT(drv);
+
    switch (mode) {
       case ASYNC_BSD:
       {
@@ -50,6 +52,8 @@ static void __async_disable_driver (STD_DRIVER *drv, int mode)
 
 static void __async_enable_driver (STD_DRIVER *drv, int mode)
 {
+   ASSERT(drv);
+
    drv->resume();
    drv->private[PRIV_ENABLED] = 1;
 

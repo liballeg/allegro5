@@ -159,6 +159,8 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
         int map;
         struct kbentry kbe;
 
+        ASSERT(buf || bytes_read==0);
+
         /* Process all keys read from left to right */
         for (ch = 0; ch < bytes_read; ch++) {
                 /* Read kernel's fake scancode */
@@ -204,7 +206,7 @@ static void process_keyboard_data (unsigned char *buf, size_t bytes_read)
                 ioctl (std_keyboard.fd, KDGKBENT, &kbe);
 
 		/* debugging */
-		TRACE("keypress: code=%3d mycode=%3d map=%2d kb_value=%04x\n", code, mycode, map, kbe.kb_value);
+		/* TRACE("keypress: code=%3d mycode=%3d map=%2d kb_value=%04x\n", code, mycode, map, kbe.kb_value); */
 
                 /* Allegro wants Alt+key to return ASCII code zero */
                 if (key[KEY_ALT])
