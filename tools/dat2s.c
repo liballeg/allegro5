@@ -141,9 +141,9 @@ static void output_bitmap(BITMAP *bmp, char *name, int global)
    fprintf(outfile, "\t.long %-16d# cr\n", bmp->w);
    fprintf(outfile, "\t.long %-16d# ct\n", 0);
    fprintf(outfile, "\t.long %-16d# cb\n", bmp->h);
-   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "__linear_vtable%d\n", bpp);
-   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "_stub_bank_switch\n");
-   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "_stub_bank_switch\n");
+   fprintf(outfile, "\t.long %-16d# bpp\n", bpp);
+   fprintf(outfile, "\t.long %-16d# write_bank\n", 0);
+   fprintf(outfile, "\t.long %-16d# read_bank\n", 0);
    fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_data\n", prefix, name);
    fprintf(outfile, "\t.long %-16d# bitmap_id\n", 0);
    fprintf(outfile, "\t.long %-16d# extra\n", 0);
@@ -294,22 +294,19 @@ static void output_font_mono(FONT_MONO_DATA *mf, char *name, int depth)
 
 static void output_font(FONT *f, char *name, int depth)
 {
-   if (f->vtable == font_vtable_mono)
-      output_font_mono(f->data, name, 0);
-   else
+   int color_flag = (f->vtable == font_vtable_color ? 1 : 0);
+
+   if (color_flag)
       output_font_color(f->data, name, 0);
+   else
+      output_font_mono(f->data, name, 0);
 
    fprintf(outfile, "# font\n");
    fprintf(outfile, ".globl " ALLEGRO_ASM_PREFIX "%s%s\n", prefix, name);
    fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s:\n", prefix, name);
    fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_data\n", prefix, name);
    fprintf(outfile, "\t.long %-16d# height\n", f->height);
-   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "_font_vtable_");
-   if (f->vtable == font_vtable_mono)
-      fprintf(outfile, "mono\n");
-   else
-      fprintf(outfile, "color\n");
-   
+   fprintf(outfile, "\t.long %-16d# color flag\n", color_flag);
    fprintf(outfile, "\n");
 }
 

@@ -24,11 +24,19 @@
 
 
 static void unload_midi(MIDI *m);
+static void initialise_datafile(DATAFILE *data);
 
 
 
 /* hack to let the grabber prevent compiled sprites from being compiled */
 int _compile_sprites = TRUE;
+
+/* flag to detect whether compiled datafiles are constructed:
+ *  A runtime flag is required because the shared version of the library may
+ *  have to deal both with executables that use constructors and with
+ *  executables that don't.
+ */
+static int constructed_datafiles = FALSE;
 
 static void (*datafile_callback)(DATAFILE *) = NULL;
 
@@ -1499,8 +1507,9 @@ AL_CONST char *get_datafile_property(AL_CONST DATAFILE *dat, int type)
 
 
 /* fixup_datafile:
- *  For use with compiled datafiles, to convert truecolor images into the
- *  appropriate pixel format.
+ *  For use with compiled datafiles, to initialise them if they are not
+ *  constructed and to convert truecolor images into the appropriate
+ *  pixel format.
  */
 void fixup_datafile(DATAFILE *data)
 {
@@ -1514,7 +1523,9 @@ void fixup_datafile(DATAFILE *data)
    signed long *s32;
    int eol_marker;
 
-   _construct_datafile(data);
+   /* initialise the datafile if needed */
+   if (!constructed_datafiles)
+      initialise_datafile(data);
 
    for (i=0; data[i].type != DAT_END; i++) {
 
@@ -1813,13 +1824,34 @@ void fixup_datafile(DATAFILE *data)
 
 
 
-/* _construct_datafile:
- *  Helper used by the output from dat2s, for fixing up parts of
- *  the data that can't be statically initialised, such as locking
- *  samples and MIDI files, and setting the segment selectors in the 
- *  BITMAP structures.
+/* initialise_bitmap:
+ *  Helper used by the output from dat2s, for fixing up parts
+ *  of a BITMAP structure that can't be statically initialised.
  */
-void _construct_datafile(DATAFILE *data)
+static void initialise_bitmap(BITMAP *bmp)
+{
+   int i;
+
+   for (i=0; _vtable_list[i].vtable; i++) {
+      if (_vtable_list[i].color_depth == (int) bmp->vtable) {
+	 bmp->vtable = _vtable_list[i].vtable;
+	 bmp->write_bank = _stub_bank_switch;
+	 bmp->read_bank = _stub_bank_switch;
+	 bmp->seg = _default_ds();
+	 return;
+      }
+   }
+
+   ASSERT(FALSE); 
+}
+
+
+
+/* initialise_datafile:
+ *  Helper used by the output from dat2s, for fixing up parts
+ *  of the data that can't be statically initialised.
+ */
+static void initialise_datafile(DATAFILE *data)
 {
    int c, c2;
    FONT *f;
@@ -1831,22 +1863,27 @@ void _construct_datafile(DATAFILE *data)
       switch (data[c].type) {
 
 	 case DAT_FILE:
-	    _construct_datafile(data[c].dat);
+	    initialise_datafile(data[c].dat);
 	    break;
 
 	 case DAT_BITMAP:
-	    ((BITMAP *)data[c].dat)->seg = _default_ds();
+	    initialise_bitmap((BITMAP *)data[c].dat);
 	    break;
 
 	 case DAT_FONT:
 	    f = data[c].dat;
-	    if (f->vtable == font_vtable_color) {
+	    c = (int)f->vtable;  /* color flag */
+	    if (c == 1) {
 	       FONT_COLOR_DATA *cf = (FONT_COLOR_DATA *)f->data;
 	       while (cf) {
 		  for (c2 = cf->begin; c2 < cf->end; c2++)
-		     cf->bitmaps[c2 - cf->begin]->seg = _default_ds();
+		     initialise_bitmap((BITMAP *)cf->bitmaps[c2 - cf->begin]);
 		  cf = cf->next;
 	       }
+	       f->vtable = font_vtable_color;
+	    }
+	    else {
+	       f->vtable = font_vtable_mono;
 	    }
 	    break;
 
@@ -1867,6 +1904,19 @@ void _construct_datafile(DATAFILE *data)
 	    break;
       }
    }
+}
+
+
+
+/* _construct_datafile:
+ *  Constructor called by the output from dat2s.
+ */
+void _construct_datafile(DATAFILE *data)
+{
+   /* record that datafiles are constructed */
+   constructed_datafiles = TRUE;
+
+   initialise_datafile(data);
 }
 
 
