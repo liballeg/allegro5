@@ -665,20 +665,21 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
 void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, void (*callback)(int pos))
 {
    int r1, g1, b1, r2, g2, b2, x, y;
-   unsigned int tmp;
+   unsigned int t1, t2;
 
    if (rgb_map) {
       for (x=0; x<PAL_SIZE-1; x++) {
-	 tmp = (255 - x) * 65793;
-	 r1 = r * tmp + (1 << 24);
-	 g1 = g * tmp + (1 << 24);
-	 b1 = b * tmp + (1 << 24);
+	 t1 = x * 0x010101;
+	 t2 = 0xFFFFFF - t1;
 
-	 tmp = (1 << 24) - tmp;
+	 r1 = (1 << 24) + r * t2;
+	 g1 = (1 << 24) + g * t2;
+	 b1 = (1 << 24) + b * t2;
+
 	 for (y=0; y<PAL_SIZE; y++) {
-	    r2 = (r1 + (unsigned int)pal[y].r * tmp) >> 25;
-	    g2 = (g1 + (unsigned int)pal[y].g * tmp) >> 25;
-	    b2 = (b1 + (unsigned int)pal[y].b * tmp) >> 25;
+	    r2 = (r1 + pal[y].r * t1) >> 25;
+	    g2 = (g1 + pal[y].g * t1) >> 25;
+	    b2 = (b1 + pal[y].b * t1) >> 25;
 
 	    table->data[x][y] = rgb_map->data[r2][g2][b2];
 	 }
@@ -688,16 +689,17 @@ void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
    }
    else {
       for (x=0; x<PAL_SIZE-1; x++) {
-	 tmp = (255 - x) * 65793;
-	 r1 = r * tmp + (1 << 23);
-	 g1 = g * tmp + (1 << 23);
-	 b1 = b * tmp + (1 << 23);
+	 t1 = x * 0x010101;
+	 t2 = 0xFFFFFF - t1;
 
-	 tmp = (1 << 24) - tmp;
+	 r1 = (1 << 23) + r * t2;
+	 g1 = (1 << 23) + g * t2;
+	 b1 = (1 << 23) + b * t2;
+
 	 for (y=0; y<PAL_SIZE; y++) {
-	    r2 = (r1 + (unsigned int)pal[y].r * tmp) >> 24;
-	    g2 = (g1 + (unsigned int)pal[y].g * tmp) >> 24;
-	    b2 = (b1 + (unsigned int)pal[y].b * tmp) >> 24;
+	    r2 = (r1 + pal[y].r * t1) >> 24;
+	    g2 = (g1 + pal[y].g * t1) >> 24;
+	    b2 = (b1 + pal[y].b * t1) >> 24;
 
 	    table->data[x][y] = bestfit_color(pal, r2, g2, b2);
 	 }
