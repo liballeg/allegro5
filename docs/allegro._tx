@@ -249,9 +249,9 @@ work with other codepages, you can do this by passing a character mapping
 table to the set_ucodepage() function.
 
 @@void @set_uformat(int type);
-@xref get_uformat, register_uformat, set_ucodepage, unicode functions
-@xref set_uformat, uconvert, ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth
-@xref uisok, uoffset, ugetat, usetat, uinsert, uremove
+@xref get_uformat, register_uformat, set_ucodepage, set_uformat, uconvert
+@xref ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth, uisok, uoffset
+@xref ugetat, usetat, uinsert, uremove, allegro_init
    Sets the current text encoding format. This will affect all parts of 
    Allegro, wherever you see a function that returns a char *, or takes a 
    char * as a parameter. The type should be one of the values:
@@ -456,45 +456,159 @@ table to the set_ucodepage() function.
    largest number of bytes that one character can occupy in the given 
    encoding format. Pass U_CURRENT to represent the current format.
 
-@node unicode functions
-@xref set_uformat, uconvert, ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth
-@xref uisok, uoffset, ugetat, usetat, uinsert, uremove
-@@int    @utolower(int c);
-@@int    @utoupper(int c);
-@@int    @uisspace(int c);
-@@int    @uisdigit(int c);
-@@char * @ustrdup(const char *src)
-@@char * @ustrcpy(char *dest, const char *src);
-@@char * @ustrcat(char *dest, const char *src);
-@@int    @ustrlen(const char *s);
-@@int    @ustrcmp(const char *s1, const char *s2);
-@@char * @ustrncpy(char *dest, const char *src, int n);
-@@char * @ustrncat(char *dest, const char *src, int n);
-@@int    @ustrncmp(const char *s1, const char *s2, int n);
-@@int    @ustricmp(const char *s1, const char *s2);
-@@char * @ustrlwr(char *s);
-@@char * @ustrupr(char *s);
-@@char * @ustrchr(const char *s, int c);
-@@char * @ustrrchr(const char *s, int c);
-@@char * @ustrstr(const char *s1, const char *s2);
-@@char * @ustrpbrk(const char *s, const char *set);
-@@char * @ustrtok(char *s, const char *set);
-@@double @uatof(const char *s);
-@@long   @ustrtol(const char *s, char **endp, int base);
-@@double @ustrtod(const char *s, char **endp);
-@@const char * @ustrerror(int err);
-@@int    @uvsprintf(char *buf, const char *format, va_list args);
-@@int    @usprintf(char *buf, const char *format, ...);
-@!rtf
+@@int @utolower(int c);
+@xref utoupper, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+   This function returns c, converting it to lower case if it is upper case.
 
-@rtf
-   These all work like the equivalent ANSI C functions, but using whatever 
-   Unicode text format is currently selected. The size parameter to 
-   ustrncpy() and ustrncat() is given in bytes rather than characters (on 
-   the assumption that you will be using these routines to prevent 
-   overflowing the size of a memory buffer), while the size parameter to 
-   ustrncmp() is given in characters (because it doesn't make any sense for 
-   this to be in bytes).
+@@int @utoupper(int c);
+@xref utolower, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+   This function returns c, converting it to upper case if it is lower case.
+
+@@int @uisspace(int c);
+@xref uisdigit, ugetc, usetc, uwidth, ucwidth, uisok
+   Returns nonzero if c is whitespace, that is, carriage return, newline,
+   form feed, tab, vertical tab, or space.
+
+@@int @uisdigit(int c);
+@xref uisspace, ugetc, usetc, uwidth, ucwidth, uisok
+   Returns nonzero if c is a digit.
+
+@@char *@ustrdup(const char *src)
+@xref uconvert, ustrsize, ustrsizez
+   This functions copies the NULL-terminated string src into a newly
+   allocated area of memory. The memory returned by this call must be freed
+   by the caller. Returns NULL if it cannot allocate space for the duplicated
+   string.
+
+@@char *@ustrcpy(char *dest, const char *src);
+@xref uconvert, ustrsize, ustrsizez, ustrncpy
+   This function copies src into dest (including the terminating NULL
+   character). The return value is the value of dest.
+
+@@char *@ustrcat(char *dest, const char *src);
+@xref uconvert, ustrsize, ustrsizez, ustrncat
+   This function concatenates src to the end of dest. The return value is the
+   value of dest.
+
+@@int @ustrlen(const char *s);
+@xref uconvert, ustrsize, ustrsizez
+   This function returns the number of characters in s. Note that this
+   doesn't have to equal the string's size in bytes.
+
+@@int @ustrcmp(const char *s1, const char *s2);
+@xref uconvert, ustrsize, ustrsizez, ustrncmp, ustricmp
+   This function compares s1 and s2. Returns zero if the strings are equal,
+   a positive number if s1 comes after s2 in the ASCII collating sequence,
+   else a negative number.
+
+@@char *@ustrncpy(char *dest, const char *src, int n);
+@xref uconvert, ustrsize, ustrsizez, ustrcpy
+   This function copies up to n bytes from src into dest. The size parameter
+   is given in bytes rather than characters on the assumption that you will
+   be using this function to prevent overflowing the size of a memory
+   buffer. The return value is the value of dest.
+
+@@char *@ustrncat(char *dest, const char *src, int n);
+@xref uconvert, ustrsize, ustrsizez, ustrcat
+   This function is like `strcat' except that not more than n bytes from src
+   are appended to the end of dest. The size parameter is given in bytes
+   rather than characters on the assumption that you will be using this
+   function to prevent overflowing the size of a memory buffer. A single
+   null character is always appended to dest, so the total allocated size of
+   dest must be at least `n + 1' bytes longer than it's initial length.
+   
+@@int @ustrncmp(const char *s1, const char *s2, int n);
+@xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp
+   This function compares up to n characters of s1 and s2. Returns zero if
+   the substrings are equal, a positive number if s1 comes after s2 in the
+   ASCII collating sequence, else a negative number.
+
+@@int @ustricmp(const char *s1, const char *s2);
+@xref uconvert, ustrsize, ustrsizez, ustrcmp, ustrncmp
+   This function compares s1 and s2, ignoring case.
+
+@@char *@ustrlwr(char *s);
+@xref uconvert, utolower, ustrupr
+   This function replaces all upper case letters in s with lower case
+   letters.
+
+@@char *@ustrupr(char *s);
+@xref uconvert, utolower, ustrlwr
+   This function replaces all lower case letters in s with upper case
+   letters.
+
+@@char *@ustrchr(const char *s, int c);
+@xref uconvert, ustrrchr, ustrstr, ustrpbrk, ustrtok
+   This function returns a pointer to the first occurrence of c in s, or
+   NULL if no match was found. Note that if c is NULL, this will return a
+   pointer to the end of the string.
+
+@@char *@ustrrchr(const char *s, int c);
+@xref uconvert, ustrchr, ustrstr, ustrpbrk, ustrtok
+   This function returns a pointer to the last occurrence of c in s, or NULL
+   if no match was found.
+
+@@char *@ustrstr(const char *s1, const char *s2);
+@xref uconvert, ustrchr, ustrrchr, ustrpbrk, ustrtok
+   This function finds the first occurence of s2 in s1. Returns a pointer
+   within s1, or NULL if s2 wasn't found.
+
+@@char *@ustrpbrk(const char *s, const char *set);
+@xref uconvert, ustrchr, ustrrchr, ustrstr, ustrtok
+   This function finds the first character in s that matches any character in
+   set. Returns a pointer to the first match, or NULL if none are found.
+
+@@char *@ustrtok(char *s, const char *set);
+@xref uconvert, ustrchr, ustrrchr, ustrstr, ustrpbrk
+   This function retrieves tokens from s which are delimited by characters
+   from set. To initiate the search, pass the string to be searched as s.
+   For the remaining tokens, pass NULL instead. Returns a pointer to the
+   token, or NULL if no more are found. Warning: Since ustrtok alters the
+   string it is parsing, you should always copy the string to a temporary
+   buffer before parsing it. Also, this function is not reentrant (ie. you
+   cannot parse two strings at the same time).
+
+@@double @uatof(const char *s);
+@xref uconvert, ustrtol, ustrtod
+   Convert as much of the string as possible to an equivalent double
+   precision real number. This function is almost like `ustrtod(s, NULL)'.
+   Returns the equivalent value, or zero if the string does not represent a
+   number.
+
+@@long @ustrtol(const char *s, char **endp, int base);
+@xref uconvert, ustrtod, uatof
+   This function converts the initial part of s to a signed integer, which
+   is returned as a value of type `long int', setting *endp to point to the
+   first unused character, if endp is not a NULL pointer. The base argument
+   indicates what base the digits (or letters) should be treated as. If base
+   is zero, the base is determined by looking for `0x', `0X', or `0' as the
+   first part of the string, and sets the base used to 16, 16, or 8 if it
+   finds one. The default base is 10 if none of those prefixes are found.
+
+@@double @ustrtod(const char *s, char **endp);
+@xref uconvert, ustrtol, uatof
+   This function converts as many characters of s that look like a floating
+   point number into one, and sets *endp to point to the first unused
+   character, if endp is not a NULL pointer.
+
+@@const char *@ustrerror(int err);
+@xref uconvert, allegro_error
+   This function returns a string that describes the error code `err', which
+   normally comes from the variable `errno'. Returns a pointer to a static
+   string that should not be modified or free'd. If you make subsequent
+   calls to ustrerror, the string might be overwritten.
+
+@@int @usprintf(char *buf, const char *format, ...);
+@xref uconvert, uvsprintf
+   This is like printf, except that the output is stored in the character
+   array buf, instead of written to a stream. A NULL character is written to
+   mark the end of the string. Returns the number of characters written, not
+   including the trailing NULL character.
+   
+@@int @uvsprintf(char *buf, const char *format, va_list args);
+@xref uconvert, usprintf
+   This is like usprintf, but you pass the variable argument list directly,
+   instead of the arguments themselves.
 
 
 
@@ -589,7 +703,7 @@ with the standard variables that are used by Allegro (see below).
    Returns TRUE if the specified config section has been hooked.
 
 @\const char *@get_config_string(const char *section,
-                                const char *name, const char *def);
+@@                               const char *name, const char *def);
 @xref set_config_file, set_config_string, get_config_argv, get_config_float
 @xref get_config_hex, get_config_int, get_config_id
    Retrieves a string variable from the current config file. If the named 

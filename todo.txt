@@ -82,10 +82,6 @@ Wishlist
 - More hardware accelerated functions? Trans/lit sprites come to
   mind.
 - framebuffer hardware accel via XFB library/driver
-- Better documentation for the unicode routines: saying that ustrcpy,
-  ustrcmp, etc, work like the libc routines isn't very beautiful, and
-  doesn't allow me to press Ctrl+F1 in my editor and get a help on the
-  function :) Therefore, documentation text for each function.
 - Better get_config_text support, with multiple fallback configuration
   files (you can have lot's of the under linux), which is not supported at
   the moment (IIRC two at most).

@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.34: Grzegorz Adam Hankiewicz fleshed out the docs for Unicode
+   functions, adapting from djgpp and gcc docs.
+<li>
    3.9.34: Eric Botcazou fixed a triple buffering problem in the
    DirectDraw accelerated driver.
 <li>
