@@ -195,13 +195,6 @@ AL_VAR(SYSTEM_DRIVER, system_xwin);
 #define KEYBOARD_XWINDOWS        AL_ID('X','W','I','N')
 #define MOUSE_XWINDOWS           AL_ID('X','W','I','N')
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#define GFX_XDGA                 AL_ID('X','D','G','A')
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-#define GFX_XDGA_FULLSCREEN	 AL_ID('X','D','F','S')
-#endif
-#endif
-
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA2
 #define GFX_XDGA2                AL_ID('D','G','A','2')
 #define GFX_XDGA2_SOFT           AL_ID('D','G','A','S')

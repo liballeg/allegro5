@@ -26,9 +26,6 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#include <pwd.h>
-#endif
 #include <string.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -43,10 +40,6 @@
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#include <X11/extensions/xf86dga.h>
 #endif
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
@@ -78,7 +71,6 @@ extern struct _xwin_type
    int cursor_shape;
    int hw_cursor_ok;
 
-   void (*bank_switch)(int line);
    void (*screen_to_buffer)(int sx, int sy, int sw, int sh);
    void (*set_colors)(AL_CONST PALETTE p, int from, int to);
 
@@ -124,11 +116,7 @@ extern struct _xwin_type
 #endif
    int use_shm;
 
-   int in_dga_mode;
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   int disable_dga_mouse;
-#endif
+   int in_dga_mode; /* 0=no, 2=DGA2 */
 
    int keyboard_grabbed;
    int mouse_grabbed;

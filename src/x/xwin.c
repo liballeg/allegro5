@@ -25,9 +25,6 @@
 #include "allegro/platform/aintunix.h"
 #include "xwin.h"
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#include <pwd.h>
-#endif
 #include <string.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -42,10 +39,6 @@
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
 #include <X11/extensions/xf86vmode.h>
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-#include <X11/extensions/xf86dga.h>
 #endif
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
@@ -82,7 +75,6 @@ struct _xwin_type _xwin =
    XC_heart,    /* cursor_shape */
    1,           /* hw_cursor_ok */
 
-   0,           /* bank_switch */
    0,           /* screen_to_buffer */
    0,           /* set_colors */
 
@@ -130,10 +122,6 @@ struct _xwin_type _xwin =
 
    0,           /* in_dga_mode */
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   0, 		/* disable_dga_mouse */
-#endif
-
    0,           /* keyboard_grabbed */
    0,           /* mouse_grabbed */
 
@@ -163,12 +151,6 @@ static int use_bgr_palette_hack = FALSE; /* use BGR hack for color conversion pa
 int _xwin_missed_input;
 #endif
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-int _xdga_last_line = -1;
-static int _xdga_installed_colormap; 
-static Colormap _xdga_colormap[2];
-#endif
-
 #define MAX_EVENTS   5
 #define MOUSE_WARP_DELAY   200
 
@@ -188,11 +170,11 @@ static int _xwin_private_create_window(void);
 static void _xwin_private_destroy_window(void);
 static void _xwin_private_select_screen_to_buffer_function(void);
 static void _xwin_private_select_set_colors_function(void);
-static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga);
+static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv);
 static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
 					   int vw, int vh, int depth, int fullscreen);
 static void _xwin_private_destroy_screen(void);
-static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
+static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
 						  unsigned char *frame_buffer,
 						  int bytes_per_buffer_line);
 static void _xwin_private_create_mapping_tables(void);
@@ -205,9 +187,6 @@ static int _xwin_private_matching_formats(void);
 static void _xwin_private_hack_shifts(void);
 static int _xwin_private_colorconv_usable(void);
 static int _xwin_private_fast_visual_depth(void);
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-static int _xdga_private_fast_visual_depth(void);
-#endif
 static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to);
@@ -225,14 +204,6 @@ static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *gr
 static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 static void _xwin_private_init_keyboard_tables(void);
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
-					   int vw, int vh, int depth, int fullscreen);
-static void _xdga_private_destroy_screen(void);
-static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
-static int _xdga_private_scroll_screen(int x, int y);
-#endif
 
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
 
@@ -293,19 +264,9 @@ static void _xvidmode_private_unset_fullscreen(void);
 #ifdef ALLEGRO_NO_ASM
 unsigned long _xwin_write_line (BITMAP *bmp, int line);
 void _xwin_unwrite_line (BITMAP *bmp);
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-unsigned long _xdga_switch_bank (BITMAP *bmp, int line);
-#endif
 #else
 unsigned long _xwin_write_line_asm (BITMAP *bmp, int line);
 void _xwin_unwrite_line_asm (BITMAP *bmp);
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-unsigned long _xdga_switch_bank_asm (BITMAP *bmp, int line);
-#endif
-#endif
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-static void _xdga_switch_screen_bank(int line);
 #endif
 
 
@@ -485,9 +446,6 @@ int _xwin_create_window(void)
  */
 static void _xwin_private_destroy_window(void)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   _xdga_private_destroy_screen();
-#endif
    _xwin_private_destroy_screen();
 
    if (_xwin.cursor != None) {
@@ -661,7 +619,7 @@ static void _xwin_private_select_set_colors_function(void)
 /* _xwin_setup_driver_desc:
  *  Sets up the X-Windows driver description string.
  */
-static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
+static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv)
 {
    char tmp1[256], tmp2[128], tmp3[128], tmp4[128];
 
@@ -670,7 +628,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
       uszprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc), 
 	        uconvert_ascii("X-Windows graphics, in matching, %d bpp %s", tmp1),
 	        _xwin.window_depth,
-	        uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp2));
+	        uconvert_ascii("real depth", tmp2));
    }
    else {
       uszprintf(_xwin_driver_desc, sizeof(_xwin_driver_desc),
@@ -678,7 +636,7 @@ static void _xwin_private_setup_driver_desc(GFX_DRIVER *drv, int dga)
 	        uconvert_ascii((_xwin.fast_visual_depth ? "fast" : "slow"), tmp2),
 	        uconvert_ascii((_xwin.visual_is_truecolor ? "truecolor" : "paletted"), tmp3),
 	        _xwin.window_depth,
-	        uconvert_ascii((dga ? "DGA 1.0 mode" : "real depth"), tmp4));
+	        uconvert_ascii("real depth", tmp4));
    }
    drv->desc = _xwin_driver_desc;
 }
@@ -809,7 +767,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
    _xwin.fast_visual_depth = _xwin_private_fast_visual_depth();
 
    /* Create screen bitmap from frame buffer.  */
-   return _xwin_private_create_screen_bitmap(drv, 0, _xwin.ximage->data + _xwin.ximage->xoffset,
+   return _xwin_private_create_screen_bitmap(drv, _xwin.ximage->data + _xwin.ximage->xoffset,
 					     _xwin.ximage->bytes_per_line);
 }
 
@@ -902,7 +860,7 @@ void _xwin_destroy_screen(void)
 /* _xwin_create_screen_bitmap:
  *  Create screen bitmap from frame buffer.
  */
-static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
+static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv,
 						  unsigned char *frame_buffer,
 						  int bytes_per_buffer_line)
 {
@@ -976,62 +934,17 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
    drv->h = bmp->cb = _xwin.screen_height;
    drv->vid_mem = _xwin.virtual_width * _xwin.virtual_height * BYTES_PER_PIXEL(_xwin.screen_depth);
 
-   /* Set bank switch routines.  */
-   if (dga) {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-      if (drv->linear) {
-	 /* No need to switch banks in hardware.  */
-	 _xwin.bank_switch = 0;
-      }
-      else {
-	 /* Need hardware bank switching.  */
-	 _xwin.bank_switch = _xdga_switch_screen_bank;
-      }
-
-      if (!_xwin.matching_formats) {
-	 /* Need some magic for updating frame buffer.  */
+   /* Need some magic for updating frame buffer.  */
 #ifndef ALLEGRO_NO_ASM
-	 bmp->write_bank = _xwin_write_line_asm;
-	 bmp->vtable->unwrite_bank = _xwin_unwrite_line_asm;
+   bmp->write_bank = _xwin_write_line_asm;
+   bmp->vtable->unwrite_bank = _xwin_unwrite_line_asm;
 #else
-	 bmp->write_bank = _xwin_write_line;
-	 bmp->vtable->unwrite_bank = _xwin_unwrite_line;
+   bmp->write_bank = _xwin_write_line;
+   bmp->vtable->unwrite_bank = _xwin_unwrite_line;
 #endif
 
-	 /* Replace entries in vtable with magical wrappers.  */
-	 _xwin_replace_vtable(bmp->vtable);
-      }
-      else if (!drv->linear) {
-	 /* Need hardware bank switching, but no magic.  */
-#ifndef ALLEGRO_NO_ASM
-	 bmp->read_bank = _xdga_switch_bank_asm;
-	 bmp->write_bank = _xdga_switch_bank_asm;
-#else
-	 bmp->read_bank = _xdga_switch_bank;
-	 bmp->write_bank = _xdga_switch_bank;
-#endif
-      }
-#else
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Internal error"));
-      return 0;
-#endif
-   }
-   else {
-      /* Need some magic for updating frame buffer.  */
-#ifndef ALLEGRO_NO_ASM
-      bmp->write_bank = _xwin_write_line_asm;
-      bmp->vtable->unwrite_bank = _xwin_unwrite_line_asm;
-#else
-      bmp->write_bank = _xwin_write_line;
-      bmp->vtable->unwrite_bank = _xwin_unwrite_line;
-#endif
-
-      /* No need to switch banks in hardware.  */
-      _xwin.bank_switch = 0;
-
-      /* Replace entries in vtable with magical wrappers.  */
-      _xwin_replace_vtable(bmp->vtable);
-   }
+   /* Replace entries in vtable with magical wrappers.  */
+   _xwin_replace_vtable(bmp->vtable);
 
    /* Initialize other fields in _xwin structure.  */
    _xwin_last_line = -1;
@@ -1039,12 +952,8 @@ static BITMAP *_xwin_private_create_screen_bitmap(GFX_DRIVER *drv, int dga,
    _xwin.scroll_x = 0;
    _xwin.scroll_y = 0;
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   _xdga_last_line = -1;
-#endif
-
    /* Setup driver description string.  */
-   _xwin_private_setup_driver_desc(drv, dga);
+   _xwin_private_setup_driver_desc(drv);
 
    return bmp;
 }
@@ -1753,40 +1662,6 @@ void _xwin_move_mouse(int x, int y)
 
 
 
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-
-/* _xdga_fast_visual_depth:
- *  Find which depth is fast (when video buffer can be accessed directly).
- */
-static int _xdga_private_fast_visual_depth(void)
-{
-/* Quoted from the xmms sources:
-   "The things we must go through to get a proper depth...
-   If I find the idiot that thought making 32bit report 24bit was a good idea,
-   there may be one less `programmer' in this world..." */
-   XImage *img = XGetImage(_xwin.display, XDefaultRootWindow(_xwin.display),
-			   0, 0, 1, 1, AllPlanes, ZPixmap);
-   int dga_depth = img->bits_per_pixel;
-
-   if (dga_depth == 15)
-      dga_depth = 16;
-
-   XDestroyImage(img);
-
-   return dga_depth;
-}
-
-#endif
-
-
-
-/* Macro for switching banks (for DGA mode).  */
-#define XWIN_BANK_SWITCH(line)          \
-if (_xwin.bank_switch)                  \
-   (*_xwin.bank_switch)(line)
-
-
-
 /*
  * Functions for copying screen data to frame buffer.
  */
@@ -1806,7 +1681,6 @@ static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
    dest_rect.data   = _xwin.buffer_line[sy] + sx * BYTES_PER_PIXEL(_xwin.fast_visual_depth);
 
    /* Update frame buffer with screen contents.  */
-   ASSERT(!(_xwin.bank_switch));
    ASSERT(blitter_func);
    blitter_func(&src_rect, &dest_rect);
 }
@@ -1830,7 +1704,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       stype *s = (stype*) (_xwin.screen_line[y]) + sx;                                  \
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; x--) {                                                   \
 	 unsigned long color = *s++;                                                    \
 	 *d++ = (_xwin.rmap[(color >> (rshift)) & (rmask)]                              \
@@ -1847,7 +1720,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
 	 *d++ = (_xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                                    \
 		 | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                                  \
@@ -1863,7 +1735,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       stype *s = (stype*) (_xwin.screen_line[y]) + sx;                                  \
       unsigned char *d = _xwin.buffer_line[y] + 3 * sx;                                 \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; d += 3, x--) {                                           \
 	 unsigned long color = *s++;                                                    \
 	 color = (_xwin.rmap[(color >> (rshift)) & (rmask)]                             \
@@ -1881,7 +1752,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       unsigned char *d = _xwin.buffer_line[y] + 3 * sx;                                 \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, d += 3, x--) {                                   \
 	 unsigned long color = _xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                      \
 	 		       | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                    \
@@ -1944,7 +1814,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       unsigned char *s = _xwin.screen_line[y] + sx;                                     \
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; x--) {                                                   \
 	 unsigned long color = *s++;                                                    \
 	 *d++ = _xwin.cmap[(_xwin.rmap[color]                                           \
@@ -1961,7 +1830,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       stype *s = (stype*) (_xwin.screen_line[y]) + sx;                                  \
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; x--) {                                                   \
 	 unsigned long color = *s++;                                                    \
 	 *d++ = _xwin.cmap[((((color >> (rshift)) & 0x0F) << 8)                         \
@@ -1978,7 +1846,6 @@ static void name(int sx, int sy, int sw, int sh)                                
    for (y = sy; y < (sy + sh); y++) {                                                   \
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
-      XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
 	 *d++ = _xwin.cmap[((((unsigned long) s[DEFAULT_RGB_R_POS_24] << 4) & 0xF00)    \
 			    | ((unsigned long) s[DEFAULT_RGB_G_POS_24] & 0xF0)          \
@@ -2416,40 +2283,6 @@ static void _xwin_private_process_event(XEvent *event)
 	 break;
       case MotionNotify:
 	 /* Mouse moved.  */
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-	 if (_xwin.in_dga_mode) {
-	    /* DGA mode.  */
-	    if (!_xwin.disable_dga_mouse) {
-	       dx = event->xmotion.x;
-	       dy = event->xmotion.y;
-	    }
-	    else {
-	       /* Buggy X servers send absolute instead of relative offsets.  */
-	       dx = event->xmotion.x - mouse_savedx;
-	       dy = event->xmotion.y - mouse_savedy;
-	       mouse_savedx = event->xmotion.x;
-	       mouse_savedy = event->xmotion.y;
-
-	       /* Ignore the event we just generated with XWarpPointer.  */
-	       if (mouse_was_warped) {
-		  mouse_was_warped = 0;
-		  break;
-	       }
-	     	       
-	       /* Warp X-cursor to the center of the screen.  */
-	       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 
-			    _xwin.screen_width / 2, _xwin.screen_height / 2);
-	       mouse_was_warped = 1;
-	    }
-	    
-	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
-	       /* Move Allegro cursor.  */
-	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
-	    }
-	    break;
-	 }
-#endif
-	 /* Windowed mode.  */
 	 dx = event->xmotion.x - mouse_savedx;
 	 dy = event->xmotion.y - mouse_savedy;
 	 /* Discard some events after warp.  */
@@ -2479,16 +2312,6 @@ static void _xwin_private_process_event(XEvent *event)
 	 break;
       case EnterNotify:
 	 /* Mouse entered window.  */
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-	 if (_xwin.in_dga_mode) {
-	    /* DGA mode.  */
-	    if (_xwin_mouse_interrupt)
-	       (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
-	    break;
-	 }
-	 else
-#endif
-	 /* Windowed mode.  */
 	 _mouse_on = TRUE;
 	 mouse_savedx = event->xcrossing.x;
 	 mouse_savedy = event->xcrossing.y;
@@ -2504,10 +2327,6 @@ static void _xwin_private_process_event(XEvent *event)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
 	 break;
       case LeaveNotify:
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-	 if (_xwin.in_dga_mode)
-	    break;
-#endif
 	 _mouse_on = FALSE;
 	 if (_xwin_mouse_interrupt)
 	    (*_xwin_mouse_interrupt)(0, 0, 0, mouse_buttons);
@@ -2546,28 +2365,22 @@ void _xwin_private_handle_input(void)
       return;
 
    /* Switch mouse to non-warped mode if mickeys were not used recently (~2 seconds).  */
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   if (!_xwin.in_dga_mode) {
-#endif
-      if (_xwin.mouse_warped && (_xwin.mouse_warped++ > MOUSE_WARP_DELAY)) {
-	 _xwin.mouse_warped = 0;
-	 /* Move X-cursor to Allegro cursor.  */
-	 XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
-		      0, 0, _xwin.window_width, _xwin.window_height,
-		      _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
-		      _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
-         /* Re-enable hardware cursor */
-         _xwin.hw_cursor_ok = 1;
+   if (_xwin.mouse_warped && (_xwin.mouse_warped++ > MOUSE_WARP_DELAY)) {
+      _xwin.mouse_warped = 0;
+      /* Move X-cursor to Allegro cursor.  */
+      XWarpPointer(_xwin.display, _xwin.window, _xwin.window,
+		   0, 0, _xwin.window_width, _xwin.window_height,
+		   _mouse_x - (_xwin_mouse_extended_range ? _xwin.scroll_x : 0),
+		   _mouse_y - (_xwin_mouse_extended_range ? _xwin.scroll_y : 0));
+      /* Re-enable hardware cursor */
+      _xwin.hw_cursor_ok = 1;
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
-         if (_xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
-            show_mouse(_mouse_screen);
-         }
+      if (_xwin.support_argb_cursor && (_xwin.xcursor_image != None) && is_same_bitmap(_mouse_screen, screen)) {
+	 show_mouse(_mouse_screen);
+      }
 #endif
          
-      }
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    }
-#endif
 
    /* Flush X-buffers.  */
    _xwin_private_flush_buffers();
@@ -2665,11 +2478,6 @@ static void _xwin_private_redraw_window(int x, int y, int w, int h)
 {
    if (_xwin.window == None)
       return;
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-   if (_xwin.in_dga_mode)
-      return;
-#endif
 
    /* Clip updated region.  */
    if (x >= _xwin.screen_width)
@@ -3135,484 +2943,6 @@ void _xwin_unwrite_line(BITMAP *bmp)
       _xwin_update_screen(0, _xwin_last_line, _xwin.virtual_width, 1);
    _xwin_last_line = -1;
 }
-
-
-
-/*
- * Support for XF86DGA extension (direct access to frame buffer).
- */
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
-/* _xdga_create_screen:
- *  Create screen bitmap.
- */
-static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
-					   int vw, int vh, int depth, int fullscreen)
-{
-   int dga_flags, dotclock;
-   int dga_event_base, dga_error_base;
-   int dga_major_version, dga_minor_version;
-   int fb_width, banksize, memsize;
-   int s_w, s_h, v_w, v_h;
-   int offset_x, offset_y;
-   char *fb_addr;
-   struct passwd *pass;
-   char tmp1[128], tmp2[128];
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   int vid_event_base, vid_error_base;
-   int vid_major_version, vid_minor_version;
-   XF86VidModeModeLine modeline;
-#endif
-   
-   if (_xwin.window == None) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("No window"));
-      return 0;
-   }
-
-   /* Test that user has enough privileges.  */
-   pass = getpwuid(geteuid());
-   if (pass == 0) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not obtain user name"));
-      return 0;
-   }
-   if (strcmp("root", pass->pw_name) != 0) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs root privileges"));
-      return 0;
-   }
-
-   /* Test that display is local.  */
-   if (!_xwin_private_display_is_local()) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("This driver needs local display"));
-      return 0;
-   }
-
-   /* Choose convenient size.  */
-   if ((w == 0) && (h == 0)) {
-      w = 320;
-      h = 200;
-   }
-
-   if (vw < w)
-      vw = w;
-   if (vh < h)
-      vh = h;
-
-   if (1
-#ifdef ALLEGRO_COLOR8
-       && (depth != 8)
-#endif
-#ifdef ALLEGRO_COLOR16
-       && (depth != 15)
-       && (depth != 16)
-#endif
-#ifdef ALLEGRO_COLOR24
-       && (depth != 24)
-#endif
-#ifdef ALLEGRO_COLOR32
-       && (depth != 32)
-#endif
-       ) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
-      return 0;
-   }
-
-   /* Test for presence of DGA extension.  */
-   if (!XF86DGAQueryExtension(_xwin.display, &dga_event_base, &dga_error_base)
-       || !XF86DGAQueryVersion(_xwin.display, &dga_major_version, &dga_minor_version)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DGA extension is not supported"));
-      return 0;
-   }
-
-   /* Test DGA version */
-   if (dga_major_version != 1) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DGA 1.0 is required"));
-      return 0;
-   }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   /* Test for presence of VidMode extension.  */
-   if (!XF86VidModeQueryExtension(_xwin.display, &vid_event_base, &vid_error_base)
-       || !XF86VidModeQueryVersion(_xwin.display, &vid_major_version, &vid_minor_version)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("VidMode extension is not supported"));
-      return 0;
-   }
-#endif
-
-   /* Query DirectVideo capabilities.  */
-   if (!XF86DGAQueryDirectVideo(_xwin.display, _xwin.screen, &dga_flags)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not query DirectVideo"));
-      return 0;
-   }
-   if (!(dga_flags & XF86DGADirectPresent)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("DirectVideo is not supported"));
-      return 0;
-   }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   /* Switch video mode if appropriate.  */
-   if ((fullscreen) && (!_xvidmode_private_set_fullscreen(w, h, vw, vh))) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
-      return 0;
-   }
-#endif
-
-   /* If you want to use debugger, comment grabbing (but there will be no input in Allegro).  */
-#if 1
-   /* Grab keyboard and mouse.  */
-   if (XGrabKeyboard(_xwin.display, XDefaultRootWindow(_xwin.display), False,
-		     GrabModeAsync, GrabModeAsync, CurrentTime) != GrabSuccess) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not grab keyboard"));
-      return 0;
-   }
-   _xwin.keyboard_grabbed = 1;
-   if (XGrabPointer(_xwin.display, XDefaultRootWindow(_xwin.display), False,
-		    PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-		    GrabModeAsync, GrabModeAsync, None, None, CurrentTime) != GrabSuccess) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not grab mouse"));
-      return 0;
-   }
-   _xwin.mouse_grabbed = 1;
-#endif
-
-   /* Test that frame buffer is fast (can be accessed directly) - what a mess.  */
-   _xwin.fast_visual_depth = _xdga_private_fast_visual_depth ();
-   if (_xwin.fast_visual_depth == 0) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
-      return 0;
-   }
-
-   /* Get current video mode settings.  */
-   if (!XF86DGAGetVideo(_xwin.display, _xwin.screen, &fb_addr, &v_w, &banksize, &memsize)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not get video mode settings"));
-      return 0;
-   }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   /* Get current screen size.  */
-   if (!XF86VidModeGetModeLine(_xwin.display, _xwin.screen, &dotclock, &modeline)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not get video mode settings"));
-      return 0;
-   }
-
-   if ((modeline.privsize > 0) && (modeline.private != 0))
-      XFree(modeline.private);
-#endif
-   
-   /* I'm not sure that it is correct, but what else?  */
-   memsize *= 1024;
-   fb_width = v_w * (_xwin.fast_visual_depth / 8);
-
-   /* Test that each line is included in one bank only.  */
-   if ((banksize < memsize) && ((banksize % fb_width) != 0)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported memory layout"));
-      return 0;
-   }
-
-   v_h = memsize / fb_width;
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   s_w = modeline.hdisplay;
-   s_h = modeline.vdisplay;
-#else
-   /* This is not completely correct, but it allows us to decouple DGA from
-    * VidMode extensions (even if both are always available together).  */
-   s_w = w;
-   s_h = h;
-#endif
-
-   if ((s_w < w) || (s_h < h) || ((vw - w) > (v_w - s_w)) || ((vh - h) > (v_h - s_h))) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported screen size"));
-      return 0;
-   }
-
-   /* Centre Allegro screen inside display */
-   offset_x = 0;
-   offset_y = 0;
-   if (banksize >= memsize) {
-      if (get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("dga_centre", tmp2), 1)) {
-         offset_x = (s_w - w) / 2;
-         offset_y = (s_h - h) / 2;
-      }
-   }
-
-   vw = v_w - s_w + w;
-   vh = v_h - s_h + h;
-
-   _xwin.screen_width = w;
-   _xwin.screen_height = h;
-   _xwin.screen_depth = depth;
-   _xwin.virtual_width = vw;
-   _xwin.virtual_height = vh;
-
-   if (banksize < memsize) {
-      /* Banked frame buffer.  */
-      drv->linear = FALSE;
-      drv->bank_size = banksize;
-      drv->bank_gran = banksize;
-   }
-   else {
-      /* Linear frame buffer.  */
-      drv->linear = TRUE;
-      drv->bank_size = memsize;
-      drv->bank_gran = memsize;
-   }
-
-   /* Prepare visual for further use.  */
-   _xwin_private_prepare_visual();
-
-   /* Set DGA mode.  */
-   if (!XF86DGADirectVideo(_xwin.display, _xwin.screen,
-			   XF86DGADirectGraphics | XF86DGADirectMouse | XF86DGADirectKeyb)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not switch to DGA mode"));
-      return 0;
-   }
-   _xwin.in_dga_mode = 1;
-   
-   /* Allow workaround for buggy servers (e.g. 3dfx Voodoo 3/Banshee).  */
-   if (get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("dga_mouse", tmp2), 1) == 0)
-      _xwin.disable_dga_mouse = 1;
-
-   set_display_switch_mode(SWITCH_NONE);
-
-   /* Uninstall colormap from X-server (must).  */
-   XUninstallColormap(_xwin.display, _xwin.colormap);
-
-   /* Install DGA colormap.  */
-   if (!XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap)) {
-      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not install colormap"));
-      return 0;
-   }
-
-   /* Create the colormaps for swapping in 8-bit mode */
-   if (_xwin.fast_visual_depth == 8) {
-      const int cmap_size = 256;
-      XColor color[cmap_size];
-      int i;
-
-      _xdga_colormap[0] = _xwin.colormap;  
-      _xdga_colormap[1] = XCreateColormap(_xwin.display, _xwin.window, _xwin.visual, AllocAll);
-
-      for (i = 0; i < cmap_size; i++)
-         color[i].pixel = i;
-
-      XQueryColors(_xwin.display, _xdga_colormap[0], color, cmap_size);
-      XStoreColors(_xwin.display, _xdga_colormap[1], color, cmap_size);
-
-      _xdga_installed_colormap = 0;
-   }
-
-   /* Clear video memory */
-   if (get_config_int(uconvert_ascii("system", tmp1), uconvert_ascii("dga_clear", tmp2), 1)) {
-      int line, offset;
-      int width = s_w * (_xwin.fast_visual_depth / 8);
-
-      /* Clear all visible lines.  */
-      for (offset = 0, line = s_h - 1; line >= 0; offset += fb_width, line--) {
-	 if ((offset % banksize) == 0)
-	    XF86DGASetVidPage(_xwin.display, _xwin.screen, offset / banksize);
-	 memset(fb_addr + offset % banksize, 0, width);
-      }
-   }
-
-   /* Switch to first bank.  */
-   XF86DGASetVidPage(_xwin.display, _xwin.screen, 0);
-
-   /* Set view port to (0, 0).  */
-   XF86DGASetViewPort(_xwin.display, _xwin.screen, 0, 0);
-
-   /* Create screen bitmap from frame buffer.  */
-   return _xwin_private_create_screen_bitmap(drv, 1, fb_addr + offset_y * fb_width + offset_x * (_xwin.fast_visual_depth / 8), fb_width);
-}
-
-BITMAP *_xdga_create_screen(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int fullscreen)
-{
-   BITMAP *bmp;
-   XLOCK();
-   bmp = _xdga_private_create_screen(drv, w, h, vw, vh, depth, fullscreen);
-   if (bmp == 0)
-      _xdga_private_destroy_screen();
-   else
-      _mouse_on = TRUE;
-   XUNLOCK();
-   return bmp;
-}
-
-
-
-/* _xdga_destroy_screen:
- *  Destroys screen resources.
- */
-static void _xdga_private_destroy_screen(void)
-{
-   if (_xwin.buffer_line != 0) {
-      free(_xwin.buffer_line);
-      _xwin.buffer_line = 0;
-   }
-
-   if (_xwin.screen_line != 0) {
-      free(_xwin.screen_line);
-      _xwin.screen_line = 0;
-   }
-
-   if (_xwin.screen_data != 0) {
-      free(_xwin.screen_data);
-      _xwin.screen_data = 0;
-   }
-
-   if (_xwin.in_dga_mode) {
-      XF86DGADirectVideo(_xwin.display, _xwin.screen, 0);
-
-      if (_xwin.fast_visual_depth == 8) {
-         _xwin.colormap = _xdga_colormap[0];
-         XFreeColormap(_xwin.display, _xdga_colormap[1]);
-      }
-
-      XInstallColormap(_xwin.display, _xwin.colormap);
-
-      _xwin.in_dga_mode = 0;
-
-      set_display_switch_mode(SWITCH_BACKGROUND);
-   }
-
-   if (_xwin.mouse_grabbed) {
-      XUngrabPointer(_xwin.display, CurrentTime);
-      _xwin.mouse_grabbed = 0;
-   }
-
-   if (_xwin.keyboard_grabbed) {
-      XUngrabKeyboard(_xwin.display, CurrentTime);
-      _xwin.keyboard_grabbed = 0;
-   }
-
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-   _xvidmode_private_unset_fullscreen();
-#endif
-}
-
-void _xdga_destroy_screen(void)
-{
-   XLOCK();
-   _xdga_private_destroy_screen();
-   XUNLOCK();
-}
-
-
-
-/* _xdga_switch_screen_bank:
- *  Switch screen bank.
- */
-static void _xdga_switch_screen_bank(int line)
-{
-   if (line != _xdga_last_line) {
-      XF86DGASetVidPage(_xwin.display, _xwin.screen, _gfx_bank[line]);
-      _xdga_last_line = line;
-   }
-}
-
-
-
-/* _xdga_switch_bank:
- *  Switch bank and return linear offset for line.
- */
-unsigned long _xdga_switch_bank(BITMAP *bmp, int line)
-{
-   _xdga_switch_screen_bank(line + bmp->y_ofs);
-   return (unsigned long) (bmp->line[line]);
-}
-
-
-
-/* _xdga_set_palette_range:
- *  Set hardware colors in DGA mode.
- */
-static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
-{
-   RGB *pal;
-   int c;
-   unsigned char temp;
-
-   /* Wait for VBI.  */
-   if (vsync)
-      _xwin_vsync();
-
-   if (_xwin.set_colors != 0) {
-      if (blitter_func) {
-         if (use_bgr_palette_hack && (from >= 0) && (to < 256)) {
-            pal = malloc(sizeof(RGB)*256);
-            ASSERT(pal);
-            ASSERT(p);
-            if (!pal || !p)
-	       return; /* ... in shame and disgrace */
-            memcpy(&pal[from], &p[from], sizeof(RGB)*(to-from+1));
-            for (c = from; c <= to; c++) {
-               temp = pal[c].r;
-               pal[c].r = pal[c].b;
-               pal[c].b = temp;
-            }
-            _set_colorconv_palette(pal, from, to);
-	    free(pal);
-         }
-         else {
-            _set_colorconv_palette(p, from, to);
-         }
-      }
-      
-      /* Set "hardware" colors.  */
-      (*(_xwin.set_colors))(p, from, to);
-
-      if (_xwin.matching_formats) {
-	 /* Have to install colormap again, but with another ID. */
-         _xdga_installed_colormap = 1 - _xdga_installed_colormap;
-         _xwin.colormap = _xdga_colormap[_xdga_installed_colormap];
-         (*(_xwin.set_colors))(p, from, to);
-	 XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap);
-      }
-      else /* Update frame buffer.  */
-	 _xwin_private_update_screen(0, 0, _xwin.virtual_width, _xwin.virtual_height);
-   }
-}
-
-void _xdga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
-{
-   XLOCK();
-   _xdga_private_set_palette_range(p, from, to, vsync);
-   XUNLOCK();
-}
-
-
-
-/* _xdga_scroll_screen:
- *  Scroll visible screen in window.
- */
-static int _xdga_private_scroll_screen(int x, int y)
-{
-   _xwin.scroll_x = x;
-   _xwin.scroll_y = y;
-   XF86DGASetViewPort (_xwin.display, _xwin.screen, x, y);
-   _xwin_private_flush_buffers();
-
-   return 0;
-}
-
-int _xdga_scroll_screen(int x, int y)
-{
-   int result;
-
-   if (x < 0)
-      x = 0;
-   else if (x >= (_xwin.virtual_width - _xwin.screen_width))
-      x = _xwin.virtual_width - _xwin.screen_width;
-   if (y < 0)
-      y = 0;
-   else if (y >= (_xwin.virtual_height - _xwin.screen_height))
-      y = _xwin.virtual_height - _xwin.screen_height;
-   if ((_xwin.scroll_x == x) && (_xwin.scroll_y == y))
-      return 0;
-
-   XLOCK();
-   result = _xdga_private_scroll_screen(x, y);
-   XUNLOCK();
-   return result;
-}
-#endif
 
 
 

@@ -1788,20 +1788,6 @@ menu_opening_delay = x<br>
    Sets how long the menus take to auto-open. The time is given in
    milliseconds (default is `300'). Specifying `-1' will disable the 
    auto-opening feature.
-<li>
-dga_mouse = x<br>
-   X only: disable to work around a bug in some X servers' DGA modes, 
-   concerning the mouse.  Default is on; enable the workaround by setting the
-   variable to `0'.
-<li>
-dga_centre = x<br>
-   X only: instructs the DGA driver to centre the Allegro screen if the
-   actual screen resolution is higher than Allegro's.  Default is on; disable
-   this feature by setting the variable to `0'.
-<li>
-dga_clear = x<br>
-   X only: instructs the DGA driver to clear visible video memory on startup.
-   Default is on; disable this feature by setting the variable to `0'.
 </ul><li>
 [graphics]<br>
    Section containing graphics configuration information, using the
@@ -9477,16 +9463,6 @@ command. You could add another grep to filter only lines with text like
       without root permissions. You're still using the standard X protocol
       though, so expect the same low performances as with the windowed
       driver version.
-<li>
-   GFX_XDGA<br>
-      Use the XFree86 DGA 1.0 extension to write directly to the screen
-      surface. DGA is normally much faster than the standard X mode, but does
-      not produce such well behaved windowed programs, and will not work
-      remotely. This driver requires root permissions.
-<li>
-   GFX_XDGA_FULLSCREEN<br>
-      Like GFX_XDGA, but also changes the screen resolution so that it will 
-      run fullscreen. This driver requires root permissions.
 <li>
    GFX_XDGA2<br>
       Use new DGA 2.0 extension provided by XFree86 4.0.x. This will work

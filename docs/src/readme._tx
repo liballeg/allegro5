@@ -128,7 +128,7 @@ Features
    Windows graphics drivers using DirectX in fullscreen and windowed modes,
    plus routines for drawing onto GDI device contexts.
 <li>
-   Unix graphics drivers for X, DGA, fbcon, SVGAlib, VBE/AF, mode-X, and
+   Unix graphics drivers for X, DGA2, fbcon, SVGAlib, VBE/AF, mode-X, and
    standard VGA.
 <li>
    BeOS graphics drivers using BWindowScreen in fullscreen and BDirectWindow

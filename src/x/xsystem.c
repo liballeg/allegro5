@@ -353,17 +353,13 @@ static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void)
  */
 static int _xwin_sysdrv_display_switch_mode(int mode)
 {
-#ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    if (_xwin.in_dga_mode) {
       if (mode != SWITCH_NONE)
 	 return -1;
    }
-   else 
-#endif
-   {
-      if (mode != SWITCH_BACKGROUND)
-	 return -1;
-   }
+
+   if (mode != SWITCH_BACKGROUND)
+      return -1;
 
    return 0;
 }
