@@ -140,7 +140,7 @@ Contributors
    Cloud Wu (<email>cloudwu@263.net</a>).<br>
    Optimised the truecolor pixel blending functions.
 
-   Chris Graham.<br>
+   Chris Graham (<email>chris_graham@postmark.net</a>).<br>
    Suggested to add a new flag for Windows NTFS compressed files.
 
    Chris Jones (<email>cj@jibblers.plus.com</a>).<br>
@@ -214,7 +214,7 @@ Contributors
    revamped the Unicode API and added uszprintf(), added file_select_ex(),
    the unified al_find*() interface, an Unicode example, a new filetest,
    rewrote the fixdll script, revamped the Borland C++ build process, fixed
-   lots of bugs and did truckloads more work on the Windows port too.
+   lots of bugs and did plenty of other things too.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -298,8 +298,8 @@ Contributors
    cross-compiler and the Cygwin compiler. Much improved OS detection. Added
    get_gfx_mode_list() and methods for querying the VGA, Mode-X, Xtended,
    VESA, VBE/AF and DIRECTX drivers for a list of possible GFX modes.
-   Rewrote the mode-selector to use get_gfx_mode_list(). Rewrote/updated
-   some scripts and reworked the build system many times.
+   Rewrote the mode-selector to use get_gfx_mode_list(). Reworked the build
+   system many times and did plenty of other things too.
 
    Igor Gnip (<email>gnipi@mindnever.org</a>).<br>
    Removed the requirements for fileutils on DOS/Windows platforms and added
@@ -429,7 +429,7 @@ Contributors
    stupid mistake in my VESA linear framebuffer code.
 
    Marcel Smit (<email>marcel.athlon@hccnet.nl</a>).<br>
-   Corrected a bug that caused errors when drawing persp. correct polys
+   Corrected a bug that caused errors when drawing persp. correct polygons
    facing the screen. Made the show_video_bitmap() method of the Windows
    windowed driver wait for a vsync.
 
@@ -602,11 +602,9 @@ Contributors
    Wrote the CPU type detection code.
 
    Philipp Thomas (<email>pthomas@suse.de</a>).<br>
-   Fixed all comparisons between signed and unsigned types, thus allowing to
-   build with -W -Wno-unused on Unix systems, fixed the compilation on
-   x86-64, fixed all function prototypes, thus allowing to build with
-   -Wstrict-prototypes on Unix systems, and added the German translation to
-   the RPM spec file.
+   Fixed all comparisons between signed and unsigned types, fixed compilation
+   on x86-64, fixed all function prototypes and added the German translation
+   to the RPM spec file.
 
    Przemek Podsiadly (<email>ppodsiad@elka.pw.edu.pl</a>).<br>
    Added hicolor versions of the 3d polygon code.
@@ -633,7 +631,7 @@ Contributors
    bad clearing of subbitmaps. Also added SSE detection and optimized some
    masked_blits with SSE instructions. Added some routines to the unified
    color convertor and made some of them more robust. Revamped the retrieval
-   mechanism of CPU capabilities. Did plenty of other things too.
+   mechanism of CPU capabilities and did plenty of other things too.
 
    Roberto Alfonso (<email>rpgrca@labint.frba.utn.edu.ar</a>).<br>
    Added an srand() call in the demo game.
@@ -674,7 +672,7 @@ Contributors
    Sean Gugler (<email>sean@epal.com</a>).<br>
    Added the set_leds() function.
 
-   Seunghwan Ji.<br>
+   Seunghwan Ji (email unknown).<br>
    Made makedoc output correct html and rtf files for Korean.
 
    Seymour Shlien (<email>seymour@dgbt.doc.ca</a>).<br>
@@ -705,11 +703,11 @@ Contributors
 
    Sven Sandberg (<email>svens@it.uu.se</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 
-   the create_light_table() function, optimised the fixed point trig 
+   the create_light_table() function, optimised the fixed point trigonometric
    routines, provided the Swedish message translations, improved the file 
-   selector sorting algorithm, optimised the spline routines, added the 
-   ustrrchr() function, improved the usprintf() handling of floats, changed
-   the Z-buffer API, improved rotation functions and provided other bugfixes.
+   selector sorting algorithm, optimised the spline routines, added ustrrchr(),
+   improved the usprintf() handling of floats, changed the Z-buffer API,
+   improved rotation functions and did plenty of other things too.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
@@ -766,9 +764,8 @@ Contributors
    system, optimised the 256 to truecolor blitting code to avoid repeated 
    conversions of the palette table, added scare_mouse_area(), added the 
    yield_timeslice() function, added the update selection function to the 
-   grabber, added the XCRP and YCRP properties to datafiles in general, and 
-   made various other bugfixes and improvements. Responsible for the big
-   header split up, and did loads other stuff too.
+   grabber, added the XCRP and YCRP properties to datafiles in general,
+   implemented the big header split and did plenty of other things too.
 
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.
