@@ -205,7 +205,6 @@ static void alsa_mix(void)
 	 continue;
 
       if (ret < 0) {
-	 TRACE("ALSA X run\n");
 	 if (xrun_recovery(pcm_handle, ret) < 0)
 	    fprintf(stderr, "Write error: %s\n", snd_strerror(ret));
 	 poll_next = 0;
@@ -230,7 +229,7 @@ static void alsa_update(int threaded)
    unsigned short revents;
 
    if (poll_next) {
-      poll(ufds, pdc, -1);
+      poll(ufds, pdc, 0);
       snd_pcm_poll_descriptors_revents(pcm_handle, ufds, pdc, &revents);
       if (revents & POLLERR) {
 	 if (snd_pcm_state(pcm_handle) == SND_PCM_STATE_XRUN ||
@@ -287,7 +286,7 @@ static int alsa_init(int input, int voices)
    int ret = 0;
    char tmp1[128], tmp2[128];
    unsigned int dir = 0;
-   int format = 0, fragsize = 0, numfrags = 0; 
+   int format = 0, fragsize = 0, numfrags = 0;
    snd_pcm_sframes_t buffer_size;
 
    if (input) {
@@ -347,15 +346,13 @@ static int alsa_init(int input, int voices)
 
    format = ((alsa_bits == 16) ? SND_PCM_FORMAT_U16_NE : SND_PCM_FORMAT_U8);
 
-   /* TODO: Do we need to change the format for big endian? */
-
    switch (format) {
 
       case SND_PCM_FORMAT_U8:
 	 alsa_bits = 8;
 	 break;
 
-      case SND_PCM_FORMAT_U16_LE:	
+      case SND_PCM_FORMAT_U16_LE:
 	 if (sizeof(short) != 2) {
 	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported sample format"));
 	    goto Error;
@@ -375,7 +372,7 @@ static int alsa_init(int input, int voices)
       while (fragsize < size)
 	 fragsize <<= 1;
    }
- 
+
    snd_pcm_hw_params_malloc(&hwparams);
    snd_pcm_sw_params_malloc(&swparams);
 
@@ -396,7 +393,7 @@ static int alsa_init(int input, int voices)
    ALSA9_CHECK(snd_pcm_hw_params_get_buffer_size(hwparams, &buffer_size));
 
    ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
-   ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, buffer_size)); 
+   ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, buffer_size));
    ALSA9_CHECK(snd_pcm_sw_params_set_avail_min(pcm_handle, swparams, fragsize));
    ALSA9_CHECK(snd_pcm_sw_params_set_xfer_align(pcm_handle, swparams, 1));
    ALSA9_CHECK(snd_pcm_sw_params(pcm_handle, swparams));
@@ -422,13 +419,13 @@ static int alsa_init(int input, int voices)
    pdc = snd_pcm_poll_descriptors_count (pcm_handle);
    if (pdc <= 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Invalid poll descriptors count"));
-      goto Error; 
+      goto Error;
    }
 
    ufds = malloc(sizeof(struct pollfd) * pdc);
    if (ufds == NULL) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Not enough memory for poll descriptors"));
-      goto Error;  
+      goto Error;
    }
    ALSA9_CHECK(snd_pcm_poll_descriptors(pcm_handle, ufds, pdc));
 
