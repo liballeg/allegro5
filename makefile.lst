@@ -124,6 +124,38 @@ ALLEGRO_SRC_I386_FILES = \
 	src/i386/izbuf.s \
 	src/misc/icolconv.s
 
+ALLEGRO_SRC_AMD64_FILES = \
+	src/c/cblit16.c \
+	src/c/cblit24.c \
+	src/c/cblit32.c \
+	src/c/cblit8.c \
+	src/i386/icpu.c \
+	src/amd64/acpus.s \
+	src/c/ccsprite.c \
+	src/c/cgfx15.c \
+	src/c/cgfx16.c \
+	src/c/cgfx24.c \
+	src/c/cgfx32.c \
+	src/c/cgfx8.c \
+	src/c/cmisc.c \
+	src/c/cscan15.c \
+	src/c/cscan16.c \
+	src/c/cscan24.c \
+	src/c/cscan32.c \
+	src/c/cscan8.c \
+	src/c/cspr15.c \
+	src/c/cspr16.c \
+	src/c/cspr24.c \
+	src/c/cspr32.c \
+	src/c/cspr8.c \
+	src/c/cstretch.c \
+	src/c/czscan15.c \
+	src/c/czscan16.c \
+	src/c/czscan24.c \
+	src/c/czscan32.c \
+	src/c/czscan8.c \
+	src/misc/ccolconv.c
+
 ALLEGRO_SRC_DOS_FILES = \
 	src/dos/adlib.c \
 	src/dos/awedata.c \

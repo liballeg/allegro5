@@ -4443,9 +4443,13 @@ int main(void)
    enable_hardware_cursor();
    sprintf(mouse_specs, "Mouse has %d buttons", buttons);
 
-   #ifdef ALLEGRO_I386
+   #if defined ALLEGRO_I386 || defined ALLEGRO_AMD64
 
-      sprintf(cpu_specs, "CPU family: %d86", cpu_family);
+      #ifdef ALLEGRO_I386
+         sprintf(cpu_specs, "CPU family: %d86", cpu_family);
+      #else
+         sprintf(cpu_specs, "CPU family: AMD64");
+      #endif
 
       if (cpu_capabilities & CPU_ID)
 	 strcat(cpu_specs, " / cpuid");
@@ -4461,6 +4465,9 @@ int main(void)
 	 
       if (cpu_capabilities & CPU_SSE2)
 	 strcat(cpu_specs, " / SSE2");
+	 
+      if (cpu_capabilities & CPU_SSE3)
+	 strcat(cpu_specs, " / SSE3");
 	 
       if (cpu_capabilities & CPU_MMX)
 	 strcat(cpu_specs, " / MMX");

@@ -30,7 +30,7 @@ int _i_is_cyrix(void);
 void _i_cx_w(int index, int value);
 char _i_cx_r(int index);
 int _i_is_cpuid_supported(void);
-void _i_get_cpuid_info(long cpuid_levels, long *reg);
+void _i_get_cpuid_info(uint32_t cpuid_levels, uint32_t *reg);
 
 
 
@@ -92,15 +92,15 @@ static void cyrix_type(void)
  */
 void check_cpu() 
 {
-   long cpuid_levels;
-   long vendor_temp[4];
-   long reg[4];
+   uint32_t cpuid_levels;
+   uint32_t vendor_temp[4];
+   uint32_t reg[4];
 
    cpu_capabilities = 0;
 
    if (_i_is_cpuid_supported()) {
       cpu_capabilities |= CPU_ID;
-      _i_get_cpuid_info(0, reg);
+      _i_get_cpuid_info(0x00000000, reg);
       cpuid_levels = reg[0];
       vendor_temp[0] = reg[1];
       vendor_temp[1] = reg[3];
@@ -128,7 +128,7 @@ void check_cpu()
       }
 
       _i_get_cpuid_info(0x80000000, reg);
-      if ((unsigned long)reg[0] > 0x80000000) {
+      if (reg[0] > 0x80000000) {
 	 _i_get_cpuid_info(0x80000001, reg);
 
 	 cpu_capabilities |= (reg[3] & 0x80000000 ? CPU_3DNOW : 0);

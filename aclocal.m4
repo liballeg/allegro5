@@ -29,7 +29,17 @@ AC_TRY_COMPILE([], [asm (".globl _dummy_function\n"
 "     ret\n"
 "     restore" : :)],
 allegro_cv_processor_type=sparc,
-allegro_cv_processor_type=unknown))])
+AC_TRY_COMPILE([], [asm (".globl _dummy_function\n"
+"_dummy_function:\n"
+"     pushq %%rbp\n"
+"     movl %%esp, %%ebp\n"
+"     leal 10(%%ebx, %%ecx, 4), %%edx\n"
+"     callq *%%rdx\n"
+"     addl %%ebx, %%eax\n"
+"     popq %%rbp\n"
+"     ret" : :)],
+allegro_cv_processor_type=amd64,
+allegro_cv_processor_type=unknown)))])
 AC_MSG_RESULT($allegro_cv_processor_type)])
 
 dnl
@@ -780,3 +790,23 @@ fi
 ])
 CFLAGS="$allegro_save_CFLAGS"
 AC_MSG_RESULT($allegro_cv_support_i386_mtune)])
+
+dnl
+dnl Test for working '-mtune' amd64 compile option.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_amd64_mtune=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_AMD64_MTUNE,
+[AC_MSG_CHECKING(whether -mtune is supported)
+allegro_save_CFLAGS="$CFLAGS"
+CFLAGS="-mtune=athlon64"
+AC_CACHE_VAL(allegro_cv_support_amd64_mtune,
+[if test $GCC = yes; then
+   AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_amd64_mtune=yes, allegro_cv_support_amd64_mtune=no)
+else
+   allegro_cv_support_amd64_mtune=no
+fi
+])
+CFLAGS="$allegro_save_CFLAGS"
+AC_MSG_RESULT($allegro_cv_support_amd64_mtune)])

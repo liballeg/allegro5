@@ -186,7 +186,7 @@ cpuid_done:
 
 
 
-/* void _i_get_cpuid_info(long cpuid_levels, long *reg);
+/* void _i_get_cpuid_info(uint32_t cpuid_levels, uint32_t *reg);
  *  This is so easy!
  */
 FUNC(_i_get_cpuid_info)
