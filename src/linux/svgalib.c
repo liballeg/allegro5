@@ -70,7 +70,7 @@ GFX_DRIVER gfx_svgalib =
    NULL,                         /* no drawing mode hook */
    svga_save,
    svga_restore,
-   svga_fetch_mode_list,
+   NULL,			 /* svga_fetch_mode_list disabled */
    0, 0,
    TRUE,
    0, 0, 0, 0, FALSE
@@ -550,7 +550,12 @@ static void svga_restore()
 /* svga_fetch_mode_list:
  *  Generates a list of valid video modes.
  *  Returns the mode list on success or NULL on failure.
+ *
+ *  Disabled because it causes problems if called when other graphics
+ *  drivers are being used.  (It starts up SVGAlib, which then does
+ *  stuff with the console.)
  */
+#if 0
 static GFX_MODE_LIST *svga_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
@@ -601,6 +606,7 @@ static GFX_MODE_LIST *svga_fetch_mode_list(void)
 
    return mode_list;
 }
+#endif
 
 
 
