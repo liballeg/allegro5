@@ -18,6 +18,8 @@
 @$@settitle Allegro Manual
 @$@setchapternewpage odd
 @$@paragraphindent 0
+@$@setchapternewpage off
+@# This should remain commented at the moment (dvi output) @$@finalout
 @$
 @$@ifinfo
 @$@direntry
@@ -33,6 +35,7 @@
 @<head>
 @<title>Allegro - a game programming library</title>
 @<body>
+@titlepage
 @<pre>
 @!indent
      ______   ___    ___
@@ -63,6 +66,7 @@
     that this code may have on you, your computer, your sanity, your dog, 
     and anything else that you can think of. Use it at your own risk."
 </i>
+@!titlepage
 
 
 @!text
@@ -7305,10 +7309,12 @@ By Shawn Hargreaves.
 
 @!html
 @!text
+@$@ifinfo
 @headingnocontent
 Index
 
 @index
+@$@end ifinfo
 
 @$@contents
 @$@bye

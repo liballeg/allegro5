@@ -10,7 +10,12 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
-   3.9.33: Isaac Cruz moved Windows bitmap locking to a separate .S file, 
+   3.9.33: Grzegorz Adam Hankiewicz updated the documentation and the
+   makedoc program to produce better .texi output. The new output works
+   very well with the texi2dvi program, which produces fine ready to print
+   device independent output.
+<li>
+   3.9.33: Isaac Cruz moved Windows bitmap locking to a separate .S file,
    changed the update logic for the windowed driver, and added an accelerated
    vline implementation.
 <li>

@@ -41,6 +41,8 @@
 #define TALLBULLET_FLAG       0x00100000
 #define SHORT_TOC_FLAG        0x00200000
 #define XREF_FLAG             0x00400000
+#define START_TITLE_FLAG      0x00800000
+#define END_TITLE_FLAG        0x01000000
 
 
 typedef struct LINE
@@ -461,6 +463,10 @@ int read_file(char *filename)
 	    flags |= (HEADING_FLAG | NOCONTENT_FLAG);
 	 else if (mystricmp(buf+1, "heading") == 0)
 	    flags |= HEADING_FLAG;
+	 else if (strincmp(buf+1, "titlepage") == 0)
+	    add_line("", START_TITLE_FLAG);
+	 else if (strincmp(buf+1, "!titlepage") == 0)
+	    add_line("", END_TITLE_FLAG);
 	 else if (mystricmp(buf+1, "contents") == 0)
 	    add_line("", TOC_FLAG);
 	 else if (mystricmp(buf+1, "shortcontents") == 0)
@@ -1300,7 +1306,7 @@ void write_textinfo_xref(FILE *f, char *xref)
 int write_texinfo(char *filename)
 {
    char buf[256];
-   LINE *line = head;
+   LINE *line = head, *title_line = 0;
    char *p, *str, *next, *prev;
    char *xref[256];
    int xrefs = 0;
@@ -1308,6 +1314,7 @@ int write_texinfo(char *filename)
    int section_number = 0;
    int toc_waiting = 0;
    int continue_def = 0;
+   int title_pass = 0;
    int i;
    FILE *f;
 
@@ -1351,6 +1358,7 @@ int write_texinfo(char *filename)
 		     xrefs = 0;
 		  }
 		  tfprintf(f, "@node %s, %s, %s, %s\n", buf, next, prev, node_name(section_number-1));
+		  tfprintf(f, "@section %s\n", buf);
 	       }
 
 	       fputs("@ftable @asis\n", f);
@@ -1482,6 +1490,7 @@ int write_texinfo(char *filename)
 	       xrefs = 0;
 	    }
 	    tfprintf(f, "@node %s, %s, %s, %s\n", line->text, next, prev, node_name(section_number-1));
+	    tfprintf(f, "@section %s\n", line->text);
 	 }
 
 	 fputs("@ftable @asis\n", f);
@@ -1495,6 +1504,22 @@ int write_texinfo(char *filename)
       }
       else if (line->flags & XREF_FLAG) {
 	 xref[xrefs++] = line->text;
+      }
+      else if (line->flags & START_TITLE_FLAG) {
+	 /* Remember where the title starts */
+	 title_line = line;
+	 if (!title_pass)
+	    fputs("@titlepage\n", f);
+      }
+      else if (line->flags & END_TITLE_FLAG) {
+	 if (!title_pass)
+	 {
+	    title_pass++;
+	    fputs("@end titlepage\n@ifinfo\n", f);
+	    line = title_line;
+	 }
+	 else
+	    fputs("@end ifinfo\n", f);
       }
 
       continue_def = (line->flags & CONTINUE_FLAG);

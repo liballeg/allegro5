@@ -185,7 +185,8 @@ Contributors
    Wrote several of the example programs, suggested the "compress" makefile 
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 
-   and wrote some documentation.
+   wrote some documentation and corrected the .texi generation to improve
+   texi2dvi output.
 
    Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
    Wrote several of the example programs, and made the intro animation and 
