@@ -18,6 +18,8 @@
  *
  *      Eric Botcazou added the support for non-blocking menus.
  *
+ *      Elias Pschernig and Sven Sandberg improved the focus algorithm.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -506,6 +508,16 @@ typedef struct OBJ_LIST
 } OBJ_LIST;
 
 
+/* Weight ratio between the orthogonal direction and the main direction
+   when calculating the distance for the focus algorithm. */
+#define DISTANCE_RATIO  8
+
+/* Maximum size (in bytes) of a dialog array. */
+#define MAX_SIZE  0x10000  /* 64 kb */
+
+enum axis { X_AXIS, Y_AXIS };
+
+
 
 /* obj_list_cmp:
  *  Callback function for qsort().
@@ -524,8 +536,9 @@ static int cmp_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (int)((AL_CONST unsigned long)d2 - (AL_CONST unsigned long)d1);
 
+   /* Wrap around if d2 is before d1 in the dialog array. */
    if (ret < 0)
-      ret += 0x10000;
+      ret += MAX_SIZE;
 
    return ret;
 }
@@ -539,10 +552,64 @@ static int cmp_shift_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (int)((AL_CONST unsigned long)d1 - (AL_CONST unsigned long)d2);
 
+   /* Wrap around if d2 is after d1 in the dialog array. */
    if (ret < 0)
-      ret += 0x10000;
+      ret += MAX_SIZE;
 
    return ret;
+}
+
+
+
+/* min_dist:
+ *  Returns the minimum distance between dialogs 'd1' and 'd2'. 'main_axis'
+ *  is taken account to give different weights to the axes in the distance
+ *  formula, as well as to shift the actual position of 'd2' along the axis
+ *  by the amount specified by 'bias'.
+ */
+static int min_dist(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2, enum axis main_axis, int bias)
+{
+   int x_left = d1->x - d2->x - d2->w + 1;
+   int x_right = d2->x - d1->x - d1->w + 1;
+   int y_top = d1->y - d2->y - d2->h + 1;
+   int y_bottom = d2->y - d1->y - d1->h + 1;
+
+   if (main_axis == X_AXIS) {
+      x_left -= bias;
+      x_right += bias;
+      y_top *= DISTANCE_RATIO;
+      y_bottom *= DISTANCE_RATIO;
+   }
+   else {
+      x_left *= DISTANCE_RATIO;
+      x_right *= DISTANCE_RATIO;
+      y_top -= bias;
+      y_bottom += bias;
+   }
+
+   if (x_left > 0) { /* d2 is left of d1 */
+      if (y_top > 0)  /* d2 is above d1 */
+         return x_left + y_top;
+      else if (y_bottom > 0)  /* d2 is below d1 */
+         return x_left + y_bottom;
+      else  /* vertically overlapping */
+         return x_left;
+   }
+   else if (x_right > 0) { /* d2 is right of d1 */
+      if (y_top > 0)  /* d2 is above d1 */
+         return x_right + y_top;
+      else if (y_bottom > 0)  /* d2 is below d1 */
+         return x_right + y_bottom;
+      else  /* vertically overlapping */
+         return x_right;
+   }
+   /* horizontally overlapping */
+   else if (y_top > 0)  /* d2 is above d1 */
+      return y_top;
+   else if (y_bottom > 0)  /* d2 is below d1 */
+      return y_bottom;
+   else  /* overlapping */
+      return 0;
 }
 
 
@@ -552,12 +619,16 @@ static int cmp_shift_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
  */
 static int cmp_right(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
-   int ret = (d2->x - d1->x) + ABS(d1->y - d2->y) * 8;
+   int bias;
 
-   if (d1->x >= d2->x)
-      ret += 0x10000;
+   /* Wrap around if d2 is not fully contained in the half-plan
+      delimited by d1's right edge and not containing it. */
+   if (d2->x < d1->x + d1->w)
+      bias = +SCREEN_W;
+   else
+      bias = 0;
 
-   return ret;
+   return min_dist(d1, d2, X_AXIS, bias);
 }
 
 
@@ -567,12 +638,16 @@ static int cmp_right(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
  */
 static int cmp_left(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
-   int ret = (d1->x - d2->x) + ABS(d1->y - d2->y) * 8;
+   int bias;
 
-   if (d1->x <= d2->x)
-      ret += 0x10000;
+   /* Wrap around if d2 is not fully contained in the half-plan
+      delimited by d1's left edge and not containing it. */
+   if (d2->x + d2->w > d1->x)
+      bias = -SCREEN_W;
+   else
+      bias = 0;
 
-   return ret;
+   return min_dist(d1, d2, X_AXIS, bias);
 }
 
 
@@ -582,12 +657,16 @@ static int cmp_left(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
  */
 static int cmp_down(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
-   int ret = (d2->y - d1->y) + ABS(d1->x - d2->x) * 8;
+   int bias;
 
-   if (d1->y >= d2->y)
-      ret += 0x10000;
+   /* Wrap around if d2 is not fully contained in the half-plan
+      delimited by d1's bottom edge and not containing it. */
+   if (d2->y < d1->y + d1->h)
+      bias = +SCREEN_H;
+   else
+      bias = 0;
 
-   return ret;
+   return min_dist(d1, d2, Y_AXIS, bias);
 }
 
 
@@ -597,12 +676,16 @@ static int cmp_down(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
  */
 static int cmp_up(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
-   int ret = (d1->y - d2->y) + ABS(d1->x - d2->x) * 8;
+   int bias;
 
-   if (d1->y <= d2->y)
-      ret += 0x10000;
+   /* Wrap around if d2 is not fully contained in the half-plan 
+      delimited by d1's top edge and not containing it. */
+   if (d2->y + d2->h > d1->y)
+      bias = -SCREEN_H;
+   else
+      bias = 0;
 
-   return ret;
+   return min_dist(d1, d2, Y_AXIS, bias);
 }
 
 
@@ -631,7 +714,8 @@ static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
 
    /* fill temporary table */
    for (c=0; d[c].proc; c++) {
-      if ((*focus_obj < 0) || (c != *focus_obj)) {
+      if (((*focus_obj < 0) || (c != *focus_obj))
+	  && !(d[c].flags & (D_DISABLED | D_HIDDEN))) {
 	 obj[obj_count].index = c;
 	 if (*focus_obj >= 0)
 	    obj[obj_count].diff = cmp(d+*focus_obj, d+c);
