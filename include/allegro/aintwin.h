@@ -35,7 +35,15 @@
 #include "winalleg.h"
 
 #if (!defined SCAN_EXPORT) && (!defined SCAN_DEPEND)
-#include <ddraw.h>
+   /* workaround for buggy mingw headers */
+   #ifndef HMONITOR_DECLARED
+      #define HMONITOR_DECLARED
+   #endif
+   #if (defined _HRESULT_DEFINED) && (defined WINNT)
+      #undef WINNT
+   #endif
+
+   #include <ddraw.h>
 #endif
 
 /*******************************************/
