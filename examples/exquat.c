@@ -317,7 +317,12 @@ int main(void)
    for (;;) {
       float t;
 
+      clear_keybuf();
+
       for (index=0; index<(NUM_STEPS+1); index++) {
+         if (keypressed())
+	    break;
+
 	 t = index * (1.0 / NUM_STEPS);
 
 	 /* the first part shows how to animate the cube incorrectly
