@@ -1,0 +1,177 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+				       /\____/
+				       \_/__/
+
+
+		MacOS X-specific information.
+
+	 See readme.txt for a more general overview.
+
+
+
+====================================
+========== MacOS X notes ===========
+====================================
+
+   This is a native MacOS X port. The port is complete; at present the only
+   missing functionality is joystick support. The whole codebase is also
+   young, so it may hold some bugs; there are also some known minor problems
+   that are currently being investigated, mainly related to endianess.
+
+
+
+===========================================
+============ Required software ============
+===========================================
+
+   To build Allegro under MacOS X, you need:
+
+   - MacOS X 10.x (tested only under 10.2 though)
+   - Recent Apple Developer Tools
+
+   If you don't have the Developer Tools installed, you can grab them at:
+
+   http://developer.apple.com/tools/download
+
+   On the same page you will also find instructions on how to install them.
+
+
+
+============================================
+============ Installing Allegro ============
+============================================
+
+   Allegro ships in source code form; this means you need to compile it
+   before you can use it. You do this easily from a terminal window.
+   Due to the multiplatform nature of the library, the first step is to
+   fix it so it can be built under MacOS X, by running:
+
+      chmod +x fix.sh
+      ./fix.sh macosx
+
+   Now Allegro is ready to be compiled. Start building it:
+
+      make
+
+   And finally you install it (you need the root password for this step):
+
+      sudo make install
+
+   Allegro has now been installed in your system as a standalone shared
+   library, in /usr/local/lib. You may also want to install the library as
+   a standard MacOS X framework:
+
+      sudo make install-framework
+
+   The "Allegro" framework will be created into /Library/Frameworks.
+   Finally, if you plan on using Project Builder to code your apps, you
+   may find useful installing an Allegro application PB project template:
+
+      sudo make install-template
+
+   The dynamically linked version of the library gets built by default, but
+   if you want to build a statically linked one, write the following on the
+   command line:
+
+      export STATICLINK=1
+
+   In the same manner we can also enter one of the following lines to
+   build either the debug or the profiling version of the library:
+
+      export DEBUGMODE=1
+      export PROFILEMODE=1
+
+   Then restart the build process by issuing:
+
+      make
+
+      sudo make install
+
+   The static library will be installed in /usr/local/lib as the shared one,
+   but you will not be able to install the framework nor the Project Builder
+   template, which require a dynamically linked Allegro version.
+
+
+
+===================================================
+======= Using Allegro from the command line =======
+===================================================
+
+   The options for linking with Allegro are quite long, expecially for
+   static versions of the library as you need to pull in several different
+   frameworks (Cocoa, QuickTime, etc.) other than Allegro itself. When
+   linking against the shared library version, things are also different.
+   To avoid you having to work out the right linker commands for yourself,
+   the installation creates a script, allegro-config, that will print out a
+   suitable commandline. You can use this inside a backtick command
+   substitution, for example:
+
+      gcc myfile.c -o myprogram `allegro-config --libs`
+
+   Or if you want to build a debug version of your program, assuming that 
+   you have installed the debug version of Allegro:
+
+      gcc myfile.c -o myprogram `allegro-config --libs debug`
+
+   Unix newbies, take note that these are ` backticks, not normal ' quotes!
+
+   There are also switches for printing out the Allegro version number, 
+   overriding the install paths, and selecting between shared and static 
+   libraries, in case you installed both. Run allegro-config without any 
+   arguments for a full list of options.
+
+
+
+==================================================
+======= Using Allegro from Project Builder =======
+==================================================
+
+   To use Allegro from inside Apple's Project Builder, be sure you first
+   installed the library as a framework and that you also installed the PB
+   application template (see section "Installing Allegro" for details).
+
+   Once you're ready, start up Project Builder and choose "New Project"
+   from the "File" menu. On the very first dialog, you'll be prompted
+   with a list of project templates with which to create your program.
+   Select "Allegro Application" under the "Application" category and enter
+   the project name and location in the next dialog. Once the setup is
+   complete, you will find yourself with an opened Allegro application
+   project, holding an unique source file (main.m) and some linked
+   frameworks. The project can already be compiled to a working application;
+   try it!
+
+   The main.m source file contains a very simple skeleton of an Allegro
+   program that will open up a white window with the text "Hello, world!"
+   in the center. This file is just a start: you can (and should) completely
+   replace its contents to suit your needs.
+
+
+
+=====================================
+============ Final notes ============
+=====================================
+
+   When you build applications from the command line, you're actually just
+   creating the executable, so you can run it from the command line only,
+   and not also from the finder like a common MacOS X application. In other
+   words, compiling from the command line does not create application
+   bundles.
+
+   Allegro ships with a little tool, named fixbundle, which allows to build
+   an application bundle out of an executable.
+
+[ToDo: add fixbundle description]
+
+   If you are using Project Builder to compile your programs, there is no
+   need to use fixbundle, as the IDE will automatically generate a working
+   application bundle for you.
+
+   As a final note, when coding Allegro programs don't forget that you
+   need to use the END_OF_MAIN() macro right after your main() function!
+
