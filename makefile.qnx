@@ -33,7 +33,21 @@ else
 WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 endif
 
-OFLAGS = -mpentium -O6 -ffast-math
+ifdef TARGET_ARCH_COMPAT
+   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
+else
+   ifdef TARGET_ARCH_EXCL
+      TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
+   else
+      TARGET_ARCH = -mpentium
+   endif
+endif
+
+ifndef TARGET_OPTS
+   TARGET_OPTS = -O6 -funroll-loops -ffast-math
+endif
+
+OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
 ifdef DEBUGMODE
 
