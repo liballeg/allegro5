@@ -30,15 +30,8 @@
 
 _DRIVER_INFO _timer_driver_list[] =
 {
-   /* The multi-threaded driver causes the keyboard to freeze under Win2k
-    * when multiple keys are pressed. The fix would be to modify the handling
-    * of the keyboard autorepeat in src/keyboard.c, so that it uses a static
-    * timer instead of a dynamic one which is re-installed each time a new
-    * key is struck.
-    * For the time being, we simply use the single-threaded driver.
-    */
-   {TIMER_WIN32_ST, &timer_win32_st, TRUE},
    {TIMER_WIN32_MT, &timer_win32_mt, TRUE},
+   {TIMER_WIN32_ST, &timer_win32_st, TRUE},
    {0, NULL, 0}
 };
 
@@ -286,8 +279,10 @@ void mt_timer_thread_counter(WIN32_TIMER_INT * This)
 	       LeaveCriticalSection(&tim_crit_sect);
 	    return;
 
-	 case WAIT_OBJECT_0 + 1:;
+	 case WAIT_OBJECT_0 + 1:
 	    /* start new wait */
+            QueryPerformanceCounter(&next_tick);
+            next_tick.QuadPart += This->counter_delay.QuadPart;
 	    break;
       }
    }
