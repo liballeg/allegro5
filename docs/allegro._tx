@@ -580,19 +580,19 @@ table to the set_ucodepage() function.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcpy
-   This function copies up to n bytes from src into dest. The size parameter
+   This function copies up to n bytes from src into dest. The n parameter
    is given in bytes rather than characters on the assumption that you will
    be using this function to prevent overflowing the size of a memory
    buffer. The return value is the value of dest.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
-@xref uconvert, ustrsize, ustrsizez, ustrcat
+@xref uconvert, ustrsize, ustrsizez, ustrcat, ucwidth
    This function is like `strcat' except that not more than n bytes from src
-   are appended to the end of dest. The size parameter is given in bytes
+   are appended to the end of dest. The n parameter is given in bytes
    rather than characters on the assumption that you will be using this
    function to prevent overflowing the size of a memory buffer. A single
-   null character is always appended to dest, so the total allocated size of
-   dest must be at least `n + 1' bytes longer than it's initial length.
+   null character is always appended to dest, so that the total amount of 
+   bytes actually written at the end of dest can reach `n + ucwidth(0)' bytes.
    
 @@int @ustrncmp(const char *s1, const char *s2, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcmp, ustricmp
@@ -5479,30 +5479,29 @@ directories. Flags can be combined using '|' (binary OR operator).
 
 @@char *@fix_filename_path(char *dest, const char *path, int size);
 @xref fix_filename_case, fix_filename_slashes
-   Converts a partial filename into a full path, generating up to the 
-   specified maximum number of characters. Returns a copy of the dest 
-   parameter.
+   Converts a partial filename into a full path, storing at most size bytes 
+   into the dest buffer. Returns a copy of the dest parameter.
 
 @\char *@replace_filename(char *dest, const char *path, 
 @@                        const char *filename, int size);
 @xref get_filename, replace_extension, append_filename
-   Replaces the specified path+filename with a new filename tail, generating 
-   up to the specified maximum number of characters. Returns a copy of the 
-   dest parameter.
+   Replaces the specified path+filename with a new filename tail, storing 
+   at most size bytes into the dest buffer. Returns a copy of the dest 
+   parameter.
 
 @\char *@replace_extension(char *dest, const char *filename, 
 @@                         const char *ext, int size);
 @xref get_extension, replace_filename
    Replaces the specified filename+extension with a new extension tail, 
-   generating up to the specified maximum number of characters. Returns a 
-   copy of the dest parameter.
+   storing at most size bytes into the dest buffer. Returns a copy of the 
+   dest parameter.
 
 @\char *@append_filename(char *dest, const char *path, 
 @@                       const char *filename, int size);
 @xref replace_filename
    Concatenates the specified filename onto the end of the specified path, 
-   generating up to the specified maximum number of characters. Returns a 
-   copy of the dest parameter.
+   storing at most size bytes into the dest buffer. Returns a copy of the 
+   dest parameter.
 
 @@char *@get_filename(const char *path);
 @xref get_extension, put_backslash, replace_filename
@@ -5588,7 +5587,7 @@ directories. Flags can be combined using '|' (binary OR operator).
    environment variable to check, and any subdirectory that you would like 
    to check as well as the default location, this function looks in a hell 
    of a lot of different places :-) Returns zero on success, and stores a 
-   full path to the file (at most size bytes) in the dest parameter.
+   full path to the file (at most size bytes) into the dest buffer.
 
 @@void @packfile_password(const char *password);
 @xref pack_fopen, load_datafile
