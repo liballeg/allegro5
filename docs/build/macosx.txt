@@ -64,8 +64,12 @@
       sudo make install
 
    Allegro has now been installed in your system as a standalone shared
-   library, in /usr/local/lib. You may also want to install the library as
-   a standard MacOS X framework:
+   library, in /usr/local/lib.
+   You may also wish to install the man pages:
+
+      sudo make install-man
+
+   You may also wish to install the library as a standard MacOS X framework:
 
       sudo make install-framework
 
