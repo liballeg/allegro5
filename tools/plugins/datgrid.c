@@ -35,33 +35,33 @@ static int added_count;
 
 
 /* helper for cropping bitmaps */
-static BITMAP *crop_bitmap(BITMAP *bmp)
+static BITMAP *crop_bitmap(BITMAP *bmp, int *tx, int *ty)
 {
-   int tx, ty, tw, th, i, j, c;
+   int tw, th, i, j, c;
    int changed = FALSE;
 
-   tx = 0;
-   ty = 0;
+   *tx = 0;
+   *ty = 0;
    tw = bmp->w;
    th = bmp->h;
 
    if ((tw > 0) && (th > 0)) {
       c = getpixel(bmp, 0, 0);
 
-      for (j=ty; j<ty+th; j++) {       /* top of image */
-	 for (i=tx; i<tx+tw; i++) {
+      for (j=*ty; j<(*ty)+th; j++) {       /* top of image */
+	 for (i=*tx; i<(*tx)+tw; i++) {
 	    if (getpixel(bmp, i, j) != c)
 	       goto finishedtop;
 	 }
-	 ty++;
+	 (*ty)++;
 	 th--;
 	 changed = TRUE;
       }
 
       finishedtop:
 
-      for (j=ty+th-1; j>ty; j--) {     /* bottom of image */
-	 for (i=tx; i<tx+tw; i++) {
+      for (j=(*ty)+th-1; j>*ty; j--) {     /* bottom of image */
+	 for (i=*tx; i<(*tx)+tw; i++) {
 	    if (getpixel(bmp, i, j) != c)
 	       goto finishedbottom;
 	 }
@@ -71,20 +71,20 @@ static BITMAP *crop_bitmap(BITMAP *bmp)
 
       finishedbottom:
 
-      for (j=tx; j<tx+tw; j++) {       /* left of image */
-	 for (i=ty; i<ty+th; i++) {
+      for (j=*tx; j<*(tx)+tw; j++) {       /* left of image */
+	 for (i=*ty; i<(*ty)+th; i++) {
 	    if (getpixel(bmp, j, i) != c)
 	       goto finishedleft;
 	 }
-	 tx++;
+	 (*tx)++;
 	 tw--;
 	 changed = TRUE;
       }
 
       finishedleft:
 
-      for (j=tx+tw-1; j>tx; j--) {     /* right of image */
-	 for (i=ty; i<ty+th; i++) {
+      for (j=*(tx)+tw-1; j>*tx; j--) {     /* right of image */
+	 for (i=*ty; i<(*ty)+th; i++) {
 	    if (getpixel(bmp, j, i) != c)
 	       goto finishedright;
 	 }
@@ -99,7 +99,7 @@ static BITMAP *crop_bitmap(BITMAP *bmp)
    if ((tw != 0) && (th != 0) && (changed)) {
       BITMAP *b2 = create_bitmap_ex(bitmap_color_depth(bmp), tw, th);
       clear_to_color(b2, b2->vtable->mask_color);
-      blit(bmp, b2, tx, ty, 0, 0, tw, th);
+      blit(bmp, b2, *tx, *ty, 0, 0, tw, th);
       destroy_bitmap(bmp);
       return b2;
    }
@@ -125,7 +125,7 @@ static int do_bitmap_check(DATAFILE *dat, int *param, int param2)
 static int griddler_query(int popup)
 {
    DATAFILE *dat;
-   char *s;
+   AL_CONST char *s;
 
    if (popup) {
       dat = grabber_single_selection();
@@ -151,7 +151,7 @@ static int griddler_query(int popup)
 
 
 /* checks whether a bitmap contains any data */
-static int bitmap_is_empty(BITMAP *bmp)
+static int bitmap_is_empty(AL_CONST BITMAP *bmp)
 {
    int x, y;
    int c = getpixel(bmp, 0, 0);
@@ -167,13 +167,14 @@ static int bitmap_is_empty(BITMAP *bmp)
 
 
 /* helper for grabbing images from a grid */
-static void *griddlit(DATAFILE **parent, char *name, int c, int type, int skipempty, int autocrop, int depth, int x, int y, int w, int h)
+static void *griddlit(DATAFILE **parent, AL_CONST char *name, int c, int type, int skipempty, int autocrop, int depth, int x, int y, int w, int h)
 {
    DATAFILE *dat;
    BITMAP *bmp;
    void *v;
    char buf[256];
    RGB tmprgb = datedit_current_palette[0];
+   int tx, ty;
 
    if ((type == DAT_RLE_SPRITE) || (type == DAT_C_SPRITE) || (type == DAT_XC_SPRITE)) {
       datedit_current_palette[0].r = 63;
@@ -194,8 +195,17 @@ static void *griddlit(DATAFILE **parent, char *name, int c, int type, int skipem
       return NULL;
    }
 
-   if (autocrop)
-      bmp = crop_bitmap(bmp);
+   if (autocrop) {
+      bmp = crop_bitmap(bmp, &tx, &ty);
+
+      if (tx || ty) {
+         sprintf(buf, "%d", tx);
+         datedit_set_property(dat, DAT_XCRP, buf);
+
+         sprintf(buf, "%d", ty);
+         datedit_set_property(dat, DAT_YCRP, buf);
+      }
+   }
 
    if (type == DAT_RLE_SPRITE) {
       v = get_rle_sprite(bmp);
@@ -234,7 +244,7 @@ static void *griddlit(DATAFILE **parent, char *name, int c, int type, int skipem
 
 
 /* grabs images from a grid, using boxes of color #255 */
-static void *box_griddle(DATAFILE **parent, char *name, int type, int skipempty, int autocrop, int depth)
+static void *box_griddle(DATAFILE **parent, AL_CONST char *name, int type, int skipempty, int autocrop, int depth)
 {
    void *ret = NULL;
    void *item = NULL;
@@ -264,7 +274,7 @@ static void *box_griddle(DATAFILE **parent, char *name, int type, int skipempty,
 
 
 /* grabs images from a regular grid */
-static void *grid_griddle(DATAFILE **parent, char *name, int type, int skipempty, int autocrop, int depth, int xgrid, int ygrid)
+static void *grid_griddle(DATAFILE **parent, AL_CONST char *name, int type, int skipempty, int autocrop, int depth, int xgrid, int ygrid)
 {
    void *ret = NULL;
    void *item = NULL;
@@ -294,7 +304,7 @@ static char griddle_name[256] = "";
 
 
 /* dialog callback for retrieving the contents of the object type list */
-static char *typelist_getter(int index, int *list_size)
+static AL_CONST char *typelist_getter(int index, int *list_size)
 {
    static char *str[] =
    {
@@ -316,7 +326,7 @@ static char *typelist_getter(int index, int *list_size)
 
 
 /* dialog callback for retrieving the contents of the color depth list */
-static char *depthlist_getter(int index, int *list_size)
+static AL_CONST char *depthlist_getter(int index, int *list_size)
 {
    static char *str[] =
    {
@@ -341,24 +351,24 @@ static char *depthlist_getter(int index, int *list_size)
 static DIALOG griddle_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    276,  304,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    277,  305,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_ctext_proc,      138,  8,    0,    0,    0,    0,    0,       0,          0,             0,       "Grab from Grid",    NULL, NULL  },
-   { d_radio_proc,      16,   32,   120,  12,   0,    0,    0,       D_SELECTED, 0,             0,       "Use col #255",      NULL, NULL  },
-   { d_radio_proc,      16,   56,   120,  12,   0,    0,    0,       0,          0,             0,       "Regular grid",      NULL, NULL  },
+   { d_radio_proc,      16,   32,   121,  13,   0,    0,    0,       D_SELECTED, 0,             0,       "Use col #255",      NULL, NULL  },
+   { d_radio_proc,      16,   56,   121,  13,   0,    0,    0,       0,          0,             0,       "Regular grid",      NULL, NULL  },
    { gg_text_proc,      160,  58,   0,    0,    0,    0,    0,       0,          0,             0,       "X-grid:",           NULL, NULL  },
    { gg_edit_proc,      224,  58,   40,   8,    0,    0,    0,       0,          4,             0,       griddle_xgrid,       NULL, NULL  },
    { gg_text_proc,      160,  80,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",           NULL, NULL  },
    { gg_edit_proc,      224,  82,   40,   8,    0,    0,    0,       0,          4,             0,       griddle_ygrid,       NULL, NULL  },
-   { d_check_proc,      16,   82,   122,  12,   0,    0,    0,       0,          0,             0,       "Skip empties:",     NULL, NULL  },
-   { d_check_proc,      16,   106,  90,   12,   0,    0,    0,       0,          0,             0,       "Autocrop:",         NULL, NULL  },
+   { d_check_proc,      16,   82,   123,  13,   0,    0,    0,       0,          0,             0,       "Skip empties:",     NULL, NULL  },
+   { d_check_proc,      16,   106,  91,   13,   0,    0,    0,       0,          0,             0,       "Autocrop:",         NULL, NULL  },
    { d_text_proc,       16,   138,  0,    0,    0,    0,    0,       0,          0,             0,       "Name:",             NULL, NULL  },
    { d_edit_proc,       64,   138,  204,  8,    0,    0,    0,       0,          255,           0,       griddle_name,        NULL, NULL  },
    { d_text_proc,       16,   160,  0,    0,    0,    0,    0,       0,          0,             0,       "Type:",             NULL, NULL  },
-   { d_list_proc,       64,   160,  196,  35,   0,    0,    0,       0,          0,             0,       typelist_getter,     NULL, NULL  },
+   { d_list_proc,       64,   160,  197,  36,   0,    0,    0,       0,          0,             0,       typelist_getter,     NULL, NULL  },
    { d_text_proc,       16,   208,  0,    0,    0,    0,    0,       0,          0,             0,       "Cols:",             NULL, NULL  },
-   { d_list_proc,       64,   208,  196,  43,   0,    0,    0,       0,          0,             0,       depthlist_getter,    NULL, NULL  },
-   { d_button_proc,     50,   272,  80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
-   { d_button_proc,     146,  272,  80,   16,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
+   { d_list_proc,       64,   208,  197,  44,   0,    0,    0,       0,          0,             0,       depthlist_getter,    NULL, NULL  },
+   { d_button_proc,     50,   272,  81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
+   { d_button_proc,     146,  272,  81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 
@@ -430,9 +440,9 @@ static int gg_edit_proc(int msg, DIALOG *d, int c)
 
 
 /* checks whether an object name matches the grid grab base name */
-static int grid_name_matches(char *gn, char *n)
+static int grid_name_matches(AL_CONST char *gn, AL_CONST char *n)
 {
-   char *s;
+   AL_CONST char *s;
 
    if (strncmp(gn, n, strlen(gn)) != 0)
       return FALSE;
@@ -633,6 +643,8 @@ static int do_autocropper(DATAFILE *dat, int *param, int param2)
 {
    BITMAP *bmp;
    RLE_SPRITE *spr;
+   char buf[256];
+   int tx, ty;
 
    if ((dat->type != DAT_BITMAP) && (dat->type != DAT_RLE_SPRITE) &&
        (dat->type != DAT_C_SPRITE) && (dat->type != DAT_XC_SPRITE)) {
@@ -646,12 +658,20 @@ static int do_autocropper(DATAFILE *dat, int *param, int param2)
       clear_to_color(bmp, bmp->vtable->mask_color);
       draw_rle_sprite(bmp, spr, 0, 0);
       destroy_rle_sprite(spr);
-      bmp = crop_bitmap(bmp);
+      bmp = crop_bitmap(bmp, &tx, &ty);
       dat->dat = get_rle_sprite(bmp);
       destroy_bitmap(bmp);
    }
    else
-      dat->dat = crop_bitmap((BITMAP *)dat->dat);
+      dat->dat = crop_bitmap((BITMAP *)dat->dat, &tx, &ty);
+
+   if (tx || ty) {
+      sprintf(buf, "%d", tx);
+      datedit_set_property(dat, DAT_XCRP, buf);
+
+      sprintf(buf, "%d", ty);
+      datedit_set_property(dat, DAT_YCRP, buf);
+   }
 
    return D_REDRAW;
 }

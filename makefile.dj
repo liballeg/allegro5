@@ -368,8 +368,12 @@ setup/setup.exe: $(OBJ_DIR)/setup.o obj/djgpp/setupdat.o $(LIB_NAME)
 
 else
 
-obj/djgpp/asmdef.inc:
-	touch -c obj/djgpp/asmdef.inc
+obj/djgpp/asmdef.s: src/i386/asmdef.c include/*.h include/allegro/*.h obj/djgpp/mmx.h
+	gcc $(WFLAGS) -I. -I./include -S -o obj/djgpp/asmdef.s src/i386/asmdef.c
+
+obj/djgpp/asmdef.inc: obj/djgpp/asmdef.s
+	if [ ! -x misc/asmdef.sh ]; then chmod a+x misc/asmdef.sh; fi
+	misc/asmdef.sh obj/djgpp/asmdef.s obj/djgpp/asmdef.inc
 
 setup/setup.exe:
 	# do nothing

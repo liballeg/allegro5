@@ -10,6 +10,88 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Isaac Cruz moved Windows bitmap locking to a separate .S file, 
+   changed the update logic for the windowed driver, and added an accelerated
+   vline implementation.
+<li>
+   3.9.33: Stephen Kittelson fixed a bug in pckeys.c, and changed the ASCII 
+   values returned for a few weird key combinations.
+<li>
+   3.9.33: Peter Wang made various functions const-correct.
+<li>
+   3.9.33: Peter Pavlovic made aesthetic modifications to the GUI menu system.
+<li>
+   3.9.33: Javier Gonzalez suggested that the file and mode selector dialogs 
+   should use popup_dialog.
+<li>
+   3.9.33: Vincent Penquerc'h added the install-gzipped-man makefile target,
+   patched some of the EINTR handling, and made the OSS driver detect whether
+   the device is 16 bit or not.
+<li>
+   3.9.33: Peter Pavlovic modified the Slovak keyboard mapping and made the
+   file selector detect available drives in Windows.
+<li>
+   3.9.33: Peter Wang added a sound (output only) driver for BeOS.
+<li>
+   3.9.33: Sven Sandberg fixed a typo in the definition of ustrdup, added
+   the uwidth_max function, provided the d_yield_proc function, and made
+   various dialogs use it.
+<li>
+   3.9.33: Michael Bukin made the DGA driver clear video memory and centre
+   the screen, if it's not fullscreen.
+<li>
+   3.9.33: Eduard Bloch suggested better ways to find the executable in
+   Unix.
+<li>
+   3.9.33: Andrew Geers added flipped rotated sprites.
+<li>
+   3.9.33: George Foot made the Unix makefile work for non-root users.
+<li>
+   3.9.33: Grzegorz Adam Hankiewicz made language config files be forced
+   to lower case.
+<li>
+   3.9.33: Grzegorz Adam Hankiewicz added documentation for findfirst(), 
+   findnext(), and findclose(), and corrected the documentation for 
+   get_executable_name().
+<li>
+   3.9.33: Stephan Roh made patches to allow compilation on IRIX.
+<li>
+   3.9.33: John Harger made a change to improve the stability of AllegroGL
+   in Windows.
+<li>
+   3.9.33: Sven Sandberg fixed a bug in the plain C 16bpp stretched blitter.
+<li>
+   3.9.33: George Foot fixed a bug in the i386 8bpp masked blit routines, 
+   reported by Damian Yerrick.
+<li>
+   3.9.33: Eduard Bloch fixed a freeze caused by the ESD detection code.
+<li>
+   3.9.33: Vincent Penquerc'h added mouse button press/release events to 
+   the GUI system.
+<li>
+   3.9.33: Peter Wang solved a conflict with SVGAlib.
+<li>
+   3.9.33: Vincent Penquerc'h added the XCRP and YCRP properties to bitmap 
+   objects in datafiles.
+<li>
+   3.9.33: Vincent Penquerc'h made the GUI system not send MSG_DRAW to
+   hidden objects.
+<li>
+   3.9.33: Chris La Mantia pointed out that his code for textprintf_right
+   had mutated somehow.
+<li>
+   3.9.33: Peter Wang added a workaround for a mouse motion reporting bug 
+   in some X servers.
+<li>
+   3.9.33: Eric Botcazou altered the DGA code to work better in 32bpp modes.
+<li>
+   3.9.33: Daniel Nilsson tweaked exstars and exlights
+<li>
+   3.9.33: Isaac Cruz fixed a nasty bug with subbitmap locking, and added
+   desktop_color_depth and yield_timeslice support to the Windows version.
+<li>
+   3.9.33: Peter Cech made uisspace() recognise non-ASCII space characters.
+<li>
    3.9.32: S.Sakamaki added a function for controlling the refresh rate when 
    using the DOS VESA 3.0 driver (this could also be supported by some other 
    drivers if anyone wants to implement that).

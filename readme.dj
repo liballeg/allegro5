@@ -63,7 +63,8 @@
    set PATH to access to the cross-compiler, and set NATIVEPATH to a path 
    that will use your native version of gcc instead (_not_ the djgpp 
    cross-compiler!) so that this can be invoked when converting the 
-   documentation.
+   documentation.  You might like to edit and use `makefile.djx'; there 
+   are further instructions in comments in the file.
 
    Type "cd allegro", followed by "make". Then go do something interesting 
    while everything compiles. When it finishes compiling, type "make 

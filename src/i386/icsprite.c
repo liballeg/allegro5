@@ -27,7 +27,7 @@
 /* compile_sprite:
  *  Helper function for making compiled sprites.
  */
-static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
+static void *compile_sprite(AL_CONST BITMAP *b, int l, int planar, int *len)
 {
    int x, y;
    int offset;
@@ -284,7 +284,7 @@ static void *compile_sprite(BITMAP *b, int l, int planar, int *len)
 /* get_compiled_sprite:
  *  Creates a compiled sprite based on the specified bitmap.
  */
-COMPILED_SPRITE *get_compiled_sprite(BITMAP *bitmap, int planar)
+COMPILED_SPRITE *get_compiled_sprite(AL_CONST BITMAP *bitmap, int planar)
 {
    COMPILED_SPRITE *s;
    int plane;

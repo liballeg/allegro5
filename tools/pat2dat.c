@@ -22,8 +22,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
+
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -233,12 +234,12 @@ static void usage()
 
 
 /* unused callback for datedit.c */
-int datedit_ask(char *fmt, ...) { return 0; }
+int datedit_ask(AL_CONST char *fmt, ...) { return 0; }
 
 
 
 /* callback for outputting messages */
-void datedit_msg(char *fmt, ...)
+void datedit_msg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -253,7 +254,7 @@ void datedit_msg(char *fmt, ...)
 
 
 /* callback for starting a 2-part message output */
-void datedit_startmsg(char *fmt, ...)
+void datedit_startmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -269,7 +270,7 @@ void datedit_startmsg(char *fmt, ...)
 
 
 /* callback for ending a 2-part message output */
-void datedit_endmsg(char *fmt, ...)
+void datedit_endmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -284,7 +285,7 @@ void datedit_endmsg(char *fmt, ...)
 
 
 /* callback for printing errors */
-void datedit_error(char *fmt, ...)
+void datedit_error(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -410,7 +411,7 @@ static void scan_patches(MIDI *midi, char *patches, char *drums)
 
 
 /* reads a MIDI file to see what patches it requires */
-static void read_midi(char *filename, int attrib, int param)
+static void read_midi(AL_CONST char *filename, int attrib, int param)
 {
    char patches[128], drums[128];
    char fname[256];
@@ -539,7 +540,7 @@ static void mem_write_file(PACKFILE *f, int size)
 
 
 /* imports data from a GUS patch file */
-static void *grab_patch(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_patch(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    PACKFILE *f;
    long sz = file_size(filename);

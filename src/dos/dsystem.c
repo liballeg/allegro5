@@ -99,11 +99,11 @@ static void sys_dos_get_executable_name(char *output, int size);
 static void sys_dos_save_console_state(void);
 static void sys_dos_restore_console_state(void);
 static void sys_dos_read_palette(void);
-static void sys_dos_set_palette(struct RGB *p, int from, int to, int vsync);
+static void sys_dos_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
 static void sys_dos_yield_timeslice(void);
 
 #ifdef ALLEGRO_DJGPP
-   static void sys_dos_assert(char *msg);
+   static void sys_dos_assert(AL_CONST char *msg);
 #else
    #define sys_dos_assert  NULL
 #endif
@@ -391,7 +391,7 @@ static void sys_dos_get_executable_name(char *output, int size)
  *  of stack entries (users don't need to see inside the Allegro assert
  *  mechanism). And because it is cool.
  */
-static void sys_dos_assert(char *msg)
+static void sys_dos_assert(AL_CONST char *msg)
 {
    extern unsigned int end __asm__ ("end");
    extern unsigned int _stklen;
@@ -514,7 +514,7 @@ static void sys_dos_read_palette()
 /* sys_dos_set_palette:
  *  Writes a palette to the video hardware.
  */
-static void sys_dos_set_palette(struct RGB *p, int from, int to, int vsync)
+static void sys_dos_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
    if (console_virgin)
       sys_dos_save_console_state();

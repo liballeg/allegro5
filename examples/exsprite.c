@@ -143,6 +143,19 @@ int main(int argc, char *argv[])
       angle += 4;
    } while (!next);
 
+   clear_keybuf();
+   rectfill(screen, 0, 190, 320, 200, 0);
+   textout(screen, font, "Now using rotate_sprite_v_flip", 1, 190, 15);
+
+   do {
+      /* The last argument to rotate_sprite_v_flip() is a fixed point type,
+       * so I had to use itofix() routine (integer to fixed).
+       */
+      rotate_sprite_v_flip(sprite_buffer, running_data[frame_number].dat, 0, 0, itofix(angle));
+      animate();
+      angle += 4;
+   } while (!next);
+
    unload_datafile(running_data);
    return 0;
 }

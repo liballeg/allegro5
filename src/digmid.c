@@ -18,7 +18,8 @@
 
 #include <string.h>
 #include <limits.h>
-#include <math.h>
+
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -28,7 +29,7 @@
 static int digmid_detect(int input);
 static int digmid_init(int input, int voices);
 static void digmid_exit(int input);
-static int digmid_load_patches(char *patches, char *drums);
+static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums);
 static void digmid_key_on(int inst, int note, int bend, int vol, int pan);
 static void digmid_key_off(int voice);
 static void digmid_set_volume(int voice, int vol);
@@ -365,7 +366,8 @@ static PATCH *load_patch(PACKFILE *f, int drum)
 int _digmid_find_patches(char *dir, char *file)
 {
    char filename[512], tmp1[64], tmp2[64], tmp3[64], tmp4[64];
-   char *name, *datafile, *objectname, *envvar, *subdir, *s;
+   AL_CONST char *name;
+   char *datafile, *objectname, *envvar, *subdir, *s;
 
    name = get_config_string(uconvert_ascii("sound", tmp1), uconvert_ascii("patches", tmp2), NULL);
    datafile = uconvert_ascii("patches.dat", tmp1);
@@ -422,7 +424,7 @@ static int parse_string(char *buf, char *argv[])
 /* digmid_load_patches:
  *  Reads the patches that are required by a particular song.
  */
-static int digmid_load_patches(char *patches, char *drums)
+static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 {
    PACKFILE *f;
    char dir[256], file[256], buf[256], filename[256];

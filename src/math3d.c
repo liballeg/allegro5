@@ -16,7 +16,7 @@
  */
 
 
-#include <math.h>
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 
@@ -664,7 +664,7 @@ void qscale_matrix_f(MATRIX_f *m, float scale)
  *  applied to a vector v, (v * out) = ((v * m1) * m2). Any number of
  *  transformations can be concatenated in this way.
  */
-void matrix_mul(MATRIX *m1, MATRIX *m2, MATRIX *out)
+void matrix_mul(AL_CONST MATRIX *m1, AL_CONST MATRIX *m2, MATRIX *out)
 {
    MATRIX temp;
    int i, j;
@@ -697,7 +697,7 @@ void matrix_mul(MATRIX *m1, MATRIX *m2, MATRIX *out)
 /* matrix_mul_f:
  *  Floating point version of matrix_mul().
  */
-void matrix_mul_f(MATRIX_f *m1, MATRIX_f *m2, MATRIX_f *out)
+void matrix_mul_f(AL_CONST MATRIX_f *m1, AL_CONST MATRIX_f *m2, MATRIX_f *out)
 {
    MATRIX_f temp;
    int i, j;
@@ -808,7 +808,7 @@ void cross_product_f(float x1, float y1, float z1, float x2, float y2, float z2,
  *  Helper function for backface culling: returns the z component of the
  *  normal vector to the polygon formed from the three vertices.
  */
-fixed polygon_z_normal(V3D *v1, V3D *v2, V3D *v3)
+fixed polygon_z_normal(AL_CONST V3D *v1, AL_CONST V3D *v2, AL_CONST V3D *v3)
 {
    return (fmul(v2->x-v1->x, v3->y-v2->y) - fmul(v3->x-v2->x, v2->y-v1->y));
 }
@@ -818,7 +818,7 @@ fixed polygon_z_normal(V3D *v1, V3D *v2, V3D *v3)
 /* polygon_z_normal_f:
  *  Floating point version of polygon_z_normal().
  */
-float polygon_z_normal_f(V3D_f *v1, V3D_f *v2, V3D_f *v3)
+float polygon_z_normal_f(AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, AL_CONST V3D_f *v3)
 {
    return ((v2->x-v1->x) * (v3->y-v2->y)) - ((v3->x-v2->x) * (v2->y-v1->y));
 }

@@ -16,8 +16,7 @@
  *      See readme.txt for copyright information.
  */
 
-#include "..\i386\asmdefs.inc"
-
+#include "src/i386/asmdefs.inc"
 
 
 .text
@@ -48,11 +47,9 @@
       movd %eax, %mm5                                                              ; \
       punpckldq %mm5, %mm5                                                         ; \
                                                                                    ; \
-      movl GLOBL(gfx_driver), %eax                                                 ; \
-      movl 100(%eax), %edx        /* edx = SCREEN_W */                             ; \
-      movl 104(%eax), %ecx        /* ecx = SCREEN_H */                             ; \
-                                                                                   ; \
       movl ARG1, %eax             /* eax = &src_desc */                            ; \
+      movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */                    ; \
+      movl 12(%eax), %edx         /* edx = src_desc.dwWidth */                     ; \
       movl 16(%eax), %esi         /* esi = src_desc.lPitch */                      ; \
       movl 36(%eax), %eax         /* eax = src_desc.lpSurface */                   ; \
       shll $2, %edx               /* edx = SCREEN_W * 4 */                         ; \
@@ -79,11 +76,9 @@
       movd %eax, %mm5                                                              ; \
       punpckldq %mm5, %mm5                                                         ; \
                                                                                    ; \
-      movl GLOBL(gfx_driver), %eax                                                 ; \
-      movl 100(%eax), %edx        /* edx = SCREEN_W */                             ; \
-      movl 104(%eax), %ecx        /* ecx = SCREEN_H */                             ; \
-                                                                                   ; \
       movl ARG1, %eax             /* eax = &src_desc */                            ; \
+      movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */                    ; \
+      movl 12(%eax), %edx         /* edx = src_desc.dwWidth */                     ; \
       movl 16(%eax), %esi         /* esi = src_desc.lPitch */                      ; \
       movl 36(%eax), %eax         /* eax = src_desc.lpSurface */                   ; \
       addl %edx, %edx             /* edx = SCREEN_W * 2 */                         ; \
@@ -292,16 +287,13 @@ FUNC (_update_8_to_32)
    pushl %ebx
    pushl %esi
    pushl %edi
-   subl $12, %esp   /* three local variables */
 
    /* init register values */
 
-   movl GLOBL(gfx_driver), %eax
-   movl 100(%eax), %edi        /* edi = SCREEN_W */
-   movl 104(%eax), %ecx        /* ecx = SCREEN_H */
-   movl %ecx, LOCAL1           /* LOCAL1 = SCREEN_H */
-
    movl ARG1, %eax             /* eax = &src_desc */
+   movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */
+   movl %ecx, LOCAL1           /* LOCAL1 = SCREEN_H */
+   movl 12(%eax), %edi         /* edi = src_desc.dwWidth */
    movl 16(%eax), %esi         /* esi = src_desc.lPitch */
    movl 36(%eax), %eax         /* eax = src_desc.lpSurface */
    subl %edi, %esi
@@ -364,7 +356,6 @@ FUNC (_update_8_to_32)
       movl %edx, LOCAL1
       jnz next_line_8_to_32
       
-   addl $12, %esp
    emms
    popl %edi
    popl %esi
@@ -382,16 +373,13 @@ FUNC (_update_8_to_16)
    pushl %ebx
    pushl %esi
    pushl %edi
-   subl $12, %esp   /* three local variables */
 
    /* init register values */
 
-   movl GLOBL(gfx_driver), %eax
-   movl 100(%eax), %edi        /* edi = SCREEN_W */
-   movl 104(%eax), %ecx        /* ecx = SCREEN_H */
-   movl %ecx, LOCAL1           /* LOCAL1 = SCREEN_H */
-
    movl ARG1, %eax             /* eax = &src_desc */
+   movl 8(%eax), %ecx          /* ecx = src_desc.dwHeight */
+   movl %ecx, LOCAL1           /* LOCAL1 = SCREEN_H */
+   movl 12(%eax), %edi         /* edi = src_desc.dwWidth */
    movl 16(%eax), %esi         /* esi = src_desc.lPitch */
    movl 36(%eax), %eax         /* eax = src_desc.lpSurface */
    subl %edi, %esi
@@ -454,7 +442,6 @@ FUNC (_update_8_to_16)
       movl %edx, LOCAL1
       jnz next_line_8_to_16
       
-   addl $12, %esp
    emms
    popl %edi
    popl %esi
@@ -462,4 +449,3 @@ FUNC (_update_8_to_16)
    popl %ebp
       
    ret
-

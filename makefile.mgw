@@ -1,48 +1,43 @@
 #
-#  Rules for building the Allegro library with egcs / mingw32. This file
-#  is included by the primary makefile, and should not be used directly.
+#  Rules for building the Allegro static link library with MINGW32.
+#  This file is included by the primary makefile,
+#  and should not be used directly.
 #
-#  The "depend" target, the export definition file and the fixdll-include use sed.
+#  The "depend" target uses sed.
 #
 #  See makefile.all for a list of the available targets.
 
 
-PLATFORM = MINGW32
 
+# -------- define some variables that the primary makefile will use --------
+
+PLATFORM = MINGW32
 EXE = .exe
 OBJ = .o
 HTML = html
 
-# For Mingw32 we can not adhere to any directory standard for installation.
-# The default install is to copy includes and libs to ...i386-mingw32/include
-# and ...i386-mingw32/lib and the dll into the Windows directory.
-# Those who wish to keep their Mingw32 directory tree clean can specify
-# make install prefix=install_dir where install_dir is an existing directory
-# containing the subdirectories /include, /lib, /bin.
-# E.g. make install prefix=install_here, make uninstall prefix=install_here
+ifdef STATICLINK
 
-ifneq (,$(findstring /sh.exe,$(SHELL)))
-  CP := command -c copy
-  _S := /
-  _Q := "
+# -------- link as a static library --------
+OBJ_DIR = obj/mingw32/$(VERSION)_s
+IMPLIB_BASENAME = lib$(VERSION)_s.a
+IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
+LIB_NAME = $(IMPLIB_NAME)
+
 else
-  CP := copy
-  _S := $(subst \,/,/)
+
+# -------- link as a DLL --------
+OBJ_DIR = obj/mingw32/$(VERSION)
+DLL_BASENAME = $(SHORT_VERSION)$(LIBRARY_VERSION).dll
+DLL_NAME = lib/mingw32/$(DLL_BASENAME)
+IMPLIB_BASENAME = lib$(VERSION).a
+IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
+LIB_NAME = $(DLL_NAME) $(IMPLIB_NAME)
+
+EXPDEF_NAME=lib/mingw32/allegro.def
 endif
 
-OBJ_BASE = obj/mingw32
-OBJ_BASE_D := $(subst /,\,$(OBJ_BASE)/)
 
-    # -------- link as a DLL --------
-    OBJ_DIR = $(OBJ_BASE)/$(VERSION)
-    DLL_BASENAME = $(SHORT_VERSION)$(LIBRARY_VERSION).dll
-    DLL_NAME = lib/mingw32/$(DLL_BASENAME)
-    IMPLIB_BASENAME = lib$(VERSION).a
-    IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
-    EXPDEF_BASENAME = allegro.def
-    EXPDEF_NAME = lib/mingw32/$(EXPDEF_BASENAME)
-    LIB_NAME = $(IMPLIB_NAME)
-    RUNNER =  $(EXPDEF_NAME)
 
 # -------- check that environment path variable is set --------
 #
@@ -63,17 +58,21 @@ badwin:
 	@echo Your SYSTEMROOT or windir environment variable is not set!
 endif
 
-ifeq ($(MINGDIR),)
+ifdef MINGDIR
+MINGDIR_U = $(subst \,/,$(MINGDIR))
+MINGDIR_D = $(subst /,\,$(MINGDIR))
+else
 badming:
 	@echo Please specify your mingw32 directory via MINGDIR=. See the readme.mgw file!
 endif
 
 
 # -------- give a sensible default target for make without any args --------
-#
+
 .PHONY: _default
 
 _default: default
+
 
 
 # -------- decide what compiler options to use --------
@@ -113,76 +112,106 @@ endif
 
 
 
-# -------- include files / directories --------
-#
+# -------- list platform specific objects and programs --------
 
-INCLUDE_FILES = $(addprefix include/,allegro.h winalleg.h          \
-		$(addprefix allegro/,alwin.h aintern.h aintwin.h alconfig.h almngw32.h))
+VPATH = src/win src/i386 src/misc wintests
 
-# -------- list which platform specific programs --------
-#
-VPATH = wintests
+OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
-PROGRAMS = dibgrab dibhello
+LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
+PROGRAMS = dibgrab dibhello scrsave
 
 dibgrab: wintests/dibgrab.exe
 dibhello: wintests/dibhello.exe
+scrsave: wintests/scrsave.scr
+
 
 # -------- rules for installing and removing the library files --------
-#
 
-ifdef prefix
-  PREFIX  = $(prefix)
-  BIN_DIR = $(PREFIX)\bin
-else
-  BIN_DIR = $(WINDIR)
-  PREFIX := $(subst /,\,$(MINGDIR))
+ifndef STATICLINK
+
+$(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
+	copy lib\mingw32\$(DLL_BASENAME) $(WINDIR_D)
+
 endif
 
-INC_DIR = $(PREFIX)\include
-LIB_DIR = $(PREFIX)\lib
+$(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
+	copy lib\mingw32\$(IMPLIB_BASENAME) $(MINGDIR_D)\lib
 
-$(LIB_DIR)\$(IMPLIB_BASENAME): $(IMPLIB_NAME)
-	copy lib\mingw32\$(IMPLIB_BASENAME) $(LIB_DIR)
+$(MINGDIR_U)/include/allegro.h: include/allegro.h
+	copy include\allegro.h $(MINGDIR_D)\include
 
-$(INC_DIR)/%: include/%
+$(MINGDIR_U)/include/winalleg.h: include/winalleg.h
+	copy include\winalleg.h $(MINGDIR_D)\include
+
+$(MINGDIR_U)/include/allegro:
+	md $(MINGDIR_D)\include\allegro 
+
+$(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
 
-$(INC_DIR)\allegro/%.h: include\allegro/%.h $(INC_DIR)\allegro
-	copy $(subst /,\,$< $@)
+HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
 
-$(INC_DIR)\allegro:
-	-md "$(INC_DIR)\allegro"
+INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
 
-HEADERS = $(addprefix $(PREFIX)\,$(wildcard include\allegro/*.h))
-
-INSTALL_FILES = $(LIB_DIR)\$(IMPLIB_BASENAME) \
-		$(INC_DIR)/allegro.h \
-		$(INC_DIR)/winalleg.h \
-		$(INC_DIR)\allegro \
-		$(HEADERS)
+ifndef STATICLINK
+INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+endif
 
 install: $(INSTALL_FILES)
+	@echo The $(DESCRIPTION) MINGW32 library has been installed.
 
-UNINSTALL_FILES = \
-      $(LIB_DIR)\alleg.a $(LIB_DIR)\alld.a $(LIB_DIR)\allp.a \
-      $(LIB_DIR)\alleg_s.a $(LIB_DIR)\alld_s.a $(LIB_DIR)\allp_s.a \
-      $(INC_DIR)\allegro.h $(INC_DIR)\winalleg.h $(INC_DIR)\allegro\*.h
-
+UNINSTALL_FILES = $(MINGDIR_U)/lib/alleg.a $(MINGDIR_U)/lib/alld.a $(MINGDIR_U)/lib/allp.a $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro/*.h $(WINDIR_U)/all$(LIBRARY_VERSION).dll $(WINDIR_U)/ald$(LIBRARY_VERSION).dll $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
 uninstall:
-	-rm -fv $(subst \,/,$(UNINSTALL_FILES))
-	rd $(INC_DIR)\allegro
+	-rm -fv $(UNINSTALL_FILES)
+	-rd $(MINGDIR_D)\include\allegro
 	@echo All gone!
 
-#--------------------------------------------------------------------------------------------------
-#
-# -------- finally, we get to the fun part... --------
-#
 
-# -------- use dynamic library --------
+
+# -------- autodetect whether the assembler supports MMX instructions --------
+
+.PHONY: mmxtest
+
+mmxtest:
+	echo // no MMX > obj\mingw32\mmx.h
+	echo .text > obj\mingw32\mmxtest.s
+	echo emms >> obj\mingw32\mmxtest.s
+	gcc -c obj/mingw32/mmxtest.s -o obj/mingw32/mmxtest.o
+	echo #define ALLEGRO_MMX > obj\mingw32\mmx.h
+
+obj/mingw32/mmx.h:
+	@echo Testing for MMX assembler support...
+	-$(MAKE) mmxtest
+
+
+
+# -------- finally, we get to the fun part... --------
+
+ifdef STATICLINK
+
+# -------- link as a static library --------
 define MAKE_LIB
-  dlltool --dllname $(DLL_BASENAME) --def $(EXPDEF_NAME) --output-lib $(IMPLIB_NAME)
+ar rs $(LIB_NAME) $(OBJECTS)
 endef
+
+COMPILE_FLAGS = -DALLEGRO_STATICLINK 
+
+else
+
+# -------- link as a DLL --------
+ifdef FASTDLL
+define MAKE_LIB
+  gcc $(LFLAGS) -shared -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
+  dlltool --dllname $(DLL_NAME) --output-lib $(IMPLIB_NAME) --def $(EXPDEF_NAME)
+endef
+else
+define MAKE_LIB
+  dllwrap --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
+endef
+endif
+
+endif
 
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
@@ -192,50 +221,87 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
+ifdef STATICLINK
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
-	gcc $(LFLAGS) -mwindows -o $@ $< $(LIB_NAME) $(LDLIBS)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  $(LIBRARIES) 
+else 
+*/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o $@ $< $(IMPLIB_NAME)  
+endif
+
+wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+
+$(OBJ_DIR)/scrsave.res: wintests/scrsave.rc
+	windres -O coff -o $(OBJ_DIR)/scrsave.res -i wintests/scrsave.rc
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
 
+ifdef STATICLINK
 define LINK_CONSOLE
-  gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LDLIBS)
+gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 endef
+else
+define LINK_CONSOLE
+gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME)
+endef
+endif
 
-$(EXPDEF_NAME):
-	@echo Run fixdll to generate allegro.def!
+obj/mingw32/asmdef.inc: obj/mingw32/asmdef.exe
+	obj/mingw32/asmdef.exe obj/mingw32/asmdef.inc
 
-PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
+obj/mingw32/asmdef.exe: src/i386/asmdef.c
+	gcc -O $(WFLAGS) -I. -I./include -o obj/mingw32/asmdef.exe src/i386/asmdef.c
+
+PLUGIN_LIB = lib/mingw32/$(VERY_SHORT_VERSION)dat.a
+PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB)
 PLUGINS_H = obj/mingw32/plugins.h
-PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
-PLUGIN_SCR = scx
+PLUGIN_SCR = scv
+
 
 define GENERATE_PLUGINS_H
-  copy tools\plugins\*.inc obj\mingw32\plugins.h
+copy tools\plugins\*.inc obj\mingw32\plugins.h
 endef
 
 define MAKE_PLUGIN_LIB
-  ar rcs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
+ifdef STATICLINK
 define LINK_WITH_PLUGINS
-  gcc $(LFLAGS) -mwindows -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
+else
+define LINK_WITH_PLUGINS
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
+endef
+endif
+
+ifdef STATICLINK
+define LINK_CONSOLE_WITH_PLUGINS
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+endef
+else
+define LINK_CONSOLE_WITH_PLUGINS
+gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
+endef
+endif
+
 
 
 # -------- generate automatic dependencies --------
 
-GCC2MINGW = -D__MINGW32__ -UDJGPP -U__unix__
-
-DEPEND_PARAMS = $(GCC2MINGW) -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARAMS = -D__MINGW32__ -MM -MG -I. -I./include $(subst ;, -isystem ,$(INCLUDE))
 
 depend:
-	gcc $(DEPEND_PARAMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) wintests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
-	sed -e 's/\\/\//g' -e 's/\/$$/\\/' -e "s/^[a-zA-Z0-9_\/]*\///" -e "s/ \.\// /g" _depend.tmp > _depend1.tmp
-	sed -e "s/asmdef\.o/asmdef\.exe/" _depend1.tmp > _depend.tmp
-	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/mingw32\/alleg\/\1/" _depend.tmp > $(OBJ_BASE)/alleg/makefile.dep
-	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/mingw32\/alld\/\1/" _depend.tmp > $(OBJ_BASE)/alld/makefile.dep
-	sed -e "s/^\([a-zA-Z0-9_]*\.o:\)/obj\/mingw32\/allp\/\1/" _depend.tmp > $(OBJ_BASE)/allp/makefile.dep
-	rm -f _depend.tmp _depend1.tmp
-
-
+	echo "-isystem $(INCLUDE)" | sed -e "s/;$$//" -e "s/;/ -isystem /g" > _depend.arg
+	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c wintests/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/win/*.s >> _depend.tmp
+	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld\/\1\.o:/" _depend2.tmp > obj/mingw32/alld/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp\/\1\.o:/" _depend2.tmp > obj/mingw32/allp/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alleg_s\/\1\.o:/" _depend2.tmp > obj/mingw32/alleg_s/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/alld_s\/\1\.o:/" _depend2.tmp > obj/mingw32/alld_s/makefile.dep
+	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/mingw32\/allp_s\/\1\.o:/" _depend2.tmp > obj/mingw32/allp_s/makefile.dep
+	rm _depend.arg _depend.tmp _depend2.tmp

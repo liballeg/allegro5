@@ -32,7 +32,7 @@ static void *makenew_sample(long *size)
 
 
 /* displays a sample in the grabber object view window */
-static void plot_sample(DATAFILE *dat, int x, int y)
+static void plot_sample(AL_CONST DATAFILE *dat, int x, int y)
 {
    textout(screen, font, "Double-click in the item list to play it", x, y+32, gui_fg_color);
 }
@@ -49,7 +49,7 @@ static int dclick_sample(DATAFILE *dat)
 
 
 /* returns an information string describing a sample object */
-static void get_sample_desc(DATAFILE *dat, char *s)
+static void get_sample_desc(AL_CONST DATAFILE *dat, char *s)
 {
    SAMPLE *sample = (SAMPLE *)dat->dat;
    long sec = (sample->len + sample->freq/2) * 10 / MAX(sample->freq, 1);
@@ -61,7 +61,7 @@ static void get_sample_desc(DATAFILE *dat, char *s)
 
 
 /* exports a sample into an external file */
-static int export_sample(DATAFILE *dat, char *filename)
+static int export_sample(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    SAMPLE *spl = (SAMPLE *)dat->dat;
    int bps = spl->bits/8 * ((spl->stereo) ? 2 : 1);
@@ -106,7 +106,7 @@ static int export_sample(DATAFILE *dat, char *filename)
 
 
 /* imports a sample from an external file */
-static void *grab_sample(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_sample(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    return load_sample(filename);
 }
@@ -136,7 +136,7 @@ static void save_sample(DATAFILE *dat, int packed, int packkids, int strip, int 
 
 
 /* returns a description string for a GUS patch object */
-static void get_patch_desc(DATAFILE *dat, char *s)
+static void get_patch_desc(AL_CONST DATAFILE *dat, char *s)
 {
    sprintf(s, "MIDI instrument (%ld bytes)", dat->size);
 }

@@ -67,11 +67,13 @@
 /* clip3d:
  *  A fixed point version of clip3d_f. Works suprisingly well.
  */
-int clip3d(int type, fixed min_z, fixed max_z, int vc, V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[])
+int clip3d(int type, fixed min_z, fixed max_z, int vc, AL_CONST V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[])
 {
    int i, j, vo, vt, flags;
    fixed t;
-   V3D *v1, *v2, *v3, **vin;
+   V3D *v3;
+
+   AL_CONST V3D *v1, *v2, **vin;
 
    static int flag_table[] = {
       INT_NONE,                             /* flat */
@@ -115,7 +117,7 @@ int clip3d(int type, fixed min_z, fixed max_z, int vc, V3D *vtx[], V3D *vout[], 
 	 if (out[j])
 	    point_inside(vt);
       }
-      vin = vtmp;
+      vin = (AL_CONST V3D**)vtmp;
    }
    else {
       vt = vc;

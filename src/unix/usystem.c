@@ -17,16 +17,21 @@
 
 
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 
-#ifdef _POSIX_PRIORITY_SCHEDULING
+
+#include "allegro.h"
+#include "allegro/aintunix.h"
+
+#if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
+   /* ALLEGRO_USE_SCHED_YIELD is set by configure */
    /* Manpages say systems providing sched_yield() define
     * _POSIX_PRIORITY_SCHEDULING in unistd.h
     */
    #include <sched.h>
 #endif
-
-#include "allegro.h"
-#include "allegro/aintunix.h"
 
 #ifdef HAVE_SYS_UTSNAME_H
    #include <sys/utsname.h>
@@ -53,7 +58,7 @@ _DRIVER_INFO _system_driver_list[] =
  *  Helper for locating a Unix config file. Looks in the home directory
  *  of the current user, and in /etc.
  */
-int _unix_find_resource(char *dest, char *resource, int size)
+int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256];
    char *home = getenv("HOME");
@@ -137,7 +142,7 @@ void _read_os_type()
  */
 void _unix_yield_timeslice(void)
 {
-   #ifdef _POSIX_PRIORITY_SCHEDULING
+   #if defined(ALLEGRO_USE_SCHED_YIELD) && defined(_POSIX_PRIORITY_SCHEDULING)
 
       sched_yield();
 
@@ -151,4 +156,47 @@ void _unix_yield_timeslice(void)
    #endif
 }
 
+
+
+/* _unix_get_executable_name:
+ *  Return full path to the current executable.
+ */
+void _unix_get_executable_name(char *output, int size)
+{
+   char *path;
+
+   /* If argv[0] has no explicit path, but we do have $PATH, search there */
+   if (!strchr (__crt0_argv[0], '/') && (path = getenv("PATH"))) {
+      char *start = path, *end = path, *buffer = NULL, *temp;
+      struct stat finfo;
+
+      while (*end) {
+	 end = strchr (start, ':');
+	 if (!end) end = strchr (start, '\0');
+
+	 /* Resize `buffer' for path component, slash, argv[0] and a '\0' */
+	 temp = realloc (buffer, end - start + 1 + strlen (__crt0_argv[0]) + 1);
+	 if (temp) {
+	    buffer = temp;
+
+	    strncpy (buffer, start, end - start);
+	    *(buffer + (end - start)) = '/';
+	    strcpy (buffer + (end - start) + 1, __crt0_argv[0]);
+
+	    if ((stat(buffer, &finfo)==0) && (!S_ISDIR (finfo.st_mode))) {
+	       do_uconvert (buffer, U_ASCII, output, U_CURRENT, size);
+	       free (buffer);
+	       return;
+	    }
+	 } /* else... ignore the failure; `buffer' is still valid anyway. */
+
+	 start = end + 1;
+      }
+      /* Path search failed */
+      free (buffer);
+   }
+
+   /* If argv[0] had a slash, or the path search failed, just return argv[0] */
+   do_uconvert (__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
+}
 

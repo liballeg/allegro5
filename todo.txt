@@ -1,8 +1,4 @@
 mouse doesn't move fast enough when using hires modes in Windows
-implement desktop_color_depth() in Windows
-implement yield_timeslice() on Windows
-windows crash bug involving sub-bitmap locking and hardware acceleration
-the BMP_ID_LOCKED flag should be cleared during sub-bitmap creation
 add caching system to speed up filename#object and load_datafile_object()
 talk to Calin about merging latest P3D rendering stuff
 a native Mingw32 build would be nice

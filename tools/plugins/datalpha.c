@@ -131,7 +131,7 @@ static int export_alpha(void)
    RLE_SPRITE *rle;
    BITMAP *bmp;
    char buf[256], name[256] = "";
-   char *ext = NULL;
+   AL_CONST char *ext = NULL;
    int ret = 0;
 
    if ((!dat) || ((dat->type != DAT_BITMAP) && (dat->type != DAT_RLE_SPRITE))) {
@@ -252,7 +252,7 @@ static BITMAP *do_alpha_import(BITMAP *bmp, int *changed, RGB *pal)
    BITMAP *newbmp;
    DATAFILE *alpha;
    char buf[256], name[256];
-   char *ext = NULL;
+   AL_CONST char *ext = NULL;
    int x, y, c, r, g, b, a;
 
    *changed = FALSE;
@@ -382,7 +382,7 @@ static MENU alpha_sub_menu[] =
 /* per-object alpha channel menu */
 static MENU alpha_menu =
 {
-   "Alpha Channel...",
+   "Alpha Channel",
    NULL,
    alpha_sub_menu,
    0,

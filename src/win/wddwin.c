@@ -28,11 +28,11 @@ extern void _update_8_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc
 static struct BITMAP *gfx_directx_create_video_bitmap_win(int width, int height);
 static void gfx_directx_destroy_video_bitmap_win(struct BITMAP *bitmap);
 static void gfx_directx_set_palette_win(struct RGB *p, int from, int to, int vsync);
-static void setup_retrace_proc (void);
 static int wnd_set_windowed_coop(void);
 static void create_offscreen (int w, int h, int color_depth);
 static int verify_color_depth (int color_depth);
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap);
+static void gfx_directx_unlock_win(BITMAP *bmp);
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth);
 static void gfx_directx_win_exit(struct BITMAP *b);
 
@@ -76,39 +76,42 @@ static int pixel_match[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
 
 DDPIXELFORMAT pixel_format[] = {
    /* 8-bit */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, 8, 0, 0, 0, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0}},
    /* 16-bit RGB 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x7C00, 0x03e0, 0x001F, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x7C00}, {0x03e0}, {0x001F}, {0}},
    /* 16-bit BGR 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x001F, 0x03e0, 0x7C00, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x03e0}, {0x7C00}, {0}},
    /* 16-bit RGB 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0xF800, 0x07e0, 0x001F, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0xF800}, {0x07e0}, {0x001F}, {0}},
    /* 16-bit BGR 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x001F, 0x07e0, 0xF800, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x001F}, {0x07e0}, {0xF800}, {0}},
    /* 24-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 24, 0xFF0000, 0x00FF00, 0x0000FF, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 24-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}},
    /* 32-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 32-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 32, 0x0000FF, 0x00FF00, 0xFF0000, 0}
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}	} 
 };
+
 
 LPDDPIXELFORMAT dd_pixelformat = NULL;  /* pixel format used */
 
 /* offscreen surface that will be blitted to the window:*/
 LPDIRECTDRAWSURFACE dd_offscreen = NULL;
-LPDIRECTDRAWSURFACE pseudo_screen = NULL;  /* for page-flipping */
+BITMAP* pseudo_screen = NULL;  /* for page-flipping */
 BOOL app_active = TRUE;
 RECT window_rect;
 BOOL same_color_depth;
 int* allegro_palette = NULL;
-void (*update_window) (void);
+void (*update_window) (RECT* rect);
 void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+int* dirty_lines; /* used in WRITE_BANK */
 static int desktop_depth = 0;
 static int desk_r, desk_g, desk_b;
-
+static int reused_screen;
+static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
 /* handle_window_size_win:
@@ -126,40 +129,74 @@ void handle_window_size_win(void)
 /* update_window_hw
  * function synced with the vertical refresh
  */
-void update_window_hw (void)
+void update_window_hw (RECT* rect)
 {
+   RECT update_rect;
+   HRESULT hr;
+   
+   if (!app_active) return;
+
+   if (rect) {
+      update_rect.left = window_rect.left + rect->left;
+      update_rect.top = window_rect.top + rect->top;
+      update_rect.right = window_rect.left + rect->right;
+      update_rect.bottom = window_rect.top + rect->bottom;
+   }
+   else
+      update_rect = window_rect;
+   
    /* blit offscreen backbuffer to the window */
-   IDirectDrawSurface_Blt(dd_prim_surface,
-			  &window_rect,
-			  pseudo_screen, NULL,
-			  0, NULL);
+   hr = IDirectDrawSurface_Blt(dd_prim_surface,
+        		       &update_rect,
+			       BMP_EXTRA(pseudo_screen)->surf,
+			       rect, 0, NULL);
 }
 
 
 /* update_window_ex:
  * converts between two color formats
  */
-void update_window_ex (void)
+void update_window_ex (RECT* rect)
 {
    DDSURFACEDESC src_desc, dest_desc;
    HRESULT hr;
+   RECT update_rect;
 
+   if (!app_active) return;
    src_desc.dwSize = sizeof(src_desc);
    src_desc.dwFlags = 0;
    dest_desc.dwSize = sizeof(dest_desc);
    dest_desc.dwFlags = 0;
-   hr = IDirectDrawSurface_Lock(dd_prim_surface, &window_rect, &dest_desc, 0, NULL);
-   if (FAILED(hr)) return;
-   hr = IDirectDrawSurface_Lock(pseudo_screen, NULL, &src_desc, 0, NULL);
+
+   if (rect) {
+      rect->left &= 0xfffffffc;  /* align it */
+      rect->right = (rect->right+3) & 0xfffffffc;
+      update_rect.left = window_rect.left + rect->left;
+      update_rect.top = window_rect.top + rect->top;
+      update_rect.right = window_rect.left + rect->right;
+      update_rect.bottom = window_rect.top + rect->bottom;
+   }
+   else
+      update_rect = window_rect;
+   
+   hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
+   if (FAILED(hr)) {
+      return;
+   }
+
+   hr = IDirectDrawSurface_Lock(BMP_EXTRA(pseudo_screen)->surf, rect, &src_desc, DDLOCK_WAIT, NULL);
    if (FAILED(hr)) {
       IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
       return;
    }
+
+   src_desc.dwWidth = update_rect.right - update_rect.left;
+   src_desc.dwHeight = update_rect.bottom - update_rect.top;
    
    /* function doing the hard work */
    _update (&src_desc, &dest_desc);
 
-   IDirectDrawSurface_Unlock(pseudo_screen, NULL);
+   IDirectDrawSurface_Unlock(BMP_EXTRA(pseudo_screen)->surf, NULL);
    IDirectDrawSurface_Unlock(dd_prim_surface, NULL);
 }
 
@@ -169,6 +206,12 @@ void update_window_ex (void)
 static struct BITMAP *gfx_directx_create_video_bitmap_win(int width, int height)
 {
    LPDIRECTDRAWSURFACE surf;
+
+   /* can we reuse the screen bitmap for this? */
+   if ((!reused_screen) && (screen->w == width) && (screen->h == height)) {
+      reused_screen = TRUE;
+      return screen;
+   }
 
    /* create DirectDraw surface */
    surf = gfx_directx_create_surface(width, height, _color_depth, 0, 0, 0);
@@ -185,6 +228,11 @@ static struct BITMAP *gfx_directx_create_video_bitmap_win(int width, int height)
  */
 static void gfx_directx_destroy_video_bitmap_win(struct BITMAP *bitmap)
 {
+   if (bitmap == screen) {
+      reused_screen = FALSE;
+      return;
+   }
+
    if (BMP_EXTRA(bitmap))
       gfx_directx_destroy_surf(BMP_EXTRA(bitmap)->surf);
    release_directx_bitmap(bitmap);
@@ -220,6 +268,7 @@ static void gfx_directx_set_palette_win(struct RGB *p, int from, int to, int vsy
                                    ((p[n].g<<2) << desk_g) |
                                    ((p[n].b<<2) << desk_b) );
    }
+   update_window(NULL);
 }
 
 
@@ -230,7 +279,6 @@ void wddwin_switch_out(void)
 {
    if (app_active) {
       app_active = FALSE;
-      remove_int(update_window);
    }
 }
 
@@ -242,33 +290,11 @@ void wddwin_switch_out(void)
 void wddwin_switch_in(void)
 {
    handle_window_size_win();
-   if (!app_active) {
+   if (!app_active)
       app_active = TRUE;
-      setup_retrace_proc();
-   }
 }
 
 
-/* setup_retrace_proc
- */
-static void setup_retrace_proc (void)
-{ 
-   HRESULT hr;
-   int freq;
-
-   /* set correct sync timer speed */
-   hr = IDirectDraw_GetMonitorFrequency(directdraw, &freq);
-   if ((FAILED(hr)) || (freq < 40) || (freq > 200))
-      if (same_color_depth)
-	 install_int_ex (update_window, BPS_TO_TIMER(70));
-      else
-	 install_int_ex (update_window, BPS_TO_TIMER(25));
-   else
-      if (same_color_depth)
-	 install_int_ex (update_window, BPS_TO_TIMER(freq));
-      else
-	 install_int_ex (update_window, BPS_TO_TIMER(freq/3));
-}
 
 
 /* wnd_set_windowed_coop
@@ -393,11 +419,30 @@ static int verify_color_depth (int color_depth)
 static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
 {
    if (BMP_EXTRA(bitmap)->surf) {
-      pseudo_screen = BMP_EXTRA(bitmap)->surf;
+      pseudo_screen->vtable->release = gfx_directx_unlock;
+      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank;
+      pseudo_screen->write_bank = gfx_directx_write_bank;
+      pseudo_screen = bitmap;
+      pseudo_screen->vtable->release = gfx_directx_unlock_win;
+      pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
+      pseudo_screen->write_bank = gfx_directx_write_bank_win;
+      update_window(NULL);
       return 0;
    }
    return -1;
 }
+
+
+
+/* gfx_directx_unlock_win:
+ */
+static void gfx_directx_unlock_win(BITMAP *bmp)
+{
+   gfx_directx_unlock(bmp);
+   update_window(NULL);
+}
+
+
 
 /* _get_color_shift:
  *  return shift value for color mask
@@ -532,6 +577,8 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    AdjustWindowRect(&win_size, GetWindowLong(allegro_wnd, GWL_STYLE), FALSE);
    MoveWindow(allegro_wnd, win_size.left, win_size.top,
    win_size.right - win_size.left, win_size.bottom - win_size.top, TRUE);
+   if (!same_color_depth)
+      SetWindowPos(allegro_wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
    /* create primary surface */
    if (create_primary(w, h, color_depth) != 0)
@@ -567,18 +614,23 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    }
    if (setup_driver(&gfx_directx_win, w, h, color_depth) != 0)
       goto Error;
-   dd_frontbuffer = make_directx_bitmap(dd_offscreen, w, h, color_depth, 
-					same_color_depth ? BMP_ID_VIDEO : BMP_ID_SYSTEM);
+   dd_frontbuffer = make_directx_bitmap(dd_offscreen, w, h, color_depth, BMP_ID_VIDEO);
 
    enable_acceleration(&gfx_directx_win);
+   memcpy (&_special_vtable, &_screen_vtable, sizeof (GFX_VTABLE));
+   _special_vtable.release = gfx_directx_unlock_win;
+   _special_vtable.unwrite_bank = gfx_directx_unwrite_bank_win;
+   dd_frontbuffer->vtable = &_special_vtable;
+   dd_frontbuffer->write_bank = gfx_directx_write_bank_win;
 
+   dirty_lines = malloc(4*h);
+   memset(dirty_lines, 0, 4*h);
    app_active = TRUE;
-
-   setup_retrace_proc();
+   reused_screen = FALSE;
 
    _exit_critical();
 
-   pseudo_screen = dd_offscreen;
+   pseudo_screen = dd_frontbuffer;
    return dd_frontbuffer;
 
  Error:
@@ -594,11 +646,14 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
  */
 static void gfx_directx_win_exit(struct BITMAP *b)
 { 
+   _enter_gfx_critical();
+   
    if (app_active) {
       app_active = FALSE;
-      remove_int(update_window);
    }
 
+   free (dirty_lines);
+   
    dd_pixelformat = NULL;
 
    if (b)
@@ -620,6 +675,8 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    if (b)
       b->extra = NULL;
 
+   _exit_gfx_critical();
+   
    gfx_directx_exit(NULL);
 }
 

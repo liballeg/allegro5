@@ -234,6 +234,9 @@ if test "X$allegro_shared_libraries" = "Xyes"; then
 fi
 AC_SUBST(ALLEGRO_LIB_TARGETS)
 
+dnl Test where is sched_yield (SunOS).
+ALLEGRO_ACTEST_SCHED_YIELD
+
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
 if test -n "$allegro_support_ossdigi"; then
@@ -398,8 +401,8 @@ if test -f "$srcdir/makefile.dep"; then
   fi
 elif test ! -f makefile.dep; then
   echo '# Execute "make depend".' >makefile.dep
+  AC_MSG_WARN([execute \"make depend\" first])
 fi
-AC_MSG_WARN([execute \"make depend\" first])
 
 dnl Wait for a moment, to ensure the makefile gets a nice late
 dnl timestamp, otherwise `makefile.dep' looks too new.

@@ -159,6 +159,7 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wddraw.c \
 	src/win/wddfull.c \
 	src/win/wddlock.c \
+	src/win/asmlock.s \
 	src/win/wddmode.c \
 	src/win/wddovl.c \
 	src/win/wddwin.c \
@@ -197,6 +198,7 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bmousdrv.c \
 	src/beos/bmouse.c \
 	src/beos/bsnd.c \
+	src/beos/bsndapi.cpp \
 	src/beos/bsnddrv.c \
 	src/beos/bswitch.s \
 	src/beos/bsysapi.cpp \
@@ -412,7 +414,7 @@ ALLEGRO_NOLIB_EXE_SOURCES = \
 	src/i386/asmdef.c
 
 CLEAN_FILES = \
-	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 \
+	docs/*.texi docs/*.txi docs/*.tex docs/*.info docs/*.inf docs/*.3 docs/*.txt \
 	obj/*/*.o obj/*/*/*.o obj/*/*/*/*.o obj/*/*.obj obj/*/*/*.obj \
 	obj/*/*.h obj/*/*.s obj/*/*.exe obj/*/*/*.lst obj/*/*/*.asm \
 	obj/*/*/*.res obj/*/asmdef src/i386/asmdef \

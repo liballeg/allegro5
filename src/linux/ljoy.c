@@ -93,7 +93,7 @@ static int joy_init (void)
 				j->stick[s].axis[0].name = get_config_text("X");
 				j->stick[s].axis[1].name = get_config_text("Y");
 				j->stick[s].name = malloc (32);
-				usprintf (j->stick[s].name, get_config_text("Stick %d"), s+1);
+				usprintf ((char *)j->stick[s].name, get_config_text("Stick %d"), s+1);
 				axis[i][a++] = &j->stick[s].axis[0];
 				axis[i][a++] = &j->stick[s].axis[1];
 			}
@@ -103,7 +103,7 @@ static int joy_init (void)
 
 		for (b = 0; b < num_buttons; b++) {
 			j->button[b].name = malloc (16);
-			usprintf (j->button[b].name, uconvert_ascii("%c", tmp), 'A' + b);
+			usprintf ((char *)j->button[b].name, uconvert_ascii("%c", tmp), 'A' + b);
 		}
 		j->num_buttons = num_buttons;
 	}
@@ -171,7 +171,7 @@ static int joy_load (void)
 }
 
 
-static char *joy_calib_name (int n)
+static AL_CONST char *joy_calib_name (int n)
 {
 	return NULL;
 }

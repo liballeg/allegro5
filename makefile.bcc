@@ -173,8 +173,11 @@ uninstall:
 #
 
 # -------- use dynamic library --------
+
 define MAKE_LIB
-	implib -a $(IMPLIB_NAME) $(DLL_BASENAME)
+	command /c copy lib\\msvc\\allegro.def lib\\bcc32\\$(SHORT_VERSION)$(LIBRARY_VERSION).def
+	lib /nologo /machine:ix86 /def:lib\\bcc32\\$(SHORT_VERSION)$(LIBRARY_VERSION).def /out:$(subst /,\\,$(IMPLIB_NAME).coff) /debugtype:cv /link50compat
+	coff2omf $(subst /,\\,$(IMPLIB_NAME).coff $(IMPLIB_NAME))
 endef
 
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)

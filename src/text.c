@@ -35,7 +35,7 @@ int _textmode = 0;
 /* find_range:
  *  Searches a font for a specific character.
  */
-static INLINE FONT *find_range(FONT *f, int c)
+static INLINE AL_CONST FONT *find_range(AL_CONST FONT *f, int c)
 {
    while (f) {
       if ((c >= f->start) && (c <= f->end))
@@ -68,7 +68,7 @@ void text_mode(int mode)
 /* masked_character:
  *  Helper routine for masked multicolor output of proportional fonts.
  */
-static void masked_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
+static void masked_character(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int color)
 {
    bmp->vtable->draw_256_sprite(bmp, sprite, x, y);
 }
@@ -78,7 +78,7 @@ static void masked_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int colo
 /* opaque_character:
  *  Helper routine for opaque multicolor output of proportional fonts.
  */
-static void opaque_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int color)
+static void opaque_character(BITMAP *bmp, AL_CONST BITMAP *sprite, int x, int y, int color)
 {
    blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
 }
@@ -92,10 +92,10 @@ static void opaque_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int colo
  *  using the colors from the original font bitmap (the one imported into
  *  the grabber program), which allows multicolored text output.
  */
-void textout(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
+void textout(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
    void (*putter)() = NULL;
-   FONT *range = NULL;
+   AL_CONST FONT *range = NULL;
    int c;
 
    acquire_bitmap(bmp);
@@ -154,7 +154,7 @@ void textout(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
  *  Like textout(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void textout_centre(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
+void textout_centre(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
    int len;
 
@@ -168,7 +168,7 @@ void textout_centre(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
  *  Like textout(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void textout_right(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
+void textout_right(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x, int y, int color)
 {
    int len;
 
@@ -179,9 +179,9 @@ void textout_right(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
 
 
 /* textout_justify:
- *  Like textout(), but right justifies the string to the specified area.
+ *  Like textout(), but justifies the string to the specified area.
  */
-void textout_justify(BITMAP *bmp, FONT *f, char *str, int x1, int x2, int y, int diff, int color)
+void textout_justify(BITMAP *bmp, AL_CONST FONT *f, AL_CONST char *str, int x1, int x2, int y, int diff, int color)
 {
    char toks[32];
    char *tok[128];
@@ -228,7 +228,7 @@ void textout_justify(BITMAP *bmp, FONT *f, char *str, int x1, int x2, int y, int
 /* textprintf:
  *  Formatted text output, using a printf() style format string.
  */
-void textprintf(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...)
+void textprintf(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...)
 {
    char buf[512];
 
@@ -246,7 +246,7 @@ void textprintf(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...
  *  Like textprintf(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void textprintf_centre(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...)
+void textprintf_centre(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...)
 {
    char buf[512];
 
@@ -264,7 +264,7 @@ void textprintf_centre(BITMAP *bmp, FONT *f, int x, int y, int color, char *form
  *  Like textprintf(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...)
+void textprintf_right(BITMAP *bmp, AL_CONST FONT *f, int x, int y, int color, AL_CONST char *format, ...)
 {
    char buf[512];
 
@@ -273,7 +273,7 @@ void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, char *forma
    uvsprintf(buf, format, ap);
    va_end(ap);
 
-   textout_centre(bmp, f, buf, x, y, color);
+   textout_right(bmp, f, buf, x, y, color);
 }
 
 
@@ -281,7 +281,7 @@ void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, char *forma
 /* textprintf_justify:
  *  Like textprintf(), but right justifies the string to the specified area.
  */
-void textprintf_justify(BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, int color, char *format, ...)
+void textprintf_justify(BITMAP *bmp, AL_CONST FONT *f, int x1, int x2, int y, int diff, int color, AL_CONST char *format, ...)
 {
    char buf[512];
 
@@ -298,9 +298,9 @@ void textprintf_justify(BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, i
 /* text_length:
  *  Calculates the length of a string in a particular font.
  */
-int text_length(FONT *f, char *str)
+int text_length(AL_CONST FONT *f, AL_CONST char *str)
 {
-   FONT *range;
+   AL_CONST FONT *range;
    int c, len;
 
    len = 0;
@@ -331,7 +331,7 @@ int text_length(FONT *f, char *str)
 /* text_height:
  *  Returns the height of a character in the specified font.
  */
-int text_height(FONT *f)
+int text_height(AL_CONST FONT *f)
 {
    if (f->heighthook)
       return f->heighthook(f->glyphs);

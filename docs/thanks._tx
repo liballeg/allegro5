@@ -41,8 +41,8 @@ Contributors
    Wrote the original version of the digital audio streaming code.
 
    Andrew Geers (<email>andy@geerswj.clara.net</a>).<br>
-   Added the -ppassword and -nosound options to the grabber, and scrolling 
-   support in the image viewer.
+   Added the -ppassword and -nosound options to the grabber, scrolling 
+   support in the image viewer, and the flipped rotated sprite routines.
 
    Andy Goth (<email>andygoth@vetec.com</a>).<br>
    Made the gfx_card config variable more flexible, added the 256x256 
@@ -102,6 +102,10 @@ Contributors
    Chris Robinson (<email>crobin_99@yahoo.com</a>).<br>
    Wrote the fixed point clip3d() function.
 
+   Daniel Nilsson (<email>daniel7@algonet.se</a>).<br>
+   Enlarged the starfield in exstars, and fixed an incorrect range in 
+   exlights.
+
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
 
@@ -122,8 +126,15 @@ Contributors
    Doug Eleveld (<email>D.J.Eleveld@anest.azg.nl</a>).<br>
    Wrote the d_textbox_proc() dialog object and the new grabber help system.
 
+   Eduard Bloch (<email>edi@gmx.de</a>).<br>
+   Fixed a freeze caused by the ESD detection code and suggested better ways
+   to find the path to the executable in Unix.
+
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
+
+   Eric Botcazou (<email>botcazou@club-internet.fr</a>).<br>
+   Made the DGA driver work better in 32bpp modes.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 
@@ -150,7 +161,7 @@ Contributors
    Garret Thomson (<email>gart@terraport.net</a>).<br>
    Wrote the music used in the demo game.
 
-   George Foot (<email>george.foot@merton.ox.ac.uk</a>).<br>
+   George Foot (<email>gfoot@users.sourceforge.net</a>).<br>
    Did a great deal of work on the Linux console version. Also wrote the 
    AWE32 driver, added the MIDI pause/seek functions, and provided the basis 
    of the SoundFont reader used in the pat2dat utility.
@@ -163,8 +174,9 @@ Contributors
 
    Grzegorz Adam Hankiewicz (<email>gradha@iname.com</a>).<br>
    Wrote several of the example programs, suggested the "compress" makefile 
-   target, translated the docs and system error messages into Spanish, and 
-   suggested the idea of embedding the setup utility into other programs.
+   target, translated the docs and system error messages into Spanish,
+   suggested the idea of embedding the setup utility into other programs, 
+   and wrote some documentation.
 
    Grzegorz Ludorowski (<email>pajonk@ajax.umcs.lublin.pl</a>).<br>
    Wrote several of the example programs, and made the intro animation and 
@@ -186,7 +198,10 @@ Contributors
 
    Isaac Cruz (<email>icruzbal@teleline.es</a>).<br>
    Fixed a bug with accelerated drawing onto sub bitmaps of DirectDraw 
-   surfaces, and added the GFX_DIRECTX_WIN driver.
+   surfaces, added the GFX_DIRECTX_WIN driver, fixed a Windows sub bitmap 
+   locking bug, added Windows desktop_color_depth and yield_timeslice 
+   routines, and made extensive modifications to other aspects of the 
+   Windows code.
 
    Ivan Baldo (<email>lubaldo@adinet.com.uy</a>).<br>
    Wrote the 15/16 bit dithering code and optimised the sprite rotation 
@@ -204,6 +219,9 @@ Contributors
 
    Jason Wilkins (<email>fenix@io.com</a>).<br>
    Wrote the quaternion math routines, and contributed the BeOS port.
+
+   Javier Gonzalez (<email>javigg@wanadoo.es</a>).<br>
+   Made bug reports and suggestions for improvement.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -384,7 +402,8 @@ Contributors
    Peter Cech (<email>7cech@nw.fmph.uniba.sk</a>).<br>
    Added grabber support for the 8x8 BIOS font format, and support for 
    hot-swapping between a custom keyboard layout and the standard US 
-   mapping. Optimised the alpha sprite blending routines.
+   mapping. Optimised the alpha sprite blending routines. Added non-ASCII
+   space recognition to uisspace().
 
    Peter Monks (<email>pmonks@iname.com</a>).<br>
    Wrote the Video-7 graphics driver (now available as part of the FreeBE/AF 
@@ -395,15 +414,17 @@ Contributors
 
    Peter Pavlovic (<email>pavlovic@redbull.dcs.fmph.uniba.sk</a>).<br>
    Added the Slovak keyboard mapping and message translation, stopped the 
-   DOS file selector from listing virtual drives, and improved the support 
-   for accented character maps in the keyboard driver.
+   DOS file selector from listing virtual drives, did the same for the Windows
+   file selector, improved the support for accented character maps in the 
+   keyboard driver, and made aesthetic modifications to the GUI menu system.
 
    Peter Wang (<email>tjaden@alphalink.com.au</a>).<br>
    Contributed to the Linux GGI driver, added the mouse_z wheel input 
    support to the Linux code, fixed problems with the ESD sound driver, 
-   wrote the ALSA sound driver, added OSS MIDI and sample input support, 
-   added banked mode support to the SVGAlib driver, wrote the X DGA mode 
-   switching code, and improved the Linux joystick driver.
+   wrote the ALSA sound driver, wrote the BeOS sound driver, added OSS MIDI 
+   and sample input support, added banked mode support to the SVGAlib driver, 
+   wrote the X DGA mode switching code, and improved the Linux joystick driver,
+   and did loads of other things too.
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
@@ -472,14 +493,19 @@ Contributors
    Stepan Roh (<email>sroh7497@ss1000.ms.mff.cuni.cz</a>).<br>
    Added a Czech keyboard mapping and system message translation, the Latin 
    Extended-A characters in the default font, and the codepage support in 
-   the textconv utility, and fixed some problems with the ESD sound driver.
+   the textconv utility, fixed some problems with the ESD sound driver, and 
+   helped make Allegro build better on some Unix platforms.
+
+   Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
+   Made bugfixes and tweaks to the keyboard system.
 
    Sven Sandberg (<email>ssven@geocities.com</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 
    the create_light_table() function, optimised the fixed point trig 
    routines, provided the Swedish message translations, improved the file 
    selector sorting algorithm, optimised the spline routines, added the 
-   ustrrchr() function, and improved the usprintf() handling of floats.
+   ustrrchr() function, improved the usprintf() handling of floats, and 
+   provided other bug fixes.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
@@ -518,11 +544,12 @@ Contributors
    getting the IF-SEGA joystick drivers by S.Suzuki merged into my codebase.
 
    Vincent Penquerc'h (<email>vpenquerch@cr2a-di.fr</a>).<br>
-   Added the D_DIRTY flag to the GUI system, optimised the 256 to truecolor 
-   blitting code to avoid repeated conversions of the palette table, added 
-   scare_mouse_area(), added the yield_timeslice() function, added the 
-   update selection function to the grabber, and made various other bugfixes 
-   and improvements.
+   Added the D_DIRTY flag and mouse button press/release events to the GUI
+   system, optimised the 256 to truecolor blitting code to avoid repeated 
+   conversions of the palette table, added scare_mouse_area(), added the 
+   yield_timeslice() function, added the update selection function to the 
+   grabber, added the XCRP and YCRP properties to datafiles in general, and 
+   made various other bugfixes and improvements.
 
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.

@@ -21,6 +21,7 @@
 #include "allegro.h"
 #include "allegro/aintern.h"
 #include "allegro/aintwin.h"
+#include "wddraw.h"
 
 #ifndef ALLEGRO_WINDOWS
 #error something is wrong with the makefile
@@ -35,6 +36,8 @@ static void sys_directx_message(char *msg);
 static void sys_directx_assert(char *msg);
 static void sys_directx_save_console_state(void);
 static void sys_directx_restore_console_state(void);
+static int sys_directx_desktop_color_depth(void);
+static void sys_directx_yield_timeslice(void);
 static int sys_directx_trace_handler(char *msg);
 static _DRIVER_INFO *sys_directx_timer_drivers(void);
 static _DRIVER_INFO *sys_directx_keyboard_drivers(void);
@@ -69,8 +72,8 @@ SYSTEM_DRIVER system_directx =
    sys_directx_set_display_switch_callback,
    sys_directx_remove_display_switch_callback,
    NULL,                        /* AL_METHOD(void, display_switch_lock, (int lock)); */
-   NULL,                        /* AL_METHOD(int, desktop_color_depth, (void)); */
-   NULL,                        /* AL_METHOD(void, yield_timeslice, (void)); */
+   sys_directx_desktop_color_depth,
+   sys_directx_yield_timeslice,
    NULL,                        /* AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void)); */
    _get_digi_driver_list,       /* AL_METHOD(_DRIVER_INFO *, digi_drivers, (void)); */
    _get_midi_driver_list,       /* AL_METHOD(_DRIVER_INFO *, midi_drivers, (void)); */
@@ -194,7 +197,7 @@ static void sys_directx_get_executable_name(char *output, int size)
    int i = 0;
    int q;
 
-   while ((cmd[i]) && (isspace(cmd[i])))
+   while ((cmd[i]) && (uisspace(cmd[i])))
       i++;
 
    if ((cmd[i] == '\'') || (cmd[i] == '"'))
@@ -204,7 +207,7 @@ static void sys_directx_get_executable_name(char *output, int size)
 
    size -= ucwidth(0);
 
-   while ((cmd[i]) && ((q) ? (cmd[i] != q) : (!isspace(cmd[i])))) {
+   while ((cmd[i]) && ((q) ? (cmd[i] != q) : (!uisspace(cmd[i])))) {
       size -= ucwidth(cmd[i]);
       if (size < 0)
 	 break;
@@ -292,6 +295,33 @@ static void sys_directx_restore_console_state(void)
 
 
 
+/* sys_directx_desktop_color_depth:
+ *  Returns the current desktop color depth.
+ */
+static int sys_directx_desktop_color_depth(void)
+{
+   DEVMODE display_mode;
+
+   display_mode.dmSize = sizeof(DEVMODE);
+   display_mode.dmDriverExtra = 0;
+   if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &display_mode) == 0)
+      return (0);
+
+   return (display_mode.dmBitsPerPel);
+}
+
+
+
+/* sys_directx_yield_timeslice:
+ *  Yields remaining timeslice portion to the system
+ */
+static void sys_directx_yield_timeslice(void)
+{
+   Sleep(0);
+}
+
+
+
 /* sys_directx_trace_handler
  *  handle trace output
  */
@@ -324,7 +354,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
    /* parse commandline into argc/argv format */
    while (argbuf[i]) {
-      while ((argbuf[i]) && (isspace(argbuf[i])))
+      while ((argbuf[i]) && (uisspace(argbuf[i])))
 	 i++;
 
       if (argbuf[i]) {
@@ -338,7 +368,7 @@ int _WinMain(void *_main, void *hInst, void *hPrev, char *Cmd, int nShow)
 
 	 argv[argc++] = &argbuf[i];
 
-	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!isspace(argbuf[i]))))
+	 while ((argbuf[i]) && ((q) ? (argbuf[i] != q) : (!uisspace(argbuf[i]))))
 	    i++;
 
 	 if (argbuf[i]) {

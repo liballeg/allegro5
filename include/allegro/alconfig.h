@@ -68,6 +68,11 @@
    #ifdef __i386__
       #define ALLEGRO_I386
    #endif
+
+   #ifndef AL_CONST
+      #define AL_CONST     const
+   #endif
+
 #endif
 
 
@@ -88,6 +93,10 @@
 
 #ifndef ZERO_SIZE
    #define ZERO_SIZE
+#endif
+
+#ifndef AL_CONST
+   #define AL_CONST
 #endif
 
 #ifndef AL_VAR
@@ -162,7 +171,7 @@
 
 /* emulate missing library functions */
 #ifdef ALLEGRO_NO_STRICMP
-   AL_FUNC(int, _alemu_stricmp, (const char *s1, const char *s2));
+   AL_FUNC(int, _alemu_stricmp, (AL_CONST char *s1, AL_CONST char *s2));
    #define stricmp(s1, s2) _alemu_stricmp(s1, s2)
 #endif
 
@@ -177,7 +186,7 @@
 #endif
 
 #ifdef ALLEGRO_NO_MEMCMP
-   AL_FUNC(int, _alemu_memcmp, (const void *s1, const void *s2, size_t num));
+   AL_FUNC(int, _alemu_memcmp, (AL_CONST void *s1, AL_CONST void *s2, size_t num));
    #define memcmp(s1, s2, num) _alemu_memcmp(s1, s2, num)
 #endif
 
@@ -192,7 +201,7 @@
       void *ff_info;
    };
 
-   AL_FUNC(int, _alemu_findfirst, (char *pattern, struct ffblk *ffblk, int attrib));
+   AL_FUNC(int, _alemu_findfirst, (AL_CONST char *pattern, struct ffblk *ffblk, int attrib));
    AL_FUNC(int, _alemu_findnext, (struct ffblk *ffblk));
    AL_FUNC(void, _alemu_findclose, (struct ffblk *ffblk));
 

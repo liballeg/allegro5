@@ -23,7 +23,7 @@
 
 
 
-void format_id(char *buf, int n, int id, char *name)
+void format_id(char *buf, int n, int id, AL_CONST char *name)
 {
    char tmp[8];
 

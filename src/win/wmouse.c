@@ -333,7 +333,7 @@ static int mouse_dinput_init(void)
  */
 static void mouse_directx_poll(void)
 {
-   int waiting_messages;
+   long int waiting_messages;
    HRESULT hr;
    int current;
    static DIDEVICEOBJECTDATA message_buffer[DINPUT_BUFFERSIZE];

@@ -551,7 +551,7 @@ static void digi_directsound_init_voice(int voice, SAMPLE * sample)
    }
 
    /* convert 16-bit samples from Allegro format to DS */
-   if ((sample->bits == 16) && (sample->param != -2)) {
+   if ((sample->bits == 16) && ((int) sample->param != -2)) {
       for (pos = 0; pos < size_a / 2; pos++)
 	 ((unsigned short *)buf_a)[pos] = ((unsigned short *)(sample->data))[pos] - 32768;
 
@@ -633,7 +633,7 @@ static void *digi_directsound_lock_voice(int voice, int start, int end)
 {
    void *buf_a;
    void *buf_b;
-   int size_a, size_b;
+   long int size_a, size_b;
    HRESULT hr;
 
    start = start * ds_voices[voice].bytes_per_sample;
@@ -695,13 +695,13 @@ static void digi_directsound_unlock_voice(int voice)
 static int digi_directsound_get_position(int voice)
 {
    HRESULT hr;
-   int play_cursor;
-   int write_cursor;
-   unsigned int status;
+   long int play_cursor;
+   long int write_cursor;
+   long int status;
 
    if (ds_voices[voice].ds_buffer) {
       /* is buffer playing */
-      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_buffer, &status);
+      hr = IDirectSoundBuffer_GetStatus(ds_voices[voice].ds_buffer,  &status);
       if (FAILED(hr))
 	 return -1;
 

@@ -16,7 +16,7 @@
  */
 
 
-#include <math.h>
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 
@@ -46,7 +46,7 @@ QUAT identity_quat = { 1.0, 0.0, 0.0, 0.0 };
  *  number of rotations can be concatenated in this way. Note that quaternion
  *  multiplication is not commutative, ie. quat_mul(p, q) != quat_mul(q, p).
  */
-void quat_mul(QUAT *p, QUAT *q, QUAT *out)
+void quat_mul(AL_CONST QUAT *p, AL_CONST QUAT *q, QUAT *out)
 {
    QUAT temp;
 
@@ -200,7 +200,7 @@ void get_vector_rotation_quat(QUAT *q, float x, float y, float z, float a)
 /* quat_to_matrix:
  * Constructs a rotation matrix from a quaternion.
  */
-void quat_to_matrix(QUAT *q, MATRIX_f *m)
+void quat_to_matrix(AL_CONST QUAT *q, MATRIX_f *m)
 {
    float ww;
    float xx;
@@ -256,7 +256,7 @@ void quat_to_matrix(QUAT *q, MATRIX_f *m)
  *  during the conversion. Use get_align_matrix_f if the matrix is not
  *  orthonormalized, because strange things may happen otherwise.
  */
-void matrix_to_quat(MATRIX_f *m, QUAT *q)
+void matrix_to_quat(AL_CONST MATRIX_f *m, QUAT *q)
 {
    float diag;
    float s;
@@ -323,7 +323,7 @@ void matrix_to_quat(MATRIX_f *m, QUAT *q)
  *  A quaternion conjugate is analogous to a complex number conjugate, just
  *  negate the imaginary part
  */
-static INLINE void quat_conjugate(QUAT *q, QUAT *out)
+static INLINE void quat_conjugate(AL_CONST QUAT *q, QUAT *out)
 {
    /* q^* = w - x - y - z */
    out->w =  (q->w);
@@ -337,7 +337,7 @@ static INLINE void quat_conjugate(QUAT *q, QUAT *out)
 /* quat_normal:
  *  A quaternion normal is the sum of the squares of the components.
  */
-static INLINE float quat_normal(QUAT *q)
+static INLINE float quat_normal(AL_CONST QUAT *q)
 {
    /* N(q) = ww + xx + yy + zz */
    return ((q->w * q->w) + (q->x * q->x) + (q->y * q->y) + (q->z * q->z));
@@ -348,7 +348,7 @@ static INLINE float quat_normal(QUAT *q)
 /* quat_inverse:
  *  A quaternion inverse is the conjugate divided by the normal.
  */
-static INLINE void quat_inverse(QUAT *q, QUAT *out)
+static INLINE void quat_inverse(AL_CONST QUAT *q, QUAT *out)
 {
    QUAT  con;
    float norm;
@@ -379,7 +379,7 @@ static INLINE void quat_inverse(QUAT *q, QUAT *out)
  *  Otherwise it is much more efficient to call quat_to_matrix then use
  *  apply_matrix_f.
  */
-void apply_quat(QUAT *q, float x, float y, float z, float *xout, float *yout, float *zout)
+void apply_quat(AL_CONST QUAT *q, float x, float y, float z, float *xout, float *yout, float *zout)
 {
    QUAT v;
    QUAT i;
@@ -426,7 +426,7 @@ void apply_quat(QUAT *q, float x, float y, float z, float *xout, float *yout, fl
  *                   from above
  *      QUAT_USER  - the quaternions are interpolated exactly as given
  */
-void quat_slerp(QUAT *from, QUAT *to, float t, QUAT *out, int how)
+void quat_slerp(AL_CONST QUAT *from, AL_CONST QUAT *to, float t, QUAT *out, int how)
 {
    QUAT   to2;
    double angle;

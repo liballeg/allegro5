@@ -23,19 +23,19 @@ static int OverlayMatch[] = { 8, 15, 16, 24, 24, 32, 32, 0 };
 
 DDPIXELFORMAT OverlayFormat[] = {
    /* 8-bit */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, 8, 0, 0, 0, 0},
+   { sizeof(DDPIXELFORMAT), DDPF_RGB  | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0} },
    /* 16-bit RGB 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0x7C00, 0x03e0, 0x001F, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x7C00}, {0x03e0}, {0x001F}, {0}},
    /* 16-bit RGB 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 16, 0xF800, 0x07e0, 0x001F, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0xF800}, {0x07e0}, {0x001F}, {0}},
    /* 24-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 24, 0xFF0000, 0x00FF00, 0x0000FF, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 24-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 24, 0x0000FF, 0x00FF00, 0xFF0000, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}},
    /* 32-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 32, 0xFF0000, 0x00FF00, 0x0000FF, 0},
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
    /* 32-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, 32, 0x0000FF, 0x00FF00, 0xFF0000, 0}
+   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}}
 };
 
 
@@ -54,7 +54,7 @@ LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
    DDSURFACEDESC surf_desc;
    LPDIRECTDRAWSURFACE surf;
    HRESULT hr;
-   int format=0;
+   unsigned int format=0;
 
 loop:
    /* describe surface characteristics */

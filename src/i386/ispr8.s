@@ -23,6 +23,26 @@
 
 #ifdef ALLEGRO_COLOR8
 
+#ifdef TEST_ACCESS
+#define INIT_READ_TEST(bitmap) pusha ; leal bitmap, %eax ; call GLOBL(init_read_test) ; popa
+#define TEST_BYTE_READ(offset) pusha ; leal offset, %eax ; call GLOBL(test_byte_read) ; popa
+#define TEST_WORD_READ(offset) pusha ; leal offset, %eax ; call GLOBL(test_word_read) ; popa
+#define TEST_LONG_READ(offset) pusha ; leal offset, %eax ; call GLOBL(test_long_read) ; popa
+#define INIT_WRITE_TEST(bitmap) pusha ; leal bitmap, %eax ; call GLOBL(init_write_test) ; popa
+#define TEST_BYTE_WRITE(offset) pusha ; leal offset, %eax ; call GLOBL(test_byte_write) ; popa
+#define TEST_WORD_WRITE(offset) pusha ; leal offset, %eax ; call GLOBL(test_word_write) ; popa
+#define TEST_LONG_WRITE(offset) pusha ; leal offset, %eax ; call GLOBL(test_long_write) ; popa
+#else
+#define INIT_READ_TEST(bitmap)
+#define TEST_BYTE_READ(offset)
+#define TEST_WORD_READ(offset)
+#define TEST_LONG_READ(offset)
+#define INIT_WRITE_TEST(bitmap)
+#define TEST_BYTE_WRITE(offset)
+#define TEST_WORD_WRITE(offset)
+#define TEST_LONG_WRITE(offset)
+#endif
+
 .text
 
 
@@ -59,6 +79,7 @@ FUNC(_linear_draw_sprite8)
       leal (%esi, %ebp), %eax                /* check unaligned bytes */   ; \
       testb $1, %al                                                        ; \
       jz sprite_##name##_before_waligned                                   ; \
+      TEST_BYTE_READ((%esi, %ebp))                                         ; \
       movb (%esi, %ebp), %bl                 /* write unaligned byte */    ; \
       incl %ebp                                                            ; \
       testb %bl, %bl                                                       ; \
@@ -68,141 +89,89 @@ FUNC(_linear_draw_sprite8)
       incb %al                                                             ; \
       testb $2, %al                                                        ; \
       jz sprite_##name##_before_laligned                                   ; \
-      movb (%esi, %ebp), %bl                 /* write unaligned word */    ; \
+      TEST_WORD_READ((%esi, %ebp))                                         ; \
+      movw (%esi, %ebp), %bx                 /* write unaligned word */    ; \
       addl $2, %ebp                                                        ; \
       testb %bl, %bl                                                       ; \
       jz sprite_##name##_before_lalign_skip_0                              ; \
       movb %bl, dest -2(%edi, %ebp)                                        ; \
    sprite_##name##_before_lalign_skip_0:                                   ; \
-      movb -1(%esi, %ebp), %bl                                             ; \
-      testb %bl, %bl                                                       ; \
+      testb %bh, %bh                                                       ; \
       jz sprite_##name##_before_laligned                                   ; \
-      movb %bl, dest -1(%edi, %ebp)                                        ; \
+      movb %bh, dest -1(%edi, %ebp)                                        ; \
    sprite_##name##_before_laligned:          /* now src is long-aligned */ ; \
-									   ; \
-      /* copy single long if necessary */                                  ; \
-      xorl %eax, %eax                                                      ; \
-      subl %ebp, %eax                                                      ; \
-      testl $4, %eax                                                       ; \
-      jnz sprite_##name##_no_single_long                                   ; \
-      movl (%esi, %ebp), %ecx                                              ; \
-      subl $4, %ebp                                                        ; \
-      jmp sprite_x_loop_##name##_skip_all                                  ; \
-   sprite_##name##_no_single_long:                                         ; \
+                                                                           ; \
+   sprite_x_loop_##name##_begin:             /* write longs */             ; \
+      TEST_LONG_READ((%esi, %ebp))                                         ; \
       movl (%esi, %ebp), %eax                                              ; \
-      movl 4(%esi, %ebp), %ecx                                             ; \
-									   ; \
-   sprite_x_loop_##name##_empty:    /* part 1 of unrolling 1 of loop 1 */  ; \
-      test %eax, %eax                                                      ; \
-      jz sprite_x_loop_##name##_skip_all                                   ; \
+      testl %eax, %eax                                                     ; \
+      jz sprite_x_loop_##name##_skip_all     /* skip empty long */         ; \
       leal -0x01010101(%eax), %ebx                                         ; \
-      leal -0x01010101(%ecx), %edx                                         ; \
       xorl %eax, %ebx                                                      ; \
-      xorl %ecx, %edx                                                      ; \
       andl $0x80808080, %ebx                                               ; \
-      jnz sprite_x_loop_##name##_empty_2                                   ; \
-   sprite_x_loop_##name##_full_2:   /* part 2 of unrolling 1 of loop 2 */  ; \
+      jnz sprite_x_loop_##name##_not_full                                  ; \
+                                                                           ; \
+   sprite_x_loop_##name##_full:              /* write long */              ; \
       movl %eax, dest (%edi, %ebp)                                         ; \
-      movl 8(%esi, %ebp), %eax                                             ; \
-      andl $0x80808080, %edx                                               ; \
-      jz sprite_x_loop_##name##2_full                                      ; \
-      test %ecx, %ecx                                                      ; \
-      jz sprite_x_loop_##name##2_skip_3                                    ; \
-   sprite_x_loop_##name##2_empty_2: /* part 2 of unrolling 2 of loop 1 */  ; \
-      testb %cl, %cl                                                       ; \
-      jz sprite_x_loop_##name##2_skip_0                                    ; \
-      movb %cl, dest 4(%edi, %ebp)                                         ; \
-   sprite_x_loop_##name##2_skip_0:                                         ; \
-      testb %ch, %ch                                                       ; \
-      jz sprite_x_loop_##name##2_skip_1                                    ; \
-      movb %ch, dest 5(%edi, %ebp)                                         ; \
-   sprite_x_loop_##name##2_skip_1:                                         ; \
-      shrl $16, %ecx                                                       ; \
-      testb %cl, %cl                                                       ; \
-      jz sprite_x_loop_##name##2_skip_2                                    ; \
-      movb %cl, dest 6(%edi, %ebp)                                         ; \
-   sprite_x_loop_##name##2_skip_2:                                         ; \
-      testb %ch, %ch                                                       ; \
-      jz sprite_x_loop_##name##2_skip_3                                    ; \
-      movb %ch, dest 7(%edi, %ebp)                                         ; \
-   sprite_x_loop_##name##2_skip_3:  /* part 3 of unrolling 2 of loop 1 */  ; \
-      movl 12(%esi, %ebp), %ecx                                            ; \
-      movl 8(%esi, %ebp), %eax                                             ; \
-      addl $8, %ebp                                                        ; \
-      jl sprite_x_loop_##name##_empty                                      ; \
-      jmp sprite_x_loop_##name##_done                                      ; \
-									   ; \
-   sprite_x_loop_##name##_skip_all: /* skip long 1, check long 2 */        ; \
-      test %ecx, %ecx                                                      ; \
-      jz sprite_x_loop_##name##2_skip_3                                    ; \
-      leal -0x01010101(%ecx), %edx                                         ; \
-      xorl %ecx, %edx                                                      ; \
-      jmp sprite_x_loop_##name##2_empty                                    ; \
-									   ; \
-   sprite_x_loop_##name##_full:     /* part 1 of unrolling 1 of loop 2 */  ; \
-      leal -0x01010101(%eax), %ebx                                         ; \
-      leal -0x01010101(%ecx), %edx                                         ; \
-      xorl %eax, %ebx                                                      ; \
-      xorl %ecx, %edx                                                      ; \
-      andl $0x80808080, %ebx                                               ; \
-      jz sprite_x_loop_##name##_full_2                                     ; \
-      test %eax, %eax                                                      ; \
-      jz sprite_x_loop_##name##_skip_all                                   ; \
-   sprite_x_loop_##name##_empty_2:  /* part 2 of unrolling 1 of loop 1 */  ; \
+                                                                           ; \
+      addl $4, %ebp                          /* move to next long */       ; \
+      jle sprite_x_loop_##name##_begin                                     ; \
+      jmp sprite_x_loop_##name##_end                                       ; \
+                                                                           ; \
+   sprite_x_loop_##name##_not_full:                                        ; \
       testb %al, %al                                                       ; \
-      jz sprite_x_loop_##name##_skip_0                                     ; \
-      movb %al, dest (%edi, %ebp)                                          ; \
+      jz sprite_x_loop_##name##_skip_0       /* skip byte #0 */            ; \
+      movb %al, dest (%edi, %ebp)            /* write byte #0 */           ; \
+                                                                           ; \
    sprite_x_loop_##name##_skip_0:                                          ; \
       testb %ah, %ah                                                       ; \
-      jz sprite_x_loop_##name##_skip_1                                     ; \
-      movb %ah, dest 1(%edi, %ebp)                                         ; \
+      jz sprite_x_loop_##name##_skip_1       /* skip byte #1 */            ; \
+      movb %ah, dest 1(%edi, %ebp)           /* write byte #1 */           ; \
+                                                                           ; \
    sprite_x_loop_##name##_skip_1:                                          ; \
       shrl $16, %eax                                                       ; \
       testb %al, %al                                                       ; \
-      jz sprite_x_loop_##name##_skip_2                                     ; \
-      movb %al, dest 2(%edi, %ebp)                                         ; \
+      jz sprite_x_loop_##name##_skip_2       /* skip byte #2 */            ; \
+      movb %al, dest 2(%edi, %ebp)           /* write byte #2 */           ; \
+                                                                           ; \
    sprite_x_loop_##name##_skip_2:                                          ; \
       testb %ah, %ah                                                       ; \
-      jz sprite_x_loop_##name##_skip_3                                     ; \
-      movb %ah, dest 3(%edi, %ebp)                                         ; \
-   sprite_x_loop_##name##_skip_3:   /* part 1 of unrolling 2 of loop 1 */  ; \
-      test %ecx, %ecx                                                      ; \
-      jz sprite_x_loop_##name##2_skip_3                                    ; \
-   sprite_x_loop_##name##2_empty:   /* part 2 of unrolling 2 of loop 1 */  ; \
-      andl $0x80808080, %edx                                               ; \
-      jnz sprite_x_loop_##name##2_empty_2                                  ; \
-      movl 8(%esi, %ebp), %eax                                             ; \
-   sprite_x_loop_##name##2_full:    /* unrolling 2 of loop 2 */            ; \
-      movl %ecx, dest 4(%edi, %ebp)                                        ; \
-      movl 12(%esi, %ebp), %ecx                                            ; \
-      addl $8, %ebp                                                        ; \
-      jl sprite_x_loop_##name##_full                                       ; \
-   sprite_x_loop_##name##_done:                                            ; \
-									   ; \
+      jz sprite_x_loop_##name##_skip_3       /* skip byte #3 */            ; \
+      movb %ah, dest 3(%edi, %ebp)           /* write byte #3 */           ; \
+                                                                           ; \
+   sprite_x_loop_##name##_skip_3:                                          ; \
+   sprite_x_loop_##name##_skip_all:                                        ; \
+      addl $4, %ebp                          /* move to next long */       ; \
+      jle sprite_x_loop_##name##_begin                                     ; \
+                                                                           ; \
+   sprite_x_loop_##name##_end:               /* write leftover data */     ; \
       movl %ebp, %eax                                                      ; \
-      testb $1, %al                                                        ; \
+      testb $1, %al                          /* test for leftover byte */  ; \
       jz sprite_##name##_after_waligned                                    ; \
-      movb (%esi, %ebp), %bl                 /* write leftover byte */     ; \
+      TEST_BYTE_READ((%esi, %ebp))                                         ; \
+      movb (%esi, %ebp), %bl                                               ; \
       incl %ebp                                                            ; \
       testb %bl, %bl                                                       ; \
       jz sprite_##name##_after_waligned                                    ; \
-      movb %bl, dest -1(%edi, %ebp)                                        ; \
+      movb %bl, dest -1(%edi, %ebp)          /* write leftover byte */     ; \
+                                                                           ; \
    sprite_##name##_after_waligned:                                         ; \
       incb %al                                                             ; \
-      testb $2, %al                                                        ; \
+      testb $2, %al                          /* test for leftover word */  ; \
       jz sprite_##name##_after_laligned                                    ; \
-      movb (%esi, %ebp), %bl                 /* write leftover bytes */    ; \
-      addl $2, %ebp                                                        ; \
+      TEST_WORD_READ((%esi, %ebp))                                         ; \
+      movw (%esi, %ebp), %bx                                               ; \
       testb %bl, %bl                                                       ; \
-      jz sprite_##name##_after_lalign_skip_0                               ; \
-      movb %bl, dest -2(%edi, %ebp)                                        ; \
+      jz sprite_##name##_after_lalign_skip_0 /* skip byte #0 */            ; \
+      movb %bl, dest (%edi, %ebp)            /* write byte #0 */           ; \
+                                                                           ; \
    sprite_##name##_after_lalign_skip_0:                                    ; \
-      movb -1(%esi, %ebp), %bl                                             ; \
-      testb %bl, %bl                                                       ; \
-      jz sprite_##name##_after_laligned                                    ; \
-      movb %bl, dest -1(%edi, %ebp)                                        ; \
-   sprite_##name##_after_laligned:           /* line is complete */        ; \
-									   ; \
+      testb %bh, %bh                                                       ; \
+      jz sprite_##name##_after_lalign_skip_1 /* skip byte #1 */            ; \
+      movb %bh, dest 1(%edi, %ebp)           /* write byte #1 */           ; \
+                                                                           ; \
+   sprite_##name##_after_lalign_skip_1:                                    ; \
+   sprite_##name##_after_laligned:                                         ; \
       popl %ebp                              /* need stack variables */    ; \
       movl S_Y, %eax                         /* y counter */               ; \
       incl %eax                                                            ; \
@@ -232,16 +201,19 @@ FUNC(_linear_draw_sprite8)
       WRITE_BANK()                           /* select bank */             ; \
       addl S_X, %eax                         /* add x offset */            ; \
       movl S_W, %ecx                         /* x loop counter */          ; \
+      TEST_BYTE_READ((%esi, %ecx))                                         ; \
       movb (%esi, %ecx), %bl                                               ; \
       jmp sprite_tiny_next_pixel                                           ; \
    sprite_tiny_write_pixel:                                                ; \
       movb %bl, %es:(%eax, %ecx)                                           ; \
+      TEST_BYTE_READ((%esi, %ecx))                                         ; \
       movb (%esi, %ecx), %bl                                               ; \
       jz sprite_tiny_line_complete                                         ; \
    sprite_tiny_next_pixel:                                                 ; \
       cmpb $1, %bl                                                         ; \
       incl %ecx                                                            ; \
       jnc sprite_tiny_write_pixel                                          ; \
+      TEST_BYTE_READ((%esi, %ecx))                                         ; \
       movb (%esi, %ecx), %bl                                               ; \
       jnz sprite_tiny_next_pixel                                           ; \
    sprite_tiny_line_complete:                                              ; \
@@ -255,6 +227,8 @@ FUNC(_linear_draw_sprite8)
 
    /* the actual sprite drawing routine... */
    START_SPRITE_DRAW(sprite)
+
+   INIT_READ_TEST((%esi))
 
    movl BMP_W(%esi), %eax        /* sprite->w */
    subl S_W, %eax                /* - w */

@@ -44,7 +44,7 @@ static void *makenew_midi(long *size)
 
 
 /* displays a MIDI file in the grabber object view window */
-static void plot_midi(DATAFILE *dat, int x, int y)
+static void plot_midi(AL_CONST DATAFILE *dat, int x, int y)
 {
    textout(screen, font, "Double-click in the item list to play it", x, y+32, gui_fg_color);
 }
@@ -61,7 +61,7 @@ static int dclick_midi(DATAFILE *dat)
 
 
 /* exports a MIDI object into an external file */
-static int export_midi(DATAFILE *dat, char *filename)
+static int export_midi(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    MIDI *midi = (MIDI *)dat->dat;
    PACKFILE *f;
@@ -99,7 +99,7 @@ static int export_midi(DATAFILE *dat, char *filename)
 
 
 /* imports a MIDI object from an external file */
-static void *grab_midi(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_midi(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    return load_midi(filename);
 }

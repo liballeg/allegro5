@@ -30,15 +30,15 @@ int  _dummy_detect(int input) { return TRUE; }
 int  _dummy_init(int input, int voices) { digi_none.desc = midi_none.desc = get_config_text("The sound of silence"); return 0; }
 void _dummy_exit(int input) { }
 int  _dummy_mixer_volume(int volume) { return 0; }
-void _dummy_init_voice(int voice, SAMPLE *sample) { }
+void _dummy_init_voice(int voice, AL_CONST SAMPLE *sample) { }
 void _dummy_noop1(int p) { }
 void _dummy_noop2(int p1, int p2) { }
 void _dummy_noop3(int p1, int p2, int p3) { }
 int  _dummy_get_position(int voice) { return -1; }
 int  _dummy_get(int voice) { return 0; }
 void _dummy_raw_midi(int data) { }
-int  _dummy_load_patches(char *patches, char *drums) { return 0; }
-void _dummy_adjust_patches(char *patches, char *drums) { }
+int  _dummy_load_patches(AL_CONST char *patches, AL_CONST char *drums) { return 0; }
+void _dummy_adjust_patches(AL_CONST char *patches, AL_CONST char *drums) { }
 void _dummy_key_on(int inst, int note, int bend, int vol, int pan) { }
 
 /* put this after all the dummy functions, so they will all get locked */
@@ -293,7 +293,7 @@ void reserve_voices(int digi_voices, int midi_voices)
  *  allegro.h. Pass DIGI_AUTODETECT and MIDI_AUTODETECT if you don't know 
  *  what the soundcard is.
  */
-int install_sound(int digi, int midi, char *cfg_path)
+int install_sound(int digi, int midi, AL_CONST char *cfg_path)
 {
    char tmp1[64], tmp2[64];
    char *sound = uconvert_ascii("sound", tmp1);
@@ -752,7 +752,7 @@ void lock_sample(SAMPLE *spl)
 /* load_sample:
  *  Loads a sample from disk.
  */
-SAMPLE *load_sample(char *filename)
+SAMPLE *load_sample(AL_CONST char *filename)
 {
    if (ustricmp(get_extension(filename), uconvert_ascii("wav", NULL)) == 0)
       return load_wav(filename);
@@ -768,7 +768,7 @@ SAMPLE *load_sample(char *filename)
  *  Reads a mono VOC format sample file, returning a SAMPLE structure, 
  *  or NULL on error.
  */
-SAMPLE *load_voc(char *filename)
+SAMPLE *load_voc(AL_CONST char *filename)
 {
    PACKFILE *f;
    char buffer[30];
@@ -869,7 +869,7 @@ SAMPLE *load_voc(char *filename)
  *  Reads a RIFF WAV format sample file, returning a SAMPLE structure, 
  *  or NULL on error.
  */
-SAMPLE *load_wav(char *filename)
+SAMPLE *load_wav(AL_CONST char *filename)
 {
    PACKFILE *f;
    char buffer[25];
@@ -1020,7 +1020,7 @@ void destroy_sample(SAMPLE *spl)
  *  Converts a pitch from the relative 1000 = original format to an absolute
  *  value in hz.
  */
-static INLINE int absolute_freq(int freq, SAMPLE *spl)
+static INLINE int absolute_freq(int freq, AL_CONST SAMPLE *spl)
 {
    if (freq == 1000)
       return spl->freq;
@@ -1040,7 +1040,7 @@ static INLINE int absolute_freq(int freq, SAMPLE *spl)
  *  stop_sample(), and can be manipulated while it is playing by calling
  *  adjust_sample().
  */
-int play_sample(SAMPLE *spl, int vol, int pan, int freq, int loop)
+int play_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
 {
    int voice = allocate_voice(spl);
 
@@ -1069,7 +1069,7 @@ END_OF_FUNCTION(play_sample);
  *  first one it comes across. If the sample is not playing it has no
  *  effect.
  */
-void adjust_sample(SAMPLE *spl, int vol, int pan, int freq, int loop)
+void adjust_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
 {
    int c;
 
@@ -1093,7 +1093,7 @@ END_OF_FUNCTION(adjust_sample);
  *  in looped mode. If there are several copies of the sample playing,
  *  it will stop them all.
  */
-void stop_sample(SAMPLE *spl)
+void stop_sample(AL_CONST SAMPLE *spl)
 {
    int c;
 
@@ -1222,7 +1222,7 @@ static INLINE int allocate_virtual_voice()
  *  since there are 256 virtual voices and anyone who needs more than that
  *  needs some urgent repairs to their brain :-)
  */
-int allocate_voice(SAMPLE *spl)
+int allocate_voice(AL_CONST SAMPLE *spl)
 {
    int phys = allocate_physical_voice(spl->priority);
    int virt = allocate_virtual_voice();
@@ -1277,7 +1277,7 @@ END_OF_FUNCTION(deallocate_voice);
 /* reallocate_voice:
  *  Switches an already-allocated voice to use a different sample.
  */
-void reallocate_voice(int voice, SAMPLE *spl)
+void reallocate_voice(int voice, AL_CONST SAMPLE *spl)
 {
    int phys = _voice[voice].num;
 
@@ -1375,7 +1375,7 @@ SAMPLE *voice_check(int voice)
 	 if (voice_get_position(voice) < 0)
 	    return NULL;
 
-      return _voice[voice].sample;
+      return (SAMPLE*)_voice[voice].sample;
    }
    else
       return NULL;

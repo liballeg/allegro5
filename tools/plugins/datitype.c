@@ -248,7 +248,7 @@ static MENU depth_menu[] =
 /* hook ourselves into the grabber menu system */
 static MENU change_type_menu =
 {
-   "Change Type...",
+   "Change Type",
    NULL,
    type_menu,
    0,
@@ -269,7 +269,7 @@ DATEDIT_MENU_INFO datitype_type_menu =
 
 static MENU change_depth_menu =
 {
-   "Color Depth...",
+   "Color Depth",
    NULL,
    depth_menu,
    0,

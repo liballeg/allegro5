@@ -38,7 +38,7 @@ static BITMAP *vesa_3_init(int w, int h, int v_w, int v_h, int color_depth);
 static void vesa_exit(BITMAP *b);
 static int vesa_scroll(int x, int y);
 static void vesa_vsync(void);
-static void vesa_set_palette_range(PALETTE p, int from, int to, int vsync);
+static void vesa_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int vesa_request_scroll(int x, int y);
 static int vesa_poll_scroll(void);
 
@@ -1248,7 +1248,7 @@ static int vesa_scroll(int x, int y)
 /* vesa_set_palette_range:
  *  Uses VESA function #9 (VBE 2.0 only) to set the palette.
  */
-static void vesa_set_palette_range(PALETTE p, int from, int to, int vsync)
+static void vesa_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    PALETTE tmp;
    int c, mode, seg;

@@ -1036,7 +1036,7 @@ END_OF_FUNCTION(_mix_some_samples);
 /* _mixer_init_voice:
  *  Initialises the specificed voice ready for playing a sample.
  */
-void _mixer_init_voice(int voice, SAMPLE *sample)
+void _mixer_init_voice(int voice, AL_CONST SAMPLE *sample)
 {
    mixer_voice[voice].playing = FALSE;
    mixer_voice[voice].stereo = sample->stereo;

@@ -277,7 +277,7 @@ static void read_24bit_line(int length, PACKFILE *f, BITMAP *bmp, int line)
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
-static void read_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADER *infoheader)
+static void read_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *infoheader)
 {
    int i, line;
 
@@ -310,7 +310,7 @@ static void read_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADER *infoheader)
 /* read_RLE8_compressed_image:
  *  For reading the 8 bit RLE compressed BMP image format.
  */
-static void read_RLE8_compressed_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADER *infoheader)
+static void read_RLE8_compressed_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *infoheader)
 {
    unsigned char count, val, val0;
    int j, pos, line;
@@ -380,7 +380,7 @@ static void read_RLE8_compressed_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADE
 /* read_RLE4_compressed_image:
  *  For reading the 4 bit RLE compressed BMP image format.
  */
-static void read_RLE4_compressed_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADER *infoheader)
+static void read_RLE4_compressed_image(PACKFILE *f, BITMAP *bmp, AL_CONST BITMAPINFOHEADER *infoheader)
 {
    unsigned char b[8];
    unsigned char count;
@@ -462,7 +462,7 @@ static void read_RLE4_compressed_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADE
  *
  *  Thanks to Seymour Shlien for contributing this function.
  */
-BITMAP *load_bmp(char *filename, RGB *pal)
+BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
 {
    BITMAPFILEHEADER fileheader;
    BITMAPINFOHEADER infoheader;
@@ -559,7 +559,7 @@ BITMAP *load_bmp(char *filename, RGB *pal)
  *  Writes a bitmap into a BMP file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-int save_bmp(char *filename, BITMAP *bmp, RGB *pal) 
+int save_bmp(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal) 
 {
    PACKFILE *f;
    PALETTE tmppal;

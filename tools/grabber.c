@@ -136,7 +136,7 @@ static MENU objc_menu[32] =
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
    { "&Shell Edit\t(ctrl+Z)",       sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
-   { "&New...",                     NULL,             new_menu,   0, NULL  },
+   { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
@@ -170,7 +170,7 @@ static MENU popup_menu[32] =
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
-   { "&New...",                     NULL,             new_menu,   0, NULL  },
+   { "&New",                        NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
@@ -197,9 +197,9 @@ static DIALOG main_dlg[] =
    { d_edit_proc,       264,  10,   40,   8,    0,    0,    0,       0,          4,             0,       xgrid_string,     NULL, NULL  },
    { d_text_proc,       315,  10,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",        NULL, NULL  },
    { d_edit_proc,       379,  10,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
-   { d_check_proc,      430,  8,    82,   12,   0,    0,    0,       0,          0,             0,       "Backups:",       NULL, NULL  },
-   { dither_proc,       550,  8,    74,   12,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
-   { droplist_proc,     430,  30,   194,  27,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
+   { d_check_proc,      430,  8,    83,   13,   0,    0,    0,       0,          0,             0,       "Backups:",       NULL, NULL  },
+   { dither_proc,       550,  8,    75,   13,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
+   { droplist_proc,     430,  30,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
    { prop_proc,         260,  86,   364,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('s'),  0,          0,             0,       saver,            NULL, NULL  },
@@ -231,7 +231,7 @@ static DIALOG main_dlg[] =
    { custkey_proc,      0,    0,    0,    0,    0,    0,    0,       D_DISABLED, 0,             0,       NULL,             NULL, NULL  },
    { custkey_proc,      0,    0,    0,    0,    0,    0,    0,       D_DISABLED, 0,             0,       NULL,             NULL, NULL  },
    { custkey_proc,      0,    0,    0,    0,    0,    0,    0,       D_DISABLED, 0,             0,       NULL,             NULL, NULL  },
-   { list_proc,         20,   86,   208,  387,  0,    0,    0,       D_EXIT,     0,             0,       list_getter,      NULL, NULL  },
+   { list_proc,         20,   86,   209,  388,  0,    0,    0,       D_EXIT,     0,             0,       list_getter,      NULL, NULL  },
    { view_proc,         260,  218,  0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
@@ -673,7 +673,7 @@ static MENU *which_menu(int sel)
 	 if ((dat) && (dat->type != DAT_FILE))
 	    ok = TRUE;
       }
-      else if (compare_menu_names(popup_menu[i].text, "New...") == 0) {
+      else if (compare_menu_names(popup_menu[i].text, "New") == 0) {
 	 ok = TRUE;
       }
       else if (!popup_menu[i].text[0]) {
@@ -931,8 +931,8 @@ static int view_proc(int msg, DIALOG *d, int c)
 static int droplist_proc(int msg, DIALOG *d, int c)
 {
    if (msg == MSG_DRAW) {
-      hline(screen, d->x+1, d->y+d->h+1, d->x+d->w+1, d->fg);
-      vline(screen, d->x+d->w+1, d->y+1, d->y+d->h+1, d->fg);
+      hline(screen, d->x+1, d->y+d->h, d->x+d->w, d->fg);
+      vline(screen, d->x+d->w, d->y+1, d->y+d->h, d->fg);
    }
 
    return d_list_proc(msg, d, c);
@@ -1231,14 +1231,15 @@ static char prop_value_string[256];
 static DIALOG prop_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    400,  112,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    401,  113,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_ctext_proc,      200,  8,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_text_proc,       16,   32,   0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_edit_proc,       72,   32,   40,   8,    0,    0,    0,       0,          4,             0,       prop_type_string,    NULL, NULL  },
    { d_text_proc,       16,   48,   0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_edit_proc,       72,   48,   320,  8,    0,    0,    0,       0,          255,           0,       prop_value_string,   NULL, NULL  },
-   { d_button_proc,     112,  80,   80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
-   { d_button_proc,     208,  80,   80,   16,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
+   { d_button_proc,     112,  80,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
+   { d_button_proc,     208,  80,   81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 
@@ -1254,7 +1255,7 @@ static DIALOG prop_dlg[] =
 
 
 /* brings up the property/new object dialog */
-static int do_edit(char *title, char *type_string, char *value_string, int type, char *val, int change_type, int show_type)
+static int do_edit(char *title, char *type_string, char *value_string, int type, AL_CONST char *val, int change_type, int show_type)
 {
    prop_dlg[PROP_DLG_TITLE].dp = title;
    prop_dlg[PROP_DLG_TYPE_STRING].dp = type_string;
@@ -1293,7 +1294,7 @@ static int do_edit(char *title, char *type_string, char *value_string, int type,
 
 
 /* brings up the property editing dialog */
-static int edit_property(char *title, char *value_string, int type, char *val, int change_type, int show_type)
+static int edit_property(char *title, char *value_string, int type, AL_CONST char *val, int change_type, int show_type)
 {
    int sel = single_selection();
    DATAITEM *dat;
@@ -1555,7 +1556,7 @@ static void update_info()
 /* helper for recovering data stored in the info chunk */
 static void retrieve_property(int object, int type, char *def)
 {
-   char *p = get_datafile_property(&datedit_info, type);
+   AL_CONST char *p = get_datafile_property(&datedit_info, type);
 
    if ((p) && (*p))
       strcpy(main_dlg[object].dp, p);
@@ -1772,11 +1773,12 @@ static char *striplist_getter(int index, int *list_size)
 static DIALOG strip_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)              (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    300,  112,  0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    301,  113,  0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_ctext_proc,      150,  8,    0,    0,    0,    0,    0,       0,          0,             0,       "Save Stripped",  NULL, NULL  },
-   { d_list_proc,       22,   32,   256,  27,   0,    0,    0,       D_EXIT,     0,             0,       striplist_getter, NULL, NULL  },
-   { d_button_proc,     62,   80,   80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",             NULL, NULL  }, 
-   { d_button_proc,     158,  80,   80,   16,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",         NULL, NULL  }, 
+   { d_list_proc,       22,   32,   257,  28,   0,    0,    0,       D_EXIT,     0,             0,       striplist_getter, NULL, NULL  },
+   { d_button_proc,     62,   80,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",             NULL, NULL  }, 
+   { d_button_proc,     158,  80,   81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",         NULL, NULL  }, 
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
 
@@ -1929,7 +1931,7 @@ static int force_updater()
 
 
 /* formats a heading for the file select dialog */
-static void format_file_select_heading(char *dest, char *s1, char *s2, char *ext)
+static void format_file_select_heading(char *dest, char *s1, char *s2, AL_CONST char *ext)
 {
    int len;
 
@@ -1965,7 +1967,7 @@ static int reader()
 {
    DATAFILE *dat;
    char buf[256], buf2[256];
-   char *s;
+   AL_CONST char *s;
 
    CHECK_MENU_HOOK("Read", DATEDIT_MENU_FILE);
 
@@ -2061,7 +2063,7 @@ static int grabber()
 {
    DATAFILE *dat;
    char *desc = "binary data";
-   char *ext = NULL;
+   AL_CONST char *ext = NULL;
    char buf[256], name[256], type[8];
    int sel;
    int i;
@@ -2126,7 +2128,7 @@ static int grabber()
 static int exporter()
 {
    char *desc = "binary data";
-   char *ext = NULL;
+   AL_CONST char *ext = NULL;
    char buf[256], name[256];
    DATAFILE *dat;
    int sel;
@@ -2191,7 +2193,7 @@ static int deleter()
    int todel_count = 0;
    int todel_alloc = 0;
    char buf[256];
-   char *name = "";
+   AL_CONST char *name = "";
    int first = 0;
    int i;
 
@@ -2477,6 +2479,7 @@ static DIALOG sys_dlg[] =
    { d_shadow_box_proc, 0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  },
    { d_textbox_proc,    0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  },
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,       D_EXIT,     0,       0,       "Exit",  NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  }
 };
 
@@ -2485,7 +2488,8 @@ static DIALOG sys_dlg[] =
 /* handle the system info */
 static int sysinfo()
 {
-   char *systext, *s;
+   char *systext;
+   AL_CONST char* s;
    int i, type;
 
    CHECK_MENU_HOOK("System", DATEDIT_MENU_HELP);
@@ -2560,18 +2564,18 @@ static int sysinfo()
 
    sys_dlg[0].x = 0;
    sys_dlg[0].y = 0;
-   sys_dlg[0].w = SCREEN_W*3/4;
-   sys_dlg[0].h = SCREEN_H*3/4;
+   sys_dlg[0].w = SCREEN_W*3/4+1;
+   sys_dlg[0].h = SCREEN_H*3/4+1;
 
    sys_dlg[1].x = 0;
    sys_dlg[1].y = 0;
-   sys_dlg[1].w = sys_dlg[0].w-1;
-   sys_dlg[1].h = sys_dlg[0].h-32;
+   sys_dlg[1].w = sys_dlg[0].w;
+   sys_dlg[1].h = sys_dlg[0].h-31;
 
    sys_dlg[2].x = (sys_dlg[0].w-80)/2;
    sys_dlg[2].y = sys_dlg[0].h-24;
-   sys_dlg[2].w = 80;
-   sys_dlg[2].h = 16;
+   sys_dlg[2].w = 81;
+   sys_dlg[2].h = 17;
 
    sys_dlg[1].d1 = 0;
    sys_dlg[1].d2 = 0;
@@ -2677,7 +2681,8 @@ static int sheller(void)
 {
    DATAFILE *dat;
    char buf[256], cmd[256], ext[256], filename[256];
-   char *s, *s2;
+   AL_CONST char *s, * s2;
+
    int oldw = SCREEN_W;
    int oldh = SCREEN_H;
    int export, delfile;
@@ -2856,7 +2861,7 @@ static int sheller(void)
 
 
 /* callback for the datedit functions to display a message */
-void datedit_msg(char *fmt, ...)
+void datedit_msg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2878,7 +2883,7 @@ void datedit_msg(char *fmt, ...)
 
 
 /* callback for the datedit functions to start a multi-part message */
-void datedit_startmsg(char *fmt, ...)
+void datedit_startmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2893,7 +2898,7 @@ void datedit_startmsg(char *fmt, ...)
 
 
 /* callback for the datedit functions to end a multi-part message */
-void datedit_endmsg(char *fmt, ...)
+void datedit_endmsg(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2915,7 +2920,7 @@ void datedit_endmsg(char *fmt, ...)
 
 
 /* callback for the datedit functions to report an error */
-void datedit_error(char *fmt, ...)
+void datedit_error(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];
@@ -2935,7 +2940,7 @@ void datedit_error(char *fmt, ...)
 
 
 /* callback for the datedit functions to ask a question */
-int datedit_ask(char *fmt, ...)
+int datedit_ask(AL_CONST char *fmt, ...)
 {
    va_list args;
    char buf[1024];

@@ -27,7 +27,7 @@
 typedef struct GFX_MODE_DATA
 {
    int w, h;
-   char *s;
+   AL_CONST char *s;
 } GFX_MODE_DATA;
 
 
@@ -74,7 +74,7 @@ static GFX_MODE_DATA gfx_mode_data[] =
 /* gfx_mode_getter:
  *  Listbox data getter routine for the graphics mode list.
  */
-static char *gfx_mode_getter(int index, int *list_size)
+static AL_CONST char *gfx_mode_getter(int index, int *list_size)
 {
    if (index < 0) {
       if (list_size)
@@ -97,7 +97,7 @@ static int gfx_card_count;
 /* gfx_card_cmp:
  *  qsort() callback for sorting the graphics driver list.
  */
-static int gfx_card_cmp(const void *e1, const void *e2)
+static int gfx_card_cmp(AL_CONST void *e1, AL_CONST void *e2)
 {
    /* note: drivers don't have to be in this array in order to be listed
     * by the dialog. This is just to control how the list is sorted.
@@ -135,7 +135,7 @@ static int gfx_card_cmp(const void *e1, const void *e2)
 
    int d1 = *((int *)e1);
    int d2 = *((int *)e2);
-   char *n1, *n2;
+   AL_CONST char *n1, *n2;
    int i;
 
    if (d1 < 0)
@@ -189,7 +189,7 @@ static void setup_card_list(int *list)
 /* gfx_card_getter:
  *  Listbox data getter routine for the graphics card list.
  */
-static char *gfx_card_getter(int index, int *list_size)
+static AL_CONST char *gfx_card_getter(int index, int *list_size)
 {
    int i;
 
@@ -212,9 +212,9 @@ static char *gfx_card_getter(int index, int *list_size)
 /* gfx_depth_getter:
  *  Listbox data getter routine for the color depth list.
  */
-static char *gfx_depth_getter(int index, int *list_size)
+static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 {
-   static char *depth[] = {
+   static AL_CONST char *depth[] = {
       " 8 bpp (256 color)",
       "15 bpp (32K color)",
       "16 bpp (64K color)",
@@ -236,12 +236,13 @@ static char *gfx_depth_getter(int index, int *list_size)
 static DIALOG gfx_mode_dialog[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    312,  158,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    313,  159,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { d_ctext_proc,      156,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  105,  100,  16,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  127,  100,  16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_list_proc,       16,   28,   164,  115,  0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
-   { d_list_proc,       196,  28,   100,  67,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
+   { d_button_proc,     196,  105,  101,  17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_button_proc,     196,  127,  101,  17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_list_proc,       16,   28,   165,  116,  0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
+   { d_list_proc,       196,  28,   101,  68,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  }
 };
 
@@ -250,13 +251,14 @@ static DIALOG gfx_mode_dialog[] =
 static DIALOG gfx_mode_ex_dialog[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    312,  158,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    313,  159,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { d_ctext_proc,      156,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  105,  100,  16,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  127,  100,  16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_list_proc,       16,   28,   164,  67,   0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
-   { d_list_proc,       196,  28,   100,  67,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
-   { d_list_proc,       16,   105,  164,  43,   0,    0,    0,    D_EXIT,  0,    0,    gfx_depth_getter, NULL, NULL  },
+   { d_button_proc,     196,  105,  101,  17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_button_proc,     196,  127,  101,  17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_list_proc,       16,   28,   165,  68,   0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
+   { d_list_proc,       196,  28,   101,  68,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
+   { d_list_proc,       16,   105,  165,  44,   0,    0,    0,    D_EXIT,  0,    0,    gfx_depth_getter, NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,          0, 0,    NULL,             NULL, NULL  }
 };
 
@@ -287,15 +289,15 @@ int gfx_mode_select(int *card, int *w, int *h)
    do {
    } while (gui_mouse_b());
 
-   gfx_mode_dialog[GFX_TITLE].dp = get_config_text("Graphics Mode");
-   gfx_mode_dialog[GFX_OK].dp = get_config_text("OK");
-   gfx_mode_dialog[GFX_CANCEL].dp = get_config_text("Cancel");
+   gfx_mode_dialog[GFX_TITLE].dp = (void*)get_config_text("Graphics Mode");
+   gfx_mode_dialog[GFX_OK].dp = (void*)get_config_text("OK");
+   gfx_mode_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
 
    setup_card_list(card_list);
 
    centre_dialog(gfx_mode_dialog);
    set_dialog_color(gfx_mode_dialog, gui_fg_color, gui_bg_color);
-   ret = do_dialog(gfx_mode_dialog, GFX_DRIVER_LIST);
+   ret = popup_dialog(gfx_mode_dialog, GFX_DRIVER_LIST);
 
    i = card_list[gfx_mode_dialog[GFX_DRIVER_LIST].d1];
 
@@ -357,14 +359,14 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
       }
    }
 
-   gfx_mode_ex_dialog[GFX_TITLE].dp = get_config_text("Graphics Mode");
-   gfx_mode_ex_dialog[GFX_OK].dp = get_config_text("OK");
-   gfx_mode_ex_dialog[GFX_CANCEL].dp = get_config_text("Cancel");
+   gfx_mode_ex_dialog[GFX_TITLE].dp = (void*)get_config_text("Graphics Mode");
+   gfx_mode_ex_dialog[GFX_OK].dp = (void*)get_config_text("OK");
+   gfx_mode_ex_dialog[GFX_CANCEL].dp = (void*)get_config_text("Cancel");
 
    centre_dialog(gfx_mode_ex_dialog);
    set_dialog_color(gfx_mode_ex_dialog, gui_fg_color, gui_bg_color);
 
-   ret = do_dialog(gfx_mode_ex_dialog, GFX_DRIVER_LIST);
+   ret = popup_dialog(gfx_mode_ex_dialog, GFX_DRIVER_LIST);
 
    i = card_list[gfx_mode_ex_dialog[GFX_DRIVER_LIST].d1];
 

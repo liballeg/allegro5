@@ -10,7 +10,7 @@
  *
  *      ESD sound driver.
  *
- *      By Michael Bukin. Bugfixes by Peter Wang.
+ *      By Michael Bukin. Bugfixes by Peter Wang and Eduard Bloch.
  *
  *      See readme.txt for copyright information.
  */
@@ -141,9 +141,12 @@ static void _al_esd_update(unsigned long interval)
 static int _al_esd_detect(int input)
 {
    int fd;
-   char *server;
+   AL_CONST char *server;
    char tmp1[80], tmp2[80], tmp3[80];
    char s[256];
+	 
+   /* we don't want esdlib to spawn esd while we are detecting it */
+   setenv("ESD_NO_SPAWN","1",0);
 
    if (input) {
       usprintf(allegro_error, get_config_text("Input is not supported"));
@@ -173,7 +176,7 @@ static int _al_esd_detect(int input)
  */
 static int _al_esd_init(int input, int voices)
 {
-   char *server;
+   AL_CONST char *server;
    char tmp1[80], tmp2[80], tmp3[80];
    char s[256];
 

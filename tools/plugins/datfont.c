@@ -79,7 +79,7 @@ static void *makenew_font(long *size)
 
 
 /* displays a font in the grabber object view window */
-static void plot_font(DATAFILE *dat, int x, int y)
+static void plot_font(AL_CONST DATAFILE *dat, int x, int y)
 {
    FONT *f = dat->dat;
    int h = text_height(f) * 3/2;
@@ -114,7 +114,7 @@ static void plot_font(DATAFILE *dat, int x, int y)
 
 
 /* returns a description string for a font object */
-static void get_font_desc(DATAFILE *dat, char *s)
+static void get_font_desc(AL_CONST DATAFILE *dat, char *s)
 {
    FONT *fnt = (FONT *)dat->dat;
    char *mono = fnt->mono ? "mono" : "color";
@@ -133,7 +133,7 @@ static void get_font_desc(DATAFILE *dat, char *s)
 
 
 /* exports a font into an external file */
-static int export_font(DATAFILE *dat, char *filename)
+static int export_font(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 {
    char buf[256], tmp[256];
    FONT *f;
@@ -258,7 +258,7 @@ static int export_font(DATAFILE *dat, char *filename)
 
 
 /* import routine for the GRX font format */
-static FONT *import_grx_font(char *filename)
+static FONT *import_grx_font(AL_CONST char *filename)
 {
    PACKFILE *f, *cf;
    FONT *fnt;
@@ -355,7 +355,7 @@ static FONT *import_grx_font(char *filename)
 
 
 /* import routine for the 8x8 and 8x16 BIOS font formats */
-static FONT *import_bios_font(char *filename)
+static FONT *import_bios_font(AL_CONST char *filename)
 {
    unsigned char data[256][16];
    PACKFILE *f;
@@ -428,7 +428,7 @@ static int import_y = 0;
 
 
 /* import routine for the Allegro .pcx font format */
-static FONT *import_bitmap_font(char *filename, int minchar, int maxchar, int cleanup)
+static FONT *import_bitmap_font(AL_CONST char *filename, int minchar, int maxchar, int cleanup)
 {
    BITMAP **bmp;
    PALETTE junk;
@@ -554,7 +554,7 @@ static FONT *import_bitmap_font(char *filename, int minchar, int maxchar, int cl
 
 
 /* import routine for the multiple range .txt font format */
-static FONT *import_scripted_font(char *filename)
+static FONT *import_scripted_font(AL_CONST char *filename)
 {
    char buf[256], *bmp_str, *start_str, *end_str;
    FONT *fnt = NULL;
@@ -637,7 +637,7 @@ static FONT *import_scripted_font(char *filename)
 
 
 /* imports a font from an external file (handles various formats) */
-static void *grab_font(char *filename, long *size, int x, int y, int w, int h, int depth)
+static void *grab_font(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth)
 {
    PACKFILE *f;
    int id;
@@ -733,10 +733,10 @@ static int font_view_proc(int msg, DIALOG *d, int c);
 static DIALOG char_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    224,  72,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    225,  73,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_text_proc,       16,   16,   0,    0,    0,    0,    0,       0,          0,             0,       "Base character:",   NULL, NULL  },
    { d_edit_proc,       144,  16,   56,   8,    0,    0,    0,       0,          6,             0,       char_string,         NULL, NULL  },
-   { d_button_proc,     72,   44,   80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
+   { d_button_proc,     72,   44,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 
@@ -747,10 +747,10 @@ static DIALOG view_font_dlg[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)              (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { font_view_proc,    0,    100,  0,    0,    0,    0,    0,       D_EXIT,     0,             0,       NULL,             NULL, NULL  }, 
-   { d_list_proc,       0,    0,    160,  99,   0,    0,    0,       D_EXIT,     0,             0,       range_getter,     NULL, NULL  },
-   { import_proc,       180,  8,    112,  16,   0,    0,    'i',     D_EXIT,     0,             0,       "&Import Range",  NULL, NULL  }, 
-   { delete_proc,       180,  40,   112,  16,   0,    0,    'd',     D_EXIT,     0,             0,       "&Delete Range",  NULL, NULL  }, 
-   { d_button_proc,     180,  72,   112,  16,   0,    0,    27,      D_EXIT,     0,             0,       "Exit",           NULL, NULL  }, 
+   { d_list_proc,       0,    0,    161,  100,  0,    0,    0,       D_EXIT,     0,             0,       range_getter,     NULL, NULL  },
+   { import_proc,       180,  8,    113,  17,   0,    0,    'i',     D_EXIT,     0,             0,       "&Import Range",  NULL, NULL  }, 
+   { delete_proc,       180,  40,   113,  17,   0,    0,    'd',     D_EXIT,     0,             0,       "&Delete Range",  NULL, NULL  }, 
+   { d_button_proc,     180,  72,   113,  17,   0,    0,    27,      D_EXIT,     0,             0,       "Exit",           NULL, NULL  }, 
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
 

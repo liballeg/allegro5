@@ -97,7 +97,8 @@ static void sync_mouse (int fd)
  */
 static int mouse_init (void)
 {
-	char tmp[80], tmp2[80], *device;
+	char tmp[80], tmp2[80];
+	AL_CONST char *device;
 
 	/* Find the device filename */
 	device = get_config_string(NULL, uconvert_ascii("mouse_device", tmp), uconvert_ascii(DEVICE_FILENAME, tmp2));

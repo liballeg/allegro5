@@ -11,7 +11,7 @@
 @h=<html><head><title>#</title><body>
 @f=<p><hr><p><a href="allegro.html">Back to Contents</a><p>
 @rtfh=Allegro - a game programming library
-@manh="version 3.9.32 (WIP)" "Allegro" "Allegro manual"
+@manh="version 3.9.33 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @$\input texinfo
 @$@setfilename allegro.inf
@@ -43,12 +43,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.32 (WIP)
+				       \_/__/     Version 3.9.33 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Mar 13, 2000.
+	     By Shawn Hargreaves, Aug 14, 2000.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -375,13 +375,13 @@ table to the set_ucodepage() function.
    and returns the number of bytes written.
 
 @@int @uwidth(char *s);
-@xref ugetc, ugetx, usetc, ucwidth, uisok
+@xref uwidth_max, ugetc, ugetx, usetc, ucwidth, uisok
    Low level helper function for testing Unicode text data. It returns the 
    number of bytes occupied by the first character of the specified string, 
    in the current encoding format.
 
 @@int @ucwidth(int c);
-@xref ugetc, ugetx, usetc, uwidth, uisok
+@xref uwidth_max, ugetc, ugetx, usetc, uwidth, uisok
    Low level helper function for testing Unicode text data. It returns the 
    number of bytes that would be occupied by the specified character value, 
    when encoded in the current format.
@@ -437,6 +437,12 @@ table to the set_ucodepage() function.
 @xref ustrsize
    Returns the size of the specified string in bytes, including the trailing 
    zero.
+
+@@int @uwidth_max(int type);
+@xref uwidth, ucwidth
+   Low level helper function for working with Unicode text data. Returns the 
+   largest number of bytes that one character can occupy in the given 
+   encoding format. Pass U_CURRENT to represent the current format.
 
 @node unicode functions
 @xref set_uformat, uconvert, ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth
@@ -700,6 +706,21 @@ framebuffer = x<br>
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
 <li>
+dga_mouse = x<br>
+   X only: enables a workaround of a bug in some X servers' DGA modes, 
+   concerning the mouse.  Default is off; enable the feature by setting the
+   variable to something other than "n" or "N" or "0".
+<li>
+dga_centre = x<br>
+   X only: instructs the DGA driver to centre the Allegro screen if the actual
+   screen resolution is higher than Allegro's.  Default is on; disable this 
+   feature by setting the variable to "n" or "N" or "0".
+<li>
+dga_clear = x<br>
+   X only: instructs the DGA driver to clear the video memory on startup.  
+   Default is on; disable this feature by setting the variable to "n" or "N" 
+   or "0".
+<li>
 keyboard = x<br>
    Specifies which keyboard layout to use. The parameter is the name of a 
    keyboard mapping file produced by the keyconf utility, and can either be 
@@ -857,7 +878,10 @@ alsa_pcmdevice = x<br>
    Unix only: paramaters for the ALSA sound driver system.
 <li>
 alsa_numfrags = x<br>
-   Unix only: fragment (buffer) size for the ALSA sound driver system.
+   Unix only: number of ALSA driver fragments (buffers).
+<li>
+alsa_fragsize = x<br>
+   Unix only: size of each ALSA fragment, in samples.
 <li>
 patches = x<br>
    Specifies where to find the sample set for the DIGMID driver. This can 
@@ -3056,7 +3080,8 @@ bitmap.
    an 8 bit image, even if the destination is a truecolor bitmap.
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
-@xref draw_sprite, rotate_scaled_sprite, pivot_sprite, itofix
+@xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
+@xref pivot_sprite, pivot_sprite_v_flip, itofix
 @xref fixed point trig, bitmap_mask_color
    Draws the sprite image onto the bitmap at the specified position, 
    rotating it by the specified angle. The angle is a fixed point 16.16 
@@ -3070,9 +3095,15 @@ bitmap.
    Like rotate_sprite(), but stretches or shrinks the image at the same time 
    as rotating it.
 
+@\void @rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
+@xref rotate_sprite, pivot_sprite_v_flip
+   Like rotate_sprite, but also flips the image vertically.  To flip 
+   horizontally, use this routine but add fixtoi(128) to the angle.  To flip
+   in both directions, use rotate_sprite() and add fixtoi(128) to its angle.
+
 @\void @pivot_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                  int cx, int cy, fixed angle);
-@xref pivot_scaled_sprite, rotate_sprite
+@xref pivot_scaled_sprite, pivot_sprite_v_flip, rotate_sprite
    Like rotate_sprite(), but rotates the image around the specified pivot 
    location rather than always just using the centre of the sprite.
 
@@ -3080,6 +3111,12 @@ bitmap.
 @@                         int cx, int cy, fixed angle, fixed scale));
 @xref pivot_sprite, rotate_scaled_sprite
    Like rotate_scaled_sprite(), but rotates the image around the specified 
+   pivot location rather than always just using the centre of the sprite.
+
+@\void @pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y,
+@@                         int cx, int cy, fixed angle);
+@xref pivot_sprite, rotate_sprite_v_flip
+   Like rotate_sprite_v_flip(), but rotates the image around the specified
    pivot location rather than always just using the centre of the sprite.
 
 @@void @stretch_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int w, int h);
@@ -4700,9 +4737,10 @@ unpacking is very fast and it does not require much memory. Packed files
 always begin with the 32 bit value F_PACK_MAGIC, and autodetect files with 
 the value F_NOPACK_MAGIC.
 
-@@char *@get_executable_name(char *buf, int size);
-   Fills buf with the full path to the current executable, returning at most 
-   size bytes.
+@@void @get_executable_name(char *buf, int size);
+   Fills buf with the full path to the current executable, writing at most 
+   size bytes.  This generally comes from argv[0], but on Unix systems if
+   argv[0] does not specify the path, we search for our file in $PATH.
 
 @@char *@fix_filename_case(char *path);
 @xref fix_filename_slashes, fix_filename_path
@@ -4795,6 +4833,26 @@ the value F_NOPACK_MAGIC.
    setting errno itself. Returns the number of successful calls made to 
    callback(). The file attribute may contain any of the FA_* flags from 
    dir.h.
+
+@@int @findfirst(char *pattern, struct ffblk *ffblk, int attrib);
+@xref findnext, findclose
+   If your platform doesn't have the find* set of functions, Allegro will
+   emulate them. This function finds the first file which matches the
+   given wildcard specification and file attributes. The information will
+   be put in the ffblk struct which you have to provide. The function
+   returns zero if a match is found, nonzero if none found. The file
+   attribute may contain any of the FA_* flags from dir.h. The ffblk
+   structure contains the variables: ff_attrib, ff_time, ff_date, ff_size
+   and ff_name.
+
+@@int @findnext(struct ffblk *ffblk);
+@xref findfirst, findclose
+   This finds the next file in a search started by findfirst. Returns zero
+   if a match is found, nonzero if none found.
+
+@@void @findclose(struct ffblk *ffblk);
+@xref findfirst, findnext
+   This closes a previously opened search with findfirst/findnext.
 
 @\int @find_allegro_resource(char *dest, *resource, *ext, *datafile
 @@                          char *objectname, *envvar, *subdir, int size);
@@ -5711,6 +5769,12 @@ Dialog procedures may be called with any of the messages:
    Sent to the focused object whenever the mouse wheel moves. The c message 
    parameter contains the number of clicks.
 
+<b>MSG_LPRESS, MSG_MPRESS, MSG_RPRESS:</b><br>
+   Sent when the corresponding mouse button is pressed.
+
+<b>MSG_LRELEASE, MSG_MRELEASE, MSG_RRELEASE:</b><br>
+   Sent when the corresponding mouse button is released.
+
 <b>MSG_USER:</b><br>
    The first free message value. Any numbers from here on (MSG_USER, 
    MSG_USER+1, MSG_USER+2, ... MSG_USER+n) are free to use for whatever you 
@@ -5855,6 +5919,11 @@ like a normal button but could look completely different.
    do_menu(). When a menu item is selected, the return value from the menu 
    callback function is passed back to the dialog manager, so your callbacks 
    should return D_O_K, D_REDRAW, or D_CLOSE.
+
+@@int @d_yield_proc(int msg, DIALOG *d, int c);
+   An invisible helper object that yields timeslices for the scheduler (if
+   the system supports it) when the gui has nothing to do but waiting for
+   user actions.
 
 @!texinfo
 The behaviour of the dialog manager can be controlled by the variables:

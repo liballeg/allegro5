@@ -42,9 +42,9 @@ typedef struct CONFIG
 typedef struct CONFIG_HOOK
 {
    char *section;                   /* hooked config section info */
-   int (*intgetter)(char *name, int def);
-   char *(*stringgetter)(char *name, char *def);
-   void (*stringsetter)(char *name, char *value);
+   int (*intgetter)(AL_CONST char *name, int def);
+   AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
+   void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
    struct CONFIG_HOOK *next; 
 } CONFIG_HOOK;
 
@@ -223,7 +223,7 @@ static void init_config(int loaddata)
 /* get_line: 
  *  Helper for splitting files up into individual lines.
  */
-static int get_line(char *data, int length, char *name, char *val)
+static int get_line(AL_CONST char *data, int length, char *name, char *val)
 {
    char buf[256], buf2[256];
    int inpos, outpos, i, j;
@@ -300,7 +300,7 @@ static int get_line(char *data, int length, char *name, char *val)
 /* set_config:
  *  Does the work of setting up a config structure.
  */
-static void set_config(CONFIG **config, char *data, int length, char *filename)
+static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONST char *filename)
 {
    char name[256];
    char val[256];
@@ -362,7 +362,7 @@ static void set_config(CONFIG **config, char *data, int length, char *filename)
 /* load_config_file:
  *  Does the work of loading a config file.
  */
-static void load_config_file(CONFIG **config, char *filename, char *savefile)
+static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST char *savefile)
 {
    char *tmp, *tmp2;
    int length;
@@ -422,7 +422,7 @@ static void load_config_file(CONFIG **config, char *filename, char *savefile)
 /* set_config_file:
  *  Sets the file to be used for all future configuration operations.
  */
-void set_config_file(char *filename)
+void set_config_file(AL_CONST char *filename)
 {
    load_config_file(&config[0], filename, filename);
 }
@@ -433,7 +433,7 @@ void set_config_file(char *filename)
  *  Sets the block of data to be used for all future configuration 
  *  operations.
  */
-void set_config_data(char *data, int length)
+void set_config_data(AL_CONST char *data, int length)
 {
    set_config(&config[0], data, length, NULL);
 }
@@ -443,7 +443,7 @@ void set_config_data(char *data, int length)
 /* override_config_file:
  *  Sets the file that will override all future configuration operations.
  */
-void override_config_file(char *filename)
+void override_config_file(AL_CONST char *filename)
 {
    load_config_file(&config_override, filename, NULL);
 }
@@ -454,7 +454,7 @@ void override_config_file(char *filename)
  *  Sets the block of data that will override all future configuration 
  *  operations.
  */
-void override_config_data(char *data, int length)
+void override_config_data(AL_CONST char *data, int length)
 {
    set_config(&config_override, data, length, NULL);
 }
@@ -500,7 +500,7 @@ void pop_config_state()
 /* prettify_section_name:
  *  Helper for ensuring that a section name is enclosed by [ ] braces.
  */
-static void prettify_section_name(char *in, char *out)
+static void prettify_section_name(AL_CONST char *in, char *out)
 {
    int p;
 
@@ -533,7 +533,7 @@ static void prettify_section_name(char *in, char *out)
  *  override the normal table of values, and give the provider of the hooks 
  *  complete control over that section.
  */
-void hook_config_section(char *section, int (*intgetter)(char *, int), char *(*stringgetter)(char *, char *), void (*stringsetter)(char *,char *))
+void hook_config_section(AL_CONST char *section, int (*intgetter)(AL_CONST char *, int), AL_CONST char *(*stringgetter)(AL_CONST char *, AL_CONST char *), void (*stringsetter)(AL_CONST char *, AL_CONST char *))
 {
    CONFIG_HOOK *hook, **prev;
    char section_name[256];
@@ -592,7 +592,7 @@ void hook_config_section(char *section, int (*intgetter)(char *, int), char *(*s
 /* is_config_hooked:
  *  Checks whether a specific section is hooked in any way.
  */
-int config_is_hooked(char *section)
+int config_is_hooked(AL_CONST char *section)
 {
    CONFIG_HOOK *hook = config_hook;
    char section_name[256];
@@ -614,7 +614,7 @@ int config_is_hooked(char *section)
 /* find_config_string:
  *  Helper for finding an entry in the configuration file.
  */
-static CONFIG_ENTRY *find_config_string(CONFIG *config, char *section, char *name, CONFIG_ENTRY **prev)
+static CONFIG_ENTRY *find_config_string(CONFIG *config, AL_CONST char *section, AL_CONST char *name, CONFIG_ENTRY **prev)
 {
    CONFIG_ENTRY *p;
    int in_section = TRUE;
@@ -653,7 +653,7 @@ static CONFIG_ENTRY *find_config_string(CONFIG *config, char *section, char *nam
 /* get_config_string:
  *  Reads a string from the configuration file.
  */
-char *get_config_string(char *section, char *name, char *def)
+AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST char *def)
 {
    char section_name[256];
    CONFIG_HOOK *hook;
@@ -697,11 +697,11 @@ char *get_config_string(char *section, char *name, char *def)
 /* get_config_int:
  *  Reads an integer from the configuration file.
  */
-int get_config_int(char *section, char *name, int def)
+int get_config_int(AL_CONST char *section, AL_CONST char *name, int def)
 {
    CONFIG_HOOK *hook;
    char section_name[256];
-   char *s;
+   AL_CONST char *s;
 
    prettify_section_name(section, section_name);
 
@@ -740,9 +740,9 @@ int get_config_int(char *section, char *name, int def)
 /* get_config_hex:
  *  Reads a hexadecimal integer from the configuration file.
  */
-int get_config_hex(char *section, char *name, int def)
+int get_config_hex(AL_CONST char *section, AL_CONST char *name, int def)
 {
-   char *s = get_config_string(section, name, NULL);
+   AL_CONST char *s = get_config_string(section, name, NULL);
    int i;
 
    if ((s) && (ugetc(s))) {
@@ -760,9 +760,9 @@ int get_config_hex(char *section, char *name, int def)
 /* get_config_float:
  *  Reads a float from the configuration file.
  */
-float get_config_float(char *section, char *name, float def)
+float get_config_float(AL_CONST char *section, AL_CONST char *name, float def)
 {
-   char *s = get_config_string(section, name, NULL);
+   AL_CONST char* s = get_config_string(section, name, NULL);
 
    if ((s) && (ugetc(s)))
       return uatof(s);
@@ -775,11 +775,11 @@ float get_config_float(char *section, char *name, float def)
 /* get_config_id:
  *  Reads a driver ID number from the configuration file.
  */
-int get_config_id(char *section, char *name, int def)
+int get_config_id(AL_CONST char *section, AL_CONST char *name, int def)
 {
-   char *s = get_config_string(section, name, NULL);
+   AL_CONST char *s = get_config_string(section, name, NULL);
    char tmp[4];
-   char *endp;
+   char* endp;
    int val, i;
 
    if ((s) && (ugetc(s))) {
@@ -807,7 +807,7 @@ int get_config_id(char *section, char *name, int def)
 /* get_config_argv:
  *  Reads an argc/argv style token list from the configuration file.
  */
-char **get_config_argv(char *section, char *name, int *argc)
+char **get_config_argv(AL_CONST char *section, AL_CONST char *name, int *argc)
 {
    #define MAX_ARGV  16
 
@@ -815,7 +815,7 @@ char **get_config_argv(char *section, char *name, int *argc)
    static char *argv[MAX_ARGV];
    int pos, ac, q, c;
 
-   char *s = get_config_string(section, name, NULL);
+   AL_CONST char *s = get_config_string(section, name, NULL);
 
    if (!s) {
       *argc = 0;
@@ -867,7 +867,7 @@ char **get_config_argv(char *section, char *name, int *argc)
 /* insert_variable:
  *  Helper for inserting a new variable into a configuration file.
  */
-static CONFIG_ENTRY *insert_variable(CONFIG *the_config, CONFIG_ENTRY *p, char *name, char *data)
+static CONFIG_ENTRY *insert_variable(CONFIG *the_config, CONFIG_ENTRY *p, AL_CONST char *name, AL_CONST char *data)
 {
    CONFIG_ENTRY *n = malloc(sizeof(CONFIG_ENTRY));
 
@@ -907,7 +907,7 @@ static CONFIG_ENTRY *insert_variable(CONFIG *the_config, CONFIG_ENTRY *p, char *
 /* set_config_string:
  *  Writes a string to the configuration file.
  */
-void set_config_string(char *section, char *name, char *val)
+void set_config_string(AL_CONST char *section, AL_CONST char *name, AL_CONST char *val)
 {
    CONFIG *the_config;
    CONFIG_HOOK *hook;
@@ -1009,7 +1009,7 @@ void set_config_string(char *section, char *name, char *val)
 /* set_config_int:
  *  Writes an integer to the configuration file.
  */
-void set_config_int(char *section, char *name, int val)
+void set_config_int(AL_CONST char *section, AL_CONST char *name, int val)
 {
    char buf[32];
    usprintf(buf, uconvert_ascii("%d", NULL), val);
@@ -1021,7 +1021,7 @@ void set_config_int(char *section, char *name, int val)
 /* set_config_hex:
  *  Writes a hexadecimal integer to the configuration file.
  */
-void set_config_hex(char *section, char *name, int val)
+void set_config_hex(AL_CONST char *section, AL_CONST char *name, int val)
 {
    char buf[32];
 
@@ -1038,7 +1038,7 @@ void set_config_hex(char *section, char *name, int val)
 /* set_config_float:
  *  Writes a float to the configuration file.
  */
-void set_config_float(char *section, char *name, float val)
+void set_config_float(AL_CONST char *section, AL_CONST char *name, float val)
 {
    char buf[32];
    usprintf(buf, uconvert_ascii("%f", NULL), val);
@@ -1050,7 +1050,7 @@ void set_config_float(char *section, char *name, float val)
 /* set_config_id:
  *  Writes a driver ID to the configuration file.
  */
-void set_config_id(char *section, char *name, int val)
+void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
 {
    char buf[32];
    int v[4];
@@ -1084,7 +1084,9 @@ void set_config_id(char *section, char *name, int val)
  */
 void _load_config_text()
 {
-   char filename[512], tmp1[128], tmp2[128], *name, *ext, *datafile;
+   char filename[512], tmp1[128], tmp2[128];
+   AL_CONST char* name, * ext, * datafile;
+   char* namecpy;
 
    if (config_language) {
       destroy_config(config_language);
@@ -1094,17 +1096,22 @@ void _load_config_text()
    name = get_config_string(NULL, uconvert_ascii("language", tmp1), NULL);
 
    if ((name) && (ugetc(name))) {
-      if ((ustrlen(name)<4) || (ustricmp(name+uoffset(name, -4), uconvert_ascii("text", tmp1)) != 0))
+      namecpy = ustrdup(name);
+      ustrlwr (namecpy);
+      if ((ustrlen(namecpy)<4) || (ustricmp(namecpy+uoffset(namecpy, -4), uconvert_ascii("text", tmp1)) != 0))
 	 ext = uconvert_ascii("text.cfg", tmp1);
       else
 	 ext = uconvert_ascii(".cfg", tmp1);
 
       datafile = uconvert_ascii("language.dat", tmp2);
 
-      if (find_allegro_resource(filename, name, ext, datafile, NULL, NULL, NULL, sizeof(filename)) == 0) {
+      if (find_allegro_resource(filename, namecpy, ext, datafile, NULL, NULL, NULL, sizeof(filename)) == 0) {
+     free(namecpy);
 	 load_config_file(&config_language, filename, NULL);
 	 return;
       }
+
+      free(namecpy);
    }
 
    config_language = malloc(sizeof(CONFIG));
@@ -1122,12 +1129,12 @@ void _load_config_text()
  *  returning a suitable message in the current language if one is
  *  available, or a copy of the parameter if no translation can be found.
  */
-char *get_config_text(char *msg)
+AL_CONST char *get_config_text(AL_CONST char *msg)
 {
    char tmp1[256], tmp2[256], name[256];
-   char *section = uconvert_ascii("[language]", tmp1);
-   char *umsg = uconvert_ascii(msg, tmp2);
-   char *s;
+   AL_CONST char *section = uconvert_ascii("[language]", tmp1);
+   AL_CONST char *umsg = uconvert_ascii(msg, tmp2);
+   AL_CONST char *s;
    CONFIG_HOOK *hook;
    CONFIG_ENTRY *p;
    int c, pos;

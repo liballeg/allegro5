@@ -79,7 +79,7 @@ void win_set_wnd_create_proc(HWND proc)
 /* wnd_call_proc:
  *  lets call a procedure from the window thread
  */
-int wnd_call_proc(void (*proc) (void))
+int wnd_call_proc(int (*proc) (void))
 {
    if (proc)
       return SendMessage(allegro_wnd, msg_call_proc, (DWORD) proc, 0);
@@ -177,8 +177,11 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message,
 	    BeginPaint(wnd, &ps);
 	    EndPaint(wnd, &ps);
 	 }
-	 else if (dd_offscreen)
-	    update_window();
+	 else if (dd_offscreen) {
+	    BeginPaint(wnd, &ps);
+	    update_window(&(ps.rcPaint));
+	    EndPaint(wnd, &ps);
+	 }
 	 break;
 
       case WM_INITMENUPOPUP:
@@ -249,7 +252,7 @@ static HWND create_directx_window(void)
    int err;
 
    /* setup the window class */
-   wnd_class.style = CS_HREDRAW | CS_VREDRAW;
+   wnd_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
    wnd_class.lpfnWndProc = directx_wnd_proc;
    wnd_class.cbClsExtra = 0;
    wnd_class.cbWndExtra = 0;

@@ -209,10 +209,10 @@ void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 
    /* ignore special Windows keys (alt+tab, alt+space, (ctrl|alt)+esc, alt+F4) */
    if ((pressed) && 
-       (((scancode & 0x7f) == 0x0F) && (_key_shifts & KB_ALT_FLAG)) ||
+       ((((scancode & 0x7f) == 0x0F) && (_key_shifts & KB_ALT_FLAG)) ||
        (((scancode & 0x7f) == 0x01) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) ||
        (((scancode & 0x7f) == 0x39) && (_key_shifts & KB_ALT_FLAG)) ||
-       (((scancode & 0x7f) == 0x3E) && (_key_shifts & KB_ALT_FLAG)))
+       (((scancode & 0x7f) == 0x3E) && (_key_shifts & KB_ALT_FLAG))))
       return;
 
    /* if not foreground, filter out press codes and handle only release codes */
@@ -232,7 +232,7 @@ void key_dinput_handle_scancode(unsigned char scancode, int pressed)
  */
 static void key_dinput_handle(void)
 {
-   int waiting_scancodes;
+   long int waiting_scancodes;
    HRESULT hr;
    int result;
    int current;

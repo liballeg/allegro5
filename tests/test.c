@@ -18,7 +18,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
+
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 
@@ -4145,6 +4146,7 @@ DIALOG title_screen[] =
    { d_ctext_proc,      0,    128,  0,    0,    255,  0,    0,    0,       0,    0,    gfx_specs3,    NULL, NULL  },
    { d_ctext_proc,      0,    160,  0,    0,    255,  0,    0,    0,       0,    0,    mouse_specs,   NULL, NULL  },
    { d_ctext_proc,      0,    192,  0,    0,    255,  0,    0,    0,       0,    0,    cpu_specs,     NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,          NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,          NULL, NULL  }
 };
 
@@ -4313,8 +4315,8 @@ void change_mode()
    gui_mg_color = palette_color[8];
    gui_bg_color = palette_color[0];
 
-   title_screen[DIALOG_NAME].dp = gfx_driver->name;
-   title_screen[DIALOG_DESC].dp = gfx_driver->desc;
+   title_screen[DIALOG_NAME].dp = (void*)gfx_driver->name;
+   title_screen[DIALOG_DESC].dp = (void*)gfx_driver->desc;
    centre_dialog(title_screen+2);
    set_dialog_color(title_screen, gui_fg_color, gui_bg_color);
 
@@ -4363,11 +4365,12 @@ char *refresh_getter(int index, int *list_size)
 DIALOG refresh_dlg[] =
 {
    /* (dialog proc)     (x)   (y)  (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)            (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,   228,  110,  0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,   229,  111,  0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
    { d_ctext_proc,      114,  8,   1,    1,    0,    0,    0,    0,       0,    0,    "Refresh Rate", NULL, NULL  },
-   { d_button_proc,     132,  40,  80,   16,   0,    0,    0,    D_EXIT,  0,    0,    "OK",           NULL, NULL  },
-   { d_button_proc,     132,  64,  80,   16,   0,    0,    27,   D_EXIT,  0,    0,    "Cancel",       NULL, NULL  },
-   { d_list_proc,       16,   28,  100,  67,   0,    0,    0,    D_EXIT,  0,    0,    refresh_getter, NULL, NULL  },
+   { d_button_proc,     132,  40,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    "OK",           NULL, NULL  },
+   { d_button_proc,     132,  64,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    "Cancel",       NULL, NULL  },
+   { d_list_proc,       16,   28,  101,  68,   0,    0,    0,    D_EXIT,  0,    0,    refresh_getter, NULL, NULL  },
+   { d_yield_proc,      0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
    { NULL,              0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  }
 };
 

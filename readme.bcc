@@ -23,7 +23,8 @@
    source, but it does let you import pre-compiled .DLLs and use those
    to compile your own Allegro-based programs.  Thanks to Inprise for
    creating an IMPLIB program that works without those annoying .DEF
-   files!
+   files!  Boos to Microsoft for making compilers that generate .DLLs
+   that don't work with IMPLIB.  :(
 
 
 
@@ -34,11 +35,20 @@
    - Allegro DLL, produced by MSVC.
    - Borland C++Builder.
    - GNU make (mak*b.zip).
+   - Microsoft Library Manager (lib.exe).
    - Optional: sed (sed*b.zip).  Used by "make depend".
+   - Optional: prebuilt LIBs, produced by C++Builder.
+     With this, Microsoft Library Manager is unnecessary.
 
    This is known to work in version 4.0, and it may work on older versions.
-   (In theory, any version of BCB with an IMPLIB that supports the -a
-   parameter should work.)
+   (In theory, any version of BCB with COFF2OMF should work.)
+
+   You will need to somehow get a hold of lib.exe from a Microsoft compiler
+   and put in it in a directory in your system PATH.  I (nor anyone else on
+   the Allegro team) cannot legally send you this, so don't ask!  Or, you
+   could get a premade copy of the C++Builder LIBs.  I will try to make these
+   available on the Internet (look on the Allegro WIP distribution site for
+   more information) but again please do not ask the Allegro team about it.
 
    Because of MSVC-specific code, the Allegro library does not currently
    compile under Borland C++Builder.  (This may change when the promised

@@ -109,6 +109,7 @@ struct _xwin_type _xwin =
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    0,           /* in_dga_mode */
+   0, 		/* disable_dga_mouse */
    0,           /* keyboard_grabbed */
    0,           /* mouse_grabbed */
 
@@ -131,6 +132,9 @@ int _xdga_last_line = -1;
 #define MOUSE_WARP_DELAY   200
 
 static char _xwin_driver_desc[256] = EMPTY_STRING;
+
+/* Array of keycodes which are pressed now (used for auto-repeat).  */
+static int _xwin_keycode_pressed[256];
 
 
 
@@ -161,10 +165,10 @@ static int _xwin_private_fast_visual_depth(void);
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static int _xdga_private_fast_visual_depth(void);
 #endif
-static void _xwin_private_set_matching_colors(PALETTE p, int from, int to);
-static void _xwin_private_set_truecolor_colors(PALETTE p, int from, int to);
-static void _xwin_private_set_palette_colors(PALETTE p, int from, int to);
-static void _xwin_private_set_palette_range(PALETTE p, int from, int to, int vsync);
+static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to);
+static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to);
+static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to);
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
 static void _xwin_private_vsync(void);
@@ -175,17 +179,16 @@ static void _xwin_private_set_warped_mouse_mode(int permanent);
 static void _xwin_private_redraw_window(int x, int y, int w, int h);
 static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
-static void _xwin_private_set_window_title(const char *name);
+static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
 static void _xwin_private_init_keyboard_tables(void);
-static int _xwin_private_set_auto_repeat(int on);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
 					   int vw, int vh, int depth, int fullscr);
 static void _xdga_private_destroy_screen(void);
-static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsync);
+static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int _xdga_private_scroll_screen(int x, int y);
 #endif
 
@@ -1360,19 +1363,19 @@ static int _xwin_private_fast_visual_depth(void)
  */
 static int _xdga_private_fast_visual_depth(void)
 {
-   switch (_xwin.window_depth) {
-      case 8:
-	 return 8;
-      case 15:
-      case 16:
-	 return 16;
-      case 24:
-	 return 24;
-      case 32:
-	 return 32;
-   }
+/* Quoted from the xmms sources:
+   "The things we must go through to get a proper depth...
+   If I find the idiot that thought making 32bit report 24bit was a good idea,
+   there may be one less `programmer' in this world..." */
+   XImage *img = XGetImage(_xwin.display, _xwin.window, 0, 0, 1, 1, AllPlanes, ZPixmap);
+   int dga_depth = img->bits_per_pixel;
 
-   return 0;
+   if (dga_depth == 15)
+      dga_depth = 16;
+
+   XDestroyImage(img);
+
+   return dga_depth;
 }
 
 #endif
@@ -1679,7 +1682,7 @@ MAKE_SLOW_PALETTE24(_xwin_private_slow_palette_24);
 /*
  * Functions for setting "hardware" colors in 8bpp modes.
  */
-static void _xwin_private_set_matching_colors(PALETTE p, int from, int to)
+static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to)
 {
    int i;
    static XColor color[256];
@@ -1694,7 +1697,7 @@ static void _xwin_private_set_matching_colors(PALETTE p, int from, int to)
    XStoreColors(_xwin.display, _xwin.colormap, color + from, to - from + 1);
 }
 
-static void _xwin_private_set_truecolor_colors(PALETTE p, int from, int to)
+static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to)
 {
    int i, rmax, gmax, bmax;
 
@@ -1708,7 +1711,7 @@ static void _xwin_private_set_truecolor_colors(PALETTE p, int from, int to)
    }
 }
 
-static void _xwin_private_set_palette_colors(PALETTE p, int from, int to)
+static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to)
 {
    int i;
 
@@ -1719,7 +1722,7 @@ static void _xwin_private_set_palette_colors(PALETTE p, int from, int to)
    }
 }
 
-static void _xwin_private_set_palette_range(PALETTE p, int from, int to, int vsync)
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    /* Wait for VBI.  */
    if (vsync)
@@ -1735,7 +1738,7 @@ static void _xwin_private_set_palette_range(PALETTE p, int from, int to, int vsy
    }
 }
 
-void _xwin_set_palette_range(PALETTE p, int from, int to, int vsync)
+void _xwin_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    DISABLE();
    _xwin_private_set_palette_range(p, from, to, vsync);
@@ -1878,19 +1881,23 @@ static void _xwin_private_process_event(XEvent *event)
       case KeyPress:
 	 /* Key pressed.  */
 	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256)) {
+	 if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
 	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0))
+	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
+	       _xwin_keycode_pressed[kcode] = TRUE;
 	       (*_xwin_keyboard_interrupt)(1, scode);
+	    }
 	 }
 	 break;
       case KeyRelease:
 	 /* Key release.  */
 	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256)) {
+	 if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
 	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0))
+	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
 	       (*_xwin_keyboard_interrupt)(0, scode);
+	       _xwin_keycode_pressed[kcode] = FALSE;
+	    }
 	 }
 	 break;
       case FocusIn:
@@ -1902,6 +1909,8 @@ static void _xwin_private_process_event(XEvent *event)
 	 /* Losing input focus.  */
 	 if (_xwin_keyboard_focused)
 	    (*_xwin_keyboard_focused)(FALSE);
+	 for (kcode = 0; kcode < 256; kcode++)
+	    _xwin_keycode_pressed[kcode] = FALSE;
 	 break;
       case ButtonPress:
 	 /* Mouse button pressed.  */
@@ -1934,8 +1943,29 @@ static void _xwin_private_process_event(XEvent *event)
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 	 if (_xwin.in_dga_mode) {
 	    /* DGA mode.  */
-	    dx = event->xmotion.x;
-	    dy = event->xmotion.y;
+	    if (!_xwin.disable_dga_mouse) {
+	       dx = event->xmotion.x;
+	       dy = event->xmotion.y;
+	    }
+	    else {
+	       /* Buggy X servers send absolute instead of relative offsets.  */
+	       dx = event->xmotion.x - mouse_savedx;
+	       dy = event->xmotion.y - mouse_savedy;
+	       mouse_savedx = event->xmotion.x;
+	       mouse_savedy = event->xmotion.y;
+
+	       /* Ignore the event we just generated with XWarpPointer.  */
+	       if (mouse_was_warped) {
+		  mouse_was_warped = 0;
+		  break;
+	       }
+	     	       
+	       /* Warp X-cursor to the center of the screen.  */
+	       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 
+			    _xwin.screen_width / 2, _xwin.screen_height / 2);
+	       mouse_was_warped = 1;
+	    }
+	    
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
 	       /* Move Allegro cursor.  */
 	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
@@ -2234,7 +2264,7 @@ void _xwin_update_screen(int x, int y, int w, int h)
 /* _xwin_set_window_title:
  *  Wrapper for XStoreName.
  */
-static void _xwin_private_set_window_title(const char *name)
+static void _xwin_private_set_window_title(AL_CONST char *name)
 {
    if (!name)
       _xwin_safe_copy(_xwin.window_title, XWIN_DEFAULT_WINDOW_TITLE, sizeof(_xwin.window_title));
@@ -2245,7 +2275,7 @@ static void _xwin_private_set_window_title(const char *name)
       XStoreName(_xwin.display, _xwin.window, _xwin.window_title);
 }
 
-void _xwin_set_window_title(const char *name)
+void _xwin_set_window_title(AL_CONST char *name)
 {
    DISABLE();
    _xwin_private_set_window_title(name);
@@ -2440,9 +2470,12 @@ static void _xwin_private_init_keyboard_tables(void)
    if (_xwin.display == 0)
       return;
 
-   /* Clear mappings.  */
-   for (i = 0; i < 256; i++)
+   for (i = 0; i < 256; i++) {
+      /* Clear mappings.  */
       _xwin.keycode_to_scancode[i] = -1;
+      /* Clear pressed key flags.  */
+      _xwin_keycode_pressed[i] = FALSE;
+   }
 
    /* Get the number of keycodes.  */
    XDisplayKeycodes(_xwin.display, &min_keycode, &max_keycode);
@@ -2470,37 +2503,6 @@ void _xwin_init_keyboard_tables(void)
    DISABLE();
    _xwin_private_init_keyboard_tables();
    ENABLE();
-}
-
-
-
-/* _xwin_set_auto_repeat:
- *  Set auto repeat mode, return previous state of auto repeat.
- */
-static int _xwin_private_set_auto_repeat(int on)
-{
-   XKeyboardState state;
-
-   if (_xwin.display == 0)
-      return TRUE;
-
-   XGetKeyboardControl(_xwin.display, &state);
-
-   if (on != 0)
-      XAutoRepeatOn(_xwin.display);
-   else
-      XAutoRepeatOff(_xwin.display);
-
-   return ((state.global_auto_repeat == AutoRepeatModeOn) ? TRUE : FALSE);
-}
-
-int _xwin_set_auto_repeat(int on)
-{
-   int state;
-   DISABLE();
-   state = _xwin_private_set_auto_repeat(on);
-   ENABLE();
-   return state;
 }
 
 
@@ -2592,10 +2594,12 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    int vid_major_version, vid_minor_version;
    int fb_width, banksize, memsize;
    int s_w, s_h, v_w, v_h;
+   int offset_x, offset_y;
    XF86VidModeModeLine modeline;
    char *fb_addr;
    struct passwd *pass;
-
+   char tmp[80];
+   
    if (_xwin.window == None) {
       ustrcpy(allegro_error, get_config_text("No window"));
       return 0;
@@ -2751,11 +2755,21 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+   /* Centre Allegro screen inside display */
+   offset_x = 0;
+   offset_y = 0;
+   if (banksize >= memsize) {
+      if (get_config_int(NULL, uconvert_ascii("dga_centre", tmp), 1)) {
+         offset_x = (s_w - w) / 2;
+         offset_y = (s_h - h) / 2;
+      }
+   }
+
    _xwin.screen_width = w;
    _xwin.screen_height = h;
    _xwin.screen_depth = depth;
-   _xwin.virtual_width = v_w - s_w + w;
-   _xwin.virtual_height = v_h - s_h + h;
+   _xwin.virtual_width = vw;
+   _xwin.virtual_height = vh;
 
    if (banksize < memsize) {
       /* Banked frame buffer.  */
@@ -2780,6 +2794,10 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
    _xwin.in_dga_mode = 1;
+   
+   /* Allow workaround for buggy servers (e.g. 3dfx Voodoo 3/Banshee).  */
+   if (get_config_int(NULL, uconvert_ascii("dga_mouse", tmp), 1) == 0)
+      _xwin.disable_dga_mouse = 1;
 
    set_display_switch_mode(SWITCH_NONE);
 
@@ -2792,6 +2810,16 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+   /* Clear video memory */
+   if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
+      int offset;
+      for (offset = 0; offset < memsize; offset++) {
+	 if ((offset % banksize) == 0)
+	    XF86DGASetVidPage(_xwin.display, _xwin.screen, offset/banksize);
+         fb_addr[offset % banksize] = 0;
+      }
+   }
+
    /* Switch to first bank.  */
    XF86DGASetVidPage(_xwin.display, _xwin.screen, 0);
 
@@ -2799,7 +2827,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    XF86DGASetViewPort(_xwin.display, _xwin.screen, 0, 0);
 
    /* Create screen bitmap from frame buffer.  */
-   return _xwin_private_create_screen_bitmap(drv, 1, fb_addr, fb_width);
+   return _xwin_private_create_screen_bitmap(drv, 1, fb_addr + offset_y * fb_width + offset_x * (_xwin.fast_visual_depth / 8), fb_width);
 }
 
 BITMAP *_xdga_create_screen(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int fullscr)
@@ -2899,7 +2927,7 @@ unsigned long _xdga_switch_bank(BITMAP *bmp, int line)
 /* _xdga_set_palette_range:
  *  Set hardware colors in DGA mode.
  */
-static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsync)
+static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    /* Wait for VBI.  */
    if (vsync)
@@ -2913,12 +2941,13 @@ static void _xdga_private_set_palette_range(PALETTE p, int from, int to, int vsy
       if (!_xwin.matching_formats)
 	 _xwin_private_update_screen(0, 0, _xwin.virtual_width, _xwin.virtual_height);
 
-      /* Have to install colormap again.  */
+      /* Have to install colormap again, but with another ID. */
+      _xwin.colormap = XCopyColormapAndFree(_xwin.display, _xwin.colormap);
       XF86DGAInstallColormap(_xwin.display, _xwin.screen, _xwin.colormap);
    }
 }
 
-void _xdga_set_palette_range(PALETTE p, int from, int to, int vsync)
+void _xdga_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
    DISABLE();
    _xdga_private_set_palette_range(p, from, to, vsync);

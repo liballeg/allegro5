@@ -17,7 +17,8 @@
  *
  *      Peter Pavlovic modified it not to list the logical drives, such
  *      as the b: drive assigned as a logical drive for a: on single
- *      floppy disk drive equipped systems.
+ *      floppy disk drive equipped systems and improved the browsing
+ *      through directories.
  *
  *      See readme.txt for copyright information.
  */
@@ -29,6 +30,9 @@
    #include <dos.h>
 #endif
 
+#if defined ALLEGRO_WINDOWS
+   #include "winalleg.h"
+#endif
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
    #define HAVE_DIR_LIST
@@ -56,32 +60,34 @@ typedef struct FLIST
 
 static FLIST *flist = NULL;
 
-static char *fext = NULL;
+static AL_CONST char *fext = NULL;
 
-
+static char updir[1024];
 
 static DIALOG file_selector[] =
 {
    #ifdef HAVE_DIR_LIST
 
       /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-      { d_shadow_box_proc, 0,    0,    304,  160,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      { d_shadow_box_proc, 0,    0,    305,  161,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
       { d_ctext_proc,      152,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     208,  107,  80,   16,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     208,  129,  80,   16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { d_button_proc,     208,  107,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { d_button_proc,     208,  129,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
       { fs_edit_proc,      16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
-      { fs_flist_proc,     16,   46,   176,  99,   0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
-      { fs_dlist_proc,     208,  46,   80,   51,   0,    0,    0,    D_EXIT,  0,    0,    fs_dlist_getter,  NULL, NULL  },
+      { fs_flist_proc,     16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
+      { fs_dlist_proc,     208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0,    fs_dlist_getter,  NULL, NULL  },
+      { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
 
    #else
 
       /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-      { d_shadow_box_proc, 0,    0,    304,  188,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+      { d_shadow_box_proc, 0,    0,    305,  189,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
       { d_ctext_proc,      152,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     64,   160,  80,   16,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-      { d_button_proc,     160,  160,  80,   16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { d_button_proc,     64,   160,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+      { d_button_proc,     160,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
       { fs_edit_proc,      16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
-      { fs_flist_proc,     16,   46,   272,  99,   0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
+      { fs_flist_proc,     16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
+      { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
 
    #endif
 
@@ -147,6 +153,11 @@ static int drive_exists(int x)
       __dpmi_int(0x21, &r);
 
       return ret;
+
+   #elif defined ALLEGRO_WINDOWS
+
+      /* Windows implementation */
+      return GetLogicalDrives() & (1 << x);
 
    #else
 
@@ -284,6 +295,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
    char *s = d->dp;
    char b[512];
    int ch, attr;
+   int i;
 
    if (msg == MSG_START) {
       fix_filename_path(b, s, sizeof(b));
@@ -311,6 +323,21 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
 
       scare_mouse();
       SEND_MESSAGE(file_selector+FS_FILES, MSG_START, 0);
+      /* did we `cd ..' ? */
+      if (ustrlen(updir)) {
+	 /* now we have to find a directory name equal to updir */
+	 for (i = 0; i<flist->size; i++) {
+	    if (!ustrcmp(updir, flist->name[i])) {  /* we got it ! */
+	       file_selector[FS_FILES].d1 = i;
+	       if (i>11)
+		  file_selector[FS_FILES].d2 = i-11;
+	       else
+		  file_selector[FS_FILES].d2 = 0;
+	       break;  /* ok, our work is done... */
+	    }
+	 }
+      }
+      /* and continue... */
       SEND_MESSAGE(file_selector+FS_FILES, MSG_DRAW, 0);
       SEND_MESSAGE(d, MSG_START, 0);
       SEND_MESSAGE(d, MSG_DRAW, 0);
@@ -348,7 +375,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
  *  ustricmp for filenames: makes sure that eg "foo.bar" comes before
  *  "foo-1.bar", and also that "foo9.bar" comes before "foo10.bar".
  */
-static int ustrfilecmp(char *s1, char *s2)
+static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
 {
    int c1, c2;
    int x1, x2;
@@ -390,7 +417,7 @@ static int ustrfilecmp(char *s1, char *s2)
 /* fs_flist_putter:
  *  Callback routine for for_each_file() to fill the file selector listbox.
  */
-static void fs_flist_putter(char *str, int attrib, int param)
+static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 {
    char ext_tokens[32];
    char *s, *ext, *tok, *name;
@@ -559,6 +586,7 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
    char tmp[32];
    int sel = d->d1;
    int i, ret;
+   int ch, count;
 
    if (msg == MSG_START) {
       if (!flist) {
@@ -605,6 +633,26 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 
    if (((sel != d->d1) || (ret == D_CLOSE)) && (recurse_flag == 0)) {
       replace_filename(s, flist->dir, flist->name[d->d1], 512);
+      /* check if we want to `cd ..' */
+      if ((!ustrncmp(flist->name[d->d1], "..", 2)) && (ret == D_CLOSE)) {
+	 /* let's remember the previous directory */
+	 ustrcpy(updir, empty_string);
+	 i = ustrlen(flist->dir);
+	 count = 0;
+	 while (i>0) {
+	    ch = ugetat(flist->dir, i);
+	    if ((ch == '/') || (ch == OTHER_PATH_SEPARATOR)) {
+	       if (++count == 2)
+		  break;
+	    }
+	    uinsert(updir, 0, ch);
+	    i--;
+	 }
+	 /* ok, we have the dirname in updir */
+      }
+      else {
+	 ustrcpy(updir, empty_string);
+      }
       scare_mouse();
       SEND_MESSAGE(file_selector+FS_EDIT, MSG_START, 0);
       SEND_MESSAGE(file_selector+FS_EDIT, MSG_DRAW, 0);
@@ -628,16 +676,17 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
  *  extensions. Returns zero if it was closed with the Cancel button, 
  *  non-zero if it was OK'd.
  */
-int file_select(char *message, char *path, char *ext)
+int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
 {
    char buf[512];
    int ret;
    char *p;
 
-   file_selector[FS_MESSAGE].dp = message;
+   ustrcpy(updir, empty_string);
+   file_selector[FS_MESSAGE].dp = (char *)message;
    file_selector[FS_EDIT].dp = path;
-   file_selector[FS_OK].dp = get_config_text("OK");
-   file_selector[FS_CANCEL].dp = get_config_text("Cancel");
+   file_selector[FS_OK].dp = (void*)get_config_text("OK");
+   file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
    fext = ext;
 
    if (!ugetc(path)) {
@@ -655,7 +704,7 @@ int file_select(char *message, char *path, char *ext)
 
    centre_dialog(file_selector);
    set_dialog_color(file_selector, gui_fg_color, gui_bg_color);
-   ret = do_dialog(file_selector, FS_EDIT);
+   ret = popup_dialog(file_selector, FS_EDIT);
 
    if ((ret == FS_CANCEL) || (!ugetc(get_filename(path))))
       return FALSE;

@@ -78,11 +78,11 @@ DIALOG the_dialog[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)                    (d2)  (dp)              (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    255,  0,    0,    0,       0,                      0,    NULL,             NULL, NULL  },
    { d_edit_proc,       80,   32,   512,  48,   255,  0,    0,    0,       sizeof(the_string)-1,   0,    the_string,       NULL, NULL  },
-   { d_button_proc,     80,   132,  160,  48,   255,  0,    't',  0,       0,                      0,    "&Toggle Me",     NULL, NULL  },
-   { d_list_proc,       360,  100,  206,  206,  255,  0,    0,    0,       0,                      0,    listbox_getter,   NULL, NULL  },
-   { change_font_proc,  80,   232,  160,  48,   255,  0,    'f',  D_EXIT,  0,                      0,    "Change &Font",   NULL, NULL  },
-   { d_button_proc,     80,   400,  160,  48,   255,  0,    0,    D_EXIT,  0,                      0,    "OK",             NULL, NULL  },
-   { d_button_proc,     360,  400,  160,  48,   255,  0,    0,    D_EXIT,  0,                      0,    "Cancel",         NULL, NULL  },
+   { d_button_proc,     80,   132,  161,  49,   255,  0,    't',  0,       0,                      0,    "&Toggle Me",     NULL, NULL  },
+   { d_list_proc,       360,  100,  207,  207,  255,  0,    0,    0,       0,                      0,    listbox_getter,   NULL, NULL  },
+   { change_font_proc,  80,   232,  161,  49,   255,  0,    'f',  D_EXIT,  0,                      0,    "Change &Font",   NULL, NULL  },
+   { d_button_proc,     80,   400,  161,  49,   255,  0,    0,    D_EXIT,  0,                      0,    "OK",             NULL, NULL  },
+   { d_button_proc,     360,  400,  161,  49,   255,  0,    0,    D_EXIT,  0,                      0,    "Cancel",         NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,                      0,    NULL,             NULL, NULL  }
 };
 

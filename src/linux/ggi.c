@@ -54,7 +54,7 @@
 
 static BITMAP *ggi_init(int w, int h, int v_w, int v_h, int color_depth);
 static void ggi_exit(BITMAP * b);
-static void ggi_set_palette_range(struct RGB *p, int from, int to, int vsync);
+static void ggi_set_palette_range(AL_CONST struct RGB *p, int from, int to, int vsync);
 
 #ifndef ALLEGRO_NO_ASM
 unsigned long ggi_read_bank_asm(BITMAP *bmp, int line);
@@ -106,7 +106,7 @@ static ggi_visual_t ggi_vis;
 static int ggi_w, ggi_h, ggi_stride;
 static ggi_color ggi_pal[PAL_SIZE];
 
-static ggi_directbuffer *ggi_db = NULL;
+static const ggi_directbuffer *ggi_db = NULL;
 static void *ggi_fake_buf = NULL;      /* used if no db available */
 static char *ggi_touched;
 
@@ -299,7 +299,7 @@ static BITMAP *ggi_init(int w, int h, int v_w, int v_h, int color_depth)
    avail_buf = buf_num = 0;
 
    for (i=0; i<num_bufs; i++) {
-      (const)ggi_db = ggiDBGetBuffer(ggi_vis, i);
+      ggi_db = ggiDBGetBuffer(ggi_vis, i);
 
       if (ggi_db->read != NULL && ggi_db->write != NULL && 
 	  (ggi_db->noaccess | ggi_db->align) == 0) {
@@ -336,13 +336,13 @@ static BITMAP *ggi_init(int w, int h, int v_w, int v_h, int color_depth)
    }
    else if (avail_buf == LFB) { 
       /* linear frame buffer is preferable */
-      (const)ggi_db = ggiDBGetBuffer(ggi_vis, buf_num);
+      ggi_db = ggiDBGetBuffer(ggi_vis, buf_num);
       gfx_ggi.linear = TRUE;
    }
    else {
       /* otherwise use paged buffer */
 #warning paged buffers are untested.
-      (const)ggi_db = ggiDBGetBuffer(ggi_vis, buf_num);
+      ggi_db = ggiDBGetBuffer(ggi_vis, buf_num);
       gfx_ggi.linear = FALSE;
       gfx_ggi.bank_size = ggi_db->page_size;    /* is this right? FIXME */
       gfx_ggi.bank_gran = 0;                    /* what's this? FIXME */
@@ -415,7 +415,7 @@ void ggi_exit(BITMAP * b)
  *  Convert Allegro's palette format (6 bit) to libggi's palette format (16 bit!)
  *  and set a range of values.
  */
-void ggi_set_palette_range(struct RGB *p, int from, int to, int vsync)
+void ggi_set_palette_range(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
    int i;
    for (i = from; i <= to; i++) {

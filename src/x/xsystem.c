@@ -21,6 +21,7 @@
 #include "xwin.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -34,14 +35,15 @@ void (*_xwin_mouse_interrupt)(int x, int y, int z, int buttons) = 0;
 
 static int _xwin_sysdrv_init(void);
 static void _xwin_sysdrv_exit(void);
-static void _xwin_sysdrv_get_executable_name(char *output, int size);
-static void _xwin_sysdrv_set_window_title(char *name);
+static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
 static int _xwin_sysdrv_display_switch_mode(int mode);
 static int _xwin_sysdrv_desktop_color_depth(void);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void);
+#ifdef ALLEGRO_LINUX
 static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
+#endif
 static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void);
 
 
@@ -54,7 +56,7 @@ SYSTEM_DRIVER system_xwin =
    "X-Windows",
    _xwin_sysdrv_init,
    _xwin_sysdrv_exit,
-   _xwin_sysdrv_get_executable_name,
+   _unix_get_executable_name,
    _unix_find_resource,
    _xwin_sysdrv_set_window_title,
    NULL, /* message */
@@ -217,20 +219,10 @@ static void _xwin_sysdrv_exit(void)
 
 
 
-/* _xwin_sysdrv_get_executable_name:
- *  Return full path to the current executable.
- */
-static void _xwin_sysdrv_get_executable_name(char *output, int size)
-{
-   do_uconvert(__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
-}
-
-
-
 /* _xwin_sysdrv_set_window_title:
  *  Sets window title.
  */
-static void _xwin_sysdrv_set_window_title(char *name)
+static void _xwin_sysdrv_set_window_title(AL_CONST char *name)
 {
    char title[100];
 

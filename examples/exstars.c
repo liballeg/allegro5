@@ -19,11 +19,11 @@ typedef struct VECTOR
 } VECTOR;
 
 
-#define NUM_STARS          256
+#define NUM_STARS          512
 
 #define Z_NEAR             24
 #define Z_FAR              1024
-#define XY_CUBE            512
+#define XY_CUBE            2048
 
 #define SPEED_LIMIT        20
 

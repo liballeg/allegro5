@@ -22,6 +22,7 @@
 
 /* software version pointers */
 static void (*_orig_hline) (BITMAP * bmp, int x1, int y, int x2, int color);
+static void (*_orig_vline) (BITMAP * bmp, int x, int y1, int y2, int color);
 static void (*_orig_rectfill) (BITMAP * bmp, int x1, int y1, int x2, int y2, int color);
 static void (*_orig_draw_sprite) (BITMAP * bmp, BITMAP * sprite, int x, int y);
 static void (*_orig_masked_blit) (BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
@@ -39,7 +40,8 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
       source_x + source->x_ofs + width,
       source_y + source->y_ofs + height
    };
-
+   int dest_parent_x = dest_x + dest->x_ofs;
+   int dest_parent_y = dest_y + dest->y_ofs;
    BITMAP *dest_parent;
    BITMAP *source_parent;
 
@@ -51,16 +53,25 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
    source_parent = source;
    while (source_parent->id & BMP_ID_SUB)
       source_parent = (BITMAP *)source_parent->extra;
-
+   
    _enter_gfx_critical();
    gfx_directx_release_lock(dest);
    gfx_directx_release_lock(source);
-
+   
    IDirectDrawSurface_BltFast(BMP_EXTRA(dest_parent)->surf,
-			      dest_x + dest->x_ofs, dest_y + dest->y_ofs,
+			      dest_parent_x, dest_parent_y,
 			      BMP_EXTRA(source_parent)->surf, &src_rect, DDBLTFAST_WAIT);
 
    _exit_gfx_critical();
+   
+   /* only for windowed mode */
+   if (dest_parent == pseudo_screen) {
+      src_rect.left  = dest_parent_x;
+      src_rect.top   = dest_parent_y;
+      src_rect.right = dest_parent_x + width;
+      src_rect.bottom= dest_parent_y + height;
+      update_window(&src_rect);
+   }
 }
 
 
@@ -92,16 +103,17 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
    BITMAP *dest_parent;
    BITMAP *source_parent;
 
-   /* find parents */
-   dest_parent = dest;
-   while (dest_parent->id & BMP_ID_SUB)
-      dest_parent = (BITMAP *)dest_parent->extra;
+   if (is_video_bitmap(source) || is_system_bitmap(source)) {
 
-   source_parent = source;
-   while (source_parent->id & BMP_ID_SUB)
-      source_parent = (BITMAP *)source_parent->extra;
+      /* find parents */
+      dest_parent = dest;
+      while (dest_parent->id & BMP_ID_SUB)
+         dest_parent = (BITMAP *)dest_parent->extra;
 
-   if (source->vtable == &_screen_vtable) {
+      source_parent = source;
+      while (source_parent->id & BMP_ID_SUB)
+         source_parent = (BITMAP *)source_parent->extra;
+
       _enter_gfx_critical();
       gfx_directx_release_lock(dest);
       gfx_directx_release_lock(source);
@@ -117,6 +129,11 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
 
       if (FAILED(hr))
 	 _TRACE("Blt failed (%x)\n", hr);
+
+      /* only for windowed mode */
+      if (dest_parent == pseudo_screen)
+         update_window(&dest_rect);
+
    }
    else {
       /* have to use the original software version */
@@ -133,7 +150,7 @@ static void ddraw_draw_sprite(BITMAP * bmp, BITMAP * sprite, int x, int y)
 {
    int sx, sy, w, h;
 
-   if (sprite->vtable == &_screen_vtable) {
+   if (is_video_bitmap(sprite) || is_system_bitmap(sprite)) {
       sx = sprite->x_ofs;
       sy = sprite->y_ofs;
       w = sprite->w;
@@ -210,6 +227,11 @@ static void ddraw_clear_to_color(BITMAP * bitmap, int color)
 
    if (FAILED(hr))
       _TRACE("Blt failed (%x)\n", hr);
+
+   /* only for windowed mode */
+   if (parent == pseudo_screen)
+      update_window(&dest_rect);
+
 }
 
 
@@ -286,6 +308,10 @@ static void ddraw_rectfill(BITMAP *bitmap, int x1, int y1, int x2, int y2, int c
 
    if (FAILED(hr))
       _TRACE("Blt failed (%x)\n", hr);
+
+   /* only for windowed mode */
+   if (parent == pseudo_screen)
+      update_window(&dest_rect);
 }
 
 
@@ -350,6 +376,77 @@ static void ddraw_hline(BITMAP *bitmap, int x1, int y, int x2, int color)
 
    if (FAILED(hr))
       _TRACE("Blt failed (%x)\n", hr);
+
+   /* only for windowed mode */
+   if (parent == pseudo_screen)
+      update_window(&dest_rect);
+}
+
+
+/* ddraw_vline:
+ *  Accelerated vline routine.
+ */
+static void ddraw_vline(BITMAP *bitmap, int x, int y1, int y2, int color)
+{
+   RECT dest_rect;
+   HRESULT hr;
+   DDBLTFX blt_fx;
+   BITMAP *parent;
+
+   if (_drawing_mode != DRAW_MODE_SOLID) {
+      _orig_vline(bitmap, x, y1, y2, color);
+      return;
+   }
+
+   if (y1 > y2) {
+      int tmp = y1;
+      y1 = y2;
+      y2 = tmp;
+   }
+
+   if (bitmap->clip) {
+      if ((x < bitmap->cl) || (x >= bitmap->cr))
+	 return;
+
+      if (y1 < bitmap->ct)
+	 y1 = bitmap->ct;
+
+      if (y2 >= bitmap->cb)
+	 y2 = bitmap->cb-1;
+
+      if (y2 < y1)
+	 return;
+   }
+
+   dest_rect.top = y1 + bitmap->y_ofs;
+   dest_rect.left = x + bitmap->x_ofs;
+   dest_rect.bottom = y2 + bitmap->y_ofs + 1;
+   dest_rect.right = x + bitmap->x_ofs + 1;
+
+   /* find parent */
+   parent = bitmap;
+   while (parent->id & BMP_ID_SUB)
+      parent = (BITMAP *)parent->extra;
+
+   /* set fill color */
+   blt_fx.dwSize = sizeof(blt_fx);
+   blt_fx.dwDDFX = 0;
+   blt_fx.dwFillColor = color;
+
+   _enter_gfx_critical();
+   gfx_directx_release_lock(bitmap);
+
+   hr = IDirectDrawSurface_Blt(BMP_EXTRA(parent)->surf, &dest_rect, NULL, NULL,
+			       DDBLT_COLORFILL | DDBLT_WAIT, &blt_fx);
+
+   _exit_gfx_critical();
+
+   if (FAILED(hr))
+      _TRACE("Blt failed (%x)\n", hr);
+
+   /* only for windowed mode */
+   if (parent == pseudo_screen)
+      update_window(&dest_rect);
 }
 
 
@@ -363,6 +460,7 @@ int enable_acceleration(GFX_DRIVER * drv)
 
    /* safe pointer to software versions */
    _orig_hline = _screen_vtable.hline;
+   _orig_vline = _screen_vtable.vline;
    _orig_rectfill = _screen_vtable.rectfill;
    _orig_draw_sprite = _screen_vtable.draw_sprite;
    _orig_masked_blit = _screen_vtable.masked_blit;
@@ -383,6 +481,7 @@ int enable_acceleration(GFX_DRIVER * drv)
       _screen_vtable.clear_to_color = ddraw_clear_to_color;
       _screen_vtable.rectfill = ddraw_rectfill;
       _screen_vtable.hline = ddraw_hline;
+      _screen_vtable.vline = ddraw_vline;
 
       gfx_capabilities |= GFX_HW_HLINE | GFX_HW_FILL;
    }

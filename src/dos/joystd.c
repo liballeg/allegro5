@@ -43,7 +43,7 @@ static void joy_exit(void);
 static int joy_poll(void);
 static int joy_save_data(void);
 static int joy_load_data(void);
-static char *joy_calibrate_name(int n);
+static AL_CONST char *joy_calibrate_name(int n);
 static int joy_calibrate(int n);
 
 static int poll(int *x, int *y, int *x2, int *y2, int poll_mask);
@@ -1050,7 +1050,7 @@ static int next_calib_action(int stick)
 /* joy_calibrate_name:
  *  Returns the name of the next calibration operation.
  */
-static char *joy_calibrate_name(int n)
+static AL_CONST char *joy_calibrate_name(int n)
 {
    switch (next_calib_action(n)) {
 

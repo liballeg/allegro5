@@ -6,8 +6,9 @@
  */
 
 
-#include <math.h>
 #include <stdio.h>
+
+#define ALLEGRO_INCLUDE_MATH_H
 
 #include "allegro.h"
 
@@ -99,7 +100,7 @@ void draw_square(BITMAP *bmp, MATRIX_f *camera, int x, int z)
 
    if (flags[0] | flags[1] | flags[2] | flags[3]) {
       /* clip if any vertices are off the edge of the screen */
-      vc = clip3d_f(POLYTYPE_FLAT, 0.1, 0.1, 4, v, vout, vtmp, out);
+      vc = clip3d_f(POLYTYPE_FLAT, 0.1, 0.1, 4, (AL_CONST V3D_f **)v, vout, vtmp, out);
 
       if (vc <= 0)
 	 return;

@@ -12,6 +12,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Peter Pavlovic modified the drawing and positioning of menus.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -35,6 +37,15 @@ int gui_font_baseline = 0;
 static DIALOG_PLAYER *active_player = NULL;
 DIALOG *active_dialog = NULL;
 MENU *active_menu = NULL;
+
+
+/* list of currently active (initialized) dialog players */
+struct al_active_player {
+   DIALOG_PLAYER *player;
+   struct al_active_player *next;
+};
+
+static struct al_active_player *first_active_player = 0;
 
 
 
@@ -362,7 +373,7 @@ static int find_mouse_object(DIALOG *d)
 /* offer_focus:
  *  Offers the input focus to a particular object.
  */
-static int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
+int offer_focus(DIALOG *d, int obj, int *focus_obj, int force)
 {
    int res = D_O_K;
 
@@ -425,7 +436,7 @@ typedef struct OBJ_LIST
 /* obj_list_cmp:
  *  Callback function for qsort().
  */
-static int obj_list_cmp(const void *e1, const void *e2)
+static int obj_list_cmp(AL_CONST void *e1, AL_CONST void *e2)
 {
    return (((OBJ_LIST *)e1)->diff - ((OBJ_LIST *)e2)->diff);
 }
@@ -435,7 +446,7 @@ static int obj_list_cmp(const void *e1, const void *e2)
 /* cmp_tab:
  *  Comparison function for tab key movement.
  */
-static int cmp_tab(DIALOG *d1, DIALOG *d2)
+static int cmp_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (int)d2 - (int)d1;
 
@@ -450,7 +461,7 @@ static int cmp_tab(DIALOG *d1, DIALOG *d2)
 /* cmp_shift_tab:
  *  Comparison function for shift+tab key movement.
  */
-static int cmp_shift_tab(DIALOG *d1, DIALOG *d2)
+static int cmp_shift_tab(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (int)d1 - (int)d2;
 
@@ -465,7 +476,7 @@ static int cmp_shift_tab(DIALOG *d1, DIALOG *d2)
 /* cmp_right:
  *  Comparison function for right arrow key movement.
  */
-static int cmp_right(DIALOG *d1, DIALOG *d2)
+static int cmp_right(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d2->x - d1->x) + ABS(d1->y - d2->y) * 8;
 
@@ -480,7 +491,7 @@ static int cmp_right(DIALOG *d1, DIALOG *d2)
 /* cmp_left:
  *  Comparison function for left arrow key movement.
  */
-static int cmp_left(DIALOG *d1, DIALOG *d2)
+static int cmp_left(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d1->x - d2->x) + ABS(d1->y - d2->y) * 8;
 
@@ -495,7 +506,7 @@ static int cmp_left(DIALOG *d1, DIALOG *d2)
 /* cmp_down:
  *  Comparison function for down arrow key movement.
  */
-static int cmp_down(DIALOG *d1, DIALOG *d2)
+static int cmp_down(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d2->y - d1->y) + ABS(d1->x - d2->x) * 8;
 
@@ -510,7 +521,7 @@ static int cmp_down(DIALOG *d1, DIALOG *d2)
 /* cmp_up:
  *  Comparison function for up arrow key movement.
  */
-static int cmp_up(DIALOG *d1, DIALOG *d2)
+static int cmp_up(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2)
 {
    int ret = (d1->y - d2->y) + ABS(d1->x - d2->x) * 8;
 
@@ -528,7 +539,7 @@ static int cmp_up(DIALOG *d1, DIALOG *d2)
  */
 static int move_focus(DIALOG *d, int ascii, int scan, int *focus_obj)
 {
-   int (*cmp)(DIALOG *d1, DIALOG *d2);
+   int (*cmp)(AL_CONST DIALOG *d1, AL_CONST DIALOG *d2);
    OBJ_LIST obj[MAX_OBJECTS];
    int obj_count = 0;
    int fobj, c;
@@ -653,7 +664,21 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
 DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 {
    DIALOG_PLAYER *player = malloc(sizeof(DIALOG_PLAYER));
+   struct al_active_player *n = 0;
    int c;
+
+   if (!player)
+      return NULL;
+
+   /* add player to the list */
+   n = malloc(sizeof(struct al_active_player));
+   if (!n) {
+      free (player);
+      return NULL;
+   }
+   n->next = first_active_player;
+   n->player = player;
+   first_active_player = n;
 
    player->res = D_REDRAW;
    player->joy_on = TRUE;
@@ -662,9 +687,9 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    player->obj = -1;
    player->mouse_obj = -1;
    player->mouse_oz = gui_mouse_z();
+   player->mouse_b = gui_mouse_b();
 
    /* set up the global  dialog pointer */
-   player->previous = active_player;
    active_player = player;
    active_dialog = dialog;
 
@@ -840,6 +865,43 @@ int update_dialog(DIALOG_PLAYER *player)
       else
 	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
 
+      /* goto getout; */
+   }
+
+   /* deal with mouse buttons presses and releases */
+   if (gui_mouse_b() != player->mouse_b) {
+      player->res |= offer_focus(player->dialog, player->mouse_obj, &player->focus_obj, FALSE);
+
+      if (player->mouse_obj >= 0) {
+	 dclick_time = 0;
+	 dclick_status = DCLICK_START;
+	 player->mouse_ox = gui_mouse_x();
+	 player->mouse_oy = gui_mouse_y();
+
+	 /* send press and release messages */
+         if ((gui_mouse_b() & 1) && !(player->mouse_b & 1))
+	    MESSAGE(player->mouse_obj, MSG_LPRESS, gui_mouse_b());
+         if (!(gui_mouse_b() & 1) && (player->mouse_b & 1))
+	    MESSAGE(player->mouse_obj, MSG_LRELEASE, gui_mouse_b());
+
+         if ((gui_mouse_b() & 4) && !(player->mouse_b & 4))
+	    MESSAGE(player->mouse_obj, MSG_MPRESS, gui_mouse_b());
+         if (!(gui_mouse_b() & 4) && (player->mouse_b & 4))
+	    MESSAGE(player->mouse_obj, MSG_MRELEASE, gui_mouse_b());
+
+         if ((gui_mouse_b() & 2) && !(player->mouse_b & 2))
+	    MESSAGE(player->mouse_obj, MSG_RPRESS, gui_mouse_b());
+         if (!(gui_mouse_b() & 2) && (player->mouse_b & 2))
+	    MESSAGE(player->mouse_obj, MSG_RRELEASE, gui_mouse_b());
+
+         player->mouse_b = gui_mouse_b();
+
+	 if (player->res == D_O_K)
+	    player->click_wait = TRUE;
+      }
+      else
+	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
+
       goto getout;
    }
 
@@ -981,6 +1043,7 @@ int update_dialog(DIALOG_PLAYER *player)
  */
 int shutdown_dialog(DIALOG_PLAYER *player)
 {
+   struct al_active_player *iter, *prev;
    int obj;
 
    /* send the finish messages */
@@ -997,7 +1060,22 @@ int shutdown_dialog(DIALOG_PLAYER *player)
    if (player->mouse_obj >= 0)
       player->dialog[player->mouse_obj].flags &= ~D_GOTMOUSE;
 
-   active_player = player->previous;
+   /* remove dialog player from the list of active players */
+   for (iter = first_active_player, prev = 0; iter != 0; prev = iter, iter = iter->next) {
+      if (iter->player == player) {
+	 if (prev)
+	    prev->next = iter->next;
+	 else
+	    first_active_player = iter->next;
+	 free (iter);
+	 break;
+      }
+   }
+
+   if (first_active_player)
+      active_player = first_active_player->player;
+   else
+      active_player = NULL;
 
    if (active_player)
       active_dialog = active_player->dialog;
@@ -1060,6 +1138,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
    int fg, bg;
    int i, j, x, y, w;
    char buf[256], *tok;
+   int my;
 
    if (m->menu[c].flags & D_DISABLED) {
       if (c == m->sel) {
@@ -1102,8 +1181,22 @@ static void draw_menu_item(MENU_INFO *m, int c)
 
       if (j == '\t') {
 	 tok = m->menu[c].text+i + uwidth(m->menu[c].text+i);
-	 gui_textout(screen, tok, x+w-gui_strlen(tok)-8, y+1, fg, FALSE);
+	 gui_textout(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, FALSE);
       }
+
+      if ((m->menu[c].child) && (!m->bar)) {
+         my = y + text_height(font)/2;
+         hline(screen, x+w-8, my+1, x+w-4, fg);
+         hline(screen, x+w-8, my+0, x+w-5, fg);
+         hline(screen, x+w-8, my-1, x+w-6, fg);
+         hline(screen, x+w-8, my-2, x+w-7, fg);
+         putpixel(screen, x+w-8, my-3, fg);
+         hline(screen, x+w-8, my+2, x+w-5, fg);
+         hline(screen, x+w-8, my+3, x+w-6, fg);
+         hline(screen, x+w-8, my+4, x+w-7, fg);
+         putpixel(screen, x+w-8, my+5, fg);
+      }
+      
    }
    else
       hline(screen, x, y+text_height(font)/2+2, x+w, fg);
@@ -1181,6 +1274,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    char buf[80], *tok;
    int extra = 0;
    int c, i, j;
+   int child = FALSE;
 
    m->menu = menu;
    m->parent = parent;
@@ -1194,6 +1288,9 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
 
    /* calculate size of the menu */
    for (m->size=0; m->menu[m->size].text; m->size++) {
+
+      if ((m->menu[m->size].child) && (!m->bar)) child = TRUE;
+
       i = 0;
       j = ugetc(m->menu[m->size].text);
 
@@ -1224,6 +1321,9 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    if (extra)
       m->w += extra+16;
 
+   if (child)
+      m->w += 22;
+
    m->w = MAX(m->w, minw);
    m->h = MAX(m->h, minh);
 }
@@ -1234,7 +1334,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
  *  Returns true if c is indicated as a keyboard shortcut by a '&' character
  *  in the specified string.
  */
-static int menu_key_shortcut(int c, char *s)
+static int menu_key_shortcut(int c, AL_CONST char *s)
 {
    int d;
 
@@ -1264,7 +1364,7 @@ int menu_alt_key(int k, MENU *m)
       KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z
    };
 
-   char *s;
+   AL_CONST char *s;
    int c, d;
 
    if (k & 0xFF)
@@ -1496,8 +1596,8 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	       _y += text_height(font)+7;
 	    }
 	    else {
-	       _x = m.x+m.w*2/3;
-	       _y = m.y + (text_height(font)+4)*ret + text_height(font)/4+2;
+	       _x = m.x+m.w-3;
+	       _y = m.y + (text_height(font)+4)*ret + text_height(font)/4+1;
 	    }
 	    c = _do_menu(m.menu[ret].child, &m, FALSE, _x, _y, TRUE, NULL, 0, 0);
 	    if (c < 0) {
@@ -1628,6 +1728,7 @@ static DIALOG alert_dialog[] =
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL, NULL, NULL  },
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL, NULL, NULL  },
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL, NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL, NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL, NULL, NULL  }
 };
 
@@ -1648,7 +1749,7 @@ static DIALOG alert_dialog[] =
  *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on 
  *  which button was selected.
  */
-int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, int c2, int c3)
+int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, AL_CONST char *b3, int c1, int c2, int c3)
 {
    char tmp[16];
    int avg_w, avg_h;
@@ -1662,7 +1763,7 @@ int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, i
       if (b##x) {                                                          \
 	 alert_dialog[A_B##x].flags &= ~D_HIDDEN;                          \
 	 alert_dialog[A_B##x].key = c##x;                                  \
-	 alert_dialog[A_B##x].dp = b##x;                                   \
+	 alert_dialog[A_B##x].dp = (char *)b##x;                           \
 	 len##x = gui_strlen(b##x);                                        \
 	 b[buttons++] = A_B##x;                                            \
       }                                                                    \
@@ -1681,19 +1782,19 @@ int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, i
    alert_dialog[A_B1].dp = alert_dialog[A_B2].dp = empty_string;
 
    if (s1) {
-      alert_dialog[A_S1].dp = s1;
+      alert_dialog[A_S1].dp = (char *)s1;
       maxlen = text_length(font, s1);
    }
 
    if (s2) {
-      alert_dialog[A_S2].dp = s2;
+      alert_dialog[A_S2].dp = (char *)s2;
       len1 = text_length(font, s2);
       if (len1 > maxlen)
 	 maxlen = len1;
    }
 
    if (s3) {
-      alert_dialog[A_S3].dp = s3;
+      alert_dialog[A_S3].dp = (char *)s3;
       len1 = text_length(font, s3);
       if (len1 > maxlen)
 	 maxlen = len1;
@@ -1760,7 +1861,7 @@ int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, i
  *  in b1 and b2 (b2 may be null), and the keyboard shortcuts in c1 and c2.
  *  Returns 1 or 2 depending on which button was selected.
  */
-int alert(char *s1, char *s2, char *s3, char *b1, char *b2, int c1, int c2)
+int alert(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST char *b1, AL_CONST char *b2, int c1, int c2)
 {
    int ret;
 

@@ -1380,7 +1380,7 @@ void *load_file_object(PACKFILE *f, long size)
  *  Loads an entire data file into memory, and returns a pointer to it. 
  *  On error, sets errno and returns NULL.
  */
-DATAFILE *load_datafile(char *filename)
+DATAFILE *load_datafile(AL_CONST char *filename)
 {
    return load_datafile_callback(filename, NULL);
 }
@@ -1391,7 +1391,7 @@ DATAFILE *load_datafile(char *filename)
  *  Loads an entire data file into memory, and returns a pointer to it. 
  *  On error, sets errno and returns NULL.
  */
-DATAFILE *load_datafile_callback(char *filename, void (*callback)(DATAFILE *))
+DATAFILE *load_datafile_callback(AL_CONST char *filename, void (*callback)(DATAFILE *))
 {
    PACKFILE *f;
    DATAFILE *dat;
@@ -1426,7 +1426,7 @@ DATAFILE *load_datafile_callback(char *filename, void (*callback)(DATAFILE *))
 /* load_datafile_object:
  *  Loads a single object from a datafile.
  */
-DATAFILE *load_datafile_object(char *filename, char *objectname)
+DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectname)
 {
    PACKFILE *f;
    DATAFILE *dat;
@@ -1541,7 +1541,7 @@ void unload_datafile_object(DATAFILE *dat)
 /* find_datafile_object:
  *  Returns a pointer to the datafile object with the given name
  */
-DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname)
+DATAFILE *find_datafile_object(AL_CONST DATAFILE *dat, AL_CONST char *objectname)
 {
    char name[512];
    int recurse = FALSE;
@@ -1570,7 +1570,7 @@ DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname)
 	       return NULL;
 	 }
 	 else
-	    return dat+pos;
+	    return (DATAFILE*)dat+pos;
       }
    }
 
@@ -1584,7 +1584,7 @@ DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname)
  *  Returns the specified property string for the datafile object, or
  *  an empty string if the property does not exist.
  */
-char *get_datafile_property(DATAFILE *dat, int type)
+AL_CONST char *get_datafile_property(AL_CONST DATAFILE *dat, int type)
 {
    DATAFILE_PROPERTY *prop = dat->prop;
 

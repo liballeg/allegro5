@@ -88,7 +88,7 @@ static int processor (unsigned char *buf, int buf_size, struct mouse_info *info)
  *  if there's a reasonable chance that this driver can work with that
  *  data.
  */
-static int analyse_data (const char *buffer, int size)
+static int analyse_data (AL_CONST char *buffer, int size)
 {
 	int pos = 0;
 	int packets = 0, errors = 0;
@@ -167,7 +167,8 @@ static void wakeup_im(int fd)
  */
 static int mouse_init (void)
 {
-	char tmp[80], tmp2[80], *device, *ext;
+	char tmp[80], tmp2[80];
+	AL_CONST char *device, *ext;
 	int i;
 
 	/* Find the device filename */

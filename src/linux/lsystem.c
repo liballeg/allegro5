@@ -17,9 +17,11 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -41,8 +43,7 @@
 
 static int  sys_linux_init(void);
 static void sys_linux_exit(void);
-static void sys_linux_get_executable_name(char *output, int size);
-static void sys_linux_message (char *msg);
+static void sys_linux_message (AL_CONST char *msg);
 
 #define make_getter(x) static _DRIVER_INFO *get_##x##_driver_list (void) { return _linux_##x##_driver_list; }
 	make_getter (gfx)
@@ -62,7 +63,7 @@ SYSTEM_DRIVER system_linux =
    "Linux console",
    sys_linux_init,
    sys_linux_exit,
-   sys_linux_get_executable_name,
+   _unix_get_executable_name,
    _unix_find_resource,
    NULL, /* set_window_title */
    sys_linux_message,
@@ -122,6 +123,28 @@ static void _linux_interrupts_handler (unsigned long interval)
 }
 
 
+/* __al_linux_async_init:
+ *  Starts asynchronous processing.
+ */
+int __al_linux_async_init (void)
+{
+    	if (_sigalrm_init (_linux_interrupts_handler))
+		return -1;
+	al_linux_set_async_mode (ASYNC_DEFAULT);
+	return 0;
+}
+
+
+/* __al_linux_async_exit:
+ *  Stops asynchronous processing.
+ */
+void __al_linux_async_exit (void)
+{
+	al_linux_set_async_mode (ASYNC_OFF);
+	_sigalrm_exit();
+}
+
+
 
 /* sys_linux_init:
  *  Top level system driver wakeup call.
@@ -164,15 +187,14 @@ static int sys_linux_init (void)
 #endif
 
 	/* Initialise async event processing */
-	if (_sigalrm_init(_linux_interrupts_handler)) {
+    	if (__al_linux_async_init()) {
 		/* shutdown everything.  */
 		sys_linux_exit();
 		return -1;
 	}
-	al_linux_set_async_mode (ASYNC_DEFAULT);
 
 	set_display_switch_mode (SWITCH_PAUSE);
-
+	
 	__al_linux_init_vtswitch();
 
 	return 0;
@@ -189,8 +211,7 @@ static void sys_linux_exit (void)
 	__al_linux_done_vtswitch();
 
 	/* shut down asynchronous event processing */
-	al_linux_set_async_mode (ASYNC_OFF);
-	_sigalrm_exit();
+	__al_linux_async_exit();
 
 	/* remove emergency exit signal handlers */
 	signal(SIGABRT, old_sig_abrt);
@@ -214,19 +235,10 @@ static void sys_linux_exit (void)
 
 
 
-/* sys_linux_get_executable_name:
- *  Return full path to the current executable.
- */
-static void sys_linux_get_executable_name (char *output, int size)
-{
-	do_uconvert (__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
-}
-
-
 /* sys_linux_message:
  *  Display a message on our original console.
  */
-static void sys_linux_message (char *msg)
+static void sys_linux_message (AL_CONST char *msg)
 {
    char *tmp = malloc(4096);
    int ret;

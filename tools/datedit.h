@@ -34,6 +34,8 @@
 #define DAT_DITH  DAT_ID('D','I','T','H')
 #define DAT_XGRD  DAT_ID('X','G','R','D')
 #define DAT_YGRD  DAT_ID('Y','G','R','D')
+#define DAT_XCRP  DAT_ID('X','C','R','P')
+#define DAT_YCRP  DAT_ID('Y','C','R','P')
 
 
 
@@ -41,12 +43,12 @@ typedef struct DATEDIT_OBJECT_INFO
 {
    int type;
    char *desc;
-   void (*get_desc)(DATAFILE *dat, char *s);
+   void (*get_desc)(AL_CONST DATAFILE *dat, char *s);
    void *(*makenew)(long *size);
    void (*save)(DATAFILE *dat, int packed, int packkids, int strip, int verbose, int extra, PACKFILE *f);
-   void (*plot)(DATAFILE *dat, int x, int y);
+   void (*plot)(AL_CONST DATAFILE *dat, int x, int y);
    int (*dclick)(DATAFILE *dat);
-   void (*dat2s)(DATAFILE *dat, char *name, FILE *file, FILE *header);
+   void (*dat2s)(DATAFILE *dat, AL_CONST char *name, FILE *file, FILE *header);
 } DATEDIT_OBJECT_INFO;
 
 
@@ -56,8 +58,8 @@ typedef struct DATEDIT_GRABBER_INFO
    int type;
    char *grab_ext;
    char *export_ext;
-   void *(*grab)(char *filename, long *size, int x, int y, int w, int h, int depth);
-   int (*export)(DATAFILE *dat, char *filename);
+   void *(*grab)(AL_CONST char *filename, long *size, int x, int y, int w, int h, int depth);
+   int (*export)(AL_CONST DATAFILE *dat, AL_CONST char *filename);
 } DATEDIT_GRABBER_INFO;
 
 
@@ -96,38 +98,38 @@ extern DATAFILE datedit_info;
 
 void datedit_init();
 
-void datedit_msg(char *fmt, ...);
-void datedit_startmsg(char *fmt, ...);
-void datedit_endmsg(char *fmt, ...);
-void datedit_error(char *fmt, ...);
-int datedit_ask(char *fmt, ...);
+void datedit_msg(AL_CONST char *fmt, ...);
+void datedit_startmsg(AL_CONST char *fmt, ...);
+void datedit_endmsg(AL_CONST char *fmt, ...);
+void datedit_error(AL_CONST char *fmt, ...);
+int datedit_ask(AL_CONST char *fmt, ...);
 
-char *datedit_pretty_name(char *name, char *ext, int force_ext);
-int datedit_clean_typename(char *type);
-void datedit_set_property(DATAFILE *dat, int type, char *value);
-void datedit_find_character(BITMAP *bmp, int *x, int *y, int *w, int *h);
-char *datedit_desc(DATAFILE *dat);
+char *datedit_pretty_name(AL_CONST char *name, AL_CONST char *ext, int force_ext);
+int datedit_clean_typename(AL_CONST char *type);
+void datedit_set_property(DATAFILE *dat, int type, AL_CONST char *value);
+void datedit_find_character(AL_CONST BITMAP *bmp, int *x, int *y, int *w, int *h);
+AL_CONST char *datedit_desc(AL_CONST DATAFILE *dat);
 void datedit_sort_datafile(DATAFILE *dat);
 void datedit_sort_properties(DATAFILE_PROPERTY *prop);
-long datedit_asc2ftime(char *time);
-char *datedit_ftime2asc(long time);
-char *datedit_ftime2asc_int(long time);
-int datedit_numprop(DATAFILE *dat, int type);
-char *datedit_grab_ext(int type);
-char *datedit_export_ext(int type);
+long datedit_asc2ftime(AL_CONST char *time);
+AL_CONST char *datedit_ftime2asc(long time);
+AL_CONST char *datedit_ftime2asc_int(long time);
+int datedit_numprop(AL_CONST DATAFILE *dat, int type);
+AL_CONST char *datedit_grab_ext(int type);
+AL_CONST char *datedit_export_ext(int type);
 
-DATAFILE *datedit_load_datafile(char *name, int compile_sprites, char *password);
-int datedit_save_datafile(DATAFILE *dat, char *name, int strip, int pack, int verbose, int write_msg, int backup, char *password);
-int datedit_save_header(DATAFILE *dat, char *name, char *headername, char *progname, char *prefix, int verbose);
+DATAFILE *datedit_load_datafile(AL_CONST char *name, int compile_sprites, AL_CONST char *password);
+int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int pack, int verbose, int write_msg, int backup, AL_CONST char *password);
+int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *headername, AL_CONST char *progname, AL_CONST char *prefix, int verbose);
 
-void datedit_export_name(DATAFILE *dat, char *name, char *ext, char *buf);
-int datedit_export(DATAFILE *dat, char *name);
+void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *ext, char *buf);
+int datedit_export(AL_CONST DATAFILE *dat, AL_CONST char *name);
 DATAFILE *datedit_delete(DATAFILE *dat, int i);
-DATAFILE *datedit_grab(char *filename, char *name, int type, int x, int y, int w, int h, int colordepth);
-int datedit_grabreplace(DATAFILE *dat, char *filename, char *name, char *type, int colordepth, int x, int y, int w, int h);
-int datedit_grabupdate(DATAFILE *dat, char *filename, int x, int y, int w, int h);
-DATAFILE *datedit_grabnew(DATAFILE *dat, char *filename, char *name, char *type, int colordepth, int x, int y, int w, int h);
-DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, char *name, int type, void *v, long size);
+DATAFILE *datedit_grab(AL_CONST char *filename, AL_CONST char *name, int type, int x, int y, int w, int h, int colordepth);
+int datedit_grabreplace(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h);
+int datedit_grabupdate(DATAFILE *dat, AL_CONST char *filename, int x, int y, int w, int h);
+DATAFILE *datedit_grabnew(DATAFILE *dat, AL_CONST char *filename, AL_CONST char *name, AL_CONST char *type, int colordepth, int x, int y, int w, int h);
+DATAFILE *datedit_insert(DATAFILE *dat, DATAFILE **ret, AL_CONST char *name, int type, void *v, long size);
 int datedit_update(DATAFILE *dat, int verbose, int *changed);
 int datedit_force_update(DATAFILE *dat, int verbose, int *changed);
 

@@ -6,12 +6,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.32 (WIP)
+				       \_/__/     Version 3.9.33 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Mar 13, 2000.
+	     By Shawn Hargreaves, Aug 14, 2000.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -61,7 +61,7 @@
    DOS/djgpp         - see readme.dj
    DOS/Watcom        - see readme.wat
    Windows/MSVC      - see readme.vc
-   Windows/Mingw32   - see readme.mgw and readme.mgs
+   Windows/Mingw32   - see readme.mgw
    Windows/RSXNT     - see readme.rsx
    Windows/Borland   - see readme.bcc
    Linux (console)   - see readme.lnx

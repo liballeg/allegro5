@@ -775,85 +775,128 @@ void FUNC_LINEAR_DRAW_RLE_SPRITE(BITMAP *dst, RLE_SPRITE *src, int dx, int dy)
    bmp_select(dst);
 
    /* Visible part.  */
-   for (y = 0; y < h; y++) {
-      PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
-      long c = *s++;
+   if (sxbeg || dx+src->w >= dst->cr) {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Clip left.  */
-      for (x = sxbeg; x > 0; ) {
-	 if (RLE_IS_EOL(c))
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully clipped.  */
-	       x -= c;
-	       s += c;
+         /* Clip left.  */
+         for (x = sxbeg; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully clipped.  */
+	          x -= c;
+	          s += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c -= x;
+	          s += x;
+	          break;
+	       }
 	    }
 	    else {
-	       /* Visible on the right.  */
-	       c -= x;
-	       s += x;
-	       break;
+	       /* Run of transparent pixels.  */
+	       if ((x + c) >= 0) {
+	          /* Fully clipped.  */
+	          x += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c += x;
+	          break;
+	       }
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    if ((x + c) >= 0) {
-	       /* Fully clipped.  */
+
+	    c = *s++;
+         }
+
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(d), c--) {
+		     unsigned long col = *s;
+		     PUT_PIXEL(d, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
+		     unsigned long col = *s;
+		     PUT_PIXEL(d, col);
+	          }
+	          break;
+	       }
+	    }
+	    else {
+	       /* Run of transparent pixels.  */
 	       x += c;
+	       d = OFFSET_PIXEL_PTR(d, -c);
 	    }
-	    else {
-	       /* Visible on the right.  */
-	       c += x;
-	       break;
-	    }
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+         /* Clip right.  */
+         while (!RLE_IS_EOL(c)) {
+	    if (c > 0)
+	       s += c;
+	    c = *s++;
+         }
+
+      next_line:
       }
+   }
+   else {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Visible part.  */
-      for (x = w; x > 0; ) {
-	 if (RLE_IS_EOL(c))
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully visible.  */
-	       x -= c;
-	       for (c--; c >= 0; s++, INC_PIXEL_PTR(d), c--) {
-		  unsigned long col = *s;
-		  PUT_PIXEL(d, col);
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line2;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(d), c--) {
+		     unsigned long col = *s;
+		     PUT_PIXEL(d, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
+		     unsigned long col = *s;
+		     PUT_PIXEL(d, col);
+	          }
+	          break;
 	       }
 	    }
 	    else {
-	       /* Clipped on the right.  */
-	       c -= x;
-	       for (x--; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
-		  unsigned long col = *s;
-		  PUT_PIXEL(d, col);
-	       }
-	       break;
+	       /* Run of transparent pixels.  */
+	       x += c;
+	       d = OFFSET_PIXEL_PTR(d, -c);
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    x += c;
-	    d = OFFSET_PIXEL_PTR(d, -c);
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+      next_line2:
       }
-
-      /* Clip right.  */
-      while (!RLE_IS_EOL(c)) {
-	 if (c > 0)
-	    s += c;
-	 c = *s++;
-      }
-
-   next_line:
    }
 
    bmp_unwrite_line(dst);
@@ -919,87 +962,139 @@ void FUNC_LINEAR_DRAW_TRANS_RLE_SPRITE(BITMAP *dst, RLE_SPRITE *src, int dx, int
    bmp_select(dst);
 
    /* Visible part.  */
-   for (y = 0; y < h; y++) {
-      PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
-      PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
-      long c = *s++;
+   if (sxbeg || dx+src->w >= dst->cr) {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
+         PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Clip left.  */
-      for (x = sxbeg; x > 0; ) {
-	 if (RLE_IS_EOL(c))
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully clipped.  */
-	       x -= c;
-	       s += c;
+         /* Clip left.  */
+         for (x = sxbeg; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully clipped.  */
+	          x -= c;
+	          s += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c -= x;
+	          s += x;
+	          break;
+	       }
 	    }
 	    else {
-	       /* Visible on the right.  */
-	       c -= x;
-	       s += x;
-	       break;
+	       /* Run of transparent pixels.  */
+	       if ((x + c) >= 0) {
+	          /* Fully clipped.  */
+	          x += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c += x;
+	          break;
+	       }
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    if ((x + c) >= 0) {
-	       /* Fully clipped.  */
+
+	    c = *s++;
+         }
+
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), c--) {
+		     unsigned long col = DTS_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
+		     unsigned long col = DTS_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	          break;
+	       }
+	    }
+	    else {
+	       /* Run of transparent pixels.  */
 	       x += c;
+	       ds = OFFSET_PIXEL_PTR(ds, -c);
+	       dd = OFFSET_PIXEL_PTR(dd, -c);
 	    }
-	    else {
-	       /* Visible on the right.  */
-	       c += x;
-	       break;
-	    }
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+         /* Clip right.  */
+         while (!RLE_IS_EOL(c)) {
+	    if (c > 0)
+	       s += c;
+	    c = *s++;
+         }
+
+      next_line:
       }
+   }
+   else {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
+         PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Visible part.  */
-      for (x = w; x > 0; ) {
-	 if (RLE_IS_EOL(c))
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully visible.  */
-	       x -= c;
-	       for (c--; c >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), c--) {
-		  unsigned long col = DTS_BLEND(blender, GET_PIXEL(ds), *s);
-		  PUT_PIXEL(dd, col);
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line2;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), c--) {
+		     unsigned long col = DTS_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
+		     unsigned long col = DTS_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	          break;
 	       }
 	    }
 	    else {
-	       /* Clipped on the right.  */
-	       c -= x;
-	       for (x--; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
-		  unsigned long col = DTS_BLEND(blender, GET_PIXEL(ds), *s);
-		  PUT_PIXEL(dd, col);
-	       }
-	       break;
+	       /* Run of transparent pixels.  */
+	       x += c;
+	       ds = OFFSET_PIXEL_PTR(ds, -c);
+	       dd = OFFSET_PIXEL_PTR(dd, -c);
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    x += c;
-	    ds = OFFSET_PIXEL_PTR(ds, -c);
-	    dd = OFFSET_PIXEL_PTR(dd, -c);
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+         /* Clip right.  */
+         while (!RLE_IS_EOL(c)) {
+	    if (c > 0)
+	       s += c;
+	    c = *s++;
+         }
+
+      next_line2:
       }
-
-      /* Clip right.  */
-      while (!RLE_IS_EOL(c)) {
-	 if (c > 0)
-	    s += c;
-	 c = *s++;
-      }
-
-   next_line:
    }
 
    bmp_unwrite_line(dst);
@@ -1067,87 +1162,132 @@ void FUNC_LINEAR_DRAW_TRANS_RGBA_RLE_SPRITE(BITMAP *dst, RLE_SPRITE *src, int dx
    bmp_select(dst);
 
    /* Visible part.  */
-   for (y = 0; y < h; y++) {
-      PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
-      PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
-      long c = *s++;
+   if (sxbeg || dx+src->w >= dst->cr) {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
+         PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Clip left.  */
-      for (x = sxbeg; x > 0; ) {
-	 if (c == MASK_COLOR_32)
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully clipped.  */
-	       x -= c;
-	       s += c;
+         /* Clip left.  */
+         for (x = sxbeg; x > 0; ) {
+	    if (c == MASK_COLOR_32)
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully clipped.  */
+	          x -= c;
+	          s += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c -= x;
+	          s += x;
+	          break;
+	       }
 	    }
 	    else {
-	       /* Visible on the right.  */
-	       c -= x;
-	       s += x;
-	       break;
+	       /* Run of transparent pixels.  */
+	       if ((x + c) >= 0) {
+	          /* Fully clipped.  */
+	          x += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c += x;
+	          break;
+	       }
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    if ((x + c) >= 0) {
-	       /* Fully clipped.  */
+
+	    c = *s++;
+         }
+
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (c == MASK_COLOR_32)
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), c--) {
+		     unsigned long col = RGBA_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
+		     unsigned long col = RGBA_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	          break;
+	       }
+	    }
+	    else {
+	       /* Run of transparent pixels.  */
 	       x += c;
+	       ds = OFFSET_PIXEL_PTR(ds, -c);
+	       dd = OFFSET_PIXEL_PTR(dd, -c);
 	    }
-	    else {
-	       /* Visible on the right.  */
-	       c += x;
-	       break;
-	    }
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+         /* Clip right.  */
+         while (c != MASK_COLOR_32) {
+	    if (c > 0)
+	       s += c;
+	    c = *s++;
+         }
+
+      next_line:
       }
+   }
+   else {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR ds = OFFSET_PIXEL_PTR(bmp_read_line(dst, dybeg + y), dxbeg);
+         PIXEL_PTR dd = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Visible part.  */
-      for (x = w; x > 0; ) {
-	 if (c == MASK_COLOR_32)
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully visible.  */
-	       x -= c;
-	       for (c--; c >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), c--) {
-		  unsigned long col = RGBA_BLEND(blender, GET_PIXEL(ds), *s);
-		  PUT_PIXEL(dd, col);
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (c == MASK_COLOR_32)
+	       goto next_line2;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), c--) {
+		     unsigned long col = RGBA_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
+		     unsigned long col = RGBA_BLEND(blender, GET_PIXEL(ds), *s);
+		     PUT_PIXEL(dd, col);
+	          }
+	          break;
 	       }
 	    }
 	    else {
-	       /* Clipped on the right.  */
-	       c -= x;
-	       for (x--; x >= 0; s++, INC_PIXEL_PTR(ds), INC_PIXEL_PTR(dd), x--) {
-		  unsigned long col = RGBA_BLEND(blender, GET_PIXEL(ds), *s);
-		  PUT_PIXEL(dd, col);
-	       }
-	       break;
+	       /* Run of transparent pixels.  */
+	       x += c;
+	       ds = OFFSET_PIXEL_PTR(ds, -c);
+	       dd = OFFSET_PIXEL_PTR(dd, -c);
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    x += c;
-	    ds = OFFSET_PIXEL_PTR(ds, -c);
-	    dd = OFFSET_PIXEL_PTR(dd, -c);
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+      next_line2:
       }
-
-      /* Clip right.  */
-      while (c != MASK_COLOR_32) {
-	 if (c > 0)
-	    s += c;
-	 c = *s++;
-      }
-
-   next_line:
    }
 
    bmp_unwrite_line(dst);
@@ -1215,85 +1355,128 @@ void FUNC_LINEAR_DRAW_LIT_RLE_SPRITE(BITMAP *dst, RLE_SPRITE *src, int dx, int d
    bmp_select(dst);
 
    /* Visible part.  */
-   for (y = 0; y < h; y++) {
-      PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
-      long c = *s++;
+   if (sxbeg || dx+src->w >= dst->cr) {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Clip left.  */
-      for (x = sxbeg; x > 0; ) {
-	 if (RLE_IS_EOL(c))
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully clipped.  */
-	       x -= c;
-	       s += c;
+         /* Clip left.  */
+         for (x = sxbeg; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully clipped.  */
+	          x -= c;
+	          s += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c -= x;
+	          s += x;
+	          break;
+	       }
 	    }
 	    else {
-	       /* Visible on the right.  */
-	       c -= x;
-	       s += x;
-	       break;
+	       /* Run of transparent pixels.  */
+	       if ((x + c) >= 0) {
+	          /* Fully clipped.  */
+	          x += c;
+	       }
+	       else {
+	          /* Visible on the right.  */
+	          c += x;
+	          break;
+	       }
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    if ((x + c) >= 0) {
-	       /* Fully clipped.  */
+
+	    c = *s++;
+         }
+
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(d), c--) {
+		     unsigned long col = DLS_BLEND(blender, color, *s);
+		     PUT_PIXEL(d, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
+		     unsigned long col = DLS_BLEND(blender, color, *s);
+		     PUT_PIXEL(d, col);
+	          }
+	          break;
+	       }
+	    }
+	    else {
+	       /* Run of transparent pixels.  */
 	       x += c;
+	       d = OFFSET_PIXEL_PTR(d, -c);
 	    }
-	    else {
-	       /* Visible on the right.  */
-	       c += x;
-	       break;
-	    }
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+         /* Clip right.  */
+         while (!RLE_IS_EOL(c)) {
+	    if (c > 0)
+	       s += c;
+	    c = *s++;
+         }
+
+      next_line:
       }
+   }
+   else {
+      for (y = 0; y < h; y++) {
+         PIXEL_PTR d = OFFSET_PIXEL_PTR(bmp_write_line(dst, dybeg + y), dxbeg);
+         long c = *s++;
 
-      /* Visible part.  */
-      for (x = w; x > 0; ) {
-	 if (RLE_IS_EOL(c))
-	    goto next_line;
-	 else if (c > 0) {
-	    /* Run of solid pixels.  */
-	    if ((x - c) >= 0) {
-	       /* Fully visible.  */
-	       x -= c;
-	       for (c--; c >= 0; s++, INC_PIXEL_PTR(d), c--) {
-		  unsigned long col = DLS_BLEND(blender, color, *s);
-		  PUT_PIXEL(d, col);
+         /* Visible part.  */
+         for (x = w; x > 0; ) {
+	    if (RLE_IS_EOL(c))
+	       goto next_line2;
+	    else if (c > 0) {
+	       /* Run of solid pixels.  */
+	       if ((x - c) >= 0) {
+	          /* Fully visible.  */
+	          x -= c;
+	          for (c--; c >= 0; s++, INC_PIXEL_PTR(d), c--) {
+		     unsigned long col = DLS_BLEND(blender, color, *s);
+		     PUT_PIXEL(d, col);
+	          }
+	       }
+	       else {
+	          /* Clipped on the right.  */
+	          c -= x;
+	          for (x--; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
+		     unsigned long col = DLS_BLEND(blender, color, *s);
+		     PUT_PIXEL(d, col);
+	          }
+	          break;
 	       }
 	    }
 	    else {
-	       /* Clipped on the right.  */
-	       c -= x;
-	       for (x--; x >= 0; s++, INC_PIXEL_PTR(d), x--) {
-		  unsigned long col = DLS_BLEND(blender, color, *s);
-		  PUT_PIXEL(d, col);
-	       }
-	       break;
+	       /* Run of transparent pixels.  */
+	       x += c;
+	       d = OFFSET_PIXEL_PTR(d, -c);
 	    }
-	 }
-	 else {
-	    /* Run of transparent pixels.  */
-	    x += c;
-	    d = OFFSET_PIXEL_PTR(d, -c);
-	 }
 
-	 c = *s++;
+	    c = *s++;
+         }
+
+      next_line2:
       }
-
-      /* Clip right.  */
-      while (!RLE_IS_EOL(c)) {
-	 if (c > 0)
-	    s += c;
-	 c = *s++;
-      }
-
-   next_line:
    }
 
    bmp_unwrite_line(dst);

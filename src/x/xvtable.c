@@ -30,25 +30,25 @@ static void _xwin_putpixel(BITMAP *dst, int dx, int dy, int color);
 static void _xwin_vline(BITMAP *dst, int dx, int dy1, int dy2, int color);
 static void _xwin_hline(BITMAP *dst, int dx1, int dy, int dx2, int color);
 static void _xwin_rectfill(BITMAP *dst, int dx1, int dy1, int dx2, int dy2, int color);
-static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int dy);
-static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int color);
-static void _xwin_draw_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy);
-static void _xwin_draw_trans_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy);
-static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy);
-static void _xwin_draw_lit_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy, int color);
-static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color);
-static void _xwin_draw_glyph(BITMAP *dst, FONT_GLYPH *src, int dx, int dy, int color);
-static void _xwin_blit_anywhere(BITMAP *src, BITMAP *dst, int sx, int sy,
+static void _xwin_draw_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_256_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_v_flip(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_h_flip(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_sprite_vh_flip(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_trans_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy);
+static void _xwin_draw_lit_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy, int color);
+static void _xwin_draw_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy);
+static void _xwin_draw_trans_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy);
+static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy);
+static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy, int color);
+static void _xwin_draw_character(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy, int color);
+static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color);
+static void _xwin_blit_anywhere(AL_CONST BITMAP *src, BITMAP *dst, int sx, int sy,
 				int dx, int dy, int w, int h);
-static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
+static void _xwin_blit_backward(AL_CONST BITMAP *src, BITMAP *dst, int sx, int sy,
 				int dx, int dy, int w, int h);
-static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
+static void _xwin_masked_blit(AL_CONST BITMAP *src, BITMAP *dst, int sx, int sy,
 			      int dx, int dy, int w, int h);
 static void _xwin_clear_to_color(BITMAP *dst, int color);
 
@@ -258,7 +258,7 @@ static void _xwin_clear_to_color(BITMAP *dst, int color)
 /* _xwin_blit_anywhere:
  *  Wrapper for blit.
  */
-static void _xwin_blit_anywhere(BITMAP *src, BITMAP *dst, int sx, int sy,
+static void _xwin_blit_anywhere(AL_CONST BITMAP *src, BITMAP *dst, int sx, int sy,
 				int dx, int dy, int w, int h)
 {
    if (_xwin_in_gfx_call) {
@@ -277,7 +277,7 @@ static void _xwin_blit_anywhere(BITMAP *src, BITMAP *dst, int sx, int sy,
 /* _xwin_blit_backward:
  *  Wrapper for blit_backward.
  */
-static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
+static void _xwin_blit_backward(AL_CONST BITMAP *src, BITMAP *dst, int sx, int sy,
 				int dx, int dy, int w, int h)
 {
    if (_xwin_in_gfx_call) {
@@ -296,7 +296,7 @@ static void _xwin_blit_backward(BITMAP *src, BITMAP *dst, int sx, int sy,
 /* _xwin_masked_blit:
  *  Wrapper for masked_blit.
  */
-static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
+static void _xwin_masked_blit(AL_CONST BITMAP *src, BITMAP *dst, int sx, int sy,
 			      int dx, int dy, int w, int h)
 {
    if (_xwin_in_gfx_call) {
@@ -315,7 +315,7 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
 /* _xwin_draw_sprite:
  *  Wrapper for draw_sprite.
  */
-static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -367,7 +367,7 @@ static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 /* _xwin_draw_256_sprite:
  *  Wrapper for draw_256_sprite.
  */
-static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_256_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -419,7 +419,7 @@ static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 /* _xwin_draw_sprite_v_flip:
  *  Wrapper for draw_sprite_v_flip.
  */
-static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_sprite_v_flip(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -471,7 +471,7 @@ static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
 /* _xwin_draw_sprite_h_flip:
  *  Wrapper for draw_sprite_h_flip.
  */
-static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_sprite_h_flip(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -523,7 +523,7 @@ static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
 /* _xwin_draw_sprite_vh_flip:
  *  Wrapper for draw_sprite_vh_flip.
  */
-static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_sprite_vh_flip(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -575,7 +575,7 @@ static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
 /* _xwin_draw_trans_sprite:
  *  Wrapper for draw_trans_sprite.
  */
-static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_trans_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -627,7 +627,7 @@ static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 /* _xwin_draw_trans_rgba_sprite:
  *  Wrapper for draw_trans_rgba_sprite.
  */
-static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
+static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -679,7 +679,7 @@ static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int d
 /* _xwin_draw_lit_sprite:
  *  Wrapper for draw_lit_sprite.
  */
-static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
+static void _xwin_draw_lit_sprite(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy, int color)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -731,7 +731,7 @@ static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int 
 /* _xwin_draw_character:
  *  Wrapper for draw_character.
  */
-static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
+static void _xwin_draw_character(BITMAP *dst, AL_CONST BITMAP *src, int dx, int dy, int color)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -783,7 +783,7 @@ static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int c
 /* _xwin_draw_glyph:
  *  Wrapper for draw_glyph.
  */
-static void _xwin_draw_glyph(BITMAP *dst, FONT_GLYPH *src, int dx, int dy, int color)
+static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -835,7 +835,7 @@ static void _xwin_draw_glyph(BITMAP *dst, FONT_GLYPH *src, int dx, int dy, int c
 /* _xwin_draw_rle_sprite:
  *  Wrapper for draw_rle_sprite.
  */
-static void _xwin_draw_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy)
+static void _xwin_draw_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -887,7 +887,7 @@ static void _xwin_draw_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy)
 /* _xwin_draw_trans_rle_sprite:
  *  Wrapper for draw_trans_rle_sprite.
  */
-static void _xwin_draw_trans_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy)
+static void _xwin_draw_trans_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -939,7 +939,7 @@ static void _xwin_draw_trans_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, in
 /* _xwin_draw_trans_rgba_rle_sprite:
  *  Wrapper for draw_trans_rgba_rle_sprite.
  */
-static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy)
+static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy)
 {
    int w, h;
    int dxbeg, dybeg;
@@ -991,7 +991,7 @@ static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int d
 /* _xwin_draw_lit_rle_sprite:
  *  Wrapper for draw_lit_rle_sprite.
  */
-static void _xwin_draw_lit_rle_sprite(BITMAP *dst, RLE_SPRITE *src, int dx, int dy, int color)
+static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy, int color)
 {
    int w, h;
    int dxbeg, dybeg;

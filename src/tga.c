@@ -11,6 +11,8 @@
  *      TGA reader by Tim Gunn.
  *
  *      RLE support added by Michal Mertl and Salvador Eduardo Tropea.
+ * 
+ *	Palette reading improved by Peter Wang.
  *
  *      See readme.txt for copyright information.
  */
@@ -171,7 +173,7 @@ static void rle_tga_read16(unsigned short *b, int w, PACKFILE *f)
  *  structure and storing the palette data in the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-BITMAP *load_tga(char *filename, RGB *pal)
+BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
 {
    unsigned char image_id[256], image_palette[256][3], rgb[4];
    unsigned char id_length, palette_type, image_type, palette_entry_size;
@@ -207,7 +209,28 @@ BITMAP *load_tga(char *filename, RGB *pal)
    descriptor_bits = pack_getc(f);
 
    pack_fread(image_id, id_length, f);
-   pack_fread(image_palette, palette_colors*3 , f);
+
+   for (i = 0; i < palette_colors; i++) {
+
+      switch (palette_entry_size) {
+
+	 case 16: 
+	    c = pack_igetw(f);
+	    image_palette[i][0] = (c & 0x1F) << 3;
+	    image_palette[i][1] = ((c >> 5) & 0x1F) << 3;
+	    image_palette[i][2] = ((c >> 10) & 0x1F) << 3;
+	    break;
+
+	 case 24:
+	 case 32:
+	    image_palette[i][0] = pack_getc(f);
+	    image_palette[i][1] = pack_getc(f);
+	    image_palette[i][2] = pack_getc(f);
+	    if (palette_entry_size == 32)
+	       pack_getc(f);
+	    break;
+      }
+   }
 
    /* Image type:
     *    0 = no image data
@@ -366,7 +389,7 @@ BITMAP *load_tga(char *filename, RGB *pal)
  *  Writes a bitmap into a TGA file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-int save_tga(char *filename, BITMAP *bmp, RGB *pal)
+int save_tga(AL_CONST char *filename, AL_CONST BITMAP *bmp, AL_CONST RGB *pal)
 {
    unsigned char image_palette[256][3];
    int x, y, c, r, g, b;
