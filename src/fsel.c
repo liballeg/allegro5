@@ -26,9 +26,13 @@
  *      Annie Testes modified it so that buffer overflows cannot occur
  *      anymore.
  *
+ *      Eric Botcazou optimized the handling of the extension string.
+ *
  *      See readme.txt for copyright information.
  */
 
+
+#include <string.h>
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
@@ -63,7 +67,24 @@ typedef struct FLIST
 
 static FLIST *flist = NULL;
 
-static AL_CONST char *fext = NULL;
+
+/* file extensions */
+static char *fext = NULL;     /* tokenized extension string (dynamically allocated)     */
+static char **fext_p = NULL;  /* list of pointers to the tokens (dynamically allocated) */
+static int fext_size = 0;     /* size of the list                                       */
+
+
+/* file attributes (rhsda order) */
+#define ATTRB_MAX     5   /* number of attributes */
+#define ATTRB_DIREC   3   /* index of FA_DIREC    */
+
+typedef enum { ATTRB_ABSENT, ATTRB_UNSET, ATTRB_SET } attrb_state_t;
+
+#define DEFAULT_ATTRB_STATE  { ATTRB_ABSENT, ATTRB_UNSET, ATTRB_UNSET, ATTRB_ABSENT, ATTRB_ABSENT }
+
+static int attrb_flag[ATTRB_MAX] = { FA_RDONLY, FA_HIDDEN, FA_SYSTEM, FA_DIREC, FA_ARCH };
+static attrb_state_t attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
+
 
 static char updir[1024];
 
@@ -375,119 +396,44 @@ static int ustrfilecmp(AL_CONST char *s1, AL_CONST char *s2)
 /* fs_flist_putter:
  *  Callback routine for for_each_file() to fill the file selector listbox.
  */
-static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
+static int fs_flist_putter(AL_CONST char *str, int attrib, void *check_attrib)
 {
-   char ext_tokens[32];
-   char *s, *ext, *tok, *name, *last;
-   char tmp[512], tmp2[32];
-   int c, c2, i, k, sign;
-
-   /* attribute flags (rhsda order)
-    * 0 = not required, 1 = must be set, -1 = must be unset
-    */
-   int attr_flag[5+5] = {
-      0, -1, -1, 0, 0,
-      FA_RDONLY, FA_HIDDEN, FA_SYSTEM, FA_DIREC, FA_ARCH
-   };
-
-   c = usetc(ext_tokens, ' ');
-   c += usetc(ext_tokens+c, ',');
-   c += usetc(ext_tokens+c, ';');
-   usetc(ext_tokens+c, 0);
+   char *s, *ext, *name;
+   int c, c2;
 
    s = get_filename(str);
    fix_filename_case(s);
 
-   if (fext) {
-      ustrzcpy(tmp, sizeof(tmp), fext);
-      ustrtok_r(tmp, ext_tokens, &last);
-      c = (ustrtok_r(NULL, ext_tokens, &last) ? 1 : 0);
-      if (!c) {
-	 if (!ustrchr(fext, '/'))
-	    c = 1;
-      }
-
-      if (c && (!(attrib & FA_DIREC))) {
-	 ustrzcpy(tmp, sizeof(tmp), fext);
+   if (!(attrib & FA_DIREC)) {
+      /* Check if file extension matches. */
+      if (fext_p) {
 	 ext = get_extension(s);
-	 tok = ustrtok_r(tmp, ext_tokens, &last);
-
-	 while (tok) {
-	    if (ustricmp(ext, tok) == 0)
-	       break;
-
-	    tok = ustrtok_r(NULL, ext_tokens, &last);
+	 for (c=0; c<fext_size; c++) {
+	    if (ustricmp(ext, fext_p[c]) == 0)
+	       goto Next;
 	 }
-
-	 if (!tok)
-	    return;
+	 return 0;
       }
 
-      c = usetc(ext_tokens, ' ');
-      c += usetc(ext_tokens+c, ',');
-      c += usetc(ext_tokens+c, ';');
-      c += usetc(ext_tokens+c, '/');
-      usetc(ext_tokens+c, 0);
-
-      ustrzcpy(tmp, sizeof(tmp), fext);
-      tok = ustrchr(tmp, '/');
-
-      if (tok)
-	 tok = ustrtok_r(tok, ext_tokens, &last);
-
-      if (tok) {
-	 sign = 1;
-	 c = usetc(tmp2, 'r');
-	 c += usetc(tmp2+c, 'h');
-	 c += usetc(tmp2+c, 's');
-	 c += usetc(tmp2+c, 'd');
-	 c += usetc(tmp2+c, 'a');
-	 c += usetc(tmp2+c, '+');
-	 c += usetc(tmp2+c, '-');
-	 usetc(tmp2+c, 0);
-
-	 /* scan the string */
-	 i = 0;
-	 while ((c = utolower(ugetat(tok, i)))) {
-	    k = 0;
-	    while ((c2 = ugetat(tmp2, k))!=0) {
-	       if (c == c2) {
-		  if (k<5) {
-		     attr_flag[k] = sign;
-		     break;
-		  }
-		  else
-		     sign = (k==5) ? 1 : -1;
-	       }
-	       k++;
-	    }
-	    i++;
-	 }
+    Next:
+      /* Check if file attributes match. */
+      if (check_attrib) {
+	 for (c=0; c<ATTRB_MAX; c++) {
+	    /* ???? We check all attributes except FA_DIREC. */
+	    if (c == ATTRB_DIREC)
+	       continue;
+	    if ((attrb_state[c] == ATTRB_SET) && (!(attrib & attrb_flag[c])))
+	       return 0;
+	    if ((attrb_state[c] == ATTRB_UNSET) && (attrib & attrb_flag[c]))
+	       return 0;
+         }
       }
-   }
-
-   /* check if file attributes match */
-   if (!(attr_flag[3+5] & attrib)) {
-      /* if not a directory, we check all attributes except FA_DIREC */
-      for (c=0; c<5; c++) {
-	 if (c == 3)
-	    continue;
-	 if ((attr_flag[c] == 1) && (!(attrib & attr_flag[c+5])))
-	    return;
-	 if ((attr_flag[c] == -1) && (attrib & attr_flag[c+5]))
-	    return;
-      }
-   }
-   else {
-      /* if a directory, we check only FA_DIREC */
-      if (attr_flag[3] == -1)
-	 return;
    }
 
    if ((flist->size < FLIST_SIZE) && ((ugetc(s) != '.') || (ugetat(s, 1)))) {
       name = malloc(ustrsizez(s) + ((attrib & FA_DIREC) ? ucwidth(OTHER_PATH_SEPARATOR) : 0));
       if (!name)
-	 return;
+	 return -1;
 
       for (c=0; c<flist->size; c++) {
 	 if (ugetat(flist->name[c], -1) == OTHER_PATH_SEPARATOR) {
@@ -514,6 +460,8 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 
       flist->size++;
    }
+
+   return 0;
 }
 
 
@@ -530,6 +478,23 @@ static char *fs_flist_getter(int index, int *list_size)
    }
 
    return flist->name[index];
+}
+
+
+
+/* build_attrb_flag:
+ *  Returns the cumulative flag for all attributes in state STATE.
+ */
+static int build_attrb_flag(attrb_state_t state)
+{
+   int i, flag = 0;
+
+   for (i = 0; i < ATTRB_MAX; i++) {
+      if (attrb_state[i] == state)
+	 flag |= attrb_flag[i];
+   }
+  
+   return flag;
 }
 
 
@@ -566,12 +531,16 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 
       replace_filename(flist->dir, s, uconvert_ascii("*.*", tmp), sizeof(flist->dir));
 
-      *allegro_errno = 0;
-
-      for_each_file(flist->dir, FA_RDONLY | FA_DIREC | FA_ARCH | FA_HIDDEN | FA_SYSTEM, fs_flist_putter, 0);
-
-      if (*allegro_errno)
-	 alert(NULL, get_config_text("Disk error"), NULL, get_config_text("OK"), NULL, 13, 0);
+      /* The semantics of the attributes passed to file_select_ex() is
+       * different from that of for_each_file_ex() because directories
+       * are always all included regardless of the other specified
+       * attributes, unless they are all excluded. So we can't filter
+       * with for_each_file_ex() unless we are in the latter case.
+       */
+      if (attrb_state[ATTRB_DIREC] == ATTRB_UNSET)
+	 for_each_file_ex(flist->dir, build_attrb_flag(ATTRB_SET), build_attrb_flag(ATTRB_UNSET) | FA_LABEL, fs_flist_putter, (void *)FALSE /* don't check */);
+      else
+	 for_each_file_ex(flist->dir, 0 /* accept all dirs */, FA_LABEL, fs_flist_putter, (void *)TRUE /* check */);
 
       usetc(get_filename(flist->dir), 0);
       d->d1 = d->d2 = 0;
@@ -626,6 +595,89 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
 
 
 
+/* parse_extension_string:
+ *  Parses the extension string, possibly containing attribute characters.
+ */
+static void parse_extension_string(AL_CONST char *ext)
+{
+   attrb_state_t state;
+   char ext_tokens[32], attrb_char[32];
+   char *tok, *last, *p, *attrb_p;
+   int c, c2, i;
+
+   fext = ustrdup(ext);
+   if (!fext)
+      return;
+
+   /* Tokenize the extension string and record the pointers to the
+    * beginning of each token in a dynamically growing array.
+    * ???? We rely on the implementation of ustrtok_r() which writes
+    * null characters in the string to delimit the tokens. Yuck.
+    */
+   c = usetc(ext_tokens, ' ');
+   c += usetc(ext_tokens+c, ',');
+   c += usetc(ext_tokens+c, ';');
+   usetc(ext_tokens+c, 0);
+
+   p = ustrtok_r(fext, ext_tokens, &last);
+   if (!ugetc(p))
+      return;
+
+   i = 0;
+   fext_size = 0;
+   fext_p = NULL;
+   attrb_p = NULL;
+
+   do {
+      /* Set of attribute characters. */
+      if (ugetc(p) == '/') {
+	 attrb_p = p + ucwidth('/');
+	 continue;
+      }
+
+      /* Dynamically grow the array if needed. */
+      if (i >= fext_size) {
+	 fext_size = (fext_size ? fext_size*2 : 2);
+	 fext_p = (char **)_al_sane_realloc(fext_p, fext_size * sizeof(char *));
+      }
+
+      /* Record a pointer to the beginning of the token. */
+      fext_p[i++] = p;
+
+   } while ((p = ustrtok_r(NULL, ext_tokens, &last)));
+
+   /* This is the meaningful size now. */
+   fext_size = i;
+
+   if (attrb_p) {
+      state = ATTRB_SET;
+      c = usetc(attrb_char, 'r');
+      c += usetc(attrb_char+c, 'h');
+      c += usetc(attrb_char+c, 's');
+      c += usetc(attrb_char+c, 'd');
+      c += usetc(attrb_char+c, 'a');
+      c += usetc(attrb_char+c, '+');
+      c += usetc(attrb_char+c, '-');
+      usetc(attrb_char+c, 0);
+
+      /* Scan the string. */
+      while ((c = utolower(ugetx(&attrb_p)))) {
+	 p = attrb_char;
+	 for (i = 0; (c2 = ugetx(&p)); i++) {
+	    if (c == c2) {
+	       if (i < ATTRB_MAX)
+		  attrb_state[i] = state;
+	       else
+		  state = (i == ATTRB_MAX) ? ATTRB_SET : ATTRB_UNSET;
+	       break;
+	    }
+	 }
+      }
+   }
+}    
+
+
+     
 /* stretch_dialog:
  *  Stretch the dialog horizontally and vertically to the specified
  *   size and the font in use.
@@ -748,6 +800,7 @@ static void stretch_dialog(DIALOG *d, int width, int height)
  */
 int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height)
 {
+   static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
    int ret;
    char *p;
    char tmp[32];
@@ -778,7 +831,13 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    file_selector[FS_EDIT].dp = path;
    file_selector[FS_OK].dp = (void*)get_config_text("OK");
    file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
-   fext = ext;
+
+   /* Set default attributes. */
+   memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
+
+   /* Parse extension string. */
+   if (ext && ugetc(ext))
+      parse_extension_string(ext);
 
    if (!ugetc(path)) {
 
@@ -808,6 +867,16 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    set_dialog_color(file_selector, gui_fg_color, gui_bg_color);
    ret = popup_dialog(file_selector, FS_EDIT);
 
+   if (fext) {
+      free(fext);
+      fext = NULL;
+   }
+
+   if (fext_p) {
+      free(fext_p);
+      fext_p = NULL;
+   }
+
    if ((ret == FS_CANCEL) || (!ugetc(get_filename(path))))
       return FALSE;
 
@@ -820,6 +889,6 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
       }
    }
 
-   return TRUE; 
+   return TRUE;
 }
 
