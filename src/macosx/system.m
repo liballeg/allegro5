@@ -53,6 +53,7 @@ NSWindow *osx_window = NULL;
 char osx_window_title[WINDOW_TITLE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
+int osx_emulate_mouse_buttons = FALSE;
 
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
@@ -207,15 +208,30 @@ void osx_event_handler()
          case NSLeftMouseUp:
          case NSOtherMouseUp:
          case NSRightMouseUp:
-	    if ((!osx_window) || (NSPointInRect(point, view))) {
-	       /* Deliver mouse downs only if cursor is on the window */
-	       buttons |= (([event type] == NSLeftMouseDown) ? 0x1 : 0);
-	       buttons |= (([event type] == NSRightMouseDown) ? 0x2 : 0);
-	       buttons |= (([event type] == NSOtherMouseDown) ? 0x4 : 0);
+	    if (osx_emulate_mouse_buttons) {
+	       if ([event type] == NSLeftMouseDown) {
+                  if ((!osx_window) || (NSPointInRect(point, view))) {
+		     buttons = 0x1;
+		     if (key[KEY_ALT])
+		        buttons = 0x4;
+		     if (key[KEY_LCONTROL])
+		        buttons = 0x2;
+		  }
+	       }
+	       else if ([event type] == NSLeftMouseUp)
+	          buttons &= ~0x7;
 	    }
-	    buttons &= ~(([event type] == NSLeftMouseUp) ? 0x1 : 0);
-	    buttons &= ~(([event type] == NSRightMouseUp) ? 0x2 : 0);
-	    buttons &= ~(([event type] == NSOtherMouseUp) ? 0x4 : 0);
+	    else {
+	       if ((!osx_window) || (NSPointInRect(point, view))) {
+	          /* Deliver mouse downs only if cursor is on the window */
+	          buttons |= (([event type] == NSLeftMouseDown) ? 0x1 : 0);
+	          buttons |= (([event type] == NSRightMouseDown) ? 0x2 : 0);
+	          buttons |= (([event type] == NSOtherMouseDown) ? 0x4 : 0);
+	       }
+	       buttons &= ~(([event type] == NSLeftMouseUp) ? 0x1 : 0);
+	       buttons &= ~(([event type] == NSRightMouseUp) ? 0x2 : 0);
+	       buttons &= ~(([event type] == NSOtherMouseUp) ? 0x4 : 0);
+	    }
 	    if (_mouse_installed)
                osx_mouse_handler(0, 0, 0, buttons);
 	    [NSApp sendEvent: event];
@@ -340,7 +356,7 @@ static int osx_sys_init(void)
    /* Setup OS type & version */
    os_type = OSTYPE_MACOSX;
    Gestalt(gestaltSystemVersion, &result);
-   os_version = (result >> 8) & 0xff;
+   os_version = (((result >> 12) & 0xf) * 10) + ((result >> 8) & 0xf);
    os_revision = (result >> 4) & 0xf;
    os_multitasking = TRUE;
    

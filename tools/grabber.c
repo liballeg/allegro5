@@ -2912,7 +2912,7 @@ static int sysinfo(void)
       default:                s = "Unknown";                    break;
    }
 
-   sprintf(systext+strlen(systext), "Platform: %s\n\n\n\n", s);
+   sprintf(systext+strlen(systext), "Platform: %s (version %d.%d)\n\n\n\n", s, os_version, os_revision);
 
    #ifdef ALLEGRO_I386
 

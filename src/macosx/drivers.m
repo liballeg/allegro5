@@ -57,6 +57,7 @@ END_DIGI_DRIVER_LIST
 
 
 BEGIN_MIDI_DRIVER_LIST
+{   MIDI_QUICKTIME,           &midi_quicktime,          TRUE  },
 END_MIDI_DRIVER_LIST
 
 

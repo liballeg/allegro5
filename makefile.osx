@@ -90,7 +90,7 @@ CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-LIBRARIES = -lpthread -framework Cocoa -framework Carbon
+LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
 
 
 
