@@ -840,6 +840,7 @@ static void gfx_directx_win_exit(struct BITMAP *b)
    /* destroy the offscreen backbuffer used in windowed mode */
    gfx_directx_destroy_surf(dd_offscreen);
    dd_offscreen = NULL;
+   pseudo_screen = NULL;
 
    /* destroy the pre-converted offscreen buffer */
    gfx_directx_destroy_surf(dd_preconverted_offscreen);
