@@ -170,6 +170,14 @@ static void register_bitmap_file_type_exit(void)
    
    bitmap_type_list = NULL;
 
+   /* If we are using a destructor, then we only want to prune the list
+    * down to valid modules. So we clean up as usual, but then reinstall
+    * the internal modules.
+    */
+   #if defined(CONSTRUCTOR_FUNCTION) && defined(DESTRUCTOR_FUNCTION)
+      _register_bitmap_file_type_init();
+   #endif
+
    _remove_exit_func(register_bitmap_file_type_exit);
 }
 
@@ -192,14 +200,39 @@ void _register_bitmap_file_type_init(void)
 
 
 
-/* _bitmap_filetype_constructor:
- *  Register bitmap filetype functions if this object file is linked in.
- */
-#ifdef CONSTRUCTOR_FUNCTION
-   CONSTRUCTOR_FUNCTION(static void _bitmap_filetype_constructor());
+#if (defined CONSTRUCTOR_FUNCTION) && (defined DESTRUCTOR_FUNCTION)
+   CONSTRUCTOR_FUNCTION(static void bitmap_filetype_constructor());
+   DESTRUCTOR_FUNCTION(static void bitmap_filetype_destructor());
 
-   static void _bitmap_filetype_constructor()
+   /* bitmap_filetype_constructor:
+    *  Register bitmap filetype functions if this object file is linked
+    *  in. This isn't called if the load_bitmap() and save_bitmap()
+    *  functions aren't used in a program, thus saving a little space
+    *  in statically linked programs.
+    */
+   static void bitmap_filetype_constructor()
    {
       _register_bitmap_file_type_init();
+   }
+
+   /* bitmap_filetype_destructor:
+    *  Since we only want to destroy the whole list when we *actually*
+    *  quit, not just when allegro_exit() is called, we need to use a
+    *  destructor to accomplish this.
+    */
+   static void bitmap_filetype_destructor()
+   {
+      BITMAP_TYPE_INFO *iter = bitmap_type_list, *next;
+
+      while (iter) {
+         next = iter->next;
+         free(iter->ext);
+         free(iter);
+         iter = next;
+      }
+   
+      bitmap_type_list = NULL;
+
+      _remove_exit_func(register_bitmap_file_type_exit);
    }
 #endif

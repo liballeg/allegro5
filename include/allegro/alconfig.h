@@ -89,8 +89,18 @@
 /* use constructor functions, if supported */
 #ifdef ALLEGRO_USE_CONSTRUCTOR
    #define CONSTRUCTOR_FUNCTION(func)              func __attribute__ ((constructor))
+   #define DESTRUCTOR_FUNCTION(func)               func __attribute__ ((destructor))
 #endif
 
+
+
+/* if we are using gcc, then constructors are supported */
+#ifdef __GNUC__
+   #undef CONSTRUCTOR_FUNCTION
+   #undef DESTRUCTOR_FUNCTION
+   #define CONSTRUCTOR_FUNCTION(func)              func __attribute__ ((constructor))
+   #define DESTRUCTOR_FUNCTION(func)               func __attribute__ ((destructor))
+#endif
 
 /* the rest of this file fills in some default definitions of language
  * features and helper functions, which are conditionalised so they will
