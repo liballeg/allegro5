@@ -508,6 +508,10 @@ static int svga_scroll(int x, int y)
    vga_setdisplaystart((x + y * bytes_per_line) /* & display_start_mask */);
    /* The bitmask seems to mess things up on my machine, even though
     * the documentation says it should be there. -- PW  */
+
+   /* wait for a retrace */
+   vga_waitretrace();
+
    return 0;
 }
 
