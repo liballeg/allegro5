@@ -48,7 +48,7 @@ int _al_file_isok(AL_CONST char *filename)
 long _al_file_size(AL_CONST char *filename)
 {
    struct _stat s;
-   char tmp[512];
+   char tmp[1024];
 
    if (_stat(uconvert_toascii(filename, tmp), &s) != 0) {
       *allegro_errno = errno;
@@ -66,7 +66,7 @@ long _al_file_size(AL_CONST char *filename)
 time_t _al_file_time(AL_CONST char *filename)
 {
    struct _stat s;
-   char tmp[512];
+   char tmp[1024];
 
    if (_stat(uconvert_toascii(filename, tmp), &s) != 0) {
       *allegro_errno = errno;
@@ -110,7 +110,7 @@ static void fill_ffblk(struct al_ffblk *info)
 int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 {
    struct FF_DATA *ff_data;
-   char tmp[512];
+   char tmp[1024];
 
    /* allocate ff_data structure */
    ff_data = malloc(sizeof(struct FF_DATA));
@@ -205,7 +205,7 @@ int _al_getdrive()
  */
 void _al_getdcwd(int drive, char *buf, int size)
 {
-   char tmp[256];
+   char tmp[1024];
 
    if (_getdcwd(drive+1, tmp, sizeof(tmp)))
       do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);

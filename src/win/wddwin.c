@@ -485,7 +485,7 @@ static int create_offscreen(int w, int h, int color_depth)
  */
 static void setup_driver_desc(void)
 {
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
 
    uszprintf(gfx_driver_desc, sizeof(gfx_driver_desc),
 	     uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),

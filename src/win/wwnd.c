@@ -344,7 +344,7 @@ void restore_window_style(void)
  */
 static HWND create_directx_window(void)
 {
-   char fname[256];
+   char fname[1024];
    HWND wnd;
    WNDCLASS wnd_class;
 
@@ -385,7 +385,7 @@ static HWND create_directx_window(void)
    }
 
    ShowWindow(wnd, SW_SHOWNORMAL);
-   SetForegroundWindow(wnd); 
+   SetForegroundWindow(wnd);
    UpdateWindow(wnd);
 
    return wnd;

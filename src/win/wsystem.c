@@ -53,7 +53,7 @@ SYSTEM_DRIVER system_directx =
    SYSTEM_DIRECTX,
    empty_string,                /* char *name; */
    empty_string,                /* char *desc; */
-   "DirectX",                   /* char *ascii_name; */
+   "DirectX",
    sys_directx_init,
    sys_directx_exit,
    sys_directx_get_executable_name,
@@ -313,14 +313,14 @@ static void sys_directx_set_window_close_hook(void (*proc)(void))
  */
 static void sys_directx_message(AL_CONST char *msg)
 {
-   char *tmp1 = malloc(4096);
-   char tmp2[256];
+   char *tmp1 = malloc(ALLEGRO_MESSAGE_SIZE);
+   char tmp2[WND_TITLE_SIZE*2];
 
    while ((ugetc(msg) == '\r') || (ugetc(msg) == '\n'))
       msg += uwidth(msg);
 
    MessageBoxW(allegro_wnd,
-	       (unsigned short *)uconvert(msg, U_CURRENT, tmp1, U_UNICODE, 4096),
+	       (unsigned short *)uconvert(msg, U_CURRENT, tmp1, U_UNICODE, ALLEGRO_MESSAGE_SIZE),
 	       (unsigned short *)uconvert(wnd_title, U_ASCII, tmp2, U_UNICODE, sizeof(tmp2)),
 	       MB_OK);
 
@@ -573,6 +573,7 @@ void thread_safe_trace(char *msg,...)
    char buf[256];
    va_list ap;
 
+   /* todo: use vsnprintf() */
    va_start(ap, msg);
    vsprintf(buf, msg, ap);
    va_end(ap);

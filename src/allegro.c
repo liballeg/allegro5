@@ -187,10 +187,6 @@ int cpu_model = 0;
 int cpu_capabilities = 0;
 
 
-/* message stuff */
-#define ALLEGRO_MESSAGE_SIZE  4096
-
-
 /* debugging stuff */
 static int debug_assert_virgin = TRUE;
 static int debug_trace_virgin = TRUE;

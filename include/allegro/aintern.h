@@ -74,6 +74,10 @@ typedef struct UTYPE_INFO
 AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 
 
+/* message stuff */
+#define ALLEGRO_MESSAGE_SIZE  4096
+
+
 /* wrappers for implementing disk I/O on different platforms */
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
 AL_FUNC(long, _al_file_size, (AL_CONST char *filename));
