@@ -1505,6 +1505,18 @@ if (_xwin.bank_switch)                  \
 /*
  * Functions for copying screen data to frame buffer.
  */
+#ifdef ALLEGRO_LITTLE_ENDIAN
+   #define DEFAULT_RGB_R_POS_24  (DEFAULT_RGB_R_SHIFT_24/8)
+   #define DEFAULT_RGB_G_POS_24  (DEFAULT_RGB_G_SHIFT_24/8)
+   #define DEFAULT_RGB_B_POS_24  (DEFAULT_RGB_B_SHIFT_24/8)
+#elif defined ALLEGRO_BIG_ENDIAN
+   #define DEFAULT_RGB_R_POS_24  (2-DEFAULT_RGB_R_SHIFT_24/8)
+   #define DEFAULT_RGB_G_POS_24  (2-DEFAULT_RGB_G_SHIFT_24/8)
+   #define DEFAULT_RGB_B_POS_24  (2-DEFAULT_RGB_B_SHIFT_24/8)
+#else
+   #error endianess not defined
+#endif 
+
 #define MAKE_FAST_TRUECOLOR(name,stype,dtype,rshift,gshift,bshift,rmask,gmask,bmask)    \
 static void name(int sx, int sy, int sw, int sh)                                        \
 {                                                                                       \
@@ -1531,7 +1543,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
       XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
-	 *d++ = (_xwin.rmap[s[0]] | _xwin.gmap[s[1]] | _xwin.bmap[s[2]]);               \
+	 *d++ = (_xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                                    \
+		 | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                                  \
+		 | _xwin.bmap[s[DEFAULT_RGB_B_POS_24]]);                                \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1549,9 +1563,7 @@ static void name(int sx, int sy, int sw, int sh)                                
 	 color = (_xwin.rmap[(color >> (rshift)) & (rmask)]                             \
 		  | _xwin.gmap[(color >> (gshift)) & (gmask)]                           \
 		  | _xwin.bmap[(color >> (bshift)) & (bmask)]);                         \
-	 d[0] = (color & 0xFF);                                                         \
-	 d[1] = (color >> 8) & 0xFF;                                                    \
-	 d[2] = (color >> 16) & 0xFF;                                                   \
+	 WRITE3BYTES(d, color);                                                         \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1565,10 +1577,10 @@ static void name(int sx, int sy, int sw, int sh)                                
       unsigned char *d = _xwin.buffer_line[y] + 3 * sx;                                 \
       XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, d += 3, x--) {                                   \
-	 unsigned long color = _xwin.rmap[s[0]] | _xwin.gmap[s[1]] | _xwin.bmap[s[2]];  \
-	 d[0] = (color & 0xFF);                                                         \
-	 d[1] = (color >> 8) & 0xFF;                                                    \
-	 d[2] = (color >> 16) & 0xFF;                                                   \
+	 unsigned long color = _xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                      \
+	 		       | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                    \
+			       | _xwin.bmap[s[DEFAULT_RGB_B_POS_24]];                   \
+	 WRITE3BYTES(d, color);                                                         \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1662,9 +1674,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       dtype *d = (dtype*) (_xwin.buffer_line[y]) + sx;                                  \
       XWIN_BANK_SWITCH(y);                                                              \
       for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
-	 *d++ = _xwin.cmap[((((unsigned long) s[0] << 4) & 0xF00)                       \
-			    | ((unsigned long) s[1] & 0xF0)                             \
-			    | (((unsigned long) s[2] >> 4) & 0x0F))];                   \
+	 *d++ = _xwin.cmap[((((unsigned long) s[DEFAULT_RGB_R_POS_24] << 4) & 0xF00)    \
+			    | ((unsigned long) s[DEFAULT_RGB_G_POS_24] & 0xF0)          \
+			    | (((unsigned long) s[DEFAULT_RGB_B_POS_24] >> 4) & 0x0F))];\
       }                                                                                 \
    }                                                                                    \
 }
@@ -1728,7 +1740,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       for (x = sx; x < (sx + sw); s += 3, x++) {                                        \
 	 XPutPixel(_xwin.ximage, x, y,                                                  \
-		   (_xwin.rmap[s[0]] | _xwin.gmap[s[1]] | _xwin.bmap[s[2]]));           \
+		   (_xwin.rmap[s[DEFAULT_RGB_R_POS_24]]                                 \
+		    | _xwin.gmap[s[DEFAULT_RGB_G_POS_24]]                               \
+		    | _xwin.bmap[s[DEFAULT_RGB_B_POS_24]]));                            \
       }                                                                                 \
    }                                                                                    \
 }
@@ -1779,9 +1793,9 @@ static void name(int sx, int sy, int sw, int sh)                                
       unsigned char *s = _xwin.screen_line[y] + 3 * sx;                                 \
       for (x = sx; x < (sx + sw); s += 3, x++) {                                        \
 	 XPutPixel(_xwin.ximage, x, y,                                                  \
-		   _xwin.cmap[((((unsigned long) s[0] << 4) & 0xF00)                    \
-			       | ((unsigned long) s[1] & 0xF0)                          \
-			       | (((unsigned long) s[2] >> 4) & 0x0F))]);               \
+		   _xwin.cmap[((((unsigned long) s[DEFAULT_RGB_R_POS_24] << 4) & 0xF00) \
+			       | ((unsigned long) s[DEFAULT_RGB_G_POS_24] & 0xF0)       \
+			       | (((unsigned long) s[DEFAULT_RGB_B_POS_24] >> 4) & 0x0F))]); \
       }                                                                                 \
    }                                                                                    \
 }
