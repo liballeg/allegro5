@@ -40,7 +40,7 @@
 #define ALLEGRO_WIP_VERSION      0
 #define ALLEGRO_VERSION_STR      "4.0.0"
 #define ALLEGRO_DATE_STR         "2001"
-#define ALLEGRO_DATE             20011206    /* yyyymmdd */
+#define ALLEGRO_DATE             20011210    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/

@@ -11,7 +11,7 @@
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Dec 06, 2001.
+	     By Shawn Hargreaves, Dec 10, 2001.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
