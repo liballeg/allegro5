@@ -773,6 +773,9 @@ Note that compiled sprites are not supported and will cause dat2s to
 abort whenever it encounters one of them. However you can use the '-S'
 option to instruct dat2s to convert them to regular BITMAP objects.
 
+Note that datafiles compiled by dat2s must not be appended to shared objects,
+only to standalone executables. Use dat2c for this purpose.
+
 
 
 ======================================================
