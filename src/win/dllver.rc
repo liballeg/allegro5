@@ -30,11 +30,11 @@ FILETYPE 0x00000002L /* VFT_DLL */
   BLOCK "040904E4"
   {
    VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
-   VALUE "CompanyName", "Allegro Programmers\000\000"
+   VALUE "CompanyName", "Allegro Developers\000\000"
    VALUE "FileDescription", "Allegro\000"
    VALUE "FileVersion", ALLEGRO_VERSION_STR "\000"
    VALUE "InternalName", "ALL3938\000"
-   VALUE "LegalCopyright", "Copyright © 1996-2001 Allegro Programmers\000\000"
+   VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
    VALUE "OriginalFilename", "ALL3938.DLL\000"
    VALUE "ProductName", "Allegro\000"
    VALUE "ProductVersion", ALLEGRO_VERSION_STR "\000"

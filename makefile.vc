@@ -149,7 +149,7 @@ endif
 
 VPATH = src/win src/i386 src/misc tests/win
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) dllver $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
+OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
 LIBRARIES = kernel32.lib user32.lib gdi32.lib comdlg32.lib ole32.lib \
 		dinput.lib ddraw.lib dxguid.lib winmm.lib dsound.lib
@@ -375,8 +375,8 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MSVC
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp
-	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/win/*.s >> _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c tools/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS
 	sed -e "s/^\([a-zA-Z0-9_]*\)\.o:/obj\/msvc\/alleg\/\1\.obj:/" _depend2.tmp > obj/msvc/alleg/makefile.dep

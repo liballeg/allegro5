@@ -11,7 +11,7 @@
  *      Windows header file for the Allegro library.
  *
  *      This doesn't need to be included; it prototypes functions you
- *      can use to let Allegro work with native (external) windows.
+ *      can use to let Allegro work with external windows.
  *
  *      By Shawn Hargreaves.
  *
@@ -41,7 +41,6 @@
 #undef BITMAP
 #undef RGB
 
-#include "allegro/compat.h"
 
 typedef struct WIN_GFX_DRIVER {
    int has_backing_store;
