@@ -231,6 +231,7 @@ HEADERS = $(MSVCDIR_U)/include/winalleg.h                 \
           $(MSVCDIR_U)/include/allegro/platform/al386vc.h \
           $(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
           $(MSVCDIR_U)/include/allegro/platform/alplatf.h \
+          $(MSVCDIR_U)/include/allegro/platform/astdint.h \
           $(MSVCDIR_U)/include/allegro/platform/alwin.h
 
 INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)
