@@ -22,8 +22,6 @@
 /* directx vars */
 LPDIRECTDRAW directdraw = NULL;
 LPDIRECTDRAWSURFACE dd_prim_surface = NULL;
-LPDIRECTDRAWSURFACE dd_back_surface = NULL;
-LPDIRECTDRAWSURFACE dd_trip_surface = NULL;
 LPDIRECTDRAWPALETTE dd_palette = NULL;
 LPDIRECTDRAWCLIPPER dd_clipper = NULL;
 DDCAPS dd_caps;
@@ -125,8 +123,6 @@ int create_primary(int w, int h, int color_depth)
       _TRACE("Can't create primary surface.\n");
       return -1;
    }
-   dd_back_surface = gfx_directx_create_surface(w, h, color_depth, 1, 2, 0);
-   dd_trip_surface = gfx_directx_create_surface(w, h, color_depth, 1, 3, 0);
 
    return 0;
 }
@@ -231,18 +227,14 @@ void gfx_directx_exit(struct BITMAP *b)
    /* destroy overlay surface */
    if (overlay_surface) {
       hide_overlay();
-      IDirectDrawSurface_Release(overlay_surface);
+      gfx_directx_destroy_surf(overlay_surface);
       overlay_surface = NULL;
       overlay_visible = FALSE;
    }
 
    /* destroy primary surface */
-   if (dd_prim_surface) {
-      IDirectDrawSurface_Release(dd_prim_surface);
-      dd_prim_surface = NULL;
-      dd_back_surface = NULL;
-      dd_trip_surface = NULL;
-   }
+   gfx_directx_destroy_surf(dd_prim_surface);
+   dd_prim_surface = NULL;
 
    /* unlink surface from bitmap */
    if (b)

@@ -143,7 +143,8 @@ Contributors
    Provided scancode mapping tables for the AZERTY keyboard layout.
 
    Eric Botcazou (<email>botcazou@club-internet.fr</a>).<br>
-   Made the DGA driver work better in 8bpp and 32bpp modes.
+   Made the DGA driver work better in 8bpp and 32bpp modes, fixed some bugs
+   in Windows code, and improved the directx windowed driver.
 
    Erik Sandberg (<email>eriksandberg@geocities.com</a>).<br>
    Optimised the 8 bit draw_sprite() and draw_trans_sprite() functions, and 

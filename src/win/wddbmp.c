@@ -51,10 +51,15 @@ static int ReusedScreen = 0;
 HRESULT WINAPI EnumSurfacesCallback (LPDIRECTDRAWSURFACE lpDDSurface,
 	LPDDSURFACEDESC lpDDSurfaceDesc,LPVOID lpContext)
 {
-	if (backbuffersurf == NULL) backbuffersurf = lpDDSurface;
-	if (tripbuffersurf == NULL) tripbuffersurf = lpDDSurface;
-	return DDENUMRET_OK;
+   if (backbuffersurf == NULL)
+      backbuffersurf = lpDDSurface;
+
+   if (tripbuffersurf == NULL)
+      tripbuffersurf = lpDDSurface;
+      
+   return DDENUMRET_OK;
 }
+
 
 /* gfx_directx_create_surface: 
  */ 
@@ -69,13 +74,10 @@ LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
 
 loop:
    /* describe surface characteristics */
-	memset (&surf_desc, 0, sizeof(DDSURFACEDESC));
+   memset (&surf_desc, 0, sizeof(DDSURFACEDESC));
    surf_desc.dwSize = sizeof(surf_desc);
    surf_desc.dwFlags = DDSD_CAPS;
    surf_desc.ddsCaps.dwCaps = 0;
-
-   if (primary == 2) return backbuffersurf;
-   if (primary == 3) return tripbuffersurf;
 
    if (video || primary) {
       surf_desc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
@@ -83,7 +85,7 @@ loop:
       if (primary) {
 	 surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
 	 surf_desc.ddsCaps.dwCaps |= DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-	   surf_desc.dwBackBufferCount = 2;
+         surf_desc.dwBackBufferCount = 2;
       }
       else if (overlay) {
          surf_desc.ddsCaps.dwCaps |= DDSCAPS_OVERLAY;
@@ -121,38 +123,52 @@ loop:
 
    /* create the surface with this properties */
    hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
+
    if (FAILED(hr)) {
       if (video && !primary && overlay && OverlayMatch[++format] == color_depth)
          goto loop;
-      else {
-		if (primary) {
-			surf_desc.dwBackBufferCount = 1;
-			hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
-			if (FAILED(hr)) {
-				surf_desc.dwBackBufferCount = 0;
-				surf_desc.dwFlags &= ~DDSD_BACKBUFFERCOUNT;
-                                surf_desc.ddsCaps.dwCaps &= ~(DDSCAPS_FLIP | DDSCAPS_COMPLEX);
-				hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
-				if (FAILED(hr)) return NULL;
-			}
-			primbuffersurf = surf;
-			return surf;
-		}
-		return NULL;
-	}
+      else if (primary) {
+         /* we lower the number of backbuffers */
+         surf_desc.dwBackBufferCount = 1;
+         hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
+            
+         if (FAILED(hr)) {
+            /* no backbuffer any more (e.g. in windowed mode) */
+            surf_desc.dwBackBufferCount = 0;
+            surf_desc.dwFlags &= ~DDSD_BACKBUFFERCOUNT;
+            surf_desc.ddsCaps.dwCaps &= ~(DDSCAPS_FLIP | DDSCAPS_COMPLEX);
+
+            hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
+               
+            if (FAILED(hr))
+               return NULL;
+         }
+      }
+      else
+         /* no other way for non primary */
+         return NULL;
    }
 
    /* get attached backbuffers */
-	if (surf_desc.dwBackBufferCount == 2) {
-		IDirectDrawSurface_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
-		primbuffersurf = surf;
-	} else {
-	if (surf_desc.dwBackBufferCount == 1) {
-		memset (&ddscaps, 0, sizeof(DDSCAPS));
-		ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
-		hr = IDirectDrawSurface_GetAttachedSurface(surf, &ddscaps, &backbuffersurf);
-		primbuffersurf = surf;
-	} }
+   if (surf_desc.dwBackBufferCount == 2) {
+      IDirectDrawSurface_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
+      primbuffersurf = surf;
+
+      /* are all the surfaces actually enumerated ? Quoted from the DirectX 7 SDK: 
+       "This method enumerates only those surfaces that are directly attached to this surface.
+        For example, in a flipping chain of three or more surfaces, only one surface is enumerated
+        because each surface is attached only to the next surface in the flipping chain. In such a
+        configuration, you can call EnumAttachedSurfaces on each successive surface to walk the entire
+        flipping chain." */
+   }
+   else {
+      if (surf_desc.dwBackBufferCount == 1) {
+         memset (&ddscaps, 0, sizeof(DDSCAPS));
+         ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
+         IDirectDrawSurface_GetAttachedSurface(surf, &ddscaps, &backbuffersurf);
+         primbuffersurf = surf;
+      }
+   }
 
    return surf;
 }
@@ -165,6 +181,12 @@ void gfx_directx_destroy_surf(LPDIRECTDRAWSURFACE surf)
 {
    if (surf) {
       IDirectDrawSurface_Release(surf);
+
+      if (surf == primbuffersurf) {
+         primbuffersurf = NULL;
+         backbuffersurf = NULL;
+         tripbuffersurf = NULL;
+      }
    }
 }
 
@@ -288,31 +310,39 @@ struct BITMAP *gfx_directx_create_video_bitmap(int width, int height)
    /* can we reuse the screen bitmap for this? */
    if ((ReusedScreen < 3) && (screen->w == width) && (screen->h == height)) {
       ReusedScreen ++;
-      if (ReusedScreen == 1) return screen;
-      if (ReusedScreen == 2) {
-		if (backbuffersurf == NULL) return NULL;
-		return make_directx_bitmap (backbuffersurf,
+
+      if (ReusedScreen == 1)
+          return screen;
+      else if (ReusedScreen == 2) {
+         if (backbuffersurf)
+            return make_directx_bitmap (backbuffersurf,
 			width, height, _color_depth, BMP_ID_VIDEO);
-	}
-      if (ReusedScreen == 3) {
-		if (tripbuffersurf == NULL) return NULL;
-		return make_directx_bitmap (tripbuffersurf,
+         else
+            ReusedScreen--;
+      }
+      else if (ReusedScreen == 3) {
+         if (tripbuffersurf)
+            return make_directx_bitmap (tripbuffersurf,
 			width, height, _color_depth, BMP_ID_VIDEO);
-	}
+         else
+            ReusedScreen--;
+      }
    }
 
-	/* assume all flip surfaces have been allocated, so free unused */
-	if (ReusedScreen < 3 && tripbuffersurf != NULL) {
-		IDirectDrawSurface_Release (tripbuffersurf);
-		tripbuffersurf = NULL;
-	}
-	if (ReusedScreen < 2 && backbuffersurf != NULL) {
-		IDirectDrawSurface_Release (backbuffersurf);
-		backbuffersurf = NULL;
-	}
+   /* assume all flip surfaces have been allocated, so free unused */
+   if (ReusedScreen < 3 && tripbuffersurf) {
+      IDirectDrawSurface_Release (tripbuffersurf);
+      tripbuffersurf = NULL;
+   }
+
+   if (ReusedScreen < 2 && backbuffersurf) {
+      IDirectDrawSurface_Release (backbuffersurf);
+      backbuffersurf = NULL;
+   }
 
    /* create DirectDraw surface */
    surf = gfx_directx_create_surface(width, height, _color_depth, 1, 0, 0);
+
    if (surf == NULL)
       return NULL;
 
@@ -354,19 +384,21 @@ static __inline int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
    invisible = BMP_EXTRA(bitmap)->surf;
    visible = BMP_EXTRA(dd_frontbuffer)->surf;
 
-	/* try to flip already attached surfaces */
-   if (backbuffersurf != NULL &&
-	(invisible == primbuffersurf || invisible == backbuffersurf
-	|| invisible == tripbuffersurf)) {
-		hr = IDirectDrawSurface_Flip(primbuffersurf, invisible, 0);
-		if (FAILED(hr)) IDirectDrawSurface_Flip(primbuffersurf, invisible, DDFLIP_WAIT);
-      BMP_EXTRA(bitmap)->surf = visible;
-      BMP_EXTRA(dd_frontbuffer)->surf = invisible;
-      dd_frontbuffer = bitmap;
-	return 0;
+   /* try to flip already attached surfaces */
+   if (backbuffersurf && (invisible == primbuffersurf ||
+      invisible == backbuffersurf || invisible == tripbuffersurf)) {
+         hr = IDirectDrawSurface_Flip(primbuffersurf, invisible, 0);
+
+         if (FAILED(hr))
+            IDirectDrawSurface_Flip(primbuffersurf, invisible, DDFLIP_WAIT);
+ 
+         BMP_EXTRA(bitmap)->surf = visible;
+         BMP_EXTRA(dd_frontbuffer)->surf = invisible;
+         dd_frontbuffer = bitmap;
+         return 0;
    }
 
-	/* original flipping system */
+   /* original flipping system */
    if (visible != invisible) {
       /* link invisible surface to primary surface */
       hr = IDirectDrawSurface_AddAttachedSurface(visible, invisible);

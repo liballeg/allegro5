@@ -19,14 +19,14 @@
 
 /* functions in update.s */
 extern void _update_24_to_32  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
-extern void _update_16_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
-extern void _update_8_to_32 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void _update_16_to_32  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void  _update_8_to_32  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_32_to_24  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_16_to_24  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void  _update_8_to_24  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_32_to_16  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_24_to_16  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
-extern void _update_8_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
+extern void  _update_8_to_16  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_32_to_15  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void _update_24_to_15  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 extern void  _update_8_to_15  (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
@@ -82,7 +82,7 @@ static char gfx_driver_desc[256] = EMPTY_STRING;
 
 static int pixel_match[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
 
-DDPIXELFORMAT pixel_format[] = {
+static DDPIXELFORMAT pixel_format[] = {
    /* 8-bit */
    {sizeof(DDPIXELFORMAT), DDPF_RGB | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0}},
    /* 16-bit RGB 5:5:5 */
@@ -108,21 +108,21 @@ LPDDPIXELFORMAT dd_pixelformat = NULL;  /* pixel format used */
 
 /* offscreen surface that will be blitted to the window:*/
 LPDIRECTDRAWSURFACE dd_offscreen = NULL;
+BITMAP* pseudo_screen = NULL;  /* for page-flipping */
+BOOL same_color_depth;
+int* allegro_palette = NULL;
+int* rgb_scale_5335 = NULL;
+void (*update_window) (RECT* rect);
+int* dirty_lines; /* used in WRITE_BANK */
+
 /* if the allegro color depth is not the same as the desktop color depth,
  * we need a pre-converted offscreen surface that will be blitted to the window
  * when in background, in order to ensure a proper clipping
  */ 
 static LPDIRECTDRAWSURFACE dd_preconverted_offscreen = NULL;
-BITMAP* pseudo_screen = NULL;  /* for page-flipping */
-BOOL app_active = TRUE;
-RECT window_rect;
-BOOL same_color_depth;
+static RECT window_rect;
+static void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
 static int allegro_palette_size;
-int* allegro_palette = NULL;
-int* rgb_scale_5335 = NULL;
-void (*update_window) (RECT* rect);
-void (*_update) (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc);
-int* dirty_lines; /* used in WRITE_BANK */
 static int desktop_depth = 0;
 static int desk_r, desk_g, desk_b;
 static int reused_screen;
@@ -205,9 +205,8 @@ void update_window_ex (RECT* rect)
    }
    else
       update_rect = window_rect;
-   
-   /* app_foreground doesn't seem to be as rapidly updated as we need so go with GetForegroundWindow() */ 
-   if (GetForegroundWindow() == allegro_wnd) {
+    
+   if ((GetForegroundWindow() == allegro_wnd) || !dd_preconverted_offscreen) {
       /* blit directly to the primary surface WITHOUT clipping */
    hr = IDirectDrawSurface_Lock(dd_prim_surface, &update_rect, &dest_desc, DDLOCK_WAIT, NULL);
    if (FAILED(hr)) {
@@ -381,8 +380,8 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
       case 15:
          for (n = from; n <= to; n++) {
             int color = ( ((p[n].r>>1) << desk_r) |
-                                   ((p[n].g>>1) << desk_g) |
-                                   ((p[n].b>>1) << desk_b) );
+                          ((p[n].g>>1) << desk_g) |
+                          ((p[n].b>>1) << desk_b) );
 
             allegro_palette[n] = color;
             allegro_palette[PAL_SIZE+n] = color<<16;
@@ -392,8 +391,8 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
       case 16:
          for (n = from; n <= to; n++) {
             int color = ( ((p[n].r>>1) << desk_r) |
-                                   ( p[n].g     << desk_g) |
-                                   ((p[n].b>>1) << desk_b) );
+                          ( p[n].g     << desk_g) |
+                          ((p[n].b>>1) << desk_b) );
 
             /* 2 pre-calculated shifts tables (2k) */ 
             allegro_palette[n] = color;
@@ -409,7 +408,7 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
 
             /* 4 pre-calculated shifts tables (4k) */
             allegro_palette[n] = color;
-            allegro_palette[PAL_SIZE+n] = (color>>8)+((color&0xff)<<24);
+            allegro_palette[PAL_SIZE+n]   = (color>>8)+((color&0xff)<<24);
             allegro_palette[PAL_SIZE*2+n] = (color>>16)+((color&0xffff)<<16);
             allegro_palette[PAL_SIZE*3+n] = color<<8;
          }
@@ -422,6 +421,7 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
                                    ((p[n].b<<2) << desk_b) );
          break;
    }
+
    update_window(NULL);
 }
 
@@ -431,9 +431,6 @@ static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to
  */
 void wddwin_switch_out(void)
 {
-   if (app_active) {
-      app_active = FALSE;
-   }
 }
 
 
@@ -444,8 +441,6 @@ void wddwin_switch_out(void)
 void wddwin_switch_in(void)
 {
    handle_window_size_win();
-   if (!app_active)
-      app_active = TRUE;
 }
 
 
@@ -644,58 +639,50 @@ static int _get_color_shift(int mask)
  */
 static void create_offscreen(int w, int h, int color_depth)
 {
-   DDSURFACEDESC surf_desc;
    DDPIXELFORMAT temp_pixel_format;
-   HRESULT hr;
    int i;
    int shift_r, shift_g, shift_b;
 
-   /* describe surface characteristics */
-   surf_desc.dwSize = sizeof(surf_desc);
-   surf_desc.dwFlags = DDSD_CAPS | DDSD_WIDTH | DDSD_HEIGHT;
-   surf_desc.dwHeight = h;
-   surf_desc.dwWidth = w;
    if (same_color_depth) {
-      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
-      hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &dd_offscreen, NULL);
-      if (FAILED(hr)) dd_offscreen = NULL;
-      else gfx_directx_update_color_format(color_depth);
-   } 
+      dd_offscreen = gfx_directx_create_surface(w, h, color_depth, 1, 0, 0);
+
+      if (dd_offscreen)
+         gfx_directx_update_color_format(color_depth);
+   }
    else {
       /* create pre-converted offscreen buffer */
-      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
-      hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &dd_preconverted_offscreen, NULL); 
+      dd_preconverted_offscreen = gfx_directx_create_surface(w, h, desktop_depth, 1, 0, 0);
+
+      if (!dd_preconverted_offscreen)
+         _TRACE("Can't create preconverted offscreen buffer.\n");
 
       /* get pixel format of primary surface */
       temp_pixel_format.dwSize = sizeof(DDPIXELFORMAT);
-      IDirectDrawSurface_GetPixelFormat (dd_prim_surface, &temp_pixel_format);
+
+      IDirectDrawSurface_GetPixelFormat(dd_prim_surface, &temp_pixel_format);
       desk_r = _get_color_shift(temp_pixel_format.dwRBitMask);
       desk_g = _get_color_shift(temp_pixel_format.dwGBitMask);
       desk_b = _get_color_shift(temp_pixel_format.dwBBitMask);
-      surf_desc.dwFlags |= DDSD_PIXELFORMAT;
-      /* if not the same color depth as the primary, must be in system memory (don't ask me) */
-      surf_desc.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
-      for (i=0 ; pixel_match[i] ; i++) {
-         if (pixel_match[i] == color_depth) {
-            surf_desc.ddpfPixelFormat = pixel_format[i];
-            if ((temp_pixel_format.dwRBitMask & pixel_format[i].dwRBitMask) ||
+
+      /* test for the same depth and RGB order */
+      for (i=0 ; pixel_match[i] ; i++)
+         if ((pixel_match[i] == color_depth) &&
+            ((temp_pixel_format.dwRBitMask & pixel_format[i].dwRBitMask) ||
                 (temp_pixel_format.dwBBitMask & pixel_format[i].dwBBitMask) ||
-                 color_depth == 8) {
-               hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &dd_offscreen, NULL);
-               if (!FAILED(hr)) break;
-            }
-	 }
+                   (color_depth == 8))) {
+                      dd_pixelformat = &pixel_format[i];
+                      dd_offscreen = gfx_directx_create_surface(w, h, color_depth, 0, 0, 0);
+                      break;
       }
-      if (pixel_match[i] == 0) {
-	 _TRACE ("No se ha podido crear dd_offscreen\n");
-	 dd_offscreen = NULL;
-      }
+
+      if ((pixel_match[i] == 0) || !dd_offscreen)         
+	 dd_pixelformat = NULL;
       else {
-	 /* update color format */
-	 dd_pixelformat = &(pixel_format[i]);
-	 shift_r = _get_color_shift(surf_desc.ddpfPixelFormat.dwRBitMask);
-	 shift_g = _get_color_shift(surf_desc.ddpfPixelFormat.dwGBitMask);
-	 shift_b = _get_color_shift(surf_desc.ddpfPixelFormat.dwBBitMask);
+         /* we can't rely on gfx_directx_update_color_format() for updating the color format */
+	 shift_r = _get_color_shift(dd_pixelformat->dwRBitMask);
+	 shift_g = _get_color_shift(dd_pixelformat->dwGBitMask);
+	 shift_b = _get_color_shift(dd_pixelformat->dwBBitMask);
+
 	 switch (color_depth) {
 	    case 15:
 	       _rgb_r_shift_15 = shift_r;
@@ -723,6 +710,9 @@ static void create_offscreen(int w, int h, int color_depth)
 	 }
       }
    }
+
+   if (!dd_offscreen)
+      _TRACE("Can't create offscreen buffer.\n");
 }
 
 /* init_directx_win:
@@ -818,7 +808,6 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    /* the last flag serves as end of loop delimiter */ 
    dirty_lines = malloc(4*(h+1));
    memset(dirty_lines, 0, 4*(h+1));
-   app_active = TRUE;
    reused_screen = FALSE;
 
    _exit_critical();
@@ -841,10 +830,6 @@ static void gfx_directx_win_exit(struct BITMAP *b)
 { 
    _enter_gfx_critical();
    
-   if (app_active) {
-      app_active = FALSE;
-   }
-
    free (dirty_lines);
    
    dd_pixelformat = NULL;
@@ -853,16 +838,12 @@ static void gfx_directx_win_exit(struct BITMAP *b)
       clear (b);
 
    /* destroy the offscreen backbuffer used in windowed mode */
-   if (dd_offscreen) {
-      IDirectDrawSurface_Release(dd_offscreen);
-      dd_offscreen = NULL;
-   }
+   gfx_directx_destroy_surf(dd_offscreen);
+   dd_offscreen = NULL;
 
    /* destroy the pre-converted offscreen buffer */
-   if (dd_preconverted_offscreen) {
-      IDirectDrawSurface_Release(dd_preconverted_offscreen);
-      dd_preconverted_offscreen = NULL;
-   }
+   gfx_directx_destroy_surf(dd_preconverted_offscreen);
+   dd_preconverted_offscreen = NULL;
 
    /* destroy the palette */
    if (allegro_palette) {
@@ -870,6 +851,7 @@ static void gfx_directx_win_exit(struct BITMAP *b)
       allegro_palette = NULL;
    }
 
+   /* destroy the shift table */
    if (rgb_scale_5335) {
       free (rgb_scale_5335);
       rgb_scale_5335 = NULL;
