@@ -74,10 +74,6 @@ typedef struct UTYPE_INFO
 AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
 
 
-/* reads a translation file into memory */
-AL_FUNC(void, _load_config_text, (void));
-
-
 /* wrappers for implementing disk I/O on different platforms */
 AL_FUNC(int, _al_file_isok, (AL_CONST char *filename));
 AL_FUNC(int, _al_file_exists, (AL_CONST char *filename, int attrib, int *aret));

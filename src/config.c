@@ -1065,21 +1065,26 @@ void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
 
 
 
-/* _load_config_text:
+/* reload_config_texts:
  *  Reads in a block of translated system text, looking for either a
  *  user-specified file, a ??text.cfg file, or a language.dat#??TEXT_CFG 
- *  datafile object.
+ *  datafile object. If new_language is not NULL, the language config
+ *  variable will be set to new_language before reloading the
+ *  configuration files.
  */
-void _load_config_text()
+void reload_config_texts(AL_CONST char *new_language)
 {
    char filename[512], tmp1[128], tmp2[128];
-   AL_CONST char* name, * ext, * datafile;
-   char* namecpy;
+   AL_CONST char *name, *ext, *datafile;
+   char *namecpy;
 
    if (config_language) {
       destroy_config(config_language);
       config_language = NULL;
    }
+
+   if (new_language)
+      set_config_string("system", "language", new_language);
 
    name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("language", tmp2), NULL);
 
@@ -1094,7 +1099,7 @@ void _load_config_text()
       datafile = uconvert_ascii("language.dat", tmp2);
 
       if (find_allegro_resource(filename, namecpy, ext, datafile, NULL, NULL, NULL, sizeof(filename)) == 0) {
-     free(namecpy);
+	 free(namecpy);
 	 load_config_file(&config_language, filename, NULL);
 	 return;
       }

@@ -2275,7 +2275,7 @@ static DIALOG_STATE locale_handler(int c)
 	    push_config_state();
 	    uszprintf(buf, sizeof(buf), uconvert_ascii("language = %s\n", tmp), language_type);
 	    set_config_data(buf, ustrsize(buf));
-	    _load_config_text();
+	    reload_config_texts(NULL);
 	    pop_config_state();
 	 }
 

@@ -320,7 +320,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    /* nasty stuff to set up the config system before the system driver */
    system_driver = _system_driver_list[0].driver;
 
-   _load_config_text();
+   reload_config_texts(NULL);
 
    if (system_id == SYSTEM_AUTODETECT)
       system_id = get_config_id(uconvert_ascii("system", tmp1), uconvert_ascii("system", tmp2), SYSTEM_AUTODETECT);

@@ -821,6 +821,18 @@ with the standard variables that are used by Allegro (see below).
    Pops a configuration state previously stored by push_config_state(), 
    replacing the current config source with it.
 
+@@void @reload_config_texts(const char *new_language);
+@xref get_config_text, get_config_string, standard config variables
+   Reloads the translated strings returned by get_config_text. This is
+   useful to switch to another language in your program at runtime. If you
+   want to modify the [system] language configuration variable yourself, or
+   you have switched configuration files, you will want to pass NULL to
+   just reload whatever language is currently selected. Or you can pass a
+   string containing the two letter code of the language you desire to
+   switch to, and the function will modify the language variable. After you
+   call this function, the previously returned pointers of get_config_text
+   will be invalid.
+
 @\void @hook_config_section(const char *section,
 @\       int (*intgetter)(const char *name, int def),
 @\       const char *(*stringgetter)(const char *name, const char *def),
@@ -883,19 +895,20 @@ with the standard variables that are used by Allegro (see below).
    to get_config_argv(), so the data should not be expected to persist.
 
 @@const char *@get_config_text(const char *msg);
-@xref get_config_string, standard config variables
+@xref get_config_string, reload_config_texts, standard config variables
    This function is primarily intended for use by internal library code, but 
    it may perhaps be helpful to application programmers as well. It uses the 
-   language.dat file to look up a translated version of the parameter in the 
-   currently selected language, returning a suitable translation if one can 
-   be found or a copy of the parameter if nothing else is available. This is 
-   basically the same thing as calling get_config_string() with [language] 
-   as the section, msg as the variable name, and msg as the default value, 
-   but it contains some special code to handle Unicode format conversions. 
-   The msg parameter is always given in ASCII format, but the returned 
-   string will be converted into the current text encoding, with memory 
-   being allocated as required, so you can assume that this pointer will 
-   persist without having to manually allocate storage space for each string.
+   language.dat or XXtext.cfg files (where XX is a language code) to look up
+   a translated version of the parameter in the currently selected language,
+   returning a suitable translation if one can be found or a copy of the
+   parameter if nothing else is available. This is basically the same thing
+   as calling get_config_string() with [language] as the section, msg as the
+   variable name, and msg as the default value, but it contains some special
+   code to handle Unicode format conversions. The msg parameter is always
+   given in ASCII format, but the returned string will be converted into the
+   current text encoding, with memory being allocated as required, so you
+   can assume that this pointer will persist without having to manually
+   allocate storage space for each string.
 
 @\void @set_config_string(const char *section, const char *name,
 @@                        const char *val);
