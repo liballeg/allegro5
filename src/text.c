@@ -14,6 +14,8 @@
  *
  *      textout_justify() by Seymour Shlien.
  *
+ *      Laurence Withers added the textout_ex() function family.
+ *
  *      See readme.txt for copyright information.
  */
 
