@@ -310,49 +310,52 @@ static void _xwin_masked_blit(BITMAP *src, BITMAP *dst, int sx, int sy,
 
 
 
+#define CLIP_BOX(dst, x, y, w, h, x_orig, y_orig, w_orig, h_orig)  \
+{                                                                  \
+   if (dst->clip) {                                                \
+      int tmp, x_delta, y_delta;                                   \
+                                                                   \
+      tmp = dst->cl - x_orig;                                      \
+      x_delta = ((tmp < 0) ? 0 : tmp);                             \
+      x = x_orig + x_delta;                                        \
+                                                                   \
+      tmp = dst->cr - x_orig;                                      \
+      w = ((tmp > w_orig) ? w_orig : tmp) - x_delta;               \
+      if (w <= 0)                                                  \
+	 return;                                                   \
+                                                                   \
+      tmp = dst->ct - y_orig;                                      \
+      y_delta = ((tmp < 0) ? 0 : tmp);                             \
+      y = y_orig + y_delta;                                        \
+                                                                   \
+      tmp = dst->cb - y_orig;                                      \
+      h = ((tmp > h_orig) ? h_orig : tmp) - y_delta;               \
+      if (h <= 0)                                                  \
+	 return;                                                   \
+   }                                                               \
+   else {                                                          \
+      x = x_orig;                                                  \
+      y = y_orig;                                                  \
+      w = w_orig;                                                  \
+      h = h_orig;                                                  \
+   }                                                               \
+}
+
+
+
 /* _xwin_draw_sprite:
  *  Wrapper for draw_sprite.
  */
 static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite(dst, src, dx, dy);
@@ -367,44 +370,14 @@ static void _xwin_draw_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
  */
 static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_256_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_256_sprite(dst, src, dx, dy);
@@ -419,44 +392,14 @@ static void _xwin_draw_256_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
  */
 static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_sprite_v_flip(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite_v_flip(dst, src, dx, dy);
@@ -471,44 +414,14 @@ static void _xwin_draw_sprite_v_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
  */
 static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_sprite_h_flip(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite_h_flip(dst, src, dx, dy);
@@ -523,44 +436,14 @@ static void _xwin_draw_sprite_h_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
  */
 static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_sprite_vh_flip(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_sprite_vh_flip(dst, src, dx, dy);
@@ -575,44 +458,14 @@ static void _xwin_draw_sprite_vh_flip(BITMAP *dst, BITMAP *src, int dx, int dy)
  */
 static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_trans_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_sprite(dst, src, dx, dy);
@@ -627,44 +480,14 @@ static void _xwin_draw_trans_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
  */
 static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_trans_rgba_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_rgba_sprite(dst, src, dx, dy);
@@ -679,44 +502,14 @@ static void _xwin_draw_trans_rgba_sprite(BITMAP *dst, BITMAP *src, int dx, int d
  */
 static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int color)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_lit_sprite(dst, src, dx, dy, color);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_lit_sprite(dst, src, dx, dy, color);
@@ -731,44 +524,14 @@ static void _xwin_draw_lit_sprite(BITMAP *dst, BITMAP *src, int dx, int dy, int 
  */
 static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int color, int bg)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_character(dst, src, dx, dy, color, bg);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_character(dst, src, dx, dy, color, bg);
@@ -783,44 +546,14 @@ static void _xwin_draw_character(BITMAP *dst, BITMAP *src, int dx, int dy, int c
  */
 static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int dy, int color, int bg)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_glyph(dst, src, dx, dy, color, bg);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_glyph(dst, src, dx, dy, color, bg);
@@ -835,44 +568,14 @@ static void _xwin_draw_glyph(BITMAP *dst, AL_CONST FONT_GLYPH *src, int dx, int 
  */
 static void _xwin_draw_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_rle_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_rle_sprite(dst, src, dx, dy);
@@ -887,44 +590,14 @@ static void _xwin_draw_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx,
  */
 static void _xwin_draw_trans_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_trans_rle_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_rle_sprite(dst, src, dx, dy);
@@ -939,44 +612,14 @@ static void _xwin_draw_trans_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, i
  */
 static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_trans_rgba_rle_sprite(dst, src, dx, dy);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_trans_rgba_rle_sprite(dst, src, dx, dy);
@@ -991,44 +634,14 @@ static void _xwin_draw_trans_rgba_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *s
  */
 static void _xwin_draw_lit_rle_sprite(BITMAP *dst, AL_CONST RLE_SPRITE *src, int dx, int dy, int color)
 {
-   int w, h;
-   int dxbeg, dybeg;
-   int sxbeg, sybeg;
+   int dxbeg, dybeg, w, h;
 
    if (_xwin_in_gfx_call) {
       _xwin_vtable.draw_lit_rle_sprite(dst, src, dx, dy, color);
       return;
    }
 
-   if (dst->clip) {
-      int tmp;
-
-      tmp = dst->cl - dx;
-      sxbeg = ((tmp < 0) ? 0 : tmp);
-      dxbeg = sxbeg + dx;
-
-      tmp = dst->cr - dx;
-      w = ((tmp > src->w) ? src->w : tmp) - sxbeg;
-      if (w <= 0)
-	 return;
-
-      tmp = dst->ct - dy;
-      sybeg = ((tmp < 0) ? 0 : tmp);
-      dybeg = sybeg + dy;
-
-      tmp = dst->cb - dy;
-      h = ((tmp > src->h) ? src->h : tmp) - sybeg;
-      if (h <= 0)
-	 return;
-   }
-   else {
-      w = src->w;
-      h = src->h;
-      sxbeg = 0;
-      sybeg = 0;
-      dxbeg = dx;
-      dybeg = dy;
-   }
+   CLIP_BOX(dst, dxbeg, dybeg, w, h, dx, dy, src->w, src->h)
 
    _xwin_in_gfx_call = 1;
    _xwin_vtable.draw_lit_rle_sprite(dst, src, dx, dy, color);
