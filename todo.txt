@@ -36,6 +36,8 @@ Win32 todos:
 - Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Add backward playing to the DirectSound driver
 - Emulate findfirst
+- Sound code cleanup (wdsinput.c, wsndmix.c, wsndwo.c)
+- Make Allegro return focus to the calling app
 
 Linux todos:
 ---------------------------------------------------------------------------
