@@ -13,3 +13,4 @@ config.status
 allegro-config
 autom4te.cache
 readme.txt
+makefile.info
