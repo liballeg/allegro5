@@ -508,12 +508,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    /* message loop */
    while (TRUE) {
       result = MsgWaitForMultipleObjects(input_events, input_event_id, FALSE, INFINITE, QS_ALLINPUT);
-      if (result == WAIT_OBJECT_0) {
-         /* we were instructed to unblock, make sure we can block again */
-         _enter_critical();
-         _exit_critical();
-      }
-      else if ((result > WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + input_events)) {
+      if ((result >= WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + input_events)) {
          /* one of the registered events is in signaled state */
          (*input_event_handler[result - WAIT_OBJECT_0])();
       }
