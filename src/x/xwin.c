@@ -141,7 +141,7 @@ struct _xwin_type _xwin =
    TRUE,        /* drawing_mode_ok */
 
 #ifdef ALLEGRO_MULTITHREADED
-   (pthread_t)0, /* locked_thread */
+   NULL,        /* mutex */
 #endif
 
    NULL         /* window close hook */
@@ -159,7 +159,7 @@ static int use_bgr_palette_hack = FALSE; /* use BGR hack for color conversion pa
 int _xwin_missed_input;
 #endif
 
-#define MAX_EVENTS   5
+#define X_MAX_EVENTS   5
 #define MOUSE_WARP_DELAY   200
 
 static char _xwin_driver_desc[256] = EMPTY_STRING;
@@ -209,9 +209,7 @@ static int _xwin_private_scroll_screen(int x, int y);
 static void _xwin_private_update_screen(int x, int y, int w, int h);
 static void _xwin_private_set_window_title(AL_CONST char *name);
 static void _xwin_private_set_window_name(AL_CONST char *name, AL_CONST char *group);
-static void _xwin_private_change_keyboard_control(int led, int on);
 static int _xwin_private_get_pointer_mapping(unsigned char map[], int nmap);
-static void _xwin_private_init_keyboard_tables(void);
 
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
 
@@ -2224,70 +2222,21 @@ static void _xwin_private_process_event(XEvent *event)
    static int mouse_savedy = 0;
    static int mouse_warp_now = 0;
    static int mouse_was_warped = 0;
-   static int keyboard_got_focus = FALSE;
 
    switch (event->type) {
       case KeyPress:
-         if (keyboard_got_focus && _xwin_keyboard_focused) {
-            int state = 0;
-
-            if (event->xkey.state & Mod5Mask)
-               state |= KB_SCROLOCK_FLAG;
-
-            if (event->xkey.state & Mod2Mask)
-               state |= KB_NUMLOCK_FLAG;
-
-            if (event->xkey.state & LockMask)
-               state |= KB_CAPSLOCK_FLAG;
-
-            (*_xwin_keyboard_focused)(TRUE, state);
-            keyboard_got_focus = FALSE;
-         } 
-
-	 /* Key pressed.  */
-	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
-	    if (_xwin_keyboard_callback)
-	       (*_xwin_keyboard_callback)(1, kcode);
-	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-	       _xwin_keycode_pressed[kcode] = TRUE;
-	       (*_xwin_keyboard_interrupt)(1, scode);
-	    }
-	 }
+         x_keyboard_handler (&event->xkey);
 	 break;
       case KeyRelease:
-	 /* Key release.  */
-	 kcode = event->xkey.keycode;
-	 if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
-	    if (_xwin_keyboard_callback)
-	       (*_xwin_keyboard_callback)(0, kcode);
-	    scode = _xwin.keycode_to_scancode[kcode];
-	    if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-	       (*_xwin_keyboard_interrupt)(0, scode);
-	       _xwin_keycode_pressed[kcode] = FALSE;
-	    }
-	 }
+         x_keyboard_handler (&event->xkey);
 	 break;
       case FocusIn:
-	 /* Gaining input focus.  */
-	 keyboard_got_focus = TRUE;
 	 _switch_in();
+         x_keyboard_focus_handler (&event->xfocus);
 	 break;
       case FocusOut:
-	 /* Losing input focus.  */
-	 if (_xwin_keyboard_focused)
-	    (*_xwin_keyboard_focused)(FALSE, 0);
-	 for (kcode = 0; kcode < 256; kcode++) {
-	    if (_xwin_keycode_pressed[kcode]) {
-	       scode = _xwin.keycode_to_scancode[kcode];
-	       if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-		  (*_xwin_keyboard_interrupt)(0, scode);
-		  _xwin_keycode_pressed[kcode] = FALSE;
-	       }
-	    }
-	 }
 	 _switch_out();
+         x_keyboard_focus_handler (&event->xfocus);
 	 break;
       case ButtonPress:
 	 /* Mouse button pressed.  */
@@ -2373,7 +2322,7 @@ static void _xwin_private_process_event(XEvent *event)
       case MappingNotify:
 	 /* Keyboard mapping changed.  */
 	 if (event->xmapping.request == MappingKeyboard)
-	    _xwin_private_init_keyboard_tables();
+	    x_get_keyboard_mapping();
 	 break;
       case ClientMessage:
          /* Window close request */
@@ -2393,7 +2342,7 @@ static void _xwin_private_process_event(XEvent *event)
 void _xwin_private_handle_input(void)
 {
    int i, events, events_queued;
-   static XEvent event[MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
+   static XEvent event[X_MAX_EVENTS + 1]; /* +1 for possible extra event, see below. */
 
    if (_xwin.display == 0)
       return;
@@ -2417,8 +2366,8 @@ void _xwin_private_handle_input(void)
       return;
 
    /* Limit amount of events we read at once.  */
-   if (events > MAX_EVENTS)
-      events = MAX_EVENTS;
+   if (events > X_MAX_EVENTS)
+      events = X_MAX_EVENTS;
 
    /* Read pending events.  */
    for (i = 0; i < events; i++)
@@ -2688,31 +2637,6 @@ void xwin_set_window_name(AL_CONST char *name, AL_CONST char *group)
 
 
 
-/* _xwin_change_keyboard_control:
- *  Wrapper for XChangeKeyboardControl.
- */
-static void _xwin_private_change_keyboard_control(int led, int on)
-{
-   XKeyboardControl values;
-
-   if (_xwin.display == 0)
-      return;
-
-   values.led = led;
-   values.led_mode = (on ? LedModeOn : LedModeOff);
-
-   XChangeKeyboardControl(_xwin.display, KBLed | KBLedMode, &values);
-}
-
-void _xwin_change_keyboard_control(int led, int on)
-{
-   XLOCK();
-   _xwin_private_change_keyboard_control(led, on);
-   XUNLOCK();
-}
-
-
-
 /* _xwin_get_pointer_mapping:
  *  Wrapper for XGetPointerMapping.
  */
@@ -2728,214 +2652,6 @@ int _xwin_get_pointer_mapping(unsigned char map[], int nmap)
    num = _xwin_private_get_pointer_mapping(map, nmap);
    XUNLOCK();
    return num;
-}
-
-
-
-/* Mappings between KeySym and Allegro scancodes.  */
-static struct
-{
-   KeySym keysym;
-   int scancode;
-} _xwin_keysym_to_scancode[] =
-{
-   { XK_Escape, 0x01 },
-
-   { XK_F1, 0x3B },
-   { XK_F2, 0x3C },
-   { XK_F3, 0x3D },
-   { XK_F4, 0x3E },
-   { XK_F5, 0x3F },
-   { XK_F6, 0x40 },
-   { XK_F7, 0x41 },
-   { XK_F8, 0x42 },
-   { XK_F9, 0x43 },
-   { XK_F10, 0x44 },
-   { XK_F11, 0x57 },
-   { XK_F12, 0x58 },
-
-   { XK_Print, 0x54 | 0x80 },
-   { XK_Scroll_Lock, 0x46 },
-   { XK_Pause, 0x00 | 0x100 },
-
-   { XK_grave, 0x29 },
-   { XK_quoteleft, 0x29 },
-   { XK_asciitilde, 0x29 },
-   { XK_1, 0x02 },
-   { XK_2, 0x03 },
-   { XK_3, 0x04 },
-   { XK_4, 0x05 },
-   { XK_5, 0x06 },
-   { XK_6, 0x07 },
-   { XK_7, 0x08 },
-   { XK_8, 0x09 },
-   { XK_9, 0x0A },
-   { XK_0, 0x0B },
-   { XK_minus, 0x0C },
-   { XK_equal, 0x0D },
-   { XK_backslash, 0x2B },
-   { XK_BackSpace, 0x0E },
-
-   { XK_Tab, 0x0F },
-   { XK_q, 0x10 },
-   { XK_w, 0x11 },
-   { XK_e, 0x12 },
-   { XK_r, 0x13 },
-   { XK_t, 0x14 },
-   { XK_y, 0x15 },
-   { XK_u, 0x16 },
-   { XK_i, 0x17 },
-   { XK_o, 0x18 },
-   { XK_p, 0x19 },
-   { XK_bracketleft, 0x1A },
-   { XK_bracketright, 0x1B },
-   { XK_Return, 0x1C },
-
-   { XK_Caps_Lock, 0x3A },
-   { XK_a, 0x1E },
-   { XK_s, 0x1F },
-   { XK_d, 0x20 },
-   { XK_f, 0x21 },
-   { XK_g, 0x22 },
-   { XK_h, 0x23 },
-   { XK_j, 0x24 },
-   { XK_k, 0x25 },
-   { XK_l, 0x26 },
-   { XK_semicolon, 0x27 },
-   { XK_apostrophe, 0x28 },
-
-   { XK_Shift_L, 0x2A },
-   { XK_z, 0x2C },
-   { XK_x, 0x2D },
-   { XK_c, 0x2E },
-   { XK_v, 0x2F },
-   { XK_b, 0x30 },
-   { XK_n, 0x31 },
-   { XK_m, 0x32 },
-   { XK_comma, 0x33 },
-   { XK_period, 0x34 },
-   { XK_slash, 0x35 },
-   { XK_Shift_R, 0x36 },
-
-   { XK_Control_L, 0x1D },
-   { XK_Meta_L, 0x5B | 0x80 },
-   { XK_Alt_L, 0x38 },
-   { XK_space, 0x39 },
-   { XK_Alt_R, 0x38 | 0x80 },
-   { XK_Meta_R, 0x5C | 0x80 },
-   { XK_Menu, 0x5D | 0x80 },
-   { XK_Control_R, 0x1D | 0x80 },
-
-   { XK_Insert, 0x52 | 0x80 },
-   { XK_Home, 0x47 | 0x80 },
-   { XK_Prior, 0x49 | 0x80 },
-   { XK_Delete, 0x53 | 0x80 },
-   { XK_End, 0x4F | 0x80 },
-   { XK_Next, 0x51 | 0x80 },
-
-   { XK_Up, 0x48 | 0x80 },
-   { XK_Left, 0x4B | 0x80 },
-   { XK_Down, 0x50 | 0x80 },
-   { XK_Right, 0x4D | 0x80 },
-
-   { XK_Num_Lock, 0x45 },
-   { XK_KP_Divide, 0x35 | 0x80 },
-   { XK_KP_Multiply, 0x37 },
-   { XK_KP_Subtract, 0x4A | 0x80 },
-   { XK_KP_Home, 0x47 },
-   { XK_KP_Up, 0x48 },
-   { XK_KP_Prior, 0x49 },
-   { XK_KP_Add, 0x4E },
-   { XK_KP_Left, 0x4B },
-   { XK_KP_Begin, 0x4C },
-   { XK_KP_Right, 0x4D },
-   { XK_KP_End, 0x4F },
-   { XK_KP_Down, 0x50 },
-   { XK_KP_Next, 0x51 },
-   { XK_KP_Enter, 0x1C | 0x80 },
-   { XK_KP_Insert, 0x52 },
-   { XK_KP_Delete, 0x53 },
-
-   /* Some X servers return different keycodes depending
-      upon whether NumLock is turned on. */
-   { XK_KP_1, 0x4F },
-   { XK_KP_2, 0x50 },
-   { XK_KP_3, 0x51 },
-   { XK_KP_4, 0x4B },
-   { XK_KP_5, 0x4C },
-   { XK_KP_6, 0x4D },
-   { XK_KP_7, 0x47 },
-   { XK_KP_8, 0x48 },
-   { XK_KP_9, 0x49 },
-   { XK_KP_0, 0x52 },
-   { XK_KP_Decimal, 0x53 },
-
-   { NoSymbol, 0 },
-};
-
-
-
-/* _xwin_init_keyboard_tables:
- *  Initialize mapping between X-Windows keycodes and Allegro scancodes.
- */
-static void _xwin_private_init_keyboard_tables(void)
-{
-   int i, j;
-   int min_keycode;
-   int max_keycode;
-   KeySym keysym;
-   char *section, *option_format;
-   char option[128], tmp1[128], tmp2[128];
-
-   if (_xwin.display == 0)
-      return;
-
-   for (i = 0; i < 256; i++) {
-      /* Clear mappings.  */
-      _xwin.keycode_to_scancode[i] = -1;
-      /* Clear pressed key flags.  */
-      _xwin_keycode_pressed[i] = FALSE;
-   }
-
-   /* Get the number of keycodes.  */
-   XDisplayKeycodes(_xwin.display, &min_keycode, &max_keycode);
-   if (min_keycode < 0)
-      min_keycode = 0;
-   if (max_keycode > 255)
-      max_keycode = 255;
-
-   /* Setup initial X keycode to Allegro scancode mappings.  */
-   for (i = min_keycode; i <= max_keycode; i++) {
-      keysym = XKeycodeToKeysym(_xwin.display, i, 0);
-      if (keysym != NoSymbol) {
-	 for (j = 0; _xwin_keysym_to_scancode[j].keysym != NoSymbol; j++) {
-	    if (_xwin_keysym_to_scancode[j].keysym == keysym) {
-	       _xwin.keycode_to_scancode[i] = _xwin_keysym_to_scancode[j].scancode;
-	       break;
-	    }
-	 }
-      }
-   }
-
-   /* Override with user's own mappings.  */
-   section = uconvert_ascii("xkeymap", tmp1);
-   option_format = uconvert_ascii("keycode%d", tmp2);
-
-   for (i = min_keycode; i <= max_keycode; i++) {
-      int scancode;
-
-      uszprintf(option, sizeof(option), option_format, i);
-      scancode = get_config_int(section, option, -1);
-      if (scancode > 0)
-	 _xwin.keycode_to_scancode[i] = scancode;
-   }
-}
-
-void _xwin_init_keyboard_tables(void)
-{
-   XLOCK();
-   _xwin_private_init_keyboard_tables();
-   XUNLOCK();
 }
 
 

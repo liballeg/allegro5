@@ -131,21 +131,7 @@ void _xwin_replace_vtable(struct GFX_VTABLE *vtable)
  */
 void _xwin_lock(BITMAP *bmp)
 {
-#ifdef ALLEGRO_MULTITHREADED
-   /* We want to force another mutex lock if another thread is trying to
-    * acquire the screen
-    */
-   if ((_xwin.screen_lock_count == 0) ||
-       (_xwin.locked_thread != pthread_self())) {
-#else
-   if (_xwin.screen_lock_count == 0) {
-#endif
-      XLOCK();
-#ifdef ALLEGRO_MULTITHREADED
-      _xwin.locked_thread = pthread_self();
-#endif
-   }
-   _xwin.screen_lock_count++;
+   XLOCK ();
 }
 
 
@@ -156,9 +142,7 @@ void _xwin_lock(BITMAP *bmp)
  */
 void _xwin_unlock(BITMAP *bmp)
 {
-   _xwin.screen_lock_count--;
-   if (_xwin.screen_lock_count == 0)
-      XUNLOCK();
+   XUNLOCK();
 }
 
 

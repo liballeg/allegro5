@@ -318,43 +318,14 @@ static void _xdga2_handle_input(void)
 
          case KeyPress:
             XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
-
-            if (keyboard_got_focus && _xwin_keyboard_focused) {
-               int state = 0;
-
-               if (key.state & Mod5Mask)
-                  state |= KB_SCROLOCK_FLAG;
-
-               if (key.state & Mod2Mask)
-                  state |= KB_NUMLOCK_FLAG;
-
-               if (key.state & LockMask)
-                  state |= KB_CAPSLOCK_FLAG;
-
-               (*_xwin_keyboard_focused)(TRUE, state);
-               keyboard_got_focus = FALSE;
-            }
-
-            kcode = key.keycode;
-            if ((kcode >= 0) && (kcode < 256) && (!_xwin_keycode_pressed[kcode])) {
-               scode = _xwin.keycode_to_scancode[kcode];
-               if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-                  _xwin_keycode_pressed[kcode] = TRUE;
-                  (*_xwin_keyboard_interrupt)(1, scode);
-               }
-            }
+	    key.type -= dga_event_base;
+	    x_keyboard_handler (&key);
             break;
 
          case KeyRelease:
-            XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
-            kcode = key.keycode;
-            if ((kcode >= 0) && (kcode < 256) && _xwin_keycode_pressed[kcode]) {
-               scode = _xwin.keycode_to_scancode[kcode];
-               if ((scode > 0) && (_xwin_keyboard_interrupt != 0)) {
-                  (*_xwin_keyboard_interrupt)(0, scode);
-                  _xwin_keycode_pressed[kcode] = FALSE;
-               }
-            }
+	    XDGAKeyEventToXKeyEvent(&cur_event->xkey, &key);
+	    key.type -= dga_event_base;
+	    x_keyboard_handler (&key);
             break;
 
          case ButtonPress:

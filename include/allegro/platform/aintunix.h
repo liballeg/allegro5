@@ -116,15 +116,15 @@ extern "C" {
 
    #define XLOCK()                              \
       do {                                      \
-         if (_xwin.display)                     \
-            XLockDisplay(_xwin.display);        \
+         if (_xwin.mutex)                       \
+            _unix_lock_mutex (_xwin.mutex);     \
          _xwin.lock_count++;                    \
       } while (0)
 
    #define XUNLOCK()                            \
       do {                                      \
-         if (_xwin.display)                     \
-            XUnlockDisplay(_xwin.display);      \
+         if (_xwin.mutex)                       \
+            _unix_unlock_mutex (_xwin.mutex);   \
          _xwin.lock_count--;                    \
       } while (0)
 

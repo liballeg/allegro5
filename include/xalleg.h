@@ -137,7 +137,7 @@ extern struct _xwin_type
    int drawing_mode_ok;
 
 #ifdef ALLEGRO_MULTITHREADED
-   pthread_t locked_thread;
+   void *mutex;
 #endif
 
    void (*close_button_callback)(void);

@@ -227,6 +227,10 @@ AC_ARG_ENABLE(xwin-dga2,
 [  --enable-xwin-dga2[=x]  enable the use of DGA 2.0 Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_xf86dga2=yes,
 allegro_enable_xwin_xf86dga2=yes)
+AC_ARG_ENABLE(xim,
+[  --enable-xim[=x]        enable the use of XIM keyboard input [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_xim=yes,
+allegro_enable_xim=yes)
 
 dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 AC_PATH_X
@@ -288,6 +292,12 @@ if test -z "$no_x"; then
         LIBS="-lXxf86dga $LIBS"
       fi
       AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2,1,[Define if DGA version 2.0 or newer is supported])])
+  fi
+
+  dnl Test for XIM support.
+  if test -n "$allegro_enable_xim"; then
+    AC_CHECK_LIB(X11, XOpenIM,
+      [AC_DEFINE(ALLEGRO_USE_XIM,1,[Define if XIM extension is supported.])])
   fi
 
 fi

@@ -194,10 +194,12 @@ static int _xwin_sysdrv_init(void)
       return -1;
    }
 
-   /* If multithreaded bg_man, need to init X's lock/unlock facility. 
-    * Note that no X calls must be made before this point! */
+#ifdef ALLEGRO_MULTITHREADED
    if (_unix_bg_man->multi_threaded)
-      XInitThreads();
+   {
+       _xwin.mutex = _unix_create_mutex ();
+   }
+#endif
 
    get_executable_name(tmp, sizeof(tmp));
    set_window_title(get_filename(tmp));
@@ -243,6 +245,10 @@ static void _xwin_sysdrv_exit(void)
 
 #ifdef SIGQUIT
    signal(SIGQUIT, old_sig_quit);
+#endif
+
+#ifdef ALLEGRO_MULTITHREADED
+   _unix_destroy_mutex (_xwin.mutex);
 #endif
 }
 
@@ -388,9 +394,10 @@ static int _xwin_sysdrv_desktop_color_depth(void)
  */
 static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height)
 {
+   XLOCK();
    *width = DisplayWidth(_xwin.display, _xwin.screen);
    *height = DisplayHeight(_xwin.display, _xwin.screen);
-
+   XUNLOCK();
    return 0;
 }
 
