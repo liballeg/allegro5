@@ -112,9 +112,7 @@
       'c:/develop/mingw32'.
 
    4) Unzip the file from step 2 to 'c:\develop\mingw32'. Overwrite any
-      existing files. Note: It seems like you don't need the libraries from
-      'dx7_mgw.zip' anymore, so if you want you can leave the DirectX
-      libraries that came with MingW32 alone.
+      existing files.
 
    5) You now need to add 'c:\develop\mingw32\bin' to the *beginning* of your
       PATH environment variable.
@@ -189,9 +187,7 @@
    5) Install 'devcpp4980exe.exe' from step 2 to 'C:\develop\dev-cpp'.
 
    6) Unzip 'dx70_mgw.zip' from step 3 to 'C:\develop\mingw32'. Overwrite any
-      existing files. Note: It seems like you don't need the libraries from
-      'dx7_mgw.zip' anymore, so if you want you can leave the DirectX
-      libraries that came with MingW32 alone.
+      existing files.
 
    7) You now need to add 'c:\develop\mingw32\bin' to the *beginning* of your
       PATH environment variable.
