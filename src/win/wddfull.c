@@ -22,6 +22,7 @@
 static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int color_depth);
 static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int color_depth);
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth);
+static void finalize_fullscreen_init(void);
 
 
 GFX_DRIVER gfx_directx_accel =
@@ -133,7 +134,6 @@ GFX_DRIVER gfx_directx_safe =
 };
 
 
-
 static WIN_GFX_DRIVER win_gfx_fullscreen =
 {
    FALSE,                       // true if driver has backing store
@@ -148,23 +148,8 @@ static WIN_GFX_DRIVER win_gfx_fullscreen =
 
 
 
-/* finalize_fullscreen_init:
- */
-static void finalize_fullscreen_init(void)
-{
-   /* connect to the system driver */
-   win_gfx_driver = &win_gfx_fullscreen;
-
-   /* set the default switching policy */
-   set_display_switch_mode(SWITCH_AMNESIA);
-
-   /* grab input devices */
-   win_grab_input();
-}
-
-
-
 /* init_directx_accel:
+ *  Initializes the DirectDraw fullscreen hardware-accelerated driver.
  */
 static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int color_depth)
 {
@@ -188,6 +173,7 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
 
 
 /* init_directx_soft:
+ *  Initializes the DirectDraw fullscreen software-only driver.
  */
 static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int color_depth)
 {
@@ -210,6 +196,7 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
 
 
 /* init_directx_safe:
+ *  Initializes the DirectDraw fullscreen safe driver.
  */
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth)
 {
@@ -225,5 +212,22 @@ static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int colo
    _exit_critical();
 
    return bmp;
+}
+
+
+
+/* finalize_fullscreen_init:
+ *  Finalizes initialization of the three fullscreen drivers.
+ */
+static void finalize_fullscreen_init(void)
+{
+   /* connect to the system driver */
+   win_gfx_driver = &win_gfx_fullscreen;
+
+   /* set the default switching policy */
+   set_display_switch_mode(SWITCH_AMNESIA);
+
+   /* grab input devices */
+   win_grab_input();
 }
 
