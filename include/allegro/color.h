@@ -83,7 +83,8 @@ AL_FUNC(void, get_palette_range, (PALETTE p, int from, int to));
 AL_FUNC(void, fade_interpolate, (AL_CONST PALETTE source, AL_CONST PALETTE dest, PALETTE output, int pos, int from, int to));
 AL_FUNC(void, fade_from_range, (AL_CONST PALETTE source, AL_CONST PALETTE dest,
 int speed, int from, int to));
-AL_FUNC(void, fade_in_range, (AL_CONST PALETTE p, int speed, int from, int to));AL_FUNC(void, fade_out_range, (int speed, int from, int to));
+AL_FUNC(void, fade_in_range, (AL_CONST PALETTE p, int speed, int from, int to));
+AL_FUNC(void, fade_out_range, (int speed, int from, int to));
 AL_FUNC(void, fade_from, (AL_CONST PALETTE source, AL_CONST PALETTE dest, int speed));
 AL_FUNC(void, fade_in, (AL_CONST PALETTE p, int speed));
 AL_FUNC(void, fade_out, (int speed));

@@ -27,7 +27,8 @@
 
 AL_FUNC(char *, fix_filename_case, (char *path));
 AL_FUNC(char *, fix_filename_slashes, (char *path));
-AL_FUNC(char *, fix_filename_path, (char *dest, AL_CONST char *path, int size));AL_FUNC(char *, replace_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
+AL_FUNC(char *, fix_filename_path, (char *dest, AL_CONST char *path, int size));
+AL_FUNC(char *, replace_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
 AL_FUNC(char *, replace_extension, (char *dest, AL_CONST char *filename, AL_CONST char *ext, int size));
 AL_FUNC(char *, append_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
 AL_FUNC(char *, get_filename, (AL_CONST char *path));
@@ -96,7 +97,8 @@ typedef struct PACKFILE                /* our very own FILE structure... */
 
 
 AL_FUNC(void, packfile_password, (AL_CONST char *password));
-AL_FUNC(PACKFILE *, pack_fopen, (AL_CONST char *filename, AL_CONST char *mode));AL_FUNC(PACKFILE *, pack_fdopen, (int fd, AL_CONST char *mode));
+AL_FUNC(PACKFILE *, pack_fopen, (AL_CONST char *filename, AL_CONST char *mode));
+AL_FUNC(PACKFILE *, pack_fdopen, (int fd, AL_CONST char *mode));
 AL_FUNC(int, pack_fclose, (PACKFILE *f));
 AL_FUNC(int, pack_fseek, (PACKFILE *f, int offset));
 AL_FUNC(PACKFILE *, pack_fopen_chunk, (PACKFILE *f, int pack));
