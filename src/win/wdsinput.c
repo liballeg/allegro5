@@ -176,7 +176,7 @@ static int get_capture_format_support(int bits, int stereo, int rate,
       { WAVE_FORMAT_2M08,   22050, 8,  1, FALSE },
       { WAVE_FORMAT_1M08,   11025, 8,  1, FALSE },
 
-      { WAVE_INVALIDFORMAT,     0,  0, 0, FALSE }
+      { WAVE_INVALIDFORMAT,     0, 0,  0, FALSE }
    };
 
    if (!ds_capture)
@@ -193,7 +193,7 @@ static int get_capture_format_support(int bits, int stereo, int rate,
          if (((bits > 0) && (dsc_buf_wfx.wBitsPerSample != bits)) ||
              ( stereo && (dsc_buf_wfx.nChannels != 2)) ||
              (!stereo && (dsc_buf_wfx.nChannels != 1)) ||
-             ((rate > 0) && (dsc_buf_wfx.nSamplesPerSec != rate)))
+             ((rate > 0) && (dsc_buf_wfx.nSamplesPerSec != (unsigned int) rate)))
             return -1;
       }
 
@@ -577,7 +577,7 @@ int digi_directsound_rec_read(void *buf)
   
       /* if we are using 16-bit data, we need to convert it to unsigned format */
       if (digi_driver->rec_cap_bits == 16) {
-         int i;
+         unsigned int i;
          unsigned short *buf16 = (unsigned short *)buf;
 
          for (i = 0; i < ds_capture_buffer_size/2; i++)
