@@ -28,9 +28,9 @@ BOOL same_color_depth;
 
 
 typedef struct MODE_INFO {
-  int mode_supported;
-  int modes;
-  GFX_MODE_LIST *gfx;
+   int check_if_available, mode_supported;
+   int modes;
+   GFX_MODE_LIST *gfx;
 } MODE_INFO;
 
 static int pixel_realdepth[] = {8, 15, 15, 16, 16, 24, 24, 32, 32, 0};
@@ -238,23 +238,30 @@ static HRESULT CALLBACK EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOI
    MODE_INFO *mode_info = (MODE_INFO *) mode_info_addr;
    int real_bpp;
 
-   if (mode_info->gfx) {
-      mode_info->gfx[mode_info->modes].width = lpDDSurfaceDesc->dwWidth;
+   /* check for if gfx mode is available */
+   if (mode_info->check_if_available) {
+      mode_info->mode_supported = TRUE;
+   }
+
+   /* build gfx mode-list */
+   else {
+      mode_info->gfx = realloc(mode_info->gfx, sizeof(GFX_MODE_LIST) * (mode_info->modes + 1));
+      if (!mode_info->gfx) return DDENUMRET_CANCEL;
+
+      mode_info->gfx[mode_info->modes].width  = lpDDSurfaceDesc->dwWidth;
       mode_info->gfx[mode_info->modes].height = lpDDSurfaceDesc->dwHeight;
-      mode_info->gfx[mode_info->modes].bpp = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
+      mode_info->gfx[mode_info->modes].bpp    = lpDDSurfaceDesc->ddpfPixelFormat.dwRGBBitCount;
 
       /* check if 16 bpp mode is 16 bpp or 15 bpp*/
       if (mode_info->gfx[mode_info->modes].bpp == 16) {
          real_bpp = _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwRBitMask) +
                     _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwGBitMask) +
                     _get_color_bits (lpDDSurfaceDesc->ddpfPixelFormat.dwBBitMask);
-         if (real_bpp == 15)
-            mode_info->gfx[mode_info->modes].bpp = real_bpp;
+         if (real_bpp == 15) mode_info->gfx[mode_info->modes].bpp = real_bpp;
       }
-   }
 
-   mode_info->mode_supported = TRUE;
-   mode_info->modes++;
+      mode_info->modes++;
+   }
 
    return DDENUMRET_OK;
 }
@@ -269,62 +276,48 @@ int gfx_directx_fetch_mode_list(void)
 {
    MODE_INFO mode_info;
    HRESULT hr;
-   int flags, modes, dx_was_off;
+   int enum_flags, dx_was_off;
+
+   destroy_gfx_mode_list();
 
    /* enumerate VGA Mode 13h under DirectX 5 or greater */
-   if (_dx_ver >= 0x500)
-      flags = DDEDM_STANDARDVGAMODES;
-   else
-      flags = 0;
+   if (_dx_ver >= 0x500) enum_flags = DDEDM_STANDARDVGAMODES;
+   else enum_flags = 0;
 
    if (!directdraw) {
       init_directx();
       dx_was_off = TRUE;
    }
-   else
+   else 
       dx_was_off = FALSE;
 
-   /* count modes */
+   /* start enumeration */
    mode_info.gfx = NULL;
    mode_info.modes = 0;
+   mode_info.check_if_available = FALSE;
 
-   hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, NULL, &mode_info, EnumModesCallback);
-   if (FAILED(hr))
-      goto Error;
+   hr = IDirectDraw2_EnumDisplayModes(directdraw, enum_flags, NULL, &mode_info, EnumModesCallback);
 
-   modes = mode_info.modes;
+   if (FAILED(hr)) {
+      if (dx_was_off) exit_directx();
 
-   /* allocate mode list */
-   destroy_gfx_mode_list();
-   gfx_mode_list = malloc(sizeof(GFX_MODE_LIST) * (modes + 1));
-   if (!gfx_mode_list)
-      goto Error;
-
-   /* fill in mode list */
-   mode_info.gfx = gfx_mode_list;
-   mode_info.modes = 0;
-
-   hr = IDirectDraw2_EnumDisplayModes(directdraw, flags, NULL, &mode_info, EnumModesCallback);
-   if (FAILED(hr))
-      goto Error;
+      return -1;
+   }
 
    /* terminate mode list */
-   mode_info.gfx[modes].width = 0;
-   mode_info.gfx[modes].height = 0;
-   mode_info.gfx[modes].bpp = 0;
+   mode_info.gfx = realloc(mode_info.gfx, sizeof(GFX_MODE_LIST) * (mode_info.modes + 1));
 
+   mode_info.gfx[mode_info.modes].width  = 0;
+   mode_info.gfx[mode_info.modes].height = 0;
+   mode_info.gfx[mode_info.modes].bpp    = 0;
+
+   gfx_mode_list = mode_info.gfx;
    _gfx_mode_list_malloced = TRUE;
 
    if (dx_was_off)
       exit_directx();
 
    return 0;
-
- Error:
-   if (dx_was_off)
-      exit_directx();
-
-   return -1;
 }
 
 
@@ -354,7 +347,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
       if (pixel_realdepth[i] == color_depth) {
          surf_desc.ddpfPixelFormat = pixel_format[i];
          mode_info.mode_supported = FALSE;
-         mode_info.gfx = NULL;
+         mode_info.check_if_available = TRUE;
 
          /* check whether the requested mode is supported */
          if (_refresh_rate_request) {

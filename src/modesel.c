@@ -14,6 +14,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Rewritten by Henrik Stokseth.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -283,12 +285,12 @@ static int create_driver_list()
    driver_list[0].name = "Autodetect";
    create_mode_list(&driver_list[0]);
 
-   driver_list[1].id   = GFX_AUTODETECT_WINDOWED;
-   driver_list[1].name = "Autodetect windowed";
+   driver_list[1].id   = GFX_AUTODETECT_FULLSCREEN;
+   driver_list[1].name = "Autodetect fullscreen";
    create_mode_list(&driver_list[1]);
 
-   driver_list[2].id   = GFX_AUTODETECT_FULLSCREEN;
-   driver_list[2].name = "Autodetect fullscreen";
+   driver_list[2].id   = GFX_AUTODETECT_WINDOWED;
+   driver_list[2].name = "Autodetect windowed";
    create_mode_list(&driver_list[2]);
 
    driver_count = 0;
@@ -420,8 +422,7 @@ int gfx_mode_select(int *card, int *w, int *h)
 
    clear_keybuf();
 
-   do {
-   } while (gui_mouse_b());
+   while (gui_mouse_b());
 
    what_dialog = gfx_mode_dialog;
 
@@ -465,8 +466,7 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 
    clear_keybuf();
 
-   do {
-   } while (gui_mouse_b());
+   while (gui_mouse_b());
 
    what_dialog = gfx_mode_ex_dialog;
 
@@ -476,17 +476,18 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 
    for (i=0; i<driver_count; i++) {
       if (driver_list[i].id == *card) {
-	 gfx_mode_ex_dialog[GFX_DRIVERLIST].d1 = i;
-	 break;
+         gfx_mode_ex_dialog[GFX_DRIVERLIST].d1 = i;
+         break;
       }
    }
 
    what_driver = i;
+   if (what_driver == driver_count) what_driver = GFX_AUTODETECT;
 
    for (i=0; driver_list[what_driver].mode_list[i].w; i++) {
       if ((driver_list[what_driver].mode_list[i].w == *w) && (driver_list[what_driver].mode_list[i].h == *h)) {
-	 gfx_mode_ex_dialog[GFX_MODELIST].d1 = i;
-	 break; 
+         gfx_mode_ex_dialog[GFX_MODELIST].d1 = i;
+         break; 
       }
    }
 
