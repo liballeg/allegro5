@@ -100,7 +100,7 @@ void (*_be_window_close_hook)() = NULL;
 static volatile bool be_gfx_initialized;
 
 static char driver_desc[256] = EMPTY_STRING;
-static int refresh_rate = 70;
+static int refresh_rate = 60;
 
 static thread_id palette_thread_id = -1;
 static sem_id palette_sem = -1;
@@ -516,6 +516,9 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
       if (((v_w != 0) && (v_w != w)) || ((v_h != 0) && (v_h != h)))
 	 goto cleanup;
    }
+   
+   /* BWindowScreen sets refresh rate at 60 Hz by default */
+   _set_current_refresh_rate(60);
 
    fbuffer = _be_allegro_screen->FrameBufferInfo();
 
@@ -712,7 +715,7 @@ extern "C" void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, 
 extern "C" int be_gfx_fullscreen_scroll(int x, int y)
 {
    int rv;
-
+   
    acquire_screen();
    
    if (_be_allegro_screen->MoveDisplayArea(x, y) != B_ERROR) {
@@ -723,8 +726,8 @@ extern "C" int be_gfx_fullscreen_scroll(int x, int y)
    }
 
    release_screen();
-
-   be_gfx_vsync();
+   
+   be_gfx_vsync();   
 
    return rv;
 }
@@ -776,7 +779,7 @@ extern "C" void be_gfx_vsync(void)
    if(BScreen(_be_window).WaitForRetrace() != B_OK) {
       if (_timer_installed) {
          int start_count;
-
+         
          start_count = retrace_count;
 
          while (start_count == retrace_count) {
