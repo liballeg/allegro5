@@ -11,7 +11,7 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MacOS X
-CC = gcc3
+CC = gcc
 OBJ_DIR = obj/macosx/$(VERSION)
 EXE = 
 OBJ = .o
@@ -33,6 +33,9 @@ FRAMEWORK_NAME = Allegro
 FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
 
 TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
+ifeq ($(wildcard $(TEMPLATE_DIR)),)
+	TEMPLATE_DIR = /Library/Application\ Support/Apple/Developer\ Tools/Project\ Templates/Application
+endif
 TEMPLATE_NAME = Allegro\ Application
 TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
 
@@ -308,7 +311,7 @@ endif
 	@echo $(FRAMEWORK)
 endif
 
-install-template: $(FRAMEWORK)
+install-template: install-framework
 	@rm -fr $(TEMPLATE)
 	@mkdir -p $(TEMPLATE)/AllegroApp.pbproj
 	@cp misc/template.c $(TEMPLATE)/main.c

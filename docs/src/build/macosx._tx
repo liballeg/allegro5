@@ -33,14 +33,17 @@ Required software
 
    To build Allegro under MacOS X, you need:
 
-      <ul><li>MacOS X 10.1.x or newer
-      <li>Apple Developer Tools (April 2002 or newer edition)</ul>
+      <ul><li>MacOS X 10.2.x or newer
+      <li>Apple Developer Tools (December 2002 or newer edition)</ul>
 
-   If you don't have the Developer Tools installed, you can grab them at:
+   If you don't have the Developer Tools installed, you can get the
+   latest release at:
 <blockquote>
       <link>http://developer.apple.com/tools/download</a>
 </blockquote>
    On the same page you will also find instructions on how to install them.
+   Note that system version 10.2.x is required to compile Allegro, but
+   the library will still work on 10.1.x.
 
 
 
@@ -142,7 +145,7 @@ Using Allegro from the command line
 
 
 @heading
-Using Allegro from Project Builder
+Using Allegro from Project Builder (or XCode)
 
    To use Allegro from inside Apple's Project Builder, be sure you first
    installed the library as a framework and that you also installed the PB
@@ -157,6 +160,9 @@ Using Allegro from Project Builder
    project, holding an unique source file (<tt>main.c</tt>) and some linked
    frameworks. The project can already be compiled to a working application;
    try it!
+
+   Note that the same procedure applies to XCode, which is compatible
+   with Project Builder.
 
    The <tt>main.c</tt> source file contains a very simple skeleton of an Allegro
    program that will open up a white window with the text "Hello, world!"
@@ -260,6 +266,12 @@ Notes on drivers
 
         Fullscreen mode uses the Core Graphics DirectDisplay API; only
         8, 15 and 32 bit color depths are supported.</dd>
+
+   <dt><b>Sound:</b></dt><dd>
+        The CoreAudio digital/MIDI drivers use V2 AudioUnits, and thus
+        they require MacOS X 10.2.x (Jaguar) or newer to work. If this is
+        not the case, you can fall back to the Carbon Sound Manager and
+        Quicktime MIDI drivers.</dd>
 
    <dt><b>Keyboard:</b></dt><dd>
         MacOS X Allegro uses the current system keyboard mapping table

@@ -104,7 +104,7 @@ static int osx_mouse_init(void)
    HID_DEVICE *device;
    int i, j, num_devices;
    int buttons, max_buttons = -1;
-   
+
    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_1) {
       /* On 10.1.x mice and keyboards aren't available from the HID Manager,
        * so we can't autodetect. We assume an 1-button mouse to always be
