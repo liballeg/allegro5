@@ -309,10 +309,11 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/usystem.c \
 	src/unix/ustimer.c \
 	src/unix/uthreads.c \
+	src/unix/utimer.c \
+	src/misc/ufile.c \
 	src/misc/colconv.c \
 	src/misc/icolconv.s \
 	src/misc/pckeys.c \
-	src/misc/ufile.c
 
 ALLEGRO_MODULE_SVGALIB_FILES = \
 	src/linux/svgalib.c \

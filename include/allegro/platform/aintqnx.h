@@ -21,7 +21,7 @@
 #define AINTQNX_H
 
 #include "qnxalleg.h"
-#include "allegro/aintunix.h"
+#include "allegro/platform/aintunix.h"
 
 #ifdef __cplusplus
 extern "C" {

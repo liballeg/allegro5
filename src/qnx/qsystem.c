@@ -46,8 +46,10 @@ static void              (*window_close_hook)(void) = NULL;
 static pthread_mutex_t     gfx_mutex;
 static pthread_t           qnx_events_thread;
 static int                 qnx_system_done;
-static char                window_title[256];
 static int                 switch_mode = SWITCH_BACKGROUND;
+
+#define WINDOW_TITLE_SIZE  256
+static char                window_title[WINDOW_TITLE_SIZE];
 
 static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = 
    { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
@@ -314,6 +316,7 @@ int qnx_sys_init(void)
    PhDim_t dim;
    struct sched_param sparam;
    int spolicy;
+   char tmp[WINDOW_TITLE_SIZE];
    
    qnx_gfx_mutex = &gfx_mutex;
    
@@ -331,7 +334,8 @@ int qnx_sys_init(void)
 
    dim.w = 1;
    dim.h = 1;
-   _unix_get_executable_name(window_title, 256);
+   _unix_get_executable_name(tmp, WINDOW_TITLE_SIZE);
+   do_uconvert(tmp, U_CURRENT, window_title, U_UTF8, WINDOW_TITLE_SIZE);
    PtSetArg(&arg[0], Pt_ARG_DIM, &dim, 0);
    PtSetArg(&arg[1], Pt_ARG_WINDOW_TITLE, window_title, 0);
    PtSetArg(&arg[2], Pt_ARG_WINDOW_MANAGED_FLAGS, Pt_FALSE, Ph_WM_CLOSE);
@@ -426,7 +430,7 @@ void qnx_sys_set_window_title(AL_CONST char *name)
 {
    PtArg_t arg;
 
-   strncpy(window_title, name, sizeof(window_title) - 1);
+   do_uconvert(name, U_CURRENT, window_title, U_UTF8, WINDOW_TITLE_SIZE);
    PtSetArg(&arg, Pt_ARG_WINDOW_TITLE, window_title, 0);
    PtSetResources(ph_window, 1, &arg);
 }
@@ -461,16 +465,22 @@ void qnx_sys_set_window_close_hook(void (*proc)(void))
 void qnx_sys_message(AL_CONST char *msg)
 {
    const char *button[] = { "&Ok" };
+   char *tmp=malloc(ALLEGRO_MESSAGE_SIZE);
 
-   fprintf(stderr, "%s", msg);
+   fputs(uconvert_toascii(msg, tmp), stderr);
+   
    qnx_keyboard_focused(FALSE, 0);
    DISABLE();
    pthread_mutex_lock(&qnx_events_mutex);
-   PtAlert(ph_window, NULL, window_title, NULL, msg, NULL, 1, button, NULL, 1, 1, Pt_MODAL);
+   PtAlert(ph_window, NULL, window_title, NULL,
+   	   uconvert(msg, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE),
+   	   NULL, 1, button, NULL, 1, 1, Pt_MODAL);
    pthread_mutex_unlock(&qnx_events_mutex);
    ENABLE();
    PgFlush();
    qnx_keyboard_focused(TRUE, 0);
+   
+   free(tmp);
 }
 
 

@@ -243,7 +243,7 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
 
    setup_direct_shifts();
    uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Photon direct mode (%s)", tmp1),
-             uconvert_ascii(caps.chip_name, tmp2));
+             uconvert(caps.chip_name, U_UTF8, tmp2, U_CURRENT, sizeof(tmp2)));
    drv->desc = driver_desc;
 
    _mouse_on = TRUE;

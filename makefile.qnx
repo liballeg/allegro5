@@ -19,6 +19,10 @@ HTML = html
 
 PLATFORM_DIR = obj/qnx
 
+UNIX_TOOLS = 1
+
+
+
 # -------- give a sensible default target for make without any args --------
 
 .PHONY: _default
@@ -26,12 +30,13 @@ PLATFORM_DIR = obj/qnx
 _default: default
 
 
+
 # -------- decide what compiler options to use --------
 
 ifdef WARNMODE
-WFLAGS = -Wall -W -Werror -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
+   WFLAGS = -Wall -W -Werror -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 else
-WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
+   WFLAGS = -Wall -Wno-unused -Wno-multichar -Wno-ctor-dtor-privacy
 endif
 
 ifdef TARGET_ARCH_COMPAT
@@ -45,20 +50,17 @@ else
 endif
 
 ifndef TARGET_OPTS
-   TARGET_OPTS = -O6 -funroll-loops -ffast-math
+   TARGET_OPTS = -O2 -funroll-loops -ffast-math
 endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
 ifdef DEBUGMODE
 
-
-
 # -------- debugging build --------
-CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g -O0
+CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-LFLAGS = -lm -lph -lasound -g
-
+LFLAGS = -g
 
 else
 ifdef PROFILEMODE
@@ -66,110 +68,130 @@ ifdef PROFILEMODE
 # -------- profiling build --------
 CFLAGS = $(WFLAGS) $(OFLAGS) -pg
 SFLAGS = $(WFLAGS)
-LFLAGS = -lm -lph -lasound -pg
+LFLAGS = -pg
 
 else
 
 # -------- optimised build --------
-CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
+CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer -fno-strength-reduce
 SFLAGS = $(WFLAGS)
+ifndef SYMBOLMODE
+   LFLAGS += -s
+endif
 
-ifdef SYMBOLMODE
-LFLAGS = -lm -lph -lasound -s
+endif
+endif
+
+
+
+# -------- list platform specific objects and programs --------
+
+VPATH = src/qnx src/unix src/misc
+
+ifdef ALLEGRO_USE_C
+
+# ------ build a C-only version ------
+
+VPATH += src/c
+MY_OBJECTS = $(C_OBJECTS) cmiscs
+CFLAGS += -DALLEGRO_USE_C
+
 else
-LFLAGS = -lm -lph -lasound
+
+# ------ build the normal asm version ------
+
+VPATH += src/i386
+MY_OBJECTS = $(I386_OBJECTS)
+
+endif # ALLEGRO_USE_C
+
+OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_QNX_FILES)))
+
+LIBRARIES = -lm -lph -lasound
+
+ifdef PROFILEMODE
+   LIBRARIES += -lgmon
 endif
 
-endif
-endif
-
-
-# -------- list which platform specific objects to include --------
-
-VPATH = src/qnx src/unix src/i386 src/misc
-
-OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) \
-	      $(basename $(notdir $(ALLEGRO_SRC_QNX_FILES)))
 
 
 # -------- rules for installing and removing the library files --------
 
-INC_DIR = /usr/include
-LIB_DIR = /usr/lib
+INSTALL_DIR = /usr
 
-$(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
-	cp $(LIB_NAME) $(LIB_DIR)
+$(INSTALL_DIR)/lib/lib$(VERSION).a: $(LIB_NAME)
+	cp $(LIB_NAME) $(INSTALL_DIR)/lib
 
-$(INC_DIR)/%: include/%
+$(INSTALL_DIR)/include/%: include/%
 	cp $< $@
 
-$(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
+$(INSTALL_DIR)/include/allegro/%.h: include/allegro/%.h $(INSTALL_DIR)/include/allegro
 	cp $< $@
 
-$(INC_DIR)/allegro:
-	mkdir $(INC_DIR)/allegro
+$(INSTALL_DIR)/include/allegro:
+	mkdir $(INSTALL_DIR)/include/allegro
 
-$(INC_DIR)/allegro/internal/%.h: include/allegro/internal/%.h $(INC_DIR)/allegro/internal
+$(INSTALL_DIR)/include/allegro/internal/%.h: include/allegro/internal/%.h $(INSTALL_DIR)/include/allegro/internal
 	cp $< $@
 
-$(INC_DIR)/allegro/internal:
-	mkdir $(INC_DIR)/allegro/internal
+$(INSTALL_DIR)/include/allegro/internal:
+	mkdir $(INSTALL_DIR)/include/allegro/internal
 
-$(INC_DIR)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INC_DIR)/allegro/inline
+$(INSTALL_DIR)/include/allegro/inline/%.inl: include/allegro/inline/%.inl $(INSTALL_DIR)/include/allegro/inline
 	cp $< $@
 
-$(INC_DIR)/allegro/inline:
-	mkdir $(INC_DIR)/allegro/inline
+$(INSTALL_DIR)/include/allegro/inline:
+	mkdir $(INSTALL_DIR)/include/allegro/inline
 
-$(INC_DIR)/allegro/platform/%.h: include/allegro/platform/%.h $(INC_DIR)/allegro/platform
+$(INSTALL_DIR)/include/allegro/platform/%.h: include/allegro/platform/%.h $(INSTALL_DIR)/include/allegro/platform
 	cp $< $@
 
-$(INC_DIR)/allegro/platform:
-	mkdir $(INC_DIR)/allegro/platform
+$(INSTALL_DIR)/include/allegro/platform:
+	mkdir $(INSTALL_DIR)/include/allegro/platform
 
-HEADERS = $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
-          $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
-          $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
+$(INSTALL_DIR)/bin/allegro-config:
+	cp misc/allegro-config.qnx $(INSTALL_DIR)/bin/allegro-config
+	chmod a+x $(INSTALL_DIR)/bin/allegro-config
 
-/usr/bin/allegro-config:
-	cp misc/allegro-config.qnx /usr/bin/allegro-config
-	chmod a+x /usr/bin/allegro-config
+HEADERS = $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/*.h)))          \
+          $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/internal/*.h))) \
+          $(addprefix $(INSTALL_DIR)/include/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
 
-INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a             \
-		$(INC_DIR)/allegro.h                   \
-		$(INC_DIR)/allegro                     \
-		$(INC_DIR)/allegro/internal            \
-		$(INC_DIR)/allegro/inline              \
-		$(INC_DIR)/allegro/platform            \
-		$(INC_DIR)/qnxalleg.h                  \
-		$(INC_DIR)/allegro/platform/aintqnx.h  \
-		$(INC_DIR)/allegro/platform/al386gcc.h \
-		$(INC_DIR)/allegro/platform/alqnxcfg.h \
-		$(INC_DIR)/allegro/platform/alplatf.h  \
-		$(INC_DIR)/allegro/platform/alqnx.h    \
+INSTALL_FILES = $(INSTALL_DIR)/lib/lib$(VERSION).a             \
+		$(INSTALL_DIR)/include/allegro.h                   \
+		$(INSTALL_DIR)/include/allegro                     \
+		$(INSTALL_DIR)/include/allegro/internal            \
+		$(INSTALL_DIR)/include/allegro/inline              \
+		$(INSTALL_DIR)/include/allegro/platform            \
+		$(INSTALL_DIR)/include/qnxalleg.h                  \
+		$(INSTALL_DIR)/include/allegro/platform/aintqnx.h  \
+		$(INSTALL_DIR)/include/allegro/platform/al386gcc.h \
+		$(INSTALL_DIR)/include/allegro/platform/alqnxcfg.h \
+		$(INSTALL_DIR)/include/allegro/platform/alplatf.h  \
+		$(INSTALL_DIR)/include/allegro/platform/alqnx.h    \
 		$(HEADERS)                             \
-		/usr/bin/allegro-config
+		$(INSTALL_DIR)/bin/allegro-config
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(LIB_DIR)/liballeg.a           \
-		  $(LIB_DIR)/liballd.a            \
-		  $(LIB_DIR)/liballp.a            \
-		  $(INC_DIR)/allegro.h            \
-		  $(INC_DIR)/qnxalleg.h           \
-		  $(INC_DIR)/allegro/*.h          \
-		  $(INC_DIR)/allegro/internal/*.h \
-		  $(INC_DIR)/allegro/inline/*.inl \
-		  $(INC_DIR)/allegro/platform/*.h \
-		  /usr/bin/allegro-config
+UNINSTALL_FILES = $(INSTALL_DIR)/lib/liballeg.a           \
+		  $(INSTALL_DIR)/lib/liballd.a            \
+		  $(INSTALL_DIR)/lib/liballp.a            \
+		  $(INSTALL_DIR)/include/allegro.h            \
+		  $(INSTALL_DIR)/include/qnxalleg.h           \
+		  $(INSTALL_DIR)/include/allegro/*.h          \
+		  $(INSTALL_DIR)/include/allegro/internal/*.h \
+		  $(INSTALL_DIR)/include/allegro/inline/*.inl \
+		  $(INSTALL_DIR)/include/allegro/platform/*.h \
+		  $(INSTALL_DIR)/bin/allegro-config
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(INC_DIR)/allegro/platform
-	-rmdir $(INC_DIR)/allegro/inline
-	-rmdir $(INC_DIR)/allegro/internal
-	-rmdir $(INC_DIR)/allegro
+	-rmdir $(INSTALL_DIR)/include/allegro/platform
+	-rmdir $(INSTALL_DIR)/include/allegro/inline
+	-rmdir $(INSTALL_DIR)/include/allegro/internal
+	-rmdir $(INSTALL_DIR)/include/allegro
 	@echo All gone!	
 
 
@@ -181,7 +203,7 @@ include makefile.tst
 # -------- finally, we get to the fun part... --------
 
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+   ar rs $(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
@@ -196,7 +218,7 @@ $(OBJ_DIR)/%.o: %.s
 	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 */%: $(OBJ_DIR)/%.o $(LIB_NAME)
-	gcc $(LFLAGS) -o $@ $< $(LIB_NAME)
+	gcc $(LFLAGS) -o $@ $< $(LIB_NAME) $(LIBRARIES)
 
 obj/qnx/asmdef.inc: obj/qnx/asmdef
 	obj/qnx/asmdef obj/qnx/asmdef.inc
@@ -211,7 +233,7 @@ obj/qnx/setupdat.o: obj/qnx/setupdat.s
 	gcc -o obj/qnx/setupdat.o -c obj/qnx/setupdat.s
 
 setup/setup: $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME)
-	gcc $(LFLAGS) -o setup/setup $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME)
+	gcc $(LFLAGS) -o setup/setup $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME) $(LIBRARIES)
 
 PLUGIN_LIB = lib/qnx/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/qnx/plugins.h
@@ -219,15 +241,15 @@ PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
 PLUGIN_SCR = scr
 
 define GENERATE_PLUGINS_H
-cat tools/plugins/*.inc > obj/qnx/plugins.h
+   cat tools/plugins/*.inc > obj/qnx/plugins.h
 endef
 
 define MAKE_PLUGIN_LIB
-ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
+   gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME) $(LIBRARIES))
 endef
 
 
@@ -244,4 +266,4 @@ depend:
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/qnx\/alld\/\1/" _depend2.tmp > obj/qnx/alld/makefile.dep
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/qnx\/allp\/\1/" _depend2.tmp > obj/qnx/allp/makefile.dep
 	rm _depend.tmp _depend2.tmp
-
+	--- /tmp/diffed.tmp	Thu Nov 22 20:53:01 2001
