@@ -289,7 +289,17 @@ void osx_update_dirty_lines(void)
    if (![osx_window isVisible])
       return;
    
+   /* Skip everything if there are no dirty lines */
    pthread_mutex_lock(&osx_window_mutex);
+   for (rect.top = 0; (rect.top < gfx_quartz_window.h) && (!dirty_lines[rect.top]); rect.top++)
+      ;
+   if (rect.top >= gfx_quartz_window.h) {
+      pthread_mutex_unlock(&osx_window_mutex);
+      pthread_cond_broadcast(&vsync_cond);
+      return;
+   }
+   
+   /* Dirty lines need to be updated */
    while (![qd_view lockFocusIfCanDraw]);
    while (!QDDone([qd_view qdPort]));
    LockPortBits([qd_view qdPort]);
@@ -305,7 +315,6 @@ void osx_update_dirty_lines(void)
    rect.left = 0;
    rect.right = gfx_quartz_window.w;
 
-   rect.top = 0;
    while (rect.top < gfx_quartz_window.h) {
       while ((!dirty_lines[rect.top]) && (rect.top < gfx_quartz_window.h))
          rect.top++;
