@@ -23,7 +23,7 @@ month=$(date +%m)
 day=$(date +%d)
 datestr="$(date +%b) $day, $year"
 
-# patch allegro.h
+# patch allegro/base.h
 echo "s/\#define ALLEGRO_VERSION .*/\#define ALLEGRO_VERSION          $1/" > fixver.sed
 echo "s/\#define ALLEGRO_SUB_VERSION .*/\#define ALLEGRO_SUB_VERSION      $2/" >> fixver.sed
 echo "s/\#define ALLEGRO_WIP_VERSION .*/\#define ALLEGRO_WIP_VERSION      $3/" >> fixver.sed
@@ -31,9 +31,9 @@ echo "s/\#define ALLEGRO_VERSION_STR .*/\#define ALLEGRO_VERSION_STR      \"$ver
 echo "s/\#define ALLEGRO_DATE_STR .*/\#define ALLEGRO_DATE_STR         \"$year\"/" >> fixver.sed
 echo "s/\#define ALLEGRO_DATE .*/\#define ALLEGRO_DATE             $year$month$day    \/\* yyyymmdd \*\//" >> fixver.sed
 
-echo "Patching include/allegro.h..."
-cp include/allegro.h fixver.tmp
-sed -f fixver.sed fixver.tmp > include/allegro.h
+echo "Patching include/allegro/base.h..."
+cp include/allegro/base.h fixver.tmp
+sed -f fixver.sed fixver.tmp > include/allegro/base.h
 
 echo "Patching src/win/dllver.rc..."
 cat > src/win/dllver.rc << END_OF_DLLVER
