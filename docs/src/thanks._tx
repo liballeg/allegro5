@@ -193,8 +193,9 @@ Contributors
    Daniel Schlyder (<email>daniel@bitblaze.com</a>).<br>
    Fixed problems with get_executable_name() under Windows, another one with
    set_window_title() under BeOS, potentially unsafe constructs in the
-   Windows code, the installall makefile target under Windows and added 
-   set_allegro_resource_path().
+   Windows code, the installall makefile target under Windows, added 
+   set_allegro_resource_path(), fixed make uninstall with mingw make and
+   added ALLEGRO_LIB_BUILD flag for gcc variants not using configure.
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
    Added a MIDI input driver to the Windows port.
@@ -203,8 +204,9 @@ Contributors
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI
    mouse clicks, made d_menu_proc() steal/return focus when activated then
    deactivated, fixed a problem with submenus, fixed a bug with FLI frames
-   containing odd-sized chunks and made makedoc write sub-section headings
-   for .txt output.
+   containing odd-sized chunks, made makedoc write sub-section headings
+   for .txt output, made override_config_file also be used for writing to 
+   the config file and did plenty of other things too.
 
    David Kuhling (<email>dkuelhin@hell1og.be.schule.de</a>).<br>
    Optimised the fsqrt() routine, and added fhypot().
@@ -231,6 +233,9 @@ Contributors
 
    Doug Eleveld (<email>D.J.Eleveld@anest.azg.nl</a>).<br>
    Wrote the d_textbox_proc() dialog object and the new grabber help system.
+   
+   Dustin Dettmer (<email>dustin@mize.org</a>).<br>
+   Spotted a typo in save_bitmap.
 
    Eduard Bloch (<email>edi@gmx.de</a>).<br>
    Fixed a freeze caused by the ESD detection code, fixed a bad behaviour
@@ -381,6 +386,9 @@ Contributors
    James Hyman (<email>frooge@mindless.com</a>).<br>
    Added support for quoted strings in the get_config_argv() function and
    the dithering code for paletted images.
+   
+   James Lohr (email unknown).<br>
+   Fixed a problem with mouse acceleration in fullscreen modes under Windows.
 
    James Ponder (<email>james@squish.net</a>).<br>
    Suggested to remove the DJGPP makefile from the Unix tar archive and
@@ -459,7 +467,8 @@ Contributors
    Julien Cugnière (<email>jcugniere@free.fr</a>).<br>
    Improved the support for non-blocking menus, fixed a bug related to the
    retrieval of the inital volume when no primary buffer was present under
-   Windows and fixed the crash on exit with the aRts sound driver.
+   Windows, fixed the crash on exit with the aRts sound driver and added an 
+   X11 message box for allegro_message under X11.
 
    Kalle Toivonen (<email>allegro@korpiq.iki.fi</a>).<br>
    Fixed a bug in _parallelogram_map().
@@ -499,7 +508,8 @@ Contributors
    Contributed the Norwegian message translation.
 
    Lennart Steinke (<email>lst@steinke.net</a>).<br>
-   Added the exconfig example.
+   Added the exconfig example and contributed keyboard layout detection code 
+   for Windows.
 
    Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
    Contributed the SGI Audio Library sound driver, spotted a BSDism that
@@ -613,8 +623,9 @@ Contributors
    scaling, image loading, etc).
 
    Michal Molhanec (<email>molhanec@seznam.cz</a>).<br>
-   Simplified the build instructions for Dev-C++ and replaced all occurences
-   of MingW32 by MinGW in the docs.
+   Simplified the build instructions for Dev-C++, replaced all occurences
+   of MingW32 by MinGW in the docs and added an faq section about the 
+   giftware license.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
@@ -793,8 +804,9 @@ Contributors
    Sam Hocevar (<email>sam@zoy.org</a>).<br>
    Fixed a Bashism in fix.sh that makes Solaris' sh choke, a race
    condition in the mixer under Unix w/ threads, Windows, BeOS and MacOS X,
-   a crash in makedoc and made it possible to put functions from .s sources 
-   in a shared library under Unix.
+   a crash in makedoc, made it possible to put functions from .s sources 
+   in a shared library under Unix and removed depricated use of several
+   functions.
 
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.
@@ -923,6 +935,9 @@ Contributors
    grabber, added the XCRP and YCRP properties to datafiles in general,
    implemented the big header split and did plenty of other things too.
 
+   Vitaliy Chetverikov (email unknown).<br>
+   Fixed a bug in the GUI where the return value of MSG_IDLE was ignored.
+   
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.
 
