@@ -8471,6 +8471,12 @@ various attributes of the current platform:
 <b>ALLEGRO_LITTLE_ENDIAN</b><br>
    Defined if you are building for a processor of the relevant type.
 
+<b>ALLEGRO_MULTITHREADED</b><br>
+ Defined if the library is internally multi-threaded on this system. 
+
+<b>ALLEGRO_USE_CONSTRUCTOR</b><br>
+ Defined if the compiler supports constructor/destructor functions. 
+
 <b>ALLEGRO_VRAM_SINGLE_SURFACE</b><br>
    Defined if the screen is a single large surface that is then partitioned 
    into multiple video sub-bitmaps (eg. DOS), rather than each video bitmap 
