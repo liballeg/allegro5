@@ -57,11 +57,11 @@ madurez.
 				       \_/__/     Version 3.9.37 (CVS)
 
 Allegro est une librairie multi-plateforme destinée à être utilisée dans
-les jeux vidéo ou d'autres types de programmation multimédia. Elle fut
-initialement conçue sur l'Atari ST, mais cette plateforme mourut
+les jeux vidéo ou d'autres types de programmation multimédia. Elle a été
+initialement conçue sur l'Atari ST, mais cette plateforme est morte
 tristement durant son enfantement. Après un bref passage par Borland C,
-elle fut adoptée par le fantastique compilateur djgpp, avec lequel elle
-atteignit sa maturité.
+elle a été adoptée par le fantastique compilateur djgpp, avec lequel elle
+a atteint sa maturité.
 
 %install
 mkdir -p $RPM_BUILD_ROOT/usr/local/src
