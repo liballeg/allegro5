@@ -11,9 +11,8 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = MacOS X
-CC = gcc
+CC = gcc3
 OBJ_DIR = obj/macosx/$(VERSION)
-LIB_NAME = lib/macosx/lib$(VERSION).a
 EXE = 
 OBJ = .o
 HTML = html

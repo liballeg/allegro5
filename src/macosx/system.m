@@ -135,8 +135,9 @@ static RETSIGTYPE osx_signal_handler(int num)
  */
 void osx_event_handler()
 {
+   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    NSEvent *event;
-   NSDate *distantPast = [NSDate distantPast];
+   NSDate *distant_past = [NSDate distantPast];
    NSPoint point;
    NSRect frame, view;
    CGMouseDelta fdx, fdy;
@@ -144,7 +145,7 @@ void osx_event_handler()
    
    while (1) {
       event = [NSApp nextEventMatchingMask: NSAnyEventMask
-         untilDate: distantPast
+         untilDate: distant_past
          inMode: NSDefaultRunLoopMode
          dequeue: YES];
       if (event == nil)
@@ -336,6 +337,7 @@ void osx_event_handler()
 	 }
       }
    }
+   [pool release];
 }
 
 
