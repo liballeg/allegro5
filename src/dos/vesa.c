@@ -602,7 +602,7 @@ static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
 
 /* vesa_fetch_mode_list:
  *  Generates a list of valid video modes for the VESA drivers.
- *  Returns number of video modes on success and -1 on failure.
+ *  Returns the mode list on success or NULL on failure.
  */
 static GFX_MODE_LIST *vesa_fetch_mode_list()
 {
