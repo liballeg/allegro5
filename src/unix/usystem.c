@@ -121,7 +121,27 @@ void _read_os_type()
    #ifdef HAVE_SYS_UTSNAME_H
 
       struct utsname utsn;
+      char *tmpstr, *tmpstr2;
+      int pos;
+      
       uname(&utsn);
+
+      /* fetch OS version and revision */
+      tmpstr = malloc(strlen(utsn.release)+1);
+      strcpy(tmpstr, utsn.release);
+      tmpstr2 = NULL;
+
+      for (pos = 0; pos <= strlen(utsn.release); pos++) {
+         if (tmpstr[pos] == '.') {
+	    tmpstr[pos] = '\0';
+	    if (!tmpstr2) tmpstr2 = &tmpstr[pos] + 1;
+	 }
+      }
+
+      os_version = atoi(tmpstr);
+      os_revision = atoi(tmpstr2);
+
+      free(tmpstr);
 
       /* try to detect Unix systems we know of */
       if (!strcmp(utsn.sysname, "Linux")) {
