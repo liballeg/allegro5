@@ -347,7 +347,8 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	tools/exedat.c \
 	tools/pack.c \
 	tools/rgbmap.c \
-	tools/textconv.c
+	tools/textconv.c \
+	tools/bfixicon.cpp \
 
 ALLEGRO_LIB_EXES = \
 	demo/demo \
@@ -366,7 +367,8 @@ ALLEGRO_LIB_EXES = \
 	tools/exedat \
 	tools/pack \
 	tools/rgbmap \
-	tools/textconv
+	tools/textconv \
+	tools/bfixicon
 
 ALLEGRO_DATAFILE_EXE_SOURCES = \
 	tools/dat.c \
