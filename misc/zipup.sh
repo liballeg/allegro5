@@ -127,6 +127,10 @@ make depend
 
 unset UNIX_TOOLS
 
+# running autoconf
+echo "Running autoconf to generate configure script..."
+autoconf
+
 # convert documentation from the ._tx source files
 echo "Converting documentation..."
 

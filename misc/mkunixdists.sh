@@ -51,8 +51,6 @@ echo "Unzipping $1 to $dir"
 	unzip -qq $1 -d $dir || error
 echo "Running 'fix.sh unix'"
 	(cd $dir/allegro && . fix.sh unix >/dev/null) || error
-echo "Running autoconf"
-	(cd $dir/allegro && autoconf >/dev/null) || error
 echo "Checking version number"
 	basename=$(sed -n -e 's/shared_version = /allegro-/p' $dir/allegro/makefile.ver)
 	basename2=$(sed -n -e 's/shared_version = /allegro-enduser-/p' $dir/allegro/makefile.ver)
