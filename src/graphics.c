@@ -717,13 +717,13 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
       /* first try the config variables */
       if (allow_config) {
-	 /* try the gfx_cardw variable if GFX_AUTODETECT_WINDOWED was selected */
-	 if (flags & GFX_DRIVER_WINDOWED_FLAG)
-	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp), w, h, v_w, v_h, flags, driver_list);
-
-	 /* try the gfx_card variable if gfx_cardw wasn't used */
-	 if (!found)
+	 /* try the gfx_card variable if GFX_AUTODETECT or GFX_AUTODETECT_FULLSCREEN was selected */
+	 if (!(flags & GFX_DRIVER_WINDOWED_FLAG))
 	    found = get_config_gfx_driver(uconvert_ascii("gfx_card", tmp), w, h, v_w, v_h, flags, driver_list);
+
+	 /* try the gfx_cardw variable if GFX_AUTODETECT or GFX_AUTODETECT_WINDOWED was selected */
+	 if (!(flags & GFX_DRIVER_FULLSCREEN_FLAG) && !found)
+	    found = get_config_gfx_driver(uconvert_ascii("gfx_cardw", tmp), w, h, v_w, v_h, flags, driver_list);
       }
 
       /* go through the list of autodetected drivers if none was previously found */
