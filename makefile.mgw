@@ -78,36 +78,36 @@ _default: default
 # -------- decide what compiler options to use --------
 #
 ifdef WARNMODE
-    WFLAGS = -Wall -W -Werror -Wno-unused
+  WFLAGS = -Wall -W -Werror -Wno-unused
 else
-    WFLAGS = -Wall -Wno-unused
+  WFLAGS = -Wall -Wno-unused
 endif
 
 ifdef PGCC
-    OFLAGS = -mpentium -O6 -ffast-math
+  OFLAGS = -mpentium -O6 -ffast-math
 else
 ifdef PENTIUMONLY
-    OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
+  OFLAGS = -march=pentium -O2 -funroll-loops -ffast-math
 else
-    OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
+  OFLAGS = -mpentium -O2 -funroll-loops -ffast-math
 endif
 endif
 
 ifdef DEBUGMODE
-    # -------- debugging build --------
-    CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g
-    SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
-    LFLAGS += -g
+  # -------- debugging build --------
+  CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g
+  SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
+  LFLAGS += -g
 else
 ifdef PROFILEMODE
-    # -------- profiling build --------
-    CFLAGS = $(WFLAGS) $(OFLAGS) -pg
-    SFLAGS = $(WFLAGS)
-    LFLAGS += -pg
+  # -------- profiling build --------
+  CFLAGS = $(WFLAGS) $(OFLAGS) -pg
+  SFLAGS = $(WFLAGS)
+  LFLAGS += -pg
 else
-    # -------- optimised build --------
-    CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer -fno-strength-reduce
-    SFLAGS = $(WFLAGS)
+  # -------- optimised build --------
+  CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer -fno-strength-reduce
+  SFLAGS = $(WFLAGS)
   ifndef SYMBOLMODE
     LFLAGS += -s
   endif
@@ -122,10 +122,10 @@ VPATH = src/win src/i386 src/misc wintests
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_WIN_FILES)))
 
-ifdef PROFILEMODE
-LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound -lgmon
-else
 LIBRARIES = -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound
+
+ifdef PROFILEMODE
+  LIBRARIES += -lgmon
 endif
 
 PROGRAMS = dibgrab dibhello scrsave
@@ -161,16 +161,20 @@ $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 
 HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
 
-INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
+INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
+                $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
 
 ifndef STATICLINK
-INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
+  INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
 endif
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) MINGW32 library has been installed.
 
-UNINSTALL_FILES = $(MINGDIR_U)/lib/alleg.a $(MINGDIR_U)/lib/alld.a $(MINGDIR_U)/lib/allp.a $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro/*.h $(WINDIR_U)/all$(LIBRARY_VERSION).dll $(WINDIR_U)/ald$(LIBRARY_VERSION).dll $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
+UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a $(MINGDIR_U)/lib/liballd.a $(MINGDIR_U)/lib/liballp.a \
+                  $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro/*.h \
+		  $(WINDIR_U)/all$(LIBRARY_VERSION).dll $(WINDIR_U)/ald$(LIBRARY_VERSION).dll $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
+
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
 	-rd $(MINGDIR_D)\include\allegro
@@ -210,13 +214,13 @@ else
 
 # -------- link as a DLL --------
 ifdef FASTDLL
-define MAKE_LIB
-  gcc $(LFLAGS) -shared -Wl,--out-implib,$(IMPLIB_NAME),--just-symbols,$(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
-endef
+  define MAKE_LIB
+    gcc $(LFLAGS) -shared -Wl,--out-implib,$(IMPLIB_NAME),--just-symbols,$(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES)
+  endef
 else
-define MAKE_LIB
-  dllwrap --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
-endef
+  define MAKE_LIB
+    dllwrap --def $(EXPDEF_NAME) -o $(DLL_NAME) $(OBJECTS) $(LIBRARIES) --output-lib $(IMPLIB_NAME)
+  endef
 endif
 
 endif # STATICLINK
@@ -238,7 +242,7 @@ wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
 
 define LINK_CONSOLE
-gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+  gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 endef
 
 else 
@@ -250,7 +254,7 @@ wintests/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) -mwindows -o wintests/scrsave.scr $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME)
 
 define LINK_CONSOLE
-gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME)
+  gcc $(LFLAGS) -o $@ $< $(IMPLIB_NAME)
 endef
 
 endif # STATICLINK
@@ -273,31 +277,31 @@ PLUGIN_SCR = scv
 
 
 define GENERATE_PLUGINS_H
-copy tools\plugins\*.inc obj\mingw32\plugins.h
+  copy tools\plugins\*.inc obj\mingw32\plugins.h
 endef
 
 define MAKE_PLUGIN_LIB
-ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+  ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 ifdef STATICLINK
 
 define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+  gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
+  gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
 
 else
 
 define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
+  gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
 endef
 
 define LINK_CONSOLE_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
+  gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME))
 endef
 
 endif # STATICLINK
