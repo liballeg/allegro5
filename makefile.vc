@@ -188,164 +188,60 @@ wfixicon: tools/win/wfixicon.exe
 
 # -------- rules for installing and removing the library files --------
 
+INSTALLDIR = $(MSVCDIR_U)
+LIBDIR = lib
+INCDIR = include
+
+
 ifdef UNIX_TOOLS
-
-$(MSVCDIR_U)/lib:
-	mkdir $(MSVCDIR_U)/lib
-
-ifndef STATICLINK
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
 	cp lib/msvc/$(DLL_BASENAME) $(WINDIR_U)
 
-endif
-
-$(MSVCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
+$(MSVCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME) $(MSVCDIR_U)/lib
 	cp lib/msvc/$(IMPLIB_BASENAME) $(MSVCDIR_U)/lib
 
-$(MSVCDIR_U)/include:
-	mkdir $(MSVCDIR_U)/include
-
-$(MSVCDIR_U)/include/allegro.h: include/allegro.h
-	cp include/allegro.h $(MSVCDIR_U)/include
-
-$(MSVCDIR_U)/include/winalleg.h: include/winalleg.h
-	cp include/winalleg.h $(MSVCDIR_U)/include
-
-$(MSVCDIR_U)/include/allegro:
-	mkdir $(MSVCDIR_U)/include/allegro 
-
-$(MSVCDIR_U)/include/allegro/%.h: include/allegro/%.h
-	cp $< $@
-
-$(MSVCDIR_U)/include/allegro/internal:
-	mkdir $(MSVCDIR_U)/include/allegro/internal
-
-$(MSVCDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-	cp $< $@
-
-$(MSVCDIR_U)/include/allegro/inline:
-	mkdir $(MSVCDIR_U)/include/allegro/inline
-
-$(MSVCDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-	cp $< $@
-
-$(MSVCDIR_U)/include/allegro/platform:
-	mkdir $(MSVCDIR_U)/include/allegro/platform
-
-$(MSVCDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-	cp $< $@
-
 else
-
-$(MSVCDIR_U)/lib:
-	md $(MSVCDIR_D)\lib
-
-ifndef STATICLINK
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
 	copy lib\msvc\$(DLL_BASENAME) $(WINDIR_D)
 
-endif
-
-$(MSVCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
+$(MSVCDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME) $(MSVCDIR_U)/lib
 	copy lib\msvc\$(IMPLIB_BASENAME) $(MSVCDIR_D)\lib
 
-$(MSVCDIR_U)/include:
-	md $(MSVCDIR_D)\include
-
-$(MSVCDIR_U)/include/allegro.h: include/allegro.h
-	copy include\allegro.h $(MSVCDIR_D)\include
-
-$(MSVCDIR_U)/include/winalleg.h: include/winalleg.h
-	copy include\winalleg.h $(MSVCDIR_D)\include
-
-$(MSVCDIR_U)/include/allegro:
-	md $(MSVCDIR_D)\include\allegro 
-
-$(MSVCDIR_U)/include/allegro/%.h: include/allegro/%.h
-	copy $(subst /,\,$< $@)
-
-$(MSVCDIR_U)/include/allegro/internal:
-	md $(MSVCDIR_D)\include\allegro\internal
-
-$(MSVCDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-	copy $(subst /,\,$< $@)
-
-$(MSVCDIR_U)/include/allegro/inline:
-	md $(MSVCDIR_D)\include\allegro\inline
-
-$(MSVCDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-	copy $(subst /,\,$< $@)
-
-$(MSVCDIR_U)/include/allegro/platform:
-	md $(MSVCDIR_D)\include\allegro\platform
-
-$(MSVCDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-	copy $(subst /,\,$< $@)
-
 endif
 
 
-HEADERS = $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/*.h))          \
-          $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/internal/*.h)) \
-          $(addprefix $(MSVCDIR_U)/,$(wildcard include/allegro/inline/*.inl))
+HEADERS = $(MSVCDIR_U)/include/winalleg.h                 \
+          $(MSVCDIR_U)/include/allegro/platform/aintwin.h \
+          $(MSVCDIR_U)/include/allegro/platform/al386vc.h \
+          $(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
+          $(MSVCDIR_U)/include/allegro/platform/alplatf.h \
+          $(MSVCDIR_U)/include/allegro/platform/alwin.h
 
-INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)             \
-		$(MSVCDIR_U)/include/allegro.h                  \
-		$(MSVCDIR_U)/include/allegro                    \
-		$(MSVCDIR_U)/include/allegro/internal           \
-		$(MSVCDIR_U)/include/allegro/inline             \
-		$(MSVCDIR_U)/include/allegro/platform           \
-		$(MSVCDIR_U)/include/winalleg.h                 \
-		$(MSVCDIR_U)/include/allegro/platform/aintwin.h \
-		$(MSVCDIR_U)/include/allegro/platform/al386vc.h \
-		$(MSVCDIR_U)/include/allegro/platform/almsvc.h  \
-		$(MSVCDIR_U)/include/allegro/platform/alplatf.h \
-		$(MSVCDIR_U)/include/allegro/platform/alwin.h   \
-		$(HEADERS)
+INSTALL_FILES = $(MSVCDIR_U)/lib/$(IMPLIB_BASENAME)
 
 ifndef STATICLINK
    INSTALL_FILES += $(WINDIR_U)/$(DLL_BASENAME)
 endif
 
-install: $(INSTALL_FILES)
+INSTALL_FILES += $(HEADERS)
+
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(MSVCDIR_U)/lib/alleg.lib                \
-		  $(MSVCDIR_U)/lib/alld.lib                 \
-		  $(MSVCDIR_U)/lib/allp.lib                 \
-		  $(MSVCDIR_U)/lib/alleg_s.lib              \
-		  $(MSVCDIR_U)/lib/alld_s.lib               \
-		  $(MSVCDIR_U)/lib/allp_s.lib               \
-		  $(MSVCDIR_U)/include/allegro.h            \
-		  $(MSVCDIR_U)/include/winalleg.h           \
-		  $(MSVCDIR_U)/include/allegro/*.h          \
-		  $(MSVCDIR_U)/include/allegro/internal/*.h \
-		  $(MSVCDIR_U)/include/allegro/inline/*.inl \
-		  $(MSVCDIR_U)/include/allegro/platform/*.h \
-		  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll   \
-		  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll    \
-		  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
+UNINSTALL_FILES = $(MSVCDIR_U)/lib/alleg.lib              \
+                  $(MSVCDIR_U)/lib/alld.lib               \
+                  $(MSVCDIR_U)/lib/allp.lib               \
+                  $(MSVCDIR_U)/lib/alleg_s.lib            \
+                  $(MSVCDIR_U)/lib/alld_s.lib             \
+                  $(MSVCDIR_U)/lib/allp_s.lib             \
+                  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll \
+                  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll  \
+                  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll  \
+                  $(HEADERS)
 
-uninstall:
-ifdef UNIX_TOOLS
-	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(MSVCDIR_U)/include/allegro/platform
-	-rmdir $(MSVCDIR_U)/include/allegro/inline
-	-rmdir $(MSVCDIR_U)/include/allegro/internal
-	-rmdir $(MSVCDIR_U)/include/allegro
-else
-   define RM_FILES
-      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
-      )
-   endef
-	-$(RM_FILES)
-	-rd $(MSVCDIR_D)\include\allegro\platform
-	-rd $(MSVCDIR_D)\include\allegro\inline
-	-rd $(MSVCDIR_D)\include\allegro\internal
-	-rd $(MSVCDIR_D)\include\allegro
-endif
+uninstall: generic-uninstall
 	@echo All gone!
 
 

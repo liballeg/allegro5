@@ -133,52 +133,25 @@ DISTCLEAN_FILES += tools/beos/bfixicon
 
 # -------- rules for installing and removing the library files --------
 
-INC_DIR = /boot/develop/headers
-LIB_DIR = /boot/develop/lib/x86
-SHARED_LIB_DIR = /boot/home/config/lib
+INSTALLDIR = /boot/develop
+LIBDIR = lib/x86
+INCDIR = headers
+
+SHARED_LIBDIR = /boot/home/config/lib
+
 
 ifdef STATICLINK
 
-$(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
+$(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).a: $(LIB_NAME)
 	cp $< $@
 	
 else	
 		
-$(SHARED_LIB_DIR)/lib$(VERSION)-$(shared_version).so: $(LIB_NAME)
+$(SHARED_LIBDIR)/lib$(VERSION)-$(shared_version).so: $(LIB_NAME)
 	cp $< $@	
 	
 endif
 
-$(INC_DIR)/%: include/%
-	cp $< $@
-
-$(INC_DIR)/allegro:
-	mkdir $(INC_DIR)/allegro
-
-$(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
-	cp $< $@
-
-$(INC_DIR)/allegro/internal:
-	mkdir $(INC_DIR)/allegro/internal
-
-$(INC_DIR)/allegro/internal/%.h: include/allegro/internal/%.h $(INC_DIR)/allegro/internal
-	cp $< $@
-
-$(INC_DIR)/allegro/inline:
-	mkdir $(INC_DIR)/allegro/inline
-
-$(INC_DIR)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INC_DIR)/allegro/inline
-	cp $< $@
-
-$(INC_DIR)/allegro/platform:
-	mkdir $(INC_DIR)/allegro/platform
-
-$(INC_DIR)/allegro/platform/%.h: include/allegro/platform/%.h $(INC_DIR)/allegro/platform
-	cp $< $@
-
-HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))          \
-          $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/internal/*.h))) \
-          $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/inline/*.inl)))
 
 /bin/allegro-config:
 ifdef STATICLINK
@@ -196,50 +169,38 @@ endif
 	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 
-INSTALL_FILES = $(INC_DIR)/allegro.h                   \
-		$(INC_DIR)/allegro                     \
-		$(INC_DIR)/allegro/internal            \
-		$(INC_DIR)/allegro/inline              \
-		$(INC_DIR)/allegro/platform            \
-		$(INC_DIR)/bealleg.h                   \
-		$(INC_DIR)/allegro/platform/aintbeos.h \
-		$(INC_DIR)/allegro/platform/al386gcc.h \
-		$(INC_DIR)/allegro/platform/albecfg.h  \
-		$(INC_DIR)/allegro/platform/alplatf.h  \
-		$(INC_DIR)/allegro/platform/albeos.h   \
-		$(HEADERS)                             \
-		/bin/allegro-config
-		
-ifdef STATICLINK
-	INSTALL_FILES += $(LIB_DIR)/lib$(VERSION).a 
-else
-	INSTALL_FILES += $(SHARED_LIB_DIR)/lib$(VERSION)-$(shared_version).so
-endif		
 
-install: $(INSTALL_FILES)
+HEADERS = $(INSTALLDIR)/$(INCDIR)/bealleg.h                   \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/aintbeos.h \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/al386gcc.h \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/albecfg.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/alplatf.h  \
+          $(INSTALLDIR)/$(INCDIR)/allegro/platform/albeos.h
+
+ifdef STATICLINK
+   INSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/lib$(VERSION).a 
+else
+   INSTALL_FILES = $(SHARED_LIBDIR)/lib$(VERSION)-$(shared_version).so
+endif
+
+INSTALL_FILES += $(HEADERS) /bin/allegro-config
+
+
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(LIB_DIR)/liballeg.a                           \
-		  $(LIB_DIR)/liballd.a                            \
-		  $(LIB_DIR)/liballp.a                            \
-		  $(SHARED_LIB_DIR)/liballeg-$(shared_version).so \
-		  $(SHARED_LIB_DIR)/liballd-$(shared_version).so  \
-		  $(SHARED_LIB_DIR)/liballp-$(shared_version).so  \
-		  $(INC_DIR)/allegro.h                            \
-		  $(INC_DIR)/bealleg.h                            \
-		  $(INC_DIR)/allegro/*.h                          \
-		  $(INC_DIR)/allegro/internal/*.h                 \
-		  $(INC_DIR)/allegro/inline/*.inl                 \
-		  $(INC_DIR)/allegro/platform/*.h                 \
-		  /bin/allegro-config
+UNINSTALL_FILES = $(INSTALLDIR)/$(LIBDIR)/liballeg.a             \
+                  $(INSTALLDIR)/$(LIBDIR)/liballd.a              \
+                  $(INSTALLDIR)/$(LIBDIR)/liballp.a              \
+                  $(SHARED_LIBDIR)/liballeg-$(shared_version).so \
+                  $(SHARED_LIBDIR)/liballd-$(shared_version).so  \
+                  $(SHARED_LIBDIR)/liballp-$(shared_version).so  \
+                  $(HEADERS)                                     \
+                  /bin/allegro-config
 
-uninstall:
-	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(INC_DIR)/allegro/platform
-	-rmdir $(INC_DIR)/allegro/inline
-	-rmdir $(INC_DIR)/allegro/internal
-	-rmdir $(INC_DIR)/allegro
-	@echo All gone!	
+uninstall: generic-uninstall
+	@echo All gone!
+
 
 
 # -------- test capabilities --------

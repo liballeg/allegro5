@@ -236,117 +236,38 @@ wfixicon: tools/win/wfixicon.exe
 
 # -------- rules for installing and removing the library files --------
 
+INSTALLDIR = $(MINGDIR_U)
+LIBDIR = lib
+INCDIR = include
+
+
 ifdef UNIX_TOOLS
 
-ifndef STATICLINK
+$(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME) $(MINGDIR_U)/lib
+	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
 	cp lib/mingw32/$(DLL_BASENAME) $(WINDIR_U)
 
-endif # STATICLINK
-
-$(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
-	cp lib/mingw32/$(IMPLIB_BASENAME) $(MINGDIR_U)/lib
-
-$(MINGDIR_U)/include:
-	mkdir $(MINGDIR_U)/include
-
-$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include
-	cp include/allegro.h $(MINGDIR_U)/include
-
-$(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
-	cp include/winalleg.h $(MINGDIR_U)/include
-
-$(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	mkdir -p $(MINGDIR_U)/include/allegro
-
-$(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
-	cp $< $@
-
-$(MINGDIR_U)/include/allegro/internal:
-	mkdir -p $(MINGDIR_U)/include/allegro/internal
-
-$(MINGDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-	cp $< $@
-
-$(MINGDIR_U)/include/allegro/inline:
-	mkdir -p $(MINGDIR_U)/include/allegro/inline
-
-$(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-	cp $< $@
-
-$(MINGDIR_U)/include/allegro/platform:
-	mkdir -p $(MINGDIR_U)/include/allegro/platform
-
-$(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-	cp $< $@
-
 else
 
-ifndef STATICLINK
+$(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME) $(MINGDIR_U)/lib
+	copy lib\mingw32\$(IMPLIB_BASENAME) $(MINGDIR_D)\lib
 
 $(WINDIR_U)/$(DLL_BASENAME): $(DLL_NAME)
 	copy lib\mingw32\$(DLL_BASENAME) $(WINDIR_D)
 
-endif # STATICLINK
-
-$(MINGDIR_U)/lib/$(IMPLIB_BASENAME): $(IMPLIB_NAME)
-	copy lib\mingw32\$(IMPLIB_BASENAME) $(MINGDIR_D)\lib
-
-$(MINGDIR_U)/include:
-	md $(MINGDIR_D)\include
-
-$(MINGDIR_U)/include/allegro.h: include/allegro.h $(MINGDIR_U)/include
-	copy include\allegro.h $(MINGDIR_D)\include
-
-$(MINGDIR_U)/include/winalleg.h: include/winalleg.h $(MINGDIR_U)/include
-	copy include\winalleg.h $(MINGDIR_D)\include
-
-$(MINGDIR_U)/include/allegro: $(MINGDIR_U)/include
-	-md $(MINGDIR_D)\include\allegro
-# workaround for a weird make problem
-
-$(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
-	copy $(subst /,\,$< $@)
-
-$(MINGDIR_U)/include/allegro/internal:
-	md $(MINGDIR_D)\include\allegro\internal
-
-$(MINGDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
-	copy $(subst /,\,$< $@)
-
-$(MINGDIR_U)/include/allegro/inline:
-	md $(MINGDIR_D)\include\allegro\inline
-
-$(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
-	copy $(subst /,\,$< $@)
-
-$(MINGDIR_U)/include/allegro/platform:
-	md $(MINGDIR_D)\include\allegro\platform
-
-$(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
-	copy $(subst /,\,$< $@)
-
 endif # UNIX_TOOLS
 
 
-HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))          \
-          $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/internal/*.h)) \
-          $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/inline/*.inl))
+HEADERS = $(MINGDIR_U)/include/winalleg.h                  \
+          $(MINGDIR_U)/include/allegro/platform/aintwin.h  \
+          $(MINGDIR_U)/include/allegro/platform/al386gcc.h \
+          $(MINGDIR_U)/include/allegro/platform/almngw32.h \
+          $(MINGDIR_U)/include/allegro/platform/alplatf.h  \
+          $(MINGDIR_U)/include/allegro/platform/alwin.h
 
-INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)              \
-		$(MINGDIR_U)/include/allegro.h                   \
-		$(MINGDIR_U)/include/winalleg.h                  \
-		$(MINGDIR_U)/include/allegro                     \
-		$(MINGDIR_U)/include/allegro/internal            \
-		$(MINGDIR_U)/include/allegro/inline              \
-		$(MINGDIR_U)/include/allegro/platform            \
-		$(MINGDIR_U)/include/allegro/platform/aintwin.h  \
-		$(MINGDIR_U)/include/allegro/platform/al386gcc.h \
-		$(MINGDIR_U)/include/allegro/platform/almngw32.h \
-		$(MINGDIR_U)/include/allegro/platform/alplatf.h  \
-		$(MINGDIR_U)/include/allegro/platform/alwin.h    \
-		$(HEADERS)
+INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)
 
 ifndef CROSSCOMPILE
    ifndef STATICLINK
@@ -354,43 +275,23 @@ ifndef CROSSCOMPILE
    endif
 endif
 
-install: $(INSTALL_FILES)
+INSTALL_FILES += $(HEADERS)
+
+install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a               \
-                  $(MINGDIR_U)/lib/liballd.a                \
-                  $(MINGDIR_U)/lib/liballp.a                \
-                  $(MINGDIR_U)/lib/liballeg_s.a             \
-                  $(MINGDIR_U)/lib/liballd_s.a              \
-                  $(MINGDIR_U)/lib/liballp_s.a              \
-                  $(MINGDIR_U)/include/allegro.h            \
-                  $(MINGDIR_U)/include/winalleg.h           \
-                  $(MINGDIR_U)/include/allegro/*.h          \
-                  $(MINGDIR_U)/include/allegro/internal/*.h \
-                  $(MINGDIR_U)/include/allegro/inline/*.inl \
-                  $(MINGDIR_U)/include/allegro/platform/*.h \
-                  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll   \
-                  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll    \
-                  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
+UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a             \
+                  $(MINGDIR_U)/lib/liballd.a              \
+                  $(MINGDIR_U)/lib/liballp.a              \
+                  $(MINGDIR_U)/lib/liballeg_s.a           \
+                  $(MINGDIR_U)/lib/liballd_s.a            \
+                  $(MINGDIR_U)/lib/liballp_s.a            \
+                  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll \
+                  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll  \
+                  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll  \
+                  $(HEADERS)
 
-uninstall:
-ifdef UNIX_TOOLS
-	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(MINGDIR_U)/include/allegro/platform
-	-rmdir $(MINGDIR_U)/include/allegro/inline
-	-rmdir $(MINGDIR_U)/include/allegro/internal
-	-rmdir $(MINGDIR_U)/include/allegro
-else
-   define RM_FILES
-      $(foreach file, $(wildcard $(UNINSTALL_FILES)), del $(subst /,\,$(file))
-      )
-   endef
-	-$(RM_FILES)
-	-rd $(MINGDIR_D)\include\allegro\platform
-	-rd $(MINGDIR_D)\include\allegro\inline
-	-rd $(MINGDIR_D)\include\allegro\internal
-	-rd $(MINGDIR_D)\include\allegro
-endif
+uninstall: generic-uninstall
 	@echo All gone!
 
 
