@@ -256,7 +256,7 @@ AL_INLINE(void, yield_timeslice, (void),
 
 AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
 {
-   ASSERT((BITMAP *)bmp);
+   ASSERT(bmp);
 
    return bmp->vtable->color_depth;
 })
@@ -264,7 +264,7 @@ AL_INLINE(int, bitmap_color_depth, (BITMAP *bmp),
 
 AL_INLINE(int, bitmap_mask_color, (BITMAP *bmp),
 {
-   ASSERT((BITMAP *)bmp);
+   ASSERT(bmp);
 
    return bmp->vtable->mask_color;
 })
@@ -722,10 +722,10 @@ AL_INLINE(int, _getpixel, (BITMAP *bmp, int x, int y),
    unsigned long addr;
    int c;
 
-   bmp_select((BITMAP *)bmp);
-   addr = bmp_read_line((BITMAP *)bmp, y);
+   bmp_select(bmp);
+   addr = bmp_read_line(bmp, y);
    c = bmp_read8(addr+x);
-   bmp_unwrite_line((BITMAP *)bmp);
+   bmp_unwrite_line(bmp);
 
    return c;
 })
@@ -747,10 +747,10 @@ AL_INLINE(int, _getpixel15, (BITMAP *bmp, int x, int y),
    unsigned long addr;
    int c;
 
-   bmp_select((BITMAP *)bmp);
-   addr = bmp_read_line((BITMAP *)bmp, y);
+   bmp_select(bmp);
+   addr = bmp_read_line(bmp, y);
    c = bmp_read15(addr+x*sizeof(short));
-   bmp_unwrite_line((BITMAP *)bmp);
+   bmp_unwrite_line(bmp);
 
    return c;
 })
@@ -772,10 +772,10 @@ AL_INLINE(int, _getpixel16, (BITMAP *bmp, int x, int y),
    unsigned long addr;
    int c;
 
-   bmp_select((BITMAP *)bmp);
-   addr = bmp_read_line((BITMAP *)bmp, y);
+   bmp_select(bmp);
+   addr = bmp_read_line(bmp, y);
    c = bmp_read16(addr+x*sizeof(short));
-   bmp_unwrite_line((BITMAP *)bmp);
+   bmp_unwrite_line(bmp);
 
    return c;
 })
@@ -797,10 +797,10 @@ AL_INLINE(int, _getpixel24, (BITMAP *bmp, int x, int y),
    unsigned long addr;
    int c;
 
-   bmp_select((BITMAP *)bmp);
-   addr = bmp_read_line((BITMAP *)bmp, y);
+   bmp_select(bmp);
+   addr = bmp_read_line(bmp, y);
    c = bmp_read24(addr+x*3);
-   bmp_unwrite_line((BITMAP *)bmp);
+   bmp_unwrite_line(bmp);
 
    return c;
 })
@@ -822,10 +822,10 @@ AL_INLINE(int, _getpixel32, (BITMAP *bmp, int x, int y),
    unsigned long addr;
    int c;
 
-   bmp_select((BITMAP *)bmp);
-   addr = bmp_read_line((BITMAP *)bmp, y);
+   bmp_select(bmp);
+   addr = bmp_read_line(bmp, y);
    c = bmp_read32(addr+x*sizeof(long));
-   bmp_unwrite_line((BITMAP *)bmp);
+   bmp_unwrite_line(bmp);
 
    return c;
 })
