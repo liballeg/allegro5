@@ -592,7 +592,7 @@ static void _output_toc(char *filename, int root, int body, int part)
    char *s;
    TOC *toc;
    int nested = 0;
-   
+
    #define ALT_TEXT(toc)   ((toc->alt) ? toc->alt : toc->text)
 
    if (root) {
@@ -604,25 +604,33 @@ static void _output_toc(char *filename, int root, int body, int part)
       fprintf(_file, "<ul>\n");
 
       while (toc) {
-	 if ((toc->root) && (toc->htmlable)) {
-	    if (toc->otherfile) {
-	       sprintf(name, "%s.%s", toc->text, html_extension);
-	       mystrlwr(name);
-	       _hfprintf("<li><a href=\"%s\">%s</a>\n", name, ALT_TEXT(toc));
-	    }
-	    else if (body) {
-	       _hfprintf("<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
-	       section_number++;
-	    }
-	    else {
-	       strcpy(name, filename);
-	       s = get_extension(name)-1;
-	       if (s - get_filename(name) > 5)
-		  s = get_filename(name)+5;
-	       sprintf(s, "%03d.%s", section_number, html_extension);
-	       _hfprintf("<li><a href=\"%s\">%s</a>\n", get_filename(name), ALT_TEXT(toc));
-	       section_number++;
-	    }
+	 if (toc->root) {
+            if (toc->htmlable) {
+               if (toc->otherfile) {
+                  sprintf(name, "%s.%s", toc->text, html_extension);
+                  mystrlwr(name);
+                  _hfprintf("<li><a href=\"%s\">%s</a>\n", name, ALT_TEXT(toc));
+               }
+               else if (body) {
+                  _hfprintf("<li><a href=\"#%s\">%s</a>\n", toc->text, ALT_TEXT(toc));
+                  section_number++;
+               }
+               else {
+                  strcpy(name, filename);
+                  s = get_extension(name)-1;
+                  if (s - get_filename(name) > 5)
+                     s = get_filename(name)+5;
+                  sprintf(s, "%03d.%s", section_number, html_extension);
+                  _hfprintf("<li><a href=\"%s\">%s</a>\n", get_filename(name), ALT_TEXT(toc));
+                  section_number++;
+               }
+            }
+            else if (toc->root == 2) {
+               _hfprintf("</ul><p>%s</p><ul>\n", ALT_TEXT(toc));
+            }
+            else if (toc->root == 3) {
+               _hfprintf("</ul><ul>\n");
+            }
 	 }
 	 toc = toc->next;
       }

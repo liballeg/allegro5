@@ -67,7 +67,9 @@ int write_texinfo(char *filename)
    int toc_waiting = 0;
    int continue_def = 0;
    int title_pass = 0;
+   int in_chapter = 0;
    int i = 0;
+   char up_target[256] = "Top";
    FILE *f;
 
    printf("writing %s\n", filename);
@@ -86,9 +88,9 @@ int write_texinfo(char *filename)
       if (line->flags & TEXINFO_FLAG) {
 	 p = line->text;
 
-	 if (line->flags & HEADING_FLAG) {
+	 if (line->flags & (HEADING_FLAG | CHAPTER_FLAG)) {
 	    chapter_nodes[i++] = p;
-	    chapter_nodes[i] = 0;
+	    chapter_nodes[i] = 0; 
 	 }
       }
       line = line->next;
@@ -144,7 +146,7 @@ int write_texinfo(char *filename)
 		  }
 		  _write_auto_types_xrefs(f, auto_types, found_auto_types);
 		  fprintf(f, "@node %s, %s, %s, %s\n", buf, next, prev, _node_name(section_number-1));
-		  fprintf(f, "@section %s\n", buf);
+		  fprintf(f, "%s %s\n", in_chapter ? "@subsection" : "@section", buf);
 	       }
 
 	       fputs("@ftable @asis\n", f);
@@ -194,9 +196,18 @@ int write_texinfo(char *filename)
 		  p++;
 	    }
 	 }
-	 else if (line->flags & HEADING_FLAG) {
+	 else if (line->flags & (HEADING_FLAG | CHAPTER_FLAG)) {
+
+	    if (toc_waiting) {
+	       _output_texinfo_toc(f, toc_waiting == 2 ? 1 : 0, 1, section_number-1);
+	       toc_waiting = 0;
+	    }
 	    /* output a section heading */
 	    if (section_number > 0) {
+	       if (line->flags & CHAPTER_FLAG) {
+		   in_chapter = 0;
+		   strcpy(up_target, "Top");
+	       }
 	       if (in_item) {
 		  fputs("@end ftable\n", f);
 		  in_item = 0;
@@ -211,15 +222,21 @@ int write_texinfo(char *filename)
 	       p = strip_html(p);
 	       fprintf(f, "@node %s, ", _node_name(section_number));
 	       fprintf(f, "%s, ", _node_name(section_number+1));
-	       fprintf(f, "%s, Top\n", _node_name(section_number-1));
-	       fprintf(f, "@chapter %s\n", p);
+	       fprintf(f, "%s, %s\n", _node_name(section_number-1), up_target);
+	       fprintf(f, "%s %s\n", in_chapter ? "@section" : "@chapter", p);
 	       if (!(line->flags & NOCONTENT_FLAG))
 		  toc_waiting = 1;
+	       if (line->flags & CHAPTER_FLAG)
+	       {
+		   in_chapter = 1;
+		   strcpy(up_target, _node_name(section_number));
+		   toc_waiting = 2;
+	       }
 	    }
 	    section_number++;
 	 }
 	 else {
-	    if(line->flags & DEFINITION_FLAG) {
+	    if (line->flags & DEFINITION_FLAG) {
 	       /* This will detect all the possible auto types of the line.
 		* The detected types will be marked in the found_auto_types
 		* table for later delayed output.
@@ -273,6 +290,10 @@ int write_texinfo(char *filename)
 	    }
 	 }
       }
+      else if (line->flags & CHAPTER_END_FLAG) {
+	 in_chapter = 0;
+	 strcpy(up_target, "Top");
+      }
       else if (line->flags & NODE_FLAG) {
 	 if (in_item) {
 	    fputs("@end ftable\n", f);
@@ -296,7 +317,7 @@ int write_texinfo(char *filename)
 	    }
 	    _write_auto_types_xrefs(f, auto_types, found_auto_types);
 	    fprintf(f, "@node %s, %s, %s, %s\n", line->text, next, prev, _node_name(section_number-1));
-	    fprintf(f, "@section %s\n", line->text);
+	    fprintf(f, "%s %s\n", in_chapter ? "@subsection" : "@section", line->text);
 	 }
 
 	 fputs("@ftable @asis\n", f);
@@ -430,22 +451,27 @@ static void _output_texinfo_toc(FILE *f, int root, int body, int part)
    char **ptr;
    char *s;
    int i, j;
+   int in_chapter = 0;
 
    fprintf(f, "@menu\n");
 
-   if (root) {
+   if (root == 1 && body == 0) {
       toc = tochead;
       if (toc)
 	 toc = toc->next;
 
       while (toc) {
-	 if ((toc->root) && (toc->texinfoable)) {
+	 if (toc->root == 2 || toc->root == 3)
+	    in_chapter = 0;
+	 if ((toc->root) && (toc->texinfoable) && !in_chapter) {
 	    s = _first_word(toc->text);
 	    fprintf(f, "* %s::", s);
 	    for (i=strlen(s); i<24; i++)
 	       fputc(' ', f);
 	    fprintf(f, "%s\n", toc->text);
 	 }
+	 if (toc->root == 2)
+	    in_chapter = 1;
 	 toc = toc->next;
       }
    }
@@ -483,10 +509,26 @@ static void _output_texinfo_toc(FILE *f, int root, int body, int part)
 	    toc = toc->next;
 	 }
 
-	 while ((toc) && (!toc->root)) {
-	    if (toc->texinfoable)
-	       fprintf(f, "* %s::\n", toc->text);
-	    toc = toc->next;
+         if (root) {
+	    while (toc) {
+	       if (toc->texinfoable && toc->root) {
+		  s = _first_word(toc->text);
+		  fprintf(f, "* %s::", s);
+		  for (i=strlen(s); i<24; i++)
+		     fputc(' ', f);
+		  fprintf(f, "%s\n", toc->text);
+	       }
+	       toc = toc->next;
+	       if (toc->root == 2 || toc->root == 3)
+		  break;
+	    }
+	 }
+	 else {
+	    while ((toc) && (!toc->root)) {
+	       if (toc->texinfoable)
+		  fprintf(f, "* %s::\n", toc->text);
+	       toc = toc->next;
+	    }
 	 }
       }
    }

@@ -367,6 +367,7 @@ static int _read_file(char *filename)
 	 else if (mystricmp(buf+1, "chapter") == 0)
 	    flags |= CHAPTER_FLAG;
 	 else if (mystricmp(buf+1, "endchapter") == 0) {
+	    _add_line(NULL, CHAPTER_END_FLAG);
 	    _add_toc_line(buf, NULL, 3, line, 0, 0, 0);
 	 }
 	 else if (mystricmp(buf+1, "retval") == 0) {
@@ -521,13 +522,12 @@ static int _read_file(char *filename)
       else {
 	 /* some actual text */
 	 if (flags & CHAPTER_FLAG)
-	    _add_toc_line(buf, NULL, 2, line, 0, 0, 0);
+	    _add_toc(buf, 2, line, !(flags & NONODE_FLAG), 0);
 
 	 if (flags & HEADING_FLAG)
 	    _add_toc(buf, 1, line, !(flags & NONODE_FLAG), (flags & HTML_FLAG));
 
-	 if (!(flags & CHAPTER_FLAG))
-	    _add_line(buf, flags);
+	 _add_line(buf, flags);
 
 	 if (_warn_on_long_lines) {
 	    int len = strlen (buf);
@@ -592,7 +592,7 @@ static void _add_line(char *buf, int flags)
    LINE *line;
 
    line = m_xmalloc(sizeof(LINE));
-   line->text = m_strdup(buf);
+   line->text = buf ? m_strdup(buf) : NULL;
    line->next = NULL;
    line->flags = flags;
 
@@ -693,7 +693,8 @@ static void _add_toc(char *buf, int root, int num, int texinfoable, int htmlable
 	 done = 1;
 	 for (c=0; buf[c]; c++) {
 	    if (buf[c] == '@') {
-	       for (d=0; myisalnum(buf[c+d+1]) || (buf[c+d+1] == '_') || (buf[c+d+1] == '/') || (buf[c+d+1] == '*'); d++)
+	       for (d=0; myisalnum(buf[c+d+1]) || (buf[c+d+1] == '_') ||
+		  (buf[c+d+1] == '/') || (buf[c+d+1] == '*'); d++)
 		  b[d] = buf[c+d+1];
 	       b[d] = 0;
 	       _add_toc_line(b, NULL, 0, num, texinfoable, htmlable, 0);

@@ -34,6 +34,7 @@
 #define RETURN_VALUE_FLAG     0x10000000
 #define EREF_FLAG             0x20000000
 #define CHAPTER_FLAG          0x40000000
+#define CHAPTER_END_FLAG      0x80000000
 
 #define TOC_SIZE     8192
 
