@@ -60,11 +60,12 @@ Contributors
    contributed the QNX port too.
 
    Annie Testes (<email>annie@kezako.net</a>).<br>
-   Added font_height, render_char, char_length hooks to FONT_VTABLE.
-   Fixed several glitches in the unicode support. Added a pack_fdopen()
-   function. Caught a misordering in the X system shutdown. Found ASCII
-   strings that needed to be converted. Fixed some device name strings
-   in the setup program.
+   Added font_height, render_char, char_length hooks to FONT_VTABLE. Fixed
+   several glitches in the unicode support. Added a pack_fdopen() function.
+   Caught a misordering in the X system shutdown. Found ASCII strings that
+   needed to be converted. Fixed some device name strings in the setup
+   program. Fixed a bug with patterned drawing in the C version and another
+   one with asynchronous I/O mode restoring under Linux.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -262,8 +263,8 @@ Contributors
    target, translated the docs and system error messages into Spanish,
    suggested the idea of embedding the setup utility into other programs, 
    wrote some documentation and corrected the .texi generation to improve
-   texi2dvi output, improved the makedoc utility, added reload_config_texts()
-   and did plenty of other things too.
+   texi2dvi output, improved the makedoc utility, added reload_config_texts(),
+   added the email address mangling code and did plenty of other things too.
 
    Grzegorz Godlewski.<br>
    Contributed a Polish localization patch and added support for lower and
@@ -477,8 +478,9 @@ Contributors
    Fixed a bug with mouse mickeys in windowed mode under Windows. Fixed a
    problem with al_find*() and NTFS partitions under Windows. Added missing
    header files to be installed by the Windows binary distribution, made the
-   DOS/Windows makefiles use 'copy /B' instead of 'copy' and added the
-   detection of left-hand mouse configuration under Windows.
+   DOS/Windows makefiles use 'copy /B' instead of 'copy', added the detection
+   of left-hand mouse configuration under Windows and fixed a bug with
+   pack_fgets().
 
    Maxime Carey (<email>werfu@users.sourceforge.net</a>).<br>
    Contributed the Canada (French) keyboard mapping file.
@@ -526,7 +528,8 @@ Contributors
    Modified the djgpp makefile to support cross-compiling on a Linux machine.
 
    Oscar Giner (<email>O_giner@hotmail.com</a>).<br>
-   Added the Catalan translation and corrected the Spanish translation.
+   Added the Catalan translation, corrected the Spanish translation and fixed
+   a conflict between the magic main and the MFC.
 
    Owen Embury (<email>owen@gememail.demon.co.uk</a>).<br>
    Wrote part of the translucency/lighting code.

@@ -10,9 +10,36 @@
 
 
 @heading
-Changes from 4.0.2 to 4.0.3 (Feb 2003)
+Changes from 4.0.2 to 4.0.3 (Mar 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.
+<li>
+   Eric Botcazou fixed an assumption of little-endianness in the 24-bit BMP
+   reader.
+<li>
+   Eric Botcazou fixed the 'uninstall' target and a problem with
+   Mingw32's make for the Watcom port.
+<li>
+   Annie Testes fixed a bug with asynchronous I/O mode restoring under Linux.
+<li>
+   Annie Testes made the screen be cleared before setting the default
+   palette when calling set_gfx_mode().
+<li>
+   Annie Testes fixed a bug with patterned drawing in the C version.
+<li>
+   Vincent Penquerc'h spotted an off-by-one problem when building the list
+   of color depths in the gfx mode selector.
+<li>
+   Peter Wang made the Intellimouse PS/2 driver work for USB mice in Linux.
+<li>
+   Oscar Giner fixed a conflict between the magic main and the MFC.
+<li>
+   Matthew Leverton fixed a bug with pack_fgets().
+<li>
+   Eric Botcazou fixed broken and missing dependencies for make -j2 builds.
+<li>
+   Grzegorz Adam Hankiewicz backported his email address mangling code from
+   4.1.x for inclusion in makedoc.
 <li>
    Hein Zelle revamped the cross-compilation section of docs/build/mingw32.txt.
 <li>
