@@ -110,7 +110,7 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_M
 
 STATIC_LIBRARIES = -framework Cocoa -framework IOKit -framework System -framework QuickTime
 ifdef STATICLINK
-LIBRARIES = $(STATIC_LIBRARIES)
+LIBRARIES = $(STATIC_LIBRARIES) -framework Carbon
 else
 LIBRARIES = -framework Cocoa
 endif
