@@ -2075,10 +2075,9 @@ Graphics modes
    parameter can either be SWITCH_IN or SWITCH_OUT, depending whether you 
    want to be notified about switches away from your program or back to your 
    program. You can sometimes install callbacks for both directions at the 
-   same time, but not every platform supports this (for example Windows has 
-   no switch away notification event), so this function may return -1 if 
-   your request is impossible. You can install several switch callbacks at 
-   the same time.
+   same time, but not every platform supports this, so this function may
+   return -1 if your request is impossible. You can install several switch
+   callbacks at the same time.
 
 @@void @remove_display_switch_callback(void (*cb)());
 @xref set_display_switch_callback
