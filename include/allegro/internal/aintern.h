@@ -189,7 +189,7 @@ AL_FUNC(int, _gui_text_list_proc, (int msg, DIALOG *d, int c));
 
 AL_FUNC(void, _handle_scrollable_scroll_click, (DIALOG *d, int listsize, int *offset, int height));
 AL_FUNC(void, _handle_scrollable_scroll, (DIALOG *d, int listsize, int *index, int *offset));
-AL_FUNC(void, _handle_listbox_click, (DIALOG *d););
+AL_FUNC(void, _handle_listbox_click, (DIALOG *d));
 AL_FUNC(void, _draw_scrollable_frame, (DIALOG *d, int listsize, int offset, int height, int fg_color, int bg));
 AL_FUNC(void, _draw_listbox, (DIALOG *d));
 AL_FUNC(void, _draw_textbox, (char *thetext, int *listsize, int draw, int offset, int wword, int tabsize, int x, int y, int w, int h, int disabled, int fore, int deselect, int disable));
