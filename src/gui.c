@@ -1685,10 +1685,18 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	       child_y = m.y + (text_height(font)+4)*ret + text_height(font)/4 + 1;
 	    }
 
+	    /* make sure that the mouse won't cause the child menu to be stillborn when 
+	     * keys are used to open it and auto-opening is on: thanks to a feature of 
+	     * mouse_in_parent_menu(), the mouse is not detected if it is pointing to 
+	     * the selected item of the parent menu.
+	     */
+	    m.sel = mouse_sel;
+
             /* recursively call child menu */
 	    c = _do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0);
 
 	    if (c < 0) {                            /* return to parent? */
+	       m.sel = ret;
 	       ret = -1;
 	       mouse_button_was_pressed = FALSE;
 	       mouse_sel = menu_mouse_object(&m);
