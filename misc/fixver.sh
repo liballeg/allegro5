@@ -98,7 +98,7 @@ cp makefile.ver fixver.tmp
 sed -f fixver.sed fixver.tmp > makefile.ver
 
 # patch allegro-config.in, allegro-config.qnx
-echo "s/version=.*/version=$1.$2.$3/" >> fixver.sed
+echo "s/version=[0-9].*/version=$1.$2.$3/" >> fixver.sed
 
 echo "Patching misc/allegro-config.in..."
 cp misc/allegro-config.in fixver.tmp
