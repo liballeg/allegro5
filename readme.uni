@@ -59,7 +59,8 @@
 
       make
 
-   And finally you install it:
+   And finally you install it (as root -- see below for information on what
+   to do if you can't be root):
 
       su -c "make install"
 
@@ -133,27 +134,66 @@
    probably be a new major version of the library.
 
    Allegro can interface with a lot of other libraries -- in particular, 
-   various X libraries, GGI and SVGAlib. Whether you use Allegro itself as a 
-   shared library or static, these other libraries are usually linked 
-   shared. This means that your program won't even load on a user's machine 
-   unless he/she has all these libraries installed!
+   various X libraries, GGI and SVGAlib. If you link statically to Allegro,
+   your program will depend upon all these other libraries so you may want
+   to link statically to them too. If you link dynamically to Allegro, your
+   binary will only depend upon the Allegro version (and things like libc);
+   in this case your binary is more easily portable, but it does depend
+   upon the way Allegro was configured (e.g. enable/disable GGI). Hopefully
+   this dependence will go away in the future.
 
-   This makes it difficult to distribute precompiled versions of your 
-   Allegro programs, since you don't know what other libraries will be 
-   available on the target machine, and hence cannot know which options to 
-   include when configuring Allegro. If you want to distribute in binary 
-   form, one option would be to include several versions of the shared 
-   libraries, covering all the possibilities -- GGI only, SVGAlib only, both 
-   GGI and SVGAlib but not X, etc. The user installs whichever one matches 
-   their system, and doesn't need redundant shared libraries that'll never 
-   get used. There are a lot of possible combinations, though. 
-   Alternatively, you could configure Allegro using all possible external 
-   libraries, which will require your users to install all of these before 
-   they can run your program. That is simple for you, but not so much fun 
-   for them! Or the easiest option is, of course, to distribute your 
-   programs in source form. That way the user can configure Allegro for 
-   themselves, and will always end up using exactly the right set of 
-   libraries for their particular system.
+   The easiest way to make your program portable is to distribute it in 
+   source form. That way the users can configure Allegro for themselves, 
+   and will always end up using exactly the right set of libraries for 
+   their particular system.
+
+
+
+==================================================
+============ What if you're not root? ============
+==================================================
+
+   Allegro can be installed on a system where you don't have root 
+   privileges. Using the standard configure script option `--prefix' you 
+   can change the target directories for installation -- for example,
+   you can write:
+
+      ./configure --prefix=~
+
+   Then binaries will be installed to the `bin' subdirectory of your home
+   directory, libraries to `lib', etc.  Now you need to set up your system
+   so that it knows where to find a few things, if this has not been done
+   already.  You might want to add these commands to your .bash_profile
+   or similar startup script.  If you use a csh-style shell, you want to
+   use `setenv', not `export'.
+
+
+   * Your PATH must include the `bin' directory:
+
+	export PATH=$PATH:$HOME/bin
+
+
+   * If you are using Allegro as a shared library, you need to tell the 
+     dynamic loader where to find the Allegro libraries:
+
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/lib
+
+
+   * GCC needs to know where to find header and library files:
+
+	export C_INCLUDE_PATH=$C_INCLUDE_PATH:$HOME/include
+	export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$HOME/include
+	export LIBRARY_PATH=$LIBRARY_PATH:$HOME/lib
+
+
+   (Note: in fact `allegro-config' can handle the last step for you, if
+   you use it for compilation as well as linking:
+
+	gcc -c mygame.c `allegro-config --cflags`
+	gcc -o mygame mygame.o `allegro-config --libs`
+
+   But, it's better to set the environment variables too.  Most people
+   don't tend to bother with `allegro-config' when compiling.)
 
 
 

@@ -88,6 +88,9 @@
 /* Define if XF86DGA extension is supported.  */
 #undef ALLEGRO_XWINDOWS_WITH_XF86DGA
 
+/* Define if DGA version 2.0 or newer is supported */
+#undef ALLEGRO_XWINDOWS_WITH_XF86DGA2
+
 /* Define if OSS DIGI driver is supported.  */
 #undef ALLEGRO_WITH_OSSDIGI
 

@@ -230,10 +230,11 @@ maintainer-clean: veryclean
 
 install: $(INSTALL_TARGETS)
 
-mini-install: install-lib install-headers
+mini-install: install-headers install-lib
 	@echo "Your end-user version of Allegro is now installed"
 
-full-install: install-lib install-headers install-programs
+full-install: install-headers install-programs install-lib
+	@echo ""
 	@echo "Run make install-man if you wish to install the man pages"
 	@echo "Run make install-info if you wish to install the info documentation"
 	@echo "You may conserve space by instead running make install-gzipped-man"
@@ -257,7 +258,14 @@ install-lib: lib
 	$(mkinstalldirs) $(bindir)
 	@echo Installing allegro-config to $(bindir)
 	@$(INSTALL_PROGRAM) allegro-config $(bindir)
-	-$(LDCONFIG) $(libdir)
+	@if test -n "$(LIBDIR)/liball*-$(shared_version).so"; then \
+		grep -q $(libdir) /etc/ld.so.conf && ($(LDCONFIG) $(libdir) || true) || (\
+			echo "" ; \
+			echo "Warning: shared library destination $(libdir) is not in ldd search path." ; \
+			echo "Unless you add it to /etc/ld.so.conf, you must set LD_LIBRARY_PATH to include"; \
+			echo "$(libdir) each time you want to run an Allegro program." ; \
+		) ; \
+	fi
 
 install-headers:
 	$(mkinstalldirs) $(includedir)/allegro
