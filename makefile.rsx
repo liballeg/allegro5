@@ -55,7 +55,7 @@ else
    ifdef TARGET_ARCH_EXCL
       TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
    else
-      TARGET_ARCH = -mpentium
+      TARGET_ARCH = -mcpu=pentium
    endif
 endif
 

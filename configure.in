@@ -157,7 +157,7 @@ if test -n "GCC"; then
     WFLAGS="-Wall"
   fi
   if test "X$allegro_pentium_optimizations" = "Xyes"; then
-    TARGET_ARCH="-mpentium"
+    TARGET_ARCH="-mcpu=pentium"
   else
     TARGET_ARCH=
   fi
