@@ -113,18 +113,19 @@ int gui_strlen(AL_CONST char *s)
  */
 static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    int x = ((x1+y1) & 1) ? 1 : 0;
    int c;
 
    /* two loops to avoid bank switches */
    for (c=x1; c<=x2; c++)
-      putpixel(screen, c, y1, (((c+y1) & 1) == x) ? fg : bg);
+      putpixel(gui_bmp, c, y1, (((c+y1) & 1) == x) ? fg : bg);
    for (c=x1; c<=x2; c++)
-      putpixel(screen, c, y2, (((c+y2) & 1) == x) ? fg : bg);
+      putpixel(gui_bmp, c, y2, (((c+y2) & 1) == x) ? fg : bg);
 
    for (c=y1+1; c<y2; c++) {
-      putpixel(screen, x1, c, (((c+x1) & 1) == x) ? fg : bg);
-      putpixel(screen, x2, c, (((c+x2) & 1) == x) ? fg : bg);
+      putpixel(gui_bmp, x1, c, (((c+x1) & 1) == x) ? fg : bg);
+      putpixel(gui_bmp, x2, c, (((c+x2) & 1) == x) ? fg : bg);
    }
 }
 
@@ -159,9 +160,10 @@ int d_clear_proc(int msg, DIALOG *d, int c)
 #endif
 
    if (msg == MSG_DRAW) {
-      set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
-      set_clip_state(screen, TRUE);
-      clear_to_color(screen, d->bg);
+      BITMAP *gui_bmp = gui_get_screen();
+      set_clip_rect(gui_bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
+      set_clip_state(gui_bmp, TRUE);
+      clear_to_color(gui_bmp, d->bg);
    }
 
    return D_O_K;
@@ -177,8 +179,10 @@ int d_box_proc(int msg, DIALOG *d, int c)
    ASSERT(d);
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-      rectfill(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, d->bg);
-      rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg);
+      BITMAP *gui_bmp = gui_get_screen();
+
+      rectfill(gui_bmp, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, d->bg);
+      rect(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg);
    }
 
    return D_O_K;
@@ -195,10 +199,12 @@ int d_shadow_box_proc(int msg, DIALOG *d, int c)
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       int black = makecol(0,0,0);
-      rectfill(screen, d->x+1, d->y+1, d->x+d->w-3, d->y+d->h-3, d->bg);
-      rect(screen, d->x, d->y, d->x+d->w-2, d->y+d->h-2, fg);
-      vline(screen, d->x+d->w-1, d->y+1, d->y+d->h-1, black);
-      hline(screen, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
+      BITMAP *gui_bmp = gui_get_screen();
+
+      rectfill(gui_bmp, d->x+1, d->y+1, d->x+d->w-3, d->y+d->h-3, d->bg);
+      rect(gui_bmp, d->x, d->y, d->x+d->w-2, d->y+d->h-2, fg);
+      vline(gui_bmp, d->x+d->w-1, d->y+1, d->y+d->h-1, black);
+      hline(gui_bmp, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
    }
 
    return D_O_K;
@@ -216,7 +222,7 @@ int d_bitmap_proc(int msg, DIALOG *d, int c)
 
    b = (BITMAP *)d->dp;
    if (msg==MSG_DRAW)
-      blit(b, screen, 0, 0, d->x, d->y, d->w, d->h);
+      blit(b, gui_get_screen(), 0, 0, d->x, d->y, d->w, d->h);
 
    return D_O_K;
 }
@@ -236,7 +242,7 @@ int d_text_proc(int msg, DIALOG *d, int c)
       if (d->dp2)
 	 font = d->dp2;
 
-      gui_textout_ex(screen, d->dp, d->x, d->y, fg, d->bg, FALSE);
+      gui_textout_ex(gui_get_screen(), d->dp, d->x, d->y, fg, d->bg, FALSE);
 
       font = oldfont;
    }
@@ -260,7 +266,7 @@ int d_ctext_proc(int msg, DIALOG *d, int c)
       if (d->dp2)
 	 font = d->dp2;
 
-      gui_textout_ex(screen, d->dp, d->x + d->w/2, d->y, fg, d->bg, TRUE);
+      gui_textout_ex(gui_get_screen(), d->dp, d->x + d->w/2, d->y, fg, d->bg, TRUE);
 
       font = oldfont;
    }
@@ -284,7 +290,7 @@ int d_rtext_proc(int msg, DIALOG *d, int c)
       if (d->dp2)
 	 font = d->dp2;
 
-      gui_textout_ex(screen, d->dp, d->x + d->w - gui_strlen(d->dp), d->y, fg, d->bg, FALSE);
+      gui_textout_ex(gui_get_screen(), d->dp, d->x + d->w - gui_strlen(d->dp), d->y, fg, d->bg, FALSE);
 
       font = oldfont;
    }
@@ -302,11 +308,14 @@ int d_rtext_proc(int msg, DIALOG *d, int c)
  */
 int d_button_proc(int msg, DIALOG *d, int c)
 {
+   BITMAP *gui_bmp;
    int state1, state2;
    int black;
    int swap;
    int g;
    ASSERT(d);
+   
+   gui_bmp = gui_get_screen();
 
    switch (msg) {
 
@@ -322,18 +331,18 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	    state2 = d->bg;
 	 }
 
-	 rectfill(screen, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
-	 rect(screen, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
-	 gui_textout_ex(screen, d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
+	 rectfill(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
+	 rect(gui_bmp, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
+	 gui_textout_ex(gui_bmp, d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
 
 	 if (d->flags & D_SELECTED) {
-	    vline(screen, d->x, d->y, d->y+d->h-2, d->bg);
-	    hline(screen, d->x, d->y, d->x+d->w-2, d->bg);
+	    vline(gui_bmp, d->x, d->y, d->y+d->h-2, d->bg);
+	    hline(gui_bmp, d->x, d->y, d->x+d->w-2, d->bg);
 	 }
 	 else {
 	    black = makecol(0,0,0);
-	    vline(screen, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
-	    hline(screen, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
+	    vline(gui_bmp, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
+	    hline(gui_bmp, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
 	 }
 	 if ((d->flags & D_GOTFOCUS) && 
 	     (!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
@@ -399,6 +408,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
  */
 int d_check_proc(int msg, DIALOG *d, int c)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    int x;
    int fg, bg;
    ASSERT(d);
@@ -407,14 +417,14 @@ int d_check_proc(int msg, DIALOG *d, int c)
       fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       bg = (d->bg < 0) ? gui_bg_color : d->bg;
 
-      x = d->x + ((d->d1) ? 0 : gui_textout_ex(screen, d->dp, d->x, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE) + text_height(font)/2);
-      rectfill(screen, x+1, d->y+1, x+d->h-2, d->y+d->h-2, bg);
-      rect(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
+      x = d->x + ((d->d1) ? 0 : gui_textout_ex(gui_bmp, d->dp, d->x, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE) + text_height(font)/2);
+      rectfill(gui_bmp, x+1, d->y+1, x+d->h-2, d->y+d->h-2, bg);
+      rect(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, fg);
       if (d->d1)
-	 gui_textout_ex(screen, d->dp, x+d->h-1+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
+	 gui_textout_ex(gui_bmp, d->dp, x+d->h-1+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
       if (d->flags & D_SELECTED) {
-	 line(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
-	 line(screen, x, d->y+d->h-1, x+d->h-1, d->y, fg);
+	 line(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, fg);
+	 line(gui_bmp, x, d->y+d->h-1, x+d->h-1, d->y, fg);
       }
       if (d->flags & D_GOTFOCUS)
 	 dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
@@ -434,6 +444,7 @@ int d_check_proc(int msg, DIALOG *d, int c)
  */
 int d_radio_proc(int msg, DIALOG *d, int c)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    int x, center, r, ret, fg, bg;
    ASSERT(d);
 
@@ -443,26 +454,26 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	 fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 	 bg = (d->bg < 0) ? gui_bg_color : d->bg;
 
-	 gui_textout_ex(screen, d->dp, d->x+d->h-1+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
+	 gui_textout_ex(gui_bmp, d->dp, d->x+d->h-1+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, d->bg, FALSE);
 
 	 x = d->x;
 	 r = d->h/2;
 
 	 center = x+r;
-	 rectfill(screen, x, d->y, x+d->h-1, d->y+d->h-1, bg);
+	 rectfill(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, bg);
 
 	 switch (d->d2) {
 
 	    case 1:
-	       rect(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
+	       rect(gui_bmp, x, d->y, x+d->h-1, d->y+d->h-1, fg);
 	       if (d->flags & D_SELECTED)
-		  rectfill(screen, x+r/2, d->y+r/2, x+d->h-1-r/2, d->y+d->h-1-r/2, fg);
+		  rectfill(gui_bmp, x+r/2, d->y+r/2, x+d->h-1-r/2, d->y+d->h-1-r/2, fg);
 	       break;
 
 	    default:
-	       circle(screen, center, d->y+r, r, fg);
+	       circle(gui_bmp, center, d->y+r, r, fg);
 	       if (d->flags & D_SELECTED)
-		  circlefill(screen, center, d->y+r, r/2, fg);
+		  circlefill(gui_bmp, center, d->y+r, r/2, fg);
 	       break;
 	 }
 
@@ -522,6 +533,7 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 int d_icon_proc(int msg, DIALOG *d, int c)
 {
    BITMAP *butimage;
+   BITMAP *gui_bmp;
    int butx;
    int buty;
    int index;
@@ -530,6 +542,7 @@ int d_icon_proc(int msg, DIALOG *d, int c)
    ASSERT(d);
 
    butimage = (BITMAP *)d->dp;
+   gui_bmp = gui_get_screen();
    if ((msg == MSG_DRAW) && (!(d->flags & D_HIDDEN))) {
       depth = 0;
       if ((d->dp2 == NULL) && (d->flags & D_SELECTED)) {
@@ -550,26 +563,26 @@ int d_icon_proc(int msg, DIALOG *d, int c)
       /* put the graphic on screen, scaled as needed */
       butx = butimage->w;
       buty = butimage->h;
-      stretch_blit(butimage, screen, 0, 0, butx-depth, buty-depth, 
+      stretch_blit(butimage, gui_bmp, 0, 0, butx-depth, buty-depth, 
 		   d->x+depth, d->y+depth, d->w-depth, d->h-depth);
 
       if ((d->flags & D_GOTFOCUS) &&
 	  (!(d->flags & D_SELECTED) || !(d->flags & D_EXIT))) {
 	 /* draw focus lines */
 	 for (index=indent; index<d->w-(indent+1); index+=2) {
-	    putpixel(screen, d->x+index+depth, d->y+indent+depth,d->fg);
-	    putpixel(screen, d->x+index+depth, d->y+d->h-(indent+1)+depth, d->fg);
+	    putpixel(gui_bmp, d->x+index+depth, d->y+indent+depth,d->fg);
+	    putpixel(gui_bmp, d->x+index+depth, d->y+d->h-(indent+1)+depth, d->fg);
 	 }
 	 for (index=indent; index<d->h-(indent+1); index+=2) {
-	    putpixel(screen, d->x+indent+depth, d->y+index+depth, d->fg);
-	    putpixel(screen, d->x+d->w-(indent+1)+depth, d->y+index+depth, d->fg);
+	    putpixel(gui_bmp, d->x+indent+depth, d->y+index+depth, d->fg);
+	    putpixel(gui_bmp, d->x+d->w-(indent+1)+depth, d->y+index+depth, d->fg);
 	 }
       }
 
       /* draw shadowing */
       for (index=0; index<depth; index++) {
-	  hline(screen, d->x, d->y+index, d->x+d->w-1, d->bg);
-	  vline(screen, d->x+index, d->y, d->y+d->h-1, d->bg);
+	  hline(gui_bmp, d->x, d->y+index, d->x+d->w-1, d->bg);
+	  vline(gui_bmp, d->x+index, d->y, d->y+d->h-1, d->bg);
       }
 
       return D_O_K;
@@ -627,11 +640,14 @@ int d_keyboard_proc(int msg, DIALOG *d, int c)
 int d_edit_proc(int msg, DIALOG *d, int c)
 {
    static int ignore_next_uchar = FALSE;
+   BITMAP *gui_bmp;
    int last_was_space, new_pos, i, k;
    int f, l, p, w, x, fg, b, scroll;
    char buf[16];
    char *s, *t;
    ASSERT(d);
+   
+   gui_bmp = gui_get_screen();
 
    s = d->dp;
    l = ustrlen(s);
@@ -689,11 +705,11 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 	    if (x+w > d->w)
 	       break;
 	    f = ((p == d->d2) && (d->flags & D_GOTFOCUS));
-	    textout_ex(screen, font, buf, d->x+x, d->y, (f) ? d->bg : fg, (f) ? fg : d->bg);
+	    textout_ex(gui_bmp, font, buf, d->x+x, d->y, (f) ? d->bg : fg, (f) ? fg : d->bg);
 	    x += w;
 	 }
 	 if (x < d->w)
-	    rectfill(screen, d->x+x, d->y, d->x+d->w-1, d->y+text_height(font)-1, d->bg);
+	    rectfill(gui_bmp, d->x+x, d->y, d->x+d->w-1, d->y+text_height(font)-1, d->bg);
 	 break;
 
       case MSG_CLICK:
@@ -976,16 +992,17 @@ void _handle_listbox_click(DIALOG *d)
  */
 void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int fg_color, int bg)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    int i, len;
    BITMAP *pattern;
    int xx, yy;
 
    /* draw frame */
-   rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg_color);
+   rect(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg_color);
 
    /* possibly draw scrollbar */
    if (listsize > height) {
-      vline(screen, d->x+d->w-13, d->y+1, d->y+d->h-2, fg_color);
+      vline(gui_bmp, d->x+d->w-13, d->y+1, d->y+d->h-2, fg_color);
 
       /* scrollbar with focus */ 
       if (d->flags & D_GOTFOCUS) {
@@ -993,8 +1010,8 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
 	 dotted_rect(d->x+d->w-12, d->y+1, d->x+d->w-2, d->y+d->h-2, fg_color, bg);
       }
       else {
-	 rect(screen, d->x+1, d->y+1, d->x+d->w-14, d->y+d->h-2, bg);
-	 rect(screen, d->x+d->w-12, d->y+1, d->x+d->w-2, d->y+d->h-2, bg);
+	 rect(gui_bmp, d->x+1, d->y+1, d->x+d->w-14, d->y+d->h-2, bg);
+	 rect(gui_bmp, d->x+d->w-12, d->y+1, d->x+d->w-2, d->y+d->h-2, bg);
       }
 
       /* create and draw the scrollbar */
@@ -1010,19 +1027,19 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
 
       if (offset > 0) {
 	 len = (((d->h-5) * offset) + listsize/2) / listsize;
-	 rectfill(screen, xx, yy, xx+8, yy+len, bg);
+	 rectfill(gui_bmp, xx, yy, xx+8, yy+len, bg);
 	 yy += len;
       }
       if (yy+i < d->y+d->h-3) {
 	 drawing_mode(DRAW_MODE_COPY_PATTERN, pattern, 0, 0);
-	 rectfill(screen, xx, yy, xx+8, yy+i, 0);
+	 rectfill(gui_bmp, xx, yy, xx+8, yy+i, 0);
 	 solid_mode();
 	 yy += i+1;
-	 rectfill(screen, xx, yy, xx+8, d->y+d->h-3, bg);
+	 rectfill(gui_bmp, xx, yy, xx+8, d->y+d->h-3, bg);
       }
       else {
 	 drawing_mode(DRAW_MODE_COPY_PATTERN, pattern, 0, 0);
-	 rectfill(screen, xx, yy, xx+8, d->y+d->h-3, 0);
+	 rectfill(gui_bmp, xx, yy, xx+8, d->y+d->h-3, 0);
 	 solid_mode();
       }
       destroy_bitmap(pattern);
@@ -1032,7 +1049,7 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
       if (d->flags & D_GOTFOCUS)
 	 dotted_rect(d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, fg_color, bg);
       else
-	 rect(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, bg);
+	 rect(gui_bmp, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, bg);
    }
 }
 
@@ -1043,6 +1060,7 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
  */
 void _draw_listbox(DIALOG *d)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    int height, listsize, i, len, bar, x, y, w;
    int fg_color, fg, bg;
    char *sel = d->dp2;
@@ -1072,26 +1090,26 @@ void _draw_listbox(DIALOG *d)
 	 ustrzcpy(s, sizeof(s), (*(getfuncptr)d->dp)(i+d->d2, NULL));
 	 x = d->x + 2;
 	 y = d->y + 2 + i*text_height(font);
-	 rectfill(screen, x, y, x+7, y+text_height(font)-1, bg);
+	 rectfill(gui_bmp, x, y, x+7, y+text_height(font)-1, bg);
 	 x += 8;
 	 len = ustrlen(s);
 	 while (text_length(font, s) >= MAX(d->w - 1 - (bar ? 22 : 10), 1)) {
 	    len--;
 	    usetat(s, len, 0);
 	 }
-	 textout_ex(screen, font, s, x, y, fg, bg);
+	 textout_ex(gui_bmp, font, s, x, y, fg, bg);
 	 x += text_length(font, s);
 	 if (x <= d->x+w) 
-	    rectfill(screen, x, y, d->x+w, y+text_height(font)-1, bg);
+	    rectfill(gui_bmp, x, y, d->x+w, y+text_height(font)-1, bg);
       }
       else {
-	 rectfill(screen, d->x+2,  d->y+2+i*text_height(font), 
+	 rectfill(gui_bmp, d->x+2,  d->y+2+i*text_height(font), 
 		  d->x+w, d->y+1+(i+1)*text_height(font), d->bg);
       }
    }
 
    if (d->y+2+i*text_height(font) <= d->y+d->h-3)
-      rectfill(screen, d->x+2, d->y+2+i*text_height(font), 
+      rectfill(gui_bmp, d->x+2, d->y+2+i*text_height(font), 
 				       d->x+w, d->y+d->h-3, d->bg);
 
    /* draw frame, maybe with scrollbar */
@@ -1354,6 +1372,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 		   int wword, int tabsize, int x, int y, int w, int h,
 		   int disabled, int fore, int deselect, int disable)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    int fg = fore;
    int y1 = y+4;
    int x1;
@@ -1385,7 +1404,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    /* do some drawing setup */
    if (draw) {
       /* initial start blanking at the top */
-      rectfill(screen, x+2, y+2, x+w-3, y1-1, deselect);
+      rectfill(gui_bmp, x+2, y+2, x+w-3, y1-1, deselect);
    }
 
    /* choose the text color */
@@ -1470,7 +1489,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	 x1 = x+4;
 
 	 /* the initial blank bit */
-	 rectfill(screen, x+2, y1, x1-1, y1+text_height(font), deselect);
+	 rectfill(gui_bmp, x+2, y1, x1-1, y1+text_height(font), deselect);
 
 	 /* print up to the marked character */
 	 while (printed != scanned) {
@@ -1486,7 +1505,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	       case '\t':
 		  for (i=0; i<tabsize; i++) {
 		     usetc(s+usetc(s, ' '), 0);
-		     textout_ex(screen, font, s, x1, y1, fg, deselect);
+		     textout_ex(gui_bmp, font, s, x1, y1, fg, deselect);
 		     x1 += text_length(font, s);
 		  }
 		  break;
@@ -1495,7 +1514,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	       default:
 		  if (printed != ignore) {
 		     usetc(s+usetc(s, ugetc(printed)), 0);
-		     textout_ex(screen, font, s, x1, y1, fg, deselect);
+		     textout_ex(gui_bmp, font, s, x1, y1, fg, deselect);
 		     x1 += text_length(font, s);
 		  }
 	    }
@@ -1505,7 +1524,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	 }
 	 /* the last blank bit */
 	 if (x1 <= x+w-3) 
-	    rectfill(screen, x1, y1, x+w-3, y1+text_height(font)-1, deselect);
+	    rectfill(gui_bmp, x1, y1, x+w-3, y1+text_height(font)-1, deselect);
 
 	 /* print the line end */
 	 y1 += text_height(font);
@@ -1519,7 +1538,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
       if (!ugetc(printed)) {
 	 /* the under blank bit */
 	 if (draw)
-	    rectfill(screen, x+1, y1, x+w-3, y+h-1, deselect);
+	    rectfill(gui_bmp, x+1, y1, x+w-3, y+h-1, deselect);
 
 	 /* tell how many lines we found */
 	 *listsize = line;
@@ -1701,6 +1720,7 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
  */
 int d_slider_proc(int msg, DIALOG *d, int c)
 {
+   BITMAP *gui_bmp = gui_get_screen();
    BITMAP *slhan = NULL;
    int oldpos, newpos;
    int sfg;                /* slider foreground color */
@@ -1748,14 +1768,14 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	 sfg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 
 	 if (vert) {
-	    rectfill(screen, d->x, d->y, d->x+d->w/2-2, d->y+d->h-1, d->bg);
-	    rectfill(screen, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h-1, sfg);
-	    rectfill(screen, d->x+d->w/2+2, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
+	    rectfill(gui_bmp, d->x, d->y, d->x+d->w/2-2, d->y+d->h-1, d->bg);
+	    rectfill(gui_bmp, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h-1, sfg);
+	    rectfill(gui_bmp, d->x+d->w/2+2, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
 	 }
 	 else {
-	    rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h/2-2, d->bg);
-	    rectfill(screen, d->x, d->y+d->h/2-1, d->x+d->w-1, d->y+d->h/2+1, sfg);
-	    rectfill(screen, d->x, d->y+d->h/2+2, d->x+d->w-1, d->y+d->h-1, d->bg);
+	    rectfill(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h/2-2, d->bg);
+	    rectfill(gui_bmp, d->x, d->y+d->h/2-1, d->x+d->w-1, d->y+d->h/2+1, sfg);
+	    rectfill(gui_bmp, d->x, d->y+d->h/2+2, d->x+d->w-1, d->y+d->h-1, d->bg);
 	 }
 
 	 /* okay, background and slot are drawn, now draw the handle */
@@ -1768,7 +1788,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       slx = d->x+slp;
 	       sly = d->y+(d->h/2)-(slhan->h/2);
 	    }
-	    draw_sprite(screen, slhan, slx, sly);
+	    draw_sprite(gui_bmp, slhan, slx, sly);
 	 } 
 	 else {
 	    /* draw default handle */
@@ -1785,14 +1805,14 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	    }
 
 	    /* draw body */
-	    rectfill(screen, slx+2, sly, slx+(slw-2), sly+slh, sfg);
-	    vline(screen, slx+1, sly+1, sly+slh-1, sfg);
-	    vline(screen, slx+slw-1, sly+1, sly+slh-1, sfg);
-	    vline(screen, slx, sly+2, sly+slh-2, sfg);
-	    vline(screen, slx+slw, sly+2, sly+slh-2, sfg);
-	    vline(screen, slx+1, sly+2, sly+slh-2, d->bg);
-	    hline(screen, slx+2, sly+1, slx+slw-2, d->bg);
-	    putpixel(screen, slx+2, sly+2, d->bg);
+	    rectfill(gui_bmp, slx+2, sly, slx+(slw-2), sly+slh, sfg);
+	    vline(gui_bmp, slx+1, sly+1, sly+slh-1, sfg);
+	    vline(gui_bmp, slx+slw-1, sly+1, sly+slh-1, sfg);
+	    vline(gui_bmp, slx, sly+2, sly+slh-2, sfg);
+	    vline(gui_bmp, slx+slw, sly+2, sly+slh-2, sfg);
+	    vline(gui_bmp, slx+1, sly+2, sly+slh-2, d->bg);
+	    hline(gui_bmp, slx+2, sly+1, slx+slw-2, d->bg);
+	    putpixel(gui_bmp, slx+2, sly+2, d->bg);
 	 }
 
 	 if (d->flags & D_GOTFOCUS)

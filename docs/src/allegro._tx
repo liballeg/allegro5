@@ -9511,6 +9511,30 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    Helper function for use by the GUI routines. Returns the length of a 
    string in pixels, ignoring '&' characters.
 
+@@void @gui_set_screen(BITMAP *bmp);
+@xref gui_get_screen
+   This function can be used to change the bitmap surface the GUI rourtines
+   draw to. This can be useful if you are using a double buffering or page 
+   flipping system. Passing NULL will cause the default surface (screen) to
+   be used again. Example:
+<codeblock>
+   BITMAP *page[2];
+   
+   /* Allocate two pages of video memory */
+   page[0] = create_video_bitmap(SCREEN_W, SCREEN_H);
+   page[1] = create_video_bitmap(SCREEN_W, SCREEN_H);
+   
+   /* Page flip */
+   show_video_bitmap(page[0]);
+   gui_set_screen(page[0]);
+<endblock>
+
+@@BITMAP *@gui_get_screen(void);
+@xref gui_set_screen
+   This function returns the current bitmap surface the GUI routines will
+   use for drawing. Note that this function will return screen if you have
+   called gui_set_screen(NULL) previously, and will never return NULL.
+
 @@void @position_dialog(DIALOG *dialog, int x, int y);
 @xref centre_dialog
 @eref exgui
