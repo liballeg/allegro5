@@ -153,13 +153,6 @@ loop:
    if (surf_desc.dwBackBufferCount == 2) {
       IDirectDrawSurface_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
       primbuffersurf = surf;
-
-      /* are all the surfaces actually enumerated ? Quoted from the DirectX 7 SDK: 
-       "This method enumerates only those surfaces that are directly attached to this surface.
-        For example, in a flipping chain of three or more surfaces, only one surface is enumerated
-        because each surface is attached only to the next surface in the flipping chain. In such a
-        configuration, you can call EnumAttachedSurfaces on each successive surface to walk the entire
-        flipping chain." */
    }
    else {
       if (surf_desc.dwBackBufferCount == 1) {
