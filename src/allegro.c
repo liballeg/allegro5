@@ -45,6 +45,10 @@ int *allegro_errno = NULL;
 int _allegro_count = 0;
 
 
+/* flag to know whether we are being called by the exit mechanism */
+int _allegro_in_exit = FALSE;
+
+
 /* flag to decide whether to disable the screensaver */
 int _screensaver_policy = FULLSCREEN_DISABLED;
 
@@ -269,6 +273,18 @@ void _remove_exit_func(void (*func)(void))
 
 
 
+/* allegro_exit_stub:
+ *  Stub function registered by the library via atexit.
+ */
+static void allegro_exit_stub(void)
+{
+   _allegro_in_exit = TRUE;
+
+   allegro_exit();
+}
+
+
+
 /* install_allegro:
  *  Initialises the Allegro library, activating the system driver.
  */
@@ -364,7 +380,7 @@ int install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*func
    /* install shutdown handler */
    if (_allegro_count == 0) {
       if (atexit_ptr)
-	 atexit_ptr(allegro_exit);
+	 atexit_ptr(allegro_exit_stub);
    }
 
    _allegro_count++;

@@ -17,6 +17,7 @@
 
 
 #include "allegro.h"
+#include "allegro/internal/aintern.h"
 
 
 #ifdef ALLEGRO_WITH_MODULES
@@ -156,8 +157,9 @@ void _unix_unload_modules(void)
 {
    MODULE *m, *next;
    void (*shutdown)(void);
-   int *dont_unload;
-   
+   int *sym;
+   int has_registered;
+
    for (m = module_list; m; m = next) {
       next = m->next;
 
@@ -165,16 +167,17 @@ void _unix_unload_modules(void)
       if (shutdown)
          shutdown();
 
-      /* Dirty hack: If the loaded module registers its own cleanup
-       * function with atexit, we mustn't unload the module, otherwise
-       * the atexit machinery will end up referring to a function that
-       * won't exist by the end of the program.  This problem only
-       * affects SVGAlib currently.
+      /* If a module has registered something via atexit, we can unload it
+       * only if we are being called by the exit mechanism because, in this
+       * case, we know that the registered routine has already been called;
+       * otherwise the atexit machinery would end up referring to a function
+       * that would not exist by the end of the program.
        */
-      dont_unload = dlsym(m->handle, "_module_dont_unload_me_dirty_hack");
+      sym = dlsym(m->handle, "_module_has_registered_via_atexit");
+      has_registered = (sym ? *sym : 0);
 
-      if ((!dont_unload) || !(*dont_unload))
-	  dlclose(m->handle);
+      if (!has_registered || _allegro_in_exit)
+	 dlclose(m->handle);
 
       free(m);
    }

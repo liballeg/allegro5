@@ -36,6 +36,10 @@
 AL_VAR(int, _allegro_count);
 
 
+/* flag to know whether we are being called by the exit mechanism */
+AL_VAR(int, _allegro_in_exit);
+
+
 /* flag to decide whether to disable the screensaver */
 enum {
   NEVER_DISABLED,
