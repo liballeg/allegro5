@@ -104,7 +104,7 @@ BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 static int got_hw_cursor = FALSE;      /* hardware pointer available? */
 static int hw_cursor_dirty = FALSE;    /* need to set a new pointer? */
 
-static int mx, my;                     /* previous mouse position */
+static int mx, my;                     /* previous mouse pointer position */
 static BITMAP *ms = NULL;              /* previous screen data */
 static BITMAP *mtemp = NULL;           /* double-buffer drawing area */
 
@@ -561,10 +561,6 @@ void scare_mouse(void)
 void scare_mouse_area(int x, int y, int w, int h)
 {
    int was_frozen;
-   ASSERT(x >= 0);
-   ASSERT(y >= 0);
-   ASSERT(w > 0);
-   ASSERT(h > 0);
 
    if (!mouse_driver)
       return;
@@ -573,10 +569,10 @@ void scare_mouse_area(int x, int y, int w, int h)
       was_frozen = freeze_mouse_flag;
       freeze_mouse_flag = TRUE;
 
-      if ((mouse_x - mouse_x_focus < x + w) &&
-	  (mouse_y - mouse_y_focus < y + h) &&
-	  (mouse_x - mouse_x_focus + mouse_sprite->w >= x) &&
-	  (mouse_y - mouse_y_focus + mouse_sprite->h >= y)) {
+      if ((mx - mouse_x_focus < x + w) &&
+	   (my - mouse_y_focus < y + h) &&
+	   (mx - mouse_x_focus + mouse_sprite->w >= x) &&
+	   (my - mouse_y_focus + mouse_sprite->h >= y)) {
 
 	 if (scared_size < SCARED_SIZE) {
 	    scared_screen[scared_size] = _mouse_screen;
