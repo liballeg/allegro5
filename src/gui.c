@@ -1936,6 +1936,9 @@ int alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3, AL_CONST cha
 
    centre_dialog(alert_dialog);
    set_dialog_color(alert_dialog, gui_fg_color, gui_bg_color);
+   for (c = 0; alert_dialog[c].proc; c++)
+      if (alert_dialog[c].proc == _gui_ctext_proc)
+	 alert_dialog[c].bg = -1;
 
    clear_keybuf();
 
