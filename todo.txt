@@ -43,6 +43,7 @@ Linux todos:
 - keyboard set_rate
 - Find out more about sched_yield
 - switch to proper SRPMs and RPMS (esp. now that we have modules)
+- fix fb 24-bit scrolling (allegro presuming padding?)
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -53,6 +54,7 @@ X11 todos:
 - key[] should not be internationalised (e.g. KEY_S should always be set
   for the key two to the right of CapsLock).  If we can't solve this in
   time, include bukinm's xkeymap program.
+- play nice with WindowMaker (there's no appicon, for one)
 
 Unix todos:
 ---------------------------------------------------------------------------
