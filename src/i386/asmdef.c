@@ -16,6 +16,7 @@
  * support the 'static inline' keyword (Watcom)
  */
 #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
+#define ALLEGRO_NO_FIX_ALIASES
 
 #include <stdio.h>
 #include <stdlib.h>
