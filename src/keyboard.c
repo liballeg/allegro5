@@ -397,7 +397,7 @@ void _handle_key_press(int keycode, int scancode)
 
    /* autorepeat? */
    if ((keyboard_driver->autorepeat) && (repeat_delay) && 
-       (keycode >= 0) && (scancode > 0) &&
+       (keycode >= 0) && (scancode > 0) && (scancode != KEY_PAUSE) &&
        ((keycode != repeat_key) || (scancode != repeat_scan))) {
       repeat_key = keycode;
       repeat_scan = scancode;
