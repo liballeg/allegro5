@@ -87,14 +87,14 @@ static int ess_sel;                          /* selector for the DMA buffer */
 static unsigned long ess_buf[2];             /* pointers to the two buffers */
 static int ess_bufnum = 0;                   /* the one currently in use */
 
-static void ess_lock_mem();
+static void ess_lock_mem(void);
 
 
 
 /* ess_buffer_size:
  *  Returns the current DMA buffer size, for use by the audiostream code.
  */
-static int ess_buffer_size()
+static int ess_buffer_size(void)
 {
    return ess_dma_size/4;     /* convert bytes to stereo 16 bit samples */
 }
@@ -104,7 +104,7 @@ static int ess_buffer_size()
 /* is_dsp_ready_for_read:
  *  Determines if DSP is ready to be read from.
  */
-static INLINE RET_VOLATILE int is_dsp_ready_for_read()
+static INLINE RET_VOLATILE int is_dsp_ready_for_read(void)
 {
    return (inportb(0x0E + _sound_port) & 0x80);
 }
@@ -114,7 +114,7 @@ static INLINE RET_VOLATILE int is_dsp_ready_for_read()
 /* ess_read_dsp:
  *  Reads a byte from the DSP chip. Returns -1 if it times out.
  */
-static INLINE RET_VOLATILE int ess_read_dsp()
+static INLINE RET_VOLATILE int ess_read_dsp(void)
 {
    int x;
 
@@ -183,7 +183,7 @@ static void ess_set_sample_rate(unsigned int rate)
 /* ess_read_dsp_version:
  *  Reads the version number of the AudioDrive DSP chip, returning -1 on error.
  */
-static int ess_read_dsp_version()
+static int ess_read_dsp_version(void)
 {
    if (ess_hw_ver > 0)
       return ess_hw_ver;
@@ -252,7 +252,7 @@ END_OF_STATIC_FUNCTION(ess_play_buffer);
 /* ess_interrupt:
  *  The AudioDrive end-of-buffer interrupt handler.
  */
-static int ess_interrupt()
+static int ess_interrupt(void)
 {
    int value;
 
@@ -520,7 +520,7 @@ static void ess_exit(int input)
  *  Locks all the memory touched by parts of the AudiDrive code that are 
  *  executed in an interrupt context.
  */
-static void ess_lock_mem()
+static void ess_lock_mem(void)
 {
    LOCK_VARIABLE(digi_audiodrive);
    LOCK_VARIABLE(_sound_freq);

@@ -41,7 +41,7 @@ static void vesa_vsync(void);
 static void vesa_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int vesa_request_scroll(int x, int y);
 static int vesa_poll_scroll(void);
-static GFX_MODE_LIST *vesa_fetch_mode_list();
+static GFX_MODE_LIST *vesa_fetch_mode_list(void);
 
 static char vesa_desc[256] = EMPTY_STRING;
 
@@ -300,7 +300,7 @@ static int evilness_flag = 0;             /* set if we are doing dodgy things
 /* get_vesa_info:
  *  Retrieves a VESA info block structure, returning 0 for success.
  */
-static int get_vesa_info()
+static int get_vesa_info(void)
 {
    unsigned long addr;
    int c;
@@ -604,7 +604,7 @@ static void setup_vesa_desc(GFX_DRIVER *driver, int vbe_version, int linear)
  *  Generates a list of valid video modes for the VESA drivers.
  *  Returns the mode list on success or NULL on failure.
  */
-static GFX_MODE_LIST *vesa_fetch_mode_list()
+static GFX_MODE_LIST *vesa_fetch_mode_list(void)
 {
    GFX_MODE_LIST  *mode_list;
    unsigned long  mode_ptr;
@@ -1234,7 +1234,7 @@ static BITMAP *vesa_3_init(int w, int h, int v_w, int v_h, int color_depth)
  *  blanking registers. VBE doesn't provide a vsync function, but we 
  *  can emulate it by changing the display start with the vsync flag set.
  */
-static void vesa_vsync()
+static void vesa_vsync(void)
 {
    vesa_scroll(vesa_xscroll, vesa_yscroll);
 }
@@ -1419,7 +1419,7 @@ static int vesa_request_scroll(int x, int y)
 /* vesa_poll_scroll:
  *  VBE 3.0 triple buffering test routine.
  */
-static int vesa_poll_scroll()
+static int vesa_poll_scroll(void)
 {
    _dpmi_reg.x.ax = 0x4F07;
    _dpmi_reg.x.bx = 4;

@@ -118,7 +118,7 @@ static DIALOG file_selector[] =
 /* count_disks:
  *  Counts the number of valid drives.
  */
-static int count_disks()
+static int count_disks(void)
 {
    int c, i;
 

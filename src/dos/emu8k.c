@@ -1084,7 +1084,7 @@ END_OF_STATIC_FUNCTION(emu8k_terminatesound);
  *  of the BLASTER environment variable, and then does some test reads to check
  *  that there is an EMU8000 there.
  */
-int emu8k_detect()
+int emu8k_detect(void)
 {
    char *envvar;
 

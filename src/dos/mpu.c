@@ -137,7 +137,7 @@ END_OF_FUNCTION(_mpu_poll);
 /* mpu_interrupt:
  *  Handler for the MPU-401 input interrupt.
  */ 
-static int mpu_interrupt()
+static int mpu_interrupt(void)
 {
    _mpu_poll();
    _eoi(_mpu_irq);

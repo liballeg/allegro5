@@ -165,7 +165,7 @@ GFX_MODE modex_gfx_modes[] = {
 
 
 static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth);
-static GFX_MODE_LIST *xtended_fetch_mode_list();
+static GFX_MODE_LIST *xtended_fetch_mode_list(void);
 
 
 GFX_DRIVER gfx_xtended =
@@ -824,7 +824,7 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
 /* xtended_fetch_mode_list:
  *  Creates a list of of currently implemented Xtended modes.
  */
-static GFX_MODE_LIST *xtended_fetch_mode_list()
+static GFX_MODE_LIST *xtended_fetch_mode_list(void)
 {
    GFX_MODE_LIST *mode_list;
 

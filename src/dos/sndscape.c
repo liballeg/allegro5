@@ -205,7 +205,7 @@ DIGI_DRIVER digi_soundscape =
 /* soundscape_buffer_size:
  *  Returns the current DMA buffer size, for use by the audiostream code.
  */
-static int soundscape_buffer_size()
+static int soundscape_buffer_size(void)
 {
    return soundscape_dma_size/4; /* convert bytes to stereo 16 bit samples */
 }
@@ -347,7 +347,7 @@ static int set_format(int srate, int stereo, int size16bit, int direction)
 /* stop_codec:
  *  This function will stop the CoDec auto-restart DMA process.
  */
-static void stop_codec()
+static void stop_codec(void)
 {
    int i;
 
@@ -423,7 +423,7 @@ static int get_ini_config_entry(char *entry, char *dest, FILE *fp)
 /* get_init_config:
  *  This function gets all parameters from a file (SNDSCAPE.INI)
  */
-static int get_init_config()
+static int get_init_config(void)
 {
    FILE *fp = NULL;
    char str[78];
@@ -513,7 +513,7 @@ static int get_init_config()
  *  present. If this function is not explicitly called by the application, it
  *  it will be called by the OpenSoundscape function.
  */
-static int detect_soundscape()
+static int detect_soundscape(void)
 {
    int tmp;
 
@@ -570,7 +570,7 @@ static int soundscape_mixer_volume(int volume)
 /* soundscape_interrupt:
  *  The Soundscape end-of-buffer interrupt handler.
  */
-static int soundscape_interrupt()
+static int soundscape_interrupt(void)
 {
    /* if the CoDec is interrupting ... */
    if (inportb(soundscape_waveport + CD_STATUS_OFF) & 0x01) {
@@ -826,7 +826,7 @@ static void soundscape_exit(int input)
  *  Locks all the memory touched by parts of the Soundscape code that are
  *  executed in an interrupt context.
  */
-static void soundscape_lock_mem()
+static void soundscape_lock_mem(void)
 {
    LOCK_VARIABLE(digi_soundscape);
    LOCK_VARIABLE(soundscape_freq);

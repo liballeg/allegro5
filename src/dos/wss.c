@@ -183,7 +183,7 @@ static struct codec_rate_struct codec_rates[NUMCODECRATES] =
 
 
 /* return size of audiostream buffers */
-static int wss_buffer_size()
+static int wss_buffer_size(void)
 {
    return BLOCKLEN / (wss_stereo ? 2 : 1) / (wss_16bits ? 2 : 1);
 }
@@ -191,7 +191,7 @@ static int wss_buffer_size()
 
 
 /* WSS busy wait */
-static void wss_wait()
+static void wss_wait(void)
 {
    int i = 0xFFFF;
 
@@ -203,7 +203,7 @@ static void wss_wait()
 
 
 /* Our IRQ handler. Kinda short... */
-static int wss_irq_handler()
+static int wss_irq_handler(void)
 {
    /* Ack int */
    outportb(STATUS, 0);

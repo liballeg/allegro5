@@ -217,7 +217,7 @@ MMAP af_linear_mem = NOMM;
 #ifdef ALLEGRO_DOS
 
 /* hooks to let the driver call BIOS routines */
-extern void _af_int86(), _af_call_rm();
+extern void _af_int86(void), _af_call_rm(void);
 
 #else
 

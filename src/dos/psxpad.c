@@ -154,17 +154,17 @@
 
 
 /* driver functions */
-static int psx1_init();
-static int psx2_init();
-static int psx3_init();
+static int psx1_init(void);
+static int psx2_init(void);
+static int psx3_init(void);
 static void psx_exit(int base);
-static void psx1_exit();
-static void psx2_exit();
-static void psx3_exit();
-static int psx1_poll();
-static int psx2_poll();
-static int psx3_poll();
-static int psx_detect();
+static void psx1_exit(void);
+static void psx2_exit(void);
+static void psx3_exit(void);
+static int psx1_poll(void);
+static int psx2_poll(void);
+static int psx3_poll(void);
+static int psx_detect(int base, int conport, int tap);
 
 
 
@@ -412,21 +412,21 @@ static int psx_init(int base)
 
 
 
-static int psx1_init()
+static int psx1_init(void)
 {
    return psx_init(LPT1_BASE);
 }
 
 
 
-static int psx2_init()
+static int psx2_init(void)
 {
    return psx_init(LPT2_BASE);
 }
 
 
 
-static int psx3_init()
+static int psx3_init(void)
 {
    return psx_init(LPT3_BASE);
 }
@@ -438,21 +438,21 @@ static int psx3_init()
  * disabled - otherwise prevents Sony Dual Shock controller crash protection
  */
 
-static void psx1_exit()
+static void psx1_exit(void)
 {
    /*outportb(LPT1_BASE + 0, 0); */
 }
 
 
 
-static void psx2_exit()
+static void psx2_exit(void)
 {
    /*outportb(LPT2_BASE + 0, 0); */
 }
 
 
 
-static void psx3_exit()
+static void psx3_exit(void)
 {
    /*outportb(LPT3_BASE + 0, 0); */
 }
@@ -1069,7 +1069,7 @@ static void psx_poll(int base, int conport, int tap, int type, int joynum)
 
 
 
-static int psx1_poll()
+static int psx1_poll(void)
 {
    int joynum;
 
@@ -1093,7 +1093,7 @@ static int psx1_poll()
 
 
 
-static int psx2_poll()
+static int psx2_poll(void)
 {
    int joynum;
 
@@ -1117,7 +1117,7 @@ static int psx2_poll()
 
 
 
-static int psx3_poll()
+static int psx3_poll(void)
 {
    int joynum;
 
