@@ -1020,9 +1020,9 @@ public:
 
    inline friend fix operator /  (const fix x, const fix y)    { fix t;  t.v = fdiv(x.v, y.v);           return t; }
    inline friend fix operator /  (const fix x, const int y)    { fix t;  t.v = x.v / y;                  return t; }
-   inline friend fix operator /  (const int x, const fix y)    { fix t;  t.v = x / fixtoi(y.v);          return t; }
+   inline friend fix operator /  (const int x, const fix y)    { fix t;  t.v = fdiv(itofix(x), y.v);     return t; }
    inline friend fix operator /  (const fix x, const long y)   { fix t;  t.v = x.v / y;                  return t; }
-   inline friend fix operator /  (const long x, const fix y)   { fix t;  t.v = x / fixtoi(y.v);          return t; }
+   inline friend fix operator /  (const long x, const fix y)   { fix t;  t.v = fdiv(itofix(x), y.v);     return t; }
    inline friend fix operator /  (const fix x, const float y)  { fix t;  t.v = ftofix(fixtof(x.v) / y);  return t; }
    inline friend fix operator /  (const float x, const fix y)  { fix t;  t.v = ftofix(x / fixtof(y.v));  return t; }
    inline friend fix operator /  (const fix x, const double y) { fix t;  t.v = ftofix(fixtof(x.v) / y);  return t; }
