@@ -192,7 +192,7 @@ static INLINE void add_key(volatile KEY_BUFFER *buffer, int key, int scancode)
 /* clear_keybuf:
  *  Clears the keyboard buffer.
  */
-void clear_keybuf()
+void clear_keybuf(void)
 {
    if (keyboard_polled)
       poll_keyboard();
@@ -231,7 +231,7 @@ static void clear_key(void)
 /* keypressed:
  *  Returns TRUE if there are keypresses waiting in the keyboard buffer.
  */
-int keypressed()
+int keypressed(void)
 {
    if (keyboard_polled)
       poll_keyboard();
@@ -254,7 +254,7 @@ int keypressed()
  *  the return value contains the ASCII code of the key, and the high
  *  byte the scan code. 
  */
-int readkey()
+int readkey(void)
 {
    int key, scancode;
 
@@ -519,7 +519,7 @@ END_OF_FUNCTION(_handle_key_release);
  *  switch into polling mode and will no longer operate asynchronously
  *  even if the driver actually does support that.
  */
-int poll_keyboard()
+int poll_keyboard(void)
 {
    int i;
 
@@ -569,7 +569,7 @@ int poll_keyboard()
 /* keyboard_needs_poll:
  *  Checks whether the current driver uses polling.
  */
-int keyboard_needs_poll()
+int keyboard_needs_poll(void)
 {
    return keyboard_polled;
 }
@@ -620,7 +620,7 @@ AL_CONST char *scancode_to_name(int scancode)
  *  Installs Allegro's keyboard handler. You must call this before using 
  *  any of the keyboard input routines. Returns -1 on failure.
  */
-int install_keyboard()
+int install_keyboard(void)
 {
    _DRIVER_INFO *driver_list;
    int i;

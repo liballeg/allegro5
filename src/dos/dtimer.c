@@ -177,7 +177,7 @@ END_OF_STATIC_FUNCTION(fixed_timer_handler);
 /* fixed_timer_init:
  *  Installs the fixed-rate timer driver.
  */
-int fixed_timer_init()
+int fixed_timer_init(void)
 {
    int i;
 
@@ -206,7 +206,7 @@ int fixed_timer_init()
 /* fixed_timer_exit:
  *  Shuts down the fixed-rate timer driver.
  */
-void fixed_timer_exit()
+void fixed_timer_exit(void)
 {
    DISABLE();
 
@@ -424,7 +424,7 @@ void var_timer_simulate_retrace(int enable)
 /* var_timer_init:
  *  Installs the variable-rate timer driver.
  */
-int var_timer_init()
+int var_timer_init(void)
 {
    int x, y;
 
@@ -492,7 +492,7 @@ int var_timer_init()
 /* var_timer_exit:
  *  Shuts down the variable-rate timer driver.
  */
-void var_timer_exit()
+void var_timer_exit(void)
 {
    DISABLE();
 

@@ -401,7 +401,7 @@ static void awe32_exit(int input)
  *  Like it says, translate the soundfont data into something we can use
  *  when playing notes.
  */
-static void translate_soundfont_into_something_useful()
+static void translate_soundfont_into_something_useful(void)
 {
    int p, s, gen, weirdo;
    struct midi_preset_t *thing_to_write = NULL;
@@ -447,7 +447,7 @@ static void translate_soundfont_into_something_useful()
 /* destroy_useful_version_of_soundfont:
  *  Destroys the data created by the above function
  */
-static void destroy_useful_version_of_soundfont()
+static void destroy_useful_version_of_soundfont(void)
 {
    int p, s;
 

@@ -205,7 +205,7 @@ void rest(unsigned int time)
  *  Checks whether the current driver is capable of a video retrace
  *  syncing mode.
  */
-int timer_can_simulate_retrace()
+int timer_can_simulate_retrace(void)
 {
    if ((timer_driver) && (timer_driver->can_simulate_retrace))
       return timer_driver->can_simulate_retrace();
@@ -233,7 +233,7 @@ void timer_simulate_retrace(int enable)
  *  Tells the user whether the current driver is providing a retrace
  *  sync.
  */
-int timer_is_using_retrace()
+int timer_is_using_retrace(void)
 {
    return _timer_use_retrace;
 }
@@ -507,7 +507,7 @@ static void clear_timer_queue(void)
  *  any user timer routines. You must set up the timer before trying to 
  *  display a mouse pointer or using any of the GUI routines.
  */
-int install_timer()
+int install_timer(void)
 {
    _DRIVER_INFO *driver_list;
    int i;

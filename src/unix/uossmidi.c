@@ -102,7 +102,7 @@ MIDI_DRIVER midi_oss =
 
 
 /* as required by the OSS API */
-void seqbuf_dump()
+void seqbuf_dump(void)
 {
    if (_seqbufptr) {
       write(seq_fd, _seqbuf, _seqbufptr);

@@ -1600,7 +1600,7 @@ int request_scroll(int x, int y)
 /* poll_scroll:
  *  Checks whether a requested triple buffer flip has actually taken place.
  */
-int poll_scroll()
+int poll_scroll(void)
 {
    if ((!gfx_driver->poll_scroll) || (_dispsw_status))
       return FALSE;
@@ -1652,7 +1652,7 @@ int request_video_bitmap(BITMAP *bitmap)
  *  Asks a driver to turn on triple buffering mode, if it is capable
  *  of that.
  */
-int enable_triple_buffer()
+int enable_triple_buffer(void)
 {
    if (gfx_capabilities & GFX_CAN_TRIPLE_BUFFER)
       return 0;

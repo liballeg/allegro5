@@ -710,7 +710,7 @@ void remove_sound(void)
 /* remove_sound_input:
  *  Sound input module cleanup routine.
  */
-void remove_sound_input()
+void remove_sound_input(void)
 {
    if (_sound_input_installed) {
       digi_input_driver->exit(TRUE);
@@ -1824,7 +1824,7 @@ END_OF_FUNCTION(voice_set_vibrato);
  *  Timer callback routine used to implement volume/frequency/pan sweep 
  *  effects, for those drivers that can't do them directly.
  */
-static void update_sweeps()
+static void update_sweeps(void)
 {
    int phys_voices, i;
 
@@ -1883,7 +1883,7 @@ END_OF_STATIC_FUNCTION(update_sweeps);
 /* get_sound_input_cap_bits:
  *  Recording capabilities: number of bits
  */
-int get_sound_input_cap_bits()
+int get_sound_input_cap_bits(void)
 {
    return digi_input_driver->rec_cap_bits;
 }
@@ -1893,7 +1893,7 @@ int get_sound_input_cap_bits()
 /* get_sound_input_cap_stereo:
  *  Recording capabilities: stereo
  */
-int get_sound_input_cap_stereo()
+int get_sound_input_cap_stereo(void)
 {
    return digi_input_driver->rec_cap_stereo;
 }
@@ -1955,7 +1955,7 @@ int start_sound_input(int rate, int bits, int stereo)
 /* stop_sound_input:
  *  Ends recording.
  */
-void stop_sound_input()
+void stop_sound_input(void)
 {
    if (digi_input_driver->rec_stop)
       digi_input_driver->rec_stop();
@@ -1981,7 +1981,7 @@ END_OF_FUNCTION(read_sound_input);
 /* sound_lock_mem:
  *  Locks memory used by the functions in this file.
  */
-static void sound_lock_mem()
+static void sound_lock_mem(void)
 {
    LOCK_VARIABLE(digi_none);
    LOCK_VARIABLE(_midi_none);

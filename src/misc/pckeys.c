@@ -728,7 +728,7 @@ static void read_keyboard_config(void)
  *  Initialises the scancode translation routines, loading mapping tables
  *  from keyboard.dat.
  */
-void _pckeys_init()
+void _pckeys_init(void)
 {
    int i;
 

@@ -557,7 +557,7 @@ static INLINE int read_CCCA(int channel)
 
 
 /*
-static INLINE int read_HWCF4()
+static INLINE int read_HWCF4(void)
 {
    return read_dword(1, 9, 1);
 }
@@ -566,7 +566,7 @@ static INLINE int read_HWCF4()
 
 
 /*
-static INLINE int read_HWCF5()
+static INLINE int read_HWCF5(void)
 {
    return read_dword(1, 10, 1);
 }
@@ -575,7 +575,7 @@ static INLINE int read_HWCF5()
 
 
 /*
-static INLINE int read_HWCF6()
+static INLINE int read_HWCF6(void)
 {
    return read_dword(1, 13, 1);
 }
@@ -584,7 +584,7 @@ static INLINE int read_HWCF6()
 
 
 /*
-static INLINE int read_SMALR()
+static INLINE int read_SMALR(void)
 {
    return read_dword(1, 20, 1);
 }
@@ -593,7 +593,7 @@ static INLINE int read_SMALR()
 
 
 /*
-static INLINE int read_SMARR()
+static INLINE int read_SMARR(void)
 {
    return read_dword(1, 21, 1);
 }
@@ -602,7 +602,7 @@ static INLINE int read_SMARR()
 
 
 /*
-static INLINE int read_SMALW()
+static INLINE int read_SMALW(void)
 {
    return read_dword(1, 22, 1);
 }
@@ -611,7 +611,7 @@ static INLINE int read_SMALW()
 
 
 /*
-static INLINE int read_SMARW()
+static INLINE int read_SMARW(void)
 {
    return read_dword(1, 23, 1);
 }
@@ -620,7 +620,7 @@ static INLINE int read_SMARW()
 
 
 /*
-static INLINE int read_SMLD()
+static INLINE int read_SMLD(void)
 {
    return read_word(1, 26, 1);
 }
@@ -629,7 +629,7 @@ static INLINE int read_SMLD()
 
 
 /*
-static INLINE int read_SMRD()
+static INLINE int read_SMRD(void)
 {
    return read_word(1, 26, 2);
 }
@@ -638,7 +638,7 @@ static INLINE int read_SMRD()
 
 
 /*
-static INLINE int read_WC()
+static INLINE int read_WC(void)
 {
    return read_word(1, 27, 2);
 }
@@ -647,7 +647,7 @@ static INLINE int read_WC()
 
 
 /*
-static INLINE int read_HWCF1()
+static INLINE int read_HWCF1(void)
 {
    return read_word(1, 29, 1);
 }
@@ -656,7 +656,7 @@ static INLINE int read_HWCF1()
 
 
 /*
-static INLINE int read_HWCF2()
+static INLINE int read_HWCF2(void)
 {
    return read_word(1, 30, 1);
 }
@@ -665,7 +665,7 @@ static INLINE int read_HWCF2()
 
 
 /*
-static INLINE int read_HWCF3()
+static INLINE int read_HWCF3(void)
 {
    return read_word(1, 31, 1);
 }
@@ -674,7 +674,7 @@ static INLINE int read_HWCF3()
 
 
 /*
-static INLINE int read_INIT1()
+static INLINE int read_INIT1(void)
 {
    return read_word(2, 0, 1);
 }
@@ -683,7 +683,7 @@ static INLINE int read_INIT1()
 
 
 /*
-static INLINE int read_INIT2()
+static INLINE int read_INIT2(void)
 {
    return read_word(2, 0, 2);
 }
@@ -692,7 +692,7 @@ static INLINE int read_INIT2()
 
 
 /*
-static INLINE int read_INIT3()
+static INLINE int read_INIT3(void)
 {
    return read_word(3, 0, 1);
 }
@@ -701,7 +701,7 @@ static INLINE int read_INIT3()
 
 
 /*
-static INLINE int read_INIT4()
+static INLINE int read_INIT4(void)
 {
    return read_word(3, 0, 2);
 }
@@ -837,7 +837,7 @@ static INLINE int read_FM2FRQ2(int channel)
  *  Functions to wait for DMA streams to be ready.
  */
 /*
-static INLINE void wait_LR()
+static INLINE void wait_LR(void)
 {
    while (read_SMALR() & 0x80000000) ;
 }
@@ -846,7 +846,7 @@ static INLINE void wait_LR()
 
 
 /*
-static INLINE void wait_LW()
+static INLINE void wait_LW(void)
 {
    while (read_SMALW() & 0x80000000) ;
 }
@@ -855,7 +855,7 @@ static INLINE void wait_LW()
 
 
 /*
-static INLINE void wait_RR()
+static INLINE void wait_RR(void)
 {
    while (read_SMARR() & 0x80000000) ;
 }
@@ -864,7 +864,7 @@ static INLINE void wait_RR()
 
 
 /*
-static INLINE void wait_RW()
+static INLINE void wait_RW(void)
 {
    while (read_SMARW() & 0x80000000) ;
 }
@@ -897,7 +897,7 @@ static void write_init_arrays(unsigned short *init1, unsigned short *init2, unsi
 /* emu8k_init:
  *  Initialise the synthesiser. See AEPG chapter 4.
  */
-void emu8k_init()
+void emu8k_init(void)
 {
    int channel;
 
@@ -1374,7 +1374,7 @@ void emu8k_destroyenvelope(envparms_t * env)
 /* emu8k_lock:
  *  Locks all data and functions which might be called in an interrupt context.
  */
-void emu8k_lock()
+void emu8k_lock(void)
 {
    LOCK_VARIABLE(_emu8k_baseport);
    LOCK_VARIABLE(_emu8k_numchannels);

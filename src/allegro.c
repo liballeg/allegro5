@@ -404,7 +404,7 @@ int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(void (*fun
 /* allegro_exit:
  *  Closes down the Allegro system.
  */
-void allegro_exit()
+void allegro_exit(void)
 {
    while (exit_func_list)
       (*(exit_func_list->funcptr))();

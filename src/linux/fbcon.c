@@ -451,7 +451,7 @@ static void fb_exit(BITMAP *b)
 /* fb_save:
  *  Saves the graphics state.
  */
-static void fb_save()
+static void fb_save(void)
 {
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
 }
@@ -461,7 +461,7 @@ static void fb_save()
 /* fb_restore:
  *  Restores the graphics state.
  */
-static void fb_restore()
+static void fb_restore(void)
 {
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &my_mode);
 

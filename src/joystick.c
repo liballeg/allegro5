@@ -213,7 +213,7 @@ void remove_joystick(void)
 /* poll_joystick:
  *  Reads the current input state into the joystick status variables.
  */
-int poll_joystick()
+int poll_joystick(void)
 {
    if ((joystick_driver) && (joystick_driver->poll))
       return joystick_driver->poll();
@@ -342,7 +342,7 @@ int calibrate_joystick(int n)
 /* initialise_joystick:
  *  Bodge function to preserve backward compatibility with the old API.
  */
-int initialise_joystick()
+int initialise_joystick(void)
 {
    int type = _joy_type;
 

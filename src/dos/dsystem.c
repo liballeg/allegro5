@@ -306,7 +306,7 @@ static void detect_os(void)
 /* sys_dos_init:
  *  Top level system driver wakeup call.
  */
-static int sys_dos_init()
+static int sys_dos_init(void)
 {
    #ifdef ALLEGRO_DJGPP
       /* make sure djgpp won't move our memory around */
@@ -351,7 +351,7 @@ static int sys_dos_init()
 /* sys_dos_exit:
  *  The end of the world...
  */
-static void sys_dos_exit()
+static void sys_dos_exit(void)
 {
    _dos_irq_exit();
 
@@ -465,7 +465,7 @@ static void sys_dos_assert(AL_CONST char *msg)
  *  Called just before switching into a graphics mode, to remember what
  *  the text console was like.
  */
-static void sys_dos_save_console_state()
+static void sys_dos_save_console_state(void)
 {
    __dpmi_regs r;
    int c;
@@ -500,7 +500,7 @@ static void sys_dos_save_console_state()
 /* sys_dos_restore_console_state:
  *  Puts us back into the original text mode.
  */
-static void sys_dos_restore_console_state()
+static void sys_dos_restore_console_state(void)
 {
    __dpmi_regs r;
 
@@ -523,7 +523,7 @@ static void sys_dos_restore_console_state()
 /* sys_dos_read_palette:
  *  Reads the current palette from the video hardware.
  */
-static void sys_dos_read_palette()
+static void sys_dos_read_palette(void)
 {
    if (console_virgin)
       sys_dos_save_console_state();
@@ -618,7 +618,7 @@ void _restore_vga_mode(void)
 /* sys_dos_yield_timeslice:
  *  Yields the remaining timeslice portion to the system
  */
-static void sys_dos_yield_timeslice()
+static void sys_dos_yield_timeslice(void)
 {
    #ifdef ALLEGRO_DJGPP
 

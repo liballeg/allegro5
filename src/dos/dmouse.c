@@ -438,7 +438,7 @@ static void mick_lock(void)
 /* mick_init:
  *  Initialises the mickey-mode driver.
  */
-static int mick_init()
+static int mick_init(void)
 {
    if (os_type == OSTYPE_WINNT)
       return -1;
@@ -453,7 +453,7 @@ static int mick_init()
 /* win2k_init:
  *  Initialises the win2k driver.
  */
-static int win2k_init()
+static int win2k_init(void)
 {
    /* only for use under Win2k */
    if (os_type != OSTYPE_WINNT)
@@ -469,7 +469,7 @@ static int win2k_init()
 /* mick_exit:
  *  Shuts down the mickey-mode driver.
  */
-static void mick_exit()
+static void mick_exit(void)
 {
    __dpmi_regs r;
 
@@ -583,7 +583,7 @@ static void int33_get_mickeys(int *mickeyx, int *mickeyy)
 /* int33_init:
  *  Initialises the int 0x33 driver.
  */
-static int int33_init()
+static int int33_init(void)
 {
    if (os_type == OSTYPE_WINNT)
       return -1;
@@ -599,7 +599,7 @@ static int int33_init()
 /* int33_exit:
  *  Shuts down the int 0x33 driver.
  */ 
-static void int33_exit()
+static void int33_exit(void)
 {
    __dpmi_regs r;
 
@@ -624,7 +624,7 @@ static void int33_exit()
 /* polling_timer_poll:
  *  Handler for the periodic timer polling mode.
  */
-static void polling_timer_poll()
+static void polling_timer_poll(void)
 {
    __dpmi_regs r;
 
@@ -643,7 +643,7 @@ END_OF_STATIC_FUNCTION(polling_timer_poll);
 /* polling_init:
  *  Initialises the periodic timer driver.
  */
-static int polling_init()
+static int polling_init(void)
 {
    if (os_type == OSTYPE_WINNT)
       return -1;
@@ -659,7 +659,7 @@ static int polling_init()
 /* winnt_init:
  *  Initialises the WinNT driver.
  */
-static int winnt_init()
+static int winnt_init(void)
 {
    /* only for use under WinNT */
    if (os_type != OSTYPE_WINNT)
@@ -676,7 +676,7 @@ static int winnt_init()
 /* polling_exit:
  *  Shuts down the periodic timer driver.
  */
-static void polling_exit()
+static void polling_exit(void)
 {
    __dpmi_regs r;
 

@@ -1584,7 +1584,7 @@ static void vbeaf_exit(BITMAP *b)
 /* vbeaf_save:
  *  Saves the graphics state.
  */
-static void vbeaf_save()
+static void vbeaf_save(void)
 {
    if (af_driver->EnableDirectAccess)
       af_driver->EnableDirectAccess(af_driver);
@@ -1601,7 +1601,7 @@ static void vbeaf_save()
 /* vbeaf_restore:
  *  Restores the graphics state.
  */
-static void vbeaf_restore()
+static void vbeaf_restore(void)
 {
    long wret = saved_wret;
 
@@ -1630,7 +1630,7 @@ static void vbeaf_restore()
  *  Attempts to create a list of valid video modes for the VBE/AF driver.
  *  Returns the mode list on success or NULL on failure.
  */
-static GFX_MODE_LIST *vbeaf_fetch_mode_list()
+static GFX_MODE_LIST *vbeaf_fetch_mode_list(void)
 {
    GFX_MODE_LIST *gfx_mode_list;
    AF_MODE_INFO *mode_info;
@@ -1721,7 +1721,7 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list()
  *  can emulate it by altering the display start address with the vsync 
  *  flag set.
  */
-static void vbeaf_vsync()
+static void vbeaf_vsync(void)
 {
    vbeaf_scroll(vbeaf_xscroll, vbeaf_yscroll);
 }
@@ -1801,7 +1801,7 @@ static int vbeaf_request_scroll(int x, int y)
 /* vbeaf_poll_scroll:
  *  Triple buffering test routine.
  */
-static int vbeaf_poll_scroll()
+static int vbeaf_poll_scroll(void)
 {
    int ret;
 
@@ -1949,7 +1949,7 @@ static int vbeaf_show_mouse(BITMAP *bmp, int x, int y)
 /* vbeaf_hide_mouse:
  *  Gets rid of the hardware cursor.
  */
-static void vbeaf_hide_mouse()
+static void vbeaf_hide_mouse(void)
 {
    SAFISH_CALL(
       af_driver->ShowCursor(af_driver, 0);
@@ -2003,7 +2003,7 @@ END_OF_STATIC_FUNCTION(vbeaf_move_mouse);
  *  Hook to tell us that the drawing mode has been changed, so we may need
  *  to alter some of our vtable entries.
  */
-static void vbeaf_drawing_mode()
+static void vbeaf_drawing_mode(void)
 {
    vbeaf_pattern = NULL;
 

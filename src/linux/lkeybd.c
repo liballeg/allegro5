@@ -361,7 +361,7 @@ static void suspend_keyboard (void)
 /* resume_keyboard:
  *  Start/resume Allegro keyboard handling.
  */
-static void resume_keyboard()
+static void resume_keyboard(void)
 {
         if (resume_count == 0)
                 activate_keyboard();

@@ -138,7 +138,7 @@ static int read_gpp(int pad_num)
 /* gpro_init:
  *  Initialises the driver.
  */
-static int gpro_init()
+static int gpro_init(void)
 {
    int i;
 
@@ -182,7 +182,7 @@ static int gpro_init()
 /* gpro_exit:
  *  Shuts down the driver.
  */
-static void gpro_exit()
+static void gpro_exit(void)
 {
 }
 
@@ -191,7 +191,7 @@ static void gpro_exit()
 /* gpro_poll:
  *  Updates the joystick status variables.
  */
-static int gpro_poll()
+static int gpro_poll(void)
 {
    int i, b, gpp, mask;
 
