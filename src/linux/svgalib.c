@@ -106,7 +106,7 @@ unsigned long _svgalib_write_line(BITMAP *bmp, int line)
 {
    int new_line = line + bmp->y_ofs;
    if ((new_line != last_line) && (last_line >= 0))
-      vga_drawscanline(last_line, screen_buffer + last_line * scanline_width);
+      vga_drawscansegment(screen_buffer + last_line * scanline_width, 0, last_line, scanline_width);
    last_line = new_line;
    return (unsigned long) (bmp->line[line]);
 }
@@ -198,7 +198,8 @@ static int mode_ok(vga_modeinfo *info, int w, int h, int v_w, int v_h,
 	    || ((color_depth == 32) && (info->bytesperpixel == 4)))
 	   && (((info->width == w) && (info->height == h))
 	       || ((w == 0) && (h == 0)))
-	   && (info->maxlogicalwidth >= (MAX(w, v_w) * info->bytesperpixel)));
+ 	   && (info->linewidth >= (MAX(w, v_w) * info->bytesperpixel))
+ 	   && (info->maxpixels >= (MAX(w, v_w) * MAX(h, v_h))));
 }
 
 
@@ -404,9 +405,12 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    static int virgin = 1;
    BITMAP *bmp = NULL;
-   int error = 0;
+   int svgalib2;
 
-   if (!__al_linux_have_ioperms) {
+   /* SVGAlib 2.0 doesn't require special permissions.  */
+   svgalib2 = vga_version >= 0x1900;
+
+   if ((!svgalib2) && (!__al_linux_have_ioperms)) {
       ustrcpy(allegro_error, get_config_text("This driver needs root privileges"));
       return NULL;
    }
@@ -417,16 +421,27 @@ static BITMAP *svga_init(int w, int h, int v_w, int v_h, int color_depth)
 
    /* Initialise SVGAlib.  */
    if (virgin) {
-      seteuid(0);
+      if (!svgalib2) 
+	 seteuid(0);
+      else {
+	 /* Avoid having SVGAlib calling exit() on us.  */
+	 int fd = open("/dev/svga", O_RDWR);
+	 if (fd < 0)
+	    goto error;
+	 close(fd);
+      }
       vga_disabledriverreport();
-      error = vga_init();
-      seteuid(getuid());
+      if (vga_init() != 0)
+	 goto error;
+      if (!svgalib2)
+	 seteuid(getuid());
       virgin = 0;
    }
     
    /* Ask for a video mode.  */
-   if (!error)
-      bmp = do_set_mode(w, h, v_w, v_h, color_depth);
+   bmp = do_set_mode(w, h, v_w, v_h, color_depth);
+
+   error:
 
    /* Restart interrupts processing.  */
    __al_linux_async_init();
