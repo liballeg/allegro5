@@ -142,7 +142,9 @@ static int update_overlay()
 {
    RECT pos;
 
-   GetWindowRect(allegro_wnd, &pos);
+   GetClientRect(allegro_wnd, &pos);
+   ClientToScreen(allegro_wnd, (LPPOINT)&pos);
+   ClientToScreen(allegro_wnd, (LPPOINT)&pos + 1);
 
    return show_overlay(pos.left, pos.top,
 		       pos.right - pos.left, pos.bottom - pos.top);
@@ -165,6 +167,51 @@ static int wnd_set_windowed_coop(void)
    return 0;
 }
 
+
+/* _get_n_bits:
+ * gets the number of bits of a given bitmask
+ */
+static int _get_n_bits (int mask)
+{
+    int n = 0;
+
+    while (mask) {
+        mask = mask & (mask - 1);  
+        n++;
+    }
+    return n;
+}
+
+
+/* verify_color_depth:
+ * compares the color depth requested with the real color depth
+ */
+static int verify_color_depth (int color_depth)
+{
+   int desktop_depth;
+   DDSURFACEDESC surf_desc;
+   HRESULT hr;
+   
+   /* get current video mode */
+   surf_desc.dwSize = sizeof(surf_desc);
+   hr = IDirectDraw_GetDisplayMode(directdraw, &surf_desc);
+   if (FAILED(hr)) {
+      _TRACE("Can't get color format.\n");
+      return -1;
+   }
+
+   /* get the *real* color depth of the desktop */
+   desktop_depth = surf_desc.ddpfPixelFormat.dwRGBBitCount;
+   if (desktop_depth == 16) /* sure? */
+      desktop_depth = _get_n_bits (surf_desc.ddpfPixelFormat.dwRBitMask) +
+                      _get_n_bits (surf_desc.ddpfPixelFormat.dwGBitMask) +
+                      _get_n_bits (surf_desc.ddpfPixelFormat.dwBBitMask);
+
+   if (color_depth == desktop_depth)
+      return 0;
+   else
+      return -1;
+}
 
 
 /* handle_window_size:
@@ -214,6 +261,8 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    /* init DirectX */
    if (init_directx() != 0)
+      goto Error;
+   if (verify_color_depth(color_depth))
       goto Error;
    if (wnd_call_proc(wnd_set_windowed_coop) != 0)
       goto Error;
