@@ -88,6 +88,7 @@ GFX_DRIVER gfx_vesa_2b =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   NULL,
    vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
@@ -111,6 +112,7 @@ GFX_DRIVER gfx_vesa_2l =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   NULL,
    vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };
@@ -136,6 +138,7 @@ GFX_DRIVER gfx_vesa_3 =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   NULL,
    vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };

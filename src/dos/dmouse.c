@@ -126,6 +126,7 @@ MOUSE_DRIVER mousedrv_int33 =
    int33_set_speed,
    int33_get_mickeys,
    NULL,
+   NULL,
    NULL
 };
 
@@ -152,6 +153,7 @@ MOUSE_DRIVER mousedrv_polling =
    int33_set_speed,
    int33_get_mickeys,
    NULL,
+   NULL,
    NULL
 };
 
@@ -175,6 +177,7 @@ MOUSE_DRIVER mousedrv_winnt =
    int33_set_range,
    int33_set_speed,
    int33_get_mickeys,
+   NULL,
    NULL,
    NULL
 };

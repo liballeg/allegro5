@@ -205,6 +205,7 @@ GFX_DRIVER gfx_xtended =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   NULL,                         /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    xtended_fetch_mode_list,
    640, 400,
    TRUE,

@@ -107,7 +107,7 @@ static void vbeaf_vline_a(BITMAP *bmp, int x, int y1, int y2, int color);
 static void vbeaf_vline_b(BITMAP *bmp, int x, int y1, int y2, int color);
 static void vbeaf_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 static void vbeaf_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-static int  vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color);
+static void vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color);
 static void vbeaf_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int color, int bg);
 static void vbeaf_draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 static void vbeaf_blit_from_memory(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
@@ -2535,23 +2535,31 @@ static void vbeaf_rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int colo
 /* vbeaf_triangle:
  *  Hardware accelerated triangle drawing function.
  */
-static int vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color)
+static void vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, int y3, int color)
 {
    AF_TRAP trap;
 
    /* bounding box test */
    if (bmp->clip) {
-      if ((x1 < bmp->cl) || (x2 < bmp->cl) || (x3 < bmp->cl))
-	 return ((x1 < bmp->cl) && (x2 < bmp->cl) && (x3 < bmp->cl));
+      if ((x1 < bmp->cl) || (x2 < bmp->cl) || (x3 < bmp->cl)) {
+         _soft_triangle(bmp, x1, y1, x2, y2, x3, y3, color);
+	 return;
+      }
+      
+      if ((y1 < bmp->ct) || (y2 < bmp->ct) || (y3 < bmp->ct)) {
+         _soft_triangle(bmp, x1, y1, x2, y2, x3, y3, color);
+	 return;
+      }
 
-      if ((y1 < bmp->ct) || (y2 < bmp->ct) || (y3 < bmp->ct))
-	 return ((y1 < bmp->ct) && (y2 < bmp->ct) && (y3 < bmp->ct));
+      if ((x1 >= bmp->cr) || (x2 >= bmp->cr) || (x3 >= bmp->cr)) {
+         _soft_triangle(bmp, x1, y1, x2, y2, x3, y3, color);
+	 return;
+      }
 
-      if ((x1 >= bmp->cr) || (x2 >= bmp->cr) || (x3 >= bmp->cr))
-	 return ((x1 >= bmp->cr) && (x2 >= bmp->cr) && (x3 >= bmp->cr));
-
-      if ((y1 >= bmp->cb) || (y2 >= bmp->cb) || (y3 >= bmp->cb))
-	 return ((y1 >= bmp->cb) && (y2 >= bmp->cb) && (y3 >= bmp->cb));
+      if ((y1 >= bmp->cb) || (y2 >= bmp->cb) || (y3 >= bmp->cb)) {
+         _soft_triangle(bmp, x1, y1, x2, y2, x3, y3, color);
+	 return;
+      }
    }
 
    /* sort along the vertical axis */
