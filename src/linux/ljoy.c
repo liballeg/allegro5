@@ -67,7 +67,7 @@ static int joy_init(void)
 					 NULL);
 
       if (device_name) {
-	 joy_fd[i] = open(uconvert_toascii(device_name, tmp), O_RDONLY);
+	 joy_fd[i] = open(uconvert_toascii(device_name, tmp), O_RDONLY|O_NONBLOCK);
 	 if (joy_fd[i] == -1)
 	    break;
       }
@@ -75,12 +75,12 @@ static int joy_init(void)
 	 snprintf(tmp, sizeof(tmp), "/dev/input/js%d", i);
 	 tmp[sizeof(tmp)-1] = 0;
 
-	 joy_fd[i] = open(tmp, O_RDONLY);
+	 joy_fd[i] = open(tmp, O_RDONLY|O_NONBLOCK);
 	 if (joy_fd[i] == -1) {
 	    snprintf(tmp, sizeof(tmp), "/dev/js%d", i);
 	    tmp[sizeof(tmp)-1] = 0;
 
-	    joy_fd[i] = open(tmp, O_RDONLY);
+	    joy_fd[i] = open(tmp, O_RDONLY|O_NONBLOCK);
 	    if (joy_fd[i] == -1) 
 	       break;
 	 }
@@ -193,8 +193,9 @@ static int joy_poll(void)
 {
    fd_set set;
    struct timeval tv;
-   struct js_event e;
+   struct js_event e[32];
    int i, ready;
+   int bytes, n, k;
 
    for (i = 0; i < num_joysticks; i++) {
       tv.tv_sec = tv.tv_usec = 0;
@@ -205,14 +206,18 @@ static int joy_poll(void)
       if (ready <= 0)
 	 continue;
 
-      read(joy_fd[i], &e, sizeof(e));
-      if (e.type & JS_EVENT_BUTTON) {
-	 if (e.number < MAX_JOYSTICK_BUTTONS)
-	    joy[i].button[e.number].b = e.value;
-      }
-      else if (e.type & JS_EVENT_AXIS) {
-	 if (e.number < TOTAL_JOYSTICK_AXES)
-	    set_axis (axis[i][e.number], e.value);
+      while ((bytes = read(joy_fd[i], e, sizeof(e))) > 0) {
+	 n = bytes / sizeof(e[0]);
+	 for (k = 0; k < n; k++) {
+	    if (e[k].type & JS_EVENT_BUTTON) {
+	       if (e[k].number < MAX_JOYSTICK_BUTTONS)
+		  joy[i].button[e[k].number].b = e[k].value;
+	    }
+	    else if (e[k].type & JS_EVENT_AXIS) {
+	       if (e[k].number < TOTAL_JOYSTICK_AXES)
+		  set_axis (axis[i][e[k].number], e[k].value);
+	    }
+	 }
       }
    }
 
