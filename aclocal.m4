@@ -284,6 +284,35 @@ fi
 ])
 
 dnl
+dnl Test for Linux Framebuffer Console support.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_fbcon=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_FBCON,
+[AC_CHECK_HEADER(linux/fb.h,
+AC_TRY_COMPILE([#include <linux/fb.h>], [int x = FB_SYNC_ON_GREEN;],
+allegro_cv_support_fbcon=yes))])
+
+dnl
+dnl Test for Linux SVGAlib support.
+dnl
+dnl  Variables:
+dnl   allegro_cv_support_svgalib=(yes|)
+dnl   allegro_cv_have_vga_version=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_SVGALIB,
+[AC_CHECK_HEADER(vga.h,
+AC_CHECK_LIB(vga, vga_init,
+allegro_cv_support_svgalib=yes
+AC_MSG_CHECKING(for vga_version in vga.h)
+AC_CACHE_VAL(allegro_cv_have_vga_version,
+[AC_TRY_COMPILE([#include <vga.h>], [int x = vga_version; x++;],
+allegro_cv_have_vga_version=yes,
+allegro_cv_have_vga_version=no)])
+AC_MSG_RESULT($allegro_cv_have_vga_version)))])
+
+dnl
 dnl Test for OSS DIGI driver.
 dnl
 dnl Variables:
@@ -471,6 +500,36 @@ if test -n "$allegro_enable_sgialdigi"; then
     LIBS="-laudio $LIBS"
   fi
 fi])
+
+dnl
+dnl Test that MAP_FAILED is defined in system headers.
+dnl
+dnl Variables:
+dnl  allegro_cv_have_map_failed = (yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_MAP_FAILED,
+[AC_MSG_CHECKING(for MAP_FAILED)
+AC_CACHE_VAL(allegro_cv_have_map_failed,
+[AC_TRY_COMPILE([#include <unistd.h>
+#include <sys/mman.h>],
+[int test_mmap_failed (void *addr) { return (addr == MAP_FAILED); }],
+allegro_cv_have_map_failed=yes,
+allegro_cv_have_map_failed=no)])
+AC_MSG_RESULT($allegro_cv_have_map_failed)])
+
+dnl
+dnl Test that the POSIX threads library is present.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_pthreads = (yes|)
+dnl
+dnl LIBS can be modified.
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_PTHREADS,
+[AC_CHECK_HEADER(pthread.h,
+AC_CHECK_LIB(pthread, pthread_create,
+LIBS="-lpthread $LIBS"
+allegro_cv_support_pthreads=yes))])
 
 dnl
 dnl Test where is sched_yield (SunOS).
