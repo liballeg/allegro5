@@ -124,6 +124,7 @@ AL_ARRAY(_DRIVER_INFO, _gfx_driver_list);
 #define GFX_HW_MEM_BLIT_MASKED            0x00080000
 #define GFX_HW_SYS_TO_VRAM_BLIT           0x00100000
 #define GFX_HW_SYS_TO_VRAM_BLIT_MASKED    0x00200000
+#define GFX_SYSTEM_CURSOR                 0x00400000
 
 
 AL_VAR(int, gfx_capabilities);   /* current driver capabilities */

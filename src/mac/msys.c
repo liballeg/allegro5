@@ -122,6 +122,7 @@ MOUSE_DRIVER mouse_macos ={
    NULL,
    NULL,
    NULL,
+   NULL,
    NULL
 };
 

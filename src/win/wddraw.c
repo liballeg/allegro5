@@ -384,6 +384,8 @@ int gfx_directx_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
    HBITMAP hOldXorMaskBitmap;
 
    if (hcursor) {
+      if (_win_hcursor == hcursor)
+         _win_hcursor = NULL;
       DestroyIcon(hcursor);
       hcursor = NULL;
    }

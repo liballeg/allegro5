@@ -44,7 +44,8 @@ typedef struct MOUSE_DRIVER
    AL_METHOD(void, set_speed, (int xspeed, int yspeed));
    AL_METHOD(void, get_mickeys, (int *mickeyx, int *mickeyy));
    AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
-   AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   AL_METHOD(void, enable_hardware_cursor, (AL_CONST int mode));
+   AL_METHOD(int,  select_system_cursor, (AL_CONST int cursor));
 } MOUSE_DRIVER;
 
 
@@ -60,6 +61,15 @@ AL_FUNC(int, mouse_needs_poll, (void));
 
 AL_FUNC(void, enable_hardware_cursor, (void));
 AL_FUNC(void, disable_hardware_cursor, (void));
+
+/* Mouse cursors */
+#define MOUSE_CURSOR_NONE        0
+#define MOUSE_CURSOR_ALLEGRO     1
+#define MOUSE_CURSOR_ARROW       2
+#define MOUSE_CURSOR_BUSY        3
+#define MOUSE_CURSOR_QUESTION    4
+#define MOUSE_CURSOR_EDIT        5
+#define NUM_MOUSE_CURSORS        6
 
 AL_VAR(struct BITMAP *, mouse_sprite);
 AL_VAR(int, mouse_x_focus);
@@ -92,10 +102,10 @@ AL_FUNC(void, position_mouse, (int x, int y));
 AL_FUNC(void, position_mouse_z, (int z));
 AL_FUNC(void, set_mouse_range, (int x1, int y1, int x2, int y2));
 AL_FUNC(void, set_mouse_speed, (int xspeed, int yspeed));
-AL_FUNC(void, set_mouse_sprite, (struct BITMAP *sprite));
+AL_FUNC(void, select_mouse_cursor, (int cursor));
 AL_FUNC(void, set_mouse_sprite_focus, (int x, int y));
 AL_FUNC(void, get_mouse_mickeys, (int *mickeyx, int *mickeyy));
-
+AL_FUNC(void, set_mouse_sprite, (struct BITMAP *sprite));
 #ifdef __cplusplus
    }
 #endif

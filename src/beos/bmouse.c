@@ -39,5 +39,6 @@ MOUSE_DRIVER mouse_beos = {
    be_mouse_set_speed,	// AL_METHOD(void, set_speed, (int xspeed, int yspeed));
    be_mouse_get_mickeys,// AL_METHOD(void, get_mickeys, (int *mickeyx, int *mickeyy));
    NULL,                // AL_METHOD(int,  analyse_data, (const char *buffer, int size));
-   NULL                 // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   NULL,                // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   NULL                 // AL_METHOD(int,  select_system_cursor, (AL_CONST int cursor));
 };

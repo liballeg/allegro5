@@ -47,7 +47,8 @@ MOUSE_DRIVER mouse_macosx =
    NULL,       // AL_METHOD(void, set_speed, (int xspeed, int yspeed));
    osx_mouse_get_mickeys,
    NULL,       // AL_METHOD(int,  analyse_data, (AL_CONST char *buffer, int size));
-   NULL        // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   NULL,       // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   NULL        // AL_METHOD(int,  select_system_cursor, (AL_CONST int cursor));
 };
 
 

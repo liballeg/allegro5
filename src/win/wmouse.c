@@ -46,7 +46,7 @@ static void mouse_directx_position(int x, int y);
 static void mouse_directx_set_range(int x1, int y1, int x2, int y2);
 static void mouse_directx_set_speed(int xspeed, int yspeed);
 static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
-
+static int mouse_directx_select_system_cursor(AL_CONST int cursor);
 
 MOUSE_DRIVER mouse_directx =
 {
@@ -63,7 +63,8 @@ MOUSE_DRIVER mouse_directx =
    mouse_directx_set_speed,
    mouse_directx_get_mickeys,
    NULL,                       // AL_METHOD(int, analyse_data, (AL_CONST char *buffer, int size));
-   NULL                        // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   NULL,                       // AL_METHOD(void,  enable_hardware_cursor, (AL_CONST int mode));
+   mouse_directx_select_system_cursor
 };
 
 
@@ -765,3 +766,36 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy)
    *mickeyy = temp_y;
 }
 
+
+
+/* mouse_directx_select_system_cursor:
+ *  Select an OS native cursor 
+ */
+static int mouse_directx_select_system_cursor (AL_CONST int cursor)
+{
+   HCURSOR wc;
+   
+   wc = NULL;
+   switch(cursor) {
+      case MOUSE_CURSOR_ARROW:
+         wc = LoadCursor(NULL, IDC_ARROW);
+         break;
+      case MOUSE_CURSOR_BUSY:
+         wc = LoadCursor(NULL, IDC_WAIT);
+         break;
+      case MOUSE_CURSOR_QUESTION:
+         wc = LoadCursor(NULL, IDC_HELP);
+         break;
+      case MOUSE_CURSOR_EDIT:
+         wc = LoadCursor(NULL, IDC_IBEAM);
+         break;
+      default:
+         return 0;
+   }
+
+   _win_hcursor = wc;
+   SetCursor(_win_hcursor);
+   PostMessage(allegro_wnd, WM_MOUSEMOVE, 0, 0);
+   
+   return cursor;
+}

@@ -20,7 +20,7 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 #include "xwin.h"
-
+#include <X11/cursorfont.h>
 
 /* TRUE if the requested mouse range extends beyond the regular
  * (0, 0, SCREEN_W-1, SCREEN_H-1) range. This is aimed at detecting
@@ -48,7 +48,7 @@ static void _xwin_mousedrv_position(int x, int y);
 static void _xwin_mousedrv_set_range(int x1, int y1, int x2, int y2);
 static void _xwin_mousedrv_set_speed(int xspeed, int yspeed);
 static void _xwin_mousedrv_get_mickeys(int *mickeyx, int *mickeyy);
-
+static int _xwin_select_system_cursor(AL_CONST int cursor);
 
 static MOUSE_DRIVER mouse_xwin =
 {
@@ -65,7 +65,8 @@ static MOUSE_DRIVER mouse_xwin =
    _xwin_mousedrv_set_speed,
    _xwin_mousedrv_get_mickeys,
    NULL,
-   _xwin_enable_hardware_cursor
+   _xwin_enable_hardware_cursor,
+   _xwin_select_system_cursor
 };
 
 
@@ -214,3 +215,37 @@ static void _xwin_mousedrv_get_mickeys(int *mickeyx, int *mickeyy)
    _xwin_set_warped_mouse_mode(TRUE);
 }
 
+
+
+/* _xwin_select_system_cursor:
+ *  Select an OS native cursor 
+ */
+static int _xwin_select_system_cursor(AL_CONST int cursor)
+{
+   switch(cursor) {
+      case MOUSE_CURSOR_ARROW:
+         _xwin.cursor_shape = XC_left_ptr;
+         break;
+      case MOUSE_CURSOR_BUSY:
+         _xwin.cursor_shape = XC_watch;
+         break;
+      case MOUSE_CURSOR_QUESTION:
+         _xwin.cursor_shape = XC_question_arrow;
+         break;
+      case MOUSE_CURSOR_EDIT:
+         _xwin.cursor_shape = XC_xterm;
+         break;
+      default:
+         return 0;
+   }
+   
+   if (_xwin.cursor != None) {
+      XUndefineCursor(_xwin.display, _xwin.window);
+      XFreeCursor(_xwin.display, _xwin.cursor);
+   }   
+
+   _xwin.cursor = XCreateFontCursor(_xwin.display, _xwin.cursor_shape);
+   XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
+   
+   return cursor;
+}
