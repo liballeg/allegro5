@@ -89,11 +89,11 @@ if [ -e misc/dllsyms.lst ]; then
    # test for new symbols
    comm -2 -3 _allsyms2.tmp _dllsyms2.tmp > _difsyms2.tmp
    if [ -s _difsyms2.tmp ]; then
-      echo " "`wc --lines < _difsyms2.tmp`" symbols added:"
+      echo " "`wc --lines < _difsyms2.tmp`" symbol(s) added:"
       cat _difsyms2.tmp
       cat misc/dllsyms.lst _difsyms2.tmp > _alldef3.tmp
    else
-      echo " no symbols added"
+      echo " no symbol added"
       cp misc/dllsyms.lst _alldef3.tmp
    fi
 else
