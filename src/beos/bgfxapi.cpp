@@ -507,25 +507,34 @@ static inline uint32 find_gfx_mode(int w, int h, int d)
 
 
 
-static inline bool be_sort_out_virtual_resolution(int w, int h, int *v_w, int *v_h)
+static inline bool be_sort_out_virtual_resolution(int w, int h, int *v_w, int *v_h, int color_depth)
 {
    int32 try_v_w;
    int32 try_v_h;
-   int step;
+   int mb;
 
-   try_v_w = MAX(w, *v_w);
-   try_v_h = MAX(h, *v_h);
+   if (*v_w == 0)
+      try_v_w = w;
+   else
+      try_v_w = *v_w;
+   try_v_h = *v_h;
 
-   if (*v_h > h) {
-      if (be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) != B_OK) {
-         step = (*v_h - h) / 32;
-         for (int i = *v_h; i >= h; i -= step) {
-            try_v_h = i;
-            if (be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
-               break;
-            }
+   if (*v_h == 0) {
+      for (mb=32; mb>1; mb--) {
+	 try_v_h = (1024*1024*mb) / (try_v_w * BYTES_PER_PIXEL(color_depth));
+	 /* Evil hack: under BeOS R5 SetFrameBuffer() should work with any
+	  * int32 width and height parameters, but actually it crashes if
+	  * one of them exceeds the boundaries of a signed short variable.
+	  */
+	 try_v_h = MIN(try_v_h, 32767);
+
+	 if (be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
+	    *v_w = try_v_w;
+	    *v_h = try_v_h;
+	    return true;
          }
       }
+      try_v_h = h;
    }
 
    if (be_allegro_screen->SetFrameBuffer(try_v_w, try_v_h) == B_OK) {
@@ -618,18 +627,14 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    gfx_card = be_allegro_screen->CardInfo();
 
    if (be_allegro_screen->CanControlFrameBuffer()) {
-      if (!be_sort_out_virtual_resolution(w, h, &v_w, &v_h)) {
+      if (!be_sort_out_virtual_resolution(w, h, &v_w, &v_h, color_depth)) {
          ustrcpy(allegro_error, get_config_text("Resolution not supported"));
          goto cleanup;
       }
    }
    else {
-      v_w = MAX(w, v_w);
-      v_h = MAX(h, v_h);
-      if ((v_w != w) || (v_h != h)) {
-      ustrcpy(allegro_error, get_config_text("Resolution not supported"));
+      if (((v_w != 0) && (v_w != w)) || ((v_h != 0) && (v_h != h)))
 	 goto cleanup;
-      }
    }
 
    fbuffer  = be_allegro_screen->FrameBufferInfo();
