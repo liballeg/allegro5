@@ -2480,10 +2480,11 @@ static int trans_toggler(void)
 
 
 /* help system by Doug Eleveld */
+#define N_HELP_TEXT_SECTIONS  9
 
 static char *grabber_last_help = NULL;
 static char *grabber_help_text = NULL;
-static char *grabber_help_text_section[8];
+static char *grabber_help_text_section[N_HELP_TEXT_SECTIONS];
 
 
 static int set_grabber_help_main(void)
@@ -2521,23 +2522,30 @@ static int set_grabber_help_accessing_datafiles(void)
 }
 
 
-static int set_grabber_help_compiling_datafiles(void)
+static int set_grabber_help_compiling_datafiles_to_asm(void)
 {
    grabber_help_text = grabber_help_text_section[5];
    return D_O_K;
 }
 
 
-static int set_grabber_help_custom_objects(void)
+static int set_grabber_help_compiling_datafiles_to_c(void)
 {
    grabber_help_text = grabber_help_text_section[6];
    return D_O_K;
 }
 
 
-static int set_grabber_help_file_format(void)
+static int set_grabber_help_custom_objects(void)
 {
    grabber_help_text = grabber_help_text_section[7];
+   return D_O_K;
+}
+
+
+static int set_grabber_help_file_format(void)
+{
+   grabber_help_text = grabber_help_text_section[8];
    return D_O_K;
 }
 
@@ -2551,9 +2559,10 @@ static int do_grabber_help_exit(void)
 
 static MENU grabber_help_datafiles[] =
 {
-   { "&Accessing",      set_grabber_help_accessing_datafiles,  NULL, 0, NULL },
-   { "&Compiling",      set_grabber_help_compiling_datafiles,  NULL, 0, NULL },
-   { NULL,              NULL,                                  NULL, 0, NULL }
+   { "&Accessing",        set_grabber_help_accessing_datafiles,        NULL, 0, NULL },
+   { "&Compiling to asm", set_grabber_help_compiling_datafiles_to_asm, NULL, 0, NULL },
+   { "&Compiling to C",   set_grabber_help_compiling_datafiles_to_c,   NULL, 0, NULL },
+   { NULL,                NULL,                                        NULL, 0, NULL }
 };
 
 
@@ -2664,7 +2673,7 @@ static int helper(void)
 
    last = grabber_help_text;
 
-   for (i=1; i<8; i++) {
+   for (i=1; i<N_HELP_TEXT_SECTIONS; i++) {
       s = strstr(last , (cr ? "\r\n\r\n====" : "\n\n===="));
 
       if (s) {
