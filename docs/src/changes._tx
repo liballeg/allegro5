@@ -44,7 +44,7 @@ Changes from 4.1.0 to 4.1.1 (Aug 2002)
 <li>
    George Foot added (preliminary) non-FM support to the OSS MIDI driver.
 <li>
-   Ben David and Robert J. Ohannessian put in (void *) casts for the
+   Ben Davis and Robert J. Ohannessian put in (void *) casts for the
    LOCK_* macros on DJGPP and Mac.
 <li>
    Nicholas Davies made the fix class not trigger warnings with gcc -Weffc++.
