@@ -1127,7 +1127,7 @@ typedef struct MENU_INFO            /* information about a popup menu */
 
 
 void (*gui_menu_draw_menu)(int x, int y, int w, int h) = NULL;
-void (*gui_menu_draw_menu_item)(MENU *m, int x, int y, int w, int h, int bar, int sel);
+void (*gui_menu_draw_menu_item)(MENU *m, int x, int y, int w, int h, int bar, int sel) = NULL;
 
 
 
