@@ -2007,12 +2007,12 @@ int main(int argc, char *argv[])
 
    if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, argv[0]) != 0) {
       allegro_message("Error initialising sound\n%s\n", allegro_error);
-      exit(1);
+      install_sound (DIGI_NONE, MIDI_NONE, NULL);
    }
 
    if (install_joystick(JOY_TYPE_AUTODETECT) != 0) {
       allegro_message("Error initialising joystick\n%s\n", allegro_error);
-      exit(1);
+      install_joystick (JOY_TYPE_NONE);
    }
 
    #ifdef ALLEGRO_CONSOLE_OK
