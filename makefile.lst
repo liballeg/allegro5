@@ -245,7 +245,8 @@ ALLEGRO_SRC_LINUX_FILES = \
 	src/misc/modexgfx.s
 
 ALLEGRO_SRC_UNIX_FILES = \
-	src/unix/ualsa.c \
+	src/unix/alsa.c \
+	src/unix/alsamidi.c \
 	src/unix/udjgpp.c \
 	src/unix/uesd.c \
 	src/unix/ugfxdrv.c \

@@ -100,6 +100,9 @@
 /* Define if ALSA DIGI driver is supported.  */
 #undef ALLEGRO_WITH_ALSADIGI
 
+/* Define if ALSA MIDI driver is supported.  */
+#undef ALLEGRO_WITH_ALSAMIDI
+
 /* Define if ESD DIGI driver is supported.  */
 #undef ALLEGRO_WITH_ESDDIGI
 

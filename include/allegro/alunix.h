@@ -99,6 +99,17 @@ AL_VAR(DIGI_DRIVER, digi_alsa);
 #endif /* ALLEGRO_WITH_ALSADIGI */
 
 
+#ifdef ALLEGRO_WITH_ALSAMIDI
+
+#define MIDI_ALSA              AL_ID('A','M','I','D')
+
+AL_VAR(MIDI_DRIVER, midi_alsa);
+
+#define MIDI_DRIVER_ALSA                                          \
+      {  MIDI_ALSA,        &midi_alsa,            TRUE  },
+
+#endif /* ALLEGRO_WITH_ALSAMIDI */
+
 
 /************************************/
 /************ X-specific ************/

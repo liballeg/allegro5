@@ -887,6 +887,18 @@ alsa_numfrags = x<br>
 alsa_fragsize = x<br>
    Unix only: size of each ALSA fragment, in samples.
 <li>
+alsa_rawmidi_card = x<br>
+   Unix only: for ALSA MIDI driver.
+<li>
+alsa_rawmidi_device = x<br>.
+   Unix only: for ALSA MIDI driver.
+<li>
+alsa_input_card = x<br>
+   Unix only: for ALSA MIDI driver.
+<li>
+alsa_rawmidi_input_device = x<br>
+   Unix only: for ALSA MIDI driver.
+<li>
 patches = x<br>
    Specifies where to find the sample set for the DIGMID driver. This can 
    either be a Gravis style directory containing a collection of .pat files 

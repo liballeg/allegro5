@@ -237,6 +237,23 @@ fi
 ])
 
 dnl
+dnl Test for ALSA MIDI driver.
+dnl
+dnl Variables:
+dnl  allegro_support_alsamidi=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_ALSAMIDI,
+[AC_ARG_ENABLE(alsamidi,
+[  --enable-alsamidi[=x]   enable building ALSA MIDI driver [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_alsamidi=yes,
+allegro_enable_alsamidi=yes)
+
+if test -n "$allegro_enable_alsamidi"; then
+  AC_CHECK_HEADERS(sys/asoundlib.h, allegro_support_alsamidi=yes)
+fi
+])
+
+dnl
 dnl Test for ESD DIGI driver.
 dnl
 dnl Variables:

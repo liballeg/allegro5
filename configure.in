@@ -252,6 +252,11 @@ if test -n "$allegro_support_alsadigi"; then
   AC_DEFINE(ALLEGRO_WITH_ALSADIGI)
 fi
 
+ALLEGRO_ACTEST_ALSAMIDI
+if test -n "$allegro_support_alsamidi"; then
+  AC_DEFINE(ALLEGRO_WITH_ALSAMIDI)
+fi
+
 dnl Test for ESD drivers.
 ALLEGRO_ACTEST_ESDDIGI
 if test -n "$allegro_support_esddigi"; then
