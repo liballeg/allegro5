@@ -16,6 +16,7 @@
  */
 
 
+#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -244,8 +245,30 @@ void _unix_yield_timeslice(void)
  */
 void _unix_get_executable_name(char *output, int size)
 {
+   FILE *pipe;
+   char linkname[1024];
+   char filename[1024];
+   struct stat buf;
    char *path;
+   pid_t pid;
+   int len;
 
+   /* get symolic link to executable from proc fs */
+   pid = getpid();
+   sprintf (linkname, "/proc/%d/exe", pid);
+   
+   if (stat (linkname, &buf) == 0) {
+      len = readlink (linkname, filename, sizeof(filename)-1);
+      if (len>-1) {
+	 filename[len] = '\0';
+         
+	 do_uconvert (filename, U_ASCII, output, U_CURRENT, size);
+	 return;
+      }
+   }
+   
+   /* Cannot stat /proc/pid/exe, or cannot resolve symlink. */
+   /* Fall back on the old argv[0] method */
    /* If argv[0] has no explicit path, but we do have $PATH, search there */
    if (!strchr (__crt0_argv[0], '/') && (path = getenv("PATH"))) {
       char *start = path, *end = path, *buffer = NULL, *temp;
