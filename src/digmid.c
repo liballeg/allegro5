@@ -599,8 +599,6 @@ static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 	       pack_fclose(f);
 	    }
 
-	    *allegro_errno = 0;
-
 	    for (j=i+1; j<256; j++) {
 	       /* share multiple copies of the instrument */
 	       if (ustricmp(todo[i], todo[j]) == 0) {

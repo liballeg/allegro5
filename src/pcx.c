@@ -89,6 +89,8 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
+   *allegro_errno = 0;
+
    for (y=0; y<height; y++) {       /* read RLE encoded PCX data */
       x = xx = 0;
       po = _rgb_r_shift_24/8;
@@ -183,13 +185,15 @@ int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
    f = pack_fopen(filename, F_WRITE);
    if (!f)
-      return *allegro_errno;
+      return -1;
 
    depth = bitmap_color_depth(bmp);
    if (depth == 8)
       planes = 1;
    else
       planes = 3;
+
+   *allegro_errno = 0;
 
    pack_putc(10, f);                      /* manufacturer */
    pack_putc(5, f);                       /* version */
@@ -270,6 +274,10 @@ int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    }
 
    pack_fclose(f);
-   return *allegro_errno;
+
+   if (*allegro_errno)
+      return -1;
+   else
+      return 0;
 }
 

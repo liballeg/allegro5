@@ -105,6 +105,8 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
+   *allegro_errno = 0;
+
    pack_getc(f);                    /* skip unused field        */
    pack_igetw(f);                   /* skip transparent color   */
    pack_getc(f);                    /* skip x aspect ratio      */

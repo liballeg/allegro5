@@ -863,7 +863,7 @@ static DATAFILE *read_old_datafile(PACKFILE *f, void (*callback)(DATAFILE *))
    int c;
 
    size = pack_mgetw(f);
-   if (*allegro_errno) {
+   if (size == EOF) {
       pack_fclose(f);
       return NULL;
    }
@@ -881,6 +881,8 @@ static DATAFILE *read_old_datafile(PACKFILE *f, void (*callback)(DATAFILE *))
       dat[c].size = 0;
       dat[c].prop = NULL;
    }
+
+   *allegro_errno = 0;
 
    for (c=0; c<size; c++) {
 
@@ -1187,6 +1189,8 @@ static void *load_file_object(PACKFILE *f, long size)
 
    c = 0;
    prop_count = 0;
+
+   *allegro_errno = 0;
 
    while (c < count) {
       type = pack_mgetl(f);

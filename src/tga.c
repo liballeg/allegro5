@@ -314,6 +314,8 @@ BITMAP *load_tga(AL_CONST char *filename, RGB *pal)
       return NULL;
    }
 
+   *allegro_errno = 0;
+
    for (y=image_height; y; y--) {
       yc = (descriptor_bits & 0x20) ? image_height-y : y-1;
 
@@ -414,7 +416,9 @@ int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
    f = pack_fopen(filename, F_WRITE);
    if (!f)
-      return *allegro_errno;
+      return -1;
+
+   *allegro_errno = 0;
 
    pack_putc(0, f);                          /* id length (no id saved) */
    pack_putc((depth == 8) ? 1 : 0, f);       /* palette type */
@@ -514,7 +518,11 @@ int save_tga(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    }
 
    pack_fclose(f);
-   return *allegro_errno;
+
+   if (*allegro_errno)
+      return -1;
+   else
+      return 0;
 }
 
 

@@ -594,7 +594,9 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
 
    f = pack_fopen(filename, F_WRITE);
    if (!f) 
-      return *allegro_errno;
+      return -1;
+
+   *allegro_errno = 0;
 
    /* file_header */
    pack_iputw(0x4D42, f);              /* bfType ("BM") */
@@ -656,6 +658,10 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    }
 
    pack_fclose(f);
-   return *allegro_errno;
+
+   if (*allegro_errno)
+      return -1;
+   else
+      return 0;
 }
 

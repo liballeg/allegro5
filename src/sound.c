@@ -825,8 +825,7 @@ SAMPLE *load_voc(AL_CONST char *filename)
       spl = create_sample(8, FALSE, freq, len);
 
       if (spl) {
-	 pack_fread(spl->data, len, f);
-	 if (*allegro_errno) {
+	 if (pack_fread(spl->data, len, f) < len) {
 	    destroy_sample(spl);
 	    spl = NULL;
 	 }
@@ -852,18 +851,21 @@ SAMPLE *load_voc(AL_CONST char *filename)
 
       if (spl) {
 	 if (bits == 8) {
-	    pack_fread(spl->data, len, f);
+	    if (pack_fread(spl->data, len, f) < len) {
+	       destroy_sample(spl);
+	       spl = NULL;
+	    }
 	 }
 	 else {
 	    len /= 2;
 	    for (x=0; x<len; x++) {
-	       s = pack_igetw(f);
+	       if ((s = pack_igetw(f)) == EOF) {
+		  destroy_sample(spl);
+		  spl = NULL;
+		  break;
+	       }
 	       ((signed short *)spl->data)[x] = s^0x8000;
 	    }
-	 }
-	 if (*allegro_errno) {
-	    destroy_sample(spl);
-	    spl = NULL;
 	 }
       }
    }
@@ -937,23 +939,25 @@ SAMPLE *load_wav(AL_CONST char *filename)
 
 	 spl = create_sample(bits, ((channels == 2) ? TRUE : FALSE), freq, len);
 
-	 if (spl) { 
+	 if (spl) {
 	    if (bits == 8) {
-	       pack_fread(spl->data, length, f);
+	       if (pack_fread(spl->data, length, f) < len) {
+		  destroy_sample(spl);
+		  spl = NULL;
+	       }
 	    }
 	    else {
 	       for (i=0; i<len*channels; i++) {
-		  s = pack_igetw(f);
+		  if ((s = pack_igetw(f)) == EOF) {
+		     destroy_sample(spl);
+		     spl = NULL;
+		     break;
+		  }
 		  ((signed short *)spl->data)[i] = s^0x8000;
 	       }
 	    }
 
 	    length = 0;
-
-	    if (*allegro_errno) {
-	       destroy_sample(spl);
-	       spl = NULL;
-	    }
 	 }
       }
 
