@@ -77,8 +77,6 @@ void datedit_init()
       #include "obj/msvc/plugins.h"
    #elif defined ALLEGRO_WATCOM
       #include "obj/watcom/plugins.h"
-   #elif defined ALLEGRO_RSXNT
-      #include "obj/rsxnt/plugins.h"
    #elif defined ALLEGRO_UNIX
       #include "obj/unix/plugins.h"
    #elif defined ALLEGRO_MINGW32

@@ -35,8 +35,6 @@
       #include "alwatcom.h"
    #elif defined ALLEGRO_MINGW32
       #include "almngw32.h"
-   #elif defined ALLEGRO_RSXNT
-      #include "alrsxnt.h"
    #elif defined ALLEGRO_BCC32
       #include "albcc32.h"
    #elif defined ALLEGRO_MSVC

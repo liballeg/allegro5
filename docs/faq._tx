@@ -105,14 +105,6 @@ DJGPP problems
       above 16384).
 
 <h4><li>
-@@   make says "reloc refers to symbol 'bss' which is not being output".
-</h4>
-      This seems to be a problem with the replacement linker from the 
-      RSXNTDJ package. Either go back to using the standard djgpp linker, or 
-      remove the "-s" flag from the Allegro makefile. If anyone knows why 
-      this happens, and how I can avoid it, I'd like to know about it!
-
-<h4><li>
 @@   When I try to compile a program using Allegro, I get lots of errors like:<br>
    C:\TEMP\ccdaaaaa(.text+0x9):x.c: undefined reference to `allegro_init'<br>
    C:\TEMP\ccdaaaaa(.text+0xe):x.c: undefined reference to `install_keyboard'

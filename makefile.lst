@@ -506,5 +506,4 @@ DISTCLEAN_FILES = \
 
 VERYCLEAN_FILES = \
 	authors AUTHORS changes CHANGES thanks THANKS faq.txt \
-	obj/*/*.inc obj/*/*/*.dep lib/*/*.def \
-	include/allegro/rsxdll.h
+	obj/*/*.inc obj/*/*/*.dep lib/*/*.def

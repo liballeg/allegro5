@@ -8072,14 +8072,13 @@ the differences between systems:
 <b>ALLEGRO_WINDOWS</b><br>
 <b>ALLEGRO_MSVC</b><br>
 <b>ALLEGRO_MINGW32</b><br>
-<b>ALLEGRO_RSXNT</b><br>
 <b>ALLEGRO_BCC32</b><br>
 <b>ALLEGRO_UNIX</b><br>
 <b>ALLEGRO_LINUX</b><br>
 <b>ALLEGRO_BEOS</b><br>
 <b>ALLEGRO_GCC</b><br>
    Defined if you are building for a relevant system. Often several of these 
-   will apply, eg. DOS+Watcom, or Windows+GCC+RSXNT.
+   will apply, eg. DOS+Watcom, or Windows+GCC+MinGW32.
 
 <b>ALLEGRO_I386</b><br>
 <b>ALLEGRO_BIG_ENDIAN</b><br>

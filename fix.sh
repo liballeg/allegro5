@@ -8,7 +8,7 @@ proc_help()
    echo
    echo "Usage: ./fix.sh <platform> [--quick|--dtou|--utod|--utom|--mtou]"
    echo
-   echo "Where platform is one of: bcc32, beos, djgpp, mingw32, msvc, qnx, rsxnt, unix"
+   echo "Where platform is one of: bcc32, beos, djgpp, mingw32, msvc, qnx, unix"
    echo "mac and watcom."
    echo "The --quick parameter turns of text file conversion, --dtou converts from"
    echo "DOS/Win32 format to Unix, --utod converts from Unix to DOS/Win32 format,"
@@ -113,7 +113,6 @@ case "$1" in
    "mingw32" ) proc_fix "Windows (Mingw32)" "makefile.mgw" "ALLEGRO_MINGW32";;
    "msvc"    ) proc_fix "Windows (MSVC)"    "makefile.vc"  "ALLEGRO_MSVC";;
    "qnx"     ) proc_fix "QNX"               "makefile.qnx" "ALLEGRO_QNX";;
-   "rsxnt"   ) proc_fix "Windows (RSXNT)"   "makefile.rsx" "ALLEGRO_RSXNT";;
    "unix"    ) proc_fix "Unix"              "none"         "ALLEGRO_UNIX";;
    "mac"     ) proc_fix "Mac"               "none"         "ALLEGRO_MPW";;
    "watcom"  ) proc_fix "DOS (Watcom)"      "makefile.wat" "ALLEGRO_WATCOM";;

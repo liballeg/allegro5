@@ -18,7 +18,6 @@ if [%1] == [bcc32]   goto bcc32
 if [%1] == [djgpp]   goto djgpp
 if [%1] == [mingw32] goto mingw32
 if [%1] == [msvc]    goto msvc
-if [%1] == [rsxnt]   goto rsxnt
 if [%1] == [watcom]  goto watcom
 goto help
 
@@ -50,13 +49,6 @@ set AL_MAKEFILE=makefile.vc
 set AL_PLATFORM=ALLEGRO_MSVC
 goto fix
 
-:rsxnt
-
-echo Configuring Allegro for Windows/RSXNT...
-set AL_MAKEFILE=makefile.rsx
-set AL_PLATFORM=ALLEGRO_RSXNT
-goto fix
-
 :watcom
 
 echo Configuring Allegro for DOS/Watcom...
@@ -69,7 +61,7 @@ goto fix
 echo.
 echo Usage: fix platform [--quick]
 echo.
-echo Where platform is one of: bcc32, djgpp, mingw32, msvc, rsxnt or watcom.
+echo Where platform is one of: bcc32, djgpp, mingw32, msvc or watcom.
 echo The --quick parameter is used to turn off LF to CR/LF conversion.
 echo.
 goto end

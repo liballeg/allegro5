@@ -63,7 +63,6 @@
    Windows/MSVC      - see readme.vc
    Windows/MinGW32   - see readme.mgw
    Windows/Cygwin    - see readme.mgw
-   Windows/RSXNT     - see readme.rsx
    Windows/Borland   - see readme.bcc
    Linux (console)   - see readme.lnx
    Unix (X)          - see readme.uni

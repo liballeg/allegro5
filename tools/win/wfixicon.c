@@ -311,8 +311,6 @@ int main(int argc, char *argv[])
 
 #if defined ALLEGRO_MINGW32
          sprintf(str, "windres -O coff -o %s -i %s", res_name, rc_name);
-#elif defined ALLEGRO_RSXNT
-         sprintf(str, "grc -o %s %s",  res_name, rc_name);
 #elif defined ALLEGRO_MSVC
          sprintf(str, "rc -fo %s %s", res_name, rc_name);
 #elif defined ALLEGRO_BCC32

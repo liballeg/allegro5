@@ -86,15 +86,7 @@ echo "Generating Watcom dependencies..."
 make depend
 
 
-# generate dependencies for RSXNT
-echo "Generating RSXNT dependencies..."
-
-./fix.sh rsxnt --quick
-
-make depend
-
-
-# generate dependencies for Mingw32
+# generate dependencies for MinGW32
 echo "Generating Mingw32 dependencies..."
 
 ./fix.sh mingw32 --quick
