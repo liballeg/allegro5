@@ -1636,12 +1636,21 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list()
    unsigned short *mode;
    int vbeaf_was_off;
 
-   mode_info = NULL;
+   mode_info = malloc(sizeof(AF_MODE_INFO));
+   if (!mode_info) return NULL;
 
    /* make sure VBE/AF interface is enabled! */
    if (!af_driver) {
-      if (!vbeaf_locate_driver()) return NULL;
-      if (!vbeaf_lowlevel_init()) return NULL;
+      if (!vbeaf_locate_driver()) {
+         if (mode_info) free(mode_info);
+	 
+         return NULL;
+      }
+      if (!vbeaf_lowlevel_init()) {
+         if (mode_info) free(mode_info);
+	 
+         return NULL;
+      }
       vbeaf_was_off = TRUE;
    }
    else
@@ -1649,34 +1658,56 @@ static GFX_MODE_LIST *vbeaf_fetch_mode_list()
 
    /* start building mode-list */
    gfx_mode_list = malloc(sizeof(GFX_MODE_LIST));
-   if (!gfx_mode_list) return NULL;
+   if (!gfx_mode_list) {
+      if (mode_info) free(mode_info);
+      
+      return NULL;
+   }
    gfx_mode_list->mode = NULL;
    gfx_mode_list->num_modes = 0;
 
    /* create mode list */
    for (mode = af_driver->AvailableModes; *mode != 0xFFFF; mode++) {
       gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
-      if (!gfx_mode_list->mode) return NULL;
-      if (af_driver->GetVideoModeInfo(af_driver, *mode, mode_info) != 0) return NULL;
-      
+      if (!gfx_mode_list->mode) {
+         if (mode_info) free(mode_info);
+         if (gfx_mode_list) free(gfx_mode_list);
+         
+         return NULL;
+      }
+      if (af_driver->GetVideoModeInfo(af_driver, *mode, mode_info) != 0) {
+         if (mode_info) free(mode_info);
+         if (gfx_mode_list->mode) free(gfx_mode_list->mode);
+         if (gfx_mode_list) free(gfx_mode_list);
+         
+         return NULL;
+      }
+
       gfx_mode_list->mode[gfx_mode_list->num_modes].width  = mode_info->XResolution;
       gfx_mode_list->mode[gfx_mode_list->num_modes].height = mode_info->YResolution;
       gfx_mode_list->mode[gfx_mode_list->num_modes].bpp    = mode_info->BitsPerPixel;
-      
+
       gfx_mode_list->num_modes++;
    }
 
    /* terminate mode list */
    gfx_mode_list->mode = _al_sane_realloc(gfx_mode_list->mode, sizeof(GFX_MODE) * (gfx_mode_list->num_modes + 1));
-   if (!gfx_mode_list->mode) return NULL;
+   if (!gfx_mode_list->mode) {
+      if (mode_info) free(mode_info);
+      if (gfx_mode_list) free(gfx_mode_list);
+      
+      return NULL;
+   }
 
    gfx_mode_list->mode[gfx_mode_list->num_modes].width  = 0;
    gfx_mode_list->mode[gfx_mode_list->num_modes].height = 0;
    gfx_mode_list->mode[gfx_mode_list->num_modes].bpp    = 0;
-   
+
    /* shut down VBE/AF interface if it wasn't previously loaded */
    if (vbeaf_was_off)
       vbeaf_exit(NULL);
+
+   if (mode_info) free(mode_info);
 
    return gfx_mode_list;
 }
