@@ -281,6 +281,10 @@ static void put_time(char *buffer, time_t time)
    char tmp1[64], tmp2[256];
 
    strftime(tmp1, sizeof(tmp1), "%m/%d/%Y %H:%M ", localtime(&time));
+   
+   /* QNX may set errno here (don't ask me why!) */
+   errno = 0;
+   
    ustrcpy(buffer, uconvert_ascii(tmp1, tmp2));
 }
 

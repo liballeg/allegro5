@@ -29,9 +29,9 @@
 
 static int qnx_mouse_init(void);
 static void qnx_mouse_exit(void);
-static void qnx_mouse_position (int, int);
-static void qnx_mouse_set_range (int, int, int, int);
-static void qnx_mouse_get_mickeys (int *, int *);
+static void qnx_mouse_position(int, int);
+static void qnx_mouse_set_range(int, int, int, int);
+static void qnx_mouse_get_mickeys(int *, int *);
 
 
 MOUSE_DRIVER mouse_qnx =
