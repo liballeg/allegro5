@@ -813,6 +813,19 @@ static BITMAP *xtended_init(int w, int h, int v_w, int v_h, int color_depth)
 }
 
 
+
+/* xtended_fetch_mode_list:
+ *  Creates a list of of currently implemented Xtended modes.
+ */
+static int xtended_fetch_mode_list()
+{
+   destroy_gfx_mode_list();
+   _gfx_mode_list_malloced = FALSE;
+   gfx_mode_list = xtended_gfx_modes;
+
+   return 0;
+}
+
 #endif      /* GFX_XTENDED */
 
 
@@ -1593,20 +1606,6 @@ static int modex_fetch_mode_list()
    destroy_gfx_mode_list();
    _gfx_mode_list_malloced = FALSE;
    gfx_mode_list = modex_gfx_modes;
-
-   return 0;
-}
-
-
-
-/* xtended_fetch_mode_list:
- *  Creates a list of of currently implemented Xtended modes.
- */
-static int xtended_fetch_mode_list()
-{
-   destroy_gfx_mode_list();
-   _gfx_mode_list_malloced = FALSE;
-   gfx_mode_list = xtended_gfx_modes;
 
    return 0;
 }
