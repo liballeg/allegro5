@@ -65,6 +65,7 @@ AL_FUNC(int, enable_acceleration, (GFX_DRIVER * drv));
 /* video mode setting */
 AL_FUNC(int, gfx_directx_compare_color_depth, (int color_depth));
 AL_FUNC(int, gfx_directx_update_color_format, (LPDIRECTDRAWSURFACE surf, int color_depth));
+AL_FUNC(void, get_working_area, (RECT *working_area));
 
 AL_VAR(int, desktop_depth);
 AL_VAR(BOOL, same_color_depth);
@@ -100,6 +101,7 @@ AL_VAR(BMP_EXTRA_INFO *, directx_bmp_list);
 
 
 /* overlay */
+AL_FUNC(void, handle_window_size_ovl, (int x, int y, int w, int h));
 AL_FUNC(void, hide_overlay, (void));
 AL_FUNC(void, wddovl_switch_out, (void));
 AL_FUNC(void, wddovl_switch_in, (void));
@@ -113,7 +115,7 @@ AL_VAR(int, wnd_sysmenu);
 
 /* windowed mode */
 AL_FUNC(void, handle_window_moving_win, (void));
-AL_FUNC(void, handle_window_size_win, (void));
+AL_FUNC(void, handle_window_size_win, (int x, int y, int w, int h));
 AL_FUNCPTR(void, update_window, (RECT* rect));
 AL_FUNC(void, wddwin_switch_out, (void));
 AL_FUNC(void, wddwin_switch_in, (void));
