@@ -138,8 +138,7 @@ int get_dx_ver(void)
                         default:
                            dx_version = 0x800; /* 8.0 */
                      } /* switch (dsetup_revision) */
-                  }
-                  case 0x00040009 == dsetup_version ) {
+                  case 0x00040009:
                      switch (dsetup_revision) {
                         case 0x00000384:
                            dx_version = 0x900; /* 9.0 */
@@ -159,7 +158,6 @@ int get_dx_ver(void)
                         default:
                            dx_version = 0x900;
                      } /* switch (dsetup_revision) */
-                  }
                } /* switch (dsetup_version) */
             }
          }
