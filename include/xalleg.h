@@ -132,7 +132,6 @@ extern struct _xwin_type
    char application_name[1024];
    char application_class[1024];
 
-   int screen_lock_count;
    int real_drawing_mode;
    int drawing_mode_ok;
 

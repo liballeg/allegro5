@@ -136,7 +136,6 @@ struct _xwin_type _xwin =
    XWIN_DEFAULT_APPLICATION_NAME,       /* application_name */
    XWIN_DEFAULT_APPLICATION_CLASS,      /* application_class */
 
-   0,           /* screen_lock_count */
    GXcopy,      /* real_drawing_mode */
    TRUE,        /* drawing_mode_ok */
 
