@@ -779,32 +779,34 @@ static void check_for_redraw(DIALOG_PLAYER *player)
 int update_dialog(DIALOG_PLAYER *player)
 {
    int c, cascii, cscan, ccombo, r, ret, nowhere, z;
+   int new_mouse_b;
 
    if (player->res & D_CLOSE)
       return FALSE;
 
    /* deal with mouse buttons presses and releases */
-   if (gui_mouse_b() != player->mouse_b) {
+   new_mouse_b = gui_mouse_b();
+   if (new_mouse_b != player->mouse_b) {
       player->res |= offer_focus(player->dialog, player->mouse_obj, &player->focus_obj, FALSE);
 
       if (player->mouse_obj >= 0) {
 	 /* send press and release messages */
-         if ((gui_mouse_b() & 1) && !(player->mouse_b & 1))
-	    MESSAGE(player->mouse_obj, MSG_LPRESS, gui_mouse_b());
-         if (!(gui_mouse_b() & 1) && (player->mouse_b & 1))
-	    MESSAGE(player->mouse_obj, MSG_LRELEASE, gui_mouse_b());
+         if ((new_mouse_b & 1) && !(player->mouse_b & 1))
+	    MESSAGE(player->mouse_obj, MSG_LPRESS, new_mouse_b);
+         if (!(new_mouse_b & 1) && (player->mouse_b & 1))
+	    MESSAGE(player->mouse_obj, MSG_LRELEASE, new_mouse_b);
 
-         if ((gui_mouse_b() & 4) && !(player->mouse_b & 4))
-	    MESSAGE(player->mouse_obj, MSG_MPRESS, gui_mouse_b());
-         if (!(gui_mouse_b() & 4) && (player->mouse_b & 4))
-	    MESSAGE(player->mouse_obj, MSG_MRELEASE, gui_mouse_b());
+         if ((new_mouse_b & 4) && !(player->mouse_b & 4))
+	    MESSAGE(player->mouse_obj, MSG_MPRESS, new_mouse_b);
+         if (!(new_mouse_b & 4) && (player->mouse_b & 4))
+	    MESSAGE(player->mouse_obj, MSG_MRELEASE, new_mouse_b);
 
-         if ((gui_mouse_b() & 2) && !(player->mouse_b & 2))
-	    MESSAGE(player->mouse_obj, MSG_RPRESS, gui_mouse_b());
-         if (!(gui_mouse_b() & 2) && (player->mouse_b & 2))
-	    MESSAGE(player->mouse_obj, MSG_RRELEASE, gui_mouse_b());
+         if ((new_mouse_b & 2) && !(player->mouse_b & 2))
+	    MESSAGE(player->mouse_obj, MSG_RPRESS, new_mouse_b);
+         if (!(new_mouse_b & 2) && (player->mouse_b & 2))
+	    MESSAGE(player->mouse_obj, MSG_RRELEASE, new_mouse_b);
 
-         player->mouse_b = gui_mouse_b();
+         player->mouse_b = new_mouse_b;
 
 	 if (player->res == D_O_K)
 	    player->click_wait = TRUE;
@@ -879,7 +881,7 @@ int update_dialog(DIALOG_PLAYER *player)
    }
 
    /* deal with mouse button clicks */
-   if (gui_mouse_b()) {
+   if (new_mouse_b) {
       player->res |= offer_focus(player->dialog, player->mouse_obj, &player->focus_obj, FALSE);
 
       if (player->mouse_obj >= 0) {
@@ -889,7 +891,7 @@ int update_dialog(DIALOG_PLAYER *player)
 	 player->mouse_oy = gui_mouse_y();
 
 	 /* send click message */
-	 MESSAGE(player->mouse_obj, MSG_CLICK, gui_mouse_b());
+	 MESSAGE(player->mouse_obj, MSG_CLICK, new_mouse_b);
 
 	 if (player->res == D_O_K)
 	    player->click_wait = TRUE;
