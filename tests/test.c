@@ -4440,6 +4440,7 @@ int main(void)
    mypal[255].r = mypal[255].g = mypal[255].b = 0;
 
    buttons = install_mouse();
+   enable_hardware_cursor();
    sprintf(mouse_specs, "Mouse has %d buttons", buttons);
 
    #ifdef ALLEGRO_I386
