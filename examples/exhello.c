@@ -20,10 +20,12 @@ int main()
    install_keyboard(); 
 
    /* set a graphics mode sized 320x200 */
-   if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
-      set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
-      return 1;
+   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_SAFE, 320, 200, 0, 0) != 0) {
+	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 return 1;
+      }
    }
 
    /* set the color palette */
