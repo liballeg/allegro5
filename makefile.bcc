@@ -18,6 +18,10 @@ HTML = html
 
 PLATFORM_DIR = obj/bcc32
 
+ifneq (,$(findstring bash,$(SHELL)))
+   UNIX_TOOLS = 1
+endif
+
 
 
 # -------- link as a DLL --------

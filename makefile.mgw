@@ -30,7 +30,7 @@ ifdef ALLEGRO_USE_CYGWIN
 endif
 
 ifneq (,$(findstring /sh.exe,$(SHELL)))
-  UNIX_TOOLS = 1
+   UNIX_TOOLS = 1
 endif
 
 
@@ -154,6 +154,8 @@ ifndef TARGET_OPTS
 endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
+
+
 
 ifdef DEBUGMODE
 
