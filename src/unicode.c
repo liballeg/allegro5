@@ -2259,7 +2259,7 @@ typedef struct SPRINT_INFO
 typedef struct STRING_ARG
 {
    char *data;
-   int size;
+   int size;  /* in bytes without the terminating '\0' */
    struct STRING_ARG *next;
 } STRING_ARG;
 
@@ -2854,6 +2854,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
                      }
 
                      string_arg->size = pos;
+                     usetc(string_arg->data+pos, 0);
                   }
                   else {
                      /* right align the result */
@@ -2872,7 +2873,7 @@ static int decode_format_string(char *buf, STRING_ARG *string_arg, AL_CONST char
                            shiftfiller = ' ';
 
                         shiftbytes = shift * ucwidth(shiftfiller);
-                        memmove(string_arg->data+pos+shiftbytes, string_arg->data+pos, string_arg->size-pos);
+                        memmove(string_arg->data+pos+shiftbytes, string_arg->data+pos, string_arg->size-pos+ucwidth(0));
 
                         string_arg->size += shiftbytes;
                         slen += shift;
