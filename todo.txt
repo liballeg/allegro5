@@ -50,19 +50,18 @@ X11 todos:
 
 - remove `dga_mouse' config var when appropriate (newer servers have fixed
   the bug this works around).  Wait until XF86 4.0 propagated..
-- speed up X11 driver
+- speed up X11 driver (use asm colour conversion routines, for one)
 - key[] should not be internationalised (e.g. KEY_S should always be set
   for the key two to the right of CapsLock).  If we can't solve this in
   time, include bukinm's xkeymap program.
 - play nice with WindowMaker (there's no appicon, for one)
+- ufixicon (generate src file that when linked, automatically sets icon)
 
 Unix todos:
 ---------------------------------------------------------------------------
 
-- check which parts of makefiles break with non-GNU make
 - update ALSA drivers to latest stable version
 - "still PIC-related problems with X lib, waiting for XFree people"
-- disable pthreads option in configure
 
 Macintosh todos:
 ---------------------------------------------------------------------------
