@@ -835,6 +835,11 @@ with the standard variables that are used by Allegro (see below).
    Pops a configuration state previously stored by push_config_state(), 
    replacing the current config source with it.
 
+@@void @flush_config_file();
+@xref set_config_file, override_config_file, push_config_state
+   Writes the current config file to disk if the contents have changed 
+   since it was loaded or since the latest call to the function.
+
 @@void @reload_config_texts(const char *new_language);
 @xref get_config_text, get_config_string, standard config variables
    Reloads the translated strings returned by get_config_text. This is

@@ -62,6 +62,63 @@ static int config_installed = FALSE;
 
 
 
+/* flush_config:
+ *  Writes out a config structure to disk if the contents
+ *  have changed.
+ */
+static void flush_config(CONFIG *cfg)
+{
+   CONFIG_ENTRY *pos;
+   PACKFILE *f;
+   char cr[16];
+
+   usetc(cr+usetc(cr, '\n'), 0);
+
+   if (cfg && cfg->filename && cfg->dirty) {
+      /* write changed data to disk */
+      f = pack_fopen(cfg->filename, F_WRITE);
+
+      if (f) {
+	 pos = cfg->head;
+
+	 while (pos) {
+	    if (pos->name) {
+	       pack_fputs(pos->name, f);
+
+	       if (ugetc(pos->name) != '[') {
+		  pack_putc(' ', f);
+		  pack_putc('=', f);
+		  pack_putc(' ', f);
+	       }
+	    }
+
+	    if (pos->data)
+	       pack_fputs(pos->data, f);
+
+	    pack_fputs(cr, f);
+
+	    pos = pos->next;
+         }
+
+	 pack_fclose(f);
+	 cfg->dirty = FALSE;
+      }
+   }
+}
+
+
+
+/* flush_config_file:
+ *  Writes out the config file to disk if the contents
+ *  have changed.
+ */
+void flush_config_file(void)
+{
+   flush_config(config[0]);
+}
+
+
+
 /* destroy_config:
  *  Destroys a config structure, writing it out to disk if the contents
  *  have changed.
@@ -69,44 +126,12 @@ static int config_installed = FALSE;
 static void destroy_config(CONFIG *cfg)
 {
    CONFIG_ENTRY *pos, *prev;
-   char cr[16];
-
-   usetc(cr+usetc(cr, '\n'), 0);
 
    if (cfg) {
-      if (cfg->filename) {
-	 if (cfg->dirty) {
-	    /* write changed data to disk */
-	    PACKFILE *f = pack_fopen(cfg->filename, F_WRITE);
+      flush_config(cfg);
 
-	    if (f) {
-	       pos = cfg->head;
-
-	       while (pos) {
-		  if (pos->name) {
-		     pack_fputs(pos->name, f);
-
-		     if (ugetc(pos->name) != '[') {
-			pack_putc(' ', f);
-			pack_putc('=', f);
-			pack_putc(' ', f);
-		     }
-		  }
-
-		  if (pos->data)
-		     pack_fputs(pos->data, f);
-
-		  pack_fputs(cr, f);
-
-		  pos = pos->next;
-	       }
-
-	       pack_fclose(f);
-	    }
-	 }
-
+      if (cfg->filename)
 	 free(cfg->filename);
-      }
 
       /* destroy the variable list */
       pos = cfg->head;
@@ -456,7 +481,7 @@ void override_config_data(AL_CONST char *data, int length)
 /* push_config_state:
  *  Pushes the current config state onto the stack.
  */
-void push_config_state()
+void push_config_state(void)
 {
    int i;
 
@@ -474,7 +499,7 @@ void push_config_state()
 /* pop_config_state:
  *  Pops the current config state off the stack.
  */
-void pop_config_state()
+void pop_config_state(void)
 {
    int i;
 

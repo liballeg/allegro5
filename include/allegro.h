@@ -296,6 +296,7 @@ AL_FUNC(void, set_config_file, (AL_CONST char *filename));
 AL_FUNC(void, set_config_data, (AL_CONST char *data, int length));
 AL_FUNC(void, override_config_file, (AL_CONST char *filename));
 AL_FUNC(void, override_config_data, (AL_CONST char *data, int length));
+AL_FUNC(void, flush_config_file, (void));
 AL_FUNC(void, reload_config_texts, (AL_CONST char *new_language));
 
 AL_FUNC(void, push_config_state, (void));
