@@ -520,7 +520,8 @@ static PACKFILE *pack_fopen_exe_file()
  */
 static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
 {
-   char buf[512];
+   char buf[512];   /* text is read into buf as UTF-8 */
+   char tmp[512*4]; /* this should be enough even when expanding to UCS-4 */
    char name[512];
    int use_next = FALSE;
    int recurse = FALSE;
@@ -552,7 +553,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
 	    /* examine name property */
 	    pack_fread(buf, size, f);
 	    buf[size] = 0;
-	    if (ustricmp(uconvert(buf, U_UTF8, NULL, U_CURRENT, -1), name) == 0)
+	    if (ustricmp(uconvert(buf, U_UTF8, tmp, U_CURRENT, sizeof tmp), name) == 0)
 	       use_next = TRUE;
 	 }
 	 else {
@@ -1932,11 +1933,17 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
  */
 int pack_fputs(AL_CONST char *p, PACKFILE *f)
 {
-   char *s;
+   char *buf, *s;
+   int bufsize;
 
    *allegro_errno = 0;
 
-   s = uconvert(p, U_CURRENT, NULL, U_UTF8, -1);
+   bufsize = uconvert_size(p, U_CURRENT, U_UTF8);
+   buf = malloc(bufsize);
+   if (!buf)
+      return -1;
+
+   s = uconvert(p, U_CURRENT, buf, U_UTF8, bufsize);
 
    while (*s) {
       #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
@@ -1947,6 +1954,8 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
       pack_putc(*s, f);
       s++;
    }
+
+   free(buf);
 
    if (*allegro_errno)
       return -1;
