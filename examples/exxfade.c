@@ -98,7 +98,8 @@ int main(int argc, char *argv[])
    set_color_conversion(COLORCONV_TOTAL);
 
    /* process all the files on our command line */
-   for (i=1; i<argc; i++) {
+   i=1;
+   for (;;) {
       switch (show(argv[i])) {
 
 	 case -1:
@@ -116,6 +117,9 @@ int main(int argc, char *argv[])
 	    allegro_exit();
 	    return 0;
       }
+
+      if (++i >= argc)
+         i=1;
    }
 
    return 0;
