@@ -954,8 +954,8 @@ void set_gui_colors()
    set_color(1, &grey); 
    set_color(255, &white); 
 
-   gui_fg_color = 0;
-   gui_bg_color = 1;
+   gui_fg_color = palette_color[0];
+   gui_bg_color = palette_color[1];
 }
 
 
@@ -1112,6 +1112,12 @@ int pick_animation_type(int *type)
    centre_dialog(anim_type_dlg);
 
    clear(screen);
+
+   /* we set up colors to match screen color depth */
+   for (ret = 0; anim_type_dlg[ret].proc; ret++) {
+      anim_type_dlg[ret].fg = palette_color[0];
+      anim_type_dlg[ret].bg = palette_color[1];
+   }
 
    ret = do_dialog(anim_type_dlg, 2);
 
@@ -2018,6 +2024,7 @@ int main(int argc, char *argv[])
 
    get_executable_name(buf, sizeof(buf));
    replace_filename(buf2, buf, "demo.dat", sizeof(buf2));
+   set_color_conversion(COLORCONV_NONE);
    data = load_datafile(buf2);
    if (!data) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
@@ -2062,8 +2069,6 @@ int main(int argc, char *argv[])
 
    c = retrace_count;
 
-   generate_explosions();
-
    if (!jumpstart) {
       do {
       } while (retrace_count-c < 120);
@@ -2081,11 +2086,14 @@ int main(int argc, char *argv[])
    if (pick_animation_type(&animation_type) < 0)
       exit(1);
 
+   set_color_depth(8);
    if (set_gfx_mode(c, w, h, 0, 0) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-      allegro_message("Error setting graphics mode\n%s\n", allegro_error);
+      allegro_message("Error setting 8bpp graphics mode\n%s\n", allegro_error);
       exit(1);
    }
+
+   generate_explosions();
 
    switch (animation_type) {
 
