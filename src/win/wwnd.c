@@ -282,14 +282,6 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
          wnd_height = HIWORD(lparam);
          break;
 
-      case WM_ERASEBKGND:
-         /* Disable the default background eraser in order
-          * to prevent conflicts on NT kernels.
-          */
-         if (!user_wnd_proc || win_gfx_driver)
-            return 1;
-         break;
-
       case WM_PAINT:
          if (!user_wnd_proc || win_gfx_driver) {
             BeginPaint(wnd, &ps);
@@ -368,7 +360,7 @@ static HWND create_directx_window(void)
       if (!wnd_class.hIcon)
          wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
       wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
-      wnd_class.hbrBackground = GetStockObject(BLACK_BRUSH);
+      wnd_class.hbrBackground = NULL;
       wnd_class.lpszMenuName = NULL;
       wnd_class.lpszClassName = ALLEGRO_WND_CLASS;
 

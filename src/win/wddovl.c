@@ -85,8 +85,8 @@ static WIN_GFX_DRIVER win_gfx_driver_overlay =
 
 static char gfx_driver_desc[256] = EMPTY_STRING;
 static DDRAW_SURFACE *overlay_surface = NULL;
-static BITMAP *viewport = NULL, *background = NULL;
 static BOOL overlay_visible = FALSE;
+static HBRUSH overlay_brush;
 
 
 
@@ -109,11 +109,6 @@ static int update_overlay(int x, int y, int w, int h)
 {
    HRESULT hr;
    RECT dest_rect = {x, y, x + w, y + h};
-
-   /* paint the window background with the overlay color key */
-   background->x_ofs = x + viewport->x_ofs;
-   background->y_ofs = y + viewport->y_ofs;
-   clear_to_color(background, background->vtable->mask_color);
 
    /* show the overlay surface */
    hr = IDirectDrawSurface2_UpdateOverlay(overlay_surface->id, NULL,
@@ -310,6 +305,10 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (finalize_directx_init() != 0)
       goto Error;
 
+   /* Paint window background with overlay color key. */
+   overlay_brush = CreateSolidBrush(MASK_COLOR_32);
+   SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) overlay_brush);
+
    if (adjust_window(w, h) != 0) {
       _TRACE("window size not supported.\n");
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
@@ -366,8 +365,6 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    forefront_bitmap = make_bitmap_from_surface(overlay_surface, w, h, BMP_ID_VIDEO);
-   viewport = make_bitmap_from_surface(primary_surface, w, h, BMP_ID_VIDEO);
-   background = create_sub_bitmap(viewport, 0, 0, w, h);
 
    /* set the overlay color key */
    key.dwColorSpaceLowValue = forefront_bitmap->vtable->mask_color;
@@ -430,16 +427,11 @@ static void gfx_directx_ovl_exit(struct BITMAP *bmp)
    /* destroy the overlay surface */
    if (overlay_surface) {
       hide_overlay();
+      SetClassLong(allegro_wnd, GCL_HBRBACKGROUND, (LONG) NULL);
+      DeleteObject(overlay_brush);
       gfx_directx_destroy_surface(overlay_surface);
       overlay_surface = NULL;
       forefront_bitmap = NULL;
-   }
-
-   /* destroy the viewport */
-   if (viewport) {
-      destroy_bitmap(background);
-      free(viewport);
-      viewport = NULL;
    }
 
    gfx_directx_exit(NULL);
