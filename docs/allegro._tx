@@ -134,6 +134,7 @@ information about how to install Allegro and link your program with it.
       OSTYPE_WARP       - OS/2 Warp 3
       OSTYPE_DOSEMU     - Linux DOSEMU
       OSTYPE_OPENDOS    - Caldera OpenDOS
+      OSTYPE_BEOS       - BeOS
       OSTYPE_LINUX      - Linux
       OSTYPE_UNIX       - Unknown Unix variant
 </pre>
@@ -141,7 +142,7 @@ information about how to install Allegro and link your program with it.
    Outputs a message, using a printf() format string. This function must 
    only be used when you aren't in graphics mode, eg. before calling 
    set_gfx_mode(), or after a set_gfx_mode(GFX_TEXT). On platforms that have 
-   a text mode console (DOS and Unix) it will print the string to the 
+   a text mode console (DOS, Unix and BeOS) it will print the string to the 
    console, attempting to work around codepage differences by reducing any 
    accented characters to 7 bit ASCII approximations, or under Windows it 
    will bring up a GUI message box.
@@ -511,9 +512,10 @@ By default the configuration data is read from a file called allegro.cfg,
 which can be located either in the same directory as the program executable, 
 or the directory pointed to by the ALLEGRO environment variable. Under Unix, 
 it also checks for ~/allegro.cfg, ~/.allegrorc, /etc/allegro.cfg, and 
-/etc/allegrorc, in that order. If you don't like this approach, you can 
-specify any filename you like, or use a block of binary configuration data 
-provided by your program (which could for example be loaded from a datafile).
+/etc/allegrorc, in that order; under BeOS only the last two are also checked.
+If you don't like this approach, you can specify any filename you like, or
+use a block of binary configuration data provided by your program (which
+could for example be loaded from a datafile).
 
 You can store whatever custom information you like in the config file, along 
 with the standard variables that are used by Allegro (see below).
@@ -899,6 +901,25 @@ alsa_input_card = x<br>
 <li>
 alsa_rawmidi_input_device = x<br>
    Unix only: for ALSA MIDI driver.
+<li>
+be_midi_quality = x<br>
+   BeOS only: system MIDI synthentetizer instruments quality. 0 uses low
+   quality 8-bit 11 kHz samples, 1 uses 16-bit 22 kHz samples.
+<li>
+be_midi_freq = x<br>
+   BeOS only: MIDI sample mixing frequency in Hz. Can be 11025, 22050 or
+   44100.
+<li>
+be_midi_interpolation = x<br>
+   BeOS only: specifies the MIDI samples interpolation method. 0 doesn't
+   interpolate, it's fast but has the worst quality; 1 does a fast
+   interpolation with better performances, but it's a bit slower than the
+   previous method; 2 does a linear interpolation between samples, it is the
+   slowest method but gives the best performances.
+<li>
+be_midi_reverb = x<br>
+   BeOS only: reverberation intensity, from 0 to 5. 0 disables it, 5 is the
+   strongest one.
 <li>
 patches = x<br>
    Specifies where to find the sample set for the DIGMID driver. This can 
@@ -1747,7 +1768,7 @@ Graphics modes
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
 @xref allegro_error, standard config variables, GFX_*/DOS, GFX_*/Windows
-@xref GFX_*/X, GFX_*/Linux
+@xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS
    Switches into graphics mode. The card parameter should usually be 
    GFX_AUTODETECT, or see the platform specific documentation for a list of 
    the available drivers. The w and h parameters specify what screen 
@@ -4264,6 +4285,7 @@ Sound init routines
 
 @@int @detect_digi_driver(int driver_id);
 @xref install_sound, reserve_voices, DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix
+@xref DIGI_*/BeOS
    Detects whether the specified digital sound device is available. Returns 
    the maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. This function must be called _before_ 
@@ -4271,6 +4293,7 @@ Sound init routines
 
 @@int @detect_midi_driver(int driver_id);
 @xref install_sound, reserve_voices, MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix
+@xref MIDI_*/BeOS
    Detects whether the specified MIDI sound device is available. Returns the 
    maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. There are two special-case return values that 
@@ -4298,8 +4321,8 @@ Sound init routines
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
 @xref set_volume, play_sample, voice control, play_midi, play_audio_stream
 @xref install_sound_input, allegro_error, standard config variables
-@xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, MIDI_*/DOS, MIDI_*/Windows
-@xref MIDI_*/Unix
+@xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS
+@xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
    and MIDI_AUTODETECT as the driver parameters to this function, in which 
    case Allegro will read hardware settings from the current configuration 
@@ -4729,7 +4752,7 @@ Recording routines
 @@int @install_sound_input(int digi, int midi);
 @xref install_sound, start_sound_input, midi_recorder
 @xref standard config variables, DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix
-@xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix
+@xref DIGI_*/BeOS, MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS
    Initialises the sound recorder module, returning zero on success. You 
    must install the normal sound playback system before calling this 
    routine. The two card parameters should use the same constants as 
@@ -6957,6 +6980,57 @@ function to remind you :-)
 </pre>
 
 
+
+@heading
+BeOS specifics
+
+@@Drivers: @GFX_*/BeOS
+@xref set_gfx_mode, GFX_*/BeOS
+   BeOS Allegro supports the following card parameters for the
+   set_gfx_mode() function:
+<ul><li>
+   GFX_TEXT<br>
+      Return to text mode.
+<li>
+   GFX_AUTODETECT<br>
+      Let Allegro pick an appropriate graphics driver.
+<li>
+   GFX_SAFE<br>
+      Special driver for when you want to reliably set a graphics mode and 
+      don't really care what resolution. See the set_gfx_mode() 
+      documentation for details.
+<li>
+   GFX_FULLSCREEN<br>
+      Fullscreen exclusive mode. Supports only resolutions higher or equal
+      to 640x480.
+<li>
+   GFX_FULLSCREEN_SAFE<br>
+      At the moment, this behaves the same as GFX_FULLSCREEN.
+<li>
+   GFX_WINDOWED<br>
+      Fast windowed mode using the BDirectWindow class. Not all graphics
+      cards support this.
+</ul>
+@@Drivers: @DIGI_*/BeOS
+@xref detect_digi_driver, install_sound, install_sound_input
+   BeOS sound functions support the following digital soundcards:
+<pre>
+      DIGI_AUTODETECT      - let Allegro pick a digital sound driver
+      DIGI_NONE            - no digital sound
+      DIGI_BEOS            - BeOS digital output
+</pre>
+@@Drivers: @MIDI_*/BeOS
+@xref detect_midi_driver, install_sound, install_sound_input
+   The BeOS sound functions support the following MIDI soundcards:
+<pre>
+      MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
+      MIDI_NONE            - no MIDI sound
+      MIDI_BEOS            - BeOS MIDI output
+      MIDI_DIGMID          - sample-based software wavetable player
+</pre>
+
+
+
 @headingnocontent
 Differences between platforms
 
@@ -6999,6 +7073,7 @@ the differences between systems:
 <b>ALLEGRO_BCC32</b><br>
 <b>ALLEGRO_UNIX</b><br>
 <b>ALLEGRO_LINUX</b><br>
+<b>ALLEGRO_BEOS</b><br>
 <b>ALLEGRO_GCC</b><br>
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+RSXNT.
