@@ -57,6 +57,8 @@ void pivot_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fix
    pivot_scaled_sprite(bmp, sprite, x, y, cx, cy, angle, itofix(1));
 }
 
+
+
 /* pivot_sprite_v_flip:
  *  Similar to pivot_sprite, except flips the sprite vertically first.
  */
@@ -64,6 +66,7 @@ void pivot_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int 
 {
    pivot_scaled_sprite_v_flip(bmp, sprite, x, y, cx, cy, angle, itofix(1));
 }
+
 
 
 /* pivot_scaled_sprite:
@@ -83,6 +86,8 @@ void pivot_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int 
    rotate_scaled_sprite(bmp, sprite, x, y, angle, scale);
 }
 
+
+
 /* pivot_scaled_sprite_v_flip:
  *  Similar to pivot_scaled_sprite, except flips the sprite vertically first.
  */
@@ -101,6 +106,7 @@ void pivot_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, int c
 }
 
 
+
 /* rotate_sprite:
  *  Draws a sprite image onto a bitmap at the specified position, rotating 
  *  it by the specified angle. The angle is a fixed point 16.16 number in 
@@ -113,6 +119,8 @@ void rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle)
    rotate_scaled_sprite(bmp, sprite, x, y, angle, itofix(1));
 }
 
+
+
 /* rotate_sprite_v_flip:
  *  Similar to rotate_sprite, except flips the sprite vertically first.
  */
@@ -120,6 +128,7 @@ void rotate_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle
 {
    rotate_scaled_sprite_v_flip(bmp, sprite, x, y, angle, itofix(1));
 }
+
 
 
 /* rotate_scaled_sprite_flip:
@@ -320,6 +329,8 @@ void rotate_scaled_sprite_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed 
    bmp_unwrite_line(bmp);
 }
 
+
+
 /* rotate_scaled_sprite:
  *  Draws a sprite image onto a bitmap at the specified position, rotating 
  *  it by the specified angle. The angle is a fixed point 16.16 number in 
@@ -332,10 +343,12 @@ void rotate_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle
    rotate_scaled_sprite_flip(bmp, sprite, x, y, angle, scale, 0, 0);
 }
 
+
+
 /* rotate_scaled_sprite_v_flip:
  *  Similar to rotate_scaled_sprite, except flips the sprite vertically first.
  */
 void rotate_scaled_sprite_v_flip(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale)
 {
-	rotate_scaled_sprite_flip(bmp, sprite, x, y, angle, scale, 0, 1);
+   rotate_scaled_sprite_flip(bmp, sprite, x, y, angle, scale, 0, 1);
 }
