@@ -342,6 +342,7 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	tests/akaitest.c \
 	tests/digitest.c \
 	tests/filetest.c \
+	tests/gfxinfo.c \
 	tests/mathtest.c \
 	tests/miditest.c \
 	tests/play.c \
@@ -362,6 +363,7 @@ ALLEGRO_LIB_EXES = \
 	tests/akaitest \
 	tests/digitest \
 	tests/filetest \
+	tests/gfxinfo \
 	tests/mathtest \
 	tests/miditest \
 	tests/play \

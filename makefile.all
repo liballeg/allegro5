@@ -243,6 +243,9 @@ ifdef LINK_CONSOLE
 docs/makedoc$(EXE): $(OBJ_DIR)/makedoc$(OBJ) $(LINK_CONSOLE_DEPS)
 	$(LINK_CONSOLE)
 
+tests/gfxinfo$(EXE): $(OBJ_DIR)/gfxinfo$(OBJ) $(LINK_CONSOLE_DEPS)
+	$(LINK_CONSOLE)
+
 tools/colormap$(EXE): $(OBJ_DIR)/colormap$(OBJ) $(LINK_CONSOLE_DEPS)
 	$(LINK_CONSOLE)
 
@@ -306,6 +309,7 @@ afinfo: tests/afinfo$(EXE)
 akaitest: tests/akaitest$(EXE)
 digitest: tests/digitest$(EXE)
 filetest: tests/filetest$(EXE)
+gfxinfo: tests/gfxinfo$(EXE)
 mathtest: tests/mathtest$(EXE)
 miditest: tests/miditest$(EXE)
 play: tests/play$(EXE)
