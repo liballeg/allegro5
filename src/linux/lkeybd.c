@@ -54,7 +54,8 @@ KEYBOARD_DRIVER keydrv_linux_console =
    linux_set_leds,
    linux_set_rate,
    NULL, NULL,
-   linux_scancode_to_ascii
+   linux_scancode_to_ascii,
+   NULL /* scancode_to_name */
 };
 
 static int update_keyboard (void);

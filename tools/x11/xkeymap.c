@@ -46,11 +46,8 @@ static void get_raw_keycode(int pressed, int keycode)
 
 static AL_CONST char *keycode_getter(int index, int *list_size)
 {
-   static char keynames[KEY_MAX][64];
    if (index >= 0) {
-      int ascii = scancode_to_ascii (index + 1);
-      uszprintf (keynames[index], 64, "%d [%c]", index + 1, ascii ? ascii : '?');
-      return keynames[index];
+      return scancode_to_name(index + 1);
    }
    else {
       *list_size = KEY_MAX - 1;
@@ -148,7 +145,7 @@ static void test_key_map(void)
    clear_to_color(screen, white);
    for (i = 0; i < KEY_MAX; i++)
       textprintf_ex(screen, font, 32 + (i % 4) * 160,
-	      32 + (i / 4) * 14, black, -1, "%d", i);
+	      32 + (i / 4) * 14, black, -1, "%s", scancode_to_name (i));
    do {
       poll_keyboard();
       poll_mouse();

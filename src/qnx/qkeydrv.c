@@ -45,7 +45,8 @@ KEYBOARD_DRIVER keyboard_qnx =
    NULL,   // AL_METHOD(void, set_rate, (int delay, int rate));
    NULL,   // AL_METHOD(void, wait_for_input, (void));
    NULL,   // AL_METHOD(void, stop_waiting_for_input, (void));
-   _pckey_scancode_to_ascii
+   _pckey_scancode_to_ascii,
+   _pckey_scancode_to_name
 };
 
 

@@ -57,7 +57,8 @@ KEYBOARD_DRIVER keydrv_pcdos =
    pcdos_set_leds,
    pcdos_set_rate,
    NULL, NULL,
-   _pckey_scancode_to_ascii
+   _pckey_scancode_to_ascii,
+   _pckey_scancode_to_name
 };
 
 

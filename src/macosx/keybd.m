@@ -85,7 +85,8 @@ KEYBOARD_DRIVER keyboard_macosx =
    NULL,   // AL_METHOD(void, set_rate, (int delay, int rate));
    NULL,   // AL_METHOD(void, wait_for_input, (void));
    NULL,   // AL_METHOD(void, stop_waiting_for_input, (void));
-   NULL    // AL_METHOD(int,  scancode_to_ascii, (int scancode));
+   NULL,   // AL_METHOD(int,  scancode_to_ascii, (int scancode));
+   NULL    // scancode_to_name
 };
 
 

@@ -57,7 +57,8 @@ KEYBOARD_DRIVER keyboard_directx =
    NULL, NULL, NULL,
    key_directx_wait_for_input,
    key_directx_stop_wait,
-   _pckey_scancode_to_ascii
+   _pckey_scancode_to_ascii,
+   _pckey_scancode_to_name
 };
 
 /* Map Windows keyboard IDs to Allegro ID strings */

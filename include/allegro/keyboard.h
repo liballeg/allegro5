@@ -40,6 +40,7 @@ typedef struct KEYBOARD_DRIVER
    AL_METHOD(void, wait_for_input, (void));
    AL_METHOD(void, stop_waiting_for_input, (void));
    AL_METHOD(int,  scancode_to_ascii, (int scancode));
+   AL_METHOD(AL_CONST char *, scancode_to_name, (int scancode));
 } KEYBOARD_DRIVER;
 
 
@@ -73,6 +74,7 @@ AL_FUNC(void, clear_keybuf, (void));
 AL_FUNC(void, set_leds, (int leds));
 AL_FUNC(void, set_keyboard_rate, (int delay, int repeat));
 AL_FUNC(int, scancode_to_ascii, (int scancode));
+AL_FUNC(AL_CONST char *, scancode_to_name, (int scancode));
 
 /* The KEY_ macros are no longer #defined directly to avoid conflicting with
  * linux (which has its own KEY_ constants).  "__allegro_"-prefixed constants

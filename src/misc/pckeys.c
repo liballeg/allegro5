@@ -270,6 +270,11 @@ unsigned short *_key_accent4_upper_table = standard_key_empty_table;
 
 
 
+/* Table with key descriptions. */
+char *_pckeys_names[KEY_MAX];
+
+
+
 /* set_standard_keyboard:
  *  Sets up pointers ready to use the standard US keyboard mapping.
  */
@@ -336,6 +341,22 @@ int _pckey_scancode_to_ascii(int scancode)
       val = 0;
 
    return val;
+}
+
+
+
+/* _pckey_scancode_to_name:
+ *  Like above, but returns a static string and also works for things like
+ *  modifier keys.
+ */
+AL_CONST char *_pckey_scancode_to_name(int scancode)
+{
+   int val;
+
+   if ((scancode < 0) || (scancode >= KEY_MAX))
+      return NULL;
+
+   return _pckeys_names[scancode];
 }
 
 
@@ -619,6 +640,28 @@ static void read_key_table(unsigned short *out, unsigned short *in, char *sectio
 
 
 
+/* Updates the key descriptions from the ASCII values. */
+static void update_key_descriptions(void)
+{
+   char str[64];
+   int i;
+   for (i = 0; i < KEY_MAX; i++)
+   {
+      int ascii = scancode_to_ascii (i);
+      if (_pckeys_names[i])
+            free(_pckeys_names[i]);
+      if (ascii > ' ') {
+         uszprintf(str, sizeof str, "%c", ascii);
+         _pckeys_names[i] = strdup (str);
+      }
+      else {
+         _pckeys_names[i] = strdup(_keyboard_common_names[i]);
+      }
+   }
+}
+
+
+
 /* read_keyboard_config:
  *  Reads in the keyboard config tables.
  */
@@ -675,6 +718,8 @@ static void read_keyboard_config(void)
    pop_config_state();
 
    set_custom_keyboard();
+
+   update_key_descriptions();
 }
 
 
@@ -719,6 +764,8 @@ void _pckeys_init()
    memcpy(custom_key_accent3_upper_table,    standard_key_empty_table,     sizeof(custom_key_accent1_upper_table));
    memcpy(custom_key_accent4_lower_table,    standard_key_empty_table,     sizeof(custom_key_accent2_lower_table));
    memcpy(custom_key_accent4_upper_table,    standard_key_empty_table,     sizeof(custom_key_accent2_upper_table));
+
+   update_key_descriptions();
 
    LOCK_VARIABLE(hw_to_mycode);
    LOCK_VARIABLE(hw_to_mycode_ex);

@@ -158,6 +158,8 @@ AL_FUNC(void, _handle_key_press, (int keycode, int scancode));
 AL_FUNC(void, _handle_key_release, (int scancode));
 
 AL_VAR(int, _keyboard_installed);
+AL_ARRAY(AL_CONST char *, _keyboard_common_names);
+AL_ARRAY(char *, _pckeys_names);
 
 AL_ARRAY(volatile char, _key);
 AL_VAR(volatile int, _key_shifts);
@@ -165,6 +167,7 @@ AL_VAR(volatile int, _key_shifts);
 AL_FUNC(void, _pckeys_init, (void));
 AL_FUNC(void, _handle_pckey, (int code));
 AL_FUNC(int,  _pckey_scancode_to_ascii, (int scancode));
+AL_FUNC(AL_CONST char *, _pckey_scancode_to_name, (int scancode));
 
 AL_VAR(unsigned short *, _key_ascii_table);
 AL_VAR(unsigned short *, _key_capslock_table);

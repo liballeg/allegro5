@@ -2906,15 +2906,33 @@ routines" for more information about this.
    the default US keyboard mapping.
 
 @@int @scancode_to_ascii(int scancode);
+@xref scancode_to_name
    Converts the given scancode to an ASCII character for that key (mangling
    Unicode values), returning the unshifted uncapslocked result of pressing
    the key, or zero if the key isn't a character-generating key or the lookup
-   can't be done. Example:
+   can't be done. The lookup cannot be done for keys like the F1-F12 keys or the
+   cursor keys, and some drivers will only return approximate values. Generally,
+   if you want to display the name of a key to the user, you should use the
+   scancode_to_name function.
+
+   Example:
 <codeblock>
       int ascii;
       ...
       ascii = scancode_to_ascii(scancode);
       allegro_message("You pressed '%c'\n", ascii);<endblock>
+
+@@const char *@scancode_to_name(int scancode);
+@xref scancode_to_ascii
+   This function returns a string pointer containing the name of they key with
+   the given scancode. This is useful if you e.g. let the user choose a key for
+   some action, and want to display something more meaningful than just the
+   scancode.
+
+   Example
+<codeblock>
+    char const *keyname = scancode_to_name(scancode);
+    allegro_message("You pressed the %s key.", keyname);<endblock>
 
 @@void @simulate_keypress(int key);
 @xref install_keyboard, simulate_ukeypress, keypressed, readkey

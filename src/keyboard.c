@@ -80,6 +80,46 @@ static int common_ascii[KEY_MAX] =
    0,   0,   0,   0,   0,   0,   0
 };
 
+/* The same as above, but with descriptive names. Again, only keys which are
+ * likely to be found on every keyboard are named. All keyboard drivers should
+ * provide their own implementation though, especially if they use positional
+ * mapping. */
+AL_CONST char *_keyboard_common_names[KEY_MAX] =
+{
+   "(none)",     "A",          "B",          "C",
+   "D",          "E",          "F",          "G",
+   "H",          "I",          "J",          "K",
+   "L",          "M",          "N",          "O",
+   "P",          "Q",          "R",          "S",
+   "T",          "U",          "V",          "W",
+   "X",          "Y",          "Z",          "0",
+   "1",          "2",          "3",          "4",
+   "5",          "6",          "7",          "8",
+   "9",          "0 PAD",      "1 PAD",      "2 PAD",
+   "3 PAD",      "4 PAD",      "5 PAD",      "6 PAD",
+   "7 PAD",      "8 PAD",      "9 PAD",      "F1",
+   "F2",         "F3",         "F4",         "F5",
+   "F6",         "F7",         "F8",         "F9",
+   "F10",        "F11",        "F12",        "ESC",
+   "KEY60",      "KEY61",      "KEY62",      "BACKSPACE",
+   "TAB",        "KEY65",      "KEY66",      "ENTER",
+   "KEY68",      "KEY69",      "BACKSLASH",  "KEY71",
+   "KEY72",      "KEY73",      "KEY74",      "SPACE",
+   "INSERT",     "DEL",        "HOME",       "END",
+   "PGUP",       "PGDN",       "LEFT",       "RIGHT",
+   "UP",         "DOWN",       "/ PAD",      "* PAD",
+   "- PAD",      "+ PAD",      "DEL PAD",    "ENTER PAD",
+   "PRINT",      "PAUSE",      "KEY94",      "KEY95",
+   "KEY96",      "KEY97",      "KEY98",      "KEY99",
+   "KEY100",     "KEY101",     "KEY102",     "= PAD",
+   "KEY104",     "KEY105",     "KEY106",     "KEY107",
+   "KEY108",     "KEY109",     "KEY110",     "KEY111",
+   "KEY112",     "KEY113",     "KEY114",     "LSHIFT",
+   "RSHIFT",     "LCONTROL",   "RCONTROL",   "ALT",
+   "ALTGR",      "LWIN",       "RWIN",       "MENU",
+   "SCRLOCK",    "NUMLOCK",    "CAPSLOCK"
+};
+
 #define KEY_BUFFER_SIZE    64                /* character ring buffer */
 
 typedef struct KEY_BUFFER
@@ -549,6 +589,22 @@ int scancode_to_ascii(int scancode)
       return keyboard_driver->scancode_to_ascii(scancode);
    else
       return common_ascii[scancode];
+
+   return 0;
+}
+
+
+
+/* scancode_to_name:
+ *  Converts the given scancode to a description of the key.
+ */
+AL_CONST char *scancode_to_name(int scancode)
+{
+   ASSERT (scancode >= 0 && scancode < KEY_MAX);
+   if (keyboard_driver->scancode_to_name)
+      return keyboard_driver->scancode_to_name(scancode);
+   else
+      return _keyboard_common_names[scancode];
 
    return 0;
 }

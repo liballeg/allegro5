@@ -235,6 +235,9 @@ static int modifier_flags[8][3] = {
    {KB_MENU_FLAG, Mod5Mask, 0} /* AltGr */
 };
 
+/* Table of key names. */
+static char AL_CONST *key_names[1 + KEY_MAX];
+
 
 
 /* update_shifts
@@ -324,7 +327,13 @@ static int find_unknown_key_assignment (int i)
    int j;
    for (j = 1; j < KEY_MAX; j++) {
       if (!used[j]) {
+	 AL_CONST char *str;
 	 _xwin.keycode_to_scancode[i] = j;
+	 str = XKeysymToString(keysyms[sym_per_key * (i - min_keycode)]);
+	 if (str)
+	    key_names[j] = str;
+	 else
+	    key_names[j] = _keyboard_common_names[j];
 	 used[j] = 1;
 	 break;
       }
@@ -447,6 +456,17 @@ static int find_allegro_key(KeySym sym)
 
 
 
+/* scancode_to_name:
+ *  Converts the given scancode to a description of the key.
+ */
+static AL_CONST char *x_scancode_to_name(int scancode)
+{
+   ASSERT (scancode >= 0 && scancode < KEY_MAX);
+   return key_names[scancode];
+}
+
+
+
 /* x_get_keyboard_mapping:
  *  Generate a mapping from X11 keycodes to Allegro KEY_* codes. We have
  *  two goals: Every keypress should be mapped to a distinct Allegro KEY_*
@@ -517,7 +537,9 @@ void _xwin_get_keyboard_mapping(void)
       if (allegro_key) {
 	 if (used[allegro_key])
 	    TRACE (" *double*");
-	 _xwin.keycode_to_scancode[i] = allegro_key;	
+	 _xwin.keycode_to_scancode[i] = allegro_key;
+	 key_names[allegro_key] =
+	    XKeysymToString(keysyms[sym_per_key * (i - min_keycode)]);
 	 used[allegro_key] = 1;
 	 TRACE (" assigned to %i.\n", allegro_key);
       }
@@ -621,6 +643,8 @@ static int x_keyboard_init(void)
 
    if (xkeyboard_installed)
       return 0;
+
+   memcpy (key_names, _keyboard_common_names, sizeof key_names);
 
    XLOCK ();
 
@@ -741,7 +765,8 @@ static KEYBOARD_DRIVER keyboard_x =
    NULL,   // AL_METHOD(void, set_rate, (int delay, int rate));
    NULL,   // AL_METHOD(void, wait_for_input, (void));
    NULL,   // AL_METHOD(void, stop_waiting_for_input, (void));
-   NULL    // AL_METHOD(int,  scancode_to_ascii, (int scancode));
+   NULL,   // AL_METHOD(int,  scancode_to_ascii, (int scancode));
+   x_scancode_to_name
 };
 
 /* list the available drivers */
