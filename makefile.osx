@@ -260,7 +260,7 @@ uninstall: generic-uninstall
 install-framework: $(FRAMEWORK)
 
 $(FRAMEWORK): $(LIB_NAME)
-ifdef STATICKLINK
+ifdef STATICLINK
 	@echo You need to compile Allegro as a dynamic library to install the framework.
 else
 	@rm -fr $(FRAMEWORK)
