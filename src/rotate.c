@@ -715,7 +715,7 @@ void _rotate_scale_flip_coordinates(fixed w, fixed h,
    if (angle >= 0x800000)
       angle -= 0x1000000;
 
-   #ifdef ALLEGRO_DJGPP
+   #if (defined ALLEGRO_DJGPP) && (DJGPP >= 2) && (DJGPP_MINOR >= 3)
       /* Faster way to obtain both sin and cos with one call under djgpp.
 	 Todo: Do other platforms support this? (not watcom, mingw or msvc)
       */
