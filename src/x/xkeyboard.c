@@ -800,6 +800,6 @@ static KEYBOARD_DRIVER keyboard_x =
 /* list the available drivers */
 _DRIVER_INFO _xwin_keyboard_driver_list[] =
 {
-   {  KEYBOARD_XWINDOWS, &keyboard_x,    TRUE  },
+   {  KEYBOARD_XWINDOWS, &keyboard_x,    FALSE },
    {  0,                 NULL,           0     }
 };
