@@ -389,7 +389,7 @@ static int alsa_init(int input, int voices)
    ALSA9_CHECK(snd_pcm_hw_params_get_period_size(hwparams, &alsa_bufsize, NULL));
    ALSA9_CHECK(snd_pcm_hw_params_get_periods(hwparams, &alsa_fragments, NULL));
 
-   TRACE ("ALSA 9 driver: alsa_bufsize = %i, alsa_fragments = %i\n", alsa_bufsize, alsa_fragments);
+   TRACE ("ALSA 9 driver: alsa_bufsize = %ld, alsa_fragments = %d\n", alsa_bufsize, alsa_fragments);
 
    ALSA9_CHECK(snd_pcm_sw_params_current(pcm_handle, swparams));
    ALSA9_CHECK(snd_pcm_sw_params_set_start_threshold(pcm_handle, swparams, alsa_bufsize));
