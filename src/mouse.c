@@ -417,7 +417,8 @@ void set_mouse_sprite(struct BITMAP *sprite)
    lock_bitmap((struct BITMAP*)mouse_sprite);
 
    /* make sure the ms bitmap is big enough */
-   if ((!ms) || (ms->w < mouse_sprite->w) || (ms->h < mouse_sprite->h)) {
+   if ((!ms) || (ms->w < mouse_sprite->w) || (ms->h < mouse_sprite->h) ||
+       (bitmap_color_depth(mouse_sprite) != bitmap_color_depth(ms))) {
       if (ms) {
 	 destroy_bitmap(ms);
 	 destroy_bitmap(mtemp);
