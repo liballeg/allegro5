@@ -338,6 +338,27 @@ AL_INLINE(fixed, fdiv, (fixed x, fixed y),
 
 
 
+/* ffloor :
+ * Fixed point version of floor().
+ * Note that it returns an integer result (not a fixed one)
+ */
+AL_INLINE(int, ffloor, (fixed x),
+{
+   int result;
+
+   asm (
+      " sarl $16, %0 "		/* convert to int */
+
+    : "=r" (result)		/* result in a register */
+
+    : "0" (x) 			/* x in the output register */
+   );
+
+   return result;
+})
+
+
+
 /* fceil :
  * Fixed point version of ceil().
  * Note that it returns an integer result (not a fixed one)

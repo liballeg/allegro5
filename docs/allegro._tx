@@ -6105,9 +6105,18 @@ integer' is not.
    Converts an integer to fixed point. This is the same thing as x&lt&lt16.
 
 @@int @fixtoi(fixed x);
-@xref itofix, ftofix, fixtof, fceil
-   Converts fixed point to integer, rounding as required. If you want to 
-   avoid the rounding, use x&gt&gt16 instead.
+@xref itofix, ftofix, fixtof, ffloor, fceil
+   Converts fixed point to integer, rounding as required.
+
+@@int @ffloor(fixed x);
+@xref fixtoi, fceil
+   Returns the greatest integer not greater than x. That is, it rounds 
+   towards negative infinity.
+
+@@int @fceil(fixed x);
+@xref fixtoi, ffloor
+   Returns the smallest integer not less than x. That is, it rounds towards
+   positive infinity.
 
 @@fixed @ftofix(float x);
 @xref fixtof, itofix, fixtoi
@@ -6143,11 +6152,6 @@ integer' is not.
 @@fixed @fsub(fixed x, fixed y);
 @xref fadd, fmul, fdiv
    Fixed point subtraction: see comments about fadd().
-
-@@int @fceil(fixed x);
-@xref fixtoi
-   Returns the smallest integer not less than x. That is, it rounds towards
-   positive infinity.
 
 @node fixed point trig
 The fixed point square root, sin, cos, tan, inverse sin, and inverse cos 

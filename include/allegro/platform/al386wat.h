@@ -202,6 +202,20 @@ fixed fdiv(fixed x, fixed y);
 
 
 
+/* ffloor :
+ * Fixed point version of floor().
+ * Note that it returns an integer result (not a fixed one)
+ */
+int ffloor(fixed x);
+
+#pragma aux ffloor =             \
+   "  sar eax, 0x10 "		 \
+				 \
+   parm [eax]			 \
+   value [eax];
+
+
+
 /* fceil :
  * Fixed point version of ceil().
  * Note that it returns an integer result (not a fixed one)

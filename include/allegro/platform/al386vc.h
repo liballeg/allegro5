@@ -223,6 +223,22 @@ END_OF_INLINE(fdiv);
 
 
 
+/* ffloor :
+ * Fixed point version of floor().
+ * Note that it returns an integer result (not a fixed one)
+ */
+INLINE _AL_DLL int ffloor(fixed x)
+{
+   _asm {
+      mov eax, x
+      sar eax, 0x10
+   }
+}
+
+END_OF_INLINE(ffloor);
+
+
+
 /* fceil:
  *  Fixed point version of ceil().
  *  Note that it returns an integer result (not a fixed one)

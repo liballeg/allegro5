@@ -50,7 +50,7 @@ AL_INLINE(double, fixtof, (fixed x),
 
 #ifdef ALLEGRO_NO_ASM
 
-   /* use generic C versions */
+/* use generic C versions */
 
 AL_INLINE(fixed, fadd, (fixed x, fixed y),
 {
@@ -115,15 +115,24 @@ AL_INLINE(fixed, fdiv, (fixed x, fixed y),
 })
 
 
+AL_INLINE(int, ffloor, (fixed x),
+{
+   /* (x >> 16) is not portable */
+   if (x >= 0)
+      return (x >> 16);
+   else
+      return ~((~x) >> 16);
+})
+
+
 AL_INLINE(int, fceil, (fixed x),
 {
-   x += 0xFFFF;
-   if (x >= 0x80000000) {
+   if (x > (long)(0x7FFF0000)) {
       *allegro_errno = ERANGE;
       return 0x7FFF;
    }
 
-   return (x >> 16);
+   return ffloor(x + 0xFFFF);
 })
 
 #endif      /* C vs. inline asm */
@@ -137,7 +146,7 @@ AL_INLINE(fixed, itofix, (int x),
 
 AL_INLINE(int, fixtoi, (fixed x),
 {
-   return (x >> 16) + ((x & 0x8000) >> 15);
+   return ffloor(x) + ((x & 0x8000) >> 15);
 })
 
 
