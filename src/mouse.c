@@ -481,6 +481,7 @@ void set_mouse_sprite(struct BITMAP *sprite)
  */
 void select_mouse_cursor(int cursor)
 {
+   ASSERT(cursor >= 0);
    ASSERT(cursor < NUM_MOUSE_CURSORS);
 
    current_cursor = cursor;
@@ -493,6 +494,8 @@ void select_mouse_cursor(int cursor)
  */
 void set_mouse_cursor_bitmap(int cursor, struct BITMAP *bmp)
 {
+   ASSERT(cursor >= 0);
+   ASSERT(cursor != MOUSE_CURSOR_NONE);
    ASSERT(cursor < NUM_MOUSE_CURSORS);
 
    cursors[cursor] = bmp?bmp:default_cursors[cursor];
@@ -549,7 +552,7 @@ void show_mouse(BITMAP *bmp)
 
    _mouse_screen = bmp;
 
-   if (bmp && (current_cursor!=MOUSE_CURSOR_NONE)) {
+   if (bmp && (current_cursor != MOUSE_CURSOR_NONE)) {
       acquire_bitmap(_mouse_screen);
 
       /* Default system cursor? */
@@ -1046,7 +1049,7 @@ int install_mouse(void)
    disable_hardware_cursor();
 
    set_mouse_etc();
-   _add_exit_func(remove_mouse);
+   _add_exit_func(remove_mouse, "remove_mouse");
 
    if (mouse_driver->timer_poll)
       install_int(mouse_move, 10);
@@ -1080,10 +1083,10 @@ void remove_mouse(void)
 
    mouse_polled = FALSE;
 
-   free(default_cursors[MOUSE_CURSOR_ARROW]);
-   free(default_cursors[MOUSE_CURSOR_BUSY]);
-   free(default_cursors[MOUSE_CURSOR_QUESTION]);
-   free(default_cursors[MOUSE_CURSOR_EDIT]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_ARROW]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_BUSY]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_QUESTION]);
+   destroy_bitmap(default_cursors[MOUSE_CURSOR_EDIT]);
 
    cursors[MOUSE_CURSOR_ARROW] = default_cursors[MOUSE_CURSOR_ARROW] = NULL;
    cursors[MOUSE_CURSOR_BUSY] = default_cursors[MOUSE_CURSOR_BUSY] = NULL;

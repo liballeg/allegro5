@@ -380,29 +380,56 @@ information about how to install Allegro and link your program with it.
 @@extern char @cpu_vendor[];
 @xref check_cpu, cpu_family, cpu_model, cpu_capabilities, allegro_init
 @shortdesc Contains the CPU vendor name.
-   Contains the CPU vendor name, if known (empty string on non-Intel 
-   platforms). You can read this variable after you have called check_cpu()
+   On Intel PCs, contains the CPU vendor name if known. On Mac OSX systems 
+   this contains the PPC subtype name. On other platforms, this may be an empty
+   string. You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
 @@extern int @cpu_family;
 @xref check_cpu, cpu_vendor, cpu_model, cpu_capabilities, allegro_init
-@shortdesc Contains the Intel CPU type.
-   Contains the Intel CPU type, where applicable: 3=386, 4=486, 5=Pentium, 
-   6=PPro, etc. You can read this variable after you have called check_cpu()
+@shortdesc Contains the CPU type.
+   Contains the Intel type, where applicable. Allegro defines the following
+   CPU family types:
+<textblock>
+      CPU_FAMILY_UNKNOWN  - The type of processor is unknown
+      CPU_FAMILY_I386     - The processor is an Intel-compatible 386
+      CPU_FAMILY_I486     - The processor is an Intel-compatible 486
+      CPU_FAMILY_I586     - The processor is a Pentium or equivalent
+      CPU_FAMILY_I686     - The processor is a Pentium Pro, II, III
+			    or equivalent
+      CPU_FAMILY_ITANIUM  - The processor is an Itanium processor
+      CPU_FAMILY_POWERPC  - The processor is a PowerPC processor
+      CPU_FAMILY_EXTENDED - The processor type needs to be read
+			    from the cpu_model
+<endblock>
+   You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
 @@extern int @cpu_model;
 @xref check_cpu, cpu_vendor, cpu_family, cpu_capabilities, allegro_init
 @shortdesc Contains the Intel CPU submodel.
-   Contains the Intel CPU submodel, where applicable. On a 486 
-   (cpu_family=4), zero or one indicates a DX chip, 2 an SX, 3 a 487 (SX) or 
-   486 DX, 4 an SL, 5 an SX2, 7 a DX2 write-back enhanced, 8 a DX4 or DX4 
-   overdrive, 14 a Cyrix, and 15 is unknown. On a Pentium chip 
-   (cpu_family=5), 1 indicates a Pentium (510\66, 567\66), 2 is a Pentium 
-   P54C, 3 is a Pentium overdrive processor, 5 is a Pentium overdrive for 
-   IntelDX4, 14 is a Cyrix, and 15 is unknown. You can read this variable
-   after you have called check_cpu() (which is automatically called by
-   allegro_init()).
+   Contains the CPU submodel, where applicable. Allegro defines at least the 
+   following CPU family types (see include/allegro/system.h for a more 
+   complete list):
+<textblock>   
+      CPU_FAMILY_I586:
+	 CPU_MODEL_PENTIUM, CPU_MODEL_K5, CPU_MODEL_K6
+
+      CPU_FAMILY_I686:
+	 CPU_MODEL_PENTIUMPRO, CPU_MODEL_PENTIUMII,
+	 CPU_MODEL_PENTIUMIIIKATMAI, CPU_MODEL_PENTIUMIIICOPPERMINE,
+	 CPU_MODEL_ATHLON, CPU_MODEL_DURON
+
+      CPU_FAMILY_EXTENDED:
+	 CPU_MODEL_PENTIUMIV, CPU_MODEL_XEON,
+	 CPU_MODEL_ATHLON64, CPU_MODEL_OPTERON
+
+      CPU_FAMILY_POWERPC:
+	 CPU_MODEL_POWERPC_x, for x=601-604, 620, 750, 7400, 7450
+<endblock>
+   You can read this variable after you have called check_cpu() (which is 
+   automatically called by allegro_init()). Make sure you check the cpu_family
+   and cpu_vendor so you know which models make sense to check.
 
 @@extern int @cpu_capabilities;
 @xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities,
@@ -415,7 +442,7 @@ information about how to install Allegro and link your program with it.
 		     available. If this is set, then all Allegro CPU
 		     variables are 100% reliable, otherwise there
 		     may be some mistakes.
-      CPU_FPU      - An x87 FPU is available.
+      CPU_FPU      - An FPU is available.
       CPU_IA64     - Running on Intel 64 bit CPU
       CPU_AMD64    - Running on AMD 64 bit CPU
       CPU_MMX      - Intel MMX  instruction set is available.
@@ -2471,13 +2498,20 @@ information for more details.
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
 @xref enable_hardware_cursor, set_mouse_cursor_bitmap
 @shortdesc Tells Allegro to select software or hardware cursor drawing.
-   With this function, you can instruct Allegro to use the native system 
-   cursors rather than Allegro's custom cursor. You will need to enable this
-   functionality by calling enable_hardware_cursor(). Allegro will substitute
-   its own default cursor if the system does not support this functionality
-   or if it has not been enabled. You should check the GFX_SYSTEM_CURSOR flag
-   in gfx_capabilities after calling show_mouse() to see wether or not Allegro
-   is really using the default system cursor.
+   This function allows you to use the operating system's native mouse
+   cursors rather than some custom cursor. You will need to enable this
+   functionality by calling enable_hardware_cursor() beforehand. If the
+   operating system does not support this functionality, or if it has
+   not been enabled, then Allegro will substitute its own cursor images.
+   You can change these substitute images using set_mouse_cursor_bitmap().
+
+   Note that the effects of this function are not apparent until show_mouse()
+   is called.
+
+   To know whether the operating system's native cursor is being used,
+   or if Allegro has made a substitution, you can check the GFX_SYSTEM_CURSOR
+   flag in gfx_capabilities after calling show_mouse().
+
    The cursor argument selects the type of cursor to be displayed:
    
    <b>MOUSE_CURSOR_NONE</b><br>
@@ -2485,7 +2519,8 @@ information for more details.
    show_mouse(NULL);
    
    <b>MOUSE_CURSOR_ALLEGRO</b><br>
-   Selects the custom Allegro cursor.
+   Selects the custom Allegro cursor, i.e. the one that you set with
+   set_mouse_sprite().
    
    <b>MOUSE_CURSOR_ARROW</b><br>
    The operating system default arrow cursor.
@@ -2520,9 +2555,28 @@ information for more details.
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
 @xref enable_hardware_cursor
 @shortdesc Changes the image Allegro uses for mouse cursors.
-   This function changes the cursor image Allegro uses if select_mouse_cursor()
-   is called but no native OS cursor can be used, for instance because you
-   did not call enable_hardware_cursor().
+   This function changes the cursor image Allegro uses if
+   select_mouse_cursor() is called but no native operating system cursor
+   can be used, e.g. because you did not call enable_hardware_cursor().
+
+   The cursor argument can be one of:<br>
+   <b>MOUSE_CURSOR_ALLEGRO</b><br>
+   <b>MOUSE_CURSOR_ARROW</b><br>
+   <b>MOUSE_CURSOR_BUSY</b><br>
+   <b>MOUSE_CURSOR_QUESTION</b><br>
+   <b>MOUSE_CURSOR_EDIT</b><br>
+
+   but <i>not</i> MOUSE_CURSOR_NONE.
+
+   The bmp argument can either point to a valid bitmap or it can be NULL.
+   Passing a bitmap makes Allegro use that image in place of its own
+   default substition (should the operating system's native cursor
+   be unavailable). The bitmap must remain available for the duration
+   in which it could be used. Passing NULL lets Allegro revert to its
+   default substitutions.
+
+   The effect of this function will not be apparent until show_mouse() is
+   called.
 
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
@@ -2673,9 +2727,15 @@ information for more details.
 @eref exmouse
 @shortdesc How far the mouse has moved since the last call to this function.
    Measures how far the mouse has moved since the last call to this 
-   function. The mouse will continue to generate movement mickeys even when 
-   it reaches the edge of the screen, so this form of input can be useful 
-   for games that require an infinite range of mouse movement.
+   function. The values of mickeyx and mickeyy will become negative if the 
+   mouse is moved left or up, respectively. The mouse will continue to 
+   generate movement mickeys even when it reaches the edge of the screen, so 
+   this form of input can be useful for games that require an infinite range 
+   of mouse movement.
+
+   Note that the infinite movement may not work in windowed mode, since under 
+   some platforms the mouse would leave the window, and may not work at all 
+   if the hardware cursor is in use.
 
 @@extern void (*@mouse_callback)(int flags);
 @xref install_mouse
@@ -10153,8 +10213,8 @@ defined by Allegro" for an internal view of the MATRIX/_f structures.
 
    The fov parameter specifies the field of view (ie. width of the camera
    focus) in binary, 256 degrees to the circle format. For typical
-   projections, a field of view in the region 32-48 will work well. 32
-   (45°) applies no extra scaling - so something which is one unit away
+   projections, a field of view in the region 32-48 will work well. 64
+   (90°) applies no extra scaling - so something which is one unit away
    from the viewer will be directly scaled to the viewport. A bigger FOV
    moves you closer to the viewing plane, so more objects will appear. A
    smaller FOV moves you away from the viewing plane, which means you see a
@@ -12359,6 +12419,7 @@ various attributes of the current platform:
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW.
 
+<b>ALLEGRO_AMD64</b><br>
 <b>ALLEGRO_I386</b><br>
 <b>ALLEGRO_BIG_ENDIAN</b><br>
 <b>ALLEGRO_LITTLE_ENDIAN</b><br>

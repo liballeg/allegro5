@@ -394,11 +394,8 @@ static void box_start(void)
 /* outputs text to the progress message */
 static void box_out(char *msg)
 {
-   BITMAP *mouse_screen = _mouse_screen;
-
    if (box_active) {
-      if (mouse_screen)
-	 show_mouse(NULL);
+      scare_mouse();
 
       set_clip_rect(screen, BOX_L+8, BOX_T+1, BOX_R-8, BOX_B-1);
 
@@ -406,8 +403,7 @@ static void box_out(char *msg)
 
       set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 
-      if (mouse_screen)
-	 show_mouse(mouse_screen);
+      unscare_mouse();
 
       box_x += strlen(msg);
    }
@@ -418,21 +414,17 @@ static void box_out(char *msg)
 /* outputs text to the progress message */
 static void box_eol(void)
 {
-   BITMAP *mouse_screen = _mouse_screen;
-
    if (box_active) {
       box_x = 0;
       box_y++;
 
       if ((box_y+2)*8 >= BOX_H) {
-	 if (mouse_screen)
-	    show_mouse(NULL);
+	 scare_mouse();
 
 	 blit(screen, screen, BOX_L+8, BOX_T+16, BOX_L+8, BOX_T+8, BOX_W-16, BOX_H-24);
 	 rectfill(screen, BOX_L+8, BOX_T+BOX_H-16, BOX_L+BOX_W-8, BOX_T+BOX_H-8, gui_bg_color);
 
-	 if (mouse_screen)
-	    show_mouse(mouse_screen);
+	 unscare_mouse();
 
 	 box_y--;
       }
@@ -898,7 +890,7 @@ static void sel_palette(RGB *pal)
    int c, x, y;
    int (*proc)(int, DIALOG *, int);
 
-   memcpy(datedit_current_palette, pal, sizeof(PALETTE));
+   memmove(datedit_current_palette, pal, sizeof(PALETTE));
    set_palette(datedit_current_palette);
 
    gui_fg_color = makecol(0, 0, 0);

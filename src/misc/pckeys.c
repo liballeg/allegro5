@@ -351,8 +351,6 @@ int _pckey_scancode_to_ascii(int scancode)
  */
 AL_CONST char *_pckey_scancode_to_name(int scancode)
 {
-   int val;
-
    if ((scancode < 0) || (scancode >= KEY_MAX))
       return NULL;
 
@@ -728,7 +726,7 @@ static void read_keyboard_config(void)
  *  Initialises the scancode translation routines, loading mapping tables
  *  from keyboard.dat.
  */
-void _pckeys_init()
+void _pckeys_init(void)
 {
    int i;
 

@@ -89,7 +89,7 @@ bool al_install_joystick(void)
    }
 
    if (new_joystick_driver) {
-      _add_exit_func(al_uninstall_joystick);
+      _add_exit_func(al_uninstall_joystick, "al_uninstall_joystick");
       return true;
    }
 

@@ -60,7 +60,7 @@ static void init_irq(void)
       default_pic2 = inportb(0xA1);
       altered_pic1 = 0;
       altered_pic2 = 0;
-      _add_exit_func(exit_irq);
+      _add_exit_func(exit_irq, "exit_irq");
       pic_virgin = FALSE;
    }
 }

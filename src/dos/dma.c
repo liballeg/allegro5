@@ -248,7 +248,7 @@ END_OF_FUNCTION(_dma_todo);
 /* _dma_lock_mem:
  *  Locks the memory used by the dma routines.
  */
-void _dma_lock_mem()
+void _dma_lock_mem(void)
 {
    LOCK_VARIABLE(mydma);
    LOCK_FUNCTION(_dma_allocate_mem);

@@ -55,7 +55,7 @@ void _al_init_destructors(void)
 {
    _al_mutex_init(&mutex);
 
-   _add_exit_func(shutdown_destructors);
+   _add_exit_func(shutdown_destructors, "shutdown_destructors");
 }
 
 

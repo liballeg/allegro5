@@ -209,7 +209,7 @@ static int read_grip(int j)
 /* grip_init:
  *  Initializes the driver.
  */
-static int grip_init()
+static int grip_init(void)
 {
    static char *name_b[] =
    {
@@ -557,7 +557,7 @@ static int grip_init()
 /* grip_exit:
  *  Shuts down the driver.
  */
-static void grip_exit()
+static void grip_exit(void)
 {
    _GrShutdown();
    grip_unlink();
@@ -569,7 +569,7 @@ static void grip_exit()
  *  Updates the joystick status variables.
  *  Assumes GrIP driver has been validly initialized.
  */
-static int grip_poll()
+static int grip_poll(void)
 {
    int i, all_good;
 
@@ -593,7 +593,7 @@ static int already_linked = 0;
 /* The following intiallization routine is mostly taken from
  * the Gravis SDK.
  */
-static int grip_link()
+static int grip_link(void)
 {
    char name[1024], tmp[64], *s;
    PACKFILE *f;
@@ -667,7 +667,7 @@ static int grip_link()
 
 
 
-static int grip_unlink()
+static int grip_unlink(void)
 {
    already_linked = 0;
 

@@ -98,7 +98,7 @@ AL_FUNC(int, set_close_button_callback, (AL_METHOD(void, proc, (void))));
 
 AL_FUNC(void, check_cpu, (void));
 
-/* CPU Capabilities flags - set to 0 on non x86 capable chips */
+/* CPU Capabilities flags for x86 capable chips */
 #define CPU_ID       0x0001
 #define CPU_FPU      0x0002
 #define CPU_MMX      0x0004
@@ -111,6 +111,79 @@ AL_FUNC(void, check_cpu, (void));
 #define CPU_AMD64    0x0200
 #define CPU_IA64     0x0400
 #define CPU_SSE3     0x0800
+
+/* CPU families - PC */
+#define CPU_FAMILY_UNKNOWN  0
+#define CPU_FAMILY_I386     3
+#define CPU_FAMILY_I486     4
+#define CPU_FAMILY_I586     5
+#define CPU_FAMILY_I686     6
+#define CPU_FAMILY_ITANIUM  7
+#define CPU_FAMILY_EXTENDED 15
+/* CPUID only returns 15 bits, we need extra information from the CPU */
+/*  model to identify Pentium IV, Xeon and Athlon 64 processors. */
+
+/* CPU families - Power PC */
+#define CPU_FAMILY_POWERPC  18
+
+/* CPU models - PC */
+/* 486 */
+#define CPU_MODEL_I486DX    0
+#define CPU_MODEL_I486DX50  1
+#define CPU_MODEL_I486SX    2
+#define CPU_MODEL_I487SX    3
+#define CPU_MODEL_I486SL    4
+#define CPU_MODEL_I486SX2   5
+#define CPU_MODEL_I486DX2   7
+#define CPU_MODEL_I486DX4   8
+
+/* Intel/586 */
+#define CPU_MODEL_PENTIUM              1
+#define CPU_MODEL_PENTIUMP54C          2
+#define CPU_MODEL_PENTIUMOVERDRIVE     3
+#define CPU_MODEL_PENTIUMOVERDRIVEDX4  4
+#define CPU_MODEL_CYRIX                14
+#define CPU_MODEL_UNKNOWN              15
+
+/* AMD/586 */
+#define CPU_MODEL_K5                   0
+#define CPU_MODEL_K6                   6
+
+/* Intel/686 */
+#define CPU_MODEL_PENTIUMPROA          0
+#define CPU_MODEL_PENTIUMPRO           1
+#define CPU_MODEL_PENTIUMIIKLAMATH     3
+#define CPU_MODEL_PENTIUMII            5
+#define CPU_MODEL_CELERON              6
+#define CPU_MODEL_PENTIUMIIIKATMAI     7
+#define CPU_MODEL_PENTIUMIIICOPPERMINE 8
+#define CPU_MODEL_PENTIUMIIIMOBILE     9
+
+/* AMD/686 */
+#define CPU_MODEL_ATHLON               2
+#define CPU_MODEL_DURON                3
+
+
+/* Information when CPU_FAMILY is 15 */
+#define CPU_MODEL_PENTIUMIV            0
+#define CPU_MODEL_XEON                 2
+
+#define CPU_MODEL_ATHLON64             4
+#define CPU_MODEL_OPTERON              5
+
+/* Information for Power PC processors */
+/* these defines are taken from <mach-o/machine.h> */
+#define CPU_MODEL_POWERPC_601	       1
+#define CPU_MODEL_POWERPC_602	       2
+#define CPU_MODEL_POWERPC_603	       3
+#define CPU_MODEL_POWERPC_603e	       4
+#define CPU_MODEL_POWERPC_603ev	       5
+#define CPU_MODEL_POWERPC_604	       6
+#define CPU_MODEL_POWERPC_604e	       7
+#define CPU_MODEL_POWERPC_620	       8
+#define CPU_MODEL_POWERPC_750	       9
+#define CPU_MODEL_POWERPC_7400	       10
+#define CPU_MODEL_POWERPC_7450	       11
 
 AL_ARRAY(char, cpu_vendor);
 AL_VAR(int, cpu_family);

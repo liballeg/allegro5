@@ -169,60 +169,6 @@ static int bitmap_font_ismono(BITMAP *bmp)
 
 
 
-/* upgrade_to_color, upgrade_to_color_data:
- *  Helper functions. Upgrades a monochrome font to a color font.
- */
-static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
-{
-   FONT_COLOR_DATA* cf = _al_malloc(sizeof(FONT_COLOR_DATA));
-   BITMAP** bits = _al_malloc(sizeof(BITMAP*) * (mf->end - mf->begin));
-   int i;
-
-   cf->begin = mf->begin;
-   cf->end = mf->end;
-   cf->bitmaps = bits;
-   cf->next = 0;
-
-   for(i = mf->begin; i < mf->end; i++) {
-      FONT_GLYPH* g = mf->glyphs[i - mf->begin];
-      BITMAP* b = create_bitmap_ex(8, g->w, g->h);
-      clear_to_color(b, 0);
-      b->vtable->draw_glyph(b, g, 0, 0, 1, 0);
-
-      bits[i - mf->begin] = b;
-      free(g);
-   }
-
-   free(mf->glyphs);
-   free(mf);
-
-   return cf;
-}
-
-
-
-static void upgrade_to_color(FONT* f)
-{
-   FONT_MONO_DATA* mf = f->data;
-   FONT_COLOR_DATA * cf, *cf_write = 0;
-
-   if(f->vtable == font_vtable_color) return;
-   f->vtable = font_vtable_color;
-
-   while(mf) {
-      FONT_MONO_DATA* mf_next = mf->next;
-
-      cf = upgrade_to_color_data(mf);
-      if(!cf_write) f->data = cf;
-      else cf_write->next = cf;
-
-      cf_write = cf;
-      mf = mf_next;
-   }
-}
-
-
-
 /* bitmap_font_count:
  *  Helper for `import_bitmap_font', below.
  */

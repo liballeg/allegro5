@@ -202,7 +202,8 @@ void _register_bitmap_file_type_init(void)
 {
    char buf[32];
 
-   _add_exit_func(register_bitmap_file_type_exit);
+   _add_exit_func(register_bitmap_file_type_exit,
+		  "register_bitmap_file_type_exit");
 
    register_bitmap_file_type(uconvert_ascii("bmp", buf), load_bmp, save_bmp);
    register_bitmap_file_type(uconvert_ascii("lbm", buf), load_lbm, NULL);

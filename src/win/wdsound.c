@@ -613,8 +613,8 @@ static LPDIRECTSOUNDBUFFER create_dsound_buffer(int len, int freq, int bits, int
  */
 static int fill_dsound_buffer(LPDIRECTSOUNDBUFFER snd_buf, int offset, int len, int bits, int stereo, int reversed, char *data)
 {
-   void *buf_a, *buf_b;
-   long int size, size_a, size_b;
+   void *buf_a;
+   long int size, size_a;
    HRESULT hr;
 
    /* transform from samples to bytes */

@@ -124,7 +124,8 @@ void _register_font_file_type_init(void)
 {
    char buf[32];
 
-   _add_exit_func(register_font_file_type_exit);
+   _add_exit_func(register_font_file_type_exit,
+		  "register_font_file_type_exit");
 
    register_font_file_type(uconvert_ascii("dat", buf), load_dat_font);
    register_font_file_type(uconvert_ascii("fnt", buf), load_grx_or_bios_font);

@@ -544,7 +544,7 @@ void set_uformat(int type)
 /* get_uformat:
  *  Returns the current text encoding format.
  */
-int get_uformat()
+int get_uformat(void)
 {
    return utype;
 }

@@ -135,7 +135,7 @@ int _sound_input_installed = FALSE;
 static int digi_reserve = -1;             /* how many voices to reserve */
 static int midi_reserve = -1;
 
-VOICE _voice[VIRTUAL_VOICES];             /* list of active samples */
+static VOICE virt_voice[VIRTUAL_VOICES];  /* list of active samples */
 
 PHYS_VOICE _phys_voice[DIGI_VOICES];      /* physical -> virtual voice map */
 
@@ -306,8 +306,8 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       return 0;
 
    for (c=0; c<VIRTUAL_VOICES; c++) {
-      _voice[c].sample = NULL;
-      _voice[c].num = -1;
+      virt_voice[c].sample = NULL;
+      virt_voice[c].num = -1;
    }
 
    for (c=0; c<DIGI_VOICES; c++)
@@ -525,7 +525,7 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
       midi_driver->voices = midi_voices;
 
       for (c=0; c<midi_voices; c++) {
-	 _voice[midi_driver->basevoice+c].num = digi_driver->voices+c;
+	 virt_voice[midi_driver->basevoice+c].num = digi_driver->voices+c;
 	 _phys_voice[digi_driver->voices+c].num = midi_driver->basevoice+c;
       }
    }
@@ -540,7 +540,7 @@ int install_sound(int digi, int midi, AL_CONST char *cfg_path)
    if ((_digi_volume >= 0) || (_midi_volume >= 0))
       set_volume(_digi_volume, _midi_volume);
 
-   _add_exit_func(remove_sound);
+   _add_exit_func(remove_sound, "remove_sound");
    _sound_installed = TRUE;
    return 0;
 }
@@ -688,7 +688,7 @@ void remove_sound(void)
       remove_int(update_sweeps);
 
       for (c=0; c<VIRTUAL_VOICES; c++)
-	 if (_voice[c].sample)
+	 if (virt_voice[c].sample)
 	    deallocate_voice(c);
 
       if (_al_linker_midi)
@@ -710,7 +710,7 @@ void remove_sound(void)
 /* remove_sound_input:
  *  Sound input module cleanup routine.
  */
-void remove_sound_input()
+void remove_sound_input(void)
 {
    if (_sound_input_installed) {
       digi_input_driver->exit(TRUE);
@@ -1168,7 +1168,7 @@ void adjust_sample(AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop)
    ASSERT(spl);
 
    for (c=0; c<VIRTUAL_VOICES; c++) { 
-      if (_voice[c].sample == spl) {
+      if (virt_voice[c].sample == spl) {
 	 voice_set_volume(c, vol);
 	 voice_set_pan(c, pan);
 	 voice_set_frequency(c, absolute_freq(freq, spl));
@@ -1193,7 +1193,7 @@ void stop_sample(AL_CONST SAMPLE *spl)
    ASSERT(spl);
 
    for (c=0; c<VIRTUAL_VOICES; c++)
-      if (_voice[c].sample == spl)
+      if (virt_voice[c].sample == spl)
 	 deallocate_voice(c);
 }
 
@@ -1220,7 +1220,7 @@ static INLINE int allocate_physical_voice(int priority)
 
    /* look for an autokill voice that has stopped */
    for (c=0; c<digi_driver->voices; c++) {
-      voice = _voice + _phys_voice[c].num;
+      voice = virt_voice + _phys_voice[c].num;
       if ((voice->autokill) && (digi_driver->get_position(c) < 0)) {
 	 digi_driver->release_voice(c);
 	 voice->sample = NULL;
@@ -1232,7 +1232,7 @@ static INLINE int allocate_physical_voice(int priority)
 
    /* ok, we're going to have to get rid of something to make room... */
    for (c=0; c<digi_driver->voices; c++) {
-      voice = _voice + _phys_voice[c].num;
+      voice = virt_voice + _phys_voice[c].num;
 
       /* sort by voice priorities */
       if (voice->priority <= priority) {
@@ -1256,7 +1256,7 @@ static INLINE int allocate_physical_voice(int priority)
       /* kill off the old voice */
       digi_driver->stop_voice(best);
       digi_driver->release_voice(best);
-      _voice[_phys_voice[best].num].num = -1;
+      virt_voice[_phys_voice[best].num].num = -1;
       _phys_voice[best].num = -1;
       return best;
    }
@@ -1273,30 +1273,30 @@ static INLINE int allocate_physical_voice(int priority)
  */
 static INLINE int allocate_virtual_voice(void)
 {
-   int virt_voices, c;
+   int num_virt_voices, c;
 
-   virt_voices = VIRTUAL_VOICES;
+   num_virt_voices = VIRTUAL_VOICES;
    if (midi_driver->max_voices < 0)
-      virt_voices -= midi_driver->voices;
+      num_virt_voices -= midi_driver->voices;
 
    /* look for a free voice */
-   for (c=0; c<virt_voices; c++)
-      if (!_voice[c].sample)
+   for (c=0; c<num_virt_voices; c++)
+      if (!virt_voice[c].sample)
 	 return c;
 
    /* look for a stopped autokill voice */
-   for (c=0; c<virt_voices; c++) {
-      if (_voice[c].autokill) {
-	 if (_voice[c].num < 0) {
-	    _voice[c].sample = NULL;
+   for (c=0; c<num_virt_voices; c++) {
+      if (virt_voice[c].autokill) {
+	 if (virt_voice[c].num < 0) {
+	    virt_voice[c].sample = NULL;
 	    return c;
 	 }
 	 else {
-	    if (digi_driver->get_position(_voice[c].num) < 0) {
-	       digi_driver->release_voice(_voice[c].num);
-	       _phys_voice[_voice[c].num].num = -1;
-	       _voice[c].sample = NULL;
-	       _voice[c].num = -1;
+	    if (digi_driver->get_position(virt_voice[c].num) < 0) {
+	       digi_driver->release_voice(virt_voice[c].num);
+	       _phys_voice[virt_voice[c].num].num = -1;
+	       virt_voice[c].sample = NULL;
+	       virt_voice[c].num = -1;
 	       return c;
 	    }
 	 }
@@ -1326,11 +1326,11 @@ int allocate_voice(AL_CONST SAMPLE *spl)
    virt = allocate_virtual_voice();
 
    if (virt >= 0) {
-      _voice[virt].sample = spl;
-      _voice[virt].num = phys;
-      _voice[virt].autokill = FALSE;
-      _voice[virt].time = retrace_count;
-      _voice[virt].priority = spl->priority;
+      virt_voice[virt].sample = spl;
+      virt_voice[virt].num = phys;
+      virt_voice[virt].autokill = FALSE;
+      virt_voice[virt].time = retrace_count;
+      virt_voice[virt].priority = spl->priority;
 
       if (phys >= 0) {
 	 _phys_voice[phys].num = virt;
@@ -1358,14 +1358,14 @@ END_OF_FUNCTION(allocate_voice);
  */
 void deallocate_voice(int voice)
 {
-   if (_voice[voice].num >= 0) {
-      digi_driver->stop_voice(_voice[voice].num);
-      digi_driver->release_voice(_voice[voice].num);
-      _phys_voice[_voice[voice].num].num = -1;
-      _voice[voice].num = -1;
+   if (virt_voice[voice].num >= 0) {
+      digi_driver->stop_voice(virt_voice[voice].num);
+      digi_driver->release_voice(virt_voice[voice].num);
+      _phys_voice[virt_voice[voice].num].num = -1;
+      virt_voice[voice].num = -1;
    }
 
-   _voice[voice].sample = NULL;
+   virt_voice[voice].sample = NULL;
 }
 
 END_OF_FUNCTION(deallocate_voice);
@@ -1377,7 +1377,7 @@ END_OF_FUNCTION(deallocate_voice);
  */
 void reallocate_voice(int voice, AL_CONST SAMPLE *spl)
 {
-   int phys = _voice[voice].num;
+   int phys = virt_voice[voice].num;
    ASSERT(spl);
 
    if (phys >= 0) {
@@ -1385,10 +1385,10 @@ void reallocate_voice(int voice, AL_CONST SAMPLE *spl)
       digi_driver->release_voice(phys);
    }
 
-   _voice[voice].sample = spl;
-   _voice[voice].autokill = FALSE;
-   _voice[voice].time = retrace_count;
-   _voice[voice].priority = spl->priority;
+   virt_voice[voice].sample = spl;
+   virt_voice[voice].autokill = FALSE;
+   virt_voice[voice].time = retrace_count;
+   virt_voice[voice].priority = spl->priority;
 
    if (phys >= 0) {
       _phys_voice[phys].playmode = 0;
@@ -1413,7 +1413,7 @@ END_OF_FUNCTION(reallocate_voice);
  */
 void release_voice(int voice)
 {
-   _voice[voice].autokill = TRUE;
+   virt_voice[voice].autokill = TRUE;
 }
 
 END_OF_FUNCTION(release_voice);
@@ -1425,10 +1425,10 @@ END_OF_FUNCTION(release_voice);
  */
 void voice_start(int voice)
 {
-   if (_voice[voice].num >= 0)
-      digi_driver->start_voice(_voice[voice].num);
+   if (virt_voice[voice].num >= 0)
+      digi_driver->start_voice(virt_voice[voice].num);
 
-   _voice[voice].time = retrace_count;
+   virt_voice[voice].time = retrace_count;
 }
 
 END_OF_FUNCTION(voice_start);
@@ -1440,8 +1440,8 @@ END_OF_FUNCTION(voice_start);
  */
 void voice_stop(int voice)
 {
-   if (_voice[voice].num >= 0)
-      digi_driver->stop_voice(_voice[voice].num);
+   if (virt_voice[voice].num >= 0)
+      digi_driver->stop_voice(virt_voice[voice].num);
 }
 
 END_OF_FUNCTION(voice_stop);
@@ -1453,7 +1453,7 @@ END_OF_FUNCTION(voice_stop);
  */
 void voice_set_priority(int voice, int priority)
 {
-   _voice[voice].priority = priority;
+   virt_voice[voice].priority = priority;
 }
 
 END_OF_FUNCTION(voice_set_priority);
@@ -1466,15 +1466,15 @@ END_OF_FUNCTION(voice_set_priority);
  */
 SAMPLE *voice_check(int voice)
 {
-   if (_voice[voice].sample) {
-      if (_voice[voice].num < 0)
+   if (virt_voice[voice].sample) {
+      if (virt_voice[voice].num < 0)
 	 return NULL;
 
-      if (_voice[voice].autokill)
+      if (virt_voice[voice].autokill)
 	 if (voice_get_position(voice) < 0)
 	    return NULL;
 
-      return (SAMPLE*)_voice[voice].sample;
+      return (SAMPLE*)virt_voice[voice].sample;
    }
    else
       return NULL;
@@ -1491,8 +1491,8 @@ END_OF_FUNCTION(voice_check);
  */
 int voice_get_position(int voice)
 {
-   if (_voice[voice].num >= 0)
-      return digi_driver->get_position(_voice[voice].num);
+   if (virt_voice[voice].num >= 0)
+      return digi_driver->get_position(virt_voice[voice].num);
    else
       return -1;
 }
@@ -1506,8 +1506,8 @@ END_OF_FUNCTION(voice_get_position);
  */
 void voice_set_position(int voice, int position)
 {
-   if (_voice[voice].num >= 0)
-      digi_driver->set_position(_voice[voice].num, position);
+   if (virt_voice[voice].num >= 0)
+      digi_driver->set_position(virt_voice[voice].num, position);
 }
 
 END_OF_FUNCTION(voice_set_position);
@@ -1519,12 +1519,12 @@ END_OF_FUNCTION(voice_set_position);
  */
 void voice_set_playmode(int voice, int playmode)
 {
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].playmode = playmode;
-      digi_driver->loop_voice(_voice[voice].num, playmode);
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].playmode = playmode;
+      digi_driver->loop_voice(virt_voice[voice].num, playmode);
 
       if (playmode & PLAYMODE_BACKWARD)
-	 digi_driver->set_position(_voice[voice].num, _voice[voice].sample->len-1);
+	 digi_driver->set_position(virt_voice[voice].num, virt_voice[voice].sample->len-1);
    }
 }
 
@@ -1541,8 +1541,8 @@ int voice_get_volume(int voice)
 {
    int vol;
 
-   if (_voice[voice].num >= 0)
-      vol = digi_driver->get_volume(_voice[voice].num);
+   if (virt_voice[voice].num >= 0)
+      vol = digi_driver->get_volume(virt_voice[voice].num);
    else
       vol = -1;
 
@@ -1568,11 +1568,11 @@ void voice_set_volume(int voice, int volume)
    if (_digi_volume >= 0)
       volume = (volume * _digi_volume) / 255;
 
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].vol = volume << 12;
-      _phys_voice[_voice[voice].num].dvol = 0;
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].vol = volume << 12;
+      _phys_voice[virt_voice[voice].num].dvol = 0;
 
-      digi_driver->set_volume(_voice[voice].num, volume);
+      digi_driver->set_volume(virt_voice[voice].num, volume);
    }
 }
 
@@ -1588,15 +1588,15 @@ void voice_ramp_volume(int voice, int time, int endvol)
    if (_digi_volume >= 0)
       endvol = (endvol * _digi_volume) / 255;
 
-   if (_voice[voice].num >= 0) {
+   if (virt_voice[voice].num >= 0) {
       if (digi_driver->ramp_volume) {
-	 digi_driver->ramp_volume(_voice[voice].num, time, endvol);
+	 digi_driver->ramp_volume(virt_voice[voice].num, time, endvol);
       }
       else {
-	 int d = (endvol << 12) - _phys_voice[_voice[voice].num].vol;
+	 int d = (endvol << 12) - _phys_voice[virt_voice[voice].num].vol;
 	 time = MAX(time * SWEEP_FREQ / 1000, 1);
-	 _phys_voice[_voice[voice].num].target_vol = endvol << 12;
-	 _phys_voice[_voice[voice].num].dvol = d / time;
+	 _phys_voice[virt_voice[voice].num].target_vol = endvol << 12;
+	 _phys_voice[virt_voice[voice].num].dvol = d / time;
       }
    }
 }
@@ -1610,11 +1610,11 @@ END_OF_FUNCTION(voice_ramp_volume);
  */
 void voice_stop_volumeramp(int voice)
 {
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].dvol = 0;
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].dvol = 0;
 
       if (digi_driver->stop_volume_ramp)
-	 digi_driver->stop_volume_ramp(_voice[voice].num);
+	 digi_driver->stop_volume_ramp(virt_voice[voice].num);
    }
 }
 
@@ -1629,8 +1629,8 @@ END_OF_FUNCTION(voice_stop_volumeramp);
  */
 int voice_get_frequency(int voice)
 {
-   if (_voice[voice].num >= 0)
-      return digi_driver->get_frequency(_voice[voice].num);
+   if (virt_voice[voice].num >= 0)
+      return digi_driver->get_frequency(virt_voice[voice].num);
    else
       return -1;
 }
@@ -1644,11 +1644,11 @@ END_OF_FUNCTION(voice_get_frequency);
  */
 void voice_set_frequency(int voice, int frequency)
 {
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].freq = frequency << 12;
-      _phys_voice[_voice[voice].num].dfreq = 0;
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].freq = frequency << 12;
+      _phys_voice[virt_voice[voice].num].dfreq = 0;
 
-      digi_driver->set_frequency(_voice[voice].num, frequency);
+      digi_driver->set_frequency(virt_voice[voice].num, frequency);
    }
 }
 
@@ -1661,15 +1661,15 @@ END_OF_FUNCTION(voice_set_frequency);
  */
 void voice_sweep_frequency(int voice, int time, int endfreq)
 {
-   if (_voice[voice].num >= 0) {
+   if (virt_voice[voice].num >= 0) {
       if (digi_driver->sweep_frequency) {
-	 digi_driver->sweep_frequency(_voice[voice].num, time, endfreq);
+	 digi_driver->sweep_frequency(virt_voice[voice].num, time, endfreq);
       }
       else {
-	 int d = (endfreq << 12) - _phys_voice[_voice[voice].num].freq;
+	 int d = (endfreq << 12) - _phys_voice[virt_voice[voice].num].freq;
 	 time = MAX(time * SWEEP_FREQ / 1000, 1);
-	 _phys_voice[_voice[voice].num].target_freq = endfreq << 12;
-	 _phys_voice[_voice[voice].num].dfreq = d / time;
+	 _phys_voice[virt_voice[voice].num].target_freq = endfreq << 12;
+	 _phys_voice[virt_voice[voice].num].dfreq = d / time;
       }
    }
 }
@@ -1683,11 +1683,11 @@ END_OF_FUNCTION(voice_sweep_frequency);
  */
 void voice_stop_frequency_sweep(int voice)
 {
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].dfreq = 0;
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].dfreq = 0;
 
       if (digi_driver->stop_frequency_sweep)
-	 digi_driver->stop_frequency_sweep(_voice[voice].num);
+	 digi_driver->stop_frequency_sweep(virt_voice[voice].num);
    }
 }
 
@@ -1704,8 +1704,8 @@ int voice_get_pan(int voice)
 {
    int pan;
 
-   if (_voice[voice].num >= 0)
-      pan = digi_driver->get_pan(_voice[voice].num);
+   if (virt_voice[voice].num >= 0)
+      pan = digi_driver->get_pan(virt_voice[voice].num);
    else
       pan = -1;
 
@@ -1727,11 +1727,11 @@ void voice_set_pan(int voice, int pan)
    if (_sound_flip_pan)
       pan = 255 - pan;
 
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].pan = pan << 12;
-      _phys_voice[_voice[voice].num].dpan = 0;
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].pan = pan << 12;
+      _phys_voice[virt_voice[voice].num].dpan = 0;
 
-      digi_driver->set_pan(_voice[voice].num, pan);
+      digi_driver->set_pan(virt_voice[voice].num, pan);
    }
 }
 
@@ -1747,15 +1747,15 @@ void voice_sweep_pan(int voice, int time, int endpan)
    if (_sound_flip_pan)
       endpan = 255 - endpan;
 
-   if (_voice[voice].num >= 0) {
+   if (virt_voice[voice].num >= 0) {
       if (digi_driver->sweep_pan) {
-	 digi_driver->sweep_pan(_voice[voice].num, time, endpan);
+	 digi_driver->sweep_pan(virt_voice[voice].num, time, endpan);
       }
       else {
-	 int d = (endpan << 12) - _phys_voice[_voice[voice].num].pan;
+	 int d = (endpan << 12) - _phys_voice[virt_voice[voice].num].pan;
 	 time = MAX(time * SWEEP_FREQ / 1000, 1);
-	 _phys_voice[_voice[voice].num].target_pan = endpan << 12;
-	 _phys_voice[_voice[voice].num].dpan = d / time;
+	 _phys_voice[virt_voice[voice].num].target_pan = endpan << 12;
+	 _phys_voice[virt_voice[voice].num].dpan = d / time;
       }
    }
 }
@@ -1769,11 +1769,11 @@ END_OF_FUNCTION(voice_sweep_pan);
  */
 void voice_stop_pan_sweep(int voice)
 {
-   if (_voice[voice].num >= 0) {
-      _phys_voice[_voice[voice].num].dpan = 0;
+   if (virt_voice[voice].num >= 0) {
+      _phys_voice[virt_voice[voice].num].dpan = 0;
 
       if (digi_driver->stop_pan_sweep)
-	 digi_driver->stop_pan_sweep(_voice[voice].num);
+	 digi_driver->stop_pan_sweep(virt_voice[voice].num);
    }
 }
 
@@ -1786,8 +1786,8 @@ END_OF_FUNCTION(voice_stop_pan_sweep);
  */
 void voice_set_echo(int voice, int strength, int delay)
 {
-   if ((_voice[voice].num >= 0) && (digi_driver->set_echo))
-      digi_driver->set_echo(_voice[voice].num, strength, delay);
+   if ((virt_voice[voice].num >= 0) && (digi_driver->set_echo))
+      digi_driver->set_echo(virt_voice[voice].num, strength, delay);
 }
 
 END_OF_FUNCTION(voice_set_echo);
@@ -1799,8 +1799,8 @@ END_OF_FUNCTION(voice_set_echo);
  */
 void voice_set_tremolo(int voice, int rate, int depth)
 {
-   if ((_voice[voice].num >= 0) && (digi_driver->set_tremolo))
-      digi_driver->set_tremolo(_voice[voice].num, rate, depth);
+   if ((virt_voice[voice].num >= 0) && (digi_driver->set_tremolo))
+      digi_driver->set_tremolo(virt_voice[voice].num, rate, depth);
 }
 
 END_OF_FUNCTION(voice_set_tremolo);
@@ -1812,8 +1812,8 @@ END_OF_FUNCTION(voice_set_tremolo);
  */
 void voice_set_vibrato(int voice, int rate, int depth)
 {
-   if ((_voice[voice].num >= 0) && (digi_driver->set_vibrato))
-      digi_driver->set_vibrato(_voice[voice].num, rate, depth);
+   if ((virt_voice[voice].num >= 0) && (digi_driver->set_vibrato))
+      digi_driver->set_vibrato(virt_voice[voice].num, rate, depth);
 }
 
 END_OF_FUNCTION(voice_set_vibrato);
@@ -1824,7 +1824,7 @@ END_OF_FUNCTION(voice_set_vibrato);
  *  Timer callback routine used to implement volume/frequency/pan sweep 
  *  effects, for those drivers that can't do them directly.
  */
-static void update_sweeps()
+static void update_sweeps(void)
 {
    int phys_voices, i;
 
@@ -1883,7 +1883,7 @@ END_OF_STATIC_FUNCTION(update_sweeps);
 /* get_sound_input_cap_bits:
  *  Recording capabilities: number of bits
  */
-int get_sound_input_cap_bits()
+int get_sound_input_cap_bits(void)
 {
    return digi_input_driver->rec_cap_bits;
 }
@@ -1893,7 +1893,7 @@ int get_sound_input_cap_bits()
 /* get_sound_input_cap_stereo:
  *  Recording capabilities: stereo
  */
-int get_sound_input_cap_stereo()
+int get_sound_input_cap_stereo(void)
 {
    return digi_input_driver->rec_cap_stereo;
 }
@@ -1955,7 +1955,7 @@ int start_sound_input(int rate, int bits, int stereo)
 /* stop_sound_input:
  *  Ends recording.
  */
-void stop_sound_input()
+void stop_sound_input(void)
 {
    if (digi_input_driver->rec_stop)
       digi_input_driver->rec_stop();
@@ -1981,7 +1981,7 @@ END_OF_FUNCTION(read_sound_input);
 /* sound_lock_mem:
  *  Locks memory used by the functions in this file.
  */
-static void sound_lock_mem()
+static void sound_lock_mem(void)
 {
    LOCK_VARIABLE(digi_none);
    LOCK_VARIABLE(_midi_none);
@@ -1991,7 +1991,7 @@ static void sound_lock_mem()
    LOCK_VARIABLE(midi_driver);
    LOCK_VARIABLE(digi_recorder);
    LOCK_VARIABLE(midi_recorder);
-   LOCK_VARIABLE(_voice);
+   LOCK_VARIABLE(virt_voice);
    LOCK_VARIABLE(_phys_voice);
    LOCK_VARIABLE(_digi_volume);
    LOCK_VARIABLE(_midi_volume);

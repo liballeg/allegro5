@@ -32,6 +32,9 @@
 #endif
 
 
+static MOUSE_DRIVER mouse_directx;
+
+
 _DRIVER_INFO _mouse_driver_list[] =
 {
    {MOUSE_DIRECTX, &mouse_directx, TRUE},
@@ -49,7 +52,7 @@ static void mouse_directx_get_mickeys(int *mickeyx, int *mickeyy);
 static void mouse_directx_enable_hardware_cursor(int mode);
 static int mouse_directx_select_system_cursor(AL_CONST int cursor);
 
-MOUSE_DRIVER mouse_directx =
+static MOUSE_DRIVER mouse_directx =
 {
    MOUSE_DIRECTX,
    empty_string,

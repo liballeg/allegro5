@@ -154,7 +154,7 @@ DIGI_DRIVER digi_oss =
 /* oss_buffer_size:
  *  Returns the current DMA buffer size, for use by the audiostream code.
  */
-static int oss_buffer_size()
+static int oss_buffer_size(void)
 {
    return oss_bufsize / (_sound_bits / 8) / (_sound_stereo ? 2 : 1);
 }
@@ -549,7 +549,7 @@ static int oss_rec_start(int rate, int bits, int stereo)
 /* oss_rec_stop:
  *  Stops recording and switches the device back to the original mode.
  */
-static void oss_rec_stop()
+static void oss_rec_stop(void)
 {
    close(oss_fd);
 

@@ -4440,44 +4440,57 @@ int main(void)
    mypal[255].r = mypal[255].g = mypal[255].b = 0;
 
    buttons = install_mouse();
+   enable_hardware_cursor();
    sprintf(mouse_specs, "Mouse has %d buttons", buttons);
 
-   #ifdef ALLEGRO_I386
+   #if defined ALLEGRO_I386 || defined ALLEGRO_AMD64
 
-      sprintf(cpu_specs, "CPU family: %d86", cpu_family);
-
-      if (cpu_capabilities & CPU_ID)
-	 strcat(cpu_specs, " / cpuid");
-
-      if (cpu_capabilities & CPU_FPU)
-	 strcat(cpu_specs, " / FPU");
-
-      if (cpu_capabilities & CPU_CMOV)
-	 strcat(cpu_specs, " / cmov");
-
-      if (cpu_capabilities & CPU_SSE)
-	 strcat(cpu_specs, " / SSE");
-	 
-      if (cpu_capabilities & CPU_SSE2)
-	 strcat(cpu_specs, " / SSE2");
-	 
-      if (cpu_capabilities & CPU_MMX)
-	 strcat(cpu_specs, " / MMX");
-
-      if (cpu_capabilities & CPU_MMXPLUS)
-	 strcat(cpu_specs, " / MMX+");
-
-      if (cpu_capabilities & CPU_3DNOW)
-	 strcat(cpu_specs, " / 3DNow!");
-
-      if (cpu_capabilities & CPU_ENH3DNOW)
-	 strcat(cpu_specs, " / Enh 3DNow!");
+      #ifdef ALLEGRO_I386
+         sprintf(cpu_specs, "CPU family: %d86 (%s)", cpu_family, cpu_vendor?cpu_vendor:"unknown");
+      #else
+         sprintf(cpu_specs, "CPU family: AMD64 (%s)", cpu_vendor);
+      #endif
 
    #else
-
-      strcpy(cpu_specs, "Non-x86 CPU (very cool)");
-
+      #if defined ALLEGRO_MACOSX
+         sprintf(cpu_specs, "CPU family: %s (%s)", 
+                 cpu_family==CPU_FAMILY_POWERPC ? "PowerPC" : "Other", 
+                 cpu_vendor);
+      #else
+         strcpy(cpu_specs, "Non-x86 CPU (very cool)");
+      #endif
    #endif
+
+   if (cpu_capabilities & CPU_ID)
+      strcat(cpu_specs, " / cpuid");
+
+   if (cpu_capabilities & CPU_FPU)
+      strcat(cpu_specs, " / FPU");
+
+   if (cpu_capabilities & CPU_CMOV)
+      strcat(cpu_specs, " / cmov");
+
+   if (cpu_capabilities & CPU_SSE)
+      strcat(cpu_specs, " / SSE");
+
+   if (cpu_capabilities & CPU_SSE2)
+      strcat(cpu_specs, " / SSE2");
+
+   if (cpu_capabilities & CPU_SSE3)
+      strcat(cpu_specs, " / SSE3");
+
+   if (cpu_capabilities & CPU_MMX)
+      strcat(cpu_specs, " / MMX");
+
+   if (cpu_capabilities & CPU_MMXPLUS)
+      strcat(cpu_specs, " / MMX+");
+
+   if (cpu_capabilities & CPU_3DNOW)
+      strcat(cpu_specs, " / 3DNow!");
+
+   if (cpu_capabilities & CPU_ENH3DNOW)
+      strcat(cpu_specs, " / Enh 3DNow!");
+
 
    cpu_has_capabilities = cpu_capabilities;
 

@@ -146,7 +146,7 @@ void xor_mode(int on)
 /* solid_mode:
  *  Shortcut function for selecting solid drawing mode.
  */
-void solid_mode()
+void solid_mode(void)
 {
    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -166,7 +166,7 @@ void clear_bitmap(BITMAP *bitmap)
 /* vsync:
  *  Waits for a retrace.
  */
-void vsync()
+void vsync(void)
 {
    ASSERT(gfx_driver);
 
@@ -265,7 +265,7 @@ void select_palette(AL_CONST PALETTE p)
 /* unselect_palette:
  *  Restores palette settings from before the last call to select_palette().
  */
-void unselect_palette()
+void unselect_palette(void)
 {
    int c;
 

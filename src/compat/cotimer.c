@@ -440,7 +440,7 @@ int install_timer()
 
    al_start_timer(retrace_timer);
 
-   _add_exit_func(remove_timer);
+   _add_exit_func(remove_timer, "remove_timer");
    _timer_installed = TRUE;
 
    return 0;

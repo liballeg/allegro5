@@ -85,7 +85,7 @@ else
 endif
 
 ifdef TARGET_ARCH_COMPAT
-   TARGET_ARCH = -mcpu=$(TARGET_ARCH_COMPAT)
+   TARGET_ARCH = $(GCC_MTUNE)=$(TARGET_ARCH_COMPAT)
 else
    ifdef TARGET_ARCH_EXCL
       TARGET_ARCH = -march=$(TARGET_ARCH_EXCL)
@@ -147,7 +147,8 @@ ifdef STATICLINK
 ALLEGRO_SRC_MACOSX_FILES += src/macosx/main.m
 endif
 
-OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
+# PH: need to kill including ccpu.o and use pcpu.o instead 
+OBJECT_LIST = $(COMMON_OBJECTS) $(subst ccpu,pcpu,$(C_OBJECTS)) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
 STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework CoreAudio -framework AudioUnit -framework AudioToolbox -framework QuickTime
 ifdef STATICLINK
@@ -173,26 +174,26 @@ INCDIR = include
 ifdef STATICLINK
 
 $(INSTALLDIR)/lib/lib$(VERSION)_s.a: $(LIB_NAME)
-	cp $(LIB_NAME) $(INSTALLDIR)/lib
+	install -d $(INSTALLDIR)/lib
+	install $(LIB_NAME) $(INSTALLDIR)/lib
 	ranlib $(INSTALLDIR)/lib/lib$(VERSION)_s.a
 
 else
 
 $(INSTALLDIR)/lib/lib$(VERSION)-main.a: $(LIB_MAIN_NAME)
-	cp $(LIB_MAIN_NAME) $(INSTALLDIR)/lib
+	install -d $(INSTALLDIR)/lib
+	install $(LIB_MAIN_NAME) $(INSTALLDIR)/lib
 	ranlib $(INSTALLDIR)/lib/lib$(VERSION)-main.a
 $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_version).dylib: $(LIB_NAME)
-	cp $(LIB_NAME) $(INSTALLDIR)/lib
-	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-$(shared_major_minor).dylib
-	(cd $(INSTALLDIR)/lib; ln -s lib$(VERSION)-$(shared_version).dylib lib$(VERSION)-$(shared_major_minor).dylib)
-	rm -f $(INSTALLDIR)/lib/lib$(VERSION)-4.dylib
-	(cd $(INSTALLDIR)/lib; ln -s lib$(VERSION)-$(shared_version).dylib lib$(VERSION)-4.dylib)
-	rm -f $(INSTALLDIR)/lib/lib$(VERSION).dylib
-	(cd $(INSTALLDIR)/lib; ln -s lib$(VERSION)-$(shared_version).dylib lib$(VERSION).dylib)
+	install $(LIB_NAME) $(INSTALLDIR)/lib
+	(cd $(INSTALLDIR)/lib; ln -s -f lib$(VERSION)-$(shared_version).dylib lib$(VERSION)-$(shared_major_minor).dylib)
+	(cd $(INSTALLDIR)/lib; ln -s -f lib$(VERSION)-$(shared_version).dylib lib$(VERSION)-4.dylib)
+	(cd $(INSTALLDIR)/lib; ln -s -f lib$(VERSION)-$(shared_version).dylib lib$(VERSION).dylib)
 endif
 
 
 $(INSTALLDIR)/bin/allegro-config: $(LIB_NAME)
+	install -d $(INSTALLDIR)/bin
 ifdef STATICLINK
 	@sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
 else
@@ -230,6 +231,7 @@ INSTALL_FILES += $(HEADERS) $(INSTALLDIR)/bin/allegro-config
 
 install: generic-install
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
+	@if (printenv PATH |grep -q -v "$(INSTALLDIR)/bin"); then echo "Please check that $(INSTALLDIR)/bin is in your path (see docs/build/macosx.txt)"; fi
 	@echo Run make install-man if you wish to install the man pages.
 	@echo Run make install-framework if you wish to install the library as a framework.
 	@echo Run make install-template if you wish to install the application template.
@@ -267,17 +269,17 @@ ifdef STATICLINK
 	@echo You need to compile Allegro as a dynamic library to install the framework.
 else
 	@rm -fr $(FRAMEWORK)
-	@mkdir $(FRAMEWORK)
-	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Headers
-	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Resources
+	@install -d $(FRAMEWORK)
+	@install -d $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install -d $(FRAMEWORK)/Versions/$(shared_version)/Resources
 ifdef EMBED
 	$(CC) -dynamiclib $(DYLINK_FLAGS) $(INSTALL_NAME_EMBED) $(PFLAGS) -o $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME) $(OBJECTS) $(STATIC_LIBRARIES)
 else
-	@cp $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
+	@install $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
 endif
-	@cp include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
-	@cp include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
-	@cp -r include/allegro $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
+	@install $(HEADERS) $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@(cd $(FRAMEWORK)/Versions; ln -s $(shared_version) Current)
 	@(cd $(FRAMEWORK); ln -s Versions/Current/Headers $(FRAMEWORK)/Headers)
 	@(cd $(FRAMEWORK); ln -s Versions/Current/Resources $(FRAMEWORK)/Resources)
@@ -296,11 +298,11 @@ install-template: $(TEMPLATE)
 
 $(TEMPLATE): $(FRAMEWORK)
 	@rm -fr $(TEMPLATE)
-	@mkdir -p $(TEMPLATE)/AllegroApp.pbproj
-	@cp misc/template.c $(TEMPLATE)/main.c
-	@cp misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
-	@cp misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj
-	@cp misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj
+	@install d $(TEMPLATE)/AllegroApp.pbproj
+	@install misc/template.c $(TEMPLATE)/main.c
+	@install misc/TemplateInfo.plist $(TEMPLATE)/AllegroApp.pbproj
+	@install misc/project.pbxproj $(TEMPLATE)/AllegroApp.pbproj
+	@install misc/project.pbxuser $(TEMPLATE)/AllegroApp.pbproj
 	@echo Allegro application template for Project Builder \(XCode\) installed in:
 	@echo $(TEMPLATE)
 
@@ -309,12 +311,10 @@ docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<
 
 install-man: docs docs/man/install_allegro.3
-	@mkdir -p $(MAN_DIR)/man3
-	@for file in docs/man/*.3; do \
-	  echo Installing $$file to $(MAN_DIR)/man3; \
-	  cp $$file $(MAN_DIR)/man3/; \
-	done
-
+	@install -d  $(MAN_DIR)/man3
+	@echo Installing man files to $(MAN_DIR)/man3
+	@install docs/man/*.3 $(MAN_DIR)/man3/
+	
 
 
 # -------- test capabilities --------

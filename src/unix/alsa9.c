@@ -156,7 +156,7 @@ DIGI_DRIVER digi_alsa =
 /* alsa_buffer_size:
  *  Returns the current DMA buffer size, for use by the audiostream code.
  */
-static int alsa_buffer_size()
+static int alsa_buffer_size(void)
 {
    return alsa_bufsize;
 }

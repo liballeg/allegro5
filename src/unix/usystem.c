@@ -155,7 +155,7 @@ int _unix_find_resource(char *dest, AL_CONST char *resource, int size)
 /* _read_os_type:
  *  Set the os_type variable to something sensible.
  */
-void _read_os_type()
+void _read_os_type(void)
 {
    #ifdef HAVE_SYS_UTSNAME_H
 

@@ -29,7 +29,17 @@ AC_TRY_COMPILE([], [asm (".globl _dummy_function\n"
 "     ret\n"
 "     restore" : :)],
 allegro_cv_processor_type=sparc,
-allegro_cv_processor_type=unknown))])
+AC_TRY_COMPILE([], [asm (".globl _dummy_function\n"
+"_dummy_function:\n"
+"     pushq %%rbp\n"
+"     movl %%esp, %%ebp\n"
+"     leal 10(%%ebx, %%ecx, 4), %%edx\n"
+"     callq *%%rdx\n"
+"     addl %%ebx, %%eax\n"
+"     popq %%rbp\n"
+"     ret" : :)],
+allegro_cv_processor_type=amd64,
+allegro_cv_processor_type=unknown)))])
 AC_MSG_RESULT($allegro_cv_processor_type)])
 
 dnl
@@ -211,6 +221,7 @@ dnl
 dnl Test for X-Windows support.
 dnl
 dnl Variables:
+dnl  allegro_enable_xwin_xcursor=(yes|)
 dnl  allegro_enable_xwin_shm=(yes|)
 dnl  allegro_enable_xwin_xf86vidmode=(yes|)
 dnl  allegro_enable_xwin_xf86dga=(yes|)
@@ -220,7 +231,11 @@ dnl
 dnl CPPFLAGS, LDFLAGS and LIBS can be modified.
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_XWINDOWS,
-[AC_ARG_ENABLE(xwin-shm,
+[AC_ARG_ENABLE(xwin-xcursor,
+[  --enable-xwin-xcursor[=x] enable the use of Xcursor library [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_xwin_xcursor=yes,
+allegro_enable_xwin_xcursor=yes)
+AC_ARG_ENABLE(xwin-shm,
 [  --enable-xwin-shm[=x]   enable the use of MIT-SHM Extension [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_xwin_shm=yes,
 allegro_enable_xwin_shm=yes)
@@ -264,17 +279,19 @@ if test -z "$no_x"; then
    )
    
   dnl Test for Xcursor library.
-  AC_CHECK_LIB(Xcursor, XcursorImageCreate,
-    AC_TRY_COMPILE([#include <X11/Xlib.h>
-                    #include <X11/Xcursor/Xcursor.h>], 
-                   [XcursorImage *xcursor_image;
-                    XcursorImageLoadCursor(0, xcursor_image);
-                    XcursorSupportsARGB(0);
-                   ],
-      [LIBS="-lXcursor $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
-      ])
-   )
+  if test -n "$allegro_enable_xwin_xcursor"; then
+    AC_CHECK_LIB(Xcursor, XcursorImageCreate,
+      AC_TRY_COMPILE([#include <X11/Xlib.h>
+                      #include <X11/Xcursor/Xcursor.h>], 
+                     [XcursorImage *xcursor_image;
+                      XcursorImageLoadCursor(0, xcursor_image);
+                      XcursorSupportsARGB(0);
+                     ],
+        [LIBS="-lXcursor $LIBS"
+        AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XCURSOR,1,[Define if XCursor ARGB extension is available.])
+        ])
+     )
+  fi
 
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
@@ -780,3 +797,23 @@ fi
 ])
 CFLAGS="$allegro_save_CFLAGS"
 AC_MSG_RESULT($allegro_cv_support_i386_mtune)])
+
+dnl
+dnl Test for working '-mtune' amd64 compile option.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_amd64_mtune=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_AMD64_MTUNE,
+[AC_MSG_CHECKING(whether -mtune is supported)
+allegro_save_CFLAGS="$CFLAGS"
+CFLAGS="-mtune=athlon64"
+AC_CACHE_VAL(allegro_cv_support_amd64_mtune,
+[if test $GCC = yes; then
+   AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_amd64_mtune=yes, allegro_cv_support_amd64_mtune=no)
+else
+   allegro_cv_support_amd64_mtune=no
+fi
+])
+CFLAGS="$allegro_save_CFLAGS"
+AC_MSG_RESULT($allegro_cv_support_amd64_mtune)])

@@ -154,6 +154,11 @@ if test "X$allegro_cv_processor_type" = "Xi386"; then
   ALLEGRO_ACTEST_GCC_I386_MTUNE
 fi
 
+dnl Test for -mtune AMD64 option
+if test "X$allegro_cv_processor_type" = "Xamd64"; then
+  ALLEGRO_ACTEST_GCC_AMD64_MTUNE
+fi
+
 dnl Test for asm support.
 if test "X$allegro_enable_asm" = "Xyes"; then
   if test "X$allegro_cv_processor_type" = "Xi386"; then
@@ -173,6 +178,17 @@ if test "X$allegro_enable_asm" = "Xyes"; then
       AC_DEFINE(ALLEGRO_SSE,1,[Define if assembler supports SSE.])
       _code_features="$_code_features, SSE"
     fi
+  elif test "X$allegro_cv_processor_type" = "Xamd64"; then
+    ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_AMD64_FILES
+    _code_features="amd64 asm"
+
+    dnl MMX support available if AMD64 is available, but we can't use it yet.
+    dnl AC_DEFINE(ALLEGRO_MMX,1,[Define if assembler supports MMX.])
+    dnl _code_features="$_code_features, MMX"
+  
+    dnl SSE support available if AMD64 is available, but we can't use it yet.
+    dnl AC_DEFINE(ALLEGRO_SSE,1,[Define if assembler supports SSE.])
+    dnl _code_features="$_code_features, SSE"
   fi
 fi
 
@@ -681,6 +697,18 @@ if test -n "GCC"; then
     if test "$allegro_exclusive_optimizations" != none; then
       TARGET_ARCH="-march=$allegro_exclusive_optimizations"
     elif test "X$allegro_cv_support_i386_mtune" = "Xyes"; then
+      TARGET_ARCH="-mtune=$allegro_optimizations"
+    else
+      TARGET_ARCH="-mcpu=$allegro_optimizations"
+    fi
+  elif test "X$allegro_cv_processor_type" = "Xamd64"; then
+    dnl Change default pentium->athlon64
+    if test "X$allegro_optimizations" = "Xpentium"; then
+      allegro_optimizations="athlon64"
+    fi
+    if test "$allegro_exclusive_optimizations" != none; then
+      TARGET_ARCH="-march=$allegro_exclusive_optimizations"
+    elif test "X$allegro_cv_support_amd64_mtune" = "Xyes"; then
       TARGET_ARCH="-mtune=$allegro_optimizations"
     else
       TARGET_ARCH="-mcpu=$allegro_optimizations"

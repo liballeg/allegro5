@@ -956,7 +956,7 @@ SET_BLENDER_FUNC(screen);
 /* set_alpha_blender:
  *  Sets the special RGBA blending mode.
  */
-void set_alpha_blender()
+void set_alpha_blender(void)
 {
    BLENDER_FUNC f15, f16, f24, f32;
    int r, b;
@@ -1045,7 +1045,7 @@ unsigned long _blender_write_alpha(unsigned long x, unsigned long y, unsigned lo
 /* set_write_alpha_blender:
  *  Sets the special RGBA editing mode.
  */
-void set_write_alpha_blender()
+void set_write_alpha_blender(void)
 {
    BLENDER_FUNC f32;
 

@@ -118,7 +118,7 @@ DIGI_DRIVER digi_jack =
 /* jack_buffer_size:
  *  Returns the current buffer size, for use by the audiostream code.
  */
-static int jack_buffer_size()
+static int jack_buffer_size(void)
 {
    return jack_bufsize;
 }

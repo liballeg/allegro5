@@ -68,6 +68,10 @@ static char *_full_eref_list;
 static int _xrefs, _erefs;
 static int _empty_count;
 static char *_word_substitution[256];
+static const char *_codeblock_start = "<blockquote class=\"code\"><pre>";
+static const char *_codeblock_end = "</pre></blockquote>";
+static const int _codeblock_start_len = 30;
+static const int _codeblock_end_len = 19;
 
 /* MSVC doesn't like long strings. */
 static const char *_css_data1 = "\
@@ -220,8 +224,11 @@ static void _prepare_html_text_substitution(void);
 static void _free_html_text_substitution_memory(void);
 static char *_do_text_substitution(char *input);
 static void _output_symbol_index(void);
-const char *_find_short_description(const LINE *line);
-const char *_look_up_short_description(const char *token, int len);
+static const char *_find_short_description(const LINE *line);
+static const char *_look_up_short_description(const char *token, int len);
+static char *_scan_line_for_code_tokens(char *line, int *code_scanning);
+static char *_replace_code_tokens(char *line, int column, int *end);
+static char *_find_potential_token(char *line, int column, int end, int *found_size);
 
 
 
@@ -1060,7 +1067,7 @@ static POST *_search_post_section_with_token(const char *token)
  * Retrieves from the cached short description the one which matches
  * len characters from the string token. Returns NULL if none is found.
  */
-const char *_look_up_short_description(const char *token, int len)
+static const char *_look_up_short_description(const char *token, int len)
 {
    int f, g;
    if (!_post)
@@ -1136,6 +1143,7 @@ static void _destroy_post_page(POST *p)
  */
 static void _post_process_filename(char *filename)
 {
+   int code_scanning = 0;
    char *new_filename, *p;
    char *line;
    FILE *f1 = 0, *f2 = 0;
@@ -1150,7 +1158,12 @@ static void _post_process_filename(char *filename)
 
    printf("post processing %s\n", filename);
 
+   code_scanning = 0;
+
    while ((line = m_fgets(f1))) {
+      /* Transform read lines into hyperlinks with post process marks. */
+      line = _scan_line_for_code_tokens(line, &code_scanning);
+      
       /* Loop over pending filename post process marks. */
       while ((p = strstr(line, "\"post_process#"))) {
 	 char *clean_token = get_clean_ref_token(p + 2);
@@ -1565,7 +1578,7 @@ static void _output_symbol_index(void)
  * Returns a const pointer to the text of the line, or NULL if no
  * short definition was found.
  */
-const char *_find_short_description(const LINE *line)
+static const char *_find_short_description(const LINE *line)
 {
    assert(line);
    while (1) {
@@ -1593,3 +1606,140 @@ const char *_find_short_description(const LINE *line)
    return 0;
 }
 
+
+
+/* _scan_line_for_code_tokens:
+ * Transforms line looking for code tokens. line has to be a dynamic
+ * reallocable string. The code_scanning variable should point to a
+ * state variable indicating whether the line we are processing should be
+ * looked for code tokens or not. When looking for code tokens, anything
+ * in the global token cache will be hyperlinked.
+ */
+static char *_scan_line_for_code_tokens(char *line, int *code_scanning)
+{
+   int column = 0;
+   
+   assert(line);
+   assert(code_scanning);
+
+   while (1) {
+      if (*code_scanning) {
+	 int end;
+	 /* Substituting text and looking for closing tags. */
+	 char *p = strstr(line + column, _codeblock_end);
+	 if (!p) {
+	    end = strlen(line);
+	    return _replace_code_tokens(line, column, &end);
+	 }
+	 /* Looks like we have to change state. */
+	 end = p - line;
+	 line = _replace_code_tokens(line, column, &end);
+	 column = end;
+	 *code_scanning = 0;
+      }
+      else {
+	 /* Looking for code chunks. */
+	 char *p = strstr(line + column, _codeblock_start);
+	 if (!p)
+	    return line;
+	 /* Looks like we did find something. Change state. */
+	 column = (p - line) + _codeblock_start_len;
+	 *code_scanning = 1;
+      }
+   }
+}
+
+
+
+/* _replace_code_tokens:
+ * Given a dynamic line, a beginning and an end, this function replaces
+ * all known tokens with hyperlinks to be post processed. When the new
+ * line is returned, end will have been updated to point at the new
+ * end character in the returned string (because it will grow).
+ */
+static char *_replace_code_tokens(char *line, int column, int *end)
+{
+   int found_size;
+   POST *page;
+   char buf[256];
+   char *p, *new_line;
+   int expanded;
+
+   while ((p = _find_potential_token(line, column, *end, &found_size))) {
+      assert(found_size < 255);
+      /* Extract potential token into separate buffer. */
+      strncpy(buf, p, found_size);
+      buf[found_size] = 0;
+
+      page = _search_post_section_with_token(buf);
+      if (!page) {
+	 column = p - line + found_size;
+	 continue;
+      }
+
+      column = p - line;
+      /* Found a token. Resize line and replace token with hyperlink. */
+      new_line = m_xmalloc(strlen(line) + found_size * 3 + 69);
+      strncpy(new_line, line, column);
+      new_line[column] = 0;
+      strcat(new_line, "<a href=\"post_process#");
+      strcat(new_line, buf);
+      strcat(new_line, "\" class=\"autotype\" title=\"@SHORTDESC ");
+      strcat(new_line, buf);
+      strcat(new_line, "@\">");
+      strcat(new_line, buf);
+      strcat(new_line, "</a>");
+      expanded = strlen(new_line) - column - found_size;
+      strcat(new_line, line + column + found_size);
+
+      free(line);
+      line = new_line;
+      column += expanded + found_size;
+      *end = *end + expanded;
+   }
+
+   return line;
+}
+
+
+
+/* _find_potential_token:
+ * In aline, starting at column and endign at end, tries to find potential
+ * tokens, which is words composed of alphanumeric characters and the
+ * underscore. If found, a pointer to the token inside the line is
+ * returned and the length stored in found_size.
+ */
+static char *_find_potential_token(char *line, int column, int end, int *found_size)
+{
+   char *p = line + column;
+   *found_size = 0;
+
+   #define VALID_CHARACTER()            \
+      (*p == '_' ||                     \
+      (*p >= 'A' && *p <= 'Z') ||       \
+      (*p >= 'a' && *p <= 'z') ||       \
+      (*p >= '0' && *p <= '9'))
+
+   /* Discard bad characters. */
+   while (!VALID_CHARACTER()) {
+      p++;
+      column++;
+      if (p - line >= end)
+         return 0;
+   }
+
+   /* Now accept good ones. */
+   while (VALID_CHARACTER()) {
+      p++;
+      *found_size = *found_size + 1;
+      if (column + *found_size == end)
+         break;
+   }
+
+   #undef VALID_CHARACTER
+
+   if (*found_size > 0)
+      return line + column;
+   else
+      return 0;
+}

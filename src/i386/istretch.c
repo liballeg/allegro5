@@ -381,7 +381,7 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    /* make sure all allocated memory is freed atexit */
    if (stretcher_virgin) {
       stretcher_virgin = FALSE;
-      _add_exit_func(free_stretchers);
+      _add_exit_func(free_stretchers, "free_stretchers");
    }
 
    prev_scratch_mem = _scratch_mem;

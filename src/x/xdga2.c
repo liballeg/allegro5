@@ -343,7 +343,7 @@ static void _xdga2_handle_input(void)
 /***
    XDGAEvent *cur_event;
    XKeyEvent key;
-   int kcode, scode, dx, dy, dz = 0;
+   int dx, dy, dz = 0;
    static int mouse_buttons = 0;
 ***/
 

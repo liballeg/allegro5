@@ -31,7 +31,7 @@
 #include <sys/mman.h>
 
 
-static int mem_fd;      /* fd of /dev/mem */
+static int mem_fd = -1;      /* fd of /dev/mem */
 
 /* __al_linux_init_memory:
  *  Prepares to be able to map memory; returns 0 on success.
@@ -50,8 +50,11 @@ int __al_linux_init_memory (void)
  */
 int __al_linux_shutdown_memory (void)
 {
+	if (mem_fd < 0) return 1;
+
 	mprotect ((void *)&mem_fd, sizeof mem_fd, PROT_READ | PROT_WRITE);
 	close (mem_fd);
+	mem_fd = -1;
 	return 0;
 }
 

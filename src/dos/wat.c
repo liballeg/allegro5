@@ -58,12 +58,12 @@ int __djgpp_ds_alias = 0;
  */
 #if __WATCOMC__ >= 1200
 
-static void __interrupt __far my_int24()
+static void __interrupt __far my_int24(void)
 {}
 
 #else
 
-static int __interrupt __far my_int24()
+static int __interrupt __far my_int24(void)
 {
    return 3;
 }
@@ -75,7 +75,7 @@ static int __interrupt __far my_int24()
 /* _dos_irq_init:
  *  Initialises this module.
  */
-void _dos_irq_init()
+void _dos_irq_init(void)
 {
    int c;
 
@@ -123,7 +123,7 @@ void _dos_irq_init()
 /* _dos_irq_exit:
  *  Shuts down this module.
  */
-void _dos_irq_exit()
+void _dos_irq_exit(void)
 {
    int c;
 

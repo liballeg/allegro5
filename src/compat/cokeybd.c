@@ -652,7 +652,7 @@ int install_keyboard()
 
    set_leds(-1);
 
-   _add_exit_func(remove_keyboard);
+   _add_exit_func(remove_keyboard, "remove_keyboard");
    _keyboard_installed = TRUE;
 
    _al_thread_create(&cokeybd_thread, cokeybd_thread_func, NULL);

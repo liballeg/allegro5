@@ -79,7 +79,7 @@ JOYSTICK_DRIVER joystick_ww =
 /* ww_init:
  *  Initialises the driver.
  */
-static int ww_init()
+static int ww_init(void)
 {
    __dpmi_regs r;
 
@@ -152,7 +152,7 @@ static int ww_init()
 /* ww_poll:
  *  Polls the joystick state.
  */
-static int ww_poll()
+static int ww_poll(void)
 {
    __dpmi_regs r;
 
@@ -215,7 +215,7 @@ static int ww_poll()
 /* ww_exit:
  *  Shuts down the driver.
  */
-static void ww_exit()
+static void ww_exit(void)
 {
    if (wingman) {
       free(wingman);

@@ -110,7 +110,7 @@ bool al_install_keyboard(void)
 
    //set_leds(-1);
 
-   _add_exit_func(al_uninstall_keyboard);
+   _add_exit_func(al_uninstall_keyboard, "al_uninstall_keyboard");
 
    return true;
 }

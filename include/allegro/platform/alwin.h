@@ -74,8 +74,6 @@ AL_VAR(SYSTEM_DRIVER, system_directx);
 /*******************************************/
 #define MOUSE_DIRECTX            AL_ID('D','X',' ',' ')
 
-AL_VAR(MOUSE_DRIVER, mouse_directx);
-
 
 
 /*******************************************/

@@ -72,7 +72,7 @@ AL_FUNC(void *, _al_realloc, (void *mem, int size));
 
 
 /* list of functions to call at program cleanup */
-AL_FUNC(void, _add_exit_func, (AL_METHOD(void, func, (void))));
+AL_FUNC(void, _add_exit_func, (AL_METHOD(void, func, (void)), AL_CONST char *desc));
 AL_FUNC(void, _remove_exit_func, (AL_METHOD(void, func, (void))));
 
 
@@ -225,7 +225,6 @@ typedef struct FONT_VTABLE
    AL_METHOD(int, transpose_font, (FONT *f, int drange));
 } FONT_VTABLE;
 
-AL_VAR(FONT, _default_font);
 AL_VAR(FONT_VTABLE, _font_vtable_mono);
 AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);
@@ -1032,8 +1031,6 @@ typedef struct          /* a virtual (as seen by the user) soundcard voice */
    long time;           /* when we were started (for voice allocation) */
    int priority;        /* how important are we? */
 } VOICE;
-
-AL_ARRAY(VOICE, _voice);
 
 
 typedef struct          /* a physical (as used by hardware) soundcard voice */

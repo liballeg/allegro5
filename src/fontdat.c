@@ -34,7 +34,7 @@ FONT *load_dat_font(AL_CONST char *filename, RGB *pal, void *param)
    DATAFILE *df;
    RGB *p = NULL;
    char **names;
-   int c, n, want_palette;
+   int c, want_palette;
    ASSERT(filename);
    
    /* Load font and palette by name? */

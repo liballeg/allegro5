@@ -104,7 +104,7 @@ DIGI_DRIVER digi_arts =
 /* _al_arts_buffer_size:
  *  Returns the current DMA buffer size, for use by the audiostream code.
  */
-static int _al_arts_buffer_size()
+static int _al_arts_buffer_size(void)
 {
    return _al_arts_bufsize / (_al_arts_bits / 8) / (_al_arts_stereo ? 2 : 1);
 }

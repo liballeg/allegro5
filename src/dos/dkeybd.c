@@ -245,7 +245,7 @@ END_OF_STATIC_FUNCTION(keyint);
 /* pcdos_key_init:
  *  Installs the keyboard handler.
  */
-static int pcdos_key_init()
+static int pcdos_key_init(void)
 {
    int s1, s2, s3;
 
@@ -294,7 +294,7 @@ static int pcdos_key_init()
 /* pcdos_key_exit:
  *  Removes the keyboard handler.
  */
-static void pcdos_key_exit()
+static void pcdos_key_exit(void)
 {
    int s1, s2, s3;
 

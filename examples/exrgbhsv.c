@@ -379,6 +379,9 @@ int main(void)
 
    do_dialog(the_dlg, -1);
 
+   for (i=0; i<DIALOG_NUM_SLIDERS; i++)
+      destroy_bitmap(color_bar_bitmap[i]);
+
    return 0;
 }
 END_OF_MAIN()

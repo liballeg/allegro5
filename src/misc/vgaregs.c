@@ -32,7 +32,7 @@ int _crtc = 0x3D4;
 /* _vga_regs_init:
  *  Initialiases the VGA register access functions.
  */
-void _vga_regs_init()
+void _vga_regs_init(void)
 {
    LOCK_VARIABLE(_crtc);
 
@@ -47,7 +47,7 @@ void _vga_regs_init()
 /* _vga_vsync:
  *  Waits for the start of a vertical retrace.
  */
-void _vga_vsync()
+void _vga_vsync(void)
 {
    _vsync_out_v();
    _vsync_in();

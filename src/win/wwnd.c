@@ -81,16 +81,14 @@ struct WINDOW_MODULES {
 };
 
 /* Used in adjust_window(). */
-#ifndef TITLEBARINFO
-   #ifndef CCHILDREN_TITLEBAR
-      #define CCHILDREN_TITLEBAR 5
-   #endif
+#ifndef CCHILDREN_TITLEBAR
+   #define CCHILDREN_TITLEBAR 5
 typedef struct {
    DWORD cbSize;
    RECT  rcTitleBar;
    DWORD rgstate[CCHILDREN_TITLEBAR + 1];
 } TITLEBARINFO, *PTITLEBARINFO, *LPTITLEBARINFO;
-#endif /* ifndef TITLEBARINFO */
+#endif /* ifndef CCHILDREN_TITLEBAR */
 
 
 

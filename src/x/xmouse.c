@@ -238,14 +238,18 @@ static int _xwin_select_system_cursor(AL_CONST int cursor)
       default:
          return 0;
    }
-   
+
+   XLOCK();
+
    if (_xwin.cursor != None) {
       XUndefineCursor(_xwin.display, _xwin.window);
       XFreeCursor(_xwin.display, _xwin.cursor);
-   }   
+   }
 
    _xwin.cursor = XCreateFontCursor(_xwin.display, _xwin.cursor_shape);
    XDefineCursor(_xwin.display, _xwin.window, _xwin.cursor);
-   
+
+   XUNLOCK();
+
    return cursor;
 }
