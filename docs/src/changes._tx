@@ -7,6 +7,91 @@
 @document_title=Allegro Changes
 @html_spaced_list_bullet
 
+@heading
+Changes from 4.1.18 to 4.2.0 beta (March 2005)
+<ul><li>
+   Peter Wang fixed many problems on AMD64 in Linux - it should now work fine.
+<li>
+   Peter Hull added CPU detection to the MacOS X port.
+<li>
+   Peter Hull fixed some problems related to /usr/local/bin not existing in 
+   recent versions of MacOS X.
+<li>
+   Elias Pschernig and Peter Wang rewrote the Windows keyboard driver so it
+   no longer needs keyboard.dat.
+<li>
+   Elias Pschernig added a show_os_cursor function as an alternative to
+   show_mouse() for system cursors.
+<li>
+   Evert Glebbeek and Peter Wang added an example programme for system cursors.
+<li>
+   Elias Pschernig fixed a deadlocks in X11 related to scare_mouse() and
+   keyboard repeats and fixed async replies.
+<li>
+   Daniel Schlyder fixed the gcc -mcpu is deprecated warnings.
+<li>
+   Peter Wang added an astdint.h, which provides C99 typedefs for pre-C99
+   compilers.
+<li>
+   AJ added detection for DirectX 8 and 9 to the Windows port.
+<li>
+   Evert Glebbeek added detection for AMD64 to the UNIX port and test
+   programme.
+<li>
+   Elias Pschernig added a get_midi_length function and a midi_time variable.
+<li>
+   Elias Pschernig fixed a problem where Allegro would ignore a user-specified
+   configuration file if set_config_file() was called before allegro_init().
+<li>
+   Evert Glebbeek added a transpose_font function.
+<li>
+   Evert Glebbeek added support for true colour fonts and a font example.
+<li>
+   Elias Pschernig fixed a problem in shutdown_dialog() reported by Tobi
+   Vollebregt.
+<li>
+   Marcio Fialho fixed some issues with displaying author names in the demo 
+   game.
+<li>
+   Andrei Ellman fixed a problem in the MSVC makefile when building Allegro 
+   with Cygwin.
+<li>
+   Daniel Schlyder fixed (again) problems with creating directories in 
+   different setups in Windows.
+<li>
+   Elias Pschernig added documentation for the custom packfile functions.
+<li>
+   Jeff Mitchell fixed the location of grabber.txt in the spec file.
+<li>
+   Harshavardhana Reddy added a Kannada greeting to exunicod.
+<li>
+   Elias Pschernig cleaned up the example programmes.
+<li>
+   Peter Wang made it possible to disable the hardware cursor in X by passing
+   an option to the configure script.
+<li>
+   AJ and Michal Molhanec added an MSVC 7 configure option and added an msvc7 
+   switch to fix.bat. Karthik Kumar did the same for the Intel compiler icl.
+<li>
+   Mr_Bones fixed compilation of setup.c when --disable-ossdigi is used
+<li>
+   AJ fixed a beep being generated in Windows when alt+character was pressed 
+   in Windowed mode.
+<li>
+   Peter Wang fixed many oversights and problems in the library and examples and
+   allowed the code to be build with stricter warnings.
+<li>
+   Peter Wang fixed problems compiling the Windows port with WARNMODE=1
+<li>
+   Tore Halse fixed compilation problems in Windows related to TITLEBARINFO.
+<li>
+   Daniel Schlyder made the Windows port use TITLEBARINFO if it is available.
+<li>
+   Grzegorz Adam Hankiewicz made many improvements to the documentation.
+<li>
+</ul>
+
+@heading
 Changes from 4.1.17 to 4.1.18 (Januari 2005)
 <ul><li>
    Peter Hull fixed a bug that caused rest() to wait too long on MacOS X.

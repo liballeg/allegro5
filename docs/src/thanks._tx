@@ -25,7 +25,10 @@ Contributors
 
    aj (<email>aj@visualsynth.com</a>).<br>
    Reported many problems, suggested a lot of improvements to the
-   documentation and added AMD64/IA64/SSE3 detection code.
+   documentation, added AMD64/IA64/SSE3 detection code, added DirectX 8 and 9
+   detection to the Windows port, added MSVC7 specific options to the makefile,
+   cleaned up a C99-ism in makedoc and fixed a beep when alt+character was 
+   pressed in windowed mode in Windows.
 
    Alex Demko (<email>alex_demko@mbnet.mb.ca</a>).<br>
    Suggested lots of improvements to the datafile system and provided code
@@ -43,7 +46,8 @@ Contributors
    the docs, updated the Cygwin section in docs/build/mingw32.txt, got
    Allegro for MSVC to build with Cygwin, improved the performance of the
    hsv_to_rgb() function, corrected a rounding issue in hsv_to_rgb(),
-   improved the exrgbhsv example and the Windows screensaver.
+   improved the exrgbhsv example and the Windows screensaver, fixed problems
+   in the MSVC makefile when using Cygwin and did plenty of other things too.
 
    Andrew Cottrell (<email>andrewc@dbworld.net.au</a>).<br>
    Changed the grabber to use a more robust (locale-independent) date format.
@@ -343,6 +347,9 @@ Contributors
    Gunter Ladwig (<email>gladwig@iname.com</a>).<br>
    Wrote the OS/2 detection routines and added the three-button mouse
    emulation.
+   
+   Harshavardhana Reddy N (<email>nharsha@gmail.com</a>).<br>
+   Added a Kannada greeting to exunicod.
 
    Haruhiko Okumura (email unknown).<br>
    Wrote the original version of the LZSS compression code.
@@ -412,6 +419,9 @@ Contributors
    reports and suggestions for improvement, contributed bidirectional
    looping support, backward playing support and bugfixes for the
    DirectSound driver and did plenty of other things too.
+   
+   Jeff Mitchell (email unknown).<br>
+   Fixed the location of grabber.txt in the spec file.
 
    Jeremiah Blanchard (<email>squirminworm@yahoo.com</a>).<br>
    Contributed modifications in order for Allegro to build on Darwin/MacOS X
@@ -631,14 +641,15 @@ Contributors
    Michal Molhanec (<email>molhanec@seznam.cz</a>).<br>
    Simplified the build instructions for Dev-C++, replaced all occurences
    of MingW32 by MinGW in the docs, added an faq section about the giftware
-   license, fixed problems with long filenames when building for MSVC and
-   corrected a problem with the Watcom port.
+   license, fixed problems with long filenames when building for MSVC,
+   corrected a problem with the Watcom port and added MSVC7 options to the
+   makefile.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
 
    Milan Mimica (<email>milan.mimica1@pu.htnet.hr</a>).<br>
-   Fixed a bug in the keyconf utility.
+   Fixed a bug in the keyconf utility and the alsa 9 volume settings.
 
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
    Improved the fire routine in examples/exflame.c (my original version
@@ -725,6 +736,9 @@ Contributors
    Made the file selector work with directories that have more than 2048 
    files, solved some compiling issues on MacOS X and fixed a bug in rest() 
    that caused it to wait too long on that platform.
+   
+   Peter Johansson (email unknown).<br>
+   Reported a problem with system cursors not working in Windows.
 
    Peter Monks (<email>pmonks@iname.com</a>).<br>
    Wrote the Video-7 graphics driver (now available as part of the FreeBE/AF
@@ -880,6 +894,9 @@ Contributors
 
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
+   
+   Sveinung Kvilhaugsvik(email unknown).<br>
+   Pointed out that Allegro should respect DESTDIR under MacOS X.
 
    Sven Sandberg (<email>svens@it.uu.se</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised
@@ -923,7 +940,8 @@ Contributors
 
    Tobi Vollebregt (email unknown).<br>
    Spotted a bug in ustrerror(), which was not returning a pointer to
-   a static buffer.
+   a static buffer and reported a problem with shutdown_dialog() when a
+   menu was open.
 
    Tom Breton (<email>tob@world.std.com</a>).<br>
    Added the functionality selection #ifndefs to allegro.h.
@@ -944,7 +962,8 @@ Contributors
    Made Allegro windows always popup centred in Windows.
 
    V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
-   Added a Tamil language greeting to exunicode.
+   Added a Tamil language greeting to exunicode and added switches to use
+   the Intel compiler in Windows.
 
    Ville Skyttä (<email>scop@users.sourceforge.net</a>).<br>
    Fixed a problem with make install libdir= and modules on Unix systems.
