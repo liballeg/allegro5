@@ -35,6 +35,7 @@ Options:
 	--libs
 	--static
 	--shared
+	--env
 
 Libraries:
 	release
@@ -98,6 +99,10 @@ while test $# -gt 0; do
 	 echo_libs=yes
       ;;
 
+      --env)
+	 echo_env=yes
+      ;;
+
       release)
 	 lib_type=alleg
       ;;
@@ -138,4 +143,14 @@ if test "$echo_libs" = "yes"; then
    else
       echo $libdirs -l${lib_type}-${version} -l${lib_type}_unsharable #$allegro_libs
    fi
-fi 
+fi
+
+if test "$echo_env" = "yes"; then
+	echo "export PATH=\$PATH:$prefix/bin"
+	echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$prefix/lib"
+	echo "export LIBRARY_PATH=\$LIBRARY_PATH:$prefix/lib"
+	echo "export C_INCLUDE_PATH=\$C_INCLUDE_PATH:$prefix/include"
+	echo "export CPLUS_INCLUDE_PATH=\$CPLUS_INCLUDE_PATH:$prefix/include"
+	echo "export OBJC_INCLUDE_PATH=\$OBJC_INCLUDE_PATH:$prefix/include"
+fi
+
