@@ -2068,7 +2068,7 @@ int title_screen(void)
 
 int main(int argc, char *argv[])
 {
-   int c, w, h;
+   int c, w, h, num_pages;
    char buf[256], buf2[256];
    BITMAP *bmp;
    CREDIT_NAME *cred;
@@ -2178,10 +2178,26 @@ int main(int argc, char *argv[])
 
    if (pick_animation_type(&animation_type) < 0)
       exit(1);
+      
+   switch (animation_type) {
+
+      case PAGE_FLIP:
+      case RETRACE_FLIP: 
+	 num_pages = 2;
+	 break;
+
+      case TRIPLE_BUFFER: 
+	 num_pages = 3;
+	 break;
+
+      default: 
+	 num_pages = 1;
+	 break;
+   }
 
    set_color_depth(8);
 #ifdef ALLEGRO_VRAM_SINGLE_SURFACE
-   if (set_gfx_mode(c, w, h, w, h * 2) != 0) {
+   if (set_gfx_mode(c, w, h, w, h * num_pages) != 0) {
 #else
    if (set_gfx_mode(c, w, h, 0, 0) != 0) {
 #endif
