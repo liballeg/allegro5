@@ -194,8 +194,11 @@ static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPC
    if (lpGuid) {
       driver_guids[num_drivers] = lpGuid;
       driver_names[num_drivers] = malloc(strlen(lpcstrDescription)+1);
-      _al_sane_strncpy(driver_names[num_drivers], lpcstrDescription, strlen(lpcstrDescription)+1);
-      num_drivers++;
+      if(driver_names[num_drivers])
+      {
+         _al_sane_strncpy(driver_names[num_drivers], lpcstrDescription, strlen(lpcstrDescription)+1);
+         num_drivers++;
+      }
    }
 
    return (num_drivers < MAX_DRIVERS);
@@ -221,19 +224,19 @@ _DRIVER_INFO *_get_win_digi_driver_list(void)
       hr = DirectSoundEnumerate(DSEnumCallback, NULL);
 
       if (hr == DS_OK) {
+         /* Allegro mixer to DirectSound drivers */
+         for (i=0; i<num_drivers; i++) {
+            driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
+
+            _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
+         }
+
          /* pure DirectSound drivers */
          for (i=0; i<num_drivers; i++) {
             driver = malloc(sizeof(DIGI_DRIVER));
             memcpy(driver, &digi_directsound, sizeof(DIGI_DRIVER));
             driver->id = DIGI_DIRECTX(i);
             driver->ascii_name = driver_names[i];
-
-            _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
-         }
-
-         /* Allegro mixer to DirectSound drivers */
-         for (i=0; i<num_drivers; i++) {
-            driver = _get_dsalmix_driver(driver_names[i], driver_guids[i], i);
 
             _driver_list_append_driver(&driver_list, driver->id, driver, TRUE);
          }
@@ -400,20 +403,21 @@ static int digi_directsound_init(int input, int voices)
       goto Error; 
    }
 
-   if (dscaps.dwFlags & DSCAPS_PRIMARY16BIT)
+   if ((dscaps.dwFlags & DSCAPS_PRIMARY16BIT) &&
+       ((_sound_bits >= 16) || (_sound_bits <= 0)))
       _bits = 16;
    else
       _bits = 8;
 
-   if (dscaps.dwFlags & DSCAPS_PRIMARYSTEREO)
+   if ((dscaps.dwFlags & DSCAPS_PRIMARYSTEREO) && _sound_stereo)
       _stereo = 1;
    else
       _stereo = 0;
 
-   if (dscaps.dwMaxSecondarySampleRate > 44000)
-      _freq = 44100;
+   if ((dscaps.dwMaxSecondarySampleRate > _sound_freq) && (_sound_freq > 0))
+      _freq = _sound_freq;
    else
-      _freq = 22050;
+      _freq = dscaps.dwMaxSecondarySampleRate;
 
    _TRACE("DirectSound caps: %u bits, %s, %uHz\n", _bits, _stereo ? "stereo" : "mono", _freq);
 
