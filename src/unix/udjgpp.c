@@ -18,10 +18,7 @@
 
 #include "allegro/internal/alconfig.h"
 
-
-
 static char *_allegro_program_arguments[] = { "./unknown", 0 };
 
 int    __crt0_argc = 1;
 char **__crt0_argv = _allegro_program_arguments;
-

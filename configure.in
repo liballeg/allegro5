@@ -118,6 +118,11 @@ else
    _warnmode="Ignoring compiler warnings."
 fi
 
+dnl Enable magic main (default: no).
+AC_ARG_ENABLE(magicmain,
+[  --enable-magicmain[=x]  enable magic main [default=no]],
+test "X$enableval" == "Xyes" && AC_DEFINE(ALLEGRO_WITH_MAGIC_MAIN,1,[Define if you need to use a magic main.]))
+
 dnl Check that $prefix is set (needed for ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX)
 test "$prefix" = NONE && prefix=/usr/local
 

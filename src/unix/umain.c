@@ -17,6 +17,9 @@
 
 
 #include "allegro/internal/alconfig.h"
+
+#ifdef ALLEGRO_WITH_MAGIC_MAIN
+
 #undef main
 
 
@@ -39,3 +42,4 @@ int main(int argc, char *argv[])
    return (*real_main)(argc, argv);
 }
 
+#endif
