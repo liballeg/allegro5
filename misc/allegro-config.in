@@ -145,21 +145,11 @@ if test "$echo_exec_prefix" = "yes"; then
 fi
 
 if test "$echo_cflags" = "yes"; then
-   # gcc 3 complains if we add system include directories with -I.
-   # This cheap hack should catch most cases.
-   if test ${prefix} = /usr || test ${prefix} = /usr/local; then
-      echo $allegro_cflags
-   else
-      echo -I${prefix}/include $allegro_cflags
-   fi
+   echo -I${prefix}/include $allegro_cflags
 fi
 
 if test "$echo_cppflags" = "yes"; then
-   if test ${prefix} = /usr || test ${prefix} = /usr/local; then
-      echo $allegro_cppflags
-   else
-      echo -I${prefix}/include $allegro_cppflags
-   fi
+   echo -I${prefix}/include $allegro_cppflags
 fi
 
 if test "$echo_libs" = "yes"; then
