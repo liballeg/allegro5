@@ -219,7 +219,7 @@ dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 AC_PATH_X
 if test -z "$no_x"; then
   allegro_support_xwindows=yes
-  AC_DEFINE(ALLEGRO_WITH_XWINDOWS)
+  AC_DEFINE(ALLEGRO_WITH_XWINDOWS,1,[Define if you need support for X-Windows.])
 
   if test -n "$x_includes"; then
     CPPFLAGS="-I$x_includes $CPPFLAGS"
@@ -237,21 +237,21 @@ if test -z "$no_x"; then
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
     AC_CHECK_LIB(Xext, XShmQueryExtension,
-      [AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM)])
+      [AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM,1,[Define if MIT-SHM extension is supported.])])
   fi
 
   dnl Test for XF86VidMode extension.
   if test -n "$allegro_enable_xwin_xf86vidmode"; then
     AC_CHECK_LIB(Xxf86vm, XF86VidModeQueryExtension,
       [LIBS="-lXxf86vm $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE,1,[Define if XF86VidMode extension is supported.])])
   fi
 
   dnl Test for XF86DGA extension.
   if test -n "$allegro_enable_xwin_xf86dga"; then
     AC_CHECK_LIB(Xxf86dga, XF86DGAQueryExtension,
       [LIBS="-lXxf86dga $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA)])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA,1,[Define if XF86DGA extension is supported.])])
   fi
 
   dnl Test for DGA 2.0 extension.
@@ -261,7 +261,7 @@ if test -z "$no_x"; then
       if test -z "$allegro_support_modules"; then
         LIBS="-lXxf86dga $LIBS"
       fi
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2)])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2,1,[Define if DGA version 2.0 or newer is supported])])
   fi
 
 fi
@@ -460,24 +460,20 @@ dnl
 dnl Test where is sched_yield (SunOS).
 dnl
 dnl Variables:
-dnl  allegro_sched_yield_lib
+dnl  allegro_sched_yield_lib=(lib|)
 dnl
 dnl LIBS can be modified.
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_SCHED_YIELD,
 [AC_MSG_CHECKING(for sched_yield)
-allegro_sched_yield_lib="no"
 AC_TRY_LINK([ extern void sched_yield (); ],
   [ sched_yield (); ],
-  AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
   allegro_sched_yield_lib="-lc",
   AC_CHECK_LIB(posix4, sched_yield,
     [ LIBS="-lposix4 $LIBS"
-    AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
     allegro_sched_yield_lib="-lposix4"],
     AC_CHECK_LIB(rt, sched_yield,
       [ LIBS="-lrt $LIBS"
-      AC_DEFINE(ALLEGRO_USE_SCHED_YIELD)
       allegro_sched_yield_lib="-lrt"])))
 AC_MSG_RESULT($allegro_sched_yield_lib)])
 

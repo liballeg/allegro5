@@ -3,31 +3,35 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(include/allegro.h)
 AC_CONFIG_AUX_DIR(misc)
 AC_CONFIG_HEADER(include/allegro/platform/alunixac.h:include/allegro/platform/alunixac.hin)
-AC_PREREQ(2.12)
+AC_PREREQ(2.53)
 AC_ARG_PROGRAM
 
 dnl Build CFLAGS from scratch
 CFLAGS=
 
 dnl Enable 8-bpp color depth (default).
+AH_TEMPLATE([ALLEGRO_COLOR8], [Define if you want support for 8 bpp modes.])
 AC_ARG_ENABLE(color8,
 [  --enable-color8[=x]     enable support for 8-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR8),
 AC_DEFINE(ALLEGRO_COLOR8))
 
 dnl Enable 16-bpp color depth (default).
+AH_TEMPLATE([ALLEGRO_COLOR16], [Define if you want support for 16 bpp modes.])
 AC_ARG_ENABLE(color16,
 [  --enable-color16[=x]    enable support for 16-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR16),
 AC_DEFINE(ALLEGRO_COLOR16))
 
 dnl Enable 24-bpp color depth (default).
+AH_TEMPLATE([ALLEGRO_COLOR24], [Define if you want support for 24 bpp modes.])
 AC_ARG_ENABLE(color24,
 [  --enable-color24[=x]    enable support for 24-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR24),
 AC_DEFINE(ALLEGRO_COLOR24))
 
 dnl Enable 32-bpp color depth (default).
+AH_TEMPLATE([ALLEGRO_COLOR32], [Define if you want support for 32 bpp modes.])
 AC_ARG_ENABLE(color32,
 [  --enable-color32[=x]    enable support for 32-bpp modes [default=yes]],
 test "X$enableval" != "Xno" && AC_DEFINE(ALLEGRO_COLOR32),
@@ -131,46 +135,50 @@ if test "$allegro_cv_support_asm" = i386; then
   ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
 else
   ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_C_FILES
-  AC_DEFINE(ALLEGRO_NO_ASM)
+  AC_DEFINE(ALLEGRO_NO_ASM,1,
+	    [Define for Unix platforms, to use C convention for bank switching.])
 fi
 AC_SUBST(ALLEGRO_MAYBE_ASM_FILES)
 
 dnl Test for MMX support.
 ALLEGRO_ACTEST_SUPPORT_MMX
 if test "$allegro_cv_support_mmx" = yes; then
-  AC_DEFINE(ALLEGRO_MMX)
+  AC_DEFINE(ALLEGRO_MMX,1,[Define if assembler supports MMX.])
 fi
 
 dnl Test for SSE support.
 ALLEGRO_ACTEST_SUPPORT_SSE
 if test "$allegro_cv_support_sse" = yes; then
-  AC_DEFINE(ALLEGRO_SSE)
+  AC_DEFINE(ALLEGRO_SSE,1,[Define if assembler supports SSE.])
 fi
 
 dnl Test for underscore prepended by compiler.
 ALLEGRO_ACTEST_ASM_PREFIX
 if test "$allegro_cv_asm_prefix" != ""; then
-  AC_DEFINE_UNQUOTED(ALLEGRO_ASM_PREFIX, "$allegro_cv_asm_prefix")
+  AC_DEFINE_UNQUOTED(ALLEGRO_ASM_PREFIX, "$allegro_cv_asm_prefix",
+		     [Define if compiler prepends underscore to symbols.])
 fi
 
 dnl Test target machine endianess.
 AC_C_BIGENDIAN
 if test "$ac_cv_c_bigendian" = yes; then
-  AC_DEFINE(ALLEGRO_BIG_ENDIAN)
+  AC_DEFINE(ALLEGRO_BIG_ENDIAN,1,[Define if target machine is big endian.])
 else
-  AC_DEFINE(ALLEGRO_LITTLE_ENDIAN)
+  AC_DEFINE(ALLEGRO_LITTLE_ENDIAN,1,[Define if target machine is little endian.])
 fi
 
 dnl Test for constructor attribute support.
 ALLEGRO_ACTEST_CONSTRUCTOR
 if test "X$allegro_support_constructor" = "Xyes"; then
-  AC_DEFINE(ALLEGRO_USE_CONSTRUCTOR)
+  AC_DEFINE(ALLEGRO_USE_CONSTRUCTOR,1,
+	    [Define if constructor attribute is supported.])
 fi
 
 dnl Test for modules support.
 ALLEGRO_ACTEST_MODULES
 if test -n "$allegro_support_modules"; then
-  AC_DEFINE(ALLEGRO_WITH_MODULES)
+  AC_DEFINE(ALLEGRO_WITH_MODULES,1,
+	    [Define if dynamically loaded modules are supported.])
 fi
 
 dnl Do we need to pass the include prefix to the compiler?
@@ -251,46 +259,49 @@ AC_SUBST(ALLEGRO_LIB_TARGETS)
 
 dnl Test where is sched_yield (SunOS).
 ALLEGRO_ACTEST_SCHED_YIELD
+if test -n "$allegro_sched_yield_lib"; then
+   AC_DEFINE(ALLEGRO_USE_SCHED_YIELD,1,[Define if sched_yield is provided by some library.])
+fi
 
 dnl Test for OSS drivers.
 ALLEGRO_ACTEST_OSSDIGI
 if test -n "$allegro_support_ossdigi"; then
-  AC_DEFINE(ALLEGRO_WITH_OSSDIGI)
+  AC_DEFINE(ALLEGRO_WITH_OSSDIGI,1,[Define if OSS DIGI driver is supported.])
 fi
 
 dnl Test for ALSA drivers.
 ALLEGRO_ACTEST_ALSADIGI
 if test "$allegro_cv_support_alsadigi" = yes; then
-  AC_DEFINE(ALLEGRO_WITH_ALSADIGI)
+  AC_DEFINE(ALLEGRO_WITH_ALSADIGI,1,[Define if ALSA DIGI driver is supported.])
 fi
 
 ALLEGRO_ACTEST_ALSAMIDI
 if test "$allegro_cv_support_alsamidi" = yes; then
-  AC_DEFINE(ALLEGRO_WITH_ALSAMIDI)
+  AC_DEFINE(ALLEGRO_WITH_ALSAMIDI,1,[Define if ALSA MIDI driver is supported.])
 fi
 
 dnl Test for ESD drivers.
 ALLEGRO_ACTEST_ESDDIGI
 if test -n "$allegro_support_esddigi"; then
-  AC_DEFINE(ALLEGRO_WITH_ESDDIGI)
+  AC_DEFINE(ALLEGRO_WITH_ESDDIGI,1,[Define if ESD DIGI driver is supported.])
 fi
 
 dnl Test for aRts drivers.
 ALLEGRO_ACTEST_ARTSDIGI
 if test -n "$allegro_support_artsdigi"; then
-  AC_DEFINE(ALLEGRO_WITH_ARTSDIGI)
+  AC_DEFINE(ALLEGRO_WITH_ARTSDIGI,1,[Define if aRts DIGI driver is supported.])
 fi
 
 dnl Test for SGI AL drivers.
 ALLEGRO_ACTEST_SGIALDIGI
 if test "$allegro_cv_support_sgialdigi" = yes; then
-   AC_DEFINE(ALLEGRO_WITH_SGIALDIGI)
+   AC_DEFINE(ALLEGRO_WITH_SGIALDIGI,1,[Define if SGI AL DIGI driver is supported.])
 fi
 
 dnl Test for OSS MIDI drivers.
 ALLEGRO_ACTEST_OSSMIDI
 if test -n "$allegro_support_ossmidi"; then
-  AC_DEFINE(ALLEGRO_WITH_OSSMIDI)
+  AC_DEFINE(ALLEGRO_WITH_OSSMIDI,1,[Define if OSS MIDI driver is supported.])
 fi
 
 dnl Test for X-Windows support.
@@ -349,7 +360,8 @@ allegro_cv_have_map_failed=yes,
 allegro_cv_have_map_failed=no)])
 AC_MSG_RESULT($allegro_cv_have_map_failed)
 if test "$allegro_cv_have_map_failed" = no; then
-  AC_DEFINE(MAP_FAILED, [(void *)-1])
+  AC_DEFINE(MAP_FAILED, [(void *)-1],
+	    [Define to (void *)-1, if MAP_FAILED is not defined.])
 fi
 
 dnl Some miscellaneous defines.
@@ -360,34 +372,38 @@ case "$allegro_system" in
 
 *linux*)
   if test "$allegro_support_linux" = yes; then
-    AC_DEFINE(ALLEGRO_LINUX)
+    AC_DEFINE(ALLEGRO_LINUX,1,[Define if target platform is linux.])
     ALLEGRO_MAYBE_LINUX_FILES=ALLEGRO_SRC_LINUX_FILES
 
     AC_CHECK_HEADERS(sys/io.h linux/joystick.h linux/input.h)
 
     if test "$allegro_enable_vga" = yes; then
       allegro_support_vga=yes
-      AC_DEFINE(ALLEGRO_LINUX_VGA)
+      AC_DEFINE(ALLEGRO_LINUX_VGA,1,
+		[Define to enable Linux console VGA driver.])
     fi
 
     if test "$allegro_enable_fbcon" = yes; then
       AC_CHECK_HEADER(linux/fb.h,
 	AC_TRY_COMPILE([#include <linux/fb.h>], [int x = FB_SYNC_ON_GREEN;],
 	  allegro_support_fbcon=yes
-	  AC_DEFINE(ALLEGRO_LINUX_FBCON)
+	  AC_DEFINE(ALLEGRO_LINUX_FBCON,1,
+		    [Define to enable Linux console fbcon driver.])
 	)
       )
     fi
 
     if test "$allegro_enable_vbeaf" = yes; then
-      AC_DEFINE(ALLEGRO_LINUX_VBEAF)
+      AC_DEFINE(ALLEGRO_LINUX_VBEAF,1,
+		[Define to enable Linux console VBE/AF driver.])
     fi
 
     if test "$allegro_enable_svgalib" = yes; then
       AC_CHECK_HEADER(vga.h,
 	AC_CHECK_LIB(vga, vga_init,
 	  allegro_support_svgalib=yes
-	  AC_DEFINE(ALLEGRO_LINUX_SVGALIB)
+	  AC_DEFINE(ALLEGRO_LINUX_SVGALIB,1,
+		    [Define to enable Linux console SVGAlib driver.])
 	  if test -z "$allegro_support_modules"; then
 	    LIBS="-lvga $LIBS"
 	  fi
@@ -398,7 +414,8 @@ case "$allegro_system" in
             allegro_cv_have_vga_version=no)])
           AC_MSG_RESULT($allegro_cv_have_vga_version)
           if test "$allegro_cv_have_vga_version" = yes; then
-            AC_DEFINE(ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION)
+            AC_DEFINE(ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION,1,
+		      [Define if SVGAlib driver can check vga_version.])
           fi
 	)
       )
@@ -471,7 +488,7 @@ LIBS="-lm $LIBS"
 case "$allegro_system" in
 
 *darwin*)
-  AC_DEFINE(ALLEGRO_DARWIN)
+  AC_DEFINE(ALLEGRO_DARWIN,1,[Define if target platform is Darwin.])
   LIBS="-lcc_dynamic $LIBS"
   AR="\$(LD) -r -keep_private_externs -o"
   ;;
@@ -526,7 +543,10 @@ if test -n "GCC"; then
   fi
   if test "$allegro_cv_support_asm" != i386; then
     CFLAGS="$CFLAGS -DALLEGRO_USE_C"
-  fi 
+  fi
+  dnl Allow to specify additional flags.
+  CFLAGS="$CFLAGS $XCFLAGS"
+  WFLAGS="$WFLAGS $WCFLAGS"
   dnl In this order...
   ALLEGRO_DEBUG_CFLAGS="$CFLAGS -g $WFLAGS -DDEBUGMODE"
   ALLEGRO_PROFILE_CFLAGS="$CFLAGS -pg $TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
