@@ -28,7 +28,7 @@
 
 
 /* List of standard drivers */
-STD_DRIVER *std_drivers[N_STD_DRIVERS];
+STD_DRIVER *__al_linux_std_drivers[N_STD_DRIVERS];
 
 
 static void __async_disable_driver (STD_DRIVER *drv, int mode)
@@ -79,7 +79,7 @@ int __al_linux_add_standard_driver (STD_DRIVER *spec)
    if (spec->fd < 0) return 4;
 
    spec->private[PRIV_ENABLED] = 0;
-   std_drivers[spec->type] = spec;
+   __al_linux_std_drivers[spec->type] = spec;
 
    __async_enable_driver (spec, __al_linux_async_io_mode);
 
@@ -93,14 +93,14 @@ int __al_linux_add_standard_driver (STD_DRIVER *spec)
 int __al_linux_remove_standard_driver (STD_DRIVER *spec)
 {
    if (!spec) return 1;
-   if (!__al_linux_async_io_mode) return 2;
+   /*if (!__al_linux_async_io_mode) return 2;*/
    if (spec->type >= N_STD_DRIVERS) return 3;
-   if (!std_drivers[spec->type]) return 4; 
-   if (std_drivers[spec->type] != spec) return 5;
+   if (!__al_linux_std_drivers[spec->type]) return 4; 
+   if (__al_linux_std_drivers[spec->type] != spec) return 5;
 
    __async_disable_driver (spec, __al_linux_async_io_mode);
    
-   std_drivers[spec->type] = NULL;
+   __al_linux_std_drivers[spec->type] = NULL;
 
    return 0;
 }
@@ -112,10 +112,10 @@ int __al_linux_remove_standard_driver (STD_DRIVER *spec)
 int __al_linux_update_standard_driver (int type)
 {
    if (type >= N_STD_DRIVERS) return -1;
-   if (!std_drivers[type]) return -1;
+   if (!__al_linux_std_drivers[type]) return -1;
 
-   if (std_drivers[type]->private[PRIV_ENABLED])
-      return std_drivers[type]->update();
+   if (__al_linux_std_drivers[type]->private[PRIV_ENABLED])
+      return __al_linux_std_drivers[type]->update();
 
    return 0;
 }
@@ -128,8 +128,8 @@ void __al_linux_update_standard_drivers (void)
 {
    int i;
    for (i = 0; i < N_STD_DRIVERS; i++)
-      if (std_drivers[i] && std_drivers[i]->private[PRIV_ENABLED])
-         std_drivers[i]->update();
+      if (__al_linux_std_drivers[i] && __al_linux_std_drivers[i]->private[PRIV_ENABLED])
+         __al_linux_std_drivers[i]->update();
 }
 
 
@@ -141,11 +141,11 @@ void __al_linux_async_set_drivers (int mode, int on_off)
 {
    int i;
    for (i = 0; i < N_STD_DRIVERS; i++)
-      if (std_drivers[i]) {
+      if (__al_linux_std_drivers[i]) {
          if (on_off)
-            __async_enable_driver (std_drivers[i], mode);
+            __async_enable_driver (__al_linux_std_drivers[i], mode);
          else
-            __async_disable_driver (std_drivers[i], mode);
+            __async_disable_driver (__al_linux_std_drivers[i], mode);
       }
 }
 
@@ -154,16 +154,16 @@ void __al_linux_async_set_drivers (int mode, int on_off)
 void __al_linux_disable_standard_driver (int type)
 {
    if (type >= N_STD_DRIVERS) return;
-   if (!std_drivers[type]) return;
+   if (!__al_linux_std_drivers[type]) return;
 
-   __async_disable_driver(std_drivers[type], __al_linux_async_io_mode);
+   __async_disable_driver(__al_linux_std_drivers[type], __al_linux_async_io_mode);
 }
 
 void __al_linux_enable_standard_driver (int type)
 {
    if (type >= N_STD_DRIVERS) return;
-   if (!std_drivers[type]) return;
+   if (!__al_linux_std_drivers[type]) return;
 
-   __async_enable_driver(std_drivers[type], __al_linux_async_io_mode);
+   __async_enable_driver(__al_linux_std_drivers[type], __al_linux_async_io_mode);
 }
 

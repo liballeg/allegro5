@@ -61,8 +61,8 @@ SIGIO_HOOK al_linux_install_sigio_hook (SIGIO_HOOK hook)
  */
 static RETSIGTYPE async_io_event(int signo)
 {
-   if (std_drivers[STD_MOUSE]) std_drivers[STD_MOUSE]->update();
-   if (std_drivers[STD_KBD]) std_drivers[STD_KBD]->update();
+   if (__al_linux_std_drivers[STD_MOUSE]) __al_linux_std_drivers[STD_MOUSE]->update();
+   if (__al_linux_std_drivers[STD_KBD]) __al_linux_std_drivers[STD_KBD]->update();
    if (user_sigio_hook) user_sigio_hook(SIGIO);
    return;
 }

@@ -84,8 +84,7 @@ typedef struct STD_DRIVER {
 #define N_STD_DRIVERS        3
 
 /* List of standard drivers */
-#define std_drivers __al_linux_std_drivers
-extern STD_DRIVER *std_drivers[];
+extern STD_DRIVER *__al_linux_std_drivers[];
 
 /* Indices of the fields in the STD_DRIVER.private array */
 #define PRIV_ENABLED       0
