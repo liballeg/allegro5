@@ -602,7 +602,7 @@ END_OF_FUNCTION(_handle_pckey);
  */
 static void read_key_table(unsigned short *out, unsigned short *in, char *section)
 {
-   char tmp1[80], tmp2[80], name[80];
+   char tmp1[64], tmp2[128], name[128];
    char *fmt = uconvert_ascii("key%d", tmp1);
    char *sec = uconvert_ascii(section, tmp2);
    int i;
@@ -618,9 +618,9 @@ static void read_key_table(unsigned short *out, unsigned short *in, char *sectio
 /* read_keyboard_config:
  *  Reads in the keyboard config tables.
  */
-static void read_keyboard_config()
+static void read_keyboard_config(void)
 {
-   char filename[512], tmp1[128], tmp2[128], *ext, *datafile;
+   char filename[1024], tmp1[128], tmp2[128], *ext, *datafile;
    AL_CONST char* name;
 
    name = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("keyboard", tmp2), NULL);

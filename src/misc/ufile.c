@@ -72,7 +72,7 @@ int _al_file_isok(AL_CONST char *filename)
 long _al_file_size(AL_CONST char *filename)
 {
    struct stat s;
-   char tmp[512];
+   char tmp[1024];
 
    if (stat(uconvert_toascii(filename, tmp), &s) != 0) {
       *allegro_errno = errno;
@@ -90,7 +90,7 @@ long _al_file_size(AL_CONST char *filename)
 time_t _al_file_time(AL_CONST char *filename)
 {
    struct stat s;
-   char tmp[512];
+   char tmp[1024];
 
    if (stat(uconvert_toascii(filename, tmp), &s) != 0) {
       *allegro_errno = errno;
@@ -309,7 +309,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
    struct FF_DATA *ff_data;
    struct stat s;
    int actual_attrib;
-   char tmp[512];
+   char tmp[1024];
    char *p;
 
    /* if the pattern contains no wildcard, we use stat() */
@@ -471,7 +471,7 @@ void al_findclose(struct al_ffblk *info)
  */
 void _al_getdcwd(int drive, char *buf, int size)
 {
-   char tmp[256];
+   char tmp[1024];
 
    if (getcwd(tmp, sizeof(tmp)))
       do_uconvert(tmp, U_ASCII, buf, U_CURRENT, size);

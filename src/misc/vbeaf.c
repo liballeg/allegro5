@@ -1028,7 +1028,7 @@ static int vbeaf_locate_driver(void)
       NULL
    };
 
-   char filename[256], tmp1[512], tmp2[128];
+   char filename[1024], tmp1[1024], tmp2[128];
    AL_CONST char *p;
    int ret, i, attrib;
 
