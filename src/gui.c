@@ -189,6 +189,7 @@ void position_dialog(DIALOG *dialog, int x, int y)
    int min_y = INT_MAX;
    int xc, yc;
    int c;
+   ASSERT(dialog);
 
    /* locate the upper-left corner */
    for (c=0; dialog[c].proc; c++) {
@@ -223,6 +224,7 @@ void centre_dialog(DIALOG *dialog)
    int max_y = INT_MIN;
    int xc, yc;
    int c;
+   ASSERT(dialog);
 
    /* find the extents of the dialog (done in many loops due to a bug
     * in MSVC that prevents the more sensible version from working)
@@ -266,6 +268,7 @@ void centre_dialog(DIALOG *dialog)
 void set_dialog_color(DIALOG *dialog, int fg, int bg)
 {
    int c;
+   ASSERT(dialog);
 
    for (c=0; dialog[c].proc; c++) {
       dialog[c].fg = fg;
@@ -283,6 +286,7 @@ void set_dialog_color(DIALOG *dialog, int fg, int bg)
 int find_dialog_focus(DIALOG *dialog)
 {
    int c;
+   ASSERT(dialog);
 
    for (c=0; dialog[c].proc; c++)
       if (dialog[c].flags & D_GOTFOCUS)
@@ -300,6 +304,7 @@ int find_dialog_focus(DIALOG *dialog)
 int object_message(DIALOG *dialog, int msg, int c)
 {
    int ret;
+   ASSERT(dialog);
 
    if (msg == MSG_DRAW) {
       if (dialog->flags & D_HIDDEN) return D_O_K;
@@ -329,6 +334,7 @@ int object_message(DIALOG *dialog, int msg, int c)
 int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 {
    int count, res, r, force;
+   ASSERT(dialog);
 
    if (msg == MSG_DRAW) {
       scare_mouse();
@@ -397,6 +403,7 @@ static int find_mouse_object(DIALOG *d)
 {
    int mouse_object = -1;
    int c;
+   ASSERT(d);
 
    for (c=0; d[c].proc; c++)
       if ((gui_mouse_x() >= d[c].x) && (gui_mouse_y() >= d[c].y) &&
@@ -415,6 +422,8 @@ static int find_mouse_object(DIALOG *d)
 int offer_focus(DIALOG *dialog, int obj, int *focus_obj, int force)
 {
    int res = D_O_K;
+   ASSERT(dialog);
+   ASSERT(focus_obj);
 
    if ((obj == *focus_obj) || 
        ((obj >= 0) && (dialog[obj].flags & (D_HIDDEN | D_DISABLED))))
@@ -644,6 +653,7 @@ int do_dialog(DIALOG *dialog, int focus_obj)
    BITMAP *mouse_screen = _mouse_screen;
    int screen_count = _gfx_mode_set_count;
    void *player;
+   ASSERT(dialog);
 
    if (!is_same_bitmap(_mouse_screen, screen))
       show_mouse(screen);
@@ -671,6 +681,7 @@ int popup_dialog(DIALOG *dialog, int focus_obj)
 {
    BITMAP *bmp;
    int ret;
+   ASSERT(dialog);
 
    bmp = create_bitmap(dialog->w+1, dialog->h+1); 
 
@@ -706,6 +717,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    struct al_active_player *n = 0;
    char tmp1[64], tmp2[64];
    int c;
+   ASSERT(dialog);
 
    if (!player)
       return NULL;
@@ -815,6 +827,7 @@ static void check_for_redraw(DIALOG_PLAYER *player)
 {
    struct al_active_player *iter;
    int c, r;
+   ASSERT(player);
 
    /* need to redraw all active dialogs? */
    if (player->res & D_REDRAW_ALL) {
@@ -852,6 +865,7 @@ int update_dialog(DIALOG_PLAYER *player)
 {
    int c, cascii, cscan, ccombo, r, ret, nowhere, z;
    int new_mouse_b;
+   ASSERT(player);
 
    if (player->res & D_CLOSE)
       return FALSE;
@@ -1113,6 +1127,7 @@ int shutdown_dialog(DIALOG_PLAYER *player)
 {
    struct al_active_player *iter, *prev;
    int obj;
+   ASSERT(player);
 
    /* send the finish messages */
    dialog_message(player->dialog, MSG_END, 0, &player->obj);
@@ -1526,6 +1541,7 @@ static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int re
    int redraw = TRUE;
    int back_from_child = FALSE;
    int ret = -1;
+   ASSERT(menu);
 
    scare_mouse();
 
@@ -1838,6 +1854,7 @@ int d_menu_proc(int msg, DIALOG *d, int c)
    MENU_INFO m;
    int ret = D_O_K;
    int x, i;
+   ASSERT(d);
 
    switch (msg) {
 

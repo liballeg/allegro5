@@ -430,6 +430,7 @@ int allegro_404_char = '^';
  */
 static int font_height(AL_CONST FONT *f)
 {
+   ASSERT(f);
    return f->height;
 }
 
@@ -443,6 +444,8 @@ static int length(AL_CONST FONT* f, AL_CONST char* text)
 {
     int ch = 0, w = 0;
     AL_CONST char* p = text;
+    ASSERT(text);
+    ASSERT(f);
 
     while( (ch = ugetxc(&p)) ) {
         w += f->vtable->char_length(f, ch);

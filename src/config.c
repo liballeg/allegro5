@@ -440,6 +440,7 @@ static void load_config_file(CONFIG **config, AL_CONST char *filename, AL_CONST 
  */
 void set_config_file(AL_CONST char *filename)
 {
+   ASSERT(filename);
    load_config_file(&config[0], filename, filename);
 }
 
@@ -451,6 +452,7 @@ void set_config_file(AL_CONST char *filename)
  */
 void set_config_data(AL_CONST char *data, int length)
 {
+   ASSERT(data);
    set_config(&config[0], data, length, NULL);
 }
 
@@ -461,6 +463,7 @@ void set_config_data(AL_CONST char *data, int length)
  */
 void override_config_file(AL_CONST char *filename)
 {
+   ASSERT(filename);
    load_config_file(&config_override, filename, NULL);
 }
 
@@ -472,6 +475,7 @@ void override_config_file(AL_CONST char *filename)
  */
 void override_config_data(AL_CONST char *data, int length)
 {
+   ASSERT(data);
    set_config(&config_override, data, length, NULL);
 }
 
@@ -1151,12 +1155,14 @@ AL_CONST char *get_config_text(AL_CONST char *msg)
 {
    char tmp1[256], tmp2[256], name[256];
    AL_CONST char *section = uconvert_ascii("[language]", tmp1);
-   AL_CONST char *umsg = uconvert_ascii(msg, tmp2);
+   AL_CONST char *umsg;
    AL_CONST char *s;
    CONFIG_HOOK *hook;
    CONFIG_ENTRY *p;
    int c, pos;
+   ASSERT(msg);
 
+   umsg = uconvert_ascii(msg, tmp2);
    init_config(TRUE);
 
    s = umsg;

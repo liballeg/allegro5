@@ -74,6 +74,8 @@ static int flooder(BITMAP *bmp, int x, int y, int src_color, int dest_color)
       }                                                                      \
    }
 
+   ASSERT(bmp);
+   
    if (is_linear_bitmap(bmp)) {     /* use direct access for linear bitmaps */
       addr = bmp_read_line(bmp, y);
       bmp_select(bmp);
@@ -207,6 +209,7 @@ void floodfill(BITMAP *bmp, int x, int y, int color)
    int src_color;
    int c, done;
    FLOODED_LINE *p;
+   ASSERT(bmp);
 
    /* make sure we have a valid starting point */ 
    if ((x < bmp->cl) || (x >= bmp->cr) || (y < bmp->ct) || (y >= bmp->cb))

@@ -38,7 +38,8 @@ BITMAP *load_pcx(AL_CONST char *filename, RGB *pal)
    int x, y;
    char ch;
    int dest_depth;
-
+   ASSERT(filename);
+   
    if (!pal)
       pal = tmppal;
 
@@ -172,6 +173,8 @@ int save_pcx(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    int depth, planes;
    char runchar;
    char ch;
+   ASSERT(filename);
+   ASSERT(pal);
 
    if (!pal) {
       get_palette(tmppal);

@@ -64,6 +64,7 @@ MATRIX_f identity_matrix_f =
  */
 void get_translation_matrix(MATRIX *m, fixed x, fixed y, fixed z)
 {
+   ASSERT(m);
    *m = identity_matrix;
 
    m->t[0] = x;
@@ -78,6 +79,7 @@ void get_translation_matrix(MATRIX *m, fixed x, fixed y, fixed z)
  */
 void get_translation_matrix_f(MATRIX_f *m, float x, float y, float z)
 {
+   ASSERT(m);
    *m = identity_matrix_f;
 
    m->t[0] = x;
@@ -93,6 +95,7 @@ void get_translation_matrix_f(MATRIX_f *m, float x, float y, float z)
  */
 void get_scaling_matrix(MATRIX *m, fixed x, fixed y, fixed z)
 {
+   ASSERT(m);
    *m = identity_matrix;
 
    m->v[0][0] = x;
@@ -107,6 +110,7 @@ void get_scaling_matrix(MATRIX *m, fixed x, fixed y, fixed z)
  */
 void get_scaling_matrix_f(MATRIX_f *m, float x, float y, float z)
 {
+   ASSERT(m);
    *m = identity_matrix_f;
 
    m->v[0][0] = x;
@@ -125,6 +129,7 @@ void get_x_rotate_matrix(MATRIX *m, fixed r)
 {
    fixed c = fixcos(r);
    fixed s = fixsin(r);
+   ASSERT(m);
 
    *m = identity_matrix;
 
@@ -144,6 +149,7 @@ void get_x_rotate_matrix_f(MATRIX_f *m, float r)
 {
    float c = floatcos(r);
    float s = floatsin(r);
+   ASSERT(m);
 
    *m = identity_matrix_f;
 
@@ -165,6 +171,7 @@ void get_y_rotate_matrix(MATRIX *m, fixed r)
 {
    fixed c = fixcos(r);
    fixed s = fixsin(r);
+   ASSERT(m);
 
    *m = identity_matrix;
 
@@ -184,6 +191,7 @@ void get_y_rotate_matrix_f(MATRIX_f *m, float r)
 {
    float c = floatcos(r);
    float s = floatsin(r);
+   ASSERT(m);
 
    *m = identity_matrix_f;
 
@@ -205,6 +213,7 @@ void get_z_rotate_matrix(MATRIX *m, fixed r)
 {
    fixed c = fixcos(r);
    fixed s = fixsin(r);
+   ASSERT(m);
 
    *m = identity_matrix;
 
@@ -224,6 +233,7 @@ void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 {
    float c = floatcos(r);
    float s = floatsin(r);
+   ASSERT(m);
 
    *m = identity_matrix_f;
 
@@ -303,6 +313,7 @@ void get_z_rotate_matrix_f(MATRIX_f *m, float r)
 void get_rotation_matrix(MATRIX *m, fixed x, fixed y, fixed z)
 {
    MAKE_ROTATION(x, y, z);
+   ASSERT(m);
 
    m->v[0][0] = R00;
    m->v[0][1] = R01;
@@ -327,6 +338,7 @@ void get_rotation_matrix(MATRIX *m, fixed x, fixed y, fixed z)
 void get_rotation_matrix_f(MATRIX_f *m, float x, float y, float z)
 {
    MAKE_ROTATION_f(x, y, z);
+   ASSERT(m);
 
    m->v[0][0] = R00_f;
    m->v[0][1] = R01_f;
@@ -351,6 +363,7 @@ void get_rotation_matrix_f(MATRIX_f *m, float x, float y, float z)
 void get_align_matrix(MATRIX *m, fixed xfront, fixed yfront, fixed zfront, fixed xup, fixed yup, fixed zup)
 {
    fixed xright, yright, zright;
+   ASSERT(m);
 
    normalize_vector(&xfront, &yfront, &zfront);
    normalize_vector(&xup, &yup, &zup);
@@ -381,6 +394,7 @@ void get_align_matrix(MATRIX *m, fixed xfront, fixed yfront, fixed zfront, fixed
 void get_align_matrix_f(MATRIX_f *m, float xfront, float yfront, float zfront, float xup, float yup, float zup)
 {
    float xright, yright, zright;
+   ASSERT(m);
 
    normalize_vector_f(&xfront, &yfront, &zfront);
    normalize_vector_f(&xup, &yup, &zup);
@@ -414,6 +428,7 @@ void get_vector_rotation_matrix(MATRIX *m, fixed x, fixed y, fixed z, fixed a)
 {
    MATRIX_f rotation;
    int i, j;
+   ASSERT(m);
 
    get_vector_rotation_matrix_f(&rotation, fixtof(x), fixtof(y), fixtof(z), fixtof(a));
 
@@ -434,6 +449,7 @@ void get_vector_rotation_matrix_f(MATRIX_f *m, float x, float y, float z, float 
    float c = floatcos(a);
    float s = floatsin(a);
    float cc = 1 - c;
+   ASSERT(m);
 
    normalize_vector_f(&x, &y, &z);
 
@@ -464,6 +480,7 @@ void get_vector_rotation_matrix_f(MATRIX_f *m, float x, float y, float z, float 
 void get_transformation_matrix(MATRIX *m, fixed scale, fixed xrot, fixed yrot, fixed zrot, fixed x, fixed y, fixed z)
 {
    MAKE_ROTATION(xrot, yrot, zrot);
+   ASSERT(m);
 
    m->v[0][0] = fixmul(R00, scale);
    m->v[0][1] = fixmul(R01, scale);
@@ -490,6 +507,7 @@ void get_transformation_matrix(MATRIX *m, fixed scale, fixed xrot, fixed yrot, f
 void get_transformation_matrix_f(MATRIX_f *m, float scale, float xrot, float yrot, float zrot, float x, float y, float z)
 {
    MAKE_ROTATION_f(xrot, yrot, zrot);
+   ASSERT(m);
 
    m->v[0][0] = R00_f * scale;
    m->v[0][1] = R01_f * scale;
@@ -531,6 +549,7 @@ void get_camera_matrix(MATRIX *m, fixed x, fixed y, fixed z, fixed xfront, fixed
 {
    MATRIX_f camera;
    int i, j;
+   ASSERT(m);
 
    get_camera_matrix_f(&camera,
 		       fixtof(x), fixtof(y), fixtof(z), 
@@ -555,6 +574,7 @@ void get_camera_matrix_f(MATRIX_f *m, float x, float y, float z, float xfront, f
 {
    MATRIX_f camera, scale;
    float xside, yside, zside, width, d;
+   ASSERT(m);
 
    /* make 'in-front' into a unit vector, and negate it */
    normalize_vector_f(&xfront, &yfront, &zfront);
@@ -605,6 +625,7 @@ void get_camera_matrix_f(MATRIX_f *m, float x, float y, float z, float xfront, f
  */
 void qtranslate_matrix(MATRIX *m, fixed x, fixed y, fixed z)
 {
+   ASSERT(m);
    m->t[0] += x;
    m->t[1] += y;
    m->t[2] += z;
@@ -617,6 +638,7 @@ void qtranslate_matrix(MATRIX *m, fixed x, fixed y, fixed z)
  */
 void qtranslate_matrix_f(MATRIX_f *m, float x, float y, float z)
 {
+   ASSERT(m);
    m->t[0] += x;
    m->t[1] += y;
    m->t[2] += z;
@@ -630,6 +652,7 @@ void qtranslate_matrix_f(MATRIX_f *m, float x, float y, float z)
 void qscale_matrix(MATRIX *m, fixed scale)
 {
    int i, j;
+   ASSERT(m);
 
    for (i=0; i<3; i++)
       for (j=0; j<3; j++)
@@ -644,6 +667,7 @@ void qscale_matrix(MATRIX *m, fixed scale)
 void qscale_matrix_f(MATRIX_f *m, float scale)
 {
    int i, j;
+   ASSERT(m);
 
    for (i=0; i<3; i++)
       for (j=0; j<3; j++)
@@ -663,6 +687,9 @@ void matrix_mul(AL_CONST MATRIX *m1, AL_CONST MATRIX *m2, MATRIX *out)
 {
    MATRIX temp;
    int i, j;
+   ASSERT(m1);
+   ASSERT(m2);
+   ASSERT(out);
 
    if (m1 == out) {
       temp = *m1;
@@ -696,6 +723,9 @@ void matrix_mul_f(AL_CONST MATRIX_f *m1, AL_CONST MATRIX_f *m2, MATRIX_f *out)
 {
    MATRIX_f temp;
    int i, j;
+   ASSERT(m1);
+   ASSERT(m2);
+   ASSERT(out);
 
    if (m1 == out) {
       temp = *m1;
@@ -780,9 +810,13 @@ void normalize_vector_f(float *x, float *y, float *z)
  */
 void cross_product(fixed x1, fixed y1, fixed z1, fixed x2, fixed y2, fixed z2, fixed *xout, fixed *yout, fixed *zout)
 {
-    *xout = fixmul(y1, z2) - fixmul(z1, y2);
-    *yout = fixmul(z1, x2) - fixmul(x1, z2);
-    *zout = fixmul(x1, y2) - fixmul(y1, x2);
+   ASSERT(xout);
+   ASSERT(yout);
+   ASSERT(zout);
+
+   *xout = fixmul(y1, z2) - fixmul(z1, y2);
+   *yout = fixmul(z1, x2) - fixmul(x1, z2);
+   *zout = fixmul(x1, y2) - fixmul(y1, x2);
 }
 
 
@@ -792,9 +826,13 @@ void cross_product(fixed x1, fixed y1, fixed z1, fixed x2, fixed y2, fixed z2, f
  */
 void cross_product_f(float x1, float y1, float z1, float x2, float y2, float z2, float *xout, float *yout, float *zout)
 {
-    *xout = (y1 * z2) - (z1 * y2);
-    *yout = (z1 * x2) - (x1 * z2);
-    *zout = (x1 * y2) - (y1 * x2);
+   ASSERT(xout);
+   ASSERT(yout);
+   ASSERT(zout);
+
+   *xout = (y1 * z2) - (z1 * y2);
+   *yout = (z1 * x2) - (x1 * z2);
+   *zout = (x1 * y2) - (y1 * x2);
 }
 
 
@@ -805,6 +843,9 @@ void cross_product_f(float x1, float y1, float z1, float x2, float y2, float z2,
  */
 fixed polygon_z_normal(AL_CONST V3D *v1, AL_CONST V3D *v2, AL_CONST V3D *v3)
 {
+   ASSERT(v1);
+   ASSERT(v2);
+   ASSERT(v3);
    return (fixmul(v2->x-v1->x, v3->y-v2->y) - fixmul(v3->x-v2->x, v2->y-v1->y));
 }
 
@@ -815,6 +856,9 @@ fixed polygon_z_normal(AL_CONST V3D *v1, AL_CONST V3D *v2, AL_CONST V3D *v3)
  */
 float polygon_z_normal_f(AL_CONST V3D_f *v1, AL_CONST V3D_f *v2, AL_CONST V3D_f *v3)
 {
+   ASSERT(v1);
+   ASSERT(v2);
+   ASSERT(v3);
    return ((v2->x-v1->x) * (v3->y-v2->y)) - ((v3->x-v2->x) * (v2->y-v1->y));
 }
 
@@ -839,6 +883,9 @@ float _persp_yoffset_f = 100.0;
  */
 void set_projection_viewport(int x, int y, int w, int h)
 {
+   ASSERT(w > 0);
+   ASSERT(h > 0);
+   
    _persp_xscale = itofix(w/2);
    _persp_yscale = itofix(h/2);
    _persp_xoffset = itofix(x + w/2);

@@ -474,6 +474,7 @@ BITMAP *load_bmp(AL_CONST char *filename, RGB *pal)
    int ncol;
    unsigned long biSize;
    int bpp, dest_depth;
+   ASSERT(filename);
 
    if (!pal)
       pal = tmppal;
@@ -566,10 +567,15 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    PACKFILE *f;
    PALETTE tmppal;
    int bfSize;
-   int depth = bitmap_color_depth(bmp);
-   int bpp = (depth == 8) ? 8 : 24;
-   int filler = 3 - ((bmp->w*(bpp/8)-1) & 3);
+   int depth;
+   int bpp;
+   int filler;
    int c, i, j;
+   ASSERT(filename);
+
+   depth = bitmap_color_depth(bmp);
+   bpp = (depth == 8) ? 8 : 24;
+   filler = 3 - ((bmp->w*(bpp/8)-1) & 3);
 
    if (!pal) {
       get_palette(tmppal);

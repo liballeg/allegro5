@@ -397,6 +397,7 @@ static BITMAP *create_mouse_pointer(void)
 void set_mouse_sprite(struct BITMAP *sprite)
 {
    BITMAP *old_mouse_screen = _mouse_screen;
+   ASSERT(sprite);
 
    if (!mouse_driver)
       return;
@@ -561,6 +562,10 @@ void scare_mouse(void)
 void scare_mouse_area(int x, int y, int w, int h)
 {
    int was_frozen;
+   ASSERT(x >= 0);
+   ASSERT(y >= 0);
+   ASSERT(w > 0);
+   ASSERT(h > 0);
 
    if (!mouse_driver)
       return;
@@ -685,6 +690,10 @@ void position_mouse_z(int z)
 void set_mouse_range(int x1, int y1, int x2, int y2)
 {
    BITMAP *old_mouse_screen = _mouse_screen;
+   ASSERT(x1 >= 0);
+   ASSERT(y1 >= 0);
+   ASSERT(x2 >= x1);
+   ASSERT(y2 >= y2);
 
    if (!mouse_driver)
       return;

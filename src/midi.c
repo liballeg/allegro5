@@ -153,6 +153,7 @@ MIDI *load_midi(AL_CONST char *filename)
    PACKFILE *fp;
    MIDI *midi;
    int num_tracks;
+   ASSERT(filename);
 
    fp = pack_fopen(filename, F_READ);        /* open the file */
    if (!fp)

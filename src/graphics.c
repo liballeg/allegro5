@@ -858,6 +858,8 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
    GFX_VTABLE *vtable;
    BITMAP *bitmap;
    int i;
+   ASSERT(width >= 0);
+   ASSERT(height >= 0);
 
    if (system_driver->create_bitmap)
       return system_driver->create_bitmap(color_depth, width, height);
@@ -905,6 +907,8 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height)
  */
 BITMAP *create_bitmap(int width, int height)
 {
+   ASSERT(width >= 0);
+   ASSERT(height >= 0);
    return create_bitmap_ex(_color_depth, width, height);
 }
 

@@ -1286,6 +1286,7 @@ static void *load_file_object(PACKFILE *f, long size)
  */
 DATAFILE *load_datafile(AL_CONST char *filename)
 {
+   ASSERT(filename);
    return load_datafile_callback(filename, NULL);
 }
 
@@ -1300,6 +1301,7 @@ DATAFILE *load_datafile_callback(AL_CONST char *filename, void (*callback)(DATAF
    PACKFILE *f;
    DATAFILE *dat;
    int type;
+   ASSERT(filename);
 
    f = pack_fopen(filename, F_READ_PACKED);
    if (!f)
@@ -1337,6 +1339,8 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
    void *object;
    char buf[1024], tmp[16];
    int size;
+   ASSERT(filename);
+   ASSERT(objectname);
 
    ustrzcpy(buf, sizeof(buf), filename);
 
@@ -1450,6 +1454,8 @@ DATAFILE *find_datafile_object(AL_CONST DATAFILE *dat, AL_CONST char *objectname
    char name[512];
    int recurse = FALSE;
    int pos, c;
+   ASSERT(dat);
+   ASSERT(objectname);
 
    /* split up the object name */
    pos = 0;
@@ -1490,8 +1496,10 @@ DATAFILE *find_datafile_object(AL_CONST DATAFILE *dat, AL_CONST char *objectname
  */
 AL_CONST char *get_datafile_property(AL_CONST DATAFILE *dat, int type)
 {
-   DATAFILE_PROPERTY *prop = dat->prop;
+   DATAFILE_PROPERTY *prop;
+   ASSERT(dat);
 
+   prop = dat->prop;
    if (prop) {
       while (prop->type != DAT_END) {
 	 if (prop->type == type)
@@ -1522,6 +1530,7 @@ void fixup_datafile(DATAFILE *data)
    signed short *s16;
    signed long *s32;
    int eol_marker;
+   ASSERT(data);
 
    /* initialise the datafile if needed */
    if (!constructed_datafiles)

@@ -37,6 +37,8 @@ void draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int 
    int pixel;
    unsigned long addr;
 
+   ASSERT(bmp);
+   ASSERT(sprite);
    ASSERT(bmp->vtable->color_depth == sprite->vtable->color_depth);
 
    bmp_select(bmp);

@@ -121,6 +121,7 @@ END_OF_STATIC_FUNCTION(fli_timer_callback);
 static void *fli_read(void *buf, int size)
 {
    int result;
+   ASSERT(buf);
 
    if (fli_mem_data) {
       if (buf)
@@ -877,6 +878,9 @@ static int do_play_fli(BITMAP *bmp, int loop, int (*callback)())
  */
 int play_fli(AL_CONST char *filename, BITMAP *bmp, int loop, int (*callback)(void))
 {
+   ASSERT(filename);
+   ASSERT(bmp);
+   
    if (open_fli(filename) != FLI_OK)
       return FLI_ERROR;
 
@@ -891,6 +895,9 @@ int play_fli(AL_CONST char *filename, BITMAP *bmp, int loop, int (*callback)(voi
  */
 int play_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void))
 {
+   ASSERT(fli_data);
+   ASSERT(bmp);
+   
    if (open_memory_fli(fli_data) != FLI_OK)
       return FLI_ERROR;
 
@@ -961,6 +968,8 @@ static int do_open_fli()
  */
 int open_fli(AL_CONST char *filename)
 {
+   ASSERT(filename);
+   
    if (fli_status != FLI_NOT_OPEN)
       return FLI_ERROR;
 
@@ -988,6 +997,8 @@ int open_fli(AL_CONST char *filename)
  */
 int open_memory_fli(void *fli_data)
 {
+   ASSERT(fli_data);
+   
    if (fli_status != FLI_NOT_OPEN)
       return FLI_ERROR;
 

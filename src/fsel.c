@@ -755,6 +755,8 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
    int ret;
    char *p;
    char tmp[32];
+   ASSERT(message);
+   ASSERT(path);
 
    if (width == OLD_FILESEL_WIDTH)
       width = 305;

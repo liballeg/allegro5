@@ -47,6 +47,8 @@ int gui_textout(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int cent
    int in_pos = 0;
    int out_pos = 0;
    int pix_len, c;
+   ASSERT(bmp);
+   ASSERT(s);
 
    while (((c = ugetc(s+in_pos)) != 0) && (out_pos<(int)(sizeof(tmp)-ucwidth(0)))) {
       if (c == '&') {
@@ -97,6 +99,7 @@ int gui_textout(BITMAP *bmp, AL_CONST char *s, int x, int y, int color, int cent
  */
 int gui_strlen(AL_CONST char *s)
 {
+   ASSERT(s);
    return gui_textout(NULL, s, 0, 0, 0, 0);
 }
 
@@ -144,6 +147,7 @@ int d_yield_proc(int msg, DIALOG *d, int c)
  */
 int d_clear_proc(int msg, DIALOG *d, int c)
 {
+   ASSERT(d);
    if (msg == MSG_DRAW) {
       set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
       clear_to_color(screen, d->bg);
@@ -159,6 +163,7 @@ int d_clear_proc(int msg, DIALOG *d, int c)
  */
 int d_box_proc(int msg, DIALOG *d, int c)
 {
+   ASSERT(d);
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       rectfill(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, d->bg);
@@ -175,6 +180,7 @@ int d_box_proc(int msg, DIALOG *d, int c)
  */
 int d_shadow_box_proc(int msg, DIALOG *d, int c)
 {
+   ASSERT(d);
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
       int black = makecol(0,0,0);
@@ -194,8 +200,10 @@ int d_shadow_box_proc(int msg, DIALOG *d, int c)
  */
 int d_bitmap_proc(int msg, DIALOG *d, int c)
 {
-   BITMAP *b = (BITMAP *)d->dp;
+   BITMAP *b;
+   ASSERT(d);
 
+   b = (BITMAP *)d->dp;
    if (msg==MSG_DRAW)
       blit(b, screen, 0, 0, d->x, d->y, d->w, d->h);
 
@@ -209,6 +217,7 @@ int d_bitmap_proc(int msg, DIALOG *d, int c)
  */
 int d_text_proc(int msg, DIALOG *d, int c)
 {
+   ASSERT(d);
    if (msg==MSG_DRAW) {
       int rtm;
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
@@ -235,6 +244,7 @@ int d_text_proc(int msg, DIALOG *d, int c)
  */
 int d_ctext_proc(int msg, DIALOG *d, int c)
 {
+   ASSERT(d);
    if (msg==MSG_DRAW) {
       int rtm;
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
@@ -261,6 +271,7 @@ int d_ctext_proc(int msg, DIALOG *d, int c)
  */
 int d_rtext_proc(int msg, DIALOG *d, int c)
 {
+   ASSERT(d);
    if (msg==MSG_DRAW) {
       int rtm;
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
@@ -294,6 +305,7 @@ int d_button_proc(int msg, DIALOG *d, int c)
    int swap;
    int g;
    int rtm;
+   ASSERT(d);
 
    switch (msg) {
 
@@ -394,6 +406,7 @@ int d_check_proc(int msg, DIALOG *d, int c)
 {
    int x;
    int fg, bg;
+   ASSERT(d);
 
    if (msg==MSG_DRAW) {
       int rtm;
@@ -434,6 +447,7 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 {
    int x, center, r, ret, fg, bg;
    int rtm;
+   ASSERT(d);
 
    switch(msg) {
 
@@ -523,13 +537,15 @@ int d_radio_proc(int msg, DIALOG *d, int c)
  */
 int d_icon_proc(int msg, DIALOG *d, int c)
 {
-   BITMAP *butimage = (BITMAP *)d->dp;
+   BITMAP *butimage;
    int butx;
    int buty;
    int index;
    int indent;
    int depth;
+   ASSERT(d);
 
+   butimage = (BITMAP *)d->dp;
    if ((msg == MSG_DRAW) && (!(d->flags & D_HIDDEN))) {
       depth = 0;
       if ((d->dp2 == NULL) && (d->flags & D_SELECTED)) {
@@ -591,6 +607,7 @@ int d_keyboard_proc(int msg, DIALOG *d, int c)
 {
    int (*proc)();
    int ret = D_O_K;
+   ASSERT(d);
 
    switch (msg) {
 
@@ -631,6 +648,7 @@ int d_edit_proc(int msg, DIALOG *d, int c)
    char buf[16];
    char *s, *t;
    int rtm;
+   ASSERT(d);
 
    s = d->dp;
    l = ustrlen(s);
@@ -1135,6 +1153,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
    int listsize, i, bottom, height, bar, orig;
    char *sel = d->dp2;
    int redraw = FALSE;
+   ASSERT(d);
 
    switch (msg) {
 
@@ -1294,6 +1313,7 @@ int d_text_list_proc(int msg, DIALOG *d, int c)
    int listsize, i, a, failure;
    char *selected, *thisitem;
    char *sel = d->dp2;
+   ASSERT(d);
 
    switch (msg) {
 
@@ -1572,8 +1592,10 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
    int height, bar, ret = D_O_K;
    int start, top, bottom, l;
    int used, delta;
-   int fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
+   int fg_color;
+   ASSERT(d);
 
+   fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
    /* calculate the actual height */
    height = (d->h-8) / text_height(font);
 
@@ -1744,6 +1766,7 @@ int d_slider_proc(int msg, DIALOG *d, int c)
    fixed slratio, slmax, slpos;
    int (*proc)(void *cbpointer, int d2value);
    int oldval;
+   ASSERT(d);
 
    /* check for slider direction */
    if (d->h < d->w)

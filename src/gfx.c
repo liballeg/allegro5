@@ -801,6 +801,7 @@ void do_circle(BITMAP *bmp, int x, int y, int radius, int d, void (*proc)(BITMAP
 void circle(BITMAP *bmp, int x, int y, int radius, int color)
 {
    int clip, sx, sy, dx, dy;
+   ASSERT(bmp);
 
    if (bmp->clip) {
       sx = x-radius-1;
@@ -841,6 +842,7 @@ void circlefill(BITMAP *bmp, int x, int y, int radius, int color)
    int d_e = 3;
    int d_se = -2 * radius + 5;
    int clip, sx, sy, dx, dy;
+   ASSERT(bmp);
 
    if (bmp->clip) {
       sx = x-radius-1;
@@ -1012,6 +1014,7 @@ void do_ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int d, void (*proc)(B
 void ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 {
    int clip, sx, sy, dx, dy;
+   ASSERT(bmp);
 
    if (bmp->clip) {
       sx = x-rx-1;
@@ -1051,6 +1054,7 @@ void ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
    int da, db, dc, dd;
    int na, nb, nc, nd;
    int clip, sx, sy, dx, dy;
+   ASSERT(bmp);
 
    if (bmp->clip) {
       sx = x-rx-1;
@@ -1372,6 +1376,7 @@ void do_arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int d, voi
  */
 void arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int color)
 {
+   ASSERT(bmp);
    acquire_bitmap(bmp);
 
    do_arc(bmp, x, y, ang1, ang2, r, color, bmp->vtable->putpixel);

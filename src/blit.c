@@ -783,6 +783,8 @@ static void blit_to_self(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, i
  */
 void blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
+   ASSERT(src);
+   ASSERT(dest);
    BLIT_CLIP();
 
    if (src->vtable->color_depth != dest->vtable->color_depth) {
@@ -830,6 +832,8 @@ END_OF_FUNCTION(blit);
  */
 void masked_blit(BITMAP *src, BITMAP *dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
+   ASSERT(src);
+   ASSERT(dest);
    ASSERT(src->vtable->color_depth == dest->vtable->color_depth);
 
    BLIT_CLIP();

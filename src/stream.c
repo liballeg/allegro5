@@ -28,6 +28,9 @@ AUDIOSTREAM *play_audio_stream(int len, int bits, int stereo, int freq, int vol,
 {
    AUDIOSTREAM *stream;
    int i, bufcount;
+   ASSERT(len > 0);
+   ASSERT(bits > 0);
+   ASSERT(freq > 0);
 
    /* decide how many buffer fragments we will need */
    if ((digi_driver) && (digi_driver->buffer_size))

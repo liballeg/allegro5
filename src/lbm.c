@@ -45,6 +45,7 @@ BITMAP *load_lbm(AL_CONST char *filename, RGB *pal)
    unsigned char uc, check_flags, bit_mask, *line_buf;
    long id, len, l;
    int dest_depth = _color_load_depth(8, FALSE);
+   ASSERT(filename);
 
    if (!pal)
       pal = tmppal;

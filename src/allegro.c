@@ -389,8 +389,8 @@ void allegro_message(AL_CONST char *msg, ...)
 {
    char *buf = malloc(ALLEGRO_MESSAGE_SIZE);
    char *tmp = malloc(ALLEGRO_MESSAGE_SIZE);
-
    va_list ap;
+   ASSERT(msg);
    va_start(ap, msg);
    uvszprintf(buf, ALLEGRO_MESSAGE_SIZE, msg, ap);
    va_end(ap);
@@ -412,6 +412,7 @@ void allegro_message(AL_CONST char *msg, ...)
 void get_executable_name(char *output, int size)
 {
    ASSERT(system_driver);
+   ASSERT(output);
 
    if (system_driver->get_executable_name) {
       system_driver->get_executable_name(output, size);

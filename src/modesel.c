@@ -155,6 +155,8 @@ static DIALOG gfx_mode_ex_dialog[] =
  */
 int d_listchange_proc(int msg, DIALOG* d, int c)
 {
+   ASSERT(d);
+   
    if (msg != MSG_IDLE)
       return D_O_K;
 
@@ -490,6 +492,10 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
 {
    int i, j, ret, what_driver, what_mode, what_bpp, extd;
+   ASSERT(card);
+   ASSERT(w);
+   ASSERT(h);
+   ASSERT(color_depth);
 
    clear_keybuf();
 
@@ -590,5 +596,8 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
  *  Cancel button, or non-zero if it was OK'd.
  */
 int gfx_mode_select(int *card, int *w, int *h) {
+   ASSERT(card);
+   ASSERT(w);
+   ASSERT(h);
    return gfx_mode_select_ex(card, w, h, NULL);
 }

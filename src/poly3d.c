@@ -1222,6 +1222,7 @@ void polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[])
    POLYGON_EDGE *list_edges = NULL;
    POLYGON_SEGMENT info;
    SCANLINE_FILLER drawer;
+   ASSERT(bmp);
 
    if (vc < 3)
       return;
@@ -1543,6 +1544,7 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
    POLYGON_EDGE edge1, edge2;
    POLYGON_SEGMENT info;
    SCANLINE_FILLER drawer;
+   ASSERT(bmp);
 
    /* set up the drawing mode */
    drawer = _get_scanline_filler(type, &flags, &info, texture, bmp);
@@ -1632,6 +1634,7 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
    POLYGON_EDGE edge1, edge2;
    POLYGON_SEGMENT info;
    SCANLINE_FILLER drawer;
+   ASSERT(bmp);
 
    /* set up the drawing mode */
    drawer = _get_scanline_filler(type, &flags, &info, texture, bmp);
@@ -1710,6 +1713,7 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
  */
 void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4)
 {
+   ASSERT(bmp);
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
 
       /* dodgy assumption alert! See comments for triangle() */
@@ -1735,6 +1739,7 @@ void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V
  */
 void quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4)
 {
+   ASSERT(bmp);
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
 
       /* dodgy assumption alert! See comments for triangle() */
@@ -1760,6 +1765,7 @@ void quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_
  */
 ZBUFFER *create_zbuffer(BITMAP *bmp)
 {
+   ASSERT(bmp);
    return create_bitmap_ex(32, bmp->w, bmp->h);
 }
 
@@ -1775,6 +1781,7 @@ void clear_zbuffer(ZBUFFER *zbuf, float z)
       float zf;
       long zi;
    } _zbuf_clip;
+   ASSERT(zbuf);
 
    _zbuf_clip.zf = z;
    clear_to_color(zbuf, _zbuf_clip.zi);
@@ -1813,6 +1820,7 @@ void set_zbuffer(ZBUFFER *zbuf)
  */
 ZBUFFER *create_sub_zbuffer(ZBUFFER *parent, int x, int y, int width, int height)
 {
+   ASSERT(parent);
    /* For now, just use the code for BITMAPs. */
    return create_sub_bitmap(parent, x, y, width, height);
 }

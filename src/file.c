@@ -112,6 +112,8 @@ int _packfile_type = 0;
  */
 char *fix_filename_case(char *filename)
 {
+   ASSERT(filename);
+   
    if (!ALLEGRO_LFN)
       ustrupr(filename);
 
@@ -126,6 +128,7 @@ char *fix_filename_case(char *filename)
 char *fix_filename_slashes(char *filename)
 {
    int pos, c;
+   ASSERT(filename);
 
    for (pos=0; ugetc(filename+pos); pos+=uwidth(filename+pos)) {
       c = ugetc(filename+pos);
@@ -149,6 +152,9 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
    int pos = 0;
    int drive = -1;
    int c1, i;
+   ASSERT(dest);
+   ASSERT(path);
+   ASSERT(size >= 0);
 
    #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
 
@@ -331,6 +337,10 @@ char *replace_filename(char *dest, AL_CONST char *path, AL_CONST char *filename,
 {
    char tmp[1024];
    int pos, c;
+   ASSERT(dest);
+   ASSERT(path);
+   ASSERT(filename);
+   ASSERT(size >= 0);
 
    pos = ustrlen(path);
 
@@ -359,6 +369,10 @@ char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext,
 {
    char tmp[1024], tmp2[16];
    int pos, end, c;
+   ASSERT(dest);
+   ASSERT(filename);
+   ASSERT(ext);
+   ASSERT(size >= 0);
 
    pos = end = ustrlen(filename);
 
@@ -390,6 +404,10 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
 {
    char tmp[1024];
    int pos, c;
+   ASSERT(dest);
+   ASSERT(path);
+   ASSERT(filename);
+   ASSERT(size >= 0);
 
    ustrzcpy(tmp, sizeof(tmp), path);
    pos = ustrlen(tmp);
@@ -421,6 +439,7 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
 char *get_filename(AL_CONST char *path)
 {
    int pos, c;
+   ASSERT(path);
 
    pos = ustrlen(path);
 
@@ -443,6 +462,7 @@ char *get_filename(AL_CONST char *path)
 char *get_extension(AL_CONST char *filename)
 {
    int pos, c;
+   ASSERT(filename);
 
    pos = ustrlen(filename);
 
@@ -469,6 +489,7 @@ char *get_extension(AL_CONST char *filename)
 void put_backslash(char *filename)
 {
    int c;
+   ASSERT(filename);
 
    if (ugetc(filename)) {
       c = ugetat(filename, -1);
@@ -731,6 +752,7 @@ int exists(AL_CONST char *filename)
  */
 long file_size(AL_CONST char *filename)
 {
+   ASSERT(filename);
    if (ustrchr(filename, '#')) {
       PACKFILE *f = pack_fopen_special_file(filename, F_READ);
       if (f) {
@@ -757,6 +779,7 @@ long file_size(AL_CONST char *filename)
  */
 time_t file_time(AL_CONST char *filename)
 {
+   ASSERT(filename);
    if (ustrchr(filename, '#')) {
       *allegro_errno = EPERM;
       return 0;
@@ -776,6 +799,7 @@ time_t file_time(AL_CONST char *filename)
 int delete_file(AL_CONST char *filename)
 {
    char tmp[1024];
+   ASSERT(filename);
 
    *allegro_errno = 0;
 
@@ -812,6 +836,7 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
    char buf[1024];
    struct al_ffblk info;
    int c = 0;
+   ASSERT(name);
 
    if (ustrchr(name, '#')) {
       *allegro_errno = ENOTDIR;
@@ -983,6 +1008,7 @@ int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ex
    char rname[128], path[1024], tmp[128];
    char *s;
    int i, c;
+   ASSERT(dest);
 
    /* if the resource is a path with no filename, look in that location */
    if ((resource) && (ugetc(resource)) && (!ugetc(get_filename(resource))))
@@ -1147,6 +1173,7 @@ static long encrypt_id(long x, int new_format)
  */
 static int clone_password(PACKFILE *f)
 {
+   ASSERT(f);
    if (the_password[0]) {
       if ((f->passdata = malloc(strlen(the_password)+1)) == NULL) {
 	 *allegro_errno = ENOMEM;
@@ -1449,6 +1476,7 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 {
    char tmp[1024];
    int fd;
+   ASSERT(filename);
 
    _packfile_type = 0;
 
@@ -1541,6 +1569,7 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
    PACKFILE *chunk;
    char tmp[1024];
    char *name;
+   ASSERT(f);
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
 
@@ -1646,10 +1675,14 @@ PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
  */
 PACKFILE *pack_fclose_chunk(PACKFILE *f)
 {
-   PACKFILE *parent = f->parent;
+   PACKFILE *parent;
    PACKFILE *tmp;
-   char *name = f->filename;
+   char *name;
    int header, c;
+   ASSERT(f);
+
+   parent = f->parent;
+   name = f->filename;
 
    if (f->flags & PACKFILE_FLAG_WRITE) {
       /* finish writing a chunk */
@@ -1732,6 +1765,7 @@ PACKFILE *pack_fclose_chunk(PACKFILE *f)
 int pack_fseek(PACKFILE *f, int offset)
 {
    int i;
+   ASSERT(f);
 
    if (f->flags & PACKFILE_FLAG_WRITE)
       return -1;
@@ -1785,6 +1819,7 @@ int pack_fseek(PACKFILE *f, int offset)
 int pack_igetw(PACKFILE *f)
 {
    int b1, b2;
+   ASSERT(f);
 
    if ((b1 = pack_getc(f)) != EOF)
       if ((b2 = pack_getc(f)) != EOF)
@@ -1801,6 +1836,7 @@ int pack_igetw(PACKFILE *f)
 long pack_igetl(PACKFILE *f)
 {
    int b1, b2, b3, b4;
+   ASSERT(f);
 
    if ((b1 = pack_getc(f)) != EOF)
       if ((b2 = pack_getc(f)) != EOF)
@@ -1820,6 +1856,7 @@ long pack_igetl(PACKFILE *f)
 int pack_iputw(int w, PACKFILE *f)
 {
    int b1, b2;
+   ASSERT(f);
 
    b1 = (w & 0xFF00) >> 8;
    b2 = w & 0x00FF;
@@ -1839,6 +1876,7 @@ int pack_iputw(int w, PACKFILE *f)
 long pack_iputl(long l, PACKFILE *f)
 {
    int b1, b2, b3, b4;
+   ASSERT(f);
 
    b1 = (int)((l & 0xFF000000L) >> 24);
    b2 = (int)((l & 0x00FF0000L) >> 16);
@@ -1862,6 +1900,7 @@ long pack_iputl(long l, PACKFILE *f)
 int pack_mgetw(PACKFILE *f)
 {
    int b1, b2;
+   ASSERT(f);
 
    if ((b1 = pack_getc(f)) != EOF)
       if ((b2 = pack_getc(f)) != EOF)
@@ -1878,6 +1917,7 @@ int pack_mgetw(PACKFILE *f)
 long pack_mgetl(PACKFILE *f)
 {
    int b1, b2, b3, b4;
+   ASSERT(f);
 
    if ((b1 = pack_getc(f)) != EOF)
       if ((b2 = pack_getc(f)) != EOF)
@@ -1897,6 +1937,7 @@ long pack_mgetl(PACKFILE *f)
 int pack_mputw(int w, PACKFILE *f)
 {
    int b1, b2;
+   ASSERT(f);
 
    b1 = (w & 0xFF00) >> 8;
    b2 = w & 0x00FF;
@@ -1916,6 +1957,7 @@ int pack_mputw(int w, PACKFILE *f)
 long pack_mputl(long l, PACKFILE *f)
 {
    int b1, b2, b3, b4;
+   ASSERT(f);
 
    b1 = (int)((l & 0xFF000000L) >> 24);
    b2 = (int)((l & 0x00FF0000L) >> 16);
@@ -1943,6 +1985,7 @@ long pack_fread(void *p, long n, PACKFILE *f)
    unsigned char *cp = (unsigned char *)p;
    long i;
    int c;
+   ASSERT(f);
 
    for (i=0; i<n; i++) {
       if ((c = pack_getc(f)) == EOF)
@@ -1965,6 +2008,8 @@ long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
 {
    AL_CONST unsigned char *cp = (AL_CONST unsigned char *)p;
    long i;
+   ASSERT(f);
+   ASSERT(p);
 
    for (i=0; i<n; i++) {
       if (pack_putc(*cp++, f) == EOF)
@@ -1983,6 +2028,7 @@ long pack_fwrite(AL_CONST void *p, long n, PACKFILE *f)
  */
 static void pack_ungetc(int ch, PACKFILE *f)
 {
+   ASSERT(f);
    *(--f->buf_pos) = (unsigned char)ch;
    f->buf_size++;
    f->flags &= ~PACKFILE_FLAG_EOF;
@@ -2002,6 +2048,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
 {
    char *pmax;
    int c;
+   ASSERT(f);
 
    *allegro_errno = 0;
 
@@ -2059,6 +2106,8 @@ int pack_fputs(AL_CONST char *p, PACKFILE *f)
 {
    char *buf, *s;
    int bufsize;
+   ASSERT(f);
+   ASSERT(p);
 
    *allegro_errno = 0;
 

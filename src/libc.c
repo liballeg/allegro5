@@ -30,6 +30,7 @@
 char *_alemu_strlwr(char *string)
 {
    char *p;
+   ASSERT(string);
 
    for (p=string; *p; p++)
       *p = utolower(*p);
@@ -49,6 +50,7 @@ char *_alemu_strlwr(char *string)
 char *_alemu_strupr(char *string)
 {
    char *p;
+   ASSERT(string);
 
    for (p=string; *p; p++)
       *p = utoupper(*p);
@@ -68,6 +70,8 @@ char *_alemu_strupr(char *string)
 int _alemu_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 {
    int c1, c2;
+   ASSERT(s1);
+   ASSERT(s2);
 
    do {
       c1 = utolower(*(s1++));
@@ -89,6 +93,9 @@ int _alemu_stricmp(AL_CONST char *s1, AL_CONST char *s2)
 int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
 {
    size_t i;
+   ASSERT(s1);
+   ASSERT(s2);
+   ASSERT(num >= 0);
 
    for (i=0; i<num; i++)
       if (((unsigned char *)s1)[i] != ((unsigned char *)s2)[i])
@@ -107,6 +114,8 @@ int _alemu_memcmp(AL_CONST void *s1, AL_CONST void *s2, size_t num)
 void *_al_sane_realloc(void *ptr, size_t size)
 {
    void *tmp_ptr;
+   ASSERT(ptr);
+   ASSERT(size >= 0);
 
    tmp_ptr = NULL;
 

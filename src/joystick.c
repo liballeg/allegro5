@@ -258,6 +258,7 @@ int load_joystick_data(AL_CONST char *filename)
 {
    char tmp1[64], tmp2[64];
    int ret, c;
+   ASSERT(filename);
 
    joy_loading = TRUE;
 
