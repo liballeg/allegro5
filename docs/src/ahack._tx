@@ -384,8 +384,7 @@ the list, remember to tell it in your email.
 
 
 
-@hnode
-Building your patch against an existent release
+@hnode Building your patch against an existent release
 
 If you have obtained Allegro from an existent release, stable or unstable,
 you will have all the source code contained in some archive format. You will
@@ -440,15 +439,14 @@ resulting patch, but that can be error prone.
 
 
 
-@hnode
-Building your patch against a CVS version
+@hnode Building your patch against a CVS version
 
 If you are working with the cvs version of Allegro which you can get from
 Sourceforge (<link>http://sourceforge.net/projects/alleg/</a>), you won't need
 to copy any files at all. Just modify the files you want, go to the root
 directory of the cvs copy and type:
 <textblock>
-   diff -u > patch
+   cvs diff -u > patch
 <endblock>
 Unlike the standalone diff, the cvs diff command will work recursively
 through the Allegro source tree, comparing each file against the Sourceforge
