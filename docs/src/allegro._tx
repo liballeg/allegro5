@@ -1582,6 +1582,36 @@ your game.
    still use an `allegro.cfg' file to specify the port settings and irq
    numbers.
 
+   The override config file will not only take precedence when reading, but will
+   also be used for storing values. When you are done with using the override
+   config file, you can call override_config_file with a NULL parameter, so
+   config data will be directly read from the current config file again.
+
+   Note: The override file is completely independent from the current
+   configuration. You can e.g. call set_config_file, and the override file will
+   still be active. Also the flush_config_file function will only affect the
+   current config file (which can be changed with set_config_file), never the
+   overriding one specified with this function. The modified override config is
+   written back to disk whenever you call override_config_file.
+
+   Example:
+<codeblock>
+   override_config_file("my.cfg");
+   /* This will read from my.cfg, and if it doesn't find a setting,
+    * will read from the current config file instead.
+    */
+   language = get_config_string("system", "language", NULL);
+   /* This will always write to my.cfg, no matter if the settings is already
+    * present or not.
+    */
+   set_config_string("system", "language", "RU");
+   /* This forces the changed setting to be written back to disk. Else it is
+    * written back at the next call to override_config_file, or when Allegro
+    * shuts down.
+    */
+   override_config_file(NULL);
+   <endblock>
+
 @@void @override_config_data(const char *data, int length);
 @xref override_config_file, set_config_data
    Version of override_config_file() which uses a block of data that has 
