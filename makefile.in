@@ -230,15 +230,23 @@ docs: $(DOCS)
 
 docs-dvi: $(srcdir)/docs/allegro.dvi
 	@echo "Device independant documentation generated: docs/allegro.dvi"
-	@echo "Run make docs-ps if you wish to generate postscript documentation (you need dvips)"
+	@echo "Run make docs-ps if you wish to generate Postscript documentation (you need dvips)."
 
 docs-ps: $(srcdir)/docs/allegro.ps
 	@echo "Postscript documentation generated: docs/allegro.ps"
-	@echo "You can compress it with gzip or running make docs-gzipped-ps"
+	@echo "You can compress it with gzip by running make docs-gzipped-ps,"
+	@echo "or with bzip2 by running make docs-bzipped-ps."
+
+docs-pdf: $(srcdir)/docs/allegro.pdf
+	@echo "PDF documentation generated: docs/allegro.pdf"
 
 docs-gzipped-ps: $(srcdir)/docs/allegro.ps
 	gzip -9 docs/allegro.ps
 	@echo "Compressed postscript documentation generated: docs/allegro.ps.gz"
+
+docs-bzipped-ps: $(srcdir)/docs/allegro.ps
+	bzip2 -9 docs/allegro.ps
+	@echo "Compressed postscript documentation generated: docs/allegro.ps.bz2"
 
 docs-devhelp: docs/devhelp/allegro.devhelp
 	@echo "DevHelp documentation generated: docs/devhelp/allegro.devhelp"
@@ -286,6 +294,9 @@ docs/allegro.dvi: docs/texi/allegro.texi
 
 docs/allegro.ps: docs/allegro.dvi
 	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
+
+docs/allegro.pdf: docs/texi/allegro.texi
+	cd docs && texi2pdf --texinfo='@topandbottommargin=.75in' texi/allegro.texi && cd ..
 
 docs/devhelp/allegro.devhelp: $(filter %.html,$(DEVHELPDOCS)) docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -devhelp docs/devhelp/allegro.html docs/src/allegro._tx
@@ -396,11 +407,13 @@ mini-install: install-headers install-lib
 
 full-install: install-headers install-programs install-lib
 	@echo ""
-	@echo "Run make docs-dvi if you wish to generate dvi documentation (you need texi2dvi)"
-	@echo "Run make install-man if you wish to install the man pages"
-	@echo "Run make install-info if you wish to install the info documentation"
+	@echo "Run make docs-dvi if you wish to generate dvi documentation (you need texi2dvi)."
+	@echo "Run make docs-pdf if you wish to generate PDF documentation (you need texi2pdf)."
+	@echo "Run make install-man if you wish to install the man pages."
+	@echo "Run make install-info if you wish to install the info documentation."
 	@echo "You may conserve space by instead running make install-gzipped-man"
-	@echo "and/or make install-gzipped-info"
+	@echo "and/or make install-gzipped-info.  Or install-bzipped-man,"
+	@echo "install-bzipped-info to use bzip2 instead of gzip."
 
 install-lib: lib
 	$(mkinstalldirs) $(DESTDIR)$(libdir)
@@ -496,6 +509,10 @@ install-gzipped-info: install-info
 	@echo Compressing documentation...
 	@gzip -9 -f $(DESTDIR)$(infodir)/allegro.info
 
+install-bzipped-info: install-info
+	@echo Compressing documentation...
+	@bzip2 -9 -f $(DESTDIR)$(infodir)/allegro.info
+
 install-man: docs
 	$(mkinstalldirs) $(DESTDIR)$(mandir)/man3
 	@for file in $(srcdir)/docs/man/*.3; do \
@@ -509,6 +526,14 @@ install-gzipped-man: docs
 	  echo Installing $$file.gz to $(DESTDIR)$(mandir)/man3; \
 	  $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man3/; \
 	  gzip -9 -f $(DESTDIR)$(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
+	done
+
+install-bzipped-man: docs
+	$(mkinstalldirs) $(DESTDIR)$(mandir)/man3
+	@for file in $(srcdir)/docs/man/*.3; do \
+	  echo Installing $$file.bz2 to $(DESTDIR)$(mandir)/man3; \
+	  $(INSTALL_DATA) $$file $(DESTDIR)$(mandir)/man3/; \
+	  bzip2 -9 -f $(DESTDIR)$(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
 	done
 
 
@@ -561,6 +586,10 @@ uninstall-info:
 	  echo Decompressing documentation...; \
 	  gunzip $(infodir)/allegro.info.gz; \
 	fi;
+	@if test -f $(infodir)/allegro.info.bz2; then \
+	  echo Decompressing documentation...; \
+	  bzip2 -d $(infodir)/allegro.info.bz2; \
+	fi;
 	-@if $(SHELL) -c "$(INSTALL_INFO) --version" >/dev/null 2>&1; then \
 	  if $(INSTALL_INFO) --version 2>&1 | grep "Debian" >/dev/null; then \
 	    $(INSTALL_INFO) --remove $(infodir)/allegro.info; \
@@ -576,6 +605,8 @@ uninstall-man:
 	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
 	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3.gz,p" $(srcdir)/docs/src/allegro._tx \
+	  | xargs -n 1 rm -f
+	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3.bz2,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
 	sed -n -e "s,^@@Example.*@\(ex.*\),$(mandir)/man3/\1.3,p" $(srcdir)/docs/src/allegro._tx \
 	  | xargs -n 1 rm -f
@@ -614,11 +645,13 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh docs/makedoc $(ALLEGRO_MAKEDOC_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
-.PHONY: default full-build lib programs docs docs-dvi docs-ps docs-gzipped-ps \
+.PHONY: default full-build lib programs docs docs-dvi docs-ps docs-pdf \
+docs-gzipped-ps docs-bzipped-ps \
 clean distclean veryclean maintainer-clean \
 install full-install mini-install \
 install-lib install-headers install-programs install-info \
-install-gzipped-info install-man install-gzipped-man depend \
+install-gzipped-info install-bzipped-info install-man install-gzipped-man \
+install-bzipped-man depend \
 uninstall uninstall-lib uninstall-modules uninstall-headers \
 uninstall-programs uninstall-info uninstall-man
 

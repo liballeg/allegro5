@@ -578,7 +578,10 @@ DISTCLEAN_FILES = \
 	docs/info/*.inf docs/man/*.3 docs/txt/*.txt \
 	docs/html/*.html docs/html/*.htm docs/html/*.css docs/chm/*.chm docs/chm/*.hh* \
 	docs/rtf/*.rtf docs/devhelp/*.html docs/devhelp/*.devhelp \
-	docs/makedoc docs/allegro.dvi docs/allegro.ps* \
+	docs/makedoc docs/allegro.dvi docs/allegro.ps* docs/allegro.pdf \
+	docs/allegro.aux docs/allegro.cp docs/allegro.fn docs/allegro.fns \
+	docs/allegro.ky docs/allegro.log docs/allegro.pg docs/allegro.toc \
+	docs/allegro.tp docs/allegro.vr \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe */*/*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log config.status stamp-h stamp-h[0-9]* suid \

@@ -9619,11 +9619,16 @@ makefiles also provide some special pseudo-targets:
    not a default target, since you need the texi2dvi tool to create it. The
    generated file is especially prepared to be printed on paper.
 <li>
-   'docs-ps' or 'docs-gzipped-ps' (Unix only)<br>
+   'docs-ps' or 'docs-gzipped-ps' or 'docs-bzipped-ps' (Unix only)<br>
    Creates a Postcript file from the previously generated DVI file. This is
    not a default target, since you need the texi2dvi and dvips tools to
-   create it. The second target compresses the generated Postscript file.
-   The generated file is especially prepared to be printed on paper.
+   create it. The second and third targets compress the generated Postscript
+   file. The generated file is especially prepared to be printed on paper.
+<li>
+   'docs-pdf' (Unix only)<br>
+   Creates a PDF file. This is not a default target, since you need the
+   texi2pdf tool to create it. The generated file is especially prepared to
+   be printed on paper, and it also has hyperlinks.
 <li>
    'docs-devhelp' (Unix only)<br>
    Creates normal HTML documentation with an additional xml index file which
@@ -9632,14 +9637,27 @@ makefiles also provide some special pseudo-targets:
    example <link>http://anjuta.sourceforge.net/</a>. The Allegro 'book' will be
    created in docs/devhelp/allegro.devhelp, you have to install it manually.
 <li>
-   'install-man' or 'install-gzipped-man' (Unix and MacOS X only)<br>
-   This generates Unix man pages for each Allegro function or variable and
-   installs them. The second target compresses the manual pages after
-   installing them.
+   'install-man' (Unix and Mac OS X only)<br>
+   Generates Unix man pages for each Allegro function or variable and
+   installs them.
 <li>
-   'install-info' or 'install-gzipped-info' (Unix only)<br>
+   'install-gzipped-man' or 'install-bzipped-man' (Unix only)<br>
+   Like install-man, but also compresses the manual pages after installing
+   them (run only one of these).
+<li>
+   'uninstall-man' (Unix)<br>
+   Uninstalls any man pages previously installed with 'install-man',
+   'install-gzipped-man', or 'install-bzipped-man'.
+<li>
+   'install-info' or 'install-gzipped-info' or 'install-bzipped-info'
+   (Unix only)<br>
    Converts the documentation to Info format and installs it. The second
-   target compresses the info file after installing it.
+   and third targets compress the info file after installing it (run only
+   one of them).
+<li>
+   'uninstall-info' (Unix only)<br>
+   Uninstalls any man pages previously installed with 'install-info',
+   'install-gzipped-info', or 'install-bzipped-info'.
 <li>
    'clean'<br>
    Removes generated object and library files, either to recover disk space 
