@@ -6771,16 +6771,17 @@ Recording routines
 @xref install_sound_input, start_sound_input
    If set, this function is called by the input driver whenever a new sample 
    buffer becomes available, at which point you can use read_sound_input() 
-   to copy the data into a more permenent location. This routine runs in an 
-   interrupt context, so it must execute very quickly, the code and all 
-   memory that it touches must be locked, and you cannot call any operating 
-   system routines or access disk files.
+   to copy the data into a more permanent location. It runs in an interrupt
+   context, so it must execute very quickly, the code and all memory that it
+   touches must be locked, and you cannot call any operating system routines
+   or access disk files. This currently works only under DOS.
 
 @@extern void (*@midi_recorder)(unsigned char data);
 @xref install_sound_input, midi_out
    If set, this function is called by the MIDI input driver whenever a new 
    byte of MIDI data becomes available. It runs in an interrupt context, so 
-   it must execute very quickly and all the code/data must be locked.
+   it must execute very quickly and all the code/data must be locked. This
+   currently works only under DOS.
 
 
 
