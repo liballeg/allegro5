@@ -5814,15 +5814,6 @@ changes are the following:
    the new Allegro version, just increase the size of the mentioned objects 
    by one pixel in both width and height fields. 
 <li>
-   When you use an object which is derived from d_textbox_proc, and you are 
-   calling d_textbox_proc when drawing your object, you should temporarily 
-   alter the object's proc to d_textbox_proc and after the drawing back to 
-   whatever it was before. The reason is, that checking mouseclicks on the 
-   scrollbar is slightly different for the textbox than for the list boxes,
-   so there is a check for the proc field - and in case of derived objects 
-   the proc field wouldn't be d_textbox_proc - so the click would be 
-   evaluated incorrectly.
-<li>
    When a GUI menu item (not in a bar menu) has a child menu, there is a 
    small arrow next to the child menu name, pointing to the right - so the 
    user can immediately see that this menu item has a child menu - and 
