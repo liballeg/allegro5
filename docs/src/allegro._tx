@@ -117,13 +117,19 @@ information about how to install Allegro and link your program with it.
    calling install_allegro(SYSTEM_AUTODETECT, &errno, atexit).
 
 @@void @allegro_exit();
-@xref install_allegro, allegro_init
+@xref install_allegro, allegro_init, destroy_bitmap
 @eref ex3d, exscn3d, exswitch, exxfade, exzbuf
-   Closes down the Allegro system. This includes returning the system to 
-   text mode and removing whatever mouse, keyboard, and timer routines have 
-   been installed. You don't normally need to bother making an explicit call 
-   to this function, because allegro_init() installs it as an atexit() 
+   Closes down the Allegro system. This includes returning the system to
+   text mode and removing whatever mouse, keyboard, and timer routines have
+   been installed. You don't normally need to bother making an explicit call
+   to this function, because allegro_init() installs it as an atexit()
    routine so it will be called automatically when your program exits.
+
+   Note that after you call this function, other functions like
+   destroy_bitmap() will most likely crash. This is a problem for C++ global
+   destructors, which usually get called after atexit(), so don't put Allegro
+   calls in them. You can write the destructor code in another method which
+   you can manually call before your program exits, avoiding this problem.
 
 @@Macro @END_OF_MAIN()
 @xref Windows specifics, Unix specifics, Differences between platforms
