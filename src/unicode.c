@@ -1726,8 +1726,11 @@ char *_ustrdup(AL_CONST char *src, AL_METHOD(void *, malloc_func, (size_t)))
    ASSERT(src);
    ASSERT(malloc_func);
 
-   if ((s = malloc_func(ustrsizez(src))))
+   s = malloc_func(ustrsizez(src));
+   if (s)
       ustrcpy(s, src);  /* ustrzcpy() not needed */
+   else
+      *allegro_errno = ENOMEM;
 
    return s;
 }
