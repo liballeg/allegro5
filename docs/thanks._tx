@@ -73,6 +73,10 @@ Contributors
    Put together the 2.11 release of Allegro while I was away from the net, 
    and wrote the original version of the Allegro FAQ.
 
+   Bertrand Coconnier (<email>bcoconni@club-internet.fr</a>).<br>
+   Modified routines in poly3d.c for subpixel and subtexel accuracy.
+   Speed enhancements in polygon functions.
+
    Burton Radons (<email>loth@gec.net</a>).<br>
    Optimised the truecolor pixel blending function, converted the blenders 
    to the new single-handler format, and added the range of 
