@@ -10,9 +10,9 @@
  *
  *      BeOS gfx line switchers.
  *
- *      By Jason Wilkins
+ *      By Jason Wilkins.
  *
- *	    Windowed mode support added by Angelo Mottola.
+ *      Windowed mode support added by Angelo Mottola.
  *
  *      See readme.txt for copyright information.
  */
@@ -30,18 +30,26 @@
  *   edx = bitmap
  */
 FUNC(_be_gfx_fullscreen_read_write_bank_asm)
+
+   /* check whether bitmap is already locked */
    testl $BMP_ID_LOCKED, BMP_ID(%edx)
-   jnz be_gfx_fullscreen_already_acquired
+   jnz Locked
 
-   pushal
+   pushl %ecx
+   pushl %eax
+   pushl %edx
    call *GLOBL(_be_sync_func)
-   popal
+   popl %edx
+   popl %eax
+   popl %ecx
 
-   orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   orl $BMP_ID_LOCKED, BMP_ID(%edx)
+   /* set lock and autolock flags */
+   orl $(BMP_ID_LOCKED | BMP_ID_AUTOLOCK), BMP_ID(%edx)
 
-be_gfx_fullscreen_already_acquired:
-   movl BMP_LINE(%edx, %eax, 4), %eax
+ Locked:
+   /* get pointer to the video memory */
+   movl BMP_LINE(%edx,%eax,4), %eax
+
    ret
 
 
@@ -50,13 +58,15 @@ be_gfx_fullscreen_already_acquired:
  *   edx = bitmap
  */
 FUNC(_be_gfx_fullscreen_unwrite_bank_asm)
+
+   /* only unlock bitmaps that were autolocked */
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   jz be_gfx_fullscreen_no_release
+   jz No_unlock
 
-   andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   andl $~BMP_ID_LOCKED, BMP_ID(%edx)
+   /* clear lock and autolock flags */
+   andl $~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK), BMP_ID(%edx)
 
-be_gfx_fullscreen_no_release:
+ No_unlock:
    ret
 
 
@@ -66,21 +76,27 @@ be_gfx_fullscreen_no_release:
  *   edx = bitmap
  */
 FUNC(_be_gfx_windowed_read_write_bank_asm)
-   testl $BMP_ID_LOCKED, BMP_ID(%edx)
-   jnz be_gfx_windowed_already_acquired
-   
-   orl $BMP_ID_LOCKED, BMP_ID(%edx)
-   orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   
-be_gfx_windowed_already_acquired:
+
+   /* clobber the line */
    pushl %ecx
    pushl %eax
    movl GLOBL(_be_dirty_lines), %ecx
    addl BMP_YOFFSET(%edx), %eax
-   movl $1, (%ecx, %eax, 4)
+   movl $1, (%ecx, %eax, 4)  /* _be_dirty_lines[line] = 1; (line has changed) */
    popl %eax
    popl %ecx
-   movl BMP_LINE(%edx, %eax, 4), %eax
+
+   /* check whether bitmap is already locked */
+   testl $BMP_ID_LOCKED, BMP_ID(%edx)
+   jnz Locked_win
+
+   /* set lock and autolock flags */
+   orl $(BMP_ID_LOCKED | BMP_ID_AUTOLOCK), BMP_ID(%edx)
+
+ Locked_win:
+   /* get pointer to the video memory */
+   movl BMP_LINE(%edx,%eax,4), %eax
+
    ret
 
 
@@ -89,19 +105,20 @@ be_gfx_windowed_already_acquired:
  *   edx = bitmap
  */
 FUNC(_be_gfx_windowed_unwrite_bank_asm)
+
+   /* only unlock bitmaps that were autolocked */
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   jz be_gfx_windowed_no_release
+   jz No_unlock_win
    
-   pushl %eax
    pushl %ecx
+   pushl %eax
    pushl %edx
    pushl GLOBL(_be_window_lock)
    call GLOBL(release_sem)
-   addl $4, %esp
+   popl %edx  /* throw away GLOBL(_be_window_lock) */
    popl %edx
-   popl %ecx
    popl %eax
+   popl %ecx
 
-be_gfx_windowed_no_release:
+  No_unlock_win:
    ret 
-

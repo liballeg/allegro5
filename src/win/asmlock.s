@@ -30,21 +30,23 @@
  */
 FUNC (gfx_directx_write_bank)
 
-      /* check whether is locked already */
+      /* check whether bitmap is already locked */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz Locked
 
       /* lock the surface */
-      pushal
+      pushl %ecx
+      pushl %eax
       pushl %edx
-      call *GLOBL(ptr_gfx_directx_autolock) 
+      call *GLOBL(ptr_gfx_directx_autolock)
       popl %edx
-      popal
+      popl %eax
+      popl %ecx
 
    Locked:
       /* get pointer to the video memory */
       movl BMP_LINE(%edx,%eax,4), %eax
-      
+
       ret
 
 
@@ -57,21 +59,23 @@ FUNC (gfx_directx_unwrite_bank)
 
       /* only unlock bitmaps that were autolocked */
       testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-      jz NoUnlock
+      jz No_unlock
 
       /* unlock surface */
-      pushal
+      pushl %ecx
+      pushl %eax
       pushl %edx
-      call *GLOBL(ptr_gfx_directx_unlock) 
+      call *GLOBL(ptr_gfx_directx_unlock)
       popl %edx
-      popal
+      popl %eax
+      popl %ecx
 
       /* clear the autolock flag */
       andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
 
-   NoUnlock:
+   No_unlock:
       ret
-      
+
 
 
 
@@ -80,26 +84,30 @@ FUNC (gfx_directx_unwrite_bank)
  *  eax = line
  */
 FUNC (gfx_directx_write_bank_win)
-      
-      pushal
-      movl GLOBL(wd_dirty_lines), %ebx
-      addl BMP_YOFFSET(%edx), %ebx
-      movb $1, (%ebx,%eax)   /* wd_dirty_lines[line] = 1; (line has changed) */
-      
-      /* check whether is locked already */
+      pushl %ecx
+
+      /* clobber the line */
+      movl GLOBL(wd_dirty_lines), %ecx
+      addl BMP_YOFFSET(%edx), %ecx
+      movb $1, (%ecx,%eax)   /* wd_dirty_lines[line] = 1; (line has changed) */
+
+      /* check whether bitmap is already locked */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz Locked_win
 
       /* lock the surface */
+      pushl %eax
       pushl %edx
-      call *GLOBL(ptr_gfx_directx_autolock) 
+      call *GLOBL(ptr_gfx_directx_autolock)
       popl %edx
+      popl %eax
 
    Locked_win:
-      popal
+      popl %ecx
+
       /* get pointer to the video memory */
       movl BMP_LINE(%edx,%eax,4), %eax
-      
+
       ret
 
 
@@ -108,32 +116,32 @@ FUNC (gfx_directx_write_bank_win)
  *  edx = bmp
  */
 FUNC (gfx_directx_unwrite_bank_win)
-      pushal
 
       /* only unlock bitmaps that were autolocked */
       testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-      jz NoUnlock_win
+      jz No_unlock_win
+
+      pushl %ecx
+      pushl %eax
 
       /* unlock surface */
       pushl %edx
-      call *GLOBL(ptr_gfx_directx_unlock) 
+      call *GLOBL(ptr_gfx_directx_unlock)
       popl %edx
-      
+
       /* clear the autolock flag */
       andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
 
-   NoUnlock_win:
-      /* pseudo_screen may still be locked */
-      movl GLOBL(pseudo_screen), %eax
-      testl $BMP_ID_LOCKED, BMP_ID(%eax)
-      jnz no_update_bank_win
-
-      /* ok, we can safely update */ 
+      /* update dirty lines: this is safe because autolocking
+       * is guaranteed to be the only level of locking.
+       */
+      movl GLOBL(pseudo_screen), %edx
       call update_dirty_lines
 
-   no_update_bank_win: 
-      popal
+      popl %eax
+      popl %ecx
 
+   No_unlock_win:
       ret
 
 
@@ -141,35 +149,30 @@ FUNC (gfx_directx_unwrite_bank_win)
  *  arg1 = bmp
  */
 FUNC(gfx_directx_unlock_win)
-      pushl %ebp
-      movl %esp, %ebp
-      pushl %ebx
-      pushl %esi
-      pushl %edi
 
-      /* gfx_directx_unlock(bmp) */
-      movl 8(%ebp), %edx
+      /* unlock surface */
+      movl 4(%esp), %edx
       pushl %edx 
       call *GLOBL(ptr_gfx_directx_unlock)
       popl %edx
 
-      /* pseudo_screen may still be locked */
-      movl GLOBL(pseudo_screen), %eax
-      testl $BMP_ID_LOCKED, BMP_ID(%eax)
-      jnz no_update_win
+      /* pseudo_screen may still be locked in case of nested locking */
+      movl GLOBL(pseudo_screen), %edx
+      testl $BMP_ID_LOCKED, BMP_ID(%edx)
+      jnz No_update_win
 
       /* ok, we can safely update */
       call update_dirty_lines
 
-   no_update_win:
-      popl %edi
-      popl %esi
-      popl %ebx
-      popl %ebp
-
+   No_update_win:
       ret
 
 
+
+/* update_dirty_lines
+ *  edx = pseudo_screen
+ *  clobbers: %eax, %ecx
+ */
 
 #define RECT_LEFT   (%esp)
 #define RECT_TOP    4(%esp)
@@ -177,15 +180,18 @@ FUNC(gfx_directx_unlock_win)
 #define RECT_BOTTOM 12(%esp)
 
 update_dirty_lines:
+      pushl %ebx
+      pushl %esi
+      pushl %edi
       subl $16, %esp  /* allocate a RECT structure */
 
       movl $0, RECT_LEFT
-      movl BMP_W(%eax), %ecx           /* ecx = pseudo_screen->w */
+      movl BMP_W(%edx), %ecx           /* ecx = pseudo_screen->w */
       movl %ecx, RECT_RIGHT
       movl GLOBL(wd_dirty_lines), %ebx /* ebx = wd_dirty_lines   */
-      movl BMP_H(%eax), %esi           /* esi = pseudo_screen->h */
+      movl BMP_H(%edx), %esi           /* esi = pseudo_screen->h */
       movl $0, %edi  
-      
+
    _align_
    next_line:
       movb (%ebx,%edi), %al  /* al = wd_dirty_lines[edi] */
@@ -206,15 +212,17 @@ update_dirty_lines:
       pushl %eax
       call *GLOBL(update_window) 
       popl %eax
-      
+
    _align_
    test_end:   
       incl %edi
       cmpl %edi, %esi  /* last line? */
       jge next_line    /* no ! */
-      
-      addl $16, %esp
 
+      addl $16, %esp
+      popl %edi
+      popl %esi
+      popl %ebx
       ret
 
 
@@ -224,26 +232,30 @@ update_dirty_lines:
  *  eax = line
  */
 FUNC (gfx_gdi_write_bank)
-      
-      pushal
-      movl GLOBL(gdi_dirty_lines), %ebx
-      addl BMP_YOFFSET(%edx), %ebx
-      movb $1, (%ebx,%eax)   /* gdi_dirty_lines[line] = 1; (line has changed) */
-      
-      /* check whether is locked already */
+      pushl %ecx
+
+      /* clobber the line */
+      movl GLOBL(gdi_dirty_lines), %ecx
+      addl BMP_YOFFSET(%edx), %ecx
+      movb $1, (%ecx,%eax)   /* gdi_dirty_lines[line] = 1; (line has changed) */
+
+      /* check whether bitmap is already locked */
       testl $BMP_ID_LOCKED, BMP_ID(%edx)
       jnz Locked_gdi
 
       /* lock the surface */
+      pushl %eax
       pushl %edx
       call *GLOBL(ptr_gfx_gdi_autolock) 
       popl %edx
+      popl %eax
 
    Locked_gdi:
-      popal
+      popl %ecx
+
       /* get pointer to the video memory */
       movl BMP_LINE(%edx,%eax,4), %eax
-      
+
       ret
 
 
@@ -252,21 +264,22 @@ FUNC (gfx_gdi_write_bank)
  *  edx = bmp
  */
 FUNC (gfx_gdi_unwrite_bank)
-      pushal
 
       /* only unlock bitmaps that were autolocked */
       testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-      jz NoUnlock_gdi
+      jz No_unlock_gdi
 
       /* unlock surface */
+      pushl %ecx
+      pushl %eax
       pushl %edx
       call *GLOBL(ptr_gfx_gdi_unlock) 
       popl %edx
-      
+      popl %eax
+      popl %ecx
+
       /* clear the autolock flag */
       andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
 
-   NoUnlock_gdi:
-      popal
-
+   No_unlock_gdi:
       ret

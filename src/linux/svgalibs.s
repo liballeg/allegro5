@@ -36,7 +36,7 @@ FUNC(_svgalib_read_line_asm)
 	pushl %edx
 	call GLOBL(_svgalib_read_line)
 	popl %edx
-	popl %ecx
+	popl %ecx  /* preserve %eax */
 	popl %ecx
 	ret
 
@@ -47,19 +47,19 @@ FUNC(_svgalib_write_line_asm)
 	pushl %edx
 	call GLOBL(_svgalib_write_line)
 	popl %edx
-	popl %ecx
+	popl %ecx  /* preserve %eax */
 	popl %ecx
 	ret
 
 
 FUNC(_svgalib_unwrite_line_asm)
-	pushl %eax
 	pushl %ecx
+	pushl %eax
 	pushl %edx
 	call GLOBL(_svgalib_unwrite_line)
 	popl %edx
-	popl %ecx
 	popl %eax
+	popl %ecx
 	ret
 
 

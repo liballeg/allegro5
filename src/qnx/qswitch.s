@@ -25,27 +25,31 @@
 
 #ifndef ALLEGRO_NO_ASM
 
-/* Use only with ASM calling convention.  */
-
 /* ph_write_line_asm:
  *  edx = bitmap
  *  eax = line
  */
 FUNC (ph_write_line_asm)
+
+   /* check whether bitmap is already locked */
    testl $BMP_ID_LOCKED, BMP_ID(%edx)
-   jnz ph_already_locked
+   jnz Locked
 
    /* set lock and autolock flags */
    orl $(BMP_ID_LOCKED | BMP_ID_AUTOLOCK), BMP_ID(%edx)
-   
-   pushal
-   call GLOBL(PgWaitHWIdle)
-   popal
 
-ph_already_locked:
+   pushl %ecx
+   pushl %eax
+   pushl %edx
+   call GLOBL(PgWaitHWIdle)
+   popl %edx
+   popl %eax
+   popl %ecx
+
+ Locked:
    /* get pointer to the video memory */
    movl BMP_LINE(%edx,%eax,4), %eax
-   
+
    ret
 
 
@@ -54,48 +58,51 @@ ph_already_locked:
  *  edx = bmp
  */
 FUNC (ph_unwrite_line_asm)
+
    /* only unlock bitmaps that were autolocked */
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   jz dont_release_ph
-      
+   jz No_unlock
+
    /* clear lock and autolock flags */
    andl $~(BMP_ID_LOCKED | BMP_ID_AUTOLOCK), BMP_ID(%edx)
-   
-dont_release_ph:
 
+ No_unlock:
    ret
-   
-   
-   
+
+
+
 /* ph_write_line_win_asm:
  *  edx = bitmap
  *  eax = line
  */
 FUNC (ph_write_line_win_asm)
-   pushal
-   
-   movl GLOBL(ph_dirty_lines), %ebx
-   addl BMP_YOFFSET(%edx), %ebx
-   movb $1, (%ebx,%eax)   /* ph_dirty_lines[line] = 1; (line has changed) */
-   
-   /* check whether is locked already */
+   pushl %ecx
+
+   /* clobber the line */
+   movl GLOBL(ph_dirty_lines), %ecx
+   addl BMP_YOFFSET(%edx), %ecx
+   movb $1, (%ecx,%eax)   /* ph_dirty_lines[line] = 1; (line has changed) */
+
+   /* check whether bitmap is already locked */
    testl $BMP_ID_LOCKED, BMP_ID(%edx)
-   jnz ph_already_locked_win
+   jnz Locked_win
 
    /* lock the surface */
+   pushl %eax
    pushl %edx
    call *GLOBL(ptr_ph_acquire_win) 
    popl %edx
+   popl %eax
 
    /* set the autolock flag */
    orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
 
-ph_already_locked_win:
-   popal
-   
+ Locked_win:
+   popl %ecx
+
    /* get pointer to the video memory */
    movl BMP_LINE(%edx,%eax,4), %eax
-      
+
    ret
 
 
@@ -104,23 +111,24 @@ ph_already_locked_win:
  *  edx = bmp
  */
 FUNC (ph_unwrite_line_win_asm)
+
    /* only unlock bitmaps that were autolocked */
    testl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   jz dont_release_ph_win
+   jz No_unlock_win
 
    /* unlock surface */
-   pushal
+   pushl %ecx
+   pushl %eax
    pushl %edx
    call *GLOBL(ptr_ph_release_win)
    popl %edx
-   popal
-      
+   popl %eax
+   popl %ecx
+
    /* clear the autolock flag */
    andl $~BMP_ID_AUTOLOCK, BMP_ID(%edx)
-   
-dont_release_ph_win:
 
+ No_unlock_win:
    ret
-
 
 #endif

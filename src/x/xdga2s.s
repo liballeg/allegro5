@@ -30,7 +30,7 @@
 
 FUNC (_xdga2_write_line_asm)
 
-	/* check whether is locked already */
+	/* check whether bitmap is already locked */
 	testl $BMP_ID_LOCKED, BMP_ID(%edx)
 	jnz Locked
 
