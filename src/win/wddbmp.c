@@ -58,23 +58,6 @@ static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
 
 
 
-/* EnumSurfacesCallback:
- *  callback function to enumerate the attached surfaces
- */
-static HRESULT CALLBACK EnumSurfacesCallback(LPDIRECTDRAWSURFACE lpDDSurface,
-                                             LPDDSURFACEDESC lpDDSurfaceDesc,
-                                             LPVOID lpContext)
-{
-   if (backbuffersurf == NULL)
-      backbuffersurf = get_surface2_int(lpDDSurface);
-   else if (tripbuffersurf == NULL)
-      tripbuffersurf = get_surface2_int(lpDDSurface);
-      
-   return DDENUMRET_OK;
-}
-
-
-
 /* gfx_directx_create_surface:
  *  creates a DirectDraw surface
  */ 
@@ -84,6 +67,7 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
    DDSURFACEDESC surf_desc;
    LPDIRECTDRAWSURFACE _surf1;
    LPDIRECTDRAWSURFACE2 surf;
+   DDSCAPS ddscaps;
    HRESULT hr;
 
    /* describe surface characteristics */
@@ -157,13 +141,15 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
       return NULL;
 
    /* get attached backbuffers */
-   if (surf_desc.dwBackBufferCount == 2) {
-      IDirectDrawSurface2_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
-      IDirectDrawSurface2_EnumAttachedSurfaces(backbuffersurf, NULL, EnumSurfacesCallback);
-      primbuffersurf = surf;
-   }
-   else if (surf_desc.dwBackBufferCount == 1) {
-      IDirectDrawSurface2_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
+   if (surf_desc.dwBackBufferCount > 0) {
+      ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
+      IDirectDrawSurface2_GetAttachedSurface(surf, &ddscaps, &backbuffersurf);
+
+      if (surf_desc.dwBackBufferCount > 1) {
+         ddscaps.dwCaps = DDSCAPS_FLIP;
+         IDirectDrawSurface2_GetAttachedSurface(backbuffersurf, &ddscaps, &tripbuffersurf);
+      }
+
       primbuffersurf = surf;
    }
 
