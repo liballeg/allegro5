@@ -38,12 +38,12 @@ FUNC(_linear_clear_to_color16)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es 
+   pushl %es 
 
    movl ARG1, %edx               /* edx = bmp */
    movl BMP_CT(%edx), %ebx       /* line to start at */
 
-   movw BMP_SEG(%edx), %es       /* select segment */
+   movl BMP_SEG(%edx), %es       /* select segment */
 
    movl BMP_CR(%edx), %esi       /* width to clear */
    subl BMP_CL(%edx), %esi
@@ -67,9 +67,8 @@ FUNC(_linear_clear_to_color16)
 
    pushl %eax
 
-   pushw %ds                     /* cheap hack to get es and ds in ax and cx */
-   movw %es, %cx
-   popw %ax
+   movl %ds, %eax
+   movl %es, %ecx
 
    cmpw %ax, %cx                 /* can we use nearptr ? */
    jne clearMMXseg_loop          /* if not, then we have to decode segments...*/
@@ -77,8 +76,8 @@ FUNC(_linear_clear_to_color16)
    _align_
 clearMMX_loop:
    movl %ebx, %eax
-   WRITE_BANK()                  /* select bank */
    movl BMP_CL(%edx), %edi
+   WRITE_BANK()                  /* select bank */
    leal (%eax, %edi, 2), %edi    /* get line address  */
 
    popl %eax                     /* get eax back */
@@ -165,8 +164,8 @@ clearMMX_no_long:
 
 clearMMXseg_loop:
    movl %ebx, %eax
-   WRITE_BANK()                  /* select bank */
    movl BMP_CL(%edx), %edi
+   WRITE_BANK()                  /* select bank */
    leal (%eax, %edi, 2), %edi    /* get line address  */
 
    popl %eax                     /* get eax back */
@@ -260,8 +259,8 @@ clear_no_mmx:                    /* If no MMX is available, use the non-MMX vers
    _align_
 clear_loop:
    movl %ebx, %eax
-   WRITE_BANK()                  /* select bank */
    movl BMP_CL(%edx), %edi 
+   WRITE_BANK()                  /* select bank */
    leal (%eax, %edi, 2), %edi    /* get line address  */
 
    movw ARG2, %ax                /* duplicate color twice */
@@ -284,7 +283,7 @@ clear_no_long:
    jg clear_loop                 /* and loop */
 
 clear_done:
-   popw %es
+   popl %es
 
    UNWRITE_BANK()
 
@@ -308,11 +307,11 @@ FUNC(_linear_blit16)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es       /* load destination segment */
-   movw %ds, %bx                 /* save data segment selector */
+   movl %ds, %ebx                /* save data segment selector */
+   movl BMP_SEG(%edx), %es       /* load destination segment */
 
 #ifdef ALLEGRO_MMX               /* only use MMX if the compiler supports it */
 
@@ -440,7 +439,7 @@ blit_only_one_word:
 
    _align_
 blit_done:
-   popw %es
+   popl %es
 
    movl B_SOURCE, %edx
    UNREAD_BANK()
@@ -468,7 +467,7 @@ FUNC(_linear_blit_backward16)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_HEIGHT, %eax           /* y values go from high to low */
    decl %eax
@@ -481,29 +480,29 @@ FUNC(_linear_blit_backward16)
    addl %eax, B_DEST_X
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es       /* load destination segment */
-   movw %ds, %bx                 /* save data segment selector */
+   movl %ds, %ebx                /* save data segment selector */
+   movl BMP_SEG(%edx), %es       /* load destination segment */
 
    _align_
 blit_backwards_loop:
    movl B_DEST, %edx             /* destination bitmap */
    movl B_DEST_Y, %eax           /* line number */
-   WRITE_BANK()                  /* select bank */
    movl B_DEST_X, %edi           /* x offset */
+   WRITE_BANK()                  /* select bank */
    leal (%eax, %edi, 2), %edi
 
    movl B_SOURCE, %edx           /* source bitmap */
    movl B_SOURCE_Y, %eax         /* line number */
-   READ_BANK()                   /* select bank */
    movl B_SOURCE_X, %esi         /* x offset */
+   READ_BANK()                   /* select bank */
    leal (%eax, %esi, 2), %esi
 
    movl B_WIDTH, %ecx            /* x loop counter */
-   movw BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %ds       /* load data segment */
    std                           /* backwards */
    rep ; movsw                   /* copy the line */
 
-   movw %bx, %ds                 /* restore data segment */
+   movl %ebx, %ds                /* restore data segment */
    decl B_SOURCE_Y
    decl B_DEST_Y
    decl B_HEIGHT
@@ -511,7 +510,7 @@ blit_backwards_loop:
 
    cld                           /* finished */
 
-   popw %es
+   popl %es
 
    movl B_SOURCE, %edx
    UNREAD_BANK()
@@ -543,13 +542,13 @@ FUNC(_linear_masked_blit16)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    #define V_MASK    -4(%ebp)
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es 
-   movw %ds, %bx 
+   movl %ds, %ebx 
+   movl BMP_SEG(%edx), %es 
    cld 
 
    movl B_SOURCE, %edx
@@ -586,10 +585,10 @@ FUNC(_linear_masked_blit16)
       shrl $3, %ecx;
       movl V_MASK, %edx;          /* Save 32 bit mask */
       
-      pushw %es;  /* Swap ES and DS */
-      pushw %ds;
-      popw  %es;
-      popw  %ds;
+      pushl %es;  /* Swap ES and DS */
+      pushl %ds;
+      popl  %es;
+      popl  %ds;
       
       _align_;
       masked16_mmx_x_loop:
@@ -661,8 +660,8 @@ FUNC(_linear_masked_blit16)
       _align_;
       masked16_mmx_loop_end:
 
-      pushw %ds;                  /* Swap back ES and DS */
-      popw  %es;
+      pushl %ds;                  /* Swap back ES and DS */
+      popl  %es;
     )
    
    emms
@@ -713,7 +712,7 @@ FUNC(_linear_masked_blit16)
 
 masked16_end:
 
-   popw %es
+   popl %es
 
    /* the source must be a memory bitmap, no need for
     *  movl B_SOURCE, %edx

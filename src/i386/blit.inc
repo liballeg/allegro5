@@ -41,21 +41,21 @@
 blit_loop_##name:                                                          ; \
    movl B_DEST, %edx             /* destination bitmap */                  ; \
    movl B_DEST_Y, %eax           /* line number */                         ; \
-   WRITE_BANK()                  /* select bank */                         ; \
    movl B_DEST_X, %edi           /* x offset */                            ; \
+   WRITE_BANK()                  /* select bank */                         ; \
    leal (%eax, %edi, bpp), %edi                                            ; \
 									   ; \
    movl B_SOURCE, %edx           /* source bitmap */                       ; \
    movl B_SOURCE_Y, %eax         /* line number */                         ; \
-   READ_BANK()                   /* select bank */                         ; \
    movl B_SOURCE_X, %esi         /* x offset */                            ; \
+   READ_BANK()                   /* select bank */                         ; \
    leal (%eax, %esi, bpp), %esi                                            ; \
 									   ; \
    movl B_WIDTH, %ecx            /* x loop counter */                      ; \
-   movw BMP_SEG(%edx), %ds       /* load data segment */                   ; \
+   movl BMP_SEG(%edx), %ds       /* load data segment */                   ; \
    code                          /* do the transfer */                     ; \
 									   ; \
-   movw %bx, %ds                 /* restore data segment */                ; \
+   movl %ebx, %ds                /* restore data segment */                ; \
    incl B_SOURCE_Y                                                         ; \
    incl B_DEST_Y                                                           ; \
    decl B_HEIGHT                                                           ; \

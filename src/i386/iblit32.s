@@ -34,12 +34,12 @@ FUNC(_linear_clear_to_color32)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es 
+   pushl %es 
 
    movl ARG1, %edx               /* edx = bmp */
    movl BMP_CT(%edx), %ebx       /* line to start at */
 
-   movw BMP_SEG(%edx), %es       /* select segment */
+   movl BMP_SEG(%edx), %es       /* select segment */
 
    movl BMP_CR(%edx), %esi       /* width to clear */
    subl BMP_CL(%edx), %esi
@@ -48,8 +48,8 @@ FUNC(_linear_clear_to_color32)
    _align_
 clear_loop:
    movl %ebx, %eax
-   WRITE_BANK()                  /* select bank */
    movl BMP_CL(%edx), %edi 
+   WRITE_BANK()                  /* select bank */
    leal (%eax, %edi, 4), %edi    /* get line address  */
 
    movl ARG2, %eax 
@@ -60,7 +60,7 @@ clear_loop:
    cmpl %ebx, BMP_CB(%edx)
    jg clear_loop                 /* and loop */
 
-   popw %es
+   popl %es
 
    UNWRITE_BANK()
 
@@ -84,11 +84,11 @@ FUNC(_linear_blit32)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es       /* load destination segment */
-   movw %ds, %bx                 /* save data segment selector */
+   movl %ds, %ebx                /* save data segment selector */
+   movl BMP_SEG(%edx), %es       /* load destination segment */
    cld                           /* for forward copy */
 
    _align_
@@ -96,7 +96,7 @@ FUNC(_linear_blit32)
       rep ; movsl
    )
 
-   popw %es
+   popl %es
 
    movl B_SOURCE, %edx
    UNREAD_BANK()
@@ -124,7 +124,7 @@ FUNC(_linear_blit_backward32)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_HEIGHT, %eax           /* y values go from high to low */
    decl %eax
@@ -137,29 +137,29 @@ FUNC(_linear_blit_backward32)
    addl %eax, B_DEST_X
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es       /* load destination segment */
-   movw %ds, %bx                 /* save data segment selector */
+   movl %ds, %ebx                /* save data segment selector */
+   movl BMP_SEG(%edx), %es       /* load destination segment */
 
    _align_
 blit_backwards_loop:
    movl B_DEST, %edx             /* destination bitmap */
    movl B_DEST_Y, %eax           /* line number */
-   WRITE_BANK()                  /* select bank */
    movl B_DEST_X, %edi           /* x offset */
+   WRITE_BANK()                  /* select bank */
    leal (%eax, %edi, 4), %edi
 
    movl B_SOURCE, %edx           /* source bitmap */
    movl B_SOURCE_Y, %eax         /* line number */
-   READ_BANK()                   /* select bank */
    movl B_SOURCE_X, %esi         /* x offset */
+   READ_BANK()                   /* select bank */
    leal (%eax, %esi, 4), %esi
 
    movl B_WIDTH, %ecx            /* x loop counter */
-   movw BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %ds       /* load data segment */
    std                           /* backwards */
    rep ; movsl                   /* copy the line */
 
-   movw %bx, %ds                 /* restore data segment */
+   movl %ebx, %ds                /* restore data segment */
    decl B_SOURCE_Y
    decl B_DEST_Y
    decl B_HEIGHT
@@ -167,7 +167,7 @@ blit_backwards_loop:
 
    cld                           /* finished */
 
-   popw %es
+   popl %es
 
    movl B_SOURCE, %edx
    UNREAD_BANK()
@@ -198,11 +198,11 @@ FUNC(_linear_masked_blit32)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es 
-   movw %ds, %bx 
+   movl %ds, %ebx 
+   movl BMP_SEG(%edx), %es 
    cld 
 
 #ifdef ALLEGRO_SSE  /* Use SSE if the compiler supports it */
@@ -230,10 +230,10 @@ FUNC(_linear_masked_blit32)
       movd %ecx, %mm2;            /* Save line length (%mm2) */
       shrl $2, %ecx;
       
-      pushw %es;  /* Swap ES and DS */
-      pushw %ds;
-      popw  %es;
-      popw  %ds;
+      pushl %es;  /* Swap ES and DS */
+      pushl %ds;
+      popl  %es;
+      popl  %ds;
       
       _align_;
       masked32_mmx_x_loop:
@@ -288,8 +288,8 @@ FUNC(_linear_masked_blit32)
       _align_;
       masked32_mmx_loop_end:
 
-      pushw %ds;                  /* Swap back ES and DS */
-      popw  %es;
+      pushl %ds;                  /* Swap back ES and DS */
+      popl  %es;
     )
    
    emms
@@ -330,7 +330,7 @@ FUNC(_linear_masked_blit32)
 
    masked32_end:
 
-   popw %es
+   popl %es
 
    /* the source must be a memory bitmap, no need for
     *  movl B_SOURCE, %edx

@@ -34,12 +34,12 @@ FUNC(_linear_clear_to_color24)
    subl $12, %esp                /* 12 bytes temp space for local variables */
    pushl %edi
    pushl %ebx
-   pushw %es 
+   pushl %es 
 
    movl ARG1, %edx               /* edx = bmp */
    movl BMP_CT(%edx), %ebx       /* line to start at */
 
-   movw BMP_SEG(%edx), %es       /* select segment */
+   movl BMP_SEG(%edx), %es       /* select segment */
 
    cld
 
@@ -58,10 +58,10 @@ clear_loop:
    pushl %ecx
    movl ARG2, %eax
    movl ARG1, %edx
+   movl BMP_CL(%edx), %edi       /* xstart */
    WRITE_BANK()                  /* select bank */
-   movl BMP_CL(%edx), %ebx       /* xstart */
-   leal (%ebx, %ebx, 2), %ebx    /* xstart *= 3 */
-   leal (%eax, %ebx), %edi       /* address = lineoffset+xstart*3 */
+   leal (%edi, %edi, 2), %edi    /* xstart *= 3 */
+   addl %eax, %edi               /* address = lineoffset+xstart*3 */
    movl -8(%ebp), %eax 
    movl -7(%ebp), %ebx
    movl -6(%ebp), %edx
@@ -96,7 +96,7 @@ clear_normal_line:
    decl -12(%ebp)                /* dec loop counter */ 
    jnz clear_loop                /* and loop */
 
-   popw %es
+   popl %es
 
    movl ARG1, %edx
    UNWRITE_BANK()
@@ -120,10 +120,10 @@ FUNC(_linear_blit24)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es       /* load destination segment */
+   movl BMP_SEG(%edx), %es       /* load destination segment */
    movl B_DEST_X, %edi
    leal (%edi, %edi, 2), %edi
    movl %edi, B_DEST_X
@@ -133,23 +133,23 @@ FUNC(_linear_blit24)
    movl B_WIDTH, %ecx
    leal (%ecx, %ecx, 2), %ecx
    movl %ecx, B_WIDTH
-   movw %ds, %bx                 /* save data segment selector */
+   movl %ds, %ebx                /* save data segment selector */
    cld                           /* for forward copy */
 
    _align_
 blit_loop_blitter24:
    movl B_DEST, %edx             /* destination bitmap */
    movl B_DEST_Y, %eax           /* line number */
-   WRITE_BANK()                  /* select bank */
    movl B_DEST_X, %edi           /* x offset */
-   leal (%eax, %edi), %edi       /* edi = eax+3*edi */
+   WRITE_BANK()                  /* select bank */
+   addl %eax, %edi               /* edi = eax+3*edi */
    movl B_SOURCE, %edx           /* source bitmap */
    movl B_SOURCE_Y, %eax         /* line number */
-   READ_BANK()                   /* select bank */
    movl B_SOURCE_X, %esi         /* x offset */
-   leal (%eax, %esi), %esi       /* esi = eax+3*esi */
+   READ_BANK()                   /* select bank */
+   addl %eax, %esi               /* esi = eax+3*esi */
    movl B_WIDTH, %ecx            /* x loop counter */
-   movw BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %ds       /* load data segment */
    shrl $1, %ecx
    jnc notcarry1
    movsb
@@ -161,13 +161,13 @@ notcarry1:
    _align_
 notcarry2:
    rep ; movsl
-   movw %bx, %ds                 /* restore data segment */
+   movl %ebx, %ds                 /* restore data segment */
    incl B_SOURCE_Y
    incl B_DEST_Y
    decl B_HEIGHT
    jg blit_loop_blitter24        /* and loop */
 
-   popw %es
+   popl %es
 
    movl B_SOURCE, %edx
    UNREAD_BANK()
@@ -195,7 +195,7 @@ FUNC(_linear_blit_backward24)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_HEIGHT, %eax           /* y values go from high to low */
    decl %eax
@@ -217,23 +217,23 @@ FUNC(_linear_blit_backward24)
    movl %eax, B_WIDTH
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es       /* load destination segment */
-   movw %ds, %bx                 /* save data segment selector */
+   movl %ds, %ebx                /* save data segment selector */
+   movl BMP_SEG(%edx), %es       /* load destination segment */
 
    _align_
 blit_backwards_loop:
    movl B_DEST, %edx             /* destination bitmap */
    movl B_DEST_Y, %eax           /* line number */
-   WRITE_BANK()                  /* select bank */
    movl B_DEST_X, %edi           /* x offset */
-   leal (%eax, %edi), %edi       /* edi = eax+3*esi */
+   WRITE_BANK()                  /* select bank */
+   addl %eax, %edi               /* edi = eax+3*esi */
    movl B_SOURCE, %edx           /* source bitmap */
    movl B_SOURCE_Y, %eax         /* line number */
-   READ_BANK()                   /* select bank */
    movl B_SOURCE_X, %esi         /* x offset */
-   leal (%eax, %esi), %esi       /* esi = eax+3*esi */
+   READ_BANK()                   /* select bank */
+   addl %eax, %esi               /* esi = eax+3*esi */
    movl B_WIDTH, %ecx            /* x loop counter */
-   movw BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %ds       /* load data segment */
    std                           /* backwards */
    shrl $1, %ecx
    jnc  not_carry1
@@ -246,7 +246,7 @@ not_carry1:
    _align_
 not_carry2:
    rep ; movsl
-   movw %bx, %ds                 /* restore data segment */
+   movl %ebx, %ds                /* restore data segment */
    decl B_SOURCE_Y
    decl B_DEST_Y
    decl B_HEIGHT
@@ -254,7 +254,7 @@ not_carry2:
 
    cld                           /* finished */
 
-   popw %es
+   popl %es
 
    movl B_SOURCE, %edx
    UNREAD_BANK()
@@ -285,11 +285,11 @@ FUNC(_linear_masked_blit24)
    pushl %edi
    pushl %esi
    pushl %ebx
-   pushw %es
+   pushl %es
 
    movl B_DEST, %edx
-   movw BMP_SEG(%edx), %es 
-   movw %ds, %bx 
+   movl %ds, %ebx 
+   movl BMP_SEG(%edx), %es 
    cld 
 
    movl B_DEST_X, %eax
@@ -303,14 +303,14 @@ FUNC(_linear_masked_blit24)
 blit_loop_blitter:
    movl B_DEST, %edx             /* destination bitmap */
    movl B_DEST_Y, %eax           /* line number */
-   WRITE_BANK()                  /* select bank */
    movl B_DEST_X, %edi           /* x offset */
+   WRITE_BANK()                  /* select bank */
    addl %eax, %edi
    movl B_SOURCE,%edx
-   movw BMP_SEG(%edx), %ds       /* load data segment */
+   movl BMP_SEG(%edx), %ds       /* load data segment */
    movl B_SOURCE_Y, %eax         /* line number */
-   READ_BANK()                   /* select bank */
    movl B_SOURCE_X, %esi         /* x offset */
+   READ_BANK()                   /* select bank */
    addl %eax, %esi
    movl B_WIDTH, %ecx            /* x loop counter */
 
@@ -335,13 +335,13 @@ masked_blit_skip:
 befloop:
    loop inner
 
-   movw %bx, %ds                 /* restore data segment */
+   movl %ebx, %ds                /* restore data segment */
    incl B_SOURCE_Y
    incl B_DEST_Y
    decl B_HEIGHT
    jg blit_loop_blitter          /* and loop */
 
-   popw %es
+   popl %es
 
    /* the source must be a memory bitmap, no need for
     *  movl B_SOURCE, %edx
