@@ -108,9 +108,8 @@ static void grabbit(DATAFILE *dat, int box)
 	 drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
 	 sprintf(buf, "%d, %d", x, y);
-	 text_mode(-1);
 	 rectfill(screen, 0, SCREEN_H-8, SCREEN_W, SCREEN_H, gui_fg_color);
-	 textout(screen, font, buf, 0, SCREEN_H-8, gui_bg_color);
+	 textout_ex(screen, font, buf, 0, SCREEN_H-8, gui_bg_color, -1);
 
 	 release_screen();
 
@@ -217,9 +216,8 @@ static void grabbit(DATAFILE *dat, int box)
 	    drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 
 	    sprintf(buf, "%d, %d (%dx%d)", x, y, w, h);
-	    text_mode(-1);
 	    rectfill(screen, 0, SCREEN_H-8, SCREEN_W, SCREEN_H, gui_fg_color);
-	    textout(screen, font, buf, 0, SCREEN_H-8, gui_bg_color);
+	    textout_ex(screen, font, buf, 0, SCREEN_H-8, gui_bg_color, -1);
 
 	    release_screen();
 

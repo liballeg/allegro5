@@ -114,11 +114,9 @@ void ss_draw(void)
    vline(buf, xline, 0, buf->h, makecol(255, 0, 0));
    hline(buf, 0, yline, buf->w, makecol(0, 255, 0));
 
-   text_mode(-1);
-
-   textout_centre(buf, font, "Allegro", bouncer[0].x, bouncer[0].y, makecol(0, 128, 255));
-   textout_centre(buf, font, "Screensaver", bouncer[1].x, bouncer[1].y, makecol(255, 128, 0));
-   textout_centre(buf, font, "<insert cool effect here>", bouncer[2].x, bouncer[2].y, makecol(255, 255, 255));
+   textout_centre_ex(buf, font, "Allegro", bouncer[0].x, bouncer[0].y, makecol(0, 128, 255), -1);
+   textout_centre_ex(buf, font, "Screensaver", bouncer[1].x, bouncer[1].y, makecol(255, 128, 0), -1);
+   textout_centre_ex(buf, font, "<insert cool effect here>", bouncer[2].x, bouncer[2].y, makecol(255, 255, 255), -1);
 }
 
 

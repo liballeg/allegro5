@@ -103,7 +103,7 @@ void show_time(long t, BITMAP *bmp, int y)
 
    sprintf(buf, "%ld per second", t / TIME_SPEED);
    set_clip(bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
-   textout_centre(bmp, font, buf, SCREEN_W/2, y, palette_color[15]);
+   textout_centre_ex(bmp, font, buf, SCREEN_W/2, y, palette_color[15], palette_color[0]);
    bmp->clip = cf;
    bmp->cl = cl;
    bmp->cr = cr;
@@ -115,10 +115,10 @@ void show_time(long t, BITMAP *bmp, int y)
 
 void message(char *s)
 {
-   textout_centre(screen, font, s, SCREEN_W/2, 6, palette_color[15]);
+   textout_centre_ex(screen, font, s, SCREEN_W/2, 6, palette_color[15], palette_color[0]);
 
    if (!profile)
-      textout_centre(screen, font, "Press a key or mouse button", SCREEN_W/2, SCREEN_H-10, palette_color[15]);
+      textout_centre_ex(screen, font, "Press a key or mouse button", SCREEN_W/2, SCREEN_H-10, palette_color[15], palette_color[0]);
 }
 
 
@@ -156,8 +156,7 @@ BITMAP *make_sprite(void)
    circle(b, 16, 16, 8, palette_color[1]);
    line(b, 0, 0, 31, 31, palette_color[3]);
    line(b, 31, 0, 0, 31, palette_color[3]);
-   text_mode(-1);
-   textout(b, font, "Test", 1, 12, palette_color[15]);
+   textout_ex(b, font, "Test", 1, 12, palette_color[15], -1);
    return b;
 }
 
@@ -178,12 +177,11 @@ int check_tables(void)
    }
    else if ((!rgb_map) || (!trans_map) || (!light_map)) {
       scare_mouse();
-      text_mode(palette_color[0]);
 
       if (!rgb_map) {
 	 acquire_screen();
 	 clear_to_color(screen, palette_color[0]);
-	 textout_centre(screen, font, "Creating RGB table", SCREEN_W/2, 64, palette_color[255]);
+	 textout_centre_ex(screen, font, "Creating RGB table", SCREEN_W/2, 64, palette_color[255], palette_color[0]);
 	 rgb_map = malloc(sizeof(RGB_MAP));
 	 create_rgb_table(rgb_map, mypal, table_callback);
 	 release_screen();
@@ -192,7 +190,7 @@ int check_tables(void)
       if (!trans_map) {
 	 acquire_screen();
 	 clear_to_color(screen, palette_color[0]);
-	 textout_centre(screen, font, "Creating translucency table", SCREEN_W/2, 64, palette_color[255]);
+	 textout_centre_ex(screen, font, "Creating translucency table", SCREEN_W/2, 64, palette_color[255], palette_color[0]);
 	 trans_map = malloc(sizeof(COLOR_MAP));
 	 create_trans_table(trans_map, mypal, 96, 96, 96, table_callback);
 	 release_screen();
@@ -201,7 +199,7 @@ int check_tables(void)
       if (!light_map) {
 	 acquire_screen();
 	 clear_to_color(screen, palette_color[0]);
-	 textout_centre(screen, font, "Creating lighting table", SCREEN_W/2, 64, palette_color[255]);
+	 textout_centre_ex(screen, font, "Creating lighting table", SCREEN_W/2, 64, palette_color[255], palette_color[0]);
 	 light_map = malloc(sizeof(COLOR_MAP));
 	 create_light_table(light_map, mypal, 0, 0, 0, table_callback);
 	 release_screen();
@@ -260,8 +258,7 @@ void make_patterns(void)
 
    pattern[7] = create_bitmap(64, 8);
    clear_to_color(pattern[7], bitmap_mask_color(pattern[7]));
-   text_mode(bitmap_mask_color(pattern[7]));
-   textout(pattern[7], font, "PATTERN!", 0, 0, palette_color[255]);
+   textout_ex(pattern[7], font, "PATTERN!", 0, 0, palette_color[255], bitmap_mask_color(pattern[7]));
 }
 
 
@@ -299,7 +296,7 @@ void getpix_demo(void)
 
 	 c = getpixel(screen, ox-2, oy-2);
 	 sprintf(buf, "     %X     ", c);
-	 textout_centre(screen, font, buf, SCREEN_W/2, yoff+24, palette_color[15]);
+	 textout_centre_ex(screen, font, buf, SCREEN_W/2, yoff+24, palette_color[15], palette_color[0]);
 
 	 release_screen();
 	 unscare_mouse();
@@ -430,20 +427,16 @@ void arc_test(int xpos, int ypos)
 
 void textout_test(int xpos, int ypos)
 {
-   text_mode(palette_color[0]);
-   textout(screen, font,"This is a", xpos-8, ypos, palette_color[1]);
-   textout(screen, font,"test of the", xpos+3, ypos+10, palette_color[1]);
-   textout(screen, font,"textout", xpos+14, ypos+20, palette_color[1]);
-   textout(screen, font,"function.", xpos+25, ypos+30, palette_color[1]);
+   textout_ex(screen, font,"This is a", xpos-8, ypos, palette_color[1], palette_color[0]);
+   textout_ex(screen, font,"test of the", xpos+3, ypos+10, palette_color[1], palette_color[0]);
+   textout_ex(screen, font,"textout", xpos+14, ypos+20, palette_color[1], palette_color[0]);
+   textout_ex(screen, font,"function.", xpos+25, ypos+30, palette_color[1], palette_color[0]);
 
-   text_mode(palette_color[0]);
-   textout(screen, font,"text_mode(0)", xpos, ypos+48, palette_color[2]);
-   textout(screen, font,"text_mode(0)", xpos+4, ypos+52, palette_color[4]);
+   textout_ex(screen, font,"solid background", xpos, ypos+48, palette_color[2], palette_color[0]);
+   textout_ex(screen, font,"solid background", xpos+4, ypos+52, palette_color[4], palette_color[0]);
 
-   text_mode(-1);
-   textout(screen, font,"text_mode(-1)", xpos, ypos+68, palette_color[2]);
-   textout(screen, font,"text_mode(-1)", xpos+4, ypos+72, palette_color[4]);
-   text_mode(palette_color[0]);
+   textout_ex(screen, font,"transparent background", xpos, ypos+68, palette_color[2], -1);
+   textout_ex(screen, font,"transparent background", xpos+4, ypos+72, palette_color[4], -1);
 }
 
 
@@ -1084,13 +1077,11 @@ void textout_demo(void)
    tm = 0; _tm = 0;
    ct = 0;
 
-   text_mode(palette_color[0]);
-
    while (!next()) {
 
       x = (rand() & 127) + 40;
       y = (rand() & 127) + 40;
-      textout(screen, font, "textout test", xoff+x, yoff+y, palette_color[c]);
+      textout_ex(screen, font, "textout test", xoff+x, yoff+y, palette_color[c], palette_color[0]);
 
       if (++c >= 16)
 	 c = 0;
@@ -1374,7 +1365,7 @@ void blit_demo(void)
    b = create_bitmap(64, 32);
    if (!b) {
       clear_to_color(screen, palette_color[0]);
-      textout(screen, font, "Out of memory!", 50, 50, palette_color[15]);
+      textout_ex(screen, font, "Out of memory!", 50, 50, palette_color[15], palette_color[0]);
       destroy_bitmap(b);
       while (!next())
 	 ;
@@ -1445,11 +1436,11 @@ void misc(void)
    fixed x, y, z;
 
    clear_to_color(screen, palette_color[0]);
-   textout(screen,font,"Timing some other routines...", xoff+44, 6, palette_color[15]);
+   textout_ex(screen,font,"Timing some other routines...", xoff+44, 6, palette_color[15], palette_color[0]);
 
    p = create_bitmap(320, 200);
    if (!p)
-      textout(screen,font,"Out of memory!", 16, 50, palette_color[15]);
+      textout_ex(screen,font,"Out of memory!", 16, 50, palette_color[15], palette_color[0]);
    else {
       tm = 0; _tm = 0;
       ct = 0;
@@ -1461,7 +1452,7 @@ void misc(void)
       } while (tm < TIME_SPEED);
       destroy_bitmap(p);
       sprintf(buf,"clear_bitmap(320x200): %ld per second", ct/TIME_SPEED);
-      textout(screen, font, buf, xoff+16, yoff+50, palette_color[15]);
+      textout_ex(screen, font, buf, xoff+16, yoff+50, palette_color[15], palette_color[0]);
    }
 
    x = y = 0;
@@ -1478,7 +1469,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixmul(): %ld per second", ct/TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+60, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+60, palette_color[15], palette_color[0]);
 
    x = y = 0;
    tm = 0; _tm = 0;
@@ -1496,7 +1487,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixdiv(): %ld per second", ct/TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+70, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+70, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1511,7 +1502,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixsqrt(): %ld per second", ct/TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+80, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+80, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1526,7 +1517,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixsin(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+90, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+90, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1541,7 +1532,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixcos(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+100, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+100, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1556,7 +1547,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixtan(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+110, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+110, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1572,7 +1563,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixasin(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+120, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+120, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1588,7 +1579,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf,"fixacos(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+130, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+130, palette_color[15], palette_color[0]);
 
    x = 1;
    tm = 0; _tm = 0;
@@ -1603,7 +1594,7 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixatan(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+140, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+140, palette_color[15], palette_color[0]);
 
    x = 1, y = 2;
    tm = 0; _tm = 0;
@@ -1619,9 +1610,9 @@ void misc(void)
    } while (tm < TIME_SPEED);
 
    sprintf(buf, "fixatan2(): %ld per second", ct / TIME_SPEED);
-   textout(screen, font, buf, xoff+16, yoff+150, palette_color[15]);
+   textout_ex(screen, font, buf, xoff+16, yoff+150, palette_color[15], palette_color[0]);
 
-   textout(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15]);
+   textout_ex(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15], palette_color[0]);
 
    while (!next())
       ;
@@ -1640,7 +1631,7 @@ void rainbow(void)
 
    clear_to_color(screen, palette_color[0]);
    sprintf(buf, "%d bit color...", bitmap_color_depth(screen));
-   textout_centre(screen, font, buf, SCREEN_W/2, 6, palette_color[15]);
+   textout_centre_ex(screen, font, buf, SCREEN_W/2, 6, palette_color[15], palette_color[0]);
 
    for (h=0; h<360; h+=0.25) {
       for (c=0; c<1; c+=0.005) {
@@ -1655,7 +1646,7 @@ void rainbow(void)
       }
    }
 
-   textout(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15]);
+   textout_ex(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15], palette_color[0]);
 
    release_screen();
 
@@ -1699,14 +1690,14 @@ void caps(void)
    acquire_screen();
 
    clear_to_color(screen, palette_color[0]);
-   textout(screen,font,"Hardware accelerated features", xoff+44, 6, palette_color[15]);
+   textout_ex(screen,font,"Hardware accelerated features", xoff+44, 6, palette_color[15], palette_color[0]);
 
    for (c=3; s[c]; c++) {
-      textout(screen, font, s[c], SCREEN_W/2+64-text_length(font, s[c]), SCREEN_H/2-184+c*16, palette_color[15]);
-      textout(screen, font, (gfx_capabilities & (1<<c)) ? "yes" : "no", SCREEN_W/2+80, SCREEN_H/2-184+c*16, palette_color[15]);
+      textout_ex(screen, font, s[c], SCREEN_W/2+64-text_length(font, s[c]), SCREEN_H/2-184+c*16, palette_color[15], palette_color[0]);
+      textout_ex(screen, font, (gfx_capabilities & (1<<c)) ? "yes" : "no", SCREEN_W/2+80, SCREEN_H/2-184+c*16, palette_color[15], palette_color[0]);
    }
 
-   textout(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15]);
+   textout_ex(screen, font, "Press a key or mouse button", xoff+52, SCREEN_H-10, palette_color[15], palette_color[0]);
 
    release_screen();
 
@@ -1721,10 +1712,9 @@ int mouse_proc(void)
    int mickey_x, mickey_y;
 
    show_mouse(NULL);
-   text_mode(palette_color[0]);
    clear_to_color(screen, palette_color[0]);
-   textout_centre(screen, font, "Mouse test", SCREEN_W/2, 6, palette_color[15]);
-   textout_centre(screen, font, "Press a key", SCREEN_W/2, SCREEN_H-10, palette_color[15]);
+   textout_centre_ex(screen, font, "Mouse test", SCREEN_W/2, 6, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Press a key", SCREEN_W/2, SCREEN_H-10, palette_color[15], palette_color[0]);
 
    do {
       rest(50);
@@ -1735,15 +1725,15 @@ int mouse_proc(void)
          strcat(buf,"moving");
       else
          strcat(buf,"      ");
-      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 - 30, palette_color[15]);
+      textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2 - 30, palette_color[15], palette_color[0]);
       sprintf(buf, "Y axis:   pos=%-4d   ", mouse_y);
       if (mickey_y)
          strcat(buf,"moving");
       else
          strcat(buf,"      ");
-      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 - 10, palette_color[15]);
+      textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2 - 10, palette_color[15], palette_color[0]);
       sprintf(buf, "Z axis:   pos=%-4d         ", mouse_z);
-      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 + 10, palette_color[15]);
+      textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2 + 10, palette_color[15], palette_color[0]);
       sprintf(buf, "Buttons:    ");
       if (mouse_b & 1)
          strcat(buf,"left");
@@ -1757,7 +1747,7 @@ int mouse_proc(void)
          strcat(buf,"right"); 
       else
          strcat(buf,"     ");
-      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2 + 30, palette_color[15]);
+      textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2 + 30, palette_color[15], palette_color[0]);
    } while (!keypressed());
 
    clear_keybuf();
@@ -1772,10 +1762,9 @@ int keyboard_proc(void)
    int k, c;
 
    show_mouse(NULL);
-   text_mode(palette_color[0]);
    clear_to_color(screen, palette_color[0]);
-   textout_centre(screen, font, "Keyboard test", SCREEN_W/2, 6, palette_color[15]);
-   textout_centre(screen, font, "Press a mouse button", SCREEN_W/2, SCREEN_H-10, palette_color[15]);
+   textout_centre_ex(screen, font, "Keyboard test", SCREEN_W/2, 6, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Press a mouse button", SCREEN_W/2, SCREEN_H-10, palette_color[15], palette_color[0]);
 
    do {
       if (keypressed()) {
@@ -1783,7 +1772,7 @@ int keyboard_proc(void)
 	 k = readkey();
 	 c = k & 0xFF;
 	 usprintf(buf,"0x%04X - '%c'", k, c);
-	 textout_centre(screen, font, buf, SCREEN_W/2, yoff+152, palette_color[15]);
+	 textout_centre_ex(screen, font, buf, SCREEN_W/2, yoff+152, palette_color[15], palette_color[0]);
       }
       poll_mouse();
    } while (!mouse_b);
@@ -1839,9 +1828,9 @@ void interrupt_test(void)
    clear_to_color(screen, palette_color[0]);
    message("Timer interrupt test");
 
-   textout(screen,font,"1/4", xoff+108, yoff+78, palette_color[15]);
-   textout(screen,font,"1", xoff+156, yoff+78, palette_color[15]);
-   textout(screen,font,"5", xoff+196, yoff+78, palette_color[15]);
+   textout_ex(screen,font,"1/4", xoff+108, yoff+78, palette_color[15], palette_color[0]);
+   textout_ex(screen,font,"1", xoff+156, yoff+78, palette_color[15], palette_color[0]);
+   textout_ex(screen,font,"5", xoff+196, yoff+78, palette_color[15], palette_color[0]);
 
    LOCK_VARIABLE(int_c1);
    LOCK_VARIABLE(int_c2);
@@ -1905,9 +1894,8 @@ void retrace_test(void)
       return;
    }
 
-   text_mode(palette_color[0]);
    message("Vertical retrace interrupt test");
-   textout_centre(screen, font, "Without retrace synchronisation", SCREEN_W/2, SCREEN_H/2-32, palette_color[15]);
+   textout_centre_ex(screen, font, "Without retrace synchronisation", SCREEN_W/2, SCREEN_H/2-32, palette_color[15], palette_color[0]);
 
    LOCK_VARIABLE(int_c1);
    LOCK_VARIABLE(fade_color);
@@ -1925,11 +1913,11 @@ void retrace_test(void)
 	 x2 = retrace_count - x;
 	 x = retrace_count;
 	 sprintf(buf, "%d retraces per second", MID(0, x2, 99));
-	 textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15]);
+	 textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15], palette_color[0]);
       }
    }
 
-   textout_centre(screen, font, "  With retrace synchronisation  ", SCREEN_W/2, SCREEN_H/2-32, palette_color[15]);
+   textout_centre_ex(screen, font, "  With retrace synchronisation  ", SCREEN_W/2, SCREEN_H/2-32, palette_color[15], palette_color[0]);
    timer_simulate_retrace(TRUE);
    retrace_proc = fade;
 
@@ -1939,7 +1927,7 @@ void retrace_test(void)
 	 x2 = retrace_count - x;
 	 x = retrace_count;
 	 sprintf(buf, "%d retraces per second", x2);
-	 textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15]);
+	 textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H/2, palette_color[15], palette_color[0]);
       }
    }
 
@@ -2025,8 +2013,7 @@ void stretch_test(void)
    circle(b, 16, 16, 8, palette_color[1]);
    line(b, 0, 0, 31, 31, palette_color[3]);
    line(b, 31, 0, 0, 31, palette_color[3]);
-   text_mode(-1);
-   textout(b, font, "Test", 1, 12, palette_color[15]);
+   textout_ex(b, font, "Test", 1, 12, palette_color[15], -1);
 
    while (!next()) {
       stretch_blit(b, screen, 0, 0, 32, 32, SCREEN_W/2-c, SCREEN_H/2-(256-c), c*2, (256-c)*2);
@@ -2064,37 +2051,36 @@ void hscroll_test(void)
    set_clip(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1);
    clear_to_color(screen, palette_color[0]);
    rect(screen, 0, 0, VIRTUAL_W-1, VIRTUAL_H-1, palette_color[15]);
-   text_mode(-1);
 
    for (x=1; x<16; x++) {
       vline(screen, VIRTUAL_W*x/16, 1, VIRTUAL_H-2, palette_color[x]);
       hline(screen, 1, VIRTUAL_H*x/16, VIRTUAL_W-2, palette_color[x]);
       sprintf(buf, "%x", x);
-      textout(screen, font, buf, 2, VIRTUAL_H*x/16-4, palette_color[15]);
-      textout(screen, font, buf, VIRTUAL_W-9, VIRTUAL_H*x/16-4, palette_color[15]);
-      textout(screen, font, buf, VIRTUAL_W*x/16-4, 2, palette_color[15]);
-      textout(screen, font, buf, VIRTUAL_W*x/16-4, VIRTUAL_H-9, palette_color[15]);
+      textout_ex(screen, font, buf, 2, VIRTUAL_H*x/16-4, palette_color[15], -1);
+      textout_ex(screen, font, buf, VIRTUAL_W-9, VIRTUAL_H*x/16-4, palette_color[15], -1);
+      textout_ex(screen, font, buf, VIRTUAL_W*x/16-4, 2, palette_color[15], -1);
+      textout_ex(screen, font, buf, VIRTUAL_W*x/16-4, VIRTUAL_H-9, palette_color[15], -1);
    }
 
    sprintf(buf, "Graphics driver: %s", gfx_driver->name);
-   textout(screen, font, buf, 32, 32, palette_color[15]);
+   textout_ex(screen, font, buf, 32, 32, palette_color[15], -1);
 
    sprintf(buf, "Description: %s", gfx_driver->desc);
-   textout(screen, font, buf, 32, 48, palette_color[15]);
+   textout_ex(screen, font, buf, 32, 48, palette_color[15], -1);
 
    sprintf(buf, "Specs: %s", gfx_specs);
-   textout(screen, font, buf, 32, 64, palette_color[15]);
+   textout_ex(screen, font, buf, 32, 64, palette_color[15], -1);
 
    sprintf(buf, "Color depth: %s", gfx_specs2);
-   textout(screen, font, buf, 32, 80, palette_color[15]);
+   textout_ex(screen, font, buf, 32, 80, palette_color[15], -1);
 
-   textout(screen, font, gfx_specs3, 32, 96, palette_color[15]);
+   textout_ex(screen, font, gfx_specs3, 32, 96, palette_color[15], -1);
 
    if (gfx_driver->scroll == NULL)
-      textout(screen, font, "Hardware scrolling not supported", 32, 112, palette_color[15]);
+      textout_ex(screen, font, "Hardware scrolling not supported", 32, 112, palette_color[15], -1);
  #ifdef GFX_MODEX
    else if (gfx_driver->id == GFX_MODEX)
-      textout(screen, font, "PGUP/PGDN to adjust the split screen", 32, 112, palette_color[15]);
+      textout_ex(screen, font, "PGUP/PGDN to adjust the split screen", 32, 112, palette_color[15], -1);
  #endif
 
    x = y = 0;
@@ -2175,9 +2161,9 @@ void test_it(char *msg, void (*func)(int, int))
       clear_to_color(screen, palette_color[0]); 
       message(msg);
 
-      textout_centre(screen, font, "(arrow keys to slide)", SCREEN_W/2, 28, palette_color[15]);
-      textout(screen, font, "unclipped:", xoff+48, yoff+50, palette_color[15]);
-      textout(screen, font, "clipped:", xoff+180, yoff+62, palette_color[15]);
+      textout_centre_ex(screen, font, "(arrow keys to slide)", SCREEN_W/2, 28, palette_color[15], palette_color[0]);
+      textout_ex(screen, font, "unclipped:", xoff+48, yoff+50, palette_color[15], palette_color[0]);
+      textout_ex(screen, font, "clipped:", xoff+180, yoff+62, palette_color[15], palette_color[0]);
       rect(screen, xoff+191, yoff+83, xoff+240, yoff+114, palette_color[15]);
 
       drawing_mode(mode, pattern[pat], 0, 0);
@@ -2275,14 +2261,13 @@ int floodfill_proc(void)
    int c;
 
    scare_mouse();
-   text_mode(palette_color[0]);
 
    clear_to_color(screen, palette_color[0]);
 
-   textout_centre(screen, font, "floodfill test", SCREEN_W/2, 6, palette_color[15]);
-   textout_centre(screen, font, "Press a mouse button to draw,", SCREEN_W/2, 64, palette_color[15]);
-   textout_centre(screen, font, "a key 0-9 to floodfill,", SCREEN_W/2, 80, palette_color[15]);
-   textout_centre(screen, font, "and ESC to finish", SCREEN_W/2, 96, palette_color[15]);
+   textout_centre_ex(screen, font, "floodfill test", SCREEN_W/2, 6, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Press a mouse button to draw,", SCREEN_W/2, 64, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "a key 0-9 to floodfill,", SCREEN_W/2, 80, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "and ESC to finish", SCREEN_W/2, 96, palette_color[15], palette_color[0]);
 
    unscare_mouse();
 
@@ -2365,13 +2350,11 @@ int spline_proc(void)
    scare_mouse();
    acquire_screen();
 
-   text_mode(palette_color[0]);
-
    clear_to_color(screen, palette_color[0]);
 
-   textout_centre(screen, font, "spline test", SCREEN_W/2, 6, palette_color[15]);
-   textout_centre(screen, font, "Drag boxes to change guide points,", SCREEN_W/2, 64, palette_color[15]);
-   textout_centre(screen, font, "and press ESC to finish", SCREEN_W/2, 80, palette_color[15]);
+   textout_centre_ex(screen, font, "spline test", SCREEN_W/2, 6, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Drag boxes to change guide points,", SCREEN_W/2, 64, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "and press ESC to finish", SCREEN_W/2, 80, palette_color[15], palette_color[0]);
 
    for (c=0; c<4; c++) {
       points[c*2] = SCREEN_W/2 + c*64 - 96;
@@ -2450,14 +2433,13 @@ int polygon_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
 
    clear_to_color(screen, palette_color[0]);
 
-   textout_centre(screen, font, "polygon test", SCREEN_W/2, 6, palette_color[15]);
-   textout_centre(screen, font, "Press left mouse button to add a", SCREEN_W/2, 64, palette_color[15]);
-   textout_centre(screen, font, "point, right mouse button to draw,", SCREEN_W/2, 80, palette_color[15]);
-   textout_centre(screen, font, "and ESC to finish", SCREEN_W/2, 96, palette_color[15]);
+   textout_centre_ex(screen, font, "polygon test", SCREEN_W/2, 6, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Press left mouse button to add a", SCREEN_W/2, 64, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "point, right mouse button to draw,", SCREEN_W/2, 80, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "and ESC to finish", SCREEN_W/2, 96, palette_color[15], palette_color[0]);
 
    unscare_mouse();
 
@@ -2520,7 +2502,6 @@ int putpixel_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("putpixel test", putpix_test);
    do_it("timing putpixel", FALSE, putpix_demo);
    do_it("timing putpixel [clipped]", TRUE, putpix_demo);
@@ -2532,7 +2513,6 @@ int putpixel_proc(void)
 
 int getpixel_proc(void)
 {
-   text_mode(palette_color[0]);
    getpix_demo();
    return D_REDRAW;
 }
@@ -2544,7 +2524,6 @@ int hline_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("hline test", hline_test);
    do_it("timing hline", FALSE, hline_demo);
    do_it("timing hline [clipped]", TRUE, hline_demo);
@@ -2559,7 +2538,6 @@ int vline_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("vline test", vline_test);
    do_it("timing vline", FALSE, vline_demo);
    do_it("timing vline [clipped]", TRUE, vline_demo);
@@ -2574,7 +2552,6 @@ int line_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("line test", line_test);
    do_it("timing line", FALSE, line_demo);
    do_it("timing line [clipped]", TRUE, line_demo);
@@ -2589,7 +2566,6 @@ int rectfill_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("rectfill test", rectfill_test);
    do_it("timing rectfill", FALSE, rectfill_demo);
    do_it("timing rectfill [clipped]", TRUE, rectfill_demo);
@@ -2604,7 +2580,6 @@ int triangle_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("triangle test", triangle_test);
    do_it("timing triangle", FALSE, triangle_demo);
    do_it("timing triangle [clipped]", TRUE, triangle_demo);
@@ -2619,7 +2594,6 @@ int triangle3d_proc(void)
    check_tables();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    type3d = POLYTYPE_FLAT;
    do_it("timing triangle 3D [flat]", FALSE, triangle3d_demo);
    type3d = POLYTYPE_GCOL;
@@ -2653,7 +2627,6 @@ int circle_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("circle test", circle_test);
    do_it("timing circle", FALSE, circle_demo);
    do_it("timing circle [clipped]", TRUE, circle_demo);
@@ -2668,7 +2641,6 @@ int circlefill_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("circlefill test", circlefill_test);
    do_it("timing circlefill", FALSE, circlefill_demo);
    do_it("timing circlefill [clipped]", TRUE, circlefill_demo);
@@ -2683,7 +2655,6 @@ int ellipse_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("ellipse test", ellipse_test);
    do_it("timing ellipse", FALSE, ellipse_demo);
    do_it("timing ellipse [clipped]", TRUE, ellipse_demo);
@@ -2698,7 +2669,6 @@ int ellipsefill_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("ellipsefill test", ellipsefill_test);
    do_it("timing ellipsefill", FALSE, ellipsefill_demo);
    do_it("timing ellipsefill [clipped]", TRUE, ellipsefill_demo);
@@ -2713,7 +2683,6 @@ int arc_proc(void)
    CHECK_TRANS_BLENDER();
 
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("arc test", arc_test);
    do_it("timing arc", FALSE, arc_demo);
    do_it("timing arc [clipped]", TRUE, arc_demo);
@@ -2726,7 +2695,6 @@ int arc_proc(void)
 int textout_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("textout test", textout_test);
    do_it("timing textout", FALSE, textout_demo);
    do_it("timing textout [clipped]", TRUE, textout_demo);
@@ -2741,11 +2709,10 @@ int blit_proc(void)
    int c;
 
    scare_mouse();
-   text_mode(palette_color[0]);
    acquire_screen();
    set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
    clear_to_color(screen, palette_color[0]);
-   textout_centre(screen, font, "Testing overlapping blits", SCREEN_W/2, 6, 15);
+   textout_centre_ex(screen, font, "Testing overlapping blits", SCREEN_W/2, 6, 15, palette_color[0]);
 
    for (c=0; c<30; c++)
       circle(screen, xoff+160, yoff+100, c, palette_color[c]);
@@ -2811,7 +2778,6 @@ int blit_proc(void)
 int sprite_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
 
    test_it("sprite test", sprite_test);
    do_it("timing draw_sprite", FALSE, sprite_demo);
@@ -2839,7 +2805,6 @@ int xlu_sprite_proc(void)
    check_tables();
 
    scare_mouse();
-   text_mode(palette_color[0]);
 
    test_it("translucent sprite test", xlu_sprite_test);
    do_it("timing draw_trans_sprite", FALSE, xlu_sprite_demo);
@@ -2861,7 +2826,6 @@ int lit_sprite_proc(void)
    color_map = light_map;
 
    scare_mouse();
-   text_mode(palette_color[0]);
 
    test_it("tinted sprite test", lit_sprite_test);
    do_it("timing draw_lit_sprite", FALSE, lit_sprite_demo);
@@ -2881,7 +2845,6 @@ int lit_sprite_proc(void)
 int rotate_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    test_it("Flipped sprite test", flipped_sprite_test);
    rotate_test();
    unscare_mouse();
@@ -3006,13 +2969,12 @@ int polygon3d_proc(void)
    scare_mouse();
    acquire_screen();
    clear_to_color(screen, palette_color[0]);
-   text_mode(palette_color[0]);
 
-   textout_centre(screen, font, "3d polygon test", SCREEN_W/2, 6, palette_color[15]);
-   textout_centre(screen, font, "Use the arrow keys to rotate the", SCREEN_W/2, 64, palette_color[15]);
-   textout_centre(screen, font, "cube, + and - to zoom, space to", SCREEN_W/2, 80, palette_color[15]);
-   textout_centre(screen, font, "change drawing mode, enter to tile", SCREEN_W/2, 96, palette_color[15]);
-   textout_centre(screen, font, "the texture, and ESC to finish", SCREEN_W/2, 112, palette_color[15]);
+   textout_centre_ex(screen, font, "3d polygon test", SCREEN_W/2, 6, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "Use the arrow keys to rotate the", SCREEN_W/2, 64, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "cube, + and - to zoom, space to", SCREEN_W/2, 80, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "change drawing mode, enter to tile", SCREEN_W/2, 96, palette_color[15], palette_color[0]);
+   textout_centre_ex(screen, font, "the texture, and ESC to finish", SCREEN_W/2, 112, palette_color[15], palette_color[0]);
 
    release_screen();
 
@@ -3029,7 +2991,7 @@ int polygon3d_proc(void)
    for (;;) {
       if (redraw_mode) {
 	 rectfill(screen, 0, 24, SCREEN_W, 32, palette_color[0]);
-	 textout_centre(screen, font, mode_desc[mode], SCREEN_W/2, 24, palette_color[255]);
+	 textout_centre_ex(screen, font, mode_desc[mode], SCREEN_W/2, 24, palette_color[255], palette_color[0]);
 	 redraw_mode = FALSE;
       }
 
@@ -3641,7 +3603,6 @@ int p3d_profile_proc(void)
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
    show_mouse(NULL);
-   text_mode(palette_color[0]);
 
    cpu_capabilities &= ~CPU_MMX;
 
@@ -3655,8 +3616,8 @@ int p3d_profile_proc(void)
    }
 
    clear_to_color(screen, palette_color[0]);
-   textout_centre(screen, font, "Profiling 3D memory rendering", SCREEN_W/2, SCREEN_H/2-16, palette_color[255]);
-   textout_centre(screen, font, "This will take a few minutes...", SCREEN_W/2, SCREEN_H/2+8, palette_color[255]);
+   textout_centre_ex(screen, font, "Profiling 3D memory rendering", SCREEN_W/2, SCREEN_H/2-16, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "This will take a few minutes...", SCREEN_W/2, SCREEN_H/2+8, palette_color[255], palette_color[0]);
 
    screen = buffer;
    cpu_capabilities &= ~CPU_MMX;
@@ -3751,7 +3712,6 @@ int p3d_profile_proc(void)
 int profile_proc(void)
 {
    show_mouse(NULL);
-   text_mode(palette_color[0]);
    do_profile(NULL);
    show_mouse(screen);
    return D_REDRAW;
@@ -3765,14 +3725,13 @@ int mem_profile_proc(void)
    BITMAP *buffer = create_bitmap(SCREEN_W, SCREEN_H);
 
    show_mouse(NULL);
-   text_mode(palette_color[0]);
    clear_to_color(screen, palette_color[0]);
 
-   textout_centre(screen, font, "Profiling memory bitmap routines", SCREEN_W/2, SCREEN_H/2-32, palette_color[255]);
-   textout_centre(screen, font, "This will take a few minutes, so you", SCREEN_W/2, SCREEN_H/2-8, palette_color[255]);
-   textout_centre(screen, font, "may wish to go make a cup of coffee,", SCREEN_W/2, SCREEN_H/2+4, palette_color[255]);
-   textout_centre(screen, font, "watch some TV, read a book, or think", SCREEN_W/2, SCREEN_H/2+16, palette_color[255]);
-   textout_centre(screen, font, "of something interesting to do.", SCREEN_W/2, SCREEN_H/2+28, palette_color[255]);
+   textout_centre_ex(screen, font, "Profiling memory bitmap routines", SCREEN_W/2, SCREEN_H/2-32, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "This will take a few minutes, so you", SCREEN_W/2, SCREEN_H/2-8, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "may wish to go make a cup of coffee,", SCREEN_W/2, SCREEN_H/2+4, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "watch some TV, read a book, or think", SCREEN_W/2, SCREEN_H/2+16, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "of something interesting to do.", SCREEN_W/2, SCREEN_H/2+28, palette_color[255], palette_color[0]);
 
    screen = buffer;
 
@@ -3791,7 +3750,6 @@ int mem_profile_proc(void)
 int stretch_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    stretch_test();
    unscare_mouse();
    return D_REDRAW;
@@ -3802,7 +3760,6 @@ int stretch_proc(void)
 int hscroll_proc(void)
 {
    show_mouse(NULL);
-   text_mode(palette_color[0]);
    hscroll_test();
    show_mouse(screen);
    return D_REDRAW;
@@ -3813,7 +3770,6 @@ int hscroll_proc(void)
 int misc_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    misc();
    unscare_mouse();
    return D_REDRAW;
@@ -3824,7 +3780,6 @@ int misc_proc(void)
 int rainbow_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    rainbow();
    unscare_mouse();
    return D_REDRAW;
@@ -3835,7 +3790,6 @@ int rainbow_proc(void)
 int caps_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    caps();
    unscare_mouse();
    return D_REDRAW;
@@ -3846,7 +3800,6 @@ int caps_proc(void)
 int interrupts_proc(void)
 {
    scare_mouse();
-   text_mode(palette_color[0]);
    interrupt_test();
    unscare_mouse();
    return D_REDRAW;
@@ -3857,7 +3810,6 @@ int interrupts_proc(void)
 int vsync_proc(void)
 {
    show_mouse(NULL);
-   text_mode(palette_color[0]);
    retrace_test();
    show_mouse(screen);
    return D_REDRAW;

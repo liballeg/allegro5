@@ -40,7 +40,7 @@ static void *makenew_fli(long *size)
 /* displays a FLIC object in the grabber object view window */
 static void plot_fli(AL_CONST DATAFILE *dat, int x, int y)
 {
-   textout(screen, font, "Double-click in the item list to play it", x, y+32, gui_fg_color);
+   textout_ex(screen, font, "Double-click in the item list to play it", x, y+32, gui_fg_color, gui_bg_color);
 }
 
 

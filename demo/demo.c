@@ -585,7 +585,7 @@ void draw_screen(void)
    else
       sprintf(score_buf, "Score: %ld", (long)score);
 
-   textout(bmp, font, score_buf, 0, 0, 7);
+   textout_ex(bmp, font, score_buf, 0, 0, 7, 0);
 
    if (animation_type == DIRTY_RECTANGLE)
       add_to_list(&dirty, 0, 0, text_length(font, score_buf), 8);
@@ -765,7 +765,6 @@ void play_game(void)
 
    skip:
 
-   text_mode(0);
    clear_bitmap(screen);
    clear_bitmap(s);
    draw_screen();
@@ -847,8 +846,8 @@ void play_game(void)
    b = create_bitmap(160, 160);
    b2 = create_bitmap(160, 160);
    clear_bitmap(b);
-   textout_centre(b, data[END_FONT].dat, "GAME OVER", 80, 50, 2);
-   textout_centre(b, data[END_FONT].dat, score_buf, 80, 82, 2);
+   textout_centre_ex(b, data[END_FONT].dat, "GAME OVER", 80, 50, 2, 0);
+   textout_centre_ex(b, data[END_FONT].dat, score_buf, 80, 82, 2, 0);
    clear_keybuf();
    scroll_count = -160;
    c = 0;
@@ -1073,13 +1072,12 @@ int anim_desc_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_DRAW) {
       rectfill(screen, d->x, d->y, d->x+d->w, d->y+d->h, d->bg);
-      text_mode(d->bg);
 
       p = descs[anim_type_dlg[2].d1];
       y = d->y;
 
       while (*p) {
-	 textout(screen, font, *p, d->x, y, d->fg);
+	 textout_ex(screen, font, *p, d->x, y, d->fg, d->bg);
 	 y += 8;
 	 p++;
       } 
@@ -1384,7 +1382,7 @@ void parse_source(AL_CONST char *filename, int attrib, int param)
 	 if (!f)
 	    return;
 
-	 textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/2+8, makecol(160, 160, 160), "                %s                ", filename+param);
+	 textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/2+8, makecol(160, 160, 160), 0, "                %s                ", filename+param);
 
 	 while (pack_fgets(buf, sizeof(buf)-1, f) != 0) {
 	    if (strstr(buf, "*/"))
@@ -1801,7 +1799,7 @@ int title_screen(void)
 
       while (text_scroll > 0) {
 	 text_pix += text_scroll;
-	 textout(text_bmp, data[TITLE_FONT].dat, buf, SCREEN_W-text_pix, 0, -1);
+	 textout_ex(text_bmp, data[TITLE_FONT].dat, buf, SCREEN_W-text_pix, 0, -1, 0);
 	 if (text_pix >= text_width) {
 	    text_scroll = text_pix - text_width;
 	    text_char++;
@@ -1867,7 +1865,7 @@ int title_screen(void)
 	       c2 = strlen(tl->text);
 	       ix -= c2*4;
 
-	       textout(buffer, font, tl->text, ix, iy, c);
+	       textout_ex(buffer, font, tl->text, ix, iy, c, 0);
 	       add_to_list(&dirty, ix, iy, c2*8, 8);
 	    }
 
@@ -1912,7 +1910,7 @@ int title_screen(void)
 
 		  if ((c2 > 128) && (c2 <= 255)) {
 		     cbuf[0] = *p;
-		     textout(buffer, font, cbuf, c, 16, c2);
+		     textout_ex(buffer, font, cbuf, c, 16, c2, 0);
 		  }
 
 		  p++;
@@ -1929,7 +1927,7 @@ int title_screen(void)
 	 if (credit_scroll < 150)
 	    c += (150-credit_scroll) * (150-credit_scroll) * SCREEN_W / 22500;
 
-	 textprintf(buffer, data[TITLE_FONT].dat, c, 4, -1, "%s:", cred->name);
+	 textprintf_ex(buffer, data[TITLE_FONT].dat, c, 4, -1, 0, "%s:", cred->name);
 	 add_to_list(&dirty, 0, 4, SCREEN_W, text_height(data[TITLE_FONT].dat));
       }
 
@@ -2187,9 +2185,8 @@ int main(int argc, char *argv[])
 
    stop_sample(data[INTRO_SPL].dat);
 
-   text_mode(0);
    clear_bitmap(screen);
-   textout_centre(screen, font, "Scanning for author credits...", SCREEN_W/2, SCREEN_H/2-16, makecol(160, 160, 160));
+   textout_centre_ex(screen, font, "Scanning for author credits...", SCREEN_W/2, SCREEN_H/2-16, makecol(160, 160, 160), 0);
 
    if (SCREEN_W >= 640)
       load_credits();

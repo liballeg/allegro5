@@ -16,7 +16,6 @@ General (Platform independant) todos:
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
 - remove joystick control from main part of setup
-- convert the tests and tools to use the new text API
 
 DOS todos:
 ---------------------------------------------------------------------------

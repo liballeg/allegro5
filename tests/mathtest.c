@@ -132,8 +132,7 @@ int right_text_proc(int msg, DIALOG *d, int c)
 
    if (msg == MSG_DRAW) {
       len = strlen(d->dp);
-      text_mode(d->bg);
-      textout(screen, font, d->dp, d->x+d->w-len*8, d->y, d->fg);
+      textout_ex(screen, font, d->dp, d->x+d->w-len*8, d->y, d->fg, d->bg);
       rectfill(screen, d->x, d->y, d->x+d->w-len*8-1, d->y+d->h, d->bg); 
    }
 
@@ -405,7 +404,7 @@ int main(void)
       return 1;
    }
 
-   textout(screen, font, "Angles are binary, 0-255", 0, 0, palette_color[8]);
+   textout_ex(screen, font, "Angles are binary, 0-255", 0, 0, palette_color[8], 0);
    reset_calc();
    strcpy(calc_str, "0");
    errno = 0;

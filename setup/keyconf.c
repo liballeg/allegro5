@@ -426,16 +426,15 @@ int ascii_proc(int msg, DIALOG *d, int c)
 
       rectfill(screen, d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, bg);
       rect(screen, d->x, d->y, d->x+d->w, d->y+d->h, fg);
-      text_mode(-1);
 
-      textprintf(screen, font, d->x+4, d->y+4, mg, "%02X", d->d1);
+      textprintf_ex(screen, font, d->x+4, d->y+4, mg, -1, "%02X", d->d1);
 
       k = (codepage << 8) | d->d1;
 
       if (k >= ' ')
-	 textprintf_centre(screen, font, d->x+d->w-8, d->y+4, fg, "%c", k);
+	 textprintf_centre_ex(screen, font, d->x+d->w-8, d->y+4, fg, -1, "%c", k);
       else
-	 textprintf_centre(screen, font, d->x+d->w-8, d->y+4, fg, "%s", ascii_name[k]);
+	 textprintf_centre_ex(screen, font, d->x+d->w-8, d->y+4, fg, -1, "%s", ascii_name[k]);
 
       return D_O_K;
    }
@@ -466,9 +465,8 @@ int codepage_proc(int msg, DIALOG *d, int c)
 
       rectfill(screen, d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, bg);
       rect(screen, d->x, d->y, d->x+d->w, d->y+d->h, 255);
-      text_mode(-1);
 
-      textprintf_centre(screen, font, d->x+d->w/2, d->y+4, fg, "%04X", d->d1<<8);
+      textprintf_centre_ex(screen, font, d->x+d->w/2, d->y+4, fg, -1, "%04X", d->d1<<8);
 
       return D_O_K;
    }
@@ -773,10 +771,8 @@ int tester()
    acquire_screen();
    clear_to_color(screen, palette_color[8]);
 
-   text_mode(palette_color[8]);
-
    for (i=0; i<=KEY_MAX; i++)
-      textout(screen, font, scancode_name[i], 32+(i%4)*160, 88+(i/4)*14, palette_color[255]);
+      textout_ex(screen, font, scancode_name[i], 32+(i%4)*160, 88+(i/4)*14, palette_color[255], palette_color[8]);
 
    release_screen();
 
@@ -792,7 +788,7 @@ int tester()
       acquire_screen();
 
       for (i=0; i<KEY_MAX; i++)
-	 textout(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 88+(i/4)*14, palette_color[255]);
+	 textout_ex(screen, font, key[i] ? "*" : " ", 16+(i%4)*160, 88+(i/4)*14, palette_color[255], palette_color[8]);
 
       buf[0] = 0;
 
@@ -841,7 +837,7 @@ int tester()
       while (strlen(buf) < 128)
 	 strcat(buf, " ");
 
-      textout(screen, font, buf, 0, 0, palette_color[255]);
+      textout_ex(screen, font, buf, 0, 0, palette_color[255], palette_color[8]);
 
       release_screen();
 
@@ -849,7 +845,7 @@ int tester()
 	 a = ureadkey(&i);
 	 if (!a)
 	    a = ' ';
-	 textprintf(screen, font, 32, 48, palette_color[255], "ureadkey() returns scancode 0x%02X, U+0x%04X, '%c'", i, a, a);
+	 textprintf_ex(screen, font, 32, 48, palette_color[255], palette_color[8], "ureadkey() returns scancode 0x%02X, U+0x%04X, '%c'", i, a, a);
       }
 
    } while ((!key[KEY_ESC]) && (!mouse_b));

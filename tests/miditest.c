@@ -452,7 +452,7 @@ int main()
 
    #ifdef MIDI_DIGMID
       if (midi_driver->id == MIDI_DIGMID)
-	 textout_centre(screen, font, "Loading patch set...", SCREEN_W/2, SCREEN_H/2, 255);
+	 textout_centre_ex(screen, font, "Loading patch set...", SCREEN_W/2, SCREEN_H/2, 255, 0);
    #endif
 
    load_midi_patches();

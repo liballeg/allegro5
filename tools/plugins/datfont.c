@@ -80,8 +80,6 @@ static void plot_font(AL_CONST DATAFILE *dat, int x, int y)
 
     y += 32;
 
-    text_mode(-1);
-
     if(f->vtable == font_vtable_mono) {
         FONT_MONO_DATA* mf = f->data;
 
@@ -97,7 +95,7 @@ static void plot_font(AL_CONST DATAFILE *dat, int x, int y)
 
                 if(y > SCREEN_H) break;
 
-                textout(screen, f, buf, cx, y, gui_fg_color);
+                textout_ex(screen, f, buf, cx, y, gui_fg_color, -1);
 
                 cx += text_length(f, buf) + 4;
             }
@@ -119,7 +117,7 @@ static void plot_font(AL_CONST DATAFILE *dat, int x, int y)
 
                 if(y > SCREEN_H) break;
 
-                textout(screen, f, buf, cx, y, -1);
+                textout_ex(screen, f, buf, cx, y, -1, -1);
 
                 cx += text_length(f, buf) + 4;
             }
@@ -254,7 +252,6 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 
     bmp = create_bitmap_ex(8, 1 + w * 16, 1 + h * ((max + 15) / 16) );
     clear_to_color(bmp, 255);
-    text_mode(0);
 
     max = 0;
 
@@ -263,7 +260,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 
         while(mf) {
             for(i = mf->begin; i < mf->end; i++) {
-                textprintf(bmp, f, 1 + w * (max & 15), 1 + h * (max / 16), 1, "%c", i);
+                textprintf_ex(bmp, f, 1 + w * (max & 15), 1 + h * (max / 16), 1, 0, "%c", i);
                 max++;
             }
 
@@ -274,7 +271,7 @@ static int export_font(AL_CONST DATAFILE* dat, AL_CONST char* filename)
 
         while(cf) {
             for(i = cf->begin; i < cf->end; i++) {
-                textprintf(bmp, f, 1 + w * (max & 15), 1 + h * (max / 16), -1, "%c", i);
+                textprintf_ex(bmp, f, 1 + w * (max & 15), 1 + h * (max / 16), -1, 0, "%c", i);
                 max++;
             }
 
@@ -530,8 +527,6 @@ static FONT_COLOR_DATA* upgrade_to_color_data(FONT_MONO_DATA* mf)
     cf->end = mf->end;
     cf->bitmaps = bits;
     cf->next = 0;
-
-    text_mode(-1);
 
     for(i = mf->begin; i < mf->end; i++) {
         FONT_GLYPH* g = mf->glyphs[i - mf->begin];
@@ -1185,8 +1180,6 @@ static int font_view_proc(int msg, DIALOG *d, int c)
    int font_h;
    int begin, end;
 
-   text_mode(-1);
-
    switch (msg) {
 
       case MSG_START:
@@ -1241,11 +1234,8 @@ static int font_view_proc(int msg, DIALOG *d, int c)
 	        h = bits[i - begin]->h;
 	    }
 
-	    text_mode(gui_mg_color);
-	    textprintf(d->dp, font, 32, y+font_h/2-4, gui_fg_color, "U+%04X %3dx%-3d %c", i, w, h, i);
-
-	    text_mode(makecol(0xC0, 0xC0, 0xC0));
-	    textprintf(d->dp, fnt, 200, y, (gl ? gui_fg_color : -1), "%c", i);
+	    textprintf_ex(d->dp, font, 32, y+font_h/2-4, gui_fg_color, gui_mg_color, "U+%04X %3dx%-3d %c", i, w, h, i);
+	    textprintf_ex(d->dp, fnt, 200, y, (gl ? gui_fg_color : -1), makecol(0xC0, 0xC0, 0xC0), "%c", i);
 
 	    y += font_h * 3/2;
 	 }

@@ -378,8 +378,7 @@ int record_proc(int msg, DIALOG *d, int c)
 	 rectfill(screen, 96, 176, 544, 272, 0);
 	 rect(screen, 127, 235, 513, 257, 255);
 	 rectfill(screen, 128, 236, 512, 256, 8);
-	 text_mode(-1);
-	 textout_centre(screen, font, "Recording...", 320, 200, 255);
+	 textout_centre_ex(screen, font, "Recording...", 320, 200, 255, -1);
 
 	 /* start the input! */
 	 buffer_size = start_sound_input(freq, bits, stereo);

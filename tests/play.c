@@ -171,7 +171,6 @@ int main(int argc, char *argv[])
    }
    set_palette(default_palette);
    clear_to_color(screen, makecol(255, 255, 255));
-   text_mode(makecol(255, 255, 255));
 
    if (install_sound(digicard, midicard, NULL) != 0) {
       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
@@ -179,16 +178,16 @@ int main(int argc, char *argv[])
       return 1;
    }
 
-   textprintf_centre(screen, font, SCREEN_W/2, 12, palette_color[4], "Sound code test program for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR);
-   textprintf_centre(screen, font, SCREEN_W/2, 24, palette_color[4], "By Shawn Hargreaves, " ALLEGRO_DATE_STR);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 12, palette_color[4], makecol(255, 255, 255), "Sound code test program for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 24, palette_color[4], makecol(255, 255, 255), "By Shawn Hargreaves, " ALLEGRO_DATE_STR);
 
-   textprintf(screen, font, 0, 84,  palette_color[2], "Digital sound driver: %s", digi_driver->name);
-   textprintf(screen, font, 0, 96,  palette_color[2], "Description: %s", digi_driver->desc);
-   textprintf(screen, font, 0, 108, palette_color[2], "Voices: %d", digi_driver->voices);
+   textprintf_ex(screen, font, 0, 84,  palette_color[2], makecol(255, 255, 255), "Digital sound driver: %s", digi_driver->name);
+   textprintf_ex(screen, font, 0, 96,  palette_color[2], makecol(255, 255, 255), "Description: %s", digi_driver->desc);
+   textprintf_ex(screen, font, 0, 108, palette_color[2], makecol(255, 255, 255), "Voices: %d", digi_driver->voices);
 
-   textprintf(screen, font, 0, 132, palette_color[2], "Midi music driver: %s", midi_driver->name);
-   textprintf(screen, font, 0, 144, palette_color[2], "Description: %s", midi_driver->desc);
-   textprintf(screen, font, 0, 156, palette_color[2], "Voices: %d", midi_driver->voices);
+   textprintf_ex(screen, font, 0, 132, palette_color[2], makecol(255, 255, 255), "Midi music driver: %s", midi_driver->name);
+   textprintf_ex(screen, font, 0, 144, palette_color[2], makecol(255, 255, 255), "Description: %s", midi_driver->desc);
+   textprintf_ex(screen, font, 0, 156, palette_color[2], makecol(255, 255, 255), "Voices: %d", midi_driver->voices);
 
    while ((i < argc) && (item_count < 9)) {
       if ((stricmp(get_extension(argv[i]), "voc") == 0) || (stricmp(get_extension(argv[i]), "wav") == 0)) {
@@ -211,16 +210,16 @@ int main(int argc, char *argv[])
 	 goto get_out;
       }
 
-      textprintf(screen, font, 32, 192+item_count*12, palette_color[255], "%d: %s", item_count+1, argv[i]);
+      textprintf_ex(screen, font, 32, 192+item_count*12, palette_color[255], makecol(255, 255, 255), "%d: %s", item_count+1, argv[i]);
 
       item_count++;
       i++;
    }
 
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H-48, palette_color[4], "Press a number 1-9 to trigger a sample or midi file");
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H-36, palette_color[4], "v/V changes sfx volume, p/P changes sfx pan, and f/F changes sfx frequency");
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H-24, palette_color[4], "space pauses/resumes MIDI playback, and the arrow keys seek through the tune");
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H-12, palette_color[4], "Use the function keys to doodle a tune");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H-48, palette_color[4], makecol(255, 255, 255), "Press a number 1-9 to trigger a sample or midi file");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H-36, palette_color[4], makecol(255, 255, 255), "v/V changes sfx volume, p/P changes sfx pan, and f/F changes sfx frequency");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H-24, palette_color[4], makecol(255, 255, 255), "space pauses/resumes MIDI playback, and the arrow keys seek through the tune");
+   textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H-12, palette_color[4], makecol(255, 255, 255), "Use the function keys to doodle a tune");
 
    k = '1';      /* start sound automatically */
 
@@ -337,7 +336,7 @@ int main(int argc, char *argv[])
       old_midi_pos = midi_pos;
 
       sprintf(buf, "        midi pos: %ld    vol: %d    pan: %d    freq: %d        ", midi_pos, vol, pan, freq);
-      textout_centre(screen, font, buf, SCREEN_W/2, SCREEN_H-120, palette_color[255]);
+      textout_centre_ex(screen, font, buf, SCREEN_W/2, SCREEN_H-120, palette_color[255], makecol(255, 255, 255));
 
       do {
       } while ((!keypressed()) && (midi_pos == old_midi_pos));

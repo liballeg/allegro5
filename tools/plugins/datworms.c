@@ -167,8 +167,7 @@ static int worms(void)
 	 score++;
       }
 
-      text_mode(c1);
-      textprintf(screen, font, 0, 0, c2, "Score: %d", score);
+      textprintf_ex(screen, font, 0, 0, c2, c1, "Score: %d", score);
 
       if (keypressed()) {
 	 switch (readkey()>>8) {

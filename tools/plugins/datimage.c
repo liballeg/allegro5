@@ -91,8 +91,7 @@ static void *makenew_bitmap(long *size)
    BITMAP *bmp = create_bitmap_ex(8, 32, 32);
 
    clear_bitmap(bmp);
-   text_mode(-1);
-   textout_centre(bmp, font, "Hi!", 16, 12, 1);
+   textout_centre_ex(bmp, font, "Hi!", 16, 12, 1, -1);
 
    return bmp;
 }
@@ -144,12 +143,12 @@ static void plot_bitmap(AL_CONST DATAFILE *dat, int x, int y)
 
    if ((bitmap_color_depth(screen) == 8) && (bitmap_color_depth(b) > 8)) {
       if ((w != b->w) || (h != b->h))
-	 textout(screen, font, "<reduced color scaled preview>", x, y+18, gui_fg_color);
+	 textout_ex(screen, font, "<reduced color scaled preview>", x, y+18, gui_fg_color, gui_bg_color);
       else
-	 textout(screen, font, "<reduced color preview>", x, y+18, gui_fg_color);
+	 textout_ex(screen, font, "<reduced color preview>", x, y+18, gui_fg_color, gui_bg_color);
    }
    else if ((w != b->w) || (h != b->h))
-      textout(screen, font, "<scaled preview>", x, y+18, gui_fg_color);
+      textout_ex(screen, font, "<scaled preview>", x, y+18, gui_fg_color, gui_bg_color);
 
    if (bitmap_color_depth(b) == bitmap_color_depth(screen)) {
       if (dat->type != DAT_BITMAP)

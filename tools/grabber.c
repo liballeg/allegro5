@@ -377,8 +377,7 @@ static void box_out(char *msg)
 
       set_clip(screen, BOX_L+8, BOX_T+1, BOX_R-8, BOX_B-1);
 
-      text_mode(gui_bg_color);
-      textout(screen, font, msg, BOX_L+(box_x+1)*8, BOX_T+(box_y+1)*8, gui_fg_color);
+      textout_ex(screen, font, msg, BOX_L+(box_x+1)*8, BOX_T+(box_y+1)*8, gui_fg_color, gui_bg_color);
 
       set_clip(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
 
@@ -1037,8 +1036,7 @@ static int view_proc(int msg, DIALOG *d, int c)
       if ((current_view_object > 0) && (current_view_object < data_count)) {
 	 dat = data[current_view_object].dat;
 
-	 text_mode(-1);
-	 textout(screen, font, datedit_desc(dat), d->x, d->y, gui_fg_color);
+	 textout_ex(screen, font, datedit_desc(dat), d->x, d->y, gui_fg_color, -1);
 
 	 if (dat->type != DAT_FILE) {
 	    for (i=0; datedit_object_info[i]->type != DAT_END; i++) {
@@ -1058,10 +1056,10 @@ static int view_proc(int msg, DIALOG *d, int c)
 		     buf[c2] = ' ';
 	       }
 	       buf[32] = 0;
-	       textout(screen, font, buf, d->x, d->y+32+c1*8, gui_fg_color);
+	       textout_ex(screen, font, buf, d->x, d->y+32+c1*8, gui_fg_color, -1);
 	    }
 	    if (dat->size > 32*16)
-	       textout(screen, font, "...", d->x+31*8, d->y+40+16*8, gui_fg_color);
+	       textout_ex(screen, font, "...", d->x+31*8, d->y+40+16*8, gui_fg_color, -1);
 	 }
       }
    }

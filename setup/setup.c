@@ -746,13 +746,12 @@ static int scroller_proc(int msg, DIALOG *d, int c)
    if (redraw) {
       freeze_mouse_flag = TRUE;
       acquire_screen();
-      text_mode(0);
 
       p = scroller_msg;
       for (i=0; i<SCROLLER_LENGTH; i++) {
 	 x = i*8+scroller_pos;
 	 a = 16 + MID(0, 15-ABS(SCREEN_W/2-x)/(SCREEN_W/32), 15) * scroller_alpha/256;
-	 textprintf(screen, font, x, SCREEN_H-16, a, uconvert_ascii("%c", tmp), ugetx(&p));
+	 textprintf_ex(screen, font, x, SCREEN_H-16, a, 0, uconvert_ascii("%c", tmp), ugetx(&p));
       }
 
       release_screen();
@@ -881,8 +880,7 @@ static int update(void)
       b = setup_data[BACKGROUND].dat;
       stretch_blit(b, buffer, 0, 0, b->w, b->h, 0, 0, SCREEN_W, SCREEN_H);
 
-      text_mode(0);
-      textout_centre(buffer, font, uconvert_ascii(SETUP_TITLE, tmp), SCREEN_W/2, 0, -1);
+      textout_centre_ex(buffer, font, uconvert_ascii(SETUP_TITLE, tmp), SCREEN_W/2, 0, -1, 0);
 
       wanted_scroller = empty_string;
       screen = buffer;
@@ -1107,13 +1105,11 @@ static void popup(AL_CONST char *s1, AL_CONST char *s2)
       rectfill(popup_bitmap2, (SCREEN_W-w)/2-15, SCREEN_H/2-31, (SCREEN_W+w)/2+15, SCREEN_H/2+31, 0);
       rect(popup_bitmap2, (SCREEN_W-w)/2-16, SCREEN_H/2-32, (SCREEN_W+w)/2+16, SCREEN_H/2+32, 255);
 
-      text_mode(-1);
-
       if (s1)
-	 textout_centre(popup_bitmap2, font, s1, SCREEN_W/2, SCREEN_H/2-20, -1);
+	 textout_centre_ex(popup_bitmap2, font, s1, SCREEN_W/2, SCREEN_H/2-20, -1, -1);
 
       if (s2)
-	 textout_centre(popup_bitmap2, font, s2, SCREEN_W/2, SCREEN_H/2+4, -1);
+	 textout_centre_ex(popup_bitmap2, font, s2, SCREEN_W/2, SCREEN_H/2+4, -1, -1);
    }
 
    blit(popup_bitmap2, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
@@ -1142,14 +1138,12 @@ static void plot_joystick_state(BITMAP *bmp, int i)
    int j, x, y;
    int c = 0;
 
-   text_mode(-1);
-
    if (joystick_driver) {
       if (num_joysticks > 1)
-	 textprintf(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, uconvert_ascii("%s (%d/%d)", tmp),
+	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, uconvert_ascii("%s (%d/%d)", tmp),
                     joystick_driver->name, i+1, num_joysticks);
       else
-	 textprintf(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, joystick_driver->name);
+	 textprintf_ex(bmp, font, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1, joystick_driver->name);
       c++;
    }
 
@@ -1173,7 +1167,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 	       ustrzcat(buf, sizeof(buf), uconvert_ascii(" left", tmp));
 	    if (joy[i].stick[j].axis[0].d2)
 	       ustrzcat(buf, sizeof(buf), uconvert_ascii(" right", tmp));
-	    textout(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1);
+	    textout_ex(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1);
 	    c++;
 	 }
       }
@@ -1184,7 +1178,7 @@ static void plot_joystick_state(BITMAP *bmp, int i)
 		   joy[i].stick[j].axis[0].pos,
 		   uconvert_ascii((joy[i].stick[j].axis[0].d2) ? "->" : "  ", tmp));
 
-	 textout(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1);
+	 textout_ex(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1);
 	 c++;
       }
    }
@@ -1193,14 +1187,14 @@ static void plot_joystick_state(BITMAP *bmp, int i)
       uszprintf(buf, sizeof(buf), uconvert_ascii("%s: %c", tmp), joy[i].button[j].name, joy[i].button[j].b ? '*' : 0);
 
       if (j&1) {
-	 textout(bmp, font, buf, SCREEN_W/2+32, SCREEN_H/2-60+c*20, -1);
+	 textout_ex(bmp, font, buf, SCREEN_W/2+32, SCREEN_H/2-60+c*20, -1, -1);
 	 c++;
       }
       else
-	 textout(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1);
+	 textout_ex(bmp, font, buf, SCREEN_W/2-96, SCREEN_H/2-60+c*20, -1, -1);
    }
 
-   textout_centre(bmp, font, uconvert_ascii("- press a key to accept -", tmp), SCREEN_W/2, SCREEN_H-16, 255);
+   textout_centre_ex(bmp, font, uconvert_ascii("- press a key to accept -", tmp), SCREEN_W/2, SCREEN_H-16, 255, -1);
 }
 
 
@@ -1818,8 +1812,7 @@ static int filename_proc(int msg, DIALOG *d, int c)
 	 b = setup_data[BACKGROUND].dat;
 	 stretch_blit(b, screen, 0, 0, b->w, b->h, 0, 0, SCREEN_W, SCREEN_H);
 
-	 text_mode(0);
-	 textout_centre(screen, font, uconvert_ascii(SETUP_TITLE, tmp), SCREEN_W/2, 0, -1);
+	 textout_centre_ex(screen, font, uconvert_ascii(SETUP_TITLE, tmp), SCREEN_W/2, 0, -1, 0);
 	 unscare_mouse();
       }
 

@@ -67,16 +67,16 @@ static void plot_palette(AL_CONST DATAFILE *dat, int x, int y)
 	    rectfill(screen, x+(c&15)*8, y+(c/16)*8+32, 
 		     x+(c&15)*8+7, y+(c/16)*8+39, palette_color[c]);
 	 unselect_palette();
-	 textout(screen, font, "A different palette", x+160, y+32, gui_fg_color);
-	 textout(screen, font, "is currently in use.", x+160, y+40, gui_fg_color);
-	 textout(screen, font, "To select this one,", x+160, y+48, gui_fg_color);
-	 textout(screen, font, "double-click on it", x+160, y+56, gui_fg_color);
-	 textout(screen, font, "in the item list.", x+160, y+64, gui_fg_color);
+	 textout_ex(screen, font, "A different palette", x+160, y+32, gui_fg_color, gui_bg_color);
+	 textout_ex(screen, font, "is currently in use.", x+160, y+40, gui_fg_color, gui_bg_color);
+	 textout_ex(screen, font, "To select this one,", x+160, y+48, gui_fg_color, gui_bg_color);
+	 textout_ex(screen, font, "double-click on it", x+160, y+56, gui_fg_color, gui_bg_color);
+	 textout_ex(screen, font, "in the item list.", x+160, y+64, gui_fg_color, gui_bg_color);
       }
       else {
-	 textout(screen, font, "A different palette is currently in use.", x, y+32, gui_fg_color);
-	 textout(screen, font, "To select this one, double-click on it", x, y+40, gui_fg_color);
-	 textout(screen, font, "in the item list.", x, y+48, gui_fg_color);
+	 textout_ex(screen, font, "A different palette is currently in use.", x, y+32, gui_fg_color, gui_bg_color);
+	 textout_ex(screen, font, "To select this one, double-click on it", x, y+40, gui_fg_color, gui_bg_color);
+	 textout_ex(screen, font, "in the item list.", x, y+48, gui_fg_color, gui_bg_color);
       }
    }
    else {
@@ -105,8 +105,7 @@ static int export_palette(AL_CONST DATAFILE *dat, AL_CONST char *filename)
 
    bmp = create_bitmap_ex(8, 32, 8);
    clear_bitmap(bmp);
-   text_mode(0);
-   textout(bmp, font, "PAL.", 0, 0, 255);
+   textout_ex(bmp, font, "PAL.", 0, 0, 255, 0);
 
    ret = (save_bitmap(filename, bmp, (RGB *)dat->dat) == 0);
 

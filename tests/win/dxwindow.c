@@ -443,7 +443,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       /* animate the screen */
       clear(video_page[next_page]);
       if (!running)
-         textout(video_page[next_page], font, "Paused", 10, 10, 96);
+         textout_ex(video_page[next_page], font, "Paused", 10, 10, 96, -1);
 
       /* update the position if it has ticked */
       if (tick != last_tick) {
