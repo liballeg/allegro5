@@ -143,7 +143,7 @@ dnl Test for asm support.
 if test "X$allegro_enable_asm" = "Xyes"; then
   if test "X$allegro_cv_processor_type" = "Xi386"; then
     ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
-    _code_features="i386 ASM"
+    _code_features="i386 asm"
 
     dnl Test for MMX support.
     ALLEGRO_ACTEST_SUPPORT_MMX
