@@ -44,7 +44,7 @@ else
 endif
 
 ifndef TARGET_OPTS
-   TARGET_OPTS = -O6 -funroll-loops -ffast-math
+   TARGET_OPTS = -O6 -funroll-loops -ffast-math
 endif
 
 OFLAGS =  $(TARGET_ARCH) $(TARGET_OPTS)
