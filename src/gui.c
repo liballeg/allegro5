@@ -782,7 +782,7 @@ int do_dialog(DIALOG *dialog, int focus_obj)
        * engine is shut down so no user code can be running.
        */
       if (active_menu_player)
-         yield_timeslice();
+         rest(1);
    }
 
    if (_gfx_mode_set_count == screen_count)
@@ -1695,7 +1695,7 @@ int do_menu(MENU *menu, int x, int y)
    player = init_menu(menu, x ,y);
 
    while (update_menu(player))
-      yield_timeslice();
+      rest(1);
 
    ret = shutdown_menu(player);
 

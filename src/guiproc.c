@@ -137,7 +137,7 @@ static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
 int d_yield_proc(int msg, DIALOG *d, int c)
 {
    if (msg == MSG_IDLE)
-      yield_timeslice();
+      rest(1);
 
    return D_O_K;
 }

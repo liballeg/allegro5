@@ -31,7 +31,6 @@
 #define BPS_TO_TIMER(x)       (TIMERS_PER_SECOND / (long)(x))
 #define BPM_TO_TIMER(x)       ((60 * TIMERS_PER_SECOND) / (long)(x))
 
-
 typedef struct TIMER_DRIVER
 {
    int  id;
@@ -46,7 +45,7 @@ typedef struct TIMER_DRIVER
    AL_METHOD(void, remove_param_int, (AL_METHOD(void, proc, (void *param)), void *param));
    AL_METHOD(int,  can_simulate_retrace, (void));
    AL_METHOD(void, simulate_retrace, (int enable));
-   AL_METHOD(void, rest, (long time, AL_METHOD(void, callback, (void))));
+   AL_METHOD(void, rest, (unsigned int time, AL_METHOD(void, callback, (void))));
 } TIMER_DRIVER;
 
 
@@ -71,8 +70,8 @@ AL_FUNC(int,  timer_can_simulate_retrace, (void));
 AL_FUNC(void, timer_simulate_retrace, (int enable));
 AL_FUNC(int,  timer_is_using_retrace, (void));
 
-AL_FUNC(void, rest, (long time));
-AL_FUNC(void, rest_callback, (long time, AL_METHOD(void, callback, (void))));
+AL_FUNC(void, rest, (unsigned int time));
+AL_FUNC(void, rest_callback, (unsigned int time, AL_METHOD(void, callback, (void))));
 
 #ifdef __cplusplus
    }

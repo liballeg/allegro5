@@ -205,6 +205,12 @@ if test "$Xallegro_cv_have_map_failed" = "Xno"; then
 	    [Define to (void *)-1, if MAP_FAILED is not defined.])
 fi
 
+dnl Test for sched_yield (SunOS).
+ALLEGRO_ACTEST_SCHED_YIELD
+if test "X$allegro_cv_support_sched_yield" = "Xyes"; then
+   AC_DEFINE(ALLEGRO_USE_SCHED_YIELD,1,[Define if sched_yield is provided by some library.])
+fi
+
 dnl Test for constructor attribute support.
 ALLEGRO_ACTEST_CONSTRUCTOR
 if test "X$allegro_support_constructor" = "Xyes"; then

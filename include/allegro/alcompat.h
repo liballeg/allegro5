@@ -219,6 +219,16 @@ AL_INLINE_DEPRECATED(void, set_window_close_hook, (void (*proc)(void)),
 AL_FUNC_DEPRECATED(void, set_clip, (BITMAP *bitmap, int x1, int y1, int x2, int y2));
 
 
+/* unnecessary, can use rest(0) */
+AL_INLINE_DEPRECATED(void, yield_timeslice, (void),
+{
+   ASSERT(system_driver);
+
+   if (system_driver->yield_timeslice)
+      system_driver->yield_timeslice();
+})
+
+
 #ifdef __cplusplus
    }
 #endif

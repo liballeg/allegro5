@@ -147,8 +147,14 @@ END_OF_STATIC_FUNCTION(rest_int);
 /* rest_callback:
  *  Waits for time milliseconds.
  */
-void rest_callback(long time, void (*callback)(void))
+void rest_callback(unsigned int time, void (*callback)(void))
 {
+   if (!time) {
+      ASSERT(system_driver);
+      if (system_driver->yield_timeslice)
+         system_driver->yield_timeslice();
+      return;
+   }
    if (timer_driver) {
       if (timer_driver->rest) {
 	 timer_driver->rest(time, callback);
@@ -163,7 +169,7 @@ void rest_callback(long time, void (*callback)(void))
 	    if (callback)
 	       callback();
 	    else
-	       yield_timeslice();
+	       rest(0);
 
 	 } while (rest_count > 0);
 
@@ -173,6 +179,7 @@ void rest_callback(long time, void (*callback)(void))
    else {
       time = clock() + MIN(time * CLOCKS_PER_SEC / 1000, 2);
       do {
+         rest(0);
       } while (clock() < (clock_t)time);
    }
 }
@@ -182,7 +189,7 @@ void rest_callback(long time, void (*callback)(void))
 /* rest:
  *  Waits for time milliseconds.
  */
-void rest(long time)
+void rest(unsigned int time)
 {
    rest_callback(time, NULL);
 }

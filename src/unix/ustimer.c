@@ -41,7 +41,7 @@ TIMER_DRIVER timerdrv_unix_sigalrm =
    NULL, NULL,		/* install_int, remove_int */
    NULL, NULL,		/* install_param_int, remove_param_int */
    NULL, NULL,		/* can_simulate_retrace, simulate_retrace */
-   NULL			/* rest */
+   _unix_rest		/* rest */
 };
 
 

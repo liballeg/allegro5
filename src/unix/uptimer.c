@@ -18,6 +18,7 @@
 
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
+#include "allegro/platform/aintunix.h"
 
 
 #ifdef HAVE_LIBPTHREAD
@@ -58,7 +59,7 @@ TIMER_DRIVER timerdrv_unix_pthreads =
    NULL, NULL,		/* install_int, remove_int */
    NULL, NULL,		/* install_param_int, remove_param_int */
    NULL, NULL,		/* can_simulate_retrace, simulate_retrace */
-   NULL			/* rest */
+   _unix_rest		/* rest */
 };
 
 

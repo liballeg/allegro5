@@ -47,7 +47,7 @@ _DRIVER_INFO _timer_driver_list[] =
 static int tim_win32_high_perf_init(void);
 static int tim_win32_low_perf_init(void);
 static void tim_win32_exit(void);
-static void tim_win32_rest(long time, AL_METHOD(void, callback, (void)));
+static void tim_win32_rest(unsigned int time, AL_METHOD(void, callback, (void)));
 
 
 TIMER_DRIVER timer_win32_high_perf =
@@ -252,10 +252,10 @@ static void tim_win32_exit(void)
 /* tim_win32_rest:
  *  Rests the specified amount of milliseconds.
  */
-static void tim_win32_rest(long time, AL_METHOD(void, callback, (void)))
+static void tim_win32_rest(unsigned int time, AL_METHOD(void, callback, (void)))
 {
-   unsigned long start;
-   unsigned long ms = time;
+   unsigned int start;
+   unsigned int ms = time;
 
    if (callback) {
       start = timeGetTime();

@@ -57,14 +57,6 @@ AL_INLINE(int, get_desktop_resolution, (int *width, int *height),
 })
 
 
-AL_INLINE(void, yield_timeslice, (void),
-{
-   ASSERT(system_driver);
-
-   if (system_driver->yield_timeslice)
-      system_driver->yield_timeslice();
-})
-
 
 #ifdef __cplusplus
    }

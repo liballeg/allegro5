@@ -231,7 +231,7 @@ int ureadkey(int *scancode)
       if (keyboard_polled)
 	 poll_keyboard();
 
-      yield_timeslice();
+      rest(1);
    }
 
    c = key_buffer.key[key_buffer.start];

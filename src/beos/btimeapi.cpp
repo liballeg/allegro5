@@ -123,7 +123,7 @@ extern "C" void be_time_exit(void)
 
 /* be_time_rest:
  */
-extern "C" void be_time_rest(long time, AL_METHOD(void, callback, (void)))
+extern "C" void be_time_rest(unsigned int time, AL_METHOD(void, callback, (void)))
 {
    time *= 1000;
 

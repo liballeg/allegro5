@@ -55,6 +55,10 @@ extern "C" {
    AL_FUNC(void, _unix_yield_timeslice, (void));
 
 
+   /* Unix rest function */
+   AL_FUNC(void, _unix_rest, (unsigned int, AL_METHOD(void, callback, (void))));
+
+
    /* Module support */
    AL_FUNC(void, _unix_load_modules, (int system_driver));
    AL_FUNC(void, _unix_unload_modules, (void));
