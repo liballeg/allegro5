@@ -103,6 +103,8 @@ goto the_end
 
 :got_msvc
 
+call "fix.bat msvc --quick"
+
 echo Generating release mode import library
 copy lib\\msvc\\allegro.def lib\\msvc\\all$ver.def > nul
 lib /nologo /machine:ix86 /def:lib\\msvc\\all$ver.def /out:lib\\msvc\\alleg.lib
