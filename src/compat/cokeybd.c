@@ -87,8 +87,8 @@ typedef struct KEY_BUFFER
 static volatile KEY_BUFFER key_buffer;
 static volatile KEY_BUFFER _key_buffer;
 
-static _AL_THREAD thread;
-static AL_EVENT_QUEUE *event_queue;
+static _AL_THREAD cokeybd_thread;
+static AL_EVENT_QUEUE *cokeybd_event_queue;
 
 /* At the moment the key_buffers_lock is still not done properly, it's
  * just needed to use key_buffers_cond.  And the flawed KEY_BUFFER.lock
@@ -468,10 +468,10 @@ static void handle_key_release(int scancode)
 
 
 
-/* thread_func: [cokeybd thread]
+/* cokeybd_thread_func: [cokeybd thread]
  *  The thread loop function.
  */
-static void thread_func(_AL_THREAD *self, void *unused)
+static void cokeybd_thread_func(_AL_THREAD *self, void *unused)
 {
    AL_EVENT event;
 
@@ -479,7 +479,7 @@ static void thread_func(_AL_THREAD *self, void *unused)
       /* wait for an event; wait up every so often to check if we
        * should quit
        */
-      if (!al_wait_for_event(event_queue, &event, 250))
+      if (!al_wait_for_event(cokeybd_event_queue, &event, 250))
          continue;
 
       _al_mutex_lock(&key_buffers_lock);
@@ -515,7 +515,7 @@ static void thread_func(_AL_THREAD *self, void *unused)
 
          default:
             /* shouldn't happen */
-            TRACE("keyboard.c thread_func got unknown event of type = %d\n", event.type);
+            TRACE("%s got unknown event of type = %d\n", __func__, event.type);
             break;
       }
 
@@ -635,13 +635,15 @@ int install_keyboard()
    if (!al_install_keyboard())
       return -1;
 
-   event_queue = al_create_event_queue();
-   if (!event_queue) {
+   ASSERT(!cokeybd_event_queue);
+   cokeybd_event_queue = al_create_event_queue();
+   if (!cokeybd_event_queue) {
       al_uninstall_keyboard();
       return -1;
    }
 
-   al_register_event_source(event_queue, (AL_EVENT_SOURCE *)al_get_keyboard());
+   al_register_event_source(cokeybd_event_queue,
+                            (AL_EVENT_SOURCE *)al_get_keyboard());
 
    _al_mutex_init(&key_buffers_lock);
    _al_cond_init(&key_buffers_cond);
@@ -655,7 +657,7 @@ int install_keyboard()
    _add_exit_func(remove_keyboard);
    _keyboard_installed = TRUE;
 
-   _al_thread_create(&thread, thread_func, NULL);
+   _al_thread_create(&cokeybd_thread, cokeybd_thread_func, NULL);
 
    return 0;
 }
@@ -673,15 +675,15 @@ void remove_keyboard(void)
 
    set_leds(-1);
 
-   _al_thread_join(&thread);
+   _al_thread_join(&cokeybd_thread);
 
    _al_mutex_destroy(&key_buffers_lock);
    _al_cond_destroy(&key_buffers_cond);
 
    al_uninstall_keyboard();
 
-   al_destroy_event_queue(event_queue);
-   event_queue = NULL;
+   al_destroy_event_queue(cokeybd_event_queue);
+   cokeybd_event_queue = NULL;
 
    keyboard_driver = NULL;
 
