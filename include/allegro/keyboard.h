@@ -205,23 +205,31 @@ enum {
    __allegro_KEY_BACKQUOTE    = 104,  /* MacOS X */
    __allegro_KEY_SEMICOLON    = 105,  /* MacOS X */
    __allegro_KEY_COMMAND      = 106,  /* MacOS X */
+   __allegro_KEY_UNKNOWN1     = 107,
+   __allegro_KEY_UNKNOWN2     = 108,
+   __allegro_KEY_UNKNOWN3     = 109,
+   __allegro_KEY_UNKNOWN4     = 110,
+   __allegro_KEY_UNKNOWN5     = 111,
+   __allegro_KEY_UNKNOWN6     = 112,
+   __allegro_KEY_UNKNOWN7     = 113,
+   __allegro_KEY_UNKNOWN8     = 114,
 
-   __allegro_KEY_MODIFIERS    = 107,
+   __allegro_KEY_MODIFIERS    = 115,
 
-   __allegro_KEY_LSHIFT       = 107,
-   __allegro_KEY_RSHIFT       = 108,
-   __allegro_KEY_LCONTROL     = 109,
-   __allegro_KEY_RCONTROL     = 110,
-   __allegro_KEY_ALT          = 111,
-   __allegro_KEY_ALTGR        = 112,
-   __allegro_KEY_LWIN         = 113,
-   __allegro_KEY_RWIN         = 114,
-   __allegro_KEY_MENU         = 115,
-   __allegro_KEY_SCRLOCK      = 116,
-   __allegro_KEY_NUMLOCK      = 117,
-   __allegro_KEY_CAPSLOCK     = 118,
+   __allegro_KEY_LSHIFT       = 115,
+   __allegro_KEY_RSHIFT       = 116,
+   __allegro_KEY_LCONTROL     = 117,
+   __allegro_KEY_RCONTROL     = 118,
+   __allegro_KEY_ALT          = 119,
+   __allegro_KEY_ALTGR        = 120,
+   __allegro_KEY_LWIN         = 121,
+   __allegro_KEY_RWIN         = 122,
+   __allegro_KEY_MENU         = 123,
+   __allegro_KEY_SCRLOCK      = 124,
+   __allegro_KEY_NUMLOCK      = 125,
+   __allegro_KEY_CAPSLOCK     = 126,
 
-   __allegro_KEY_MAX          = 119
+   __allegro_KEY_MAX          = 127
 };
 
 #ifndef ALLEGRO_NO_KEY_DEFINES
@@ -348,6 +356,14 @@ enum {
 #define KEY_BACKQUOTE         __allegro_KEY_BACKQUOTE
 #define KEY_SEMICOLON         __allegro_KEY_SEMICOLON
 #define KEY_COMMAND           __allegro_KEY_COMMAND
+#define KEY_UNKNOWN1          __allegro_KEY_UNKNOWN1
+#define KEY_UNKNOWN2          __allegro_KEY_UNKNOWN2
+#define KEY_UNKNOWN3          __allegro_KEY_UNKNOWN3
+#define KEY_UNKNOWN4          __allegro_KEY_UNKNOWN4
+#define KEY_UNKNOWN5          __allegro_KEY_UNKNOWN5
+#define KEY_UNKNOWN6          __allegro_KEY_UNKNOWN6
+#define KEY_UNKNOWN7          __allegro_KEY_UNKNOWN7
+#define KEY_UNKNOWN8          __allegro_KEY_UNKNOWN8
 
 #define KEY_MODIFIERS         __allegro_KEY_MODIFIERS
 

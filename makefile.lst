@@ -306,8 +306,7 @@ ALLEGRO_SRC_X_FILES = \
 	src/x/xdga2.c \
 	src/x/xdga2s.s \
 	src/x/xwins.s \
-	src/misc/colconv.c \
-	src/misc/pckeys.c
+	src/misc/colconv.c
 	
 ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qdrivers.c \
@@ -402,7 +401,6 @@ ALLEGRO_MAKEDOC_SOURCES = \
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \
-	setup/keyconf.c \
 	setup/setup.c \
 	tests/afinfo.c \
 	tests/akaitest.c \
@@ -431,7 +429,6 @@ ALLEGRO_LIB_X_EXE_SOURCES = \
 
 ALLEGRO_LIB_EXES = \
 	demo/demo \
-	setup/keyconf \
 	setup/setup \
 	tests/afinfo \
 	tests/akaitest \

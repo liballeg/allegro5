@@ -52,6 +52,33 @@ static int repeat_scan = -1;
 
 static int rate_changed = FALSE;
 
+/* Provide a default ASCII mapping for the most common keys. Keys whose
+ * mapping changes dependind on the layout aren't listed - it's up to
+ * the keyboard driver to do that. The reason for this it portability:
+ * With an English keyboard, it makes sense to just list the KEY_* names,
+ * but not with other keyboards. Ideally, every keyboard driver would
+ * be able to fill in all the keys - but where it doesn't, this table
+ * is a good compromise.
+ */
+static int common_ascii[KEY_MAX] =
+{
+   0,   'a', 'b', 'c', 'd', 'e', 'f', 'g',
+   'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+   'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+   'x', 'y', 'z', '0', '1', '2', '3', '4',
+   '5', '6', '7', '8', '9', '0', '1', '2',
+   '3', '4', '5', '6', '7', '8', '9', 0,
+   0,   0,   0,   0,   0,   0,   0,   0,
+   0,   0,   0,   27,  0,   0,   0,   0,
+   9,   0,   0,   13,  0,   0,   0,   0,
+   0,   0,   0,   ' ', 0,   0,   0,   0,
+   0,   0,   0,   0,   0,   0,   '/', '*',
+   '-', '+', 0,  13,   0,   0,   0,   0,
+   0,   0,   0,   0,   0,   0,   0,   '=',
+   0,   0,   0,   0,   0,   0,   0,   0,
+   0,   0,   0,   0,   0,   0,   0,   0,
+   0,   0,   0,   0,   0,   0,   0
+};
 
 #define KEY_BUFFER_SIZE    64                /* character ring buffer */
 
@@ -367,7 +394,7 @@ void _handle_key_press(int keycode, int scancode)
 {
    if ((keyboard_driver->poll) || (!keyboard_polled)) {
       /* process immediately */
-      if (scancode >= 0) {
+      if (scancode > 0) {
 	 if ((!repeat_delay) && (key[scancode]))
 	    return;
 
@@ -377,6 +404,7 @@ void _handle_key_press(int keycode, int scancode)
 	    keyboard_lowlevel_callback(scancode);
       }
 
+      /* e.g. for F1, keycode=0, and scancode=KEY_F1 */
       if (keycode >= 0)
 	 add_key(&key_buffer, keycode, scancode);
 
@@ -384,7 +412,7 @@ void _handle_key_press(int keycode, int scancode)
    }
    else {
       /* deal with this during the next poll_keyboard() */
-      if (scancode >= 0) {
+      if (scancode > 0) {
 	 if ((!repeat_delay) && (_key[scancode]))
 	    return;
 
@@ -516,8 +544,11 @@ int keyboard_needs_poll()
  */
 int scancode_to_ascii(int scancode)
 {
+   ASSERT (scancode >= 0 && scancode < KEY_MAX);
    if (keyboard_driver->scancode_to_ascii)
       return keyboard_driver->scancode_to_ascii(scancode);
+   else
+      return common_ascii[scancode];
 
    return 0;
 }

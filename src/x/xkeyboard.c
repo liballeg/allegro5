@@ -29,12 +29,9 @@
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintosx.h"
 
-// TODO: add KEY_UNKNOWN1 ... keys to Allegro, up KEY_MAX to 127
-// TODO: scancode_to_ascii vtable entry? Maybe just have a fallback one in
-//       keyboard.c, which does KEY_A -> 'a' and so on.
+// TODO: Add "Ctrl-Alt-End" shortcut
 // TODO: Once this driver is deemed more stable, reduce debugging output.
 
-static int x_to_allegro_keycode[256];
 #ifdef ALLEGRO_USE_XIM
 static XIM xim = NULL;
 static XIC xic = NULL;
@@ -327,7 +324,7 @@ static int find_unknown_key_assignment (int i)
    int j;
    for (j = 1; j < KEY_MAX; j++) {
       if (!used[j]) {
-	 x_to_allegro_keycode[i] = j;
+	 _xwin.keycode_to_scancode[i] = j;
 	 used[j] = 1;
 	 break;
       }
@@ -336,16 +333,16 @@ static int find_unknown_key_assignment (int i)
    if (j == KEY_MAX) {
       TRACE ("Fatal: You have more keys reported by X than Allegro's "
 	     "maximum of %i keys. Please send a bug report.\n", KEY_MAX);
-      x_to_allegro_keycode[i] = 0;
+      _xwin.keycode_to_scancode[i] = 0;
    }
 
    TRACE ("Key %i missing:", i);
    for (j = 0; j < sym_per_key; j++)
       TRACE (" %s", XKeysymToString(
 	 keysyms[sym_per_key * (i - min_keycode) + j]));
-   TRACE (" - assigned to %i.\n", x_to_allegro_keycode[i]);
+   TRACE (" - assigned to %i.\n", _xwin.keycode_to_scancode[i]);
 
-   return x_to_allegro_keycode[i];
+   return _xwin.keycode_to_scancode[i];
 }
 
 
@@ -359,7 +356,10 @@ void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
    if (!xkeyboard_installed)
       return;
 
-   keycode = x_to_allegro_keycode[event->keycode];
+   if (_xwin_keyboard_callback)
+      (*_xwin_keyboard_callback)(event->type == KeyPress ? 1 : 0, event->keycode);
+
+   keycode = _xwin.keycode_to_scancode[event->keycode];
    if (keycode == -1)
       keycode = find_unknown_key_assignment (event->keycode);
 
@@ -467,7 +467,7 @@ void _xwin_get_keyboard_mapping(void)
    int missing = 0;
 
    memset (used, 0, sizeof used);
-   memset (x_to_allegro_keycode, 0, sizeof x_to_allegro_keycode);
+   memset (_xwin.keycode_to_scancode, 0, sizeof _xwin.keycode_to_scancode);
 
    XLOCK ();
 
@@ -482,40 +482,51 @@ void _xwin_get_keyboard_mapping(void)
    TRACE ("xkeyboard: %i keys, %i symbols per key.\n", count, sym_per_key);
 
    missing = 0;
+
    for (i = min_keycode; i <= max_keycode; i++) {
       KeySym sym = keysyms[sym_per_key * (i - min_keycode)];
+      KeySym sym2 =  keysyms[sym_per_key * (i - min_keycode) + 1];
+      int allegro_key = 0;
 
-      TRACE ("key %i: %s", i, XKeysymToString(sym));
+      TRACE ("key [%i: %s %s]", i, XKeysymToString(sym), XKeysymToString(sym2));
 
-      if (sym != NoSymbol) {
-	 int allegro_key = find_allegro_key(sym);
-
-	 if (allegro_key == 0) {
-	    missing++;
-            TRACE (" defering.");
-	 }
-	 else {
-	    if (used[allegro_key])
-	       TRACE (" *double*");
-	    x_to_allegro_keycode[i] = allegro_key;
-	    used[allegro_key] = 1;
-	    TRACE (" assigned to %i.", allegro_key);
-	 }
-
-	  TRACE ("\n");
-      }
-      else
+      /* Hack for French keyboards, to correctly map KEY_0 to KEY_9. */
+      if (sym2 >= XK_0 && sym2 <= XK_9)
       {
-	 /* No KeySym for this key - ignore it. */
-	 x_to_allegro_keycode[i] = -1;
-	 TRACE (" not assigned.\n");
+	 allegro_key = find_allegro_key(sym2);
+      }
+
+      if (!allegro_key)
+      {
+	 if (sym != NoSymbol) {
+	    allegro_key = find_allegro_key(sym);
+
+	    if (allegro_key == 0) {
+	       missing++;
+	       TRACE (" defering.\n");
+	    }
+	 }
+	 else
+	 {
+	    /* No KeySym for this key - ignore it. */
+	    _xwin.keycode_to_scancode[i] = -1;
+	    TRACE (" not assigned.\n");
+	 }
+      }
+
+      if (allegro_key) {
+	 if (used[allegro_key])
+	    TRACE (" *double*");
+	 _xwin.keycode_to_scancode[i] = allegro_key;	
+	 used[allegro_key] = 1;
+	 TRACE (" assigned to %i.\n", allegro_key);
       }
    }
 
    if (missing) {
       /* The keys still not assigned are just assigned arbitrarily now. */
       for (i = min_keycode; i <= max_keycode; i++) {
-	 if (x_to_allegro_keycode[i] == 0) {
+	 if (_xwin.keycode_to_scancode[i] == 0) {
 	    find_unknown_key_assignment (i);
 	 }
       }
@@ -555,7 +566,7 @@ void _xwin_get_keyboard_mapping(void)
 	 scancode = get_config_int(section, option, -1);
 	 if (scancode > 0)
 	 {
-	    x_to_allegro_keycode[i] = scancode;
+	    _xwin.keycode_to_scancode[i] = scancode;
 	    TRACE ("User override: KeySym %i assigned to %i.\n", i, scancode);
 	 }
       }
@@ -614,6 +625,7 @@ static int x_keyboard_init(void)
    XLOCK ();
 
 #ifdef ALLEGRO_USE_XIM
+/* TODO: is this needed?
    if (setlocale(LC_ALL,"") == NULL) {
       TRACE("x keyboard warning: Could not set default locale.\n");
    }
@@ -622,7 +634,7 @@ static int x_keyboard_init(void)
    if (modifiers == NULL) {
       TRACE ("x keyboard warning: XSetLocaleModifiers failed.\n");
    }
-
+*/
    xim = XOpenIM (_xwin.display, NULL, NULL, NULL);
    if (xim == NULL) {
       TRACE("x keyboard warning: XOpenIM failed.\n");
