@@ -201,6 +201,11 @@ MMRESULT mmres;
 WAVEFORMATEX format;
 int v, id;
 
+	if (input) {
+		ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Input is not supported"));
+		return -1;
+	}
+
 	digi_driver->voices = voices;
 
 	/* deduce our device number from the driver ID code */
@@ -251,7 +256,8 @@ int v, id;
 	if (_mixer_init((digiwobufsize / (_bits /8)) / digiwobufdivs, _freq,
 		_stereo, ((_bits == 16) ? 1 : 0),
 		&digi_driver->voices) != 0) {
-		      _TRACE("Can not init software mixer\n");
+			_TRACE("Can not init software mixer\n");
+			ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not init software mixer"));
 			return -1;
 	}
 

@@ -175,19 +175,19 @@ static int sound_mac_detect(int input){
                   return 1;
 	       }
 	       else{
-		  ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry your system can't do double buffer sound"));		  
+		  ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not do double buffered sound"));		  
 	       }
 	    }
 	    else{
-	       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry Can't get information about sound"));
+	       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not get information about sound"));
 	    }
 	 }
 	 else{
-	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry SoundManager 3.0 or later requerid"));
+	    ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("SoundManager 3.0 or later required"));
 	 }
       }
       else{
-	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Sorry SoundManager  not Found"));
+	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("SoundManager not found"));
       }
    }
    else{

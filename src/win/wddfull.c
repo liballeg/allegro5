@@ -154,15 +154,19 @@ static WIN_GFX_DRIVER win_gfx_fullscreen =
  */
 static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int color_depth)
 {
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
+   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
+   }
 
    _enter_critical();
 
    if (init_directx() != 0)
       goto Error;
-   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0)
+   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
       goto Error;
+   }
    if (finalize_directx_init() != 0)
       goto Error;
    if (create_primary() != 0)
@@ -205,15 +209,19 @@ static struct BITMAP *init_directx_accel(int w, int h, int v_w, int v_h, int col
  */
 static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int color_depth)
 {
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
+   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
+   }
 
    _enter_critical();
 
    if (init_directx() != 0)
       goto Error;
-   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0)
+   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
       goto Error;
+   }
    if (finalize_directx_init() != 0)
       goto Error;
    if (create_primary() != 0)
@@ -255,15 +263,19 @@ static struct BITMAP *init_directx_soft(int w, int h, int v_w, int v_h, int colo
  */
 static struct BITMAP *init_directx_safe(int w, int h, int v_w, int v_h, int color_depth)
 {
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
+   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
+   }
 
    _enter_critical();
 
    if (init_directx() != 0)
       goto Error;
-   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0)
+   if (set_video_mode(w, h, v_w, v_h, color_depth) != 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
       goto Error;
+   }
    if (finalize_directx_init() != 0)
       goto Error;
    if (create_primary() != 0)

@@ -181,6 +181,10 @@ static int sys_directx_init(void)
  */
 static void sys_directx_exit(void)
 {
+   /* free allocated resources */
+   _free_win_digi_driver_list();
+   _free_win_midi_driver_list();
+
    /* unhook or close window */
    exit_directx_window();
 

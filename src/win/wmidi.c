@@ -99,12 +99,29 @@ _DRIVER_INFO *_get_win_midi_driver_list(void)
 
       /* cross-platform DIGital MIDi driver */
       driver_list = _driver_list_add_driver(driver_list, MIDI_DIGMID, &midi_digmid, TRUE);
-
-      /* sentinel driver */
-      driver_list = _driver_list_add_driver(driver_list, 0, NULL, FALSE);
    }
 
    return driver_list;
+}
+
+
+
+/* _free_win_midi_driver_list:
+ *  Helper function for freeing the dynamically generated driver list.
+ */
+void _free_win_midi_driver_list(void)
+{
+   int i = 0;
+
+   if (driver_list) {
+      while (driver_list[i].driver) {
+         free(driver_list[i].driver);
+         i++;
+      }
+
+      _destroy_driver_list(driver_list);
+      driver_list = NULL;
+   }
 }
 
 

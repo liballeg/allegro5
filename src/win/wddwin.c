@@ -454,8 +454,10 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    HRESULT hr;
 
    /* Flipping is impossible in windowed mode */
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
+   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
+   }
 
    /* Alignment restrictions (for color conversion) */
    if (w%4)
@@ -466,8 +468,10 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    /* init DirectX */
    if (init_directx() != 0)
       goto Error;
-   if (verify_color_depth(color_depth))
+   if (verify_color_depth(color_depth)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       goto Error;
+   }
    if (wnd_call_proc(wnd_set_windowed_coop) != 0)
       goto Error;
    if (finalize_directx_init() != 0)
@@ -493,6 +497,7 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if ( ((win_size.right - win_size.left) != w) || 
         ((win_size.bottom - win_size.top) != h) ) {
       _TRACE("window size not supported.\n");
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
    }
 
@@ -504,8 +509,10 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
       goto Error;
 
    /* create offscreen backbuffer */
-   if (create_offscreen (w, h, color_depth) != 0)
+   if (create_offscreen (w, h, color_depth) != 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Windowed mode not supported"));
       goto Error;
+   }
 
    /* create clipper */
    if (create_clipper(allegro_wnd) != 0)

@@ -331,18 +331,24 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    HRESULT hr;
 
    /* overlay would allow scrolling on some cards, but isn't implemented yet */
-   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0))
+   if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported virtual resolution"));
       return NULL;
+   }
 
    _enter_critical();
 
    /* init DirectX */
    if (init_directx() != 0)
       goto Error;
-   if ((dd_caps.dwCaps & DDCAPS_OVERLAY) == 0)
+   if ((dd_caps.dwCaps & DDCAPS_OVERLAY) == 0) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Overlays not supported"));
       goto Error;
-   if (verify_color_depth(color_depth))
+   }
+   if (verify_color_depth(color_depth)) {
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Unsupported color depth"));
       goto Error;
+   }
    if (wnd_call_proc(wnd_set_windowed_coop) != 0)
       goto Error;
    if (finalize_directx_init() != 0)
@@ -368,6 +374,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if ( ((win_size.right - win_size.left) != w) || 
         ((win_size.bottom - win_size.top) != h) ) {
       _TRACE("window size not supported.\n");
+      ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
       goto Error;
    }
 
@@ -394,12 +401,14 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (dd_caps.dwCaps & DDCAPS_ALIGNSIZESRC) {
       if (w%dd_caps.dwAlignSizeSrc) {
          _TRACE("Alignment requirement not met: source size %d.\n", dd_caps.dwAlignSizeSrc);
+         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
    } 
    else if (dd_caps.dwCaps & DDCAPS_ALIGNSIZEDEST) {
       if (w%dd_caps.dwAlignSizeDest) {
          _TRACE("Alignment requirement not met: dest size %d.\n", dd_caps.dwAlignSizeDest);
+         ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
          goto Error;
       }
    }
