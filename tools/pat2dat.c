@@ -18,7 +18,7 @@
  */
 
 
-#define USE_CONSOLE
+#define ALLEGRO_USE_CONSOLE
 
 #include <stdio.h>
 #include <string.h>

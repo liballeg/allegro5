@@ -10,7 +10,8 @@
  */
 
 
-#define USE_CONSOLE
+#define ALLEGRO_NO_MAGIC_MAIN
+#define ALLEGRO_USE_CONSOLE
 
 /* to avoid linking errors with compilers that don't properly
  * support the 'static inline' keyword (Watcom)
@@ -290,5 +291,3 @@ int main(int argc, char *argv[])
 
    return 0;
 }
-
-END_OF_MAIN();

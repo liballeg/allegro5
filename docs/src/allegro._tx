@@ -7711,9 +7711,9 @@ magic must be disabled by defining the preprocessor symbol
 ALLEGRO_NO_MAGIC_MAIN before including Allegro headers.
 
 If you want to build a console application using Allegro, you have to define
-the preprocessor symbol USE_CONSOLE before including Allegro headers; it will
-instruct the library to use console features and also to disable the special
-processing of the main() function described above.
+the preprocessor symbol ALLEGRO_USE_CONSOLE before including Allegro headers;
+it will instruct the library to use console features and also to disable the
+special processing of the main() function described above.
 
 When creating the main window, Allegro searches the executable for an ICON 
 resource named "allegro_icon". If it is present, Allegro automatically 
@@ -8343,13 +8343,23 @@ various attributes of the current platform:
    Defined to the filename device separator character (a colon for DOS and 
    Windows), or to zero if there are no explicit devices in paths (Unix).
 
-Allegro also defines a number of standard macros that can be used to 
-insulate you from some of the differences between systems:
+Allegro can be customized at compile time to a certain extent with the
+following macros:
 
-<b>USE_CONSOLE</b><br>
+<b>ALLEGRO_NO_MAGIC_MAIN</b><br>
+   If you define this prior to including Allegro headers, Allegro won't
+   touch the main() entry point. This effectively removes the requirement
+   on a program to be linked against the Allegro library when it includes
+   the allegro.h header file. Note that the configuration and file routines
+   are not guaranteed to work on Unix systems when this symbol is defined.
+
+<b>ALLEGRO_USE_CONSOLE</b><br>
    If you define this prior to including Allegro headers, Allegro will be 
    set up for building a console application rather than the default GUI 
    program on some platforms (especially Windows).
+
+Allegro also defines a number of standard macros that can be used to 
+insulate you from some of the differences between systems:
 
 <b>INLINE</b><br>
    Use this in place of the regular "inline" function modifier keyword, and 

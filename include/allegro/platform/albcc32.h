@@ -40,7 +40,7 @@
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
 
-#ifdef USE_CONSOLE
+#ifdef ALLEGRO_USE_CONSOLE
    #define ALLEGRO_CONSOLE_OK
    #define ALLEGRO_NO_MAGIC_MAIN
 #endif

@@ -25,7 +25,7 @@
 extern int    __crt0_argc;
 extern char **__crt0_argv;
 
-#ifndef USE_CONSOLE
+#ifndef ALLEGRO_NO_MAGIC_MAIN
    #define ALLEGRO_MAGIC_MAIN
    #define main _mangled_main
    #undef END_OF_MAIN

@@ -23,6 +23,13 @@
 #define ALLEGRO_COLOR32
 
 
+/* for backward compatibility */
+#ifdef USE_CONSOLE
+   #define ALLEGRO_NO_MAGIC_MAIN
+   #define ALLEGRO_USE_CONSOLE
+#endif
+
+
 /* include platform-specific stuff */
 #ifndef SCAN_EXPORT
    #ifndef SCAN_DEPEND
