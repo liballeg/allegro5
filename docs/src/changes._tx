@@ -7,6 +7,54 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.10 to 4.1.11 (Jun 2003)
+<ul><li>
+   Eric Botcazou temporarily reverted the fix for the mouse bug when
+   scrolling with the X11 driver under Unix.
+<li>
+   Eric Botcazou fixed the invocation of non-GNU make in the configure script,
+   a few compilation warnings in tools/dat2c.c and made it possible to pass
+   libraries to the misc/deplexe.sh script, so as to let Allegro build again
+   under Solaris.
+<li>
+   Grzegorz Adam Hankiewicz removed all direct references to Canvaslink and
+   credited SourceForge for current services.
+<li>
+   Eric Botcazou reworked the configure check for sched_yield() under Unix.
+<li>
+   Sam Hocevar fixed a Bashism in fix.sh that makes Solaris' sh choke.
+<li>
+   Angelo Mottola made sure mouse buttons are initialized to 0 at startup
+   under MacOS X.
+<li>
+   Eric Botcazou added a blurb about the new behaviour of d_ctext_proc().
+<li>
+   Eric Botcazou corrected several inadequacies in the documentation of
+   makefile targets.
+<li>
+   Grzegorz Adam Hankiewicz did some housekeeping work in the docs.
+<li>
+   Angelo Mottola added a missing item to the list of installed files
+   under MacOS X.
+<li>
+   Angelo Mottola added a script to automate the enduser MacOS X package
+   creation.
+<li>
+   Angelo Mottola made it possible to compile apps if just the Allegro
+   framework is installed under MacOS X.
+<li>
+   Vincent Penquerc'h corrected an inefficiency in select_palette() and
+   unselect_palette().
+<li>
+   Eric Botcazou fixed the build failure with MSVC.
+<li>
+   Andrei Ellman added a few missing items to the list of uninstalled files
+   for the MinGW and MSVC ports.
+<li>
+   Vincent Penquerc'h fixed a bug in _fill_3d_edge_structure().
+</ul>
+
+@heading
 Changes from 4.1.9 to 4.1.10 (Jun 2003)
 <ul><li>
    Many minor changes and clarifications in the docs.

@@ -725,6 +725,9 @@ Contributors
    bit sample mixing, fixed compilation on gcc 3.x and made numerous other
    useful suggestions, contributions and bugfixes.
 
+   Sam Hocevar (<email>sam@zoy.org</a>).<br>
+   Fixed a Bashism in fix.sh that makes Solaris' sh choke.
+
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.
 
