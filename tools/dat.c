@@ -32,8 +32,6 @@
 
 
 
-static DATAFILE *datafile = NULL;
-
 static int err = 0;
 static int changed = 0;
 
@@ -397,11 +395,12 @@ static void do_delete(DATAFILE **dat, char *parentname)
 /* adds a file to the archive */
 static int do_add_file(AL_CONST char *filename, int attrib, void *param)
 {
+   DATEDIT_GRAB_PARAMETERS params;
+   DATAFILE **dat = param;
+   DATAFILE *d;
    char fname[256];
    char name[256];
    int c;
-   DATAFILE *d;
-   DATEDIT_GRAB_PARAMETERS params;
 
    canonicalize_filename(fname, filename, sizeof(fname));   
 
@@ -426,10 +425,10 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
    params.colordepth = opt_colordepth;
    params.relative = opt_relf;
 
-   for (c=0; datafile[c].type != DAT_END; c++) {
-      if (stricmp(name, get_datafile_property(datafile+c, DAT_NAME)) == 0) {
+   for (c=0; (*dat)[c].type != DAT_END; c++) {
+      if (stricmp(name, get_datafile_property(*dat+c, DAT_NAME)) == 0) {
 	 printf("Replacing %s -> %s\n", fname, name);
-	 if (!datedit_grabreplace(datafile+c, &params)) {
+	 if (!datedit_grabreplace(*dat+c, &params)) {
 	    err = 1;
 	    return -1;
 	 }
@@ -441,13 +440,13 @@ static int do_add_file(AL_CONST char *filename, int attrib, void *param)
    }
 
    printf("Inserting %s -> %s\n", fname, name);
-   d = datedit_grabnew(datafile, &params);
+   d = datedit_grabnew(*dat, &params);
    if (!d) {
       err = 1;
       return -1;
    }
    else {
-      datafile = d;
+      *dat = d;
       changed = TRUE;
       return 0;
    }
@@ -680,6 +679,7 @@ int main(int argc, char *argv[])
 {
    int c, colorconv_mode = 0;
    int *opt_fixed_prop = NULL;
+   DATAFILE *datafile = NULL;
 
    if (install_allegro(SYSTEM_NONE, &errno, atexit) != 0)
       return 1;
@@ -923,7 +923,7 @@ int main(int argc, char *argv[])
 	       }
 	       else {
 		  for (c=0; c<opt_numnames; c++) {
-		     if (for_each_file_ex(opt_namelist[c], 0, ~(FA_ARCH | FA_RDONLY), do_add_file, NULL) <= 0) {
+		     if (for_each_file_ex(opt_namelist[c], 0, ~(FA_ARCH | FA_RDONLY), do_add_file, (void *)&datafile) <= 0) {
 			fprintf(stderr, "Error: %s not found\n", opt_namelist[c]);
 			err = 1;
 			break;
