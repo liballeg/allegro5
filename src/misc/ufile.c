@@ -309,7 +309,7 @@ int al_findfirst(AL_CONST char *pattern, struct al_ffblk *info, int attrib)
 
       if (stat(uconvert_toascii(pattern, tmp), &s) == 0) {
          /* get file attributes */
-         actual_attrib = ff_get_attrib(get_filename(pattern), &s);
+         actual_attrib = ff_get_attrib(ff_get_filename(uconvert_toascii(pattern, tmp)), &s);
 
          /* does it match ? */
          if ((actual_attrib & ~attrib) == 0) {
