@@ -40,7 +40,7 @@ Allegro est une librairie multi-plateforme destinée à être utilisée dans
 les jeux vidéo ou d'autres types de programmation multimédia.
 
 %description -l it
-Allegro Ã¨ una libreria multipiattaforma dedicata all'uso nei videogiochi
+Allegro è una libreria multipiattaforma dedicata all'uso nei videogiochi
 ed in altri tipi di programmazione multimediale.
 
 %package devel
@@ -68,15 +68,15 @@ les jeux vidéo ou d'autres types de programmation multimédia. Ce package
 est nécessaire pour compiler les programmes utilisant Allegro.
 
 %description devel -l it
-Allegro Ã¨ una libreria multipiattaforma dedicata all'uso nei videogiochi
-ed in altri tipi di programmazione multimediale. Questo pacchetto Ã¨
+Allegro è una libreria multipiattaforma dedicata all'uso nei videogiochi
+ed in altri tipi di programmazione multimediale. Questo pacchetto è
 necessario per compilare programmi scritti con Allegro.
 
 %package tools
 Summary: Extra tools for the Allegro programming library.
 Summary(es): Herramientas adicionales para la librería de programación Allegro.
 Summary(fr): Outils supplémentaires pour la librairie de programmation Allegro.
-Summary(it): Programmi di utilitÃ  aggiuntivi per la libreria Allegro.
+Summary(it): Programmi di utilità aggiuntivi per la libreria Allegro.
 Group: Development/Other
 Prereq: allegro
 Autoreq: on
@@ -99,9 +99,9 @@ contient des outils supplémentaires qui sont utiles pour le développement
 de programmes avec Allegro.
 
 %description tools -l it
-Allegro Ã¨ una libreria multipiattaforma dedicata all'uso nei videogiochi
+Allegro è una libreria multipiattaforma dedicata all'uso nei videogiochi
 ed in altri tipi di programmazione multimediale. Questo pacchetto
-contiene programmi di utilitÃ  aggiuntivi utili allo sviluppo di programmi
+contiene programmi di utilità aggiuntivi utili allo sviluppo di programmi
 con Allegro.
 
 %prep
