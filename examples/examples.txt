@@ -7,6 +7,7 @@ exbitmap.c - loading and displaying PCX and BMP files
 exblend.c  - truecolor translucency
 excamera.c - viewing a 3d world from an arbitrary camera position
 excolmap.c - color mapping table effects, by Grzegorz Hankiewicz
+exconfig.c - using the config routines, by Lennart Steinke
 excustom.c - creating custom GUI objects
 exdata.c   - accessing the contents of datafiles
 exdbuf.c   - double buffering in VGA mode 13h

@@ -445,6 +445,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/exblend.c \
 	examples/excamera.c \
 	examples/excolmap.c \
+	examples/exconfig.c \
 	examples/excustom.c \
 	examples/exdata.c \
 	examples/exdbuf.c \
@@ -493,6 +494,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exblend \
 	examples/excamera \
 	examples/excolmap \
+	examples/exconfig \
 	examples/excustom \
 	examples/exdata \
 	examples/exdbuf \
