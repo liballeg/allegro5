@@ -391,14 +391,17 @@ information about how to install Allegro and link your program with it.
    Contains the Intel type, where applicable. Allegro defines the following
    CPU family types:
 <textblock>
-    CPU_FAMILY_UNKNOWN  - The type of processor is unknown
-    CPU_FAMILY_I386     - The processor is an Intel-compatible 386
-    CPU_FAMILY_I486     - The processor is an Intel-compatible 486
-    CPU_FAMILY_I586     - The processor is a Pentium or equivalent
-    CPU_FAMILY_I686     - The processor is a Pentium Pro, II, III or equivalent
-    CPU_FAMILY_ITANIUM  - The processor is an Itanium processor
-    CPU_FAMILY_POWERPC  - The processor is a PowerPC processor
-    CPU_FAMILY_EXTENDED - The processor type needs to be read from the cpu_model</endblock>
+      CPU_FAMILY_UNKNOWN  - The type of processor is unknown
+      CPU_FAMILY_I386     - The processor is an Intel-compatible 386
+      CPU_FAMILY_I486     - The processor is an Intel-compatible 486
+      CPU_FAMILY_I586     - The processor is a Pentium or equivalent
+      CPU_FAMILY_I686     - The processor is a Pentium Pro, II, III
+			    or equivalent
+      CPU_FAMILY_ITANIUM  - The processor is an Itanium processor
+      CPU_FAMILY_POWERPC  - The processor is a PowerPC processor
+      CPU_FAMILY_EXTENDED - The processor type needs to be read
+			    from the cpu_model
+<endblock>
    You can read this variable after you have called check_cpu()
    (which is automatically called by allegro_init()).
 
@@ -409,18 +412,21 @@ information about how to install Allegro and link your program with it.
    following CPU family types (see include/allegro/system.h for a more 
    complete list):
 <textblock>   
-   CPU_FAMILY_I586:
-      CPU_MODEL_PENTIUM, CPU_MODEL_K5, CPU_MODEL_K6
+      CPU_FAMILY_I586:
+	 CPU_MODEL_PENTIUM, CPU_MODEL_K5, CPU_MODEL_K6
 
-   CPU_FAMILY_I686:
-      CPU_MODEL_PENTIUMPRO, CPU_MODEL_PENTIUMII, CPU_MODEL_PENTIUMIIIKATMAI,
-      CPU_MODEL_PENTIUMIIICOPPERMINE, CPU_MODEL_ATHLON, CPU_MODEL_DURON
+      CPU_FAMILY_I686:
+	 CPU_MODEL_PENTIUMPRO, CPU_MODEL_PENTIUMII,
+	 CPU_MODEL_PENTIUMIIIKATMAI, CPU_MODEL_PENTIUMIIICOPPERMINE,
+	 CPU_MODEL_ATHLON, CPU_MODEL_DURON
 
-   CPU_FAMILY_EXTENDED:
-      CPU_MODEL_PENTIUMIV, CPU_MODEL_XEON, CPU_MODEL_ATHLON64, CPU_MODEL_OPTERON
+      CPU_FAMILY_EXTENDED:
+	 CPU_MODEL_PENTIUMIV, CPU_MODEL_XEON,
+	 CPU_MODEL_ATHLON64, CPU_MODEL_OPTERON
 
-   CPU_FAMILY_POWERPC:
-      CPU_MODEL_POWERPC_x, for x=601-604, 620, 750, 7400, 7450</endblock>
+      CPU_FAMILY_POWERPC:
+	 CPU_MODEL_POWERPC_x, for x=601-604, 620, 750, 7400, 7450
+<endblock>
    You can read this variable after you have called check_cpu() (which is 
    automatically called by allegro_init()). Make sure you check the cpu_family
    and cpu_vendor so you know which models make sense to check.
