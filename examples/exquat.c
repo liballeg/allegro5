@@ -450,4 +450,4 @@ int main(void)
    }
 }
 
-END_OF_MAIN();
+END_OF_MAIN()

@@ -676,4 +676,4 @@ int main(void)
 
 #endif
 
-END_OF_MAIN();
+END_OF_MAIN()

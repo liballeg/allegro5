@@ -242,4 +242,4 @@ int main(void)
    return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()

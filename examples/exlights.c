@@ -547,4 +547,4 @@ int main(int argc, char *argv[])
    return 0;
 }
 
-END_OF_MAIN();
+END_OF_MAIN()
