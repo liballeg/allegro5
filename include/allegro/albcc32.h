@@ -16,10 +16,6 @@
  */
 
 
-#ifndef __BORLANDC__
-   #error bad include
-#endif
-
 #ifdef ALLEGRO_SRC
    #error Currently BCC32 should only use the DLL
 #endif

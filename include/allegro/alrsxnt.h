@@ -16,10 +16,6 @@
  */
 
 
-#ifndef __RSXNT__
-   #error bad include
-#endif
-
 #ifdef ALLEGRO_SRC
    #error RSXNT can only use the DLL, not build it
 #endif

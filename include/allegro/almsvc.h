@@ -16,11 +16,6 @@
  */
 
 
-#ifndef _MSC_VER
-   #error bad include
-#endif
-
-
 #ifndef SCAN_DEPEND
    #include <io.h>
    #include <fcntl.h>

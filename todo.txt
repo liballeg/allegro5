@@ -64,6 +64,7 @@ Macintosh todos:
   colordepths.
 - Update the docs.
 - Window close button?
+- fix script must write #include "almaccfg.h" into include\allegro\alplatf.h
 
 BeOS todos:
 ---------------------------------------------------------------------------

@@ -26,30 +26,13 @@
 /* include platform-specific stuff */
 #if defined SCAN_EXPORT
    #include "alscanex.h"
-#elif defined __RSXNT__
-   #include "alrsxnt.h"
-#elif defined __MINGW32__
-   #include "almngw32.h"
-#elif defined __BORLANDC__
-   #include "albcc32.h"
-#elif defined _MSC_VER
-   #include "almsvc.h"
-#elif defined __WATCOMC__
-   #include "alwatcom.h"
-#elif defined __BEOS__
-   #include "albecfg.h"
-#elif defined __MRC__
-   #include "almaccfg.h"
-#elif defined __QNX__
-   #include "alqnxcfg.h"
-#elif defined DJGPP
-   #include "aldjgpp.h"
-#elif defined __unix__
-   #include "alucfg.h"
 #else
-   #error platform not supported
+   #include "alplatf.h"
 #endif
 
+#if (!defined ALLEGRO_PLATFORM_STR) && (!defined SCAN_EXPORT)
+   #error Allegro platform not defined. (please run the appropriate fix script)
+#endif
 
 /* special definitions for the GCC compiler */
 #ifdef __GNUC__

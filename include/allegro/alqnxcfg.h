@@ -15,9 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef __QNX__
-#error Bad include!
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>

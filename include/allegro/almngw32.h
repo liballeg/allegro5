@@ -18,11 +18,6 @@
  */
 
 
-#ifndef __MINGW32__
-   #error bad include
-#endif
-
-
 #ifndef SCAN_DEPEND
    #include <io.h>
    #include <fcntl.h>

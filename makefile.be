@@ -192,13 +192,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-GCC2BEOS = -D__BEOS__ -UDJGPP -U__unix__
-
-ifdef CROSSCOMPILE
-  DEPEND_PARAMS = $(GCC2BEOS) -MM -MG -I. -I./include -DSCAN_DEPEND
-else
-  DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
-endif
+DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/beos/*.c src/beos/*.cpp src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp

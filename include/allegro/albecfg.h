@@ -16,10 +16,6 @@
  */
 
 
-#ifndef __BEOS__
-   #error bad include
-#endif
-
 #include <fcntl.h>
 #include <unistd.h>
 

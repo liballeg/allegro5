@@ -145,7 +145,7 @@ define MAKE_LIB
 $(RUNNER) wlib \\ @ -q -b -n $(LIB_NAME) $(addprefix +,$(OBJECTS))
 endef
 
-GCC2WATCOM = -D__WATCOMC__ -D__SW_3S -D__SW_S -U__GNUC__ -UDJGPP -U__unix__
+GCC2WATCOM = -D__SW_3S -D__SW_S
 
 COMPILE_FLAGS = $(subst src/,-dALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 

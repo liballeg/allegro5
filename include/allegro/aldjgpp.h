@@ -16,11 +16,6 @@
  */
 
 
-#ifndef DJGPP
-   #error bad include
-#endif
-
-
 #ifndef SCAN_DEPEND
    #include <pc.h>
    #include <dir.h>

@@ -225,9 +225,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-GCC2BCC = -D__BORLANDC__ -U__GNUC__ -UDJGPP -U__unix__
-
-DEPEND_PARMS = $(GCC2BCC) -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARMS) demo/*.c examples/*.c setup/*.c tests/*.c > _depend.tmp

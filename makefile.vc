@@ -281,15 +281,13 @@ endef
 
 endif
 
-GCC2MSVC = -D_MSC_VER -D_WIN32 -D_M_IX86 -U__GNUC__ -UDJGPP -U__unix__
-
 COMPILE_FLAGS += $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
 
 $(OBJ_DIR)/%.obj: %.c $(RUNNER)
 	$(RUNNER) cl @ -nologo $(COMPILE_FLAGS) -I. -I./include -Fo$@ -c $<
 
 $(OBJ_DIR)/%.obj: %.s
-	gcc $(GCC2MSVC) $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
+	gcc $(SFLAGS) -I. -I./include -x assembler-with-cpp -o $@ -c $<
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
@@ -359,7 +357,7 @@ endef
 
 # -------- generate automatic dependencies --------
 
-DEPEND_PARAMS = $(GCC2MSVC) -MM -MG -I. -I./include -DSCAN_DEPEND
+DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND
 
 depend:
 	gcc $(DEPEND_PARAMS) src/*.c src/win/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c tests/win/*.c > _depend.tmp

@@ -16,10 +16,6 @@
  */
 
 
-#ifndef __WATCOMC__
-   #error bad include
-#endif
-
 #ifndef __SW_3S
    #error Allegro only supports stack based calling convention
 #endif
