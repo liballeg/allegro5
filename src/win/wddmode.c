@@ -164,7 +164,7 @@ int gfx_directx_compare_color_depth(int color_depth)
          if ((pixel_realdepth[i] == color_depth) &&
             ((surf_desc.ddpfPixelFormat.dwRBitMask & pixel_format[i].dwRBitMask) ||
                 (surf_desc.ddpfPixelFormat.dwBBitMask & pixel_format[i].dwBBitMask) ||
-                   (color_depth == 8))) {
+                   (desktop_depth ==8) || (color_depth == 8))) {
                       dd_pixelformat = &pixel_format[i];
                       break;
          }
