@@ -239,51 +239,38 @@
    The latest version of Allegro can always be found on the Allegro 
    homepage, http://alleg.sourceforge.net/.
 
-   There are four mailing lists for Allegro-related discussion, each with a
+   There are three mailing lists for Allegro-related discussion, each with a
    slightly different purpose.
 
-   [AL] - Allegro - allegro@canvaslink.com.
+   [AL] - Allegro main - http://lists.sourceforge.net/lists/listinfo/alleg-main
 
       This list is for any kind of discussion about Allegro, questions about 
       Allegro, reports of problems with Allegro, suggestions for new 
       features, announcements of programs written using Allegro, etc. 
       General rule: if it has to do with Allegro, you can post it here. If 
       not, go somewhere else (for example comp.os.msdos.djgpp, comp.lang.c, 
-      or the AGP list).
+      or the online forums at http://www.allegro.cc .
 
-   [AGP] - Allegro Games Programming - agp@canvaslink.com.
-
-      This list is for discussion of the more general kinds of issue that 
-      may arise while writing a game using Allegro, but that are not 
-      specifically related to Allegro itself. For example if you wanted to 
-      talk about algorithms for scrolling a tile map, that would be 
-      off-topic in the main Allegro list, but appropriate to discuss here.
-
-   [AC] - Allegro Competitions - alcomp@canvaslink.com.
-
-      This list is usually the way to announce, discuss and inform about any
-      competitions made with Allegro, like the Allegro Game Competition or
-      the Allegro Speedhack, Sizehack and Demohack. This list can also be
-      used by anybody willing to organise events related to Allegro, like
-      discussions or conferences in the IRC #allegro channel.
-
-   [AD] - Allegro Developers - conductors@canvaslink.com.
+   [AD] - Allegro developers - http://lists.sourceforge.net/lists/listinfo/alleg-developers
 
       This list is for the people currently working on Allegro, who use it to
       coordinate their efforts. You can use this address if you need to 
       contact the developers directly, for example to submit some new code 
-      that you have written or to report a bug. Unlike the other lists, we 
-      will be really rude to people who post inappropriate material here, so 
-      please don't do that! Do not send tech-support questions to this list. 
-      Don't post bug reports here unless you are 100% certain they aren't 
-      your fault (if you are in any doubt, use the main Allegro list 
-      instead, which is read by most of the same people who are subscribed 
-      here). The Allegro development is a completely open process, and 
-      everyone is welcome to drop by, have a listen, and start contributing 
-      code patches. This list is for working rather than talking, though, so 
-      please don't do anything that might get in our way.
+      that you have written or to report a bug.
 
-   [Alleg5] - Allegro 5 - http://lists.sourceforge.net/mailman/listinfo/alleg-bigfive.
+      Unlike the other lists, we will be really rude to people who post
+      inappropriate material here, so please don't do that! Do not send
+      tech-support questions to this list. Don't post bug reports here unless
+      you are 100% certain they aren't your fault (if you are in any doubt,
+      use the main Allegro list instead, which is read by most of the same
+      people who are subscribed here).
+
+      The Allegro development is a completely open process, and everyone is
+      welcome to drop by, have a listen, and start contributing code patches.
+      This list is for working rather than talking, though, so please don't
+      do anything that might get in our way.
+
+   [Alleg5] - Allegro 5 - http://lists.sourceforge.net/mailman/listinfo/alleg-bigfive
  
       Just as described in the future (http://alleg.sourceforge.net/future.html)
       section, the next big version of Allegro will feature at least a
@@ -292,37 +279,24 @@
       behaviour of actual ones, and posting code with the implementation if
       it's possible to do so.
 
-   To subscribe to one of the four first lists, simply write to the address
-   listserv@canvaslink.com with the text "subscribe {list} myname" in the
-   body of your message, where {list} is one of allegro, agp, alcomp, or
-   conductors.
+   To subscribe to one of the three lists, simply go to it's web page and use
+   the online forms to subscribe yourself. You can remove yourself from a
+   list going to the same page above, which can be used to remind you of your
+   password too, in case you have forgotten it.
 
-   To remove yourself from a list, write to listserv@canvaslink.com with the 
-   text "unsubscribe {list}" in the body of your message, where {list} is 
-   one of allegro, agp, alcomp, or conductors.
-
-   Note that the address for subscribing and unsubscribing is NOT the same 
-   as the regular address for posting messages! Please remember to send your 
-   administration requests to the listserv, rather than to the list itself.
-
-   The fifth list (Allegro 5) is hosted on SourceForge and instructions on
-   how to subscribe/unsubscribe can be found at the Web address listed above.
-
-   To send a message to one of the lists, write to allegro@canvaslink.com, 
-   agp@canvaslink.com, alcomp@canvaslink.com, conductors@canvaslink.com, or
-   alleg-bigfive@lists.sourceforge.net. You need to be subscribed to the
-   canvaslink lists before you can post to them. You don't need to be
-   subscribed to the alleg-bigfive list before you can post there, but it is
-   a good idea to subscribe in order to see the replies.
+   To send a message to one of the lists, write to
+   alleg-main@lists.sourceforge.net, alleg-developers@lists.sourceforge.net,
+   or alleg-bigfive@lists.sourceforge.net. You don't need to be subscribed to
+   these mailing lists before you can post there, but it is a good idea to
+   subscribe in order to see the replies.
 
    Before posting tech-support questions to the Allegro list, please take a
    moment to read the guidelines in docs/txt/help.txt. See docs/txt/ahack.txt
    for information about the style of code we use, and how to create your
    patches.
 
-   You can search through the mailing list archives of the main mailing list
-   using the engine on http://www.canvaslink.com/allegro/search.htm. For the
-   other mailing list, you will have to check the available options at
+   If you want to search through the archives of any of those mailing lists,
+   you will have to check the available options at
    http://alleg.sourceforge.net/maillist.html .
 
    Please don't send messages in HTML format. The increased size places an
@@ -332,10 +306,12 @@
    Please do not crosspost between these lists. Choose the most appropriate
    one for your message, and then send it only to that list.
 
-   Please don't send large binary attachments to any of the lists. Upload
-   your files to a website and then post the URL, or if you can't do that,
-   post an annoucement asking people to write to you privately, and then send
-   the file by individual email to whoever responds.
+   Please don't send large binary attachments to any of the lists, they will
+   be rejected by the size limit filter, which is set to 100KB for the
+   developers mailing list, and 40KB for the others. Upload your files to a
+   website and then post the URL, or if you can't do that, post an
+   announcement asking people to write to you privately, and then send the
+   file by individual email to whoever responded.
 
    Please use English in your messages. You could eventually post messages in
    whatever language you prefer, but that would terribly limit the chances of
