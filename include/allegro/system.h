@@ -107,8 +107,7 @@ typedef struct SYSTEM_DRIVER
    AL_METHOD(void, restore_console_state, (void));
    AL_METHOD(struct BITMAP *, create_bitmap, (int color_depth, int width, int height));
    AL_METHOD(void, created_bitmap, (struct BITMAP *bmp));
-   AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x,
-int y, int width, int height));
+   AL_METHOD(struct BITMAP *, create_sub_bitmap, (struct BITMAP *parent, int x, int y, int width, int height));
    AL_METHOD(void, created_sub_bitmap, (struct BITMAP *bmp, struct BITMAP *parent));
    AL_METHOD(int, destroy_bitmap, (struct BITMAP *bitmap));
    AL_METHOD(void, read_hardware_palette, (void));

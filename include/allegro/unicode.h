@@ -33,16 +33,12 @@
 
 AL_FUNC(void, set_uformat, (int type));
 AL_FUNC(int, get_uformat, (void));
-AL_FUNC(void, register_uformat, (int type, AL_METHOD(int, u_getc, (AL_CONST char *s)), AL_METHOD(int, u_getx, (char **s)), AL_METHOD(int, u_setc, (char *s, int
-c)), AL_METHOD(int, u_width, (AL_CONST char *s)), AL_METHOD(int, u_cwidth, (int
-c)), AL_METHOD(int, u_isok, (int c)), int u_width_max));
-AL_FUNC(void, set_ucodepage, (AL_CONST unsigned short *table, AL_CONST unsigned
-short *extras));
+AL_FUNC(void, register_uformat, (int type, AL_METHOD(int, u_getc, (AL_CONST char *s)), AL_METHOD(int, u_getx, (char **s)), AL_METHOD(int, u_setc, (char *s, int c)), AL_METHOD(int, u_width, (AL_CONST char *s)), AL_METHOD(int, u_cwidth, (int c)), AL_METHOD(int, u_isok, (int c)), int u_width_max));
+AL_FUNC(void, set_ucodepage, (AL_CONST unsigned short *table, AL_CONST unsigned short *extras));
 
 AL_FUNC(int, need_uconvert, (AL_CONST char *s, int type, int newtype));
 AL_FUNC(int, uconvert_size, (AL_CONST char *s, int type, int newtype));
-AL_FUNC(void, do_uconvert, (AL_CONST char *s, int type, char *buf, int newtype,
-int size));
+AL_FUNC(void, do_uconvert, (AL_CONST char *s, int type, char *buf, int newtype, int size));
 AL_FUNC(char *, uconvert, (AL_CONST char *s, int type, char *buf, int newtype, int size));
 AL_FUNC(int, uwidth_max, (int type));
 
@@ -92,8 +88,7 @@ AL_FUNC(double, uatof, (AL_CONST char *s));
 AL_FUNC(long, ustrtol, (AL_CONST char *s, char **endp, int base));
 AL_FUNC(double, ustrtod, (AL_CONST char *s, char **endp));
 AL_FUNC(AL_CONST char *, ustrerror, (int err));
-AL_PRINTFUNC(int, uszprintf, (char *buf, int size, AL_CONST char *format, ...),
-3, 4);
+AL_PRINTFUNC(int, uszprintf, (char *buf, int size, AL_CONST char *format, ...), 3, 4);
 AL_FUNC(int, uvszprintf, (char *buf, int size, AL_CONST char *format, va_list args));
 AL_PRINTFUNC(int, usprintf, (char *buf, AL_CONST char *format, ...), 2, 3);
 

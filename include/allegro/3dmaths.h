@@ -35,8 +35,7 @@ AL_FUNC(float, vector_length_f, (float x, float y, float z));
 AL_FUNC(void, normalize_vector, (fixed *x, fixed *y, fixed *z));
 AL_FUNC(void, normalize_vector_f, (float *x, float *y, float *z));
 
-AL_FUNC(void, cross_product, (fixed x1, fixed y1, fixed z1, fixed x2, fixed y2,
-fixed z2, fixed *xout, fixed *yout, fixed *zout));
+AL_FUNC(void, cross_product, (fixed x1, fixed y1, fixed z1, fixed x2, fixed y2, fixed z2, fixed *xout, fixed *yout, fixed *zout));
 AL_FUNC(void, cross_product_f, (float x1, float y1, float z1, float x2, float y2, float z2, float *xout, float *yout, float *zout));
 
 AL_VAR(fixed, _persp_xscale);

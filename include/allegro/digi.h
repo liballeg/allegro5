@@ -143,8 +143,7 @@ AL_FUNC(void, destroy_sample, (SAMPLE *spl));
 
 AL_FUNC(int, play_sample, (AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop));
 AL_FUNC(void, stop_sample, (AL_CONST SAMPLE *spl));
-AL_FUNC(void, adjust_sample, (AL_CONST SAMPLE *spl, int vol, int pan, int freq,
-int loop));
+AL_FUNC(void, adjust_sample, (AL_CONST SAMPLE *spl, int vol, int pan, int freq, int loop));
 
 AL_FUNC(int, allocate_voice, (AL_CONST SAMPLE *spl));
 AL_FUNC(void, deallocate_voice, (int voice));

@@ -43,15 +43,12 @@ AL_FUNC(int, get_config_int, (AL_CONST char *section, AL_CONST char *name, int d
 AL_FUNC(int, get_config_hex, (AL_CONST char *section, AL_CONST char *name, int def));
 AL_FUNC(float, get_config_float, (AL_CONST char *section, AL_CONST char *name, float def));
 AL_FUNC(int, get_config_id, (AL_CONST char *section, AL_CONST char *name, int def));
-AL_FUNC(char **, get_config_argv, (AL_CONST char *section, AL_CONST char *name,
-int *argc));
+AL_FUNC(char **, get_config_argv, (AL_CONST char *section, AL_CONST char *name, int *argc));
 AL_FUNC(AL_CONST char *, get_config_text, (AL_CONST char *msg));
 
 AL_FUNC(void, set_config_string, (AL_CONST char *section, AL_CONST char *name, AL_CONST char *val));
-AL_FUNC(void, set_config_int, (AL_CONST char *section, AL_CONST char *name, int
-val));
-AL_FUNC(void, set_config_hex, (AL_CONST char *section, AL_CONST char *name, int
-val));
+AL_FUNC(void, set_config_int, (AL_CONST char *section, AL_CONST char *name, int val));
+AL_FUNC(void, set_config_hex, (AL_CONST char *section, AL_CONST char *name, int val));
 AL_FUNC(void, set_config_float, (AL_CONST char *section, AL_CONST char *name, float val));
 AL_FUNC(void, set_config_id, (AL_CONST char *section, AL_CONST char *name, int val));
 

@@ -25,6 +25,7 @@
 
 #include "allegro/debug.h"
 
+
 AL_INLINE(void, draw_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y),
 {
    ASSERT(bmp);
@@ -35,8 +36,7 @@ AL_INLINE(void, draw_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE
 })
 
 
-AL_INLINE(void, draw_trans_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE
-*sprite, int x, int y),
+AL_INLINE(void, draw_trans_rle_sprite, (struct BITMAP *bmp, AL_CONST struct RLE_SPRITE *sprite, int x, int y),
 {
    ASSERT(bmp);
    ASSERT(sprite);

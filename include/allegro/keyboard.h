@@ -161,7 +161,7 @@ AL_FUNC(int, scancode_to_ascii, (int scancode));
 #define KEY_COLON             68
 #define KEY_QUOTE             69
 #define KEY_BACKSLASH         70
- #define KEY_BACKSLASH2        71
+#define KEY_BACKSLASH2        71
 #define KEY_COMMA             72
 #define KEY_STOP              73
 #define KEY_SLASH             74

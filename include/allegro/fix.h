@@ -45,42 +45,25 @@ public:
    operator float() const                    { return fixtof(v); }
    operator double() const                   { return fixtof(v); }
 
-   fix& operator = (const fix &x)            { v = x.v;           return *this;
-}
-   fix& operator = (const int x)             { v = itofix(x);     return *this;
-}
-   fix& operator = (const long x)            { v = itofix(x);     return *this;
-}
-   fix& operator = (const unsigned int x)    { v = itofix(x);     return *this;
-}
-   fix& operator = (const unsigned long x)   { v = itofix(x);     return *this;
-}
-   fix& operator = (const float x)           { v = ftofix(x);     return *this;
-}
-   fix& operator = (const double x)          { v = ftofix(x);     return *this;
-}
+   fix& operator = (const fix &x)            { v = x.v;           return *this; }
+   fix& operator = (const int x)             { v = itofix(x);     return *this; }
+   fix& operator = (const long x)            { v = itofix(x);     return *this; }
+   fix& operator = (const unsigned int x)    { v = itofix(x);     return *this; }
+   fix& operator = (const unsigned long x)   { v = itofix(x);     return *this; }
+   fix& operator = (const float x)           { v = ftofix(x);     return *this; }
+   fix& operator = (const double x)          { v = ftofix(x);     return *this; }
 
-   fix& operator +=  (const fix x)           { v += x.v;          return *this;
-}
-   fix& operator +=  (const int x)           { v += itofix(x);    return *this;
-}
-   fix& operator +=  (const long x)          { v += itofix(x);    return *this;
-}
-   fix& operator +=  (const float x)         { v += ftofix(x);    return *this;
-}
-   fix& operator +=  (const double x)        { v += ftofix(x);    return *this;
-}
+   fix& operator +=  (const fix x)           { v += x.v;          return *this; }
+   fix& operator +=  (const int x)           { v += itofix(x);    return *this; }
+   fix& operator +=  (const long x)          { v += itofix(x);    return *this; }
+   fix& operator +=  (const float x)         { v += ftofix(x);    return *this; }
+   fix& operator +=  (const double x)        { v += ftofix(x);    return *this; }
 
-   fix& operator -=  (const fix x)           { v -= x.v;          return *this;
-}
-   fix& operator -=  (const int x)           { v -= itofix(x);    return *this;
-}
-   fix& operator -=  (const long x)          { v -= itofix(x);    return *this;
-}
-   fix& operator -=  (const float x)         { v -= ftofix(x);    return *this;
-}
-   fix& operator -=  (const double x)        { v -= ftofix(x);    return *this;
-}
+   fix& operator -=  (const fix x)           { v -= x.v;          return *this; }
+   fix& operator -=  (const int x)           { v -= itofix(x);    return *this; }
+   fix& operator -=  (const long x)          { v -= itofix(x);    return *this; }
+   fix& operator -=  (const float x)         { v -= ftofix(x);    return *this; }
+   fix& operator -=  (const double x)        { v -= ftofix(x);    return *this; }
 
    fix& operator *=  (const fix x)           { v = fmul(v, x.v);           return *this; }
    fix& operator *=  (const int x)           { v *= x;                     return *this; }
@@ -94,15 +77,11 @@ public:
    fix& operator /=  (const float x)         { v = ftofix(fixtof(v) / x);  return *this; }
    fix& operator /=  (const double x)        { v = ftofix(fixtof(v) / x);  return *this; }
 
-   fix& operator <<= (const int x)           { v <<= x;           return *this;
-}
-   fix& operator >>= (const int x)           { v >>= x;           return *this;
-}
+   fix& operator <<= (const int x)           { v <<= x;           return *this; }
+   fix& operator >>= (const int x)           { v >>= x;           return *this; }
 
-   fix& operator ++ ()                       { v += itofix(1);    return *this;
-}
-   fix& operator -- ()                       { v -= itofix(1);    return *this;
-}
+   fix& operator ++ ()                       { v += itofix(1);    return *this; }
+   fix& operator -- ()                       { v -= itofix(1);    return *this; }
 
    fix operator ++ (int)                     { fix t;  t.v = v;   v += itofix(1);  return t; }
    fix operator -- (int)                     { fix t;  t.v = v;   v -= itofix(1);  return t; }

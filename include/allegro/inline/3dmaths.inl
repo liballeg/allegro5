@@ -43,8 +43,7 @@ AL_INLINE(void, persp_project, (fixed x, fixed y, fixed z, fixed *xout, fixed *y
 })
 
 
-AL_INLINE(void, persp_project_f, (float x, float y, float z, float *xout, float
-*yout),
+AL_INLINE(void, persp_project_f, (float x, float y, float z, float *xout, float *yout),
 {
    float z1 = 1.0f / z;
    *xout = ((x * z1) * _persp_xscale_f) + _persp_xoffset_f;
