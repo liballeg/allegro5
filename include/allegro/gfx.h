@@ -37,12 +37,15 @@ struct RGB;
 #define GFX_SAFE                       AL_ID('S','A','F','E')
 
 
-typedef struct GFX_MODE {
+typedef struct GFX_MODE
+{
    int width, height, bpp;
 } GFX_MODE;
-typedef struct GFX_MODE_LIST {
-   int num_modes;  /* number of gfx modes                   */
-   GFX_MODE *mode; /* pointer to the actual mode list array */
+
+typedef struct GFX_MODE_LIST
+{
+   int num_modes;                /* number of gfx modes */
+   GFX_MODE *mode;               /* pointer to the actual mode list array */
 } GFX_MODE_LIST;
 
 typedef struct GFX_DRIVER        /* creates and manages the screen bitmap */
