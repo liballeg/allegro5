@@ -228,7 +228,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 	    sys_switch_out();
 	 else if (!HIWORD(wparam)) {
 	    if (gfx_driver && !gfx_driver->windowed)
-	       SetTimer(allegro_wnd, SWITCH_TIMER, 1000, NULL);  /* 1000 ms delay */
+	       SetTimer(allegro_wnd, SWITCH_TIMER, 1200, NULL);  /* 1.2s delay */
 	    else
 	       PostMessage(allegro_wnd, msg_call_proc, (DWORD)sys_switch_in, 0);
 	 }
