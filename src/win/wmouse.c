@@ -624,7 +624,6 @@ static int mouse_directx_init(void)
 {
    HANDLE events[2];
    DWORD result;
-   int factor, t1, t2;
    char tmp1[64], tmp2[128];
 
    /* get user acceleration factor */

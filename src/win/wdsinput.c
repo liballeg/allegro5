@@ -47,7 +47,6 @@
 /* sound driver globals */
 static LPDIRECTSOUNDCAPTURE ds_capture = NULL;
 static LPDIRECTSOUNDCAPTUREBUFFER ds_capture_buf = NULL;
-static DSCBUFFERDESC dscBufDesc;
 static WAVEFORMATEX dsc_buf_wfx;
 static unsigned long int ds_capture_buffer_size;
 static unsigned long int last_capture_pos, input_wave_bytes_read;
