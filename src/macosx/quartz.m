@@ -111,47 +111,8 @@ void osx_qz_release(BITMAP *bmp)
 
 
 
-/* _make_video_bitmap:
- *  Helper function for wrapping up video memory in a video bitmap.
- */
-static BITMAP *_make_video_bitmap(int w, int h, unsigned long addr, struct GFX_VTABLE *vtable, int bpl)
-{
-   int i, size;
-   BITMAP *b;
-
-   if (!vtable)
-      return NULL;
-
-   size = sizeof(BITMAP) + sizeof(char *) * h;
-
-   b = (BITMAP *) malloc(size);
-   if (!b)
-      return NULL;
-
-   b->w = b->cr = w;
-   b->h = b->cb = h;
-   b->clip = TRUE;
-   b->cl = b->ct = 0;
-   b->vtable = vtable;
-   b->write_bank = b->read_bank = _stub_bank_switch;
-   b->dat = NULL;
-   b->id = BMP_ID_VIDEO;
-   b->extra = NULL;
-   b->x_ofs = 0;
-   b->y_ofs = 0;
-   b->seg = _video_ds();
-
-   b->line[0] = (char *)addr;
-
-   for (i = 1; i < h; i++)
-      b->line[i] = b->line[i - 1] + bpl;
-
-   return b;
-}
-
-
-
 /* osx_qz_created_sub_bitmap:
+ *  Makes a sub bitmap to inherit the GWorld of its parent.
  */
 void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent)
 {
@@ -160,21 +121,21 @@ void osx_qz_created_sub_bitmap(BITMAP *bmp, BITMAP *parent)
 
 
 
-/* osx_qz_create_video_bitmap:
+/* _make_quickdraw_bitmap:
+ *  Creates a BITMAP using a QuickDraw GWorld as backing store.
  */
-BITMAP *osx_qz_create_video_bitmap(int width, int height)
+static BITMAP *_make_quickdraw_bitmap(int width, int height, int flags)
 {
-   struct BITMAP *bmp;
+   BITMAP *bmp;
    GWorldPtr gworld;
    Rect rect;
    char *addr;
    int pitch;
+   int i, size;
    
+   /* create new GWorld */
    SetRect(&rect, 0, 0, width, height);
-   
-   /* Try video RAM first, then local with AGP */
-   if (NewGWorld(&gworld, screen->vtable->color_depth, &rect, NULL, NULL, useDistantHdwrMem) ||
-       NewGWorld(&gworld, screen->vtable->color_depth, &rect, NULL, NULL, useLocalHdwrMem))
+   if (NewGWorld(&gworld, screen->vtable->color_depth, &rect, NULL, NULL, flags))
       return NULL;
    
    LockPortBits(gworld);
@@ -182,22 +143,67 @@ BITMAP *osx_qz_create_video_bitmap(int width, int height)
    pitch = GetPixRowBytes(GetPortPixMap(gworld));
    UnlockPortBits(gworld);
    if (!addr) {
+      DisposeGWorld(gworld);
       return NULL;
    }
 
    /* create Allegro bitmap */
-   bmp = _make_video_bitmap(width, height, (unsigned long)addr, &_screen_vtable, pitch);
-   if (!bmp)
-      return NULL;
+   size = sizeof(BITMAP) + sizeof(char *) * height;
 
-   bmp->write_bank = osx_qz_write_line;
-   bmp->read_bank = osx_qz_write_line;
+   bmp = (BITMAP *) malloc(size);
+   if (!bmp) {
+      DisposeGWorld(gworld);
+      return NULL;
+   }
+
+   bmp->w = bmp->cr = width;
+   bmp->h = bmp->cb = height;
+   bmp->clip = TRUE;
+   bmp->cl = bmp->ct = 0;
+   bmp->vtable = &_screen_vtable;
+   bmp->write_bank = bmp->read_bank = osx_qz_write_line;
+   bmp->dat = NULL;
+   bmp->id = BMP_ID_VIDEO;
+   bmp->extra = NULL;
+   bmp->x_ofs = 0;
+   bmp->y_ofs = 0;
+   bmp->seg = _video_ds();
+
+   bmp->line[0] = addr;
+
+   for (i = 1; i < height; i++)
+      bmp->line[i] = bmp->line[i - 1] + pitch;
 
    /* setup surface info structure to store additional information */
    bmp->extra = malloc(sizeof(struct BMP_EXTRA_INFO));
+   if (!bmp->extra) {
+      free(bmp);
+      DisposeGWorld(gworld);
+      return NULL;
+   }
    BMP_EXTRA(bmp)->port = gworld;
-
+   
    return bmp;
+}
+
+
+
+/* osx_qz_create_video_bitmap:
+ *  Tries to allocate a BITMAP in video memory.
+ */
+BITMAP *osx_qz_create_video_bitmap(int width, int height)
+{
+   return _make_quickdraw_bitmap(width, height, useDistantHdwrMem);
+}
+
+
+
+/* osx_qz_create_system_bitmap:
+ *  Tries to allocates a BITMAP in AGP memory.
+ */
+BITMAP *osx_qz_create_system_bitmap(int width, int height)
+{
+   return _make_quickdraw_bitmap(width, height, useLocalHdwrMem);
 }
 
 

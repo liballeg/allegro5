@@ -187,6 +187,7 @@ information about how to install Allegro and link your program with it.
       OSTYPE_UNIX       - Unknown Unix variant
       OSTYPE_BEOS       - BeOS
       OSTYPE_MACOS      - MacOS
+      OSTYPE_MACOSX     - MacOS X
 <endblock>
 @@extern int @os_version;
 @@extern int @os_revision;
@@ -1150,6 +1151,8 @@ which can be located either in the same directory as the program executable,
 or the directory pointed to by the ALLEGRO environment variable. Under Unix, 
 it also checks for ~/allegro.cfg, ~/.allegrorc, /etc/allegro.cfg, and 
 /etc/allegrorc, in that order; under BeOS only the last two are also checked.
+MacOS X also checks in the Contents/Resources directory of the application
+bundle, if any, before doing the checks above.
 If you don't like this approach, you can specify any filename you like, or
 use a block of binary configuration data provided by your program (which
 could for example be loaded from a datafile).
@@ -2227,6 +2230,8 @@ combinations are possible seems to vary from one keyboard to another).
       KEY_ALT, KEY_ALTGR,
       KEY_LWIN, KEY_RWIN, KEY_MENU,
       KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
+
+      KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_APPLE
 <endblock>   
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
@@ -2643,7 +2648,7 @@ Graphics modes
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
 @xref allegro_error, Standard config variables, GFX_*/DOS, GFX_*/Windows
-@xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS
+@xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS, GFX_*/MacOSX
 @eref Available Allegro examples
    Switches into graphics mode. The card parameter should usually be 
    GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
@@ -5588,6 +5593,7 @@ Sound init routines
 @@int @detect_digi_driver(int driver_id);
 @xref install_sound, reserve_voices
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
+@xref DIGI_*/MacOSX
    Detects whether the specified digital sound device is available. Returns 
    the maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. This function must be called _before_ 
@@ -5596,6 +5602,7 @@ Sound init routines
 @@int @detect_midi_driver(int driver_id);
 @xref install_sound, reserve_voices
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
+@xref MIDI_*/MacOSX
    Detects whether the specified MIDI sound device is available. Returns the 
    maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. There are two special-case return values that 
@@ -5682,7 +5689,9 @@ Sound init routines
 @xref set_volume, play_sample, Voice control, play_midi, play_audio_stream
 @xref install_sound_input, allegro_error, Standard config variables
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
+@xref DIGI_*/MacOSX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
+@xref MIDI_*/MacOSX
 @eref exdodgy, exmidi, exsample, exstream
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
    and MIDI_AUTODETECT as the driver parameters to this function, in which 
@@ -6162,7 +6171,9 @@ Recording routines
 @xref install_sound, start_sound_input, midi_recorder
 @xref Standard config variables
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
+@xref DIGI_*/MacOSX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
+@xref MIDI_*/MacOSX
    Initialises the sound recorder module, returning zero on success. You 
    must install the normal sound playback system before calling this 
    routine. The two card parameters should use the same constants as 
@@ -9014,6 +9025,60 @@ you must include qnxalleg.h after other Allegro headers.
 
 
 
+@heading
+MacOS X specifics
+
+@@Drivers @GFX_*/MacOSX
+@xref set_gfx_mode
+   MacOS X Allegro supports the following card parameters for the
+   set_gfx_mode() function:
+<ul><li>
+   GFX_TEXT<br>
+      This closes any graphic mode previously opened with set_gfx_mode.
+<li>
+   GFX_AUTODETECT<br>
+      Let Allegro pick an appropriate graphics driver.
+<li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
+<li>
+   GFX_SAFE<br>
+      Special driver for when you want to reliably set a graphics mode and 
+      don't really care what resolution. See the set_gfx_mode() 
+      documentation for details.
+<li>
+   GFX_QUARTZ_FULLSCREEN<br>
+      Fullscreen exclusive mode, using the CGDirectDisplay interface. 
+      Supports only resolutions higher or equal to 640x480, and uses 
+      hardware acceleration if available.
+<li>
+   GFX_QUARTZ_WINDOW<br>
+      Windowed mode using QuickDraw in a Cocoa window.
+</ul>
+@@Drivers @DIGI_*/MacOSX
+@xref detect_digi_driver, install_sound, install_sound_input
+   The MacOS X sound functions support the following digital soundcards:
+<textblock>
+      DIGI_AUTODETECT      - let Allegro pick a digital sound driver
+      DIGI_NONE            - no digital sound
+      DIGI_SOUND_MANAGER   - Sound Manager digital output
+<endblock>
+@@Drivers @MIDI_*/MacOSX
+@xref detect_midi_driver, install_sound, install_sound_input
+   The MacOS X sound functions support the following MIDI soundcards:
+<textblock>
+      MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
+      MIDI_NONE            - no MIDI sound
+      MIDI_QUICKTIME       - QuickTime Music Note Allocator MIDI output
+      MIDI_DIGMID          - sample-based software wavetable player
+<endblock>
+
+
+
 @headingnocontent
 Differences between platforms
 
@@ -9021,10 +9086,11 @@ Here's a quick summary of things that may cause problems when moving your
 code from one platform to another (you can find a more detailed version of 
 this in the docs section of the Allegro website).
 
-The Windows and Unix versions require you to write END_OF_MAIN() after your 
-main() function, which is used to magically turn an ANSI C style main() 
-into a Windows style WinMain(), and so that the Unix code can grab a copy 
-of your argv[] parameter.
+The Windows, Unix and MacOS X versions require you to write END_OF_MAIN() 
+after your main() function, which is used to magically turn an ANSI C style 
+main() into a Windows style WinMain(), and so that the Unix code can grab a 
+copy of your argv[] parameter. MacOS X uses it to shell the user main() 
+inside a Cocoa application.
 
 On many platforms Allegro runs very slowly if you rely on it in order to 
 automatically lock bitmaps when drawing onto them. For good performance, 
@@ -9057,6 +9123,7 @@ various attributes of the current platform:
 <b>ALLEGRO_BEOS</b><br>
 <b>ALLEGRO_QNX</b><br>
 <b>ALLEGRO_DARWIN</b><br>
+<b>ALLEGRO_MACOSX</b><br>
 <b>ALLEGRO_GCC</b><br>
    Defined if you are building for a relevant system. Often several of these 
    will apply, eg. DOS+Watcom, or Windows+GCC+MinGW32.
@@ -9426,7 +9493,7 @@ platforms you can set the following environment variables:
    yourself, rather than just using it in your programs, you should be sure 
    to have this mode enabled.
 <li>
-   STATICLINK=1 (MinGW32, MSVC, BeOS only)<br>
+   STATICLINK=1 (MinGW32, MSVC, BeOS, MacOS X only)<br>
    Link as a static library, rather than the default dynamic library.
 <li>
    TARGET_ARCH_COMPAT=[cpu] (GCC-based platforms only)<br>
@@ -9521,7 +9588,7 @@ makefiles also provide some special pseudo-targets:
    example <link>http://anjuta.sourceforge.net/</a>. The Allegro 'book' will be
    created in docs/devhelp/allegro.devhelp, you have to install it manually.
 <li>
-   'install-man' or 'install-gzipped-man' (Unix only)<br>
+   'install-man' or 'install-gzipped-man' (Unix and MacOS X only)<br>
    This generates Unix man pages for each Allegro function or variable and
    installs them. The second target compresses the manual pages after
    installing them.

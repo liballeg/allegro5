@@ -109,11 +109,11 @@ CFLAGS += -DALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(C_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_MACOSX_FILES)))
 
-STATIC_LIBRARIES = -lpthread -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
+STATIC_LIBRARIES = -framework Cocoa -framework Carbon -framework IOKit -framework System -framework QuickTime
 ifdef STATICLINK
 LIBRARIES = $(STATIC_LIBRARIES)
 else
-LIBRARIES = -lpthread -framework Cocoa
+LIBRARIES = -framework Cocoa
 endif
 
 PROGRAMS =

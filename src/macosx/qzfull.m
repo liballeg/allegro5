@@ -58,8 +58,8 @@ GFX_DRIVER gfx_quartz_full =
    osx_qz_destroy_video_bitmap,  /* AL_METHOD(void, destroy_video_bitmap, (struct BITMAP *bitmap)); */
    osx_qz_show_video_bitmap,     /* AL_METHOD(int, show_video_bitmap, (BITMAP *bitmap)); */
    NULL,                         /* AL_METHOD(int, request_video_bitmap, (BITMAP *bitmap)); */
-   NULL,                         /* AL_METHOD(BITMAP *, create_system_bitmap, (int width, int height)); */
-   NULL,                         /* AL_METHOD(void, destroy_system_bitmap, (BITMAP *bitmap)); */
+   osx_qz_create_system_bitmap,  /* AL_METHOD(BITMAP *, create_system_bitmap, (int width, int height)); */
+   osx_qz_destroy_video_bitmap,  /* AL_METHOD(void, destroy_system_bitmap, (BITMAP *bitmap)); */
    NULL,                         /* AL_METHOD(int, set_mouse_sprite, (BITMAP *sprite, int xfocus, int yfocus)); */
    NULL,                         /* AL_METHOD(int, show_mouse, (BITMAP *bmp, int x, int y)); */
    NULL,                         /* AL_METHOD(void, hide_mouse, (void)); */
@@ -180,7 +180,7 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
    _screen_vtable.created_sub_bitmap = osx_qz_created_sub_bitmap;
    if (color_depth != 8) {
       _screen_vtable.blit_to_self = osx_qz_blit_to_self;
-      gfx_capabilities = GFX_HW_VRAM_BLIT;
+      gfx_capabilities = GFX_HW_VRAM_BLIT | GFX_HW_SYS_TO_VRAM_BLIT;
    }
    
    uszprintf(driver_desc, sizeof(driver_desc), uconvert_ascii("Core Graphics DirectDisplay access, %d bpp", tmp1),

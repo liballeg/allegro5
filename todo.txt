@@ -91,7 +91,6 @@ MacOS X todos
 - window contents don't show up during deminiaturization animation
 - fix weird kCGErrorIllegalArgument error report when closing fullscreen mode
 - fixbundle script/application
-- make the docs aware of the MacOS X support
 
 BeOS todos:
 ---------------------------------------------------------------------------

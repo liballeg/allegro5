@@ -209,7 +209,8 @@ Configuration
    Under Unix, BeOS and MacOS X, the config file routines also check for
    ~/allegro.cfg, ~/.allegrorc, /etc/allegro.cfg, and /etc/allegrorc, in
    that order, and the keyboard and language files can be stored in your 
-   home directory or in /etc/.
+   home directory or in /etc/. If under MacOS X, the application bundle
+   Contents/Resources directory, if any, is also scanned first.
 
    See docs/txt/allegro.txt for details of the config file format.
 
