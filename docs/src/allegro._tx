@@ -4139,7 +4139,10 @@ bitmap.
    depth, but as a special case you can draw 32 bit RGBA format sprites onto 
    any hicolor or truecolor bitmap, as long as you call set_alpha_blender() 
    first, and you can draw 8 bit alpha images onto a 32 bit RGBA 
-   destination, as long as you call set_write_alpha_blender() first.
+   destination, as long as you call set_write_alpha_blender() first. 
+   As draw_sprite() this function skips transparent pixels, except if the 
+   source sprite is an 8 bit image; if this is the case, you should pay 
+   attention to properly set up your color map table for index 0.
 
 @@void @draw_lit_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, int color);
 @xref draw_sprite, draw_trans_sprite, draw_gouraud_sprite
