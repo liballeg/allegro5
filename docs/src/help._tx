@@ -161,7 +161,7 @@ Part 3 - when your program crashes
    Just like with djgpp, to make sense of the core, you should compile your
    program with debugging information (using the -g switch), and then run
    the GNU debugger on it "gdb binary core". That will load the debugger,
-   print some information about linked binaries and leave you at a prompt.
+   print some information about linked libraries and leave you at a prompt.
    Now you can get the full backtrace:
 <textblock>
       (gdb) backtrace
