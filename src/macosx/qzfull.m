@@ -86,7 +86,16 @@ GFX_DRIVER gfx_quartz_full =
 
 
 
-static void fade_screen(int fade_in, double seconds)
+void osx_init_fade_system(void)
+{
+   CGTableCount samples;
+   
+   CGGetDisplayTransferByTable(kCGDirectMainDisplay, 256, &original_table[0], &original_table[256], &original_table[512], &samples);
+}
+
+
+
+void osx_fade_screen(int fade_in, double seconds)
 {
    int interval = (int)((seconds * 1000000.0) / (double)FADE_STEPS);
    int i, j;
@@ -118,7 +127,6 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
 {
    BITMAP *bmp;
    CFDictionaryRef mode = NULL;
-   CGTableCount samples;
    boolean_t match = FALSE;
    int bpp, refresh_rate;
    char tmp1[128];
@@ -162,10 +170,10 @@ static BITMAP *private_osx_qz_full_init(int w, int h, int v_w, int v_h, int colo
       return NULL;
    }
    
-   CGGetDisplayTransferByTable(kCGDirectMainDisplay, 256, &original_table[0], &original_table[256], &original_table[512], &samples);
+   osx_init_fade_system();
    old_mode = CGDisplayCurrentMode(kCGDirectMainDisplay);
    CGDisplayHideCursor(kCGDirectMainDisplay);
-   fade_screen(FALSE, 0.3);
+   osx_fade_screen(FALSE, 0.3);
    if (CGDisplayCapture(kCGDirectMainDisplay) != kCGErrorSuccess) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Cannot capture main display"));
       return NULL;
@@ -255,12 +263,12 @@ static void osx_qz_full_exit(BITMAP *bmp)
    }
    
    if (old_mode) {
-      fade_screen(FALSE, 0.2);
+      osx_fade_screen(FALSE, 0.2);
       CGDisplaySwitchToMode(kCGDirectMainDisplay, old_mode);
       CGDisplayRelease(kCGDirectMainDisplay);
       CGDisplayShowCursor(kCGDirectMainDisplay);
       ShowMenuBar();
-      fade_screen(TRUE, 0.3);
+      osx_fade_screen(TRUE, 0.3);
       CGDisplayRestoreColorSyncSettings();
       old_mode = NULL;
    }
