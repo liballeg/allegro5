@@ -832,8 +832,8 @@ static int save_mono_font(FONT* f, PACKFILE* pack)
 
     }
 
-    /* TODO: return -1 on failure */
-    return 0;
+    /* TODO: return FALSE on failure */
+    return TRUE;
 }
 
 
@@ -877,8 +877,8 @@ static int save_color_font(FONT* f, PACKFILE* pack)
 
     }
 
-    /* TODO: return -1 on failure */
-    return 0;
+    /* TODO: return FALSE on failure */
+    return TRUE;
 }
 
 

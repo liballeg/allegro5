@@ -179,9 +179,9 @@ static void *grab_binary(AL_CONST char *filename, long *size, int x, int y, int 
 static int save_binary(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    if (pack_fwrite(dat->dat, dat->size, f) < dat->size)
-      return -1;
+      return FALSE;
 
-   return 0;
+   return TRUE;
 }
 
 
@@ -391,7 +391,7 @@ static int save_object(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pa
 	 pack_mputl(prop->type, f);
 	 pack_mputl(strlen(prop->dat), f);
 	 if (pack_fwrite(prop->dat, strlen(prop->dat), f) < (signed)strlen(prop->dat))
-	    return -1;
+	    return FALSE;
 	 file_datasize += 12 + strlen(prop->dat);
       }
 
@@ -466,11 +466,11 @@ static int save_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int 
    pack_mputl(extra ? size+1 : size, f);
 
    for (c=0; c<size; c++) {
-      if (save_object(dat+c, fixed_prop, pack, pack_kids, strip, sort, verbose, f) != 0)
-	 return -1;
+      if (!save_object(dat+c, fixed_prop, pack, pack_kids, strip, sort, verbose, f))
+	 return FALSE;
    }
 
-   return 0;
+   return TRUE;
 }
 
 
@@ -1096,31 +1096,30 @@ int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, AL_CONST int *fixe
 
       ret = save_datafile(dat, fixed_prop, (pack >= 2), (pack >= 1), strip, sort, options->verbose, (strip <= 0), f);
 
-      if (strip <= 0) {
+      if ((ret == TRUE) && (strip <= 0)) {
 	 datedit_set_property(&datedit_info, DAT_NAME, "GrabberInfo");
-	 ret |= save_object(&datedit_info, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, f);
+	 ret = save_object(&datedit_info, NULL, FALSE, FALSE, FALSE, FALSE, FALSE, f);
       }
 
       pack_fclose(f); 
    }
    else
-      ret = -1;
+      ret = FALSE;
 
-   if (ret != 0) {
+   if (ret == FALSE) {
       delete_file(pretty_name);
       datedit_error("Error writing %s", pretty_name);
       packfile_password(NULL);
       return FALSE;
    }
-   else {
-      if (!options->backup)
-	 delete_file(backup_name);
+   
+   if (!options->backup)
+      delete_file(backup_name);
 
-      if (options->verbose) {
-	 int file_filesize = file_size(pretty_name);
-	 datedit_msg("%-28s%7d bytes into %-7d (%d%%)", "- GLOBAL COMPRESSION -",
-		     file_datasize, file_filesize, percent(file_datasize, file_filesize));
-      }
+   if (options->verbose) {
+      int file_filesize = file_size(pretty_name);
+      datedit_msg("%-28s%7d bytes into %-7d (%d%%)", "- GLOBAL COMPRESSION -",
+		  file_datasize, file_filesize, percent(file_datasize, file_filesize));
    }
 
    packfile_password(NULL);

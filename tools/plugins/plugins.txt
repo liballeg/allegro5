@@ -96,7 +96,7 @@ Object Plugins
 	 char *desc;
 	 void (*get_desc)(DATAFILE *dat, char *s);
 	 void *(*makenew)(long *size);
-	 void (*save)(DATAFILE *dat, ..., PACKFILE *f);
+	 int (*save)(DATAFILE *dat, ..., PACKFILE *f);
 	 void (*plot)(DATAFILE *dat, int x, int y);
 	 int (*dclick)(DATAFILE *dat);
 	 void (*dat2s)(DATAFILE *dat, char *name, FILE *file, FILE *header);
@@ -127,7 +127,8 @@ Object Plugins
    save()
       Saves the object into an Allegro datafile. This takes quite a lot of 
       parameters, but you can ignore all of them except the 'dat' and 'f' 
-      values: the others are only needed for nested datafiles.
+      values: the others are only needed for nested datafiles. Returns TRUE
+      on success and FALSE on failure.
 
    plot()
       Optional. Draws the object onto the grabber screen at the specified 
@@ -201,7 +202,8 @@ Import/Export Plugins
       object in bytes.
 
    export()
-      Saves an object into the named file.
+      Saves an object into the named file. Returns TRUE on success and FALSE
+      on failure.
 
    The 'datfont_grabber' interface from datfont.c is a good example of an 
    import/export plugin that supports several different file formats.

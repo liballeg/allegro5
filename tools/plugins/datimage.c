@@ -460,8 +460,8 @@ static int save_datafile_bitmap(DATAFILE *dat, AL_CONST int *fixed_prop, int pac
 	 break;
    }
 
-   /* TODO: return -1 on failure */
-   return 0;
+   /* TODO: return FALSE on failure */
+   return TRUE;
 }
 
 
@@ -714,8 +714,8 @@ static int save_rle_sprite(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, in
 	 break;
    }
 
-   /* TODO: return -1 on failure */
-   return 0;
+   /* TODO: return FALSE on failure */
+   return TRUE;
 }
 
 

@@ -70,6 +70,8 @@ static int export_sample(AL_CONST DATAFILE *dat, AL_CONST char *filename)
    signed short s;
    PACKFILE *f;
 
+   errno = 0;
+   
    f = pack_fopen(filename, F_WRITE);
 
    if (f) {
@@ -132,8 +134,8 @@ static int save_sample_in_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int 
       }
    }
 
-   /* TODO: return -1 on failure */
-   return 0;
+   /* TODO: return FALSE on failure */
+   return TRUE;
 }
 
 

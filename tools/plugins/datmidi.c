@@ -73,6 +73,8 @@ static int export_midi(AL_CONST DATAFILE *dat, AL_CONST char *filename)
       if (midi->track[c].len > 0)
 	 num_tracks++;
 
+   errno = 0; 
+
    f = pack_fopen(filename, F_WRITE);
 
    if (f) {
@@ -120,8 +122,8 @@ static int save_midi(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack
 	 pack_fwrite(midi->track[c].data, midi->track[c].len, f);
    }
 
-   /* TODO: return -1 on failure */
-   return 0;
+   /* TODO: return FALSE on failure */
+   return TRUE;
 }
 
 
