@@ -16,19 +16,17 @@ if [%1] == [msvc]    goto msvc
 if [%1] == [rsxnt]   goto rsxnt
 if [%1] == [watcom]  goto watcom
 
-if [%1] == [help]    goto help
-if [%1] == []        goto help
-
-goto done
+goto help
 
 :ooes_error
 
 echo *** ERROR *** Look up the section "Out of Environment space" in the FAQ.
-goto done
+echo.
+goto end
 
 :bcc32
 
-set AL_COMPILER=Windows (BCC32)
+set AL_COMPILER=Windows/BCC32
 set AL_MAKEFILE=makefile.bcc
 set AL_PLATFORM=ALLEGRO_BCC32
 set AL_NOCONV=1
@@ -36,14 +34,14 @@ goto fix
 
 :djgpp
 
-set AL_COMPILER=DOS (djgpp)
+set AL_COMPILER=DOS/djgpp
 set AL_MAKEFILE=makefile.dj
 set AL_PLATFORM=ALLEGRO_DJGPP
 goto fix
 
 :mingw32
 
-set AL_COMPILER=Windows (Mingw32)
+set AL_COMPILER=Windows/Mingw32
 set AL_MAKEFILE=makefile.mgw
 set AL_PLATFORM=ALLEGRO_MINGW32
 set AL_NOCONV=1
@@ -51,21 +49,21 @@ goto fix
 
 :msvc
 
-set AL_COMPILER=Windows (MSVC)
+set AL_COMPILER=Windows/MSVC
 set AL_MAKEFILE=makefile.vc
 set AL_PLATFORM=ALLEGRO_MSVC
 goto fix
 
 :rsxnt
 
-set AL_COMPILER=Windows (RSXNT)
+set AL_COMPILER=Windows/RSXNT
 set AL_MAKEFILE=makefile.rsx
 set AL_PLATFORM=ALLEGRO_RSXNT
 goto fix
 
 :watcom
 
-set AL_COMPILER=DOS (Watcom)
+set AL_COMPILER=DOS/Watcom
 set AL_MAKEFILE=makefile.wat
 set AL_PLATFORM=ALLEGRO_WATCOM
 goto fix
@@ -78,7 +76,7 @@ echo.
 echo Where platform is one of: bcc32, djgpp, mingw32, msvc, rsxnt or watcom.
 echo The --quick parameter is used to turn off LF to CR/LF conversion.
 echo.
-goto done
+goto end
 
 :fix
 
@@ -109,3 +107,5 @@ set AL_MAKEFILE=
 set AL_NOCONV=
 
 echo Done!
+
+:end
