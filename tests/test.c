@@ -1652,7 +1652,7 @@ void rainbow(void)
 
 
 
-void caps(void)
+static void caps(void)
 {
    static char *s[] =
    {
