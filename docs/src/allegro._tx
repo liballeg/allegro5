@@ -12,7 +12,7 @@
 @f1=<p><hr><p><a href="
 @f2=">Back to Contents</a><p></body></html>
 @rtfh=Allegro - a game programming library
-@manh="version 3.9.41 (CVS)" "Allegro" "Allegro manual"
+@manh="version 4.0.0" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @$\input texinfo
 @$@setfilename allegro.inf
@@ -47,12 +47,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.41 (CVS)
+				       \_/__/     Version 4.0.0
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Nov 16, 2001.
+	     By Shawn Hargreaves, Dec 06, 2001.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -88,7 +88,9 @@ information about how to install Allegro and link your program with it.
 @@int @install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)());
 @xref allegro_init, allegro_exit
    Initialises the Allegro library. You must call either this or 
-   allegro_init() before doing anything else. The available system ID codes 
+   allegro_init() before doing anything other than using the Unicode 
+   routines. If you want to use a text mode other than UTF-8, you can set
+   it with set_uformat() before you call this. The available system ID codes 
    will vary from one platform to another, but you will almost always want 
    to pass SYSTEM_AUTODETECT. Alternatively, SYSTEM_NONE installs a stripped 
    down version of Allegro that won't even try to touch your hardware or do 
@@ -104,8 +106,8 @@ information about how to install Allegro and link your program with it.
 
 @@int @allegro_init();
 @xref install_allegro, allegro_exit
-   Initialises the Allegro library. This is the same thing as calling 
-   install_allegro(SYSTEM_AUTODETECT, &errno, atexit).
+   Macro which initialises the Allegro library. This is the same thing as
+   calling install_allegro(SYSTEM_AUTODETECT, &errno, atexit).
 
 @@void @allegro_exit();
 @xref install_allegro, allegro_init
@@ -353,6 +355,10 @@ simpler equivalents (this is used by the allegro_message() function when it
 needs to print an error report onto a text mode DOS screen). If you want to 
 work with other codepages, you can do this by passing a character mapping 
 table to the set_ucodepage() function.
+
+Note that you can use the Unicode routines before you call install_allegro() 
+or allegro_init(). If you want to work in a text mode other than UTF-8, it 
+is best to set it with set_uformat() just before you call these.
 
 @@void @set_uformat(int type);
 @xref get_uformat, register_uformat, set_ucodepage, set_uformat, uconvert

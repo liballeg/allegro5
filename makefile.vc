@@ -40,7 +40,7 @@ else
 # -------- link as a DLL --------
 
 OBJ_DIR = obj/msvc/$(VERSION)
-DLL_BASENAME = $(SHORT_VERSION)$(LIBRARY_VERSION).dll
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION).dll
 DLL_NAME = lib/msvc/$(DLL_BASENAME)
 IMPLIB_BASENAME = $(VERSION).lib
 IMPLIB_NAME = lib/msvc/$(IMPLIB_BASENAME)
@@ -290,9 +290,9 @@ UNINSTALL_FILES = $(MSVCDIR_U)/lib/alleg.lib                \
 		  $(MSVCDIR_U)/include/allegro/internal/*.h \
 		  $(MSVCDIR_U)/include/allegro/inline/*.inl \
 		  $(MSVCDIR_U)/include/allegro/platform/*.h \
-		  $(WINDIR_U)/all$(LIBRARY_VERSION).dll     \
-		  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll     \
-		  $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
+		  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll   \
+		  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll    \
+		  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)

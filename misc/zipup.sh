@@ -48,6 +48,8 @@ sed -n -e "/CLEAN_FILES/,/^$/p; /^ALLEGRO_.*_EXES/,/^$/p" makefile.lst | \
    sed -e "s/\(.*\)/-c \"rm -f \1\"/" | \
    xargs -l sh
 
+find . -name '*~' -exec rm -f {} \;
+
 
 # emulation of the djgpp utod utility program (Unix to DOS text format)
 utod()
@@ -130,6 +132,9 @@ misc/fixdll.sh
 echo "Running autoconf to generate configure script..."
 autoconf
 
+# touch stamp-h.in so the user doesn't need autoheader to compile
+touch stamp-h.in
+
 # convert documentation from the ._tx source files
 echo "Converting documentation..."
 
@@ -139,7 +144,9 @@ gcc _tmpdoc.c -o _makedoc.exe
 ./_makedoc.exe -ascii CHANGES docs/src/changes._tx
 ./_makedoc.exe -part -ascii AUTHORS docs/src/thanks._tx
 ./_makedoc.exe -part -ascii THANKS docs/src/thanks._tx
-./_makedoc.exe -ascii faq.txt docs/src/faq._tx
+for base in abi ahack allegro const faq help; do
+   ./_makedoc.exe -ascii docs/txt/$base.txt docs/src/$base._tx
+done
 
 rm _tmpdoc.c _makedoc.exe
 

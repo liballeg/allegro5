@@ -71,6 +71,10 @@ DESCRIPTION = optimised
 endif
 endif
 
+ifdef STATICLINK
+DESCRIPTION += statically linked
+endif
+
 
 
 # -------- list of what files we need to build --------

@@ -77,16 +77,19 @@ echo "Stripping to form end-user distribution"
 	(cd obj && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
 	(cd lib && rm -rf bcc32 beos qnx djgpp mingw32 msvc watcom)
 	(cd include && rm -f bealleg.h qnxalleg.h macalleg.h winalleg.h)
-	(cd misc && rm -f cmplog.pl findtext.sh fixpatch.sh fixver.sh zipup.sh)
-	rm -rf demo docs examples setup tests tools
+	(cd misc && rm -f cmplog.pl dllsyms.lst findtext.sh fixpatch.sh fixver.sh)
+	(cd misc && rm -f allegro-config-qnx.sh zipup.sh zipwin.sh *.bat *.c)
+	rm -rf demo docs examples resource setup tests tools
 	rm -f AUTHORS CHANGES THANKS *.txt fix* indent* readme.* allegro.mft
 	rm -f makefile.all makefile.be makefile.qnx makefile.bcc makefile.dj
-	rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat
+	rm -f makefile.mgw makefile.mpw makefile.vc makefile.wat makefile.tst
+	rm -f xmake.sh
+	rm -f keyboard.dat language.dat
 	{       # Tweak makefile.in
 		cp makefile.in makefile.old &&
 		cat makefile.old |
 		sed -e "s/INSTALL_TARGETS = .*/INSTALL_TARGETS = mini-install/" |
-		sed -e "s/DEFAULT_TARGETS = .*/DEFAULT_TARGETS = lib/" |
+		sed -e "s/DEFAULT_TARGETS = .*/DEFAULT_TARGETS = lib modules/" |
 		cat > makefile.in &&
 		rm -f makefile.old
 	}

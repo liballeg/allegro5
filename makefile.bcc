@@ -23,7 +23,7 @@ PLATFORM_DIR = obj/bcc32
 # -------- link as a DLL --------
 
 OBJ_DIR = obj/bcc32/$(VERSION)
-DLL_BASENAME = $(SHORT_VERSION)$(LIBRARY_VERSION).dll
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION).dll
 DLL_NAME = lib/bcc32/$(DLL_BASENAME)
 IMPLIB_BASENAME = $(VERSION).lib
 IMPLIB_NAME = lib/bcc32/$(IMPLIB_BASENAME)
@@ -237,9 +237,9 @@ UNINSTALL_FILES = $(BCC32DIR_U)/lib/alleg.lib                \
 		  $(BCC32DIR_U)/include/allegro/internal/*.h \
 		  $(BCC32DIR_U)/include/allegro/inline/*.inl \
 		  $(BCC32DIR_U)/include/allegro/platform/*.h \
-		  $(WINDIR_U)/all$(LIBRARY_VERSION).dll      \
-		  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll      \
-		  $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
+		  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll    \
+		  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll     \
+		  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)

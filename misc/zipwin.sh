@@ -106,16 +106,16 @@ goto the_end
 call fix.bat msvc --quick
 
 echo Generating release mode import library
-copy lib\\msvc\\allegro.def lib\\msvc\\all$ver.def > nul
-lib /nologo /machine:ix86 /def:lib\\msvc\\all$ver.def /out:lib\\msvc\\alleg.lib
+copy lib\\msvc\\allegro.def lib\\msvc\\alleg$ver.def > nul
+lib /nologo /machine:ix86 /def:lib\\msvc\\alleg$ver.def /out:lib\\msvc\\alleg.lib
 
 echo Generating debug mode import library
-copy lib\\msvc\\allegro.def lib\\msvc\\ald$ver.def > nul
-lib /nologo /machine:ix86 /def:lib\\msvc\\ald$ver.def /out:lib\\msvc\\alld.lib /debugtype:cv
+copy lib\\msvc\\allegro.def lib\\msvc\\alld$ver.def > nul
+lib /nologo /machine:ix86 /def:lib\\msvc\\alld$ver.def /out:lib\\msvc\\alld.lib /debugtype:cv
 
 echo Generating profile mode import library
-copy lib\\msvc\\allegro.def lib\\msvc\\alp$ver.def > nul
-lib /nologo /machine:ix86 /def:lib\\msvc\\alp$ver.def /out:lib\\msvc\\allp.lib
+copy lib\\msvc\\allegro.def lib\\msvc\\allp$ver.def > nul
+lib /nologo /machine:ix86 /def:lib\\msvc\\allp$ver.def /out:lib\\msvc\\allp.lib
 
 echo Compiling test and example programs
 END_OF_BATCH
@@ -283,12 +283,12 @@ programs using Allegro.
 
 There are three versions of the DLL included in this zip:
 
-   all$ver.dll is the normal optimised version
-   ald$ver.dll is the debugging build, and should be used during development
-   alp$ver.dll is a profiling build, for collecting performance info
+   alleg$ver.dll is the normal optimised version
+   alld$ver.dll is the debugging build, and should be used during development
+   allp$ver.dll is a profiling build, for collecting performance info
 
 For more general information about using Allegro, see the readme.txt and 
-msvc.txt files from the source distribution.
+docs/build/msvc.txt files from the source distribution.
 
 END_OF_README
 

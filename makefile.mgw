@@ -10,7 +10,7 @@
 
 # -------- define some variables that the primary makefile will use --------
 
-PLATFORM = MingW32
+PLATFORM = MinGW32
 EXE = .exe
 OBJ = .o
 HTML = html
@@ -41,7 +41,7 @@ else
 # -------- link as a DLL --------
 
 OBJ_DIR = obj/mingw32/$(VERSION)
-DLL_BASENAME = $(SHORT_VERSION)$(LIBRARY_VERSION).dll
+DLL_BASENAME = $(VERSION)$(LIBRARY_VERSION).dll
 DLL_NAME = lib/mingw32/$(DLL_BASENAME)
 IMPLIB_BASENAME = lib$(VERSION).a
 IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
@@ -340,9 +340,9 @@ UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a               \
                   $(MINGDIR_U)/include/allegro/internal/*.h \
                   $(MINGDIR_U)/include/allegro/inline/*.inl \
                   $(MINGDIR_U)/include/allegro/platform/*.h \
-                  $(WINDIR_U)/all$(LIBRARY_VERSION).dll     \
-                  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll     \
-                  $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
+                  $(WINDIR_U)/alleg$(LIBRARY_VERSION).dll   \
+                  $(WINDIR_U)/alld$(LIBRARY_VERSION).dll    \
+                  $(WINDIR_U)/allp$(LIBRARY_VERSION).dll
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)

@@ -1,9 +1,9 @@
 # List of modules to be loaded by the Unix version of Allegro.
 
-alleg-vga-3.9.41.so
-alleg-fbcon-3.9.41.so
-alleg-svgalib-3.9.41.so
-alleg-dga2-3.9.41.so
-alleg-esddigi-3.9.41.so
-alleg-alsadigi-3.9.41.so
-alleg-alsamidi-3.9.41.so
+alleg-vga-4.0.0.so
+alleg-fbcon-4.0.0.so
+alleg-svgalib-4.0.0.so
+alleg-dga2-4.0.0.so
+alleg-esddigi-4.0.0.so
+alleg-alsadigi-4.0.0.so
+alleg-alsamidi-4.0.0.so

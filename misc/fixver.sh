@@ -57,9 +57,9 @@ FILETYPE VFT_DLL
          VALUE "CompanyName", "Allegro Developers\000\000"
          VALUE "FileDescription", "Allegro\000"
          VALUE "FileVersion", "$verstr\000"
-         VALUE "InternalName", "ALL$1$2$3\000"
+         VALUE "InternalName", "ALLEG$1$2\000"
          VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
-         VALUE "OriginalFilename", "ALL$1$2$3.DLL\000"
+         VALUE "OriginalFilename", "ALLEG$1$2.DLL\000"
          VALUE "ProductName", "Allegro\000"
          VALUE "ProductVersion", "$verstr\000"
       }
@@ -89,7 +89,7 @@ cp docs/src/allegro._tx fixver.tmp
 sed -f fixver.sed fixver.tmp > docs/src/allegro._tx
 
 # patch makefile.ver
-echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2$3/" > fixver.sed
+echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2/" > fixver.sed
 echo "s/shared_version = .*/shared_version = $1.$2.$3/" >> fixver.sed
 echo "s/shared_major_minor = .*/shared_major_minor = $1.$2/" >> fixver.sed
 

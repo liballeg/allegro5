@@ -4,7 +4,7 @@ Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Name: allegro
-Version: 3.9.41
+Version: 4.0.0
 Release: 1
 License: Gift Ware
 Packager: Allegro development team <conductors@canvaslink.com>
@@ -97,7 +97,7 @@ de programmes avec Allegro.
             --mandir=%{_mandir} \
             --infodir=%{_infodir}
 make
-LD_LIBRARY_PATH=../../lib/unix DAT=../../tools/dat misc/mkdata.sh
+MKDATA_PRELOAD=../../lib/unix/liballeg-%{version}.so DAT=../../tools/dat misc/mkdata.sh
 
 %install
 rm -rf %{buildroot}
@@ -112,8 +112,6 @@ make prefix=%{buildroot}%{_prefix} \
 install -D -m 644 allegro.cfg %{buildroot}%{_sysconfdir}/allegrorc
 install -d -m 755 %{buildroot}%{_datadir}/allegro
 install -D -m 644 keyboard.dat language.dat %{buildroot}%{_datadir}/allegro
-mkdir -p html
-mv docs/*.htm* html
 find demo examples setup -type f -perm +111 -print | xargs rm
 
 %post
@@ -133,7 +131,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc readme.txt readme.uni readme.lnx
+%doc readme.txt docs/build/unix.txt docs/build/linux.txt
 %doc AUTHORS CHANGES THANKS
 %config(noreplace) %{_sysconfdir}/allegrorc
 %{_libdir}/*.so
@@ -142,7 +140,9 @@ rm -rf %{buildroot}
 
 %files devel
 %defattr(-,root,root)
-%doc allegro.txt faq.txt help.txt todo.txt html
+%doc docs/txt/abi.txt docs/txt/ahack.txt docs/txt/allegro.txt
+%doc docs/txt/const.txt docs/txt/faq.txt docs/txt/help.txt
+%doc todo.txt docs/html
 %doc demo examples setup
 %{_bindir}/allegro-config
 %{_libdir}/*.a

@@ -6,12 +6,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 3.9.41 (CVS)
+				       \_/__/     Version 4.0.0
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Nov 16, 2001.
+	     By Shawn Hargreaves, Dec 06, 2001.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
@@ -191,7 +191,7 @@
    the keyboard and language files can be stored in your home directory or 
    in /etc/.
 
-   See allegro.txt for details of the config file format.
+   See docs/txt/allegro.txt for details of the config file format.
 
 
 
@@ -288,7 +288,7 @@
    contributions to the developers list without being subscribed, though, as 
    long as you mention this in your mail so we will know to reply by private 
    email. Before posting tech-support questions to the Allegro list, please 
-   take a moment to read the guidelines in help.txt.
+   take a moment to read the guidelines in docs/txt/help.txt.
 
    You can search through the mailing list archives using the engine on 
    http://www.canvaslink.com/allegro/search.htm.

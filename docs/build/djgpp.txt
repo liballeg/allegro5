@@ -88,8 +88,8 @@
    Type "cd allegro", followed by "make". Then go do something interesting 
    while everything compiles. When it finishes compiling, type "make 
    install" to set the library up ready for use. If you have any trouble 
-   with the build, look at faq.txt for the solutions to some of the more 
-   common problems.
+   with the build, look at docs/txt/faq.txt for the solutions to some of the
+   more common problems.
 
    If you also want to install a debugging version of the library (highly 
    recommended), now type "make install DEBUGMODE=1". Case is important, so 
