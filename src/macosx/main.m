@@ -33,7 +33,7 @@ extern int    __crt0_argc;
 extern char **__crt0_argv;
 extern void *_mangled_main_address;
 
-static char *arg0;
+static char *arg0, *arg1 = NULL;
 static int refresh_rate = 70;
 
 
@@ -51,6 +51,13 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 
 @implementation AllegroAppDelegate
+
+- (BOOL)application: (NSApplication *)theApplication openFile: (NSString *)filename
+{
+	arg1 = strdup([filename lossyCString]);
+}
+
+
 
 /* applicationDidFinishLaunching:
  *  Called when the app is ready to run. This runs the system events pump and
@@ -84,8 +91,17 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       chdir(path);
       osx_bundle = [NSBundle mainBundle];
       arg0 = strdup([[osx_bundle bundlePath] lossyCString]);
-      __crt0_argv = &arg0;
-      __crt0_argc = 1;
+      if (arg1) {
+         static char *args[2];
+	 args[0] = arg0;
+	 args[1] = arg1;
+	 __crt0_argv = args;
+	 __crt0_argc = 2;
+      }
+      else {
+         __crt0_argv = &arg0;
+         __crt0_argc = 1;
+      }
    }
    
    /* QuickTime Note Allocator seems not to like being initialized from a

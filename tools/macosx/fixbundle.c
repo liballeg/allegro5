@@ -595,7 +595,24 @@ int main(int argc, char *argv[])
       "\t<key>CFBundleSignature</key>\n"
       "\t<string>%s</string>\n"
       "\t<key>CFBundleVersion</key>\n"
-      "\t<string>%s</string>\n",
+      "\t<string>%s</string>\n"
+      "\t<key>CFBundleDocumentTypes</key>\n"
+      "\t<array>\n"
+      "\t\t<dict>\n"
+      "\t\t\t<key>CFBundleTypeExtensions</key>\n"
+      "\t\t\t<array>\n"
+      "\t\t\t\t<string>*</string>\n"
+      "\t\t\t</array>\n"
+      "\t\t\t<key>CFBundleTypeName</key>\n"
+      "\t\t\t<string>NSStringPboardType</string>\n"
+      "\t\t\t<key>CFBundleTypeOSTypes</key>\n"
+      "\t\t\t<array>\n"
+      "\t\t\t\t<string>****</string>\n"
+      "\t\t\t</array>\n"
+      "\t\t\t<key>CFBundleTypeRole</key>\n"
+      "\t\t\t<string>Viewer</string>\n"
+      "\t\t</dict>\n"
+      "\t</array>\n",
       get_filename(bundle_exe), "????", (flags & F_GOT_VERSION) ? bundle_version : "1.0");
    pack_fputs(buffer, f);
    if (flags & F_GOT_LONG_VERSION) {
