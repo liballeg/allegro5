@@ -64,10 +64,15 @@ Part 1 - who is the culprit?
    If this fixes the trouble, it almost certainly means that your original 
    VESA driver was broken in some way. I'm not interested in hearing reports 
    about problems of this type: there is nothing I can do to fix them, so 
-   I'm afraid your only option is to get a better VESA driver, either by 
-   hassling the manufacturer to fix their bugs, buying Display Doctor, or 
-   writing a FreeBE/AF driver for your card (see 
+   I'm afraid your only option is to get a better VESA driver, for instance
+   by downloading Display Doctor. This is now free for download from SciTech's
+   website, but there is no longer support for it. Alternatively, you can see
+   if there is a FreeBE/AF driver for your card (see 
    <link>http://www.talula.demon.co.uk/freebe/</a>).
+
+   For Windows graphics modes, you should probably check if DirectX is 
+   installed properly on your system and if new drivers have been released for 
+   your card.
 
 
 
@@ -81,18 +86,19 @@ Part 2 - when Allegro is at fault
    know not only what programs had trouble, but also which ones worked 
    correctly, if any).
 
-   If the problem is related to DOS graphics modes, you should also post the 
-   output from running the afinfo and vesainfo programs (the short version 
-   is enough unless you are explicitly asked to add the -v switch: all that 
-   extra data isn't usually needed). Try running the test.exe program with 
-   various Allegro drivers (any native drivers that you think might work 
-   with your card, VESA 2.0, and the VESA 1.x driver), and in various video 
+   Try running the test.exe program with various display drivers (any native 
+   drivers that you think might work with your card), and in various video 
    modes, and report exactly what modes and color depths cause problems. If 
-   you are able to use any SVGA resolutions at all, run test.exe with the 
+   you are able to use any high resolutions at all, run test.exe with the 
    Autodetect option and report the entire text that it displays in the 
    middle of the screen.
 
-   If the problem is related to the DOS sound system, try using the setup 
+   If the problem is related to DOS graphics modes, you should also post the 
+   output from running the afinfo and vesainfo programs (the short version 
+   is enough unless you are explicitly asked to add the -v switch: all that 
+   extra data isn't usually needed).    
+
+   If the problem is related to the sound system, try using the setup 
    program to manually configure your card. You may need to manually enter 
    the hardware parameters, and if it is an SB clone card, try selecting 
    some earlier breed of SB card than whatever it is autodetecting (SB Pro, 
@@ -106,6 +112,7 @@ Part 2 - when Allegro is at fault
 @heading
 Part 3 - when your program crashes
 
+@hnode crashes under DOS
    When a djgpp program crashes, you will usually get a stack traceback 
    looking something like:
 <textblock>
@@ -250,11 +257,14 @@ Part 5 - asking for help
    yourself unto the mercies of the net, in hopes of finding some kind of 
    wise man, seer, or oracle that holds an answer for your question...
 
-   The best place to ask is the Allegro mailing list: see readme.txt for 
-   details. Please remember that this is an Allegro-specific list, though. 
-   Problems relating to the C language or djgpp compiler belong in other 
-   forums (comp.lang.c and comp.os.msdos.djgpp respectively).
-
+   The best places to ask are the Allegro mailing list (see readme.txt for 
+   details) and the Allegro.cc forums. Please remember that the mailing list 
+   is an Allegro-specific list. Problems relating to the C language or djgpp 
+   compiler belong in other forums (comp.lang.c and comp.os.msdos.djgpp 
+   respectively). The Allegro.cc forums can be found at 
+   <link>http://www.allegro.cc/</a>. You can usually ask any question related
+   to Allegro here.   
+   
    Both the Allegro and djgpp mailing lists are archived, and can be 
    searched via their respective homepages. It is very likely that you will 
    be able to find a solution to your problem by looking through the answers 
@@ -326,8 +336,9 @@ Part 7 - wording your plea
    you should upload the program and data to a website and then just post 
    that URL in your message.
 
-   You should say what gcc command line you used to build the program, and 
-   this should include the -Wall switch.
+   You should say what compiler options you used to build the program. These
+   should include extra warnings. If you use gcc, post the list of compiler
+   switches you used.
 
    Describe what you intended this program to do (it may not be instantly 
    obvious to other people), and also what it really does when you run it. 
@@ -342,7 +353,7 @@ Part 7 - wording your plea
    importantly a brief machine description, information about any relevant 
    drivers, and your Allegro version (please don't just say "WIP", but give 
    the exact date if you are using anything other than an official numbered 
-   release), 
+   release). 
 
 
 
@@ -354,10 +365,9 @@ Part 8 - a model of perfection
 
 <textblock>
    I'm having some trouble using the hicolor video modes in my program, 
-   although they work fine with the Allegro tests. I'm using Allegro 3.0 
-   with djgpp 2.02 (gcc version 2.8.1) on a p166, running under win95 and 
-   using the builtin VESA 2.0 driver, which the vesainfo program describes 
-   as "Matrox Graphics Inc.".
+   although they work fine with the Allegro tests. I'm using Allegro 4.0 
+   with MinGW 3.1.0 (gcc version 3.3.1) on a Pentium 1.2GHz, running under
+   Windows 2000 and an ATi Radeon 7000 videocard.
 
    This program is supposed to select a 640x480 16 bit resolution, draw a 
    blue rectangle near the top left corner of the screen, and then wait for 
