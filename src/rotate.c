@@ -517,13 +517,14 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	       }
 	       else {
 		  /* I don't think this can happen, but I can't prove it. */
-		  while ((unsigned)(l_spr_x_rounded >> 16) >=
-			 (unsigned)spr->w) {
+		  do {
 		     l_spr_x_rounded += spr_dx;
 		     l_bmp_x_rounded += 65536;
-		  }
-		  if (l_bmp_x_rounded > r_bmp_x_rounded)
-		     goto skip_draw;
+		     if (l_bmp_x_rounded > r_bmp_x_rounded)
+			goto skip_draw;
+		  } while ((unsigned)(l_spr_x_rounded >> 16) >=
+			   (unsigned)spr->w);
+
 	       }
 	    }
 	    right_edge_test = l_spr_x_rounded +
@@ -533,13 +534,13 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	       if (((right_edge_test < 0) && (spr_dx <= 0)) ||
 		   ((right_edge_test > 0) && (spr_dx >= 0))) {
 		  /* This can happen. */
-		  while ((unsigned)(right_edge_test >> 16) >=
-			 (unsigned)spr->w) {
+		  do {
 		     r_bmp_x_rounded -= 65536;
 		     right_edge_test -= spr_dx;
-		  }
-		  if (l_bmp_x_rounded > r_bmp_x_rounded)
-		     goto skip_draw;
+		     if (l_bmp_x_rounded > r_bmp_x_rounded)
+			goto skip_draw;
+		  } while ((unsigned)(right_edge_test >> 16) >=
+			   (unsigned)spr->w);
 	       }
 	       else {
 		  /* I don't think this can happen, but I can't prove it. */
@@ -554,13 +555,13 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	       }
 	       else {
 		  /* I don't think this can happen, but I can't prove it. */
-		  while (((unsigned)l_spr_y_rounded >> 16) >=
-			 (unsigned)spr->h) {
+		  do {
 		     l_spr_y_rounded += spr_dy;
 		     l_bmp_x_rounded += 65536;
-		  }
-		  if (l_bmp_x_rounded > r_bmp_x_rounded)
-		     goto skip_draw;
+		     if (l_bmp_x_rounded > r_bmp_x_rounded)
+			goto skip_draw;
+		  } while (((unsigned)l_spr_y_rounded >> 16) >=
+			   (unsigned)spr->h);
 	       }
 	    }
 	    right_edge_test = l_spr_y_rounded +
@@ -570,13 +571,13 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	       if (((right_edge_test < 0) && (spr_dy <= 0)) ||
 		   ((right_edge_test > 0) && (spr_dy >= 0))) {
 		  /* This can happen. */
-		  while ((unsigned)(right_edge_test >> 16) >=
-			 (unsigned)spr->h) {
+		  do {
 		     r_bmp_x_rounded -= 65536;
 		     right_edge_test -= spr_dy;
-		  }
-		  if (l_bmp_x_rounded > r_bmp_x_rounded)
-		     goto skip_draw;
+		     if (l_bmp_x_rounded > r_bmp_x_rounded)
+			goto skip_draw;
+		  } while ((unsigned)(right_edge_test >> 16) >=
+			   (unsigned)spr->h);
 	       }
 	       else {
 		  /* I don't think this can happen, but I can't prove it. */
