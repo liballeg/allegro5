@@ -286,14 +286,17 @@ ALLEGRO_SRC_X_FILES = \
 ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/drivers.c \
 	src/qnx/qkeydrv.c \
+	src/qnx/qmouse.c \
 	src/qnx/qphoton.c \
+	src/qnx/qswitch.s \
 	src/qnx/qsystem.c \
 	src/unix/alsa.c \
 	src/unix/alsamidi.c \
+	src/unix/umain.c \
 	src/unix/usigalrm.c \
 	src/unix/utimer.c \
-	src/misc/ufile.c \
-	src/misc/pckeys.c
+	src/misc/pckeys.c \
+	src/misc/ufile.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \

@@ -34,7 +34,9 @@ extern "C" {
 
 /* Globals */
 PtWidget_t            *ph_window;
-PhEvent_t             *ph_event;
+int                    ph_gfx_initialized;
+PdOffscreenContext_t  *ph_screen_context;
+PdOffscreenContext_t  *ph_window_context;
 
 
 typedef void RETSIGTYPE;

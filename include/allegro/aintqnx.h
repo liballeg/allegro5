@@ -30,6 +30,7 @@ extern "C" {
 AL_FUNC(int, qnx_sys_init, (void));
 AL_FUNC(void, qnx_sys_exit, (void));
 AL_FUNC(void, qnx_sys_message, (AL_CONST char*));
+AL_FUNC(void, qnx_get_executable_name, (char *, int));
 AL_FUNC(_DRIVER_INFO *, qnx_timer_drivers, (void));
 
 AL_FUNC(int, qnx_keyboard_init, (void));
@@ -37,16 +38,26 @@ AL_FUNC(void, qnx_keyboard_exit, (void));
 AL_FUNC(void, qnx_keyboard_handler, (int, int));
 AL_FUNC(void, qnx_keyboard_focused, (int, int));
 
+AL_FUNC(int, qnx_mouse_init, (void));
+AL_FUNC(void, qnx_mouse_exit, (void));
+AL_FUNC(void, qnx_mouse_position, (int, int));
+AL_FUNC(void, qnx_mouse_set_range, (int, int, int, int));
+AL_FUNC(void, qnx_mouse_set_speed, (int, int));
+AL_FUNC(void, qnx_mouse_get_mickeys, (int *, int *));
+AL_FUNC(void, qnx_mouse_handler, (int, int, int, int));
+
 AL_FUNC(struct BITMAP *, qnx_phd_init, (int, int, int, int, int));
 AL_FUNC(void, qnx_phd_exit, (struct BITMAP *));
-AL_FUNC(void, qnx_phd_vsync, (void));
-AL_FUNC(void, qnx_phd_set_palette, (AL_CONST struct RGB *, int, int, int));
+AL_FUNC(struct BITMAP *, qnx_ph_init, (int, int, int, int, int));
+AL_FUNC(void, qnx_ph_exit, (struct BITMAP *));
+AL_FUNC(void, qnx_ph_vsync, (void));
+AL_FUNC(void, qnx_ph_set_palette, (AL_CONST struct RGB *, int, int, int));
 
 
 /* A very strange thing: PgWaitHWIdle() cannot be found in any system
  * header file, but it is explained in the QNX docs, and it actually
  * exists in the Photon library... So until QNX fixes the missing declaration,
- * we´ll declare it here.
+ * we will declare it here.
  */
 void PgWaitHWIdle(void);
 

@@ -16,6 +16,16 @@
  */
 
 
+/* magic to capture name of executable file */
+extern int    __crt0_argc;
+extern char **__crt0_argv;
+
+#define main _mangled_main
+#undef END_OF_MAIN
+#define END_OF_MAIN() void *_mangled_main_address = (void*) _mangled_main;
+
+
+
 /* System driver */
 #define SYSTEM_QNX            AL_ID('Q','S','Y','S')
 AL_VAR(SYSTEM_DRIVER, system_qnx);
@@ -24,6 +34,11 @@ AL_VAR(SYSTEM_DRIVER, system_qnx);
 /* Keyboard driver */
 #define KEYBOARD_QNX          AL_ID('Q','K','E','Y')
 AL_VAR(KEYBOARD_DRIVER, keyboard_qnx);
+
+
+/* Mouse driver */
+#define MOUSE_QNX             AL_ID('Q','M','S','E')
+AL_VAR(MOUSE_DRIVER, mouse_qnx);
 
 
 /* Sound driver */
@@ -44,11 +59,12 @@ AL_VAR(TIMER_DRIVER, timerdrv_unix);
 /* Graphics drivers */
 #define GFX_PHOTON            AL_ID('Q','P','H',' ')
 #define GFX_PHOTON_DIRECT     AL_ID('Q','P','H','D')
+AL_VAR(GFX_DRIVER, gfx_photon);
 AL_VAR(GFX_DRIVER, gfx_photon_direct);
 
 
 
-#define GFX_SAFE_ID           GFX_PHOTON_DIRECT
+#define GFX_SAFE_ID           GFX_PHOTON
 #define GFX_SAFE_DEPTH        8
-#define GFX_SAFE_W            640
-#define GFX_SAFE_H            480
+#define GFX_SAFE_W            320
+#define GFX_SAFE_H            200
