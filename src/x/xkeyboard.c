@@ -32,6 +32,7 @@
 // TODO: add KEY_UNKNOWN1 ... keys to Allegro, up KEY_MAX to 127
 // TODO: scancode_to_ascii vtable entry? Maybe just have a fallback one in
 //       keyboard.c, which does KEY_A -> 'a' and so on.
+// TODO: Once this driver is deemed more stable, reduce debugging output.
 
 static int x_to_allegro_keycode[256];
 #ifdef ALLEGRO_USE_XIM
@@ -225,6 +226,18 @@ translation_table[] = {
    {XK_Caps_Lock, KEY_CAPSLOCK}
 };
 
+/* Table of: Allegro's modifier flag, assiciated X11 flag, toggle method. */
+static int modifier_flags[8][3] = {
+   {KB_SHIFT_FLAG, ShiftMask, 0},
+   {KB_CAPSLOCK_FLAG, LockMask, 1},
+   {KB_CTRL_FLAG, ControlMask, 0},
+   {KB_ALT_FLAG, Mod1Mask, 0},
+   {KB_NUMLOCK_FLAG, Mod2Mask, 1},
+   {KB_SCROLOCK_FLAG, Mod3Mask, 1},
+   {KB_LWIN_FLAG | KB_RWIN_FLAG, Mod4Mask, 0}, /* Should we use only one? */
+   {KB_MENU_FLAG, Mod5Mask, 0} /* AltGr */
+};
+
 
 
 /* update_shifts
@@ -235,17 +248,6 @@ static void update_shifts(XKeyEvent *event)
 {
    int mask = 0;
    int i;
-   /* Assume standard modifiers - may not work in every X11 server. */
-   static int flags[8][2] = {
-      {KB_SHIFT_FLAG, ShiftMask},
-      {KB_CAPSLOCK_FLAG, LockMask},
-      {KB_CTRL_FLAG, ControlMask},
-      {KB_ALT_FLAG, Mod1Mask},
-      {KB_NUMLOCK_FLAG, Mod2Mask},
-      {KB_SCROLOCK_FLAG, Mod3Mask},
-      {KB_LWIN_FLAG | KB_RWIN_FLAG, Mod4Mask}, /* Should we use only one? */
-      {KB_MENU_FLAG, Mod5Mask} /* AltGr */
-   };
 
    for (i = 0; i < 8; i++)
    {
@@ -253,28 +255,65 @@ static void update_shifts(XKeyEvent *event)
       /* This is the state of the modifiers just before the key
        * press/release.
        */
-      if (event->state & flags[i][1])
-	 mask |= flags[i][0];
+      if (event->state & modifier_flags[i][1])
+	 mask |= modifier_flags[i][0];
+
       /* In case a modifier key itself was pressed, we now need to update
        * the above state for Allegro, which wants the state after the
        * press, not before as reported by X.
        */
-      if (event->keycode) {
-	 for (j = 0; j < xmodmap->max_keypermod; j++) {
-	    if (event->keycode == xmodmap->modifiermap[i * xmodmap->max_keypermod + j]) {
-	       /* Modifier key pressed - so set flag. */
-	       if (event->type == KeyPress)
-	       {
-		  mask |= flags[i][0];
-	       }
-	       /* Modifier key released - so remove flag. */
-	       if (event->type == KeyRelease)
-		  mask &= ~flags[i][0];
+      for (j = 0; j < xmodmap->max_keypermod; j++) {
+         if (event->keycode && event->keycode ==
+            xmodmap->modifiermap[i * xmodmap->max_keypermod + j]) {
+	    if (event->type == KeyPress) {
+               /* Modifier key pressed - toggle or set flag. */
+	       if (modifier_flags[i][2])
+		  mask ^= modifier_flags[i][0];
+	       else
+		  mask |= modifier_flags[i][0];
+	    }
+            else if (event->type == KeyRelease) {
+	       /* Modifier key of non-toggle key released - remove flag. */
+	       if (!modifier_flags[i][2])
+		  mask &= ~modifier_flags[i][0];
 	    }
 	 }
       }
    }
    _key_shifts = mask;
+}
+
+
+
+/* dga2_update_shifts
+ *  DGA2 doesn't seem to have a reliable state field. Therefore Allegro must
+ *  take care of modifier keys itself.
+ */
+static void dga2_update_shifts(XKeyEvent *event)
+{
+   int i;
+   for (i = 0; i < 8; i++)
+   {
+      int j;
+      for (j = 0; j < xmodmap->max_keypermod; j++) {
+         if (event->keycode && event->keycode ==
+            xmodmap->modifiermap[i * xmodmap->max_keypermod + j]) {
+            if (event->type == KeyPress) {
+               if (modifier_flags[i][2])
+                  _key_shifts ^= modifier_flags[i][0];
+               else
+                  _key_shifts |= modifier_flags[i][0];
+            }
+            else if (event->type == KeyRelease) {
+               if (!modifier_flags[i][2])
+                  _key_shifts &= ~modifier_flags[i][0];
+            }
+	 }
+      }
+      /* Hack: DGA keys seem to get reported wrong otherwise. */
+      if (_key_shifts & modifier_flags[i][0])
+	 event->state |= modifier_flags[i][1];
+   }
 }
 
 
@@ -314,7 +353,7 @@ static int find_unknown_key_assignment (int i)
 /* _xwin_keyboard_handler:
  *  Keyboard "interrupt" handler.
  */
-void _xwin_keyboard_handler(XKeyEvent *event)
+void _xwin_keyboard_handler(XKeyEvent *event, int dga2_hack)
 {
    int keycode;
    if (!xkeyboard_installed)
@@ -324,7 +363,10 @@ void _xwin_keyboard_handler(XKeyEvent *event)
    if (keycode == -1)
       keycode = find_unknown_key_assignment (event->keycode);
 
-   update_shifts (event);
+   if (dga2_hack)
+      dga2_update_shifts (event);
+   else
+      update_shifts (event);
 
    if (event->type == KeyPress) { /* Key pressed.  */
       int len;
@@ -482,6 +524,17 @@ void _xwin_get_keyboard_mapping(void)
    if (xmodmap)
       XFreeModifiermap(xmodmap);
    xmodmap = XGetModifierMapping (_xwin.display);
+   for (i = 0; i < 8; i++)
+   {
+      int j;
+      TRACE ("Modifier %d:", i + 1);
+      for (j = 0; j < xmodmap->max_keypermod; j++) {
+	 KeySym sym = XKeycodeToKeysym(_xwin.display,
+	    xmodmap->modifiermap[i * xmodmap->max_keypermod + j], 0);
+	 TRACE (" %s", XKeysymToString(sym));
+      }
+      TRACE ("\n");
+   }
 
    /* The [xkeymap] section can be useful, e.g. if trying to play a
     * game which has X and Y hardcoded as KEY_X and KEY_Y to mean

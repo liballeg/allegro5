@@ -2224,10 +2224,10 @@ static void _xwin_private_process_event(XEvent *event)
 
    switch (event->type) {
       case KeyPress:
-         _xwin_keyboard_handler (&event->xkey);
+         _xwin_keyboard_handler (&event->xkey, FALSE);
 	 break;
       case KeyRelease:
-         _xwin_keyboard_handler (&event->xkey);
+         _xwin_keyboard_handler (&event->xkey, FALSE);
 	 break;
       case FocusIn:
 	 _switch_in();
