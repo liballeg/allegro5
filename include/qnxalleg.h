@@ -14,10 +14,6 @@
  *      functions, macros and similar stuff.
  */
 
-#ifndef __QNX__
-#error Bad include!
-#endif
-
 
 #ifndef QNX_ALLEGRO_H
 #define QNX_ALLEGRO_H

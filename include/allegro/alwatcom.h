@@ -15,17 +15,15 @@
  *      See readme.txt for copyright information.
  */
 
-
-#ifndef __SW_3S
-   #error Allegro only supports stack based calling convention
-#endif
-
-#ifndef __SW_S
-   #error Stack overflow checking must be disabled
-#endif
-
-
 #ifndef SCAN_DEPEND
+   #ifndef __SW_3S
+      #error Allegro only supports stack based calling convention
+   #endif
+
+   #ifndef __SW_S
+      #error Stack overflow checking must be disabled
+   #endif
+
    #include <io.h>
    #include <i86.h>
    #include <conio.h>
