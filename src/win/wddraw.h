@@ -80,7 +80,7 @@ AL_FUNC(int, create_primary, (void));
 AL_FUNC(int, create_clipper, (HWND hwnd));
 AL_FUNC(int, setup_driver, (GFX_DRIVER * drv, int w, int h, int color_depth));
 AL_FUNC(int, finalize_directx_init, (void));
-AL_FUNC(int, gfx_directx_wnd_exit, (void));
+AL_FUNC(int, exit_directx, (void));
 AL_FUNC(void, gfx_directx_exit, (BITMAP *b));
 AL_FUNC(int, enable_acceleration, (GFX_DRIVER * drv));
 

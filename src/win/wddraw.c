@@ -216,10 +216,9 @@ int finalize_directx_init(void)
 
 
 
-/* gfx_directx_wnd_exit:
- *  restore old mode from window thread
+/* exit_directx:
  */
-int gfx_directx_wnd_exit(void)
+int exit_directx(void)
 {
    if (directdraw) {
       /* set cooperative level back to normal */
@@ -227,6 +226,8 @@ int gfx_directx_wnd_exit(void)
 
       /* release DirectDraw interface */
       IDirectDraw2_Release(directdraw);
+
+      directdraw = NULL;
    }
 
    return 0;
@@ -282,13 +283,10 @@ void gfx_directx_exit(struct BITMAP *b)
    system_driver->restore_console_state();
    restore_window_style();
 
-   if (directdraw) {
-      /* let the window thread set the coop level back to normal 
-       * and destory the directdraw object
-       */
-      wnd_call_proc(gfx_directx_wnd_exit);
-      directdraw = NULL;
-   }
+   /* let the window thread set the coop level back
+    * to normal and destroy the directdraw object
+    */
+   wnd_call_proc(exit_directx);
 
    _exit_critical();
 }

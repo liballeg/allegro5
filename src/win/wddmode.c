@@ -269,7 +269,7 @@ int gfx_directx_fetch_mode_list(void)
 {
    MODE_INFO mode_info;
    HRESULT hr;
-   int flags, modes, gfx_off;
+   int flags, modes, dx_was_off;
 
    /* enumerate VGA Mode 13h under DirectX 5 or greater */
    if (_dx_ver >= 0x500)
@@ -279,10 +279,10 @@ int gfx_directx_fetch_mode_list(void)
 
    if (!directdraw) {
       init_directx();
-      gfx_off = TRUE;
+      dx_was_off = TRUE;
    }
    else
-      gfx_off = FALSE;
+      dx_was_off = FALSE;
 
    /* count modes */
    mode_info.gfx = NULL;
@@ -315,14 +315,14 @@ int gfx_directx_fetch_mode_list(void)
 
    _gfx_mode_list_malloced = TRUE;
 
-   if (gfx_off)
-      gfx_directx_exit(dd_frontbuffer);
+   if (dx_was_off)
+      exit_directx();
 
    return 0;
 
  Error:
-   if (gfx_off)
-      gfx_directx_exit(dd_frontbuffer);
+   if (dx_was_off)
+      exit_directx();
 
    return -1;
 }
