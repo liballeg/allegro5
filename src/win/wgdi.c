@@ -21,7 +21,7 @@
 
 static struct BITMAP *gfx_gdi_dblbuf_init(int w, int h, int v_w, int v_h, int color_depth);
 static void gfx_gdi_dblbuf_exit(struct BITMAP *b);
-static void gfx_gdi_set_palette(struct RGB *p, int from, int to, int vsync);
+static void gfx_gdi_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
 static void gfx_gdi_vsync(void);
 
 
@@ -171,7 +171,7 @@ static void gfx_gdi_dblbuf_exit(struct BITMAP *b)
 
 /* gfx_gdi_set_palette:
  */
-static void gfx_gdi_set_palette(struct RGB *p, int from, int to, int vsync)
+static void gfx_gdi_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
    int c;
 

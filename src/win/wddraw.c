@@ -33,7 +33,7 @@ char *pseudo_surf_mem;
 
 /* gfx_directx_set_palette:
  */
-void gfx_directx_set_palette(struct RGB *p, int from, int to, int vsync)
+void gfx_directx_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
    int n;
 

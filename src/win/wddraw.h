@@ -64,7 +64,7 @@ AL_VAR(BITMAP *, dd_frontbuffer);
 /* vtable routines */
 AL_FUNC(void, gfx_directx_exit, (BITMAP *b));
 AL_FUNC(void, gfx_directx_sync, (void));
-AL_FUNC(void, gfx_directx_set_palette, (RGB *p, int from, int to, int vsync));
+AL_FUNC(void, gfx_directx_set_palette, (AL_CONST RGB *p, int from, int to, int vsync));
 AL_FUNC(int, gfx_directx_poll_scroll, (void));
 AL_FUNC(void, gfx_directx_created_sub_bitmap, (BITMAP *bmp, BITMAP *parent));
 AL_FUNC(BITMAP *, gfx_directx_create_video_bitmap, (int width, int height));

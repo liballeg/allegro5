@@ -31,14 +31,14 @@
 static int sys_directx_init(void);
 static void sys_directx_exit(void);
 static void sys_directx_get_executable_name(char *output, int size);
-static void sys_directx_set_window_title(char *name);
-static void sys_directx_message(char *msg);
-static void sys_directx_assert(char *msg);
+static void sys_directx_set_window_title(AL_CONST char *name);
+static void sys_directx_message(AL_CONST char *msg);
+static void sys_directx_assert(AL_CONST char *msg);
 static void sys_directx_save_console_state(void);
 static void sys_directx_restore_console_state(void);
 static int sys_directx_desktop_color_depth(void);
 static void sys_directx_yield_timeslice(void);
-static int sys_directx_trace_handler(char *msg);
+static int sys_directx_trace_handler(AL_CONST char *msg);
 static _DRIVER_INFO *sys_directx_timer_drivers(void);
 static _DRIVER_INFO *sys_directx_keyboard_drivers(void);
 
@@ -223,7 +223,7 @@ static void sys_directx_get_executable_name(char *output, int size)
 /* sys_directx_set_window_title:
  *  Alter the application title.
  */
-static void sys_directx_set_window_title(char *name)
+static void sys_directx_set_window_title(AL_CONST char *name)
 {
    SetWindowText(allegro_wnd, name);
 }
@@ -233,7 +233,7 @@ static void sys_directx_set_window_title(char *name)
 /* sys_directx_message:
  *  Display a message.
  */
-static void sys_directx_message(char *msg)
+static void sys_directx_message(AL_CONST char *msg)
 {
    char *tmp1 = malloc(4096);
    char *tmp2 = malloc(128);
@@ -265,7 +265,7 @@ static void sys_directx_message(char *msg)
 /* sys_directx_assert
  *  handle assertions
  */
-static void sys_directx_assert(char *msg)
+static void sys_directx_assert(AL_CONST char *msg)
 {
    OutputDebugString(msg);
 }
@@ -325,7 +325,7 @@ static void sys_directx_yield_timeslice(void)
 /* sys_directx_trace_handler
  *  handle trace output
  */
-static int sys_directx_trace_handler(char *msg)
+static int sys_directx_trace_handler(AL_CONST char *msg)
 {
    OutputDebugString(msg);
    return 0;

@@ -44,7 +44,7 @@ static int digi_directsound_init(int input, int voices);
 static void digi_directsound_exit(int input);
 static int digi_directsound_mixer_volume(int volume);
 
-static void digi_directsound_init_voice(int voice, SAMPLE * sample);
+static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE * sample);
 static void digi_directsound_release_voice(int voice);
 static void digi_directsound_start_voice(int voice);
 static void digi_directsound_stop_voice(int voice);
@@ -476,7 +476,7 @@ static int digi_directsound_detect(int input)
 
 
 /********************************************************/
-static void digi_directsound_init_voice(int voice, SAMPLE * sample)
+static void digi_directsound_init_voice(int voice, AL_CONST SAMPLE * sample)
 {
    PCMWAVEFORMAT pcmwf;
    DSBUFFERDESC dsbdesc;

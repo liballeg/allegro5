@@ -27,7 +27,7 @@ extern void _update_8_to_16 (LPDDSURFACEDESC src_desc, LPDDSURFACEDESC dest_desc
 
 static struct BITMAP *gfx_directx_create_video_bitmap_win(int width, int height);
 static void gfx_directx_destroy_video_bitmap_win(struct BITMAP *bitmap);
-static void gfx_directx_set_palette_win(struct RGB *p, int from, int to, int vsync);
+static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync);
 static int wnd_set_windowed_coop(void);
 static void create_offscreen (int w, int h, int color_depth);
 static int verify_color_depth (int color_depth);
@@ -244,7 +244,7 @@ static void gfx_directx_destroy_video_bitmap_win(struct BITMAP *bitmap)
 /* gfx_directx_set_palette_win:
  * update the palette for color conversion from 8 bit
  */
-static void gfx_directx_set_palette_win(struct RGB *p, int from, int to, int vsync)
+static void gfx_directx_set_palette_win(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
    int n;
 

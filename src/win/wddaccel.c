@@ -24,15 +24,15 @@
 static void (*_orig_hline) (BITMAP * bmp, int x1, int y, int x2, int color);
 static void (*_orig_vline) (BITMAP * bmp, int x, int y1, int y2, int color);
 static void (*_orig_rectfill) (BITMAP * bmp, int x1, int y1, int x2, int y2, int color);
-static void (*_orig_draw_sprite) (BITMAP * bmp, BITMAP * sprite, int x, int y);
-static void (*_orig_masked_blit) (BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+static void (*_orig_draw_sprite) (BITMAP * bmp, AL_CONST BITMAP * sprite, int x, int y);
+static void (*_orig_masked_blit) (AL_CONST BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
 
 
 /* ddraw_blit_to_self:
  *  Accelerated vram -> vram blitting routine.
  */
-static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void ddraw_blit_to_self(AL_CONST BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    RECT src_rect = {
       source_x + source->x_ofs,
@@ -43,7 +43,7 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
    int dest_parent_x = dest_x + dest->x_ofs;
    int dest_parent_y = dest_y + dest->y_ofs;
    BITMAP *dest_parent;
-   BITMAP *source_parent;
+   AL_CONST BITMAP *source_parent;
 
    /* find parents */
    dest_parent = dest;
@@ -78,7 +78,7 @@ static void ddraw_blit_to_self(BITMAP * source, BITMAP * dest, int source_x, int
 /* ddraw_masked_blit:
  *  Accelerated masked blitting routine.
  */
-static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
+static void ddraw_masked_blit(AL_CONST BITMAP * source, BITMAP * dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height)
 {
    RECT dest_rect = {
       dest_x + dest->x_ofs,
@@ -101,7 +101,7 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
 
    HRESULT hr;
    BITMAP *dest_parent;
-   BITMAP *source_parent;
+   AL_CONST BITMAP *source_parent;
 
    if (is_video_bitmap(source) || is_system_bitmap(source)) {
 
@@ -146,7 +146,7 @@ static void ddraw_masked_blit(BITMAP * source, BITMAP * dest, int source_x, int 
 /* ddraw_draw_sprite:
  *  Accelerated sprite drawing routine.
  */
-static void ddraw_draw_sprite(BITMAP * bmp, BITMAP * sprite, int x, int y)
+static void ddraw_draw_sprite(BITMAP * bmp, AL_CONST BITMAP * sprite, int x, int y)
 {
    int sx, sy, w, h;
 
