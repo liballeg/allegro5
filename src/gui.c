@@ -1273,8 +1273,23 @@ static int menu_mouse_object(MENU_INFO *m)
 
 
 
+/* mouse_in_single_menu:
+ *  Checks if the mouse is inside a single menu.
+ */
+static INLINE int mouse_in_single_menu(MENU_INFO *m)
+{
+   if ((gui_mouse_x() >= m->x) && (gui_mouse_x() < m->x+m->w) &&
+       (gui_mouse_y() >= m->y) && (gui_mouse_y() < m->y+m->h))
+      return TRUE;
+   else
+      return FALSE;
+}
+
+
+
 /* mouse_in_parent_menu:
- *  Recursively checks if the mouse is inside a menu or any of its parents.
+ *  Recursively checks if the mouse is inside a menu (or any of its parents)
+ *  and simultaneously not on the selected item of the menu.
  */
 static int mouse_in_parent_menu(MENU_INFO *m) 
 {
@@ -1433,19 +1448,23 @@ int menu_alt_key(int k, MENU *m)
 
 /* _do_menu:
  *  The core menu control function, called by do_menu() and d_menu_proc().
+ *  The navigation through the arborescence of menus can be done:
+ *   - with the arrow keys,
+ *   - with mouse point-and-clicks,
+ *   - with mouse movements when the mouse button is being held down,
+ *   - with mouse movements only if gui_menu_opening_delay is non negative.
  */
 int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh)
 {
    MENU_INFO m;
    MENU_INFO *i;
    int c, c2;
-   int ret = -1;
-   int mouse_on = gui_mouse_b();
-   int old_sel;
-   int mouse_sel;
-   int _x, _y;
+   int mouse_button_was_pressed;
+   int old_sel, mouse_sel;
+   int child_x, child_y;
    int redraw = TRUE;
    int back_from_child = FALSE;
+   int ret = -1;
 
    scare_mouse();
 
@@ -1464,41 +1483,47 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
    else
       *allegro_errno = ENOMEM;
 
+   /* setup state variables */
    m.sel = mouse_sel = menu_mouse_object(&m);
+   mouse_button_was_pressed = gui_mouse_b();
    gui_timer = 0;
 
    unscare_mouse();
 
-   do {
+   do {                                               /* main event loop */
       yield_timeslice();
 
       old_sel = m.sel;
 
       c = menu_mouse_object(&m);
+
       if ((gui_mouse_b()) || (c != mouse_sel))
 	 m.sel = mouse_sel = c;
 
-      if (gui_mouse_b()) {                            /* if button pressed */
-	 if ((gui_mouse_x() < m.x) || (gui_mouse_x() > m.x+m.w) ||
-	     (gui_mouse_y() < m.y) || (gui_mouse_y() > m.y+m.h)) {
-	    if (!mouse_on)                            /* dismiss menu? */
-	       break;
-
-	    if (mouse_in_parent_menu(m.parent))       /* back to parent? */
+      if (gui_mouse_b()) {                            /* button pressed? */
+	 /* dismiss menu if:
+	  *  - the mouse cursor is outside the menu and inside the parent menu, or
+	  *  - the mouse cursor is outside the menu and the button has just been pressed
+	  */
+	 if (!mouse_in_single_menu(&m)) {
+	    if (mouse_in_parent_menu(m.parent) || (!mouse_button_was_pressed))
 	       break;
 	 }
 
-	 if ((m.sel >= 0) && (m.menu[m.sel].child))   /* bring up child? */
+	 if ((m.sel >= 0) && (m.menu[m.sel].child))   /* bring up child menu? */
 	    ret = m.sel;
 
-	 mouse_on = TRUE;
+	 /* don't trigger the 'select' event on button press for non menu item */
+	 mouse_button_was_pressed = TRUE;
+
 	 clear_keybuf();
       }
       else {                                          /* button not pressed */
-	 if (mouse_on)                                /* selected an item? */
+	 /* trigger the 'select' event only on button release for non menu item */
+	 if (mouse_button_was_pressed) {
 	    ret = m.sel;
-
-	 mouse_on = FALSE;
+	    mouse_button_was_pressed = FALSE;
+	 }
 
 	 if (keypressed()) {                          /* keyboard input */
 	    gui_timer = 0;
@@ -1507,7 +1532,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 
 	    if ((c & 0xFF) == 27) {
 	       ret = -1;
-	       goto getout;
+	       break;
 	    }
 
 	    switch (c >> 8) {
@@ -1595,7 +1620,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 		  break;
 	    }
 	 }
-      }
+      }  /* end of input processing */
 
       if ((redraw) || (m.sel != old_sel)) {           /* selection changed? */
          if (old_sel == -1)
@@ -1620,8 +1645,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	 unscare_mouse();
       }
 
-      if (gui_menu_opening_delay != -1) {
-         /* menu auto-opening is on */
+      if (gui_menu_opening_delay >= 0) {             /* menu auto-opening on? */
          if (mouse_in_parent_menu(m.parent)) {
             /* automatically goes back to parent */
             ret = -2;
@@ -1642,54 +1666,53 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
                   ret = mouse_sel;
             }
          }
+
+         back_from_child = FALSE;
       }
 
-      back_from_child = FALSE;
-
-      if ((ret >= 0) && (m.menu[ret].flags & D_DISABLED))
-	 ret = -1;
-
-      if (ret >= 0) {                                 /* child menu? */
-	 if (m.menu[ret].child) {
+      if (ret >= 0) {                               /* item selected? */
+	 if (m.menu[ret].flags & D_DISABLED) {
+	    ret = -1;  /* continue */
+         }
+         else if (m.menu[ret].child) {              /* child menu? */
 	    if (m.bar) {
-	       get_menu_pos(&m, ret, &_x, &_y, &c);
-	       _x += 6;
-	       _y += text_height(font)+7;
+	       get_menu_pos(&m, ret, &child_x, &child_y, &c);
+	       child_x += 6;
+	       child_y += text_height(font) + 7;
 	    }
 	    else {
-	       _x = m.x+m.w-3;
-	       _y = m.y + (text_height(font)+4)*ret + text_height(font)/4+1;
+	       child_x = m.x+m.w - 3;
+	       child_y = m.y + (text_height(font)+4)*ret + text_height(font)/4 + 1;
 	    }
-	    c = _do_menu(m.menu[ret].child, &m, FALSE, _x, _y, TRUE, NULL, 0, 0);
-	    if (c < 0) {
+
+            /* recursively call child menu */
+	    c = _do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0);
+
+	    if (c < 0) {                            /* return to parent? */
 	       ret = -1;
-	       mouse_on = FALSE;
+	       mouse_button_was_pressed = FALSE;
 	       mouse_sel = menu_mouse_object(&m);
-	       if (c == -2) {
+
+	       if (c == -2) {                       /* return caused by mouse movement? */
 		  m.sel = mouse_sel;
 		  redraw = TRUE;
-		  mouse_on = FALSE;
 		  gui_timer = 0;
-                  back_from_child = TRUE;
+		  back_from_child = TRUE;
 	       }
 	    }
 	 }
       }
 
-      if ((m.bar) && (!gui_mouse_b()) && (!keypressed()) &&
-	  ((gui_mouse_x() < m.x) || (gui_mouse_x() > m.x+m.w) ||
-	   (gui_mouse_y() < m.y) || (gui_mouse_y() > m.y+m.h)))
+      if ((m.bar) && (!gui_mouse_b()) && (!keypressed()) && (!mouse_in_single_menu(&m)))
 	 break;
 
    } while (ret < 0);
 
-   getout:
-
+ getout:
    if (dret)
       *dret = 0;
 
-   /* callback function? */
-   if ((!m.proc) && (ret >= 0)) {
+   if ((!m.proc) && (ret >= 0)) {    /* callback function? */
       active_menu = &m.menu[ret];
       m.proc = active_menu->proc;
    }
