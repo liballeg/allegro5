@@ -16,11 +16,6 @@
  */
 
 
-#ifndef SCAN_EXPORT
-   #error in the fixdll script
-#endif
-
-
 #define AL_VAR(type, name)                   alldllvar name##_dll
 #define AL_FUNCPTR(type, name, args)         alldllfpt name##_dll
 #define AL_ARRAY(type, name)                 alldllarr name##_dll
