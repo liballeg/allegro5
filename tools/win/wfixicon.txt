@@ -60,7 +60,6 @@ The wfixicon utility accepts the following options:
 
 
 An example of use is provided in the Allegro distribution: once you have
-compiled and properly installed the library, download the additional archive
-containing the datafile for the demo game, install it in the demo/ directory
-and type 'make fixdemo' from the main directory.
+compiled and properly installed the library, type 'make fixdemo' from the
+main directory.
 
