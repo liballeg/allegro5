@@ -60,8 +60,9 @@ Contributors
    Added font_height, render_char, char_length hooks to FONT_VTABLE, fixed
    several glitches in the unicode support, added a pack_fdopen() function,
    caught a misordering in the X system shutdown, found ASCII strings that
-   needed to be converted and lifted several hardcoded length limitations
-   in the configuration routines.
+   needed to be converted, fixed some device name strings, lifted several
+   hardcoded length limitations in the configuration routines and added a
+   mouse driver based on the event interface (EVDEV) to the Linux port.
 
    Antoine Mathys (<email>mmathys@bluewin.ch</a>).<br>
    Added the Swiss keyboard mapping.
@@ -96,8 +97,8 @@ Contributors
    fixed other minor bugs in the mixer, fixed a bug in create_rgb_table(),
    adapted polygon functions to handle two coincident vertices, added the
    set_window_close_button() and set_window_close_hook() framework, added
-   support for timers with parameters under Windows and corrected several
-   compilation warnings.
+   support for timers with parameters under Windows, corrected several
+   compilation warnings and documented the behaviour of pack_feof().
 
    Benjamin Joel Stover (<email>stovertech@intellisys.net</a>).<br>
    Wrote the initial version of the fullscreen X-Windows graphics driver.

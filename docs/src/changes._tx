@@ -7,6 +7,64 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.8 to 4.1.9 (Jan 2003)
+<ul><li>
+   Many minor changes and clarifications in the docs.
+<li>
+   Annie Testes fixed some device name strings in the setup program.
+<li>
+   Annie Testes added a mouse driver based on the event interface (EVDEV)
+   to the Linux port.
+<li>
+   Eric Botcazou added for_each_file_ex() and deprecated for_each_file().
+<li>
+   Eric Botcazou disabled hackish centering code in fullscreen mode
+   under X11 which caused some artifacts to appear on KDE desktops.
+<li>
+   Elias Pschernig fixed a pasto in the sample reading code.
+<li>
+   Eric Botcazou fixed a bug with Alt+TAB under X11.
+<li>
+   Eric Botcazou added a configure check for the include prefix problem
+   with gcc 3.1 or later on Unix systems.
+<li>
+   Eric Botcazou reverted the latest patch applied to the joystick code.
+<li>
+   Eric Botcazou made the scroll() method of the Linux SVGAlib driver wait
+   for a retrace.
+<li>
+   Eric Botcazou added a stop/resume option to the exstream.c example.
+<li>
+   Ben Davis documented the non-standard behaviour of pack_feof().
+<li>
+   Eric Botcazou worked around a weird problem with some X11 window managers
+   that prevented the fullscreen driver from setting up.
+<li>
+   Eric Botcazou disabled the new timer synchronization code.
+<li>
+   Grzegorz Adam Hankiewicz added a warning about DJGPP stability under some
+   Windows versions.
+<li>
+   Eric Botcazou made it so that the window is centered at startup under
+   Windows.
+<li>
+   Eric Botcazou worked around a problem with DOS file attributes under Win2k
+   with the help of Chris Jones.
+<li>
+   Eric Botcazou made the filetest work better with the keyboard.
+<li>
+   Eric Botcazou fixed shifted help sections in the grabber.
+<li>
+   Eric Botcazou fixed the mishandling of TAB characters in menu bar entries.
+<li>
+   Eric Botcazou added a new DEBUGMODE level so that debuggers will not be
+   flooded by internal debug messages any more under Windows.
+<li>
+   Eric Botcazou fixed a weird compilation bug under MacOS X.
+</ul>
+
+
+@heading
 Changes from 4.1.7 to 4.1.8 (Dec 2002)
 <ul><li>
    Eric Botcazou fixed a bug with nested datafiles in the dat/grabber code
@@ -31,6 +89,7 @@ Changes from 4.1.7 to 4.1.8 (Dec 2002)
    spotted by aj.
 </ul>
 
+
 @heading
 Changes from 4.1.6 to 4.1.7 (Dec 2002)
 <ul><li>
@@ -52,6 +111,7 @@ Changes from 4.1.6 to 4.1.7 (Dec 2002)
 <li>
    Eric Botcazou fixed the compilation bug with MinGW.
 </ul>
+
 
 @heading
 Changes from 4.1.5 to 4.1.6 (Nov 2002)
@@ -89,6 +149,7 @@ Changes from 4.1.5 to 4.1.6 (Nov 2002)
    Grzegorz Adam Hankiewicz added infrastructure for properly documenting
    the return value of the API calls.
 </ul>
+
 
 @heading
 Changes from 4.1.4 to 4.1.5 (Nov 2002)
@@ -156,6 +217,7 @@ Changes from 4.1.4 to 4.1.5 (Nov 2002)
    Chris Jones fixed a bug with 16-bit samples loading introduced in the
    previous release.
 </ul>
+
 
 @heading
 Changes from 4.1.3 to 4.1.4 (Oct 2002)
