@@ -30,7 +30,7 @@
 
    - DJGPP 2.01 or later (djdev*.zip).
    - GCC compiler 2.91.x or later (gcc*b.zip).
-     Note: gcc 3.0.x (0 <= x <= 2) doesn't properly compile Allegro.
+     Note: gcc 3.0.x (0 <= x <= 1) doesn't properly compile Allegro.
    - Binutils 2.9.x or later (bnu*b.zip).
    - GNU make (mak*b.zip).
    - Texinfo (txi*b.zip).
