@@ -60,7 +60,7 @@ void tick(void)
    t++;
 }
 
-END_OF_FUNCTION(tick);
+END_OF_FUNCTION(tick)
 
 
 
@@ -124,7 +124,7 @@ int init_gfx(PALETTE *pal)
 /* draw_cube:
  *  Translates, rotates, clips, projects, culls backfaces and draws a cube.
  */
-void draw_cube(BITMAP *buffer, MATRIX_f *matrix, int num_poly)
+void draw_cube(MATRIX_f *matrix, int num_poly)
 {
    int i, j, nv;
    int out[12];
@@ -221,7 +221,7 @@ int main(void)
 		/* cubes are just added to the scene.
 		 * No sorting is done at this stage.
 		 */
-		draw_cube(buffer, &matrix, 6);
+		draw_cube(&matrix, 6);
 	      }
       
       /* sorts and renders polys */

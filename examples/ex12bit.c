@@ -310,7 +310,7 @@ BITMAP *make_ball(int w, int h, int br, int bg, int bb)
 
 
 
-int main(int argc, char *argv[])
+int main(void)
 {
    BITMAP *rgbpic, *ball[4], *buffer, *bigball;
    int x, r=0, g=0, b=0, numpoints, thispoint;

@@ -41,7 +41,7 @@ void increment_counter(void)
    counter++;
 }
 
-END_OF_FUNCTION(increment_counter);
+END_OF_FUNCTION(increment_counter)
 
 
 
