@@ -27,12 +27,12 @@
 #endif
 
 #ifndef ALLEGRO_WINDOWS
-#error something is wrong with the makefile
+   #error something is wrong with the makefile
 #endif
 
 #ifndef WM_APPCOMMAND
-/* from the Platform SDK July 2000 */
-#define WM_APPCOMMAND 0x0319
+   /* from the Platform SDK July 2000 */
+   #define WM_APPCOMMAND 0x0319
 #endif
 
 
@@ -79,18 +79,18 @@ static UINT msg_suicide = 0;
 
 
 /* win_set_window:
- *  selects a user defined window for Allegro
+ *  Selects an user-defined window for Allegro.
  */
 void win_set_window(HWND wnd)
 {
-   /* todo: add code to remove old window */
+   /* TODO: add code to remove old window */
    user_wnd = wnd;
 }
 
 
 
 /* win_get_window:
- *  returns the allegro window handle
+ *  Returns the Allegro window handle.
  */
 HWND win_get_window(void)
 {
@@ -100,7 +100,7 @@ HWND win_get_window(void)
 
 
 /* win_set_wnd_create_proc:
- *  sets a custom window creation proc
+ *  Sets a custom window creation proc.
  */
 void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
 {
@@ -110,7 +110,7 @@ void win_set_wnd_create_proc(HWND (*proc)(WNDPROC))
 
 
 /* win_grab_input:
- *  grabs the input devices
+ *  Grabs the input devices.
  */
 void win_grab_input(void)
 {
@@ -122,7 +122,7 @@ void win_grab_input(void)
 
 
 /* wnd_call_proc:
- *  lets call a procedure from the window thread
+ *  Lets call a procedure from the window thread.
  */
 int wnd_call_proc(int (*proc) (void))
 {
@@ -135,7 +135,7 @@ int wnd_call_proc(int (*proc) (void))
 
 
 /* wnd_acquire_keyboard:
- *  posts msg to window to acquire the keyboard device
+ *  Posts msg to window to acquire the keyboard device.
  */
 void wnd_acquire_keyboard(void)
 {
@@ -145,7 +145,7 @@ void wnd_acquire_keyboard(void)
 
 
 /* wnd_unacquire_keyboard:
- *  posts msg to window to unacquire the keyboard device
+ *  Posts msg to window to unacquire the keyboard device.
  */
 void wnd_unacquire_keyboard(void)
 {
@@ -155,7 +155,7 @@ void wnd_unacquire_keyboard(void)
 
 
 /* wnd_acquire_mouse:
- *  posts msg to window to acquire the mouse device
+ *  Posts msg to window to acquire the mouse device.
  */
 void wnd_acquire_mouse(void)
 {
@@ -165,7 +165,7 @@ void wnd_acquire_mouse(void)
 
 
 /* wnd_unacquire_mouse:
- *  posts msg to window to unacquire the mouse device
+ *  Posts msg to window to unacquire the mouse device.
  */
 void wnd_unacquire_mouse(void)
 {
@@ -175,7 +175,7 @@ void wnd_unacquire_mouse(void)
 
 
 /* wnd_acquire_joystick:
- *  posts msg to window to acquire the joystick device
+ *  Posts msg to window to acquire the joystick device.
  */
 void wnd_acquire_joystick(void)
 {
@@ -185,7 +185,7 @@ void wnd_acquire_joystick(void)
 
 
 /* wnd_unacquire_joystick:
- *  posts msg to window to unacquire the joystick device
+ *  Posts msg to window to unacquire the joystick device.
  */
 void wnd_unacquire_joystick(void)
 {
@@ -246,7 +246,7 @@ void wnd_unregister_event(HANDLE event_id)
 
 
 /* directx_wnd_proc:
- *  window proc for the Allegro window class
+ *  Window procedure for the Allegro window class.
  */
 static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
@@ -439,6 +439,7 @@ static LRESULT CALLBACK directx_wnd_proc(HWND wnd, UINT message, WPARAM wparam, 
 
 
 /* restore_window_style:
+ *  Restores the previous style of the window.
  */
 void restore_window_style(void)
 {
@@ -449,7 +450,7 @@ void restore_window_style(void)
 
 
 /* create_directx_window:
- *  creates the Allegro window
+ *  Creates the Allegro window.
  */
 static HWND create_directx_window(void)
 {
@@ -503,7 +504,7 @@ static HWND create_directx_window(void)
 
 
 /* wnd_thread_proc:
- *  thread that handles the messages of the directx window
+ *  Thread function that handles the messages of the directx window.
  */
 static void wnd_thread_proc(HANDLE setup_event)
 {
