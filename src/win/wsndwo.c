@@ -124,7 +124,6 @@ static int digiwobufsize, digiwobufdivs, digiwobufpos;
 static unsigned char * digiwobufdata = NULL;
 static int _freq, _bits, _stereo;
 static int waveout_paused = FALSE;
-static unsigned int tid;
 
 
 
@@ -158,8 +157,7 @@ DIGI_DRIVER *_get_woalmix_driver(int num)
 /* digi_waveout_mixer_callback:
  *  Callback function to update sound in WaveOut buffer.
  */
-static void CALLBACK digi_waveout_mixer_callback(UINT uID, UINT uMsg, DWORD dwUser,  
-                                                 DWORD dw1, DWORD dw2)
+static void digi_waveout_mixer_callback(void)
 { 
    MMTIME mmt;
    MMRESULT mmr;
@@ -311,7 +309,7 @@ static int digi_waveout_init(int input, int voices)
    waveOutGetVolume(hWaveOut, &initial_volume);
 
    /* start playing */
-   tid = timeSetEvent(20, 10, digi_waveout_mixer_callback, 0, TIME_PERIODIC);
+   install_int(digi_waveout_mixer_callback, 20);  /* 50 Hz */
 
    return 0;
 
@@ -327,10 +325,8 @@ static int digi_waveout_init(int input, int voices)
  */
 static void digi_waveout_exit(int input)
 {
-   if (tid) {
-      timeKillEvent(tid);
-      tid = 0;
-   }
+   /* stop playing */
+   remove_int(digi_waveout_mixer_callback);
 
    if (hWaveOut) {
       waveOutReset(hWaveOut);

@@ -138,7 +138,6 @@ static unsigned char *digidsbufdata;
 static unsigned int bufdivs = 16;
 static int prim_buf_paused = FALSE;
 static int prim_buf_vol;
-static unsigned int tid;
 
 
 
@@ -176,8 +175,7 @@ DIGI_DRIVER *_get_dsalmix_driver(char *name, LPGUID guid, int num)
 /* digi_dsoundmix_mixer_callback:
  *  Callback function to update sound in primary buffer.
  */
-static void CALLBACK digi_dsoundmix_mixer_callback(UINT uID, UINT uMsg, DWORD dwUser,
-                                                   DWORD dw1, DWORD dw2)
+static void digi_dsoundmix_mixer_callback(void)
 { 
    LPVOID lpvPtr1, lpvPtr2;
    DWORD dwBytes1, dwBytes2, writecurs;
@@ -491,7 +489,7 @@ static int digi_dsoundmix_init(int input, int voices)
    prim_buf_vol = initial_volume;
 
    /* start playing */
-   tid = timeSetEvent(20, 10, digi_dsoundmix_mixer_callback, 0, TIME_PERIODIC);
+   install_int(digi_dsoundmix_mixer_callback, 20);  /* 50 Hz */
    IDirectSoundBuffer_Play(prim_buf, 0, 0, DSBPLAY_LOOPING);
 	
    return 0;
@@ -513,10 +511,8 @@ static void digi_dsoundmix_exit(int input)
       return;
    }
 	
-   if (tid) {
-      timeKillEvent(tid);
-      tid = 0;
-   }
+   /* stop playing */
+   remove_int(digi_dsoundmix_mixer_callback);
 
    if (digidsbufdata) {
       free(digidsbufdata);

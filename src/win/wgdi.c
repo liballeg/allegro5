@@ -109,7 +109,7 @@ static UINT render_timer = 0;
 static int render_semaphore = FALSE;
 static PALETTE palette;
 static HANDLE vsync_event;
-#define RENDER_DELAY (1000/70)
+#define RENDER_DELAY (1000/70)  /* 70 Hz */
 
 /* hardware mouse cursor emulation */
 static int mouse_on = FALSE;
@@ -258,7 +258,7 @@ static void gfx_gdi_move_mouse(int x, int y)
 /* render_proc:
  *  timer proc that updates the window
  */
-static void CALLBACK render_proc(HWND hwnd, UINT msg, UINT id_event, DWORD time)
+static void render_proc(void)
 {
    int top_line, bottom_line;
    HDC hdc = NULL;
@@ -400,7 +400,7 @@ static void gfx_gdi_lock(struct BITMAP *bmp)
    /* arrange for drawing requests to pause when we are in the background */
    if (!app_foreground) {
       /* stop timer */
-      KillTimer(allegro_wnd, render_timer);
+      remove_int(render_proc);
 
       _exit_gfx_critical();
 
@@ -410,7 +410,7 @@ static void gfx_gdi_lock(struct BITMAP *bmp)
       _enter_gfx_critical();
 
       /* restart timer */
-      render_timer = SetTimer(allegro_wnd, 0, RENDER_DELAY, (TIMERPROC) render_proc);
+      install_int(render_proc, RENDER_DELAY);
    }
 
    lock_nesting++;
@@ -489,7 +489,7 @@ static struct BITMAP *gfx_gdi_init(int w, int h, int v_w, int v_h, int color_dep
 
    /* create render timer */
    vsync_event = CreateEvent(NULL, FALSE, FALSE, NULL);
-   render_timer = SetTimer(allegro_wnd, 0, RENDER_DELAY, (TIMERPROC) render_proc);
+   install_int(render_proc, RENDER_DELAY);
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_gdi;
@@ -519,7 +519,7 @@ static void gfx_gdi_exit(struct BITMAP *b)
       clear_bitmap(b);
 
    /* stop timer */
-   KillTimer(allegro_wnd, render_timer);
+   remove_int(render_proc);
    CloseHandle(vsync_event);
 
    /* disconnect from the system driver */
