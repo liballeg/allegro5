@@ -101,9 +101,9 @@
    3. Set the environment variable MINGDIR to the compiler directory. If you
       use Windows 9x, you can add the line
 
-         set MINGDIR=c:\mingw32
+         set MINGDIR=c:\MinGW
 
-      to your 'c:\autoexec.bat' file, assuming 'c:\mingw32' is the compiler
+      to your 'c:\autoexec.bat' file, assuming 'c:\MinGW' is the compiler
       directory, and reboot. If you use Windows ME, you can run 'msconfig',
       select the 'Environment' tab and then add MINGDIR. If you use
       Windows NT/2k/XP, you can open the Control Panel, click the 'System'
