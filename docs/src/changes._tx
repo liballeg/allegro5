@@ -50,7 +50,7 @@ Changes from 4.1.14 to 4.1.15 (July 2004)
    Vincent Penquerc'h fixed a problem with dependency generation under
    bash.
 <li>
-   Evert Glebbek added an icon to the X11 port and contributed the xfixicon 
+   Evert Glebbeek added an icon to the X11 port and contributed the xfixicon 
    script.
 <li>
    Angelo Mottola fixed an endianess issue when loading/saving 24 bit
