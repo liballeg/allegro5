@@ -70,19 +70,19 @@ int _blender_col_32 = 0;
 
 int _blender_alpha = 0;                /* for truecolor translucent drawing */
 
-int _rgb_r_shift_15 = 0;               /* truecolor pixel format */
-int _rgb_g_shift_15 = 5;
-int _rgb_b_shift_15 = 10;
-int _rgb_r_shift_16 = 0;
-int _rgb_g_shift_16 = 5;
-int _rgb_b_shift_16 = 11;
-int _rgb_r_shift_24 = 0;
-int _rgb_g_shift_24 = 8;
-int _rgb_b_shift_24 = 16;
-int _rgb_r_shift_32 = 0;
-int _rgb_g_shift_32 = 8;
-int _rgb_b_shift_32 = 16;
-int _rgb_a_shift_32 = 24;
+int _rgb_r_shift_15 = DEFAULT_RGB_R_SHIFT_15;     /* truecolor pixel format */
+int _rgb_g_shift_15 = DEFAULT_RGB_G_SHIFT_15;
+int _rgb_b_shift_15 = DEFAULT_RGB_B_SHIFT_15;
+int _rgb_r_shift_16 = DEFAULT_RGB_R_SHIFT_16;
+int _rgb_g_shift_16 = DEFAULT_RGB_G_SHIFT_16;
+int _rgb_b_shift_16 = DEFAULT_RGB_B_SHIFT_16;
+int _rgb_r_shift_24 = DEFAULT_RGB_R_SHIFT_24;
+int _rgb_g_shift_24 = DEFAULT_RGB_G_SHIFT_24;
+int _rgb_b_shift_24 = DEFAULT_RGB_B_SHIFT_24;
+int _rgb_r_shift_32 = DEFAULT_RGB_R_SHIFT_32;
+int _rgb_g_shift_32 = DEFAULT_RGB_G_SHIFT_32;
+int _rgb_b_shift_32 = DEFAULT_RGB_B_SHIFT_32;
+int _rgb_a_shift_32 = DEFAULT_RGB_A_SHIFT_32;
 
 
 /* lookup table for scaling 5 bit colors up to 8 bits */

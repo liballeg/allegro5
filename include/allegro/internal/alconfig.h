@@ -243,6 +243,32 @@
 #endif
 
 
+/* endian-independent 3-byte accessor macros */
+#ifdef ALLEGRO_LITTLE_ENDIAN
+
+   #define READ3BYTES(p)  (((int) *(p))               \
+                           | ((int) *((p) + 1) << 8)  \
+                           | ((int) *((p) + 2) << 16))
+
+   #define WRITE3BYTES(p,c)  ((*(p) = (c)),             \
+                              (*((p) + 1) = (c) >> 8),  \
+                              (*((p) + 2) = (c) >> 16))
+
+#elif defined ALLEGRO_BIG_ENDIAN
+
+   #define READ3BYTES(p)  (((int) *(p) << 16)         \
+                           | ((int) *((p) + 1) << 8)  \
+                           | ((int) *((p) + 2)))
+
+   #define WRITE3BYTES(p,c)  ((*(p) = (c) >> 16),       \
+                              (*((p) + 1) = (c) >> 8),  \
+                              (*((p) + 2) = (c)))
+
+#else
+   #error endianess not defined
+#endif
+
+
 /* generic versions of the video memory access helpers */
 #ifndef bmp_select
    #define bmp_select(bmp)
@@ -259,55 +285,22 @@
    #define bmp_read16(addr)            (*((unsigned short *)(addr)))
    #define bmp_read32(addr)            (*((unsigned long  *)(addr)))
 
-   #ifdef ALLEGRO_LITTLE_ENDIAN
+   AL_INLINE(int, bmp_read24, (unsigned long addr),
+   {
+      unsigned char *p = (unsigned char *)addr;
+      int c;
 
-      AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
-      {
-	 unsigned char *p = (unsigned char *)addr;
+      c = READ3BYTES(p);
 
-	 p[0] = c & 0xFF;
-	 p[1] = (c>>8) & 0xFF;
-	 p[2] = (c>>16) & 0xFF;
-      })
+      return c;
+   })
 
-      AL_INLINE(int, bmp_read24, (unsigned long addr),
-      {
-	 unsigned char *p = (unsigned char *)addr;
-	 int c;
+   AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
+   {
+      unsigned char *p = (unsigned char *)addr;
 
-	 c = p[0];
-	 c |= (int)p[1] << 8;
-	 c |= (int)p[2] << 16;
-
-	 return c;
-      })
-
-   #elif defined ALLEGRO_BIG_ENDIAN
-
-      AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
-      {
-	 unsigned char *p = (unsigned char *)addr;
-
-	 p[0] = (c>>16) & 0xFF;
-	 p[1] = (c>>8) & 0xFF;
-	 p[2] = c & 0xFF;
-      })
-
-      AL_INLINE(int, bmp_read24, (unsigned long addr),
-      {
-	 unsigned char *p = (unsigned char *)addr;
-	 int c;
-
-	 c = (int)p[0] << 16;
-	 c |= (int)p[1] << 8;
-	 c |= p[2];
-
-	 return c;
-      })
-
-   #else
-      #error endianess not defined
-   #endif
+      WRITE3BYTES(p, c);
+   })
 
 #endif
 
