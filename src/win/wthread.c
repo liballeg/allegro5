@@ -29,11 +29,8 @@
 #endif
 
 
-typedef UINT(CALLBACK * LPFNDLLFUNC1) (DWORD, UINT);
-
 typedef HRESULT(CALLBACK * _CoInitializeEx_ptr) (LPVOID, DWORD);
 static _CoInitializeEx_ptr _CoInitializeEx = NULL;
-#define _COINIT_MULTITHREADED 0
 static int first_call = 1;
 
 
@@ -69,7 +66,7 @@ void thread_init(void)
    }
 
    if (_CoInitializeEx != NULL)
-      _CoInitializeEx(NULL, _COINIT_MULTITHREADED);
+      _CoInitializeEx(NULL, COINIT_MULTITHREADED);
    else
       CoInitialize(NULL);
 }
