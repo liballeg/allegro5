@@ -82,34 +82,36 @@ FUNC (_colorconv_blit_32_to_24)
     edi = dest_rect->data
    */
 
+   _align_
    next_line_32_to_24:
       movd %mm7, %ecx
 
-   next_block_32_to_24:
-      movq (%esi), %mm0         /* mm0 = [.RGB1][.RGB0] */
-      movq 8(%esi), %mm1        /* mm1 = [.RGB3][.RGB2] */
-      movq %mm0, %mm2
-      movq %mm1, %mm3
-      movq %mm1, %mm4
-      psllq $48, %mm3
-      psllq $40, %mm0
-      psrlq $32, %mm2
-      psrlq $40, %mm0
-      psllq $24, %mm2
-      por %mm3, %mm0
-      por %mm2, %mm0
-      psllq $8, %mm4
-      psllq $40, %mm1
-      psrlq $32, %mm4
-      psrlq $56, %mm1
-      por %mm4, %mm1
-      movq %mm0, (%edi)
-      movd %mm1, 8(%edi)
-      addl $16, %esi
-      addl $12, %edi
+      _align_
+      next_block_32_to_24:
+         movq (%esi), %mm0         /* mm0 = [.RGB1][.RGB0] */
+         movq 8(%esi), %mm1        /* mm1 = [.RGB3][.RGB2] */
+         movq %mm0, %mm2
+         movq %mm1, %mm3
+         movq %mm1, %mm4
+         psllq $48, %mm3
+         psllq $40, %mm0
+         psrlq $32, %mm2
+         psrlq $40, %mm0
+         psllq $24, %mm2
+         por %mm3, %mm0
+         por %mm2, %mm0
+         psllq $8, %mm4
+         psllq $40, %mm1
+         psrlq $32, %mm4
+         psrlq $56, %mm1
+         por %mm4, %mm1
+         movq %mm0, (%edi)
+         movd %mm1, 8(%edi)
+         addl $16, %esi
+         addl $12, %edi
 
-      decl %ecx
-      jnz next_block_32_to_24
+         decl %ecx
+         jnz next_block_32_to_24
 
       addl %eax, %esi
       addl %ebx, %edi
@@ -211,34 +213,36 @@ FUNC (_colorconv_blit_32_to_16)
     edi = same as esi, but for the dest bitmap
    */
 
+   _align_
    next_line_32_to_16:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
 
-   next_block_32_to_16:
-      movq (%eax), %mm0
-      movq %mm0, %mm1
-      nop
-      movq %mm0, %mm2
-      PAND (5, 0)        /* pand %mm5, %mm0 */
-      psrld $3, %mm0
-      PAND (3, 1)        /* pand %mm3, %mm1 */
-      psrld $5, %mm1
-      por %mm1, %mm0
-      addl $8, %eax
-      PAND (4, 2)        /* pand %mm4, %mm2 */
-      psrld $8, %mm2
-      nop
-      nop
-      por %mm2, %mm0
-      movq %mm0, %mm6
-      psrlq $16, %mm0
-      por %mm0, %mm6
-      movd %mm6, (%ebx)
-      addl $4, %ebx
+      _align_
+      next_block_32_to_16:
+         movq (%eax), %mm0
+         movq %mm0, %mm1
+         nop
+         movq %mm0, %mm2
+         PAND (5, 0)        /* pand %mm5, %mm0 */
+         psrld $3, %mm0
+         PAND (3, 1)        /* pand %mm3, %mm1 */
+         psrld $5, %mm1
+         por %mm1, %mm0
+         addl $8, %eax
+         PAND (4, 2)        /* pand %mm4, %mm2 */
+         psrld $8, %mm2
+         nop
+         nop
+         por %mm2, %mm0
+         movq %mm0, %mm6
+         psrlq $16, %mm0
+         por %mm0, %mm6
+         movd %mm6, (%ebx)
+         addl $4, %ebx
 
-      incl %ebp
-      cmpl %edx, %ebp
-      jb next_block_32_to_16
+         incl %ebp
+         cmpl %edx, %ebp
+         jb next_block_32_to_16
 
       addl %esi, %eax
       addl %edi, %ebx
@@ -280,31 +284,33 @@ FUNC (_colorconv_blit_32_to_15)
     edi = same as esi, but for the dest bitmap
    */
 
+   _align_
    next_line_32_to_15:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
 
-   next_block_32_to_15:
-      movq (%eax), %mm0
-      movq %mm0, %mm1
-      movq %mm0, %mm2
-      PAND (5, 0)        /* pand %mm5, %mm0 */
-      psrld $3, %mm0
-      PAND (3, 1)        /* pand %mm3, %mm1 */
-      psrld $6, %mm1
-      por %mm1, %mm0
-      addl $8, %eax
-      PAND (4, 2)        /* pand %mm4, %mm2 */
-      psrld $9, %mm2
-      por %mm2, %mm0
-      movq %mm0, %mm6
-      psrlq $16, %mm0
-      por %mm0, %mm6
-      movd %mm6, (%ebx)
-      addl $4, %ebx
+      _align_
+      next_block_32_to_15:
+         movq (%eax), %mm0
+         movq %mm0, %mm1
+         movq %mm0, %mm2
+         PAND (5, 0)        /* pand %mm5, %mm0 */
+         psrld $3, %mm0
+         PAND (3, 1)        /* pand %mm3, %mm1 */
+         psrld $6, %mm1
+         por %mm1, %mm0
+         addl $8, %eax
+         PAND (4, 2)        /* pand %mm4, %mm2 */
+         psrld $9, %mm2
+         por %mm2, %mm0
+         movq %mm0, %mm6
+         psrlq $16, %mm0
+         por %mm0, %mm6
+         movd %mm6, (%ebx)
+         addl $4, %ebx
 
-      incl %ebp
-      cmpl %edx, %ebp
-      jb next_block_32_to_15
+         incl %ebp
+         cmpl %edx, %ebp
+         jb next_block_32_to_15
 
       addl %esi, %eax
       addl %edi, %ebx
@@ -362,35 +368,37 @@ FUNC (_colorconv_blit_24_to_32)
     edi = dest_rect->data
    */
 
+   _align_
    next_line_24_to_32:
       movd %mm7, %ecx
 
-   next_block_24_to_32:
-      movq (%esi), %mm0         /* mm0 = [GB2][RGB1][RGB0] */
-      movd 8(%esi), %mm1        /* mm1 = [..0..][RGB3][R2] */
-      movq %mm0, %mm2
-      movq %mm0, %mm3
-      movq %mm1, %mm4
-      psllq $16, %mm2
-      psllq $40, %mm0
-      psrlq $40, %mm2
-      psrlq $40, %mm0           /* mm0 = [....0....][RGB0] */
-      psllq $32, %mm2           /* mm2 = [..][RGB1][..0..] */
-      psrlq $8, %mm1
-      psrlq $48, %mm3           /* mm3 = [.....0....][GB2] */
-      psllq $56, %mm4
-      psllq $32, %mm1           /* mm1 = [.RGB3][....0...] */
-      psrlq $40, %mm4           /* mm4 = [....0...][R2][0] */
-      por %mm3, %mm1
-      por %mm2, %mm0            /* mm0 = [.RGB1][.RGB0]    */
-      por %mm4, %mm1            /* mm1 = [.RGB3][.RGB2]    */
-      movq %mm0, (%edi)
-      movq %mm1, 8(%edi)
-      addl $12, %esi
-      addl $16, %edi
+      _align_
+      next_block_24_to_32:
+         movq (%esi), %mm0         /* mm0 = [GB2][RGB1][RGB0] */
+         movd 8(%esi), %mm1        /* mm1 = [..0..][RGB3][R2] */
+         movq %mm0, %mm2
+         movq %mm0, %mm3
+         movq %mm1, %mm4
+         psllq $16, %mm2
+         psllq $40, %mm0
+         psrlq $40, %mm2
+         psrlq $40, %mm0           /* mm0 = [....0....][RGB0] */
+         psllq $32, %mm2           /* mm2 = [..][RGB1][..0..] */
+         psrlq $8, %mm1
+         psrlq $48, %mm3           /* mm3 = [.....0....][GB2] */
+         psllq $56, %mm4
+         psllq $32, %mm1           /* mm1 = [.RGB3][....0...] */
+         psrlq $40, %mm4           /* mm4 = [....0...][R2][0] */
+         por %mm3, %mm1
+         por %mm2, %mm0            /* mm0 = [.RGB1][.RGB0]    */
+         por %mm4, %mm1            /* mm1 = [.RGB3][.RGB2]    */
+         movq %mm0, (%edi)
+         movq %mm1, 8(%edi)
+         addl $12, %esi
+         addl $16, %edi
 
-      decl %ecx
-      jnz next_block_24_to_32
+         decl %ecx
+         jnz next_block_24_to_32
 
       addl %eax, %esi
       addl %ebx, %edi
@@ -432,29 +440,31 @@ FUNC (_colorconv_blit_16_to_32)
     edi = same as esi, but for the dest bitmap
    */
 
+   _align_
    next_line_16_to_32:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
 
-   next_block_16_to_32:
-      movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
-      punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
-      movq %mm0, %mm1
-      movq %mm0, %mm2
-      PAND (5, 0)        /* pand %mm5, %mm0 */
-      pslld $3, %mm0
-      PAND (3, 1)        /* pand %mm3, %mm1 */
-      pslld $5, %mm1
-      por %mm1, %mm0
-      addl $4, %eax
-      PAND (4, 2)        /* pand %mm4, %mm2 */
-      pslld $8, %mm2
-      por %mm2, %mm0
-      movq %mm0, (%ebx)
-      addl $8, %ebx
+      _align_
+      next_block_16_to_32:
+         movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
+         punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
+         movq %mm0, %mm1
+         movq %mm0, %mm2
+         PAND (5, 0)        /* pand %mm5, %mm0 */
+         pslld $3, %mm0
+         PAND (3, 1)        /* pand %mm3, %mm1 */
+         pslld $5, %mm1
+         por %mm1, %mm0
+         addl $4, %eax
+         PAND (4, 2)        /* pand %mm4, %mm2 */
+         pslld $8, %mm2
+         por %mm2, %mm0
+         movq %mm0, (%ebx)
+         addl $8, %ebx
 
-      incl %ebp
-      cmpl %edx, %ebp
-      jb next_block_16_to_32
+         incl %ebp
+         cmpl %edx, %ebp
+         jb next_block_16_to_32
 
       addl %esi, %eax
       addl %edi, %ebx
@@ -496,29 +506,31 @@ FUNC (_colorconv_blit_15_to_32)
     edi = same as esi, but for the dest bitmap
    */
 
+   _align_
    next_line_15_to_32:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
 
-   next_block_15_to_32:
-      movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
-      punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
-      movq %mm0, %mm1
-      movq %mm0, %mm2
-      PAND (5, 0)        /* pand %mm5, %mm0 */
-      pslld $3, %mm0
-      PAND (3, 1)        /* pand %mm3, %mm1 */
-      pslld $6, %mm1
-      por %mm1, %mm0
-      addl $4, %eax
-      PAND (4, 2)        /* pand %mm4, %mm2 */
-      pslld $9, %mm2
-      por %mm2, %mm0
-      movq %mm0, (%ebx)
-      addl $8, %ebx
+      _align_
+      next_block_15_to_32:
+         movd (%eax), %mm0    /* mm0 = 0000 0000  [rgb1][rgb2] */
+         punpcklwd %mm0, %mm0 /* mm0 = xxxx [rgb1] xxxx [rgb2]  (x don't matter) */
+         movq %mm0, %mm1
+         movq %mm0, %mm2
+         PAND (5, 0)        /* pand %mm5, %mm0 */
+         pslld $3, %mm0
+         PAND (3, 1)        /* pand %mm3, %mm1 */
+         pslld $6, %mm1
+         por %mm1, %mm0
+         addl $4, %eax
+         PAND (4, 2)        /* pand %mm4, %mm2 */
+         pslld $9, %mm2
+         por %mm2, %mm0
+         movq %mm0, (%ebx)
+         addl $8, %ebx
 
-      incl %ebp
-      cmpl %edx, %ebp
-      jb next_block_15_to_32
+         incl %ebp
+         cmpl %edx, %ebp
+         jb next_block_15_to_32
 
       addl %esi, %eax
       addl %edi, %ebx
@@ -568,7 +580,6 @@ FUNC (_colorconv_blit_8_to_32)
    shrl $4, %edi                      /* edi = SCREEN_W / 4                           */
    movl GLOBL(_colorconv_indexed_palette), %esi  /* esi = _colorconv_indexed_palette  */
 
-
    /* 8 bit to 32 bit conversion:
     we have:
     eax = src_rect->data
@@ -580,32 +591,34 @@ FUNC (_colorconv_blit_8_to_32)
     LOCAL3 = same as LOCAL2, but for the dest bitmap
    */
 
+   _align_
    next_line_8_to_32:
       movl $0, %ebp      /* (better than xor ebp, ebp) */
 
-   next_block_8_to_32:
-      movl (%eax), %edx          /* edx = [4][3][2][1] */ 
-      movzbl %dl, %ecx
-      movd (%esi,%ecx,4), %mm0   /* mm0 = xxxxxxxxx [   1   ] */
-      shrl $8, %edx
-      movzbl %dl, %ecx
-      movd (%esi,%ecx,4), %mm1   /* mm1 = xxxxxxxxx [   2   ] */
-      punpckldq %mm1, %mm0       /* mm0 = [   2   ] [   1   ] */
-      addl $4, %eax
-      movq %mm0, (%ebx)
-      shrl $8, %edx
-      movzbl %dl, %ecx
-      movd (%esi,%ecx,4), %mm0   /* mm0 = xxxxxxxxx [   3   ] */
-      shrl $8, %edx
-      movl %edx, %ecx
-      movd (%esi,%ecx,4), %mm1   /* mm1 = xxxxxxxxx [   4   ] */
-      punpckldq %mm1, %mm0       /* mm0 = [   4   ] [   3   ] */
-      movq %mm0, 8(%ebx)
-      addl $16, %ebx
+      _align_
+      next_block_8_to_32:
+         movl (%eax), %edx          /* edx = [4][3][2][1] */ 
+         movzbl %dl, %ecx
+         movd (%esi,%ecx,4), %mm0   /* mm0 = xxxxxxxxx [   1   ] */
+         shrl $8, %edx
+         movzbl %dl, %ecx
+         movd (%esi,%ecx,4), %mm1   /* mm1 = xxxxxxxxx [   2   ] */
+         punpckldq %mm1, %mm0       /* mm0 = [   2   ] [   1   ] */
+         addl $4, %eax
+         movq %mm0, (%ebx)
+         shrl $8, %edx
+         movzbl %dl, %ecx
+         movd (%esi,%ecx,4), %mm0   /* mm0 = xxxxxxxxx [   3   ] */
+         shrl $8, %edx
+         movl %edx, %ecx
+         movd (%esi,%ecx,4), %mm1   /* mm1 = xxxxxxxxx [   4   ] */
+         punpckldq %mm1, %mm0       /* mm0 = [   4   ] [   3   ] */
+         movq %mm0, 8(%ebx)
+         addl $16, %ebx
 
-      incl %ebp
-      cmpl %edi, %ebp
-      jb next_block_8_to_32
+         incl %ebp
+         cmpl %edi, %ebp
+         jb next_block_8_to_32
 
       movl LOCAL2, %edx
       addl %edx, %eax
@@ -662,7 +675,6 @@ FUNC (_colorconv_blit_8_to_15)
    shrl $3, %edi                      /* edi = SCREEN_W / 4                           */
    movl GLOBL(_colorconv_indexed_palette), %esi  /* esi = _colorconv_indexed_palette  */
 
-
    /* 8 bit to 16 bit conversion:
     we have:
     eax = src_rect->data
@@ -674,32 +686,34 @@ FUNC (_colorconv_blit_8_to_15)
     LOCAL3 = same as LOCAL2, but for the dest bitmap
    */
 
+   _align_
    next_line_8_to_16:
       movl $0, %ebp      /* better than xor ebp, ebp */
 
-   next_block_8_to_16:
-      movl (%eax), %edx         /* edx = [4][3][2][1] */
-      movzbl %dl, %ecx
-      movd (%esi,%ecx,4), %mm0  /* mm0 = xxxxxxxxxx xxxxx[ 1 ] */
-      shrl $8, %edx
-      movzbl %dl, %ecx
-      movd (%esi,%ecx,4), %mm1  /* mm1 = xxxxxxxxxx xxxxx[ 2 ] */
-      punpcklwd %mm1, %mm0      /* mm0 = xxxxxxxxxx [ 2 ][ 1 ] */
-      shrl $8, %edx
-      movzbl %dl, %ecx
-      movd (%esi,%ecx,4), %mm2  /* mm2 = xxxxxxxxxx xxxxx[ 3 ] */
-      shrl $8, %edx
-      movl %edx, %ecx
-      movd (%esi,%ecx,4), %mm3  /* mm3 = xxxxxxxxxx xxxxx[ 4 ] */
-      punpcklwd %mm3, %mm2      /* mm2 = xxxxxxxxxx [ 4 ][ 3 ] */
-      addl $4, %eax
-      punpckldq %mm2, %mm0      /* mm0 = [ 4 ][ 3 ] [ 2 ][ 1 ] */
-      movq %mm0, (%ebx)
-      addl $8, %ebx
+      _align_
+      next_block_8_to_16:
+         movl (%eax), %edx         /* edx = [4][3][2][1] */
+         movzbl %dl, %ecx
+         movd (%esi,%ecx,4), %mm0  /* mm0 = xxxxxxxxxx xxxxx[ 1 ] */
+         shrl $8, %edx
+         movzbl %dl, %ecx
+         movd (%esi,%ecx,4), %mm1  /* mm1 = xxxxxxxxxx xxxxx[ 2 ] */
+         punpcklwd %mm1, %mm0      /* mm0 = xxxxxxxxxx [ 2 ][ 1 ] */
+         shrl $8, %edx
+         movzbl %dl, %ecx
+         movd (%esi,%ecx,4), %mm2  /* mm2 = xxxxxxxxxx xxxxx[ 3 ] */
+         shrl $8, %edx
+         movl %edx, %ecx
+         movd (%esi,%ecx,4), %mm3  /* mm3 = xxxxxxxxxx xxxxx[ 4 ] */
+         punpcklwd %mm3, %mm2      /* mm2 = xxxxxxxxxx [ 4 ][ 3 ] */
+         addl $4, %eax
+         punpckldq %mm2, %mm0      /* mm0 = [ 4 ][ 3 ] [ 2 ][ 1 ] */
+         movq %mm0, (%ebx)
+         addl $8, %ebx
 
-      incl %ebp
-      cmpl %edi, %ebp
-      jb next_block_8_to_16
+         incl %ebp
+         cmpl %edi, %ebp
+         jb next_block_8_to_16
 
       movl LOCAL2, %edx
       addl %edx, %eax
