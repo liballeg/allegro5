@@ -319,6 +319,9 @@ ALLEGRO_MODULE_SVGALIB_FILES = \
 	src/linux/svgalib.c \
 	src/linux/svgalibs.s
 
+ALLEGRO_MODULE_FBCON_FILES = \
+	src/linux/fbcon.c
+
 ALLEGRO_MODULE_ALSADIGI_FILES = \
 	src/unix/alsa.c
 

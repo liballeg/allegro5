@@ -191,7 +191,9 @@ AL_VAR(SYSTEM_DRIVER, system_linux);
 
 #ifdef ALLEGRO_LINUX_FBCON
    #define GFX_FBCON                AL_ID('F','B',' ',' ')
+#ifndef ALLEGRO_WITH_MODULES
    AL_VAR(GFX_DRIVER, gfx_fbcon);
+#endif
 #endif
 
 #ifdef ALLEGRO_LINUX_VBEAF

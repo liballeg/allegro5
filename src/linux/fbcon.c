@@ -14,6 +14,8 @@
  *
  *      Proper mode setting support added by George Foot.
  *
+ *      Modified by Grzegorz Adam Hankiewicz.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -23,7 +25,7 @@
 #include "allegro/aintunix.h"
 
 
-#ifdef ALLEGRO_LINUX_FBCON
+#if (defined ALLEGRO_LINUX_FBCON) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE))
 
 #if !defined(_POSIX_MAPPED_FILES) || !defined(HAVE_MMAP)
 #error "Sorry, mapped files are required for Linux console Allegro to work!"
@@ -943,4 +945,19 @@ static void _fb_set_pixclock(int new_val)
 
 
 
-#endif      /* ifdef ALLEGRO_LINUX_FBCON */
+#ifdef ALLEGRO_MODULE
+
+/* _module_init:
+ *  Called when loaded as a dynamically linked module.
+ */
+void _module_init(int system_driver)
+{
+   if (system_driver == SYSTEM_LINUX)
+      _unix_register_gfx_driver(GFX_FBCON, &gfx_fbcon, TRUE, FALSE);
+}
+
+#endif      /* ifdef ALLEGRO_MODULE */
+
+
+
+#endif      /* if (defined ALLEGRO_LINUX_FBCON) ... */

@@ -367,6 +367,7 @@ case "$allegro_system" in
     if test "$allegro_enable_fbcon" = yes; then
       AC_CHECK_HEADER(linux/fb.h,
 	AC_TRY_COMPILE([#include <linux/fb.h>], [int x = FB_SYNC_ON_GREEN;],
+	  allegro_support_fbcon=yes
 	  AC_DEFINE(ALLEGRO_LINUX_FBCON)
 	)
       )
@@ -414,6 +415,11 @@ if test -n "$allegro_support_modules"; then
   dnl SVGAlib.
   if test "X$allegro_support_svgalib" = "Xyes"; then
     ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-svgalib-\$(shared_version).so"
+  fi
+
+  dnl fbcon.
+  if test "X$allegro_support_fbcon" = "Xyes"; then
+    ALLEGRO_MODULE_TARGETS="$ALLEGRO_MODULE_TARGETS lib/unix/alleg-fbcon-\$(shared_version).so"
   fi
 
   dnl ALSA DIGI.
