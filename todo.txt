@@ -26,6 +26,7 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
+- DirectInput 5 joystick driver
 - Fix 'screen not redrawn after switching' bug (likely a race condition)
 - Fix 'mouse pointer not hidden' bug (likely a race condition)
 - Add backward playing to the DirectSound driver
@@ -99,7 +100,6 @@ Wishlist
 - Play with switch_in/out X events, just for the sake of it :-)
 - OSS MIDI pitch bend.
 - hook function to handle window resizing
-- DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()
 - Video overlay gfx driver under QNX
