@@ -10,6 +10,10 @@
 #  will work on any Unix-like platform, even if the compilers are not
 #  available themselves, and for converting things like fixdll.bat and
 #  fixdjgpp.bat into something that bash can understand.
+#
+#  Note: if you write datestamp in the archive_name field, then the
+#  resulting archive will be datestamped. This is in particular useful
+#  for making CVS snapshots.
 
 
 if [ $# -lt 1 -o $# -gt 2 ]; then
@@ -22,6 +26,11 @@ fi
 name=$(echo "$1" | sed -e 's/.*[\\\/]//; s/\.zip//')
 prev=$(echo "$2" | sed -e 's/.*[\\\/]//; s/\.zip//')
 
+# make a datestamped archive if specified
+if test $name = datestamp; then
+  date=`date '+%Y%m%d'`
+  name=allegro_$date
+fi
 
 # make sure all the makefiles are in Unix text format
 for file in makefile.*; do
@@ -216,7 +225,7 @@ scan_for_empties "."
 echo "Creating $name.zip..."
 cd ..
 if [ -f $name.zip ]; then rm $name.zip; fi
-find allegro -iname CVS -prune -o -print | zip -9 $name.zip -@
+find allegro -iname CVS -prune -o -iname .cvsignore -prune -o -print | zip -9 $name.zip -@
 
 
 # generate the manifest file
