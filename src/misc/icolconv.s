@@ -26,6 +26,10 @@
 #include "src/i386/asmdefs.inc"
 
 
+/* Better keep the stack pointer 16-byte aligned on modern CPUs */
+#define SLOTS_TO_BYTES(n) (((n*4+15)/16)*16)
+
+
 .text
 
 
@@ -37,12 +41,12 @@
    .byte 0xc0 + 8*dst + src  /* mod field */
 
 /* local variables */
-#define LOCAL1   12(%esp)
-#define LOCAL2   8(%esp)
-#define LOCAL3   4(%esp)
-#define LOCAL4   0(%esp)
-#define RESERVE_LOCALS subl $16, %esp
-#define CLEANUP_LOCALS addl $16, %esp
+#define RESERVE_LOCALS(n) subl $SLOTS_TO_BYTES(n), %esp
+#define CLEANUP_LOCALS(n) addl $SLOTS_TO_BYTES(n), %esp
+#define LOCAL1   0(%esp)
+#define LOCAL2   4(%esp)
+#define LOCAL3   8(%esp)
+#define LOCAL4  12(%esp)
 
 /* helper macros */
 #define INIT_CONVERSION_1(mask_red, mask_green, mask_blue)                           \
@@ -126,7 +130,7 @@ FUNC (_colorconv_blit_8_to_16)
    pushl %esi
    pushl %edi
 
-   RESERVE_LOCALS
+   RESERVE_LOCALS(4)
 
    /* init register values */
 
@@ -237,7 +241,7 @@ FUNC (_colorconv_blit_8_to_16)
       movl %edx, LOCAL1
       jnz next_line_8_to_16
 
-   CLEANUP_LOCALS
+   CLEANUP_LOCALS(4)
 
    emms
    popl %edi
@@ -263,7 +267,7 @@ FUNC (_colorconv_blit_8_to_32)
    pushl %esi
    pushl %edi
 
-   RESERVE_LOCALS
+   RESERVE_LOCALS(4)
 
    /* init register values */
 
@@ -374,7 +378,8 @@ FUNC (_colorconv_blit_8_to_32)
       movl %edx, LOCAL1
       jnz next_line_8_to_32
 
-   CLEANUP_LOCALS
+   CLEANUP_LOCALS(4)
+
    emms
    popl %edi
    popl %esi
@@ -1404,28 +1409,47 @@ FUNC (_colorconv_blit_32_to_24)
 /*  optimized for Intel Pentium                                                             */
 /********************************************************************************************/
 
-/* reserve storage for ONE 32-bit push on the stack */
-#define MYLOCAL1    8(%esp)
-#define MYLOCAL2    4(%esp)
-#define MYLOCAL3    0(%esp)
-#define RESERVE_MYLOCALS subl $16, %esp
-#define CLEANUP_MYLOCALS addl $16, %esp
+#define RESERVE_MYLOCALS(n) subl $SLOTS_TO_BYTES(n), %esp
+#define CLEANUP_MYLOCALS(n) addl $SLOTS_TO_BYTES(n), %esp
 
-/* create the (pseudo - we need %ebp) stack frame */
+/* create the default stack frame (4 slots) */
 #define CREATE_STACK_FRAME  \
    pushl %ebp             ; \
    movl %esp, %ebp        ; \
    pushl %ebx             ; \
    pushl %esi             ; \
    pushl %edi             ; \
-   RESERVE_MYLOCALS
+   RESERVE_MYLOCALS(4)
 
 #define DESTROY_STACK_FRAME \
-   CLEANUP_MYLOCALS       ; \
+   CLEANUP_MYLOCALS(4)    ; \
    popl %edi              ; \
    popl %esi              ; \
    popl %ebx              ; \
    popl %ebp
+
+#define MYLOCAL1    0(%esp)
+#define MYLOCAL2    4(%esp)
+#define MYLOCAL3    8(%esp)
+#define MYLOCAL4   12(%esp)
+
+/* create the big stack frame (5 slots) */
+#define CREATE_BIG_STACK_FRAME  \
+   pushl %ebp             ; \
+   movl %esp, %ebp        ; \
+   pushl %ebx             ; \
+   pushl %esi             ; \
+   pushl %edi             ; \
+   RESERVE_MYLOCALS(5)
+
+#define DESTROY_BIG_STACK_FRAME \
+   CLEANUP_MYLOCALS(5)    ; \
+   popl %edi              ; \
+   popl %esi              ; \
+   popl %ebx              ; \
+   popl %ebp
+
+#define SPILL_SLOT   16(%esp)
 
 /* initialize the registers */
 #define SIZE_1
@@ -1454,19 +1478,21 @@ FUNC (_colorconv_blit_32_to_24)
    movl GFXRECT_PITCH(%eax), %ecx   /* ecx      = dest_rect->pitch            */  ; \
    subl %ebx, %ecx                                                                ; \
    movl GFXRECT_DATA(%eax), %edi    /* edi      = dest_rect->data             */  ; \
-   movl %ecx, MYLOCAL3              /* MYLOCAL3 = dest_rect->pitch - width*y  */
+   movl %ecx, MYLOCAL3              /* MYLOCAL3 = dest_rect->pitch - width*y  */  ; \
+   movl %edx, MYLOCAL4              /* MYLOCAL4 = src_rect->height            */
 
   /* registers state after initialization:
     eax: free 
     ebx: free
     ecx: free (for the inner loop counter)
-    edx: (int) height
+    edx: free
     esi: (char *) source surface pointer
     edi: (char *) destination surface pointer
     ebp: free (for the lookup table base pointer)
     MYLOCAL1: (const int) width/ratio
     MYLOCAL2: (const int) offset from the end of a line to the beginning of next
     MYLOCAL3: (const int) same as MYLOCAL2, but for the dest bitmap
+    MYLOCAL4: (int) height
    */
 
 
@@ -1474,7 +1500,6 @@ FUNC (_colorconv_blit_32_to_24)
    _align_                                                                      ; \
    next_line_##name:                                                            ; \
       movl MYLOCAL1, %ecx                                                       ; \
-      pushl %edx                                                                ; \
                                                                                 ; \
       _align_                                                                   ; \
       next_block_##name:                                                        ; \
@@ -1494,10 +1519,9 @@ FUNC (_colorconv_blit_32_to_24)
          decl %ecx                                                              ; \
          jnz next_block_##name                                                  ; \
                                                                                 ; \
-      popl %edx                                                                 ; \
       addl MYLOCAL2, %esi                                                       ; \
       addl MYLOCAL3, %edi                                                       ; \
-      decl %edx                                                                 ; \
+      decl MYLOCAL4                                                             ; \
       jnz next_line_##name
 
 
@@ -1507,7 +1531,6 @@ FUNC (_colorconv_blit_32_to_24)
    _align_                                                                       ; \
    next_line_##name:                                                             ; \
       movl MYLOCAL1, %ecx                                                        ; \
-      pushl %edx                                                                 ; \
                                                                                  ; \
       _align_                                                                    ; \
       /* 100% Pentium pairable loop */                                           ; \
@@ -1536,10 +1559,9 @@ FUNC (_colorconv_blit_32_to_24)
          movl %eax, -4(%edi)              /* write pixel1..pixel2            */  ; \
          jnz next_block_##name                                                   ; \
                                                                                  ; \
-      popl %edx                                                                  ; \
       addl MYLOCAL2, %esi                                                        ; \
       addl MYLOCAL3, %edi                                                        ; \
-      decl %edx                                                                  ; \
+      decl MYLOCAL4                                                              ; \
       jnz next_line_##name
 
 
@@ -1547,7 +1569,6 @@ FUNC (_colorconv_blit_32_to_24)
    _align_                                                                       ; \
    next_line_##name:                                                             ; \
       movl MYLOCAL1, %ecx                                                        ; \
-      pushl %edx                                                                 ; \
                                                                                  ; \
       _align_                                                                    ; \
       /* 100% Pentium pairable loop */                                           ; \
@@ -1574,10 +1595,9 @@ FUNC (_colorconv_blit_32_to_24)
          movl %eax, -4(%edi)              /* write pixel1..pixel2            */  ; \
          jnz next_block_##name                                                   ; \
                                                                                  ; \
-      popl %edx                                                                  ; \
       addl MYLOCAL2, %esi                                                        ; \
       addl MYLOCAL3, %edi                                                        ; \
-      decl %edx                                                                  ; \
+      decl MYLOCAL4                                                              ; \
       jnz next_line_##name
 
 #else
@@ -1589,8 +1609,6 @@ FUNC (_colorconv_blit_32_to_24)
                                                                                  ; \
       shrl $1, %ecx                                                              ; \
       jz do_one_pixel_##name                                                     ; \
-                                                                                 ; \
-      pushl %edx                                                                 ; \
                                                                                  ; \
       _align_                                                                    ; \
       /* 100% Pentium pairable loop */                                           ; \
@@ -1618,8 +1636,6 @@ FUNC (_colorconv_blit_32_to_24)
          decl %ecx                                                               ; \
          movl %eax, -4(%edi)              /* write pixel1..pixel2            */  ; \
          jnz next_block_##name                                                   ; \
-                                                                                 ; \
-      popl %edx                                                                  ; \
                                                                                  ; \
       do_one_pixel_##name:                                                       ; \
          movl MYLOCAL1, %ecx                                                     ; \
@@ -1643,7 +1659,7 @@ FUNC (_colorconv_blit_32_to_24)
    end_of_line_##name:                                                           ; \
       addl MYLOCAL2, %esi                                                        ; \
       addl MYLOCAL3, %edi                                                        ; \
-      decl %edx                                                                  ; \
+      decl MYLOCAL4                                                              ; \
       jnz next_line_##name
 
 
@@ -1654,8 +1670,6 @@ FUNC (_colorconv_blit_32_to_24)
                                                                                  ; \
       shrl $1, %ecx                                                              ; \
       jz do_one_pixel_##name                                                     ; \
-                                                                                 ; \
-      pushl %edx                                                                 ; \
                                                                                  ; \
       _align_                                                                    ; \
       /* 100% Pentium pairable loop */                                           ; \
@@ -1682,8 +1696,6 @@ FUNC (_colorconv_blit_32_to_24)
          movl %eax, -4(%edi)              /* write pixel1..pixel2            */  ; \
          jnz next_block_##name                                                   ; \
                                                                                  ; \
-      popl %edx                                                                  ; \
-                                                                                 ; \
       do_one_pixel_##name:                                                       ; \
          movl MYLOCAL1, %ecx                                                     ; \
          shrl $1, %ecx                                                           ; \
@@ -1705,7 +1717,7 @@ FUNC (_colorconv_blit_32_to_24)
    end_of_line_##name:                                                           ; \
       addl MYLOCAL2, %esi                                                        ; \
       addl MYLOCAL3, %edi                                                        ; \
-      decl %edx                                                                  ; \
+      decl MYLOCAL4                                                              ; \
       jnz next_line_##name
 
 #endif  /* ALLEGRO_COLORCONV_ALIGNED_WIDTH */
@@ -1737,8 +1749,6 @@ FUNC (_colorconv_blit_8_to_8)
       jz do_one_pixel_8_to_8_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       next_block_8_to_8_no_mmx:
          movl (%esi), %eax         /* read 4 pixels */
@@ -1761,8 +1771,6 @@ FUNC (_colorconv_blit_8_to_8)
          movl %eax, -4(%edi)       /* write 4 pixels */
          decl %ecx
          jnz next_block_8_to_8_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_8_no_mmx:
@@ -1801,7 +1809,7 @@ FUNC (_colorconv_blit_8_to_8)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_8_to_8_no_mmx
 
    DESTROY_STACK_FRAME
@@ -1842,8 +1850,6 @@ FUNC (_colorconv_blit_8_to_16)
       jz do_one_pixel_8_to_16_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
@@ -1868,8 +1874,6 @@ FUNC (_colorconv_blit_8_to_16)
          decl %ecx
          movl %edx, -4(%edi)          /* write pixel3, pixel4   */
          jnz next_block_8_to_16_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_16_no_mmx:
@@ -1909,7 +1913,7 @@ FUNC (_colorconv_blit_8_to_16)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_8_to_16_no_mmx
  
    DESTROY_STACK_FRAME
@@ -1941,8 +1945,6 @@ FUNC (_colorconv_blit_8_to_24)
       jz do_one_pixel_8_to_24_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 12 cycles = 11 cycles/4 pixels + 1 cycle loop */
@@ -1971,8 +1973,6 @@ FUNC (_colorconv_blit_8_to_24)
          addl $4, %esi                   /* 4 pixels read                   */
          decl %ecx
          jnz next_block_8_to_24_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_24_no_mmx:
@@ -2016,7 +2016,7 @@ FUNC (_colorconv_blit_8_to_24)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_8_to_24_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2053,8 +2053,6 @@ FUNC (_colorconv_blit_8_to_32)
       jz do_one_pixel_8_to_32_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
@@ -2079,8 +2077,6 @@ FUNC (_colorconv_blit_8_to_32)
          xorl %eax, %eax
          decl %ecx
          jnz next_block_8_to_32_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_8_to_32_no_mmx:
@@ -2119,7 +2115,7 @@ FUNC (_colorconv_blit_8_to_32)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_8_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2154,8 +2150,6 @@ FUNC (_colorconv_blit_15_to_8)
       jz do_one_pixel_15_to_8_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       next_block_15_to_8_no_mmx:
          movl (%esi), %eax         /* read 2 pixels */
@@ -2183,8 +2177,6 @@ FUNC (_colorconv_blit_15_to_8)
          decl %ecx
          jnz next_block_15_to_8_no_mmx
 
-      popl %edx
-
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_15_to_8_no_mmx:
          movl MYLOCAL1, %ecx
@@ -2211,7 +2203,7 @@ FUNC (_colorconv_blit_15_to_8)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_15_to_8_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2245,8 +2237,6 @@ FUNC (_colorconv_blit_15_to_16)
       jz do_one_pixel_15_to_16_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
@@ -2271,8 +2261,6 @@ FUNC (_colorconv_blit_15_to_16)
          addl $8, %esi               /* 4 pixels read          */
          decl %ecx
          jnz next_block_15_to_16_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_15_to_16_no_mmx:
@@ -2316,7 +2304,7 @@ FUNC (_colorconv_blit_15_to_16)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_15_to_16_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2332,7 +2320,7 @@ FUNC (_colorconv_blit_15_to_16)
  */
 FUNC (_colorconv_blit_15_to_24)
 FUNC (_colorconv_blit_16_to_24)
-   CREATE_STACK_FRAME
+   CREATE_BIG_STACK_FRAME
 
 #ifdef ALLEGRO_COLORCONV_ALIGNED_WIDTH
    INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_3, LOOP_RATIO_4)
@@ -2350,13 +2338,11 @@ FUNC (_colorconv_blit_16_to_24)
       jz do_one_pixel_16_to_24_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 22 cycles = 20 cycles/4 pixels + 1 cycle stack + 1 cycle loop */
       next_block_16_to_24_no_mmx:
-         movl %ecx, (%esp)              /* fake pushl %ecx                  */
+         movl %ecx, SPILL_SLOT          /* spill %ecx to the stack          */
          xorl %ebx, %ebx
          xorl %eax, %eax
          movb 7(%esi), %bl              /* bl = high byte pixel4            */
@@ -2395,13 +2381,11 @@ FUNC (_colorconv_blit_16_to_24)
          movl 1024(%ebp,%ebx,4), %ebx   /* lookup: ebx = r0g8b8 pixel1      */
          /* nop */
          addl %ecx, %ebx                /* ebx = r8g8b8 pixel1              */
-         movl (%esp), %ecx              /* fake popl %ecx                   */
+         movl SPILL_SLOT, %ecx          /* restore %ecx                     */
          orl  %ebx, %eax                /* eax = b8 pixel2 << 24 | pixel1   */
          decl %ecx
          movl %eax, -12(%edi)           /* write pixel1..b8 pixel2          */
          jnz next_block_16_to_24_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_16_to_24_no_mmx:
@@ -2456,10 +2440,10 @@ FUNC (_colorconv_blit_16_to_24)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_16_to_24_no_mmx
 
-   DESTROY_STACK_FRAME
+   DESTROY_BIG_STACK_FRAME
    ret
 
 
@@ -2498,8 +2482,6 @@ FUNC (_colorconv_blit_16_to_32)
       jz do_one_pixel_16_to_32_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/2 pixels + 1 cycle loop */
@@ -2525,8 +2507,6 @@ FUNC (_colorconv_blit_16_to_32)
          movl %edx, -4(%edi)            /* write pixel2                */
          jnz next_block_16_to_32_no_mmx
 
-      popl %edx
-
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_16_to_32_no_mmx:
          movl MYLOCAL1, %ecx            /* restore width */
@@ -2550,7 +2530,7 @@ FUNC (_colorconv_blit_16_to_32)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_16_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2581,8 +2561,6 @@ FUNC (_colorconv_blit_16_to_8)
       jz do_one_pixel_16_to_8_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       next_block_16_to_8_no_mmx:
          movl (%esi), %eax         /* read 2 pixels */
@@ -2610,8 +2588,6 @@ FUNC (_colorconv_blit_16_to_8)
          decl %ecx
          jnz next_block_16_to_8_no_mmx
 
-      popl %edx
-
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_16_to_8_no_mmx:
          movl MYLOCAL1, %ecx
@@ -2638,7 +2614,7 @@ FUNC (_colorconv_blit_16_to_8)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_16_to_8_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2672,8 +2648,6 @@ FUNC (_colorconv_blit_16_to_15)
       jz do_one_pixel_16_to_15_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 9 cycles = 8 cycles/4 pixels + 1 cycle loop */
@@ -2696,8 +2670,6 @@ FUNC (_colorconv_blit_16_to_15)
          addl $8, %esi             /* 4 pixels read         */
          decl %ecx
          jnz next_block_16_to_15_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_16_to_15_no_mmx:
@@ -2739,7 +2711,7 @@ FUNC (_colorconv_blit_16_to_15)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_16_to_15_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2826,8 +2798,6 @@ FUNC (_colorconv_blit_24_to_32)
       jz do_one_pixel_24_to_32_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 9 cycles = 8 cycles/4 pixels + 1 cycle loop */
@@ -2850,8 +2820,6 @@ FUNC (_colorconv_blit_24_to_32)
          addl $12, %esi            /* 4 pixels read             */
          decl %ecx
          jnz next_block_24_to_32_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_24_to_32_no_mmx:
@@ -2894,7 +2862,7 @@ FUNC (_colorconv_blit_24_to_32)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_24_to_32_no_mmx
 
    DESTROY_STACK_FRAME
@@ -2993,8 +2961,6 @@ FUNC (_colorconv_blit_32_to_24)
       jz do_one_pixel_32_to_24_no_mmx
 #endif
 
-      pushl %edx
-
       _align_
       /* 100% Pentium pairable loop */
       /* 12 cycles = 11 cycles/4 pixels + 1 cycle loop */
@@ -3023,8 +2989,6 @@ FUNC (_colorconv_blit_32_to_24)
          decl %ecx
          movl %eax, -4(%edi)    /* write [RGBR](4)(3)  */
          jnz next_block_32_to_24_no_mmx
-
-      popl %edx
 
 #ifndef ALLEGRO_COLORCONV_ALIGNED_WIDTH
       do_one_pixel_32_to_24_no_mmx:
@@ -3064,7 +3028,7 @@ FUNC (_colorconv_blit_32_to_24)
 
       addl MYLOCAL2, %esi
       addl MYLOCAL3, %edi
-      decl %edx
+      decl MYLOCAL4
       jnz next_line_32_to_24_no_mmx
 
    DESTROY_STACK_FRAME
