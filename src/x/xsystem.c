@@ -103,9 +103,6 @@ static RETSIGTYPE (*old_sig_ill)(int num);
 static RETSIGTYPE (*old_sig_segv)(int num);
 static RETSIGTYPE (*old_sig_term)(int num);
 static RETSIGTYPE (*old_sig_int)(int num);
-#ifdef SIGKILL
-static RETSIGTYPE (*old_sig_kill)(int num);
-#endif
 #ifdef SIGQUIT
 static RETSIGTYPE (*old_sig_quit)(int num);
 #endif
@@ -123,9 +120,6 @@ static RETSIGTYPE _xwin_signal_handler(int num)
       signal(SIGSEGV, old_sig_segv);
       signal(SIGTERM, old_sig_term);
       signal(SIGINT,  old_sig_int);
-#ifdef SIGKILL
-      signal(SIGKILL, old_sig_kill);
-#endif
 #ifdef SIGQUIT
       signal(SIGQUIT, old_sig_quit);
 #endif
@@ -171,10 +165,6 @@ static int _xwin_sysdrv_init(void)
    old_sig_term = signal(SIGTERM, _xwin_signal_handler);
    old_sig_int  = signal(SIGINT,  _xwin_signal_handler);
 
-#ifdef SIGKILL
-   old_sig_kill = signal(SIGKILL, _xwin_signal_handler);
-#endif
-
 #ifdef SIGQUIT
    old_sig_quit = signal(SIGQUIT, _xwin_signal_handler);
 #endif
@@ -212,10 +202,6 @@ static void _xwin_sysdrv_exit(void)
    signal(SIGSEGV, old_sig_segv);
    signal(SIGTERM, old_sig_term);
    signal(SIGINT,  old_sig_int);
-
-#ifdef SIGKILL
-   signal(SIGKILL, old_sig_kill);
-#endif
 
 #ifdef SIGQUIT
    signal(SIGQUIT, old_sig_quit);

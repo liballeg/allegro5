@@ -101,7 +101,7 @@ int __al_linux_have_ioperms = 0;
 
 
 typedef RETSIGTYPE (*temp_sighandler_t)(int);
-static temp_sighandler_t old_sig_abrt, old_sig_fpe, old_sig_ill, old_sig_segv, old_sig_term, old_sig_int, old_sig_kill, old_sig_quit;
+static temp_sighandler_t old_sig_abrt, old_sig_fpe, old_sig_ill, old_sig_segv, old_sig_term, old_sig_int, old_sig_quit;
 
 
 /* signal_handler:
@@ -182,9 +182,6 @@ static int sys_linux_init (void)
 	old_sig_segv = signal(SIGSEGV, signal_handler);
 	old_sig_term = signal(SIGTERM, signal_handler);
 	old_sig_int  = signal(SIGINT,  signal_handler);
-#ifdef SIGKILL
-	old_sig_kill = signal(SIGKILL, signal_handler);
-#endif
 #ifdef SIGQUIT
 	old_sig_quit = signal(SIGQUIT, signal_handler);
 #endif
@@ -223,9 +220,6 @@ static void sys_linux_exit (void)
 	signal(SIGSEGV, old_sig_segv);
 	signal(SIGTERM, old_sig_term);
 	signal(SIGINT,  old_sig_int);
-#ifdef SIGKILL
-	signal(SIGKILL, old_sig_kill);
-#endif
 #ifdef SIGQUIT
 	signal(SIGQUIT, old_sig_quit);
 #endif
