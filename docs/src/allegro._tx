@@ -17,7 +17,7 @@
 @document_title=Allegro Manual
 @html_footer=Back to contents
 @rtfh=Allegro - a game programming library
-@manh="version 4.1.16 (CVS)" "Allegro" "Allegro manual"
+@manh="version 4.1.17 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
 @$\input texinfo
 @$@setfilename allegro.inf
@@ -49,12 +49,12 @@
        \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
 	\/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
 				       /\____/
-				       \_/__/     Version 4.1.16 (CVS)
+				       \_/__/     Version 4.1.17 (CVS)
 
 
 		A game programming library.
 
-	     By Shawn Hargreaves, Jul 29, 2004.
+	     By Shawn Hargreaves, Oct 04, 2004.
 
 		See the AUTHORS file for a
 	       complete list of contributors.
