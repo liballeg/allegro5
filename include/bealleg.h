@@ -31,6 +31,7 @@
 #endif
 
 #include "allegro.h"
+#include "allegro/aintern.h"
 
 #ifdef __cplusplus
 # undef color_map
@@ -158,17 +159,18 @@ class BeAllegroWindow
       void WindowActivated(bool);
 
       void *screen_data;	  
-      void **screen_line; 
+      uint32 screen_pitch;
       uint32 screen_height;
       uint32 screen_depth;
 
-      void **display_line;
+      void *display_data;
+      uint32 display_pitch;
       uint32 display_depth;
 
       uint32 num_rects;
       clipping_rect *rects;
       clipping_rect window;
-      void (*blitter)(void **src, void **dest, int sx, int sy, int sw, int sh);
+      COLORCONV_BLITTER_FUNC *blitter;
 
       bool connected;
       bool dying;
@@ -207,6 +209,7 @@ AL_VAR(BeAllegroApp, *_be_allegro_app);
 AL_VAR(BeAllegroWindow, *_be_allegro_window);
 AL_VAR(BeAllegroView, *_be_allegro_view);
 AL_VAR(BeAllegroScreen, *_be_allegro_screen);
+AL_VAR(BWindow, *_be_window);
 AL_VAR(BMidiSynth, *_be_midisynth);
 
 AL_VAR(sem_id, _be_fullscreen_lock);

@@ -33,7 +33,7 @@ GFX_DRIVER gfx_beos_fullscreen = {
    be_gfx_fullscreen_init,            // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
    be_gfx_fullscreen_exit,            // AL_METHOD(void, exit, (struct BITMAP *b));
    be_gfx_fullscreen_scroll,          // AL_METHOD(int, scroll, (int x, int y));
-   be_gfx_fullscreen_vsync,           // AL_METHOD(void, vsync, (void));
+   be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
    be_gfx_fullscreen_set_palette,     // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
    be_gfx_fullscreen_request_scroll,  // AL_METHOD(int, request_scroll, (int x, int y));
    be_gfx_fullscreen_poll_scroll,     // AL_METHOD(int, poll_scroll, (void));
@@ -71,7 +71,7 @@ GFX_DRIVER gfx_beos_fullscreen_safe = {
    be_gfx_fullscreen_safe_init,       // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
    be_gfx_fullscreen_exit,            // AL_METHOD(void, exit, (struct BITMAP *b));
    be_gfx_fullscreen_scroll,          // AL_METHOD(int, scroll, (int x, int y));
-   be_gfx_fullscreen_vsync,           // AL_METHOD(void, vsync, (void));
+   be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
    be_gfx_fullscreen_set_palette,     // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
    be_gfx_fullscreen_request_scroll,  // AL_METHOD(int, request_scroll, (int x, int y));
    be_gfx_fullscreen_poll_scroll,     // AL_METHOD(int, poll_scroll, (void));
@@ -109,7 +109,7 @@ GFX_DRIVER gfx_beos_windowed = {
    be_gfx_windowed_init,              // AL_METHOD(struct BITMAP *, init, (int w, int h, int v_w, int v_h, int color_depth));
    be_gfx_windowed_exit,              // AL_METHOD(void, exit, (struct BITMAP *b));
    NULL,                              // AL_METHOD(int, scroll, (int x, int y));
-   be_gfx_windowed_vsync,             // AL_METHOD(void, vsync, (void));
+   be_gfx_vsync,                      // AL_METHOD(void, vsync, (void));
    be_gfx_windowed_set_palette,       // AL_METHOD(void, set_palette, (struct RGB *p, int from, int to, int vsync));
    NULL,                              // AL_METHOD(int, request_scroll, (int x, int y));
    NULL,                              // AL_METHOD(int, poll_scroll, (void));

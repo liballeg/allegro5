@@ -226,7 +226,9 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/btimeapi.cpp \
 	src/beos/btimedrv.c \
 	src/beos/btimer.c \
-	src/misc/ufile.c
+	src/misc/ufile.c \
+	src/misc/colconv.c \
+	src/misc/icolconv.s
 
 ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/fbcon.c \
@@ -347,7 +349,7 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	tools/exedat.c \
 	tools/pack.c \
 	tools/rgbmap.c \
-	tools/textconv.c
+	tools/textconv.c \
 
 ALLEGRO_LIB_EXES = \
 	demo/demo \
@@ -366,7 +368,7 @@ ALLEGRO_LIB_EXES = \
 	tools/exedat \
 	tools/pack \
 	tools/rgbmap \
-	tools/textconv
+	tools/textconv \
 
 ALLEGRO_DATAFILE_EXE_SOURCES = \
 	tools/dat.c \

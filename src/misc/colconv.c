@@ -25,6 +25,7 @@
 
 int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit  */
 int *_colorconv_rgb_scale_5x35 = NULL;     /* for conversion from 15/16-bit */
+unsigned char *_colorconv_rgb_map = NULL;  /* for conversion from 5.5.5 (or 8-bit) to 8-bit.  */
 
 static int indexed_palette_depth;
 static int indexed_palette_size;
@@ -40,10 +41,10 @@ static void build_rgb_scale_5235_table(int to_depth)
 
    if (to_depth == 24)
       /* 6 contiguous 256-entry tables (6k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*1536);
+      _colorconv_rgb_scale_5x35 = realloc(_colorconv_rgb_scale_5x35, sizeof(int)*1536);
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
+      _colorconv_rgb_scale_5x35 = realloc(_colorconv_rgb_scale_5x35, sizeof(int)*512);
     
    /* 1st table: r5g2 to r8g8b0 */ 
    for (i=0; i<128; i++) {
@@ -88,10 +89,10 @@ static void build_rgb_scale_5335_table(int to_depth)
 
    if (to_depth == 24)
       /* 6 contiguous 256-entry tables (6k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*1536);
+      _colorconv_rgb_scale_5x35 = realloc(_colorconv_rgb_scale_5x35, sizeof(int)*1536);
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
-      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
+      _colorconv_rgb_scale_5x35 = realloc(_colorconv_rgb_scale_5x35, sizeof(int)*512);
     
    /* 1st table: r5g3 to r8g8b0 */ 
    for (i=0; i<256; i++) {
@@ -133,6 +134,37 @@ static void build_rgb_scale_5335_table(int to_depth)
 
 
 
+/* _get_colorconv_map:
+ *  allocates memory for a custom color map for conversions to 8-bit.
+ */
+unsigned char *_get_colorconv_map(int depth) {
+ 
+   int size = 4096;
+   
+   if (depth == 8)
+      size = 256;
+   
+   if (!_colorconv_rgb_map)
+      _colorconv_rgb_map = malloc(sizeof(unsigned char) * size);
+         
+   return _colorconv_rgb_map;
+}
+
+
+
+/* _release_colorconv_map:
+ *  frees memory used by the color map.
+ */
+void _release_colorconv_map() {
+
+   if (_colorconv_rgb_map)
+      free(_colorconv_rgb_map);
+      
+   _colorconv_rgb_map = NULL;
+}
+      
+
+
 /* create_indexed_palette:
  *  reserves storage for the 8-bit palette
  */
@@ -157,7 +189,7 @@ static void create_indexed_palette(int to_depth)
    }
 
    indexed_palette_depth = to_depth;
-   _colorconv_indexed_palette = malloc(sizeof(int) * indexed_palette_size);
+   _colorconv_indexed_palette = realloc(_colorconv_indexed_palette, sizeof(int) * indexed_palette_size);
 }
 
 
@@ -168,6 +200,9 @@ static void create_indexed_palette(int to_depth)
 void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
 {
    int n, color;
+
+   if (indexed_palette_depth == 8)
+      return;
 
    for (n = from; n <= to; n++) {
       color = makecol_depth(indexed_palette_depth, p[n].r<<2, p[n].g<<2, p[n].b<<2);
@@ -189,10 +224,12 @@ void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
 
 
 /* _get_colorconv_blitter:
- *  returns the blitter function matching the specified depths
+ *  returns the blitter function matching the specified depths.
+ *  Pass -1, -1 to free up the memory.
  */
 COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 {
+   
    switch(from_depth) {
 
 #ifdef ALLEGRO_COLOR8
@@ -200,7 +237,8 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               return NULL;
+               indexed_palette_depth = 8;
+               return &_colorconv_blit_8_to_8;
 
             case 15:
                create_indexed_palette(15);
@@ -226,9 +264,14 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
+               indexed_palette_depth = 8;
+               return &_colorconv_blit_15_to_8;
+
             case 15:
+               return &_colorconv_blit_16_to_16;
+
             case 16:
-               return NULL;
+               return &_colorconv_blit_15_to_16;
 
             case 24:
                build_rgb_scale_5235_table(24);
@@ -244,9 +287,14 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
+               indexed_palette_depth = 8;
+               return &_colorconv_blit_16_to_8;
+
             case 15:
+               return &_colorconv_blit_16_to_15;
+
             case 16:
-               return NULL;
+               return &_colorconv_blit_16_to_16;
 
             case 24:
                build_rgb_scale_5335_table(24);
@@ -264,7 +312,8 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               return NULL;
+               indexed_palette_depth = 8;
+               return &_colorconv_blit_24_to_8;
 
             case 15:
                return &_colorconv_blit_24_to_15;
@@ -273,7 +322,7 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return &_colorconv_blit_24_to_16;
 
             case 24:
-               return NULL;
+               return &_colorconv_blit_24_to_24;
 
             case 32:
                return &_colorconv_blit_24_to_32;
@@ -286,7 +335,8 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
          switch (to_depth) {
 
             case 8:
-               return NULL;
+               indexed_palette_depth = 8;
+               return &_colorconv_blit_32_to_8;
 
             case 15:
                return &_colorconv_blit_32_to_15;
@@ -298,7 +348,7 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
                return &_colorconv_blit_32_to_24;
 
             case 32:
-               return NULL;
+               return &_colorconv_blit_32_to_32;
          }
          break;
 #endif
@@ -326,5 +376,7 @@ void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
       free (_colorconv_rgb_scale_5x35);
       _colorconv_rgb_scale_5x35 = NULL;
    }
+   
+   _release_colorconv_map();
 }
 

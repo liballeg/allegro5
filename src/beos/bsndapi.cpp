@@ -59,7 +59,9 @@ static void be_sound_handler(void *cookie, void *buffer, size_t size, const medi
    locker->Lock();
    acquire_sem(be_sound_stream_lock);
    if (be_sound_active) {
+      be_main_suspend();
       _mix_some_samples((unsigned long)buffer, 0, be_sound_signed);
+      be_main_resume();
    }
    else {
       memset(buffer, 0, size);
@@ -112,6 +114,8 @@ extern "C" int be_sound_init(int input, int voices)
       return -1;
    }
 
+   be_sound_active = false;
+
    /* create BPushGameSound instance */
    format.frame_rate    = (_sound_freq > 0) ? _sound_freq : 44100;
    format.channel_count = (_sound_stereo) ? 2 : 1;
@@ -161,9 +165,8 @@ extern "C" int be_sound_init(int input, int voices)
    locker = new BLocker();
    if (!locker)
       goto cleanup;
-   be_sound_active = true;
    
-   be_sound_stream_lock = create_sem(1, "audiostream lock");
+   be_sound_stream_lock = create_sem(0, "audiostream lock");
    if (be_sound_stream_lock == -1)
       goto cleanup;
 
@@ -175,6 +178,9 @@ extern "C" int be_sound_init(int input, int voices)
 	     _sound_freq, uconvert_ascii((char *)(_sound_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = be_sound_desc;
+
+   be_sound_active = true;
+   release_sem(be_sound_stream_lock);
    
    return 0;
 
@@ -194,9 +200,11 @@ extern "C" void be_sound_exit(int input)
    if (input) {
       return;
    }
-
+   be_sound_active = false;
    be_sound->Stop();
    
+   if (be_sound_stream_lock != -1)
+      acquire_sem(be_sound_stream_lock);
    _mixer_exit();
    
    delete be_sound;

@@ -54,9 +54,6 @@
 
 
 
-typedef void (*BLITTER_FUNCTION)(void **src, void **dest, 
-   int sx, int sy, int sw, int sh);
-
 AL_CONST BE_MODE_TABLE _be_mode_table[] = {
    { 8,    640,  400, B_8_BIT_640x400,    B_CMAP8 },
    { 8,    640,  480, B_8_BIT_640x480,    B_CMAP8 },
@@ -96,6 +93,7 @@ int _be_mouse_z = 0;
 BeAllegroWindow	    *_be_allegro_window	    = NULL;
 BeAllegroView	    *_be_allegro_view	    = NULL;
 BeAllegroScreen	    *_be_allegro_screen	    = NULL; 
+BWindow             *_be_window             = NULL;
 
 void (*_be_window_close_hook)() = NULL;
 
@@ -107,14 +105,7 @@ static int refresh_rate = 70;
 static thread_id palette_thread_id = -1;
 static sem_id palette_sem = -1;
 static rgb_color palette_colors[256];
-
-static uint32 cmap[0x1000];
-static uint32 rmap[256];
-static uint32 gmap[256];
-static uint32 bmap[256];
-
-static int rsize, gsize, bsize;
-static int rshift, gshift, bshift;
+static unsigned char *cmap = NULL;
 
 
 
@@ -136,262 +127,6 @@ static void _be_gfx_set_truecolor_shifts()
    _rgb_r_shift_32 = 16; 
    _rgb_g_shift_32 = 8; 
    _rgb_b_shift_32 = 0;
-}
-
-
-
-/*----------------------------------------------------------------*/
-/*    Colour conversion code					  */
-/*----------------------------------------------------------------*/
-
-/* Only slightly adapted from src/x/xwin.c.  Yay, Michael!  */
-
-#define MAKE_FAST_COPY(name,stype,dtype)					        \
-static void name(void **src, void **dest, int sx, int sy, int sw, int sh)	        \
-{										        \
-   int y, x;									        \
-   for (y = sy; y < (sy + sh); y++) {						        \
-      stype *s = (stype*) (src[y]) + sx;					        \
-      dtype *d = (dtype*) (dest[y]) + sx;					        \
-      for (x = sw - 1; x >= 0; x--) {						        \
-	 *d++ = *s++;								        \
-      }										        \
-   }										        \
-}
-
-#define MAKE_FAST_TRUECOLOR(name,stype,dtype,rshift,gshift,bshift,rmask,gmask,bmask)    \
-static void name(void **src, void **dest, int sx, int sy, int sw, int sh)	        \
-{                                                                                       \
-   int y, x;                                                                            \
-   for (y = sy; y < (sy + sh); y++) {                                                   \
-      stype *s = (stype*) (src[y]) + sx;					        \
-      dtype *d = (dtype*) (dest[y]) + sx;					        \
-      for (x = sw - 1; x >= 0; x--) {                                                   \
-	 uint32 color = *s++;							        \
-  	 *d++ = (rmap[(color >> (rshift)) & (rmask)]				        \
-  		 | gmap[(color >> (gshift)) & (gmask)]                                  \
-  		 | bmap[(color >> (bshift)) & (bmask)]);                                \
-      }                                                                                 \
-   }                                                                                    \
-}
-
-#define MAKE_FAST_TRUECOLOR24(name,dtype)                                               \
-static void name(void **src, void **dest, int sx, int sy, int sw, int sh)	        \
-{                                                                                       \
-   int x, y;                                                                            \
-   for (y = sy; y < (sy + sh); y++) {                                                   \
-      uint8 *s = (uint8*) (src[y]) + 3 * sx;					        \
-      dtype *d = (dtype*) (dest[y]) + sx;					        \
-      for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
-	 *d++ = (rmap[s[2]] | gmap[s[1]] | bmap[s[0]]);		              	        \
-      }                                                                                 \
-   }                                                                                    \
-}
-
-#define MAKE_FAST_PALETTE(name,stype,dtype,rshift,gshift,bshift)                        \
-static void name(void **src, void **dest, int sx, int sy, int sw, int sh)	        \
-{                                                                                       \
-   int x, y;                                                                            \
-   for (y = sy; y < (sy + sh); y++) {                                                   \
-      stype *s = (stype*) (src[y]) + sx;						\
-      dtype *d = (dtype*) (dest[y]) + sx;						\
-      for (x = sw - 1; x >= 0; x--) {                                                   \
-	 unsigned long color = *s++;                                                    \
-	 *d++ = cmap[((((color >> (rshift)) & 0x0F) << 8)                               \
-		       | (((color >> (gshift)) & 0x0F) << 4)                            \
-		       | ((color >> (bshift)) & 0x0F))];                                \
-      }                                                                                 \
-   }                                                                                    \
-}
-
-#define MAKE_FAST_PALETTE8_TO8(name)						        \
-static void name(void **src, void **dest, int sx, int sy, int sw, int sh)	        \
-{										        \
-   int y, x;									        \
-   for (y = sy; y < (sy + sh); y++) {						        \
-      uint8 *s = (uint8*) (src[y]) + sx;					        \
-      uint8 *d = (uint8*) (dest[y]) + sx;					        \
-      for (x = sw - 1; x >= 0; x--) {						        \
-	 *d++ = cmap[*s++];							        \
-      }										        \
-   }										        \
-}
-
-#define MAKE_FAST_PALETTE24(name,dtype)                                                 \
-static void name(void **src, void **dest, int sx, int sy, int sw, int sh)	        \
-{                                                                                       \
-   int x, y;                                                                            \
-   for (y = sy; y < (sy + sh); y++) {                                                   \
-      uint8 *s = (uint8*) (src[y]) + 3 * sx;						\
-      dtype *d = (dtype*) (dest[y]) + sx;						\
-      for (x = sw - 1; x >= 0; s += 3, x--) {                                           \
-	 *d++ = cmap[((((unsigned long) s[2] << 4) & 0xF00)				\
-		       | ((unsigned long) s[1] & 0xF0)					\
-		       | (((unsigned long) s[0] >> 4) & 0x0F))];			\
-      }                                                                                 \
-   }                                                                                    \
-}
-
-MAKE_FAST_PALETTE8_TO8(blit_8_to_8);
-MAKE_FAST_PALETTE(blit_15_to_8,   uint16, uint8, 11, 6, 1);
-MAKE_FAST_PALETTE(blit_16_to_8,   uint16, uint8, 12, 7, 1);
-MAKE_FAST_PALETTE24(blit_24_to_8, uint8);
-MAKE_FAST_PALETTE(blit_32_to_8,	 uint32, uint8, 20, 12, 4);
-
-MAKE_FAST_TRUECOLOR(blit_8_to_16,    uint8,  uint16, 0,  0, 0, 0xFF, 0xFF, 0xFF);
-MAKE_FAST_TRUECOLOR(blit_15_to_16,   uint16, uint16, 10, 5, 0, 0x1F, 0x1F, 0x1F);
-MAKE_FAST_COPY(blit_16_to_16,	    uint16, uint16);
-MAKE_FAST_TRUECOLOR24(blit_24_to_16, uint16);
-MAKE_FAST_TRUECOLOR(blit_32_to_16,   uint32, uint16, 16, 8, 0, 0xFF, 0xFF, 0xFF);
-
-MAKE_FAST_TRUECOLOR(blit_8_to_32,    uint8,  uint32, 0,  0, 0, 0xFF, 0xFF, 0xFF);
-MAKE_FAST_TRUECOLOR(blit_15_to_32,   uint16, uint32, 10, 5, 0, 0x1F, 0x1F, 0x1F);
-MAKE_FAST_TRUECOLOR(blit_16_to_32,   uint16, uint32, 11, 5, 0, 0x1F, 0x3F, 0x1F);
-MAKE_FAST_TRUECOLOR24(blit_24_to_32, uint32);
-MAKE_FAST_COPY(blit_32_to_32,	    uint32, uint32);
-
-
-
-static BLITTER_FUNCTION blitter_table[5][3] = {
-   {  
-      blit_8_to_8,
-      blit_8_to_16,
-      blit_8_to_32
-   },
-   {
-      blit_15_to_8,
-      blit_15_to_16,
-      blit_15_to_32,
-   },
-   {
-      blit_16_to_8,
-      blit_16_to_16,
-      blit_16_to_32,
-   },
-   {
-      blit_24_to_8,
-      blit_24_to_16,
-      blit_24_to_32,
-   },
-   {
-      blit_32_to_8,
-      blit_32_to_16,
-      blit_32_to_32,
-   }
-};
-
-
-
-static BLITTER_FUNCTION _be_gfx_select_blitter(int src_depth, int dest_depth)
-{
-   int i, j;
-   
-   switch (src_depth) {
-      case 8: i = 0; break;
-      case 15: i = 1; break;
-      case 16: i = 2; break;
-      case 24: i = 3; break;
-      case 32: i = 4; break;
-      default: i = -1; break;
-   }
-   
-   switch (dest_depth) {
-      case 8: j = 0; break;
-      case 15: j = 1; break;
-      case 16: j = 1; break;
-      case 32: j = 2; break;
-      default: j = -1; break;
-   }
-
-   if ((i < 0) || (j < 0)) {
-      return NULL;
-   }
-   
-   return blitter_table[i][j];
-}
-
-
-
-static void _be_gfx_init_conversion_shifts(int depth)
-{
-   switch (depth) {
-      case 8:
-	 rsize = 1;
-	 gsize = 1;
-	 bsize = 1;
-	 rshift = 0;
-	 gshift = 0;
-	 bshift = 0;	 
-	 break;
-      case 15:
-	 rsize = 1 << 5;
-	 gsize = 1 << 5;
-	 bsize = 1 << 5;
-	 rshift = 10;
-	 gshift = 5;
-	 bshift = 0;
-	 break;	 
-      case 16:
-	 rsize = 1 << 5;
-	 gsize = 1 << 6;
-	 bsize = 1 << 5;
-	 rshift = 11;
-	 gshift = 5;
-	 bshift = 0;
-	 break;
-      case 32:
-	 rsize = 1 << 8;
-	 gsize = 1 << 8;
-	 bsize = 1 << 8;
-	 rshift = 16;
-	 gshift = 8;
-	 bshift = 0;
-	 break;
-   }
-}
-
-
-
-static void _be_gfx_create_mapping(unsigned long *map, int ssize, int dsize, int dshift)
-{
-   int i, smax, dmax;
-
-   smax = ssize - 1;
-   dmax = dsize - 1;
-   for (i = 0; i < ssize; i++)
-      map[i] = ((dmax * i) / smax) << dshift;
-   for (; i < 256; i++)
-      map[i] = map[i % ssize];
-}
-
-
-
-static void _be_gfx_create_mapping_tables(int depth)
-{
-   switch (depth) {
-      case 8:
- 	 /* Will be modified later in set_palette.  */
-	 _be_gfx_create_mapping(rmap, 256, 0, 0);
-	 _be_gfx_create_mapping(gmap, 256, 0, 0);
-	 _be_gfx_create_mapping(bmap, 256, 0, 0);
-	 break;
-      case 15:
-	 _be_gfx_create_mapping(rmap, 32, rsize, rshift);
-	 _be_gfx_create_mapping(gmap, 32, gsize, gshift);
-	 _be_gfx_create_mapping(bmap, 32, bsize, bshift);
-	 break;
-      case 16:
-	 _be_gfx_create_mapping(rmap, 32, rsize, rshift);
-	 _be_gfx_create_mapping(gmap, 64, gsize, gshift);
-	 _be_gfx_create_mapping(bmap, 32, bsize, bshift);
-	 break;
-      case 24:
-      case 32:
-	 _be_gfx_create_mapping(rmap, 256, rsize, rshift);
-	 _be_gfx_create_mapping(gmap, 256, gsize, gshift);
-	 _be_gfx_create_mapping(bmap, 256, bsize, bshift);
-	 break;
-   }
 }
 
 
@@ -682,6 +417,7 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    uint32              mode;
    graphics_card_info *gfx_card;
    frame_buffer_info  *fbuffer;
+   accelerant_device_info info;
    char  path[MAXPATHLEN];
    char *exe;
 
@@ -726,9 +462,10 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    path[sizeof(path)-1] = '\0';
    exe = get_filename(path);
 
-   be_sys_set_display_switch_mode(SWITCH_AMNESIA);
+   set_display_switch_mode(SWITCH_AMNESIA);
    
    _be_allegro_screen = new BeAllegroScreen(exe, mode, &error, false);
+   _be_window = _be_allegro_screen;
 
    if(error != B_OK) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Resolution not supported"));
@@ -809,7 +546,10 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
    _screen_vtable.release      = be_gfx_fullscreen_release;
 
    _be_gfx_set_truecolor_shifts();
-   uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object");
+   if (BScreen().GetDeviceInfo(&info) == B_OK)
+      uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object (%s)", info.name);
+   else
+      uszprintf(driver_desc, sizeof(driver_desc), "BWindowScreen object");
    drv->desc = driver_desc;
    
    be_gfx_initialized = true;
@@ -876,6 +616,7 @@ extern "C" void be_gfx_fullscreen_exit(struct BITMAP *bmp)
       _be_allegro_screen->Quit();
 
       _be_allegro_screen = NULL;
+      _be_window = NULL;
    }
    
    be_app->ShowCursor();
@@ -941,7 +682,7 @@ extern "C" void be_gfx_fullscreen_release(struct BITMAP *bmp)
 extern "C" void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
    if (vsync)
-      be_gfx_fullscreen_vsync();
+      be_gfx_vsync();
 
    for(int index = from; index <= to; index++) {
       palette_colors[index].red   = _rgb_scale_6[p[index].r];
@@ -970,7 +711,7 @@ extern "C" int be_gfx_fullscreen_scroll(int x, int y)
 
    release_screen();
 
-   be_gfx_fullscreen_vsync();
+   be_gfx_vsync();
 
    return rv;
 }
@@ -1017,9 +758,9 @@ extern "C" int be_gfx_fullscreen_request_video_bitmap(struct BITMAP *bmp)
 
 
 
-extern "C" void be_gfx_fullscreen_vsync(void)
+extern "C" void be_gfx_vsync(void)
 {
-   if(BScreen(_be_allegro_screen).WaitForRetrace() != B_OK) {
+   if(BScreen(_be_window).WaitForRetrace() != B_OK) {
       if (_timer_installed) {
          int start_count;
 
@@ -1044,25 +785,33 @@ extern "C" void be_gfx_fullscreen_vsync(void)
 static int32 _be_gfx_window_drawing_thread(void *data) 
 {
    BeAllegroWindow *w = (BeAllegroWindow *)data;
+   GRAPHICS_RECT src_gfx_rect, dest_gfx_rect;
+
+   src_gfx_rect.pitch = w->screen_pitch;
+   src_gfx_rect.height = 1;
 
    while (!w->dying) {
       if (w->connected && w->blitter) {
          clipping_rect *rect;
-         int32 height, i;
-         uint32 j;
+         uint32 i, j;
 
          acquire_sem(_be_window_lock);
          w->locker->Lock();
-         height = w->window.bottom - w->window.top + 1;
-         for (i=0; i<height; i++) {
+         for (i=0; i<w->screen_height; i++) {
             if (_be_dirty_lines[i]) {
                rect = w->rects;
                for (j=0; j<w->num_rects; j++, rect++)
-                  if ((i >= rect->top - w->window.top) &&
-                      (i <= rect->bottom - w->window.top)) {
-                     w->blitter(w->screen_line, w->display_line,
-                        (rect->left - w->window.left), i,
-                        (rect->right - rect->left + 1), 1);
+                  if (((int32)i >= rect->top - w->window.top) &&
+                      ((int32)i <= rect->bottom - w->window.top)) {
+                     src_gfx_rect.width = rect->right - rect->left + 1;
+                     src_gfx_rect.data = (void *)((unsigned long)w->screen_data + 
+                        (i * w->screen_pitch) +
+                        ((rect->left - w->window.left) * BYTES_PER_PIXEL(w->screen_depth)));
+                     dest_gfx_rect.data = (void *)((unsigned long)w->display_data +
+                        (i * w->display_pitch) +
+                        (rect->left * BYTES_PER_PIXEL(w->display_depth)));
+                     dest_gfx_rect.pitch = w->display_pitch;
+                     w->blitter(&src_gfx_rect, &dest_gfx_rect);
                   }
                _be_dirty_lines[i] = 0;
             }
@@ -1111,27 +860,17 @@ BeAllegroWindow::BeAllegroWindow(BRect frame, const char *title,
    : BDirectWindow(frame, title, look, feel, flags, workspaces)
 {
    BRect rect = Bounds();
-   uint32 bytes_per_pixel, i;
+   uint32 i;
 
    _be_allegro_view = new BeAllegroView(rect, "Allegro", B_FOLLOW_ALL_SIDES, B_WILL_DRAW);
    rgb_color color = {0, 0, 0, 0};
    _be_allegro_view->SetViewColor(color);
    AddChild(_be_allegro_view);
    
-   bytes_per_pixel = (color_depth + 7) / 8;
-   
-   screen_data = malloc(v_w * v_h * bytes_per_pixel);
-   screen_line = (void **)malloc(v_h * sizeof(void *));
-   
-   for (i = 0; i < v_h; i++) {
-      screen_line[i] = (char *)screen_data + (i * v_w * bytes_per_pixel);
-   }
-
+   screen_pitch = v_w * BYTES_PER_PIXEL(color_depth);
+   screen_data = malloc(v_h * screen_pitch);
    screen_depth = color_depth;
-
-   // we fill this in later in DirectConnected
-   display_line = (void **)malloc(v_h * sizeof(void *));
-   display_depth = 0;	
+   display_depth = 0;
 
    num_rects = 0;
    rects     = NULL;
@@ -1169,6 +908,8 @@ BeAllegroWindow::~BeAllegroWindow()
 
    delete locker;
    delete_sem(_be_window_lock);
+   _release_colorconv_blitter(blitter);
+   _release_colorconv_map();
    blitter = NULL;
    connected = false;
    _be_focus_count = 0;
@@ -1177,17 +918,9 @@ BeAllegroWindow::~BeAllegroWindow()
       free(rects);
       rects = NULL;
    }
-   if (display_line) {
-      free(display_line);
-      display_line = NULL;
-   }
    if (_be_dirty_lines) {
       free(_be_dirty_lines);
       _be_dirty_lines = NULL;
-   }
-   if (screen_line) {
-      free(screen_line);
-      screen_line = NULL;
    }
    if (screen_data) {
       free(screen_data);
@@ -1239,7 +972,7 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	 
       case B_DIRECT_MODIFY: {
 	 uint8 old_display_depth = display_depth;
-	 uint32 stride, i;
+	 uint32 i;
 
 	 switch (info->pixel_format) {
 	    case B_CMAP8:  
@@ -1266,25 +999,23 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	 }
 
 	 if (old_display_depth != display_depth) {
-	    _be_gfx_init_conversion_shifts(display_depth);
-
-	    // FIXME move this somewhere else
+	    int i;
+	    
+	    _release_colorconv_blitter(blitter);
+	    blitter = _get_colorconv_blitter(screen_depth, display_depth);
 	    if (display_depth == 8) {
-	       BScreen screen(_be_allegro_window);
-	       int r, g, b;
-      
-	       /* Adjust cmap to system-wide palette. */
-	       for (r = 0; r < 16; r++) {
-		  for (g = 0; g < 16; g++) {
-		     for (b = 0; b < 16; b++) {
-			cmap[(r << 8) | (g << 4) | b] = screen.IndexForColor(r << 4, g << 4, b << 4);
-		     }
-		  }
-	       } 
+	       _release_colorconv_map();
+	       cmap = _get_colorconv_map(screen_depth);
+	       if (screen_depth == 8) {
+	          for (i=0; i<256; i++)
+	             cmap[i] = BScreen().IndexForColor(palette_colors[i]);
+	       }
+	       else {
+	          for (i=0; i<4096; i++)
+	             cmap[i] = BScreen().IndexForColor(((i >> 4) & 0xF0) | (i >> 8),  (i & 0xF0) | ((i >> 4) & 0xF),  (i & 0xF) | ((i & 0xF) << 4));
+	       }
 	    }
-
-	    _be_gfx_create_mapping_tables(screen_depth);
-	    blitter = _be_gfx_select_blitter(screen_depth, display_depth);
+	    AL_TRACE("Color conversion mode set: %d->%d\n", (int)screen_depth, (int)display_depth);
 	 }
 	 			       
 	 if (rects) {
@@ -1300,17 +1031,17 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
 	 }
 
 	 window = info->window_bounds;
-	 stride = info->bytes_per_row;
 	 screen_height = window.bottom - window.top + 1;
-      
-	 for (i = 0; i < screen_height; i++) {
-	    display_line[i] = (uint8 *)info->bits + ((i + window.top) * stride) 
-	       + (window.left * ((display_depth + 7) / 8));
+	 display_pitch = info->bytes_per_row;
+	 display_data = (void *)((unsigned long)info->bits + 
+	    (window.top * display_pitch));
+     
+	 for (i=0; i<screen_height; i++) {
 	    _be_dirty_lines[i] = 1;
 	 }
 
 	 connected = true;
-     be_gfx_initialized = true;
+	 be_gfx_initialized = true;
 	 break;
       }
 
@@ -1325,7 +1056,6 @@ void BeAllegroWindow::DirectConnected(direct_buffer_info *info)
       screen_depth, (screen_depth == display_depth ? "matching" : "fast emulation"));
 
    release_sem(_be_window_lock);
-
    locker->Unlock();
 }
 
@@ -1390,12 +1120,13 @@ static struct BITMAP *_be_gfx_windowed_init(GFX_DRIVER *drv, int w, int h, int v
    path[sizeof(path)-1] = '\0';
    exe = get_filename(path);
 
-   be_sys_set_display_switch_mode(SWITCH_PAUSE);
+   set_display_switch_mode(SWITCH_PAUSE);
 
    _be_allegro_window = new BeAllegroWindow(BRect(0, 0, w-1, h-1), exe,
 			      B_TITLED_WINDOW_LOOK, B_NORMAL_WINDOW_FEEL,
 			      B_NOT_RESIZABLE | B_NOT_ZOOMABLE,
 			      B_CURRENT_WORKSPACE, v_w, v_h, color_depth);
+   _be_window = _be_allegro_window;
 
    if (!_be_allegro_window->SupportsWindowMode()) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Windowed mode not supported"));
@@ -1489,6 +1220,7 @@ extern "C" void be_gfx_windowed_exit(struct BITMAP *bmp)
       _be_allegro_window->Quit();
 
       _be_allegro_window = NULL;
+      _be_window = NULL;
    }
    _be_mouse_window   = NULL;	    
    _be_mouse_view     = NULL;
@@ -1517,88 +1249,30 @@ extern "C" void be_gfx_windowed_release(struct BITMAP *bmp)
 
 
 
-extern "C" void be_gfx_windowed_vsync(void)
-{
-   if (BScreen(_be_allegro_window).WaitForRetrace() != B_OK) {
-      if (_timer_installed) {
-         int start_count;
-
-         start_count = retrace_count;
-
-         while (start_count == retrace_count) {
-         }
-      }
-      else {
-         snooze (500000 / refresh_rate);
-      }
-   }
-} 
-
-
-
-static void _be_gfx_set_truecolor_colors(AL_CONST PALETTE p, int from, int to)
-{
-   int i, rmax, gmax, bmax;
-
-   rmax = rsize - 1;
-   gmax = gsize - 1;
-   bmax = bsize - 1;
-   for (i = from; i <= to; i++) {
-      rmap[i] = (((p[i].r & 0x3F) * rmax) / 0x3F) << rshift;
-      gmap[i] = (((p[i].g & 0x3F) * gmax) / 0x3F) << gshift;
-      bmap[i] = (((p[i].b & 0x3F) * bmax) / 0x3F) << bshift;
-   }
-}
-
-
-
-static void _be_gfx_set_palette8_colors(AL_CONST PALETTE p, int from, int to)
-{
-   BScreen screen(_be_allegro_window);
-   int i;
-   
-   for (i = from; i <= to; i++) {
-      cmap[i] = screen.IndexForColor(p[i].r << 2, p[i].g << 2, p[i].b << 2);
-   }
-}
-
-
-
-static void _be_gfx_set_palette_colors(AL_CONST PALETTE p, int from, int to)
-{
-   int i;
-   
-   for (i = from; i <= to; i++) {
-      rmap[i] = (((p[i].r & 0x3F) * 15) / 0x3F) << 8;
-      gmap[i] = (((p[i].g & 0x3F) * 15) / 0x3F) << 4;
-      bmap[i] = (((p[i].b & 0x3F) * 15) / 0x3F);
-   }
-}
-
-
-
 extern "C" void be_gfx_windowed_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync)
 {
-   uint32 i;
+   int i;
+
+   if (!_be_allegro_window->blitter)
+      return;
    
    if (vsync) {
-      be_gfx_windowed_vsync();
+      be_gfx_vsync();
    }
    
    _be_allegro_window->locker->Lock();
-
-   if (_be_allegro_window->display_depth > 8) {
-      _be_gfx_set_truecolor_colors(p, from, to);
-   }
-   else {
-      if (_be_allegro_window->screen_depth == 8) {
-	 _be_gfx_set_palette8_colors(p, from, to);
+   _set_colorconv_palette(p, from, to);
+   if ((_be_allegro_window->display_depth == 8) &&
+       (_be_allegro_window->screen_depth == 8)) {
+      for (i=from; i<=to; i++) {
+         palette_colors[i].red   = _rgb_scale_6[p[i].r];
+         palette_colors[i].green = _rgb_scale_6[p[i].g];
+         palette_colors[i].blue  = _rgb_scale_6[p[i].b];
       }
-      else {
-	 _be_gfx_set_palette_colors(p, from, to);
-      }
+      for (i=0; i<256; i++)
+         cmap[i] = BScreen().IndexForColor(palette_colors[i]);
    }
-   for (i=0; i<_be_allegro_window->screen_height; i++)
+   for (i=0; i<(int)_be_allegro_window->screen_height; i++)
       _be_dirty_lines[i] = 1;
    release_sem(_be_window_lock);
 

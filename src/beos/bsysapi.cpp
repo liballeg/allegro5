@@ -48,6 +48,8 @@ static thread_id system_thread_id = -1;
 static thread_id main_thread_id = -1;
 static sem_id system_started = -1;
 
+static char app_path[MAXPATHLEN] = ".";
+
 
 static bool      using_custom_allegro_app;
 
@@ -109,11 +111,22 @@ static int32 system_thread(void *data)
    if (_be_allegro_app == NULL) {
       char sig[MAXPATHLEN] = "application/x-vnd.Allegro-";
       char exe[MAXPATHLEN];
+      char *cmd, *p;
 
       _be_sys_get_executable_name(exe, sizeof(exe));
 
       strncat(sig, get_filename(exe), sizeof(sig));
       sig[sizeof(sig)-1] = '\0';
+
+      cmd = getenv("_");
+      if ((cmd) && (strlen(cmd) >= 7) &&
+          (!strcmp(cmd + strlen(cmd) - 7, "Tracker"))) {
+         p = &exe[strlen(exe) - 1];
+         while (*p != '/') p--;
+         *(p + 1) = '\0';
+         /* Save real application path for later if started from the Tracker */
+         strcpy(app_path, exe);
+      }
 
       _be_allegro_app = new BeAllegroApp(sig);
 
@@ -177,6 +190,12 @@ extern "C" int be_sys_init(void)
    os_multitasking = TRUE;
    os_version = atoi(strtok(os_name.release, "."));
    os_revision = atoi(strtok(NULL, "."));
+
+   /* We fix the path here as changing it before the app has been started
+    * doesn't seem to work.
+    */
+   snooze(10000);
+   chdir(app_path);
    
    return 0;
 
@@ -251,7 +270,6 @@ extern "C" void be_sys_get_executable_name(char *output, int size)
 int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
 {
    char buf[256], tmp[256];
-   char *last;
    
    /* look for /etc/file */
    append_filename(buf, uconvert_ascii("/etc/", tmp), resource, sizeof(buf));
@@ -264,7 +282,7 @@ int be_sys_find_resource(char *dest, AL_CONST char *resource, int size)
    if (ustricmp(get_extension(resource), uconvert_ascii("cfg", tmp)) == 0) {
       ustrzcpy(buf, sizeof(buf), uconvert_ascii("/etc/", tmp));
       ustrzcpy(tmp, sizeof(tmp), resource);
-      ustrzcat(buf, sizeof(buf), ustrtok_r(tmp, ".", &last));
+      ustrzcat(buf, sizeof(buf), ustrtok(tmp, "."));
       ustrzcat(buf, sizeof(buf), uconvert_ascii("rc", tmp));
       if (exists(buf)) {
 	 ustrzcpy(dest, size, buf);
@@ -282,30 +300,20 @@ extern "C" void be_sys_set_window_title(AL_CONST char *name)
    char uname[256];
 
    do_uconvert(name, U_CURRENT, uname, U_UTF8, sizeof(uname));
-   if (_be_allegro_window != NULL) {
-      _be_allegro_window->SetTitle(uname);
-   }
-   else if (_be_allegro_screen != NULL) {
-      _be_allegro_screen->SetTitle(uname);
-   }
+   if (_be_window)
+      _be_window->SetTitle(uname);
 }
 
 
 
 extern "C" int be_sys_set_window_close_button(int enable)
 {
-   if (_be_allegro_window != NULL) {
-      if (enable)
-         _be_allegro_window->SetFlags(_be_allegro_window->Flags() & ~B_NOT_CLOSABLE);
-      else
-         _be_allegro_window->SetFlags(_be_allegro_window->Flags() | B_NOT_CLOSABLE);
-   }
-   else if (_be_allegro_screen != NULL) {
-      if (enable)
-         _be_allegro_screen->SetFlags(_be_allegro_screen->Flags() & ~B_NOT_CLOSABLE);
-      else
-         _be_allegro_screen->SetFlags(_be_allegro_screen->Flags() | B_NOT_CLOSABLE);
-   }
+   if (!_be_window)
+      return -1;
+   if (enable)
+      _be_window->SetFlags(_be_window->Flags() & ~B_NOT_CLOSABLE);
+   else
+      _be_window->SetFlags(_be_window->Flags() | B_NOT_CLOSABLE);
    return 0;
 }
 
@@ -342,7 +350,7 @@ extern "C" int be_sys_desktop_color_depth(void)
 {
    display_mode current_mode;
    
-   BScreen(_be_allegro_screen).GetMode(&current_mode);
+   BScreen().GetMode(&current_mode);
    switch(current_mode.space) {
       case B_CMAP8:  
          return 8;  
@@ -362,7 +370,7 @@ extern "C" int be_sys_desktop_color_depth(void)
 
 extern "C" int be_sys_get_desktop_resolution(int *width, int *height)
 {
-   BScreen screen(_be_allegro_screen);
+   BScreen screen(B_MAIN_SCREEN_ID);
 
    *width  = screen.Frame().IntegerWidth() + 1;
    *height = screen.Frame().IntegerHeight() + 1;
