@@ -423,6 +423,7 @@ ALLEGRO_EXAMPLE_FILES = \
 	examples/extimer.c \
 	examples/extrans.c \
 	examples/extruec.c \
+	examples/exunicod.c \
 	examples/exupdate.c \
 	examples/exxfade.c \
 	examples/exzbuf.c
@@ -470,6 +471,7 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/extimer \
 	examples/extrans \
 	examples/extruec \
+	examples/exunicod \
 	examples/exupdate \
 	examples/exxfade \
 	examples/exzbuf
