@@ -35,12 +35,38 @@ cp include/allegro.h fixver.tmp
 sed -f fixver.sed fixver.tmp > include/allegro.h
 
 #echo patch dllver.rc
-echo "s/VALUE \"InternalName\", .*/VALUE \"InternalName\", \"ALL$1$2$3\\\\000\"/" > fixver.sed
-echo "s/VALUE \"OriginalFilename\", .*/VALUE \"OriginalFilename\", \"ALL$1$2$3\\\\.DLL\\\\000\"/" >> fixver.sed
+cat > src/win/dllver.rc << END_OF_DLLVER
+1 VERSIONINFO 
+FILEVERSION $1, $2, $3, 0
+PRODUCTVERSION $1, $2, $3, 0
+FILEOS 0x00000004L /* VOS__WINDOWS32 */
+FILETYPE 0x00000002L /* VFT_DLL */
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "040904E4"
+  {
+   VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
+   VALUE "CompanyName", "Allegro Developers\000\000"
+   VALUE "FileDescription", "Allegro\000"
+   VALUE "FileVersion", "$verstr" "\000"
+   VALUE "InternalName", "ALL$1$2$3\000"
+   VALUE "LegalCopyright", "Copyright © 1994-2001 Allegro Developers\000\000"
+   VALUE "OriginalFilename", "ALL$1$2$3.DLL\000"
+   VALUE "ProductName", "Allegro\000"
+   VALUE "ProductVersion", "$verstr" "\000"
+  }
 
-echo "Patching src/win/dllver.rc..."
-cp src/win/dllver.rc fixver.tmp
-sed -f fixver.sed fixver.tmp > src/win/dllver.rc
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 0x0809, 1252
+ }
+
+}
+
+END_OF_DLLVER
 
 # patch readme.txt
 echo "s/\\_\/__\/     Version .*/\\_\/__\/     Version $verstr/" > fixver.sed
