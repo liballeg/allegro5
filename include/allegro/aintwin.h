@@ -120,6 +120,7 @@ AL_VAR(char *, pseudo_surf_mem);
 
 /* focus switch routines */
 AL_VAR(BOOL, app_foreground);
+AL_VAR(HANDLE, _foreground_event);
 
 AL_FUNC(void, sys_directx_display_switch_init, (void));
 AL_FUNC(void, sys_directx_display_switch_exit, (void));

@@ -15,8 +15,9 @@
  *      See readme.txt for copyright information.
  */
 
-
-#include "wddraw.h"
+#include "allegro.h"
+#include "allegro/aintern.h"
+#include "allegro/aintwin.h"
 
 #ifndef SCAN_DEPEND
    #include <process.h>
@@ -114,9 +115,6 @@ static long timer_delay = 0;    /* how long between interrupts */
 static int timer_semaphore = FALSE;     /* reentrant interrupt? */
 static long vsync_counter;      /* retrace position counter */
 static long vsync_speed;        /* retrace speed */
-
-/* from wdispsw.c */
-extern HANDLE _foreground_event;
 
 /* unit conversion */
 #define COUNTER_TO_MSEC(x) ((unsigned long)(x / counter_per_msec.QuadPart))
@@ -334,7 +332,19 @@ void set_sync_timer_freq(int freq)
  */
 static int tim_win32_mt_init(void)
 {
-   win32_timer_int_used = 0;
+   char tmp1[64], tmp2[64];
+   AL_CONST char *disable;
+   int i;
+
+   /* has the user disabled the driver ? */
+   disable = get_config_string(uconvert_ascii("system", tmp1), uconvert_ascii("disable_mt_timer", tmp2), NULL);
+
+   if (disable && ((i = ugetc(disable)) != 0)) {
+      if ((i == 'y') || (i == 'Y') || (i == '1')) {
+         _TRACE("Multi-threaded timer driver disabled by user\n");
+         return -1;
+      }
+   }
 
    InitializeCriticalSection(&tim_crit_sect);
 
