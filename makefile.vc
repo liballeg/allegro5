@@ -397,6 +397,26 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.obj $(OBJ_DIR)/scrsave.res $(IMPLIB_NA
 tools/win/%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
+$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
+ifdef STATICLINK
+	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+else
+   ifdef UNIX_TOOLS
+	cp tools/win/wfixicon.exe lib/msvc/wfixicon.exe
+   else
+	copy tools\win\wfixicon.exe lib\msvc\wfixicon.exe
+   endif
+	lib/msvc/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+   ifdef UNIX_TOOLS
+	rm lib/msvc/wfixicon.exe
+   else
+	del lib\msvc\wfixicon.exe
+   endif
+endif
+
+demo/demo.exe: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(RUNNER)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
 	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:$@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
@@ -445,18 +465,6 @@ endef
 define LINK_CONSOLE_WITH_PLUGINS
    $(RUNNER) link @ -nologo $(LFLAGS) -subsystem:console -out:$@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
-
-
-
-# -------- demo program iconification --------
-
-.PHONY: fixdemo
-
-$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-
-fixdemo: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(RUNNER)
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 
 

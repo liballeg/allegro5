@@ -446,6 +446,30 @@ tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o $(OBJ_DIR)/scrsave.res $(IMPLIB_NAME
 tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
+ifndef CROSSCOMPILE
+
+$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
+ifdef STATICLINK
+	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+else
+   ifdef UNIX_TOOLS
+	cp tools/win/wfixicon.exe lib/mingw32/wfixicon.exe
+   else
+	copy tools\win\wfixicon.exe lib\mingw32\wfixicon.exe
+   endif
+	lib/mingw32/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+   ifdef UNIX_TOOLS
+	rm lib/mingw32/wfixicon.exe
+   else
+	del lib\mingw32\wfixicon.exe
+   endif
+endif
+
+demo/demo.exe: $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+
+endif
+
 */%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
@@ -504,18 +528,6 @@ endef
 define LINK_CONSOLE_WITH_PLUGINS
    gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(IMPLIB_NAME) $(LIBRARIES))
 endef
-
-
-
-# -------- demo program iconification --------
-
-.PHONY: fixdemo
-
-$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
-	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-
-fixdemo: $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
-	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
 
 
 
