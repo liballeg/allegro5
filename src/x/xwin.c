@@ -1593,7 +1593,7 @@ static int _xdga_private_fast_visual_depth(void)
 
 
 
-/* Macro for switching banks (mainly for DGA mode).  */
+/* Macro for switching banks (for DGA mode).  */
 #define XWIN_BANK_SWITCH(line)          \
 if (_xwin.bank_switch)                  \
    (*_xwin.bank_switch)(line)
@@ -1606,43 +1606,22 @@ if (_xwin.bank_switch)                  \
 static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
 {
    GRAPHICS_RECT src_rect, dest_rect;
-   int ty;
  
-   if(!(_xwin.bank_switch)) {
-      /* set up source and destination rectangles */
-      src_rect.height = sh;
-      src_rect.width  = sw;
-      src_rect.pitch  = _xwin.screen_line[1] - _xwin.screen_line[0];
-      src_rect.data   = _xwin.screen_line[sy] + sx * BYTES_PER_PIXEL(_xwin.screen_depth);
+   /* set up source and destination rectangles */
+   src_rect.height = sh;
+   src_rect.width  = sw;
+   src_rect.pitch  = _xwin.screen_line[1] - _xwin.screen_line[0];
+   src_rect.data   = _xwin.screen_line[sy] + sx * BYTES_PER_PIXEL(_xwin.screen_depth);
 
-      dest_rect.height = sh;
-      dest_rect.width  = sw;
-      dest_rect.pitch  = _xwin.buffer_line[1] - _xwin.buffer_line[0];
-      dest_rect.data   = _xwin.buffer_line[sy] + sx * BYTES_PER_PIXEL(_xwin.fast_visual_depth);
+   dest_rect.height = sh;
+   dest_rect.width  = sw;
+   dest_rect.pitch  = _xwin.buffer_line[1] - _xwin.buffer_line[0];
+   dest_rect.data   = _xwin.buffer_line[sy] + sx * BYTES_PER_PIXEL(_xwin.fast_visual_depth);
 
-      /* Update frame buffer with screen contents.  */
-      ASSERT(blitter_func);
-      blitter_func(&src_rect, &dest_rect);
-   }
-   else {
-      /* set up source and destination rectangles */
-      src_rect.height = 1;
-      src_rect.width = sw;
-      src_rect.pitch = 0;
-
-      dest_rect.height = 1;
-      dest_rect.width = sw;
-      dest_rect.pitch = 0;
-
-      /* Update frame buffer with screen contents.  */
-      ASSERT(blitter_func);
-      for (ty = sy; ty < sy+sh; ty++) {
-         src_rect.data = _xwin.screen_line[ty] + BYTES_PER_PIXEL(_xwin.screen_depth) * sx;
-         dest_rect.data = _xwin.buffer_line[ty] + BYTES_PER_PIXEL(_xwin.fast_visual_depth) * sx;
-         XWIN_BANK_SWITCH(ty);
-         blitter_func(&src_rect, &dest_rect);
-      }
-   }
+   /* Update frame buffer with screen contents.  */
+   ASSERT(!(_xwin.bank_switch));
+   ASSERT(blitter_func);
+   blitter_func(&src_rect, &dest_rect);
 }
 
 #ifdef ALLEGRO_LITTLE_ENDIAN
@@ -3345,12 +3324,12 @@ static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
    if (_xwin.set_colors != 0) {
       if(blitter_func) {
-         if(_xwin_use_bgr_palette_hack && ((to-from+1) > 0) && (from >= 0) && (to < 256)) {
+         if(_xwin_use_bgr_palette_hack && (from >= 0) && (to < 256)) {
             pal = malloc(sizeof(RGB)*256);
             ASSERT(pal);
             ASSERT(p);
             if(!pal || !p) return; /* ... in shame and disgrace */
-            memcpy(&pal[from], p, sizeof(RGB)*(to-from+1));
+            memcpy(&pal[from], &p[from], sizeof(RGB)*(to-from+1));
             for (c=from; c<=to; c++) {
                temp = pal[c].r;
                pal[c].r = pal[c].b;
