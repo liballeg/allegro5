@@ -245,6 +245,7 @@
     flush_config_file
     font DATA
     for_each_file
+    for_each_file_ex
     free_audio_stream_buffer
     freeze_mouse_flag DATA
     ftofix
