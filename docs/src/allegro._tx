@@ -1111,6 +1111,12 @@ disable_direct_updating = x<br>
    Direct updating can cause artifacts to be left on the desktop when the 
    window is moved or minimized; disabling it results in a significant
    performance loss.
+<li>
+disable_vsync = x<br>
+   Windows only: specifies whether to disable synchronization with the
+   vertical blank when the GFX_DIRECTX_WIN driver is used with page-flipping
+   (yes or no). Disabling synchronization may increase the frame rate on
+   slow systems, at the expense of introducing flicker on fast systems.
 </ul><li>
 [mouse]<br>
    Section containing mouse configuration information, using the variables:

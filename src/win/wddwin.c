@@ -99,6 +99,7 @@ static COLORCONV_BLITTER_FUNC *colorconv_blit = NULL;
 static int direct_updating_mode_enabled; /* configuration flag */
 static int direct_updating_mode_on; /* live flag */
 static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
+static int wait_for_vsync = TRUE; /* vsync when page-flipping? */
 
 
 
@@ -402,7 +403,8 @@ static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
       pseudo_screen->vtable->release = gfx_directx_unlock_win;
       pseudo_screen->vtable->unwrite_bank = gfx_directx_unwrite_bank_win;
       pseudo_screen->write_bank = gfx_directx_write_bank_win;
-      gfx_directx_sync();
+      if (wait_for_vsync)
+         gfx_directx_sync();
       update_window(NULL);
       return 0;
    }
@@ -560,6 +562,8 @@ static void setup_driver_desc(void)
  */
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
 {
+   char tmp1[64], tmp2[64];
+   const char *dv;
    unsigned char *cmap;
    HRESULT hr;
    int i;
@@ -671,6 +675,16 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    wd_dirty_lines[h] = 0;
 
    pseudo_screen = dd_frontbuffer;
+
+   /* check whether we are instructed to disable vsync */
+   dv = get_config_string(uconvert_ascii("graphics", tmp1),
+                          uconvert_ascii("disable_vsync", tmp2),
+                          NULL);
+
+   if ((dv) && ((i = ugetc(dv)) != 0) && ((i == 'y') || (i == 'Y') || (i == '1')))
+      wait_for_vsync = FALSE;
+   else
+      wait_for_vsync = TRUE;
 
    /* connect to the system driver */
    win_gfx_driver = &win_gfx_driver_windowed;
