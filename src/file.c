@@ -597,19 +597,19 @@ char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, 
  */
 char *get_filename(AL_CONST char *path)
 {
-   int pos, c;
+   int c;
+   const char *ptr, *ret;
    ASSERT(path);
 
-   pos = ustrlen(path);
-
-   while (pos>0) {
-      c = ugetat(path, pos-1);
+   ptr = path;
+   ret = ptr;
+   for (;;) {
+      c = ugetxc(&ptr);
+      if (!c) break;
       if ((c == '/') || (c == OTHER_PATH_SEPARATOR) || (c == DEVICE_SEPARATOR) || (c == '#'))
-	 break;
-      pos--;
+         ret = (char*)ptr;
    }
-
-   return (char *)path + uoffset(path, pos);
+   return (char*)ret;
 }
 
 
