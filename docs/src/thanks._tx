@@ -23,6 +23,10 @@ Contributors
    Adrian Oboroc (<email>doba@corefx.com</a>).<br>
    Wrote the LBM loader.
 
+   aj (<email>aj@visualsynth.com</a>).<br>
+   Reported many problems and suggested many improvements to the
+   documentation.
+
    Alex Demko (<email>alex_demko@mbnet.mb.ca</a>).<br>
    Suggested lots of improvements to the datafile system and provided code
    for handling the 8x16 BIOS font format.
@@ -38,8 +42,8 @@ Contributors
    Contributed the polygon_z_normal() function, suggested some additions to
    the docs, updated the Cygwin section in docs/build/mingw32.txt, got
    Allegro for MSVC to build with Cygwin, improved the performance of the
-   hsv_to_rgb() function, corrected a rounding issue in hsv_to_rgb() and
-   improved the exrgbhsv example.
+   hsv_to_rgb() function, corrected a rounding issue in hsv_to_rgb(),
+   improved the exrgbhsv example and the Windows screensaver.
 
    Andrew Cottrell (<email>andrewc@dbworld.net.au</a>).<br>
    Changed the grabber to use a more robust (locale-independent) date format.
@@ -194,6 +198,9 @@ Contributors
 
    David Calvin (<email>calvid@rpi.edu</a>).<br>
    Wrote the original version of the sound setup utility.
+
+   David Cullen (<email>dcullen7@bellsouth.net</a>).<br>
+   Added multiple bullets and extra lives to the demo game.
 
    Deepak T (<email>coolbool@gmx.net</a>).<br>
    Fixed clipping in three C sprite drawing routines.
@@ -396,6 +403,14 @@ Contributors
    John Holden (<email>johnh@psych.usyd.edu.au</a>).<br>
    Fixed a bug in load_wav().
 
+   John Utz (<email>Johnut01@noa.nintendo.com</a>).<br>
+   Corrected a wrong assumption about the VRAM layout in the Linux
+   framebuffer console driver.
+
+   Jon Rafkind (<email>workmin@ccs.neu.edu</a>).<br>
+   Added more ASSERTs to the code and implemented the Cohen-Sutherland
+   clipping algorithm for the line() function.
+
    Jonas Petersen (<email>joXonoX@berlin.snafu.de</a>).<br>
    Added the save_bmp() function and support for the OS/2 BMP format.
 
@@ -414,8 +429,13 @@ Contributors
    Joshua Heyer (<email>joshua_heyer@yahoo.com</a>).<br>
    Wrote the original version of the OSS sound driver.
 
-   Julien Cugniere (<email>jcugniere@free.fr</a>).<br>
-   Improved the support for non-blocking menus.
+   Julien Cugnière (<email>jcugniere@free.fr</a>).<br>
+   Improved the support for non-blocking menus and fixed a bug related to the
+   retrieval of the inital volume when no primary buffer was present under
+   Windows.
+
+   Kalle Toivonen (<email>allegro@korpiq.iki.fi</a>).<br>
+   Fixed a bug in _parallelogram_map().
 
    Keith Gerdes (<email>kwg@softhome.net</a>).<br>
    Fixed the DirectDraw overlay mode driver.
@@ -428,6 +448,10 @@ Contributors
 
    Knut Pape (<email>Knut_Pape@t-online.de</a>).<br>
    Improved the Mingw32 readme file.
+
+   Kronoman X (<email>kronoman_x@hotmail.com</a>).<br>
+   Added a FAQ entry about the conflict between Allegro headers and the C++
+   'using' directive.
 
    Krzysztof Krzyzaniak (<email>eloy@arrakis.cs.put.poznan.pl</a>).<br>
    Wrote the load_voc() function.
@@ -452,8 +476,9 @@ Contributors
 
    Lisa Parratt (<email>lisa@thecommune.org.uk</a>).<br>
    Contributed the SGI Audio Library sound driver, spotted a BSDism that
-   IRIX doesn't like at all and added IRIX detection.
-   
+   IRIX doesn't like at all, added IRIX detection and improved the
+   performances of the SGI audio driver
+
    Lorenzo Petrone (<email>_lano_@libero.it</a>).<br>
    Contributed the gfxinfo utility, added two FAQ entries, added a
    xwin_set_window_name() function to the X11 port, added support for
@@ -560,6 +585,9 @@ Contributors
    function and a fair amount of the other truecolor stuff too (bitmap
    scaling, image loading, etc).
 
+   Michal Molhanec (<email>molhanec@seznam.cz</a>).<br>
+   Simplified the build instructions for Dev-C++.
+
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
 
@@ -571,6 +599,9 @@ Contributors
    Neil Townsend (<email>neil@robots.ox.ac.uk</a>).<br>
    Improved the accuracy of the timer routines and added the callback
    parameters.
+
+   Neil Roy (<email>neilroy@cogeco.ca</a>).<br>
+   Suggested many improvements to the documentation.
 
    Nicholas Davies(<email>master_goodbytes@hotmail.com</a>).<br>
    Made the fix class not trigger warnings with gcc -Weffc++.
@@ -726,7 +757,8 @@ Contributors
    useful suggestions, contributions and bugfixes.
 
    Sam Hocevar (<email>sam@zoy.org</a>).<br>
-   Fixed a Bashism in fix.sh that makes Solaris' sh choke.
+   Fixed a Bashism in fix.sh that makes Solaris' sh choke, and a race
+   condition in the mixer under Unix w/ threads, Windows, BeOS and MacOS X.
 
    Santeri Saarimaa (<email>gridle@mbnet.fi</a>).<br>
    Made the Finnish keyboard mapping.
@@ -742,6 +774,10 @@ Contributors
 
    Seunghwan Ji (email unknown).<br>
    Made makedoc output correct html and rtf files for Korean.
+
+   Serge Semashko (<email>serge@lxnt.info</a>).<br>
+   Fixed a bug with the letter P in the Russian keyboard configuration
+   file.
 
    Seymour Shlien (<email>seymour@dgbt.doc.ca</a>).<br>
    Contributed the Windows BMP file reader, bezier spline drawer, and
@@ -767,6 +803,12 @@ Contributors
    problems in C versions of routines and added support for a automake-style
    DESTDIR variable in the Unix makefile.
 
+   Stephan Brauss (<email>sbrauss@optronic.ch</a>).<br>
+   Made a few fixes to let the Linux port compile again on Linux 2.2.x,
+   corrected a few nits in the Swiss keyboard configuration file and added
+   new keysyms to the X11-to-BIOS conversion table in order to catch missing
+   keycodes for the keypad when NumLock is on.
+
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
 
@@ -776,8 +818,7 @@ Contributors
    routines, provided the Swedish message translations, improved the file
    selector sorting algorithm, optimised the spline routines, added
    ustrrchr(), improved the usprintf() handling of floats, changed the
-   Z-buffer API, improved rotation functions and did plenty of other things
-   too.
+   Z-buffer API, and did plenty of other things too.
 
    TBD/FeR (<email>tbd@usa.net</a>).<br>
    Added the 320x600 and 360x600 resolutions to the mode-X driver.
@@ -793,7 +834,7 @@ Contributors
    only list valid drive letters.
 
    Thomas Fjellstrom (<email>tfjellstrom@home.com</a>).<br>
-   Wrote the ALSA MIDI driver.
+   Wrote the ALSA 0.5.x MIDI driver and added support for ALSA 0.9.x.
 
    Thomas Klausner (<email>wiz@danbala.ifoer.tuwien.ac.at</a>).<br>
    Added NetBSD detection.
@@ -810,6 +851,9 @@ Contributors
 
    Timothy Terriberry (<email>sundance@sprintmail.com</a>).<br>
    Fixed several bugs in the RGB &lt-&gt HSV conversion routines.
+
+   Tobi Vollebregt (email unknown) spotted a bug in ustrerror(), which was
+   not returning a pointer to a static buffer.
 
    Tom Breton (<email>tob@world.std.com</a>).<br>
    Added the functionality selection #ifndefs to allegro.h.

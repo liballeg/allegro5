@@ -8,6 +8,177 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.11 to 4.1.12 (Nov 2003)
+<ul><li>
+   Many minor changes and clarifications in the docs, some of them based on
+   suggestions by Neil Roy, Jon Rafkind, aj, Andrei Ellman and Michal
+   Molhanec.
+<li>
+   Angelo Mottola made little fixes all over the place in the MacOS X port.
+<li>
+   Angelo Mottola removed MacOS X 10.1.x source compatibility.
+<li>
+   Eric Botcazou disabled keyconf on platforms that don't need it.
+<li>
+   Elias Pschernig shifted key name display so that all keys are visible
+   in the keyconf utility.
+<li>
+   Stephan Brauss added new keysyms to the X11-to-BIOS conversion table in
+   order to catch missing keycodes for the keypad when NumLock is on.
+<li>
+   Stephan Brauss corrected a few nits in the Swiss keyboard configuration
+   file.
+<li>
+   Eric Botcazou disabled the close button support when a user window is
+   registered under Windows.
+<li>
+   Eric Botcazou changed the default switch mode to SWITCH_BACKGROUND for
+   the Windows port to cure the problems on exit under WinXP.
+<li>
+   Sven Sandberg improved the previous fix to _parallelogram_map().
+<li>
+   Sven Sandberg fixed an overflow in floodfill().
+<li>
+   Sven Sandberg fixed the dither blit mode for the Mode-X driver.
+<li>
+   Angelo Mottola added quality and reverberation settings support to the
+   CoreAudio MIDI driver under MacOS X.
+<li>
+   Angelo Mottola added high performance CoreAudio digi/midi drivers (default
+   on autodetect) and made little fixes to the old QT Note Allocator and
+   Carbon Sound Manager drivers under MacOS X.
+<li>
+   KronomanX added a FAQ entry about the conflict between Allegro headers and
+   the C++ 'using' directive.
+<li>
+   Vincent Penquerc'h let dialog_message() pass user messages to hidden
+   objects.
+<li>
+   Michal Molhanec simplified the build instructions for Dev-C++.
+<li>
+   Annie Testes fixed a redrawing problem in the grabber.
+<li>
+   Vincent Penquerc'h added support for the joystick_device* config variables
+   under Linux.
+<li>
+   Vincent Penquerc'h added gfx_mode_select_filter().
+<li>
+   Peter Wang removed the old Linux async I/O stuff, which had been out of
+   service for a long, long time. Also simplified the Linux standard drivers
+   stuff.
+<li>
+   Thomas Fjellstrom added (experimental) support for ALSA 0.9.x.
+<li>
+   John Utz corrected a wrong assumption about the VRAM layout in the Linux
+   framebuffer console driver.
+<li>
+   Grzegorz Adam Hankiewicz tt-ized text quotes in the HTML version of the
+   docs.
+<li>
+   Eric Botcazou made the Linux port compile on non-x86 platforms.
+<li>
+   Stephan Brauss made a few fixes to let the Linux port compile again on
+   Linux 2.2.x systems.
+<li>
+   Kalle Toivonen fixed a bug in _parallelogram_map().
+<li>
+   Eric Botcazou cleaned up the ALSA config variables under Unix.
+<li>
+   David Cullen added multiple bullets and extra lives to the demo game.
+<li>
+   Sam Hocevar fixed a race condition in the mixer under Unix w/ threads,
+   Windows, BeOS and MacOS X.
+<li>
+   Andrei Ellman improved the Windows screensaver.
+<li>
+   Jon Rafkind implemented the Cohen-Sutherland clipping algorithm for the
+   line() function.
+<li>
+   Angelo Mottola added an application menu with a Quit item acting like the
+   three fingers salute, in order to better integrate Allegro apps with the
+   Aqua UI guidelines under MacOS X.
+<li>
+   Jon Rafkind and Vincent Penquerc'h added more ASSERTs to the code.
+<li>
+   Eric Botcazou added an option to disable vsync when page-flipping.
+<li>
+   Eric Botcazou added the detection of spaces to the MSVCDir variable for
+   the MSVC port.
+<li>
+   Grzegorz Adam Hankiewicz integrated the build instructions in the HTML
+   version of the documentation.
+<li>
+   Angelo Mottola fixed some nits in fixbundle for alpha channel on 32-bit
+   icons under MacOS X.
+<li>
+   Lisa Parratt improved the performances of the SGI audio driver.
+<li>
+   Grzegorz Adam Hankiewicz updated and improved the documentation in many
+   places.
+<li>
+   Grzegorz Adam Hankiewicz added HTML text substitution to the doc processor.
+<li>
+   Tobi Vollebregt spotted a bug in ustrerror(), which was not returning a
+   pointer to a static buffer.
+<li>
+   Grzegorz Adam Hankiewicz added more documentation about return values
+   of functions.
+<li>
+   Grzegorz Adam Hankiewicz added a new section about documentation to
+   ahack._tx.
+<li>
+   Grzegorz Adam Hankiewicz fixed rare buffer overflows in do_uconvert with
+   very tiny buffer sizes.
+<li>
+   Serge Semashko fixed a bug with the letter P in the Russian keyboard
+   configuration file.
+<li>
+   Angelo Mottola let application bundles accept files dragged onto the
+   application icon under MacOS X.
+<li>
+   Peter Wang fixed save_bmp for better conformance (a couple of header
+   fields were wrong, and dots-per-metre fields were being filled with zero).
+<li>
+   Julien Cugniere fixed a bug related to the retrieval of the inital volume
+   when no primary buffer was present under Windows.
+<li>
+   Henrik Stokseth simplified the asm detection test, removed many GNUish
+   preprocessor constructs in the asm files and, as a consequence, let the
+   Watcom port use its own preprocessor on assembly files.
+<li>
+   Peter Wang prevented non-mapped memory from being munmapped under Linux.
+<li>
+   Annie Testes prevented __al_linux_shutdown_vga_helpers from being called
+   unless the corresponding init function was first called under Linux.
+<li>
+   Sven Sandberg improved the misc/findtext.sh script.
+<li>
+   Sven Sandberg added support to produce a PDF version of the manual under
+   Unix and to compress the various formats with bzip2.
+<li>
+   Sven Sandberg made some correction to the Swedish translation file.
+<li>
+   Eric Botcazou pluginized the new 'Change filename' menu option in the
+   grabber.
+<li>
+   Eric Botcazou fixed the X11 mouse scrolling bug.
+<li>
+   Vincent Penquerc'h made it so that modifications to the type or color
+   depth of an image are detected as such by the grabber.
+<li>
+   Henrik Stokseth added a C++ test, Eric Botcazou integrated it in the build
+   process.
+<li>
+   Angelo Mottola made several fixes to let Allegro play nice with AllegroGL
+   under MacOS X.
+<li>
+   Angelo Mottola added proper embeddable framework support to the MacOS X
+   port, modified fixbundle and updated the docs accordingly.
+<li>
+   Angelo Mottola made external plugins scripts work under MacOS X.
+</ul>
+
+@heading
 Changes from 4.1.10 to 4.1.11 (Jun 2003)
 <ul><li>
    Eric Botcazou temporarily reverted the fix for the mouse bug when
