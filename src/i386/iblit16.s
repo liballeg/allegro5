@@ -561,7 +561,7 @@ FUNC(_linear_masked_blit16)
    movl %eax, V_MASK
 
    
-#ifdef ALLEGRO_MMX  /* Use MMX if the compiler supports it */
+#ifdef ALLEGRO_SSE  /* Use SSE if the compiler supports it */
       
    movl GLOBL(cpu_sse), %ecx     /* if SSE is enabled (or not disabled :) */
    orl %ecx, %ecx
