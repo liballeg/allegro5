@@ -124,7 +124,7 @@ void message(char *s)
 
 
 
-int next()
+int next(void)
 {
    if (keypressed()) {
       clear_keybuf();
@@ -146,7 +146,7 @@ int next()
 
 
 
-BITMAP *make_sprite()
+BITMAP *make_sprite(void)
 {
    BITMAP *b;
 
@@ -172,7 +172,7 @@ void table_callback(int pos)
 
 
 
-int check_tables()
+int check_tables(void)
 {
    if (bitmap_color_depth(screen) > 8) {
       set_trans_blender(0, 0, 0, 128);
@@ -220,7 +220,7 @@ int check_tables()
 
 
 
-void make_patterns()
+void make_patterns(void)
 {
    int c;
 
@@ -267,7 +267,7 @@ void make_patterns()
 
 
 
-void getpix_demo()
+void getpix_demo(void)
 {
    int c, ox, oy;
 
@@ -1441,7 +1441,7 @@ void blit_demo(void)
 
 
 
-void misc()
+void misc(void)
 {
    BITMAP *p;
    fixed x, y, z;
@@ -1631,7 +1631,7 @@ void misc()
 
 
 
-void rainbow()
+void rainbow(void)
 {
    char buf[80];
    int x, y;
@@ -1667,7 +1667,7 @@ void rainbow()
 
 
 
-void caps()
+void caps(void)
 {
    static char *s[] =
    {
@@ -1836,7 +1836,7 @@ END_OF_FUNCTION(int3);
 
 
 
-void interrupt_test()
+void interrupt_test(void)
 {
    clear_to_color(screen, palette_color[0]);
    message("Timer interrupt test");
@@ -1888,7 +1888,7 @@ END_OF_FUNCTION(fade);
 
 
 
-void retrace_test()
+void retrace_test(void)
 {
    RGB rgb;
    int x, x2;
@@ -1955,7 +1955,7 @@ void retrace_test()
 
 
 
-void rotate_test()
+void rotate_test(void)
 {
    fixed c = 0;
    BITMAP *b;
@@ -2003,7 +2003,7 @@ void rotate_test()
 
 
 
-void stretch_test()
+void stretch_test(void)
 {
    int c = 0;
    BITMAP *b;
@@ -2055,7 +2055,7 @@ void stretch_test()
 
 
 
-void hscroll_test()
+void hscroll_test(void)
 {
    int x, y;
    int done = FALSE;
@@ -3875,7 +3875,7 @@ int quit_proc(void)
 
 
 
-void set_mode_str()
+void set_mode_str(void)
 {
    extern MENU mode_menu[];
 
@@ -4083,7 +4083,7 @@ int sw_backamn_proc(void)
 
 int gfx_mode_proc(void)
 {
-   int gfx_mode();
+   int gfx_mode(void);
 
    show_mouse(NULL);
    clear_to_color(screen, palette_color[0]);
@@ -4097,7 +4097,7 @@ int gfx_mode_proc(void)
 
 int refresh_proc(void)
 {
-   void refresh_rate();
+   void refresh_rate(void);
 
    show_mouse(NULL);
    clear_to_color(screen, palette_color[0]);
@@ -4276,7 +4276,7 @@ DIALOG title_screen[] =
 
 
 
-void change_mode()
+void change_mode(void)
 {
    int c;
 
@@ -4456,7 +4456,7 @@ void change_mode()
 
 
 
-int gfx_mode()
+int gfx_mode(void)
 {
    gfx_w = SCREEN_W;
    gfx_h = SCREEN_H;
@@ -4516,7 +4516,7 @@ DIALOG refresh_dlg[] =
 
 
 
-void refresh_rate()
+void refresh_rate(void)
 {
    int old_sel = refresh_dlg[REFRESH_LIST].d1;
 
@@ -4540,7 +4540,7 @@ void refresh_rate()
 
 
 
-int main()
+int main(void)
 {
    int buttons;
    int c;

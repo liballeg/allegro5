@@ -43,7 +43,7 @@ void format_id(char *buf, int n, int id, AL_CONST char *name)
 
 
 
-void usage()
+void usage(void)
 {
    _DRIVER_INFO *digi, *midi;
    char *msg = malloc(4096);

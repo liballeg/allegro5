@@ -66,7 +66,7 @@ END_OF_FUNCTION(midi_input_callback);
 
 
 /* checks if there is any data in the MIDI input buffer */
-int midi_waiting()
+int midi_waiting(void)
 {
    if (midi_buffer_head == midi_buffer_tail)
       return 0;
@@ -77,7 +77,7 @@ int midi_waiting()
 
 
 /* reads a byte from the MIDI input buffer */
-int get_midi()
+int get_midi(void)
 {
    int ret;
 

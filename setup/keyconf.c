@@ -997,7 +997,7 @@ int main(int argc, char *argv[])
    if (font_data)
       unload_datafile_object(font_data);
 
-   exit(EXIT_SUCCESS);
+   return 0;
 }
 
 END_OF_MAIN();

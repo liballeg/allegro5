@@ -62,7 +62,7 @@ void redraw(DIALOG *d)
 
 
 
-void reset_calc()
+void reset_calc(void)
 {
    calc_value = 0;
    calc_operation = 0;
@@ -71,7 +71,7 @@ void reset_calc()
 
 
 
-fixed get_calc_value()
+fixed get_calc_value(void)
 {
    double d = atof(calc_str);
    return ftofix(d);
@@ -249,7 +249,7 @@ int unary_operator(int msg, DIALOG *d, int c)
 
 
 
-int work_out()
+int work_out(void)
 {
    fixed x;
 
@@ -318,7 +318,7 @@ int binary_operator(int msg, DIALOG *d, int c)
 
 
 
-int clearer()
+int clearer(void)
 {
    reset_calc();
    strcpy(calc_str, "0");
@@ -390,7 +390,7 @@ DIALOG calculator[] =
 
 
 
-int main()
+int main(void)
 {
    int i;
    

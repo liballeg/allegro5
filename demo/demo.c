@@ -162,7 +162,7 @@ END_OF_FUNCTION(fps_proc);
 
 
 /* the main game update function */
-void move_everyone()
+void move_everyone(void)
 {
    int c;
 
@@ -422,7 +422,7 @@ int rect_cmp(const void *p1, const void *p2)
 
 
 /* main screen update function */
-void draw_screen()
+void draw_screen(void)
 {
    int c;
    int i, j;
@@ -683,7 +683,7 @@ int fade_intro_item(int music_pos, int fade_speed)
 
 
 /* sets up and plays the game */
-void play_game()
+void play_game(void)
 {
    int c;
    BITMAP *b, *b2;
@@ -879,7 +879,7 @@ void play_game()
 
 
 /* the explosion graphics are pregenerated, using a simple particle system */
-void generate_explosions()
+void generate_explosions(void)
 {
    BITMAP *bmp = create_bitmap(EXPLODE_SIZE, EXPLODE_SIZE);
    unsigned char *p;
@@ -943,7 +943,7 @@ void generate_explosions()
 
 
 /* modifies the palette to give us nice colors for the GUI dialogs */
-void set_gui_colors()
+void set_gui_colors(void)
 {
    static RGB black = { 0,  0,  0,  0 };
    static RGB grey  = { 48, 48, 48, 0 };
@@ -1181,7 +1181,7 @@ char *format_text(TEXT_LIST *head, char *eol, char *gap)
 
 
 /* loads the scroller message from readme.txt */
-void load_text()
+void load_text(void)
 {
    README_SECTION sect[] =
    {
@@ -1450,7 +1450,7 @@ void sort_text_list(TEXT_LIST **head)
 
 
 /* sorts a list of credit strings */
-void sort_credit_list()
+void sort_credit_list(void)
 {
    CREDIT_NAME **prev, *p;
    TEXT_LIST *t;
@@ -1493,7 +1493,7 @@ void sort_credit_list()
 
 
 /* reads credit info from various places */
-void load_credits()
+void load_credits(void)
 {
    char buf[256], buf2[256], *p, *p2;
    CREDIT_NAME *c = NULL;
@@ -1585,7 +1585,7 @@ void load_credits()
 
 
 /* displays the title screen */
-int title_screen()
+int title_screen(void)
 {
    static int color = 0;
    int c, c2, c3, n, n2;
@@ -2045,8 +2045,11 @@ int main(int argc, char *argv[])
        * ashamed to admit that I actually wrote this :-)
        */
       #ifdef ALLEGRO_WINDOWS
-	 if (1)
+
+ 	 play_midi(data[INTRO_MUSIC].dat, FALSE);
+
       #else
+
 	 if ((0) ||
 	    #ifdef MIDI_DIGMID
 	       (midi_driver->id == MIDI_DIGMID) ||
@@ -2061,10 +2064,11 @@ int main(int argc, char *argv[])
 	       (midi_driver->id == MIDI_SB_OUT) ||
 	    #endif
 	    (0))
-      #endif
 	 play_midi(data[INTRO_MUSIC].dat, FALSE);
       else 
 	 play_sample(data[INTRO_SPL].dat, 255, 128, 1000, FALSE);
+
+      #endif
 
       bmp = create_sub_bitmap(screen, SCREEN_W/2-160, SCREEN_H/2-100, 320, 200);
       play_memory_fli(data[INTRO_ANIM].dat, bmp, FALSE, NULL);

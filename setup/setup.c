@@ -279,7 +279,7 @@ static void uconvert_static_parameter(PARAMETER *p)
  * about a driver, we can still select it, but obviously won't be able to
  * give the user any of the more specialised options for it.
  */
-static void find_sound_drivers()
+static void find_sound_drivers(void)
 {
    static char *digi_param[] = {"11", "digi_volume", NULL};
    static char *midi_param[] = {"11", "midi_volume", NULL};
@@ -698,7 +698,7 @@ static int scroller_proc(int msg, DIALOG *d, int c)
 	 scroller_pos--;
 	 if (scroller_pos <= -8) {
 	    scroller_pos = 0;
-	    if ((ch = ugetat(scroller_string, scroller_string_pos))) {
+	    if ((ch = ugetat(scroller_string, scroller_string_pos)) != 0) {
 	       shift_scroller(ch);
                scroller_string_pos++;
             }
@@ -711,7 +711,7 @@ static int scroller_proc(int msg, DIALOG *d, int c)
 		  scroller_string = wanted_scroller;
 		  scroller_string_pos = 0;
 		  for (i=0; i<4; i++) {
-		     if ((ch = ugetat(scroller_string, scroller_string_pos))) {
+		     if ((ch = ugetat(scroller_string, scroller_string_pos)) != 0) {
                         shift_scroller(ch);
 			scroller_string_pos++;
 		     }
@@ -817,7 +817,7 @@ static void activate_dialog(DIALOG *dlg, DIALOG_STATE (*handler)(int c), int cha
 
 
 /* main dialog update routine */
-static int update()
+static int update(void)
 {
    BITMAP *oldscreen = screen;
    ACTIVE_DIALOG *d;
@@ -980,7 +980,7 @@ static int update()
 
 
 /* helper for checking which drivers are valid */
-static void detect_sound()
+static void detect_sound(void)
 {
    int i;
 
@@ -1113,7 +1113,7 @@ static void popup(AL_CONST char *s1, AL_CONST char *s2)
 
 
 /* ends the display of a popup message */
-static void end_popup()
+static void end_popup(void)
 {
    if (popup_bitmap) {
       blit(popup_bitmap, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
@@ -1585,7 +1585,7 @@ static char *language_names[256];
 
 
 /* helper for sorting the keyboard list */
-static void sort_keyboards()
+static void sort_keyboards(void)
 {
    int done, i;
 
@@ -1613,7 +1613,7 @@ static void sort_keyboards()
 
 
 /* helper for sorting the language list */
-static void sort_languages()
+static void sort_languages(void)
 {
    int done, i;
 
@@ -2056,7 +2056,7 @@ static DIALOG_STATE param_handler(int c)
 
 
 /* sets up the soundcard parameter dialog box */
-static void setup_param_dialog()
+static void setup_param_dialog(void)
 {
    PARAMETER *p;
    DIALOG *d = param_dlg;
@@ -2165,8 +2165,9 @@ static void setup_param_dialog()
 			   break;
 		     }
 		  }
-		  else
+		  else {
 		     g = 2;
+		  }
 
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
 		  DLG(d_xlist_proc,    x,    y-8,  89,   68,   255,  16,   0,    0,       g,    0,    freq_getter,   p,          p->desc);
@@ -2706,9 +2707,9 @@ static DIALOG_STATE main_handler(int c)
 
 
 #ifdef SETUP_EMBEDDED
-int setup_main()
+int setup_main(void)
 #else
-int main()
+int main(void)
 #endif
 {
    char buf[512], tmp1[256], tmp2[256];

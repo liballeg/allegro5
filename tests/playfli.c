@@ -22,7 +22,7 @@
 
 
 
-void usage()
+void usage(void)
 {
    allegro_message("\nFLI player test program for Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR "\n"
 		   "By Shawn Hargreaves, " ALLEGRO_DATE_STR "\n\n"
