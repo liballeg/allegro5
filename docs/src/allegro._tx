@@ -6257,7 +6257,7 @@ to use TrueType fonts, you will need to use an add-on library.
    fonts or both are monochrome fonts, for instance).
 
 @@int @get_font_ranges(FONT *f)
-@xref get_font_range_begin, get_font_range_end
+@xref get_font_range_begin, get_font_range_end, transpose_font
 @shortdesc Returns the number of character ranges in a font.
    This function returns the number of character ranges in a font. You should
    query each of these ranges with get_font_range_begin() and
@@ -6280,7 +6280,7 @@ to use TrueType fonts, you will need to use an add-on library.
    information is not available.
 
 @@int @get_font_range_begin(FONT *f, int range)
-@xref get_font_ranges, get_font_range_end
+@xref get_font_ranges, get_font_range_end, transpose_font
 @shortdesc Returns the start of a character range in a font.
    This function returns the start of the character range for the font f, or
    -1 if that information is not available for the selected font. You can pass
@@ -6296,7 +6296,7 @@ to use TrueType fonts, you will need to use an add-on library.
    is not available.
 
 @@int @get_font_range_end(FONT *f, int range)
-@xref get_font_ranges, get_font_range_begin
+@xref get_font_ranges, get_font_range_begin, transpose_font
 @shortdesc Returns the last character of a character range in a font.
    This function returns the last character of the character range for the
    font f. You can pass -1 for the range parameter if you want to know the
@@ -6315,12 +6315,12 @@ to use TrueType fonts, you will need to use an add-on library.
    not available.
 
 @@FONT *@extract_font_range(FONT *f, int begin, int end)
-@xref get_font_range_begin, get_font_range_end, merge_fonts
-@shortdesc Extracts a range pf characters from a font.
+@xref get_font_range_begin, get_font_range_end, merge_fonts, transpose_font
+@shortdesc Extracts a range of characters from a font.
    This function extracts a character range from a font and returns a new font
    that contains only the range of characters selected by this function. You
    can pass -1 for either the lower or upper bound if you want to select all
-   characters from the start or the end of the font.
+   characters from the start or to the end of the font.
    Example:
 <codeblock>
       FONT *myfont;
@@ -6331,12 +6331,32 @@ to use TrueType fonts, you will need to use an add-on library.
       capitals = extract_font_range(myfont, 'A', 'Z');
 
       /* Create a copy of the font */
-      fontopy = extract_font_range(myfont, -1, -1);
+      fontcopy = extract_font_range(myfont, -1, -1);
       <endblock>
 @retval
    Returns a pointer to the new font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
+
+@@FONT *@transpose_font(FONT *f, int drange)
+@xref get_font_range_begin, get_font_range_end, merge_fonts, extract_font_range
+@shortdesc Transposes all characters in a font.
+   This function transposes all characters in a font, effectively remapping the
+   font. Example:
+<codeblock>
+      FONT *myfont;
+      FONT *capitals;
+      ...
+      /* Create a font of only capital letters */
+      capitals = extract_font_range(myfont, 'A', 'Z');
+
+      /* Now transpose the characters in the font so that they will be used */
+      /*  for the lower case letters a-z */
+      transpose_font(capitals, 'a'-'A');
+      textout_ex(screen, capitals, "allcaps", 100, 100, makecol(255,255,255), 0);
+      <endblock>
+@retval
+   Returns 0 on success, -1 on failure.
 
 @@FONT *@merge_fonts(FONT *f1, FONT *f2)
 @xref extract_font_range, is_color_font, is_mono_font
@@ -6357,8 +6377,8 @@ to use TrueType fonts, you will need to use an add-on library.
       ...
       /* Create a font that contains the capatials from  */
       /* the fancy font but other characters from myfont */
-      lower_range = extarct_font_range(myfont, -1, 'A'-1);
-      upper_range = extarct_font_range(myfont, 'Z'+1, -1);
+      lower_range = extract_font_range(myfont, -1, 'A'-1);
+      upper_range = extract_font_range(myfont, 'Z'+1, -1);
       capitals = extract_font_range(myfancy_font, 'A', 'Z');
 
       tempfont = merge_fonts(lower_range, capitals);

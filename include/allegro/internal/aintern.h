@@ -235,6 +235,7 @@ typedef struct FONT_VTABLE
    AL_METHOD(int, get_font_range_end, (FONT *f, int range));
    AL_METHOD(FONT *, extract_font_range, (FONT *f, int begin, int end));
    AL_METHOD(FONT *, merge_fonts, (FONT *f1, FONT *f2));
+   AL_METHOD(int, transpose_font, (FONT *f, int drange));
 } FONT_VTABLE;
 
 AL_VAR(FONT, _default_font);

@@ -815,6 +815,32 @@ FONT *mono_merge_fonts(FONT *font1, FONT *font2)
 
 
 
+/* mono_transpose_font:
+ *  (mono vtable entry)
+ *  Transpose all glyphs in a font
+ */
+static int mono_transpose_font(FONT* f, int drange)
+{
+   FONT_MONO_DATA* mf = 0;
+
+   if (!f) 
+      return -1;
+
+   mf = (FONT_MONO_DATA*)(f->data);
+
+   while(mf) {
+      FONT_MONO_DATA* next = mf->next;
+      
+      mf->begin += drange;
+      mf->end += drange;
+      mf = next;
+   }
+
+   return 0;
+}
+
+
+
 /* _color_find_glyph:
  *  Helper for color vtable entries, below.
  */
@@ -1246,6 +1272,32 @@ FONT *color_merge_fonts(FONT *font1, FONT *font2)
 
 
 
+/* color_transpose_font:
+ *  (color vtable entry)
+ *  Transpose all glyphs in a font
+ */
+static int color_transpose_font(FONT* f, int drange)
+{
+   FONT_COLOR_DATA* cf = 0;
+
+   if (!f) 
+      return -1;
+
+   cf = (FONT_COLOR_DATA*)(f->data);
+
+   while(cf) {
+      FONT_COLOR_DATA* next = cf->next;
+      
+      cf->begin += drange;
+      cf->end += drange;
+      cf = next;
+   }
+
+   return 0;
+}
+
+
+
 /********
  * vtable declarations
  ********/
@@ -1262,7 +1314,8 @@ FONT_VTABLE _font_vtable_mono = {
     mono_get_font_range_begin,
     mono_get_font_range_end,
     mono_extract_font_range,
-    mono_merge_fonts
+    mono_merge_fonts,
+    mono_transpose_font
 };
 
 FONT_VTABLE* font_vtable_mono = &_font_vtable_mono;
@@ -1279,7 +1332,8 @@ FONT_VTABLE _font_vtable_color = {
     color_get_font_range_begin,
     color_get_font_range_end,
     color_extract_font_range,
-    color_merge_fonts
+    color_merge_fonts,
+    color_transpose_font
 };
 
 FONT_VTABLE* font_vtable_color = &_font_vtable_color;
@@ -1391,6 +1445,21 @@ int get_font_range_end(FONT *f, int range)
 {
    if (f->vtable->get_font_range_end)
       return f->vtable->get_font_range_end(f, range);
+   
+   return -1;
+}
+
+
+
+
+/* transpose_font:
+ *  Transposes all the glyphs in a font over a range drange. Returns 0 on
+ *   success, or -1 on failure.
+ */
+int transpose_font(FONT *f, int drange)
+{
+   if (f->vtable->transpose_font)
+      return f->vtable->transpose_font(f, drange);
    
    return -1;
 }
