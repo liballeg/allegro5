@@ -76,5 +76,9 @@ Changes between 4.0.x and 4.1.x series
 <li>
    The constructors of the fix class from integer and floating point values
    are now explicit.
+<li>
+   All BeOS gfx driver IDs and constants have been replaced by more meaningful
+   ones. You may have to modify your allegro.cfg to reflect the change, or
+   update and recompile your programs if you used BeOS specific gfx drivers.
 </ul>
 
