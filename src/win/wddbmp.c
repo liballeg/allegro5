@@ -53,8 +53,7 @@ HRESULT WINAPI EnumSurfacesCallback (LPDIRECTDRAWSURFACE lpDDSurface,
 {
    if (backbuffersurf == NULL)
       backbuffersurf = lpDDSurface;
-
-   if (tripbuffersurf == NULL)
+   else if (tripbuffersurf == NULL)
       tripbuffersurf = lpDDSurface;
       
    return DDENUMRET_OK;
@@ -152,15 +151,12 @@ loop:
    /* get attached backbuffers */
    if (surf_desc.dwBackBufferCount == 2) {
       IDirectDrawSurface_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
+      IDirectDrawSurface_EnumAttachedSurfaces(backbuffersurf, NULL, EnumSurfacesCallback);
       primbuffersurf = surf;
    }
-   else {
-      if (surf_desc.dwBackBufferCount == 1) {
-         memset (&ddscaps, 0, sizeof(DDSCAPS));
-         ddscaps.dwCaps = DDSCAPS_BACKBUFFER;
-         IDirectDrawSurface_GetAttachedSurface(surf, &ddscaps, &backbuffersurf);
-         primbuffersurf = surf;
-      }
+   else if (surf_desc.dwBackBufferCount == 1) {
+      IDirectDrawSurface_EnumAttachedSurfaces(surf, NULL, EnumSurfacesCallback);
+      primbuffersurf = surf;
    }
 
    return surf;
@@ -378,17 +374,21 @@ static __inline int gfx_directx_flip_bitmap(struct BITMAP *bitmap, int wait)
    visible = BMP_EXTRA(dd_frontbuffer)->surf;
 
    /* try to flip already attached surfaces */
-   if (backbuffersurf && (invisible == primbuffersurf ||
-      invisible == backbuffersurf || invisible == tripbuffersurf)) {
-         hr = IDirectDrawSurface_Flip(primbuffersurf, invisible, 0);
+   if ((backbuffersurf && (invisible == backbuffersurf)) ||
+       (tripbuffersurf && (invisible == tripbuffersurf))) {
+      /* visible is always equal to primbuffersurf */
+      hr = IDirectDrawSurface_Flip(visible, invisible, wait?DDFLIP_WAIT:0);
 
-         if (FAILED(hr))
-            IDirectDrawSurface_Flip(primbuffersurf, invisible, DDFLIP_WAIT);
- 
+      if (FAILED(hr)) {
+         _TRACE("Can't flip (%x)\n", hr);
+         return -1;
+      }
+      else {
          BMP_EXTRA(bitmap)->surf = visible;
          BMP_EXTRA(dd_frontbuffer)->surf = invisible;
          dd_frontbuffer = bitmap;
          return 0;
+      }
    }
 
    /* original flipping system */
