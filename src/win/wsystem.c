@@ -103,10 +103,10 @@ _DRIVER_INFO _system_driver_list[] =
 /* general vars */
 HINSTANCE allegro_inst = NULL;
 HANDLE allegro_thread = NULL;
+CRITICAL_SECTION allegro_critical_section;
 int _dx_ver;
 
 /* internals */
-static CRITICAL_SECTION critical_section;
 static RECT wnd_rect;
 
 
@@ -167,7 +167,7 @@ static int sys_directx_init(void)
    system_directx.desc = sys_directx_desc;
 
    /* setup general critical section */
-   InitializeCriticalSection(&critical_section);
+   InitializeCriticalSection(&allegro_critical_section);
 
    /* install a Windows specific trace handler */
    register_trace_handler(sys_directx_trace_handler);
@@ -205,7 +205,7 @@ static void sys_directx_exit(void)
    sys_directx_display_switch_exit();
 
    /* remove resources */
-   DeleteCriticalSection(&critical_section);
+   DeleteCriticalSection(&allegro_critical_section);
 
    /* shutdown thread */
    win_exit_thread();
@@ -541,26 +541,6 @@ char *win_err_str(long err)
                  (LPTSTR)&msg, 0, NULL);
 
    return msg;
-}
-
-
-
-/* _enter_critical:
- *  requires exclusive ownership on the code
- */
-void _enter_critical(void)
-{
-   EnterCriticalSection(&critical_section);
-}
-
-
-
-/* _exit_critical:
- *  releases exclusive ownership on the code
- */
-void _exit_critical(void)
-{
-   LeaveCriticalSection(&critical_section);
 }
 
 

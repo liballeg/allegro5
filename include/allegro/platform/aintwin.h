@@ -53,9 +53,13 @@
 /***************** general *****************/
 /*******************************************/
 AL_VAR(HINSTANCE, allegro_inst);
-AL_VAR(HWND, allegro_wnd);
 AL_VAR(HANDLE, allegro_thread);
+AL_VAR(CRITICAL_SECTION, allegro_critical_section);
 AL_VAR(int, _dx_ver);
+
+#define _enter_critical()  EnterCriticalSection(&allegro_critical_section)
+#define _exit_critical()   LeaveCriticalSection(&allegro_critical_section)
+
 
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));
@@ -67,6 +71,8 @@ AL_FUNC(void, restore_window_style, (void));
 
 /* main window */
 #define WND_TITLE_SIZE  128
+
+AL_VAR(HWND, allegro_wnd);
 AL_ARRAY(char, wnd_title);
 AL_VAR(int, wnd_x);
 AL_VAR(int, wnd_y);
@@ -136,8 +142,6 @@ AL_FUNC(void, wnd_unacquire_mouse, (void));
 /*******************************************/
 /************* thread routines *************/
 /*******************************************/
-AL_FUNC(void, _enter_critical, (void));
-AL_FUNC(void, _exit_critical, (void));
 AL_FUNC(void, win_init_thread, (void));
 AL_FUNC(void, win_exit_thread, (void));
 
