@@ -174,7 +174,7 @@ static void *griddlit(DATAFILE **parent, AL_CONST char *name, int c, int type, i
    void *v;
    char buf[256];
    RGB tmprgb = datedit_current_palette[0];
-   int tx, ty;
+   int tx = 0, ty = 0;
 
    if ((type == DAT_RLE_SPRITE) || (type == DAT_C_SPRITE) || (type == DAT_XC_SPRITE)) {
       datedit_current_palette[0].r = 63;
@@ -195,17 +195,8 @@ static void *griddlit(DATAFILE **parent, AL_CONST char *name, int c, int type, i
       return NULL;
    }
 
-   if (autocrop) {
+   if (autocrop)
       bmp = crop_bitmap(bmp, &tx, &ty);
-
-      if (tx || ty) {
-         sprintf(buf, "%d", tx);
-         datedit_set_property(dat, DAT_XCRP, buf);
-
-         sprintf(buf, "%d", ty);
-         datedit_set_property(dat, DAT_YCRP, buf);
-      }
-   }
 
    if (type == DAT_RLE_SPRITE) {
       v = get_rle_sprite(bmp);
@@ -229,6 +220,14 @@ static void *griddlit(DATAFILE **parent, AL_CONST char *name, int c, int type, i
 
    sprintf(buf, "%d", h);
    datedit_set_property(dat, DAT_YSIZ, buf);
+
+   if (tx || ty) {
+      sprintf(buf, "%d", tx);
+      datedit_set_property(dat, DAT_XCRP, buf);
+
+      sprintf(buf, "%d", ty);
+      datedit_set_property(dat, DAT_YCRP, buf);
+   }
 
    datedit_set_property(dat, DAT_ORIG, grabber_graphic_origin);
    datedit_set_property(dat, DAT_DATE, grabber_graphic_date);
