@@ -183,8 +183,9 @@ Contributors
    exlights.
 
    Daniel Schlydler (<email>daniel@dascdev.net</a>).<br>
-   Fixed problems with get_executable_name() under Windows and a problem
-   with set_window_title() under BeOS.
+   Fixed problems with get_executable_name() under Windows, another one with
+   set_window_title() under BeOS and potentially unsafe constructs in the
+   Windows code.
 
    David A. Capello (<email>dacap@users.sourceforge.net</a>).<br>
    Made dotted_rect() avoid bank switches, fixed a problem with lost GUI

@@ -8,6 +8,40 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.13 to 4.1.14 (April 2004)
+<ul><li>
+   Elias Pschernig added a missing install dependency on Linux.
+<li>
+   Elias Pschernig fixed a couple of problems in dat2c.
+<li>
+   Angelo Mottola polished the MacOS X package builder script.
+<li>
+   Elias Pschernig added a Jack sound driver to the Unix port.
+<li>
+   Henrik Stokseth added support for debugging with DMalloc under Unix.
+<li>
+   Eric Botcazou fixed detection of the ALSA 1.0 MIDI driver.
+<li>
+   Eric Botcazou fixed compilation with --enable-color8=no under Unix.
+<li>
+   Angelo Mottola made it possible to link against the Allegro framework
+   with the allegro-config script under MacOS X.
+<li>
+   Angelo Mottola changed the dynamic lib install name to major.minor to
+   preserve binary compatibility under MacOS X.
+<li>
+   Angelo Mottola fixed a bug in fixbundle with 32bpp icons and alpha channel
+   under MacOS X.
+<li>
+   Eric Botcazou improved the cross-compilation support on Linux.
+<li>
+   Eric Botcazou restored the compensation code for end-of-frame in the FLI
+   player.
+<li>
+   Daniel Schlyder fixed potentially unsafe constructs in the Windows code.
+</ul>
+
+@heading
 Changes from 4.1.12 to 4.1.13 (March 2004)
 <ul><li>
    Minor changes and clarifications in the docs by Sven Sandberg, Andy Goth,
