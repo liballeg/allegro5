@@ -1078,14 +1078,14 @@ static int view_proc(int msg, DIALOG *d, int c)
 
 	 textout_ex(screen, font, datedit_desc(dat), d->x, d->y, gui_fg_color, -1);
 
-	 if (dat->type != DAT_FILE) {
-	    for (i=0; datedit_object_info[i]->type != DAT_END; i++) {
-	       if ((datedit_object_info[i]->type == dat->type) && (datedit_object_info[i]->plot)) {
-		  datedit_object_info[i]->plot(dat, d->x, d->y);
-		  return D_O_K;
-	       }
+	 for (i=0; datedit_object_info[i]->type != DAT_END; i++) {
+	    if ((datedit_object_info[i]->type == dat->type) && (datedit_object_info[i]->plot)) {
+	       datedit_object_info[i]->plot(dat, d->x, d->y);
+	       return D_O_K;
 	    }
+	 }
 
+	 if (dat->type != DAT_FILE) {
 	    for (c1=0; c1<16; c1++) {
 	       for (c2=0; c2<32; c2++) {
 		  if ((c1*32+c2) >= dat->size)
@@ -1586,14 +1586,108 @@ static void add_to_list(DATAFILE *dat, DATAFILE **parent, int i, char *name, int
 
 
 
+/* array to record which nested datafiles are folded */
+static void **folded = NULL;
+static int folded_capacity = 0;
+static int folded_size = 0;
+
+
+
+/* helper function for comparing two pointers */
+static INLINE int ptr_cmp(AL_CONST void *elem_p1, AL_CONST void *elem_p2)
+{
+   AL_CONST void *ptr1 = *(AL_CONST void **)elem_p1;
+   AL_CONST void *ptr2 = *(AL_CONST void **)elem_p2;
+
+   return (int)((AL_CONST unsigned long)ptr2 - (AL_CONST unsigned long)ptr1);
+}
+
+
+
+/* marks the specified datafile as folded */
+static void fold_datafile(DATAFILE *dat)
+{
+   void **elem_p;
+
+   if (folded_size == folded_capacity) {
+      folded_capacity = (folded_capacity ? folded_capacity*2 : 4);
+      folded = _al_sane_realloc(folded, folded_capacity * sizeof(void *));
+   }
+
+   /* Linear search but I'm too lazy to implement anything else. And you're
+    * not supposed to (un)fold nested datafiles like a crazy dog. Otherwise
+    * drop me a mail and I'll give you the address of a veterinary clinic.
+    */
+   for (elem_p = &folded[0]; elem_p < &folded[folded_size]; elem_p++) {
+      if (ptr_cmp(&dat->dat, elem_p) < 0)
+	 break;
+   }
+
+   memmove(elem_p + 1, elem_p, (size_t)((unsigned long)&folded[folded_size++] - (unsigned long)elem_p));
+   *elem_p = dat->dat;
+}
+
+
+
+/* marks the specified datafile as unfolded */
+static void unfold_datafile(DATAFILE *dat)
+{
+   void **elem_p = bsearch(&dat->dat, folded, folded_size, sizeof(void *), ptr_cmp);
+
+   if (elem_p)
+      memmove(elem_p, elem_p + 1, (size_t)((unsigned long)&folded[--folded_size] - (unsigned long)elem_p));
+}
+
+
+
+/* returns whether the specified datafile is folded */
+static int is_datafile_folded(DATAFILE *dat)
+{
+   return bsearch(&dat->dat, folded, folded_size, sizeof(void *), ptr_cmp) != NULL;
+}
+
+
+
+/* displays a datafile in the grabber object view window */
+static void plot_datafile(AL_CONST DATAFILE *dat, int x, int y)
+{
+   textout_ex(screen,
+	      font,
+	      "Double-click in the item list to (un)fold it",
+	      x,
+	      y+32,
+	      gui_fg_color,
+	      gui_bg_color);
+}
+
+
+
+/* handles double-clicking on a datafile */
+static int dclick_datafile(DATAFILE *dat)
+{
+   if (is_datafile_folded(dat))
+      unfold_datafile(dat);
+   else
+      fold_datafile(dat);
+
+   rebuild_list(dat->dat, TRUE);
+   object_message(main_dlg+DLG_LIST, MSG_DRAW, 0);
+
+   return D_O_K;
+}
+
+
+
 /* recursive helper used by rebuild list() */
 static void add_datafile_to_list(DATAFILE **dat, char *prefix, int clear)
 {
    char tmp[80];
    DATAFILE *d;
    int digits = 1, i;
+   int indexed = (opt_menu[MENU_INDEX].flags & D_SELECTED);
+   int folded = 0;
 
-   if (opt_menu[MENU_INDEX].flags & D_SELECTED) {
+   if (indexed) {
       i = 0;
 
       while ((*dat)[i].type != DAT_END)
@@ -1606,24 +1700,27 @@ static void add_datafile_to_list(DATAFILE **dat, char *prefix, int clear)
    for (i=0; (*dat)[i].type != DAT_END; i++) {
       d = (*dat)+i;
 
-      if (opt_menu[MENU_INDEX].flags & D_SELECTED) {
+      if (d->type == DAT_FILE)
+         folded = is_datafile_folded(d);
+
+      if (indexed) {
 	 sprintf(tmp, "[%*d] %c%c%c%c %s%c ", digits, i, (d->type >> 24) & 0xFF,
 		 (d->type >> 16) & 0xFF, (d->type >> 8) & 0xFF,
 		 (d->type & 0xFF), prefix, 
-		 (d->type == DAT_FILE) ? '+' : '-');
+		 (d->type == DAT_FILE) && folded ? '+' : '-');
       }
       else {
 	 sprintf(tmp, "%c%c%c%c %s%c ", (d->type >> 24) & 0xFF,
 		 (d->type >> 16) & 0xFF, (d->type >> 8) & 0xFF,
 		 (d->type & 0xFF), prefix, 
-		 (d->type == DAT_FILE) ? '+' : '-');
+		 (d->type == DAT_FILE) && folded ? '+' : '-');
       }
 
       strncat(tmp, get_datafile_property(d, DAT_NAME), 32);
 
       add_to_list(d, dat, i, tmp, clear);
 
-      if (d->type == DAT_FILE) {
+      if ((d->type == DAT_FILE) && (!folded)) {
 	 strcpy(tmp, prefix);
 	 strcat(tmp, "|");
 	 add_datafile_to_list((DATAFILE **)&d->dat, tmp, clear);
@@ -3490,6 +3587,7 @@ static void close_callback(void)
 
 int main(int argc, char *argv[])
 {
+   extern DATEDIT_OBJECT_INFO datfile_info;
    int i, j;
    int ret = -1;
    int bpp = -1;
@@ -3675,6 +3773,8 @@ int main(int argc, char *argv[])
    grabber_modified = set_modified;
 
    datedit_init();
+   datfile_info.plot = plot_datafile;
+   datfile_info.dclick = dclick_datafile;
 
    for (i=0; datedit_object_info[i]->type != DAT_END; i++) {
       if (datedit_object_info[i]->makenew) {
@@ -3788,6 +3888,9 @@ int main(int argc, char *argv[])
 
    if (data_sel)
       free(data_sel);
+
+   if (folded)
+      free(folded);
 
    if (!entered_password)
       set_config_string("grabber", "password", password);
