@@ -30,6 +30,7 @@
 /* describe this platform */
 #define ALLEGRO_PLATFORM_STR  "djgpp"
 #define ALLEGRO_DOS
+#define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
 #define ALLEGRO_CONSOLE_OK
 #define ALLEGRO_VRAM_SINGLE_SURFACE
