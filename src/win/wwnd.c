@@ -642,7 +642,7 @@ void win_set_window(HWND wnd)
    static int (*saved_scbc)(void (*proc)(void)) = NULL;
    struct WINDOW_MODULES wm;
 
-   if (window_is_initialized) {
+   if (window_is_initialized || !wnd) {
       exit_window_modules(&wm);
       exit_directx_window();
    }
@@ -662,7 +662,7 @@ void win_set_window(HWND wnd)
          system_directx.set_close_button_callback = saved_scbc;
    }
 
-   if (window_is_initialized) {
+   if (window_is_initialized || !wnd) {
       init_directx_window();
       init_window_modules(&wm);
    }
