@@ -108,7 +108,7 @@ Installing Allegro
    with spaces. There are two solutions for this.
 
    If you have chosen MinGW and have installed it with the w32api package
-   you can solve this problem simply by passing to <tt>--msvcpaths</tt>
+   you can solve this problem simply by passing the <tt>--msvcpaths</tt>
    parameter to <tt>fix.bat</tt> (see below).
 
    Otherwise if you are using <tt>vcvars32.bat</tt>, you will have to
