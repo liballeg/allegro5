@@ -1316,6 +1316,7 @@ is best to set it with set_uformat() just before you call these.
 
 @@char *@ustrzncpy(char *dest, int size, const char *src, int n);
 @xref uconvert, ustrzcpy, ustrncpy
+@eref exkeys
 @shortdesc Copies a string into another one, specifying size.
    This function is like ustrzcpy() except that no more than `n' characters
    from `src' are copied into `dest'. If `src' is shorter than `n' characters,
@@ -2818,7 +2819,7 @@ Allegro does not provide such devices.)
    
 @@Macro @END_OF_FUNCTION(function_name);
 @xref install_int, install_int_ex
-@eref exscn3d, exswitch, extimer, exupdate, exzbuf
+@eref exkeys, exscn3d, exswitch, extimer, exupdate, exzbuf
 @shortdesc Locks the code used by a timer.
    Due to interrupts/threading, you are required to lock all the code used
    by your timer routines. See the description of install_int_ex() for a
@@ -2865,7 +2866,7 @@ Allegro does not provide such devices.)
 @@void @rest(unsigned int time);
 @xref install_timer, rest_callback
 @xref vsync, d_yield_proc
-@eref exquat, exsample, extimer, exunicod
+@eref exkeys, exquat, exsample, extimer, exunicod
 @shortdesc Waits a specified number of milliseconds.
    This function waits for the specified number of milliseconds.
 
@@ -3178,6 +3179,7 @@ routines" for more information about this.
 
 @@const char *@scancode_to_name(int scancode);
 @xref scancode_to_ascii
+@eref exkeys
 @shortdesc Converts a scancode to a key name.
    This function returns a string pointer containing the name of they key with
    the given scancode. This is useful if you e.g. let the user choose a key for
@@ -3269,6 +3271,7 @@ routines" for more information about this.
 
 @@extern void (*@keyboard_lowlevel_callback)(int scancode);
 @xref install_keyboard, keyboard_callback, keyboard_ucallback
+@eref exkeys
 @shortdesc User specified low level keyboard event handler.
    If set, this function is called by the keyboard handler in response to 
    every keyboard event, both presses (including keyboard repeat rate) and
@@ -12783,6 +12786,7 @@ and avoid missing any important bit of information.
 @xref allegro_init, allegro_message, clear_to_color, desktop_palette
 @xref font, install_keyboard, makecol, readkey, release_screen, screen
 @xref set_gfx_mode, set_palette
+@shortdesc Simple graphical "hello world" program.
    This is a very simple program showing how to get into graphics
    mode and draw text onto the screen.
 
@@ -12792,6 +12796,7 @@ and avoid missing any important bit of information.
 @xref create_bitmap, desktop_palette, destroy_bitmap, install_keyboard
 @xref palette_color, readkey, release_screen, screen, set_gfx_mode
 @xref set_palette
+@shortdesc Drawing onto memory bitmaps and then blitting them to the screen.
    This program demonstrates the use of memory bitmaps. It creates
    a small temporary bitmap in memory, draws some circles onto it,
    and then blits lots of copies of it onto the screen.
@@ -12801,6 +12806,7 @@ and avoid missing any important bit of information.
 @xref allegro_error, allegro_init, allegro_message, black_palette
 @xref circlefill, install_keyboard, install_mouse, keypressed
 @xref release_screen, screen, set_gfx_mode, set_palette, show_mouse
+@shortdesc Palette effects and color cycling.
    This program demonstrates how to manipulate the palette. It draws
    a set of concentric circles onto the screen and animates them by
    cycling the palette.
@@ -12812,6 +12818,7 @@ and avoid missing any important bit of information.
 @xref font, install_keyboard, makecol, palette_color, readkey, rectfill
 @xref release_bitmap, screen, set_gfx_mode, set_palette, solid_mode
 @xref text_height, text_length
+@shortdesc Using patterned drawing modes and sub-bitmaps.
    This program demonstrates the use of patterned drawing and sub-bitmaps.
 
 @@Example @exflame
@@ -12819,6 +12826,7 @@ and avoid missing any important bit of information.
 @xref allegro_error, allegro_init, allegro_message, clear_keybuf, font
 @xref getpixel, install_keyboard, keypressed, line, makecol, putpixel
 @xref release_screen, screen, set_gfx_mode, set_palette
+@shortdesc How to write directly to video memory improving performance.
    This program demonstrates how to write directly to video memory.
    It implements a simple fire effect, first by calling getpixel() and
    putpixel(), then by accessing video memory directly a byte at a
@@ -12830,6 +12838,7 @@ and avoid missing any important bit of information.
 @xref clear_to_color, create_bitmap, desktop_palette, destroy_bitmap
 @xref font, install_timer, makecol, release_screen, retrace_count, screen
 @xref set_gfx_mode, set_palette
+@shortdesc How to use double buffering to avoid flicker.
    This program demonstrates the use of double buffering.
    It moves a circle across the screen, first just erasing and
    redrawing directly to the screen, then with a double buffer.
@@ -12840,12 +12849,14 @@ and avoid missing any important bit of information.
 @xref create_bitmap, create_video_bitmap, desktop_palette, destroy_bitmap
 @xref font, install_timer, makecol, retrace_count, screen, set_gfx_mode
 @xref set_palette, show_video_bitmap
+@shortdesc Comparison of double buffering and page flipping.
    This program moves a circle across the screen, first with a
    double buffer and then using page flips.
 
 @@Example @exfixed
 @xref END_OF_MAIN, allegro_init, allegro_message, fixdiv, fixed, fixmul
 @xref fixsqrt, fixtof, ftofix, itofix
+@shortdesc Using fixed point maths.
    This program demonstrates how to use fixed point numbers, which
    are signed 32-bit integers storing the integer part in the
    upper 16 bits and the decimal part in the 16 lower bits. This
@@ -12862,6 +12873,7 @@ and avoid missing any important bit of information.
 @xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
 @xref set_mouse_sprite, set_mouse_sprite_focus, set_palette, show_mouse
 @xref vsync
+@shortdesc Getting input from the mouse.
    This program demonstrates how to get mouse input. The
    first part of the test retrieves the raw mouse input data
    and displays it on the screen without using any mouse
@@ -12878,6 +12890,7 @@ and avoid missing any important bit of information.
 @xref desktop_palette, font, install_int, install_int_ex
 @xref install_keyboard, install_timer, key, keypressed, makecol, readkey
 @xref rest, screen, set_gfx_mode, set_palette
+@shortdesc Using the timer (delays and interrupts).
    This program demonstrates how to use the timer routines.
    These can be a bit of a pain, because you have to be sure
    you lock all the memory that is used inside your interrupt
@@ -12887,11 +12900,13 @@ and avoid missing any important bit of information.
    a non blocking way.
 
 @@Example @exkeys
-@xref END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen, allegro_error
-@xref allegro_init, allegro_message, clear_keybuf, clear_to_color
-@xref desktop_palette, font, install_keyboard, key, key_shifts
-@xref keypressed, makecol, readkey, rectfill, release_screen, screen
-@xref set_gfx_mode, set_palette, ureadkey, usprintf
+@xref END_OF_FUNCTION, END_OF_MAIN, SCREEN_H, SCREEN_W, acquire_screen
+@xref allegro_error, allegro_init, allegro_message, clear_keybuf
+@xref clear_to_color, desktop_palette, font, install_keyboard, key
+@xref key_shifts, keyboard_lowlevel_callback, keypressed, makecol
+@xref readkey, rectfill, release_screen, rest, scancode_to_name, screen
+@xref set_gfx_mode, set_palette, ureadkey, usprintf, ustrzncpy
+@shortdesc How to get input from the keyboard in different ways.
    This program demonstrates how to access the keyboard. The
    first part shows the basic use of readkey(). The second part
    shows how to extract the ASCII value. Next come the scancodes.
@@ -12899,6 +12914,9 @@ and avoid missing any important bit of information.
    fifth test requires some focus to be passed. The final step
    shows how to use the global key array to read simultaneous
    keypresses.
+   The last method to detect key presses are keyboard callbacks.
+   This is demonstrated by by installing a keyboard callback,
+   which marks all pressed keys by drawing to a grid.
 
 @@Example @exjoy
 @xref BITMAP, END_OF_MAIN, SCREEN_H, SCREEN_W, allegro_error
@@ -12908,6 +12926,7 @@ and avoid missing any important bit of information.
 @xref install_joystick, install_keyboard, joy, key, keypressed
 @xref num_joysticks, palette_color, poll_joystick, putpixel, readkey
 @xref screen, set_gfx_mode, set_palette
+@shortdesc Detecting, calibrating and using joystick input.
    This program uses the Allegro library to detect and read the value
    of a joystick. The output of the program is a small target sight
    on the screen which you can move. At the same time the program will
@@ -12919,6 +12938,7 @@ and avoid missing any important bit of information.
 @xref desktop_palette, destroy_sample, font, install_keyboard
 @xref install_sound, install_timer, key, load_sample, makecol
 @xref play_sample, poll_keyboard, rest, screen, set_gfx_mode, set_palette
+@shortdesc Playing digital samples.
    This program demonstrates how to play samples. You have to
    use this example from the commandline to specify as first
    parameter a WAV or VOC sound file to play. If the file is
@@ -12932,6 +12952,7 @@ and avoid missing any important bit of information.
 @xref allegro_message, clear_to_color, desktop_palette, destroy_midi
 @xref font, install_keyboard, install_sound, install_timer, load_midi
 @xref makecol, play_midi, readkey, screen, set_gfx_mode, set_palette
+@shortdesc Playing MIDI music.
    This program demonstrates how to play MIDI files.
 
 @@Example @exgui
@@ -12946,6 +12967,7 @@ and avoid missing any important bit of information.
 @xref makecol, position_dialog, screen, set_dialog_color, set_gfx_mode
 @xref set_palette, unload_datafile, ustrtok, ustrzcat, ustrzcpy
 @xref uszprintf
+@shortdesc Using the GUI routines.
    This program demonstrates how to use the GUI routines. From
    the simple dialog controls that display a text or a bitmap to
    more complex multiple choice selection lists, Allegro provides
@@ -12960,6 +12982,7 @@ and avoid missing any important bit of information.
 @xref install_mouse, install_timer, itofix, key, line, load_datafile
 @xref makecol, object_message, screen, set_gfx_mode, set_palette
 @xref unload_datafile
+@shortdesc Creating custom GUI objects.
    A follow up of the exgui.c example showing how to customise the
    default Allegro framework. In this case a dialog procedure
    animates a graphical clock without disrupting other GUI
@@ -12974,6 +12997,7 @@ and avoid missing any important bit of information.
 @xref set_gfx_mode, set_uformat, set_window_title, text_height
 @xref text_length, uconvert_ascii, unload_datafile, ustrcat, ustrcpy
 @xref ustrsize, ustrsizez
+@shortdesc Using Unicode string functions.
    This program demonstrates the use of the 16-bit Unicode text
    encoding format with Allegro. The example displays a message
    translated to different languages scrolling on the screen
@@ -12988,6 +13012,7 @@ and avoid missing any important bit of information.
 @xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
 @xref allegro_init, allegro_message, destroy_bitmap, install_keyboard
 @xref load_bitmap, readkey, screen, set_gfx_mode, set_palette
+@shortdesc Loading and displaying PCX and BMP files.
    This program demonstrates how to load and display a bitmap
    file.  You have to use this example from the commandline to
    specify as first parameter a graphic file in one of Allegro's
@@ -12998,6 +13023,7 @@ and avoid missing any important bit of information.
 @xref BITMAP, END_OF_MAIN, PALETTE, SCREEN_H, SCREEN_W, allegro_error
 @xref allegro_init, allegro_message, destroy_bitmap, install_keyboard
 @xref keypressed, load_pcx, screen, set_gfx_mode, set_palette, vsync
+@shortdesc Loading PCX files and bitmap stretching.
    This example demonstrates how to use pcx files, palettes and stretch
    blits. It loads a pcx file, sets its palette and does some random
    stretch_blits. Don't worry - it's VERY slowed down using vsync().
@@ -13009,6 +13035,7 @@ and avoid missing any important bit of information.
 @xref pop_config_state, push_config_state, readkey, screen
 @xref set_color_depth, set_config_file, set_gfx_mode, set_palette
 @xref ustrdup, ustricmp
+@shortdesc Using the configuration routines.
    This is a very simple program showing how to use the allegro
    config (ini file) routines. A first look at the example
    shows nothing more than a static graphic and the wait for
@@ -13022,6 +13049,7 @@ and avoid missing any important bit of information.
 @xref DATAFILE, END_OF_MAIN, allegro_error, allegro_init, allegro_message
 @xref font, install_keyboard, load_datafile, makecol, readkey, screen
 @xref set_color_conversion, set_gfx_mode, set_palette, unload_datafile
+@shortdesc Accessing the contents of datafiles.
    This program demonstrates how to access the contents of an
    Allegro datafile (created by the grabber utility). The example
    loads the file `example.dat', then blits a bitmap and shows
@@ -13035,6 +13063,7 @@ and avoid missing any important bit of information.
 @xref keypressed, load_datafile, palette_color, rectfill, rotate_sprite
 @xref rotate_sprite_v_flip, screen, set_color_conversion, set_gfx_mode
 @xref set_palette, unload_datafile, vsync
+@shortdesc Datafiles access and sprite animation.
    This example demonstrates how to use datafiles, various sprite
    drawing routines and flicker-free animation.
    
@@ -13066,6 +13095,7 @@ and avoid missing any important bit of information.
 @xref font, install_keyboard, line, load_datafile, makecol, readkey
 @xref screen, set_color_conversion, set_gfx_mode, set_palette
 @xref unload_datafile
+@shortdesc Appending datafiles onto your executable.
    This program demonstrates how to access the contents of an Allegro
    datafile (created by the grabber utility) linked to the exe by the
    exedat tool. It is basically the exdata example with minor
@@ -13095,6 +13125,7 @@ and avoid missing any important bit of information.
 @xref poll_mouse, rectfill, rgb_map, screen, set_alpha_blender
 @xref set_gfx_mode, set_palette, set_trans_blender
 @xref set_write_alpha_blender
+@shortdesc Lighting and translucency effects.
    This program demonstrates how to use the lighting and
    translucency functions. The first part of the example will
    show a dark screen iluminated by a spotlight you can move
@@ -13113,6 +13144,7 @@ and avoid missing any important bit of information.
 @xref allegro_init, clear_to_color, font, generate_332_palette
 @xref install_keyboard, key, makecol, readkey, release_screen, screen
 @xref set_color_depth, set_gfx_mode, set_palette, vline
+@shortdesc Truecolor pixel format conversions.
    This program shows how to specify colors in the various different
    truecolor pixel formats. The example shows the same screen (a few
    text lines and three coloured gradients) in all the color depth
@@ -13126,6 +13158,7 @@ and avoid missing any important bit of information.
 @xref drawing_mode, font, generate_332_palette, install_keyboard
 @xref keypressed, makecol, rectfill, rgb_map, screen, set_gfx_mode
 @xref set_palette, vsync
+@shortdesc Creating graphical effects with color mapping tables.
    This program demonstrates how to create custom graphic effects
    with the create_color_table function. Allegro drawing routines
    are affected by any color table you might have set up. In
@@ -13146,6 +13179,7 @@ and avoid missing any important bit of information.
 @xref install_keyboard, install_mouse, install_timer, key, makecol
 @xref makecol32, makecol8, object_message, rgb_map, rgb_to_hsv, screen
 @xref set_color, set_color_depth, set_gfx_mode, set_palette, vline, vsync
+@shortdesc RGB <-> HSV colorspace conversions.
    This program shows how to convert colors between the different
    color-space representations. The central area of the screen
    will display the current color. On the top left corner of the
@@ -13167,6 +13201,7 @@ and avoid missing any important bit of information.
 @xref install_keyboard, install_mouse, keypressed, load_bitmap, mouse_x
 @xref mouse_y, palette_color, poll_mouse, rgb_map, screen, set_gfx_mode
 @xref set_palette, set_trans_blender, show_mouse
+@shortdesc Gouraud shaded sprites.
    This program demonstrates how to draw gouraud shaded (lit)
    sprites.  In an apparently black screen, a planet like sprite
    is drawn close to the middle of the screen. In a similar
@@ -13184,6 +13219,7 @@ and avoid missing any important bit of information.
 @xref itofix, keypressed, load_bitmap, makecol, retrace_count, screen
 @xref set_color_conversion, set_color_depth, set_gfx_mode
 @xref set_trans_blender, vsync
+@shortdesc Using translucency in truecolor modes.
    This program demonstrates how to use the translucency functions
    in truecolor video modes. Two image files are loaded from
    disk and displayed moving slowly around the screen. One of
@@ -13198,6 +13234,7 @@ and avoid missing any important bit of information.
 @xref line, load_bitmap, readkey, screen, set_color_conversion
 @xref set_color_depth, set_gfx_mode, set_palette, set_trans_blender
 @xref vsync
+@shortdesc Truecolor image loading and fades.
    This program demonstrates how to load and display bitmap files
    in truecolor video modes, and how to crossfade between them.
    You have to use this example from the commandline to specify
@@ -13215,6 +13252,7 @@ and avoid missing any important bit of information.
 @xref rectfill, screen, set_alpha_blender, set_color_conversion
 @xref set_color_depth, set_gfx_mode, set_multiply_blender
 @xref set_write_alpha_blender, solid_mode
+@shortdesc Creating and using 32 bit RGBA sprites.
    This program demonstrates how to use the 32 bit RGBA
    translucency functions to store an alpha channel along with
    a bitmap graphic.  Two images are loaded from disk. One will
@@ -13233,6 +13271,7 @@ and avoid missing any important bit of information.
 @xref keypressed, line, load_bitmap, makecol, mouse_x, mouse_y
 @xref poll_mouse, retrace_count, screen, select_palette
 @xref set_color_conversion, set_color_depth, set_gfx_mode
+@shortdesc One way to do colored lighting effects in a hicolor video mode.
    This program shows one way to implement colored lighting effects
    in a hicolor video mode. Warning: it is not for the faint of heart!
    This is by no means the simplest or easiest to understand method,
@@ -13276,6 +13315,7 @@ and avoid missing any important bit of information.
 @xref polygon_z_normal, quad3d, readkey, rect, retrace_count, rgb_map
 @xref screen, set_color_depth, set_gfx_mode, set_palette
 @xref set_projection_viewport, set_trans_blender, vsync
+@shortdesc 3d 'bouncy cubes' demo.
    This program demonstrates how to use the 3d matrix functions.
    It isn't a very elegant or efficient piece of code, but it
    does show the stuff in action. It is left to the reader as
@@ -13298,6 +13338,7 @@ and avoid missing any important bit of information.
 @xref persp_project_f, poll_keyboard, polygon, polygon3d_f, rect, screen
 @xref set_clip_rect, set_gfx_mode, set_palette, set_projection_viewport
 @xref vsync
+@shortdesc Viewing a 3d world from an arbitrary camera position.
    option to enable/disable waiting for vsync.
    
    This program demonstrates how to use the get_camera_matrix()
@@ -13317,8 +13358,7 @@ and avoid missing any important bit of information.
 @xref persp_project_f, quat_interpolate, quat_to_matrix, readkey
 @xref release_bitmap, rest, screen, set_gfx_mode, set_palette
 @xref set_projection_viewport
-   A Comparison Between Euler Angles and Quaternions.
-   
+@shortdesc A comparison between euler angles and quaternions.
    Euler angles are convenient for storing and creating 3D orientations.
    However, this program demonstrates that they are not good when
    interpolating between two different orientations. The problem is
@@ -13351,6 +13391,7 @@ and avoid missing any important bit of information.
 @xref install_timer, itofix, key, normalize_vector, palette_color
 @xref persp_project, poll_keyboard, putpixel, rectfill, screen
 @xref set_gfx_mode, set_palette, set_projection_viewport, triangle, vsync
+@shortdesc 3d starfield and lightsourced spaceship.
    This program draws a 3D starfield (depth-cued) and a polygon
    starship (controllable with the keyboard cursor keys), using
    the Allegro math functions.
@@ -13366,6 +13407,7 @@ and avoid missing any important bit of information.
 @xref matrix_mul_f, palette_color, persp_project_f, polygon_z_normal_f
 @xref render_scene, scene_polygon3d_f, screen, set_color_depth
 @xref set_gfx_mode, set_palette, set_projection_viewport
+@shortdesc Using the 3d scene functions.
    This program demonstrates how to use scanline sorting algo
    in Allegro (create_scene, clear_scene, ... functions). It
    also provides an example of how to use the 3D clipping
@@ -13384,6 +13426,7 @@ and avoid missing any important bit of information.
 @xref persp_project_f, polygon_z_normal_f, quad3d_f, readkey, screen
 @xref set_color_depth, set_gfx_mode, set_palette, set_projection_viewport
 @xref set_zbuffer, vsync
+@shortdesc Z-buffered polygons demo.
    This program demonstrates how to use Z-buffered polygons and
    floating point 3D math routines. It also provides a simple
    way to compute fps (frames per second) using a timer. After
@@ -13399,6 +13442,7 @@ and avoid missing any important bit of information.
 @xref desktop_palette, destroy_bitmap, font, install_keyboard, keypressed
 @xref line, rectfill, release_bitmap, screen, scroll_screen, set_color
 @xref set_gfx_mode, set_palette, split_modex_screen, vline
+@shortdesc Mode-X hardware scrolling and split screens.
    This program demonstrates how to use hardware scrolling and split
    screens in mode-X. The split screen part only works on DOS and Linux
    console platforms, but the scrolling should work on anything that
@@ -13413,6 +13457,7 @@ and avoid missing any important bit of information.
 @xref itofix, keypressed, poll_scroll, release_bitmap
 @xref request_video_bitmap, screen, set_gfx_mode, set_palette, triangle
 @xref ustrzcpy
+@shortdesc Mode-X triple buffering and retrace interrupt simulation.
    This program demonstrates the use of triple buffering. Several
    triangles are displayed rotating and bouncing on the screen
    until you press a key. Note that on some platforms you
@@ -13429,8 +13474,7 @@ and avoid missing any important bit of information.
 @xref fixtoi, font, get_rotation_matrix, getpixel, install_keyboard
 @xref itofix, keypressed, line, makecol, putpixel, screen, set_clip_rect
 @xref set_color, set_gfx_mode, set_palette, text_height, text_length
-   or "How to get a 12-bit mode on an 8-bit card".
-   
+@shortdesc How to fake a 12-bit truecolor mode on an 8-bit card.
    This program sets up a 12-bit mode on any 8-bit card, by
    setting up a 256-colour palette that will fool the eye into
    grouping two 8-bit pixels into one 12-bit pixel. In order
@@ -13479,6 +13523,7 @@ and avoid missing any important bit of information.
 @xref install_keyboard, install_timer, keypressed, load_bitmap, readkey
 @xref release_bitmap, screen, set_gfx_mode, set_palette
 @xref show_video_bitmap
+@shortdesc Using offscreen video memory to store source graphics for VBE/AF.
    This program demonstrates how to use an offscreen part of
    the video memory to store source graphics for a hardware
    accelerated graphics driver. The example loads the `mysha.pcx'
@@ -13498,6 +13543,7 @@ and avoid missing any important bit of information.
 @xref keypressed, line, makecol, mouse_b, mouse_x, mouse_y, palette_color
 @xref poll_mouse, readkey, release_screen, screen, set_gfx_mode
 @xref set_palette, show_mouse, spline, vsync, xor_mode
+@shortdesc Constructing smooth movement paths from spline curves.
    This program demonstrates the use of spline curves to create smooth
    paths connecting a number of node points. This can be useful for
    constructing realistic motion and animations.
@@ -13545,6 +13591,7 @@ and avoid missing any important bit of information.
 @xref release_bitmap, request_video_bitmap, screen, set_color_depth
 @xref set_gfx_mode, set_palette, show_video_bitmap, triangle, vsync
 @xref xor_mode
+@shortdesc Supporting different screen update methods in a single program.
    This program demonstrates how to support double buffering,
    page flipping, and triple buffering as options within a single
    program, and how to make things run at a constant rate no
@@ -13569,6 +13616,7 @@ and avoid missing any important bit of information.
 @xref release_screen, screen, set_color_depth
 @xref set_display_switch_callback, set_display_switch_mode, set_gfx_mode
 @xref set_palette
+@shortdesc Controlling the console switch mode for background running.
    This program shows how to control the console switching mode, and
    let your program run in the background. These functions don't apply
    to every platform and driver, for example you can't control the
@@ -13585,6 +13633,7 @@ and avoid missing any important bit of information.
 @xref END_OF_MAIN, MIDI, allegro_error, allegro_init, allegro_message
 @xref destroy_midi, install_sound, install_timer, load_midi
 @xref os_multitasking, play_midi, remove_sound, ustrcat, ustrcpy
+@shortdesc Dodgy trick to play MIDI files in the background of a system shell.
    Plays MIDI files in the background of a system shell. A dodgy
    trick, and not really useful for anything, but I think it is
    pretty cool!
@@ -13596,6 +13645,7 @@ and avoid missing any important bit of information.
 @xref install_keyboard, install_sound, install_timer, keypressed, makecol
 @xref play_audio_stream, readkey, screen, set_gfx_mode, set_palette
 @xref stop_audio_stream, voice_start, voice_stop
+@shortdesc Playing audio streams.
    This program shows how to use the audio stream functions to
    transfer large blocks of sample data to the soundcard. In
    this case, the sample data is generated during runtime,
