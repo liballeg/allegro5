@@ -41,6 +41,7 @@ dnl  allegro_cv_support_mmx=(yes|no).
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_SUPPORT_MMX,
 [AC_REQUIRE([ALLEGRO_ACTEST_PROCESSOR_TYPE])
+AC_BEFORE([$0], [ALLEGRO_ACTEST_SUPPORT_SSE])
 AC_ARG_ENABLE(mmx,
 [  --enable-mmx[=x]        enable the use of MMX instructions [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_mmx=yes,
@@ -210,7 +211,7 @@ dnl Process "--with[out]-x", "--x-includes" and "--x-libraries" options.
 AC_PATH_X
 if test -z "$no_x"; then
   allegro_support_xwindows=yes
-  AC_DEFINE(ALLEGRO_WITH_XWINDOWS)
+  AC_DEFINE(ALLEGRO_WITH_XWINDOWS,1,[Define if you need support for X-Windows.])
 
   if test -n "$x_includes"; then
     CPPFLAGS="-I$x_includes $CPPFLAGS"
@@ -228,21 +229,21 @@ if test -z "$no_x"; then
   dnl Test for SHM extension.
   if test -n "$allegro_enable_xwin_shm"; then
     AC_CHECK_LIB(Xext, XShmQueryExtension,
-      [AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM)])
+      [AC_DEFINE(ALLEGRO_XWINDOWS_WITH_SHM,1,[Define if MIT-SHM extension is supported.])])
   fi
 
   dnl Test for XF86VidMode extension.
   if test -n "$allegro_enable_xwin_xf86vidmode"; then
     AC_CHECK_LIB(Xxf86vm, XF86VidModeQueryExtension,
       [LIBS="-lXxf86vm $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE)])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86VIDMODE,1,[Define if XF86VidMode extension is supported.])])
   fi
 
   dnl Test for XF86DGA extension.
   if test -n "$allegro_enable_xwin_xf86dga"; then
     AC_CHECK_LIB(Xxf86dga, XF86DGAQueryExtension,
       [LIBS="-lXxf86dga $LIBS"
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA)])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA,1,[Define if XF86DGA extension is supported.])])
   fi
 
   dnl Test for DGA 2.0 extension.
@@ -252,11 +253,40 @@ if test -z "$no_x"; then
       if test -z "$allegro_support_modules"; then
         LIBS="-lXxf86dga $LIBS"
       fi
-      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2)])
+      AC_DEFINE(ALLEGRO_XWINDOWS_WITH_XF86DGA2,1,[Define if DGA version 2.0 or newer is supported])])
   fi
 
 fi
 ])
+
+dnl
+dnl Test for Linux Framebuffer Console support.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_fbcon=(yes|)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_FBCON,
+[AC_CHECK_HEADER(linux/fb.h,
+AC_TRY_COMPILE([#include <linux/fb.h>], [int x = FB_SYNC_ON_GREEN;],
+allegro_cv_support_fbcon=yes))])
+
+dnl
+dnl Test for Linux SVGAlib support.
+dnl
+dnl  Variables:
+dnl   allegro_cv_support_svgalib=(yes|)
+dnl   allegro_cv_have_vga_version=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_SVGALIB,
+[AC_CHECK_HEADER(vga.h,
+AC_CHECK_LIB(vga, vga_init,
+allegro_cv_support_svgalib=yes
+AC_MSG_CHECKING(for vga_version in vga.h)
+AC_CACHE_VAL(allegro_cv_have_vga_version,
+[AC_TRY_COMPILE([#include <vga.h>], [int x = vga_version; x++;],
+allegro_cv_have_vga_version=yes,
+allegro_cv_have_vga_version=no)])
+AC_MSG_RESULT($allegro_cv_have_vga_version)))])
 
 dnl
 dnl Test for OSS DIGI driver.
@@ -295,6 +325,7 @@ if test -n "$allegro_enable_ossmidi"; then
   AC_CHECK_HEADERS(sys/soundcard.h, allegro_support_ossmidi=yes)
   AC_CHECK_HEADERS(machine/soundcard.h, allegro_support_ossmidi=yes)
   AC_CHECK_HEADERS(linux/soundcard.h, allegro_support_ossmidi=yes)
+  AC_CHECK_HEADERS(linux/awe_voice.h)
 fi
 ])
 
@@ -302,11 +333,11 @@ dnl
 dnl Test for ALSA DIGI driver.
 dnl
 dnl Variables:
-dnl  allegro_enable_alsadigi=(yes|)
 dnl  allegro_cv_support_alsadigi=(yes|)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_ALSADIGI,
-[AC_ARG_ENABLE(alsadigi,
+[AC_BEFORE([$0], [ALLEGRO_ACTEST_ALSAMIDI])
+AC_ARG_ENABLE(alsadigi,
 [  --enable-alsadigi[=x]   enable building ALSA DIGI driver [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_alsadigi=yes,
 allegro_enable_alsadigi=yes)
@@ -329,7 +360,6 @@ dnl
 dnl Test for ALSA MIDI driver.
 dnl
 dnl Variables:
-dnl  allegro_enable_alsamidi=(yes|)
 dnl  allegro_support_alsamidi=(yes|)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_ALSAMIDI,
@@ -347,6 +377,7 @@ if test -n "$allegro_enable_alsamidi"; then
   allegro_cv_support_alsamidi=no,
   allegro_cv_support_alsamidi=no))
   if test "X$allegro_cv_support_alsamidi" = "Xyes" &&
+     test "X$allegro_cv_support_alsadigi" != "Xyes" &&
      test -z "$allegro_support_modules"; then
     LIBS="-lasound $LIBS"
   fi
@@ -396,7 +427,7 @@ dnl  allegro_support_artsdigi=(yes|)
 dnl
 AC_DEFUN(ALLEGRO_ACTEST_ARTSDIGI,
 [AC_ARG_ENABLE(artsdigi,
-[  --enable-artsdigi[=x]    enable building ARTS DIGI driver [default=yes]],
+[  --enable-artsdigi[=x]   enable building ARTS DIGI driver [default=yes]],
 test "X$enableval" != "Xno" && allegro_enable_artsdigi=yes,
 allegro_enable_artsdigi=yes)
 
@@ -437,6 +468,36 @@ AC_DEFUN(ALLEGRO_ACTEST_SCHED_YIELD,
 allegro_cv_support_sched_yield=yes,
 AC_SEARCH_LIBS(sched_yield, posix4 rt,
 allegro_cv_support_sched_yield=yes))])
+
+dnl
+dnl Test that MAP_FAILED is defined in system headers.
+dnl
+dnl Variables:
+dnl  allegro_cv_have_map_failed = (yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_MAP_FAILED,
+[AC_MSG_CHECKING(for MAP_FAILED)
+AC_CACHE_VAL(allegro_cv_have_map_failed,
+[AC_TRY_COMPILE([#include <unistd.h>
+#include <sys/mman.h>],
+[int test_mmap_failed (void *addr) { return (addr == MAP_FAILED); }],
+allegro_cv_have_map_failed=yes,
+allegro_cv_have_map_failed=no)])
+AC_MSG_RESULT($allegro_cv_have_map_failed)])
+
+dnl
+dnl Test that the POSIX threads library is present.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_pthreads = (yes|)
+dnl
+dnl LIBS can be modified.
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_PTHREADS,
+[AC_CHECK_HEADER(pthread.h,
+AC_CHECK_LIB(pthread, pthread_create,
+LIBS="-lpthread $LIBS"
+allegro_cv_support_pthreads=yes))])
 
 dnl
 dnl Test for constructor attribute support.
@@ -498,6 +559,7 @@ fi
 ])
 AC_MSG_RESULT($allegro_cv_support_fomit_frame_pointer)])
 
+dnl
 dnl Test for include path conflict with gcc 3.1 or later.
 dnl
 dnl Variables:
@@ -517,3 +579,22 @@ fi
 CFLAGS="$allegro_save_CFLAGS"
 AC_MSG_RESULT($allegro_cv_support_include_prefix)])
 
+dnl
+dnl Test for working '-mtune' i386 compile option.
+dnl
+dnl Variables:
+dnl  allegro_cv_support_i386_mtune=(yes|no)
+dnl
+AC_DEFUN(ALLEGRO_ACTEST_GCC_I386_MTUNE,
+[AC_MSG_CHECKING(whether -mtune is supported)
+allegro_save_CFLAGS="$CFLAGS"
+CFLAGS="-mtune=i386"
+AC_CACHE_VAL(allegro_cv_support_i386_mtune,
+[if test $GCC = yes; then
+   AC_TRY_COMPILE(,int foo(){return 0;}, allegro_cv_support_i386_mtune=yes, allegro_cv_support_i386_mtune=no)
+else
+   allegro_cv_support_i386_mtune=no
+fi
+])
+CFLAGS="$allegro_save_CFLAGS"
+AC_MSG_RESULT($allegro_cv_support_i386_mtune)])

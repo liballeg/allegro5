@@ -1,6 +1,6 @@
 #
 #  Rules for building the Allegro library on Unix. This file is processed
-#  by the configure script, to produce the real makefile the does the work.
+#  by the configure script, to produce the real makefile that does the work.
 
 INSTALL_TARGETS = full-install
 DEFAULT_TARGETS = full-build
@@ -30,7 +30,6 @@ INFO_DIR = $(infodir)/dir
 DESTDIR =
 
 ACLOCAL = aclocal
-ACLOCAL_M4 = $(srcdir)/aclocal.m4
 AUTOCONF = autoconf
 AUTOHEADER = autoheader
 
@@ -44,7 +43,6 @@ transform = @program_transform_name@
 CC = @CC@
 CPP = @CPP@
 MAKEINFO = @MAKEINFO@
-RANLIB = @RANLIB@
 AR = ar
 LIBS = @LIBS@
 
@@ -56,6 +54,7 @@ CONFIG_H = include/allegro/platform/alunixac.h
 CONFIG_H_IN = include/allegro/platform/alunixac.hin
 CONFIGURE = configure
 CONFIGURE_IN = configure.in
+ACLOCAL_M4 = aclocal.m4
 
 INCLUDES = -I. -Iinclude -Iinclude/allegro -I$(srcdir)/include -I$(srcdir)/include/allegro
 DEFS = @DEFS@
@@ -97,7 +96,7 @@ makefile: $(srcdir)/makefile.in config.status
 
 config.status: $(srcdir)/$(CONFIGURE)
 	$(SHELL) ./config.status --recheck
-$(srcdir)/$(CONFIGURE): $(srcdir)/$(CONFIGURE_IN) $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+$(srcdir)/$(CONFIGURE): $(srcdir)/$(CONFIGURE_IN) $(srcdir)/$(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF) $(CONFIGURE_IN) >$(CONFIGURE)
 
 $(CONFIG_H): stamp-h
@@ -106,7 +105,7 @@ stamp-h: $(srcdir)/$(CONFIG_H_IN) config.status
 	  $(SHELL) ./config.status
 	@echo timestamp > stamp-h
 $(srcdir)/$(CONFIG_H_IN): $(srcdir)/stamp-h.in
-$(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(ACLOCAL_M4) $(srcdir)/acconfig.h
+$(srcdir)/stamp-h.in: $(srcdir)/$(CONFIGURE_IN) $(srcdir)/$(ACLOCAL_M4)
 	cd $(srcdir) && $(AUTOHEADER) $(CONFIGURE_IN) >$(CONFIG_H_IN)
 	@echo timestamp > $(srcdir)/stamp-h.in
 
@@ -260,15 +259,15 @@ docs/man/install_allegro.3: docs/src/allegro._tx $(MAKEDOC)
 	$(MAKEDOC) -man docs/man/dummyname.3 $<
 
 AUTHORS: docs/src/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii AUTHORS $<
+	$(MAKEDOC) -part -ascii $@ $<
 	cp AUTHORS docs/txt/authors.txt 
 
 THANKS: docs/src/thanks._tx $(MAKEDOC)
-	$(MAKEDOC) -part -ascii THANKS $<
+	$(MAKEDOC) -part -ascii $@ $<
 	cp THANKS docs/txt/thanks.txt
 
 CHANGES: docs/src/changes._tx $(MAKEDOC)
-	$(MAKEDOC) -ascii CHANGES $<
+	$(MAKEDOC) -ascii $@ $<
 	cp CHANGES docs/txt/changes.txt
 
 docs/allegro.dvi: docs/texi/allegro.texi
@@ -276,6 +275,9 @@ docs/allegro.dvi: docs/texi/allegro.texi
 
 docs/allegro.ps: docs/allegro.dvi
 	cd docs && dvips -o allegro.ps allegro.dvi && cd ..
+
+info:
+	@cat makefile.info
 
 
 
@@ -373,8 +375,8 @@ veryclean: distclean
 	rm -f makefile
 
 maintainer-clean: veryclean
-	rm -f configure
-	rm -rf autom4te-*
+	rm -f configure include/allegro/platform/alunixac.hin
+	rm -rf autom4te*
 
 
 
@@ -387,11 +389,11 @@ mini-install: install-headers install-lib
 
 full-install: install-headers install-programs install-lib
 	@echo ""
-	@echo "Run make docs-dvi if you wish to generate dvi documentation (you need texi2dvi)"
-	@echo "Run make install-man if you wish to install the man pages"
-	@echo "Run make install-info if you wish to install the info documentation"
+	@echo "Run make docs-dvi if you wish to generate dvi documentation (you need texi2dvi)."
+	@echo "Run make install-man if you wish to install the man pages."
+	@echo "Run make install-info if you wish to install the info documentation."
 	@echo "You may conserve space by instead running make install-gzipped-man"
-	@echo "and/or make install-gzipped-info"
+	@echo "and/or make install-gzipped-info."
 
 install-lib: lib modules
 	$(mkinstalldirs) $(DESTDIR)$(libdir)
@@ -582,11 +584,11 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh vga -- $(ALLEGRO_MODULE_VGA_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh svgalib -lvga $(ALLEGRO_MODULE_SVGALIB_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh fbcon -- $(ALLEGRO_MODULE_FBCON_FILES)' >>makefile.dep
+	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh dga2 -lXxf86dga $(ALLEGRO_MODULE_DGA2_FILES)' >> makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsadigi -lasound $(ALLEGRO_MODULE_ALSADIGI_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh alsamidi -lasound $(ALLEGRO_MODULE_ALSAMIDI_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh esddigi "\`esd-config --libs\`" $(ALLEGRO_MODULE_ESD_FILES)' >>makefile.dep
 	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh artsdigi "\`artsc-config --libs\`" $(ALLEGRO_MODULE_ARTS_FILES)' >>makefile.dep
-	$(SHELL) -c 'cd $(srcdir) && misc/depmod.sh dga2 -lXxf86dga $(ALLEGRO_MODULE_DGA2_FILES)' >> makefile.dep
 	@echo "Generating dependencies for simple programs"
 	$(SHELL) -c 'cd $(srcdir) && misc/deplexe.sh -- $(ALLEGRO_LIB_EXE_SOURCES) $(ALLEGRO_EXAMPLE_FILES)' >>makefile.dep
 	@echo "Generating dependencies for datafile plugins"
