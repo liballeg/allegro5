@@ -410,7 +410,7 @@ static void scan_patches(MIDI *midi, char *patches, char *drums)
 
 
 /* reads a MIDI file to see what patches it requires */
-static void read_midi(AL_CONST char *filename, int attrib, int param)
+static int read_midi(AL_CONST char *filename, int attrib, void *param)
 {
    char patches[128], drums[128];
    char fname[256];
@@ -425,8 +425,8 @@ static void read_midi(AL_CONST char *filename, int attrib, int param)
    midi = load_midi(fname);
    if (!midi) {
       fprintf(stderr, "Error reading %s\n", fname);
-      errno = err = 1;
-      return;
+      err = 1;
+      return -1;
    }
 
    scan_patches(midi, patches, drums);
@@ -454,6 +454,7 @@ static void read_midi(AL_CONST char *filename, int attrib, int param)
    }
 
    destroy_midi(midi);
+   return 0;
 }
 
 
@@ -2401,11 +2402,8 @@ int main(int argc, char *argv[])
       need_patches[0] = TRUE;    /* always load the piano */
 
       for (c=0; c<opt_numnames; c++) {
-	 if (for_each_file(opt_namelist[c], FA_ARCH | FA_RDONLY, read_midi, 0) <= 0) {
+	 if (for_each_file_ex(opt_namelist[c], 0, ~(FA_ARCH | FA_RDONLY), read_midi, NULL) <= 0) {
 	    fprintf(stderr, "Error: %s not found\n", opt_namelist[c]);
-	    err = 1;
-	 }
-	 if (errno) {
 	    err = 1;
 	    break;
 	 }

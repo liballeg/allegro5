@@ -1348,7 +1348,7 @@ CREDIT_NAME *credits = NULL;
 
 
 /* reads credit info from a source file */
-void parse_source(AL_CONST char *filename, int attrib, int param)
+int parse_source(AL_CONST char *filename, int attrib, void *param)
 {
    char buf[256];
    PACKFILE *f;
@@ -1367,7 +1367,7 @@ void parse_source(AL_CONST char *filename, int attrib, int param)
 	 put_backslash(buf);
 	 strcat(buf, "*.*");
 
-	 for_each_file(buf, FA_ARCH | FA_RDONLY | FA_DIREC, parse_source, param);
+	 for_each_file_ex(buf, 0, ~(FA_ARCH | FA_RDONLY | FA_DIREC), parse_source, param);
       }
    }
    else {
@@ -1380,9 +1380,9 @@ void parse_source(AL_CONST char *filename, int attrib, int param)
 	 /* parse a source file */
 	 f = pack_fopen(filename, F_READ);
 	 if (!f)
-	    return;
+	    return -1;
 
-	 textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/2+8, makecol(160, 160, 160), 0, "                %s                ", filename+param);
+	 textprintf_centre_ex(screen, font, SCREEN_W/2, SCREEN_H/2+8, makecol(160, 160, 160), 0, "                %s                ", filename+(int)(unsigned long)param);
 
 	 while (pack_fgets(buf, sizeof(buf)-1, f) != 0) {
 	    if (strstr(buf, "*/"))
@@ -1393,14 +1393,14 @@ void parse_source(AL_CONST char *filename, int attrib, int param)
 	    while (c) {
 	       if (strstr(buf, c->name)) {
 		  for (d=c->files; d; d=d->next) {
-		     if (strcmp(d->text, filename+param) == 0)
+		     if (strcmp(d->text, filename+(int)(unsigned long)param) == 0)
 			break;
 		  }
 
 		  if (!d) {
 		     d = malloc(sizeof(TEXT_LIST));
-		     d->text = malloc(strlen(filename+param)+1);
-		     strcpy(d->text, filename+param);
+		     d->text = malloc(strlen(filename+(int)(unsigned long)param)+1);
+		     strcpy(d->text, filename+(int)(unsigned long)param);
 		     d->next = c->files;
 		     c->files = d;
 		  }
@@ -1413,6 +1413,8 @@ void parse_source(AL_CONST char *filename, int attrib, int param)
 	 pack_fclose(f);
       }
    }
+
+   return 0;
 }
 
 
@@ -1571,7 +1573,7 @@ void load_credits(void)
    get_executable_name(buf, sizeof(buf));
    replace_filename(buf2, buf, "../*.*", sizeof(buf2));
 
-   for_each_file(buf2, FA_ARCH | FA_RDONLY | FA_DIREC, parse_source, strlen(buf2)-3);
+   for_each_file_ex(buf2, 0, ~(FA_ARCH | FA_RDONLY | FA_DIREC), parse_source, (void *)(unsigned long)(strlen(buf2)-3));
 
    /* sort the lists */
    sort_credit_list();

@@ -143,8 +143,7 @@ int main(void)
       allegro_message("%s not found\n", filename); 
    }
 
-   text_mode(-1);
-   textout_centre(screen, font, title, SCREEN_W/2, 20, makecol(r,g,b));
+   textout_centre_ex(screen, font, title, SCREEN_W/2, 20, makecol(r,g,b), -1);
 
    readkey();
 
