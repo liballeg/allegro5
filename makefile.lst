@@ -514,7 +514,7 @@ DISTCLEAN_FILES = \
 	$(ALLEGRO_LIB_EXES) $(ALLEGRO_EXAMPLE_EXES) $(ALLEGRO_DATAFILE_EXES) \
 	*.exe */*.exe msvcmake.bat tests/win/*.scr \
 	config.cache config.log stamp-h stamp-h[0-9]* suid makefile.dep \
-	config.status include/allegro/alunixac.h allegro-config modules.lst
+	config.status include/allegro/alunixac.h allegro-config
 
 VERYCLEAN_FILES = \
 	authors AUTHORS changes CHANGES thanks THANKS \

@@ -11,4 +11,3 @@ config.cache
 makefile.dep
 config.status
 allegro-config
-modules.lst

@@ -2,7 +2,7 @@
 #
 #  Shell script to adjust the version numbers and dates in allegro.h,
 #  dllver.rc, readme.txt, allegro._tx, makefile.ver, allegro-config.in,
-#  allegro-config.qnx, modules.in and allegro.spec .
+#  allegro-config.qnx, modules.lst and allegro.spec .
 
 
 if [ $# -lt 3 -o $# -gt 4 ]; then
@@ -108,10 +108,10 @@ echo "Patching misc/allegro-config-qnx.sh..."
 cp misc/allegro-config-qnx.sh fixver.tmp
 sed -f fixver.sed fixver.tmp > misc/allegro-config-qnx.sh
 
-# patch modules.in
-echo "Patching misc/modules.in.."
-cp misc/modules.in fixver.tmp
-sed -e "s/[0-9][0-9.]*[0-9]/$1.$2.$3/g" fixver.tmp > misc/modules.in
+# patch modules.lst
+echo "Patching modules.lst.."
+cp modules.lst fixver.tmp
+sed -e "s/[0-9][0-9.]*[0-9]/$1.$2.$3/g" fixver.tmp > modules.lst
 
 # patch the spec file
 echo "Patching misc/allegro.spec..."

@@ -492,9 +492,8 @@ elif test ! -f makefile.dep; then
   allegro_make_depend="yes";
 fi
 
-dnl Prepare makefile, allegro-config and modules.lst.
-AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in
-	  modules.lst:misc/modules.in,
+dnl Prepare makefile and allegro-config.
+AC_OUTPUT(makefile:makefile.in allegro-config:misc/allegro-config.in,
   [test -z "$CONFIG_HEADERS" || echo timestamp > stamp-h])
 
 dnl Run "make depend" if necessary.
