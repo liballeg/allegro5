@@ -79,7 +79,7 @@ typedef struct AL_JOYSTICK_EVENT
    _AL_EVENT_HEADER(struct AL_JOYSTICK);
    int stick;
    int axis;
-   int pos, d;
+   float pos;
    int button;
 } AL_JOYSTICK_EVENT;
 

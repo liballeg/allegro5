@@ -241,12 +241,22 @@ static void convert_joystick_state(JOYSTICK_INFO *old_info, AL_JOYSTATE *state)
    for (i=0; i < old_info->num_sticks; i++) {
       for (j=0; j < old_info->stick[i].num_axis; j++) {
          if (old_info->stick[i].flags & JOYFLAG_SIGNED)
-            old_info->stick[i].axis[j].pos = (state->stick[i].axis[j].pos >> 8);
+            old_info->stick[i].axis[j].pos = state->stick[i].axis[j] * 128;
          else
-            old_info->stick[i].axis[j].pos = (state->stick[i].axis[j].pos >> 8) + 128;
+            old_info->stick[i].axis[j].pos = (state->stick[i].axis[j] + 1.0) * 127.5;
 
-         old_info->stick[i].axis[j].d1 = (state->stick[i].axis[j].d < 0) ? TRUE : FALSE;
-         old_info->stick[i].axis[j].d2 = (state->stick[i].axis[j].d > 0) ? TRUE : FALSE;
+         if (state->stick[i].axis[j] < -0.5) {
+            old_info->stick[i].axis[j].d1 = TRUE;
+            old_info->stick[i].axis[j].d2 = FALSE;
+         }
+         else if (state->stick[i].axis[j] > +0.5) {
+            old_info->stick[i].axis[j].d1 = FALSE;
+            old_info->stick[i].axis[j].d2 = TRUE;
+         }
+         else {
+            old_info->stick[i].axis[j].d1 = FALSE;
+            old_info->stick[i].axis[j].d2 = FALSE;
+         }
       }
    }
 

@@ -139,10 +139,10 @@ static void joydx_get_state(AL_JOYSTICK *joy, AL_JOYSTATE *ret_state);
 
 static void joydx_thread_proc(LPVOID unused);
 static void update_joystick(AL_JOYSTICK_DIRECTX *joy);
-static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, int value);
+static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value);
 static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD value);
 static void handle_button_event(AL_JOYSTICK_DIRECTX *joy, int button, bool down);
-static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, int pos, int d);
+static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos);
 static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, unsigned int event_type);
 
 
@@ -933,14 +933,14 @@ static void update_joystick(AL_JOYSTICK_DIRECTX *joy)
          const DWORD dwData = item->dwData;
 
          switch (dwOfs) {
-         case DIJOFS_X:         handle_axis_event(joy, &joy->x_mapping, (int)dwData); break;
-         case DIJOFS_Y:         handle_axis_event(joy, &joy->y_mapping, (int)dwData); break;
-         case DIJOFS_Z:         handle_axis_event(joy, &joy->z_mapping, (int)dwData); break;
-         case DIJOFS_RX:        handle_axis_event(joy, &joy->rx_mapping, (int)dwData); break;
-         case DIJOFS_RY:        handle_axis_event(joy, &joy->ry_mapping, (int)dwData); break;
-         case DIJOFS_RZ:        handle_axis_event(joy, &joy->rz_mapping, (int)dwData); break;
-         case DIJOFS_SLIDER(0): handle_axis_event(joy, &joy->slider_mapping[0], (int)dwData); break;
-         case DIJOFS_SLIDER(1): handle_axis_event(joy, &joy->slider_mapping[1], (int)dwData); break;
+         case DIJOFS_X:         handle_axis_event(joy, &joy->x_mapping, dwData); break;
+         case DIJOFS_Y:         handle_axis_event(joy, &joy->y_mapping, dwData); break;
+         case DIJOFS_Z:         handle_axis_event(joy, &joy->z_mapping, dwData); break;
+         case DIJOFS_RX:        handle_axis_event(joy, &joy->rx_mapping, dwData); break;
+         case DIJOFS_RY:        handle_axis_event(joy, &joy->ry_mapping, dwData); break;
+         case DIJOFS_RZ:        handle_axis_event(joy, &joy->rz_mapping, dwData); break;
+         case DIJOFS_SLIDER(0): handle_axis_event(joy, &joy->slider_mapping[0], dwData); break;
+         case DIJOFS_SLIDER(1): handle_axis_event(joy, &joy->slider_mapping[1], dwData); break;
          case DIJOFS_POV(0):    handle_pov_event(joy, joy->pov_mapping_stick[0], dwData); break;
          case DIJOFS_POV(1):    handle_pov_event(joy, joy->pov_mapping_stick[1], dwData); break;
          case DIJOFS_POV(2):    handle_pov_event(joy, joy->pov_mapping_stick[2], dwData); break;
@@ -966,11 +966,11 @@ static void update_joystick(AL_JOYSTICK_DIRECTX *joy)
  *  Helper function to handle a state change in a non-POV axis.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, int pos)
+static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis_mapping, DWORD value)
 {
    const int stick = axis_mapping->stick;
    const int axis  = axis_mapping->axis;
-   int d;
+   float pos;
 
    if (stick < 0 || stick >= joy->parent.info.num_sticks)
       return;
@@ -978,17 +978,9 @@ static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis
    if (axis < 0 || axis >= joy->parent.info.stick[stick].num_axes)
       return;
 
-   if (pos < -16384)
-      d = -1;
-   else if (pos > +16384)
-      d = +1;
-   else
-      d = 0;
-
-   joy->joystate.stick[stick].axis[axis].pos = pos;
-   joy->joystate.stick[stick].axis[axis].d = d;
-
-   generate_axis_event(joy, stick, axis, pos, d);
+   pos = (int)value / 32767.0;
+   joy->joystate.stick[stick].axis[axis] = pos;
+   generate_axis_event(joy, stick, axis, pos);
 }
 
 
@@ -999,52 +991,39 @@ static void handle_axis_event(AL_JOYSTICK_DIRECTX *joy, const AXIS_MAPPING *axis
  */
 static void handle_pov_event(AL_JOYSTICK_DIRECTX *joy, int stick, DWORD value)
 {
-   int old_p0, old_p1;
-   int p0, p1;
-   int d0, d1;
+   float old_p0, old_p1;
+   float p0, p1;
 
    if (stick < 0 || stick >= joy->parent.info.num_sticks)
       return;
 
-   old_p0 = joy->joystate.stick[stick].axis[0].pos;
-   old_p1 = joy->joystate.stick[stick].axis[1].pos;
+   old_p0 = joy->joystate.stick[stick].axis[0];
+   old_p1 = joy->joystate.stick[stick].axis[1];
 
    /* left */
-   if ((value > JOY_POVBACKWARD) && (value < JOY_POVFORWARD_WRAP)) {
-      joy->joystate.stick[stick].axis[0].d   = d0 = -1;
-      joy->joystate.stick[stick].axis[0].pos = p0 = -32767;
-   }
+   if ((value > JOY_POVBACKWARD) && (value < JOY_POVFORWARD_WRAP))
+      joy->joystate.stick[stick].axis[0] = p0 = -1.0;
    /* right */
-   else if ((value > JOY_POVFORWARD) && (value < JOY_POVBACKWARD)) {
-      joy->joystate.stick[stick].axis[0].d   = d0 = +1;
-      joy->joystate.stick[stick].axis[0].pos = p0 = +32767;
-   }
-   else {
-      joy->joystate.stick[stick].axis[0].d   = d0 = 0;
-      joy->joystate.stick[stick].axis[0].pos = p0 = 0;
-   }
+   else if ((value > JOY_POVFORWARD) && (value < JOY_POVBACKWARD))
+      joy->joystate.stick[stick].axis[0] = p0 = +1.0;
+   else
+      joy->joystate.stick[stick].axis[0] = p0 = 0.0;
 
    /* forward */
    if (((value > JOY_POVLEFT) && (value <= JOY_POVFORWARD_WRAP)) ||
-       ((value >= JOY_POVFORWARD) && (value < JOY_POVRIGHT))) {
-      joy->joystate.stick[stick].axis[1].d   = d1 = -1;
-      joy->joystate.stick[stick].axis[1].pos = p1 = -32767;
-   }
+       ((value >= JOY_POVFORWARD) && (value < JOY_POVRIGHT)))
+      joy->joystate.stick[stick].axis[1] = p1 = -1.0;
    /* backward */
-   else if ((value > JOY_POVRIGHT) && (value < JOY_POVLEFT)) {
-      joy->joystate.stick[stick].axis[1].d   = d1 = +1;
-      joy->joystate.stick[stick].axis[1].pos = p1 = +32767;
-   }
-   else {
-      joy->joystate.stick[stick].axis[1].d   = d1 = 0;
-      joy->joystate.stick[stick].axis[1].pos = p1 = 0;
-   }
+   else if ((value > JOY_POVRIGHT) && (value < JOY_POVLEFT))
+      joy->joystate.stick[stick].axis[1] = p1 = +1.0;
+   else
+      joy->joystate.stick[stick].axis[1] = p1 = 0.0;
 
    if (old_p0 != p0)
-      generate_axis_event(joy, stick, 0, p0, d0);
+      generate_axis_event(joy, stick, 0, p0);
 
    if (old_p1 != p1)
-      generate_axis_event(joy, stick, 1, p1, d1);
+      generate_axis_event(joy, stick, 1, p1);
 }
 
 
@@ -1074,7 +1053,7 @@ static void handle_button_event(AL_JOYSTICK_DIRECTX *joy, int button, bool down)
  *  Helper to generate an event after an axis is moved.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, int pos, int d)
+static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, float pos)
 {
    AL_EVENT *event;
 
@@ -1090,7 +1069,6 @@ static void generate_axis_event(AL_JOYSTICK_DIRECTX *joy, int stick, int axis, i
    event->joystick.stick = stick;
    event->joystick.axis = axis;
    event->joystick.pos = pos;
-   event->joystick.d = d;
    event->joystick.button = 0;
 
    _al_event_source_emit_event(&joy->parent.es, event);
@@ -1117,8 +1095,7 @@ static void generate_button_event(AL_JOYSTICK_DIRECTX *joy, int button, unsigned
    event->joystick.timestamp = al_current_time();
    event->joystick.stick = 0;
    event->joystick.axis = 0;
-   event->joystick.pos = 0;
-   event->joystick.d = 0;
+   event->joystick.pos = 0.0;
    event->joystick.button = button;
 
    _al_event_source_emit_event(&joy->parent.es, event);

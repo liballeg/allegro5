@@ -67,7 +67,7 @@ static void ljoy_release_joystick(AL_JOYSTICK *joy_);
 static void ljoy_get_state(AL_JOYSTICK *joy_, AL_JOYSTATE *ret_state);
 
 static void ljoy_process_new_data(void *data);
-static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis, int pos, int d);
+static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis, float pos);
 static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, unsigned int event_type);
 
 
@@ -414,19 +414,11 @@ static void ljoy_process_new_data(void *data)
                if (number < TOTAL_JOYSTICK_AXES) {
                   int stick = joy->axis_mapping[number].stick;
                   int axis  = joy->axis_mapping[number].axis;
-                  int d;
+                  float pos = value / 32767.0;
 
-                  if (value < -16384)
-                     d = -1; 
-                  else if (value > +16384)
-                     d = +1; 
-                  else
-                     d = 0;
+                  joy->joystate.stick[stick].axis[axis] = pos;
 
-                  joy->joystate.stick[stick].axis[axis].pos = value;
-                  joy->joystate.stick[stick].axis[axis].d = d;
-
-                  ljoy_generate_axis_event(joy, stick, axis, value, d);
+                  ljoy_generate_axis_event(joy, stick, axis, pos);
                }
             }
          }
@@ -442,7 +434,7 @@ static void ljoy_process_new_data(void *data)
  *  Helper to generate an event after an axis is moved.
  *  The joystick must be locked BEFORE entering this function.
  */
-static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis, int pos, int d)
+static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis, float pos)
 {
    AL_EVENT *event;
 
@@ -458,7 +450,6 @@ static void ljoy_generate_axis_event(AL_JOYSTICK_LINUX *joy, int stick, int axis
    event->joystick.stick = stick;
    event->joystick.axis = axis;
    event->joystick.pos = pos;
-   event->joystick.d = d;
    event->joystick.button = 0;
 
    _al_event_source_emit_event(&joy->parent.es, event);
@@ -486,8 +477,7 @@ static void ljoy_generate_button_event(AL_JOYSTICK_LINUX *joy, int button, unsig
    event->joystick.timestamp = al_current_time();
    event->joystick.stick = 0;
    event->joystick.axis = 0;
-   event->joystick.pos = 0;
-   event->joystick.d = 0;
+   event->joystick.pos = 0.0;
    event->joystick.button = button;
 
    _al_event_source_emit_event(&joy->parent.es, event);

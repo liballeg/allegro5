@@ -37,13 +37,8 @@ typedef struct AL_JOYSTICK AL_JOYSTICK;
 /* All fields public and read-only */
 typedef struct AL_JOYSTATE
 {
-   struct
-   {
-      struct
-      {
-         int pos;                               /* -32767 to +32767 */
-         int d;                                 /* -1, 0, +1 */
-      } axis[_AL_MAX_JOYSTICK_AXES];
+   struct {
+      float axis[_AL_MAX_JOYSTICK_AXES];        /* -1.0 to 1.0 */
    } stick[_AL_MAX_JOYSTICK_STICKS];
    int button[_AL_MAX_JOYSTICK_BUTTONS];        /* 0 to 32767 */
 } AL_JOYSTATE;
