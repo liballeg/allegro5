@@ -7884,10 +7884,10 @@ you must include winalleg.h after other Allegro headers.
    unless you have installed the neutral system driver (SYSTEM_NONE).
 
 @@void @win_set_window(HWND wnd);
-   Registers an user-created window to be used by Allegro. This functions
-   must be called *before* initializing the library with allegro_init() or
-   installing the autodetected system driver (SYSTEM_AUTODETECT). It lets
-   you attach Allegro to any already existing window and prevents the
+   Registers an user-created window to be used by Allegro. This function is
+   meant to be called before initialising the library with allegro_init()
+   or installing the autodetected system driver (SYSTEM_AUTODETECT). It
+   lets you attach Allegro to any already existing window and prevents the
    library from creating its own, thus leaving you total control over the
    window; in particular, you are responsible for processing the events as
    usual (Allegro will automatically monitor a few of them, but will not
@@ -7895,6 +7895,14 @@ you must include winalleg.h after other Allegro headers.
    (graphics, mouse, keyboard, sound, timers and so on), bearing in mind
    that some Allegro functions are blocking (e.g readkey() if the key buffer
    is empty) and thus must be carefully manipulated by the window thread.
+
+   However you can also call it after the library has been initialised,
+   provided that no graphics mode is set. In this case the keyboard, mouse,
+   sound and sound recording modules will be restarted.
+
+   Passing NULL instructs Allegro to switch back to its built-in window if
+   an user-created window was registered, or to request a new handle from
+   Windows for its built-in window if this was already in use.
 
 @@void @win_set_wnd_create_proc(HWND (*proc)(WNDPROC));
    Registers an user-defined procedure to be used by Allegro for creating
