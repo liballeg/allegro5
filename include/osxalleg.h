@@ -30,6 +30,9 @@ extern "C" {
 #endif
 
 
+void set_application_quit_callback(void (*proc)(void));
+
+
 #ifdef __cplusplus
 }
 #endif

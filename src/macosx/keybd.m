@@ -108,11 +108,9 @@ void osx_keyboard_handler(int pressed, NSEvent *event)
 	 else
             _handle_key_press(character, scancode);
       }
-      if (((three_finger_flag) &&
-	  (scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) ||
-	  ((scancode == KEY_Q) && (_key_shifts & KB_COMMAND_FLAG))) {
-	 [NSApp sendEvent: event];
-	 [[NSApp delegate] app_quit: nil];
+      if ((three_finger_flag) &&
+	  (scancode == KEY_END) && (_key_shifts & (KB_CTRL_FLAG | KB_ALT_FLAG))) {
+	 raise(SIGTERM);
       }
    }
    else

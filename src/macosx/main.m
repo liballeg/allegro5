@@ -173,11 +173,16 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 
 
 /* app_quit:
- *  Forces application to quit by raising a SIGTERM signal.
+ *  Called upon Command-Q or "Quit" menu item selection.
+ *  If an user-specified callback is set, calls it, otherwise behaves like
+ *  Ctrl-Alt-End.
  */
 - (void)app_quit: (id)sender
 {
-   raise(SIGTERM);
+   if (osx_app_quit_hook)
+      osx_app_quit_hook();
+   else
+      raise(SIGTERM);
 }
 
 @end

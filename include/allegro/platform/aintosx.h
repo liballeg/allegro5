@@ -159,6 +159,7 @@ AL_VAR(int, osx_skip_mouse_move);
 AL_VAR(int, osx_emulate_mouse_buttons);
 AL_VAR(NSTrackingRectTag, osx_mouse_tracking_rect);
 extern AL_METHOD(void, osx_window_close_hook, (void));
+extern AL_METHOD(void, osx_app_quit_hook, (void));
 
 
 #endif

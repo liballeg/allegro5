@@ -48,6 +48,7 @@ NSCursor *osx_cursor = NULL;
 AllegroWindow *osx_window = NULL;
 char osx_window_title[ALLEGRO_MESSAGE_SIZE];
 void (*osx_window_close_hook)(void) = NULL;
+void (*osx_app_quit_hook)(void) = NULL;
 int osx_gfx_mode = OSX_GFX_NONE;
 int osx_emulate_mouse_buttons = FALSE;
 int osx_window_first_expose = FALSE;
@@ -170,6 +171,8 @@ void osx_event_handler()
          case NSKeyDown:
 	    if (_keyboard_installed)
 	       osx_keyboard_handler(TRUE, event);
+	    if (([[event charactersIgnoringModifiers] lossyCString][0] == 'q') && ([event modifierFlags] & NSCommandKeyMask))
+	       [NSApp sendEvent: event];
 	    break;
 	
          case NSKeyUp:
@@ -595,3 +598,15 @@ static int osx_sys_get_desktop_resolution(int *width, int *height)
    
    return 0;
 }
+
+
+
+/* set_application_quit_callback:
+ *  Sets a callback to be called on Command-Q or "Quit" application menu
+ *  selection. MacOS X specific.
+ */
+void set_application_quit_callback(void (*proc)(void))
+{
+   osx_app_quit_hook = proc;
+}
+
