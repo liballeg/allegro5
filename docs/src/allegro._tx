@@ -10973,7 +10973,6 @@ By Shawn Hargreaves.
 
 
 
-@!html
 @!text
 @$@ifinfo
 @headingnocontent
@@ -10985,5 +10984,4 @@ Index
 @$@contents
 @$@bye
 
-@html
 @text

@@ -37,6 +37,9 @@
 #include "makedoc.h"
 #include "maketexi.h"
 
+#define TOKEN_NORMAL               'n'
+#define TOKEN_TEXT                 't'
+
 typedef struct t_post POST;
 
 struct t_post
@@ -61,6 +64,7 @@ static POST **_post;
 static FILE *_file;
 static char _filename[1024];
 static char *_xref[256], *_eref[256];
+static char *_full_eref_list;
 static int _xrefs, _erefs;
 static int _empty_count;
 static char *_word_substitution[256];
@@ -186,11 +190,12 @@ static void _output_toc(char *filename, int root, int body, int part);
 static void _hfprintf(char *format, ...);
 static void _hfputs(char *string);
 static int _toc_scmp(const void *e1, const void *e2);
+static int _str_cmp(const void *s1, const void *s2);
 static int _output_section_heading(LINE *line, char *filename, int section_number);
 static void _output_custom_markers(LINE *line);
 static void _output_buffered_text(void);
 static void _output_html_header(char *section);
-static void _add_post_process_ref(const char *token);
+static void _add_post_process_ref(const char *token, char type);
 static void _post_process_pending_refs(void);
 static POST *_search_post_section(const char *filename);
 static POST *_search_post_section_with_token(const char *token);
@@ -206,6 +211,7 @@ static void _write_css_file(char *html_path, char *css_filename);
 static void _prepare_html_text_substitution(void);
 static void _free_html_text_substitution_memory(void);
 static char *_do_text_substitution(char *input);
+static void _output_symbol_index(void);
 
 
 
@@ -236,7 +242,6 @@ int write_html(char *filename)
    _file = fopen(filename, "w");
    if (!_file)
       return 1;
-   
 
    /* build up a table with Allegro's structures' names (spelling?) */
    auto_types = build_types_lookup_table(0);
@@ -258,7 +263,7 @@ int write_html(char *filename)
 	    _output_buffered_text();
 	    if (_output_section_heading(line, filename, section_number))
 	       return 1;
-	    _add_post_process_ref(line->text);
+	    _add_post_process_ref(line->text, TOKEN_TEXT);
 	    section_number++;
 	 }
 	 else if (line->flags & RETURN_VALUE_FLAG) {
@@ -272,7 +277,7 @@ int write_html(char *filename)
 	    /* output a node marker, which will be followed by a chunk of text inside a chapter */
 	    fprintf(_file, "<br><center><h2><a name=\"%s\">%s</a></h2></center><p>\n",
 	       line->text, line->text);
-	    _add_post_process_ref(line->text);
+	    _add_post_process_ref(line->text, TOKEN_TEXT);
 	 }
 	 else if (line->flags & DEFINITION_FLAG) {
 	    static int prev_continued = 0;
@@ -280,7 +285,7 @@ int write_html(char *filename)
 	    if (_empty_count && !block_empty_lines) _empty_count++;
 	    _output_buffered_text();
 	    /* output a function definition */
-	    _add_post_process_ref(temp);
+	    _add_post_process_ref(temp, TOKEN_NORMAL);
 	    temp = _mark_up_auto_types(temp, auto_types);
 	    
 	    if (!prev_continued) {
@@ -367,6 +372,10 @@ int write_html(char *filename)
 	 else
 	    _xref[_xrefs++] = line->text; /* buffer cross reference */
       }
+      else if (line->flags & INDEX_FLAG) {
+	 _output_buffered_text();
+	 _output_symbol_index();
+      }
 
       /* Keep track of continuous definitions */	 
       last_line_was_a_definition = (line->flags & DEFINITION_FLAG);
@@ -383,6 +392,7 @@ int write_html(char *filename)
    free(html_see_also_text);
    free(html_examples_using_this_text);
    free(html_return_value_text);
+   free(_full_eref_list);
    destroy_types_lookup_table(auto_types, 0);
 
    return 0;
@@ -464,6 +474,7 @@ static void _write_html_ref_list(char **ref, int *refs, const char *type)
    else
       fputs("><font size=\"-1\" face=\"helvetica,verdana\"><em><b>", _file);
 
+   /* select different wording depending on ref type */
    if (*type == 'e')
       fputs(html_examples_using_this_text, _file);
    else
@@ -501,6 +512,14 @@ static void _write_html_ref(char *ref, const char *type)
       if (!(html_flags & HTML_IGNORE_CSS))
 	 _hfprintf("class=\"%s\" ", type);
 
+      /* If they are erefs, they aren't on the list, and don't have spaces
+	 in them, add them to the full list of already seen erefs */
+      if (*type == 'e' && !strchr(tok, ' ') && (!_full_eref_list ||
+	  !strstr(_full_eref_list, tok))) {
+	 _full_eref_list = m_strcat(_full_eref_list, tok);
+	 _full_eref_list = m_strcat(_full_eref_list, " ");
+      }
+    
       if (flags & MULTIFILE_FLAG)
 	 _hfprintf("href=\"post_process#%s\">%s</a>", tok, tok);
       else
@@ -772,6 +791,18 @@ static int _toc_scmp(const void *e1, const void *e2)
 
 
 
+/* _str_cmp:
+ * qsort helper which compares two tokens alphabetically.
+ */
+static int _str_cmp(const void *s1, const void *s2)
+{
+   const char *t1 = *((const char **)s1);
+   const char *t2 = *((const char **)s2);
+   return strcmp(t1, t2);
+}
+
+
+
 /* _output_section_heading:
  * Used to mark a new section of the document. In multifile output closes
  * the actual file and writes a new one.
@@ -913,14 +944,17 @@ static void _post_process_pending_refs(void)
 
 /* _add_post_process_ref:
  * Adds a token to a buffer with the current filename for a post process.
+ * The type of the reference will be stored as the first character of
+ * the clean token.
  */
-static void _add_post_process_ref(const char *token)
+static void _add_post_process_ref(const char *token, char type)
 {
    char *clean_token;
    POST *p;
 
    clean_token = get_clean_ref_token(token);
-   if (!clean_token[0]) {
+   /* ignore empty tokens, or those with space at the beginning */
+   if (!clean_token[0] || myisspace(clean_token[0])) {
       free(clean_token);
       return ;
    }
@@ -930,7 +964,9 @@ static void _add_post_process_ref(const char *token)
       p = _create_post_section(_filename);
 
    p->token = m_xrealloc(p->token, sizeof(char*) * (1 + p->num));
-   p->token[p->num++] = clean_token;
+   p->token[p->num] = m_strcat(m_strdup(" "), clean_token);
+   p->token[p->num][0] = type;
+   p->num++;
 }
 
 
@@ -967,7 +1003,7 @@ static POST *_search_post_section_with_token(const char *token)
 
    for(f = 0; _post[f]; f++)
       for(g = 0; g < _post[f]->num; g++)
-	 if (!strcmp(_post[f]->token[g], token))
+	 if (!strcmp(_post[f]->token[g] + 1, token))
 	    return _post[f];
    return 0;
 }
@@ -1332,3 +1368,38 @@ static char *_do_text_substitution(char *input)
    return input;
 }
 
+
+
+/* _output_symbol_index:
+ * Called at the end of the first html pass, generates a list of links
+ * to the so far found tokens in the text, which will be hyperlinked
+ * correctly during the second pass.
+ */
+static void _output_symbol_index(void)
+{
+   int f, g, num = 0;
+   char **list = NULL;
+   
+   for(f = 0; _post[f]; f++) {
+      for(g = 0; g < _post[f]->num; g++) {
+	 char *tok = _post[f]->token[g];
+	 /* filter text tokens, they are not interesting */
+	 if (tok[0] == TOKEN_TEXT)
+	    continue;
+	 tok++;
+	 /* filter normal tokens from the example list */
+	 if (strstr(_full_eref_list, tok))
+	    continue;
+	 list = m_xrealloc(list, sizeof(char *) * (num + 1));
+	 list[num++] = tok;
+      }
+   }
+
+   if (num < 1)
+      return ;
+
+   qsort(list, num, sizeof(char *), _str_cmp);
+
+   for (f = 0; f < num; f++)
+      _hfprintf("<li><a href=\"post_process#%s\">%s</a>\n", list[f], list[f]);
+}
