@@ -506,7 +506,8 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	       though.
 	    */
 	    if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)spr->w) {
-	       if ((l_spr_x_rounded < 0) == (spr_dx < 0)) {
+	       if (((l_spr_x_rounded < 0) && (spr_dx <= 0)) ||
+		   ((l_spr_x_rounded > 0) && (spr_dx >= 0))) {
 		  /* This can happen. */
 		  goto skip_draw;
 	       }
@@ -525,7 +526,8 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 			      ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
 			      spr_dx;
 	    if ((unsigned)(right_edge_test >> 16) >= (unsigned)spr->w) {
-	       if ((right_edge_test < 0) == (spr_dx < 0)) {
+	       if (((right_edge_test < 0) && (spr_dx <= 0)) ||
+		   ((right_edge_test > 0) && (spr_dx >= 0))) {
 		  /* This can happen. */
 		  while ((unsigned)(right_edge_test >> 16) >=
 			 (unsigned)spr->w) {
@@ -541,7 +543,8 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 	       }
 	    }
 	    if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)spr->h) {
-	       if ((l_spr_y_rounded < 0) == (spr_dy < 0)) {
+	       if (((l_spr_y_rounded < 0) && (spr_dy <= 0)) ||
+		   ((l_spr_y_rounded > 0) && (spr_dy >= 0))) {
 		  /* This can happen. */
 		  goto skip_draw;
 	       }
@@ -560,7 +563,8 @@ void _parallelogram_map(BITMAP *bmp, BITMAP *spr, fixed xs[4], fixed ys[4],
 			      ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
 			      spr_dy;
 	    if ((unsigned)(right_edge_test >> 16) >= (unsigned)spr->h) {
-	       if ((right_edge_test < 0) == (spr_dy < 0)) {
+	       if (((right_edge_test < 0) && (spr_dy <= 0)) ||
+		   ((right_edge_test > 0) && (spr_dy >= 0))) {
 		  /* This can happen. */
 		  while ((unsigned)(right_edge_test >> 16) >=
 			 (unsigned)spr->h) {
