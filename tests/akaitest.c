@@ -161,21 +161,21 @@ int waveform_proc(int msg, DIALOG *d, int c);
 DIALOG record_dialog[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)              (dp2) (dp3) */
-   { d_shadow_box_proc, 160,  120,  320,  264,  255,  0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
+   { d_shadow_box_proc, 160,  120,  321,  265,  255,  0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_ctext_proc,      320,  136,  0,    0,    255,  0,    0,       0,          0,             0,       "Record Sample",  NULL, NULL  },
-   { d_button_proc,     208,  336,  96,   24,   255,  0,    13,      D_EXIT,     0,             0,       "OK",             NULL, NULL  },
-   { d_button_proc,     338,  336,  96,   24,   255,  0,    27,      D_EXIT,     0,             0,       "Cancel",         NULL, NULL  },
+   { d_button_proc,     208,  336,  97,   25,   255,  0,    13,      D_EXIT,     0,             0,       "OK",             NULL, NULL  },
+   { d_button_proc,     338,  336,  97,   25,   255,  0,    27,      D_EXIT,     0,             0,       "Cancel",         NULL, NULL  },
    { d_text_proc,       208,  176,  0,    0,    255,  0,    0,       0,          0,             0,       "Length:",        NULL, NULL  },
    { d_edit_proc,       277,  176,  64,   8,    255,  0,    0,       0,          15,            0,       record_length,    NULL, NULL  },
    { d_text_proc,       208,  200,  0,    0,    255,  0,    0,       0,          0,             0,       "Freq:",          NULL, NULL  },
    { d_edit_proc,       277,  200,  64,   8,    255,  0,    0,       0,          15,            0,       record_freq,      NULL, NULL  },
    { d_text_proc,       208,  224,  0,    0,    255,  0,    0,       0,          0,             0,       "16 bit:",        NULL, NULL  },
-   { d_check_proc,      272,  221,  16,   12,   255,  0,    0,       0,          0,             0,       "",               NULL, NULL  },
+   { d_check_proc,      272,  221,  17,   13,   255,  0,    0,       0,          0,             0,       "",               NULL, NULL  },
    { d_text_proc,       208,  248,  0,    0,    255,  0,    0,       0,          0,             0,       "Stereo:",        NULL, NULL  },
-   { d_check_proc,      272,  245,  16,   12,   255,  0,    0,       0,          0,             0,       "",               NULL, NULL  },
-   { d_radio_proc,      368,  176,  48,   12,   255,  0,    0,       D_SELECTED, 1,             0,       "Mic",            NULL, NULL  },
-   { d_radio_proc,      368,  200,  48,   12,   255,  0,    0,       0,          1,             0,       "Line",           NULL, NULL  },
-   { d_radio_proc,      368,  224,  48,   12,   255,  0,    0,       0,          1,             0,       "CD",             NULL, NULL  },
+   { d_check_proc,      272,  245,  17,   13,   255,  0,    0,       0,          0,             0,       "",               NULL, NULL  },
+   { d_radio_proc,      368,  176,  49,   13,   255,  0,    0,       D_SELECTED, 1,             0,       "Mic",            NULL, NULL  },
+   { d_radio_proc,      368,  200,  49,   13,   255,  0,    0,       0,          1,             0,       "Line",           NULL, NULL  },
+   { d_radio_proc,      368,  224,  49,   13,   255,  0,    0,       0,          1,             0,       "CD",             NULL, NULL  },
    { waveform_proc,     208,  280,  226,  32,   1,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
@@ -574,9 +574,9 @@ DIALOG the_dialog[] =
    { d_text_proc,       328,  112,  0,    0,    255,  8,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_text_proc,       208,  136,  0,    0,    255,  8,    0,       0,          0,             0,       "Audio Output:",  NULL, NULL  },
    { d_text_proc,       328,  136,  0,    0,    255,  8,    0,       0,          0,             0,       NULL,             NULL, NULL  },
-   { load_proc,         160,  232,  128,  24,   255,  0,    0,       D_EXIT,     0,             0,       "Load Sample",    NULL, NULL  },
-   { record_proc,       352,  232,  128,  24,   255,  0,    0,       D_EXIT,     0,             0,       "Record Sample",  NULL, NULL  },
-   { d_button_proc,     256,  320,  128,  24,   255,  0,    0,       D_EXIT,     0,             0,       "Quit",           NULL, NULL  },
+   { load_proc,         160,  232,  129,  25,   255,  0,    0,       D_EXIT,     0,             0,       "Load Sample",    NULL, NULL  },
+   { record_proc,       352,  232,  129,  25,   255,  0,    0,       D_EXIT,     0,             0,       "Record Sample",  NULL, NULL  },
+   { d_button_proc,     256,  320,  129,  25,   255,  0,    0,       D_EXIT,     0,             0,       "Quit",           NULL, NULL  },
    { piano_proc,        2,    440,  636,  40,   255,  0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };

@@ -351,24 +351,24 @@ static AL_CONST char *depthlist_getter(int index, int *list_size)
 static DIALOG griddle_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    276,  304,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    277,  305,  0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_ctext_proc,      138,  8,    0,    0,    0,    0,    0,       0,          0,             0,       "Grab from Grid",    NULL, NULL  },
-   { d_radio_proc,      16,   32,   120,  12,   0,    0,    0,       D_SELECTED, 0,             0,       "Use col #255",      NULL, NULL  },
-   { d_radio_proc,      16,   56,   120,  12,   0,    0,    0,       0,          0,             0,       "Regular grid",      NULL, NULL  },
+   { d_radio_proc,      16,   32,   121,  13,   0,    0,    0,       D_SELECTED, 0,             0,       "Use col #255",      NULL, NULL  },
+   { d_radio_proc,      16,   56,   121,  13,   0,    0,    0,       0,          0,             0,       "Regular grid",      NULL, NULL  },
    { gg_text_proc,      160,  58,   0,    0,    0,    0,    0,       0,          0,             0,       "X-grid:",           NULL, NULL  },
    { gg_edit_proc,      224,  58,   40,   8,    0,    0,    0,       0,          4,             0,       griddle_xgrid,       NULL, NULL  },
    { gg_text_proc,      160,  80,   0,    0,    0,    0,    0,       0,          0,             0,       "Y-grid:",           NULL, NULL  },
    { gg_edit_proc,      224,  82,   40,   8,    0,    0,    0,       0,          4,             0,       griddle_ygrid,       NULL, NULL  },
-   { d_check_proc,      16,   82,   122,  12,   0,    0,    0,       0,          0,             0,       "Skip empties:",     NULL, NULL  },
-   { d_check_proc,      16,   106,  90,   12,   0,    0,    0,       0,          0,             0,       "Autocrop:",         NULL, NULL  },
+   { d_check_proc,      16,   82,   123,  13,   0,    0,    0,       0,          0,             0,       "Skip empties:",     NULL, NULL  },
+   { d_check_proc,      16,   106,  91,   13,   0,    0,    0,       0,          0,             0,       "Autocrop:",         NULL, NULL  },
    { d_text_proc,       16,   138,  0,    0,    0,    0,    0,       0,          0,             0,       "Name:",             NULL, NULL  },
    { d_edit_proc,       64,   138,  204,  8,    0,    0,    0,       0,          255,           0,       griddle_name,        NULL, NULL  },
    { d_text_proc,       16,   160,  0,    0,    0,    0,    0,       0,          0,             0,       "Type:",             NULL, NULL  },
-   { d_list_proc,       64,   160,  196,  35,   0,    0,    0,       0,          0,             0,       typelist_getter,     NULL, NULL  },
+   { d_list_proc,       64,   160,  197,  36,   0,    0,    0,       0,          0,             0,       typelist_getter,     NULL, NULL  },
    { d_text_proc,       16,   208,  0,    0,    0,    0,    0,       0,          0,             0,       "Cols:",             NULL, NULL  },
-   { d_list_proc,       64,   208,  196,  43,   0,    0,    0,       0,          0,             0,       depthlist_getter,    NULL, NULL  },
-   { d_button_proc,     50,   272,  80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
-   { d_button_proc,     146,  272,  80,   16,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
+   { d_list_proc,       64,   208,  197,  44,   0,    0,    0,       0,          0,             0,       depthlist_getter,    NULL, NULL  },
+   { d_button_proc,     50,   272,  81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
+   { d_button_proc,     146,  272,  81,   17,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 

@@ -1289,7 +1289,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    /* calculate size of the menu */
    for (m->size=0; m->menu[m->size].text; m->size++) {
 
-      if ((m->menu[m->size].child) && (m->parent)) child = TRUE;
+      if ((m->menu[m->size].child) && (!m->bar)) child = TRUE;
 
       i = 0;
       j = ugetc(m->menu[m->size].text);

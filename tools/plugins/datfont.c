@@ -733,10 +733,10 @@ static int font_view_proc(int msg, DIALOG *d, int c);
 static DIALOG char_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    224,  72,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    225,  73,   0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_text_proc,       16,   16,   0,    0,    0,    0,    0,       0,          0,             0,       "Base character:",   NULL, NULL  },
    { d_edit_proc,       144,  16,   56,   8,    0,    0,    0,       0,          6,             0,       char_string,         NULL, NULL  },
-   { d_button_proc,     72,   44,   80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
+   { d_button_proc,     72,   44,   81,   17,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 
@@ -747,10 +747,10 @@ static DIALOG view_font_dlg[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)              (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { font_view_proc,    0,    100,  0,    0,    0,    0,    0,       D_EXIT,     0,             0,       NULL,             NULL, NULL  }, 
-   { d_list_proc,       0,    0,    160,  99,   0,    0,    0,       D_EXIT,     0,             0,       range_getter,     NULL, NULL  },
-   { import_proc,       180,  8,    112,  16,   0,    0,    'i',     D_EXIT,     0,             0,       "&Import Range",  NULL, NULL  }, 
-   { delete_proc,       180,  40,   112,  16,   0,    0,    'd',     D_EXIT,     0,             0,       "&Delete Range",  NULL, NULL  }, 
-   { d_button_proc,     180,  72,   112,  16,   0,    0,    27,      D_EXIT,     0,             0,       "Exit",           NULL, NULL  }, 
+   { d_list_proc,       0,    0,    161,  100,  0,    0,    0,       D_EXIT,     0,             0,       range_getter,     NULL, NULL  },
+   { import_proc,       180,  8,    113,  17,   0,    0,    'i',     D_EXIT,     0,             0,       "&Import Range",  NULL, NULL  }, 
+   { delete_proc,       180,  40,   113,  17,   0,    0,    'd',     D_EXIT,     0,             0,       "&Delete Range",  NULL, NULL  }, 
+   { d_button_proc,     180,  72,   113,  17,   0,    0,    27,      D_EXIT,     0,             0,       "Exit",           NULL, NULL  }, 
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
 

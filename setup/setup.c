@@ -1720,15 +1720,15 @@ static char digi_desc[160];
 static DIALOG main_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     30,   32,   124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Autodetect",                 NULL,    "Attempt to autodetect your soundcard (ie. guess :-)" },
-   { d_button_proc,     166,  32,   124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Test",                       NULL,    "Test the current settings" },
-   { d_button_proc,     30,   60,   124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Digital Driver",             NULL,    "Manually select a driver for playing digital samples" },
-   { d_button_proc,     166,  60,   124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Midi Driver",                NULL,    "Manually select a driver for playing MIDI music" },
-   { d_button_proc,     30,   88,   124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Locale",                     NULL,    "Select a keyboard layout and system language" },
-   { d_button_proc,     166,  88,   124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Joystick",                   NULL,    "Calibrate your joystick" },
-   { d_button_proc,     30,   116,  124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Mouse",                      NULL,    "Configure your mouse" },
-   { d_button_proc,     30,   144,  124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Save and Exit",              NULL,    "Exit from the program, saving the current settings into the file '" SETUP_CFG_FILE "'" },
-   { d_button_proc,     166,  144,  124,  22,   -1,   16,   0,       D_EXIT,     0,             0,       "Just Exit",                  NULL,    "Exit from the program, without saving the current settings" },
+   { d_button_proc,     30,   32,   125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Autodetect",                 NULL,    "Attempt to autodetect your soundcard (ie. guess :-)" },
+   { d_button_proc,     166,  32,   125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Test",                       NULL,    "Test the current settings" },
+   { d_button_proc,     30,   60,   125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Digital Driver",             NULL,    "Manually select a driver for playing digital samples" },
+   { d_button_proc,     166,  60,   125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Midi Driver",                NULL,    "Manually select a driver for playing MIDI music" },
+   { d_button_proc,     30,   88,   125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Locale",                     NULL,    "Select a keyboard layout and system language" },
+   { d_button_proc,     166,  88,   125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Joystick",                   NULL,    "Calibrate your joystick" },
+   { d_button_proc,     30,   116,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Mouse",                      NULL,    "Configure your mouse" },
+   { d_button_proc,     30,   144,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Save and Exit",              NULL,    "Exit from the program, saving the current settings into the file '" SETUP_CFG_FILE "'" },
+   { d_button_proc,     166,  144,  125,  23,   -1,   16,   0,       D_EXIT,     0,             0,       "Just Exit",                  NULL,    "Exit from the program, without saving the current settings" },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1738,11 +1738,11 @@ static DIALOG main_dlg[] =
 static DIALOG test_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     100,  50,   120,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "MIDI",                       NULL,    midi_desc },
-   { d_button_proc,     30,   87,   80,   24,   -1,   16,   0,       D_EXIT,     0,             0,       "Left",                       NULL,    digi_desc },
-   { d_button_proc,     120,  87,   80,   24,   -1,   16,   0,       D_EXIT,     0,             0,       "Centre",                     NULL,    digi_desc },
-   { d_button_proc,     210,  87,   80,   24,   -1,   16,   0,       D_EXIT,     0,             0,       "Right",                      NULL,    digi_desc },
-   { d_button_proc,     100,  124,  120,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Exit",                       NULL,    backup_str },
+   { d_button_proc,     100,  50,   121,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "MIDI",                       NULL,    midi_desc },
+   { d_button_proc,     30,   87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Left",                       NULL,    digi_desc },
+   { d_button_proc,     120,  87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Centre",                     NULL,    digi_desc },
+   { d_button_proc,     210,  87,   81,   25,   -1,   16,   0,       D_EXIT,     0,             0,       "Right",                      NULL,    digi_desc },
+   { d_button_proc,     100,  124,  121,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Exit",                       NULL,    backup_str },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1752,9 +1752,9 @@ static DIALOG test_dlg[] =
 static DIALOG card_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     30,   132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this driver" },
-   { d_button_proc,     166,  132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
-   { card_proc,         20,   36,   280,  83,   255,  16,   0,       D_EXIT,     0,             0,       card_getter,                  NULL,    NULL },
+   { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this driver" },
+   { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
+   { card_proc,         20,   36,   281,  84,   255,  16,   0,       D_EXIT,     0,             0,       card_getter,                  NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1764,10 +1764,10 @@ static DIALOG card_dlg[] =
 static DIALOG locale_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     30,   132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this keyboard layout and language" },
-   { d_button_proc,     166,  132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
-   { d_list_proc,       8,    50,   146,  67,   255,  16,   0,       D_EXIT,     0,             0,       keyboard_getter,              NULL,    "Select a keyboard layout" },
-   { d_list_proc,       166,  50,   146,  67,   255,  16,   0,       D_EXIT,     0,             0,       language_getter,              NULL,    "Select language for system messages" },
+   { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this keyboard layout and language" },
+   { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
+   { d_list_proc,       8,    50,   147,  68,   255,  16,   0,       D_EXIT,     0,             0,       keyboard_getter,              NULL,    "Select a keyboard layout" },
+   { d_list_proc,       166,  50,   147,  68,   255,  16,   0,       D_EXIT,     0,             0,       language_getter,              NULL,    "Select language for system messages" },
    { d_ctext_proc,      81,   30,   0,    0,    16,   -1,   0,       0,          0,             0,       "Keyboard",                   NULL,    NULL },
    { d_ctext_proc,      239,  30,   0,    0,    16,   -1,   0,       0,          0,             0,       "Language",                   NULL,    NULL },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
@@ -1779,9 +1779,9 @@ static DIALOG locale_dlg[] =
 static DIALOG joystick_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     30,   132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this joystick type" },
-   { d_button_proc,     166,  132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
-   { d_list_proc,       60,   36,   200,  83,   255,  16,   0,       D_EXIT,     0,             0,       joystick_getter,              NULL,    "Select a type of joystick" },
+   { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this joystick type" },
+   { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
+   { d_list_proc,       60,   36,   201,  84,   255,  16,   0,       D_EXIT,     0,             0,       joystick_getter,              NULL,    "Select a type of joystick" },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1791,9 +1791,9 @@ static DIALOG joystick_dlg[] =
 static DIALOG mouse_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     30,   132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
-   { d_button_proc,     166,  132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
-   { d_list_proc,       85,   36,   150,  83,   255,  16,   0,       D_EXIT,     0,             0,       mouse_getter,                 NULL,    "Select a type of mouse" },
+   { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
+   { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
+   { d_list_proc,       85,   36,   151,  84,   255,  16,   0,       D_EXIT,     0,             0,       mouse_getter,                 NULL,    "Select a type of mouse" },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1805,10 +1805,10 @@ static DIALOG mouse_dlg[] =
 static DIALOG linux_mouse_dlg[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                          (p)      (help message) */
-   { d_button_proc,     30,   132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
-   { d_button_proc,     166,  132,  124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
-   { d_list_proc,       30,   36,   150,  83,   255,  16,   0,       D_EXIT,     0,             0,       mouse_getter,                 NULL,    "Select a type of mouse" },
-   { d_button_proc,     192,  36,   124,  24,   -1,   16,   0,       D_EXIT,     0,             0,       "Detect",                     NULL,    "Attempt to detect the type of your mouse" },
+   { d_button_proc,     30,   132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "OK",                         NULL,    "Use this mouse type" },
+   { d_button_proc,     166,  132,  125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Cancel",                     NULL,    backup_str },
+   { d_list_proc,       30,   36,   151,  84,   255,  16,   0,       D_EXIT,     0,             0,       mouse_getter,                 NULL,    "Select a type of mouse" },
+   { d_button_proc,     192,  36,   125,  25,   -1,   16,   0,       D_EXIT,     0,             0,       "Detect",                     NULL,    "Attempt to detect the type of your mouse" },
    { scroller_proc,     0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                         NULL,    NULL }
 };
@@ -1974,7 +1974,7 @@ static void setup_param_dialog()
 
 	       case param_int:
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_box_proc,      x,    y,    88,   21,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
+		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
 		  DLG(d_edit_proc,     x+54, y+3,  32,   16,   255,  16,   0,    0,       3,    0,    p->value,      p,          p->desc);
 		  break;
@@ -1984,7 +1984,7 @@ static void setup_param_dialog()
 		     strcpy(p->value, "-1");
 
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_box_proc,      x,    y,    88,   21,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
+		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
 		  DLG(d_edit_proc,     x+54, y+3,  32,   16,   255,  16,   0,    0,       3,    0,    p->value,      p,          p->desc);
 		  break;
@@ -1996,9 +1996,9 @@ static void setup_param_dialog()
 		     f = 0;
 
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_box_proc,      x,    y,    88,   21,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
+		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
-		  DLG(d_check_proc,    x+54, y+3,  31,   15,   255,  16,   0,    f,       0,    0,    " ",           p,          p->desc);
+		  DLG(d_check_proc,    x+54, y+3,  32,   16,   255,  16,   0,    f,       0,    0,    " ",           p,          p->desc);
 		  break;
 
 	       case param_file:
@@ -2008,9 +2008,9 @@ static void setup_param_dialog()
 		     f = D_EXIT;
 
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_box_proc,      x,    y,    88,   21,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
+		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
-		  DLG(filename_proc,   x+62, y+3,  31,   15,   255,  16,   0,    f,       0,    0,    "",            p,          p->desc);
+		  DLG(filename_proc,   x+62, y+3,  32,   16,   255,  16,   0,    f,       0,    0,    "",            p,          p->desc);
 		  break;
 
 	       case param_list:
@@ -2027,19 +2027,19 @@ static void setup_param_dialog()
 		     g = 2;
 
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_xlist_proc,    x,    y-8,  88,   67,   255,  16,   0,    0,       g,    0,    freq_getter,   p,          p->desc);
+		  DLG(d_xlist_proc,    x,    y-8,  89,   68,   255,  16,   0,    0,       g,    0,    freq_getter,   p,          p->desc);
 		  break;
 
 	       case param_num:
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_box_proc,      x,    y,    88,   21,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
+		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
 		  DLG(d_edit_proc,     x+40, y+3,  46,   16,   255,  16,   0,    0,       6,    0,    p->value,      p,          p->desc);
 		  break;
 
 	       case param_str:
 		  /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)           (p)         (help) */
-		  DLG(d_box_proc,      x,    y,    88,   21,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
+		  DLG(d_box_proc,      x,    y,    89,   22,   255,  16,   0,    0,       0,    0,    NULL,          NULL,       NULL);
 		  DLG(d_text_proc,     x+4,  y+3,  0,    0,    255,  16,   0,    0,       0,    0,    p->label,      NULL,       NULL);
 		  DLG(d_edit_proc,     x+40, y+3,  46,   16,   255,  16,   0,    0,       20,   0,    p->value,      p,          p->desc);
 		  break;
@@ -2056,8 +2056,8 @@ static void setup_param_dialog()
    param_ok = ((int)d - (int)param_dlg) / sizeof(DIALOG);
 
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)        (p)                        (help) */
-   DLG(d_button_proc,   30,   142,  124,  24,   -1,   16,   13,   D_EXIT,  0,    0,    "OK",       NULL,                      "Use these parameters");
-   DLG(d_button_proc,   166,  142,  124,  24,   -1,   16,   0,    D_EXIT,  0,    0,    "Cancel",   NULL,                      backup_str);
+   DLG(d_button_proc,   30,   142,  125,  25,   -1,   16,   13,   D_EXIT,  0,    0,    "OK",       NULL,                      "Use these parameters");
+   DLG(d_button_proc,   166,  142,  125,  25,   -1,   16,   0,    D_EXIT,  0,    0,    "Cancel",   NULL,                      backup_str);
    DLG(scroller_proc,   0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,       NULL,                      NULL);
    DLG(NULL,            0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,       NULL,                      NULL);
 

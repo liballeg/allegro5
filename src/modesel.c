@@ -236,12 +236,12 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
 static DIALOG gfx_mode_dialog[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    312,  158,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    313,  159,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { d_ctext_proc,      156,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  105,  100,  16,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  127,  100,  16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_list_proc,       16,   28,   164,  115,  0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
-   { d_list_proc,       196,  28,   100,  67,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
+   { d_button_proc,     196,  105,  101,  17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_button_proc,     196,  127,  101,  17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_list_proc,       16,   28,   165,  116,  0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
+   { d_list_proc,       196,  28,   101,  68,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
    { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  }
 };
@@ -251,13 +251,13 @@ static DIALOG gfx_mode_dialog[] =
 static DIALOG gfx_mode_ex_dialog[] =
 {
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)              (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,    312,  158,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,    313,  159,  0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { d_ctext_proc,      156,  8,    1,    1,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  105,  100,  16,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_button_proc,     196,  127,  100,  16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
-   { d_list_proc,       16,   28,   164,  67,   0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
-   { d_list_proc,       196,  28,   100,  67,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
-   { d_list_proc,       16,   105,  164,  43,   0,    0,    0,    D_EXIT,  0,    0,    gfx_depth_getter, NULL, NULL  },
+   { d_button_proc,     196,  105,  101,  17,   0,    0,    0,    D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_button_proc,     196,  127,  101,  17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
+   { d_list_proc,       16,   28,   165,  68,   0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
+   { d_list_proc,       196,  28,   101,  68,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
+   { d_list_proc,       16,   105,  165,  44,   0,    0,    0,    D_EXIT,  0,    0,    gfx_depth_getter, NULL, NULL  },
    { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,          0, 0,    NULL,             NULL, NULL  }
 };

@@ -4365,11 +4365,11 @@ char *refresh_getter(int index, int *list_size)
 DIALOG refresh_dlg[] =
 {
    /* (dialog proc)     (x)   (y)  (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)  (d2)  (dp)            (dp2) (dp3) */
-   { d_shadow_box_proc, 0,    0,   228,  110,  0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
+   { d_shadow_box_proc, 0,    0,   229,  111,  0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
    { d_ctext_proc,      114,  8,   1,    1,    0,    0,    0,    0,       0,    0,    "Refresh Rate", NULL, NULL  },
-   { d_button_proc,     132,  40,  80,   16,   0,    0,    0,    D_EXIT,  0,    0,    "OK",           NULL, NULL  },
-   { d_button_proc,     132,  64,  80,   16,   0,    0,    27,   D_EXIT,  0,    0,    "Cancel",       NULL, NULL  },
-   { d_list_proc,       16,   28,  100,  67,   0,    0,    0,    D_EXIT,  0,    0,    refresh_getter, NULL, NULL  },
+   { d_button_proc,     132,  40,  81,   17,   0,    0,    0,    D_EXIT,  0,    0,    "OK",           NULL, NULL  },
+   { d_button_proc,     132,  64,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    "Cancel",       NULL, NULL  },
+   { d_list_proc,       16,   28,  101,  68,   0,    0,    0,    D_EXIT,  0,    0,    refresh_getter, NULL, NULL  },
    { d_yield_proc,      0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
    { NULL,              0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  }
 };

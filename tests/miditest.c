@@ -416,7 +416,7 @@ DIALOG thedialog[] =
    { d_text_proc,       352,  152,  0,    0,    255,  8,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_text_proc,       320,  192,  0,    0,    255,  8,    0,       0,          0,             0,       "Description:",   NULL, NULL  },
    { d_text_proc,       352,  216,  0,    0,    255,  8,    0,       0,          0,             0,       NULL,             NULL, NULL  },
-   { instlist_proc,     16,   56,   256,  355,  255,  0,    32,      D_EXIT,     0,             0,       instlist_getter,  NULL, NULL  },
+   { instlist_proc,     16,   56,   257,  356,  255,  0,    32,      D_EXIT,     0,             0,       instlist_getter,  NULL, NULL  },
    { piano_proc,        2,    440,  636,  40,   255,  0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { d_text_proc,       320,  320,  0,    0,    255,  8,    0,       0,          0,             0,       "Volume:",        NULL, NULL  },
    { d_edit_proc,       392,  320,  64,   16,   255,  8,    0,       0,          3,             3,       volume_str,       NULL, NULL  },

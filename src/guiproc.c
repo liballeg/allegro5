@@ -160,8 +160,8 @@ int d_box_proc(int msg, DIALOG *d, int c)
 {
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-      rectfill(screen, d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, d->bg);
-      rect(screen, d->x, d->y, d->x+d->w, d->y+d->h, fg);
+      rectfill(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, d->bg);
+      rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg);
    }
 
    return D_O_K;
@@ -176,10 +176,11 @@ int d_shadow_box_proc(int msg, DIALOG *d, int c)
 {
    if (msg==MSG_DRAW) {
       int fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
-      rectfill(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, d->bg);
-      rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg);
-      vline(screen, d->x+d->w, d->y+1, d->y+d->h, fg);
-      hline(screen, d->x+1, d->y+d->h, d->x+d->w, fg);
+      int black = makecol(0,0,0);
+      rectfill(screen, d->x+1, d->y+1, d->x+d->w-3, d->y+d->h-3, d->bg);
+      rect(screen, d->x, d->y, d->x+d->w-2, d->y+d->h-2, fg);
+      vline(screen, d->x+d->w-1, d->y+1, d->y+d->h-1, black);
+      hline(screen, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
    }
 
    return D_O_K;
@@ -282,6 +283,7 @@ int d_rtext_proc(int msg, DIALOG *d, int c)
 int d_button_proc(int msg, DIALOG *d, int c)
 {
    int state1, state2;
+   int black;
    int swap;
    int g;
 
@@ -299,22 +301,23 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	    state2 = d->bg;
 	 }
 
-	 rectfill(screen, d->x+1+g, d->y+1+g, d->x+d->w-2+g, d->y+d->h-2+g, state2);
-	 rect(screen, d->x+g, d->y+g, d->x+d->w-1+g, d->y+d->h-1+g, state1);
+	 rectfill(screen, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
+	 rect(screen, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
 	 text_mode(-1);
 	 gui_textout(screen, d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, TRUE);
 
 	 if (d->flags & D_SELECTED) {
-	    vline(screen, d->x, d->y, d->y+d->h-1, d->bg);
-	    hline(screen, d->x, d->y, d->x+d->w-1, d->bg);
+	    vline(screen, d->x, d->y, d->y+d->h-2, d->bg);
+	    hline(screen, d->x, d->y, d->x+d->w-2, d->bg);
 	 }
 	 else {
-	    vline(screen, d->x+d->w, d->y+1, d->y+d->h-1, d->fg);
-	    hline(screen, d->x+1, d->y+d->h, d->x+d->w, d->fg);
+	    black = makecol(0,0,0);
+	    vline(screen, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
+	    hline(screen, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
 	 }
 	 if ((d->flags & D_GOTFOCUS) && 
 	     (!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
-	    dotted_rect(d->x+1+g, d->y+1+g, d->x+d->w-2+g, d->y+d->h-2+g, state1, state2);
+	    dotted_rect(d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state1, state2);
 	 break;
 
       case MSG_WANTFOCUS:
@@ -388,16 +391,16 @@ int d_check_proc(int msg, DIALOG *d, int c)
       bg = (d->bg < 0) ? gui_bg_color : d->bg;
       text_mode(d->bg);
       x = d->x + ((d->d1) ? 0 : gui_textout(screen, d->dp, d->x, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE) + text_height(font)/2);
-      rectfill(screen, x+1, d->y+1, x+d->h-1, d->y+d->h-1, bg);
-      rect(screen, x, d->y, x+d->h, d->y+d->h, fg);
+      rectfill(screen, x+1, d->y+1, x+d->h-2, d->y+d->h-2, bg);
+      rect(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
       if (d->d1)
-	 gui_textout(screen, d->dp, x+d->h+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE);
+	 gui_textout(screen, d->dp, x+d->h-1+text_height(font)/2, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE);
       if (d->flags & D_SELECTED) {
-	 line(screen, x, d->y, x+d->h, d->y+d->h, fg);
-	 line(screen, x, d->y+d->h, x+d->h, d->y, fg); 
+	 line(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
+	 line(screen, x, d->y+d->h-1, x+d->h-1, d->y, fg);
       }
       if (d->flags & D_GOTFOCUS)
-	 dotted_rect(x+1, d->y+1, x+d->h-1, d->y+d->h-1, fg, bg);
+	 dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
       return D_O_K;
    } 
 
@@ -421,20 +424,20 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	 fg = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 	 bg = (d->bg < 0) ? gui_bg_color : d->bg;
 	 text_mode(d->bg);
-	 gui_textout(screen, d->dp, d->x+d->h+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE);
+	 gui_textout(screen, d->dp, d->x+d->h-1+text_height(font), d->y+(d->h-(text_height(font)-gui_font_baseline))/2, fg, FALSE);
 
 	 x = d->x;
 	 r = d->h/2;
 
 	 center = x+r;
-	 rectfill(screen, x+1, d->y+1, x+d->h-1, d->y+d->h-1, bg);
+	 rectfill(screen, x, d->y, x+d->h-1, d->y+d->h-1, bg);
 
 	 switch (d->d2) {
 
 	    case 1:
-	       rect(screen, x, d->y, x+d->h, d->y+d->h, fg);
+	       rect(screen, x, d->y, x+d->h-1, d->y+d->h-1, fg);
 	       if (d->flags & D_SELECTED)
-		  rectfill(screen, x+r/2, d->y+r/2, x+d->h-r/2, d->y+d->h-r/2, fg);
+		  rectfill(screen, x+r/2, d->y+r/2, x+d->h-1-r/2, d->y+d->h-1-r/2, fg);
 	       break;
 
 	    default:
@@ -444,8 +447,12 @@ int d_radio_proc(int msg, DIALOG *d, int c)
 	       break;
 	 }
 
-	 if (d->flags & D_GOTFOCUS)
-	    dotted_rect(x+1, d->y+1, x+d->h-1, d->y+d->h-1, fg, bg);
+	 if (d->flags & D_GOTFOCUS) {
+            if (d->d2 == 1)
+               dotted_rect(x+1, d->y+1, x+d->h-2, d->y+d->h-2, fg, bg);
+            else
+               dotted_rect(x, d->y, x+d->h-1, d->y+d->h-1, fg, bg);
+         }
 
 	 return D_O_K;
 
@@ -769,8 +776,13 @@ int d_edit_proc(int msg, DIALOG *d, int c)
 void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
 {
    int xx, yy;
-   int height = (d->h-3) / text_height(font);
-   int hh = d->h-4;
+   int height;
+   int hh = d->h - 5;
+
+   if (d->proc == d_textbox_proc)
+      height = (d->h-8) / text_height(font);
+   else 
+      height = (d->h-4) / text_height(font);
 
    while (gui_mouse_b()) {
       int i = (hh * height + listsize/2) / listsize;
@@ -829,7 +841,7 @@ void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset)
  */
 void _handle_scrollable_scroll(DIALOG *d, int listsize, int *index, int *offset)
 {
-   int height = (d->h-3) / text_height(font);
+   int height = (d->h-4) / text_height(font);
 
    if (listsize <= 0) {
       *index = *offset = 0;
@@ -884,10 +896,10 @@ void _handle_listbox_click(DIALOG *d)
    if (!listsize)
       return;
 
-   height = (d->h-3) / text_height(font);
+   height = (d->h-4) / text_height(font);
 
    i = MID(0, ((gui_mouse_y() - d->y - 2) / text_height(font)), 
-	      ((d->h-3) / text_height(font) - 1));
+	      ((d->h-4) / text_height(font) - 1));
    i += d->d2;
    if (i < d->d2)
       i = d->d2;
@@ -900,7 +912,7 @@ void _handle_listbox_click(DIALOG *d)
 
    if (gui_mouse_y() <= d->y)
       i = MAX(i-1, 0);
-   else if (gui_mouse_y() >= d->y+d->h)
+   else if (gui_mouse_y() >= d->y+d->h-1)
       i = MIN(i+1, listsize-1);
 
    if (i != d->d1) {
@@ -922,7 +934,7 @@ void _handle_listbox_click(DIALOG *d)
       d->flags |= D_DIRTY;
 
       if (i != d->d2)
-	 rest_callback(MID(10, text_height(font)*16-d->h, 100), idle_cb);
+	 rest_callback(MID(10, text_height(font)*16-d->h-1, 100), idle_cb);
    }
 }
 
@@ -938,26 +950,26 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
    int xx, yy;
 
    /* draw frame */
-   rect(screen, d->x, d->y, d->x+d->w, d->y+d->h, fg_color);
+   rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, fg_color);
 
    /* possibly draw scrollbar */
    if (listsize > height) {
-      vline(screen, d->x+d->w-12, d->y+1, d->y+d->h-1, fg_color);
+      vline(screen, d->x+d->w-13, d->y+1, d->y+d->h-2, fg_color);
 
       /* scrollbar with focus */ 
       if (d->flags & D_GOTFOCUS) {
-	 dotted_rect(d->x+1, d->y+1, d->x+d->w-13, d->y+d->h-1, fg_color, bg);
-	 dotted_rect(d->x+d->w-11, d->y+1, d->x+d->w-1, d->y+d->h-1, fg_color, bg);
+	 dotted_rect(d->x+1, d->y+1, d->x+d->w-14, d->y+d->h-2, fg_color, bg);
+	 dotted_rect(d->x+d->w-12, d->y+1, d->x+d->w-2, d->y+d->h-2, fg_color, bg);
       }
       else {
-	 rect(screen, d->x+1, d->y+1, d->x+d->w-13, d->y+d->h-1, bg);
-	 rect(screen, d->x+d->w-11, d->y+1, d->x+d->w-1, d->y+d->h-1, bg);
+	 rect(screen, d->x+1, d->y+1, d->x+d->w-14, d->y+d->h-2, bg);
+	 rect(screen, d->x+d->w-12, d->y+1, d->x+d->w-2, d->y+d->h-2, bg);
       }
 
       /* create and draw the scrollbar */
       pattern = create_bitmap(2, 2);
-      i = ((d->h-4) * height + listsize/2) / listsize;
-      xx = d->x+d->w-10;
+      i = ((d->h-5) * height + listsize/2) / listsize;
+      xx = d->x+d->w-11;
       yy = d->y+2;
 
       putpixel(pattern, 0, 1, bg);
@@ -966,20 +978,20 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
       putpixel(pattern, 1, 1, fg_color);
 
       if (offset > 0) {
-	 len = (((d->h-4) * offset) + listsize/2) / listsize;
-	 rectfill(screen, xx, yy, xx+8, yy+len-1, bg);
+         len = (((d->h-5) * offset) + listsize/2) / listsize;
+	 rectfill(screen, xx, yy, xx+8, yy+len, bg);
 	 yy += len;
       }
-      if (yy+i < d->y+d->h-2) {
+      if (yy+i < d->y+d->h-3) {
 	 drawing_mode(DRAW_MODE_COPY_PATTERN, pattern, 0, 0);
 	 rectfill(screen, xx, yy, xx+8, yy+i, 0);
 	 solid_mode();
-	 yy += i;
-	 rectfill(screen, xx, yy, xx+8, d->y+d->h-2, bg);
+	 yy += i+1;
+	 rectfill(screen, xx, yy, xx+8, d->y+d->h-3, bg);
       }
       else {
 	 drawing_mode(DRAW_MODE_COPY_PATTERN, pattern, 0, 0);
-	 rectfill(screen, xx, yy, xx+8, d->y+d->h-2, 0);
+	 rectfill(screen, xx, yy, xx+8, d->y+d->h-3, 0);
 	 solid_mode();
       }
       destroy_bitmap(pattern);
@@ -987,9 +999,9 @@ void _draw_scrollable_frame(DIALOG *d, int listsize, int offset, int height, int
    else {
       /* no scrollbar necessary */
       if (d->flags & D_GOTFOCUS)
-	 dotted_rect(d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, fg_color, bg);
+	 dotted_rect(d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, fg_color, bg);
       else
-	 rect(screen, d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, bg);
+	 rect(screen, d->x+1, d->y+1, d->x+d->w-2, d->y+d->h-2, bg);
    }
 }
 
@@ -1006,9 +1018,9 @@ void _draw_listbox(DIALOG *d)
    char s[1024];
 
    (*(getfuncptr)d->dp)(-1, &listsize);
-   height = (d->h-3) / text_height(font);
+   height = (d->h-4) / text_height(font);
    bar = (listsize > height);
-   w = (bar ? d->w-14 : d->w-2);
+   w = (bar ? d->w-15 : d->w-3);
    fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 
    /* draw box contents */
@@ -1034,7 +1046,7 @@ void _draw_listbox(DIALOG *d)
 	 rectfill(screen, x, y, x+7, y+text_height(font)-1, bg); 
 	 x += 8;
 	 len = ustrlen(s);
-	 while (text_length(font, s) >= MAX(d->w - (bar ? 22 : 10), 1)) {
+	 while (text_length(font, s) >= MAX(d->w - 1 - (bar ? 22 : 10), 1)) {
 	    len--;
 	    usetat(s, len, 0);
 	 }
@@ -1049,9 +1061,9 @@ void _draw_listbox(DIALOG *d)
       }
    }
 
-   if (d->y+2+i*text_height(font) <= d->y+d->h-2)
+   if (d->y+2+i*text_height(font) <= d->y+d->h-3)
       rectfill(screen, d->x+2, d->y+2+i*text_height(font), 
-				       d->x+w, d->y+d->h-2, d->bg);
+				       d->x+w, d->y+d->h-3, d->bg);
 
    /* draw frame, maybe with scrollbar */
    _draw_scrollable_frame(d, listsize, d->d2, height, fg_color, d->bg);
@@ -1092,9 +1104,9 @@ int d_list_proc(int msg, DIALOG *d, int c)
 
       case MSG_CLICK:
 	 (*(getfuncptr)d->dp)(-1, &listsize);
-	 height = (d->h-3) / text_height(font);
+	 height = (d->h-4) / text_height(font);
 	 bar = (listsize > height);
-	 if ((!bar) || (gui_mouse_x() < d->x+d->w-10)) {
+	 if ((!bar) || (gui_mouse_x() < d->x+d->w-13)) {
 	    if ((sel) && (!(key_shifts & KB_CTRL_FLAG))) {
 	       for (i=0; i<listsize; i++) {
 		  if (sel[i]) {
@@ -1123,9 +1135,9 @@ int d_list_proc(int msg, DIALOG *d, int c)
 
       case MSG_DCLICK:
 	 (*(getfuncptr)d->dp)(-1, &listsize);
-	 height = (d->h-3) / text_height(font);
+	 height = (d->h-4) / text_height(font);
 	 bar = (listsize > height);
-	 if ((!bar) || (gui_mouse_x() < d->x+d->w-10)) {
+	 if ((!bar) || (gui_mouse_x() < d->x+d->w-13)) {
 	    if (d->flags & D_EXIT) {
 	       if (listsize) {
 		  i = d->d1;
@@ -1139,7 +1151,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 
       case MSG_WHEEL:
 	 (*(getfuncptr)d->dp)(-1, &listsize);
-	 height = (d->h-3) / text_height(font);
+	 height = (d->h-4) / text_height(font);
 	 if (height < listsize) {
 	    if (c > 0) 
 	       i = MAX(0, d->d2-3);
@@ -1169,7 +1181,7 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	 if (listsize) {
 	    c >>= 8;
 
-	    bottom = d->d2 + (d->h-3)/text_height(font) - 1;
+	    bottom = d->d2 + (d->h-4)/text_height(font) - 1;
 	    if (bottom >= listsize-1)
 	       bottom = listsize-1;
 
@@ -1187,13 +1199,13 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	       if (d->d1 > d->d2)
 		  d->d1 = d->d2;
 	       else
-		  d->d1 -= (bottom - d->d2);
+		  d->d1 -= (bottom - d->d2) ? bottom - d->d2 : 1;
 	    }
 	    else if (c == KEY_PGDN) {
 	       if (d->d1 < bottom)
 		  d->d1 = bottom;
 	       else
-		  d->d1 += (bottom - d->d2);
+		  d->d1 += (bottom - d->d2) ? bottom - d->d2 : 1;
 	    } 
 	    else 
 	       return D_O_K;
@@ -1321,7 +1333,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    int y1 = y+4;
    int x1;
    int len;
-   int ww = w-4;
+   int ww = w-6;
    char s[16];
    char text[16];
    char space[16];
@@ -1333,6 +1345,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    int width;
    int line = 0;
    int i = 0;
+   int noignore;
 
    usetc(s+usetc(s, '.'), 0);
    usetc(text+usetc(text, ' '), 0);
@@ -1347,7 +1360,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
    /* do some drawing setup */
    if (draw) {
       /* initial start blanking at the top */
-      rectfill(screen, x+2, y+2, x+w-1, y1-1, deselect);
+      rectfill(screen, x+2, y+2, x+w-3, y1-1, deselect);
    }
 
    /* choose the text color */
@@ -1384,13 +1397,20 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	    if (wword) {
 	       /* remember where we were */
 	       oldscan = scanned;
+               noignore = FALSE;
 
 	       /* go backwards looking for start of word */
 	       while (!uisspace(ugetc(scanned))) {
 		  /* don't wrap too far */
 		  if (scanned == printed) {
 		     /* the whole line is filled, so stop here */
-		     scanned = oldscan;
+                     tmp = ptmp = scanned;
+                     while (ptmp != oldscan) {
+                        ptmp = tmp;
+                        tmp += uwidth(tmp);
+                     }
+		     scanned = ptmp;
+                     noignore = TRUE;
 		     break;
 		  }
 		  /* look further backwards to wrap */
@@ -1402,8 +1422,12 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 		  scanned = ptmp;
 	       }
 	       /* put the space at the end of the line */
-	       ignore = scanned;
-	       scanned += uwidth(scanned);
+               if (!noignore) {
+                  ignore = scanned;
+                  scanned += uwidth(scanned);
+               }
+	       else
+                  ignore = NULL;
 
 	       /* check for endline at the convenient place */
 	       if (ugetc(scanned) == '\n') 
@@ -1419,7 +1443,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
       }
 
       /* check if we are to print it */
-      if ((draw) && (line >= offset) && (y1+text_height(font) < (y+h-1))) {
+      if ((draw) && (line >= offset) && (y1+text_height(font) < (y+h-3))) {
 	 x1 = x+4;
 
 	 /* the initial blank bit */
@@ -1457,8 +1481,8 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
 	    printed += uwidth(printed);
 	 }
 	 /* the last blank bit */
-	 if (x1 < x+w-1) 
-	    rectfill(screen, x1, y1, x+w-1, y1+text_height(font)-1, deselect);
+	 if (x1 <= x+w-3) 
+	    rectfill(screen, x1, y1, x+w-3, y1+text_height(font)-1, deselect);
 
 	 /* print the line end */
 	 y1 += text_height(font);
@@ -1472,7 +1496,7 @@ void _draw_textbox(char *thetext, int *listsize, int draw, int offset,
       if (!ugetc(printed)) {
 	 /* the under blank bit */
 	 if (draw) 
-	    rectfill(screen, x+1, y1, x+w-1, y+h-1, deselect);
+	    rectfill(screen, x+1, y1, x+w-3, y+h-1, deselect);
 
 	 /* tell how many lines we found */
 	 *listsize = line;
@@ -1501,7 +1525,7 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
    int fg_color = (d->flags & D_DISABLED) ? gui_mg_color : d->fg;
 
    /* calculate the actual height */
-   height = (d->h-4) / text_height(font);
+   height = (d->h-8) / text_height(font);
 
    switch (msg) {
 
@@ -1535,7 +1559,7 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	 /* now do the actual drawing */
 	 _draw_textbox(d->dp, &d->d1, 1, d->d2,
 		       !(d->flags & D_SELECTED), 8,
-		       d->x, d->y, d->w-bar-1, d->h,
+		       d->x, d->y, d->w-bar, d->h,
 		       (d->flags & D_DISABLED),
 		       fg_color, d->bg, gui_mg_color);
 
@@ -1547,7 +1571,7 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	 /* figure out if it's on the text or the scrollbar */
 	 bar = (d->d1 > height);
 
-	 if ((!bar) || (gui_mouse_x() < d->x+d->w-12)) {
+	 if ((!bar) || (gui_mouse_x() < d->x+d->w-13)) {
 	    /* clicked on the text area */
 	    ret = D_O_K;
 	 }
@@ -1567,7 +1591,7 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	    else 
 	       top = 0;
 
-	    l = (d->h-3)/text_height(font);
+	    l = (d->h-8)/text_height(font);
 
 	    bottom = d->d2 + l - 1;
 	    if (bottom >= d->d1-1) 
@@ -1584,9 +1608,9 @@ int d_textbox_proc(int msg, DIALOG *d, int c)
 	    else if ((c>>8) == KEY_END) 
 	       d->d2 = d->d1-l;
 	    else if ((c>>8) == KEY_PGUP) 
-	       d->d2 = d->d2-(bottom-top);
+               d->d2 -= (bottom-top) ? bottom-top : 1;
 	    else if ((c>>8) == KEY_PGDN) 
-	       d->d2 = d->d2+(bottom-top);
+               d->d2 += (bottom-top) ? bottom-top : 1;
 	    else 
 	       used = D_O_K;
 

@@ -41,7 +41,9 @@ static int _xwin_sysdrv_desktop_color_depth(void);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_keyboard_drivers(void);
 static _DRIVER_INFO *_xwin_sysdrv_mouse_drivers(void);
+#ifdef ALLEGRO_LINUX
 static _DRIVER_INFO *_xwin_sysdrv_joystick_drivers(void);
+#endif
 static _DRIVER_INFO *_xwin_sysdrv_timer_drivers(void);
 
 

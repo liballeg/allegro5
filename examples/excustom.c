@@ -148,9 +148,9 @@ DIALOG the_dialog[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)  (d1)                    (d2)  (dp)           (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    255,  0,    0,    0,       0,                      0,    NULL,          NULL, NULL  },
    { d_edit_proc,       32,   32,   256,  8,    255,  0,    0,    0,       sizeof(the_string)-1,   0,    the_string,    NULL, NULL  },
-   { d_check_proc,      32,   64,   88,   12,   255,  0,    't',  0,       0,                      0,    "&Toggle Me",  NULL, NULL  },
+   { d_check_proc,      32,   64,   89,   13,   255,  0,    't',  0,       0,                      0,    "&Toggle Me",  NULL, NULL  },
    { clock_proc,        192,  64,   64,   64,   255,  0,    0,    0,       0,                      0,    NULL,          NULL, NULL  },
-   { d_button_proc,     120,  160,  80,   16,   255,  0,    0,    D_EXIT,  0,                      0,    "Exit",        NULL, NULL  },
+   { d_button_proc,     120,  160,  81,   17,   255,  0,    0,    D_EXIT,  0,                      0,    "Exit",        NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,                      0,    NULL,          NULL, NULL  }
 };
 

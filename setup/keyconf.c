@@ -579,8 +579,8 @@ DIALOG editor_dlg[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    0,    8,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_ctext_proc,      320,  6,    0,    0,    0,    8,    0,       0,          0,             0,       NULL,                NULL, NULL  },
-   { keymap_list_proc,  16,   32,   608,  403,  255,  16,   0,       D_EXIT,     0,             0,       keymap_list_getter,  NULL, NULL  },
-   { d_button_proc,     280,  448,  80,   16,   255,  16,   0,       D_EXIT,     0,             0,       "Exit",              NULL, NULL  },
+   { keymap_list_proc,  16,   32,   609,  404,  255,  16,   0,       D_EXIT,     0,             0,       keymap_list_getter,  NULL, NULL  },
+   { d_button_proc,     280,  448,  81,   17,   255,  16,   0,       D_EXIT,     0,             0,       "Exit",              NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 
@@ -618,14 +618,14 @@ DIALOG accent_dlg[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)     (d1)           (d2)     (dp)                 (dp2) (dp3) */
    { d_clear_proc,      0,    0,    0,    0,    0,    8,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { d_ctext_proc,      320,  6,    0,    0,    255,  8,    0,       0,          0,             0,       NULL,                NULL, NULL  },
-   { d_list_proc,       16,   32,   608,  340,  255,  16,   0,       D_EXIT,     0,             0,       accent_list_getter,  NULL, NULL  },
-   { d_button_proc,     220,  448,  80,   16,   255,  16,   0,       D_EXIT,     0,             0,       "OK",                NULL, NULL  },
-   { d_button_proc,     340,  448,  80,   16,   255,  16,   0,       D_EXIT,     0,             0,       "Cancel",            NULL, NULL  },
-   { d_box_proc,        16,   380,  608,  55,   255,  16,   0,       0,          0,             0,       NULL,                NULL, NULL  },
-   { d_radio_proc,      36,   413,  50,   10,   255,  16,   0,       0,          0,             0,       "None",              NULL, NULL  },
-   { d_radio_proc,      179,  413,  58,   10,   255,  16,   0,       0,          0,             0,       "Shift",             NULL, NULL  },
-   { d_radio_proc,      346,  413,  74,   10,   255,  16,   0,       0,          0,             0,       "Control",           NULL, NULL  },
-   { d_radio_proc,      516,  413,  42,   10,   255,  16,   0,       0,          0,             0,       "Alt",               NULL, NULL  },
+   { d_list_proc,       16,   32,   609,  341,  255,  16,   0,       D_EXIT,     0,             0,       accent_list_getter,  NULL, NULL  },
+   { d_button_proc,     220,  448,  81,   17,   255,  16,   0,       D_EXIT,     0,             0,       "OK",                NULL, NULL  },
+   { d_button_proc,     340,  448,  81,   17,   255,  16,   0,       D_EXIT,     0,             0,       "Cancel",            NULL, NULL  },
+   { d_box_proc,        16,   380,  609,  56,   255,  16,   0,       0,          0,             0,       NULL,                NULL, NULL  },
+   { d_radio_proc,      36,   413,  51,   11,   255,  16,   0,       0,          0,             0,       "None",              NULL, NULL  },
+   { d_radio_proc,      179,  413,  59,   11,   255,  16,   0,       0,          0,             0,       "Shift",             NULL, NULL  },
+   { d_radio_proc,      346,  413,  75,   11,   255,  16,   0,       0,          0,             0,       "Control",           NULL, NULL  },
+   { d_radio_proc,      516,  413,  43,   11,   255,  16,   0,       0,          0,             0,       "Alt",               NULL, NULL  },
    { d_ctext_proc,      319,  392,  224,  8,    255,  16,   0,       0,          0,             0,       "Set the accent activator key", NULL, NULL },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
