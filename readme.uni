@@ -244,7 +244,8 @@
 	it requires root permissions and it will not work remotely.
 	GFX_XDGA uses DGA 1.0 extension provided with XFree86 3.3.x, and
 	it will not produce such well behaved windowed programs as the
-	GFX_XWINDOWS driver; the driver can also run in fullscreen mode.
+	GFX_XWINDOWS driver; both DGA 1.0 and X drivers can run windowed as
+	well as in fullscreen mode.
 	GFX_XDGA2 uses new DGA 2.0 shipped with XFree86 4.0.x, and directly
 	runs in fullscreen mode (as long as X is configured to support
 	the requested resolution), and it will also use hardware acceleration
