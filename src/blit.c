@@ -622,14 +622,18 @@ static void blit_to_or_from_modex(BITMAP *src, BITMAP *dest, int s_x, int s_y, i
    int prev_drawmode = _drawing_mode;
    _drawing_mode = DRAW_MODE_SOLID;
 
-   for (y=0; y<h; y++) {
-      for (x=0; x<w; x++) {
-         c = getpixel(src, s_x+x, s_y+y);
-         r = getr_depth(src_depth, c);
-         g = getg_depth(src_depth, c);
-         b = getb_depth(src_depth, c);
-         c = makecol_depth(dest_depth, r, g, b);
-         putpixel(dest, d_x+x, d_y+y, c);
+   if ((src_depth != 8) && (_color_conv & COLORCONV_DITHER_PAL))
+      dither_blit(src, dest, s_x, s_y, d_x, d_y, w, h);
+   else {
+      for (y=0; y<h; y++) {
+         for (x=0; x<w; x++) {
+            c = getpixel(src, s_x+x, s_y+y);
+            r = getr_depth(src_depth, c);
+            g = getg_depth(src_depth, c);
+            b = getb_depth(src_depth, c);
+            c = makecol_depth(dest_depth, r, g, b);
+            putpixel(dest, d_x+x, d_y+y, c);
+         }
       }
    }
 
