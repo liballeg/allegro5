@@ -3106,7 +3106,9 @@ Graphics modes
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
 @xref get_gfx_mode_list, set_gfx_mode, set_color_depth
-   Removes the mode list created by get_gfx_mode_list() from memory.
+   Removes the mode list created by get_gfx_mode_list() from memory. Use this
+   once you are done with the generated mode list to avoid memory leaks in
+   your program.
 
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
@@ -4840,6 +4842,8 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @@void @destroy_rle_sprite(RLE_SPRITE *sprite);
 @xref get_rle_sprite
    Destroys an RLE sprite structure previously returned by get_rle_sprite().
+   Use this once you are done with an RLE sprite to avoid memory leaks in
+   your program.
 
 @\void @draw_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                     int x, int y);
@@ -4892,7 +4896,7 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 @xref draw_compiled_sprite, destroy_compiled_sprite
    Creates a compiled sprite based on the specified bitmap (which must be a 
    memory bitmap). Compiled sprites are device-dependent, so you have to 
-   specify whether to compile it into a linear or planar format. Pass FALSE 
+   specify whether to compile it into a linear or planar format. Pass FALSE
    as the second parameter if you are going to be drawing it onto memory 
    bitmaps or mode 13h and SVGA screen bitmaps, and pass TRUE if you are 
    going to draw it onto mode-X or Xtended mode screen bitmaps.
@@ -4900,7 +4904,8 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
 @@void @destroy_compiled_sprite(COMPILED_SPRITE *sprite);
 @xref get_compiled_sprite
    Destroys a compiled sprite structure previously returned by 
-   get_compiled_sprite().
+   get_compiled_sprite(). Use this once you are done with a compiled sprite
+   to avoid memory leaks in your program.
 
 @\void @draw_compiled_sprite(BITMAP *bmp, const COMPILED_SPRITE *sprite,
 @@                          int x, int y);
@@ -4954,7 +4959,12 @@ allegro/text.h for details.
    Returns the height (in pixels) of the specified font.
 
 @@void @destroy_font(FONT *f);
-   Frees the memory being used by a font structure.
+@xref load_datafile_object
+   Frees the memory being used by a font structure. Don't use this on the
+   default global Allegro font or any text routines using it could crash. You
+   should use this only on fonts you have loaded manually from a datafile
+   with load_datafile_object after you are done with them, to prevent memory
+   leaks in your program.
 
 @\void @textout_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                int x, y, color, bg);
@@ -5311,7 +5321,8 @@ All the Z-buffered routines are much slower than their normal counterparts
 @@void @destroy_zbuffer(ZBUFFER *zbuf);
 @xref create_zbuffer, set_zbuffer, clear_zbuffer
 @eref exzbuf
-   Destroys the Z-buffer when you are finished with it.
+   Destroys the Z-buffer when you are finished with it. Use this to avoid
+   memory leaks in your program.
 
 @hnode Scene rendering
 Allegro provides two simple approaches to remove hidden surfaces:
@@ -5411,7 +5422,8 @@ have to clear the z-buffer at the start of the frame. Example:
 @@void @destroy_scene();
 @xref create_scene, scene_polygon3d, clear_scene, render_scene, scene_gap
 @eref exscn3d
-   Deallocate memory previously allocated by create_scene.
+   Deallocate memory previously allocated by create_scene. Use this to avoid
+   memory leaks in your program.
 
 @@int @scene_polygon3d(int type, BITMAP *texture, int vc, V3D *vtx[]);
 @@int @scene_polygon3d_f(int type, BITMAP *texture, int vc, V3D_f *vtx[]);
@@ -6370,7 +6382,8 @@ Digital sample routines
 @eref exsample
    Destroys a sample structure when you are done with it. It is safe to call 
    this even when the sample might be playing, because it checks and will 
-   kill it off if it is active.
+   kill it off if it is active. Use this to avoid memory leaks in your
+   program.
 
 @@void @lock_sample(SAMPLE *spl);
 @xref load_sample, create_sample
@@ -6613,7 +6626,8 @@ Music routines (MIDI)
 @eref exdodgy, exmidi
    Destroys a MIDI structure when you are done with it. It is safe to call 
    this even when the MIDI file might be playing, because it checks and will 
-   kill it off if it is active.
+   kill it off if it is active. Use this to avoid memory leaks in your
+   program.
 
 @@void @lock_midi(MIDI *midi);
 @xref load_midi
@@ -7070,7 +7084,9 @@ directories, but not hidden files and directories. Similarly, if you pass
       };
 <endblock>
    There is some other stuff in the structure as well, but it is there for 
-   internal use only.
+   internal use only. If the function is successful, it will allocate some
+   memory for internal use in the structure. Therefore you have to close your
+   search when you are finished to avoid memory leaks in your program.
 
 @@int @al_findnext(struct al_ffblk *info);
 @xref al_findfirst, al_findclose
@@ -7080,7 +7096,9 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@void @al_findclose(struct al_ffblk *info);
 @xref al_findfirst, al_findnext
-   This closes a previously opened search with al_findfirst().
+   This closes a previously opened search with al_findfirst(). You need to
+   call this on all successfully opened searches to avoid memory leaks in
+   your program.
 
 @\int @find_allegro_resource(char *dest, const char *resource, 
 @\                          const char *ext, const char *datafile, 
@@ -7400,7 +7418,8 @@ directly from a specific datafile object.
 @@void @unload_datafile(DATAFILE *dat);
 @xref load_datafile
 @eref excustom, exdata, exexedat, exgui, exsprite, exunicod
-   Frees all the objects in a datafile.
+   Frees all the objects in a datafile. Use this to avoid memory leaks in
+   your program.
 
 @\DATAFILE *@load_datafile_object(const char *filename, 
 @@                               const char *objectname);
@@ -7412,7 +7431,8 @@ directly from a specific datafile object.
 
 @@void @unload_datafile_object(DATAFILE *dat);
 @xref load_datafile_object
-   Frees an object previously loaded by load_datafile_object().
+   Frees an object previously loaded by load_datafile_object(). Use this to
+   avoid memory leaks in your program.
 
 @@DATAFILE *@find_datafile_object(const DATAFILE *dat, const char *objectname);
 @xref load_datafile, load_datafile_object
