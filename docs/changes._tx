@@ -11,7 +11,6 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
-<li>
    3.9.35: Eric Botcazou made Windows restore the original sound volume
    after an Allegro program quits.
 <li>
