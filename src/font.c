@@ -577,15 +577,13 @@ static void color_render(AL_CONST FONT* f, AL_CONST char* text, int fg, int bg, 
 
     acquire_bitmap(bmp);
 
+    if(fg < 0 && bg >= 0) rectfill(bmp, x, y, x + text_length(f, text) - 1, y + text_height(f) - 1, bg);
+
     while( (ch = ugetxc(&p)) ) {
         BITMAP* g = color_findglyph(f, ch);
         if(g) {
             if(fg < 0) {
-                if(bg < 0) {
-                    bmp->vtable->draw_256_sprite(bmp, g, x, y);
-                } else {
-                    blit(g, bmp, 0, 0, x, y, g->w, g->h);
-                }
+                bmp->vtable->draw_256_sprite(bmp, g, x, y);
             } else {
                 bmp->vtable->draw_character(bmp, g, x, y, fg);
             }
