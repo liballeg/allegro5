@@ -267,8 +267,8 @@ static int ga_read(int rnum)
  */
 static void set_dac_vol(int lvol, int rvol)
 {
-   cd_write(CD_DACL_REG, ~(lvol >> 1) & 0x3F);
-   cd_write(CD_DACR_REG, ~(rvol >> 1) & 0x3F);
+   cd_write(CD_DACL_REG, ~(lvol >> 2) & 0x3F);
+   cd_write(CD_DACR_REG, ~(rvol >> 2) & 0x3F);
 }
 
 
