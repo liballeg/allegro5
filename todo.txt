@@ -12,7 +12,6 @@ General (Platform independant) todos:
 
 - Add caching system to speed up filename#object and load_datafile_object()
 - New example to test P3D scene rendering
-- merge Angelo's menu auto popup patch
 - rewrite set_gfx_mode, or at least have dynamic driver lists
 - find solution or API to timer/multithread problem
 - don't use BITMAPs for zbuffers

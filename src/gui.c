@@ -14,6 +14,8 @@
  *
  *      Peter Pavlovic modified the drawing and positioning of menus.
  *
+ *      Menu auto-opening added by Angelo Mottola.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -108,6 +110,11 @@ int (*gui_mouse_z)(void) = default_mouse_z;
 int (*gui_mouse_b)(void) = default_mouse_b;
 
 
+/* timer to handle menu auto-opening */
+static int gui_timer;
+
+static int gui_menu_opening_delay;
+
 
 /* Checking for double clicks is complicated. The user could release the
  * mouse button at almost any point, and I might miss it if I am doing some
@@ -133,6 +140,8 @@ static int gui_install_time = 0;
  */
 static void dclick_check(void)
 {
+   gui_timer++;
+   
    if (dclick_status==DCLICK_START) {              /* first click... */
       if (!gui_mouse_b()) {
 	 dclick_status = DCLICK_RELEASE;           /* aah! released first */
@@ -695,6 +704,7 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
 
    /* set up dclick checking code */
    if (gui_install_count <= 0) {
+      LOCK_VARIABLE(gui_timer);
       LOCK_VARIABLE(dclick_status);
       LOCK_VARIABLE(dclick_time);
       LOCK_VARIABLE(gui_mouse_x);
@@ -712,6 +722,17 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
       if (get_display_switch_mode() == SWITCH_AMNESIA)
 	 set_display_switch_callback(SWITCH_IN, gui_switch_callback);
 
+      /* gets menu auto-opening delay (in milliseconds) from config file */
+      gui_menu_opening_delay = get_config_int(NULL, "menu_opening_delay", 300);
+      if (gui_menu_opening_delay >= 0) {
+         /* adjust for actual timer speed */
+         gui_menu_opening_delay /= 20;
+      }
+      else {
+         /* no auto opening */
+         gui_menu_opening_delay = -1;
+      }
+      
       gui_install_count = 1;
       gui_install_time = _allegro_count;
    }
@@ -1431,8 +1452,7 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
       *allegro_errno = ENOMEM;
 
    m.sel = mouse_sel = menu_mouse_object(&m);
-   if ((m.sel < 0) && (!mouse_on) && (!bar))
-      m.sel = 0;
+   gui_timer = 0;
 
    unscare_mouse();
 
@@ -1468,6 +1488,8 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	 mouse_on = FALSE;
 
 	 if (keypressed()) {                          /* keyboard input */
+	    gui_timer = 0;
+
 	    c = readkey();
 
 	    if ((c & 0xFF) == 27) {
@@ -1563,6 +1585,9 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
       }
 
       if ((redraw) || (m.sel != old_sel)) {           /* selection changed? */
+         if (old_sel == -1)
+            gui_timer = 0;
+
 	 scare_mouse();
 	 acquire_screen();
 
@@ -1580,6 +1605,27 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 
 	 release_screen();
 	 unscare_mouse();
+      }
+
+      if (gui_menu_opening_delay != -1) {
+         /* menu auto-opening is on */
+         if (mouse_in_parent_menu(m.parent)) {
+            /* automatically goes back to parent */
+            ret = -2;
+            break;
+         }
+
+         if ((m.bar) && (mouse_sel >= 0) && (m.menu[mouse_sel].child)) {
+            /* don't wait for bar menu items */
+            ret = mouse_sel;
+            gui_timer = 0;
+         }
+         else {
+            /* sub menu auto-opening if enough time has passed */
+            if ((gui_timer > gui_menu_opening_delay) &&
+                (mouse_sel >= 0) && (m.menu[mouse_sel].child))
+               ret = mouse_sel;
+         }
       }
 
       if ((ret >= 0) && (m.menu[ret].flags & D_DISABLED))
@@ -1601,6 +1647,12 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	       ret = -1;
 	       mouse_on = FALSE;
 	       mouse_sel = menu_mouse_object(&m);
+	       if (c == -2) {
+		  m.sel = mouse_sel;
+		  redraw = TRUE;
+		  mouse_on = FALSE;
+		  gui_timer = 0;
+	       }
 	    }
 	 }
       }
