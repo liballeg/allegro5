@@ -109,10 +109,6 @@ OBJECT_LIST = $(COMMON_OBJECTS) $(I386_OBJECTS) $(basename $(notdir $(ALLEGRO_SR
 
 LIBRARIES = -lm -lph -lasound
 
-ifdef PROFILEMODE
-   LIBRARIES += -lgmon
-endif
-
 
 
 # -------- rules for installing and removing the library files --------
