@@ -329,13 +329,15 @@ static void mouse_move(void)
 	 }
       }
       else {
+#ifdef ALLEGRO_DOS
 	 /* bodge to avoid using non legacy 386 asm code inside a timer handler */
 	 int old_capabilities = cpu_capabilities;
 	 cpu_capabilities = 0;
-
+#endif
 	 draw_mouse(TRUE, TRUE);
-
+#ifdef ALLEGRO_DOS
 	 cpu_capabilities = old_capabilities;
+#endif
       }
 
       release_bitmap(_mouse_screen);
