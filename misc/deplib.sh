@@ -24,7 +24,7 @@ write_code() {
     echo "	rm -f \$@"
     # gf: This bit is obviously gcc-specific
     # eb: Yes, but the GNU C Compiler doesn't always spell 'gcc'
-    echo "	\$(CC) -shared -o \$@ ${shareobj} \$(LDFLAGS) -Wl,-soname,lib${1}.so.\$(shared_major_minor) \$(LIBS)"
+    echo "	\$(CC) -shared -o \$@ ${shareobj} \$(LDFLAGS) -Wl,-h,lib${1}.so.\$(shared_major_minor) \$(LIBS)"
     echo ""
     echo "\$(LIBDIR)/${unsharelib}: ${unshareobj}"
     echo "	rm -f \$@"
