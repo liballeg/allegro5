@@ -115,6 +115,7 @@ ALLEGRO_ACTEST_GCC_VERSION
 ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX
 ALLEGRO_ACTEST_GCC_PIPE
 AC_PROG_CPP
+AC_PROG_CXX
 ALLEGRO_ACTEST_PROG_LD_S
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
@@ -205,6 +206,7 @@ AC_SUBST(INCLUDE_PREFIX)
 dnl Which version of library to link with (static, shared, normal, debugging, profiling)?
 if test "X$allegro_build_debugging_programs" = "Xyes"; then
   COMPILE_PROGRAM=COMPILE_DEBUG
+  COMPILE_CXX_PROGRAM=COMPILE_CXX_DEBUG
   COMPILE_S_PROGRAM=COMPILE_S_DEBUG
   PROG_LDFLAGS="-g \$(LDFLAGS)"
   LIB_TO_LINK=alld
@@ -212,6 +214,7 @@ if test "X$allegro_build_debugging_programs" = "Xyes"; then
   allegro_build_debugging_library=yes
 elif test "X$allegro_build_profiling_programs" = "Xyes"; then
   COMPILE_PROGRAM=COMPILE_PROFILE
+  COMPILE_CXX_PROGRAM=COMPILE_CXX_PROFILE
   COMPILE_S_PROGRAM=COMPILE_S_PROFILE
   PROG_LDFLAGS="-pg \$(LDFLAGS)"
   LIB_TO_LINK=allp
@@ -219,6 +222,7 @@ elif test "X$allegro_build_profiling_programs" = "Xyes"; then
   allegro_build_profiling_library=yes
 else
   COMPILE_PROGRAM=COMPILE_NORMAL
+  COMPILE_CXX_PROGRAM=COMPILE_CXX_NORMAL
   COMPILE_S_PROGRAM=COMPILE_S_NORMAL
   if test "X$allegro_cv_prog_ld_s" = "Xyes"; then
     PROG_LDFLAGS="-s \$(LDFLAGS)"
@@ -244,6 +248,7 @@ AC_SUBST(LIBALLEG)
 AC_SUBST(LINK_LIBALLEG)
 AC_SUBST(PLUGIN_LIB)
 AC_SUBST(COMPILE_PROGRAM)
+AC_SUBST(COMPILE_CXX_PROGRAM)
 AC_SUBST(COMPILE_S_PROGRAM)
 AC_SUBST(PROG_LDFLAGS)
 AC_SUBST(LIB_TO_LINK)

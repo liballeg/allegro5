@@ -71,6 +71,8 @@ for file in .. $*; do
     echo "\$(OBJDIR)/$name\$(OBJ): \$(srcdir)/$file$includes"
     if test "$ext" = "c"; then
       echo "	\$(COMPILE_PROGRAM) -c \$(srcdir)/$file -o \$(OBJDIR)/$name\$(OBJ)"
+    elif test "$ext" = "cc"; then
+      echo "	\$(COMPILE_CXX_PROGRAM) -c \$(srcdir)/$file -o \$(OBJDIR)/$name\$(OBJ)"
     else
       echo "	\$(COMPILE_S_PROGRAM) -c \$(srcdir)/$file -o \$(OBJDIR)/$name\$(OBJ)"
     fi

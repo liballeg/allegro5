@@ -399,6 +399,7 @@ ALLEGRO_LIB_EXE_SOURCES = \
 	setup/setup.c \
 	tests/afinfo.c \
 	tests/akaitest.c \
+	tests/cpptest.cc \
 	tests/digitest.c \
 	tests/filetest.c \
 	tests/gfxinfo.c \
@@ -425,6 +426,7 @@ ALLEGRO_LIB_EXES = \
 	setup/setup \
 	tests/afinfo \
 	tests/akaitest \
+	tests/cpptest \
 	tests/digitest \
 	tests/filetest \
 	tests/gfxinfo \
