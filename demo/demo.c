@@ -517,10 +517,7 @@ void draw_screen(void)
       /* for page flipping we draw onto one of the sub-bitmaps which
        * describe different parts of the large virtual screen.
        */ 
-      if (animation_type == PAGE_FLIP) 
-	 animation_type_str = "page flipping";
-      else
-	 animation_type_str = "synced flipping";
+      animation_type_str = "page flipping";
 
       if (current_page == 0) {
 	 bmp = page2;
@@ -1042,13 +1039,12 @@ char *anim_list_getter(int index, int *list_size)
    {
       "Double buffered",
       "Page flipping",
-      "Synced flips",
       "Triple buffered",
       "Dirty rectangles"
    };
 
    if (index < 0) {
-      *list_size = 5;
+      *list_size = sizeof(s)/sizeof(s[0]);
       return NULL;
    }
 
@@ -1106,8 +1102,7 @@ int anim_desc_proc(int msg, DIALOG *d, int c)
       "memory, to avoid wasting time",
       "waiting for retraces. Only",
       "some drivers and hardware",
-      "support this, eg. VBE 3.0 or",
-      "mode-X with retrace sync.",
+      "support this.",
       NULL
    };
 
@@ -1156,7 +1151,7 @@ DIALOG anim_type_dlg[] =
    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key) (flags)     (d1)  (d2)  (dp)                 (dp2) (dp3) */
    { d_shadow_box_proc, 0,    0,    281,  151,  0,    1,    0,    0,          0,    0,    NULL,                NULL, NULL  },
    { d_ctext_proc,      140,  8,    1,    1,    0,    1,    0,    0,          0,    0,    "Animation Method",  NULL, NULL  },
-   { anim_list_proc,    16,   28,   153,  44,   0,    1,    0,    D_EXIT,     4,    0,    anim_list_getter,    NULL, NULL  },
+   { anim_list_proc,    16,   28,   153,  36,   0,    1,    0,    D_EXIT,     3,    0,    anim_list_getter,    NULL, NULL  },
    { anim_desc_proc,    16,   90,   248,  48,   0,    1,    0,    0,          0,    0,    0,                   NULL, NULL  },
    { d_button_proc,     184,  28,   80,   16,   0,    1,    13,   D_EXIT,     0,    0,    "OK",                NULL, NULL  },
    { d_button_proc,     184,  50,   80,   16,   0,    1,    27,   D_EXIT,     0,    0,    "Cancel",            NULL, NULL  },
