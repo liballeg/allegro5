@@ -148,10 +148,10 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
 
       if (flags & INTERP_FLOAT_UV) {
 	 /* floating point (perspective correct) texture interpolation */
-	 float fu1 = v1->u * z1;
-	 float fv1 = v1->v * z1;
-	 float fu2 = v2->u * z2;
-	 float fv2 = v2->v * z2;
+	 float fu1 = (v1->u + (1<<15))* z1;
+	 float fv1 = (v1->v + (1<<15))* z1;
+	 float fu2 = (v2->u + (1<<15))* z2;
+	 float fv2 = (v2->v + (1<<15))* z2;
 
 	 edge->dat.dfu = (fu2 - fu1) * h1;
 	 edge->dat.dfv = (fv2 - fv1) * h1;
@@ -176,18 +176,19 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
       edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
+      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc) + (1<<15);
    }
 
    if (flags & INTERP_3COL) {
       /* RGB shading interpolation */
       if (flags & COLOR_TO_RGB) {
-	 r1 = getr_depth(bitmap_color_depth(bmp), v1->c);
-	 r2 = getr_depth(bitmap_color_depth(bmp), v2->c);
-	 g1 = getg_depth(bitmap_color_depth(bmp), v1->c);
-	 g2 = getg_depth(bitmap_color_depth(bmp), v2->c);
-	 b1 = getb_depth(bitmap_color_depth(bmp), v1->c);
-	 b2 = getb_depth(bitmap_color_depth(bmp), v2->c);
+         AL_CONST int coldepth = bitmap_color_depth(bmp);
+	 r1 = getr_depth(coldepth, v1->c);
+	 r2 = getr_depth(coldepth, v2->c);
+	 g1 = getg_depth(coldepth, v1->c);
+	 g2 = getg_depth(coldepth, v2->c);
+	 b1 = getb_depth(coldepth, v1->c);
+	 b2 = getb_depth(coldepth, v2->c);
       } 
       else {
 	 r1 = (v1->c >> 16) & 0xFF;
@@ -201,17 +202,17 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
       edge->dat.dr = fdiv(itofix(r2 - r1), h);
       edge->dat.dg = fdiv(itofix(g2 - g1), h);
       edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
-      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
-      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
+      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr) + (1<<15);
+      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg) + (1<<15);
+      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db) + (1<<15);
    }
 
    if (flags & INTERP_FIX_UV) {
       /* fixed point (affine) texture interpolation */
       edge->dat.du = fdiv(v2->u - v1->u, h);
       edge->dat.dv = fdiv(v2->v - v1->v, h);
-      edge->dat.u = v1->u + fmul(step, edge->dat.du);
-      edge->dat.v = v1->v + fmul(step, edge->dat.dv);
+      edge->dat.u = v1->u + fmul(step, edge->dat.du) + (1<<15);
+      edge->dat.v = v1->v + fmul(step, edge->dat.dv) + (1<<15);
    }
 
    /* clip edge */
@@ -266,18 +267,18 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
       float step_f = fixtof(step);
 
       /* Z (depth) interpolation */
-      float z1 = 65536. / v1->z;
-      float z2 = 65536. / v2->z;
+      float z1 = 1. / v1->z;
+      float z2 = 1. / v2->z;
 
       edge->dat.dz = (z2 - z1) * h1;
       edge->dat.z = z1 + edge->dat.dz * step_f;
 
       if (flags & INTERP_FLOAT_UV) {
 	 /* floating point (perspective correct) texture interpolation */
-	 float fu1 = v1->u * z1 * 65536.;
-	 float fv1 = v1->v * z1 * 65536.;
-	 float fu2 = v2->u * z2 * 65536.;
-	 float fv2 = v2->v * z2 * 65536.;
+	 float fu1 = (v1->u + 0.5) * z1 * 65536.;
+	 float fv1 = (v1->v + 0.5) * z1 * 65536.;
+	 float fu2 = (v2->u + 0.5) * z2 * 65536.;
+	 float fv2 = (v2->v + 0.5) * z2 * 65536.;
 
 	 edge->dat.dfu = (fu2 - fu1) * h1;
 	 edge->dat.dfv = (fv2 - fv1) * h1;
@@ -302,18 +303,19 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
       edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
+      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc) + (1<<15);
    }
 
    if (flags & INTERP_3COL) {
       /* RGB shading interpolation */
       if (flags & COLOR_TO_RGB) {
-	 r1 = getr_depth(bitmap_color_depth(bmp), v1->c);
-	 r2 = getr_depth(bitmap_color_depth(bmp), v2->c);
-	 g1 = getg_depth(bitmap_color_depth(bmp), v1->c);
-	 g2 = getg_depth(bitmap_color_depth(bmp), v2->c);
-	 b1 = getb_depth(bitmap_color_depth(bmp), v1->c);
-	 b2 = getb_depth(bitmap_color_depth(bmp), v2->c);
+         AL_CONST int coldepth = bitmap_color_depth(bmp);
+	 r1 = getr_depth(coldepth, v1->c);
+	 r2 = getr_depth(coldepth, v2->c);
+	 g1 = getg_depth(coldepth, v1->c);
+	 g2 = getg_depth(coldepth, v2->c);
+	 b1 = getb_depth(coldepth, v1->c);
+	 b2 = getb_depth(coldepth, v2->c);
       } 
       else {
 	 r1 = (v1->c >> 16) & 0xFF;
@@ -327,17 +329,17 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
       edge->dat.dr = fdiv(itofix(r2 - r1), h);
       edge->dat.dg = fdiv(itofix(g2 - g1), h);
       edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
-      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
-      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
+      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr) + (1<<15);
+      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg) + (1<<15);
+      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db) + (1<<15);
    }
 
    if (flags & INTERP_FIX_UV) {
       /* fixed point (affine) texture interpolation */
       edge->dat.du = ftofix((v2->u - v1->u) * h1);
       edge->dat.dv = ftofix((v2->v - v1->v) * h1);
-      edge->dat.u = ftofix(v1->u) + fmul(step, edge->dat.du);
-      edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv);
+      edge->dat.u = ftofix(v1->u) + fmul(step, edge->dat.du) + (1<<15);
+      edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv) + (1<<15);
    }
 
    /* clip edge */
@@ -366,7 +368,7 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       SCANLINE_FILLER alternative;
    } POLYTYPE_INFO;
 
-   int polytype_interp_pal[] = 
+   static int polytype_interp_pal[] = 
    {
       INTERP_FLAT,
       INTERP_1COL,
@@ -381,7 +383,7 @@ SCANLINE_FILLER _get_scanline_filler(int type, int *flags, POLYGON_SEGMENT *info
       INTERP_Z | INTERP_FLOAT_UV | INTERP_1COL | OPT_FLOAT_UV_TO_FIX
    };
 
-   int polytype_interp_tc[] = 
+   static int polytype_interp_tc[] = 
    {
       INTERP_FLAT,
       INTERP_3COL | COLOR_TO_RGB,
@@ -916,7 +918,6 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 /*
  *  End of nasty trick.
  */
-
 	 if (flags & INTERP_1COL) {
 	    info->dc = (s2->c - s1->c) / w;
 	    info->c = s1->c + fmul(step, info->dc);
@@ -954,7 +955,7 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 
 	 if (flags & INTERP_Z) {
 	    float step_f = fixtof(step);
-	    float w1 = 1.0 / w;
+	    float w1 = 1. / w;
 
 	    info->dz = (s2->z - s1->z) * w1;
 	    info->z = s1->z + info->dz * step_f;
@@ -1102,7 +1103,7 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
 
    /* determine whether the vertices are given in clockwise order or not */
 
-   test_normal = fixtoi(vtx[2]->y-vtx[1]->y)*fixtoi(vtx[1]->x-vtx[0]->x)-fixtoi(vtx[1]->y-vtx[0]->y)*fixtoi(vtx[2]->x-vtx[1]->x);
+   test_normal = ftofix(fixtof(vtx[2]->y-vtx[1]->y)*fixtof(vtx[1]->x-vtx[0]->x)-fixtof(vtx[1]->y-vtx[0]->y)*fixtof(vtx[2]->x-vtx[1]->x));
 
    if (test_normal < 0) {
       /* vertices are given in counterclockwise order */
@@ -1364,9 +1365,10 @@ static void _triangle_deltas(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGON_
       int r, g, b;
 
       if (flags & COLOR_TO_RGB) {
-	 r = getr_depth(bitmap_color_depth(bmp), v->c);
-	 g = getg_depth(bitmap_color_depth(bmp), v->c);
-	 b = getb_depth(bitmap_color_depth(bmp), v->c);
+      	 AL_CONST int coldepth = bitmap_color_depth(bmp);
+	 r = getr_depth(coldepth, v->c);
+	 g = getg_depth(coldepth, v->c);
+	 b = getb_depth(coldepth, v->c);
       }
       else {
 	 r = (v->c >> 16) & 0xFF;
@@ -1416,9 +1418,10 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
       int r, g, b;
 
       if (flags & COLOR_TO_RGB) {
-	 r = getr_depth(bitmap_color_depth(bmp), v->c);
-	 g = getg_depth(bitmap_color_depth(bmp), v->c);
-	 b = getb_depth(bitmap_color_depth(bmp), v->c);
+      	 AL_CONST int coldepth = bitmap_color_depth(bmp);
+	 r = getr_depth(coldepth, v->c);
+	 g = getg_depth(coldepth, v->c);
+	 b = getb_depth(coldepth, v->c);
       }
       else {
 	 r = (v->c >> 16) & 0xFF;
@@ -1555,7 +1558,7 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
 
       _fill_3d_edge_structure(&edge1, vt1, vt3, flags, bmp);
 
-      test_normal = (y3-y2)*fixtoi(vt2->x-vt1->x)-(y2-y1)*fixtoi(vt3->x-vt2->x);
+      test_normal = ftofix(fixtof(vt3->y-vt2->y)*fixtof(vt2->x-vt1->x)-fixtof(vt2->y-vt1->y)*fixtof(vt3->x-vt2->x));
 
       if (test_normal < 0) {
 	 left_edge = &edge2;
@@ -1575,7 +1578,7 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
 	 _clip_polygon_segment_fixed(&s1, h, flags);
 
 	 w = edge1.x + fmul(h, edge1.dx) - vt2->x;
-	 if (w != 0) _triangle_deltas(bmp, w, &s1, &info, vt2, flags);
+	 if (w) _triangle_deltas(bmp, w, &s1, &info, vt2, flags);
       }
 
       /* draws part between y1 and y2 */
@@ -1679,7 +1682,7 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
 	 _clip_polygon_segment_fixed(&s1, h, flags);
 
 	 w = edge1.x + fmul(h, edge1.dx) - ftofix(vt2->x);
-	 if (w != 0) _triangle_deltas_f(bmp, w, &s1, &info, vt2, flags);
+	 if (w) _triangle_deltas_f(bmp, w, &s1, &info, vt2, flags);
       }
 
       if (polygon_z_normal_f(vt1, vt2, vt3) < 0) {

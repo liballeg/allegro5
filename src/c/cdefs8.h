@@ -87,7 +87,6 @@
 #define FUNC_LINEAR_DRAW_SPRITE_END         _linear_draw_sprite8_end
 #define FUNC_LINEAR_BLIT_END                _linear_blit8_end
 
-#define FUNC_POLY_SCANLINE_FLAT             _poly_scanline_flat8
 #define FUNC_POLY_SCANLINE_GCOL             _poly_scanline_gcol8
 #define FUNC_POLY_SCANLINE_GRGB             _poly_scanline_grgb8
 #define FUNC_POLY_SCANLINE_ATEX             _poly_scanline_atex8

@@ -11,7 +11,7 @@
  *      Polygon scanline filler helpers (gouraud shading, tmapping, etc).
  *
  *      By Michael Bukin.
- *	 Scanline subdivision in *_PTEX functions added by Bertrand Coconnier.
+ *	Scanline subdivision in *_PTEX functions added by Bertrand Coconnier.
  *
  *      See readme.txt for copyright information.
  */
@@ -19,21 +19,7 @@
 #ifndef __bma_cscan_h
 #define __bma_cscan_h
 
-/* _poly_scanline_flat:
- *  Fills a single-color polygon scanline.
- */
-void FUNC_POLY_SCANLINE_FLAT(unsigned long addr, int w, POLYGON_SEGMENT *info)
-{
-   int x;
-   unsigned long c = info->c;
-   PIXEL_PTR d = (PIXEL_PTR) addr;
-
-   for (x = w - 1; x >= 0; INC_PIXEL_PTR(d), x--) {
-      PUT_PIXEL(d, c);
-   }
-}
-
-
+#ifdef _bma_scan_gcol
 
 /* _poly_scanline_gcol:
  *  Fills a single-color gouraud shaded polygon scanline.
@@ -50,6 +36,8 @@ void FUNC_POLY_SCANLINE_GCOL(unsigned long addr, int w, POLYGON_SEGMENT *info)
       c += dc;
    }
 }
+
+#endif /* _bma_scan_gcol */
 
 
 
@@ -224,6 +212,10 @@ void FUNC_POLY_SCANLINE_PTEX(unsigned long addr, int w, POLYGON_SEGMENT *info)
    long u = fu * z1;
    long v = fv * z1;
 
+   /* update depth */
+   fz += dfz;
+   z1 = 1. / fz;
+
    for (x = w - 1; x >= 0; x -= 4) {
       long nextu, nextv, du, dv;
       PIXEL_PTR s;
@@ -274,6 +266,10 @@ void FUNC_POLY_SCANLINE_PTEX_MASK(unsigned long addr, int w, POLYGON_SEGMENT *in
    PIXEL_PTR d = (PIXEL_PTR) addr;
    long u = fu * z1;
    long v = fv * z1;
+
+   /* update depth */
+   fz += dfz;
+   z1 = 1. / fz;
 
    for (x = w - 1; x >= 0; x-= 4) {
       long nextu, nextv, du, dv;
@@ -331,6 +327,10 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
    long u = fu * z1;
    long v = fv * z1;
 
+   /* update depth */
+   fz += dfz;
+   z1 = 1. / fz;
+
    for (x = w - 1; x >= 0; x-= 4) {
       long nextu, nextv, du, dv;
 
@@ -354,6 +354,7 @@ void FUNC_POLY_SCANLINE_PTEX_LIT(unsigned long addr, int w, POLYGON_SEGMENT *inf
          PUT_PIXEL(d, color);
          u += du;
          v += dv;
+	 c += dc;
       }
    }
 }
@@ -384,6 +385,10 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
    long u = fu * z1;
    long v = fv * z1;
 
+   /* update depth */
+   fz += dfz;
+   z1 = 1. / fz;
+
    for (x = w - 1; x >= 0; x-= 4) {
       long nextu, nextv, du, dv;
 
@@ -409,6 +414,7 @@ void FUNC_POLY_SCANLINE_PTEX_MASK_LIT(unsigned long addr, int w, POLYGON_SEGMENT
          }
          u += du;
          v += dv;
+	 c += dc;
       }
    }
 }

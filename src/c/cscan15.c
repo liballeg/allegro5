@@ -20,6 +20,8 @@
 
 #ifdef ALLEGRO_COLOR16
 
+#undef _bma_scan_gcol
+
 #include "allegro/aintern.h"
 #include "cdefs15.h"
 #include "cscan.h"

@@ -88,8 +88,6 @@
 #define FUNC_LINEAR_DRAW_SPRITE_END         _linear_draw_sprite32_end
 #define FUNC_LINEAR_BLIT_END                _linear_blit32_end
 
-#define FUNC_POLY_SCANLINE_FLAT             _poly_scanline_flat32
-#define FUNC_POLY_SCANLINE_GCOL             _poly_scanline_gcol32
 #define FUNC_POLY_SCANLINE_GRGB             _poly_scanline_grgb32
 #define FUNC_POLY_SCANLINE_ATEX             _poly_scanline_atex32
 #define FUNC_POLY_SCANLINE_ATEX_MASK        _poly_scanline_atex_mask32

@@ -89,6 +89,7 @@ int clip3d(int type, fixed min_z, fixed max_z, int vc, AL_CONST V3D *vtx[], V3D 
       INT_UV + INT_1COL                     /* ptex mask lit */
    };
 
+   type &= ~POLYTYPE_ZBUF;
    flags = flag_table[type];
 
    if (max_z > min_z) {

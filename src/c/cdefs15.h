@@ -93,8 +93,6 @@
 #define FUNC_LINEAR_DRAW_SPRITE_END         _linear_draw_sprite15_end
 #define FUNC_LINEAR_BLIT_END                _linear_blit15_end
 
-#define FUNC_POLY_SCANLINE_FLAT             _poly_scanline_flat15
-#define FUNC_POLY_SCANLINE_GCOL             _poly_scanline_gcol15
 #define FUNC_POLY_SCANLINE_GRGB             _poly_scanline_grgb15
 #define FUNC_POLY_SCANLINE_ATEX             _poly_scanline_atex15
 #define FUNC_POLY_SCANLINE_ATEX_MASK        _poly_scanline_atex_mask15

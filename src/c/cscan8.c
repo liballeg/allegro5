@@ -20,9 +20,13 @@
 
 #ifdef ALLEGRO_COLOR8
 
+#define _bma_scan_gcol
+
 #include "allegro/aintern.h"
 #include "cdefs8.h"
 #include "cscan.h"
+
+#undef _bma_scan_gcol
 
 #endif
 
