@@ -128,8 +128,6 @@ static INLINE void add_key(volatile KEY_BUFFER *buffer, int key, int scancode)
  */
 void clear_keybuf()
 {
-   int c;
-
    if (keyboard_polled)
       poll_keyboard();
 
@@ -139,17 +137,27 @@ void clear_keybuf()
    key_buffer.start = key_buffer.end = 0;
    _key_buffer.start = _key_buffer.end = 0;
 
-   for (c=0; c<KEY_MAX; c++) {
-      key[c] = 0;
-      _key[c] = 0;
-   }
-
    key_buffer.lock--;
    _key_buffer.lock--;
 
    if ((keypressed_hook) && (readkey_hook))
       while (keypressed_hook())
 	 readkey_hook();
+}
+
+
+
+/* clear_key:
+ *  Helper function to clear the key[] array.
+ */
+static void clear_key()
+{
+   int c;
+
+   for (c=0; c<KEY_MAX; c++) {
+      key[c] = 0;
+      _key[c] = 0;
+   }
 }
 
 
@@ -339,6 +347,7 @@ void install_keyboard_hooks(int (*keypressed)(void), int (*readkey)(void))
    key_buffer.lock = _key_buffer.lock = 0;
 
    clear_keybuf();
+   clear_key();
 
    keypressed_hook = keypressed;
    readkey_hook = readkey;
@@ -564,6 +573,7 @@ int install_keyboard()
    key_buffer.lock = _key_buffer.lock = 0;
 
    clear_keybuf();
+   clear_key();
 
    if (system_driver->keyboard_drivers)
       driver_list = system_driver->keyboard_drivers();
@@ -628,6 +638,7 @@ void remove_keyboard(void)
    keyboard_polled = FALSE;
 
    clear_keybuf();
+   clear_key();
 
    key_shifts = _key_shifts = 0;
 

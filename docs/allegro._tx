@@ -1598,6 +1598,9 @@ combinations are possible seems to vary from one keyboard to another).
       if (key[KEY_SPACE])
 	 printf("Space is pressed\n");
 </pre>
+   Note that the array is supposed to represent which keys are physically
+   held down and which keys are not, so it is semantically read-only.
+
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
    Bitmask containing the current state of shift/ctrl/alt, the special 
