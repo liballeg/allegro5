@@ -9,7 +9,7 @@
  *    solved by using Allegro's quaternion operations.
  *
  *    In this program, two cubes are rotated between random orientations.
- *    Notice that although they are have the same beginning and ending
+ *    Notice that although they have the same beginning and ending
  *    orientations, they do not follow the same path between orientations.
  *
  *    One cube is being rotated by directly incrementing or decrementing
@@ -99,7 +99,8 @@ EULER e_in;
  * It should be noted that the world coordinate system in this
  * program is oriented like it is in most math books. X and Y
  * are oriented like a floor and Z refers to the height above
- * that floor.
+ * that floor. (Mathematically, this is known as right-handed
+ * coordinate system.)
  *
  * N - North
  * S - South
@@ -371,7 +372,7 @@ int main(void)
 	 /* create a matrix for the starting orientation. This time
 	  * we create it using quaternions.  This is to demonstrate
 	  * that the quaternion gotten with get_rotation_quat will
-	  * generate the save matrix as that gotten by get_rotation_matrix
+	  * generate the same matrix as that gotten by get_rotation_matrix
 	  */
 	 get_rotation_quat(&q_from, e_from.x, e_from.y, e_from.z);
 	 quat_to_matrix(&q_from, &rotation);
@@ -414,13 +415,12 @@ int main(void)
 				 tmp_points, path_edges, index+1, index,
 				 palette_color[5]);
 
-	 /* update the screen */
-	 vsync();
-
          acquire_bitmap(screen);
 	 blit(euler_buffer, screen, 0, 0, 0,   120, 320, 240);
 	 blit(quat_buffer,  screen, 0, 0, 320, 120, 320, 240);
          release_bitmap(screen);
+
+	 rest (1);
       }
 
       /* handle user input */
@@ -454,5 +454,4 @@ int main(void)
       }
    }
 }
-
 END_OF_MAIN()
