@@ -11,6 +11,8 @@ Packager: Allegro development team <conductors@canvaslink.com>
 Group: System/Libraries
 Source: ftp://sunsite.dk/allegro/%{name}-%{version}.tar.gz
 URL: http://alleg.sourceforge.net
+# If you don't have the icon, just comment it out.
+Icon: alex.xpm
 Buildroot: %{_tmppath}/%{name}-buildroot
 # Older rpms don't support this; just make sure you have it.
 #BuildRequires: texinfo
@@ -163,7 +165,10 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
-* Mon Sep 24 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
+* Tue Oct 02 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
+- icon courtesy of Johan Peitz
+
+* Mon Sep 24 2001 Peter Wang <tjaden@users.sourceforge.net>
 - remaining translations by Eric Botcazou and Grzegorz Adam Hankiewicz
 
 * Sun Sep 23 2001 Peter Wang <tjaden@users.sourceforge.net>
