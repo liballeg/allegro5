@@ -252,6 +252,13 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
    edge->top = fceil(ftofix(v1->y));
    edge->bottom = fceil(ftofix(v2->y)) - 1;
 
+   /* Dirty hack to make this to work with BeOS. This is the second very
+    * strange hack on BeAllegro: see midi.c for the other one.
+    */
+#ifdef ALLEGRO_BEOS
+   { int i; for (i=1; i; i--); }
+#endif
+
    h1 = 1.0 / (v2->y - v1->y);
    h = ftofix(v2->y - v1->y);
    step = (edge->top << 16) - ftofix(v1->y);
