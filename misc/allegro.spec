@@ -4,6 +4,7 @@ Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
+Summary(de): Eine Bibliothek zur Programmierung von Spielen.
 Name: allegro
 Version: 4.1.10
 Release: 1
@@ -19,13 +20,9 @@ Buildroot: %{_tmppath}/%{name}-buildroot
 #BuildRequires: texinfo
 # Automatic dependency generation picks up module dependencies
 # which is exactly what we don't want...
-Autoreq: off
+# But which you *need* for compiling on other platforms ...
+Autoreqprov: on
 Requires: /sbin/ldconfig, /sbin/install-info
-Requires: ld-linux.so.2, libc.so.6, libdl.so.2, libm.so.6
-Requires: libpthread.so.0, libX11.so.6, libXext.so.6
-Requires: libc.so.6(GLIBC_2.0), libc.so.6(GLIBC_2.1), libc.so.6(GLIBC_2.1.3)
-Requires: libc.so.6(GLIBC_2.2), libdl.so.2(GLIBC_2.0), libdl.so.2(GLIBC_2.1)
-Requires: libpthread.so.0(GLIBC_2.0), libpthread.so.0(GLIBC_2.1)
 
 %description
 Allegro is a cross-platform library intended for use in computer games
@@ -43,14 +40,19 @@ les jeux vidéo ou d'autres types de programmation multimédia.
 Allegro è una libreria multipiattaforma dedicata all'uso nei videogiochi
 ed in altri tipi di programmazione multimediale.
 
+%description -l de
+Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
+Computerspielen und anderen Formen von Multinediaprogrammierung.
+
 %package devel
 Summary: A game programming library.
 Summary(es): Una libreria de programacion de juegos.
 Summary(fr): Une librairie de programmation de jeux.
 Summary(it): Una libreria per la programmazione di videogiochi.
+Summary(de): Eine Bibliothek zur Programmierung von Spielen.
 Group: Development/C
-Prereq: allegro
-Autoreq: on
+Prereq: %{name} = %{version}
+Autoreqprov: on
 
 %description devel
 Allegro is a cross-platform library intended for use in computer games
@@ -72,11 +74,18 @@ Allegro è una libreria multipiattaforma dedicata all'uso nei videogiochi
 ed in altri tipi di programmazione multimediale. Questo pacchetto è
 necessario per compilare programmi scritti con Allegro.
 
+%description devel -l de
+Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
+Computerspielen und anderen Formen von Multinediaprogrammierung.
+Dieses Paket wird benötigt, um Programme zu bauen, die Allegro
+verwenden.
+
 %package tools
 Summary: Extra tools for the Allegro programming library.
 Summary(es): Herramientas adicionales para la librería de programación Allegro.
 Summary(fr): Outils supplémentaires pour la librairie de programmation Allegro.
 Summary(it): Programmi di utilità aggiuntivi per la libreria Allegro.
+Summary(de): Zusätzliche Hilfprogramme für die Allegro Bibliothek.
 Group: Development/Other
 Prereq: allegro
 Autoreq: on
@@ -104,6 +113,12 @@ ed in altri tipi di programmazione multimediale. Questo pacchetto
 contiene programmi di utilità aggiuntivi utili allo sviluppo di programmi
 con Allegro.
 
+%description tools -l de
+Allegro ist eine plattformübergreifende Bibliothek zur Verwendung in
+Computerspielen und anderen Formen von Multinediaprogrammierung.
+Dieses Paket enthält Programme, die für die Entwicklung von
+Allegro Programmen hilfreich sind.
+
 %prep
 %setup -q
 
@@ -121,9 +136,7 @@ MKDATA_PRELOAD=../../lib/unix/liballeg-%{version}.so DAT=../../tools/dat misc/mk
 rm -rf %{buildroot}
 # If your rpm doesn't automatically compress documentation, you can
 # use install-gzipped-man and install-gzipped-info.
-make prefix=%{buildroot}%{_prefix} \
-     mandir=%{buildroot}%{_mandir} \
-     infodir=%{buildroot}%{_infodir} \
+make DESTDIR=%{buildroot} \
      install \
      install-man \
      install-info
