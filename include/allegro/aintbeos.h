@@ -45,6 +45,8 @@ void be_sys_get_executable_name(char *output, int size);
 int be_sys_find_resource(char *dest, AL_CONST char *resource, int size);
 void be_sys_set_window_title(AL_CONST char *name);
 void be_sys_message(AL_CONST char *msg);
+int be_sys_desktop_color_depth(void);
+void be_sys_yield_timeslice(void);
 
 struct BITMAP *be_gfx_fullscreen_init(int w, int h, int v_w, int v_h, int color_depth);
 struct BITMAP *be_gfx_fullscreen_safe_init(int w, int h, int v_w, int v_h, int color_depth);
@@ -54,10 +56,13 @@ void be_gfx_fullscreen_release(struct BITMAP *b);
 void be_gfx_fullscreen_set_palette(AL_CONST struct RGB *p, int from, int to, int vsync);
 int  be_gfx_fullscreen_scroll(int x, int y);
 void be_gfx_fullscreen_vsync(void);
+void be_gfx_fullscreen_accelerate(int color_depth);
 #ifdef ALLEGRO_NO_ASM
+unsigned long be_gfx_fullscreen_accel_read_write_bank(BITMAP *bmp, int line);
 void be_gfx_fullscreen_unwrite_bank(BITMAP *bmp);
 unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line);
 #else
+unsigned long _be_gfx_fullscreen_accel_read_write_bank_asm(BITMAP *bmp, int line);
 void _be_gfx_fullscreen_unwrite_bank_asm(BITMAP *bmp);
 unsigned long _be_gfx_fullscreen_read_write_bank_asm(BITMAP *bmp, int line);
 #endif

@@ -195,6 +195,7 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bclasses.cpp \
 	src/beos/bgfx.c \
 	src/beos/bgfxapi.cpp \
+	src/beos/baccel.cpp \
 	src/beos/bgfxdrv.c \
 	src/beos/bjoy.c \
 	src/beos/bjoydrv.c \

@@ -51,8 +51,8 @@ SYSTEM_DRIVER system_beos = {
    NULL,                        // AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void))));
    NULL,                        // AL_METHOD(int, remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
    NULL,                        // AL_METHOD(void, display_switch_lock, (int lock));
-   NULL,                        // AL_METHOD(int, desktop_color_depth, (void));
-   NULL,                        // AL_METHOD(void, yield_timeslice, (void));
+   be_sys_desktop_color_depth,  // AL_METHOD(int, desktop_color_depth, (void));
+   be_sys_yield_timeslice,      // AL_METHOD(void, yield_timeslice, (void));
    NULL,                        // AL_METHOD(_DRIVER_INFO *, gfx_drivers, (void));
    NULL,                        // AL_METHOD(_DRIVER_INFO *, digi_drivers, (void));
    NULL,                        // AL_METHOD(_DRIVER_INFO *, midi_drivers, (void));

@@ -96,15 +96,18 @@ $(INC_DIR)/allegro:
 
 HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
 
+/bin/allegro-config:
+	cp misc/allegro-config.be /bin/allegro-config
+	chmod a+x /bin/allegro-config
+
 INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a \
 		$(INC_DIR)/allegro.h \
 		$(INC_DIR)/bealleg.h \
 		$(INC_DIR)/allegro \
-		$(HEADERS)
+		$(HEADERS) \
+		/bin/allegro-config
 
 install: $(INSTALL_FILES)
-	cp misc/allegro-config.be /bin/allegro-config
-	chmod a+x /bin/allegro-config
 	@echo The $(DESCRIPTION) BeOS library has been installed.
 
 UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.a \

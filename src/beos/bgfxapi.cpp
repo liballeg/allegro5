@@ -34,84 +34,10 @@
 #define BE_DRAWING_THREAD_PRIORITY  B_NORMAL_PRIORITY
 
 
-
-#define LINE8_HOOK_NUM    3
-#define LINE16_HOOK_NUM  12
-#define LINE32_HOOK_NUM   4
-#define ARRAY8_HOOK_NUM   8
-#define ARRAY32_HOOK_NUM  9
-#define RECT8_HOOK_NUM    5
-#define RECT16_HOOK_NUM  16
-#define RECT32_HOOK_NUM   6
-#define INVERT_HOOK_NUM  11
-#define BLIT_HOOK_NUM     7
-#define SYNC_HOOK_NUM    10
-
-
-
-typedef int32 (*LINE8_HOOK)(int32 startX, int32 endX, int32 startY,
-   int32 endY, uint8 colorIndex, bool clipToRect, int16 clipLeft,
-   int16 clipTop, int16 clipRight, int16 clipBottom);
-
-typedef int32 (*ARRAY8_HOOK)(indexed_color_line *array,
-   int32 numItems, bool clipToRect, int16 top, int16 right,
-   int16 bottom, int16 left);
-
-typedef int32 (*LINE16_HOOK)(int32 startX, int32 endX, int32 startY,
-   int32 endY, uint16 color, bool clipToRect, int16 clipLeft,
-   int16 clipTop, int16 clipRight, int16 clipBottom);
-
-typedef int32 (*LINE32_HOOK)(int32 startX, int32 endX, int32 startY,
-   int32 endY, uint32 color, bool clipToRect, int16 clipLeft,
-   int16 clipTop, int16 clipRight, int16 clipBottom);
-
-typedef int32 (*ARRAY32_HOOK)(rgb_color_line *array,
-   int32 numItems, bool clipToRect, int16 top, int16 right,
-   int16 bottom, int16 left);
-
-typedef int32 (*RECT8_HOOK)(int32 left, int32 top, int32 right,
-   int32 bottom, uint8 colorIndex);
-
-typedef int32 (*RECT16_HOOK)(int32 left, int32 top, int32 right,
-   int32 bottom, uint16 color);
-
-typedef int32 (*RECT32_HOOK)(int32 left, int32 top, int32 right,
-   int32 bottom, uint32 color);
-
-typedef int32 (*INVERT_HOOK)(int32 left, int32 top, int32 right,
-   int32 bottom);
-
-typedef int32 (*BLIT_HOOK)(int32 sourceX, int32 sourceY,
-   int32 destinationX, int32 destinationY, int32 width,
-   int32 height);
-
-typedef int32 (*SYNC_HOOK)(void);
-
 typedef void (*BLITTER_FUNCTION)(void **src, void **dest, 
    int sx, int sy, int sw, int sh);
 
-
-
-static struct {
-   LINE8_HOOK   draw_line_with_8_bit_depth;
-   LINE16_HOOK  draw_line_with_16_bit_depth;
-   LINE32_HOOK  draw_line_with_32_bit_depth;
-   ARRAY8_HOOK  draw_array_with_8_bit_depth;
-   ARRAY32_HOOK draw_array_with_32_bit_depth;
-   RECT8_HOOK   draw_rect_with_8_bit_depth;
-   RECT16_HOOK  draw_rect_with_16_bit_depth;
-   RECT32_HOOK  draw_rect_with_32_bit_depth;
-   INVERT_HOOK  invert_rect;
-   BLIT_HOOK    blit;
-   SYNC_HOOK    sync;
-} hooks;
-
-
-
-static const struct {
-   int    d, w, h;
-   uint32 mode;
-} mode_table[] = {
+const BE_MODE_TABLE be_mode_table[] = {
    { 8,    640,  400, B_8_BIT_640x400    },
    { 8,    640,  480, B_8_BIT_640x480    },
    { 8,    800,  600, B_8_BIT_800x600    },
@@ -526,11 +452,11 @@ void BeAllegroScreen::MessageReceived(BMessage *message)
 static inline uint32 find_gfx_mode(int w, int h, int d)
 {
    int index = 0;
-   while (mode_table[index].d > 0) {
-      if(mode_table[index].w == w) {
-         if(mode_table[index].h == h) {
-            if(mode_table[index].d == d) {
-               return mode_table[index].mode;
+   while (be_mode_table[index].d > 0) {
+      if(be_mode_table[index].w == w) {
+         if(be_mode_table[index].h == h) {
+            if(be_mode_table[index].d == d) {
+               return be_mode_table[index].mode;
             }
          }
       }
@@ -539,23 +465,6 @@ static inline uint32 find_gfx_mode(int w, int h, int d)
    }
 
    return (uint32)-1;
-}
-
-
-
-static inline void _be_gfx_fullscreen_accelerate(void)
-{
-   hooks.draw_line_with_8_bit_depth   = (LINE8_HOOK)  be_allegro_screen->CardHookAt(LINE8_HOOK_NUM);
-   hooks.draw_line_with_16_bit_depth  = (LINE16_HOOK) be_allegro_screen->CardHookAt(LINE16_HOOK_NUM);
-   hooks.draw_line_with_32_bit_depth  = (LINE32_HOOK) be_allegro_screen->CardHookAt(LINE32_HOOK_NUM);
-   hooks.draw_array_with_8_bit_depth  = (ARRAY8_HOOK) be_allegro_screen->CardHookAt(ARRAY8_HOOK_NUM);
-   hooks.draw_array_with_32_bit_depth = (ARRAY32_HOOK)be_allegro_screen->CardHookAt(ARRAY32_HOOK_NUM);
-   hooks.draw_rect_with_8_bit_depth   = (RECT8_HOOK)  be_allegro_screen->CardHookAt(RECT8_HOOK_NUM);
-   hooks.draw_rect_with_16_bit_depth  = (RECT16_HOOK) be_allegro_screen->CardHookAt(RECT16_HOOK_NUM);
-   hooks.draw_rect_with_32_bit_depth  = (RECT32_HOOK) be_allegro_screen->CardHookAt(RECT32_HOOK_NUM);
-   hooks.invert_rect                  = (INVERT_HOOK) be_allegro_screen->CardHookAt(INVERT_HOOK_NUM);
-   hooks.blit                         = (BLIT_HOOK)   be_allegro_screen->CardHookAt(BLIT_HOOK_NUM);
-   hooks.sync                         = (SYNC_HOOK)   be_allegro_screen->CardHookAt(SYNC_HOOK_NUM);
 }
 
 
@@ -698,22 +607,35 @@ static struct BITMAP *_be_gfx_fullscreen_init(GFX_DRIVER *drv, int w, int h, int
       goto cleanup;
    }
 
+   sync_func = NULL;
+   if (accel) {
+      be_gfx_fullscreen_accelerate(color_depth);
+   }
+
 #ifdef ALLEGRO_NO_ASM
-   bmp->write_bank = be_gfx_fullscreen_read_write_bank;
-   bmp->read_bank  = be_gfx_fullscreen_read_write_bank;
+   if (gfx_capabilities) {
+      bmp->write_bank = be_gfx_fullscreen_accel_read_write_bank;
+      bmp->read_bank  = be_gfx_fullscreen_accel_read_write_bank;
+   }
+   else {
+      bmp->write_bank = be_gfx_fullscreen_read_write_bank;
+      bmp->read_bank  = be_gfx_fullscreen_read_write_bank;
+   }
    _screen_vtable.unwrite_bank = be_gfx_fullscreen_unwrite_bank;
 #else
-   bmp->write_bank = _be_gfx_fullscreen_read_write_bank_asm;
-   bmp->read_bank  = _be_gfx_fullscreen_read_write_bank_asm;
+   if (gfx_capabilities) {
+      bmp->write_bank = _be_gfx_fullscreen_accel_read_write_bank_asm;
+      bmp->read_bank  = _be_gfx_fullscreen_accel_read_write_bank_asm;
+   }
+   else {
+      bmp->write_bank = _be_gfx_fullscreen_read_write_bank_asm;
+      bmp->read_bank  = _be_gfx_fullscreen_read_write_bank_asm;
+   }
    _screen_vtable.unwrite_bank = _be_gfx_fullscreen_unwrite_bank_asm;
 #endif
 
    _screen_vtable.acquire      = be_gfx_fullscreen_acquire;
    _screen_vtable.release      = be_gfx_fullscreen_release;
-
-   if (accel) {
-      _be_gfx_fullscreen_accelerate();
-   }
 
    _be_gfx_set_truecolor_shifts();
    
@@ -780,6 +702,18 @@ extern "C" void be_gfx_fullscreen_exit(struct BITMAP *bmp)
 
 #ifdef ALLEGRO_NO_ASM
 
+extern "C" unsigned long be_gfx_fullscreen_accel_read_write_bank(BITMAP *bmp, int line)
+{
+   if (!(bmp->id & BMP_ID_LOCKED)) {
+      sync_func();
+      acquire_sem(be_fullscreen_lock);
+      bmp->id |= (BMP_ID_LOCKED | BMP_ID_AUTOLOCK);
+   }
+   return (unsigned long)(bmp->line[line]);
+}
+
+
+
 extern "C" unsigned long be_gfx_fullscreen_read_write_bank(BITMAP *bmp, int line)
 {
    if (!(bmp->id & BMP_ID_LOCKED)) {
@@ -809,7 +743,8 @@ extern "C" void be_gfx_fullscreen_acquire(struct BITMAP *bmp)
       acquire_sem(be_fullscreen_lock);
       bmp->id |= BMP_ID_LOCKED;
    }
-
+   if (sync_func)
+      sync_func();
    lock_count++;
 }
 

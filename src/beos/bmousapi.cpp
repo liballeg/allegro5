@@ -103,6 +103,7 @@ int32 mouse_thread(void *mouse_started)
 	       int old_y = be_mouse_y;
 	       
 	       if (!be_mouse_on) {
+	          _mouse_on = TRUE;
 	          be_mouse_on = true;
 	          be_app->HideCursor();
 	       }
@@ -113,7 +114,9 @@ int32 mouse_thread(void *mouse_started)
 	       be_mickey_y += (be_mouse_y - old_y);
 	    }
 	    else {
+	       buttons = 0;
 	       if (be_mouse_on) {
+	          _mouse_on = FALSE;
 	          be_mouse_on = false;
 	          be_app->ShowCursor();
 	       }

@@ -51,6 +51,30 @@ be_gfx_fullscreen_already_acquired:
 
 
 
+/* _be_gfx_fullscreen_accel_read_write_bank_asm:
+ *   eax = line number
+ *   edx = bitmap
+ */
+FUNC(_be_gfx_fullscreen_accel_read_write_bank_asm)
+   testl $BMP_ID_LOCKED, BMP_ID(%edx)
+   jnz be_gfx_fullscreen_accel_already_acquired
+
+   pushal
+   call *GLOBL(sync_func)
+   pushl GLOBL(be_fullscreen_lock)
+   call GLOBL(acquire_sem)
+   addl $4, %esp
+   popal
+
+   orl $BMP_ID_AUTOLOCK, BMP_ID(%edx)
+   orl $BMP_ID_LOCKED, BMP_ID(%edx)
+
+be_gfx_fullscreen_accel_already_acquired:
+   movl BMP_LINE(%edx, %eax, 4), %eax
+   ret
+
+
+
 /* _be_gfx_fullscreen_unwrite_bank_asm:
  *   edx = bitmap
  */

@@ -7002,10 +7002,10 @@ BeOS specifics
 <li>
    GFX_FULLSCREEN<br>
       Fullscreen exclusive mode. Supports only resolutions higher or equal
-      to 640x480.
+      to 640x480, and uses hardware acceleration if available.
 <li>
    GFX_FULLSCREEN_SAFE<br>
-      At the moment, this behaves the same as GFX_FULLSCREEN.
+      Works the same as GFX_FULLSCREEN, but disables acceleration.
 <li>
    GFX_WINDOWED<br>
       Fast windowed mode using the BDirectWindow class. Not all graphics

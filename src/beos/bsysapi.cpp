@@ -8,9 +8,12 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Stuff for BeOS.
+ *      BeOS system driver routines.
  *
  *      By Jason Wilkins.
+ *
+ *      desktop_color_depth() and yield_timeslice() support added by
+ *      Angelo Mottola.
  *
  *      See readme.txt for copyright information.
  */
@@ -27,6 +30,8 @@
 #define SYS_THREAD_NAME     "system driver"
 
 #define EXE_NAME_UNKNOWN "./UNKNOWN"
+
+#define YIELD_TIME			30000
 
 
 
@@ -291,6 +296,29 @@ extern "C" void be_sys_message(AL_CONST char *msg)
    BAlert *alert = new BAlert(title, msg, "Okay");
    alert->SetShortcut(0, B_ESCAPE);
    alert->Go();
+}
+
+
+
+extern "C" int be_sys_desktop_color_depth(void)
+{
+   display_mode current_mode;
+   int index = 0;
+   
+   BScreen(be_allegro_screen).GetMode(&current_mode);
+   while (be_mode_table[index].d > 0) {
+      if (be_mode_table[index].mode == current_mode.space)
+         return be_mode_table[index].d;      
+      index++;
+   }   
+   return -1;	
+}
+
+
+
+extern "C" void be_sys_yield_timeslice(void)
+{
+   snooze(YIELD_TIME);
 }
 
 

@@ -54,6 +54,83 @@
 
 
 
+#define LINE8_HOOK_NUM    3
+#define LINE16_HOOK_NUM  12
+#define LINE32_HOOK_NUM   4
+#define ARRAY8_HOOK_NUM   8
+#define ARRAY32_HOOK_NUM  9
+#define RECT8_HOOK_NUM    5
+#define RECT16_HOOK_NUM  16
+#define RECT32_HOOK_NUM   6
+#define INVERT_HOOK_NUM  11
+#define BLIT_HOOK_NUM     7
+#define SYNC_HOOK_NUM    10
+
+
+
+typedef int32 (*LINE8_HOOK)(int32 startX, int32 endX, int32 startY,
+   int32 endY, uint8 colorIndex, bool clipToRect, int16 clipLeft,
+   int16 clipTop, int16 clipRight, int16 clipBottom);
+
+typedef int32 (*ARRAY8_HOOK)(indexed_color_line *array,
+   int32 numItems, bool clipToRect, int16 top, int16 right,
+   int16 bottom, int16 left);
+
+typedef int32 (*LINE16_HOOK)(int32 startX, int32 endX, int32 startY,
+   int32 endY, uint16 color, bool clipToRect, int16 clipLeft,
+   int16 clipTop, int16 clipRight, int16 clipBottom);
+
+typedef int32 (*LINE32_HOOK)(int32 startX, int32 endX, int32 startY,
+   int32 endY, uint32 color, bool clipToRect, int16 clipLeft,
+   int16 clipTop, int16 clipRight, int16 clipBottom);
+
+typedef int32 (*ARRAY32_HOOK)(rgb_color_line *array,
+   int32 numItems, bool clipToRect, int16 top, int16 right,
+   int16 bottom, int16 left);
+
+typedef int32 (*RECT8_HOOK)(int32 left, int32 top, int32 right,
+   int32 bottom, uint8 colorIndex);
+
+typedef int32 (*RECT16_HOOK)(int32 left, int32 top, int32 right,
+   int32 bottom, uint16 color);
+
+typedef int32 (*RECT32_HOOK)(int32 left, int32 top, int32 right,
+   int32 bottom, uint32 color);
+
+typedef int32 (*INVERT_HOOK)(int32 left, int32 top, int32 right,
+   int32 bottom);
+
+typedef int32 (*BLIT_HOOK)(int32 sourceX, int32 sourceY,
+   int32 destinationX, int32 destinationY, int32 width,
+   int32 height);
+
+typedef int32 (*SYNC_HOOK)(void);
+
+
+
+typedef struct HOOKS {
+   LINE8_HOOK   draw_line_8;
+   LINE16_HOOK  draw_line_16;
+   LINE32_HOOK  draw_line_32;
+   ARRAY8_HOOK  draw_array_8;
+   ARRAY32_HOOK draw_array_32;
+   RECT8_HOOK   draw_rect_8;
+   RECT16_HOOK  draw_rect_16;
+   RECT32_HOOK  draw_rect_32;
+   INVERT_HOOK  invert_rect;
+   BLIT_HOOK    blit;
+   SYNC_HOOK    sync;
+} HOOKS;
+
+
+
+typedef struct {
+   int    d, w, h;
+   uint32 mode;
+} BE_MODE_TABLE;
+
+
+
 class BeAllegroView
    : public BView
 {
@@ -132,10 +209,15 @@ extern BeAllegroWindow *be_allegro_window;
 extern BeAllegroView   *be_allegro_view; 
 extern BeAllegroScreen *be_allegro_screen;
 
+extern sem_id   be_fullscreen_lock;
 extern sem_id   be_mouse_view_attached;
 extern BWindow *be_mouse_window;
 extern BView   *be_mouse_view; 
 extern bool     be_mouse_window_mode;
+extern HOOKS hooks;
+extern const BE_MODE_TABLE be_mode_table[];
+extern int32  (*sync_func)();
+
 
 
 void be_terminate(thread_id caller);
