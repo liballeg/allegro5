@@ -347,18 +347,18 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
    float f, x, y, z;
    int i;
 
-   v *= 255.0;
+   v *= 255.0f;
 
-   if (s == 0.0) {
+   if (s == 0.0f) {
       *r = *g = *b = (int)v;
    }
    else {
-      h = fmod(h, 360) / 60.0;
+      h = fmod(h, 360.0) / 60.0;
       i = (int)h;
       f = h - i;
-      x = v * (1.0 - s);
-      y = v * (1.0 - (s * f));
-      z = v * (1.0 - (s * (1.0 - f)));
+      x = v * (1.0f - s);
+      y = v * (1.0f - (s * f));
+      z = v * (1.0f - (s * (1.0f - f)));
 
       switch (i) {
 	 case 0: *r = v; *g = z; *b = x; break;
@@ -380,33 +380,33 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
 {
    float min, max, delta, rc, gc, bc;
 
-   rc = (float)r / 255.0;
-   gc = (float)g / 255.0;
-   bc = (float)b / 255.0;
+   rc = (float)r / 255.0f;
+   gc = (float)g / 255.0f;
+   bc = (float)b / 255.0f;
    max = MAX(rc, MAX(gc, bc));
    min = MIN(rc, MIN(gc, bc));
    delta = max - min;
    *v = max;
 
-   if (max != 0.0)
+   if (max != 0.0f)
       *s = delta / max;
    else
-      *s = 0.0;
+      *s = 0.0f;
 
-   if (*s == 0.0) {
-      *h = 0.0; 
+   if (*s == 0.0f) {
+      *h = 0.0f; 
    }
    else {
       if (rc == max)
 	 *h = (gc - bc) / delta;
       else if (gc == max)
-	 *h = 2 + (bc - rc) / delta;
+	 *h = 2.0f + (bc - rc) / delta;
       else if (bc == max)
-	 *h = 4 + (rc - gc) / delta;
+	 *h = 4.0f + (rc - gc) / delta;
 
-      *h *= 60.0;
-      if (*h < 0)
-	 *h += 360.0;
+      *h *= 60.0f;
+      if (*h < 0.0f)
+	 *h += 360.0f;
     }
 }
 
