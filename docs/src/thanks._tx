@@ -24,8 +24,8 @@ Contributors
    Wrote the LBM loader.
 
    aj (<email>aj@visualsynth.com</a>).<br>
-   Reported many problems and suggested many improvements to the
-   documentation.
+   Reported many problems, suggested a lot of improvements to the
+   documentation and added 64 bit/SSE2/SSE3 detection code.
 
    Alex Demko (<email>alex_demko@mbnet.mb.ca</a>).<br>
    Suggested lots of improvements to the datafile system and provided code
@@ -194,8 +194,9 @@ Contributors
    Fixed problems with get_executable_name() under Windows, another one with
    set_window_title() under BeOS, potentially unsafe constructs in the
    Windows code, the installall makefile target under Windows, added 
-   set_allegro_resource_path(), fixed make uninstall with mingw make and
-   added ALLEGRO_LIB_BUILD flag for gcc variants not using configure.
+   set_allegro_resource_path(), fixed make uninstall with mingw make,
+   added ALLEGRO_LIB_BUILD flag for gcc variants not using configure
+   fixed a bunch of warnings in MinGW and did plenty of other things too.
 
    Daniel Verkamp (<email>i_am_drv@users.sourceforge.net</a>).<br>
    Added a MIDI input driver to the Windows port.
@@ -546,6 +547,9 @@ Contributors
    facing the screen, corrected an error in the packfile format write-up and
    made the show_video_bitmap() method of the Windows windowed driver wait
    for a vsync.
+   
+   Marcio Fialho(<email>maaf1980@yahoo.com.br</a>.<br>
+   Fixed several issues with the DJGPP port and the VBE/AF driver.
 
    Marco Campinoti (<email>marco@etruscan.li.it</a>).<br>
    Added 15 and 24 bit support to the native Tseng ET4000 driver (now
@@ -624,11 +628,14 @@ Contributors
 
    Michal Molhanec (<email>molhanec@seznam.cz</a>).<br>
    Simplified the build instructions for Dev-C++, replaced all occurences
-   of MingW32 by MinGW in the docs and added an faq section about the 
-   giftware license.
+   of MingW32 by MinGW in the docs, added an faq section about the giftware
+   license and fixed problems with long filenames when building for MSVC.
 
    Michail Pishchagin (<email>mblsha@users.sourceforge.net</a>).<br>
    Contributed the ustrnicmp() function.
+   
+   Milan Mimica (<email>milan.mimica1@pu.htnet.hr</a>).<br>
+   Fixed a bug in the keyconf utility.
 
    Nathan Albury, aka Rubicant (<email>gt4558a@prism.gatech.edu</a>).<br>
    Improved the fire routine in examples/exflame.c (my original version
@@ -711,6 +718,11 @@ Contributors
    mapping, optimised the alpha sprite blending routines and added non-ASCII
    space recognition to uisspace().
 
+   Peter Hull (<email>peterhull90@users.sourceforge.net</a>).<br>
+   Made the file selector work with directories that have more than 2048 
+   files, solved some compiling issues on MacOS X and fixed a bug in rest() 
+   that caused it to wait too long on that platform.
+
    Peter Monks (<email>pmonks@iname.com</a>).<br>
    Wrote the Video-7 graphics driver (now available as part of the FreeBE/AF
    project) and showed me how to set up the unchained 640x400 mode.
@@ -738,6 +750,9 @@ Contributors
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
+   
+   Phil Shenk (email unknown).<br>
+   Improved the MSVC build instructions.
 
    Philipp Thomas (<email>pthomas@suse.de</a>).<br>
    Fixed all comparisons between signed and unsigned types, fixed compilation
@@ -920,6 +935,9 @@ Contributors
    and other keys to the input handler, organised getting the IF-SEGA
    joystick drivers by S.Suzuki merged into my codebase and added a more
    aggressive Sidewinder joystick driver.
+   
+   Tore Halse (<email>gnolam@gmail.com</a>).<br>
+   Made Allegro windows always popup centred in Windows.
 
    V Karthik Kumar (<email>karthikkumar@gmail.com</a>).<br>
    Added a Tamil language greeting to exunicode.
