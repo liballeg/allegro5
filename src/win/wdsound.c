@@ -457,6 +457,9 @@ static int digi_directsound_init(int input, int voices)
             format.nBlockAlign, format.wBitsPerSample, format.cbSize);
          }
       }
+
+      /* get primary buffer (global) volume */
+      IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume); 
    }
 
    /* initialize physical voices */
@@ -480,9 +483,6 @@ static int digi_directsound_init(int input, int voices)
    alleg_to_dsound_pan[255] = DSBPAN_RIGHT;
    for (v = 128; v < 255; v++)
       alleg_to_dsound_pan[v] = MIN(DSBPAN_RIGHT, DSBPAN_CENTER - 2000.0*log10((255.0-v)/127.0));
-
-   /* get primary buffer (global) volume */
-   IDirectSoundBuffer_GetVolume(prim_buf, &initial_volume); 
 
    return 0;
 
