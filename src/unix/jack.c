@@ -288,8 +288,6 @@ static int jack_init(int input, int voices)
       uconvert_ascii((jack_signed ? "signed" : "unsigned"), tmp2),
       jack_rate, uconvert_ascii((jack_stereo ? "stereo" : "mono"), tmp2));
 
-   printf ("%i %i %s\n", jack_rate, jack_bufsize, jack_desc);
-
    return 0;
 }
 
