@@ -53,6 +53,7 @@ static char *module_path[] =
 static void strip(char *s)
 {
     char *x;
+    if (!s[0]) return;
     for (x = s + strlen(s) - 1; isspace(*x); x--);
     x[1] = '\0';
     for (x = s; isspace(*x); x++);
