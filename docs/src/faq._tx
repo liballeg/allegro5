@@ -222,7 +222,7 @@ DOS problems
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
-      file (eg. <tt>shell=c:\command.com /e:8192</tt>).
+      file (eg. <tt>shell=c:\command.com /e:8192 /p</tt>).
 </div>
 
 
@@ -236,7 +236,7 @@ Windows problems
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
-      file (eg. <tt>shell=c:\command.com /e:8192</tt>).
+      file (eg. <tt>shell=c:\command.com /e:8192 /p</tt>).
 
 
 @@   When I run make, it says "missing separator".
