@@ -20,8 +20,7 @@ Changes from 4.1.15 to 4.1.16 (October 2004)
    Chris Robinson fixed a bug where the X11 fullscreen driver would fail if
    no virtual screen was reported.
 <li>
-   Daniel Schlyder fixed a problem with AllegroGL related to multiple 
-   initializations and added set_allegro_resource_path().
+   Daniel Schlyder added a set_allegro_resource_path() function .
 <li>
    Elias Pschernig fixed an issue with xf2pcx.
 <li>

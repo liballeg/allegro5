@@ -112,10 +112,13 @@ static char *devhelp_blank_page(char const *name, char const *filename, int num)
 {
    char str[256];
    char *path;
+   FILE *file;
+   
    sprintf(str, "chapter%i.html", num);
    path = m_replace_filename (filename, str);
    printf("Writing %s.\n", path);
-   FILE *file = fopen(path, "w");
+   
+   file = fopen(path, "w");
    if (file) {
       /* Ideally, this would use Allegro's common HTML style and header
          and footer. */
