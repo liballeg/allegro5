@@ -103,7 +103,7 @@ AL_INLINE(fixed, fsub, (fixed x, fixed y),
 
 
 AL_INLINE(fixed, fmul, (fixed x, fixed y),
- {
+{
    return ftofix(fixtof(x) * fixtof(y));
 })
 
