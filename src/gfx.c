@@ -677,6 +677,8 @@ void do_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int d, void (*proc)(BI
 	 }
       }
    }
+
+   #undef DO_LINE
 }
 
 
@@ -780,6 +782,12 @@ void _normal_line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 	    }
 	 }
       } while (!done);
+
+      #undef COMPCLIP
+      #undef TOP
+      #undef BOTTOM
+      #undef LEFT
+      #undef RIGHT
 
       if (!accept)
 	 return;
