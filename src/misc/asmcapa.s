@@ -1,11 +1,11 @@
-/* source file for testing assembler capabilities */
+# source file for testing assembler capabilities
 
 .text
 
-#ifdef ASMCAPA_MMX_TEST
+.ifdef ASMCAPA_MMX_TEST
    emms
-#endif
+.endif
 
-#ifdef ASMCAPA_SSE_TEST
+.ifdef ASMCAPA_SSE_TEST
    maskmovq %mm3, %mm1
-#endif
+.endif
