@@ -48,7 +48,7 @@ unsigned long _mask_mmx_16[] = { 0x07E0001F, 0x00F8 };
 
 void _poly_scanline_dummy(unsigned long addr, int w, POLYGON_SEGMENT *info) { }
 
-BITMAP* _zbuffer = NULL;
+ZBUFFER *_zbuffer = NULL;
 
 SCANLINE_FILLER _optim_alternative_drawer;
 
@@ -1754,25 +1754,20 @@ void quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_
 
 
 /* create_zbuffer:
- *  If the zbuffer doesn't exist, it creates it.
+ *  Creates a new Z-buffer the size of the given bitmap.
  */
-int create_zbuffer(BITMAP *bmp)
+ZBUFFER *create_zbuffer(BITMAP *bmp)
 {
-   if (!_zbuffer) {
-      _zbuffer = create_bitmap_ex(32, bmp->w, bmp->h);
-      if (!_zbuffer) return -1;
-   }
-
-   return 0;
+   return create_bitmap_ex(32, bmp->w, bmp->h);
 }
 
 
 
 /* clear_zbuffer:
- *  Clears the z-buffer, z is the value written in the z-buffer 
+ *  Clears the given z-buffer, z is the value written in the z-buffer
  *  - it is 1/(z coordinate), z=0 meaning far away.
  */
-void clear_zbuffer(float z)
+void clear_zbuffer(ZBUFFER *zbuf, float z)
 {
    static union{
       float zf;
@@ -1780,18 +1775,42 @@ void clear_zbuffer(float z)
    } _zbuf_clip;
 
    _zbuf_clip.zf = z;
-   clear_to_color(_zbuffer, _zbuf_clip.zi);
+   clear_to_color(zbuf, _zbuf_clip.zi);
 }
 
 
 
 /* destroy_zbuffer:
- *  Destroys the z-buffer.
+ *  Destroys the given z-buffer.
  */
-void destroy_zbuffer(void)
+void destroy_zbuffer(ZBUFFER *zbuf)
 {
-   if (_zbuffer) {
-      destroy_bitmap(_zbuffer);
-      _zbuffer = NULL;
+   if (zbuf) {
+      if (zbuf == _zbuffer)
+	 _zbuffer = NULL;
+      destroy_bitmap(zbuf);
    }
+}
+
+
+
+/* set_zbuffer:
+ *  Makes polygon drawing routines use the given BITMAP as z-buffer.
+ */
+void set_zbuffer(ZBUFFER *zbuf)
+{
+   ASSERT(zbuf);
+   _zbuffer = zbuf;
+}
+
+
+
+/* create_sub_zbuffer:
+ *  Creates a new sub-z-buffer of the given z-buffer. A sub-z-buffer is
+ *  exactly like a sub-bitmap, buf for z-buffers.
+ */
+ZBUFFER *create_sub_zbuffer(ZBUFFER *parent, int x, int y, int width, int height)
+{
+   /* For now, just use the code for BITMAPs. */
+   return create_sub_bitmap(parent, x, y, width, height);
 }

@@ -1399,9 +1399,19 @@ AL_FUNC(void, quad3d, (BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2,
 AL_FUNC(void, quad3d_f, (BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4));
 AL_FUNC(int, clip3d, (int type, fixed min_z, fixed max_z, int vc, AL_CONST V3D *vtx[], V3D *vout[], V3D *vtmp[], int out[]));
 AL_FUNC(int, clip3d_f, (int type, float min_z, float max_z, int vc, AL_CONST V3D_f *vtx[], V3D_f *vout[], V3D_f *vtmp[], int out[]));
-AL_FUNC(int, create_zbuffer, (BITMAP *bmp));
-AL_FUNC(void, clear_zbuffer, (float z));
-AL_FUNC(void, destroy_zbuffer, (void));
+
+/* Note: You are not supposed to mix ZBUFFER with BITMAP even though it is
+ * currently possible. This is just the internal representation, and it may
+ * change in the future.
+ */
+typedef BITMAP ZBUFFER;
+
+AL_FUNC(ZBUFFER *, create_zbuffer, (BITMAP *bmp));
+AL_FUNC(ZBUFFER *, create_sub_zbuffer, (ZBUFFER *parent, int x, int y, int width, int height));
+AL_FUNC(void, set_zbuffer, (ZBUFFER *zbuf));
+AL_FUNC(void, clear_zbuffer, (ZBUFFER *zbuf, float z));
+AL_FUNC(void, destroy_zbuffer, (ZBUFFER *zbuf));
+
 AL_FUNC(int, scene_start, (BITMAP *bmp, int nedge, int npoly));
 AL_FUNC(int, scene_polygon3d, (int type, BITMAP *texture, int vx, V3D *vtx[]));
 AL_FUNC(int, scene_polygon3d_f, (int type, BITMAP *texture, int vx, V3D_f *vtx[]));

@@ -95,6 +95,7 @@ void draw_cube(BITMAP* buffer, V3D_f x1[], V3D_f x2[]) {
 
 int main()
 {
+   ZBUFFER *zbuf;
    BITMAP *buffer;
    PALETTE pal;
    MATRIX_f matrix1, matrix2;
@@ -171,7 +172,8 @@ int main()
 
    /* double buffer the animation and create the Z-buffer */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
-   create_zbuffer(buffer);
+   zbuf = create_zbuffer(buffer);
+   set_zbuffer(zbuf);
 
    /* set up the viewport for the perspective projection */
    set_projection_viewport(0, 0, SCREEN_W, SCREEN_H);
@@ -201,7 +203,7 @@ int main()
    /* main loop */
    while(1) {
       clear(buffer);
-      clear_zbuffer(0.);
+      clear_zbuffer(zbuf, 0.);
       
       anim_cube(&matrix1, &matrix2, x1, x2);
       draw_cube(buffer, x1, x2);
@@ -235,7 +237,7 @@ int main()
    }
 
    destroy_bitmap(buffer);
-   destroy_zbuffer();
+   destroy_zbuffer(zbuf);
    
    return 0;
 }

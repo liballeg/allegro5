@@ -3810,9 +3810,9 @@ drawn, otherwise it is skipped.
 
 No polygon sorting is needed. However, backface culling should be done
 because it prevents many invisible polygons being compared against the
-Z-buffer. Z-buffered rendering is the only algorithm that directly solves
-penetrating shapes (see example exzbuf.c, for instance). The price to pay
-is more complex (and slower) routines.
+Z-buffer. Z-buffered rendering is the only algorithm supported by Allegro
+that directly solves penetrating shapes (see example exzbuf.c, for instance).
+The price to pay is more complex (and slower) routines.
 
 Z-buffered polygons are designed as an extension of the normal POLYTYPE_*
 rendering styles. Just OR the POLYTYPE with the value POLYTYPE_ZBUF, and
@@ -3827,10 +3827,11 @@ Example:
 Of course, the z coordinates have to be valid regardless of rendering style.
 
 A Z-buffered rendering procedure looks like a double-buffered rendering
-procedure. You should follow four steps: create the Z-buffer at the
-beginning of the program then, for each frame, clear the Z-buffer and draw
-polygons with POLYTYPE_* | POLYTYPE_ZBUF and finally destroy the Z-buffer
-when leaving the program.
+procedure. You should follow four steps: create a Z-buffer at the beginning
+of the program and make the library use it by calling set_zbuffer(). Then,
+for each frame, clear the Z-buffer and draw polygons with
+POLYTYPE_* | POLYTYPE_ZBUF and finally destroy the Z-buffer when leaving the
+program.
 
 Notes on Z-buffered renderers:
 <ul><li>
@@ -3843,22 +3844,45 @@ blender routines.
 All the Z-buffered routines are much slower than their normal counterparts
 (they all use the FPU to interpolate and test 1/z values).
 </ul>
-@@int @create_zbuffer(BITMAP* bmp);
-@xref clear_zbuffer, destroy_zbuffer, polygon3d
-  Creates the Z-buffer using the size of the BITMAP you are planning to draw
-  on. Only one z-buffer can be defined (and used) at the same time. It is a
-  32 bit/pixel buffer.
+@@ZBUFFER *@create_zbuffer(BITMAP *bmp);
+@xref create_sub_zbuffer, set_zbuffer, clear_zbuffer, destroy_zbuffer
+   Creates a Z-buffer using the size of the BITMAP you are planning to draw
+   on. Several Z-buffers can be defined but only one can be used at the same
+   time, so you must call set_zbuffer() to make this Z-buffer active.
 
-@@void @clear_zbuffer(float z);
-@xref create_zbuffer, destroy_zbuffer, polygon3d
-  Writes z into the Z-buffer (0 means far away). This function should be used
-  to initialize the Z-buffer before each frame. Actually, low-level routines
-  compare depth of the current pixel with 1/z: for example, if you want to
-  clip polygons farther than 10, you must call clear_zbuffer(0.1);
+@@ZBUFFER *@create_sub_zbuffer(ZBUFFER *parent, int x, int y, int width, int height);
+@xref create_zbuffer, create_sub_bitmap, destroy_zbuffer
+   Creates a sub-z-buffer, ie. a z-buffer sharing drawing memory with a
+   pre-existing z-buffer, but possibly with a different size. The same rules
+   as for sub-bitmaps apply: the sub-z-buffer width and height can extend
+   beyond the right and bottom edges of the parent (they will be clipped), 
+   but the origin point must lie within the parent region.
 
-@@void @destroy_zbuffer(void);
-@xref create_zbuffer, clear_zbuffer, polygon3d
-  Destroys the Z-buffer when you are finished with.
+   When drawing z-buffered to a bitmap, the top left corner of the bitmap is
+   always mapped to the top left corner of the current z-buffer. So this
+   function is primarily useful if you want to draw to a sub-bitmap and use
+   the corresponding sub-area of the z-buffer. In other cases, eg. if you
+   just want to draw to a sub-bitmap of screen (and not to other parts of
+   screen), then you would usually want to create a normal z-buffer (not
+   sub-z-buffer) the size of the visible screen. You don't need to first
+   create a z-buffer the size of the virtual screen and then a sub-z-buffer
+   of that.
+
+@@void @set_zbuffer(ZBUFFER *zbuf);
+@xref create_zbuffer, clear_zbuffer, destroy_zbuffer
+   Makes the given Z-buffer be the active one. This should have been
+   previously created with create_zbuffer().
+
+@@void @clear_zbuffer(ZBUFFER *zbuf, float z);
+@xref create_zbuffer, set_zbuffer, destroy_zbuffer
+   Writes z into the given Z-buffer (0 means far away). This function should
+   be used to initialize the Z-buffer before each frame. Actually, low-level
+   routines compare depth of the current pixel with 1/z: for example, if you
+   want to clip polygons farther than 10, you must call clear_zbuffer(0.1);
+
+@@void @destroy_zbuffer(ZBUFFER *zbuf);
+@xref create_zbuffer, set_zbuffer, clear_zbuffer
+   Destroys the Z-buffer when you are finished with it.
 
 @hnode scene rendering
 Allegro provides two simple approaches to remove hidden surfaces:

@@ -80,11 +80,12 @@
    Cross-platform support for DOS, Windows, Unix, and BeOS systems.
 
    Drawing functions including putpixel, getpixel, lines, rectangles, flat 
-   shaded, gouraud shaded, and texture mapped polygons, circles, floodfill, 
-   bezier splines, patterned fills, masked, run length encoded, and compiled 
-   sprites, blitting, bitmap scaling and rotation, translucency/lighting, 
-   and text output with proportional fonts. Supports clipping, and can draw 
-   directly to the screen or to memory bitmaps of any size.
+   shaded, gouraud shaded, texture mapped, and z-buffered polygons, circles,
+   floodfill, bezier splines, patterned fills, masked, run length encoded,
+   and compiled sprites, blitting, bitmap scaling and rotation,
+   translucency/lighting, and text output with proportional fonts. Supports
+   clipping, and can draw directly to the screen or to memory bitmaps of any
+   size.
 
    DOS graphics drivers for VGA mode 13h, mode-X (twenty three tweaked VGA 
    resolutions plus unchained 640x400 Xtended mode), and SVGA modes with 8, 
