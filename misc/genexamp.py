@@ -15,16 +15,15 @@ ok. Usage example:
    ...review...
    python misc/genexamp.py | patch -p0
 
-In order to work, this script requires Python 2.2 and the
-diff binary in your path. Written by Grzegorz Adam Hankiewicz,
-gradha@users.sourceforge.net. Notify me of any broken behaviour,
-like uncaught exceptions.
+In order to work, this script requires Python (tested with 1.5.2
+and 2.2.2) and the diff binary in your path. Written by Grzegorz
+Adam Hankiewicz, gradha@users.sourceforge.net. Notify me of any
+broken behaviour, like uncaught exceptions.
 """
+import sys, re, os, os.path, glob, popen2, string
 
-import sys, re, os, glob, popen2
-
-path_to_documentation = os.path.join(*["docs", "src", "allegro._tx"])
-path_to_example_dir = os.path.join(*["examples"])
+path_to_documentation = apply(os.path.join, ["docs", "src", "allegro._tx"])
+path_to_example_dir = apply(os.path.join, ["examples"])
 # number of max erefs, below 1 desactivates limit
 limit_example_erefs = 10
 limit_example_reference = "Available Allegro examples"
@@ -56,8 +55,8 @@ def detect_all_available_examples(path):
    to stderr.
    """
    examples = filter(lambda x: x not in examples_order,
-      [os.path.splitext(os.path.basename(x))[0] for x in
-       glob.glob(os.path.join(path, "*.c"))])
+      map(lambda x: os.path.splitext(os.path.basename(x))[0],
+      glob.glob(os.path.join(path, "*.c"))))
    if examples:
       sys.stderr.write("Warning! There are examples not listed in the default\n"
          "examples_order variable. You should correct this:\n")
@@ -77,7 +76,7 @@ def retrieve_documentation_identifiers(file_name):
    dic = {}
    exp = re.compile(regular_expression_for_tx_identifiers)
    file = open(file_name, "rt")
-   for line in file:
+   for line in file.readlines():
       match = exp.match(line)
       # avoid the identifiers of existant examples
       if match and match.group("name") not in examples_order:
@@ -103,14 +102,14 @@ def retrieve_source_data(file_name):
    file = open(file_name, "rt")
    getting_comment = 1
    comment = []
-   for line in file:
+   for line in file.readlines():
       if getting_comment:
          # stop reading after first comment end marker
-         if line.find("*/") >= 0:
+         if string.find(line, "*/") >= 0:
             getting_comment = 0
          else:
             # ok, retrieve all lines removing first 3 characters
-            comment.append(line[2:].strip())
+            comment.append(string.strip(line[2:]))
       else:
          # retrieve all possible keywords
          for match in re.findall(exp, line):
@@ -119,7 +118,7 @@ def retrieve_source_data(file_name):
 
    # post-process comment, removing initial credits
    while len(comment):
-      if not comment[0].strip() or comment[0].find("Example pr") >= 0:
+      if not string.strip(comment[0]) or string.find(comment[0], "Example pr") >= 0:
          comment.pop(0)
       else:
          break
@@ -153,7 +152,7 @@ def get_valid_example_ids(example_ids, global_ids, incremental = None):
             pass
    else:
       for id in example_ids:
-         if id in global_ids:
+         if global_ids.has_key(id):
             valid_ids.append(id)
    return valid_ids
 
@@ -172,14 +171,14 @@ def build_formatted_lines(word_list):
    while len(word_list) > 0:
       new_word = word_list.pop(0)
       if length + len(new_word) + 2 < XREF_WIDTH:
-         length += len(new_word) + 2
+         length = length + len(new_word) + 2
          new_line.append(new_word)
       else:
-         new_list.append(", ".join(new_line))
+         new_list.append(string.join(new_line, ", "))
          new_line = [new_word]
          length = len(new_word) + 2
 
-   new_list.append(", ".join(new_line))
+   new_list.append(string.join(new_line, ", "))
    return new_list
 
       
@@ -241,7 +240,11 @@ def generate_example_chapter(path_to_documentation, example_files, incremental =
       name = os.path.splitext(os.path.basename(example))[0]
       valid_ids = get_valid_example_ids(ex_ids, doc_ids, incremental)
       # build reverse lookup
-      for id in valid_ids: reverse_docs.setdefault(id, []).append(name)
+      for id in valid_ids:
+         try:
+            reverse_docs[id].append(name)
+         except KeyError:
+            reverse_docs[id] = [name]
       # finally add the text chunk
       lines.extend(build_example_output(name, comment, valid_ids))
    return lines, reverse_docs
@@ -258,16 +261,16 @@ def replace_example_chapter(path_to_documentation, chapter_lines):
    lines = []
    file = open(path_to_documentation, "rt")
    state = 0
-   for line in file:
+   for line in file.readlines():
       if state == 0:
          lines.append(line)
-         if line.find(START_MARK) > 0:
-            state += 1
+         if string.find(line, START_MARK) > 0:
+            state = state + 1
       elif state == 1:
-         if line.find(END_MARK) > 0:
+         if string.find(line, END_MARK) > 0:
             lines.extend(chapter_lines)
             lines.append(line)
-            state += 1
+            state = state + 1
       else:
          lines.append(line)
 
@@ -283,7 +286,7 @@ def find_differences(file_name, lines):
    .tmp is build and later removed. The function returns the output
    of the diff commant as a list of lines.
    """
-   temp_name = path_to_documentation.replace("._tx", ".tmp")
+   temp_name = string.replace(path_to_documentation, "._tx", ".tmp")
    file = open(temp_name, "wt")
    file.writelines(lines)
    file.close()
@@ -338,7 +341,7 @@ def replace_example_references(documentation, ids_to_examples):
       else:
          new_lines.append(line)
          match = exp.match(line)
-         if match and match.group("name") in ids_to_examples:
+         if match and ids_to_examples.has_key(match.group("name")):
             found_id = match.group("name")
             
    return new_lines
