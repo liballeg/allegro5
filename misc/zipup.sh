@@ -35,6 +35,7 @@ fi
 for file in makefile.*; do
    mv $file _tmpfile
    tr -d \\\r < _tmpfile > $file
+   touch -r _tmpfile $file
    rm _tmpfile
 done
 
@@ -63,7 +64,9 @@ utod()
 	 spec=$(echo $file | sed -e "s/^\.\.\.\///")
 	 find . -type f -name "$spec" -exec perl -p -i -e 's/([^\r]|^)\n/\1\r\n/' {} \;
       else
-	 perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" $file
+	 perl -p -e "s/([^\r]|^)\n/\1\r\n/" $file > _tmpfile
+	 touch -r $file _tmpfile
+	 mv _tmpfile $file
       fi
    done
 }

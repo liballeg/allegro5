@@ -65,8 +65,7 @@ proc_utod()
          unix2dos $file
       else
          echo "$file"
-         cp $file _tmpfile
-         perl -p -i -e "s/([^\r]|^)\n/\1\r\n/" _tmpfile
+         perl -p -e "s/([^\r]|^)\n/\1\r\n/" $file > _tmpfile
          touch -r $file _tmpfile
          mv _tmpfile $file
       fi
