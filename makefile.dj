@@ -11,12 +11,13 @@
 # -------- define some variables that the primary makefile will use --------
 
 PLATFORM = djgpp
-OBJ_DIR = obj/djgpp/$(VERSION)
-LIB_NAME = lib/djgpp/lib$(VERSION).a
 EXE = .exe
 OBJ = .o
 
 PLATFORM_DIR = obj/djgpp
+
+OBJ_DIR = obj/djgpp/$(VERSION)
+LIB_NAME = lib/djgpp/lib$(VERSION).a
 
 ifdef CROSSCOMPILE
   UNIX_TOOLS = 1
@@ -27,21 +28,22 @@ ifneq (,$(findstring bash,$(SHELL)))
 endif
 
 
+
 # -------- autodetect whether to use LFN --------
 
 ifdef CROSSCOMPILE
-HTML = html
-INFO = info
-TEXI = texi
+   HTML = html
+   INFO = info
+   TEXI = texi
 else
 ifeq ($(LFN),y)
-HTML = html
-INFO = info
-TEXI = texi
+   HTML = html
+   INFO = info
+   TEXI = texi
 else
-HTML = htm
-INFO = inf
-TEXI = txi
+   HTML = htm
+   INFO = inf
+   TEXI = txi
 endif
 endif
 
@@ -68,7 +70,6 @@ DJDIR_D = $(subst /,\,$(DJDIR))
 
 ifndef CROSSCOMPILE
 
-
 # -------- check that the djdev package is installed --------
 
 ifeq ($(wildcard $(DJDIR_U)/bin/djasm.exe),)
@@ -87,6 +88,7 @@ badgcc:
 	@echo Missing djgpp package! You need to install gcc2952b.zip (or whatever the
 	@echo latest version is). Download this from wherever you got djgpp, and unzip
 	@echo it into the root of your djgpp directory.
+
 endif
 
 
@@ -143,7 +145,6 @@ badalleg:
 	@echo while unzipping it: did you remember to use the -d flag with pkunzip?
 endif
 
-
 endif
 
 
@@ -181,9 +182,12 @@ endif
 
 OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 
+
+
 ifdef DEBUGMODE
 
 # -------- debugging build --------
+
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) -g
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
 LFLAGS = -g
@@ -203,7 +207,7 @@ CFLAGS = $(WFLAGS) $(OFLAGS) -fomit-frame-pointer
 SFLAGS = $(WFLAGS)
 
 ifndef SYMBOLMODE
-LFLAGS = -s
+   LFLAGS = -s
 endif
 
 endif
@@ -217,14 +221,16 @@ VPATH = src/dos src/misc
 
 ifdef ALLEGRO_USE_C
 
-# build a C-only version
+# ------ build a C-only version ------
+
 VPATH += src/c
 MY_OBJECTS = $(C_OBJECTS) cmiscs
 CFLAGS += -DALLEGRO_USE_C
 
 else
 
-# build the normal asm version
+# ------ build the normal asm version ------
+
 VPATH += src/i386
 MY_OBJECTS = $(I386_OBJECTS)
 
@@ -284,7 +290,7 @@ INSTALL_FILES = $(DJDIR_U)/lib/lib$(VERSION).a \
 		$(DJDIR_U)/include/allegro $(HEADERS)
 
 install: $(INSTALL_FILES)
-	@echo The $(DESCRIPTION) djgpp library has been installed.
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
 UNINSTALL_FILES = $(DJDIR_U)/lib/liballeg.a \
 		  $(DJDIR_U)/lib/liballd.a \
@@ -308,10 +314,10 @@ endif
 # -------- helper function for compressing the executables --------
 
 ifneq ($(wildcard $(DJDIR_U)/bin/upx.exe),)
-DJP = $(DJDIR_U)/bin/upx.exe
+   DJP = $(DJDIR_U)/bin/upx.exe
 else
 ifneq ($(wildcard $(DJDIR_U)/bin/djp.exe),)
-DJP = $(DJDIR_U)/bin/djp.exe -s
+   DJP = $(DJDIR_U)/bin/djp.exe -s
 endif
 endif
 
@@ -326,15 +332,16 @@ compress: $(PROGRAMS)
     endif
 
 
-# test assembler capabilities.
+# -------- test assembler capabilities --------
 
 include makefile.tst
+
 
 
 # -------- finally, we get to the fun part... --------
 
 define MAKE_LIB
-ar rs $(LIB_NAME) $(OBJECTS)
+   ar rs $(LIB_NAME) $(OBJECTS)
 endef
 
 COMPILE_FLAGS = $(subst src/,-DALLEGRO_SRC ,$(findstring src/, $<))$(CFLAGS)
@@ -387,23 +394,23 @@ PLUGIN_SCR = scr
 ifdef UNIX_TOOLS
 
 define GENERATE_PLUGINS_H
-cat tools/plugins/*.inc > obj/djgpp/plugins.h
+   cat tools/plugins/*.inc > obj/djgpp/plugins.h
 endef
 
 else
 
 define GENERATE_PLUGINS_H
-copy tools\plugins\*.inc obj\djgpp\plugins.h
+   copy tools\plugins\*.inc obj\djgpp\plugins.h
 endef
 
 endif
 
 define MAKE_PLUGIN_LIB
-ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
+   ar rs $(PLUGIN_LIB) $(PLUGIN_OBJS)
 endef
 
 define LINK_WITH_PLUGINS
-gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
+   gcc $(LFLAGS) -o $@ $< $(strip $(PLUGIN_LIB) $(addprefix @,$(PLUGIN_SCRIPTS)) $(LIB_NAME))
 endef
 
 
@@ -428,5 +435,3 @@ else
 	del _depend.tmp
 	del _depend2.tmp
 endif
-
-

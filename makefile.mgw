@@ -1,5 +1,5 @@
 #
-#  Rules for building the Allegro library with Mingw32. This file is included
+#  Rules for building the Allegro library with MingW32. This file is included
 #  by the primary makefile, and should not be used directly.
 #
 #  The "depend" target uses sed.
@@ -10,7 +10,7 @@
 
 # -------- define some variables that the primary makefile will use --------
 
-PLATFORM = MINGW32
+PLATFORM = MingW32
 EXE = .exe
 OBJ = .o
 HTML = html
@@ -25,9 +25,12 @@ ifdef ALLEGRO_USE_CYGWIN
    UNIX_TOOLS = 1
 endif
 
+
+
 ifdef STATICLINK
 
 # -------- link as a static library --------
+
 OBJ_DIR = obj/mingw32/$(VERSION)_s
 IMPLIB_BASENAME = lib$(VERSION)_s.a
 IMPLIB_NAME = lib/mingw32/$(IMPLIB_BASENAME)
@@ -36,6 +39,7 @@ LIB_NAME = $(IMPLIB_NAME)
 else
 
 # -------- link as a DLL --------
+
 OBJ_DIR = obj/mingw32/$(VERSION)
 DLL_BASENAME = $(SHORT_VERSION)$(LIBRARY_VERSION).dll
 DLL_NAME = lib/mingw32/$(DLL_BASENAME)
@@ -49,7 +53,7 @@ endif # STATICLINK
 
 
 # -------- check that environment path variable is set --------
-#
+
 .PHONY: badwin badming
 
 ifdef ALLEGRO_USE_CYGWIN
@@ -102,7 +106,7 @@ _default: default
 
 
 # -------- decide what compiler options to use --------
-#
+
 ifdef ALLEGRO_USE_CYGWIN
    PFLAGS = -mno-cygwin
 endif
@@ -132,6 +136,7 @@ OFLAGS = $(TARGET_ARCH) $(TARGET_OPTS)
 ifdef DEBUGMODE
 
 # -------- debugging build --------
+
 CFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS) $(PFLAGS) -g
 SFLAGS = -DDEBUGMODE=$(DEBUGMODE) $(WFLAGS)
 LFLAGS += -g
@@ -140,6 +145,7 @@ else
 ifdef PROFILEMODE
 
 # -------- profiling build --------
+
 CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -pg
 SFLAGS = $(WFLAGS)
 LFLAGS += -pg
@@ -147,6 +153,7 @@ LFLAGS += -pg
 else
 
 # -------- optimised build --------
+
 CFLAGS = $(WFLAGS) $(OFLAGS) $(PFLAGS) -fomit-frame-pointer -fno-strength-reduce
 SFLAGS = $(WFLAGS)
 ifndef SYMBOLMODE
@@ -165,6 +172,7 @@ VPATH = src/win src/misc tests/win tools/win
 ifdef ALLEGRO_USE_C
 
 # ------ build a C-only version ------
+
 VPATH += src/c
 MY_OBJECTS = $(C_OBJECTS) cmiscs
 CFLAGS += -DALLEGRO_USE_C
@@ -172,6 +180,7 @@ CFLAGS += -DALLEGRO_USE_C
 else
 
 # ------ build the normal asm version ------
+
 VPATH += src/i386
 MY_OBJECTS = $(I386_OBJECTS)
 
@@ -259,8 +268,11 @@ endif # UNIX_TOOLS
 
 HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
 
-INSTALL_FILES = $(MINGDIR_U)/include $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
-                $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro $(HEADERS)
+INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
+                $(MINGDIR_U)/include/allegro.h \
+                $(MINGDIR_U)/include/winalleg.h \
+                $(MINGDIR_U)/include/allegro \
+                $(HEADERS)
 
 ifndef CROSSCOMPILE
    ifndef STATICLINK
@@ -269,15 +281,21 @@ ifndef CROSSCOMPILE
 endif
 
 install: $(INSTALL_FILES)
-	@echo The $(DESCRIPTION) MINGW32 library has been installed.
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a $(MINGDIR_U)/lib/liballd.a $(MINGDIR_U)/lib/liballp.a \
-                  $(MINGDIR_U)/include/allegro.h $(MINGDIR_U)/include/winalleg.h $(MINGDIR_U)/include/allegro/*.h \
-		  $(WINDIR_U)/all$(LIBRARY_VERSION).dll $(WINDIR_U)/ald$(LIBRARY_VERSION).dll $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
+UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a \
+                  $(MINGDIR_U)/lib/liballd.a \
+                  $(MINGDIR_U)/lib/liballp.a \
+                  $(MINGDIR_U)/include/allegro.h \
+                  $(MINGDIR_U)/include/winalleg.h \
+                  $(MINGDIR_U)/include/allegro/*.h \
+                  $(WINDIR_U)/all$(LIBRARY_VERSION).dll \
+                  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll \
+                  $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
-	-rmdir $(MINGDIR_U)/include/allegro
+	-rd $(MINGDIR_D)\include\allegro
 	@echo All gone!
 
 
@@ -296,9 +314,10 @@ endif
 
 
 
-# test assembler capabilities.
+# -------- test assembler capabilities --------
 
 include makefile.tst
+
 
 
 # -------- finally, we get to the fun part... --------
@@ -314,6 +333,7 @@ endif
 ifdef STATICLINK
 
 # -------- link as a static library --------
+
 define MAKE_LIB
    ar rs $(LIB_NAME) $(OBJECTS)
 endef
@@ -443,4 +463,3 @@ else
 	del _depend.tmp
 	del _depend2.tmp
 endif
-
