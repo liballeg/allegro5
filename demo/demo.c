@@ -18,6 +18,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "allegro.h"
 #include "demo.h"
@@ -2000,6 +2001,7 @@ int main(int argc, char *argv[])
 	 jumpstart = TRUE;
    }
 
+   srand(time(NULL));
    if (allegro_init() != 0)
       return 1;
    install_keyboard();
