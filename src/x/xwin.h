@@ -20,6 +20,9 @@
 
 #include "xalleg.h"
 
+/* Defined in xmouse.c */
+AL_VAR(int, _xwin_mouse_extended_range);
+
 /* Defined in xwin.c.  */
 AL_VAR(int, _xwin_last_line);
 AL_VAR(int, _xwin_in_gfx_call);
