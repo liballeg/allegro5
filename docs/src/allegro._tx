@@ -4417,7 +4417,9 @@ Polygon rendering
    Clips the polygon given in vtx. The number of vertices is vc, the result 
    goes in vout, and vtmp and out are needed for internal purposes. The 
    pointers in vtx, vout and vtmp must point to valid V3D_f structures. 
-   The size of arrays vout, vtmp and out should be twice as big as vc.
+   As additional vertices may appear in the process of clipping, so the 
+   size of vout, vtmp and out should be at least vc * (1.5 ^ n), where n is
+   the number of clipping planes (5 or 6), and '^' denotes "to the power of".
    The frustum (viewing volume) is defined by -z&ltx&ltz, -z&lty&ltz,
    0&ltmin_z&ltz&ltmax_z. If  max_z&lt=min_z, the z&ltmax_z clipping is
    not done. As you can see, clipping is done in the camera space, with
