@@ -95,5 +95,6 @@ Wishlist
 - function to get a list of supported video modes
 - hook function to handle window resizing and another one to handle
   window closing
+- dynamically linked wrappers for drivers under Linux
 
 ---------------------------------------------------------------------------
