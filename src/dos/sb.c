@@ -45,7 +45,7 @@ static int sb_rec_start(int rate, int bits, int stereo);
 static void sb_rec_stop(void);
 static int sb_rec_read(void *buf);
 
-static char sb_desc[160] = EMPTY_STRING;
+static char sb_desc[256] = EMPTY_STRING;
 
 
 
@@ -152,7 +152,7 @@ static int sb_midi_init(int input, int voices);
 static void sb_midi_exit(int input);
 static void sb_midi_output(int data);
 
-static char sb_midi_desc[160] = EMPTY_STRING;
+static char sb_midi_desc[256] = EMPTY_STRING;
 
 
 

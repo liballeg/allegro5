@@ -109,7 +109,7 @@ static int soundscape_bufnum = 0;            /* the one currently in use */
 
 static void soundscape_lock_mem(void);
 
-static char soundscape_desc[160] = EMPTY_STRING;
+static char soundscape_desc[256] = EMPTY_STRING;
 
 static int cd_cfg_save;             /* gate array register save area */
 static int dma_cfg_save;            /* gate array register save area */

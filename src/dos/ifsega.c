@@ -8,10 +8,10 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Joystick driver for the IF-SEGA/ISA(I-O DATA) controller.
+ *      Joystick driver for the IF-SEGA/ISA (I-O DATA) controller.
  *
- *      By E.Watanabe (99/09/08, 3.9.24WIP)
- *      based on sample code by Earle F. Philhower, III. / Kerry High (SNES)
+ *      By E. Watanabe (99/09/08),
+ *      based on sample code by Earle F. Philhower, III / Kerry High (SNES).
  *
  */
 

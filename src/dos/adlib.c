@@ -39,7 +39,7 @@ static void fm_key_off(int voice);
 static void fm_set_volume(int voice, int vol);
 static void fm_set_pitch(int voice, int note, int bend);
 
-static char adlib_desc[160] = EMPTY_STRING;
+static char adlib_desc[256] = EMPTY_STRING;
 
 
 
@@ -853,7 +853,7 @@ int load_ibk(AL_CONST char *filename, int drums)
  */
 static int fm_init(int input, int voices)
 {
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
    AL_CONST char *s;
    int i;
 

@@ -367,7 +367,7 @@ static void sys_dos_get_executable_name(char *output, int size)
    #elif defined ALLEGRO_WATCOM
 
       /* Watcom has a _cmdname() function to fetch the program name */
-      char buf[256];
+      char buf[1024];
       do_uconvert(_cmdname(buf), U_ASCII, output, U_CURRENT, size);
 
    #else

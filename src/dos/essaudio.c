@@ -33,7 +33,7 @@ static void ess_exit(int input);
 static int ess_mixer_volume(int volume);
 static int ess_buffer_size(void);
 
-static char ess_desc[160] = EMPTY_STRING;
+static char ess_desc[256] = EMPTY_STRING;
 
 
 DIGI_DRIVER digi_audiodrive =

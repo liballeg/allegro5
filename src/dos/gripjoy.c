@@ -595,7 +595,7 @@ static int already_linked = 0;
  */
 static int grip_link()
 {
-   char name[256], tmp[256], *s;
+   char name[1024], tmp[64], *s;
    PACKFILE *f;
    long size;
    void *image;

@@ -37,7 +37,7 @@ static int mpu_init(int input, int voices);
 static void mpu_exit(int input);
 static void mpu_output(int data);
 
-static char mpu_desc[160] = EMPTY_STRING;
+static char mpu_desc[256] = EMPTY_STRING;
 
 
 MIDI_DRIVER midi_mpu401 =

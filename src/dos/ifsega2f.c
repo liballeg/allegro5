@@ -8,17 +8,15 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Joystick driver for the IF-SEGA2/PCI(I-O DATA) controller.
- *         (Normal PAD * 2 ONLY)
+ *      Joystick driver for the IF-SEGA2/PCI (I-O DATA) controller.
+ *      (Normal PAD * 2 ONLY)
  *
- *      By S.Suzuki
+ *      By S. Suzuki,
  *
- *      based code by E.Watanabe
- *              (ifsega.c : IF-SEGA/ISA Joystick driver) 
+ *      based on code by E.Watanabe (ifsega.c : IF-SEGA/ISA joystick driver).
  *
- *      Test Program and information provided by Saka
- *              (sp2p : Analog joystick Emulation driver
- *               for Win9x DOS Session + IF-SEGA/ISA,IF-SEGA2/PCI)
+ *      Test program and informations provided by Saka (sp2p : analog joystick
+ *      emulation driver for Win9x DOS Session + IF-SEGA/ISA, IF-SEGA2/PCI).
  */
 
 

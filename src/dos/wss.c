@@ -25,9 +25,8 @@
  *      If you fix this problem, email me and tell how...
  *
  *      Should I support recording? naah... =)
- *      AD1848 can't do full duplex, and this driver
- *      is meant to be AD1848 compatible. So, if you plan to support full
- *      duplex, check the chip revision first!
+ *      AD1848 can't do full duplex, and this driver is meant to be AD1848 compatible.
+ *      So, if you plan to support full duplex, check the chip revision first!
  */
 
 
@@ -97,7 +96,7 @@ static int wss_mixer_volume(int volume);
 static int wss_buffer_size(void);
 
 
-static char wss_desc[160] = EMPTY_STRING;
+static char wss_desc[256] = EMPTY_STRING;
 
 
 DIGI_DRIVER digi_wss =

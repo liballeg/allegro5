@@ -13,7 +13,7 @@
  *
  *      By Shawn Hargreaves.
  *
- *      Refresh rate control added by S.Sakamaki.
+ *      Refresh rate control added by S. Sakamaki.
  *
  *      See readme.txt for copyright information.
  */

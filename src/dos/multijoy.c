@@ -9,15 +9,15 @@
  *                                           \_/__/
  *
  *      Drivers for multisystem joysticks (Atari, Commodore 64 etc.)
- *      with 9-pin connectors
+ *      with 9-pin connectors.
  *
- *      By Fabrizio Gennari
+ *      By Fabrizio Gennari.
  *
  *      JOY_TYPE_DB9_LPT[123]
  *
  *      Supports 2 two-button joysticks. Port 1 is compatible with Linux
  *      joy-db9 driver (multisystem 2-button), and port 2 is compatible
- *       with Atari interface for DirectPad Pro.
+ *      with Atari interface for DirectPad Pro.
  *
  *      Based on joy-db9 driver for Linux by Vojtech Pavlik
  *      and on Atari interface for DirectPad Pro by Earle F. Philhower, III

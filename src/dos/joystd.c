@@ -902,7 +902,7 @@ static int poll(int *x, int *y, int *x2, int *y2, int poll_mask)
  */
 static int joy_save_data()
 {
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
    char *j = uconvert_ascii("joystick", tmp1);
 
    set_config_int(j, uconvert_ascii("joystick_flags", tmp2),    joystick_flags);
@@ -947,7 +947,7 @@ static int joy_save_data()
  */
 static int joy_load_data()
 {
-   char tmp1[80], tmp2[80];
+   char tmp1[128], tmp2[128];
    char *j = uconvert_ascii("joystick", tmp1);
 
    joystick_flags    = get_config_int(j, uconvert_ascii("joystick_flags", tmp2), joystick_flags);
