@@ -102,7 +102,7 @@ static LARGE_INTEGER counter_per_msec;
 
 
 /* set_sync_timer_freq:
- *  sets the speed of the retrace counter.
+ *  Sets the speed of the retrace counter.
  */
 void set_sync_timer_freq(int freq)
 {
@@ -112,7 +112,7 @@ void set_sync_timer_freq(int freq)
 
 
 /* tim_win32_handle_timer_tick:
- *  called by the driver to handle a tick.
+ *  Called by the driver to handle a tick.
  */
 static int tim_win32_handle_timer_tick(int interval)
 {
@@ -173,7 +173,7 @@ static int tim_win32_handle_timer_tick(int interval)
 
 
 /* tim_win32_high_perf_thread:
- *  thread loop function for the high performance driver.
+ *  Thread loop function for the high performance driver.
  */
 static void tim_win32_high_perf_thread(void *unused)
 {
@@ -220,7 +220,7 @@ static void tim_win32_high_perf_thread(void *unused)
 
 
 /* tim_win32_low_perf_thread:
- *  thread loop function for the low performance driver.
+ *  Thread loop function for the low performance driver.
  */
 static void tim_win32_low_perf_thread(void *unused)
 {
@@ -267,7 +267,7 @@ static void tim_win32_low_perf_thread(void *unused)
 
 
 /* tim_win32_high_perf_init:
- *  initializes the high performance driver.
+ *  Initializes the high performance driver.
  */
 static int tim_win32_high_perf_init(void)
 {
@@ -294,7 +294,7 @@ static int tim_win32_high_perf_init(void)
 
 
 /* tim_win32_low_perf_init:
- *  initializes the low performance driver.
+ *  Initializes the low performance driver.
  */
 static int tim_win32_low_perf_init(void)
 {
@@ -313,6 +313,7 @@ static int tim_win32_low_perf_init(void)
 
 
 /* tim_win32_exit:
+ *  Shuts down either timer driver.
  */
 static void tim_win32_exit(void)
 {
@@ -329,6 +330,7 @@ static void tim_win32_exit(void)
 
 
 /* can_simulate_retrace:
+ *  Simulated retrace doesn't work under Windows.
  */
 static int can_simulate_retrace(void)
 {
@@ -338,6 +340,7 @@ static int can_simulate_retrace(void)
 
 
 /* win32_rest:
+ *  Rests the specified amount of milliseconds.
  */
 static void win32_rest(long time, AL_METHOD(void, callback, (void)))
 {
