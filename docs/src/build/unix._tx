@@ -163,6 +163,17 @@ Using Allegro
 
 
 @heading
+Setting an X11 icon
+   You can set the X11 icon for your application to use. To do this, you need
+   to include the icon in .xpm format and then point the symbol allegro_icon
+   to the .xpm data before calling set_gfx_mode().
+   Alternatively, you can use the xfixicon.sh shellscript to produce a C file
+   that will do this for you automatically when you link it with your project.
+   No other steps are required. The xfixicon.sh utility will also accept 
+   bitmaps that are not in .xpm format, interpreting magic pink as transparent.
+   You will need to have the ImageMagik tools installed for this to work.
+
+@heading
 Shared library compatibility
 
    Allegro can interface with a lot of other libraries -- in particular, 
