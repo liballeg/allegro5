@@ -29,8 +29,9 @@
 #undef TRACE
 #undef ASSERT
 
-#include <Be.h>
-
+#ifndef SCAN_DEPEND
+   #include <Be.h>
+#endif
 
 
 /* convert_to_bbitmap:
