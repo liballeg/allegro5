@@ -580,22 +580,22 @@ table to the set_ucodepage() function.
 
 @@char *@ustrncpy(char *dest, const char *src, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcpy
-   This function is like `ustrcpy' except that not more than n bytes from 
+   This function is like ustrcpy() except that not more than n bytes from 
    src are copied into dest. The n parameter is given in bytes rather than 
    characters on the assumption that you will be using this function to 
    prevent overflowing the size of a memory buffer. A single null character 
    is always appended to dest, so that the total amount of bytes actually 
-   written at the end of dest can reach `n + ucwidth(0)' bytes. The return 
+   written at the end of dest can reach n + ucwidth(0) bytes. The return 
    value is the value of dest.
 
 @@char *@ustrncat(char *dest, const char *src, int n);
 @xref uconvert, ustrsize, ustrsizez, ustrcat, ucwidth
-   This function is like `ustrcat' except that not more than n bytes from src
-   are appended to the end of dest. The n parameter is given in bytes
+   This function is like ustrcat() except that not more than n bytes from 
+   src are appended to the end of dest. The n parameter is given in bytes
    rather than characters on the assumption that you will be using this
    function to prevent overflowing the size of a memory buffer. A single
    null character is always appended to dest, so that the total amount of 
-   bytes actually written at the end of dest can reach `n + ucwidth(0)' bytes.
+   bytes actually written at the end of dest can reach n + ucwidth(0) bytes.
    The return value is the value of dest.
    
 @@int @ustrncmp(const char *s1, const char *s2, int n);
@@ -7497,8 +7497,9 @@ GDI routines
 
 These GDI routines are a very platform specific thing, to allow drawing 
 Allegro memory bitmaps onto a Windows device context. When you want to use 
-this, you'll have to install the neutral system driver (SYSTEM_NONE) when 
-you call install_allegro().
+this, you'll have to install the neutral system driver (SYSTEM_NONE) if 
+you call install_allegro() or attach Allegro to an external window with 
+win_set_window() if you call allegro_init().
 
 There are two ways to draw your Allegro bitmaps to the Windows GDI. When you 
 are using static bitmaps (for example just some pictures loaded from a 
