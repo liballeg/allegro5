@@ -443,8 +443,9 @@ char *get_extension(AL_CONST char *filename)
 
 
 /* put_backslash:
- *  If the last character of the filename is not a \, /, or #, this routine
- *  will concatenate a \ on to it.
+ *  If the last character of the filename is not a \, /, or #, or a device
+ *  separator (eg. : under DOS), this routine will concatenate a \ or / on
+ *  to it (depending on platform).
  */
 void put_backslash(char *filename)
 {

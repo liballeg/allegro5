@@ -5712,8 +5712,10 @@ directories, but not hidden files and directories. Similarly, if you pass
 
 @@void @put_backslash(char *filename);
 @xref get_extension, get_filename
-   If the last character of the filename is not a '\', '/', or '#', this 
-   routine will concatenate a '\' on to it.
+   If the last character of the filename is not a '\', '/', '#' or a device
+   separator (ie. ':' under DOS), this routine will concatenate either a '\'
+   or '/' on to it (depending on the platform). Note: ignore the function
+   name, it's out of date.
 
 @@int @file_exists(const char *filename, int attrib, int *aret);
 @xref exists, file_size, file_time
