@@ -29,6 +29,9 @@ DOS todos:
 Win32 todos:
 ---------------------------------------------------------------------------
 
+- Fix switching bug (likely a race condition)
+- Fix mouse pointer not hidden bug (likely a race condition)
+- Confirm sample played twice bug with the DirectSound driver
 - Add backward playing to the DirectSound driver
 
 Linux todos:
@@ -109,10 +112,9 @@ Wishlist
 - OSS MIDI pitch bend.
 - function to get a list of supported video modes
 - hook function to handle window resizing
-- uvsnprintf
+- usnprintf() and uvsnprintf() functions
 - DirectInput 5 joystick driver
 - DirectMusic 6 MIDI driver
-- [WIN] Do not export functions and variables that are not a part of the API.
 - Add caching system to speed up filename#object and load_datafile_object()
 - Video overlay gfx driver under QNX
 
