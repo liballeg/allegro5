@@ -137,9 +137,6 @@ struct _xwin_type _xwin =
 int _xwin_last_line = -1;
 int _xwin_in_gfx_call = 0;
 
-COLORCONV_BLITTER_FUNC *blitter_func = NULL;
-int _xwin_use_bgr_palette_hack = FALSE; /* use BGR hack for colorconversion palette? */
-
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 int _xdga_last_line = -1;
 static int _xdga_installed_colormap; 
@@ -181,8 +178,6 @@ static int _xwin_private_create_ximage(int w, int h);
 static void _xwin_private_destroy_ximage(void);
 static void _xwin_private_prepare_visual(void);
 static int _xwin_private_matching_formats(void);
-static void _xwin_private_hack_shifts(void);
-static int _xwin_private_colorconv_usable(void);
 static int _xwin_private_fast_visual_depth(void);
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 static int _xdga_private_fast_visual_depth(void);
@@ -213,8 +208,6 @@ static void _xdga_private_destroy_screen(void);
 static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
 static int _xdga_private_scroll_screen(int x, int y);
 #endif
-
-static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh);
 
 static void _xwin_private_fast_truecolor_8_to_8(int sx, int sy, int sw, int sh);
 static void _xwin_private_fast_truecolor_8_to_16(int sx, int sy, int sw, int sh);
@@ -593,15 +586,7 @@ static void _xwin_private_select_screen_to_buffer_function(void)
       }
       if (!_xwin.visual_is_truecolor)
 	 j += 5;
-
-      if(_xwin_private_colorconv_usable()) {
-         TRACE("Using generic color conversion blitter (%u, %u).\n", _xwin.screen_depth, _xwin.fast_visual_depth);
-         blitter_func = _get_colorconv_blitter(_xwin.screen_depth, _xwin.fast_visual_depth);
-         _xwin.screen_to_buffer = _xwin_private_fast_colorconv;
-      }
-      else {
-         _xwin.screen_to_buffer = _xwin_screen_to_buffer_function[i][j];
-      }
+      _xwin.screen_to_buffer = _xwin_screen_to_buffer_function[i][j];
    }
 }
 
@@ -852,12 +837,6 @@ static void _xwin_private_destroy_screen(void)
       _xwin.override_redirected = 0;
    }
 #endif
-
-   /* whack color-conversion blitter */
-   if (blitter_func) {
-      _release_colorconv_blitter(blitter_func);
-      blitter_func = NULL;
-   }
 
    (*_xwin_window_defaultor)();
 }
@@ -1407,98 +1386,6 @@ static int _xwin_private_matching_formats(void)
 
 
 
-/* _xwin_private_hack_shifts:
- *  Make Allegro draw in BGR format if X uses BGR instead of RGB.
- */
-static void _xwin_private_hack_shifts(void)
-{
-   switch(_xwin.screen_depth) {
-      case 8:
-         _xwin_use_bgr_palette_hack = TRUE;
-         break;
-      case 15:
-         _rgb_r_shift_15 = 10;
-         _rgb_g_shift_15 = 5;
-         _rgb_b_shift_15 = 0;
-         break;
-      case 16:
-         _rgb_r_shift_16 = 11;
-         _rgb_g_shift_16 = 5;
-         _rgb_b_shift_16 = 0;
-         break;
-      case 24:
-         _rgb_r_shift_24 = 16;
-         _rgb_g_shift_24 = 8;
-         _rgb_b_shift_24 = 0;
-         break;
-      case 32:
-         _rgb_r_shift_32 = 16;
-         _rgb_g_shift_32 = 8;
-         _rgb_b_shift_32 = 0;
-         break;
-   }
-}
-
-
-
-/* _xwin_private_colorconv_usable:
- *  Find out if generic color conversion blitter can be used.
- */
-static int _xwin_private_colorconv_usable(void)
-{
-   _xwin_use_bgr_palette_hack = FALSE; /* make sure this is initialized */
-
-   if (_xwin.fast_visual_depth == 0) {
-      return 0;
-   }
-   else if (_xwin.fast_visual_depth == 8) {
-#if 0
-      /* TODO: check this out later. */
-
-      /* For usable 8 bpp modes visual must be PseudoColor or GrayScale.  */
-      if ((_xwin.visual->class == PseudoColor)
-	   || (_xwin.visual->class == GrayScale))
-	 return 1;
-#else
-      return 0;
-#endif
-   }
-   else if ((_xwin.visual->class != TrueColor)
-	    && (_xwin.visual->class != DirectColor)) {
-      /* For usable true color modes visual must be TrueColor or DirectColor.  */
-      return 0;
-   }
-   else if ((_xwin.fast_visual_depth == 16)
-       && (_xwin.rsize == 32) && ((_xwin.gsize == 32) || (_xwin.gsize == 64)) && (_xwin.bsize == 32)
-       && ((_xwin.rshift == 0) || (_xwin.rshift == 10) || (_xwin.rshift == 11))
-       && ((_xwin.bshift == 0) || (_xwin.bshift == 10) || (_xwin.bshift == 11))
-       && (_xwin.gshift == 5)) {
-      if(_xwin.bshift == 0) _xwin_private_hack_shifts();
-      return 1;
-   }
-   else if ((_xwin.fast_visual_depth == 24)
-       && (_xwin.rsize == 256) && (_xwin.gsize == 256) && (_xwin.bsize == 256)
-       && ((_xwin.rshift == 0) || (_xwin.rshift == 16))
-       && ((_xwin.bshift == 0) || (_xwin.bshift == 16))
-       && (_xwin.gshift == 8)) {
-      if(_xwin.bshift == 0) _xwin_private_hack_shifts();
-      return 1;
-   }
-   else if ((_xwin.fast_visual_depth == 32)
-       && (_xwin.rsize == 256) && (_xwin.gsize == 256) && (_xwin.bsize == 256)
-       && ((_xwin.rshift == 0) || (_xwin.rshift == 16))
-       && ((_xwin.bshift == 0) || (_xwin.bshift == 16))
-       && (_xwin.gshift == 8)) {
-      if(_xwin.bshift == 0) _xwin_private_hack_shifts();
-      return 1;
-   }
-
-   /* Too bad... Muahahaha! */
-   return 0;
-}
-
-
-
 /* _xwin_fast_visual_depth:
  *  Find which depth is fast (when XImage can be accessed directly).
  */
@@ -1618,48 +1505,6 @@ if (_xwin.bank_switch)                  \
 /*
  * Functions for copying screen data to frame buffer.
  */
-static void _xwin_private_fast_colorconv(int sx, int sy, int sw, int sh)
-{
-   GRAPHICS_RECT src_rect, dest_rect;
-   int ty;
- 
-   if(!(_xwin.bank_switch)) {
-      /* set up source and destination rectangles */
-      src_rect.height = sh;
-      src_rect.width  = sw;
-      src_rect.pitch  = _xwin.screen_line[1] - _xwin.screen_line[0];
-      src_rect.data   = _xwin.screen_line[sy] + sx * BYTES_PER_PIXEL(_xwin.screen_depth);
-
-      dest_rect.height = sh;
-      dest_rect.width  = sw;
-      dest_rect.pitch  = _xwin.buffer_line[1] - _xwin.buffer_line[0];
-      dest_rect.data   = _xwin.buffer_line[sy] + sx * BYTES_PER_PIXEL(_xwin.fast_visual_depth);
-
-      /* Update frame buffer with screen contents.  */
-      ASSERT(blitter_func);
-      blitter_func(&src_rect, &dest_rect);
-   }
-   else {
-      /* set up source and destination rectangles */
-      src_rect.height = 1;
-      src_rect.width = sw;
-      src_rect.pitch = 0;
-
-      dest_rect.height = 1;
-      dest_rect.width = sw;
-      dest_rect.pitch = 0;
-
-      /* Update frame buffer with screen contents.  */
-      ASSERT(blitter_func);
-      for (ty = sy; ty < sy+sh; ty++) {
-         src_rect.data = _xwin.screen_line[ty] + BYTES_PER_PIXEL(_xwin.screen_depth) * sx;
-         dest_rect.data = _xwin.buffer_line[ty] + BYTES_PER_PIXEL(_xwin.fast_visual_depth) * sx;
-         XWIN_BANK_SWITCH(ty);
-         blitter_func(&src_rect, &dest_rect);
-      }
-   }
-}
-
 #ifdef ALLEGRO_LITTLE_ENDIAN
    #define DEFAULT_RGB_R_POS_24  (DEFAULT_RGB_R_SHIFT_24/8)
    #define DEFAULT_RGB_G_POS_24  (DEFAULT_RGB_G_SHIFT_24/8)
@@ -2006,35 +1851,11 @@ static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int t
 
 static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
-   RGB *pal = NULL;
-   int c;
-   unsigned char temp;
-
    /* Wait for VBI.  */
    if (vsync)
       _xwin_private_vsync();
 
    if (_xwin.set_colors != 0) {
-      if(blitter_func) {
-         if(_xwin_use_bgr_palette_hack && ((to-from+1) > 0) && (from >= 0) && (to < 256)) {
-            pal = malloc(sizeof(RGB)*256);
-            ASSERT(pal);
-            ASSERT(p);
-            if(!pal || !p) return; /* ... in shame and disgrace */
-            memcpy(&pal[from], p, sizeof(RGB)*(to-from+1));
-            for (c=from; c<=to; c++) {
-               temp = pal[c].r;
-               pal[c].r = pal[c].b;
-               pal[c].b = temp;
-            }
-            _set_colorconv_palette(pal, from, to);
-            if(pal) free(pal);
-         }
-         else {
-            _set_colorconv_palette(p, from, to);
-         }
-      }
-      
       /* Set "hardware" colors.  */
       (*(_xwin.set_colors))(p, from, to);
 
@@ -3312,35 +3133,11 @@ unsigned long _xdga_switch_bank(BITMAP *bmp, int line)
  */
 static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
-   RGB *pal = NULL;
-   int c;
-   unsigned char temp;
-
    /* Wait for VBI.  */
    if (vsync)
       _xwin_private_vsync();
 
    if (_xwin.set_colors != 0) {
-      if(blitter_func) {
-         if(_xwin_use_bgr_palette_hack && ((to-from+1) > 0) && (from >= 0) && (to < 256)) {
-            pal = malloc(sizeof(RGB)*256);
-            ASSERT(pal);
-            ASSERT(p);
-            if(!pal || !p) return; /* ... in shame and disgrace */
-            memcpy(&pal[from], p, sizeof(RGB)*(to-from+1));
-            for (c=from; c<=to; c++) {
-               temp = pal[c].r;
-               pal[c].r = pal[c].b;
-               pal[c].b = temp;
-            }
-            _set_colorconv_palette(pal, from, to);
-            if(pal) free(pal);
-         }
-         else {
-            _set_colorconv_palette(p, from, to);
-         }
-      }
-      
       /* Set "hardware" colors.  */
       (*(_xwin.set_colors))(p, from, to);
 
