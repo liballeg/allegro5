@@ -1769,7 +1769,7 @@ ZBUFFER *create_zbuffer(BITMAP *bmp)
  */
 void clear_zbuffer(ZBUFFER *zbuf, float z)
 {
-   static union{
+   union {
       float zf;
       long zi;
    } _zbuf_clip;
