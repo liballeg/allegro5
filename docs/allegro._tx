@@ -1412,7 +1412,7 @@ functions like the djgpp uclock() routine.
    Removes a function from the list of user interrupt routines. At program 
    termination, allegro_exit() does this automatically.
 
-@@int @install_param_int(void (*proc)(void *), void *param int speed);
+@@int @install_param_int(void (*proc)(void *), void *param, int speed);
 @xref install_timer, remove_param_int, install_param_int_ex, install_int
    Like install_int(), but the callback routine will be passed a copy of the 
    specified void pointer parameter. To disable the handler, use 
