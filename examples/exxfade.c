@@ -5,9 +5,9 @@
  *    in truecolor video modes, and how to crossfade between them.
  *    You have to use this example from the commandline to specify
  *    as parameters a number of graphic files. Use at least two
- *    files to see the graphical effect (you can use two alternating
- *    files in a repeated chain if you prefer). The example will
- *    crossfade from one image to another with each keypress.
+ *    files to see the graphical effect. The example will crossfade
+ *    from one image to another with each keypress until you press
+ *    the ESC key.
  */
 
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 	    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
 	       set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
 	       allegro_message("Error setting graphics mode\n%s\n",
-                  allegro_error);
+			       allegro_error);
 	       return 1;
 	    }
 	 }

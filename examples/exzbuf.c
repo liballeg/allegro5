@@ -1,14 +1,17 @@
 /*
  *    Example program for the Allegro library, by Bertrand Coconnier.
  *
- *    This program demonstrates how to use Z-buffered polygons and 
- *    floating point 3D math routines. It also provides a simple way
- *    to compute fps (frames per second) using the interrupt handler.
- *
+ *    This program demonstrates how to use Z-buffered polygons and
+ *    floating point 3D math routines. It also provides a simple
+ *    way to compute fps (frames per second) using a timer. After
+ *    selecting a screen resolution through the standard GUI dialog,
+ *    the example shows two 3D cubes rotating and intersecting each
+ *    other. Rather than having full polygons incorrectly overlap
+ *    other polgons due to per-polygon sorting, each pixel is drawn
+ *    at the correct depth.
  */
 
 
-#include <stdio.h>
 #include "allegro.h"
 
 
@@ -76,8 +79,10 @@ void anim_cube(MATRIX_f* matrix1, MATRIX_f* matrix2, V3D_f x1[], V3D_f x2[])
    int i;
 
    for (i=0; i<8; i++) {
-      apply_matrix_f(matrix1, cube1[i].x, cube1[i].y, cube1[i].z, &(x1[i].x), &(x1[i].y), &(x1[i].z));
-      apply_matrix_f(matrix2, cube2[i].x, cube2[i].y, cube2[i].z, &(x2[i].x), &(x2[i].y), &(x2[i].z));
+      apply_matrix_f(matrix1, cube1[i].x, cube1[i].y, cube1[i].z,
+		     &(x1[i].x), &(x1[i].y), &(x1[i].z));
+      apply_matrix_f(matrix2, cube2[i].x, cube2[i].y, cube2[i].z,
+		     &(x2[i].x), &(x2[i].y), &(x2[i].z));
       persp_project_f(x1[i].x, x1[i].y, x1[i].z, &(x1[i].x), &(x1[i].y));
       persp_project_f(x2[i].x, x2[i].y, x2[i].z, &(x2[i].x), &(x2[i].y));
    }
@@ -98,14 +103,16 @@ void draw_cube(BITMAP* buffer, V3D_f x1[], V3D_f x2[])
       vtx3 = x1[faces[i].v3];
       vtx4 = x1[faces[i].v4];
       if (polygon_z_normal_f(&vtx1, &vtx2, &vtx3) > 0)
-         quad3d_f(buffer, POLYTYPE_GCOL | POLYTYPE_ZBUF, NULL, &vtx1, &vtx2, &vtx3, &vtx4);
+         quad3d_f(buffer, POLYTYPE_GCOL | POLYTYPE_ZBUF, NULL,
+		  &vtx1, &vtx2, &vtx3, &vtx4);
 
       vtx1 = x2[faces[i].v1];
       vtx2 = x2[faces[i].v2];
       vtx3 = x2[faces[i].v3];
       vtx4 = x2[faces[i].v4];
       if (polygon_z_normal_f(&vtx1, &vtx2, &vtx3) > 0)
-         quad3d_f(buffer, POLYTYPE_GCOL | POLYTYPE_ZBUF, NULL, &vtx1, &vtx2, &vtx3, &vtx4);
+         quad3d_f(buffer, POLYTYPE_GCOL | POLYTYPE_ZBUF, NULL,
+		  &vtx1, &vtx2, &vtx3, &vtx4);
    }
 }
 
@@ -241,7 +248,8 @@ int main(void)
       get_transformation_matrix_f(&matrix1, 1., rx1, ry1, rz1, tx, 0., tz1);
       get_transformation_matrix_f(&matrix2, 1., rx2, ry2, rz2, -tx, 0., tz2);
 
-      textprintf_ex(buffer, font, 10, 1, palette_color[1], 0, "Z-buffered polygons (%.1f fps)", fps);
+      textprintf_ex(buffer, font, 10, 1, palette_color[1], 0,
+		    "Z-buffered polygons (%.1f fps)", fps);
    
       vsync();
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);

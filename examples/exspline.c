@@ -111,7 +111,8 @@ void draw_node(int n)
 {
    circlefill(screen, nodes[n].x, nodes[n].y, 2, palette_color[1]);
 
-   textprintf_ex(screen, font, nodes[n].x-7, nodes[n].y-7, palette_color[255], -1, "%d", n);
+   textprintf_ex(screen, font, nodes[n].x-7, nodes[n].y-7,
+		 palette_color[255], -1, "%d", n);
 }
 
 
@@ -161,12 +162,19 @@ void draw_splines(void)
 
    clear_to_color(screen, makecol(255, 255, 255));
 
-   textout_centre_ex(screen, font, "Spline curve path", SCREEN_W/2, 8, palette_color[255], palette_color[0]);
-   textprintf_centre_ex(screen, font, SCREEN_W/2, 32, palette_color[255], palette_color[0], "Curviness = %.2f", fixtof(curviness));
-   textout_centre_ex(screen, font, "Up/down keys to alter", SCREEN_W/2, 44, palette_color[255], palette_color[0]);
-   textout_centre_ex(screen, font, "Space to walk", SCREEN_W/2, 68, palette_color[255], palette_color[0]);
-   textout_centre_ex(screen, font, "C to display control points", SCREEN_W/2, 92, palette_color[255], palette_color[0]);
-   textout_centre_ex(screen, font, "T to display tangents", SCREEN_W/2, 104, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "Spline curve path", SCREEN_W/2, 8,
+		     palette_color[255], palette_color[0]);
+   textprintf_centre_ex(screen, font, SCREEN_W/2, 32, palette_color[255],
+			palette_color[0], "Curviness = %.2f",
+			fixtof(curviness));
+   textout_centre_ex(screen, font, "Up/down keys to alter", SCREEN_W/2, 44,
+		     palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "Space to walk", SCREEN_W/2, 68,
+		     palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "C to display control points", SCREEN_W/2,
+		     92, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "T to display tangents", SCREEN_W/2, 104,
+		     palette_color[255], palette_color[0]);
 
    for (i=1; i<node_count-2; i++)
       draw_spline(nodes[i], nodes[i+1]);
@@ -193,8 +201,9 @@ void input_nodes(void)
 {
    clear_to_color(screen, makecol(255, 255, 255));
 
-   textout_centre_ex(screen, font, "Click the left mouse button to add path nodes",
-		     SCREEN_W/2, 8, palette_color[255], palette_color[0]);
+   textout_centre_ex(screen, font, "Click the left mouse button to add path "
+		     "nodes", SCREEN_W/2, 8, palette_color[255],
+		     palette_color[0]);
    textout_centre_ex(screen, font, "Right mouse button or any key to finish",
 		     SCREEN_W/2, 24, palette_color[255], palette_color[0]);
 
@@ -230,7 +239,8 @@ void input_nodes(void)
 
       if ((mouse_b & 2) || (keypressed())) {
 	 if (node_count < 3)
-	    alert("You must enter at least two nodes", NULL, NULL, "OK", NULL, 13, 0);
+	    alert("You must enter at least two nodes",
+		  NULL, NULL, "OK", NULL, 13, 0);
 	 else
 	    break;
       }
@@ -331,7 +341,8 @@ int main(void)
    if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
       if (set_gfx_mode(GFX_SAFE, 640, 480, 0, 0) != 0) {
 	 set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-	 allegro_message("Unable to set any graphic mode\n%s\n", allegro_error);
+	 allegro_message("Unable to set any graphic mode\n%s\n",
+			 allegro_error);
 	 return 1;
       }
    }

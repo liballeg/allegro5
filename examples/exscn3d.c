@@ -1,9 +1,11 @@
 /*
  *    Example program for the Allegro library, by Bertrand Coconnier.
  *
- *    This program demonstrates how to use scanline sorting algo in Allegro 
- *    (create_scene, clear_scene, ... functions). It also provides an example
- *    of how to use the 3D clipping function.
+ *    This program demonstrates how to use scanline sorting algo
+ *    in Allegro (create_scene, clear_scene, ... functions). It
+ *    also provides an example of how to use the 3D clipping
+ *    function. The example consists of a flyby through a lot of
+ *    rotating 3d cubes.
  *
  */
 
@@ -135,10 +137,12 @@ void draw_cube(BITMAP *buffer, MATRIX_f *matrix, int num_poly)
       }
       
       /* nv: number of vertices after clipping is done */
-      nv = clip3d_f(POLYTYPE_GCOL, 0.1, 1000., 4, (AL_CONST V3D_f**)pv, pvout, pvtmp, out);
+      nv = clip3d_f(POLYTYPE_GCOL, 0.1, 1000., 4, (AL_CONST V3D_f**)pv, pvout,
+		    pvtmp, out);
       if (nv) {
 	 for (j=0; j<nv; j++)
-	    persp_project_f(vout[j].x, vout[j].y, vout[j].z, &vout[j].x, &vout[j].y);
+	    persp_project_f(vout[j].x, vout[j].y, vout[j].z, &vout[j].x,
+			    &vout[j].y);
 
 	 if (polygon_z_normal_f(&vout[0], &vout[1], &vout[2]) > 0)
 	    scene_polygon3d_f(POLYTYPE_GCOL, NULL, nv, pvout);
@@ -179,7 +183,8 @@ int main(void)
    
    /* initialize buffers and viewport */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
-   create_scene(24*MAX_CUBES*MAX_CUBES*MAX_CUBES, 6*MAX_CUBES*MAX_CUBES*MAX_CUBES);
+   create_scene(24 * MAX_CUBES * MAX_CUBES * MAX_CUBES,
+		6 * MAX_CUBES * MAX_CUBES * MAX_CUBES);
    set_projection_viewport(0, 0, SCREEN_W, SCREEN_H);
    
    /* initialize pointers */
@@ -205,9 +210,11 @@ int main(void)
          for (j=0; j<MAX_CUBES; j++)
 	      for (i=0; i<MAX_CUBES; i++) {
 		/* matrix1: locates cubes */
-		get_translation_matrix_f(&matrix1, j*40-MAX_CUBES*20+20, i*40-MAX_CUBES*20+20, tz+k*40);
+		get_translation_matrix_f(&matrix1, j*40-MAX_CUBES*20+20,
+					 i*40-MAX_CUBES*20+20, tz+k*40);
 		
-		/* matrix: rotates cube THEN locates cube THEN turns head right/left */
+		/* matrix: rotates cube THEN locates cube THEN turns
+		 * head right/left */
 		matrix_mul_f(&matrix2, &matrix1, &matrix);
 		matrix_mul_f(&matrix, &matrix3, &matrix);
 
@@ -219,7 +226,8 @@ int main(void)
       
       /* sorts and renders polys */
       render_scene();
-      textprintf_ex(buffer, font, 2, 2, palette_color[1], -1, "(%.1f fps)", fps);
+      textprintf_ex(buffer, font, 2, 2, palette_color[1], -1,
+		    "(%.1f fps)", fps);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
       frame++;
       
