@@ -183,7 +183,7 @@ rm -rf %{buildroot}
 %{_bindir}/textconv
 
 %changelog
-* Fri Dec 07 2001 Angelo Mottola <lillo@users.sourceforge.net>
+* Fri Dec 07 2001 Angelo Mottola <lillo@users.sourceforge.net>  4.0.0-1
 - added italian translation
 
 * Tue Oct 02 2001 Peter Wang <tjaden@users.sourceforge.net>  3.9.39-1
