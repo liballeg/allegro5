@@ -194,7 +194,7 @@ static int _xwin_private_fast_visual_depth(void);
 static void _xwin_private_set_matching_colors(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_truecolor_colors(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int to);
-static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync);
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to);
 static void _xwin_private_set_window_defaults(void);
 static void _xwin_private_flush_buffers(void);
 static void _xwin_private_resize_window(int w, int h);
@@ -2049,15 +2049,11 @@ static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int t
    }
 }
 
-static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
+static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to)
 {
    RGB *pal;
    int c;
    unsigned char temp;
-
-   /* Wait for VBI.  */
-   if (vsync)
-      _xwin_vsync();
 
    if (_xwin.set_colors != 0) {
       if (blitter_func) {
@@ -2092,8 +2088,12 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
 
 void _xwin_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
+   if (vsync) {
+      _xwin_vsync();
+   }
+
    XLOCK();
-   _xwin_private_set_palette_range(p, from, to, vsync);
+   _xwin_private_set_palette_range(p, from, to);
    XUNLOCK();
 }
 
@@ -2162,15 +2162,25 @@ void _xwin_flush_buffers(void)
  */
 void _xwin_vsync(void)
 {
-   /* This does not wait for the VBI - but it waits until X11 has synchronized,
-    * i.e. until actual changes are visible. So it has a similar effect. A
-    * better solution might be waiting a specific time to simulate a VBI (but
-    * the X11 mutex might be locked by the timer thread), or using the XSync
-    * extension.
-    */
-   XLOCK();
-   XSync(_xwin.display, False);
-   XUNLOCK();
+   if (_timer_installed) {
+      int prev = retrace_count;
+
+      XLOCK();
+      XSync(_xwin.display, False);
+      XUNLOCK();
+
+      do {
+      } while (retrace_count == prev);
+   }
+   else {
+      /* This does not wait for the VBI - but it waits until X11 has
+       * synchronized, i.e. until actual changes are visible. So it
+       * has a similar effect.
+       */
+      XLOCK();
+      XSync(_xwin.display, False);
+      XUNLOCK();
+   }
 }
 
 
