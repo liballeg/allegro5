@@ -96,6 +96,7 @@
       shrl $3, %edx                    /* edx = SCREEN_W / 2             */
 
 
+
 /* void _colorconv_blit_32_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_32_to_16)
@@ -164,6 +165,7 @@ FUNC (_colorconv_blit_32_to_16)
    ret
 
 
+
 /* void _colorconv_blit_32_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_32_to_15)
@@ -227,7 +229,6 @@ FUNC (_colorconv_blit_32_to_15)
    popl %ebp
       
    ret
-
 
 
 
@@ -385,6 +386,7 @@ FUNC (_colorconv_blit_8_to_32)
    ret
 
 
+
 /* void _colorconv_blit_8_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 /* void _colorconv_blit_8_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -480,6 +482,7 @@ FUNC (_colorconv_blit_8_to_15)
 #endif  /* ALLEGRO_MMX */
 
 
+
 /********************************************************************************************/
 /* pure 80386 asm routines                                                                  */
 /*  optimized for Intel Pentium                                                             */
@@ -546,6 +549,7 @@ FUNC (_colorconv_blit_8_to_15)
    */
    
 
+
 /* void _colorconv_blit_24_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_24_to_32)
@@ -592,6 +596,10 @@ FUNC (_colorconv_blit_24_to_32)
    ret
 
 
+
+/* void _colorconv_blit_15_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_15_to_32)
 /* void _colorconv_blit_16_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
@@ -602,7 +610,7 @@ FUNC (_colorconv_blit_16_to_32)
 #endif
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_4, LOOP_RATIO_2)
-   movl GLOBL(_colorconv_rgb_scale_5335), %ebp
+   movl GLOBL(_colorconv_rgb_scale_5x35), %ebp
    movl $0, %eax  /* init first line */  
 
    _align_
@@ -643,6 +651,7 @@ FUNC (_colorconv_blit_16_to_32)
 
    DESTROY_STACK_FRAME
    ret
+
 
 
 /* void _colorconv_blit_8_to_32 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -700,6 +709,7 @@ FUNC (_colorconv_blit_8_to_32)
    ret
 
 
+
 /* void _colorconv_blit_32_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_32_to_24)
@@ -749,12 +759,15 @@ FUNC (_colorconv_blit_32_to_24)
  
 
 
+/* void _colorconv_blit_15_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
+ */
+FUNC (_colorconv_blit_15_to_24)
 /* void _colorconv_blit_16_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_16_to_24)
    CREATE_STACK_FRAME
    INIT_REGISTERS_NO_MMX(SIZE_2, SIZE_3, LOOP_RATIO_4)
-   movl GLOBL(_colorconv_rgb_scale_5335), %ebp
+   movl GLOBL(_colorconv_rgb_scale_5x35), %ebp
 
    next_line_16_to_24_no_mmx:
       movl MYLOCAL1, %edx      
@@ -819,6 +832,7 @@ FUNC (_colorconv_blit_16_to_24)
    ret
 
 
+
 /* void _colorconv_blit_8_to_24 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_8_to_24)
@@ -871,6 +885,7 @@ FUNC (_colorconv_blit_8_to_24)
    ret
 
 
+
 #define CONV_TRUE_TO_16_NO_MMX(name, bytes_ppixel)                                 \
    _align_                                                                       ; \
    next_line_##name:                                                             ; \
@@ -909,6 +924,7 @@ FUNC (_colorconv_blit_8_to_24)
       jnz next_line_##name
 
 
+
 /* void _colorconv_blit_32_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
@@ -924,6 +940,7 @@ FUNC (_colorconv_blit_32_to_16)
    ret
 
 
+
 /* void _colorconv_blit_24_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_24_to_16)
@@ -932,6 +949,7 @@ FUNC (_colorconv_blit_24_to_16)
    CONV_TRUE_TO_16_NO_MMX(24_to_16_no_mmx, 3)
    DESTROY_STACK_FRAME
    ret
+
 
 
 /* void _colorconv_blit_8_to_16 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
@@ -990,6 +1008,7 @@ FUNC (_colorconv_blit_8_to_15)
    ret
 
 
+
 #define CONV_TRUE_TO_15_NO_MMX(name, bytes_ppixel)                                 \
    _align_                                                                       ; \
    next_line_##name:                                                             ; \
@@ -1030,6 +1049,7 @@ FUNC (_colorconv_blit_8_to_15)
       jnz next_line_##name
 
 
+
 /* void _colorconv_blit_32_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 #ifdef ALLEGRO_MMX
@@ -1045,6 +1065,7 @@ FUNC (_colorconv_blit_32_to_15)
    ret
 
 
+
 /* void _colorconv_blit_24_to_15 (struct GRAPHICS_RECT *src_rect, struct GRAPHICS_RECT *dest_rect)
  */
 FUNC (_colorconv_blit_24_to_15)
@@ -1053,3 +1074,4 @@ FUNC (_colorconv_blit_24_to_15)
    CONV_TRUE_TO_15_NO_MMX(24_to_15_no_mmx, 3)
    DESTROY_STACK_FRAME
    ret
+

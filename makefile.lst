@@ -7,7 +7,6 @@ ALLEGRO_SRC_FILES = \
 	src/clip3d.c \
 	src/clip3df.c \
 	src/colblend.c \
-	src/colconv.c \
 	src/color.c \
 	src/config.c \
 	src/datafile.c \
@@ -95,7 +94,6 @@ ALLEGRO_SRC_I386_FILES = \
 	src/i386/iblit24.s \
 	src/i386/iblit32.s \
 	src/i386/iblit8.s \
-	src/i386/icolconv.s \
 	src/i386/icpu.c \
 	src/i386/icpus.s \
 	src/i386/icsprite.c \
@@ -163,6 +161,7 @@ ALLEGRO_SRC_DOS_FILES = \
 	src/misc/vgaregs.c
 
 ALLEGRO_SRC_WIN_FILES = \
+	src/win/asmlock.s \
 	src/win/gdi.c \
 	src/win/wddaccel.c \
 	src/win/wddbmp.c \
@@ -170,7 +169,6 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wddraw.c \
 	src/win/wddfull.c \
 	src/win/wddlock.c \
-	src/win/asmlock.s \
 	src/win/wddmode.c \
 	src/win/wddovl.c \
 	src/win/wddwin.c \
@@ -193,6 +191,8 @@ ALLEGRO_SRC_WIN_FILES = \
 	src/win/wthread.c \
 	src/win/wtimer.c \
 	src/win/wwnd.c \
+	src/misc/colconv.c \
+	src/misc/icolconv.s \
 	src/misc/pckeys.c
 
 ALLEGRO_SRC_BEOS_FILES = \
@@ -299,6 +299,8 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/unix/usigalrm.c \
 	src/unix/usystem.c \
 	src/unix/utimer.c \
+	src/misc/colconv.c \
+	src/misc/icolconv.s \
 	src/misc/pckeys.c \
 	src/misc/ufile.c
 

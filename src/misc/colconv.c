@@ -24,10 +24,58 @@
 
 
 int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit  */
-int *_colorconv_rgb_scale_5335 = NULL;     /* for conversion from 16-bit */
+int *_colorconv_rgb_scale_5x35 = NULL;     /* for conversion from 15/16-bit */
 
 static int indexed_palette_depth;
 static int indexed_palette_size;
+
+
+
+/* build_rgb_scale_5235_table:
+ *  builds pre-calculated tables for 15-bit to truecolor conversion
+ */
+static void build_rgb_scale_5235_table(int to_depth)
+{
+   int i, color, red, green, blue;
+
+   if (to_depth == 24)
+      /* 6 contiguous 256-entry tables (6k) */
+      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*1536);
+   else if (to_depth == 32)
+      /* 2 contiguous 256-entry tables (2k) */
+      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
+    
+   /* 1st table: r5g2 to r8g8b0 */ 
+   for (i=0; i<128; i++) {
+      red = _rgb_scale_5[i>>2];
+      green=((i&3)<<6)+((i&3)<<1);
+
+      color = (red<<16) | (green<<8);
+      _colorconv_rgb_scale_5x35[i] = color;
+
+      if (to_depth == 24) {
+         _colorconv_rgb_scale_5x35[ 512+i] = (color>>8)+((color&0xff)<<24);
+         _colorconv_rgb_scale_5x35[1024+i] = (color>>16)+((color&0xffff)<<16);
+      }
+   }
+
+   /* 2nd table: g3b5 to r0g8b8 */
+   for (i=0; i<256; i++) {
+      blue = _rgb_scale_5[i&0x1f];
+      green=(i>>5)<<3;
+
+      if (green == 0x38)
+          green++;
+
+      color = (green<<8) | blue;
+      _colorconv_rgb_scale_5x35[256+i] = color;
+
+      if (to_depth == 24) {
+         _colorconv_rgb_scale_5x35[ 512+256+i] = (color>>8)+((color&0xff)<<24);
+         _colorconv_rgb_scale_5x35[1024+256+i] = (color>>16)+((color&0xffff)<<16);
+      }
+   }
+}
 
 
 
@@ -40,12 +88,10 @@ static void build_rgb_scale_5335_table(int to_depth)
 
    if (to_depth == 24)
       /* 6 contiguous 256-entry tables (6k) */
-      _colorconv_rgb_scale_5335 = malloc(sizeof(int)*1536);
+      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*1536);
    else if (to_depth == 32)
       /* 2 contiguous 256-entry tables (2k) */
-      _colorconv_rgb_scale_5335 = malloc(sizeof(int)*512);
-   else
-      ASSERT(FALSE);
+      _colorconv_rgb_scale_5x35 = malloc(sizeof(int)*512);
     
    /* 1st table: r5g3 to r8g8b0 */ 
    for (i=0; i<256; i++) {
@@ -59,11 +105,11 @@ static void build_rgb_scale_5335_table(int to_depth)
            green++;
 
       color = (red<<16) | (green<<8);
-      _colorconv_rgb_scale_5335[i] = color;
+      _colorconv_rgb_scale_5x35[i] = color;
 
       if (to_depth == 24) {
-         _colorconv_rgb_scale_5335[ 512+i] = (color>>8)+((color&0xff)<<24);
-         _colorconv_rgb_scale_5335[1024+i] = (color>>16)+((color&0xffff)<<16);
+         _colorconv_rgb_scale_5x35[ 512+i] = (color>>8)+((color&0xff)<<24);
+         _colorconv_rgb_scale_5x35[1024+i] = (color>>16)+((color&0xffff)<<16);
       }
    }
 
@@ -76,11 +122,11 @@ static void build_rgb_scale_5335_table(int to_depth)
           green++;
 
       color = (green<<8) | blue;
-      _colorconv_rgb_scale_5335[256+i] = color;
+      _colorconv_rgb_scale_5x35[256+i] = color;
 
       if (to_depth == 24) {
-         _colorconv_rgb_scale_5335[ 512+256+i] = (color>>8)+((color&0xff)<<24);
-         _colorconv_rgb_scale_5335[1024+256+i] = (color>>16)+((color&0xffff)<<16);
+         _colorconv_rgb_scale_5x35[ 512+256+i] = (color>>8)+((color&0xff)<<24);
+         _colorconv_rgb_scale_5x35[1024+256+i] = (color>>16)+((color&0xffff)<<16);
       }
    }
 }
@@ -177,7 +223,22 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 
 #ifdef ALLEGRO_COLOR16
       case 15:
-         return NULL;
+         switch (to_depth) {
+
+            case 8:
+            case 15:
+            case 16:
+               return NULL;
+
+            case 24:
+               build_rgb_scale_5235_table(24);
+               return _colorconv_blit_15_to_24;
+
+            case 32:
+               build_rgb_scale_5235_table(32);
+               return _colorconv_blit_15_to_32;
+         }
+         break;
 
       case 16:
          switch (to_depth) {
@@ -261,9 +322,9 @@ void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
    }
 
    /* destroy the shift table */
-   if (_colorconv_rgb_scale_5335) {
-      free (_colorconv_rgb_scale_5335);
-      _colorconv_rgb_scale_5335 = NULL;
+   if (_colorconv_rgb_scale_5x35) {
+      free (_colorconv_rgb_scale_5x35);
+      _colorconv_rgb_scale_5x35 = NULL;
    }
 }
 

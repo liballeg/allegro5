@@ -555,6 +555,8 @@ AL_FUNC(void, _colorconv_blit_8_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *
 
 #ifdef ALLEGRO_COLOR16
 
+AL_FUNC(void, _colorconv_blit_15_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
+AL_FUNC(void, _colorconv_blit_15_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_16_to_24, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 AL_FUNC(void, _colorconv_blit_16_to_32, (GRAPHICS_RECT *src_rect, GRAPHICS_RECT *dest_rect));
 
