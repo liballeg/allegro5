@@ -8318,21 +8318,22 @@ debugging helper functions:
 
 @@void @al_assert(char *file, int line);
 @xref ASSERT, al_trace, register_assert_handler
-   Raises an assert for an error at the specified file and line number. If 
-   you have installed a custom assert handler it uses that, or if the 
-   environment variable ALLEGRO_ASSERT is set it writes a message into the 
-   file specified by the environment, otherwise it aborts the program with 
-   an error message. You will usually want to use the ASSERT() macro instead 
-   of calling this function directly.
+   Raises an assert for an error at the specified file and line number. The 
+   file parameter is always given in ASCII format. If you have installed a 
+   custom assert handler it uses that, or if the environment variable 
+   ALLEGRO_ASSERT is set it writes a message into the file specified by the 
+   environment, otherwise it aborts the program with an error message. You 
+   will usually want to use the ASSERT() macro instead of calling this 
+   function directly.
 
 @@void @al_trace(char *msg, ...);
 @xref TRACE, al_assert, register_trace_handler
-   Outputs a debugging trace message, using a printf() format string. If you 
-   have installed a custom trace handler it uses that, or if the environment 
-   variable ALLEGRO_TRACE is set it writes into the file specified by the 
-   environment, otherwise it writes the message to "allegro.log" in the 
-   current directory. You will usually want to use the TRACE() macro instead 
-   of calling this function directly.
+   Outputs a debugging trace message, using a printf() format string given 
+   in ASCII. If you have installed a custom trace handler it uses that, or 
+   if the environment variable ALLEGRO_TRACE is set it writes into the file 
+   specified by the environment, otherwise it writes the message to 
+   "allegro.log" in the current directory. You will usually want to use the 
+   TRACE() macro instead of calling this function directly.
 
 @@void @ASSERT(condition);
 @xref al_assert, TRACE, register_assert_handler
@@ -8344,24 +8345,24 @@ debugging helper functions:
 @xref al_trace, ASSERT, register_trace_handler
    Debugging helper macro. Normally compiles away to nothing, but if you 
    defined the preprocessor symbol DEBUGMODE before including allegro.h, it 
-   passes the supplied message to al_trace().
+   passes the supplied message given in ASCII format to al_trace().
 
 @@void @register_assert_handler(int (*handler)(char *msg));
 @xref al_assert, ASSERT, register_trace_handler
    Supplies a custom handler function for dealing with assert failures. Your 
-   callback will be passed a formatted error message, and should return 
-   non-zero if it has processed the error, or zero to continue with the 
-   default actions. You could use this to ignore assert failures, or to 
+   callback will be passed a formatted error message in ASCII, and should 
+   return non-zero if it has processed the error, or zero to continue with 
+   the default actions. You could use this to ignore assert failures, or to 
    display the error messages on a graphics mode screen without aborting the 
    program.
 
 @@void @register_trace_handler(int (*handler)(char *msg));
 @xref al_trace, TRACE, register_assert_handler
    Supplies a custom handler function for dealing with trace output. Your 
-   callback will be passed a formatted error message, and should return 
-   non-zero if it has processed the message, or zero to continue with the 
-   default actions. You could use this to ignore trace output, or to display 
-   the messages on a second monochrome monitor, etc.
+   callback will be passed a formatted error message in ASCII, and should 
+   return non-zero if it has processed the message, or zero to continue with 
+   the default actions. You could use this to ignore trace output, or to 
+   display the messages on a second monochrome monitor, etc.
 
 
 

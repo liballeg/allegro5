@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -184,6 +185,11 @@ char cpu_vendor[32] = EMPTY_STRING;
 int cpu_family = 0;
 int cpu_model = 0;
 int cpu_capabilities = 0;
+
+
+/* message stuff */
+#define ALLEGRO_MESSAGE_SIZE  4096
+
 
 /* debugging stuff */
 static int debug_assert_virgin = TRUE;
@@ -398,18 +404,18 @@ void allegro_exit()
  */
 void allegro_message(AL_CONST char *msg, ...)
 {
-   char *buf = malloc(4096);
-   char *tmp = malloc(4096);
+   char *buf = malloc(ALLEGRO_MESSAGE_SIZE);
+   char *tmp = malloc(ALLEGRO_MESSAGE_SIZE);
 
    va_list ap;
    va_start(ap, msg);
-   uvszprintf(buf, 4096, msg, ap);
+   uvszprintf(buf, ALLEGRO_MESSAGE_SIZE, msg, ap);
    va_end(ap);
 
    if ((system_driver) && (system_driver->message))
       system_driver->message(buf);
    else
-      fputs(uconvert(buf, U_CURRENT, tmp, U_ASCII_CP, 4096), stdout);
+      fputs(uconvert(buf, U_CURRENT, tmp, U_ASCII_CP, ALLEGRO_MESSAGE_SIZE), stdout);
 
    free(buf);
    free(tmp);
@@ -441,18 +447,19 @@ static void debug_exit(void)
 
 
 /* al_assert:
- *  Raises an assert.
+ *  Raises an assert (uses ASCII strings).
  */
 void al_assert(AL_CONST char *file, int line)
 {
    static int asserted = FALSE;
    int olderr = errno;
-   char buf[80];
+   char buf[128];
    char *s;
 
    if (asserted)
       return;
 
+   /* todo: use snprintf() */
    sprintf(buf, "Assert failed at line %d of %s", line, file);
 
    if (assert_handler) {
@@ -497,7 +504,7 @@ void al_assert(AL_CONST char *file, int line)
 
 
 /* al_trace:
- *  Outputs a trace message.
+ *  Outputs a trace message (uses ASCII strings).
  */
 void al_trace(AL_CONST char *msg, ...)
 {
@@ -505,9 +512,10 @@ void al_trace(AL_CONST char *msg, ...)
    char buf[512];
    char *s;
 
+   /* todo: use vsnprintf() */
    va_list ap;
    va_start(ap, msg);
-   uvszprintf(buf, sizeof(buf), msg, ap);
+   vsprintf(buf, msg, ap);
    va_end(ap);
 
    if (trace_handler) {
@@ -530,7 +538,7 @@ void al_trace(AL_CONST char *msg, ...)
    }
 
    if (trace_file) {
-      fwrite(buf, 1, ustrsize(buf), trace_file);
+      fwrite(buf, sizeof(char), strlen(buf), trace_file);
       fflush(trace_file);
    }
 
