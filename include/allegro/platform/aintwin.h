@@ -227,8 +227,6 @@ struct _AL_MUTEX
 
 #define _AL_MUTEX_UNINITED	{ false, }
 
-AL_FUNC(void, _al_mutex_init, (_AL_MUTEX*));
-AL_FUNC(void, _al_mutex_destroy, (_AL_MUTEX*));
 AL_INLINE(void, _al_mutex_lock, (_AL_MUTEX *m),
 {
    if (m->inited)
@@ -240,6 +238,15 @@ AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
       LeaveCriticalSection(&m->cs);
 })
 
+struct _AL_COND
+{
+   long nWaitersBlocked;
+   long nWaitersGone;
+   long nWaitersToUnblock;
+   HANDLE semBlockQueue;
+   CRITICAL_SECTION semBlockLock;
+   CRITICAL_SECTION mtxUnblockLock;
+};
 
 /* time */
 AL_FUNC(void, _al_win_init_time, (void));

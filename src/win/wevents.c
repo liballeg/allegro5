@@ -32,7 +32,7 @@ struct AL_EVENT_QUEUE
    _AL_VECTOR events; /* XXX: better a deque */
    _AL_VECTOR sources;
    _AL_MUTEX mutex;
-   HANDLE semaphore;
+   _AL_COND cond;
 };
 
 
@@ -48,32 +48,8 @@ AL_EVENT_QUEUE *al_create_event_queue(void)
    if (queue) {
       _al_vector_init(&queue->events, sizeof(AL_EVENT *));
       _al_vector_init(&queue->sources, sizeof(AL_EVENT_SOURCE *));
-
       _al_mutex_init(&queue->mutex);
-
-      /* Poor man's condition variable:
-       *
-       * Initially, there are 0 events, corresponding to a count of 0 in
-       * the semaphore.  When an event is enqueued, the semaphore's count
-       * is increased by 1 using ReleaseSemaphore().  When the user calls
-       * al_wait_for_event() on the queue, we can call
-       * WaitForSingleObject() so that the user's thread will block until
-       * the semaphore's count is not zero.  WaitForSingleObject()
-       * decrements the count when it returns.
-       *
-       * Note that this requires us to synchronise the semaphore count
-       * with the number of events in the queue, even if the user uses
-       * al_get_next_event() instead of al_wait_for_event.
-       *
-       * Note further that this strategy won't work if two or more
-       * threads are trying to pull events out of the queue
-       * simultaneously.  As yet, our API simply doesn't allow that.  We
-       * would need proper condition variables, I think, which Win32
-       * doesn't provide, and are extremely hairy to implement using
-       * Win32 synchronisation primitives.
-       */
-
-      queue->semaphore = CreateSemaphore(NULL, 0, INT_MAX, NULL);
+      _al_cond_init(&queue->cond);
 
       _al_register_destructor(queue, (void (*)(void *)) al_destroy_event_queue);
    }
@@ -103,8 +79,8 @@ void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
    _al_vector_free(&queue->events);
    _al_vector_free(&queue->sources);
 
+   _al_cond_destroy(&queue->cond);
    _al_mutex_destroy(&queue->mutex);
-   CloseHandle(queue->semaphore);
 
    free(queue);
 }
@@ -179,40 +155,19 @@ bool al_event_queue_is_empty(AL_EVENT_QUEUE *queue)
 
 
 
-/* wait_and_get_event: [primary thread]
- *  Does the real work of al_get_next_event and al_wait_for_event.
+/* really_get_next_event: [primary thread]
+ *  Helper function.  The event queue must be locked before entering
+ *  this function.
  */
-static bool wait_and_get_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, DWORD timeout_msecs)
+static AL_EVENT* really_get_next_event(AL_EVENT_QUEUE *queue)
 {
-   DWORD status = WaitForSingleObject(queue->semaphore, timeout_msecs);
-
-   switch (status) {
-
-   case WAIT_OBJECT_0: {
-      AL_EVENT *event = NULL;
-
-      _al_mutex_lock(&queue->mutex);
-      {
-         if (_al_vector_is_nonempty(&queue->events)) {
-            AL_EVENT **slot = _al_vector_ref_front(&queue->events);
-            event = *slot;
-            _al_vector_delete_at(&queue->events, 0); /* inefficient */
-         }
-      }
-      _al_mutex_unlock(&queue->mutex);
-
-      if (event) {
-	 _al_copy_event(ret_event, event);
-	 _al_release_event(event);
-	 return true;
-      }
-      else
-	 return false;
-   }
-
-   default:
-      ASSERT(status == WAIT_TIMEOUT);
-      return false;
+   if (_al_vector_is_empty(&queue->events))
+      return NULL;
+   else {
+      AL_EVENT **slot  = _al_vector_ref_front(&queue->events);
+      AL_EVENT  *event = *slot;
+      _al_vector_delete_at(&queue->events, 0); /* inefficient */
+      return event;
    }
 }
 
@@ -224,8 +179,23 @@ bool al_get_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
 {
    ASSERT(queue);
    ASSERT(ret_event);
+   {
+      AL_EVENT *event;
 
-   return wait_and_get_event(queue, ret_event, 0);
+      _al_mutex_lock(&queue->mutex);
+      {
+         event = really_get_next_event(queue);
+      }
+      _al_mutex_unlock(&queue->mutex);
+
+      if (event) {
+         _al_copy_event(ret_event, event);
+         _al_release_event(event);
+         return true;
+      }
+      else
+         return false;
+   }
 }
 
 
@@ -310,8 +280,57 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
    ASSERT(queue);
    ASSERT(ret_event);
    ASSERT(msecs >= 0);
+   {
+      AL_EVENT *next_event;
 
-   return wait_and_get_event(queue, ret_event, (msecs == 0) ? INFINITE : (unsigned long)msecs);
+      if (msecs == 0)
+      {
+         /* "Infinite" timeout case.  */
+
+         _al_mutex_lock(&queue->mutex);
+         {
+            while (_al_vector_is_empty(&queue->events))
+               _al_cond_wait(&queue->cond, &queue->mutex);
+
+            next_event = really_get_next_event(queue);
+            ASSERT(next_event);
+         }
+         _al_mutex_unlock(&queue->mutex);
+      }
+      else
+      {
+         /* Finite timeout case.  */
+
+         _al_mutex_lock(&queue->mutex);
+         {
+            unsigned long timeout = al_current_time() + msecs;
+            int result = 0;
+
+            /* Is the queue is non-empty?  If not, block on a condition
+             * variable, which will be signaled when an event is placed into
+             * the queue.
+             */
+            while (_al_vector_is_empty(&queue->events) && (result != -1))
+               result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
+
+            if (result == -1)   /* timed out */
+               next_event = NULL;
+            else {
+               next_event = really_get_next_event(queue);
+               ASSERT(next_event);
+            }
+         }
+         _al_mutex_unlock(&queue->mutex);
+      }
+
+      if (next_event) {
+         _al_copy_event(ret_event, next_event);
+         _al_release_event(next_event);
+         return true;
+      }
+      else
+         return false;
+   }
 }
 
 
@@ -341,7 +360,13 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
             *slot = event;
          }
 
-	 ReleaseSemaphore(queue->semaphore, 1, NULL);
+         /* Wake up threads that are waiting for an event to be placed in
+          * the queue.
+          *
+          * TODO: Test if multiple threads waiting on the same event
+          * queue actually works.
+          */
+         _al_cond_broadcast(&queue->cond);
       }
    }
    _al_mutex_unlock(&queue->mutex);

@@ -16,9 +16,6 @@
  */
 
 
-#include <pthread.h>
-#include <sys/time.h>
-
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 #include ALLEGRO_INTERNAL_HEADER
@@ -34,8 +31,8 @@ struct AL_EVENT_QUEUE
 {
    _AL_VECTOR events; /* XXX: better a deque */
    _AL_VECTOR sources;
-   pthread_mutex_t mutex;
-   pthread_cond_t cond;
+   _AL_MUTEX mutex;
+   _AL_COND cond;
 };
 
 
@@ -51,8 +48,8 @@ AL_EVENT_QUEUE *al_create_event_queue(void)
    if (queue) {
       _al_vector_init(&queue->events, sizeof(AL_EVENT *));
       _al_vector_init(&queue->sources, sizeof(AL_EVENT_SOURCE *));
-      pthread_mutex_init(&queue->mutex, NULL);
-      pthread_cond_init(&queue->cond, NULL);
+      _al_mutex_init(&queue->mutex);
+      _al_cond_init(&queue->cond);
 
       _al_register_destructor(queue, (void (*)(void *)) al_destroy_event_queue);
    }
@@ -82,8 +79,8 @@ void al_destroy_event_queue(AL_EVENT_QUEUE *queue)
    _al_vector_free(&queue->events);
    _al_vector_free(&queue->sources);
 
-   pthread_cond_destroy(&queue->cond);
-   pthread_mutex_destroy(&queue->mutex);
+   _al_cond_destroy(&queue->cond);
+   _al_mutex_destroy(&queue->mutex);
 
    free(queue);
 }
@@ -185,11 +182,11 @@ bool al_get_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
    {
       AL_EVENT *event;
 
-      pthread_mutex_lock(&queue->mutex);
+      _al_mutex_lock(&queue->mutex);
       {
          event = really_get_next_event(queue);
       }
-      pthread_mutex_unlock(&queue->mutex);
+      _al_mutex_unlock(&queue->mutex);
 
       if (event) {
          _al_copy_event(ret_event, event);
@@ -215,14 +212,14 @@ bool al_peek_next_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event)
    {
       AL_EVENT *event = NULL;
 
-      pthread_mutex_lock(&queue->mutex);
+      _al_mutex_lock(&queue->mutex);
       {
          if (_al_vector_is_nonempty(&queue->events)) {
             AL_EVENT **slot = _al_vector_ref_front(&queue->events);
             event = *slot;
          }
       }
-      pthread_mutex_unlock(&queue->mutex);
+      _al_mutex_unlock(&queue->mutex);
 
       if (event) {
          _al_copy_event(ret_event, event);
@@ -243,7 +240,7 @@ void al_drop_next_event(AL_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
-   pthread_mutex_lock(&queue->mutex);
+   _al_mutex_lock(&queue->mutex);
    {
       if (_al_vector_is_nonempty(&queue->events)) {
          AL_EVENT **slot  = _al_vector_ref_front(&queue->events);
@@ -251,7 +248,7 @@ void al_drop_next_event(AL_EVENT_QUEUE *queue)
          _al_vector_delete_at(&queue->events, 0); /* inefficient */
       }
    }
-   pthread_mutex_unlock(&queue->mutex);
+   _al_mutex_unlock(&queue->mutex);
 }
 
 
@@ -262,7 +259,7 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
 {
    ASSERT(queue);
 
-   pthread_mutex_lock(&queue->mutex);
+   _al_mutex_lock(&queue->mutex);
    {
       while (_al_vector_is_nonempty(&queue->events)) {
          unsigned int i = _al_vector_size(&queue->events) - 1;
@@ -271,7 +268,7 @@ void al_flush_event_queue(AL_EVENT_QUEUE *queue)
          _al_vector_delete_at(&queue->events, i);
       }
    }
-   pthread_mutex_unlock(&queue->mutex);
+   _al_mutex_unlock(&queue->mutex);
 }
 
 
@@ -290,47 +287,40 @@ bool al_wait_for_event(AL_EVENT_QUEUE *queue, AL_EVENT *ret_event, long msecs)
       {
          /* "Infinite" timeout case.  */
 
-         pthread_mutex_lock(&queue->mutex);
+         _al_mutex_lock(&queue->mutex);
          {
             while (_al_vector_is_empty(&queue->events))
-               pthread_cond_wait(&queue->cond, &queue->mutex);
+               _al_cond_wait(&queue->cond, &queue->mutex);
 
             next_event = really_get_next_event(queue);
             ASSERT(next_event);
          }
-         pthread_mutex_unlock(&queue->mutex);
+         _al_mutex_unlock(&queue->mutex);
       }
       else
       {
          /* Finite timeout case.  */
 
-         pthread_mutex_lock(&queue->mutex);
+         _al_mutex_lock(&queue->mutex);
          {
-            struct timeval now;
-            struct timespec timeout;
-            int retcode = 0;
-
-            gettimeofday(&now, NULL);
-            timeout.tv_sec = now.tv_sec + (msecs / 1000);
-            timeout.tv_nsec = (now.tv_usec + (msecs % 1000)) * 1000;
-            timeout.tv_sec += timeout.tv_nsec / 1000000000L;
-            timeout.tv_nsec = timeout.tv_nsec % 1000000000L;
+            unsigned long timeout = al_current_time() + msecs;
+            int result = 0;
 
             /* Is the queue is non-empty?  If not, block on a condition
              * variable, which will be signaled when an event is placed into
              * the queue.
              */
-            while (_al_vector_is_empty(&queue->events) && (retcode != ETIMEDOUT))
-               retcode = pthread_cond_timedwait(&queue->cond, &queue->mutex, &timeout);
+            while (_al_vector_is_empty(&queue->events) && (result != -1))
+               result = _al_cond_timedwait(&queue->cond, &queue->mutex, timeout);
 
-            if (retcode == ETIMEDOUT)
+            if (result == -1)   /* timed out */
                next_event = NULL;
             else {
                next_event = really_get_next_event(queue);
                ASSERT(next_event);
             }
          }
-         pthread_mutex_unlock(&queue->mutex);
+         _al_mutex_unlock(&queue->mutex);
       }
 
       if (next_event) {
@@ -358,7 +348,7 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
    ASSERT(queue);
    ASSERT(event);
 
-   pthread_mutex_lock(&queue->mutex);
+   _al_mutex_lock(&queue->mutex);
    {
       if (_al_vector_size(&queue->events) < MAX_QUEUE_SIZE)
       {
@@ -376,10 +366,10 @@ void _al_event_queue_push_event(AL_EVENT_QUEUE *queue, AL_EVENT *event)
           * TODO: Test if multiple threads waiting on the same event
           * queue actually works.
           */
-         pthread_cond_broadcast(&queue->cond);
+         _al_cond_broadcast(&queue->cond);
       }
    }
-   pthread_mutex_unlock(&queue->mutex);
+   _al_mutex_unlock(&queue->mutex);
 }
 
 

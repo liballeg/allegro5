@@ -199,6 +199,50 @@ AL_INLINE(void, _al_mutex_unlock, (_AL_MUTEX *m),
       pthread_mutex_unlock(&m->mutex);
 })
 
+struct _AL_COND
+{
+   pthread_cond_t cond;
+};
+
+AL_INLINE(void, _al_cond_init, (_AL_COND *cond),
+{
+   pthread_cond_init(&cond->cond, NULL);
+})
+
+AL_INLINE(void, _al_cond_destroy, (_AL_COND *cond),
+{
+   pthread_cond_destroy(&cond->cond);
+})
+
+AL_INLINE(void, _al_cond_wait, (_AL_COND *cond, _AL_MUTEX *mutex),
+{
+   pthread_cond_wait(&cond->cond, &mutex->mutex);
+})
+
+AL_INLINE(int, _al_cond_timedwait, (_AL_COND *cond, _AL_MUTEX *mutex,
+				    unsigned long abstime),
+{
+   struct timespec timeout;
+   int retcode = 0;
+
+   timeout.tv_sec = abstime / 1000;
+   timeout.tv_nsec = (abstime % 1000) * 1000;
+
+   retcode = pthread_cond_timedwait(&cond->cond, &mutex->mutex, &timeout);
+
+   return (retcode == ETIMEDOUT) ? -1 : 0;
+})
+
+AL_INLINE(void, _al_cond_broadcast, (_AL_COND *cond),
+{
+   pthread_cond_broadcast(&cond->cond);
+})
+
+AL_INLINE(void, _al_cond_signal, (_AL_COND *cond),
+{
+   pthread_cond_signal(&cond->cond);
+})
+
 
 /* time */
 AL_FUNC(void, _al_unix_init_time, (void));
