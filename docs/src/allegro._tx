@@ -3638,8 +3638,8 @@ bitmap.
 @xref rotate_sprite, rotate_scaled_sprite_v_flip
 @xref pivot_sprite_v_flip, pivot_scaled_sprite_v_flip
    Like rotate_sprite, but also flips the image vertically.  To flip 
-   horizontally, use this routine but add fixtoi(128) to the angle. To flip
-   in both directions, use rotate_sprite() and add fixtoi(128) to its angle.
+   horizontally, use this routine but add itofix(128) to the angle. To flip
+   in both directions, use rotate_sprite() and add itofix(128) to its angle.
 
 @\void @rotate_scaled_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
 @@                          fixed angle, fixed scale);
