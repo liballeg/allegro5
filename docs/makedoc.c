@@ -789,7 +789,7 @@ void output_toc(FILE *f, char *filename, int root, int body, int part)
 	    else {
 	       strcpy(name, filename);
 	       s = extension(name)-1;
-	       if ((int)s - (int)get_filename(name) > 5)
+	       if (s - get_filename(name) > 5)
 		  s = get_filename(name)+5;
 	       sprintf(s, "%03d.%s", section_number, html_extension);
 	       hfprintf(f, "<li><a href=\"%s\">%s</a>\n", get_filename(name), ALT_TEXT(toc));
@@ -1182,7 +1182,7 @@ int write_html(char *filename)
 	       fclose(f);
 	       strcpy(buf, filename);
 	       s = extension(buf)-1;
-	       if ((int)s - (int)get_filename(buf) > 5)
+	       if (s - get_filename(buf) > 5)
 		  s = get_filename(buf)+5;
 	       sprintf(s, "%03d.%s", section_number-1, html_extension);
 	       printf("writing %s\n", buf);
