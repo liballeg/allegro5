@@ -2417,7 +2417,7 @@ will not be known, so the file may be converted wrongly.
 @xref save_bitmap
    Writes a bitmap into a 256 color or 24 bit truecolor PCX file.
 
-@@int @save_tgaconst (char *filename, BITMAP *bmp, const RGB *pal);
+@@int @save_tga (const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
    Writes a bitmap into a 256 color, 15 bit hicolor, 24 bit truecolor, or 32 
    bit truecolor+alpha TGA file.
