@@ -79,6 +79,8 @@ run_batch_file()
    # batch to shell syntax
    sed -e "/^@echo/d" \
        -e "/^rem/d" \
+       -e "/^if \[%1\] == \[--quick\] goto done/d" \
+       -e "/^:done/d" \
        -e "s/^echo \([^>]*\)\(.*\)/echo \"\1\"\2/; s/ \">/\" >/" \
        -e "s/^del/rm/; s/ > nul//" \
        -e "s/^copy/cp/; s/ > nul//" \
