@@ -87,6 +87,8 @@ void datedit_init()
       #include "obj/beos/plugins.h"
    #elif defined ALLEGRO_BCC32
       #include "obj/bcc32/plugins.h"
+   #elif defined ALLEGRO_MPW
+      #include "::obj:mpw:plugins.h"
    #else
       #error unknown platform
    #endif
