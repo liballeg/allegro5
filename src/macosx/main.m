@@ -109,6 +109,11 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
       al_argv = __crt0_argv;
    }
    
+   /* QuickTime Note Allocator seems not to like being initialized from a
+    * secondary thread, so we open it here.
+    */
+   osx_note_allocator = OpenDefaultComponent(kNoteAllocatorComponentType, 0);
+   
    [NSThread detachNewThreadSelector: @selector(app_main:)
       toTarget: [AllegroAppDelegate class]
       withObject: nil];
@@ -140,12 +145,15 @@ extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 {
    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
    int (*real_main) (int, char*[]) = (int (*) (int, char*[])) _mangled_main_address;
+   int result;
    
    /* Wait for the app to become active */
    while (![NSApp isActive]);
    
    /* Call the user main() */
-   exit(real_main(al_argc, al_argv));
+   result = real_main(al_argc, al_argv);
+   CloseComponent(osx_note_allocator);
+   exit(result);
    
    [pool release];
 }

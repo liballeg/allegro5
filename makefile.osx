@@ -124,9 +124,11 @@ INSTALL_DIR = /usr/local
 FRAMEWORK_DIR = /Library/Frameworks
 FRAMEWORK_NAME = Allegro
 FRAMEWORK = $(FRAMEWORK_DIR)/$(FRAMEWORK_NAME).framework
+
 TEMPLATE_DIR = /Developer/ProjectBuilder\ Extras/Project\ Templates/Application
 TEMPLATE_NAME = Allegro\ Application
 TEMPLATE = $(TEMPLATE_DIR)/$(TEMPLATE_NAME)
+
 
 ifdef STATICLINK
 
