@@ -833,8 +833,8 @@ with the standard variables that are used by Allegro (see below).
    being allocated as required, so you can assume that this pointer will 
    persist without having to manually allocate storage space for each string.
 
-@@void @set_config_string(const char *section, const char *name,
-			 const char *val);
+@\void @set_config_string(const char *section, const char *name,
+@@                        const char *val);
 @xref set_config_file, get_config_string, set_config_float, set_config_hex
 @xref set_config_int, set_config_id
    Writes a string variable to the current config file, replacing any 

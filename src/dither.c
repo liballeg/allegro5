@@ -8,7 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Hicolor dithering routines, by Ivan Baldo.
+ *      Hicolor dithering routines.
+ *
+ *      By Ivan Baldo.
  *
  *      See readme.txt for copyright information.
  */
