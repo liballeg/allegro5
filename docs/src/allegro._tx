@@ -1672,7 +1672,7 @@ Mouse routines
 
 @@extern volatile int @mouse_x;
 @@extern volatile int @mouse_y;
-@@exterm volatile int @mouse_z;
+@@extern volatile int @mouse_z;
 @@extern volatile int @mouse_b;
 @@extern volatile int @mouse_pos;
 @xref install_mouse, poll_mouse, mouse_needs_poll
@@ -1700,7 +1700,7 @@ Mouse routines
 
 @@extern BITMAP *@mouse_sprite;
 @@extern int @mouse_x_focus;
-@@exterm int @mouse_y_focus;
+@@extern int @mouse_y_focus;
 @xref set_mouse_sprite, set_mouse_sprite_focus
    Global variables containing the current mouse sprite and the focus
    point.  These are read-only, and only to be modified using the
