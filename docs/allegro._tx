@@ -717,7 +717,7 @@ dga_centre = x<br>
    feature by setting the variable to "n" or "N" or "0".
 <li>
 dga_clear = x<br>
-   X only: instructs the DGA driver to clear the video memory on startup.  
+   X only: instructs the DGA driver to clear visible video memory on startup. 
    Default is on; disable this feature by setting the variable to "n" or "N" 
    or "0".
 <li>
