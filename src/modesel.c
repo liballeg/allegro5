@@ -448,11 +448,26 @@ static AL_CONST char *gfx_depth_getter(int index, int *list_size)
    }
 
    switch (bpp_entry) {
-      case BPP_08: do_uconvert(" 8 bpp (256 color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
-      case BPP_15: do_uconvert("15 bpp (32K color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
-      case BPP_16: do_uconvert("16 bpp (64K color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
-      case BPP_24: do_uconvert("24 bpp (16M color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
-      case BPP_32: do_uconvert("32 bpp (16M color)", U_ASCII, mode_string, U_CURRENT, sizeof(mode_string)); break;
+
+      case BPP_08:
+         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii(" 8 %s (256 %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
+         break;
+
+      case BPP_15:
+         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("15 %s (32K %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
+         break;
+
+      case BPP_16:
+         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("16 %s (64K %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
+         break;
+
+      case BPP_24:
+         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("24 %s (16M %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
+         break;
+
+      case BPP_32:
+         uszprintf(mode_string, sizeof(mode_string), uconvert_ascii("32 %s (16M %s)", tmp), get_config_text("bpp"), get_config_text("colors"));
+         break;
    }
 
    return mode_string;
