@@ -490,6 +490,9 @@ install-lib: lib modules
 	    (cd $(DESTDIR)$(libdir); ln -s lib$${l}-$(shared_version).so lib$${l}.so.${shared_major_minor}); \
 	  fi; \
 	done
+	$(mkinstalldirs) $(DESTDIR)$(prefix)/share/aclocal
+	@echo Installing allegro.m4 to $(DESTDIR)$(prefix)/share/aclocal
+	@$(INSTALL_DATA) allegro.m4 $(DESTDIR)$(prefix)/share/aclocal
 
 install-headers:
 	$(mkinstalldirs) $(DESTDIR)$(includedir)/allegro
