@@ -158,7 +158,8 @@ GFX_DRIVER gfx_photon = {
    0,                            /* bank size, in bytes */
    0,                            /* bank granularity, in bytes */
    0,                            /* video memory size, in bytes */
-   0                             /* physical address of video memory */
+   0,                            /* physical address of video memory */
+   TRUE
 };
 
 
@@ -194,7 +195,8 @@ GFX_DRIVER gfx_photon_direct = {
    0,                            /* bank size, in bytes */
    0,                            /* bank granularity, in bytes */
    0,                            /* video memory size, in bytes */
-   0                             /* physical address of video memory */
+   0,                            /* physical address of video memory */
+   FALSE
 };
 
 

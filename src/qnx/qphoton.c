@@ -259,6 +259,8 @@ static struct BITMAP *qnx_private_phd_init(GFX_DRIVER *drv, int w, int h, int v_
  */
 static void qnx_private_phd_exit()
 {
+   PhDim_t dim;
+   
    ph_gfx_initialized = FALSE;
    if (ph_screen_context) {
       PhDCRelease(ph_screen_context);
@@ -270,6 +272,9 @@ static void qnx_private_phd_exit()
       direct_context = NULL;
       PgSetVideoMode(&original_settings);
    }
+   dim.w = 1;
+   dim.h = 1;
+   PtSetResource(ph_window, Pt_ARG_DIM, &dim, 0);
 }
 
 
@@ -369,15 +374,15 @@ void qnx_ph_set_palette(AL_CONST struct RGB *p, int from, int to, int retracesyn
    for (i=from; i<=to; i++) {
       ph_palette[i] = (p[i].r << 18) | (p[i].g << 10) | (p[i].b << 2);
    }
-   if (retracesync) {
-      PgWaitVSync();
-   }
    if ((desktop_depth != 8) && (ph_window_context)) {
       _set_colorconv_palette(p, from, to);
       ph_update_window(NULL);
    }
    if (desktop_depth == 8) {
       PgSetPalette(ph_palette, 0, from, to - from + 1, Pg_PALSET_HARDLOCKED, 0);
+   }
+   if (retracesync) {
+      PgWaitVSync();
    }
    PgFlush();
 }
@@ -579,6 +584,8 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
  */
 static void qnx_private_ph_exit()
 {
+   PhDim_t dim;
+   
    PgSetPalette(ph_palette, 0, 0, -1, 0, 0);
    PgFlush();
    ph_gfx_initialized = FALSE;
@@ -592,6 +599,9 @@ static void qnx_private_ph_exit()
       free(ph_dirty_lines);
    ph_dirty_lines = NULL;
    blitter = NULL;
+   dim.w = 1;
+   dim.h = 1;
+   PtSetResource(ph_window, Pt_ARG_DIM, &dim, 0);
 }
 
 

@@ -123,13 +123,14 @@ static void qnx_interrupts_handler(unsigned long interval)
  */
 static void *qnx_events_handler(void *data)
 {
+   PhRegion_t region;
    PhWindowEvent_t *window_event;
    PhKeyEvent_t *key_event;
    PhPointerEvent_t *mouse_event;
    PhCursorInfo_t cursor_info;
    int old_x = 0, old_y = 0, ig, dx, dy, buttons = 0, res, i;
    short mx, my;
-   const char *close_buttons[] = { "&Yes", "&No" };
+   char *close_buttons[2];
    
    while(!qnx_system_done) {
 
@@ -137,11 +138,6 @@ static void *qnx_events_handler(void *data)
       
       pthread_mutex_lock(&qnx_events_mutex);
       
-      if (!ph_gfx_initialized) {
-         pthread_mutex_unlock(&qnx_events_mutex);
-         continue;
-      }
-
       /* Special mouse handling while in fullscreen mode */
       if ((_mouse_installed) && (ph_screen_context)) {
          PtGetAbsPosition(ph_window, &mx, &my);
@@ -171,7 +167,7 @@ static void *qnx_events_handler(void *data)
          case Ph_EV_PTR_MOTION_NOBUTTON:
          case Ph_EV_BUT_PRESS:
          case Ph_EV_BUT_RELEASE:
-            if ((!_mouse_installed) || (ph_screen_context))
+            if ((!ph_gfx_initialized) || (!_mouse_installed) || (ph_screen_context))
                break;
             mouse_event = (PhPointerEvent_t *)PhGetData(ph_event);
             if (qnx_mouse_warped) {
@@ -207,13 +203,13 @@ static void *qnx_events_handler(void *data)
 
          /* Expose event */
          case Ph_EV_EXPOSE:
-            if (ph_window_context)
+            if ((ph_gfx_initialized) && (ph_window_context))
                ph_update_window(NULL);
             break;
       
          /* Mouse enters/leaves window boundaries */
          case Ph_EV_BOUNDARY:
-            if ((!_mouse_installed) || (ph_screen_context))
+            if ((!ph_gfx_initialized) || (!_mouse_installed) || (ph_screen_context))
                break;
             switch (ph_event->subtype) {
                case Ph_EV_PTR_ENTER:
@@ -233,6 +229,8 @@ static void *qnx_events_handler(void *data)
             }
             break;
          case Ph_EV_WM:
+            if (!ph_gfx_initialized)
+               break;
             if (ph_event->subtype == Ph_EV_WM_EVENT) {
                window_event = (PhWindowEvent_t *)PhGetData(ph_event);
                switch(window_event->event_f) {
@@ -241,11 +239,39 @@ static void *qnx_events_handler(void *data)
                         window_close_hook();
                      }
                      else {
-                        PtExit(EXIT_SUCCESS);
+                        qnx_keyboard_focused(FALSE, 0);
+                        DISABLE();
+
+                        /* Give time to flush pending window updates */
+                        usleep(100000);
+
+                        close_buttons[0] = malloc(16);
+                        close_buttons[1] = malloc(16);
+                        strcpy(close_buttons[0], get_config_text("Yes"));
+                        strcpy(close_buttons[1], get_config_text("No"));
+                        res = PtAlert(ph_window, NULL, window_title, NULL,
+                           get_config_text(ALLEGRO_WINDOW_CLOSE_MESSAGE),
+                           NULL, 2, (const char **)close_buttons, NULL, 2, 2, Pt_MODAL);
+                        free(close_buttons[0]);
+                        free(close_buttons[1]);
+
+                        /* PtAlert messed up our region; let's reconfigure it */
+                        PgSetRegion(PtWidgetRid(ph_window));
+                        PgSetClipping(0, NULL);
+                        region.cursor_type = Ph_CURSOR_NONE;
+                        region.rid = PtWidgetRid(ph_window);
+                        PhRegionChange(Ph_REGION_CURSOR, 0, &region, NULL, NULL);
+                        ENABLE();
+                        qnx_keyboard_focused(TRUE, 0);
+                        if (ph_window_context)
+                           ph_update_window(NULL);
+                        if (res == 1)
+                           PtExit(EXIT_SUCCESS);
                      }
                      break;
                   case Ph_WM_FOCUS:
                      if (window_event->event_state == Ph_WM_EVSTATE_FOCUS) {
+                        qnx_keyboard_focused(TRUE, 0);
                         PgSetPalette(ph_palette, 0, 0, 256, Pg_PALSET_HARDLOCKED, 0);
                         PgFlush();
                         for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
@@ -254,6 +280,7 @@ static void *qnx_events_handler(void *data)
                         }
                      }
                      else if (window_event->event_state == Ph_WM_EVSTATE_FOCUSLOST) {
+                        qnx_keyboard_focused(FALSE, 0);
                         for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
                            if (switch_out_cb[i])
                               switch_out_cb[i]();
@@ -304,8 +331,8 @@ int qnx_sys_init(void)
    old_sig_quit = signal(SIGQUIT, qnx_signal_handler);
 #endif
 
-   dim.w = 320;
-   dim.h = 200;
+   dim.w = 1;
+   dim.h = 1;
    _unix_get_executable_name(window_title, 256);
    PtSetArg(&arg[0], Pt_ARG_DIM, &dim, 0);
    PtSetArg(&arg[1], Pt_ARG_WINDOW_TITLE, window_title, 0);
@@ -434,11 +461,14 @@ void qnx_sys_message(AL_CONST char *msg)
    const char *button[] = { "&Ok" };
 
    fprintf(stderr, "%s", msg);
+   qnx_keyboard_focused(FALSE, 0);
    DISABLE();
    pthread_mutex_lock(&qnx_events_mutex);
    PtAlert(ph_window, NULL, window_title, NULL, msg, NULL, 1, button, NULL, 1, 1, Pt_MODAL);
    pthread_mutex_unlock(&qnx_events_mutex);
    ENABLE();
+   PgFlush();
+   qnx_keyboard_focused(TRUE, 0);
 }
 
 
