@@ -510,7 +510,7 @@ static void wnd_thread_proc(HANDLE setup_event)
    int result;
    MSG msg;
 
-   win_init_thread();
+   thread_init();
    _TRACE("window thread starts\n");   
 
    /* setup window */
@@ -548,7 +548,7 @@ static void wnd_thread_proc(HANDLE setup_event)
 
  End:
    _TRACE("window thread exits\n");
-   win_exit_thread();
+   thread_exit();
 }
 
 

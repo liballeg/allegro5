@@ -108,7 +108,6 @@ AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (
 AL_FUNC(void, sys_switch_in, (void));
 
 AL_FUNC(void, sys_switch_out, (void));
-AL_FUNC(void, thread_switch_out, (void));
 AL_FUNC(void, midi_switch_out, (void));
 
 AL_FUNC(void, sys_directx_switch_out_callback, (void));
@@ -183,8 +182,9 @@ AL_FUNC(void, wnd_unacquire_joystick, (void));
 /*******************************************/
 /************* thread routines *************/
 /*******************************************/
-AL_FUNC(void, win_init_thread, (void));
-AL_FUNC(void, win_exit_thread, (void));
+AL_FUNC(void, thread_init, (void));
+AL_FUNC(void, thread_exit, (void));
+AL_FUNC(void, thread_switch_out, (void));
 
 
 

@@ -183,6 +183,9 @@ static void tim_win32_high_perf_thread(void *unused)
    LARGE_INTEGER prev_tick;
    LARGE_INTEGER diff_counter;
 
+   /* init thread */
+   thread_init();
+
    /* get initial counter */
    QueryPerformanceCounter(&prev_tick);
 
@@ -207,8 +210,10 @@ static void tim_win32_high_perf_thread(void *unused)
 
       /* wait calculated time */
       result = WaitForSingleObject(timer_stop_event, TIMER_TO_MSEC(delay));
-      if (result != WAIT_TIMEOUT)
+      if (result != WAIT_TIMEOUT) {
+	 thread_exit();
 	 return;
+      }
    }
 }
 
@@ -224,6 +229,9 @@ static void tim_win32_low_perf_thread(void *unused)
    DWORD prev_time;  
    DWORD curr_time;  /* in milliseconds */
    DWORD diff_time;
+
+   /* init thread */
+   thread_init();
 
    /* get initial time */
    prev_time = timeGetTime();
@@ -249,8 +257,10 @@ static void tim_win32_low_perf_thread(void *unused)
 
       /* wait calculated time */
       result = WaitForSingleObject(timer_stop_event, TIMER_TO_MSEC(delay));
-      if (result != WAIT_TIMEOUT)
+      if (result != WAIT_TIMEOUT) {
+	 thread_exit();
 	 return;
+      }
    }
 }
 

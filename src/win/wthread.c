@@ -38,10 +38,12 @@ static int first_call = 1;
 
 
 
-/* win_init_thread:
- *  initializes com
+/* thread_init:
+ *  Initializes COM interface for the calling thread.
+ *  Attempts to use Distributed COM if available (installed by default
+ *  on every 32-bit Windows starting with Win98 and Win NT4).
  */
-void win_init_thread(void)
+void thread_init(void)
 {
    HMODULE ole32 = NULL;
 
@@ -74,10 +76,29 @@ void win_init_thread(void)
 
 
 
-/* win_exit_thread:
- *  shutdown com
+/* thread_exit:
+ *  Shuts down COM interface for the calling thread.
  */
-void win_exit_thread(void)
+void thread_exit(void)
 {
    CoUninitialize();
+}
+
+
+
+/* thread_switch_out:
+ *  Handles switch out event for the calling thread.
+ */
+void thread_switch_out(void)
+{ 
+   switch(get_display_switch_mode())
+   { 
+      case SWITCH_AMNESIA:
+      case SWITCH_PAUSE:
+	 WaitForSingleObject(_foreground_event, INFINITE);
+	 break;
+
+      default:
+	 break;
+   } 
 }

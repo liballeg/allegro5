@@ -122,7 +122,7 @@ static int sys_directx_init(void)
    HANDLE current_process;
 
    /* init thread */
-   win_init_thread();
+   thread_init();
 
    allegro_inst = GetModuleHandle(NULL);
 
@@ -208,7 +208,7 @@ static void sys_directx_exit(void)
    DeleteCriticalSection(&allegro_critical_section);
 
    /* shutdown thread */
-   win_exit_thread();
+   thread_exit();
 
    allegro_inst = NULL;
 }

@@ -209,26 +209,6 @@ void sys_switch_out(void)
 
 
 
-/* thread_switch_out:
- *  Called by threads that wants to be handled by system driver on switch out
- */
-void thread_switch_out()
-{ 
-   /* handle switch modes */
-   switch(get_display_switch_mode())
-   { 
-      case SWITCH_AMNESIA:
-      case SWITCH_PAUSE:
-	 WaitForSingleObject(_foreground_event, INFINITE);
-	 break;
-
-      default:
-	 break;
-   } 
-}
-
-
-
 /* sys_directx_switch_out_callback:
  */
 void sys_directx_switch_out_callback(void)
