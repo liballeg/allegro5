@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: John Harger made a change to improve the stability of AllegroGL
+   in Windows.
+<li>
    3.9.33: Sven Sandberg fixed a bug in the plain C 16bpp stretched blitter.
 <li>
    3.9.33: George Foot fixed a bug in the i386 8bpp masked blit routines, 
