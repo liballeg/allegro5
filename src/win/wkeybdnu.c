@@ -701,9 +701,25 @@ static void handle_key_release(unsigned char scancode)
    if (mycode == 0)
       return;
 
-   /* This can happen, e.g. when we are switching back into a VT with
-    * ALT+Fn, we only get the release event of the function key.
-    */
+   /* TODO: There must be a more efficient way to maintain key_modifiers? */
+   {
+      BYTE keystate[256];
+      unsigned int modifiers;
+
+      GetKeyboardState(keystate);
+
+      modifiers = 0;
+      if ((keystate[VK_LSHIFT]&0x80) || (keystate[VK_RSHIFT]&0x80)) modifiers |= AL_KEYMOD_SHIFT;
+      if ((keystate[VK_LCONTROL]&0x80) || (keystate[VK_RCONTROL]&0x80)) modifiers |= AL_KEYMOD_CTRL;
+      if (keystate[VK_LMENU]&0x80) modifiers |= AL_KEYMOD_ALT;
+      if (keystate[VK_RMENU]&0x80) modifiers |= AL_KEYMOD_ALTGR;
+      if (keystate[VK_SCROLL]&1) modifiers |= AL_KEYMOD_SCROLLLOCK;
+      if (keystate[VK_NUMLOCK]&1) modifiers |= AL_KEYMOD_NUMLOCK;
+      if (keystate[VK_CAPITAL]&1) modifiers |= AL_KEYMOD_CAPSLOCK;
+
+      key_modifiers = modifiers;
+   }
+
    if (!_AL_KBDSTATE_KEY_DOWN(key_state, mycode))
       return;
 
