@@ -7,7 +7,7 @@
 #
 # This generates all the Unix-specific distributions.  The
 # existing ZIP format is fine on Unix too, but we'll generate
-# here a .tar.gz in Unix format (no `fixunix.sh' necessary) and
+# here a .tar.gz in Unix format (no `fix.sh unix' necessary) and
 # also an end-user distribution which just creates and installs
 # the library, without examples, documentation, etc.  I suppose
 # there's a danger that people will download this as a cut-down
@@ -43,14 +43,14 @@ error() {
 
 
 ################################################################
-# Unzip the archive and run fixunix.sh
+# Unzip the archive and run fix.sh unix
 
 mkdir $dir || error
 
 echo "Unzipping $1 to $dir"
 	unzip -qq $1 -d $dir || error
-echo "Running 'fixunix.sh'"
-	(cd $dir/allegro && . fixunix.sh >/dev/null) || error
+echo "Running 'fix.sh unix'"
+	(cd $dir/allegro && . fix.sh unix >/dev/null) || error
 echo "Checking version number"
 	basename=$(sed -n -e 's/shared_version = /allegro-/p' $dir/allegro/makefile.ver)
 echo "Renaming 'allegro' to '$basename'"
