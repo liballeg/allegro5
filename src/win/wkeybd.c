@@ -139,6 +139,15 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
          ExitProcess(0);  /* unsafe */
       }
 
+      /* emulate PAUSE scancode sequence */
+      if (scancode == DIK_PAUSE) {
+         int i;
+         _handle_pckey(0xE1);
+         for (i=0; i < 5; i++)
+            _handle_pckey(0);
+         return;
+      }
+
       /* dirty hack to let Allegro for Windows use the DOS/Linux way of handling CapsLock */
       if (((scancode == DIK_CAPITAL) || (scancode == DIK_LSHIFT) || (scancode == DIK_RSHIFT))
           && pressed
