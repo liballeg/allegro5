@@ -1560,16 +1560,16 @@ void _xwin_enable_hardware_cursor(int mode)
 #ifdef ALLEGRO_XWINDOWS_WITH_XCURSOR
 
 /* _xwin_set_mouse_sprite:
- *  Set custom X cursor (if supported)
+ *  Set custom X cursor (if supported).
  */
-int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
+int _xwin_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
 {
 #define GET_PIXEL_DATA(depth, getpix)                                \
                case depth:                                           \
                   c = 0;                                             \
-                  for(iy=0; iy<mouse_sprite->h; iy++) {              \
-                     for(ix=0; ix<mouse_sprite->w;  ix++) {          \
-                        col = getpix(mouse_sprite, ix, iy);          \
+                  for (iy = 0; iy < sprite->h; iy++) {               \
+                     for(ix = 0; ix < sprite->w; ix++) {             \
+                        col = getpix(sprite, ix, iy);                \
                         if (col == (MASK_COLOR_ ## depth)) {         \
                            r = g = b = a = 0;                        \
                         }                                            \
@@ -1604,8 +1604,7 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
          return -1;
       }
 
-
-      switch(bitmap_color_depth(mouse_sprite)) {
+      switch (bitmap_color_depth(sprite)) {
          GET_PIXEL_DATA(8, _getpixel)
             break;
 
@@ -1622,15 +1621,15 @@ int _xwin_set_mouse_sprite(struct BITMAP *sprite, int x, int y)
             break;
       } /* End switch */
 
-      _xwin.xcursor_image->xhot = mouse_x_focus;
-      _xwin.xcursor_image->yhot = mouse_y_focus;
+      _xwin.xcursor_image->xhot = xfocus;
+      _xwin.xcursor_image->yhot = yfocus;
 
       return 0;
    }
 
-#undef GET_PIXEL_DATA
-
    return -1;
+
+#undef GET_PIXEL_DATA
 }
 
 
