@@ -138,11 +138,11 @@ uninstall:
 .PHONY: mmxtest
 
 mmxtest:
-	echo // no MMX > obj/beos/mmx.h
+	echo "// no MMX" > obj/beos/mmx.h
 	echo .text > obj/beos/mmxtest.s
 	echo emms >> obj/beos/mmxtest.s
 	gcc -c obj/beos/mmxtest.s -o obj/beos/mmxtest.o
-	echo #define ALLEGRO_MMX > obj/beos/mmx.h
+	echo "#define ALLEGRO_MMX" > obj/beos/mmx.h
 
 obj/beos/mmx.h:
 	@echo Testing for MMX assembler support...
