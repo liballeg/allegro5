@@ -3574,7 +3574,7 @@ rotate them, or stretch them. In fact the only thing you can do with them is
 to blast them onto a bitmap with the draw_rle_sprite() function, which is 
 equivalent to using draw_sprite() with a regular bitmap. You can convert 
 bitmaps into RLE sprites at runtime, or you can create RLE sprite structures 
-in grabber datafiles by making a bitmap object and checking the 'RLE' button.
+directly in grabber datafiles.
 
 @@RLE_SPRITE *@get_rle_sprite(BITMAP *bitmap);
 @xref draw_rle_sprite, destroy_rle_sprite
