@@ -109,6 +109,7 @@ struct _xwin_type _xwin =
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
    0,           /* in_dga_mode */
+   0, 		/* disable_dga_mouse */
    0,           /* keyboard_grabbed */
    0,           /* mouse_grabbed */
 
@@ -1934,8 +1935,29 @@ static void _xwin_private_process_event(XEvent *event)
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86DGA
 	 if (_xwin.in_dga_mode) {
 	    /* DGA mode.  */
-	    dx = event->xmotion.x;
-	    dy = event->xmotion.y;
+	    if (!_xwin.disable_dga_mouse) {
+	       dx = event->xmotion.x;
+	       dy = event->xmotion.y;
+	    }
+	    else {
+	       /* Buggy X servers send absolute instead of relative offsets.  */
+	       dx = event->xmotion.x - mouse_savedx;
+	       dy = event->xmotion.y - mouse_savedy;
+	       mouse_savedx = event->xmotion.x;
+	       mouse_savedy = event->xmotion.y;
+
+	       /* Ignore the event we just generated with XWarpPointer.  */
+	       if (mouse_was_warped) {
+		  mouse_was_warped = 0;
+		  break;
+	       }
+	     	       
+	       /* Warp X-cursor to the center of the screen.  */
+	       XWarpPointer(_xwin.display, None, _xwin.window, 0, 0, 0, 0, 
+			    _xwin.screen_width / 2, _xwin.screen_width / 2);
+	       mouse_was_warped = 1;
+	    }
+	    
 	    if (((dx != 0) || (dy != 0)) && _xwin_mouse_interrupt) {
 	       /* Move Allegro cursor.  */
 	       (*_xwin_mouse_interrupt)(dx, dy, 0, mouse_buttons);
@@ -2595,7 +2617,8 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    XF86VidModeModeLine modeline;
    char *fb_addr;
    struct passwd *pass;
-
+   char tmp[80], *disable, c;
+   
    if (_xwin.window == None) {
       ustrcpy(allegro_error, get_config_text("No window"));
       return 0;
@@ -2780,6 +2803,11 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
    _xwin.in_dga_mode = 1;
+   
+   /* Allow workaround for buggy servers (e.g. 3dfx Voodoo 3/Banshee).  */
+   disable = get_config_string(NULL, uconvert_ascii("dga_mouse", tmp), NULL);
+   if ((disable) && (c = ugetc(disable)) && ((c == 'n') || (c == 'N') || (c == '0')))
+      _xwin.disable_dga_mouse = 1;
 
    set_display_switch_mode(SWITCH_NONE);
 

@@ -10,6 +10,9 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Peter Wang added a workaround for a mouse motion reporting bug 
+   in some X servers.
+<li>
    3.9.33: Eric Botcazou altered the DGA code to work better in 32bpp modes.
 <li>
    3.9.33: Daniel Nilsson tweaked exstars and exlights
