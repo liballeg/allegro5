@@ -78,14 +78,14 @@ listed in the main Allegro documentation).
 Also, when passing a pointer to a pointer to an Allegro function which
 is declared as taking an <code>AL_CONST type** ptr</code>, you will need
 to cast your pointer to be `const' if it is not already. For instance:
-
-<pre>int some_allegro_function(AL_CONST char** p);
-
-void my_func(char** x)
-{
-    some_allegro_function((AL_CONST char**) x);
-}</pre>
-
+<codeblock>
+   int some_allegro_function(AL_CONST char** p);
+   
+   void my_func(char** x)
+   {
+       some_allegro_function((AL_CONST char**) x);
+   }
+<endblock>
 I realise that this is a change to the Allegro API, and that we are
 supposed to avoid those at all costs, but this is essentially fixing a
 bug in Allegro and changing behaviour. It also ensures that

@@ -292,24 +292,24 @@ information about how to install Allegro and link your program with it.
    Contains CPU flags indicating what features are available on the current 
    CPU. The flags can be any combination of these:
 <textblock>
-   CPU_ID       - Indicates that the "cpuid" instruction is available. If this 
-                  is set, then all Allegro CPU variables are 100% reliable,
-                  otherwise there may be some mistakes.
-   CPU_FPU      - An x87 FPU is available.
-   CPU_MMX      - Intel MMX  instruction set is available.
-   CPU_MMXPLUS  - Intel MMX+ instruction set is available.
-   CPU_SSE      - Intel SSE  instruction set is available.
-   CPU_SSE2     - Intel SSE2 instruction set is available.
-   CPU_3DNOW    - AMD 3DNow! instruction set is available.
-   CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is available.
-   CPU_CMOV     - Pentium Pro "cmov" instruction is available.
+      CPU_ID       - Indicates that the "cpuid" instruction is available.
+		     If this is set, then all Allegro CPU variables are
+		     100% reliable, otherwise there may be some mistakes.
+      CPU_FPU      - An x87 FPU is available.
+      CPU_MMX      - Intel MMX  instruction set is available.
+      CPU_MMXPLUS  - Intel MMX+ instruction set is available.
+      CPU_SSE      - Intel SSE  instruction set is available.
+      CPU_SSE2     - Intel SSE2 instruction set is available.
+      CPU_3DNOW    - AMD 3DNow! instruction set is available.
+      CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is available.
+      CPU_CMOV     - Pentium Pro "cmov" instruction is available.
 <endblock>
    You can check for multiple features by OR-ing the flags together.
    For example, to check if the CPU has an FPU and MMX instructions
    available, you'd do:
 <codeblock>
-   if ((cpu_capabilities & (CPU_FPU | CPU_MMX)) == (CPU_FPU | CPU_MMX))
-      printf("CPU has both an FPU and MMX instructions!\n");
+      if ((cpu_capabilities & (CPU_FPU | CPU_MMX)) == (CPU_FPU | CPU_MMX))
+	 printf("CPU has both an FPU and MMX instructions!\n");
 <endblock>
 
 
@@ -1545,9 +1545,9 @@ Allegro does not provide such devices.)
    other time formats to hardware clock ticks with the macros:
 <textblock>
       SECS_TO_TIMER(secs)  - give the number of seconds between
-                             each tick
+			     each tick
       MSEC_TO_TIMER(msec)  - give the number of milliseconds
-                             between ticks
+			     between ticks
       BPS_TO_TIMER(bps)    - give the number of ticks each second
       BPM_TO_TIMER(bpm)    - give the number of ticks per minute
 <endblock>
@@ -2016,24 +2016,24 @@ Joystick routines
    poll_joystick() function. Only the first num_joysticks elements will 
    contain meaningful information. The JOYSTICK_INFO structure is defined as:
 <codeblock>
-   typedef struct JOYSTICK_INFO
-   {
-      int flags;                       - status flags for this
-                                         joystick
-      int num_sticks;                  - how many stick inputs?
-      int num_buttons;                 - how many buttons?
-      JOYSTICK_STICK_INFO stick[n];    - stick state information
-      JOYSTICK_BUTTON_INFO button[n];  - button state information
-   } JOYSTICK_INFO;
+      typedef struct JOYSTICK_INFO
+      {
+	 int flags;                       - status flags for this
+					    joystick
+	 int num_sticks;                  - how many stick inputs?
+	 int num_buttons;                 - how many buttons?
+	 JOYSTICK_STICK_INFO stick[n];    - stick state information
+	 JOYSTICK_BUTTON_INFO button[n];  - button state information
+      } JOYSTICK_INFO;
 <endblock>
    The button status is stored in the structure:
 <codeblock>
-   typedef struct JOYSTICK_BUTTON_INFO
-   {
-      int b;                           - boolean on/off flag
-      char *name;                      - description of this
-                                         button
-   } JOYSTICK_BUTTON_INFO;
+      typedef struct JOYSTICK_BUTTON_INFO
+      {
+	 int b;                           - boolean on/off flag
+	 char *name;                      - description of this
+					    button
+      } JOYSTICK_BUTTON_INFO;
 <endblock>
    You may wish to display the button names as part of an input 
    configuration screen to let the user choose what game function will be 
@@ -2051,16 +2051,16 @@ Joystick routines
    and it is possible that the system could be extended in the future to 
    support full 3d controllers. A stick input is described by the structure:
 <codeblock>
-   typedef struct JOYSTICK_STICK_INFO
-   {
-      int flags;                       - status flags for this
-                                         input
-      int num_axis;                    - how many axis do we
-                                         have?
-      JOYSTICK_AXIS_INFO axis[n];      - axis state information
-      char *name;                      - description of this
-                                         input
-   } JOYSTICK_STICK_INFO;
+      typedef struct JOYSTICK_STICK_INFO
+      {
+	 int flags;                       - status flags for this
+					    input
+	 int num_axis;                    - how many axis do we
+					    have?
+	 JOYSTICK_AXIS_INFO axis[n];      - axis state information
+	 char *name;                      - description of this
+					    input
+      } JOYSTICK_STICK_INFO;
 <endblock>
    A single joystick may provide several different stick inputs, but you can 
    safely assume that the first element in the stick array will always be 
@@ -2068,12 +2068,12 @@ Joystick routines
 
    Information about each of the stick axis is stored in the substructure:
 <codeblock>
-   typedef struct JOYSTICK_AXIS_INFO
-   {
-      int pos;                         - analogue axis position
-      int d1, d2;                      - digital axis position
-      char *name;                      - description of this axis
-   } JOYSTICK_AXIS_INFO;
+      typedef struct JOYSTICK_AXIS_INFO
+      {
+	 int pos;                         - analogue axis position
+	 int d1, d2;                      - digital axis position
+	 char *name;                      - description of this axis
+      } JOYSTICK_AXIS_INFO;
 <endblock>
    This provides both analogue input in the pos field (ranging from -128 to 
    128 or from 0 to 255, depending on the type of the control), and digital 
@@ -2207,17 +2207,17 @@ Graphics modes
    the type GFX_MODE_LIST which has the following definition:
    type GFX_MODE_LIST which has the following definition:
 <codeblock>
-   typedef struct GFX_MODE_LIST {
-      int num_modes;
-      GFX_MODE *mode;
-   } GFX_MODE_LIST;
+      typedef struct GFX_MODE_LIST {
+	 int num_modes;
+	 GFX_MODE *mode;
+      } GFX_MODE_LIST;
 <endblock>
    If this function returns NULL, it means the call failed. The mode entry
    points to the actual list of video modes.
 <codeblock>
-   typedef struct GFX_MODE {
-      int width, height, bpp;
-   } GFX_MODE;
+      typedef struct GFX_MODE {
+	 int width, height, bpp;
+      } GFX_MODE;
 <endblock>
    This list is terminated with an { 0, 0, 0 } entry.
 
@@ -2644,7 +2644,7 @@ For example, to draw a pixel onto the screen you would write:
 <endblock>
 Or to implement a double-buffered system:
 <codeblock>
-   BITMAP *bmp = create_bitmap(320, 200);    // make a bitmap in system RAM
+   BITMAP *bmp = create_bitmap(320, 200);    // make a bitmap in RAM
    clear_bitmap(bmp);                        // zero the memory bitmap
    putpixel(bmp, x, y, color);               // draw onto the memory bitmap
    blit(bmp, screen, 0, 0, 0, 0, 320, 200);  // copy it to the screen
@@ -2935,11 +2935,11 @@ will not be known, so the file may be converted wrongly.
    format (selected by calling the set_color_depth() function), otherwise it 
    will be left in the same format as the disk file, leaving you to convert 
    it manually before the graphic can be displayed. The default mode is 
-   total conversion, so that all images will be loaded in the appropriate 
+   total conversion, so that all images will be loaded in the appropriate
    format for the current video mode. Valid bit flags are:
 <textblock>
       COLORCONV_NONE                // disable all format
-                                    // conversions
+				    // conversions
       COLORCONV_8_TO_15             // expand 8 bits to 15 bits
       COLORCONV_8_TO_16             // expand 8 bits to 16 bits
       COLORCONV_8_TO_24             // expand 8 bits to 24 bits
@@ -2966,32 +2966,32 @@ will not be known, so the file may be converted wrongly.
       COLORCONV_32A_TO_24           // reduce 32 bit RGBA to 24 bits
       COLORCONV_DITHER_PAL          // dither when reducing to 8 bit
       COLORCONV_DITHER_HI           // dither when reducing to
-                                    // hicolor
+				    // hicolor
       COLORCONV_KEEP_TRANS          // keep original transparency
 <endblock>
    For convenience, the following macros can be used to select common 
    combinations of these flags:
 <textblock>
       COLORCONV_EXPAND_256          // expand 256 colors to
-                                    // hi/truecolor
+				    // hi/truecolor
       COLORCONV_REDUCE_TO_256       // reduce hi/truecolor to 256
-                                    // colors
+				    // colors
       COLORCONV_EXPAND_15_TO_16     // expand 15 bit hicolor to
-                                    // 16 bits
+				    // 16 bits
       COLORCONV_REDUCE_16_TO_15     // reduce 16 bit hicolor to
-                                    // 15 bits
+				    // 15 bits
       COLORCONV_EXPAND_HI_TO_TRUE   // expand 15/16 bits to
-                                    // 24/32 bits
+				    // 24/32 bits
       COLORCONV_REDUCE_TRUE_TO_HI   // reduce 24/32 bits to
-                                    // 15/16 bits
+				    // 15/16 bits
       COLORCONV_24_EQUALS_32        // convert between 24 and
-                                    // 32 bits
+				    // 32 bits
       COLORCONV_TOTAL               // everything to current format
       COLORCONV_PARTIAL             // convert 15 &lt-&gt 16 and
-                                    // 24 &lt-&gt 32
+				    // 24 &lt-&gt 32
       COLORCONV_MOST                // all but hi/truecolor &lt-&gt 256
       COLORCONV_DITHER              // dither during all color
-                                    // reductions
+				    // reductions
 <endblock>
    If you enable the COLORCONV_DITHER flag, dithering will be performed 
    whenever truecolor graphics are converted into a hicolor or paletted 
@@ -3023,10 +3023,10 @@ Palette entries are stored in an RGB structure, which contains red, green
 and blue intensities in the VGA hardware format, ranging from 0-63, and is 
 defined as:
 <codeblock>
-typedef struct RGB
-{
-   unsigned char r, g, b;
-} RGB;
+   typedef struct RGB
+   {
+      unsigned char r, g, b;
+   } RGB;
 <endblock>
 For example:
 <codeblock>
@@ -3956,19 +3956,19 @@ Polygon rendering
    structure, while polygon3d_f() uses the floating point V3D_f structure. 
    These are defined as:
 <codeblock>
-   typedef struct V3D
-   {
-      fixed x, y, z;       - position
-      fixed u, v;          - texture map coordinates
-      int c;               - color
-   } V3D;
-
-   typedef struct V3D_f
-   {
-      float x, y, z;       - position
-      float u, v;          - texture map coordinates
-      int c;               - color
-   } V3D_f;
+      typedef struct V3D
+      {
+	 fixed x, y, z;       - position
+	 fixed u, v;          - texture map coordinates
+	 int c;               - color
+      } V3D;
+   
+      typedef struct V3D_f
+      {
+	 float x, y, z;       - position
+	 float u, v;          - texture map coordinates
+	 int c;               - color
+      } V3D_f;
 <endblock>
    How the vertex data is used depends on the rendering mode:
 
@@ -4404,7 +4404,7 @@ Transparency and patterned drawing
    be one of the values:
 <textblock>
       DRAW_MODE_SOLID               - the default, solid color
-                                      drawing
+				      drawing
       DRAW_MODE_XOR                 - exclusive-or drawing
       DRAW_MODE_COPY_PATTERN        - multicolored pattern fill
       DRAW_MODE_SOLID_PATTERN       - single color pattern fill
@@ -4483,9 +4483,9 @@ solid or invisible.
 Color mapping tables can be precalculated with the colormap utility, or 
 generated at runtime. The COLOR_MAP structure is defined as:
 <codeblock>
-typedef struct {
-   unsigned char data[PAL_SIZE][PAL_SIZE];
-} COLOR_MAP;
+   typedef struct {
+      unsigned char data[PAL_SIZE][PAL_SIZE];
+   } COLOR_MAP;
 <endblock>
 @@extern COLOR_MAP *@color_map;
 @xref create_color_table, create_light_table, create_trans_table
@@ -4553,7 +4553,7 @@ typedef struct {
 In truecolor video modes, translucency and lighting are implemented by a 
 blender function in the form:
 <codeblock>
-unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);
+   unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);
 <endblock>
 This routine takes two color parameters, decomposes them into their red, 
 green, and blue components, combines them according to the interpolation 
@@ -4746,9 +4746,9 @@ the conversion).
    precalculated with the rgbmap utility, or generated at runtime. The 
    RGB_MAP structure is defined as:
 <codeblock>
-   typedef struct {
-      unsigned char data[32][32][32];
-   } RGB_MAP;
+      typedef struct {
+	 unsigned char data[32][32][32];
+      } RGB_MAP;
 <endblock>
 @\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
 @@                       void (*callback)(int pos));
@@ -4778,14 +4778,14 @@ Direct access to video memory
 
 The bitmap structure looks like:
 <codeblock>
-typedef struct BITMAP
-{
-   int w, h;               - size of the bitmap in pixels
-   int clip;               - non-zero if clipping is turned on
-   int cl, cr, ct, cb;     - clip rectangle left, right, top, and bottom
-   int seg;                - segment for use with the line pointers
-   unsigned char *line[];  - pointers to the start of each line
-} BITMAP;
+   typedef struct BITMAP
+   {
+      int w, h;               - size of the bitmap in pixels
+      int clip;               - non-zero if clipping is turned on
+      int cl, cr, ct, cb;     - clip rectangle left, right, top, and bottom
+      int seg;                - segment for use with the line pointers
+      unsigned char *line[];  - pointers to the start of each line
+   } BITMAP;
 <endblock>
 There is some other stuff in the structure as well, but it is liable to 
 change and you shouldn't use anything except the above. The clipping 
@@ -5130,10 +5130,10 @@ Sound init routines
 
    Here are the default values, dependent on the number of voices:
 <textblock>
-   1-8 voices - set_volume_per_voice(2)
-    16 voices - set_volume_per_voice(3)
-    32 voices - set_volume_per_voice(4)
-    64 voices - set_volume_per_voice(5)
+     1-8 voices - set_volume_per_voice(2)
+      16 voices - set_volume_per_voice(3)
+      32 voices - set_volume_per_voice(4)
+      64 voices - set_volume_per_voice(5)
 <endblock>
    Of course this function does not override the volume you specify with 
    play_sample() or voice_set_volume(). It simply alters the overall output 
@@ -5845,13 +5845,13 @@ directories, but not hidden files and directories. Similarly, if you pass
    and, in the latter case, sets errno accordingly. The al_ffblk structure 
    looks like:
 <codeblock>
-  struct al_ffblk
-  {
-      int attrib;       - actual attributes of the file found
-      time_t time;      - modification time of file
-      long size;        - size of file
-      char name[512];   - name of file
-  };
+      struct al_ffblk
+      {
+	 int attrib;       - actual attributes of the file found
+	 time_t time;      - modification time of file
+	 long size;        - size of file
+	 char name[512];   - name of file
+      };
 <endblock>
    There is some other stuff in the structure as well, but it is there for 
    internal use only.
@@ -6127,13 +6127,13 @@ directly from a specific datafile object.
 When you load a datafile, you will obtain a pointer to an array of DATAFILE 
 structures:
 <codeblock>
-typedef struct DATAFILE
-{
-   void *dat;     - pointer to the actual data
-   int type;      - type of the data
-   long size;     - size of the data in bytes
-   void *prop;    - list of object properties
-} DATAFILE;
+   typedef struct DATAFILE
+   {
+      void *dat;     - pointer to the actual data
+      int type;      - type of the data
+      long size;     - size of the data in bytes
+      void *prop;    - list of object properties
+   } DATAFILE;
 <endblock>
 The type field will be one of the values:
 <textblock>
@@ -6376,17 +6376,17 @@ manipulation functions accordingly.
 
 Matrices are stored in the structures:
 <codeblock>
-typedef struct MATRIX            - fixed point matrix structure
-{
-   fixed v[3][3];                - 3x3 scaling and rotation component
-   fixed t[3];                   - x/y/z translation component
-} MATRIX;
-
-typedef struct MATRIX_f          - floating point matrix structure
-{
-   float v[3][3];                - 3x3 scaling and rotation component
-   float t[3];                   - x/y/z translation component
-} MATRIX_f
+   typedef struct MATRIX            - fixed point matrix structure
+   {
+      fixed v[3][3];                - 3x3 scaling and rotation component
+      fixed t[3];                   - x/y/z translation component
+   } MATRIX;
+   
+   typedef struct MATRIX_f          - floating point matrix structure
+   {
+      float v[3][3];                - 3x3 scaling and rotation component
+      float t[3];                   - x/y/z translation component
+   } MATRIX_f
 <endblock>
 @@extern MATRIX @identity_matrix;
 @@extern MATRIX_f @identity_matrix_f;
@@ -6605,10 +6605,10 @@ function that performs a similar operation.
 Quaternion means 'of four parts', and that's exactly what it is. Here is the 
 structure:
 <codeblock>
-typedef struct QUAT
-{
-   float w, x, y, z;
-}
+   typedef struct QUAT
+   {
+      float w, x, y, z;
+   }
 <endblock>
 You will have lots of fun figuring out what these numbers actually mean, but 
 that is beyond the scope of this documentation. Quaternions do work -- trust 
@@ -6668,11 +6668,11 @@ me.
    The same as quat_interpolate(), but allows more control over how the 
    rotation is done. The how parameter can be any one of the values:
 <textblock>
-   QUAT_SHORT  - like quat_interpolate(), use shortest path
-   QUAT_LONG   - rotation will be greater than 180 degrees
-   QUAT_CW     - rotate clockwise when viewed from above
-   QUAT_CCW    - rotate counterclockwise when viewed from above
-   QUAT_USER   - the quaternions are interpolated exactly as given
+      QUAT_SHORT  - like quat_interpolate(), use shortest path
+      QUAT_LONG   - rotation will be greater than 180 degrees
+      QUAT_CW     - rotate clockwise when viewed from above
+      QUAT_CCW    - rotate counterclockwise when viewed from above
+      QUAT_USER   - the quaternions are interpolated exactly as given
 <endblock>
 
 
@@ -6692,18 +6692,18 @@ keyboard, joystick, etc.
 A GUI dialog is stored as an array of DIALOG objects, each one containing 
 the fields:
 <codeblock>
-typedef struct DIALOG
-{
-   int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
-   int x, y, w, h;                  - position and size of the object
-   int fg, bg;                      - foreground and background colors
-   int key;                         - ASCII keyboard shortcut
-   int flags;                       - flags about the status of
-                                      the object
-   int d1, d2;                      - whatever you want to use them for
-   void *dp, *dp2, *dp3;            - pointers to more
-                                      object-specific data
-} DIALOG;
+   typedef struct DIALOG
+   {
+      int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
+      int x, y, w, h;                  - position and size of the object
+      int fg, bg;                      - foreground and background colors
+      int key;                         - ASCII keyboard shortcut
+      int flags;                       - flags about the status of
+                                         the object
+      int d1, d2;                      - whatever you want to use them for
+      void *dp, *dp2, *dp3;            - pointers to more
+                                         object-specific data
+   } DIALOG;
 <endblock>
 The array should end with an object which has the proc pointer set to NULL.
 
@@ -6867,14 +6867,14 @@ changes are the following:
    their size was d-&gtw+1 and d-&gth+1 pixels (and not d-&gtw and d-&gth, as it
    should be). This change affects the following objects :
 <textblock>
-          d_box_proc,
-          d_shadow_box_proc,
-          d_button_proc,
-          d_check_proc,
-          d_radio_proc,
-          d_list_proc,
-          d_text_list_proc and
-          d_textbox_proc.
+      d_box_proc,
+      d_shadow_box_proc,
+      d_button_proc,
+      d_check_proc,
+      d_radio_proc,
+      d_list_proc,
+      d_text_list_proc and
+      d_textbox_proc.
 <endblock>
    When you want to convert old dialogs to look equally when compiling with 
    the new Allegro version, just increase the size of the mentioned objects 
@@ -7189,14 +7189,14 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
 @xref do_menu, d_menu_proc, gui_menu_draw_menu
 Popup or pulldown menus are created as an array of the structures:
 <codeblock>
-typedef struct MENU
-{
-   char *text;                   - the text to display for the menu item
-   int (*proc)();                - called when the menu item is clicked
-   struct MENU *child;           - nested child menu
-   int flags;                    - disabled or checked state
-   void *dp;                     - pointer to any data you need
-} MENU;
+   typedef struct MENU
+   {
+      char *text;          /* the text to display for the menu item */
+      int (*proc)();       /* called when the menu item is clicked */
+      struct MENU *child;  /* nested child menu */
+      int flags;           /* disabled or checked state */
+      void *dp;            /* pointer to any data you need */
+   } MENU;
 <endblock>
 Each menu item contains a text string. This can use the '&' character to 
 indicate keyboard shortcuts, or can be an zero-length string to display the 
@@ -7620,7 +7620,7 @@ DOS specifics
       DIGI_SB10            - SB 1.0 (8 bit mono single shot dma)
       DIGI_SB15            - SB 1.5 (8 bit mono single shot dma)
       DIGI_SB20            - SB 2.0 (8 bit mono auto-initialised
-                             dma)
+			     dma)
       DIGI_SBPRO           - SB Pro (8 bit stereo)
       DIGI_SB16            - SB16 (16 bit stereo)
       DIGI_AUDIODRIVE      - ESS AudioDrive
@@ -7636,9 +7636,9 @@ DOS specifics
       MIDI_ADLIB           - Adlib or SB FM synth (autodetect type)
       MIDI_OPL2            - OPL2 synth (mono, used in Adlib and SB)
       MIDI_2XOPL2          - dual OPL2 synths (stereo, used in
-                             SB Pro-I)
+			     SB Pro-I)
       MIDI_OPL3            - OPL3 synth (stereo, SB Pro-II
-                             and above)
+			     and above)
       MIDI_SB_OUT          - SB MIDI interface
       MIDI_MPU             - MPU-401 MIDI interface
       MIDI_DIGMID          - sample-based software wavetable player
@@ -7773,17 +7773,17 @@ below for the consequences for windowed and overlay DirectX drivers.
       select the direct drawing mode in a reliable way on desktops reported 
       as 16-bit:
 <codeblock>
-   if (desktop_color_depth() == 16) {
-      set_color_depth(16);
-      if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
-         set_color_depth(15);
-         if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
-            /* 640x480 direct drawing mode not supported */
-            goto Error;
-         }
-      }
-      /* ok, we are in direct drawing mode */
-   }
+	 if (desktop_color_depth() == 16) {
+	    set_color_depth(16);
+	    if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
+	       set_color_depth(15);
+	       if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
+		  /* 640x480 direct drawing mode not supported */
+		  goto Error;
+	       }
+	    }
+	    /* ok, we are in direct drawing mode */
+	 }
 <endblock>
 <li>
    GFX_DIRECTX_OVL<br>
@@ -7794,17 +7794,17 @@ below for the consequences for windowed and overlay DirectX drivers.
       of the limitation of desktop_color_depth() (see above), the reliable 
       way of setting the overlay driver on desktops reported as 16-bit is:
 <codeblock>
-   if (desktop_color_depth() == 16) {
-      set_color_depth(16);
-      if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
-         set_color_depth(15);
-         if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
-            /* 640x480 overlay driver not supported */
-            goto Error;
-         }
-      }
-      /* ok, the 640x480 overlay driver is running */
-   }
+	 if (desktop_color_depth() == 16) {
+	    set_color_depth(16);
+	    if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
+	       set_color_depth(15);
+	       if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
+		  /* 640x480 overlay driver not supported */
+		  goto Error;
+	       }
+	    }
+	    /* ok, the 640x480 overlay driver is running */
+	 }
 <endblock>
 <li>
    GFX_GDI<br>
@@ -7821,9 +7821,9 @@ below for the consequences for windowed and overlay DirectX drivers.
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based) with
-                             direct mixing
+			     direct mixing
       DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with
-                             Allegro mixing
+			     Allegro mixing
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
 <endblock>
 @@Drivers: @MIDI_*/Windows
