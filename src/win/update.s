@@ -757,7 +757,7 @@ FUNC (_update_16_to_24)
    movl GLOBL(rgb_scale_5335), %ebp
 
    next_line_16_to_24_no_mmx:
-      movl LOCAL2, %edx      
+      movl MYLOCAL1, %edx      
       pushl %ecx     
 
       _align_
@@ -810,8 +810,8 @@ FUNC (_update_16_to_24)
          jnz next_block_16_to_24_no_mmx
 
       popl %ecx
-      addl LOCAL3, %esi
-      addl LOCAL4, %edi
+      addl MYLOCAL2, %esi
+      addl MYLOCAL3, %edi
       decl %ecx
       jnz next_line_16_to_24_no_mmx
 
