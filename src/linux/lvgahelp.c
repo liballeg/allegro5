@@ -20,6 +20,9 @@
 #endif
 
 #include "allegro.h"
+
+#ifdef ALLEGRO_LINUX_VGA
+
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 #include "allegro/internal/aintvga.h"
@@ -263,3 +266,4 @@ void __al_linux_restore_text_mode (void)
    __al_linux_set_vga_regs (&txt_regs);
 }
 
+#endif /* ALLEGRO_LINUX_VGA */

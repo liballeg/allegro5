@@ -24,11 +24,12 @@
 #include <sys/mman.h>
 
 #include "allegro.h"
+
+#if ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
+
 #include "allegro/internal/aintern.h"
 #include "allegro/platform/aintunix.h"
 #include "allegro/internal/aintvga.h"
-
-#if ((defined ALLEGRO_LINUX_VGA) && ((!defined ALLEGRO_WITH_MODULES) || (defined ALLEGRO_MODULE)))
 
 
 
