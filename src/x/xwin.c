@@ -265,7 +265,7 @@ static void _xwin_private_slow_palette_24(int sx, int sy, int sw, int sh);
 static void _xwin_private_slow_palette_32(int sx, int sy, int sw, int sh);
 
 #ifdef ALLEGRO_XWINDOWS_WITH_XF86VIDMODE
-static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh);
+static int _xvidmode_private_set_fullscreen(int w, int h);
 static void _xvidmode_private_unset_fullscreen(void);
 #endif
 
@@ -721,7 +721,7 @@ static BITMAP *_xwin_private_create_screen(GFX_DRIVER *drv, int w, int h,
       int i;
 
       /* Switch video mode.  */
-      if (!_xvidmode_private_set_fullscreen(w, h, 0, 0)) {
+      if (!_xvidmode_private_set_fullscreen(w, h)) {
 	 ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Can not set video mode"));
 	 return 0;
       }
@@ -2963,7 +2963,7 @@ void _xwin_unwrite_line(BITMAP *bmp)
 /* _xvidmode_private_set_fullscreen:
  *  Attempt to switch video mode and make window fullscreen.
  */
-static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
+static int _xvidmode_private_set_fullscreen(int w, int h)
 {
    int vid_event_base, vid_error_base;
    int vid_major_version, vid_minor_version;
@@ -2991,8 +2991,7 @@ static int _xvidmode_private_set_fullscreen(int w, int h, int vw, int vh)
    /* Search for a matching video mode.  */
    for (i = 0; i < _xwin.num_modes; i++) {
       mode = _xwin.modesinfo[i];
-      if ((mode->hdisplay == w) && (mode->vdisplay == h)
-	  && (mode->htotal > vw) && (mode->vtotal > vh)) {
+      if ((mode->hdisplay == w) && (mode->vdisplay == h)) {
 	 /* Switch video mode.  */
 	 if (!XF86VidModeSwitchToMode(_xwin.display, _xwin.screen, mode))
 	    return 0;
