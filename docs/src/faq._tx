@@ -484,7 +484,12 @@ General problems
 @@   How can I generate FLI or FLC format animations?
 
       See the Allegro.cc homepage (<link>http://allegro.cc/</a>)
-      for some utilities, for example DTA and Smacker.
+      for some utilities, for example DTA and Smacker. Also, you can use ASE
+      (Allegro Sprite Editor, <link>http://ase.sourceforge.net/</a>), which allows
+      drawing/editing each frame of the animation and save it as a FLI. Or
+      you can use The GIMP (<link>http://www.gimp.org/</a>) along with it's GFli
+      plugin, using layers as frames, and saving your work as "file.fli".
+      The GIMP allows you to edit existent FLI files too.
 
 
 @\   How can I make parts of my sprite transparent in truecolor modes?
