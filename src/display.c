@@ -340,7 +340,7 @@ void destroy_bitmap(BITMAP *bitmap)
       }
       else if (is_system_bitmap(bitmap)) {
 	 /* special case for getting rid of system memory bitmaps */
-         int c;
+         unsigned int c;
          for (c = 0; c < _al_vector_size(&sysbmp_list); c++) {
             SYSTEM_BITMAP *sysbmp = _al_vector_ref(&sysbmp_list, c);
             if (sysbmp->bmp == bitmap) {
@@ -1362,15 +1362,16 @@ int al_set_update_method(AL_DISPLAY *display, int method)
  */
 void al_destroy_display(AL_DISPLAY *display)
 {
-   int c;
+   int n;
+   unsigned int c;
    
    ASSERT(system_driver);
    
    if (!display)
       return;
 
-   for(c=0; c<display->num_pages; c++)
-      destroy_bitmap(display->page[c]);
+   for(n=0; n<display->num_pages; n++)
+      destroy_bitmap(display->page[n]);
    free(display->page);
    
    do_set_gfx_mode(display, GFX_TEXT, 0, 0, 0, 0, 0);
