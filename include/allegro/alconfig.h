@@ -36,12 +36,12 @@
    #include "almsvc.h"
 #elif defined __WATCOMC__
    #include "alwatcom.h"
+#elif defined __BEOS__
+   #include "albecfg.h"
 #elif defined DJGPP
    #include "aldjgpp.h"
 #elif defined __unix__
    #include "alucfg.h"
-#elif defined __BEOS__
-   #include "albecfg.h"
 #else
    #error unknown platform
 #endif
