@@ -3786,6 +3786,15 @@ Allegro supports several different types of bitmaps:
    Returns non-zero if clipping is turned on for the specified bitmap and
    zero otherwise.
 
+@@int @is_inside_bitmap(BITMAP *bmp, int x, int y, int clip);
+@xref set_clip_rect, set_clip_state, getpixel
+   Returns non-zero if point (x, y) lies inside the bitmap. If `clip' is
+   non-zero, the function compares the coordinates with the clipping
+   rectangle, that is it returns non-zero if the point lies inside the
+   clipping rectangle or if clipping is disabled for the bitmap. If `clip'
+   is zero, the function compares the coordinates with the actual dimensions
+   of the bitmap.
+
 
 
 @heading
@@ -4313,11 +4322,16 @@ drawing mode and the clipping rectangle of the destination bitmap.
    mode.
 
 @@int @getpixel(BITMAP *bmp, int x, int y);
-@xref putpixel, _getpixel
+@xref putpixel, _getpixel, is_inside_bitmap
 @eref ex12bit, exalpha, exflame, exlights
-   Reads a pixel from point x, y in the bitmap. Returns -1 if the point lies 
-   outside the bitmap.
+   Reads a pixel from point (x, y) in the bitmap. Returns -1 if the point
+   lies outside the bitmap (ignoring the clipping rectangle).
 
+   Warning: -1 is also a valid value for pixels contained in 32-bit bitmaps
+   with alpha channel (when R,G,B,A are all equal to 255) so you can't use
+   the test against -1 it as a predicate for such bitmaps. In this case, the
+   only reliable predicate is is_inside_bitmap().
+ 
 @@int @_getpixel(BITMAP *bmp, int x, int y);
 @@int @_getpixel15(BITMAP *bmp, int x, int y);
 @@int @_getpixel16(BITMAP *bmp, int x, int y);

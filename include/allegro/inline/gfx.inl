@@ -223,6 +223,23 @@ AL_INLINE(void, release_screen, (void),
 #endif
 
 
+AL_INLINE(int, is_inside_bitmap, (BITMAP *bmp, int x, int y, int clip),
+{
+   ASSERT(bmp);
+
+   if (clip) {
+      if (bmp->clip)
+         /* internal clipping is inclusive-exclusive */
+         return (x >= bmp->cl) && (y >= bmp->ct) && (x < bmp->cr) && (y < bmp->cb);
+      else
+         return TRUE;
+   }
+   else
+      /* bitmap dimensions are always non-negative */
+      return (unsigned int)x < (unsigned int)bmp->w && (unsigned int)y < (unsigned int)bmp->h;
+})
+
+
 AL_INLINE(void, get_clip_rect, (BITMAP *bitmap, int *x1, int *y1, int *x2, int *y2),
 {
    ASSERT(bitmap);
