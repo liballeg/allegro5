@@ -693,11 +693,11 @@ static int read_config_file (int w, int h)
       get_info(vsync_len);
 
       if (*argv) {
-	 if (!ustrcmp (*argv, "none"))
+	 if (!ustrcmp (*argv, uconvert_ascii("none", tmp)))
 	    temp_timings.vmode = FB_VMODE_NONINTERLACED;
-	 else if (!ustrcmp (*argv, "interlaced"))
+	 else if (!ustrcmp (*argv, uconvert_ascii("interlaced", tmp)))
 	    temp_timings.vmode = FB_VMODE_INTERLACED;
-	 else if (!ustrcmp (*argv, "doublescan"))
+	 else if (!ustrcmp (*argv, uconvert_ascii("doublescan", tmp)))
 	    temp_timings.vmode = FB_VMODE_DOUBLE;
 	 argv++;
       } else
