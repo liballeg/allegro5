@@ -156,13 +156,26 @@ void _unix_unload_modules(void)
 {
    MODULE *m, *next;
    void (*shutdown)(void);
+   int *dont_unload;
    
    for (m = module_list; m; m = next) {
       next = m->next;
+
       shutdown = dlsym(m->handle, "_module_shutdown");
       if (shutdown)
          shutdown();
-      dlclose(m->handle);
+
+      /* Dirty hack: If the loaded module registers its own cleanup
+       * function with atexit, we mustn't unload the module, otherwise
+       * the atexit machinery will end up referring to a function that
+       * won't exist by the end of the program.  This problem only
+       * affects SVGAlib currently.
+       */
+      dont_unload = dlsym(m->handle, "_module_dont_unload_me_dirty_hack");
+
+      if ((!dont_unload) || !(*dont_unload))
+	  dlclose(m->handle);
+
       free(m);
    }
    
