@@ -38,6 +38,9 @@ for file in makefile.*; do
    rm _tmpfile
 done
 
+# fix some wrong permissions in the CVS repository
+chmod +x misc/asmdef.sh misc/fixdll.sh
+
 
 # delete all generated files
 echo "Cleaning the Allegro tree..."
