@@ -192,11 +192,25 @@ copy include\\allegro.h "%_VC_DIR_%\\include"
 echo Copying winalleg.h
 copy include\\winalleg.h "%_VC_DIR_%\\include"
 
-echo Creating internal header directory
+echo Copying module headers
 md "%_VC_DIR_%\\include\\allegro"
+copy include\\allegro\\*.h "%_VC_DIR_%\\include\\allegro"
+
+echo Copying inline headers
+md "%_VC_DIR_%\\include\\allegro\\inline"
+copy include\\allegro\\inline\\*.inl "%_VC_DIR_%\\include\\allegro\\inline"
 
 echo Copying internal headers
-copy include\\allegro\\*.h "%_VC_DIR_%\\include\\allegro"
+md "%_VC_DIR_%\\include\\allegro\\internal"
+copy include\\allegro\\internal\\*.h "%_VC_DIR_%\\include\\allegro\\internal"
+
+echo Copying platform headers
+md "%_VC_DIR_%\\include\\allegro\\platform"
+copy include\\allegro\\platform\\aintwin.h "%_VC_DIR_%\\include\\allegro\\platform"
+copy include\\allegro\\platform\\al386vc.h "%_VC_DIR_%\\include\\allegro\\platform"
+copy include\\allegro\\platform\\almsvc.h "%_VC_DIR_%\\include\\allegro\\platform"
+copy include\\allegro\\platform\\alplatf.h "%_VC_DIR_%\\include\\allegro\\platform"
+copy include\\allegro\\platform\\alwin.h "%_VC_DIR_%\\include\\allegro\\platform"
 
 set _VC_DIR_=
 
