@@ -41,7 +41,6 @@
    'make depend' and 'fixdll.bat' requires that you have GNU sed installed.
    The clean targets require that you have GNU fileutils installed.
    You can download some extra utilities for MingW32 from:
-      http://sourceforge.net/projects/mingw/
       http://sourceforge.net/projects/gnuwin32/
 
    If you at any stage in the installation process get an
@@ -88,10 +87,9 @@
    distributions from the internet. Please don't unzip/install until step 3.
 
    1) Download the complete MingW32 distribution from 'http://www.mingw.org'
-      You should download the complete package instead the many small ones
-      unless you want to move files manually. :-) At the time of writing
-      (November, 2001) version 1.1 is the newest. A direct link is here:
-      'http://prdownloads.sourceforge.net/mingw/MinGW-1.1.tar.gz'
+      or 'http://sourceforge.net/projects/mingw/'. You should download the
+      complete package instead of the many small ones unless you want to
+      move files manually. :-) Note that gcc 2.95.3 at least is required.
 
    2) Get the minimal DirectX 7 SDK for MingW32. (dx70_mgw.zip) Download it
       from 'http://alleg.sourceforge.net/wip.html'. Please don't confuse it
