@@ -6320,6 +6320,22 @@ directories, but not hidden files and directories. Similarly, if you pass
    Converts a partial filename into a full path, storing at most size bytes 
    into the dest buffer. Returns a copy of the dest parameter.
 
+@@char *@make_absolute_filename(char *dest, const char *path, const char *filename, int size);
+@xref make_relative_filename, is_relative_filename
+   Makes an absolute filename from an absolute path and a relative filename,
+   storing at most size bytes into the dest buffer. Returns a copy of the
+   dest parameter.
+
+@@char *@make_relative_filename(char *dest, const char *path, const char *filename, int size);
+@xref make_absolute_filename, is_relative_filename
+   Attempts to make a relative filename from an absolute path and an absolute
+   filename, storing at most size bytes into the dest buffer. Returns a copy
+   of the dest parameter if it succeeds or NULL if it fails.
+
+@@int @is_relative_filename(const char *filename);
+@xref make_absolute_filename, make_relative_filename
+   Returns TRUE if the filename is relative or FALSE if it is absolute.
+
 @\char *@replace_filename(char *dest, const char *path, 
 @@                       const char *filename, int size);
 @xref get_filename, replace_extension, append_filename

@@ -14,6 +14,10 @@
  *
  *      _pack_fdopen() and related modifications by Annie Testes.
  *
+ *      Evert Glebbeek added the support for relative filenames:
+ *      make_absolute_filename(), make_relative_filename() and
+ *      is_relative_filename().
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -325,6 +329,160 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
    errno = saved_errno;
 
    return dest;
+}
+
+
+
+/* make_absolute_filename:
+ *  Makes the absolute filename corresponding to the specified relative
+ *  filename using the specified base (PATH is absolute and represents
+ *  the base, FILENAME is the relative filename), stores it in DEST
+ *  whose size in bytes is SIZE and returns a pointer to it.
+ *  It does not append '/' to the path.
+ */
+char *make_absolute_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, int size)
+{
+   char tmp[1024];
+   ASSERT(dest);
+   ASSERT(path);
+   ASSERT(filename);
+   ASSERT(size >= 0);
+
+   replace_filename(tmp, path, filename, sizeof(tmp));
+
+   fix_filename_path(dest, tmp, size);
+
+   return dest;
+}
+
+
+
+/* make_relative_filename:
+ *  Makes the relative filename corresponding to the specified absolute
+ *  filename using the specified base (PATH is absolute and represents
+ *  the base, FILENAME is the absolute filename), stores it in DEST
+ *  whose size in bytes is SIZE and returns a pointer to it, or returns
+ *  NULL if it cannot do so.
+ *  It does not append '/' to the path.
+ */
+char *make_relative_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, int size)
+{
+   char *my_path, *my_filename;
+   char *reduced_path = NULL, *reduced_filename = NULL;
+   char *p1, *p2;
+   int c, c1, c2, pos;
+   ASSERT(dest);
+   ASSERT(path);
+   ASSERT(filename);
+   ASSERT(size >= 0);
+
+   /* The first check under DOS/Windows would be for the drive: since the
+    * paths are absolute, they will always contain a drive letter. Do this
+    * check under Unix too where the first character should always be '/'
+    * in order not to screw up existing DOS/Windows paths.
+    */
+   if (ugetc(path) != ugetc(filename))
+      return NULL;
+
+   my_path = ustrdup(path);
+   if (!my_path)
+      return NULL;
+
+   my_filename = ustrdup(filename);
+   if (!my_filename) {
+      free(my_path);
+      return NULL;
+   }
+
+   /* Strip the filenames to keep only the directories. */
+   usetc(get_filename(my_path), 0);
+   usetc(get_filename(my_filename), 0);
+
+   /* Both paths are on the same device. There are three cases:
+    *  - the filename is a "child" of the path in the directory tree,
+    *  - the filename is a "brother" of the path,
+    *  - the filename is only a "cousin" of the path.
+    * In the two former cases, we will only need to keep a suffix of the
+    * filename. In the latter case, we will need to back-paddle through
+    * the directory tree.
+    */
+   p1 = my_path;
+   p2 = my_filename;
+   while (((c1=ugetx(&p1)) == (c2=ugetx(&p2))) && c1 && c2) {
+      if ((c1 == '/') || (c1 == OTHER_PATH_SEPARATOR)) {
+	 reduced_path = p1;
+	 reduced_filename = p2;
+      }
+   }
+
+   if (!c1) {
+      /* If the path is exhausted, we are in one of the two former cases. */
+
+      if (!c2) {
+	 /* If the filename is also exhausted, we are in the second case.
+	  * Prepend './' to the reduced filename.
+	  */
+	 pos = usetc(dest, '.');
+	 pos += usetc(dest+pos, OTHER_PATH_SEPARATOR);
+	 usetc(dest+pos, 0);
+      }
+      else {
+	 /* Otherwise we are in the first case. Nothing to do. */
+	 usetc(dest, 0);
+      }
+   }
+   else {
+      /* Otherwise, we are in the latter case and need to count the number
+       * of remaining directories in the reduced path and prepend the same
+       * number of '../' to the reduced filename.
+       */
+      pos = 0;
+      while ((c=ugetx(&reduced_path))) {
+	 if ((c == '/') || (c == OTHER_PATH_SEPARATOR)) {
+	    pos += usetc(dest+pos, '.');
+	    pos += usetc(dest+pos, '.');
+	    pos += usetc(dest+pos, OTHER_PATH_SEPARATOR);
+	 }
+      }
+
+      usetc(dest+pos, 0);
+   }
+
+   ustrzcat(dest, size, reduced_filename);
+   ustrzcat(dest, size, get_filename(filename));
+
+   free(my_path);
+   free(my_filename);
+
+   /* Harmonize path separators. */
+   return fix_filename_slashes(dest);
+}
+
+
+
+/* is_relative_filename:
+ *  Checks whether the specified filename is relative.
+ */
+int is_relative_filename(AL_CONST char *filename)
+{
+   ASSERT(filename);
+
+   /* All filenames that start with a '.' are relative. */
+   if (ugetc(filename) == '.')
+      return TRUE;
+
+   /* Filenames that contain a device separator (DOS/Windows)
+    * or start with a '/' (Unix) are considered absolute.
+    */
+#if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
+   if (ustrchr(filename, DEVICE_SEPARATOR)) 
+      return FALSE;
+#endif
+
+   if ((ugetc(filename) == '/') || (ugetc(filename) == OTHER_PATH_SEPARATOR))
+      return FALSE;
+
+   return TRUE;
 }
 
 

@@ -28,6 +28,9 @@
 AL_FUNC(char *, fix_filename_case, (char *path));
 AL_FUNC(char *, fix_filename_slashes, (char *path));
 AL_FUNC(char *, fix_filename_path, (char *dest, AL_CONST char *path, int size));
+AL_FUNC(char *, make_absolute_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
+AL_FUNC(char *, make_relative_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
+AL_FUNC(int, is_relative_filename, (AL_CONST char *filename));
 AL_FUNC(char *, replace_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
 AL_FUNC(char *, replace_extension, (char *dest, AL_CONST char *filename, AL_CONST char *ext, int size));
 AL_FUNC(char *, append_filename, (char *dest, AL_CONST char *path, AL_CONST char *filename, int size));
