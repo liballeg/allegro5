@@ -1,3 +1,22 @@
+/*         ______   ___    ___ 
+ *        /\  _  \ /\_ \  /\_ \ 
+ *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+ *         \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+ *          \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+ *           \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+ *            \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+ *                                           /\____/
+ *                                           \_/__/
+ *
+ *      Windows resource script
+ *
+ *      By Owen Rudge.
+ *
+ *      See readme.txt for copyright information.
+ */
+
+#define ALLEGRO_VERSION_INFO_ONLY
+
 #include "allegro.h"
 
 1 VERSIONINFO 
@@ -10,11 +29,12 @@ FILETYPE 0x00000002L /* VFT_DLL */
  {
   BLOCK "040904E4"
   {
-   VALUE "CompanyName", "Allegro programmers\000\000"
+   VALUE "Comments", "Please see AUTHORS for a list of contributors\000"
+   VALUE "CompanyName", "Allegro Programmers\000\000"
    VALUE "FileDescription", "Allegro\000"
    VALUE "FileVersion", ALLEGRO_VERSION_STR
    VALUE "InternalName", "ALL3938\000"
-   VALUE "LegalCopyright", "Copyright © 1996-2001 Shawn Hargreaves and others\000\000"
+   VALUE "LegalCopyright", "Copyright © 1996-2001 Allegro Programmers\000\000"
    VALUE "OriginalFilename", "ALL3938.DLL\000"
    VALUE "ProductName", "Allegro\000"
    VALUE "ProductVersion", ALLEGRO_VERSION_STR

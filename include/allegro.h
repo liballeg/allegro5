@@ -31,6 +31,8 @@
 #define ALLEGRO_DATE_STR         "2001"
 #define ALLEGRO_DATE             20010710    /* yyyymmdd */
 
+#ifndef ALLEGRO_VERSION_INFO_ONLY
+
 #ifndef ALLEGRO_NO_STD_HEADERS
    #include <stddef.h>
    #include <stdlib.h>
@@ -2206,6 +2208,7 @@ AL_FUNC(int, gfx_mode_select_ex, (int *card, int *w, int *h, int *color_depth));
    #include ALLEGRO_EXTRA_HEADER
 #endif
 
+#endif /* ifndef ALLEGRO_VERSION_INFO_ONLY */
 
 #ifdef __cplusplus
    }
