@@ -1173,7 +1173,7 @@ static BITMAP *vbeaf_init(int w, int h, int v_w, int v_h, int color_depth)
    int bpp = BYTES_PER_PIXEL(color_depth);
    int bytes_per_scanline, width, height;
    int scrollable, mode;
-   int vseg, ret;
+   int vseg;
    int rs, gs, bs;
    char tmp1[512];
    void *vaddr;
