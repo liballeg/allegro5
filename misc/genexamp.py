@@ -40,7 +40,7 @@ limit_example_reference = "Available Allegro examples"
 START_MARK = "start genexamp.py chunk"
 END_MARK = "end genexamp.py chunk"
 XREF_WIDTH = 70
-regular_expression_for_tx_identifiers = r"@@[^@]+@(?P<name>\w+)"
+regular_expression_for_tx_identifiers = r"@[@\\][^@]+@(?P<name>\w+)"
 comment_line = re.compile(r"Example pr|Modified by")
 
 # the order of the examples is aimed at the newbie, going from easy
@@ -364,7 +364,7 @@ def replace_example_references(documentation, ids_to_examples):
       if found_id:
          if line[0] == '@':
             # Don't append erefs, which will be regenerated.
-            if line[1:5] == "xref" or line[1] == "@":
+            if line[1:5] == "xref" or line[1] == "@" or line[1:3] == "\\ ":
                new_lines.append(line)
             # Append shortdesc, but after @erefs as a special case.
             if line[1:10] == "shortdesc":
