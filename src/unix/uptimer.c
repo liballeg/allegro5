@@ -19,16 +19,6 @@
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
-/* See hack later.  */
-#ifdef ALLEGRO_LINUX
-#include <unistd.h>
-#ifdef HAVE_SYS_IO_H
-#include <sys/io.h>
-#endif
-#include "allegro/platform/aintlnx.h"
-#endif
-
-
 
 #ifdef HAVE_LIBPTHREAD
 
@@ -36,6 +26,16 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/time.h>
+
+
+/* See hack later.  */
+#ifdef ALLEGRO_LINUX_VGA
+#ifdef HAVE_SYS_IO_H
+/* iopl() exists in here instead of unistd.h in glibc */
+#include <sys/io.h>
+#endif
+#include "allegro/platform/aintlnx.h"
+#endif
 
 
 #define TIMER_TO_USEC(x)  ((long)((x) / 1.193181))
@@ -89,7 +89,7 @@ static void *ptimer_thread_func(void *unused)
 
    block_all_signals();
 
-#ifdef ALLEGRO_LINUX
+#ifdef ALLEGRO_LINUX_VGA
    /* privileges hack for Linux:
     *  One of the jobs of the timer thread is to update the mouse pointer
     *  on screen.  When using the Mode-X driver under Linux console, this

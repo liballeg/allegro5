@@ -9,6 +9,12 @@ AC_ARG_PROGRAM
 dnl Build CFLAGS from scratch
 CFLAGS=
 
+dnl Enable asm code in the library (default)
+AC_ARG_ENABLE(asm,
+[  --enable-asm[=x]        enable the use of asm code [default=yes]],
+test "X$enableval" != "Xno" && allegro_enable_asm=yes,
+allegro_enable_asm=yes)
+
 dnl Enable 8-bpp color depth (default).
 AC_ARG_ENABLE(color8,
 [  --enable-color8[=x]     enable support for 8-bpp modes [default=yes]],
@@ -125,27 +131,35 @@ AC_PATH_PROG(MAKEINFO, makeinfo, [echo ought to run makeinfo], $PATH:/sbin:/usr/
 dnl INSTALL_INFO is needed for installing the info pages
 AC_PATH_PROG(INSTALL_INFO, install-info, [echo ought to run install-info], $PATH:/sbin:/usr/sbin)
 
+dnl Test for processor type.
+ALLEGRO_ACTEST_PROCESSOR_TYPE
+
 dnl Test for asm support.
-ALLEGRO_ACTEST_SUPPORT_ASM
-if test "$allegro_cv_support_asm" = i386; then
-  ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
-else
+if test "X$allegro_enable_asm" = "Xyes"; then
+  if test "X$allegro_cv_processor_type" = "Xi386"; then
+    ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_I386_FILES
+
+    dnl Test for MMX support.
+    ALLEGRO_ACTEST_SUPPORT_MMX
+    if test "X$allegro_cv_support_mmx" = "Xyes"; then
+      AC_DEFINE(ALLEGRO_MMX)
+    fi
+  
+    dnl Test for SSE support.
+    ALLEGRO_ACTEST_SUPPORT_SSE
+    if test "X$allegro_cv_support_sse" = "Xyes"; then
+      AC_DEFINE(ALLEGRO_SSE)
+    fi
+  fi
+fi
+
+if test -z "$ALLEGRO_MAYBE_ASM_FILES"; then
   ALLEGRO_MAYBE_ASM_FILES=ALLEGRO_SRC_C_FILES
+  CFLAGS="$CFLAGS -DALLEGRO_USE_C"
   AC_DEFINE(ALLEGRO_NO_ASM)
 fi
+
 AC_SUBST(ALLEGRO_MAYBE_ASM_FILES)
-
-dnl Test for MMX support.
-ALLEGRO_ACTEST_SUPPORT_MMX
-if test "$allegro_cv_support_mmx" = yes; then
-  AC_DEFINE(ALLEGRO_MMX)
-fi
-
-dnl Test for SSE support.
-ALLEGRO_ACTEST_SUPPORT_SSE
-if test "$allegro_cv_support_sse" = yes; then
-  AC_DEFINE(ALLEGRO_SSE)
-fi
 
 dnl Test for underscore prepended by compiler.
 ALLEGRO_ACTEST_ASM_PREFIX
@@ -367,9 +381,13 @@ case "$allegro_system" in
 
     AC_CHECK_HEADERS(sys/io.h linux/joystick.h)
 
-    if test "$allegro_enable_vga" = yes; then
+    if test "X$allegro_cv_processor_type" = "Xi386" -a "X$allegro_enable_vga" = "Xyes"; then
       allegro_support_vga=yes
       AC_DEFINE(ALLEGRO_LINUX_VGA)
+    fi
+
+    if test "X$allegro_cv_processor_type" = "Xi386" -a "X$allegro_enable_vbeaf" = "Xyes"; then
+      AC_DEFINE(ALLEGRO_LINUX_VBEAF)
     fi
 
     if test "$allegro_enable_fbcon" = yes; then
@@ -379,10 +397,6 @@ case "$allegro_system" in
 	  AC_DEFINE(ALLEGRO_LINUX_FBCON)
 	)
       )
-    fi
-
-    if test "$allegro_enable_vbeaf" = yes; then
-      AC_DEFINE(ALLEGRO_LINUX_VBEAF)
     fi
 
     if test "$allegro_enable_svgalib" = yes; then
@@ -493,7 +507,7 @@ if test -n "GCC"; then
   else
     WFLAGS="-Wall -Wno-unused"
   fi
-  if test "$allegro_cv_support_asm" = i386; then
+  if test "X$allegro_cv_processor_type" = "Xi386"; then
     if test "$allegro_exclusive_optimizations" != none; then
       TARGET_ARCH="-march=$allegro_exclusive_optimizations"
     else
@@ -502,9 +516,6 @@ if test -n "GCC"; then
   else
     TARGET_ARCH=
   fi
-  if test "$allegro_cv_support_asm" != i386; then
-    CFLAGS="$CFLAGS -DALLEGRO_USE_C"
-  fi 
   dnl In this order...
   ALLEGRO_DEBUG_CFLAGS="$CFLAGS -g $WFLAGS -DDEBUGMODE"
   ALLEGRO_PROFILE_CFLAGS="$CFLAGS -pg $TARGET_ARCH -O2 -funroll-loops -ffast-math $WFLAGS"
