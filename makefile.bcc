@@ -168,29 +168,71 @@ else
 	copy $(subst /,\,$< $@)
 endif
 
-HEADERS = $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/*.h))
+$(BCC32DIR_U)/include/allegro/internal:
+	md $(BCC32DIR_D)\include\allegro\internal
 
-INSTALL_FILES = $(BCC32DIR_U)/lib/$(IMPLIB_BASENAME) \
-		$(BCC32DIR_U)/include/allegro.h \
-		$(BCC32DIR_U)/include/winalleg.h \
-		$(BCC32DIR_U)/include/allegro \
+$(BCC32DIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+ifdef HAVE_CP
+	$(DJDIR)/bin/cp $< $@
+else
+	copy $(subst /,\,$< $@)
+endif
+
+$(BCC32DIR_U)/include/allegro/inline:
+	md $(BCC32DIR_D)\include\allegro\inline
+
+$(BCC32DIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+ifdef HAVE_CP
+	$(DJDIR)/bin/cp $< $@
+else
+	copy $(subst /,\,$< $@)
+endif
+
+$(BCC32DIR_U)/include/allegro/platform:
+	md $(BCC32DIR_D)\include\allegro\platform
+
+$(BCC32DIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+ifdef HAVE_CP
+	$(DJDIR)/bin/cp $< $@
+else
+	copy $(subst /,\,$< $@)
+endif
+
+HEADERS = $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/*.h))
+HEADERS += $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/internal/*.h))
+HEADERS += $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/inline/*.inl))
+HEADERS += $(addprefix $(BCC32DIR_U)/,$(wildcard include/allegro/platform/*.h))
+
+INSTALL_FILES = $(BCC32DIR_U)/lib/$(IMPLIB_BASENAME)   \
+		$(BCC32DIR_U)/include/allegro.h        \
+		$(BCC32DIR_U)/include/winalleg.h       \
+		$(BCC32DIR_U)/include/allegro          \
+		$(BCC32DIR_U)/include/allegro/internal \
+		$(BCC32DIR_U)/include/allegro/inline   \
+		$(BCC32DIR_U)/include/allegro/platform \
 		$(HEADERS)
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(BCC32DIR_U)/lib/alleg.lib \
-		  $(BCC32DIR_U)/lib/alld.lib \
-		  $(BCC32DIR_U)/lib/allp.lib \
-		  $(BCC32DIR_U)/include/allegro.h \
-		  $(BCC32DIR_U)/include/winalleg.h \
-		  $(BCC32DIR_U)/include/allegro/*.h \
-		  $(WINDIR_U)/all$(LIBRARY_VERSION).dll \
-		  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll \
+UNINSTALL_FILES = $(BCC32DIR_U)/lib/alleg.lib                \
+		  $(BCC32DIR_U)/lib/alld.lib                 \
+		  $(BCC32DIR_U)/lib/allp.lib                 \
+		  $(BCC32DIR_U)/include/allegro.h            \
+		  $(BCC32DIR_U)/include/winalleg.h           \
+		  $(BCC32DIR_U)/include/allegro/*.h          \
+		  $(BCC32DIR_U)/include/allegro/internal/*.h \
+		  $(BCC32DIR_U)/include/allegro/inline/*.inl \
+		  $(BCC32DIR_U)/include/allegro/platform/*.h \
+		  $(WINDIR_U)/all$(LIBRARY_VERSION).dll      \
+		  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll      \
 		  $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
+	-rd $(BCC32DIR_D)\include\allegro\platform
+	-rd $(BCC32DIR_D)\include\allegro\inline
+	-rd $(BCC32DIR_D)\include\allegro\internal
 	-rd $(BCC32DIR_D)\include\allegro
 	@echo All gone!
 

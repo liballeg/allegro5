@@ -258,6 +258,24 @@ $(DJDIR_U)/include/allegro:
 $(DJDIR_U)/include/allegro/%.h: include/allegro/%.h
 	cp $< $@
 
+$(DJDIR_U)/include/allegro/internal:
+	mkdir $(DJDIR_U)/include/allegro/internal
+
+$(DJDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+	cp $< $@
+
+$(DJDIR_U)/include/allegro/inline:
+	mkdir $(DJDIR_U)/include/allegro/inline
+
+$(DJDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+	cp $< $@
+
+$(DJDIR_U)/include/allegro/platform:
+	mkdir $(DJDIR_U)/include/allegro/platform
+
+$(DJDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+	cp $< $@
+
 $(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
 	-cp docs/allegro.$(INFO) $(DJDIR_U)/info
 	-install-info $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
@@ -276,6 +294,24 @@ $(DJDIR_U)/include/allegro:
 $(DJDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
 
+$(DJDIR_U)/include/allegro/internal:
+	md $(DJDIR_D)\include\allegro\internal
+
+$(DJDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+	copy $(subst /,\,$< $@)
+
+$(DJDIR_U)/include/allegro/inline:
+	md $(DJDIR_D)\include\allegro\inline
+
+$(DJDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+	copy $(subst /,\,$< $@)
+
+$(DJDIR_U)/include/allegro/platform:
+	md $(DJDIR_D)\include\allegro\platform
+
+$(DJDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+	copy $(subst /,\,$< $@)
+
 $(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
 	-copy docs\allegro.$(INFO) $(DJDIR_D)\info
 	-install-info $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
@@ -283,28 +319,44 @@ $(DJDIR_U)/info/allegro.$(INFO): docs/allegro.$(INFO)
 endif
 
 HEADERS = $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/*.h))
+HEADERS += $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/internal/*.h))
+HEADERS += $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/inline/*.inl))
+HEADERS += $(addprefix $(DJDIR_U)/,$(wildcard include/allegro/platform/*.h))
 
-INSTALL_FILES = $(DJDIR_U)/lib/lib$(VERSION).a \
-		$(DJDIR_U)/info/allegro.$(INFO) \
-		$(DJDIR_U)/include/allegro.h \
-		$(DJDIR_U)/include/allegro $(HEADERS)
+INSTALL_FILES = $(DJDIR_U)/lib/lib$(VERSION).a      \
+		$(DJDIR_U)/info/allegro.$(INFO)     \
+		$(DJDIR_U)/include/allegro.h        \
+		$(DJDIR_U)/include/allegro          \
+		$(DJDIR_U)/include/allegro/internal \
+		$(DJDIR_U)/include/allegro/inline   \
+		$(DJDIR_U)/include/allegro/platform \
+		$(HEADERS)
 
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(DJDIR_U)/lib/liballeg.a \
-		  $(DJDIR_U)/lib/liballd.a \
-		  $(DJDIR_U)/lib/liballp.a \
-		  $(DJDIR_U)/include/allegro.h \
-		  $(DJDIR_U)/include/allegro/*.h \
+UNINSTALL_FILES = $(DJDIR_U)/lib/liballeg.a               \
+		  $(DJDIR_U)/lib/liballd.a                \
+		  $(DJDIR_U)/lib/liballp.a                \
+		  $(DJDIR_U)/include/allegro.h            \
+		  $(DJDIR_U)/include/allegro/*.h          \
+		  $(DJDIR_U)/include/allegro/internal/*.h \
+		  $(DJDIR_U)/include/allegro/inline/*.inl \
+		  $(DJDIR_U)/include/allegro/platform/*.h \
 		  $(DJDIR_U)/info/allegro.$(INFO)
 
 uninstall:
 	-install-info --delete $(DJDIR_U)/info/allegro.$(INFO) $(DJDIR_U)/info/dir
 	-rm -fv $(UNINSTALL_FILES)
 ifdef UNIX_TOOLS
+	-rmdir $(DJDIR_U)/include/allegro/platform
+	-rmdir $(DJDIR_U)/include/allegro/inline
+	-rmdir $(DJDIR_U)/include/allegro/internal
 	-rmdir $(DJDIR_U)/include/allegro
 else
+	-rd $(DJDIR_D)\include\allegro\platform
+	-rd $(DJDIR_D)\include\allegro\inline
+	-rd $(DJDIR_D)\include\allegro\internal
 	-rd $(DJDIR_D)\include\allegro
 endif
 	@echo All gone!

@@ -109,29 +109,63 @@ $(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
 $(INC_DIR)/allegro:
 	mkdir $(INC_DIR)/allegro
 
+$(INC_DIR)/allegro/internal/%.h: include/allegro/internal/%.h $(INC_DIR)/allegro/internal
+	cp $< $@
+
+$(INC_DIR)/allegro/internal:
+	mkdir $(INC_DIR)/allegro/internal
+
+$(INC_DIR)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INC_DIR)/allegro/inline
+	cp $< $@
+
+$(INC_DIR)/allegro/inline:
+	mkdir $(INC_DIR)/allegro/inline
+
+$(INC_DIR)/allegro/platform/%.h: include/allegro/platform/%.h $(INC_DIR)/allegro/platform
+	cp $< $@
+
+$(INC_DIR)/allegro/platform:
+	mkdir $(INC_DIR)/allegro/platform
+
 HEADERS = $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/*.h)))
+HEADERS += $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/internal/*.h)))
+HEADERS += $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/inline/*.inl)))
+HEADERS += $(addprefix $(INC_DIR)/,$(subst include/,,$(wildcard include/allegro/platform/*.h)))
 
 /usr/bin/allegro-config:
 	cp misc/allegro-config.qnx /usr/bin/allegro-config
 	chmod a+x /usr/bin/allegro-config
 
-INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a \
-		$(INC_DIR)/allegro.h \
-		$(INC_DIR)/qnxalleg.h \
-		$(INC_DIR)/allegro \
-		$(HEADERS) \
+INSTALL_FILES = $(LIB_DIR)/lib$(VERSION).a  \
+		$(INC_DIR)/allegro.h        \
+		$(INC_DIR)/qnxalleg.h       \
+		$(INC_DIR)/allegro          \
+		$(INC_DIR)/allegro/internal \
+		$(INC_DIR)/allegro/inline   \
+		$(INC_DIR)/allegro/platform \
+		$(HEADERS)                  \
 		/usr/bin/allegro-config
 
 install: $(INSTALL_FILES)
-	@echo The $(DESCRIPTION) QNX library has been installed.
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.a \
-		$(INC_DIR)/allegro.h $(INC_DIR)/qnxalleg.h $(INC_DIR)/allegro/*.h
+UNINSTALL_FILES = $(LIB_DIR)/liballeg.a           \
+		  $(LIB_DIR)/liballd.a            \
+		  $(LIB_DIR)/liballp.a            \
+		  $(INC_DIR)/allegro.h            \
+		  $(INC_DIR)/qnxalleg.h           \
+		  $(INC_DIR)/allegro/*.h          \
+		  $(INC_DIR)/allegro/internal/*.h \
+		  $(INC_DIR)/allegro/inline/*.inl \
+		  $(INC_DIR)/allegro/platform/*.h \
+		  /usr/bin/allegro-config
 
 uninstall:
-	rm -f $(UNINSTALL_FILES)
-	rm -fr $(INC_DIR)/allegro
-	rm -f /usr/bin/allegro-config
+	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(INC_DIR)/allegro/platform
+	-rmdir $(INC_DIR)/allegro/inline
+	-rmdir $(INC_DIR)/allegro/internal
+	-rmdir $(INC_DIR)/allegro
 	@echo All gone!	
 
 

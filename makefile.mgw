@@ -241,6 +241,24 @@ $(MINGDIR_U)/include/allegro:
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	cp $(subst \,/,$< $@)
 
+$(MINGDIR_U)/include/allegro/internal:
+	mkdir -p $(MINGDIR_U)/include/allegro/internal
+
+$(MINGDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+	cp $(subst \,/,$< $@)
+
+$(MINGDIR_U)/include/allegro/inline:
+	mkdir -p $(MINGDIR_U)/include/allegro/inline
+
+$(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+	cp $(subst \,/,$< $@)
+
+$(MINGDIR_U)/include/allegro/platform:
+	mkdir -p $(MINGDIR_U)/include/allegro/platform
+
+$(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+	cp $(subst \,/,$< $@)
+
 else
 
 ifndef STATICLINK
@@ -265,16 +283,40 @@ $(MINGDIR_U)/include/allegro:
 $(MINGDIR_U)/include/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$< $@)
 
+$(MINGDIR_U)/include/allegro/internal:
+	md $(MINGDIR_D)\include\allegro\internal
+
+$(MINGDIR_U)/include/allegro/internal/%.h: include/allegro/internal/%.h
+	copy $(subst /,\,$< $@)
+
+$(MINGDIR_U)/include/allegro/inline:
+	md $(MINGDIR_D)\include\allegro\inline
+
+$(MINGDIR_U)/include/allegro/inline/%.inl: include/allegro/inline/%.inl
+	copy $(subst /,\,$< $@)
+
+$(MINGDIR_U)/include/allegro/platform:
+	md $(MINGDIR_D)\include\allegro\platform
+
+$(MINGDIR_U)/include/allegro/platform/%.h: include/allegro/platform/%.h
+	copy $(subst /,\,$< $@)
+
 endif # UNIX_TOOLS
 
 
 HEADERS = $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/*.h))
+HEADERS += $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/internal/*.h))
+HEADERS += $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/inline/*.inl))
+HEADERS += $(addprefix $(MINGDIR_U)/,$(wildcard include/allegro/platform/*.h))
 
-INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME) \
-                $(MINGDIR_U)/include/allegro.h \
-                $(MINGDIR_U)/include/winalleg.h \
-                $(MINGDIR_U)/include/allegro \
-                $(HEADERS)
+INSTALL_FILES = $(MINGDIR_U)/lib/$(IMPLIB_BASENAME)   \
+		$(MINGDIR_U)/include/allegro.h        \
+		$(MINGDIR_U)/include/winalleg.h       \
+		$(MINGDIR_U)/include/allegro          \
+		$(MINGDIR_U)/include/allegro/internal \
+		$(MINGDIR_U)/include/allegro/inline   \
+		$(MINGDIR_U)/include/allegro/platform \
+		$(HEADERS)
 
 ifndef CROSSCOMPILE
    ifndef STATICLINK
@@ -285,18 +327,24 @@ endif
 install: $(INSTALL_FILES)
 	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a \
-                  $(MINGDIR_U)/lib/liballd.a \
-                  $(MINGDIR_U)/lib/liballp.a \
-                  $(MINGDIR_U)/include/allegro.h \
-                  $(MINGDIR_U)/include/winalleg.h \
-                  $(MINGDIR_U)/include/allegro/*.h \
-                  $(WINDIR_U)/all$(LIBRARY_VERSION).dll \
-                  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll \
+UNINSTALL_FILES = $(MINGDIR_U)/lib/liballeg.a               \
+                  $(MINGDIR_U)/lib/liballd.a                \
+                  $(MINGDIR_U)/lib/liballp.a                \
+                  $(MINGDIR_U)/include/allegro.h            \
+                  $(MINGDIR_U)/include/winalleg.h           \
+                  $(MINGDIR_U)/include/allegro/*.h          \
+                  $(MINGDIR_U)/include/allegro/internal/*.h \
+                  $(MINGDIR_U)/include/allegro/inline/*.inl \
+                  $(MINGDIR_U)/include/allegro/platform/*.h \
+                  $(WINDIR_U)/all$(LIBRARY_VERSION).dll     \
+                  $(WINDIR_U)/ald$(LIBRARY_VERSION).dll     \
                   $(WINDIR_U)/alp$(LIBRARY_VERSION).dll
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
+	-rd $(MINGDIR_D)\include\allegro\platform
+	-rd $(MINGDIR_D)\include\allegro\inline
+	-rd $(MINGDIR_D)\include\allegro\internal
 	-rd $(MINGDIR_D)\include\allegro
 	@echo All gone!
 

@@ -117,23 +117,54 @@ $(WATDIR_U)/h/allegro:
 $(WATDIR_U)/h/allegro/%.h: include/allegro/%.h
 	copy $(subst /,\,$<) $(subst /,\,$@)
 
+$(WATDIR_U)/h/allegro/internal:
+	md $(WATDIR_D)\h\allegro\internal
+
+$(WATDIR_U)/h/allegro/internal/%.h: include/allegro/internal/%.h
+	copy $(subst /,\,$<) $(subst /,\,$@)
+
+$(WATDIR_U)/h/allegro/inline:
+	md $(WATDIR_D)\h\allegro\inline
+
+$(WATDIR_U)/h/allegro/inline/%.inl: include/allegro/inline/%.inl
+	copy $(subst /,\,$<) $(subst /,\,$@)
+
+$(WATDIR_U)/h/allegro/platform:
+	md $(WATDIR_D)\h\allegro\platform
+
+$(WATDIR_U)/h/allegro/platform/%.h: include/allegro/platform/%.h
+	copy $(subst /,\,$<) $(subst /,\,$@)
+
 HEADERS = $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/*.h)))
+HEADERS += $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/internal/*.h)))
+HEADERS += $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/inline/*.inl)))
+HEADERS += $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/platform/*.h)))
 
 INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib \
-		$(WATDIR_U)/h/allegro.h \
-		$(WATDIR_U)/h/allegro $(HEADERS)
+		$(WATDIR_U)/h/allegro.h           \
+		$(WATDIR_U)/h/allegro             \
+		$(WATDIR_U)/h/allegro/internal    \
+		$(WATDIR_U)/h/allegro/inline      \
+		$(WATDIR_U)/h/allegro/platform    \
+		$(HEADERS)
 
 install: $(INSTALL_FILES)
-	@echo The $(DESCRIPTION) Watcom library has been installed.
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(WATDIR_U)/lib386/alleg.lib \
-		  $(WATDIR_U)/lib386/alld.lib \
-		  $(WATDIR_U)/lib386/allp.lib \
-		  $(WATDIR_U)/h/allegro.h \
-		  $(WATDIR_U)/h/allegro/*.h
+UNINSTALL_FILES = $(WATDIR_U)/lib386/alleg.lib       \
+		  $(WATDIR_U)/lib386/alld.lib        \
+		  $(WATDIR_U)/lib386/allp.lib        \
+		  $(WATDIR_U)/h/allegro.h            \
+		  $(WATDIR_U)/h/allegro/*.h          \
+		  $(WATDIR_U)/h/allegro/internal/*.h \
+		  $(WATDIR_U)/h/allegro/inline/*.inl \
+		  $(WATDIR_U)/h/allegro/platform/*.h
 
 uninstall:
 	-rm -fv $(UNINSTALL_FILES)
+	-rd $(WATDIR_D)\h\allegro\platform
+	-rd $(WATDIR_D)\h\allegro\inline
+	-rd $(WATDIR_D)\h\allegro\internal
 	-rd $(WATDIR_D)\h\allegro
 	@echo All gone!
 

@@ -132,13 +132,34 @@ endif
 $(INC_DIR)/%: include/%
 	cp $< $@
 
-$(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
-	cp $< $@
-
 $(INC_DIR)/allegro:
 	mkdir $(INC_DIR)/allegro
 
+$(INC_DIR)/allegro/%.h: include/allegro/%.h $(INC_DIR)/allegro
+	cp $< $@
+
+$(INC_DIR)/allegro/internal:
+	mkdir $(INC_DIR)/allegro/internal
+
+$(INC_DIR)/allegro/internal/%.h: include/allegro/internal/%.h $(INC_DIR)/allegro/internal
+	cp $< $@
+
+$(INC_DIR)/allegro/inline:
+	mkdir $(INC_DIR)/allegro/inline
+
+$(INC_DIR)/allegro/inline/%.inl: include/allegro/inline/%.inl $(INC_DIR)/allegro/inline
+	cp $< $@
+
+$(INC_DIR)/allegro/platform:
+	mkdir $(INC_DIR)/allegro/platform
+
+$(INC_DIR)/allegro/platform/%.h: include/allegro/platform/%.h $(INC_DIR)/allegro/platform
+	cp $< $@
+
 HEADERS = $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/*.h)))
+HEADERS += $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/internal/*.h)))
+HEADERS += $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/inline/*.inl)))
+HEADERS += $(subst /include,,$(addprefix $(INC_DIR)/,$(wildcard include/allegro/platform/*.h)))
 
 /bin/allegro-config:
 ifdef STATICLINK
@@ -155,10 +176,13 @@ endif
 	rm -f temp temp2
 	chmod a+x /bin/allegro-config
 
-INSTALL_FILES =  $(INC_DIR)/allegro.h \
-		$(INC_DIR)/bealleg.h \
-		$(INC_DIR)/allegro \
-		$(HEADERS) \
+INSTALL_FILES = $(INC_DIR)/allegro.h        \
+		$(INC_DIR)/bealleg.h        \
+		$(INC_DIR)/allegro          \
+		$(INC_DIR)/allegro/internal \
+		$(INC_DIR)/allegro/inline   \
+		$(INC_DIR)/allegro/platform \
+		$(HEADERS)                  \
 		/bin/allegro-config
 		
 ifdef STATICLINK
@@ -168,18 +192,28 @@ else
 endif		
 
 install: $(INSTALL_FILES)
-	@echo The $(DESCRIPTION) BeOS library has been installed.
+	@echo The $(DESCRIPTION) $(PLATFORM) library has been installed.
 
-UNINSTALL_FILES = $(LIB_DIR)/liballeg.a $(LIB_DIR)/liballd.a $(LIB_DIR)/liballp.a \
-		$(SHARED_LIB_DIR)/liballeg-$(shared_version).so \
-		$(SHARED_LIB_DIR)/liballd-$(shared_version).so \
-		$(SHARED_LIB_DIR)/liballp-$(shared_version).so \
-		$(INC_DIR)/allegro.h $(INC_DIR)/bealleg.h $(INC_DIR)/allegro/*.h
+UNINSTALL_FILES = $(LIB_DIR)/liballeg.a                           \
+		  $(LIB_DIR)/liballd.a                            \
+		  $(LIB_DIR)/liballp.a                            \
+		  $(SHARED_LIB_DIR)/liballeg-$(shared_version).so \
+		  $(SHARED_LIB_DIR)/liballd-$(shared_version).so  \
+		  $(SHARED_LIB_DIR)/liballp-$(shared_version).so  \
+		  $(INC_DIR)/allegro.h                            \
+		  $(INC_DIR)/bealleg.h                            \
+		  $(INC_DIR)/allegro/*.h                          \
+		  $(INC_DIR)/allegro/internal/*.h                 \
+		  $(INC_DIR)/allegro/inline/*.inl                 \
+		  $(INC_DIR)/allegro/platform/*.h                 \
+		  /bin/allegro-config
 
 uninstall:
-	rm -f $(UNINSTALL_FILES)
-	rm -fr $(INC_DIR)/allegro
-	rm -f /bin/allegro-config
+	-rm -fv $(UNINSTALL_FILES)
+	-rmdir $(INC_DIR)/allegro/platform
+	-rmdir $(INC_DIR)/allegro/inline
+	-rmdir $(INC_DIR)/allegro/internal
+	-rmdir $(INC_DIR)/allegro
 	@echo All gone!	
 
 
