@@ -233,6 +233,20 @@ obj/mingw32/mmx.h:
 
 
 
+# -------- helper function for compressing the executables --------
+
+.PHONY: compress
+
+compress: $(PROGRAMS)
+ifdef UPX
+	$(UPX) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tools/*.exe lib/*/all*.dll
+else
+	@echo No executable compressor specified! You must set the environment variable
+	@echo UPX to point to upx.exe.
+endif
+
+
+
 # -------- finally, we get to the fun part... --------
 
 ifdef STATICLINK
