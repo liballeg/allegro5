@@ -2406,19 +2406,21 @@ Standard Allegro cursor<br>
 <li>
 Custom operating system cursor (hardware cursor)<br>
    Allegro will let the operating system draw the mouse cursor. Use
-   set_mouse_sprite() and show_mouse() to define your own cursor and display
-   it on the screen. Not all graphics drivers are capable of this and some
-   may only be able to display cursors upto a certain size. Allegro will fall
-   back on its own cursor drawing if it cannot let the OS handle this. On some
-   platforms, the hardware cursor is incompatible with get_mouse_mickeys()
-   and it is therefor disabled by default. In such cases you need to call
-   enable_hardware_cursor() to enable it explicitly.
+   set_mouse_sprite() and show_mouse() (or show_os_cursor) to define your
+   own cursor and display it on the screen. Not all graphics drivers are
+   capable of this and some may only be able to display cursors upto a
+   certain size. Allegro will fall back on its own cursor drawing if it
+   cannot let the OS handle this. On some platforms, the hardware cursor
+   is incompatible with get_mouse_mickeys() and it is therefor disabled by
+   default. In such cases you need to call enable_hardware_cursor() to
+   enable it explicitly.
 <li>
 Default operating system cursor<br>
    Allegro will not draw its own cursor, but use the operating system default
    cursor. You can use the select_mouse_cursor() function to select the cursor
    shape to display. As with custom operating system cursors, you need to call 
-   enable_hardware_cursor() before you can use this.
+   enable_hardware_cursor() before you can use this. Or you can use the
+   low level show_os_cursor() function.
 </ul>
 Not all drivers will support all functionality. See the platform specific
 information for more details.
@@ -2476,7 +2478,7 @@ information for more details.
 
 @@void @enable_hardware_cursor(void);
 @xref install_mouse, show_mouse, set_mouse_sprite, get_mouse_mickeys
-@xref gfx_capabilities, disable_hardware_cursor
+@xref gfx_capabilities, disable_hardware_cursor, show_os_cursor
 @shortdesc Enables the OS hardware cursor.
    After calling this function, Allegro will let the operating system draw the
    mouse cursor instead of doing it itself. This is not possible with all
@@ -2498,7 +2500,7 @@ information for more details.
 
 @@void @select_mouse_cursor(int cursor);
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
-@xref enable_hardware_cursor, set_mouse_cursor_bitmap
+@xref enable_hardware_cursor, set_mouse_cursor_bitmap, show_os_cursor
 @shortdesc Tells Allegro to select software or hardware cursor drawing.
    This function allows you to use the operating system's native mouse
    cursors rather than some custom cursor. You will need to enable this
@@ -2555,7 +2557,7 @@ information for more details.
 
 @@void @set_mouse_cursor_bitmap(int cursor, BITMAP *bmp);
 @xref install_mouse, show_mouse, set_mouse_sprite, gfx_capabilities
-@xref enable_hardware_cursor
+@xref enable_hardware_cursor, show_os_cursor
 @shortdesc Changes the image Allegro uses for mouse cursors.
    This function changes the cursor image Allegro uses if
    select_mouse_cursor() is called but no native operating system cursor
@@ -2631,7 +2633,7 @@ information for more details.
 
 @@void @show_mouse(BITMAP *bmp);
 @xref install_mouse, install_timer, set_mouse_sprite, scare_mouse
-@xref freeze_mouse_flag
+@xref freeze_mouse_flag, show_os_cursor
 @eref exmouse, expal, exshade, exspline
 @shortdesc Tells Allegro to display a mouse pointer on the screen.
    Tells Allegro to display a mouse pointer on the screen. This will only 
@@ -2670,6 +2672,34 @@ information for more details.
 @shortdesc Undoes the effect of scare_mouse() or scare_mouse_area().
    Undoes the effect of a previous call to scare_mouse() or 
    scare_mouse_area(), restoring the original pointer state.
+
+@@int @show_os_cursor(int cursor);
+@xref show_mouse, set_mouse_cursor_bitmap, select_mouse_cursor
+@shortdesc Low level function to display the operating system cursor.
+   In case you do not need Allegro's mouse cursor API, which automatically
+   emulates a cursor in software if no other cursor is available, you can
+   use this low level function to try to display or hide the system cursor
+   directly. The cursor parameter takes the same values as
+   select_mouse_cursor. This function is very similar to calling
+   enable_hardware_cursor, select_mouse_cursor and show_mouse, but will
+   not try to do anything if no system cursor is available.
+
+   The most common use for this function is to just call it once at the
+   beginning of the program to tell it to display the system cursor inside
+   the Allegro window. The return value can be used to see if this
+   suceeded or not. On some systems (e.g. DirectX fullscreen) this is not
+   supported and the function will always fail, and in other cases only
+   some of the cursors will work, or in the case of MOUSE_CURSOR_ALLEGRO,
+   only certain bitmap sizes may be supported.
+
+   You never should use show_os_cursor together with the function
+   show_mouse and other functions affecting it (select_mouse_cursor,
+   enable_hardware_cursor, disable_hardware_cursor, scare_mouse,
+   unscare_mouse). They implement the standard high level mouse API, and
+   don't work together with this low level function.
+@retval
+   Returns 0 if a system cursor is being displayed after the function
+   returns, or -1 otherwise.
 
 @@extern volatile int @freeze_mouse_flag;
 @xref show_mouse
