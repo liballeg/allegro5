@@ -20,15 +20,15 @@
  *      See readme.txt for copyright information.
  */
 
-
-#include <allegro.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <allegro.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+#ifndef SCAN_DEPEND
+   #include <X11/Xlib.h>
+   #include <X11/Xutil.h>
+#endif
 
 
 /* usage:

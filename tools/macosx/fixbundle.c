@@ -27,7 +27,11 @@
 
 #undef TRUE
 #undef FALSE
-#include <Carbon/Carbon.h>
+
+#ifndef SCAN_DEPEND
+   #include <Carbon/Carbon.h>
+#endif
+
 #undef TRUE
 #undef FALSE
 #define TRUE -1
