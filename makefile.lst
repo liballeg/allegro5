@@ -261,7 +261,6 @@ ALLEGRO_SRC_LINUX_FILES = \
 	src/linux/lmseev.c \
 	src/linux/lstddrv.c \
 	src/linux/lsystem.c \
-	src/linux/ltimer.c \
 	src/linux/lvga.c \
 	src/linux/lvgahelp.c \
 	src/linux/svgalib.c \

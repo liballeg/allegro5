@@ -54,7 +54,6 @@ static void sys_linux_message (AL_CONST char *msg);
 	make_getter (_unix, midi)
 	make_getter (_linux, keyboard)
 	make_getter (_linux, mouse)
-	make_getter (_linux, timer)
 	make_getter (_linux, joystick)
 #undef make_getter
 
