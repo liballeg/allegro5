@@ -1444,7 +1444,7 @@ FUNC (_colorconv_blit_32_to_24)
                                                                                 ; \
       _align_                                                                   ; \
       next_block_##name:                                                        ; \
-         movl $0, %ecx                                                          ; \
+         xorl %ecx, %ecx                                                        ; \
          movb (%esi), %al          /* read 1 pixel */                           ; \
          movb 1(%esi), %bl                                                      ; \
          movb 2(%esi), %cl                                                      ; \
@@ -1708,8 +1708,8 @@ FUNC (_colorconv_blit_8_to_8)
       _align_
       next_block_8_to_8_no_mmx:
          movl (%esi), %eax         /* read 4 pixels */
-         movl $0, %ebx
-         movl $0, %ecx
+         xorl %ebx, %ebx
+         xorl %ecx, %ecx
          addl $4, %esi
          addl $4, %edi
          movb %al, %bl             /* pick out 2x bottom 8 bits */
@@ -1717,7 +1717,7 @@ FUNC (_colorconv_blit_8_to_8)
          shrl $16, %eax
          movb (%ebp, %ebx), %bl    /* lookup the new palette entries */
          movb (%ebp, %ecx), %bh
-         movl $0, %ecx
+         xorl %ecx, %ecx
          movb %ah, %cl             /* repeat for the top 16 bits */
          andl $0xff, %eax
          movb (%ebp, %eax), %al
@@ -1739,7 +1739,7 @@ FUNC (_colorconv_blit_8_to_8)
          shrl $1, %edx
          jnc do_two_pixels_8_to_8_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          movb (%esi), %al          /* read 1 pixel */
          incl %edi
          incl %esi
@@ -1750,8 +1750,8 @@ FUNC (_colorconv_blit_8_to_8)
          shrl $1, %edx
          jnc end_of_line_8_to_8_no_mmx
 
-         movl $0, %eax
-         movl $0, %ebx
+         xorl %eax, %eax
+         xorl %ebx, %ebx
          movb (%esi), %al          /* read 2 pixels */
          movb 1(%esi), %bl
          addl $2, %edi
@@ -1797,7 +1797,7 @@ FUNC (_colorconv_blit_8_to_16)
 #endif
 
    movl GLOBL(_colorconv_indexed_palette), %ebp
-   movl $0, %eax  /* init first line */
+   xorl %eax, %eax  /* init first line */
 
    _align_
    next_line_8_to_16_no_mmx:
@@ -1814,20 +1814,20 @@ FUNC (_colorconv_blit_8_to_16)
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_8_to_16_no_mmx:
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb (%esi), %al             /* al = pixel1            */
-         movl $0, %ecx
+         xorl %ecx, %ecx
          movb 1(%esi), %bl            /* bl = pixel2            */
          movb 2(%esi), %cl            /* cl = pixel3            */
          movl (%ebp,%eax,4), %eax     /* lookup: ax = pixel1    */
          movl 1024(%ebp,%ebx,4), %ebx /* lookup: bx = pixel2    */
          addl $4, %esi                /* 4 pixels read          */
          orl  %ebx, %eax              /* eax = pixel2..pixel1   */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movl %eax, (%edi)            /* write pixel1, pixel2   */
          movb -1(%esi), %bl           /* bl = pixel4            */
          movl (%ebp,%ecx,4), %ecx     /* lookup: cx = pixel3    */
-         movl $0, %eax
+         xorl %eax, %eax
          movl 1024(%ebp,%ebx,4), %ebx /* lookup: bx = pixel4    */
          addl $8, %edi                /* 4 pixels written       */
          orl  %ebx, %ecx              /* ecx = pixel4..pixel3   */
@@ -1846,19 +1846,19 @@ FUNC (_colorconv_blit_8_to_16)
          shrl $1, %edx
          jnc do_two_pixels_8_to_16_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          incl %esi
          movb -1(%esi), %al
          movl (%ebp, %eax, 4), %ebx
          addl $2, %edi
-         movl $0, %eax
+         xorl %eax, %eax
          movw %bx, -2(%edi)
 
       do_two_pixels_8_to_16_no_mmx:
          shrl $1, %edx
          jnc end_of_line_8_to_16_no_mmx
 
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb (%esi), %al
          movb 1(%esi), %bl
          addl $2, %esi
@@ -1866,7 +1866,7 @@ FUNC (_colorconv_blit_8_to_16)
          movl 1024(%ebp, %ebx, 4), %ebx
          addl $4, %edi
          orl %eax, %ebx
-         movl $0, %eax
+         xorl %eax, %eax
          movl %ebx, -4(%edi)
 
     _align_
@@ -1896,7 +1896,7 @@ FUNC (_colorconv_blit_8_to_24)
 #endif
 
    movl GLOBL(_colorconv_indexed_palette), %ebp
-   movl $0, %eax  /* init first line */
+   xorl %eax, %eax  /* init first line */
 
    _align_
    next_line_8_to_24_no_mmx:
@@ -1913,10 +1913,10 @@ FUNC (_colorconv_blit_8_to_24)
       /* 100% Pentium pairable loop */
       /* 12 cycles = 11 cycles/4 pixels + 1 cycle loop */
       next_block_8_to_24_no_mmx:
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb 3(%esi), %al               /* al = pixel4                     */
          movb 2(%esi), %bl               /* bl = pixel3                     */
-         movl $0, %ecx
+         xorl %ecx, %ecx
          movl 3072(%ebp,%eax,4), %eax    /* lookup: eax = pixel4 << 8       */
          movb 1(%esi), %cl               /* cl = pixel 2                    */
          movl 2048(%ebp,%ebx,4), %ebx    /* lookup: ebx = g8b800r8 pixel3   */
@@ -1924,7 +1924,7 @@ FUNC (_colorconv_blit_8_to_24)
          movl 1024(%ebp,%ecx,4), %ecx    /* lookup: ecx = b800r8g8 pixel2   */
          movb %bl, %al                   /* eax = pixel4 << 8 | r8 pixel3   */
          movl %eax, -4(%edi)             /* write r8 pixel3..pixel4         */
-         movl $0, %eax
+         xorl %eax, %eax
          movb %cl, %bl                   /* ebx = g8b8 pixel3 | 00g8 pixel2 */
          movb (%esi), %al                /* al = pixel1                     */
          movb %ch, %bh                   /* ebx = g8b8 pixel3 | r8g8 pixel2 */
@@ -1932,7 +1932,7 @@ FUNC (_colorconv_blit_8_to_24)
          movl %ebx, -8(%edi)             /* write g8r8 pixel2..b8g8 pixel3  */
          movl (%ebp,%eax,4), %eax        /* lookup: eax = pixel1            */
          orl  %eax, %ecx                 /* ecx = b8 pixel2 << 24 | pixel1  */
-         movl $0, %eax
+         xorl %eax, %eax
          movl %ecx, -12(%edi)            /* write pixel1..b8 pixel2         */
          addl $4, %esi                   /* 4 pixels read                   */
          decl %edx
@@ -1949,7 +1949,7 @@ FUNC (_colorconv_blit_8_to_24)
          shrl $1, %edx
          jnc do_two_pixels_8_to_24_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          movb (%esi), %al                /* al = pixel1                     */
          incl %esi
          movl (%ebp,%eax,4), %eax        /* lookup: eax = pixel1            */
@@ -1957,13 +1957,13 @@ FUNC (_colorconv_blit_8_to_24)
          shrl $16, %eax
          addl $3, %edi
          movb %al, -1(%edi)
-         movl $0, %eax
+         xorl %eax, %eax
 
        do_two_pixels_8_to_24_no_mmx:
          shrl $1, %edx
          jnc end_of_line_8_to_24_no_mmx
 
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb (%esi), %al                /* al = pixel1                     */
          movb 1(%esi), %bl               /* bl = pixel2                     */
          addl $2, %esi
@@ -1974,7 +1974,7 @@ FUNC (_colorconv_blit_8_to_24)
          shrl $16, %ebx
          addl $6, %edi
          movb %bl, -1(%edi)
-         movl $0, %eax
+         xorl %eax, %eax
 
    _align_
    end_of_line_8_to_24_no_mmx:
@@ -2007,7 +2007,7 @@ FUNC (_colorconv_blit_8_to_32)
    INIT_REGISTERS_NO_MMX(SIZE_1, SIZE_4, LOOP_RATIO_1)
 #endif
 
-   movl $0, %eax  /* init first line */
+   xorl %eax, %eax  /* init first line */
    movl GLOBL(_colorconv_indexed_palette), %ebp
 
    _align_
@@ -2026,14 +2026,14 @@ FUNC (_colorconv_blit_8_to_32)
       /* 10 cycles = 9 cycles/4 pixels + 1 cycle loop */
       next_block_8_to_32_no_mmx:
          movb (%esi), %al           /* al = pixel1          */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb 1(%esi), %bl          /* bl = pixel2          */
-         movl $0, %ecx
+         xorl %ecx, %ecx
          movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel1 */
          movb 2(%esi), %cl          /* cl = pixel3          */
          movl %eax, (%edi)          /* write pixel1         */
          movl (%ebp,%ebx,4), %ebx   /* lookup: ebx = pixel2 */
-         movl $0, %eax
+         xorl %eax, %eax
          movl (%ebp,%ecx,4), %ecx   /* lookup: ecx = pixel3 */
          movl %ebx, 4(%edi)         /* write pixel2         */
          movb 3(%esi), %al          /* al = pixel4          */
@@ -2042,7 +2042,7 @@ FUNC (_colorconv_blit_8_to_32)
          movl (%ebp,%eax,4), %eax   /* lookup: eax = pixel4 */
          addl $4, %esi              /* 4 pixels read        */
          movl %eax, -4(%edi)        /* write pixel4         */
-         movl $0, %eax
+         xorl %eax, %eax
          decl %edx
          jnz next_block_8_to_32_no_mmx
 
@@ -2061,7 +2061,7 @@ FUNC (_colorconv_blit_8_to_32)
          incl %esi
          movl (%ebp,%eax,4), %ebx   /* lookup: ebx = pixel */
          addl $4, %edi
-         movl $0, %eax
+         xorl %eax, %eax
          movl %ebx, -4(%edi)        /* write pixel */
 
       do_two_pixels_8_to_32_no_mmx:
@@ -2069,13 +2069,13 @@ FUNC (_colorconv_blit_8_to_32)
          jnc end_of_line_8_to_32_no_mmx
 
          movb (%esi), %al           /* read one pixel */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          addl $2, %esi
          movb -1(%esi), %bl         /* read another pixel */         
          movl (%ebp,%eax,4), %edx   /* lookup: edx = pixel */
          movl (%ebp,%ebx,4), %ebx   /* lookup: ebx = pixel */
          addl $8, %edi
-         movl $0, %eax
+         xorl %eax, %eax
          movl %edx, -8(%edi)        /* write pixel */
          movl %ebx, -4(%edi)        /* write pixel */
 
@@ -2157,7 +2157,7 @@ FUNC (_colorconv_blit_15_to_8)
          shrl $1, %edx
          jnc end_of_line_15_to_8_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          movw (%esi), %ax          /* read 1 pixel */
          addl $2, %esi
          incl %edi
@@ -2249,7 +2249,7 @@ FUNC (_colorconv_blit_15_to_16)
          shrl $1, %edx
          jnc do_two_pixels_15_to_16_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          movw (%esi), %ax
          addl $2, %edi
          movl %eax, %ebx
@@ -2323,27 +2323,27 @@ FUNC (_colorconv_blit_16_to_24)
       /* 22 cycles = 20 cycles/4 pixels + 1 cycle stack + 1 cycle loop */
       next_block_16_to_24_no_mmx:
          movl %edx, -16(%esp)           /* fake pushl %edx                  */
-         movl $0, %ebx
-         movl $0, %eax
+         xorl %ebx, %ebx
+         xorl %eax, %eax
          movb 7(%esi), %bl              /* bl = high byte pixel4            */
-         movl $0, %ecx
+         xorl %ecx, %ecx
          movb 6(%esi), %al              /* al = low byte pixel4             */
          movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel4      */
          movb 4(%esi), %cl              /* cl = low byte pixel3             */
          movl 1024(%ebp,%eax,4), %eax   /* lookup: eax = r0g8b8 pixel4      */
-         movl $0, %edx
+         xorl %edx, %edx
          addl %ebx, %eax                /* eax = r8g8b8 pixel4              */
          movb 5(%esi), %dl              /* dl = high byte pixel3            */
          shll $8, %eax                  /* eax = r8g8b8 pixel4 << 8         */
          movl 5120(%ebp,%ecx,4), %ecx   /* lookup: ecx = g8b800r0 pixel3    */
          movl 4096(%ebp,%edx,4), %edx   /* lookup: edx = g8b000r8 pixel3    */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          addl %edx, %ecx                /* ecx = g8b800r8 pixel3            */
          movb %dl, %al                  /* eax = pixel4 << 8 | r8 pixel3    */
          movl %eax, 8(%edi)             /* write r8 pixel3..pixel4          */
          movb 3(%esi), %bl              /* bl = high byte pixel2            */
-         movl $0, %eax
-         movl $0, %edx
+         xorl %eax, %eax
+         xorl %edx, %edx
          movb 2(%esi), %al              /* al = low byte pixel2             */
          movl 2048(%ebp,%ebx,4), %ebx   /* lookup: ebx = b000r8g8 pixel2    */
          movb 1(%esi), %dl              /* dl = high byte pixel1            */
@@ -2353,7 +2353,7 @@ FUNC (_colorconv_blit_16_to_24)
          addl %ebx, %eax                /* eax = b800r8g8 pixel2            */
          movl (%ebp,%edx,4), %edx       /* lookup: edx = r8g8b0 pixel1      */
          movb %al, %cl                  /* ecx = g8b8 pixel3 | 00g8 pixel2  */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb %ah, %ch                  /* ecx = g8b8 pixel3 | r8g8 pixel2  */
          movb -8(%esi), %bl             /* bl = low byte pixel1             */
          movl %ecx, -8(%edi)            /* write g8r8 pixel2..b8g8 pixel3   */
@@ -2378,8 +2378,8 @@ FUNC (_colorconv_blit_16_to_24)
          shrl $1, %edx
          jnc do_two_pixels_16_to_24_no_mmx
 
-         movl $0, %eax
-         movl $0, %ebx
+         xorl %eax, %eax
+         xorl %ebx, %ebx
          movb 1(%esi), %al              /* al = high byte pixel1            */
          addl $3, %edi                  /* 1 pixel written                  */
          addl $2, %esi                  /* 1 pixel  read                    */
@@ -2395,8 +2395,8 @@ FUNC (_colorconv_blit_16_to_24)
          shrl $1, %edx
          jnc end_of_line_16_to_24_no_mmx
 
-         movl $0, %eax
-         movl $0, %ebx
+         xorl %eax, %eax
+         xorl %ebx, %ebx
          movb 1(%esi), %al              /* al = high byte pixel1            */
          addl $6, %edi                  /* 1 pixel written                  */
          addl $4, %esi                  /* 1 pixel  read                    */
@@ -2404,10 +2404,10 @@ FUNC (_colorconv_blit_16_to_24)
          movb -4(%esi), %bl             /* bl = low byte pixel1             */
          movl 1024(%ebp,%ebx,4), %ebx   /* lookup: ebx = r0g8b8 pixel1      */
          addl %eax, %ebx                /* ebx = r8g8b8 pixel1              */
-         movl $0, %eax
+         xorl %eax, %eax
          movl %ebx, -6(%edi)            /* write pixel1                     */
          movb -1(%esi), %al             /* al = high byte pixel2            */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movl (%ebp,%eax,4), %eax       /* lookup: eax = r8g8b0 pixel2      */
          movb -2(%esi), %bl             /* bl = low byte pixel2             */
          movl 1024(%ebp,%ebx,4), %ebx   /* lookup: ebx = r0g8b8 pixel2      */
@@ -2453,7 +2453,7 @@ FUNC (_colorconv_blit_16_to_32)
 #endif
 
    movl GLOBL(_colorconv_rgb_scale_5x35), %ebp
-   movl $0, %eax  /* init first line */
+   xorl %eax, %eax  /* init first line */
 
    _align_
    next_line_16_to_32_no_mmx:
@@ -2470,20 +2470,20 @@ FUNC (_colorconv_blit_16_to_32)
       /* 100% Pentium pairable loop */
       /* 10 cycles = 9 cycles/2 pixels + 1 cycle loop */
       next_block_16_to_32_no_mmx:
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb (%esi), %al               /* al = low byte pixel1        */
-         movl $0, %ecx
+         xorl %ecx, %ecx
          movb 1(%esi), %bl              /* bl = high byte pixel1       */
          movl 1024(%ebp,%eax,4), %eax   /* lookup: eax = r0g8b8 pixel1 */
          movb 2(%esi), %cl              /* cl = low byte pixel2        */
          movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel1 */
          addl $8, %edi                  /* 2 pixels written            */
          addl %ebx, %eax                /* eax = r8g8b8 pixel1         */
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movl 1024(%ebp,%ecx,4), %ecx   /* lookup: ecx = r0g8b8 pixel2 */
          movb 3(%esi), %bl              /* bl = high byte pixel2       */
          movl %eax, -8(%edi)            /* write pixel1                */
-         movl $0, %eax
+         xorl %eax, %eax
          movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel2 */
          addl $4, %esi                  /* 4 pixels read               */
          addl %ebx, %ecx                /* ecx = r8g8b8 pixel2         */
@@ -2499,7 +2499,7 @@ FUNC (_colorconv_blit_16_to_32)
          shrl $1, %edx
          jnc end_of_line_16_to_32_no_mmx
 
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movb (%esi), %al               /* al = low byte pixel1        */
          addl $4, %edi                  /* 2 pixels written            */
          movb 1(%esi), %bl              /* bl = high byte pixel1       */
@@ -2507,7 +2507,7 @@ FUNC (_colorconv_blit_16_to_32)
          movl (%ebp,%ebx,4), %ebx       /* lookup: ebx = r8g8b0 pixel1 */
          addl $2, %esi
          addl %eax, %ebx                /* ebx = r8g8b8 pixel1         */
-         movl $0, %eax
+         xorl %eax, %eax
          movl %ebx, -4(%edi)            /* write pixel1                */
 
       _align_
@@ -2584,7 +2584,7 @@ FUNC (_colorconv_blit_16_to_8)
          shrl $1, %edx
          jnc end_of_line_16_to_8_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          movw (%esi), %ax          /* read 1 pixel */
          addl $2, %esi
          incl %edi
@@ -2674,7 +2674,7 @@ FUNC (_colorconv_blit_16_to_15)
          shrl $1, %edx
          jnc do_two_pixels_16_to_15_no_mmx
 
-         movl $0, %eax
+         xorl %eax, %eax
          movw (%esi), %ax
          addl $2, %edi
          movl %eax, %ebx
@@ -2828,8 +2828,8 @@ FUNC (_colorconv_blit_24_to_32)
          shrl $1, %edx
          jnc do_two_pixels_24_to_32_no_mmx
 
-         movl $0, %eax
-         movl $0, %ebx
+         xorl %eax, %eax
+         xorl %ebx, %ebx
          movw (%esi), %ax       /* read one pixel */
          movb 2(%esi), %bl
          addl $3, %esi
@@ -2842,7 +2842,7 @@ FUNC (_colorconv_blit_24_to_32)
          shrl $1, %edx
          jnc end_of_line_24_to_32_no_mmx
 
-         movl $0, %ebx
+         xorl %ebx, %ebx
          movl (%esi), %eax         /* read 2 pixels */
          movw 4(%esi), %bx
          movl %eax, %edx
