@@ -6488,6 +6488,9 @@ changes are the following:
    as a check box. If the d1 field is non-zero, the text will be printed to 
    the right of the check, otherwise it will be on the left.
 
+   Note: the object width should allow space for the text as well as the
+   check box (which is square, with sides equal to the object height).
+
 @@int @d_radio_proc(int msg, DIALOG *d, int c);
    A radio button object. A dialog can contain any number of radio button 
    groups: selecting a radio button causes other buttons within the same 
