@@ -265,6 +265,8 @@ AL_VAR(int, _sub_bitmap_id_count);
 
 AL_VAR(int, _screen_split_position);
 
+AL_VAR(int, _safe_gfx_mode_change);
+
 #ifdef ALLEGRO_I386
    #define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
 #else

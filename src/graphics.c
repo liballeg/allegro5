@@ -31,6 +31,8 @@ int _gfx_mode_set_count = 0;           /* has the graphics mode changed? */
 
 int _screen_split_position = 0;        /* has the screen been split? */
 
+int _safe_gfx_mode_change = 0;	       /* are we getting through GFX_SAFE? */
+
 RGB_MAP *rgb_map = NULL;               /* RGB -> palette entry conversion */
 
 COLOR_MAP *color_map = NULL;           /* translucency/lighting table */
@@ -333,10 +335,12 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    /* special bodge for the GFX_SAFE driver */
    if (card == GFX_SAFE) {
+      _safe_gfx_mode_change = 1;
       ustrncpy(buf, allegro_error, sizeof(buf)-ucwidth(0));
       if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
 	 set_color_depth(8);
 	 allow_config = FALSE;
+	 _safe_gfx_mode_change = 0;
       #ifdef GFX_SAFE_ID
 	 if (set_gfx_mode(GFX_SAFE_ID, GFX_SAFE_W, GFX_SAFE_H, 0, 0) != 0) {
       #else
@@ -350,6 +354,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
       }
 
       ustrcpy(allegro_error, buf);
+      _safe_gfx_mode_change = 0;
       return 0;
    }
 
