@@ -111,11 +111,11 @@ void draw_node(int n)
 {
    char b[8];
 
-   circlefill(screen, nodes[n].x, nodes[n].y, 2, 1);
+   circlefill(screen, nodes[n].x, nodes[n].y, 2, palette_color[1]);
 
    sprintf(b, "%d", n);
    text_mode(-1);
-   textout(screen, font, b, nodes[n].x-7, nodes[n].y-7, 255);
+   textout(screen, font, b, nodes[n].x-7, nodes[n].y-7, palette_color[255]);
 }
 
 
@@ -147,11 +147,11 @@ void draw_spline(NODE n1, NODE n2)
    int i;
 
    get_control_points(n1, n2, points);
-   spline(screen, points, 255);
+   spline(screen, points, palette_color[255]);
 
    if (show_control_points)
       for (i=1; i<=2; i++)
-	 circlefill(screen, points[i*2], points[i*2+1], 2, 2);
+	 circlefill(screen, points[i*2], points[i*2+1], 2, palette_color[2]);
 }
 
 
@@ -164,16 +164,16 @@ void draw_splines()
 
    acquire_screen();
 
-   clear(screen);
+   clear_to_color(screen, makecol(255, 255, 255));
 
-   text_mode(0);
-   textout_centre(screen, font, "Spline curve path", SCREEN_W/2, 8, 255);
+   text_mode(palette_color[0]);
+   textout_centre(screen, font, "Spline curve path", SCREEN_W/2, 8, palette_color[255]);
    sprintf(b, "Curviness = %.2f", fixtof(curviness));
-   textout_centre(screen, font, b, SCREEN_W/2, 32, 255);
-   textout_centre(screen, font, "Up/down keys to alter", SCREEN_W/2, 44, 255);
-   textout_centre(screen, font, "Space to walk", SCREEN_W/2, 68, 255);
-   textout_centre(screen, font, "C to display control points", SCREEN_W/2, 92, 255);
-   textout_centre(screen, font, "T to display tangents", SCREEN_W/2, 104, 255);
+   textout_centre(screen, font, b, SCREEN_W/2, 32, palette_color[255]);
+   textout_centre(screen, font, "Up/down keys to alter", SCREEN_W/2, 44, palette_color[255]);
+   textout_centre(screen, font, "Space to walk", SCREEN_W/2, 68, palette_color[255]);
+   textout_centre(screen, font, "C to display control points", SCREEN_W/2, 92, palette_color[255]);
+   textout_centre(screen, font, "T to display tangents", SCREEN_W/2, 104, palette_color[255]);
 
    for (i=1; i<node_count-2; i++)
       draw_spline(nodes[i], nodes[i+1]);
@@ -185,7 +185,8 @@ void draw_splines()
 	 line(screen, nodes[i].x - fixtoi(fcos(nodes[i].tangent) * 24),
 		      nodes[i].y - fixtoi(fsin(nodes[i].tangent) * 24),
 		      nodes[i].x + fixtoi(fcos(nodes[i].tangent) * 24),
-		      nodes[i].y + fixtoi(fsin(nodes[i].tangent) * 24), 1);
+		      nodes[i].y + fixtoi(fsin(nodes[i].tangent) * 24),
+		      palette_color[1]);
       }
    }
 
@@ -197,11 +198,13 @@ void draw_splines()
 /* let the user input a list of path nodes */
 void input_nodes()
 {
-   clear(screen);
+   clear_to_color(screen, makecol(255, 255, 255));
 
-   text_mode(0);
-   textout_centre(screen, font, "Click the left mouse button to add path nodes", SCREEN_W/2, 8, 255);
-   textout_centre(screen, font, "Right mouse button or any key to finish", SCREEN_W/2, 24, 255);
+   text_mode(palette_color[0]);
+   textout_centre(screen, font, "Click the left mouse button to add path nodes",
+		  SCREEN_W/2, 8, palette_color[255]);
+   textout_centre(screen, font, "Right mouse button or any key to finish",
+		  SCREEN_W/2, 24, palette_color[255]);
 
    node_count = 1;
 
@@ -265,7 +268,7 @@ void walk()
 
    acquire_screen();
 
-   clear(screen);
+   clear_to_color(screen, makecol(255, 255, 255));
 
    for (i=1; i<node_count-1; i++)
       draw_node(i);
@@ -296,8 +299,8 @@ void walk()
       for (i=1; i<npoints; i++) {
 	 vsync();
 	 acquire_screen();
-	 circlefill(screen, ox, oy, 6, 2);
-	 circlefill(screen, x[i], y[i], 6, 2);
+	 circlefill(screen, ox, oy, 6, palette_color[2]);
+	 circlefill(screen, x[i], y[i], 6, palette_color[2]);
 	 release_screen();
 	 ox = x[i];
 	 oy = y[i];

@@ -51,7 +51,7 @@ char *key_names[] =
 void scroll()
 {
    blit(screen, screen, 0, 32, 0, 24, SCREEN_W, SCREEN_H-32);
-   rectfill(screen, 0, SCREEN_H-16, SCREEN_W, SCREEN_H, 0);
+   rectfill(screen, 0, SCREEN_H-16, SCREEN_W, SCREEN_H, makecol(255, 255, 255));
 }
 
 
@@ -65,12 +65,16 @@ int main()
    install_keyboard(); 
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
    set_palette(desktop_palette);
+   text_mode(makecol(255, 255, 255));
 
    acquire_screen();
-   textprintf_centre(screen, font, SCREEN_W/2, 8, 255, "Driver: %s", keyboard_driver->name);
+   clear_to_color(screen, makecol(255, 255, 255));
+   textprintf_centre(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0),
+		     "Driver: %s", keyboard_driver->name);
 
    /* keyboard input can be accessed with the readkey() function */
-   textprintf(screen, font, 8, SCREEN_H-16, 255, "Press some keys (ESC to finish)");
+   textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+	      "Press some keys (ESC to finish)");
    scroll();
 
    do {
@@ -78,12 +82,14 @@ int main()
       k = readkey();
       acquire_screen();
       scroll();
-      textprintf(screen, font, 8, SCREEN_H-16, 255, "readkey() returned %-6d (0x%04X)", k, k);
+      textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+		 "readkey() returned %-6d (0x%04X)", k, k);
    } while ((k & 0xFF) != 27);
 
    /* the ASCII code is in the low byte of the return value */
    scroll(); scroll(); scroll();
-   textprintf(screen, font, 8, SCREEN_H-16, 255, "Press some more keys (ESC to finish)");
+   textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+	      "Press some more keys (ESC to finish)");
    scroll();
 
    do {
@@ -91,12 +97,14 @@ int main()
       k = readkey();
       acquire_screen();
       scroll();
-      textprintf(screen, font, 8, SCREEN_H-16, 255, "ASCII code is %d", k&0xFF);
+      textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+		 "ASCII code is %d", k&0xFF);
    } while ((k&0xFF) != 27);
 
    /* the hardware scancode is in the high byte of the return value */
    scroll(); scroll(); scroll();
-   textprintf(screen, font, 8, SCREEN_H-16, 255, "Press some more keys (ESC to finish)");
+   textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+	      "Press some more keys (ESC to finish)");
    scroll();
 
    do {
@@ -104,7 +112,8 @@ int main()
       k = readkey();
       acquire_screen();
       scroll();
-      textprintf(screen, font, 8, SCREEN_H-16, 255, "Scancode is %d (%s)", k>>8, key_names[k>>8]);
+      textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+		 "Scancode is %d (%s)", k>>8, key_names[k>>8]);
    } while ((k&0xFF) != 27);
 
    /* key qualifiers are stored in the key_shifts variable. Note that this
@@ -113,7 +122,8 @@ int main()
     * the normal ASCII range, for example to support Russian or Chinese.
     */
    scroll(); scroll(); scroll();
-   textprintf(screen, font, 8, SCREEN_H-16, 255, "Press some more keys (ESC to finish)");
+   textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+	      "Press some more keys (ESC to finish)");
    scroll();
 
    do {
@@ -132,12 +142,12 @@ int main()
       if (key_shifts & KB_NUMLOCK_FLAG)  strcat(buf, " num");
       if (key_shifts & KB_SCROLOCK_FLAG) strcat(buf, " scrl");
       scroll();
-      textprintf(screen, font, 8, SCREEN_H-16, 255, buf);
+      textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), buf);
    } while (k != 27);
 
    /* various scancodes are defined in allegro.h as KEY_* constants */
    scroll(); scroll(); scroll();
-   textprintf(screen, font, 8, SCREEN_H-16, 255, "Press F6");
+   textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), "Press F6");
    scroll();
 
    release_screen();
@@ -146,7 +156,8 @@ int main()
 
    while ((k>>8) != KEY_F6) {
       scroll();
-      textprintf(screen, font, 8, SCREEN_H-16, 255, "Wrong key, stupid! I said press F6");
+      textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+		 "Wrong key, stupid! I said press F6");
       release_screen();
       k = readkey();
       acquire_screen();
@@ -154,7 +165,8 @@ int main()
 
    /* for detecting multiple simultaneous keypresses, use the key[] array */
    scroll(); scroll(); scroll();
-   textprintf(screen, font, 8, SCREEN_H-16, 255, "Press a combination of numbers");
+   textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0),
+	      "Press a combination of numbers");
    scroll(); scroll();
 
    release_screen();
@@ -171,7 +183,7 @@ int main()
       if (key[KEY_8]) buf[8] = '8'; else buf[8] = ' ';
       if (key[KEY_9]) buf[9] = '9'; else buf[9] = ' ';
       buf[10] = 0;
-      textprintf(screen, font, 8, SCREEN_H-16, 255, buf);
+      textprintf(screen, font, 8, SCREEN_H-16, makecol(0, 0, 0), buf);
    } while (!key[KEY_ESC]);
 
    clear_keybuf();

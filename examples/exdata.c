@@ -25,6 +25,9 @@ int main(int argc, char *argv[])
    install_keyboard(); 
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
 
+   /* we still don't have a palette => Don't let Allegro twist colors */
+   set_color_conversion(COLORCONV_NONE);
+
    /* load the datafile into memory */
    replace_filename(buf, argv[0], "example.dat", sizeof(buf));
    datafile = load_datafile(buf);
@@ -37,12 +40,16 @@ int main(int argc, char *argv[])
    /* select the palette which was loaded from the datafile */
    set_palette(datafile[THE_PALETTE].dat);
 
+   /* aha, set a palette and let Allegro convert colors when blitting */
+   set_color_conversion(COLORCONV_TOTAL);
+   
    /* display the bitmap from the datafile */
-   textout(screen, font, "This is the bitmap:", 32, 16, 255);
+   textout(screen, font, "This is the bitmap:", 32, 16, makecol(255, 255, 255));
    blit(datafile[SILLY_BITMAP].dat, screen, 0, 0, 64, 32, 64, 64);
 
    /* and use the font from the datafile */
-   textout(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128, 96);
+   textout(screen, datafile[BIG_FONT].dat, "And this is a big font!", 32, 128,
+	   makecol(0, 255, 0));
 
    readkey();
 

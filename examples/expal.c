@@ -19,7 +19,12 @@ int main()
 
    allegro_init();
    install_keyboard(); 
-   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	 allegro_message("Couldn't set an 8bpp resolution!?!\n%s", allegro_error);
+	 return 1;
+      }
+   }
 
    /* first set the palette to black to hide what we are doing */
    set_palette(black_palette);

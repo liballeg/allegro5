@@ -36,6 +36,7 @@ int main()
       set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
 
    set_palette(desktop_palette);
+   text_mode(-1);
 
    /* allocate the memory buffer */
    buffer = create_bitmap(SCREEN_W, SCREEN_H);
@@ -43,9 +44,10 @@ int main()
    /* first with a double buffer... */
    c = retrace_count+32;
    while (retrace_count-c <= SCREEN_W+32) {
-      clear(buffer);
-      circlefill(buffer, retrace_count-c, SCREEN_H/2, 32, 255);
-      textprintf(buffer, font, 0, 0, 255, "Double buffered (%s)", gfx_driver->name);
+      clear_to_color(buffer, makecol(255, 255, 255));
+      circlefill(buffer, retrace_count-c, SCREEN_H/2, 32, makecol(0, 0, 0));
+      textprintf(buffer, font, 0, 0, makecol(0, 0, 0),
+		 "Double buffered (%s)", gfx_driver->name);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
    }
 
@@ -65,9 +67,10 @@ int main()
 
    /* do the animation using page flips... */
    for (c=-32; c<=SCREEN_W+32; c++) {
-      clear(active_page);
-      circlefill(active_page, c, SCREEN_H/2, 32, 255);
-      textprintf(active_page, font, 0, 0, 255, "Page flipping (%s)", gfx_driver->name);
+      clear_to_color(active_page, makecol(255, 255, 255));
+      circlefill(active_page, c, SCREEN_H/2, 32, makecol(0, 0, 0));
+      textprintf(active_page, font, 0, 0, makecol(0, 0, 0),
+		 "Page flipping (%s)", gfx_driver->name);
       show_video_bitmap(active_page);
 
       if (active_page == page1)

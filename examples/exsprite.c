@@ -72,12 +72,16 @@ void animate()
 
 int main(int argc, char *argv[])
 {
+   BITMAP *running;
    char datafile_name[256];
    int angle = 0;
 
    allegro_init();
    install_keyboard();
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+
+   /* we still don't have a palette, don't let Allegro twist colors */
+   set_color_conversion(COLORCONV_NONE);
 
    /* loads datafile and sets user palette saved in datafile */
    replace_filename(datafile_name, argv[0], "running.dat", sizeof(datafile_name));
@@ -88,75 +92,89 @@ int main(int argc, char *argv[])
       return 1;
    }
 
+   /* select the palette which was loaded from the datafile */
    set_palette(running_data[PALETTE_001].dat);
 
+   /* aha, set a palette and let Allegro convert colors when blitting */
+   set_color_conversion(COLORCONV_TOTAL);
+   
    /* create and clear a bitmap for sprite buffering */
    sprite_buffer = create_bitmap(85, 85);
    clear(sprite_buffer);
 
+   /* create another bitmap for color conversion from the datafile */
+   running = create_bitmap(85, 85);
+
    /* write current sprite drawing method */
-   textout(screen, font, "Press a key for next part...", 40, 10, 1);
-   textout(screen, font, "Using draw_sprite", 1, 190, 15);
+   textout(screen, font, "Press a key for next part...", 40, 10, palette_color[1]);
+   textout(screen, font, "Using draw_sprite", 1, 190, palette_color[15]);
 
    do {
-      draw_sprite(sprite_buffer, running_data[frame_number].dat, 0, 0);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      draw_sprite(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Using draw_sprite_h_flip", 1, 190, 15);
+   textout(screen, font, "Using draw_sprite_h_flip", 1, 190, palette_color[15]);
 
    do {
-      draw_sprite_h_flip(sprite_buffer, running_data[frame_number].dat, 0, 0);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      draw_sprite_h_flip(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Using draw_sprite_v_flip", 1, 190, 15);
+   textout(screen, font, "Using draw_sprite_v_flip", 1, 190, palette_color[15]);
 
    do {
-      draw_sprite_v_flip(sprite_buffer, running_data[frame_number].dat, 0, 0);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      draw_sprite_v_flip(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Using draw_sprite_vh_flip", 1, 190, 15);
+   textout(screen, font, "Using draw_sprite_vh_flip", 1, 190, palette_color[15]);
 
    do {
-      draw_sprite_vh_flip(sprite_buffer, running_data[frame_number].dat, 0, 0);
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      draw_sprite_vh_flip(sprite_buffer, running, 0, 0);
       animate();
    } while (!next);
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Now with rotating - rotate_sprite", 1, 190, 15);
+   textout(screen, font, "Now with rotating - rotate_sprite", 1, 190, palette_color[15]);
 
    do {
       /* The last argument to rotate_sprite() is a fixed point type,
        * so I had to use itofix() routine (integer to fixed).
        */
-      rotate_sprite(sprite_buffer, running_data[frame_number].dat, 0, 0, itofix(angle));
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      rotate_sprite(sprite_buffer, running, 0, 0, itofix(angle));
       animate();
       angle += 4;
    } while (!next);
 
    clear_keybuf();
    rectfill(screen, 0, 190, 320, 200, 0);
-   textout(screen, font, "Now using rotate_sprite_v_flip", 1, 190, 15);
+   textout(screen, font, "Now using rotate_sprite_v_flip", 1, 190, palette_color[15]);
 
    do {
       /* The last argument to rotate_sprite_v_flip() is a fixed point type,
        * so I had to use itofix() routine (integer to fixed).
        */
-      rotate_sprite_v_flip(sprite_buffer, running_data[frame_number].dat, 0, 0, itofix(angle));
+      blit(running_data[frame_number].dat, running, 0, 0, 0, 0, 85, 85);
+      rotate_sprite_v_flip(sprite_buffer, running, 0, 0, itofix(angle));
       animate();
       angle += 4;
    } while (!next);
 
    unload_datafile(running_data);
+   destroy_bitmap(running);
    return 0;
 }
 

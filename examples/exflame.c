@@ -65,7 +65,12 @@ int main()
 
    allegro_init();
    install_keyboard(); 
-   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	 allegro_message("Couldn't set an 8bpp resolution!?!\n%s", allegro_error);
+	 return 1;
+      }
+   }
 
    temp = (unsigned char *)malloc(sizeof(unsigned char) * SCREEN_W);
 
@@ -102,7 +107,7 @@ int main()
 
    set_palette(palette);
 
-   textout(screen, font, "Using get/putpixel()", 0, 0, 255);
+   textout(screen, font, "Using get/putpixel()", 0, 0, makecol(255,255,255));
 
    /* using getpixel() and putpixel() is slow :-) */
    while (!keypressed()) {
@@ -125,7 +130,7 @@ int main()
    }
 
    clear_keybuf();
-   textout(screen, font, "Using direct memory writes", 0, 0, 255);
+   textout(screen, font, "Using direct memory writes", 0, 0, makecol(255,255,255));
 
    /* It is much faster if we access the screen memory directly. This
     * time we read an entire line of the screen into our own buffer,
@@ -167,7 +172,7 @@ int main()
    }
 
    clear_keybuf();
-   textout(screen, font, "Using block data transfers", 0, 0, 255);
+   textout(screen, font, "Using block data transfers", 0, 0, makecol(255,255,255));
 
    /* It is even faster if we transfer the data in 32 bit chunks, rather
     * than only one pixel at a time. This method may not work on really

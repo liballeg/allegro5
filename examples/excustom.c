@@ -158,12 +158,20 @@ DIALOG the_dialog[] =
 
 int main()
 {
+   int item;
+
    allegro_init();
    install_keyboard(); 
    install_mouse();
    install_timer();
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
    set_palette(desktop_palette);
+
+   /* We set up colors to match screen color depth (in case it changed) */
+   for (item = 0; the_dialog[item].proc; item++) {
+      the_dialog[item].fg = makecol(0, 0, 0);
+      the_dialog[item].bg = makecol(255, 255, 255);
+   }
 
    do_dialog(the_dialog, -1);
 

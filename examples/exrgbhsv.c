@@ -137,7 +137,10 @@ int main()
    install_keyboard();
    install_mouse();
    install_timer();
-   set_gfx_mode(GFX_SAFE, 640, 480, 0, 0);
+   if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+      allegro_message("Couldn't set an 8bpp resolution!?!\n%s", allegro_error);
+      return 1;
+   }
    set_palette(desktop_palette);
    clear(screen);
 

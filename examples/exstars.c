@@ -102,7 +102,7 @@ void draw_stars()
       apply_matrix(&m, stars[i].x, stars[i].y, stars[i].z, &outs[i].x, &outs[i].y, &outs[i].z);
       persp_project(outs[i].x, outs[i].y, outs[i].z, &star_x[i], &star_y[i]);
       c = (fixtoi(outs[i].z) >> 8) + 16;
-      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]), c);
+      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]), palette_color[c]);
    }
 }
 
@@ -114,7 +114,7 @@ void erase_stars()
    int i;
 
    for (i=0; i<NUM_STARS; i++)
-      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]), 0);
+      putpixel(buffer, fixtoi(star_x[i]), fixtoi(star_y[i]), palette_color[0]);
 }
 
 
@@ -287,7 +287,7 @@ void draw_ship()
 	 triangle(buffer, fixtoi(outs[ship.faces[i].v1].x), fixtoi(outs[ship.faces[i].v1].y),
 		  fixtoi(outs[ship.faces[i].v2].x), fixtoi(outs[ship.faces[i].v2].y),
 		  fixtoi(outs[ship.faces[i].v3].x), fixtoi(outs[ship.faces[i].v3].y),
-		  col);
+		  palette_color[col]);
       }
    }
 }
@@ -297,7 +297,7 @@ void draw_ship()
 /* removes the ship model from the screen */
 void erase_ship()
 {
-   rectfill(buffer, ship.minx, ship.miny, ship.maxx, ship.maxy, 0);
+   rectfill(buffer, ship.minx, ship.miny, ship.maxx, ship.maxy, palette_color[0]);
 }
 
 
@@ -357,14 +357,14 @@ int main(int argc, char *argv[])
       draw_stars();
 
       sprintf(buf, "     direction: [%f] [%f] [%f]     ", fixtof(direction.x), fixtof(direction.y), fixtof(direction.z));
-      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-10, 17);
+      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-10, palette_color[17]);
       sprintf(buf, "   delta: [%f] [%f] [%f]   ", fixtof(delta.x), fixtof(delta.y), fixtof(delta.z));
-      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-20, 17);
+      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-20, palette_color[17]);
       sprintf(buf, "   velocity: %d   ", ship.velocity);
-      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-30, 17);
+      textout_centre(buffer, font, buf, SCREEN_W / 2, SCREEN_H-30, palette_color[17]);
 
-      textout_centre(buffer, font, "Press ESC to exit", SCREEN_W/2, 16, 18);
-      textout_centre(buffer, font, "Press CTRL to fire engine", SCREEN_W/2, 32, 18);
+      textout_centre(buffer, font, "Press ESC to exit", SCREEN_W/2, 16, palette_color[18]);
+      textout_centre(buffer, font, "Press CTRL to fire engine", SCREEN_W/2, 32, palette_color[18]);
 
       draw_ship();
 

@@ -37,9 +37,14 @@ int main(int argc, char *argv[])
    }
 
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   set_palette(desktop_palette);
+   clear_to_color(screen, makecol(255, 255, 255));
+   text_mode(-1);
 
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/3, 255, "Driver: %s", midi_driver->name);
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/2, 255, "Playing %s", argv[1]);
+   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0),
+		     "Driver: %s", midi_driver->name);
+   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0),
+		     "Playing %s", argv[1]);
 
    /* start up the MIDI file */
    play_midi(the_music, TRUE);

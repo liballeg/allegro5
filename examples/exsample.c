@@ -39,10 +39,16 @@ int main(int argc, char *argv[])
    }
 
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   set_palette(desktop_palette);
+   clear_to_color(screen, makecol(255,255,255));
+   text_mode(-1);
 
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/3, 255, "Driver: %s", digi_driver->name);
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/2, 255, "Playing %s", argv[1]);
-   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H*2/3, 255, "Use the arrow keys to adjust it");
+   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/3, makecol(0, 0, 0),
+		     "Driver: %s", digi_driver->name);
+   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0),
+		     "Playing %s", argv[1]);
+   textprintf_centre(screen, font, SCREEN_W/2, SCREEN_H*2/3, makecol(0, 0, 0),
+		     "Use the arrow keys to adjust it");
 
    /* start up the sample */
    play_sample(the_sample, 255, pan, pitch, TRUE);

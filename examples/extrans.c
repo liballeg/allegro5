@@ -39,7 +39,12 @@ int main(int argc, char *argv[])
    install_timer(); 
    install_mouse(); 
 
-   set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
+   if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+      if (set_gfx_mode(GFX_AUTODETECT, 640, 480, 0, 0) != 0) {
+	 allegro_message("Couldn't set an 8bpp resolution!?!\n%s", allegro_error);
+	 return 1;
+      }
+   }
 
    /* load the main screen image */
    if (argc > 1)

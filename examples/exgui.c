@@ -106,6 +106,12 @@ int main(int argc, char *argv[])
    set_gfx_mode(GFX_SAFE, 640, 480, 0, 0);
    set_palette(desktop_palette);
 
+   /* We set up colors to match screen color depth (in case it changed) */
+   for (ret = 0; the_dialog[ret].proc; ret++) {
+      the_dialog[ret].fg = makecol(0, 0, 0);
+      the_dialog[ret].bg = makecol(255, 255, 255);
+   }
+
    /* load the datafile */
    replace_filename(buf1, argv[0], "example.dat", sizeof(buf1));
    datafile = load_datafile(buf1);

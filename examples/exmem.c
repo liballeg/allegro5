@@ -27,7 +27,7 @@ int main()
    /* draw some circles onto it */
    clear(memory_bitmap);
    for (x=0; x<16; x++)
-      circle(memory_bitmap, 10, 10, x, x);
+      circle(memory_bitmap, 10, 10, x, palette_color[x]);
 
    /* blit lots of copies of it onto the screen */
    acquire_screen();

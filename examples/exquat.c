@@ -256,6 +256,9 @@ int main()
    allegro_init();
    install_keyboard();
    set_gfx_mode(GFX_SAFE, 640, 480, 0, 0);
+   set_palette(desktop_palette);
+   clear_to_color(screen, palette_color[0]);
+   text_mode(-1);
 
    /* Each back-buffer is one quarter the size of the screen
     */
@@ -274,15 +277,15 @@ int main()
    set_projection_viewport(0, 0, 320, 240);
 
    /* print out something helpful for the user */
-   textout(screen, font, "SPACE - next interpolation", 184, 24, 15);
-   textout(screen, font, "    R - repeat last interpolation", 184, 40, 15);
-   textout(screen, font, "  ESC - quit", 184, 56, 15);
+   textout(screen, font, "SPACE - next interpolation", 184, 24, palette_color[15]);
+   textout(screen, font, "    R - repeat last interpolation", 184, 40, palette_color[15]);
+   textout(screen, font, "  ESC - quit", 184, 56, palette_color[15]);
 
-   textout(screen, font, "Interpolating Euler Angles", 56, 110, 15);
-   textout(screen, font, "Interpolating Quaternions", 380, 110, 15);
+   textout(screen, font, "Interpolating Euler Angles", 56, 110, palette_color[15]);
+   textout(screen, font, "Interpolating Quaternions", 380, 110, palette_color[15]);
 
-   textout(screen, font, "Incorrect!", 120, 360, 15);
-   textout(screen, font, "Correct!", 448, 360, 15);
+   textout(screen, font, "Incorrect!", 120, 360, palette_color[15]);
+   textout(screen, font, "Correct!", 448, 360, palette_color[15]);
 
    /* initialize the path edges. This structure is used by both the Euler
     * path and the quaternion path. It connects all the points end to end
@@ -338,14 +341,17 @@ int main()
 			&(e_path_points_2[index][2]));
 
 	 /* render the results to the Euler sub-bitmap */
-	 clear(euler_buffer);
-	 render_demo_box(euler_buffer, &e_from_matrix, &e_in_matrix, &e_to_matrix, 15, 1, 4);
+	 clear_to_color(euler_buffer, palette_color[0]);
+	 render_demo_box(euler_buffer, &e_from_matrix, &e_in_matrix, &e_to_matrix,
+			 palette_color[15], palette_color[1], palette_color[4]);
 
 	 render_wireframe_object(&camera, euler_buffer, e_path_points_1,
-				 tmp_points, path_edges, index+1, index, 5);
+				 tmp_points, path_edges, index+1, index,
+				 palette_color[5]);
 
 	 render_wireframe_object(&camera, euler_buffer, e_path_points_2,
-				 tmp_points, path_edges, index+1, index, 5);
+				 tmp_points, path_edges, index+1, index,
+				 palette_color[5]);
 
 	 /* here is how to animate the cube correctly using quaternions */
 
@@ -382,15 +388,18 @@ int main()
 			&(q_path_points_2[index][2]));
 
 	 /* render the results to the quaternion sub-bitmap */
-	 clear(quat_buffer);
+	 clear_to_color(quat_buffer, palette_color[0]);
 
-	 render_demo_box(quat_buffer, &q_from_matrix, &q_in_matrix, &q_to_matrix, 15, 1, 4);
+	 render_demo_box(quat_buffer, &q_from_matrix, &q_in_matrix, &q_to_matrix,
+	 		 palette_color[15], palette_color[1], palette_color[4]);
 
 	 render_wireframe_object(&camera, quat_buffer, q_path_points_1,
-				 tmp_points, path_edges, index+1, index, 5);
+				 tmp_points, path_edges, index+1, index,
+				 palette_color[5]);
 
 	 render_wireframe_object(&camera, quat_buffer, q_path_points_2,
-				 tmp_points, path_edges, index+1, index, 5);
+				 tmp_points, path_edges, index+1, index,
+				 palette_color[5]);
 
 	 /* update the screen */
 	 vsync();

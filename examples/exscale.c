@@ -30,12 +30,12 @@ int main(int argc, char *argv[])
    }
 
    set_palette(my_palette);
-   blit(scr_buffer, screen, 0, 0, 0, 0, 320, 200);
+   blit(scr_buffer, screen, 0, 0, 0, 0, scr_buffer->w, scr_buffer->h);
 
    while (!keypressed()) {
-      stretch_blit(scr_buffer, screen, 0, 0, 
-		   rand()%scr_buffer->w, rand()%scr_buffer->h,
-		   rand()%320, rand()%200, rand()%320, rand()%200);
+      stretch_blit(scr_buffer, screen, 0, 0, rand()%scr_buffer->w,
+		   rand()%scr_buffer->h, rand()%SCREEN_W, rand()%SCREEN_H,
+		   rand()%SCREEN_W, rand()%SCREEN_H);
       vsync();
    }
 

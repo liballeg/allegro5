@@ -120,7 +120,7 @@ void draw_square(BITMAP *bmp, MATRIX_f *camera, int x, int z)
       persp_project_f(vout[c]->x, vout[c]->y, vout[c]->z, &vout[c]->x, &vout[c]->y);
 
    /* set the color */
-   vout[0]->c = ((x + z) & 1) ? 2 : 3;
+   vout[0]->c = ((x + z) & 1) ? makecol(0, 255, 0) : makecol(255, 255, 0);
 
    /* render the polygon */
    polygon3d_f(bmp, POLYTYPE_FLAT, NULL, vc, vout);
@@ -138,7 +138,7 @@ void render(BITMAP *bmp)
    float xup, yup, zup;
 
    /* clear the background */
-   clear(bmp);
+   clear_to_color(bmp, makecol(255, 255, 255));
 
    /* set up the viewport region */
    x = (SCREEN_W - viewport_w) / 2;
@@ -147,7 +147,7 @@ void render(BITMAP *bmp)
    h = viewport_h;
 
    set_projection_viewport(x, y, w, h);
-   rect(bmp, x-1, y-1, x+w, y+h, 1);
+   rect(bmp, x-1, y-1, x+w, y+h, makecol(255, 0, 0));
    set_clip(bmp, x, y, x+w-1, y+h-1);
 
    /* calculate the in-front vector */
@@ -176,29 +176,29 @@ void render(BITMAP *bmp)
    set_clip(bmp, 0, 0, bmp->w, bmp->h);
    text_mode(-1);
    sprintf(buf, "Viewport width: %d (w/W changes)", viewport_w);
-   textout(bmp, font, buf, 0, 0, 255);
+   textout(bmp, font, buf, 0, 0, makecol(0, 0, 0));
    sprintf(buf, "Viewport height: %d (h/H changes)", viewport_h);
-   textout(bmp, font, buf, 0, 8, 255);
+   textout(bmp, font, buf, 0, 8, makecol(0, 0, 0));
    sprintf(buf, "Field of view: %d (f/F changes)", fov);
-   textout(bmp, font, buf, 0, 16, 255);
+   textout(bmp, font, buf, 0, 16, makecol(0, 0, 0));
    sprintf(buf, "Aspect ratio: %.2f (a/A changes)", aspect);
-   textout(bmp, font, buf, 0, 24, 255);
+   textout(bmp, font, buf, 0, 24, makecol(0, 0, 0));
    sprintf(buf, "X position: %.2f (x/X changes)", xpos);
-   textout(bmp, font, buf, 0, 32, 255);
+   textout(bmp, font, buf, 0, 32, makecol(0, 0, 0));
    sprintf(buf, "Y position: %.2f (y/Y changes)", ypos);
-   textout(bmp, font, buf, 0, 40, 255);
+   textout(bmp, font, buf, 0, 40, makecol(0, 0, 0));
    sprintf(buf, "Z position: %.2f (z/Z changes)", zpos);
-   textout(bmp, font, buf, 0, 48, 255);
+   textout(bmp, font, buf, 0, 48, makecol(0, 0, 0));
    sprintf(buf, "Heading: %.2f deg (left/right changes)", DEG(heading));
-   textout(bmp, font, buf, 0, 56, 255);
+   textout(bmp, font, buf, 0, 56, makecol(0, 0, 0));
    sprintf(buf, "Pitch: %.2f deg (pgup/pgdn changes)", DEG(pitch));
-   textout(bmp, font, buf, 0, 64, 255);
+   textout(bmp, font, buf, 0, 64, makecol(0, 0, 0));
    sprintf(buf, "Roll: %.2f deg (r/R changes)", DEG(roll));
-   textout(bmp, font, buf, 0, 72, 255);
+   textout(bmp, font, buf, 0, 72, makecol(0, 0, 0));
    sprintf(buf, "Front vector: %.2f, %.2f, %.2f", xfront, yfront, zfront);
-   textout(bmp, font, buf, 0, 80, 255);
+   textout(bmp, font, buf, 0, 80, makecol(0, 0, 0));
    sprintf(buf, "Up vector: %.2f, %.2f, %.2f", xup, yup, zup);
-   textout(bmp, font, buf, 0, 88, 255);
+   textout(bmp, font, buf, 0, 88, makecol(0, 0, 0));
 }
 
 

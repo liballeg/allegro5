@@ -25,8 +25,11 @@ int main()
    install_timer();
    set_gfx_mode(GFX_SAFE, 320, 200, 0, 0);
    set_palette(desktop_palette);
+   text_mode(makecol(255, 255, 255));
+   clear_to_color(screen, makecol(255, 255, 255));
 
-   textprintf_centre(screen, font, SCREEN_W/2, 8, 255, "Driver: %s", mouse_driver->name);
+   textprintf_centre(screen, font, SCREEN_W/2, 8, makecol(0, 0, 0),
+		     "Driver: %s", mouse_driver->name);
 
    do {
       /* On most platforms (eg. DOS) things will still work correctly
@@ -40,10 +43,10 @@ int main()
 
       /* the mouse position is stored in the variables mouse_x and mouse_y */
       sprintf(msg, "mouse_x = %-5d", mouse_x);
-      textout(screen, font, msg, 16, 48, 255);
+      textout(screen, font, msg, 16, 48, makecol(0, 0, 0));
 
       sprintf(msg, "mouse_y = %-5d", mouse_y);
-      textout(screen, font, msg, 16, 64, 255);
+      textout(screen, font, msg, 16, 64, makecol(0, 0, 0));
 
       /* or you can use this function to measure the speed of movement.
        * Note that we only call it every fourth time round the loop: 
@@ -55,30 +58,30 @@ int main()
 	 get_mouse_mickeys(&mickeyx, &mickeyy);
 
       sprintf(msg, "mickey_x = %-7d", mickeyx);
-      textout(screen, font, msg, 16, 88, 255);
+      textout(screen, font, msg, 16, 88, makecol(0, 0, 0));
 
       sprintf(msg, "mickey_y = %-7d", mickeyy);
-      textout(screen, font, msg, 16, 104, 255);
+      textout(screen, font, msg, 16, 104, makecol(0, 0, 0));
 
       /* the mouse button state is stored in the variable mouse_b */
       if (mouse_b & 1)
-	 textout(screen, font, "left button is pressed ", 16, 128, 255);
+	 textout(screen, font, "left button is pressed ", 16, 128, makecol(0, 0, 0));
       else
-	 textout(screen, font, "left button not pressed", 16, 128, 255);
+	 textout(screen, font, "left button not pressed", 16, 128, makecol(0, 0, 0));
 
       if (mouse_b & 2)
-	 textout(screen, font, "right button is pressed ", 16, 144, 255);
+	 textout(screen, font, "right button is pressed ", 16, 144, makecol(0, 0, 0));
       else
-	 textout(screen, font, "right button not pressed", 16, 144, 255);
+	 textout(screen, font, "right button not pressed", 16, 144, makecol(0, 0, 0));
 
       if (mouse_b & 4)
-	 textout(screen, font, "middle button is pressed ", 16, 160, 255);
+	 textout(screen, font, "middle button is pressed ", 16, 160, makecol(0, 0, 0));
       else
-	 textout(screen, font, "middle button not pressed", 16, 160, 255);
+	 textout(screen, font, "middle button not pressed", 16, 160, makecol(0, 0, 0));
 
       /* the wheel position is stored in the variable mouse_z */
       sprintf(msg, "mouse_z = %-5d", mouse_z);
-      textout(screen, font, msg, 16, 184, 255);
+      textout(screen, font, msg, 16, 184, makecol(0, 0, 0));
 
       release_screen();
 
@@ -96,24 +99,26 @@ int main()
     *  the mouse off with show_mouse(NULL), and turn it back on again when
     *  you are done.
     */
-   clear(screen);
-   textout_centre(screen, font, "Press a key to change cursor", SCREEN_W/2, SCREEN_H/2, 255);
+   clear_to_color(screen, makecol(255, 255, 255));
+   textout_centre(screen, font, "Press a key to change cursor",
+		  SCREEN_W/2, SCREEN_H/2, makecol(0, 0, 0));
    show_mouse(screen);
    readkey();
    show_mouse(NULL);
 
    /* create a custom mouse cursor bitmap... */
    custom_cursor = create_bitmap(32, 32);
-   clear(custom_cursor); 
+   clear_to_color(custom_cursor, bitmap_mask_color(screen));
    for (c=0; c<8; c++)
-      circle(custom_cursor, 16, 16, c*2, c);
+      circle(custom_cursor, 16, 16, c*2, palette_color[c]);
 
    /* select the custom cursor and set the focus point to the middle of it */
    set_mouse_sprite(custom_cursor);
    set_mouse_sprite_focus(16, 16);
 
-   clear(screen);
-   textout_centre(screen, font, "Press a key to quit", SCREEN_W/2, SCREEN_H/2, 255);
+   clear_to_color(screen, makecol(255, 255, 255));
+   textout_centre(screen, font, "Press a key to quit", SCREEN_W/2,
+		  SCREEN_H/2, makecol(0, 0, 0));
    show_mouse(screen);
    readkey();
    show_mouse(NULL);

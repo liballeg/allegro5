@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
    install_keyboard();
    install_mouse();
    set_gfx_mode(GFX_SAFE, 320, 240, 0, 0);
+   text_mode(-1);
 
    replace_filename(buf, argv[0], "planet.pcx", sizeof(buf));
 
@@ -65,16 +66,18 @@ int main(int argc, char *argv[])
    create_light_table(&light_table, pal, 0, 0, 0, NULL);
    color_map = &light_table;
 
+   set_trans_blender(0, 0, 0, 128);
+
    do {
       poll_mouse();
 
-      draw_gouraud_sprite(buffer, planet, 160, 100,
-			  distance(160, 100, mouse_x, mouse_y),
-			  distance(160 + planet->w, 100, mouse_x, mouse_y),
-			  distance(160 + planet->w, 100 + planet->h, mouse_x, mouse_y),
-			  distance(160, 100 + planet->h, mouse_x, mouse_y));
+      draw_gouraud_sprite(buffer, planet, SCREEN_W/2, SCREEN_H/2,
+			  distance(SCREEN_W/2, SCREEN_H/2, mouse_x, mouse_y),
+			  distance(SCREEN_W/2 + planet->w, SCREEN_H/2, mouse_x, mouse_y),
+			  distance(SCREEN_W/2 + planet->w, SCREEN_H/2 + planet->h, mouse_x, mouse_y),
+			  distance(SCREEN_W/2, SCREEN_H/2 + planet->h, mouse_x, mouse_y));
 
-      textout(buffer, font, "Gouraud Shaded Sprite Demo", 0, 0, 10);
+      textout(buffer, font, "Gouraud Shaded Sprite Demo", 0, 0, palette_color[10]);
 
       show_mouse(buffer);
       blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
