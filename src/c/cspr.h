@@ -203,6 +203,8 @@ void FUNC_LINEAR_DRAW_SPRITE_V_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
       if (h <= 0)
 	 return;
 
+      /* use backward drawing onto dst */
+      sybeg = src->h - (sybeg + h);
       dybeg += h - 1;
    }
    else {
@@ -269,6 +271,8 @@ void FUNC_LINEAR_DRAW_SPRITE_H_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
       if (w <= 0)
 	 return;
 
+      /* use backward drawing onto dst */
+      sxbeg = src->w - (sxbeg + w);
       dxbeg += w - 1;
 
       tmp = dst->ct - dy;
@@ -344,6 +348,8 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
       if (w <= 0)
 	 return;
 
+      /* use backward drawing onto dst */
+      sxbeg = src->w - (sxbeg + w);
       dxbeg += w - 1;
 
       tmp = dst->ct - dy;
@@ -355,6 +361,8 @@ void FUNC_LINEAR_DRAW_SPRITE_VH_FLIP(BITMAP *dst, BITMAP *src, int dx, int dy)
       if (h <= 0)
 	 return;
 
+      /* use backward drawing onto dst */
+      sybeg = src->h - (sybeg + h);
       dybeg += h - 1;
    }
    else {
