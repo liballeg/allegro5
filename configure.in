@@ -125,7 +125,6 @@ dnl Check for tools.
 AC_PROG_CC
 ALLEGRO_ACTEST_GCC_VERSION
 ALLEGRO_ACTEST_GCC_INCLUDE_PREFIX
-ALLEGRO_ACTEST_GCC_PIPE
 AC_PROG_CPP
 ALLEGRO_ACTEST_GCC_CXX
 ALLEGRO_ACTEST_PROG_LD_S
@@ -677,9 +676,6 @@ if test -n "GCC"; then
     fi
   else
     TARGET_ARCH=
-  fi
-  if test "X$allegro_cv_can_use_pipe" = "Xyes"; then
-    CFLAGS="$CFLAGS -pipe"
   fi
   dnl Allow to specify additional flags.
   CFLAGS="$CFLAGS $XCFLAGS"
