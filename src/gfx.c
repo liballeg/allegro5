@@ -239,17 +239,17 @@ void select_palette(AL_CONST PALETTE p)
 
    for (c=0; c<256; c++) {
       _prev_current_palette[c] = _current_palette[c];
-      prev_palette_color[c] = palette_color[c];
+      _current_palette[c] = p[c];
+   }
+
+   if (_color_depth != 8) {
+      for (c=0; c<256; c++) {
+	 prev_palette_color[c] = palette_color[c];
+	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
+      }
    }
 
    _got_prev_current_palette = TRUE;
-
-   for (c=0; c<256; c++) {
-      _current_palette[c] = p[c];
-
-      if (_color_depth != 8)
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
-   }
 
    _current_palette_changed = 0xFFFFFFFF & ~(1<<(_color_depth-1));
 }
@@ -263,10 +263,11 @@ void unselect_palette()
 {
    int c;
 
-   for (c=0; c<256; c++) {
+   for (c=0; c<256; c++)
       _current_palette[c] = _prev_current_palette[c];
 
-      if (_color_depth != 8)
+   if (_color_depth != 8) {
+      for (c=0; c<256; c++)
 	 palette_color[c] = prev_palette_color[c];
    }
 
