@@ -35,16 +35,14 @@ int main(void)
    /* clear the screen to white */
    clear_to_color(screen, makecol(255, 255, 255));
 
-   /* you don't need to do this, but on some platforms (eg. Windows) things
-    * will be drawn more quickly if you always acquire the screen before
-    * trying to draw onto it.
-    */
-   acquire_screen();
-   
    /* We will use the lower case letters from Allegro's normal font and the
     * uppercase letters from the font in unifont.dat
     */
    f1 = load_font("unifont.dat", NULL, NULL);
+   if (!f1) {
+      allegro_message("Cannot find unifont.dat in current directory.\n");
+      return 1;
+   }
 
    /* Extract character ranges */
    f2 = extract_font_range(font, ' ', 'A'-1);
@@ -60,6 +58,12 @@ int main(void)
    destroy_font(f3);
    destroy_font(f4);
    destroy_font(f5);
+
+   /* you don't need to do this, but on some platforms (eg. Windows) things
+    * will be drawn more quickly if you always acquire the screen before
+    * trying to draw onto it.
+    */
+   acquire_screen();
 
    /* write some text to the screen with black letters and transparent background */
    textout_centre_ex(screen, font, "Hello, world!", SCREEN_W/2, SCREEN_H/2, makecol(0,0,0), -1);
