@@ -292,8 +292,8 @@ Unix problems
       Bourne-style shell like bash, try "make 2&gt logfile.txt".
 
 <li><font size="+1">
-@\   When I try to use DGA2, I get "resolution not supported", but the X
-@@   server does actually support that resolution !
+@\   When I try to use DGA2, I get "resolution not supported", but the
+@@   X server does actually support that resolution !
 </font>
       There are two possible reasons:
       1) DGA2 may support different resolutions/color depths than X, 
