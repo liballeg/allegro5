@@ -22,25 +22,6 @@ static LPDIRECTDRAWSURFACE primbuffersurf = NULL;
 static LPDIRECTDRAWSURFACE backbuffersurf = NULL;
 static LPDIRECTDRAWSURFACE tripbuffersurf = NULL;
 
-static int OverlayMatch[] = { 8, 15, 16, 24, 24, 32, 32, 0 };
-
-DDPIXELFORMAT OverlayFormat[] = {
-   /* 8-bit */
-   { sizeof(DDPIXELFORMAT), DDPF_RGB  | DDPF_PALETTEINDEXED8, 0, {8}, {0}, {0}, {0}, {0} },
-   /* 16-bit RGB 5:5:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0x7C00}, {0x03e0}, {0x001F}, {0}},
-   /* 16-bit RGB 5:6:5 */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {16}, {0xF800}, {0x07e0}, {0x001F}, {0}},
-   /* 24-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
-   /* 24-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {24}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}},
-   /* 32-bit RGB */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0xFF0000}, {0x00FF00}, {0x0000FF}, {0}},
-   /* 32-bit BGR */
-   {sizeof(DDPIXELFORMAT), DDPF_RGB, 0, {32}, {0x0000FF}, {0x00FF00}, {0xFF0000}, {0}}
-};
-
 
 /* sometimes we have to recycle the screen surface as a video bitmap,
  * in order to be consistent with how other platforms behave.
@@ -67,11 +48,8 @@ LPDIRECTDRAWSURFACE gfx_directx_create_surface(int w, int h, int color_depth,
 {
    DDSURFACEDESC surf_desc;
    LPDIRECTDRAWSURFACE surf;
-   DDSCAPS ddscaps;
    HRESULT hr;
-   unsigned int format=0;
 
-loop:
    /* describe surface characteristics */
    memset (&surf_desc, 0, sizeof(DDSURFACEDESC));
    surf_desc.dwSize = sizeof(surf_desc);
@@ -87,23 +65,18 @@ loop:
          surf_desc.dwBackBufferCount = 2;
       }
       else if (overlay) {
-         surf_desc.ddsCaps.dwCaps |= DDSCAPS_OVERLAY;
-
-         surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+         surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT | DDSD_HEIGHT | DDSD_WIDTH;
+         surf_desc.ddsCaps.dwCaps |= DDSCAPS_OVERLAY | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+         surf_desc.dwBackBufferCount = 2;
          surf_desc.dwHeight = h;
          surf_desc.dwWidth = w;
 
-         while(1) {
-            if (OverlayMatch[format] == color_depth) {
-               surf_desc.ddpfPixelFormat = OverlayFormat[format];
-               break;
-            }
-            if (++format >= (sizeof(OverlayMatch)-1))
-               return NULL;
+         if (dd_pixelformat) {    /* use pixel format */
+            surf_desc.dwFlags |= DDSD_PIXELFORMAT;
+            surf_desc.ddpfPixelFormat = *dd_pixelformat;
          }
       }
       else {
-         /*surf_desc.ddsCaps.dwCaps |= DDSCAPS_BACKBUFFER; */
          surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
          surf_desc.dwHeight = h;
          surf_desc.dwWidth = w;
@@ -114,6 +87,7 @@ loop:
       surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
       surf_desc.dwHeight = h;
       surf_desc.dwWidth = w;
+
       if (dd_pixelformat) {    /* use pixel format */
          surf_desc.dwFlags |= DDSD_PIXELFORMAT;
          surf_desc.ddpfPixelFormat = *dd_pixelformat;
@@ -124,9 +98,7 @@ loop:
    hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
 
    if (FAILED(hr)) {
-      if (video && !primary && overlay && OverlayMatch[++format] == color_depth)
-         goto loop;
-      else if (primary) {
+      if (primary || overlay) {
          /* we lower the number of backbuffers */
          surf_desc.dwBackBufferCount = 1;
          hr = IDirectDraw_CreateSurface(directdraw, &surf_desc, &surf, NULL);
@@ -144,7 +116,7 @@ loop:
          }
       }
       else
-         /* no other way for non primary */
+         /* no other way for normal surfaces */
          return NULL;
    }
 

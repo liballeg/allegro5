@@ -224,14 +224,6 @@ void gfx_directx_exit(struct BITMAP *b)
    if (b)
       clear(b);
 
-   /* destroy overlay surface */
-   if (overlay_surface) {
-      hide_overlay();
-      gfx_directx_destroy_surf(overlay_surface);
-      overlay_surface = NULL;
-      overlay_visible = FALSE;
-   }
-
    /* destroy primary surface */
    gfx_directx_destroy_surf(dd_prim_surface);
    dd_prim_surface = NULL;
