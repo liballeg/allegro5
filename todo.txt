@@ -63,24 +63,8 @@ Unix todos:
 ---------------------------------------------------------------------------
 
 - tidy up the configure machinery
-- fix endianness problems on Sparc
+- implement load-on-demand for modules
 - fix modules support on IRIX (export-dynamic is ignored)
-
-Macintosh todos:
----------------------------------------------------------------------------
-
-- implement os_version & os_revision.
-- implement fetch_mode_list() for fullscreen mode
-- don't use argv or argc on main function, now this not work.
-- don't use printf, stdout, stderr, stdin function related use allegro_message.
-- allegro_message truncates message to 254 chars.
-- low resolutions like 320x200 doesn't fill the entire screen.
-- missing features include: hardware accelleration, virtual screens,
-  scrolling, joystick, switching, windowed modes, true 16 & 32 bpp
-  colordepths.
-- fix midi playback.
-- Update the docs.
-- Window close button?
 
 MacOS X todos
 ---------------------------------------------------------------------------
