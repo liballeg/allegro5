@@ -88,6 +88,20 @@ static int wnd_set_video_mode(void)
 
 
 
+/* shift_gamma:
+ *  Helper function for changing a 8-bit gamma value into
+ *  a fake 6-bit gamma value (shifted 5-bit gamma value).
+ */
+static INLINE int shift_gamma(int gamma)
+{
+   if (gamma<128)
+      return (gamma+7)>>2;
+   else
+      return (gamma-7)>>2;
+}
+
+
+
 /* build_desktop_rgb_map:
  *  Builds the RGB map corresponding to the desktop palette.
  */
@@ -104,12 +118,15 @@ void build_desktop_rgb_map(void)
    ReleaseDC(NULL, dc);
 
    for (i=0; i<PAL_SIZE; i++) {
-      pal[i].r = system_palette[i].peRed >> 2;
-      pal[i].g = system_palette[i].peGreen >> 2;
-      pal[i].b = system_palette[i].peBlue >> 2;
+      pal[i].r = shift_gamma(system_palette[i].peRed);
+      pal[i].g = shift_gamma(system_palette[i].peGreen);
+      pal[i].b = shift_gamma(system_palette[i].peBlue);
    }
 
    create_rgb_table(&desktop_rgb_map, pal, NULL);
+
+   /* create_rgb_table() never maps RGB triplets to index 0 */
+   desktop_rgb_map.data[pal[0].r>>1][pal[0].g>>1][pal[0].b>>1] = 0;
 }
 
 
