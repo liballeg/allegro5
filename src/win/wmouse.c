@@ -205,6 +205,7 @@ int mouse_dinput_acquire(void)
          mouse_set_syscursor(FALSE);
    }
 
+   /* always hide the system cursor in fullscreen mode */
    if (gfx_driver && !gfx_driver->windowed)
       mouse_set_syscursor(FALSE);
 
@@ -222,11 +223,12 @@ int mouse_dinput_unacquire(void)
       IDirectInputDevice_Unacquire(mouse_dinput_device);
 
       _mouse_b = 0;
+      _mouse_on = FALSE;
    }
 
-   _mouse_on = FALSE;
-
-   mouse_set_syscursor(TRUE);
+   /* restore the system cursor except in fullscreen mode */
+   if (!gfx_driver || gfx_driver->windowed)
+      mouse_set_syscursor(TRUE);
 
    return 0;
 }
