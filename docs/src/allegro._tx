@@ -6551,12 +6551,12 @@ directories, but not hidden files and directories. Similarly, if you pass
    Moves the position indicator of the stream f. Unlike the standard fseek()
    function, this only supports forward movements relative to the current
    position and in read-only streams, so don't use negative offsets.
-
-   Note that seeking is very slow when reading compressed files, and so
-   should be avoided unless you are sure that the file is not compressed.
 @retval
    Returns zero on success or a negative number on error, storing the error
    code in errno.
+
+   Note that seeking is very slow when reading compressed files, and so
+   should be avoided unless you are sure that the file is not compressed.
 
 @@int @pack_feof(PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_ferror
@@ -6652,13 +6652,13 @@ directories, but not hidden files and directories. Similarly, if you pass
    line is handled by detecting the right combination of characters for the
    platform. This supports CR-LF (DOS/Windows), LF (Unix), and CR (Mac)
    formats.
+@retval
+   Returns the pointer p on success, or NULL on error.
 
    Note, however, that the trailing carriage return is not included in the
    returned string, in order to provide easy code portability across
    platforms. If you need the carriage return, use pack_fread() and/or
    pack_getc() instead.
-@retval
-   Returns the pointer p on success, or NULL on error.
 
 @@int @pack_fputs(const char *p, PACKFILE *f);
 @xref pack_fopen, pack_fopen_chunk, pack_fwrite, pack_putc
