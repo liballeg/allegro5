@@ -783,6 +783,38 @@ int update_dialog(DIALOG_PLAYER *player)
    if (player->res & D_CLOSE)
       return FALSE;
 
+   /* deal with mouse buttons presses and releases */
+   if (gui_mouse_b() != player->mouse_b) {
+      player->res |= offer_focus(player->dialog, player->mouse_obj, &player->focus_obj, FALSE);
+
+      if (player->mouse_obj >= 0) {
+	 /* send press and release messages */
+         if ((gui_mouse_b() & 1) && !(player->mouse_b & 1))
+	    MESSAGE(player->mouse_obj, MSG_LPRESS, gui_mouse_b());
+         if (!(gui_mouse_b() & 1) && (player->mouse_b & 1))
+	    MESSAGE(player->mouse_obj, MSG_LRELEASE, gui_mouse_b());
+
+         if ((gui_mouse_b() & 4) && !(player->mouse_b & 4))
+	    MESSAGE(player->mouse_obj, MSG_MPRESS, gui_mouse_b());
+         if (!(gui_mouse_b() & 4) && (player->mouse_b & 4))
+	    MESSAGE(player->mouse_obj, MSG_MRELEASE, gui_mouse_b());
+
+         if ((gui_mouse_b() & 2) && !(player->mouse_b & 2))
+	    MESSAGE(player->mouse_obj, MSG_RPRESS, gui_mouse_b());
+         if (!(gui_mouse_b() & 2) && (player->mouse_b & 2))
+	    MESSAGE(player->mouse_obj, MSG_RRELEASE, gui_mouse_b());
+
+         player->mouse_b = gui_mouse_b();
+
+	 if (player->res == D_O_K)
+	    player->click_wait = TRUE;
+      }
+      else
+	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
+
+      goto getout;
+   }
+
    /* need to reinstall the dclick and switch handlers? */
    if (gui_install_time != _allegro_count) {
       install_int(dclick_check, 20);
@@ -866,43 +898,6 @@ int update_dialog(DIALOG_PLAYER *player)
 	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
 
       /* goto getout; */
-   }
-
-   /* deal with mouse buttons presses and releases */
-   if (gui_mouse_b() != player->mouse_b) {
-      player->res |= offer_focus(player->dialog, player->mouse_obj, &player->focus_obj, FALSE);
-
-      if (player->mouse_obj >= 0) {
-	 dclick_time = 0;
-	 dclick_status = DCLICK_START;
-	 player->mouse_ox = gui_mouse_x();
-	 player->mouse_oy = gui_mouse_y();
-
-	 /* send press and release messages */
-         if ((gui_mouse_b() & 1) && !(player->mouse_b & 1))
-	    MESSAGE(player->mouse_obj, MSG_LPRESS, gui_mouse_b());
-         if (!(gui_mouse_b() & 1) && (player->mouse_b & 1))
-	    MESSAGE(player->mouse_obj, MSG_LRELEASE, gui_mouse_b());
-
-         if ((gui_mouse_b() & 4) && !(player->mouse_b & 4))
-	    MESSAGE(player->mouse_obj, MSG_MPRESS, gui_mouse_b());
-         if (!(gui_mouse_b() & 4) && (player->mouse_b & 4))
-	    MESSAGE(player->mouse_obj, MSG_MRELEASE, gui_mouse_b());
-
-         if ((gui_mouse_b() & 2) && !(player->mouse_b & 2))
-	    MESSAGE(player->mouse_obj, MSG_RPRESS, gui_mouse_b());
-         if (!(gui_mouse_b() & 2) && (player->mouse_b & 2))
-	    MESSAGE(player->mouse_obj, MSG_RRELEASE, gui_mouse_b());
-
-         player->mouse_b = gui_mouse_b();
-
-	 if (player->res == D_O_K)
-	    player->click_wait = TRUE;
-      }
-      else
-	 dialog_message(player->dialog, MSG_IDLE, 0, &nowhere);
-
-      goto getout;
    }
 
    /* deal with mouse wheel clicks */
