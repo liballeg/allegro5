@@ -24,7 +24,7 @@
 
 
 int desktop_depth;
-BOOL same_color_depth;
+RGB_MAP desktop_rgb_map;  /* for 8-bit desktops */
 
 
 typedef struct MODE_INFO {
@@ -92,6 +92,32 @@ static int wnd_set_video_mode(void)
 
 
 
+/* build_desktop_rgb_map:
+ *  Builds the RGB map corresponding to the desktop palette.
+ */
+void build_desktop_rgb_map(void)
+{
+   PALETTE pal;
+   PALETTEENTRY system_palette[PAL_SIZE];
+   HDC dc;
+   int i;
+
+   /* retrieve Windows system palette */
+   dc = GetDC(NULL);
+   GetSystemPaletteEntries(dc, 0, PAL_SIZE, system_palette);
+   ReleaseDC(NULL, dc);
+
+   for (i=0; i<PAL_SIZE; i++) {
+      pal[i].r = system_palette[i].peRed >> 2;
+      pal[i].g = system_palette[i].peGreen >> 2;
+      pal[i].b = system_palette[i].peBlue >> 2;
+   }
+
+   create_rgb_table(&desktop_rgb_map, pal, NULL);
+}
+
+
+
 /* get_color_shift:
  *  Returns shift value for color mask.
  */
@@ -153,12 +179,11 @@ int gfx_directx_compare_color_depth(int color_depth)
 
    if (color_depth == desktop_depth) {
       dd_pixelformat = NULL;
-      same_color_depth = TRUE;
       return 0;
    }
    else {
       /* test for the same depth and RGB order */
-      for (i=0 ; pixel_realdepth[i] ; i++)
+      for (i=0 ; pixel_realdepth[i] ; i++) {
          if ((pixel_realdepth[i] == color_depth) &&
             ((surf_desc.ddpfPixelFormat.dwRBitMask & pixel_format[i].dwRBitMask) ||
                 (surf_desc.ddpfPixelFormat.dwBBitMask & pixel_format[i].dwBBitMask) ||
@@ -166,8 +191,8 @@ int gfx_directx_compare_color_depth(int color_depth)
                       dd_pixelformat = &pixel_format[i];
                       break;
          }
+      }
 
-      same_color_depth = FALSE;
       return -1;
    }
 }

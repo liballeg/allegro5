@@ -108,7 +108,7 @@ static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
  */
 static void handle_window_enter_sysmode_win(void)
 {
-   if (!same_color_depth && direct_updating_mode) {
+   if (colorconv_blit && direct_updating_mode) {
       direct_updating_mode = FALSE;
       _TRACE("direct updating mode off\n");
    }
@@ -121,7 +121,7 @@ static void handle_window_enter_sysmode_win(void)
  */
 static void handle_window_exit_sysmode_win(void)
 {
-   if (!same_color_depth && !direct_updating_mode) {
+   if (colorconv_blit && !direct_updating_mode) {
       direct_updating_mode = TRUE;
       _TRACE("direct updating mode on\n");
    }
@@ -137,8 +137,9 @@ static void handle_window_move_win(int x, int y, int w, int h)
    int xmod;
    RECT window_rect;
 
-   if (!same_color_depth) {
-      if (((BYTES_PER_PIXEL(desktop_depth) == 2) && (xmod=ABS(x)%2)) ||
+   if (colorconv_blit) {
+      if (((BYTES_PER_PIXEL(desktop_depth) == 1) && (xmod=ABS(x)%4)) ||
+          ((BYTES_PER_PIXEL(desktop_depth) == 2) && (xmod=ABS(x)%2)) ||
           ((BYTES_PER_PIXEL(desktop_depth) == 3) && (xmod=ABS(x)%4))) {
          GetWindowRect(allegro_wnd, &window_rect);
          SetWindowPos(allegro_wnd, 0, window_rect.left + (x > 0 ? -xmod : xmod),
@@ -332,10 +333,28 @@ static void setup_driver_desc(void)
 
    uszprintf(gfx_driver_desc, sizeof(gfx_driver_desc),
 	     uconvert_ascii("DirectDraw, in %s, %d bpp window", tmp1),
-	     uconvert_ascii((same_color_depth ? "matching" : "color conversion"), tmp2),
+	     uconvert_ascii((colorconv_blit ? "color conversion" : "matching"), tmp2),
 	     desktop_depth );
    
    gfx_directx_win.desc = gfx_driver_desc;
+}
+
+
+
+/* gfx_directx_set_palette_win_8:
+ *  updates the palette for color conversion from 8-bit to 8-bit
+ */
+static void gfx_directx_set_palette_win_8(AL_CONST struct RGB *p, int from, int to, int vsync)
+{
+   unsigned char *cmap;
+   int n;
+
+   cmap = _get_colorconv_map();
+
+   for (n = from; n <= to; n++)
+      cmap[n] = desktop_rgb_map.data[p[n].r>>1][p[n].g>>1][p[n].b>>1];
+
+   update_window(NULL);
 }
 
 
@@ -384,13 +403,13 @@ static int wnd_set_windowed_coop(void)
  */
 static int verify_color_depth (int color_depth)
 {
-   if (gfx_directx_compare_color_depth(color_depth) == 0) {
+   if ((gfx_directx_compare_color_depth(color_depth) == 0) && (color_depth != 8)) {
       /* the color depths match */ 
       update_window = update_matching_window;
    }
    else {
       /* disallow cross-conversion between 15-bit and 16-bit colors */
-      if (BYTES_PER_PIXEL(color_depth) == BYTES_PER_PIXEL(desktop_depth))
+      if ((BYTES_PER_PIXEL(color_depth) == 2) && (BYTES_PER_PIXEL(desktop_depth) == 2))
          return -1;
 
       /* the color depths don't match, need color conversion */
@@ -437,20 +456,14 @@ static int gfx_directx_show_video_bitmap_win(struct BITMAP *bitmap)
  */
 static int create_offscreen(int w, int h, int color_depth)
 {
-   if (same_color_depth) {
-      offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
-      
-      if (!offscreen_surface) {
-         _TRACE("Can't create offscreen surface in video memory.\n");
-         offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
-      }
-   }
-   else {
-      /* create pre-converted offscreen surface */
+   if (colorconv_blit) {
+      /* create pre-converted offscreen surface in video memory */
       preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
 
       if (!preconv_offscreen_surface) {
          _TRACE("Can't create preconverted offscreen surface in video memory.\n");
+
+         /* create pre-converted offscreen surface in plain memory */
          preconv_offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
 
          if (!preconv_offscreen_surface) {
@@ -460,6 +473,17 @@ static int create_offscreen(int w, int h, int color_depth)
       }
 
       offscreen_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 0, 0, 0);
+   }
+   else {
+      /* create offscreen surface in video memory */
+      offscreen_surface = gfx_directx_create_surface(w, h, NULL, 1, 0, 0);
+      
+      if (!offscreen_surface) {
+         _TRACE("Can't create offscreen surface in video memory.\n");
+
+         /* create offscreen surface in plain memory */
+         offscreen_surface = gfx_directx_create_surface(w, h, NULL, 0, 0, 0);
+      }
    }
 
    if (!offscreen_surface) {
@@ -478,7 +502,9 @@ static int create_offscreen(int w, int h, int color_depth)
 static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color_depth)
 {
    RECT win_size;
+   unsigned char *cmap;
    HRESULT hr;
+   int i;
 
    /* flipping is impossible in windowed mode */
    if ((v_w != w && v_w != 0) || (v_h != h && v_h != 0)) {
@@ -536,33 +562,51 @@ static struct BITMAP *init_directx_win(int w, int h, int v_w, int v_h, int color
    if (create_primary() != 0)
       goto Error;
 
+   /* create clipper */
+   if (create_clipper(allegro_wnd) != 0)
+      goto Error;
+
+   hr = IDirectDrawSurface_SetClipper(dd_prim_surface, dd_clipper);
+   if (FAILED(hr))
+      goto Error;
+
    /* create offscreen backbuffer */
    if (create_offscreen (w, h, color_depth) != 0) {
       ustrzcpy(allegro_error, ALLEGRO_ERROR_SIZE, get_config_text("Windowed mode not supported"));
       goto Error;
    }
 
-   /* create clipper */
-   if (create_clipper(allegro_wnd) != 0)
-      goto Error;
-   hr = IDirectDrawSurface_SetClipper(dd_prim_surface, dd_clipper);
-   if (FAILED(hr))
-      goto Error;
+   /* setup color management */
+   if (desktop_depth == 8) {
+      build_desktop_rgb_map();
 
-   if (color_depth == 8) {
-      if (same_color_depth) {
-         if (create_palette(dd_prim_surface) != 0)
-	    goto Error;
+      if (color_depth == 8) {
+         gfx_directx_win.set_palette = gfx_directx_set_palette_win_8;
       }
       else {
-         gfx_directx_win.set_palette = gfx_directx_set_palette_win;
-         /* use the core library color conversion functions */ 
-         gfx_directx_update_color_format(dd_prim_surface, desktop_depth);
+         cmap = _get_colorconv_map();
+
+         for (i=0; i<4096; i++)
+            cmap[i] = desktop_rgb_map.data[((i&0xF00)>>7) | ((i&0x800)>>11)]
+                                          [((i&0x0F0)>>3) | ((i&0x080)>>7)]
+                                          [((i&0x00F)<<1) | ((i&0x008)>>3)];
+
+         if (gfx_directx_update_color_format(offscreen_surface, color_depth) != 0)
+            goto Error;
       }
    }
    else {
-      if (gfx_directx_update_color_format(offscreen_surface, color_depth) != 0)
-         goto Error;
+      if (color_depth == 8) {
+         gfx_directx_win.set_palette = gfx_directx_set_palette_win;
+
+         /* init the core library color conversion functions */ 
+         if (gfx_directx_update_color_format(dd_prim_surface, desktop_depth) != 0)
+            goto Error;
+      }
+      else {
+         if (gfx_directx_update_color_format(offscreen_surface, color_depth) != 0)
+            goto Error;
+      }
    }
 
    /* setup Allegro gfx driver */
