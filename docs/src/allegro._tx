@@ -1816,7 +1816,9 @@ speeds.
 Under DOS it will constantly reprogram the clock to make sure they are all
 called at the correct times. Because they alter the low level timer chip
 settings, these routines should not be used together with other DOS timer
-functions like the djgpp uclock() routine.
+functions like the djgpp uclock() routine. Moreover, the FPU state is not
+preserved across Allegro interrupts so you ought not to use floating point
+or MMX code inside timer interrupt handlers.
 
 Under other platforms, they are usually implemented using threads, which run
 parallel to the main thread. Therefore timer callbacks on such platforms
