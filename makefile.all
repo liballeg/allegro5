@@ -95,9 +95,11 @@ include $(MAKEFILE_INC)
 
 # -------- list what objects and programs we need to build --------
 
-VPATH += src demo docs examples setup tests tools tools/plugins docs/src
+VPATH += src demo docs examples setup tests tools tools/plugins docs/src/makedoc
 
 OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(OBJECT_LIST)))
+
+OBJECTS_DOC = $(addprefix $(OBJ_DIR)/, $(addsuffix $(OBJ), $(basename $(notdir $(ALLEGRO_MAKEDOC_SOURCES)))))
 
 PROGRAMS += $(notdir $(ALLEGRO_LIB_EXES) $(ALLEGRO_DATAFILE_EXES)) \
 	    examples makedoc
@@ -180,15 +182,15 @@ ifndef CROSSCOMPILE
 
 MAKEDOC = docs/makedoc$(EXE)
 
+docs/makedoc$(EXE): $(OBJECTS_DOC)
+	$(LINK_WITHOUT_LIB)
+
 else
 
 MAKEDOC = docs/makedoc
 
-docs/makedoc: docs/makedoc-linux.o
-	PATH=$(NATIVEPATH) gcc -o $@ $<
-
-docs/makedoc-linux.o: docs/makedoc.c
-	PATH=$(NATIVEPATH) gcc -O2 -c -o $@ $<
+docs/makedoc: $(OBJECTS_DOC)
+	PATH=$(NATIVEPATH) gcc -o $@ $^
 
 endif
 
@@ -244,9 +246,6 @@ endif
 # -------- special rules for linking win32 console applications --------
 
 ifdef LINK_CONSOLE
-
-docs/makedoc$(EXE): $(OBJ_DIR)/makedoc$(OBJ) $(LINK_CONSOLE_DEPS)
-	$(LINK_CONSOLE)
 
 tests/gfxinfo$(EXE): $(OBJ_DIR)/gfxinfo$(OBJ) $(LINK_CONSOLE_DEPS)
 	$(LINK_CONSOLE)

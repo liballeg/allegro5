@@ -220,6 +220,10 @@ obj/watcom/asmdef.exe: src/i386/asmdef.c include/*.h include/allegro/*.h $(RUNNE
 obj/watcom/runner.exe: src/misc/runner.c
 	gcc -O -Wall -Werror -o obj/watcom/runner.exe src/misc/runner.c
 
+define LINK_WITHOUT_LIB
+   $(RUNNER) wlink \\ @ $(LFLAGS) "name $@" "file $^"
+endef
+
 PLUGIN_LIB = lib/watcom/$(VERY_SHORT_VERSION)dat.lib
 PLUGINS_H = obj/watcom/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB) $(RUNNER)
@@ -244,7 +248,8 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_WATCOM
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/dos/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/dos/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS

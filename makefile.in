@@ -488,6 +488,8 @@ depend:
 	$(SHELL) -c 'cd $(srcdir) && misc/depdexe.sh $(ALLEGRO_DATAFILE_EXE_SOURCES)' >>makefile.dep
 	@echo "Generating dependencies for programs without libraries"
 	$(SHELL) -c 'cd $(srcdir) && misc/depnexe.sh $(ALLEGRO_NOLIB_EXE_SOURCES)' >>makefile.dep
+	@echo "Generating dependencies for makedoc"
+	$(SHELL) -c 'cd $(srcdir) && misc/depmexe.sh docs/makedoc $(ALLEGRO_MAKEDOC_SOURCES)' >>makefile.dep
 	@echo "Dependency generation completed!"
 
 .PHONY: default all lib programs docs docs-dvi docs-ps docs-gzipped-ps \

@@ -7,10 +7,12 @@
 @#
 @multiplefiles
 @#
-@locale=latin1
-@h=<html><head><title>#</title></head><body>
-@f1=<p><hr><p><a href="
-@f2=">Back to Contents</a><p></body></html>
+@# Uncomment the following statement to output css clean html files.
+@#
+@#ignore_css
+@#
+@document_title=Allegro Manual
+@html_footer=Back to contents
 @rtfh=Allegro - a game programming library
 @manh="version 4.1.0 (CVS)" "Allegro" "Allegro manual"
 @mans=#include <allegro.h>
@@ -32,10 +34,6 @@
 @$@end ifinfo
 @$
 @$@node Top, , (dir), (dir)
-@<html>
-@<head>
-@<title>Allegro - a game programming library</title></head>
-@<body>
 @titlepage
 @<pre>
 @!indent
@@ -62,11 +60,11 @@
 
 
 #include &ltstd_disclaimer.h&gt
-<i>
+<blockquote class="text"><i>
    "I do not accept responsibility for any effects, adverse or otherwise, 
     that this code may have on you, your computer, your sanity, your dog, 
     and anything else that you can think of. Use it at your own risk."
-</i>
+</i></blockquote>
 @!titlepage
 
 
@@ -86,7 +84,7 @@ See readme.txt for a general introduction, copyright details, and
 information about how to install Allegro and link your program with it.
 
 @@int @install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)());
-@xref allegro_init, allegro_exit
+@xref allegro_init, allegro_exit, set_uformat
    Initialises the Allegro library. You must call either this or 
    allegro_init() before doing anything other than using the Unicode 
    routines. If you want to use a text mode other than UTF-8, you can set
@@ -130,7 +128,7 @@ information about how to install Allegro and link your program with it.
 @@extern int @os_type;
 @xref allegro_init, os_version, os_multitasking
    Set by allegro_init() to one of the values:
-<pre>
+<textblock>
       OSTYPE_UNKNOWN    - unknown, or regular MSDOS
       OSTYPE_WIN3       - Windows 3.1 or earlier
       OSTYPE_WIN95      - Windows 95
@@ -149,7 +147,7 @@ information about how to install Allegro and link your program with it.
       OSTYPE_BEOS       - BeOS
       OSTYPE_QNX        - QNX
       OSTYPE_MACOS      - MacOS
-</pre>
+<endblock>
 @@extern int @os_version;
 @@extern int @os_revision;
 @xref os_type, os_multitasking
@@ -216,15 +214,15 @@ information about how to install Allegro and link your program with it.
 
    Pass NULL to this function to restore the close button's default 
    functionality. On Windows and BeOS, the following message will appear:
-
-      Warning: forcing program shutdown may lead to data loss and unexpected 
+<textblock>
+      Warning: forcing program shutdown may lead to data loss and unexpected
       results. It is preferable to use the exit command inside the window.
 
       Proceed anyway?
 
       [Yes] [No]
-
-   This message will be translated into your selected language if a 
+<endblock>
+   This message will be translated into your selected language if a
    translation is available in language.dat (see get_config_text()).
 
    If the user clicks [Yes], the program will exit immediately in the same 
@@ -286,8 +284,7 @@ information about how to install Allegro and link your program with it.
 @xref check_cpu, cpu_vendor, cpu_family, cpu_model, cpu_capabilities
    Contains CPU flags indicating what features are available on the current 
    CPU. The flags can be any combination of these:
-
-<pre>
+<textblock>
    CPU_ID       - Indicates that the "cpuid" instruction is available. If this 
                   is set, then all Allegro CPU variables are 100% reliable,
                   otherwise there may be some mistakes.
@@ -299,15 +296,14 @@ information about how to install Allegro and link your program with it.
    CPU_3DNOW    - AMD 3DNow! instruction set is available.
    CPU_ENH3DNOW - AMD Enhanced 3DNow! instruction set is available.
    CPU_CMOV     - Pentium Pro "cmov" instruction is available.
-</pre>
-
+<endblock>
    You can check for multiple features by OR-ing the flags together.
    For example, to check if the CPU has an FPU and MMX instructions
    available, you'd do:
-<pre>
+<codeblock>
    if ((cpu_capabilities & (CPU_FPU | CPU_MMX)) == (CPU_FPU | CPU_MMX))
       printf("CPU has both an FPU and MMX instructions!\n");
-</pre>
+<endblock>
 
 
 
@@ -367,12 +363,12 @@ is best to set it with set_uformat() just before you call these.
    Sets the current text encoding format. This will affect all parts of 
    Allegro, wherever you see a function that returns a char *, or takes a 
    char * as a parameter. The type should be one of the values:
-<pre>
+<textblock>
       U_ASCII     - fixed size, 8 bit ASCII characters
       U_ASCII_CP  - alternative 8 bit codepage (see set_ucodepage())
       U_UNICODE   - fixed size, 16 bit Unicode characters
       U_UTF8      - variable size, UTF-8 format Unicode characters
-</pre>
+<endblock>
    Although you can change the text format on the fly, this is not a good 
    idea. Many strings, for example the names of your hardware drivers and 
    any language translations, are loaded when you call allegro_init(), so if 
@@ -412,7 +408,7 @@ is best to set it with set_uformat() just before you call these.
    a list of mapping pairs, which will be used when reducing Unicode data to 
    your codepage. Each pair consists of a Unicode value, followed by the way 
    it should be represented in your codepage. The table is terminated by a 
-   zero Unicode value. This allows you to create a many->one mapping, where 
+   zero Unicode value. This allows you to create a many-&gtone mapping, where
    many different Unicode characters can be represented by a single codepage 
    value (eg. for reducing accented vowels to 7 bit ASCII).
 
@@ -805,7 +801,7 @@ with the standard variables that are used by Allegro (see below).
 
 @@void @set_config_file(const char *filename);
 @xref set_config_data, override_config_file, push_config_state
-@xref standard config variables, set_config_string, get_config_string
+@xref Standard config variables, set_config_string, get_config_string
    Sets the configuration file to be used by all subsequent config 
    functions. If you don't call this function, Allegro will use the default 
    allegro.cfg file, looking first in the same directory as your program and 
@@ -816,7 +812,7 @@ with the standard variables that are used by Allegro (see below).
 
 @@void @set_config_data(const char *data, int length);
 @xref set_config_file, override_config_data, push_config_state
-@xref standard config variables, set_config_string, get_config_string
+@xref Standard config variables, set_config_string, get_config_string
    Specifies a block of data to be used by all subsequent config functions, 
    which you have already loaded from disk (eg. as part of some more 
    complicated format of your own, or in a grabber datafile). This routine 
@@ -861,7 +857,7 @@ with the standard variables that are used by Allegro (see below).
    since it was loaded or since the latest call to the function.
 
 @@void @reload_config_texts(const char *new_language);
-@xref get_config_text, get_config_string, standard config variables
+@xref get_config_text, get_config_string, Standard config variables
    Reloads the translated strings returned by get_config_text. This is
    useful to switch to another language in your program at runtime. If you
    want to modify the [system] language configuration variable yourself, or
@@ -934,7 +930,7 @@ with the standard variables that are used by Allegro (see below).
    to get_config_argv(), so the data should not be expected to persist.
 
 @@const char *@get_config_text(const char *msg);
-@xref get_config_string, reload_config_texts, standard config variables
+@xref get_config_string, reload_config_texts, Standard config variables
    This function is primarily intended for use by internal library code, but 
    it may perhaps be helpful to application programmers as well. It uses the 
    language.dat or XXtext.cfg files (where XX is a language code) to look up
@@ -992,7 +988,7 @@ with the standard variables that are used by Allegro (see below).
    Writes a 4-letter driver ID variable to the current config file. See the 
    comments about set_config_string().
 
-@hnode standard config variables
+@hnode Standard config variables
 @xref set_config_file, set_config_string, get_config_string
 Allegro uses these standard variables from the configuration file:
 @tallbullets
@@ -1079,16 +1075,20 @@ framebuffer = x<br>
    Section containing mouse configuration information, using the variables:
 <ul><li>
 mouse = x<br>
-   Mouse driver type. Available DOS drivers are:<pre>
+   Mouse driver type. Available DOS drivers are:
+<textblock>
       MICK - mickey mode driver (normally the best)
       I33  - int 0x33 callback driver
-      POLL - timer polling (for use under NT)</pre>
-   Linux console mouse drivers are:<pre>
+      POLL - timer polling (for use under NT)
+<endblock>
+   Linux console mouse drivers are:
+<textblock>
       MS   - Microsoft serial mouse
       IMS  - Microsoft serial mouse with Intellimouse extension
       LPS2 - PS2 mouse
       LIPS - PS2 mouse with Intellimouse extension
-      GPMD - GPM repeater data (Mouse Systems protocol)</pre>
+      GPMD - GPM repeater data (Mouse Systems protocol)
+<endblock>
 <li>
 num_buttons = x<br>
    Sets the number of mouse buttons viewed by Allegro. You don't normally
@@ -1139,10 +1139,10 @@ midi_volume = x<br>
 <li>
 quality = x<br>
    Controls the sound quality vs. performance tradeoff for the sample mixing 
-   code. This can be set to any of the values:<pre>
+   code. This can be set to any of the values:<textblock>
       0 - fast mixing of 8 bit data into 16 bit buffers
       1 - true 16 bit mixing (requires a 16 bit stereo soundcard)
-      2 - interpolated 16 bit mixing</pre>
+      2 - interpolated 16 bit mixing<endblock>
 <li>
 flip_pan = x<br>
    Toggling this between 0 and 1 reverses the left/right panning of samples, 
@@ -1317,7 +1317,7 @@ Mouse routines
 @@int @install_mouse();
 @xref remove_mouse, poll_mouse, mouse_x, show_mouse, get_mouse_mickeys
 @xref position_mouse, set_mouse_range, set_mouse_speed
-@xref standard config variables
+@xref Standard config variables
    Installs the Allegro mouse handler. You must do this before using any 
    other mouse functions. Returns -1 on failure, otherwise the number of 
    buttons on the mouse.
@@ -1359,13 +1359,13 @@ Mouse routines
    using an input driver that supports wheel mice. The mouse_b variable is a 
    bitfield indicating the state of each button: bit 0 is the left button, 
    bit 1 the right, and bit 2 the middle button. For example:
-<pre>
+<codeblock>
       if (mouse_b & 1)
 	 printf("Left button is pressed\n");
 
       if (!(mouse_b & 2))
 	 printf("Right button is not pressed\n");
-</pre>
+<endblock>
    The mouse_pos variable has the current X coordinate in the high word and 
    the Y in the low word. This may be useful in tight polling loops where a 
    mouse interrupt could occur between your reading of the two separate 
@@ -1526,16 +1526,16 @@ Allegro does not provide such devices.)
    change occured precisely at the last tick). The speed is given in hardware
    clock ticks, of which there are 1193181 a second. You can convert from 
    other time formats to hardware clock ticks with the macros:
-<pre>
+<textblock>
       SECS_TO_TIMER(secs)  - give the number of seconds between
                              each tick
       MSEC_TO_TIMER(msec)  - give the number of milliseconds
                              between ticks
       BPS_TO_TIMER(bps)    - give the number of ticks each second
       BPM_TO_TIMER(bpm)    - give the number of ticks per minute
-</pre>
+<endblock>
    If there is no room to add a new user timer, install_int_ex() will return 
-   a negative number, otherwise it returns zero. There can only be sixteen 
+   a negative number, otherwise it returns zero. There can only be sixteen
    timers in use at a time, and some other parts of Allegro (the GUI code, 
    the mouse pointer display routines, rest(), the FLI player, and the MIDI 
    player) need to install handlers of their own, so you should avoid using 
@@ -1563,7 +1563,7 @@ Allegro does not provide such devices.)
    END_OF_STATIC_FUNCTION (function_name), and LOCK_FUNCTION (function_name)
    can be used to simplify this task. For example, if you want an interrupt 
    handler that increments a counter variable, you should write:
-<pre>
+<codeblock>
       volatile int counter;
 
       void my_timer_handler()
@@ -1572,12 +1572,12 @@ Allegro does not provide such devices.)
       }
 
       END_OF_FUNCTION(my_timer_handler);
-</pre>
+<endblock>
    and in your initialisation code you should lock the memory:
-<pre>
+<codeblock>
       LOCK_VARIABLE(counter);
       LOCK_FUNCTION(my_timer_handler);
-</pre>
+<endblock>
    Obviously this can get awkward if you use complicated data structures and 
    call other functions from within your handler, so you should try to keep 
    your interrupt routines as simple as possible.
@@ -1627,23 +1627,23 @@ Allegro does not provide such devices.)
    retrace is next likely to occur, and polling the VGA inside the interrupt 
    handler to make sure it stays in sync with the monitor refresh. This 
    works quite well in some situations, but there are a lot of caveats:
-
-   - You can't use the retrace simulator in SVGA modes. It will work with 
+<ul><li>
+     You can't use the retrace simulator in SVGA modes. It will work with
      some chipsets, but not others, and it conflicts with most VESA 
      implementations. Retrace simulation is only reliable in VGA mode 13h 
      and mode-X.
-
-   - Retrace simulation doesn't work under win95, because win95 returns 
+<li>
+     Retrace simulation doesn't work under win95, because win95 returns
      garbage when I try to read the elapsed time from the PIT. If anyone 
      knows how I can make this work, please tell me!
-
-   - Retrace simulation involves a lot of waiting around in the timer 
+<li>
+     Retrace simulation involves a lot of waiting around in the timer
      handler with interrupts disabled. This will significantly slow down 
      your entire system, and may also cause static when playing samples on 
      SB 1.0 cards (because they don't support auto-initialised DMA: SB 2.0 
      and above will be fine).
-
-   Bearing all those problems in mind, I'd strongly advise against relying 
+</ul>
+   Bearing all those problems in mind, I'd strongly advise against relying
    on the retrace simulator. If you are coding in mode-X, and don't care 
    about your program working under win95, it is great, but it would be a 
    good idea to give the user an option to disable it.
@@ -1718,7 +1718,7 @@ combinations are possible seems to vary from one keyboard to another).
 @xref remove_keyboard, poll_keyboard, key, keypressed, readkey, ureadkey
 @xref keyboard_callback, keyboard_ucallback, keyboard_lowlevel_callback
 @xref three_finger_flag, key_led_flag, set_leds, set_keyboard_rate
-@xref set_gfx_mode, standard config variables
+@xref set_gfx_mode, Standard config variables
    Installs the Allegro keyboard interrupt handler. You must call this 
    before using any of the keyboard input routines. Once you have set up the 
    Allegro handler, you can no longer use operating system calls or C 
@@ -1773,16 +1773,16 @@ combinations are possible seems to vary from one keyboard to another).
    poll_keyboard() to update them with the current input state. The 
    scancodes are defined in allegro/keyboard.h as a series of KEY_*
    constants (and are also listed below). For example, you could write:
-<pre>
+<codeblock>
       if (key[KEY_SPACE])
 	 printf("Space is pressed\n");
-</pre>
+<endblock>
 
    Note that the array is supposed to represent which keys are physically
    held down and which keys are not, so it is semantically read-only.
 
    These are the keyboard scancodes:
-<pre>
+<textblock>
       KEY_A ... KEY_Z,
       KEY_0 ... KEY_9,
       KEY_0_PAD ... KEY_9_PAD,
@@ -1810,7 +1810,7 @@ combinations are possible seems to vary from one keyboard to another).
       KEY_ALT, KEY_ALTGR,
       KEY_LWIN, KEY_RWIN, KEY_MENU,
       KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
-</pre>   
+<endblock>   
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
    Bitmask containing the current state of shift/ctrl/alt, the special 
@@ -1818,22 +1818,22 @@ combinations are possible seems to vary from one keyboard to another).
    value will be updated asynchronously, but if keyboard_needs_poll() 
    returns TRUE, you must manually call poll_keyboard() to update it with 
    the current input state. This can contain any of the flags:
-
-      KB_SHIFT_FLAG<br>
-      KB_CTRL_FLAG<br>
-      KB_ALT_FLAG<br>
-      KB_LWIN_FLAG<br>
-      KB_RWIN_FLAG<br>
-      KB_MENU_FLAG<br>
-      KB_SCROLOCK_FLAG<br>
-      KB_NUMLOCK_FLAG<br>
-      KB_CAPSLOCK_FLAG<br>
-      KB_INALTSEQ_FLAG<br>
-      KB_ACCENT1_FLAG<br>
-      KB_ACCENT2_FLAG<br>
-      KB_ACCENT3_FLAG<br>
+<textblock>
+      KB_SHIFT_FLAG
+      KB_CTRL_FLAG
+      KB_ALT_FLAG
+      KB_LWIN_FLAG
+      KB_RWIN_FLAG
+      KB_MENU_FLAG
+      KB_SCROLOCK_FLAG
+      KB_NUMLOCK_FLAG
+      KB_CAPSLOCK_FLAG
+      KB_INALTSEQ_FLAG
+      KB_ACCENT1_FLAG
+      KB_ACCENT2_FLAG
+      KB_ACCENT3_FLAG
       KB_ACCENT4_FLAG
-
+<endblock>   
 @@int @keypressed();
 @xref install_keyboard, readkey, ureadkey, clear_keybuf
 @xref simulate_keypress, simulate_ukeypress
@@ -1851,7 +1851,7 @@ combinations are possible seems to vary from one keyboard to another).
    that letter in the alphabet, eg. ctrl+A = 1, ctrl+B = 2, etc). Pressing 
    alt+key returns only the scancode, with a zero ASCII code in the low 
    byte. For example:
-<pre>
+<codeblock>
       if ((readkey() & 0xff) == 'd')         // by ASCII code
 	 printf("You pressed 'd'\n");
 
@@ -1863,7 +1863,7 @@ combinations are possible seems to vary from one keyboard to another).
 
       if (readkey() == (KEY_X &lt&lt 8))         // alt+letter
 	 printf("You pressed Alt+X\n");
-</pre>
+<endblock>
    This function cannot return character values greater than 255. If you 
    need to read Unicode input, use ureadkey() instead.
 
@@ -1958,7 +1958,7 @@ Joystick routines
 
 @@int @install_joystick(int type);
 @xref remove_joystick, load_joystick_data, calibrate_joystick
-@xref calibrate_joystick_name, poll_joystick, standard config variables
+@xref calibrate_joystick_name, poll_joystick, Standard config variables
 @xref JOY_TYPE_*/DOS
    Initialises the joystick, and calibrates the centre position value. The 
    type parameter should usually be JOY_TYPE_AUTODETECT, or see the platform 
@@ -1995,7 +1995,7 @@ Joystick routines
    Global array of joystick state information, which is updated by the 
    poll_joystick() function. Only the first num_joysticks elements will 
    contain meaningful information. The JOYSTICK_INFO structure is defined as:
-<pre>
+<codeblock>
    typedef struct JOYSTICK_INFO
    {
       int flags;                       - status flags for this
@@ -2005,16 +2005,16 @@ Joystick routines
       JOYSTICK_STICK_INFO stick[n];    - stick state information
       JOYSTICK_BUTTON_INFO button[n];  - button state information
    } JOYSTICK_INFO;
-</pre>
+<endblock>
    The button status is stored in the structure:
-<pre>
+<codeblock>
    typedef struct JOYSTICK_BUTTON_INFO
    {
       int b;                           - boolean on/off flag
       char *name;                      - description of this
                                          button
    } JOYSTICK_BUTTON_INFO;
-</pre>
+<endblock>
    You may wish to display the button names as part of an input 
    configuration screen to let the user choose what game function will be 
    performed by each button, but in simpler situations you can safely assume 
@@ -2030,7 +2030,7 @@ Joystick routines
    control has two, but the Flightstick Pro throttle is only a single axis, 
    and it is possible that the system could be extended in the future to 
    support full 3d controllers. A stick input is described by the structure:
-<pre>
+<codeblock>
    typedef struct JOYSTICK_STICK_INFO
    {
       int flags;                       - status flags for this
@@ -2041,20 +2041,20 @@ Joystick routines
       char *name;                      - description of this
                                          input
    } JOYSTICK_STICK_INFO;
-</pre>
+<endblock>
    A single joystick may provide several different stick inputs, but you can 
    safely assume that the first element in the stick array will always be 
    the main directional controller.
 
    Information about each of the stick axis is stored in the substructure:
-<pre>
+<codeblock>
    typedef struct JOYSTICK_AXIS_INFO
    {
       int pos;                         - analogue axis position
       int d1, d2;                      - digital axis position
       char *name;                      - description of this axis
    } JOYSTICK_AXIS_INFO;
-</pre>
+<endblock>
    This provides both analogue input in the pos field (ranging from -128 to 
    128 or from 0 to 255, depending on the type of the control), and digital 
    values in the d1 and d2 fields. For example, when describing the X-axis 
@@ -2113,7 +2113,7 @@ Joystick routines
    has been positioned in the manner described by a previous call to 
    calibrate_joystick_name(), returning zero on success. For example, a 
    simple routine to fully calibrate all the joysticks might look like:
-<pre>
+<codeblock>
       int i;
 
       for (i=0; i&lt;num_joysticks; i++) {
@@ -2127,7 +2127,7 @@ Joystick routines
 	    }
 	 }
       }
-</pre>
+<endblock>
 @@int @save_joystick_data(const char *filename);
 @xref load_joystick_data, set_config_file
    After all the headache of calibrating the joystick, you may not want to 
@@ -2185,19 +2185,19 @@ Graphics modes
    Attempts to create a list of all the supported video modes for a certain
    GFX driver. This function returns a pointer to a list structure of the
    type GFX_MODE_LIST which has the following definition:
-<pre>
+<codeblock>
    typedef struct GFX_MODE_LIST {
       int num_modes;
       GFX_MODE *mode;
    } GFX_MODE_LIST;
-</pre>
+<endblock>
    If this function returns NULL, it means the call failed. The mode entry
    points to the actual list of video modes.
-<pre>
+<codeblock>
    typedef struct GFX_MODE {
       int width, height, bpp;
    } GFX_MODE;
-</pre>
+<endblock>
    This list is terminated with an { 0, 0, 0 } entry.
 
 @@void @destroy_gfx_mode_list(GFX_MODE_LIST *mode_list);
@@ -2206,7 +2206,7 @@ Graphics modes
 
 @@int @set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 @xref set_color_depth, request_refresh_rate, screen, gfx_capabilities
-@xref allegro_error, standard config variables, GFX_*/DOS, GFX_*/Windows
+@xref allegro_error, Standard config variables, GFX_*/DOS, GFX_*/Windows
 @xref GFX_*/X, GFX_*/Linux, GFX_*/BeOS
    Switches into graphics mode. The card parameter should usually be 
    GFX_AUTODETECT, GFX_AUTODETECT_FULLSCREEN or GFX_AUTODETECT_WINDOWED, or
@@ -2233,7 +2233,7 @@ Graphics modes
    screen around in this larger area. Initially, with the visible screen 
    positioned at the top left corner of video memory, this setup would look 
    like:
-<pre>
+<textblock>
       (0,0)------------(640,0)----(1024,0)
 	|                  |           |
 	|  visible screen  |           |
@@ -2243,7 +2243,7 @@ Graphics modes
 	|   the rest of video memory   |
 	|                              |
       (0,1024)--------------------(1024,1024)
-</pre>
+<endblock>
    What's that? You are viewing this with a proportional font? Hehehe.
 
    When you call set_gfx_mode(), the v_w and v_h parameters represent the 
@@ -2601,43 +2601,43 @@ bitmaps in system RAM, or you can write to the special 'screen' bitmap which
 represents the video memory in your graphics card.
 
 For example, to draw a pixel onto the screen you would write:
-<pre>
+<codeblock>
    putpixel(screen, x, y, color);
-</pre>
+<endblock>
 Or to implement a double-buffered system:
-<pre>
+<codeblock>
    BITMAP *bmp = create_bitmap(320, 200);    // make a bitmap in system RAM
    clear_bitmap(bmp);                        // zero the memory bitmap
    putpixel(bmp, x, y, color);               // draw onto the memory bitmap
    blit(bmp, screen, 0, 0, 0, 0, 320, 200);  // copy it to the screen
-</pre>
+<endblock>
 See below for information on how to get direct access to the image memory in 
 a bitmap.
 
 Allegro supports several different types of bitmaps:
-
-   - The screen bitmap, which represents the hardware video memory. 
+<ul><li>
+     The screen bitmap, which represents the hardware video memory.
      Ultimately you have to draw onto this in order for your image to be 
      visible.
-
-   - Memory bitmaps, which are located in system RAM and can be used to 
+<li>
+     Memory bitmaps, which are located in system RAM and can be used to
      store graphics or as temporary drawing spaces for double buffered 
      systems. These can be obtained by calling create_bitmap(), load_pcx(), 
      or by loading a grabber datafile.
-
-   - Sub-bitmaps. These share image memory with a parent bitmap (which 
+<li>
+     Sub-bitmaps. These share image memory with a parent bitmap (which
      can be the screen, a memory bitmap, or another sub-bitmap), so drawing 
      onto them will also change their parent. They can be of any size and 
      located anywhere within the parent bitmap, and can have their own 
      clipping rectangles, so they are a useful way of dividing a bitmap into 
      several smaller units, eg. splitting a large virtual screen into 
      multiple sections (see examples/exscroll.c).
-
-   - Video memory bitmaps. These are created by the create_video_bitmap() 
+<li>
+     Video memory bitmaps. These are created by the create_video_bitmap()
      function, and are usually implemented as sub-bitmaps of the screen 
      object.
-
-   - System bitmaps. These are created by the create_system_bitmap() 
+<li>
+     System bitmaps. These are created by the create_system_bitmap()
      function, and are a sort of halfway house between memory and video 
      bitmaps. They live in system memory, so you aren't limited by the 
      amount of video ram in your card, but they are stored in a 
@@ -2648,7 +2648,7 @@ Allegro supports several different types of bitmaps:
      video bitmaps, using the bank switch functions and bmp_write*() macros. 
      Not every platform implements this type of bitmap: if they aren't 
      available, create_system_bitmap() will function identically to 
-     create_bitmap().
+     create_bitmap().</ul>
 
 @@extern BITMAP *@screen;
 @xref set_gfx_mode, is_screen_bitmap, create_video_bitmap, scroll_screen
@@ -2857,7 +2857,7 @@ will not be known, so the file may be converted wrongly.
    image much larger than you were expecting, because Allegro often creates 
    virtual screens larger than the visible screen. You can get around this 
    by using a sub-bitmap to specify which part of the screen to save, eg:
-<pre>
+<codeblock>
       BITMAP *bmp;
       PALETTE pal;
 
@@ -2865,7 +2865,7 @@ will not be known, so the file may be converted wrongly.
       bmp = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
       save_bitmap("dump.pcx", bmp, pal);
       destroy_bitmap(bmp);
-</pre>
+<endblock>
 @@int @save_bmp(const char *filename, BITMAP *bmp, const RGB *pal);
 @xref save_bitmap
    Writes a bitmap into a 256 color or 24 bit truecolor BMP file.
@@ -2899,7 +2899,7 @@ will not be known, so the file may be converted wrongly.
    it manually before the graphic can be displayed. The default mode is 
    total conversion, so that all images will be loaded in the appropriate 
    format for the current video mode. Valid bit flags are:
-<pre>
+<textblock>
       COLORCONV_NONE                // disable all format
                                     // conversions
       COLORCONV_8_TO_15             // expand 8 bits to 15 bits
@@ -2930,10 +2930,10 @@ will not be known, so the file may be converted wrongly.
       COLORCONV_DITHER_HI           // dither when reducing to
                                     // hicolor
       COLORCONV_KEEP_TRANS          // keep original transparency
-</pre>
+<endblock>
    For convenience, the following macros can be used to select common 
    combinations of these flags:
-<pre>
+<textblock>
       COLORCONV_EXPAND_256          // expand 256 colors to
                                     // hi/truecolor
       COLORCONV_REDUCE_TO_256       // reduce hi/truecolor to 256
@@ -2954,7 +2954,7 @@ will not be known, so the file may be converted wrongly.
       COLORCONV_MOST                // all but hi/truecolor &lt-&gt 256
       COLORCONV_DITHER              // dither during all color
                                     // reductions
-</pre>
+<endblock>
    If you enable the COLORCONV_DITHER flag, dithering will be performed 
    whenever truecolor graphics are converted into a hicolor or paletted 
    format, including by the blit() function, and any automatic conversions 
@@ -2984,19 +2984,19 @@ colors.
 Palette entries are stored in an RGB structure, which contains red, green 
 and blue intensities in the VGA hardware format, ranging from 0-63, and is 
 defined as:
-<pre>
+<codeblock>
 typedef struct RGB
 {
    unsigned char r, g, b;
 } RGB;
-</pre>
+<endblock>
 For example:
-<pre>
+<codeblock>
    RGB black = { 0,  0,  0  };
    RGB white = { 63, 63, 63 };
    RGB green = { 0,  63, 0  };
    RGB grey  = { 32, 32, 32 };
-</pre>
+<endblock>
 The type PALETTE is defined to be an array of 256 RGB structures.
 
 You may notice that a lot of the code in Allegro spells 'palette' as 
@@ -3462,10 +3462,10 @@ bitmap.
    implemented as a static inline function. The aliasing may be switched off
    by defining the preprocessor symbol ALLEGRO_NO_CLEAR_BITMAP_ALIAS before
    including Allegro headers, eg:
-<pre>
+<codeblock>
       #define ALLEGRO_NO_CLEAR_BITMAP_ALIAS
       #include &ltallegro.h&gt
-</pre>
+<endblock>
 @@void @clear_to_color(BITMAP *bitmap, int color);
 @xref clear_bitmap
    Clears the bitmap to the specified color.
@@ -3633,7 +3633,7 @@ bitmap.
 @xref rotate_scaled_sprite_v_flip
 @xref pivot_sprite, pivot_sprite_v_flip,
 @xref pivot_scaled_sprite, pivot_scaled_sprite_v_flip,
-@xref itofix, fixed point trig
+@xref itofix, Fixed point trig
    Draws the sprite image onto the bitmap. It is placed with its top left
    corner at the specified position, then rotated by the specified angle
    around its centre. The angle is a fixed point 16.16 number in the same
@@ -3925,7 +3925,7 @@ Polygon rendering
    pointers to vertex structures: polygon3d() uses the fixed point V3D 
    structure, while polygon3d_f() uses the floating point V3D_f structure. 
    These are defined as:
-<pre>
+<codeblock>
    typedef struct V3D
    {
       fixed x, y, z;       - position
@@ -3939,7 +3939,7 @@ Polygon rendering
       float u, v;          - texture map coordinates
       int c;               - color
    } V3D_f;
-</pre>
+<endblock>
    How the vertex data is used depends on the rendering mode:
 
    The x and y values specify the position of the vertex in 2d screen 
@@ -4116,7 +4116,7 @@ Polygon rendering
    chance of rounding errors: the floating point code is better for most 
    situations.
 
-@hnode zbuffered rendering
+@hnode Zbuffered rendering
 A Z-buffer stores the depth of each pixel that is drawn on a viewport.
 When a 3D object is rendered, the depth of each of its pixels is compared
 against the value stored into the Z-buffer: if the pixel is closer it is
@@ -4134,9 +4134,9 @@ the normal polygon3d(), polygon3d_f(), quad3d(), etc. functions will
 render z-buffered polygons.
 
 Example:
-<pre>
+<codeblock>
    polygon3d(bmp, POLYTYPE_ATEX | POLYTYPE_ZBUF, tex, vc, vtx);
-</pre>
+<endblock>
 
 Of course, the z coordinates have to be valid regardless of rendering style.
 
@@ -4199,7 +4199,7 @@ All the Z-buffered routines are much slower than their normal counterparts
 @xref create_zbuffer, set_zbuffer, clear_zbuffer
    Destroys the Z-buffer when you are finished with it.
 
-@hnode scene rendering
+@hnode Scene rendering
 Allegro provides two simple approaches to remove hidden surfaces:
 <ul><li>
    Z-buffering - (see above)
@@ -4266,7 +4266,7 @@ helpful when you have a few intersecting polygons, but most of the
 polygons may be safely rendered by the normal scanline sorting algo.
 Same as before: just OR the POLYTYPE with POLYTYPE_ZBUF. Also, you
 have to clear the z-buffer at the start of the frame. Example:
-<pre>
+<codeblock>
    clear_scene(buffer);
    if (some_polys_are_zbuf) clear_zbuffer(0.);
    while (polygons) {
@@ -4275,7 +4275,7 @@ have to clear the z-buffer at the start of the frame. Example:
       scene_polygon3d(type, tex, vc, vtx);
    }
    render_scene();
-</pre>
+<endblock>
 
 @@int @create_scene(int nedge, int npoly);
 @xref scene_polygon3d, render_scene, clear_scene, destroy_scene, scene_gap
@@ -4372,7 +4372,7 @@ Transparency and patterned drawing
    like putpixel, lines, rectangles, circles, polygons, floodfill, etc, not 
    the text output, blitting, or sprite drawing functions. The mode should 
    be one of the values:
-<pre>
+<textblock>
       DRAW_MODE_SOLID               - the default, solid color
                                       drawing
       DRAW_MODE_XOR                 - exclusive-or drawing
@@ -4380,7 +4380,7 @@ Transparency and patterned drawing
       DRAW_MODE_SOLID_PATTERN       - single color pattern fill
       DRAW_MODE_MASKED_PATTERN      - masked pattern fill
       DRAW_MODE_TRANS               - translucent color blending
-</pre>
+<endblock>
    In DRAW_MODE_XOR, pixels are written to the bitmap with an exclusive-or 
    operation rather than a simple copy, so drawing the same shape twice will 
    erase it. Because it involves reading as well as writing the bitmap 
@@ -4452,11 +4452,11 @@ solid or invisible.
 
 Color mapping tables can be precalculated with the colormap utility, or 
 generated at runtime. The COLOR_MAP structure is defined as:
-<pre>
+<codeblock>
 typedef struct {
    unsigned char data[PAL_SIZE][PAL_SIZE];
 } COLOR_MAP;
-</pre>
+<endblock>
 @@extern COLOR_MAP *@color_map;
 @xref create_color_table, create_light_table, create_trans_table
 @xref create_blender_table, set_trans_blender, draw_trans_sprite
@@ -4519,12 +4519,12 @@ typedef struct {
    to create an 8 bit mapping table that will have the same results as 
    whatever 24 bit blending mode you have enabled.
 
-@hnode truecolor transparency
+@hnode Truecolor transparency
 In truecolor video modes, translucency and lighting are implemented by a 
 blender function in the form:
-<pre>
+<codeblock>
 unsigned long (*BLENDER_FUNC)(unsigned long x, y, n);
-</pre>
+<endblock>
 This routine takes two color parameters, decomposes them into their red, 
 green, and blue components, combines them according to the interpolation 
 value n, and then merges the result back into a single return color value.
@@ -4715,11 +4715,11 @@ the conversion).
    will also vastly accelerate the makecol8() function. RGB tables can be 
    precalculated with the rgbmap utility, or generated at runtime. The 
    RGB_MAP structure is defined as:
-<pre>
+<codeblock>
    typedef struct {
       unsigned char data[32][32][32];
    } RGB_MAP;
-</pre>
+<endblock>
 @\void @create_rgb_table(RGB_MAP *table, const PALETTE pal,
 @@                       void (*callback)(int pos));
 @xref rgb_map
@@ -4747,7 +4747,7 @@ the conversion).
 Direct access to video memory
 
 The bitmap structure looks like:
-<pre>
+<codeblock>
 typedef struct BITMAP
 {
    int w, h;               - size of the bitmap in pixels
@@ -4756,7 +4756,7 @@ typedef struct BITMAP
    int seg;                - segment for use with the line pointers
    unsigned char *line[];  - pointers to the start of each line
 } BITMAP;
-</pre>
+<endblock>
 There is some other stuff in the structure as well, but it is liable to 
 change and you shouldn't use anything except the above. The clipping 
 rectangle is inclusive on the left and top (0 allows drawing to position 0) 
@@ -4766,21 +4766,21 @@ which takes inclusive coordinates for all four corners.
 
 There are several ways to get direct access to the image memory of a bitmap, 
 varying in complexity depending on what sort of bitmap you are using.
-<p><hr><p>
+<hr>
 The simplest approach will only work with memory bitmaps (obtained from 
 create_bitmap(), grabber datafiles, and image files) and sub-bitmaps of 
 memory bitmaps. This uses a table of char pointers, called 'line', which is 
 a part of the bitmap structure and contains pointers to the start of each 
 line of the image. For example, a simple memory bitmap putpixel function is:
-<pre>
+<codeblock>
    void memory_putpixel(BITMAP *bmp, int x, int y, int color)
    {
       bmp-&gtline[y][x] = color;
    }
-</pre><p><hr><p>
+<endblock><hr>
 For truecolor modes you need to cast the line pointer to the appropriate 
 type, for example:
-<pre>
+<codeblock>
    void memory_putpixel_15_or_16_bpp(BITMAP *bmp, int x, int y, int color)
    {
       ((short *)bmp-&gtline[y])[x] = color;
@@ -4790,24 +4790,24 @@ type, for example:
    {
       ((long *)bmp-&gtline[y])[x] = color;
    }
-</pre><p><hr><p>
+<endblock><hr>
 If you want to write to the screen as well as to memory bitmaps, you need to 
 use some helper macros, because the video memory may not be part of your 
 normal address space. This simple routine will work for any linear screen, 
 eg. a VESA linear framebuffers:
-<pre>
+<codeblock>
    void linear_screen_putpixel(BITMAP *bmp, int x, int y, int color)
    {
       bmp_select(bmp);
       bmp_write8((unsigned long)bmp-&gtline[y]+x, color);
    }
-</pre>
+<endblock>
 For truecolor modes you should replace the bmp_write8() with bmp_write16(), 
 bmp_write24(), or bmp_write32(), and multiply the x offset by the number of 
 bytes per pixel. There are of course similar functions to read a pixel value
 from a bitmap, namely bmp_read8(), bmp_read16(), bmp_read24() and
 bmp_read32().
-<p><hr><p>
+<hr>
 This still won't work in banked SVGA modes, however, or on platforms like 
 Windows that do special processing inside the bank switching functions. For 
 more flexible access to bitmap memory, you need to call the routines:
@@ -4838,7 +4838,7 @@ coordinate to the returned address. The return value is an unsigned long
 rather than a char pointer because the bitmap memory may not be in your data 
 segment, and you need to access it with far pointers. For example, a 
 putpixel using the bank switching functions is:
-<pre>
+<codeblock>
    void banked_putpixel(BITMAP *bmp, int x, int y, int color)
    {
       unsigned long address = bmp_write_line(bmp, y);
@@ -4846,7 +4846,7 @@ putpixel using the bank switching functions is:
       bmp_write8(address+x, color);
       bmp_unwrite_line(bmp);
    }
-</pre>
+<endblock>
 You will notice that Allegro provides separate functions for setting the 
 read and write banks. It is important that you distinguish between these, 
 because on some graphics cards the banks can be set individually, and on 
@@ -4862,7 +4862,7 @@ whatever you like to this second line, but you mustn't call bmp_read_line()
 and bmp_write_line() together and expect to be able to read one line and 
 write the other simultaneously. It would be nice if this was possible, but 
 if you do it, your code won't work on single banked SVGA cards.
-<p><hr><p>
+<hr>
 And then there's mode-X. If you've never done any mode-X graphics coding, 
 you probably won't understand this, but for those of you who want to know 
 how Allegro sets up the mode-X screen bitmaps, here goes...
@@ -4872,14 +4872,14 @@ the actual location at which you access the first pixel in the line. These
 addresses are guaranteed to be quad aligned, so you can just set the write 
 plane, divide your x coordinate by four, and add it to the line pointer. For 
 example, a mode-X putpixel is:
-<pre>
+<codeblock>
    void modex_putpixel(BITMAP *b, int x, int y, int color)
    {
       outportw(0x3C4, (0x100&lt&lt(x&3))|2);
       bmp_select(bmp);
       bmp_write8((unsigned long)bmp-&gtline[y]+(x&gt&gt2), color);
    }
-</pre><p><hr><p>
+<endblock><hr>
 Oh yeah: the djgpp nearptr hack. Personally I don't like this very much 
 because it disables memory protection and isn't portable to other platforms, 
 but a lot of people swear by it because it can give you direct access to the 
@@ -4887,7 +4887,7 @@ screen memory via a normal C pointer. Warning: this method will only work
 with the djgpp library, when using VGA 13h or a linear framebuffer modes!
 
 In your setup code:
-<pre>
+<codeblock>
    #include &ltsys/nearptr.h&gt
 
    unsigned char *screenmemory;
@@ -4895,19 +4895,19 @@ In your setup code:
 
    __djgpp_nearptr_enable();
 
-   __dpmi_get_segment_base_address(screen->seg, &screen_base_addr);
+   __dpmi_get_segment_base_address(screen-&gtseg, &screen_base_addr);
 
    screenmemory = (unsigned char *)(screen_base_addr + 
-				    screen->line[0] - 
+				    screen-&gtline[0] -
 				    __djgpp_base_address);
-</pre>
+<endblock>
 Then:
-<pre>
+<codeblock>
    void nearptr_putpixel(int x, int y, int color)
    {
       screenmemory[x + y*VIRTUAL_W] = color;
    }
-</pre>
+<endblock>
 
 
 @heading
@@ -5099,12 +5099,12 @@ Sound init routines
    samples at maximum volume without distortion.
 
    Here are the default values, dependent on the number of voices:
-<PRE>
+<textblock>
    1-8 voices - set_volume_per_voice(2)
     16 voices - set_volume_per_voice(3)
     32 voices - set_volume_per_voice(4)
     64 voices - set_volume_per_voice(5)
-</PRE>
+<endblock>
    Of course this function does not override the volume you specify with 
    play_sample() or voice_set_volume(). It simply alters the overall output 
    of the program. If you play samples at lower volumes, or if they are not 
@@ -5126,7 +5126,7 @@ Sound init routines
 @@int @install_sound(int digi, int midi, const char *cfg_path);
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
 @xref set_volume, play_sample, voice control, play_midi, play_audio_stream
-@xref install_sound_input, allegro_error, standard config variables
+@xref install_sound_input, allegro_error, Standard config variables
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
@@ -5226,7 +5226,7 @@ voices rather than them being automatically released when they finish
 playing, but allows far more precise specification of exactly how you want 
 everything to sound. You may also want to modify a couple of fields from the 
 sample structure:
-<pre>
+<textblock>
    int priority;
       Ranging 0-255 (default 128), this controls how voices are
       allocated if you attempt to play more than the driver can handle.
@@ -5237,7 +5237,7 @@ sample structure:
    unsigned long loop_end;
       Loop position in sample units, by default set to the start and end of 
       the sample.
-</pre>
+<endblock>
 @@int @allocate_voice(const SAMPLE *spl);
 @xref voice control, deallocate_voice, reallocate_voice, release_voice
 @xref load_sample
@@ -5256,10 +5256,10 @@ sample structure:
 @xref allocate_voice, deallocate_voice, load_sample
    Switches an already-allocated voice to use a different sample. Calling 
    reallocate_voice(voice, sample) is equivalent to:
-<pre>
+<codeblock>
       deallocate_voice(voice);
       voice = allocate_voice(sample);
-</pre>
+<endblock>
 @@void @release_voice(int voice);
 @xref allocate_voice, deallocate_voice
    Releases a soundcard voice, indicating that you are no longer interested 
@@ -5376,7 +5376,7 @@ sample structure:
 
 @@void @voice_sweep_pan(int voice, int time, int endpan);
 @xref voice control, voice_set_pan
-   Starts a pan sweep (left <-> right movement) from the current position to 
+   Starts a pan sweep (left &lt-&gt right movement) from the current position to
    the specified ending position, lasting for time milliseconds.
 
 @@void @voice_stop_pan_sweep(int voice);
@@ -5534,7 +5534,7 @@ doing something clever like generating the waveform on the fly.
    vol and pan values use the same 0-255 ranges as the regular sample 
    playing functions. If you want to adjust the pitch, volume, or panning of 
    a stream once it is playing, you can use the regular voice_*() functions 
-   with stream->voice as a parameter. The sample data is always in unsigned 
+   with stream-&gtvoice as a parameter. The sample data is always in unsigned
    format, with stereo waveforms consisting of alternate left/right samples.
 
 @@void @stop_audio_stream(AUDIOSTREAM *stream);
@@ -5568,7 +5568,7 @@ Recording routines
 
 @@int @install_sound_input(int digi, int midi);
 @xref install_sound, start_sound_input, midi_recorder
-@xref standard config variables
+@xref Standard config variables
 @xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
 @xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
    Initialises the sound recorder module, returning zero on success. You 
@@ -5588,12 +5588,12 @@ Recording routines
 @xref get_sound_input_cap_stereo
    Checks which sample formats are supported by the current audio input 
    driver, returning one of the bitfield values:
-
-      0 = audio input not supported<br>
-      8 = eight bit audio input is supported<br>
-      16 = sixteen bit audio input is supported<br>
+<textblock>
+      0 = audio input not supported
+      8 = eight bit audio input is supported
+      16 = sixteen bit audio input is supported
       24 = both eight and sixteen bit audio input are supported
-
+<endblock>
 @@int @get_sound_input_cap_stereo();
 @xref start_sound_input, get_sound_input_cap_parm, get_sound_input_cap_bits
 @xref get_sound_input_cap_rate
@@ -5612,22 +5612,22 @@ Recording routines
    Checks whether the specified recording frequency, number of bits, and 
    mono/stereo mode are supported by the current audio driver, returning one 
    of the values:
-
-      0 = it is impossible to record in this format<br>
-      1 = recording is possible, but audio output will be suspended<br>
-      2 = recording is possible at the same time as playing other sounds<br>
+<textblock>
+      0 = it is impossible to record in this format
+      1 = recording is possible, but audio output will be suspended
+      2 = recording is possible at the same time as playing other sounds
       -n = sampling rate not supported, but rate 'n' would work instead
-
+<endblock>
 @@int @set_sound_input_source(int source);
 @xref start_sound_input
    Selects the audio input source, returning zero on success or -1 if the 
    hardware does not provide an input select register. The parameter should 
    be one of the values:
-
-      SOUND_INPUT_MIC<br>
-      SOUND_INPUT_LINE<br>
+<textblock>
+      SOUND_INPUT_MIC
+      SOUND_INPUT_LINE
       SOUND_INPUT_CD
-
+<endblock>
 @@int @start_sound_input(int rate, int bits, int stereo);
 @xref install_sound_input, read_sound_input, stop_sound_input
 @xref digi_recorder, set_sound_input_source, get_sound_input_cap_parm
@@ -5814,7 +5814,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    if a match is found, nonzero if none is found or if an error occured  
    and, in the latter case, sets errno accordingly. The al_ffblk structure 
    looks like:
-<pre>
+<codeblock>
   struct al_ffblk
   {
       int attrib;       - actual attributes of the file found
@@ -5822,7 +5822,7 @@ directories, but not hidden files and directories. Similarly, if you pass
       long size;        - size of file
       char name[512];   - name of file
   };
-</pre>
+<endblock>
    There is some other stuff in the structure as well, but it is there for 
    internal use only.
 
@@ -5868,7 +5868,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    this function at all. Ever.
 
 @@PACKFILE *@pack_fopen(const char *filename, const char *mode);
-@xref packfile functions, pack_fopen_chunk, packfile_password
+@xref Packfile functions, pack_fopen_chunk, packfile_password
 @xref file_select
    Opens a file according to mode, which may contain any of the flags:
 <ul><li>
@@ -5923,7 +5923,7 @@ directories, but not hidden files and directories. Similarly, if you pass
    load_pcx to read an image from a datafile, you should import it as a 
    binary block rather than as a BITMAP object.
 
-@node packfile functions
+@hnode Packfile functions
 @xref pack_fopen
 @@int  @pack_fclose(PACKFILE *f);
 @@int  @pack_fseek(PACKFILE *f, int offset);
@@ -5964,12 +5964,12 @@ directories, but not hidden files and directories. Similarly, if you pass
    as an individual entity and will automatically insert and check length 
    counts to prevent reading past the end of the chunk. To write a chunk to 
    the file f, use the code:
-<pre>
+<codeblock>
       /* assumes f is a PACKFILE * which has been opened */
       f = pack_fopen_chunk(f, pack);    /* in write mode */
       write some data to f
       f = pack_fclose_chunk(f);
-</pre>
+<endblock>
    The data written to the chunk will be prefixed with two length counts (32 
    bit, big-endian). For uncompressed chunks these will both be set to the 
    size of the data in the chunk. For compressed chunks (created by setting 
@@ -5977,12 +5977,12 @@ directories, but not hidden files and directories. Similarly, if you pass
    the second will be the negative size of the uncompressed data.
 
    To read the chunk, use the code:
-<pre>
+<codeblock>
       /* assumes f is a PACKFILE * which has been opened */
       f = pack_fopen_chunk(f, FALSE);    */ in read mode */
       read data from f
       f = pack_fclose_chunk(f);
-</pre>
+<endblock>
    This sequence will read the length counts created when the chunk was 
    written, and automatically decompress the contents of the chunk if it 
    was compressed. The length will also be used to prevent reading past the 
@@ -6080,10 +6080,10 @@ directly from a specific datafile object.
    bit hicolor for both bitmaps and RLE sprites, and 24&lt-&gt32 bit 
    truecolor for RLE sprites).
 
-@hnode using datafiles
+@hnode Using datafiles
 When you load a datafile, you will obtain a pointer to an array of DATAFILE 
 structures:
-<pre>
+<codeblock>
 typedef struct DATAFILE
 {
    void *dat;     - pointer to the actual data
@@ -6091,9 +6091,9 @@ typedef struct DATAFILE
    long size;     - size of the data in bytes
    void *prop;    - list of object properties
 } DATAFILE;
-</pre>
+<endblock>
 The type field will be one of the values:
-@<pre>
+<textblock>
    DAT_FILE       - dat points to a nested datafile
    DAT_DATA       - dat points to a block of binary data
    DAT_FONT       - dat points to a font object
@@ -6107,31 +6107,31 @@ The type field will be one of the values:
    DAT_XC_SPRITE  - dat points to a mode-X compiled sprite
    DAT_PALETTE    - dat points to an array of 256 RGB structures
    DAT_END        - special flag to mark the end of the data list
-</pre>
+<endblock>
 The grabber program can also produce a header file defining the index of 
 each object within the file as a series of #defined constants, using the 
 names you gave the objects in the grabber. So, for example, if you have made 
 a datafile called foo.dat which contains a bitmap called THE_IMAGE, you 
 could display it with the code fragment:
-<pre>
+<codeblock>
    #include "foo.h"
 
    DATAFILE *data = load_datafile("foo.dat");
    draw_sprite(screen, data[THE_IMAGE].dat, x, y);
-</pre>
+<endblock>
 If you are programming in C++ you will get an error because the dat field is 
 a void pointer and draw_sprite() expects a BITMAP pointer. You can get 
 around this with a cast, eg:
-<pre>
+<codeblock>
    draw_sprite(screen, (BITMAP *)data[THE_IMAGE].dat, x, y);
-</pre>
+<endblock>
 When you load a single datafile object, you will obtain a pointer to a 
 single DATAFILE structure. This means that you don't access it any more like 
 an array, and it doesn't have any DAT_END object. Example:
-<pre>
+<codeblock>
    music_object = load_datafile_object("datafile.dat", "MUSIC");
-   play_midi(music_object->dat);
-</pre>
+   play_midi(music_object-&gtdat);
+<endblock>
 
 
 
@@ -6202,7 +6202,7 @@ integer' is not.
 @xref fixadd, fixmul, fixdiv
    Fixed point subtraction: see comments about fixadd().
 
-@node fixed point trig
+@hnode Fixed point trig
 The fixed point square root, sin, cos, tan, inverse sin, and inverse cos 
 functions are implemented using lookup tables, which are very fast but not 
 particularly accurate. At the moment the inverse tan uses an iterative 
@@ -6214,41 +6214,43 @@ bitwise 'and' can be used to keep the angle within the range zero to a full
 circle, eliminating all those tiresome 'if (angle &gt= 360)' checks.
 
 @@fixed @fixsin(fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Lookup table sine.
 
 @@fixed @fixcos(fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Lookup table cosine.
 
 @@fixed @fixtan(fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Lookup table tangent.
 
 @@fixed @fixasin(fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Lookup table inverse sine.
 
 @@fixed @fixacos(fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Lookup table inverse cosine.
 
 @@fixed @fixatan(fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Fixed point inverse tangent.
 
 @@fixed @fixatan2(fixed y, fixed x);
-@xref fixed point trig
+@xref Fixed point trig
    Fixed point version of the libc atan2() routine.
 
 @@fixed @fixsqrt(fixed x);
+@xref Fixed point trig
    Fixed point square root.
 
 @@fixed @fixhypot(fixed x, fixed y);
+@xref Fixed point trig
    Fixed point hypotenuse (returns the square root of x*x + y*y).
 
 
-@hnode fix class
+@hnode Fix class
 If you are programming in C++ you can ignore all the above and use the fix 
 class instead, which overloads a lot of operators to provide automatic 
 conversion to and from integer and floating point values, and calls the 
@@ -6259,7 +6261,7 @@ is an object of class fix, calling fixsqrt(x) will return the wrong result.
 You should use the overloaded sqrt(x) or x.sqrt() instead.
 
 
-@hnode fixed point aliases
+@hnode Fixed point aliases
 The fixed point functions used to be named with an "f" prefix instead of
 "fix", eg. fixsqrt() used to be fsqrt(), but were renamed due to conflicts
 with some libc implementations. This should not affect most existing code as
@@ -6311,12 +6313,12 @@ in order to translate it and project it onto the screen, the matrix must be
 extended to 4x4, and the point extended into 4d space by the addition of an 
 extra coordinate, w=1. This is a bad thing in terms of efficiency, but 
 fortunately an optimisation is possible. Given the 4x4 matrix:
-<pre>
+<textblock>
    ( a, b, c, d )
    ( e, f, g, h )
    ( i, j, k, l )
    ( m, n, o, p )
-</pre>
+<endblock>
 a pattern can be observed in which parts of it do what. The top left 3x3 
 grid implements rotation and scaling. The three values in the top right 
 column (d, h, and l) implement translation, and as long as the matrix is 
@@ -6330,7 +6332,7 @@ implicitly assumes that it contains (0,0,0,1), and optimises the matrix
 manipulation functions accordingly.
 
 Matrices are stored in the structures:
-<pre>
+<codeblock>
 typedef struct MATRIX            - fixed point matrix structure
 {
    fixed v[3][3];                - 3x3 scaling and rotation component
@@ -6342,7 +6344,7 @@ typedef struct MATRIX_f          - floating point matrix structure
    float v[3][3];                - 3x3 scaling and rotation component
    float t[3];                   - x/y/z translation component
 } MATRIX_f
-</pre>
+<endblock>
 @@extern MATRIX @identity_matrix;
 @@extern MATRIX_f @identity_matrix_f;
    Global variables containing the 'do nothing' identity matrix. Multiplying 
@@ -6558,12 +6560,12 @@ function that performs a similar operation.
 
 Quaternion means 'of four parts', and that's exactly what it is. Here is the 
 structure:
-<pre>
+<codeblock>
 typedef struct QUAT
 {
    float w, x, y, z;
 }
-</pre>
+<endblock>
 You will have lots of fun figuring out what these numbers actually mean, but 
 that is beyond the scope of this documentation. Quaternions do work -- trust 
 me.
@@ -6621,13 +6623,13 @@ me.
 @@void @quat_slerp(const QUAT *from, *to, float t, QUAT *out, int how);
    The same as quat_interpolate(), but allows more control over how the 
    rotation is done. The how parameter can be any one of the values:
-
-   QUAT_SHORT  - like quat_interpolate(), use shortest path<br>
-   QUAT_LONG   - rotation will be greater than 180 degrees<br>
-   QUAT_CW     - rotate clockwise when viewed from above<br>
-   QUAT_CCW    - rotate counterclockwise when viewed from above<br>
+<textblock>
+   QUAT_SHORT  - like quat_interpolate(), use shortest path
+   QUAT_LONG   - rotation will be greater than 180 degrees
+   QUAT_CW     - rotate clockwise when viewed from above
+   QUAT_CCW    - rotate counterclockwise when viewed from above
    QUAT_USER   - the quaternions are interpolated exactly as given
-
+<endblock>
 
 
 @heading
@@ -6645,7 +6647,7 @@ keyboard, joystick, etc.
 
 A GUI dialog is stored as an array of DIALOG objects, each one containing 
 the fields:
-<pre>
+<codeblock>
 typedef struct DIALOG
 {
    int (*proc)(int, DIALOG *, int); - dialog procedure (message handler)
@@ -6658,11 +6660,11 @@ typedef struct DIALOG
    void *dp, *dp2, *dp3;            - pointers to more
                                       object-specific data
 } DIALOG;
-</pre>
+<endblock>
 The array should end with an object which has the proc pointer set to NULL.
 
 The flags field may contain any combination of the bit flags:
-@<pre>
+<textblock>
    D_EXIT          - this object should close the dialog when it is clicked
    D_SELECTED      - this object is selected
    D_GOTFOCUS      - this object has got the input focus
@@ -6673,28 +6675,28 @@ The flags field may contain any combination of the bit flags:
    D_INTERNAL      - don't use this! It is for internal use by the
                      library...
    D_USER          - any powers of two above this are free for your own use
-</pre>
+<endblock>
 Each object is controlled by a dialog procedure, which is stored in the proc 
 pointer. This will be called by the dialog manager whenever any action 
 concerning the object is required, or you can call it directly with the 
 object_message() function. The dialog procedure should follow the form:
-<pre>
+<codeblock>
    int foo(int msg, DIALOG *d, int c);
-</pre>
+<endblock>
 It will be passed a flag (msg) indicating what action it should perform, a 
 pointer to the object concerned (d), and if msg is MSG_CHAR or MSG_XCHAR, 
 the key that was pressed (c). Note that d is a pointer to a specific object, 
 and not to the entire dialog.
 
 The dialog procedure should return one of the values:
-@<pre>
+<textblock>
    D_O_K          - normal return status
    D_CLOSE        - tells the dialog manager to close the dialog
    D_REDRAW       - tells the dialog manager to redraw the entire dialog
    D_REDRAWME     - tells the dialog manager to redraw the current object
    D_WANTFOCUS    - requests that the input focus be given to this object
    D_USED_CHAR    - MSG_CHAR and MSG_XCHAR return this if they used the key
-</pre>
+<endblock>
 Dialog procedures may be called with any of the messages:
 
 <b>MSG_START:</b><br>
@@ -6818,9 +6820,9 @@ changes are the following:
    are being drawn smaller. The difference is exactly one pixel in both 
    height and width, when comparing to previous versions. The reason is, 
    that in previous versions these objects were too large on the screen - 
-   their size was d->w+1 and d->h+1 pixels (and not d->w and d->h, as it 
+   their size was d-&gtw+1 and d-&gth+1 pixels (and not d-&gtw and d-&gth, as it
    should be). This change affects the following objects :
-<pre>
+<textblock>
           d_box_proc,
           d_shadow_box_proc,
           d_button_proc,
@@ -6829,7 +6831,7 @@ changes are the following:
           d_list_proc,
           d_text_list_proc and
           d_textbox_proc.
-</pre>
+<endblock>
    When you want to convert old dialogs to look equally when compiling with 
    the new Allegro version, just increase the size of the mentioned objects 
    by one pixel in both width and height fields. 
@@ -6923,9 +6925,9 @@ changes are the following:
    store how far it has scrolled through the list. The dp field points to a 
    function which will be called to obtain information about the contents of 
    the list. This should follow the form:
-<pre>
+<codeblock>
       char *foobar(int index, int *list_size);
-</pre>
+<endblock>
    If index is zero or positive, the function should return a pointer to the 
    string which is to be displayed at position index in the list. If index 
    is negative, it should return NULL and list_size should be set to the 
@@ -6958,13 +6960,13 @@ changes are the following:
    field can contain an optional bitmap to use for the slider handle, and 
    dp2 can contain an optional callback function, which is called each time 
    d2 changes. The callback function should have the following prototype:
-<pre>
+<codeblock>
       int function(void *dp3, int d2);
-</pre>
+<endblock>
    The d_slider_proc object will return the value of the callback function.
 
 @@int @d_menu_proc(int msg, DIALOG *d, int c);
-@xref gui menus, active_menu, gui_menu_draw_menu
+@xref Gui menus, active_menu, gui_menu_draw_menu
    This object is a menu bar which will drop down child menus when it is 
    clicked or if an alt+key corresponding to one of the shortcuts in the 
    menu is pressed. It ignores a lot of the fields in the dialog structure, 
@@ -7067,9 +7069,9 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    Remember that the first parameter is the dialog object (not a whole
    array) that you wish to send the message to. For example, to make the
    second object in a dialog draw itself, you might write:
-<pre>
+<codeblock>
       object_message(&dialog[1], MSG_DRAW, 0);
-</pre>
+<endblock>
 @@int @dialog_message(DIALOG *dialog, int msg, int c, int *obj);
 @xref object_message, broadcast_dialog_message
    Sends a message to all the objects in an array. If any of the dialog 
@@ -7108,21 +7110,21 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    player object that can be used with update_dialog() and 
    shutdown_dialog(). With these functions, you could implement your own 
    version of do_dialog() with the lines:
-<pre>
+<codeblock>
       DIALOG_PLAYER *player = init_dialog(dialog, focus_obj);
 
       while (update_dialog(player))
 	 ;
 
       return shutdown_dialog(player);
-</pre>
+<endblock>
 @@int @update_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
    Updates the status of a dialog object returned by init_dialog(). Returns 
    TRUE if the dialog is still active, or FALSE if it has terminated. Upon a 
    return value of FALSE, it is up to you whether to call shutdown_dialog() 
    or to continue execution. The object that requested the exit can be 
-   determined from the player->obj field.
+   determined from the player-&gtobj field.
 
 @@int @shutdown_dialog(DIALOG_PLAYER *player);
 @xref init_dialog
@@ -7135,10 +7137,10 @@ gfx_mode_select() dialog will look wrong with anything other than 8x8 fonts.
    Global pointer to the most recent activated dialog. This may be useful if 
    an object needs to iterate through a list of all its siblings.
 
-@hnode gui menus
+@hnode Gui menus
 @xref do_menu, d_menu_proc, gui_menu_draw_menu
 Popup or pulldown menus are created as an array of the structures:
-<pre>
+<codeblock>
 typedef struct MENU
 {
    char *text;                   - the text to display for the menu item
@@ -7147,7 +7149,7 @@ typedef struct MENU
    int flags;                    - disabled or checked state
    void *dp;                     - pointer to any data you need
 } MENU;
-</pre>
+<endblock>
 Each menu item contains a text string. This can use the '&' character to 
 indicate keyboard shortcuts, or can be an zero-length string to display the 
 item as a non-selectable splitter bar. If the string contains a "\t" tab 
@@ -7168,7 +7170,7 @@ would be a good idea to prefix all your options with a space or two, to
 ensure there is room for the check.
 
 @@int @do_menu(MENU *menu, int x, int y)
-@xref gui menus, d_menu_proc, active_menu, gui_menu_draw_menu
+@xref Gui menus, d_menu_proc, active_menu, gui_menu_draw_menu
    Displays and animates a popup menu at the specified screen coordinates 
    (these will be adjusted if the menu does not entirely fit on the screen). 
    Returns the index of the menu item that was selected, or -1 if the menu 
@@ -7177,7 +7179,7 @@ ensure there is room for the check.
    multi-level menus.
 
 @@extern MENU *@active_menu;
-@xref gui menus
+@xref Gui menus
    When a menu callback procedure is triggered, this will be set to the menu 
    item that was selected, so your routine can determine where it was called 
    from.
@@ -7185,7 +7187,7 @@ ensure there is room for the check.
 @@extern void (*@gui_menu_draw_menu)(int x, int y, int w, int h);
 @\extern void (*@gui_menu_draw_menu_item)(MENU *m, int x, int y, int w,
 @@                                        int h, int bar, int sel);
-@xref gui menus
+@xref Gui menus
    If set, these functions will be called whenever a menu needs to be
    drawn, so you can change how menus look.
 
@@ -7232,7 +7234,7 @@ ensure there is room for the check.
    .PCX or .BMP extensions. If you wish to control files by their attributes,
    one of the fields in the extension list can begin with a slash, followed
    by a set of attribute characters. Any attributes written on their own,
-   or with a + before them, indicate to include only files which have
+   or with a '+' before them, indicate to include only files which have
    that attribute set. Any attributes with a '-' before them indicate to
    leave out any files with that attribute. The flag characters are
    'r' (read-only), 'h' (hidden), 's' (system), 'd' (directory),
@@ -7563,7 +7565,7 @@ DOS specifics
 @@Drivers: @DIGI_*/DOS
 @xref detect_digi_driver, install_sound, install_sound_input
    The DOS sound functions support the following digital soundcards:
-<pre>
+<textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_SB              - Sound Blaster (autodetect type)
@@ -7576,11 +7578,11 @@ DOS specifics
       DIGI_AUDIODRIVE      - ESS AudioDrive
       DIGI_SOUNDSCAPE      - Ensoniq Soundscape
       DIGI_WINSOUNDSYS     - Windows Sound System
-</pre>
+<endblock>
 @@Drivers: @MIDI_*/DOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The DOS sound functions support the following MIDI soundcards:
-<pre>
+<textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
       MIDI_ADLIB           - Adlib or SB FM synth (autodetect type)
@@ -7593,7 +7595,7 @@ DOS specifics
       MIDI_MPU             - MPU-401 MIDI interface
       MIDI_DIGMID          - sample-based software wavetable player
       MIDI_AWE32           - AWE32 (EMU8000 chip)
-</pre>
+<endblock>
 @@void @split_modex_screen(int line);
 @xref set_gfx_mode, scroll_screen
    This function is only available in mode-X. It splits the VGA display into 
@@ -7722,7 +7724,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       work around that of desktop_color_depth() (see above) and allows to 
       select the direct drawing mode in a reliable way on desktops reported 
       as 16-bit:
-<pre>
+<codeblock>
    if (desktop_color_depth() == 16) {
       set_color_depth(16);
       if (set_gfx_mode(GFX_DIRECTX_WIN, 640, 480, 0, 0) != 0) {
@@ -7734,7 +7736,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       }
       /* ok, we are in direct drawing mode */
    }
-</pre>
+<endblock>
 <li>
    GFX_DIRECTX_OVL<br>
       The DirectX overlay driver. It uses special hardware features to run 
@@ -7743,7 +7745,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       the color depth to be the same as that of the Windows desktop. In light 
       of the limitation of desktop_color_depth() (see above), the reliable 
       way of setting the overlay driver on desktops reported as 16-bit is:
-<pre>
+<codeblock>
    if (desktop_color_depth() == 16) {
       set_color_depth(16);
       if (set_gfx_mode(GFX_DIRECTX_OVL, 640, 480, 0, 0) != 0) {
@@ -7755,7 +7757,7 @@ below for the consequences for windowed and overlay DirectX drivers.
       }
       /* ok, the 640x480 overlay driver is running */
    }
-</pre>
+<endblock>
 <li>
    GFX_GDI<br>
       The windowed GDI driver. It is extremely slow, but is guaranteed to 
@@ -7767,7 +7769,7 @@ below for the consequences for windowed and overlay DirectX drivers.
 @@Drivers: @DIGI_*/Windows
 @xref detect_digi_driver, install_sound, install_sound_input
    The Windows sound functions support the following digital soundcards:
-<pre>
+<textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_DIRECTX(n)      - use DirectSound device #n (zero-based) with
@@ -7775,17 +7777,17 @@ below for the consequences for windowed and overlay DirectX drivers.
       DIGI_DIRECTAMX(n)    - use DirectSound device #n (zero-based) with
                              Allegro mixing
       DIGI_WAVOUTID(n)     - high (n=0) or low (n=1) quality WaveOut device
-</pre>
+<endblock>
 @@Drivers: @MIDI_*/Windows
 @xref detect_midi_driver, install_sound, install_sound_input
    The Windows sound functions support the following MIDI soundcards:
-<pre>
+<textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
       MIDI_WIN32MAPPER     - use win32 MIDI mapper
       MIDI_WIN32(n)        - use win32 device #n (zero-based)
       MIDI_DIGMID          - sample-based software wavetable player
-</pre>
+<endblock>
 
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose Win32 programs. To use these routines, 
@@ -8032,23 +8034,23 @@ function to remind you :-)
 @@Drivers: @DIGI_*/Unix
 @xref detect_digi_driver, install_sound, install_sound_input
    The Unix sound functions support the following digital soundcards:
-<pre>
+<textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_OSS             - Open Sound System
       DIGI_ESD             - Enlightened Sound Daemon
       DIGI_ALSA            - ALSA sound driver
-</pre>
+<endblock>
 @@Drivers: @MIDI_*/Unix
 @xref detect_midi_driver, install_sound, install_sound_input
    The Unix sound functions support the following MIDI soundcards:
-<pre>
+<textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
       MIDI_OSS             - Open Sound System
       MIDI_DIGMID          - sample-based software wavetable player
       MIDI_ALSA            - ALSA RawMIDI driver
-</pre>
+<endblock>
 
 
 
@@ -8092,20 +8094,20 @@ BeOS specifics
 @@Drivers: @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following digital soundcards:
-<pre>
+<textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_BEOS            - BeOS digital output
-</pre>
+<endblock>
 @@Drivers: @MIDI_*/BeOS
 @xref detect_midi_driver, install_sound, install_sound_input
    The BeOS sound functions support the following MIDI soundcards:
-<pre>
+<textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
       MIDI_BEOS            - BeOS MIDI output
       MIDI_DIGMID          - sample-based software wavetable player
-</pre>
+<endblock>
 
 
 
@@ -8144,20 +8146,20 @@ QNX specifics
 @@Drivers: @DIGI_*/QNX
 @xref detect_digi_driver, install_sound, install_sound_input
    The QNX sound functions support the following digital soundcards:
-<pre>
+<textblock>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
       DIGI_ALSA            - ALSA sound driver
-</pre>
+<endblock>
 @@Drivers: @MIDI_*/QNX
 @xref detect_midi_driver, install_sound, install_sound_input
    The QNX sound functions support the following MIDI soundcards:
-<pre>
+<textblock>
       MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
       MIDI_NONE            - no MIDI sound
       MIDI_ALSA            - ALSA RawMIDI driver
       MIDI_DIGMID          - sample-based software wavetable player
-</pre>
+<endblock>
 
 The following functions provide a platform specific interface to seamlessly 
 integrate Allegro into general purpose QNX programs. To use these routines, 
@@ -8290,8 +8292,8 @@ Having said that, there are several things you can do to make your programs
 smaller:
 <ul><li>
 For all platforms, you can use an executable compressor called UPX, which
-is available at http://upx.tsx.org/ . This usually manages a compression
-ratio of about 40%.
+is available at <link>http://upx.sourceforge.net/</a>. This usually manages a
+compression ratio of about 40%.
 <li>
 When using djgpp: for starters, read the djgpp FAQ section 8.14, and take
 note of the -s switch. And don't forget to compile your program with
@@ -8300,15 +8302,15 @@ optimisation enabled!
 If a DOS program is only going to run in a limited number of graphics modes, 
 you can specify which graphics drivers you would like to include with the 
 code:
-<pre>
+<codeblock>
    BEGIN_GFX_DRIVER_LIST
       driver1
       driver2
       etc...
    END_GFX_DRIVER_LIST
-</pre>
+<endblock>
 where the driver names are any of the defines:
-<pre>
+<textblock>
    GFX_DRIVER_VBEAF
    GFX_DRIVER_VGA
    GFX_DRIVER_MODEX
@@ -8317,7 +8319,7 @@ where the driver names are any of the defines:
    GFX_DRIVER_VESA2B
    GFX_DRIVER_XTENDED
    GFX_DRIVER_VESA1
-</pre>
+<endblock>
 This construct must be included in only one of your C source files. The 
 ordering of the names is important, because the autodetection routine works 
 down from the top of the list until it finds the first driver that is able 
@@ -8326,21 +8328,21 @@ given above, and simply delete whatever entries you aren't going to use.
 <li>
 If your DOS program doesn't need to use all the possible color depths, you 
 can specify which pixel formats you want to support with the code:
-<pre>
+<codeblock>
    BEGIN_COLOR_DEPTH_LIST
       depth1
       depth2
       etc...
    END_COLOR_DEPTH_LIST
-</pre>
+<endblock>
 where the color depth names are any of the defines:
-<pre>
+<textblock>
    COLOR_DEPTH_8
    COLOR_DEPTH_15
    COLOR_DEPTH_16
    COLOR_DEPTH_24
    COLOR_DEPTH_32
-</pre>
+<endblock>
 Removing any of the color depths will save quite a bit of space, with the 
 exception of the 15 and 16 bit modes: these share a great deal of code, so 
 if you are including one of them, there is no reason not to use both. Be 
@@ -8349,49 +8351,49 @@ program will crash horribly!
 <li>
 In the same way as the above, you can specify which DOS sound drivers you 
 want to support with the code:
-<pre>
+<codeblock>
    BEGIN_DIGI_DRIVER_LIST
       driver1
       driver2
       etc...
    END_DIGI_DRIVER_LIST
-</pre>
+<endblock>
 using the digital sound driver defines:
-<pre>
+<textblock>
    DIGI_DRIVER_SOUNDSCAPE
    DIGI_DRIVER_AUDIODRIVE
    DIGI_DRIVER_WINSOUNDSYS
    DIGI_DRIVER_SB
-</pre>
+<endblock>
 and for the MIDI music:
-<pre>
+<codeblock>
    BEGIN_MIDI_DRIVER_LIST
       driver1
       driver2
       etc...
    END_MIDI_DRIVER_LIST
-</pre>
+<endblock>
 using the MIDI driver defines:
-<pre>
+<textblock>
    MIDI_DRIVER_AWE32
    MIDI_DRIVER_DIGMID
    MIDI_DRIVER_ADLIB
    MIDI_DRIVER_MPU
    MIDI_DRIVER_SB_OUT
-</pre>
+<endblock>
 If you are going to use either of these sound driver constructs, you must 
 include both.
 <li>
 Likewise for the DOS joystick drivers, you can declare an inclusion list:
-<pre>
+<codeblock>
    BEGIN_JOYSTICK_DRIVER_LIST
       driver1
       driver2
       etc...
    END_JOYSTICK_DRIVER_LIST
-</pre>
+<endblock>
 using the joystick driver defines:
-<pre>
+<textblock>
    JOYSTICK_DRIVER_WINGWARRIOR
    JOYSTICK_DRIVER_SIDEWINDER
    JOYSTICK_DRIVER_GAMEPAD_PRO
@@ -8405,19 +8407,19 @@ using the joystick driver defines:
    JOYSTICK_DRIVER_IFSEGA_ISA
    JOYSTICK_DRIVER_IFSEGA_PCI
    JOYSTICK_DRIVER_IFSEGA_PCI_FAST
-</pre>
+<endblock>
 The standard driver includes support for the dual joysticks, increased 
 numbers of buttons, Flightstick Pro, and Wingman Extreme, because these are 
 all quite minor variations on the basic code.
 <li>
 If you are _really_ serious about this size, thing, have a look at the top 
 of include/allegro/alconfig.h and you will see the lines:
-<pre>
+<codeblock>
    #define ALLEGRO_COLOR8
    #define ALLEGRO_COLOR16
    #define ALLEGRO_COLOR24
    #define ALLEGRO_COLOR32
-</pre>
+<endblock>
 If you comment out any of these definitions and then rebuild the library, 
 you will get a version without any support for the absent color depths, 
 which will be even smaller than using the DECLARE_COLOR_DEPTH_LIST() macro. 
@@ -8678,5 +8680,3 @@ Index
 
 @html
 @text
-@</body>
-@</html>

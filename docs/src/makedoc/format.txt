@@ -1,0 +1,253 @@
+     ______   ___    ___
+    /\  _  \ /\_ \  /\_ \
+    \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
+     \ \  __ \ \ \ \  \ \ \   /'__`\ /'_ `\/\`'__\/ __`\
+      \ \ \/\ \ \_\ \_ \_\ \_/\  __//\ \L\ \ \ \//\ \L\ \
+       \ \_\ \_\/\____\/\____\ \____\ \____ \ \_\\ \____/
+        \/_/\/_/\/____/\/____/\/____/\/___L\ \/_/ \/___/
+                                       /\____/
+                                       \_/__/
+
+
+              Allegro's _tx documentation format.
+
+              By Grzegorz Adam Hankiewicz.
+
+
+
+====================================
+============ Disclaimer ============
+====================================
+
+   During years the makedoc program has been used to output Allegro's
+   documentation in different file formats. Nobody ever cared to document
+   the _tx format or makedoc's source code. The result is that this late
+   reference might be wrong or inacurate, please take it with a grain of
+   salt. And remember that makedoc is not a _real_ program, it's a hack,
+   just don't tell anybody else...
+
+
+
+================================
+============ Format ============
+================================
+
+   _tx files are simple 8 bit text files written in a specific codepage
+   (usually latin1/iso-8859-1). The makedoc tool is codepage agnostic: if
+   you are using makedoc to generate documents in other codepages, you
+   are going to need to parse makedoc's output to adjust it to your needs.
+   This is usually not a very big problem, since you could use utf8 and
+   later convert it to your own codepage.
+
+   Taking the original allegro._tx as a reference, you can see that _tx
+   files are really a rich mixture of the supported output formats, and this
+   richness is stripped out apropiately for each output (ie: HTML tags won't
+   appear in plain ascii output, etc).
+
+   Lines starting with $@ will go unprocessed to the texi (and later info)
+   output. Such lines won't even appear in other outputs. Lines starting
+   with @# are comments and will be ignored by makedoc. A few simple HTML
+   tags like <li>, <br> or <pre> can be written directly where needed:
+   makedoc will strip them correctly in non-HTML output. Lines starting with
+   @ alone are special makedoc commands which can mean different things:
+
+   @multiplefiles
+      This command tells makedoc to generate multiple HTML files for a
+      document containing several @heading commands. It's ignored by all
+      the other output formats.
+
+   @ignore_css
+      By default the HTML ouptut will use CSS to color text. Since CSS
+      implementation quality varies from a browser to another, you can use
+      this to avoid having unreadable documentation. Or just get a better
+      browser...
+
+   @locale=xxx
+      An obsolete command. It was used by several output formats to set
+      correctly the language of the document. Nowadays you should be using
+      @rtf_language_header= and @charset= when apropiate.
+
+   @rtf_language_header=xxx
+      This can appear multiple times and is used only in rtf output. Rtf
+      documents need a special header for a specific language. This header
+      tells the viewer which fonts should be used with the document. By
+      default makedoc will generate a language header suitable for latin1
+      alike languages. Documents in other languages like Chinese or Korean
+      should use this to override the default header. This command replaces
+      the obsolete @locale command. Example for a Korean rtf:
+
+      @rtf_language_header={\fonttbl{\f0\froman\fcharset129\fprq2 ±¼¸²;}
+      @rtf_language_header={\f1\fmodern\fcharset129\fprq1 ;}
+      @rtf_language_header={\f2\froman\fcharset129\fprq2 ;}}
+
+   @charset=xxx
+      This command is used by HTML output. Each generated HTML file needs a
+      meta tag with information about the used character set. By default
+      makedoc will use iso-8859-1 as character set. You can use this commnd
+      to override that meta tag. Example for Korean HTML files:
+
+      @charset=euc-kr
+
+   @document_title=xxx
+      Required for HTML output. Sets the title of each HTML file. For
+      multifile output, to this string makedoc will append the text of the
+      @heading command used to generate each individual file.
+
+   @html_footer=xxx
+      Required for multifile HTML output. This is the text that will appear
+      at the footer of each individual html file which is not the index.
+
+   @rtfh=xxx
+      Similar to @document_title but for rtf output. Soon to be deprecated.
+      
+   @manh=xxx
+      Header of each manpage.
+      
+   @mans=xxx
+      Added to each manpage, something like #include <allegro.h>.
+
+   @titlepage
+   @!titlepage
+      Lines enclosed between those two commands are the title page of the
+      document.
+
+   @!indent
+   @indent
+      Lines enclosed between those two commands won't be indented.
+
+   @!html
+   @html
+      Lines enlosed between those two commands won't appear in HTML output.
+
+   @!html
+   @html
+      Lines enlosed between those two commands won't appear in text output.
+
+   @!texinfo
+   @texinfo
+      Lines enlosed between those two commands won't appear in texinfo
+      output.
+
+   @heading
+      This command introduces a new chapter or section in the document. In
+      HTML multifile will create a separate file. The following line has to
+      be the title of the new section.
+
+   @headingnocontent
+      Similar to @heading, this won't generate a table of contents of the
+      chapter.
+
+   @hnode xxx
+      Similar to @heading but doesn't create another file. xxx represents
+      the title of the new subsection.
+
+   @tallbullets
+      Uses tall bullets in the output formats that support them.
+
+   @contents
+      Generates an index for the info and html outputs.
+
+   @htmlindex xxx
+      Used in the main index HTML file of the document, creates a link to an
+      external file.
+
+
+
+===================================
+============ Functions ============
+===================================
+
+   The _tx format is about documenting functions. Functions, variables and
+   macros are specified with several @ characters at the apropiate points.
+   Given the function "int get_uformat(void);", you would write in a _tx
+   source file:
+
+      @@int @get_uformat(void);
+         Returns the currently selected text encoding format.
+
+   If you want to generate a cross reference for that function, you can use
+   the @xref command followed by a sequence of tokens separated by commans.
+   Several @xref commands can appear together for the same function:
+
+      @@void @set_uformat(int type);
+      @xref get_uformat, register_uformat, set_ucodepage, set_uformat
+      @xref ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+      @xref ugetat, usetat, uinsert, uremove, allegro_init
+         Sets the current text encoding format...
+
+   If the name function is too long to fit horizontally (use a width of 80
+   for your document if you want it to be readable in output formats like
+   plain ascii or info), you can split the function over several lines:
+
+      @\void @register_uformat(int type,
+      @\                      int (*u_getc)(const char *s),
+      @\                      int (*u_getx)(char **s),
+      @\                      int (*u_setc)(char *s, int c),
+      @\                      int (*u_width)(const char *s),
+      @\                      int (*u_cwidth)(int c),
+      @@                      int (*u_isok)(int c));
+      @xref set_uformat, uconvert, ugetc, ugetx, usetc, uwidth, ucwidth, uisok
+         Installs a set of custom handler...
+
+   Remember to end the last line with @@ instead of @\. Use allegro._tx as a
+   reference if you have any problems documenting your functions.
+
+
+
+===================================
+============ Meta tags ============
+===================================
+
+   _tx files previously used the <pre> and </pre> tags in source files to
+   generate preformatted text in HTML, which was used to represent code
+   which had to appear verbatim. Now with the use of optional CSS for HTML
+   code, the HTML tags needed to generate the apropiate effect are longer
+   than a simple <pre>. Makedoc provides some "macros" or "meta tags" which
+   you can use to avoid typing long HTML commands:
+
+   <textblock>
+   ...
+   <endblock>
+   
+   <codeblock>
+   ...
+   <endblock>
+
+   <textblock> and <codeblock> will be converted to <blockquote class="text">
+   <pre> and <blockquote class="code"><pre> respectively. <endblock> will
+   expand to </pre></blockquote>. The good thing is that if you disable CSS
+   makedoc will expand them to only <pre> and </pre>.
+
+   By default text blocks will appear with a blue background. code blocks
+   will appear with a yellow background. Both blocks will be surrounded
+   with a border.
+
+
+
+============================================
+============ Special characters ============
+============================================
+
+   You can't use directly '<' or '>' in your text. While makedoc is clever
+   and won't try to convert your text, HTML browsers could misunderstand
+   these characters. Therefore you have to use &lt for '<' and &gt for '>',
+   which will be replaced correctly for every possible output.
+
+   The '&' character also has a special meaning for HTML. However, since a
+   _tx file doesn't use this, it will always be replaced by '&amp;' in the
+   HTML output and you won't have to care about this.
+
+
+
+====================================
+============ Conclusion ============
+====================================
+
+   Hopefully this throws some light on the format. Consider this document
+   incomplete and subject to change. After all, makedoc can be considered as
+   a moving target, and if tomorrow the Allegro documentation needs to use
+   whatever feature, the format will change and you will have to rewrite
+   your _tx files. Sorry! At least makedoc will try to warn you about this.
+
+
+   

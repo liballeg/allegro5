@@ -341,6 +341,15 @@ ALLEGRO_MODULE_DGA2_FILES = \
 	src/x/xdga2.c \
 	src/x/xdga2s.s
 
+ALLEGRO_MAKEDOC_SOURCES = \
+	docs/src/makedoc/makedoc.c \
+	docs/src/makedoc/makehtml.c \
+	docs/src/makedoc/makemisc.c \
+	docs/src/makedoc/maketxt.c \
+	docs/src/makedoc/makertf.c \
+	docs/src/makedoc/maketexi.c \
+	docs/src/makedoc/makeman.c
+
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \
 	setup/keyconf.c \
@@ -492,7 +501,6 @@ ALLEGRO_EXAMPLE_EXES = \
 	examples/exzbuf
 
 ALLEGRO_NOLIB_EXE_SOURCES = \
-	docs/makedoc.c \
 	src/i386/asmdef.c
 
 OBJ_CLEAN_FILES = \

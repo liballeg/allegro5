@@ -1,8 +1,4 @@
-@<html>
-@<head>
-@<title>Allegro `const'-correctness</title>
-@</head>
-@<body>
+@document_title=Allegro `const'-correctness
 <center><h1><b>
 Allegro `const'-correctness
 </b></h1></center>
@@ -131,8 +127,7 @@ right, but I've no guarantee it worked...) email me the *exact* error
 message and I will fix it. You can also contact the Allegro conductors
 list; see `How to get help' in the Allegro documentation.
 
-Email: lwithers@lwithers.demon.co.uk
+Email: <email>lwithers@lwithers.demon.co.uk</a>.
 
 Thanks for listening :-)
-@</body>
-@</html>
+

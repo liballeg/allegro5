@@ -231,6 +231,10 @@ obj/qnx/setupdat.o: obj/qnx/setupdat.s
 setup/setup: $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME)
 	gcc $(LFLAGS) -o setup/setup $(OBJ_DIR)/setup.o obj/qnx/setupdat.o $(LIB_NAME) $(LIBRARIES)
 
+define LINK_WITHOUT_LIB
+   gcc $(LFLAGS) -o $@ $^
+endef
+
 PLUGIN_LIB = lib/qnx/lib$(VERY_SHORT_VERSION)dat.a
 PLUGINS_H = obj/qnx/plugins.h
 PLUGIN_DEPS = $(LIB_NAME) $(PLUGIN_LIB)
@@ -255,7 +259,8 @@ endef
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_QNX
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/qnx/*.c src/unix/*.c src/i386/*.c src/misc/*.c demo/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/qnx/*.c src/unix/*.c src/i386/*.c src/misc/*.c demo/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tools/*.c tools/plugins/*.c >> _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/i386/*.s src/qnx/*.s src/misc/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 	sed -e "s/^\([a-zA-Z0-9_]*\.o *:\)/obj\/qnx\/alleg\/\1/" _depend2.tmp > obj/qnx/alleg/makefile.dep

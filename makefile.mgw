@@ -467,6 +467,10 @@ obj/mingw32/asmdef.exe: src/i386/asmdef.c
 
 endif # CROSSCOMPILE
 
+define LINK_WITHOUT_LIB
+   gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $^
+endef
+
 PLUGIN_LIB = lib/mingw32/lib$(VERY_SHORT_VERSION)dat.a
 PLUGIN_DEPS = $(IMPLIB_NAME) $(PLUGIN_LIB)
 PLUGINS_H = obj/mingw32/plugins.h
@@ -513,7 +517,9 @@ fixdemo: $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
 DEPEND_PARAMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_MINGW32
 
 depend:
-	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c tools/*.c tools/win/*.c tools/plugins/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) src/*.c src/c/*.c src/i386/*.c src/misc/*.c src/win/*.c demo/*.c > _depend.tmp
+	gcc $(DEPEND_PARAMS) docs/src/makedoc/*.c examples/*.c setup/*.c tests/*.c tests/win/*.c >> _depend.tmp
+	gcc $(DEPEND_PARAMS) tools/*.c tools/win/*.c tools/plugins/*.c >> _depend.tmp
 	gcc $(DEPEND_PARAMS) -x assembler-with-cpp src/c/*.s src/i386/*.s src/misc/*.s src/win/*.s >> _depend.tmp
 	sed -e "s/^[a-zA-Z0-9_\/]*\///" _depend.tmp > _depend2.tmp
 ifdef UNIX_TOOLS

@@ -2,11 +2,7 @@
 @# This is the source for the Allegro FAQ list, in a weird custom format.
 @# Read makedoc.c for a description of what is going on...
 @#
-@<html>
-@<head>
-@<title>Allegro FAQ</title>
-@</head>
-@<body>
+@document_title=Allegro FAQ
 @!html
 @!rtf
 		___  _ _                        _____ ___   ___ 
@@ -21,9 +17,8 @@
 @rtf
 @!text
 <center><h1><b>
-The Allegro FAQ
-<i>
-If the answer isn't here, ask and it will be added...</i></b></h1></center>
+The Allegro FAQ<br>
+<i>If the answer isn't here, ask and it will be added...</i></b></h1></center>
 <hr>
 @!text
 @heading
@@ -37,20 +32,20 @@ Contents
 @heading
 Trivial problems
 
-<ul><h4><li>
+<ul><li><font size="+1">
 @@   What is Allegro?
-</h4>
+</font>
       See readme.txt.
 
-<h4><li>
+<li><font size="+1">
 @@   Where can I get it?
-</h4>
+</font>
       From any SimTel mirror, in the directory gnu/djgpp/v2tk/, or from the 
       Allegro homepage, <link>http://alleg.sourceforge.net/</a>.
 
-<h4><li>
+<li><font size="+1">
 @@   How do I use it?
-</h4>
+</font>
       See allegro.txt.
 </ul>
 
@@ -59,43 +54,43 @@ Trivial problems
 @heading
 DJGPP problems
 
-<ul><h4><li>
+<ul><li><font size="+1">
 @@   What is this make program that I'm supposed to run?
-</h4>
+</font>
       Make is part of the standard djgpp distribution, in the file 
       v2gnu/mak*b.zip (whatever the latest version number is). You can get 
       this from <link>http://www.delorie.com/djgpp/</a>.
 
-<h4><li>
+<li><font size="+1">
 @@   Make doesn't work properly.
-</h4>
+</font>
       Are you sure that you have installed djgpp correctly? Check the 
       instructions in the djgpp readme.1st file, and in particular confirm 
       that you have set the DJGPP environment variable and added the 
       djgpp\bin directory to your path.
 
-<h4><li>
+<li><font size="+1">
 @@   My djgpp installation is fine, but make still doesn't work properly.
-</h4>
+</font>
       Are you sure that you are using the GNU make program, and not some 
       other version like the Borland one? If in doubt, run "make -v" and 
       check that the GNU copyright message is displayed.
 
-<h4><li>
+<li><font size="+1">
 @@   When I run make, it asks me for some parameters. What do I type?
-</h4>
+</font>
       You shouldn't be running make from the Win95 explorer! Bring up a DOS 
       box, change to your Allegro directory, and type "make" at the command 
       prompt.
 
-<h4><li>
+<li><font size="+1">
 @@   When I run make, it says "makefile has modification time in the future".
-</h4>
+</font>
       Are you sure that your system time and date are set correctly?
 
-<h4><li>
+<li><font size="+1">
 @@   When I run make, it says "virtual memory exhausted".
-</h4>
+</font>
       As the error message suggests, you need to provide more memory for the 
       compiler to use. The go32-v2 program will tell you how much is 
       currently available. If you are running under DOS, try to free up more 
@@ -104,11 +99,11 @@ DJGPP problems
       have to type this in by hand, because the pulldown list doesn't go 
       above 16384).
 
-<h4><li>
+<li><font size="+1">
 @@   When I try to compile a program using Allegro, I get lots of errors like:<br>
    C:\TEMP\ccdaaaaa(.text+0x9):x.c: undefined reference to `allegro_init'<br>
-   C:\TEMP\ccdaaaaa(.text+0xe):x.c: undefined reference to `install_keyboard'
-</h4>
+   C:\TEMP\ccdaaaaa(.text+0xe):x.c: undefined reference to `install_keyboard'<br>
+</font>
       You haven't read the docs, have you? :-) You need to link your program 
       with the library file, liballeg.a. First, make sure you have installed 
       everything properly (running make should do this for you). Second, if 
@@ -117,9 +112,9 @@ DJGPP problems
       Rhide, go to the Options/Libraries menu, type 'alleg' into the first 
       empty field, and make sure the box next to it is checked.
 
-<h4><li>
+<li><font size="+1">
 @@   I give up: I can't compile this! Can you send me a precompiled version?
-</h4>
+</font>
       No, sorry. For starters, liballeg.a is about 450k, but you'd probably 
       also want various utilities like the grabber, sound setup, etc. And 
       what about all the example programs? If I included compiled versions 
@@ -135,9 +130,9 @@ DJGPP problems
       fix the problem, not just sweep it under the carpet by getting someone 
       else to compile Allegro for you...
 
-<h4><li>
+<li><font size="+1">
 @@   Compile errors scroll off the screen too quickly for me to read them!
-</h4>
+</font>
       GNU tools write their error messages to the error stream, stderr. 
       Unfortunately command.com is too stupid to know how to redirect this, 
       but fortunately DJ was smart enough to work around that, so you can 
@@ -150,45 +145,45 @@ DJGPP problems
 @heading
 DOS problems
 
-<ul><h4><li>
+<ul><li><font size="+1">
 @@   Does the DOS version of Allegro work under Windows NT?
-</h4>
+</font>
       Your mileage may vary. Some people have reported problems, while 
       others say that it works fine. I don't have access to NT myself, so 
       there is nothing I can do about it either way, and to be honest I 
       don't care very much. Use the Windows version of Allegro if you want 
       to make Windows programs. If you want to run DOS programs, use DOS!
 
-<h4><li>
+<li><font size="+1">
 @@   Does Allegro work under OpenDOS?
-</h4>
+</font>
       Yes, but with some caveats. If you are using the OpenDOS version of 
       EMM386, you must disable their DPMI implementation (specify DPMI=OFF 
       on the EMM386.EXE device line in your config.sys). You should also 
       make sure the PIC=OFF flag is set, but this is the default so it won't 
       be a problem unless you have specifically enabled it.
 
-<h4><li>
-@@   How can I extend the 256k limit on Mode-X video memory?
-   I have two megs in my card.
-</h4>
+<li><font size="+1">
+@\   How can I extend the 256k limit on Mode-X video memory?
+@@   I have two megs in my card.
+</font>
       You can't. The limit is imposed by the VGA hardware, not by Allegro. 
       To access more than 256k of video memory you need to use an SVGA mode, 
       which means either switching to a higher resolution or getting a copy 
       of the SciTech Display Doctor, which provides several low resolution
       SVGA modes.
 
-<h4><li>
+<li><font size="+1">
 @@   Does DOS Allegro work with the SB-Live soundcard?
-</h4>
+</font>
       It does for some people, but not for others. The problem is that 
       Creative Labs refuse to release any specs, so we don't know how to 
       write a driver for it. Complain to them, or buy a different card from 
       a more reasonable manufacturer.
 
-<h4><li>
+<li><font size="+1">
 @@   Why does DOS Allegro play sounds so much quieter than in Windows?
-</h4>
+</font>
       This might be because you have the volume set very low: try changing 
       this in the setup program. Also, Allegro is mixing several sounds into 
       a single output buffer, unlike the Windows sound player that only 
@@ -201,18 +196,18 @@ DOS problems
       described in the docs. This will enable you to adjust the overall 
       volume of Allegro's digital sound output.
 
-<h4><li>
+<li><font size="+1">
 @@   Why doesn't it work with my video card?
-</h4>
+</font>
       Try using a FreeBE/AF driver (<link>http://www.talula.demon.co.uk/freebe/</a>),
       or the commercial SciTech Display Doctor (<link>http://www.scitechsoft.com</a>).
       If it still doesn't work, post a description of your problem to the 
       Allegro mailing list, along with a copy of the output from running the 
       afinfo and vesainfo programs.
 
-<h4><li>
+<li><font size="+1">
 @@   Why not use some sort of dynamic linking system?
-</h4>
+</font>
       The VBE/AF interface already provides this for the video drivers: see 
       the FreeBE/AF project on <link>http://www.talula.demon.co.uk/freebe/</a>.
       For more general things like the sound, VESA, and mode-X routines, 
@@ -220,10 +215,10 @@ DOS problems
       of helper functions from the core lib. The djgpp DXE format is nowhere 
       near flexible enough to support this, and I don't want to make Allegro 
       dependent on any other dynamic linking packages.
-<h4><li>
-@@   I get an "out of environment space" error when I run fix.bat or 
-   vcvars32.bat!
-</h4>
+<li><font size="+1">
+@\   I get an "out of environment space" error when I run fix.bat or
+@@   vcvars32.bat!
+</font>
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
@@ -235,9 +230,9 @@ DOS problems
 @heading
 Windows problems
 
-<ul><h4><li>
+<ul><li><font size="+1">
 @@   I get lots of compile errors about things like "LPDIRECTDRAWSURFACE2"!
-</h4>
+</font>
       You need to tell your compiler how to find the DirectX include files
       and libraries: put the DirectX SDK /include and /lib directories in the
       compiler/linker path. Alternatively, if you don't want to modify any
@@ -245,23 +240,23 @@ Windows problems
       /include and /lib directories to the corresponding ones for your
       compiler.
 
-<h4><li>
+<li><font size="+1">
 @@   I get lots of compile errors about things like "DDEDM_STANDARDVGAMODES"!
-</h4>
+</font>
       You need to upgrade to a more recent version of the DirectX SDK, at 
       least version 5, which you can get from the Microsoft Developer site.
 
-<h4><li>
+<li><font size="+1">
 @@   I get errors about a missing WinMain() or main() function!
-</h4>
+</font>
       You need to write END_OF_MAIN() just after your main() function. 
       Allegro uses this, along with some preprocessor magic, to turn a 
       normal main() function into a Windows-style WinMain() entrypoint.
 
-<h4><li>
-@@   I get an "out of environment space" error when I run fix.bat or 
-   vcvars32.bat!
-</h4>
+<li><font size="+1">
+@\   I get an "out of environment space" error when I run fix.bat or
+@@   vcvars32.bat!
+</font>
       Well duh, you need to increase the size of your environment then :-) 
       You can do this by changing the settings for your DOS box (click the 
       system menu and select "properties"), or at startup in your config.sys 
@@ -273,33 +268,33 @@ Windows problems
 @heading
 Unix problems
 
-<ul><h4><li>
+<ul><li><font size="+1">
 @@   I get errors about "_mangled_main_address" being undefined!
-</h4>
+</font>
       You need to write END_OF_MAIN() just after your main() function. 
       Allegro uses this, along with some preprocessor magic, to get a copy 
       of your argv[] parameters (it needs those for various internal things).
 
-<h4><li>
+<li><font size="+1">
 @@   Compile errors scroll off the screen way too quickly for me to read them!
-</h4>
+</font>
       You need to redirect stderr into a file, so you can view them later. 
       The method for doing this depends on your shell: if you are using a 
       Bourne-style shell like bash, try "make 2&gt logfile.txt".
 
-<h4><li>
-@@   When I try to use DGA2, I get "resolution not supported", but the X
-   server does actually support that resolution !
-</h4>
+<li><font size="+1">
+@\   When I try to use DGA2, I get "resolution not supported", but the X
+@@   server does actually support that resolution !
+</font>
       There are two possible reasons:
       1) DGA2 may support different resolutions/color depths than X, 
          run the gfxinfo program to know what combinations you can use, 
       2) You may have a buggy DGA2 implementation, see next question.
 
-<h4><li>
-@@   When I try to use DGA2, the screen goes black and the PC completely
-   halts!
-</h4>
+<li><font size="+1">
+@\   When I try to use DGA2, the screen goes black and the PC completely
+@@   halts!
+</font>
       You are probably using a XFree86 server with a very buggy DGA2 
       implementation, such as 4.0.3 (shipped with Red Hat 7.1 for example). 
       Upgrading to 4.1.0 will probably solve your problem. You can obtain 
@@ -313,32 +308,32 @@ Unix problems
 @heading
 General problems
 
-<ul><h4><li>
+<ul><li><font size="+1">
 @@   I'm trying to compile the grabber, but it doesn't work!
-</h4>
+</font>
       The grabber needs to be linked with the code in datedit.c. But you 
       shouldn't have to worry about doing this by hand: just run "make" and 
       that will build everything for you.
 
-<h4><li>
-@@   When I compile Allegro, make fails with something like `Error: operands
-   given don't match any known 386 instruction' or `Error: no such
-   instruction `maskmovq %mm3, %mm1''.
-</h4>
+<li><font size="+1">
+@\   When I compile Allegro, make fails with something like `Error: operands
+@\   given don't match any known 386 instruction' or `Error: no such
+@@   instruction `maskmovq %mm3, %mm1''.
+</font>
       You need to update your version of GNU binutils. See readme.txt to
       find out what the minimum required version you need is.
 
-<h4><li>
+<li><font size="+1">
 @@   Can I use Allegro with my &ltfoobar&gt compiler?
-</h4>
+</font>
       Not unless &ltfoobar&gt is mentioned in readme.txt as one of the 
       supported platforms. You could port it, but that is usually a lot of 
       work. If &ltfoobar&gt is a 16 bit DOS compiler like Borland C, you 
       might as well just forget the idea :-)
 
-<h4><li>
+<li><font size="+1">
 @@   What is this "Allegro WIP" that I see people talking about?
-</h4>
+</font>
       WIP stands for "work in progress", and refers to any changes that are 
       more recent than the last official release. WIP versions of the 
       library can be obtained as patches from the Allegro website 
@@ -346,9 +341,9 @@ General problems
       quite stable, although obviously not so well tested as a final release 
       version.
 
-<h4><li>
+<li><font size="+1">
 @@   I got the WIP patch, but I can't apply it.
-</h4>
+</font>
       Do you have a copy of patch.exe? If not, go and get it from the same 
       place that you downloaded the rest of djgpp: this tool is a standard 
       part of the compiler distribution. If you do have the patch program 
@@ -358,30 +353,30 @@ General problems
       official release from before the WIP was made, but check the text file 
       that comes with the WIP to be sure).
 
-<h4><li>
+<li><font size="+1">
 @@   When I run the demo game, it says it can't find demo.dat.
-</h4>
+</font>
       That file is distributed separately in the WIP versions. It is here:
       <link>http://alleg.sourceforge.net/wip.html</a>. (alldata.zip)
 
-<h4><li>
-@@   How can I display several different images at the same time?
-   When I show the second one it messes up the palette for the first.
-</h4>
+<li><font size="+1">
+@\   How can I display several different images at the same time?
+@@   When I show the second one it messes up the palette for the first.
+</font>
       This is just the way that the video hardware works: there can only be 
       one palette in use at any given moment. Either convert your images so 
       they all use the same palette, or switch to a truecolor graphics mode.
 
-<h4><li>
+<li><font size="+1">
 @@   How can I convert my graphics to all use the same 256 color palette?
-</h4>
-      See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
+</font>
+      See the Allegro.cc homepage (<link>http://allegro.cc/</a>)
       for some utilities, for example FixPal and Smacker.
 
-<h4><li>
-@@   My colors always come out wrong. And how can I make a greyscale palette 
-   with 256 different shades?
-</h4>
+<li><font size="+1">
+@\   My colors always come out wrong. And how can I make a greyscale palette
+@@   with 256 different shades?
+</font>
       The VGA hardware only uses 6 bits for each color component, which 
       means the red, green, and blue values in the palette structure range 
       from 0 to 63, not all the way up to 255. That gives you a potential 
@@ -390,17 +385,17 @@ General problems
       wide DAC, but Allegro doesn't support this directly and I don't know 
       how reliable it will be across different hardware.
 
-<h4><li>
+<li><font size="+1">
 @@   Why do I have a funny color border at the edges of my monitor?
-</h4>
+</font>
       When you are in a 256 color mode, the VGA card displays color #0 
       around the border of the display area (in truecolor modes it displays 
       black). Your funny color will go away if you change the palette so 
       that color #0 is black.
 
-<h4><li>
+<li><font size="+1">
 @@   How can I fade the screen in a truecolor graphics mode?
-</h4>
+</font>
       With great difficulty :-) There is no such easy trick as just altering 
       the palette, so you will have to repeatedly redraw the image in a 
       lighter or darker form. You could draw black translucent rectangles 
@@ -408,10 +403,10 @@ General problems
       bitmap while copying it to the screen, but be warned that these 
       operations are expensive and will require a fast PC!
 
-<h4><li>
-@@   I tried using fade_in() and fade_out() with truecolor modes but nothing
-   happened. What am I doing wrong?
-</h4>
+<li><font size="+1">
+@\   I tried using fade_in() and fade_out() with truecolor modes but nothing
+@@   happened. What am I doing wrong?
+</font>
       fade_in() and fade_out() only work in 8-bit paletted modes. One of the
       ways to fade a bitmap in is to loop through all the pixels and change
       them individually. An alternative is to draw lots of translucent black
@@ -420,40 +415,40 @@ General problems
       modify this so it fades in or out from/to a black screen. See also the
       previous question.
 
-<h4><li>
+<li><font size="+1">
 @@   How can I generate FLI or FLC format animations?
-</h4>
-      See the Allegro.cc homepage (<link>http://www.allegro.cc/</a>)
+</font>
+      See the Allegro.cc homepage (<link>http://allegro.cc/</a>)
       for some utilities, for example DTA and Smacker.
 
-<h4><li>
-@@   How can I make parts of my sprite transparent in truecolor modes?
-   I don't understand what the docs mean by "bright pink"...
-</h4>
+<li><font size="+1">
+@\   How can I make parts of my sprite transparent in truecolor modes?
+@@   I don't understand what the docs mean by "bright pink"...
+</font>
       In your favourite paint program, get hold of the RGB sliders and drag 
       the red and blue ones up as far as they go (usually to 255, but this 
       will depend on what units your software uses), and the green one right 
       down to zero. The result is a special shade of Magic Pink, or as some 
       people prefer to call it, magenta.
 
-<h4><li>
+<li><font size="+1">
 @@   I can't get the 3D polygon functions to work!
-</h4>
+</font>
       Remember that the vertex positions are stored in fixed point format, 
       so you must use the itofix() macro or shift your coordinates 16 bits 
       to the left.
 
-<h4><li>
+<li><font size="+1">
 @@   I can't get the rotate_sprite() function to work!
-</h4>
+</font>
       Remember that the angle of rotation is stored in fixed point format, 
       so you must use the itofix() macro or shift your coordinates 16 bits 
       to the left. For example, rotate_sprite(bmp, spr, x, y, itofix(32)) 
       will rotate the graphic by 45 degrees.
 
-<h4><li>
+<li><font size="+1">
 @@   I can't get the d_icon_proc() GUI object to work!
-</h4>
+</font>
       You are probably trying to initialise the dialog structure with a 
       pointer to your bitmap, right? That won't work because the dialog is 
       created at compile time, but the bitmap is only loaded at runtime, so 
@@ -462,9 +457,9 @@ General problems
       real bitmap pointer into the dp field as part of your program init 
       code, after you've loaded the bitmap into memory.
 
-<h4><li>
+<li><font size="+1">
 @@   Should I use regular bitmaps, RLE sprites, or compiled sprites?
-</h4>
+</font>
       It depends on exactly what you are doing. If your images are totally 
       opaque, there is no advantage to using an RLE sprite, and it will 
       probably be faster to use a regular bitmap with the blit() function. 
@@ -477,14 +472,14 @@ General problems
       blit() when using SVGA modes on a pentium (the large size of a 
       compiled sprite is very bad for the cache performance).
 
-<h4><li>
+<li><font size="+1">
 @@   How can I make my game run at the same speed on any computer?
-</h4>
+</font>
       You need to make sure the game logic gets updated at a regular rate, 
       but skip the screen refresh every now and then if the computer is too 
       slow to keep up. This can be done by installing a timer handler that 
       will increment a global variable at your game logic speed, eg:
-<pre>
+<codeblock>
       volatile int speed_counter = 0;
 
       void increment_speed_counter()
@@ -509,25 +504,25 @@ General problems
 
 	    update_display();
 	 }
-      }</pre>
+      }<endblock>
 
-<h4><li>
+<li><font size="+1">
 @@   How can I take a screenshot of my Allegro program?
-</h4>
+</font>
       Add a call to save_bitmap() somewhere in your code. See the 
       save_bitmap() documentation for a discussion of one common pitfall 
       when doing this, and some example code.
 
-<h4><li>
+<li><font size="+1">
 @@   How can I generate a random number?
-</h4>
+</font>
       Call srand(time(NULL)) at the beginning of your program, and then use 
       rand()%limit to obtain a pseudo-random number between 0 and limit-1.
 
-<h4><li>
-@@   Why not make a "lite" version of Allegro?
-   I don't need any of the sound, maths, or GUI routines...
-</h4>
+<li><font size="+1">
+@\   Why not make a "lite" version of Allegro?
+@@   I don't need any of the sound, maths, or GUI routines...
+</font>
       There is no need. The linker will only include the parts of the 
       library that you actually use, so if you don't call any of, say, the 
       texture mapping or FLIC playing functions, they will be left out of 
@@ -538,81 +533,81 @@ General problems
       keep this to a minimum. See allegro.txt for information about more 
       precise ways to remove some of the graphics and sound drivers.
 
-<h4><li>
+<li><font size="+1">
 @@   Will you ever add support for 3D accelerator hardware?
-</h4>
+</font>
       No. I think this sort of hardware support would be most useful as part 
       of a proper 3D API, which Allegro is not, and will never be. If you 
       want to do some work on this, the MESA library (a free implementation 
       of OpenGL) is IMHO the place to start.
 
-<h4><li>
+<li><font size="+1">
 @@   Why not add a MOD playing function?
-</h4>
+</font>
       Several very good ones already exist, for instance the JGMOD package. 
       See the audio library extensions section on the Allegro.cc website
-      (<link>http://www.allegro.cc/</a>). You are not
+      (<link>http://allegro.cc/</a>). You are not
       allowed to suggest that one of these libraries be merged into Allegro, 
       because this topic has already been done to death on the mailing list 
       and I am tired of it.
 
-<h4><li>
+<li><font size="+1">
 @@   Why not add networking support?
-</h4>
+</font>
       That would be a lot of work, and I don't have time to do it myself. 
       There are several networking packages currently in development or 
       floating around on the net, though, and in my opinion this sort of 
       code is more useful as an external library than it would be as part of 
       Allegro.
 
-<h4><li>
+<li><font size="+1">
 @@   Why can't Allegro read GIF files?
-</h4>
+</font>
       Unisys has a patent on the LZW compression algorithm that is used by 
       the GIF format. I want everything in Allegro to be freely usable 
       without any restrictions whatsoever, which means I can't include any 
       code that is subject to licensing or the payment of royalties.
 
-<h4><li>
+<li><font size="+1">
 @@   My program crashes all the time. Could this be a bug in Allegro?
-</h4>
+</font>
       Perhaps. Try to isolate the smallest fragment of code that is able to 
       reproduce the problem, and I'll have a look at it. If you can send me 
       a 10 line program, I will fix it. 100 lines, and I can probably fix 
       it. 1000 lines, and I don't have a chance :-)
 
-<h4><li>
+<li><font size="+1">
 @@   Can I use Allegro in my &ltwhatever&gt commercial application?
-</h4>
+</font>
       Sure. See the giftware terms in readme.txt. I don't mind what you do 
       with it, and there are no problems with commercial usage.
 
-<h4><li>
+<li><font size="+1">
 @@   When will &ltfoobar&gt be finished? I can't wait...
-</h4>
+</font>
       Whenever it is done! A little encouragement is always welcome, but I 
       don't have any completion deadlines and I'm not going to make one up 
       for you :-) As soon as it is finished, it will be released.
 
-<h4><li>
+<li><font size="+1">
 @@   Where can I get some fonts to use with Allegro?
-</h4>
+</font>
       The grabber can import directly from GRX or BIOS format .fnt files, or 
       you can draw them onto a .pcx image using any paint program. See 
       <link>http://www.talula.demon.co.uk/ttf2pcx/</a> for a utility that 
       will convert Windows TrueType fonts into this .pcx format.
 
-<h4><li>
+<li><font size="+1">
 @@   Where can I find a set of instrument samples for the DIGMID driver?
-</h4>
+</font>
       See the Allegro homepage (<link>http://alleg.sourceforge.net/</a>)
       for some links. You can use Gravis patches (.pat format), or SoundFont 
       2.0 (.sf2) files, but the latter must be converted into a patches.dat 
       file with the pat2dat utility.
 
-<h4><li>
+<li><font size="+1">
 @@   How can I convert the documentation into Windows Help format?
-</h4>
+</font>
       You need to download the makertf conversion utility 
       (ftp://ftp.coast.net/Coast/win3/winhelp/mkrtf104.zip), and the Windows 
       Help compiler (ftp://ftp.microsoft.com/Softlib/MSLFILES/HC505.EXE). 
@@ -622,55 +617,54 @@ General problems
       second command will give a lot of warnings, but they can safely be 
       ignored.
 
-<h4><li>
+<li><font size="+1">
 @@   How can I print out the documentation?
-</h4>
+</font>
       The allegro.rtf file can be read directly into Microsoft Word and 
       printed from there, but you should right-click and update the table of 
       contents and index fields to fill them with the correct data first. 
       Alternatively you can install the TeX package and use the tex and 
       dvips programs to convert allegro.txi into Postscript format.
 
-<h4><li>
+<li><font size="+1">
 @@   Where can I find example source code, add-on packages, and tutorials?
-</h4>
-      Check the Allegro.cc homepage, <link>http://www.allegro.cc/</a>.
+</font>
+      Check the Allegro.cc homepage, <link>http://allegro.cc/</a>.
       If you have anything to add to this, please post the URL!
 
-<h4><li>
-@@   Why is it considered good coding practice to define PI as a constant, 
-   rather than just using the value 3.141592 in my code?
-</h4>
+<li><font size="+1">
+@\   Why is it considered good coding practice to define PI as a constant,
+@@   rather than just using the value 3.141592 in my code?
+</font>
       It simplifies the maintenance of your program, in case the value of PI 
       ever needs to be changed. Also it will make your program more portable 
       to other compilers that use different values of PI.
 
-<h4><li>
+<li><font size="+1">
 @@   Why doesn't vsync() seem to work?
-</h4>
+</font>
       A number of graphics cards have buggy or incomplete VESA
       implementations, and often the vsync() function is not implemented. For
       examples on flicker-free drawing, look at the code for the demo game,
       which uses a variety of methods to draw itself.
 
-<h4><li>
-@@   Why doesn't busy waiting on the key array work? For example,
-   "while (!key[KEY_ENTER]);" doesn't work.
-</h4>
+<li><font size="+1">
+@\   Why doesn't busy waiting on the key array work? For example,
+@@   "while (!key[KEY_ENTER]);" doesn't work.
+</font>
       If the code works without optimisations, then it could be the
       compiler's fault. You can try beating the compiler into submission,
       for example:
-<pre>
+<codeblock>
       while (!key[KEY_ENTER])
-         yield_timeslice();</pre>
+         yield_timeslice();<endblock>
 
       For this case, however, it would be better to use readkey() instead.
       Or consider upgrading or downgrading your compiler.
 
-<h4><li>
+<li><font size="+1">
 @@   I'm still confused. Where can I get help?
-</h4>
+</font>
       See <link>http://alleg.sourceforge.net/maillist.html</a>.
 </ul>
-@</body>
-@</html>
+

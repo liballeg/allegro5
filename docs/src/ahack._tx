@@ -2,9 +2,7 @@
 @# This is the source for the Allegro Hacker's Guide, in a weird custom
 @# format. Read makedoc.c for a description of what is going on...
 @#
-@<html>
-@<head><title>Allegro Hacker's Guide</title></head>
-@<body>
+@document_title=Allegro Hacker's Guide
 <center><h1><b>
 The Allegro Hacker's Guide
 </b></h1></center>
@@ -58,7 +56,7 @@ All symbols should be declared as static unless that is absolutely not
 possible, in which case they should be prefixed with an underscore.
 
 Functions look like this:
-<pre>
+<codeblock>
 /* foobar:
  *  Description of what it does.
  */
@@ -66,27 +64,27 @@ void foobar(int foo, int bar)
 {
    /* do some stuff */
 }
-</pre>
+<endblock>
 Three blank lines between functions.
 
 Conditionals look like:
-<pre>
+<codeblock>
    if (foo) {
       /* stuff */
    }
    else {
       /* stuff */
    }
-</pre>
+<endblock>
 The only time when something comes on the same line after a closing brace is 
 at the end of a do/while loop, eg:
-<pre>
+<codeblock>
    do {
       /* stuff */
    } while (foo);
-</pre>
+<endblock>
 Case statements look like this:
-<pre>
+<codeblock>
    switch (foo) {
 
       case bar:
@@ -97,17 +95,17 @@ Case statements look like this:
 	 /* stuff */
 	 break;
    }
-</pre>
+<endblock>
 Examples of where to put spaces:
-<pre>
+<codeblock>
    char *p;
    if (condition) { }
    for (x=0; x&lt10; x++) { }
    function(foo, bar);
    (BITMAP *)data[id].dat;
-</pre>
+<endblock>
 All sources should begin with the standard header:
-<pre>
+<codeblock>
 /*         ______   ___    ___
  *        /\  _  \ /\_ \  /\_ \
  *        \ \ \L\ \\//\ \ \//\ \      __     __   _ __   ___ 
@@ -128,7 +126,7 @@ All sources should begin with the standard header:
  *
  *      See readme.txt for copyright information.
  */
-</pre>
+<endblock>
 Author credits should be added in chronological order, and email addresses 
 should not be included: those can be found in the main credits file, and if 
 they only exist in one place, it is easier to update them when people change 
@@ -354,5 +352,4 @@ must call _remove_exit_func() from inside your shutdown routine, or you will
 find yourself stuck in an endless loop.
 
 
-@</body>
-@</html>
+

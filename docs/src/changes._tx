@@ -2,11 +2,7 @@
 @# This is the source for the recent changes list, in a weird custom format.
 @# Read makedoc.c for a description of what is going on...
 @#
-@<html>
-@<head>
-@<title>Allegro Changes</title>
-@</head>
-@<body>
+@document_title=Allegro Changes
 
 @heading
 Changes from 3.9.40 to 4.0.0 (Dec 2001)
@@ -288,7 +284,7 @@ Changes from 3.11 to 3.9.40 (Nov 2001)
 <li>
    3.9.39: Peter Wang fixed some memory leaks.
 <li>
-   3.9.39: Eric Botcazou fixed two compilation warnings with gcc > 2.95.
+   3.9.39: Eric Botcazou fixed two compilation warnings with gcc &gt 2.95.
 <li>
    3.9.39: Johan Peitz contributed 'Alex the Allegator' icon.
 <li>
@@ -313,7 +309,7 @@ Changes from 3.11 to 3.9.40 (Nov 2001)
 <li>
    3.9.39: Eric Botcazou fixed a compilation warning. Also added support
    for 8-bit desktops to the windows windowed driver. Fixed color shifts in
-   the color convertors from 8-bit. Fixed a bug in the 8->8 color conversion
+   the color convertors from 8-bit. Fixed a bug in the 8-&gt8 color conversion
    routine.
 <li>
    3.9.39: Javier Gonzalez contributed bidirectional looping support for the
@@ -488,7 +484,7 @@ Changes from 3.11 to 3.9.40 (Nov 2001)
    slashes.
 <li>
    3.9.38: Grzegorz Adam Hankiewicz implemented a switch in makedoc to check
-   for long (>77) doc lines.
+   for long (&gt77) doc lines.
 <li>
    3.9.38: Owen Rudge contributed a DLL version resource script.
 <li>
@@ -2916,5 +2912,4 @@ Changes from 1.x to 2.0 beta (Jan/Feb 1996)
 <li>
    There are probably lots of other things that I have forgotten about.
 </ul>
-@</body>
-@</html>
+

@@ -2,11 +2,8 @@
 @# This is the source for the Allegro thanks list, in a weird custom format.
 @# Read makedoc.c for a description of what is going on...
 @#
-@<html>
-@<head>
-@<title>Allegro Contributors</title>
-@</head>
-@<body>
+@document_title=Allegro Contributors
+@html_line_breaks_as_paragraphs
 @<center><h1><b><i>The Hall of Fame</i></b></h1></center><hr>
 @startoutput AUTHORS
 <i>
@@ -781,5 +778,3 @@ Thanks!
    without the cafetiere they gave me last Christmas :-)
 
 @endoutput THANKS
-@</body>
-@</html>
