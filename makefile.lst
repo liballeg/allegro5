@@ -348,7 +348,8 @@ ALLEGRO_MAKEDOC_SOURCES = \
 	docs/src/makedoc/maketxt.c \
 	docs/src/makedoc/makertf.c \
 	docs/src/makedoc/maketexi.c \
-	docs/src/makedoc/makeman.c
+	docs/src/makedoc/makeman.c \
+	docs/src/makedoc/makechm.c
 
 ALLEGRO_LIB_EXE_SOURCES = \
 	demo/demo.c \

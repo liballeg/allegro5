@@ -8601,11 +8601,18 @@ makefiles also provide some special pseudo-targets:
    not a default target, since you need the texi2dvi tool to create it. The
    generated file is especially prepared to be printed on paper.
 <li>
-  'docs-ps' or 'docs-gzipped-ps' (Unix only)<br>
+   'docs-ps' or 'docs-gzipped-ps' (Unix only)<br>
    Creates a Postcript file from the previously generated DVI file. This is
    not a default target, since you need the texi2dvi and dvips tools to
    create it. The second target compresses the generated Postscript file.
    The generated file is especially prepared to be printed on paper.
+<li>
+   'chm-docs' (Windows only)<br>
+   Creates a compiled HTML file from the previously generated html output.
+   This is not a default target, since you need Microsoft's HTML compiler
+   (<link>http://msdn.microsoft.com/library/en-us/htmlhelp/html/htmlhelp.exe</a>),
+   and it has to be installed somewhere in your PATH. Also, this only works
+   if you use '@multiplefiles' (see the top of docs/src/allegro._tx).
 <li>
    'install-man' or 'install-gzipped-man' (Unix only)<br>
    This generates Unix man pages for each Allegro function or variable and

@@ -24,6 +24,7 @@
 #        installall:        install all library versions.
 #        uninstall:         remove Allegro from system directories.
 #        docs:              convert documentation from ._tx sources.
+#        chm-docs:          generate additinal docs in CHM format.
 #        clean:             remove object files.
 #        distclean:         remove objects and executables.
 #        veryclean:         remove all generated files.
@@ -127,7 +128,7 @@ endif
 # -------- top level boss targets like "default" and "all" --------
 
 .PHONY: default all msg lib install installall uninstall docs \
-	clean distclean veryclean depend $(PROGRAMS)
+	clean distclean veryclean depend $(PROGRAMS) chm-docs
 
 .PRECIOUS: $(OBJ_DIR)/%$(OBJ)
 
@@ -154,6 +155,8 @@ msg:
 	@echo Compiling Allegro for $(PLATFORM), $(DESCRIPTION). Please wait...
 
 docs: $(DOCS)
+	@echo HTML help files have been generated.
+	@echo To compile them into .CHM format, run make chm-docs.
 
 lib: $(LIB_NAME)
 
@@ -195,6 +198,12 @@ docs/makedoc: $(OBJECTS_DOC)
 endif
 
 ifdef HTML
+
+chm-docs: docs/html/allegro.chm
+
+docs/html/allegro.chm: $(filter %.$(HTML),$(DOCS)) docs/src/allegro._tx $(OBJECTS_DOC) $(MAKEDOC)
+	$(MAKEDOC) -chm docs/src/allegro.html docs/src/allegro._tx
+	-hhc docs/html/allegro.hhp
 
 $(filter %.txt,$(DOCS)): docs/txt/%.txt: docs/src/%._tx $(MAKEDOC)
 	$(MAKEDOC) -ascii $@ $<

@@ -40,6 +40,7 @@
 #include "makeman.h"
 #include "makertf.h"
 #include "maketexi.h"
+#include "makechm.h"
 
 /* external globals */
 
@@ -79,6 +80,7 @@ int main(int argc, char *argv[])
    char texinfoname[256] = "";
    char rtfname[256] = "";
    char manname[256] = "";
+   char chmname[256] = "";   
    int err = 0;
    int partial = 0;
    int i;
@@ -87,6 +89,9 @@ int main(int argc, char *argv[])
       if ((mystricmp(argv[i], "-ascii") == 0) && (i<argc-1)) {
 	 strcpy(txtname, argv[++i]);
       }
+      else if ((mystricmp(argv[i], "-chm") == 0) && (i<argc-1)) {
+	 strcpy(chmname, argv[++i]);	 
+      }     
       else if ((mystricmp(argv[i], "-html") == 0) && (i<argc-1)) {
 	 strcpy(htmlname, argv[++i]);
 	 html_extension = "html";
@@ -132,10 +137,12 @@ int main(int argc, char *argv[])
       printf("\t-rtf filename.rtf\n");
       printf("\t-t[e]xi filename.t[e]xi\n");
       printf("\t-man filename.3\n");
+      printf("\t-chm filename.htm[l]\n");
       return 1;
    }
 
-   if ((!txtname[0]) && (!htmlname[0]) && (!texinfoname[0]) && (!rtfname[0]) && (!manname[0])) {
+   if ((!txtname[0]) && (!htmlname[0]) && (!texinfoname[0]) && (!rtfname[0]) &&
+      (!manname[0]) && (!chmname[0])) {
       strcpy(txtname, filename);
       strcpy(extension(txtname), "txt");
 
@@ -194,6 +201,14 @@ int main(int argc, char *argv[])
 	 goto getout;
       }
    }
+   
+   if (chmname[0]) {
+      if (write_chm(chmname) != 0) {
+	 fprintf(stderr, "Error writing CHM output file\n");
+	 err = 1;
+	 goto getout;
+      }
+   }      
 
    getout:
 
