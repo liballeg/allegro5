@@ -1448,7 +1448,7 @@ int menu_alt_key(int k, MENU *m)
 
 
 
-/* __do_menu:
+/* _do_menu:
  *  The core menu control function, called by do_menu() and d_menu_proc().
  *  The navigation through the arborescence of menus can be done:
  *   - with the arrow keys,
@@ -1456,8 +1456,9 @@ int menu_alt_key(int k, MENU *m)
  *   - with mouse movements when the mouse button is being held down,
  *   - with mouse movements only if gui_menu_opening_delay is non negative.
  */
-static int __do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh, int auto_open)
+static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh)
 {
+   static int auto_open = TRUE;  /* global property */
    MENU_INFO m;
    MENU_INFO *i;
    int c, c2;
@@ -1628,8 +1629,7 @@ static int __do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int r
       }  /* end of input processing */
 
       if ((redraw) || (m.sel != old_sel)) {           /* selection changed? */
-         if (old_sel == -1)
-            gui_timer = 0;
+         gui_timer = 0;
 
 	 scare_mouse();
 	 acquire_screen();
@@ -1692,7 +1692,7 @@ static int __do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int r
 	    }
 
             /* recursively call child menu */
-	    c = __do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0, auto_open);
+	    c = _do_menu(m.menu[ret].child, &m, FALSE, child_x, child_y, TRUE, NULL, 0, 0);
 
 	    if (c < 0) {                            /* return to parent? */
 	       ret = -1;
@@ -1703,11 +1703,7 @@ static int __do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int r
 		  m.sel = mouse_sel;
 		  redraw = TRUE;
 		  gui_timer = 0;
-		  auto_open = TRUE;
 		  back_from_child = TRUE;
-	       }
-	       else {				    /* return caused by keyboard */
-		  auto_open = FALSE;
 	       }
 	    }
 	 }
@@ -1748,16 +1744,6 @@ static int __do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int r
    }
 
    return ret;
-}
-
-
-
-/* _do_menu:
- *  Top-level wrapper around __do_menu.
- */
-static int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, int *dret, int minw, int minh)
-{
-   return __do_menu(menu, parent, bar, x, y, repos, dret, minw, minh, TRUE);
 }
 
 
