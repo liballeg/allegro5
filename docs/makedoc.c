@@ -216,7 +216,7 @@ int is_empty(char *s)
 
 
 
-void free_data()
+void free_data(data)
 {
    LINE *line = head;
    LINE *prev;
