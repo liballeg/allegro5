@@ -575,10 +575,17 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    PACKFILE *f;
    PALETTE tmppal;
    int bfSize;
-   int depth = bitmap_color_depth(bmp);
-   int bpp = (depth == 8) ? 8 : 24;
-   int filler = 3 - ((bmp->w*(bpp/8)-1) & 3);
+   int biSizeImage;
+   int depth;
+   int bpp;
+   int filler;
    int c, i, j;
+   ASSERT(filename);
+   ASSERT(bmp);
+
+   depth = bitmap_color_depth(bmp);
+   bpp = (depth == 8) ? 8 : 24;
+   filler = 3 - ((bmp->w*(bpp/8)-1) & 3);
 
    if (!pal) {
       get_palette(tmppal);
@@ -586,13 +593,14 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
    }
 
    if (bpp == 8) {
-      bfSize = 54                      /* header */
-	       +256*4                  /* palette */
-	       +bmp->w*bmp->h;         /* image data */
+      biSizeImage = (bmp->w + filler) * bmp->h;
+      bfSize = (54		       /* header */
+		+ 256*4		       /* palette */
+		+ biSizeImage);	       /* image data */
    }
    else {
-      bfSize = 54                      /* header */
-	       +bmp->w*bmp->h*3;       /* image data */
+      biSizeImage = (bmp->w*3 + filler) * bmp->h;
+      bfSize = 54 + biSizeImage;       /* header + image data */
    }
 
    f = pack_fopen(filename, F_WRITE);
@@ -611,17 +619,15 @@ int save_bmp(AL_CONST char *filename, BITMAP *bmp, AL_CONST RGB *pal)
       pack_iputl(54, f); 
 
    /* info_header */
-   bfSize = bmp->w * bmp->h * bpp/8;
-
    pack_iputl(40, f);                  /* biSize */
    pack_iputl(bmp->w, f);              /* biWidth */
    pack_iputl(bmp->h, f);              /* biHeight */
    pack_iputw(1, f);                   /* biPlanes */
    pack_iputw(bpp, f);                 /* biBitCount */
    pack_iputl(0, f);                   /* biCompression */
-   pack_iputl(bfSize, f);              /* biSizeImage */
-   pack_iputl(0, f);                   /* biXPelsPerMeter */
-   pack_iputl(0, f);                   /* biYPelsPerMeter */
+   pack_iputl(biSizeImage, f);         /* biSizeImage */
+   pack_iputl(0xB12, f);               /* biXPelsPerMeter (0xB12 = 72 dpi) */
+   pack_iputl(0xB12, f);               /* biYPelsPerMeter */
 
    if (bpp == 8) {
       pack_iputl(256, f);              /* biClrUsed */
