@@ -361,7 +361,7 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
    if (msg == MSG_DRAW)
       acquire_screen();
 
-   force = ((msg == MSG_START) || (msg == MSG_END));
+   force = ((msg == MSG_START) || (msg == MSG_END) || (msg >= MSG_USER));
 
    res = D_O_K;
 

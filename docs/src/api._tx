@@ -103,6 +103,8 @@ Changes between 4.0.x and 4.2.x series
    it takes into account the bounding box to calculate the position which the
    string is centered around. It previously used only the x field. And, as a
    consequence, gui_ctext_proc is now expected to behave the same.
+<li>
+   dialog_message() now passes user messages to hidden objects.
 </ul>
 
 @heading
