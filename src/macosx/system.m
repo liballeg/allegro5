@@ -326,6 +326,8 @@ void osx_event_handler()
  */
 static int osx_sys_init(void)
 {
+   long result;
+   
    /* Install emergency-exit signal handlers */
    old_sig_abrt = signal(SIGABRT, osx_signal_handler);
    old_sig_fpe  = signal(SIGFPE,  osx_signal_handler);
@@ -334,6 +336,13 @@ static int osx_sys_init(void)
    old_sig_term = signal(SIGTERM, osx_signal_handler);
    old_sig_int  = signal(SIGINT,  osx_signal_handler);
    old_sig_quit = signal(SIGQUIT, osx_signal_handler);
+   
+   /* Setup OS type & version */
+   os_type = OSTYPE_MACOSX;
+   Gestalt(gestaltSystemVersion, &result);
+   os_version = (result >> 8) & 0xff;
+   os_revision = (result >> 4) & 0xf;
+   os_multitasking = TRUE;
    
    /* Setup a blank cursor */
    cursor_data = calloc(1, 16 * 16 * 4);
