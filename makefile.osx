@@ -189,7 +189,7 @@ $(INSTALL_DIR)/include/allegro/platform/%.h: include/allegro/platform/%.h $(INST
 $(INSTALL_DIR)/include/allegro/platform:
 	mkdir $(INSTALL_DIR)/include/allegro/platform
 
-$(INSTALL_DIR)/bin/allegro-config:
+$(INSTALL_DIR)/bin/allegro-config: $(LIB_NAME)
 ifdef STATICLINK
 	@sed -e "s/@LINK_WITH_STATIC_LIBS@/yes/" misc/allegro-config.in >temp
 else
@@ -275,7 +275,7 @@ else
 	@mkdir $(FRAMEWORK)
 	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@mkdir -p $(FRAMEWORK)/Versions/$(shared_version)/Resources
-	@ln -s $(INSTALL_DIR)/lib/lib$(VERSION)-$(shared_version).dylib $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
+	@cp $(LIB_NAME) $(FRAMEWORK)/Versions/$(shared_version)/$(FRAMEWORK_NAME)
 	@cp include/allegro.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@cp include/osxalleg.h $(FRAMEWORK)/Versions/$(shared_version)/Headers
 	@cp -r include/allegro $(FRAMEWORK)/Versions/$(shared_version)/Headers

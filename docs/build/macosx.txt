@@ -73,7 +73,11 @@
 
       sudo make install-framework
 
-   The "Allegro" framework will be created into /Library/Frameworks.
+   The "Allegro" framework will be created into /Library/Frameworks. Note
+   that the framework is standalone: it contains its own copy of the
+   dynamic library. This is to ensure you can embed the framework into
+   your application bundles safely, so they'll work on machines where
+   Allegro is not installed.
    Finally, if you plan on using Project Builder to code your apps, you
    may find useful installing an Allegro application PB project template:
 
