@@ -8,8 +8,7 @@
 #  This script tries to generate dependencies for all the supported
 #  compilers, which involves considerable skulduggery to make sure it
 #  will work on any Unix-like platform, even if the compilers are not
-#  available themselves, and for converting things like fixdll.bat and
-#  fixdjgpp.bat into something that bash can understand.
+#  available themselves.
 #
 #  Note: if you write datestamp in the archive_name field, then the
 #  resulting archive will be datestamped. This is in particular useful
@@ -65,8 +64,8 @@ utod()
 }
 
 
-# generate the DLL linkage files for Windows compilers
-./fixdll.sh
+# generate the DLL export definition files for Windows compilers
+misc/fixdll.sh
 
 utod lib/msvc/allegro.def
 utod lib/mingw32/allegro.def

@@ -41,8 +41,8 @@ echo "Cleaning the Allegro tree..."
 make.exe -s veryclean
 
 
-# generate DLL linkage files
-./fixdll.sh
+# generate DLL export definition files
+misc/fixdll.sh
 
 
 # generate dependencies
