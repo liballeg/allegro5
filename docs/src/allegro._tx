@@ -8352,7 +8352,7 @@ transformation pipeline of a point from world space to the screen.
   * parameters, and also flips up and front direction - ready to project
   * the point to the viewport.
   */
- apply_matrix (&m, 100, 200, -300, &x, &y, &z);
+ apply_matrix_f (&m, 100, 200, -300, &x, &y, &z);
 
  /* Finally, the point is projected from camera space to the screen. */
  persp_project_f (cx, cy, cz, &sx, &sy);
