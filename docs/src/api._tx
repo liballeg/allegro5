@@ -25,17 +25,19 @@
 Introduction
 
    Once Allegro 4.0 is released, we plan to maintain Application Programming
-   Interface compatibility for the rest of the 4.x series. For example, that
-   means you will be able to compile your program written for version 4.0
-   with version 4.0.23 or version 4.2.1 of the library. However, in order to
-   fix some inconsistencies of the 4.0 API, we may make exceptions to the
-   rule and break strict API compatibility in a few cases. But this is
-   guaranteed to never happen in a series for which major and minor version
-   numbers are fixed; in other words, two versions that differ from each
-   other only by the revision (3rd) number will be strictly API compatible.
+   Interface compatibility for the rest of the stable releases of the 4.x
+   series, that is for the releases with an even minor version number. For
+   example, that means you will be able to compile your program written for
+   version 4.0 with version 4.0.23 or version 4.2.1 of the library. However,
+   in order to fix some minor inconsistencies of the 4.0 API, we may make
+   exceptions to the rule and break strict API compatibility in a few cases.
+   But this is guaranteed to never happen in a stable series for which major
+   and minor version numbers are fixed; in other words, two stable versions
+   that differ from each other only by the revision (3rd) number will be
+   strictly API compatible.
 
 @heading
-Changes between 4.0.x and 4.1.x series
+Changes between 4.0.x and 4.2.x series
 <ul><li>
    The 'aspect' parameter of get_camera_matrix() and get_camera_matrix_f()
    strictly conforms to the documentation; in particular, setting it to 1
