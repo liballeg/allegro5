@@ -39,10 +39,10 @@ static int reused_screen = 0;
  */
 static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
 {
-   LPDIRECTDRAWSURFACE2 surf2;
+   LPVOID surf2;
    HRESULT hr;
 
-   hr = IDirectDrawSurface_QueryInterface(surf, &IID_IDirectDrawSurface2, (LPVOID *)&surf2);
+   hr = IDirectDrawSurface_QueryInterface(surf, &IID_IDirectDrawSurface2, &surf2);
 
    /* There is a bug in the COM part of DirectX 3:
     *  if we release the DirectSurface interface, the actual
@@ -54,7 +54,7 @@ static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
    if (FAILED(hr))
       return NULL;
    else
-      return surf2;
+      return (LPDIRECTDRAWSURFACE2)surf2;
 } 
 
 
