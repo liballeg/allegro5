@@ -260,10 +260,10 @@ FUNC(_do_stretch)
 
    pushl %ebp
    movl %esp, %ebp
-   pushw %es
    pushl %edi
    pushl %esi
    pushl %ebx
+   pushw %es
 
    movl DEST, %edx
    movw BMP_SEG(%edx), %es       /* load destination segment */
@@ -387,6 +387,8 @@ stretch_normal_loop:
 
 
 stretch_done:
+   popw %es
+
    movl SOURCE, %edx
    UNWRITE_BANK()
 
@@ -396,7 +398,6 @@ stretch_done:
    popl %ebx
    popl %esi
    popl %edi
-   popw %es
    movl %ebp, %esp
    popl %ebp
    ret                           /* end of _do_stretch() */
