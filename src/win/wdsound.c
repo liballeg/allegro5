@@ -858,6 +858,10 @@ static void update_voice_buffers(int voice, int reversed, int bidir, int loop)
       /* rewind the buffer */
       IDirectSoundBuffer_SetCurrentPosition(ds_voices[voice].ds_loop_buffer, 0);
    }
+
+   /* set volume and pan for the loop buffer */
+   digi_directsound_set_volume(voice, ds_voices[voice].vol);
+   digi_directsound_set_pan(voice, ds_voices[voice].pan);
 }
 
 
