@@ -652,7 +652,7 @@ static struct BITMAP *qnx_private_ph_init(GFX_DRIVER *drv, int w, int h, int v_w
    }
 
    PgGetVideoMode(&settings);
-   _current_refresh_rate = settings.refresh;
+   _set_current_refresh_rate(settings.refresh);
       
    PgGetVideoModeInfo(settings.mode, &mode_info);
 
