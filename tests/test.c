@@ -1442,7 +1442,7 @@ void blit_demo(void)
 void misc(void)
 {
    BITMAP *p;
-   fixed x, y, z;
+   volatile fixed x, y, z;
 
    clear_to_color(screen, palette_color[0]);
    textout(screen,font,"Timing some other routines...", xoff+44, 6, palette_color[15]);
