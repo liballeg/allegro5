@@ -25,7 +25,7 @@ int desktop_depth;
 BOOL same_color_depth;
 
 
-static int pixel_realdepth[] = { 8, 15, 15, 16, 16, 24, 24, 32, 32, 0 };
+static int pixel_realdepth[] = {8, 15, 15, 16, 16, 24, 24, 32, 32, 0};
 
 static DDPIXELFORMAT pixel_format[] = {
    /* 8-bit */
@@ -55,7 +55,7 @@ static int _wnd_width, _wnd_height, _wnd_depth, _wnd_refresh_rate, _wnd_flags;
 
 
 /* wnd_set_video_mode:
- *  called by window thread to set a gfx mode. This is needed because DirectDraw can only
+ *  called by window thread to set a gfx mode; this is needed because DirectDraw can only
  *  change the mode in the thread that handles the window
  */
 static int wnd_set_video_mode(void)
@@ -222,24 +222,8 @@ int gfx_directx_update_color_format(LPDIRECTDRAWSURFACE2 surf, int color_depth)
 
 
 
-/*
- * get_working_area
- *  retrieve the rectangle of the working area
- */
-void get_working_area(RECT *working_area)
-{
-   SystemParametersInfo(SPI_GETWORKAREA, 0, working_area, 0);
-   working_area->left   += 3;  /* for the taskbar */
-   working_area->top    += 3;
-   working_area->right  -= 3;
-   working_area->bottom -= 3;
-}
-
-
-
-/*
- * EnumModesCallback
- *  callback for graphic modes enumeration
+/* EnumModesCallback:
+ *  callback for graphics mode enumeration
  */ 
 static HRESULT WINAPI EnumModesCallback(LPDDSURFACEDESC lpDDSurfaceDesc, LPVOID mode_supported_addr)
 {
@@ -274,7 +258,7 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
          surf_desc.ddpfPixelFormat = pixel_format[i];
          mode_supported = FALSE;
 
-         /* check whether the request mode is supported */
+         /* check whether the requested mode is supported */
          if (_refresh_rate_request) {
             _TRACE("refresh rate requested: %d Hz\n", _refresh_rate_request);
             surf_desc.dwFlags |= DDSD_REFRESHRATE;
@@ -325,10 +309,6 @@ int set_video_mode(int w, int h, int v_w, int v_h, int color_depth)
    /* remove window controls */
    SetWindowLong(allegro_wnd, GWL_STYLE, WS_POPUP);
    ShowWindow(allegro_wnd, SW_MAXIMIZE);
-
-   /* update the screensaver flag to disallow alt-tab in SWITCH_NONE mode */
-   if (get_display_switch_mode()==SWITCH_NONE)
-      SystemParametersInfo(SPI_SCREENSAVERRUNNING, TRUE, 0, 0);
 
    return 0;
 }

@@ -103,7 +103,7 @@ static GFX_VTABLE _special_vtable; /* special vtable for offscreen bitmap */
 
 
 
-/* handle_window_enter_sysmode_win
+/* handle_window_enter_sysmode_win:
  *  makes the driver switch into clipped updating mode 
  */
 static void handle_window_enter_sysmode_win(void)
@@ -116,7 +116,7 @@ static void handle_window_enter_sysmode_win(void)
 
 
 
-/* handle_window_exit_sysmode_win
+/* handle_window_exit_sysmode_win:
  *  makes the driver switch back into direct updating mode
  */
 static void handle_window_exit_sysmode_win(void)
@@ -153,7 +153,7 @@ static void handle_window_move_win(int x, int y, int w, int h)
 
 
 
-/* update_window_hw
+/* update_window_hw:
  * function synced with the vertical refresh
  */
 static void update_window_hw(RECT* rect)
@@ -188,7 +188,21 @@ static void update_window_hw(RECT* rect)
 
 
 
-/* is_not_contained
+/* get_working_area:
+ *  retrieve the rectangle of the working area
+ */
+void get_working_area(RECT *working_area)
+{
+   SystemParametersInfo(SPI_GETWORKAREA, 0, working_area, 0);
+   working_area->left   += 3;  /* for the taskbar */
+   working_area->top    += 3;
+   working_area->right  -= 3;
+   working_area->bottom -= 3;
+}
+
+
+
+/* is_not_contained:
  *  helper to find the relative position of two rectangles
  */ 
 static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
@@ -205,7 +219,7 @@ static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
 
 
 /*
- * ddsurf_blit_ex
+ * ddsurf_blit_ex:
  *  extended blit function performing color conversion
  */
 static int ddsurf_blit_ex(LPDIRECTDRAWSURFACE2 dest_surf, RECT *dest_rect,
@@ -344,7 +358,8 @@ static void switch_in_win(void)
 
 
 
-/* wnd_set_windowed_coop
+/* wnd_set_windowed_coop:
+ *  sets the DirectDraw cooperative level to normal
  */
 static int wnd_set_windowed_coop(void)
 {
