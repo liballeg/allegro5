@@ -172,11 +172,10 @@ gcol_done:
 FUNC(_poly_scanline_grgb8)
    pushl %ebp
    movl %esp, %ebp
-   subl $12, %esp                /* three local variables: */
+   subl $8, %esp                /* two local variables: */
 
-#define DB     -4(%ebp)
+#define DRB    -4(%ebp)
 #define DG     -8(%ebp)
-#define DR     -12(%ebp)
 
    pushl %ebx
    pushl %esi
@@ -185,40 +184,51 @@ grgb_entry:
    movl INFO, %esi               /* load registers */
 
    movl POLYSEG_DR(%esi), %eax
-   movl POLYSEG_DG(%esi), %ebx
    movl POLYSEG_DB(%esi), %ecx
+   sall $8, %eax                 /* Red : 8.8 fixed point */
+   movl POLYSEG_DG(%esi), %ebx
 
-   movl %eax, DR
+   sarl $8, %ecx                 /* Blue : 8.8 fixed point */
+   andl $0xffff0000, %eax
+   sarl $8, %ebx                 /* Green : 8.8 fixed point */
+   addl %ecx, %eax
+
    movl %ebx, DG
-   movl %ecx, DB
+   movl %eax, DRB                /* DRB = [R.r|B.b] */
 
-   movl POLYSEG_R(%esi), %ebx
-   movl POLYSEG_G(%esi), %ecx
-   movl POLYSEG_B(%esi), %edx
+   movl POLYSEG_R(%esi), %eax
+   movl POLYSEG_B(%esi), %ecx
+   sall $8, %eax
+   movl POLYSEG_G(%esi), %ebx
+
+   sarl $8, %ecx
+   andl $0xffff0000, %eax
+   sarl $8, %ebx
+   addl %ecx, %eax
 
    movl ADDR, %edi
    decl %edi
+   movl %ebx, %edx		 /* green */
 
    _align_
 grgb_loop:
-   movl %ecx, %eax               /* green */
-   movl %ebx, %esi               /* red */
-   shrl $19, %eax                /* green */
-   shrl $19, %esi                /* red */
-   shll $5, %eax                 /* green */
-   shll $10, %esi                /* red */
-   addl DR, %ebx
-   orl %eax, %esi                /* green */
-   movl %edx, %eax               /* blue */
-   addl DG, %ecx
-   shrl $19, %eax                /* blue */
-   addl DB, %edx
-   orl %eax, %esi                /* blue */
+   movl %eax, %ecx		 /* red and blue */
+   shrl $6, %edx
+   andl $0xf800f800, %ecx
+   addl DRB, %eax
+   shrl $11, %ecx
+   andl $0x3e0, %edx
+   movl %ecx, %esi
+   addl DG, %ebx
+   andl $0xffff, %esi		 /* blue */
+   shrl $6, %ecx		 /* red */
+   addl %edx, %esi		 /* green and blue */
+   addl GLOBL(rgb_map), %ecx
+   movl %ebx, %edx
 
-   movl GLOBL(rgb_map), %eax     /* table lookup */
-   movb (%eax, %esi), %al
+   movb (%ecx, %esi), %cl
+   movb %cl, FSEG(%edi)          /* write the pixel */
    incl %edi
-   movb %al, FSEG(%edi)          /* write the pixel */
    decl W
    jg grgb_loop
 
@@ -229,9 +239,8 @@ grgb_loop:
    popl %ebp
    ret                           /* end of _poly_scanline_grgb8() */
 
-#undef DR
+#undef DRB
 #undef DG
-#undef DB
 
 #ifdef ALLEGRO_MMX
 FUNC(_poly_scanline_grgb8x)

@@ -44,13 +44,7 @@ unsigned long _mask_mmx_16[] = { 0x07E0001F, 0x00F8 };
 
 #endif
 
-/*
- * Variable for future evolutions. _polygon_mode will be used to enable or
- * disable subpixel and subtexel accuracy or texture wrap.
- */
-static int _polygon_mode = 1;
-#define POLY_SUB_ACCURACY 1
-#define POLY_TEX_WRAP 2
+
 
 /* fceil :
  * Fixed point version of ceil().
@@ -136,7 +130,7 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
    step = (edge->top << 16) - v1->y;
 
    edge->dx = fdiv(v2->x - v1->x, h);
-   edge->x = (_polygon_mode & POLY_SUB_ACCURACY ? v1->x + fmul(step, edge->dx) : v1->x);
+   edge->x = v1->x + fmul(step, edge->dx);
 
    edge->prev = NULL;
    edge->next = NULL;
@@ -158,7 +152,7 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
       edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = (_polygon_mode & POLY_SUB_ACCURACY ? itofix(v1->c) + fmul(step, edge->dat.dc) : itofix(v1->c));
+      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
    }
 
    if (flags & INTERP_3COL) {
@@ -183,26 +177,17 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
       edge->dat.dr = fdiv(itofix(r2 - r1), h);
       edge->dat.dg = fdiv(itofix(g2 - g1), h);
       edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1);
-      edge->dat.g = itofix(g1);
-      edge->dat.b = itofix(b1);
-      if (_polygon_mode & POLY_SUB_ACCURACY) {
-	 edge->dat.r += fmul(step, edge->dat.dr);
-	 edge->dat.g += fmul(step, edge->dat.dg);
-	 edge->dat.b += fmul(step, edge->dat.db);
-      }
+      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
+      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
+      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
    }
 
    if (flags & INTERP_FIX_UV) {
       /* fixed point (affine) texture interpolation */
       edge->dat.du = fdiv(v2->u - v1->u, h);
       edge->dat.dv = fdiv(v2->v - v1->v, h);
-      edge->dat.u = v1->u;
-      edge->dat.v = v1->v;
-      if (_polygon_mode & POLY_SUB_ACCURACY) {
-	 edge->dat.u += fmul(step, edge->dat.du);
-	 edge->dat.v += fmul(step, edge->dat.dv);
-      }
+      edge->dat.u = v1->u + fmul(step, edge->dat.du);
+      edge->dat.v = v1->v + fmul(step, edge->dat.dv);
    }
 
    if (flags & INTERP_Z) {
@@ -214,7 +199,7 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
       float z2 = 65536. / v2->z;
 
       edge->dat.dz = (z2 - z1) * h1;
-      edge->dat.z = (_polygon_mode & POLY_SUB_ACCURACY ? z1 + edge->dat.dz * step_f : z1);
+      edge->dat.z = z1 + edge->dat.dz * step_f;
 
       if (flags & INTERP_FLOAT_UV) {
 	 /* floating point (perspective correct) texture interpolation */
@@ -225,12 +210,8 @@ void _fill_3d_edge_structure(POLYGON_EDGE *edge, AL_CONST V3D *v1, AL_CONST V3D 
 
 	 edge->dat.dfu = (fu2 - fu1) * h1;
 	 edge->dat.dfv = (fv2 - fv1) * h1;
-	 edge->dat.fu = fu1;
-	 edge->dat.fv = fv1;
-         if (_polygon_mode & POLY_SUB_ACCURACY) {
-	    edge->dat.fu += edge->dat.dfu * step_f;
-	    edge->dat.fv += edge->dat.dfv * step_f;
-         }
+	 edge->dat.fu = fu1 + edge->dat.dfu * step_f;
+	 edge->dat.fv = fv1 + edge->dat.dfv * step_f;
       }
    }
 
@@ -276,7 +257,7 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
    step = (edge->top << 16) - ftofix(v1->y);
 
    edge->dx = ftofix((v2->x - v1->x)  * h1);
-   edge->x = (_polygon_mode & POLY_SUB_ACCURACY ? ftofix(v1->x) + fmul(step, edge->dx) : ftofix(v1->x));
+   edge->x = ftofix(v1->x) + fmul(step, edge->dx);
 
    edge->prev = NULL;
    edge->next = NULL;
@@ -298,7 +279,7 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
    if (flags & INTERP_1COL) {
       /* single color shading interpolation */
       edge->dat.dc = fdiv(itofix(v2->c - v1->c), h);
-      edge->dat.c = (_polygon_mode & POLY_SUB_ACCURACY ? itofix(v1->c) + fmul(step, edge->dat.dc) : itofix(v1->c));
+      edge->dat.c = itofix(v1->c) + fmul(step, edge->dat.dc);
    }
 
    if (flags & INTERP_3COL) {
@@ -323,37 +304,28 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
       edge->dat.dr = fdiv(itofix(r2 - r1), h);
       edge->dat.dg = fdiv(itofix(g2 - g1), h);
       edge->dat.db = fdiv(itofix(b2 - b1), h);
-      edge->dat.r = itofix(r1);
-      edge->dat.g = itofix(g1);
-      edge->dat.b = itofix(b1);
-      if (_polygon_mode & POLY_SUB_ACCURACY) {
-	 edge->dat.r += fmul(step, edge->dat.dr);
-	 edge->dat.g += fmul(step, edge->dat.dg);
-	 edge->dat.b += fmul(step, edge->dat.db);
-      }
+      edge->dat.r = itofix(r1) + fmul(step, edge->dat.dr);
+      edge->dat.g = itofix(g1) + fmul(step, edge->dat.dg);
+      edge->dat.b = itofix(b1) + fmul(step, edge->dat.db);
    }
 
    if (flags & INTERP_FIX_UV) {
       /* fixed point (affine) texture interpolation */
       edge->dat.du = ftofix((v2->u - v1->u) * h1);
       edge->dat.dv = ftofix((v2->v - v1->v) * h1);
-      edge->dat.u = ftofix(v1->u);
-      edge->dat.v = ftofix(v1->v);
-      if (_polygon_mode & POLY_SUB_ACCURACY) {
-	 edge->dat.u += fmul(step, edge->dat.du);
-	 edge->dat.v += fmul(step, edge->dat.dv);
-      }
+      edge->dat.u = ftofix(v1->u) + fmul(step, edge->dat.du);
+      edge->dat.v = ftofix(v1->v) + fmul(step, edge->dat.dv);
    }
 
    if (flags & INTERP_Z) {
       float step_f = fixtof(step);
 
       /* Z (depth) interpolation */
-      float z1 = 1.0 / v1->z;
-      float z2 = 1.0 / v2->z;
+      float z1 = 65536. / v1->z;
+      float z2 = 65536. / v2->z;
 
       edge->dat.dz = (z2 - z1) * h1;
-      edge->dat.z = (_polygon_mode & POLY_SUB_ACCURACY ? z1 + edge->dat.dz * step_f : z1);
+      edge->dat.z = z1 + edge->dat.dz * step_f;
 
       if (flags & INTERP_FLOAT_UV) {
 	 /* floating point (perspective correct) texture interpolation */
@@ -364,12 +336,8 @@ void _fill_3d_edge_structure_f(POLYGON_EDGE *edge, AL_CONST V3D_f *v1, AL_CONST 
 
 	 edge->dat.dfu = (fu2 - fu1) * h1;
 	 edge->dat.dfv = (fv2 - fv1) * h1;
-	 edge->dat.fu = fu1;
-	 edge->dat.fv = fv1;
-         if (_polygon_mode & POLY_SUB_ACCURACY) {
-	    edge->dat.fu += edge->dat.dfu * step_f;
-	    edge->dat.fv += edge->dat.dfv * step_f;
-         }
+	 edge->dat.fu = fu1 + edge->dat.dfu * step_f;
+	 edge->dat.fv = fv1 + edge->dat.dfv * step_f;
       }
    }
 
@@ -853,7 +821,7 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 
 	 if (flags & INTERP_1COL) {
 	    info->dc = (s2->c - s1->c) / w;
-	    info->c = (_polygon_mode & POLY_SUB_ACCURACY ? s1->c + fmul(step, info->dc) : s1->c);
+	    info->c = s1->c + fmul(step, info->dc);
 	    s1->c += s1->dc;
 	    s2->c += s2->dc;
 	 }
@@ -862,15 +830,9 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	    info->dr = (s2->r - s1->r) / w;
 	    info->dg = (s2->g - s1->g) / w;
 	    info->db = (s2->b - s1->b) / w;
-	    info->r = s1->r;
-	    info->g = s1->g;
-	    info->b = s1->b;
-
-	    if (_polygon_mode & POLY_SUB_ACCURACY) {
-	       info->r += fmul(step, info->dr);
-	       info->g += fmul(step, info->dg);
-	       info->b += fmul(step, info->db);
-	    }
+	    info->r = s1->r + fmul(step, info->dr);
+	    info->g = s1->g + fmul(step, info->dg);
+	    info->b = s1->b + fmul(step, info->db);
 
 	    s1->r += s1->dr;
 	    s2->r += s2->dr;
@@ -883,13 +845,8 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	 if (flags & INTERP_FIX_UV) {
 	    info->du = (s2->u - s1->u) / w;
 	    info->dv = (s2->v - s1->v) / w;
-	    info->u = s1->u;
-	    info->v = s1->v;
-
-	    if (_polygon_mode & POLY_SUB_ACCURACY) {
-	       info->u += fmul(step, info->du);
-	       info->v += fmul(step, info->dv);
-	    }
+	    info->u = s1->u + fmul(step, info->du);
+	    info->v = s1->v + fmul(step, info->dv);
 
 	    s1->u += s1->du;
 	    s2->u += s2->du;
@@ -902,20 +859,15 @@ static void draw_polygon_segment(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDG
 	    float w1 = 1.0 / w;
 
 	    info->dz = (s2->z - s1->z) * w1;
-	    info->z = (_polygon_mode & POLY_SUB_ACCURACY ? s1->z + info->dz * step_f : s1->z);
+	    info->z = s1->z + info->dz * step_f;
 	    s1->z += s1->dz;
 	    s2->z += s2->dz;
 
 	    if (flags & INTERP_FLOAT_UV) {
 	       info->dfu = (s2->fu - s1->fu) * w1;
 	       info->dfv = (s2->fv - s1->fv) * w1;
-	       info->fu = s1->fu;
-	       info->fv = s1->fv;
-
-	       if (_polygon_mode & POLY_SUB_ACCURACY) {
-		  info->fu += info->dfu * step_f;
-		  info->fv += info->dfv * step_f;
-	       }
+	       info->fu = s1->fu + info->dfu * step_f;
+	       info->fv = s1->fv + info->dfv * step_f;
 
 	       s1->fu += s1->dfu;
 	       s2->fu += s2->dfu;
@@ -1219,24 +1171,20 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
       w = fceil(right_edge->x) - x;
       step = (x << 16) - left_edge->x;
 
-      if (flags & INTERP_FLAT)
-	 hline(bmp, x, y, x+w, color);
-
+      if ((flags & INTERP_FLAT) && (drawer == _poly_scanline_dummy)) {
+         if (w != 0)
+	      hline(bmp, x, y, x+w-1, color);
+      }
       else {
-	 if (flags & INTERP_1COL)
-	    info->c = (_polygon_mode & POLY_SUB_ACCURACY ? s1->c + fmul(step, info->dc) : s1->c);
+	 if (flags & INTERP_1COL) {
+	    info->c = s1->c + fmul(step, info->dc);
          s1->c += s1->dc;
+	 }
 
 	 if (flags & INTERP_3COL) {
-	    info->r = s1->r;
-	    info->g = s1->g;
-	    info->b = s1->b;
-
-	    if (_polygon_mode & POLY_SUB_ACCURACY) {
-	       info->r += fmul(step, info->dr);
-	       info->g += fmul(step, info->dg);
-	       info->b += fmul(step, info->db);
-	    }
+	    info->r = s1->r + fmul(step, info->dr);
+	    info->g = s1->g + fmul(step, info->dg);
+	    info->b = s1->b + fmul(step, info->db);
 
 	    s1->r += s1->dr;
 	    s1->g += s1->dg;
@@ -1244,13 +1192,8 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 	 }
 
 	 if (flags & INTERP_FIX_UV) {
-	    info->u = s1->u;
-	    info->v = s1->v;
-
-	    if (_polygon_mode & POLY_SUB_ACCURACY) {
-	       info->u += fmul(step, info->du);
-	       info->v += fmul(step, info->dv);
-	    }
+	    info->u = s1->u + fmul(step, info->du);
+	    info->v = s1->v + fmul(step, info->dv);
 
 	    s1->u += s1->du;
 	    s1->v += s1->dv;
@@ -1259,17 +1202,12 @@ static void draw_triangle_part(BITMAP *bmp, int ytop, int ybottom, POLYGON_EDGE 
 	 if (flags & INTERP_Z) {
 	    float step_f = fixtof(step);
 
-	    info->z = (_polygon_mode & POLY_SUB_ACCURACY ? s1->z + info->dz * step_f : s1->z);
+	    info->z = s1->z + info->dz * step_f;
 	    s1->z += s1->dz;
 
 	    if (flags & INTERP_FLOAT_UV) {
-	       info->fu = s1->fu;
-	       info->fv = s1->fv;
-
-	       if (_polygon_mode & POLY_SUB_ACCURACY) {
-		  info->fu += info->dfu * step_f;
-		  info->fv += info->dfv * step_f;
-	       }
+	       info->fu = s1->fu + info->dfu * step_f;
+	       info->fv = s1->fv + info->dfv * step_f;
 
 	       s1->fu += s1->dfu;
 	       s1->fv += s1->dfv;
@@ -1395,7 +1333,7 @@ static void _triangle_deltas_f(BITMAP *bmp, fixed w, POLYGON_SEGMENT *s1, POLYGO
       float w1 = 65536. / w;
 
       /* Z (depth) interpolation */
-      float z1 = 1.0 / v->z;
+      float z1 = 65536. / v->z;
 
       info->dz = (s1->z - z1) * w1;
 
