@@ -275,8 +275,17 @@ int _alemu_findnext(struct ffblk *ffblk)
 	 continue;
 
       ffblk->ff_attrib = 0;
-      if ((ff_info->stat.st_mode & S_IRUSR) == 0)
+      if ((ff_info->stat.st_uid == geteuid())) {
+	 if ((ff_info->stat.st_mode & S_IWUSR) == 0)
+	     ffblk->ff_attrib |= FA_RDONLY;
+      }
+      else if ((ff_info->stat.st_gid == getegid())) {
+	 if ((ff_info->stat.st_mode & S_IWGRP) == 0)
+	     ffblk->ff_attrib |= FA_RDONLY;
+      } 
+      else if ((ff_info->stat.st_mode & S_IWOTH) == 0) {
 	 ffblk->ff_attrib |= FA_RDONLY;
+      }
       if (S_ISDIR(ff_info->stat.st_mode))
 	 ffblk->ff_attrib |= FA_DIREC;
       if ((ff_info->tempname[0] == '.')
