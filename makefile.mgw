@@ -455,8 +455,14 @@ obj/mingw32/%.res: %.rc
 tests/win/dibsound.exe: $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/dibsound.exe $(OBJ_DIR)/dibsound.o obj/mingw32/dibsound.res $(IMPLIB_NAME) $(LIBRARIES)
 
+tests/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
+
 tests/win/scrsave.scr: $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o tests/win/scrsave.scr $(OBJ_DIR)/scrsave.o obj/mingw32/scrsave.res $(IMPLIB_NAME) $(LIBRARIES)
+
+tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,console -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 ifdef CROSSCOMPILE
 
@@ -487,7 +493,7 @@ demo/demo.exe: $(OBJ_DIR)/demo.o obj/mingw32/demo.res $(IMPLIB_NAME)
 
 endif # CROSSCOMPILE
 
-examples/%.exe setup/%.exe tests/%.exe tests/win/%.exe tools/%.exe tools/win/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
+examples/%.exe setup/%.exe tests/%.exe: $(OBJ_DIR)/%.o $(IMPLIB_NAME)
 	gcc $(LFLAGS) $(PFLAGS) -Wl,--subsystem,windows -o $@ $< $(IMPLIB_NAME) $(LIBRARIES)
 
 LINK_CONSOLE_DEPS = $(IMPLIB_NAME)
