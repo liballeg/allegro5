@@ -409,7 +409,7 @@ int strincmp(char *s1, char *s2)
 
 
 
-int read_file(char *filename)
+int read_file(char *filename, char *htmlname)
 {
    char buf[1024];
    char *p;
@@ -499,6 +499,10 @@ int read_file(char *filename)
 	    strcpy(fileheader, buf+3);
 	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='='))
 	    strcpy(filefooter, buf+3);
+	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='1') && (buf[3]=='='))
+	    sprintf(filefooter, "%s%s", buf+4, get_filename(htmlname));
+	 else if ((mytolower(buf[1]=='f')) && (buf[2]=='2') && (buf[3]=='='))
+	    strcat(filefooter, buf+4);
 	 else if (strincmp(buf+1, "rtfh=") == 0)
 	    strcpy(rtfheader, buf+6);
 	 else if (strincmp(buf+1, "manh=") == 0)
@@ -2419,7 +2423,7 @@ int main(int argc, char *argv[])
       strcpy(extension(rtfname), "rtf");
    }
 
-   if (read_file(filename) != 0) {
+   if (read_file(filename, htmlname) != 0) {
       fprintf(stderr, "Error reading input file\n");
       err = 1;
       goto getout;
