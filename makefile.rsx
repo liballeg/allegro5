@@ -123,6 +123,20 @@ uninstall:
 
 
 
+# -------- helper function for compressing the executables --------
+
+.PHONY: compress
+
+compress: $(PROGRAMS)
+ifdef UPX_BIN
+	$(UPX_BIN) demo/*.exe examples/*.exe setup/*.exe tests/*.exe tests/win/*.exe tests/win/*.scr tools/*.exe lib/*/all*.dll
+else
+	@echo No executable compressor specified! You must set the environment variable
+	@echo UPX_BIN to point to upx.exe.
+endif
+
+
+
 # -------- finally, we get to the fun part... --------
 
 $(LIB_NAME): lib/msvc/$(SHORT_VERSION)$(LIBRARY_VERSION).dll
