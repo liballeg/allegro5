@@ -273,7 +273,7 @@ void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, char *forma
    uvsprintf(buf, format, ap);
    va_end(ap);
 
-   textout_centre(bmp, f, buf, x, y, color);
+   textout_right(bmp, f, buf, x, y, color);
 }
 
 
