@@ -135,6 +135,11 @@ Using Allegro from the command line
 <textblock>
       gcc myfile.c -o myprogram `allegro-config --libs debug`
 <endblock>
+   You can also link against the Allegro framework, providing you previously
+   installed it via <tt>make install-framework</tt>:
+<textblock>
+      gcc myfile.c -o myprogram `allegro-config --frameworks`
+<endblock>
    Unix newbies, take note that these are ` backticks, not normal ' quotes!
 
    There are also switches for printing out the Allegro version number, 
@@ -205,9 +210,10 @@ Allegro and application bundles
    the Allegro framework inside the built application bundle, so your
    app will not require Allegro to be installed into the target machine
    in order to work. This flag assumes you previously installed the
-   embeddable version of the Allegro framework and that you linked your
-   executable with it and NOT by using the <tt>allegro-config</tt> script.
-   If one of these conditions are not met, the created app may not
+   embeddable version of the Allegro framework, and that your executable
+   has been linked to it, either via Project Builder or XCode, either
+   via the allegro-config script.
+   If one of these conditions is not met, the created app may not
    work on target machines.
 
    Bundles created by fixbundle have this default layout:
@@ -264,7 +270,7 @@ Notes on drivers
         window/desktop color depths are supported; if needed, color
         conversion will automatically be done transparently to the user.
 
-        Fullscreen mode uses the Core Graphics DirectDisplay API; only
+        Fullscreen mode uses the CoreGraphics DirectDisplay API; only
         8, 15 and 32 bit color depths are supported.</dd>
 
    <dt><b>Sound:</b></dt><dd>

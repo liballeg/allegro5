@@ -19,8 +19,11 @@ include_prefix=@INCLUDE_PREFIX@
 static_libs=@LINK_WITH_STATIC_LIBS@
 lib_type=@LIB_TO_LINK@
 
+accepts_frameworks=no
+
 allegro_ldflags="@LDFLAGS@"
 allegro_libs="@LIBS@"
+allegro_frameworks="@FRAMEWORKS@"
 allegro_cflags=""
 allegro_cppflags=""
 
@@ -39,6 +42,11 @@ Options:
 	--libs
 	--static
 	--shared
+EOF
+   if test "$accepts_frameworks" = "yes"; then
+      echo "	--frameworks"
+   fi
+   cat <<EOF
 	--env
 
 Libraries:
@@ -111,6 +119,14 @@ while test $# -gt 0; do
 	 echo_libs=yes
       ;;
 
+      --frameworks)
+	 if test "$accepts_frameworks" = "yes"; then
+	    echo_frameworks=yes
+	 else
+	    usage 1 1>&2
+	 fi
+      ;;
+
       --env)
 	 echo_env=yes
       ;;
@@ -168,6 +184,10 @@ if test "$echo_libs" = "yes"; then
    else
       echo $libdirs $allegro_ldflags -l${lib_type}-${version} -l${lib_type}_unsharable
    fi
+fi
+
+if test "$echo_frameworks" = "yes"; then
+   echo $allegro_frameworks
 fi
 
 if test "$echo_env" = "yes"; then
