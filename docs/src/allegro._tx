@@ -8586,6 +8586,10 @@ platforms you can set the environment variables:
    DEBUGMODE=1<br>
    Selects a debug build, rather than the normal optimised version.
 <li>
+   DEBUGMODE=2<br>
+   Selects a build intended to debug Allegro itself, rather than the
+   normal optimised version.
+<li>
    PROFILEMODE=1<br>
    Selects a profiling build, rather than the normal optimised version.
 <li>

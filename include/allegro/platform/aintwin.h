@@ -180,7 +180,7 @@ AL_FUNC(int, digi_directsound_rec_read, (void *buf));
 AL_FUNC(char* , win_err_str, (long err));
 AL_FUNC(void, thread_safe_trace, (char *msg, ...));
 
-#ifdef DEBUGMODE
+#if DEBUGMODE >= 2
    #define _TRACE                 thread_safe_trace
 #else
    #define _TRACE                 1 ? (void) 0 : thread_safe_trace
