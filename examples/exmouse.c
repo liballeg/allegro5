@@ -11,7 +11,7 @@
 
 
 
-int main()
+int main(void)
 {
    int mickeyx = 0;
    int mickeyy = 0;

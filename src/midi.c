@@ -83,7 +83,7 @@ volatile long _midi_tick = 0;                   /* counter for killing notes */
 
 static void midi_player(void);                  /* core MIDI player routine */
 static void prepare_to_play(MIDI *midi);
-static void midi_lock_mem();
+static void midi_lock_mem(void);
 
 static MIDI *midifile = NULL;                   /* the file that is playing */
 
@@ -603,7 +603,7 @@ END_OF_STATIC_FUNCTION(reset_controllers);
 /* update_controllers:
  *  Checks cached controller information and updates active voices.
  */
-static void update_controllers()
+static void update_controllers(void)
 {
    int c, c2, vol, bend, note;
 
@@ -1456,7 +1456,7 @@ int load_midi_patches()
  *  Locks all the memory that the midi player touches inside the timer
  *  interrupt handler (which is most of it).
  */
-static void midi_lock_mem()
+static void midi_lock_mem(void)
 {
    LOCK_VARIABLE(midi_pos);
    LOCK_VARIABLE(midi_pos_counter);
@@ -1510,7 +1510,7 @@ static void midi_lock_mem()
  *  Register my functions with the code in sound.c.
  */
 #ifdef ALLEGRO_USE_CONSTRUCTOR
-   CONSTRUCTOR_FUNCTION(void _midi_constructor());
+   CONSTRUCTOR_FUNCTION(void _midi_constructor(void));
 #endif
 
 static struct _AL_LINKER_MIDI midi_linker = {
@@ -1518,7 +1518,7 @@ static struct _AL_LINKER_MIDI midi_linker = {
    midi_exit
 };
 
-void _midi_constructor()
+void _midi_constructor(void)
 {
    _al_linker_midi = &midi_linker;
 }

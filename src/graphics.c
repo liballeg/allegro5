@@ -561,7 +561,7 @@ static int get_config_gfx_driver(char *gfx_card, int w, int h, int v_w, int v_h,
 int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 {
    static int allow_config = TRUE;
-   extern void blit_end();
+   extern void blit_end(void);
    _DRIVER_INFO *driver_list;
    GFX_DRIVER *drv;
    struct GFX_MODE mode;

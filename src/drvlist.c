@@ -37,7 +37,7 @@ static int count_drivers(_DRIVER_INFO *drvlist)
 /* _create_driver_list:
  *  Creates a new driver list and returns it. Returns NULL on error.
  */
-_DRIVER_INFO *_create_driver_list()
+_DRIVER_INFO *_create_driver_list(void)
 {
    _DRIVER_INFO *drv;
 	

@@ -56,7 +56,7 @@ static int joy_loading = FALSE;
 /* clear_joystick_vars:
  *  Resets the joystick state variables to their default values.
  */
-static void clear_joystick_vars()
+static void clear_joystick_vars(void)
 {
    AL_CONST char *unused = get_config_text("unused");
    int i, j, k;

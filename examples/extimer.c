@@ -48,7 +48,7 @@ END_OF_FUNCTION(inc_z);
 
 
 
-int main()
+int main(void)
 {
    int c;
 

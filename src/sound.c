@@ -162,7 +162,7 @@ static void sound_lock_mem(void);
 /* read_sound_config:
  *  Helper for reading the sound hardware configuration data.
  */
-static void read_sound_config()
+static void read_sound_config(void)
 {
    char tmp1[64], tmp2[64];
    char *sound = uconvert_ascii("sound", tmp1);
@@ -1196,7 +1196,7 @@ static INLINE int allocate_physical_voice(int priority)
  *  others to make room, as we allow up to 256 virtual voices to be used
  *  simultaneously.
  */
-static INLINE int allocate_virtual_voice()
+static INLINE int allocate_virtual_voice(void)
 {
    int virt_voices, c;
 

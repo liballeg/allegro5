@@ -10,7 +10,7 @@
 
 
 
-int main()
+int main(void)
 {
    /* you should always do this at the start of Allegro programs */
    if (allegro_init() != 0)

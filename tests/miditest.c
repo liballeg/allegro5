@@ -424,7 +424,7 @@ DIALOG thedialog[] =
 
 
 
-int main()
+int main(void)
 {
    if (allegro_init() != 0)
       return 1;

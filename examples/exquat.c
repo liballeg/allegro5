@@ -249,7 +249,7 @@ void euler_interpolate(EULER * from, EULER * to, float t, EULER * out)
 
 
 
-int main()
+int main(void)
 {
    int index;
 

@@ -72,7 +72,7 @@ typedef struct
 
 /* these functions can be used in any 12-bit program */
 int makecol12(int r, int g, int b);
-void set_12bit_palette();
+void set_12bit_palette(void);
 BITMAP *create_bitmap_12(int w, int h);
 
 

@@ -319,7 +319,7 @@ AL_FUNC(void, _switch_out, (void));
 AL_FUNC(void, _register_switch_bitmap, (BITMAP *bmp, BITMAP *parent));
 AL_FUNC(void, _unregister_switch_bitmap, (BITMAP *bmp));
 AL_FUNC(void, _save_switch_state, (int switch_mode));
-AL_FUNC(void, _restore_switch_state, ());
+AL_FUNC(void, _restore_switch_state, (void));
 
 AL_VAR(int, _dispsw_status);
 
@@ -1090,7 +1090,7 @@ typedef struct DATAFILE_TYPE
 {
    int type;
    AL_METHOD(void *, load, (PACKFILE *f, long size));
-   AL_METHOD(void, destroy, ());
+   AL_METHOD(void, destroy, (void *));
 } DATAFILE_TYPE;
 
 
@@ -1130,7 +1130,7 @@ AL_VAR(struct _AL_LINKER_MOUSE *, _al_linker_mouse);
 
 
 /* dynamic driver lists */
-AL_FUNC(_DRIVER_INFO *, _create_driver_list, ());
+AL_FUNC(_DRIVER_INFO *, _create_driver_list, (void));
 AL_FUNC(void, _destroy_driver_list, (_DRIVER_INFO *drvlist));
 AL_FUNC(void, _driver_list_append_driver, (_DRIVER_INFO **drvlist, int id, void *driver, int autodetect));
 AL_FUNC(void, _driver_list_prepend_driver, (_DRIVER_INFO **drvlist, int id, void *driver, int autodetect));

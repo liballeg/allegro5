@@ -160,7 +160,7 @@ void triple_buffer(BITMAP *page1, BITMAP *page2, BITMAP *page3)
 
 
 
-int main()
+int main(void)
 {
    BITMAP *page1, *page2, *page3;
    int c;

@@ -11,7 +11,7 @@
 
 
 
-int main()
+int main(void)
 {
    /* declare three 32 bit (16.16) fixed point variables */
    fixed x, y, z;

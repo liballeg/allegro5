@@ -113,7 +113,7 @@ void seqbuf_dump()
 
 
 /* attempt to open sequencer device */
-static int seq_attempt_open()
+static int seq_attempt_open(void)
 {
    char tmp1[128], tmp2[128], tmp3[128];
    int fd;

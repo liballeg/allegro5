@@ -77,7 +77,7 @@ typedef struct MENU_PLAYER
    int size;                        /* number of items in the menu */
    int sel;                         /* selected item */
    int x, y, w, h;                  /* screen position of the menu */
-   int (*proc)();                   /* callback function */
+   int (*proc)(void);               /* callback function */
    BITMAP *saved;                   /* saved what was underneath it */
    
    int mouse_button_was_pressed;    /* set if mouse button pressed on last iteration */

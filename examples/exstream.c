@@ -14,7 +14,7 @@
 
 
 
-int main()
+int main(void)
 {
    AUDIOSTREAM *stream;
    unsigned char *p;

@@ -662,7 +662,7 @@ int main(int argc, char *argv[])
 #else       /* ifdef ALLEGRO_I386 */
 
 
-int main()
+int main(void)
 {
    allegro_init();
    allegro_message("Sorry, the DAT2S program only works on x86 processors\n");

@@ -144,14 +144,14 @@ static const int signals[] = {
 
 static struct sigaction old_signals[NUM_SIGNALS];
 
-static void save_signals()
+static void save_signals(void)
 {
    int i;
    for (i = 0; i < (int)NUM_SIGNALS; i++) 
       sigaction(signals[i], NULL, old_signals+i);
 }
 
-static void restore_signals()
+static void restore_signals(void)
 {
    int i;
    for (i = 0; i < (int)NUM_SIGNALS; i++)
@@ -430,7 +430,7 @@ static BITMAP *do_set_mode(int w, int h, int v_w, int v_h, int color_depth)
 /* svga_version2:
  *  Returns non-zero if we have SVGAlib version 2 (or the prereleases).
  */
-static int svga_version2()
+static int svga_version2(void)
 {
    #ifdef ALLEGRO_LINUX_SVGALIB_HAVE_VGA_VERSION
       return vga_version >= 0x1900;
@@ -520,7 +520,7 @@ static int svga_scroll(int x, int y)
 /* svga_vsync:
  *  Waits for a retrace.
  */
-static void svga_vsync()
+static void svga_vsync(void)
 {
    vga_waitretrace();
 }
@@ -546,7 +546,7 @@ static void svga_set_palette(AL_CONST RGB *p, int from, int to, int vsync)
 /* svga_save:
  *  Saves the graphics state.
  */
-static void svga_save()
+static void svga_save(void)
 {
    safe_vga_setmode(TEXT, 0);
 }
@@ -556,7 +556,7 @@ static void svga_save()
 /* svga_restore:
  *  Restores the graphics state.
  */
-static void svga_restore()
+static void svga_restore(void)
 {
    safe_vga_setmode(svga_mode, 0);
    vga_setpage(0);

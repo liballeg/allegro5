@@ -588,7 +588,7 @@ int d_icon_proc(int msg, DIALOG *d, int c)
  */
 int d_keyboard_proc(int msg, DIALOG *d, int c)
 {
-   int (*proc)();
+   int (*proc)(void);
    int ret = D_O_K;
    ASSERT(d);
 

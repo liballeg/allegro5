@@ -533,7 +533,7 @@ available in past/future versions of Allegro.
 @xref do_menu, GUI menus
 <codeblock>
    char *text;          - the text to display for the menu item
-   int (*proc)();       - called when the menu item is clicked
+   int (*proc)(void);   - called when the menu item is clicked
    struct MENU *child;  - nested child menu
    int flags;           - disabled or checked state
    void *dp;            - pointer to any data you need

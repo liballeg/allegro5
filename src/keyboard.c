@@ -149,7 +149,7 @@ void clear_keybuf()
 /* clear_key:
  *  Helper function to clear the key[] array.
  */
-static void clear_key()
+static void clear_key(void)
 {
    int c;
 
@@ -345,7 +345,7 @@ void install_keyboard_hooks(int (*keypressed)(void), int (*readkey)(void))
 /* update_shifts:
  *  Helper function to update the key_shifts variable and LED state.
  */
-static INLINE void update_shifts()
+static INLINE void update_shifts(void)
 {
    #define LED_FLAGS  (KB_SCROLOCK_FLAG | KB_NUMLOCK_FLAG | KB_CAPSLOCK_FLAG)
 

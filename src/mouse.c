@@ -963,7 +963,7 @@ void remove_mouse(void)
  *  Register mouse functions if this object file is linked in.
  */
 #ifdef ALLEGRO_USE_CONSTRUCTOR
-   CONSTRUCTOR_FUNCTION(void _mouse_constructor());
+   CONSTRUCTOR_FUNCTION(void _mouse_constructor(void));
 #endif
 
 static struct _AL_LINKER_MOUSE mouse_linker = {

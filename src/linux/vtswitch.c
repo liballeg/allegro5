@@ -67,7 +67,7 @@ int __al_linux_set_display_switch_mode (int mode)
 /* go_away:
  *  Performs a switch away.
  */
-static void go_away()
+static void go_away(void)
 {
 	_switch_out();
 
@@ -102,7 +102,7 @@ static void go_away()
 /* come_back:
  *  Performs a switch back.
  */
-static void come_back()
+static void come_back(void)
 {
 	_unix_bg_man->disable_interrupts();
 

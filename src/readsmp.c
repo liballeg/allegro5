@@ -159,8 +159,8 @@ void _register_sample_file_type_init(void)
 
 
 #ifdef ALLEGRO_USE_CONSTRUCTOR
-   CONSTRUCTOR_FUNCTION(static void sample_filetype_constructor());
-   DESTRUCTOR_FUNCTION(static void sample_filetype_destructor());
+   CONSTRUCTOR_FUNCTION(static void sample_filetype_constructor(void));
+   DESTRUCTOR_FUNCTION(static void sample_filetype_destructor(void));
 
    /* sample_filetype_constructor:
     *  Register sample filetype functions if this object file is linked
@@ -168,7 +168,7 @@ void _register_sample_file_type_init(void)
     *  functions aren't used in a program, thus saving a little space
     *  in statically linked programs.
     */
-   static void sample_filetype_constructor()
+   static void sample_filetype_constructor(void)
    {
       _register_sample_file_type_init();
    }
@@ -178,7 +178,7 @@ void _register_sample_file_type_init(void)
     *  quit, not just when allegro_exit() is called, we need to use a
     *  destructor to accomplish this.
     */
-   static void sample_filetype_destructor()
+   static void sample_filetype_destructor(void)
    {
       SAMPLE_TYPE_INFO *iter = sample_type_list, *next;
 

@@ -454,7 +454,7 @@ static void restore_bitmap_state(BITMAP_INFORMATION *info)
 /* _restore_switch_state:
  *  Restores the graphics state after a console switch.
  */
-void _restore_switch_state()
+void _restore_switch_state(void)
 {
    BITMAP_INFORMATION *info = info_list;
    int hadmouse, hadtimer;

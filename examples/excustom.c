@@ -153,7 +153,7 @@ DIALOG the_dialog[] =
 
 
 
-int main()
+int main(void)
 {
    int item;
 

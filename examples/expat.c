@@ -33,7 +33,7 @@ void draw_pattern(BITMAP *bitmap, char *message, int color)
 
 
 
-int main()
+int main(void)
 {
    BITMAP *bitmap;
 

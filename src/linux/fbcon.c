@@ -498,7 +498,7 @@ static int fb_scroll(int x, int y)
 /* fb_vsync:
  *  Waits for a retrace.
  */
-static void fb_vsync()
+static void fb_vsync(void)
 {
    unsigned int prev;
 
