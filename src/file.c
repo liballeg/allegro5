@@ -115,7 +115,7 @@ char *fix_filename_slashes(char *filename)
 /* fix_filename_path:
  *  Canonicalizes path.
  */
-char *fix_filename_path(char *dest, char *path, int size)
+char *fix_filename_path(char *dest, const char *path, int size)
 {
    int saved_errno = errno;
    char buf[512], buf2[512];
@@ -150,7 +150,7 @@ char *fix_filename_path(char *dest, char *path, int size)
 
       /* if the path starts with ~ then it's relative to a home directory */
       if ((ugetc(path) == '~')) {
-	 char *tail = path + uwidth(path); /* could be the username */
+	 const char *tail = path + uwidth(path); /* could be the username */
 	 char *home = NULL;                /* their home directory */
 
 	 if (ugetc(tail) == '/' || !ugetc(tail)) {
@@ -161,7 +161,7 @@ char *fix_filename_path(char *dest, char *path, int size)
 	 }
 	 else {
 	    /* harder */
-	    char *username = tail, *ascii_username, *ch;
+	    char *username = (char *)tail, *ascii_username, *ch;
 	    int userlen;
 	    struct passwd *pwd;
 
@@ -301,7 +301,7 @@ char *fix_filename_path(char *dest, char *path, int size)
  *  Replaces filename in path with different one.
  *  It does not append '/' to the path.
  */
-char *replace_filename(char *dest, char *path, char *filename, int size)
+char *replace_filename(char *dest, const char *path, const char *filename, int size)
 {
    char tmp[512];
    int pos, c;
@@ -330,7 +330,7 @@ char *replace_filename(char *dest, char *path, char *filename, int size)
  *  Replaces extension in filename with different one.
  *  It appends '.' if it is not present in the filename.
  */
-char *replace_extension(char *dest, char *filename, char *ext, int size)
+char *replace_extension(char *dest, const char *filename, const char *ext, int size)
 {
    char tmp[512];
    int pos, end, c;
@@ -361,7 +361,7 @@ char *replace_extension(char *dest, char *filename, char *ext, int size)
 /* append_filename:
  *  Append filename to path, adding separator if necessary.
  */
-char *append_filename(char *dest, char *path, char *filename, int size)
+char *append_filename(char *dest, const char *path, const char *filename, int size)
 {
    char tmp[512];
    int pos, c;
@@ -393,7 +393,7 @@ char *append_filename(char *dest, char *path, char *filename, int size)
  *  to the filename portion. Both '\' and '/' are recognized as directory
  *  separators.
  */
-char *get_filename(char *path)
+char *get_filename(const char *path)
 {
    int pos, c;
 
@@ -406,7 +406,7 @@ char *get_filename(char *path)
       pos--;
    }
 
-   return path + uoffset(path, pos);
+   return (char *)path + uoffset(path, pos);
 }
 
 
@@ -415,7 +415,7 @@ char *get_filename(char *path)
  *  When passed a complete filename (with or without path information)
  *  this returns a pointer to the file extension.
  */
-char *get_extension(char *filename)
+char *get_extension(const char *filename)
 {
    int pos, c;
 
@@ -429,9 +429,9 @@ char *get_extension(char *filename)
    }
 
    if ((pos>0) && (ugetat(filename, pos-1) == '.'))
-      return filename + uoffset(filename, pos);
+      return (char *)filename + uoffset(filename, pos);
 
-   return filename + ustrsize(filename);
+   return (char *)filename + ustrsize(filename);
 }
 
 
@@ -514,7 +514,7 @@ static PACKFILE *pack_fopen_exe_file()
  *  Recursive helper to handle opening member objects from datafiles, 
  *  given a fake filename in the form 'object_name[/nestedobject]'.
  */
-static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, char *objname)
+static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, const char *objname)
 {
    char buf[512];
    char name[512];
@@ -590,7 +590,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, char *objname)
  *  Helper to handle opening psuedo-files, ie. datafile objects and data
  *  that has been appended to the end of the executable.
  */
-static PACKFILE *pack_fopen_special_file(char *filename, char *mode)
+static PACKFILE *pack_fopen_special_file(const char *filename, const char *mode)
 {
    char fname[512], objname[512];
    PACKFILE *f;
@@ -648,7 +648,7 @@ static PACKFILE *pack_fopen_special_file(char *filename, char *mode)
  *  to the attributes of the matching file. If an error occurs the system 
  *  error code will be stored in errno.
  */
-int file_exists(char *filename, int attrib, int *aret)
+int file_exists(const char *filename, int attrib, int *aret)
 {
    int a;
 
@@ -681,7 +681,7 @@ int file_exists(char *filename, int attrib, int *aret)
 /* exists:
  *  Shortcut version of file_exists().
  */
-int exists(char *filename)
+int exists(const char *filename)
 {
    return file_exists(filename, FA_ARCH | FA_RDONLY, NULL);
 }
@@ -693,7 +693,7 @@ int exists(char *filename)
  *  If the file does not exist or an error occurs, it will return zero
  *  and store the system error code in errno.
  */
-long file_size(char *filename)
+long file_size(const char *filename)
 {
    if (ustrchr(filename, '#')) {
       PACKFILE *f = pack_fopen_special_file(filename, F_READ);
@@ -719,7 +719,7 @@ long file_size(char *filename)
  *  If the file does not exist or an error occurs, it will return zero
  *  and store the system error code in errno.
  */
-long file_time(char *filename)
+long file_time(const char *filename)
 {
    if (ustrchr(filename, '#')) {
       *allegro_errno = ENOSYS;
@@ -737,7 +737,7 @@ long file_time(char *filename)
 /* delete_file:
  *  Removes a file from the disk.
  */
-int delete_file(char *filename)
+int delete_file(const char *filename)
 {
    *allegro_errno = 0;
 
@@ -769,7 +769,7 @@ int delete_file(char *filename)
  *  made to callback(). The file attribute may contain any of the FA_* 
  *  flags from dir.h.
  */
-int for_each_file(char *name, int attrib, void (*callback)(char *filename, int attrib, int param), int param)
+int for_each_file(const char *name, int attrib, void (*callback)(const char *filename, int attrib, int param), int param)
 {
    char dta_name[512], buf[512];
    void *dta;
@@ -808,7 +808,7 @@ int for_each_file(char *name, int attrib, void (*callback)(char *filename, int a
 /* find_resource:
  *  Tries lots of different places that a resource file might live.
  */
-static int find_resource(char *dest, char *path, char *name, char *datafile, char *objectname, char *subdir, int size)
+static int find_resource(char *dest, const char *path, const char *name, const char *datafile, const char *objectname, const char *subdir, int size)
 {
    char _name[128], _objectname[128], hash[8];
    int i;
@@ -930,7 +930,7 @@ static int find_resource(char *dest, char *path, char *name, char *datafile, cha
  *  success, and stores a full path to the file (at most size bytes) in
  *  the dest parameter.
  */
-int find_allegro_resource(char *dest, char *resource, char *ext, char *datafile, char *objectname, char *envvar, char *subdir, int size)
+int find_allegro_resource(char *dest, const char *resource, const char *ext, const char *datafile, const char *objectname, const char *envvar, const char *subdir, int size)
 {
    int (*sys_find_resource)(char *, char *, int);
    char rname[128], path[512];
@@ -1019,10 +1019,10 @@ int find_allegro_resource(char *dest, char *resource, char *ext, char *datafile,
       sys_find_resource = NULL;
 
    if (sys_find_resource) {
-      if ((ugetc(rname)) && (sys_find_resource(dest, rname, size) == 0))
+      if ((ugetc(rname)) && (sys_find_resource(dest, (char *)rname, size) == 0))
 	 return 0;
 
-      if ((datafile) && ((ugetc(rname)) || (objectname)) && (sys_find_resource(path, datafile, sizeof(path)) == 0)) {
+      if ((datafile) && ((ugetc(rname)) || (objectname)) && (sys_find_resource(path, (char *)datafile, sizeof(path)) == 0)) {
 	 if (!ugetc(rname))
 	    ustrncpy(rname, objectname, sizeof(rname)-ucwidth(0));
 
@@ -1050,7 +1050,7 @@ int find_allegro_resource(char *dest, char *resource, char *ext, char *datafile,
 /* packfile_password:
  *  Sets the password to be used by all future read/write operations.
  */
-void packfile_password(char *password)
+void packfile_password(const char *password)
 {
    int i = 0;
    int c;
@@ -1138,7 +1138,7 @@ static int clone_password(PACKFILE *f)
  *  it returns NULL and stores an error code in errno. An attempt to read a 
  *  normal file in packed mode will cause errno to be set to EDOM.
  */
-PACKFILE *pack_fopen(char *filename, char *mode)
+PACKFILE *pack_fopen(const char *filename, const char *mode)
 {
    PACKFILE *f, *f2;
    long header = FALSE;
@@ -1849,7 +1849,7 @@ char *pack_fgets(char *p, int max, PACKFILE *f)
 /* pack_fputs:
  *  Writes a string to a text file, returning zero on success, -1 on error.
  */
-int pack_fputs(char *p, PACKFILE *f)
+int pack_fputs(const char *p, PACKFILE *f)
 {
    char *s = uconvert(p, U_CURRENT, NULL, U_UTF8, -1);
 
@@ -1917,18 +1917,21 @@ static int refill_buffer(PACKFILE *f)
       offset = lseek(f->hndl, 0, SEEK_CUR);
       done = 0;
 
+      errno = 0;
       sz = read(f->hndl, f->buf, f->buf_size);
 
       while (sz+done < f->buf_size) {
-	 if ((sz < 0) && (errno != EINTR))
+	 if ((sz < 0) && ((errno != EINTR) && (errno != EAGAIN)))
 	    goto err;
 
 	 if (sz > 0)
 	    done += sz;
 
 	 lseek(f->hndl, offset+done, SEEK_SET);
+         errno = 0;
 	 sz = read(f->hndl, f->buf+done, f->buf_size-done);
       }
+      *allegro_errno = 0;
 
       if (errno == EINTR)
 	 errno = 0;
@@ -1999,21 +2002,21 @@ static int flush_buffer(PACKFILE *f, int last)
 	 offset = lseek(f->hndl, 0, SEEK_CUR);
 	 done = 0;
 
+	 errno = 0;
 	 sz = write(f->hndl, f->buf, f->buf_size);
 
 	 while (sz+done < f->buf_size) {
-	    if ((sz < 0) && (errno != EINTR))
+	    if ((sz < 0) && ((errno != EINTR) && (errno != EAGAIN)))
 	       goto err;
 
 	    if (sz > 0)
 	       done += sz;
 
 	    lseek(f->hndl, offset+done, SEEK_SET);
+	    errno = 0;
 	    sz = write(f->hndl, f->buf+done, f->buf_size-done);
 	 }
-
-	 if (errno == EINTR)
-	    errno = 0;
+	 *allegro_errno = 0;
       }
       f->todo += f->buf_size;
    }

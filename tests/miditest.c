@@ -422,6 +422,7 @@ DIALOG thedialog[] =
    { d_edit_proc,       392,  320,  64,   16,   255,  8,    0,       0,          3,             3,       volume_str,       NULL, NULL  },
    { d_text_proc,       320,  352,  0,    0,    255,  8,    0,       0,          0,             0,       "Pan:",           NULL, NULL  },
    { d_edit_proc,       392,  352,  64,   16,   255,  8,    0,       0,          3,             2,       pan_str,          NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
 

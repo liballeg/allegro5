@@ -92,7 +92,7 @@ static void opaque_character(BITMAP *bmp, BITMAP *sprite, int x, int y, int colo
  *  using the colors from the original font bitmap (the one imported into
  *  the grabber program), which allows multicolored text output.
  */
-void textout(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
+void textout(BITMAP *bmp, FONT *f, const char *str, int x, int y, int color)
 {
    void (*putter)() = NULL;
    FONT *range = NULL;
@@ -154,7 +154,7 @@ void textout(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
  *  Like textout(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void textout_centre(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
+void textout_centre(BITMAP *bmp, FONT *f, const char *str, int x, int y, int color)
 {
    int len;
 
@@ -168,7 +168,7 @@ void textout_centre(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
  *  Like textout(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void textout_right(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
+void textout_right(BITMAP *bmp, FONT *f, const char *str, int x, int y, int color)
 {
    int len;
 
@@ -181,7 +181,7 @@ void textout_right(BITMAP *bmp, FONT *f, char *str, int x, int y, int color)
 /* textout_justify:
  *  Like textout(), but right justifies the string to the specified area.
  */
-void textout_justify(BITMAP *bmp, FONT *f, char *str, int x1, int x2, int y, int diff, int color)
+void textout_justify(BITMAP *bmp, FONT *f, const char *str, int x1, int x2, int y, int diff, int color)
 {
    char toks[32];
    char *tok[128];
@@ -228,7 +228,7 @@ void textout_justify(BITMAP *bmp, FONT *f, char *str, int x1, int x2, int y, int
 /* textprintf:
  *  Formatted text output, using a printf() style format string.
  */
-void textprintf(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...)
+void textprintf(BITMAP *bmp, FONT *f, int x, int y, int color, const char *format, ...)
 {
    char buf[512];
 
@@ -246,7 +246,7 @@ void textprintf(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...
  *  Like textprintf(), but uses the x coordinate as the centre rather than 
  *  the left of the string.
  */
-void textprintf_centre(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...)
+void textprintf_centre(BITMAP *bmp, FONT *f, int x, int y, int color, const char *format, ...)
 {
    char buf[512];
 
@@ -264,7 +264,7 @@ void textprintf_centre(BITMAP *bmp, FONT *f, int x, int y, int color, char *form
  *  Like textprintf(), but uses the x coordinate as the right rather than 
  *  the left of the string.
  */
-void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...)
+void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, const char *format, ...)
 {
    char buf[512];
 
@@ -281,7 +281,7 @@ void textprintf_right(BITMAP *bmp, FONT *f, int x, int y, int color, char *forma
 /* textprintf_justify:
  *  Like textprintf(), but right justifies the string to the specified area.
  */
-void textprintf_justify(BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, int color, char *format, ...)
+void textprintf_justify(BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, int color, const char *format, ...)
 {
    char buf[512];
 
@@ -298,7 +298,7 @@ void textprintf_justify(BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, i
 /* text_length:
  *  Calculates the length of a string in a particular font.
  */
-int text_length(FONT *f, char *str)
+int text_length(FONT *f, const char *str)
 {
    FONT *range;
    int c, len;

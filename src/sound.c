@@ -293,7 +293,7 @@ void reserve_voices(int digi_voices, int midi_voices)
  *  allegro.h. Pass DIGI_AUTODETECT and MIDI_AUTODETECT if you don't know 
  *  what the soundcard is.
  */
-int install_sound(int digi, int midi, char *cfg_path)
+int install_sound(int digi, int midi, const char *cfg_path)
 {
    char tmp1[64], tmp2[64];
    char *sound = uconvert_ascii("sound", tmp1);
@@ -752,7 +752,7 @@ void lock_sample(SAMPLE *spl)
 /* load_sample:
  *  Loads a sample from disk.
  */
-SAMPLE *load_sample(char *filename)
+SAMPLE *load_sample(const char *filename)
 {
    if (ustricmp(get_extension(filename), uconvert_ascii("wav", NULL)) == 0)
       return load_wav(filename);
@@ -768,7 +768,7 @@ SAMPLE *load_sample(char *filename)
  *  Reads a mono VOC format sample file, returning a SAMPLE structure, 
  *  or NULL on error.
  */
-SAMPLE *load_voc(char *filename)
+SAMPLE *load_voc(const char *filename)
 {
    PACKFILE *f;
    char buffer[30];
@@ -869,7 +869,7 @@ SAMPLE *load_voc(char *filename)
  *  Reads a RIFF WAV format sample file, returning a SAMPLE structure, 
  *  or NULL on error.
  */
-SAMPLE *load_wav(char *filename)
+SAMPLE *load_wav(const char *filename)
 {
    PACKFILE *f;
    char buffer[25];

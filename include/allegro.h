@@ -118,13 +118,13 @@ AL_FUNC(void, lock_bitmap, (struct BITMAP *bmp));
 AL_FUNC(void, lock_sample, (struct SAMPLE *spl));
 AL_FUNC(void, lock_midi, (struct MIDI *midi));
 
-AL_PRINTFUNC(void, allegro_message, (char *msg, ...), 1, 2);
+AL_PRINTFUNC(void, allegro_message, (const char *msg, ...), 1, 2);
 
-AL_FUNC(void, al_assert, (char *file, int line));
-AL_PRINTFUNC(void, al_trace, (char *msg, ...), 1, 2);
+AL_FUNC(void, al_assert, (const char *file, int line));
+AL_PRINTFUNC(void, al_trace, (const char *msg, ...), 1, 2);
 
-AL_FUNC(void, register_assert_handler, (AL_METHOD(int, handler, (char *msg))));
-AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (char *msg))));
+AL_FUNC(void, register_assert_handler, (AL_METHOD(int, handler, (const char *msg))));
+AL_FUNC(void, register_trace_handler, (AL_METHOD(int, handler, (const char *msg))));
 
 
 #ifdef DEBUGMODE
@@ -201,13 +201,14 @@ AL_ARRAY(_DRIVER_INFO, _system_driver_list);
 
 AL_FUNC(void, set_uformat, (int type));
 AL_FUNC(int, get_uformat, (void));
-AL_FUNC(void, register_uformat, (int type, AL_METHOD(int, u_getc, (char *s)), AL_METHOD(int, u_getx, (char **s)), AL_METHOD(int, u_setc, (char *s, int c)), AL_METHOD(int, u_width, (char *s)), AL_METHOD(int, u_cwidth, (int c)), AL_METHOD(int, u_isok, (int c))));
+AL_FUNC(void, register_uformat, (int type, AL_METHOD(int, u_getc, (char *s)), AL_METHOD(int, u_getx, (char **s)), AL_METHOD(int, u_setc, (char *s, int c)), AL_METHOD(int, u_width, (char *s)), AL_METHOD(int, u_cwidth, (int c)), AL_METHOD(int, u_isok, (int c)), int u_width_max));
 AL_FUNC(void, set_ucodepage, (unsigned short *table, unsigned short *extras));
 
 AL_FUNC(int, need_uconvert, (char *s, int type, int newtype));
 AL_FUNC(int, uconvert_size, (char *s, int type, int newtype));
 AL_FUNC(void, do_uconvert, (char *s, int type, char *buf, int newtype, int size));
 AL_FUNC(char *, uconvert, (char *s, int type, char *buf, int newtype, int size));
+AL_FUNC(int, uwidth_max, (int type));
 
 #define uconvert_ascii(s, buf)      uconvert(s, U_ASCII, buf, U_CURRENT, sizeof(buf))
 #define uconvert_toascii(s, buf)    uconvert(s, U_CURRENT, buf, U_ASCII, sizeof(buf))
@@ -216,14 +217,14 @@ AL_FUNC(char *, uconvert, (char *s, int type, char *buf, int newtype, int size))
 
 AL_ARRAY(char, empty_string);
 
-AL_FUNCPTR(int, ugetc, (char *s));
-AL_FUNCPTR(int, ugetx, (char **s));
+AL_FUNCPTR(int, ugetc, (const char *s));
+AL_FUNCPTR(int, ugetx, (const char **s));
 AL_FUNCPTR(int, usetc, (char *s, int c));
-AL_FUNCPTR(int, uwidth, (char *s));
+AL_FUNCPTR(int, uwidth, (const char *s));
 AL_FUNCPTR(int, ucwidth, (int c));
 AL_FUNCPTR(int, uisok, (int c));
-AL_FUNC(int, uoffset, (char *s, int index));
-AL_FUNC(int, ugetat, (char *s, int index));
+AL_FUNC(int, uoffset, (const char *s, int index));
+AL_FUNC(int, ugetat, (const char *s, int index));
 AL_FUNC(int, usetat, (char *s, int index, int c));
 AL_FUNC(int, uinsert, (char *s, int index, int c));
 AL_FUNC(int, uremove, (char *s, int index));
@@ -257,7 +258,7 @@ AL_PRINTFUNC(int, usprintf, (char *buf, char *format, ...), 2, 3);
 
 AL_FUNC(char *, _ustrdup, (char *src, AL_METHOD(void *, malloc_func, (size_t))));
 
-#define ustrdup(src)    _ustrdup(src, malloc_func)
+#define ustrdup(src)    _ustrdup(src, malloc)
 
 
 /************************************************/
@@ -716,8 +717,8 @@ AL_VAR(int, _joystick_installed);
 
 AL_FUNC(int, poll_joystick, (void));
 
-AL_FUNC(int, save_joystick_data, (char *filename));
-AL_FUNC(int, load_joystick_data, (char *filename));
+AL_FUNC(int, save_joystick_data, (const char *filename));
+AL_FUNC(int, load_joystick_data, (const char *filename));
 
 AL_FUNC(char *, calibrate_joystick_name, (int n));
 AL_FUNC(int, calibrate_joystick, (int n));
@@ -1254,6 +1255,10 @@ AL_FUNC(void, rotate_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed a
 AL_FUNC(void, rotate_scaled_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale));
 AL_FUNC(void, pivot_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle));
 AL_FUNC(void, pivot_scaled_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale));
+AL_FUNC(void, rotate_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle));
+AL_FUNC(void, rotate_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle, fixed scale));
+AL_FUNC(void, pivot_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle));
+AL_FUNC(void, pivot_scaled_sprite_v_flip, (BITMAP *bmp, BITMAP *sprite, int x, int y, int cx, int cy, fixed angle, fixed scale));
 AL_FUNC(void, draw_gouraud_sprite, (BITMAP *bmp, BITMAP *sprite, int x, int y, int c1, int c2, int c3, int c4));
 AL_FUNC(void, clear, (BITMAP *bitmap));
 
@@ -1320,15 +1325,15 @@ typedef struct FONT                 /* a range of consecutive characters */
 AL_VAR(FONT *, font);
 
 AL_FUNC(void, text_mode, (int mode));
-AL_FUNC(void, textout, (BITMAP *bmp, FONT *f, char *str, int x, int y, int color));
-AL_FUNC(void, textout_centre, (BITMAP *bmp, FONT *f, char *str, int x, int y, int color));
-AL_FUNC(void, textout_right, (BITMAP *bmp, FONT *f, char *str, int x, int y, int color));
-AL_FUNC(void, textout_justify, (BITMAP *bmp, FONT *f, char *str, int x1, int x2, int y, int diff, int color));
-AL_PRINTFUNC(void, textprintf, (BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_centre, (BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_right, (BITMAP *bmp, FONT *f, int x, int y, int color, char *format, ...), 6, 7);
-AL_PRINTFUNC(void, textprintf_justify, (BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, int color, char *format, ...), 8, 9);
-AL_FUNC(int, text_length, (FONT *f, char *str));
+AL_FUNC(void, textout, (BITMAP *bmp, FONT *f, const char *str, int x, int y, int color));
+AL_FUNC(void, textout_centre, (BITMAP *bmp, FONT *f, const char *str, int x, int y, int color));
+AL_FUNC(void, textout_right, (BITMAP *bmp, FONT *f, const char *str, int x, int y, int color));
+AL_FUNC(void, textout_justify, (BITMAP *bmp, FONT *f, const char *str, int x1, int x2, int y, int diff, int color));
+AL_PRINTFUNC(void, textprintf, (BITMAP *bmp, FONT *f, int x, int y, int color, const char *format, ...), 6, 7);
+AL_PRINTFUNC(void, textprintf_centre, (BITMAP *bmp, FONT *f, int x, int y, int color, const char *format, ...), 6, 7);
+AL_PRINTFUNC(void, textprintf_right, (BITMAP *bmp, FONT *f, int x, int y, int color, const char *format, ...), 6, 7);
+AL_PRINTFUNC(void, textprintf_justify, (BITMAP *bmp, FONT *f, int x1, int x2, int y, int diff, int color, const char *format, ...), 8, 9);
+AL_FUNC(int, text_length, (FONT *f, const char *str));
 AL_FUNC(int, text_height, (FONT *f));
 AL_FUNC(void, destroy_font, (FONT *f));
 
@@ -1383,10 +1388,10 @@ AL_FUNC(int, clip3d_f, (int type, float min_z, float max_z, int vc, V3D_f *vtx[]
 #define FLI_ERROR       -2
 #define FLI_NOT_OPEN    -3
 
-AL_FUNC(int, play_fli, (char *filename, BITMAP *bmp, int loop, AL_METHOD(int, callback, (void))));
+AL_FUNC(int, play_fli, (const char *filename, BITMAP *bmp, int loop, AL_METHOD(int, callback, (void))));
 AL_FUNC(int, play_memory_fli, (void *fli_data, BITMAP *bmp, int loop, AL_METHOD(int, callback, (void))));
 
-AL_FUNC(int, open_fli, (char *filename));
+AL_FUNC(int, open_fli, (const char *filename));
 AL_FUNC(int, open_memory_fli, (void *fli_data));
 AL_FUNC(void, close_fli, (void));
 AL_FUNC(int, next_fli_frame, (int loop));
@@ -1615,7 +1620,7 @@ AL_FUNC(int, detect_midi_driver, (int driver_id));
 
 AL_FUNC(void, reserve_voices, (int digi_voices, int midi_voices));
 
-AL_FUNC(int, install_sound, (int digi, int midi, char *cfg_path));
+AL_FUNC(int, install_sound, (int digi, int midi, const char *cfg_path));
 AL_FUNC(void, remove_sound, (void));
 
 AL_FUNC(int, install_sound_input, (int digi, int midi));
@@ -1626,9 +1631,9 @@ AL_FUNC(void, set_volume, (int digi_volume, int midi_volume));
 AL_VAR(int, _sound_installed);
 AL_VAR(int, _sound_input_installed);
 
-AL_FUNC(SAMPLE *, load_sample, (char *filename));
-AL_FUNC(SAMPLE *, load_wav, (char *filename));
-AL_FUNC(SAMPLE *, load_voc, (char *filename));
+AL_FUNC(SAMPLE *, load_sample, (const char *filename));
+AL_FUNC(SAMPLE *, load_wav, (const char *filename));
+AL_FUNC(SAMPLE *, load_voc, (const char *filename));
 AL_FUNC(SAMPLE *, create_sample, (int bits, int stereo, int freq, int len));
 AL_FUNC(void, destroy_sample, (SAMPLE *spl));
 
@@ -1690,7 +1695,7 @@ AL_FUNC(int, read_sound_input, (void *buffer));
 
 AL_FUNCPTR(void, digi_recorder, (void));
 
-AL_FUNC(MIDI *, load_midi, (char *filename));
+AL_FUNC(MIDI *, load_midi, (const char *filename));
 AL_FUNC(void, destroy_midi, (MIDI *midi));
 AL_FUNC(int, play_midi, (MIDI *midi, int loop));
 AL_FUNC(int, play_looped_midi, (MIDI *midi, int loop_start, int loop_end));
@@ -1720,20 +1725,20 @@ AL_FUNC(void, free_audio_stream_buffer, (AUDIOSTREAM *stream));
 
 AL_FUNC(char *, fix_filename_case, (char *path));
 AL_FUNC(char *, fix_filename_slashes, (char *path));
-AL_FUNC(char *, fix_filename_path, (char *dest, char *path, int size));
-AL_FUNC(char *, replace_filename, (char *dest, char *path, char *filename, int size));
-AL_FUNC(char *, replace_extension, (char *dest, char *filename, char *ext, int size));
-AL_FUNC(char *, append_filename, (char *dest, char *path, char *filename, int size));
-AL_FUNC(char *, get_filename, (char *path));
-AL_FUNC(char *, get_extension, (char *filename));
+AL_FUNC(char *, fix_filename_path, (char *dest, const char *path, int size));
+AL_FUNC(char *, replace_filename, (char *dest, const char *path, const char *filename, int size));
+AL_FUNC(char *, replace_extension, (char *dest, const char *filename, const char *ext, int size));
+AL_FUNC(char *, append_filename, (char *dest, const char *path, const char *filename, int size));
+AL_FUNC(char *, get_filename, (const char *path));
+AL_FUNC(char *, get_extension, (const char *filename));
 AL_FUNC(void, put_backslash, (char *filename));
-AL_FUNC(int, file_exists, (char *filename, int attrib, int *aret));
-AL_FUNC(int, exists, (char *filename));
-AL_FUNC(long, file_size, (char *filename));
-AL_FUNC(long, file_time, (char *filename));
-AL_FUNC(int, delete_file, (char *filename));
-AL_FUNC(int, for_each_file, (char *name, int attrib, AL_METHOD(void, callback, (char *filename, int attrib, int param)), int param));
-AL_FUNC(int, find_allegro_resource, (char *dest, char *resource, char *ext, char *datafile, char *objectname, char *envvar, char *subdir, int size));
+AL_FUNC(int, file_exists, (const char *filename, int attrib, int *aret));
+AL_FUNC(int, exists, (const char *filename));
+AL_FUNC(long, file_size, (const char *filename));
+AL_FUNC(long, file_time, (const char *filename));
+AL_FUNC(int, delete_file, (const char *filename));
+AL_FUNC(int, for_each_file, (const char *name, int attrib, AL_METHOD(void, callback, (const char *filename, int attrib, int param)), int param));
+AL_FUNC(int, find_allegro_resource, (char *dest, const char *resource, const char *ext, const char *datafile, const char *objectname, const char *envvar, const char *subdir, int size));
 
 #ifndef EOF 
    #define EOF    (-1)
@@ -1775,8 +1780,8 @@ typedef struct PACKFILE                /* our very own FILE structure... */
 } PACKFILE;
 
 
-AL_FUNC(void, packfile_password, (char *password));
-AL_FUNC(PACKFILE *, pack_fopen, (char *filename, char *mode));
+AL_FUNC(void, packfile_password, (const char *password));
+AL_FUNC(PACKFILE *, pack_fopen, (const char *filename, const char *mode));
 AL_FUNC(int, pack_fclose, (PACKFILE *f));
 AL_FUNC(int, pack_fseek, (PACKFILE *f, int offset));
 AL_FUNC(PACKFILE *, pack_fopen_chunk, (PACKFILE *f, int pack));
@@ -1792,7 +1797,7 @@ AL_FUNC(long, pack_mputl, (long l, PACKFILE *f));
 AL_FUNC(long, pack_fread, (void *p, long n, PACKFILE *f));
 AL_FUNC(long, pack_fwrite, (void *p, long n, PACKFILE *f));
 AL_FUNC(char *, pack_fgets, (char *p, int max, PACKFILE *f));
-AL_FUNC(int, pack_fputs, (char *p, PACKFILE *f));
+AL_FUNC(int, pack_fputs, (const char *p, PACKFILE *f));
 
 AL_FUNC(int, _sort_out_getc, (PACKFILE *f));
 AL_FUNC(int, _sort_out_putc, (int c, PACKFILE *f));
@@ -1842,31 +1847,31 @@ typedef struct DATAFILE
 } DATAFILE;
 
 
-AL_FUNC(DATAFILE *, load_datafile, (char *filename));
-AL_FUNC(DATAFILE *, load_datafile_callback, (char *filename, AL_METHOD(void, callback, (DATAFILE *))));
+AL_FUNC(DATAFILE *, load_datafile, (const char *filename));
+AL_FUNC(DATAFILE *, load_datafile_callback, (const char *filename, AL_METHOD(void, callback, (DATAFILE *))));
 AL_FUNC(void, unload_datafile, (DATAFILE *dat));
 
-AL_FUNC(DATAFILE *, load_datafile_object, (char *filename, char *objectname));
+AL_FUNC(DATAFILE *, load_datafile_object, (const char *filename, const char *objectname));
 AL_FUNC(void, unload_datafile_object, (DATAFILE *dat));
 
-AL_FUNC(DATAFILE *, find_datafile_object, (DATAFILE *dat, char *objectname));
+AL_FUNC(DATAFILE *, find_datafile_object, (DATAFILE *dat, const char *objectname));
 AL_FUNC(char *, get_datafile_property, (DATAFILE *dat, int type));
 AL_FUNC(void, register_datafile_object, (int id, AL_METHOD(void *, load, (PACKFILE *f, long size)), AL_METHOD(void, destroy, (void *data))));
 
 AL_FUNC(void, fixup_datafile, (DATAFILE *data));
 
-AL_FUNC(BITMAP *, load_bitmap, (char *filename, RGB *pal));
-AL_FUNC(BITMAP *, load_bmp, (char *filename, RGB *pal));
-AL_FUNC(BITMAP *, load_lbm, (char *filename, RGB *pal));
-AL_FUNC(BITMAP *, load_pcx, (char *filename, RGB *pal));
-AL_FUNC(BITMAP *, load_tga, (char *filename, RGB *pal));
+AL_FUNC(BITMAP *, load_bitmap, (const char *filename, RGB *pal));
+AL_FUNC(BITMAP *, load_bmp, (const char *filename, RGB *pal));
+AL_FUNC(BITMAP *, load_lbm, (const char *filename, RGB *pal));
+AL_FUNC(BITMAP *, load_pcx, (const char *filename, RGB *pal));
+AL_FUNC(BITMAP *, load_tga, (const char *filename, RGB *pal));
 
-AL_FUNC(int, save_bitmap, (char *filename, BITMAP *bmp, RGB *pal));
-AL_FUNC(int, save_bmp, (char *filename, BITMAP *bmp, RGB *pal));
-AL_FUNC(int, save_pcx, (char *filename, BITMAP *bmp, RGB *pal));
-AL_FUNC(int, save_tga, (char *filename, BITMAP *bmp, RGB *pal));
+AL_FUNC(int, save_bitmap, (const char *filename, BITMAP *bmp, RGB *pal));
+AL_FUNC(int, save_bmp, (const char *filename, BITMAP *bmp, RGB *pal));
+AL_FUNC(int, save_pcx, (const char *filename, BITMAP *bmp, RGB *pal));
+AL_FUNC(int, save_tga, (const char *filename, BITMAP *bmp, RGB *pal));
 
-AL_FUNC(void, register_bitmap_file_type, (char *ext, AL_METHOD(BITMAP *, load, (char *filename, RGB *pal)), AL_METHOD(int, save, (char *filename, BITMAP *bmp, RGB *pal))));
+AL_FUNC(void, register_bitmap_file_type, (const char *ext, AL_METHOD(BITMAP *, load, (const char *filename, RGB *pal)), AL_METHOD(int, save, (const char *filename, BITMAP *bmp, RGB *pal))));
 
 
 
@@ -2089,6 +2094,7 @@ typedef struct DIALOG_PLAYER
 
 
 /* some dialog procedures */
+AL_FUNC(int, d_yield_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, d_clear_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, d_box_proc, (int msg, DIALOG *d, int c));
 AL_FUNC(int, d_shadow_box_proc, (int msg, DIALOG *d, int c));
@@ -2124,8 +2130,8 @@ AL_FUNCPTR(int, gui_mouse_y, (void));
 AL_FUNCPTR(int, gui_mouse_z, (void));
 AL_FUNCPTR(int, gui_mouse_b, (void));
 
-AL_FUNC(int, gui_textout, (BITMAP *bmp, char *s, int x, int y, int color, int centre));
-AL_FUNC(int, gui_strlen, (char *s));
+AL_FUNC(int, gui_textout, (BITMAP *bmp, const char *s, int x, int y, int color, int centre));
+AL_FUNC(int, gui_strlen, (const char *s));
 AL_FUNC(void, position_dialog, (DIALOG *dialog, int x, int y));
 AL_FUNC(void, centre_dialog, (DIALOG *dialog));
 AL_FUNC(void, set_dialog_color, (DIALOG *dialog, int fg, int bg));
@@ -2138,9 +2144,9 @@ AL_FUNC(DIALOG_PLAYER *, init_dialog, (DIALOG *dialog, int focus_obj));
 AL_FUNC(int, update_dialog, (DIALOG_PLAYER *player));
 AL_FUNC(int, shutdown_dialog, (DIALOG_PLAYER *player));
 AL_FUNC(int, do_menu, (MENU *menu, int x, int y));
-AL_FUNC(int, alert, (char *s1, char *s2, char *s3, char *b1, char *b2, int c1, int c2));
-AL_FUNC(int, alert3, (char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, int c2, int c3));
-AL_FUNC(int, file_select, (char *message, char *path, char *ext));
+AL_FUNC(int, alert, (const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2));
+AL_FUNC(int, alert3, (const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3));
+AL_FUNC(int, file_select, (const char *message, char *path, const char *ext));
 AL_FUNC(int, gfx_mode_select, (int *card, int *w, int *h));
 AL_FUNC(int, gfx_mode_select_ex, (int *card, int *w, int *h, int *color_depth));
 

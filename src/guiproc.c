@@ -39,7 +39,7 @@ typedef char *(*getfuncptr)(int, int *);
  *  & character as an underbar for displaying keyboard shortcuts. Returns
  *  the width of the output string in pixels.
  */
-int gui_textout(BITMAP *bmp, char *s, int x, int y, int color, int centre)
+int gui_textout(BITMAP *bmp, const char *s, int x, int y, int color, int centre)
 {
    char tmp[1024];
    int hline_pos = -1;
@@ -95,7 +95,7 @@ int gui_textout(BITMAP *bmp, char *s, int x, int y, int color, int centre)
 /* gui_strlen:
  *  Returns the length of a string in pixels, ignoring '&' characters.
  */
-int gui_strlen(char *s)
+int gui_strlen(const char *s)
 {
    return gui_textout(NULL, s, 0, 0, 0, 0);
 }
@@ -119,6 +119,20 @@ static void dotted_rect(int x1, int y1, int x2, int y2, int fg, int bg)
       putpixel(screen, x1, c, (((c+x1) & 1) == x) ? fg : bg);
       putpixel(screen, x2, c, (((c+x2) & 1) == x) ? fg : bg);
    }
+}
+
+
+
+/* d_yield_proc:
+ *  Simple dialog procedure which just yields the timeslice when the dialog
+ *  is idle.
+ */
+int d_yield_proc(int msg, DIALOG *d, int c)
+{
+   if (msg == MSG_IDLE)
+      yield_timeslice();
+
+   return D_O_K;
 }
 
 

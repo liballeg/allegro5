@@ -27,12 +27,188 @@
    #include ALLEGRO_MMX_HEADER
 #endif
 
+typedef struct {
+   char *name;
+   int value;
+}offset_entry_t;
 
+offset_entry_t list[] = {
+#ifdef ALLEGRO_DJGPP
+  {"##ALLEGRO_DJGPP", 0},
+#endif
+#ifdef ALLEGRO_WATCOM
+  {"##ALLEGRO_WATCOM", 0},
+#endif
+#ifdef ALLEGRO_DOS
+  {"##ALLEGRO_DOS", 0},
+#endif
+#ifdef ALLEGRO_WINDOWS
+  {"##ALLEGRO_WINDOWS", 0},
+#endif
+#ifdef ALLEGRO_LINUX
+  {"##ALLEGRO_LINUX", 0},
+#endif
+#ifdef ALLEGRO_LINUX_VBEAF
+  {"##ALLEGRO_LINUX_VBEAF", 0},
+#endif
+#ifdef ALLEGRO_COLOR8
+  {"##ALLEGRO_COLOR8", 0},
+#endif
+#ifdef ALLEGRO_COLOR16
+  {"##ALLEGRO_COLOR16", 0},
+#endif
+#ifdef ALLEGRO_COLOR24
+  {"##ALLEGRO_COLOR24", 0},
+#endif
+#ifdef ALLEGRO_COLOR32
+  {"##ALLEGRO_COLOR32", 0},
+#endif
+#ifdef ALLEGRO_MMX
+  {"##ALLEGRO_MMX", 0},
+#endif
+#ifdef ALLEGRO_NO_ASM
+  {"##ALLEGRO_NO_ASM", 0},
+#endif
+  {"BMP_W",      (int)offsetof(BITMAP, w)},
+  {"BMP_H",      (int)offsetof(BITMAP, h)},
+  {"BMP_CLIP",   (int)offsetof(BITMAP, clip)},
+  {"BMP_CL",     (int)offsetof(BITMAP, cl)},
+  {"BMP_CR",     (int)offsetof(BITMAP, cr)},
+  {"BMP_CT",     (int)offsetof(BITMAP, ct)},
+  {"BMP_CB",     (int)offsetof(BITMAP, cb)},
+  {"BMP_VTABLE", (int)offsetof(BITMAP, vtable)},
+  {"BMP_WBANK",  (int)offsetof(BITMAP, write_bank)},
+  {"BMP_RBANK",  (int)offsetof(BITMAP, read_bank)},
+  {"BMP_DAT",    (int)offsetof(BITMAP, dat)},
+  {"BMP_ID",     (int)offsetof(BITMAP, id)},
+  {"BMP_EXTRA",  (int)offsetof(BITMAP, extra)},
+  {"BMP_XOFFSET",(int)offsetof(BITMAP, x_ofs)},
+  {"BMP_YOFFSET",(int)offsetof(BITMAP, y_ofs)},
+  {"BMP_SEG",    (int)offsetof(BITMAP, seg)},
+  {"BMP_LINE",   (int)offsetof(BITMAP, line)},
+  {"NEWLINE", 0},
+  {"#ifndef BMP_ID_VIDEO", 0}, // next lot are 0x%08X in original
+  {"BMP_ID_VIDEO",    BMP_ID_VIDEO},
+  {"BMP_ID_SYSTEM",   BMP_ID_SYSTEM},
+  {"BMP_ID_SUB",      BMP_ID_SUB},
+  {"BMP_ID_PLANAR",   BMP_ID_PLANAR},
+  {"BMP_ID_NOBLIT",   BMP_ID_NOBLIT},
+  {"BMP_ID_LOCKED",   BMP_ID_LOCKED},
+  {"BMP_ID_AUTOLOCK", BMP_ID_AUTOLOCK},
+  {"BMP_ID_MASK",     BMP_ID_MASK},
+  {"#endif", 0 },
+  {"NEWLINE", 0},
+#ifndef ALLEGRO_USE_C
+  {"CMP_PLANAR",      (int)offsetof(COMPILED_SPRITE, planar)},
+  {"CMP_COLOR_DEPTH", (int)offsetof(COMPILED_SPRITE, color_depth)},
+  {"CMP_DRAW",        (int)offsetof(COMPILED_SPRITE, proc)},
+  {"NEWLINE", 0},
+#endif
+  {"VTABLE_COLOR_DEPTH", (int)offsetof(GFX_VTABLE, color_depth)},
+  {"VTABLE_MASK_COLOR",  (int)offsetof(GFX_VTABLE, mask_color)},
+  {"VTABLE_UNBANK",      (int)offsetof(GFX_VTABLE, unwrite_bank)},
+  {"NEWLINE", 0},
+  {"RLE_W",   (int)offsetof(RLE_SPRITE, w)},
+  {"RLE_H",   (int)offsetof(RLE_SPRITE, h)},
+  {"RLE_DAT", (int)offsetof(RLE_SPRITE, dat)},
+  {"NEWLINE", 0},
+  {"DRAW_SOLID",          DRAW_MODE_SOLID},
+  {"DRAW_XOR",            DRAW_MODE_XOR},
+  {"DRAW_COPY_PATTERN",   DRAW_MODE_COPY_PATTERN},
+  {"DRAW_SOLID_PATTERN",  DRAW_MODE_SOLID_PATTERN},
+  {"DRAW_MASKED_PATTERN", DRAW_MODE_MASKED_PATTERN},
+  {"DRAW_TRANS",          DRAW_MODE_TRANS},
+  {"NEWLINE", 0},
+  {"#ifndef MASK_COLOR_8", 0},
+  {"MASK_COLOR_8",   MASK_COLOR_8},
+  {"MASK_COLOR_15",  MASK_COLOR_15},
+  {"MASK_COLOR_16",  MASK_COLOR_16},
+  {"MASK_COLOR_24",  MASK_COLOR_24},
+  {"MASK_COLOR_32",  MASK_COLOR_32},
+  {"#endif", 0},
+  {"NEWLINE", 0},
+  {"POLYSEG_U",       (int)offsetof(POLYGON_SEGMENT, u)},
+  {"POLYSEG_V",       (int)offsetof(POLYGON_SEGMENT, v)},
+  {"POLYSEG_DU",      (int)offsetof(POLYGON_SEGMENT, du)},
+  {"POLYSEG_DV",      (int)offsetof(POLYGON_SEGMENT, dv)},
+  {"POLYSEG_C",       (int)offsetof(POLYGON_SEGMENT, c)},
+  {"POLYSEG_DC",      (int)offsetof(POLYGON_SEGMENT, dc)},
+  {"POLYSEG_R",       (int)offsetof(POLYGON_SEGMENT, r)},
+  {"POLYSEG_G",       (int)offsetof(POLYGON_SEGMENT, g)},
+  {"POLYSEG_B",       (int)offsetof(POLYGON_SEGMENT, b)},
+  {"POLYSEG_DR",      (int)offsetof(POLYGON_SEGMENT, dr)},
+  {"POLYSEG_DG",      (int)offsetof(POLYGON_SEGMENT, dg)},
+  {"POLYSEG_DB",      (int)offsetof(POLYGON_SEGMENT, db)},
+  {"POLYSEG_Z",       (int)offsetof(POLYGON_SEGMENT, z)},
+  {"POLYSEG_DZ",      (int)offsetof(POLYGON_SEGMENT, dz)},
+  {"POLYSEG_FU",      (int)offsetof(POLYGON_SEGMENT, fu)},
+  {"POLYSEG_FV",      (int)offsetof(POLYGON_SEGMENT, fv)},
+  {"POLYSEG_DFU",     (int)offsetof(POLYGON_SEGMENT, dfu)},
+  {"POLYSEG_DFV",     (int)offsetof(POLYGON_SEGMENT, dfv)},
+  {"POLYSEG_TEXTURE", (int)offsetof(POLYGON_SEGMENT, texture)},
+  {"POLYSEG_UMASK",   (int)offsetof(POLYGON_SEGMENT, umask)},
+  {"POLYSEG_VMASK",   (int)offsetof(POLYGON_SEGMENT, vmask)},
+  {"POLYSEG_VSHIFT",  (int)offsetof(POLYGON_SEGMENT, vshift)},
+  {"POLYSEG_SEG  ",   (int)offsetof(POLYGON_SEGMENT, seg)},
+  {"NEWLINE", 0},
+  {"ERANGE",          ERANGE},
+  {"NEWLINE", 0},
+  {"M_V00", (int)offsetof(MATRIX_f, v[0][0])},
+  {"M_V01", (int)offsetof(MATRIX_f, v[0][1])},
+  {"M_V02", (int)offsetof(MATRIX_f, v[0][2])},
+  {"M_V10", (int)offsetof(MATRIX_f, v[1][0])},
+  {"M_V11", (int)offsetof(MATRIX_f, v[1][1])},
+  {"M_V12", (int)offsetof(MATRIX_f, v[1][2])},
+  {"M_V20", (int)offsetof(MATRIX_f, v[2][0])},
+  {"M_V21", (int)offsetof(MATRIX_f, v[2][1])},
+  {"M_V22", (int)offsetof(MATRIX_f, v[2][2])},
+  {"NEWLINE", 0},
+  {"M_T0", (int)offsetof(MATRIX_f, t[0])},
+  {"M_T1", (int)offsetof(MATRIX_f, t[1])},
+  {"M_T2", (int)offsetof(MATRIX_f, t[2])},
+  {"NEWLINE", 0},
+#ifdef ALLEGRO_DOS
+  {"IRQ_SIZE",    (int)sizeof(_IRQ_HANDLER)},
+  {"IRQ_HANDLER", (int)offsetof(_IRQ_HANDLER, handler)},
+  {"IRQ_NUMBER",  (int)offsetof(_IRQ_HANDLER, number)},
+  {"IRQ_OLDVEC",  (int)offsetof(_IRQ_HANDLER, old_vector)},
+  {"NEWLINE", 0},
+  {"DPMI_AX",    (int)offsetof(__dpmi_regs, x.ax)},
+  {"DPMI_BX",    (int)offsetof(__dpmi_regs, x.bx)},
+  {"DPMI_CX",    (int)offsetof(__dpmi_regs, x.cx)},
+  {"DPMI_DX",    (int)offsetof(__dpmi_regs, x.dx)},
+  {"DPMI_SP",    (int)offsetof(__dpmi_regs, x.sp)},
+  {"DPMI_SS",    (int)offsetof(__dpmi_regs, x.ss)},
+  {"DPMI_FLAGS", (int)offsetof(__dpmi_regs, x.flags)},
+  {"NEWLINE", 0},
+#endif
+#ifdef ALLEGRO_ASM_USE_FS
+  {"#define USE_FS",     0},
+  {"#define FSEG %fs:",  0},
+#else
+  {"#define FSEG",       0},
+#endif
+  {"NEWLINE", 0},
+
+#ifdef ALLEGRO_ASM_PREFIX
+#define PREFIX    ALLEGRO_ASM_PREFIX "##"
+#else
+#define PREFIX    ""
+#endif
+#ifdef ALLEGRO_WATCOM
+  {"#define FUNC(name)            .globl " PREFIX "name ; nop ; _align_ ; " PREFIX "name:", 0},
+#else
+  {"#define FUNC(name)            .globl " PREFIX "name ; _align_ ; " PREFIX "name:", 0},
+#endif
+  {"#define GLOBL(name)           " PREFIX "name", 0},
+  {"NEWLINE", 0},
+  {NULL, 0}
+  };
 
 int main(int argc, char *argv[])
 {
+   offset_entry_t *p;
    FILE *f;
-   int x, y;
 
    if (argc < 2) {
       fprintf(stderr, "Usage: %s <output file>\n", argv[0]);
@@ -50,231 +226,20 @@ int main(int argc, char *argv[])
    fprintf(f, "/* Allegro " ALLEGRO_VERSION_STR ", " ALLEGRO_PLATFORM_STR " */\n");
    fprintf(f, "/* automatically generated structure offsets for use by asm code */\n\n");
 
-   #ifdef ALLEGRO_DJGPP
-      fprintf(f, "#ifndef ALLEGRO_DJGPP\n");
-      fprintf(f, "#define ALLEGRO_DJGPP\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
 
-   #ifdef ALLEGRO_WATCOM
-      fprintf(f, "#ifndef ALLEGRO_WATCOM\n");
-      fprintf(f, "#define ALLEGRO_WATCOM\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_DOS
-      fprintf(f, "#ifndef ALLEGRO_DOS\n");
-      fprintf(f, "#define ALLEGRO_DOS\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_WINDOWS
-      fprintf(f, "#ifndef ALLEGRO_WINDOWS\n");
-      fprintf(f, "#define ALLEGRO_WINDOWS\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_LINUX
-      fprintf(f, "#ifndef ALLEGRO_LINUX\n");
-      fprintf(f, "#define ALLEGRO_LINUX\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_LINUX_VBEAF
-      fprintf(f, "#ifndef ALLEGRO_LINUX_VBEAF\n");
-      fprintf(f, "#define ALLEGRO_LINUX_VBEAF\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_COLOR8
-      fprintf(f, "#ifndef ALLEGRO_COLOR8\n");
-      fprintf(f, "#define ALLEGRO_COLOR8\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_COLOR16
-      fprintf(f, "#ifndef ALLEGRO_COLOR16\n");
-      fprintf(f, "#define ALLEGRO_COLOR16\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_COLOR24
-      fprintf(f, "#ifndef ALLEGRO_COLOR24\n");
-      fprintf(f, "#define ALLEGRO_COLOR24\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_COLOR32
-      fprintf(f, "#ifndef ALLEGRO_COLOR32\n");
-      fprintf(f, "#define ALLEGRO_COLOR32\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_MMX
-      fprintf(f, "#ifndef ALLEGRO_MMX\n");
-      fprintf(f, "#define ALLEGRO_MMX\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_NO_ASM
-      fprintf(f, "#ifndef ALLEGRO_NO_ASM\n");
-      fprintf(f, "#define ALLEGRO_NO_ASM\n");
-      fprintf(f, "#endif\n");
-      fprintf(f, "\n");
-   #endif
-
-   fprintf(f, "#define BMP_W                 %d\n",   (int)offsetof(BITMAP, w));
-   fprintf(f, "#define BMP_H                 %d\n",   (int)offsetof(BITMAP, h));
-   fprintf(f, "#define BMP_CLIP              %d\n",   (int)offsetof(BITMAP, clip));
-   fprintf(f, "#define BMP_CL                %d\n",   (int)offsetof(BITMAP, cl));
-   fprintf(f, "#define BMP_CR                %d\n",   (int)offsetof(BITMAP, cr));
-   fprintf(f, "#define BMP_CT                %d\n",   (int)offsetof(BITMAP, ct));
-   fprintf(f, "#define BMP_CB                %d\n",   (int)offsetof(BITMAP, cb));
-   fprintf(f, "#define BMP_VTABLE            %d\n",   (int)offsetof(BITMAP, vtable));
-   fprintf(f, "#define BMP_WBANK             %d\n",   (int)offsetof(BITMAP, write_bank));
-   fprintf(f, "#define BMP_RBANK             %d\n",   (int)offsetof(BITMAP, read_bank));
-   fprintf(f, "#define BMP_DAT               %d\n",   (int)offsetof(BITMAP, dat));
-   fprintf(f, "#define BMP_ID                %d\n",   (int)offsetof(BITMAP, id));
-   fprintf(f, "#define BMP_EXTRA             %d\n",   (int)offsetof(BITMAP, extra));
-   fprintf(f, "#define BMP_XOFFSET           %d\n",   (int)offsetof(BITMAP, x_ofs));
-   fprintf(f, "#define BMP_YOFFSET           %d\n",   (int)offsetof(BITMAP, y_ofs));
-   fprintf(f, "#define BMP_SEG               %d\n",   (int)offsetof(BITMAP, seg));
-   fprintf(f, "#define BMP_LINE              %d\n",   (int)offsetof(BITMAP, line));
-   fprintf(f, "\n");
-
-   fprintf(f, "#ifndef BMP_ID_VIDEO\n");
-   fprintf(f, "#define BMP_ID_VIDEO          0x%08X\n",  BMP_ID_VIDEO);
-   fprintf(f, "#define BMP_ID_SYSTEM         0x%08X\n",  BMP_ID_SYSTEM);
-   fprintf(f, "#define BMP_ID_SUB            0x%08X\n",  BMP_ID_SUB);
-   fprintf(f, "#define BMP_ID_PLANAR         0x%08X\n",  BMP_ID_PLANAR);
-   fprintf(f, "#define BMP_ID_NOBLIT         0x%08X\n",  BMP_ID_NOBLIT);
-   fprintf(f, "#define BMP_ID_LOCKED         0x%08X\n",  BMP_ID_LOCKED);
-   fprintf(f, "#define BMP_ID_AUTOLOCK       0x%08X\n",  BMP_ID_AUTOLOCK);
-   fprintf(f, "#define BMP_ID_MASK           0x%08X\n",  BMP_ID_MASK);
-   fprintf(f, "#endif\n");
-   fprintf(f, "\n");
-
-   fprintf(f, "#define VTABLE_COLOR_DEPTH    %d\n",   (int)offsetof(GFX_VTABLE, color_depth));
-   fprintf(f, "#define VTABLE_MASK_COLOR     %d\n",   (int)offsetof(GFX_VTABLE, mask_color));
-   fprintf(f, "#define VTABLE_UNBANK         %d\n",   (int)offsetof(GFX_VTABLE, unwrite_bank));
-   fprintf(f, "\n");
-
-   fprintf(f, "#define RLE_W                 %d\n",   (int)offsetof(RLE_SPRITE, w));
-   fprintf(f, "#define RLE_H                 %d\n",   (int)offsetof(RLE_SPRITE, h));
-   fprintf(f, "#define RLE_DAT               %d\n",   (int)offsetof(RLE_SPRITE, dat));
-   fprintf(f, "\n");
-
-   #ifndef ALLEGRO_USE_C
-      fprintf(f, "#define CMP_PLANAR            %d\n",   (int)offsetof(COMPILED_SPRITE, planar));
-      fprintf(f, "#define CMP_COLOR_DEPTH       %d\n",   (int)offsetof(COMPILED_SPRITE, color_depth));
-      fprintf(f, "#define CMP_DRAW              %d\n",   (int)offsetof(COMPILED_SPRITE, proc));
-      fprintf(f, "\n");
-   #endif
-
-   fprintf(f, "#define DRAW_SOLID            %d\n",   DRAW_MODE_SOLID);
-   fprintf(f, "#define DRAW_XOR              %d\n",   DRAW_MODE_XOR);
-   fprintf(f, "#define DRAW_COPY_PATTERN     %d\n",   DRAW_MODE_COPY_PATTERN);
-   fprintf(f, "#define DRAW_SOLID_PATTERN    %d\n",   DRAW_MODE_SOLID_PATTERN);
-   fprintf(f, "#define DRAW_MASKED_PATTERN   %d\n",   DRAW_MODE_MASKED_PATTERN);
-   fprintf(f, "#define DRAW_TRANS            %d\n",   DRAW_MODE_TRANS);
-   fprintf(f, "\n");
-
-   fprintf(f, "#ifndef MASK_COLOR_8\n");
-   fprintf(f, "#define MASK_COLOR_8          %d\n",   MASK_COLOR_8);
-   fprintf(f, "#define MASK_COLOR_15         %d\n",   MASK_COLOR_15);
-   fprintf(f, "#define MASK_COLOR_16         %d\n",   MASK_COLOR_16);
-   fprintf(f, "#define MASK_COLOR_24         %d\n",   MASK_COLOR_24);
-   fprintf(f, "#define MASK_COLOR_32         %d\n",   MASK_COLOR_32);
-   fprintf(f, "#endif\n");
-   fprintf(f, "\n");
-
-   fprintf(f, "#define POLYSEG_U             %d\n",   (int)offsetof(POLYGON_SEGMENT, u));
-   fprintf(f, "#define POLYSEG_V             %d\n",   (int)offsetof(POLYGON_SEGMENT, v));
-   fprintf(f, "#define POLYSEG_DU            %d\n",   (int)offsetof(POLYGON_SEGMENT, du));
-   fprintf(f, "#define POLYSEG_DV            %d\n",   (int)offsetof(POLYGON_SEGMENT, dv));
-   fprintf(f, "#define POLYSEG_C             %d\n",   (int)offsetof(POLYGON_SEGMENT, c));
-   fprintf(f, "#define POLYSEG_DC            %d\n",   (int)offsetof(POLYGON_SEGMENT, dc));
-   fprintf(f, "#define POLYSEG_R             %d\n",   (int)offsetof(POLYGON_SEGMENT, r));
-   fprintf(f, "#define POLYSEG_G             %d\n",   (int)offsetof(POLYGON_SEGMENT, g));
-   fprintf(f, "#define POLYSEG_B             %d\n",   (int)offsetof(POLYGON_SEGMENT, b));
-   fprintf(f, "#define POLYSEG_DR            %d\n",   (int)offsetof(POLYGON_SEGMENT, dr));
-   fprintf(f, "#define POLYSEG_DG            %d\n",   (int)offsetof(POLYGON_SEGMENT, dg));
-   fprintf(f, "#define POLYSEG_DB            %d\n",   (int)offsetof(POLYGON_SEGMENT, db));
-   fprintf(f, "#define POLYSEG_Z             %d\n",   (int)offsetof(POLYGON_SEGMENT, z));
-   fprintf(f, "#define POLYSEG_DZ            %d\n",   (int)offsetof(POLYGON_SEGMENT, dz));
-   fprintf(f, "#define POLYSEG_FU            %d\n",   (int)offsetof(POLYGON_SEGMENT, fu));
-   fprintf(f, "#define POLYSEG_FV            %d\n",   (int)offsetof(POLYGON_SEGMENT, fv));
-   fprintf(f, "#define POLYSEG_DFU           %d\n",   (int)offsetof(POLYGON_SEGMENT, dfu));
-   fprintf(f, "#define POLYSEG_DFV           %d\n",   (int)offsetof(POLYGON_SEGMENT, dfv));
-   fprintf(f, "#define POLYSEG_TEXTURE       %d\n",   (int)offsetof(POLYGON_SEGMENT, texture));
-   fprintf(f, "#define POLYSEG_UMASK         %d\n",   (int)offsetof(POLYGON_SEGMENT, umask));
-   fprintf(f, "#define POLYSEG_VMASK         %d\n",   (int)offsetof(POLYGON_SEGMENT, vmask));
-   fprintf(f, "#define POLYSEG_VSHIFT        %d\n",   (int)offsetof(POLYGON_SEGMENT, vshift));
-   fprintf(f, "#define POLYSEG_SEG           %d\n",   (int)offsetof(POLYGON_SEGMENT, seg));
-   fprintf(f, "\n");
-
-   fprintf(f, "#define ERANGE                %d\n",   ERANGE);
-   fprintf(f, "\n");
-
-   for (x=0; x<3; x++)
-      for (y=0; y<3; y++)
-	 fprintf(f, "#define M_V%d%d                 %d\n", x, y, (int)offsetof(MATRIX_f, v[x][y]));
-
-   for (x=0; x<3; x++)
-      fprintf(f, "#define M_T%d                  %d\n", x, (int)offsetof(MATRIX_f, t[x]));
-
-   fprintf(f, "\n");
-
-   #ifdef ALLEGRO_DOS
-      fprintf(f, "#define IRQ_SIZE              %d\n",   (int)sizeof(_IRQ_HANDLER));
-      fprintf(f, "#define IRQ_HANDLER           %d\n",   (int)offsetof(_IRQ_HANDLER, handler));
-      fprintf(f, "#define IRQ_NUMBER            %d\n",   (int)offsetof(_IRQ_HANDLER, number));
-      fprintf(f, "#define IRQ_OLDVEC            %d\n",   (int)offsetof(_IRQ_HANDLER, old_vector));
-      fprintf(f, "\n");
-
-      fprintf(f, "#define DPMI_AX               %d\n",   (int)offsetof(__dpmi_regs, x.ax));
-      fprintf(f, "#define DPMI_BX               %d\n",   (int)offsetof(__dpmi_regs, x.bx));
-      fprintf(f, "#define DPMI_CX               %d\n",   (int)offsetof(__dpmi_regs, x.cx));
-      fprintf(f, "#define DPMI_DX               %d\n",   (int)offsetof(__dpmi_regs, x.dx));
-      fprintf(f, "#define DPMI_SP               %d\n",   (int)offsetof(__dpmi_regs, x.sp));
-      fprintf(f, "#define DPMI_SS               %d\n",   (int)offsetof(__dpmi_regs, x.ss));
-      fprintf(f, "#define DPMI_FLAGS            %d\n",   (int)offsetof(__dpmi_regs, x.flags));
-      fprintf(f, "\n");
-   #endif
-
-   #ifdef ALLEGRO_ASM_USE_FS
-      fprintf(f, "#define USE_FS\n");
-      fprintf(f, "#define FSEG                  %%fs:\n");
-   #else
-      fprintf(f, "#define FSEG\n");
-   #endif
-      fprintf(f, "\n");
-
-   #ifdef ALLEGRO_ASM_PREFIX
-      #define PREFIX    ALLEGRO_ASM_PREFIX "##"
-   #else
-      #define PREFIX    ""
-   #endif
-
-   #ifdef ALLEGRO_WATCOM
-      fprintf(f, "#define FUNC(name)            .globl " PREFIX "name ; nop ; _align_ ; " PREFIX "name:\n");
-   #else
-      fprintf(f, "#define FUNC(name)            .globl " PREFIX "name ; _align_ ; " PREFIX "name:\n");
-   #endif
-
-   fprintf(f, "#define GLOBL(name)           " PREFIX "name\n");
-   fprintf(f, "\n");
+   p = list;
+   while (p->name != NULL) {
+      if (p->name[0] == '#') {
+	 if (p->name[1] == '#') {
+	    fprintf(f, "#ifndef %s\n#define %s\n#endif\n\n", p->name+2, p->name+2);
+	 }
+	 else fprintf(f, "%s\n", p->name);
+      }
+      else {
+         fprintf(f, "#define %s %d\n", p->name, p->value);
+      }
+      p++;
+   }
 
    if (ferror(f)) {
       fprintf(stderr, "%s: cannot write file %s\n", argv[0], argv[1]);

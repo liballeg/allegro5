@@ -242,6 +242,7 @@ static DIALOG gfx_mode_dialog[] =
    { d_button_proc,     196,  127,  100,  16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
    { d_list_proc,       16,   28,   164,  115,  0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
    { d_list_proc,       196,  28,   100,  67,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  }
 };
 
@@ -257,6 +258,7 @@ static DIALOG gfx_mode_ex_dialog[] =
    { d_list_proc,       16,   28,   164,  67,   0,    0,    0,    D_EXIT,  0,    0,    gfx_card_getter,  NULL, NULL  },
    { d_list_proc,       196,  28,   100,  67,   0,    0,    0,    D_EXIT,  3,    0,    gfx_mode_getter,  NULL, NULL  },
    { d_list_proc,       16,   105,  164,  43,   0,    0,    0,    D_EXIT,  0,    0,    gfx_depth_getter, NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,          0, 0,    NULL,             NULL, NULL  }
 };
 
@@ -295,7 +297,7 @@ int gfx_mode_select(int *card, int *w, int *h)
 
    centre_dialog(gfx_mode_dialog);
    set_dialog_color(gfx_mode_dialog, gui_fg_color, gui_bg_color);
-   ret = do_dialog(gfx_mode_dialog, GFX_DRIVER_LIST);
+   ret = popup_dialog(gfx_mode_dialog, GFX_DRIVER_LIST);
 
    i = card_list[gfx_mode_dialog[GFX_DRIVER_LIST].d1];
 
@@ -364,7 +366,7 @@ int gfx_mode_select_ex(int *card, int *w, int *h, int *color_depth)
    centre_dialog(gfx_mode_ex_dialog);
    set_dialog_color(gfx_mode_ex_dialog, gui_fg_color, gui_bg_color);
 
-   ret = do_dialog(gfx_mode_ex_dialog, GFX_DRIVER_LIST);
+   ret = popup_dialog(gfx_mode_ex_dialog, GFX_DRIVER_LIST);
 
    i = card_list[gfx_mode_ex_dialog[GFX_DRIVER_LIST].d1];
 

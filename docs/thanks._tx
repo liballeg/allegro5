@@ -127,7 +127,8 @@ Contributors
    Wrote the d_textbox_proc() dialog object and the new grabber help system.
 
    Eduard Bloch (<email>edi@gmx.de</a>).<br>
-   Fixed a freeze caused by the ESD detection code.
+   Fixed a freeze caused by the ESD detection code and suggested better ways
+   to find the path to the executable in Unix.
 
    Edward Boone (<email>Lucien.Boone@ping.be</a>).<br>
    Provided scancode mapping tables for the AZERTY keyboard layout.
@@ -160,7 +161,7 @@ Contributors
    Garret Thomson (<email>gart@terraport.net</a>).<br>
    Wrote the music used in the demo game.
 
-   George Foot (<email>george.foot@merton.ox.ac.uk</a>).<br>
+   George Foot (<email>gfoot@users.sourceforge.net</a>).<br>
    Did a great deal of work on the Linux console version. Also wrote the 
    AWE32 driver, added the MIDI pause/seek functions, and provided the basis 
    of the SoundFont reader used in the pat2dat utility.
@@ -217,6 +218,9 @@ Contributors
 
    Jason Wilkins (<email>fenix@io.com</a>).<br>
    Wrote the quaternion math routines, and contributed the BeOS port.
+
+   Javier Gonzalez (<email>javigg@wanadoo.es</a>).<br>
+   Made bug reports and suggestions for improvement.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -409,15 +413,17 @@ Contributors
 
    Peter Pavlovic (<email>pavlovic@redbull.dcs.fmph.uniba.sk</a>).<br>
    Added the Slovak keyboard mapping and message translation, stopped the 
-   DOS file selector from listing virtual drives, and improved the support 
-   for accented character maps in the keyboard driver.
+   DOS file selector from listing virtual drives, did the same for the Windows
+   file selector, improved the support for accented character maps in the 
+   keyboard driver, and made aesthetic modifications to the GUI menu system.
 
    Peter Wang (<email>tjaden@alphalink.com.au</a>).<br>
    Contributed to the Linux GGI driver, added the mouse_z wheel input 
    support to the Linux code, fixed problems with the ESD sound driver, 
-   wrote the ALSA sound driver, added OSS MIDI and sample input support, 
-   added banked mode support to the SVGAlib driver, wrote the X DGA mode 
-   switching code, and improved the Linux joystick driver.
+   wrote the ALSA sound driver, wrote the BeOS sound driver, added OSS MIDI 
+   and sample input support, added banked mode support to the SVGAlib driver, 
+   wrote the X DGA mode switching code, and improved the Linux joystick driver,
+   and did loads of other things too.
 
    Phil Frisbie, Jr. (<email>pfrisbie@geocities.com</a>).<br>
    Wrote the CPU type detection code.
@@ -488,6 +494,9 @@ Contributors
    Extended-A characters in the default font, and the codepage support in 
    the textconv utility, fixed some problems with the ESD sound driver, and 
    helped make Allegro build better on some Unix platforms.
+
+   Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
+   Made bugfixes and tweaks to the keyboard system.
 
    Sven Sandberg (<email>ssven@geocities.com</a>).<br>
    Fixed a problem with save_bitmap() rounding the image widths, optimised 

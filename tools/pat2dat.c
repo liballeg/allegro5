@@ -411,7 +411,7 @@ static void scan_patches(MIDI *midi, char *patches, char *drums)
 
 
 /* reads a MIDI file to see what patches it requires */
-static void read_midi(char *filename, int attrib, int param)
+static void read_midi(const char *filename, int attrib, int param)
 {
    char patches[128], drums[128];
    char fname[256];

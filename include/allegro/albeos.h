@@ -56,7 +56,7 @@ AL_VAR(GFX_DRIVER, gfx_beos_fullscreen_safe);
 
 /* digi drivers */
 #define DIGI_BEOS             AL_ID('B','D','I','G')
-//AL_VAR(DIGI_DRIVER, digi_beos);
+AL_VAR(DIGI_DRIVER, digi_beos);
 
 /* midi drivers */
 #define MIDI_BEOS             AL_ID('B','M','I','D')
@@ -69,7 +69,7 @@ AL_VAR(GFX_DRIVER, gfx_beos_fullscreen_safe);
  /*{ GFX_BEOS_WINDOWED_SAFE,   &gfx_beos_windowed_safe,   TRUE },*/
 
 #define DIGI_DRIVER_BEOS                                                \
-   /* {  DIGI_BEOS,       &digi_beos,      TRUE  }, */
+   {  DIGI_BEOS,       &digi_beos,      TRUE  },
 
 #define MIDI_DRIVER_BEOS                                                \
    /* {  MIDI_BEOS,       &midi_beos,      TRUE  }, */

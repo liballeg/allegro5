@@ -382,7 +382,7 @@ static MENU alpha_sub_menu[] =
 /* per-object alpha channel menu */
 static MENU alpha_menu =
 {
-   "Alpha Channel...",
+   "Alpha Channel",
    NULL,
    alpha_sub_menu,
    0,

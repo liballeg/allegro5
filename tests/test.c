@@ -4146,6 +4146,7 @@ DIALOG title_screen[] =
    { d_ctext_proc,      0,    128,  0,    0,    255,  0,    0,    0,       0,    0,    gfx_specs3,    NULL, NULL  },
    { d_ctext_proc,      0,    160,  0,    0,    255,  0,    0,    0,       0,    0,    mouse_specs,   NULL, NULL  },
    { d_ctext_proc,      0,    192,  0,    0,    255,  0,    0,    0,       0,    0,    cpu_specs,     NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,          NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,          NULL, NULL  }
 };
 
@@ -4369,6 +4370,7 @@ DIALOG refresh_dlg[] =
    { d_button_proc,     132,  40,  80,   16,   0,    0,    0,    D_EXIT,  0,    0,    "OK",           NULL, NULL  },
    { d_button_proc,     132,  64,  80,   16,   0,    0,    27,   D_EXIT,  0,    0,    "Cancel",       NULL, NULL  },
    { d_list_proc,       16,   28,  100,  67,   0,    0,    0,    D_EXIT,  0,    0,    refresh_getter, NULL, NULL  },
+   { d_yield_proc,      0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  },
    { NULL,              0,    0,   0,    0,    0,    0,    0,    0,       0,    0,    NULL,           NULL, NULL  }
 };
 

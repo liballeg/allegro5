@@ -42,7 +42,7 @@
 #endif
 
 
-#define ALSA_DEFAULT_NUMFRAGS   4
+#define ALSA_DEFAULT_NUMFRAGS   16
 
 
 static snd_pcm_t *pcm_handle;
@@ -135,17 +135,19 @@ static int alsa_buffer_size()
  */
 static void alsa_update(unsigned long interval)
 {
-   int i;
+   int i, e;
 
+   e = errno;
    DISABLE();
 
    for (i = 0;  i < alsa_fragments; i++) {
-      if (snd_pcm_write(pcm_handle, alsa_bufdata, alsa_bufsize) <= 0)
+      if (snd_pcm_write(pcm_handle, alsa_bufdata, alsa_bufsize) != alsa_bufsize)
 	 break;
       _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
    }
 
    ENABLE();
+   errno = e;
 }
 
 
@@ -156,8 +158,10 @@ static void alsa_update(unsigned long interval)
 static int alsa_detect(int input)
 {
    snd_pcm_t *handle;
+   snd_pcm_info_t info;
    int card, device;
    char tmp1[80], tmp2[80];
+   int ret = FALSE;
 
    card = get_config_int(uconvert_ascii("sound", tmp1),
 			 uconvert_ascii("alsa_card", tmp2),
@@ -168,11 +172,14 @@ static int alsa_detect(int input)
 			   snd_defaults_pcm_device());
 
    if (snd_pcm_open(&handle, card, device, SND_PCM_OPEN_PLAYBACK) == 0) {
+      if ((snd_pcm_info(handle, &info) == 0)
+	  && (info.flags & SND_PCM_INFO_PLAYBACK))
+	 ret = TRUE;
+      
       snd_pcm_close(handle);
-      return TRUE;
    }
 
-   return FALSE;
+   return ret;
 }
 
 
@@ -183,11 +190,9 @@ static int alsa_detect(int input)
 static int alsa_init(int input, int voices)
 {
    int card, device;
-   int format, fragsize, numfrags;
-   snd_pcm_format_t fmt;
-   snd_pcm_playback_info_t info;
-   snd_pcm_playback_params_t params;
-   snd_pcm_playback_status_t status;
+   int format, bps, fragsize, numfrags;
+   snd_pcm_channel_params_t params;
+   snd_pcm_channel_setup_t setup;
    char tmp1[80], tmp2[80];
 
    if (input) {
@@ -195,6 +200,7 @@ static int alsa_init(int input, int voices)
       return -1;
    }
 
+   /* Load config.  */
    card = get_config_int(uconvert_ascii("sound", tmp1),
 			 uconvert_ascii("alsadigi_card", tmp2),
 			 snd_defaults_card());
@@ -203,32 +209,30 @@ static int alsa_init(int input, int voices)
 			   uconvert_ascii("alsadigi_pcmdevice", tmp2),
 			   snd_defaults_pcm_device());
 
-   if (snd_pcm_open(&pcm_handle, card, device, SND_PCM_OPEN_PLAYBACK) != 0) {
-      usprintf(allegro_error, get_config_text("Cannot open card/pcm device"));
-      return -1;
-   }
+   fragsize = get_config_int(uconvert_ascii("sound", tmp1),
+			     uconvert_ascii("alsa_fragsize", tmp2),
+			     -1);
 
    numfrags = get_config_int(uconvert_ascii("sound", tmp1),
 			     uconvert_ascii("alsa_numfrags", tmp2),
 			     ALSA_DEFAULT_NUMFRAGS);
 
+   /* Open PCM device.  */
+   if (snd_pcm_open(&pcm_handle, card, device, (SND_PCM_OPEN_PLAYBACK
+						| SND_PCM_OPEN_NONBLOCK)) < 0) {
+      usprintf(allegro_error, get_config_text("Can not open card/pcm device"));
+      goto error;
+   }
+
+   /* Set format variables.  */
    alsa_bits = (_sound_bits == 8) ? 8 : 16;
    alsa_stereo = (_sound_stereo) ? 1 : 0;
-   alsa_rate = (_sound_freq > 0) ? _sound_freq : 45454;
+   alsa_rate = (_sound_freq > 0) ? _sound_freq : 44100;
 
    format = ((alsa_bits == 16) ? SND_PCM_SFMT_S16_NE : SND_PCM_SFMT_U8);
 
-   memset(&fmt, 0, sizeof(fmt));
-   fmt.format = format;
-   fmt.rate = alsa_rate;
-   fmt.channels = alsa_stereo + 1;
-   if (snd_pcm_playback_format(pcm_handle, &fmt) != 0) {
-      usprintf(allegro_error, get_config_text("Cannot set playback format"));
-      snd_pcm_close(pcm_handle);
-      return -1;
-   }
-
    alsa_signed = 0;
+   bps = alsa_rate * (alsa_stereo ? 2 : 1);
    switch (format) {
       case SND_PCM_SFMT_S8:
 	 alsa_signed = 1;
@@ -239,66 +243,106 @@ static int alsa_init(int input, int voices)
 	 alsa_signed = 1;
       case SND_PCM_SFMT_U16_NE:
 	 alsa_bits = 16;
+	 bps <<= 1;
 	 if (sizeof(short) != 2) {
 	    usprintf(allegro_error, get_config_text("Unsupported sample format"));
-	    snd_pcm_close(pcm_handle);
-	    return -1;
+	    goto error;
 	 }
 	 break;
       default:
 	 usprintf(allegro_error, get_config_text("Unsupported sample format"));
-	 snd_pcm_close(pcm_handle);
-	 return -1;
+	 goto error;
    }
 
-   snd_pcm_playback_info(pcm_handle, &info);
-   fragsize = MID(info.min_fragment_size, info.buffer_size / numfrags, info.max_fragment_size);
-   numfrags = info.buffer_size / fragsize;
-
+   if (fragsize < 0) {
+      bps >>= 9;
+      if (bps < 16)
+	 bps = 16;
+      fragsize = 1;
+      while ((fragsize << 1) < bps)
+	 fragsize <<= 1;
+   }
+   else {
+      fragsize = fragsize * (alsa_bits / 8) * (alsa_stereo ? 2 : 1);
+   }
+   
+   /* Set PCM channel format.  */
    memset(&params, 0, sizeof(params));
-   params.fragment_size = fragsize;
-   params.fragments_max = numfrags;
-   params.fragments_room = 1;
-   snd_pcm_playback_params(pcm_handle, &params);
+   params.mode = SND_PCM_MODE_BLOCK;
+   params.channel = SND_PCM_CHANNEL_PLAYBACK;
+   params.start_mode = SND_PCM_START_FULL;
+   params.stop_mode = SND_PCM_STOP_ROLLOVER;
+   params.format.interleave = 1;
+   params.format.format = format;
+   params.format.rate = alsa_rate;
+   params.format.voices = alsa_stereo + 1;
+   params.buf.block.frag_size = fragsize;
+   params.buf.block.frags_min = 1;
+   params.buf.block.frags_max = numfrags;
+   
+   if (snd_pcm_channel_params(pcm_handle, &params) < 0) {
+      usprintf(allegro_error, get_config_text("Can not set channel parameters"));
+      goto error;
+   }
 
-   snd_pcm_playback_status(pcm_handle, &status);
-   alsa_fragments = status.fragments;
-   alsa_bufsize = status.fragment_size;
+   snd_pcm_channel_prepare(pcm_handle, SND_PCM_CHANNEL_PLAYBACK);
 
+   /* Read back fragments information.  */
+   memset(&setup, 0, sizeof(setup));
+   setup.mode = SND_PCM_MODE_BLOCK;
+   setup.channel = SND_PCM_CHANNEL_PLAYBACK;
+
+   if (snd_pcm_channel_setup(pcm_handle, &setup) < 0) {
+      usprintf(allegro_error, get_config_text("Can not get channel setup"));
+      goto error;
+   }
+
+   alsa_fragments = numfrags;
+   alsa_bufsize = setup.buf.block.frag_size;
+
+   /* Allocate mixing buffer.  */
    alsa_bufdata = malloc(alsa_bufsize);
    if (!alsa_bufdata) {
       usprintf(allegro_error, get_config_text("Can not allocate audio buffer"));
-      snd_pcm_close(pcm_handle);
-      return -1;
+      goto error;
    }
 
-   snd_pcm_block_mode(pcm_handle, 0);
-
+   /* Initialise mixer.  */
    digi_alsa.voices = voices;
 
    if (_mixer_init(alsa_bufsize / (alsa_bits / 8), alsa_rate,
 		   alsa_stereo, ((alsa_bits == 16) ? 1 : 0),
 		   &digi_alsa.voices) != 0) {
       usprintf(allegro_error, get_config_text("Can not init software mixer"));
-      snd_pcm_close(pcm_handle);
-      return -1;
+      goto error;
    }
 
    _mix_some_samples((unsigned long) alsa_bufdata, 0, alsa_signed);
 
-   /* Add audio interrupt. */
+   /* Add audio interrupt.  */
    DISABLE();
    _sigalrm_digi_interrupt_handler = alsa_update;
    ENABLE();
 
-   usprintf(alsa_desc, get_config_text("Card #%d, device #%d: %d bits, %s, %d bps, %s"),
-				       card, device, alsa_bits,
-				       uconvert_ascii((alsa_signed ? "signed" : "unsigned"), tmp1), alsa_rate,
-				       uconvert_ascii((alsa_stereo ? "stereo" : "mono"), tmp2));
+   usprintf(alsa_desc,
+	    get_config_text("Card #%d, device #%d: %d bits, %s, %d bps, %s"),
+	    card, device, alsa_bits,
+	    uconvert_ascii((alsa_signed ? "signed" : "unsigned"), tmp1),
+	    alsa_rate,
+	    uconvert_ascii((alsa_stereo ? "stereo" : "mono"), tmp2));
 
    digi_driver->desc = alsa_desc;
 
    return 0;
+
+  error:
+
+   if (pcm_handle) {
+      snd_pcm_close(pcm_handle);
+      pcm_handle = NULL;
+   }
+   
+   return -1;
 }
 
 

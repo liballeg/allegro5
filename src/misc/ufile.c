@@ -30,7 +30,7 @@
  *  Helper function to check if it is safe to access a file on a floppy
  *  drive.
  */
-int _al_file_isok(char *filename)
+int _al_file_isok(const char *filename)
 {
    return TRUE;
 }
@@ -40,7 +40,7 @@ int _al_file_isok(char *filename)
 /* _al_file_exists:
  *  Checks whether the specified file exists.
  */
-int _al_file_exists(char *filename, int attrib, int *aret)
+int _al_file_exists(const char *filename, int attrib, int *aret)
 {
    struct ffblk dta;
 
@@ -64,7 +64,7 @@ int _al_file_exists(char *filename, int attrib, int *aret)
 /* _al_file_size:
  *  Measures the size of the specified file.
  */
-long _al_file_size(char *filename)
+long _al_file_size(const char *filename)
 {
    struct stat s;
 
@@ -81,7 +81,7 @@ long _al_file_size(char *filename)
 /* _al_file_time:
  *  Returns the timestamp of the specified file.
  */
-long _al_file_time(char *filename)
+long _al_file_time(const char *filename)
 {
    struct stat s;
 
@@ -98,7 +98,7 @@ long _al_file_time(char *filename)
 /* _al_findfirst:
  *  Initiates a directory search.
  */
-void *_al_findfirst(char *name, int attrib, char *nameret, int *aret)
+void *_al_findfirst(const char *name, int attrib, char *nameret, int *aret)
 {
    struct ffblk *info;
 

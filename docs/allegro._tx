@@ -375,13 +375,13 @@ table to the set_ucodepage() function.
    and returns the number of bytes written.
 
 @@int @uwidth(char *s);
-@xref ugetc, ugetx, usetc, ucwidth, uisok
+@xref uwidth_max, ugetc, ugetx, usetc, ucwidth, uisok
    Low level helper function for testing Unicode text data. It returns the 
    number of bytes occupied by the first character of the specified string, 
    in the current encoding format.
 
 @@int @ucwidth(int c);
-@xref ugetc, ugetx, usetc, uwidth, uisok
+@xref uwidth_max, ugetc, ugetx, usetc, uwidth, uisok
    Low level helper function for testing Unicode text data. It returns the 
    number of bytes that would be occupied by the specified character value, 
    when encoded in the current format.
@@ -437,6 +437,12 @@ table to the set_ucodepage() function.
 @xref ustrsize
    Returns the size of the specified string in bytes, including the trailing 
    zero.
+
+@@int @uwidth_max(int type);
+@xref uwidth, ucwidth
+   Low level helper function for working with Unicode text data. Returns the 
+   largest number of bytes that one character can occupy in the given 
+   encoding format. Pass U_CURRENT to represent the current format.
 
 @node unicode functions
 @xref set_uformat, uconvert, ustrsize, ugetc, ugetx, usetc, uwidth, ucwidth
@@ -700,6 +706,21 @@ framebuffer = x<br>
    this variable is not set, Allegro checks the FRAMEBUFFER environment 
    variable, and then defaults to /dev/fb0.
 <li>
+dga_mouse = x<br>
+   X only: enables a workaround of a bug in some X servers' DGA modes, 
+   concerning the mouse.  Default is off; enable the feature by setting the
+   variable to something other than "n" or "N" or "0".
+<li>
+dga_centre = x<br>
+   X only: instructs the DGA driver to centre the Allegro screen if the actual
+   screen resolution is higher than Allegro's.  Default is on; disable this 
+   feature by setting the variable to "n" or "N" or "0".
+<li>
+dga_clear = x<br>
+   X only: instructs the DGA driver to clear the video memory on startup.  
+   Default is on; disable this feature by setting the variable to "n" or "N" 
+   or "0".
+<li>
 keyboard = x<br>
    Specifies which keyboard layout to use. The parameter is the name of a 
    keyboard mapping file produced by the keyconf utility, and can either be 
@@ -857,7 +878,10 @@ alsa_pcmdevice = x<br>
    Unix only: paramaters for the ALSA sound driver system.
 <li>
 alsa_numfrags = x<br>
-   Unix only: fragment (buffer) size for the ALSA sound driver system.
+   Unix only: number of ALSA driver fragments (buffers).
+<li>
+alsa_fragsize = x<br>
+   Unix only: size of each ALSA fragment, in samples.
 <li>
 patches = x<br>
    Specifies where to find the sample set for the DIGMID driver. This can 
@@ -4715,7 +4739,8 @@ the value F_NOPACK_MAGIC.
 
 @@void @get_executable_name(char *buf, int size);
    Fills buf with the full path to the current executable, writing at most 
-   size bytes.
+   size bytes.  This generally comes from argv[0], but on Unix systems if
+   argv[0] does not specify the path, we search for our file in $PATH.
 
 @@char *@fix_filename_case(char *path);
 @xref fix_filename_slashes, fix_filename_path
@@ -5894,6 +5919,11 @@ like a normal button but could look completely different.
    do_menu(). When a menu item is selected, the return value from the menu 
    callback function is passed back to the dialog manager, so your callbacks 
    should return D_O_K, D_REDRAW, or D_CLOSE.
+
+@@int @d_yield_proc(int msg, DIALOG *d, int c);
+   An invisible helper object that yields timeslices for the scheduler (if
+   the system supports it) when the gui has nothing to do but waiting for
+   user actions.
 
 @!texinfo
 The behaviour of the dialog manager can be controlled by the variables:

@@ -384,6 +384,7 @@ DIALOG calculator[] =
    { equals_proc,       152,  148,  32,   12,   16,   255,  '=',  D_EXIT,  0,       0,             "=",        NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    13,   0,       0,       0,             work_out,   NULL, NULL  },
 
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,       0,             NULL,       NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,       0,             NULL,       NULL, NULL  }
 };
 

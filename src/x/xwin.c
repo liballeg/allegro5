@@ -2614,10 +2614,11 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    int vid_major_version, vid_minor_version;
    int fb_width, banksize, memsize;
    int s_w, s_h, v_w, v_h;
+   int offset_x, offset_y;
    XF86VidModeModeLine modeline;
    char *fb_addr;
    struct passwd *pass;
-   char tmp[80], *disable, c;
+   char tmp[80];
    
    if (_xwin.window == None) {
       ustrcpy(allegro_error, get_config_text("No window"));
@@ -2774,6 +2775,16 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+   /* Centre Allegro screen inside display */
+   offset_x = 0;
+   offset_y = 0;
+   if (banksize >= memsize) {
+      if (get_config_int(NULL, uconvert_ascii("dga_centre", tmp), 1)) {
+         offset_x = (s_w - w) / 2;
+         offset_y = (s_h - h) / 2;
+      }
+   }
+
    _xwin.screen_width = w;
    _xwin.screen_height = h;
    _xwin.screen_depth = depth;
@@ -2805,8 +2816,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    _xwin.in_dga_mode = 1;
    
    /* Allow workaround for buggy servers (e.g. 3dfx Voodoo 3/Banshee).  */
-   disable = get_config_string(NULL, uconvert_ascii("dga_mouse", tmp), NULL);
-   if ((disable) && (c = ugetc(disable)) && ((c == 'n') || (c == 'N') || (c == '0')))
+   if (get_config_int(NULL, uconvert_ascii("dga_mouse", tmp), 1) == 0)
       _xwin.disable_dga_mouse = 1;
 
    set_display_switch_mode(SWITCH_NONE);
@@ -2820,6 +2830,16 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
       return 0;
    }
 
+   /* Clear video memory */
+   if (get_config_int(NULL, uconvert_ascii("dga_clear", tmp), 1)) {
+      int offset;
+      for (offset = 0; offset < memsize; offset++) {
+	 if ((offset % banksize) == 0)
+	    XF86DGASetVidPage(_xwin.display, _xwin.screen, offset/banksize);
+         fb_addr[offset % banksize] = 0;
+      }
+   }
+
    /* Switch to first bank.  */
    XF86DGASetVidPage(_xwin.display, _xwin.screen, 0);
 
@@ -2827,7 +2847,7 @@ static BITMAP *_xdga_private_create_screen(GFX_DRIVER *drv, int w, int h,
    XF86DGASetViewPort(_xwin.display, _xwin.screen, 0, 0);
 
    /* Create screen bitmap from frame buffer.  */
-   return _xwin_private_create_screen_bitmap(drv, 1, fb_addr, fb_width);
+   return _xwin_private_create_screen_bitmap(drv, 1, fb_addr + offset_y * fb_width + offset_x * (_xwin.fast_visual_depth / 8), fb_width);
 }
 
 BITMAP *_xdga_create_screen(GFX_DRIVER *drv, int w, int h, int vw, int vh, int depth, int fullscr)

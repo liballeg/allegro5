@@ -192,8 +192,8 @@ static int debug_trace_virgin = TRUE;
 static FILE *assert_file = NULL;
 static FILE *trace_file = NULL;
 
-static int (*assert_handler)(char *msg) = NULL;
-static int (*trace_handler)(char *msg) = NULL;
+static int (*assert_handler)(const char *msg) = NULL;
+static int (*trace_handler)(const char *msg) = NULL;
 
 
 /* dynamic registration system for cleanup code */
@@ -384,7 +384,7 @@ void allegro_exit()
 /* allegro_message:
  *  Displays a message in whatever form the current platform requires.
  */
-void allegro_message(char *msg, ...)
+void allegro_message(const char *msg, ...)
 {
    char *buf = malloc(4096);
    char *tmp = malloc(4096);
@@ -431,7 +431,7 @@ static void debug_exit(void)
 /* al_assert:
  *  Raises an assert.
  */
-void al_assert(char *file, int line)
+void al_assert(const char *file, int line)
 {
    static int asserted = FALSE;
    int olderr = errno;
@@ -487,7 +487,7 @@ void al_assert(char *file, int line)
 /* al_trace:
  *  Outputs a trace message.
  */
-void al_trace(char *msg, ...)
+void al_trace(const char *msg, ...)
 {
    int olderr = errno;
    char buf[512];
@@ -530,7 +530,7 @@ void al_trace(char *msg, ...)
 /* register_assert_handler:
  *  Installs a user handler for assert failures.
  */
-void register_assert_handler(int (*handler)(char *msg))
+void register_assert_handler(int (*handler)(const char *msg))
 {
    assert_handler = handler;
 }
@@ -540,7 +540,7 @@ void register_assert_handler(int (*handler)(char *msg))
 /* register_trace_handler:
  *  Installs a user handler for trace output.
  */
-void register_trace_handler(int (*handler)(char *msg))
+void register_trace_handler(int (*handler)(const char *msg))
 {
    trace_handler = handler;
 }

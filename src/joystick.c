@@ -228,7 +228,7 @@ int poll_joystick()
  *  information into the specified file, from where it can later be 
  *  restored by calling load_joystick_data().
  */
-int save_joystick_data(char *filename)
+int save_joystick_data(const char *filename)
 {
    char tmp1[64], tmp2[64];
 
@@ -254,7 +254,7 @@ int save_joystick_data(char *filename)
  *  Restores a set of joystick calibration data previously saved by
  *  save_joystick_data().
  */
-int load_joystick_data(char *filename)
+int load_joystick_data(const char *filename)
 {
    char tmp1[64], tmp2[64];
    int ret, c;

@@ -145,7 +145,7 @@ void lock_midi(MIDI *midi)
  *  Loads a standard MIDI file, returning a pointer to a MIDI structure,
  *  or NULL on error. 
  */
-MIDI *load_midi(char *filename)
+MIDI *load_midi(const char *filename)
 {
    int c;
    char buf[256];

@@ -462,7 +462,7 @@ static void read_RLE4_compressed_image(PACKFILE *f, BITMAP *bmp, BITMAPINFOHEADE
  *
  *  Thanks to Seymour Shlien for contributing this function.
  */
-BITMAP *load_bmp(char *filename, RGB *pal)
+BITMAP *load_bmp(const char *filename, RGB *pal)
 {
    BITMAPFILEHEADER fileheader;
    BITMAPINFOHEADER infoheader;
@@ -559,7 +559,7 @@ BITMAP *load_bmp(char *filename, RGB *pal)
  *  Writes a bitmap into a BMP file, using the specified palette (this
  *  should be an array of at least 256 RGB structures).
  */
-int save_bmp(char *filename, BITMAP *bmp, RGB *pal) 
+int save_bmp(const char *filename, BITMAP *bmp, RGB *pal) 
 {
    PACKFILE *f;
    PALETTE tmppal;

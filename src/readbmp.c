@@ -25,8 +25,8 @@
 typedef struct BITMAP_TYPE_INFO
 {
    char ext[8];
-   BITMAP *(*load)(char *filename, RGB *pal);
-   int (*save)(char *filename, BITMAP *bmp, RGB *pal);
+   BITMAP *(*load)(const char *filename, RGB *pal);
+   int (*save)(const char *filename, BITMAP *bmp, RGB *pal);
 } BITMAP_TYPE_INFO;
 
 
@@ -59,7 +59,7 @@ static BITMAP_TYPE_INFO bitmap_types[MAX_BITMAP_TYPES] =
  *  Informs Allegro of a new image file type, telling it how to load and
  *  save files of this format (either function may be NULL).
  */
-void register_bitmap_file_type(char *ext, BITMAP *(*load)(char *filename, RGB *pal), int (*save)(char *filename, BITMAP *bmp, RGB *pal))
+void register_bitmap_file_type(const char *ext, BITMAP *(*load)(const char *filename, RGB *pal), int (*save)(const char *filename, BITMAP *bmp, RGB *pal))
 {
    char tmp[16], *aext;
    int i;
@@ -82,7 +82,7 @@ void register_bitmap_file_type(char *ext, BITMAP *(*load)(char *filename, RGB *p
 /* load_bitmap:
  *  Loads a bitmap from disk.
  */
-BITMAP *load_bitmap(char *filename, RGB *pal)
+BITMAP *load_bitmap(const char *filename, RGB *pal)
 {
    char tmp[16], *aext;
    int i;
@@ -106,7 +106,7 @@ BITMAP *load_bitmap(char *filename, RGB *pal)
 /* save_bitmap:
  *  Writes a bitmap to disk.
  */
-int save_bitmap(char *filename, BITMAP *bmp, RGB *pal)
+int save_bitmap(const char *filename, BITMAP *bmp, RGB *pal)
 {
    char tmp[16], *aext;
    int i;

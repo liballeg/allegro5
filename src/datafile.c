@@ -1380,7 +1380,7 @@ void *load_file_object(PACKFILE *f, long size)
  *  Loads an entire data file into memory, and returns a pointer to it. 
  *  On error, sets errno and returns NULL.
  */
-DATAFILE *load_datafile(char *filename)
+DATAFILE *load_datafile(const char *filename)
 {
    return load_datafile_callback(filename, NULL);
 }
@@ -1391,7 +1391,7 @@ DATAFILE *load_datafile(char *filename)
  *  Loads an entire data file into memory, and returns a pointer to it. 
  *  On error, sets errno and returns NULL.
  */
-DATAFILE *load_datafile_callback(char *filename, void (*callback)(DATAFILE *))
+DATAFILE *load_datafile_callback(const char *filename, void (*callback)(DATAFILE *))
 {
    PACKFILE *f;
    DATAFILE *dat;
@@ -1426,7 +1426,7 @@ DATAFILE *load_datafile_callback(char *filename, void (*callback)(DATAFILE *))
 /* load_datafile_object:
  *  Loads a single object from a datafile.
  */
-DATAFILE *load_datafile_object(char *filename, char *objectname)
+DATAFILE *load_datafile_object(const char *filename, const char *objectname)
 {
    PACKFILE *f;
    DATAFILE *dat;
@@ -1541,7 +1541,7 @@ void unload_datafile_object(DATAFILE *dat)
 /* find_datafile_object:
  *  Returns a pointer to the datafile object with the given name
  */
-DATAFILE *find_datafile_object(DATAFILE *dat, char *objectname)
+DATAFILE *find_datafile_object(DATAFILE *dat, const char *objectname)
 {
    char name[512];
    int recurse = FALSE;

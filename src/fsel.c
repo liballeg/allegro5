@@ -17,7 +17,8 @@
  *
  *      Peter Pavlovic modified it not to list the logical drives, such
  *      as the b: drive assigned as a logical drive for a: on single
- *      floppy disk drive equipped systems.
+ *      floppy disk drive equipped systems, and added the drives detection
+ *      in Windows.
  *
  *      See readme.txt for copyright information.
  */
@@ -29,6 +30,9 @@
    #include <dos.h>
 #endif
 
+#if defined ALLEGRO_WINDOWS
+   #include "winalleg.h"
+#endif
 
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
    #define HAVE_DIR_LIST
@@ -56,7 +60,7 @@ typedef struct FLIST
 
 static FLIST *flist = NULL;
 
-static char *fext = NULL;
+static const char *fext = NULL;
 
 
 
@@ -72,6 +76,7 @@ static DIALOG file_selector[] =
       { fs_edit_proc,      16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
       { fs_flist_proc,     16,   46,   176,  99,   0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
       { fs_dlist_proc,     208,  46,   80,   51,   0,    0,    0,    D_EXIT,  0,    0,    fs_dlist_getter,  NULL, NULL  },
+      { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
 
    #else
 
@@ -82,6 +87,7 @@ static DIALOG file_selector[] =
       { d_button_proc,     160,  160,  80,   16,   0,    0,    27,   D_EXIT,  0,    0,    NULL,             NULL, NULL  },
       { fs_edit_proc,      16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,             NULL, NULL  },
       { fs_flist_proc,     16,   46,   272,  99,   0,    0,    0,    D_EXIT,  0,    0,    fs_flist_getter,  NULL, NULL  },
+      { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,             NULL, NULL  },
 
    #endif
 
@@ -147,6 +153,11 @@ static int drive_exists(int x)
       __dpmi_int(0x21, &r);
 
       return ret;
+
+   #elif defined ALLEGRO_WINDOWS
+
+      /* Windows implementation */
+      return GetLogicalDrives() & (1 << x);
 
    #else
 
@@ -348,7 +359,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
  *  ustricmp for filenames: makes sure that eg "foo.bar" comes before
  *  "foo-1.bar", and also that "foo9.bar" comes before "foo10.bar".
  */
-static int ustrfilecmp(char *s1, char *s2)
+static int ustrfilecmp(const char *s1, const char *s2)
 {
    int c1, c2;
    int x1, x2;
@@ -390,7 +401,7 @@ static int ustrfilecmp(char *s1, char *s2)
 /* fs_flist_putter:
  *  Callback routine for for_each_file() to fill the file selector listbox.
  */
-static void fs_flist_putter(char *str, int attrib, int param)
+static void fs_flist_putter(const char *str, int attrib, int param)
 {
    char ext_tokens[32];
    char *s, *ext, *tok, *name;
@@ -628,13 +639,13 @@ static int fs_flist_proc(int msg, DIALOG *d, int c)
  *  extensions. Returns zero if it was closed with the Cancel button, 
  *  non-zero if it was OK'd.
  */
-int file_select(char *message, char *path, char *ext)
+int file_select(const char *message, char *path, const char *ext)
 {
    char buf[512];
    int ret;
    char *p;
 
-   file_selector[FS_MESSAGE].dp = message;
+   file_selector[FS_MESSAGE].dp = (char *)message;
    file_selector[FS_EDIT].dp = path;
    file_selector[FS_OK].dp = get_config_text("OK");
    file_selector[FS_CANCEL].dp = get_config_text("Cancel");
@@ -655,7 +666,7 @@ int file_select(char *message, char *path, char *ext)
 
    centre_dialog(file_selector);
    set_dialog_color(file_selector, gui_fg_color, gui_bg_color);
-   ret = do_dialog(file_selector, FS_EDIT);
+   ret = popup_dialog(file_selector, FS_EDIT);
 
    if ((ret == FS_CANCEL) || (!ugetc(get_filename(path))))
       return FALSE;

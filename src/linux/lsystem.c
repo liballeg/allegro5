@@ -17,9 +17,11 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
@@ -41,7 +43,6 @@
 
 static int  sys_linux_init(void);
 static void sys_linux_exit(void);
-static void sys_linux_get_executable_name(char *output, int size);
 static void sys_linux_message (char *msg);
 
 #define make_getter(x) static _DRIVER_INFO *get_##x##_driver_list (void) { return _linux_##x##_driver_list; }
@@ -62,7 +63,7 @@ SYSTEM_DRIVER system_linux =
    "Linux console",
    sys_linux_init,
    sys_linux_exit,
-   sys_linux_get_executable_name,
+   _unix_get_executable_name,
    _unix_find_resource,
    NULL, /* set_window_title */
    sys_linux_message,
@@ -232,15 +233,6 @@ static void sys_linux_exit (void)
 	iopl (0);
 }
 
-
-
-/* sys_linux_get_executable_name:
- *  Return full path to the current executable.
- */
-static void sys_linux_get_executable_name (char *output, int size)
-{
-	do_uconvert (__crt0_argv[0], U_ASCII, output, U_CURRENT, size);
-}
 
 
 /* sys_linux_message:

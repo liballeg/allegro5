@@ -26,7 +26,7 @@
  *  a bitmap structure and storing the palette data in the specified
  *  palette (this should be an array of at least 256 RGB structures).
  */
-BITMAP *load_lbm(char *filename, RGB *pal)
+BITMAP *load_lbm(const char *filename, RGB *pal)
 {
    #define IFF_FORM     0x4D524F46     /* 'FORM' - IFF FORM structure  */
    #define IFF_ILBM     0x4D424C49     /* 'ILBM' - interleaved bitmap  */

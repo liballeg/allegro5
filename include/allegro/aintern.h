@@ -62,12 +62,13 @@ AL_FUNC(void, _remove_exit_func, (void (*func)(void)));
 typedef struct UTYPE_INFO
 {
    int id;
-   AL_METHOD(int, u_getc, (char *s));
-   AL_METHOD(int, u_getx, (char **s));
+   AL_METHOD(int, u_getc, (const char *s));
+   AL_METHOD(int, u_getx, (const char **s));
    AL_METHOD(int, u_setc, (char *s, int c));
-   AL_METHOD(int, u_width, (char *s));
+   AL_METHOD(int, u_width, (const char *s));
    AL_METHOD(int, u_cwidth, (int c));
    AL_METHOD(int, u_isok, (int c));
+   int u_width_max;
 } UTYPE_INFO;
 
 AL_FUNC(UTYPE_INFO *, _find_utype, (int type));
@@ -78,11 +79,11 @@ AL_FUNC(void, _load_config_text, (void));
 
 
 /* wrappers for implementing disk I/O on different platforms */
-AL_FUNC(int, _al_file_isok, (char *filename));
-AL_FUNC(int, _al_file_exists, (char *filename, int attrib, int *aret));
-AL_FUNC(long, _al_file_size, (char *filename));
-AL_FUNC(long, _al_file_time, (char *filename));
-AL_FUNC(void *, _al_findfirst, (char *name, int attrib, char *nameret, int *aret));
+AL_FUNC(int, _al_file_isok, (const char *filename));
+AL_FUNC(int, _al_file_exists, (const char *filename, int attrib, int *aret));
+AL_FUNC(long, _al_file_size, (const char *filename));
+AL_FUNC(long, _al_file_time, (const char *filename));
+AL_FUNC(void *, _al_findfirst, (const char *name, int attrib, char *nameret, int *aret));
 AL_FUNC(int, _al_findnext, (void *dta, char *nameret, int *aret));
 AL_FUNC(void, _al_findclose, (void *dta));
 AL_FUNC(int, _al_getdrive, (void));

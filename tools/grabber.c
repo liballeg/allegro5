@@ -136,7 +136,7 @@ static MENU objc_menu[32] =
    { "Set &Property\t(ctrl+P)",     property_insert,  NULL,       0, NULL  },
    { "&Shell Edit\t(ctrl+Z)",       sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
-   { "&New...",                     NULL,             new_menu,   0, NULL  },
+   { "&New ",                       NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
@@ -170,7 +170,7 @@ static MENU popup_menu[32] =
    { "&Rename",                     renamer,          NULL,       0, NULL  },
    { "&Shell Edit",                 sheller,          NULL,       0, NULL  },
    { "",                            NULL,             NULL,       0, NULL  },
-   { "&New...",                     NULL,             new_menu,   0, NULL  },
+   { "&New ",                       NULL,             new_menu,   0, NULL  },
    { NULL,                          NULL,             NULL,       0, NULL  }
 };
 
@@ -673,7 +673,7 @@ static MENU *which_menu(int sel)
 	 if ((dat) && (dat->type != DAT_FILE))
 	    ok = TRUE;
       }
-      else if (compare_menu_names(popup_menu[i].text, "New...") == 0) {
+      else if (compare_menu_names(popup_menu[i].text, "New ") == 0) {
 	 ok = TRUE;
       }
       else if (!popup_menu[i].text[0]) {
@@ -1239,6 +1239,7 @@ static DIALOG prop_dlg[] =
    { d_edit_proc,       72,   48,   320,  8,    0,    0,    0,       0,          255,           0,       prop_value_string,   NULL, NULL  },
    { d_button_proc,     112,  80,   80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",                NULL, NULL  }, 
    { d_button_proc,     208,  80,   80,   16,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",            NULL, NULL  }, 
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,                NULL, NULL  }
 };
 
@@ -1777,6 +1778,7 @@ static DIALOG strip_dlg[] =
    { d_list_proc,       22,   32,   256,  27,   0,    0,    0,       D_EXIT,     0,             0,       striplist_getter, NULL, NULL  },
    { d_button_proc,     62,   80,   80,   16,   0,    0,    13,      D_EXIT,     0,             0,       "OK",             NULL, NULL  }, 
    { d_button_proc,     158,  80,   80,   16,   0,    0,    27,      D_EXIT,     0,             0,       "Cancel",         NULL, NULL  }, 
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,             0,       NULL,             NULL, NULL  }
 };
 
@@ -2477,6 +2479,7 @@ static DIALOG sys_dlg[] =
    { d_shadow_box_proc, 0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  },
    { d_textbox_proc,    0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  },
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,       D_EXIT,     0,       0,       "Exit",  NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,          0,       0,       NULL,    NULL, NULL  }
 };
 

@@ -166,9 +166,10 @@ static int oss_buffer_size()
  */
 static void oss_update(unsigned long interval)
 {
-   int i;
+   int i, e;
    audio_buf_info bufinfo;
 
+   e = errno;   
    DISABLE();
 
    if (ioctl(oss_fd, SNDCTL_DSP_GETOSPACE, &bufinfo) != -1) {
@@ -180,6 +181,7 @@ static void oss_update(unsigned long interval)
    }
 
    ENABLE();
+   errno = e;
 }
 
 
@@ -221,6 +223,33 @@ static int open_oss_device(int input)
 
    if (_oss_numfrags < 0)
       _oss_numfrags = OSS_DEFAULT_NUMFRAGS;
+
+   /* try to detect whether the DSP can do 16 bit sound or not */
+   if (_sound_bits == -1) {
+      /* ask supported formats */
+      if (ioctl(oss_fd, SNDCTL_DSP_GETFMTS, &oss_format) != -1) {
+         if (oss_format & AFMT_S16_NE) _sound_bits = 16;
+         else if (oss_format & AFMT_U16_NE) _sound_bits = 16;
+         else if (oss_format & AFMT_S8) _sound_bits = 8;
+         else if (oss_format & AFMT_U8) _sound_bits = 8;
+         else {
+            /* ask current format */
+            oss_format = 0;
+            if (ioctl(oss_fd, SNDCTL_DSP_SETFMT, &oss_format) != -1) {
+               switch (oss_format) {
+                  case AFMT_S16_NE:
+                  case AFMT_U16_NE:
+                     _sound_bits = 16;
+                     break;
+                  case AFMT_S8:
+                  case AFMT_U8:
+                     _sound_bits = 8;
+                     break;
+               }
+            }
+         }
+      }
+   }
 
    bits = (_sound_bits == 8) ? 8 : 16;
    stereo = (_sound_stereo) ? 1 : 0;

@@ -197,6 +197,7 @@ ALLEGRO_SRC_BEOS_FILES = \
 	src/beos/bmousdrv.c \
 	src/beos/bmouse.c \
 	src/beos/bsnd.c \
+	src/beos/bsndapi.cpp \
 	src/beos/bsnddrv.c \
 	src/beos/bswitch.s \
 	src/beos/bsysapi.cpp \

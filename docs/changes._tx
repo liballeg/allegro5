@@ -10,6 +10,35 @@
 @heading
 Changes from 3.11 to current
 <ul><li>
+   3.9.33: Stephen Kittelson fixed a bug in pckeys.c, and changed the ASCII 
+   values returned for a few weird key combinations.
+<li>
+   3.9.33: Peter Wang made various functions const-correct.
+<li>
+   3.9.33: Peter Pavlovic made aesthetic modifications to the GUI menu system.
+<li>
+   3.9.33: Javier Gonzalez suggested that the file and mode selector dialogs 
+   should use popup_dialog.
+<li>
+   3.9.33: Vincent Penquerc'h added the install-gzipped-man makefile target,
+   patched some of the EINTR handling, and made the OSS driver detect whether
+   the device is 16 bit or not.
+<li>
+   3.9.33: Peter Pavlovic modified the Slovak keyboard mapping and made the
+   file selector detect available drives in Windows.
+<li>
+   3.9.33: Peter Wang added a sound (output only) driver for BeOS.
+<li>
+   3.9.33: Sven Sandberg fixed a typo in the definition of ustrdup, added
+   the uwidth_max function, provided the d_yield_proc function, and made
+   various dialogs use it.
+<li>
+   3.9.33: Michael Bukin made the DGA driver clear video memory and centre
+   the screen, if it's not fullscreen.
+<li>
+   3.9.33: Eduard Bloch suggested better ways to find the executable in
+   Unix.
+<li>
    3.9.33: Andrew Geers added flipped rotated sprites.
 <li>
    3.9.33: George Foot made the Unix makefile work for non-root users.

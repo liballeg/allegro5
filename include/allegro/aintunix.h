@@ -49,6 +49,10 @@ extern "C" {
    AL_FUNC(int, _unix_find_resource, (char *dest, char *resource, int size));
 
 
+   /* Generic system driver entry for finding the executable */
+   AL_FUNC(void, _unix_get_executable_name, (char *output, int size));
+
+
    /* Helper for setting os_type */
    AL_FUNC(void, _read_os_type, (void));
 

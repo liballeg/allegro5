@@ -236,7 +236,8 @@ mini-install: install-lib install-headers
 full-install: install-lib install-headers install-programs
 	@echo "Run make install-man if you wish to install the man pages"
 	@echo "Run make install-info if you wish to install the info documentation"
-	@echo "Alternatively you may run make install-gzipped-info to conserve space" 
+	@echo "You may conserve space by instead running make install-gzipped-man"
+	@echo "and/or make install-gzipped-info"
 
 install-lib: lib
 	$(mkinstalldirs) $(libdir)
@@ -303,6 +304,14 @@ install-man:
 	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
 	done
 
+install-gzipped-man:
+	$(mkinstalldirs) $(mandir)/man3
+	@for file in $(srcdir)/docs/*.3; do \
+	  echo Installing $$file.gz to $(mandir)/man3; \
+	  $(INSTALL_DATA) $$file $(mandir)/man3/; \
+	  gzip -9 -f $(mandir)/man3/`echo $$file | sed -e "s:.*/::"`; \
+	done
+
 uninstall: uninstall-lib uninstall-headers uninstall-programs uninstall-info uninstall-man
 	@echo "All gone. Don't you feel sad now?"
 
@@ -355,6 +364,8 @@ uninstall-info:
 uninstall-man:
 	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3,p" $(srcdir)/docs/allegro._tx \
 	  | xargs -n 1 rm -f
+	sed -n -e "s,^@[@\\].*@\([a-zA-Z0-9_]*\)[^a-zA-Z0-9_*].*,$(mandir)/man3/\1.3.gz,p" $(srcdir)/docs/allegro._tx \
+	  | xargs -n 1 rm -f
 
 makefile.dep: makefile $(srcdir)/makefile.lst $(srcdir)/misc/deplib.sh \
 		$(srcdir)/misc/deplexe.sh $(srcdir)/misc/depnexe.sh \
@@ -380,7 +391,7 @@ depend: makefile.dep
 clean distclean veryclean maintainer-clean \
 install full-install mini-install \
 install-lib install-headers install-programs install-info \
-install-gzipped-info install-man depend \
+install-gzipped-info install-man install-gzipped-man depend \
 uninstall uninstall-lib uninstall-headers uninstall-programs \
 uninstall-info uninstall-man
 

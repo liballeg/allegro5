@@ -1098,6 +1098,7 @@ DIALOG anim_type_dlg[] =
    { anim_desc_proc,    16,   90,   248,  48,   0,    1,    0,    0,          0,    0,    0,                   NULL, NULL  },
    { d_button_proc,     184,  28,   80,   16,   0,    1,    13,   D_EXIT,     0,    0,    "OK",                NULL, NULL  },
    { d_button_proc,     184,  50,   80,   16,   0,    1,    27,   D_EXIT,     0,    0,    "Cancel",            NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,          0,    0,    NULL,                NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,          0,    0,    NULL,                NULL, NULL  }
 };
 
@@ -1342,7 +1343,7 @@ CREDIT_NAME *credits = NULL;
 
 
 /* reads credit info from a source file */
-void parse_source(char *filename, int attrib, int param)
+void parse_source(const char *filename, int attrib, int param)
 {
    char buf[256];
    PACKFILE *f;

@@ -12,6 +12,8 @@
  *
  *      By Shawn Hargreaves.
  *
+ *      Peter Pavlovic modified the drawing and positioning of menus.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -1098,6 +1100,7 @@ static void draw_menu_item(MENU_INFO *m, int c)
    int fg, bg;
    int i, j, x, y, w;
    char buf[256], *tok;
+   int my;
 
    if (m->menu[c].flags & D_DISABLED) {
       if (c == m->sel) {
@@ -1140,8 +1143,22 @@ static void draw_menu_item(MENU_INFO *m, int c)
 
       if (j == '\t') {
 	 tok = m->menu[c].text+i + uwidth(m->menu[c].text+i);
-	 gui_textout(screen, tok, x+w-gui_strlen(tok)-8, y+1, fg, FALSE);
+	 gui_textout(screen, tok, x+w-gui_strlen(tok)-10, y+1, fg, FALSE);
       }
+
+      if ((m->menu[c].child) && (!m->bar)) {
+         my = y + text_height(font)/2;
+         hline(screen, x+w-8, my+1, x+w-4, fg);
+         hline(screen, x+w-8, my+0, x+w-5, fg);
+         hline(screen, x+w-8, my-1, x+w-6, fg);
+         hline(screen, x+w-8, my-2, x+w-7, fg);
+         putpixel(screen, x+w-8, my-3, fg);
+         hline(screen, x+w-8, my+2, x+w-5, fg);
+         hline(screen, x+w-8, my+3, x+w-6, fg);
+         hline(screen, x+w-8, my+4, x+w-7, fg);
+         putpixel(screen, x+w-8, my+5, fg);
+      }
+      
    }
    else
       hline(screen, x, y+text_height(font)/2+2, x+w, fg);
@@ -1219,6 +1236,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    char buf[80], *tok;
    int extra = 0;
    int c, i, j;
+   int child = FALSE;
 
    m->menu = menu;
    m->parent = parent;
@@ -1232,6 +1250,9 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
 
    /* calculate size of the menu */
    for (m->size=0; m->menu[m->size].text; m->size++) {
+
+      if ((m->menu[m->size].child) && (m->parent)) child = TRUE;
+
       i = 0;
       j = ugetc(m->menu[m->size].text);
 
@@ -1262,6 +1283,9 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
    if (extra)
       m->w += extra+16;
 
+   if (child)
+      m->w += 22;
+
    m->w = MAX(m->w, minw);
    m->h = MAX(m->h, minh);
 }
@@ -1272,7 +1296,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int bar,
  *  Returns true if c is indicated as a keyboard shortcut by a '&' character
  *  in the specified string.
  */
-static int menu_key_shortcut(int c, char *s)
+static int menu_key_shortcut(int c, const char *s)
 {
    int d;
 
@@ -1302,7 +1326,7 @@ int menu_alt_key(int k, MENU *m)
       KEY_S, KEY_T, KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z
    };
 
-   char *s;
+   const char *s;
    int c, d;
 
    if (k & 0xFF)
@@ -1534,8 +1558,8 @@ int _do_menu(MENU *menu, MENU_INFO *parent, int bar, int x, int y, int repos, in
 	       _y += text_height(font)+7;
 	    }
 	    else {
-	       _x = m.x+m.w*2/3;
-	       _y = m.y + (text_height(font)+4)*ret + text_height(font)/4+2;
+	       _x = m.x+m.w-3;
+	       _y = m.y + (text_height(font)+4)*ret + text_height(font)/4+1;
 	    }
 	    c = _do_menu(m.menu[ret].child, &m, FALSE, _x, _y, TRUE, NULL, 0, 0);
 	    if (c < 0) {
@@ -1666,6 +1690,7 @@ static DIALOG alert_dialog[] =
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL, NULL, NULL  },
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL, NULL, NULL  },
    { d_button_proc,     0,    0,    0,    0,    0,    0,    0,    D_EXIT,  0,    0,    NULL, NULL, NULL  },
+   { d_yield_proc,      0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL, NULL, NULL  },
    { NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL, NULL, NULL  }
 };
 
@@ -1686,7 +1711,7 @@ static DIALOG alert_dialog[] =
  *  the keyboard shortcuts in c1 and c2. Returns 1, 2, or 3 depending on 
  *  which button was selected.
  */
-int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, int c2, int c3)
+int alert3(const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int c1, int c2, int c3)
 {
    char tmp[16];
    int avg_w, avg_h;
@@ -1700,7 +1725,7 @@ int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, i
       if (b##x) {                                                          \
 	 alert_dialog[A_B##x].flags &= ~D_HIDDEN;                          \
 	 alert_dialog[A_B##x].key = c##x;                                  \
-	 alert_dialog[A_B##x].dp = b##x;                                   \
+	 alert_dialog[A_B##x].dp = (char *)b##x;                           \
 	 len##x = gui_strlen(b##x);                                        \
 	 b[buttons++] = A_B##x;                                            \
       }                                                                    \
@@ -1719,19 +1744,19 @@ int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, i
    alert_dialog[A_B1].dp = alert_dialog[A_B2].dp = empty_string;
 
    if (s1) {
-      alert_dialog[A_S1].dp = s1;
+      alert_dialog[A_S1].dp = (char *)s1;
       maxlen = text_length(font, s1);
    }
 
    if (s2) {
-      alert_dialog[A_S2].dp = s2;
+      alert_dialog[A_S2].dp = (char *)s2;
       len1 = text_length(font, s2);
       if (len1 > maxlen)
 	 maxlen = len1;
    }
 
    if (s3) {
-      alert_dialog[A_S3].dp = s3;
+      alert_dialog[A_S3].dp = (char *)s3;
       len1 = text_length(font, s3);
       if (len1 > maxlen)
 	 maxlen = len1;
@@ -1798,7 +1823,7 @@ int alert3(char *s1, char *s2, char *s3, char *b1, char *b2, char *b3, int c1, i
  *  in b1 and b2 (b2 may be null), and the keyboard shortcuts in c1 and c2.
  *  Returns 1 or 2 depending on which button was selected.
  */
-int alert(char *s1, char *s2, char *s3, char *b1, char *b2, int c1, int c2)
+int alert(const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int c1, int c2)
 {
    int ret;
 

@@ -202,9 +202,9 @@ static unsigned short standard_key_shift_table[KEY_MAX] =
    /* numbers */     ')', '!', '@', '#', '$', '%', '^', '&', '*', '(',
    /* numpad */      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
    /* func keys */   0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
-   /* misc chars */  27, '~', '_', '+', 126, 126, '{', '}', 126, ':', '"', '|', '|', '<', '>', '?', 1,
+   /* misc chars */  27, '~', '_', '+', 8, 9, '{', '}', 13, ':', '"', '|', '|', '<', '>', '?', ' ',
    /* controls */    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
-   /* numpad */      '/', '*', '-', '+', '.', 126,
+   /* numpad */      '/', '*', '-', '+', '.', 13,
    /* modifiers */   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
@@ -319,7 +319,7 @@ int _pckey_scancode_to_ascii(int scancode)
 {
    int val;
 
-   if ((scancode < 0) && (scancode >= KEY_MAX))
+   if ((scancode < 0) || (scancode >= KEY_MAX))
       return 0;
 
    val = _key_ascii_table[scancode];
