@@ -108,6 +108,8 @@ echo "Generating MSVC dependencies..."
 echo "MAKEFILE_INC = makefile.vc" > makefile
 echo "include makefile.all" >> makefile
 
+echo "#include \"almsvc.h\"" > include/allegro/alplatf.h
+
 make depend
 
 utod obj/msvc/*/makefile.dep
@@ -118,6 +120,8 @@ echo "Generating Watcom dependencies..."
 
 echo "MAKEFILE_INC = makefile.wat" > makefile
 echo "include makefile.all" >> makefile
+
+echo "#include \"alwatcom.h\"" > include/allegro/alplatf.h
 
 make depend
 
@@ -130,6 +134,8 @@ echo "Generating RSXNT dependencies..."
 echo "MAKEFILE_INC = makefile.rsx" > makefile
 echo "include makefile.all" >> makefile
 
+echo "#include \"alrsxnt.h\"" > include/allegro/alplatf.h
+
 make depend
 
 utod obj/rsxnt/*/makefile.dep
@@ -140,6 +146,8 @@ echo "Generating Mingw32 dependencies..."
 
 echo "MAKEFILE_INC = makefile.mgw" > makefile
 echo "include makefile.all" >> makefile
+
+echo "#include \"almngw32.h\"" > include/allegro/alplatf.h
 
 make depend
 
@@ -152,6 +160,8 @@ echo "Generating Borland dependencies..."
 echo "MAKEFILE_INC = makefile.bcc" > makefile
 echo "include makefile.all" >> makefile
 
+echo "#include \"albcc32.h\"" > include/allegro/alplatf.h
+
 make depend
 
 utod obj/bcc32/*/makefile.dep
@@ -162,6 +172,8 @@ echo "Generating BeOS dependencies..."
 
 echo "MAKEFILE_INC = makefile.be" > makefile
 echo "include makefile.all" >> makefile
+
+echo "#include \"albecfg.h\"" > include/allegro/alplatf.h
 
 make depend
 
@@ -174,9 +186,13 @@ echo "Generating djgpp dependencies..."
 echo "MAKEFILE_INC = makefile.dj" > makefile
 echo "include makefile.all" >> makefile
 
+echo "#include \"aldjgpp.h\"" > include/allegro/alplatf.h
+
 make depend
 
 utod obj/djgpp/*/makefile.dep
+
+rm include/allegro/alplatf.h
 
 unset CROSSCOMPILE
 

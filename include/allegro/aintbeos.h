@@ -16,10 +16,6 @@
  */
 
 
-#ifndef __BEOS__
-   #error bad include
-#endif
-
 #include "bealleg.h"
 
 #ifdef __cplusplus

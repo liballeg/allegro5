@@ -44,13 +44,17 @@
 
    #define AL_PRINTFUNC(type, name, args, a, b)    AL_FUNC(type, name, args) __attribute__ ((format (printf, a, b)))
 
-   #define INLINE          inline
+   #ifndef INLINE
+      #define INLINE          inline
+   #endif
 
    #ifndef ZERO_SIZE
       #define ZERO_SIZE    0
    #endif
 
-   #define LONG_LONG       long long
+   #ifndef LONG_LONG
+      #define LONG_LONG       long long
+   #endif
 
    #ifdef __i386__
       #define ALLEGRO_I386

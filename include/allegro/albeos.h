@@ -15,11 +15,6 @@
  *      See readme.txt for copyright information.
  */
 
-#ifndef __BEOS__
-   #error bad include
-#endif
-
-
 
 /* system driver */
 #define SYSTEM_BEOS           AL_ID('B','S','Y','S')
