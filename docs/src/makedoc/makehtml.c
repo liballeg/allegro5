@@ -714,7 +714,7 @@ static void _hfputs(char *string)
 	 if (end) {
 	    char *p = string + 1;
 	    /* Check for a specific character range */
-	    while ((p < end) && ((*p >= '0') && (*p <= 'z')))
+	    while ((p < end) && ((*p >= '.') && (*p <= 'z')))
 	       p++;
 	        
 	    if ((p == end) && (p - string > 1)) {
