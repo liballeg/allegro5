@@ -31,13 +31,13 @@ int *_colorconv_indexed_palette = NULL;    /* for conversion from 8-bit */
 int *_colorconv_rgb_scale_5x35 = NULL;     /* for conversion from 15/16-bit */
 unsigned char *_colorconv_rgb_map = NULL;  /* for conversion from 8/12-bit to 8-bit */
 
-static int indexed_palette_depth;
-static int indexed_palette_size;
+static int indexed_palette_depth;          /* target depth of the indexed palette */
+static int indexed_palette_size;           /* size of the indexed palette */
 
 
 
 /* build_rgb_scale_5235_table:
- *  builds pre-calculated tables for 15-bit to truecolor conversion
+ *  Builds pre-calculated tables for 15-bit to truecolor conversion.
  */
 static void build_rgb_scale_5235_table(int to_depth)
 {
@@ -85,7 +85,7 @@ static void build_rgb_scale_5235_table(int to_depth)
 
 
 /* build_rgb_scale_5335_table:
- *  builds pre-calculated tables for 16-bit to truecolor conversion
+ *  Builds pre-calculated tables for 16-bit to truecolor conversion.
  */
 static void build_rgb_scale_5335_table(int to_depth)
 {
@@ -139,7 +139,7 @@ static void build_rgb_scale_5335_table(int to_depth)
 
 
 /* create_indexed_palette:
- *  reserves storage for the 8-bit palette
+ *  Reserves storage for the 8-bit palette.
  */
 static void create_indexed_palette(int to_depth)
 {
@@ -169,7 +169,7 @@ static void create_indexed_palette(int to_depth)
 
 
 /* _set_colorconv_palette:
- *  updates 8-bit palette entries
+ *  Updates 8-bit palette entries.
  */
 void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
 {
@@ -202,7 +202,7 @@ void _set_colorconv_palette(AL_CONST struct RGB *p, int from, int to)
 
 
 /* create_rgb_map:
- *  reserves storage for the rgb map to 8-bit
+ *  Reserves storage for the rgb map to 8-bit.
  */
 static void create_rgb_map(int from_depth)
 {
@@ -227,7 +227,7 @@ static void create_rgb_map(int from_depth)
 
 
 /* _get_colorconv_map:
- *  retrieves a handle to the rgb map
+ *  Retrieves a handle to the rgb map.
  */
 unsigned char *_get_colorconv_map(void)
 {
@@ -237,7 +237,7 @@ unsigned char *_get_colorconv_map(void)
 
 
 /* _get_colorconv_blitter:
- *  returns the blitter function matching the specified depths
+ *  Returns the blitter function matching the specified depths.
  */
 COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 {
@@ -388,7 +388,7 @@ COLORCONV_BLITTER_FUNC *_get_colorconv_blitter(int from_depth, int to_depth)
 
 
 /* _release_colorconv_blitter:
- *  frees previously allocated resources
+ *  Frees previously allocated resources.
  */
 void _release_colorconv_blitter(COLORCONV_BLITTER_FUNC *blitter)
 {
