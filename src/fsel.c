@@ -60,7 +60,7 @@ static char *fs_flist_getter(int, int *);
 
 typedef struct FLIST
 {
-   char dir[512];
+   char dir[1024];
    int size;
    char *name[FLIST_SIZE];
 } FLIST;
@@ -314,7 +314,7 @@ static int fs_edit_proc(int msg, DIALOG *d, int c)
    int size = (d->d1 + 1) * uwidth_max(U_CURRENT); /* of s (in bytes) */
    int list_size;
    int found = 0;
-   char b[512], tmp[16];
+   char b[1024], tmp[16];
    int ch, attr;
    int i;
 
@@ -820,7 +820,7 @@ static void stretch_dialog(DIALOG *d, int width, int height)
  */
 int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int size, int width, int height)
 {
-   char buf[512];
+   char buf[1024];
    int ret;
    char *p;
 
@@ -891,6 +891,6 @@ int file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int s
  */
 int file_select(AL_CONST char *message, char *path, AL_CONST char *ext)
 {
-   return file_select_ex(message, path, ext, 512, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
+   return file_select_ex(message, path, ext, 1024, OLD_FILESEL_WIDTH, OLD_FILESEL_HEIGHT);
 }
 

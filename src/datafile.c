@@ -1527,7 +1527,7 @@ DATAFILE *load_datafile_object(AL_CONST char *filename, AL_CONST char *objectnam
    PACKFILE *f;
    DATAFILE *dat;
    void *object;
-   char buf[512], tmp[16];
+   char buf[1024], tmp[16];
    int size;
 
    ustrzcpy(buf, sizeof(buf), filename);

@@ -214,7 +214,7 @@ static void config_cleanup(void)
  */
 static void init_config(int loaddata)
 {
-   char filename[512], tmp[128], *cfg_name;
+   char filename[1024], tmp[128], *cfg_name;
 
    if (!config_installed) {
       _add_exit_func(config_cleanup);
@@ -327,8 +327,7 @@ static int get_line(AL_CONST char *data, int length, char *name, int name_size, 
  */
 static void set_config(CONFIG **config, AL_CONST char *data, int length, AL_CONST char *filename)
 {
-   char name[256];
-   char val[256];
+   char name[256], val[256];
    CONFIG_ENTRY **prev, *p;
    int pos;
 
@@ -1100,7 +1099,7 @@ void set_config_id(AL_CONST char *section, AL_CONST char *name, int val)
  */
 void reload_config_texts(AL_CONST char *new_language)
 {
-   char filename[512], tmp1[128], tmp2[128];
+   char filename[1024], tmp1[128], tmp2[128];
    AL_CONST char *name, *ext, *datafile;
    char *namecpy;
 

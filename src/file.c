@@ -125,7 +125,7 @@ char *fix_filename_slashes(char *filename)
 char *fix_filename_path(char *dest, AL_CONST char *path, int size)
 {
    int saved_errno = errno;
-   char buf[512], buf2[512];
+   char buf[1024], buf2[1024];
    char *p;
    int pos = 0;
    int drive = -1;
@@ -310,7 +310,7 @@ char *fix_filename_path(char *dest, AL_CONST char *path, int size)
  */
 char *replace_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, int size)
 {
-   char tmp[512];
+   char tmp[1024];
    int pos, c;
 
    pos = ustrlen(path);
@@ -338,7 +338,7 @@ char *replace_filename(char *dest, AL_CONST char *path, AL_CONST char *filename,
  */
 char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext, int size)
 {
-   char tmp[512], tmp2[16];
+   char tmp[1024], tmp2[16];
    int pos, end, c;
 
    pos = end = ustrlen(filename);
@@ -369,7 +369,7 @@ char *replace_extension(char *dest, AL_CONST char *filename, AL_CONST char *ext,
  */
 char *append_filename(char *dest, AL_CONST char *path, AL_CONST char *filename, int size)
 {
-   char tmp[512];
+   char tmp[1024];
    int pos, c;
 
    ustrzcpy(tmp, sizeof(tmp), path);
@@ -468,10 +468,10 @@ void put_backslash(char *filename)
  *  Helper to handle opening files that have been appended to the end of
  *  the program executable.
  */
-static PACKFILE *pack_fopen_exe_file()
+static PACKFILE *pack_fopen_exe_file(void)
 {
    PACKFILE *f;
-   char exe_name[256];
+   char exe_name[1024];
    long size;
 
    /* open the file */
@@ -599,7 +599,7 @@ static PACKFILE *pack_fopen_datafile_object(PACKFILE *f, AL_CONST char *objname)
  */
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode)
 {
-   char fname[512], objname[512], tmp[16];
+   char fname[1024], objname[512], tmp[16];
    PACKFILE *f;
    char *p;
    int c;
@@ -755,7 +755,7 @@ time_t file_time(AL_CONST char *filename)
  */
 int delete_file(AL_CONST char *filename)
 {
-   char tmp[1024*6];
+   char tmp[1024];
 
    *allegro_errno = 0;
 
@@ -789,7 +789,7 @@ int delete_file(AL_CONST char *filename)
  */
 int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST char *filename, int attrib, int param), int param)
 {
-   char buf[512];
+   char buf[1024];
    struct al_ffblk info;
    int c = 0;
 
@@ -959,7 +959,7 @@ static int find_resource(char *dest, AL_CONST char *path, AL_CONST char *name, A
 int find_allegro_resource(char *dest, AL_CONST char *resource, AL_CONST char *ext, AL_CONST char *datafile, AL_CONST char *objectname, AL_CONST char *envvar, AL_CONST char *subdir, int size)
 {
    int (*sys_find_resource)(char *, AL_CONST char *, int);
-   char rname[128], path[512], tmp[512];
+   char rname[128], path[1024], tmp[128];
    char *s;
    int i, c;
 
@@ -1503,7 +1503,7 @@ int pack_fclose(PACKFILE *f)
 PACKFILE *pack_fopen_chunk(PACKFILE *f, int pack)
 {
    PACKFILE *chunk;
-   char tmp[512];
+   char tmp[1024];
    char *name;
 
    if (f->flags & PACKFILE_FLAG_WRITE) {

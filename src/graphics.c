@@ -473,7 +473,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    extern void blit_end();
    _DRIVER_INFO *driver_list;
    int tried = FALSE;
-   char buf[512], tmp[64];
+   char buf[ALLEGRO_ERROR_SIZE], tmp[64];
    int c;
    int check_mode = FALSE, require_window = FALSE;
 

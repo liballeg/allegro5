@@ -148,7 +148,7 @@ void lock_midi(MIDI *midi)
 MIDI *load_midi(AL_CONST char *filename)
 {
    int c;
-   char buf[256];
+   char buf[8];
    long data;
    PACKFILE *fp;
    MIDI *midi;
@@ -974,8 +974,7 @@ static int midi_init(void)
    int c, c2, c3;
    char **argv;
    int argc;
-   char buf[32];
-   char tmp[64];
+   char buf[32], tmp[64];
 
    midi_loaded_patches = FALSE;
 

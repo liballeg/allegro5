@@ -365,7 +365,7 @@ static PATCH *load_patch(PACKFILE *f, int drum)
  */
 int _digmid_find_patches(char *dir, int dir_size, char *file, int file_size)
 {
-   char filename[512], tmp1[64], tmp2[64], tmp3[64], tmp4[64];
+   char filename[1024], tmp1[64], tmp2[64], tmp3[64], tmp4[64];
    AL_CONST char *name;
    char *datafile, *objectname, *envvar, *subdir, *s;
 
@@ -427,7 +427,7 @@ static int parse_string(char *buf, char *argv[])
 static int digmid_load_patches(AL_CONST char *patches, AL_CONST char *drums)
 {
    PACKFILE *f;
-   char dir[256], file[256], buf[256], filename[256];
+   char dir[1024], file[1024], buf[1024], filename[1024];
    char todo[256][16];
    char *argv[16];
    int argc;
@@ -913,7 +913,7 @@ END_OF_STATIC_FUNCTION(digmid_set_pitch);
  */
 static int digmid_detect(int input)
 {
-   char dir[256], file[256];
+   char dir[8], file[8];
 
    if (input)
       return FALSE;
