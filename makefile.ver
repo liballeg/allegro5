@@ -3,5 +3,5 @@
 LIBRARY_VERSION = 41
 
 # Shared library versions for Unix
-shared_version = 4.1.12
+shared_version = 4.1.13
 shared_major_minor = 4.1
