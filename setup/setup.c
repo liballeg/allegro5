@@ -21,6 +21,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef ALLEGRO_LINUX
+   #include <sys/time.h>
+#endif
+
 #include "allegro.h"
 #include "allegro/internal/aintern.h"
 
