@@ -90,7 +90,6 @@ QNX todos:
 - implement os_version & os_revision.
 - Video bitmaps and acceleration support in fullscreen mode
 - Display switching in fullscreen mode
-- Update the docs
 - Use standard Unix build system (autoconf, etc.) if possible
 
 Wishlist:

@@ -5017,16 +5017,16 @@ these with the lower level functions described below.
 Sound init routines
 
 @@int @detect_digi_driver(int driver_id);
-@xref install_sound, reserve_voices, DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix
-@xref DIGI_*/BeOS
+@xref install_sound, reserve_voices
+@xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
    Detects whether the specified digital sound device is available. Returns 
    the maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. This function must be called _before_ 
    install_sound().
 
 @@int @detect_midi_driver(int driver_id);
-@xref install_sound, reserve_voices, MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix
-@xref MIDI_*/BeOS
+@xref install_sound, reserve_voices
+@xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
    Detects whether the specified MIDI sound device is available. Returns the 
    maximum number of voices that the driver can provide, or zero if the 
    hardware is not present. There are two special-case return values that 
@@ -5112,8 +5112,8 @@ Sound init routines
 @xref remove_sound, reserve_voices, detect_digi_driver, detect_midi_driver
 @xref set_volume, play_sample, voice control, play_midi, play_audio_stream
 @xref install_sound_input, allegro_error, standard config variables
-@xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS
-@xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS
+@xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
+@xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
    Initialises the sound module. You should normally pass DIGI_AUTODETECT 
    and MIDI_AUTODETECT as the driver parameters to this function, in which 
    case Allegro will read hardware settings from the current configuration 
@@ -5553,8 +5553,9 @@ Recording routines
 
 @@int @install_sound_input(int digi, int midi);
 @xref install_sound, start_sound_input, midi_recorder
-@xref standard config variables, DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix
-@xref DIGI_*/BeOS, MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS
+@xref standard config variables
+@xref DIGI_*/DOS, DIGI_*/Windows, DIGI_*/Unix, DIGI_*/BeOS, DIGI_*/QNX
+@xref MIDI_*/DOS, MIDI_*/Windows, MIDI_*/Unix, MIDI_*/BeOS, MIDI_*/QNX
    Initialises the sound recorder module, returning zero on success. You 
    must install the normal sound playback system before calling this 
    routine. The two card parameters should use the same constants as 
@@ -8032,7 +8033,7 @@ function to remind you :-)
 BeOS specifics
 
 @@Drivers: @GFX_*/BeOS
-@xref set_gfx_mode, GFX_*/BeOS
+@xref set_gfx_mode
    BeOS Allegro supports the following card parameters for the
    set_gfx_mode() function:
 <ul><li>
@@ -8067,7 +8068,7 @@ BeOS specifics
 </ul>
 @@Drivers: @DIGI_*/BeOS
 @xref detect_digi_driver, install_sound, install_sound_input
-   BeOS sound functions support the following digital soundcards:
+   The BeOS sound functions support the following digital soundcards:
 <pre>
       DIGI_AUTODETECT      - let Allegro pick a digital sound driver
       DIGI_NONE            - no digital sound
@@ -8082,6 +8083,67 @@ BeOS specifics
       MIDI_BEOS            - BeOS MIDI output
       MIDI_DIGMID          - sample-based software wavetable player
 </pre>
+
+
+
+@heading
+QNX specifics
+
+@@Drivers: @GFX_*/QNX
+@xref set_gfx_mode
+   QNX Allegro supports the following card parameters for the
+   set_gfx_mode() function:
+<ul><li>
+   GFX_TEXT<br>
+      Return to text mode.
+<li>
+   GFX_AUTODETECT<br>
+      Let Allegro pick an appropriate graphics driver.
+<li>
+   GFX_AUTODETECT_FULLSCREEN<br>
+      Autodetects a graphics driver, but will only use fullscreen drivers,
+      failing if these are not available on current platform.
+<li>
+   GFX_AUTODETECT_WINDOWED<br>
+      Same as above, but uses only windowed drivers.
+<li>
+   GFX_SAFE<br>
+      Special driver for when you want to reliably set a graphics mode and 
+      don't really care what resolution. See the set_gfx_mode() 
+      documentation for details.
+<li>
+   GFX_PHOTON_DIRECT<br>
+      Fullscreen exclusive mode through Photon.
+<li>
+   GFX_PHOTON<br>
+      Windowed mode in a Photon window.
+</ul>
+@@Drivers: @DIGI_*/QNX
+@xref detect_digi_driver, install_sound, install_sound_input
+   The QNX sound functions support the following digital soundcards:
+<pre>
+      DIGI_AUTODETECT      - let Allegro pick a digital sound driver
+      DIGI_NONE            - no digital sound
+      DIGI_ALSA            - ALSA sound driver
+</pre>
+@@Drivers: @MIDI_*/QNX
+@xref detect_midi_driver, install_sound, install_sound_input
+   The QNX sound functions support the following MIDI soundcards:
+<pre>
+      MIDI_AUTODETECT      - let Allegro pick a MIDI sound driver
+      MIDI_NONE            - no MIDI sound
+      MIDI_ALSA            - ALSA RawMIDI driver
+      MIDI_DIGMID          - sample-based software wavetable player
+</pre>
+
+The following functions provide a platform specific interface to seamlessly 
+integrate Allegro into general purpose QNX programs. To use these routines, 
+you must include qnxalleg.h after other Allegro headers.
+
+@@PtWidget_t @qnx_get_window(void);
+   Retrieves a handle to the window used by Allegro. Note that Allegro
+   uses an underlying window even though you don't set any graphics mode,
+   unless you have installed the neutral system driver (SYSTEM_NONE).
 
 
 
