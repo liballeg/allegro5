@@ -18,8 +18,8 @@ HTML = html
 ifdef STATICLINK
 
 # -------- link as a static library --------
-OBJ_DIR = obj/beos/$(VERSION)_s
-LIB_NAME = lib/beos/lib$(VERSION)_s.a
+OBJ_DIR = obj/beos/$(VERSION)
+LIB_NAME = lib/beos/lib$(VERSION).a
 
 else
 
@@ -112,6 +112,7 @@ SHARED_LIB_DIR = /boot/home/config/lib
 
 ifdef STATICLINK
 
+LFLAGS += $(LIBRARIES)
 $(LIB_DIR)/lib$(VERSION).a: $(LIB_NAME)
 	cp $< $@
 	
