@@ -304,10 +304,10 @@ $(OBJ_DIR)/%.obj: %.s
 
 demo/demo.exe: $(OBJ_DIR)/demo.obj wfixicon $(IMPLIB_NAME) $(RUNNER)
    ifneq ($(wildcard demo/demo.dat),)
-	$(RUNNER) tools/win/wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.o $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) tools\win\wfixicon $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME) $(LIBRARIES)
    else
-	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.o $(IMPLIB_NAME) $(LIBRARIES)
+	$(RUNNER) link @ -nologo $(LFLAGS) -subsystem:windows -out:demo/demo.exe $(OBJ_DIR)/demo.obj $(IMPLIB_NAME) $(LIBRARIES)
    endif
 
 */%.exe: $(OBJ_DIR)/%.obj $(IMPLIB_NAME) $(RUNNER)
