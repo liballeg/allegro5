@@ -38,12 +38,14 @@
    #include "alwatcom.h"
 #elif defined __BEOS__
    #include "albecfg.h"
+#elif defined __MRC__
+   #include "almaccfg.h"
 #elif defined DJGPP
    #include "aldjgpp.h"
 #elif defined __unix__
    #include "alucfg.h"
 #else
-   #error unknown platform
+   #error platform not supported
 #endif
 
 
@@ -151,6 +153,9 @@
 
 #if (defined ALLEGRO_DOS) || (defined ALLEGRO_WINDOWS)
    #define OTHER_PATH_SEPARATOR  '\\'
+   #define DEVICE_SEPARATOR      ':'
+#elif (defined ALLEGRO_MACOS)
+   #define OTHER_PATH_SEPARATOR  ':'
    #define DEVICE_SEPARATOR      ':'
 #else
    #define OTHER_PATH_SEPARATOR  '/'

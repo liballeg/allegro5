@@ -270,9 +270,15 @@ AL_VAR(int, _safe_gfx_mode_change);
 #ifdef ALLEGRO_I386
    #define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
 #else
-   #define BYTES_PER_PIXEL(bpp)     (((bpp) <= 8) ? 1                                    \
+	#ifdef ALLEGRO_MPW											//in Mac 24bit is a unsigned long
+	   #define BYTES_PER_PIXEL(bpp)     (((bpp) <= 8) ? 1                                    \
+				     : (((bpp) <= 16) ? sizeof (unsigned short)          \
+					: sizeof (unsigned long)))
+	#else
+   	#define BYTES_PER_PIXEL(bpp)     (((bpp) <= 8) ? 1                                    \
 				     : (((bpp) <= 16) ? sizeof (unsigned short)          \
 					: (((bpp) <= 24) ? 3 : sizeof (unsigned long))))
+	#endif
 #endif
 
 AL_FUNC(int, _color_load_depth, (int depth, int hasalpha));

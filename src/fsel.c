@@ -164,6 +164,11 @@ static int drive_exists(int x)
       /* Windows implementation */
       return GetLogicalDrives() & (1 << x);
 
+   #elif defined ALLEGRO_MPW
+
+      /* MacOs implementation */
+      return GetLogicalDrives() & (1 << x);
+
    #else
 
       /* unknown platform */
@@ -510,9 +515,9 @@ static void fs_flist_putter(AL_CONST char *str, int attrib, int param)
 
 	 /* scan the string */
 	 i = 0;
-	 while ((c = utolower(ugetat(tok, i)))) {
+	 while ((c = utolower(ugetat(tok, i)))!=0) {
 	    k = 0;
-	    while ((c2 = ugetat(tmp2, k))) {
+	    while ((c2 = ugetat(tmp2, k))!=0) {
 	       if (c == c2) {
 		  if (k<5) {
 		     attr_flag[k] = sign;

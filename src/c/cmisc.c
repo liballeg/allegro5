@@ -23,9 +23,9 @@
 #ifdef ALLEGRO_NO_ASM
 /* Empty bank switch routines.  Should be used with C calling convention. */
 
-void *_stub_bank_switch(BITMAP *bmp, int y)
+unsigned long _stub_bank_switch(BITMAP *bmp, int y)
 {
-   return bmp->line[y];
+   return (unsigned long)bmp->line[y];
 }
 
 void _stub_unbank_switch(BITMAP *bmp)

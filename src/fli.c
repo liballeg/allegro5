@@ -330,7 +330,7 @@ static void do_fli_256_color(unsigned char *p, int sz)
       if (end > PAL_SIZE)
 	 return;
       else if ((sz -= length * 3) < 0) {
-	 FLI_KLUDGE(p, sz, length * 3);
+	 FLI_KLUDGE((char *)p, sz, length * 3);
       }
 
       fli_pal_dirty_from = MIN(fli_pal_dirty_from, offset);
@@ -396,7 +396,7 @@ static void do_fli_delta(unsigned char *p, int sz)
 	    if ((curr + size * 2) > bitmap_end)
 	       return;
 	    else if ((sz -= size * 2) < 0) {
-	       FLI_KLUDGE(p, sz, size * 2);
+	       FLI_KLUDGE((char *)p, sz, size * 2);
 	    }
 	    READ_BLOCK_NC(p, curr, size*2);
 	    curr += size*2;
@@ -406,7 +406,7 @@ static void do_fli_delta(unsigned char *p, int sz)
 	    if ((curr + size * 2) > bitmap_end)
 	       return;
 	    else if ((sz -= 2) < 0) {
-	       FLI_KLUDGE(p, sz, 2);
+	       FLI_KLUDGE((char *)p, sz, 2);
 	    }
 	    READ_RLE_WORD_NC(p, curr, size);
 	    curr += size*2;
@@ -446,7 +446,7 @@ static void do_fli_color(unsigned char *p, int sz)
       if (end > PAL_SIZE)
 	 return;
       else if ((sz -= length * 3) < 0) {
-	 FLI_KLUDGE(p, sz, length * 3);
+	 FLI_KLUDGE((char *)p, sz, length * 3);
       }
 
       fli_pal_dirty_from = MIN(fli_pal_dirty_from, offset);
@@ -503,7 +503,7 @@ static void do_fli_lc(unsigned char *p, int sz)
 	    if ((curr + size) > bitmap_end)
 	       return;
 	    else if ((sz -= size) < 0) {
-	       FLI_KLUDGE(p, sz, size);
+	       FLI_KLUDGE((char *)p, sz, size);
 	    }
 	    READ_BLOCK_NC(p, curr, size);
 	    curr += size;
@@ -513,7 +513,7 @@ static void do_fli_lc(unsigned char *p, int sz)
 	    if ((curr + size) > bitmap_end)
 	       return;
 	    else if ((sz -= 1) < 0) {
-	       FLI_KLUDGE(p, sz, 1);
+	       FLI_KLUDGE((char *)p, sz, 1);
 	    }
 	    READ_RLE_BYTE_NC(p, curr, size);
 	    curr += size;
@@ -572,7 +572,7 @@ static void do_fli_brun(unsigned char *p, int sz)
 	       if ((curr + size) > bitmap_end)
 		  return;
 	       else if ((sz -= size) < 0) {
-		  FLI_KLUDGE(p, sz, size);
+		  FLI_KLUDGE((char *)p, sz, size);
 	       }
 	       READ_BLOCK_NC(p, curr, size);
 	       curr += size;
@@ -581,7 +581,7 @@ static void do_fli_brun(unsigned char *p, int sz)
 	       if ((curr + size) > bitmap_end)
 		  return;
 	       else if ((sz -= 1) < 0) {
-		  FLI_KLUDGE(p, sz, 1);
+		  FLI_KLUDGE((char *)p, sz, 1);
 	       }
 	       READ_RLE_BYTE_NC(p, curr, size);
 	       curr += size;
@@ -600,7 +600,7 @@ static void do_fli_brun(unsigned char *p, int sz)
 	       if ((curr + size) > bitmap_end)
 		  return;
 	       if ((sz -= size) < 0) {
-		  FLI_KLUDGE(p, sz, size);
+		  FLI_KLUDGE((char *)p, sz, size);
 	       }
 	       READ_BLOCK_NC(p, curr, size);
 	       curr += size;
@@ -609,7 +609,7 @@ static void do_fli_brun(unsigned char *p, int sz)
 	       if ((curr + size) > bitmap_end)
 		  return;
 	       if ((sz -= 1) < 0) {
-		  FLI_KLUDGE(p, sz, 1);
+		  FLI_KLUDGE((char *)p, sz, 1);
 	       }
 	       READ_RLE_BYTE_NC(p, curr, size);
 	       curr += size;

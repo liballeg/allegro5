@@ -331,6 +331,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    char buf[512], tmp[64];
    int c, n;
 
+
    _gfx_mode_set_count++;
 
    /* special bodge for the GFX_SAFE driver */
@@ -469,7 +470,6 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	       usprintf(buf, uconvert_ascii("gfx_card%d", tmp), n);
 	       break;
 	 }
-
 	 card = get_config_id(NULL, buf, GFX_AUTODETECT);
 
 	 if (card != GFX_AUTODETECT) {
@@ -509,7 +509,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 gfx_driver->name = gfx_driver->desc = get_config_text(gfx_driver->ascii_name);
 	 screen = gfx_driver->init(w, h, v_w, v_h, _color_depth);
       }
-      else {                                       /* otherwise autodetect */
+      else {                                      /* otherwise autodetect */
 	 for (c=0; driver_list[c].driver; c++) {
 	    if (driver_list[c].autodetect) {
 	       gfx_driver = driver_list[c].driver;
@@ -521,6 +521,7 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 	 }
       }
    }
+
 
    if (!screen) {
       gfx_driver = NULL;
@@ -655,7 +656,7 @@ BITMAP *_make_bitmap(int w, int h, unsigned long addr, GFX_DRIVER *driver, int c
 
    driver->vid_phys_base = addr;
 
-   b->line[0] = (char *)addr;
+   b->line[0] = (unsigned char *)addr;
    _gfx_bank[0] = 0;
 
    if (driver->linear) {

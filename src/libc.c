@@ -17,9 +17,10 @@
 
 
 #include <string.h>
-#include <sys/stat.h>
-
 #include "allegro.h"
+#ifndef ALLEGRO_MPW
+	#include <sys/stat.h>
+#endif
 
 
 

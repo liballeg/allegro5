@@ -23,9 +23,9 @@
 /* get_compiled_sprite:
  *  Creates a compiled sprite based on the specified bitmap.
  */
-COMPILED_SPRITE *get_compiled_sprite(BITMAP *bitmap, int planar)
+COMPILED_SPRITE *get_compiled_sprite(AL_CONST BITMAP *bitmap, int planar)
 {
-   return get_rle_sprite(bitmap);
+   return get_rle_sprite((BITMAP *)bitmap);
 }
 
 
@@ -46,6 +46,6 @@ void destroy_compiled_sprite(COMPILED_SPRITE *sprite)
  */
 void draw_compiled_sprite(BITMAP *dst, AL_CONST COMPILED_SPRITE *src, int x, int y)
 {
-   return draw_rle_sprite(dst, src, x, y);
+   draw_rle_sprite(dst, (COMPILED_SPRITE *)src, x, y);
 }
 

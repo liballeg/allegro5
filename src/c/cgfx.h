@@ -75,17 +75,17 @@ void FUNC_LINEAR_PUTPIXEL(BITMAP *dst, int dx, int dy, int color)
 /* _linear_getpixel:
  *  Reads a pixel from a linear bitmap.
  */
-int FUNC_LINEAR_GETPIXEL(BITMAP *src, int sx, int sy)
+int FUNC_LINEAR_GETPIXEL(AL_CONST BITMAP *src, int sx, int sy)
 {
    if ((sx < 0) || (sx >= src->w) || (sy < 0) || (sy >= src->h))
       return -1;
    else {
-      PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line(src, sy), sx);
+      PIXEL_PTR s = OFFSET_PIXEL_PTR(bmp_read_line((BITMAP *)src, sy), sx);
       unsigned long c;
 
-      bmp_select(src);
+      bmp_select((BITMAP *)src);
       c = GET_PIXEL(s);
-      bmp_unwrite_line(src);
+      bmp_unwrite_line((BITMAP *)src);
 
       return c;
    }

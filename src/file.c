@@ -19,10 +19,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-#include <sys/stat.h>
 
 #include "allegro.h"
 #include "allegro/aintern.h"
+#ifndef ALLEGRO_MPW
+   #include <sys/stat.h>
+#endif
 
 #ifdef ALLEGRO_UNIX
    #include <pwd.h>                 /* for tilde expansion */
@@ -1212,9 +1214,11 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 	    free(f);
 	    return NULL;
 	 }
-
+#ifndef ALLEGRO_MPW
 	 f->hndl = open(uconvert_toascii(filename, NULL), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-
+#else
+	 f->hndl = _al_open(uconvert_toascii(filename, NULL), O_WRONLY | O_BINARY | O_CREAT | O_TRUNC);
+#endif
 	 if (f->hndl < 0) {
 	    *allegro_errno = errno;
 	    if (f->passdata)
@@ -1318,7 +1322,11 @@ PACKFILE *pack_fopen(AL_CONST char *filename, AL_CONST char *mode)
 	    return NULL;
 	 }
 
-	 f->hndl = open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY, S_IRUSR | S_IWUSR);
+#ifndef ALLEGRO_MPW
+	 	f->hndl = open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+#else
+	 	f->hndl = _al_open(uconvert_toascii(filename, NULL), O_RDONLY | O_BINARY );
+#endif
 
 	 if (f->hndl < 0) {
 	    *allegro_errno = errno;
