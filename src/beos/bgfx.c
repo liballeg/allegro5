@@ -51,6 +51,7 @@ GFX_DRIVER gfx_beos_bwindowscreen_accel = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    be_gfx_bwindowscreen_fetch_mode_list,// AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
@@ -89,6 +90,7 @@ GFX_DRIVER gfx_beos_bwindowscreen = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    be_gfx_bwindowscreen_fetch_mode_list,// AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
@@ -127,6 +129,7 @@ GFX_DRIVER gfx_beos_bdirectwindow = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
@@ -165,6 +168,7 @@ GFX_DRIVER gfx_beos_bwindow = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */
@@ -203,6 +207,7 @@ GFX_DRIVER gfx_beos_overlay = {
    NULL,                              // AL_METHOD(void, drawing_mode, (void));
    NULL,                              // AL_METHOD(void, save_state, (void));
    NULL,                              // AL_METHOD(void, restore_state, (void));
+   NULL,                              // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    NULL,                              // AL_METHOD(int, fetch_mode_list, (void));
    0, 0,                              // int w, h;  /* physical (not virtual!) screen size */
    TRUE,                              // int linear;  /* true if video memory is linear */

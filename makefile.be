@@ -123,7 +123,7 @@ endif # ALLEGRO_USE_C
 
 OBJECT_LIST = $(COMMON_OBJECTS) $(MY_OBJECTS) $(basename $(notdir $(ALLEGRO_SRC_BEOS_FILES)))
 
-LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia
+LIBRARIES = -lbe -lgame -ldevice -lmidi -lmedia -lnet
 
 PROGRAMS = bfixicon
 
