@@ -318,6 +318,20 @@ endef
 
 
 
+# -------- demo program iconification --------
+
+.PHONY: fixdemo
+
+$(OBJ_DIR)/demo.res: demo/demo.dat tools/win/wfixicon.exe
+	tools/win/wfixicon.exe $(OBJ_DIR)/demo.ico -ro -d demo/demo.dat SHIP3 GAME_PAL
+
+fixdemo: $(OBJ_DIR)/demo.obj $(OBJ_DIR)/demo.res $(IMPLIB_NAME)
+	@echo $(subst /,\\,$(OBJ_DIR)/demo.res) > res.rsp
+	ilink32 $(LFLAGS) -aa -Tpe c0w32 $(subst /,\,$(OBJ_DIR)/demo.obj),demo\demo.exe,,$(subst /,\,$(LIB_NAME) $(LIBRARIES)),,@res.rsp
+	@del res.rsp
+
+
+
 # -------- generate automatic dependencies --------
 
 DEPEND_PARMS = -MM -MG -I. -I./include -DSCAN_DEPEND -DALLEGRO_BCC32

@@ -173,14 +173,14 @@ void usage(void)
    printf("\nWindows icon converter for Allegro " ALLEGRO_VERSION_STR "\n");
    printf("By Elias Pschernig, " ALLEGRO_DATE_STR "\n\n");
    printf("Usage: wfixicon icon [-r[o]] bitmap [bitmap...]\n");
-   printf(" or\n");
+   printf("        or\n");
    printf("       wfixicon icon [-r[o]] -d datafile object [palette] [object...]\n");
-   printf(" where object is either a bitmap or a RLE sprite.\n");
+   printf("         where each 'object' is a bitmap or a RLE sprite.\n");
    printf("Options:\n");
-   printf("   -d datafile   use datafile as the source for objects and palettes\n");
-   printf("   -r            output .rc file for the icon\n");
-   printf("   -ro           call the resource compiler on the .rc file\n");
-   exit(EXIT_FAILURE);
+   printf("   -r      output .rc file for the icon\n");
+   printf("   -ro     call the resource compiler on the .rc file\n");
+
+   exit(1);
 }
 
 
