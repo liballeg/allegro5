@@ -589,8 +589,6 @@ int scancode_to_ascii(int scancode)
       return keyboard_driver->scancode_to_ascii(scancode);
    else
       return common_ascii[scancode];
-
-   return 0;
 }
 
 
@@ -600,13 +598,20 @@ int scancode_to_ascii(int scancode)
  */
 AL_CONST char *scancode_to_name(int scancode)
 {
-   ASSERT (scancode >= 0 && scancode < KEY_MAX);
-   if (keyboard_driver->scancode_to_name)
-      return keyboard_driver->scancode_to_name(scancode);
-   else
-      return _keyboard_common_names[scancode];
+   AL_CONST char *name = NULL;
 
-   return 0;
+   ASSERT(keyboard_driver);
+   ASSERT((scancode >= 0) && (scancode < KEY_MAX));
+
+   if (keyboard_driver->scancode_to_name)
+      name = keyboard_driver->scancode_to_name(scancode);
+
+   if (!name)
+      name = _keyboard_common_names[scancode];
+
+   ASSERT(name);
+
+   return name;
 }
 
 
