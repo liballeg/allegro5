@@ -589,9 +589,13 @@ static void osx_qz_window_exit(BITMAP *bmp)
  */
 static void osx_qz_window_vsync(void)
 {
-   pthread_mutex_lock(&osx_window_mutex);
-   pthread_cond_wait(&vsync_cond, &osx_window_mutex);
-   pthread_mutex_unlock(&osx_window_mutex);
+   if (lock_nesting > 0)
+      pthread_cond_wait(&vsync_cond, &osx_window_mutex);
+   else {
+      pthread_mutex_lock(&osx_window_mutex);
+      pthread_cond_wait(&vsync_cond, &osx_window_mutex);
+      pthread_mutex_unlock(&osx_window_mutex);
+   }
 }
 
 
