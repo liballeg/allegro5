@@ -175,6 +175,10 @@ void _read_os_type()
       else if (!strcmp(utsn.sysname, "FreeBSD")) {
 	 os_type = OSTYPE_FREEBSD;
       }
+      else if ((!strcmp(utsn.sysname, "IRIX"))
+	       || (!strcmp(utsn.sysname, "IRIX64"))) {
+	 os_type = OSTYPE_IRIX;
+      }
       else if (!strcmp(utsn.sysname, "Darwin")) {
 	 os_type = OSTYPE_DARWIN;
       }
