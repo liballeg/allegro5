@@ -98,8 +98,6 @@ AL_VAR(HANDLE, _foreground_event);
 AL_FUNC(void, sys_directx_display_switch_init, (void));
 AL_FUNC(void, sys_directx_display_switch_exit, (void));
 AL_FUNC(int, sys_directx_set_display_switch_mode, (int mode));
-AL_FUNC(int, sys_directx_set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void))));
-AL_FUNC(void, sys_directx_remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
 
 AL_FUNC(void, sys_switch_in, (void));
 AL_FUNC(void, sys_switch_out, (void));

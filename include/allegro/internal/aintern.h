@@ -1133,6 +1133,11 @@ AL_FUNC(void, _driver_list_prepend_driver, (_DRIVER_INFO **drvlist, int id, void
 AL_FUNC(void, _driver_list_append_list, (_DRIVER_INFO **drvlist, _DRIVER_INFO *srclist));
 
 
+/* display switch support routines */
+AL_FUNC(void, _switch_in, (void));
+AL_FUNC(void, _switch_out, (void));
+
+
 AL_FUNC(void *, _al_sane_realloc, (void *ptr, size_t size));
 
 

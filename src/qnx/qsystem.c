@@ -43,8 +43,6 @@ static void qnx_sys_set_window_title(AL_CONST char *);
 static int qnx_sys_set_window_close_button(int);
 static void qnx_sys_set_window_close_hook(AL_METHOD(void, proc, (void)));
 static int qnx_sys_set_display_switch_mode(int mode);
-static int qnx_sys_set_display_switch_cb(int dir, AL_METHOD(void, cb, (void)));
-static void qnx_sys_remove_display_switch_cb(AL_METHOD(void, cb, (void)));
 static void qnx_sys_yield_timeslice(void);
 static int qnx_sys_desktop_color_depth(void);
 static int qnx_sys_get_desktop_resolution(int *width, int *height);
@@ -76,8 +74,6 @@ SYSTEM_DRIVER system_qnx =
    NULL,                            /* AL_METHOD(void, set_palette_range, (AL_CONST struct RGB *p, int from, int to, int retracesync)); */
    NULL,                            /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
    qnx_sys_set_display_switch_mode, /* AL_METHOD(int, set_display_switch_mode, (int mode)); */
-   qnx_sys_set_display_switch_cb,   /* AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void)))); */
-   qnx_sys_remove_display_switch_cb,/* AL_METHOD(void, remove_display_switch_callback, (AL_METHOD(void, cb, (void)))); */
    NULL,                            /* AL_METHOD(void, display_switch_lock, (int lock, int foreground)); */
    qnx_sys_desktop_color_depth,     /* AL_METHOD(int, desktop_color_depth, (void)); */
    qnx_sys_get_desktop_resolution,  /* AL_METHOD(int, get_desktop_resolution, (int *width, int *height)); */
@@ -105,12 +101,6 @@ static int switch_mode = SWITCH_BACKGROUND;
 
 #define WINDOW_TITLE_SIZE  256
 static char window_title[WINDOW_TITLE_SIZE];
-
-#define MAX_SWITCH_CALLBACKS  8
-static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = 
-   { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) =
-   { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 
 typedef void RETSIGTYPE;
@@ -336,20 +326,14 @@ static void qnx_event_handler(int threaded)
                      
                      PgSetPalette(ph_palette, 0, 0, 256, Pg_PALSET_HARDLOCKED, 0);
                      
-                     for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-                        if (switch_in_cb[i])
-                           switch_in_cb[i]();
-                     }
+                     _switch_in();
                      
                      qnx_mouse_warped = TRUE;
                   }
                   else if (window_event->event_state == Ph_WM_EVSTATE_FOCUSLOST) {
                      qnx_keyboard_focused(FALSE, 0);
                       
-                     for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-                        if (switch_out_cb[i])
-                           switch_out_cb[i]();
-                     }
+                     _switch_out();
 
                      PgSetPalette(ph_palette, 0, 0, -1, 0, 0);
                   }
@@ -566,62 +550,6 @@ static int qnx_sys_set_display_switch_mode (int mode)
       return -1;   
    switch_mode = mode;
    return 0;
-}
-
-
-
-/* qnx_sys_set_display_switch_cb:
- *  Adds a callback function to the queue of functions to be called on display
- *  switching.
- */
-static int qnx_sys_set_display_switch_cb(int dir, void (*cb)(void))
-{
-   int i;
-   
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (dir == SWITCH_IN) {
-         if (switch_in_cb[i] == cb)
-            return 0;
-      }
-      else {
-         if (switch_out_cb[i] == cb)
-            return 0;
-      }
-   }
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (dir == SWITCH_IN) {
-         if (!switch_in_cb[i]) {
-            switch_in_cb[i] = cb;
-            return 0;
-         }
-      }
-      else {
-         if (!switch_out_cb[i]) {
-            switch_out_cb[i] = cb;
-            return 0;
-         }
-      }
-   }
-   return -1;
-}
-
-
-
-/* qnx_sys_remove_display_switch_cb:
- *  Removes specified callback function from the queue of functions to be
- *  called on display switching.
- */
-static void qnx_sys_remove_display_switch_cb(void (*cb)(void))
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_in_cb[i] == cb)
-         switch_in_cb[i] = NULL;
-      if (switch_out_cb[i] == cb)
-         switch_out_cb[i] = NULL;
-   }
 }
 
 

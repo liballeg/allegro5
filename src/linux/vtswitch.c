@@ -40,11 +40,6 @@
 
 static int switch_mode = SWITCH_PAUSE;
 
-#define MAX_SWITCH_CALLBACKS  8
-
-static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-
 static int vtswitch_initialised = 0;
 static struct vt_mode startup_vtmode;
 
@@ -57,8 +52,6 @@ volatile static int console_should_be_active = 1;  /* should we be? */
 
 int __al_linux_set_display_switch_mode (int mode)
 {
-	int i;
-
 	/* Clean up after the previous mode, if necessary */
 	if (switch_mode == SWITCH_NONE) __al_linux_switching_blocked--;
 
@@ -67,52 +60,7 @@ int __al_linux_set_display_switch_mode (int mode)
 	/* Initialise the new mode */
 	if (switch_mode == SWITCH_NONE) __al_linux_switching_blocked++;
 
-	/* Clear callbacks and return success */
-	for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
-		switch_in_cb[i] = switch_out_cb[i] = NULL;
-
 	return 0;
-}
-
-
-
-int __al_linux_set_display_switch_callback (int dir, void (*cb) (void))
-{
-	int i;
-
-	if (switch_mode == SWITCH_NONE) return -1;
-
-	for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-		if (dir == SWITCH_IN) {
-			if (!switch_in_cb[i]) {
-				switch_in_cb[i] = cb;
-				return 0;
-			}
-		}
-		else {
-			if (!switch_out_cb[i]) {
-				switch_out_cb[i] = cb;
-				return 0;
-			}
-		}
-	}
-
-	return -1;
-}
-
-
-
-void __al_linux_remove_display_switch_callback (void (*cb) (void))
-{
-	int i;
-
-	for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-		if (switch_in_cb[i] == cb)
-			switch_in_cb[i] = NULL;
-
-		if (switch_out_cb[i] == cb)
-			switch_out_cb[i] = NULL;
-	}
 }
 
 
@@ -122,11 +70,7 @@ void __al_linux_remove_display_switch_callback (void (*cb) (void))
  */
 static void go_away()
 {
-	int i;
-
-	for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
-		if (switch_out_cb[i])
-			switch_out_cb[i]();
+	_switch_out();
 
 	_unix_bg_man->disable_interrupts();
 	if ((switch_mode == SWITCH_PAUSE) || (switch_mode == SWITCH_AMNESIA))
@@ -161,8 +105,6 @@ static void go_away()
  */
 static void come_back()
 {
-	int i;
-
 	_unix_bg_man->disable_interrupts();
 
 	if (gfx_driver && gfx_driver->restore_video_state)
@@ -178,9 +120,7 @@ static void come_back()
 
 	_unix_bg_man->enable_interrupts();
 
-	for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
-		if (switch_in_cb[i])
-			switch_in_cb[i]();
+	_switch_in();
 
 	__al_linux_switching_blocked--;
 }

@@ -160,13 +160,13 @@ static inline void change_focus(bool active)
                RESUME_ALL_THREADS();
                break;
          }
-         be_display_switch_callback(SWITCH_IN);
+         _switch_in();
       }
    }
    else {
       _be_focus_count--;
       if (be_gfx_initialized) {
-         be_display_switch_callback(SWITCH_OUT);
+         _switch_out();
          switch (_be_switch_mode) {
             case SWITCH_AMNESIA:
             case SWITCH_BACKAMNESIA:

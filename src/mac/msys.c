@@ -90,8 +90,6 @@ SYSTEM_DRIVER system_macos ={
    NULL,
    NULL,
    NULL,
-   NULL,
-   NULL,
    mac_desktop_color_depth,
    NULL,
    mac_yield_timeslice,

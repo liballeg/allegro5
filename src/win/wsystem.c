@@ -74,8 +74,6 @@ SYSTEM_DRIVER system_directx =
    NULL,                        /* AL_METHOD(void, set_palette_range, (struct RGB *p, int from, int to, int vsync)); */
    NULL,                        /* AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth)); */
    sys_directx_set_display_switch_mode,
-   sys_directx_set_display_switch_callback,
-   sys_directx_remove_display_switch_callback,
    NULL,                        /* AL_METHOD(void, display_switch_lock, (int lock)); */
    sys_directx_desktop_color_depth,
    sys_directx_get_desktop_resolution,

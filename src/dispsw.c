@@ -14,6 +14,9 @@
  *
  *      State saving routines added by Shawn Hargreaves.
  *
+ *      Switch callbacks support added by Lorenzo Petrone,
+ *      based on code by Stefan Schimanski.
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -22,15 +25,11 @@
 #include "allegro/internal/aintern.h"
 
 
-
 #ifdef ALLEGRO_DOS
    static int switch_mode = SWITCH_NONE;
-#elif defined ALLEGRO_WINDOWS
-   static int switch_mode = SWITCH_AMNESIA;
 #else
    static int switch_mode = SWITCH_PAUSE;
 #endif
-
 
 
 /* remember things about the way our bitmaps are set up */
@@ -43,25 +42,29 @@ typedef struct BITMAP_INFORMATION
    void *acquire, *release;               /* need to bodge the vtable, too */
 } BITMAP_INFORMATION;
 
-
-
 static BITMAP_INFORMATION *info_list = NULL;
 
+
 int _dispsw_status = SWITCH_NONE;
+
+#define MAX_SWITCH_CALLBACKS  8
+static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 
 
 /* set_display_switch_mode:
- *  Returns zero on success, nonzero on error; unregisters
- *  all callbacks.
+ *  Sets the display switch mode. Returns zero and unregisters
+ *  all callbacks on success, returns non-zero on failure.
  */
 int set_display_switch_mode(int mode)
 {
-   int retval;
+   int ret, i;
 
    if ((!system_driver))
       return -1;
 
+   /* platforms that don't support switching allow SWITCH_NONE */
    if (!system_driver->set_display_switch_mode) {
       if (mode == SWITCH_NONE)
          return 0;
@@ -69,12 +72,17 @@ int set_display_switch_mode(int mode)
          return -1;
    }
 
-   retval = system_driver->set_display_switch_mode(mode);
+   ret = system_driver->set_display_switch_mode(mode);
 
-   if (!retval)
+   if (ret == 0) {
+      /* unregister all callbacks */
+      for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
+         switch_in_cb[i] = switch_out_cb[i] = NULL;
+
       switch_mode = mode;
+   }
 
-   return retval;
+   return ret;
 }
 
 
@@ -90,31 +98,84 @@ int get_display_switch_mode(void)
 
 
 /* set_display_switch_callback:
- *  The first parameter indicates the direction (SWITCH_IN or 
- *  SWITCH_OUT).  Set `cb' to NULL to turn off the feature. 
- *  Returns zero on success, non-zero on failure (e.g. feature 
- *  not supported).
+ *  Registers a display switch callback. The first parameter indicates
+ *  the direction (SWITCH_IN or SWITCH_OUT). Returns zero on success,
+ *  non-zero on failure (e.g. feature not supported).
  */
 int set_display_switch_callback(int dir, void (*cb)(void))
 {
+   int i;
+
    if ((dir != SWITCH_IN) && (dir != SWITCH_OUT))
       return -1;
 
-   if ((!system_driver) || (!system_driver->set_display_switch_callback))
+   if ((!system_driver) || (!system_driver->set_display_switch_mode))
       return -1;
 
-   return system_driver->set_display_switch_callback(dir, cb);
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (dir == SWITCH_IN) {
+	 if (!switch_in_cb[i]) {
+	    switch_in_cb[i] = cb;
+	    return 0;
+	 }
+      }
+      else {
+	 if (!switch_out_cb[i]) {
+	    switch_out_cb[i] = cb;
+	    return 0;
+	 }
+      }
+   }
+
+   return -1;
 }
 
 
 
 /* remove_display_switch_callback:
- *  Pretty much the opposite of the above.
+ *  Unregisters a display switch callback.
  */
 void remove_display_switch_callback(void (*cb)(void))
 {
-   if ((system_driver) && (system_driver->remove_display_switch_callback))
-      system_driver->remove_display_switch_callback(cb);
+   int i;
+
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (switch_in_cb[i] == cb)
+	 switch_in_cb[i] = NULL;
+
+      if (switch_out_cb[i] == cb)
+	 switch_out_cb[i] = NULL;
+   }
+}
+
+
+
+/* _switch_in:
+ *  Handles a SWITCH_IN event.
+ */
+void _switch_in(void)
+{
+   int i;
+
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (switch_in_cb[i])
+	 switch_in_cb[i]();
+   }
+}
+
+
+
+/* _switch_out:
+ *  Handles a SWITCH_OUT event.
+ */
+void _switch_out(void)
+{
+   int i;
+
+   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
+      if (switch_out_cb[i])
+	 switch_out_cb[i]();
+   }
 }
 
 

@@ -2307,10 +2307,12 @@ Graphics modes
 @@int @set_display_switch_mode(int mode);
 @xref set_display_switch_callback, get_display_switch_mode
    Sets how the program should handle being switched into the background, 
-   if the user tabs away from it. Not all of the possible modes will be 
-   supported by every graphics driver on every platform: you must call this 
-   routine after initializing the graphics driver and if you request a mode 
-   that isn't currently possible, it will return -1. The available modes are:
+   if the user tabs away from it. Returns 0 and invalidates all callbacks
+   registered with set_display_switch_callback() on success. Not all of the
+   possible modes will be supported by every graphics driver on every
+   platform: you must call this routine after initializing the graphics
+   driver and if you request a mode that isn't currently possible, it will
+   return -1. The available modes are:
 <ul><li>
    SWITCH_NONE<br>
       Disables switching. This is the default in single-tasking systems like 

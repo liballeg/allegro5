@@ -29,11 +29,8 @@
 BOOL app_foreground = TRUE;
 HANDLE _foreground_event = NULL;
 
-#define MAX_SWITCH_CALLBACKS  8
 static int allegro_thread_priority = 0;
 static int switch_mode = SWITCH_PAUSE;
-static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 
 
@@ -60,8 +57,6 @@ void sys_directx_display_switch_exit(void)
  */
 int sys_directx_set_display_switch_mode(int mode)
 {
-   int i;
-
    switch (mode)
    {
       case SWITCH_BACKGROUND:
@@ -82,54 +77,7 @@ int sys_directx_set_display_switch_mode(int mode)
 
    switch_mode = mode;
 
-   /* Clear callbacks and return success */
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++)
-      switch_in_cb[i] = switch_out_cb[i] = NULL;
-
    return 0;
-}
-
-
-
-/* sys_directx_set_display_switch_callback:
- */
-int sys_directx_set_display_switch_callback(int dir, void (*cb)(void))
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (dir == SWITCH_IN) {
-	 if (!switch_in_cb[i]) {
-	    switch_in_cb[i] = cb;
-	    return 0;
-	 }
-      }
-      else {
-	 if (!switch_out_cb[i]) {
-	    switch_out_cb[i] = cb;
-	    return 0;
-	 }
-      }
-   }
-
-   return -1;
-}
-
-
-
-/* sys_directx_remove_display_switch_callback:
- */
-void sys_directx_remove_display_switch_callback(void (*cb)(void))
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_in_cb[i] == cb)
-	 switch_in_cb[i] = NULL;
-
-      if (switch_out_cb[i] == cb)
-	 switch_out_cb[i] = NULL;
-   }
 }
 
 
@@ -148,7 +96,7 @@ void sys_switch_in(void)
    if (win_gfx_driver && win_gfx_driver->switch_in)
       win_gfx_driver->switch_in();
 
-   sys_directx_switch_in_callback();
+   _switch_in();
 
    /* handle switch modes */
    switch (get_display_switch_mode())
@@ -178,7 +126,7 @@ void sys_switch_out(void)
 
    app_foreground = FALSE;
 
-   sys_directx_switch_out_callback();
+   _switch_out();
    mouse_dinput_unacquire();
    key_dinput_unacquire();
    midi_switch_out();
@@ -206,33 +154,3 @@ void sys_switch_out(void)
 	 break;
    }
 }
-
-
-
-/* sys_directx_switch_out_callback:
- */
-void sys_directx_switch_out_callback(void)
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_out_cb[i])
-	 switch_out_cb[i]();
-   }
-}
-
-
-
-/* sys_directx_switch_in_callback:
- */
-void sys_directx_switch_in_callback(void)
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_in_cb[i])
-	 switch_in_cb[i]();
-   }
-}
-
-

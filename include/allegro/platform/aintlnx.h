@@ -209,9 +209,6 @@ void __al_linux_acquire_bitmap (BITMAP *bmp);
 void __al_linux_release_bitmap (BITMAP *bmp);
 
 int __al_linux_set_display_switch_mode (int mode);
-int __al_linux_set_display_switch_callback (int dir, void (*cb) (void));
-void __al_linux_remove_display_switch_callback (void (*cb) (void));
-
 void __al_linux_display_switch_lock (int lock, int foreground);
 
 extern volatile int __al_linux_switching_blocked;

@@ -38,8 +38,6 @@ static void _xwin_sysdrv_exit(void);
 static void _xwin_sysdrv_set_window_title(AL_CONST char *name);
 static void _xwin_sysdrv_set_window_close_hook(void (*proc)(void));
 static int _xwin_sysdrv_display_switch_mode(int mode);
-static int _xwin_sysdrv_set_display_switch_callback(int dir, void (*cb)(void));
-static void _xwin_sysdrv_remove_display_switch_callback(void (*cb)(void));
 static int _xwin_sysdrv_desktop_color_depth(void);
 static int _xwin_sysdrv_get_desktop_resolution(int *width, int *height);
 static _DRIVER_INFO *_xwin_sysdrv_gfx_drivers(void);
@@ -80,8 +78,6 @@ SYSTEM_DRIVER system_xwin =
    NULL, /* set_palette_range */
    NULL, /* get_vtable */
    _xwin_sysdrv_display_switch_mode,
-   _xwin_sysdrv_set_display_switch_callback,
-   _xwin_sysdrv_remove_display_switch_callback,
    NULL, /* display_switch_lock */
    _xwin_sysdrv_desktop_color_depth,
    _xwin_sysdrv_get_desktop_resolution,
@@ -99,11 +95,6 @@ SYSTEM_DRIVER system_xwin =
    _xwin_sysdrv_timer_drivers
 };
 
-
-#define MAX_SWITCH_CALLBACKS  8
-static void (*switch_in_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-static void (*switch_out_cb[MAX_SWITCH_CALLBACKS])(void) = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
- 
 
 static RETSIGTYPE (*old_sig_abrt)(int num);
 static RETSIGTYPE (*old_sig_fpe)(int num);
@@ -355,81 +346,6 @@ static int _xwin_sysdrv_display_switch_mode(int mode)
    }
 
    return 0;
-}
-
-
-
-/* _xwin_sysdrv_set_display_switch_callback:
- *  Registers a callback function to be called on SWITCH_IN or SWITCH_OUT events.
- */
-static int _xwin_sysdrv_set_display_switch_callback(int dir, void (*cb)(void))
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (dir == SWITCH_IN) {
-	 if (!switch_in_cb[i]) {
-	    switch_in_cb[i] = cb;
-	    return 0;
-	 }
-      }
-      else {
-	 if (!switch_out_cb[i]) {
-	    switch_out_cb[i] = cb;
-	    return 0;
-	 }
-      }
-   }
-
-   return -1;
-}
-
-
-
-/* _xwin_sysdrv_remove_display_switch_callback:
- *  Un-registers a callback function.
- */
-static void _xwin_sysdrv_remove_display_switch_callback(void (*cb)(void))
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_in_cb[i] == cb)
-	 switch_in_cb[i] = NULL;
-
-      if (switch_out_cb[i] == cb)
-	 switch_out_cb[i] = NULL;
-   }
-}
-
-
-
-/* _xwin_switch_in:
- *  Handles a SWITCH_IN event.
- */
-void _xwin_switch_in(void)
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_in_cb[i])
-	 switch_in_cb[i]();
-   }
-}
-
-
-
-/* _xwin_switch_out:
- *  Handles a SWITCH_OUT event.
- */
-void _xwin_switch_out(void)
-{
-   int i;
-
-   for (i=0; i<MAX_SWITCH_CALLBACKS; i++) {
-      if (switch_out_cb[i])
-	 switch_out_cb[i]();
-   }
 }
 
 

@@ -50,13 +50,10 @@ int be_sys_desktop_color_depth(void);
 int be_sys_get_desktop_resolution(int *width, int *height);
 void be_sys_yield_timeslice(void);
 int be_sys_set_display_switch_mode(int mode);
-int be_sys_set_display_switch_cb(int dir, void (*cb)(void));
-void be_sys_remove_display_switch_cb(void (*cb)(void));
 void be_sys_suspend(void);
 void be_sys_resume(void);
 void be_main_suspend(void);
 void be_main_resume(void);
-void be_display_switch_callback(int dir);
 
 struct BITMAP *be_gfx_fullscreen_init(int w, int h, int v_w, int v_h, int color_depth);
 struct BITMAP *be_gfx_fullscreen_safe_init(int w, int h, int v_w, int v_h, int color_depth);

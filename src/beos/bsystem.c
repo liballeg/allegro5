@@ -50,8 +50,6 @@ SYSTEM_DRIVER system_beos = {
    NULL,                        // AL_METHOD(void, set_palette_range, (struct RGB *p, int from, int to, int vsync));
    NULL,                        // AL_METHOD(struct GFX_VTABLE *, get_vtable, (int color_depth));
    be_sys_set_display_switch_mode, // AL_METHOD(int, set_display_switch_mode, (int mode));
-   be_sys_set_display_switch_cb,// AL_METHOD(int, set_display_switch_callback, (int dir, AL_METHOD(void, cb, (void))));
-   be_sys_remove_display_switch_cb, // AL_METHOD(int, remove_display_switch_callback, (AL_METHOD(void, cb, (void))));
    NULL,                        // AL_METHOD(void, display_switch_lock, (int lock));
    be_sys_desktop_color_depth,  // AL_METHOD(int, desktop_color_depth, (void));
    be_sys_get_desktop_resolution, // AL_METHOD(int, get_desktop_resolution, (int *width, int *height));

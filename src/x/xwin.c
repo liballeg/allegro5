@@ -2010,7 +2010,7 @@ static void _xwin_private_process_event(XEvent *event)
       case FocusIn:
 	 /* Gaining input focus.  */
 	 keyboard_got_focus = TRUE;
-	 _xwin_switch_in();
+	 _switch_in();
 	 break;
       case FocusOut:
 	 /* Losing input focus.  */
@@ -2018,7 +2018,7 @@ static void _xwin_private_process_event(XEvent *event)
 	    (*_xwin_keyboard_focused)(FALSE, 0);
 	 for (kcode = 0; kcode < 256; kcode++)
 	    _xwin_keycode_pressed[kcode] = FALSE;
-	 _xwin_switch_out();
+	 _switch_out();
 	 break;
       case ButtonPress:
 	 /* Mouse button pressed.  */
