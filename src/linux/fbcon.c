@@ -47,6 +47,7 @@
 #endif
 
 static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth);
+static int fb_open_device(void);
 static void fb_exit(BITMAP *b);
 static void fb_save(void);
 static void fb_restore(void);
@@ -82,7 +83,6 @@ GFX_DRIVER gfx_fbcon =
 };
 
 
-
 static char fb_desc[128] = EMPTY_STRING;     /* description string */
 
 static struct fb_fix_screeninfo fix_info;    /* read-only video mode info */
@@ -104,6 +104,7 @@ static int fb_approx;                        /* emulate small resolution */
 static int update_timings(struct fb_var_screeninfo *mode);
 
 
+
 /* fb_init:
  *  Sets a graphics mode.
  */
@@ -111,50 +112,46 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 {
    char fname[256], tmp[256];
    AL_CONST char *p;
-   int stride, tries;
+   int stride, tries, original_color_depth = _color_depth;
    BITMAP *b;
 
-   /* find the device filename */
-   p = get_config_string(NULL, uconvert_ascii("framebuffer", tmp), NULL);
-
-   if ((p) && (ugetc(p))) {
-      do_uconvert(p, U_CURRENT, fname, U_ASCII, sizeof(fname));
-   }
-   else {
-      p = getenv("FRAMEBUFFER");
-
-      if ((p) && (p[0]))
-	 strcpy(fname, p);
-      else
-	 strcpy(fname, "/dev/fb0");
-   }
-
-   /* open the framebuffer device */
-   if ((fbfd = open(fname, O_RDWR)) < 0) {
-      usprintf(allegro_error, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp));
+   /* open framebuffer and store info in global variables */
+   if (fb_open_device() != 0)
       return NULL;
-   }
-
-   /* read video mode information */
-   if ((ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) ||
-       (ioctl(fbfd, FBIOGET_VSCREENINFO, &orig_mode) != 0)) {
-      usprintf(allegro_error, get_config_text("Framebuffer ioctl() failed"));
-      return NULL;
-   }
 
    /* look for a nice graphics mode in several passes */
    fb_approx = FALSE;
 
-   if ((!w) && (!h)) {
+   ASSERT (w >= 0);
+   ASSERT (h >= 0);
+
+   /* preset a resolution if the user didn't ask for one */
+   if (((!w) && (!h)) || _safe_gfx_mode_change) {
       w = orig_mode.xres;
       h = orig_mode.yres;
    }
 
-   for (tries=0; tries<3; tries++) {
+   if (_safe_gfx_mode_change) tries = -1;
+   else tries = 0;
+   
+   for (; tries<3; tries++) {
       my_mode = orig_mode;
 
       switch (tries) {
 
+	 case -1:
+	    /* let's see if we can get the actual screen mode */
+	    /* shouldn't we be keeping the previous color depth setting? */
+	    switch (orig_mode.bits_per_pixel) {
+	       case 8:
+	       case 16:
+	       case 24:
+	       case 32:
+		  color_depth = orig_mode.bits_per_pixel;
+		  set_color_depth(color_depth);
+	       default:
+	    }
+	    break;
 	 case 0:
 	    /* try for largest possible virtual screen size */
 	    my_mode.xres = w;
@@ -247,6 +244,9 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
    }
 
    /* oops! */
+   if (_safe_gfx_mode_change)
+      set_color_depth(original_color_depth);
+      
    ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_mode);
    close(fbfd);
    usprintf(allegro_error, get_config_text("Framebuffer resolution not available"));
@@ -383,6 +383,49 @@ static BITMAP *fb_init(int w, int h, int v_w, int v_h, int color_depth)
 
    fb_save_cmap();    /* Maybe we should fill in our default palette too... */
    return b;
+}
+
+
+
+/* fb_open_device:
+ *  Opens the framebuffer device, first checking config values or
+ *  environment variables. Returns 0 on success.
+ */
+static int fb_open_device(void)
+{
+   char fname[256], tmp[256];
+   AL_CONST char *p;
+
+   /* find the device filename */
+   p = get_config_string(NULL, uconvert_ascii("framebuffer", tmp), NULL);
+
+   if (p && ugetc(p))
+      do_uconvert(p, U_CURRENT, fname, U_ASCII, sizeof(fname));
+   else {
+      p = getenv("FRAMEBUFFER");
+
+      if ((p) && (p[0])) {
+	 strncpy(fname, p, sizeof(fname)-1);
+	 fname[sizeof(fname)-1] = 0;
+      }
+      else
+	 strcpy(fname, "/dev/fb0");
+   }
+
+   /* open the framebuffer device */
+   if ((fbfd = open(fname, O_RDWR)) < 0) {
+      usprintf(allegro_error, get_config_text("Can't open framebuffer %s"), uconvert_ascii(fname, tmp));
+      return 1;
+   }
+
+   /* read video mode information */
+   if ((ioctl(fbfd, FBIOGET_FSCREENINFO, &fix_info) != 0) ||
+       (ioctl(fbfd, FBIOGET_VSCREENINFO, &orig_mode) != 0)) {
+      usprintf(allegro_error, get_config_text("Framebuffer ioctl() failed"));
+      return 2;
+   }
+
+   return 0;
 }
 
 
