@@ -15,7 +15,6 @@ General (Platform independant) todos:
 - Unified color conversion routines for all windowed gfx drivers (now
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
-- check and/or fix compilation with gcc 3.0
 - include dat2c once finished
 - remove joystick control from main part of setup
 - configure --disable-constructor doesn't work because of part of alconfig.h
