@@ -287,6 +287,12 @@ static void do_stretch_blit(BITMAP *source, BITMAP *dest, int source_x, int sour
    char flags;
    int i;
 
+   /* vtable hook */   
+   if (source->vtable->do_stretch_blit) {
+      source->vtable->do_stretch_blit(source, dest, source_x, source_y, source_width, source_height, dest_x, dest_y, dest_width, dest_height, masked);
+      return;
+   }
+
    /* trivial reject for zero sizes */
    if ((source_width <= 0) || (source_height <= 0) || 
        (dest_width <= 0) || (dest_height <= 0))

@@ -81,6 +81,7 @@ GFX_DRIVER gfx_drawsprocket ={
    NULL,
    NULL,
    NULL,
+   NULL,    // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    NULL,
    640, 480,
    TRUE,

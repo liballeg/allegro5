@@ -53,6 +53,7 @@ GFX_DRIVER gfx_directx_accel =
    NULL,                         // AL_METHOD(void, drawing_mode, (void));
    NULL,                         // AL_METHOD(void, save_video_state, (void*));
    NULL,                         // AL_METHOD(void, restore_video_state, (void*));
+   NULL,    // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    gfx_directx_fetch_mode_list,
    0, 0,                         // physical (not virtual!) screen size
    TRUE,                         // true if video memory is linear
@@ -91,6 +92,7 @@ GFX_DRIVER gfx_directx_soft =
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
+   NULL,                        // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    gfx_directx_fetch_mode_list,
    0, 0,                        // physical (not virtual!) screen size
    TRUE,                        // true if video memory is linear
@@ -124,6 +126,7 @@ GFX_DRIVER gfx_directx_safe =
    NULL,                        // AL_METHOD(void, drawing_mode, (void));
    NULL,                        // AL_METHOD(void, save_video_state, (void*));
    NULL,                        // AL_METHOD(void, restore_video_state, (void*));
+   NULL,                        // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    gfx_directx_fetch_mode_list,
    0, 0,                        // physical (not virtual!) screen size
    TRUE,                        // true if video memory is linear

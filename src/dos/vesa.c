@@ -64,6 +64,7 @@ GFX_DRIVER gfx_vesa_1 =
    NULL, NULL, NULL, NULL,       /* no hardware cursor */
    NULL,                         /* no drawing mode hook */
    NULL, NULL,                   /* no state saving */
+   NULL,    /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    vesa_fetch_mode_list,         /* aye! */
    0, 0, FALSE, 0, 0, 0, 0, FALSE
 };

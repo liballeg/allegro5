@@ -1145,7 +1145,7 @@ static void do_polygon3d(BITMAP *bmp, int top, int bottom, POLYGON_EDGE *left_ed
  *  be followed by that many pointers to V3D structures, which describe each
  *  vertex of the polygon.
  */
-void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
+void _soft_polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
 {
    int c;
    int flags;
@@ -1211,7 +1211,7 @@ void polygon3d(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D *vtx[])
 /* polygon3d_f:
  *  Floating point version of polygon3d().
  */
-void polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[])
+void _soft_polygon3d_f(BITMAP *bmp, int type, BITMAP *texture, int vc, V3D_f *vtx[])
 {
    int c;
    int flags;
@@ -1531,7 +1531,7 @@ void _clip_polygon_segment(POLYGON_SEGMENT *info, fixed gap, int flags)
 /* triangle3d:
  *  Draws a 3d triangle.
  */
-void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3)
+void _soft_triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3)
 {
    int flags;
 
@@ -1621,7 +1621,7 @@ void triangle3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v
 /* triangle3d_f:
  *  Draws a 3d triangle.
  */
-void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3)
+void _soft_triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3)
 {
    int flags;
 
@@ -1711,7 +1711,7 @@ void triangle3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, 
 /* quad3d:
  *  Draws a 3d quad.
  */
-void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4)
+void _soft_quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V3D *v4)
 {
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
       ASSERT(bmp);
@@ -1738,7 +1738,7 @@ void quad3d(BITMAP *bmp, int type, BITMAP *texture, V3D *v1, V3D *v2, V3D *v3, V
 /* quad3d_f:
  *  Draws a 3d quad.
  */
-void quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4)
+void _soft_quad3d_f(BITMAP *bmp, int type, BITMAP *texture, V3D_f *v1, V3D_f *v2, V3D_f *v3, V3D_f *v4)
 {
    #if (defined ALLEGRO_GCC) && (defined ALLEGRO_I386)
       ASSERT(bmp);

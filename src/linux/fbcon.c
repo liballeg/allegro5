@@ -79,6 +79,7 @@ GFX_DRIVER gfx_fbcon =
    NULL,                         /* no drawing mode hook */
    fb_save,
    fb_restore,
+   NULL,    // AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a));
    NULL,                         /* no fetch mode hook */
    0, 0,
    TRUE,

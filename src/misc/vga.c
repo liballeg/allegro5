@@ -61,6 +61,7 @@ GFX_DRIVER gfx_vga =
    NULL,                         /* no drawing mode hook */
    _save_vga_mode,
    _restore_vga_mode,
+   NULL,                         /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    vga_fetch_mode_list,
    320, 200,
    TRUE,

@@ -497,7 +497,7 @@ void fade_out(int speed)
 /* rect:
  *  Draws an outline rectangle.
  */
-void rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+void _soft_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
    int t;
 
@@ -934,7 +934,7 @@ void do_circle(BITMAP *bmp, int x, int y, int radius, int d, void (*proc)(BITMAP
 /* circle:
  *  Draws a circle.
  */
-void circle(BITMAP *bmp, int x, int y, int radius, int color)
+void _soft_circle(BITMAP *bmp, int x, int y, int radius, int color)
 {
    int clip, sx, sy, dx, dy;
    ASSERT(bmp);
@@ -970,7 +970,7 @@ void circle(BITMAP *bmp, int x, int y, int radius, int color)
 /* circlefill:
  *  Draws a filled circle.
  */
-void circlefill(BITMAP *bmp, int x, int y, int radius, int color)
+void _soft_circlefill(BITMAP *bmp, int x, int y, int radius, int color)
 {
    int cx = 0;
    int cy = radius;
@@ -1147,7 +1147,7 @@ void do_ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int d, void (*proc)(B
 /* ellipse:
  *  Draws an ellipse.
  */
-void ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color)
+void _soft_ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 {
    int clip, sx, sy, dx, dy;
    ASSERT(bmp);
@@ -1183,7 +1183,7 @@ void ellipse(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 /* ellipsefill:
  *  Draws a filled ellipse.
  */
-void ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
+void _soft_ellipsefill(BITMAP *bmp, int x, int y, int rx, int ry, int color)
 {
    int ix, iy;
    int a, b, c, d;
@@ -1510,7 +1510,7 @@ void do_arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int d, voi
 /* arc:
  *  Draws an arc.
  */
-void arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int color)
+void _soft_arc(BITMAP *bmp, int x, int y, fixed ang1, fixed ang2, int r, int color)
 {
    ASSERT(bmp);
    acquire_bitmap(bmp);

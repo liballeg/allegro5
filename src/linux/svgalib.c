@@ -72,6 +72,7 @@ GFX_DRIVER gfx_svgalib =
    NULL,                         /* no drawing mode hook */
    svga_save,
    svga_restore,
+   NULL,                        /* AL_METHOD(void, set_blender_mode, (int mode, int r, int g, int b, int a)); */
    NULL,			 /* svga_fetch_mode_list disabled */
    0, 0,
    TRUE,
