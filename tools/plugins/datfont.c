@@ -883,14 +883,16 @@ static void save_color_font(FONT* f, PACKFILE* pack)
 
 
 /* saves a font into a datafile */
-static void save_font(DATAFILE* dat, int packed, int packkids, int strip, int *keeplist, int sort, int verbose, int extra, PACKFILE* pack)
+static void save_font(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
-    FONT* f = dat->dat;
+    FONT* font = dat->dat;
 
-    pack_mputw(0, pack);
+    pack_mputw(0, f);
 
-    if(f->vtable == font_vtable_mono) save_mono_font(f, pack);
-    else save_color_font(f, pack);
+    if (font->vtable == font_vtable_mono)
+       save_mono_font(font, f);
+    else
+       save_color_font(font, f);
 }
 
 

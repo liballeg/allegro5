@@ -1017,7 +1017,7 @@ int main(int argc, char *argv[])
       }
 
       if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0) || (opt_sort >= 0)))
-	 if (!datedit_save_datafile(datafile, opt_datafilename, opt_strip, opt_fixed_prop, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
+	 if (!datedit_save_datafile(datafile, opt_datafilename, opt_fixed_prop, opt_strip, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
 	    err = 1;
 
       if ((!err) && (opt_headername))

@@ -114,7 +114,7 @@ static void *grab_sample(AL_CONST char *filename, long *size, int x, int y, int 
 
 
 /* saves a sample into the datafile format */
-static void save_sample_in_datafile(DATAFILE *dat, int packed, int packkids, int strip, int *keeplist, int sort, int verbose, int extra, PACKFILE *f)
+static void save_sample_in_datafile(DATAFILE *dat, AL_CONST int *fixed_prop, int pack, int pack_kids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    SAMPLE *spl = (SAMPLE *)dat->dat;
 
