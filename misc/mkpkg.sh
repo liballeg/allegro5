@@ -33,7 +33,7 @@ fi
 
 
 if [ -d dstroot ]; then
-	sudo rm -fr dstroot
+	rm -fr dstroot
 fi
 
 basename=allegro-enduser-${version}
@@ -79,7 +79,7 @@ EOF
 echo "Creating package"
 
 packagefile=${basename}.pkg
-if [ -d $packagefile ]; then sudo rm -fr $packagefile; fi
+if [ -d $packagefile ]; then rm -fr $packagefile; fi
 find dstroot -name .DS_Store -delete
 mkdir -p -m 0755 ${packagefile}/Contents/Resources
 
@@ -174,7 +174,7 @@ ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/loc
 ln -s /Library/Frameworks/Allegro.framework/Versions/${version}/Allegro /usr/local/lib/liballeg.dylib
 
 EOF
-sudo chmod a+x $postflight
+chmod a+x $postflight
 
 sizesfile=${packagefile}/Contents/Resources/Archive.sizes
 numfiles=`lsbom -s $bomfile | wc -l`
@@ -214,6 +214,6 @@ hdiutil eject $drive
 hdiutil convert -format UDCO $tempimage -o $diskimage
 echo "Compressing image"
 gzip -f -9 $diskimage
-sudo rm -fr $tempimage ${packagefile} dstroot _makedoc
+rm -fr $tempimage ${packagefile} dstroot _makedoc
 
 echo "Done!"
