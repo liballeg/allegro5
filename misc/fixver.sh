@@ -89,11 +89,9 @@ cp docs/allegro._tx fixver.tmp
 sed -f fixver.sed fixver.tmp > docs/allegro._tx
 
 # patch makefile.ver
-prever=`sed -n -e "s/shared_major = \(.*\)/\1/p" makefile.ver`
-
 echo "s/LIBRARY_VERSION = .*/LIBRARY_VERSION = $1$2$3/" > fixver.sed
 echo "s/shared_version = .*/shared_version = $1.$2.$3/" >> fixver.sed
-echo "s/shared_major = .*/shared_major = `expr $prever + 1`/" >> fixver.sed
+echo "s/shared_major_minor = .*/shared_major_minor = $1.$2/" >> fixver.sed
 
 echo "Patching makefile.ver..."
 cp makefile.ver fixver.tmp

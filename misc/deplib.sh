@@ -23,7 +23,7 @@ write_code() {
     echo "\$(LIBDIR)/${sharelib}: ${shareobj}"
     echo "	rm -f \$@"
     # gf: This bit is obviously gcc-specific
-    echo "	gcc -shared -o \$@ ${shareobj} \$(LDFLAGS) \$(LIBS)"
+    echo "	gcc -shared -o \$@ ${shareobj} \$(LDFLAGS) -Wl,-soname,liballeg.so.\$(shared_major_minor) \$(LIBS)"
     echo ""
     echo "\$(LIBDIR)/${unsharelib}: ${unshareobj}"
     echo "	rm -f \$@"
