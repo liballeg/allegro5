@@ -124,7 +124,7 @@ div.al-api {\n\
 \tbackground:      rgb(255, 234, 100);\n\
 \tfont-weight:     bold;\n\
 \tborder-bottom:   medium solid rgb(255, 204, 51);\n\
-\torder-left:     medium solid rgb(255, 204, 51);\n\
+\tborder-left:     medium solid rgb(255, 204, 51);\n\
 \tmargin-top:      2em;\n\
 }\n\
 div.al-api-cont {\n\
