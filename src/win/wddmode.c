@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Unified setup code and refresh rate support by Eric Botcazou.
+ *
  *      See readme.txt for copyright information.
  */
 

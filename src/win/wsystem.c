@@ -12,6 +12,8 @@
  *
  *      By Stefan Schimanski.
  *
+ *      Window close button support by Javier Gonzalez.
+ *
  *      See readme.txt for copyright information.
  */
 
