@@ -124,6 +124,7 @@ BITMAP *mouse_sprite = NULL;	       /* current mouse pointer */
 
 BITMAP *_mouse_screen = NULL;          /* where to draw the pointer */
 
+static BITMAP *default_cursors[NUM_MOUSE_CURSORS];
 static BITMAP *cursors[NUM_MOUSE_CURSORS];
 
 static int allow_system_cursor;        /* Allow native OS cursor? */
@@ -487,6 +488,18 @@ void select_mouse_cursor(int cursor)
 
 
 
+/* set_mouse_cursor_bitmap:
+ *  Changes the default Allegro cursor for a mouse cursor
+ */
+void set_mouse_cursor_bitmap(int cursor, struct BITMAP *bmp)
+{
+   ASSERT(cursor < NUM_MOUSE_CURSORS);
+
+   cursors[cursor] = bmp?bmp:default_cursors[cursor];
+}
+
+
+ 
 /* set_mouse_sprite_focus:
  *  Sets co-ordinate (x, y) in the sprite to be the mouse location.
  *  Call after set_mouse_sprite(). Doesn't redraw the sprite.
@@ -958,14 +971,19 @@ int install_mouse(void)
    LOCK_FUNCTION(_handle_mouse_input);
    
    /* Construct mouse pointers */
-   if (!cursors[MOUSE_CURSOR_ARROW])
-      cursors[MOUSE_CURSOR_ARROW] = create_mouse_pointer(mouse_arrow_data);
-   if (!cursors[MOUSE_CURSOR_BUSY])
-      cursors[MOUSE_CURSOR_BUSY] = create_mouse_pointer(mouse_busy_data);
-   if (!cursors[MOUSE_CURSOR_QUESTION])
-      cursors[MOUSE_CURSOR_QUESTION] = create_mouse_pointer(mouse_arrow_data);
-   if (!cursors[MOUSE_CURSOR_EDIT])
-      cursors[MOUSE_CURSOR_EDIT] = create_mouse_pointer(mouse_arrow_data);
+   if (!default_cursors[MOUSE_CURSOR_ARROW])
+      default_cursors[MOUSE_CURSOR_ARROW] = create_mouse_pointer(mouse_arrow_data);
+   if (!default_cursors[MOUSE_CURSOR_BUSY])
+      default_cursors[MOUSE_CURSOR_BUSY] = create_mouse_pointer(mouse_busy_data);
+   if (!default_cursors[MOUSE_CURSOR_QUESTION])
+      default_cursors[MOUSE_CURSOR_QUESTION] = create_mouse_pointer(mouse_arrow_data);
+   if (!default_cursors[MOUSE_CURSOR_EDIT])
+      default_cursors[MOUSE_CURSOR_EDIT] = create_mouse_pointer(mouse_arrow_data);
+
+   cursors[MOUSE_CURSOR_ARROW] = default_cursors[MOUSE_CURSOR_ARROW];
+   cursors[MOUSE_CURSOR_BUSY] = default_cursors[MOUSE_CURSOR_BUSY];
+   cursors[MOUSE_CURSOR_QUESTION] = default_cursors[MOUSE_CURSOR_QUESTION];
+   cursors[MOUSE_CURSOR_EDIT] = default_cursors[MOUSE_CURSOR_EDIT];
 
    if (system_driver->mouse_drivers)
       driver_list = system_driver->mouse_drivers();
@@ -1061,6 +1079,16 @@ void remove_mouse(void)
    mouse_pos = 0;
 
    mouse_polled = FALSE;
+
+   free(default_cursors[MOUSE_CURSOR_ARROW]);
+   free(default_cursors[MOUSE_CURSOR_BUSY]);
+   free(default_cursors[MOUSE_CURSOR_QUESTION]);
+   free(default_cursors[MOUSE_CURSOR_EDIT]);
+
+   cursors[MOUSE_CURSOR_ARROW] = default_cursors[MOUSE_CURSOR_ARROW] = NULL;
+   cursors[MOUSE_CURSOR_BUSY] = default_cursors[MOUSE_CURSOR_BUSY] = NULL;
+   cursors[MOUSE_CURSOR_QUESTION] = default_cursors[MOUSE_CURSOR_QUESTION] = NULL;
+   cursors[MOUSE_CURSOR_EDIT] = default_cursors[MOUSE_CURSOR_EDIT] = NULL;
 
    if (_mouse_pointer) {
       destroy_bitmap(_mouse_pointer);

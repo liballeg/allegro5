@@ -103,6 +103,7 @@ AL_FUNC(void, position_mouse_z, (int z));
 AL_FUNC(void, set_mouse_range, (int x1, int y1, int x2, int y2));
 AL_FUNC(void, set_mouse_speed, (int xspeed, int yspeed));
 AL_FUNC(void, select_mouse_cursor, (int cursor));
+AL_FUNC(void, set_mouse_cursor_bitmap, (int cursor, struct BITMAP *bmp));
 AL_FUNC(void, set_mouse_sprite_focus, (int x, int y));
 AL_FUNC(void, get_mouse_mickeys, (int *mickeyx, int *mickeyy));
 AL_FUNC(void, set_mouse_sprite, (struct BITMAP *sprite));
