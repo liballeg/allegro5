@@ -190,7 +190,7 @@ Contributors
    Contributed several enhancements to the grabber. Added a window position
    saving feature to the Windows port. Fixed menu dimensions in the GUI
    engine. Fixed the get_camera_matrix*() functions. Added chm ouput support
-   for the documentation.
+   for the documentation. Fixed a bug in midi_seek().
 
    Eric Botcazou (<email>ebotcazou@multimania.com</a>).<br>
    Made the DGA driver work better in 8bpp and 32bpp modes, improved the
@@ -233,7 +233,8 @@ Contributors
    Did a great deal of work on the Linux console version. Also wrote the 
    AWE32 driver, added the MIDI pause/seek functions, and provided the basis 
    of the SoundFont reader used in the pat2dat utility. Fixed the C fceil()
-   function and added the ffloor() function.
+   function and added the ffloor() function. Added non-FM support to the OSS
+   MIDI driver.
 
    Gorka Olaizola (<email>olsago@jet.es</a>).<br>
    Added the Redhat RPM .spec file.
@@ -299,6 +300,9 @@ Contributors
    Added support for quoted strings in the get_config_argv() function, and 
    the dithering code for paletted images.
 
+   Jan Bruun Andersen (<email>jba-dk@users.sourceforge.net</a>).<br>
+   Fixed a compilation problem with Cygwin.
+
    Jan Hubicka (<email>hubicka@horac.ta.jcu.cz</a>).<br>
    Vastly improved the speed of the create_rgb_table() function.
 
@@ -314,7 +318,8 @@ Contributors
    a latency problem with audiostreams.
 
    Jeremiah Blanchard (<email>squirminworm@yahoo.com</a>).<br>
-   Contributed modifications in order for Allegro to compile on Darwin/MacOS X.
+   Contributed modifications in order for Allegro to compile on Darwin/MacOS X,
+   and updated the build instructions for this new port afterwards.
 
    Jim Flynn (<email>jflynn@pacbell.net</a>).<br>
    Removed floating point calculations from the AWE32 MIDI driver.
@@ -368,8 +373,9 @@ Contributors
 
    Laurence Withers (<email>lwithers@lwithers.demon.co.uk</a>).<br>
    Added destroy hook to font structure, worked on const-correctness
-   throughout the library, implemented the new FONT structure and made
-   some modules avoid linking dependencies.
+   throughout the library, implemented the new FONT structure, made
+   some modules avoid linking dependencies and contributed the dat2c
+   utility.
 
    Lee Killough (email unknown).<br>
    Added the low-level hook routine to the keyboard handler, and fixed a 
@@ -480,6 +486,9 @@ Contributors
    Neil Townsend (<email>neil@robots.ox.ac.uk</a>).<br>
    Improved the accuracy of the timer routines, and added the callback 
    parameters.
+
+   Nicholas Davies(<email>master_goodbytes@hotmail.com</a>).<br>
+   Made the fix class not trigger warnings with gcc -Weffc++.
 
    Nick Kochakian (<email>nickk@worldnet.att.net</a>).<br>
    Wrote the DirectSound input driver.
@@ -648,7 +657,8 @@ Contributors
    Extended-A characters in the default font, and the codepage support in 
    the textconv utility, fixed some problems with the ESD sound driver, and 
    helped make Allegro build better on some Unix platforms. Fixed const 
-   related problems in C versions of ASM routines.
+   related problems in C versions of ASM routines. Added support for a
+   automake-style DESTDIR variable in the Unix makefile.
 
    Stephen Kittelson (<email>stickman2000@juno.com</a>).<br>
    Made bugfixes and tweaks to the keyboard system.
@@ -710,9 +720,9 @@ Contributors
    system, optimised the 256 to truecolor blitting code to avoid repeated 
    conversions of the palette table, added scare_mouse_area(), added the 
    yield_timeslice() function, added the update selection function to the 
-   grabber, added the XCRP and YCRP properties to datafiles in general, and 
-   made various other bugfixes and improvements. Responsible for the big
-   header split up, and did loads other stuff too.
+   grabber, added the XCRP and YCRP properties to datafiles in general,
+   added sample loader/saver registration and a save_sample() function,
+   responsible for the big header split up, and did loads other stuff too.
 
    VolkerOth (<email>VolkerOth@aol.com</a>).<br>
    Integrated the concepts of scrolling and edit_proc objects.

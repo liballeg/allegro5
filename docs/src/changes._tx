@@ -6,6 +6,70 @@
 @html_spaced_list_bullet
 
 @heading
+Changes from 4.1.0 to 4.1.1 (Aug 2002)
+<ul><li>
+   Many minor changes and clarifications in the docs and the FAQ.
+<li>
+   Eric Botcazou fixed a bug with graphics mode switching using a
+   ALT+key combination under Windows.
+<li>
+   Laurence Withers contributed the dat2c utility.
+<li>
+   Grzegorz Adam Hankiewicz made it so that chapters can be referenced
+   in the documentation and added a new one on the types and
+   structures defined by the library.
+<li>
+   Eric Botcazou improved win_set_window() so that it can be called
+   after the library has been initialized.
+<li>
+   Elias Pschernig fixed a bug in midi_seek().
+<li>
+   Eric Botcazou wrote a new page flipping/triple buffering code for the
+   Windows port.
+<li>
+   Grzegorz Adam Hankiewicz added a linux specific debug help section.
+<li>
+   Eric Botcazou made the constructors of the fix class from integer and
+   floating point values explicit.
+<li>
+   Eric Botcazou fixed a dat2s bug with dynamically linked programs
+   under Windows.
+<li>
+   Jan Bruun Andersen fixed a compilation problem with Cygwin.
+<li>
+   Jeremiah Blanchard updated the build instructions for Darwin.
+<li>
+   Vincent Penquerc'h added sample loader/saver registration and a
+   save_sample() function. Peter Wang documented it.
+<li>
+   George Foot added (preliminary) non-FM support to the OSS MIDI driver.
+<li>
+   Ben David and Robert J. Ohannessian put in (void *) casts for the
+   LOCK_* macros on DJGPP and Mac.
+<li>
+   Nicholas Davies made the fix class not trigger warnings with gcc -Weffc++.
+<li>
+   Angelo Mottola fixed a keyboard focus problem under BeOS.
+<li>
+   Peter Wang fixed the detection of ESD and aRts on Unix systems.
+<li>
+   Peter Wang made files be opened with as permissive as possible
+   permissions on Unix systems.
+<li>
+   Stepan Roh added support for a automake-style DESTDIR variable in the
+   Unix makefile.
+<li>
+   Grzegorz Adam Hankiewicz made the doc processor output valid HMTL 4.0 in
+   some corner cases for which it previously didn't.
+<li>
+   Grzegorz Adam Hankiewicz fixed a crash of the doc processor with very
+   long lines.
+<li>
+   Peter Wang did some housekeeping work throughout the code and the
+   documentation.
+</ul>
+
+@heading
 Changes from 4.0.2 to 4.1.0 (Jul 2002)
 <ul><li>
    Charles Bilyue optimized the i386 blitters.
