@@ -40,9 +40,7 @@ Linux todos:
 
 - keyboard set_rate
 - Find out more about sched_yield
-- switch to proper SRPMs and RPMS (esp. now that we have modules)
 - fix fb 24-bit scrolling (allegro presuming padding?)
-- fbcon-as-module patch
 
 X11 todos:
 ---------------------------------------------------------------------------
@@ -59,8 +57,8 @@ X11 todos:
 Unix todos:
 ---------------------------------------------------------------------------
 
-- update ALSA drivers to latest stable version
 - "still PIC-related problems with X lib, waiting for XFree people"
+- track down mtrace memory leaks?
 
 Macintosh todos:
 ---------------------------------------------------------------------------
@@ -94,7 +92,14 @@ QNX todos:
 - Update the docs
 - Use standard Unix build system (autoconf, etc.) if possible
 
-Wishlist
+Wishlist:
+---------------------------------------------------------------------------
+
+- OSS MIDI pitch bend is wrong
+- size_t where appropriate (get more opinions first)
+- make allegro not use uconvert static buffer; reserve for user
+
+Wishlist: (definitely post 4.0)
 ---------------------------------------------------------------------------
 
 - More hardware accelerated functions? Trans/lit sprites come to mind.
@@ -108,16 +113,14 @@ Wishlist
   should be written in such a way to support future additions without the
   need of rewritting the user setup ui.
 - Play with switch_in/out X events, just for the sake of it :-)
-- OSS MIDI pitch bend.
 - hook function to handle window resizing
 - DirectMusic 6 MIDI driver
 - Add caching system to speed up filename#object and load_datafile_object()
 - Video overlay gfx driver under QNX
 - rewrite set_gfx_mode
-- size_t where appropriate (get more opinions first)
 - make zipwin.sh work with mingw32.
-- make allegro not use uconvert static buffer; reserve for user
 - more modularity under Linux
 - XVideo driver under XFree86
+- simplify linux input subsystem (it's much more complicated than necessary)
 
 ---------------------------------------------------------------------------
