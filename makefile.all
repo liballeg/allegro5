@@ -5,6 +5,7 @@
 #
 #     Environment variables:
 #        DEBUGMODE=1        selects a debug build.
+#        DEBUGMODE=2        selects a build intended to debug Allegro itself.
 #        PROFILEMODE=1      selects a profiling build.
 #        WARNMODE=1         selects strict compiler warnings.
 #        STATICLINK=1       use static linking (MSVC, Mingw32).
