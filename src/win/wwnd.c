@@ -58,16 +58,10 @@ void (*user_close_proc)(void) = NULL;
 
 /* window thread internals */
 #define ALLEGRO_WND_CLASS "AllegroWindow"
-#define MAX_EVENT 4
 static HWND user_wnd = NULL;
 static WNDPROC user_wnd_proc = NULL;
 static HANDLE wnd_thread = NULL;
-static HANDLE wnd_thread_input = NULL;
-static int thread_input_suicide = FALSE;
 static HWND (*wnd_create_proc)(WNDPROC) = NULL;
-static int wnd_events;
-static HANDLE wnd_event_id[MAX_EVENT];
-static void (*wnd_event_handler[MAX_EVENT])(void);
 static int old_style = 0;
 
 /* custom window msgs */
@@ -206,111 +200,6 @@ void wnd_unacquire_joystick(void)
 void wnd_set_syscursor(int state)
 {
    PostMessage(allegro_wnd, msg_set_syscursor, state, 0);
-}
-
-
-
-/* wnd_thread_input_proc:
- *  Thread function that handles the input.
- */
-static void wnd_thread_input_proc(LPVOID unused)
-{
-   int result;
-
-   /* event loop */
-   while (TRUE) {
-      result = WaitForMultipleObjects(wnd_events, wnd_event_id, FALSE, INFINITE);
-      if (result == WAIT_OBJECT_0) {
-         /* we were instructed to unblock, make sure we can block again */
-         _enter_critical();
-         _exit_critical();
-         if (thread_input_suicide)
-            return;
-      }
-      else if ((result > WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + wnd_events)) {
-         /* one of the registered events is in signaled state */
-         (*wnd_event_handler[result - WAIT_OBJECT_0])();
-      }
-   }
-}
-
-
-
-/* wnd_register_event:
- *  Adds an event to the window thread event queue.
- */
-int wnd_register_event(HANDLE event_id, void (*event_handler)(void))
-{
-   if (wnd_events == MAX_EVENT)
-      return -1;
-
-   _enter_critical();
-
-   /* unblock the window thread if any */
-   if (wnd_thread || wnd_thread_input)
-      SetEvent(wnd_event_id[0]);
-
-   /* effectively add */
-   wnd_event_id[wnd_events] = event_id;
-   wnd_event_handler[wnd_events] = event_handler;
-
-   /* adjust the size of the queue */
-   wnd_events++;
-
-   /* create window thread for input if none */
-   if (!wnd_thread && !wnd_thread_input) {
-      wnd_thread_input = (HANDLE) _beginthread(wnd_thread_input_proc, 0, NULL);
-      thread_input_suicide = FALSE;
-   }
-
-   _exit_critical();
-
-   _TRACE("1 event registered (total = %d)\n", wnd_events-1);
-   return 0;
-}
-
-
-
-/* wnd_unregister_event:
- *  Removes an event from the window thread event queue.
- */
-void wnd_unregister_event(HANDLE event_id)
-{
-   int i, base;
-
-   /* look for the requested event */
-   for (i=0; i<wnd_events; i++)
-      if (wnd_event_id[i] == event_id) {
-         base = i;
-         goto Found;
-      }
-
-   return;
-
- Found:
-   _enter_critical();
-
-   /* unblock the window thread */
-   SetEvent(wnd_event_id[0]);
-
-   /* shift the queue to the left if needed */
-   for (i=base; i<wnd_events-1; i++) {
-      wnd_event_id[i] = wnd_event_id[i+1];
-      wnd_event_handler[i] = wnd_event_handler[i+1];
-   }
-
-   /* adjust the size of the queue */
-   wnd_events--;
-
-   /* kill window thread for input if no more event */
-   if ((wnd_events == 1) && (wnd_thread_input)) {
-      thread_input_suicide = TRUE;
-      wnd_thread_input = NULL;
-   }
-
-   _exit_critical();
-
-   _TRACE("1 event unregistered (total = %d)\n", wnd_events-1);
 }
 
 
@@ -643,17 +532,17 @@ static void wnd_thread_proc(HANDLE setup_event)
 
    /* message loop */
    while (TRUE) {
-      result = MsgWaitForMultipleObjects(wnd_events, wnd_event_id, FALSE, INFINITE, QS_ALLINPUT);
+      result = MsgWaitForMultipleObjects(input_events, input_event_id, FALSE, INFINITE, QS_ALLINPUT);
       if (result == WAIT_OBJECT_0) {
          /* we were instructed to unblock, make sure we can block again */
          _enter_critical();
          _exit_critical();
       }
-      else if ((result > WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + wnd_events)) {
+      else if ((result > WAIT_OBJECT_0) && (result < WAIT_OBJECT_0 + input_events)) {
          /* one of the registered events is in signaled state */
-         (*wnd_event_handler[result - WAIT_OBJECT_0])();
+         (*input_event_handler[result - WAIT_OBJECT_0])();
       }
-      else if (result == WAIT_OBJECT_0 + wnd_events) {
+      else if (result == WAIT_OBJECT_0 + input_events) {
          /* messages are waiting in the queue */
          while (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
             if (GetMessage(&msg, NULL, 0, 0)) {
@@ -696,12 +585,10 @@ int init_directx_window(void)
    msg_set_syscursor = RegisterWindowMessage("Allegro mouse cursor proc");
    msg_suicide = RegisterWindowMessage("Allegro window suicide");
 
-   /* event #0 is reserved */
-   wnd_event_id[0] = CreateEvent(NULL, FALSE, FALSE, NULL);
-   wnd_event_handler[0] = NULL;
-   wnd_events = 1;
-
    if (user_wnd) {
+      /* initializes input module and requests dedicated thread */
+      input_init(TRUE);
+
       /* hook the user window */
       user_wnd_proc = (WNDPROC) SetWindowLong(user_wnd, GWL_WNDPROC, (long)directx_wnd_proc);
       if (!user_wnd_proc)
@@ -719,6 +606,9 @@ int init_directx_window(void)
       wnd_height = win_rect.bottom - win_rect.top;
    }
    else {
+      /* initializes input module without dedicated thread */
+      input_init(FALSE);
+
       /* create window thread */
       events[0] = CreateEvent(NULL, FALSE, FALSE, NULL);        /* acknowledges that thread is up */
       events[1] = (HANDLE) _beginthread(wnd_thread_proc, 0, events[0]);
@@ -774,5 +664,5 @@ void exit_directx_window(void)
 
    DeleteCriticalSection(&gfx_crit_sect);
 
-   CloseHandle(wnd_event_id[0]);
+   input_exit();
 }

@@ -157,6 +157,10 @@
    #define AL_FUNCPTR(type, name, args)            extern type (*name) args
 #endif
 
+#ifndef AL_FUNCPTRARRAY
+   #define AL_FUNCPTRARRAY(type, name, args)       extern type (*name[]) args
+#endif
+
 #ifndef AL_INLINE
    #define AL_INLINE(type, name, args, code)       type name args;
 #endif

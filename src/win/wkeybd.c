@@ -268,7 +268,7 @@ static int key_dinput_exit(void)
 {
    if (key_dinput_device) {
       /* unregister event handler first */
-      wnd_unregister_event(key_input_event);
+      input_unregister_event(key_input_event);
 
       /* unacquire device */
       wnd_unacquire_keyboard();
@@ -347,7 +347,7 @@ static int key_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (wnd_register_event(key_input_event, key_dinput_handle) != 0)
+   if (input_register_event(key_input_event, key_dinput_handle) != 0)
       goto Error;
 
    /* Acquire the device */

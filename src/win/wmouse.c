@@ -455,7 +455,7 @@ static int mouse_dinput_exit(void)
 {
    if (mouse_dinput_device) {
       /* unregister event handler first */
-      wnd_unregister_event(mouse_input_event);
+      input_unregister_event(mouse_input_event);
 
       /* unacquire device */
       wnd_unacquire_mouse();
@@ -557,7 +557,7 @@ static int mouse_dinput_init(void)
       goto Error;
 
    /* Register event handler */
-   if (wnd_register_event(mouse_input_event, mouse_dinput_handle) != 0)
+   if (input_register_event(mouse_input_event, mouse_dinput_handle) != 0)
       goto Error;
 
    /* Acquire the device */
