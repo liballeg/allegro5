@@ -40,6 +40,7 @@ static int changed = 0;
 static int opt_command = 0;
 static int opt_compression = -1;
 static int opt_strip = -1;
+static int opt_sort = -1;
 static int opt_verbose = FALSE;
 static int opt_keepnames = FALSE;
 static int opt_colordepth = -1;
@@ -93,6 +94,8 @@ static void usage(void)
    printf("\t'-s0' no strip: save everything\n");
    printf("\t'-s1' strip grabber specific information from the file\n");
    printf("\t'-s2' strip all object properties and names from the file\n");
+   printf("\t'-sr0' no sort\n");
+   printf("\t'-sr1' sort the objects of the datafile alphabetically by name\n");
    printf("\t'-t type' sets the object type when adding files\n");
    printf("\t'-transparency' preserves transparency through color conversion\n");
    printf("\t'-u' updates the contents of the datafile\n");
@@ -798,12 +801,22 @@ int main(int argc, char *argv[])
 	       break;
 
 	    case 's':
-	       if ((opt_strip >= 0) || 
-		   (argv[c][2] < '0') || (argv[c][2] > '2')) {
-		  usage();
-		  return 1;
+	       if (argv[c][2] == 'r') {
+		  if ((opt_sort >= 0) ||
+		      (argv[c][3] < '0') || (argv[c][3] > '1')) {
+		     usage();
+		     return 1;
+	          }
+	          opt_sort = argv[c][3] - '0';
 	       }
-	       opt_strip = argv[c][2] - '0'; 
+	       else {
+		  if ((opt_strip >= 0) ||
+		      (argv[c][2] < '0') || (argv[c][2] > '2')) {
+		     usage();
+		     return 1;
+	          }
+	          opt_strip = argv[c][2] - '0';
+	       }
 	       break;
 
 	    case 't':
@@ -870,6 +883,7 @@ int main(int argc, char *argv[])
        ((!opt_command) && 
 	(opt_compression < 0) && 
 	(opt_strip < 0) && 
+	(opt_sort < 0) &&
 	(!opt_numprops) &&
 	(!opt_headername) &&
 	(!opt_dependencyfile))) {
@@ -975,8 +989,8 @@ int main(int argc, char *argv[])
 	 }
       }
 
-      if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0)))
-	 if (!datedit_save_datafile(datafile, opt_datafile, opt_strip, opt_compression, opt_verbose, TRUE, FALSE, opt_password))
+      if ((!err) && ((changed) || (opt_compression >= 0) || (opt_strip >= 0) || (opt_sort >= 0)))
+	 if (!datedit_save_datafile(datafile, opt_datafile, opt_strip, opt_compression, opt_sort, opt_verbose, TRUE, FALSE, opt_password))
 	    err = 1;
 
       if ((!err) && (opt_headername))

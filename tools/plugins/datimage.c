@@ -367,7 +367,7 @@ static void *grab_bitmap(AL_CONST char *filename, long *size, int x, int y, int 
 
 
 /* saves a bitmap into the datafile format */
-static void save_datafile_bitmap(DATAFILE *dat, int packed, int packkids, int strip, int verbose, int extra, PACKFILE *f)
+static void save_datafile_bitmap(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    BITMAP *bmp = (BITMAP *)dat->dat;
    int x, y, c, r, g, b, a;
@@ -569,7 +569,7 @@ static void *grab_rle_sprite(AL_CONST char *filename, long *size, int x, int y, 
 
 
 /* saves an RLE sprite into the datafile format */
-static void save_rle_sprite(DATAFILE *dat, int packed, int packkids, int strip, int verbose, int extra, PACKFILE *f)
+static void save_rle_sprite(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE *f)
 {
    RLE_SPRITE *spr = (RLE_SPRITE *)dat->dat;
    int x, y, c, r, g, b, a;

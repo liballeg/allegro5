@@ -29,8 +29,7 @@
 #endif
 
 
-/* 80 characters * maximum character width (6 bytes for UTF8) */
-#define FILENAME_LENGTH (80*6)
+#define FILENAME_LENGTH  1024
 
 
 typedef struct DATAITEM
@@ -71,6 +70,7 @@ static int list_proc(int, DIALOG *, int);
 static int prop_proc(int, DIALOG *, int);
 static int droplist_proc(int, DIALOG *, int);
 static int colorconv_proc(int, DIALOG *, int);
+static int sort_proc(int, DIALOG *, int);
 static int custkey_proc(int, DIALOG *, int);
 static int edit_mod_proc(int, DIALOG *, int);
 static int droplist_mod_proc(int, DIALOG *, int);
@@ -206,7 +206,8 @@ static DIALOG main_dlg[] =
    { d_edit_proc,       379,  10,   40,   8,    0,    0,    0,       0,          4,             0,       ygrid_string,     NULL, NULL  },
    { d_check_proc,      430,  8,    83,   13,   0,    0,    0,       0,          0,             0,       "Backups:",       NULL, NULL  },
    { colorconv_proc,    550,  8,    75,   13,   0,    0,    0,       0,          0,             0,       "Dither:",        NULL, NULL  },
-   { colorconv_proc,    430,  24,   195,  13,   0,    0,    0,       0,          0,             1,       "Preserve transparency:", NULL, NULL},
+   { sort_proc,         430,  24,   59,   13,   0,    0,    0,       D_SELECTED, 0,             1,       "Sort:",          NULL, NULL  },
+   { colorconv_proc,    502,  24,   123,  13,   0,    0,    0,       0,          0,             1,       "Transparency:",  NULL, NULL  },
    { droplist_mod_proc, 430,  48,   195,  28,   0,    0,    0,       0,          0,             0,       pack_getter,      NULL, NULL  },
    { prop_proc,         260,  86,   365,  107,  0,    0,    0,       D_EXIT,     0,             0,       prop_getter,      NULL, NULL  },
    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    C('l'),  0,          0,             0,       loader,           NULL, NULL  },
@@ -254,12 +255,13 @@ static DIALOG main_dlg[] =
 #define DLG_YGRIDSTRING       13
 #define DLG_BACKUPCHECK       14
 #define DLG_DITHERCHECK       15
-#define DLG_TRANSCHECK        16
-#define DLG_PACKLIST          17
-#define DLG_PROP              18
-#define DLG_FIRSTWHITE        19
-#define DLG_LIST              49
-#define DLG_VIEW              50
+#define DLG_SORTCHECK         16
+#define DLG_TRANSCHECK        17
+#define DLG_PACKLIST          18
+#define DLG_PROP              19
+#define DLG_FIRSTWHITE        20
+#define DLG_LIST              50
+#define DLG_VIEW              51
 
 
 #define SELECTED_ITEM         main_dlg[DLG_LIST].d1
@@ -1026,6 +1028,34 @@ static int colorconv_proc(int msg, DIALOG *d, int c)
 
 
 
+/* dialog procedure for toggling sort mode on and off */
+static int sort_proc(int msg, DIALOG *d, int c)
+{
+   static int current = -1;
+   int ret, wanted;
+
+   ret = d_check_proc(msg, d, c);
+
+   if (d->flags & D_SELECTED)
+      wanted = 1;
+   else
+      wanted = 0;
+
+   if (wanted != current) {
+      if (wanted) {
+         datedit_sort_datafile(datafile);
+         rebuild_list(datafile->dat, TRUE);
+         object_message(main_dlg+DLG_LIST, MSG_DRAW, 0);
+      }
+
+      current = wanted;
+   } 
+
+   return ret;
+}
+
+
+
 /* dialog procedure for the main object list */
 static int list_proc(int msg, DIALOG *d, int c)
 {
@@ -1273,7 +1303,8 @@ static void set_property(DATAITEM *dat, int type, char *val)
 
    if (type == DAT_NAME) {
       check_valid_name(val);
-      datedit_sort_datafile(*dat->parent);
+      if (main_dlg[DLG_SORTCHECK].flags & D_SELECTED)
+         datedit_sort_datafile(*dat->parent);
       rebuild_list(old, TRUE);
    }
 
@@ -1612,6 +1643,9 @@ static void update_info(void)
    datedit_set_property(&datedit_info, DAT_TRAN, 
 		  (main_dlg[DLG_TRANSCHECK].flags & D_SELECTED) ? "y" : "n");
 
+   datedit_set_property(&datedit_info, DAT_SORT, 
+		  (main_dlg[DLG_SORTCHECK].flags & D_SELECTED) ? "y" : "n");
+
    sprintf(buf, "%d", main_dlg[DLG_PACKLIST].d1);
    datedit_set_property(&datedit_info, DAT_PACK, buf);
 }
@@ -1640,6 +1674,8 @@ static void load(char *filename, int flush)
    int obj_count;
    int new_obj_count;
    int items_num;
+   int sort;
+   AL_CONST char *sort_prop;
 
    set_busy_mouse(TRUE);
 
@@ -1661,6 +1697,13 @@ static void load(char *filename, int flush)
    if (!new_datafile)
       new_datafile = datedit_load_datafile(NULL, FALSE, NULL);
 
+   /* preserve old behaviour (always sort) if the SORT property is not present */
+   sort_prop = get_datafile_property(&datedit_info, DAT_SORT);
+   if (*sort_prop)
+      sort = (utolower(*sort_prop)=='y');
+   else
+      sort = TRUE;
+
    if (!flush) {
       obj_count = 0;
       while (datafile[obj_count].type != DAT_END)
@@ -1674,8 +1717,9 @@ static void load(char *filename, int flush)
       memmove(datafile+obj_count, new_datafile, (new_obj_count+1) * sizeof(DATAFILE));
       free(new_datafile);
 
-      datedit_sort_datafile(datafile);
-      
+      if (sort)
+         datedit_sort_datafile(datafile);
+
       set_modified(TRUE);
    }
    else {
@@ -1704,6 +1748,11 @@ static void load(char *filename, int flush)
       main_dlg[DLG_TRANSCHECK].flags |= D_SELECTED;
    else
       main_dlg[DLG_TRANSCHECK].flags &= ~D_SELECTED;
+
+   if (sort)
+      main_dlg[DLG_SORTCHECK].flags |= D_SELECTED;
+   else
+      main_dlg[DLG_SORTCHECK].flags &= ~D_SELECTED;
 
    main_dlg[DLG_PACKLIST].d1 = atoi(get_datafile_property(&datedit_info, DAT_PACK));
    pack_getter(-1, &items_num);
@@ -1784,7 +1833,7 @@ static int save(int strip)
 
       update_info();
 
-      if (!datedit_save_datafile(datafile, data_file, strip, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
+      if (!datedit_save_datafile(datafile, data_file, strip, -1, -1, TRUE, FALSE, (main_dlg[DLG_BACKUPCHECK].flags & D_SELECTED), password))
 	 err = TRUE;
       else
 	 set_modified(FALSE);
@@ -2765,7 +2814,8 @@ static int add_new(int type)
 	    df = dat->parent;
 
 	 *df = datedit_insert(*df, NULL, prop_value_string, type, v, size);
-	 datedit_sort_datafile(*df);
+	 if (main_dlg[DLG_SORTCHECK].flags & D_SELECTED)
+	    datedit_sort_datafile(*df);
 	 rebuild_list(v, TRUE);
 	 select_property(DAT_NAME);
          
@@ -3223,6 +3273,7 @@ int main(int argc, char *argv[])
 
       main_dlg[DLG_DITHERCHECK].flags |= (D_HIDDEN | D_DISABLED);
       main_dlg[DLG_TRANSCHECK].flags |= (D_HIDDEN | D_DISABLED);
+      main_dlg[DLG_SORTCHECK].flags |= (D_HIDDEN | D_DISABLED);
 
       main_dlg[DLG_PACKLIST].x = main_dlg[DLG_PACKLIST].x * SCREEN_W / 640;
       main_dlg[DLG_PACKLIST].w = main_dlg[DLG_PACKLIST].w * SCREEN_W / 640;
@@ -3350,6 +3401,11 @@ int main(int argc, char *argv[])
       else
          main_dlg[DLG_DITHERCHECK].flags &= ~D_SELECTED;
 
+      if (strpbrk(get_config_string("grabber", "sort", ""), "yY1"))
+         main_dlg[DLG_SORTCHECK].flags |= D_SELECTED;
+      else
+         main_dlg[DLG_SORTCHECK].flags &= ~D_SELECTED;
+
       if (strpbrk(get_config_string("grabber", "transparency", ""), "yY1"))
          main_dlg[DLG_TRANSCHECK].flags |= D_SELECTED;
       else
@@ -3382,6 +3438,11 @@ int main(int argc, char *argv[])
       set_config_string("grabber", "dither", "y");
    else
       set_config_string("grabber", "dither", "n");
+
+   if (main_dlg[DLG_SORTCHECK].flags & D_SELECTED)
+      set_config_string("grabber", "sort", "y");
+   else
+      set_config_string("grabber", "sort", "n");
 
    if (main_dlg[DLG_TRANSCHECK].flags & D_SELECTED)
       set_config_string("grabber", "transparency", "y");

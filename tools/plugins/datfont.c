@@ -883,7 +883,7 @@ static void save_color_font(FONT* f, PACKFILE* pack)
 
 
 /* saves a font into a datafile */
-static void save_font(DATAFILE* dat, int packed, int packkids, int strip, int verbose, int extra, PACKFILE* pack)
+static void save_font(DATAFILE* dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE* pack)
 {
     FONT* f = dat->dat;
 

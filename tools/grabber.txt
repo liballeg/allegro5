@@ -346,6 +346,12 @@ line dat utility. This accepts the following options:
       strip properties from the datafile, or in combination with any other 
       options.
 
+   '-sr0' - no sort
+   '-sr1' - sort the objects of the datafile alphabetically by name
+      Sets the sort mode (see below). These can be used on their own to 
+      sort the objects of the datafile, or in combination with any other 
+      options.
+
    '-transparency'
       Preserves transparency when converting between color depths.
 
@@ -411,6 +417,13 @@ properties in a datafile, they will look for a header (.h) file with the
 same name, and attempt to parse this to recover the names. This is far from 
 foolproof, and will not work for nested datafiles, but in some situations it 
 allows the names to be read back from the index definition header.
+
+The objects of the datafile can be sorted alphabetically by name. This is 
+selected by the Sort checkbox in the grabber, or by using the '-sr0' and 
+'-sr1' options to dat. With zero sorting, objects are listed in the order
+they were added to the datafile. With sort level 1, they are listed in 
+alphabetical order according to their NAME property, including inside
+nested datafiles.
 
 Both the grabber and the dat utility have an update command, which scans 
 through the datafile checking if any objects have changed, and replacing 

@@ -28,6 +28,7 @@
 #define DAT_XSIZ  DAT_ID('X','S','I','Z')
 #define DAT_YSIZ  DAT_ID('Y','S','I','Z')
 #define DAT_PACK  DAT_ID('P','A','C','K')
+#define DAT_SORT  DAT_ID('S','O','R','T')
 #define DAT_HNAM  DAT_ID('H','N','A','M')
 #define DAT_HPRE  DAT_ID('H','P','R','E')
 #define DAT_BACK  DAT_ID('B','A','C','K')
@@ -46,7 +47,7 @@ typedef struct DATEDIT_OBJECT_INFO
    char *desc;
    void (*get_desc)(AL_CONST DATAFILE *dat, char *s);
    void *(*makenew)(long *size);
-   void (*save)(DATAFILE *dat, int packed, int packkids, int strip, int verbose, int extra, PACKFILE *f);
+   void (*save)(DATAFILE *dat, int packed, int packkids, int strip, int sort, int verbose, int extra, PACKFILE *f);
    void (*plot)(AL_CONST DATAFILE *dat, int x, int y);
    int (*dclick)(DATAFILE *dat);
    void (*dat2s)(DATAFILE *dat, AL_CONST char *name, FILE *file, FILE *header);
@@ -120,7 +121,7 @@ AL_CONST char *datedit_grab_ext(int type);
 AL_CONST char *datedit_export_ext(int type);
 
 DATAFILE *datedit_load_datafile(AL_CONST char *name, int compile_sprites, AL_CONST char *password);
-int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int pack, int verbose, int write_msg, int backup, AL_CONST char *password);
+int datedit_save_datafile(DATAFILE *dat, AL_CONST char *name, int strip, int pack, int sort, int verbose, int write_msg, int backup, AL_CONST char *password);
 int datedit_save_header(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *headername, AL_CONST char *progname, AL_CONST char *prefix, int verbose);
 
 void datedit_export_name(AL_CONST DATAFILE *dat, AL_CONST char *name, AL_CONST char *ext, char *buf);
