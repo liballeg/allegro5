@@ -665,7 +665,7 @@ static int vesa_fetch_mode_list()
    /* free up temporary vesa mode list */
    free(vesa_mode);
 
-   gfx_mode_list_malloced = TRUE;
+   _gfx_mode_list_malloced = TRUE;
 
    return 0;
 }

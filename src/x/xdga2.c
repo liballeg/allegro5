@@ -175,7 +175,7 @@ static int _xdga2_fetch_mode_list(void)
    gfx_mode_list[stored_modes].height = 0;
    gfx_mode_list[stored_modes].bpp = 0;
 
-   gfx_mode_list_malloced = TRUE;
+   _gfx_mode_list_malloced = TRUE;
 
    XFree(mode);
    return 0;

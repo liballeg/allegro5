@@ -638,7 +638,7 @@ extern "C" int be_gfx_fullscreen_fetch_mode_list(void)
    gfx_mode_list[num_modes].height = 0;
    gfx_mode_list[num_modes].bpp = 0;
 
-   gfx_mode_list_malloced = TRUE;
+   _gfx_mode_list_malloced = TRUE;
    
    return 0;
 }

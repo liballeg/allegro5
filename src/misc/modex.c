@@ -1591,7 +1591,7 @@ void _x_draw_glyph(BITMAP *bmp, AL_CONST FONT_GLYPH *glyph, int x, int y, int co
 static int modex_fetch_mode_list()
 {
    destroy_gfx_mode_list();
-   gfx_mode_list_malloced = FALSE;
+   _gfx_mode_list_malloced = FALSE;
    gfx_mode_list = modex_gfx_modes;
 
    return 0;
@@ -1605,7 +1605,7 @@ static int modex_fetch_mode_list()
 static int xtended_fetch_mode_list()
 {
    destroy_gfx_mode_list();
-   gfx_mode_list_malloced = FALSE;
+   _gfx_mode_list_malloced = FALSE;
    gfx_mode_list = xtended_gfx_modes;
 
    return 0;

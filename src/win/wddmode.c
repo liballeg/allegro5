@@ -313,7 +313,7 @@ int gfx_directx_fetch_mode_list(void)
    mode_info.gfx[modes].height = 0;
    mode_info.gfx[modes].bpp = 0;
 
-   gfx_mode_list_malloced = TRUE;
+   _gfx_mode_list_malloced = TRUE;
 
    if (gfx_off)
       gfx_directx_exit(dd_frontbuffer);
