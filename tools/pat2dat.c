@@ -2442,7 +2442,16 @@ int main(int argc, char *argv[])
 	 add_gus_patches();
 
       if (!err) {
-	 if (!datedit_save_datafile(datafile, opt_datafile, 1, NULL, opt_compression, 1, (opt_veryverbose || (opt_verbose && opt_compression)), TRUE, FALSE, NULL))
+	 DATEDIT_SAVE_DATAFILE_OPTIONS options;
+
+	 options.pack = opt_compression;
+	 options.strip = 1;
+	 options.sort = 1;
+	 options.verbose = (opt_veryverbose || (opt_verbose && opt_compression));
+	 options.write_msg = TRUE;
+	 options.backup = FALSE;
+
+	 if (!datedit_save_datafile(datafile, opt_datafile, NULL, &options, NULL))
 	    err = 1;
       }
 
