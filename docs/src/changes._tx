@@ -13,7 +13,7 @@ Changes from 4.1.12 to 4.1.13 (March 2004)
    Minor changes and clarifications in the docs by Sven Sandberg, Andy Goth,
    Jon Rafkind, Nathan Smith and Daniel Schlyder.
 <li>
-   Elias Pchernig extensively modified the ALSA 0.9/1.0 sound driver to make
+   Elias Pschernig extensively modified the ALSA 0.9/1.0 sound driver to make
    it work more nicely.
 <li>
    Julien Cugniere and Eric Botcazou fixed the crash on exit with the aRts
@@ -29,7 +29,7 @@ Changes from 4.1.12 to 4.1.13 (March 2004)
    Omar Cornut fixed the Windows joystick driver to handle a weird peculiarity
    of the DirectInput API.
 <li>
-   Elias Pchernig corrected the value of the alpha-channel depth field in the
+   Elias Pschernig corrected the value of the alpha-channel depth field in the
    header when saving TGA image files.
 <li>
    Eric Botcazou fixed again the formula giving the stride value in the Linux
@@ -51,16 +51,16 @@ Changes from 4.1.12 to 4.1.13 (March 2004)
    Angelo Mottola removed window shadow flickering when moving the program
    window around on MacOS X.
 <li>
-   Elias Pchernig changed the behavior of yield_timeslice() to sleeping
+   Elias Pschernig changed the behavior of yield_timeslice() to sleeping
    instead of just yielding.
 <li>
    Angelo Mottola made the MacOS X port reuse the screen on the first video
    bitmap creation and made the screen fade on mode switches faster.
 <li>
-   Elias Pchernig made d_menu_proc() automatically yield when the dialog
+   Elias Pschernig made d_menu_proc() automatically yield when the dialog
    is driven by do_dialog().
 <li>
-   Elias Pchernig added missing d_yield_proc()s to the grabber.
+   Elias Pschernig added missing d_yield_proc()s to the grabber.
 <li>
    Eric Botcazou fixed a bug which caused too many sliders to be reported
    in the presence of a POV device on Windows.
@@ -77,13 +77,13 @@ Changes from 4.1.12 to 4.1.13 (March 2004)
    Eric Botcazou implemented automatic screensaver disabling (only on
    Windows for the time being).
 <li>
-   Elias Pchernig added mode 1280x960 to the gfx mode selector.
+   Elias Pschernig added mode 1280x960 to the gfx mode selector.
 <li>
-   Elias Pchernig fixed the video mode error display in the test program.
+   Elias Pschernig fixed the video mode error display in the test program.
 <li>
    Eric Botcazou fixed the final animation of the demo game.
 <li>
-   Elias Pchernig made the X11 gfx driver ignore repeated key-events.
+   Elias Pschernig made the X11 gfx driver ignore repeated key-events.
 <li>
    Eric Botcazou added set_hardware_volume().
 <li>
@@ -97,7 +97,7 @@ Changes from 4.1.12 to 4.1.13 (March 2004)
 <li>
    David Capello fixed a bug with FLI frames containing odd-sized chunks.
 <li>
-   Elias Pchernig and Sven Sandberg improved the GUI focus algorithm.
+   Elias Pschernig and Sven Sandberg improved the GUI focus algorithm.
 <li>
    Eric Botcazou modified the dat/grabber plugins interface to expose
    datafile properties to plugins.
