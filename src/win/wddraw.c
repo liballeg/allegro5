@@ -178,7 +178,7 @@ int setup_driver(GFX_DRIVER * drv, int w, int h, int color_depth)
    drv->vid_mem += w * h * BYTES_PER_PIXEL(color_depth);
 
    /* create our pseudo surface memory */
-   pseudo_surf_mem = malloc(2048);
+   pseudo_surf_mem = malloc(2048 * BYTES_PER_PIXEL(color_depth));
 
    /* modify the vtable to work with video memory */
    memcpy(&_screen_vtable, _get_vtable(color_depth), sizeof(_screen_vtable));
