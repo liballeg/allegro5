@@ -380,7 +380,8 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
 
    /* close down any existing graphics driver */
    if (gfx_driver) {
-      show_mouse(NULL);
+      if (_al_linker_mouse)
+         _al_linker_mouse->show_mouse(NULL);
 
       while (vram_bitmap_list)
 	 destroy_bitmap(vram_bitmap_list->bmp);
@@ -561,7 +562,10 @@ int set_gfx_mode(int card, int w, int h, int v_w, int v_h)
    }
 
    clear(screen);
-   _set_mouse_range();
+
+   if (_al_linker_mouse)
+      _al_linker_mouse->set_mouse_etc();
+
    LOCK_DATA(gfx_driver, sizeof(GFX_DRIVER));
 
    _register_switch_bitmap(screen, NULL);
