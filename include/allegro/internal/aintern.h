@@ -238,7 +238,6 @@ typedef struct FONT_VTABLE
    AL_METHOD(int, transpose_font, (FONT *f, int drange));
 } FONT_VTABLE;
 
-AL_VAR(FONT, _default_font);
 AL_VAR(FONT_VTABLE, _font_vtable_mono);
 AL_VAR(FONT_VTABLE *, font_vtable_mono);
 AL_VAR(FONT_VTABLE, _font_vtable_color);

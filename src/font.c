@@ -1494,12 +1494,12 @@ static FONT_MONO_DATA ascii_monofont = {
     &latin1_monofont            /* next */
 };
 
-FONT _default_font = {
+static FONT default_font = {
     &ascii_monofont,            /* first lot of data */
     8,                          /* height */
     &_font_vtable_mono          /* vtable */
 };
 
-FONT* font = &_default_font;
+FONT* font = &default_font;
 
 
