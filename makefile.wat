@@ -136,8 +136,8 @@ $(WATDIR_U)/h/allegro/platform/%.h: include/allegro/platform/%.h
 	copy $(subst /,\,$<) $(subst /,\,$@)
 
 HEADERS = $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/*.h)))          \
-          $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/internal/*.h))) \
-          $(addprefix $(WATDIR_U)/h/allegro/,$(notdir $(wildcard include/allegro/inline/*.inl)))
+          $(addprefix $(WATDIR_U)/h/allegro/internal/,$(notdir $(wildcard include/allegro/internal/*.h))) \
+          $(addprefix $(WATDIR_U)/h/allegro/inline/,$(notdir $(wildcard include/allegro/inline/*.inl)))
 
 INSTALL_FILES = $(WATDIR_U)/lib386/$(VERSION).lib         \
 		$(WATDIR_U)/h/allegro.h                   \
