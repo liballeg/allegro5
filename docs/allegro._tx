@@ -5711,6 +5711,12 @@ Dialog procedures may be called with any of the messages:
    Sent to the focused object whenever the mouse wheel moves. The c message 
    parameter contains the number of clicks.
 
+<b>MSG_LPRESS, MSG_MPRESS, MSG_RPRESS:</b><br>
+   Sent when the corresponding mouse button is pressed.
+
+<b>MSG_LRELEASE, MSG_MRELEASE, MSG_RRELEASE:</b><br>
+   Sent when the corresponding mouse button is released.
+
 <b>MSG_USER:</b><br>
    The first free message value. Any numbers from here on (MSG_USER, 
    MSG_USER+1, MSG_USER+2, ... MSG_USER+n) are free to use for whatever you 
