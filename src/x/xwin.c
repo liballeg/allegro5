@@ -13,6 +13,7 @@
  *      By Michael Bukin.
  *
  *      Video mode switching by Peter Wang and Benjamin Stover.
+ *
  *      X icon selection by Evert Glebbeek
  *
  *      See readme.txt for copyright information.
@@ -144,8 +145,8 @@ void *allegro_icon = alex_xpm;
 int _xwin_last_line = -1;
 int _xwin_in_gfx_call = 0;
 
-COLORCONV_BLITTER_FUNC *blitter_func = NULL;
-int _xwin_use_bgr_palette_hack = FALSE; /* use BGR hack for colorconversion palette? */
+static COLORCONV_BLITTER_FUNC *blitter_func = NULL;
+static int use_bgr_palette_hack = FALSE; /* use BGR hack for color conversion palette? */
 
 #ifndef ALLEGRO_MULTITHREADED
 int _xwin_missed_input;
@@ -590,7 +591,7 @@ static void _xwin_private_select_screen_to_buffer_function(void)
       if (!_xwin.visual_is_truecolor)
 	 j += 5;
 
-      if(_xwin_private_colorconv_usable()) {
+      if (_xwin_private_colorconv_usable()) {
          TRACE("Using generic color conversion blitter (%u, %u).\n", _xwin.screen_depth, _xwin.fast_visual_depth);
          blitter_func = _get_colorconv_blitter(_xwin.screen_depth, _xwin.fast_visual_depth);
          _xwin.screen_to_buffer = _xwin_private_fast_colorconv;
@@ -1410,7 +1411,7 @@ static void _xwin_private_hack_shifts(void)
 {
    switch(_xwin.screen_depth) {
       case 8:
-         _xwin_use_bgr_palette_hack = TRUE;
+         use_bgr_palette_hack = TRUE;
          break;
       case 15:
          _rgb_r_shift_15 = 10;
@@ -1442,7 +1443,7 @@ static void _xwin_private_hack_shifts(void)
  */
 static int _xwin_private_colorconv_usable(void)
 {
-   _xwin_use_bgr_palette_hack = FALSE; /* make sure this is initialized */
+   use_bgr_palette_hack = FALSE; /* make sure this is initialized */
 
    if (_xwin.fast_visual_depth == 0) {
       return 0;
@@ -1469,7 +1470,8 @@ static int _xwin_private_colorconv_usable(void)
        && ((_xwin.rshift == 0) || (_xwin.rshift == 10) || (_xwin.rshift == 11))
        && ((_xwin.bshift == 0) || (_xwin.bshift == 10) || (_xwin.bshift == 11))
        && (_xwin.gshift == 5)) {
-      if(_xwin.bshift == 0) _xwin_private_hack_shifts();
+      if (_xwin.bshift == 0)
+	 _xwin_private_hack_shifts();
       return 1;
    }
    else if ((_xwin.fast_visual_depth == 24)
@@ -1477,7 +1479,8 @@ static int _xwin_private_colorconv_usable(void)
        && ((_xwin.rshift == 0) || (_xwin.rshift == 16))
        && ((_xwin.bshift == 0) || (_xwin.bshift == 16))
        && (_xwin.gshift == 8)) {
-      if(_xwin.bshift == 0) _xwin_private_hack_shifts();
+      if (_xwin.bshift == 0)
+	 _xwin_private_hack_shifts();
       return 1;
    }
    else if ((_xwin.fast_visual_depth == 32)
@@ -1485,7 +1488,8 @@ static int _xwin_private_colorconv_usable(void)
        && ((_xwin.rshift == 0) || (_xwin.rshift == 16))
        && ((_xwin.bshift == 0) || (_xwin.bshift == 16))
        && (_xwin.gshift == 8)) {
-      if(_xwin.bshift == 0) _xwin_private_hack_shifts();
+      if (_xwin.bshift == 0)
+	 _xwin_private_hack_shifts();
       return 1;
    }
 
@@ -1981,7 +1985,7 @@ static void _xwin_private_set_palette_colors(AL_CONST PALETTE p, int from, int t
 
 static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
-   RGB *pal = NULL;
+   RGB *pal;
    int c;
    unsigned char temp;
 
@@ -1990,20 +1994,21 @@ static void _xwin_private_set_palette_range(AL_CONST PALETTE p, int from, int to
       _xwin_private_vsync();
 
    if (_xwin.set_colors != 0) {
-      if(blitter_func) {
-         if(_xwin_use_bgr_palette_hack && (from >= 0) && (to < 256)) {
+      if (blitter_func) {
+         if (use_bgr_palette_hack && (from >= 0) && (to < 256)) {
             pal = malloc(sizeof(RGB)*256);
             ASSERT(pal);
             ASSERT(p);
-            if(!pal || !p) return; /* ... in shame and disgrace */
+            if (!pal || !p)
+	       return; /* ... in shame and disgrace */
             memcpy(&pal[from], &p[from], sizeof(RGB)*(to-from+1));
-            for (c=from; c<=to; c++) {
+            for (c = from; c <= to; c++) {
                temp = pal[c].r;
                pal[c].r = pal[c].b;
                pal[c].b = temp;
             }
             _set_colorconv_palette(pal, from, to);
-            if(pal) free(pal);
+	    free(pal);
          }
          else {
             _set_colorconv_palette(p, from, to);
@@ -3339,7 +3344,7 @@ unsigned long _xdga_switch_bank(BITMAP *bmp, int line)
  */
 static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 {
-   RGB *pal = NULL;
+   RGB *pal;
    int c;
    unsigned char temp;
 
@@ -3348,20 +3353,21 @@ static void _xdga_private_set_palette_range(AL_CONST PALETTE p, int from, int to
       _xwin_private_vsync();
 
    if (_xwin.set_colors != 0) {
-      if(blitter_func) {
-         if(_xwin_use_bgr_palette_hack && (from >= 0) && (to < 256)) {
+      if (blitter_func) {
+         if (use_bgr_palette_hack && (from >= 0) && (to < 256)) {
             pal = malloc(sizeof(RGB)*256);
             ASSERT(pal);
             ASSERT(p);
-            if(!pal || !p) return; /* ... in shame and disgrace */
+            if (!pal || !p)
+	       return; /* ... in shame and disgrace */
             memcpy(&pal[from], &p[from], sizeof(RGB)*(to-from+1));
-            for (c=from; c<=to; c++) {
+            for (c = from; c <= to; c++) {
                temp = pal[c].r;
                pal[c].r = pal[c].b;
                pal[c].b = temp;
             }
             _set_colorconv_palette(pal, from, to);
-            if(pal) free(pal);
+	    free(pal);
          }
          else {
             _set_colorconv_palette(p, from, to);
