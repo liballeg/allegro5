@@ -16,9 +16,10 @@ General (Platform independant) todos:
   that we have a Mac port, it's a total of 4 possible windowed drivers,
   and the need of an unified set of window updating routines is stronger)
   [Eric or Angelo: remove this when it's done]
-- implement fetch_mode_list() method on all GFX drivers.
+- implement fetch_mode_list() method on all GFX drivers that has the
+  functionality to support this.
 - gfx_mode_select* should use get_gfx_mode_list when available.
-- os_version & os_revision should be set on all platforms.
+- os_version & os_revision should be set on all platforms. (mac & qnx)
 - check and/or fix compilation with gcc 3.0
 - asm draw_sprite et al. don't work with sub-bitmaps
 - include dat2c once finished
