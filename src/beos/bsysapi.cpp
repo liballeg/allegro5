@@ -338,15 +338,15 @@ extern "C" void be_sys_message(AL_CONST char *msg)
 {
    char  filename[MAXPATHLEN];
    char *title;
-   char  tmp[32];
+   char  tmp[ALLEGRO_MESSAGE_SIZE];
+   char  tmp2[ALLEGRO_MESSAGE_SIZE];
 
    get_executable_name(filename, sizeof(filename));
    title = get_filename(filename);
 
-   fprintf(stderr, "%s", msg);
-
-   BAlert *alert = new BAlert(title, msg,
-      uconvert_toascii(get_config_text("Ok"), tmp));
+   BAlert *alert = new BAlert(title,
+      uconvert(msg, U_CURRENT, tmp, U_UTF8, ALLEGRO_MESSAGE_SIZE),
+      uconvert(get_config_text("Ok"), U_CURRENT, tmp2, U_UTF8, ALLEGRO_MESSAGE_SIZE));
    alert->SetShortcut(0, B_ESCAPE);
    be_app->ShowCursor();
    alert->Go();
