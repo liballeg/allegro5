@@ -142,7 +142,7 @@ fi
 AC_MSG_RESULT(\"$allegro_cv_asm_prefix\")])
 
 dnl
-dnl Test for modules support (dlopen interface and -export-dynamic linker flag).
+dnl Test for modules support (dlopen interface and --export-dynamic linker flag).
 dnl
 dnl Variables:
 dnl  allegro_support_modules=(yes|)
@@ -158,10 +158,10 @@ allegro_enable_modules=yes)
 
 if test -n "$allegro_enable_modules"; then
   AC_CHECK_HEADERS(dlfcn.h,
-    [AC_CACHE_CHECK(whether -export-dynamic linker flag is supported,
+    [AC_CACHE_CHECK(whether --export-dynamic linker flag is supported,
       allegro_cv_support_export_dynamic,
       [allegro_save_LDFLAGS="$LDFLAGS"
-      LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
+      LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
       AC_TRY_LINK(,,
         allegro_cv_support_export_dynamic=yes,
         allegro_cv_support_export_dynamic=no,
@@ -172,7 +172,7 @@ if test -n "$allegro_enable_modules"; then
       dnl Use libdl if found, else assume dl* functions in libc.
       AC_CHECK_LIB(dl, dlopen,
         [LIBS="-ldl $LIBS"])
-      LDFLAGS="-Wl,-export-dynamic $LDFLAGS"
+      LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
     fi])
 fi
 ])
