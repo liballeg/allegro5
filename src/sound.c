@@ -143,7 +143,7 @@ int _digi_volume = -1;                    /* current volume settings */
 int _midi_volume = -1;
 
 int _sound_flip_pan = FALSE;              /* reverse l/r sample panning? */
-int _sound_hq = 1;                        /* mixer speed vs. quality */
+int _sound_hq = 2;                        /* mixer speed vs. quality */
 
 int _sound_freq = -1;                     /* common hardware parameters */
 int _sound_stereo = -1;
