@@ -300,7 +300,11 @@ ALLEGRO_SRC_QNX_FILES = \
 	src/qnx/qdrivers.c \
 	src/qnx/qkeydrv.c \
 	src/qnx/qmouse.c \
+	src/qnx/qphaccel.c \
+	src/qnx/qphbmp.c \
+	src/qnx/qphfull.c \
 	src/qnx/qphoton.c \
+	src/qnx/qphwin.c \
 	src/qnx/qswitch.s \
 	src/qnx/qsystem.c \
 	src/unix/alsa.c \
