@@ -631,7 +631,7 @@ static void color_destroy(FONT* f)
  * vtable declarations
  ********/
 
-static FONT_VTABLE _font_vtable_mono = {
+FONT_VTABLE _font_vtable_mono = {
     mono_length,
     mono_render,
     mono_destroy
@@ -639,7 +639,7 @@ static FONT_VTABLE _font_vtable_mono = {
 
 FONT_VTABLE* font_vtable_mono = &_font_vtable_mono;
 
-static FONT_VTABLE _font_vtable_color = {
+FONT_VTABLE _font_vtable_color = {
     color_length,
     color_render,
     color_destroy

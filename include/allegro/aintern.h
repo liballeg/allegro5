@@ -189,7 +189,9 @@ typedef struct FONT_VTABLE {
 }FONT_VTABLE;
 
 AL_VAR(FONT, _default_font);
+AL_VAR(FONT_VTABLE, _font_vtable_mono);
 AL_VAR(FONT_VTABLE*, font_vtable_mono);
+AL_VAR(FONT_VTABLE, _font_vtable_color);
 AL_VAR(FONT_VTABLE*, font_vtable_color);
 AL_VAR(int, allegro_404_char);
 

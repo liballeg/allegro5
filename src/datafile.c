@@ -634,7 +634,7 @@ static FONT_COLOR_DATA* read_font_color(PACKFILE* pack, int* hmax)
             return 0;
         }
 
-        if(bits[i]->w > *hmax) *hmax = bits[i]->w;
+        if(bits[i]->h > *hmax) *hmax = bits[i]->h;
     }
 
     return cf;

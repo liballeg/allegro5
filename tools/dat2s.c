@@ -206,68 +206,107 @@ static void output_midi(MIDI *midi, char *name)
 
 
 
-static void output_font(FONT *f, char *name, int depth)
+static void output_font_color(FONT_COLOR_DATA* cf, char* name, int depth)
 {
-/*   FONT_GLYPH *g;
-   char buf[160], goodname[160];
-   int c;
+   char buf[1000], goodname[1000];
+   int ch = 0;
 
-   if (f->next)
-      output_font(f->next, name, depth+1);
+   if (cf->next) output_font_color(cf->next, name, depth + 1);
 
-   if (depth > 0)
-      sprintf(goodname, "%s_r%d", name, depth+1);
-   else
+   if (depth > 0) 
+      sprintf(goodname, "%s_r%d", name, depth + 1);
+   else 
       strcpy(goodname, name);
 
-   for (c=f->start; c<=f->end; c++) {
-      sprintf(buf, "%s_char_%04X", goodname, c);
-
-      if (f->mono) {
-	 g = f->glyphs[c-f->start];
-
-	 fprintf(outfile, "# glyph\n");
-	 fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s:\n", prefix, buf);
-	 fprintf(outfile, "\t.short %-15d# w\n", g->w);
-	 fprintf(outfile, "\t.short %-15d# h\n", g->h);
-
-	 write_data(g->dat, ((g->w+7)/8) * g->h);
-
-	 fprintf(outfile, "\n");
-      }
-      else
-	 output_bitmap(f->glyphs[c-f->start], buf, FALSE);
+   for (ch = cf->begin; ch < cf->end; ch++) {
+      sprintf(buf, "%s_char_%04X", goodname, ch);
+      output_bitmap(cf->bitmaps[ch - cf->begin], buf, FALSE);
    }
 
    fprintf(outfile, "# glyph list\n");
    fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s_glyphs:\n", prefix, goodname);
 
-   for (c=f->start; c<=f->end; c++)
-      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_char_%04X\n", prefix, goodname, c);
+   for (ch = cf->begin; ch < cf->end; ch++)
+      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_char_%04X\n", prefix, goodname, ch);
+   fprintf(outfile, "\n# FONT_COLOR_DATA\n");
 
+   fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s_data:\n", prefix, goodname);
+   fprintf(outfile, "\t.long 0x%04X%10c# begin\n", cf->begin, ' ');
+   fprintf(outfile, "\t.long 0x%04X%10c# end\n", cf->end, ' ');
+   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_glyphs\n", prefix, goodname);
+   if (cf->next) 
+      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_r%d_data\n", prefix, name, depth + 2);
+   else
+      fprintf(outfile, "\t.long %-16d#next\n", 0);
    fprintf(outfile, "\n");
+}
+
+
+
+static void output_font_mono(FONT_MONO_DATA *mf, char *name, int depth)
+{
+   char buf[1000], goodname[1000];
+   int ch = 0;
+
+   if (mf->next) output_font_mono(mf->next, name, depth + 1);
+
+   if (depth > 0) 
+      sprintf(goodname, "%s_r%d", name, depth + 1);
+   else
+      strcpy(goodname, name);
+
+   for (ch = mf->begin; ch < mf->end; ch++) {
+      FONT_GLYPH *g = mf->glyphs[ch - mf->begin];
+
+      sprintf(buf, "%s_char_%04X", goodname, ch);
+      fprintf(outfile, "# glyph\n");
+      fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s:\n", prefix, buf);
+      fprintf(outfile, "\t.short %-15d# w\n", g->w);
+      fprintf(outfile, "\t.short %-15d# h\n", g->h);
+      
+      write_data(g->dat, ((g->w + 7) / 8) * g->h);
+      fprintf(outfile, "\n");
+   }
+
+   fprintf(outfile, "# glyph list\n");
+   fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s_glyphs:\n", prefix, goodname);
+
+   for (ch = mf->begin; ch < mf->end; ch++)
+      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_char_%04X\n", prefix, goodname, ch);
+   fprintf(outfile, "\n# FONT_COLOR_DATA\n");
+
+   fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s_data:\n", prefix, goodname);
+   fprintf(outfile, "\t.long 0x%04X%10c# begin\n", mf->begin, ' ');
+   fprintf(outfile, "\t.long 0x%04X%10c# end\n", mf->end, ' ');
+   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_glyphs\n", prefix, goodname);
+   if (mf->next) 
+      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_r%d_data\n", prefix, name, depth + 2);
+   else
+      fprintf(outfile, "\t.long %-16d#next\n", 0);
+   fprintf(outfile, "\n");
+}
+
+
+
+static void output_font(FONT *f, char *name, int depth)
+{
+   if(f->vtable == font_vtable_mono)
+      output_font_mono(f->data, name, 0);
+   else
+      output_font_color(f->data, name, 0);
 
    fprintf(outfile, "# font\n");
-
-   if (depth == 0)
-      fprintf(outfile, ".globl " ALLEGRO_ASM_PREFIX "%s%s\n", prefix, goodname);
-
-   fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s:\n", prefix, goodname);
-   fprintf(outfile, "\t.long %-16d# mono\n", f->mono);
-   fprintf(outfile, "\t.long 0x%04X%10c# start\n", f->start, ' ');
-   fprintf(outfile, "\t.long 0x%04X%10c# end\n", f->end, ' ');
-   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_glyphs\n", prefix, goodname);
-
-   if (f->next)
-      fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_r%d\n", prefix, name, depth+2);
+   fprintf(outfile, ".globl " ALLEGRO_ASM_PREFIX "%s%s\n", prefix, name);
+   fprintf(outfile, ".balign 4\n" ALLEGRO_ASM_PREFIX "%s%s:\n", prefix, name);
+   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "%s%s_data\n", prefix, name);
+   fprintf(outfile, "\t.long %-16d# height\n", f->height);
+   fprintf(outfile, "\t.long " ALLEGRO_ASM_PREFIX "_font_vtable_");
+   if (f->vtable == font_vtable_mono)
+      fprintf(outfile, "mono\n");
    else
-      fprintf(outfile, "\t.long %-16d# next\n", 0);
-
-   fprintf(outfile, "\t.long %-16d# renderhook\n", 0);
-   fprintf(outfile, "\t.long %-16d# widthhook\n", 0);
-   fprintf(outfile, "\t.long %-16d# heighthook\n", 0);
-   fprintf(outfile, "\t.long %-16d# destroyhook\n", 0);
-   fprintf(outfile, "\n");*/
+      fprintf(outfile, "color\n");
+   
+   fprintf(outfile, "\n");
 }
 
 
