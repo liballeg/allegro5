@@ -783,7 +783,9 @@ available in past/future versions of Allegro.
 @eref excustom, exunicod
 @shortdesc Stores an Allegro font.
    A structure holding an Allegro font, usually created beforehand with the
-   grabber tool or Allegro's default font.
+   grabber tool or Allegro's default font. Read chapter "Fonts" for a
+   description on how to load/destroy fonts, and chapter "Text output" for a
+   description on how to show text.
 
 @@typedef struct BITMAP @ZBUFFER
 @xref Zbuffered rendering, BITMAP
@@ -2876,17 +2878,25 @@ Allegro does not provide such devices.)
 @xref install_int, install_int_ex
 @eref exscn3d, exsprite, exswitch, extimer, exupdate, exzbuf
 @shortdesc Locks the memory of a variable used by a timer.
-   Due to interrupts/threading, you are required to lock all the memory used
-   by your timer routines. See the description of install_int_ex() for a
-   more detailed explanation and usage example.
+   Due to interrupts, you are required to lock all the memory used by your
+   timer routines. See the description of install_int_ex() for a more
+   detailed explanation and usage example.
+   
+@@Macro @LOCK_FUNCTION(function_name);
+@xref install_int, install_int_ex
+@eref exscn3d, exsprite, exswitch, extimer, exupdate, exzbuf
+@shortdesc Locks the memory of a function used by a timer.
+   Due to interrupts, you are required to lock all the memory used by your
+   timer routines. See the description of install_int_ex() for a more
+   detailed explanation and usage example.
    
 @@Macro @END_OF_FUNCTION(function_name);
 @xref install_int, install_int_ex
 @eref exkeys, exscn3d, exsprite, exswitch, extimer, exupdate, exzbuf
 @shortdesc Locks the code used by a timer.
-   Due to interrupts/threading, you are required to lock all the code used
-   by your timer routines. See the description of install_int_ex() for a
-   more detailed explanation and usage example.
+   Due to interrupts, you are required to lock all the code used by your
+   timer routines. See the description of install_int_ex() for a more
+   detailed explanation and usage example.
    
 @@void @remove_int(void (*proc)());
 @xref install_int, install_int_ex, remove_param_int
@@ -3109,6 +3119,11 @@ routines" for more information about this.
       KEY_SCRLOCK, KEY_NUMLOCK, KEY_CAPSLOCK
 
       KEY_EQUALS_PAD, KEY_BACKQUOTE, KEY_SEMICOLON, KEY_COMMAND<endblock>
+
+   Finally, you may notice an `odd' behaviour of the KEY_PAUSE key. This key
+   only generates an interrupt when it is pressed, not when it is released.
+   For this reason, Allegro pretends the pause key is a `state' key, which
+   is the only way to make it usable.
 
 @@extern volatile int @key_shifts;
 @xref install_keyboard, poll_keyboard, key
@@ -6078,7 +6093,7 @@ clipping rectangle of the destination bitmap.
       else
 	 set_trans_blender(40, 40, 255, 255);
 
-      /* Lit the cape with a bluish light. */
+      /* Lit the cape with a blueish light. */
       draw_lit_sprite(buffer, colored_cape, x, y);<endblock>
 
 @\void @draw_gouraud_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y,
@@ -6120,7 +6135,13 @@ clipping rectangle of the destination bitmap.
    pixels to the specified color. Transparent pixels are marked by a zero
    in 256-color modes or bright pink for truecolor data (maximum red and
    blue, zero green). The sprite must be an 8-bit image, even if the
-   destination is a truecolor bitmap.
+   destination is a truecolor bitmap. Example:
+<codeblock>
+      BITMAP *logo;
+      ...
+      /* Draw the logo silhouette in red. */
+      draw_character_ex(screen, logo, SCREEN_W / 2, SCREEN_H / 2,
+			makecol(255, 0, 0), -1);<endblock>
 
 @@void @rotate_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y, fixed angle);
 @xref draw_sprite, rotate_scaled_sprite, rotate_sprite_v_flip
@@ -6236,21 +6257,46 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
 @xref draw_rle_sprite, destroy_rle_sprite
 @shortdesc Creates an RLE sprite using a bitmap as source.
    Creates an RLE sprite based on the specified bitmap (which must be a 
-   memory bitmap).
+   memory bitmap). Remember to free this RLE sprite later to avoid memory
+   leaks. Example:
+<codeblock>
+      RLE_SPRITE *rle;
+      BITMAP *bmp;
+      ...
+      /* Create RLE sprite from an existent bitmap. */
+      rle = get_rle_sprite(bmp);
+      if (!rle)
+	 abort_on_error("Couldn't create RLE sprite!");
+         
+      /* We don't need the bitmap any more.*/
+      destroy_bitmap(bmp);
+      
+      /* Use the RLE sprite. */
+      ...
+      /* Destroy it when we don't need it any more. */
+      destroy_rle_sprite(rle);<endblock>
+@retval
+   Returns a pointer to the created RLE sprite, or NULL if the RLE sprite
+   could not be created. Remember to free this RLE sprite later to avoid
+   memory leaks.
 
 @@void @destroy_rle_sprite(RLE_SPRITE *sprite);
 @xref get_rle_sprite
 @shortdesc Destroys an RLE sprite.
    Destroys an RLE sprite structure previously returned by get_rle_sprite().
-   Use this once you are done with an RLE sprite to avoid memory leaks in
-   your program.
+   If you pass a NULL pointer this function won't do anything. Use this once
+   you are done with an RLE sprite to avoid memory leaks in your program.
 
 @\void @draw_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                     int x, int y);
 @xref get_rle_sprite, draw_sprite, draw_compiled_sprite
 @xref draw_trans_rle_sprite, draw_lit_rle_sprite, bitmap_mask_color
 @shortdesc Draws an RLE sprite.
-   Draws an RLE sprite onto a bitmap at the specified position.
+   Draws an RLE sprite onto a bitmap at the specified position. Example:
+<codeblock>
+      RLE_SPRITE *rle_sprite;
+      ...
+      draw_rle_sprite(screen, rle_sprite, 100, 100);<endblock>
 
 @\void @draw_trans_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                           int x, int y);
@@ -6263,7 +6309,19 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
    truecolor modes). The bitmap and sprite must normally be in the same 
    color depth, but as a special case you can draw 32-bit RGBA format 
    sprites onto any hicolor or truecolor bitmap, as long as you call 
-   set_alpha_blender() first.
+   set_alpha_blender() first. Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_trans_table;
+      create_trans_table(&global_trans_table, my_palette,
+			 128, 128, 128, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_trans_table;
+      else
+	 set_trans_blender(128, 128, 128, 128);
+
+      draw_trans_rle_sprite(buffer, rle_ghost_sprite, x, y);<endblock>
 
 @\void @draw_lit_rle_sprite(BITMAP *bmp, const RLE_SPRITE *sprite,
 @@                         int x, y, color);
@@ -6273,7 +6331,20 @@ in grabber datafiles by making a new object of type 'RLE sprite'.
    Tinted version of draw_rle_sprite(). See the description of
    draw_lit_sprite(). This must only be used after you have set up the color 
    mapping table (for 256-color modes) or blender functions (for truecolor 
-   modes).
+   modes). Example:
+<codeblock>
+      /* Some one time initialisation code. */
+      COLOR_MAP global_light_table;
+      create_light_table(&global_trans_table, my_palette,
+			 10, 10, 60, NULL);
+      ...
+      if (bitmap_color_depth(screen) == 8)
+	 color_map = &global_light_table;
+      else
+	 set_trans_blender(40, 40, 255, 255);
+
+      /* Lit the cape with a blueish light. */
+      draw_lit_rle_sprite(buffer, rle_colored_cape, x, y);<endblock>
 
 
 
@@ -6303,14 +6374,34 @@ type 'Compiled sprite' or 'Compiled x-sprite'.
    specify whether to compile it into a linear or planar format. Pass FALSE
    as the second parameter if you are going to be drawing it onto memory 
    bitmaps or mode 13h and SVGA screen bitmaps, and pass TRUE if you are 
-   going to draw it onto mode-X or Xtended mode screen bitmaps.
+   going to draw it onto mode-X or Xtended mode screen bitmaps. Example:
+      COMPILED_SPRITE *cspr;
+      BITMAP *bmp;
+      ...
+      /* Create compiled sprite from an existent bitmap. */
+      cspr = get_compiled_sprite(bmp, 0);
+      if (!cspr)
+         abort_on_error("Couldn't create compiled sprite!");
+      
+      /* We don't need the bitmap any more.*/
+      destroy_bitmap(bmp);
+      
+      /* Use the compiled sprite. */
+      ...
+      /* Destroy it when we don't need it any more. */
+      destroy_compiled_sprite(cspr);
+   
+   Returns a pointer to the created compiled sprite, or NULL if the compiled
+   sprite could not be created. Remember to free this compiled sprite later
+   to avoid memory leaks.
 
 @@void @destroy_compiled_sprite(COMPILED_SPRITE *sprite);
 @xref get_compiled_sprite
 @shortdesc Destroys a compiled sprite.
    Destroys a compiled sprite structure previously returned by 
-   get_compiled_sprite(). Use this once you are done with a compiled sprite
-   to avoid memory leaks in your program.
+   get_compiled_sprite(). If you pass a NULL pointer this function won't do
+   anything. Use this once you are done with a compiled sprite to avoid
+   memory leaks in your program.
 
 @\void @draw_compiled_sprite(BITMAP *bmp, const COMPILED_SPRITE *sprite,
 @@                          int x, int y);
@@ -6337,7 +6428,11 @@ multiple-range Unicode font by writing a .txt script that specifies a number
 of different source files for each range of characters.
 
 By default, Allegro can only use bitmapped (non-scalable) fonts. If you want
-to use TrueType fonts, you will need to use an add-on library.
+to use TrueType fonts, you will need to use an add-on library which allows
+you to load them on the fly (like AllegTTF or Glyph Keeper, listed among
+others at <link>http://www.allegro.cc/</a>) and render them directly, or generate a
+bitmapped version of a TrueType font with tools like TTF2PCX
+(<link>http://www.talula.demon.co.uk/ttf2pcx/index.html</a>).
 
 @\void @register_font_file_type(const char *ext,
 @@          FONT *(*load)(const char *filename, RGB *pal, void *param));
@@ -6362,6 +6457,7 @@ to use TrueType fonts, you will need to use an add-on library.
 @@FONT *@load_font(const char *filename, RGB *pal, void *param);
 @xref register_font_file_type, load_bitmap, load_dat_font, load_bios_font
 @xref load_grx_font, load_grx_or_bios_font, load_bitmap_font, load_txt_font
+@xref destroy_font
 @shortdesc Loads a font from a file.
    Loads a font from a file. At present, this supports loading fonts from
    a GRX format .fnt file, a 8x8 or 8x16 BIOS format .fnt file or any bitmap
@@ -6373,7 +6469,9 @@ to use TrueType fonts, you will need to use an add-on library.
    if present, is simply not returned.
    
    The third parameter can be used to pass specific information to a custom
-   loader routine. Normally, you can just leave this as NULL.
+   loader routine. Normally, you can just leave this as NULL. Note that
+   another way of loading fonts is embedding them into a datafile and using
+   the datafile related functions.
 
    Example:
 <codeblock>
@@ -6393,28 +6491,35 @@ to use TrueType fonts, you will need to use an add-on library.
    responsible for destroying the font when you are finished with it to
    avoid memory leaks.
 
+@@void @destroy_font(FONT *f);
+@xref load_datafile_object, load_font
+@shortdesc Frees the memory being used by a font structure.
+   Frees the memory being used by a font structure. Don't use this on the
+   default global Allegro font or any text routines using it could crash. You
+   should use this only on fonts you have loaded manually after you are done
+   with them, to prevent memory leaks in your program.
+
 @@int @is_color_font(FONT *f)
 @xref is_mono_font
 @shortdesc Returns TRUE if a font is a color font.
-   This function returns TRUE if the font is an Allegro color font (as
-   opposed to a monochrome font).
+   This function checks if the given font is a color font, as opposed to a
+   monochrome font.
 @retval
    Returns TRUE if the font is a color font, FALSE if it is not.
 
 @@int @is_mono_font(FONT *f)
 @xref is_color_font
 @shortdesc Returns TRUE if a font is a monochrome font.
-   This function returns TRUE if the font is an Allegro monochrome font (as
-   opposed to a color font).
+   This function checks if the given font is a mono font, as opposed to a
+   color font.
 @retval
    Returns TRUE if the font is a monochrome font, FALSE if it is not.
 
 @@FONT *@is_compatible_font(FONT *f1, FONT *f2)
 @xref merge_fonts, is_color_font, is_mono_font
 @shortdesc Check if two fonts are of the same type.
-   This function compares the two fonts. If it returns TRUE, then you should
-   normally be able to merge the two fonts. If it returns FALSE, this is less
-   certain.
+   This function compares the two fonts, which you can use to find out if
+   Allegro is capable of merging them.
 @retval
    Returns TRUE if the two fonts are of the same general type (both are color
    fonts or both are monochrome fonts, for instance).
@@ -6422,8 +6527,8 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @get_font_ranges(FONT *f)
 @xref get_font_range_begin, get_font_range_end, transpose_font
 @shortdesc Returns the number of character ranges in a font.
-   This function returns the number of character ranges in a font. You should
-   query each of these ranges with get_font_range_begin() and
+   Use this function to find out the number of character ranges in a font. You
+   should query each of these ranges with get_font_range_begin() and
    get_font_range_end() to find out what characters are available in the
    font. Example:
 <codeblock>
@@ -6434,10 +6539,10 @@ to use TrueType fonts, you will need to use an add-on library.
       
       range = get_font_ranges(f);
       printf("The font has %d character ranges:\n", range);
-      for (n=0; n<range; n++)
-         printf("Range %d from 0x%03x - 0x%03x\n",
-               get_font_range_begin(f, n), get_font_range_end(f, n));
-      <endblock>
+      for (n = 0; n &lt range; n++)
+	 printf("Range %d from 0x%03x - 0x%03x\n",
+		get_font_range_begin(f, n),
+		get_font_range_end(f, n));<endblock>
 @retval
    Returns the number of continuous character ranges in a font, or -1 if that
    information is not available.
@@ -6445,15 +6550,15 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @get_font_range_begin(FONT *f, int range)
 @xref get_font_ranges, get_font_range_end, transpose_font
 @shortdesc Returns the start of a character range in a font.
-   This function returns the start of the character range for the font f, or
-   -1 if that information is not available for the selected font. You can pass
-   -1 for the range parameter if you want to know the start of the whole font
-   range, or a number from 0 to (but not including) get_font_ranges(f) to get
-   the start of a specific character range in the font. Example:
+   This function allows you to find out the start of a specific character
+   range for a font. You can pass -1 for the `range' parameter if you want to
+   know the start of the whole font range, or a number from 0 to (but not
+   including) get_font_ranges(f) to get the start of a specific character
+   range in the font. Example:
 <codeblock>
       printf("The font has a character range of %d - %d\n",
-             get_font_range_begin(font, -1), get_font_range_end(font, -1));
-      <endblock>
+	     get_font_range_begin(font, -1),
+	     get_font_range_end(font, -1));<endblock>
 @retval
    Returns the first character in the font range, or -1 if that information
    is not available.
@@ -6461,18 +6566,18 @@ to use TrueType fonts, you will need to use an add-on library.
 @@int @get_font_range_end(FONT *f, int range)
 @xref get_font_ranges, get_font_range_begin, transpose_font
 @shortdesc Returns the last character of a character range in a font.
-   This function returns the last character of the character range for the
-   font f. You can pass -1 for the range parameter if you want to know the
-   start of the whole font range, or a number from 0 to (but not including)
-   get_font_ranges(f) to get the start of a specific character range in the
-   font. You should check the start and end of all font ranges to see if a
-   specific character is actually available in the font. Not all characters in 
-   the range returned by get_font_range_begin(f, -1) and 
+   This function allows you to find out the index to the last character of a
+   character range for a font. You can pass -1 for the range parameter if you
+   want to know the start of the whole font range, or a number from 0 to (but
+   not including) get_font_ranges(f) to get the start of a specific character
+   range in the font. You should check the start and end of all font ranges to
+   see if a specific character is actually available in the font. Not all
+   characters in the range returned by get_font_range_begin(f, -1) and
    get_font_range_end(f, -1) need to be available! Example:
 <codeblock>
       printf("The font has a character range of %d - %d\n",
-             get_font_range_begin(font, -1), get_font_range_end(font, -1));
-      <endblock>
+	     get_font_range_begin(font, -1),
+	     get_font_range_end(font, -1));<endblock>
 @retval
    Returns the last character in the font range, or -1 if that information is
    not available.
@@ -6495,7 +6600,9 @@ to use TrueType fonts, you will need to use an add-on library.
 
       /* Create a copy of the font */
       fontcopy = extract_font_range(myfont, -1, -1);
-      <endblock>
+      ...
+      destroy_font(capitals);
+      destroy_font(fontcopy);<endblock>
 @retval
    Returns a pointer to the new font or NULL on error. Remember that you are
    responsible for destroying the font when you are finished with it to
@@ -6516,8 +6623,8 @@ to use TrueType fonts, you will need to use an add-on library.
       /* Now transpose the characters in the font so that they will be used */
       /*  for the lower case letters a-z */
       transpose_font(capitals, 'a'-'A');
-      textout_ex(screen, capitals, "allcaps", 100, 100, makecol(255,255,255), 0);
-      <endblock>
+      textout_ex(screen, capitals, "allcaps",
+		 100, 100, makecol(255,255,255), 0);<endblock>
 @retval
    Returns 0 on success, -1 on failure.
 
@@ -6732,15 +6839,6 @@ allegro/text.h for details.
 @eref ex12bit, expat, exsprite, exunicod
 @shortdesc Returns the height of a font in pixels.
    Returns the height (in pixels) of the specified font.
-
-@@void @destroy_font(FONT *f);
-@xref load_datafile_object
-@shortdesc Frees the memory being used by a font structure.
-   Frees the memory being used by a font structure. Don't use this on the
-   default global Allegro font or any text routines using it could crash. You
-   should use this only on fonts you have loaded manually from a datafile
-   with load_datafile_object after you are done with them, to prevent memory
-   leaks in your program.
 
 @\void @textout_ex(BITMAP *bmp, const FONT *f, const char *s,
 @@                int x, y, color, bg);
