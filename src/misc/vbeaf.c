@@ -2651,8 +2651,6 @@ static void vbeaf_triangle(BITMAP *bmp, int x1, int y1, int x2, int y2, int x3, 
 	 af_driver->DrawTrap(af_driver, color, &trap);
       }
    );
-
-   return TRUE;
 }
 
 
