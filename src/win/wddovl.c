@@ -307,7 +307,7 @@ static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
  */
 static int create_overlay(int w, int h, int color_depth)
 {
-   overlay_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 1, 0, 1);
+   overlay_surface = gfx_directx_create_surface(w, h, dd_pixelformat, 0, 0, 1);
    
    if (!overlay_surface) {
       _TRACE("Can't create overlay surface.\n");

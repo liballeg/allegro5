@@ -54,6 +54,7 @@
 AL_VAR(HINSTANCE, allegro_inst);
 AL_VAR(HWND, allegro_wnd);
 AL_VAR(HANDLE, allegro_thread);
+AL_VAR(int, _dx_ver);
 
 AL_FUNC(int, init_directx_window, (void));
 AL_FUNC(void, exit_directx_window, (void));

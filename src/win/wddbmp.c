@@ -32,7 +32,7 @@ static int ReusedScreen = 0;
 
 /*
  * get_surface2_int:
- *  helper to get the DirectDrawSurface2 interface
+ *  helper function to get the DirectDrawSurface2 interface
  */
 static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
 {
@@ -40,7 +40,13 @@ static LPDIRECTDRAWSURFACE2 get_surface2_int(LPDIRECTDRAWSURFACE surf)
    HRESULT hr;
  
    hr = IDirectDrawSurface_QueryInterface(surf, &IID_IDirectDrawSurface2, (LPVOID *)&surf2);
-   IDirectDrawSurface_Release(surf);
+
+   /* There is a bug in the COM part of DirectX 3:
+    * if we release the DirectSurface interface, the actual
+    * object is also released. It is fixed in DirectX 5.
+    */
+   if (_dx_ver >= 0x500)
+      IDirectDrawSurface_Release(surf);
 
    if (FAILED(hr))
       return NULL;
@@ -81,36 +87,32 @@ LPDIRECTDRAWSURFACE2 gfx_directx_create_surface(int w, int h, LPDDPIXELFORMAT pi
    memset (&surf_desc, 0, sizeof(DDSURFACEDESC));
    surf_desc.dwSize = sizeof(surf_desc);
    surf_desc.dwFlags = DDSD_CAPS;
-   surf_desc.ddsCaps.dwCaps = 0;
 
-   if (video || primary) {
-      surf_desc.ddsCaps.dwCaps |= DDSCAPS_VIDEOMEMORY;
+   if (primary) {
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+      surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
+      surf_desc.dwBackBufferCount = 2;
+   }
+   else if (overlay) {
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_OVERLAY | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
+      surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT | DDSD_HEIGHT | DDSD_WIDTH;
+      surf_desc.dwBackBufferCount = 2;
+      surf_desc.dwHeight = h;
+      surf_desc.dwWidth = w;
 
-      if (primary) {
-	 surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
-	 surf_desc.ddsCaps.dwCaps |= DDSCAPS_PRIMARYSURFACE | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-         surf_desc.dwBackBufferCount = 2;
-      }
-      else if (overlay) {
-         surf_desc.dwFlags |= DDSD_BACKBUFFERCOUNT | DDSD_HEIGHT | DDSD_WIDTH;
-         surf_desc.ddsCaps.dwCaps |= DDSCAPS_OVERLAY | DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-         surf_desc.dwBackBufferCount = 2;
-         surf_desc.dwHeight = h;
-         surf_desc.dwWidth = w;
-
-         if (pixel_format) {    /* use pixel format */
-            surf_desc.dwFlags |= DDSD_PIXELFORMAT;
-            surf_desc.ddpfPixelFormat = *pixel_format;
-         }
-      }
-      else {
-         surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
-         surf_desc.dwHeight = h;
-         surf_desc.dwWidth = w;
+      if (pixel_format) {    /* use pixel format */
+         surf_desc.dwFlags |= DDSD_PIXELFORMAT;
+         surf_desc.ddpfPixelFormat = *pixel_format;
       }
    }
+   else if (video) {
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_VIDEOMEMORY;
+      surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
+      surf_desc.dwHeight = h;
+      surf_desc.dwWidth = w;
+   }
    else {
-      surf_desc.ddsCaps.dwCaps |= DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
+      surf_desc.ddsCaps.dwCaps = DDSCAPS_SYSTEMMEMORY | DDSCAPS_OFFSCREENPLAIN;
       surf_desc.dwFlags |= DDSD_HEIGHT | DDSD_WIDTH;
       surf_desc.dwHeight = h;
       surf_desc.dwWidth = w;

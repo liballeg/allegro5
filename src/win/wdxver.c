@@ -13,7 +13,7 @@
  *
  *      By Stefan Schimanski.
  *
- *      modified dx_version from DirectX 6 SDK
+ *      modified dx_version from DirectX 7 SDK
  *
  *      See readme.txt for copyright information.
  */
@@ -43,6 +43,7 @@ typedef HRESULT(WINAPI * DIRECTINPUTCREATE) (HINSTANCE, DWORD, LPDIRECTINPUT *,
  *          0x300   DirectX 3 installed
  *          0x500   At least DirectX 5 installed.
  *          0x600   At least DirectX 6 installed.
+ *          0x700   at least DirectX 7 installed.
  */
 int get_dx_ver(void)
 {
@@ -270,6 +271,20 @@ int get_dx_ver(void)
     * QI for IDirectDrawSurface4 succeeded. We must be at least DX6
     */
    dx_version = 0x600;
+
+   /*
+    * Try for the IDirectDrawSurface7 interface. If it works, we're on DX7 at least
+    */
+   if (FAILED(IDirectDrawSurface_QueryInterface(ddraw_surf, &IID_IDirectDrawSurface7, (LPVOID *) & ddraw_surf4))) {
+      IDirectDraw_Release(directdraw);
+      FreeLibrary(ddraw_hinst);
+      return dx_version;
+   }
+
+   /*
+    * QI for IDirectDrawSurface7 succeeded. We must be at least DX7
+    */
+   dx_version = 0x700;
 
    IDirectDrawSurface_Release(ddraw_surf);
    IDirectDraw_Release(directdraw);

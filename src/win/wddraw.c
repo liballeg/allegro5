@@ -128,7 +128,7 @@ int create_palette(LPDIRECTDRAWSURFACE2 surf)
 int create_primary(void)
 {
    /* create primary surface */
-   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, 1, 1, 0);
+   dd_prim_surface = gfx_directx_create_surface(0, 0, NULL, 0, 1, 0);
    if (!dd_prim_surface) {
       _TRACE("Can't create primary surface.\n");
       return -1;

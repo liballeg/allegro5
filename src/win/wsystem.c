@@ -106,6 +106,7 @@ static CRITICAL_SECTION critical_section;
 static RECT wnd_rect;
 HINSTANCE allegro_inst = NULL;
 HANDLE allegro_thread = NULL;
+int _dx_ver;
 
 
 
@@ -115,7 +116,6 @@ HANDLE allegro_thread = NULL;
 static int sys_directx_init()
 {
    char tmp[64];
-   int dx_ver;
    unsigned long win_ver;
    HANDLE current_thread;
    HANDLE current_process;
@@ -132,7 +132,7 @@ static int sys_directx_init()
       current_process, &allegro_thread, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
    /* get versions */
-   dx_ver = get_dx_ver();
+   _dx_ver = get_dx_ver();
    win_ver = GetVersion();
    if (win_ver < 0x80000000) {
       os_type = OSTYPE_WINNT;
@@ -146,7 +146,7 @@ static int sys_directx_init()
    else
       os_type = OSTYPE_WIN3;
 
-   usprintf(sys_directx_desc, uconvert_ascii("DirectX %u.%x", tmp), dx_ver >> 8, dx_ver & 0xff);
+   usprintf(sys_directx_desc, uconvert_ascii("DirectX %u.%x", tmp), _dx_ver >> 8, _dx_ver & 0xff);
    system_directx.desc = sys_directx_desc;
 
    /* setup critical section for _enter/_exit_critical */

@@ -8,10 +8,14 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Allegro mixer to directsound driver by Robin Burrows.
+ *      Allegro mixer to DirectSound driver
+ *
+ *      by Robin Burrows.
  *
  *      Based on original src/win/wdsound.c by Stefan Schimanski
- *      and src/unix/oss.c by Joshua Heyer
+ *      and src/unix/oss.c by Joshua Heyer.
+ *
+ *      Bugfixes by Javier Gonzalez.
  *
  *      See readme.txt for copyright information.
  */

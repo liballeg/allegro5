@@ -8,9 +8,11 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Allegro mixer to WaveOut driver by Robin Burrows.
+ *      Allegro mixer to WaveOut driver
  *
- *      Based on original src/unix/uoss.c by Joshua Heyer
+ *      by Robin Burrows.
+ *
+ *      Based on original src/unix/uoss.c by Joshua Heyer.
  *
  *      See readme.txt for copyright information.
  */

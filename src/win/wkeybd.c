@@ -137,6 +137,13 @@ static void key_dinput_handle_scancode(unsigned char scancode, int pressed)
 	 _handle_pckey(0xE0);
       }
 
+      /* dirty hack to let Allegro for Windows use the DOS/Linux way of handling CapsLock */
+      if (((scancode == DIK_CAPITAL) || (scancode == DIK_LSHIFT) || (scancode == DIK_RSHIFT))
+                                              && pressed && (_key_shifts & KB_CAPSLOCK_FLAG)) {
+         keybd_event(VK_CAPITAL, 0, 0, 0);
+         keybd_event(VK_CAPITAL, 0, KEYEVENTF_KEYUP, 0);
+      }
+
       _handle_pckey((scancode & 0x7F) | (pressed ? 0 : 0x80));
    }
 }
@@ -199,8 +206,24 @@ static void key_dinput_handle(void)
 int key_dinput_acquire(void)
 {
    HRESULT hr;
+   char key_state[256];
 
    if (key_dinput_device) {
+      /* Read the current keyboard state */
+      GetKeyboardState(key_state);
+
+      if (( (key_state[VK_NUMLOCK] & 1) && !(_key_shifts & KB_NUMLOCK_FLAG)) ||
+          (!(key_state[VK_NUMLOCK] & 1) &&  (_key_shifts & KB_NUMLOCK_FLAG))) {
+         _handle_pckey(DIK_NUMLOCK);
+         _handle_pckey(DIK_NUMLOCK | 0x80);
+      }
+
+      if (( (key_state[VK_CAPITAL] & 1) && !(_key_shifts & KB_CAPSLOCK_FLAG)) ||
+          (!(key_state[VK_CAPITAL] & 1) &&  (_key_shifts & KB_CAPSLOCK_FLAG))) {
+         _handle_pckey(DIK_CAPITAL);
+         _handle_pckey(DIK_CAPITAL | 0x80);
+      }
+ 
       hr = IDirectInputDevice_Acquire(key_dinput_device);
 
       if (FAILED(hr)) {

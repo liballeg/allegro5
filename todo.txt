@@ -14,9 +14,15 @@ General (Platform independant) todos:
 - Even newer GFX_SAFE behaviour (return error instead of quitting)
 - New example to test P3D scene rendering
 
+DOS todos:
+---------------------------------------------------------------------------
+
+- Fix the mouse bug under Win2k
+
 Win32 todos:
 ---------------------------------------------------------------------------
 
+- Add backward playing to the DirectSound driver
 
 Linux todos:
 ---------------------------------------------------------------------------
@@ -88,5 +94,8 @@ Wishlist
 - function to get a list of supported video modes
 - hook function to handle window resizing
 - dynamically linked wrappers for drivers under Linux
+- function to get the desktop resolution in windowed environments
+- DirectInput 5 joystick driver
+- DirectMusic 6 MIDI driver
 
 ---------------------------------------------------------------------------
