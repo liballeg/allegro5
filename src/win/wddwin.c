@@ -209,9 +209,9 @@ static INLINE int is_not_contained(RECT *rect1, RECT *rect2)
         (rect1->top    < rect2->top)    ||
         (rect1->right  > rect2->right)  ||
         (rect1->bottom > rect2->bottom) )
-      return 1;
+      return TRUE;
    else
-      return 0;
+      return FALSE;
 }
 
 
@@ -298,8 +298,10 @@ static void update_colorconv_window(RECT* rect)
                                        (GetForegroundWindow() != allegro_wnd)) {
       /* first blit to the pre-converted offscreen buffer */
       if (ddsurf_blit_ex(preconv_offscreen_surface, &src_rect,
-                         BMP_EXTRA(pseudo_screen)->surf, &src_rect) != 0)
+                         BMP_EXTRA(pseudo_screen)->surf, &src_rect) != 0) {
+         _exit_gfx_critical();
          return;
+      }
  
       /* blit preconverted offscreen buffer to the window (clipping done by DirectDraw) */
       IDirectDrawSurface2_Blt(dd_prim_surface, &dest_rect,
