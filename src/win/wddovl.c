@@ -102,7 +102,8 @@ static void switch_in_overlay(void)
 
 
 /* update_overlay:
- *  moves and resizes the overlay surface to make it fit into the specified area
+ *  Moves and resizes the overlay surface to make it fit
+ *  into the specified area.
  */
 static int update_overlay(int x, int y, int w, int h)
 {
@@ -127,7 +128,7 @@ static int update_overlay(int x, int y, int w, int h)
 
 
 /* show_overlay:
- *  makes the overlay surface visible on the primary surface
+ *  Makes the overlay surface visible on the primary surface.
  */
 static void show_overlay(void)
 {
@@ -140,7 +141,7 @@ static void show_overlay(void)
 
 
 /* move_overlay:
- *  moves the overlay surface
+ *  Moves the overlay surface.
  */
 static void move_overlay(int x, int y, int w, int h)
 {
@@ -160,7 +161,7 @@ static void move_overlay(int x, int y, int w, int h)
 
 
 /* hide_overlay:
- *  makes the overlay surface invisible on the primary surface
+ *  Makes the overlay surface invisible on the primary surface.
  */
 static void hide_overlay(void)
 {
@@ -180,8 +181,8 @@ static void hide_overlay(void)
  */
 static void paint_overlay(RECT *rect)
 {
-   /* we may have lost the DirectDraw surfaces
-    * (e.g after the monitor has gone to low power)
+   /* We may have lost the DirectDraw surfaces, for example
+    * after the monitor has gone to low power.
     */
    if (IDirectDrawSurface2_IsLost(primary_surface->id))
       switch_in_overlay();
@@ -190,7 +191,7 @@ static void paint_overlay(RECT *rect)
 
 
 /* wnd_set_windowed_coop:
- *  sets the DirectDraw cooperative level to normal
+ *  Sets the DirectDraw cooperative level to normal.
  */
 static int wnd_set_windowed_coop(void)
 {
@@ -208,7 +209,7 @@ static int wnd_set_windowed_coop(void)
 
 
 /* setup_driver_desc:
- *  sets up the driver description string
+ *  Sets up the driver description string.
  */
 static void setup_driver_desc(void)
 {
@@ -224,11 +225,10 @@ static void setup_driver_desc(void)
 
 
 /* gfx_directx_show_video_bitmap_ovl:
- *  driver-specific method for show_video_bitmap()
  */
 static int gfx_directx_show_video_bitmap_ovl(struct BITMAP *bitmap)
 {
-   if (gfx_directx_show_video_bitmap(bitmap)) {
+   if (gfx_directx_show_video_bitmap(bitmap) != 0) {
       return -1;
    }
    else {
@@ -241,11 +241,10 @@ static int gfx_directx_show_video_bitmap_ovl(struct BITMAP *bitmap)
 
 
 /* gfx_directx_request_video_bitmap_ovl:
- *  driver-specific method for request_video_bitmap()
  */
 static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
 {
-   if (gfx_directx_request_video_bitmap(bitmap)) {
+   if (gfx_directx_request_video_bitmap(bitmap) != 0) {
       return -1;
    }
    else {
@@ -258,7 +257,7 @@ static int gfx_directx_request_video_bitmap_ovl(struct BITMAP *bitmap)
 
 
 /* create_overlay:
- *  creates the overlay surface
+ *  Creates the overlay surface.
  */
 static int create_overlay(int w, int h, int color_depth)
 {
@@ -275,7 +274,7 @@ static int create_overlay(int w, int h, int color_depth)
 
 
 /* init_directx_ovl:
- *  initializes the driver
+ *  Initializes the driver.
  */
 static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color_depth)
 {
@@ -324,9 +323,9 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
    if (create_overlay(w, h, color_depth) != 0)
       goto Error;
 
-   /* handle hardware limitations: according to the DirectX SDK, "these restrictions
+   /* Handle hardware limitations: according to the DirectX SDK, "these restrictions
     * can vary depending on the pixel formats of the overlay and primary surface", so
-    * we handle them after creating the surfaces
+    * we handle them after creating the surfaces.
     */
    ddcaps.dwSize = sizeof(ddcaps);
    hr = IDirectDraw2_GetCaps(directdraw, &ddcaps, NULL);
@@ -368,7 +367,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
    forefront_bitmap = make_bitmap_from_surface(overlay_surface, w, h, BMP_ID_VIDEO);
 
-   /* display the overlay surface */
+   /* set the overlay color key */
    key.dwColorSpaceLowValue = forefront_bitmap->vtable->mask_color;
    key.dwColorSpaceHighValue = forefront_bitmap->vtable->mask_color;
 
@@ -378,6 +377,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
       goto Error;
    }
 
+   /* display the overlay surface */
    show_overlay();
 
    /* use hardware accelerated primitives */
@@ -411,7 +411,7 @@ static struct BITMAP *init_directx_ovl(int w, int h, int v_w, int v_h, int color
 
 
 /* gfx_directx_ovl_exit:
- *  shuts down the driver
+ *  Shuts down the driver.
  */
 static void gfx_directx_ovl_exit(struct BITMAP *bmp)
 {
